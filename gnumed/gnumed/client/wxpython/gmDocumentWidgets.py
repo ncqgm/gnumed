@@ -2966,6 +2966,7 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 		event.Skip()
 		if self.__pacs is None:
 			return
+
 		study_data = self._LCTRL_studies.get_selected_item_data(only_one = True)
 		if study_data is None:
 			return
@@ -3011,6 +3012,9 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 	#--------------------------------------------------------
 	def _on_modify_orthanc_content_button_pressed(self, event):
 		event.Skip()
+		if self.__pacs is None:
+			return
+
 		dlg = cModifyOrthancContentDlg(self, -1, server = self.__pacs)
 		dlg.ShowModal()
 		dlg.Destroy()
@@ -3019,6 +3023,9 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 	#--------------------------------------------------------
 	def _on_upload_button_pressed(self, event):
 		event.Skip()
+		if self.__pacs is None:
+			return
+
 		dlg = wx.DirDialog (
 			self,
 			message = _('Select the directory from which to recursively upload DICOM files.'),

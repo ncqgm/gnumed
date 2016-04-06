@@ -653,7 +653,7 @@ def get_unique_filename(prefix=None, suffix=None, tmp_dir=None):
 	}
 
 	if prefix is None:
-		kwargs['prefix'] = 'gnumed-'
+		kwargs['prefix'] = 'gmd-'
 	else:
 		kwargs['prefix'] = prefix
 

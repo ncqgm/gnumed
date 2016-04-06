@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-03-31 14:50+0200\n"
+"POT-Creation-Date: 2016-04-06 11:40+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -6848,7 +6848,7 @@ msgstr ""
 
 #, python-format
 msgid ""
-"%(l10n_type)s: %(street)s %(number)s%(subunit)s, %(zip)s %(urb)s %(suburb)s, "
+"%(type)s: %(street)s %(number)s%(subunit)s, %(zip)s %(urb)s %(suburb)s, "
 "%(code_region)s, %(code_country)s (%(l10n_region)s, %(l10n_country)s)"
 msgstr ""
 
@@ -6860,7 +6860,7 @@ msgstr ""
 
 #, python-format
 msgid ""
-"%(l10n_type)s: %(street)s %(number)s%(subunit)s, %(zip)s %(urb)s, "
+"%(type)s: %(street)s %(number)s%(subunit)s, %(zip)s %(urb)s, "
 "%(code_region)s, %(code_country)s (%(l10n_region)s, %(l10n_country)s)"
 msgstr ""
 
@@ -12143,7 +12143,14 @@ msgid ""
 "SHIFT> or <CTRL-ALT>) while clicking."
 msgstr ""
 
-msgid "List Item Actions:"
+msgid "List Item Actions"
+msgstr ""
+
+msgid "List Item Actions (selected: 1 entry)"
+msgstr ""
+
+#, python-format
+msgid "List Item Actions (selected: %s entries)"
 msgstr ""
 
 msgid "Add (<INS>)"
@@ -12159,24 +12166,36 @@ msgstr ""
 msgid "Find next [%s] (<CTRL-N>)"
 msgstr ""
 
-msgid "Row tooltip"
+msgid "Tooltips of selected rows"
 msgstr ""
 
-msgid "Row data (formatted as text)"
+msgid "Data (formatted as text) of selected rows"
 msgstr ""
 
-msgid "Row content (as one line)"
+msgid "Content (as one line each) of selected rows"
 msgstr ""
 
-msgid "Row content (one line per column)"
+msgid "Tooltip of current row"
+msgstr ""
+
+msgid "Data (formatted as text) of current row"
+msgstr ""
+
+msgid "Content (as one line) of current row"
+msgstr ""
+
+msgid "Content (one line per column) of current row"
 msgstr ""
 
 #, python-format
-msgid "Column &%s: \"%s\" [#%s]"
+msgid "Column &%s (current row): \"%s\" [#%s]"
 msgstr ""
 
 #, python-format
-msgid "Column &%s: %s"
+msgid "Column &%s (current row): %s"
+msgstr ""
+
+msgid "Copy to e&xport area..."
 msgstr ""
 
 msgid "&Copy to clipboard..."
