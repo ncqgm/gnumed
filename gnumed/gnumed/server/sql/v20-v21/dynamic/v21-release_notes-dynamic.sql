@@ -17,32 +17,27 @@ INSERT INTO dem.message_inbox (
 ) VALUES (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
-	'Release Notes for GNUmed 1.6.2 (database v21.2)',
-	'GNUmed 1.6.2 Release Notes:
+	'Release Notes for GNUmed 1.6.3 (database v21.3)',
+	'GNUmed 1.6.3 Release Notes:
 
-	1.6.2
+	1.6.3
 
-FIX: exception create consumable substance by ATC
-FIX: exception on showing files of new document
-FIX: exception on saving new document
-FIX: exception on saving substance abuse entry
-FIX: exception on attempting to apply sorting outside list column
+FIX: exception on creating invoice from bill [thanks Marc]
+FIX: faulty assumption on what %()s keys must exist in translations
+FIX: exception in expando SOAP editor when lines need wrapping [thanks Marc]
+FIX: exception on saving progress note under new episode [thanks Marc]
+FIX: exception on deleting list items [thanks Marc]
+FIX: exception on building list context menu [thanks Marc]
+FIX: exception in measurements widget on client idling w/o patient [thanks Marc]
 
-	1.6.1
+IMPROVED: add httplib2 to check-prerequisites.py [thanks Marc]
+IMPROVED: single-line formatting of addresses
+IMPROVED: enhance list context menu to selected rows
 
-FIX: gm-describe_file missing in tarball
+	21.3
 
-IMPROVED: manpages for gm-create_dicomdir/gm-create_datamatrix
-
-	21.2
-
-NEW: implement commenting out of plausibility checks
-
-IMPROVED: run all plausibility checks even if any fail
-IMPROVED: more resilience against malformed plausibility checks
-
-FIX: inaccurate dem.v_staff plausibility check [thanks Marc]
+FIX: GRANTs on demographics views [thanks Marc]
 ');
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('v21-release_notes-dynamic.sql', '21.2');
+select gm.log_script_insertion('v21-release_notes-dynamic.sql', '21.3');
