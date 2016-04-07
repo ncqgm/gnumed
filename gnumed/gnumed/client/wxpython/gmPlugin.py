@@ -252,7 +252,7 @@ class cPatientChange_PluginMixin:
 	# -----------------------------------------------------
 	def _on_current_patient_unset(self, **kwds):
 #		print "%s._on_current_patient_unset() not implemented" % self.__class__.__name__
-#		print "should usually be used to empty to UI"
+#		print "should usually be used to empty the UI"
 		pass
 
 	# -----------------------------------------------------
