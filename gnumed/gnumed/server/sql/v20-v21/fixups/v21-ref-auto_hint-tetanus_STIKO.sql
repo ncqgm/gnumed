@@ -29,17 +29,20 @@ insert into ref.auto_hint(title, hint, source, lang, query, recommendation_query
 		date_given DESC
 	LIMIT 1
 );',
-	'SELECT
-	''Letzte Tetanusimpfung: '' || to_char(date_given, ''YYYY Mon DD'')
-FROM clin.v_pat_vaccs4indication
-WHERE
-	pk_patient = ID_ACTIVE_PATIENT
-		AND
-	indication = ''tetanus''
-ORDER BY
-	date_given DESC
-LIMIT 1'
+	'SELECT coalesce (
+	(SELECT
+		''Letzte Tetanusimpfung: '' || to_char(date_given, ''YYYY Mon DD'')
+	FROM clin.v_pat_vaccs4indication
+	WHERE
+		pk_patient = ID_ACTIVE_PATIENT
+			AND
+		indication = ''tetanus''
+	ORDER BY
+		date_given DESC
+	LIMIT 1),
+	''keine Tetanusimpfung dokumentiert''
+) as recommendation;'
 );
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('v21-ref-auto_hint-tetanus_STIKO.sql', '21.4');
+SELECT gm.log_script_insertion('v21-ref-auto_hint-tetanus_STIKO.sql', '21.4');
