@@ -6,6 +6,12 @@
 # rel-1-6-patches
 ------------------------------------------------
 
+	1.6.4
+
+IMPROVED: by-org sort mode in document tree
+IMPROVED: file describer script
+IMPROVED: STIKO tetanus auto hint
+
 	1.6.3
 
 FIX: exception on creating invoice from bill [thanks Marc]

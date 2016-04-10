@@ -199,7 +199,7 @@ def save_files_as_new_document(parent=None, filenames=None, document_type=None, 
 	if reference is not None:
 		doc['ext_ref'] = reference
 	if pk_org_unit is not None:
-		doc['pk_org_unit'] = gmPraxis.gmCurrentPraxisBranch()['pk_org_unit']
+		doc['pk_org_unit'] = pk_org_unit
 	if date_generated is not None:
 		doc['clin_when'] = date_generated
 	if comment is not None:
@@ -1443,6 +1443,11 @@ class cSelectablySortedDocTreePnl(wxgSelectablySortedDocTreePnl.wxgSelectablySor
 		self._doc_tree.sort_mode = 'type'
 		self._doc_tree.SetFocus()
 		self._rbtn_sort_by_type.SetValue(True)
+	#--------------------------------------------------------
+	def _on_sort_by_org_selected(self, evt):
+		self._doc_tree.sort_mode = 'org'
+		self._doc_tree.SetFocus()
+		self._rbtn_sort_by_org.SetValue(True)
 
 #============================================================
 class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.ExpansionState):
@@ -1452,7 +1457,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 
 	This acts on the current patient.
 	"""
-	_sort_modes = ['age', 'review', 'episode', 'type', 'issue']
+	_sort_modes = ['age', 'review', 'episode', 'type', 'issue', 'org']
 	_root_node_labels = None
 	#--------------------------------------------------------
 	def __init__(self, parent, id, *args, **kwds):
@@ -1470,7 +1475,8 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 			'review': tmp % unsigned,
 			'episode': tmp % _('sorted by episode'),
 			'issue': tmp % _('sorted by health issue'),
-			'type': tmp % _('sorted by type')
+			'type': tmp % _('sorted by type'),
+			'org': tmp % _('sorted by organization')
 		}
 
 		self.root = None
@@ -1758,6 +1764,25 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 					self.SetItemHasChildren(intermediate_nodes[inter_label], True)
 				parent = intermediate_nodes[inter_label]
 
+			elif self.__sort_mode == 'org':
+				if doc['pk_org'] is None:
+					inter_label = _('unknown organization')
+				else:
+					inter_label = doc['organization']
+				doc_label = _('%s%7s %s:%s (%s)') % (
+					gmTools.bool2subst(doc.has_unreviewed_parts, gmTools.u_writing_hand, u'', u'?'),
+					doc['clin_when'].strftime('%m/%Y'),
+					doc['l10n_type'][:26],
+					gmTools.coalesce(initial = doc['comment'], instead = u'', template_initial = u' %s'),
+					no_parts
+				)
+				if inter_label not in intermediate_nodes:
+					intermediate_nodes[inter_label] = self.AppendItem(parent = self.root, text = inter_label)
+					self.SetItemBold(intermediate_nodes[inter_label], bold = True)
+					self.SetItemPyData(intermediate_nodes[inter_label], None)
+					self.SetItemHasChildren(intermediate_nodes[inter_label], True)
+				parent = intermediate_nodes[inter_label]
+
 			else:
 				doc_label = _('%s%7s %s:%s (%s)') % (
 					gmTools.bool2subst(doc.has_unreviewed_parts, gmTools.u_writing_hand, u'', u'?'),
@@ -1819,7 +1844,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 		# expand intermediate nodes as well
 		if self.__expanded_nodes is None:
 			# but only if there are any
-			if self.__sort_mode in ['episode', 'type', 'issue']:
+			if self.__sort_mode in ['episode', 'type', 'issue', 'org']:
 				for key in intermediate_nodes.keys():
 					self.Expand(intermediate_nodes[key])
 
@@ -1906,6 +1931,26 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 				if data1['l10n_type'] < data2['l10n_type']:
 					return -1
 				if data1['l10n_type'] == data2['l10n_type']:
+					# inner sort: reverse by date
+					if data1[date_field] > data2[date_field]:
+						return -1
+					if data1[date_field] == data2[date_field]:
+						return 0
+					return 1
+				return 1
+
+			elif self.__sort_mode == 'org':
+				if (data1['organization'] is None) and (data2['organization'] is None):
+					return 0
+				if (data1['organization'] is None) and (data2['organization'] is not None):
+					return 1
+				if (data1['organization'] is not None) and (data2['organization'] is None):
+					return -1
+				txt1 = u'%s %s' % (data1['organization'], data1['unit'])
+				txt2 = u'%s %s' % (data2['organization'], data2['unit'])
+				if txt1 < txt2:
+					return -1
+				if txt1 == txt2:
 					# inner sort: reverse by date
 					if data1[date_field] > data2[date_field]:
 						return -1
