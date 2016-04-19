@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-04-06 11:40+0200\n"
+"POT-Creation-Date: 2016-04-18 21:14+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -4801,19 +4801,16 @@ msgstr ""
 msgid "Close this dialog."
 msgstr ""
 
-msgid "age"
+msgid "Age"
 msgstr ""
 
-msgid "review status"
+msgid "Review status"
 msgstr ""
 
-msgid "episode"
+msgid "Health issue"
 msgstr ""
 
-msgid "health issue"
-msgstr ""
-
-msgid "type"
+msgid "Organization"
 msgstr ""
 
 msgid "Sort newest documents to top of tree."
@@ -4829,6 +4826,9 @@ msgid "Sort documents by the health issue they belong to."
 msgstr ""
 
 msgid "Sort documents by their type."
+msgstr ""
+
+msgid "Sort documents by the organization they are from."
 msgstr ""
 
 msgid "Sort documents by"
@@ -5096,9 +5096,6 @@ msgid "The name of the organizational unit."
 msgstr ""
 
 msgid "The category of the organizational unit."
-msgstr ""
-
-msgid "Organization"
 msgstr ""
 
 msgid "Unit"
@@ -6953,9 +6950,6 @@ msgstr ""
 msgid "missing, reported later"
 msgstr ""
 
-msgid "Health issue"
-msgstr ""
-
 msgid "External care"
 msgstr ""
 
@@ -8589,6 +8583,9 @@ msgid "when"
 msgstr ""
 
 msgid "who"
+msgstr ""
+
+msgid "type"
 msgstr ""
 
 msgid "entry"
@@ -10647,9 +10644,6 @@ msgid "Notes"
 msgstr ""
 
 msgid "Progress Note"
-msgstr ""
-
-msgid "Age"
 msgstr ""
 
 msgid "N/A"
@@ -13633,6 +13627,9 @@ msgstr ""
 msgid "sorted by type"
 msgstr ""
 
+msgid "sorted by organization"
+msgstr ""
+
 msgid "Cannot load documents. No active patient."
 msgstr ""
 
@@ -13716,6 +13713,9 @@ msgstr ""
 
 #, python-format
 msgid "%s (unattributed episode)"
+msgstr ""
+
+msgid "unknown organization"
 msgstr ""
 
 #, python-format

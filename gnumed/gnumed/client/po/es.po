@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-04-06 11:40+0200\n"
+"POT-Creation-Date: 2016-04-18 21:14+0200\n"
 "PO-Revision-Date: 2016-02-24 18:28+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: colombiano <es@li.org>\n"
@@ -5552,20 +5552,18 @@ msgstr "editar los detalles del contacto"
 msgid "Close this dialog."
 msgstr "Cerrar este diálogo."
 
-msgid "age"
-msgstr "edad"
+msgid "Age"
+msgstr "Edad"
 
-msgid "review status"
+#, fuzzy
+msgid "Review status"
 msgstr "revisar estado"
 
-msgid "episode"
-msgstr "episodio"
+msgid "Health issue"
+msgstr "Problema de salud"
 
-msgid "health issue"
-msgstr "problema de salud"
-
-msgid "type"
-msgstr "tipo"
+msgid "Organization"
+msgstr "Organización"
 
 msgid "Sort newest documents to top of tree."
 msgstr "Ordenar los documentos más nuevos al principio del árbol."
@@ -5581,6 +5579,10 @@ msgstr "Ordene documentos por el problema de salud al cual pertenecen."
 
 msgid "Sort documents by their type."
 msgstr "Ordenar documentos por tipo."
+
+#, fuzzy
+msgid "Sort documents by the organization they are from."
+msgstr "Ordenar documentos por el episodio al que pertenecen."
 
 msgid "Sort documents by"
 msgstr "Ordenar documentos por"
@@ -5907,9 +5909,6 @@ msgstr "El nombre de la unidad de la organización."
 msgid "The category of the organizational unit."
 msgstr "La categoría de la unidad de la organización."
 
-msgid "Organization"
-msgstr "Organización"
-
 msgid "Unit"
 msgstr "Unidad de medida"
 
@@ -6020,13 +6019,14 @@ msgid "&Event"
 msgstr "Evento"
 
 msgid "Order by start of encounter a chart entry is linked to."
-msgstr ""
+msgstr "Ordeno por inicio del encuentro enlazado a un ingreso de cartilla."
 
 msgid "Order by time of most recent edit of each chart entry."
-msgstr ""
+msgstr "Ordeno por hora de la más reciente edición de ingreso de cartilla."
 
 msgid "Order by time documented as actual occurrence of each chart entry."
 msgstr ""
+"Ordeno por hora documentada como ocurrencia real de cada ingreso de cartilla."
 
 msgid "Edit the selected chart entry."
 msgstr "Edito el ingreso de cartilla seleccionado."
@@ -8027,9 +8027,6 @@ msgstr "resultado correcto"
 msgid "missing, reported later"
 msgstr "perdido, reportado posteriormente"
 
-msgid "Health issue"
-msgstr "Problema de salud"
-
 msgid "External care"
 msgstr "Cuidado externo"
 
@@ -9800,6 +9797,9 @@ msgstr "cuándo"
 
 msgid "who"
 msgstr "quién"
+
+msgid "type"
+msgstr "tipo"
 
 msgid "entry"
 msgstr "ingreso"
@@ -12144,9 +12144,6 @@ msgstr "Notas"
 msgid "Progress Note"
 msgstr "Nota de Progreso"
 
-msgid "Age"
-msgstr "Edad"
-
 msgid "N/A"
 msgstr "N/D"
 
@@ -13958,17 +13955,17 @@ msgid "Find next [%s] (<CTRL-N>)"
 msgstr "Encuentra siguiente [%s] (<CTRL-N>)"
 
 msgid "Tooltips of selected rows"
-msgstr ""
+msgstr "Herramientas de ayuda sobre filas seleccionadas"
 
 #, fuzzy
 msgid "Data (formatted as text) of selected rows"
 msgstr "Datos de fila (en una linea)"
 
 msgid "Content (as one line each) of selected rows"
-msgstr ""
+msgstr "Contenido (individual por linea) de las filas seleccionadas"
 
 msgid "Tooltip of current row"
-msgstr ""
+msgstr "Herrmienta de ayuda de la fila actual"
 
 #, fuzzy
 msgid "Data (formatted as text) of current row"
@@ -15738,6 +15735,10 @@ msgstr "ordenado por tema de salud"
 msgid "sorted by type"
 msgstr "ordenado por tipo"
 
+#, fuzzy
+msgid "sorted by organization"
+msgstr "Agregando una nueva organización"
+
 msgid "Cannot load documents. No active patient."
 msgstr "No se pueden cargar documentos. No hay paciente activo."
 
@@ -15822,6 +15823,10 @@ msgstr "%s%7s (%s):%s (%s)"
 #, python-format
 msgid "%s (unattributed episode)"
 msgstr "%s (episodio no atribuido)"
+
+#, fuzzy
+msgid "unknown organization"
+msgstr "reacción desconocida"
 
 #, python-format
 msgid "part %2s"
@@ -20893,6 +20898,15 @@ msgstr "Aborto"
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Aborto y NO conecto a GNUMed."
+
+#~ msgid "age"
+#~ msgstr "edad"
+
+#~ msgid "episode"
+#~ msgstr "episodio"
+
+#~ msgid "health issue"
+#~ msgstr "problema de salud"
 
 #~ msgid "Row tooltip"
 #~ msgstr "Fila de herramienta de ayuda"
