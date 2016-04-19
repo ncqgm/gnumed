@@ -8,6 +8,8 @@
 
 	1.6.4
 
+FIX: EMR journal exporter on Windows [thanks Marc]
+
 IMPROVED: by-org sort mode in document tree
 IMPROVED: file describer script
 IMPROVED: STIKO tetanus auto hint
