@@ -40,6 +40,7 @@ from Gnumed.business import gmForms
 from Gnumed.business import gmPersonSearch
 from Gnumed.business import gmOrganization
 from Gnumed.business import gmHL7
+from Gnumed.business import gmIncomingData
 
 from Gnumed.wxpython import gmRegetMixin
 from Gnumed.wxpython import gmPlugin
@@ -270,10 +271,10 @@ def browse_incoming_unmatched(parent=None):
 		)
 		if not do_delete:
 			return False
-		return gmHL7.delete_incoming_data(pk_incoming_data = staged_item['pk_incoming_data_unmatched'])
+		return gmIncomingData.delete_incoming_data(pk_incoming_data = staged_item['pk_incoming_data_unmatched'])
 	#------------------------------------------------------------
 	def refresh(lctrl):
-		incoming = gmHL7.get_incoming_data()
+		incoming = gmIncomingData.get_incoming_data()
 		items = [ [
 			gmTools.coalesce(i['data_type'], u''),
 			u'%s, %s (%s) %s' % (
