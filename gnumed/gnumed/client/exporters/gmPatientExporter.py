@@ -19,10 +19,10 @@ import shutil
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmI18N
-if __name__ == '__main__':
+	from Gnumed.pycommon import gmI18N
 	gmI18N.activate_locale()
 	gmI18N.install_domain()
+
 from Gnumed.pycommon import gmExceptions
 from Gnumed.pycommon import gmPG2
 from Gnumed.pycommon import gmTools
@@ -940,7 +940,7 @@ class cEMRJournalExporter:
 		f.write(u'\n')
 		f.write(_('Patient: %s (%s), No: %s\n') % (patient['description'], patient['gender'], patient['pk_identity']))
 		f.write(_('Born   : %s, age: %s\n\n') % (
-			patient.get_formatted_dob(format = '%Y %b %d', encoding = gmI18N.get_encoding()),
+			patient.get_formatted_dob(format = '%Y %b %d', encoding = 'utf8'),
 			patient.get_medical_age()
 		))
 
@@ -1017,14 +1017,14 @@ class cEMRJournalExporter:
 		@type target: a python object supporting the write() API
 		@type patient: <cPerson> instance
 		"""
-		txt = _('Chronological EMR Journal\n')
+		txt = _(u'Chronological EMR Journal\n')
 		target.write(txt)
 		target.write(u'=' * (len(txt)-1))
 		target.write(u'\n')
 		# demographics
-		target.write(_('Patient: %s (%s), No: %s\n') % (patient['description'], patient['gender'], patient['pk_identity']))
-		target.write(_('Born   : %s, age: %s\n\n') % (
-			patient.get_formatted_dob(format = '%Y %b %d', encoding = gmI18N.get_encoding()),
+		target.write(_(u'Patient: %s (%s), No: %s\n') % (patient['description'], patient['gender'], patient['pk_identity']))
+		target.write(_(u'Born   : %s, age: %s\n\n') % (
+			patient.get_formatted_dob(format = '%Y %b %d', encoding = 'utf8'),
 			patient.get_medical_age()
 		))
 		for ext_id in patient.external_ids:
@@ -1044,12 +1044,12 @@ class cEMRJournalExporter:
 		))
 		target.write(u'%s %10.10s %s %9.9s %s     %s %s\n' % (
 			gmTools.u_box_vert_light,
-			_('Encounter'),
+			_(u'Encounter'),
 			gmTools.u_box_vert_light,
-			_('Doc'),
+			_(u'Doc'),
 			gmTools.u_box_vert_light,
 			gmTools.u_box_vert_light,
-			_('Narrative')
+			_(u'Narrative')
 		))
 		target.write(u'%s%12.12s%s%11.11s%s%s%s%72.72s\n' % (
 			gmTools.u_box_T_right,
@@ -1153,7 +1153,7 @@ class cEMRJournalExporter:
 			gmTools.u_box_horiz_single * self.__narrative_wrap_len
 		))
 
-		target.write(_('Exported: %s\n') % gmDateTime.pydt_strftime(gmDateTime.pydt_now_here(), format = '%Y %b %d  %H:%M:%S'))
+		target.write(_(u'Exported: %s\n') % gmDateTime.pydt_strftime(gmDateTime.pydt_now_here(), format = '%Y %b %d  %H:%M:%S'))
 
 		return
 
