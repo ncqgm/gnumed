@@ -15,6 +15,8 @@ IMPROVED: file describer script
 IMPROVED: STIKO tetanus auto hint
 IMPROVED: ES translation [thanks Uwe]
 
+NEW: gm-import_incoming script for external use
+
 	1.6.3
 
 FIX: exception on creating invoice from bill [thanks Marc]
