@@ -217,6 +217,12 @@ cp -R ../../client/exporters/gmPatientExporter.py ./gnumed-client.$CLIENTREV/cli
 cp -R ../../client/exporters/timeline.py ./gnumed-client.$CLIENTREV/client/exporters
 
 
+# importers
+mkdir -p ./gnumed-client.$CLIENTREV/client/importers/
+cp -R ../../client/importers/__init__.py ./gnumed-client.$CLIENTREV/client/importers
+cp -R ../../client/importers/gmImportIncoming.py ./gnumed-client.$CLIENTREV/client/importers
+
+
 # locale
 mkdir -p ./gnumed-client.$CLIENTREV/client/po/
 
