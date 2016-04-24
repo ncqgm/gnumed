@@ -24,9 +24,11 @@ import logging
 import thread
 import time
 import locale
+import os
+import io
+import csv
 import re as regex
-#import io
-#import csv
+import datetime as pydt
 
 
 import wx
@@ -34,6 +36,7 @@ import wx.lib.mixins.listctrl as listmixins
 
 
 from Gnumed.pycommon import gmTools
+from Gnumed.pycommon import gmDispatcher
 
 
 _log = logging.getLogger('gm.list_ui')
@@ -1139,6 +1142,7 @@ class cItemPickerDlg(wxgItemPickerDlg.wxgItemPickerDlg):
 		self._LCTRL_right.set_column_widths()
 #		print u'%s <-> %s (items)' % (self._LCTRL_left.ItemCount, self._LCTRL_right.ItemCount)
 #		print u'%s <-> %s (data)' % (len(self._LCTRL_left.data), len(self._LCTRL_right.data))
+
 	#------------------------------------------------------------
 	def __remove_selected_picks(self):
 		if self._LCTRL_right.get_selected_items(only_one = True) == -1:
@@ -1152,6 +1156,7 @@ class cItemPickerDlg(wxgItemPickerDlg.wxgItemPickerDlg):
 
 #		print u'%s <-> %s (items)' % (self._LCTRL_left.ItemCount, self._LCTRL_right.ItemCount)
 #		print u'%s <-> %s (data)' % (len(self._LCTRL_left.data), len(self._LCTRL_right.data))
+
 	#------------------------------------------------------------
 	# event handlers
 	#------------------------------------------------------------
@@ -1473,7 +1478,7 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 		labels = []
 		for col_idx in range(self.ColumnCount):
 			col = self.GetColumn(col = col_idx)
-			labels.append(col.GetText())
+			labels.append(col.Text)
 		return labels
 
 	column_labels = property(get_column_labels, lambda x:x)
@@ -1634,12 +1639,27 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 			self._rclicked_row_cells.append(cell_content)
 			self._rclicked_row_cells_w_hdr.append(u'%s: %s' % (col_header, cell_content))
 
-#		# export area
-#		exp_menu = wx.Menu()
-#		menu_item = exp_menu.Append(-1, _('&All rows as CSV'))
-#		self.Bind(wx.EVT_MENU, self._all_rows2export_area, menu_item)
-#		menu_item = exp_menu.Append(-1, _('&Selected rows as CSV'))
-#		self.Bind(wx.EVT_MENU, self._selected_rows2export_area, menu_item)
+		# save to file
+		save_menu = wx.Menu()
+		menu_item = save_menu.Append(-1, _('&All rows'))
+		self.Bind(wx.EVT_MENU, self._all_rows2file, menu_item)
+		menu_item = save_menu.Append(-1, _('All rows as &CSV'))
+		self.Bind(wx.EVT_MENU, self._all_rows2csv, menu_item)
+		menu_item = save_menu.Append(-1, _('&Tooltips of all rows'))
+		self.Bind(wx.EVT_MENU, self._all_row_tooltips2file, menu_item)
+		menu_item = save_menu.Append(-1, _('&Data of all rows'))
+		self.Bind(wx.EVT_MENU, self._all_row_data2file, menu_item)
+
+		if no_of_selected_items > 1:
+			save_menu.AppendSeparator()
+			menu_item = save_menu.Append(-1, _('&Selected rows'))
+			self.Bind(wx.EVT_MENU, self._selected_rows2file, menu_item)
+			menu_item = save_menu.Append(-1, _('&Selected rows as CSV'))
+			self.Bind(wx.EVT_MENU, self._selected_rows2csv, menu_item)
+			menu_item = save_menu.Append(-1, _('&Tooltips of selected rows'))
+			self.Bind(wx.EVT_MENU, self._selected_row_tooltips2file, menu_item)
+			menu_item = save_menu.Append(-1, _('&Data of selected rows'))
+			self.Bind(wx.EVT_MENU, self._selected_row_data2file, menu_item)
 
 		# 1) set clipboard to item
 		clip_menu = wx.Menu()
@@ -1751,8 +1771,7 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 				clip_add_menu.AppendMenu(-1, _(u'Column &%s (current row): %s') % (col_idx+1, col_header), col_add_menu)
 
 		# 3) copy item to export area
-		#export_area_menu = wx.Menu()
-		# put into export area
+		# put into file
 		# current row
 		# - fields as one line
 		# - fields as list
@@ -1766,7 +1785,8 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 		# send signal
 
 		# show menu
-		self._context_menu.AppendMenu(-1, _('Copy to e&xport area...'), exp_menu)
+		#self._context_menu.AppendMenu(-1, _('Copy to e&xport area...'), exp_menu)
+		self._context_menu.AppendMenu(-1, _('&Save to file...'), save_menu)
 		self._context_menu.AppendMenu(-1, _('&Copy to clipboard...'), clip_menu)
 		self._context_menu.AppendMenu(-1, _('Append (&+) to clipboard...'), clip_add_menu)
 
@@ -2020,44 +2040,167 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 		evt.Skip()
 		self.__search_match()
 
-#	#------------------------------------------------------------
-#	def _all_rows2export_area(self, evt):
-#		col_labels = self.column_labels
-#
-#		csv_name = gmTools.get_unique_filename(suffix = '.csv')
-#		csv_file = io.open(csv_name, mode = 'wt', encoding = 'utf8')
-#		csv_writer = csv.DictWriter(csv_file, col_labels)
-#		csv_writer.writeheader()
-#
-#		for item_idx in range(self.ItemCount):
-#			row_dict = {}
-#			for col_idx in range(self.ColumnCount):
-#				row_dict[col_labels[col_idx]] = self.GetItem(item_idx, col_idx).Text
-#			csv_writer.writerow(row_dict)
-#
-#		csv_file.close()
-#
-#		# signal export area
-#
-#	#------------------------------------------------------------
-#	def _selected_rows2export_area(self, evt):
-#		col_labels = self.column_labels
-#
-#		csv_name = gmTools.get_unique_filename(suffix = '.csv')
-#		csv_file = io.open(csv_name, mode = 'wb', encoding = 'utf8')
-#		csv_writer = csv.DictWriter(csv_file, col_labels)
-#		csv_writer.writeheader()
-#
-#		for item_idx in self.selected_items:
-#			row_dict = {}
-#			for col_idx in range(self.ColumnCount):
-#				row_dict[col_labels[col_idx]] = self.GetItem(item_idx, col_idx).Text
-#			csv_writer.writerow(row_dict)
-#
-#		csv_file.close()
-#
-#		# signal export area
-#
+	#------------------------------------------------------------
+	def _all_rows2file(self, evt):
+
+		txt_name = os.path.join(gmTools.gmPaths().home_dir, 'gnumed', 'gm-all_rows-%s.txt' % pydt.datetime.now().strftime('%m%d-%H%M%S'))
+		txt_file = io.open(txt_name, mode = 'wt', encoding = 'utf8')
+
+		col_labels = self.column_labels
+		line = u'%s' % u' || '.join(col_labels)
+		txt_file.write(u'%s\n' % line)
+		txt_file.write((u'=' * len(line)) + u'\n')
+
+		for item_idx in range(self.ItemCount):
+			fields = []
+			for col_idx in range(self.ColumnCount):
+				fields.append(self.GetItem(item_idx, col_idx).Text)
+			txt_file.write(u'%s\n' % u' || '.join(fields))
+
+		txt_file.close()
+		gmDispatcher.send(signal = 'statustext', msg = _('All rows saved to [%s].') % txt_name)
+
+	#------------------------------------------------------------
+	def _all_rows2csv(self, evt):
+
+		csv_name = os.path.join(gmTools.gmPaths().home_dir, 'gnumed', 'gm-all_rows-%s.csv' % pydt.datetime.now().strftime('%m%d-%H%M%S'))
+		csv_file = io.open(csv_name, mode = 'wb')
+
+		csv_writer = csv.writer(csv_file)
+		csv_writer.writerow([ l.encode('utf-8') for l in self.column_labels ])
+		for item_idx in range(self.ItemCount):
+			fields = []
+			for col_idx in range(self.ColumnCount):
+				fields.append(self.GetItem(item_idx, col_idx).Text)
+			csv_writer.writerow([ f.encode('utf-8') for f in fields ])
+
+		csv_file.close()
+		gmDispatcher.send(signal = 'statustext', msg = _('All rows saved to [%s].') % csv_name)
+
+	#------------------------------------------------------------
+	def _all_row_tooltips2file(self, evt):
+
+		if (self.__data is None) or (self.__item_tooltip_callback is None):
+			return
+
+		txt_name = os.path.join(gmTools.gmPaths().home_dir, 'gnumed', 'gm-list_tooltips-%s.txt' % pydt.datetime.now().strftime('%m%d-%H%M%S'))
+		txt_file = io.open(txt_name, mode = 'wt', encoding = 'utf8')
+
+		for data in self.data:
+			tt = self.__item_tooltip_callback(data)
+			if tt is None:
+				continue
+			txt_file.write(u'%s\n\n' % tt)
+
+		txt_file.close()
+		gmDispatcher.send(signal = 'statustext', msg = _('All tooltips saved to [%s].') % txt_name)
+
+	#------------------------------------------------------------
+	def _all_row_data2file(self, evt):
+
+		if self.__data is None:
+			return
+
+		txt_name = os.path.join(gmTools.gmPaths().home_dir, 'gnumed', 'gm-list_data-%s.txt' % pydt.datetime.now().strftime('%m%d-%H%M%S'))
+		txt_file = io.open(txt_name, mode = 'wt', encoding = 'utf8')
+
+		for data in self.data:
+			if hasattr(data, 'format'):
+				txt = data.format()
+				if type(txt) is list:
+					txt = u'\n'.join(txt)
+			else:
+				txt = u'%s' % data
+			txt_file.write(u'%s\n\n' % txt)
+
+		txt_file.close()
+		gmDispatcher.send(signal = 'statustext', msg = _('All data saved to [%s].') % txt_name)
+
+	#------------------------------------------------------------
+	def _selected_rows2file(self, evt):
+
+		txt_name = os.path.join(gmTools.gmPaths().home_dir, 'gnumed', 'gm-some_rows-%s.txt' % pydt.datetime.now().strftime('%m%d-%H%M%S'))
+		txt_file = io.open(txt_name, mode = 'wt', encoding = 'utf8')
+
+		col_labels = self.column_labels
+		line = u'%s' % u' || '.join(col_labels)
+		txt_file.write(u'%s\n' % line)
+		txt_file.write((u'=' * len(line)) + u'\n')
+
+		items = self.selected_items
+		if self.__is_single_selection:
+			items = [items]
+
+		for item_idx in items:
+			fields = []
+			for col_idx in range(self.ColumnCount):
+				fields.append(self.GetItem(item_idx, col_idx).Text)
+			txt_file.write(u'%s\n' % u' || '.join(fields))
+
+		txt_file.close()
+		gmDispatcher.send(signal = 'statustext', msg = _('Selected rows saved to [%s].') % txt_name)
+
+	#------------------------------------------------------------
+	def _selected_rows2csv(self, evt):
+
+		csv_name = os.path.join(gmTools.gmPaths().home_dir, 'gnumed', 'gm-some_rows-%s.csv' % pydt.datetime.now().strftime('%m%d-%H%M%S'))
+		csv_file = io.open(csv_name, mode = 'wb')
+
+		csv_writer = csv.writer(csv_file)
+		csv_writer.writerow([ l.encode('utf-8') for l in self.column_labels ])
+
+		items = self.selected_items
+		if self.__is_single_selection:
+			items = [items]
+
+		for item_idx in items:
+			fields = []
+			for col_idx in range(self.ColumnCount):
+				fields.append(self.GetItem(item_idx, col_idx).Text)
+			csv_writer.writerow([ f.encode('utf-8') for f in fields ])
+
+		csv_file.close()
+		gmDispatcher.send(signal = 'statustext', msg = _('Selected rows saved to [%s].') % csv_name)
+
+	#------------------------------------------------------------
+	def _selected_row_tooltips2file(self, evt):
+
+		if (self.__data is None) or (self.__item_tooltip_callback is None):
+			return
+
+		txt_name = os.path.join(gmTools.gmPaths().home_dir, 'gnumed', 'gm-list_tooltips-%s.txt' % pydt.datetime.now().strftime('%m%d-%H%M%S'))
+		txt_file = io.open(txt_name, mode = 'wt', encoding = 'utf8')
+
+		for data in self.selected_item_data:
+			tt = self.__item_tooltip_callback(data)
+			if tt is None:
+				continue
+			txt_file.write(u'%s\n\n' % tt)
+
+		txt_file.close()
+		gmDispatcher.send(signal = 'statustext', msg = _('Selected tooltips saved to [%s].') % txt_name)
+
+	#------------------------------------------------------------
+	def _selected_row_data2file(self, evt):
+
+		if self.__data is None:
+			return
+
+		txt_name = os.path.join(gmTools.gmPaths().home_dir, 'gnumed', 'gm-list_data-%s.txt' % pydt.datetime.now().strftime('%m%d-%H%M%S'))
+		txt_file = io.open(txt_name, mode = 'wt', encoding = 'utf8')
+
+		for data in self.selected_item_data:
+			if hasattr(data, 'format'):
+				txt = data.format()
+				if type(txt) is list:
+					txt = u'\n'.join(txt)
+			else:
+				txt = u'%s' % data
+			txt_file.write(u'%s\n\n' % txt)
+
+		txt_file.close()
+		gmDispatcher.send(signal = 'statustext', msg = _('Selected data saved to [%s].') % txt_name)
+
 	#------------------------------------------------------------
 	def _tooltip2clipboard(self, evt):
 		if wx.TheClipboard.IsOpened():
