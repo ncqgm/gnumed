@@ -630,7 +630,7 @@ def fname_from_path(filename):
 	return os.path.split(filename)[1]
 
 #---------------------------------------------------------------------------
-def get_unique_filename(prefix=None, suffix=None, tmp_dir=None):
+def get_unique_filename(prefix=None, suffix=None, tmp_dir=None, include_timestamp=False):
 	"""This introduces a race condition between the file.close() and
 	actually using the filename.
 
@@ -645,6 +645,11 @@ def get_unique_filename(prefix=None, suffix=None, tmp_dir=None):
 			_log.warning('cannot find temporary dir [%s], using system default', tmp_dir)
 			tmp_dir = None
 
+	if include_timestamp:
+		ts = pydt.datetime.now().strftime('%m%d-%H%M%S-')
+	else:
+		ts = u''
+
 	kwargs = {
 		'dir': tmp_dir,
 		#  make sure file gets deleted as soon as
@@ -653,9 +658,9 @@ def get_unique_filename(prefix=None, suffix=None, tmp_dir=None):
 	}
 
 	if prefix is None:
-		kwargs['prefix'] = 'gmd-'
+		kwargs['prefix'] = 'gmd-%s' % ts
 	else:
-		kwargs['prefix'] = prefix
+		kwargs['prefix'] = prefix + ts
 
 	if suffix in [None, u'']:
 		kwargs['suffix'] = '.tmp'

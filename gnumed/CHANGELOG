@@ -6,6 +6,10 @@
 # rel-1-6-patches
 ------------------------------------------------
 
+	1.6.5
+
+IMPROVED: list context menu: operate on _selected_ rows
+
 	1.6.4
 
 FIX: EMR journal exporter on Windows [thanks Marc]
