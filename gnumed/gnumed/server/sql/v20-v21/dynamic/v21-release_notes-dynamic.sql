@@ -17,8 +17,12 @@ INSERT INTO dem.message_inbox (
 ) VALUES (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
-	'Release Notes for GNUmed 1.6.4 (database v21.4)',
-	'GNUmed 1.6.4 Release Notes:
+	'Release Notes for GNUmed 1.6.5 (database v21.5)',
+	'GNUmed 1.6.5 Release Notes:
+
+	1.6.5
+
+IMPROVED: list context menu: operate on _selected_ rows
 
 	1.6.4
 
@@ -33,4 +37,4 @@ NEW: gm-import_incoming script for external use
 ');
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('v21-release_notes-dynamic.sql', '21.4');
+select gm.log_script_insertion('v21-release_notes-dynamic.sql', '21.5');
