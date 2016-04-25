@@ -1585,6 +1585,12 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 	#------------------------------------------------------------
 	def __show_context_menu(self, item_idx):
 
+		if item_idx == -1:
+			return
+
+		if self.ItemCount == 0:
+			return
+
 		items = self.selected_items
 		if self.__is_single_selection:
 			if items is None:
