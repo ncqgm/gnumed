@@ -608,6 +608,7 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 			raise ValueError('<part> must be gmDocuments.cDocument or gmDocuments.cDocumentPart instance, got <%s>' % type(part))
 
 		self.__init_ui_data()
+
 	#--------------------------------------------------------
 	# internal API
 	#--------------------------------------------------------
@@ -624,6 +625,13 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 			self._PRW_doc_comment.set_context(context = 'pk_doc_type', val = self.__doc['pk_type'])
 		else:
 			self._PRW_doc_comment.SetText(gmTools.coalesce(self.__part['obj_comment'], ''))
+
+		if self.__doc['pk_org_unit'] is not None:
+			self._PRW_org.SetText(value = u'%s @ %s' % (self.__doc['unit'], self.__doc['organization']), data = self.__doc['pk_org_unit'])
+		if self.__reviewing_doc:
+			self._PRW_org.Enable()
+		else:
+			self._PRW_org.Disable()
 
 		fts = gmDateTime.cFuzzyTimestamp(timestamp = self.__doc['clin_when'])
 		self._PhWheel_doc_date.SetText(fts.strftime('%Y-%m-%d'), fts)
@@ -676,6 +684,7 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 			self._ChBOX_sign_all_pages.SetValue(self.__reviewing_doc)
 
 		return True
+
 	#--------------------------------------------------------
 	def __reload_existing_reviews(self):
 		self._LCTRL_existing_reviews.DeleteAllItems()
@@ -714,6 +723,7 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 				self._LCTRL_existing_reviews.SetStringItem(index = row_num, col=3, label=u'X')
 			self._LCTRL_existing_reviews.SetStringItem(index = row_num, col=4, label=rev[6])
 		return True
+
 	#--------------------------------------------------------
 	# event handlers
 	#--------------------------------------------------------
@@ -747,6 +757,7 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 		if self._PhWheel_doc_date.GetData() is not None:
 			self.__doc['clin_when'] = self._PhWheel_doc_date.GetData().get_pydt()
 		self.__doc['ext_ref'] = self._TCTRL_reference.GetValue().strip()
+		self.__doc['pk_org_unit'] = self._PRW_org.GetData()
 
 		success, data = self.__doc.save_payload()
 		if not success:
@@ -807,18 +818,21 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 				return False
 
 		return True
+
 	#--------------------------------------------------------
 	def _on_reviewed_box_checked(self, evt):
 		state = self._ChBOX_review.GetValue()
 		self._ChBOX_abnormal.Enable(enable = state)
 		self._ChBOX_relevant.Enable(enable = state)
 		self._ChBOX_responsible.Enable(enable = state)
+
 	#--------------------------------------------------------
 	def _on_doc_type_gets_focus(self):
 		"""Per Jim: Changing the doc type happens a lot more often
 		   then correcting spelling, hence select-all on getting focus.
 		"""
 		self._PhWheel_doc_type.SetSelection(-1, -1)
+
 	#--------------------------------------------------------
 	def _on_doc_type_loses_focus(self):
 		pk_doc_type = self._PhWheel_doc_type.GetData()
@@ -961,6 +975,8 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 		self._LCTRL_doc_pages.remove_items_safely()
 		self._LCTRL_doc_pages.set_columns([_('file'), _('path')])
 		self._LCTRL_doc_pages.set_column_widths()
+
+		self._TCTRL_metadata.SetValue(u'')
 
 		self._PhWheel_doc_type.SetFocus()
 

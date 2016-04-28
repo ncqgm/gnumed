@@ -1797,6 +1797,7 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 		self._context_menu.AppendMenu(-1, _('Append (&+) to clipboard...'), clip_add_menu)
 
 		if self.__extend_popup_menu_callback is not None:
+			self._context_menu.AppendSeparator()
 			self.__extend_popup_menu_callback(menu = self._context_menu)
 
 		# show menu
