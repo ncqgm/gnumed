@@ -15,13 +15,13 @@ import os
 
 # do not run as root
 if os.name in ['posix'] and os.geteuid() == 0:
-	print("""
+	print(u"""
 %s should not be run as root.
 
 Running as <root> can potentially put all your
 medical data at risk. It is strongly advised
 against. Please run as a non-root user.
-""") % sys.argv[0]
+""" % sys.argv[0])
 	sys.exit(1)
 
 

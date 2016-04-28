@@ -6,6 +6,14 @@
 # rel-1-6-patches
 ------------------------------------------------
 
+	1.6.6
+
+FIX: error when running gm-import_incoming as root
+
+IMPROVED: clear metadata panel after importing new document
+IMRPOVED: enable editing of document source org
+IMPROVED: list context menu layout
+
 	1.6.5
 
 IMPROVED: list context menu: operate on _selected_ rows
