@@ -88,6 +88,8 @@ FixedOffsetTimezone = dbapi.tz.FixedOffsetTimezone
 _default_dsn = None
 _default_login = None
 
+default_database = 'gnumed_v21'
+
 postgresql_version_string = None
 postgresql_version = None			# accuracy: major.minor
 
@@ -292,6 +294,7 @@ def set_default_client_encoding(encoding = None):
 	_log.info('setting default client encoding from [%s] to [%s]' % (_default_client_encoding, str(encoding)))
 	_default_client_encoding = encoding
 	return True
+
 #---------------------------------------------------
 def set_default_client_timezone(timezone = None):
 
@@ -304,6 +307,7 @@ def set_default_client_timezone(timezone = None):
 	_sql_set_timezone = u'set timezone to %s'
 
 	return True
+
 #---------------------------------------------------
 def __validate_timezone(conn=None, timezone=None):
 
@@ -337,6 +341,7 @@ def __validate_timezone(conn=None, timezone=None):
 	conn.rollback()
 
 	return is_valid
+
 #---------------------------------------------------
 def __expand_timezone(conn=None, timezone=None):
 	"""some timezone defs are abbreviations so try to expand
@@ -369,6 +374,7 @@ where
 	conn.rollback()
 
 	return result
+
 #---------------------------------------------------
 def __detect_client_timezone(conn=None):
 	"""This is run on the very first connection."""
@@ -415,6 +421,7 @@ def __detect_client_timezone(conn=None):
 		_sql_set_timezone = u"set time zone interval %s hour to minute"
 
 	_log.info('client system time zone detected as equivalent to [%s]', _default_client_timezone)
+
 # =======================================================================
 # login API
 # =======================================================================
@@ -426,7 +433,7 @@ def __request_login_params_tui():
 	print "\nPlease enter the required login parameters:"
 	try:
 		login.host = prompted_input(prompt = "host ('' = non-TCP/IP)", default = '')
-		login.database = prompted_input(prompt = "database", default = 'gnumed_v21')
+		login.database = prompted_input(prompt = "database", default = default_database)
 		login.user = prompted_input(prompt = "user name", default = '')
 		tmp = 'password for "%s" (not shown): ' % login.user
 		login.password = getpass.getpass(tmp)
@@ -505,11 +512,13 @@ def make_psycopg2_dsn(database=None, host=None, port=5432, user=None, password=N
 	dsn_parts.append('sslmode=prefer')
 
 	return ' '.join(dsn_parts)
+
 # ------------------------------------------------------
 def get_default_login():
 	# make sure we do have a login
 	get_default_dsn()
 	return _default_login
+
 # ------------------------------------------------------
 def get_default_dsn():
 	global _default_dsn
@@ -520,6 +529,7 @@ def get_default_dsn():
 	set_default_login(login=login)
 
 	return _default_dsn
+
 # ------------------------------------------------------
 def set_default_login(login=None):
 	if login is None:
@@ -566,6 +576,7 @@ def log_auth_environment():
 				_log.debug('$PGPASSFILE=%s not found')
 	except Exception:
 		_log.exception('cannot detect .pgpass and or $PGPASSFILE')
+
 # =======================================================================
 # netadata API
 # =======================================================================

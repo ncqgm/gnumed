@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-03-27 14:30+0200\n"
+"POT-Creation-Date: 2016-04-30 14:11+0200\n"
 "PO-Revision-Date: 2016-02-24 18:28+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: colombiano <es@li.org>\n"
@@ -2413,12 +2413,6 @@ msgstr "Busca término:"
 msgid "New patient ID:"
 msgstr "Nueva ID del paciente"
 
-msgid "Your review"
-msgstr "Su evaluación"
-
-msgid "Reviews by others"
-msgstr "Evaluacion de otros"
-
 msgid "(you are/are not the primary reviewer)"
 msgstr "(eres/no eres el evaluador principal)"
 
@@ -2452,6 +2446,11 @@ msgid ""
 msgstr ""
 "Mostrar el episodio asociado a este documento. Seleccione otro o escriba el "
 "nombre de un episodio nuevo para asociarlo con otro."
+
+#, fuzzy
+msgid "The organizational unit this document originates from."
+msgstr ""
+"Opcional: la organización (unidad) desde la cual se originó este documento."
 
 msgid "Enter the date of creation of the document."
 msgstr "Ingrese la fecha de creación del documento."
@@ -2527,8 +2526,17 @@ msgstr "Guardar su evaluación."
 msgid "Cancel this review."
 msgstr "Cancelar la evaluación."
 
+msgid "Your review"
+msgstr "Su evaluación"
+
+msgid "Reviews by others"
+msgstr "Evaluacion de otros"
+
 msgid "Episode"
 msgstr "Episodio"
+
+msgid "Source"
+msgstr "Fuente"
 
 msgid "Date"
 msgstr "Fecha"
@@ -5552,20 +5560,18 @@ msgstr "editar los detalles del contacto"
 msgid "Close this dialog."
 msgstr "Cerrar este diálogo."
 
-msgid "age"
-msgstr "edad"
+msgid "Age"
+msgstr "Edad"
 
-msgid "review status"
+#, fuzzy
+msgid "Review status"
 msgstr "revisar estado"
 
-msgid "episode"
-msgstr "episodio"
+msgid "Health issue"
+msgstr "Problema de salud"
 
-msgid "health issue"
-msgstr "problema de salud"
-
-msgid "type"
-msgstr "tipo"
+msgid "Organization"
+msgstr "Organización"
 
 msgid "Sort newest documents to top of tree."
 msgstr "Ordenar los documentos más nuevos al principio del árbol."
@@ -5581,6 +5587,10 @@ msgstr "Ordene documentos por el problema de salud al cual pertenecen."
 
 msgid "Sort documents by their type."
 msgstr "Ordenar documentos por tipo."
+
+#, fuzzy
+msgid "Sort documents by the organization they are from."
+msgstr "Ordenar documentos por el episodio al que pertenecen."
 
 msgid "Sort documents by"
 msgstr "Ordenar documentos por"
@@ -5907,9 +5917,6 @@ msgstr "El nombre de la unidad de la organización."
 msgid "The category of the organizational unit."
 msgstr "La categoría de la unidad de la organización."
 
-msgid "Organization"
-msgstr "Organización"
-
 msgid "Unit"
 msgstr "Unidad de medida"
 
@@ -6020,13 +6027,14 @@ msgid "&Event"
 msgstr "Evento"
 
 msgid "Order by start of encounter a chart entry is linked to."
-msgstr ""
+msgstr "Ordeno por inicio del encuentro enlazado a un ingreso de cartilla."
 
 msgid "Order by time of most recent edit of each chart entry."
-msgstr ""
+msgstr "Ordeno por hora de la más reciente edición de ingreso de cartilla."
 
 msgid "Order by time documented as actual occurrence of each chart entry."
 msgstr ""
+"Ordeno por hora documentada como ocurrencia real de cada ingreso de cartilla."
 
 msgid "Edit the selected chart entry."
 msgstr "Edito el ingreso de cartilla seleccionado."
@@ -6098,9 +6106,6 @@ msgid ""
 msgstr ""
 "Condición\n"
 "(Búsqueda SQL)"
-
-msgid "Source"
-msgstr "Fuente"
 
 msgid "URL"
 msgstr "URL"
@@ -7898,34 +7903,34 @@ msgstr "Error al correr pdftk. No se puede llenar plantilla PDF."
 msgid "Error running pdftk. Cannot flatten filled in PDF form."
 msgstr "Error corriendo pdftk. No puedo sellar formulario PDF."
 
-#, python-format
+#, fuzzy, python-format
 msgid ""
 "%(type)s: %(street)s %(number)s%(subunit)s, %(zip)s %(urb)s %(suburb)s, "
-"%(code_region)s, %(code_country)s"
+"%(code_region)s, %(code_country)s (%(l10n_region)s, %(l10n_country)s)"
 msgstr ""
 "%(type)s: %(street)s %(number)s%(subunit)s, %(zip)s %(urb)s %(suburb)s, "
 "%(code_region)s, %(code_country)s"
 
-#, python-format
+#, fuzzy, python-format
 msgid ""
 "%(street)s %(number)s%(subunit)s, %(zip)s %(urb)s %(suburb)s, "
-"%(code_region)s, %(code_country)s"
+"%(code_region)s, %(code_country)s (%(l10n_region)s, %(l10n_country)s)"
 msgstr ""
 "%(street)s %(number)s%(subunit)s, %(zip)s %(urb)s %(suburb)s, "
 "%(code_region)s, %(code_country)s"
 
-#, python-format
+#, fuzzy, python-format
 msgid ""
 "%(type)s: %(street)s %(number)s%(subunit)s, %(zip)s %(urb)s, "
-"%(code_region)s, %(code_country)s"
+"%(code_region)s, %(code_country)s (%(l10n_region)s, %(l10n_country)s)"
 msgstr ""
 "%(type)s: %(street)s %(number)s%(subunit)s, %(zip)s %(urb)s, "
 "%(code_region)s, %(code_country)s"
 
-#, python-format
+#, fuzzy, python-format
 msgid ""
 "%(street)s %(number)s%(subunit)s, %(zip)s %(urb)s, %(code_region)s, "
-"%(code_country)s"
+"%(code_country)s (%(l10n_region)s, %(l10n_country)s)"
 msgstr ""
 "%(street)s %(number)s%(subunit)s, %(zip)s %(urb)s, %(code_region)s, "
 "%(code_country)s"
@@ -8026,9 +8031,6 @@ msgstr "resultado correcto"
 
 msgid "missing, reported later"
 msgstr "perdido, reportado posteriormente"
-
-msgid "Health issue"
-msgstr "Problema de salud"
 
 msgid "External care"
 msgstr "Cuidado externo"
@@ -9800,6 +9802,9 @@ msgstr "cuándo"
 
 msgid "who"
 msgstr "quién"
+
+msgid "type"
+msgstr "tipo"
 
 msgid "entry"
 msgstr "ingreso"
@@ -12144,9 +12149,6 @@ msgstr "Notas"
 msgid "Progress Note"
 msgstr "Nota de Progreso"
 
-msgid "Age"
-msgstr "Edad"
-
 msgid "N/A"
 msgstr "N/D"
 
@@ -13932,7 +13934,16 @@ msgstr ""
 "modificatoria en relación a la plataforma (<ctrl>,<alt>, etc) o combinación "
 "de teclas (eg. <ctrl-shift> o <ctrl-alt>) al hacer click."
 
-msgid "List Item Actions:"
+#, fuzzy
+msgid "List Item Actions"
+msgstr "Despliego Acciones sobre los items:"
+
+#, fuzzy
+msgid "List Item Actions (selected: 1 entry)"
+msgstr "Despliego Acciones sobre los items:"
+
+#, fuzzy, python-format
+msgid "List Item Actions (selected: %s entries)"
 msgstr "Despliego Acciones sobre los items:"
 
 msgid "Add (<INS>)"
@@ -13948,25 +13959,71 @@ msgstr "Encuentra (<CTRL-F>)"
 msgid "Find next [%s] (<CTRL-N>)"
 msgstr "Encuentra siguiente [%s] (<CTRL-N>)"
 
-msgid "Row tooltip"
-msgstr "Fila de herramienta de ayuda"
+#, fuzzy
+msgid "&All rows"
+msgstr "&Todos los usuarios"
 
-msgid "Row data (formatted as text)"
+msgid "All rows as &CSV"
+msgstr ""
+
+#, fuzzy
+msgid "&Tooltips of all rows"
+msgstr "Herramientas de ayuda sobre filas seleccionadas"
+
+msgid "&Data of all rows"
+msgstr ""
+
+#, fuzzy
+msgid "&Selected rows"
+msgstr "&Seleccionar"
+
+msgid "&Selected rows as CSV"
+msgstr ""
+
+#, fuzzy
+msgid "&Tooltips of selected rows"
+msgstr "Herramientas de ayuda sobre filas seleccionadas"
+
+#, fuzzy
+msgid "&Data of selected rows"
+msgstr "Herramientas de ayuda sobre filas seleccionadas"
+
+msgid "Tooltips of selected rows"
+msgstr "Herramientas de ayuda sobre filas seleccionadas"
+
+#, fuzzy
+msgid "Data (formatted as text) of selected rows"
 msgstr "Datos de fila (en una linea)"
 
-msgid "Row content (as one line)"
+msgid "Content (as one line each) of selected rows"
+msgstr "Contenido (individual por linea) de las filas seleccionadas"
+
+msgid "Tooltip of current row"
+msgstr "Herrmienta de ayuda de la fila actual"
+
+#, fuzzy
+msgid "Data (formatted as text) of current row"
+msgstr "Datos de fila (en una linea)"
+
+#, fuzzy
+msgid "Content (as one line) of current row"
 msgstr "Contenido de fila (como una linea)"
 
-msgid "Row content (one line per column)"
+#, fuzzy
+msgid "Content (one line per column) of current row"
 msgstr "Contenido de linea (una linea por columna )"
 
-#, python-format
-msgid "Column &%s: \"%s\" [#%s]"
+#, fuzzy, python-format
+msgid "Column &%s (current row): \"%s\" [#%s]"
 msgstr "Columna &%s: \"%s\" [#%s]"
 
-#, python-format
-msgid "Column &%s: %s"
+#, fuzzy, python-format
+msgid "Column &%s (current row): %s"
 msgstr "Columna &%s: %s"
+
+#, fuzzy
+msgid "&Save to file..."
+msgstr "Guardar Como ..."
 
 msgid "&Copy to clipboard..."
 msgstr "&Copiar al portapapeles ..."
@@ -13999,6 +14056,30 @@ msgstr ""
 "Término de búsqueda actual: [[%s]]\n"
 "\n"
 "%s"
+
+#, python-format
+msgid "All rows saved to [%s]."
+msgstr ""
+
+#, python-format
+msgid "All tooltips saved to [%s]."
+msgstr ""
+
+#, python-format
+msgid "All data saved to [%s]."
+msgstr ""
+
+#, fuzzy, python-format
+msgid "Selected rows saved to [%s]."
+msgstr "Definición de reporte borrado [%s]."
+
+#, fuzzy, python-format
+msgid "Selected tooltips saved to [%s]."
+msgstr "Definición de reporte borrado [%s]."
+
+#, fuzzy, python-format
+msgid "Selected data saved to [%s]."
+msgstr "Fijar el idioma de la base de datos en [%s]."
 
 msgid "Monty the Serpent && the FSF Present"
 msgstr "La Serpiente Monty && la FSF presentan"
@@ -15712,6 +15793,10 @@ msgstr "ordenado por tema de salud"
 msgid "sorted by type"
 msgstr "ordenado por tipo"
 
+#, fuzzy
+msgid "sorted by organization"
+msgstr "Agregando una nueva organización"
+
 msgid "Cannot load documents. No active patient."
 msgstr "No se pueden cargar documentos. No hay paciente activo."
 
@@ -15796,6 +15881,10 @@ msgstr "%s%7s (%s):%s (%s)"
 #, python-format
 msgid "%s (unattributed episode)"
 msgstr "%s (episodio no atribuido)"
+
+#, fuzzy
+msgid "unknown organization"
+msgstr "reacción desconocida"
 
 #, python-format
 msgid "part %2s"
@@ -20867,6 +20956,22 @@ msgstr "Aborto"
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Aborto y NO conecto a GNUMed."
+
+#, fuzzy
+#~ msgid "Copy to e&xport area..."
+#~ msgstr "Copio todos los estudios al área de exportación."
+
+#~ msgid "age"
+#~ msgstr "edad"
+
+#~ msgid "episode"
+#~ msgstr "episodio"
+
+#~ msgid "health issue"
+#~ msgstr "problema de salud"
+
+#~ msgid "Row tooltip"
+#~ msgstr "Fila de herramienta de ayuda"
 
 #~ msgid "&Entry time"
 #~ msgstr "&Hora de ingreso"

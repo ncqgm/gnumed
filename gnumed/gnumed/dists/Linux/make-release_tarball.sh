@@ -131,6 +131,7 @@ cp -R ../../external-tools/gm-convert_file ./gnumed-client.$CLIENTREV/external-t
 cp -R ../../external-tools/gm-describe_file ./gnumed-client.$CLIENTREV/external-tools/
 cp -R ../../external-tools/gm-create_datamatrix ./gnumed-client.$CLIENTREV/external-tools/
 cp -R ../../external-tools/gm-create_dicomdir ./gnumed-client.$CLIENTREV/external-tools/
+cp -R ../../external-tools/gm-import_incoming ./gnumed-client.$CLIENTREV/external-tools/
 
 
 # client
@@ -199,6 +200,7 @@ cp -R ../../client/doc/man-pages/gm-convert_file.1 ./gnumed-client.$CLIENTREV/cl
 cp -R ../../client/doc/man-pages/gm-describe_file.1 ./gnumed-client.$CLIENTREV/client/doc/
 cp -R ../../client/doc/man-pages/gm-create_datamatrix.1 ./gnumed-client.$CLIENTREV/client/doc/
 cp -R ../../client/doc/man-pages/gm-create_dicomdir.1 ./gnumed-client.$CLIENTREV/client/doc/
+cp -R ../../client/doc/man-pages/gm-import_incoming.1 ./gnumed-client.$CLIENTREV/client/doc/
 
 
 # etc
@@ -213,6 +215,12 @@ mkdir -p ./gnumed-client.$CLIENTREV/client/exporters/
 cp -R ../../client/exporters/__init__.py ./gnumed-client.$CLIENTREV/client/exporters
 cp -R ../../client/exporters/gmPatientExporter.py ./gnumed-client.$CLIENTREV/client/exporters
 cp -R ../../client/exporters/timeline.py ./gnumed-client.$CLIENTREV/client/exporters
+
+
+# importers
+mkdir -p ./gnumed-client.$CLIENTREV/client/importers/
+cp -R ../../client/importers/__init__.py ./gnumed-client.$CLIENTREV/client/importers
+cp -R ../../client/importers/gmImportIncoming.py ./gnumed-client.$CLIENTREV/client/importers
 
 
 # locale

@@ -40,6 +40,7 @@ from Gnumed.business import gmForms
 from Gnumed.business import gmPersonSearch
 from Gnumed.business import gmOrganization
 from Gnumed.business import gmHL7
+from Gnumed.business import gmIncomingData
 
 from Gnumed.wxpython import gmRegetMixin
 from Gnumed.wxpython import gmPlugin
@@ -270,10 +271,10 @@ def browse_incoming_unmatched(parent=None):
 		)
 		if not do_delete:
 			return False
-		return gmHL7.delete_incoming_data(pk_incoming_data = staged_item['pk_incoming_data_unmatched'])
+		return gmIncomingData.delete_incoming_data(pk_incoming_data = staged_item['pk_incoming_data_unmatched'])
 	#------------------------------------------------------------
 	def refresh(lctrl):
-		incoming = gmHL7.get_incoming_data()
+		incoming = gmIncomingData.get_incoming_data()
 		items = [ [
 			gmTools.coalesce(i['data_type'], u''),
 			u'%s, %s (%s) %s' % (
@@ -646,14 +647,16 @@ def plot_adjacent_measurements(parent=None, test=None, format=None, show_year=Tr
 from Gnumed.wxGladeWidgets import wxgMeasurementsAsListPnl
 
 class cMeasurementsAsListPnl(wxgMeasurementsAsListPnl.wxgMeasurementsAsListPnl, gmRegetMixin.cRegetOnPaintMixin):
+	"""A class for displaying all measurement results as a simple list.
 
+	- operates on a cPatient instance handed to it and NOT on the currently active patient
+	"""
 	def __init__(self, *args, **kwargs):
 		wxgMeasurementsAsListPnl.wxgMeasurementsAsListPnl.__init__(self, *args, **kwargs)
 
 		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
 
 		self.__patient = None
-#		self.__date_format = str('%Y %b %d')
 
 		self.__init_ui()
 		self.__register_events()
@@ -764,7 +767,10 @@ class cMeasurementsAsListPnl(wxgMeasurementsAsListPnl.wxgMeasurementsAsListPnl, 
 from Gnumed.wxGladeWidgets import wxgMeasurementsByDayPnl
 
 class cMeasurementsByDayPnl(wxgMeasurementsByDayPnl.wxgMeasurementsByDayPnl, gmRegetMixin.cRegetOnPaintMixin):
+	"""A class for displaying measurement results as a list partitioned by day.
 
+	- operates on a cPatient instance handed to it and NOT on the currently active patient
+	"""
 	def __init__(self, *args, **kwargs):
 		wxgMeasurementsByDayPnl.wxgMeasurementsByDayPnl.__init__(self, *args, **kwargs)
 
@@ -895,7 +901,10 @@ class cMeasurementsByDayPnl(wxgMeasurementsByDayPnl.wxgMeasurementsByDayPnl, gmR
 from Gnumed.wxGladeWidgets import wxgMeasurementsByBatteryPnl
 
 class cMeasurementsByBatteryPnl(wxgMeasurementsByBatteryPnl.wxgMeasurementsByBatteryPnl, gmRegetMixin.cRegetOnPaintMixin):
+	"""A grid class for displaying measurement results filtered by battery/panel.
 
+	- operates on a cPatient instance handed to it and NOT on the currently active patient
+	"""
 	def __init__(self, *args, **kwargs):
 		wxgMeasurementsByBatteryPnl.wxgMeasurementsByBatteryPnl.__init__(self, *args, **kwargs)
 
@@ -936,7 +945,6 @@ class cMeasurementsByBatteryPnl(wxgMeasurementsByBatteryPnl.wxgMeasurementsByBat
 				u''
 			))
 			self._GRID_results_battery.panel_to_show = pnl
-#		self._GRID_results_battery.Fit()
 #		self.Layout()
 
 	#--------------------------------------------------------
@@ -944,7 +952,6 @@ class cMeasurementsByBatteryPnl(wxgMeasurementsByBatteryPnl.wxgMeasurementsByBat
 		self._TCTRL_panel_comment.SetValue(u'')
 		if self._PRW_panel.GetValue().strip() == u'':
 			self._GRID_results_battery.panel_to_show = None
-#			self._GRID_results_battery.Fit()
 #			self.Layout()
 
 	#------------------------------------------------------------
@@ -1007,7 +1014,10 @@ class cMeasurementsByBatteryPnl(wxgMeasurementsByBatteryPnl.wxgMeasurementsByBat
 from Gnumed.wxGladeWidgets import wxgMeasurementsAsTablePnl
 
 class cMeasurementsAsTablePnl(wxgMeasurementsAsTablePnl.wxgMeasurementsAsTablePnl, gmRegetMixin.cRegetOnPaintMixin):
+	"""A panel for holding a grid displaying all measurement results.
 
+	- operates on a cPatient instance handed to it and NOT on the currently active patient
+	"""
 	def __init__(self, *args, **kwargs):
 		wxgMeasurementsAsTablePnl.wxgMeasurementsAsTablePnl.__init__(self, *args, **kwargs)
 
@@ -1111,12 +1121,6 @@ class cMeasurementsAsTablePnl(wxgMeasurementsAsTablePnl.wxgMeasurementsAsTablePn
 		elif self._RBTN_all_unsigned.GetValue() is True:
 			self._GRID_results_all.select_cells(unsigned_only = True, accountables_only = False, keep_preselections = False)
 
-	#--------------------------------------------------------
-	# implement as notebook page
-#	def _on_list_button_pressed(self, event):
-#		event.Skip()
-#		manage_measurements(parent = self, single_selection = True)#, emr = pat.emr)
-
 	#------------------------------------------------------------
 	# reget mixin API
 	#------------------------------------------------------------
@@ -1156,6 +1160,8 @@ class cMeasurementsNb(wx.Notebook, gmPlugin.cPatientChange_PluginMixin):
 		- full list
 
 	Used as a main notebook plugin page.
+
+	Operates on the active patient.
 	"""
 	#--------------------------------------------------------
 	def __init__(self, parent, id):
@@ -1184,15 +1190,19 @@ class cMeasurementsNb(wx.Notebook, gmPlugin.cPatientChange_PluginMixin):
 	def _post_patient_selection(self, **kwds):
 		for page_idx in range(self.GetPageCount()):
 			page = self.GetPage(page_idx)
-			page.patient = self.__patient
+			page.patient = self.__patient.patient
 
 	#--------------------------------------------------------
 	# notebook plugin API
 	#--------------------------------------------------------
 	def repopulate_ui(self):
+		if self.__patient.connected:
+			pat = self.__patient.patient
+		else:
+			pat = None
 		for page_idx in range(self.GetPageCount()):
 			page = self.GetPage(page_idx)
-			page.patient = self.__patient
+			page.patient = pat
 
 		return True
 
@@ -1203,7 +1213,7 @@ class cMeasurementsNb(wx.Notebook, gmPlugin.cPatientChange_PluginMixin):
 
 		# by day
 		new_page = cMeasurementsByDayPnl(self, -1)
-		new_page.patient = self.__patient
+		new_page.patient = None
 		self.AddPage (
 			page = new_page,
 			text = _('Days'),
@@ -1212,7 +1222,7 @@ class cMeasurementsNb(wx.Notebook, gmPlugin.cPatientChange_PluginMixin):
 
 		# by test panel
 		new_page = cMeasurementsByBatteryPnl(self, -1)
-		new_page.patient = self.__patient
+		new_page.patient = None
 		self.AddPage (
 			page = new_page,
 			text = _('Panels'),
@@ -1221,7 +1231,7 @@ class cMeasurementsNb(wx.Notebook, gmPlugin.cPatientChange_PluginMixin):
 
 		# full grid
 		new_page = cMeasurementsAsTablePnl(self, -1)
-		new_page.patient = self.__patient
+		new_page.patient = None
 		self.AddPage (
 			page = new_page,
 			text = _('Table'),
@@ -1230,7 +1240,7 @@ class cMeasurementsNb(wx.Notebook, gmPlugin.cPatientChange_PluginMixin):
 
 		# full list
 		new_page = cMeasurementsAsListPnl(self, -1)
-		new_page.patient = self.__patient
+		new_page.patient = None
 		self.AddPage (
 			page = new_page,
 			text = _('List'),
@@ -1245,13 +1255,21 @@ class cMeasurementsNb(wx.Notebook, gmPlugin.cPatientChange_PluginMixin):
 
 	def _set_patient(self, patient):
 		self.__patient = patient
+		if self.__patient.connected:
+			pat = self.__patient.patient
+		else:
+			pat = None
+		for page_idx in range(self.GetPageCount()):
+			page = self.GetPage(page_idx)
+			page.patient = pat
 
 	patient = property(_get_patient, _set_patient)
 
 #================================================================
 class cMeasurementsGrid(wx.grid.Grid):
-	"""A grid class for displaying measurment results.
+	"""A grid class for displaying measurement results.
 
+	- operates on a cPatient instance handed to it
 	- does NOT listen to the currently active patient
 	- thereby it can display any patient at any time
 	"""

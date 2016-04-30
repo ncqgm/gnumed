@@ -1,0 +1,26 @@
+#!/bin/bash
+
+#==================================================
+# This shell script is intended to be placed in
+# /usr/bin/ and should be run to use the importer
+# for external files into the INCOMING area of
+# GNUmed.
+#
+# license: GPL v2 or later
+# Karsten Hilbert
+#--------------------------------------------------
+
+# for debugging this script
+# set -x
+
+OPTIONS=$@
+
+
+# packages which install the GNUmed python modules into a path not
+# already accessible for imports via sys.path (say, /usr/share/gnumed/)
+# may need to adjust PYTHONPATH appropriately here
+#export PYTHONPATH="${PYTHONPATH:+$PYTHONPATH:}/usr/share/gnumed/"
+
+
+# now run the actual script
+python -m Gnumed.importers.gmImportIncoming ${OPTIONS}

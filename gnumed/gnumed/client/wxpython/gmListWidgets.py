@@ -23,12 +23,20 @@ import types
 import logging
 import thread
 import time
-import re as regex
 import locale
+import os
+import io
+import csv
+import re as regex
+import datetime as pydt
 
 
 import wx
 import wx.lib.mixins.listctrl as listmixins
+
+
+from Gnumed.pycommon import gmTools
+from Gnumed.pycommon import gmDispatcher
 
 
 _log = logging.getLogger('gm.list_ui')
@@ -768,7 +776,7 @@ class cGenericListManagerPnl(wxgGenericListManagerPnl.wxgGenericListManagerPnl):
 
 	#------------------------------------------------------------
 	def _on_edit_button_pressed(self, event):
-		item = self._LCTRL_items.get_selected_item_data(only_one=True)
+		item = self._LCTRL_items.get_selected_item_data(only_one = True)
 		if item is None:
 			return
 		if not self.__edit_callback(item):
@@ -783,13 +791,13 @@ class cGenericListManagerPnl(wxgGenericListManagerPnl.wxgGenericListManagerPnl):
 
 	#------------------------------------------------------------
 	def _on_remove_button_pressed(self, event):
-		if len(self._LCTRL_items.get_selected_items(only_one = True)) == 0:
+		if self._LCTRL_items.get_selected_items(only_one = True) is None:
 			return
 		self.__do_delete()
 
 	#------------------------------------------------------------
 	def _on_left_extra_button_pressed(self, event):
-		item_data = self._LCTRL_items.get_selected_item_data(only_one=True)
+		item_data = self._LCTRL_items.get_selected_item_data(only_one = True)
 		if not self.__left_extra_button_callback(item_data):
 			self._LCTRL_items.SetFocus()
 			return
@@ -806,7 +814,7 @@ class cGenericListManagerPnl(wxgGenericListManagerPnl.wxgGenericListManagerPnl):
 
 	#------------------------------------------------------------
 	def _on_middle_extra_button_pressed(self, event):
-		item_data = self._LCTRL_items.get_selected_item_data(only_one=True)
+		item_data = self._LCTRL_items.get_selected_item_data(only_one = True)
 		if not self.__middle_extra_button_callback(item_data):
 			self._LCTRL_items.SetFocus()
 			return
@@ -1134,6 +1142,7 @@ class cItemPickerDlg(wxgItemPickerDlg.wxgItemPickerDlg):
 		self._LCTRL_right.set_column_widths()
 #		print u'%s <-> %s (items)' % (self._LCTRL_left.ItemCount, self._LCTRL_right.ItemCount)
 #		print u'%s <-> %s (data)' % (len(self._LCTRL_left.data), len(self._LCTRL_right.data))
+
 	#------------------------------------------------------------
 	def __remove_selected_picks(self):
 		if self._LCTRL_right.get_selected_items(only_one = True) == -1:
@@ -1147,6 +1156,7 @@ class cItemPickerDlg(wxgItemPickerDlg.wxgItemPickerDlg):
 
 #		print u'%s <-> %s (items)' % (self._LCTRL_left.ItemCount, self._LCTRL_right.ItemCount)
 #		print u'%s <-> %s (data)' % (len(self._LCTRL_left.data), len(self._LCTRL_right.data))
+
 	#------------------------------------------------------------
 	# event handlers
 	#------------------------------------------------------------
@@ -1466,9 +1476,9 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 	#------------------------------------------------------------
 	def get_column_labels(self):
 		labels = []
-		for col_idx in self.GetColumnCount():
+		for col_idx in range(self.ColumnCount):
 			col = self.GetColumn(col = col_idx)
-			labels.append(col.GetText())
+			labels.append(col.Text)
 		return labels
 
 	column_labels = property(get_column_labels, lambda x:x)
@@ -1575,8 +1585,29 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 	#------------------------------------------------------------
 	def __show_context_menu(self, item_idx):
 
+		if item_idx == -1:
+			return
+
+		if self.ItemCount == 0:
+			return
+
+		items = self.selected_items
+		if self.__is_single_selection:
+			if items is None:
+				no_of_selected_items = 0
+			else:
+				no_of_selected_items = 1
+		else:
+			no_of_selected_items = len(items)
+		if no_of_selected_items == 0:
+			title = _('List Item Actions')
+		elif no_of_selected_items == 1:
+			title = _('List Item Actions (selected: 1 entry)')
+		else:
+			title = _('List Item Actions (selected: %s entries)') % no_of_selected_items
+
 		# build context menu
-		self._context_menu = wx.Menu(title = _('List Item Actions:'))
+		self._context_menu = wx.Menu(title = title)
 
 		needs_separator = False
 		if self.__new_callback is not None:
@@ -1602,32 +1633,69 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 				self.Bind(wx.EVT_MENU, self._on_search_match, menu_item)
 		self._context_menu.AppendSeparator()
 
-		clip_menu = wx.Menu()
 		col_headers = []
 		self._rclicked_row_idx = item_idx
 		self._rclicked_row_data = self.get_item_data(item_idx = self._rclicked_row_idx)
 		self._rclicked_row_cells = []
 		self._rclicked_row_cells_w_hdr = []
 		for col_idx in range(self.ColumnCount):
-			cell_content = self.GetItemText(self._rclicked_row_idx, col_idx).strip()
+			cell_content = self.GetItem(self._rclicked_row_idx, col_idx).Text.strip()
 			col_header = self.GetColumn(col_idx).m_text.strip()
 			col_headers.append(col_header)
 			self._rclicked_row_cells.append(cell_content)
 			self._rclicked_row_cells_w_hdr.append(u'%s: %s' % (col_header, cell_content))
 
+		# save to file
+		save_menu = wx.Menu()
+		menu_item = save_menu.Append(-1, _('&All rows'))
+		self.Bind(wx.EVT_MENU, self._all_rows2file, menu_item)
+		menu_item = save_menu.Append(-1, _('All rows as &CSV'))
+		self.Bind(wx.EVT_MENU, self._all_rows2csv, menu_item)
+		menu_item = save_menu.Append(-1, _('&Tooltips of all rows'))
+		self.Bind(wx.EVT_MENU, self._all_row_tooltips2file, menu_item)
+		menu_item = save_menu.Append(-1, _('&Data of all rows'))
+		self.Bind(wx.EVT_MENU, self._all_row_data2file, menu_item)
+
+		if no_of_selected_items > 1:
+			save_menu.AppendSeparator()
+			menu_item = save_menu.Append(-1, _('&Selected rows'))
+			self.Bind(wx.EVT_MENU, self._selected_rows2file, menu_item)
+			menu_item = save_menu.Append(-1, _('&Selected rows as CSV'))
+			self.Bind(wx.EVT_MENU, self._selected_rows2csv, menu_item)
+			menu_item = save_menu.Append(-1, _('&Tooltips of selected rows'))
+			self.Bind(wx.EVT_MENU, self._selected_row_tooltips2file, menu_item)
+			menu_item = save_menu.Append(-1, _('&Data of selected rows'))
+			self.Bind(wx.EVT_MENU, self._selected_row_data2file, menu_item)
+
 		# 1) set clipboard to item
+		clip_menu = wx.Menu()
+
+		# items for all selected rows if > 1
+		if no_of_selected_items > 1:
+			# row tooltips
+			menu_item = clip_menu.Append(-1, _('Tooltips of selected rows'))
+			self.Bind(wx.EVT_MENU, self._tooltips2clipboard, menu_item)
+			# row data as formatted text if available
+			menu_item = clip_menu.Append(-1, _('Data (formatted as text) of selected rows'))
+			self.Bind(wx.EVT_MENU, self._datas2clipboard, menu_item)
+			# all fields of the list row as one line of text
+			menu_item = clip_menu.Append(-1, _('Content (as one line each) of selected rows'))
+			self.Bind(wx.EVT_MENU, self._rows2clipboard, menu_item)
+			clip_menu.AppendSeparator()
+
+		# items for the right-clicked row
 		# row tooltip
-		menu_item = clip_menu.Append(-1, _('Row tooltip'))
+		menu_item = clip_menu.Append(-1, _('Tooltip of current row'))
 		self.Bind(wx.EVT_MENU, self._tooltip2clipboard, menu_item)
 		# row data as formatted text if available
 		if hasattr(self._rclicked_row_data, 'format'):
-			menu_item = clip_menu.Append(-1, _('Row data (formatted as text)'))
+			menu_item = clip_menu.Append(-1, _('Data (formatted as text) of current row'))
 			self.Bind(wx.EVT_MENU, self._data2clipboard, menu_item)
 		# all fields of the list row as one line of text
-		menu_item = clip_menu.Append(-1, _('Row content (as one line)'))
+		menu_item = clip_menu.Append(-1, _('Content (as one line) of current row'))
 		self.Bind(wx.EVT_MENU, self._row2clipboard, menu_item)
 		# all fields of the list row as multiple lines of text
-		menu_item = clip_menu.Append(-1, _('Row content (one line per column)'))
+		menu_item = clip_menu.Append(-1, _('Content (one line per column) of current row'))
 		self.Bind(wx.EVT_MENU, self._row_list2clipboard, menu_item)
 		# each field of the list row as text with and without header
 		clip_menu.AppendSeparator()
@@ -1644,7 +1712,7 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 				#if len(col_content) == 1:
 				#	continue
 				# without column header
-				menu_item = clip_menu.Append(-1, _(u'Column &%s: "%s" [#%s]') % (col_idx+1, shorten_text(col_content, 35), col_idx))
+				menu_item = clip_menu.Append(-1, _(u'Column &%s (current row): "%s" [#%s]') % (col_idx+1, shorten_text(col_content, 35), col_idx))
 				self.Bind(wx.EVT_MENU, self._col2clipboard, menu_item)
 			else:
 				col_menu = wx.Menu()
@@ -1654,23 +1722,37 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 				# without column header
 				menu_item = col_menu.Append(-1, u'"%s" [#%s]' % (shorten_text(col_content, 35), col_idx))
 				self.Bind(wx.EVT_MENU, self._col2clipboard, menu_item)
-				clip_menu.AppendMenu(-1, _(u'Column &%s: %s') % (col_idx+1, col_header), col_menu)
-		clip_menu.AppendSeparator()
+				clip_menu.AppendMenu(-1, _(u'Column &%s (current row): %s') % (col_idx+1, col_header), col_menu)
 
 		# 2) append item to current clipboard item
 		clip_add_menu = wx.Menu()
+
+		# items for all selected rows if > 1
+		if no_of_selected_items > 1:
+			# row tooltips
+			menu_item = clip_add_menu.Append(-1, _('Tooltips of selected rows'))
+			self.Bind(wx.EVT_MENU, self._add_tooltips2clipboard, menu_item)
+			# row data as formatted text if available
+			menu_item = clip_add_menu.Append(-1, _('Data (formatted as text) of selected rows'))
+			self.Bind(wx.EVT_MENU, self._add_datas2clipboard, menu_item)
+			# all fields of the list row as one line of text
+			menu_item = clip_add_menu.Append(-1, _('Content (as one line each) of selected rows'))
+			self.Bind(wx.EVT_MENU, self._add_rows2clipboard, menu_item)
+			clip_add_menu.AppendSeparator()
+
+		# items for the right-clicked row
 		# row tooltip
-		menu_item = clip_add_menu.Append(-1, _('Row tooltip'))
+		menu_item = clip_add_menu.Append(-1, _('Tooltip of current row'))
 		self.Bind(wx.EVT_MENU, self._add_tooltip2clipboard, menu_item)
 		# row data as formatted text if available
 		if hasattr(self._rclicked_row_data, 'format'):
-			menu_item = clip_add_menu.Append(-1, _('Row data (formatted as text)'))
+			menu_item = clip_add_menu.Append(-1, _('Data (formatted as text) of current row'))
 			self.Bind(wx.EVT_MENU, self._add_data2clipboard, menu_item)
 		# all fields of the list row as one line of text
-		menu_item = clip_add_menu.Append(-1, _('Row content (as one line)'))
+		menu_item = clip_add_menu.Append(-1, _('Content (as one line) of current row'))
 		self.Bind(wx.EVT_MENU, self._add_row2clipboard, menu_item)
 		# all fields of the list row as multiple lines of text
-		menu_item = clip_add_menu.Append(-1, _('Row content (one line per column)'))
+		menu_item = clip_add_menu.Append(-1, _('Content (one line per column) of current row'))
 		self.Bind(wx.EVT_MENU, self._add_row_list2clipboard, menu_item)
 		# each field of the list row as text with and without header
 		clip_add_menu.AppendSeparator()
@@ -1682,7 +1764,7 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 			col_header = col_headers[col_idx]
 			if col_header == u'':
 				# without column header
-				menu_item = clip_add_menu.Append(-1, _(u'Column &%s: "%s" [#%s]') % (col_idx+1, shorten_text(col_content, 35), col_idx))
+				menu_item = clip_add_menu.Append(-1, _(u'Column &%s (current row): "%s" [#%s]') % (col_idx+1, shorten_text(col_content, 35), col_idx))
 				self.Bind(wx.EVT_MENU, self._add_col2clipboard, menu_item)
 			else:
 				col_add_menu = wx.Menu()
@@ -1692,14 +1774,30 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 				# without column header
 				menu_item = col_add_menu.Append(-1, u'"%s" [#%s]' % (shorten_text(col_content, 35), col_idx))
 				self.Bind(wx.EVT_MENU, self._add_col2clipboard, menu_item)
-				clip_add_menu.AppendMenu(-1, _(u'Column &%s: %s') % (col_idx+1, col_header), col_add_menu)
-		clip_add_menu.AppendSeparator()
+				clip_add_menu.AppendMenu(-1, _(u'Column &%s (current row): %s') % (col_idx+1, col_header), col_add_menu)
+
+		# 3) copy item to export area
+		# put into file
+		# current row
+		# - fields as one line
+		# - fields as list
+		# - data formatted
+		# - tooltip
+		# selected rows
+		# - fields as lines each
+		# - all data formatted
+		# - all tooltips
+		# - as CSV
+		# send signal
 
 		# show menu
+		#self._context_menu.AppendMenu(-1, _('Copy to e&xport area...'), exp_menu)
+		self._context_menu.AppendMenu(-1, _('&Save to file...'), save_menu)
 		self._context_menu.AppendMenu(-1, _('&Copy to clipboard...'), clip_menu)
 		self._context_menu.AppendMenu(-1, _('Append (&+) to clipboard...'), clip_add_menu)
 
 		if self.__extend_popup_menu_callback is not None:
+			self._context_menu.AppendSeparator()
 			self.__extend_popup_menu_callback(menu = self._context_menu)
 
 		# show menu
@@ -1950,6 +2048,167 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 		self.__search_match()
 
 	#------------------------------------------------------------
+	def _all_rows2file(self, evt):
+
+		txt_name = os.path.join(gmTools.gmPaths().home_dir, 'gnumed', 'gm-all_rows-%s.txt' % pydt.datetime.now().strftime('%m%d-%H%M%S'))
+		txt_file = io.open(txt_name, mode = 'wt', encoding = 'utf8')
+
+		col_labels = self.column_labels
+		line = u'%s' % u' || '.join(col_labels)
+		txt_file.write(u'%s\n' % line)
+		txt_file.write((u'=' * len(line)) + u'\n')
+
+		for item_idx in range(self.ItemCount):
+			fields = []
+			for col_idx in range(self.ColumnCount):
+				fields.append(self.GetItem(item_idx, col_idx).Text)
+			txt_file.write(u'%s\n' % u' || '.join(fields))
+
+		txt_file.close()
+		gmDispatcher.send(signal = 'statustext', msg = _('All rows saved to [%s].') % txt_name)
+
+	#------------------------------------------------------------
+	def _all_rows2csv(self, evt):
+
+		csv_name = os.path.join(gmTools.gmPaths().home_dir, 'gnumed', 'gm-all_rows-%s.csv' % pydt.datetime.now().strftime('%m%d-%H%M%S'))
+		csv_file = io.open(csv_name, mode = 'wb')
+
+		csv_writer = csv.writer(csv_file)
+		csv_writer.writerow([ l.encode('utf-8') for l in self.column_labels ])
+		for item_idx in range(self.ItemCount):
+			fields = []
+			for col_idx in range(self.ColumnCount):
+				fields.append(self.GetItem(item_idx, col_idx).Text)
+			csv_writer.writerow([ f.encode('utf-8') for f in fields ])
+
+		csv_file.close()
+		gmDispatcher.send(signal = 'statustext', msg = _('All rows saved to [%s].') % csv_name)
+
+	#------------------------------------------------------------
+	def _all_row_tooltips2file(self, evt):
+
+		if (self.__data is None) or (self.__item_tooltip_callback is None):
+			return
+
+		txt_name = os.path.join(gmTools.gmPaths().home_dir, 'gnumed', 'gm-list_tooltips-%s.txt' % pydt.datetime.now().strftime('%m%d-%H%M%S'))
+		txt_file = io.open(txt_name, mode = 'wt', encoding = 'utf8')
+
+		for data in self.data:
+			tt = self.__item_tooltip_callback(data)
+			if tt is None:
+				continue
+			txt_file.write(u'%s\n\n' % tt)
+
+		txt_file.close()
+		gmDispatcher.send(signal = 'statustext', msg = _('All tooltips saved to [%s].') % txt_name)
+
+	#------------------------------------------------------------
+	def _all_row_data2file(self, evt):
+
+		if self.__data is None:
+			return
+
+		txt_name = os.path.join(gmTools.gmPaths().home_dir, 'gnumed', 'gm-list_data-%s.txt' % pydt.datetime.now().strftime('%m%d-%H%M%S'))
+		txt_file = io.open(txt_name, mode = 'wt', encoding = 'utf8')
+
+		for data in self.data:
+			if hasattr(data, 'format'):
+				txt = data.format()
+				if type(txt) is list:
+					txt = u'\n'.join(txt)
+			else:
+				txt = u'%s' % data
+			txt_file.write(u'%s\n\n' % txt)
+
+		txt_file.close()
+		gmDispatcher.send(signal = 'statustext', msg = _('All data saved to [%s].') % txt_name)
+
+	#------------------------------------------------------------
+	def _selected_rows2file(self, evt):
+
+		txt_name = os.path.join(gmTools.gmPaths().home_dir, 'gnumed', 'gm-some_rows-%s.txt' % pydt.datetime.now().strftime('%m%d-%H%M%S'))
+		txt_file = io.open(txt_name, mode = 'wt', encoding = 'utf8')
+
+		col_labels = self.column_labels
+		line = u'%s' % u' || '.join(col_labels)
+		txt_file.write(u'%s\n' % line)
+		txt_file.write((u'=' * len(line)) + u'\n')
+
+		items = self.selected_items
+		if self.__is_single_selection:
+			items = [items]
+
+		for item_idx in items:
+			fields = []
+			for col_idx in range(self.ColumnCount):
+				fields.append(self.GetItem(item_idx, col_idx).Text)
+			txt_file.write(u'%s\n' % u' || '.join(fields))
+
+		txt_file.close()
+		gmDispatcher.send(signal = 'statustext', msg = _('Selected rows saved to [%s].') % txt_name)
+
+	#------------------------------------------------------------
+	def _selected_rows2csv(self, evt):
+
+		csv_name = os.path.join(gmTools.gmPaths().home_dir, 'gnumed', 'gm-some_rows-%s.csv' % pydt.datetime.now().strftime('%m%d-%H%M%S'))
+		csv_file = io.open(csv_name, mode = 'wb')
+
+		csv_writer = csv.writer(csv_file)
+		csv_writer.writerow([ l.encode('utf-8') for l in self.column_labels ])
+
+		items = self.selected_items
+		if self.__is_single_selection:
+			items = [items]
+
+		for item_idx in items:
+			fields = []
+			for col_idx in range(self.ColumnCount):
+				fields.append(self.GetItem(item_idx, col_idx).Text)
+			csv_writer.writerow([ f.encode('utf-8') for f in fields ])
+
+		csv_file.close()
+		gmDispatcher.send(signal = 'statustext', msg = _('Selected rows saved to [%s].') % csv_name)
+
+	#------------------------------------------------------------
+	def _selected_row_tooltips2file(self, evt):
+
+		if (self.__data is None) or (self.__item_tooltip_callback is None):
+			return
+
+		txt_name = os.path.join(gmTools.gmPaths().home_dir, 'gnumed', 'gm-list_tooltips-%s.txt' % pydt.datetime.now().strftime('%m%d-%H%M%S'))
+		txt_file = io.open(txt_name, mode = 'wt', encoding = 'utf8')
+
+		for data in self.selected_item_data:
+			tt = self.__item_tooltip_callback(data)
+			if tt is None:
+				continue
+			txt_file.write(u'%s\n\n' % tt)
+
+		txt_file.close()
+		gmDispatcher.send(signal = 'statustext', msg = _('Selected tooltips saved to [%s].') % txt_name)
+
+	#------------------------------------------------------------
+	def _selected_row_data2file(self, evt):
+
+		if self.__data is None:
+			return
+
+		txt_name = os.path.join(gmTools.gmPaths().home_dir, 'gnumed', 'gm-list_data-%s.txt' % pydt.datetime.now().strftime('%m%d-%H%M%S'))
+		txt_file = io.open(txt_name, mode = 'wt', encoding = 'utf8')
+
+		for data in self.selected_item_data:
+			if hasattr(data, 'format'):
+				txt = data.format()
+				if type(txt) is list:
+					txt = u'\n'.join(txt)
+			else:
+				txt = u'%s' % data
+			txt_file.write(u'%s\n\n' % txt)
+
+		txt_file.close()
+		gmDispatcher.send(signal = 'statustext', msg = _('Selected data saved to [%s].') % txt_name)
+
+	#------------------------------------------------------------
 	def _tooltip2clipboard(self, evt):
 		if wx.TheClipboard.IsOpened():
 			_log.debug('clipboard already open')
@@ -1967,6 +2226,33 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 				txt = self.__tt_static_part
 
 		data_obj.SetText(txt)
+		wx.TheClipboard.SetData(data_obj)
+		wx.TheClipboard.Close()
+
+	#------------------------------------------------------------
+	def _tooltips2clipboard(self, evt):
+		if wx.TheClipboard.IsOpened():
+			_log.debug('clipboard already open')
+			return
+		if not wx.TheClipboard.Open():
+			_log.debug('cannot open clipboard')
+			return
+
+		if (self.__data is None) or (self.__item_tooltip_callback is None):
+			return
+
+		tts = []
+		for data in self.selected_item_data:
+			tt = self.__item_tooltip_callback(data)
+			if tt is None:
+				continue
+			tts.append(tt)
+
+		if len(tts) == 0:
+			return
+
+		data_obj = wx.TextDataObject()
+		data_obj.SetText(u'\n\n'.join(tts))
 		wx.TheClipboard.SetData(data_obj)
 		wx.TheClipboard.Close()
 
@@ -2002,6 +2288,40 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 		wx.TheClipboard.Close()
 
 	#------------------------------------------------------------
+	def _add_tooltips2clipboard(self, evt):
+		if wx.TheClipboard.IsOpened():
+			_log.debug('clipboard already open')
+			return
+		if not wx.TheClipboard.Open():
+			_log.debug('cannot open clipboard')
+			return
+
+		if (self.__data is None) or (self.__item_tooltip_callback is None):
+			return
+
+		tts = []
+		for data in self.selected_item_data:
+			tt = self.__item_tooltip_callback(data)
+			if tt is None:
+				continue
+			tts.append(tt)
+
+		if len(tts) == 0:
+			return
+
+		data_obj = wx.TextDataObject()
+		txt = u''
+		# get previous text
+		got_it = wx.TheClipboard.GetData(data_obj)
+		if got_it:
+			txt = data_obj.Text + u'\n\n'
+		txt += u'\n\n'.join(tts)
+
+		data_obj.SetText(txt)
+		wx.TheClipboard.SetData(data_obj)
+		wx.TheClipboard.Close()
+
+	#------------------------------------------------------------
 	def _row2clipboard(self, evt):
 		if wx.TheClipboard.IsOpened():
 			_log.debug('clipboard already open')
@@ -2011,6 +2331,24 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 			return
 		data_obj = wx.TextDataObject()
 		data_obj.SetText(u' // '.join(self._rclicked_row_cells))
+		wx.TheClipboard.SetData(data_obj)
+		wx.TheClipboard.Close()
+
+	#------------------------------------------------------------
+	def _rows2clipboard(self, evt):
+		if wx.TheClipboard.IsOpened():
+			_log.debug('clipboard already open')
+			return
+		if not wx.TheClipboard.Open():
+			_log.debug('cannot open clipboard')
+			return
+
+		rows = []
+		for item_idx in self.selected_items:
+			rows.append(u' // '.join([ self.GetItem(item_idx, col_idx).Text.strip() for col_idx in range(self.ColumnCount) ]))
+
+		data_obj = wx.TextDataObject()
+		data_obj.SetText(u'\n\n'.join(rows))
 		wx.TheClipboard.SetData(data_obj)
 		wx.TheClipboard.Close()
 
@@ -2034,6 +2372,32 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 		txt += u' // '.join(self._rclicked_row_cells)
 
 		# set text
+		data_obj.SetText(txt)
+		wx.TheClipboard.SetData(data_obj)
+		wx.TheClipboard.Close()
+
+	#------------------------------------------------------------
+	def _add_rows2clipboard(self, evt):
+		if wx.TheClipboard.IsOpened():
+			_log.debug('clipboard already open')
+			return
+		if not wx.TheClipboard.Open():
+			_log.debug('cannot open clipboard')
+			return
+
+		rows = []
+		for item_idx in self.selected_items:
+			rows.append(u' // '.join([ self.GetItem(item_idx, col_idx).Text.strip() for col_idx in range(self.ColumnCount) ]))
+
+		data_obj = wx.TextDataObject()
+
+		txt = u''
+		# get previous text
+		got_it = wx.TheClipboard.GetData(data_obj)
+		if got_it:
+			txt = data_obj.Text + u'\n'
+		txt += u'\n\n'.join(rows)
+
 		data_obj.SetText(txt)
 		wx.TheClipboard.SetData(data_obj)
 		wx.TheClipboard.Close()
@@ -2092,6 +2456,30 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 		wx.TheClipboard.Close()
 
 	#------------------------------------------------------------
+	def _datas2clipboard(self, evt):
+		if wx.TheClipboard.IsOpened():
+			_log.debug('clipboard already open')
+			return
+		if not wx.TheClipboard.Open():
+			_log.debug('cannot open clipboard')
+			return
+
+		data_as_txt = []
+		for data in self.selected_item_data:
+			if hasattr(data, 'format'):
+				txt = data.format()
+				if type(txt) is list:
+					txt = u'\n'.join(txt)
+			else:
+				txt = u'%s' % data
+			data_as_txt.append(txt)
+
+		data_obj = wx.TextDataObject()
+		data_obj.SetText(u'\n\n'.join(data_as_txt))
+		wx.TheClipboard.SetData(data_obj)
+		wx.TheClipboard.Close()
+
+	#------------------------------------------------------------
 	def _add_data2clipboard(self, evt):
 		if wx.TheClipboard.IsOpened():
 			_log.debug('clipboard already open')
@@ -2113,6 +2501,38 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 			txt += u'\n'.join(tmp)
 		else:
 			txt += tmp
+
+		# set text
+		data_obj.SetText(txt)
+		wx.TheClipboard.SetData(data_obj)
+		wx.TheClipboard.Close()
+
+	#------------------------------------------------------------
+	def _add_datas2clipboard(self, evt):
+		if wx.TheClipboard.IsOpened():
+			_log.debug('clipboard already open')
+			return
+		if not wx.TheClipboard.Open():
+			_log.debug('cannot open clipboard')
+			return
+
+		data_as_txt = []
+		for data in self.selected_item_data:
+			if hasattr(data, 'format'):
+				txt = data.format()
+				if type(txt) is list:
+					txt = u'\n'.join(txt)
+			else:
+				txt = u'%s' % data
+			data_as_txt.append(txt)
+
+		data_obj = wx.TextDataObject()
+		txt = u''
+		# get previous text
+		got_it = wx.TheClipboard.GetData(data_obj)
+		if got_it:
+			txt = data_obj.Text + u'\n'
+		txt += u'\n'.join(data_as_txt)
 
 		# set text
 		data_obj.SetText(txt)

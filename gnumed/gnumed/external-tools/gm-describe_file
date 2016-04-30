@@ -7,17 +7,19 @@ if test -z "${DESCRIPTION_FILE}" ; then
 	DESCRIPTION_FILE="${FILE_2_DESCRIBE}.txt"
 fi
 
-echo "-- file ----" > ${DESCRIPTION_FILE}
+echo "---- file ----" > ${DESCRIPTION_FILE}
 file "${FILE_2_DESCRIBE}" >> "${DESCRIPTION_FILE}" 2>> "${DESCRIPTION_FILE}"
 echo "" >> "${DESCRIPTION_FILE}"
-echo "-- exiftool ----" >> "${DESCRIPTION_FILE}"
-exiftool -ee -m -u "${FILE_2_DESCRIBE}" >> "${DESCRIPTION_FILE}" 2>> "${DESCRIPTION_FILE}"
-#echo "" >> "${DESCRIPTION_FILE}"
-#echo "-- identify ----" >> "${DESCRIPTION_FILE}"
+
+exiftool -g1 -ee -m -u "${FILE_2_DESCRIBE}" >> "${DESCRIPTION_FILE}" 2>> "${DESCRIPTION_FILE}"
+echo "" >> "${DESCRIPTION_FILE}"
+
+#echo "---- identify ----" >> "${DESCRIPTION_FILE}"
 # takes a long time on larger images / PDF files
 #identify -verbose "${FILE_2_DESCRIBE}" >> "${DESCRIPTION_FILE}" 2>> "${DESCRIPTION_FILE}"
-echo "" >> "${DESCRIPTION_FILE}"
-echo "-- sfinfo ----" >> "${DESCRIPTION_FILE}"
+#echo "" >> "${DESCRIPTION_FILE}"
+
+echo "---- sfinfo ----" >> "${DESCRIPTION_FILE}"
 sfinfo "${FILE_2_DESCRIBE}" >> "${DESCRIPTION_FILE}" 2>> "${DESCRIPTION_FILE}"
 
 exit 0

@@ -199,7 +199,7 @@ def save_files_as_new_document(parent=None, filenames=None, document_type=None, 
 	if reference is not None:
 		doc['ext_ref'] = reference
 	if pk_org_unit is not None:
-		doc['pk_org_unit'] = gmPraxis.gmCurrentPraxisBranch()['pk_org_unit']
+		doc['pk_org_unit'] = pk_org_unit
 	if date_generated is not None:
 		doc['clin_when'] = date_generated
 	if comment is not None:
@@ -608,6 +608,7 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 			raise ValueError('<part> must be gmDocuments.cDocument or gmDocuments.cDocumentPart instance, got <%s>' % type(part))
 
 		self.__init_ui_data()
+
 	#--------------------------------------------------------
 	# internal API
 	#--------------------------------------------------------
@@ -624,6 +625,13 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 			self._PRW_doc_comment.set_context(context = 'pk_doc_type', val = self.__doc['pk_type'])
 		else:
 			self._PRW_doc_comment.SetText(gmTools.coalesce(self.__part['obj_comment'], ''))
+
+		if self.__doc['pk_org_unit'] is not None:
+			self._PRW_org.SetText(value = u'%s @ %s' % (self.__doc['unit'], self.__doc['organization']), data = self.__doc['pk_org_unit'])
+		if self.__reviewing_doc:
+			self._PRW_org.Enable()
+		else:
+			self._PRW_org.Disable()
 
 		fts = gmDateTime.cFuzzyTimestamp(timestamp = self.__doc['clin_when'])
 		self._PhWheel_doc_date.SetText(fts.strftime('%Y-%m-%d'), fts)
@@ -676,6 +684,7 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 			self._ChBOX_sign_all_pages.SetValue(self.__reviewing_doc)
 
 		return True
+
 	#--------------------------------------------------------
 	def __reload_existing_reviews(self):
 		self._LCTRL_existing_reviews.DeleteAllItems()
@@ -714,6 +723,7 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 				self._LCTRL_existing_reviews.SetStringItem(index = row_num, col=3, label=u'X')
 			self._LCTRL_existing_reviews.SetStringItem(index = row_num, col=4, label=rev[6])
 		return True
+
 	#--------------------------------------------------------
 	# event handlers
 	#--------------------------------------------------------
@@ -747,6 +757,7 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 		if self._PhWheel_doc_date.GetData() is not None:
 			self.__doc['clin_when'] = self._PhWheel_doc_date.GetData().get_pydt()
 		self.__doc['ext_ref'] = self._TCTRL_reference.GetValue().strip()
+		self.__doc['pk_org_unit'] = self._PRW_org.GetData()
 
 		success, data = self.__doc.save_payload()
 		if not success:
@@ -807,18 +818,21 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 				return False
 
 		return True
+
 	#--------------------------------------------------------
 	def _on_reviewed_box_checked(self, evt):
 		state = self._ChBOX_review.GetValue()
 		self._ChBOX_abnormal.Enable(enable = state)
 		self._ChBOX_relevant.Enable(enable = state)
 		self._ChBOX_responsible.Enable(enable = state)
+
 	#--------------------------------------------------------
 	def _on_doc_type_gets_focus(self):
 		"""Per Jim: Changing the doc type happens a lot more often
 		   then correcting spelling, hence select-all on getting focus.
 		"""
 		self._PhWheel_doc_type.SetSelection(-1, -1)
+
 	#--------------------------------------------------------
 	def _on_doc_type_loses_focus(self):
 		pk_doc_type = self._PhWheel_doc_type.GetData()
@@ -961,6 +975,8 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 		self._LCTRL_doc_pages.remove_items_safely()
 		self._LCTRL_doc_pages.set_columns([_('file'), _('path')])
 		self._LCTRL_doc_pages.set_column_widths()
+
+		self._TCTRL_metadata.SetValue(u'')
 
 		self._PhWheel_doc_type.SetFocus()
 
@@ -1443,6 +1459,11 @@ class cSelectablySortedDocTreePnl(wxgSelectablySortedDocTreePnl.wxgSelectablySor
 		self._doc_tree.sort_mode = 'type'
 		self._doc_tree.SetFocus()
 		self._rbtn_sort_by_type.SetValue(True)
+	#--------------------------------------------------------
+	def _on_sort_by_org_selected(self, evt):
+		self._doc_tree.sort_mode = 'org'
+		self._doc_tree.SetFocus()
+		self._rbtn_sort_by_org.SetValue(True)
 
 #============================================================
 class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.ExpansionState):
@@ -1452,7 +1473,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 
 	This acts on the current patient.
 	"""
-	_sort_modes = ['age', 'review', 'episode', 'type', 'issue']
+	_sort_modes = ['age', 'review', 'episode', 'type', 'issue', 'org']
 	_root_node_labels = None
 	#--------------------------------------------------------
 	def __init__(self, parent, id, *args, **kwds):
@@ -1470,7 +1491,8 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 			'review': tmp % unsigned,
 			'episode': tmp % _('sorted by episode'),
 			'issue': tmp % _('sorted by health issue'),
-			'type': tmp % _('sorted by type')
+			'type': tmp % _('sorted by type'),
+			'org': tmp % _('sorted by organization')
 		}
 
 		self.root = None
@@ -1758,6 +1780,25 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 					self.SetItemHasChildren(intermediate_nodes[inter_label], True)
 				parent = intermediate_nodes[inter_label]
 
+			elif self.__sort_mode == 'org':
+				if doc['pk_org'] is None:
+					inter_label = _('unknown organization')
+				else:
+					inter_label = doc['organization']
+				doc_label = _('%s%7s %s:%s (%s)') % (
+					gmTools.bool2subst(doc.has_unreviewed_parts, gmTools.u_writing_hand, u'', u'?'),
+					doc['clin_when'].strftime('%m/%Y'),
+					doc['l10n_type'][:26],
+					gmTools.coalesce(initial = doc['comment'], instead = u'', template_initial = u' %s'),
+					no_parts
+				)
+				if inter_label not in intermediate_nodes:
+					intermediate_nodes[inter_label] = self.AppendItem(parent = self.root, text = inter_label)
+					self.SetItemBold(intermediate_nodes[inter_label], bold = True)
+					self.SetItemPyData(intermediate_nodes[inter_label], None)
+					self.SetItemHasChildren(intermediate_nodes[inter_label], True)
+				parent = intermediate_nodes[inter_label]
+
 			else:
 				doc_label = _('%s%7s %s:%s (%s)') % (
 					gmTools.bool2subst(doc.has_unreviewed_parts, gmTools.u_writing_hand, u'', u'?'),
@@ -1819,7 +1860,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 		# expand intermediate nodes as well
 		if self.__expanded_nodes is None:
 			# but only if there are any
-			if self.__sort_mode in ['episode', 'type', 'issue']:
+			if self.__sort_mode in ['episode', 'type', 'issue', 'org']:
 				for key in intermediate_nodes.keys():
 					self.Expand(intermediate_nodes[key])
 
@@ -1906,6 +1947,26 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 				if data1['l10n_type'] < data2['l10n_type']:
 					return -1
 				if data1['l10n_type'] == data2['l10n_type']:
+					# inner sort: reverse by date
+					if data1[date_field] > data2[date_field]:
+						return -1
+					if data1[date_field] == data2[date_field]:
+						return 0
+					return 1
+				return 1
+
+			elif self.__sort_mode == 'org':
+				if (data1['organization'] is None) and (data2['organization'] is None):
+					return 0
+				if (data1['organization'] is None) and (data2['organization'] is not None):
+					return 1
+				if (data1['organization'] is not None) and (data2['organization'] is None):
+					return -1
+				txt1 = u'%s %s' % (data1['organization'], data1['unit'])
+				txt2 = u'%s %s' % (data2['organization'], data2['unit'])
+				if txt1 < txt2:
+					return -1
+				if txt1 == txt2:
 					# inner sort: reverse by date
 					if data1[date_field] > data2[date_field]:
 						return -1
@@ -2966,6 +3027,7 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 		event.Skip()
 		if self.__pacs is None:
 			return
+
 		study_data = self._LCTRL_studies.get_selected_item_data(only_one = True)
 		if study_data is None:
 			return
@@ -3011,6 +3073,9 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 	#--------------------------------------------------------
 	def _on_modify_orthanc_content_button_pressed(self, event):
 		event.Skip()
+		if self.__pacs is None:
+			return
+
 		dlg = cModifyOrthancContentDlg(self, -1, server = self.__pacs)
 		dlg.ShowModal()
 		dlg.Destroy()
@@ -3019,6 +3084,9 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 	#--------------------------------------------------------
 	def _on_upload_button_pressed(self, event):
 		event.Skip()
+		if self.__pacs is None:
+			return
+
 		dlg = wx.DirDialog (
 			self,
 			message = _('Select the directory from which to recursively upload DICOM files.'),

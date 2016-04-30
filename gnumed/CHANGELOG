@@ -6,14 +6,44 @@
 # rel-1-6-patches
 ------------------------------------------------
 
+	1.6.6
+
+FIX: error when running gm-import_incoming as root
+
+IMPROVED: clear metadata panel after importing new document
+IMRPOVED: enable editing of document source org
+IMPROVED: list context menu layout
+IMPROVED: handling of Windows locale names like Hungarian_Hungary [thanks Attila]
+IMPROVED: AppData file
+
+	1.6.5
+
+IMPROVED: list context menu: operate on _selected_ rows
+
+	1.6.4
+
+FIX: EMR journal exporter on Windows [thanks Marc]
+
+IMPROVED: by-org sort mode in document tree
+IMPROVED: file describer script
+IMPROVED: STIKO tetanus auto hint
+IMPROVED: ES translation [thanks Uwe]
+
+NEW: gm-import_incoming script for external use
+
 	1.6.3
 
 FIX: exception on creating invoice from bill [thanks Marc]
 FIX: faulty assumption on what %()s keys must exist in translations
 FIX: exception in expando SOAP editor when lines need wrapping [thanks Marc]
 FIX: exception on saving progress note under new episode [thanks Marc]
+FIX: exception on deleting list items [thanks Marc]
+FIX: exception on building list context menu [thanks Marc]
+FIX: exception in measurements widget on client idling w/o patient [thanks Marc]
 
 IMPROVED: add httplib2 to check-prerequisites.py [thanks Marc]
+IMPROVED: single-line formatting of addresses
+IMPROVED: enhance list context menu to selected rows
 
 	1.6.2
 

@@ -132,12 +132,12 @@ def __log_locale_settings(message=None):
 		_log.debug(message)
 
 	_log.debug('current locale settings:')
-	_log.debug('locale.get_locale(): %s' % str(locale.getlocale()))
+	_log.debug('locale.getlocale(): %s' % str(locale.getlocale()))
 	for category in _getlocale_categories.keys():
-		_log.debug('locale.get_locale(%s): %s' % (category, locale.getlocale(_getlocale_categories[category])))
+		_log.debug('locale.getlocale(%s): %s' % (category, locale.getlocale(_getlocale_categories[category])))
 
 	for category in _setlocale_categories.keys():
-		_log.debug('(locale.set_locale(%s): %s)' % (category, locale.setlocale(_setlocale_categories[category])))
+		_log.debug('(locale.setlocale(%s): %s)' % (category, locale.setlocale(_setlocale_categories[category])))
 
 	try:
 		_log.debug('locale.getdefaultlocale() - default (user) locale: %s' % str(locale.getdefaultlocale()))
@@ -286,42 +286,87 @@ def install_domain(domain=None, language=None, prefer_local_catalog=False):
 	# http://www.opengroup.org/onlinepubs/009695399/basedefs/xbd_chap08.html
 	_log.debug('searching message catalog file for system locale [%s]' % system_locale)
 
+	_log.debug('checking process environment:')
 	for env_var in ['LANGUAGE', 'LC_ALL', 'LC_MESSAGES', 'LANG']:
 		tmp = os.getenv(env_var)
 		if env_var is None:
-			_log.debug('${%s} not set' % env_var)
+			_log.debug(' ${%s} not set' % env_var)
 		else:
-			_log.debug('${%s} = [%s]' % (env_var, tmp))
+			_log.debug(' ${%s} = [%s]' % (env_var, tmp))
 
+	# language codes to try
+	lang_candidates = []
+	# first: explicit language or default system language
+	# language=None: unadulterated default language for user (locale.getlocale()[0] value)
+	# language != None: explicit language setting as passed in by the caller
+	lang_candidates.append(language)
 	if language is not None:
-		_log.info('explicit setting of ${LANG} requested: [%s]' % language)
-		_log.info('this will override the system locale language setting')
-		os.environ['LANG'] = language
+		_log.info('explicit request for target language [%s]' % language)
+		# next: try default language for user if explicit language fails
+		lang_candidates.append(None)
+
+	# next try locale.getlocale()[0], if different (this can be strange on, say, Windows: Hungarian_Hungary)
+	if locale.getlocale()[0] not in lang_candidates:
+		lang_candidates.append(locale.getlocale()[0])
+
+	# next try locale.get*default*locale()[0], if different
+	if locale.getdefaultlocale()[0] not in lang_candidates:
+		lang_candidates.append(locale.getdefaultlocale()[0])
+
+	_log.debug('languages to try for translation: %s', lang_candidates)
+	initial_lang = os.getenv('LANG')
+	_log.info('initial ${LANG} setting: %s', initial_lang)
+
+	# loop over language candidates
+	for lang_candidate in lang_candidates:
+		# setup baseline
+		_log.debug('resetting ${LANG} to initial user default [%s]', initial_lang)
+		if initial_lang is None:
+			del os.environ['LANG']
+		else:
+			os.environ['LANG'] = initial_lang
+		# setup candidate language
+		if lang_candidate is not None:
+			_log.info('explicitely overriding system locale language [%s] by setting ${LANG} to [%s]', initial_lang, lang_candidate)
+			os.environ['LANG'] = lang_candidate
+
+		if __install_domain(domain = domain, prefer_local_catalog = prefer_local_catalog):
+			return True
+
+	# install a dummy translation class
+	_log.warning("falling back to NullTranslations() class")
+	# this shouldn't fail
+	dummy = gettext.NullTranslations()
+	dummy.install()
+	return True
+
+#---------------------------------------------------------------------------
+def __install_domain(domain, prefer_local_catalog):
 
 	# search for message catalog
-	candidates = []
+	candidate_PO_dirs = []
 
 	# - locally
 	if prefer_local_catalog:
-		_log.debug('preferring local message catalog')
+		_log.debug('prioritizing local message catalog')
 		# - one level above path to binary
 		#    last resort for inferior operating systems such as DOS/Windows
 		#    strip one directory level
 		#    this is a rather neat trick :-)
 		loc_dir = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), '..', 'po'))
 		_log.debug('looking above binary install directory [%s]' % loc_dir)
-		candidates.append(loc_dir)
+		candidate_PO_dirs.append(loc_dir)
 		# - in path to binary
 		loc_dir = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), 'po'))
 		_log.debug('looking in binary install directory [%s]' % loc_dir)
-		candidates.append(loc_dir)
+		candidate_PO_dirs.append(loc_dir)
 
 	# - standard places
 	if os.name == 'posix':
 		_log.debug('system is POSIX, looking in standard locations (see Python Manual)')
 		# if this is reported to segfault/fail/except on some
 		# systems we may have to assume "sys.prefix/share/locale/"
-		candidates.append(gettext.bindtextdomain(domain))
+		candidate_PO_dirs.append(gettext.bindtextdomain(domain))
 	else:
 		_log.debug('No use looking in standard POSIX locations - not a POSIX system.')
 
@@ -331,7 +376,7 @@ def install_domain(domain=None, language=None, prefer_local_catalog=False):
 	if env_key in os.environ:
 		loc_dir = os.path.abspath(os.path.join(os.environ[env_key], 'po'))
 		_log.debug('${%s} = "%s" -> [%s]' % (env_key, os.environ[env_key], loc_dir))
-		candidates.append(loc_dir)
+		candidate_PO_dirs.append(loc_dir)
 	else:
 		_log.info("${%s} not set" % env_key)
 
@@ -343,21 +388,22 @@ def install_domain(domain=None, language=None, prefer_local_catalog=False):
 		#    this is a rather neat trick :-)
 		loc_dir = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), '..', 'po'))
 		_log.debug('looking above binary install directory [%s]' % loc_dir)
-		candidates.append(loc_dir)
+		candidate_PO_dirs.append(loc_dir)
 		# - in path to binary
 		loc_dir = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), 'po' ))
 		_log.debug('looking in binary install directory [%s]' % loc_dir)
-		candidates.append(loc_dir)
+		candidate_PO_dirs.append(loc_dir)
 
 	# now try to actually install it
-	for candidate in candidates:
-		_log.debug('trying [%s](/%s/LC_MESSAGES/%s.mo)', candidate, system_locale, domain)
-		if not os.path.exists(candidate):
+	for candidate_PO_dir in candidate_PO_dirs:
+		_log.debug('trying with (%s, %s, %s)', candidate_PO_dir, system_locale, domain)
+		_log.debug(' -> %s/%s/LC_MESSAGES/%s.mo', candidate_PO_dir, system_locale, domain)
+		if not os.path.exists(candidate_PO_dir):
 			continue
 		try:
-			gettext.install(domain, candidate, unicode=1)
+			gettext.install(domain, candidate_PO_dir, unicode = 1)
 		except:
-			_log.exception('installing text domain [%s] failed from [%s]', domain, candidate)
+			_log.exception('installing text domain [%s] failed from [%s]', domain, candidate_PO_dir)
 			continue
 		global _
 		# does it translate ?
@@ -372,12 +418,7 @@ def install_domain(domain=None, language=None, prefer_local_catalog=False):
 			__builtin__._ = _translate_protected
 			return True
 
-	# 5) install a dummy translation class
-	_log.warning("falling back to NullTranslations() class")
-	# this shouldn't fail
-	dummy = gettext.NullTranslations()
-	dummy.install()
-	return True
+	return False
 
 #===========================================================================
 _encoding_mismatch_already_logged = False
@@ -471,7 +512,7 @@ if __name__ == "__main__":
 	print("system locale: ", system_locale, "; levels:", system_locale_level)
 	print("likely encoding:", get_encoding())
 
-	if len(sys.argv) > 1:
+	if len(sys.argv) > 2:
 		install_domain(domain = sys.argv[2])
 	else:
 		install_domain()

@@ -23,18 +23,6 @@ if [ ! -e ${SYSCONF} ] ; then
 fi
 
 
-# source systemwide startup extension shell script if it exists
-if [ -r /etc/gnumed/gnumed-startup-local.sh ] ; then
-	. /etc/gnumed/gnumed-startup-local.sh
-fi
-
-
-# source local startup extension shell script if it exists
-if [ -r ${HOME}/.gnumed/scripts/gnumed-startup-local.sh ] ; then
-	. ${HOME}/.gnumed/scripts/gnumed-startup-local.sh
-fi
-
-
 # packages which install the GNUmed python modules into a path not
 # already accessible for imports via sys.path (say, /usr/share/gnumed/)
 # may need to adjust PYTHONPATH appropriately here
@@ -45,6 +33,18 @@ fi
 # path not already accessible via PATH (say, /usr/share/gnumed/bin)
 # may need to adjust PATH appropriately here
 #export PATH="${PATH}:/usr/share/gnumed/bin"
+
+
+# source systemwide startup extension shell script if it exists
+if [ -r /etc/gnumed/gnumed-startup-local.sh ] ; then
+	. /etc/gnumed/gnumed-startup-local.sh
+fi
+
+
+# source local startup extension shell script if it exists
+if [ -r ${HOME}/.gnumed/scripts/gnumed-startup-local.sh ] ; then
+	. ${HOME}/.gnumed/scripts/gnumed-startup-local.sh
+fi
 
 
 # now run the client
@@ -63,7 +63,7 @@ if [ -r ${HOME}/.gnumed/scripts/gnumed-shutdown-local.sh ] ; then
 fi
 
 
-# sync the discs just in case so we don't lose log files
-sync
+# maybe sync the discs just in case so we don't loose log files
+#sync
 
 #==================================================
