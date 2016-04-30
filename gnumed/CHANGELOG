@@ -13,6 +13,8 @@ FIX: error when running gm-import_incoming as root
 IMPROVED: clear metadata panel after importing new document
 IMRPOVED: enable editing of document source org
 IMPROVED: list context menu layout
+IMPROVED: handling of Windows locale names like Hungarian_Hungary [thanks Attila]
+IMPROVED: AppData file
 
 	1.6.5
 
