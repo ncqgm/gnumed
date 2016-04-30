@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-04-06 11:40+0200\n"
+"POT-Creation-Date: 2016-04-30 14:11+0200\n"
 "PO-Revision-Date: 2012-01-21 13:50+0000\n"
 "Last-Translator: YvLy <Unknown>\n"
 "Language-Team: Russian <ru@li.org>\n"
@@ -2445,12 +2445,6 @@ msgstr "Ввод условия для писка:"
 msgid "New patient ID:"
 msgstr "внутренний ID пациента"
 
-msgid "Your review"
-msgstr "Ваше заключение"
-
-msgid "Reviews by others"
-msgstr "Заключения других"
-
 msgid "(you are/are not the primary reviewer)"
 msgstr "(вы не основной рецензент)"
 
@@ -2484,6 +2478,12 @@ msgid ""
 msgstr ""
 "Показывает эпизод, относящийся к этому документу. Выбирите другой или "
 "введите название нового для связи с другим документом."
+
+#, fuzzy
+msgid "The organizational unit this document originates from."
+msgstr ""
+"\n"
+"Выберите нужное пребывание в стационаре для редактирования!\n"
 
 msgid "Enter the date of creation of the document."
 msgstr "Введите дату создания документа."
@@ -2557,8 +2557,17 @@ msgstr "Сохранить рецензию."
 msgid "Cancel this review."
 msgstr "Отменить рецензию."
 
+msgid "Your review"
+msgstr "Ваше заключение"
+
+msgid "Reviews by others"
+msgstr "Заключения других"
+
 msgid "Episode"
 msgstr "Обострение"
+
+msgid "Source"
+msgstr "Исходник"
 
 msgid "Date"
 msgstr "дата"
@@ -5637,20 +5646,18 @@ msgstr "редактировать описание обращения"
 msgid "Close this dialog."
 msgstr "Закрывает этот диалог."
 
-msgid "age"
-msgstr "возраст"
+msgid "Age"
+msgstr "Возраст"
 
-msgid "review status"
+#, fuzzy
+msgid "Review status"
 msgstr "состояние рецензии"
 
-msgid "episode"
-msgstr "эпизод"
+msgid "Health issue"
+msgstr "Заболевание"
 
-msgid "health issue"
-msgstr "заболевание"
-
-msgid "type"
-msgstr "тип"
+msgid "Organization"
+msgstr "Организация"
 
 msgid "Sort newest documents to top of tree."
 msgstr "Сортировать свежие документы в главном дереве."
@@ -5666,6 +5673,10 @@ msgstr "Сортировать документы по принадлежнос�
 
 msgid "Sort documents by their type."
 msgstr "Сортировать документы по их типам."
+
+#, fuzzy
+msgid "Sort documents by the organization they are from."
+msgstr "Сортировать документы по принадлежности к  эпизодам."
 
 msgid "Sort documents by"
 msgstr "Сортировать документы по"
@@ -5991,9 +6002,6 @@ msgstr "Название организационного подразделен
 msgid "The category of the organizational unit."
 msgstr "Категория организационного подразделения."
 
-msgid "Organization"
-msgstr "Организация"
-
 msgid "Unit"
 msgstr "Единица измерения"
 
@@ -6172,9 +6180,6 @@ msgid ""
 "Conditions\n"
 "(SQL query)"
 msgstr ""
-
-msgid "Source"
-msgstr "Исходник"
 
 msgid "URL"
 msgstr "URL"
@@ -8129,9 +8134,6 @@ msgstr "скорректированный результат"
 msgid "missing, reported later"
 msgstr "отсутсвует, будет сообщено позже"
 
-msgid "Health issue"
-msgstr "Заболевание"
-
 #, fuzzy
 msgid "External care"
 msgstr "Внешний код"
@@ -9961,6 +9963,9 @@ msgstr "когда"
 
 msgid "who"
 msgstr "кто"
+
+msgid "type"
+msgstr "тип"
 
 msgid "entry"
 msgstr "запись"
@@ -12361,9 +12366,6 @@ msgstr "Примечания"
 msgid "Progress Note"
 msgstr "Рабочая заметка"
 
-msgid "Age"
-msgstr "Возраст"
-
 msgid "N/A"
 msgstr "Нет данных"
 
@@ -14201,6 +14203,33 @@ msgstr ""
 msgid "Find next [%s] (<CTRL-N>)"
 msgstr ""
 
+#, fuzzy
+msgid "&All rows"
+msgstr "Пользователи &All"
+
+msgid "All rows as &CSV"
+msgstr ""
+
+msgid "&Tooltips of all rows"
+msgstr ""
+
+msgid "&Data of all rows"
+msgstr ""
+
+#, fuzzy
+msgid "&Selected rows"
+msgstr "&Select"
+
+msgid "&Selected rows as CSV"
+msgstr ""
+
+msgid "&Tooltips of selected rows"
+msgstr ""
+
+#, fuzzy
+msgid "&Data of selected rows"
+msgstr "Не переформатировать текст"
+
 msgid "Tooltips of selected rows"
 msgstr ""
 
@@ -14234,8 +14263,8 @@ msgid "Column &%s (current row): %s"
 msgstr "Документы: %s"
 
 #, fuzzy
-msgid "Copy to e&xport area..."
-msgstr "Активирование пациента из  полученного списка"
+msgid "&Save to file..."
+msgstr "Сохранить рецензию."
 
 #, fuzzy
 msgid "&Copy to clipboard..."
@@ -14266,6 +14295,30 @@ msgid ""
 "\n"
 "%s"
 msgstr "Ввод условия для писка:"
+
+#, python-format
+msgid "All rows saved to [%s]."
+msgstr ""
+
+#, python-format
+msgid "All tooltips saved to [%s]."
+msgstr ""
+
+#, python-format
+msgid "All data saved to [%s]."
+msgstr ""
+
+#, fuzzy, python-format
+msgid "Selected rows saved to [%s]."
+msgstr "Удаленное определение отчета [%s]."
+
+#, fuzzy, python-format
+msgid "Selected tooltips saved to [%s]."
+msgstr "Удаленное определение отчета [%s]."
+
+#, fuzzy, python-format
+msgid "Selected data saved to [%s]."
+msgstr "Установить язык базы данных на [%s]."
 
 msgid "Monty the Serpent && the FSF Present"
 msgstr "Змея Monty && существующий FSF"
@@ -15965,6 +16018,10 @@ msgstr "сортированное по заболеванию"
 msgid "sorted by type"
 msgstr "сортированное по типу"
 
+#, fuzzy
+msgid "sorted by organization"
+msgstr "Добавление новой организации"
+
 msgid "Cannot load documents. No active patient."
 msgstr "Невозможно загрузить документы. Нет активного пациента."
 
@@ -16054,6 +16111,10 @@ msgstr "%s%7s %s:%s (%s часть(и)%s)"
 #, fuzzy, python-format
 msgid "%s (unattributed episode)"
 msgstr "Эпизоды без аттрибутов"
+
+#, fuzzy
+msgid "unknown organization"
+msgstr "неизвестная реакция"
 
 #, python-format
 msgid "part %2s"
@@ -21205,6 +21266,19 @@ msgstr "Отменить"
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Отменить и НЕ подключаться к GNUmed."
+
+#~ msgid "age"
+#~ msgstr "возраст"
+
+#~ msgid "episode"
+#~ msgstr "эпизод"
+
+#~ msgid "health issue"
+#~ msgstr "заболевание"
+
+#, fuzzy
+#~ msgid "Copy to e&xport area..."
+#~ msgstr "Активирование пациента из  полученного списка"
 
 #, fuzzy
 #~ msgid "&Entry time"

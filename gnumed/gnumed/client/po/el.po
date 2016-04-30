@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-04-06 11:40+0200\n"
+"POT-Creation-Date: 2016-04-30 14:11+0200\n"
 "PO-Revision-Date: 2012-06-01 01:24+0000\n"
 "Last-Translator: ncq <Unknown>\n"
 "Language-Team: Ελληνικά, Σύγχρονα <opensuse-translation-el@opensuse.org>\n"
@@ -2280,12 +2280,6 @@ msgstr "Αναζήτηση με"
 msgid "New patient ID:"
 msgstr "ID εσωτερικού ασθενούς"
 
-msgid "Your review"
-msgstr ""
-
-msgid "Reviews by others"
-msgstr ""
-
 msgid "(you are/are not the primary reviewer)"
 msgstr ""
 
@@ -2317,6 +2311,10 @@ msgid ""
 "Shows the episode associated with this document. Select another one or type "
 "in a new episode name to associate a different one."
 msgstr ""
+
+#, fuzzy
+msgid "The organizational unit this document originates from."
+msgstr "Η εμπορική ονομασία του φάρμακου που λαμβάνει ο ασθενής."
 
 msgid "Enter the date of creation of the document."
 msgstr ""
@@ -2372,8 +2370,17 @@ msgstr ""
 msgid "Cancel this review."
 msgstr ""
 
+msgid "Your review"
+msgstr ""
+
+msgid "Reviews by others"
+msgstr ""
+
 msgid "Episode"
 msgstr "Επεισόδιο"
+
+msgid "Source"
+msgstr "Πηγή"
 
 msgid "Date"
 msgstr "Ημέρα"
@@ -5203,21 +5210,18 @@ msgstr "επεξεργασία λεπτομερειών της συνεδρία�
 msgid "Close this dialog."
 msgstr "Κλείσιμο αυτού του διαλόγου."
 
-msgid "age"
-msgstr "ηλικία"
-
-msgid "review status"
-msgstr ""
-
-msgid "episode"
-msgstr ""
+msgid "Age"
+msgstr "Ηλικία"
 
 #, fuzzy
-msgid "health issue"
+msgid "Review status"
+msgstr "κατάσταση"
+
+msgid "Health issue"
 msgstr "Θέμα υγείας"
 
-msgid "type"
-msgstr "τύπος"
+msgid "Organization"
+msgstr ""
 
 msgid "Sort newest documents to top of tree."
 msgstr ""
@@ -5232,6 +5236,9 @@ msgid "Sort documents by the health issue they belong to."
 msgstr ""
 
 msgid "Sort documents by their type."
+msgstr ""
+
+msgid "Sort documents by the organization they are from."
 msgstr ""
 
 msgid "Sort documents by"
@@ -5517,9 +5524,6 @@ msgstr "Η εμπορική ονομασία του φάρμακου που λα
 msgid "The category of the organizational unit."
 msgstr ""
 
-msgid "Organization"
-msgstr ""
-
 msgid "Unit"
 msgstr "Μονάδα"
 
@@ -5683,9 +5687,6 @@ msgid ""
 "Conditions\n"
 "(SQL query)"
 msgstr ""
-
-msgid "Source"
-msgstr "Πηγή"
 
 msgid "URL"
 msgstr "URL"
@@ -7535,9 +7536,6 @@ msgstr "διορθωμένο αποτέλεσμα"
 msgid "missing, reported later"
 msgstr "λείπει, ανέφερε αργότερα"
 
-msgid "Health issue"
-msgstr "Θέμα υγείας"
-
 #, fuzzy
 msgid "External care"
 msgstr "ID εξωτερικού ασθενούς"
@@ -9277,6 +9275,9 @@ msgstr "πότε"
 
 msgid "who"
 msgstr "ποιος"
+
+msgid "type"
+msgstr "τύπος"
 
 msgid "entry"
 msgstr "καταχώρηση"
@@ -11401,9 +11402,6 @@ msgstr "Σημειώσεις"
 msgid "Progress Note"
 msgstr ""
 
-msgid "Age"
-msgstr "Ηλικία"
-
 msgid "N/A"
 msgstr ""
 
@@ -12985,6 +12983,33 @@ msgstr ""
 msgid "Find next [%s] (<CTRL-N>)"
 msgstr ""
 
+#, fuzzy
+msgid "&All rows"
+msgstr "&Όλοι οι χρήστες"
+
+msgid "All rows as &CSV"
+msgstr ""
+
+msgid "&Tooltips of all rows"
+msgstr ""
+
+msgid "&Data of all rows"
+msgstr ""
+
+#, fuzzy
+msgid "&Selected rows"
+msgstr "&Επιλογή"
+
+msgid "&Selected rows as CSV"
+msgstr ""
+
+msgid "&Tooltips of selected rows"
+msgstr ""
+
+#, fuzzy
+msgid "&Data of selected rows"
+msgstr "Διαγραφή της επιλεγμένης αλλεργίας από την λίστα στην βάση δεδομένων."
+
 msgid "Tooltips of selected rows"
 msgstr ""
 
@@ -13015,8 +13040,8 @@ msgid "Column &%s (current row): %s"
 msgstr "Αρχεία:%s"
 
 #, fuzzy
-msgid "Copy to e&xport area..."
-msgstr "Προσθήκη νέου ονόματος"
+msgid "&Save to file..."
+msgstr " Αποθήκευση "
 
 #, fuzzy
 msgid "&Copy to clipboard..."
@@ -13047,6 +13072,30 @@ msgid ""
 "\n"
 "%s"
 msgstr ""
+
+#, python-format
+msgid "All rows saved to [%s]."
+msgstr ""
+
+#, python-format
+msgid "All tooltips saved to [%s]."
+msgstr ""
+
+#, python-format
+msgid "All data saved to [%s]."
+msgstr ""
+
+#, python-format
+msgid "Selected rows saved to [%s]."
+msgstr ""
+
+#, python-format
+msgid "Selected tooltips saved to [%s]."
+msgstr ""
+
+#, fuzzy, python-format
+msgid "Selected data saved to [%s]."
+msgstr "Διαγραφή μηνύματος"
 
 msgid "Monty the Serpent && the FSF Present"
 msgstr ""
@@ -14545,6 +14594,10 @@ msgstr "Θέμα υγείας"
 msgid "sorted by type"
 msgstr ""
 
+#, fuzzy
+msgid "sorted by organization"
+msgstr "Επεξεργασία φαρμακευτικής αγωγής"
+
 msgid "Cannot load documents. No active patient."
 msgstr ""
 
@@ -14641,6 +14694,10 @@ msgstr ""
 #, fuzzy, python-format
 msgid "%s (unattributed episode)"
 msgstr "Μη καθορισμένα επεισόδια"
+
+#, fuzzy
+msgid "unknown organization"
+msgstr "Άγνωστη αντίδραση"
 
 #, python-format
 msgid "part %2s"
@@ -19094,6 +19151,17 @@ msgstr "Ματαίωση"
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Ματαίωση και ΔΕΝ θα συνδεθείτε με το GNUmed."
+
+#~ msgid "age"
+#~ msgstr "ηλικία"
+
+#, fuzzy
+#~ msgid "health issue"
+#~ msgstr "Θέμα υγείας"
+
+#, fuzzy
+#~ msgid "Copy to e&xport area..."
+#~ msgstr "Προσθήκη νέου ονόματος"
 
 #, fuzzy
 #~ msgid "&Entry time"

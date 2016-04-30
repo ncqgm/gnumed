@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-04-06 11:40+0200\n"
+"POT-Creation-Date: 2016-04-30 14:11+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2126,12 +2126,6 @@ msgstr ""
 msgid "New patient ID:"
 msgstr ""
 
-msgid "Your review"
-msgstr ""
-
-msgid "Reviews by others"
-msgstr ""
-
 msgid "(you are/are not the primary reviewer)"
 msgstr ""
 
@@ -2162,6 +2156,9 @@ msgstr ""
 msgid ""
 "Shows the episode associated with this document. Select another one or type "
 "in a new episode name to associate a different one."
+msgstr ""
+
+msgid "The organizational unit this document originates from."
 msgstr ""
 
 msgid "Enter the date of creation of the document."
@@ -2218,7 +2215,16 @@ msgstr ""
 msgid "Cancel this review."
 msgstr ""
 
+msgid "Your review"
+msgstr ""
+
+msgid "Reviews by others"
+msgstr ""
+
 msgid "Episode"
+msgstr ""
+
+msgid "Source"
 msgstr ""
 
 msgid "Date"
@@ -4812,19 +4818,16 @@ msgstr ""
 msgid "Close this dialog."
 msgstr ""
 
-msgid "age"
+msgid "Age"
 msgstr ""
 
-msgid "review status"
+msgid "Review status"
 msgstr ""
 
-msgid "episode"
+msgid "Health issue"
 msgstr ""
 
-msgid "health issue"
-msgstr ""
-
-msgid "type"
+msgid "Organization"
 msgstr ""
 
 msgid "Sort newest documents to top of tree."
@@ -4840,6 +4843,9 @@ msgid "Sort documents by the health issue they belong to."
 msgstr ""
 
 msgid "Sort documents by their type."
+msgstr ""
+
+msgid "Sort documents by the organization they are from."
 msgstr ""
 
 msgid "Sort documents by"
@@ -5110,9 +5116,6 @@ msgstr ""
 msgid "The category of the organizational unit."
 msgstr ""
 
-msgid "Organization"
-msgstr ""
-
 msgid "Unit"
 msgstr ""
 
@@ -5270,9 +5273,6 @@ msgstr ""
 msgid ""
 "Conditions\n"
 "(SQL query)"
-msgstr ""
-
-msgid "Source"
 msgstr ""
 
 msgid "URL"
@@ -6971,9 +6971,6 @@ msgstr ""
 msgid "missing, reported later"
 msgstr ""
 
-msgid "Health issue"
-msgstr ""
-
 msgid "External care"
 msgstr ""
 
@@ -8624,6 +8621,9 @@ msgid "when"
 msgstr ""
 
 msgid "who"
+msgstr ""
+
+msgid "type"
 msgstr ""
 
 msgid "entry"
@@ -10686,9 +10686,6 @@ msgstr ""
 msgid "Progress Note"
 msgstr ""
 
-msgid "Age"
-msgstr ""
-
 msgid "N/A"
 msgstr ""
 
@@ -12211,6 +12208,30 @@ msgstr ""
 msgid "Find next [%s] (<CTRL-N>)"
 msgstr ""
 
+msgid "&All rows"
+msgstr ""
+
+msgid "All rows as &CSV"
+msgstr ""
+
+msgid "&Tooltips of all rows"
+msgstr ""
+
+msgid "&Data of all rows"
+msgstr ""
+
+msgid "&Selected rows"
+msgstr ""
+
+msgid "&Selected rows as CSV"
+msgstr ""
+
+msgid "&Tooltips of selected rows"
+msgstr ""
+
+msgid "&Data of selected rows"
+msgstr ""
+
 msgid "Tooltips of selected rows"
 msgstr ""
 
@@ -12240,7 +12261,7 @@ msgstr ""
 msgid "Column &%s (current row): %s"
 msgstr "Documents: %s"
 
-msgid "Copy to e&xport area..."
+msgid "&Save to file..."
 msgstr ""
 
 msgid "&Copy to clipboard..."
@@ -12267,6 +12288,30 @@ msgid ""
 "Current search term: [[%s]]\n"
 "\n"
 "%s"
+msgstr ""
+
+#, python-format
+msgid "All rows saved to [%s]."
+msgstr ""
+
+#, python-format
+msgid "All tooltips saved to [%s]."
+msgstr ""
+
+#, python-format
+msgid "All data saved to [%s]."
+msgstr ""
+
+#, python-format
+msgid "Selected rows saved to [%s]."
+msgstr ""
+
+#, python-format
+msgid "Selected tooltips saved to [%s]."
+msgstr ""
+
+#, python-format
+msgid "Selected data saved to [%s]."
 msgstr ""
 
 msgid "Monty the Serpent && the FSF Present"
@@ -13690,6 +13735,9 @@ msgstr ""
 msgid "sorted by type"
 msgstr ""
 
+msgid "sorted by organization"
+msgstr ""
+
 msgid "Cannot load documents. No active patient."
 msgstr ""
 
@@ -13774,6 +13822,10 @@ msgstr ""
 #, python-format
 msgid "%s (unattributed episode)"
 msgstr ""
+
+#, fuzzy
+msgid "unknown organization"
+msgstr "unknown reaction"
 
 #, python-format
 msgid "part %2s"

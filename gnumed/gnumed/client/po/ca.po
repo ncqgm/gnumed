@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-04-06 11:39+0200\n"
+"POT-Creation-Date: 2016-04-30 14:11+0200\n"
 "PO-Revision-Date: 2012-06-01 01:20+0000\n"
 "Last-Translator: ncq <Unknown>\n"
 "Language-Team: Catalan <ca@li.org>\n"
@@ -2242,12 +2242,6 @@ msgstr ""
 msgid "New patient ID:"
 msgstr "Identificació pacient intern"
 
-msgid "Your review"
-msgstr "La teva revisió"
-
-msgid "Reviews by others"
-msgstr "Revisions d'altri"
-
 msgid "(you are/are not the primary reviewer)"
 msgstr "(no ets el revisior primari)"
 
@@ -2279,6 +2273,10 @@ msgid ""
 "Shows the episode associated with this document. Select another one or type "
 "in a new episode name to associate a different one."
 msgstr ""
+
+#, fuzzy
+msgid "The organizational unit this document originates from."
+msgstr "Vacunació"
 
 msgid "Enter the date of creation of the document."
 msgstr ""
@@ -2334,7 +2332,16 @@ msgstr "Guarda la teva revisió."
 msgid "Cancel this review."
 msgstr ""
 
+msgid "Your review"
+msgstr "La teva revisió"
+
+msgid "Reviews by others"
+msgstr "Revisions d'altri"
+
 msgid "Episode"
+msgstr ""
+
+msgid "Source"
 msgstr ""
 
 msgid "Date"
@@ -5049,21 +5056,19 @@ msgstr ""
 msgid "Close this dialog."
 msgstr ""
 
-msgid "age"
-msgstr ""
-
-msgid "review status"
-msgstr ""
-
-msgid "episode"
+msgid "Age"
 msgstr ""
 
 #, fuzzy
-msgid "health issue"
-msgstr "Sisuplau, seleccioni un assumpte mèdic."
+msgid "Review status"
+msgstr "Revisions d'altri"
 
-msgid "type"
+msgid "Health issue"
 msgstr ""
+
+#, fuzzy
+msgid "Organization"
+msgstr "Vacunació"
 
 msgid "Sort newest documents to top of tree."
 msgstr ""
@@ -5078,6 +5083,9 @@ msgid "Sort documents by the health issue they belong to."
 msgstr ""
 
 msgid "Sort documents by their type."
+msgstr ""
+
+msgid "Sort documents by the organization they are from."
 msgstr ""
 
 msgid "Sort documents by"
@@ -5353,10 +5361,6 @@ msgstr ""
 msgid "The category of the organizational unit."
 msgstr ""
 
-#, fuzzy
-msgid "Organization"
-msgstr "Vacunació"
-
 msgid "Unit"
 msgstr ""
 
@@ -5519,9 +5523,6 @@ msgstr ""
 msgid ""
 "Conditions\n"
 "(SQL query)"
-msgstr ""
-
-msgid "Source"
 msgstr ""
 
 msgid "URL"
@@ -7281,9 +7282,6 @@ msgstr "resultat corretgit"
 msgid "missing, reported later"
 msgstr ""
 
-msgid "Health issue"
-msgstr ""
-
 #, fuzzy
 msgid "External care"
 msgstr "Identificació pacient extern"
@@ -8986,6 +8984,9 @@ msgid "when"
 msgstr ""
 
 msgid "who"
+msgstr ""
+
+msgid "type"
 msgstr ""
 
 msgid "entry"
@@ -11090,9 +11091,6 @@ msgstr ""
 msgid "Progress Note"
 msgstr ""
 
-msgid "Age"
-msgstr ""
-
 msgid "N/A"
 msgstr ""
 
@@ -12658,6 +12656,33 @@ msgstr ""
 msgid "Find next [%s] (<CTRL-N>)"
 msgstr ""
 
+#, fuzzy
+msgid "&All rows"
+msgstr "Opcions"
+
+msgid "All rows as &CSV"
+msgstr ""
+
+msgid "&Tooltips of all rows"
+msgstr ""
+
+msgid "&Data of all rows"
+msgstr ""
+
+#, fuzzy
+msgid "&Selected rows"
+msgstr "Selecciona"
+
+msgid "&Selected rows as CSV"
+msgstr ""
+
+msgid "&Tooltips of selected rows"
+msgstr ""
+
+#, fuzzy
+msgid "&Data of selected rows"
+msgstr "Esborra les entrades seleccionades de la llista."
+
 msgid "Tooltips of selected rows"
 msgstr ""
 
@@ -12688,8 +12713,8 @@ msgid "Column &%s (current row): %s"
 msgstr "Documents: %s"
 
 #, fuzzy
-msgid "Copy to e&xport area..."
-msgstr "Llistat de vacunes buit"
+msgid "&Save to file..."
+msgstr "Guarda la teva revisió."
 
 #, fuzzy
 msgid "&Copy to clipboard..."
@@ -12718,6 +12743,30 @@ msgid ""
 "Current search term: [[%s]]\n"
 "\n"
 "%s"
+msgstr ""
+
+#, python-format
+msgid "All rows saved to [%s]."
+msgstr ""
+
+#, python-format
+msgid "All tooltips saved to [%s]."
+msgstr ""
+
+#, python-format
+msgid "All data saved to [%s]."
+msgstr ""
+
+#, python-format
+msgid "Selected rows saved to [%s]."
+msgstr ""
+
+#, python-format
+msgid "Selected tooltips saved to [%s]."
+msgstr ""
+
+#, python-format
+msgid "Selected data saved to [%s]."
 msgstr ""
 
 msgid "Monty the Serpent && the FSF Present"
@@ -14189,6 +14238,10 @@ msgstr "Sisuplau, seleccioni un assumpte mèdic."
 msgid "sorted by type"
 msgstr ""
 
+#, fuzzy
+msgid "sorted by organization"
+msgstr "Llistat de vacunes buit"
+
 msgid "Cannot load documents. No active patient."
 msgstr ""
 
@@ -14279,6 +14332,10 @@ msgstr "%s la setmana passada (%s of %s)"
 #, fuzzy, python-format
 msgid "%s (unattributed episode)"
 msgstr "Episodis no atribuïts"
+
+#, fuzzy
+msgid "unknown organization"
+msgstr "reacció desconeguda"
 
 #, python-format
 msgid "part %2s"
@@ -18652,6 +18709,14 @@ msgstr "Interromp"
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Interromput  i no connectat a GNUmed"
+
+#, fuzzy
+#~ msgid "health issue"
+#~ msgstr "Sisuplau, seleccioni un assumpte mèdic."
+
+#, fuzzy
+#~ msgid "Copy to e&xport area..."
+#~ msgstr "Llistat de vacunes buit"
 
 #, fuzzy
 #~ msgid "&Entry time"

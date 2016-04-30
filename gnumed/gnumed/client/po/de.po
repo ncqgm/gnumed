@@ -5,8 +5,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-04-06 11:40+0200\n"
-"PO-Revision-Date: 2016-04-06 11:50+0200\n"
+"POT-Creation-Date: 2016-04-30 14:11+0200\n"
+"PO-Revision-Date: 2016-04-30 14:55+0200\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "Language: de_DE\n"
@@ -2257,12 +2257,6 @@ msgstr "Suchbegriff:"
 msgid "New patient ID:"
 msgstr "Neue Patientennummer:"
 
-msgid "Your review"
-msgstr "Ihre Bewertung"
-
-msgid "Reviews by others"
-msgstr "Bewertungen durch Kollegen"
-
 msgid "(you are/are not the primary reviewer)"
 msgstr "(Sie sind/sind nicht der Verantwortliche)"
 
@@ -2297,6 +2291,9 @@ msgstr ""
 "Zeigt die Episode, zu der dieses Dokument gehört. Sie können eine andere "
 "auswählen oder einen Namen für eine neue Episode eintippen, um die Zuordnung "
 "zu .ändern."
+
+msgid "The organizational unit this document originates from."
+msgstr "Die Organisation aus der dieses Dokument stammt."
 
 msgid "Enter the date of creation of the document."
 msgstr "Geben Sie das Datum der Erstellung des Dokuments ein."
@@ -2374,8 +2371,17 @@ msgstr "Bewertung speichern."
 msgid "Cancel this review."
 msgstr "Bewertung abbrechen."
 
+msgid "Your review"
+msgstr "Ihre Bewertung"
+
+msgid "Reviews by others"
+msgstr "Bewertungen durch Kollegen"
+
 msgid "Episode"
 msgstr "Episode"
+
+msgid "Source"
+msgstr "Quelle"
 
 msgid "Date"
 msgstr "Datum"
@@ -5325,20 +5331,17 @@ msgstr "Details der Konsultation ändern"
 msgid "Close this dialog."
 msgstr "Diesen Dialog schließen."
 
-msgid "age"
+msgid "Age"
 msgstr "Alter"
 
-msgid "review status"
-msgstr "gesehen/ungesehen"
+msgid "Review status"
+msgstr "Status"
 
-msgid "episode"
-msgstr "Episode"
-
-msgid "health issue"
+msgid "Health issue"
 msgstr "Grunderkrankung"
 
-msgid "type"
-msgstr "Typ"
+msgid "Organization"
+msgstr "Organisation"
 
 msgid "Sort newest documents to top of tree."
 msgstr "Sortiere jüngste Dokumente nach oben."
@@ -5354,6 +5357,9 @@ msgstr "Sortiere Dokumente nach der Grunderkrankung, zu der sie gehören."
 
 msgid "Sort documents by their type."
 msgstr "Sortiere Dokumente nach ihrem Typ."
+
+msgid "Sort documents by the organization they are from."
+msgstr "Sortiere Dokumente nach der Organisation, aus der sie kommen."
 
 msgid "Sort documents by"
 msgstr "Sortiere Dokumente nach"
@@ -5677,9 +5683,6 @@ msgstr "Die Bezeichnung der Abteilung."
 msgid "The category of the organizational unit."
 msgstr "Die Kategorie der Abteilung."
 
-msgid "Organization"
-msgstr "Organisation"
-
 msgid "Unit"
 msgstr "Einheit"
 
@@ -5868,9 +5871,6 @@ msgid ""
 msgstr ""
 "Bedingungen\n"
 "(SQL-Abfrage)"
-
-msgid "Source"
-msgstr "Quelle"
 
 msgid "URL"
 msgstr "Adresse/Nummer"
@@ -6846,7 +6846,7 @@ msgid "Manage"
 msgstr "Verwalten"
 
 msgid "&Panel:"
-msgstr ""
+msgstr "&Profil:"
 
 msgid "&Pick"
 msgstr "&Wählen"
@@ -7762,9 +7762,6 @@ msgstr "berichtigtes Ergebnis"
 
 msgid "missing, reported later"
 msgstr "fehlt/folgt"
-
-msgid "Health issue"
-msgstr "Grunderkrankung"
 
 msgid "External care"
 msgstr "Externe Mitbetreuung"
@@ -9518,6 +9515,9 @@ msgstr "wann"
 
 msgid "who"
 msgstr "wer"
+
+msgid "type"
+msgstr "Typ"
 
 msgid "entry"
 msgstr "Eintrag"
@@ -11860,9 +11860,6 @@ msgstr "Karteieintrag"
 msgid "Progress Note"
 msgstr "Verlaufsnotiz"
 
-msgid "Age"
-msgstr "Alter"
-
 msgid "N/A"
 msgstr "N/A"
 
@@ -13671,6 +13668,30 @@ msgstr "Finden (<STRG-F>)"
 msgid "Find next [%s] (<CTRL-N>)"
 msgstr "Finde nächste [%s] (<STRG-N>)"
 
+msgid "&All rows"
+msgstr "&Alle Einträge"
+
+msgid "All rows as &CSV"
+msgstr "Alle Einträge als &CSV"
+
+msgid "&Tooltips of all rows"
+msgstr "&Tooltips aller Einträge"
+
+msgid "&Data of all rows"
+msgstr "&Daten aller Einträge"
+
+msgid "&Selected rows"
+msgstr "&Markierte Einträge"
+
+msgid "&Selected rows as CSV"
+msgstr "&Markierte Einträge als CSV"
+
+msgid "&Tooltips of selected rows"
+msgstr "&Tooltips der markierten Einträge"
+
+msgid "&Data of selected rows"
+msgstr "&Daten der markierten Einträge"
+
 msgid "Tooltips of selected rows"
 msgstr "Tooltips der markierten Einträge"
 
@@ -13700,8 +13721,8 @@ msgstr "Spalte &%s (aktueller Eintrag): \"%s\" [#%s]"
 msgid "Column &%s (current row): %s"
 msgstr "Spalte &%s (aktueller Eintrag): %s"
 
-msgid "Copy to e&xport area..."
-msgstr "In E&xportbereich kopieren..."
+msgid "&Save to file..."
+msgstr "&Speichern in Datei …"
 
 msgid "&Copy to clipboard..."
 msgstr "In Zwischenablage &kopieren..."
@@ -13734,6 +13755,30 @@ msgstr ""
 "Jetziger Suchbegriff: [[%s]]\n"
 "\n"
 "%s"
+
+#, python-format
+msgid "All rows saved to [%s]."
+msgstr "Alle Einträge in [%s] gespeichert."
+
+#, python-format
+msgid "All tooltips saved to [%s]."
+msgstr "Alle Tooltips in [%s] gespeichert."
+
+#, python-format
+msgid "All data saved to [%s]."
+msgstr "Alle Daten in [%s] gespeichert."
+
+#, python-format
+msgid "Selected rows saved to [%s]."
+msgstr "[%s]: Markierte Einträge gespeichert."
+
+#, python-format
+msgid "Selected tooltips saved to [%s]."
+msgstr "[%s]: Tooltips markierter Einträge gespeichert."
+
+#, python-format
+msgid "Selected data saved to [%s]."
+msgstr "[%s]: Daten markierter Einträge gespeichert."
 
 msgid "Monty the Serpent && the FSF Present"
 msgstr "Monty die Python && die FSF präsentieren"
@@ -15444,6 +15489,9 @@ msgstr "sortiert nach Grunderkrankung"
 msgid "sorted by type"
 msgstr "sortiert nach Typ"
 
+msgid "sorted by organization"
+msgstr "sortiert nach Organisationen"
+
 msgid "Cannot load documents. No active patient."
 msgstr "Kann Dokumente nicht laden. Kein Patient aktiv."
 
@@ -15528,6 +15576,9 @@ msgstr "%s%7s (%s):%s (%s)"
 #, python-format
 msgid "%s (unattributed episode)"
 msgstr "%s (nicht zugeordnete Episoden)"
+
+msgid "unknown organization"
+msgstr "unbekannte Organisation"
 
 #, python-format
 msgid "part %2s"
@@ -20547,6 +20598,18 @@ msgstr "Abbrechen"
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
+
+#~ msgid "age"
+#~ msgstr "Alter"
+
+#~ msgid "episode"
+#~ msgstr "Episode"
+
+#~ msgid "health issue"
+#~ msgstr "Grunderkrankung"
+
+#~ msgid "Copy to e&xport area..."
+#~ msgstr "In E&xportbereich kopieren..."
 
 #~ msgid "Row tooltip"
 #~ msgstr "Tooltip des Eintrags"

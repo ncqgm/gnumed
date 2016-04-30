@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-04-06 11:40+0200\n"
+"POT-Creation-Date: 2016-04-30 14:11+0200\n"
 "PO-Revision-Date: 2012-06-01 01:22+0000\n"
 "Last-Translator: ncq <Unknown>\n"
 "Language-Team: GNUmed\n"
@@ -2299,12 +2299,6 @@ msgstr "Cerca per"
 msgid "New patient ID:"
 msgstr "ID interno paziente"
 
-msgid "Your review"
-msgstr "Il tuo esame"
-
-msgid "Reviews by others"
-msgstr "Esami esterni"
-
 msgid "(you are/are not the primary reviewer)"
 msgstr "(sei/non sei il primo esaminatore)"
 
@@ -2336,6 +2330,10 @@ msgid ""
 "Shows the episode associated with this document. Select another one or type "
 "in a new episode name to associate a different one."
 msgstr ""
+
+#, fuzzy
+msgid "The organizational unit this document originates from."
+msgstr "Selezionare l'episodio del quale si desidera spostare la narrazione."
 
 msgid "Enter the date of creation of the document."
 msgstr "Inserisci la data di creazione del documento."
@@ -2391,8 +2389,17 @@ msgstr "Salva il tuo esame."
 msgid "Cancel this review."
 msgstr "Annula questo esame."
 
+msgid "Your review"
+msgstr "Il tuo esame"
+
+msgid "Reviews by others"
+msgstr "Esami esterni"
+
 msgid "Episode"
 msgstr "Episodio"
+
+msgid "Source"
+msgstr "Fonte"
 
 msgid "Date"
 msgstr "Data"
@@ -5236,21 +5243,18 @@ msgstr "modifica dettagli dell'appuntamento"
 msgid "Close this dialog."
 msgstr "Chiudi questa finestra"
 
-msgid "age"
-msgstr "età"
-
-msgid "review status"
-msgstr "stato revisione"
-
-msgid "episode"
-msgstr "episodio"
+msgid "Age"
+msgstr "Età"
 
 #, fuzzy
-msgid "health issue"
+msgid "Review status"
+msgstr "stato revisione"
+
+msgid "Health issue"
 msgstr "Problema di salute"
 
-msgid "type"
-msgstr "tipo"
+msgid "Organization"
+msgstr ""
 
 msgid "Sort newest documents to top of tree."
 msgstr "Ordina i tre documenti più recenti."
@@ -5267,6 +5271,10 @@ msgstr "Ordina documenti per episodio di appartenenza."
 
 msgid "Sort documents by their type."
 msgstr "Ordina documenti per tipo"
+
+#, fuzzy
+msgid "Sort documents by the organization they are from."
+msgstr "Ordina documenti per episodio di appartenenza."
 
 msgid "Sort documents by"
 msgstr "Ordina documenti per"
@@ -5562,9 +5570,6 @@ msgstr "La marca del farmaco che il paziente sta assumendo."
 msgid "The category of the organizational unit."
 msgstr ""
 
-msgid "Organization"
-msgstr ""
-
 msgid "Unit"
 msgstr "Unità di misura"
 
@@ -5733,9 +5738,6 @@ msgid ""
 "Conditions\n"
 "(SQL query)"
 msgstr ""
-
-msgid "Source"
-msgstr "Fonte"
 
 msgid "URL"
 msgstr "URL"
@@ -7594,9 +7596,6 @@ msgstr "risultato corretto"
 msgid "missing, reported later"
 msgstr "mancante, riportato in seguito"
 
-msgid "Health issue"
-msgstr "Problema di salute"
-
 #, fuzzy
 msgid "External care"
 msgstr "Codice esterno"
@@ -9349,6 +9348,9 @@ msgstr "quando"
 
 msgid "who"
 msgstr "chi"
+
+msgid "type"
+msgstr "tipo"
 
 msgid "entry"
 msgstr "voce"
@@ -11506,9 +11508,6 @@ msgstr "Note"
 msgid "Progress Note"
 msgstr ""
 
-msgid "Age"
-msgstr "Età"
-
 msgid "N/A"
 msgstr "N/D"
 
@@ -13138,6 +13137,33 @@ msgstr ""
 msgid "Find next [%s] (<CTRL-N>)"
 msgstr ""
 
+#, fuzzy
+msgid "&All rows"
+msgstr "&Tutti gli utenti"
+
+msgid "All rows as &CSV"
+msgstr ""
+
+msgid "&Tooltips of all rows"
+msgstr ""
+
+msgid "&Data of all rows"
+msgstr ""
+
+#, fuzzy
+msgid "&Selected rows"
+msgstr "&Seleziona"
+
+msgid "&Selected rows as CSV"
+msgstr ""
+
+msgid "&Tooltips of selected rows"
+msgstr ""
+
+#, fuzzy
+msgid "&Data of selected rows"
+msgstr "Rimuovi la/le voce/i selezionata/e dalla lista."
+
 msgid "Tooltips of selected rows"
 msgstr ""
 
@@ -13168,8 +13194,8 @@ msgid "Column &%s (current row): %s"
 msgstr "Documenti: %s"
 
 #, fuzzy
-msgid "Copy to e&xport area..."
-msgstr "Aggiungi una nuova persona"
+msgid "&Save to file..."
+msgstr "Salva il tuo esame."
 
 #, fuzzy
 msgid "&Copy to clipboard..."
@@ -13200,6 +13226,30 @@ msgid ""
 "\n"
 "%s"
 msgstr ""
+
+#, python-format
+msgid "All rows saved to [%s]."
+msgstr ""
+
+#, python-format
+msgid "All tooltips saved to [%s]."
+msgstr ""
+
+#, python-format
+msgid "All data saved to [%s]."
+msgstr ""
+
+#, fuzzy, python-format
+msgid "Selected rows saved to [%s]."
+msgstr "cancellare la definizione del report [%s]."
+
+#, fuzzy, python-format
+msgid "Selected tooltips saved to [%s]."
+msgstr "cancellare la definizione del report [%s]."
+
+#, fuzzy, python-format
+msgid "Selected data saved to [%s]."
+msgstr "Imposta la lingua del tuo database a [%s]"
 
 msgid "Monty the Serpent && the FSF Present"
 msgstr ""
@@ -14721,6 +14771,10 @@ msgstr "ordinati per episodio"
 msgid "sorted by type"
 msgstr "ordinati per tipo"
 
+#, fuzzy
+msgid "sorted by organization"
+msgstr "Aggiungo nuovo paziente"
+
 msgid "Cannot load documents. No active patient."
 msgstr "Non posso caricare i documenti. Nessun paziente attivo."
 
@@ -14812,6 +14866,10 @@ msgstr "%s%7s %s:%s (%s part(s)%s)"
 #, fuzzy, python-format
 msgid "%s (unattributed episode)"
 msgstr "Casi non attribuiti"
+
+#, fuzzy
+msgid "unknown organization"
+msgstr "reazione sconosciuta"
 
 #, python-format
 msgid "part %2s"
@@ -19360,6 +19418,20 @@ msgstr "Annulla"
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Annulla e NON connetti a GNUmed"
+
+#~ msgid "age"
+#~ msgstr "età"
+
+#~ msgid "episode"
+#~ msgstr "episodio"
+
+#, fuzzy
+#~ msgid "health issue"
+#~ msgstr "Problema di salute"
+
+#, fuzzy
+#~ msgid "Copy to e&xport area..."
+#~ msgstr "Aggiungi una nuova persona"
 
 #, fuzzy
 #~ msgid "&Entry time"

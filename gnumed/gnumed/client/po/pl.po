@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-04-06 11:40+0200\n"
+"POT-Creation-Date: 2016-04-30 14:11+0200\n"
 "PO-Revision-Date: 2012-06-01 01:17+0000\n"
 "Last-Translator: J.Luszawski <jl@leksoft.com.pl>\n"
 "Language-Team: Polish <pl@li.org>\n"
@@ -2293,12 +2293,6 @@ msgstr "Wynik bad. lab."
 msgid "New patient ID:"
 msgstr "wewn. identyfikator pacjenta"
 
-msgid "Your review"
-msgstr ""
-
-msgid "Reviews by others"
-msgstr ""
-
 msgid "(you are/are not the primary reviewer)"
 msgstr ""
 
@@ -2332,6 +2326,10 @@ msgid ""
 msgstr ""
 "Pokazuje epizod powiązany z tym dokumentem. Żeby powiązać z innym wybierz "
 "lub wpisz nową nazwę epizodu."
+
+#, fuzzy
+msgid "The organizational unit this document originates from."
+msgstr "Wybierz epizod, do którego chcesz przenieść opis."
 
 msgid "Enter the date of creation of the document."
 msgstr ""
@@ -2388,8 +2386,17 @@ msgstr ""
 msgid "Cancel this review."
 msgstr ""
 
+msgid "Your review"
+msgstr ""
+
+msgid "Reviews by others"
+msgstr ""
+
 msgid "Episode"
 msgstr "Epizod"
+
+msgid "Source"
+msgstr ""
 
 msgid "Date"
 msgstr ""
@@ -5155,20 +5162,17 @@ msgstr ""
 msgid "Close this dialog."
 msgstr "Zamknij to okno."
 
-msgid "age"
+msgid "Age"
 msgstr ""
 
-msgid "review status"
+msgid "Review status"
 msgstr ""
-
-msgid "episode"
-msgstr "epizod"
 
 #, fuzzy
-msgid "health issue"
+msgid "Health issue"
 msgstr "Problem zdrowotny"
 
-msgid "type"
+msgid "Organization"
 msgstr ""
 
 msgid "Sort newest documents to top of tree."
@@ -5186,6 +5190,10 @@ msgstr "Sortuj dokumenty według epizodów, do których należą."
 
 msgid "Sort documents by their type."
 msgstr ""
+
+#, fuzzy
+msgid "Sort documents by the organization they are from."
+msgstr "Sortuj dokumenty według epizodów, do których należą."
 
 msgid "Sort documents by"
 msgstr ""
@@ -5466,9 +5474,6 @@ msgstr "Wprowadź opis tego zewnętrznego identyfikatora."
 msgid "The category of the organizational unit."
 msgstr ""
 
-msgid "Organization"
-msgstr ""
-
 msgid "Unit"
 msgstr ""
 
@@ -5635,9 +5640,6 @@ msgstr ""
 msgid ""
 "Conditions\n"
 "(SQL query)"
-msgstr ""
-
-msgid "Source"
 msgstr ""
 
 msgid "URL"
@@ -7425,10 +7427,6 @@ msgid "missing, reported later"
 msgstr "brakujący, zgłoszony później"
 
 #, fuzzy
-msgid "Health issue"
-msgstr "Problem zdrowotny"
-
-#, fuzzy
 msgid "External care"
 msgstr "zewn. identyfikator pacjenta"
 
@@ -9186,6 +9184,9 @@ msgid "when"
 msgstr ""
 
 msgid "who"
+msgstr ""
+
+msgid "type"
 msgstr ""
 
 msgid "entry"
@@ -11343,9 +11344,6 @@ msgstr ""
 msgid "Progress Note"
 msgstr ""
 
-msgid "Age"
-msgstr ""
-
 msgid "N/A"
 msgstr ""
 
@@ -12942,6 +12940,33 @@ msgstr ""
 msgid "Find next [%s] (<CTRL-N>)"
 msgstr ""
 
+#, fuzzy
+msgid "&All rows"
+msgstr "Usuwanie epizodu"
+
+msgid "All rows as &CSV"
+msgstr ""
+
+msgid "&Tooltips of all rows"
+msgstr ""
+
+msgid "&Data of all rows"
+msgstr ""
+
+#, fuzzy
+msgid "&Selected rows"
+msgstr "Wybierz zdarzenie"
+
+msgid "&Selected rows as CSV"
+msgstr ""
+
+msgid "&Tooltips of selected rows"
+msgstr ""
+
+#, fuzzy
+msgid "&Data of selected rows"
+msgstr "Działaj na elementach wybranych z powyższej listy."
+
 msgid "Tooltips of selected rows"
 msgstr ""
 
@@ -12971,9 +12996,8 @@ msgstr ""
 msgid "Column &%s (current row): %s"
 msgstr "Dokumenty: %s"
 
-#, fuzzy
-msgid "Copy to e&xport area..."
-msgstr "Dodawanie nowego epizodu"
+msgid "&Save to file..."
+msgstr ""
 
 #, fuzzy
 msgid "&Copy to clipboard..."
@@ -13003,6 +13027,30 @@ msgid ""
 "\n"
 "%s"
 msgstr ""
+
+#, python-format
+msgid "All rows saved to [%s]."
+msgstr ""
+
+#, python-format
+msgid "All tooltips saved to [%s]."
+msgstr ""
+
+#, python-format
+msgid "All data saved to [%s]."
+msgstr ""
+
+#, python-format
+msgid "Selected rows saved to [%s]."
+msgstr ""
+
+#, python-format
+msgid "Selected tooltips saved to [%s]."
+msgstr ""
+
+#, fuzzy, python-format
+msgid "Selected data saved to [%s]."
+msgstr "Wybieranie problemu zdrowotnego"
 
 msgid "Monty the Serpent && the FSF Present"
 msgstr ""
@@ -14501,6 +14549,10 @@ msgstr "utwórz problem zdrowotny"
 msgid "sorted by type"
 msgstr ""
 
+#, fuzzy
+msgid "sorted by organization"
+msgstr "Dodawanie nowego epizodu"
+
 msgid "Cannot load documents. No active patient."
 msgstr ""
 
@@ -14599,6 +14651,10 @@ msgstr ""
 #, fuzzy, python-format
 msgid "%s (unattributed episode)"
 msgstr "Niesklasyfikowane epizody"
+
+#, fuzzy
+msgid "unknown organization"
+msgstr "nieznana reakcja"
 
 #, python-format
 msgid "part %2s"
@@ -19044,6 +19100,17 @@ msgstr "Przerwij"
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Przerwij i NIE łącz z GNUmed-em"
+
+#~ msgid "episode"
+#~ msgstr "epizod"
+
+#, fuzzy
+#~ msgid "health issue"
+#~ msgstr "Problem zdrowotny"
+
+#, fuzzy
+#~ msgid "Copy to e&xport area..."
+#~ msgstr "Dodawanie nowego epizodu"
 
 #, fuzzy
 #~ msgid "&Entry time"

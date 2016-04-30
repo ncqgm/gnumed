@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-04-18 21:14+0200\n"
+"POT-Creation-Date: 2016-04-30 14:11+0200\n"
 "PO-Revision-Date: 2016-02-24 18:28+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: colombiano <es@li.org>\n"
@@ -2413,12 +2413,6 @@ msgstr "Busca término:"
 msgid "New patient ID:"
 msgstr "Nueva ID del paciente"
 
-msgid "Your review"
-msgstr "Su evaluación"
-
-msgid "Reviews by others"
-msgstr "Evaluacion de otros"
-
 msgid "(you are/are not the primary reviewer)"
 msgstr "(eres/no eres el evaluador principal)"
 
@@ -2452,6 +2446,11 @@ msgid ""
 msgstr ""
 "Mostrar el episodio asociado a este documento. Seleccione otro o escriba el "
 "nombre de un episodio nuevo para asociarlo con otro."
+
+#, fuzzy
+msgid "The organizational unit this document originates from."
+msgstr ""
+"Opcional: la organización (unidad) desde la cual se originó este documento."
 
 msgid "Enter the date of creation of the document."
 msgstr "Ingrese la fecha de creación del documento."
@@ -2527,8 +2526,17 @@ msgstr "Guardar su evaluación."
 msgid "Cancel this review."
 msgstr "Cancelar la evaluación."
 
+msgid "Your review"
+msgstr "Su evaluación"
+
+msgid "Reviews by others"
+msgstr "Evaluacion de otros"
+
 msgid "Episode"
 msgstr "Episodio"
+
+msgid "Source"
+msgstr "Fuente"
 
 msgid "Date"
 msgstr "Fecha"
@@ -6098,9 +6106,6 @@ msgid ""
 msgstr ""
 "Condición\n"
 "(Búsqueda SQL)"
-
-msgid "Source"
-msgstr "Fuente"
 
 msgid "URL"
 msgstr "URL"
@@ -13954,6 +13959,35 @@ msgstr "Encuentra (<CTRL-F>)"
 msgid "Find next [%s] (<CTRL-N>)"
 msgstr "Encuentra siguiente [%s] (<CTRL-N>)"
 
+#, fuzzy
+msgid "&All rows"
+msgstr "&Todos los usuarios"
+
+msgid "All rows as &CSV"
+msgstr ""
+
+#, fuzzy
+msgid "&Tooltips of all rows"
+msgstr "Herramientas de ayuda sobre filas seleccionadas"
+
+msgid "&Data of all rows"
+msgstr ""
+
+#, fuzzy
+msgid "&Selected rows"
+msgstr "&Seleccionar"
+
+msgid "&Selected rows as CSV"
+msgstr ""
+
+#, fuzzy
+msgid "&Tooltips of selected rows"
+msgstr "Herramientas de ayuda sobre filas seleccionadas"
+
+#, fuzzy
+msgid "&Data of selected rows"
+msgstr "Herramientas de ayuda sobre filas seleccionadas"
+
 msgid "Tooltips of selected rows"
 msgstr "Herramientas de ayuda sobre filas seleccionadas"
 
@@ -13988,8 +14022,8 @@ msgid "Column &%s (current row): %s"
 msgstr "Columna &%s: %s"
 
 #, fuzzy
-msgid "Copy to e&xport area..."
-msgstr "Copio todos los estudios al área de exportación."
+msgid "&Save to file..."
+msgstr "Guardar Como ..."
 
 msgid "&Copy to clipboard..."
 msgstr "&Copiar al portapapeles ..."
@@ -14022,6 +14056,30 @@ msgstr ""
 "Término de búsqueda actual: [[%s]]\n"
 "\n"
 "%s"
+
+#, python-format
+msgid "All rows saved to [%s]."
+msgstr ""
+
+#, python-format
+msgid "All tooltips saved to [%s]."
+msgstr ""
+
+#, python-format
+msgid "All data saved to [%s]."
+msgstr ""
+
+#, fuzzy, python-format
+msgid "Selected rows saved to [%s]."
+msgstr "Definición de reporte borrado [%s]."
+
+#, fuzzy, python-format
+msgid "Selected tooltips saved to [%s]."
+msgstr "Definición de reporte borrado [%s]."
+
+#, fuzzy, python-format
+msgid "Selected data saved to [%s]."
+msgstr "Fijar el idioma de la base de datos en [%s]."
 
 msgid "Monty the Serpent && the FSF Present"
 msgstr "La Serpiente Monty && la FSF presentan"
@@ -20898,6 +20956,10 @@ msgstr "Aborto"
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Aborto y NO conecto a GNUMed."
+
+#, fuzzy
+#~ msgid "Copy to e&xport area..."
+#~ msgstr "Copio todos los estudios al área de exportación."
 
 #~ msgid "age"
 #~ msgstr "edad"
