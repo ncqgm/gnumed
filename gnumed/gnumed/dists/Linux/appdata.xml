@@ -1,36 +1,42 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Copyright karsten.hilbert@gmx.net, GPL v2> -->
+<!-- Copyright 2016 Karsten Hilbert <karsten.hilbert@gmx.net> -->
 <!-- Thanks to Carsten Grohmann <mail@carstengrohmann.de> -->
-<application>
-    <id type="desktop">gnumed-client.desktop</id>
-    <metadata_license>CC0-1.0</metadata_license>
-    <project_license>GPL v2 or later</project_license>
-    <name>GNUmed</name>
-    <summary>
-        An Electronic Medical Record for community care.
-    </summary>
-    <description>
-        <p>
-            GNUmeds purpose is to enable doctors to keep a medically
-            sound record on their patients' health. It does not currently
-            provide functionality for stock keeping. Clinical features
-            are well-tested by real doctors in the field.
-        </p>
-        <p>
-            While the GNUmed team has taken the utmost care to make sure
-            the medical records are safe at all times you still need to
-            make sure you are taking appropriate steps to backup the
-            medical data to a safe place at appropriate intervals. Do
-            not forget to test your recovery procedures, too !
-        </p>
-        <p>
-            Protect your data! GNUmed itself comes without
-            any warranty whatsoever. You have been warned.
-        </p>
-    </description>
-    <screenshots>
-        <screenshot type="default">http://wiki.gnumed.de</screenshot>
-    </screenshots>
-    <url type="homepage">http://www.gnumed.de</url>
-    <updatecontact>gnumed-devel_at_gnu.org</updatecontact>
-</application>
+<!-- Thanks to Richard Hughes (https://people.freedesktop.org/~hughsient/appdata/) -->
+<component type="desktop">
+ <id>gnumed-client.desktop</id>
+ <metadata_license>CC0-1.0</metadata_license>
+ <project_license>GPL-2.0+ and GFDL-1.3</project_license>
+ <name>GNUmed EMR</name>
+ <summary>An Electronic Medical Record for community care.</summary>
+ <description>
+	<p>
+	GNUmed enables doctors to keep a medically sound record
+	on their patients' health. It does not currently provide
+	functionality for stock keeping. Clinical features are
+	well-tested by real doctors in the field.
+	</p>
+	<p>
+	While the GNUmed team has taken the utmost care to make
+	sure the medical records are safe at all times you still
+	need to make sure you are taking appropriate steps to
+	backup medical data to a safe place at appropriate intervals.
+	Do not forget to test your recovery procedures, too !
+	</p>
+	<p>
+	Protect your data! GNUmed itself comes without
+	any warranty whatsoever. You have been warned.
+	</p>
+ </description>
+ <screenshots>
+	<screenshot type="default">
+		<caption>http://wiki.gnumed.de</caption>
+	</screenshot>
+	<!--<screenshot type="default">
+			<image>http://www.hughsie.com/en_US/main.png</image>
+			<caption>The main window showing the application in action</caption>
+		</screenshot>-->
+ </screenshots>
+ <url type="homepage">http://www.gnumed.de</url>
+ <updatecontact>gnumed-devel_at_gnu.org</updatecontact>
+ <!--<project_group>GNOME</project_group>-->
+</component>
