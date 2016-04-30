@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-04-18 21:14+0200\n"
+"POT-Creation-Date: 2016-04-30 14:11+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2124,12 +2124,6 @@ msgstr ""
 msgid "New patient ID:"
 msgstr ""
 
-msgid "Your review"
-msgstr ""
-
-msgid "Reviews by others"
-msgstr ""
-
 msgid "(you are/are not the primary reviewer)"
 msgstr ""
 
@@ -2160,6 +2154,9 @@ msgstr ""
 msgid ""
 "Shows the episode associated with this document. Select another one or type "
 "in a new episode name to associate a different one."
+msgstr ""
+
+msgid "The organizational unit this document originates from."
 msgstr ""
 
 msgid "Enter the date of creation of the document."
@@ -2216,7 +2213,16 @@ msgstr ""
 msgid "Cancel this review."
 msgstr ""
 
+msgid "Your review"
+msgstr ""
+
+msgid "Reviews by others"
+msgstr ""
+
 msgid "Episode"
+msgstr ""
+
+msgid "Source"
 msgstr ""
 
 msgid "Date"
@@ -5253,9 +5259,6 @@ msgstr ""
 msgid ""
 "Conditions\n"
 "(SQL query)"
-msgstr ""
-
-msgid "Source"
 msgstr ""
 
 msgid "URL"
@@ -12155,6 +12158,30 @@ msgstr ""
 msgid "Find next [%s] (<CTRL-N>)"
 msgstr ""
 
+msgid "&All rows"
+msgstr ""
+
+msgid "All rows as &CSV"
+msgstr ""
+
+msgid "&Tooltips of all rows"
+msgstr ""
+
+msgid "&Data of all rows"
+msgstr ""
+
+msgid "&Selected rows"
+msgstr ""
+
+msgid "&Selected rows as CSV"
+msgstr ""
+
+msgid "&Tooltips of selected rows"
+msgstr ""
+
+msgid "&Data of selected rows"
+msgstr ""
+
 msgid "Tooltips of selected rows"
 msgstr ""
 
@@ -12184,7 +12211,7 @@ msgstr ""
 msgid "Column &%s (current row): %s"
 msgstr ""
 
-msgid "Copy to e&xport area..."
+msgid "&Save to file..."
 msgstr ""
 
 msgid "&Copy to clipboard..."
@@ -12211,6 +12238,30 @@ msgid ""
 "Current search term: [[%s]]\n"
 "\n"
 "%s"
+msgstr ""
+
+#, python-format
+msgid "All rows saved to [%s]."
+msgstr ""
+
+#, python-format
+msgid "All tooltips saved to [%s]."
+msgstr ""
+
+#, python-format
+msgid "All data saved to [%s]."
+msgstr ""
+
+#, python-format
+msgid "Selected rows saved to [%s]."
+msgstr ""
+
+#, python-format
+msgid "Selected tooltips saved to [%s]."
+msgstr ""
+
+#, python-format
+msgid "Selected data saved to [%s]."
 msgstr ""
 
 msgid "Monty the Serpent && the FSF Present"

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-04-06 11:40+0200\n"
+"POT-Creation-Date: 2016-04-30 14:11+0200\n"
 "PO-Revision-Date: 2011-08-25 16:54+0000\n"
 "Last-Translator: Karolina Kalic <Unknown>\n"
 "Language-Team: Serbian <sr@li.org>\n"
@@ -2181,12 +2181,6 @@ msgstr "Листа лекова"
 msgid "New patient ID:"
 msgstr "Активни проблеми"
 
-msgid "Your review"
-msgstr ""
-
-msgid "Reviews by others"
-msgstr ""
-
 msgid "(you are/are not the primary reviewer)"
 msgstr ""
 
@@ -2218,6 +2212,10 @@ msgid ""
 "Shows the episode associated with this document. Select another one or type "
 "in a new episode name to associate a different one."
 msgstr ""
+
+#, fuzzy
+msgid "The organizational unit this document originates from."
+msgstr "Уреди вакцинације"
 
 msgid "Enter the date of creation of the document."
 msgstr ""
@@ -2273,7 +2271,16 @@ msgstr ""
 msgid "Cancel this review."
 msgstr ""
 
+msgid "Your review"
+msgstr ""
+
+msgid "Reviews by others"
+msgstr ""
+
 msgid "Episode"
+msgstr ""
+
+msgid "Source"
 msgstr ""
 
 msgid "Date"
@@ -4922,20 +4929,16 @@ msgstr ""
 msgid "Close this dialog."
 msgstr ""
 
-msgid "age"
+msgid "Age"
 msgstr ""
 
-msgid "review status"
+msgid "Review status"
 msgstr ""
 
-msgid "episode"
-msgstr ""
-
-#, fuzzy
-msgid "health issue"
+msgid "Health issue"
 msgstr "Здравствени проблем"
 
-msgid "type"
+msgid "Organization"
 msgstr ""
 
 msgid "Sort newest documents to top of tree."
@@ -4951,6 +4954,9 @@ msgid "Sort documents by the health issue they belong to."
 msgstr ""
 
 msgid "Sort documents by their type."
+msgstr ""
+
+msgid "Sort documents by the organization they are from."
 msgstr ""
 
 msgid "Sort documents by"
@@ -5224,9 +5230,6 @@ msgstr ""
 msgid "The category of the organizational unit."
 msgstr ""
 
-msgid "Organization"
-msgstr ""
-
 msgid "Unit"
 msgstr ""
 
@@ -5388,9 +5391,6 @@ msgstr ""
 msgid ""
 "Conditions\n"
 "(SQL query)"
-msgstr ""
-
-msgid "Source"
 msgstr ""
 
 msgid "URL"
@@ -7120,9 +7120,6 @@ msgstr "исправљен резултат"
 msgid "missing, reported later"
 msgstr "недостаје, пријављено касније"
 
-msgid "Health issue"
-msgstr "Здравствени проблем"
-
 msgid "External care"
 msgstr ""
 
@@ -8808,6 +8805,9 @@ msgid "when"
 msgstr ""
 
 msgid "who"
+msgstr ""
+
+msgid "type"
 msgstr ""
 
 msgid "entry"
@@ -10914,9 +10914,6 @@ msgstr ""
 msgid "Progress Note"
 msgstr ""
 
-msgid "Age"
-msgstr ""
-
 msgid "N/A"
 msgstr ""
 
@@ -12457,6 +12454,34 @@ msgstr ""
 msgid "Find next [%s] (<CTRL-N>)"
 msgstr ""
 
+msgid "&All rows"
+msgstr ""
+
+msgid "All rows as &CSV"
+msgstr ""
+
+msgid "&Tooltips of all rows"
+msgstr ""
+
+msgid "&Data of all rows"
+msgstr ""
+
+#, fuzzy
+msgid "&Selected rows"
+msgstr "Брисање вакцине"
+
+msgid "&Selected rows as CSV"
+msgstr ""
+
+msgid "&Tooltips of selected rows"
+msgstr ""
+
+#, fuzzy
+msgid "&Data of selected rows"
+msgstr ""
+"\n"
+"Комплетна историја вакцинације овог пацијента.\n"
+
 msgid "Tooltips of selected rows"
 msgstr ""
 
@@ -12486,9 +12511,8 @@ msgstr ""
 msgid "Column &%s (current row): %s"
 msgstr "Документа: %s"
 
-#, fuzzy
-msgid "Copy to e&xport area..."
-msgstr "Додавање нове вакцине"
+msgid "&Save to file..."
+msgstr ""
 
 #, fuzzy
 msgid "&Copy to clipboard..."
@@ -12516,6 +12540,30 @@ msgid ""
 "Current search term: [[%s]]\n"
 "\n"
 "%s"
+msgstr ""
+
+#, python-format
+msgid "All rows saved to [%s]."
+msgstr ""
+
+#, python-format
+msgid "All tooltips saved to [%s]."
+msgstr ""
+
+#, python-format
+msgid "All data saved to [%s]."
+msgstr ""
+
+#, python-format
+msgid "Selected rows saved to [%s]."
+msgstr ""
+
+#, python-format
+msgid "Selected tooltips saved to [%s]."
+msgstr ""
+
+#, python-format
+msgid "Selected data saved to [%s]."
 msgstr ""
 
 msgid "Monty the Serpent && the FSF Present"
@@ -13983,6 +14031,10 @@ msgstr "Здравствени проблем"
 msgid "sorted by type"
 msgstr ""
 
+#, fuzzy
+msgid "sorted by organization"
+msgstr "Уреди вакцинације"
+
 msgid "Cannot load documents. No active patient."
 msgstr ""
 
@@ -14070,6 +14122,10 @@ msgstr ""
 #, python-format
 msgid "%s (unattributed episode)"
 msgstr ""
+
+#, fuzzy
+msgid "unknown organization"
+msgstr "непозната реакција"
 
 #, python-format
 msgid "part %2s"
@@ -18425,6 +18481,14 @@ msgstr "Прекинути"
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr ""
+
+#, fuzzy
+#~ msgid "health issue"
+#~ msgstr "Здравствени проблем"
+
+#, fuzzy
+#~ msgid "Copy to e&xport area..."
+#~ msgstr "Додавање нове вакцине"
 
 #, fuzzy
 #~ msgid ""

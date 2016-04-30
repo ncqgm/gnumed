@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-04-06 11:40+0200\n"
+"POT-Creation-Date: 2016-04-30 14:11+0200\n"
 "PO-Revision-Date: 2012-06-01 01:19+0000\n"
 "Last-Translator: Anik ten Have <anik@itchi-go.nl>\n"
 "Language-Team: Dutch <nl@li.org>\n"
@@ -2364,12 +2364,6 @@ msgstr "Geef zoekterm in:"
 msgid "New patient ID:"
 msgstr "interne patiëntennummer"
 
-msgid "Your review"
-msgstr "Uw beoordeling"
-
-msgid "Reviews by others"
-msgstr "Beoordelingen door anderen"
-
 msgid "(you are/are not the primary reviewer)"
 msgstr "U bent / bent niet de primaire beoordeler"
 
@@ -2404,6 +2398,10 @@ msgid ""
 msgstr ""
 "Toont de episode die met dit document geassocieerd is. Selecteer een ander "
 "type of geef een nieuwe episodenaam in om met een andere te associeren."
+
+#, fuzzy
+msgid "The organizational unit this document originates from."
+msgstr "instellingen bewaren"
 
 #, fuzzy
 msgid "Enter the date of creation of the document."
@@ -2475,8 +2473,17 @@ msgstr "Bewaar uw beoordeling."
 msgid "Cancel this review."
 msgstr "Annuleer deze beoordeling."
 
+msgid "Your review"
+msgstr "Uw beoordeling"
+
+msgid "Reviews by others"
+msgstr "Beoordelingen door anderen"
+
 msgid "Episode"
 msgstr "Episode"
+
+msgid "Source"
+msgstr "Bron"
 
 msgid "Date"
 msgstr "Datum"
@@ -5472,21 +5479,20 @@ msgstr "bewerk details van de ontmoeting"
 msgid "Close this dialog."
 msgstr "Sluit deze dialoog."
 
-msgid "age"
-msgstr "leeftijd"
-
-msgid "review status"
-msgstr "beoordelingsstatus"
-
-msgid "episode"
-msgstr "episode"
+msgid "Age"
+msgstr "Leeftijd"
 
 #, fuzzy
-msgid "health issue"
+msgid "Review status"
+msgstr "beoordelingsstatus"
+
+#, fuzzy
+msgid "Health issue"
 msgstr "Gezondheidsprobleem"
 
-msgid "type"
-msgstr "soort"
+#, fuzzy
+msgid "Organization"
+msgstr "Organisatie"
 
 msgid "Sort newest documents to top of tree."
 msgstr "Sorteer met nieuwste documenten bovenaan"
@@ -5503,6 +5509,10 @@ msgstr "Sorteer documenten bij de episode waar ze bijhoren."
 
 msgid "Sort documents by their type."
 msgstr "Sorteer documenten op soort."
+
+#, fuzzy
+msgid "Sort documents by the organization they are from."
+msgstr "Sorteer documenten bij de episode waar ze bijhoren."
 
 msgid "Sort documents by"
 msgstr "Sorteer documenten op"
@@ -5818,10 +5828,6 @@ msgid "The category of the organizational unit."
 msgstr "instellingen bewaren"
 
 #, fuzzy
-msgid "Organization"
-msgstr "Organisatie"
-
-#, fuzzy
 msgid "Unit"
 msgstr "Eenheid:"
 
@@ -5992,9 +5998,6 @@ msgid ""
 "Conditions\n"
 "(SQL query)"
 msgstr ""
-
-msgid "Source"
-msgstr "Bron"
 
 msgid "URL"
 msgstr "Webadres"
@@ -7889,10 +7892,6 @@ msgid "missing, reported later"
 msgstr "vermist, rapport volgt"
 
 #, fuzzy
-msgid "Health issue"
-msgstr "Gezondheidsprobleem"
-
-#, fuzzy
 msgid "External care"
 msgstr "BSN bewerken."
 
@@ -9722,6 +9721,9 @@ msgstr "wanneer"
 
 msgid "who"
 msgstr "wie"
+
+msgid "type"
+msgstr "soort"
 
 msgid "entry"
 msgstr "ingave"
@@ -12088,9 +12090,6 @@ msgstr "Notitie"
 msgid "Progress Note"
 msgstr "Vooruitgangsrapport"
 
-msgid "Age"
-msgstr "Leeftijd"
-
 msgid "N/A"
 msgstr "N.v.t."
 
@@ -13793,6 +13792,33 @@ msgstr ""
 msgid "Find next [%s] (<CTRL-N>)"
 msgstr ""
 
+#, fuzzy
+msgid "&All rows"
+msgstr "&Alle gebruikers"
+
+msgid "All rows as &CSV"
+msgstr ""
+
+msgid "&Tooltips of all rows"
+msgstr ""
+
+msgid "&Data of all rows"
+msgstr ""
+
+#, fuzzy
+msgid "&Selected rows"
+msgstr "&Selecteer"
+
+msgid "&Selected rows as CSV"
+msgstr ""
+
+msgid "&Tooltips of selected rows"
+msgstr ""
+
+#, fuzzy
+msgid "&Data of selected rows"
+msgstr "Verwijder de geselecteerde items van de lijst."
+
 msgid "Tooltips of selected rows"
 msgstr ""
 
@@ -13823,8 +13849,8 @@ msgid "Column &%s (current row): %s"
 msgstr "Documenten: %s"
 
 #, fuzzy
-msgid "Copy to e&xport area..."
-msgstr "patiënt activeren van rapportresultaat"
+msgid "&Save to file..."
+msgstr " Bewaren "
 
 #, fuzzy
 msgid "&Copy to clipboard..."
@@ -13855,6 +13881,30 @@ msgid ""
 "\n"
 "%s"
 msgstr "Geef zoekterm in:"
+
+#, python-format
+msgid "All rows saved to [%s]."
+msgstr ""
+
+#, python-format
+msgid "All tooltips saved to [%s]."
+msgstr ""
+
+#, python-format
+msgid "All data saved to [%s]."
+msgstr ""
+
+#, fuzzy, python-format
+msgid "Selected rows saved to [%s]."
+msgstr "Verwijderede rapportdefinitie [%s]."
+
+#, fuzzy, python-format
+msgid "Selected tooltips saved to [%s]."
+msgstr "Verwijderede rapportdefinitie [%s]."
+
+#, fuzzy, python-format
+msgid "Selected data saved to [%s]."
+msgstr "Stel de taal van de database in op [%s]."
 
 msgid "Monty the Serpent && the FSF Present"
 msgstr "Monty the Serpent && the FSF presenteren"
@@ -15545,6 +15595,10 @@ msgstr "Creëer gezondheidsprobleem"
 msgid "sorted by type"
 msgstr "gesorteerd op soort"
 
+#, fuzzy
+msgid "sorted by organization"
+msgstr "Nieuwe patiënt toevoegen"
+
 msgid "Cannot load documents. No active patient."
 msgstr "Kan documenten niet laden. Geen actieve patiënt."
 
@@ -15647,6 +15701,10 @@ msgstr "%s%7s %s: %s (%s part(s), %s)"
 #, fuzzy, python-format
 msgid "%s (unattributed episode)"
 msgstr "Niet toegewezen episodes"
+
+#, fuzzy
+msgid "unknown organization"
+msgstr "onbekende reactie"
 
 #, python-format
 msgid "part %2s"
@@ -20775,6 +20833,20 @@ msgstr "Afbreken"
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Afbreken en GEEN verbinding maken met GNUmed."
+
+#~ msgid "age"
+#~ msgstr "leeftijd"
+
+#~ msgid "episode"
+#~ msgstr "episode"
+
+#, fuzzy
+#~ msgid "health issue"
+#~ msgstr "Gezondheidsprobleem"
+
+#, fuzzy
+#~ msgid "Copy to e&xport area..."
+#~ msgstr "patiënt activeren van rapportresultaat"
 
 #, fuzzy
 #~ msgid "&Entry time"
