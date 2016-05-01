@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-04-30 14:11+0200\n"
+"POT-Creation-Date: 2016-05-01 14:32+0200\n"
 "PO-Revision-Date: 2012-06-01 01:17+0000\n"
 "Last-Translator: J.Luszawski <jl@leksoft.com.pl>\n"
 "Language-Team: Polish <pl@li.org>\n"
@@ -87,10 +87,10 @@ msgid "Intro"
 msgstr "Wprowadzenie"
 
 msgid "Hover me!"
-msgstr ""
+msgstr "Najedź na mnie!"
 
 msgid "Hovering events with a triangle shows the event description."
-msgstr ""
+msgstr "Najechanie na wydarzenia z trójkątem pokazuje opis wydarzenia."
 
 msgid "Features"
 msgstr "Cechy"
@@ -116,7 +116,7 @@ msgid "Container"
 msgstr "Kontakt"
 
 msgid "?"
-msgstr ""
+msgstr "?"
 
 #, fuzzy
 msgid "Resize me"
@@ -128,7 +128,7 @@ msgid ""
 msgstr ""
 
 msgid "Drag me"
-msgstr ""
+msgstr "Przeciągnij mnie"
 
 msgid ""
 "Container Subevent 2\n"
@@ -206,6 +206,10 @@ msgid ""
 "\n"
 "Choose File/New/File Timeline to create a timeline that is saved on disk."
 msgstr ""
+"Ta Linia czasu jest przechowywana w pamięci i żadne modyfikacje nie zostaną "
+"zachowane.\n"
+"\n"
+"Wybierz Plik/Nowy/Linia czasu by stworzyć Linię czasu zapisaną na dysku."
 
 msgid "Start time "
 msgstr "Czas rozpoczęcia "
@@ -403,7 +407,7 @@ msgid "Select a Category:"
 msgstr ""
 
 msgid "Set Category on events without category"
-msgstr ""
+msgstr "Ustaw Kategorię dla wydarzeń bez kategorii"
 
 msgid "Set Category on selected events"
 msgstr ""
@@ -547,7 +551,7 @@ msgid "Open &Recent"
 msgstr "Otwórz pop&rzednie linie  czasu"
 
 msgid "Save As..."
-msgstr ""
+msgstr "Zapisz jako..."
 
 msgid "Import timeline..."
 msgstr ""
@@ -804,7 +808,7 @@ msgid "Feedback On Feature"
 msgstr ""
 
 msgid "Give Feedback"
-msgstr ""
+msgstr "Podziel się opinią"
 
 msgid "Help"
 msgstr "Pomoc"
@@ -851,10 +855,10 @@ msgid "Modifier:"
 msgstr "zmieniony wpis"
 
 msgid "Shortcut Key:"
-msgstr ""
+msgstr "Klawisz skrótu:"
 
 msgid "Unable to copy to clipboard."
-msgstr ""
+msgstr "Nie można skopiować do schowka."
 
 msgid "Duplicate Event"
 msgstr ""
@@ -897,14 +901,14 @@ msgid "Question"
 msgstr "Opis"
 
 msgid "Both Modifier and Shortcut key must be given!"
-msgstr ""
+msgstr "Musisz podać modyfikator oraz klawisz skrótu!"
 
 #, python-format
 msgid "The shortcut %s is already bound to function '%s'!"
-msgstr ""
+msgstr "Skrót %s został już przypisany do funkcji '%s'!"
 
 msgid "You must select a category!"
-msgstr ""
+msgstr "Musisz wybrać kategorię!"
 
 #, fuzzy
 msgid "Progress %:"
@@ -914,7 +918,7 @@ msgid "Test"
 msgstr ""
 
 msgid "URL:"
-msgstr ""
+msgstr "URL:"
 
 #, python-format
 msgid "Images will be scaled to fit inside a %ix%i box."
@@ -925,7 +929,7 @@ msgid "Select Icon"
 msgstr "Wybierz obrazek"
 
 msgid "You can't change time when the Event is locked"
-msgstr ""
+msgstr "Nie możesz zmienićczasu kiedy Wydarzenie jest zablokowane."
 
 msgid "End must be > Start"
 msgstr "Data końcowa nie może być wcześniejsza niż początkowa"
@@ -945,7 +949,7 @@ msgid "Text"
 msgstr "Tekst"
 
 msgid "Name"
-msgstr ""
+msgstr "Nazwa"
 
 #, fuzzy, python-format
 msgid "Search results for '%s'"
@@ -962,7 +966,7 @@ msgid "Questions and answers"
 msgstr "Często zadawane pytania"
 
 msgid "Concepts"
-msgstr ""
+msgstr "Założenia"
 
 msgid "Tasks"
 msgstr "Zadania"
@@ -995,7 +999,7 @@ msgstr ""
 "pierwszy dzień tygodnia. Planujemy dokonać tego w przyszłości.\n"
 
 msgid "Can multiple users work with the same timeline?"
-msgstr ""
+msgstr "Czy wielu użytkowników może pracować z tą samą linią czasu?"
 
 msgid ""
 "\n"
@@ -1435,7 +1439,7 @@ msgid "Go to Time"
 msgstr ""
 
 msgid "File"
-msgstr ""
+msgstr "Plik"
 
 #, fuzzy
 msgid "View"
@@ -1446,7 +1450,7 @@ msgid "Navigate"
 msgstr "&Nawigacja"
 
 msgid "Import..."
-msgstr ""
+msgstr "Import..."
 
 #, fuzzy
 msgid "Export Current view to Image..."
@@ -1461,13 +1465,13 @@ msgid "Export to SVG..."
 msgstr "Eksport do pliku obrazka"
 
 msgid "Exit"
-msgstr ""
+msgstr "Wyjdź"
 
 msgid "Find"
-msgstr ""
+msgstr "Szukaj"
 
 msgid "Shortcuts"
-msgstr ""
+msgstr "Skróty klawiszowe"
 
 #, fuzzy
 msgid "Sidebar"
@@ -1490,10 +1494,10 @@ msgid "Zoom Out"
 msgstr "Przybliżenie"
 
 msgid "Vertical Zoom In"
-msgstr ""
+msgstr "Przybliż w pionie"
 
 msgid "Vertical Zoom Out"
-msgstr ""
+msgstr "Oddal w pionie"
 
 #, fuzzy
 msgid "Edit Selected Event"
@@ -1508,17 +1512,17 @@ msgid "Set Category on Selected Events"
 msgstr "poprawiony wynik"
 
 msgid "Measure Distance between two Events"
-msgstr ""
+msgstr "Zmierz odległość między dwoma Wydarzeniami"
 
 msgid "Read Only"
-msgstr ""
+msgstr "Tylko do odczytu"
 
 #, fuzzy
 msgid "Contents"
 msgstr "Zawartość pomocy\tF1"
 
 msgid "About"
-msgstr ""
+msgstr "O programie"
 
 #, fuzzy
 msgid "Find First Event"
@@ -1544,6 +1548,12 @@ msgid ""
 "\n"
 "Do you want to Synchronize?"
 msgstr ""
+"Ktoś zmienił Linię czasu.\n"
+"Masz dwie opcje!\n"
+"  1. Ustaw Linię czasu w trybie Tylko do odczytu.\n"
+"  2. Zsynchronizuj Linię czasu.\n"
+"\n"
+"Czy chcesz zsynchronizować?"
 
 msgid ""
 "Help requested\n"

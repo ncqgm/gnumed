@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-04-30 14:11+0200\n"
+"POT-Creation-Date: 2016-05-01 14:32+0200\n"
 "PO-Revision-Date: 2012-04-07 10:15+0000\n"
 "Last-Translator: Rikard Edgren <Unknown>\n"
 "Language-Team: Swedish <kde-i18n-doc@kde.org>\n"
@@ -45,6 +45,9 @@ msgid ""
 "You are trying to open an old file with a new version of timeline. Please "
 "install version 0.21.1 of timeline to convert it to the new format."
 msgstr ""
+"Du försöker öppna en fil med ett gammalt format med en ny version av "
+"Timeline. Du måste installera version 0.21.1 av Timeline för att konvertera "
+"filen till det nya formatet."
 
 msgid "Other timelines can't be imported to a directory timeline"
 msgstr "Man kan inte importera andra Timelines till en katalog-timeline"
@@ -123,7 +126,7 @@ msgid "Container"
 msgstr "Behållare:"
 
 msgid "?"
-msgstr ""
+msgstr "?"
 
 #, fuzzy
 msgid "Resize me"
@@ -133,9 +136,11 @@ msgid ""
 "Container Subevent 1\n"
 "Click on the event to get the resize handles"
 msgstr ""
+"Händels i container\n"
+"Klicka på händelsen för att få handtag för storleksändring"
 
 msgid "Drag me"
-msgstr ""
+msgstr "Dra mig"
 
 msgid ""
 "Container Subevent 2\n"
@@ -225,7 +230,7 @@ msgid "Start time can't be after end time"
 msgstr "Starttiden kan inte vara efter sluttiden"
 
 msgid "Duration"
-msgstr ""
+msgstr "Varaktighet"
 
 #, python-format
 msgid "Unable to save timeline data to '%s'. File left unmodified."
@@ -329,31 +334,31 @@ msgid "Delete"
 msgstr "Ta bort"
 
 msgid "Check All"
-msgstr ""
+msgstr "Markera alla"
 
 msgid "Check children"
-msgstr ""
+msgstr "Markera undernivåer"
 
 msgid "Check all children"
-msgstr ""
+msgstr "Markera alla undernivåer"
 
 msgid "Check all parents"
-msgstr ""
+msgstr "Markera alla överliggande nivåer"
 
 msgid "Check parents for checked children"
 msgstr ""
 
 msgid "Uncheck All"
-msgstr ""
+msgstr "Avmarkera alla"
 
 msgid "Uncheck children"
-msgstr ""
+msgstr "Avmarkera undernivåer"
 
 msgid "Uncheck all children"
-msgstr ""
+msgstr "Avmarkera alla undernivåer"
 
 msgid "Uncheck all parents"
-msgstr ""
+msgstr "Avmarkera alla överliggande nivåer"
 
 msgid "Check all parents of all childs"
 msgstr ""
@@ -391,7 +396,7 @@ msgid "Invalid date"
 msgstr "Ogiltigt datum"
 
 msgid "Give feedback"
-msgstr ""
+msgstr "Ge återkoppling"
 
 msgid "Add new"
 msgstr "Lägg till ny"
@@ -400,13 +405,13 @@ msgid "Edit categories"
 msgstr "Redigera kategorier"
 
 msgid "Select a Category:"
-msgstr ""
+msgstr "Välj en kategori:"
 
 msgid "Set Category on events without category"
-msgstr ""
+msgstr "Sätt Kategori på Händelser utan Kategori"
 
 msgid "Set Category on selected events"
-msgstr ""
+msgstr "Välj kategori för markerade händelser"
 
 msgid "Show time"
 msgstr "Visa tid"
@@ -416,10 +421,10 @@ msgid "Found Events"
 msgstr "Händelser"
 
 msgid "&Enlarge"
-msgstr ""
+msgstr "&Förstora"
 
 msgid "&Reduce"
-msgstr ""
+msgstr "&Reducera"
 
 msgid "Event Properties"
 msgstr "Egenskaper för Händelse"
@@ -464,10 +469,10 @@ msgid "Icon"
 msgstr "Ikon"
 
 msgid "Hyperlink"
-msgstr ""
+msgstr "Hyperlänk"
 
 msgid "Progress"
-msgstr ""
+msgstr "Framsteg"
 
 msgid "Add more events after this one"
 msgstr "Lägg till fler händelser efter denna"
@@ -482,37 +487,39 @@ msgid "Create Event"
 msgstr "Skapa Händelse"
 
 msgid "Email Feedback"
-msgstr ""
+msgstr "Återkoppling Email"
 
 msgid "Default client"
-msgstr ""
+msgstr "Förvald klient"
 
 msgid "Gmail"
-msgstr ""
+msgstr "Gmail"
 
 msgid "Other email client"
-msgstr ""
+msgstr "Annan epostklient"
 
 msgid ""
 "Copy and paste this email into your favorite email client and send it from "
 "there."
 msgstr ""
+"Kopiera och klistra in detta email i den epostklient du föredrar och skicka "
+"det därifrån."
 
 msgid "Other"
-msgstr ""
+msgstr "Övriga"
 
 msgid "To:"
-msgstr ""
+msgstr "Till:"
 
 #, fuzzy
 msgid "Subject:"
 msgstr "Välj Ikon"
 
 msgid "Body:"
-msgstr ""
+msgstr "Innehåll:"
 
 msgid "Send With:"
-msgstr ""
+msgstr "Skicka med:"
 
 msgid "&File"
 msgstr "&Arkiv"
@@ -540,7 +547,7 @@ msgid "Open &Recent"
 msgstr "Öppna s&enaste"
 
 msgid "Save As..."
-msgstr ""
+msgstr "Spara som…"
 
 msgid "Import timeline..."
 msgstr ""
@@ -574,7 +581,7 @@ msgid "Find Categories..."
 msgstr "Redigera Kategorier"
 
 msgid "Shortcuts..."
-msgstr ""
+msgstr "Genvägar..."
 
 msgid "&Edit"
 msgstr "&Redigera"
@@ -593,13 +600,13 @@ msgid "Zoom &In\tCtrl++"
 msgstr "Gå till &Noll \t Ctrl+0"
 
 msgid "Zoom &Out\tCtrl+-"
-msgstr ""
+msgstr "Z&ooma Ut\tCtrl+-"
 
 msgid "Vertical Zoom &In\tAlt++"
-msgstr ""
+msgstr "Zooma in vertikalt\tAlt++"
 
 msgid "Vertical Zoom &Out\tAlt+-"
-msgstr ""
+msgstr "Zooma ut vertikalt\tAlt+-"
 
 msgid "&View"
 msgstr "&Visa"
@@ -608,25 +615,25 @@ msgid "Create &Event..."
 msgstr "Skapa &Händelse..."
 
 msgid "&Edit Selected Event..."
-msgstr ""
+msgstr "&Editera valda Händelser..."
 
 msgid "&Duplicate Selected Event..."
 msgstr "&Duplicera Markerad Händelse..."
 
 msgid "Set Category on Selected Events..."
-msgstr ""
+msgstr "Sätt Kategori på valda Händelser..."
 
 msgid "&Measure Distance between two Events..."
 msgstr "&Mät avståndet mellan två händelser..."
 
 msgid "Set Category on events &without category..."
-msgstr ""
+msgstr "Välj kategori för alla händelser som saknar kategori..."
 
 msgid "Edit &Categories"
 msgstr "Redigera &Kategorier"
 
 msgid "&Read Only"
-msgstr ""
+msgstr "Sk&rivskyddad"
 
 msgid "&Timeline"
 msgstr "&Tidslinje"
@@ -647,7 +654,7 @@ msgid "&Navigate"
 msgstr "&Navigera"
 
 msgid "Feedback"
-msgstr ""
+msgstr "Återkoppling"
 
 msgid "&Contents\tF1"
 msgstr "&Innehåll\tF1"
@@ -657,7 +664,7 @@ msgid "Getting started &tutorial"
 msgstr "Kom igång övning"
 
 msgid "Give &Feedback..."
-msgstr ""
+msgstr "Ge &Feedback..."
 
 #, fuzzy
 msgid "Co&ntact"
@@ -691,7 +698,7 @@ msgid "Open Timeline"
 msgstr "Öppna Tidslinje"
 
 msgid "Save Timeline As"
-msgstr ""
+msgstr "Spara Timeline som"
 
 #, fuzzy
 msgid ""
@@ -731,7 +738,7 @@ msgid "Contact"
 msgstr "Kontakta"
 
 msgid "View Categories Individually"
-msgstr ""
+msgstr "Visa enbart markerade Kategorier"
 
 #, python-format
 msgid "Category name '%s' not valid. Must be non-empty."
@@ -783,16 +790,16 @@ msgid "Category Finder"
 msgstr "Kategorier"
 
 msgid "Check"
-msgstr ""
+msgstr "Markera"
 
 msgid "Uncheck"
-msgstr ""
+msgstr "Avmarkera"
 
 msgid "Feedback On Feature"
-msgstr ""
+msgstr "Återkoppling av funktion"
 
 msgid "Give Feedback"
-msgstr ""
+msgstr "Tyck till/Lämna respons"
 
 msgid "Help"
 msgstr "Hjälp"
@@ -827,7 +834,7 @@ msgid "Container Properties"
 msgstr "Egenskaper för Behållare"
 
 msgid "Edit Shortcuts"
-msgstr ""
+msgstr "Redigera snabbtangenter"
 
 #, fuzzy
 msgid "Functions:"
@@ -838,7 +845,7 @@ msgid "Modifier:"
 msgstr "Ändrat fält."
 
 msgid "Shortcut Key:"
-msgstr ""
+msgstr "Snabbtangent:"
 
 msgid "Unable to copy to clipboard."
 msgstr "Misslyckades med att kopiera till klippbordet"
@@ -876,30 +883,30 @@ msgid "Error"
 msgstr "Fel"
 
 msgid "Warning"
-msgstr ""
+msgstr "Varning"
 
 #, fuzzy
 msgid "Question"
 msgstr "Reaktion"
 
 msgid "Both Modifier and Shortcut key must be given!"
-msgstr ""
+msgstr "Både modifierare och snabbtangent måste anges!"
 
 #, python-format
 msgid "The shortcut %s is already bound to function '%s'!"
-msgstr ""
+msgstr "Snabbtangenten %s är redan kopplad till funktionen '%s'!"
 
 msgid "You must select a category!"
 msgstr "Du måste välja en kategori!"
 
 msgid "Progress %:"
-msgstr ""
+msgstr "Framsteg %:"
 
 msgid "Test"
 msgstr ""
 
 msgid "URL:"
-msgstr ""
+msgstr "URL:"
 
 #, python-format
 msgid "Images will be scaled to fit inside a %ix%i box."
@@ -1127,7 +1134,7 @@ msgstr ""
 "händelse.\n"
 
 msgid "Move event vertically"
-msgstr ""
+msgstr "Flytta händelser vertikalt"
 
 msgid ""
 "\n"
@@ -1279,7 +1286,7 @@ msgid "Sticky Balloon"
 msgstr "Fäst ballong"
 
 msgid "Goto URL"
-msgstr ""
+msgstr "Gå till URL"
 
 msgid "Center"
 msgstr "Centrera"
@@ -1357,7 +1364,7 @@ msgid "Fit Month"
 msgstr "Anpassa Månad"
 
 msgid "Fit Week"
-msgstr ""
+msgstr "Anpassa Vecka"
 
 msgid "Fit Day"
 msgstr "Anpassa Dag"
@@ -1432,7 +1439,7 @@ msgid "Go to Time"
 msgstr "Gå till tid"
 
 msgid "File"
-msgstr ""
+msgstr "Arkiv"
 
 #, fuzzy
 msgid "View"
@@ -1443,7 +1450,7 @@ msgid "Navigate"
 msgstr "&Navigera"
 
 msgid "Import..."
-msgstr ""
+msgstr "Importera..."
 
 #, fuzzy
 msgid "Export Current view to Image..."
@@ -1458,13 +1465,13 @@ msgid "Export to SVG..."
 msgstr "Exportera som &SVG..."
 
 msgid "Exit"
-msgstr ""
+msgstr "Avsluta"
 
 msgid "Find"
-msgstr ""
+msgstr "Sök"
 
 msgid "Shortcuts"
-msgstr ""
+msgstr "Snabbkommandon"
 
 #, fuzzy
 msgid "Sidebar"
@@ -1487,10 +1494,10 @@ msgid "Zoom Out"
 msgstr "Zooma"
 
 msgid "Vertical Zoom In"
-msgstr ""
+msgstr "Zooma in vertikalt"
 
 msgid "Vertical Zoom Out"
-msgstr ""
+msgstr "Zomma ut vertikalt"
 
 #, fuzzy
 msgid "Edit Selected Event"
@@ -1509,14 +1516,14 @@ msgid "Measure Distance between two Events"
 msgstr "&Mät avståndet mellan två händelser..."
 
 msgid "Read Only"
-msgstr ""
+msgstr "Skrivskyddad"
 
 #, fuzzy
 msgid "Contents"
 msgstr "&Innehåll\tF1"
 
 msgid "About"
-msgstr ""
+msgstr "Om"
 
 #, fuzzy
 msgid "Find First Event"
@@ -2657,7 +2664,7 @@ msgid "Browse"
 msgstr ""
 
 msgid "Export"
-msgstr ""
+msgstr "Exportera"
 
 msgid "Upload"
 msgstr ""
@@ -4179,7 +4186,7 @@ msgid "↢ C&lipboard"
 msgstr ""
 
 msgid "&Remove"
-msgstr ""
+msgstr "Ta bo&rt"
 
 msgid "&Print"
 msgstr ""

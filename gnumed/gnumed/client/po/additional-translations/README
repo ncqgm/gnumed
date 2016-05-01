@@ -1,0 +1,5 @@
+Place any .po files with additional translations here
+(such as from Timeline). They need to have the same
+name (LANG.po) as the base files in the parent dir.
+Such files will be picked up automatically when using
+the scripts to refresh the .po files.
