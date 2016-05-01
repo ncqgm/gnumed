@@ -8,7 +8,7 @@
 BASE="../"												# where to look for files
 POTNAME="gnumed.pot"									# what to call the result
 LANGNAME="$1"											# what language are we working on
-AUXNAME="gnumed-${LANGNAME}.po.additional-translations"	# more translations
+AUXNAME="additional-translations/${LANGNAME}.po"
 
 
 echo ""
@@ -61,7 +61,7 @@ fi;
 
 
 if [ -f "${AUXNAME}" ]; then
-	mv -vf ${AUXNAME} zzzz-done-${AUXNAME} >> create-${LANGNAME}-po.log 2>&1
+	mv -vf ${AUXNAME} ${AUXNAME}.done >> create-${LANGNAME}-po.log 2>&1
 fi;
 
 

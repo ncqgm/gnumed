@@ -357,6 +357,7 @@ def __configure_path_to_UNO():
 	_log.info('UNO should be at [%s], appending to sys.path', uno_path)
 
 	sys.path.append(uno_path)
+
 #-----------------------------------------------------------
 def init_ooo():
 	"""FIXME: consider this:
@@ -415,14 +416,15 @@ def init_ooo():
 	global writer_binary
 	found, binary = gmShellAPI.find_first_binary(binaries = [
 		'lowriter',
-		'oowriter'
+		'oowriter',
+		'swriter'
 	])
 	if found:
 		_log.debug('OOo/LO writer binary found: %s', binary)
 		writer_binary = binary
 	else:
 		_log.debug('OOo/LO writer binary NOT found')
-		raise ImportError('LibreOffice/OpenOffice (lowriter/oowriter) not found')
+		raise ImportError('LibreOffice/OpenOffice (lowriter/oowriter/swriter) not found')
 
 	_log.debug('python UNO bridge successfully initialized')
 
