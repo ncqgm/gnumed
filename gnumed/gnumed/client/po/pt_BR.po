@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-04-30 14:11+0200\n"
+"POT-Creation-Date: 2016-05-01 14:32+0200\n"
 "PO-Revision-Date: 2012-06-01 01:18+0000\n"
 "Last-Translator: Rogerio Luz Coelho <dr.rogerioluzcoelho@gmail.com>\n"
 "Language-Team: Brazilian Portuguese <pt_BR@li.org>\n"
@@ -44,6 +44,8 @@ msgid ""
 "You are trying to open an old file with a new version of timeline. Please "
 "install version 0.21.1 of timeline to convert it to the new format."
 msgstr ""
+"Você está tentando abrir um arquivo antigo com uma nova versão do timeline. "
+"Por favor instale a versão 0.21.1 do timeline para converter ao novo formato."
 
 msgid "Other timelines can't be imported to a directory timeline"
 msgstr ""
@@ -120,7 +122,7 @@ msgid "Container"
 msgstr "Continue"
 
 msgid "?"
-msgstr ""
+msgstr "?"
 
 #, fuzzy
 msgid "Resize me"
@@ -130,9 +132,11 @@ msgid ""
 "Container Subevent 1\n"
 "Click on the event to get the resize handles"
 msgstr ""
+"Container Subevento 1\n"
+"Click no evento para disponibilizar as alças de redimensionamento."
 
 msgid "Drag me"
-msgstr ""
+msgstr "Arraste-me"
 
 msgid ""
 "Container Subevent 2\n"
@@ -422,7 +426,7 @@ msgid "Select a Category:"
 msgstr ""
 
 msgid "Set Category on events without category"
-msgstr ""
+msgstr "Definir categoria para eventos sem categoria"
 
 msgid "Set Category on selected events"
 msgstr ""
@@ -573,7 +577,7 @@ msgid "Open &Recent"
 msgstr "Abrir &Recente"
 
 msgid "Save As..."
-msgstr ""
+msgstr "Salvar como..."
 
 msgid "Import timeline..."
 msgstr ""
@@ -842,7 +846,7 @@ msgid "Feedback On Feature"
 msgstr ""
 
 msgid "Give Feedback"
-msgstr ""
+msgstr "Dê a sua opinião"
 
 msgid "Help"
 msgstr "Ajuda"
@@ -1036,6 +1040,7 @@ msgstr ""
 
 msgid "Can multiple users work with the same timeline?"
 msgstr ""
+"Podem múltiplos usuários trabalharem na mesma timeline simultaneamente?"
 
 msgid ""
 "\n"
@@ -1497,7 +1502,7 @@ msgid "Go to Time"
 msgstr " opção [%s]: %s"
 
 msgid "File"
-msgstr ""
+msgstr "Arquivo"
 
 #, fuzzy
 msgid "View"
@@ -1552,10 +1557,10 @@ msgid "Zoom Out"
 msgstr "Zoom"
 
 msgid "Vertical Zoom In"
-msgstr ""
+msgstr "Aumentar zoom vertical"
 
 msgid "Vertical Zoom Out"
-msgstr ""
+msgstr "Diminuir zoom vertical"
 
 #, fuzzy
 msgid "Edit Selected Event"
@@ -1570,17 +1575,17 @@ msgid "Set Category on Selected Events"
 msgstr "Editar o item selecionado."
 
 msgid "Measure Distance between two Events"
-msgstr ""
+msgstr "Medir distância entre dois eventos"
 
 msgid "Read Only"
-msgstr ""
+msgstr "Somente leitura"
 
 #, fuzzy
 msgid "Contents"
 msgstr "Componentes"
 
 msgid "About"
-msgstr ""
+msgstr "Sobre..."
 
 #, fuzzy
 msgid "Find First Event"
