@@ -15,6 +15,7 @@ IMRPOVED: enable editing of document source org
 IMPROVED: list context menu layout
 IMPROVED: handling of Windows locale names like Hungarian_Hungary [thanks Attila]
 IMPROVED: AppData file
+IMRPOVED: OOo/LO/SO detection [thanks John]
 
 	1.6.5
 
