@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-05-01 14:31+0200\n"
+"POT-Creation-Date: 2016-05-26 12:47+0200\n"
 "PO-Revision-Date: 2016-02-24 18:28+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: colombiano <es@li.org>\n"
@@ -8059,6 +8059,10 @@ msgstr "Historial Familiar"
 msgid "Document"
 msgstr "Documento"
 
+#, fuzzy
+msgid "Inbox message"
+msgstr "Editando bandeja de entrada de mensajes"
+
 #, python-format
 msgid "unmapped entry type from table [%s]"
 msgstr "ingreso no mapeado desde la tabla [%s]"
@@ -10808,6 +10812,9 @@ msgstr "Ingesta"
 
 msgid "nicotine"
 msgstr "nicotina"
+
+msgid "ethanol"
+msgstr ""
 
 msgid "unit"
 msgstr "unidad"
@@ -13711,6 +13718,14 @@ msgstr "Mapa"
 
 msgid "Show selected address on map"
 msgstr "Muestro la dirección seleccionada en el mapa."
+
+#, fuzzy
+msgid "Distance"
+msgstr "Sustancia"
+
+#, fuzzy
+msgid "Show distance from your praxis"
+msgstr "Sucursales de su consulta"
 
 msgid "Adding new address"
 msgstr "Agregando una nueva dirección"

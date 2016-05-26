@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-05-01 14:32+0200\n"
+"POT-Creation-Date: 2016-05-26 12:47+0200\n"
 "PO-Revision-Date: 2010-07-17 11:08+0000\n"
 "Last-Translator: Luis Mendonça <Unknown>\n"
 "Language-Team: Portuguese <pt@li.org>\n"
@@ -7691,6 +7691,10 @@ msgstr "Apagando documento"
 msgid "Document"
 msgstr "Documentos:"
 
+#, fuzzy
+msgid "Inbox message"
+msgstr "mensagem informativa genérica"
+
 #, python-format
 msgid "unmapped entry type from table [%s]"
 msgstr ""
@@ -10371,6 +10375,9 @@ msgstr ""
 msgid "nicotine"
 msgstr ""
 
+msgid "ethanol"
+msgstr ""
+
 #, fuzzy
 msgid "unit"
 msgstr "unidades"
@@ -13022,6 +13029,14 @@ msgstr "Sr"
 #, fuzzy
 msgid "Show selected address on map"
 msgstr "obrigatório selecionar endereço"
+
+#, fuzzy
+msgid "Distance"
+msgstr "Substância"
+
+#, fuzzy
+msgid "Show distance from your praxis"
+msgstr "Sua revisão"
 
 msgid "Adding new address"
 msgstr "Adicionando novo endereço"

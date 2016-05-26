@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-05-01 14:31+0200\n"
+"POT-Creation-Date: 2016-05-26 12:47+0200\n"
 "PO-Revision-Date: 2012-06-01 01:20+0000\n"
 "Last-Translator: ncq <Unknown>\n"
 "Language-Team: Catalan <ca@li.org>\n"
@@ -7316,6 +7316,10 @@ msgstr "Guarda el document finalitzat."
 msgid "Document"
 msgstr "Documents"
 
+#, fuzzy
+msgid "Inbox message"
+msgstr "missatge d'inforamció genèric"
+
 #, python-format
 msgid "unmapped entry type from table [%s]"
 msgstr ""
@@ -9861,6 +9865,9 @@ msgid "Intake"
 msgstr ""
 
 msgid "nicotine"
+msgstr ""
+
+msgid "ethanol"
 msgstr ""
 
 #, fuzzy
@@ -12418,6 +12425,14 @@ msgstr "Sr"
 #, fuzzy
 msgid "Show selected address on map"
 msgstr "Edita l'entrada seleccionada."
+
+#, fuzzy
+msgid "Distance"
+msgstr "Substància"
+
+#, fuzzy
+msgid "Show distance from your praxis"
+msgstr "La teva revisió"
 
 msgid "Adding new address"
 msgstr ""

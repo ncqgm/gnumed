@@ -5,8 +5,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-05-01 14:31+0200\n"
-"PO-Revision-Date: 2016-04-30 14:55+0200\n"
+"POT-Creation-Date: 2016-05-26 12:47+0200\n"
+"PO-Revision-Date: 2016-05-26 12:38+0200\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "Language: de_DE\n"
@@ -7907,6 +7907,9 @@ msgstr "Familienanamnese"
 msgid "Document"
 msgstr "Dokument"
 
+msgid "Inbox message"
+msgstr "Nachricht im Posteingang"
+
 #, python-format
 msgid "unmapped entry type from table [%s]"
 msgstr "nicht übertragener Eintragtyp, aus Tabelle [%s]"
@@ -10641,6 +10644,9 @@ msgstr "Einnahme"
 
 msgid "nicotine"
 msgstr "Nikotin"
+
+msgid "ethanol"
+msgstr "Ethanol"
 
 msgid "unit"
 msgstr "Einheit"
@@ -13539,6 +13545,12 @@ msgstr "Karte"
 
 msgid "Show selected address on map"
 msgstr "Gewählte Adresse auf einer Karte zeigen"
+
+msgid "Distance"
+msgstr "Distanz"
+
+msgid "Show distance from your praxis"
+msgstr "Distanz zur Praxis anzeigen"
 
 msgid "Adding new address"
 msgstr "Neue Adresse hinzufügen"

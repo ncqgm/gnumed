@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-05-01 14:31+0200\n"
+"POT-Creation-Date: 2016-05-26 12:47+0200\n"
 "PO-Revision-Date: 2010-02-09 16:17+0000\n"
 "Last-Translator: Brett Alton <brett.jr.alton@gmail.com>\n"
 "Language-Team: English (Canada) <en_CA@li.org>\n"
@@ -7132,6 +7132,9 @@ msgstr " %s documents\n"
 msgid "Document"
 msgstr "Documents:"
 
+msgid "Inbox message"
+msgstr ""
+
 #, python-format
 msgid "unmapped entry type from table [%s]"
 msgstr ""
@@ -9664,6 +9667,9 @@ msgstr ""
 msgid "nicotine"
 msgstr ""
 
+msgid "ethanol"
+msgstr ""
+
 msgid "unit"
 msgstr ""
 
@@ -12189,6 +12195,13 @@ msgid "Map"
 msgstr "Mr"
 
 msgid "Show selected address on map"
+msgstr ""
+
+#, fuzzy
+msgid "Distance"
+msgstr "Exported: %s\n"
+
+msgid "Show distance from your praxis"
 msgstr ""
 
 msgid "Adding new address"

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-05-01 14:32+0200\n"
+"POT-Creation-Date: 2016-05-26 12:47+0200\n"
 "PO-Revision-Date: 2011-08-25 16:54+0000\n"
 "Last-Translator: Karolina Kalic <Unknown>\n"
 "Language-Team: Serbian <sr@li.org>\n"
@@ -7156,6 +7156,10 @@ msgstr "Породична историја"
 msgid "Document"
 msgstr "Документа:"
 
+#, fuzzy
+msgid "Inbox message"
+msgstr "генеричка порука за обавештење"
+
 #, python-format
 msgid "unmapped entry type from table [%s]"
 msgstr ""
@@ -9683,6 +9687,9 @@ msgid "Intake"
 msgstr ""
 
 msgid "nicotine"
+msgstr ""
+
+msgid "ethanol"
 msgstr ""
 
 #, fuzzy
@@ -12228,6 +12235,13 @@ msgstr ""
 #, fuzzy
 msgid "Show selected address on map"
 msgstr "Брисање вакцине"
+
+#, fuzzy
+msgid "Distance"
+msgstr "Супстанца"
+
+msgid "Show distance from your praxis"
+msgstr ""
 
 msgid "Adding new address"
 msgstr ""

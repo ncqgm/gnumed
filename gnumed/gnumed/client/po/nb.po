@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-05-01 14:32+0200\n"
+"POT-Creation-Date: 2016-05-26 12:47+0200\n"
 "PO-Revision-Date: 2009-02-12 20:47+0000\n"
 "Last-Translator: Leif Gunnar Erlandsen <Unknown>\n"
 "Language-Team: Norwegian Bokmal <nb@li.org>\n"
@@ -7188,6 +7188,9 @@ msgstr "Dokumenter:"
 msgid "Document"
 msgstr "Dokumenter:"
 
+msgid "Inbox message"
+msgstr ""
+
 #, python-format
 msgid "unmapped entry type from table [%s]"
 msgstr ""
@@ -9719,6 +9722,9 @@ msgid "Intake"
 msgstr ""
 
 msgid "nicotine"
+msgstr ""
+
+msgid "ethanol"
 msgstr ""
 
 #, fuzzy
@@ -12254,6 +12260,13 @@ msgid "Map"
 msgstr "Herr"
 
 msgid "Show selected address on map"
+msgstr ""
+
+#, fuzzy
+msgid "Distance"
+msgstr " Status: %s, %s"
+
+msgid "Show distance from your praxis"
 msgstr ""
 
 msgid "Adding new address"

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-05-01 14:32+0200\n"
+"POT-Creation-Date: 2016-05-26 12:47+0200\n"
 "PO-Revision-Date: 2012-04-07 10:15+0000\n"
 "Last-Translator: Rikard Edgren <Unknown>\n"
 "Language-Team: Swedish <kde-i18n-doc@kde.org>\n"
@@ -7432,6 +7432,10 @@ msgstr "Familjehistoria"
 msgid "Document"
 msgstr "Dokument:"
 
+#, fuzzy
+msgid "Inbox message"
+msgstr "Allmänt informationsmeddelande"
+
 #, python-format
 msgid "unmapped entry type from table [%s]"
 msgstr ""
@@ -9993,6 +9997,9 @@ msgstr ""
 msgid "nicotine"
 msgstr ""
 
+msgid "ethanol"
+msgstr ""
+
 #, fuzzy
 msgid "unit"
 msgstr "enheter"
@@ -12523,6 +12530,14 @@ msgid "Show selected address on map"
 msgstr ""
 "\n"
 "Välj den undersökningstyp du vill redigera!\n"
+
+#, fuzzy
+msgid "Distance"
+msgstr "Substans"
+
+#, fuzzy
+msgid "Show distance from your praxis"
+msgstr "timmar"
 
 msgid "Adding new address"
 msgstr ""

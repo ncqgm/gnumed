@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-05-01 14:32+0200\n"
+"POT-Creation-Date: 2016-05-26 12:47+0200\n"
 "PO-Revision-Date: 2012-06-01 01:19+0000\n"
 "Last-Translator: Anik ten Have <anik@itchi-go.nl>\n"
 "Language-Team: Dutch <nl@li.org>\n"
@@ -7928,6 +7928,10 @@ msgstr "medische geschiedenis"
 msgid "Document"
 msgstr "Documenten"
 
+#, fuzzy
+msgid "Inbox message"
+msgstr "Naam bewerken"
+
 #, python-format
 msgid "unmapped entry type from table [%s]"
 msgstr ""
@@ -10749,6 +10753,9 @@ msgstr ""
 msgid "nicotine"
 msgstr ""
 
+msgid "ethanol"
+msgstr ""
+
 #, fuzzy
 msgid "unit"
 msgstr "eenheden"
@@ -13534,6 +13541,14 @@ msgstr "Dhr"
 #, fuzzy
 msgid "Show selected address on map"
 msgstr "moet adres selecteren"
+
+#, fuzzy
+msgid "Distance"
+msgstr "Stof"
+
+#, fuzzy
+msgid "Show distance from your praxis"
+msgstr "Uw beoordeling"
 
 msgid "Adding new address"
 msgstr "Nieuw adres toevoegen"

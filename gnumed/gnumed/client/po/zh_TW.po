@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-05-01 14:32+0200\n"
+"POT-Creation-Date: 2016-05-26 12:47+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -6990,6 +6990,10 @@ msgstr ""
 msgid "Document"
 msgstr "註記"
 
+#, fuzzy
+msgid "Inbox message"
+msgstr "通用資訊"
+
 #, python-format
 msgid "unmapped entry type from table [%s]"
 msgstr ""
@@ -9460,6 +9464,9 @@ msgid "Intake"
 msgstr ""
 
 msgid "nicotine"
+msgstr ""
+
+msgid "ethanol"
 msgstr ""
 
 #, fuzzy
@@ -11954,6 +11961,12 @@ msgid "Map"
 msgstr ""
 
 msgid "Show selected address on map"
+msgstr ""
+
+msgid "Distance"
+msgstr ""
+
+msgid "Show distance from your praxis"
 msgstr ""
 
 msgid "Adding new address"

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-05-01 14:32+0200\n"
+"POT-Creation-Date: 2016-05-26 12:47+0200\n"
 "PO-Revision-Date: 2012-01-21 13:50+0000\n"
 "Last-Translator: YvLy <Unknown>\n"
 "Language-Team: Russian <ru@li.org>\n"
@@ -8169,6 +8169,10 @@ msgstr "Семейный анамнез"
 msgid "Document"
 msgstr "Документы"
 
+#, fuzzy
+msgid "Inbox message"
+msgstr "Редактирование почтового сообщения"
+
 #, python-format
 msgid "unmapped entry type from table [%s]"
 msgstr ""
@@ -10981,6 +10985,9 @@ msgid "Intake"
 msgstr ""
 
 msgid "nicotine"
+msgstr ""
+
+msgid "ethanol"
 msgstr ""
 
 #, fuzzy
@@ -13954,6 +13961,14 @@ msgstr "Мистер"
 #, fuzzy
 msgid "Show selected address on map"
 msgstr "должен выбрать адрес"
+
+#, fuzzy
+msgid "Distance"
+msgstr "Вещество"
+
+#, fuzzy
+msgid "Show distance from your praxis"
+msgstr "Ваше заключение"
 
 msgid "Adding new address"
 msgstr "Добавление нового адреса."
