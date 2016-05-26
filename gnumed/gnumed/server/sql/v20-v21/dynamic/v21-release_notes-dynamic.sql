@@ -17,24 +17,25 @@ INSERT INTO dem.message_inbox (
 ) VALUES (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
-	'Release Notes for GNUmed 1.6.5 (database v21.5)',
-	'GNUmed 1.6.5 Release Notes:
+	'Release Notes for GNUmed 1.6.6 (database v21.6)',
+	'GNUmed 1.6.6 Release Notes:
 
-	1.6.5
+	1.6.6
 
-IMPROVED: list context menu: operate on _selected_ rows
+FIX: error when running gm-import_incoming as root
+FIX: failure to show entries with soap_cat=NULL in EMR list journal
+FIX: copy-pasto "nicotine" -> "ethanol"
 
-	1.6.4
+IMPROVED: clear metadata panel after importing new document
+IMRPOVED: enable editing of document source org
+IMPROVED: list context menu layout
+IMPROVED: handling of Windows locale names like Hungarian_Hungary [thanks Attila]
+IMPROVED: AppData file
+IMRPOVED: OOo/LO/SO detection [thanks John]
+IMRPOVED: tree display of documents
 
-FIX: EMR journal exporter on Windows [thanks Marc]
-
-IMPROVED: by-org sort mode in document tree
-IMPROVED: file describer script
-IMPROVED: STIKO tetanus auto hint
-IMPROVED: ES translation [thanks Uwe]
-
-NEW: gm-import_incoming script for external use
+NEW: calculate distance of patient address to your praxis
 ');
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('v21-release_notes-dynamic.sql', '21.5');
+select gm.log_script_insertion('v21-release_notes-dynamic.sql', '21.6');
