@@ -17,6 +17,8 @@ if __name__ == '__main__':
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmNetworkTools
 
+from Gnumed.business import gmPraxis
+
 from Gnumed.wxpython import gmGuiHelpers
 from Gnumed.wxpython import gmListWidgets
 from Gnumed.wxpython import gmEditArea
@@ -146,6 +148,12 @@ class cPersonAddressesManagerPnl(gmListWidgets.cGenericListManagerPnl):
 			_('Show selected address on map'),
 			self._show_address_on_map
 		)
+		self.middle_extra_button = (
+			_('Distance'),
+			_('Show distance from your praxis'),
+			self._show_distance_on_map
+		)
+
 	#--------------------------------------------------------
 	def _add_address(self):
 		ea = gmAddressWidgets.cAddressEAPnl(self, -1)
@@ -189,6 +197,14 @@ class cPersonAddressesManagerPnl(gmListWidgets.cGenericListManagerPnl):
 		if address is None:
 			return False
 		gmNetworkTools.open_url_in_browser(address.as_map_url, new = 2, autoraise = True)
+
+	#--------------------------------------------------------
+	def _show_distance_on_map(self, address):
+		if address is None:
+			return False
+		praxis_branch = gmPraxis.gmCurrentPraxisBranch()
+		gmNetworkTools.open_url_in_browser(praxis_branch.get_distance2address_url(address), new = 2, autoraise = True)
+
 	#--------------------------------------------------------
 	def _calculate_tooltip(self, address):
 		tt = u'\n'.join(address.format())
@@ -196,6 +212,7 @@ class cPersonAddressesManagerPnl(gmListWidgets.cGenericListManagerPnl):
 		tt += u'%s\n' % (gmTools.u_box_horiz_single * 40)
 		tt += self.__static_tooltip_part
 		return tt
+
 	#--------------------------------------------------------
 	# properties
 	#--------------------------------------------------------

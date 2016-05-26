@@ -25,6 +25,7 @@ soap_cat2l10n = {
 	u'a': _('SOAP_char_A=A').replace(u'SOAP_char_A=', u''),
 	u'p': _('SOAP_char_P=P').replace(u'SOAP_char_P=', u''),
 	u'u': _('SOAP_char_U=U').replace(u'SOAP_char_U=', u''),
+	u'': _U_ELLIPSIS,
 	None: _U_ELLIPSIS
 }
 
@@ -35,6 +36,7 @@ soap_cat2l10n_str = {
 	u'a': _('SOAP_string_Assessment=Assessment').replace(u'SOAP_string_Assessment=', u''),
 	u'p': _('SOAP_string_Plan=Plan').replace(u'SOAP_string_Plan=', u''),
 	u'u': _('SOAP_string_Unspecified=Unspecified').replace(u'SOAP_string_Unspecified=', u''),
+	u'':  _('SOAP_string_Administrative=Administrative').replace(u'SOAP_string_Administrative=', u''),
 	None: _('SOAP_string_Administrative=Administrative').replace(u'SOAP_string_Administrative=', u'')
 }
 
