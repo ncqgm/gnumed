@@ -160,7 +160,7 @@ class cSubstanceAbuseEAPnl(wxgSubstanceAbuseEAPnl.wxgSubstanceAbuseEAPnl, gmEdit
 
 		elif self._RBTN_c2.GetValue() is True:
 			pk_substance = gmMedication.create_consumable_substance_by_atc (
-				substance = _('nicotine'),
+				substance = _('ethanol'),
 				atc = gmATC.ATC_ETHANOL,
 				amount = 1,
 				unit = _('units')

@@ -9,6 +9,8 @@
 	1.6.6
 
 FIX: error when running gm-import_incoming as root
+FIX: failure to show entries with soap_cat=NULL in EMR list journal
+FIX: copy-pasto 'nicotine' -> 'ethanol'
 
 IMPROVED: clear metadata panel after importing new document
 IMRPOVED: enable editing of document source org
@@ -16,6 +18,9 @@ IMPROVED: list context menu layout
 IMPROVED: handling of Windows locale names like Hungarian_Hungary [thanks Attila]
 IMPROVED: AppData file
 IMRPOVED: OOo/LO/SO detection [thanks John]
+IMRPOVED: tree display of documents
+
+NEW: calculate distance of patient address to your praxis
 
 	1.6.5
 

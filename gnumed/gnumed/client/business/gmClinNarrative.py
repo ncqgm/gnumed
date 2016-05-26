@@ -441,7 +441,7 @@ def get_as_journal(since=None, until=None, encounters=None, episodes=None, issue
 			c_vej.encounter_l10n_type
 		FROM
 			clin.v_emr_journal c_vej
-				join clin.soap_cat_ranks c_scr on (c_scr.soap_cat = c_vej.soap_cat)
+				join clin.soap_cat_ranks c_scr on (c_scr.soap_cat IS NOT DISTINCT FROM c_vej.soap_cat)
 		WHERE
 			%s
 		%s""" % (

@@ -278,14 +278,15 @@ class gmPaths(gmBorg.cBorg):
 			self.__tmp_dir_already_set
 			_log.debug(u'temp dir already set')
 		except AttributeError:
-			_log.info(u'initial temp dir: %s', tempfile.gettempdir())
+			_log.info(u'initial (user level) temp dir: %s', tempfile.gettempdir())
 			# $TMP/gnumed-$USER/
 			tmp_base = os.path.join(tempfile.gettempdir(), app_name + r'-' + getpass.getuser())
 			mkdir(tmp_base, 0o700)
 			tempfile.tempdir = tmp_base
-			_log.info(u'intermediate temp dir: %s', tempfile.gettempdir())
+			_log.info(u'intermediate (app level) temp dir: %s', tempfile.gettempdir())
 			# $TMP/gnumed-$USER/g$UNIQUE/
 			self.tmp_dir = tempfile.mkdtemp(prefix = r'g')
+			_log.info(u'final (app instance level) temp dir: %s', tempfile.gettempdir())
 
 		self.__log_paths()
 		if wx is None:
@@ -416,7 +417,7 @@ class gmPaths(gmBorg.cBorg):
 		_log.debug('previous temp dir: %s', tempfile.gettempdir())
 		self.__tmp_dir = path
 		tempfile.tempdir = self.__tmp_dir
-		_log.debug('current temp dir: %s', tempfile.gettempdir())
+		_log.debug('new temp dir: %s', tempfile.gettempdir())
 		self.__tmp_dir_already_set = True
 
 	def _get_tmp_dir(self):
