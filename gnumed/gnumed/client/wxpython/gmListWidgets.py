@@ -1285,6 +1285,7 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 		for idx in range(len(columns)):
 			self.InsertColumn(idx, columns[idx])
 
+		listmixins.ColumnSorterMixin.__init__(self, 0)
 		self._invalidate_sorting_metadata()
 
 	#------------------------------------------------------------
