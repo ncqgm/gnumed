@@ -592,115 +592,180 @@ class cOrthancServer:
 	# helper functions
 	#--------------------------------------------------------
 	def get_studies_list_by_orthanc_patient_list(self, orthanc_patients=None):
+
+		study_keys2hide =  ['ModifiedFrom', 'Type', 'ID', 'ParentPatient', 'Series']
+		series_keys2hide = ['ModifiedFrom', 'Type', 'ID', 'ParentStudy',   'Instances']
+
 		studies_by_patient = []
-		study_keys = {}
-		study_keys_m = {}
 		series_keys = {}
 		series_keys_m = {}
+
+		# loop over patients
 		for pat in orthanc_patients:
 			pat_dict = {
 				'orthanc_id': pat['ID'],
-				'name': pat['MainDicomTags']['PatientName'],
-				'external_id': pat['MainDicomTags']['PatientID'],
+				'name': None,
+				'external_id': None,
+				'date_of_birth': None,
+				'gender': None,
 				'studies': []
 			}
 			try:
-				pat_dict['date_of_birth'] = pat['MainDicomTags']['PatientBirthDate']
+				pat_dict['name'] = pat['MainDicomTags']['PatientName'].strip()
 			except KeyError:
-				pat_dict['date_of_birth'] = None
+				pass
 			try:
-				pat_dict['gender'] = pat['MainDicomTags']['PatientSex']
+				pat_dict['external_id'] = pat['MainDicomTags']['PatientID'].strip()
 			except KeyError:
-				pat_dict['gender'] = None
+				pass
+			try:
+				pat_dict['date_of_birth'] = pat['MainDicomTags']['PatientBirthDate'].strip()
+			except KeyError:
+				pass
+			try:
+				pat_dict['gender'] = pat['MainDicomTags']['PatientSex'].strip()
+			except KeyError:
+				pass
 			for key in pat_dict:
 				if pat_dict[key] == u'unknown':
 					pat_dict[key] = None
 				if pat_dict[key] == u'(null)':
 					pat_dict[key] = None
+				if pat_dict[key] == u'':
+					pat_dict[key] = None
 			studies_by_patient.append(pat_dict)
+
+			# loop over studies of patient
 			orth_studies = self.__run_GET(url = u'%s/patients/%s/studies' % (self.__server_url, pat['ID']))
 			if orth_studies is False:
 				_log.error('cannot retrieve studies')
 				return []
 			for orth_study in orth_studies:
-				# debugging
-				#for key in orth_study.keys():
-				#	study_keys[key] = True
-				#for key in orth_study['MainDicomTags'].keys():
-				#	study_keys_m[key] = True
 				study_dict = {
 					'orthanc_id': orth_study['ID'],
-					'date': orth_study['MainDicomTags'][u'StudyDate'],
-					'time': orth_study['MainDicomTags'][u'StudyTime'],
+					'date': None,
+					'time': None,
+					'description': None,
+					'referring_doc': None,
+					'radiology_org': None,
 					'series': []
 				}
 				try:
-					study_dict['description'] = orth_study['MainDicomTags'][u'StudyDescription']
+					study_dict['date'] = orth_study['MainDicomTags'][u'StudyDate'].strip()
 				except KeyError:
-					study_dict['description'] = None
+					pass
+				try:
+					study_dict['time'] = orth_study['MainDicomTags'][u'StudyTime'].strip()
+				except KeyError:
+					pass
+				try:
+					study_dict['description'] = orth_study['MainDicomTags'][u'StudyDescription'].strip()
+				except KeyError:
+					pass
+				try:
+					study_dict['referring_doc'] = orth_study['MainDicomTags'][u'ReferringPhysicianName'].strip()
+				except KeyError:
+					pass
+				try:
+					study_dict['radiology_org'] = orth_study['MainDicomTags'][u'InstitutionName'].strip()
+				except KeyError:
+					pass
 				for key in study_dict:
 					if study_dict[key] == u'unknown':
 						study_dict[key] = None
 					if study_dict[key] == u'(null)':
 						study_dict[key] = None
+					if study_dict[key] == u'':
+						study_dict[key] = None
+				study_dict['all_tags'] = {}
+				try:
+					orth_study['PatientMainDicomTags']
+				except KeyError:
+					orth_study['PatientMainDicomTags'] = pat['MainDicomTags']
+				for key in orth_study.keys():
+					if key == u'MainDicomTags':
+						for mkey in orth_study['MainDicomTags'].keys():
+							study_dict['all_tags'][mkey] = orth_study['MainDicomTags'][mkey].strip()
+						continue
+					if key == u'PatientMainDicomTags':
+						for pkey in orth_study['PatientMainDicomTags'].keys():
+							study_dict['all_tags'][pkey] = orth_study['PatientMainDicomTags'][pkey].strip()
+						continue
+					study_dict['all_tags'][key] = orth_study[key]
+				_log.debug('study: %s', study_dict['all_tags'].keys())
+				for key in study_keys2hide:
+					try: del study_dict['all_tags'][key]
+					except KeyError: pass
 				pat_dict['studies'].append(study_dict)
+
+				# loop over series in study
 				for orth_series_id in orth_study['Series']:
 					orth_series = self.__run_GET(url = u'%s/series/%s' % (self.__server_url, orth_series_id))
 					if orth_series is False:
 						_log.error('cannot retrieve series')
 						return []
-					# debugging
-					#for key in orth_series.keys():
-					#	series_keys[key] = True
-					#for key in orth_series['MainDicomTags'].keys():
-					#	series_keys_m[key] = True
 					series_dict = {
 						'orthanc_id': orth_series['ID'],
-						'modality': orth_series['MainDicomTags']['Modality'],
-						'instances': len(orth_series['Instances'])
+						'instances': len(orth_series['Instances']),
+						'modality': None,
+						'date': None,
+						'time': None,
+						'description': None,
+						'body_part': None,
+						'protocol': None
 					}
 					try:
-						series_dict['date'] = orth_series['MainDicomTags']['SeriesDate']
+						series_dict['modality'] = orth_series['MainDicomTags']['Modality'].strip()
 					except KeyError:
-						series_dict['date'] = study_dict['date']
+						pass
 					try:
-						series_dict['description'] = orth_series['MainDicomTags'][u'SeriesDescription']
+						series_dict['date'] = orth_series['MainDicomTags']['SeriesDate'].strip()
 					except KeyError:
-						series_dict['description'] = None
+						pass
 					try:
-						series_dict['time'] = orth_series['MainDicomTags']['SeriesTime']
+						series_dict['description'] = orth_series['MainDicomTags'][u'SeriesDescription'].strip()
 					except KeyError:
-						series_dict['time'] = None
-					if series_dict['time'] is not None:
-						if series_dict['time'].strip() == u'':
-							series_dict['time'] = None
+						pass
 					try:
-						series_dict['body_part'] = orth_series['MainDicomTags']['BodyPartExamined']
+						series_dict['time'] = orth_series['MainDicomTags']['SeriesTime'].strip()
 					except KeyError:
-						series_dict['body_part'] = None
+						pass
 					try:
-						series_dict['protocol'] = orth_series['MainDicomTags']['ProtocolName']
+						series_dict['body_part'] = orth_series['MainDicomTags']['BodyPartExamined'].strip()
 					except KeyError:
-						series_dict['protocol'] = None
-					if series_dict['description'] == series_dict['protocol']:
-						_log.debug('<series description> matches <series protocol>, ignoring description')
-						series_dict['description'] = None
+						pass
 					try:
-						series_dict['station'] = orth_series['MainDicomTags']['StationName']
+						series_dict['protocol'] = orth_series['MainDicomTags']['ProtocolName'].strip()
 					except KeyError:
-						series_dict['station'] = None
+						pass
 					for key in series_dict:
 						if series_dict[key] == u'unknown':
 							series_dict[key] = None
 						if series_dict[key] == u'(null)':
 							series_dict[key] = None
+						if series_dict[key] == u'':
+							series_dict[key] = None
+					if series_dict['description'] == series_dict['protocol']:
+						_log.debug('<series description> matches <series protocol>, ignoring protocol')
+						series_dict['protocol'] = None
+					if series_dict['date'] == study_dict['date']:
+						_log.debug('<series date> matches <study date>, ignoring date')
+						series_dict['date'] = None
+					if series_dict['time'] == study_dict['time']:
+						_log.debug('<series time> matches <study time>, ignoring time')
+						series_dict['time'] = None
+					series_dict['all_tags'] = {}
+					for key in orth_series.keys():
+						if key == 'MainDicomTags':
+							for mkey in orth_series['MainDicomTags'].keys():
+								series_dict['all_tags'][mkey] = orth_series['MainDicomTags'][mkey].strip()
+							continue
+						series_dict['all_tags'][key] = orth_series[key]
+					_log.debug('series: %s', series_dict['all_tags'].keys())
+					for key in series_keys2hide:
+						try: del series_dict['all_tags'][key]
+						except KeyError: pass
 					study_dict['series'].append(series_dict)
-
-		# debugging
-		#_log.debug('study: %s', study_keys.keys())
-		#_log.debug('study(MainDicomTags): %s', study_keys_m.keys())
-		#_log.debug('series: %s', series_keys.keys())
-		#_log.debug('series(MainDicomTags): %s', series_keys_m.keys())
 
 		return studies_by_patient
 
