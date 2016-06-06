@@ -10,6 +10,8 @@
 
 IMPROVED: DICOM studies/series display
 
+NEW: a few hints from the German Choosing Wisely initiative
+
 	1.6.6
 
 FIX: error when running gm-import_incoming as root
