@@ -309,37 +309,28 @@ class cOrthancServer:
 			return filename
 
 	#--------------------------------------------------------
-	def get_studies_with_dicomdir(self, study_ids=None, patient_id=None, target_dir=None, filename=None, create_zip=False):
+	def _manual_get_studies_with_dicomdir(self, study_ids=None, patient_id=None, target_dir=None, filename=None, create_zip=False):
 
 		if filename is None:
 			filename = gmTools.get_unique_filename(prefix = r'DCM-', suffix = r'.zip', tmp_dir = target_dir)
 
 		# all studies
 		if study_ids is None:
-			if study_ids is None:
-				_log.info(u'exporting all studies of patient [%s] into [%s]', patient_id, filename)
-				f = io.open(filename, 'wb')
-				url = '%s/patients/%s/media' % (self.__server_url, str(patient_id))
-				_log.debug(url)
-				f.write(self.__run_GET(url = url))
-				f.close()
-				if create_zip:
-					return filename
-				if target_dir is None:
-					target_dir = gmTools.mk_sandbox_dir(prefix = u'dcm-')
-				if not gmTools.unzip_archive(filename, target_dir = target_dir, remove_archive = True):
-					return False
-				return target_dir
+			_log.info(u'exporting all studies of patient [%s] into [%s]', patient_id, filename)
+			f = io.open(filename, 'wb')
+			url = '%s/patients/%s/media' % (self.__server_url, str(patient_id))
+			_log.debug(url)
+			f.write(self.__run_GET(url = url))
+			f.close()
+			if create_zip:
+				return filename
+			if target_dir is None:
+				target_dir = gmTools.mk_sandbox_dir(prefix = u'dcm-')
+			if not gmTools.unzip_archive(filename, target_dir = target_dir, remove_archive = True):
+				return False
+			return target_dir
 
 		# a selection of studies
-#		return u'get range of studies as zip with dicomdir not implemented, either all or one'
-
-		dicomdir_cmd = u'gm-create_dicomdir'		# args: 1) name of DICOMDIR to create 2) base directory where to start recursing for DICOM files
-		found, external_cmd = gmShellAPI.detect_external_binary(dicomdir_cmd)
-		if not found:
-			_log.error('[%s] not found', dicomdir_cmd)
-			return False
-
 		dicomdir_cmd = u'gm-create_dicomdir'		# args: 1) name of DICOMDIR to create 2) base directory where to start recursing for DICOM files
 		found, external_cmd = gmShellAPI.detect_external_binary(dicomdir_cmd)
 		if not found:
@@ -408,15 +399,51 @@ class cOrthancServer:
 		gmTools.rmdir(sandbox_dir)
 		return studies_zip
 
-		#> > I finally implemented your request to create a ZIP-with-DICOMDIR from
-		#> > several patients/studies.
-		#> > 
-		#> > You have to make a POST request against URI "/tools/create-media", with a
-		#> > JSON body that contains the array of the resources of interest (as Orthanc
-		#> > identifiers). Here is a sample command-line:
-		#> > 
-		#> > # curl -X POST http://localhost:8042/tools/create-media -d '["8c4663df-c3e66066-9e20a8fc-dd14d1e5-251d3d84","2cd4848d-02f0005f-812ffef6-a210bbcf-3f01a00a","6eeded74-75005003-c3ae9738-d4a06a4f-6beedeb8","8a622020-c058291c-7693b63f-bc67aa2e-0a02e69c"]' -v > /tmp/a.zip
-		# (this will not create duplicates but will also not check for single-patient-ness)
+	#--------------------------------------------------------
+	def get_studies_with_dicomdir(self, study_ids=None, patient_id=None, target_dir=None, filename=None, create_zip=False):
+
+		if filename is None:
+			filename = gmTools.get_unique_filename(prefix = r'DCM-', suffix = r'.zip', tmp_dir = target_dir)
+
+		# all studies
+		if study_ids is None:
+			if patient_id is None:
+				raise ValueError('<patient_id> must be defined if <study_ids> is None')
+			_log.info(u'exporting all studies of patient [%s] into [%s]', patient_id, filename)
+			f = io.open(filename, 'wb')
+			url = '%s/patients/%s/media' % (self.__server_url, str(patient_id))
+			_log.debug(url)
+			f.write(self.__run_GET(url = url))
+			f.close()
+			if create_zip:
+				return filename
+			if target_dir is None:
+				target_dir = gmTools.mk_sandbox_dir(prefix = u'dcm-')
+			if not gmTools.unzip_archive(filename, target_dir = target_dir, remove_archive = True):
+				return False
+			return target_dir
+
+		# selection of studies
+		_log.info(u'exporting %s studies into [%s]', len(study_ids), filename)
+		_log.debug(u'studies: %s', study_ids)
+		f = io.open(filename, 'wb')
+		url = '%s/tools/create-media' % self.__server_url
+		_log.debug(url)
+		#  You have to make a POST request against URI "/tools/create-media", with a
+		#  JSON body that contains the array of the resources of interest (as Orthanc
+		#  identifiers). Here is a sample command-line:
+		#  curl -X POST http://localhost:8042/tools/create-media -d '["8c4663df-c3e66066-9e20a8fc-dd14d1e5-251d3d84","2cd4848d-02f0005f-812ffef6-a210bbcf-3f01a00a","6eeded74-75005003-c3ae9738-d4a06a4f-6beedeb8","8a622020-c058291c-7693b63f-bc67aa2e-0a02e69c"]' -v > /tmp/a.zip
+		#  (this will not create duplicates but will also not check for single-patient-ness)
+		f.write(self.__run_POST(url = url, data = study_ids))
+		f.close()
+		if create_zip:
+			return filename
+		if target_dir is None:
+			target_dir = gmTools.mk_sandbox_dir(prefix = u'dcm-')
+			_log.debug(u'exporting studies into [%s]', target_dir)
+		if not gmTools.unzip_archive(filename, target_dir = target_dir, remove_archive = True):
+			return False
+		return target_dir
 
 	#--------------------------------------------------------
 	# server-side API
