@@ -1685,6 +1685,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 #		wx.EVT_MENU(self.__desc_menu, ID, self.__del_doc_desc)
 
 #		self.__desc_menu.AppendSeparator()
+
 	#--------------------------------------------------------
 	def __populate_tree(self):
 
@@ -1807,7 +1808,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 			else:
 				doc_label = _('%s%7s %s:%s (%s)') % (
 					gmTools.bool2subst(doc.has_unreviewed_parts, gmTools.u_writing_hand, u'', u'?'),
-					doc['clin_when'].strftime('%m/%Y'),
+					doc['clin_when'].strftime('%Y-%m'),
 					doc['l10n_type'][:26],
 					gmTools.coalesce(initial = doc['comment'], instead = u'', template_initial = u' %s'),
 					no_parts
@@ -1824,10 +1825,6 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 
 			# now add parts as child nodes
 			for part in parts:
-#				if part['clinically_relevant']:
-#					rel = ' [%s]' % _('Cave')
-#				else:
-#					rel = ''
 				f_ext = u''
 				if part['filename'] is not None:
 					f_ext = os.path.splitext(part['filename'])[1].strip('.').strip()
@@ -2496,16 +2493,19 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 				) % {'action': action, 'l10n_action': l10n_action},
 				_('Processing document: %s') % l10n_action
 			)
+
 	#--------------------------------------------------------
-	# FIXME: icons in the plugin toolbar
 	def __print_doc(self, evt):
 		self.__process_doc(action = u'print', l10n_action = _('print'))
+
 	#--------------------------------------------------------
 	def __fax_doc(self, evt):
 		self.__process_doc(action = u'fax', l10n_action = _('fax'))
+
 	#--------------------------------------------------------
 	def __mail_doc(self, evt):
 		self.__process_doc(action = u'mail', l10n_action = _('mail'))
+
 	#--------------------------------------------------------
 	def __add_part(self, evt):
 		dlg = wx.FileDialog (
@@ -2520,6 +2520,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 		if result != wx.ID_CANCEL:
 			self.__curr_node_data.add_parts_from_files(files = dlg.GetPaths(), reviewer = gmStaff.gmCurrentProvider()['pk_staff'])
 		dlg.Destroy()
+
 	#--------------------------------------------------------
 	def __add_part_from_clipboard(self, evt):
 		clip = gmGuiHelpers.clipboard2file()
