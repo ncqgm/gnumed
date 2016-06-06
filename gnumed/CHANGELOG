@@ -8,6 +8,7 @@
 
 	1.6.7
 
+IMPROVED: file viewer detection on Windows [thanks John]
 IMPROVED: DICOM studies/series display
 
 NEW: a few hints from the German Choosing Wisely initiative
