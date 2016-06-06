@@ -358,11 +358,11 @@ def __install_domain(domain, prefer_local_catalog, language=u'?'):
 		#    strip one directory level
 		#    this is a rather neat trick :-)
 		loc_dir = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), '..', 'po'))
-		_log.debug('looking above binary install directory [%s]' % loc_dir)
+		_log.debug('looking one level above binary install directory: %s', loc_dir)
 		candidate_PO_dirs.append(loc_dir)
 		# - in path to binary
 		loc_dir = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), 'po'))
-		_log.debug('looking in binary install directory [%s]' % loc_dir)
+		_log.debug('looking in binary install directory: %s', loc_dir)
 		candidate_PO_dirs.append(loc_dir)
 
 	# - standard places
@@ -400,8 +400,8 @@ def __install_domain(domain, prefer_local_catalog, language=u'?'):
 
 	# now try to actually install it
 	for candidate_PO_dir in candidate_PO_dirs:
-		_log.debug('trying with (%s, %s, %s)', candidate_PO_dir, language, domain)
-		_log.debug(' -> %s/%s/LC_MESSAGES/%s.mo', candidate_PO_dir, language, domain)
+		_log.debug('trying with (base=%s, %s, domain=%s)', candidate_PO_dir, language, domain)
+		_log.debug(' -> %s.mo', os.path.join(candidate_PO_dir, language, domain))
 		if not os.path.exists(candidate_PO_dir):
 			continue
 		try:
