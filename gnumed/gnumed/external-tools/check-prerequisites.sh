@@ -243,17 +243,6 @@ else
 	echo "found"
 fi
 
-echo -n " 'dcmgpdir' command... "
-BIN=`which dcmgpdir`
-if [ "x${BIN}x" == "xx" ]; then
-	echo ""
-	echo "  INFO : You don't seem to have the 'dcmgpdir' command installed."
-	echo "  INFO : It can be used by GNUmed to create DICOMDIR files from"
-	echo "  INFO : a range of DICOM image files."
-else
-	echo "found"
-fi
-
 echo -n " 'dmtxwrite' command... "
 BIN=`which dmtxwrite`
 if [ "x${BIN}x" == "xx" ]; then
@@ -336,16 +325,6 @@ else
 	echo "found"
 fi
 
-echo -n " 'gm-create_dicomdir' command... "
-BIN=`which gm-create_dicomdir`
-if [ "x${BIN}x" == "xx" ]; then
-	echo ""
-	echo "  INFO : You don't seem to have the 'gm-create_dicomdir' command installed."
-	echo "  INFO : It is used to create DICOMDIR files from within GNUmed."
-else
-	echo "found"
-fi
-
 echo -n " 'gm-describe_file' command... "
 BIN=`which gm-describe_file`
 if [ "x${BIN}x" == "xx" ]; then
@@ -366,7 +345,30 @@ else
 	echo "found"
 fi
 
+#=================================================================
 # obsolete
+
+#echo -n " 'gm-create_dicomdir' command... "
+#BIN=`which gm-create_dicomdir`
+#if [ "x${BIN}x" == "xx" ]; then
+#	echo ""
+#	echo "  INFO : You don't seem to have the 'gm-create_dicomdir' command installed."
+#	echo "  INFO : It is used to create DICOMDIR files from within GNUmed."
+#else
+#	echo "found"
+#fi
+
+#echo -n " 'dcmgpdir' command... "
+#BIN=`which dcmgpdir`
+#if [ "x${BIN}x" == "xx" ]; then
+#	echo ""
+#	echo "  INFO : You don't seem to have the 'dcmgpdir' command installed."
+#	echo "  INFO : It can be used by GNUmed to create DICOMDIR files from"
+#	echo "  INFO : a range of DICOM image files."
+#else
+#	echo "found"
+#fi
+
 #echo -n " 'gm-download_data' command... "
 #BIN=`which gm-download_data`
 #if [ "x${BIN}x" == "xx" ]; then
