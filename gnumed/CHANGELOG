@@ -8,10 +8,13 @@
 
 	1.6.7
 
+FIX: constrain hospital stay PRW to current patient
+
 IMPROVED: file viewer detection on Windows [thanks John]
 IMPROVED: DICOM studies/series display
 IMPROVED: ZIP-with-DICOMDIR support
 IMPROVED: browse index.html after saving/burning from export area
+IMPROVED: substance abuse management workflow
 
 NEW: a few hints from the German Choosing Wisely initiative
 NEW: CD/DVD sleeve LaTeX template
