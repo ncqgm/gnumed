@@ -78,6 +78,9 @@ def manage_substance_abuse(parent=None, patient=None):
 		lctrl.set_data(intakes)
 
 	#------------------------------------------------------------
+	if len(patient.emr.abused_substances) == 0:
+		edit()
+
 	msg = _('Substances abused by the patient:')
 
 	return gmListWidgets.get_choices_from_list (

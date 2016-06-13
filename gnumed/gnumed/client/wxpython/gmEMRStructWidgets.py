@@ -24,10 +24,17 @@ import wx
 # GNUmed
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
+
 from Gnumed.pycommon import gmI18N
+from Gnumed.pycommon import gmDateTime
+
+if __name__ == '__main__':
+	gmI18N.activate_locale()
+	gmI18N.install_domain()
+	gmDateTime.init()
+
 from Gnumed.pycommon import gmExceptions
 from Gnumed.pycommon import gmCfg
-from Gnumed.pycommon import gmDateTime
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmMatchProvider
@@ -649,7 +656,7 @@ class cHospitalStayPhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 		gmPhraseWheel.cPhraseWheel.__init__ (self, *args, **kwargs)
 
-		ctxt = {'ctxt_pat': {'where_part': u'pk_patient = %(pat)s and', 'placeholder': u'pat'}}
+		ctxt = {'ctxt_pat': {'where_part': u'(pk_patient = %(pat)s) AND', 'placeholder': u'pat'}}
 
 		mp = gmMatchProvider.cMatchProvider_SQL2 (
 			queries = [
@@ -673,15 +680,15 @@ FROM (
 		 FROM
 		 	clin.v_hospital_stays
 		 WHERE
-			%(ctxt_pat)s
-
-			hospital %(fragment_condition)s
-				OR
-			ward %(fragment_condition)s
-				OR
-			episode %(fragment_condition)s
-				OR
-			health_issue %(fragment_condition)s
+			%(ctxt_pat)s (
+				hospital %(fragment_condition)s
+					OR
+				ward %(fragment_condition)s
+					OR
+				episode %(fragment_condition)s
+					OR
+				health_issue %(fragment_condition)s
+			)
 		) AS the_stays
 ) AS distinct_stays
 ORDER BY descr
@@ -2030,6 +2037,12 @@ class cDiagnosticCertaintyClassificationPhraseWheel(gmPhraseWheel.cPhraseWheel):
 #----------------------------------------------------------------
 if __name__ == '__main__':
 
+	if len(sys.argv) < 2:
+		sys.exit()
+
+	if sys.argv[1] != 'test':
+		sys.exit()
+
 	from Gnumed.business import gmPersonSearch
 	from Gnumed.wxpython import gmPatSearchWidgets
 
@@ -2118,18 +2131,12 @@ if __name__ == '__main__':
 		edit_procedure(parent=app.frame)
 	#================================================================
 
-	if (len(sys.argv) > 1) and (sys.argv[1] == 'test'):
-
-		gmI18N.activate_locale()
-		gmI18N.install_domain()
-		gmDateTime.init()
-
-		# obtain patient
-		pat = gmPersonSearch.ask_for_patient()
-		if pat is None:
-			print "No patient. Exiting gracefully..."
-			sys.exit(0)
-		gmPatSearchWidgets.set_active_patient(patient=pat)
+	# obtain patient
+	pat = gmPersonSearch.ask_for_patient()
+	if pat is None:
+		print "No patient. Exiting gracefully..."
+		sys.exit(0)
+	gmPatSearchWidgets.set_active_patient(patient=pat)
 
 #	try:
 		# lauch emr dialogs test application
@@ -2140,11 +2147,9 @@ if __name__ == '__main__':
 		# but re-raise them
 #		raise
 
-		#test_epsiode_edit_area_pnl()
-		#test_episode_edit_area_dialog()
-		#test_health_issue_edit_area_dlg()
-		#test_episode_selection_prw()
-		#test_hospital_stay_prw()
-		test_edit_procedure()
-
-#================================================================
+	#test_epsiode_edit_area_pnl()
+	#test_episode_edit_area_dialog()
+	#test_health_issue_edit_area_dlg()
+	#test_episode_selection_prw()
+	test_hospital_stay_prw()
+	#est_edit_procedure()
