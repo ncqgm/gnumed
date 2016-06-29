@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-05-26 12:47+0200\n"
+"POT-Creation-Date: 2016-06-29 16:29+0200\n"
 "PO-Revision-Date: 2012-06-01 01:20+0000\n"
 "Last-Translator: ncq <Unknown>\n"
 "Language-Team: Catalan <ca@li.org>\n"
@@ -13706,6 +13706,10 @@ msgid ""
 " %s"
 msgstr ""
 
+#, fuzzy
+msgid "Browse patient data pack ?"
+msgstr "Pacient"
+
 msgid "If you wish to include an existing directory select it here:"
 msgstr ""
 
@@ -14498,12 +14502,12 @@ msgstr ""
 msgid "Deleting document"
 msgstr ""
 
-msgid "Study date"
+msgid "Referrer"
 msgstr ""
 
 #, fuzzy
-msgid "Study time"
-msgstr "Mostra l'hora"
+msgid "Time"
+msgstr "Línia de temps"
 
 msgid "Method"
 msgstr ""
@@ -14511,10 +14515,6 @@ msgstr ""
 #, fuzzy
 msgid "Body part"
 msgstr "part"
-
-#, fuzzy
-msgid "Time"
-msgstr "Línia de temps"
 
 msgid "Cannot connect without port (try 8042)."
 msgstr ""
@@ -14546,12 +14546,8 @@ msgid ""
 "PACS: more than one patient with matching IDs found, carefully check studies"
 msgstr ""
 
-#, python-format
-msgid "%s series"
-msgstr ""
-
 #, fuzzy, python-format
-msgid "%%s (%s series)"
+msgid "%s series%s"
 msgstr "%s la setmana passada (%s of %s)"
 
 msgid "no studies"
@@ -14598,8 +14594,16 @@ msgid "All DICOM studies of [%s] from Orthanc PACS \"%s\" (AET \"%s\")"
 msgstr ""
 
 #, fuzzy, python-format
-msgid "%s%s images"
+msgid "%s image(s)%s"
 msgstr "Documents: %s"
+
+#, fuzzy
+msgid "Study"
+msgstr "Mostra l'hora"
+
+#, fuzzy
+msgid "Series"
+msgstr "Categories"
 
 msgid "Select the directory from which to recursively upload DICOM files."
 msgstr ""

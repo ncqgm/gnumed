@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-05-26 12:47+0200\n"
+"POT-Creation-Date: 2016-06-29 16:29+0200\n"
 "PO-Revision-Date: 2012-06-01 01:22+0000\n"
 "Last-Translator: ncq <Unknown>\n"
 "Language-Team: GNUmed\n"
@@ -14219,6 +14219,10 @@ msgid ""
 " %s"
 msgstr "Salva il documento nella cartella ..."
 
+#, fuzzy
+msgid "Browse patient data pack ?"
+msgstr "Unire i pazienti"
+
 msgid "If you wish to include an existing directory select it here:"
 msgstr ""
 
@@ -15035,12 +15039,12 @@ msgid "Deleting document"
 msgstr "Cancella documento"
 
 #, fuzzy
-msgid "Study date"
-msgstr "Essudato"
+msgid "Referrer"
+msgstr "Referenti"
 
 #, fuzzy
-msgid "Study time"
-msgstr "Incomincia nuovo"
+msgid "Time"
+msgstr "Ora:"
 
 msgid "Method"
 msgstr ""
@@ -15048,10 +15052,6 @@ msgstr ""
 #, fuzzy
 msgid "Body part"
 msgstr "mostra parte"
-
-#, fuzzy
-msgid "Time"
-msgstr "Ora:"
 
 msgid "Cannot connect without port (try 8042)."
 msgstr ""
@@ -15083,12 +15083,8 @@ msgid ""
 "PACS: more than one patient with matching IDs found, carefully check studies"
 msgstr ""
 
-#, python-format
-msgid "%s series"
-msgstr ""
-
 #, fuzzy, python-format
-msgid "%%s (%s series)"
+msgid "%s series%s"
 msgstr "%s (%s quest'anno)"
 
 msgid "no studies"
@@ -15136,8 +15132,15 @@ msgid "All DICOM studies of [%s] from Orthanc PACS \"%s\" (AET \"%s\")"
 msgstr ""
 
 #, fuzzy, python-format
-msgid "%s%s images"
+msgid "%s image(s)%s"
 msgstr "&Zona:"
+
+#, fuzzy
+msgid "Study"
+msgstr "Essudato"
+
+msgid "Series"
+msgstr ""
 
 #, fuzzy
 msgid "Select the directory from which to recursively upload DICOM files."
@@ -19433,6 +19436,10 @@ msgstr "Annulla"
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Annulla e NON connetti a GNUmed"
+
+#, fuzzy
+#~ msgid "Study time"
+#~ msgstr "Incomincia nuovo"
 
 #~ msgid "age"
 #~ msgstr "età"

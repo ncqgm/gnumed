@@ -5,8 +5,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-05-26 12:47+0200\n"
-"PO-Revision-Date: 2016-05-26 12:38+0200\n"
+"POT-Creation-Date: 2016-06-29 16:29+0200\n"
+"PO-Revision-Date: 2016-06-10 23:19+0200\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "Language: de_DE\n"
@@ -14,7 +14,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: pygettext.py 1.3\n"
-"X-Generator: Poedit 1.8.7.1\n"
+"X-Generator: Poedit 1.8.8\n"
 
 #, python-format
 msgid "unknown test status [%s]"
@@ -14963,8 +14963,8 @@ msgstr ""
 "\n"
 " [%s]\n"
 "\n"
-"enthält schon Dateien. Wollen Sie es dort trotzdem\n"
-"die ausgewählten Dokumente des Exportbereits speichern ?\n"
+"enthält schon Dateien. Wollen Sie die ausgewählten\n"
+"Dokumente des Exportbereichs dennoch dort speichern ?\n"
 "\n"
 "(so können Sie externe Dateien einschließen, die schon\n"
 " in oder unter diesem Verzeichnis gespeichert sind)\n"
@@ -14994,9 +14994,12 @@ msgid ""
 "\n"
 " %s"
 msgstr ""
-"Dokumente in folgendes Verzeichnis gespeichtert:\n"
+"Dokumente in folgendes Verzeichnis gespeichert:\n"
 "\n"
 " %s"
+
+msgid "Browse patient data pack ?"
+msgstr "Patientenpaket durchblättern"
 
 msgid "If you wish to include an existing directory select it here:"
 msgstr ""
@@ -15904,20 +15907,17 @@ msgstr "Sind Sie sicher, daß das Dokument gelöscht werden soll ?"
 msgid "Deleting document"
 msgstr "Dokument löschen"
 
-msgid "Study date"
-msgstr "Datum der Studie"
+msgid "Referrer"
+msgstr "Überweiser"
 
-msgid "Study time"
-msgstr "Zeit der Studie"
+msgid "Time"
+msgstr "Zeit"
 
 msgid "Method"
 msgstr "Methode"
 
 msgid "Body part"
 msgstr "Körperteil"
-
-msgid "Time"
-msgstr "Zeit"
 
 msgid "Cannot connect without port (try 8042)."
 msgstr "Kann ohne Port nicht verbinden (versuchen Sie 8042)."
@@ -15951,12 +15951,8 @@ msgstr ""
 "durchsehen"
 
 #, python-format
-msgid "%s series"
-msgstr "%s Serien"
-
-#, python-format
-msgid "%%s (%s series)"
-msgstr "%%s (%s Serien)"
+msgid "%s series%s"
+msgstr "%s Serie(n)%s"
 
 msgid "no studies"
 msgstr "keine Studien"
@@ -16003,8 +15999,14 @@ msgid "All DICOM studies of [%s] from Orthanc PACS \"%s\" (AET \"%s\")"
 msgstr "Alle DICOM-Studien zu [%s] aus dem Orthanc PACS \"%s\" (AET \"%s\")"
 
 #, python-format
-msgid "%s%s images"
-msgstr "%s%s Bilder"
+msgid "%s image(s)%s"
+msgstr "%s Bild(er)%s"
+
+msgid "Study"
+msgstr "Studie"
+
+msgid "Series"
+msgstr "Serie"
 
 msgid "Select the directory from which to recursively upload DICOM files."
 msgstr ""
@@ -20727,6 +20729,12 @@ msgstr "Abbrechen"
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
+
+#~ msgid "Study time"
+#~ msgstr "Zeit der Studie"
+
+#~ msgid "%%s (%s series)"
+#~ msgstr "%%s (%s Serien)"
 
 #~ msgid "age"
 #~ msgstr "Alter"

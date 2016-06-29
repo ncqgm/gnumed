@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-05-26 12:47+0200\n"
+"POT-Creation-Date: 2016-06-29 16:29+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -13177,6 +13177,9 @@ msgid ""
 " %s"
 msgstr ""
 
+msgid "Browse patient data pack ?"
+msgstr ""
+
 msgid "If you wish to include an existing directory select it here:"
 msgstr ""
 
@@ -13930,19 +13933,16 @@ msgstr ""
 msgid "Deleting document"
 msgstr ""
 
-msgid "Study date"
+msgid "Referrer"
 msgstr ""
 
-msgid "Study time"
+msgid "Time"
 msgstr ""
 
 msgid "Method"
 msgstr ""
 
 msgid "Body part"
-msgstr ""
-
-msgid "Time"
 msgstr ""
 
 msgid "Cannot connect without port (try 8042)."
@@ -13975,11 +13975,7 @@ msgid ""
 msgstr ""
 
 #, python-format
-msgid "%s series"
-msgstr ""
-
-#, python-format
-msgid "%%s (%s series)"
+msgid "%s series%s"
 msgstr ""
 
 msgid "no studies"
@@ -14023,7 +14019,13 @@ msgid "All DICOM studies of [%s] from Orthanc PACS \"%s\" (AET \"%s\")"
 msgstr ""
 
 #, python-format
-msgid "%s%s images"
+msgid "%s image(s)%s"
+msgstr ""
+
+msgid "Study"
+msgstr ""
+
+msgid "Series"
 msgstr ""
 
 msgid "Select the directory from which to recursively upload DICOM files."

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-05-26 12:47+0200\n"
+"POT-Creation-Date: 2016-06-29 16:29+0200\n"
 "PO-Revision-Date: 2012-06-01 01:24+0000\n"
 "Last-Translator: ncq <Unknown>\n"
 "Language-Team: Ελληνικά, Σύγχρονα <opensuse-translation-el@opensuse.org>\n"
@@ -14209,6 +14209,10 @@ msgid ""
 " %s"
 msgstr ""
 
+#, fuzzy
+msgid "Browse patient data pack ?"
+msgstr "Αποθήκευση εγγράφου"
+
 msgid "If you wish to include an existing directory select it here:"
 msgstr ""
 
@@ -15008,12 +15012,12 @@ msgid "Deleting document"
 msgstr ""
 
 #, fuzzy
-msgid "Study date"
-msgstr "ημέρα"
+msgid "Referrer"
+msgstr "Παραπομπές"
 
 #, fuzzy
-msgid "Study time"
-msgstr "Άρχισε νέο"
+msgid "Time"
+msgstr "Ώρα:"
 
 msgid "Method"
 msgstr ""
@@ -15021,10 +15025,6 @@ msgstr ""
 #, fuzzy
 msgid "Body part"
 msgstr "μέρος"
-
-#, fuzzy
-msgid "Time"
-msgstr "Ώρα:"
 
 msgid "Cannot connect without port (try 8042)."
 msgstr ""
@@ -15055,12 +15055,8 @@ msgid ""
 "PACS: more than one patient with matching IDs found, carefully check studies"
 msgstr ""
 
-#, python-format
-msgid "%s series"
-msgstr ""
-
 #, fuzzy, python-format
-msgid "%%s (%s series)"
+msgid "%s series%s"
 msgstr "%s (%s αυτό το έτος)"
 
 msgid "no studies"
@@ -15107,8 +15103,16 @@ msgid "All DICOM studies of [%s] from Orthanc PACS \"%s\" (AET \"%s\")"
 msgstr ""
 
 #, fuzzy, python-format
-msgid "%s%s images"
+msgid "%s image(s)%s"
 msgstr "Ημερομηνία: %s\n"
+
+#, fuzzy
+msgid "Study"
+msgstr "ημέρα"
+
+#, fuzzy
+msgid "Series"
+msgstr "Κατηγορία"
 
 msgid "Select the directory from which to recursively upload DICOM files."
 msgstr ""
@@ -19312,6 +19316,10 @@ msgstr "Ματαίωση"
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Ματαίωση και ΔΕΝ θα συνδεθείτε με το GNUmed."
+
+#, fuzzy
+#~ msgid "Study time"
+#~ msgstr "Άρχισε νέο"
 
 #~ msgid "age"
 #~ msgstr "ηλικία"

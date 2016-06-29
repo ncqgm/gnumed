@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-05-26 12:47+0200\n"
+"POT-Creation-Date: 2016-06-29 16:29+0200\n"
 "PO-Revision-Date: 2016-02-24 18:28+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: colombiano <es@li.org>\n"
@@ -15185,6 +15185,10 @@ msgstr ""
 "\n"
 " %s"
 
+#, fuzzy
+msgid "Browse patient data pack ?"
+msgstr "Reviso datos del paciente"
+
 msgid "If you wish to include an existing directory select it here:"
 msgstr "Si desea incluir un directorio exstente, selecciónelo acá:"
 
@@ -16094,20 +16098,18 @@ msgstr "¿Está seguro de que quiere borrar el documento?"
 msgid "Deleting document"
 msgstr "Borrando documento"
 
-msgid "Study date"
-msgstr "Fecha del estudio"
+#, fuzzy
+msgid "Referrer"
+msgstr "Remisiones"
 
-msgid "Study time"
-msgstr "Hora del estudio"
+msgid "Time"
+msgstr "Tiempo"
 
 msgid "Method"
 msgstr "Método"
 
 msgid "Body part"
 msgstr "Parte del cuerpo"
-
-msgid "Time"
-msgstr "Tiempo"
 
 msgid "Cannot connect without port (try 8042)."
 msgstr "No puedo conectar sin puerto (trate 8042)."
@@ -16140,13 +16142,9 @@ msgstr ""
 "SCAI: se encontró más de una coincidencia de paciente para la ID, "
 "cuidadosamente revise los estudios"
 
-#, python-format
-msgid "%s series"
+#, fuzzy, python-format
+msgid "%s series%s"
 msgstr "%s series"
-
-#, python-format
-msgid "%%s (%s series)"
-msgstr "%%s (%s series)"
 
 msgid "no studies"
 msgstr "sin estudios"
@@ -16191,9 +16189,17 @@ msgstr "IMposible guardar estudios."
 msgid "All DICOM studies of [%s] from Orthanc PACS \"%s\" (AET \"%s\")"
 msgstr "Todos los estudios DICOM de [%s] del SCAI Orthanc \"%s\" (AET \"%s\")"
 
-#, python-format
-msgid "%s%s images"
+#, fuzzy, python-format
+msgid "%s image(s)%s"
 msgstr "%s%s imágenes"
+
+#, fuzzy
+msgid "Study"
+msgstr "Fecha del estudio"
+
+#, fuzzy
+msgid "Series"
+msgstr "%s series"
 
 msgid "Select the directory from which to recursively upload DICOM files."
 msgstr ""
@@ -20971,6 +20977,12 @@ msgstr "Aborto"
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Aborto y NO conecto a GNUMed."
+
+#~ msgid "Study time"
+#~ msgstr "Hora del estudio"
+
+#~ msgid "%%s (%s series)"
+#~ msgstr "%%s (%s series)"
 
 #, fuzzy
 #~ msgid "Copy to e&xport area..."
