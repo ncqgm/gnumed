@@ -15,6 +15,7 @@ IMPROVED: DICOM studies/series display
 IMPROVED: ZIP-with-DICOMDIR support
 IMPROVED: browse index.html after saving/burning from export area
 IMPROVED: substance abuse management workflow
+IMPROVED: check for tools im gm-describe_file
 
 NEW: a few hints from the German Choosing Wisely initiative
 NEW: CD/DVD sleeve LaTeX template

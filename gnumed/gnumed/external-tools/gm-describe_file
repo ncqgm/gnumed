@@ -7,19 +7,36 @@ if test -z "${DESCRIPTION_FILE}" ; then
 	DESCRIPTION_FILE="${FILE_2_DESCRIBE}.txt"
 fi
 
+# file
 echo "---- file ----" > ${DESCRIPTION_FILE}
 file "${FILE_2_DESCRIBE}" >> "${DESCRIPTION_FILE}" 2>> "${DESCRIPTION_FILE}"
 echo "" >> "${DESCRIPTION_FILE}"
 
-exiftool -g1 -ee -m -u "${FILE_2_DESCRIBE}" >> "${DESCRIPTION_FILE}" 2>> "${DESCRIPTION_FILE}"
-echo "" >> "${DESCRIPTION_FILE}"
+# exiftool
+BIN=`which exiftool`
+if [ "x${BIN}x" != "xx" ]; then
+	exiftool -g1 -ee -m -u "${FILE_2_DESCRIBE}" >> "${DESCRIPTION_FILE}" 2>> "${DESCRIPTION_FILE}"
+	echo "" >> "${DESCRIPTION_FILE}"
+fi
 
 #echo "---- identify ----" >> "${DESCRIPTION_FILE}"
 # takes a long time on larger images / PDF files
 #identify -verbose "${FILE_2_DESCRIBE}" >> "${DESCRIPTION_FILE}" 2>> "${DESCRIPTION_FILE}"
 #echo "" >> "${DESCRIPTION_FILE}"
 
-echo "---- sfinfo ----" >> "${DESCRIPTION_FILE}"
-sfinfo "${FILE_2_DESCRIBE}" >> "${DESCRIPTION_FILE}" 2>> "${DESCRIPTION_FILE}"
+# ffprobe
+BIN=`which ffprobe`
+if [ "x${BIN}x" != "xx" ]; then
+	echo "---- ffprobe ----" >> "${DESCRIPTION_FILE}"
+	ffprobe -v verbose -hide_banner -pretty "${FILE_2_DESCRIBE}" >> "${DESCRIPTION_FILE}" 2>> "${DESCRIPTION_FILE}"
+	echo "" >> "${DESCRIPTION_FILE}"
+fi
+
+# sfinfo
+BIN=`which sfinfo`
+	if [ "x${BIN}x" != "xx" ]; then
+	echo "---- sfinfo ----" >> "${DESCRIPTION_FILE}"
+	sfinfo "${FILE_2_DESCRIBE}" >> "${DESCRIPTION_FILE}" 2>> "${DESCRIPTION_FILE}"
+fi
 
 exit 0
