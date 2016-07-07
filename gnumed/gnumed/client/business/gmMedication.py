@@ -2559,7 +2559,8 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 					gmTools.coalesce(self._payload[self._idx['comment_on_start']], u'', u' [%s]')
 				)
 			ended_ago = now - self._payload[self._idx['discontinued']]
-			txt = _(u'%s ago (for %s: %s %s %s)') % (
+			txt = _(u'%s %s ago (for %s: %s %s %s)') % (
+				gmTools.u_arrow2right_until_vertical_bar,
 				gmDateTime.format_interval_medically(ended_ago),
 				gmDateTime.format_interval_medically(duration_taken),
 				start,

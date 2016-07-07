@@ -346,6 +346,8 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 		# this we want to adjust later
 		self._PRW_aim.add_callback_on_set_focus(callback = self._on_enter_aim)
 
+		self._DP_discontinued.add_callback_on_selection(callback = self._on_discontinued_date_changed)
+
 	#----------------------------------------------------------------
 	def __refresh_precautions(self):
 
@@ -711,6 +713,7 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 		self._PRW_start_certainty.Enable(True)
 		self._DP_discontinued.SetData(None)
 		self._PRW_discontinue_reason.SetValue(u'')
+		self._PRW_discontinue_reason.Enable(False)
 
 		self.__refresh_drug_details()
 		self.__refresh_precautions()
@@ -1259,6 +1262,7 @@ def update_substance_intake_list_from_prescription(parent=None, prescribed_drugs
 		intake.save()
 
 	return
+
 #------------------------------------------------------------
 class cCurrentSubstancesGrid(wx.grid.Grid):
 	"""A grid class for displaying current substance intake.
@@ -1427,9 +1431,6 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 				atcs = []
 				if med['atc_substance'] is not None:
 					atcs.append(med['atc_substance'])
-				#if med['atc_brand'] is not None:
-				#	atcs.append(med['atc_brand'])
-				#allg = emr.is_allergic_to(atcs = tuple(atcs), inns = (med['substance'],), brand = med['brand'])
 				allg = emr.is_allergic_to(atcs = tuple(atcs), inns = (med['substance'],))
 				if allg not in [None, False]:
 					attr = self.GetOrCreateCellAttr(row_idx, 0)
@@ -1512,7 +1513,6 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 				self.SetCellValue(row_idx, 3, gmTools.coalesce(med['schedule'], u''))
 
 				self.SetCellValue(row_idx, 4, med.medically_formatted_start_end)
-#				self.SetCellValue(row_idx, 4, med.medically_formatted_start)
 #
 #				if med['is_long_term']:
 #					self.SetCellValue(row_idx, 5, gmTools.u_infinity)

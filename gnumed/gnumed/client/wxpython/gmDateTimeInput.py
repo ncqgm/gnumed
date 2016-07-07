@@ -354,6 +354,7 @@ class cDateInputPhraseWheel(gmPhraseWheel.cPhraseWheel):
 		)
 		val = gmDateTime.pydt_strftime(date, format = '%Y-%m-%d', accuracy = gmDateTime.acc_days)
 		self.SetText(value = val, data = date, suppress_smarts = True)
+
 	#--------------------------------------------------------
 	# phrasewheel internal API
 	#--------------------------------------------------------
@@ -367,12 +368,14 @@ class cDateInputPhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 		# let the base class do its thing
 		super(cDateInputPhraseWheel, self)._on_lose_focus(event)
+
 	#--------------------------------------------------------
 	def _picklist_item2display_string(self, item=None):
 		data = item['data']
 		if data is not None:
 			return gmDateTime.pydt_strftime(data, format = '%Y-%m-%d', accuracy = gmDateTime.acc_days)
 		return item['field_label']
+
 	#--------------------------------------------------------
 	def _on_key_down(self, event):
 
@@ -384,6 +387,7 @@ class cDateInputPhraseWheel(gmPhraseWheel.cPhraseWheel):
 				return
 
 		super(cDateInputPhraseWheel, self)._on_key_down(event)
+
 	#--------------------------------------------------------
 	def _get_data_tooltip(self):
 		if len(self._data) == 0:
@@ -400,6 +404,7 @@ class cDateInputPhraseWheel(gmPhraseWheel.cPhraseWheel):
 			format = '%A, %d. %B %Y (%x)',
 			accuracy = gmDateTime.acc_days
 		)
+
 	#--------------------------------------------------------
 	# external API
 	#--------------------------------------------------------
@@ -419,6 +424,7 @@ class cDateInputPhraseWheel(gmPhraseWheel.cPhraseWheel):
 			value = u''
 
 		super(self.__class__, self).SetValue(value)
+
 	#--------------------------------------------------------
 	def SetText(self, value=u'', data=None, suppress_smarts=False):
 
@@ -434,18 +440,21 @@ class cDateInputPhraseWheel(gmPhraseWheel.cPhraseWheel):
 				value = gmDateTime.pydt_strftime(data, format = '%Y-%m-%d', accuracy = gmDateTime.acc_days)
 
 		super(self.__class__, self).SetText(value = value, data = data, suppress_smarts = suppress_smarts)
+
 	#--------------------------------------------------------
 	def SetData(self, data=None):
 		if data is None:
 			gmPhraseWheel.cPhraseWheel.SetText(self, u'', None)
 			return
 		self.SetText(data = data)
+
 	#--------------------------------------------------------
 	def GetData(self):
 		if len(self._data) == 0:
 			self._set_data_to_first_match()
 
 		return super(self.__class__, self).GetData()
+
 	#--------------------------------------------------------
 	def is_valid_timestamp(self, allow_empty=True):
 		if len(self._data) > 0:
@@ -475,6 +484,7 @@ class cDateInputPhraseWheel(gmPhraseWheel.cPhraseWheel):
 		self.SetValue(gmDateTime.pydt_strftime(date, format = '%Y-%m-%d', accuracy = gmDateTime.acc_days))#, none_str = u'')
 		self.display_as_valid(True)
 		return True
+
 	#--------------------------------------------------------
 	# properties
 	#--------------------------------------------------------
