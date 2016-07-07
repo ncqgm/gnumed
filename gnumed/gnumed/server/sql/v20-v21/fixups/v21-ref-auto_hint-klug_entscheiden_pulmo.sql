@@ -23,7 +23,7 @@ SELECT EXISTS (
 			AND
 		(atc_substance = ''N07BA01'')
 			AND
-		(coalesce(harmful_use_type, -1) > IN (1,2))
+		(coalesce(harmful_use_type, -1) IN (1,2))
 			AND
 		((discontinued IS NULL) OR (discontinued > now()))
 			AND
