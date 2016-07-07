@@ -10,6 +10,10 @@
 
 FIX: constrain hospital stay PRW to current patient
 FIX: smoking status detection in dynamic hints
+FIX: GKV checkup auto hint
+FIX: tetanus shot auto hint
+FIX: substance intake discontinuation reason field behaviour
+FIX: exception in clinical calculator with pre-birth test results
 
 IMPROVED: file viewer detection on Windows [thanks John]
 IMPROVED: DICOM studies/series display
@@ -17,6 +21,7 @@ IMPROVED: ZIP-with-DICOMDIR support
 IMPROVED: browse index.html after saving/burning from export area
 IMPROVED: substance abuse management workflow
 IMPROVED: check for tools im gm-describe_file
+IMPROVED: substance intake start/end formatting
 
 NEW: a few hints from the German Choosing Wisely initiative
 NEW: CD/DVD sleeve LaTeX template

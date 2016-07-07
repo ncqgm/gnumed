@@ -16,18 +16,21 @@ insert into ref.auto_hint(title, hint, source, lang, query, recommendation_query
 	'Letzte Tetanusimpfung vor mehr als 10 Jahren dokumentiert.',
 	'STIKO 2016',
 	'de',
-	'SELECT NOT EXISTS (
-	SELECT pk_vaccination
-	FROM clin.v_pat_vaccs4indication
-	WHERE
-		pk_patient = ID_ACTIVE_PATIENT
-			AND
-		indication = ''tetanus''
-			AND
-		date_given > now() - ''10 years''::interval
-	ORDER BY
-		date_given DESC
-	LIMIT 1
+	'SELECT (
+		-- not deceased
+		SELECT deceased is NULL FROM dem.identity WHERE pk = ID_ACTIVE_PATIENT
+	) AND NOT EXISTS (
+		-- no tetanus shot documented
+		SELECT 1 FROM clin.v_pat_vaccs4indication
+		WHERE
+			pk_patient = ID_ACTIVE_PATIENT
+				AND
+			indication = ''tetanus''
+				AND
+			date_given > now() - ''10 years''::interval
+		ORDER BY
+			date_given DESC
+		LIMIT 1
 );',
 	'SELECT coalesce (
 	(SELECT
@@ -45,4 +48,4 @@ insert into ref.auto_hint(title, hint, source, lang, query, recommendation_query
 );
 
 -- --------------------------------------------------------------
-SELECT gm.log_script_insertion('v21-ref-auto_hint-tetanus_STIKO.sql', '21.4');
+SELECT gm.log_script_insertion('v21-ref-auto_hint-tetanus_STIKO.sql', '21.7');

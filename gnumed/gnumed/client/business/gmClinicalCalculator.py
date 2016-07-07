@@ -833,14 +833,16 @@ class cClinicalCalculator(object):
 			return result
 
 		result.variables['dob'] = self.__patient['dob']
-		result.variables['age@height'] = self.d (
-			gmDateTime.calculate_apparent_age (
-				start = result.variables['dob'],
-				end = result.variables['height']['clin_when']
-			)[0]
-		)
+		start = result.variables['dob']
+		end = result.variables['height']['clin_when']
+		multiplier = 1
+		if end < start:
+			start = result.variables['height']['clin_when']
+			end = result.variables['dob']
+			multiplier = -1
+		result.variables['age@height'] = multiplier * self.d(gmDateTime.calculate_apparent_age(start, end)[0])
 		if (result.variables['age@height'] < 18):
-			result.message = _('BMI (Quetelet): formula does not apply at age [%s] (age < 18)') % result.variables['age@height']
+			result.message = _('BMI (Quetelet): formula does not apply at age [%s] (0 < age < 18)') % result.variables['age@height']
 			return result
 
 		# bmi = mass kg / height m2
