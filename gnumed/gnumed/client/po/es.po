@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-06-29 16:29+0200\n"
+"POT-Creation-Date: 2016-07-07 14:56+0200\n"
 "PO-Revision-Date: 2016-02-24 18:28+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: colombiano <es@li.org>\n"
@@ -7435,8 +7435,8 @@ msgstr "ÍMC: peso no numérico"
 msgid "BMI: weight not in kg or g"
 msgstr "ÍMC: peso no expresado en kg o g"
 
-#, python-format
-msgid "BMI (Quetelet): formula does not apply at age [%s] (age < 18)"
+#, fuzzy, python-format
+msgid "BMI (Quetelet): formula does not apply at age [%s] (0 < age < 18)"
 msgstr "ÍMC (Quetelet): fórmula no es válida para la edad de [%s] (edad <18)"
 
 #, python-format
@@ -7705,8 +7705,8 @@ msgstr " (planeado para %s%s)"
 msgid ", planned for %s%s"
 msgstr ", planeado para %s%s"
 
-#, python-format
-msgid "%s ago (for %s: %s %s %s)"
+#, fuzzy, python-format
+msgid "%s %s ago (for %s: %s %s %s)"
 msgstr "%s atrás (para %s: %s %s %s)"
 
 msgid "Additional notes"

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-06-29 16:29+0200\n"
+"POT-Creation-Date: 2016-07-07 14:57+0200\n"
 "PO-Revision-Date: 2011-08-25 16:54+0000\n"
 "Last-Translator: Karolina Kalic <Unknown>\n"
 "Language-Team: Serbian <sr@li.org>\n"
@@ -6546,7 +6546,7 @@ msgid "BMI: weight not in kg or g"
 msgstr ""
 
 #, python-format
-msgid "BMI (Quetelet): formula does not apply at age [%s] (age < 18)"
+msgid "BMI (Quetelet): formula does not apply at age [%s] (0 < age < 18)"
 msgstr ""
 
 #, python-format
@@ -6813,7 +6813,7 @@ msgid ", planned for %s%s"
 msgstr ""
 
 #, fuzzy, python-format
-msgid "%s ago (for %s: %s %s %s)"
+msgid "%s %s ago (for %s: %s %s %s)"
 msgstr "  ваше време: %s - %s  (@%s = %s%s)\n"
 
 msgid "Additional notes"
