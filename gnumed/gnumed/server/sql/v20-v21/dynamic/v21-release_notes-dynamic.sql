@@ -17,24 +17,28 @@ INSERT INTO dem.message_inbox (
 ) VALUES (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
-	'Release Notes for GNUmed 1.6.6 (database v21.6)',
-	'GNUmed 1.6.6 Release Notes:
+	'Release Notes for GNUmed 1.6.7 (database v21.7)',
+	'GNUmed 1.6.7 Release Notes:
 
-	1.6.6
+	1.6.7
 
-FIX: error when running gm-import_incoming as root
-FIX: failure to show entries with soap_cat=NULL in EMR list journal
-FIX: copy-pasto "nicotine" -> "ethanol"
+FIX: constrain hospital stay PRW to current patient
+FIX: smoking status detection in dynamic hints
+FIX: GKV checkup auto hint
+FIX: tetanus shot auto hint
+FIX: substance intake discontinuation reason field behaviour
+FIX: exception in clinical calculator with pre-birth test results
 
-IMPROVED: clear metadata panel after importing new document
-IMRPOVED: enable editing of document source org
-IMPROVED: list context menu layout
-IMPROVED: handling of Windows locale names like Hungarian_Hungary [thanks Attila]
-IMPROVED: AppData file
-IMRPOVED: OOo/LO/SO detection [thanks John]
-IMRPOVED: tree display of documents
+IMPROVED: file viewer detection on Windows [thanks John]
+IMPROVED: DICOM studies/series display
+IMPROVED: ZIP-with-DICOMDIR support
+IMPROVED: browse index.html after saving/burning from export area
+IMPROVED: substance abuse management workflow
+IMPROVED: check for tools im gm-describe_file
+IMPROVED: substance intake start/end formatting
 
-NEW: calculate distance of patient address to your praxis
+NEW: a few hints from the German Choosing Wisely initiative
+NEW: CD/DVD sleeve LaTeX template
 ');
 
 -- --------------------------------------------------------------
