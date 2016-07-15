@@ -321,6 +321,7 @@ class cOrgUnit(gmBusinessDBObject.cBusinessDBObject):
 					cmd = u"UPDATE dem.lnk_org_unit2ext_id SET comment = %(comment)s WHERE pk = %(pk)s"
 					args = {'comment': comment, 'pk': row['pk_id']}
 					rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+
 	#--------------------------------------------------------
 	def update_external_id(self, pk_id=None, type=None, value=None, issuer=None, comment=None):
 		"""Edits an existing external ID.
@@ -337,6 +338,7 @@ class cOrgUnit(gmBusinessDBObject.cBusinessDBObject):
 		"""
 		args = {'pk': pk_id, 'value': value, 'type': type, 'issuer': issuer, 'comment': comment}
 		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+
 	#--------------------------------------------------------
 	def delete_external_id(self, pk_ext_id=None):
 		cmd = u"""
@@ -345,6 +347,7 @@ class cOrgUnit(gmBusinessDBObject.cBusinessDBObject):
 		"""
 		args = {'unit': self.pk_obj, 'pk': pk_ext_id}
 		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+
 	#--------------------------------------------------------
 	# address API
 	#--------------------------------------------------------

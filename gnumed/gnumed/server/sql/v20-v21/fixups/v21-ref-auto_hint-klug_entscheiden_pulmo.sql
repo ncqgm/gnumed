@@ -11,69 +11,12 @@
 -- --------------------------------------------------------------
 DELETE FROM ref.auto_hint WHERE title = 'Raucher->Spiro (DGP/DGIM)';
 
-insert into ref.auto_hint(title, hint, source, lang, query, recommendation_query) values (
-	'Raucher->Spiro (DGP/DGIM)',
-	'Raucher sollen mit Spirometrie überwacht werden',
-	'"Gemeinsam klug entscheiden" (DGIM: DGP, 2016)',
-	'de',
-	'-- recently confirmed to be a smoker
-SELECT EXISTS (
-	SELECT 1 FROM clin.v_substance_intakes WHERE
-		(pk_patient = ID_ACTIVE_PATIENT)
-			AND
-		(atc_substance = ''N07BA01'')
-			AND
-		(coalesce(harmful_use_type, -1) IN (1,2))
-			AND
-		((discontinued IS NULL) OR (discontinued > now()))
-			AND
-		(last_checked_when > now() - ''1 year''::interval)
--- but no FEV1 documented within the last year
-) AND NOT EXISTS (
-	SELECT 1 FROM clin.v_test_results WHERE
-		(pk_patient = ID_ACTIVE_PATIENT)
-			AND
-		(
-			(unified_loinc = ''20150-9'')
-				OR
-			(lower(unified_name) = ''fev1'')
-				OR
-			(lower(unified_abbrev) = ''fev1'')
-		)
-			AND
-		(clin_when > now() - ''1 year''::interval)
-);',
-	'SELECT (
-	SELECT
-		''Patient raucht ('' || to_char(last_checked_when, ''YYYY Mon'') || ''), aber ''
-	FROM clin.v_substance_intakes WHERE
-		(pk_patient = ID_ACTIVE_PATIENT)
-			AND
-		(atc_substance = ''N07BA01'')
-) || (SELECT
-	coalesce (
-		(SELECT ''die letzte Spirometrie (FEV1 [20150-9)] ist über 1 Jahr her ('' || to_char(clin_when, ''YYYY Mon'') || '').''
-		FROM clin.v_test_results WHERE
-				(pk_patient = ID_ACTIVE_PATIENT)
-					AND
-				(
-					(unified_loinc = ''20150-9'')
-						OR
-					(lower(unified_name) = ''fev1'')
-						OR
-					(lower(unified_abbrev) = ''fev1'')
-				)
-		)::TEXT,
-		''es ist keine Spirometrie (FEV1 [20150-9]) dokumentiert.''::TEXT
-	)
-) as recommendation;'
-);
-
 -- --------------------------------------------------------------
 DELETE FROM ref.auto_hint WHERE title = 'Lunge->Pneumokkken-Impfg (DGP/DGIM)';
+DELETE FROM ref.auto_hint WHERE title = 'Lunge->Pneumokokken-Impfg (DGP/DGIM)';
 
 insert into ref.auto_hint(title, hint, source, lang, query, recommendation_query) values (
-	'Lunge->Pneumokkken-Impfg (DGP/DGIM)',
+	'Lunge->Pneumokokken-Impfg (DGP/DGIM)',
 	'Lungenkranke älter 60 sollen eine Pneumokokkenimpfung angeboten bekommen.',
 	'"Gemeinsam klug entscheiden" (DGIM: DGP, 2016)',
 	'de',

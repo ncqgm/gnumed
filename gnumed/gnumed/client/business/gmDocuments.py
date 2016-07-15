@@ -730,6 +730,7 @@ class cDocument(gmBusinessDBObject.cBusinessDBObject):
 		return self.__has_unreviewed_parts
 
 	has_unreviewed_parts = property(_get_has_unreviewed_parts, lambda x:x)
+
 	#--------------------------------------------------------
 	def set_reviewed(self, technically_abnormal=None, clinically_relevant=None):
 		# FIXME: this is probably inefficient
@@ -737,6 +738,7 @@ class cDocument(gmBusinessDBObject.cBusinessDBObject):
 			if not part.set_reviewed(technically_abnormal, clinically_relevant):
 				return False
 		return True
+
 	#--------------------------------------------------------
 	def set_primary_reviewer(self, reviewer=None):
 		for part in self.parts:
