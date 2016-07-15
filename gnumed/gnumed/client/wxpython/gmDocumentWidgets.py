@@ -1736,7 +1736,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 
 			# need intermediate branch level ?
 			if self.__sort_mode == 'episode':
-				inter_label = u'%s%s' % (doc['episode'], gmTools.coalesce(doc['health_issue'], u'', u' (%s)'))
+				intermediate_label = u'%s%s' % (doc['episode'], gmTools.coalesce(doc['health_issue'], u'', u' (%s)'))
 				doc_label = _('%s%7s %s:%s (%s)') % (
 					gmTools.bool2subst(doc.has_unreviewed_parts, gmTools.u_writing_hand, u'', u'?'),
 					doc['clin_when'].strftime('%m/%Y'),
@@ -1744,15 +1744,15 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 					gmTools.coalesce(initial = doc['comment'], instead = u'', template_initial = u' %s'),
 					no_parts
 				)
-				if inter_label not in intermediate_nodes:
-					intermediate_nodes[inter_label] = self.AppendItem(parent = self.root, text = inter_label)
-					self.SetItemBold(intermediate_nodes[inter_label], bold = True)
-					self.SetItemPyData(intermediate_nodes[inter_label], None)
-					self.SetItemHasChildren(intermediate_nodes[inter_label], True)
-				parent = intermediate_nodes[inter_label]
+				if intermediate_label not in intermediate_nodes:
+					intermediate_nodes[intermediate_label] = self.AppendItem(parent = self.root, text = intermediate_label)
+					self.SetItemBold(intermediate_nodes[intermediate_label], bold = True)
+					self.SetItemPyData(intermediate_nodes[intermediate_label], None)
+					self.SetItemHasChildren(intermediate_nodes[intermediate_label], True)
+				parent = intermediate_nodes[intermediate_label]
 
 			elif self.__sort_mode == 'type':
-				inter_label = doc['l10n_type']
+				intermediate_label = doc['l10n_type']
 				doc_label = _('%s%7s (%s):%s (%s)') % (
 					gmTools.bool2subst(doc.has_unreviewed_parts, gmTools.u_writing_hand, u'', u'?'),
 					doc['clin_when'].strftime('%m/%Y'),
@@ -1760,18 +1760,18 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 					gmTools.coalesce(initial = doc['comment'], instead = u'', template_initial = u' %s'),
 					u'%s%s' % (gmTools.coalesce(doc['health_issue'], u'', u'%s: '), doc['episode'])
 				)
-				if inter_label not in intermediate_nodes:
-					intermediate_nodes[inter_label] = self.AppendItem(parent = self.root, text = inter_label)
-					self.SetItemBold(intermediate_nodes[inter_label], bold = True)
-					self.SetItemPyData(intermediate_nodes[inter_label], None)
-					self.SetItemHasChildren(intermediate_nodes[inter_label], True)
-				parent = intermediate_nodes[inter_label]
+				if intermediate_label not in intermediate_nodes:
+					intermediate_nodes[intermediate_label] = self.AppendItem(parent = self.root, text = intermediate_label)
+					self.SetItemBold(intermediate_nodes[intermediate_label], bold = True)
+					self.SetItemPyData(intermediate_nodes[intermediate_label], None)
+					self.SetItemHasChildren(intermediate_nodes[intermediate_label], True)
+				parent = intermediate_nodes[intermediate_label]
 
 			elif self.__sort_mode == 'issue':
 				if doc['health_issue'] is None:
-					inter_label = _('%s (unattributed episode)') % doc['episode']
+					intermediate_label = _('%s (unattributed episode)') % doc['episode']
 				else:
-					inter_label = doc['health_issue']
+					intermediate_label = doc['health_issue']
 				doc_label = _('%s%7s %s:%s (%s)') % (
 					gmTools.bool2subst(doc.has_unreviewed_parts, gmTools.u_writing_hand, u'', u'?'),
 					doc['clin_when'].strftime('%m/%Y'),
@@ -1779,18 +1779,21 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 					gmTools.coalesce(initial = doc['comment'], instead = u'', template_initial = u' %s'),
 					no_parts
 				)
-				if inter_label not in intermediate_nodes:
-					intermediate_nodes[inter_label] = self.AppendItem(parent = self.root, text = inter_label)
-					self.SetItemBold(intermediate_nodes[inter_label], bold = True)
-					self.SetItemPyData(intermediate_nodes[inter_label], None)
-					self.SetItemHasChildren(intermediate_nodes[inter_label], True)
-				parent = intermediate_nodes[inter_label]
+				if intermediate_label not in intermediate_nodes:
+					intermediate_nodes[intermediate_label] = self.AppendItem(parent = self.root, text = intermediate_label)
+					self.SetItemBold(intermediate_nodes[intermediate_label], bold = True)
+					self.SetItemPyData(intermediate_nodes[intermediate_label], None)
+					self.SetItemHasChildren(intermediate_nodes[intermediate_label], True)
+				parent = intermediate_nodes[intermediate_label]
 
 			elif self.__sort_mode == 'org':
 				if doc['pk_org'] is None:
-					inter_label = _('unknown organization')
+					intermediate_label = _('unknown organization')
+					tt = u''
 				else:
-					inter_label = doc['organization']
+					intermediate_label = doc['organization']
+					# not quite right: always shows data of the _first_ document of _any_ org unit of this org
+					tt = u'\n'.join(doc.org_unit.format(with_address = True, with_org = True, with_comms = True))
 				doc_label = _('%s%7s %s:%s (%s)') % (
 					gmTools.bool2subst(doc.has_unreviewed_parts, gmTools.u_writing_hand, u'', u'?'),
 					doc['clin_when'].strftime('%m/%Y'),
@@ -1798,12 +1801,13 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 					gmTools.coalesce(initial = doc['comment'], instead = u'', template_initial = u' %s'),
 					no_parts
 				)
-				if inter_label not in intermediate_nodes:
-					intermediate_nodes[inter_label] = self.AppendItem(parent = self.root, text = inter_label)
-					self.SetItemBold(intermediate_nodes[inter_label], bold = True)
-					self.SetItemPyData(intermediate_nodes[inter_label], None)
-					self.SetItemHasChildren(intermediate_nodes[inter_label], True)
-				parent = intermediate_nodes[inter_label]
+				if intermediate_label not in intermediate_nodes:
+					intermediate_nodes[intermediate_label] = self.AppendItem(parent = self.root, text = intermediate_label)
+					self.SetItemBold(intermediate_nodes[intermediate_label], bold = True)
+					#self.SetItemPyData(intermediate_nodes[intermediate_label], None)
+					self.SetItemPyData(intermediate_nodes[intermediate_label], tt)
+					self.SetItemHasChildren(intermediate_nodes[intermediate_label], True)
+				parent = intermediate_nodes[intermediate_label]
 
 			else:
 				doc_label = _('%s%7s %s:%s (%s)') % (
@@ -2010,6 +2014,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 			if data1 == data2:
 				return 0
 		return 1
+
 	#------------------------------------------------------------------------
 	# event handlers
 	#------------------------------------------------------------------------
@@ -2052,6 +2057,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 
 		self.__display_part(part = node_data)
 		return True
+
 	#--------------------------------------------------------
 	def __on_right_click(self, evt):
 
@@ -2101,9 +2107,12 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 		# parts
 		elif isinstance(data, gmDocuments.cDocumentPart):
 			tt = data.format()
+		# explicit tooltip strings
+		elif isinstance(data, basestring):
+			tt = data
 		# other (root, intermediate nodes)
 		else:
-			tt = u' '
+			tt = u''
 
 		event.SetToolTip(tt)
 	#--------------------------------------------------------

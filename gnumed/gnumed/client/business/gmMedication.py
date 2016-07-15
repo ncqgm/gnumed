@@ -2516,7 +2516,7 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 					if self._payload[self._idx['started']] is None:
 						planned_end_str = u''
 					else:
-						planned_end = self._payload[self._idx['started']] + self._payload[self._idx['duration']]
+						planned_end = self._payload[self._idx['started']] + self._payload[self._idx['duration']] - pydt.timedelta(days = 1)
 						if planned_end < now:
 							planned_end_from_now_str = _(u'%s ago') % gmDateTime.format_interval(now - planned_end, gmDateTime.acc_days)
 						else:
@@ -2549,7 +2549,7 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 
 		# stopped medication
 		else:
-			duration_taken = self._payload[self._idx['discontinued']] - self._payload[self._idx['started']]
+			duration_taken = self._payload[self._idx['discontinued']] - self._payload[self._idx['started']] + pydt.timedelta(days = 1)
 			if self._payload[self._idx['started']] is None:
 				start = gmTools.coalesce(self._payload[self._idx['comment_on_start']], u'?')
 			else:

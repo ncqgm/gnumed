@@ -1249,14 +1249,15 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 		# row tooltips
 		self.__item_tooltip_callback = None
 		self.__tt_last_item = None
-		self.__tt_static_part_base = _(
-			u'Select the items you want to work on.\n'
-			u'\n'
-			u'A discontinuous selection may depend on your holding '
-			u'down a platform-dependent modifier key (<CTRL>, <ALT>, '
-			u'etc) or key combination (eg. <CTRL-SHIFT> or <CTRL-ALT>) '
-			u'while clicking.'
-		)
+#		self.__tt_static_part_base = _(
+#			u'Select the items you want to work on.\n'
+#			u'\n'
+#			u'A discontinuous selection may depend on your holding '
+#			u'down a platform-dependent modifier key (<CTRL>, <ALT>, '
+#			u'etc) or key combination (eg. <CTRL-SHIFT> or <CTRL-ALT>) '
+#			u'while clicking.'
+#		)
+		self.__tt_static_part_base = u''
 		self.__tt_static_part = self.__tt_static_part_base
 		self.Bind(wx.EVT_MOTION, self._on_mouse_motion)
 

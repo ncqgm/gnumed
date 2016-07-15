@@ -6,6 +6,16 @@
 # rel-1-6-patches
 ------------------------------------------------
 
+	1.6.8
+
+FIX: remove dynamic hint lacking evidence of clinical relevance
+FIX: off-by-one calculation of substance intake end date
+FIX: faulty use of $<gender_mapper>$ in Begleitbrief template
+
+IMPROVED: document tree orgs sort mode tooltips
+IMPROVED: file description shell script
+IMPROVED: less in-your-face default list tooltip
+
 	1.6.7
 
 FIX: constrain hospital stay PRW to current patient
