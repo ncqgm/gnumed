@@ -541,7 +541,7 @@ insert into blobs.reviewed_doc_objs (
 			self._payload[self._idx['seq_idx']],
 			patient_part,
 			self._payload[self._idx['l10n_type']].replace(' ', '_'),
-			gmDateTime.pydt_strftime(self._payload[self._idx['date_generated']], '%Y-%b-%d', 'utf-8', gmDateTime.acc_days)
+			gmDateTime.pydt_strftime(self._payload[self._idx['date_generated']], '%Y-%m-%d', 'utf-8', gmDateTime.acc_days)
 			#,gmTools.coalesce(self.__curr_node_data['ext_ref'], '', '-%s').replace(' ', '_')
 		)
 

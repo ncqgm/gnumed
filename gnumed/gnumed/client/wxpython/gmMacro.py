@@ -15,6 +15,7 @@ import os
 import io
 import datetime
 import urllib
+import codecs
 
 
 import wx
@@ -114,6 +115,18 @@ __known_variant_placeholders = {
 				of which setting of <argumentsdivider> is in effect,
 				use DEFAULT to reset this setting back to the
 				default '//'
+			encoding: the encoding in which data emitted by GNUmed
+				as placeholder replacement needs to be valid in,
+				note that GNUmed will still emit unicode to replacement
+				consumers but it will ensure the data emitted _can_
+				be encoded by this target encoding (by roundtripping
+				unicode-encoding-unicode)
+				valid from where this placeholder is located at
+				until further change,
+				use DEFAULT to reset encoding back to the default
+				which is to not ensure compatibility,
+				if the encoding ends in '-strict' then the placeholder
+				replacement will fail if the roundtrip fails
 	""",
 
 	u'tex_escape': u"args: string to escape, mostly obsolete now",
@@ -487,6 +500,7 @@ def show_placeholders():
 
 	ph_file.close()
 	gmMimeLib.call_viewer_on_file(aFile = fname, block = False)
+
 #=====================================================================
 class gmPlaceholderHandler(gmBorg.cBorg):
 	"""Returns values for placeholders.
@@ -536,6 +550,9 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 
 		self.__ellipsis = None
 		self.__args_divider = u'//'
+		self.__data_encoding = None
+		self.__data_encoding_strict = False
+
 	#--------------------------------------------------------
 	# external API
 	#--------------------------------------------------------
@@ -548,6 +565,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			if known_only:
 				raise
 		self.__injected_placeholders[key] = value
+
 	#--------------------------------------------------------
 	def unset_placeholder(self, key=None):
 		_log.debug('unsetting [%s]', key)
@@ -555,18 +573,21 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			del self.__injected_placeholders[key]
 		except KeyError:
 			_log.debug(u'injectable placeholder [%s] unknown', key)
+
 	#--------------------------------------------------------
 	def set_cache_value(self, key=None, value=None):
 		self.__cache[key] = value
 	#--------------------------------------------------------
 	def unset_cache_value(self, key=None):
 		del self.__cache[key]
+
 	#--------------------------------------------------------
 	def _set_escape_style(self, escape_style=None):
 		self.__esc_style = escape_style
 		return
 
 	escape_style = property(lambda x:x, _set_escape_style)
+
 	#--------------------------------------------------------
 	def _set_escape_function(self, escape_function=None):
 		if escape_function is None:
@@ -578,6 +599,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		return
 
 	escape_function = property(lambda x:x, _set_escape_function)
+
 	#--------------------------------------------------------
 	def _set_ellipsis(self, ellipsis):
 		if ellipsis == u'NONE':
@@ -585,6 +607,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		self.__ellipsis = ellipsis
 
 	ellipsis = property(lambda x: self.__ellipsis, _set_ellipsis)
+
 	#--------------------------------------------------------
 	def _set_arguments_divider(self, divider):
 		if divider == u'DEFAULT':
@@ -592,6 +615,25 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		self.__args_divider = divider
 
 	arguments_divider = property(lambda x: self.__args_divider, _set_arguments_divider)
+
+	#--------------------------------------------------------
+	def _set_data_encoding(self, encoding):
+		if encoding == u'NONE':
+			self.__data_encoding = None
+			self.__data_encoding_strict = False
+
+		self.__data_encoding_strict = False
+		if encoding.endswith(u'-strict'):
+			self.__data_encoding_strict = True
+			encoding = encoding[:-7]
+		try:
+			codecs.lookup(encoding)
+			self.__data_encoding = encoding
+		except LookupError:
+			_log.error('<codecs> module can NOT handle encoding [%s]' % enc)
+
+	data_encoding = property(lambda x: self.__data_encoding, _set_data_encoding)
+
 	#--------------------------------------------------------
 	placeholder_regex = property(lambda x: default_placeholder_regex, lambda x:x)
 
@@ -630,6 +672,29 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			pos_first_char -= 1
 
 		return pos_first_char, pos_last_char
+
+	#--------------------------------------------------------
+	def __make_compatible_with_encoding(self, data_str):
+		if self.__data_encoding is None:
+			return data_str
+
+		try:
+			codecs.encode(data_str, self.__data_encoding, 'strict')
+			return data_str
+		except UnicodeEncodeError:
+			_log.error('cannot strict-encode string into [%s]: %s', self.__data_encoding, data_str)
+
+		if self.__data_encoding_strict:
+			return u'not compatible with encoding [%s]: %s' % (self.__data_encoding, data_str)
+
+		try:
+			import unidecode
+		except ImportError:
+			_log.debug('cannot transliterate, <unidecode> module not installed')
+			return codecs.encode(data_str, self.__data_encoding, 'replace').decode(self.__data_encoding)
+
+		return unidecode.unidecode(data_str).decode('utf8')
+
 	#--------------------------------------------------------
 	# __getitem__ API
 	#--------------------------------------------------------
@@ -683,13 +748,13 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 						return self._escape(self.invalid_placeholder_template % original_placeholder_def)
 					return None
 				if pos_last_char is None:
-					return val
+					return self.__make_compatible_with_encoding(val)
 				# ellipsis needed ?
 				if len(val) > (pos_last_char - pos_first_char):
 					# ellipsis wanted ?
 					if self.__ellipsis is not None:
-						return val[pos_first_char:(pos_last_char-len(self.__ellipsis))] + self.__ellipsis
-				return val[pos_first_char:pos_last_char]
+						return self.__make_compatible_with_encoding(val[pos_first_char:(pos_last_char-len(self.__ellipsis))] + self.__ellipsis)
+				return self.__make_compatible_with_encoding(val[pos_first_char:pos_last_char])
 
 		# variable placeholders
 		if len(placeholder.split('::', 2)) < 3:
@@ -718,13 +783,13 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		try:
 			val = handler(data = options)
 			if pos_last_char is None:
-				return val
+				return self.__make_compatible_with_encoding(val)
 			# ellipsis needed ?
 			if len(val) > (pos_last_char - pos_first_char):
 				# ellipsis wanted ?
 				if self.__ellipsis is not None:
-					return val[pos_first_char:(pos_last_char-len(self.__ellipsis))] + self.__ellipsis
-			return val[pos_first_char:pos_last_char]
+					return self.__make_compatible_with_encoding(val[pos_first_char:(pos_last_char-len(self.__ellipsis))] + self.__ellipsis)
+			return self.__make_compatible_with_encoding(val[pos_first_char:pos_last_char])
 		except:
 			_log.exception('placeholder handling error: %s', original_placeholder_def)
 			if self.debug:
@@ -733,6 +798,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 
 		_log.error('something went wrong, should never get here')
 		return None
+
 	#--------------------------------------------------------
 	# placeholder handlers
 	#--------------------------------------------------------
@@ -744,6 +810,8 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			self.ellipsis = val
 		elif name == u'argumentsdivider':
 			self.arguments_divider = val
+		elif name == u'encoding':
+			self.data_encoding = val
 		if len(options) > 2:
 			return options[2] % {'name': name, 'value': val}
 		return u''
@@ -1671,6 +1739,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			return u''
 
 		return self._escape(ids[0]['value'])
+
 	#--------------------------------------------------------
 	def _get_variant_allergy_state(self, data=None):
 		allg_state = self.pat.get_emr().allergy_state
@@ -1688,6 +1757,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			date_confirmed
 		)
 		return self._escape(tmp)
+
 	#--------------------------------------------------------
 	def _get_variant_allergy_list(self, data=None):
 		if data is None:
@@ -1696,6 +1766,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		template, separator = data.split('//', 2)
 
 		return separator.join([ template % a.fields_as_dict(date_format = '%Y %b %d', escape_style = self.__esc_style) for a in self.pat.emr.get_allergies() ])
+
 	#--------------------------------------------------------
 	def _get_variant_allergies(self, data=None):
 
@@ -1806,11 +1877,11 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			return
 
 		png_dir = gmTools.mk_sandbox_dir()
-		_log.debug('sandboxing AMTS QR Code PNGs in: %s', png_dir)
+		_log.debug('sandboxing AMTS datamatrix PNGs in: %s', png_dir)
 
 		from Gnumed.business import gmForms
 
-		# generate GNUmed-enhanced non-conformant data file and QR code
+		# generate GNUmed-enhanced non-conformant data file and datamatrix
 		# for embedding (utf8, unabridged data fields)
 		amts_data_template_def_file = gmMedication.generate_amts_data_template_definition_file(strict = False)
 		_log.debug('amts data template definition file: %s', amts_data_template_def_file)
@@ -1839,7 +1910,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			_log.error(u'cannot substitute into amts data file form template')
 			return
 		data_file = form.re_editable_filenames[0]
-		png_file = os.path.join(png_dir, 'gm4amts-qrcode-utf8.png')
+		png_file = os.path.join(png_dir, 'gm4amts-datamatrix-utf8.png')
 		cmd = u'%s %s %s' % (dmtx_creator, data_file, png_file)
 		success = gmShellAPI.run_command_in_shell(command = cmd, blocking = True)
 		if not success:
@@ -1863,7 +1934,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		total_pages = int(total_pages)
 		_log.debug('total pages: %s', total_pages)
 
-		png_file_base = os.path.join(png_dir, 'gm4amts-qrcode-page-')
+		png_file_base = os.path.join(png_dir, 'gm4amts-datamatrix-page-')
 		for this_page in range(1,total_pages+1):
 			intakes_this_page = intakes[(this_page-1)*15:this_page*15]
 			amts_data_template_def_file = gmMedication.generate_amts_data_template_definition_file(strict = True)

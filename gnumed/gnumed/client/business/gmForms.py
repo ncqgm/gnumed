@@ -802,7 +802,7 @@ class cAbiWordForm(cFormEngine):
 			data_source.set_placeholder(u'form_name_long', self.template['name_long'])
 			data_source.set_placeholder(u'form_name_short', self.template['name_short'])
 			data_source.set_placeholder(u'form_version', self.template['external_version'])
-			data_source.set_placeholder(u'form_version_internal', self.template['gnumed_revision'])
+			data_source.set_placeholder(u'form_version_internal', gmTools.coalesce(self.template['gnumed_revision'], u'', u'%s'))
 			data_source.set_placeholder(u'form_last_modified', gmDateTime.pydt_strftime(self.template['last_modified'], '%Y-%b-%d %H:%M'))
 
 		data_source.escape_style = u'xml'
@@ -928,7 +928,7 @@ class cTextForm(cFormEngine):
 			data_source.set_placeholder(u'form_name_long', self.template['name_long'])
 			data_source.set_placeholder(u'form_name_short', self.template['name_short'])
 			data_source.set_placeholder(u'form_version', self.template['external_version'])
-			data_source.set_placeholder(u'form_version_internal', self.template['gnumed_revision'])
+			data_source.set_placeholder(u'form_version_internal', gmTools.coalesce(self.template['gnumed_revision'], u'', u'%s'))
 			data_source.set_placeholder(u'form_last_modified', gmDateTime.pydt_strftime(self.template['last_modified'], '%Y-%b-%d %H:%M'))
 
 		base = os.path.join(self.__sandbox_dir, gmTools.fname_stem(self.template_filename))
@@ -1074,7 +1074,7 @@ class cLaTeXForm(cFormEngine):
 			data_source.set_placeholder(u'form_name_long', self.template['name_long'])
 			data_source.set_placeholder(u'form_name_short', self.template['name_short'])
 			data_source.set_placeholder(u'form_version', self.template['external_version'])
-			data_source.set_placeholder(u'form_version_internal', self.template['gnumed_revision'])
+			data_source.set_placeholder(u'form_version_internal', gmTools.coalesce(self.template['gnumed_revision'], u'', u'%s'))
 			data_source.set_placeholder(u'form_last_modified', gmDateTime.pydt_strftime(self.template['last_modified'], '%Y-%b-%d %H:%M'))
 
 		data_source.escape_function = gmTools.tex_escape_string
@@ -1269,7 +1269,7 @@ class cXeTeXForm(cFormEngine):
 			data_source.set_placeholder(u'form_name_long', self.template['name_long'])
 			data_source.set_placeholder(u'form_name_short', self.template['name_short'])
 			data_source.set_placeholder(u'form_version', self.template['external_version'])
-			data_source.set_placeholder(u'form_version_internal', self.template['gnumed_revision'])
+			data_source.set_placeholder(u'form_version_internal', gmTools.coalesce(self.template['gnumed_revision'], u'', u'%s'))
 			data_source.set_placeholder(u'form_last_modified', gmDateTime.pydt_strftime(self.template['last_modified'], '%Y-%b-%d %H:%M'))
 
 		data_source.escape_function = gmTools.xetex_escape_string

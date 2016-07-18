@@ -2835,6 +2835,7 @@ def format_substance_intake_as_amts_latex(intake=None, strict=True):
 
 #------------------------------------------------------------
 def format_substance_intake_as_amts_data(intake=None, strict=True):
+#def format_substance_intake_as_amts_data_v2_0(intake=None, strict=True):
 
 	if not strict:
 		pass
@@ -2884,6 +2885,7 @@ def format_substance_intake_as_amts_data(intake=None, strict=True):
 
 #------------------------------------------------------------
 def calculate_amts_data_check_symbol(intakes=None):
+#def calculate_amts_data_check_symbol_v2_0(intakes=None):
 
 	# first char of generic substance or brand name
 	first_chars = []
@@ -2915,6 +2917,7 @@ def calculate_amts_data_check_symbol(intakes=None):
 
 #------------------------------------------------------------
 def generate_amts_data_template_definition_file(work_dir=None, strict=True):
+#def generate_amts_data_template_definition_file_v2_0(work_dir=None, strict=True):
 
 	if not strict:
 		return __generate_enhanced_amts_data_template_definition_file(work_dir = work_dir)
@@ -2969,6 +2972,7 @@ def generate_amts_data_template_definition_file(work_dir=None, strict=True):
 
 #------------------------------------------------------------
 def __generate_enhanced_amts_data_template_definition_file(work_dir=None):
+#def __generate_enhanced_amts_data_template_definition_file_v2_0(work_dir=None):
 
 	amts_fields = [
 		u'MP',

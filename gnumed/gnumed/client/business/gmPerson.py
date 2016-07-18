@@ -1145,7 +1145,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 
 		if filename is None:
 			filename = gmTools.get_unique_filename (
-				prefix = u'gm-patient2gdt-',
+				prefix = u'gm-patient-',
 				suffix = u'.gdt'
 			)
 
@@ -1355,7 +1355,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 
 		if filename is None:
 			filename = gmTools.get_unique_filename (
-				prefix = u'gm-pat2vcf-',
+				prefix = u'gm-patient-',
 				suffix = u'.vcf'
 			)
 		vcf = io.open(filename, mode = 'wt', encoding = 'utf8')
