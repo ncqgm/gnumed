@@ -677,6 +677,43 @@ def get_unique_filename(prefix=None, suffix=None, tmp_dir=None, include_timestam
 
 	return filename
 
+#---------------------------------------------------------------------------
+def __make_symlink_on_windows(physical_name, link_name):
+	import ctypes
+	csl = ctypes.windll.kernel32.CreateSymbolicLinkW
+	csl.argtypes = (ctypes.c_wchar_p, ctypes.c_wchar_p, ctypes.c_uint32)
+	csl.restype = ctypes.c_ubyte
+	if os.path.isdir(physical_name):
+		flags = 1
+	else:
+		flags = 0
+	ret_code = csl(link_name, physical_name.replace('/', '\\'), flags)
+	_log.debug('ctypes.windll.kernel32.CreateSymbolicLinkW() exit code: %s', ret_code)
+	if ret_code == 0:
+		raise ctypes.WinError()
+	return ret_code
+
+#---------------------------------------------------------------------------
+def mklink(physical_name, link_name, overwrite=False):
+
+	_log.debug('creating symlink (overwrite = %s):', overwrite)
+	_log.debug('link [%s] =>', link_name)
+	_log.debug('=> physical [%s]', physical_name)
+
+	if os.path.exists(link_name):
+		_log.debug('link exists')
+		if overwrite:
+			return True
+		return False
+
+	try:
+		os.symlink(physical_name, link_name)
+	except AttributeError:
+		_log.debug('Windows does not have os.symlink(), resorting to ctypes')
+		__make_symlink_on_windows(physical_name, link_name)
+
+	return True
+
 #===========================================================================
 def import_module_from_directory(module_path=None, module_name=None, always_remove_path=False):
 	"""Import a module from any location."""

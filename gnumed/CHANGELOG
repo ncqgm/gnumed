@@ -15,6 +15,11 @@ FIX: faulty use of $<gender_mapper>$ in Begleitbrief template
 IMPROVED: document tree orgs sort mode tooltips
 IMPROVED: file description shell script
 IMPROVED: less in-your-face default list tooltip
+IMPROVED: update AMTS Medikationsplan to 2.2
+IMPROVED: log file placement
+
+NEW: placeholder $ph_cfg::encoding::$
+NEW: blanko AMTS Medikationsplan ~2.2
 
 	1.6.7
 

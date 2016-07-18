@@ -37,6 +37,39 @@ def run(conn=None):
 		conn = conn
 	)
 
+	# AMTS Medikationsplan v2.2, nicht konform
+	gmPG2.file2bytea (
+		query = u"""
+			UPDATE ref.paperwork_templates SET
+				data = %(data)s::bytea
+			WHERE
+				name_long = 'Medikationsplan 2.2 (AMTS, Deutschland)'""",
+		filename = os.path.join('..', 'sql', 'v20-v21', 'data', 'v21-Medikationsplan_AMTS-2.2.tex'),
+		conn = conn
+	)
+
+	# AMTS Medikationsplan v2.2, nicht konform
+	gmPG2.file2bytea (
+		query = u"""
+			UPDATE ref.paperwork_templates SET
+				data = %(data)s::bytea
+			WHERE
+				name_long = 'Medikationsplan AMTS (~2.2, NICHT konform, Deutschland)'""",
+		filename = os.path.join('..', 'sql', 'v20-v21', 'data', 'v21-Medikationsplan_AMTS-2.2-nicht_konform.tex'),
+		conn = conn
+	)
+
+	# AMTS Medikationsplan v2.2, nicht konform, blanko
+	gmPG2.file2bytea (
+		query = u"""
+			UPDATE ref.paperwork_templates SET
+				data = %(data)s::bytea
+			WHERE
+				name_long = 'Medikationsplan AMTS (blanko, ~2.2, NICHT konform, Deutschland)'""",
+		filename = os.path.join('..', 'sql', 'v20-v21', 'data', 'v21-Medikationsplan_AMTS-2.2-nicht_konform-blanko.tex'),
+		conn = conn
+	)
+
 	return True
 
 #==============================================================

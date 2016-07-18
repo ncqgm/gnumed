@@ -166,7 +166,7 @@ class cPraxisBranch(gmBusinessDBObject.cBusinessDBObject):
 			vcf_fields.append(u'EMAIL:%(url)s' % comms[0])
 		vcf_fields.append(u'END:VCARD')
 		vcf_fname = gmTools.get_unique_filename (
-			prefix = 'gm_praxis2vcf-',
+			prefix = 'gm-praxis-',
 			suffix = '.vcf'
 		)
 		vcf_file = io.open(vcf_fname, mode = 'wt', encoding = 'utf8')
