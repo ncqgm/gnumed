@@ -657,9 +657,10 @@ class cFormTemplateEAPnl(wxgFormTemplateEditAreaPnl.wxgFormTemplateEditAreaPnl, 
 		self._CH_engine.SetSelection(gmForms.form_engine_abbrevs.index(self.data['engine']))
 		self._CHBOX_active.SetValue(self.data['in_use'])
 		self._CHBOX_editable.SetValue(self.data['edit_after_substitution'])
-		self._LBL_status.SetLabel(_('last modified %s by %s') % (
+		self._LBL_status.SetLabel(_('last modified %s by %s, internal revision [%s]') % (
 			gmDateTime.pydt_strftime(self.data['last_modified'], '%Y %B %d'),
-			self.data['modified_by']
+			self.data['modified_by'],
+			gmTools.coalesce(self.data['gnumed_revision'], u'?')
 		))
 
 		self._TCTRL_filename.Enable(True)

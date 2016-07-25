@@ -11,12 +11,17 @@
 FIX: remove dynamic hint lacking evidence of clinical relevance
 FIX: off-by-one calculation of substance intake end date
 FIX: faulty use of $<gender_mapper>$ in Begleitbrief template
+FIX: fix EMR access deadlock in encounter display widget [thanks Marc]
 
 IMPROVED: document tree orgs sort mode tooltips
 IMPROVED: file description shell script
 IMPROVED: less in-your-face default list tooltip
 IMPROVED: update AMTS Medikationsplan to 2.2
 IMPROVED: log file placement
+IMPROVED: form template EA information
+IMPROVED: logging of EMR access locking
+IMPROVED: EMR journal: show applicable dynamic hints
+IMRPOVED: ES translation [thanks Uwe]
 
 NEW: placeholder $ph_cfg::encoding::$
 NEW: blanko AMTS Medikationsplan ~2.2

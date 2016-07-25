@@ -19,6 +19,7 @@ import thread
 import threading
 import logging
 import io
+import inspect
 from xml.etree import ElementTree as etree
 
 
@@ -1901,9 +1902,18 @@ class cPatient(cPerson):
 #		return self.__emr
 
 	def get_emr(self, allow_user_interaction=True):
-		_log.debug('accessing EMR for identity [%s] (thread %s)', self._payload[self._idx['pk_identity']], thread.get_ident())
+		_log.debug('accessing EMR for identity [%s], thread [%s]', self._payload[self._idx['pk_identity']], thread.get_ident())
+		stack_logged = False
 		if not self.__emr_access_lock.acquire(False):
 			got_lock = False
+			# do some logging as we failed to get the lock
+			call_stack = inspect.stack()
+			for idx in range(1, len(call_stack)):
+				caller = call_stack[idx]
+				_log.debug('%s[%s] @ [%s] in [%s]', u' '* idx, caller[3], caller[2], caller[1])
+			del call_stack
+			stack_logged = True
+			# now loop a bit
 			for idx in range(100):
 				_yield()
 				time.sleep(0.1)
@@ -1912,8 +1922,8 @@ class cPatient(cPerson):
 					got_lock = True
 					break
 			if not got_lock:
-				_log.error('still failed to acquire EMR access lock, aborting (thread %s)', thread.get_ident())
-				raise AttributeError('cannot lock access to EMR for identity [%s]', self._payload[self._idx['pk_identity']])
+				_log.error('still failed to acquire EMR access lock, aborting (thread [%s])', thread.get_ident())
+				raise AttributeError('cannot lock access to EMR for identity [%s]' % self._payload[self._idx['pk_identity']])
 
 #			# maybe something slow is happening on the machine
 #			_log.debug('failed to acquire EMR access lock, sleeping for 500ms (thread %s)', thread.get_ident())
@@ -1923,14 +1933,24 @@ class cPatient(cPerson):
 #				raise AttributeError('cannot lock access to EMR')
 
 		if self.__emr is None:
-			_log.debug('pulling chart for identity [%s] (thread %s)', self._payload[self._idx['pk_identity']], thread.get_ident())
+			_log.debug('pulling chart for identity [%s], thread [%s]', self._payload[self._idx['pk_identity']], thread.get_ident())
+			if not stack_logged:
+				# do some logging as we are pulling the chart for the first time
+				call_stack = inspect.stack()
+				for idx in range(1, len(call_stack)):
+					caller = call_stack[idx]
+					_log.debug('%s[%s] @ [%s] in [%s]', u' '* idx, caller[3], caller[2], caller[1])
+				del call_stack
+				stack_logged = True
 			#emr = _pull_chart(self._payload[self._idx['pk_identity']])
 			emr = _pull_chart(self)
 			if emr is None:		# user aborted pulling chart
+				_log.info('user aborted pulling chart, returning None')
+				self.__emr_access_lock.release()
 				return None
 			self.__emr = emr
 
-		_log.debug('returning EMR for identity [%s] (thread %s)', self._payload[self._idx['pk_identity']], thread.get_ident())
+		_log.debug('returning EMR for identity [%s], thread [%s]', self._payload[self._idx['pk_identity']], thread.get_ident())
 		self.__emr_access_lock.release()
 		return self.__emr
 
