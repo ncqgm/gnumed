@@ -1,5 +1,5 @@
 %------------------------------------------------------------------
-% Medikationsplan gemäß AMTS 2.2 für GNUmed (http://www.gnumed.de)
+% Medikationsplan gemäß AMTS 2.3 für GNUmed (http://www.gnumed.de)
 %
 % License: GPL v2 or later
 %
@@ -49,7 +49,7 @@
 \usepackage{graphicx}						% Grafiken laden (datamatrix)
 \usepackage[space]{grffile}					% besserer Zugriff auf Grafikdateien
 \usepackage[export]{adjustbox}				% improved options for \includegraphics
-\usepackage{marvosym}						% Symbole: Handy, Telefon, E-Mail, used in non-conformant layout
+%\usepackage{marvosym}						% Symbole: Handy, Telefon, E-Mail, used in non-conformant layout
 %\usepackage[ocgcolorlinks=true]{hyperref}	% aktive URLs, needs to be loaded last, most of the time
 \usepackage{hyperref}						% aktive URLs, needs to be loaded last, most of the time
 
@@ -69,14 +69,16 @@
 
 % - placeholder handler options
 % switch on ellipsis handling:
-$<ph_cfg::ellipsis//…//%% <%(name)s> set to [%(value)s]::>$
+$<ph_cfg::ellipsis//...//%% <%(name)s> set to [%(value)s]::>$
+% set target encoding per spec:
+$<ph_cfg::encoding//iso-8859-1//%% <%(name)s> set to [%(value)s]::>$
 
 
 % - PDF metadata
 \hypersetup{
-	pdftitle = {Medikationsplan: $<name::%(firstnames)s %(lastnames)s::>$, $<date_of_birth::%d.%b %Y::>$},
+	pdftitle = {Medikationsplan: $<name::%(firstnames)s %(lastnames)s::>$, $<date_of_birth::%d.%m.%Y::>$},
 	pdfauthor = {$<current_provider::::>$, $<praxis::%(branch)s, %(praxis)s::>$},
-	pdfsubject = {Medikationsplan (AMTS, NICHT KONFORM)},
+	pdfsubject = {Medikationsplan (AMTS)},
 	pdfproducer = {GNUmed $<client_version::::>$, Vorlage $<form_name_long::::>$, $<form_version::::>$ [$<form_version_internal::::>$, $<form_last_modified::::>$]},
 	pdfdisplaydoctitle = true
 }
@@ -136,82 +138,88 @@ $<ph_cfg::ellipsis//…//%% <%(name)s> set to [%(value)s]::>$
 	\begin{tabu} to \textwidth {|>{\raggedleft\arraybackslash}p{7cm}|@{\hspace{1mm}}X[-1,L]@{\hspace{1cm}}X[-1,R]|p{4.3cm}}
 			\tabucline{1-3}
 			% line 1
-				\fontsize{20pt}{22pt}\selectfont					% \fontsize{<font size>}{<line spacing>}
-				%(1)\ % debugging
-				\textbf{\href{http://www.kbv.de/html/medikationsplan.php}{Medikationsplan}} \newline
+			\fontsize{20pt}{22pt}\selectfont					% \fontsize{<font size>}{<line spacing>}
+			%(1)\ % debugging
+			\textbf{\href{http://www.kbv.de/html/medikationsplan.php}{Medikationsplan}} \newline
 			% line 2
-				\fontsize{14pt}{16pt}\selectfont
-				%(2)\ % debugging
-				Seite \thepage\ von \pageref{LastPage} \newline
+			\fontsize{14pt}{16pt}\selectfont
+			%(2)\ % debugging
+			Seite \thepage\ von \pageref{LastPage} \newline
 			% line 3
-				\fontsize{12pt}{14pt}\selectfont
-				%(3) % debugging
-				% as long as we don't have certification or claim conformance we can put here any image we want :-)
-				\includegraphics[scale=5,max height=2.4cm,center]{$<<patient_photo::%s//image/png//.png::>>$}
+			\fontsize{12pt}{14pt}\selectfont
+			% -- debugging --
+			%(3)\newline
+			%(4)\newline
+			%(5)\newline
+			%(6)\newline
+			%(7)
+			% -- debugging --
+			% after certification we would replace this with the certification image...
+			%\includegraphics[scale=5,max height=2.4cm,center]{certification-image}
 		&
 			% line 1: patient name, part 1
-				\fontsize{14pt}{20pt}\selectfont									% keep line spacing in sync with left hand side
-				%(1)\ % debugging
-				$<ph_cfg::ellipsis//NONE//%% <%(name)s> set to [%(value)s]::>$		% switch off ellipsis handling so first range of name does not get one if too long
-				für:\ \textbf{$<name::%(firstnames)s %(lastnames)s::1-37>$} \newline
-				$<ph_cfg::ellipsis//…//%% <%(name)s> set to [%(value)s]::>$			% but reenable in case second line of name still too long so that we need an ellipsis
+			\fontsize{14pt}{20pt}\selectfont									% keep line spacing in sync with left hand side
+			%(1)\ % debugging
+			$<ph_cfg::ellipsis//NONE//%% <%(name)s> set to [%(value)s]::>$		% switch off ellipsis handling so first range of name does not get one if too long
+			für:\ \textbf{$<name::%(firstnames)s %(lastnames)s::1-37>$} \newline
+			$<ph_cfg::ellipsis//...//%% <%(name)s> set to [%(value)s]::>$		% but reenable in case second line of name still too long so that we need an ellipsis
 			% line 2: patient name, part 2, if any
-				\fontsize{14pt}{16pt}\selectfont									% keep line spacing in sync with left hand side
-				%(2)\ % debugging
-				$<name::\textbf{%(firstnames)s %(lastnames)s}::38-90>$\ \newline
+			\fontsize{14pt}{16pt}\selectfont									% keep line spacing in sync with left hand side
+			%(2)\ % debugging
+			$<name::\textbf{%(firstnames)s %(lastnames)s}::38-90>$\ \newline
 			% line 3: provider name
-				\fontsize{12pt}{14pt}\selectfont
-				%(3)\ % debugging
-				ausgedruckt von: $<current_provider::::30>$ \newline
+			\fontsize{12pt}{14pt}\selectfont
+			%(3)\ % debugging
+			ausgedruckt von: $<current_provider::::30>$ \newline
 			% line 4: praxis name
-				%(4)\ % debugging
-				\href{http://$<praxis_comm::web::>$}{$<praxis::%(branch)s, %(praxis)s::50>$} \newline
+			%(4)\ % debugging
+			\href{http://$<praxis_comm::web::>$}{$<praxis::%(branch)s, %(praxis)s::50>$} \newline
 			% line 5: praxis address: street / number / zip / location
-				%(5)\ % debugging
-				%         (use \mbox{TEXT} to prevent TEXT from getting hyphenated)
-				$<ph_cfg::argumentsdivider//||//%% <%(name)s> set to [%(value)s]::>$
-				$<praxis_address::\href{http://nominatim.openstreetmap.org/search/$<<<url_escape::$<<praxis_address::%(country)s::>>$::>>>$/$<<<url_escape::$<<praxis_address::%(urb)s::>>$::>>>$/$<<<url_escape::$<<praxis_address::%(street)s::>>$::>>>$/$<<<url_escape::$<<praxis_address::%(number)s::>>$::>>>$?limit=3}{\mbox{$<<praxis_address::%(street)s %(number)s %(subunit)s,%(postcode)s %(urb)s::55>>$}}::>$\ \newline
-				$<ph_cfg::argumentsdivider//DEFAULT//%% <%(name)s> set back to default of [%(value)s]::>$
+			%(5)\ % debugging
+			%         (use \mbox{TEXT} to prevent TEXT from getting hyphenated)
+			$<ph_cfg::argumentsdivider//||//%% <%(name)s> set to [%(value)s]::>$
+			$<praxis_address::\href{http://nominatim.openstreetmap.org/search/$<<<url_escape::$<<praxis_address::%(country)s::>>$::>>>$/$<<<url_escape::$<<praxis_address::%(urb)s::>>$::>>>$/$<<<url_escape::$<<praxis_address::%(street)s::>>$::>>>$/$<<<url_escape::$<<praxis_address::%(number)s::>>$::>>>$?limit=3}{\mbox{$<<praxis_address::%(street)s %(number)s %(subunit)s,%(postcode)s %(urb)s::55>>$}}::>$\ \newline
+			$<ph_cfg::argumentsdivider//DEFAULT//%% <%(name)s> set back to default of [%(value)s]::>$
 			% line 6: praxis phone number
-				%(6)\ % debugging
-				$<<praxis_comm::workphone//\href{tel:$<praxis_comm::workphone::>$}{$<praxis_comm::workphone//\Telefon\ %(url)s::50>$}::>>$\ \newline
+			%(6)\ % debugging
+			$<<praxis_comm::workphone//\href{tel:$<praxis_comm::workphone::>$}{$<praxis_comm::workphone//Tel: %(url)s::25>$}::>>$\ \newline
 			% line 7: praxis email address
-				%(7)\ % debugging
-				$<<praxis_comm::email//\href{mailto:$<praxis_comm::email::>$}{$<praxis_comm::email//\Email\ %(url)s::60>$}::>>$\ 
+			%(7)\ % debugging
+			$<<praxis_comm::email//\href{mailto:$<praxis_comm::email::>$}{$<praxis_comm::email//E-Mail: %(url)s::48>$}::>>$\ 
 		&
+			\fontsize{14pt}{16pt}\selectfont				% keep line spacing in sync with left hand side
 			% line 1: patient DOB
-				\fontsize{14pt}{16pt}\selectfont				% keep line spacing in sync with left hand side
-				%(1)\ % debugging
-				geb.\ am: \textbf{$<date_of_birth::%d.%b %Y::>$} \newline
-			% line 2: patient gender -- would benefit from an improved $gender_symbol$ placeholder
-				\fontsize{12pt}{16pt}\selectfont				% keep line spacing in sync with left hand side
-				%(2)\ % debugging
-				Geschl.: $<gender_mapper::m//w//unbestimmt::>$ \newline
+			%(1)\ % debugging
+			geb.\ am: \textbf{$<date_of_birth::%d.%m.%Y::10>$}\newline
+			% line 2: empty
+			\fontsize{14pt}{16pt}\selectfont				% keep line spacing in sync with left hand side
+			%(2)\ % debugging
+			\ \newline
 			% line 3: empty
-				\fontsize{12pt}{14pt}\selectfont				% keep line spacing in sync with left hand side
-				%(3)\ % debugging
-				\ \newline
+			\fontsize{12pt}{14pt}\selectfont				% keep line spacing in sync with left hand side
+			%(3)\ % debugging
+			\ \newline
 %			% line 4
-%				$<ph_cfg::ellipsis//NONE//%% <%(name)s> set to [%(value)s]::>$		% switch off ellipsis handling so first line of parameters does not get one if too long
-%				$<<range_of::$<test_result::LOINC=XX//,Gew.: %s::>$$<test_result::LOINC=XX//,Krea.: %s::>$$<breastfeeding::,stillend//::>$$<pregnant::,schwanger (ET %(edc)s)////%d.%b %Y::>$::25>>$\newline
+%			$<ph_cfg::ellipsis//NONE//%% <%(name)s> set to [%(value)s]::>$		% switch off ellipsis handling so first line of parameters does not get one if too long
+%			$<<range_of::Geschl.: $<gender_mapper::m//w//unbestimmt::>$$<test_result::LOINC=XX//,Gew.: %s::>$$<test_result::LOINC=XX//,Krea.: %s::>$$<breastfeeding::,stillend//::>$$<pregnant::,schwanger////::>$$<pregnant::,ET %(edc)s////%d.%m.%Y::>$::25>>$\newline
 %			% line 5
-%				$<ph_cfg::ellipsis//…//%% <%(name)s> set to [%(value)s]::>$			% but reenable in case second line of parameters still too long so that we need an ellipsis
-%				$<<range_of::$<test_result::LOINC=XX//,Gew.: %s::>$$<test_result::LOINC=XX//,Krea.: %s::>$$<breastfeeding::,stillend//::>$$<pregnant::,schwanger (ET %(edc)s)////%d.%m.%Y::>$::26-50>>$\ \newline
+%			$<ph_cfg::ellipsis//...//%% <%(name)s> set to [%(value)s]::>$			% but reenable in case second line of parameters still too long so that we need an ellipsis
+%			$<<range_of::Geschl.: $<gender_mapper::m//w//unbestimmt::>$$<test_result::LOINC=XX//,Gew.: %s::>$$<test_result::LOINC=XX//,Krea.: %s::>$$<breastfeeding::,stillend//::>$$<pregnant::,schwanger////::>$$<pregnant::,ET %(edc)s////%d.%m.%Y::>$::26-50>>$\ \newline
 %			% line 6: parameter: allergies
 %			%         %$<allergy_state::::25>$
-%				Allerg/Unv: Seite \pageref{LastPage}\ \hyperref[AnchorAllergieDetails]{unten}\newline
-			% line 4: empty
-				%(4)\ % debugging
-				\ \newline
-			% line 5: empty
-				%(5)\ % debugging
-				\ \newline
+%			Allrg/Unv.: Seite \pageref{LastPage}\ \hyperref[AnchorAllergieDetails]{unten}\newline		% muß eigentlich "Allerg./Unv." sein, aber das sind dann 2 Zeichen zuviel ...
+			% line 4: parameter: gender
+			%(4)\ % debugging
+			Geschl.: $<gender_mapper::m//w//unbestimmt::16>$\newline
+			% line 5:
+			%(5)\ % debugging
+			\ \newline
 			% line 6: parameter: allergies ($<allergy_state::::25>$)
-				%(6)\ % debugging
-				Allerg/Unv: Seite \pageref{LastPage}\ \hyperref[AnchorAllergieDetails]{unten} \newline
+			%(6)\ % debugging
+			Allrg/Unv.: Seite \pageref{LastPage}\ \hyperref[AnchorAllergieDetails]{unten}\newline		% muß eigentlich "Allerg./Unv." sein, aber das sind dann 2 Zeichen zuviel ...
 			% line 7: soll eigentlich linksbündig ...
-				%(7)\ % debugging
-				ausgedruckt am: $<today::%d.%b %Y::>$\ 
+			%(7)\ % debugging
+			ausgedruckt am: $<today::%d.%m.%Y::10>$
 		&
 			\includegraphics[valign=t,raise=6ex,max height=4cm,max width=4cm,center]{$<<amts_png_file_current_page::::>>$}
 		\tabularnewline
@@ -227,7 +235,7 @@ $<ph_cfg::ellipsis//…//%% <%(name)s> set to [%(value)s]::>$
 
 % footer setup = bottom part
 \lofoot{{
-	\begin{tabular}[t]{p{12cm}p{16cm}}
+	\begin{tabular}[t]{p{12cm}p{11cm}p{5cm}}
 		\hline
 		{	% left side: Versionsinformationen
 			\fontsize{8pt}{9pt}\selectfont
@@ -235,21 +243,25 @@ $<ph_cfg::ellipsis//…//%% <%(name)s> set to [%(value)s]::>$
 			\parbox[t][1cm][t]{12cm}{
 				\raggedright
 				Für Vollständigkeit und Aktualität des Medikationsplans wird keine Gewähr übernommen.\newline
-				NICHT KONFORM zu: de-DE-Version 2.2
+				de-DE-Version 2.3
 			}
 		} & {
 			% middle part: Herstellerfeld
 			\fontsize{8pt}{9pt}\selectfont
-			\parbox[t][1cm][t]{16cm}{
+			\parbox[t][1cm][t]{11cm}{
 				\centering
 				GNUmed $<client_version::::>$ --- \href{http://www.gnumed.org}{www.gnumed.org}\newline
 				$<form_name_long::::>$, $<form_version::::>$ [$<form_version_internal::::>$, $<form_last_modified::::>$]
 			}
+		} & {
+			% right side: Freifeld, MUST be empty per spec
+			% debugging:
+			%---Freifeld---
 		}
 	\end{tabular}
 }}
 \lefoot{{
-	\begin{tabular}[t]{p{12cm}p{16cm}}
+	\begin{tabular}[t]{p{12cm}p{11cm}p{5cm}}
 		\hline
 		{	% left side: Versionsinformationen
 			\fontsize{8pt}{9pt}\selectfont
@@ -257,16 +269,20 @@ $<ph_cfg::ellipsis//…//%% <%(name)s> set to [%(value)s]::>$
 			\parbox[t][1cm][t]{12cm}{
 				\raggedright
 				Für Vollständigkeit und Aktualität des Medikationsplans wird keine Gewähr übernommen.\newline
-				NICHT KONFORM zu: de-DE-Version 2.2
+				de-DE-Version 2.3
 			}
 		} & {
 			% middle part: Herstellerfeld
 			\fontsize{8pt}{9pt}\selectfont
-			\parbox[t][1cm][t]{16cm}{
+			\parbox[t][1cm][t]{11cm}{
 				\centering
 				GNUmed $<client_version::::>$ --- \href{http://www.gnumed.org}{www.gnumed.org}\newline
 				$<form_name_long::::>$, $<form_version::::>$ [$<form_version_internal::::>$, $<form_last_modified::::>$]
 			}
+		} & {
+			% right side: Freifeld, MUST be empty per spec
+			% debugging:
+			%---Freifeld---
 		}
 	\end{tabular}
 }}
@@ -310,7 +326,7 @@ $<ph_cfg::ellipsis//…//%% <%(name)s> set to [%(value)s]::>$
 	\fontsize{8pt}{8pt}\selectfont\rotatebox{40}{morgens} &
 	\fontsize{8pt}{8pt}\selectfont\rotatebox{40}{mittags} &
 	\fontsize{8pt}{8pt}\selectfont\rotatebox{40}{abends} &
-	\fontsize{8pt}{8pt}\selectfont\rotatebox{40}{z.\newline{}Nacht} &
+	\fontsize{8pt}{8pt}\selectfont\rotatebox{40}{zur Nacht} &
 	\fontsize{14pt}{16pt}\selectfont \centering Einheit &
 	\fontsize{14pt}{16pt}\selectfont \centering Hinweise &
 	\fontsize{14pt}{16pt}\selectfont \centering Grund
@@ -321,7 +337,7 @@ $<ph_cfg::ellipsis//…//%% <%(name)s> set to [%(value)s]::>$
 	\endlastfoot
 	% Tabelleninhalt:
 \hline
-$<current_meds_AMTS_enhanced::::>$
+$<current_meds_AMTS::::999999999>$
 \end{longtable}
 
 %------------------------------------------------------------------
@@ -421,25 +437,25 @@ $<current_meds_AMTS_enhanced::::>$
 	]{$<patient_photo::%s//image/png//.png::>$}
 }{\typeout{[$<patient_photo::%s//image/png//.png::>$] (patient photo) not found}}
 
-% patient vcf -- really a good idea ? (it would tell more
-% about the patient than is defined by the Medikationsplan specs)
-\IfFileExists{$<patient_vcf::::>$}{
-	\embedfile[
-		desc=12) digitale Visitenkarte des Patienten,
-		mimetype=text/vcf,
-		ucfilespec=Patient.vcf
-	]{$<patient_vcf::::>$}
-}{\typeout{[$<patient_vcf::::>$] (patient VCF) not found}}
+% patient vcf -- not a good idea as it would tell more about
+% the patient than is defined by the Medikationsplan specs
+%\IfFileExists{$<patient_vcf::::>$}{
+%	\embedfile[
+%		desc=12) digitale Visitenkarte des Patienten,
+%		mimetype=text/vcf,
+%		ucfilespec=Patient.vcf
+%	]{$<patient_vcf::::>$}
+%}{\typeout{[$<patient_vcf::::>$] (patient VCF) not found}}
 
-% patient gdt -- really a good idea ? (it would tell more
-% about the patient than is defined by the Medikationsplan specs)
-\IfFileExists{$<patient_gdt::::>$}{
-	\embedfile[
-		desc=13) GDT-Datei des Patienten,
-		mimetype=text/plain,
-		ucfilespec=Patient.gdt
-	]{$<patient_gdt::::>$}
-}{\typeout{[$<patient_gdt::::>$] (patient GDT) not found}}
+% patient gdt -- not a good idea ? as it would tell more
+% about the patient than is defined by the Medikationsplan specs
+%\IfFileExists{$<patient_gdt::::>$}{
+%	\embedfile[
+%		desc=13) GDT-Datei des Patienten,
+%		mimetype=text/plain,
+%		ucfilespec=Patient.gdt
+%	]{$<patient_gdt::::>$}
+%}{\typeout{[$<patient_gdt::::>$] (patient GDT) not found}}
 
 %------------------------------------------------------------------
 

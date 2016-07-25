@@ -1360,7 +1360,12 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 				suffix = u'.vcf'
 			)
 		vcf = io.open(filename, mode = 'wt', encoding = 'utf8')
-		vcf.write(vc.serialize().decode('utf-8'))
+		try:
+			vcf.write(vc.serialize().decode('utf-8'))
+		except UnicodeDecodeError:
+			_log.exception('failed to serialize VCF data')
+			vcf.close()
+			return u'cannot-serialize.vcf'
 		vcf.close()
 
 		return filename
