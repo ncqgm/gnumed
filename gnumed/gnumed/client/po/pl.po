@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-07-07 14:56+0200\n"
+"POT-Creation-Date: 2016-07-25 11:38+0200\n"
 "PO-Revision-Date: 2012-06-01 01:17+0000\n"
 "Last-Translator: J.Luszawski <jl@leksoft.com.pl>\n"
 "Language-Team: Polish <pl@li.org>\n"
@@ -7768,6 +7768,10 @@ msgid "Language: %s\n"
 msgstr " Twoja wersja: \"%s\"\n"
 
 #, fuzzy
+msgid "Rationale for suppression:"
+msgstr "Wprowadź opis tego zewnętrznego identyfikatora."
+
+#, fuzzy
 msgid "Suppressed active dynamic hint"
 msgstr "Usuwanie epizodu"
 
@@ -12930,14 +12934,6 @@ msgid ""
 "Really delete all %s items ?"
 msgstr ""
 
-msgid ""
-"Select the items you want to work on.\n"
-"\n"
-"A discontinuous selection may depend on your holding down a platform-"
-"dependent modifier key (<CTRL>, <ALT>, etc) or key combination (eg. <CTRL-"
-"SHIFT> or <CTRL-ALT>) while clicking."
-msgstr ""
-
 #, fuzzy
 msgid "List Item Actions"
 msgstr "Menu epizodu"
@@ -14199,7 +14195,7 @@ msgid "Missing long name for template."
 msgstr "Długa,opisowa nazwa tego szablonu."
 
 #, fuzzy, python-format
-msgid "last modified %s by %s"
+msgid "last modified %s by %s, internal revision [%s]"
 msgstr "Ostatnio pracowano %s\n"
 
 msgid "Choose a form template file"

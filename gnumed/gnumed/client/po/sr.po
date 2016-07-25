@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-07-07 14:57+0200\n"
+"POT-Creation-Date: 2016-07-25 11:38+0200\n"
 "PO-Revision-Date: 2011-08-25 16:54+0000\n"
 "Last-Translator: Karolina Kalic <Unknown>\n"
 "Language-Team: Serbian <sr@li.org>\n"
@@ -7429,6 +7429,12 @@ msgid "Language: %s\n"
 msgstr "Пацијент: %s (%s), Бр: %s\n"
 
 #, fuzzy
+msgid "Rationale for suppression:"
+msgstr ""
+"\n"
+"Комплетна историја вакцинације овог пацијента.\n"
+
+#, fuzzy
 msgid "Suppressed active dynamic hint"
 msgstr "Приказивање вакцина."
 
@@ -12436,14 +12442,6 @@ msgid ""
 "Really delete all %s items ?"
 msgstr ""
 
-msgid ""
-"Select the items you want to work on.\n"
-"\n"
-"A discontinuous selection may depend on your holding down a platform-"
-"dependent modifier key (<CTRL>, <ALT>, etc) or key combination (eg. <CTRL-"
-"SHIFT> or <CTRL-ALT>) while clicking."
-msgstr ""
-
 msgid "List Item Actions"
 msgstr ""
 
@@ -13682,7 +13680,7 @@ msgid "Missing long name for template."
 msgstr ""
 
 #, fuzzy, python-format
-msgid "last modified %s by %s"
+msgid "last modified %s by %s, internal revision [%s]"
 msgstr "Последње потрврђено:"
 
 msgid "Choose a form template file"

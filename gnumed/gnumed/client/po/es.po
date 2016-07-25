@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-07-07 14:56+0200\n"
+"POT-Creation-Date: 2016-07-25 11:38+0200\n"
 "PO-Revision-Date: 2016-02-24 18:28+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: colombiano <es@li.org>\n"
@@ -6022,9 +6022,8 @@ msgstr "Canal"
 msgid "&Modification"
 msgstr "&Medicación"
 
-#, fuzzy
 msgid "&Event"
-msgstr "Evento"
+msgstr "&Evento"
 
 msgid "Order by start of encounter a chart entry is linked to."
 msgstr "Ordeno por inicio del encuentro enlazado a un ingreso de cartilla."
@@ -7435,9 +7434,10 @@ msgstr "ÍMC: peso no numérico"
 msgid "BMI: weight not in kg or g"
 msgstr "ÍMC: peso no expresado en kg o g"
 
-#, fuzzy, python-format
+#, python-format
 msgid "BMI (Quetelet): formula does not apply at age [%s] (0 < age < 18)"
-msgstr "ÍMC (Quetelet): fórmula no es válida para la edad de [%s] (edad <18)"
+msgstr ""
+"ÍMC (Quetelet): fórmula no es válida para la edad de [%s] (0 < edad < 18)"
 
 #, python-format
 msgid "BMI (Quetelet): %.2f %s"
@@ -7459,11 +7459,9 @@ msgstr "ERROR: estado alérgico desconocido [%s]"
 msgid "definite"
 msgstr "definido"
 
-#, fuzzy
 msgid "indefinite"
-msgstr "definido"
+msgstr "indefinido"
 
-#, fuzzy
 msgid "Reaction:"
 msgstr "Reacción"
 
@@ -7475,9 +7473,8 @@ msgstr "Anotado"
 msgid "Allergene:"
 msgstr "Alergias"
 
-#, fuzzy
 msgid "Substance:"
-msgstr "Sustancia"
+msgstr "Sustancia:"
 
 #, fuzzy
 msgid "Code:"
@@ -7502,9 +7499,8 @@ msgstr "Clases de Drogas"
 msgid "unknown"
 msgstr "desconocido/a"
 
-#, fuzzy
 msgid "Generics:"
-msgstr "Genéricos"
+msgstr "Genéricos:"
 
 msgid "Medication history"
 msgstr "Historial de medicamentos"
@@ -7705,9 +7701,9 @@ msgstr " (planeado para %s%s)"
 msgid ", planned for %s%s"
 msgstr ", planeado para %s%s"
 
-#, fuzzy, python-format
+#, python-format
 msgid "%s %s ago (for %s: %s %s %s)"
-msgstr "%s atrás (para %s: %s %s %s)"
+msgstr "%s %s atrás (para %s: %s %s %s)"
 
 msgid "Additional notes"
 msgstr "Notas adicionales"
@@ -8353,6 +8349,9 @@ msgstr "Fuente: %s\n"
 #, python-format
 msgid "Language: %s\n"
 msgstr "Idioma: %s\n"
+
+msgid "Rationale for suppression:"
+msgstr "Racional para supresión:"
 
 msgid "Suppressed active dynamic hint"
 msgstr "Suprime ayuda dinámica activa"
@@ -9273,9 +9272,9 @@ msgstr "Vacunaciones:"
 msgid "External care:"
 msgstr "Cuidado externo:"
 
-#, fuzzy, python-format
+#, python-format
 msgid "Health issue: %s%s%s"
-msgstr "Tema de salud: %s"
+msgstr "Tema de salud: %s%s%s"
 
 msgid "Unattributed episodes"
 msgstr "Episodios sin causa aparente"
@@ -9332,11 +9331,9 @@ msgstr "Notas de progreso del contacto más reciente:"
 msgid "Measurements and Results:"
 msgstr "Exámenes y resultados"
 
-#, fuzzy, python-format
+#, python-format
 msgid "Episode: %s%s%s"
-msgstr ""
-"\n"
-"Episodio %s%s%s%s:"
+msgstr "Episodio: %s%s%s"
 
 #, python-format
 msgid "  your time: %s - %s  (@%s = %s%s)\n"
@@ -9364,9 +9361,9 @@ msgstr ""
 msgid "%s other episodes touched upon during this encounter:"
 msgstr "%s otros episodios tratados durante este ccontacto:"
 
-#, fuzzy, python-format
+#, python-format
 msgid "Encounter: %s%s%s"
-msgstr "Contactos: %s (%s - %s):"
+msgstr "Contactos: %s%s%s"
 
 msgid " (ongoing)"
 msgstr " (en curso)"
@@ -13936,19 +13933,6 @@ msgstr ""
 "\n"
 "¿Realmente elimino todos los %s items?"
 
-msgid ""
-"Select the items you want to work on.\n"
-"\n"
-"A discontinuous selection may depend on your holding down a platform-"
-"dependent modifier key (<CTRL>, <ALT>, etc) or key combination (eg. <CTRL-"
-"SHIFT> or <CTRL-ALT>) while clicking."
-msgstr ""
-"Seleccione los items con los que quiere trabajar.\n"
-"\n"
-"Una selección discontinua puede depender de su accionamiento de la tecla "
-"modificatoria en relación a la plataforma (<ctrl>,<alt>, etc) o combinación "
-"de teclas (eg. <ctrl-shift> o <ctrl-alt>) al hacer click."
-
 #, fuzzy
 msgid "List Item Actions"
 msgstr "Despliego Acciones sobre los items:"
@@ -13979,21 +13963,21 @@ msgid "&All rows"
 msgstr "&Todos los usuarios"
 
 msgid "All rows as &CSV"
-msgstr ""
+msgstr "Todas las filas como &CSV"
 
 #, fuzzy
 msgid "&Tooltips of all rows"
 msgstr "Herramientas de ayuda sobre filas seleccionadas"
 
 msgid "&Data of all rows"
-msgstr ""
+msgstr "&Datos de todas las filas"
 
 #, fuzzy
 msgid "&Selected rows"
 msgstr "&Seleccionar"
 
 msgid "&Selected rows as CSV"
-msgstr ""
+msgstr "&Filas seleccionadas como CSV"
 
 #, fuzzy
 msgid "&Tooltips of selected rows"
@@ -14074,15 +14058,15 @@ msgstr ""
 
 #, python-format
 msgid "All rows saved to [%s]."
-msgstr ""
+msgstr "Todas las filas guardadas en [%s]."
 
 #, python-format
 msgid "All tooltips saved to [%s]."
-msgstr ""
+msgstr "Todas las herramientas de ayuda guardades en [%s]."
 
 #, python-format
 msgid "All data saved to [%s]."
-msgstr ""
+msgstr "Todos los datos guardados en [%s]."
 
 #, fuzzy, python-format
 msgid "Selected rows saved to [%s]."
@@ -15388,8 +15372,8 @@ msgstr "Falta nombre corto para la palntilla."
 msgid "Missing long name for template."
 msgstr "Falta nombre completo para la plantilla."
 
-#, python-format
-msgid "last modified %s by %s"
+#, fuzzy, python-format
+msgid "last modified %s by %s, internal revision [%s]"
 msgstr "modificado el %s by %s"
 
 msgid "Choose a form template file"
@@ -16142,9 +16126,9 @@ msgstr ""
 "SCAI: se encontró más de una coincidencia de paciente para la ID, "
 "cuidadosamente revise los estudios"
 
-#, fuzzy, python-format
+#, python-format
 msgid "%s series%s"
-msgstr "%s series"
+msgstr "%s series%s"
 
 msgid "no studies"
 msgstr "sin estudios"
@@ -16189,17 +16173,16 @@ msgstr "IMposible guardar estudios."
 msgid "All DICOM studies of [%s] from Orthanc PACS \"%s\" (AET \"%s\")"
 msgstr "Todos los estudios DICOM de [%s] del SCAI Orthanc \"%s\" (AET \"%s\")"
 
-#, fuzzy, python-format
+#, python-format
 msgid "%s image(s)%s"
-msgstr "%s%s imágenes"
+msgstr "%s imágenes%s"
 
 #, fuzzy
 msgid "Study"
 msgstr "Fecha del estudio"
 
-#, fuzzy
 msgid "Series"
-msgstr "%s series"
+msgstr "Series"
 
 msgid "Select the directory from which to recursively upload DICOM files."
 msgstr ""
@@ -20977,6 +20960,19 @@ msgstr "Aborto"
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Aborto y NO conecto a GNUMed."
+
+#~ msgid ""
+#~ "Select the items you want to work on.\n"
+#~ "\n"
+#~ "A discontinuous selection may depend on your holding down a platform-"
+#~ "dependent modifier key (<CTRL>, <ALT>, etc) or key combination (eg. <CTRL-"
+#~ "SHIFT> or <CTRL-ALT>) while clicking."
+#~ msgstr ""
+#~ "Seleccione los items con los que quiere trabajar.\n"
+#~ "\n"
+#~ "Una selección discontinua puede depender de su accionamiento de la tecla "
+#~ "modificatoria en relación a la plataforma (<ctrl>,<alt>, etc) o "
+#~ "combinación de teclas (eg. <ctrl-shift> o <ctrl-alt>) al hacer click."
 
 #~ msgid "Study time"
 #~ msgstr "Hora del estudio"

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-07-07 14:56+0200\n"
+"POT-Creation-Date: 2016-07-25 11:38+0200\n"
 "PO-Revision-Date: 2012-06-01 01:24+0000\n"
 "Last-Translator: ncq <Unknown>\n"
 "Language-Team: Ελληνικά, Σύγχρονα <opensuse-translation-el@opensuse.org>\n"
@@ -8003,6 +8003,10 @@ msgid "Language: %s\n"
 msgstr "Γλώσσα"
 
 #, fuzzy
+msgid "Rationale for suppression:"
+msgstr "Κράτα *αυτόν* τον ασθενή"
+
+#, fuzzy
 msgid "Suppressed active dynamic hint"
 msgstr "Αποθήκευση εγγράφου"
 
@@ -13110,14 +13114,6 @@ msgid ""
 "Really delete all %s items ?"
 msgstr ""
 
-msgid ""
-"Select the items you want to work on.\n"
-"\n"
-"A discontinuous selection may depend on your holding down a platform-"
-"dependent modifier key (<CTRL>, <ALT>, etc) or key combination (eg. <CTRL-"
-"SHIFT> or <CTRL-ALT>) while clicking."
-msgstr ""
-
 #, fuzzy
 msgid "List Item Actions"
 msgstr "Κατευθύνσεις"
@@ -14393,7 +14389,7 @@ msgid "Missing long name for template."
 msgstr ""
 
 #, fuzzy, python-format
-msgid "last modified %s by %s"
+msgid "last modified %s by %s, internal revision [%s]"
 msgstr "Τελευταία τροποποίηση:"
 
 msgid "Choose a form template file"

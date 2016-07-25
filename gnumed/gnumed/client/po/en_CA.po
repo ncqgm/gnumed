@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-07-07 14:56+0200\n"
+"POT-Creation-Date: 2016-07-25 11:38+0200\n"
 "PO-Revision-Date: 2010-02-09 16:17+0000\n"
 "Last-Translator: Brett Alton <brett.jr.alton@gmail.com>\n"
 "Language-Team: English (Canada) <en_CA@li.org>\n"
@@ -7413,6 +7413,10 @@ msgid "Language: %s\n"
 msgstr "Patient: %s (%s), No: %s\n"
 
 #, fuzzy
+msgid "Rationale for suppression:"
+msgstr "external patient ID"
+
+#, fuzzy
 msgid "Suppressed active dynamic hint"
 msgstr " %s documents\n"
 
@@ -12398,14 +12402,6 @@ msgid ""
 "Really delete all %s items ?"
 msgstr ""
 
-msgid ""
-"Select the items you want to work on.\n"
-"\n"
-"A discontinuous selection may depend on your holding down a platform-"
-"dependent modifier key (<CTRL>, <ALT>, etc) or key combination (eg. <CTRL-"
-"SHIFT> or <CTRL-ALT>) while clicking."
-msgstr ""
-
 msgid "List Item Actions"
 msgstr ""
 
@@ -13626,7 +13622,7 @@ msgid "Missing long name for template."
 msgstr ""
 
 #, fuzzy, python-format
-msgid "last modified %s by %s"
+msgid "last modified %s by %s, internal revision [%s]"
 msgstr "Last worked on: %s\n"
 
 msgid "Choose a form template file"

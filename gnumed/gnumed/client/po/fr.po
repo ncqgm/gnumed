@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed 0.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-07-07 14:56+0200\n"
+"POT-Creation-Date: 2016-07-25 11:38+0200\n"
 "PO-Revision-Date: 2012-06-01 01:16+0000\n"
 "Last-Translator: ncq <Unknown>\n"
 "Language-Team: FR <LL@li.org>\n"
@@ -8353,6 +8353,12 @@ msgid "Language: %s\n"
 msgstr "Langue"
 
 #, fuzzy
+msgid "Rationale for suppression:"
+msgstr ""
+"\n"
+"Compléter l'historique des vaccinations de ce patient.\n"
+
+#, fuzzy
 msgid "Suppressed active dynamic hint"
 msgstr "Vaccins affichés."
 
@@ -13594,20 +13600,6 @@ msgid ""
 msgstr ""
 
 #, fuzzy
-msgid ""
-"Select the items you want to work on.\n"
-"\n"
-"A discontinuous selection may depend on your holding down a platform-"
-"dependent modifier key (<CTRL>, <ALT>, etc) or key combination (eg. <CTRL-"
-"SHIFT> or <CTRL-ALT>) while clicking."
-msgstr ""
-"Choisissez les objets sur lesquels vous voulez travailler.\n"
-"\n"
-"Une sélection discontinue peut être obtenue, selon votre plateforme, en "
-"appuyant sur une touche spéciale (<ctrl>, etc.) ou une combinaison de "
-"touches (<ctrl-shift>, <ctrl-alt>, etc.) pendant que vous cliquez."
-
-#, fuzzy
 msgid "List Item Actions"
 msgstr "Directions"
 
@@ -14890,7 +14882,7 @@ msgid "Missing long name for template."
 msgstr "Un nom descriptif pour ce modéle de formulaire."
 
 #, fuzzy, python-format
-msgid "last modified %s by %s"
+msgid "last modified %s by %s, internal revision [%s]"
 msgstr "Dernière modification :"
 
 msgid "Choose a form template file"
@@ -19914,6 +19906,20 @@ msgstr "Abandonner"
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Annuler et ne PAS se connecter a GNUmed."
+
+#, fuzzy
+#~ msgid ""
+#~ "Select the items you want to work on.\n"
+#~ "\n"
+#~ "A discontinuous selection may depend on your holding down a platform-"
+#~ "dependent modifier key (<CTRL>, <ALT>, etc) or key combination (eg. <CTRL-"
+#~ "SHIFT> or <CTRL-ALT>) while clicking."
+#~ msgstr ""
+#~ "Choisissez les objets sur lesquels vous voulez travailler.\n"
+#~ "\n"
+#~ "Une sélection discontinue peut être obtenue, selon votre plateforme, en "
+#~ "appuyant sur une touche spéciale (<ctrl>, etc.) ou une combinaison de "
+#~ "touches (<ctrl-shift>, <ctrl-alt>, etc.) pendant que vous cliquez."
 
 #, fuzzy
 #~ msgid "Study time"
