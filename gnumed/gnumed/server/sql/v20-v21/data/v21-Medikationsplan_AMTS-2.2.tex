@@ -49,15 +49,15 @@
 \usepackage{graphicx}						% Grafiken laden (datamatrix)
 \usepackage[space]{grffile}					% besserer Zugriff auf Grafikdateien
 \usepackage[export]{adjustbox}				% improved options for \includegraphics
+%\usepackage{marvosym}						% Symbole: Handy, Telefon, E-Mail, used in non-conformant layout
 %\usepackage[ocgcolorlinks=true]{hyperref}	% aktive URLs, needs to be loaded last, most of the time
 \usepackage{hyperref}						% aktive URLs, needs to be loaded last, most of the time
 
 % debugging:
-%\usepackage{showkeys}
-%\usepackage{interfaces}						% \papergraduate
+%\usepackage{showkeys}						% print labels (anchors and stuff) as margin notes
+%\usepackage{interfaces}					% \papergraduate
 
-%\usepackage{marvosym}					% Symbole: Handy, Telefon, E-Mail
-%\usepackage{calc}						% \widthof (für signature)
+%\usepackage{calc}							% \widthof (für signature)
 
 %------------------------------------------------------------------
 % setup:
@@ -88,8 +88,8 @@ $<ph_cfg::encoding//iso-8859-1//%% <%(name)s> set to [%(value)s]::>$
 \setlength{\tabcolsep}{0pt}
 \setlength{\parskip}{0pt}
 \setlength{\topskip}{0pt}
-\setlength{\floatsep}{1pt}
-\setlength{\textfloatsep}{1pt}
+\setlength{\floatsep}{0pt}
+\setlength{\textfloatsep}{0pt}
 
 
 % - page
@@ -101,19 +101,32 @@ $<ph_cfg::encoding//iso-8859-1//%% <%(name)s> set to [%(value)s]::>$
 	a4paper,
 	landscape,
 	bindingoffset=0pt,
-	nomarginpar,										% set marginpar/marginparsep to 0
-	% do not include any margins/headers/footers into body calculation
-	% in effect, this means that header/footer overlap into the margins
-	ignoreall,
-	headheight=40mm,
-	headsep=0pt,
-	footskip=0mm,
-	left=8mm,right=8mm,top=55mm,bottom=18mm
+%
+	% top-to-bottom on page:
+	top=8mm,					% per spec
+	includehead,				% into <total body>, not into topmargin
+	headheight=48mm,			% per spec, decrease textheight, top margin (8mm) + actual header size (40mm)
+	headsep=0mm,				% no more space until *top* of textheight (not baseline of first line ...)
+	%textheight,				% is calculated by the other dimensions, should amount to 144mm (210 - (8+40+0+10+9))
+	includefoot,				% into <total body>, not into bottommargin
+	% need to be calculated to work:
+	footskip=\dimexpr+\ht\strutbox\relax,		% 10mm per spec, decreases textheight
+	bottom=\dimexpr15mm+\ht\strutbox\relax,		% 8mm per spec, 15mm found empirically (includes the 10mm footskip, but why ?)
+%
+	% left-to-right on page:
+	left=8mm,					% per spec
+	%textwidth,					% is calculated by the other dimensions, should amount to 281mm (297 - (8+0+0+8))
+	includemp,					% include marginparsep and marginparwidth into width, decreases textwidth (but set to 0 below)
+	marginparsep=0mm,			% no margin notes offset
+	marginparwidth=0mm,			% no margin notes width
+	right=8mm					% per spec
 }
+
 
 % - font: Arial (Helvetica)
 \renewcommand{\rmdefault}{phv}
 \renewcommand{\sfdefault}{phv}
+
 
 % - tabu
 \tabulinesep=^1mm_1mm
@@ -302,7 +315,6 @@ $<ph_cfg::encoding//iso-8859-1//%% <%(name)s> set to [%(value)s]::>$
 	% Tabellenkopf:
 	\hline
 	\rowcolor{gray!20}
-%	\rule{0pt}{4.5mm}						% vertical strut to ensure 14pt doesn't touch top \hline
 	\fontsize{14pt}{16pt}\selectfont \centering Wirkstoff &
 	\fontsize{14pt}{16pt}\selectfont \centering Handelsname &
 	\fontsize{14pt}{16pt}\selectfont \centering Stärke &

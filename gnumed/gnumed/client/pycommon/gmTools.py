@@ -82,6 +82,7 @@ u_sum = u'\u2211'								# sigma
 u_almost_equal_to = u'\u2248'					# approximately / nearly / roughly
 u_corresponds_to = u'\u2258'
 u_infinity = u'\u221E'
+u_arrow2right_until_vertical_bar2 = u'\u2b72'	# -->|
 u_diameter = u'\u2300'
 u_checkmark_crossed_out = u'\u237B'
 u_box_vert_left = u'\u23b8'
