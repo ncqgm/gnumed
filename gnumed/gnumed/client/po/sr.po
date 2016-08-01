@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-07-25 11:38+0200\n"
+"POT-Creation-Date: 2016-08-01 11:56+0200\n"
 "PO-Revision-Date: 2011-08-25 16:54+0000\n"
 "Last-Translator: Karolina Kalic <Unknown>\n"
 "Language-Team: Serbian <sr@li.org>\n"
@@ -4096,13 +4096,6 @@ msgstr ""
 msgid "Select the paperwork receiver:"
 msgstr ""
 
-msgid "&Addresses"
-msgstr ""
-
-#, fuzzy
-msgid "Or&Ganizations"
-msgstr "&Вакцинације"
-
 msgid "&OK"
 msgstr ""
 
@@ -4125,12 +4118,12 @@ msgstr ""
 msgid "Manage generic list of all addresses."
 msgstr "Уреди вакцинације"
 
+msgid "Select the organizational unit you want to write to."
+msgstr ""
+
 #, fuzzy
 msgid "Manage known organizations and units thereof."
 msgstr "Уреди вакцинације"
-
-msgid "Select the organizational unit you want to write to."
-msgstr ""
 
 #, fuzzy
 msgid "Use the above name and address."
@@ -4139,16 +4132,40 @@ msgstr "Брисање вакцине"
 msgid "Abort the receiver selection."
 msgstr ""
 
-#, fuzzy
-msgid "Selected receiver"
-msgstr "Брисање вакцине"
-
 msgid "Address"
 msgstr ""
 
 #, fuzzy
-msgid "Manage:"
-msgstr "Уреди вакцинације"
+msgid "Selected Receiver"
+msgstr "Брисање вакцине"
+
+msgid "$<receiver_name::::>$"
+msgstr ""
+
+msgid "address['l10n_country'] → $<receiver_country::::>$"
+msgstr ""
+
+msgid "address['l10n_region'] → $<receiver_region::::>$"
+msgstr ""
+
+msgid "ZIP"
+msgstr ""
+
+msgid "address['postcode'] → $<receiver_postcode::::>$"
+msgstr ""
+
+msgid ""
+"address['urb'] → $<receiver_urb::::>$\n"
+"address['suburb'] → $<receiver_suburb::::>$"
+msgstr ""
+
+msgid "address['street'] → $<receiver_street::::>$"
+msgstr ""
+
+msgid ""
+"address['number'] → $<receiver_number::::>$\n"
+"address['subunit'] → $<receiver_subunit::::>$"
+msgstr ""
 
 msgid "Quick picks"
 msgstr ""
@@ -5166,6 +5183,10 @@ msgstr "Лек"
 
 msgid "Research:"
 msgstr ""
+
+#, fuzzy
+msgid "Manage:"
+msgstr "Уреди вакцинације"
 
 msgid "Certainty:"
 msgstr ""
@@ -13689,6 +13710,10 @@ msgstr ""
 msgid "Enter a filename to save the template to"
 msgstr ""
 
+#, fuzzy
+msgid "Receiver"
+msgstr "Пацијент: %s (%s), Бр: %s\n"
+
 msgid "Emergency contact"
 msgstr ""
 
@@ -13705,10 +13730,6 @@ msgstr "вакцина"
 #, fuzzy
 msgid "Bill receiver"
 msgstr "Брисање вакцине"
-
-#, fuzzy
-msgid "Receiver"
-msgstr "Пацијент: %s (%s), Бр: %s\n"
 
 msgid ""
 "Are you sure you want to delete this\n"
@@ -18496,6 +18517,10 @@ msgstr "Прекинути"
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr ""
+
+#, fuzzy
+#~ msgid "Or&Ganizations"
+#~ msgstr "&Вакцинације"
 
 #, fuzzy
 #~ msgid "health issue"

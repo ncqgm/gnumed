@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-07-25 11:38+0200\n"
+"POT-Creation-Date: 2016-08-01 11:56+0200\n"
 "PO-Revision-Date: 2012-04-07 10:15+0000\n"
 "Last-Translator: Rikard Edgren <Unknown>\n"
 "Language-Team: Swedish <kde-i18n-doc@kde.org>\n"
@@ -4281,13 +4281,6 @@ msgstr ""
 msgid "Select the paperwork receiver:"
 msgstr "Välj typ av undersökning"
 
-msgid "&Addresses"
-msgstr ""
-
-#, fuzzy
-msgid "Or&Ganizations"
-msgstr "Organisation: %s (%s)"
-
 msgid "&OK"
 msgstr ""
 
@@ -4311,14 +4304,14 @@ msgid "Manage generic list of all addresses."
 msgstr ""
 
 #, fuzzy
-msgid "Manage known organizations and units thereof."
-msgstr "Senaste vaccineringar"
-
-#, fuzzy
 msgid "Select the organizational unit you want to write to."
 msgstr ""
 "\n"
 "Välj den undersökningstyp du vill redigera!\n"
+
+#, fuzzy
+msgid "Manage known organizations and units thereof."
+msgstr "Senaste vaccineringar"
 
 msgid "Use the above name and address."
 msgstr ""
@@ -4327,16 +4320,40 @@ msgstr ""
 msgid "Abort the receiver selection."
 msgstr "Den för närvarande valda patienten är:"
 
-#, fuzzy
-msgid "Selected receiver"
-msgstr "Välj händelse"
-
 msgid "Address"
 msgstr ""
 
 #, fuzzy
-msgid "Manage:"
-msgstr "Provtagnings-resultat"
+msgid "Selected Receiver"
+msgstr "Välj händelse"
+
+msgid "$<receiver_name::::>$"
+msgstr ""
+
+msgid "address['l10n_country'] → $<receiver_country::::>$"
+msgstr ""
+
+msgid "address['l10n_region'] → $<receiver_region::::>$"
+msgstr ""
+
+msgid "ZIP"
+msgstr ""
+
+msgid "address['postcode'] → $<receiver_postcode::::>$"
+msgstr ""
+
+msgid ""
+"address['urb'] → $<receiver_urb::::>$\n"
+"address['suburb'] → $<receiver_suburb::::>$"
+msgstr ""
+
+msgid "address['street'] → $<receiver_street::::>$"
+msgstr ""
+
+msgid ""
+"address['number'] → $<receiver_number::::>$\n"
+"address['subunit'] → $<receiver_subunit::::>$"
+msgstr ""
 
 msgid "Quick picks"
 msgstr ""
@@ -5373,6 +5390,10 @@ msgstr "Medicin"
 
 msgid "Research:"
 msgstr ""
+
+#, fuzzy
+msgid "Manage:"
+msgstr "Provtagnings-resultat"
 
 #, fuzzy
 msgid "Certainty:"
@@ -13985,6 +14006,9 @@ msgstr ""
 msgid "Enter a filename to save the template to"
 msgstr ""
 
+msgid "Receiver"
+msgstr ""
+
 msgid "Emergency contact"
 msgstr ""
 
@@ -14001,9 +14025,6 @@ msgstr "timmar"
 #, fuzzy
 msgid "Bill receiver"
 msgstr "Välj händelse"
-
-msgid "Receiver"
-msgstr ""
 
 msgid ""
 "Are you sure you want to delete this\n"
@@ -18861,6 +18882,10 @@ msgstr "Avbryt"
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Avbryt och anslut EJ till GNUmed."
+
+#, fuzzy
+#~ msgid "Or&Ganizations"
+#~ msgstr "Organisation: %s (%s)"
 
 #, fuzzy
 #~ msgid "Copy to e&xport area..."

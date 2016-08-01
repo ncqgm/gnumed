@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-07-25 11:38+0200\n"
+"POT-Creation-Date: 2016-08-01 11:56+0200\n"
 "PO-Revision-Date: 2012-05-30 18:43+0000\n"
 "Last-Translator: YvLy <Unknown>\n"
 "Language-Team: Russian <ru@li.org>\n"
@@ -4684,14 +4684,6 @@ msgid "Select the paperwork receiver:"
 msgstr "Выберите тип обращения."
 
 #, fuzzy
-msgid "&Addresses"
-msgstr "Адрес"
-
-#, fuzzy
-msgid "Or&Ganizations"
-msgstr "Организация"
-
-#, fuzzy
 msgid "&OK"
 msgstr "OK"
 
@@ -4716,12 +4708,12 @@ msgid "Manage generic list of all addresses."
 msgstr "Сохранение адреса"
 
 #, fuzzy
-msgid "Manage known organizations and units thereof."
-msgstr "Управление организациями и их подразделениями."
-
-#, fuzzy
 msgid "Select the organizational unit you want to write to."
 msgstr "Выберите единицу организации."
+
+#, fuzzy
+msgid "Manage known organizations and units thereof."
+msgstr "Управление организациями и их подразделениями."
 
 #, fuzzy
 msgid "Use the above name and address."
@@ -4731,16 +4723,40 @@ msgstr "должен выбрать адрес"
 msgid "Abort the receiver selection."
 msgstr "Выбор неверного адреса."
 
-#, fuzzy
-msgid "Selected receiver"
-msgstr "Выбор пациента"
-
 msgid "Address"
 msgstr "Адрес"
 
 #, fuzzy
-msgid "Manage:"
-msgstr "Редактор"
+msgid "Selected Receiver"
+msgstr "Выбор пациента"
+
+msgid "$<receiver_name::::>$"
+msgstr ""
+
+msgid "address['l10n_country'] → $<receiver_country::::>$"
+msgstr ""
+
+msgid "address['l10n_region'] → $<receiver_region::::>$"
+msgstr ""
+
+msgid "ZIP"
+msgstr ""
+
+msgid "address['postcode'] → $<receiver_postcode::::>$"
+msgstr ""
+
+msgid ""
+"address['urb'] → $<receiver_urb::::>$\n"
+"address['suburb'] → $<receiver_suburb::::>$"
+msgstr ""
+
+msgid "address['street'] → $<receiver_street::::>$"
+msgstr ""
+
+msgid ""
+"address['number'] → $<receiver_number::::>$\n"
+"address['subunit'] → $<receiver_subunit::::>$"
+msgstr ""
 
 msgid "Quick picks"
 msgstr ""
@@ -5934,6 +5950,10 @@ msgstr "Препараты"
 #, fuzzy
 msgid "Research:"
 msgstr "Найти"
+
+#, fuzzy
+msgid "Manage:"
+msgstr "Редактор"
 
 #, fuzzy
 msgid "Certainty:"
@@ -15534,6 +15554,10 @@ msgid "Enter a filename to save the template to"
 msgstr "Введите имя файла для сохранения этого шаблона в"
 
 #, fuzzy
+msgid "Receiver"
+msgstr " Получатель: #%s\n"
+
+#, fuzzy
 msgid "Emergency contact"
 msgstr "Экстренные контакты (в БД)"
 
@@ -15551,10 +15575,6 @@ msgstr "Ваше заключение"
 #, fuzzy
 msgid "Bill receiver"
 msgstr "Выбор пациента"
-
-#, fuzzy
-msgid "Receiver"
-msgstr " Получатель: #%s\n"
 
 msgid ""
 "Are you sure you want to delete this\n"
@@ -21163,6 +21183,14 @@ msgstr "Отменить"
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Отменить и НЕ подключаться к GNUmed."
+
+#, fuzzy
+#~ msgid "&Addresses"
+#~ msgstr "Адрес"
+
+#, fuzzy
+#~ msgid "Or&Ganizations"
+#~ msgstr "Организация"
 
 #, fuzzy
 #~ msgid ""

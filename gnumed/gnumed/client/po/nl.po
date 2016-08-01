@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-07-25 11:38+0200\n"
+"POT-Creation-Date: 2016-08-01 11:56+0200\n"
 "PO-Revision-Date: 2012-06-01 01:19+0000\n"
 "Last-Translator: Anik ten Have <anik@itchi-go.nl>\n"
 "Language-Team: Dutch <nl@li.org>\n"
@@ -4540,14 +4540,6 @@ msgid "Select the paperwork receiver:"
 msgstr "Selecteer het type ontmoeting."
 
 #, fuzzy
-msgid "&Addresses"
-msgstr "Adres"
-
-#, fuzzy
-msgid "Or&Ganizations"
-msgstr "Organisatie"
-
-#, fuzzy
 msgid "&OK"
 msgstr "OK"
 
@@ -4572,11 +4564,11 @@ msgid "Manage generic list of all addresses."
 msgstr "Adres verwijderen"
 
 #, fuzzy
-msgid "Manage known organizations and units thereof."
+msgid "Select the organizational unit you want to write to."
 msgstr "instellingen bewaren"
 
 #, fuzzy
-msgid "Select the organizational unit you want to write to."
+msgid "Manage known organizations and units thereof."
 msgstr "instellingen bewaren"
 
 #, fuzzy
@@ -4587,16 +4579,40 @@ msgstr "moet adres selecteren"
 msgid "Abort the receiver selection."
 msgstr "Annuleer selectie van persoon."
 
-#, fuzzy
-msgid "Selected receiver"
-msgstr "Patiënt selecteren"
-
 msgid "Address"
 msgstr "Adres"
 
 #, fuzzy
-msgid "Manage:"
-msgstr "Allergieën bewerken"
+msgid "Selected Receiver"
+msgstr "Patiënt selecteren"
+
+msgid "$<receiver_name::::>$"
+msgstr ""
+
+msgid "address['l10n_country'] → $<receiver_country::::>$"
+msgstr ""
+
+msgid "address['l10n_region'] → $<receiver_region::::>$"
+msgstr ""
+
+msgid "ZIP"
+msgstr ""
+
+msgid "address['postcode'] → $<receiver_postcode::::>$"
+msgstr ""
+
+msgid ""
+"address['urb'] → $<receiver_urb::::>$\n"
+"address['suburb'] → $<receiver_suburb::::>$"
+msgstr ""
+
+msgid "address['street'] → $<receiver_street::::>$"
+msgstr ""
+
+msgid ""
+"address['number'] → $<receiver_number::::>$\n"
+"address['subunit'] → $<receiver_subunit::::>$"
+msgstr ""
 
 msgid "Quick picks"
 msgstr ""
@@ -5751,6 +5767,10 @@ msgstr "Geneesmiddel"
 #, fuzzy
 msgid "Research:"
 msgstr "Zoeken"
+
+#, fuzzy
+msgid "Manage:"
+msgstr "Allergieën bewerken"
 
 #, fuzzy
 msgid "Certainty:"
@@ -15173,6 +15193,12 @@ msgid "Enter a filename to save the template to"
 msgstr "Geef een beschrijvende naam voor de nieuwe werkplek:"
 
 #, fuzzy
+msgid "Receiver"
+msgstr ""
+"%s Laatst gezien: %s\n"
+"\n"
+
+#, fuzzy
 msgid "Emergency contact"
 msgstr "voortgangsrapport"
 
@@ -15190,12 +15216,6 @@ msgstr "Uw beoordeling"
 #, fuzzy
 msgid "Bill receiver"
 msgstr "Patiënt selecteren"
-
-#, fuzzy
-msgid "Receiver"
-msgstr ""
-"%s Laatst gezien: %s\n"
-"\n"
 
 #, fuzzy
 msgid ""
@@ -20848,6 +20868,14 @@ msgstr "Afbreken"
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Afbreken en GEEN verbinding maken met GNUmed."
+
+#, fuzzy
+#~ msgid "&Addresses"
+#~ msgstr "Adres"
+
+#, fuzzy
+#~ msgid "Or&Ganizations"
+#~ msgstr "Organisatie"
 
 #, fuzzy
 #~ msgid "Study time"

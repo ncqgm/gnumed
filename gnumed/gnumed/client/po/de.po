@@ -5,8 +5,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-07-25 11:38+0200\n"
-"PO-Revision-Date: 2016-07-07 15:10+0200\n"
+"POT-Creation-Date: 2016-08-01 11:55+0200\n"
+"PO-Revision-Date: 2016-08-01 12:14+0200\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "Language: de_DE\n"
@@ -4495,12 +4495,6 @@ msgstr "Details der zusammenzuführenden Patienten"
 msgid "Select the paperwork receiver:"
 msgstr "Wählen Sie den Empfänger des Schriftstücks:"
 
-msgid "&Addresses"
-msgstr "&Adressen"
-
-msgid "Or&Ganizations"
-msgstr "Or&Ganisationen"
-
 msgid "&OK"
 msgstr "&OK"
 
@@ -4528,11 +4522,11 @@ msgstr ""
 msgid "Manage generic list of all addresses."
 msgstr "Adressen verwalten."
 
-msgid "Manage known organizations and units thereof."
-msgstr "Organisationen und deren Abteilungen verwalten."
-
 msgid "Select the organizational unit you want to write to."
 msgstr "Wählen Sie die Abteilung, an welche Sie schreiben wollen."
+
+msgid "Manage known organizations and units thereof."
+msgstr "Organisationen und deren Abteilungen verwalten."
 
 msgid "Use the above name and address."
 msgstr "Obenstehenden Namen und Adresse verwenden."
@@ -4540,14 +4534,39 @@ msgstr "Obenstehenden Namen und Adresse verwenden."
 msgid "Abort the receiver selection."
 msgstr "Empfängerwahl abbrechen."
 
-msgid "Selected receiver"
-msgstr "Gewählter Empfänger"
-
 msgid "Address"
 msgstr "Adresse"
 
-msgid "Manage:"
-msgstr "Verwalten:"
+msgid "Selected Receiver"
+msgstr "Gewählter Empfänger"
+
+msgid "$<receiver_name::::>$"
+msgstr ""
+
+msgid "address['l10n_country'] → $<receiver_country::::>$"
+msgstr ""
+
+msgid "address['l10n_region'] → $<receiver_region::::>$"
+msgstr ""
+
+msgid "ZIP"
+msgstr "PLZ"
+
+msgid "address['postcode'] → $<receiver_postcode::::>$"
+msgstr ""
+
+msgid ""
+"address['urb'] → $<receiver_urb::::>$\n"
+"address['suburb'] → $<receiver_suburb::::>$"
+msgstr ""
+
+msgid "address['street'] → $<receiver_street::::>$"
+msgstr ""
+
+msgid ""
+"address['number'] → $<receiver_number::::>$\n"
+"address['subunit'] → $<receiver_subunit::::>$"
+msgstr ""
 
 msgid "Quick picks"
 msgstr "Schnellwahl"
@@ -5733,6 +5752,9 @@ msgstr "Medikament"
 
 msgid "Research:"
 msgstr "Recherchiere:"
+
+msgid "Manage:"
+msgstr "Verwalten:"
 
 msgid "Certainty:"
 msgstr "Gewißheit:"
@@ -8202,12 +8224,8 @@ msgstr "Quelle: %s\n"
 msgid "Language: %s\n"
 msgstr "Sprache: %s\n"
 
-#, fuzzy
 msgid "Rationale for suppression:"
-msgstr ""
-"Begründung des\n"
-"Unterdrückens bei\n"
-"diesem Patienten"
+msgstr "Begründung des Unterdrückens:"
 
 msgid "Suppressed active dynamic hint"
 msgstr "Unterdrückter aktiver dynamischer Hinweis"
@@ -15198,15 +15216,18 @@ msgstr "Kurzname für die Vorlage fehlt."
 msgid "Missing long name for template."
 msgstr "Langname für die Vorlage fehlt."
 
-#, fuzzy, python-format
+#, python-format
 msgid "last modified %s by %s, internal revision [%s]"
-msgstr "zuletzt geändert %s von %s"
+msgstr "zuletzt geändert %s von %s, interne Version [%s]"
 
 msgid "Choose a form template file"
 msgstr "Wählen Sie eine Datei als Schriftstück-Vorlage."
 
 msgid "Enter a filename to save the template to"
 msgstr "Geben Sie einen Dateinamen zum Speichern der Dokumentenvorlage ein"
+
+msgid "Receiver"
+msgstr "Empfänger"
 
 msgid "Emergency contact"
 msgstr "Notfallkontakt"
@@ -15222,9 +15243,6 @@ msgstr "Diese Praxis"
 
 msgid "Bill receiver"
 msgstr "Rechnungsempfänger"
-
-msgid "Receiver"
-msgstr "Empfänger"
 
 msgid ""
 "Are you sure you want to delete this\n"
@@ -20723,6 +20741,32 @@ msgstr "Abbrechen"
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
+
+#~ msgid "&Addresses"
+#~ msgstr "&Adressen"
+
+#~ msgid "Or&Ganizations"
+#~ msgstr "Or&Ganisationen"
+
+#~ msgid ""
+#~ "Address #%(pk_address)s\n"
+#~ " Country:  %(l10n_country)s (%(country)s, %(code_country)s)\n"
+#~ " Region:   %(l10n_region)s (%(region)s, %(code_region)s)\n"
+#~ " ZIP:      %(postcode)s\n"
+#~ " Location: %(urb)s, %(suburb)s (ZIP %(postcode_urb)s)\n"
+#~ " Street:   %(street)s (ZIP %(postcode_street)s) %(notes_street)s\n"
+#~ " Number:   %(number)s %(subunit)s %(notes_subunit)s"
+#~ msgstr ""
+#~ "Addresse #%(pk_address)s\n"
+#~ " Land:     %(l10n_country)s (%(country)s, %(code_country)s)\n"
+#~ " Region:   %(l10n_region)s (%(region)s, %(code_region)s)\n"
+#~ " PLZ:      %(postcode)s\n"
+#~ " Ort:      %(urb)s, %(suburb)s (PLZ %(postcode_urb)s)\n"
+#~ " Straße:   %(street)s (PLZ %(postcode_street)s) %(notes_street)s\n"
+#~ " Nummer:   %(number)s %(subunit)s %(notes_subunit)s"
+
+#~ msgid "Select receiver"
+#~ msgstr "Wähle Empfänger"
 
 #~ msgid ""
 #~ "Select the items you want to work on.\n"

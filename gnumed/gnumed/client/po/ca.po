@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-07-25 11:38+0200\n"
+"POT-Creation-Date: 2016-08-01 11:55+0200\n"
 "PO-Revision-Date: 2012-06-01 01:20+0000\n"
 "Last-Translator: ncq <Unknown>\n"
 "Language-Team: Catalan <ca@li.org>\n"
@@ -4198,14 +4198,6 @@ msgstr "Selecciona-ho si el pacient no té al·lèrgies"
 msgid "Select the paperwork receiver:"
 msgstr ""
 
-#, fuzzy
-msgid "&Addresses"
-msgstr "Direcció"
-
-#, fuzzy
-msgid "Or&Ganizations"
-msgstr "Vacunació"
-
 msgid "&OK"
 msgstr ""
 
@@ -4229,12 +4221,12 @@ msgstr ""
 msgid "Manage generic list of all addresses."
 msgstr "Vacunació"
 
+msgid "Select the organizational unit you want to write to."
+msgstr ""
+
 #, fuzzy
 msgid "Manage known organizations and units thereof."
 msgstr "Vacunació"
-
-msgid "Select the organizational unit you want to write to."
-msgstr ""
 
 #, fuzzy
 msgid "Use the above name and address."
@@ -4244,16 +4236,40 @@ msgstr "Edita l'entrada seleccionada."
 msgid "Abort the receiver selection."
 msgstr "Documents"
 
-#, fuzzy
-msgid "Selected receiver"
-msgstr "Selecciona"
-
 msgid "Address"
 msgstr "Direcció"
 
 #, fuzzy
-msgid "Manage:"
-msgstr "Vacunació"
+msgid "Selected Receiver"
+msgstr "Selecciona"
+
+msgid "$<receiver_name::::>$"
+msgstr ""
+
+msgid "address['l10n_country'] → $<receiver_country::::>$"
+msgstr ""
+
+msgid "address['l10n_region'] → $<receiver_region::::>$"
+msgstr ""
+
+msgid "ZIP"
+msgstr ""
+
+msgid "address['postcode'] → $<receiver_postcode::::>$"
+msgstr ""
+
+msgid ""
+"address['urb'] → $<receiver_urb::::>$\n"
+"address['suburb'] → $<receiver_suburb::::>$"
+msgstr ""
+
+msgid "address['street'] → $<receiver_street::::>$"
+msgstr ""
+
+msgid ""
+"address['number'] → $<receiver_number::::>$\n"
+"address['subunit'] → $<receiver_subunit::::>$"
+msgstr ""
 
 msgid "Quick picks"
 msgstr ""
@@ -5297,6 +5313,10 @@ msgstr ""
 
 msgid "Research:"
 msgstr ""
+
+#, fuzzy
+msgid "Manage:"
+msgstr "Vacunació"
 
 msgid "Certainty:"
 msgstr ""
@@ -13897,6 +13917,10 @@ msgstr ""
 msgid "Enter a filename to save the template to"
 msgstr ""
 
+#, fuzzy
+msgid "Receiver"
+msgstr "Pacient"
+
 msgid "Emergency contact"
 msgstr ""
 
@@ -13913,10 +13937,6 @@ msgstr "La teva revisió"
 #, fuzzy
 msgid "Bill receiver"
 msgstr "Selecciona"
-
-#, fuzzy
-msgid "Receiver"
-msgstr "Pacient"
 
 msgid ""
 "Are you sure you want to delete this\n"
@@ -18724,6 +18744,14 @@ msgstr "Interromp"
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Interromput  i no connectat a GNUmed"
+
+#, fuzzy
+#~ msgid "&Addresses"
+#~ msgstr "Direcció"
+
+#, fuzzy
+#~ msgid "Or&Ganizations"
+#~ msgstr "Vacunació"
 
 #, fuzzy
 #~ msgid "health issue"

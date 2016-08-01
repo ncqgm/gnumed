@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-07-25 11:38+0200\n"
+"POT-Creation-Date: 2016-08-01 11:56+0200\n"
 "PO-Revision-Date: 2012-06-01 01:17+0000\n"
 "Last-Translator: J.Luszawski <jl@leksoft.com.pl>\n"
 "Language-Team: Polish <pl@li.org>\n"
@@ -4301,14 +4301,6 @@ msgid "Select the paperwork receiver:"
 msgstr "Tu wybierz typ adresu."
 
 #, fuzzy
-msgid "&Addresses"
-msgstr "Adres"
-
-#, fuzzy
-msgid "Or&Ganizations"
-msgstr "Dodawanie nowego epizodu"
-
-#, fuzzy
 msgid "&OK"
 msgstr "OK"
 
@@ -4333,12 +4325,12 @@ msgid "Manage generic list of all addresses."
 msgstr "Opis"
 
 #, fuzzy
-msgid "Manage known organizations and units thereof."
-msgstr "Opis"
-
-#, fuzzy
 msgid "Select the organizational unit you want to write to."
 msgstr "Wybierz epizod, do którego chcesz przenieść opis."
+
+#, fuzzy
+msgid "Manage known organizations and units thereof."
+msgstr "Opis"
 
 #, fuzzy
 msgid "Use the above name and address."
@@ -4348,16 +4340,40 @@ msgstr "To wyświetla listę dostępnych typów dokumentów."
 msgid "Abort the receiver selection."
 msgstr "Aktualnie wybrany pacjent to:"
 
-#, fuzzy
-msgid "Selected receiver"
-msgstr "Wybierz zdarzenie"
-
 msgid "Address"
 msgstr "Adres"
 
 #, fuzzy
-msgid "Manage:"
-msgstr "Opis"
+msgid "Selected Receiver"
+msgstr "Wybierz zdarzenie"
+
+msgid "$<receiver_name::::>$"
+msgstr ""
+
+msgid "address['l10n_country'] → $<receiver_country::::>$"
+msgstr ""
+
+msgid "address['l10n_region'] → $<receiver_region::::>$"
+msgstr ""
+
+msgid "ZIP"
+msgstr ""
+
+msgid "address['postcode'] → $<receiver_postcode::::>$"
+msgstr ""
+
+msgid ""
+"address['urb'] → $<receiver_urb::::>$\n"
+"address['suburb'] → $<receiver_suburb::::>$"
+msgstr ""
+
+msgid "address['street'] → $<receiver_street::::>$"
+msgstr ""
+
+msgid ""
+"address['number'] → $<receiver_number::::>$\n"
+"address['subunit'] → $<receiver_subunit::::>$"
+msgstr ""
 
 msgid "Quick picks"
 msgstr ""
@@ -5414,6 +5430,10 @@ msgstr "Lek"
 
 msgid "Research:"
 msgstr ""
+
+#, fuzzy
+msgid "Manage:"
+msgstr "Opis"
 
 msgid "Certainty:"
 msgstr ""
@@ -14204,6 +14224,10 @@ msgstr ""
 msgid "Enter a filename to save the template to"
 msgstr ""
 
+#, fuzzy
+msgid "Receiver"
+msgstr " Twoja wersja: \"%s\"\n"
+
 msgid "Emergency contact"
 msgstr ""
 
@@ -14220,10 +14244,6 @@ msgstr "Szczepionka"
 #, fuzzy
 msgid "Bill receiver"
 msgstr "Wybierz zdarzenie"
-
-#, fuzzy
-msgid "Receiver"
-msgstr " Twoja wersja: \"%s\"\n"
 
 #, fuzzy
 msgid ""
@@ -19124,6 +19144,14 @@ msgstr "Przerwij"
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Przerwij i NIE łącz z GNUmed-em"
+
+#, fuzzy
+#~ msgid "&Addresses"
+#~ msgstr "Adres"
+
+#, fuzzy
+#~ msgid "Or&Ganizations"
+#~ msgstr "Dodawanie nowego epizodu"
 
 #~ msgid "episode"
 #~ msgstr "epizod"
