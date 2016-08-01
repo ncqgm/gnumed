@@ -240,6 +240,7 @@ def mxdt2py_dt(mxDateTime):
 			mxDateTime.tz
 		)
 		raise
+
 #===========================================================================
 def format_dob(dob, format='%Y %b %d', encoding=None, none_string=None, dob_is_estimated=False):
 	if dob is None:
@@ -252,6 +253,7 @@ def format_dob(dob, format='%Y %b %d', encoding=None, none_string=None, dob_is_e
 		return u'%s%s' % (u'\u2248', dob_txt)
 
 	return dob_txt
+
 #---------------------------------------------------------------------------
 def pydt_strftime(dt=None, format='%Y %b %d  %H:%M.%S', encoding=None, accuracy=None, none_str=None):
 
@@ -296,6 +298,7 @@ def pydt_strftime(dt=None, format='%Y %b %d  %H:%M.%S', encoding=None, accuracy=
 		dt.minute,
 		dt.second
 	)
+
 #---------------------------------------------------------------------------
 def pydt_replace(dt=None, year=None, month=None, day=None, hour=None, minute=None, second=None, microsecond=None, tzinfo=None, strict=True):
 
@@ -338,13 +341,16 @@ def pydt_replace(dt=None, year=None, month=None, day=None, hour=None, minute=Non
 			day = 30
 
 	return dt.replace(year = year, month = month, day = day, hour = hour, minute = minute, second = second, microsecond = microsecond, tzinfo = tzinfo)
+
 #---------------------------------------------------------------------------
 def pydt_now_here():
 	"""Returns NOW @ HERE (IOW, in the local timezone."""
 	return pyDT.datetime.now(gmCurrentLocalTimezone)
+
 #---------------------------------------------------------------------------
 def pydt_max_here():
 	return pyDT.datetime.max.replace(tzinfo = gmCurrentLocalTimezone)
+
 #---------------------------------------------------------------------------
 def wx_now_here(wx=None):
 	"""Returns NOW @ HERE (IOW, in the local timezone."""
@@ -606,6 +612,7 @@ def is_leap_year(year):
 		return True
 
 	return False
+
 #---------------------------------------------------------------------------
 def calculate_apparent_age(start=None, end=None):
 	"""The result of this is a tuple (years, ..., seconds) as one would
@@ -706,6 +713,7 @@ def calculate_apparent_age(start=None, end=None):
 			seconds = seconds - 1
 
 	return (years, months, days, hours, minutes, seconds)
+
 #---------------------------------------------------------------------------
 def format_apparent_age_medically(age=None):
 	"""<age> must be a tuple as created by calculate_apparent_age()"""
