@@ -14,6 +14,7 @@ FIX: faulty use of $<gender_mapper>$ in Begleitbrief template
 FIX: fix EMR access deadlock in encounter display widget [thanks Marc]
 FIX: exception on non-ASCII VCF data
 FIX: exception displaying birthday/age of patient w/ estimated DOB
+FIX: list sorting by column header click
 
 IMPROVED: document tree orgs sort mode tooltips
 IMPROVED: file description shell script
