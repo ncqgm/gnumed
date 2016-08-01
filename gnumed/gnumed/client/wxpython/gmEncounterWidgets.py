@@ -116,6 +116,7 @@ def sanity_check_encounter_of_active_patient(parent=None, msg=None):
 		msg = _('Edit the encounter details of the active patient before moving on:')
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
+	_log.debug('sanity-check editing encounter [%s] for patient [%s]', enc['pk_encounter'], enc['pk_patient'])
 	edit_encounter(parent = parent, encounter = enc, msg = msg)
 
 	return True

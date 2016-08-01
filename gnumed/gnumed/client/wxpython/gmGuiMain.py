@@ -781,6 +781,9 @@ class gmTopLevelFrame(wx.Frame):
 		item = menu_paperwork.Append(-1, _('List Placeholders'), _('Show a list of all placeholders.'))
 		self.Bind(wx.EVT_MENU, self.__on_show_placeholders, item)
 
+#		item = menu_paperwork.Append(-1, _('Select receiver'), _('Select a letter receiver for testing.'))
+#		self.Bind(wx.EVT_MENU, self.__on_test_receiver_selection, item)
+
 		self.mainmenu.Append(menu_paperwork, _('&Correspondence'))
 		self.__gb['main.paperworkmenu'] = menu_paperwork
 
@@ -1222,10 +1225,12 @@ class gmTopLevelFrame(wx.Frame):
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot write letter. No active patient.'), beep = True)
 			return True
 		gmFormWidgets.print_doc_from_template(parent = self)#, keep_a_copy = True)
+
 	#----------------------------------------------
 	def __on_show_placeholders(self, evt):
 		from Gnumed.wxpython.gmMacro import show_placeholders
 		show_placeholders()
+
 	#----------------------------------------------
 	def __on_save_screenshot_into_export_area(self, evt):
 		evt.Skip()
@@ -1235,6 +1240,22 @@ class gmTopLevelFrame(wx.Frame):
 			return True
 		screenshot_file = self.__save_screenshot_to_file()
 		pat.export_area.add_file(filename = screenshot_file, hint = _(u'GMd screenshot'))
+
+	#----------------------------------------------
+	def __on_test_receiver_selection(self, evt):
+		dlg = gmFormWidgets.cReceiverSelectionDlg(None, -1)
+		dlg.patient = gmPerson.gmCurrentPatient()
+		choice = dlg.ShowModal()
+		name = dlg.name
+		adr = dlg.address
+		dlg.Destroy()
+		if choice == wx.ID_CANCEL:
+			print('receiver selection cancelled')
+			return
+
+		print(name)
+		print(adr.format())
+
 	#----------------------------------------------
 	# help menu
 	#----------------------------------------------

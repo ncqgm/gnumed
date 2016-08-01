@@ -1876,10 +1876,10 @@ second line\n
 	#test_fname_stem()
 	#test_tex_escape()
 	#test_dir_is_empty()
-	#test_compare_dicts()
+	test_compare_dicts()
 	#test_rm_dir()
 	#test_strip_prefix()
 	#test_shorten_text()
-	test_format_compare_dicts()
+	#test_format_compare_dicts()
 
 #===========================================================================
