@@ -23,6 +23,10 @@ IMPROVED: form template EA information
 IMPROVED: logging of EMR access locking
 IMPROVED: EMR journal: show applicable dynamic hints
 IMRPOVED: ES translation [thanks Uwe]
+IMPROVED: show comm channels of org units in receiver selection
+IMPROVED: show doc sources as receiver selection candidates
+IMPROVED: letter receiver selection widget layout
+IMPROVED: logging of patient change encounter editing
 
 NEW: placeholder $ph_cfg::encoding::$
 NEW: blanko AMTS Medikationsplan ~2.3

@@ -226,6 +226,17 @@ class cDocumentFolder:
 			episode = episode
 		)
 
+	#--------------------------------------------------------
+	def _get_all_document_org_units(self):
+		cmd = gmOrganization._SQL_get_org_unit % (
+			u'pk_org_unit IN (SELECT DISTINCT ON (pk_org_unit) pk_org_unit FROM blobs.v_doc_med WHERE pk_patient = %(pat)s)'
+		)
+		args = {'pat': self.pk_patient}
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+		return [ gmOrganization.cOrgUnit(row = {'data': r, 'idx': idx, 'pk_field': u'pk_org_unit'}) for r in rows ]
+
+	all_document_org_units = property(_get_all_document_org_units, lambda x:x)
+
 #============================================================
 _sql_fetch_document_part_fields = u"select * from blobs.v_obj4doc_no_data where %s"
 
