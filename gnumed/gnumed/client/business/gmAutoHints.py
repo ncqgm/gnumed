@@ -174,9 +174,9 @@ def get_hints_for_patient(pk_identity=None, include_suppressed_needing_invalidat
 	idx = gmPG2.get_col_indices(curs)
 	curs.close()
 	conn.rollback()
-	if not include_suppressed_needing_invalidation:
-		return [ cDynamicHint(row = {'data': r, 'idx': idx, 'pk_field': 'pk_auto_hint'}) for r in rows if r['rationale4suppression'] != 'magic_tag::please_invalidate_suppression' ]
-	return [ cDynamicHint(row = {'data': r, 'idx': idx, 'pk_field': 'pk_auto_hint'}) for r in rows ]
+	if include_suppressed_needing_invalidation:
+		return [ cDynamicHint(row = {'data': r, 'idx': idx, 'pk_field': 'pk_auto_hint'}) for r in rows ]
+	return [ cDynamicHint(row = {'data': r, 'idx': idx, 'pk_field': 'pk_auto_hint'}) for r in rows if r['rationale4suppression'] != 'magic_tag::please_invalidate_suppression' ]
 
 #------------------------------------------------------------
 def suppress_dynamic_hint(pk_hint=None, rationale=None, pk_encounter=None):
