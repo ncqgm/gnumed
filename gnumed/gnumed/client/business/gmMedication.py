@@ -2466,109 +2466,207 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 	medically_formatted_start = property(_get_medically_formatted_start, lambda x:x)
 
 	#--------------------------------------------------------
+	def _get_medically_formatted_start_end_of_stopped(self, now):
+
+		# format intro
+		if gmDateTime.pydt_is_today(self._payload[self._idx['discontinued']]):
+			intro = _(u'until today')
+		else:
+			ended_ago = now - self._payload[self._idx['discontinued']]
+			intro = _(u'until %s%s ago') % (
+				gmTools.u_almost_equal_to,
+				gmDateTime.format_interval_medically(ended_ago),
+			)
+
+		# format start
+		if self._payload[self._idx['started']] is None:
+			start = gmTools.coalesce(self._payload[self._idx['comment_on_start']], u'?')
+		else:
+			start = u'%s%s%s' % (
+				gmTools.bool2subst((self._payload[self._idx['comment_on_start']] is None), u'', gmTools.u_almost_equal_to),
+				gmDateTime.pydt_strftime(self._payload[self._idx['started']], format = '%Y %b %d', encoding = u'utf8', accuracy = gmDateTime.acc_days),
+				gmTools.coalesce(self._payload[self._idx['comment_on_start']], u'', u' [%s]')
+			)
+
+		# format duration taken
+		if self._payload[self._idx['started']] is None:
+			duration_taken_str = u'?'
+		else:
+			duration_taken = self._payload[self._idx['discontinued']] - self._payload[self._idx['started']] + pydt.timedelta(days = 1)
+			duration_taken_str = gmDateTime.format_interval (duration_taken, gmDateTime.acc_days)
+
+		# format duration planned
+		if self._payload[self._idx['duration']] is None:
+			duration_planned_str = u''
+		else:
+			duration_planned_str = _(u' [planned: %s]') % gmDateTime.format_interval(self._payload[self._idx['duration']], gmDateTime.acc_days)
+
+		# format end
+		end = gmDateTime.pydt_strftime(self._payload[self._idx['discontinued']], '%Y %b %d', u'utf8', gmDateTime.acc_days)
+
+		# assemble
+		txt = u'%s (%s %s %s%s %s %s)' % (
+			intro,
+			start,
+			gmTools.u_arrow2right_thick,
+			duration_taken_str,
+			duration_planned_str,
+			gmTools.u_arrow2right_thick,
+			end
+		)
+		return txt
+
+	#--------------------------------------------------------
 	def _get_medically_formatted_start_end(self):
 
 		now = gmDateTime.pydt_now_here()
 
-		if self._payload[self._idx['comment_on_start']] is None:
-			start_prefix = u''
-		else:
-			start_prefix = gmTools.u_almost_equal_to
+		# medications stopped today or before today
+		if self._payload[self._idx['discontinued']] is not None:
+			if (self._payload[self._idx['discontinued']] < now) or (gmDateTime.pydt_is_today(self._payload[self._idx['discontinued']])):
+				return self._get_medically_formatted_start_end_of_stopped(now)
 
-		# ongoing medication
-		if self._payload[self._idx['discontinued']] is None:
-			# calculate start string
-			if self._payload[self._idx['started']] is None:
-				start = gmTools.coalesce(self._payload[self._idx['comment_on_start']], u'?')
-			else:
+		# ongoing medications
+		arrow_parts = []
+
+		# format start
+		if self._payload[self._idx['started']] is None:
+			start_str = gmTools.coalesce(self._payload[self._idx['comment_on_start']], u'?')
+		else:
+			start_prefix = gmTools.bool2subst((self._payload[self._idx['comment_on_start']] is None), u'', gmTools.u_almost_equal_to)
+			# starts today
+			if gmDateTime.pydt_is_today(self._payload[self._idx['started']]):
+				start_str = _(u'today (%s)') % gmDateTime.pydt_strftime(self._payload[self._idx['started']], format = '%Y %b %d', encoding = u'utf8', accuracy = gmDateTime.acc_days)
+			# started in the past
+			elif self._payload[self._idx['started']] < now:
 				started_ago = now - self._payload[self._idx['started']]
 				three_months = pydt.timedelta(weeks = 13, days = 3)
 				five_years = pydt.timedelta(weeks = 265)
 				if started_ago < three_months:
-					start = _('%s%s%s (%s ago)') % (
+					start_str = _('%s%s%s (%s%s ago, in %s)') % (
 						start_prefix,
-						gmDateTime.pydt_strftime(self._payload[self._idx['started']], format = '%Y %b %d', encoding = u'utf8', accuracy = gmDateTime.acc_days),
+						gmDateTime.pydt_strftime(self._payload[self._idx['started']], format = '%b %d', encoding = u'utf8', accuracy = gmDateTime.acc_days),
 						gmTools.coalesce(self._payload[self._idx['comment_on_start']], u'', u' [%s]'),
-						gmDateTime.format_interval_medically(started_ago)
+						gmTools.u_almost_equal_to,
+						gmDateTime.format_interval_medically(started_ago),
+						gmDateTime.pydt_strftime(self._payload[self._idx['started']], format = '%Y', encoding = u'utf8', accuracy = gmDateTime.acc_days)
 					)
 				elif started_ago < five_years:
-					start = _('%s%s%s (%s ago, %s)') % (
+					start_str = _('%s%s%s (%s%s ago, %s)') % (
 						start_prefix,
 						gmDateTime.pydt_strftime(self._payload[self._idx['started']], '%Y %b', u'utf8', gmDateTime.acc_months),
 						gmTools.coalesce(self._payload[self._idx['comment_on_start']], u'', u' [%s]'),
+						gmTools.u_almost_equal_to,
 						gmDateTime.format_interval_medically(started_ago),
 						gmDateTime.pydt_strftime(self._payload[self._idx['started']], '%b %d', u'utf8', gmDateTime.acc_days)
 					)
 				else:
-					start = _('%s%s%s (%s ago, %s)') % (
+					start_str = _('%s%s%s (%s%s ago, %s)') % (
 						start_prefix,
 						gmDateTime.pydt_strftime(self._payload[self._idx['started']], '%Y', u'utf8', gmDateTime.acc_years),
 						gmTools.coalesce(self._payload[self._idx['comment_on_start']], u'', u' [%s]'),
+						gmTools.u_almost_equal_to,
 						gmDateTime.format_interval_medically(started_ago),
 						gmDateTime.pydt_strftime(self._payload[self._idx['started']], '%b %d', u'utf8', gmDateTime.acc_days),
 					)
-
-			# calculate end string
-			if self._payload[self._idx['is_long_term']]:
-				end = u' %s %s' % (gmTools.u_arrow2right, gmTools.u_infinity)
-				if self._payload[self._idx['duration']] is not None:
-					duration = gmDateTime.format_interval(self._payload[self._idx['duration']], gmDateTime.acc_days)
-					if self._payload[self._idx['started']] is None:
-						planned_end_str = u''
-					else:
-						planned_end = self._payload[self._idx['started']] + self._payload[self._idx['duration']] - pydt.timedelta(days = 1)
-						if planned_end < now:
-							planned_end_from_now_str = _(u'%s ago') % gmDateTime.format_interval(now - planned_end, gmDateTime.acc_days)
-						else:
-							planned_end_from_now_str = _(u'in %s') % gmDateTime.format_interval(planned_end - now, gmDateTime.acc_days)
-						planned_end_str = _(u', until %s (%s)') % (
-							gmDateTime.pydt_strftime(planned_end, '%Y %b %d', u'utf8', gmDateTime.acc_days),
-							planned_end_from_now_str
-						)
-					end += _(u' (planned for %s%s)') % (duration, planned_end_str)
+			# starts in the future
 			else:
-				if self._payload[self._idx['duration']] is None:
-					end = u' %s ?' % gmTools.u_arrow2right
-				else:
-					duration = gmDateTime.format_interval(self._payload[self._idx['duration']], gmDateTime.acc_days)
-					if self._payload[self._idx['started']] is None:
-						planned_end_str = u''
-					else:
-						planned_end = self._payload[self._idx['started']] + self._payload[self._idx['duration']]
-						if planned_end < now:
-							planned_end_from_now_str = _(u'%s ago') % gmDateTime.format_interval(now - planned_end, gmDateTime.acc_days)
-						else:
-							planned_end_from_now_str = _(u'in %s') % gmDateTime.format_interval(planned_end - now, gmDateTime.acc_days)
-						planned_end_str = _(u', until %s (%s)') % (
-							gmDateTime.pydt_strftime(planned_end, '%Y %b %d', u'utf8', gmDateTime.acc_days),
-							planned_end_from_now_str
-						)
-					end = _(u', planned for %s%s') % (duration, planned_end_str)
-
-			txt = u'%s%s' % (start, end)
-
-		# stopped medication
-		else:
-			duration_taken = self._payload[self._idx['discontinued']] - self._payload[self._idx['started']] + pydt.timedelta(days = 1)
-			if self._payload[self._idx['started']] is None:
-				start = gmTools.coalesce(self._payload[self._idx['comment_on_start']], u'?')
-			else:
-				start = u'%s%s%s' % (
+				starts_in = self._payload[self._idx['started']] - now
+				start_str = _('%s%s%s (in %s%s)') % (
 					start_prefix,
-					gmDateTime.pydt_strftime(self._payload[self._idx['started']], format = '%Y %b %d', encoding = u'utf8', accuracy = gmDateTime.acc_days),
-					gmTools.coalesce(self._payload[self._idx['comment_on_start']], u'', u' [%s]')
+					gmDateTime.pydt_strftime(self._payload[self._idx['started']], '%Y %b %d', u'utf8', gmDateTime.acc_days),
+					gmTools.coalesce(self._payload[self._idx['comment_on_start']], u'', u' [%s]'),
+					gmTools.u_almost_equal_to,
+					gmDateTime.format_interval_medically(starts_in)
 				)
-			ended_ago = now - self._payload[self._idx['discontinued']]
-			txt = _(u'%s %s ago (for %s: %s %s %s)') % (
-				gmTools.u_arrow2right_until_vertical_bar,
-				gmDateTime.format_interval_medically(ended_ago),
-				gmDateTime.format_interval_medically(duration_taken),
-				start,
-				gmTools.u_arrow2right,
-				gmDateTime.pydt_strftime(self._payload[self._idx['discontinued']], '%Y %b %d', u'utf8', gmDateTime.acc_days)
+
+		arrow_parts.append(start_str)
+
+		# format durations
+		durations = []
+		if self._payload[self._idx['discontinued']] is not None:
+			if self._payload[self._idx['started']] is not None:
+				duration_documented = self._payload[self._idx['discontinued']] - self._payload[self._idx['started']]
+				durations.append(_(u'%s (documented)') % gmDateTime.format_interval(duration_documented, gmDateTime.acc_days))
+		if self._payload[self._idx['duration']] is not None:
+			durations.append(_(u'%s (plan)') % gmDateTime.format_interval(self._payload[self._idx['duration']], gmDateTime.acc_days))
+		if len(durations) == 0:
+			if self._payload[self._idx['is_long_term']]:
+				duration_str = gmTools.u_infinity
+			else:
+				duration_str = u'?'
+		else:
+			duration_str = u', '.join(durations)
+
+		arrow_parts.append(duration_str)
+
+		# format end
+		if self._payload[self._idx['discontinued']] is None:
+			if self._payload[self._idx['duration']] is None:
+				end_str = u'?'
+			else:
+				if self._payload[self._idx['started']] is None:
+					end_str = u'?'
+				else:
+					planned_end = self._payload[self._idx['started']] + self._payload[self._idx['duration']] - pydt.timedelta(days = 1)
+					if planned_end.year == now.year:
+						end_template = '%b %d'
+						if planned_end < now:
+							planned_end_from_now_str = _(u'%s ago, in %s') % (gmDateTime.format_interval(now - planned_end, gmDateTime.acc_days), planned_end.year)
+						else:
+							planned_end_from_now_str = _(u'in %s, %s') % (gmDateTime.format_interval(planned_end - now, gmDateTime.acc_days), planned_end.year)
+					else:
+						end_template = '%Y'
+						if planned_end < now:
+							planned_end_from_now_str = _(u'%s ago = %s') % (
+								gmDateTime.format_interval(now - planned_end, gmDateTime.acc_days),
+								gmDateTime.pydt_strftime(planned_end, '%b %d', u'utf8', gmDateTime.acc_days)
+							)
+						else:
+							planned_end_from_now_str = _(u'in %s = %s') % (
+								gmDateTime.format_interval(planned_end - now, gmDateTime.acc_days),
+								gmDateTime.pydt_strftime(planned_end, '%b %d', u'utf8', gmDateTime.acc_days)
+							)
+					end_str = u'%s (%s)' % (
+						gmDateTime.pydt_strftime(planned_end, end_template, u'utf8', gmDateTime.acc_days),
+						planned_end_from_now_str
+					)
+		else:
+			if gmDateTime.is_today(self._payload[self._idx['discontinued']]):
+				end_str = _(u'today')
+			elif self._payload[self._idx['discontinued']].year == now.year:
+				end_date_template = '%b %d'
+				if self._payload[self._idx['discontinued']] < now:
+					planned_end_from_now_str = _(u'%s ago, in %s') % (
+						gmDateTime.format_interval(now - self._payload[self._idx['discontinued']], gmDateTime.acc_days),
+						self._payload[self._idx['discontinued']].year
+					)
+				else:
+					planned_end_from_now_str = _(u'in %s, %s') % (
+						gmDateTime.format_interval(self._payload[self._idx['discontinued']] - now, gmDateTime.acc_days),
+						self._payload[self._idx['discontinued']].year
+					)
+			else:
+				end_date_template = '%Y'
+				if self._payload[self._idx['discontinued']] < now:
+					planned_end_from_now_str = _(u'%s ago = %s') % (
+						gmDateTime.format_interval(now - self._payload[self._idx['discontinued']], gmDateTime.acc_days),
+						gmDateTime.pydt_strftime(self._payload[self._idx['discontinued']], '%b %d', u'utf8', gmDateTime.acc_days)
+					)
+				else:
+					planned_end_from_now_str = _(u'in %s = %s') % (
+						gmDateTime.format_interval(self._payload[self._idx['discontinued']] - now, gmDateTime.acc_days),
+						gmDateTime.pydt_strftime(self._payload[self._idx['discontinued']], '%b %d', u'utf8', gmDateTime.acc_days)
+					)
+			end_str = u'%s (%s)' % (
+				gmDateTime.pydt_strftime(self._payload[self._idx['discontinued']], end_date_template, u'utf8', gmDateTime.acc_days),
+				planned_end_from_now_str
 			)
 
-		return txt
+		arrow_parts.append(end_str)
+
+		# assemble
+		return (u' %s ' % gmTools.u_arrow2right_thick).join(arrow_parts)
 
 	medically_formatted_start_end = property(_get_medically_formatted_start_end, lambda x:x)
 

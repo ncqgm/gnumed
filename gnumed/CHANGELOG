@@ -6,6 +6,10 @@
 # rel-1-6-patches
 ------------------------------------------------
 
+	1.6.9
+
+IMPROVED: start-end formatting of substance intake
+
 	1.6.8
 
 FIX: remove dynamic hint lacking evidence of clinical relevance

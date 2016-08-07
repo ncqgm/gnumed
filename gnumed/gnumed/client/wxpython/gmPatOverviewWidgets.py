@@ -168,20 +168,22 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 				return True
 
 		if kwds['table'] in [
-			u'dem.identity',
-			u'dem.names',
-			u'dem.lnk_identity2comm',
-			u'dem.lnk_job2person',
+			u'blobs.doc_med',
+			u'clin.episode',
+			u'clin.health_issue',
+			u'clin.suppressed_hint',
 			u'clin.substance_intake',
 			u'clin.hospital_stay',
 			u'clin.procedure',
 			u'clin.vaccination',
 			u'clin.family_history',
 			u'clin.test_result',
-			u'blobs.doc_med',
+			u'dem.identity',
+			u'dem.names',
+			u'dem.lnk_identity2comm',
+			u'dem.lnk_job2person',
 			u'dem.message_inbox',
-			u'clin.episode',
-			u'clin.health_issue'
+			u'ref.auto_hint'		# no signal triggers in v21 just yet, however ...
 		]:
 			self._schedule_data_reget()
 			return True

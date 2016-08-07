@@ -343,6 +343,17 @@ def pydt_replace(dt=None, year=None, month=None, day=None, hour=None, minute=Non
 	return dt.replace(year = year, month = month, day = day, hour = hour, minute = minute, second = second, microsecond = microsecond, tzinfo = tzinfo)
 
 #---------------------------------------------------------------------------
+def pydt_is_today(dt):
+	now = pyDT.datetime.now(gmCurrentLocalTimezone)
+	if dt.day != now.day:
+		return False
+	if dt.month != now.month:
+		return False
+	if dt.year != now.year:
+		return False
+	return True
+
+#---------------------------------------------------------------------------
 def pydt_now_here():
 	"""Returns NOW @ HERE (IOW, in the local timezone."""
 	return pyDT.datetime.now(gmCurrentLocalTimezone)
@@ -429,8 +440,11 @@ def format_interval(interval=None, accuracy_wanted=None, none_string=None, verbo
 			tag = _('interval_format_tag::years::y')[-1:]
 		tmp += u'%s%s' % (int(years), tag)
 
-
 	if accuracy_wanted < acc_months:
+		if tmp == u'':
+			if verbose:
+				return _(u'0 years')
+			return u'0%s' % _('interval_format_tag::years::y')[-1:]
 		return tmp.strip()
 
 	if months > 0:
@@ -444,6 +458,10 @@ def format_interval(interval=None, accuracy_wanted=None, none_string=None, verbo
 		tmp += u' %s%s' % (int(months), tag)
 
 	if accuracy_wanted < acc_weeks:
+		if tmp == u'':
+			if verbose:
+				return _(u'0 months')
+			return u'0%s' % _('interval_format_tag::months::m')[-1:]
 		return tmp.strip()
 
 	if weeks > 0:
@@ -457,6 +475,10 @@ def format_interval(interval=None, accuracy_wanted=None, none_string=None, verbo
 		tmp += u' %s%s' % (int(weeks), tag)
 
 	if accuracy_wanted < acc_days:
+		if tmp == u'':
+			if verbose:
+				return _(u'0 weeks')
+			return u'0%s' % _('interval_format_tag::weeks::w')[-1:]
 		return tmp.strip()
 
 	if days > 0:
@@ -470,6 +492,10 @@ def format_interval(interval=None, accuracy_wanted=None, none_string=None, verbo
 		tmp += u' %s%s' % (int(days), tag)
 
 	if accuracy_wanted < acc_hours:
+		if tmp == u'':
+			if verbose:
+				return _(u'0 days')
+			return u'0%s' % _('interval_format_tag::days::d')[-1:]
 		return tmp.strip()
 
 	if hours > 0:
@@ -483,6 +509,10 @@ def format_interval(interval=None, accuracy_wanted=None, none_string=None, verbo
 		tmp += u' %s%s' % (int(hours), tag)
 
 	if accuracy_wanted < acc_minutes:
+		if tmp == u'':
+			if verbose:
+				return _(u'0 hours')
+			return u'0/24'
 		return tmp.strip()
 
 	if mins > 0:
@@ -496,6 +526,10 @@ def format_interval(interval=None, accuracy_wanted=None, none_string=None, verbo
 		tmp += u' %s%s' % (int(mins), tag)
 
 	if accuracy_wanted < acc_seconds:
+		if tmp == u'':
+			if verbose:
+				return _(u'0 minutes')
+			return u'0/60'
 		return tmp.strip()
 
 	if secs > 0:
@@ -508,7 +542,13 @@ def format_interval(interval=None, accuracy_wanted=None, none_string=None, verbo
 			tag = u's'
 		tmp += u' %s%s' % (int(mins), tag)
 
+	if tmp == u'':
+		if verbose:
+			return _(u'0 seconds')
+		return u'0s'
+
 	return tmp.strip()
+
 #---------------------------------------------------------------------------
 def format_interval_medically(interval=None):
 	"""Formats an interval.
