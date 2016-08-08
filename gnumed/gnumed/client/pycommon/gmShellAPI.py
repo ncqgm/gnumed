@@ -139,6 +139,7 @@ def detect_external_binary(binary=None):
 		_log.debug('not running under Windows, not testing .exe/.bat')
 
 	return (False, None)
+
 #===========================================================================
 def find_first_binary(binaries=None):
 	found = False
@@ -153,6 +154,7 @@ def find_first_binary(binaries=None):
 			break
 
 	return (found, binary)
+
 #===========================================================================
 def run_command_in_shell(command=None, blocking=False, acceptable_return_codes=None):
 	"""Runs a command in a subshell via standard-C system().
