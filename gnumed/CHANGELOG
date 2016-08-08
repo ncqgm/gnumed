@@ -11,6 +11,7 @@
 FIX: faulty detection of dynamic hint applicability
 
 IMPROVED: start-end formatting of substance intake
+IMPROVED: select unicode character from SOAP STC context menu
 
 	1.6.8
 

@@ -18,6 +18,7 @@ if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.business import gmSoapDefs
 from Gnumed.wxpython import gmKeywordExpansionWidgets
+from Gnumed.wxpython.gmTextCtrl import cUnicodeInsertion_TextCtrlMixin
 
 
 _log = logging.getLogger('gm.stc')
@@ -40,6 +41,10 @@ class cWxTextCtrlCompatibility_StcMixin():
 	def SetValue(self, value):
 		_log.debug(u'%s.SetValue() - %s', cWxTextCtrlCompatibility_StcMixin, self.__class__.__name__)
 		return self.SetText(value)
+
+	#--------------------------------------------------
+	def WriteText(self, value):
+		return self.InsertText(self.CurrentPos, value)
 
 	#--------------------------------------------------
 	def GetLastPosition(self):
@@ -91,7 +96,7 @@ class cWxTextCtrlCompatibility_StcMixin():
 		wx.CallAfter(self.SetSelection, 0, 0)
 
 #----------------------------------------------------------------------
-class cSoapSTC(cWxTextCtrlCompatibility_StcMixin, gmKeywordExpansionWidgets.cKeywordExpansion_TextCtrlMixin, wx.stc.StyledTextCtrl):
+class cSoapSTC(cUnicodeInsertion_TextCtrlMixin, gmKeywordExpansionWidgets.cKeywordExpansion_TextCtrlMixin, cWxTextCtrlCompatibility_StcMixin, wx.stc.StyledTextCtrl):
 
 	_MARKER_ADM = 0
 	_MARKER_S = 1
@@ -176,6 +181,7 @@ class cSoapSTC(cWxTextCtrlCompatibility_StcMixin, gmKeywordExpansionWidgets.cKey
 		wx.stc.StyledTextCtrl.__init__(self, *args, **kwargs)
 		cWxTextCtrlCompatibility_StcMixin.__init__(self)
 		gmKeywordExpansionWidgets.cKeywordExpansion_TextCtrlMixin.__init__(self)
+		cUnicodeInsertion_TextCtrlMixin.__init__(self)
 
 		# wrapping and overflow
 		self.SetWrapMode(wx.stc.STC_WRAP_NONE)
@@ -413,6 +419,10 @@ class cSoapSTC(cWxTextCtrlCompatibility_StcMixin, gmKeywordExpansionWidgets.cKey
 		item = self.__popup_menu.Append(-1, _('e&Xpand keyword'), _('Expand keyword / macro'))
 		self.Bind(wx.EVT_MENU, self.__on_expand_keyword, item)
 
+		# insert unicode
+		item = self.__popup_menu.Append(-1, _('Insert &Unicode'), _('Insert a unicode character'))
+		self.Bind(wx.EVT_MENU, self.__on_insert_unicode, item)
+
 		self.__popup_menu.AppendSeparator()
 
 		# undo
@@ -496,6 +506,10 @@ class cSoapSTC(cWxTextCtrlCompatibility_StcMixin, gmKeywordExpansionWidgets.cKey
 	#-------------------------------------------------------
 	def __on_expand_keyword(self, evt):
 		self.attempt_expansion(show_list_if_needed = True)
+
+	#-------------------------------------------------------
+	def __on_insert_unicode(self, evt):
+		self.mixin_insert_unicode_character()
 
 	#-------------------------------------------------------
 	def __on_content2clipboard(self, evt):
@@ -1193,8 +1207,8 @@ if __name__ == '__main__':
 	def test_stc():
 		app = wx.PyWidgetTester(size = (600, 600))
 		wx.lib.colourdb.updateColourDB()
-		print wx.lib.colourdb.getColourList()
-		app.SetWidget(cSoapSTC, -1)
+		#print wx.lib.colourdb.getColourList()
+		app.SetWidget(cSoapSTC, -1, (100,50))
 		app.MainLoop()
 		return True
 
