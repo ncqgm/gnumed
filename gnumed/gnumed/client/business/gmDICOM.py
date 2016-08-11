@@ -814,6 +814,9 @@ class cOrthancServer:
 		except socket.error:
 			_log.exception('cannot GET: %s', full_url)
 			return False
+		except OverflowError:
+			_log.exception('cannot GET: %s', full_url)
+			return False
 
 		if not (response.status in [ 200 ]):
 			_log.error('cannot GET: %s', full_url)
@@ -841,6 +844,9 @@ class cOrthancServer:
 			_log.exception('cannot POST: %s', url)
 			return False
 		except socket.error:
+			_log.exception('cannot POST: %s', url)
+			return False
+		except OverflowError:
 			_log.exception('cannot POST: %s', url)
 			return False
 
@@ -875,6 +881,9 @@ class cOrthancServer:
 		except socket.error:
 			_log.exception('cannot PUT: %s', url)
 			return False
+		except OverflowError:
+			_log.exception('cannot PUT: %s', url)
+			return False
 
 		if response.status == 404:
 			_log.debug('no data, response: %s', response)
@@ -897,6 +906,9 @@ class cOrthancServer:
 			return False
 		except socket.error:
 			_log.exception('cannot DELETE: %s', url)
+			return False
+		except OverflowError:
+			_log.exception('cannot DELETE: %s', full_url)
 			return False
 
 		if not (response.status in [ 200 ]):

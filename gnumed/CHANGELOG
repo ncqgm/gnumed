@@ -9,6 +9,7 @@
 	1.6.9
 
 FIX: faulty detection of dynamic hint applicability
+FIX: exception on Orthanc port out of bounds
 
 IMPROVED: start-end formatting of substance intake
 IMPROVED: select unicode character from SOAP STC context menu
