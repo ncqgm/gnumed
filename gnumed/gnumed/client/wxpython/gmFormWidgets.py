@@ -998,10 +998,7 @@ class cReceiverSelectionDlg(wxgReceiverSelectionDlg.wxgReceiverSelectionDlg):
 	def _on_address_activated_in_list(self, evt):
 		evt.Skip()
 		adr = self._LCTRL_addresses.get_selected_item_data(only_one = True)
-		if adr is None:
-			self._PRW_other_address.SetText(value = u'', data = None)
-		else:
-			self._PRW_other_address.SetData(data = adr[u'pk_address'])
+		self._PRW_other_address.address = adr
 		self.__update_address_info(adr)
 
 	#------------------------------------------------------------
