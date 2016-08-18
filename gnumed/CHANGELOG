@@ -16,6 +16,8 @@ IMPROVED: start-end formatting of substance intake
 IMPROVED: select unicode character from SOAP STC context menu
 IMPROVED: edit test results by context menu from lists
 IMPROVED: AMTS data file generation (v2 -> v2.3)
+IMPROVED: color of focussed line in STC-based SOAP editor
+IMPROVED: information in Hx box of patient overview plugin
 
 NEW: placeholder $<if_not_empty>$
 
