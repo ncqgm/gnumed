@@ -97,8 +97,12 @@ __known_variant_placeholders = {
 		target extension: target file name extension, derived from target mime type if not given
 	""",
 
+	# text manipulation
 	u'range_of': u"""select range of enclosed text (note that this cannot take into account non-length characters such as enclosed LaTeX code
 		args: <enclosed text>
+	""",
+	u'if_not_empty': u"""format text based on template if not empty
+		args: <possibly-empty-text>//<template-if-not-empty>//<alternative-text-if-empty>
 	""",
 
 	u'ph_cfg': u"""Set placeholder handler options.
@@ -831,7 +835,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		template = _('due %(due_date)s: %(comment)s (%(interval_due)s)')
 		date_format = '%Y %b %d'
 
-		data_parts = data.split('//')
+		data_parts = data.split(self.__args_divider)
 
 		if len(data_parts) > 0:
 			if data_parts[0].strip() != u'':
@@ -877,7 +881,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		path_template = None
 		export_path = None
 
-		data_parts = data.split('//')
+		data_parts = data.split(self.__args_divider)
 
 		if u'select' in data_parts:
 			select = True
@@ -952,7 +956,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		date_format = None
 
 		if data is not None:
-			data_parts = data.split('//')
+			data_parts = data.split(self.__args_divider)
 
 			# part[0]: categories
 			if len(data_parts[0]) > 0:
@@ -991,7 +995,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		time_range = None
 
 		if data is not None:
-			data_parts = data.split('//')
+			data_parts = data.split(self.__args_divider)
 
 			# part[0]: categories
 			cats = []
@@ -1062,7 +1066,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		template = u'%s'
 
 		if data is not None:
-			data_parts = data.split('//')
+			data_parts = data.split(self.__args_divider)
 
 			# part[0]: categories
 			if len(data_parts[0]) > 0:
@@ -1128,7 +1132,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		template = u'%(narrative)s'
 
 		if data is not None:
-			data_parts = data.split('//')
+			data_parts = data.split(self.__args_divider)
 
 			# part[0]: categories
 			cats = []
@@ -1843,31 +1847,11 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 
 		# setup dummy files
 		for idx in [1,2,3]:
-			self.set_placeholder (
-				key = u'amts_data_file_%s' % idx,
-				value = './missing-file.txt',
-				known_only = False
-			)
-			self.set_placeholder (
-				key = u'amts_png_file_%s' % idx,
-				value = './missing-file.png',
-				known_only = False
-			)
-		self.set_placeholder (
-			key = u'amts_png_file_current_page',
-			value = './missing-file-current-page.png',
-			known_only = False
-		)
-		self.set_placeholder (
-			key = u'amts_png_file_utf8',
-			value = './missing-file-utf8.png',
-			known_only = False
-		)
-		self.set_placeholder (
-			key = u'amts_data_file_utf8',
-			value = './missing-file-utf8.txt',
-			known_only = False
-		)
+			self.set_placeholder(key = u'amts_data_file_%s' % idx, value = './missing-file.txt', known_only = False)
+			self.set_placeholder(key = u'amts_png_file_%s' % idx, value = './missing-file.png', known_only = False)
+		self.set_placeholder(key = u'amts_png_file_current_page', value = './missing-file-current-page.png', known_only = False)
+		self.set_placeholder(key = u'amts_png_file_utf8', value = './missing-file-utf8.png', known_only = False)
+		self.set_placeholder(key = u'amts_data_file_utf8', value = './missing-file-utf8.txt', known_only = False)
 
 		# find processor
 		found, dmtx_creator = gmShellAPI.detect_external_binary(binary = u'gm-create_datamatrix')
@@ -1886,26 +1870,22 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		amts_data_template_def_file = gmMedication.generate_amts_data_template_definition_file(strict = False)
 		_log.debug('amts data template definition file: %s', amts_data_template_def_file)
 		form = gmForms.cTextForm(template_file = amts_data_template_def_file)
-		intakes_as_amts_data = []
-		for intake in intakes:
-			intakes_as_amts_data.append(intake._get_as_amts_data(strict = False))
+		# <S>ection with intakes</S>
+		amts_sections = u'<S>%s</S>' % u''.join ([
+			i._get_as_amts_data(strict = False) for i in intakes
+		])
+		# <S>ection with allergy data</S>
 		emr = self.pat.get_emr()
-		intakes_as_amts_data.extend(emr.allergy_state._get_as_amts_data(strict = False))
-		for allg in emr.get_allergies():
-			intakes_as_amts_data.append(allg._get_as_amts_data(strict = False))
-		self.set_placeholder (
-			key = u'amts_intakes_as_data_enhanced',
-			value = u'|'.join(intakes_as_amts_data),
-			known_only = False
-		)
-		self.set_placeholder (
-			key = u'amts_check_symbol',
-			value = gmMedication.calculate_amts_data_check_symbol(intakes = intakes),
-			known_only = False
-		)
+		amts_sections += emr.allergy_state._get_as_amts_data(strict = False) % u''.join ([
+			a._get_as_amts_data(strict = False) for a in emr.get_allergies()
+		])
+		self.set_placeholder(key = u'amts_intakes_as_data_enhanced', value = amts_sections, known_only = False)
+#		self.set_placeholder(key = u'amts_check_symbol', value = gmMedication.calculate_amts_data_check_symbol(intakes = intakes), known_only = False)
+		self.set_placeholder(key = u'amts_total_pages', value = u'1', known_only = False)
 		success = form.substitute_placeholders(data_source = self)
 		self.unset_placeholder(key = u'amts_intakes_as_data_enhanced')
-		self.unset_placeholder(key = u'amts_check_symbol')
+#		self.unset_placeholder(key = u'amts_check_symbol')
+		self.unset_placeholder(key = u'amts_total_pages')
 		if not success:
 			_log.error(u'cannot substitute into amts data file form template')
 			return
@@ -1916,16 +1896,8 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		if not success:
 			_log.error(u'error running [%s]' % cmd)
 			return
-		self.set_placeholder (
-			key = u'amts_data_file_utf8',
-			value = data_file,
-			known_only = False
-		)
-		self.set_placeholder (
-			key = u'amts_png_file_utf8',
-			value = png_file,
-			known_only = False
-		)
+		self.set_placeholder(key = u'amts_data_file_utf8', value = data_file, known_only = False)
+		self.set_placeholder(key = u'amts_png_file_utf8', value = png_file, known_only = False)
 
 		# generate conformant per-page files:
 		total_pages = (len(intakes) / 15.0)
@@ -1940,36 +1912,27 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			amts_data_template_def_file = gmMedication.generate_amts_data_template_definition_file(strict = True)
 			_log.debug('amts data template definition file: %s', amts_data_template_def_file)
 			form = gmForms.cTextForm(template_file = amts_data_template_def_file)
-			intakes_as_amts_data = []
-			for intake in intakes_this_page:
-				intakes_as_amts_data.append(intake.as_amts_data)
+			# <S>ection with intakes</S>
+			amts_sections = u'<S>%s</S>' % u''.join ([
+				i._get_as_amts_data(strict = False) for i in intakes_this_page
+			])
 			if this_page == total_pages:
-				intakes_as_amts_data.extend(emr.allergy_state._get_as_amts_data(strict = True))
-				for allg in emr.get_allergies():
-					intakes_as_amts_data.append(allg._get_as_amts_data(strict = True))
-			self.set_placeholder (
-				key = u'amts_intakes_as_data',
-				value = u'|'.join(intakes_as_amts_data),
-				known_only = False
-			)
-			self.set_placeholder (
-				key = u'amts_check_symbol',
-				value = gmMedication.calculate_amts_data_check_symbol(intakes = intakes_this_page),
-				known_only = False
-			)
-			self.set_placeholder (
-				key = u'amts_page_idx',
-				value = u'%s' % this_page,
-				known_only = False
-			)
-			self.set_placeholder (
-				key = u'amts_total_pages',
-				value = u'%s' % total_pages,
-				known_only = False
-			)
+				# <S>ection with allergy data</S>
+				emr = self.pat.get_emr()
+				amts_sections += emr.allergy_state._get_as_amts_data(strict = False) % u''.join ([
+					a._get_as_amts_data(strict = False) for a in emr.get_allergies()
+				])
+			self.set_placeholder(key = u'amts_intakes_as_data', value = amts_sections, known_only = False)
+#			self.set_placeholder(key = u'amts_check_symbol', value = gmMedication.calculate_amts_data_check_symbol(intakes = intakes_this_page), known_only = False)
+			if total_pages == 1:
+				pg_idx = u''
+			else:
+				pg_idx = u'%s' % this_page
+			self.set_placeholder(key = u'amts_page_idx', value = pg_idx, known_only = False)
+			self.set_placeholder(key = u'amts_total_pages', value = u'%s' % total_pages, known_only = False)
 			success = form.substitute_placeholders(data_source = self)
 			self.unset_placeholder(key = u'amts_intakes_as_data')
-			self.unset_placeholder(key = u'amts_check_symbol')
+#			self.unset_placeholder(key = u'amts_check_symbol')
 			self.unset_placeholder(key = u'amts_page_idx')
 			self.unset_placeholder(key = u'amts_total_pages')
 			if not success:
@@ -1991,24 +1954,11 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 				return
 
 			# cache file names for later use in \embedfile
-			self.set_placeholder (
-				key = u'amts_data_file_%s' % this_page,
-				value = latin1_data_file,
-				known_only = False
-			)
-			self.set_placeholder (
-				key = u'amts_png_file_%s' % this_page,
-				value = png_file,
-				known_only = False
-			)
+			self.set_placeholder(key = u'amts_data_file_%s' % this_page, value = latin1_data_file, known_only = False)
+			self.set_placeholder(key = u'amts_png_file_%s' % this_page, value = png_file, known_only = False)
 
-		self.set_placeholder (
-			key = u'amts_png_file_current_page',
-			value = png_file_base + u'\\thepage',
-			known_only = False
-		)
+		self.set_placeholder(key = u'amts_png_file_current_page', value = png_file_base + u'\\thepage', known_only = False)
 
-		return
 	#--------------------------------------------------------
 	def _get_variant_current_meds_for_rx(self, data=None):
 		if data is None:
@@ -2154,7 +2104,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		)
 	#--------------------------------------------------------
 	def _get_variant_vaccination_history(self, data=None):
-		options = data.split('//')
+		options = data.split(self.__args_divider)
 		template = options[0]
 		if len(options) > 1:
 			date_format = options[1]
@@ -2295,6 +2245,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			return template % filename
 
 		return template % target_fname
+
 	#--------------------------------------------------------
 	def _get_variant_range_of(self, data=None):
 		if data is None:
@@ -2303,6 +2254,23 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		# selecting the range so all we need to do here
 		# is to return the data itself
 		return data
+
+	#--------------------------------------------------------
+	def _get_variant_if_not_empty(self, data=None):
+		if data is None:
+			return None
+
+		parts = data.split(self.__args_divider)
+		txt = parts[0]
+		template = parts[1]
+		instead = parts[2]
+
+		if txt.strip() == u'':
+			return instead
+		if u'%s' in template:
+			return template % txt
+		return template
+
 	#--------------------------------------------------------
 	def _get_variant_free_text(self, data=None):
 
@@ -2339,6 +2307,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			self.__cache[cache_key] = text
 
 		return text
+
 	#--------------------------------------------------------
 	def _get_variant_bill(self, data=None):
 		try:
@@ -2352,7 +2321,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 				return u''
 			self.__cache['bill'] = bill
 
-		parts = data.split('//')
+		parts = data.split(self.__args_divider)
 		template = parts[0]
 		if len(parts) > 1:
 			date_format = parts[1]
@@ -2373,7 +2342,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 				return u''
 			self.__cache['bill'] = bill
 
-		parts = data.split('//')
+		parts = data.split(self.__args_divider)
 		template = parts[0]
 		if len(parts) > 1:
 			date_format = parts[1]

@@ -15,6 +15,9 @@ FIX: setting address from list in receiver selection widget
 IMPROVED: start-end formatting of substance intake
 IMPROVED: select unicode character from SOAP STC context menu
 IMPROVED: edit test results by context menu from lists
+IMPROVED: AMTS data file generation (v2 -> v2.3)
+
+NEW: placeholder $<if_not_empty>$
 
 	1.6.8
 
