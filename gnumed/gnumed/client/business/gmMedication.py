@@ -11,9 +11,10 @@ import logging
 import csv
 import io
 import os
-import re as regex
 import subprocess
 import decimal
+import uuid
+import re as regex
 from xml.etree import ElementTree as etree
 import datetime as pydt
 
@@ -2919,7 +2920,8 @@ def format_substance_intake_as_amts_latex(intake=None, strict=True):
 			cells.append(u'\\fontsize{10pt}{12pt}\selectfont %s ' % _esc(intake['notes']))
 	# aim
 	if intake['aim'] is None:
-		cells.append(u' ')
+		#cells.append(u' ')
+		cells.append(_esc(intake['episode'][:50]))
 	else:
 		if strict:
 			cells.append(_esc(intake['aim'][:50]))
@@ -2933,7 +2935,118 @@ def format_substance_intake_as_amts_latex(intake=None, strict=True):
 
 #------------------------------------------------------------
 def format_substance_intake_as_amts_data(intake=None, strict=True):
-#def format_substance_intake_as_amts_data_v2_0(intake=None, strict=True):
+	"""
+	<M a="Handelsname" fd="freie Formangabe" t="freies Dosierschema" dud="freie Dosiereinheit (Stück Tab)" r="reason" i="info">
+		<W w="Metformin" s="500 mg"/>
+		<W ...>
+	</M>
+	"""
+	if not strict:
+		pass
+		# relax length checks
+
+	M_fields = []
+	if intake['pk_brand'] is not None:
+		M_fields.append(u'a="%s"' % intake['brand'])
+	M_fields.append(u'fd="%s"' % intake['preparation'])
+	if intake['schedule'] is not None:
+		M_fields.append(u't="%s"' % intake['schedule'])
+	#M_fields.append(u'dud="%s"' % intake['dose unit, like Stück'])
+	if intake['aim'] is None:
+		M_fields.append(u'r="%s"' % intake['episode'])
+	else:
+		M_fields.append(u'r="%s"' % intake['aim'])
+	if intake['notes'] is not None:
+		M_fields.append(u'i="%s"' % intake['notes'])
+	M_line = u'<M %s>' % u' '.join(M_fields)
+
+	if intake['pk_brand'] is None:
+		components = [[intake['substance'], intake['amount'], intake['unit'], u'']]
+	else:
+		components = [ c.split('::') for c in intake.containing_drug['components'] ]
+	W_lines = []
+	for comp in components:
+		W_lines.append(u'<W w="%s" s="%s %s"/>' % (comp[0], comp[1], comp[2]))
+
+	return M_line + u''.join(W_lines) + u'</M>'
+
+#------------------------------------------------------------
+def generate_amts_data_template_definition_file(work_dir=None, strict=True):
+
+	_log.debug('generating AMTS data template definition file(workdir=%s, strict=%s)', work_dir, strict)
+
+	if not strict:
+		return __generate_enhanced_amts_data_template_definition_file(work_dir = work_dir)
+
+	amts_lines = [ l for l in (u'<MP v="023" U="%s"' % uuid.uuid4().hex + u""" l="de-DE"$<<if_not_empty::$<amts_page_idx::::1>$// a="%s"//::>>$$<<if_not_empty::$<amts_page_idx::::>$// z="$<amts_total_pages::::1>$"//::>>$>
+<P g="$<name::%(firstnames)s::45>$" f="$<name::%(lastnames)s::45>$" b="$<date_of_birth::%Y%m%d::8>$"/>
+<A
+ n="$<<range_of::$<praxis::%(praxis)s,%(branch)s::>$,$<current_provider::::>$::30>>$"
+$<praxis_address:: s="%(street)s"::>$
+$<praxis_address:: z="%(postcode)s"::>$
+$<praxis_address:: c="%(urb)s::>$
+$<praxis_comm::workphone// p="%(url)s::20>$
+$<praxis_comm::email// e="%(url)s::80>$
+ t="$<today::%Y%m%d::8>$"
+/>
+<O ai="s.S.$<amts_total_pages::::1>$ unten"/>
+$<amts_intakes_as_data::::9999999>$
+</MP>""").split(u'\n') ]
+#$<<if_not_empty::$<allergy_list::%(descriptor)s//,::>$//<O ai="%s"/>::>>$
+
+	amts_fname = gmTools.get_unique_filename (
+		prefix = 'gm2amts_data-',
+		suffix = '.txt',
+		tmp_dir = work_dir
+	)
+	amts_template = io.open(amts_fname, mode = 'wt', encoding = 'utf8')
+	amts_template.write(u'[form]\n')
+	amts_template.write(u'template = $template$\n')
+	amts_template.write(u''.join(amts_lines))
+	amts_template.write(u'\n')
+	amts_template.write(u'$template$\n')
+	amts_template.close()
+
+	return amts_fname
+
+#------------------------------------------------------------
+def __generate_enhanced_amts_data_template_definition_file(work_dir=None):
+
+	amts_lines = [ l for l in (u'<MP v="023" U="%s"' % uuid.uuid4().hex + u""" l="de-DE" a="1" z="1">
+<P g="$<name::%(firstnames)s::>$" f="$<name::%(lastnames)s::>$" b="$<date_of_birth::%Y%m%d::8>$"/>
+<A
+ n="$<praxis::%(praxis)s,%(branch)s::>$,$<current_provider::::>$"
+$<praxis_address:: s="%(street)s %(number)s %(subunit)s"::>$
+$<praxis_address:: z="%(postcode)s"::>$
+$<praxis_address:: c="%(urb)s::>$
+$<praxis_comm::workphone// p="%(url)s::>$
+$<praxis_comm::email// e="%(url)s::>$
+ t="$<today::%Y%m%d::8>$"
+/>
+<O ai="Seite 1 unten"/>
+$<amts_intakes_as_data_enhanced::::9999999>$
+</MP>""").split(u'\n') ]
+#$<<if_not_empty::$<allergy_list::%(descriptor)s//,::>$//<O ai="%s"/>::>>$
+
+	amts_fname = gmTools.get_unique_filename (
+		prefix = 'gm2amts_data-utf8-unabridged-',
+		suffix = '.txt',
+		tmp_dir = work_dir
+	)
+	amts_template = io.open(amts_fname, mode = 'wt', encoding = 'utf8')
+	amts_template.write(u'[form]\n')
+	amts_template.write(u'template = $template$\n')
+	amts_template.write(u''.join(amts_lines))
+	amts_template.write(u'\n')
+	amts_template.write(u'$template$\n')
+	amts_template.close()
+
+	return amts_fname
+
+#------------------------------------------------------------
+# AMTS v2.0
+#------------------------------------------------------------
+def format_substance_intake_as_amts_data_v2_0(intake=None, strict=True):
 
 	if not strict:
 		pass
@@ -2982,8 +3095,7 @@ def format_substance_intake_as_amts_data(intake=None, strict=True):
 	return u'|'.join(fields)
 
 #------------------------------------------------------------
-def calculate_amts_data_check_symbol(intakes=None):
-#def calculate_amts_data_check_symbol_v2_0(intakes=None):
+def calculate_amts_data_check_symbol_v2_0(intakes=None):
 
 	# first char of generic substance or brand name
 	first_chars = []
@@ -3014,8 +3126,7 @@ def calculate_amts_data_check_symbol(intakes=None):
 	return chr(remainder + 55)
 
 #------------------------------------------------------------
-def generate_amts_data_template_definition_file(work_dir=None, strict=True):
-#def generate_amts_data_template_definition_file_v2_0(work_dir=None, strict=True):
+def generate_amts_data_template_definition_file_v_2_0(work_dir=None, strict=True):
 
 	if not strict:
 		return __generate_enhanced_amts_data_template_definition_file(work_dir = work_dir)
@@ -3069,8 +3180,7 @@ def generate_amts_data_template_definition_file(work_dir=None, strict=True):
 	return amts_fname
 
 #------------------------------------------------------------
-def __generate_enhanced_amts_data_template_definition_file(work_dir=None):
-#def __generate_enhanced_amts_data_template_definition_file_v2_0(work_dir=None):
+def __generate_enhanced_amts_data_template_definition_file_v_2_0(work_dir=None):
 
 	amts_fields = [
 		u'MP',
@@ -3935,6 +4045,15 @@ if __name__ == "__main__":
 			gmTools.prompted_input()
 
 	#--------------------------------------------------------
+	def test_generate_amts_data_template_definition_file(work_dir=None, strict=True):
+		print 'file:', generate_amts_data_template_definition_file(strict = True)
+
+	#--------------------------------------------------------
+	def test_format_substance_intake_as_amts_data():
+		#print format_substance_intake_as_amts_data(cSubstanceIntakeEntry(1))
+		print cSubstanceIntakeEntry(1).as_amts_data
+
+	#--------------------------------------------------------
 	# MMI/Gelbe Liste
 	#test_MMI_interface()
 	#test_MMI_file()
@@ -3954,4 +4073,8 @@ if __name__ == "__main__":
 	#test_get_consumable_substances()
 
 	#test_drug2renal_insufficiency_url()
-	test_medically_formatted_start_end()
+	#test_medically_formatted_start_end()
+
+	# AMTS
+	#test_generate_amts_data_template_definition_file()
+	test_format_substance_intake_as_amts_data()

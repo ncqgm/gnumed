@@ -155,7 +155,7 @@ class cAllergyState(gmBusinessDBObject.cBusinessDBObject):
 	as_amts_latex = property(_get_as_amts_latex, lambda x:x)
 
 	#--------------------------------------------------------
-	def _get_as_amts_data(self, strict=True):
+	def _get_as_amts_data_v_2_0(self, strict=True):
 		lines = []
 		# Trennzeile für bessere Lesbarkeit als leere Zwischenüberschrift
 		lines.append(u'$ ')
@@ -175,6 +175,21 @@ class cAllergyState(gmBusinessDBObject.cBusinessDBObject):
 			else:
 				lines.append(u'@%s' % self['comment'])
 		return lines
+
+	#--------------------------------------------------------
+	def _get_as_amts_data(self, strict=True):
+		# Zwischenüberschrift
+		state = u'%s (%s)' % (self.state_string, gmDateTime.pydt_strftime(self['last_confirmed'], '%b %Y'))
+		if strict:
+			state = state[:32]
+		# Freitextzeile
+		if self['comment'] is None:
+			comment = u''
+		else:
+			comment = u'<X t="%s"/>' % self['comment']
+			if strict:
+				comment = u'<X t="%s"/>' % self['comment'][:200]
+		return u'<S t="%s">%s%%s</S>' % (state, comment)
 
 	as_amts_data = property(_get_as_amts_data, lambda x:x)
 
@@ -300,7 +315,7 @@ class cAllergy(gmBusinessDBObject.cBusinessDBObject):
 	as_amts_latex = property(_get_as_amts_latex, lambda x:x)
 
 	#--------------------------------------------------------
-	def _get_as_amts_data(self, strict=True):
+	def _get_as_amts_data_v_2_0(self, strict=True):
 		# Freitextzeile: 200 Zeichen, @..., \textwidth
 		txt = u'@%s %s%s' % (
 			self['descriptor'],
@@ -310,6 +325,18 @@ class cAllergy(gmBusinessDBObject.cBusinessDBObject):
 		if strict:
 			return txt[:200]
 		return txt
+
+	#--------------------------------------------------------
+	def _get_as_amts_data(self, strict=True):
+		txt = u'%s %s%s' % (
+			self['descriptor'],
+			self['l10n_type'],
+			gmTools.coalesce(self['reaction'], u'', u': %s')
+		)
+		if strict:
+			txt = txt[:200]
+		# Freitextzeile: 200 Zeichen
+		return u'<X t="%s"/>' % txt
 
 	as_amts_data = property(_get_as_amts_data, lambda x:x)
 
@@ -359,6 +386,7 @@ def create_allergy(allergene=None, allg_type=None, episode_id=None, encounter_id
 	allergy = cAllergy(aPK_obj = rows[0][0])
 
 	return allergy
+
 #============================================================
 # main - unit testing
 #------------------------------------------------------------
