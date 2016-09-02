@@ -379,6 +379,7 @@ def manage_substances(parent=None):
 		items = [ [
 			s['description'],
 			gmTools.coalesce(s['atc'], u''),
+			gmTools.coalesce(s['intake_instructions'], u''),
 			s['pk']
 		] for s in substs ]
 		lctrl.set_string_items(items)
@@ -388,7 +389,7 @@ def manage_substances(parent=None):
 	gmListWidgets.get_choices_from_list (
 		parent = parent,
 		caption = _('Substances registered with GNUmed.'),
-		columns = [_('Substance'), 'ATC', u'#'],
+		columns = [_('Substance'), 'ATC', _('Instructions'), u'#'],
 		single_selection = True,
 		new_callback = edit,
 		edit_callback = edit,
@@ -459,6 +460,8 @@ class cSubstanceEAPnl(wxgSubstanceEAPnl.wxgSubstanceEAPnl, gmEditArea.cGenericEd
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot save substance. %s') % msg, beep = True)
 			return False
 
+		subst['intake_instructions'] = self._TCTRL_instructions.GetValue().strip()
+
 		self.data = subst
 		return True
 
@@ -466,6 +469,7 @@ class cSubstanceEAPnl(wxgSubstanceEAPnl.wxgSubstanceEAPnl, gmEditArea.cGenericEd
 	def _save_as_update(self):
 		self.data['description'] = self._TCTRL_substance.GetValue().strip()
 		self.data['atc'] = self._PRW_atc.GetData()
+		self.data['intake_instructions'] = self._TCTRL_instructions.GetValue().strip()
 		success, data = self.data.save()
 
 		if not success:
@@ -481,6 +485,7 @@ class cSubstanceEAPnl(wxgSubstanceEAPnl.wxgSubstanceEAPnl, gmEditArea.cGenericEd
 	def _refresh_as_new(self):
 		self._TCTRL_substance.SetValue(u'')
 		self._PRW_atc.SetText(u'', None)
+		self._TCTRL_instructions.SetValue(u'')
 
 		self._TCTRL_substance.SetFocus()
 
@@ -488,6 +493,7 @@ class cSubstanceEAPnl(wxgSubstanceEAPnl.wxgSubstanceEAPnl, gmEditArea.cGenericEd
 	def _refresh_from_existing(self):
 		self._TCTRL_substance.SetValue(self.data['description'])
 		self._PRW_atc.SetText(gmTools.coalesce(self.data['atc'], u''), self.data['atc'])
+		self._TCTRL_instructions.SetValue(gmTools.coalesce(self.data['intake_instructions'], u''))
 
 		self._TCTRL_substance.SetFocus()
 

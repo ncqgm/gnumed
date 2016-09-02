@@ -24,6 +24,7 @@ class wxgSubstanceEAPnl(wx.ScrolledWindow):
 		self._TCTRL_substance = cTextCtrl(self, wx.ID_ANY, "", style=wx.BORDER_NONE)
 		self._HL_atc_list = wx.HyperlinkCtrl(self, wx.ID_ANY, _("ATC Code"), _("http://www.whocc.no/atc_ddd_index/"), style=wx.HL_DEFAULT_STYLE)
 		self._PRW_atc = cATCPhraseWheel(self, wx.ID_ANY, "", style=wx.BORDER_NONE)
+		self._TCTRL_instructions = cTextCtrl(self, wx.ID_ANY, "", style=wx.BORDER_NONE)
 
 		self.__set_properties()
 		self.__do_layout()
@@ -34,17 +35,21 @@ class wxgSubstanceEAPnl(wx.ScrolledWindow):
 		self.SetScrollRate(10, 10)
 		self._TCTRL_substance.SetToolTipString(_("Enter the name of the substance.\n\nExamples:\n- metoprolol\n- tobacco\n- alcohol\n- marihuana\n- aloe vera\n- ibuprofen"))
 		self._HL_atc_list.SetToolTipString(_("Browse ATC list."))
+		self._TCTRL_instructions.SetToolTipString(_("Generic intake instructions for this substance."))
 		# end wxGlade
 
 	def __do_layout(self):
 		# begin wxGlade: wxgSubstanceEAPnl.__do_layout
-		_gszr_main = wx.FlexGridSizer(2, 2, 1, 3)
+		_gszr_main = wx.FlexGridSizer(3, 2, 1, 3)
 		__lbl_substance = wx.StaticText(self, wx.ID_ANY, _("Substance"))
 		__lbl_substance.SetForegroundColour(wx.Colour(255, 0, 0))
 		_gszr_main.Add(__lbl_substance, 0, wx.ALIGN_CENTER_VERTICAL, 0)
 		_gszr_main.Add(self._TCTRL_substance, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
 		_gszr_main.Add(self._HL_atc_list, 0, wx.ALIGN_CENTER_VERTICAL, 0)
 		_gszr_main.Add(self._PRW_atc, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
+		__lbl_instructions = wx.StaticText(self, wx.ID_ANY, _("Instructions"))
+		_gszr_main.Add(__lbl_instructions, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+		_gszr_main.Add(self._TCTRL_instructions, 1, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
 		self.SetSizer(_gszr_main)
 		_gszr_main.Fit(self)
 		_gszr_main.AddGrowableCol(1)
