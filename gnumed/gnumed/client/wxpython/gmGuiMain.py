@@ -2323,7 +2323,7 @@ class gmTopLevelFrame(wx.Frame):
 			'vacc_indications': _('Vaccination targets (conditions known to be preventable by vaccination)'),
 			'vaccines': _('Vaccines'),
 			'workplaces': _('Workplace profiles (which plugins to load)'),
-			'substances': _('Consumable substances'),
+			'substances': _('Plain substances'),
 			'billables': _('Billable items'),
 			'ref_data_sources': _('Reference data sources'),
 			'test_panels': _('Test/measurement panels/profiles')
@@ -2347,7 +2347,7 @@ class gmTopLevelFrame(wx.Frame):
 			'vacc_indications': gmVaccWidgets.manage_vaccination_indications,
 			'orgs': gmOrganizationWidgets.manage_orgs,
 			'adr': gmAddressWidgets.manage_addresses,
-			'substances': gmSubstanceMgmtWidgets.manage_consumable_substances,
+			'substances': gmSubstanceMgmtWidgets.manage_substances,
 			'patient_tags': gmDemographicsWidgets.manage_tag_images,
 			'communication_channel_types': gmContactWidgets.manage_comm_channel_types,
 			'billables': gmBillingWidgets.manage_billables,

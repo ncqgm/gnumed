@@ -1809,10 +1809,16 @@ WHERE
 		return intakes
 
 	#--------------------------------------------------------
-	def add_substance_intake(self, pk_component=None, pk_episode=None, pk_brand=None):
+	def add_substance_intake(self, pk_component=None, pk_episode=None, pk_brand=None, pk_health_issue=None):
+		pk_enc = self.current_encounter['pk_encounter']
+		if pk_episode is None:
+			pk_episode = gmMedication.create_default_medication_history_episode (
+				pk_health_issue = pk_health_issue,
+				encounter = pk_enc
+			)
 		return gmMedication.create_substance_intake (
 			pk_component = pk_component,
-			pk_encounter = self.current_encounter['pk_encounter'],
+			pk_encounter = pk_enc,
 			pk_episode = pk_episode,
 			pk_brand = pk_brand
 		)

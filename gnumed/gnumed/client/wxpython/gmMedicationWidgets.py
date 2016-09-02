@@ -614,7 +614,7 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 			epi = self._PRW_episode.GetData(can_create = True, is_open = True)
 
 		selected_drug = self._PRW_drug.GetData(as_instance = True)
-		xxxxxxx
+		#xxxxxxx
 		intake = selected_drug.turn_into_intake (
 			encounter = gmPerson.gmCurrentPatient().emr.current_encounter['pk_encounter'],
 			episode = epi,
@@ -1254,11 +1254,7 @@ def update_substance_intake_list_from_prescription(parent=None, prescribed_drugs
 
 	for drug in drugs2add:
 		# only add first component since all other components get added by a trigger ...
-		intake = emr.add_substance_intake (
-			pk_component = drug['pk_components'][0],
-			xxxxxxx use helper function
-			pk_episode = emr.add_episode(episode_name = gmMedication.DEFAULT_MEDICATION_HISTORY_EPISODE)['pk_episode'],
-		)
+		intake = emr.add_substance_intake(pk_component = drug['pk_components'][0])
 		if intake is None:
 			continue
 		intake['intake_is_approved_of'] = True

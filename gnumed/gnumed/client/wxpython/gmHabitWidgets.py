@@ -154,13 +154,13 @@ class cSubstanceAbuseEAPnl(wxgSubstanceAbuseEAPnl.wxgSubstanceAbuseEAPnl, gmEdit
 	def _save_as_new(self):
 
 		if self._RBTN_tobacco.GetValue() is True:
-			pk_brand =  = gmMedication.get_tobacco()['pk_brand']
+			pk_brand = gmMedication.get_tobacco()['pk_brand']
 
 		elif self._RBTN_c2.GetValue() is True:
-			pk_brand =  = gmMedication.get_alcohol()['pk_brand']
+			pk_brand = gmMedication.get_alcohol()['pk_brand']
 
 		elif self._RBTN_other_substance.GetValue() is True:
-			xxxxxxxxx
+			#xxxxxxxxx
 			#PRW_substance -> _dose
 			pk_brand = gmMedication.get_other_drug (
 				name = self._PRW_substance.GetValue().strip(),
