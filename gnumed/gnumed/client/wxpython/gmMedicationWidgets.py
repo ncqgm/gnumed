@@ -256,6 +256,7 @@ def manage_substance_intakes(parent=None, emr=None):
 #			gmDispatcher.send(signal = 'statustext', msg = _('Cannot delete this substance. It is in use.'), beep = True)
 #			return False
 #
+#		xxxxx -> substance_dose
 #		return gmMedication.delete_consumable_substance(substance = substance['pk'])
 	#------------------------------------------------------------
 	def get_tooltip(intake=None):
@@ -611,6 +612,7 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 			epi = self._PRW_episode.GetData(can_create = True, is_open = True)
 
 		selected_drug = self._PRW_drug.GetData(as_instance = True)
+		xxxxxxx
 		intake = selected_drug.turn_into_intake (
 			encounter = gmPerson.gmCurrentPatient().emr.current_encounter['pk_encounter'],
 			episode = epi,
@@ -1251,7 +1253,8 @@ def update_substance_intake_list_from_prescription(parent=None, prescribed_drugs
 		# only add first component since all other components get added by a trigger ...
 		intake = emr.add_substance_intake (
 			pk_component = drug['pk_components'][0],
-			episode = emr.add_episode(episode_name = gmMedication.DEFAULT_MEDICATION_HISTORY_EPISODE)['pk_episode'],
+			xxxxxxx use helper function
+			pk_episode = emr.add_episode(episode_name = gmMedication.DEFAULT_MEDICATION_HISTORY_EPISODE)['pk_episode'],
 		)
 		if intake is None:
 			continue

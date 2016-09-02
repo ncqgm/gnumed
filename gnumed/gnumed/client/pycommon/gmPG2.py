@@ -88,7 +88,7 @@ FixedOffsetTimezone = dbapi.tz.FixedOffsetTimezone
 _default_dsn = None
 _default_login = None
 
-default_database = 'gnumed_v21'
+default_database = 'gnumed_v22'
 
 postgresql_version_string = None
 postgresql_version = None			# accuracy: major.minor

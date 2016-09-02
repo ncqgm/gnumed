@@ -368,9 +368,11 @@ def manage_consumable_substances(parent=None):
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot delete this substance. It is in use.'), beep = True)
 			return False
 
+		xxxxxxx
 		return gmMedication.delete_consumable_substance(substance = substance['pk'])
 	#------------------------------------------------------------
 	def refresh(lctrl):
+		xxxxxxx
 		substs = gmMedication.get_consumable_substances(order_by = 'description')
 		items = [ [
 			s['description'],
@@ -460,6 +462,7 @@ class cConsumableSubstanceEAPnl(wxgConsumableSubstanceEAPnl.wxgConsumableSubstan
 
 	#----------------------------------------------------------------
 	def _save_as_new(self):
+		xxxxxxxxx
 		subst = gmMedication.create_consumable_substance (
 			substance = self._TCTRL_substance.GetValue().strip(),
 			atc = self._PRW_atc.GetData(),
@@ -550,8 +553,8 @@ def manage_drug_components(parent=None):
 		if component.is_in_use_by_patients:
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot remove this component from the drug. It is in use.'), beep = True)
 			return False
+		return component.containing_drug.remove_component(pk_component = component['pk_component'])
 
-		return component.containing_drug.remove_component(substance = component['pk_component'])
 	#------------------------------------------------------------
 	def refresh(lctrl):
 		comps = gmMedication.get_drug_components()
@@ -827,7 +830,7 @@ def manage_branded_drugs(parent=None, ignore_OK_button=False):
 				) % (brand['brand'], brand['preparation'])
 			)
 			return False
-		gmMedication.delete_branded_drug(brand = brand['pk_brand'])
+		gmMedication.delete_branded_drug(pk_brand = brand['pk_brand'])
 		return True
 	#------------------------------------------------------------
 	def new():
@@ -905,6 +908,7 @@ def manage_components_of_branded_drug(parent=None, brand=None):
 		) % right_col
 		comp_substs = [ c.substance for c in brand.components ]
 
+	xxxxxxx
 	substs = gmMedication.get_consumable_substances(order_by = 'description')
 	choices = [ u'%s %s %s' % (s['description'], s['amount'], s['unit']) for s in substs ]
 	picks = [ u'%s %s %s' % (c['description'], c['amount'], c['unit']) for c in comp_substs ]
@@ -932,7 +936,7 @@ def manage_components_of_branded_drug(parent=None, brand=None):
 		return (False, None)
 
 	if brand is not None:
-		brand.set_substances_as_components(substances = substs)
+		brand.set_substance_doses_as_components(substance_doses = xxxx_substs)		xxxxxxxxx
 
 	return (True, substs)
 
@@ -956,6 +960,7 @@ class cBrandedDrugEAPnl(wxgBrandedDrugEAPnl.wxgBrandedDrugEAPnl, gmEditArea.cGen
 		self.data = data
 		if data is not None:
 			self.mode = 'edit'
+			xxxxxxxxxx
 			self.__component_substances = data.components_as_substances
 
 		#self.__init_ui()
@@ -1052,7 +1057,7 @@ class cBrandedDrugEAPnl(wxgBrandedDrugEAPnl.wxgBrandedDrugEAPnl, gmEditArea.cGen
 		drug.save()
 
 		if len(self.__component_substances) > 0:
-			drug.set_substances_as_components(substances = self.__component_substances)
+			drug.set_substance_doses_as_components(substance_doses = xxx_self.__component_substances)			xxxxxxx
 
 		self.data = drug
 
@@ -1112,6 +1117,7 @@ class cBrandedDrugEAPnl(wxgBrandedDrugEAPnl.wxgBrandedDrugEAPnl, gmEditArea.cGen
 
 		self._PRW_brand.SetFocus()
 
+		xxxxxxxxxxxxxxxx
 		self.__component_substances = self.data.components_as_substances
 
 	#----------------------------------------------------------------

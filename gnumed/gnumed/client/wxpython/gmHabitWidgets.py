@@ -151,36 +151,24 @@ class cSubstanceAbuseEAPnl(wxgSubstanceAbuseEAPnl.wxgSubstanceAbuseEAPnl, gmEdit
 	def _save_as_new(self):
 
 		if self._RBTN_tobacco.GetValue() is True:
-			pk_substance = gmMedication.create_consumable_substance_by_atc (
-				substance = _('nicotine'),
-				atc = gmATC.ATC_NICOTINE,
-				amount = 1,
-				unit = u'1'
-			)['pk']
+			pk_brand =  = gmMedication.get_tobacco()['pk_brand']
 
 		elif self._RBTN_c2.GetValue() is True:
-			pk_substance = gmMedication.create_consumable_substance_by_atc (
-				substance = _('nicotine'),
-				atc = gmATC.ATC_ETHANOL,
-				amount = 1,
-				unit = _('units')
-			)['pk']
+			pk_brand =  = gmMedication.get_alcohol()['pk_brand']
 
 		elif self._RBTN_other_substance.GetValue() is True:
-			pk_substance = self._PRW_substance.GetData()
-			if pk_substance is None:
-				pk_substance = gmMedication.create_consumable_substance (
-					substance = self._PRW_substance.GetValue().strip(),
-					amount = 1,
-					unit = _('units')
-				)['pk']
+			xxxxxxxxx
+			#PRW_substance -> _dose
+			pk_brand = gmMedication.get_other_drug (
+				name = self._PRW_substance.GetValue().strip(),
+				pk_dose = self._PRW_substance.GetData()
+			)['pk_brand']
 
 		pk_encounter = self.__patient.emr.active_encounter['pk_encounter']
 		intake = gmMedication.create_substance_intake (
-			pk_substance = pk_substance,
-			preparation = _('unit'),
-			encounter = pk_encounter,
-			episode = gmMedication.create_default_medication_history_episode(encounter = pk_encounter)['pk_episode']
+			pk_brand = pk_brand,
+			pk_encounter = pk_encounter,
+			pk_episode = gmMedication.create_default_medication_history_episode(encounter = pk_encounter)['pk_episode']
 		)
 
 		if self._RBTN_nonharmful_use.GetValue() is True:

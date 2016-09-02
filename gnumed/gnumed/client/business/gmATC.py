@@ -53,7 +53,7 @@ def propagate_atc(substance=None, atc=None):
 
 	args = {'atc': atc, 'term': substance.strip()}
 	queries = [
-		{'cmd': u"UPDATE ref.consumable_substance SET atc_code = %(atc)s WHERE lower(description) = lower(%(term)s) AND atc_code IS NULL",
+		{'cmd': u"UPDATE ref.substance SET atc = %(atc)s WHERE lower(description) = lower(%(term)s) AND atc IS NULL",
 		 'args': args},
 		{'cmd': u"UPDATE ref.branded_drug SET atc_code = %(atc)s WHERE lower(description) = lower(%(term)s) AND atc_code IS NULL",
 		 'args': args}
@@ -76,9 +76,9 @@ def text2atc(text=None, fuzzy=False):
 				FROM ref.v_atc
 				WHERE term ilike %(term)s AND atc IS NOT NULL
 					UNION
-				SELECT atc_code, null, null
-				FROM ref.consumable_substance
-				WHERE description ilike %(term)s AND atc_code IS NOT NULL
+				SELECT atc as atc_code, null, null
+				FROM ref.substance
+				WHERE description ilike %(term)s AND atc IS NOT NULL
 					UNION
 				SELECT atc_code, null, null
 				FROM ref.branded_drug
@@ -95,9 +95,9 @@ def text2atc(text=None, fuzzy=False):
 				FROM ref.v_atc
 				WHERE lower(term) = lower(%(term)s) AND atc IS NOT NULL
 					UNION
-				SELECT atc_code, null, null
-				FROM ref.consumable_substance
-				WHERE lower(description) = lower(%(term)s) AND atc_code IS NOT NULL
+				SELECT atc as atc_code, null, null
+				FROM ref.substance
+				WHERE lower(description) = lower(%(term)s) AND atc IS NOT NULL
 					UNION
 				SELECT atc_code, null, null
 				FROM ref.branded_drug
