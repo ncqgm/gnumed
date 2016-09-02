@@ -1028,8 +1028,10 @@ class database:
 			print_msg('')
 			print_msg('  http://wiki.gnumed.de/bin/view/Gnumed/ConfigurePostgreSQL')
 			print_msg('')
+
 	#--------------------------------------------------------------
 	def import_data(self):
+
 		print_msg("==> upgrading reference data sets ...")
 
 		import_scripts = cfg_get(self.section, "data import scripts")
@@ -1073,7 +1075,9 @@ class database:
 
 	#--------------------------------------------------------------
 	def verify_result_hash(self):
+
 		print_msg("==> verifying target database schema ...")
+
 		target_version = cfg_get(self.section, 'target version')
 		if target_version == 'devel':
 			print_msg("    ... skipped (devel version)")
@@ -1096,6 +1100,17 @@ class database:
 	def reindex_all(self):
 
 		print_msg("==> reindexing target database (can take a while) ...")
+
+		do_reindex = cfg_get(self.section, 'reindex')
+		if do_reindex is None:
+			do_reindex = True
+		else:
+			do_reindex = (int(do_reindex) == 1)
+		if not do_reindex:
+			_log.warning('skipping REINDEXing')
+			print_msg("    ... skipped")
+			return True
+
 		_log.info('REINDEXing cloned target database so upgrade does not fail in case of a broken index')
 		_log.info('this may potentially take "quite a long time" depending on how much data there is in the database')
 		_log.info('you may want to monitor the PostgreSQL log for signs of progress')
