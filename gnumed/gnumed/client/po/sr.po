@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-08-01 11:56+0200\n"
+"POT-Creation-Date: 2016-08-18 21:22+0200\n"
 "PO-Revision-Date: 2011-08-25 16:54+0000\n"
 "Last-Translator: Karolina Kalic <Unknown>\n"
 "Language-Team: Serbian <sr@li.org>\n"
@@ -1594,6 +1594,9 @@ msgstr ""
 msgid "interval_format_tag::years::y"
 msgstr "interval_format_tag::years::y"
 
+msgid "0 years"
+msgstr ""
+
 msgid "months"
 msgstr ""
 
@@ -1602,6 +1605,9 @@ msgstr ""
 
 msgid "interval_format_tag::months::m"
 msgstr "interval_format_tag::months::m"
+
+msgid "0 months"
+msgstr ""
 
 msgid "weeks"
 msgstr ""
@@ -1612,13 +1618,28 @@ msgstr ""
 msgid "interval_format_tag::weeks::w"
 msgstr "interval_format_tag::weeks::w"
 
+msgid "0 weeks"
+msgstr ""
+
 msgid "interval_format_tag::days::d"
 msgstr "interval_format_tag::days::d"
+
+msgid "0 days"
+msgstr ""
+
+msgid "0 hours"
+msgstr ""
+
+msgid "0 minutes"
+msgstr ""
 
 msgid "seconds"
 msgstr ""
 
 msgid "second"
+msgstr ""
+
+msgid "0 seconds"
 msgstr ""
 
 msgid "y::year_abbreviation"
@@ -6805,37 +6826,57 @@ msgstr "Документа: %s"
 msgid "%s%s: %s ago (%s)"
 msgstr "Документа: %s"
 
-#, fuzzy, python-format
-msgid "%s%s%s (%s ago)"
-msgstr "Документа: %s"
+#, fuzzy
+msgid "until today"
+msgstr "данас (%s)"
 
 #, fuzzy, python-format
-msgid "%s%s%s (%s ago, %s)"
-msgstr "Документа: %s"
-
-#, python-format
-msgid "%s ago"
-msgstr ""
-
-#, fuzzy, python-format
-msgid "in %s"
-msgstr "Пацијент: %s (%s), Бр: %s\n"
-
-#, fuzzy, python-format
-msgid ", until %s (%s)"
+msgid "until %s%s ago"
 msgstr "Пацијент: %s (%s), Бр: %s\n"
 
 #, python-format
-msgid " (planned for %s%s)"
-msgstr ""
-
-#, python-format
-msgid ", planned for %s%s"
+msgid " [planned: %s]"
 msgstr ""
 
 #, fuzzy, python-format
-msgid "%s %s ago (for %s: %s %s %s)"
-msgstr "  ваше време: %s - %s  (@%s = %s%s)\n"
+msgid "%s%s%s (%s%s ago, in %s)"
+msgstr "Документа: %s"
+
+#, fuzzy, python-format
+msgid "%s%s%s (%s%s ago, %s)"
+msgstr "Документа: %s"
+
+#, fuzzy, python-format
+msgid "%s%s%s (in %s%s)"
+msgstr "Документа: %s"
+
+#, fuzzy, python-format
+msgid "%s (documented)"
+msgstr " %s докумената\n"
+
+#, python-format
+msgid "%s (plan)"
+msgstr ""
+
+#, fuzzy, python-format
+msgid "%s ago, in %s"
+msgstr "Документа: %s"
+
+#, fuzzy, python-format
+msgid "in %s, %s"
+msgstr "Пацијент: %s (%s), Бр: %s\n"
+
+#, fuzzy, python-format
+msgid "%s ago = %s"
+msgstr "Документа: %s"
+
+#, fuzzy, python-format
+msgid "in %s = %s"
+msgstr "Пацијент: %s (%s), Бр: %s\n"
+
+#, fuzzy
+msgid "today"
+msgstr "данас (%s)"
 
 msgid "Additional notes"
 msgstr "Додатне белешке"
@@ -7324,6 +7365,10 @@ msgstr ""
 
 msgid "Vaccinations"
 msgstr "Вакцинације"
+
+#, python-format
+msgid "%s ago"
+msgstr ""
 
 #, fuzzy
 msgid "Allergies/Intolerances"
@@ -8421,10 +8466,6 @@ msgstr ""
 #, fuzzy, python-format
 msgid "Location: %s (%s)"
 msgstr "Пацијент: %s (%s), Бр: %s\n"
-
-#, fuzzy
-msgid "today"
-msgstr "данас (%s)"
 
 #, python-format
 msgid ""
@@ -9800,7 +9841,11 @@ msgid ""
 msgstr ""
 
 #, fuzzy, python-format
-msgid "%s Vacc: %s (latest of %s)"
+msgid " (entered %s ago)"
+msgstr "Документа: %s"
+
+#, fuzzy, python-format
+msgid "%s Vacc: %s (latest of %s: %s ago)"
 msgstr "Пацијент: %s (%s), Бр: %s\n"
 
 #, fuzzy, python-format
@@ -13322,6 +13367,10 @@ msgstr "Документа: %s"
 msgid "eGFR:"
 msgstr ""
 
+#, fuzzy, python-format
+msgid "%s%s%s (%s ago)"
+msgstr "Документа: %s"
+
 #, python-format
 msgid "eGFR: %.1f (%s)"
 msgstr ""
@@ -16804,6 +16853,12 @@ msgstr ""
 msgid "Expand keyword / macro"
 msgstr ""
 
+msgid "Insert &Unicode"
+msgstr ""
+
+msgid "Insert a unicode character"
+msgstr ""
+
 #, fuzzy
 msgid "as &Subjective"
 msgstr "активан"
@@ -18517,6 +18572,10 @@ msgstr "Прекинути"
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr ""
+
+#, fuzzy
+#~ msgid "%s %s ago (for %s: %s %s %s)"
+#~ msgstr "  ваше време: %s - %s  (@%s = %s%s)\n"
 
 #, fuzzy
 #~ msgid "Or&Ganizations"

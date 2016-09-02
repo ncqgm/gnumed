@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-08-01 11:56+0200\n"
+"POT-Creation-Date: 2016-08-18 21:22+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1543,6 +1543,9 @@ msgstr ""
 msgid "interval_format_tag::years::y"
 msgstr ""
 
+msgid "0 years"
+msgstr ""
+
 msgid "months"
 msgstr ""
 
@@ -1550,6 +1553,9 @@ msgid "month"
 msgstr ""
 
 msgid "interval_format_tag::months::m"
+msgstr ""
+
+msgid "0 months"
 msgstr ""
 
 msgid "weeks"
@@ -1561,13 +1567,28 @@ msgstr ""
 msgid "interval_format_tag::weeks::w"
 msgstr ""
 
+msgid "0 weeks"
+msgstr ""
+
 msgid "interval_format_tag::days::d"
+msgstr ""
+
+msgid "0 days"
+msgstr ""
+
+msgid "0 hours"
+msgstr ""
+
+msgid "0 minutes"
 msgstr ""
 
 msgid "seconds"
 msgstr ""
 
 msgid "second"
+msgstr ""
+
+msgid "0 seconds"
 msgstr ""
 
 msgid "y::year_abbreviation"
@@ -6652,36 +6673,54 @@ msgstr ""
 msgid "%s%s: %s ago (%s)"
 msgstr ""
 
-#, python-format
-msgid "%s%s%s (%s ago)"
+msgid "until today"
 msgstr ""
 
 #, python-format
-msgid "%s%s%s (%s ago, %s)"
+msgid "until %s%s ago"
 msgstr ""
 
 #, python-format
-msgid "%s ago"
+msgid " [planned: %s]"
 msgstr ""
 
 #, python-format
-msgid "in %s"
+msgid "%s%s%s (%s%s ago, in %s)"
 msgstr ""
 
 #, python-format
-msgid ", until %s (%s)"
+msgid "%s%s%s (%s%s ago, %s)"
 msgstr ""
 
 #, python-format
-msgid " (planned for %s%s)"
+msgid "%s%s%s (in %s%s)"
+msgstr ""
+
+#, fuzzy, python-format
+msgid "%s (documented)"
+msgstr "註記"
+
+#, python-format
+msgid "%s (plan)"
 msgstr ""
 
 #, python-format
-msgid ", planned for %s%s"
+msgid "%s ago, in %s"
 msgstr ""
 
 #, python-format
-msgid "%s %s ago (for %s: %s %s %s)"
+msgid "in %s, %s"
+msgstr ""
+
+#, python-format
+msgid "%s ago = %s"
+msgstr ""
+
+#, python-format
+msgid "in %s = %s"
+msgstr ""
+
+msgid "today"
 msgstr ""
 
 msgid "Additional notes"
@@ -7155,6 +7194,10 @@ msgid "Occupations"
 msgstr ""
 
 msgid "Vaccinations"
+msgstr ""
+
+#, python-format
+msgid "%s ago"
 msgstr ""
 
 msgid "Allergies/Intolerances"
@@ -8232,9 +8275,6 @@ msgstr ""
 
 #, python-format
 msgid "Location: %s (%s)"
-msgstr ""
-
-msgid "today"
 msgstr ""
 
 #, python-format
@@ -9569,7 +9609,11 @@ msgid ""
 msgstr ""
 
 #, python-format
-msgid "%s Vacc: %s (latest of %s)"
+msgid " (entered %s ago)"
+msgstr ""
+
+#, python-format
+msgid "%s Vacc: %s (latest of %s: %s ago)"
 msgstr ""
 
 #, python-format
@@ -13019,6 +13063,10 @@ msgid "eGFR:"
 msgstr ""
 
 #, python-format
+msgid "%s%s%s (%s ago)"
+msgstr ""
+
+#, python-format
 msgid "eGFR: %.1f (%s)"
 msgstr ""
 
@@ -16402,6 +16450,12 @@ msgid "e&Xpand keyword"
 msgstr ""
 
 msgid "Expand keyword / macro"
+msgstr ""
+
+msgid "Insert &Unicode"
+msgstr ""
+
+msgid "Insert a unicode character"
 msgstr ""
 
 msgid "as &Subjective"

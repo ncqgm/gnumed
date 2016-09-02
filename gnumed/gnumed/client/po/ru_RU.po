@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-08-01 11:56+0200\n"
+"POT-Creation-Date: 2016-08-18 21:22+0200\n"
 "PO-Revision-Date: 2012-05-30 18:43+0000\n"
 "Last-Translator: YvLy <Unknown>\n"
 "Language-Team: Russian <ru@li.org>\n"
@@ -1821,6 +1821,10 @@ msgid "interval_format_tag::years::y"
 msgstr "interval_format_tag::years::y"
 
 #, fuzzy
+msgid "0 years"
+msgstr "Или год:"
+
+#, fuzzy
 msgid "months"
 msgstr "Месяц"
 
@@ -1831,6 +1835,10 @@ msgstr "Месяц"
 msgid "interval_format_tag::months::m"
 msgstr "interval_format_tag::months::m"
 
+#, fuzzy
+msgid "0 months"
+msgstr "Месяц"
+
 msgid "weeks"
 msgstr "недели"
 
@@ -1840,13 +1848,32 @@ msgstr "неделя"
 msgid "interval_format_tag::weeks::w"
 msgstr "interval_format_tag::weeks::w"
 
+#, fuzzy
+msgid "0 weeks"
+msgstr "недели"
+
 msgid "interval_format_tag::days::d"
 msgstr "interval_format_tag::days::d"
+
+#, fuzzy
+msgid "0 days"
+msgstr "дней"
+
+#, fuzzy
+msgid "0 hours"
+msgstr "часов"
+
+#, fuzzy
+msgid "0 minutes"
+msgstr "минут"
 
 msgid "seconds"
 msgstr ""
 
 msgid "second"
+msgstr ""
+
+msgid "0 seconds"
 msgstr ""
 
 msgid "y::year_abbreviation"
@@ -7773,37 +7800,56 @@ msgstr "%s тому назад"
 msgid "%s%s: %s ago (%s)"
 msgstr "%s %s %s %s (%s тому назад, %s)"
 
-#, fuzzy, python-format
-msgid "%s%s%s (%s ago)"
-msgstr "%s %s %s %s (%s тому назад, %s)"
+#, fuzzy
+msgid "until today"
+msgstr "сегодня"
 
 #, fuzzy, python-format
-msgid "%s%s%s (%s ago, %s)"
-msgstr "%s %s %s %s (%s тому назад, %s)"
-
-#, python-format
-msgid "%s ago"
-msgstr "%s тому назад"
-
-#, fuzzy, python-format
-msgid "in %s"
-msgstr "подлежит %s: %s"
-
-#, fuzzy, python-format
-msgid ", until %s (%s)"
+msgid "until %s%s ago"
 msgstr "работа: %s"
 
 #, fuzzy, python-format
-msgid " (planned for %s%s)"
+msgid " [planned: %s]"
 msgstr "для [%s]/%s пациент не найден"
 
 #, fuzzy, python-format
-msgid ", planned for %s%s"
-msgstr "для [%s]/%s пациент не найден"
+msgid "%s%s%s (%s%s ago, in %s)"
+msgstr "%s %s %s %s (%s тому назад, %s)"
 
 #, fuzzy, python-format
-msgid "%s %s ago (for %s: %s %s %s)"
-msgstr " Продолжительность: %s (%s - %s)"
+msgid "%s%s%s (%s%s ago, %s)"
+msgstr "%s %s %s %s (%s тому назад, %s)"
+
+#, fuzzy, python-format
+msgid "%s%s%s (in %s%s)"
+msgstr "%s %s %s %s (%s тому назад, %s)"
+
+#, fuzzy, python-format
+msgid "%s (documented)"
+msgstr " %s документов\n"
+
+#, python-format
+msgid "%s (plan)"
+msgstr ""
+
+#, fuzzy, python-format
+msgid "%s ago, in %s"
+msgstr "%d дней тому назад - %s"
+
+#, fuzzy, python-format
+msgid "in %s, %s"
+msgstr "подлежит %s: %s"
+
+#, fuzzy, python-format
+msgid "%s ago = %s"
+msgstr "%s тому назад"
+
+#, fuzzy, python-format
+msgid "in %s = %s"
+msgstr "подлежит %s: %s"
+
+msgid "today"
+msgstr "сегодня"
 
 msgid "Additional notes"
 msgstr "Дополнительные записи"
@@ -8333,6 +8379,10 @@ msgstr "Род занятий"
 
 msgid "Vaccinations"
 msgstr "Прививки"
+
+#, python-format
+msgid "%s ago"
+msgstr "%s тому назад"
 
 msgid "Allergies/Intolerances"
 msgstr "Аллергии/непереносимости"
@@ -9485,9 +9535,6 @@ msgstr "переведено на летнее время"
 #, fuzzy, python-format
 msgid "Location: %s (%s)"
 msgstr "Организация: %s (%s)"
-
-msgid "today"
-msgstr "сегодня"
 
 #, fuzzy, python-format
 msgid ""
@@ -11058,7 +11105,11 @@ msgid ""
 msgstr ""
 
 #, fuzzy, python-format
-msgid "%s Vacc: %s (latest of %s)"
+msgid " (entered %s ago)"
+msgstr "Подлежит: %s\n"
+
+#, fuzzy, python-format
+msgid "%s Vacc: %s (latest of %s: %s ago)"
 msgstr "%s Вакц: %s"
 
 #, fuzzy, python-format
@@ -15129,6 +15180,10 @@ msgstr "Подлежит: %s\n"
 msgid "eGFR:"
 msgstr ""
 
+#, fuzzy, python-format
+msgid "%s%s%s (%s ago)"
+msgstr "%s %s %s %s (%s тому назад, %s)"
+
 #, python-format
 msgid "eGFR: %.1f (%s)"
 msgstr ""
@@ -19189,6 +19244,12 @@ msgstr ""
 msgid "Expand keyword / macro"
 msgstr ""
 
+msgid "Insert &Unicode"
+msgstr ""
+
+msgid "Insert a unicode character"
+msgstr ""
+
 #, fuzzy
 msgid "as &Subjective"
 msgstr "Субъективный"
@@ -21183,6 +21244,14 @@ msgstr "Отменить"
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Отменить и НЕ подключаться к GNUmed."
+
+#, fuzzy
+#~ msgid " (planned for %s%s)"
+#~ msgstr "для [%s]/%s пациент не найден"
+
+#, fuzzy
+#~ msgid "%s %s ago (for %s: %s %s %s)"
+#~ msgstr " Продолжительность: %s (%s - %s)"
 
 #, fuzzy
 #~ msgid "&Addresses"

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-08-01 11:56+0200\n"
+"POT-Creation-Date: 2016-08-18 21:22+0200\n"
 "PO-Revision-Date: 2012-06-01 01:18+0000\n"
 "Last-Translator: Rogerio Luz Coelho <dr.rogerioluzcoelho@gmail.com>\n"
 "Language-Team: Brazilian Portuguese <pt_BR@li.org>\n"
@@ -1785,6 +1785,10 @@ msgstr "ou Ano:"
 msgid "interval_format_tag::years::y"
 msgstr ""
 
+#, fuzzy
+msgid "0 years"
+msgstr "ou Ano:"
+
 msgid "months"
 msgstr ""
 
@@ -1792,6 +1796,9 @@ msgid "month"
 msgstr ""
 
 msgid "interval_format_tag::months::m"
+msgstr ""
+
+msgid "0 months"
 msgstr ""
 
 msgid "weeks"
@@ -1803,13 +1810,28 @@ msgstr ""
 msgid "interval_format_tag::weeks::w"
 msgstr ""
 
+msgid "0 weeks"
+msgstr ""
+
 msgid "interval_format_tag::days::d"
+msgstr ""
+
+msgid "0 days"
+msgstr ""
+
+msgid "0 hours"
+msgstr ""
+
+msgid "0 minutes"
 msgstr ""
 
 msgid "seconds"
 msgstr ""
 
 msgid "second"
+msgstr ""
+
+msgid "0 seconds"
 msgstr ""
 
 msgid "y::year_abbreviation"
@@ -7489,41 +7511,62 @@ msgstr ""
 "%s: %s by %.8s\n"
 "%s"
 
+#, fuzzy
+msgid "until today"
+msgstr "hoje"
+
 #, fuzzy, python-format
-msgid "%s%s%s (%s ago)"
+msgid "until %s%s ago"
+msgstr "Local"
+
+#, fuzzy, python-format
+msgid " [planned: %s]"
+msgstr " Fechada: %s\n"
+
+#, fuzzy, python-format
+msgid "%s%s%s (%s%s ago, in %s)"
 msgstr ""
 "%s: %s by %.8s\n"
 "%s"
 
 #, fuzzy, python-format
-msgid "%s%s%s (%s ago, %s)"
+msgid "%s%s%s (%s%s ago, %s)"
 msgstr ""
 "%s: %s by %.8s\n"
 "%s"
+
+#, fuzzy, python-format
+msgid "%s%s%s (in %s%s)"
+msgstr ""
+"%s: %s by %.8s\n"
+"%s"
+
+#, fuzzy, python-format
+msgid "%s (documented)"
+msgstr " %s documentos\n"
 
 #, python-format
-msgid "%s ago"
-msgstr "%s atrás"
+msgid "%s (plan)"
+msgstr ""
 
 #, fuzzy, python-format
-msgid "in %s"
+msgid "%s ago, in %s"
+msgstr "%d dia(s) atrás - %s"
+
+#, fuzzy, python-format
+msgid "in %s, %s"
 msgstr "Comentário: %s"
 
 #, fuzzy, python-format
-msgid ", until %s (%s)"
-msgstr "Local"
-
-#, python-format
-msgid " (planned for %s%s)"
-msgstr ""
-
-#, python-format
-msgid ", planned for %s%s"
-msgstr ""
+msgid "%s ago = %s"
+msgstr "%s atrás"
 
 #, fuzzy, python-format
-msgid "%s %s ago (for %s: %s %s %s)"
-msgstr " Duração: %s (%s - %s)"
+msgid "in %s = %s"
+msgstr "Comentário: %s"
+
+msgid "today"
+msgstr "hoje"
 
 msgid "Additional notes"
 msgstr "Notas adicionais"
@@ -8052,6 +8095,10 @@ msgstr "Ocupações"
 
 msgid "Vaccinations"
 msgstr "Vacinas"
+
+#, python-format
+msgid "%s ago"
+msgstr "%s atrás"
 
 msgid "Allergies/Intolerances"
 msgstr "Alergias/Intolerâncias"
@@ -9185,9 +9232,6 @@ msgstr "Horário de Verão"
 #, fuzzy, python-format
 msgid "Location: %s (%s)"
 msgstr "Consultas: %s (%s - %s):"
-
-msgid "today"
-msgstr "hoje"
 
 #, fuzzy, python-format
 msgid ""
@@ -10668,7 +10712,11 @@ msgid ""
 msgstr ""
 
 #, fuzzy, python-format
-msgid "%s Vacc: %s (latest of %s)"
+msgid " (entered %s ago)"
+msgstr "Local"
+
+#, fuzzy, python-format
+msgid "%s Vacc: %s (latest of %s: %s ago)"
 msgstr "Fechado"
 
 #, fuzzy, python-format
@@ -14363,6 +14411,12 @@ msgstr "Local"
 
 msgid "eGFR:"
 msgstr ""
+
+#, fuzzy, python-format
+msgid "%s%s%s (%s ago)"
+msgstr ""
+"%s: %s by %.8s\n"
+"%s"
 
 #, python-format
 msgid "eGFR: %.1f (%s)"
@@ -18068,6 +18122,12 @@ msgstr ""
 msgid "Expand keyword / macro"
 msgstr ""
 
+msgid "Insert &Unicode"
+msgstr ""
+
+msgid "Insert a unicode character"
+msgstr ""
+
 #, fuzzy
 msgid "as &Subjective"
 msgstr "Subjetivo"
@@ -19930,6 +19990,10 @@ msgstr "Cancelar"
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Cancelar e NÃO conectar ao GNUmed."
+
+#, fuzzy
+#~ msgid "%s %s ago (for %s: %s %s %s)"
+#~ msgstr " Duração: %s (%s - %s)"
 
 #, fuzzy
 #~ msgid "&Addresses"

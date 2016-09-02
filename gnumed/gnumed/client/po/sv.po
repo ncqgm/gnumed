@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-08-01 11:56+0200\n"
+"POT-Creation-Date: 2016-08-18 21:22+0200\n"
 "PO-Revision-Date: 2012-04-07 10:15+0000\n"
 "Last-Translator: Rikard Edgren <Unknown>\n"
 "Language-Team: Swedish <kde-i18n-doc@kde.org>\n"
@@ -1725,6 +1725,9 @@ msgstr ""
 msgid "interval_format_tag::years::y"
 msgstr ""
 
+msgid "0 years"
+msgstr ""
+
 #, fuzzy
 msgid "months"
 msgstr "Månad"
@@ -1736,6 +1739,10 @@ msgstr "Månad"
 msgid "interval_format_tag::months::m"
 msgstr ""
 
+#, fuzzy
+msgid "0 months"
+msgstr "Månad"
+
 msgid "weeks"
 msgstr ""
 
@@ -1745,13 +1752,31 @@ msgstr ""
 msgid "interval_format_tag::weeks::w"
 msgstr ""
 
+msgid "0 weeks"
+msgstr ""
+
 msgid "interval_format_tag::days::d"
 msgstr ""
+
+#, fuzzy
+msgid "0 days"
+msgstr "dagar"
+
+#, fuzzy
+msgid "0 hours"
+msgstr "timmar"
+
+#, fuzzy
+msgid "0 minutes"
+msgstr "minuter"
 
 msgid "seconds"
 msgstr ""
 
 msgid "second"
+msgstr ""
+
+msgid "0 seconds"
 msgstr ""
 
 msgid "y::year_abbreviation"
@@ -7041,37 +7066,56 @@ msgstr "Enhet: %s (%s)"
 msgid "%s%s: %s ago (%s)"
 msgstr "Enhet: %s (%s)"
 
-#, fuzzy, python-format
-msgid "%s%s%s (%s ago)"
-msgstr "Enhet: %s (%s)"
+#, fuzzy
+msgid "until today"
+msgstr "Slutar idag"
 
 #, fuzzy, python-format
-msgid "%s%s%s (%s ago, %s)"
-msgstr "Enhet: %s (%s)"
-
-#, python-format
-msgid "%s ago"
-msgstr ""
-
-#, python-format
-msgid "in %s"
-msgstr ""
-
-#, fuzzy, python-format
-msgid ", until %s (%s)"
+msgid "until %s%s ago"
 msgstr "Enhet: %s (%s)"
 
 #, python-format
-msgid " (planned for %s%s)"
-msgstr ""
-
-#, python-format
-msgid ", planned for %s%s"
+msgid " [planned: %s]"
 msgstr ""
 
 #, fuzzy, python-format
-msgid "%s %s ago (for %s: %s %s %s)"
-msgstr " Spann: %s (%s - %s)"
+msgid "%s%s%s (%s%s ago, in %s)"
+msgstr "Enhet: %s (%s)"
+
+#, fuzzy, python-format
+msgid "%s%s%s (%s%s ago, %s)"
+msgstr "Enhet: %s (%s)"
+
+#, fuzzy, python-format
+msgid "%s%s%s (in %s%s)"
+msgstr "Enhet: %s (%s)"
+
+#, fuzzy, python-format
+msgid "%s (documented)"
+msgstr " %s dokument\n"
+
+#, python-format
+msgid "%s (plan)"
+msgstr ""
+
+#, fuzzy, python-format
+msgid "%s ago, in %s"
+msgstr "för %d dagar sedan - %s"
+
+#, fuzzy, python-format
+msgid "in %s, %s"
+msgstr "Alldeles nu (%s, %s)"
+
+#, fuzzy, python-format
+msgid "%s ago = %s"
+msgstr "för %d dagar sedan - %s"
+
+#, fuzzy, python-format
+msgid "in %s = %s"
+msgstr "om %d dagar - %s"
+
+msgid "today"
+msgstr ""
 
 msgid "Additional notes"
 msgstr "Övriga anteckningar"
@@ -7598,6 +7642,10 @@ msgstr "Sysselsättning"
 
 msgid "Vaccinations"
 msgstr "Vaccinering"
+
+#, python-format
+msgid "%s ago"
+msgstr ""
 
 msgid "Allergies/Intolerances"
 msgstr ""
@@ -8722,9 +8770,6 @@ msgstr "Effektiv besparing av tid i dagsljus"
 #, fuzzy, python-format
 msgid "Location: %s (%s)"
 msgstr "Organisation: %s (%s)"
-
-msgid "today"
-msgstr ""
 
 #, fuzzy, python-format
 msgid ""
@@ -10102,7 +10147,11 @@ msgid ""
 msgstr ""
 
 #, fuzzy, python-format
-msgid "%s Vacc: %s (latest of %s)"
+msgid " (entered %s ago)"
+msgstr "Enhet: %s (%s)"
+
+#, fuzzy, python-format
+msgid "%s Vacc: %s (latest of %s: %s ago)"
 msgstr ""
 "\n"
 " Ta(inta): %s"
@@ -13616,6 +13665,10 @@ msgstr "Enhet: %s (%s)"
 
 msgid "eGFR:"
 msgstr ""
+
+#, fuzzy, python-format
+msgid "%s%s%s (%s ago)"
+msgstr "Enhet: %s (%s)"
 
 #, python-format
 msgid "eGFR: %.1f (%s)"
@@ -17151,6 +17204,12 @@ msgstr ""
 msgid "Expand keyword / macro"
 msgstr ""
 
+msgid "Insert &Unicode"
+msgstr ""
+
+msgid "Insert a unicode character"
+msgstr ""
+
 #, fuzzy
 msgid "as &Subjective"
 msgstr "soap_Subjective"
@@ -18882,6 +18941,10 @@ msgstr "Avbryt"
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Avbryt och anslut EJ till GNUmed."
+
+#, fuzzy
+#~ msgid "%s %s ago (for %s: %s %s %s)"
+#~ msgstr " Spann: %s (%s - %s)"
 
 #, fuzzy
 #~ msgid "Or&Ganizations"

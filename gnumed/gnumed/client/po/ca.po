@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-08-01 11:55+0200\n"
+"POT-Creation-Date: 2016-08-18 21:22+0200\n"
 "PO-Revision-Date: 2012-06-01 01:20+0000\n"
 "Last-Translator: ncq <Unknown>\n"
 "Language-Team: Catalan <ca@li.org>\n"
@@ -1654,6 +1654,10 @@ msgstr "o any:"
 msgid "interval_format_tag::years::y"
 msgstr ""
 
+#, fuzzy
+msgid "0 years"
+msgstr "o any:"
+
 msgid "months"
 msgstr ""
 
@@ -1661,6 +1665,9 @@ msgid "month"
 msgstr ""
 
 msgid "interval_format_tag::months::m"
+msgstr ""
+
+msgid "0 months"
 msgstr ""
 
 msgid "weeks"
@@ -1672,13 +1679,28 @@ msgstr ""
 msgid "interval_format_tag::weeks::w"
 msgstr ""
 
+msgid "0 weeks"
+msgstr ""
+
 msgid "interval_format_tag::days::d"
+msgstr ""
+
+msgid "0 days"
+msgstr ""
+
+msgid "0 hours"
+msgstr ""
+
+msgid "0 minutes"
 msgstr ""
 
 msgid "seconds"
 msgstr ""
 
 msgid "second"
+msgstr ""
+
+msgid "0 seconds"
 msgstr ""
 
 msgid "y::year_abbreviation"
@@ -6961,37 +6983,57 @@ msgstr "Documents: %s"
 msgid "%s%s: %s ago (%s)"
 msgstr "%s la setmana passada (%s of %s)"
 
-#, fuzzy, python-format
-msgid "%s%s%s (%s ago)"
-msgstr "%s la setmana passada (%s of %s)"
+#, fuzzy
+msgid "until today"
+msgstr "avui"
 
 #, fuzzy, python-format
-msgid "%s%s%s (%s ago, %s)"
-msgstr "%s la setmana passada (%s of %s)"
-
-#, python-format
-msgid "%s ago"
-msgstr ""
-
-#, fuzzy, python-format
-msgid "in %s"
-msgstr "  risc: %s"
-
-#, fuzzy, python-format
-msgid ", until %s (%s)"
+msgid "until %s%s ago"
 msgstr "Pacient"
 
 #, python-format
-msgid " (planned for %s%s)"
-msgstr ""
-
-#, python-format
-msgid ", planned for %s%s"
+msgid " [planned: %s]"
 msgstr ""
 
 #, fuzzy, python-format
-msgid "%s %s ago (for %s: %s %s %s)"
-msgstr "Pacient:  , No:\n"
+msgid "%s%s%s (%s%s ago, in %s)"
+msgstr "%s la setmana passada (%s of %s)"
+
+#, fuzzy, python-format
+msgid "%s%s%s (%s%s ago, %s)"
+msgstr "%s la setmana passada (%s of %s)"
+
+#, fuzzy, python-format
+msgid "%s%s%s (in %s%s)"
+msgstr "%s la setmana passada (%s of %s)"
+
+#, fuzzy, python-format
+msgid "%s (documented)"
+msgstr " %s documents\n"
+
+#, python-format
+msgid "%s (plan)"
+msgstr ""
+
+#, fuzzy, python-format
+msgid "%s ago, in %s"
+msgstr "%s la setmana passada (%s of %s)"
+
+#, fuzzy, python-format
+msgid "in %s, %s"
+msgstr "  risc: %s"
+
+#, fuzzy, python-format
+msgid "%s ago = %s"
+msgstr "%s la setmana passada (%s of %s)"
+
+#, fuzzy, python-format
+msgid "in %s = %s"
+msgstr "  risc: %s"
+
+#, fuzzy
+msgid "today"
+msgstr "avui"
 
 msgid "Additional notes"
 msgstr "Annotacions adicionals"
@@ -7485,6 +7527,10 @@ msgstr "Opcions"
 
 msgid "Vaccinations"
 msgstr "Vacunacions"
+
+#, python-format
+msgid "%s ago"
+msgstr ""
 
 #, fuzzy
 msgid "Allergies/Intolerances"
@@ -8588,10 +8634,6 @@ msgstr ""
 #, fuzzy, python-format
 msgid "Location: %s (%s)"
 msgstr "Pacient:  , No:\n"
-
-#, fuzzy
-msgid "today"
-msgstr "avui"
 
 #, fuzzy, python-format
 msgid ""
@@ -9972,7 +10014,11 @@ msgid ""
 msgstr ""
 
 #, fuzzy, python-format
-msgid "%s Vacc: %s (latest of %s)"
+msgid " (entered %s ago)"
+msgstr "Documents: %s"
+
+#, fuzzy, python-format
+msgid "%s Vacc: %s (latest of %s: %s ago)"
 msgstr "  risc: %s"
 
 #, fuzzy, python-format
@@ -13527,6 +13573,10 @@ msgstr "Documents: %s"
 msgid "eGFR:"
 msgstr ""
 
+#, fuzzy, python-format
+msgid "%s%s%s (%s ago)"
+msgstr "%s la setmana passada (%s of %s)"
+
 #, python-format
 msgid "eGFR: %.1f (%s)"
 msgstr ""
@@ -17037,6 +17087,12 @@ msgstr ""
 msgid "Expand keyword / macro"
 msgstr ""
 
+msgid "Insert &Unicode"
+msgstr ""
+
+msgid "Insert a unicode character"
+msgstr ""
+
 #, fuzzy
 msgid "as &Subjective"
 msgstr "Subjectiu"
@@ -18744,6 +18800,10 @@ msgstr "Interromp"
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Interromput  i no connectat a GNUmed"
+
+#, fuzzy
+#~ msgid "%s %s ago (for %s: %s %s %s)"
+#~ msgstr "Pacient:  , No:\n"
 
 #, fuzzy
 #~ msgid "&Addresses"

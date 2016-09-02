@@ -5,8 +5,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-08-01 11:55+0200\n"
-"PO-Revision-Date: 2016-08-01 12:14+0200\n"
+"POT-Creation-Date: 2016-09-02 08:48+0200\n"
+"PO-Revision-Date: 2016-08-18 22:42+0200\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "Language: de_DE\n"
@@ -1750,6 +1750,9 @@ msgstr "Jahr"
 msgid "interval_format_tag::years::y"
 msgstr "interval_format_tag::years::J"
 
+msgid "0 years"
+msgstr "0 Jahre"
+
 msgid "months"
 msgstr "Monate"
 
@@ -1758,6 +1761,9 @@ msgstr "Monat"
 
 msgid "interval_format_tag::months::m"
 msgstr "interval_format_tag::months::M"
+
+msgid "0 months"
+msgstr "0 Monate"
 
 msgid "weeks"
 msgstr "Wochen"
@@ -1768,14 +1774,29 @@ msgstr "Woche"
 msgid "interval_format_tag::weeks::w"
 msgstr "interval_format_tag::weeks::W"
 
+msgid "0 weeks"
+msgstr "0 Wochen"
+
 msgid "interval_format_tag::days::d"
 msgstr "interval_format_tag::days::T"
+
+msgid "0 days"
+msgstr "0 Tage"
+
+msgid "0 hours"
+msgstr "0 Stunden"
+
+msgid "0 minutes"
+msgstr "0 Minuten"
 
 msgid "seconds"
 msgstr "Sekunden"
 
 msgid "second"
 msgstr "Sekunde"
+
+msgid "0 seconds"
+msgstr "0 Sekunden"
 
 msgid "y::year_abbreviation"
 msgstr "J::year_abbreviation"
@@ -7552,37 +7573,55 @@ msgstr "%s%s: vor %s%s"
 msgid "%s%s: %s ago (%s)"
 msgstr "%s%s: vor %s (%s)"
 
-#, python-format
-msgid "%s%s%s (%s ago)"
-msgstr "%s%s%s (vor %s)"
+msgid "until today"
+msgstr "bis heute"
 
 #, python-format
-msgid "%s%s%s (%s ago, %s)"
-msgstr "%s%s%s (vor %s, %s)"
+msgid "until %s%s ago"
+msgstr "bis vor %s%s"
 
 #, python-format
-msgid "%s ago"
-msgstr "vor %s"
+msgid " [planned: %s]"
+msgstr " [geplant: %s]"
 
 #, python-format
-msgid "in %s"
-msgstr "in %s"
+msgid "%s%s%s (%s%s ago, in %s)"
+msgstr "%s%s%s (vor %s%s, in %s)"
 
 #, python-format
-msgid ", until %s (%s)"
-msgstr ", bis %s (%s)"
+msgid "%s%s%s (%s%s ago, %s)"
+msgstr "%s%s%s (vor %s%s, %s)"
 
 #, python-format
-msgid " (planned for %s%s)"
-msgstr " (geplant für %s%s)"
+msgid "%s%s%s (in %s%s)"
+msgstr "%s%s%s (in %s%s)"
 
 #, python-format
-msgid ", planned for %s%s"
-msgstr ", geplant für %s%s"
+msgid "%s (documented)"
+msgstr "%s (dokumentiert)"
 
 #, python-format
-msgid "%s %s ago (for %s: %s %s %s)"
-msgstr "%s vor %s (für %s: %s %s %s)"
+msgid "%s (plan)"
+msgstr "%s (Plan)"
+
+#, python-format
+msgid "%s ago, in %s"
+msgstr "vor %s, in %s"
+
+#, python-format
+msgid "in %s, %s"
+msgstr "in %s, %s"
+
+#, python-format
+msgid "%s ago = %s"
+msgstr "vor %s = %s"
+
+#, python-format
+msgid "in %s = %s"
+msgstr "in %s = %s"
+
+msgid "today"
+msgstr "heute"
 
 msgid "Additional notes"
 msgstr "Zusätzliche Angaben"
@@ -8081,6 +8120,10 @@ msgstr "Berufe"
 
 msgid "Vaccinations"
 msgstr "Impfungen"
+
+#, python-format
+msgid "%s ago"
+msgstr "vor %s"
 
 msgid "Allergies/Intolerances"
 msgstr "Allergien/Unverträglichkeiten"
@@ -9205,9 +9248,6 @@ msgstr "Sommerzeit aktiv"
 #, python-format
 msgid "Location: %s (%s)"
 msgstr "Ort: %s (%s)"
-
-msgid "today"
-msgstr "heute"
 
 #, python-format
 msgid ""
@@ -10753,8 +10793,12 @@ msgstr ""
 "Überprüfen Sie Alter, Geschlecht und Zeit seit/bis Termin."
 
 #, python-format
-msgid "%s Vacc: %s (latest of %s)"
-msgstr "%s Impfg: %s (jüngste von %s)"
+msgid " (entered %s ago)"
+msgstr " (eingegb vor %s)"
+
+#, python-format
+msgid "%s Vacc: %s (latest of %s: %s ago)"
+msgstr "%s Impfg: %s (jüngste von %s: vor %s)"
 
 #, python-format
 msgid "Hx of addiction: %s"
@@ -14779,6 +14823,10 @@ msgid "eGFR:"
 msgstr ""
 
 #, python-format
+msgid "%s%s%s (%s ago)"
+msgstr "%s%s%s (vor %s)"
+
+#, python-format
 msgid "eGFR: %.1f (%s)"
 msgstr "eGFR: %.1f (%s)"
 
@@ -18777,6 +18825,12 @@ msgstr "Schlüsselwort e&xpandieren"
 msgid "Expand keyword / macro"
 msgstr "Schlüsselwort/Makro expandieren"
 
+msgid "Insert &Unicode"
+msgstr "&Zeichen/Symbol einfügen"
+
+msgid "Insert a unicode character"
+msgstr "Symbole/internationale Buchstaben einfügen"
+
 msgid "as &Subjective"
 msgstr "als &Anamnese"
 
@@ -20741,6 +20795,18 @@ msgstr "Abbrechen"
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
+
+#~ msgid " (planned for %s%s)"
+#~ msgstr " (geplant für %s%s)"
+
+#~ msgid " %s for %s%s"
+#~ msgstr " %s für %s%s"
+
+#~ msgid "until %s%s ago (for %s%s: %s %s %s)"
+#~ msgstr "bis vor %s%s (für %s%s: %s %s %s)"
+
+#~ msgid "%s%s%s (%s ago = %s)"
+#~ msgstr "%s%s%s (vor %s = %s)"
 
 #~ msgid "&Addresses"
 #~ msgstr "&Adressen"

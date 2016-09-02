@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-08-01 11:55+0200\n"
+"POT-Creation-Date: 2016-08-18 21:22+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1681,6 +1681,9 @@ msgstr ""
 msgid "interval_format_tag::years::y"
 msgstr ""
 
+msgid "0 years"
+msgstr ""
+
 #, fuzzy
 msgid "months"
 msgstr "Měsíc"
@@ -1692,6 +1695,10 @@ msgstr "Měsíc"
 msgid "interval_format_tag::months::m"
 msgstr ""
 
+#, fuzzy
+msgid "0 months"
+msgstr "Měsíc"
+
 msgid "weeks"
 msgstr ""
 
@@ -1701,13 +1708,31 @@ msgstr ""
 msgid "interval_format_tag::weeks::w"
 msgstr ""
 
+msgid "0 weeks"
+msgstr ""
+
 msgid "interval_format_tag::days::d"
 msgstr ""
+
+#, fuzzy
+msgid "0 days"
+msgstr "dny"
+
+#, fuzzy
+msgid "0 hours"
+msgstr "hodiny"
+
+#, fuzzy
+msgid "0 minutes"
+msgstr "minuty"
 
 msgid "seconds"
 msgstr ""
 
 msgid "second"
+msgstr ""
+
+msgid "0 seconds"
 msgstr ""
 
 msgid "y::year_abbreviation"
@@ -6840,37 +6865,56 @@ msgstr ""
 msgid "%s%s: %s ago (%s)"
 msgstr " Jméno souboru: %s\n"
 
-#, python-format
-msgid "%s%s%s (%s ago)"
-msgstr ""
+#, fuzzy
+msgid "until today"
+msgstr "Končí dnes"
 
 #, fuzzy, python-format
-msgid "%s%s%s (%s ago, %s)"
-msgstr " Trvání: %s (%s - %s)"
-
-#, python-format
-msgid "%s ago"
-msgstr ""
-
-#, python-format
-msgid "in %s"
-msgstr ""
-
-#, fuzzy, python-format
-msgid ", until %s (%s)"
+msgid "until %s%s ago"
 msgstr " Jméno souboru: %s\n"
 
 #, python-format
-msgid " (planned for %s%s)"
-msgstr ""
-
-#, python-format
-msgid ", planned for %s%s"
+msgid " [planned: %s]"
 msgstr ""
 
 #, fuzzy, python-format
-msgid "%s %s ago (for %s: %s %s %s)"
+msgid "%s%s%s (%s%s ago, in %s)"
 msgstr " Trvání: %s (%s - %s)"
+
+#, fuzzy, python-format
+msgid "%s%s%s (%s%s ago, %s)"
+msgstr " Trvání: %s (%s - %s)"
+
+#, fuzzy, python-format
+msgid "%s%s%s (in %s%s)"
+msgstr " Trvání: %s (%s - %s)"
+
+#, fuzzy, python-format
+msgid "%s (documented)"
+msgstr " % dokumentů\n"
+
+#, python-format
+msgid "%s (plan)"
+msgstr ""
+
+#, fuzzy, python-format
+msgid "%s ago, in %s"
+msgstr " Trvání: %s (%s - %s)"
+
+#, python-format
+msgid "in %s, %s"
+msgstr ""
+
+#, fuzzy, python-format
+msgid "%s ago = %s"
+msgstr " Jméno souboru: %s\n"
+
+#, python-format
+msgid "in %s = %s"
+msgstr ""
+
+msgid "today"
+msgstr "dnes"
 
 msgid "Additional notes"
 msgstr ""
@@ -7355,6 +7399,10 @@ msgstr "Zaměstnání"
 
 msgid "Vaccinations"
 msgstr "Očkování"
+
+#, python-format
+msgid "%s ago"
+msgstr ""
 
 msgid "Allergies/Intolerances"
 msgstr "Alergie/nesnášenlivost"
@@ -8444,9 +8492,6 @@ msgstr ""
 #, fuzzy, python-format
 msgid "Location: %s (%s)"
 msgstr " Trvání: %s (%s - %s)"
-
-msgid "today"
-msgstr "dnes"
 
 #, python-format
 msgid ""
@@ -9789,8 +9834,12 @@ msgid ""
 "Please check patient age, patient gender, time until/since EDC."
 msgstr ""
 
+#, python-format
+msgid " (entered %s ago)"
+msgstr ""
+
 #, fuzzy, python-format
-msgid "%s Vacc: %s (latest of %s)"
+msgid "%s Vacc: %s (latest of %s: %s ago)"
 msgstr " Jméno souboru: %s\n"
 
 #, fuzzy, python-format
@@ -13271,6 +13320,10 @@ msgid "eGFR:"
 msgstr ""
 
 #, python-format
+msgid "%s%s%s (%s ago)"
+msgstr ""
+
+#, python-format
 msgid "eGFR: %.1f (%s)"
 msgstr ""
 
@@ -16694,6 +16747,12 @@ msgstr ""
 msgid "Expand keyword / macro"
 msgstr ""
 
+msgid "Insert &Unicode"
+msgstr ""
+
+msgid "Insert a unicode character"
+msgstr ""
+
 #, fuzzy
 msgid "as &Subjective"
 msgstr "Vybrat ikonu"
@@ -18365,6 +18424,10 @@ msgstr ""
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr ""
+
+#, fuzzy
+#~ msgid "%s %s ago (for %s: %s %s %s)"
+#~ msgstr " Trvání: %s (%s - %s)"
 
 #, fuzzy
 #~ msgid "Or&Ganizations"

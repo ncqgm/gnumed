@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-08-01 11:55+0200\n"
+"POT-Creation-Date: 2016-08-18 21:22+0200\n"
 "PO-Revision-Date: 2016-07-25 17:47-0400\n"
 "Last-Translator: Uwe Koch <uwe.koch@opticakoch.cl>\n"
 "Language-Team: colombiano <es@li.org>\n"
@@ -1782,6 +1782,10 @@ msgstr "año"
 msgid "interval_format_tag::years::y"
 msgstr "interval_format_tag::años::y"
 
+#, fuzzy
+msgid "0 years"
+msgstr "años"
+
 msgid "months"
 msgstr "meses"
 
@@ -1790,6 +1794,10 @@ msgstr "mes"
 
 msgid "interval_format_tag::months::m"
 msgstr "interval_format_tag::meses::m"
+
+#, fuzzy
+msgid "0 months"
+msgstr "meses"
 
 msgid "weeks"
 msgstr "semanas"
@@ -1800,14 +1808,34 @@ msgstr "semana"
 msgid "interval_format_tag::weeks::w"
 msgstr "interval_format_tag::semanas::w"
 
+#, fuzzy
+msgid "0 weeks"
+msgstr "semanas"
+
 msgid "interval_format_tag::days::d"
 msgstr "interval_format_tag::días::d"
+
+#, fuzzy
+msgid "0 days"
+msgstr "días"
+
+#, fuzzy
+msgid "0 hours"
+msgstr "horas"
+
+#, fuzzy
+msgid "0 minutes"
+msgstr "minutos"
 
 msgid "seconds"
 msgstr "segundos"
 
 msgid "second"
 msgstr "segundo"
+
+#, fuzzy
+msgid "0 seconds"
+msgstr "segundos"
 
 msgid "y::year_abbreviation"
 msgstr "a::year_abbreviation"
@@ -7683,37 +7711,56 @@ msgstr "%s%s: %s atrás%s"
 msgid "%s%s: %s ago (%s)"
 msgstr "%s%s: %s atrás (%s)"
 
-#, python-format
-msgid "%s%s%s (%s ago)"
-msgstr "%s%s%s (%s atrás)"
+#, fuzzy
+msgid "until today"
+msgstr "Termina hoy"
 
-#, python-format
-msgid "%s%s%s (%s ago, %s)"
-msgstr "%s%s%s (%s atrás, %s)"
-
-#, python-format
-msgid "%s ago"
-msgstr "%s atrás"
-
-#, python-format
-msgid "in %s"
-msgstr "en %s"
-
-#, python-format
-msgid ", until %s (%s)"
+#, fuzzy, python-format
+msgid "until %s%s ago"
 msgstr ", hasta %s (%s)"
 
-#, python-format
-msgid " (planned for %s%s)"
-msgstr " (planeado para %s%s)"
-
-#, python-format
-msgid ", planned for %s%s"
+#, fuzzy, python-format
+msgid " [planned: %s]"
 msgstr ", planeado para %s%s"
 
+#, fuzzy, python-format
+msgid "%s%s%s (%s%s ago, in %s)"
+msgstr "%s%s%s (%s atrás, %s)"
+
+#, fuzzy, python-format
+msgid "%s%s%s (%s%s ago, %s)"
+msgstr "%s%s%s (%s atrás, %s)"
+
+#, fuzzy, python-format
+msgid "%s%s%s (in %s%s)"
+msgstr "%s%s%s (%s atrás, %s)"
+
+#, fuzzy, python-format
+msgid "%s (documented)"
+msgstr " %s documentos\n"
+
 #, python-format
-msgid "%s %s ago (for %s: %s %s %s)"
-msgstr "%s %s atrás (para %s: %s %s %s)"
+msgid "%s (plan)"
+msgstr ""
+
+#, fuzzy, python-format
+msgid "%s ago, in %s"
+msgstr "%d día(s) atrás - %s"
+
+#, fuzzy, python-format
+msgid "in %s, %s"
+msgstr "en %s"
+
+#, fuzzy, python-format
+msgid "%s ago = %s"
+msgstr "%s atrás"
+
+#, fuzzy, python-format
+msgid "in %s = %s"
+msgstr "en %s"
+
+msgid "today"
+msgstr "hoy"
 
 msgid "Additional notes"
 msgstr "Notas adicionales"
@@ -8216,6 +8263,10 @@ msgstr "Ocupaciones"
 
 msgid "Vaccinations"
 msgstr "Vacunaciones"
+
+#, python-format
+msgid "%s ago"
+msgstr "%s atrás"
 
 msgid "Allergies/Intolerances"
 msgstr "Alergias/Intolerancias"
@@ -9354,9 +9405,6 @@ msgstr "horario de verano aplicado"
 #, python-format
 msgid "Location: %s (%s)"
 msgstr "Localidad: %s (%s)"
-
-msgid "today"
-msgstr "hoy"
 
 #, python-format
 msgid ""
@@ -10900,8 +10948,12 @@ msgstr ""
 "\n"
 "Por favor, verifique la edad del paciente, su sexo, tiempo desde/hasta FEC."
 
-#, python-format
-msgid "%s Vacc: %s (latest of %s)"
+#, fuzzy, python-format
+msgid " (entered %s ago)"
+msgstr "%.1f (%s atrás)"
+
+#, fuzzy, python-format
+msgid "%s Vacc: %s (latest of %s: %s ago)"
 msgstr "%s Vac: %s (última de %s)"
 
 #, python-format
@@ -14931,6 +14983,10 @@ msgstr "%.1f (%s atrás)"
 
 msgid "eGFR:"
 msgstr "TFGe"
+
+#, python-format
+msgid "%s%s%s (%s ago)"
+msgstr "%s%s%s (%s atrás)"
 
 #, python-format
 msgid "eGFR: %.1f (%s)"
@@ -18973,6 +19029,12 @@ msgstr "e&Xpando palabra clave"
 msgid "Expand keyword / macro"
 msgstr "Expando palabra clave / macro"
 
+msgid "Insert &Unicode"
+msgstr ""
+
+msgid "Insert a unicode character"
+msgstr ""
+
 msgid "as &Subjective"
 msgstr "como &Subjectivo"
 
@@ -20949,6 +21011,12 @@ msgstr "Aborto"
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Aborto y NO conecto a GNUMed."
+
+#~ msgid " (planned for %s%s)"
+#~ msgstr " (planeado para %s%s)"
+
+#~ msgid "%s %s ago (for %s: %s %s %s)"
+#~ msgstr "%s %s atrás (para %s: %s %s %s)"
 
 #~ msgid "&Addresses"
 #~ msgstr "&Direcciones"

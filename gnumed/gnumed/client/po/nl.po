@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-08-01 11:56+0200\n"
+"POT-Creation-Date: 2016-08-18 21:22+0200\n"
 "PO-Revision-Date: 2012-06-01 01:19+0000\n"
 "Last-Translator: Anik ten Have <anik@itchi-go.nl>\n"
 "Language-Team: Dutch <nl@li.org>\n"
@@ -1731,6 +1731,10 @@ msgstr "Of jaar:"
 msgid "interval_format_tag::years::y"
 msgstr ""
 
+#, fuzzy
+msgid "0 years"
+msgstr "Of jaar:"
+
 msgid "months"
 msgstr ""
 
@@ -1738,6 +1742,9 @@ msgid "month"
 msgstr ""
 
 msgid "interval_format_tag::months::m"
+msgstr ""
+
+msgid "0 months"
 msgstr ""
 
 msgid "weeks"
@@ -1749,13 +1756,30 @@ msgstr "week"
 msgid "interval_format_tag::weeks::w"
 msgstr ""
 
+#, fuzzy
+msgid "0 weeks"
+msgstr "weken"
+
 msgid "interval_format_tag::days::d"
+msgstr ""
+
+#, fuzzy
+msgid "0 days"
+msgstr "dagen"
+
+msgid "0 hours"
+msgstr ""
+
+msgid "0 minutes"
 msgstr ""
 
 msgid "seconds"
 msgstr ""
 
 msgid "second"
+msgstr ""
+
+msgid "0 seconds"
 msgstr ""
 
 #, fuzzy
@@ -7558,37 +7582,57 @@ msgstr "Geexporteerd: %s\n"
 msgid "%s%s: %s ago (%s)"
 msgstr "%s%7s %s: %s (%s part(s), %s)"
 
-#, fuzzy, python-format
-msgid "%s%s%s (%s ago)"
-msgstr "%s%7s %s: %s (%s part(s), %s)"
+#, fuzzy
+msgid "until today"
+msgstr "vandaag (%s)"
 
 #, fuzzy, python-format
-msgid "%s%s%s (%s ago, %s)"
-msgstr "%s%7s %s: %s (%s part(s), %s)"
-
-#, python-format
-msgid "%s ago"
-msgstr ""
-
-#, fuzzy, python-format
-msgid "in %s"
-msgstr "Documenten: %s"
-
-#, fuzzy, python-format
-msgid ", until %s (%s)"
+msgid "until %s%s ago"
 msgstr "SQL: %s"
 
 #, fuzzy, python-format
-msgid " (planned for %s%s)"
+msgid " [planned: %s]"
 msgstr "geen patiënt gevonden voor [%s]/%s"
 
 #, fuzzy, python-format
-msgid ", planned for %s%s"
-msgstr "geen patiënt gevonden voor [%s]/%s"
+msgid "%s%s%s (%s%s ago, in %s)"
+msgstr "%s%7s %s: %s (%s part(s), %s)"
 
 #, fuzzy, python-format
-msgid "%s %s ago (for %s: %s %s %s)"
-msgstr "Ontmoetingen: %s (%s - %s):"
+msgid "%s%s%s (%s%s ago, %s)"
+msgstr "%s%7s %s: %s (%s part(s), %s)"
+
+#, fuzzy, python-format
+msgid "%s%s%s (in %s%s)"
+msgstr "%s%7s %s: %s (%s part(s), %s)"
+
+#, fuzzy, python-format
+msgid "%s (documented)"
+msgstr " %s documenten\n"
+
+#, python-format
+msgid "%s (plan)"
+msgstr ""
+
+#, fuzzy, python-format
+msgid "%s ago, in %s"
+msgstr "%d dag(en) geleden - %s"
+
+#, fuzzy, python-format
+msgid "in %s, %s"
+msgstr "Documenten: %s"
+
+#, fuzzy, python-format
+msgid "%s ago = %s"
+msgstr "%d dag(en) geleden - %s"
+
+#, fuzzy, python-format
+msgid "in %s = %s"
+msgstr "Documenten: %s"
+
+#, fuzzy
+msgid "today"
+msgstr "vandaag (%s)"
 
 msgid "Additional notes"
 msgstr "Overige aantekeningen"
@@ -8107,6 +8151,10 @@ msgstr "Beroep"
 
 msgid "Vaccinations"
 msgstr "Vaccinaties"
+
+#, python-format
+msgid "%s ago"
+msgstr ""
 
 #, fuzzy
 msgid "Allergies/Intolerances"
@@ -9251,10 +9299,6 @@ msgstr "zomertijd ingegaan"
 #, fuzzy, python-format
 msgid "Location: %s (%s)"
 msgstr "Ontmoetingen: %s (%s - %s):"
-
-#, fuzzy
-msgid "today"
-msgstr "vandaag (%s)"
 
 #, fuzzy, python-format
 msgid ""
@@ -10864,7 +10908,11 @@ msgid ""
 msgstr ""
 
 #, fuzzy, python-format
-msgid "%s Vacc: %s (latest of %s)"
+msgid " (entered %s ago)"
+msgstr "Geexporteerd: %s\n"
+
+#, fuzzy, python-format
+msgid "%s Vacc: %s (latest of %s: %s ago)"
 msgstr "part %2s"
 
 #, fuzzy, python-format
@@ -14762,6 +14810,10 @@ msgstr "Geexporteerd: %s\n"
 
 msgid "eGFR:"
 msgstr ""
+
+#, fuzzy, python-format
+msgid "%s%s%s (%s ago)"
+msgstr "%s%7s %s: %s (%s part(s), %s)"
 
 #, python-format
 msgid "eGFR: %.1f (%s)"
@@ -18873,6 +18925,12 @@ msgstr ""
 msgid "Expand keyword / macro"
 msgstr ""
 
+msgid "Insert &Unicode"
+msgstr ""
+
+msgid "Insert a unicode character"
+msgstr ""
+
 #, fuzzy
 msgid "as &Subjective"
 msgstr "Anamnese"
@@ -20868,6 +20926,14 @@ msgstr "Afbreken"
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Afbreken en GEEN verbinding maken met GNUmed."
+
+#, fuzzy
+#~ msgid " (planned for %s%s)"
+#~ msgstr "geen patiënt gevonden voor [%s]/%s"
+
+#, fuzzy
+#~ msgid "%s %s ago (for %s: %s %s %s)"
+#~ msgstr "Ontmoetingen: %s (%s - %s):"
 
 #, fuzzy
 #~ msgid "&Addresses"

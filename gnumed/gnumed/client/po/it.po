@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-08-01 11:56+0200\n"
+"POT-Creation-Date: 2016-08-18 21:22+0200\n"
 "PO-Revision-Date: 2012-06-01 01:22+0000\n"
 "Last-Translator: ncq <Unknown>\n"
 "Language-Team: GNUmed\n"
@@ -1699,6 +1699,10 @@ msgstr "O anno:"
 msgid "interval_format_tag::years::y"
 msgstr "interval_format_tag::years::y"
 
+#, fuzzy
+msgid "0 years"
+msgstr "O anno:"
+
 msgid "months"
 msgstr ""
 
@@ -1707,6 +1711,9 @@ msgstr ""
 
 msgid "interval_format_tag::months::m"
 msgstr "interval_format_tag::months::m"
+
+msgid "0 months"
+msgstr ""
 
 msgid "weeks"
 msgstr ""
@@ -1717,13 +1724,28 @@ msgstr ""
 msgid "interval_format_tag::weeks::w"
 msgstr "interval_format_tag::weeks::w"
 
+msgid "0 weeks"
+msgstr ""
+
 msgid "interval_format_tag::days::d"
 msgstr "interval_format_tag::days::d"
+
+msgid "0 days"
+msgstr ""
+
+msgid "0 hours"
+msgstr ""
+
+msgid "0 minutes"
+msgstr ""
 
 msgid "seconds"
 msgstr ""
 
 msgid "second"
+msgstr ""
+
+msgid "0 seconds"
 msgstr ""
 
 msgid "y::year_abbreviation"
@@ -7255,37 +7277,57 @@ msgstr "&Zona:"
 msgid "%s%s: %s ago (%s)"
 msgstr "%s%7s %s: %s (%s parte(i), %s)"
 
-#, fuzzy, python-format
-msgid "%s%s%s (%s ago)"
-msgstr "%s%7s %s: %s (%s parte(i), %s)"
+#, fuzzy
+msgid "until today"
+msgstr "oggi (%s)"
 
 #, fuzzy, python-format
-msgid "%s%s%s (%s ago, %s)"
-msgstr "%s%7s %s: %s (%s parte(i), %s)"
-
-#, python-format
-msgid "%s ago"
-msgstr ""
-
-#, fuzzy, python-format
-msgid "in %s"
-msgstr "Chiusa"
-
-#, fuzzy, python-format
-msgid ", until %s (%s)"
+msgid "until %s%s ago"
 msgstr "&Zona:"
 
 #, fuzzy, python-format
-msgid " (planned for %s%s)"
+msgid " [planned: %s]"
 msgstr "nessun paziente trovato per [%s]/%s"
 
 #, fuzzy, python-format
-msgid ", planned for %s%s"
-msgstr "nessun paziente trovato per [%s]/%s"
+msgid "%s%s%s (%s%s ago, in %s)"
+msgstr "%s%7s %s: %s (%s parte(i), %s)"
 
 #, fuzzy, python-format
-msgid "%s %s ago (for %s: %s %s %s)"
-msgstr " Durata: %s (%s - %s)"
+msgid "%s%s%s (%s%s ago, %s)"
+msgstr "%s%7s %s: %s (%s parte(i), %s)"
+
+#, fuzzy, python-format
+msgid "%s%s%s (in %s%s)"
+msgstr "%s%7s %s: %s (%s parte(i), %s)"
+
+#, fuzzy, python-format
+msgid "%s (documented)"
+msgstr " %s documenti\n"
+
+#, python-format
+msgid "%s (plan)"
+msgstr ""
+
+#, fuzzy, python-format
+msgid "%s ago, in %s"
+msgstr "%d giorno/i fa - %s"
+
+#, fuzzy, python-format
+msgid "in %s, %s"
+msgstr "Chiusa"
+
+#, fuzzy, python-format
+msgid "%s ago = %s"
+msgstr "%d giorno/i fa - %s"
+
+#, fuzzy, python-format
+msgid "in %s = %s"
+msgstr "Chiusa"
+
+#, fuzzy
+msgid "today"
+msgstr "oggi (%s)"
 
 msgid "Additional notes"
 msgstr "Note aggiuntive"
@@ -7813,6 +7855,10 @@ msgstr "Occupazione"
 
 msgid "Vaccinations"
 msgstr "Vaccinazioni"
+
+#, python-format
+msgid "%s ago"
+msgstr ""
 
 #, fuzzy
 msgid "Allergies/Intolerances"
@@ -8941,10 +8987,6 @@ msgstr "ora legale in vigore"
 #, fuzzy, python-format
 msgid "Location: %s (%s)"
 msgstr " Durata: %s (%s - %s)"
-
-#, fuzzy
-msgid "today"
-msgstr "oggi (%s)"
 
 #, fuzzy, python-format
 msgid ""
@@ -10358,7 +10400,11 @@ msgid ""
 msgstr ""
 
 #, fuzzy, python-format
-msgid "%s Vacc: %s (latest of %s)"
+msgid " (entered %s ago)"
+msgstr "&Zona:"
+
+#, fuzzy, python-format
+msgid "%s Vacc: %s (latest of %s: %s ago)"
 msgstr "Chiusa"
 
 #, fuzzy, python-format
@@ -14038,6 +14084,10 @@ msgstr "&Zona:"
 msgid "eGFR:"
 msgstr ""
 
+#, fuzzy, python-format
+msgid "%s%s%s (%s ago)"
+msgstr "%s%7s %s: %s (%s parte(i), %s)"
+
 #, python-format
 msgid "eGFR: %.1f (%s)"
 msgstr ""
@@ -17632,6 +17682,12 @@ msgstr ""
 msgid "Expand keyword / macro"
 msgstr ""
 
+msgid "Insert &Unicode"
+msgstr ""
+
+msgid "Insert a unicode character"
+msgstr ""
+
 #, fuzzy
 msgid "as &Subjective"
 msgstr "Soggettivo"
@@ -19452,6 +19508,14 @@ msgstr "Annulla"
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Annulla e NON connetti a GNUmed"
+
+#, fuzzy
+#~ msgid " (planned for %s%s)"
+#~ msgstr "nessun paziente trovato per [%s]/%s"
+
+#, fuzzy
+#~ msgid "%s %s ago (for %s: %s %s %s)"
+#~ msgstr " Durata: %s (%s - %s)"
 
 #, fuzzy
 #~ msgid "&Addresses"

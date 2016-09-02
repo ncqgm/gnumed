@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-08-01 11:55+0200\n"
+"POT-Creation-Date: 2016-08-18 21:22+0200\n"
 "PO-Revision-Date: 2012-06-01 01:24+0000\n"
 "Last-Translator: ncq <Unknown>\n"
 "Language-Team: Ελληνικά, Σύγχρονα <opensuse-translation-el@opensuse.org>\n"
@@ -1834,6 +1834,9 @@ msgstr ""
 msgid "interval_format_tag::years::y"
 msgstr ""
 
+msgid "0 years"
+msgstr ""
+
 msgid "months"
 msgstr ""
 
@@ -1842,6 +1845,10 @@ msgstr ""
 
 msgid "interval_format_tag::months::m"
 msgstr ""
+
+#, fuzzy
+msgid "0 months"
+msgstr "Μήνας"
 
 msgid "weeks"
 msgstr "εβδομάδες"
@@ -1852,13 +1859,32 @@ msgstr "εβδομάδα"
 msgid "interval_format_tag::weeks::w"
 msgstr ""
 
+#, fuzzy
+msgid "0 weeks"
+msgstr "εβδομάδες"
+
 msgid "interval_format_tag::days::d"
 msgstr ""
+
+#, fuzzy
+msgid "0 days"
+msgstr "ημέρες"
+
+#, fuzzy
+msgid "0 hours"
+msgstr "ώρες"
+
+#, fuzzy
+msgid "0 minutes"
+msgstr "λεπτά"
 
 msgid "seconds"
 msgstr ""
 
 msgid "second"
+msgstr ""
+
+msgid "0 seconds"
 msgstr ""
 
 msgid "y::year_abbreviation"
@@ -7309,41 +7335,63 @@ msgstr ""
 "%s: %s από  %.8s (v%s)\n"
 "%s"
 
+#, fuzzy
+msgid "until today"
+msgstr "σήμερα(%s)"
+
 #, fuzzy, python-format
-msgid "%s%s%s (%s ago)"
+msgid "until %s%s ago"
+msgstr "Εργαστήριο: %s\n"
+
+#, fuzzy, python-format
+msgid " [planned: %s]"
+msgstr " Έκλεισε: %s\n"
+
+#, fuzzy, python-format
+msgid "%s%s%s (%s%s ago, in %s)"
 msgstr ""
 "%s: %s από  %.8s (v%s)\n"
 "%s"
 
 #, fuzzy, python-format
-msgid "%s%s%s (%s ago, %s)"
+msgid "%s%s%s (%s%s ago, %s)"
 msgstr ""
 "%s: %s από  %.8s (v%s)\n"
 "%s"
+
+#, fuzzy, python-format
+msgid "%s%s%s (in %s%s)"
+msgstr ""
+"%s: %s από  %.8s (v%s)\n"
+"%s"
+
+#, fuzzy, python-format
+msgid "%s (documented)"
+msgstr " %s Αρχείο\n"
 
 #, python-format
-msgid "%s ago"
+msgid "%s (plan)"
 msgstr ""
 
 #, fuzzy, python-format
-msgid "in %s"
+msgid "%s ago, in %s"
+msgstr "%d μέρα(ες) πριν-%s"
+
+#, fuzzy, python-format
+msgid "in %s, %s"
 msgstr "σε %d μέρα(ες): %s"
 
 #, fuzzy, python-format
-msgid ", until %s (%s)"
-msgstr "Εργαστήριο: %s\n"
-
-#, python-format
-msgid " (planned for %s%s)"
-msgstr ""
-
-#, python-format
-msgid ", planned for %s%s"
-msgstr ""
+msgid "%s ago = %s"
+msgstr "%d μέρα(ες) πριν-%s"
 
 #, fuzzy, python-format
-msgid "%s %s ago (for %s: %s %s %s)"
-msgstr " Διάρκεια: %s (%s - %s)"
+msgid "in %s = %s"
+msgstr "σε %d μέρα(ες): %s"
+
+#, fuzzy
+msgid "today"
+msgstr "σήμερα(%s)"
 
 msgid "Additional notes"
 msgstr "Επιπλέον σημειώσεις"
@@ -7896,6 +7944,10 @@ msgstr "Απασχολήσεις"
 
 msgid "Vaccinations"
 msgstr "Εμβολιασμοί"
+
+#, python-format
+msgid "%s ago"
+msgstr ""
 
 #, fuzzy
 msgid "Allergies/Intolerances"
@@ -9016,10 +9068,6 @@ msgstr "αλλαγή θερινής - χειμερινής ώρας είναι �
 #, fuzzy, python-format
 msgid "Location: %s (%s)"
 msgstr "Ογανισμός: %s (%s)"
-
-#, fuzzy
-msgid "today"
-msgstr "σήμερα(%s)"
 
 #, fuzzy, python-format
 msgid ""
@@ -10422,7 +10470,11 @@ msgid ""
 msgstr ""
 
 #, fuzzy, python-format
-msgid "%s Vacc: %s (latest of %s)"
+msgid " (entered %s ago)"
+msgstr "Ημερομηνία: %s\n"
+
+#, fuzzy, python-format
+msgid "%s Vacc: %s (latest of %s: %s ago)"
 msgstr "μέρος %s: %s"
 
 #, fuzzy, python-format
@@ -14029,6 +14081,12 @@ msgstr "Ημερομηνία: %s\n"
 msgid "eGFR:"
 msgstr ""
 
+#, fuzzy, python-format
+msgid "%s%s%s (%s ago)"
+msgstr ""
+"%s: %s από  %.8s (v%s)\n"
+"%s"
+
 #, python-format
 msgid "eGFR: %.1f (%s)"
 msgstr ""
@@ -17571,6 +17629,12 @@ msgstr ""
 msgid "Expand keyword / macro"
 msgstr ""
 
+msgid "Insert &Unicode"
+msgstr ""
+
+msgid "Insert a unicode character"
+msgstr ""
+
 #, fuzzy
 msgid "as &Subjective"
 msgstr "Υποκειμενικό"
@@ -19332,6 +19396,10 @@ msgstr "Ματαίωση"
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Ματαίωση και ΔΕΝ θα συνδεθείτε με το GNUmed."
+
+#, fuzzy
+#~ msgid "%s %s ago (for %s: %s %s %s)"
+#~ msgstr " Διάρκεια: %s (%s - %s)"
 
 #, fuzzy
 #~ msgid "&Addresses"
