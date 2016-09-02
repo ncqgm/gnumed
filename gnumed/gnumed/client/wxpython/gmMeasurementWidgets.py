@@ -666,6 +666,7 @@ class cMeasurementsAsListPnl(wxgMeasurementsAsListPnl.wxgMeasurementsAsListPnl, 
 	#------------------------------------------------------------
 	def __init_ui(self):
 		self._LCTRL_results.set_columns([_('When'), _('Test'), _('Result'), _('Reference')])
+		self._LCTRL_results.edit_callback = self._on_edit
 
 	#------------------------------------------------------------
 	def __register_events(self):
@@ -712,6 +713,14 @@ class cMeasurementsAsListPnl(wxgMeasurementsAsListPnl.wxgMeasurementsAsListPnl, 
 			self._TCTRL_measurements.SetValue(self._LCTRL_results.get_item_data(item_idx = 0)['formatted'])
 
 		self._LCTRL_results.SetFocus()
+
+	#------------------------------------------------------------
+	def _on_edit(self):
+		item_data = self._LCTRL_results.get_selected_item_data(only_one = True)
+		if item_data is None:
+			return
+		if edit_measurement(parent = self, measurement = item_data['data'], single_entry = True):
+			self.__repopulate_ui()
 
 	#------------------------------------------------------------
 	# event handlers
@@ -788,6 +797,7 @@ class cMeasurementsByDayPnl(wxgMeasurementsByDayPnl.wxgMeasurementsByDayPnl, gmR
 	def __init_ui(self):
 		self._LCTRL_days.set_columns([_('Day')])
 		self._LCTRL_results.set_columns([_('Time'), _('Test'), _('Result'), _('Reference')])
+		self._LCTRL_results.edit_callback = self._on_edit
 
 	#------------------------------------------------------------
 	def __register_events(self):
@@ -808,6 +818,14 @@ class cMeasurementsByDayPnl(wxgMeasurementsByDayPnl.wxgMeasurementsByDayPnl, gmR
 		if len(items) > 0:
 			self._LCTRL_days.Select(idx = 0, on = 1)
 			self._LCTRL_days.SetFocus()
+
+	#------------------------------------------------------------
+	def _on_edit(self):
+		item_data = self._LCTRL_results.get_selected_item_data(only_one = True)
+		if item_data is None:
+			return
+		if edit_measurement(parent = self, measurement = item_data['data'], single_entry = True):
+			self.__repopulate_ui()
 
 	#------------------------------------------------------------
 	# event handlers

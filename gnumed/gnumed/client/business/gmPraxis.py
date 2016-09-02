@@ -1,3 +1,4 @@
+# -*- coding: utf8 -*-
 """GNUmed Praxis related middleware."""
 #============================================================
 __license__ = "GPL"
@@ -7,6 +8,7 @@ __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 import sys
 import logging
 import io
+import urllib
 
 
 if __name__ == '__main__':
@@ -85,18 +87,40 @@ class cPraxisBranch(gmBusinessDBObject.cBusinessDBObject):
 		txt += u' '
 		txt += u'\n '.join(self.org_unit.format(with_address = True, with_org = True, with_comms = True))
 		return txt
+
 	#--------------------------------------------------------
 	def lock(self, exclusive=False):
 		return lock_praxis_branch(pk_praxis_branch = self._payload[self._idx['pk_praxis_branch']], exclusive = exclusive)
+
 	#--------------------------------------------------------
 	def unlock(self, exclusive=False):
 		return unlock_praxis_branch(pk_praxis_branch = self._payload[self._idx['pk_praxis_branch']], exclusive = exclusive)
+
 	#--------------------------------------------------------
 	def get_comm_channels(self, comm_medium=None):
 		return self.org_unit.get_comm_channels(comm_medium = comm_medium)
+
 	#--------------------------------------------------------
 	def get_external_ids(self, id_type=None, issuer=None):
 		return self.org_unit.get_external_ids(id_type = id_type, issuer = issuer)
+
+	#--------------------------------------------------------
+	def get_distance2address_url(self, address):
+		self_adr = self.address
+		url = u'https://www.luftlinie.org/%s-%s-%s-%s-%s/%s-%s-%s-%s-%s' % (
+			urllib.quote(self_adr['street'].encode('utf8')),
+			urllib.quote(self_adr['number'].encode('utf8')),
+			urllib.quote(self_adr['urb'].encode('utf8')),
+			urllib.quote(self_adr['postcode'].encode('utf8')),
+			urllib.quote(self_adr['country'].encode('utf8')),
+			urllib.quote(address['street'].encode('utf8')),
+			urllib.quote(address['number'].encode('utf8')),
+			urllib.quote(address['urb'].encode('utf8')),
+			urllib.quote(address['postcode'].encode('utf8')),
+			urllib.quote(address['country'].encode('utf8'))
+		)
+		return url
+
 	#--------------------------------------------------------
 	# properties
 	#--------------------------------------------------------
@@ -142,7 +166,7 @@ class cPraxisBranch(gmBusinessDBObject.cBusinessDBObject):
 			vcf_fields.append(u'EMAIL:%(url)s' % comms[0])
 		vcf_fields.append(u'END:VCARD')
 		vcf_fname = gmTools.get_unique_filename (
-			prefix = 'gm_praxis2vcf-',
+			prefix = 'gm-praxis-',
 			suffix = '.vcf'
 		)
 		vcf_file = io.open(vcf_fname, mode = 'wt', encoding = 'utf8')

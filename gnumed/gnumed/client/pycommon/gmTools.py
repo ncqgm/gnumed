@@ -67,20 +67,23 @@ u_greek_ALPHA = u'\u0391'
 u_greek_alpha = u'\u03b1'
 u_greek_OMEGA = u'\u03A9'
 u_greek_omega = u'\u03c9'
-u_triangular_bullet = u'\u2023'				# triangular bullet  (>)
-u_ellipsis = u'\u2026'						# ...
-u_euro = u'\u20AC'							# EURO sign
-u_numero = u'\u2116'						# No. / # sign
-u_down_left_arrow = u'\u21B5'				# <-'
-u_left_arrow = u'\u2190'					# <--
+u_triangular_bullet = u'\u2023'					# triangular bullet  (>)
+u_ellipsis = u'\u2026'							# ...
+u_euro = u'\u20AC'								# EURO sign
+u_numero = u'\u2116'							# No. / # sign
+u_down_left_arrow = u'\u21B5'					# <-'
+u_left_arrow = u'\u2190'						# <--
 u_up_arrow = u'\u2191'
-u_arrow2right = u'\u2192'					# -->
+u_arrow2right = u'\u2192'						# -->
 u_down_arrow = u'\u2193'
-u_left_arrow_with_tail = u'\u21a2'			# <--<
-u_sum = u'\u2211'							# sigma
-u_almost_equal_to = u'\u2248'				# approximately / nearly / roughly
+u_left_arrow_with_tail = u'\u21a2'				# <--<
+u_arrow2right_from_bar = u'\u21a6'				# |->
+u_arrow2right_until_vertical_bar = u'\u21e5'	# -->|
+u_sum = u'\u2211'								# sigma
+u_almost_equal_to = u'\u2248'					# approximately / nearly / roughly
 u_corresponds_to = u'\u2258'
 u_infinity = u'\u221E'
+u_arrow2right_until_vertical_bar2 = u'\u2b72'	# -->|
 u_diameter = u'\u2300'
 u_checkmark_crossed_out = u'\u237B'
 u_box_vert_left = u'\u23b8'
@@ -110,12 +113,14 @@ u_male = u'\u2642'
 u_male_female = u'\u26a5'
 u_checkmark_thin = u'\u2713'
 u_checkmark_thick = u'\u2714'
+u_arrow2right_thick = u'\u2794'
 u_writing_hand = u'\u270d'
 u_pencil_1 = u'\u270e'
 u_pencil_2 = u'\u270f'
 u_pencil_3 = u'\u2710'
 u_latin_cross = u'\u271d'
-u_kanji_yen = u'\u5186'						# Yen kanji
+u_arrow2right_until_black_diamond = u'\u291e'	# ->*
+u_kanji_yen = u'\u5186'							# Yen kanji
 u_replacement_character = u'\ufffd'
 u_link_symbol = u'\u1f517'
 
@@ -278,14 +283,15 @@ class gmPaths(gmBorg.cBorg):
 			self.__tmp_dir_already_set
 			_log.debug(u'temp dir already set')
 		except AttributeError:
-			_log.info(u'initial temp dir: %s', tempfile.gettempdir())
+			_log.info(u'initial (user level) temp dir: %s', tempfile.gettempdir())
 			# $TMP/gnumed-$USER/
 			tmp_base = os.path.join(tempfile.gettempdir(), app_name + r'-' + getpass.getuser())
 			mkdir(tmp_base, 0o700)
 			tempfile.tempdir = tmp_base
-			_log.info(u'intermediate temp dir: %s', tempfile.gettempdir())
+			_log.info(u'intermediate (app level) temp dir: %s', tempfile.gettempdir())
 			# $TMP/gnumed-$USER/g$UNIQUE/
 			self.tmp_dir = tempfile.mkdtemp(prefix = r'g')
+			_log.info(u'final (app instance level) temp dir: %s', tempfile.gettempdir())
 
 		self.__log_paths()
 		if wx is None:
@@ -416,7 +422,7 @@ class gmPaths(gmBorg.cBorg):
 		_log.debug('previous temp dir: %s', tempfile.gettempdir())
 		self.__tmp_dir = path
 		tempfile.tempdir = self.__tmp_dir
-		_log.debug('current temp dir: %s', tempfile.gettempdir())
+		_log.debug('new temp dir: %s', tempfile.gettempdir())
 		self.__tmp_dir_already_set = True
 
 	def _get_tmp_dir(self):
@@ -674,6 +680,43 @@ def get_unique_filename(prefix=None, suffix=None, tmp_dir=None, include_timestam
 	f.close()
 
 	return filename
+
+#---------------------------------------------------------------------------
+def __make_symlink_on_windows(physical_name, link_name):
+	import ctypes
+	csl = ctypes.windll.kernel32.CreateSymbolicLinkW
+	csl.argtypes = (ctypes.c_wchar_p, ctypes.c_wchar_p, ctypes.c_uint32)
+	csl.restype = ctypes.c_ubyte
+	if os.path.isdir(physical_name):
+		flags = 1
+	else:
+		flags = 0
+	ret_code = csl(link_name, physical_name.replace('/', '\\'), flags)
+	_log.debug('ctypes.windll.kernel32.CreateSymbolicLinkW() exit code: %s', ret_code)
+	if ret_code == 0:
+		raise ctypes.WinError()
+	return ret_code
+
+#---------------------------------------------------------------------------
+def mklink(physical_name, link_name, overwrite=False):
+
+	_log.debug('creating symlink (overwrite = %s):', overwrite)
+	_log.debug('link [%s] =>', link_name)
+	_log.debug('=> physical [%s]', physical_name)
+
+	if os.path.exists(link_name):
+		_log.debug('link exists')
+		if overwrite:
+			return True
+		return False
+
+	try:
+		os.symlink(physical_name, link_name)
+	except AttributeError:
+		_log.debug('Windows does not have os.symlink(), resorting to ctypes')
+		__make_symlink_on_windows(physical_name, link_name)
+
+	return True
 
 #===========================================================================
 def import_module_from_directory(module_path=None, module_name=None, always_remove_path=False):
@@ -1836,10 +1879,10 @@ second line\n
 	#test_fname_stem()
 	#test_tex_escape()
 	#test_dir_is_empty()
-	#test_compare_dicts()
+	test_compare_dicts()
 	#test_rm_dir()
 	#test_strip_prefix()
 	#test_shorten_text()
-	test_format_compare_dicts()
+	#test_format_compare_dicts()
 
 #===========================================================================

@@ -59,7 +59,11 @@ class cDynamicHint(gmBusinessDBObject.cBusinessDBObject):
 		u'is_active'
 	]
 	#--------------------------------------------------------
-	def format(self):
+	def format_maximum_information(self, patient):
+		return self.format(include_sql = True).split(u'\n')
+
+	#--------------------------------------------------------
+	def format(self, include_sql=False):
 		txt = u'%s               [#%s]\n' % (
 			gmTools.bool2subst(self._payload[self._idx['is_active']], _('Active clinical hint'), _('Inactive clinical hint')),
 			self._payload[self._idx['pk_auto_hint']]
@@ -85,14 +89,22 @@ class cDynamicHint(gmBusinessDBObject.cBusinessDBObject):
 			subsequent_indent = u' '
 		)
 		txt += u'\n'
-		txt += u'\n'
-		txt += gmTools.wrap(self._payload[self._idx['query']], width = 50, initial_indent = u' ', subsequent_indent = u' ')
-		txt += u'\n'
-		if self._payload[self._idx['recommendation_query']] is not None:
+		if include_sql:
 			txt += u'\n'
-			txt += gmTools.wrap(self._payload[self._idx['recommendation_query']], width = 50, initial_indent = u' ', subsequent_indent = u' ')
+			txt += gmTools.wrap(self._payload[self._idx['query']], width = 50, initial_indent = u' ', subsequent_indent = u' ')
+			txt += u'\n'
+			if self._payload[self._idx['recommendation_query']] is not None:
+				txt += u'\n'
+				txt += gmTools.wrap(self._payload[self._idx['recommendation_query']], width = 50, initial_indent = u' ', subsequent_indent = u' ')
+				txt += u'\n'
+		if self._payload[self._idx['rationale4suppression']] is not None:
+			txt += u'\n'
+			txt += _('Rationale for suppression:')
+			txt += u'\n'
+			txt += gmTools.wrap(self._payload[self._idx['rationale4suppression']], width = 50, initial_indent = u' ', subsequent_indent = u' ')
 			txt += u'\n'
 		return txt
+
 	#--------------------------------------------------------
 	def suppress(self, rationale=None, pk_encounter=None):
 		return suppress_dynamic_hint (
@@ -162,9 +174,9 @@ def get_hints_for_patient(pk_identity=None, include_suppressed_needing_invalidat
 	idx = gmPG2.get_col_indices(curs)
 	curs.close()
 	conn.rollback()
-	if not include_suppressed_needing_invalidation:
-		return [ cDynamicHint(row = {'data': r, 'idx': idx, 'pk_field': 'pk_auto_hint'}) for r in rows if r['rationale4suppression'] != 'magic_tag::please_invalidate_suppression' ]
-	return [ cDynamicHint(row = {'data': r, 'idx': idx, 'pk_field': 'pk_auto_hint'}) for r in rows ]
+	if include_suppressed_needing_invalidation:
+		return [ cDynamicHint(row = {'data': r, 'idx': idx, 'pk_field': 'pk_auto_hint'}) for r in rows ]
+	return [ cDynamicHint(row = {'data': r, 'idx': idx, 'pk_field': 'pk_auto_hint'}) for r in rows if r['rationale4suppression'] != 'magic_tag::please_invalidate_suppression' ]
 
 #------------------------------------------------------------
 def suppress_dynamic_hint(pk_hint=None, rationale=None, pk_encounter=None):

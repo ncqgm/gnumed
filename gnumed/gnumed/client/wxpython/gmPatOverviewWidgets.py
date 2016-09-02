@@ -168,20 +168,22 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 				return True
 
 		if kwds['table'] in [
-			u'dem.identity',
-			u'dem.names',
-			u'dem.lnk_identity2comm',
-			u'dem.lnk_job2person',
+			u'blobs.doc_med',
+			u'clin.episode',
+			u'clin.health_issue',
+			u'clin.suppressed_hint',
 			u'clin.substance_intake',
 			u'clin.hospital_stay',
 			u'clin.procedure',
 			u'clin.vaccination',
 			u'clin.family_history',
 			u'clin.test_result',
-			u'blobs.doc_med',
+			u'dem.identity',
+			u'dem.names',
+			u'dem.lnk_identity2comm',
+			u'dem.lnk_job2person',
 			u'dem.message_inbox',
-			u'clin.episode',
-			u'clin.health_issue'
+			u'ref.auto_hint'		# no signal triggers in v21 just yet, however ...
 		]:
 			self._schedule_data_reget()
 			return True
@@ -265,9 +267,11 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		if no_of_reds > 0:
 			for idx in range(1, no_of_reds + 1):
 				self._LCTRL_results.SetItemTextColour(idx, wx.NamedColour('RED'))
+
 	#-----------------------------------------------------
 	def _calc_results_list_item_tooltip(self, data):
 		return data.format()
+
 	#-----------------------------------------------------
 	def _on_result_activated(self, event):
 #		data = self._LCTRL_inbox.get_selected_item_data(only_one = True)
@@ -279,6 +283,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 #					xxxxxxxxx
 		gmDispatcher.send(signal = 'display_widget', name = 'gmMeasurementsGridPlugin')
 		return
+
 	#-----------------------------------------------------
 	#-----------------------------------------------------
 	def __refresh_inbox(self, patient=None):
@@ -593,6 +598,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 				return
 
 		wx.CallAfter(gmEncounterWidgets.manage_encounters, parent = self, ignore_OK_button = False)
+
 	#-----------------------------------------------------
 	#-----------------------------------------------------
 	def __refresh_history(self, patient=None):
@@ -600,6 +606,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 
 		sort_key_list = []
 		date_format4sorting = '%Y %m %d %H %M %S'
+		now = gmDateTime.pydt_now_here()
 		data = {}
 
 		# undated entries
@@ -624,13 +631,9 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		fhxs = emr.get_family_history()
 		for fhx in fhxs:
 			sort_key = u'99998 %s::%s' % (fhx['l10n_relation'], fhx['pk_family_history'])
-			#gmDateTime.pydt_strftime(fhx['when_known_to_patient'], format = '%Y %m %d %H %M %S')
-			label = u'%s: %s%s' % (
-				fhx['l10n_relation'],
-				fhx['condition'],
-				gmTools.coalesce(fhx['age_noted'], u'', u' (@ %s)')
-			)
 			sort_key_list.append(sort_key)
+			#gmDateTime.pydt_strftime(fhx['when_known_to_patient'], format = '%Y %m %d %H %M %S')
+			label = u'%s%s: %s' % (fhx['l10n_relation'], gmTools.coalesce(fhx['age_noted'], u'', u' (@ %s)'), fhx['condition'])
 			data[sort_key] = [label, fhx]
 		del fhxs
 
@@ -648,16 +651,22 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 				last = gmDateTime.pydt_strftime(last_encounter['last_affirmed'], format = '%Y %b')
 				sort_key = u'%s::%s' % (gmDateTime.pydt_strftime(last_encounter['last_affirmed'], format = date_format4sorting), issue['pk_health_issue'])
 			sort_key_list.append(sort_key)
-			data[sort_key] = [u'%s %s' % (last, issue['description']), issue]
+			if issue['age_noted'] is None:
+				encounter = gmEMRStructItems.cEncounter(issue['pk_encounter'])
+				age = _(u' (entered %s ago)') % gmDateTime.format_interval_medically(now - encounter['started'])
+			else:
+				age = u' (@ %s)' % gmDateTime.format_interval_medically(issue['age_noted'])
+			data[sort_key] = [u'%s %s%s' % (last, issue['description'], age), issue]
 		del issues
 
 		stays = emr.get_hospital_stays()
 		for stay in stays:
 			sort_key = u'%s::%s' % (gmDateTime.pydt_strftime(stay['admission'], format = date_format4sorting), stay['pk_hospital_stay'])
-			label = u'%s %s: %s' % (
+			label = u'%s %s: %s (%s)' % (
 				gmDateTime.pydt_strftime(stay['admission'], format = '%Y %b'),
 				stay['hospital'],
-				stay['episode']
+				stay['episode'],
+				_(u'%s ago') % gmDateTime.format_interval_medically(now - stay['admission'])
 			)
 			sort_key_list.append(sort_key)
 			data[sort_key] = [label, stay]
@@ -666,10 +675,12 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		procs = emr.get_performed_procedures()
 		for proc in procs:
 			sort_key = u'%s::%s' % (gmDateTime.pydt_strftime(proc['clin_when'], format = date_format4sorting), proc['pk_procedure'])
-			label = u'%s%s %s' % (
+			label = u'%s%s %s (%s @ %s)' % (
 				gmDateTime.pydt_strftime(proc['clin_when'], format = '%Y %b'),
 				gmTools.bool2subst(proc['is_ongoing'], gmTools.u_ellipsis, u'', u''),
-				proc['performed_procedure']
+				proc['performed_procedure'],
+				_(u'%s ago') % gmDateTime.format_interval_medically(now - proc['clin_when']),
+				gmDateTime.format_interval_medically(proc['clin_when'] - patient['dob'])
 			)
 			sort_key_list.append(sort_key)
 			data[sort_key] = [label, proc]
@@ -679,10 +690,11 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		for ind, tmp in vaccs.items():
 			no_of_shots, vacc = tmp
 			sort_key = u'%s::%s::%s' % (gmDateTime.pydt_strftime(vacc['date_given'], format = date_format4sorting), vacc['pk_vaccination'], ind)
-			label = _('%s Vacc: %s (latest of %s)') % (
+			label = _('%s Vacc: %s (latest of %s: %s ago)') % (
 				gmDateTime.pydt_strftime(vacc['date_given'], format = '%Y %b'),
 				ind,
-				no_of_shots
+				no_of_shots,
+				gmDateTime.format_interval_medically(now - vacc['date_given'])
 			)
 			sort_key_list.append(sort_key)
 			data[sort_key] = [label, vacc]
@@ -705,6 +717,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 
 		self._LCTRL_history.set_string_items(items = list_items)
 		self._LCTRL_history.set_data(data = list_data)
+
 	#-----------------------------------------------------
 	def _calc_history_list_item_tooltip(self, data):
 

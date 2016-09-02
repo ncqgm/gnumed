@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-05-01 14:32+0200\n"
+"POT-Creation-Date: 2016-08-05 12:34+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -3985,12 +3985,6 @@ msgstr ""
 msgid "Select the paperwork receiver:"
 msgstr ""
 
-msgid "&Addresses"
-msgstr ""
-
-msgid "Or&Ganizations"
-msgstr ""
-
 msgid "&OK"
 msgstr ""
 
@@ -4012,10 +4006,10 @@ msgstr ""
 msgid "Manage generic list of all addresses."
 msgstr ""
 
-msgid "Manage known organizations and units thereof."
+msgid "Select the organizational unit you want to write to."
 msgstr ""
 
-msgid "Select the organizational unit you want to write to."
+msgid "Manage known organizations and units thereof."
 msgstr ""
 
 msgid "Use the above name and address."
@@ -4024,13 +4018,38 @@ msgstr ""
 msgid "Abort the receiver selection."
 msgstr ""
 
-msgid "Selected receiver"
-msgstr ""
-
 msgid "Address"
 msgstr ""
 
-msgid "Manage:"
+msgid "Selected Receiver"
+msgstr ""
+
+msgid "$<receiver_name::::>$"
+msgstr ""
+
+msgid "address['l10n_country'] → $<receiver_country::::>$"
+msgstr ""
+
+msgid "address['l10n_region'] → $<receiver_region::::>$"
+msgstr ""
+
+msgid "ZIP"
+msgstr ""
+
+msgid "address['postcode'] → $<receiver_postcode::::>$"
+msgstr ""
+
+msgid ""
+"address['urb'] → $<receiver_urb::::>$\n"
+"address['suburb'] → $<receiver_suburb::::>$"
+msgstr ""
+
+msgid "address['street'] → $<receiver_street::::>$"
+msgstr ""
+
+msgid ""
+"address['number'] → $<receiver_number::::>$\n"
+"address['subunit'] → $<receiver_subunit::::>$"
 msgstr ""
 
 msgid "Quick picks"
@@ -5039,6 +5058,9 @@ msgid "Drug"
 msgstr ""
 
 msgid "Research:"
+msgstr ""
+
+msgid "Manage:"
 msgstr ""
 
 msgid "Certainty:"
@@ -6394,7 +6416,7 @@ msgid "BMI: weight not in kg or g"
 msgstr ""
 
 #, python-format
-msgid "BMI (Quetelet): formula does not apply at age [%s] (age < 18)"
+msgid "BMI (Quetelet): formula does not apply at age [%s] (0 < age < 18)"
 msgstr ""
 
 #, python-format
@@ -6651,7 +6673,7 @@ msgid ", planned for %s%s"
 msgstr ""
 
 #, python-format
-msgid "%s ago (for %s: %s %s %s)"
+msgid "%s %s ago (for %s: %s %s %s)"
 msgstr ""
 
 msgid "Additional notes"
@@ -6980,6 +7002,9 @@ msgstr ""
 msgid "Document"
 msgstr ""
 
+msgid "Inbox message"
+msgstr ""
+
 #, python-format
 msgid "unmapped entry type from table [%s]"
 msgstr ""
@@ -7236,6 +7261,9 @@ msgstr ""
 
 #, python-format
 msgid "Language: %s\n"
+msgstr ""
+
+msgid "Rationale for suppression:"
 msgstr ""
 
 msgid "Suppressed active dynamic hint"
@@ -9444,6 +9472,9 @@ msgid "Intake"
 msgstr ""
 
 msgid "nicotine"
+msgstr ""
+
+msgid "ethanol"
 msgstr ""
 
 msgid "unit"
@@ -11937,6 +11968,12 @@ msgstr ""
 msgid "Show selected address on map"
 msgstr ""
 
+msgid "Distance"
+msgstr ""
+
+msgid "Show distance from your praxis"
+msgstr ""
+
 msgid "Adding new address"
 msgstr ""
 
@@ -12125,14 +12162,6 @@ msgid ""
 "You have selected %s list items.\n"
 "\n"
 "Really delete all %s items ?"
-msgstr ""
-
-msgid ""
-"Select the items you want to work on.\n"
-"\n"
-"A discontinuous selection may depend on your holding down a platform-"
-"dependent modifier key (<CTRL>, <ALT>, etc) or key combination (eg. <CTRL-"
-"SHIFT> or <CTRL-ALT>) while clicking."
 msgstr ""
 
 msgid "List Item Actions"
@@ -13159,6 +13188,9 @@ msgid ""
 " %s"
 msgstr ""
 
+msgid "Browse patient data pack ?"
+msgstr ""
+
 msgid "If you wish to include an existing directory select it here:"
 msgstr ""
 
@@ -13326,13 +13358,16 @@ msgid "Missing long name for template."
 msgstr ""
 
 #, python-format
-msgid "last modified %s by %s"
+msgid "last modified %s by %s, internal revision [%s]"
 msgstr ""
 
 msgid "Choose a form template file"
 msgstr ""
 
 msgid "Enter a filename to save the template to"
+msgstr ""
+
+msgid "Receiver"
 msgstr ""
 
 msgid "Emergency contact"
@@ -13348,9 +13383,6 @@ msgid "This praxis"
 msgstr ""
 
 msgid "Bill receiver"
-msgstr ""
-
-msgid "Receiver"
 msgstr ""
 
 msgid ""
@@ -13912,19 +13944,16 @@ msgstr ""
 msgid "Deleting document"
 msgstr ""
 
-msgid "Study date"
+msgid "Referrer"
 msgstr ""
 
-msgid "Study time"
+msgid "Time"
 msgstr ""
 
 msgid "Method"
 msgstr ""
 
 msgid "Body part"
-msgstr ""
-
-msgid "Time"
 msgstr ""
 
 msgid "Cannot connect without port (try 8042)."
@@ -13957,11 +13986,7 @@ msgid ""
 msgstr ""
 
 #, python-format
-msgid "%s series"
-msgstr ""
-
-#, python-format
-msgid "%%s (%s series)"
+msgid "%s series%s"
 msgstr ""
 
 msgid "no studies"
@@ -14005,7 +14030,13 @@ msgid "All DICOM studies of [%s] from Orthanc PACS \"%s\" (AET \"%s\")"
 msgstr ""
 
 #, python-format
-msgid "%s%s images"
+msgid "%s image(s)%s"
+msgstr ""
+
+msgid "Study"
+msgstr ""
+
+msgid "Series"
 msgstr ""
 
 msgid "Select the directory from which to recursively upload DICOM files."

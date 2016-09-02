@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 """This module encapsulates mime operations.
+
+	http://www.dwheeler.com/essays/open-files-urls.html
 """
 #=======================================================================================
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
@@ -185,7 +187,8 @@ open_cmds = {
 	'gnome-open': 'gnome-open "%s"',		# GNOME
 	'exo-open': 'exo-open "%s"',
 	'op': 'op "%s"',
-	'open': 'open "%s"'						# MacOSX: "open -a AppName file" (-a allows to override the default app for the file type)
+	'open': 'open "%s"',					# MacOSX: "open -a AppName file" (-a allows to override the default app for the file type)
+	'cmd.exe': 'cmd.exe /c "%s"'			# Windows
 	#'run-mailcap'
 	#'explorer'
 }
@@ -200,7 +203,7 @@ def _get_system_startfile_cmd(filename):
 	if _system_startfile_cmd is not None:
 		return True, _system_startfile_cmd % filename
 
-	open_cmd_candidates = [u'xdg-open', u'kfmclient', u'gnome-open', u'exo-open', u'op', u'open']
+	open_cmd_candidates = open_cmds.keys()
 
 	for candidate in open_cmd_candidates:
 		found, binary = gmShellAPI.detect_external_binary(binary = candidate)
@@ -327,6 +330,7 @@ def call_viewer_on_file(aFile = None, block=None):
 	_log.warning("no viewer found via standard mailcap system")
 	if os.name == "posix":
 		_log.warning("you should add a viewer for this mime type to your mailcap file")
+
 	_log.info("let's see what the OS can do about that")
 
 	# does the file already have an extension ?
@@ -351,21 +355,19 @@ def call_viewer_on_file(aFile = None, block=None):
 
 	try:
 		os.startfile(file_to_display)
+		return True, ''
+	except AttributeError:
+		_log.exception('os.startfile() does not exist on this platform')
 	except:
 		_log.exception('os.startfile(%s) failed', file_to_display)
-		msg = _("Unable to display the file:\n\n"
-				" [%s]\n\n"
-				"Your system does not seem to have a (working)\n"
-				"viewer registered for the file type\n"
-				" [%s]"
-		) % (file_to_display, mime_type)
-		return False, msg
 
-	# don't kill the file from under the (possibly async) viewer
-#	if file_to_display != aFile:
-#		os.remove(file_to_display)
-
-	return True, ''
+	msg = _("Unable to display the file:\n\n"
+			" [%s]\n\n"
+			"Your system does not seem to have a (working)\n"
+			"viewer registered for the file type\n"
+			" [%s]"
+	) % (file_to_display, mime_type)
+	return False, msg
 
 #=======================================================================================
 if __name__ == "__main__":

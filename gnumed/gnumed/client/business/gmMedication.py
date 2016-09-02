@@ -11,9 +11,10 @@ import logging
 import csv
 import io
 import os
-import re as regex
 import subprocess
 import decimal
+import uuid
+import re as regex
 from xml.etree import ElementTree as etree
 import datetime as pydt
 
@@ -2466,108 +2467,207 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 	medically_formatted_start = property(_get_medically_formatted_start, lambda x:x)
 
 	#--------------------------------------------------------
+	def _get_medically_formatted_start_end_of_stopped(self, now):
+
+		# format intro
+		if gmDateTime.pydt_is_today(self._payload[self._idx['discontinued']]):
+			intro = _(u'until today')
+		else:
+			ended_ago = now - self._payload[self._idx['discontinued']]
+			intro = _(u'until %s%s ago') % (
+				gmTools.u_almost_equal_to,
+				gmDateTime.format_interval_medically(ended_ago),
+			)
+
+		# format start
+		if self._payload[self._idx['started']] is None:
+			start = gmTools.coalesce(self._payload[self._idx['comment_on_start']], u'?')
+		else:
+			start = u'%s%s%s' % (
+				gmTools.bool2subst((self._payload[self._idx['comment_on_start']] is None), u'', gmTools.u_almost_equal_to),
+				gmDateTime.pydt_strftime(self._payload[self._idx['started']], format = '%Y %b %d', encoding = u'utf8', accuracy = gmDateTime.acc_days),
+				gmTools.coalesce(self._payload[self._idx['comment_on_start']], u'', u' [%s]')
+			)
+
+		# format duration taken
+		if self._payload[self._idx['started']] is None:
+			duration_taken_str = u'?'
+		else:
+			duration_taken = self._payload[self._idx['discontinued']] - self._payload[self._idx['started']] + pydt.timedelta(days = 1)
+			duration_taken_str = gmDateTime.format_interval (duration_taken, gmDateTime.acc_days)
+
+		# format duration planned
+		if self._payload[self._idx['duration']] is None:
+			duration_planned_str = u''
+		else:
+			duration_planned_str = _(u' [planned: %s]') % gmDateTime.format_interval(self._payload[self._idx['duration']], gmDateTime.acc_days)
+
+		# format end
+		end = gmDateTime.pydt_strftime(self._payload[self._idx['discontinued']], '%Y %b %d', u'utf8', gmDateTime.acc_days)
+
+		# assemble
+		txt = u'%s (%s %s %s%s %s %s)' % (
+			intro,
+			start,
+			gmTools.u_arrow2right_thick,
+			duration_taken_str,
+			duration_planned_str,
+			gmTools.u_arrow2right_thick,
+			end
+		)
+		return txt
+
+	#--------------------------------------------------------
 	def _get_medically_formatted_start_end(self):
 
 		now = gmDateTime.pydt_now_here()
 
-		if self._payload[self._idx['comment_on_start']] is None:
-			start_prefix = u''
-		else:
-			start_prefix = gmTools.u_almost_equal_to
+		# medications stopped today or before today
+		if self._payload[self._idx['discontinued']] is not None:
+			if (self._payload[self._idx['discontinued']] < now) or (gmDateTime.pydt_is_today(self._payload[self._idx['discontinued']])):
+				return self._get_medically_formatted_start_end_of_stopped(now)
 
-		# ongoing medication
-		if self._payload[self._idx['discontinued']] is None:
-			# calculate start string
-			if self._payload[self._idx['started']] is None:
-				start = gmTools.coalesce(self._payload[self._idx['comment_on_start']], u'?')
-			else:
+		# ongoing medications
+		arrow_parts = []
+
+		# format start
+		if self._payload[self._idx['started']] is None:
+			start_str = gmTools.coalesce(self._payload[self._idx['comment_on_start']], u'?')
+		else:
+			start_prefix = gmTools.bool2subst((self._payload[self._idx['comment_on_start']] is None), u'', gmTools.u_almost_equal_to)
+			# starts today
+			if gmDateTime.pydt_is_today(self._payload[self._idx['started']]):
+				start_str = _(u'today (%s)') % gmDateTime.pydt_strftime(self._payload[self._idx['started']], format = '%Y %b %d', encoding = u'utf8', accuracy = gmDateTime.acc_days)
+			# started in the past
+			elif self._payload[self._idx['started']] < now:
 				started_ago = now - self._payload[self._idx['started']]
 				three_months = pydt.timedelta(weeks = 13, days = 3)
 				five_years = pydt.timedelta(weeks = 265)
 				if started_ago < three_months:
-					start = _('%s%s%s (%s ago)') % (
+					start_str = _('%s%s%s (%s%s ago, in %s)') % (
 						start_prefix,
-						gmDateTime.pydt_strftime(self._payload[self._idx['started']], format = '%Y %b %d', encoding = u'utf8', accuracy = gmDateTime.acc_days),
+						gmDateTime.pydt_strftime(self._payload[self._idx['started']], format = '%b %d', encoding = u'utf8', accuracy = gmDateTime.acc_days),
 						gmTools.coalesce(self._payload[self._idx['comment_on_start']], u'', u' [%s]'),
-						gmDateTime.format_interval_medically(started_ago)
+						gmTools.u_almost_equal_to,
+						gmDateTime.format_interval_medically(started_ago),
+						gmDateTime.pydt_strftime(self._payload[self._idx['started']], format = '%Y', encoding = u'utf8', accuracy = gmDateTime.acc_days)
 					)
 				elif started_ago < five_years:
-					start = _('%s%s%s (%s ago, %s)') % (
+					start_str = _('%s%s%s (%s%s ago, %s)') % (
 						start_prefix,
 						gmDateTime.pydt_strftime(self._payload[self._idx['started']], '%Y %b', u'utf8', gmDateTime.acc_months),
 						gmTools.coalesce(self._payload[self._idx['comment_on_start']], u'', u' [%s]'),
+						gmTools.u_almost_equal_to,
 						gmDateTime.format_interval_medically(started_ago),
 						gmDateTime.pydt_strftime(self._payload[self._idx['started']], '%b %d', u'utf8', gmDateTime.acc_days)
 					)
 				else:
-					start = _('%s%s%s (%s ago, %s)') % (
+					start_str = _('%s%s%s (%s%s ago, %s)') % (
 						start_prefix,
 						gmDateTime.pydt_strftime(self._payload[self._idx['started']], '%Y', u'utf8', gmDateTime.acc_years),
 						gmTools.coalesce(self._payload[self._idx['comment_on_start']], u'', u' [%s]'),
+						gmTools.u_almost_equal_to,
 						gmDateTime.format_interval_medically(started_ago),
 						gmDateTime.pydt_strftime(self._payload[self._idx['started']], '%b %d', u'utf8', gmDateTime.acc_days),
 					)
-
-			# calculate end string
-			if self._payload[self._idx['is_long_term']]:
-				end = u' %s %s' % (gmTools.u_arrow2right, gmTools.u_infinity)
-				if self._payload[self._idx['duration']] is not None:
-					duration = gmDateTime.format_interval(self._payload[self._idx['duration']], gmDateTime.acc_days)
-					if self._payload[self._idx['started']] is None:
-						planned_end_str = u''
-					else:
-						planned_end = self._payload[self._idx['started']] + self._payload[self._idx['duration']]
-						if planned_end < now:
-							planned_end_from_now_str = _(u'%s ago') % gmDateTime.format_interval(now - planned_end, gmDateTime.acc_days)
-						else:
-							planned_end_from_now_str = _(u'in %s') % gmDateTime.format_interval(planned_end - now, gmDateTime.acc_days)
-						planned_end_str = _(u', until %s (%s)') % (
-							gmDateTime.pydt_strftime(planned_end, '%Y %b %d', u'utf8', gmDateTime.acc_days),
-							planned_end_from_now_str
-						)
-					end += _(u' (planned for %s%s)') % (duration, planned_end_str)
+			# starts in the future
 			else:
-				if self._payload[self._idx['duration']] is None:
-					end = u' %s ?' % gmTools.u_arrow2right
-				else:
-					duration = gmDateTime.format_interval(self._payload[self._idx['duration']], gmDateTime.acc_days)
-					if self._payload[self._idx['started']] is None:
-						planned_end_str = u''
-					else:
-						planned_end = self._payload[self._idx['started']] + self._payload[self._idx['duration']]
-						if planned_end < now:
-							planned_end_from_now_str = _(u'%s ago') % gmDateTime.format_interval(now - planned_end, gmDateTime.acc_days)
-						else:
-							planned_end_from_now_str = _(u'in %s') % gmDateTime.format_interval(planned_end - now, gmDateTime.acc_days)
-						planned_end_str = _(u', until %s (%s)') % (
-							gmDateTime.pydt_strftime(planned_end, '%Y %b %d', u'utf8', gmDateTime.acc_days),
-							planned_end_from_now_str
-						)
-					end = _(u', planned for %s%s') % (duration, planned_end_str)
-
-			txt = u'%s%s' % (start, end)
-
-		# stopped medication
-		else:
-			duration_taken = self._payload[self._idx['discontinued']] - self._payload[self._idx['started']]
-			if self._payload[self._idx['started']] is None:
-				start = gmTools.coalesce(self._payload[self._idx['comment_on_start']], u'?')
-			else:
-				start = u'%s%s%s' % (
+				starts_in = self._payload[self._idx['started']] - now
+				start_str = _('%s%s%s (in %s%s)') % (
 					start_prefix,
-					gmDateTime.pydt_strftime(self._payload[self._idx['started']], format = '%Y %b %d', encoding = u'utf8', accuracy = gmDateTime.acc_days),
-					gmTools.coalesce(self._payload[self._idx['comment_on_start']], u'', u' [%s]')
+					gmDateTime.pydt_strftime(self._payload[self._idx['started']], '%Y %b %d', u'utf8', gmDateTime.acc_days),
+					gmTools.coalesce(self._payload[self._idx['comment_on_start']], u'', u' [%s]'),
+					gmTools.u_almost_equal_to,
+					gmDateTime.format_interval_medically(starts_in)
 				)
-			ended_ago = now - self._payload[self._idx['discontinued']]
-			txt = _(u'%s ago (for %s: %s %s %s)') % (
-				gmDateTime.format_interval_medically(ended_ago),
-				gmDateTime.format_interval_medically(duration_taken),
-				start,
-				gmTools.u_arrow2right,
-				gmDateTime.pydt_strftime(self._payload[self._idx['discontinued']], '%Y %b %d', u'utf8', gmDateTime.acc_days)
+
+		arrow_parts.append(start_str)
+
+		# format durations
+		durations = []
+		if self._payload[self._idx['discontinued']] is not None:
+			if self._payload[self._idx['started']] is not None:
+				duration_documented = self._payload[self._idx['discontinued']] - self._payload[self._idx['started']]
+				durations.append(_(u'%s (documented)') % gmDateTime.format_interval(duration_documented, gmDateTime.acc_days))
+		if self._payload[self._idx['duration']] is not None:
+			durations.append(_(u'%s (plan)') % gmDateTime.format_interval(self._payload[self._idx['duration']], gmDateTime.acc_days))
+		if len(durations) == 0:
+			if self._payload[self._idx['is_long_term']]:
+				duration_str = gmTools.u_infinity
+			else:
+				duration_str = u'?'
+		else:
+			duration_str = u', '.join(durations)
+
+		arrow_parts.append(duration_str)
+
+		# format end
+		if self._payload[self._idx['discontinued']] is None:
+			if self._payload[self._idx['duration']] is None:
+				end_str = u'?'
+			else:
+				if self._payload[self._idx['started']] is None:
+					end_str = u'?'
+				else:
+					planned_end = self._payload[self._idx['started']] + self._payload[self._idx['duration']] - pydt.timedelta(days = 1)
+					if planned_end.year == now.year:
+						end_template = '%b %d'
+						if planned_end < now:
+							planned_end_from_now_str = _(u'%s ago, in %s') % (gmDateTime.format_interval(now - planned_end, gmDateTime.acc_days), planned_end.year)
+						else:
+							planned_end_from_now_str = _(u'in %s, %s') % (gmDateTime.format_interval(planned_end - now, gmDateTime.acc_days), planned_end.year)
+					else:
+						end_template = '%Y'
+						if planned_end < now:
+							planned_end_from_now_str = _(u'%s ago = %s') % (
+								gmDateTime.format_interval(now - planned_end, gmDateTime.acc_days),
+								gmDateTime.pydt_strftime(planned_end, '%b %d', u'utf8', gmDateTime.acc_days)
+							)
+						else:
+							planned_end_from_now_str = _(u'in %s = %s') % (
+								gmDateTime.format_interval(planned_end - now, gmDateTime.acc_days),
+								gmDateTime.pydt_strftime(planned_end, '%b %d', u'utf8', gmDateTime.acc_days)
+							)
+					end_str = u'%s (%s)' % (
+						gmDateTime.pydt_strftime(planned_end, end_template, u'utf8', gmDateTime.acc_days),
+						planned_end_from_now_str
+					)
+		else:
+			if gmDateTime.is_today(self._payload[self._idx['discontinued']]):
+				end_str = _(u'today')
+			elif self._payload[self._idx['discontinued']].year == now.year:
+				end_date_template = '%b %d'
+				if self._payload[self._idx['discontinued']] < now:
+					planned_end_from_now_str = _(u'%s ago, in %s') % (
+						gmDateTime.format_interval(now - self._payload[self._idx['discontinued']], gmDateTime.acc_days),
+						self._payload[self._idx['discontinued']].year
+					)
+				else:
+					planned_end_from_now_str = _(u'in %s, %s') % (
+						gmDateTime.format_interval(self._payload[self._idx['discontinued']] - now, gmDateTime.acc_days),
+						self._payload[self._idx['discontinued']].year
+					)
+			else:
+				end_date_template = '%Y'
+				if self._payload[self._idx['discontinued']] < now:
+					planned_end_from_now_str = _(u'%s ago = %s') % (
+						gmDateTime.format_interval(now - self._payload[self._idx['discontinued']], gmDateTime.acc_days),
+						gmDateTime.pydt_strftime(self._payload[self._idx['discontinued']], '%b %d', u'utf8', gmDateTime.acc_days)
+					)
+				else:
+					planned_end_from_now_str = _(u'in %s = %s') % (
+						gmDateTime.format_interval(self._payload[self._idx['discontinued']] - now, gmDateTime.acc_days),
+						gmDateTime.pydt_strftime(self._payload[self._idx['discontinued']], '%b %d', u'utf8', gmDateTime.acc_days)
+					)
+			end_str = u'%s (%s)' % (
+				gmDateTime.pydt_strftime(self._payload[self._idx['discontinued']], end_date_template, u'utf8', gmDateTime.acc_days),
+				planned_end_from_now_str
 			)
 
-		return txt
+		arrow_parts.append(end_str)
+
+		# assemble
+		return (u' %s ' % gmTools.u_arrow2right_thick).join(arrow_parts)
 
 	medically_formatted_start_end = property(_get_medically_formatted_start_end, lambda x:x)
 
@@ -2820,7 +2920,8 @@ def format_substance_intake_as_amts_latex(intake=None, strict=True):
 			cells.append(u'\\fontsize{10pt}{12pt}\selectfont %s ' % _esc(intake['notes']))
 	# aim
 	if intake['aim'] is None:
-		cells.append(u' ')
+		#cells.append(u' ')
+		cells.append(_esc(intake['episode'][:50]))
 	else:
 		if strict:
 			cells.append(_esc(intake['aim'][:50]))
@@ -2834,6 +2935,118 @@ def format_substance_intake_as_amts_latex(intake=None, strict=True):
 
 #------------------------------------------------------------
 def format_substance_intake_as_amts_data(intake=None, strict=True):
+	"""
+	<M a="Handelsname" fd="freie Formangabe" t="freies Dosierschema" dud="freie Dosiereinheit (Stück Tab)" r="reason" i="info">
+		<W w="Metformin" s="500 mg"/>
+		<W ...>
+	</M>
+	"""
+	if not strict:
+		pass
+		# relax length checks
+
+	M_fields = []
+	if intake['pk_brand'] is not None:
+		M_fields.append(u'a="%s"' % intake['brand'])
+	M_fields.append(u'fd="%s"' % intake['preparation'])
+	if intake['schedule'] is not None:
+		M_fields.append(u't="%s"' % intake['schedule'])
+	#M_fields.append(u'dud="%s"' % intake['dose unit, like Stück'])
+	if intake['aim'] is None:
+		M_fields.append(u'r="%s"' % intake['episode'])
+	else:
+		M_fields.append(u'r="%s"' % intake['aim'])
+	if intake['notes'] is not None:
+		M_fields.append(u'i="%s"' % intake['notes'])
+	M_line = u'<M %s>' % u' '.join(M_fields)
+
+	if intake['pk_brand'] is None:
+		components = [[intake['substance'], intake['amount'], intake['unit'], u'']]
+	else:
+		components = [ c.split('::') for c in intake.containing_drug['components'] ]
+	W_lines = []
+	for comp in components:
+		W_lines.append(u'<W w="%s" s="%s %s"/>' % (comp[0], comp[1], comp[2]))
+
+	return M_line + u''.join(W_lines) + u'</M>'
+
+#------------------------------------------------------------
+def generate_amts_data_template_definition_file(work_dir=None, strict=True):
+
+	_log.debug('generating AMTS data template definition file(workdir=%s, strict=%s)', work_dir, strict)
+
+	if not strict:
+		return __generate_enhanced_amts_data_template_definition_file(work_dir = work_dir)
+
+	amts_lines = [ l for l in (u'<MP v="023" U="%s"' % uuid.uuid4().hex + u""" l="de-DE"$<<if_not_empty::$<amts_page_idx::::1>$// a="%s"//::>>$$<<if_not_empty::$<amts_page_idx::::>$// z="$<amts_total_pages::::1>$"//::>>$>
+<P g="$<name::%(firstnames)s::45>$" f="$<name::%(lastnames)s::45>$" b="$<date_of_birth::%Y%m%d::8>$"/>
+<A
+ n="$<<range_of::$<praxis::%(praxis)s,%(branch)s::>$,$<current_provider::::>$::30>>$"
+$<praxis_address:: s="%(street)s"::>$
+$<praxis_address:: z="%(postcode)s"::>$
+$<praxis_address:: c="%(urb)s::>$
+$<praxis_comm::workphone// p="%(url)s::20>$
+$<praxis_comm::email// e="%(url)s::80>$
+ t="$<today::%Y%m%d::8>$"
+/>
+<O ai="s.S.$<amts_total_pages::::1>$ unten"/>
+$<amts_intakes_as_data::::9999999>$
+</MP>""").split(u'\n') ]
+#$<<if_not_empty::$<allergy_list::%(descriptor)s//,::>$//<O ai="%s"/>::>>$
+
+	amts_fname = gmTools.get_unique_filename (
+		prefix = 'gm2amts_data-',
+		suffix = '.txt',
+		tmp_dir = work_dir
+	)
+	amts_template = io.open(amts_fname, mode = 'wt', encoding = 'utf8')
+	amts_template.write(u'[form]\n')
+	amts_template.write(u'template = $template$\n')
+	amts_template.write(u''.join(amts_lines))
+	amts_template.write(u'\n')
+	amts_template.write(u'$template$\n')
+	amts_template.close()
+
+	return amts_fname
+
+#------------------------------------------------------------
+def __generate_enhanced_amts_data_template_definition_file(work_dir=None):
+
+	amts_lines = [ l for l in (u'<MP v="023" U="%s"' % uuid.uuid4().hex + u""" l="de-DE" a="1" z="1">
+<P g="$<name::%(firstnames)s::>$" f="$<name::%(lastnames)s::>$" b="$<date_of_birth::%Y%m%d::8>$"/>
+<A
+ n="$<praxis::%(praxis)s,%(branch)s::>$,$<current_provider::::>$"
+$<praxis_address:: s="%(street)s %(number)s %(subunit)s"::>$
+$<praxis_address:: z="%(postcode)s"::>$
+$<praxis_address:: c="%(urb)s::>$
+$<praxis_comm::workphone// p="%(url)s::>$
+$<praxis_comm::email// e="%(url)s::>$
+ t="$<today::%Y%m%d::8>$"
+/>
+<O ai="Seite 1 unten"/>
+$<amts_intakes_as_data_enhanced::::9999999>$
+</MP>""").split(u'\n') ]
+#$<<if_not_empty::$<allergy_list::%(descriptor)s//,::>$//<O ai="%s"/>::>>$
+
+	amts_fname = gmTools.get_unique_filename (
+		prefix = 'gm2amts_data-utf8-unabridged-',
+		suffix = '.txt',
+		tmp_dir = work_dir
+	)
+	amts_template = io.open(amts_fname, mode = 'wt', encoding = 'utf8')
+	amts_template.write(u'[form]\n')
+	amts_template.write(u'template = $template$\n')
+	amts_template.write(u''.join(amts_lines))
+	amts_template.write(u'\n')
+	amts_template.write(u'$template$\n')
+	amts_template.close()
+
+	return amts_fname
+
+#------------------------------------------------------------
+# AMTS v2.0
+#------------------------------------------------------------
+def format_substance_intake_as_amts_data_v2_0(intake=None, strict=True):
 
 	if not strict:
 		pass
@@ -2882,7 +3095,7 @@ def format_substance_intake_as_amts_data(intake=None, strict=True):
 	return u'|'.join(fields)
 
 #------------------------------------------------------------
-def calculate_amts_data_check_symbol(intakes=None):
+def calculate_amts_data_check_symbol_v2_0(intakes=None):
 
 	# first char of generic substance or brand name
 	first_chars = []
@@ -2913,7 +3126,7 @@ def calculate_amts_data_check_symbol(intakes=None):
 	return chr(remainder + 55)
 
 #------------------------------------------------------------
-def generate_amts_data_template_definition_file(work_dir=None, strict=True):
+def generate_amts_data_template_definition_file_v_2_0(work_dir=None, strict=True):
 
 	if not strict:
 		return __generate_enhanced_amts_data_template_definition_file(work_dir = work_dir)
@@ -2967,7 +3180,7 @@ def generate_amts_data_template_definition_file(work_dir=None, strict=True):
 	return amts_fname
 
 #------------------------------------------------------------
-def __generate_enhanced_amts_data_template_definition_file(work_dir=None):
+def __generate_enhanced_amts_data_template_definition_file_v_2_0(work_dir=None):
 
 	amts_fields = [
 		u'MP',
@@ -3832,6 +4045,15 @@ if __name__ == "__main__":
 			gmTools.prompted_input()
 
 	#--------------------------------------------------------
+	def test_generate_amts_data_template_definition_file(work_dir=None, strict=True):
+		print 'file:', generate_amts_data_template_definition_file(strict = True)
+
+	#--------------------------------------------------------
+	def test_format_substance_intake_as_amts_data():
+		#print format_substance_intake_as_amts_data(cSubstanceIntakeEntry(1))
+		print cSubstanceIntakeEntry(1).as_amts_data
+
+	#--------------------------------------------------------
 	# MMI/Gelbe Liste
 	#test_MMI_interface()
 	#test_MMI_file()
@@ -3851,4 +4073,8 @@ if __name__ == "__main__":
 	#test_get_consumable_substances()
 
 	#test_drug2renal_insufficiency_url()
-	test_medically_formatted_start_end()
+	#test_medically_formatted_start_end()
+
+	# AMTS
+	#test_generate_amts_data_template_definition_file()
+	test_format_substance_intake_as_amts_data()

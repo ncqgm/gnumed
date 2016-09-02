@@ -1,0 +1,81 @@
+%------------------------------------------------------------------
+% CD/DVD cutout sleeve
+%
+% http://blog.thenetimpact.com/2011/07/decoding-qr-codes-how-to-format-data-for-qr-code-generators/
+% https://www.nttdocomo.co.jp/english/service/developer/make/content/barcode/function/application/addressbook/index.html
+%
+% use with pdflatex, NOT xelatex
+%
+% License: GPL v2 or later
+%------------------------------------------------------------------
+
+\documentclass[a4paper,10pt,oneside]{article}
+\pagestyle{empty}
+
+\usepackage[cjkjis,graphics]{ucs}		% lots of UTF8 symbols, breaks with xelatex
+\usepackage[utf8x]{inputenc}			% content is UTF8, breaks with xelatex
+\usepackage[T1]{fontenc}				% fonts are T1
+\usepackage[ngerman]{babel}				% Deutsch und Trennung
+\usepackage{marvosym}					% Symbole: Handy, Telefon, E-Mail
+\usepackage{textcomp}					% Symbole für Textmodus zum Escapen
+\usepackage{lmodern}					% sans serif Latin Modern
+\usepackage{graphicx}					% Grafiken laden (Logo und Unterschrift)
+\usepackage[space]{grffile}				% besserer Zugriff auf Grafikdateien
+\usepackage{multirow}
+\usepackage[left=1cm, top=1cm, right=2cm, bottom=1cm]{geometry}
+\usepackage{qrcode}
+\usepackage{simplecd}
+
+\listfiles
+
+\begin{document}
+
+\sleeve[
+
+	% back page (flap) -- praxis data
+
+	{\Large	$<praxis::%(praxis)s, %(branch)s::120>$}\\
+	\ \\
+	\begin{tabular}{llc}
+	%MECARD:N:NAME;ADR:pobox,subunit,unit,street,ort,region,zip,country;TEL:111111111;FAX:22222222;EMAIL:mail@praxis.org;
+	\multicolumn{2}{l}{$<praxis_address::%(street)s %(number)s %(subunit)s::60>$} & \multirow{5}*{{\qrcode[level=H]{MECARD:N:$<praxis::%(praxis)s, %(branch)s::>$;ADR:$<praxis_address::,%(subunit)s,%(number)s,%(street)s,%(urb)s,,%(postcode)s,%(l10n_country)s::>$;TEL:$<praxis_comm::workphone::>$;FAX:$<praxis_comm::fax::>$;EMAIL:$<praxis_comm::email::60>$;}}} \\
+	\multicolumn{2}{l}{$<praxis_address::%(postcode)s %(urb)s, %(l10n_country)s::60>$} & \\
+	\Telefon{} & {\small $<praxis_comm::workphone::60>$} & \\
+	\FAX{} & {\small $<praxis_comm::fax::60>$} & \\
+	\Email{} & {\small $<praxis_comm::email::60>$} & \\
+	\ComputerMouse{} & \multicolumn{2}{l}{\tiny $<praxis_comm::web::60>$} \\
+	\end{tabular}\\
+	%$<data_snippet::praxis-logo//{\includegraphics[width=30mm]{%s}}//image/png//.png::250>$
+]{
+
+	% front page -- patient data
+
+	{\large GNUmed Patient Data Pack}\\
+	{\small erstellt: $<today::%d.%B %Y::50>$}\\
+	\ \\
+	\hrule
+	\ \\
+	\ \\
+	{\Large $<firstname::::>$ $<lastname::::>$}
+	\ \\
+	\ \\
+	\begin{tabular}{lc}
+		%MECARD:N:lastname,firstname;BDAY:YYYYMMDD;ADR:pobox,subunit,number,street,location,region,zip,country;;
+		 & \multirow{5}*{{\qrcode[height=2.5cm,level=H]{MECARD:N:$<lastname::::>$,$<firstname::::>$;BDAY:$<date_of_birth::%Y%m%d::>$;ADR:,$<adr_subunit::home::>$,$<adr_number::home::>$,$<adr_street::home::>$,$<adr_location::home::>$,,$<adr_postcode::home::>$,$<adr_country::home::>$;;}}} \\
+		born: $<date_of_birth::%d.%B %Y::>$ & \\
+		{\small $<adr_street::home::>$ $<adr_number::home::>$} & \\
+		{\small $<adr_postcode::home::>$ $<adr_location::home::>$} & \\
+		{\small $<adr_country::home::>$} & \\
+	\end{tabular}\\
+	\ \\
+	\ \\
+	$<free_text::A bit of descriptive text for this media (in LaTeX)::300>$
+	\ \\
+	\ \\
+	\hrule
+	\ \\
+	{\tiny GNUmed $<client_version::::>$ (www.gnumed.org)}\\
+	{\qrcode[hyperlink,height=1cm,level=H]{http://www.gnumed.org}}
+}
+
+\end{document}

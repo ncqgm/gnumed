@@ -657,9 +657,10 @@ class cFormTemplateEAPnl(wxgFormTemplateEditAreaPnl.wxgFormTemplateEditAreaPnl, 
 		self._CH_engine.SetSelection(gmForms.form_engine_abbrevs.index(self.data['engine']))
 		self._CHBOX_active.SetValue(self.data['in_use'])
 		self._CHBOX_editable.SetValue(self.data['edit_after_substitution'])
-		self._LBL_status.SetLabel(_('last modified %s by %s') % (
+		self._LBL_status.SetLabel(_('last modified %s by %s, internal revision [%s]') % (
 			gmDateTime.pydt_strftime(self.data['last_modified'], '%Y %B %d'),
-			self.data['modified_by']
+			self.data['modified_by'],
+			gmTools.coalesce(self.data['gnumed_revision'], u'?')
 		))
 
 		self._TCTRL_filename.Enable(True)
@@ -750,10 +751,13 @@ class cReceiverSelectionDlg(wxgReceiverSelectionDlg.wxgReceiverSelectionDlg):
 		if self.__patient is None:
 			return
 
+		self._LCTRL_candidates.set_columns([_(u'Receiver'), _(u'Details')])
+		self._LCTRL_candidates.set_resize_column()
 		self._LCTRL_candidates.item_tooltip_callback = self._get_candidate_tooltip
 		self.__populate_candidates_list()
 
-		self._LCTRL_addresses.item_tooltip_callback = self._get_tooltip
+		self._LCTRL_addresses.set_resize_column()
+		self._LCTRL_addresses.item_tooltip_callback = self._get_address_tooltip
 		self._LCTRL_addresses.activate_callback = self._on_address_activated_in_list
 		adrs = self.__patient.get_addresses()
 		self.__populate_address_list(addresses = adrs)
@@ -761,33 +765,35 @@ class cReceiverSelectionDlg(wxgReceiverSelectionDlg.wxgReceiverSelectionDlg):
 		self._TCTRL_final_name.SetValue(self.__patient[u'description'].strip())
 
 		self.Layout()
+
 	#------------------------------------------------------------
 	def __register_interests(self):
-		self._PRW_other_address.add_callback_on_selection(self._on_address_selected)
-		self._PRW_org_unit.add_callback_on_set_focus(self._on_entering_org_unit)
-		self._PRW_org_unit.add_callback_on_selection(self._on_org_unit_selected)
+		self._TCTRL_final_name.add_callback_on_modified(callback = self._on_final_name_modified)
+		self._PRW_other_address.add_callback_on_selection(self._on_address_selected_in_PRW)
+		self._PRW_org_unit.add_callback_on_set_focus(self._on_entering_org_unit_PRW)
+		self._PRW_org_unit.add_callback_on_selection(self._on_org_unit_selected_in_PRW)
 
 	#------------------------------------------------------------
 	def __populate_candidates_list(self):
 		list_items = [[_('Patient'), self.__patient[u'description_gender'].strip()]]
-		list_data = [(self.__patient[u'description'].strip(), self.__patient.get_addresses(), u'')]
+		list_data = [(self.__patient[u'description'].strip(), self.__patient.get_addresses(), u'', None)]
 
 		candidate_type = _('Emergency contact')
 		if self.__patient[u'emergency_contact'] is not None:
 			name = self.__patient[u'emergency_contact'].strip()
 			list_items.append([candidate_type, name])
-			list_data.append((name, [], u''))
+			list_data.append((name, [], u'', None))
 		contact = self.__patient.emergency_contact_in_database
 		if contact is not None:
 			list_items.append([candidate_type, contact[u'description_gender']])
-			list_data.append((contact[u'description'].strip(), contact.get_addresses(), u''))
+			list_data.append((contact[u'description'].strip(), contact.get_addresses(), u'', None))
 
 		candidate_type = _('Primary doctor')
 		prov = self.__patient.primary_provider
 		if prov is not None:
 			ident = prov.identity
 			list_items.append([candidate_type, u'%s: %s' % (prov[u'short_alias'], ident['description_gender'])])
-			list_data.append((ident['description'].strip(), ident.get_addresses(), _(u'in-praxis primary provider')))
+			list_data.append((ident['description'].strip(), ident.get_addresses(), _(u'in-praxis primary provider'), None))
 
 		candidate_type = _(u'This praxis')
 		branches = gmPraxis.get_praxis_branches(order_by = u'branch')
@@ -796,7 +802,7 @@ class cReceiverSelectionDlg(wxgReceiverSelectionDlg.wxgReceiverSelectionDlg):
 			if adr is None:
 				continue
 			list_items.append([candidate_type, u'%s @ %s' % (branch['branch'], branch['praxis'])])
-			list_data.append((u'%s @ %s' % (branch['branch'], branch['praxis']), [adr], branch.format()))
+			list_data.append((u'%s @ %s' % (branch['branch'], branch['praxis']), [adr], branch.format(), None))
 		del branches
 
 		candidate_type = _('External care')
@@ -812,14 +818,15 @@ class cReceiverSelectionDlg(wxgReceiverSelectionDlg.wxgReceiverSelectionDlg):
 				gmTools.coalesce(care['provider'], u'', u'%s, '),
 				u'%s @ %s' % (care['unit'], care['organization'])
 			)).strip()
-			adr = care.org_unit.address
+			org_unit = care.org_unit
+			adr = org_unit.address
 			if adr is None:
 				addresses = []
 			else:
 				addresses = [adr]
 			list_items.append([candidate_type, details])
 			tt = u'\n'.join(care.format(with_health_issue = True, with_address = True, with_comms = True))
-			list_data.append((name, addresses, tt))
+			list_data.append((name, addresses, tt, org_unit))
 		del cares
 
 		emr = self.__patient.emr
@@ -831,7 +838,7 @@ class cReceiverSelectionDlg(wxgReceiverSelectionDlg.wxgReceiverSelectionDlg):
 			if adr is None:
 				continue
 			list_items.append([candidate_type, u'%s @ %s' % (dept['unit'], dept['organization'])])
-			list_data.append((u'%s @ %s' % (dept['unit'], dept['organization']), [adr], u'\n'.join(dept.format())))
+			list_data.append((u'%s @ %s' % (dept['unit'], dept['organization']), [adr], u'\n'.join(dept.format(with_comms = True)), dept))
 		del depts
 
 		candidate_type = _('Procedure')
@@ -841,7 +848,7 @@ class cReceiverSelectionDlg(wxgReceiverSelectionDlg.wxgReceiverSelectionDlg):
 			if adr is None:
 				continue
 			list_items.append([candidate_type, u'%s @ %s' % (proc_loc['unit'], proc_loc['organization'])])
-			list_data.append((u'%s @ %s' % (proc_loc['unit'], proc_loc['organization']), [adr], u'\n'.join(proc_loc.format())))
+			list_data.append((u'%s @ %s' % (proc_loc['unit'], proc_loc['organization']), [adr], u'\n'.join(proc_loc.format(with_comms = True)), proc_loc))
 		del proc_locs
 
 		candidate_type = _('Lab')
@@ -851,7 +858,7 @@ class cReceiverSelectionDlg(wxgReceiverSelectionDlg.wxgReceiverSelectionDlg):
 			if adr is None:
 				continue
 			list_items.append([candidate_type, u'%s @ %s' % (lab['unit'], lab['organization'])])
-			list_data.append((u'%s @ %s' % (lab['unit'], lab['organization']), [adr], u'\n'.join(lab.format())))
+			list_data.append((u'%s @ %s' % (lab['unit'], lab['organization']), [adr], u'\n'.join(lab.format(with_comms = True)), lab))
 		del labs
 
 		candidate_type = _('Bill receiver')
@@ -866,9 +873,19 @@ class cReceiverSelectionDlg(wxgReceiverSelectionDlg.wxgReceiverSelectionDlg):
 			adrs_seen.append(bill['pk_receiver_address'])
 			details = u'%s%s' % (bill['invoice_id'], gmDateTime.pydt_strftime(dt = bill['close_date'], format = ' (%Y %b %d)', none_str = u''))
 			list_items.append([candidate_type, details])
-			list_data.append((u'', [adr], u'\n'.join(adr.format())))
+			list_data.append((u'', [adr], u'\n'.join(adr.format()), None))
 
-		self._LCTRL_candidates.set_columns([_(u'Receiver'), _(u'Details')])
+		candidate_type = _('Document')
+		doc_folder = self.__patient.document_folder
+		doc_units = doc_folder.all_document_org_units
+		for doc_unit in doc_units:
+			adr = doc_unit.address
+			if adr is None:
+				continue
+			list_items.append([candidate_type, u'%s @ %s' % (doc_unit['unit'], doc_unit['organization'])])
+			list_data.append((u'%s @ %s' % (doc_unit['unit'], doc_unit['organization']), [adr], u'\n'.join(doc_unit.format(with_comms = True)), doc_unit))
+		del doc_units
+
 		self._LCTRL_candidates.set_string_items(list_items)
 		self._LCTRL_candidates.set_column_widths()
 		self._LCTRL_candidates.set_data(list_data)
@@ -877,87 +894,125 @@ class cReceiverSelectionDlg(wxgReceiverSelectionDlg.wxgReceiverSelectionDlg):
 	def _get_candidate_tooltip(self, data):
 		if data is None:
 			return u''
-		name, addresses, tt = data
+		name, addresses, tt, unit = data
 		return tt
+
+	#------------------------------------------------------------
+	def __update_address_info(self, adr):
+		if adr is None:
+			self._LBL_address_details.SetLabel(u'')
+			self._LBL_final_country.SetLabel(u'')
+			self._LBL_final_region.SetLabel(u'')
+			self._LBL_final_zip.SetLabel(u'')
+			self._LBL_final_location.SetLabel(u'')
+			self._LBL_final_street.SetLabel(u'')
+			self._LBL_final_number.SetLabel(u'')
+			self.Layout()
+			return
+		self._LBL_address_details.SetLabel(u'\n'.join(adr.format()))
+		self._LBL_final_country.SetLabel(adr['l10n_country'])
+		self._LBL_final_region.SetLabel(adr['l10n_region'])
+		self._LBL_final_zip.SetLabel(adr['postcode'])
+		self._LBL_final_location.SetLabel(u'%s%s' % (adr['urb'], gmTools.coalesce(adr['suburb'], u'', u' - %s')))
+		self._LBL_final_street.SetLabel(adr['street'])
+		self._LBL_final_number.SetLabel(u'%s%s' % (adr['number'], gmTools.coalesce(adr['subunit'], u'', u' %s')))
+		self.Layout()
+
 	#------------------------------------------------------------
 	def __populate_address_list(self, addresses=None):
 		self._LCTRL_addresses.Enable()
-		self._LCTRL_addresses.set_columns([_(u'Type'), _(u'Address')])
 		list_items = []
 		for a in addresses:
 			try:
-				a_type = a[u'l10n_address_type']
+				list_items.append([a[u'l10n_address_type'], a.format(single_line = True, verbose = False, show_type = False)])
+				cols = [_(u'Type'), _(u'Address')]
 			except KeyError:
-				a_type = u''
-			list_items.append([a_type, a.format(single_line = True, verbose = False, show_type = False)])
+				list_items.append([a.format(single_line = True, verbose = False, show_type = False)])
+				cols = [_(u'Address')]
 
+		self._LCTRL_addresses.set_columns(cols)
 		self._LCTRL_addresses.set_string_items(list_items)
 		self._LCTRL_candidates.set_column_widths()
 		self._LCTRL_addresses.set_data(addresses)
+		self._PRW_other_address.SetText(value = u'', data = None)
+		self.__update_address_info(None)
 
 	#------------------------------------------------------------
-	def _get_tooltip(self, data):
-		return u'\n'.join(data.format(show_type = True))
-	#------------------------------------------------------------
-	def _on_address_activated_in_list(self, evt):
-		evt.Skip()
-		adr = self._LCTRL_addresses.get_selected_item_data(only_one = True)
-		if adr is None:
-			return
-		self._PRW_other_address.address = adr[u'pk_address']
-		self._LBL_address_details.SetLabel(u'\n'.join(adr.format()))
+	def _get_address_tooltip(self, adr):
+		return u'\n'.join(adr.format(show_type = True))
+
 	#------------------------------------------------------------
 	#------------------------------------------------------------
-	def _on_address_selected(self, address):
-		if address is None:
-			self._LBL_address_details.SetLabel(u'')
-			return
-		self._LBL_address_details.SetLabel(u'\n'.join(self._PRW_other_address.address.format()))
-		self.Layout()
+	def _on_final_name_modified(self):
+		self._LBL_final_name.SetLabel(self._TCTRL_final_name.Value)
+
 	#------------------------------------------------------------
-	def _on_entering_org_unit(self):
+	def _on_address_selected_in_PRW(self, address):
+		self.__update_address_info(self._PRW_other_address.GetData(as_instance = True))
+
+	#------------------------------------------------------------
+	def _on_entering_org_unit_PRW(self):
 		self._LCTRL_addresses.Disable()
+
 	#------------------------------------------------------------
-	def _on_org_unit_selected(self, unit):
+	def _on_org_unit_selected_in_PRW(self, unit):
 		if unit is None:
 			self._LCTRL_addresses.remove_items_safely(max_tries = 3)
-			self._PRW_other_address.address = None
-			self._LBL_address_details.SetLabel(u'')
+			self._PRW_other_address.SetText(value = u'', data = None)
+			self.__update_address_info(None)
+			self._TCTRL_org_unit_details.SetValue(u'')
 			return
+
 		unit = self._PRW_org_unit.GetData(as_instance = True)
 		adr = unit.address
 		if adr is None:
 			self._LCTRL_addresses.remove_items_safely(max_tries = 3)
-			self._PRW_other_address.address = None
-			self._LBL_address_details.SetLabel(u'')
-			return
-		self._TCTRL_final_name.SetValue(self._PRW_org_unit.GetValue().strip())
-		self._LCTRL_addresses.set_columns([_(u'Address')])
-		self._LCTRL_addresses.set_string_items([adr.format(single_line = True, verbose = False, show_type = False)])
-		self._LCTRL_addresses.set_data([adr])
-		self._PRW_other_address.address = adr[u'pk_address']
-		tmp = u'%s\n\n%s' % (
-			u'\n'.join(unit.format()),
-			u'\n'.join(adr.format())
-		)
-		self._LBL_address_details.SetLabel(tmp)
+			self._PRW_other_address.SetText(value = u'', data = None)
+			self.__update_address_info(None)
+		else:
+			self.__populate_address_list(addresses = [adr])
+			self._PRW_other_address.SetData(data = adr[u'pk_address'])
+			self.__update_address_info(adr)
+
+		name = u'%s @ %s' % (unit['unit'], unit['organization'])
+		self._TCTRL_final_name.SetValue(name)
+		self._TCTRL_org_unit_details.SetValue(u'\n'.join(unit.format(with_comms = True)))
 		self.Layout()
+
 	#------------------------------------------------------------
 	#------------------------------------------------------------
 	def _on_candidate_selected(self, event):
 		event.Skip()
-		name, addresses, tt = self._LCTRL_candidates.get_selected_item_data(only_one = True)
-		self._TCTRL_final_name.SetValue(name.strip())
+		name, addresses, tt, unit = self._LCTRL_candidates.get_selected_item_data(only_one = True)
 		self.__populate_address_list(addresses = addresses)
+		if unit is None:
+			self._PRW_org_unit.SetText(value = u'', data = None)
+			self._TCTRL_org_unit_details.SetValue(u'')
+		else:
+			self._PRW_org_unit.SetData(data = unit['pk_org_unit'])
+			self._TCTRL_org_unit_details.SetValue(u'\n'.join(unit.format(with_comms = True)))
+		self._TCTRL_final_name.SetValue(name.strip())
+		self._LBL_final_name.SetLabel(name.strip())
+
+	#------------------------------------------------------------
+	def _on_address_activated_in_list(self, evt):
+		evt.Skip()
+		adr = self._LCTRL_addresses.get_selected_item_data(only_one = True)
+		self._PRW_other_address.address = adr
+		self.__update_address_info(adr)
+
+	#------------------------------------------------------------
 	#------------------------------------------------------------
 	def _on_manage_addresses_button_pressed(self, event):
 		event.Skip()
 		manage_addresses(parent = self)
+
 	#------------------------------------------------------------
 	def _on_manage_orgs_button_pressed(self, event):
 		event.Skip()
 		from Gnumed.wxpython.gmOrganizationWidgets import manage_orgs
 		manage_orgs(parent = self, no_parent = False)
+
 	#------------------------------------------------------------
 	def _on_ok_button_pressed(self, event):
 		if self._TCTRL_final_name.GetValue().strip() == u'':
@@ -966,17 +1021,20 @@ class cReceiverSelectionDlg(wxgReceiverSelectionDlg.wxgReceiverSelectionDlg):
 			return False
 		event.Skip()
 		self.EndModal(wx.ID_OK)
+
 	#------------------------------------------------------------
 	def _set_patient(self, patient):
 		self.__patient = patient
 		self.__init_ui()
 
 	patient = property(lambda x:x, _set_patient)
+
 	#------------------------------------------------------------
 	def _get_name(self):
 		return self._TCTRL_final_name.GetValue().strip()
 
 	name = property(_get_name, lambda x:x)
+
 	#------------------------------------------------------------
 	def _get_address(self):
 		return self._PRW_other_address.address

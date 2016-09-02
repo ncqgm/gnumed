@@ -116,6 +116,7 @@ def sanity_check_encounter_of_active_patient(parent=None, msg=None):
 		msg = _('Edit the encounter details of the active patient before moving on:')
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
+	_log.debug('sanity-check editing encounter [%s] for patient [%s]', enc['pk_encounter'], enc['pk_patient'])
 	edit_encounter(parent = parent, encounter = enc, msg = msg)
 
 	return True
@@ -610,20 +611,27 @@ class cActiveEncounterPnl(wxgActiveEncounterPnl.wxgActiveEncounterPnl):
 		wxgActiveEncounterPnl.wxgActiveEncounterPnl.__init__(self, *args, **kwargs)
 		self.__register_events()
 		self.refresh()
+
 	#------------------------------------------------------------
 	def clear(self):
 		self._TCTRL_encounter.SetValue(u'')
 		self._TCTRL_encounter.SetToolTipString(u'')
 		self._BTN_new.Enable(False)
 		self._BTN_list.Enable(False)
+
 	#------------------------------------------------------------
 	def refresh(self):
+		self.clear()
+
 		pat = gmPerson.gmCurrentPatient()
 		if not pat.connected:
-			self.clear()
 			return
 
-		enc = pat.get_emr().active_encounter
+		wx.CallAfter(self.__refresh)
+
+	#------------------------------------------------------------
+	def __refresh(self):
+		enc = gmPerson.gmCurrentPatient().get_emr().active_encounter
 		self._TCTRL_encounter.SetValue(enc.format (
 			with_docs = False,
 			with_tests = False,
@@ -642,6 +650,7 @@ class cActiveEncounterPnl(wxgActiveEncounterPnl.wxgActiveEncounterPnl):
 		)
 		self._BTN_new.Enable(True)
 		self._BTN_list.Enable(True)
+
 	#------------------------------------------------------------
 	def __register_events(self):
 		self._TCTRL_encounter.Bind(wx.EVT_LEFT_DCLICK, self._on_ldclick)
@@ -652,23 +661,27 @@ class cActiveEncounterPnl(wxgActiveEncounterPnl.wxgActiveEncounterPnl):
 		gmDispatcher.connect(signal = u'clin.episode_mod_db', receiver = self.refresh)
 		gmDispatcher.connect(signal = u'current_encounter_modified', receiver = self.refresh)
 		gmDispatcher.connect(signal = u'current_encounter_switched', receiver = self.refresh)
+
 	#------------------------------------------------------------
 	# event handler
 	#------------------------------------------------------------
 	def _on_pre_patient_unselection(self):
 		self.clear()
+
 	#------------------------------------------------------------
 	def _on_ldclick(self, event):
 		pat = gmPerson.gmCurrentPatient()
 		if not pat.connected:
 			return
 		edit_encounter(encounter = pat.get_emr().active_encounter)
+
 	#------------------------------------------------------------
 	def _on_new_button_pressed(self, event):
 		pat = gmPerson.gmCurrentPatient()
 		if not pat.connected:
 			return
 		start_new_encounter(emr = pat.get_emr())
+
 	#------------------------------------------------------------
 	def _on_list_button_pressed(self, event):
 		if not gmPerson.gmCurrentPatient().connected:

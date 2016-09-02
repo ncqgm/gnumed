@@ -1228,8 +1228,8 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 		self._invalidate_sorting_metadata()					# must be called after each (external/direct) list item update
 		listmixins.ColumnSorterMixin.__init__(self, 0)		# must be called again after adding columns (why ?)
 		self.__secondary_sort_col = None
-		# for debugging sorting:
-		#self.Bind(wx.EVT_LIST_COL_CLICK, self._on_col_click, self)
+		# apparently, this MUST be bound under wxP3 - but why ??
+		self.Bind(wx.EVT_LIST_COL_CLICK, self._on_col_click, self)
 
 		# cols/rows
 		self.__widths = None
@@ -1249,14 +1249,15 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 		# row tooltips
 		self.__item_tooltip_callback = None
 		self.__tt_last_item = None
-		self.__tt_static_part_base = _(
-			u'Select the items you want to work on.\n'
-			u'\n'
-			u'A discontinuous selection may depend on your holding '
-			u'down a platform-dependent modifier key (<CTRL>, <ALT>, '
-			u'etc) or key combination (eg. <CTRL-SHIFT> or <CTRL-ALT>) '
-			u'while clicking.'
-		)
+#		self.__tt_static_part_base = _(
+#			u'Select the items you want to work on.\n'
+#			u'\n'
+#			u'A discontinuous selection may depend on your holding '
+#			u'down a platform-dependent modifier key (<CTRL>, <ALT>, '
+#			u'etc) or key combination (eg. <CTRL-SHIFT> or <CTRL-ALT>) '
+#			u'while clicking.'
+#		)
+		self.__tt_static_part_base = u''
 		self.__tt_static_part = self.__tt_static_part_base
 		self.Bind(wx.EVT_MOTION, self._on_mouse_motion)
 
@@ -1285,6 +1286,7 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 		for idx in range(len(columns)):
 			self.InsertColumn(idx, columns[idx])
 
+		listmixins.ColumnSorterMixin.__init__(self, 0)
 		self._invalidate_sorting_metadata()
 
 	#------------------------------------------------------------
@@ -2880,6 +2882,7 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 	# actual sorting
 	#def GetColumnSorter(self):
 	#	return self._unicode_aware_column_sorter
+
 	#------------------------------------------------------------
 	def _generate_map_for_sorting(self):
 		dict2sort = {}
@@ -2902,10 +2905,13 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 	def _remove_sorting_indicators_from_column_headers(self):
 		for col_idx in range(self.ColumnCount):
 			col_state = self.GetColumn(col_idx)
+			initial_header = col_state.m_text
 			if col_state.m_text.endswith(self.sort_order_tags[True]):
 				col_state.m_text = col_state.m_text[:-len(self.sort_order_tags[True])]
 			if col_state.m_text.endswith(self.sort_order_tags[False]):
 				col_state.m_text = col_state.m_text[:-len(self.sort_order_tags[False])]
+			if col_state.m_text == initial_header:
+				continue
 			self.SetColumn(col_idx, col_state)
 
 	#------------------------------------------------------------
@@ -2920,15 +2926,19 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 		self.itemDataMap = self._generate_map_for_sorting()
 
 	#------------------------------------------------------------
-	# for debugging:
 	def _on_col_click(self, event):
-		sort_col, order = self.GetSortState()
-		print u'col clicked: %s / sort col: %s / sort direction: %s / sort flags: %s' % (event.GetColumn(), sort_col, order, self._colSortFlag)
+		# this MUST NOT call event.Skip() or else the column sorter mixin#
+		# will not kick in anymore under wxP 3
+		#event.Skip()
+		pass
+		# debugging:
+#		sort_col, order = self.GetSortState()
+#		print u'col clicked: %s / sort col: %s / sort direction: %s / sort flags: %s' % (event.GetColumn(), sort_col, order, self._colSortFlag)
 #		if self.itemDataMap is not None:
 #			print u'sort items data map:'
 #			for key, item in self.itemDataMap.items():
 #				print key, u' -- ', item
-		event.Skip()
+
 	#------------------------------------------------------------
 	def __get_secondary_sort_col(self):
 		return self.__secondary_sort_col

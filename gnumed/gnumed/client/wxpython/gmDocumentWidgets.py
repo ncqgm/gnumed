@@ -1,8 +1,13 @@
-"""GNUmed medical document handling widgets.
-"""
-#================================================================
+# -*- coding: utf-8 -*-
+#============================================================
+from __future__ import print_function
+
+__doc__ = """GNUmed medical document handling widgets."""
+
+__license__ = "GPL v2 or later"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
+#============================================================
 import os.path
 import os
 import sys
@@ -1680,6 +1685,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 #		wx.EVT_MENU(self.__desc_menu, ID, self.__del_doc_desc)
 
 #		self.__desc_menu.AppendSeparator()
+
 	#--------------------------------------------------------
 	def __populate_tree(self):
 
@@ -1730,7 +1736,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 
 			# need intermediate branch level ?
 			if self.__sort_mode == 'episode':
-				inter_label = u'%s%s' % (doc['episode'], gmTools.coalesce(doc['health_issue'], u'', u' (%s)'))
+				intermediate_label = u'%s%s' % (doc['episode'], gmTools.coalesce(doc['health_issue'], u'', u' (%s)'))
 				doc_label = _('%s%7s %s:%s (%s)') % (
 					gmTools.bool2subst(doc.has_unreviewed_parts, gmTools.u_writing_hand, u'', u'?'),
 					doc['clin_when'].strftime('%m/%Y'),
@@ -1738,34 +1744,34 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 					gmTools.coalesce(initial = doc['comment'], instead = u'', template_initial = u' %s'),
 					no_parts
 				)
-				if inter_label not in intermediate_nodes:
-					intermediate_nodes[inter_label] = self.AppendItem(parent = self.root, text = inter_label)
-					self.SetItemBold(intermediate_nodes[inter_label], bold = True)
-					self.SetItemPyData(intermediate_nodes[inter_label], None)
-					self.SetItemHasChildren(intermediate_nodes[inter_label], True)
-				parent = intermediate_nodes[inter_label]
+				if intermediate_label not in intermediate_nodes:
+					intermediate_nodes[intermediate_label] = self.AppendItem(parent = self.root, text = intermediate_label)
+					self.SetItemBold(intermediate_nodes[intermediate_label], bold = True)
+					self.SetItemPyData(intermediate_nodes[intermediate_label], None)
+					self.SetItemHasChildren(intermediate_nodes[intermediate_label], True)
+				parent = intermediate_nodes[intermediate_label]
 
 			elif self.__sort_mode == 'type':
-				inter_label = doc['l10n_type']
+				intermediate_label = doc['l10n_type']
 				doc_label = _('%s%7s (%s):%s (%s)') % (
 					gmTools.bool2subst(doc.has_unreviewed_parts, gmTools.u_writing_hand, u'', u'?'),
 					doc['clin_when'].strftime('%m/%Y'),
 					no_parts,
 					gmTools.coalesce(initial = doc['comment'], instead = u'', template_initial = u' %s'),
-					u'%s%s' % (doc['episode'], gmTools.coalesce(doc['health_issue'], u'', u' %s %%s' % gmTools.u_arrow2right))
+					u'%s%s' % (gmTools.coalesce(doc['health_issue'], u'', u'%s: '), doc['episode'])
 				)
-				if inter_label not in intermediate_nodes:
-					intermediate_nodes[inter_label] = self.AppendItem(parent = self.root, text = inter_label)
-					self.SetItemBold(intermediate_nodes[inter_label], bold = True)
-					self.SetItemPyData(intermediate_nodes[inter_label], None)
-					self.SetItemHasChildren(intermediate_nodes[inter_label], True)
-				parent = intermediate_nodes[inter_label]
+				if intermediate_label not in intermediate_nodes:
+					intermediate_nodes[intermediate_label] = self.AppendItem(parent = self.root, text = intermediate_label)
+					self.SetItemBold(intermediate_nodes[intermediate_label], bold = True)
+					self.SetItemPyData(intermediate_nodes[intermediate_label], None)
+					self.SetItemHasChildren(intermediate_nodes[intermediate_label], True)
+				parent = intermediate_nodes[intermediate_label]
 
 			elif self.__sort_mode == 'issue':
 				if doc['health_issue'] is None:
-					inter_label = _('%s (unattributed episode)') % doc['episode']
+					intermediate_label = _('%s (unattributed episode)') % doc['episode']
 				else:
-					inter_label = doc['health_issue']
+					intermediate_label = doc['health_issue']
 				doc_label = _('%s%7s %s:%s (%s)') % (
 					gmTools.bool2subst(doc.has_unreviewed_parts, gmTools.u_writing_hand, u'', u'?'),
 					doc['clin_when'].strftime('%m/%Y'),
@@ -1773,18 +1779,21 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 					gmTools.coalesce(initial = doc['comment'], instead = u'', template_initial = u' %s'),
 					no_parts
 				)
-				if inter_label not in intermediate_nodes:
-					intermediate_nodes[inter_label] = self.AppendItem(parent = self.root, text = inter_label)
-					self.SetItemBold(intermediate_nodes[inter_label], bold = True)
-					self.SetItemPyData(intermediate_nodes[inter_label], None)
-					self.SetItemHasChildren(intermediate_nodes[inter_label], True)
-				parent = intermediate_nodes[inter_label]
+				if intermediate_label not in intermediate_nodes:
+					intermediate_nodes[intermediate_label] = self.AppendItem(parent = self.root, text = intermediate_label)
+					self.SetItemBold(intermediate_nodes[intermediate_label], bold = True)
+					self.SetItemPyData(intermediate_nodes[intermediate_label], None)
+					self.SetItemHasChildren(intermediate_nodes[intermediate_label], True)
+				parent = intermediate_nodes[intermediate_label]
 
 			elif self.__sort_mode == 'org':
 				if doc['pk_org'] is None:
-					inter_label = _('unknown organization')
+					intermediate_label = _('unknown organization')
+					tt = u''
 				else:
-					inter_label = doc['organization']
+					intermediate_label = doc['organization']
+					# not quite right: always shows data of the _first_ document of _any_ org unit of this org
+					tt = u'\n'.join(doc.org_unit.format(with_address = True, with_org = True, with_comms = True))
 				doc_label = _('%s%7s %s:%s (%s)') % (
 					gmTools.bool2subst(doc.has_unreviewed_parts, gmTools.u_writing_hand, u'', u'?'),
 					doc['clin_when'].strftime('%m/%Y'),
@@ -1792,17 +1801,18 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 					gmTools.coalesce(initial = doc['comment'], instead = u'', template_initial = u' %s'),
 					no_parts
 				)
-				if inter_label not in intermediate_nodes:
-					intermediate_nodes[inter_label] = self.AppendItem(parent = self.root, text = inter_label)
-					self.SetItemBold(intermediate_nodes[inter_label], bold = True)
-					self.SetItemPyData(intermediate_nodes[inter_label], None)
-					self.SetItemHasChildren(intermediate_nodes[inter_label], True)
-				parent = intermediate_nodes[inter_label]
+				if intermediate_label not in intermediate_nodes:
+					intermediate_nodes[intermediate_label] = self.AppendItem(parent = self.root, text = intermediate_label)
+					self.SetItemBold(intermediate_nodes[intermediate_label], bold = True)
+					#self.SetItemPyData(intermediate_nodes[intermediate_label], None)
+					self.SetItemPyData(intermediate_nodes[intermediate_label], tt)
+					self.SetItemHasChildren(intermediate_nodes[intermediate_label], True)
+				parent = intermediate_nodes[intermediate_label]
 
 			else:
 				doc_label = _('%s%7s %s:%s (%s)') % (
 					gmTools.bool2subst(doc.has_unreviewed_parts, gmTools.u_writing_hand, u'', u'?'),
-					doc['clin_when'].strftime('%m/%Y'),
+					doc['clin_when'].strftime('%Y-%m'),
 					doc['l10n_type'][:26],
 					gmTools.coalesce(initial = doc['comment'], instead = u'', template_initial = u' %s'),
 					no_parts
@@ -1819,10 +1829,6 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 
 			# now add parts as child nodes
 			for part in parts:
-#				if part['clinically_relevant']:
-#					rel = ' [%s]' % _('Cave')
-#				else:
-#					rel = ''
 				f_ext = u''
 				if part['filename'] is not None:
 					f_ext = os.path.splitext(part['filename'])[1].strip('.').strip()
@@ -2008,6 +2014,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 			if data1 == data2:
 				return 0
 		return 1
+
 	#------------------------------------------------------------------------
 	# event handlers
 	#------------------------------------------------------------------------
@@ -2050,6 +2057,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 
 		self.__display_part(part = node_data)
 		return True
+
 	#--------------------------------------------------------
 	def __on_right_click(self, evt):
 
@@ -2099,9 +2107,12 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 		# parts
 		elif isinstance(data, gmDocuments.cDocumentPart):
 			tt = data.format()
+		# explicit tooltip strings
+		elif isinstance(data, basestring):
+			tt = data
 		# other (root, intermediate nodes)
 		else:
-			tt = u' '
+			tt = u''
 
 		event.SetToolTip(tt)
 	#--------------------------------------------------------
@@ -2491,16 +2502,19 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 				) % {'action': action, 'l10n_action': l10n_action},
 				_('Processing document: %s') % l10n_action
 			)
+
 	#--------------------------------------------------------
-	# FIXME: icons in the plugin toolbar
 	def __print_doc(self, evt):
 		self.__process_doc(action = u'print', l10n_action = _('print'))
+
 	#--------------------------------------------------------
 	def __fax_doc(self, evt):
 		self.__process_doc(action = u'fax', l10n_action = _('fax'))
+
 	#--------------------------------------------------------
 	def __mail_doc(self, evt):
 		self.__process_doc(action = u'mail', l10n_action = _('mail'))
+
 	#--------------------------------------------------------
 	def __add_part(self, evt):
 		dlg = wx.FileDialog (
@@ -2515,6 +2529,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 		if result != wx.ID_CANCEL:
 			self.__curr_node_data.add_parts_from_files(files = dlg.GetPaths(), reviewer = gmStaff.gmCurrentProvider()['pk_staff'])
 		dlg.Destroy()
+
 	#--------------------------------------------------------
 	def __add_part_from_clipboard(self, evt):
 		clip = gmGuiHelpers.clipboard2file()
@@ -2636,7 +2651,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 			enc = emr.active_encounter
 			gmDocuments.delete_document(document_id = self.__curr_node_data['pk_doc'], encounter_id = enc['pk_encounter'])
 
-
+#============================================================
 #============================================================
 # PACS
 #============================================================
@@ -2657,8 +2672,10 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 	# internal helpers
 	#--------------------------------------------------------
 	def __init_ui(self):
-		self._LCTRL_studies.set_columns(columns = [_('Study date'), _('Description'), _('Study time'), _('Patient'), _('DOB'), _('Gender')])
-		self._LCTRL_series.set_columns(columns = [_(u'Method'), _(u'Body part'), _('Description'), _('Time'), _('Date')])
+		self._LCTRL_studies.set_columns(columns = [_('Date'), _('Description'), _('Organization'), _('Referrer')])
+
+		self._LCTRL_series.set_columns(columns = [_(u'Time'), _(u'Method'), _(u'Body part'), _(u'Description')])
+		self._LCTRL_series.select_callback = self._on_series_list_item_selected
 
 	#--------------------------------------------------------
 	def __reset_patient_data(self):
@@ -2671,6 +2688,7 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 		self._BTN_save_selected_studies.Disable()
 		self._LCTRL_studies.set_string_items(items = [])
 		self._LCTRL_series.set_string_items(items = [])
+		self._TCTRL_details.Value = u''
 		#self.Layout()
 
 	#--------------------------------------------------------
@@ -2770,25 +2788,19 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 							study['date'][4:6],
 							study['date'][6:8]
 						),
-						gmTools.coalesce (
-							study['description'],
-							_(u'%s series') % len(study['series']),
-							_(u'%%s (%s series)') % len(study['series'])
+						_(u'%s series%s') % (
+							len(study['series']),
+							gmTools.coalesce(study['description'], u'', u': %s')
 						),
-						u'%s:%s:%s' % (
-							study['time'][:2],
-							study['time'][2:4],
-							study['time'][4:6]
-						),
-						pat['name'],
-						pat['date_of_birth'],
-						pat['gender']
+						gmTools.coalesce(study['radiology_org'], u''),
+						gmTools.coalesce(study['referring_doc'], u'')
 					] )
 					study_list_data.append(study)
 
 		self._LCTRL_studies.set_string_items(items = study_list_items)
 		self._LCTRL_studies.set_column_widths()
 		self._LCTRL_studies.set_data(data = study_list_data)
+		self._LCTRL_studies.SortListItems(col = 0, ascending = 0)
 
 		if len(study_list_items) == 0:
 			self._LBL_no_of_studies.SetLabel(_('no studies'))
@@ -2804,6 +2816,9 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 			self._BTN_export_study.Enable()
 			self._BTN_export_all_studies.Enable()
 			self._BTN_save_selected_studies.Enable()
+
+		self._LCTRL_series.set_string_items(items = [])
+		self._TCTRL_details.Value = u''
 
 		self.Layout()
 		return True
@@ -2945,7 +2960,7 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 		wx.EndBusyCursor()
 
 	#--------------------------------------------------------
-	def _on_save_selected_studies_button_pressed(self, event):  # wxGlade: wxgPACSPluginPnl.<event_handler>
+	def _on_save_selected_studies_button_pressed(self, event):
 		event.Skip()
 		if self.__pacs is None:
 			return
@@ -3034,41 +3049,65 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 		series_list_items = []
 		series_list_data = []
 		for series in study_data['series']:
+
 			series_time = u''
-			if series['time'] is not None:
-				if series['time'] != study_data['time']:
-					series_time = u'%s:%s:%s' % (
-						series['time'][:2],
-						series['time'][2:4],
-						series['time'][4:6]
-					)
-			series_date = u''
-			if series['date'] is not None:
-				if series['date'] != study_data['date']:
-					series_date = u'%s-%s-%s' % (
-						series['date'][:4],
-						series['date'][4:6],
-						series['date'][6:8]
-					)
+			if series['time'] is None:
+				series['time'] = study_data['time']
+			series_time = u'%s:%s:%s' % (
+				series['time'][:2],
+				series['time'][2:4],
+				series['time'][4:6]
+			)
+
+			series_desc = u''
+			if series['description'] is not None:
+				series_desc = series['description'].strip()
+			if series['protocol'] is not None:
+				if len(series_desc) > 0:
+					series_desc += u' [%s]' % (series['protocol'].strip())
+				else:
+					series_desc = series['protocol'].strip()
+			if len(series_desc) > 0:
+				series_desc = u': ' + series_desc
+			series_desc = _(u'%s image(s)%s') % (series['instances'], series_desc)
+
 			series_list_items.append ([
-				u'%s%s%s' % (
-					series['modality'],
-					gmTools.coalesce(series['protocol'], u'', u' [%s]'),
-					gmTools.coalesce(series['station'], u'', u' @ %s')
-				),
-				gmTools.coalesce(series['body_part'], u''),
-				_(u'%s%s images') % (
-					gmTools.coalesce(series['description'], u'', u'%s: '),
-					series['instances']
-				),
 				series_time,
-				series_date
+				gmTools.coalesce(series['modality'], u''),
+				gmTools.coalesce(series['body_part'], u''),
+				series_desc
 			])
 			series_list_data.append(series)
 
 		self._LCTRL_series.set_string_items(items = series_list_items)
 		self._LCTRL_series.set_column_widths()
 		self._LCTRL_series.set_data(data = series_list_data)
+		self._LCTRL_series.SortListItems(col = 0)
+		self._TCTRL_details.Value = u'%s\n%s' % (
+			_(u'Study'),
+			gmTools.format_dict_like(study_data['all_tags'], tabular = True, value_delimiters = None, left_margin = 2)
+		)
+
+	#--------------------------------------------------------
+	def _on_series_list_item_selected(self, event):
+		event.Skip()
+		if self.__pacs is None:
+			return
+
+		study_data = self._LCTRL_studies.get_selected_item_data(only_one = True)
+		if study_data is None:
+			return
+
+		series = self._LCTRL_series.get_selected_item_data(only_one = True)
+		if series is None:
+			return
+
+		self._TCTRL_details.Value = u'%s\n%s\n\n%s\n%s' % (
+			_(u'Study'),
+			gmTools.format_dict_like(study_data['all_tags'], tabular = True, value_delimiters = None, left_margin = 2),
+			_(u'Series'),
+			gmTools.format_dict_like(series['all_tags'], tabular = True, value_delimiters = None, left_margin = 2)
+		)
 
 	#--------------------------------------------------------
 	def _on_modify_orthanc_content_button_pressed(self, event):

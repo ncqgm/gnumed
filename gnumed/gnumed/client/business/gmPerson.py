@@ -19,6 +19,7 @@ import thread
 import threading
 import logging
 import io
+import inspect
 from xml.etree import ElementTree as etree
 
 
@@ -1145,7 +1146,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 
 		if filename is None:
 			filename = gmTools.get_unique_filename (
-				prefix = u'gm-patient2gdt-',
+				prefix = u'gm-patient-',
 				suffix = u'.gdt'
 			)
 
@@ -1355,11 +1356,16 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 
 		if filename is None:
 			filename = gmTools.get_unique_filename (
-				prefix = u'gm-pat2vcf-',
+				prefix = u'gm-patient-',
 				suffix = u'.vcf'
 			)
 		vcf = io.open(filename, mode = 'wt', encoding = 'utf8')
-		vcf.write(vc.serialize().decode('utf-8'))
+		try:
+			vcf.write(vc.serialize().decode('utf-8'))
+		except UnicodeDecodeError:
+			_log.exception('failed to serialize VCF data')
+			vcf.close()
+			return u'cannot-serialize.vcf'
 		vcf.close()
 
 		return filename
@@ -1615,17 +1621,19 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 		return cPerson(self._payload[self._idx['pk_emergency_contact']])
 
 	emergency_contact_in_database = property(_get_emergency_contact_from_database, lambda x:x)
+
 	#----------------------------------------------------------------------
 	# age/dob related
 	#----------------------------------------------------------------------
-	def get_formatted_dob(self, format='%Y %b %d', encoding=None, none_string=None):
+	def get_formatted_dob(self, format='%Y %b %d', encoding=None, none_string=None, honor_estimation=False):
 		return gmDateTime.format_dob (
 			self._payload[self._idx['dob']],
 			format = format,
 			encoding = encoding,
 			none_string = none_string,
-			dob_is_estimated = self._payload[self._idx['dob_is_estimated']]
+			dob_is_estimated = self._payload[self._idx['dob_is_estimated']] and honor_estimation
 		)
+
 	#----------------------------------------------------------------------
 	def get_medical_age(self):
 		dob = self['dob']
@@ -1667,6 +1675,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 				)
 			)
 		)
+
 	#----------------------------------------------------------------------
 	def dob_in_range(self, min_distance=u'1 week', max_distance=u'1 week'):
 		if self['dob'] is None:
@@ -1679,8 +1688,9 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 			}]
 		)
 		return rows[0][0]
+
 	#----------------------------------------------------------------------
-	def current_birthday_passed(self):
+	def _get_current_birthday_passed(self):
 		if self['dob'] is None:
 			return None
 		now = gmDateTime.pydt_now_here()
@@ -1688,12 +1698,16 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 			return False
 		if now.month > self['dob'].month:
 			return True
-		# DOB is this month
+		# -> DOB is this month
 		if now.day < self['dob'].day:
 			return False
 		if now.day > self['dob'].day:
 			return True
-		return None
+		# -> DOB is today
+		return False
+
+	current_birthday_passed = property(_get_current_birthday_passed, lambda x:x)
+
 	#----------------------------------------------------------------------
 	def _get_birthday_this_year(self):
 		if self['dob'] is None:
@@ -1706,6 +1720,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 		)
 
 	birthday_this_year = property(_get_birthday_this_year, lambda x:x)
+
 	#----------------------------------------------------------------------
 	# practice related
 	#----------------------------------------------------------------------
@@ -1901,9 +1916,18 @@ class cPatient(cPerson):
 #		return self.__emr
 
 	def get_emr(self, allow_user_interaction=True):
-		_log.debug('accessing EMR for identity [%s] (thread %s)', self._payload[self._idx['pk_identity']], thread.get_ident())
+		_log.debug('accessing EMR for identity [%s], thread [%s]', self._payload[self._idx['pk_identity']], thread.get_ident())
+		stack_logged = False
 		if not self.__emr_access_lock.acquire(False):
 			got_lock = False
+			# do some logging as we failed to get the lock
+			call_stack = inspect.stack()
+			for idx in range(1, len(call_stack)):
+				caller = call_stack[idx]
+				_log.debug('%s[%s] @ [%s] in [%s]', u' '* idx, caller[3], caller[2], caller[1])
+			del call_stack
+			stack_logged = True
+			# now loop a bit
 			for idx in range(100):
 				_yield()
 				time.sleep(0.1)
@@ -1912,8 +1936,8 @@ class cPatient(cPerson):
 					got_lock = True
 					break
 			if not got_lock:
-				_log.error('still failed to acquire EMR access lock, aborting (thread %s)', thread.get_ident())
-				raise AttributeError('cannot lock access to EMR for identity [%s]', self._payload[self._idx['pk_identity']])
+				_log.error('still failed to acquire EMR access lock, aborting (thread [%s])', thread.get_ident())
+				raise AttributeError('cannot lock access to EMR for identity [%s]' % self._payload[self._idx['pk_identity']])
 
 #			# maybe something slow is happening on the machine
 #			_log.debug('failed to acquire EMR access lock, sleeping for 500ms (thread %s)', thread.get_ident())
@@ -1923,14 +1947,24 @@ class cPatient(cPerson):
 #				raise AttributeError('cannot lock access to EMR')
 
 		if self.__emr is None:
-			_log.debug('pulling chart for identity [%s] (thread %s)', self._payload[self._idx['pk_identity']], thread.get_ident())
+			_log.debug('pulling chart for identity [%s], thread [%s]', self._payload[self._idx['pk_identity']], thread.get_ident())
+			if not stack_logged:
+				# do some logging as we are pulling the chart for the first time
+				call_stack = inspect.stack()
+				for idx in range(1, len(call_stack)):
+					caller = call_stack[idx]
+					_log.debug('%s[%s] @ [%s] in [%s]', u' '* idx, caller[3], caller[2], caller[1])
+				del call_stack
+				stack_logged = True
 			#emr = _pull_chart(self._payload[self._idx['pk_identity']])
 			emr = _pull_chart(self)
 			if emr is None:		# user aborted pulling chart
+				_log.info('user aborted pulling chart, returning None')
+				self.__emr_access_lock.release()
 				return None
 			self.__emr = emr
 
-		_log.debug('returning EMR for identity [%s] (thread %s)', self._payload[self._idx['pk_identity']], thread.get_ident())
+		_log.debug('returning EMR for identity [%s], thread [%s]', self._payload[self._idx['pk_identity']], thread.get_ident())
 		self.__emr_access_lock.release()
 		return self.__emr
 

@@ -313,7 +313,7 @@ def install_domain(domain=None, language=None, prefer_local_catalog=False):
 	if locale.getdefaultlocale()[0] not in lang_candidates:
 		lang_candidates.append(locale.getdefaultlocale()[0])
 
-	_log.debug('languages to try for translation: %s', lang_candidates)
+	_log.debug('languages to try for translation: %s (None: implicit system default)', lang_candidates)
 	initial_lang = os.getenv('LANG')
 	_log.info('initial ${LANG} setting: %s', initial_lang)
 
@@ -323,14 +323,17 @@ def install_domain(domain=None, language=None, prefer_local_catalog=False):
 		_log.debug('resetting ${LANG} to initial user default [%s]', initial_lang)
 		if initial_lang is None:
 			del os.environ['LANG']
+			lang2log = u'$LANG=<>'
 		else:
 			os.environ['LANG'] = initial_lang
+			lang2log = u'$LANG(default)=%s' % initial_lang
 		# setup candidate language
 		if lang_candidate is not None:
 			_log.info('explicitely overriding system locale language [%s] by setting ${LANG} to [%s]', initial_lang, lang_candidate)
 			os.environ['LANG'] = lang_candidate
+			lang2log = u'$LANG(explicit)=%s' % lang_candidate
 
-		if __install_domain(domain = domain, prefer_local_catalog = prefer_local_catalog):
+		if __install_domain(domain = domain, prefer_local_catalog = prefer_local_catalog, language = lang2log):
 			return True
 
 	# install a dummy translation class
@@ -341,7 +344,8 @@ def install_domain(domain=None, language=None, prefer_local_catalog=False):
 	return True
 
 #---------------------------------------------------------------------------
-def __install_domain(domain, prefer_local_catalog):
+def __install_domain(domain, prefer_local_catalog, language=u'?'):
+	# <language> only used for logging
 
 	# search for message catalog
 	candidate_PO_dirs = []
@@ -354,11 +358,11 @@ def __install_domain(domain, prefer_local_catalog):
 		#    strip one directory level
 		#    this is a rather neat trick :-)
 		loc_dir = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), '..', 'po'))
-		_log.debug('looking above binary install directory [%s]' % loc_dir)
+		_log.debug('looking one level above binary install directory: %s', loc_dir)
 		candidate_PO_dirs.append(loc_dir)
 		# - in path to binary
 		loc_dir = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), 'po'))
-		_log.debug('looking in binary install directory [%s]' % loc_dir)
+		_log.debug('looking in binary install directory: %s', loc_dir)
 		candidate_PO_dirs.append(loc_dir)
 
 	# - standard places
@@ -396,8 +400,8 @@ def __install_domain(domain, prefer_local_catalog):
 
 	# now try to actually install it
 	for candidate_PO_dir in candidate_PO_dirs:
-		_log.debug('trying with (%s, %s, %s)', candidate_PO_dir, system_locale, domain)
-		_log.debug(' -> %s/%s/LC_MESSAGES/%s.mo', candidate_PO_dir, system_locale, domain)
+		_log.debug('trying with (base=%s, %s, domain=%s)', candidate_PO_dir, language, domain)
+		_log.debug(' -> %s.mo', os.path.join(candidate_PO_dir, language, domain))
 		if not os.path.exists(candidate_PO_dir):
 			continue
 		try:

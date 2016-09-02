@@ -309,37 +309,28 @@ class cOrthancServer:
 			return filename
 
 	#--------------------------------------------------------
-	def get_studies_with_dicomdir(self, study_ids=None, patient_id=None, target_dir=None, filename=None, create_zip=False):
+	def _manual_get_studies_with_dicomdir(self, study_ids=None, patient_id=None, target_dir=None, filename=None, create_zip=False):
 
 		if filename is None:
 			filename = gmTools.get_unique_filename(prefix = r'DCM-', suffix = r'.zip', tmp_dir = target_dir)
 
 		# all studies
 		if study_ids is None:
-			if study_ids is None:
-				_log.info(u'exporting all studies of patient [%s] into [%s]', patient_id, filename)
-				f = io.open(filename, 'wb')
-				url = '%s/patients/%s/media' % (self.__server_url, str(patient_id))
-				_log.debug(url)
-				f.write(self.__run_GET(url = url))
-				f.close()
-				if create_zip:
-					return filename
-				if target_dir is None:
-					target_dir = gmTools.mk_sandbox_dir(prefix = u'dcm-')
-				if not gmTools.unzip_archive(filename, target_dir = target_dir, remove_archive = True):
-					return False
-				return target_dir
+			_log.info(u'exporting all studies of patient [%s] into [%s]', patient_id, filename)
+			f = io.open(filename, 'wb')
+			url = '%s/patients/%s/media' % (self.__server_url, str(patient_id))
+			_log.debug(url)
+			f.write(self.__run_GET(url = url))
+			f.close()
+			if create_zip:
+				return filename
+			if target_dir is None:
+				target_dir = gmTools.mk_sandbox_dir(prefix = u'dcm-')
+			if not gmTools.unzip_archive(filename, target_dir = target_dir, remove_archive = True):
+				return False
+			return target_dir
 
 		# a selection of studies
-#		return u'get range of studies as zip with dicomdir not implemented, either all or one'
-
-		dicomdir_cmd = u'gm-create_dicomdir'		# args: 1) name of DICOMDIR to create 2) base directory where to start recursing for DICOM files
-		found, external_cmd = gmShellAPI.detect_external_binary(dicomdir_cmd)
-		if not found:
-			_log.error('[%s] not found', dicomdir_cmd)
-			return False
-
 		dicomdir_cmd = u'gm-create_dicomdir'		# args: 1) name of DICOMDIR to create 2) base directory where to start recursing for DICOM files
 		found, external_cmd = gmShellAPI.detect_external_binary(dicomdir_cmd)
 		if not found:
@@ -408,15 +399,51 @@ class cOrthancServer:
 		gmTools.rmdir(sandbox_dir)
 		return studies_zip
 
-		#> > I finally implemented your request to create a ZIP-with-DICOMDIR from
-		#> > several patients/studies.
-		#> > 
-		#> > You have to make a POST request against URI "/tools/create-media", with a
-		#> > JSON body that contains the array of the resources of interest (as Orthanc
-		#> > identifiers). Here is a sample command-line:
-		#> > 
-		#> > # curl -X POST http://localhost:8042/tools/create-media -d '["8c4663df-c3e66066-9e20a8fc-dd14d1e5-251d3d84","2cd4848d-02f0005f-812ffef6-a210bbcf-3f01a00a","6eeded74-75005003-c3ae9738-d4a06a4f-6beedeb8","8a622020-c058291c-7693b63f-bc67aa2e-0a02e69c"]' -v > /tmp/a.zip
-		# (this will not create duplicates but will also not check for single-patient-ness)
+	#--------------------------------------------------------
+	def get_studies_with_dicomdir(self, study_ids=None, patient_id=None, target_dir=None, filename=None, create_zip=False):
+
+		if filename is None:
+			filename = gmTools.get_unique_filename(prefix = r'DCM-', suffix = r'.zip', tmp_dir = target_dir)
+
+		# all studies
+		if study_ids is None:
+			if patient_id is None:
+				raise ValueError('<patient_id> must be defined if <study_ids> is None')
+			_log.info(u'exporting all studies of patient [%s] into [%s]', patient_id, filename)
+			f = io.open(filename, 'wb')
+			url = '%s/patients/%s/media' % (self.__server_url, str(patient_id))
+			_log.debug(url)
+			f.write(self.__run_GET(url = url))
+			f.close()
+			if create_zip:
+				return filename
+			if target_dir is None:
+				target_dir = gmTools.mk_sandbox_dir(prefix = u'dcm-')
+			if not gmTools.unzip_archive(filename, target_dir = target_dir, remove_archive = True):
+				return False
+			return target_dir
+
+		# selection of studies
+		_log.info(u'exporting %s studies into [%s]', len(study_ids), filename)
+		_log.debug(u'studies: %s', study_ids)
+		f = io.open(filename, 'wb')
+		url = '%s/tools/create-media' % self.__server_url
+		_log.debug(url)
+		#  You have to make a POST request against URI "/tools/create-media", with a
+		#  JSON body that contains the array of the resources of interest (as Orthanc
+		#  identifiers). Here is a sample command-line:
+		#  curl -X POST http://localhost:8042/tools/create-media -d '["8c4663df-c3e66066-9e20a8fc-dd14d1e5-251d3d84","2cd4848d-02f0005f-812ffef6-a210bbcf-3f01a00a","6eeded74-75005003-c3ae9738-d4a06a4f-6beedeb8","8a622020-c058291c-7693b63f-bc67aa2e-0a02e69c"]' -v > /tmp/a.zip
+		#  (this will not create duplicates but will also not check for single-patient-ness)
+		f.write(self.__run_POST(url = url, data = study_ids))
+		f.close()
+		if create_zip:
+			return filename
+		if target_dir is None:
+			target_dir = gmTools.mk_sandbox_dir(prefix = u'dcm-')
+			_log.debug(u'exporting studies into [%s]', target_dir)
+		if not gmTools.unzip_archive(filename, target_dir = target_dir, remove_archive = True):
+			return False
+		return target_dir
 
 	#--------------------------------------------------------
 	# server-side API
@@ -592,115 +619,180 @@ class cOrthancServer:
 	# helper functions
 	#--------------------------------------------------------
 	def get_studies_list_by_orthanc_patient_list(self, orthanc_patients=None):
+
+		study_keys2hide =  ['ModifiedFrom', 'Type', 'ID', 'ParentPatient', 'Series']
+		series_keys2hide = ['ModifiedFrom', 'Type', 'ID', 'ParentStudy',   'Instances']
+
 		studies_by_patient = []
-		study_keys = {}
-		study_keys_m = {}
 		series_keys = {}
 		series_keys_m = {}
+
+		# loop over patients
 		for pat in orthanc_patients:
 			pat_dict = {
 				'orthanc_id': pat['ID'],
-				'name': pat['MainDicomTags']['PatientName'],
-				'external_id': pat['MainDicomTags']['PatientID'],
+				'name': None,
+				'external_id': None,
+				'date_of_birth': None,
+				'gender': None,
 				'studies': []
 			}
 			try:
-				pat_dict['date_of_birth'] = pat['MainDicomTags']['PatientBirthDate']
+				pat_dict['name'] = pat['MainDicomTags']['PatientName'].strip()
 			except KeyError:
-				pat_dict['date_of_birth'] = None
+				pass
 			try:
-				pat_dict['gender'] = pat['MainDicomTags']['PatientSex']
+				pat_dict['external_id'] = pat['MainDicomTags']['PatientID'].strip()
 			except KeyError:
-				pat_dict['gender'] = None
+				pass
+			try:
+				pat_dict['date_of_birth'] = pat['MainDicomTags']['PatientBirthDate'].strip()
+			except KeyError:
+				pass
+			try:
+				pat_dict['gender'] = pat['MainDicomTags']['PatientSex'].strip()
+			except KeyError:
+				pass
 			for key in pat_dict:
 				if pat_dict[key] == u'unknown':
 					pat_dict[key] = None
 				if pat_dict[key] == u'(null)':
 					pat_dict[key] = None
+				if pat_dict[key] == u'':
+					pat_dict[key] = None
 			studies_by_patient.append(pat_dict)
+
+			# loop over studies of patient
 			orth_studies = self.__run_GET(url = u'%s/patients/%s/studies' % (self.__server_url, pat['ID']))
 			if orth_studies is False:
 				_log.error('cannot retrieve studies')
 				return []
 			for orth_study in orth_studies:
-				# debugging
-				#for key in orth_study.keys():
-				#	study_keys[key] = True
-				#for key in orth_study['MainDicomTags'].keys():
-				#	study_keys_m[key] = True
 				study_dict = {
 					'orthanc_id': orth_study['ID'],
-					'date': orth_study['MainDicomTags'][u'StudyDate'],
-					'time': orth_study['MainDicomTags'][u'StudyTime'],
+					'date': None,
+					'time': None,
+					'description': None,
+					'referring_doc': None,
+					'radiology_org': None,
 					'series': []
 				}
 				try:
-					study_dict['description'] = orth_study['MainDicomTags'][u'StudyDescription']
+					study_dict['date'] = orth_study['MainDicomTags'][u'StudyDate'].strip()
 				except KeyError:
-					study_dict['description'] = None
+					pass
+				try:
+					study_dict['time'] = orth_study['MainDicomTags'][u'StudyTime'].strip()
+				except KeyError:
+					pass
+				try:
+					study_dict['description'] = orth_study['MainDicomTags'][u'StudyDescription'].strip()
+				except KeyError:
+					pass
+				try:
+					study_dict['referring_doc'] = orth_study['MainDicomTags'][u'ReferringPhysicianName'].strip()
+				except KeyError:
+					pass
+				try:
+					study_dict['radiology_org'] = orth_study['MainDicomTags'][u'InstitutionName'].strip()
+				except KeyError:
+					pass
 				for key in study_dict:
 					if study_dict[key] == u'unknown':
 						study_dict[key] = None
 					if study_dict[key] == u'(null)':
 						study_dict[key] = None
+					if study_dict[key] == u'':
+						study_dict[key] = None
+				study_dict['all_tags'] = {}
+				try:
+					orth_study['PatientMainDicomTags']
+				except KeyError:
+					orth_study['PatientMainDicomTags'] = pat['MainDicomTags']
+				for key in orth_study.keys():
+					if key == u'MainDicomTags':
+						for mkey in orth_study['MainDicomTags'].keys():
+							study_dict['all_tags'][mkey] = orth_study['MainDicomTags'][mkey].strip()
+						continue
+					if key == u'PatientMainDicomTags':
+						for pkey in orth_study['PatientMainDicomTags'].keys():
+							study_dict['all_tags'][pkey] = orth_study['PatientMainDicomTags'][pkey].strip()
+						continue
+					study_dict['all_tags'][key] = orth_study[key]
+				_log.debug('study: %s', study_dict['all_tags'].keys())
+				for key in study_keys2hide:
+					try: del study_dict['all_tags'][key]
+					except KeyError: pass
 				pat_dict['studies'].append(study_dict)
+
+				# loop over series in study
 				for orth_series_id in orth_study['Series']:
 					orth_series = self.__run_GET(url = u'%s/series/%s' % (self.__server_url, orth_series_id))
 					if orth_series is False:
 						_log.error('cannot retrieve series')
 						return []
-					# debugging
-					#for key in orth_series.keys():
-					#	series_keys[key] = True
-					#for key in orth_series['MainDicomTags'].keys():
-					#	series_keys_m[key] = True
 					series_dict = {
 						'orthanc_id': orth_series['ID'],
-						'modality': orth_series['MainDicomTags']['Modality'],
-						'instances': len(orth_series['Instances'])
+						'instances': len(orth_series['Instances']),
+						'modality': None,
+						'date': None,
+						'time': None,
+						'description': None,
+						'body_part': None,
+						'protocol': None
 					}
 					try:
-						series_dict['date'] = orth_series['MainDicomTags']['SeriesDate']
+						series_dict['modality'] = orth_series['MainDicomTags']['Modality'].strip()
 					except KeyError:
-						series_dict['date'] = study_dict['date']
+						pass
 					try:
-						series_dict['description'] = orth_series['MainDicomTags'][u'SeriesDescription']
+						series_dict['date'] = orth_series['MainDicomTags']['SeriesDate'].strip()
 					except KeyError:
-						series_dict['description'] = None
+						pass
 					try:
-						series_dict['time'] = orth_series['MainDicomTags']['SeriesTime']
+						series_dict['description'] = orth_series['MainDicomTags'][u'SeriesDescription'].strip()
 					except KeyError:
-						series_dict['time'] = None
-					if series_dict['time'] is not None:
-						if series_dict['time'].strip() == u'':
-							series_dict['time'] = None
+						pass
 					try:
-						series_dict['body_part'] = orth_series['MainDicomTags']['BodyPartExamined']
+						series_dict['time'] = orth_series['MainDicomTags']['SeriesTime'].strip()
 					except KeyError:
-						series_dict['body_part'] = None
+						pass
 					try:
-						series_dict['protocol'] = orth_series['MainDicomTags']['ProtocolName']
+						series_dict['body_part'] = orth_series['MainDicomTags']['BodyPartExamined'].strip()
 					except KeyError:
-						series_dict['protocol'] = None
-					if series_dict['description'] == series_dict['protocol']:
-						_log.debug('<series description> matches <series protocol>, ignoring description')
-						series_dict['description'] = None
+						pass
 					try:
-						series_dict['station'] = orth_series['MainDicomTags']['StationName']
+						series_dict['protocol'] = orth_series['MainDicomTags']['ProtocolName'].strip()
 					except KeyError:
-						series_dict['station'] = None
+						pass
 					for key in series_dict:
 						if series_dict[key] == u'unknown':
 							series_dict[key] = None
 						if series_dict[key] == u'(null)':
 							series_dict[key] = None
+						if series_dict[key] == u'':
+							series_dict[key] = None
+					if series_dict['description'] == series_dict['protocol']:
+						_log.debug('<series description> matches <series protocol>, ignoring protocol')
+						series_dict['protocol'] = None
+					if series_dict['date'] == study_dict['date']:
+						_log.debug('<series date> matches <study date>, ignoring date')
+						series_dict['date'] = None
+					if series_dict['time'] == study_dict['time']:
+						_log.debug('<series time> matches <study time>, ignoring time')
+						series_dict['time'] = None
+					series_dict['all_tags'] = {}
+					for key in orth_series.keys():
+						if key == 'MainDicomTags':
+							for mkey in orth_series['MainDicomTags'].keys():
+								series_dict['all_tags'][mkey] = orth_series['MainDicomTags'][mkey].strip()
+							continue
+						series_dict['all_tags'][key] = orth_series[key]
+					_log.debug('series: %s', series_dict['all_tags'].keys())
+					for key in series_keys2hide:
+						try: del series_dict['all_tags'][key]
+						except KeyError: pass
 					study_dict['series'].append(series_dict)
-
-		# debugging
-		#_log.debug('study: %s', study_keys.keys())
-		#_log.debug('study(MainDicomTags): %s', study_keys_m.keys())
-		#_log.debug('series: %s', series_keys.keys())
-		#_log.debug('series(MainDicomTags): %s', series_keys_m.keys())
 
 		return studies_by_patient
 
@@ -720,6 +812,9 @@ class cOrthancServer:
 			_log.exception('cannot GET: %s', full_url)
 			return False
 		except socket.error:
+			_log.exception('cannot GET: %s', full_url)
+			return False
+		except OverflowError:
 			_log.exception('cannot GET: %s', full_url)
 			return False
 
@@ -749,6 +844,9 @@ class cOrthancServer:
 			_log.exception('cannot POST: %s', url)
 			return False
 		except socket.error:
+			_log.exception('cannot POST: %s', url)
+			return False
+		except OverflowError:
 			_log.exception('cannot POST: %s', url)
 			return False
 
@@ -783,6 +881,9 @@ class cOrthancServer:
 		except socket.error:
 			_log.exception('cannot PUT: %s', url)
 			return False
+		except OverflowError:
+			_log.exception('cannot PUT: %s', url)
+			return False
 
 		if response.status == 404:
 			_log.debug('no data, response: %s', response)
@@ -805,6 +906,9 @@ class cOrthancServer:
 			return False
 		except socket.error:
 			_log.exception('cannot DELETE: %s', url)
+			return False
+		except OverflowError:
+			_log.exception('cannot DELETE: %s', full_url)
 			return False
 
 		if not (response.status in [ 200 ]):

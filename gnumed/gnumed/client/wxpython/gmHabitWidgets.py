@@ -78,6 +78,9 @@ def manage_substance_abuse(parent=None, patient=None):
 		lctrl.set_data(intakes)
 
 	#------------------------------------------------------------
+	if len(patient.emr.abused_substances) == 0:
+		edit()
+
 	msg = _('Substances abused by the patient:')
 
 	return gmListWidgets.get_choices_from_list (
@@ -160,7 +163,7 @@ class cSubstanceAbuseEAPnl(wxgSubstanceAbuseEAPnl.wxgSubstanceAbuseEAPnl, gmEdit
 
 		elif self._RBTN_c2.GetValue() is True:
 			pk_substance = gmMedication.create_consumable_substance_by_atc (
-				substance = _('nicotine'),
+				substance = _('ethanol'),
 				atc = gmATC.ATC_ETHANOL,
 				amount = 1,
 				unit = _('units')

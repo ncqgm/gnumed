@@ -14,6 +14,7 @@ import wx.lib.expando
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 
+from Gnumed.pycommon import gmShellAPI
 from Gnumed.wxpython import gmKeywordExpansionWidgets
 
 
@@ -95,6 +96,57 @@ class cColoredStatus_TextCtrlMixin():
 			raise ValueError(u'<enable> must be True or False')
 
 		self.Refresh()
+
+#============================================================
+class cUnicodeInsertion_TextCtrlMixin():
+	"""Mixin for inserting unicode characters via selection tool."""
+	def __init__(self, *args, **kwargs):
+		if not isinstance(self, (wx.TextCtrl, wx.stc.StyledTextCtrl)):
+			raise TypeError('[%s]: can only be applied to wx.TextCtrl or wx.stc.StyledTextCtrl, not [%s]' % (cUnicodeInsertion_TextCtrlMixin, self.__class__.__name__))
+
+		found, self.__unicode_selector = gmShellAPI.find_first_binary(binaries = ['kcharselect', 'gucharmap', 'charmap.exe', 'gm-unicode2clipboard'])
+		if not found:
+			_log.error('no unicode character selection tool found')
+			return
+
+	#--------------------------------------------------------
+	def mixin_insert_unicode_character(self):
+		if self.__unicode_selector is None:
+			return False
+
+		# read clipboard
+		if wx.TheClipboard.IsOpened():
+			_log.error('clipboard already open')
+			return False
+		if not wx.TheClipboard.Open():
+			_log.error('cannot open clipboard')
+			return False
+		data_obj = wx.TextDataObject()
+		prev_clip = None
+		got_it = wx.TheClipboard.GetData(data_obj)
+		if got_it:
+			prev_clip = data_obj.Text
+
+		# run selector
+		if not gmShellAPI.run_command_in_shell(command = self.__unicode_selector, blocking = True):
+			wx.TheClipboard.Close()
+			return False
+
+		# read clipboard again
+		got_it = wx.TheClipboard.GetData(data_obj)
+		wx.TheClipboard.Close()
+		if not got_it:
+			_log.debug('clipboard does not contain text')
+			return False
+		curr_clip = data_obj.Text
+
+		# insert clip if so
+		if curr_clip == prev_clip:
+			# nothing put into clipboard (that is, clipboard still the same)
+			return False
+
+		self.WriteText(curr_clip)
+		return True
 
 #============================================================
 class cTextSearch_TextCtrlMixin():
@@ -198,7 +250,7 @@ class cTextSearch_TextCtrlMixin():
 		self.__mixin_find_replace_last_match_end = 0
 
 #============================================================
-class cTextCtrl(gmKeywordExpansionWidgets.cKeywordExpansion_TextCtrlMixin, cTextSearch_TextCtrlMixin, cColoredStatus_TextCtrlMixin, wx.TextCtrl):
+class cTextCtrl(gmKeywordExpansionWidgets.cKeywordExpansion_TextCtrlMixin, cTextSearch_TextCtrlMixin, cColoredStatus_TextCtrlMixin, cUnicodeInsertion_TextCtrlMixin, wx.TextCtrl):
 
 	def __init__(self, *args, **kwargs):
 
@@ -210,8 +262,10 @@ class cTextCtrl(gmKeywordExpansionWidgets.cKeywordExpansion_TextCtrlMixin, cText
 		gmKeywordExpansionWidgets.cKeywordExpansion_TextCtrlMixin.__init__(self)
 		cTextSearch_TextCtrlMixin.__init__(self)
 		cColoredStatus_TextCtrlMixin.__init__(self)
+		cUnicodeInsertion_TextCtrlMixin.__init__(self)
 
 		self.enable_keyword_expansions()
+
 	#--------------------------------------------------------
 	# callback API
 	#--------------------------------------------------------
@@ -438,7 +492,7 @@ if __name__ == '__main__':
 		app = wx.PyWidgetTester(size = (200, 50))
 		tc = cTextCtrl(parent = app.frame, id = -1)
 		#tc.enable_keyword_expansions()
-		tc.Enable(False)
+		#tc.Enable(False)
 		app.frame.Show(True)
 		app.MainLoop()
 		return True

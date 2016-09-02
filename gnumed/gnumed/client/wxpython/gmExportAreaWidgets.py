@@ -23,6 +23,7 @@ from Gnumed.pycommon import gmMimeLib
 from Gnumed.pycommon import gmDateTime
 from Gnumed.pycommon import gmPrinting
 from Gnumed.pycommon import gmShellAPI
+from Gnumed.pycommon import gmNetworkTools
 
 from Gnumed.business import gmPerson
 from Gnumed.business import gmExportArea
@@ -150,6 +151,7 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 			return
 		for item in items:
 			gmExportArea.delete_export_item(pk_export_item = item['pk_export_item'])
+
 	#--------------------------------------------------------
 	def _on_print_items_button_pressed(self, event):
 		event.Skip()
@@ -175,12 +177,14 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 
 		self.save_soap_note(soap = _('Printed:\n - %s') % u'\n - '.join([ i['description'] for i in items ]))
 		return True
+
 	#--------------------------------------------------------
 	def _on_remote_print_button_pressed(self, event):
 		event.Skip()
 		items = self._LCTRL_items.get_selected_item_data(only_one = False)
 		for item in items:
 			item.is_print_job = True
+
 	#--------------------------------------------------------
 	def _on_save_items_button_pressed(self, event):
 		event.Skip()
@@ -244,12 +248,21 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 			u'\n - '.join([ i['description'] for i in items ])
 		))
 
-		gmGuiHelpers.gm_show_info (
-			title = _('Saving export area documents'),
-			info = _('Saved documents into directory:\n\n %s') % export_dir
-		)
+		title = _('Saving export area documents')
+		msg = _('Saved documents into directory:\n\n %s') % export_dir
+		if include_metadata:
+			browse_index = gmGuiHelpers.gm_show_question (
+				title = title,
+				question = msg + u'\n\n' + _('Browse patient data pack ?'),
+				cancel_button = False
+			)
+			if browse_index:
+				gmNetworkTools.open_url_in_browser(url = u'file://%s' % os.path.join(export_dir, u'index.html'))
+		else:
+			gmGuiHelpers.gm_show_info(title = title, info = msg)
 
 		return True
+
 	#--------------------------------------------------------
 	def _on_burn_items_button_pressed(self, event):
 		event.Skip()
@@ -296,11 +309,22 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 			return False
 
 		self.save_soap_note(soap = _('Burned onto CD/DVD:\n - %s') % u'\n - '.join([ i['description'] for i in items ]))
+
+		browse_index = gmGuiHelpers.gm_show_question (
+			title = title,
+			question = _('Browse patient data pack ?'),
+			cancel_button = False
+		)
+		if browse_index:
+			gmNetworkTools.open_url_in_browser(url = u'file://%s' % os.path.join(export_dir, u'index.html'))
+
 		return True
+
 	#--------------------------------------------------------
-	def _on_archive_items_button_pressed(self, event):  # wxGlade: wxgExportAreaPluginPnl.<event_handler>
+	def _on_archive_items_button_pressed(self, event):
 		print "Event handler '_on_archive_items_button_pressed' not implemented!"
 		event.Skip()
+
 	#--------------------------------------------------------
 	def _on_mail_items_button_pressed(self, event):
 		event.Skip()
@@ -335,6 +359,7 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 
 		self.save_soap_note(soap = _('Mailed:\n - %s') % u'\n - '.join([ i['description'] for i in items ]))
 		return True
+
 	#--------------------------------------------------------
 	def _on_fax_items_button_pressed(self, event):
 		event.Skip()
@@ -381,9 +406,11 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 			u'\n - '.join([ i['description'] for i in items ])
 		))
 		return True
+
 	#--------------------------------------------------------
 	def repopulate_ui(self):
 		self._populate_with_data()
+
 	#--------------------------------------------------------
 	# internal API
 	#--------------------------------------------------------

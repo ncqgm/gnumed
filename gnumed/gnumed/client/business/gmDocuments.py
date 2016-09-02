@@ -226,6 +226,17 @@ class cDocumentFolder:
 			episode = episode
 		)
 
+	#--------------------------------------------------------
+	def _get_all_document_org_units(self):
+		cmd = gmOrganization._SQL_get_org_unit % (
+			u'pk_org_unit IN (SELECT DISTINCT ON (pk_org_unit) pk_org_unit FROM blobs.v_doc_med WHERE pk_patient = %(pat)s)'
+		)
+		args = {'pat': self.pk_patient}
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+		return [ gmOrganization.cOrgUnit(row = {'data': r, 'idx': idx, 'pk_field': u'pk_org_unit'}) for r in rows ]
+
+	all_document_org_units = property(_get_all_document_org_units, lambda x:x)
+
 #============================================================
 _sql_fetch_document_part_fields = u"select * from blobs.v_obj4doc_no_data where %s"
 
@@ -541,7 +552,7 @@ insert into blobs.reviewed_doc_objs (
 			self._payload[self._idx['seq_idx']],
 			patient_part,
 			self._payload[self._idx['l10n_type']].replace(' ', '_'),
-			gmDateTime.pydt_strftime(self._payload[self._idx['date_generated']], '%Y-%b-%d', 'utf-8', gmDateTime.acc_days)
+			gmDateTime.pydt_strftime(self._payload[self._idx['date_generated']], '%Y-%m-%d', 'utf-8', gmDateTime.acc_days)
 			#,gmTools.coalesce(self.__curr_node_data['ext_ref'], '', '-%s').replace(' ', '_')
 		)
 
@@ -730,6 +741,7 @@ class cDocument(gmBusinessDBObject.cBusinessDBObject):
 		return self.__has_unreviewed_parts
 
 	has_unreviewed_parts = property(_get_has_unreviewed_parts, lambda x:x)
+
 	#--------------------------------------------------------
 	def set_reviewed(self, technically_abnormal=None, clinically_relevant=None):
 		# FIXME: this is probably inefficient
@@ -737,6 +749,7 @@ class cDocument(gmBusinessDBObject.cBusinessDBObject):
 			if not part.set_reviewed(technically_abnormal, clinically_relevant):
 				return False
 		return True
+
 	#--------------------------------------------------------
 	def set_primary_reviewer(self, reviewer=None):
 		for part in self.parts:

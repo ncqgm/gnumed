@@ -79,7 +79,9 @@ _map_clin_root_item2type_str = {
 	'clin.allergy': _('Allergy'),
 	'clin.allergy_state': _('Allergy state'),
 	'clin.family_history': _('Family history'),
-	'blobs.doc_med': _('Document')
+	'blobs.doc_med': _('Document'),
+	'dem.message_inbox': _('Inbox message'),
+	'ref.auto_hint': _('Dynamic hint')
 }
 
 def format_clin_root_item_type(table):
@@ -90,6 +92,7 @@ def format_clin_root_item_type(table):
 
 #------------------------------------------------------------
 from Gnumed.business.gmDocuments import cDocument
+from Gnumed.business.gmProviderInbox import cInboxMessage
 
 _map_table2class = {
 	'clin.encounter': gmEMRStructItems.cEncounter,
@@ -106,7 +109,9 @@ _map_table2class = {
 	'clin.allergy_state': gmAllergy.cAllergyState,
 	'clin.family_history': gmFamilyHistory.cFamilyHistory,
 	'clin.suppressed_hint': gmAutoHints.cSuppressedHint,
-	'blobs.doc_med': cDocument
+	'blobs.doc_med': cDocument,
+	'dem.message_inbox': cInboxMessage,
+	'ref.auto_hint': gmAutoHints.cDynamicHint
 }
 
 def instantiate_clin_root_item(table, pk):
@@ -919,7 +924,8 @@ class cClinicalRecord(object):
 			soap_cats = soap_cats,
 			providers = providers,
 			order_by = order_by,
-			time_range = time_range
+			time_range = time_range,
+			active_encounter = self.active_encounter
 		)
 
 	#--------------------------------------------------------

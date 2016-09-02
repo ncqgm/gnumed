@@ -14,9 +14,11 @@ from Gnumed.pycommon import gmBusinessDBObject
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmHooks
+from Gnumed.pycommon import gmDateTime
 
 from Gnumed.business import gmCoding
 from Gnumed.business import gmSoapDefs
+from Gnumed.business import gmAutoHints
 
 
 _log = logging.getLogger('gm.emr')
@@ -374,7 +376,7 @@ def get_narrative(since=None, until=None, encounters=None, episodes=None, issues
 #		filtered_narrative = filter(lambda narr: narr['soap_cat'] in soap_cats, filtered_narrative)
 
 #------------------------------------------------------------
-def get_as_journal(since=None, until=None, encounters=None, episodes=None, issues=None, soap_cats=None, providers=None, order_by=None, time_range=None, patient=None):
+def get_as_journal(since=None, until=None, encounters=None, episodes=None, issues=None, soap_cats=None, providers=None, order_by=None, time_range=None, patient=None, active_encounter=None):
 
 	if (patient is None) and (episodes is None) and (issues is None) and (encounters is None):
 		raise ValueError('at least one of <patient>, <episodes>, <issues>, <encounters> must not be None')
@@ -414,6 +416,7 @@ def get_as_journal(since=None, until=None, encounters=None, episodes=None, issue
 
 	# FIXME: implement more constraints
 
+	# get rows from clin.v_emr_journal
 	cmd = u"""
 		SELECT
 			to_char(c_vej.clin_when, 'YYYY-MM-DD') AS date,
@@ -438,19 +441,55 @@ def get_as_journal(since=None, until=None, encounters=None, episodes=None, issue
 			c_vej.episode_open,
 			c_vej.encounter_started,
 			c_vej.encounter_last_affirmed,
-			c_vej.encounter_l10n_type
+			c_vej.encounter_l10n_type,
+			c_vej.pk_patient
 		FROM
 			clin.v_emr_journal c_vej
-				join clin.soap_cat_ranks c_scr on (c_scr.soap_cat = c_vej.soap_cat)
+				join clin.soap_cat_ranks c_scr on (c_scr.soap_cat IS NOT DISTINCT FROM c_vej.soap_cat)
 		WHERE
 			%s
 		%s""" % (
 			u'\n\t\t\t\t\tAND\n\t\t\t\t'.join(where_parts),
 			order_by
 		)
+	journal_rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
-	return rows
+	if active_encounter is not None:
+		# get rows from clin.get_hints_for_patient()
+		pk_identity = journal_rows[0]['pk_patient']
+		hints = gmAutoHints.get_hints_for_patient (
+			pk_identity = pk_identity,
+			include_suppressed_needing_invalidation = True
+		)
+		for hint in hints:
+			d = {}
+			d['date'] = gmDateTime.pydt_strftime(active_encounter['started'], '%Y-%m-%d')
+			d['clin_when'] = active_encounter['started']
+			d['soap_cat'] = u'a'
+			d['narrative'] = hint.format()
+			d['src_table'] = u'ref.auto_hint'
+			d['rank'] = 3									# FIXME: should be rank_of['a']
+			d['modified_when'] = active_encounter['started']		# FIXME: should be hint['modified_when']
+			d['date_modified'] = gmDateTime.pydt_strftime(active_encounter['started'], '%Y-%m-%d %H:%M')	# FIXME: should use hint['modified_when']
+			d['modified_by'] = active_encounter['modified_by']		# FIXME: should be hint['modified_by']
+			d['row_version'] = 0							# FIXME: should be hint['row_version']
+			d['pk_episode'] = None
+			d['pk_encounter'] = active_encounter['pk_encounter']
+			d['real_soap_cat'] = u'a'
+			d['src_pk'] = hint['pk_auto_hint']
+			d['pk_health_issue'] = None
+			d['health_issue'] = u''
+			d['episode'] = u''
+			d['issue_active'] = False
+			d['issue_clinically_relevant'] = False
+			d['episode_open'] = False
+			d['encounter_started'] = active_encounter['started']
+			d['encounter_last_affirmed'] = active_encounter['last_affirmed']
+			d['encounter_l10n_type'] = active_encounter['l10n_type']
+			d['pk_patient'] = pk_identity
+			journal_rows.append(d)
+
+	return journal_rows
 
 #============================================================
 # convenience functions

@@ -430,6 +430,7 @@ def setup_locale():
 	# make sure we re-get the default encoding
 	# in case it changed
 	gmLog2.set_string_encoding()
+
 #==========================================================
 def handle_help_request():
 	src = [(u'cli', u'return')]
@@ -447,6 +448,7 @@ def handle_help_request():
 		))
 		print(__doc__)
 		sys.exit(0)
+
 #==========================================================
 def handle_version_request():
 	src = [(u'cli', u'return')]
@@ -502,12 +504,22 @@ the hidden directory "%s/".""" % (
 	README.write(gnumed_DIR_README_TEXT)
 	README.close()
 
+	# wxPython not available yet
 	paths = gmTools.gmPaths(app_name = u'gnumed')
+	print("Temp dir:", paths.tmp_dir)
 
+	# ensure there's a user-level config file
 	io.open(os.path.expanduser(os.path.join('~', '.gnumed', 'gnumed.conf')), mode = 'a+t').close()
+
+	# symlink log file into temporary directory for easier debugging (everything in one place)
+	logfile_link = os.path.join(paths.tmp_dir, 'zzz-gnumed.log')
+	gmTools.mklink (gmLog2._logfile.name, logfile_link, overwrite = False)
+	print("Linked log file:", logfile_link)
+
 #==========================================================
 def setup_date_time():
 	gmDateTime.init()
+
 #==========================================================
 def setup_cfg():
 	"""Detect and setup access to GNUmed config file.
@@ -644,6 +656,7 @@ def shutdown_logging():
 
 	# do not choke on Windows
 	logging.raiseExceptions = False
+
 #==========================================================
 def shutdown_tmp_dir():
 
@@ -667,7 +680,10 @@ setup_cli()
 setup_signal_handlers()
 setup_local_repo_path()
 
-from Gnumed.pycommon import gmI18N, gmTools, gmDateTime, gmHooks
+from Gnumed.pycommon import gmI18N
+from Gnumed.pycommon import gmTools
+from Gnumed.pycommon import gmDateTime
+
 setup_locale()
 handle_help_request()
 handle_version_request()
@@ -682,6 +698,7 @@ if ui_type in [u'web']:
 setup_backend()
 
 
+from Gnumed.pycommon import gmHooks
 gmHooks.run_hook_script(hook = u'startup-before-GUI')
 
 if ui_type == u'wxp':

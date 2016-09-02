@@ -1163,6 +1163,7 @@ class cPhraseWheel(cPhraseWheelBase):
 		if value is None:
 			value = u'%s' % data
 		return {value: {'data': data, 'list_label': value, 'field_label': value}}
+
 #============================================================
 class cMultiPhraseWheel(cPhraseWheelBase):
 

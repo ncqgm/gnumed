@@ -6,9 +6,73 @@
 # rel-1-6-patches
 ------------------------------------------------
 
+	1.6.9
+
+FIX: faulty detection of dynamic hint applicability
+FIX: exception on Orthanc port out of bounds
+FIX: setting address from list in receiver selection widget
+
+IMPROVED: start-end formatting of substance intake
+IMPROVED: select unicode character from SOAP STC context menu
+IMPROVED: edit test results by context menu from lists
+IMPROVED: AMTS data file generation (v2 -> v2.3)
+IMPROVED: color of focussed line in STC-based SOAP editor
+IMPROVED: information in Hx box of patient overview plugin
+
+NEW: placeholder $<if_not_empty>$
+
+	1.6.8
+
+FIX: remove dynamic hint lacking evidence of clinical relevance
+FIX: off-by-one calculation of substance intake end date
+FIX: faulty use of $<gender_mapper>$ in Begleitbrief template
+FIX: fix EMR access deadlock in encounter display widget [thanks Marc]
+FIX: exception on non-ASCII VCF data
+FIX: exception displaying birthday/age of patient w/ estimated DOB
+FIX: list sorting by column header click
+
+IMPROVED: document tree orgs sort mode tooltips
+IMPROVED: file description shell script
+IMPROVED: less in-your-face default list tooltip
+IMPROVED: update AMTS Medikationsplan to 2.3
+IMPROVED: log file placement
+IMPROVED: form template EA information
+IMPROVED: logging of EMR access locking
+IMPROVED: EMR journal: show applicable dynamic hints
+IMRPOVED: ES translation [thanks Uwe]
+IMPROVED: show comm channels of org units in receiver selection
+IMPROVED: show doc sources as receiver selection candidates
+IMPROVED: letter receiver selection widget layout
+IMPROVED: logging of patient change encounter editing
+
+NEW: placeholder $ph_cfg::encoding::$
+NEW: blanko AMTS Medikationsplan ~2.3
+
+	1.6.7
+
+FIX: constrain hospital stay PRW to current patient
+FIX: smoking status detection in dynamic hints
+FIX: GKV checkup auto hint
+FIX: tetanus shot auto hint
+FIX: substance intake discontinuation reason field behaviour
+FIX: exception in clinical calculator with pre-birth test results
+
+IMPROVED: file viewer detection on Windows [thanks John]
+IMPROVED: DICOM studies/series display
+IMPROVED: ZIP-with-DICOMDIR support
+IMPROVED: browse index.html after saving/burning from export area
+IMPROVED: substance abuse management workflow
+IMPROVED: check for tools im gm-describe_file
+IMPROVED: substance intake start/end formatting
+
+NEW: a few hints from the German Choosing Wisely initiative
+NEW: CD/DVD sleeve LaTeX template
+
 	1.6.6
 
 FIX: error when running gm-import_incoming as root
+FIX: failure to show entries with soap_cat=NULL in EMR list journal
+FIX: copy-pasto 'nicotine' -> 'ethanol'
 
 IMPROVED: clear metadata panel after importing new document
 IMRPOVED: enable editing of document source org
@@ -16,6 +80,9 @@ IMPROVED: list context menu layout
 IMPROVED: handling of Windows locale names like Hungarian_Hungary [thanks Attila]
 IMPROVED: AppData file
 IMRPOVED: OOo/LO/SO detection [thanks John]
+IMRPOVED: tree display of documents
+
+NEW: calculate distance of patient address to your praxis
 
 	1.6.5
 
