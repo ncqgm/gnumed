@@ -102,7 +102,7 @@ def drug2renal_insufficiency_url(search_term=None):
 
 #============================================================
 #============================================================
-# substances in use across all patients
+# plain substances
 #------------------------------------------------------------
 _SQL_get_substance = u"SELECT *, xmin FROM ref.substance WHERE %s"
 
@@ -272,6 +272,174 @@ def delete_substance(pk_substance=None):
 			NOT EXISTS (
 				SELECT 1 FROM ref.dose
 				WHERE fk_substance = %(pk)s
+				LIMIT 1
+			)
+	"""
+	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+	return True
+
+#============================================================
+# substance doses
+#------------------------------------------------------------
+_SQL_get_substance_dose = u"SELECT * FROM ref.v_substance_doses WHERE %s"
+
+class cSubstanceDose(gmBusinessDBObject.cBusinessDBObject):
+
+	_cmd_fetch_payload = _SQL_get_substance_dose % u"pk_dose = %s"
+	_cmds_store_payload = [
+		u"""UPDATE ref.dose SET
+				amount = %(amount)s,
+				unit = %(unit)s,
+				dose_unit = gm.nullify_empty_string(%(dose_unit)s)
+			WHERE
+				pk = %(pk_dose)s
+					AND
+				xmin = %(xmin_dose)s
+			RETURNING
+				xmin as xmin_dose,
+				pk as pk_dose
+		"""
+	]
+	_updatable_fields = [
+		u'amount',
+		u'unit',
+		u'dose_unit'
+	]
+
+	#--------------------------------------------------------
+	def format(self, left_margin=0):
+		return (u' ' * left_margin) + u'%s: %s %s%s/%s%s%s' % (
+			_('Substance dose'),
+			self._payload[self._idx['substance']],
+			self._payload[self._idx['amount']],
+			self._payload[self._idx['unit']],
+			gmTools.coalesce(gmTools.coalesce(self._payload[self._idx['dose_unit']], _('delivery unit'))),
+			gmTools.coalesce(self._payload[self._idx['atc_substance']], u'', u' [%s]'),
+			gmTools.coalesce(self._payload[self._idx['intake_instructions']], u'', u'\n' + (u' ' * left_margin) + u' ' + _(u'Instructions: %s'))
+		)
+
+	#--------------------------------------------------------
+	def exists_as_intake(self, pk_patient=None):
+		return substance_intake_exists (
+			pk_dose = self.pk_obj,
+			pk_identity = pk_patient
+		)
+
+	#--------------------------------------------------------
+	# properties
+	#--------------------------------------------------------
+	def _get_is_in_use_by_patients(self):
+		cmd = u"""
+			SELECT EXISTS (
+				SELECT 1
+				FROM clin.v_substance_intakes
+				WHERE pk_dose = %(pk)s
+				LIMIT 1
+			)"""
+		args = {'pk': self.pk_obj}
+
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+		return rows[0][0]
+
+	is_in_use_by_patients = property(_get_is_in_use_by_patients, lambda x:x)
+
+	#--------------------------------------------------------
+	def _get_is_drug_component(self):
+		cmd = u"""
+			SELECT EXISTS (
+				SELECT 1
+				FROM ref.v_drug_components
+				WHERE pk_dose = %(pk)s
+				LIMIT 1
+			)"""
+		args = {'pk': self.pk_obj}
+
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+		return rows[0][0]
+
+	is_drug_component = property(_get_is_drug_component, lambda x:x)
+
+#------------------------------------------------------------
+def get_substance_doses(order_by=None):
+	if order_by is None:
+		order_by = u'true'
+	else:
+		order_by = u'true ORDER BY %s' % order_by
+	cmd = _SQL_get_substance_dose % order_by
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
+	return [ cSubstanceDose(row = {'data': r, 'idx': idx, 'pk_field': 'pk_dose'}) for r in rows ]
+
+#------------------------------------------------------------
+def create_substance_dose(pk_substance=None, substance=None, atc=None, amount=None, unit=None, dose_unit=None):
+
+	if [pk_substance, substance].count(None) != 1:
+		raise ValueError('exctly one of <pk_substance> and <substance> must be None')
+
+	converted, amount = gmTools.input2decimal(amount)
+	if not converted:
+		raise ValueError('<amount> must be a number: %s (%s)', amount, type(amount))
+
+	if pk_substance is None:
+		pk_substance = create_substance(substance = substance, atc = atc)['pk']
+
+	args = {
+		'pk_subst': pk_substance,
+		'amount': amount,
+		'unit': unit.strip(),
+		'dose_unit': dose_unit.strip()
+	}
+	cmd = u"""
+		SELECT pk FROM ref.dose
+		WHERE
+			fk_substance = %(pk_subst)s
+				AND
+			amount = %(amount)s
+				AND
+			unit = %(unit)s
+				AND
+			dose_unit IS NOT DISTINCT FROM gm.nullify_empty_string(%(dose_unit)s)
+		"""
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+
+	if len(rows) == 0:
+		cmd = u"""
+			INSERT INTO ref.dose (fk_substance, amount, unit, dose_unit) VALUES (
+				%(pk_subst)s,
+				%(amount)s,
+				gm.nullify_empty_string(%(unit)s),
+				gm.nullify_empty_string(%(dose_unit)s)
+			) RETURNING pk"""
+		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True, get_col_idx = False)
+
+	return cSubstanceDose(aPK_obj = rows[0]['pk'])
+
+#------------------------------------------------------------
+def create_substance_dose_by_atc(substance=None, atc=None, amount=None, unit=None, dose_unit=None):
+	return create_substance_dose (
+		pk_substance = create_substance_by_atc(substance = substance, atc = atc)['pk'],
+		amount = amount,
+		unit = unit,
+		dose_unit = dose_unit
+	)
+
+#------------------------------------------------------------
+def delete_substance_dose(pk_dose=None):
+	args = {'pk': pk_dose}
+	cmd = u"""
+		DELETE FROM ref.dose WHERE
+			pk = %(pk_dose)s
+				AND
+			-- must not currently be used with a patient
+			NOT EXISTS (
+				SELECT 1 FROM clin.v_substance_intakes
+				WHERE pk_dose = %(pk_dose)s
+				LIMIT 1
+			)
+				AND
+			-- must not currently be linked to a drug
+			NOT EXISTS (
+				SELECT 1 FROM ref.lnk_dose2drug
+				WHERE fk_dose = %(pk_dose)s
 				LIMIT 1
 			)
 	"""
@@ -2647,172 +2815,6 @@ def get_other_drug(name=None, pk_dose=None):
 		content = {'pk_dose': pk_dose}		#cSubstanceDose(aPK_obj = pk_dose)
 	drug.set_substance_doses_as_components(substance_doses = [content])
 	return drug
-
-#============================================================
-# substance doses
-#------------------------------------------------------------
-_SQL_get_substance_dose = u"SELECT * FROM ref.v_substance_doses WHERE %s"
-
-class cSubstanceDose(gmBusinessDBObject.cBusinessDBObject):
-
-	_cmd_fetch_payload = _SQL_get_substance_dose % u"pk_dose = %s"
-	_cmds_store_payload = [
-		u"""UPDATE ref.dose SET
-				amount = %(amount)s,
-				unit = %(unit)s,
-				dose_unit = gm.nullify_empty_string(%(dose_unit)s)
-			WHERE
-				pk = %(pk_dose)s
-					AND
-				xmin = %(xmin_dose)s
-			RETURNING
-				xmin as xmin_dose,
-				pk as pk_dose
-		"""
-	]
-	_updatable_fields = [
-		u'amount',
-		u'unit',
-		u'dose_unit'
-	]
-	#--------------------------------------------------------
-	def format(self, left_margin=0):
-		return (u' ' * left_margin) + u'%s: %s %s%s/%s%s%s' % (
-			_('Substance dose'),
-			self._payload[self._idx['substance']],
-			self._payload[self._idx['amount']],
-			self._payload[self._idx['unit']],
-			gmTools.coalesce(gmTools.coalesce(self._payload[self._idx['dose_unit']], _('delivery unit'))),
-			gmTools.coalesce(self._payload[self._idx['atc_substance']], u'', u' [%s]'),
-			gmTools.coalesce(self._payload[self._idx['intake_instructions']], u'', u'\n' + (u' ' * left_margin) + u' ' + _(u'Instructions: %s'))
-		)
-
-	#--------------------------------------------------------
-	def exists_as_intake(self, pk_patient=None):
-		return substance_intake_exists (
-			pk_dose = self.pk_obj,
-			pk_identity = pk_patient
-		)
-
-	#--------------------------------------------------------
-	# properties
-	#--------------------------------------------------------
-	def _get_is_in_use_by_patients(self):
-		cmd = u"""
-			SELECT EXISTS (
-				SELECT 1
-				FROM clin.v_substance_intakes
-				WHERE pk_substance = %(pk)s
-				LIMIT 1
-			)"""
-		args = {'pk': self.pk_obj}
-
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
-		return rows[0][0]
-
-	is_in_use_by_patients = property(_get_is_in_use_by_patients, lambda x:x)
-	#--------------------------------------------------------
-	def _get_is_drug_component(self):
-		cmd = u"""
-			SELECT EXISTS (
-				SELECT 1
-				FROM ref.v_drug_components
-				WHERE pk_substance = %(pk)s
-				LIMIT 1
-			)"""
-		args = {'pk': self.pk_obj}
-
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
-		return rows[0][0]
-
-	is_drug_component = property(_get_is_drug_component, lambda x:x)
-
-#------------------------------------------------------------
-def get_substance_doses(order_by=None):
-	if order_by is None:
-		order_by = u'true'
-	else:
-		order_by = u'true ORDER BY %s' % order_by
-	cmd = _SQL_get_substance_dose % order_by
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
-	return [ cSubstanceDose(row = {'data': r, 'idx': idx, 'pk_field': 'pk_dose'}) for r in rows ]
-
-#------------------------------------------------------------
-def create_substance_dose(pk_substance=None, substance=None, atc=None, amount=None, unit=None, dose_unit=None):
-
-	if [pk_substance, substance].count(None) != 1:
-		raise ValueError('exctly one of <pk_substance> and <substance> must be None')
-
-	converted, amount = gmTools.input2decimal(amount)
-	if not converted:
-		raise ValueError('<amount> must be a number: %s (%s)', amount, type(amount))
-
-	if pk_substance is None:
-		pk_substance = create_substance(substance = substance, atc = atc)['pk']
-
-	args = {
-		'pk_subst': pk_substance,
-		'amount': amount,
-		'unit': unit.strip(),
-		'dose_unit': dose_unit.strip()
-	}
-	cmd = u"""
-		SELECT pk FROM ref.dose
-		WHERE
-			fk_substance = %(pk_subst)s
-				AND
-			amount = %(amount)s
-				AND
-			unit = %(unit)s
-				AND
-			dose_unit IS NOT DISTINCT FROM gm.nullify_empty_string(%(dose_unit)s)
-		"""
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
-
-	if len(rows) == 0:
-		cmd = u"""
-			INSERT INTO ref.dose (fk_substance, amount, unit, dose_unit) VALUES (
-				%(pk_subst)s,
-				%(amount)s,
-				gm.nullify_empty_string(%(unit)s),
-				gm.nullify_empty_string(%(dose_unit)s)
-			) RETURNING pk"""
-		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True, get_col_idx = False)
-
-	return cSubstanceDose(aPK_obj = rows[0]['pk'])
-
-#------------------------------------------------------------
-def create_substance_dose_by_atc(substance=None, atc=None, amount=None, unit=None, dose_unit=None):
-	return create_substance_dose (
-		pk_substance = create_substance_by_atc(substance = substance, atc = atc)['pk'],
-		amount = amount,
-		unit = unit,
-		dose_unit = dose_unit
-	)
-
-#------------------------------------------------------------
-def delete_substance_dose(pk_dose=None):
-	args = {'pk': pk_dose}
-	cmd = u"""
-		DELETE FROM ref.dose WHERE
-			pk = %(pk_dose)s
-				AND
-			-- must not currently be used with a patient
-			NOT EXISTS (
-				SELECT 1 FROM clin.v_substance_intakes
-				WHERE pk_dose = %(pk_dose)s
-				LIMIT 1
-			)
-				AND
-			-- must not currently be linked to a drug
-			NOT EXISTS (
-				SELECT 1 FROM ref.lnk_dose2drug
-				WHERE fk_dose = %(pk_dose)s
-				LIMIT 1
-			)
-	"""
-	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
-	return True
 
 #============================================================
 # main

@@ -3220,17 +3220,31 @@ _SQL_units_from_loinc_example = u"""
 		%(ctxt_loinc_term)s
 """
 
-_SQL_units_from_consumable_substance = u"""
-	-- via ref.consumable_substance.unit
+_SQL_units_from_substance_doses = u"""
+	-- via ref.v_substance_doses.unit
 	SELECT
 		unit AS data,
 		unit AS field_label,
-		unit || ' (' || description || ')' AS list_label,
+		unit || ' (' || substance || ')' AS list_label,
 		2 AS rank
 	FROM
-		ref.consumable_substance
+		ref.v_substance_doses
 	WHERE
 		unit %(fragment_condition)s
+		%(ctxt_substance)s
+"""
+
+_SQL_units_from_substance_doses2 = u"""
+	-- via ref.v_substance_doses.dose_unit
+	SELECT
+		dose_unit AS data,
+		dose_unit AS field_label,
+		dose_unit || ' (' || substance || ')' AS list_label,
+		2 AS rank
+	FROM
+		ref.v_substance_doses
+	WHERE
+		dose_unit %(fragment_condition)s
 		%(ctxt_substance)s
 """
 
@@ -3257,6 +3271,7 @@ FROM (
 		(%s) UNION ALL
 		(%s) UNION ALL
 		(%s) UNION ALL
+		(%s) UNION ALL
 		(%s)
 	) AS all_matching_units
 	WHERE data IS NOT NULL
@@ -3269,7 +3284,8 @@ LIMIT 50""" % (
 			_SQL_units_from_loinc_ipcc,
 			_SQL_units_from_loinc_submitted,
 			_SQL_units_from_loinc_example,
-			_SQL_units_from_consumable_substance
+			_SQL_units_from_substance_doses,
+			_SQL_units_from_substance_doses2
 		)
 
 		ctxt = {
@@ -3307,6 +3323,7 @@ LIMIT 50""" % (
 		self.SetToolTipString(_('Select the desired unit for the amount or measurement.'))
 		self.selection_only = False
 		self.phrase_separators = u'[;|]+'
+
 #================================================================
 
 #================================================================

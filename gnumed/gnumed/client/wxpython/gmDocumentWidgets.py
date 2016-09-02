@@ -1395,7 +1395,7 @@ def manage_documents(parent=None, msg=None, single_selection=True):
 	#--------------------------------------------------------
 	def edit(document=None):
 		return
-		#return edit_consumable_substance(parent = parent, substance = substance, single_entry = (substance is not None))
+		#return edit_substance(parent = parent, substance = substance, single_entry = (substance is not None))
 	#--------------------------------------------------------
 	def delete(document):
 		return
@@ -1403,7 +1403,7 @@ def manage_documents(parent=None, msg=None, single_selection=True):
 #			gmDispatcher.send(signal = 'statustext', msg = _('Cannot delete this substance. It is in use.'), beep = True)
 #			return False
 #
-#		return gmMedication.delete_consumable_substance(substance = substance['pk'])
+#		return gmMedication.delete_substance(substance = substance['pk'])
 	#------------------------------------------------------------
 	def refresh(lctrl):
 		docs = pat.document_folder.get_documents()

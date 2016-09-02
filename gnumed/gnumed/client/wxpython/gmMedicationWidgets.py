@@ -249,7 +249,7 @@ def manage_substance_intakes(parent=None, emr=None):
 #		return True
 #	#------------------------------------------------------------
 #	def edit(substance=None):
-#		return gmSubstanceMgmtWidgets.edit_consumable_substance(parent = parent, substance = substance, single_entry = (substance is not None))
+#		return gmSubstanceMgmtWidgets.edit_substance(parent = parent, substance = substance, single_entry = (substance is not None))
 #	#------------------------------------------------------------
 #	def delete(substance):
 #		if substance.is_in_use_by_patients:
@@ -257,7 +257,7 @@ def manage_substance_intakes(parent=None, emr=None):
 #			return False
 #
 #		xxxxx -> substance_dose
-#		return gmMedication.delete_consumable_substance(substance = substance['pk'])
+#		return gmMedication.delete_substance(substance = substance['pk'])
 	#------------------------------------------------------------
 	def get_tooltip(intake=None):
 		return intake.format(single_line = False, show_all_brand_components = True)
@@ -848,7 +848,7 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 
 	#----------------------------------------------------------------
 	def _on_manage_substances_button_pressed(self, event):
-		gmSubstanceMgmtWidgets.manage_consumable_substances(parent = self)
+		gmSubstanceMgmtWidgets.manage_substance_doses(parent = self)
 
 	#----------------------------------------------------------------
 	def _on_heart_button_pressed(self, event):
