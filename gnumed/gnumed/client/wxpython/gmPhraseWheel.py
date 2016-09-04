@@ -749,7 +749,7 @@ class cPhraseWheelBase(wx.TextCtrl):
 
 		# check value against final_regex if any given
 		if self.__final_regex.match(self.GetValue().strip()) is None:
-			gmDispatcher.send(signal = 'statustext', msg = self.final_regex_error_msg)
+			gmDispatcher.send(signal = 'statustext', msg = self.final_regex_error_msg % self.final_regex)
 			is_valid = False
 
 		self.display_as_valid(valid = is_valid)
@@ -919,12 +919,14 @@ class cPhraseWheelBase(wx.TextCtrl):
 	def __mac_log(self, msg):
 		if self.__use_fake_popup:
 			_log.debug(msg)
+
 	#--------------------------------------------------------
 	def __char_is_allowed(self, char=None):
 		# if undefined accept all chars
 		if self.accepted_chars is None:
 			return True
 		return (self.__accepted_chars.match(char) is not None)
+
 	#--------------------------------------------------------
 	def _set_accepted_chars(self, accepted_chars=None):
 		if accepted_chars is None:
@@ -938,22 +940,25 @@ class cPhraseWheelBase(wx.TextCtrl):
 		return self.__accepted_chars.pattern
 
 	accepted_chars = property(_get_accepted_chars, _set_accepted_chars)
+
 	#--------------------------------------------------------
-	def _set_final_regex(self, final_regex='.*'):
+	def _set_final_regex(self, final_regex=r'.*'):
 		self.__final_regex = regex.compile(final_regex, flags = regex.LOCALE | regex.UNICODE)
 
 	def _get_final_regex(self):
 		return self.__final_regex.pattern
 
 	final_regex = property(_get_final_regex, _set_final_regex)
+
 	#--------------------------------------------------------
 	def _set_final_regex_error_msg(self, msg):
-		self.__final_regex_error_msg = msg % self.final_regex
+		self.__final_regex_error_msg = msg
 
 	def _get_final_regex_error_msg(self):
 		return self.__final_regex_error_msg
 
 	final_regex_error_msg = property(_get_final_regex_error_msg, _set_final_regex_error_msg)
+
 	#--------------------------------------------------------
 	# data munging
 	#--------------------------------------------------------

@@ -30,13 +30,11 @@ from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmMatchProvider
 
 from Gnumed.business import gmPerson
-from Gnumed.business import gmATC
 from Gnumed.business import gmPraxis
 from Gnumed.business import gmMedication
 from Gnumed.business import gmDrugDataSources
 
 from Gnumed.wxpython import gmGuiHelpers
-from Gnumed.wxpython import gmAuthWidgets
 from Gnumed.wxpython import gmEditArea
 from Gnumed.wxpython import gmCfgWidgets
 from Gnumed.wxpython import gmListWidgets
@@ -202,132 +200,6 @@ def jump_to_ifap_deprecated(import_drugs=False, emr=None):
 	return True
 
 #============================================================
-# ATC related widgets
-#------------------------------------------------------------
-def browse_atc_reference_deprecated(parent=None):
-
-	if parent is None:
-		parent = wx.GetApp().GetTopWindow()
-	#------------------------------------------------------------
-	def refresh(lctrl):
-		atcs = gmATC.get_reference_atcs()
-
-		items = [ [
-			a['atc'],
-			a['term'],
-			gmTools.coalesce(a['unit'], u''),
-			gmTools.coalesce(a['administrative_route'], u''),
-			gmTools.coalesce(a['comment'], u''),
-			a['version'],
-			a['lang']
-		] for a in atcs ]
-		lctrl.set_string_items(items)
-		lctrl.set_data(atcs)
-	#------------------------------------------------------------
-	gmListWidgets.get_choices_from_list (
-		parent = parent,
-		msg = _('\nThe ATC codes as known to GNUmed.\n'),
-		caption = _('Showing ATC codes.'),
-		columns = [ u'ATC', _('Term'), _('Unit'), _(u'Route'), _('Comment'), _('Version'), _('Language') ],
-		single_selection = True,
-		refresh_callback = refresh
-	)
-
-#============================================================
-def update_atc_reference_data():
-
-	dlg = wx.FileDialog (
-		parent = None,
-		message = _('Choose an ATC import config file'),
-		defaultDir = os.path.expanduser(os.path.join('~', 'gnumed')),
-		defaultFile = '',
-		wildcard = "%s (*.conf)|*.conf|%s (*)|*" % (_('config files'), _('all files')),
-		style = wx.OPEN | wx.FILE_MUST_EXIST
-	)
-
-	result = dlg.ShowModal()
-	if result == wx.ID_CANCEL:
-		return
-
-	cfg_file = dlg.GetPath()
-	dlg.Destroy()
-
-	conn = gmAuthWidgets.get_dbowner_connection(procedure = _('importing ATC reference data'))
-	if conn is None:
-		return False
-
-	wx.BeginBusyCursor()
-
-	if gmATC.atc_import(cfg_fname = cfg_file, conn = conn):
-		gmDispatcher.send(signal = 'statustext', msg = _('Successfully imported ATC reference data.'))
-	else:
-		gmDispatcher.send(signal = 'statustext', msg = _('Importing ATC reference data failed.'), beep = True)
-
-	wx.EndBusyCursor()
-	return True
-
-#============================================================
-class cATCPhraseWheel(gmPhraseWheel.cPhraseWheel):
-
-	def __init__(self, *args, **kwargs):
-
-		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
-		query = u"""
-
-			SELECT DISTINCT ON (label)
-				atc_code,
-				label
-			FROM (
-
-				SELECT
-					code as atc_code,
-					(code || ': ' || term)
-						AS label
-				FROM ref.atc
-				WHERE
-					term %(fragment_condition)s
-						OR
-					code %(fragment_condition)s
-
-				UNION ALL
-
-				SELECT
-					atc as atc_code,
-					(atc || ': ' || description)
-						AS label
-				FROM ref.substance
-				WHERE
-					description %(fragment_condition)s
-						OR
-					atc %(fragment_condition)s
-
-				UNION ALL
-
-				SELECT
-					atc_code,
-					(atc_code || ': ' || description || ' (' || preparation || ')')
-						AS label
-				FROM ref.branded_drug
-				WHERE
-					description %(fragment_condition)s
-						OR
-					atc_code %(fragment_condition)s
-
-				-- it would be nice to be able to include clin.vacc_indication but that's hard to do in SQL
-
-			) AS candidates
-			WHERE atc_code IS NOT NULL
-			ORDER BY label
-			LIMIT 50"""
-
-		mp = gmMatchProvider.cMatchProvider_SQL2(queries = query)
-		mp.setThresholds(1, 2, 4)
-#		mp.word_separators = '[ \t=+&:@]+'
-		self.SetToolTipString(_('Select an ATC (Anatomical-Therapeutic-Chemical) code.'))
-		self.matcher = mp
-		self.selection_only = True
-
-#============================================================
 # substances widgets
 #------------------------------------------------------------
 def edit_substance(parent=None, substance=None, single_entry=False):
@@ -374,13 +246,19 @@ def manage_substances(parent=None):
 		return gmMedication.delete_substance(substance = substance['pk'])
 
 	#------------------------------------------------------------
+	def get_item_tooltip(substance):
+		if not isinstance(substance, gmMedication.cSubstance):
+			return None
+		return substance.format()
+
+	#------------------------------------------------------------
 	def refresh(lctrl):
-		substs = gmMedication.get_substances(order_by = 'description')
+		substs = gmMedication.get_substances(order_by = 'substance')
 		items = [ [
-			s['description'],
+			s['substance'],
 			gmTools.coalesce(s['atc'], u''),
 			gmTools.coalesce(s['intake_instructions'], u''),
-			s['pk']
+			s['pk_substance']
 		] for s in substs ]
 		lctrl.set_string_items(items)
 		lctrl.set_data(substs)
@@ -395,7 +273,8 @@ def manage_substances(parent=None):
 		edit_callback = edit,
 		delete_callback = delete,
 		refresh_callback = refresh,
-		left_extra_button = (_('Import'), _('Import substances from a drug database.'), add_from_db)
+		left_extra_button = (_('Import'), _('Import substances from a drug database.'), add_from_db),
+		list_tooltip_callback = get_item_tooltip
 	)
 
 #------------------------------------------------------------
@@ -421,11 +300,11 @@ class cSubstanceEAPnl(wxgSubstanceEAPnl.wxgSubstanceEAPnl, gmEditArea.cGenericEd
 		if data is not None:
 			self.mode = 'edit'
 
-#		self.__init_ui()
+		self.__init_ui()
 
 	#----------------------------------------------------------------
-#	def __init_ui(self):
-#		self._PRW_atc.selection_only = False
+	def __init_ui(self):
+		self._LCTRL_loincs.set_columns([_(u'LOINC'), _(u'Interval'), _(u'Comment')])
 
 	#----------------------------------------------------------------
 	# generic Edit Area mixin API
@@ -442,7 +321,7 @@ class cSubstanceEAPnl(wxgSubstanceEAPnl.wxgSubstanceEAPnl, gmEditArea.cGenericEd
 			self.display_tctrl_as_valid(tctrl = self._TCTRL_substance, valid = True)
 
 		if validity is False:
-			gmDispatcher.send(signal = 'statustext', msg = _('Cannot save substance. Missing essential input.'))
+			self.status_message = _('Cannot save: Substance name missing.')
 
 		return validity
 
@@ -452,32 +331,38 @@ class cSubstanceEAPnl(wxgSubstanceEAPnl.wxgSubstanceEAPnl, gmEditArea.cGenericEd
 			substance = self._TCTRL_substance.GetValue().strip(),
 			atc = self._PRW_atc.GetData()
 		)
+		subst['intake_instructions'] = self._TCTRL_instructions.GetValue().strip()
 		success, data = subst.save()
 		if not success:
 			err, msg = data
 			_log.error(err)
 			_log.error(msg)
-			gmDispatcher.send(signal = 'statustext', msg = _('Cannot save substance. %s') % msg, beep = True)
+			self.status_message = _(u'Error saving substance. %s') % msg
 			return False
 
-		subst['intake_instructions'] = self._TCTRL_instructions.GetValue().strip()
+		loincs = self._LCTRL_loincs.item_data
+		if len(loincs) > 0:
+			subst.loincs = loincs
 
 		self.data = subst
 		return True
 
 	#----------------------------------------------------------------
 	def _save_as_update(self):
-		self.data['description'] = self._TCTRL_substance.GetValue().strip()
+		self.data['substance'] = self._TCTRL_substance.GetValue().strip()
 		self.data['atc'] = self._PRW_atc.GetData()
 		self.data['intake_instructions'] = self._TCTRL_instructions.GetValue().strip()
 		success, data = self.data.save()
-
 		if not success:
 			err, msg = data
 			_log.error(err)
 			_log.error(msg)
-			gmDispatcher.send(signal = 'statustext', msg = _('Cannot save substance. %s') % msg, beep = True)
+			self.status_message = _(u'Error saving substance. %s') % msg
 			return False
+
+		loincs = self._LCTRL_loincs.item_data
+		if len(loincs) > 0:
+			self.data.loincs = loincs
 
 		return True
 
@@ -486,20 +371,48 @@ class cSubstanceEAPnl(wxgSubstanceEAPnl.wxgSubstanceEAPnl, gmEditArea.cGenericEd
 		self._TCTRL_substance.SetValue(u'')
 		self._PRW_atc.SetText(u'', None)
 		self._TCTRL_instructions.SetValue(u'')
+		self._PRW_loinc.SetText(u'', None)
+		self._LCTRL_loincs.set_string_items()
 
 		self._TCTRL_substance.SetFocus()
 
 	#----------------------------------------------------------------
 	def _refresh_from_existing(self):
-		self._TCTRL_substance.SetValue(self.data['description'])
+		self._TCTRL_substance.SetValue(self.data['substance'])
 		self._PRW_atc.SetText(gmTools.coalesce(self.data['atc'], u''), self.data['atc'])
 		self._TCTRL_instructions.SetValue(gmTools.coalesce(self.data['intake_instructions'], u''))
+		self._PRW_loinc.SetText(u'', None)
+		if len(self.data['loincs']) == 0:
+			self._LCTRL_loincs.set_string_items()
+		else:
+			self._LCTRL_loincs.set_string_items([ [l['loinc'], gmTools.coalesce(l['max_age_in_secs'], u''), gmTools.coalesce(l['comment'], u'')] for l in self.data['loincs' ]])
+			self._LCTRL_loincs.set_data([ l['loinc'] for l in self.data['loincs'] ])
 
 		self._TCTRL_substance.SetFocus()
 
 	#----------------------------------------------------------------
 	def _refresh_as_new_from_existing(self):
 		self._refresh_as_new()
+
+	#----------------------------------------------------------------
+	# event handlers
+	#----------------------------------------------------------------
+	def _on_add_loinc_button_pressed(self, event):
+		event.Skip()
+		if (self._PRW_loinc.GetData() is None) and (self._PRW_loinc.GetValue().strip() == u''):
+			return
+
+		if self._PRW_loinc.GetData() is None:
+			data = self._PRW_loinc.GetValue().strip().split(u':')[0]
+			item = [data, u'', u'']
+		else:
+			data = self._PRW_loinc.GetData()
+			item = [data, u'', u'']
+		self._LCTRL_loincs.append_string_items_and_data([item], new_data = [data], allow_dupes = False)
+
+	#----------------------------------------------------------------
+	def _on_remove_loincs_button_pressed(self, event):
+		event.Skip()
 
 #------------------------------------------------------------
 class cSubstancePhraseWheel(gmPhraseWheel.cPhraseWheel):
@@ -703,7 +616,7 @@ class cSubstanceDoseEAPnl(wxgSubstanceDoseEAPnl.wxgSubstanceDoseEAPnl, gmEditAre
 			self._PRW_unit.display_as_valid(valid = True)
 
 		if validity is False:
-			gmDispatcher.send(signal = 'statustext', msg = _('Cannot save substance. Missing essential input.'))
+			self.status_message = _('Cannot save substance dose. Missing essential input.')
 
 		return validity
 
@@ -721,7 +634,7 @@ class cSubstanceDoseEAPnl(wxgSubstanceDoseEAPnl.wxgSubstanceDoseEAPnl, gmEditAre
 			err, msg = data
 			_log.error(err)
 			_log.error(msg)
-			gmDispatcher.send(signal = 'statustext', msg = _('Cannot save substance. %s') % msg, beep = True)
+			self.status_message = _('Cannot create substance dose. %s') % msg
 			return False
 
 		self.data = dose
@@ -739,7 +652,7 @@ class cSubstanceDoseEAPnl(wxgSubstanceDoseEAPnl.wxgSubstanceDoseEAPnl, gmEditAre
 			err, msg = data
 			_log.error(err)
 			_log.error(msg)
-			gmDispatcher.send(signal = 'statustext', msg = _('Cannot save substance. %s') % msg, beep = True)
+			self.status_message = _('Cannot save substance dose. %s') % msg
 			return False
 
 		return True
@@ -862,7 +775,7 @@ class cDrugComponentEAPnl(wxgDrugComponentEAPnl.wxgDrugComponentEAPnl, gmEditAre
 	def _valid_for_save(self):
 		if self.data is not None:
 			if self.data['is_in_use']:
-				gmDispatcher.send(signal = 'statustext', msg = _('Cannot edit drug component. It is in use.'), beep = True)
+				self.status_message = _('Cannot edit drug component. It is in use.')
 				return False
 
 		validity = True
@@ -888,7 +801,7 @@ class cDrugComponentEAPnl(wxgDrugComponentEAPnl.wxgDrugComponentEAPnl, gmEditAre
 			self._PRW_unit.display_as_valid(True)
 
 		if validity is False:
-			gmDispatcher.send(signal = 'statustext', msg = _('Cannot save drug component. Invalid or missing essential input.'))
+			self.status_message = _('Cannot save drug component. Invalid or missing essential input.')
 
 		return validity
 	#----------------------------------------------------------------
@@ -1142,8 +1055,8 @@ def manage_components_of_branded_drug(parent=None, brand=None):
 		comp_substs = [ c.substance for c in brand.components ]
 
 	substs = gmMedication.get_substance_doses(order_by = 'substance')
-	choices = [ u'%s %s %s' % (s['description'], s['amount'], s['unit']) for s in substs ]
-	picks = [ u'%s %s %s' % (c['description'], c['amount'], c['unit']) for c in comp_substs ]
+	choices = [ u'%s %s %s' % (s['substance'], s['amount'], s['unit']) for s in substs ]
+	picks = [ u'%s %s %s' % (c['substance'], c['amount'], c['unit']) for c in comp_substs ]
 
 	picker = gmListWidgets.cItemPickerDlg (
 		parent,
@@ -1207,7 +1120,7 @@ class cBrandedDrugEAPnl(wxgBrandedDrugEAPnl.wxgBrandedDrugEAPnl, gmEditArea.cGen
 
 		if self.data is not None:
 			if self.data.is_in_use_by_patients:
-				gmDispatcher.send(signal = 'statustext', msg = _('Cannot edit drug brand. It is in use.'), beep = True)
+				self.status_message = _('Cannot edit drug brand. It is in use.')
 				return False
 
 		validity = True
@@ -1266,7 +1179,7 @@ class cBrandedDrugEAPnl(wxgBrandedDrugEAPnl.wxgBrandedDrugEAPnl, gmEditArea.cGen
 						self.display_ctrl_as_valid(ctrl = self._TCTRL_components, valid = False)
 
 		if validity is False:
-			gmDispatcher.send(signal = 'statustext', msg = _('Cannot save branded drug. Invalid or missing essential input.'))
+			self.status_message = _('Cannot save branded drug. Invalid or missing essential input.')
 
 		return validity
 	#----------------------------------------------------------------
@@ -1367,7 +1280,7 @@ class cBrandedDrugEAPnl(wxgBrandedDrugEAPnl.wxgBrandedDrugEAPnl, gmEditArea.cGen
 			self.__component_substances = substs
 			comps = u''
 			if len(substs) > 0:
-				comps = u'- %s' % u'\n- '.join([ u'%s %s %s' % (s['description'], s['amount'], s['unit']) for s in substs ])
+				comps = u'- %s' % u'\n- '.join([ u'%s %s %s' % (s['substance'], s['amount'], s['unit']) for s in substs ])
 			self._TCTRL_components.SetValue(comps)
 
 #------------------------------------------------------------
@@ -1421,7 +1334,6 @@ if __name__ == '__main__':
 
 	#----------------------------------------
 	app = wx.PyWidgetTester(size = (600, 300))
-#	#app.SetWidget(cATCPhraseWheel, -1)
 	#app.SetWidget(cSubstancePhraseWheel, -1)
 	app.SetWidget(cBrandOrSubstancePhraseWheel, -1)
 	app.MainLoop()

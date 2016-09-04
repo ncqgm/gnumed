@@ -21,6 +21,7 @@ create unique index idx_ll2s_uniq_l_per_s on ref.lnk_loinc2substance(fk_substanc
 -- grants
 grant select on ref.lnk_loinc2substance to "gm-public";
 grant select, insert, update, delete on ref.lnk_loinc2substance to "gm-doctors";
+grant usage on ref.lnk_loinc2substance_pk_seq to "gm-doctors";
 
 -- --------------------------------------------------------------
 -- .fk_substance

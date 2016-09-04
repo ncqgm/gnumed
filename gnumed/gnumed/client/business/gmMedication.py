@@ -124,7 +124,7 @@ class cSubstance(gmBusinessDBObject.cBusinessDBObject):
 					AND
 				xmin = %(xmin_substance)s
 			RETURNING
-				xmin_substance AS xmin
+				xmin AS xmin_substance
 		"""
 	]
 	_updatable_fields = [
@@ -143,10 +143,10 @@ class cSubstance(gmBusinessDBObject.cBusinessDBObject):
 				(u' ' * left_margin),
 				_(u'LOINCs to monitor:'),
 				(u' ' * left_margin),
-				(u' ' * (left_margin + 1)).join ([
+				(u'\n' + (u' ' * (left_margin + 1))).join ([
 					u'%s%s%s' % (
 						l['loinc'],
-						gmTools.coalesce(l['max_age'], u'', u': ' + _(u'once within %s')),
+						gmTools.coalesce(l['max_age_in_secs'], u'', u': ' + _(u'once within %s seconds')),
 						gmTools.coalesce(l['comment'], u'', u' (%s)')
 					) for l in self._payload[self._idx['loincs']] 
 				])
@@ -185,6 +185,26 @@ class cSubstance(gmBusinessDBObject.cBusinessDBObject):
 
 	#--------------------------------------------------------
 	# properties
+	#--------------------------------------------------------
+	def _set_loincs(self, loincs):
+		args = {'pk_subst': self.pk_obj, 'loincs': tuple(loincs)}
+		# insert new entries
+		for loinc in loincs:
+			cmd = u"""INSERT INTO ref.lnk_loinc2substance (fk_substance, loinc)
+			SELECT
+				%(pk_subst)s, %(loinc)s
+			WHERE NOT EXISTS (
+				SELECT 1 from ref.lnk_loinc2substance WHERE fk_substance = %(pk_subst)s AND loinc = %(loinc)s
+			)"""
+			args['loinc'] = loinc
+			gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+
+		# delete old entries
+		cmd = u"""DELETE FROM ref.lnk_loinc2substance WHERE fk_substance = %(pk_subst)s AND loinc NOT IN %(loincs)s"""
+		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+
+	loincs = property(lambda x:x, _set_loincs)
+
 	#--------------------------------------------------------
 	def _get_is_in_use_by_patients(self):
 		cmd = u"""
@@ -342,10 +362,10 @@ class cSubstanceDose(gmBusinessDBObject.cBusinessDBObject):
 				(u' ' * left_margin),
 				_(u'LOINCs to monitor:'),
 				(u' ' * left_margin),
-				(u' ' * (left_margin + 1)).join ([
+				(u'\n' + (u' ' * (left_margin + 1))).join ([
 					u'%s%s%s' % (
 						l['loinc'],
-						gmTools.coalesce(l['max_age'], u'', u': ' + _(u'once within %s')),
+						gmTools.coalesce(l['max_age_in_secs'], u'', u': ' + _(u'once within %s seconds')),
 						gmTools.coalesce(l['comment'], u'', u' (%s)')
 					) for l in self._payload[self._idx['loincs']] 
 				])

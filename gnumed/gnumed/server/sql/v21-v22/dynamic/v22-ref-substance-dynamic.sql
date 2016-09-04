@@ -89,7 +89,10 @@ select
 	r_s.atc,
 	ARRAY (
 		select row_to_json(loinc_row) from (
-			select r_ll2s.loinc, r_ll2s.comment, r_ll2s.max_age
+			select
+				r_ll2s.loinc,
+				r_ll2s.comment,
+				extract(epoch from r_ll2s.max_age) as max_age_in_secs
 			from ref.lnk_loinc2substance r_ll2s
 			where r_ll2s.fk_substance = r_s.pk
 		) as loinc_row

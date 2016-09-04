@@ -135,6 +135,8 @@ from Gnumed.wxpython import gmPregWidgets
 from Gnumed.wxpython import gmExternalCareWidgets
 from Gnumed.wxpython import gmHabitWidgets
 from Gnumed.wxpython import gmSubstanceMgmtWidgets
+from Gnumed.wxpython import gmATCWidgets
+from Gnumed.wxpython import gmLOINCWidgets
 from Gnumed.wxpython import gmVisualProgressNoteWidgets
 
 
@@ -3160,11 +3162,11 @@ class gmTopLevelFrame(wx.Frame):
 		gmAuthWidgets.change_gmdbowner_password()
 	#----------------------------------------------
 	def __on_update_loinc(self, evt):
-		gmMeasurementWidgets.update_loinc_reference_data()
+		gmLOINCWidgets.update_loinc_reference_data()
 
 	#----------------------------------------------
 	def __on_update_atc(self, evt):
-		gmSubstanceMgmtWidgets.update_atc_reference_data()
+		gmATCWidgets.update_atc_reference_data()
 
 	#----------------------------------------------
 	def __on_install_data_packs(self, evt):
