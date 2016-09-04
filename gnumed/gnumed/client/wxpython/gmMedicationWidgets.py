@@ -296,12 +296,9 @@ def manage_substance_intakes(parent=None, emr=None):
 		lctrl.set_string_items(items)
 		lctrl.set_data(intakes)
 	#------------------------------------------------------------
-	msg = _('Substances consumed by the patient:')
-
 	return gmListWidgets.get_choices_from_list (
 		parent = parent,
-		msg = msg,
-		caption = _('Showing consumable substances.'),
+		caption = _('Substances consumed by the patient'),
 		columns = [ _('Intake'), _('Application'), _('Status') ],
 		single_selection = False,
 #		new_callback = edit,

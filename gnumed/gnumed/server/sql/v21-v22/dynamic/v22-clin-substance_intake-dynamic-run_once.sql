@@ -209,5 +209,7 @@ END;';
 -- convert
 select _tmp_convert_substance_intakes();
 
+drop function if exists _tmp_convert_substance_intakes() cascade;
+
 -- --------------------------------------------------------------
 select gm.log_script_insertion('v22-clin-substance_intake-dynamic-run_once.sql', '22.0');

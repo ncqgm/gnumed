@@ -13,6 +13,7 @@ create table ref.lnk_loinc2substance (
 	pk serial primary key,
 	fk_substance integer,
 	loinc text,
+	max_age interval,
 	comment text
 ) inherits (audit.audit_fields);
 

@@ -13,10 +13,21 @@
 comment on table ref.lnk_dose2drug is 'Links doses to drug products';
 
 select audit.register_table_for_auditing('ref', 'lnk_dose2drug');
-
 select gm.register_notifying_table('ref', 'lnk_dose2drug');
 
+-- table constraints
+drop index if exists ref.idx_ld2d_dose_uniq_per_brand cascade;
+create unique index idx_ld2d_dose_uniq_per_brand on ref.lnk_dose2drug(fk_dose, fk_brand) where fk_brand is not NULL;
 
+drop index if exists ref.idx_ld2d_uniq_generic_brand_by_dose cascade;
+create unique index idx_ld2d_uniq_generic_brand_by_dose on ref.lnk_dose2drug(fk_dose) where fk_brand is NULL;
+
+-- grants
+grant select on ref.lnk_dose2drug to "gm-public";
+grant insert, update, delete on ref.lnk_dose2drug to "gm-doctors";
+grant usage on ref.lnk_dose2drug_pk_seq to "gm-public";
+
+-- --------------------------------------------------------------
 -- .fk_dose
 comment on column ref.lnk_dose2drug.fk_dose is 'FK linking the dose';
 
@@ -33,7 +44,7 @@ alter table ref.lnk_dose2drug
 			on delete restrict
 ;
 
-
+-- --------------------------------------------------------------
 -- .fk_brand
 comment on column ref.lnk_dose2drug.fk_brand is 'FK linking the brand';
 
@@ -50,27 +61,13 @@ alter table ref.lnk_dose2drug
 			on delete cascade
 ;
 
-
--- table constraints
-drop index if exists ref.idx_ld2d_dose_uniq_per_brand cascade;
-create unique index idx_ld2d_dose_uniq_per_brand on ref.lnk_dose2drug(fk_dose, fk_brand) where fk_brand is not NULL;
-
-drop index if exists ref.idx_ld2d_uniq_generic_brand_by_dose cascade;
-create unique index idx_ld2d_uniq_generic_brand_by_dose on ref.lnk_dose2drug(fk_dose) where fk_brand is NULL;
-
-
+-- --------------------------------------------------------------
 -- trigger to maintain consistency
 --	tr_do_not_update_component_if_taken_by_patient
 --	tr_true_brands_must_have_components
 
-
--- grants
-grant select on ref.lnk_dose2drug to "gm-public";
-grant insert, update, delete on ref.lnk_dose2drug to "gm-doctors";
-grant usage on ref.lnk_dose2drug_pk_seq to "gm-public";
-
 -- --------------------------------------------------------------
--- create dose/drug links
+-- create dose/drug links for existing brands
 insert into ref.lnk_dose2drug (fk_brand, fk_dose)
 	select
 		pk_brand,
@@ -94,16 +91,15 @@ select
 		as pk_component,
 	r_bd.description
 		as brand,
-	r_s.description
-		as substance,
-	r_d.amount,
-	r_d.unit,
-	r_d.dose_unit,
+	r_vsd.substance,
+	r_vsd.amount,
+	r_vsd.unit,
+	r_vsd.dose_unit,
 	r_bd.preparation
 		as preparation,
-	r_s.intake_instructions,
-	r_s.atc
-		as atc_substance,
+	r_vsd.intake_instructions,
+	r_vsd.loincs,
+	r_vsd.atc_substance,
 	r_bd.atc_code
 		as atc_brand,
 	r_bd.external_code
@@ -120,8 +116,8 @@ select
 
 	r_bd.pk
 		as pk_brand,
-	r_d.pk as pk_dose,
-	r_s.pk as pk_substance,
+	r_vsd.pk_dose,
+	r_vsd.pk_substance,
 	r_bd.fk_data_source
 		as pk_data_source,
 	r_ld2d.xmin
@@ -129,8 +125,7 @@ select
 from
 	ref.lnk_dose2drug r_ld2d
 		inner join ref.branded_drug r_bd on (r_ld2d.fk_brand = r_bd.pk)
-		inner join ref.dose r_d on (r_ld2d.fk_dose = r_d.pk)
-			inner join ref.substance r_s on (r_d.fk_substance = r_s.pk)
+		inner join ref.v_substance_doses r_vsd on (r_ld2d.fk_dose = r_vsd.pk_dose)
 ;
 
 grant select on ref.v_drug_components to "gm-public";

@@ -75,10 +75,15 @@ def drug2renal_insufficiency_url(search_term=None):
 		if search_term['atc_substance'] is not None:
 			terms.append(search_term['atc_substance'])
 
-	elif isinstance(search_term, cConsumableSubstance):
-		names.append(search_term['description'])
-		if search_term['atc_code'] is not None:
-			terms.append(search_term['atc_code'])
+	elif isinstance(search_term, cSubstance):
+		names.append(search_term['substance'])
+		if search_term['atc'] is not None:
+			terms.append(search_term['atc'])
+
+	elif isinstance(search_term, cSubstanceDose):
+		names.append(search_term['substance'])
+		if search_term['atc'] is not None:
+			terms.append(search_term['atc_substance'])
 
 	elif search_term is not None:
 		names.append(u'%s' % search_term)
@@ -104,36 +109,54 @@ def drug2renal_insufficiency_url(search_term=None):
 #============================================================
 # plain substances
 #------------------------------------------------------------
-_SQL_get_substance = u"SELECT *, xmin FROM ref.substance WHERE %s"
+_SQL_get_substance = u"SELECT * FROM ref.v_substances WHERE %s"
 
 class cSubstance(gmBusinessDBObject.cBusinessDBObject):
 
-	_cmd_fetch_payload = _SQL_get_substance % u"pk = %s"
+	_cmd_fetch_payload = _SQL_get_substance % u"pk_substance = %s"
 	_cmds_store_payload = [
 		u"""UPDATE ref.substance SET
-				description = %(description)s,
+				description = %(substance)s,
 				atc = gm.nullify_empty_string(%(atc)s),
 				intake_instructions = gm.nullify_empty_string(%(intake_instructions)s)
 			WHERE
-				pk = %(pk)s
+				pk = %(pk_substance)s
 					AND
-				xmin = %(xmin)s
+				xmin = %(xmin_substance)s
 			RETURNING
-				xmin
+				xmin_substance AS xmin
 		"""
 	]
 	_updatable_fields = [
-		u'description',
+		u'substance',
 		u'atc',
 		u'intake_instructions'
 	]
 	#--------------------------------------------------------
 	def format(self, left_margin=0):
-		return (u' ' * left_margin) + u'%s: %s%s%s' % (
+		if len(self._payload[self._idx['loincs']]) == 0:
+			loincs = u''
+		else:
+			loincs = u"""
+%s %s
+%s  %s""" 	% (
+				(u' ' * left_margin),
+				_(u'LOINCs to monitor:'),
+				(u' ' * left_margin),
+				(u' ' * (left_margin + 1)).join ([
+					u'%s%s%s' % (
+						l['loinc'],
+						gmTools.coalesce(l['max_age'], u'', u': ' + _(u'once within %s')),
+						gmTools.coalesce(l['comment'], u'', u' (%s)')
+					) for l in self._payload[self._idx['loincs']] 
+				])
+			)
+		return (u' ' * left_margin) + u'%s: %s%s%s%s' % (
 			_('Substance'),
-			self._payload[self._idx['description']],
+			self._payload[self._idx['substance']],
 			gmTools.coalesce(self._payload[self._idx['atc']], u'', u' [%s]'),
-			gmTools.coalesce(self._payload[self._idx['intake_instructions']], u'', _(u'\n Instructions: %s'))
+			gmTools.coalesce(self._payload[self._idx['intake_instructions']], u'', _(u'\n Instructions: %s')),
+			loincs
 		)
 
 	#--------------------------------------------------------
@@ -147,11 +170,12 @@ class cSubstance(gmBusinessDBObject.cBusinessDBObject):
 			atc = self._payload[self._idx['atc']].strip()
 			if atc != u'':
 				gmATC.propagate_atc (
-					substance = self._payload[self._idx['description']].strip(),
+					substance = self._payload[self._idx['substance']].strip(),
 					atc = atc
 				)
 
 		return (success, data)
+
 	#--------------------------------------------------------
 	def exists_as_intake(self, pk_patient=None):
 		return substance_intake_exists (
@@ -176,6 +200,7 @@ class cSubstance(gmBusinessDBObject.cBusinessDBObject):
 		return rows[0][0]
 
 	is_in_use_by_patients = property(_get_is_in_use_by_patients, lambda x:x)
+
 	#--------------------------------------------------------
 	def _get_is_drug_component(self):
 		cmd = u"""
@@ -200,7 +225,7 @@ def get_substances(order_by=None):
 		order_by = u'true ORDER BY %s' % order_by
 	cmd = _SQL_get_substance % order_by
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
-	return [ cSubstance(row = {'data': r, 'idx': idx, 'pk_field': 'pk'}) for r in rows ]
+	return [ cSubstance(row = {'data': r, 'idx': idx, 'pk_field': 'pk_substance'}) for r in rows ]
 
 #------------------------------------------------------------
 def create_substance(substance=None, atc=None):
@@ -222,7 +247,8 @@ def create_substance(substance=None, atc=None):
 			) RETURNING pk"""
 		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True, get_col_idx = False)
 
-	gmATC.propagate_atc(substance = substance, atc = atc)
+	if atc is not None:
+		gmATC.propagate_atc(substance = substance.strip(), atc = atc)
 
 	return cSubstance(aPK_obj = rows[0]['pk'])
 
@@ -307,15 +333,32 @@ class cSubstanceDose(gmBusinessDBObject.cBusinessDBObject):
 	]
 
 	#--------------------------------------------------------
-	def format(self, left_margin=0):
-		return (u' ' * left_margin) + u'%s: %s %s%s/%s%s%s' % (
+	def format(self, left_margin=0, include_loincs=False):
+		loincs = u''
+		if include_loincs and (len(self._payload[self._idx['loincs']]) > 0):
+			loincs = u"""
+%s %s
+%s  %s""" 	% (
+				(u' ' * left_margin),
+				_(u'LOINCs to monitor:'),
+				(u' ' * left_margin),
+				(u' ' * (left_margin + 1)).join ([
+					u'%s%s%s' % (
+						l['loinc'],
+						gmTools.coalesce(l['max_age'], u'', u': ' + _(u'once within %s')),
+						gmTools.coalesce(l['comment'], u'', u' (%s)')
+					) for l in self._payload[self._idx['loincs']] 
+				])
+			)
+		return (u' ' * left_margin) + u'%s: %s %s%s/%s%s%s%s' % (
 			_('Substance dose'),
 			self._payload[self._idx['substance']],
 			self._payload[self._idx['amount']],
 			self._payload[self._idx['unit']],
 			gmTools.coalesce(gmTools.coalesce(self._payload[self._idx['dose_unit']], _('delivery unit'))),
 			gmTools.coalesce(self._payload[self._idx['atc_substance']], u'', u' [%s]'),
-			gmTools.coalesce(self._payload[self._idx['intake_instructions']], u'', u'\n' + (u' ' * left_margin) + u' ' + _(u'Instructions: %s'))
+			gmTools.coalesce(self._payload[self._idx['intake_instructions']], u'', u'\n' + (u' ' * left_margin) + u' ' + _(u'Instructions: %s')),
+			loincs
 		)
 
 	#--------------------------------------------------------
@@ -377,7 +420,7 @@ def create_substance_dose(pk_substance=None, substance=None, atc=None, amount=No
 
 	converted, amount = gmTools.input2decimal(amount)
 	if not converted:
-		raise ValueError('<amount> must be a number: %s (%s)', amount, type(amount))
+		raise ValueError('<amount> must be a number: %s (is: %s)', amount, type(amount))
 
 	if pk_substance is None:
 		pk_substance = create_substance(substance = substance, atc = atc)['pk']
@@ -451,89 +494,41 @@ class cSubstanceDoseMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
 
 	_pattern = regex.compile(r'^\D+\s*\d+$', regex.UNICODE | regex.LOCALE)
 
+	# the "normal query" is run when the search fragment
+	# does NOT match the regex ._pattern (which is: "chars SPACE digits")
 	_normal_query = u"""
 		SELECT
-			data,
-			field_label,
-			list_label,
-			rank
-		FROM ((
-			-- first: substance intakes which match
-			SELECT
-				pk_substance AS data,
-				(description || ' ' || amount || ' ' || unit) AS field_label,
-				(description || ' ' || amount || ' ' || unit || ' (%s)') AS list_label,
-				1 AS rank
-			FROM (
-				SELECT DISTINCT ON (description, amount, unit)
-					pk_substance,
-					substance AS description,
-					amount,
-					unit
-				FROM clin.v_nonbrand_intakes
-			) AS normalized_intakes
-			WHERE description %%(fragment_condition)s
-		) UNION ALL (
-			-- consumable substances which match - but are not intakes - are second
-			SELECT
-				pk AS data,
-				(description || ' ' || amount || ' ' || unit) AS field_label,
-				(description || ' ' || amount || ' ' || unit) AS list_label,
-				2 AS rank
-			FROM ref.consumable_substance
-			WHERE
-				description %%(fragment_condition)s
-					AND
-				pk NOT IN (
-					SELECT fk_substance
-					FROM clin.substance_intake
-					WHERE fk_substance IS NOT NULL
-				)
-		)) AS candidates
-		ORDER BY rank, list_label
-		LIMIT 50""" % _('in use')
+			r_vsd.pk_dose
+				AS data,
+			(r_vsd.substance || ' ' || r_vsd.amount || ' ' || r_vsd.unit || coalesce(' / ' r_vsd.dose_unit ||, ''))
+				AS field_label,
+			(r_vsd.substance || ' ' || r_vsd.amount || ' ' || r_vsd.unit || coalesce(' / ' r_vsd.dose_unit ||, ''))
+				AS list_label
+		FROM
+			ref.v_substance_doses r_vsd
+		WHERE
+			r_vsd.substance %%(fragment_condition)s
+		ORDER BY
+			list_label
+		LIMIT 50"""
 
+	# the "regex query" is run when the search fragment
+	# DOES match the regex ._pattern (which is: "chars SPACE digits")
 	_regex_query = 	u"""
 		SELECT
-			data,
-			field_label,
-			list_label,
-			rank
-		FROM ((
-			SELECT
-				pk_substance AS data,
-				(description || ' ' || amount || ' ' || unit) AS field_label,
-				(description || ' ' || amount || ' ' || unit || ' (%s)') AS list_label,
-				1 AS rank
-			FROM (
-				SELECT DISTINCT ON (description, amount, unit)
-					pk_substance,
-					substance AS description,
-					amount,
-					unit
-				FROM clin.v_nonbrand_intakes
-			) AS normalized_intakes
-			WHERE
-				%%(fragment_condition)s
-		) UNION ALL (
-			-- matching substances which are not in intakes
-			SELECT
-				pk AS data,
-				(description || ' ' || amount || ' ' || unit) AS field_label,
-				(description || ' ' || amount || ' ' || unit) AS list_label,
-				2 AS rank
-			FROM ref.consumable_substance
-			WHERE
-				%%(fragment_condition)s
-					AND
-				pk NOT IN (
-					SELECT fk_substance
-					FROM clin.substance_intake
-					WHERE fk_substance IS NOT NULL
-				)
-		)) AS candidates
-		ORDER BY rank, list_label
-		LIMIT 50""" % _('in use')
+			r_vsd.pk_dose
+				AS data,
+			(r_vsd.substance || ' ' || r_vsd.amount || ' ' || r_vsd.unit || coalesce(' / ' r_vsd.dose_unit ||, ''))
+				AS field_label,
+			(r_vsd.substance || ' ' || r_vsd.amount || ' ' || r_vsd.unit || coalesce(' / ' r_vsd.dose_unit ||, ''))
+				AS list_label
+		FROM
+			ref.v_substance_doses r_vsd
+		WHERE
+			%%(fragment_condition)s
+		ORDER BY
+			list_label
+		LIMIT 50"""
 
 	#--------------------------------------------------------
 	def getMatchesByPhrase(self, aFragment):
@@ -541,10 +536,10 @@ class cSubstanceDoseMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
 
 		if cSubstanceMatchProvider._pattern.match(aFragment):
 			self._queries = [cSubstanceMatchProvider._regex_query]
-			fragment_condition = """description ILIKE %(desc)s
+			fragment_condition = u"""substance ILIKE %(subst)s
 				AND
 			amount::text ILIKE %(amount)s"""
-			self._args['desc'] = u'%s%%' % regex.sub(r'\s*\d+$', u'', aFragment)
+			self._args['subst'] = u'%s%%' % regex.sub(r'\s*\d+$', u'', aFragment)
 			self._args['amount'] = u'%s%%' % regex.sub(r'^\D+\s*', u'', aFragment)
 		else:
 			self._queries = [cSubstanceMatchProvider._normal_query]
@@ -552,6 +547,7 @@ class cSubstanceDoseMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
 			self._args['fragment'] = u"%s%%" % aFragment
 
 		return self._find_matches(fragment_condition)
+
 	#--------------------------------------------------------
 	def getMatchesByWord(self, aFragment):
 		"""Return matches for aFragment at start of words inside phrases."""
@@ -559,14 +555,14 @@ class cSubstanceDoseMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
 		if cSubstanceMatchProvider._pattern.match(aFragment):
 			self._queries = [cSubstanceMatchProvider._regex_query]
 
-			desc = regex.sub(r'\s*\d+$', u'', aFragment)
-			desc = gmPG2.sanitize_pg_regex(expression = desc, escape_all = False)
+			subst = regex.sub(r'\s*\d+$', u'', aFragment)
+			subst = gmPG2.sanitize_pg_regex(expression = subst, escape_all = False)
 
-			fragment_condition = """description ~* %(desc)s
+			fragment_condition = u"""substance ~* %(subst)s
 				AND
 			amount::text ILIKE %(amount)s"""
 
-			self._args['desc'] = u"( %s)|(^%s)" % (desc, desc)
+			self._args['subst'] = u"( %s)|(^%s)" % (subst, subst)
 			self._args['amount'] = u'%s%%' % regex.sub(r'^\D+\s*', u'', aFragment)
 		else:
 			self._queries = [cSubstanceMatchProvider._normal_query]
@@ -575,16 +571,17 @@ class cSubstanceDoseMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
 			self._args['fragment'] = u"( %s)|(^%s)" % (aFragment, aFragment)
 
 		return self._find_matches(fragment_condition)
+
 	#--------------------------------------------------------
 	def getMatchesBySubstr(self, aFragment):
 		"""Return matches for aFragment as a true substring."""
 
 		if cSubstanceMatchProvider._pattern.match(aFragment):
 			self._queries = [cSubstanceMatchProvider._regex_query]
-			fragment_condition = """description ILIKE %(desc)s
+			fragment_condition = """substance ILIKE %(subst)s
 				AND
 			amount::text ILIKE %(amount)s"""
-			self._args['desc'] = u'%%%s%%' % regex.sub(r'\s*\d+$', u'', aFragment)
+			self._args['subst'] = u'%%%s%%' % regex.sub(r'\s*\d+$', u'', aFragment)
 			self._args['amount'] = u'%s%%' % regex.sub(r'^\D+\s*', u'', aFragment)
 		else:
 			self._queries = [cSubstanceMatchProvider._normal_query]
@@ -2847,14 +2844,27 @@ if __name__ == "__main__":
 	#--------------------------------------------------------
 	def test_get_substances():
 		for s in get_substances():
-			#print s
+			##print s
+			print "--------------------------"
 			print s.format()
+			print 'in use:', s.is_in_use_by_patients
+			print 'is component:', s.is_drug_component
+
+#		s = cSubstance(1)
+#		print s
+#		print s['loincs']
+#		print s.format()
+#		print 'in use:', s.is_in_use_by_patients
+#		print 'is component:', s.is_drug_component
 
 	#--------------------------------------------------------
 	def test_get_doses():
 		for d in get_substance_doses():
 			#print d
-			print d.format()
+			print "--------------------------"
+			print d.format(left_margin = 1, include_loincs = True)
+			print 'in use:', d.is_in_use_by_patients
+			print 'is component:', d.is_drug_component
 
 	#--------------------------------------------------------
 	def test_get_components():
@@ -2921,12 +2931,12 @@ if __name__ == "__main__":
 	#test_medically_formatted_start_end()
 
 	#test_get_substances()
-	#test_get_doses()
+	test_get_doses()
 	#test_get_components()
 	#test_get_drugs()
 	#test_create_substance_intake()
 	#test_get_intakes()
-	test_get_habit_drugs()
+	#test_get_habit_drugs()
 
 	# AMTS
 	#test_generate_amts_data_template_definition_file()

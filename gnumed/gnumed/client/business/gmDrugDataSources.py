@@ -383,7 +383,7 @@ class cGelbeListeWindowsInterface(cDrugDataSourceInterface):
 			for wirkstoff in entry['wirkstoffe']:
 				drug.add_component(substance = wirkstoff, atc = atc)
 
-			# create as consumable substances, too
+			# create as substance doses, too
 			atc = None							# hopefully MMI eventually supports atc-per-substance in a drug...
 			if len(entry['wirkstoffe']) == 1:
 				atc = entry['atc']

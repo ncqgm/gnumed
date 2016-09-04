@@ -703,7 +703,7 @@ class cSubstanceDoseEAPnl(wxgSubstanceDoseEAPnl.wxgSubstanceDoseEAPnl, gmEditAre
 			self._PRW_unit.display_as_valid(valid = True)
 
 		if validity is False:
-			gmDispatcher.send(signal = 'statustext', msg = _('Cannot save consumable substance. Missing essential input.'))
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot save substance. Missing essential input.'))
 
 		return validity
 
@@ -995,7 +995,7 @@ def edit_branded_drug(parent=None, branded_drug=None, single_entry=False):
 	dlg.SetTitle(gmTools.coalesce(branded_drug, _('Adding new drug brand'), _('Editing drug brand')))
 	dlg.left_extra_button = (
 		_('Substances'),
-		_('Manage consumable substances'),
+		_('Manage substances'),
 		manage_substances
 	)
 	if dlg.ShowModal() == wx.ID_OK:
@@ -1156,7 +1156,7 @@ def manage_components_of_branded_drug(parent=None, brand=None):
 	picker.set_picks(picks = picks, data = comp_substs)
 #	picker.extra_button = (
 #		_('Substances'),
-#		_('Manage list of consumable substances'),
+#		_('Manage list of substances'),
 #		manage_substances
 #	)
 
