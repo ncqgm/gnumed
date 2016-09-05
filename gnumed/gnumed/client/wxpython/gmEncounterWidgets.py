@@ -73,7 +73,7 @@ def sanity_check_encounter_of_active_patient(parent=None, msg=None):
 	if not check_enc:
 		return True
 
-	emr = pat.get_emr()
+	emr = pat.get_emr(allow_user_interaction = False)
 	enc = emr.active_encounter
 
 	# did we add anything to the EMR ?
@@ -179,7 +179,7 @@ def select_encounters(parent=None, patient=None, single_selection=True, encounte
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
 
-	emr = patient.get_emr()
+	emr = patient.get_emr(allow_user_interaction = False)
 
 	#--------------------
 	def new():
@@ -631,7 +631,7 @@ class cActiveEncounterPnl(wxgActiveEncounterPnl.wxgActiveEncounterPnl):
 
 	#------------------------------------------------------------
 	def __refresh(self):
-		enc = gmPerson.gmCurrentPatient().get_emr().active_encounter
+		enc = gmPerson.gmCurrentPatient().get_emr(allow_user_interaction = False).active_encounter
 		self._TCTRL_encounter.SetValue(enc.format (
 			with_docs = False,
 			with_tests = False,
