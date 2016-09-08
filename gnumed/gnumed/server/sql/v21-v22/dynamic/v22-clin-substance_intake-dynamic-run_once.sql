@@ -118,7 +118,6 @@ BEGIN
 			raise notice ''- generic brand found: [%]'', _pk_brand;
 		else
 			raise notice ''- adding generic brand for [%]'', _intake_row;
-
 			select pk_dose into _pk_dose from ref.v_substance_doses r_vsd where
 				r_vsd.amount = _intake_row.amount
 					and
@@ -126,8 +125,10 @@ BEGIN
 					and
 				r_vsd.substance = _intake_row.substance
 			;
-			if not FOUND then
-				raise notice ''- adding dose for generic brand [%] [%] [%]'', _intake_row.pk_substance, _intake_row.amount,	_intake_row.unit;
+			if FOUND then
+				raise notice ''- generic dose found: [%]'', _pk_dose;
+			else
+				raise notice ''- creating dose for generic brand as [%] [%] [%]'', _intake_row.pk_substance, _intake_row.amount,	_intake_row.unit;
 				insert into ref.dose (
 					fk_substance,
 					amount,
@@ -152,7 +153,7 @@ BEGIN
 				TRUE
 			) returning pk into strict _pk_brand;
 
-			raise notice ''- linking dose to generic brand for [brand=%] [dose=%]'', _pk_brand, _pk_dose;
+			raise notice ''- linking generic dose [%] to generic brand [%]'', _pk_dose, _pk_brand;
 			insert into ref.lnk_dose2drug (
 				fk_brand,
 				fk_dose
@@ -170,7 +171,7 @@ BEGIN
 			r_vsd.unit = _intake_row.unit
 		;
 		if not FOUND then
-			raise exception ''[_tmp_convert_substance_intakes]: ref.dose dose not contain row for generic intake [%]'', _intake_row;
+			raise exception ''[_tmp_convert_substance_intakes]: ref.dose does not contain row for generic intake [%]'', _intake_row;
 			return FALSE;
 		end if;
 		raise notice ''- dose PK: [%]'', _pk_dose;
