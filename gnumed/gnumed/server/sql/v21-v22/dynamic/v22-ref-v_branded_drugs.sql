@@ -10,8 +10,14 @@
 
 -- --------------------------------------------------------------
 -- table constraints
-drop index if exists ref.idx_branded_drug_uniq_generic_drugs cascade;
-create unique index idx_branded_drug_uniq_generic_drugs on ref.branded_drug(description, preparation, is_fake);
+--drop index if exists ref.idx_branded_drug_uniq_generic_drugs cascade;
+--create unique index idx_branded_drug_uniq_generic_drugs on ref.branded_drug(description, preparation, is_fake);
+
+drop index if exists ref.idx_branded_drug_uniq_brand_no_code cascade;
+
+create unique index idx_branded_drug_uniq_brand_no_code
+	on ref.branded_drug (description, preparation, is_fake)
+	where ref.branded_drug.external_code is NULL;
 
 -- --------------------------------------------------------------
 drop view if exists ref.v_branded_drugs cascade;
