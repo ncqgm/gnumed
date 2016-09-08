@@ -53,12 +53,13 @@ DECLARE
 	_pk_brand integer;
 	_pk_component integer;
 BEGIN
-	-- update branded intakes ------------------
 	raise notice ''[_tmp_convert_substance_intakes]: start'';
+	-- update branded intakes ------------------
 	raise notice ''- converting branded intakes'';
 	for _intake_row in
 		select * from clin.v_brand_intakes
 	loop
+		raise notice ''-- branded intake -----------------------------------------'';
 		raise notice ''- converting [%]'', _intake_row;
 		select pk_dose into strict _pk_dose from ref.v_substance_doses r_vsd where
 			r_vsd.substance = _intake_row.substance
@@ -99,7 +100,33 @@ BEGIN
 	for _intake_row in
 		select * from clin.v_nonbrand_intakes
 	loop
+		raise notice ''-- non-brand intake -------------------------'';
 		raise notice ''- converting [%]'', _intake_row;
+
+		-- check for appropriate substance dose entry
+		select pk_dose into _pk_dose from ref.v_substance_doses r_vsd where
+			r_vsd.amount = _intake_row.amount
+				and
+			r_vsd.unit = _intake_row.unit
+				and
+			r_vsd.substance = _intake_row.substance
+			;
+		if FOUND then
+			raise notice ''- appropriate dose exists: [%]'', _pk_dose;
+		else
+			raise notice ''- creating dose for generic brand as [%] [%] [%]'', _intake_row.pk_substance, _intake_row.amount, _intake_row.unit;
+			insert into ref.dose (
+				fk_substance,
+				amount,
+				unit
+			) values (
+				_intake_row.pk_substance,
+				_intake_row.amount,
+				_intake_row.unit
+			) returning pk into strict _pk_dose;
+			raise notice ''- appropriate dose created: [%]'', _pk_dose;
+		end if;
+
 		-- check for generic brand
 		select pk_brand into _pk_brand from ref._tmp_v_branded_drugs r_tvbd where
 			r_tvbd.brand = _intake_row.substance
@@ -118,28 +145,6 @@ BEGIN
 			raise notice ''- generic brand found: [%]'', _pk_brand;
 		else
 			raise notice ''- adding generic brand for [%]'', _intake_row;
-			select pk_dose into _pk_dose from ref.v_substance_doses r_vsd where
-				r_vsd.amount = _intake_row.amount
-					and
-				r_vsd.unit = _intake_row.unit
-					and
-				r_vsd.substance = _intake_row.substance
-			;
-			if FOUND then
-				raise notice ''- generic dose found: [%]'', _pk_dose;
-			else
-				raise notice ''- creating dose for generic brand as [%] [%] [%]'', _intake_row.pk_substance, _intake_row.amount,	_intake_row.unit;
-				insert into ref.dose (
-					fk_substance,
-					amount,
-					unit
-				) values (
-					_intake_row.pk_substance,
-					_intake_row.amount,
-					_intake_row.unit
-				) returning pk into strict _pk_dose;
-			end if;
-
 			raise notice ''- creating generic brand for [%] [%] [atc=%s] [is_fake=TRUE] '', _intake_row.substance, _intake_row.preparation, coalesce(_intake_row.atc_brand::text, _intake_row.atc_substance::text, ''NULL''::text);
 			insert into ref.branded_drug (
 				description,
@@ -152,7 +157,19 @@ BEGIN
 				coalesce(_intake_row.atc_brand::text, _intake_row.atc_substance::text),
 				TRUE
 			) returning pk into strict _pk_brand;
+			raise notice ''- generic brand created: [%]'', _pk_brand;
+		end if;
 
+		-- check for drug component
+		raise notice ''- checking for drug component, brand [%] dose [%]'', _pk_brand, _pk_dose;
+		select pk into _pk_component from ref.lnk_dose2drug r_ld2d where
+			r_ld2d.fk_dose = _pk_dose
+				and
+			r_ld2d.fk_brand = _pk_brand
+		;
+		if FOUND then
+			raise notice ''- drug component found: [%]'', _pk_component;
+		else
 			raise notice ''- linking generic dose [%] to generic brand [%]'', _pk_dose, _pk_brand;
 			insert into ref.lnk_dose2drug (
 				fk_brand,
@@ -160,36 +177,12 @@ BEGIN
 			) values (
 				_pk_brand,
 				_pk_dose
-			);
+			) returning pk into strict _pk_component;
+			raise notice ''- drug component created: [%]'', _pk_component;
 		end if;
 
-		-- check for dose
-		select pk_dose into strict _pk_dose from ref.v_substance_doses r_vsd where
-			r_vsd.substance = _intake_row.substance
-				and
-			r_vsd.amount = _intake_row.amount
-				and
-			r_vsd.unit = _intake_row.unit
-		;
-		if not FOUND then
-			raise exception ''[_tmp_convert_substance_intakes]: ref.dose does not contain row for generic intake [%]'', _intake_row;
-			return FALSE;
-		end if;
-		raise notice ''- dose PK: [%]'', _pk_dose;
-
-		-- check for drug component
-		select pk into strict _pk_component from ref.lnk_dose2drug r_ld2d where
-			r_ld2d.fk_dose = _pk_dose
-				and
-			r_ld2d.fk_brand = _pk_brand
-		;
-		if not FOUND then
-			raise exception ''[_tmp_convert_substance_intakes]: ref.lnk_dose2drug does not contain row for generic intake [%]'', _intake_row;
-			return FALSE;
-		end if;
-		raise notice ''- component PK: [%]'', _pk_component;
-
-		raise notice ''- UPDATE of [%] [%] [%] [%]'', _intake_row.substance, _intake_row.amount, _intake_row.unit, _intake_row.preparation;
+		-- update actual intake row
+		raise notice ''- UPDATE of intake [%] [%] [%] [%] [%]'', _intake_row.pk_substance_intake, _intake_row.substance, _intake_row.amount, _intake_row.unit, _intake_row.preparation;
 		update clin.substance_intake set
 			fk_drug_component = _pk_component,
 			preparation = NULL,
