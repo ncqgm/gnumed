@@ -1754,7 +1754,7 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 
 		txt += u'\n'
 
-		txt += _(' Brand name: %%s   [#%s]\n') % self._payload[self._idx['pk_brand']]
+		txt += _(' Brand name: %s   [#%s]\n') % (self._payload[self._idx['brand']], self._payload[self._idx['pk_brand']])
 		txt += gmTools.coalesce(self._payload[self._idx['atc_brand']], u'', _(' ATC (brand): %s\n'))
 		if show_all_brand_components:
 			brand = self.containing_drug
