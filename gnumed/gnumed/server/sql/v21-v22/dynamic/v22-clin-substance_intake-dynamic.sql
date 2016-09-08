@@ -65,6 +65,7 @@ select
 	r_d.unit,
 	r_d.dose_unit,
 
+	-- codes
 	r_s.atc
 		as atc_substance,
 	r_bd.atc_code
@@ -73,6 +74,17 @@ select
 		as external_code_brand,
 	r_bd.external_code_type
 		as external_code_type_brand,
+	ARRAY (
+		select row_to_json(loinc_row) from (
+			select
+				r_ll2s.loinc,
+				r_ll2s.comment,
+				extract(epoch from r_ll2s.max_age) as max_age_in_secs,
+				r_ll2s.max_age::text as max_age_str
+			from ref.lnk_loinc2substance r_ll2s
+			where r_ll2s.fk_substance = r_s.pk
+		) as loinc_row
+	)	as loincs,
 
 	-- uncertainty of start
 	case
@@ -93,10 +105,11 @@ select
 		as start_is_approximate,
 	c_si.intake_is_approved_of,
 	c_si.harmful_use_type,
-	CASE
-		WHEN c_si.harmful_use_type IS NULL THEN NULL::timestamp with time zone
-		ELSE c_enc.started
-	END
+--	CASE
+--		WHEN c_si.harmful_use_type IS NULL THEN NULL::timestamp with time zone
+--		ELSE c_enc.started
+--	END
+	c_enc.started
 		AS last_checked_when,
 	c_si.schedule,
 	c_si.duration,
@@ -105,19 +118,19 @@ select
 	c_si.is_long_term,
 	c_si.aim,
 	r_s.intake_instructions,
-	cep.description
+	c_epi.description
 		as episode,
 	c_hi.description
 		as health_issue,
 	c_si.narrative
 		as notes,
 	r_bd.is_fake
-		as fake_brand,
+		as is_fake_brand,
 	-- currently active ?
 	case
 		-- no discontinue date documented so assumed active
 		when c_si.discontinued is null then true
-		-- else not active (constraints guarantee that .discontinued > clin_when and < current_timestamp)
+		-- else not active (constraints guarantee that .discontinued > clin_when=started and < current_timestamp)
 		else false
 	end::boolean
 		as is_currently_active,
@@ -151,7 +164,7 @@ select
 		as pk_encounter,
 	c_si.fk_episode
 		as pk_episode,
-	cep.fk_health_issue
+	c_epi.fk_health_issue
 		as pk_health_issue,
 	c_si.modified_when,
 	c_si.modified_by,
@@ -161,13 +174,16 @@ select
 		as xmin_substance_intake
 from
 	clin.substance_intake c_si
+		-- pull in encounter details
+		left join clin.encounter c_enc on (c_si.fk_encounter = c_enc.pk)
+		-- pull in episode and issue details
+		left join clin.episode c_epi on (c_si.fk_episode = c_epi.pk)
+			left join clin.health_issue c_hi on (c_hi.pk = c_epi.fk_health_issue)
+		-- pull in substance details
 		inner join ref.lnk_dose2drug r_ld2d on (c_si.fk_drug_component = r_ld2d.pk)
 			inner join ref.branded_drug r_bd on (r_ld2d.fk_brand = r_bd.pk)
 			inner join ref.dose r_d on (r_ld2d.fk_dose = r_d.pk)
 				inner join ref.substance r_s on (r_d.fk_substance = r_s.pk)
-		left join clin.episode cep on (c_si.fk_episode = cep.pk)
-			left join clin.health_issue c_hi on (c_hi.pk = cep.fk_health_issue)
-		left join clin.encounter c_enc on (c_si.fk_encounter = c_enc.pk)
 ;
 
 grant select on clin.v_substance_intakes to group "gm-doctors";

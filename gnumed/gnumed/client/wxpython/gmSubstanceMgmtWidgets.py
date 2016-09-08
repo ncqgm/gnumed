@@ -385,7 +385,7 @@ class cSubstanceEAPnl(wxgSubstanceEAPnl.wxgSubstanceEAPnl, gmEditArea.cGenericEd
 		if len(self.data['loincs']) == 0:
 			self._LCTRL_loincs.set_string_items()
 		else:
-			self._LCTRL_loincs.set_string_items([ [l['loinc'], gmTools.coalesce(l['max_age_in_secs'], u''), gmTools.coalesce(l['comment'], u'')] for l in self.data['loincs' ]])
+			self._LCTRL_loincs.set_string_items([ [l['loinc'], gmTools.coalesce(l['max_age_str'], u''), gmTools.coalesce(l['comment'], u'')] for l in self.data['loincs' ]])
 			self._LCTRL_loincs.set_data([ l['loinc'] for l in self.data['loincs'] ])
 
 		self._TCTRL_substance.SetFocus()
@@ -673,8 +673,7 @@ class cSubstanceDoseEAPnl(wxgSubstanceDoseEAPnl.wxgSubstanceDoseEAPnl, gmEditAre
 		self._PRW_substance.Disable()
 		self._TCTRL_amount.SetValue(u'%s' % self.data['amount'])
 		self._PRW_unit.SetText(self.data['unit'], self.data['unit'])
-		self._PRW_dose_unit.SetText(self.data['dose_unit'], self.data['dose_unit'])
-		#self.__refresh_info()
+		self._PRW_dose_unit.SetText(gmTools.coalesce(self.data['dose_unit'], u''), self.data['dose_unit'])
 
 		self._PRW_substance.SetFocus()
 
@@ -694,6 +693,7 @@ def manage_drug_components(parent=None):
 	def edit(component=None):
 		substance_dose = gmMedication.cSubstanceDose(aPK_obj = component['pk_dose'])
 		return edit_substance_dose(parent = parent, substance_dose = substance_dose, single_entry = True)
+
 	#------------------------------------------------------------
 	def delete(component):
 		if component.is_in_use_by_patients:
@@ -705,23 +705,21 @@ def manage_drug_components(parent=None):
 	def refresh(lctrl):
 		comps = gmMedication.get_drug_components()
 		items = [ [
-			u'%s%s' % (c['brand'], gmTools.coalesce(c['atc_brand'], u'', u' [%s]')),
 			u'%s%s' % (c['substance'], gmTools.coalesce(c['atc_substance'], u'', u' [%s]')),
-			u'%s %s' % (c['amount'], c['unit']),
+			u'%s %s%s' % (c['amount'], c['unit'], gmTools.coalesce(c['dose_unit'], u'', u'/%s')),
+			u'%s%s' % (c['brand'], gmTools.coalesce(c['atc_brand'], u'', u' [%s]')),
 			c['preparation'],
-			gmTools.coalesce(c['external_code_brand'], u'', u'%%s [%s]' % c['external_code_type_brand']),
+			gmTools.coalesce(c['external_code'], u'', u'%%s [%s]' % c['external_code_type']),
 			c['pk_component']
 		] for c in comps ]
 		lctrl.set_string_items(items)
 		lctrl.set_data(comps)
-	#------------------------------------------------------------
-	msg = _('\nThese are the components in the drug brands known to GNUmed.\n')
 
+	#------------------------------------------------------------
 	gmListWidgets.get_choices_from_list (
 		parent = parent,
-		msg = msg,
-		caption = _('Showing drug brand components.'),
-		columns = [_('Brand'), _('Substance'), _('Strength'), _('Preparation'), _('Code'), u'#'],
+		caption = _('Drug brand components currently known to GNUmed'),
+		columns = [_('Component'), _('Strength'), _('Brand'), _('Preparation'), _('Code'), u'#'],
 		single_selection = True,
 		#new_callback = edit,
 		edit_callback = edit,
@@ -824,6 +822,7 @@ class cDrugComponentEAPnl(wxgDrugComponentEAPnl.wxgDrugComponentEAPnl, gmEditAre
 		self.data['amount'] = decimal.Decimal(self._TCTRL_amount.GetValue().strip().replace(',', u'.', 1))
 		self.data['unit'] = self._PRW_unit.GetValue().strip()
 		return self.data.save()
+
 	#----------------------------------------------------------------
 	def _refresh_as_new(self):
 		self._TCTRL_brand.SetValue(u'')
@@ -834,6 +833,7 @@ class cDrugComponentEAPnl(wxgDrugComponentEAPnl.wxgDrugComponentEAPnl, gmEditAre
 		self._PRW_unit.SetText(u'', None)
 
 		self._PRW_substance.SetFocus()
+
 	#----------------------------------------------------------------
 	def _refresh_from_existing(self):
 		self._TCTRL_brand.SetValue(u'%s (%s)' % (self.data['brand'], self.data['preparation']))
@@ -850,6 +850,7 @@ class cDrugComponentEAPnl(wxgDrugComponentEAPnl.wxgDrugComponentEAPnl, gmEditAre
 		self._PRW_unit.SetText(self.data['unit'], self.data['unit'])
 
 		self._PRW_substance.SetFocus()
+
 	#----------------------------------------------------------------
 	def _refresh_as_new_from_existing(self):
 		#self._PRW_brand.SetText(u'', None)
@@ -897,9 +898,11 @@ def edit_branded_drug(parent=None, branded_drug=None, single_entry=False):
 
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
+
 	#--------------------------------------------
 	def manage_substances(drug):
 		manage_substance_doses(parent = parent)
+
 	#--------------------------------------------
 	ea = cBrandedDrugEAPnl(parent = parent, id = -1)
 	ea.data = branded_drug
@@ -922,6 +925,7 @@ def manage_branded_drugs(parent=None, ignore_OK_button=False):
 
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
+
 	#------------------------------------------------------------
 	def add_from_db(brand):
 		drug_db = get_drug_database(parent = parent)
@@ -929,20 +933,24 @@ def manage_branded_drugs(parent=None, ignore_OK_button=False):
 			return False
 		drug_db.import_drugs()
 		return True
+
 	#------------------------------------------------------------
 	def get_tooltip(brand=None):
-		tt = u'%s %s\n' % (brand['brand'], brand['preparation'])
-		tt += u'\n'
-		tt += u'%s%s%s\n' % (
-			gmTools.bool2subst(brand.is_vaccine, u'%s, ' % _('Vaccine'), u''),
-			u'%s, ' % gmTools.bool2subst(brand.is_in_use_by_patients, _('in use'), _('not in use')),
-			gmTools.bool2subst(brand['is_fake_brand'], _('fake'), u'')
-		)
-		tt += gmTools.coalesce(brand['atc'], u'', _('ATC: %s\n'))
-		tt += gmTools.coalesce(brand['external_code'], u'', u'%s: %%s\n' % brand['external_code_type'])
-		if brand['components'] is not None:
-			tt += u'- %s' % u'\n- '.join(brand['components'])
-		return tt
+		return brand.format(include_component_details = True)
+
+#		tt = u'%s %s\n' % (brand['brand'], brand['preparation'])
+#		tt += u'\n'
+#		tt += u'%s%s%s\n' % (
+#			gmTools.bool2subst(brand.is_vaccine, u'%s, ' % _('Vaccine'), u''),
+#			u'%s, ' % gmTools.bool2subst(brand.is_in_use_by_patients, _('in use'), _('not in use')),
+#			gmTools.bool2subst(brand['is_fake_brand'], _('fake'), u'')
+#		)
+#		tt += gmTools.coalesce(brand['atc'], u'', _('ATC: %s\n'))
+#		tt += gmTools.coalesce(brand['external_code'], u'', u'%s: %%s\n' % brand['external_code_type'])
+#		if brand['components'] is not None:
+#			tt += u'- %s' % u'\n- '.join(brand['components'])
+#		return tt
+
 	#------------------------------------------------------------
 	def edit(brand):
 		if brand is not None:
@@ -961,6 +969,7 @@ def manage_branded_drugs(parent=None, ignore_OK_button=False):
 				return False
 
 		return edit_branded_drug(parent = parent, branded_drug = brand, single_entry = True)
+
 	#------------------------------------------------------------
 	def delete(brand):
 		if brand.is_vaccine:
@@ -978,9 +987,11 @@ def manage_branded_drugs(parent=None, ignore_OK_button=False):
 			return False
 		gmMedication.delete_branded_drug(pk_brand = brand['pk_brand'])
 		return True
+
 	#------------------------------------------------------------
 	def new():
 		return edit_branded_drug(parent = parent, branded_drug = None, single_entry = False)
+
 	#------------------------------------------------------------
 	def refresh(lctrl):
 		drugs = gmMedication.get_branded_drugs()
@@ -991,19 +1002,22 @@ def manage_branded_drugs(parent=None, ignore_OK_button=False):
 			),
 			d['preparation'],
 			gmTools.coalesce(d['atc'], u''),
-			gmTools.coalesce(d['components'], u''),
+			u'; '.join([ u'%s %s%s%s' % (
+				c['substance'],
+				c['amount'],
+				c['unit'],
+				gmTools.coalesce(c['dose_unit'], u'', u'/%s')
+			) for c in d['components']]),
 			gmTools.coalesce(d['external_code'], u'', u'%%s [%s]' % d['external_code_type']),
 			d['pk_brand']
 		] for d in drugs ]
 		lctrl.set_string_items(items)
 		lctrl.set_data(drugs)
-	#------------------------------------------------------------
-	msg = _('\nThese are the drug brands known to GNUmed.\n')
 
+	#------------------------------------------------------------
 	gmListWidgets.get_choices_from_list (
 		parent = parent,
-		msg = msg,
-		caption = _('Showing branded drugs.'),
+		caption = _('Branded drugs currently known to GNUmed.'),
 		columns = [_('Name'), _('Preparation'), _('ATC'), _('Components'), _('Code'), u'#'],
 		single_selection = True,
 		ignore_OK_button = ignore_OK_button,

@@ -1251,7 +1251,7 @@ def update_substance_intake_list_from_prescription(parent=None, prescribed_drugs
 
 	for drug in drugs2add:
 		# only add first component since all other components get added by a trigger ...
-		intake = emr.add_substance_intake(pk_component = drug['pk_components'][0])
+		intake = emr.add_substance_intake(pk_component = drug['components'][0]['pk_component'])
 		if intake is None:
 			continue
 		intake['intake_is_approved_of'] = True
@@ -1476,7 +1476,7 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 				if med['pk_brand'] is None:
 					brand = u'%s (%s)' % (gmTools.u_diameter, med['preparation'])
 				else:
-					if med['fake_brand']:
+					if med['is_fake_brand']:
 						brand = u'%s (%s)' % (
 							gmTools.coalesce(med['brand'], u'', _('%s <fake>')),
 							med['preparation']
@@ -1524,7 +1524,7 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 				if med['pk_brand'] is None:
 					brand = u'%s (%s)' % (gmTools.u_diameter, med['preparation'])
 				else:
-					if med['fake_brand']:
+					if med['is_fake_brand']:
 						brand = u'%s (%s)' % (
 							gmTools.coalesce(med['brand'], u'', _('%s <fake>')),
 							med['preparation']
@@ -1550,7 +1550,7 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 						brand = u''
 					else:
 						self.__prev_cell_0 = med['brand']
-						if med['fake_brand']:
+						if med['is_fake_brand']:
 							brand = u'%s (%s)' % (
 								gmTools.coalesce(med['brand'], u'', _('%s <fake>')),
 								med['preparation']

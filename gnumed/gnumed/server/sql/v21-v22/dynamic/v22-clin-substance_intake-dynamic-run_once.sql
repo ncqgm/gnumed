@@ -101,18 +101,18 @@ BEGIN
 	loop
 		raise notice ''- converting [%]'', _intake_row;
 		-- check for generic brand
-		select pk_brand into _pk_brand from ref.v_branded_drugs where
-			ref.v_branded_drugs.brand = _intake_row.substance
+		select pk_brand into _pk_brand from ref._tmp_v_branded_drugs r_tvbd where
+			r_tvbd.brand = _intake_row.substance
 				and
-			ref.v_branded_drugs.is_fake_brand is TRUE
+			r_tvbd.is_fake_brand is TRUE
 				and
-			ref.v_branded_drugs.preparation = _intake_row.preparation
+			r_tvbd.preparation = _intake_row.preparation
 				and
-			_intake_row.pk_substance = ANY(ref.v_branded_drugs.pk_substances)
+			_intake_row.pk_substance = ANY(r_tvbd.pk_substances)
 				and
-			array_ndims(pk_substances) = 1
+			array_ndims(r_tvbd.pk_substances) = 1
 				and
-			array_length(pk_substances, 1) = 1
+			array_length(r_tvbd.pk_substances, 1) = 1
 		;
 		if FOUND then
 			raise notice ''- generic brand found: [%]'', _pk_brand;
@@ -210,6 +210,7 @@ END;';
 select _tmp_convert_substance_intakes();
 
 drop function if exists _tmp_convert_substance_intakes() cascade;
+drop view if exists ref._tmp_v_branded_drugs cascade;
 
 -- --------------------------------------------------------------
 select gm.log_script_insertion('v22-clin-substance_intake-dynamic-run_once.sql', '22.0');

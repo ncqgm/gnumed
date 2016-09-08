@@ -13,7 +13,6 @@ drop view if exists clin.v_substance_intake_journal cascade;
 
 create view clin.v_substance_intake_journal as
 
-	-- brands
 	select
 		c_enc.fk_patient
 			as pk_patient,

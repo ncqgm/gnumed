@@ -83,7 +83,6 @@ select
 	r_ll2s.max_age,
 	r_ll2s.comment,
 	r_s.atc,
-	--r_s.intake_instructions,
 	r_s.pk as pk_substance,
 
 	r_ll2s.xmin as xmin_lnk_loinc2substance
@@ -94,9 +93,6 @@ from
 
 -- grant
 grant select on ref.v_lnk_loincs2substances to "gm-public";
-
--- --------------------------------------------------------------
---insert into ref.lnk_loinc2substance (fk_substance, loinc, comment, max_age) values (1, '14754-6', 'once for diagnostic purposes', '999 years');
 
 -- --------------------------------------------------------------
 select gm.log_script_insertion('v22-ref-lnk_loinc2substance-dynamic.sql', '22.0');

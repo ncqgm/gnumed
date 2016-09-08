@@ -10,7 +10,7 @@
 
 -- --------------------------------------------------------------
 -- table
-comment on table ref.substance is 'Holds consumable substances.';
+comment on table ref.substance is 'Holds substances that are consumed by patients for various reasons.';
 
 select audit.register_table_for_auditing('ref', 'substance');
 select gm.register_notifying_table('ref', 'substance');
@@ -92,7 +92,8 @@ select
 			select
 				r_ll2s.loinc,
 				r_ll2s.comment,
-				extract(epoch from r_ll2s.max_age) as max_age_in_secs
+				extract(epoch from r_ll2s.max_age) as max_age_in_secs,
+				r_ll2s.max_age::text as max_age_str
 			from ref.lnk_loinc2substance r_ll2s
 			where r_ll2s.fk_substance = r_s.pk
 		) as loinc_row
