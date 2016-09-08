@@ -104,15 +104,15 @@ BEGIN
 		select pk_brand into _pk_brand from ref._tmp_v_branded_drugs r_tvbd where
 			r_tvbd.brand = _intake_row.substance
 				and
-			r_tvbd.is_fake_brand is TRUE
-				and
 			r_tvbd.preparation = _intake_row.preparation
 				and
-			_intake_row.pk_substance = ANY(r_tvbd.pk_substances)
-				and
-			array_ndims(r_tvbd.pk_substances) = 1
-				and
-			array_length(r_tvbd.pk_substances, 1) = 1
+			r_tvbd.is_fake_brand is TRUE
+--				and
+--			_intake_row.pk_substance = ANY(r_tvbd.pk_substances)
+--				and
+--			array_ndims(r_tvbd.pk_substances) = 1
+--				and
+--			array_length(r_tvbd.pk_substances, 1) = 1
 		;
 		if FOUND then
 			raise notice ''- generic brand found: [%]'', _pk_brand;
@@ -163,6 +163,7 @@ BEGIN
 			);
 		end if;
 
+		-- check for dose
 		select pk_dose into strict _pk_dose from ref.v_substance_doses r_vsd where
 			r_vsd.substance = _intake_row.substance
 				and
@@ -176,13 +177,14 @@ BEGIN
 		end if;
 		raise notice ''- dose PK: [%]'', _pk_dose;
 
+		-- check for drug component
 		select pk into strict _pk_component from ref.lnk_dose2drug r_ld2d where
 			r_ld2d.fk_dose = _pk_dose
 				and
 			r_ld2d.fk_brand = _pk_brand
 		;
 		if not FOUND then
-			raise exception ''[_tmp_convert_substance_intakes]: ref.lnk_dose2drug dose not contain row for generic intake [%]'', _intake_row;
+			raise exception ''[_tmp_convert_substance_intakes]: ref.lnk_dose2drug does not contain row for generic intake [%]'', _intake_row;
 			return FALSE;
 		end if;
 		raise notice ''- component PK: [%]'', _pk_component;
