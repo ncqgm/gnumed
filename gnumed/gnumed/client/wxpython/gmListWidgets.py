@@ -1428,6 +1428,40 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 	string_items = property(get_string_items, set_string_items)
 
 	#------------------------------------------------------------
+	def append_string_items_and_data(self, new_items, new_data=None, allow_dupes=False):
+		if len(new_items) == 0:
+			return
+
+		if new_data is None:
+			new_data = new_items
+
+		existing_data = self.get_item_data()
+		if existing_data is None:
+			existing_data = []
+
+		if allow_dupes:
+			self._LCTRL_right.set_string_items (
+				items = self.string_items.extend(new_items),
+				reshow = True
+			)
+			self.data = existing_data.extend(new_data)
+			self.set_column_widths()
+			return
+
+		existing_items = self.get_string_items()
+		for new_item, new_data in zip(new_items, new_data):
+			if new_item in existing_items:
+				continue
+			existing_items.append(new_item)
+			existing_data.append(new_data)
+		self.set_string_items (
+			items = existing_items,
+			reshow = True
+		)
+		self.data = existing_data
+		self.set_column_widths()
+
+	#------------------------------------------------------------
 	def set_data(self, data=None):
 		"""<data> assumed to be a list corresponding to the item indices"""
 		if data is not None:

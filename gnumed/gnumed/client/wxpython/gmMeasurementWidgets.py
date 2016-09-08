@@ -307,49 +307,6 @@ def browse_incoming_unmatched(parent=None):
 	)
 
 #================================================================
-# LOINC related widgets
-#================================================================
-def update_loinc_reference_data():
-
-	wx.BeginBusyCursor()
-
-	gmDispatcher.send(signal = 'statustext', msg = _('Updating LOINC data can take quite a while...'), beep = True)
-
-	# download
-	loinc_zip = gmNetworkTools.download_file(url = 'http://www.gnumed.de/downloads/data/loinc/loinctab.zip', suffix = '.zip')
-	if loinc_zip is None:
-		wx.EndBusyCursor()
-		gmGuiHelpers.gm_show_warning (
-			aTitle = _('Downloading LOINC'),
-			aMessage = _('Error downloading the latest LOINC data.\n')
-		)
-		return False
-
-	_log.debug('downloaded zipped LOINC data into [%s]', loinc_zip)
-
-	loinc_dir = gmNetworkTools.unzip_data_pack(filename = loinc_zip)
-
-	# split master data file
-	data_fname, license_fname = gmLOINC.split_LOINCDBTXT(input_fname = os.path.join(loinc_dir, 'LOINCDB.TXT'))
-
-	wx.EndBusyCursor()
-
-	conn = gmAuthWidgets.get_dbowner_connection(procedure = _('importing LOINC reference data'))
-	if conn is None:
-		return False
-
-	wx.BeginBusyCursor()
-
-	# import data
-	if gmLOINC.loinc_import(data_fname = data_fname, license_fname = license_fname, conn = conn):
-		gmDispatcher.send(signal = 'statustext', msg = _('Successfully imported LOINC reference data.'))
-	else:
-		gmDispatcher.send(signal = 'statustext', msg = _('Importing LOINC reference data failed.'), beep = True)
-
-	wx.EndBusyCursor()
-	return True
-
-#================================================================
 # convenience functions
 #================================================================
 def call_browser_on_measurement_type(measurement_type=None):
@@ -2991,6 +2948,7 @@ limit 50"""
 		self._PRW_loinc.matcher = mp
 		self._PRW_loinc.selection_only = False
 		self._PRW_loinc.add_callback_on_lose_focus(callback = self._on_loinc_lost_focus)
+
 	#----------------------------------------------------------------
 	def _on_name_lost_focus(self):
 
@@ -3220,17 +3178,31 @@ _SQL_units_from_loinc_example = u"""
 		%(ctxt_loinc_term)s
 """
 
-_SQL_units_from_consumable_substance = u"""
-	-- via ref.consumable_substance.unit
+_SQL_units_from_substance_doses = u"""
+	-- via ref.v_substance_doses.unit
 	SELECT
 		unit AS data,
 		unit AS field_label,
-		unit || ' (' || description || ')' AS list_label,
+		unit || ' (' || substance || ')' AS list_label,
 		2 AS rank
 	FROM
-		ref.consumable_substance
+		ref.v_substance_doses
 	WHERE
 		unit %(fragment_condition)s
+		%(ctxt_substance)s
+"""
+
+_SQL_units_from_substance_doses2 = u"""
+	-- via ref.v_substance_doses.dose_unit
+	SELECT
+		dose_unit AS data,
+		dose_unit AS field_label,
+		dose_unit || ' (' || substance || ')' AS list_label,
+		2 AS rank
+	FROM
+		ref.v_substance_doses
+	WHERE
+		dose_unit %(fragment_condition)s
 		%(ctxt_substance)s
 """
 
@@ -3257,6 +3229,7 @@ FROM (
 		(%s) UNION ALL
 		(%s) UNION ALL
 		(%s) UNION ALL
+		(%s) UNION ALL
 		(%s)
 	) AS all_matching_units
 	WHERE data IS NOT NULL
@@ -3269,7 +3242,8 @@ LIMIT 50""" % (
 			_SQL_units_from_loinc_ipcc,
 			_SQL_units_from_loinc_submitted,
 			_SQL_units_from_loinc_example,
-			_SQL_units_from_consumable_substance
+			_SQL_units_from_substance_doses,
+			_SQL_units_from_substance_doses2
 		)
 
 		ctxt = {
@@ -3307,6 +3281,7 @@ LIMIT 50""" % (
 		self.SetToolTipString(_('Select the desired unit for the amount or measurement.'))
 		self.selection_only = False
 		self.phrase_separators = u'[;|]+'
+
 #================================================================
 
 #================================================================

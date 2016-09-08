@@ -124,7 +124,7 @@
                 <flag>wxEXPAND|wxALIGN_CENTER_VERTICAL</flag>
                 <border>0</border>
                 <option>0</option>
-                <object class="gmSubstanceMgmtWidgets.cATCPhraseWheel" name="_PRW_atc" base="EditTextCtrl">
+                <object class="gmATCWidgets.cATCPhraseWheel" name="_PRW_atc" base="EditTextCtrl">
                     <style>wxNO_BORDER</style>
                 </object>
             </object>

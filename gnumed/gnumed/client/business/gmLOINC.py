@@ -404,6 +404,7 @@ _SQL_LOINC_from_any_coded_term = u"""
 		term %(fragment_condition)s)
 """
 
+#------------------------------------------------------------
 class cLOINCMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
 
 	_pattern = regex.compile(r'^\D+\s+\D+$', regex.UNICODE | regex.LOCALE)
@@ -425,12 +426,14 @@ class cLOINCMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
 #		%
 #			_SQL_LOINC_from_i18n_coded_term,
 #			_SQL_LOINC_from_en_EN_coded_term,
+
 	#--------------------------------------------------------
 	def getMatchesByPhrase(self, aFragment):
 		"""Return matches for aFragment at start of phrases."""
 
 		self._queries = [cLOINCMatchProvider._normal_query + u'\nORDER BY list_label\nLIMIT 75']
 		return gmMatchProvider.cMatchProvider_SQL2.getMatchesByPhrase(self, aFragment)
+
 	#--------------------------------------------------------
 	def getMatchesByWord(self, aFragment):
 		"""Return matches for aFragment at start of words inside phrases."""
@@ -446,6 +449,7 @@ class cLOINCMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
 
 		self._queries = [cLOINCMatchProvider._normal_query + u'\nORDER BY list_label\nLIMIT 75']
 		return gmMatchProvider.cMatchProvider_SQL2.getMatchesByWord(self, aFragment)
+
 	#--------------------------------------------------------
 	def getMatchesBySubstr(self, aFragment):
 		"""Return matches for aFragment as a true substring."""
@@ -461,6 +465,7 @@ class cLOINCMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
 
 		self._queries = [cLOINCMatchProvider._normal_query + u'\nORDER BY list_label\nLIMIT 75']
 		return gmMatchProvider.cMatchProvider_SQL2.getMatchesBySubstr(self, aFragment)
+
 #============================================================
 # main
 #------------------------------------------------------------

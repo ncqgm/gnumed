@@ -14,6 +14,7 @@ class wxgBrandedDrugEAPnl(wx.ScrolledWindow):
 
         from Gnumed.wxpython import gmMedicationWidgets
         from Gnumed.wxpython import gmSubstanceMgmtWidgets
+        from Gnumed.wxpython import gmATCWidgets
         from Gnumed.wxpython import gmPhraseWheel
 
         # begin wxGlade: wxgBrandedDrugEAPnl.__init__
@@ -25,7 +26,7 @@ class wxgBrandedDrugEAPnl(wx.ScrolledWindow):
         self._TCTRL_components = wx.TextCtrl(self, wx.ID_ANY, "", style=wx.TE_MULTILINE | wx.TE_READONLY)
         self._BTN_manage_components = wx.Button(self, wx.ID_ANY, _("&Manage"), style=wx.BU_EXACTFIT)
         self._HL_atc_list = wx.HyperlinkCtrl(self, wx.ID_ANY, _("ATC Code"), _("http://www.whocc.no/atc_ddd_index/"), style=wx.HL_ALIGN_CENTRE | wx.HL_CONTEXTMENU | wx.HL_DEFAULT_STYLE)
-        self._PRW_atc = gmSubstanceMgmtWidgets.cATCPhraseWheel(self, wx.ID_ANY, "", style=wx.NO_BORDER)
+        self._PRW_atc = gmATCWidgets.cATCPhraseWheel(self, wx.ID_ANY, "", style=wx.NO_BORDER)
         self._TCTRL_external_code = wx.TextCtrl(self, wx.ID_ANY, "", style=wx.TE_READONLY | wx.NO_BORDER)
         self._PRW_external_code_type = gmPhraseWheel.cPhraseWheel(self, wx.ID_ANY, "", style=wx.TE_READONLY | wx.NO_BORDER)
 

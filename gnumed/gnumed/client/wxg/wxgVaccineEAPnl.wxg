@@ -168,7 +168,7 @@
                 <flag>wxEXPAND</flag>
                 <border>0</border>
                 <option>1</option>
-                <object class="gmSubstanceMgmtWidgets.cATCPhraseWheel" name="_PRW_atc" base="EditTextCtrl">
+                <object class="gmATCWidgets.cATCPhraseWheel" name="_PRW_atc" base="EditTextCtrl">
                     <style>wxNO_BORDER</style>
                     <tooltip>The ATC for this vaccine.</tooltip>
                 </object>

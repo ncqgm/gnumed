@@ -249,14 +249,15 @@ def manage_substance_intakes(parent=None, emr=None):
 #		return True
 #	#------------------------------------------------------------
 #	def edit(substance=None):
-#		return gmSubstanceMgmtWidgets.edit_consumable_substance(parent = parent, substance = substance, single_entry = (substance is not None))
+#		return gmSubstanceMgmtWidgets.edit_substance(parent = parent, substance = substance, single_entry = (substance is not None))
 #	#------------------------------------------------------------
 #	def delete(substance):
 #		if substance.is_in_use_by_patients:
 #			gmDispatcher.send(signal = 'statustext', msg = _('Cannot delete this substance. It is in use.'), beep = True)
 #			return False
 #
-#		return gmMedication.delete_consumable_substance(substance = substance['pk'])
+#		xxxxx -> substance_dose
+#		return gmMedication.delete_substance(substance = substance['pk'])
 	#------------------------------------------------------------
 	def get_tooltip(intake=None):
 		return intake.format(single_line = False, show_all_brand_components = True)
@@ -295,12 +296,9 @@ def manage_substance_intakes(parent=None, emr=None):
 		lctrl.set_string_items(items)
 		lctrl.set_data(intakes)
 	#------------------------------------------------------------
-	msg = _('Substances consumed by the patient:')
-
 	return gmListWidgets.get_choices_from_list (
 		parent = parent,
-		msg = msg,
-		caption = _('Showing consumable substances.'),
+		caption = _('Substances consumed by the patient'),
 		columns = [ _('Intake'), _('Application'), _('Status') ],
 		single_selection = False,
 #		new_callback = edit,
@@ -613,6 +611,7 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 			epi = self._PRW_episode.GetData(can_create = True, is_open = True)
 
 		selected_drug = self._PRW_drug.GetData(as_instance = True)
+		#xxxxxxx
 		intake = selected_drug.turn_into_intake (
 			encounter = gmPerson.gmCurrentPatient().emr.current_encounter['pk_encounter'],
 			episode = epi,
@@ -846,7 +845,7 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 
 	#----------------------------------------------------------------
 	def _on_manage_substances_button_pressed(self, event):
-		gmSubstanceMgmtWidgets.manage_consumable_substances(parent = self)
+		gmSubstanceMgmtWidgets.manage_substance_doses(parent = self)
 
 	#----------------------------------------------------------------
 	def _on_heart_button_pressed(self, event):
@@ -1252,10 +1251,7 @@ def update_substance_intake_list_from_prescription(parent=None, prescribed_drugs
 
 	for drug in drugs2add:
 		# only add first component since all other components get added by a trigger ...
-		intake = emr.add_substance_intake (
-			pk_component = drug['pk_components'][0],
-			episode = emr.add_episode(episode_name = gmMedication.DEFAULT_MEDICATION_HISTORY_EPISODE)['pk_episode'],
-		)
+		intake = emr.add_substance_intake(pk_component = drug['components'][0]['pk_component'])
 		if intake is None:
 			continue
 		intake['intake_is_approved_of'] = True
@@ -1480,7 +1476,7 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 				if med['pk_brand'] is None:
 					brand = u'%s (%s)' % (gmTools.u_diameter, med['preparation'])
 				else:
-					if med['fake_brand']:
+					if med['is_fake_brand']:
 						brand = u'%s (%s)' % (
 							gmTools.coalesce(med['brand'], u'', _('%s <fake>')),
 							med['preparation']
@@ -1528,7 +1524,7 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 				if med['pk_brand'] is None:
 					brand = u'%s (%s)' % (gmTools.u_diameter, med['preparation'])
 				else:
-					if med['fake_brand']:
+					if med['is_fake_brand']:
 						brand = u'%s (%s)' % (
 							gmTools.coalesce(med['brand'], u'', _('%s <fake>')),
 							med['preparation']
@@ -1554,7 +1550,7 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 						brand = u''
 					else:
 						self.__prev_cell_0 = med['brand']
-						if med['fake_brand']:
+						if med['is_fake_brand']:
 							brand = u'%s (%s)' % (
 								gmTools.coalesce(med['brand'], u'', _('%s <fake>')),
 								med['preparation']

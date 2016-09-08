@@ -140,6 +140,7 @@ class cXxxEAPnl(wxgXxxEAPnl.wxgXxxEAPnl, gmEditArea.cGenericEditAreaMixin):
 			False: 'pink'
 		}
 		self._refresh_as_new()
+
 	#----------------------------------------------------------------
 	# properties
 	#----------------------------------------------------------------
@@ -159,6 +160,7 @@ class cXxxEAPnl(wxgXxxEAPnl.wxgXxxEAPnl, gmEditArea.cGenericEditAreaMixin):
 			self.refresh()
 
 	mode = property(_get_mode, _set_mode)
+
 	#----------------------------------------------------------------
 	def _get_data(self):
 		return self.__data
@@ -171,11 +173,13 @@ class cXxxEAPnl(wxgXxxEAPnl.wxgXxxEAPnl, gmEditArea.cGenericEditAreaMixin):
 		self.refresh()
 
 	data = property(_get_data, _set_data)
+
 	#----------------------------------------------------------------
 	def show_msg(self, msg):
 		gmDispatcher.send(signal = 'statustext', msg = msg)
 
 	status_message = property(lambda x:x, show_msg)
+
 	#----------------------------------------------------------------
 	# generic edit area dialog API
 	#----------------------------------------------------------------
@@ -207,6 +211,7 @@ class cXxxEAPnl(wxgXxxEAPnl.wxgXxxEAPnl, gmEditArea.cGenericEditAreaMixin):
 
 		else:
 			raise ValueError('[%s] <mode> must be in %s' % (self.__class__.__name__, edit_area_modes))
+
 	#----------------------------------------------------------------
 	def refresh(self):
 		"""Invoked from the generic edit area dialog.
@@ -232,9 +237,11 @@ class cXxxEAPnl(wxgXxxEAPnl.wxgXxxEAPnl, gmEditArea.cGenericEditAreaMixin):
 			return result
 		else:
 			raise ValueError('[%s] <mode> must be in %s' % (self.__class__.__name__, edit_area_modes))
+
 	#----------------------------------------------------------------
 	def display_tctrl_as_valid(self, tctrl=None, valid=None):
 		self.display_ctrl_as_valid(ctrl = tctrl, valid = valid)
+
 	#----------------------------------------------------------------
 	def display_ctrl_as_valid(self, ctrl=None, valid=None):
 		ctrl.SetBackgroundColour(self.__tctrl_validity_colors[valid])

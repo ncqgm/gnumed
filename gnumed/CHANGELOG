@@ -1801,6 +1801,12 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 *****************************************************************
 
 ------------------------------------------------
+# gnumed_v22
+------------------------------------------------
+
+IMPROVED: staging._journal_without_suppressed_hints -> clin._v_emr_journal_without_suppressed_hints
+
+------------------------------------------------
 # gnumed_v21
 ------------------------------------------------
 

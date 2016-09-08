@@ -13,6 +13,7 @@ class wxgVaccineEAPnl(wx.ScrolledWindow):
     def __init__(self, *args, **kwds):
 
         from Gnumed.wxpython import gmSubstanceMgmtWidgets
+        from Gnumed.wxpython import gmATCWidgets
         from Gnumed.wxpython import gmPhraseWheel
 
         # begin wxGlade: wxgVaccineEAPnl.__init__
@@ -24,7 +25,7 @@ class wxgVaccineEAPnl(wx.ScrolledWindow):
         self._CHBOX_live = wx.CheckBox(self, -1, _("Live"))
         self._TCTRL_indications = wx.TextCtrl(self, -1, "", style=wx.TE_MULTILINE | wx.TE_READONLY | wx.NO_BORDER)
         self._BTN_manage_indications = wx.Button(self, -1, _("&Manage"), style=wx.BU_EXACTFIT)
-        self._PRW_atc = gmSubstanceMgmtWidgets.cATCPhraseWheel(self, -1, "", style=wx.NO_BORDER)
+        self._PRW_atc = gmATCWidgets.cATCPhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._PRW_age_min = gmPhraseWheel.cPhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._PRW_age_max = gmPhraseWheel.cPhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._TCTRL_comment = wx.TextCtrl(self, -1, "", style=wx.NO_BORDER)

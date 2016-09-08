@@ -135,6 +135,8 @@ from Gnumed.wxpython import gmPregWidgets
 from Gnumed.wxpython import gmExternalCareWidgets
 from Gnumed.wxpython import gmHabitWidgets
 from Gnumed.wxpython import gmSubstanceMgmtWidgets
+from Gnumed.wxpython import gmATCWidgets
+from Gnumed.wxpython import gmLOINCWidgets
 from Gnumed.wxpython import gmVisualProgressNoteWidgets
 
 
@@ -2278,12 +2280,13 @@ class gmTopLevelFrame(wx.Frame):
 		master_data_lists = [
 			'adr',
 			'billables',
-			'drugs',
 			'hints',
 			'codes',
 			'communication_channel_types',
-			'substances_in_brands',
-			'substances',
+			'meds_substances',
+			'meds_doses',
+			'meds_components',
+			'meds_drugs',
 			'labs',
 			'form_templates',
 			'doc_types',
@@ -2304,11 +2307,9 @@ class gmTopLevelFrame(wx.Frame):
 
 		master_data_list_names = {
 			'adr': _('Addresses (likely slow)'),
-			'drugs': _('Branded drugs (as marketed)'),
 			'hints': _('Dynamic automatic hints'),
 			'codes': _('Codes and their respective terms'),
 			'communication_channel_types': _('Communication channel types'),
-			'substances_in_brands': _('Components of branded drugs (substances in brands)'),
 			'labs': _('Diagnostic organizations (path labs, ...)'),
 			'form_templates': _('Document templates (forms, letters, plots, ...)'),
 			'doc_types': _('Document types'),
@@ -2323,7 +2324,10 @@ class gmTopLevelFrame(wx.Frame):
 			'vacc_indications': _('Vaccination targets (conditions known to be preventable by vaccination)'),
 			'vaccines': _('Vaccines'),
 			'workplaces': _('Workplace profiles (which plugins to load)'),
-			'substances': _('Consumable substances'),
+			'meds_substances': _('Medications: base substances'),
+			'meds_doses':      _('Medications: substance dosage'),
+			'meds_components': _('Medications: drug components'),
+			'meds_drugs':      _('Medications: branded and generic drugs'),
 			'billables': _('Billable items'),
 			'ref_data_sources': _('Reference data sources'),
 			'test_panels': _('Test/measurement panels/profiles')
@@ -2338,8 +2342,8 @@ class gmTopLevelFrame(wx.Frame):
 			'enc_types': gmEncounterWidgets.manage_encounter_types,
 			'provinces': gmAddressWidgets.manage_regions,
 			'workplaces': gmPraxisWidgets.configure_workplace_plugins,
-			'drugs': gmSubstanceMgmtWidgets.manage_branded_drugs,
-			'substances_in_brands': gmSubstanceMgmtWidgets.manage_drug_components,
+			'meds_drugs': gmSubstanceMgmtWidgets.manage_branded_drugs,
+			'meds_components': gmSubstanceMgmtWidgets.manage_drug_components,
 			'labs': gmMeasurementWidgets.manage_measurement_orgs,
 			'test_types': gmMeasurementWidgets.manage_measurement_types,
 			'meta_test_types': gmMeasurementWidgets.manage_meta_test_types,
@@ -2347,7 +2351,8 @@ class gmTopLevelFrame(wx.Frame):
 			'vacc_indications': gmVaccWidgets.manage_vaccination_indications,
 			'orgs': gmOrganizationWidgets.manage_orgs,
 			'adr': gmAddressWidgets.manage_addresses,
-			'substances': gmSubstanceMgmtWidgets.manage_consumable_substances,
+			'meds_substances': gmSubstanceMgmtWidgets.manage_substances,
+			'meds_doses': gmSubstanceMgmtWidgets.manage_substance_doses,
 			'patient_tags': gmDemographicsWidgets.manage_tag_images,
 			'communication_channel_types': gmContactWidgets.manage_comm_channel_types,
 			'billables': gmBillingWidgets.manage_billables,
@@ -3157,11 +3162,11 @@ class gmTopLevelFrame(wx.Frame):
 		gmAuthWidgets.change_gmdbowner_password()
 	#----------------------------------------------
 	def __on_update_loinc(self, evt):
-		gmMeasurementWidgets.update_loinc_reference_data()
+		gmLOINCWidgets.update_loinc_reference_data()
 
 	#----------------------------------------------
 	def __on_update_atc(self, evt):
-		gmSubstanceMgmtWidgets.update_atc_reference_data()
+		gmATCWidgets.update_atc_reference_data()
 
 	#----------------------------------------------
 	def __on_install_data_packs(self, evt):

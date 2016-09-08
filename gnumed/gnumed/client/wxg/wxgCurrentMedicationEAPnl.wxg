@@ -165,7 +165,7 @@
                                 <object class="wxButton" name="_BTN_database_substance" base="EditButton">
                                     <style>wxBU_EXACTFIT</style>
                                     <label>Substances</label>
-                                    <tooltip>Manage consumable substances.\n\nThis will not select a substance for you. It will, however, enable you to manage (add/edit/delete) the consumable substances available for selection.</tooltip>
+                                    <tooltip>Manage substances.\n\nThis will not select a substance for you. It will, however, enable you to manage (add/edit/delete) the substances available for selection.</tooltip>
                                     <events>
                                         <handler event="EVT_BUTTON">_on_manage_substances_button_pressed</handler>
                                     </events>

@@ -75,7 +75,7 @@ class wxgCurrentMedicationEAPnl(wx.ScrolledWindow):
 		self._BTN_heart.SetToolTipString(_("Show cardiac information relevant to substance selection."))
 		self._BTN_kidneys.SetToolTipString(_("Show renal insufficiency information related to substance selection."))
 		self._BTN_database_brand.SetToolTipString(_("Manage drug brands.\n\nNote that this will not select a component for you. What it does is to let you manage (add/edit/delete) the drug products/brands known to GNUmed from which you can select a component."))
-		self._BTN_database_substance.SetToolTipString(_("Manage consumable substances.\n\nThis will not select a substance for you. It will, however, enable you to manage (add/edit/delete) the consumable substances available for selection."))
+		self._BTN_database_substance.SetToolTipString(_("Manage substances.\n\nThis will not select a substance for you. It will, however, enable you to manage (add/edit/delete) the substances available for selection."))
 		self._LBL_preparation.SetForegroundColour(wx.Colour(255, 0, 0))
 		self._PRW_preparation.SetToolTipString(_("The preparation or form of the substance."))
 		self._CHBOX_start_unknown.SetToolTipString(_("Check here if the start date simply isn't known."))

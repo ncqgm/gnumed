@@ -827,16 +827,13 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		multi_brands_already_seen = []
 		for intake in intakes:
 			brand = intake.containing_drug
-			if brand is None or len(brand['pk_components']) == 1:
-				list_items.append(_('%s %s %s%s') % (
+			if len(brand['components']) == 1:
+				list_items.append(_('%s %s%s%s%s') % (
 					intake['substance'],
 					intake['amount'],
 					intake['unit'],
-					gmTools.coalesce (
-						intake['schedule'],
-						u'',
-						u': %s'
-					)
+					gmTools.coalesce(intake['dose_unit'], u'', u'/%s'),
+					gmTools.coalesce(intake['schedule'], u'', u': %s')
 				))
 				data_items.append(intake)
 			else:
@@ -846,11 +843,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 				list_items.append(_('%s %s%s') % (
 					intake['brand'],
 					brand['preparation'],
-					gmTools.coalesce (
-						intake['schedule'],
-						u'',
-						u': %s'
-					)
+					gmTools.coalesce(intake['schedule'], u'', u': %s')
 				))
 				data_items.append(intake)
 
