@@ -138,8 +138,8 @@ class wxgCurrentSubstancesPnl(wx.ScrolledWindow):
         print "Event handler `_on_episode_grouping_selected' not implemented"
         event.Skip()
 
-    def _on_brand_grouping_selected(self, event): # wxGlade: wxgCurrentSubstancesPnl.<event_handler>
-        print "Event handler `_on_brand_grouping_selected' not implemented"
+    def _on_product_grouping_selected(self, event): # wxGlade: wxgCurrentSubstancesPnl.<event_handler>
+        print "Event handler `_on_product_grouping_selected' not implemented"
         event.Skip()
 
     def _on_show_unapproved_checked(self, event): # wxGlade: wxgCurrentSubstancesPnl.<event_handler>

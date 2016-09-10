@@ -9,7 +9,14 @@ import sys, copy, logging
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmBusinessDBObject, gmPG2, gmI18N, gmTools, gmDateTime
+from Gnumed.pycommon import gmBusinessDBObject
+from Gnumed.pycommon import gmPG2
+from Gnumed.pycommon import gmI18N
+from Gnumed.pycommon import gmTools
+from Gnumed.pycommon import gmDateTime
+if __name__ == '__main__':
+	gmI18N.activate_locale()
+	gmI18N.install_domain()
 from Gnumed.business import gmMedication
 
 
@@ -47,7 +54,7 @@ class cVaccine(gmBusinessDBObject.cBusinessDBObject):
 				min_age = %(min_age)s,
 				max_age = %(max_age)s,
 				comment = gm.nullify_empty_string(%(comment)s),
-				fk_brand = %(pk_brand)s
+				fk_drug_product = %(pk_drug_product)s
 			WHERE
 				pk = %(pk_vaccine)s
 					AND
@@ -63,7 +70,7 @@ class cVaccine(gmBusinessDBObject.cBusinessDBObject):
 		u'min_age',
 		u'max_age',
 		u'comment',
-		u'pk_brand'
+		u'pk_drug_product'
 	]
 	#--------------------------------------------------------
 	def get_indications(self):
@@ -112,13 +119,15 @@ class cVaccine(gmBusinessDBObject.cBusinessDBObject):
 		self.refetch_payload()
 
 	indications = property(get_indications, lambda x:x)
+
 	#--------------------------------------------------------
 	# properties
 	#--------------------------------------------------------
-	def _get_brand(self):
-		return gmMedication.cBrandedDrug(aPK_obj = self._payload[self._idx['pk_brand']])
+	def _get_product(self):
+		return gmMedication.cDrugProduct(aPK_obj = self._payload[self._idx['pk_drug_product']])
 
-	brand = property(_get_brand, lambda x:x)
+	product = property(_get_product, lambda x:x)
+
 	#--------------------------------------------------------
 	def _get_is_in_use(self):
 		cmd = u'SELECT EXISTS(SELECT 1 FROM clin.vaccination WHERE fk_vaccine = %(pk)s)'
@@ -129,22 +138,22 @@ class cVaccine(gmBusinessDBObject.cBusinessDBObject):
 	is_in_use = property(_get_is_in_use, lambda x:x)
 
 #------------------------------------------------------------
-def create_vaccine(pk_brand=None, brand_name=None, indications=None, pk_indications=None):
+def create_vaccine(pk_drug_product=None, product_name=None, indications=None, pk_indications=None):
 
-	if pk_brand is None:
+	if pk_drug_product is None:
 		prep = _('vaccine')
-		_log.debug('creating branded drug [%s %s]', brand_name, prep)
-		drug = gmMedication.create_branded_drug (
-			brand_name = brand_name,
+		_log.debug('creating drug product [%s %s]', product_name, prep)
+		prod = gmMedication.create_drug_product (
+			product_name = product_name,
 			preparation = prep,
 			return_existing = True
 		)
-		drug['atc'] = u'J07'
-		drug.save()
-		pk_brand = drug['pk_brand']
+		prod['atc'] = u'J07'
+		prod.save()
+		pk_drug_product = prod['pk_drug_product']
 
-	cmd = u'INSERT INTO clin.vaccine (fk_brand) values (%(pk_brand)s) RETURNING pk'
-	queries = [{'cmd': cmd, 'args': {'pk_brand': pk_brand}}]
+	cmd = u'INSERT INTO clin.vaccine (fk_drug_product) values (%(pk_drug_product)s) RETURNING pk'
+	queries = [{'cmd': cmd, 'args': {'pk_drug_product': pk_drug_product}}]
 
 
 	if pk_indications is None:
@@ -182,6 +191,7 @@ def create_vaccine(pk_brand=None, brand_name=None, indications=None, pk_indicati
 	rows, idx = gmPG2.run_rw_queries(queries = queries, get_col_idx = False, return_data = True)
 
 	return cVaccine(aPK_obj = rows[0]['fk_vaccine'])
+
 #------------------------------------------------------------
 def delete_vaccine(vaccine=None):
 
@@ -195,6 +205,7 @@ def delete_vaccine(vaccine=None):
 		return False
 
 	return True
+
 #------------------------------------------------------------
 def get_vaccines(order_by=None):
 
@@ -206,6 +217,7 @@ def get_vaccines(order_by=None):
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
 
 	return [ cVaccine(row = {'data': r, 'idx': idx, 'pk_field': 'pk_vaccine'}) for r in rows ]
+
 #------------------------------------------------------------
 def map_indications2generic_vaccine(indications=None):
 
@@ -215,10 +227,11 @@ def map_indications2generic_vaccine(indications=None):
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 
 	if len(rows) == 0:
-		_log.warning('no fake, generic vaccine found for [%s]', indications)
+		_log.warning('no fake/generic vaccine found for [%s]', indications)
 		return None
 
 	return cVaccine(row = {'data': rows[0], 'idx': idx, 'pk_field': 'pk_vaccine'})
+
 #------------------------------------------------------------
 def regenerate_generic_vaccines():
 
@@ -467,6 +480,7 @@ class cMissingVaccination(gmBusinessDBObject.cBusinessDBObject):
 		# episode/encounter or use curr_pat.* if pk_patient=curr_pat,
 		# should we auto-destroy after create_vaccination() ?
 		return (False, 'not implemented')
+
 #============================================================
 class cMissingBooster(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one due booster.
@@ -791,6 +805,7 @@ group by trade_name"""
 			if map_vacc_count_inds[vaccine] == presence:
 				matched_vaccines.append(vaccine)
 	return matched_vaccines
+
 #============================================================
 # main - unit testing
 #------------------------------------------------------------
@@ -837,6 +852,7 @@ if __name__ == '__main__':
 		print missing_vacc
 		for field in fields:
 			print field, ':', missing_vacc[field]
+
 	#--------------------------------------------------------
 	def test_due_booster():
 		pk_args = {
@@ -849,6 +865,7 @@ if __name__ == '__main__':
 		print missing_booster
 		for field in fields:
 			print field, ':', missing_booster[field]
+
 	#--------------------------------------------------------
 	def test_scheduled_vacc():
 		scheduled_vacc = cScheduledVaccination(aPK_obj=20)
@@ -858,6 +875,7 @@ if __name__ == '__main__':
 		for field in fields:
 			print field, ':', scheduled_vacc[field]
 		print "updatable:", scheduled_vacc.get_updatable_fields()
+
 	#--------------------------------------------------------
 	def test_vaccination_course():
 		vaccination_course = cVaccinationCourse(aPK_obj=7)
@@ -867,15 +885,25 @@ if __name__ == '__main__':
 		for field in fields:
 			print field, ':', vaccination_course[field]
 		print "updatable:", vaccination_course.get_updatable_fields()
+
 	#--------------------------------------------------------
 	def test_put_patient_on_schedule():
 		result, msg = put_patient_on_schedule(patient_id=12, course_id=1)
 		print '\nPutting patient id 12 on schedule id 1... %s (%s)' % (result, msg)
+
 	#--------------------------------------------------------
 	def test_get_vaccines():
 
 		for vaccine in get_vaccines():
 			print vaccine
+
+		for ind in get_indications():
+			print ind
+
+	#--------------------------------------------------------
+	def test_get_vaccinations():
+		for v in get_vaccinations():
+			print v
 
 	#--------------------------------------------------------
 	#test_vaccination_course()
@@ -886,5 +914,3 @@ if __name__ == '__main__':
 	#test_due_booster()
 
 	test_get_vaccines()
-#============================================================
-

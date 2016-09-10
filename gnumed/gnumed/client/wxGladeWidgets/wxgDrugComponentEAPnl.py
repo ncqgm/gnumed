@@ -17,7 +17,7 @@ class wxgDrugComponentEAPnl(wx.ScrolledWindow):
         # begin wxGlade: wxgDrugComponentEAPnl.__init__
         kwds["style"] = wx.NO_BORDER|wx.TAB_TRAVERSAL
         wx.ScrolledWindow.__init__(self, *args, **kwds)
-        self._TCTRL_brand = wx.TextCtrl(self, -1, "", style=wx.TE_READONLY|wx.NO_BORDER)
+        self._TCTRL_product_name = wx.TextCtrl(self, -1, "", style=wx.TE_READONLY|wx.NO_BORDER)
         self._TCTRL_components = wx.TextCtrl(self, -1, "", style=wx.TE_READONLY|wx.NO_BORDER)
         self._TCTRL_codes = wx.TextCtrl(self, -1, "", style=wx.TE_READONLY|wx.NO_BORDER)
         self._PRW_substance = gmSubstanceMgmtWidgets.cSubstancePhraseWheel(self, -1, "", style=wx.NO_BORDER)
@@ -31,19 +31,19 @@ class wxgDrugComponentEAPnl(wx.ScrolledWindow):
     def __set_properties(self):
         # begin wxGlade: wxgDrugComponentEAPnl.__set_properties
         self.SetScrollRate(10, 10)
-        self._TCTRL_brand.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_BACKGROUND))
+        self._TCTRL_product_name.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_BACKGROUND))
         self._TCTRL_components.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_BACKGROUND))
         self._TCTRL_codes.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_BACKGROUND))
-        self._TCTRL_amount.SetToolTipString(_("The numeric amount of substance per dose in brand.\n\nExamples:\n- 100mg per tablet: amount = 100, unit = mg(/tablet)\n- 10mg/ampulla: amount = 10, unit = mg(/ampulla)\n- 5mg/ml solution: amount = 5, unit = mg/ml"))
+        self._TCTRL_amount.SetToolTipString(_("The numeric amount of substance per dose in the product.\n\nExamples:\n- 100mg per tablet: amount = 100, unit = mg(/tablet)\n- 10mg/ampulla: amount = 10, unit = mg(/ampulla)\n- 5mg/ml solution: amount = 5, unit = mg/ml"))
         # end wxGlade
 
     def __do_layout(self):
         # begin wxGlade: wxgDrugComponentEAPnl.__do_layout
         _gszr_main = wx.FlexGridSizer(5, 2, 1, 3)
         __szr_amount = wx.BoxSizer(wx.HORIZONTAL)
-        __lbl_brand = wx.StaticText(self, -1, _("Brand"))
-        _gszr_main.Add(__lbl_brand, 0, wx.ALIGN_CENTER_VERTICAL, 0)
-        _gszr_main.Add(self._TCTRL_brand, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
+        __lbl_product = wx.StaticText(self, -1, _("Product"))
+        _gszr_main.Add(__lbl_product, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+        _gszr_main.Add(self._TCTRL_product_name, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
         _gszr_main.Add((20, 20), 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
         _gszr_main.Add(self._TCTRL_components, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
         _gszr_main.Add((20, 20), 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)

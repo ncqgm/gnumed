@@ -9,35 +9,44 @@
 --set default_transaction_read_only to off;
 
 -- --------------------------------------------------------------
+delete from audit.audited_tables where schema = 'ref' and table_name = 'branded_drug';
+select audit.add_table_for_audit('ref', 'drug_product');
+
+delete from gm.notifying_tables where schema_name = 'ref' and table_name = 'branded_drug';
+select gm.add_table_for_notifies('ref', 'drug_product');
+
+
 -- table constraints
---drop index if exists ref.idx_branded_drug_uniq_generic_drugs cascade;
---create unique index idx_branded_drug_uniq_generic_drugs on ref.branded_drug(description, preparation, is_fake);
+--drop index if exists ref.idx_drug_product_uniq_generic_drugs cascade;
+--create unique index idx_drug_product_uniq_generic_drugs on ref.drug_product(description, preparation, is_fake);
 
-drop index if exists ref.idx_branded_drug_uniq_brand_no_code cascade;
+drop index if exists ref.idx_drug_product_uniq_brand_no_code cascade;
+drop index if exists ref.idx_drug_product_uniq_product_no_code cascade;
 
-create unique index idx_branded_drug_uniq_brand_no_code
-	on ref.branded_drug (description, preparation, is_fake)
-	where ref.branded_drug.external_code is NULL;
+create unique index idx_drug_product_uniq_product_no_code
+	on ref.drug_product (description, preparation, is_fake)
+	where ref.drug_product.external_code is NULL;
 
 -- --------------------------------------------------------------
 drop view if exists ref.v_branded_drugs cascade;
+drop view if exists ref.v_drug_products cascade;
 
-create view ref.v_branded_drugs as
+create view ref.v_drug_products as
 select
-	r_bd.pk
-		as pk_brand,
-	r_bd.description
-		as brand,
-	r_bd.preparation
+	r_dp.pk
+		as pk_drug_product,
+	r_dp.description
+		as product,
+	r_dp.preparation
 		as preparation,
-	r_bd.atc_code
+	r_dp.atc_code
 		as atc,
-	r_bd.external_code
+	r_dp.external_code
 		as external_code,
-	r_bd.external_code_type
+	r_dp.external_code_type
 		as external_code_type,
-	r_bd.is_fake
-		as is_fake_brand,
+	r_dp.is_fake
+		as is_fake_product,
 --	exists (
 --		select 1 from clin.substance_intake c_si
 --		where
@@ -63,19 +72,19 @@ select
 				ref.lnk_dose2drug r_ld2d
 					inner join ref.v_substance_doses r_vsd on (r_ld2d.fk_dose = r_vsd.pk_dose)
 			where
-				r_ld2d.fk_brand = r_bd.pk
+				r_ld2d.fk_drug_product = r_dp.pk
 		) as component_row
 	) as components,
 
-	r_bd.fk_data_source
+	r_dp.fk_data_source
 		as pk_data_source,
-	r_bd.xmin
-		as xmin_branded_drug
+	r_dp.xmin
+		as xmin_drug_product
 from
-	ref.branded_drug r_bd
+	ref.drug_product r_dp
 ;
 
-grant select on ref.v_branded_drugs to group "gm-doctors";
+grant select on ref.v_drug_products to group "gm-doctors";
 
 -- --------------------------------------------------------------
 -- only needed for data conversion
@@ -83,14 +92,14 @@ drop view if exists ref._tmp_v_branded_drugs cascade;
 
 create view ref._tmp_v_branded_drugs as
 select
-	r_vbd.*,
+	r_vdp.*,
 	(select array_agg(r_vdc.pk_substance)
 	 from ref.v_drug_components r_vdc
-	 where r_vdc.pk_brand = r_vbd.pk_brand
+	 where r_vdc.pk_product = r_vdp.pk_drug_product
 	) as pk_substances
 from
-	ref.v_branded_drugs r_vbd
+	ref.v_drug_products r_vdp
 ;
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('v22-ref-v_branded_drugs.sql', '22.0');
+select gm.log_script_insertion('v22-ref-v_drug_products.sql', '22.0');

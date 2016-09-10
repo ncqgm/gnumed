@@ -11,8 +11,8 @@ from Gnumed.pycommon import gmLog2
 from Gnumed.pycommon import gmTools
 
 
-field_names = [u'substance', u'brand', u'form', u'company', u'strength_1', u'strength_2', u'strength_3', u'always_empty', u'unit']
-non_empty_fields = [u'substance', u'brand', u'form', u'company', u'strength_1', u'unit']
+field_names = [u'substance', u'product', u'form', u'company', u'strength_1', u'strength_2', u'strength_3', u'always_empty', u'unit']
+non_empty_fields = [u'substance', u'product', u'form', u'company', u'strength_1', u'unit']
 numeric_fields = [u'strength_1', u'strength_2', u'strength_3']
 
 
@@ -87,21 +87,21 @@ WHERE
 	)
 ;
 
--- brands
-INSERT INTO ref.branded_drug (description, preparation) SELECT
+-- drug products
+INSERT INTO ref.drug_product (description, preparation) SELECT
 	s_id.brand_name, s_id.form
 FROM
 	staging.india_drugs s_id
 WHERE NOT EXISTS (
-	SELECT 1 FROM ref.branded_drug r_bd WHERE
+	SELECT 1 FROM ref.drug_product r_bd WHERE
 		r_bd.description = s_id.brand_name
 			AND
 		r_bd.preparation = s_id.form
 );
 
 -- link components
-INSERT INTO ref.lnk_substance2brand (fk_brand, fk_substance) SELECT
-	(SELECT pk FROM ref.branded_drug r_bd
+INSERT INTO ref.lnk_substance2brand (fk_drug_product, fk_substance) SELECT
+	(SELECT pk FROM ref.drug_product r_bd
 	 WHERE
 		r_bd.description = s_id.brand_name
 			AND
@@ -118,8 +118,8 @@ FROM
 	staging.india_drugs s_id
 WHERE NOT EXISTS (
 	SELECT 1 FROM ref.lnk_substance2brand WHERE
-		fk_brand = (
-			SELECT pk FROM ref.branded_drug WHERE
+		fk_drug_product = (
+			SELECT pk FROM ref.drug_product WHERE
 				description = s_id.brand_name
 					AND
 				preparation = s_id.form
@@ -207,7 +207,7 @@ def create_sql(filename):
 		for field in numeric_fields:
 			if line[field] == u'':
 				continue
-			line['brand_name'] = (u'%%(brand)s %%(%s)s (%%(company)s)' % field) % line
+			line['brand_name'] = (u'%%(product)s %%(%s)s (%%(company)s)' % field) % line
 			line['strength'] = line[field]
 			print SQL_stage_drug % line
 

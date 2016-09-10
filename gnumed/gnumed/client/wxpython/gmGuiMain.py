@@ -2327,7 +2327,7 @@ class gmTopLevelFrame(wx.Frame):
 			'meds_substances': _('Medications: base substances'),
 			'meds_doses':      _('Medications: substance dosage'),
 			'meds_components': _('Medications: drug components'),
-			'meds_drugs':      _('Medications: branded and generic drugs'),
+			'meds_drugs':      _('Medications: drug products and generic drugs'),
 			'billables': _('Billable items'),
 			'ref_data_sources': _('Reference data sources'),
 			'test_panels': _('Test/measurement panels/profiles')
@@ -2342,7 +2342,7 @@ class gmTopLevelFrame(wx.Frame):
 			'enc_types': gmEncounterWidgets.manage_encounter_types,
 			'provinces': gmAddressWidgets.manage_regions,
 			'workplaces': gmPraxisWidgets.configure_workplace_plugins,
-			'meds_drugs': gmSubstanceMgmtWidgets.manage_branded_drugs,
+			'meds_drugs': gmSubstanceMgmtWidgets.manage_drug_products,
 			'meds_components': gmSubstanceMgmtWidgets.manage_drug_components,
 			'labs': gmMeasurementWidgets.manage_measurement_orgs,
 			'test_types': gmMeasurementWidgets.manage_measurement_types,

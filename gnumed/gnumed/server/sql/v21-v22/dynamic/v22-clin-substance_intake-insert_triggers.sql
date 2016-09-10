@@ -39,7 +39,7 @@ BEGIN
 	;
 
 	if FOUND then
-		_msg := ''[clin.trf_ins_upd_intake_prevent_duplicate_component_links]: drug component ref.lnk_substance2brand.pk=('' || NEW.fk_drug_component || '') ''
+		_msg := ''[clin.trf_ins_upd_intake_prevent_duplicate_component_links]: drug component ref.lnk_dose2drug.pk=('' || NEW.fk_drug_component || '') ''
 			|| ''already linked to patient=('' || _pk_patient || '') ''
 			|| ''as clin.substance_intake.pk=('' || _pk_intake || '')'';
 		raise exception unique_violation using message = _msg;
@@ -67,18 +67,18 @@ create or replace function clin.trf_insert_intake_links_all_drug_components()
 DECLARE
 	_component_count integer;
 	_pk_patient integer;
-	_pk_brand integer;
+	_pk_drug_product integer;
 	_pk_component integer;
 BEGIN
-	-- get the brand we are linking to
-	select fk_brand into _pk_brand
+	-- get the product we are linking to
+	select fk_drug_product into _pk_drug_product
 	from ref.lnk_dose2drug
 	where pk = NEW.fk_drug_component;
 
 	-- how many components therein ?
 	select count(1) into _component_count
 	from ref.lnk_dose2drug
-	where fk_brand = _pk_brand;
+	where fk_drug_product = _pk_drug_product;
 
 	-- only one component ?
 	if _component_count = 1 then
@@ -92,7 +92,7 @@ BEGIN
 
 	-- INSERT all components
 	for _pk_component in
-		select pk from ref.lnk_dose2drug where fk_brand = _pk_brand
+		select pk from ref.lnk_dose2drug where fk_drug_product = _pk_drug_product
 	loop
 		-- already there ?
 		perform 1 from clin.substance_intake where

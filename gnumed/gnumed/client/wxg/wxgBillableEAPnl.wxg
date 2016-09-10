@@ -82,7 +82,7 @@
                 <flag>wxALIGN_CENTER_VERTICAL</flag>
                 <border>0</border>
                 <option>0</option>
-                <object class="wxStaticText" name="__lbl_brand_name" base="EditStaticText">
+                <object class="wxStaticText" name="__lbl_value" base="EditStaticText">
                     <foreground>#ff7f00</foreground>
                     <attribute>0</attribute>
                     <label>Value</label>

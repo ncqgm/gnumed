@@ -337,7 +337,7 @@ __known_variant_placeholders = {
 		args: line template//<select>
 		<select>: if this is present the user will be asked which meds to export""",
 
-	u'current_meds_for_rx': u"""formats substance intakes either by substance (non-brand intakes or by brand (once per brand intake, even if multi-component):
+	u'current_meds_for_rx': u"""formats substance intakes either by substance (non-product intakes) or by producdt (once per product intake, even if multi-component):
 		args: <line template>
 		<line_template>: template into which to insert each intake, keys from
 		clin.v_substance_intakes, special additional keys:
@@ -1796,10 +1796,10 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		# make them unique:
 		unique_intakes = {}
 		for intake in intakes2export:
-			if intake['pk_brand'] is None:
+			if intake['pk_drug_product'] is None:
 				unique_intakes[intake['pk_substance']] = intake
 			else:
-				unique_intakes[intake['brand']] = intake
+				unique_intakes[intake['product']] = intake
 		del intakes2export
 		unique_intakes = unique_intakes.values()
 
@@ -1974,23 +1974,23 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		for intake in current_meds:
 			fields_dict = intake.fields_as_dict(date_format = '%Y %b %d', escape_style = self.__esc_style)
 			fields_dict['medically_formatted_start'] = self._escape(intake.medically_formatted_start)
-			if intake['pk_brand'] is None:
-				fields_dict['brand'] = self._escape(_('generic %s') % fields_dict['substance'])
+			if intake['pk_drug_product'] is None:
+				fields_dict['product'] = self._escape(_('generic %s') % fields_dict['substance'])
 				fields_dict['contains'] = self._escape(u'%s %s%s' % (fields_dict['substance'], fields_dict['amount'], fields_dict['unit']))
-				intakes2show[fields_dict['brand']] = fields_dict
+				intakes2show[fields_dict['product']] = fields_dict
 			else:
 				comps = [ c.split('::') for c in intake.containing_drug['components'] ]
 				fields_dict['contains'] = self._escape(u'; '.join([ u'%s %s%s' % (c[0], c[1], c[2]) for c in comps ]))
-				intakes2show[intake['brand']] = fields_dict		# this will make multi-component drugs unique
+				intakes2show[intake['product']] = fields_dict		# this will make multi-component drugs unique
 
 		intakes2dispense = {}
-		for brand, intake in intakes2show.items():
-			msg = _('Dispense how much/many of "%(brand)s (%(contains)s)" ?') % intake
+		for product, intake in intakes2show.items():
+			msg = _('Dispense how much/many of "%(product)s (%(contains)s)" ?') % intake
 			amount2dispense = wx.GetTextFromUser(msg, _('Amount to dispense ?'))
 			if amount2dispense == u'':
 				continue
 			intake['amount2dispense'] = amount2dispense
-			intakes2dispense[brand] = intake
+			intakes2dispense[product] = intake
 
 		return u'\n'.join([ data % intake for intake in intakes2dispense.values() ])
 
@@ -2032,7 +2032,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			current_meds = emr.get_current_medications (
 				include_inactive = False,
 				include_unapproved = True,
-				order_by = u'brand, substance'
+				order_by = u'product, substance'
 			)
 			if len(current_meds) == 0:
 				return u''
@@ -2049,14 +2049,14 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		return gmMedication.format_substance_intake (
 			emr = self.pat.emr,
 			output_format = self.__esc_style,
-			table_type = u'by-brand'
+			table_type = u'by-product'
 		)
 	#--------------------------------------------------------
 	def _get_variant_current_meds_notes(self, data=None):
 		return gmMedication.format_substance_intake_notes (
 			emr = self.pat.get_emr(),
 			output_format = self.__esc_style,
-			table_type = u'by-brand'
+			table_type = u'by-product'
 		)
 	#--------------------------------------------------------
 	def _get_variant_lab_table(self, data=None):
@@ -2689,9 +2689,9 @@ if __name__ == '__main__':
 			# should work:
 			'$<adr_location::home::35>$',
 			'$<gender_mapper::male//female//other::5>$',
-			'$<current_meds::==> %(brand)s %(preparation)s (%(substance)s) <==\n::50>$',
+			'$<current_meds::==> %(product)s %(preparation)s (%(substance)s) <==\n::50>$',
 			'$<allergy_list::%(descriptor)s, >$',
-			'$<current_meds_table::latex//by-brand>$'
+			'$<current_meds_table::latex//>$'
 
 #			'firstname',
 #			'title',
@@ -2780,12 +2780,12 @@ if __name__ == '__main__':
 
 			'$<adr_location::home::35>$',
 			'$<gender_mapper::male//female//other::5>$',
-			'$<current_meds::==> %(brand)s %(preparation)s (%(substance)s) <==\\n::50>$',
+			'$<current_meds::==> %(product)s %(preparation)s (%(substance)s) <==\\n::50>$',
 			'$<allergy_list::%(descriptor)s, >$',
 
 			'\\noindent Patient: $<lastname>$, $<firstname>$',
 			'$<allergies::%(descriptor)s & %(l10n_type)s & {\\footnotesize %(reaction)s} \tabularnewline \hline >$',
-			'$<current_meds::		\item[%(substance)s] {\\footnotesize (%(brand)s)} %(preparation)s %(amount)s%(unit)s: %(schedule)s >$'
+			'$<current_meds::		\item[%(substance)s] {\\footnotesize (%(product)s)} %(preparation)s %(amount)s%(unit)s: %(schedule)s >$'
 		]
 
 		tests = [
@@ -2808,19 +2808,19 @@ if __name__ == '__main__':
 #			u'junk   $<date_of_birth::%Y %B %d::>$   $<date_of_birth::%Y %B %d::20>$   $<<date_of_birth::%Y %B %d::20>>$',
 #			u'junk   $<date_of_birth::::20>$',
 #			u'junk   $<date_of_birth::::>$',
-			u'junk $<<<current_meds::%(brand)s (%(substance)s): Dispense $<free_text::Dispense how many of %(brand)s %(preparation)s (%(substance)s) ?::20>$ (%(preparation)s) \\n::>>>$ junk',
-			u'junk $<<<current_meds::%(brand)s (%(substance)s): Dispense $<free_text::Dispense how many of %(brand)s %(preparation)s (%(substance)s) ?::20>$ (%(preparation)s) \\n::250>>>$ junk',
-			u'junk $<<<current_meds::%(brand)s (%(substance)s): Dispense $<free_text::Dispense how many of %(brand)s %(preparation)s (%(substance)s) ?::20>$ (%(preparation)s) \\n::3-4>>>$ junk',
+			u'junk $<<<current_meds::%(product)s (%(substance)s): Dispense $<free_text::Dispense how many of %(product)s %(preparation)s (%(substance)s) ?::20>$ (%(preparation)s) \\n::>>>$ junk',
+			u'junk $<<<current_meds::%(product)s (%(substance)s): Dispense $<free_text::Dispense how many of %(product)s %(preparation)s (%(substance)s) ?::20>$ (%(preparation)s) \\n::250>>>$ junk',
+			u'junk $<<<current_meds::%(product)s (%(substance)s): Dispense $<free_text::Dispense how many of %(product)s %(preparation)s (%(substance)s) ?::20>$ (%(preparation)s) \\n::3-4>>>$ junk',
 
-			u'should fail $<<<current_meds::%(brand)s (%(substance)s): Dispense $<free_text::Dispense how many of %(brand)s %(preparation)s (%(substance)s) ?::20>$ (%(preparation)s) \\n::->>>$ junk',
-			u'should fail $<<<current_meds::%(brand)s (%(substance)s): Dispense $<free_text::Dispense how many of %(brand)s %(preparation)s (%(substance)s) ?::20>$ (%(preparation)s) \\n::3->>>$ junk',
-			u'should fail $<<<current_meds::%(brand)s (%(substance)s): Dispense $<free_text::Dispense how many of %(brand)s %(preparation)s (%(substance)s) ?::20>$ (%(preparation)s) \\n::-4>>>$ should fail',
-			u'should fail $<<<current_meds::%(brand)s (%(substance)s): Dispense $<free_text::Dispense how many of %(brand)s %(preparation)s (%(substance)s) ?::20>$ (%(preparation)s) \\n::should_fail>>>$ junk',
-			u'should fail $<<<current_meds::%(brand)s (%(substance)s): Dispense $<free_text::Dispense how many of %(brand)s %(preparation)s (%(substance)s) ?::20>$ (%(preparation)s) \\n::should_fail->>>$ junk',
-			u'should fail $<<<current_meds::%(brand)s (%(substance)s): Dispense $<free_text::Dispense how many of %(brand)s %(preparation)s (%(substance)s) ?::20>$ (%(preparation)s) \\n::-should_fail>>>$ junk',
-			u'should fail $<<<current_meds::%(brand)s (%(substance)s): Dispense $<free_text::Dispense how many of %(brand)s %(preparation)s (%(substance)s) ?::20>$ (%(preparation)s) \\n::should_fail-4>>>$ junk',
-			u'should fail $<<<current_meds::%(brand)s (%(substance)s): Dispense $<free_text::Dispense how many of %(brand)s %(preparation)s (%(substance)s) ?::20>$ (%(preparation)s) \\n::3-should_fail>>>$ junk',
-			u'should fail $<<<current_meds::%(brand)s (%(substance)s): Dispense $<free_text::Dispense how many of %(brand)s %(preparation)s (%(substance)s) ?::20>$ (%(preparation)s) \\n::should_fail-should_fail>>>$ junk',
+			u'should fail $<<<current_meds::%(product)s (%(substance)s): Dispense $<free_text::Dispense how many of %(product)s %(preparation)s (%(substance)s) ?::20>$ (%(preparation)s) \\n::->>>$ junk',
+			u'should fail $<<<current_meds::%(product)s (%(substance)s): Dispense $<free_text::Dispense how many of %(product)s %(preparation)s (%(substance)s) ?::20>$ (%(preparation)s) \\n::3->>>$ junk',
+			u'should fail $<<<current_meds::%(product)s (%(substance)s): Dispense $<free_text::Dispense how many of %(product)s %(preparation)s (%(substance)s) ?::20>$ (%(preparation)s) \\n::-4>>>$ should fail',
+			u'should fail $<<<current_meds::%(product)s (%(substance)s): Dispense $<free_text::Dispense how many of %(product)s %(preparation)s (%(substance)s) ?::20>$ (%(preparation)s) \\n::should_fail>>>$ junk',
+			u'should fail $<<<current_meds::%(product)s (%(substance)s): Dispense $<free_text::Dispense how many of %(product)s %(preparation)s (%(substance)s) ?::20>$ (%(preparation)s) \\n::should_fail->>>$ junk',
+			u'should fail $<<<current_meds::%(product)s (%(substance)s): Dispense $<free_text::Dispense how many of %(product)s %(preparation)s (%(substance)s) ?::20>$ (%(preparation)s) \\n::-should_fail>>>$ junk',
+			u'should fail $<<<current_meds::%(product)s (%(substance)s): Dispense $<free_text::Dispense how many of %(product)s %(preparation)s (%(substance)s) ?::20>$ (%(preparation)s) \\n::should_fail-4>>>$ junk',
+			u'should fail $<<<current_meds::%(product)s (%(substance)s): Dispense $<free_text::Dispense how many of %(product)s %(preparation)s (%(substance)s) ?::20>$ (%(preparation)s) \\n::3-should_fail>>>$ junk',
+			u'should fail $<<<current_meds::%(product)s (%(substance)s): Dispense $<free_text::Dispense how many of %(product)s %(preparation)s (%(substance)s) ?::20>$ (%(preparation)s) \\n::should_fail-should_fail>>>$ junk',
 		]
 
 		tests = [
@@ -2988,7 +2988,7 @@ if __name__ == '__main__':
 			#u'form_name_long::::5',
 			#u'form_name_long::::',
 			#u'form_version::::5',
-			#u'$<current_meds::\item %(brand)s %(preparation)s (%(substance)s) from %(started)s for %(duration)s as %(schedule)s until %(discontinued)s\\n::250>$',
+			#u'$<current_meds::\item %(product)s %(preparation)s (%(substance)s) from %(started)s for %(duration)s as %(schedule)s until %(discontinued)s\\n::250>$',
 			#u'$<vaccination_history::%(date_given)s: %(vaccine)s [%(batch_no)s] %(l10n_indications)s::250>$',
 			#u'$<date_of_birth::%Y %B %d::20>$',
 			#u'$<date_of_birth::%Y %B %d::>$',
@@ -3009,7 +3009,7 @@ if __name__ == '__main__':
 			#u'$<test_results:://%c::>$'
 			#u'$<test_results::%(unified_abbrev)s: %(unified_val)s %(val_unit)s//%c::>$'
 			#u'$<reminders:://::>$'
-			#u'$<current_meds_for_rx::%(brand)s (%(contains)s): dispense %(amount2dispense)s ::>$'
+			#u'$<current_meds_for_rx::%(product)s (%(contains)s): dispense %(amount2dispense)s ::>$'
 			#u'$<praxis::%(branch)s (%(praxis)s)::>$'
 			#u'$<praxis_address::::120>$'
 			#u'$<praxis_id::::120>$'

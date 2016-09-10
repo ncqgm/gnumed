@@ -138,7 +138,7 @@ class cATCPhraseWheel(gmPhraseWheel.cPhraseWheel):
 							AS list_label,
 						(atc_code || ': ' || description)
 							AS field_label
-					FROM ref.branded_drug
+					FROM ref.drug_product
 					WHERE
 						description %(fragment_condition)s
 							OR

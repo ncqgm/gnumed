@@ -1677,7 +1677,7 @@ class gmPrescriptionEditArea(gmEditArea):
 		self.txt_problem = cEditAreaField(parent)
 		self.txt_class = cEditAreaField(parent)
 		self.txt_generic = cEditAreaField(parent)
-		self.txt_brand = cEditAreaField(parent)
+		self.txt_drug_product = cEditAreaField(parent)
 		self.txt_strength= cEditAreaField(parent)
 		self.txt_directions= cEditAreaField(parent)
 		self.txt_for = cEditAreaField(parent)
@@ -1686,7 +1686,7 @@ class gmPrescriptionEditArea(gmEditArea):
 		lines.append(self.txt_problem)
 		lines.append(self.txt_class)
 		lines.append(self.txt_generic)
-		lines.append(self.txt_brand)
+		lines.append(self.txt_drug_product)
 		lines.append(self.txt_strength)
 		lines.append(self.txt_directions)
 		lines.append(self.txt_for)
@@ -1696,7 +1696,7 @@ class gmPrescriptionEditArea(gmEditArea):
 			"problem": self.txt_problem,
 			"class" : self.txt_class,
 			"generic" : self.txt_generic,
-			"brand" : self.txt_brand,
+			"prod" : self.txt_drug_product,
 			"strength": self.txt_strength,
 			"directions": self.txt_directions,
 			"for" : self.txt_for,
@@ -1937,7 +1937,7 @@ class EditArea(wx.Panel):
 #		      self.text1_prescription_reason = cEditAreaField(self,-1,wx.DefaultPosition,wx.DefaultSize)
 #		      self.text2_drug_class = cEditAreaField(self,-1,wx.DefaultPosition,wx.DefaultSize)
 #		      self.text3_generic_drug = cEditAreaField(self,-1,wx.DefaultPosition,wx.DefaultSize)
-#		      self.text4_brand_drug = cEditAreaField(self,-1,wx.DefaultPosition,wx.DefaultSize)
+#		      self.text4_product_drug = cEditAreaField(self,-1,wx.DefaultPosition,wx.DefaultSize)
 #		      self.text5_strength = cEditAreaField(self,-1,wx.DefaultPosition,wx.DefaultSize)
 #		      self.text6_directions = cEditAreaField(self,-1,wx.DefaultPosition,wx.DefaultSize)
 #		      self.text7_for_duration = cEditAreaField(self,-1,wx.DefaultPosition,wx.DefaultSize)
@@ -1960,7 +1960,7 @@ class EditArea(wx.Panel):
 #		      self.sizer_line3.Add(self.text3_generic_drug,5,wx.EXPAND)
 #		      self.sizer_line3.Add(lbl_veterans,1,wx.EXPAND)
  #       	      self.sizer_line3.Add(self.cb_veteran,1,wx.EXPAND)
-#		      self.sizer_line4.Add(self.text4_brand_drug,5,wx.EXPAND)
+#		      self.sizer_line4.Add(self.text4_product_drug,5,wx.EXPAND)
 #		      self.sizer_line4.Add(lbl_reg24,1,wx.EXPAND)
  #       	      self.sizer_line4.Add(self.cb_reg24,1,wx.EXPAND)
 #		      self.sizer_line5.Add(self.text5_strength,5,wx.EXPAND)
@@ -1980,7 +1980,7 @@ class EditArea(wx.Panel):
 #		      self.gszr.Add(self.text1_prescription_reason,1,wx.EXPAND) #prescribe for
 #		      self.gszr.Add(self.text2_drug_class,1,wx.EXPAND) #prescribe by class
 #		      self.gszr.Add(self.sizer_line3,1,wx.EXPAND) #prescribe by generic, lbl_veterans, cb_veteran
-#		      self.gszr.Add(self.sizer_line4,1,wx.EXPAND) #prescribe by brand, lbl_reg24, cb_reg24
+#		      self.gszr.Add(self.sizer_line4,1,wx.EXPAND) #prescribe by product, lbl_reg24, cb_reg24
 #		      self.gszr.Add(self.sizer_line5,1,wx.EXPAND) #drug strength, lbl_quantity, text_quantity 
 #		      self.gszr.Add(self.sizer_line6,1,wx.EXPAND) #txt_directions, lbl_repeats, text_repeats 
 #		      self.gszr.Add(self.sizer_line7,1,wx.EXPAND) #text_for,lbl_usual,chk_usual

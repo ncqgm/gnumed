@@ -61,7 +61,7 @@ ID_TEXTCTRL =  wx.NewId()
 ID_TEXT = wx.NewId()
 ID_COMBO_PRODUCT = wx.NewId()
 ID_RADIOBUTTON_BYANY = wx.NewId()
-ID_RADIOBUTTON_BYBRAND = wx.NewId()
+ID_RADIOBUTTON_BYPRODUCT = wx.NewId()
 ID_RADIOBUTTON_BYGENERIC = wx.NewId()
 ID_RADIOBUTTON_BYINDICATION = wx.NewId()
 ID_LISTBOX_JUMPTO = wx.NewId()
@@ -71,10 +71,10 @@ ID_BUTTON_DISPLAY = wx.NewId()
 ID_BUTTON_PRINT = wx.NewId()
 ID_BUTTON_BOOKMARK = wx.NewId()
 
-MODE_BRAND = 0
+MODE_PRODUCT = 0
 MODE_GENERIC = 1
 MODE_INDICATION = 2
-MODE_ANY = 3	# search for brand name and generic name
+MODE_ANY = 3	# search for product name and generic name
 
 #============================================================
 class DrugDisplay(wx.Panel):
@@ -123,8 +123,8 @@ class DrugDisplay(wx.Panel):
 			raise gmExceptions.ConstructorError, "Couldn't initialize DrugView API"
 #			return None
 
-		self.mode = MODE_BRAND
-		self.previousMode = MODE_BRAND
+		self.mode = MODE_PRODUCT
+		self.previousMode = MODE_PRODUCT
 		self.printer = wx.HtmlEasyPrinting()		#printer object to print html page
 		self.mId = None
 		self.drugProductInfo = None            
@@ -151,7 +151,7 @@ class DrugDisplay(wx.Panel):
 		wx.EVT_LIST_ITEM_ACTIVATED(self, ID_LISTCTRL_DRUGCHOICE, self.OnDrugChoiceDblClick)
 		wx.EVT_RADIOBUTTON(self, ID_RADIOBUTTON_BYINDICATION, self.OnSearchByIndication)
 		wx.EVT_RADIOBUTTON(self, ID_RADIOBUTTON_BYGENERIC, self.OnSearchByGeneric)
-		wx.EVT_RADIOBUTTON(self, ID_RADIOBUTTON_BYBRAND, self.OnSearchByBrand)
+		wx.EVT_RADIOBUTTON(self, ID_RADIOBUTTON_BYPRODUCT, self.OnSearchByProduct)
 		wx.EVT_RADIOBUTTON(self, ID_RADIOBUTTON_BYANY, self.OnSearchByAny)
 		wx.EVT_TEXT(self, ID_COMBO_PRODUCT, self.OnProductKeyPressed)
 		wx.EVT_COMBOBOX(self, ID_COMBO_PRODUCT, self.OnProductSelected)
@@ -221,8 +221,8 @@ class DrugDisplay(wx.Panel):
 		
 		self.rbtnSearchAny = wxRadioButton( self, ID_RADIOBUTTON_BYANY, _("Any"), wxDefaultPosition, wxDefaultSize, 0 )
 		self.sizerSearchBy.Add( self.rbtnSearchAny, 0, wxGROW|wxALIGN_CENTER_VERTICAL, 1 )
-		self.rbtnSearchBrand = wxRadioButton( self, ID_RADIOBUTTON_BYBRAND, _("Brand name"), wxDefaultPosition, wxDefaultSize, 0 )
-		self.sizerSearchBy.Add( self.rbtnSearchBrand, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wx.TOP, 1 )
+		self.rbtnSearchProduct = wxRadioButton( self, ID_RADIOBUTTON_BYPRODUCT, _("Product name"), wxDefaultPosition, wxDefaultSize, 0 )
+		self.sizerSearchBy.Add( self.rbtnSearchProduct, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wx.TOP, 1 )
 		self.rbtnSearchGeneric = wxRadioButton( self, ID_RADIOBUTTON_BYGENERIC, _("Generic name"), wxDefaultPosition, wxDefaultSize, 0 )
 		self.sizerSearchBy.Add( self.rbtnSearchGeneric, 0, wxGROW|wxALIGN_CENTER_VERTICAL, 1 )
 		self.rbtnSearchIndication = wxRadioButton( self, ID_RADIOBUTTON_BYINDICATION, _("Indication"), wxDefaultPosition, wxDefaultSize, 0 )
@@ -283,7 +283,7 @@ class DrugDisplay(wx.Panel):
 		mode, code = self.__mListCtrlItems[item]
 #		gmLog.gmDefLog.Log (gmLog.lData,  "mode %s ,text code: %s" % (mode,code) )
 		# show detailed info
-		if mode == MODE_BRAND:
+		if mode == MODE_PRODUCT:
 			self.ToggleWidget ()
 			self.Display_PI (code)
 		elif mode == MODE_GENERIC:
@@ -343,7 +343,7 @@ class DrugDisplay(wx.Panel):
 			searchmode = 'complete'
 
 		# tell the DrugView abstraction layer to do an index search 
-		# on brand/generic/indication 
+		# on product/generic/indication 
 		# expect a dictionary containing at least name & ID 
 		# qtype will be set by radiobuttons
 		# qtype and ID form (virtually) a unique ID that can be used to access other data in the db
@@ -366,19 +366,19 @@ class DrugDisplay(wx.Panel):
 	   	# found exactly one drug
 		if numOfRows == 1:
 			seld.mId = result['id']
-			# if we found a brand *product*, show the product info
-			if qtype == MODE_BRAND:
+			# if we found a drug *product*, show the product info
+			if qtype == MODE_PRODUCT:
 				if self.whichWidget == 'listctrl_drugchoice':
 					self.ToggleWidget ()
 					self.Display_PI (self.mId)
 				elif self.mId != self.mLastId: # don't change unless different drug
 					self.Display_PI (self.mId)
 					self.mLastId = self.mId
-			# if we found a generic substance name, show all brands
+			# if we found a generic substance name, show all products
 			# containing this generic
 			elif qtype == MODE_GENERIC:
 				self.Display_Generic (self.mId)
-			# if we are browsing indications, show all generics + brands
+			# if we are browsing indications, show all generics + products
 			# that match. Display Indication 
 			elif qtype == MODE_INDICATION:
 				self.Display_Indication(self.mId)
@@ -394,35 +394,35 @@ class DrugDisplay(wx.Panel):
 	#---------------------------------------------------------------------------------------------------------------------------
 	def Display_Generic (self, aId):
 		"""
-		Find all brand products that contain a certain generic substance and 
+		Find all drug products that contain a certain generic substance and 
         display them
 		"""
-		brandsList=self.mDrugView.getBrandsForGeneric(aId)
+		productsList=self.mDrugView.getProductsForGeneric(aId)
 
-		if type(brandsList['name']) == type([]):
-			res_num=len (brandsList['name'])
+		if type(productsList['name']) == type([]):
+			res_num=len (productsList['name'])
 		else:
 			res_num = 1
 		
-		qtype = MODE_BRAND
-		# no brand - should be an error, but AMIS allows that :(
-		if brandsList is None or res_num == 0:
-			gmLog.gmDefLog.Log (gmLog.lWarn,  "No brand product available containing generic ID: %s" % str(aId) )
+		qtype = MODE_PRODUCT
+		# no product - should be an error, but AMIS allows that :(
+		if productsList is None or res_num == 0:
+			gmLog.gmDefLog.Log (gmLog.lWarn,  "No drug product available containing generic ID: %s" % str(aId) )
 			if self.whichWidget == 'listctrl_drugchoice':
 				self.ToggleWidget ()
 			self.html_viewer.SetPage(self.NoDrugFoundMessageHTML)
 			return None        	
-		# one brand, so display product information
+		# one product, so display product information
 		if res_num == 1:
 			if self.whichWidget == 'listctrl_drugchoice':
 				self.ToggleWidget ()
-			self.Display_PI (brandsList['id'])
+			self.Display_PI (productsList['id'])
 		else:
-			# multiple brands, display list
+			# multiple products, display list
 			if self.whichWidget == 'html_viewer':
 				self.ToggleWidget ()
 			# show list
-			self.BuildListCtrl(brandsList,qtype)
+			self.BuildListCtrl(productsList,qtype)
 
 			return True
 
@@ -564,8 +564,8 @@ class DrugDisplay(wx.Panel):
 		self.mode = MODE_GENERIC
 		self.ClearInfo()
 
-	def OnSearchByBrand(self, event):
-		self.mode = MODE_BRAND
+	def OnSearchByProduct(self, event):
+		self.mode = MODE_PRODUCT
 		self.ClearInfo()
 
 	def OnSearchByAny(self, event):

@@ -19,7 +19,7 @@ class wxgVaccineEAPnl(wx.ScrolledWindow):
         # begin wxGlade: wxgVaccineEAPnl.__init__
         kwds["style"] = wx.NO_BORDER | wx.TAB_TRAVERSAL
         wx.ScrolledWindow.__init__(self, *args, **kwds)
-        self._PRW_brand = gmSubstanceMgmtWidgets.cBrandedDrugPhraseWheel(self, -1, "", style=wx.NO_BORDER)
+        self._PRW_drug_product = gmSubstanceMgmtWidgets.cDrugProductPhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._CHBOX_fake = wx.CheckBox(self, -1, _("Fake"))
         self._PRW_route = gmPhraseWheel.cPhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._CHBOX_live = wx.CheckBox(self, -1, _("Live"))
@@ -39,7 +39,7 @@ class wxgVaccineEAPnl(wx.ScrolledWindow):
     def __set_properties(self):
         # begin wxGlade: wxgVaccineEAPnl.__set_properties
         self.SetScrollRate(10, 10)
-        self._CHBOX_fake.SetToolTipString(_("Whether this is an actual brand or a generic, fake vaccine."))
+        self._CHBOX_fake.SetToolTipString(_("Whether this is an actual product or a generic, fake vaccine."))
         self._PRW_route.SetToolTipString(_("The route by which this vaccine is to be administered.\n\nTypically one of i.m., s.c., or orally."))
         self._PRW_route.Enable(False)
         self._PRW_route.Hide()
@@ -61,13 +61,13 @@ class wxgVaccineEAPnl(wx.ScrolledWindow):
         _SZR_indications = wx.BoxSizer(wx.VERTICAL)
         __szr_manage_button = wx.BoxSizer(wx.HORIZONTAL)
         __szr_route_details = wx.BoxSizer(wx.HORIZONTAL)
-        __szr_brand_details = wx.BoxSizer(wx.HORIZONTAL)
+        __szr_product_details = wx.BoxSizer(wx.HORIZONTAL)
         __lbl_name = wx.StaticText(self, -1, _("Name"))
         __lbl_name.SetForegroundColour(wx.Colour(255, 0, 0))
         _gszr_main.Add(__lbl_name, 0, wx.ALIGN_CENTER_VERTICAL, 0)
-        __szr_brand_details.Add(self._PRW_brand, 1, wx.RIGHT | wx.EXPAND | wx.ALIGN_CENTER_VERTICAL, 5)
-        __szr_brand_details.Add(self._CHBOX_fake, 0, wx.ALIGN_CENTER_VERTICAL, 0)
-        _gszr_main.Add(__szr_brand_details, 1, wx.EXPAND, 0)
+        __szr_product_details.Add(self._PRW_drug_product, 1, wx.RIGHT | wx.EXPAND | wx.ALIGN_CENTER_VERTICAL, 5)
+        __szr_product_details.Add(self._CHBOX_fake, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+        _gszr_main.Add(__szr_product_details, 1, wx.EXPAND, 0)
         __lbl_route = wx.StaticText(self, -1, _("Route"))
         __lbl_route.SetForegroundColour(wx.Colour(255, 0, 0))
         __lbl_route.Enable(False)

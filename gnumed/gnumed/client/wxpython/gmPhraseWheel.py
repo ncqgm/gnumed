@@ -1050,7 +1050,7 @@ class cPhraseWheelBase(wx.TextCtrl):
 #seaching ones own previous text entered  would usually be instring but
 #weighted (ie the phrases you use the most auto filter to the top)
 
-#Searching a drug database for a   drug brand name is usually more
+#Searching a drug database for a   drug product name is usually more
 #functional if it does a start string search, not an instring search which is
 #much slower and usually unecesary.  There are many other examples but trust
 #me one needs both

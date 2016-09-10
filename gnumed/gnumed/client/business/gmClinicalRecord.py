@@ -1417,8 +1417,9 @@ class cClinicalRecord(object):
 		cmd = u'delete FROM clin.allergy WHERE pk=%(pk_allg)s'
 		args = {'pk_allg': pk_allergy}
 		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+
 	#--------------------------------------------------------
-	def is_allergic_to(self, atcs=None, inns=None, brand=None):
+	def is_allergic_to(self, atcs=None, inns=None, product_name=None):
 		"""Cave: only use with one potential allergic agent
 		otherwise you won't know which of the agents the allergy is to."""
 
@@ -1433,7 +1434,7 @@ class cClinicalRecord(object):
 		args = {
 			'atcs': atcs,
 			'inns': inns,
-			'brand': brand,
+			'prod_name': product_name,
 			'pat': self.pk_patient
 		}
 		allergenes = []
@@ -1448,9 +1449,9 @@ class cClinicalRecord(object):
 		if inns is not None:
 			where_parts.append(u'generics in %(inns)s')
 			allergenes.extend(inns)
-		if brand is not None:
-			where_parts.append(u'substance = %(brand)s')
-			allergenes.append(brand)
+		if product_name is not None:
+			where_parts.append(u'substance = %(prod_name)s')
+			allergenes.append(product_name)
 
 		if len(allergenes) != 0:
 			where_parts.append(u'allergene in %(allgs)s')
@@ -1809,7 +1810,7 @@ WHERE
 		return intakes
 
 	#--------------------------------------------------------
-	def add_substance_intake(self, pk_component=None, pk_episode=None, pk_brand=None, pk_health_issue=None):
+	def add_substance_intake(self, pk_component=None, pk_episode=None, pk_drug_product=None, pk_health_issue=None):
 		pk_enc = self.current_encounter['pk_encounter']
 		if pk_episode is None:
 			pk_episode = gmMedication.create_default_medication_history_episode (
@@ -1820,16 +1821,16 @@ WHERE
 			pk_component = pk_component,
 			pk_encounter = pk_enc,
 			pk_episode = pk_episode,
-			pk_brand = pk_brand
+			pk_drug_product = pk_drug_product
 		)
 
 	#--------------------------------------------------------
-	def substance_intake_exists(self, pk_component=None, pk_substance=None, pk_brand=None):
+	def substance_intake_exists(self, pk_component=None, pk_substance=None, pk_drug_product=None):
 		return gmMedication.substance_intake_exists (
 			pk_component = pk_component,
 			pk_substance = pk_substance,
 			pk_identity = self.pk_patient,
-			pk_brand = pk_brand
+			pk_drug_product = pk_drug_product
 		)
 	#--------------------------------------------------------
 	# API: vaccinations
@@ -3014,7 +3015,7 @@ if __name__ == "__main__":
 	#-----------------------------------------
 	def test_is_allergic_to():
 		emr = cClinicalRecord(aPKey = 12)
-		print emr.is_allergic_to(atcs = tuple(sys.argv[2:]), inns = tuple(sys.argv[2:]), brand = sys.argv[2])
+		print emr.is_allergic_to(atcs = tuple(sys.argv[2:]), inns = tuple(sys.argv[2:]), product_name = sys.argv[2])
 	#-----------------------------------------
 	def test_get_as_journal():
 		emr = cClinicalRecord(aPKey = 12)

@@ -56,9 +56,9 @@ select
 	c_enc.fk_patient
 		as pk_patient,
 	c_si.soap_cat,
-	r_bd.description
-		as brand,
-	r_bd.preparation,
+	r_dp.description
+		as product,
+	r_dp.preparation,
 	r_s.description
 		as substance,
 	r_d.amount,
@@ -68,12 +68,12 @@ select
 	-- codes
 	r_s.atc
 		as atc_substance,
-	r_bd.atc_code
-		as atc_brand,
-	r_bd.external_code
-		as external_code_brand,
-	r_bd.external_code_type
-		as external_code_type_brand,
+	r_dp.atc_code
+		as atc_drug,
+	r_dp.external_code
+		as external_code_product,
+	r_dp.external_code_type
+		as external_code_type_product,
 	ARRAY (
 		select row_to_json(loinc_row) from (
 			select
@@ -124,8 +124,8 @@ select
 		as health_issue,
 	c_si.narrative
 		as notes,
-	r_bd.is_fake
-		as is_fake_brand,
+	r_dp.is_fake
+		as is_fake_product,
 	-- currently active ?
 	case
 		-- no discontinue date documented so assumed active
@@ -150,9 +150,9 @@ select
 		else null
 	end::boolean
 		as seems_inactive,
-	r_ld2d.fk_brand
-		as pk_brand,
-	r_bd.fk_data_source
+	r_ld2d.fk_drug_product
+		as pk_drug_product,
+	r_dp.fk_data_source
 		as pk_data_source,
 	r_ld2d.fk_dose
 		as pk_dose,
@@ -181,7 +181,7 @@ from
 			left join clin.health_issue c_hi on (c_hi.pk = c_epi.fk_health_issue)
 		-- pull in substance details
 		inner join ref.lnk_dose2drug r_ld2d on (c_si.fk_drug_component = r_ld2d.pk)
-			inner join ref.branded_drug r_bd on (r_ld2d.fk_brand = r_bd.pk)
+			inner join ref.drug_product r_dp on (r_ld2d.fk_drug_product = r_dp.pk)
 			inner join ref.dose r_d on (r_ld2d.fk_dose = r_d.pk)
 				inner join ref.substance r_s on (r_d.fk_substance = r_s.pk)
 ;

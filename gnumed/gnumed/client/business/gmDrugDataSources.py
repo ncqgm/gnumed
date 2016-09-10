@@ -362,21 +362,21 @@ class cGelbeListeWindowsInterface(cDrugDataSourceInterface):
 				_log.debug('skipping sonstiges Medizinprodukt')
 				continue
 
-			# create branded drug (or get it if it already exists)
-			drug = gmMedication.create_branded_drug(brand_name = entry['name'], preparation = entry['darreichungsform'])
+			# create drug product (or get it if it already exists)
+			drug = gmMedication.create_drug_product(product_name = entry['name'], preparation = entry['darreichungsform'])
 			if drug is None:
-				drug = gmMedication.get_drug_by_brand(brand_name = entry['name'], preparation = entry['darreichungsform'])
+				drug = gmMedication.get_drug_by_name(product_name = entry['name'], preparation = entry['darreichungsform'])
 			new_drugs.append(drug)
 
 			# update fields
-			drug['is_fake_brand'] = False
+			drug['is_fake_product'] = False
 			drug['atc'] = entry['atc']
 			drug['external_code_type'] = u'DE-PZN'
 			drug['external_code'] = entry['pzn']
 			drug['fk_data_source'] = data_src_pk
 			drug.save()
 
-			# add components to brand
+			# add components to drug
 			atc = None							# hopefully MMI eventually supports atc-per-substance in a drug...
 			if len(entry['wirkstoffe']) == 1:
 				atc = entry['atc']
@@ -433,7 +433,7 @@ class cGelbeListeWindowsInterface(cDrugDataSourceInterface):
 
 		if cmd is None:
 			name = gmTools.coalesce (
-				substance['brand'],
+				substance['product'],
 				substance['substance']
 			)
 			cmd = u'%s -NAME %s' % (self.path_to_binary, name)
@@ -708,16 +708,16 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 		fd_intakes = [ i for i in substance_intakes if (
 			(i['intake_is_approved_of'] is True)
 				and
-			(i['external_code_type_brand'] is not None)
+			(i['external_code_type_product'] is not None)
 				and
-			(i['external_code_type_brand'].startswith(u'FreeDiams::'))
+			(i['external_code_type_product'].startswith(u'FreeDiams::'))
 		)]
 
-		intakes_pooled_by_brand = {}
+		intakes_pooled_by_product = {}
 		for intake in fd_intakes:
-			# this will leave only one entry per brand
+			# this will leave only one entry per drug
 			# but FreeDiams knows the components ...
-			intakes_pooled_by_brand[intake['brand']] = intake
+			intakes_pooled_by_product[intake['product']] = intake
 		del fd_intakes
 
 		drug_snippet = u"""<Prescription>
@@ -727,27 +727,27 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 		</Prescription>"""
 
 		last_db_id = u'CA_HCDPD'
-		for intake in intakes_pooled_by_brand.values():
-			last_db_id = gmTools.xml_escape_string(text = intake['external_code_type_brand'].replace(u'FreeDiams::', u'').split(u'::')[0])
+		for intake in intakes_pooled_by_product.values():
+			last_db_id = gmTools.xml_escape_string(text = intake['external_code_type_product'].replace(u'FreeDiams::', u'').split(u'::')[0])
 			drug_snippets.append(drug_snippet % (
-				gmTools.xml_escape_string(text = intake['external_code_brand'].strip()),
-				gmTools.xml_escape_string(text = intake['external_code_brand'].strip()),
+				gmTools.xml_escape_string(text = intake['external_code_product'].strip()),
+				gmTools.xml_escape_string(text = intake['external_code_product'].strip()),
 				last_db_id,
-				gmTools.xml_escape_string(text = intake['brand'].strip())
+				gmTools.xml_escape_string(text = intake['product'].strip())
 			))
 
 		# process non-FD drugs
 		non_fd_intakes = [ i for i in substance_intakes if (
 			(i['intake_is_approved_of'] is True)
 			and (
-				(i['external_code_type_brand'] is None)
+				(i['external_code_type_product'] is None)
 					or
-				(not i['external_code_type_brand'].startswith(u'FreeDiams::'))
+				(not i['external_code_type_product'].startswith(u'FreeDiams::'))
 			)
 		)]
 
-		non_fd_brand_intakes = [ i for i in non_fd_intakes if i['brand'] is not None ]
-		non_fd_substance_intakes = [ i for i in non_fd_intakes if i['brand'] is None ]
+		non_fd_product_intakes = [ i for i in non_fd_intakes if i['product'] is not None ]
+		non_fd_substance_intakes = [ i for i in non_fd_intakes if i['product'] is None ]
 		del non_fd_intakes
 
 		drug_snippet = u"""<Prescription>
@@ -773,16 +773,16 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 				gmTools.xml_escape_string(text = gmTools.coalesce(intake['schedule'], u''))
 			))
 
-		intakes_pooled_by_brand = {}
-		for intake in non_fd_brand_intakes:
-			brand = u'%s %s' % (intake['brand'], intake['preparation'])
+		intakes_pooled_by_product = {}
+		for intake in non_fd_product_intakes:
+			prod = u'%s %s' % (intake['product'], intake['preparation'])
 			try:
-				intakes_pooled_by_brand[brand].append(intake)
+				intakes_pooled_by_product[prod].append(intake)
 			except KeyError:
-				intakes_pooled_by_brand[brand] = [intake]
+				intakes_pooled_by_product[prod] = [intake]
 
-		for brand, comps in intakes_pooled_by_brand.iteritems():
-			drug_name = u'%s\n' % brand
+		for product, comps in intakes_pooled_by_product.iteritems():
+			drug_name = u'%s\n' % product
 			for comp in comps:
 				drug_name += u'  %s %s%s\n' % (
 					comp['substance'],
@@ -1021,10 +1021,10 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 #				else:
 #					drug_atc = drug_atc.text.strip()
 
-			# create new branded drug
-			new_drug = gmMedication.create_branded_drug(brand_name = drug_name, preparation = drug_form, return_existing = True)
+			# create new drug product
+			new_drug = gmMedication.create_drug_product(product_name = drug_name, preparation = drug_form, return_existing = True)
 			self.__imported_drugs.append(new_drug)
-			new_drug['is_fake_brand'] = False
+			new_drug['is_fake_product'] = False
 #			new_drug['atc'] = drug_atc
 			new_drug['external_code_type'] = u'FreeDiams::%s::%s' % (drug_db, drug_uid_name)
 			new_drug['external_code'] = drug_uid
@@ -1146,10 +1146,10 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 				else:
 					drug_atc = drug_atc.text.strip()
 
-			# create new branded drug
-			new_drug = gmMedication.create_branded_drug(brand_name = drug_name, preparation = drug_form, return_existing = True)
+			# create new drug product
+			new_drug = gmMedication.create_drug_product(product_name = drug_name, preparation = drug_form, return_existing = True)
 			self.__imported_drugs.append(new_drug)
-			new_drug['is_fake_brand'] = False
+			new_drug['is_fake_product'] = False
 			new_drug['atc'] = drug_atc
 			new_drug['external_code_type'] = u'FreeDiams::%s::%s' % (db_id, drug_id_name)
 			new_drug['external_code'] = drug_uid

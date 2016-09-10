@@ -27,13 +27,13 @@
                 <flag>wxEXPAND</flag>
                 <border>0</border>
                 <option>1</option>
-                <object class="wxBoxSizer" name="__szr_brand_details" base="EditBoxSizer">
+                <object class="wxBoxSizer" name="__szr_product_details" base="EditBoxSizer">
                     <orient>wxHORIZONTAL</orient>
                     <object class="sizeritem">
                         <flag>wxRIGHT|wxEXPAND|wxALIGN_CENTER_VERTICAL</flag>
                         <border>5</border>
                         <option>1</option>
-                        <object class="gmSubstanceMgmtWidgets.cBrandedDrugPhraseWheel" name="_PRW_brand" base="EditTextCtrl">
+                        <object class="gmSubstanceMgmtWidgets.cDrugProductPhraseWheel" name="_PRW_drug_product" base="EditTextCtrl">
                             <style>wxNO_BORDER</style>
                         </object>
                     </object>
@@ -43,7 +43,7 @@
                         <option>0</option>
                         <object class="wxCheckBox" name="_CHBOX_fake" base="EditCheckBox">
                             <label>Fake</label>
-                            <tooltip>Whether this is an actual brand or a generic, fake vaccine.</tooltip>
+                            <tooltip>Whether this is an actual product or a generic, fake vaccine.</tooltip>
                         </object>
                     </object>
                 </object>

@@ -16,11 +16,8 @@ select audit.register_table_for_auditing('ref', 'lnk_dose2drug');
 select gm.register_notifying_table('ref', 'lnk_dose2drug');
 
 -- table constraints
-drop index if exists ref.idx_ld2d_dose_uniq_per_brand cascade;
-create unique index idx_ld2d_dose_uniq_per_brand on ref.lnk_dose2drug(fk_dose, fk_brand) where fk_brand is not NULL;
-
-drop index if exists ref.idx_ld2d_uniq_generic_brand_by_dose cascade;
-create unique index idx_ld2d_uniq_generic_brand_by_dose on ref.lnk_dose2drug(fk_dose) where fk_brand is NULL;
+drop index if exists ref.idx_ld2d_dose_uniq_per_drug_product cascade;
+create unique index idx_ld2d_dose_uniq_per_drug_product on ref.lnk_dose2drug(fk_dose, fk_drug_product);
 
 -- grants
 grant select on ref.lnk_dose2drug to "gm-public";
@@ -45,18 +42,18 @@ alter table ref.lnk_dose2drug
 ;
 
 -- --------------------------------------------------------------
--- .fk_brand
-comment on column ref.lnk_dose2drug.fk_brand is 'FK linking the brand';
+-- .fk_drug_product
+comment on column ref.lnk_dose2drug.fk_drug_product is 'FK linking the drug product';
 
 alter table ref.lnk_dose2drug
-	alter column fk_brand
+	alter column fk_drug_product
 		set not null;
 
-alter table ref.lnk_dose2drug drop constraint if exists ref_ld2d_fk_brand cascade;
+alter table ref.lnk_dose2drug drop constraint if exists ref_ld2d_fk_drug_product cascade;
 
 alter table ref.lnk_dose2drug
-	add constraint ref_ld2d_fk_brand
-		foreign key (fk_brand) references ref.branded_drug(pk)
+	add constraint ref_ld2d_fk_drug_product
+		foreign key (fk_drug_product) references ref.drug_product(pk)
 			on update cascade
 			on delete cascade
 ;
@@ -64,13 +61,13 @@ alter table ref.lnk_dose2drug
 -- --------------------------------------------------------------
 -- trigger to maintain consistency
 --	tr_do_not_update_component_if_taken_by_patient
---	tr_true_brands_must_have_components
+--	tr_true_products_must_have_components
 
 -- --------------------------------------------------------------
--- create dose/drug links for existing brands
-insert into ref.lnk_dose2drug (fk_brand, fk_dose)
+-- create dose/drug links for existing drug products
+insert into ref.lnk_dose2drug (fk_drug_product, fk_dose)
 	select
-		pk_brand,
+		pk_brand,			-- still old view
 		(select pk from ref.dose r_d where
 			r_d.fk_substance = (select pk from ref.substance r_s where r_s.description = r_vdc.substance)
 				and
@@ -89,42 +86,42 @@ create view ref.v_drug_components as
 select
 	r_ld2d.pk 
 		as pk_component,
-	r_bd.description
-		as brand,
+	r_dp.description
+		as product,
 	r_vsd.substance,
 	r_vsd.amount,
 	r_vsd.unit,
 	r_vsd.dose_unit,
-	r_bd.preparation
+	r_dp.preparation
 		as preparation,
 	r_vsd.intake_instructions,
 	r_vsd.loincs,
 	r_vsd.atc_substance,
-	r_bd.atc_code
-		as atc_brand,
-	r_bd.external_code
+	r_dp.atc_code
+		as atc_drug,
+	r_dp.external_code
 		as external_code,
-	r_bd.external_code_type
+	r_dp.external_code_type
 		as external_code_type,
-	r_bd.is_fake
-		as is_fake_brand,
+	r_dp.is_fake
+		as is_fake_product,
 	exists (
 		select 1 from clin.substance_intake c_si
 		where c_si.fk_drug_component = r_ld2d.pk
 		limit 1
 	)	as is_in_use,
 
-	r_bd.pk
-		as pk_brand,
+	r_dp.pk
+		as pk_product,
 	r_vsd.pk_dose,
 	r_vsd.pk_substance,
-	r_bd.fk_data_source
+	r_dp.fk_data_source
 		as pk_data_source,
 	r_ld2d.xmin
 		as xmin_lnk_dose2drug
 from
 	ref.lnk_dose2drug r_ld2d
-		inner join ref.branded_drug r_bd on (r_ld2d.fk_brand = r_bd.pk)
+		inner join ref.drug_product r_dp on (r_ld2d.fk_drug_product = r_dp.pk)
 		inner join ref.v_substance_doses r_vsd on (r_ld2d.fk_dose = r_vsd.pk_dose)
 ;
 

@@ -21,15 +21,15 @@ DECLARE
 	_intake_count integer;
 	_component_count integer;
 	_pk_patient integer;
-	_pk_brand integer;
+	_pk_drug_product integer;
 	_msg text;
 BEGIN
 	select fk_patient into _pk_patient
 	from clin.encounter
 	where pk = NEW.fk_encounter;
 
-	-- get the brand we were linking to
-	select fk_brand into _pk_brand
+	-- get the drug product we were linking to
+	select fk_drug_product into _pk_drug_product
 	from ref.lnk_dose2drug
 	where pk = OLD.fk_drug_component;
 
@@ -38,7 +38,7 @@ BEGIN
 	from clin.substance_intake
 	where
 		fk_drug_component in (
-			select pk from ref.lnk_dose2drug where fk_brand = _pk_brand
+			select pk from ref.lnk_dose2drug where fk_drug_product = _pk_drug_product
 		)
 			and
 		fk_encounter in (
@@ -50,20 +50,20 @@ BEGIN
 		-- How many components *are* there in the drug in question ?
 		select count(1) into _component_count
 		from ref.lnk_dose2drug
-		where fk_brand = _pk_brand;
+		where fk_drug_product = _pk_drug_product;
 
 		-- substance intake link count and number of components must match
 		if _component_count != _intake_count then
-			_msg := ''[clin.trf_upd_intake_must_link_all_drug_components]: re-linking brand must unlink all components of old brand ['' || _pk_brand || ''] ''
+			_msg := ''[clin.trf_upd_intake_must_link_all_drug_components]: re-linking drug product must unlink all components of old drug product ['' || _pk_drug_product || ''] ''
 				|| ''(component ['' || OLD.fk_drug_component || '' -> '' || NEW.fk_drug_component || ''])'';
 			raise exception check_violation using message = _msg;
 		end if;
 	end if;
 
-	-- check the NEW brand
+	-- check the NEW drug product
 
-	-- get the brand we were linking to
-	select fk_brand into _pk_brand
+	-- get the drug product we were linking to
+	select fk_drug_product into _pk_drug_product
 	from ref.lnk_dose2drug
 	where fk_substance = NEW.fk_drug_component;
 
@@ -72,7 +72,7 @@ BEGIN
 	from clin.substance_intake
 	where
 		fk_drug_component in (
-			select pk from ref.lnk_dose2drug where fk_brand = _pk_brand
+			select pk from ref.lnk_dose2drug where fk_drug_product = _pk_drug_product
 		)
 			and
 		fk_encounter in (
@@ -84,11 +84,11 @@ BEGIN
 		-- How many components *are* there in the drug in question ?
 		select count(1) into _component_count
 		from ref.lnk_dose2drug
-		where fk_brand = _pk_brand;
+		where fk_drug_product = _pk_drug_product;
 
 		-- substance intake link count and number of components must match
 		if _component_count != _intake_count then
-			_msg := ''[clin.trf_upd_intake_must_link_all_drug_components]: re-linking brand must link all components of new brand ['' || _pk_brand || ''] ''
+			_msg := ''[clin.trf_upd_intake_must_link_all_drug_components]: re-linking drug product must link all components of new drug product ['' || _pk_drug_product || ''] ''
 				|| ''(component ['' || OLD.fk_drug_component || '' -> '' || NEW.fk_drug_component || ''])'';
 			raise exception check_violation using message = _msg;
 		end if;
@@ -120,19 +120,19 @@ create or replace function clin.trf_upd_intake_updates_all_drug_components()
 	language 'plpgsql'
 	as '
 DECLARE
-	_pk_brand integer;
+	_pk_drug_product integer;
 	_component_count integer;
 	_pk_patient integer;
 BEGIN
 	-- which drug ?
-	select fk_brand into _pk_brand
+	select fk_drug_product into _pk_drug_product
 	from ref.lnk_dose2drug
 	where pk = NEW.fk_drug_component;
 
 	-- how many components therein ?
 	select count(1) into _component_count
 	from ref.lnk_dose2drug
-	where fk_brand = _pk_brand;
+	where fk_drug_product = _pk_drug_product;
 
 	-- only one component ?
 	if _component_count = 1 then
@@ -157,7 +157,7 @@ BEGIN
 	where
 		-- ... which belong to this drug ...
 		fk_drug_component in (
-			select pk from ref.lnk_dose2drug where fk_brand = _pk_brand
+			select pk from ref.lnk_dose2drug where fk_drug_product = _pk_drug_product
 		)
 			AND
 		-- ... but are not THIS component ...

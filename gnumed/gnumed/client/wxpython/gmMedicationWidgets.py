@@ -69,7 +69,7 @@ class cSubstancePreparationPhraseWheel(gmPhraseWheel.cPhraseWheel):
 		preparation AS data,
 		preparation AS list_label,
 		preparation AS field_label
-	FROM ref.branded_drug
+	FROM ref.drug_product
 	WHERE preparation %(fragment_condition)s
 ) UNION (
 	SELECT DISTINCT ON (list_label)
@@ -85,25 +85,25 @@ LIMIT 30"""
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries = query)
 		mp.setThresholds(1, 2, 4)
 		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
-		self.SetToolTipString(_('The preparation (form) of the substance or brand.'))
+		self.SetToolTipString(_('The preparation (form) of the substance or product.'))
 		self.matcher = mp
 		self.selection_only = False
 
 #============================================================
 # current substance intake widgets
 #------------------------------------------------------------
-class cBrandOrSubstancePhraseWheel(gmPhraseWheel.cPhraseWheel):
+class cProductOrSubstancePhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 	def __init__(self, *args, **kwargs):
 
-		mp = gmMedication.cBrandOrSubstanceMatchProvider()
+		mp = gmMedication.cProductOrSubstanceMatchProvider()
 		mp.setThresholds(1, 2, 4)
 		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
-		self.SetToolTipString(_('A substance with optional strength or a brand.'))
+		self.SetToolTipString(_('A substance with optional strength or a drug product.'))
 		self.matcher = mp
 		self.selection_only = False
 		self.phrase_separators = None
-		self.IS_BRAND = 1
+		self.IS_PRODUCT = 1
 		self.IS_SUBSTANCE = 2
 		self.IS_COMPONENT = 3
 
@@ -111,12 +111,12 @@ class cBrandOrSubstancePhraseWheel(gmPhraseWheel.cPhraseWheel):
 	def _data2instance(self):
 		entry_type, pk = self.GetData(as_instance = False, can_create = False)
 		if entry_type == 1:
-			return gmMedication.cBrandedDrug(aPK_obj = pk)
+			return gmMedication.cDrugProduct(aPK_obj = pk)
 		if entry_type == 2:
 			return gmMedication.cConsumableSubstance(aPK_obj = pk)
 		if entry_type == 3:
 			return gmMedication.cDrugComponent(aPK_obj = pk)
-		raise ValueError('entry type must be 1=brand or 2=substance or 3=component')
+		raise ValueError('entry type must be 1=drug product or 2=substance or 3=component')
 
 #============================================================
 class cSubstanceSchedulePhraseWheel(gmPhraseWheel.cPhraseWheel):
@@ -201,28 +201,27 @@ def turn_substance_intake_into_allergy(parent=None, intake=None, emr=None):
 
 	allg = intake.turn_into_allergy(encounter_id = emr.active_encounter['pk_encounter'])
 
-	brand = intake.containing_drug
-	if brand is not None:
-		comps = [ c['substance'] for c in brand.components ]
-		if len(comps) > 1:
-			gmGuiHelpers.gm_show_info (
-				aTitle = _(u'Documented an allergy'),
-				aMessage = _(
-					u'An allergy was documented against the substance:\n'
-					u'\n'
-					u'  [%s]\n'
-					u'\n'
-					u'This substance was taken with the multi-component brand:\n'
-					u'\n'
-					u'  [%s (%s)]\n'
-					u'\n'
-					u'Note that ALL components of this brand were discontinued.'
-				) % (
-					intake['substance'],
-					intake['brand'],
-					u' & '.join(comps)
-				)
+	drug = intake.containing_drug
+	comps = [ c['substance'] for c in drug.components ]
+	if len(comps) > 1:
+		gmGuiHelpers.gm_show_info (
+			aTitle = _(u'Documented an allergy'),
+			aMessage = _(
+				u'An allergy was documented against the substance:\n'
+				u'\n'
+				u'  [%s]\n'
+				u'\n'
+				u'This substance was taken with the multi-component drug product:\n'
+				u'\n'
+				u'  [%s (%s)]\n'
+				u'\n'
+				u'Note that ALL components of this product were discontinued.'
+			) % (
+				intake['substance'],
+				intake['product'],
+				u' & '.join(comps)
 			)
+		)
 
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
@@ -260,13 +259,13 @@ def manage_substance_intakes(parent=None, emr=None):
 #		return gmMedication.delete_substance(substance = substance['pk'])
 	#------------------------------------------------------------
 	def get_tooltip(intake=None):
-		return intake.format(single_line = False, show_all_brand_components = True)
+		return intake.format(single_line = False, show_all_product_components = True)
 	#------------------------------------------------------------
 	def refresh(lctrl):
 		intakes = emr.get_current_medications (
 			include_inactive = False,
 			include_unapproved = True,
-			order_by = u'substance, brand, started'
+			order_by = u'substance, product, started'
 		)
 		items = []
 		for i in intakes:
@@ -274,11 +273,11 @@ def manage_substance_intakes(parent=None, emr=None):
 			items.append ([
 				u'%s%s %s %s %s%s' % (
 					i['substance'],
-					gmTools.coalesce(i['brand'], u'', u' (%s)'),
+					gmTools.coalesce(i['product'], u'', u' (%s)'),
 					i['amount'],
 					i['unit'],
 					i['preparation'],
-					gmTools.coalesce(i['external_code_brand'], u'', u' [%s::%s]' % (i['external_code_type_brand'], i['external_code_brand']))
+					gmTools.coalesce(i['external_code_product'], u'', u' [%s::%s]' % (i['external_code_type_product'], i['external_code_product']))
 				),
 				u'%s%s%s' % (
 					started,
@@ -471,16 +470,16 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 		if entry_type == self._PRW_drug.IS_COMPONENT:
 			component = drug
 			drug = component.containing_drug
-			self._TCTRL_drug_details.SetValue(u'%s: %s' % (drug['brand'], u'; '.join(drug['components'])))
+			self._TCTRL_drug_details.SetValue(u'%s: %s' % (drug['product'], u'; '.join(drug['components'])))
 			self._TCTRL_drug_details.SetToolTipString(component.format())
 			return
 
-		if entry_type == self._PRW_drug.IS_BRAND:
+		if entry_type == self._PRW_drug.IS_PRODUCT:
 			if drug['components'] is not None:
 				comps = u'; '.join(drug['components'])
 			else:
 				comps = _(u'<no components>')
-			self._TCTRL_drug_details.SetValue(u'%s: %s' % (drug['brand'], comps))
+			self._TCTRL_drug_details.SetValue(u'%s: %s' % (drug['product'], comps))
 			self._TCTRL_drug_details.SetToolTipString(drug.format())
 			return
 
@@ -519,7 +518,7 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 			return False
 
 		entry_type, pk = self._PRW_drug.GetData(as_instance = False)
-		if entry_type in [self._PRW_drug.IS_COMPONENT, self._PRW_drug.IS_BRAND]:
+		if entry_type in [self._PRW_drug.IS_COMPONENT, self._PRW_drug.IS_PRODUCT]:
 			self._PRW_preparation.display_as_valid(True)
 			return True
 
@@ -721,7 +720,7 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 	#----------------------------------------------------------------
 	def _refresh_from_existing(self):
 
-		if self.data['pk_brand'] is None:
+		if self.data['pk_drug_product'] is None:
 			self._PRW_drug.SetText (
 				u'%s %s %s' % (self.data['substance'], self.data['amount'], self.data['unit']),
 				[self._PRW_drug.IS_SUBSTANCE, self.data['pk_substance']]
@@ -801,7 +800,7 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 			self._PRW_preparation.Enable(True)
 			return
 
-		if isinstance(drug, gmMedication.cBrandedDrug):
+		if isinstance(drug, gmMedication.cDrugProduct):
 			self._PRW_preparation.SetValue(drug['preparation'])
 			self._PRW_preparation.Enable(False)
 			return
@@ -822,7 +821,7 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 		if drug is None:
 			self._PRW_aim.unset_context(context = u'substance')
 			return
-		if isinstance(drug, gmMedication.cBrandedDrug):
+		if isinstance(drug, gmMedication.cDrugProduct):
 			self._PRW_aim.unset_context(context = u'substance')
 			return
 		if isinstance(drug, gmMedication.cConsumableSubstance):
@@ -840,8 +839,8 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 			self._PRW_discontinue_reason.Enable(True)
 
 	#----------------------------------------------------------------
-	def _on_manage_brands_button_pressed(self, event):
-		gmSubstanceMgmtWidgets.manage_branded_drugs(parent = self, ignore_OK_button = True)
+	def _on_manage_drug_products_button_pressed(self, event):
+		gmSubstanceMgmtWidgets.manage_drug_products(parent = self, ignore_OK_button = True)
 
 	#----------------------------------------------------------------
 	def _on_manage_substances_button_pressed(self, event):
@@ -1208,10 +1207,10 @@ def update_substance_intake_list_from_prescription(parent=None, prescribed_drugs
 	if len(prescribed_drugs) == 0:
 		return
 
-	curr_brands =  [ i['pk_brand'] for i in emr.get_current_medications() if i['pk_brand'] is not None ]
+	curr_meds =  [ i['pk_drug_product'] for i in emr.get_current_medications() if i['pk_drug_product'] is not None ]
 	new_drugs = []
 	for drug in prescribed_drugs:
-		if drug['pk_brand'] not in curr_brands:
+		if drug['pk_drug_product'] not in curr_meds:
 			new_drugs.append(drug)
 
 	if len(new_drugs) == 0:
@@ -1224,7 +1223,7 @@ def update_substance_intake_list_from_prescription(parent=None, prescribed_drugs
 		parent,
 		-1,
 		msg = _(
-			'These brands have been prescribed but are not listed\n'
+			'These products have been prescribed but are not listed\n'
 			'in the current medication list of this patient.\n'
 			'\n'
 			'Please select those you want added to the medication list.'
@@ -1234,7 +1233,7 @@ def update_substance_intake_list_from_prescription(parent=None, prescribed_drugs
 		columns = [_('Newly prescribed drugs')],
 		columns_right = [_('Add to medication list')]
 	)
-	choices = [ (u'%s %s (%s)' % (d['brand'], d['preparation'], u'; '.join(d['components']))) for d in new_drugs ]
+	choices = [ (u'%s %s (%s)' % (d['product'], d['preparation'], u'; '.join(d['components']))) for d in new_drugs ]
 	picker.set_choices (
 		choices = choices,
 		data = new_drugs
@@ -1288,11 +1287,11 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 				_('Timeframe'),
 #				_('Started'),
 #				_('Duration / Until'),
-				_('Brand'),
+				_('Product'),
 				_('Advice')
 			],
-			u'brand': [
-				_('Brand'),
+			u'product': [
+				_('Product'),
 				_('Schedule'),
 				_('Substance'),
 				_('Strength'),
@@ -1310,7 +1309,7 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 				_('Timeframe'),
 #				_('Started'),
 #				_('Duration / Until'),
-				_('Brand'),
+				_('Product'),
 				_('Advice')
 			],
 			u'start': [
@@ -1321,15 +1320,15 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 				_('Timeframe'),
 #				_('Started'),
 #				_('Duration / Until'),
-				_('Brand'),
+				_('Product'),
 				_('Advice')
 			],
 		}
 
 		self.__grouping2order_by_clauses = {
-			u'issue': u'pk_health_issue nulls first, substance, started',
-			u'episode': u'pk_health_issue nulls first, episode, substance, started',
-			u'brand': u'brand nulls last, substance, started',
+			u'issue': u'pk_health_issue NULLS FIRST, substance, started',
+			u'episode': u'pk_health_issue NULLS FIRST, episode, substance, started',
+			u'product': u'product NULLS LAST, substance, started',
 			u'start': u'started DESC, substance, episode'
 		}
 
@@ -1473,21 +1472,21 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 #					else:
 #						self.SetCellValue(row_idx, 5, med['discontinued'].strftime('%Y-%m-%d'))
 
-				if med['pk_brand'] is None:
-					brand = u'%s (%s)' % (gmTools.u_diameter, med['preparation'])
+				if med['pk_drug_product'] is None:
+					product = u'%s (%s)' % (gmTools.u_diameter, med['preparation'])
 				else:
-					if med['is_fake_brand']:
-						brand = u'%s (%s)' % (
-							gmTools.coalesce(med['brand'], u'', _('%s <fake>')),
+					if med['is_fake_product']:
+						product = u'%s (%s)' % (
+							gmTools.coalesce(med['product'], u'', _('%s <fake>')),
 							med['preparation']
 						)
 					else:
-						brand = u'%s (%s)' % (
-							gmTools.coalesce(med['brand'], u''),
+						product = u'%s (%s)' % (
+							gmTools.coalesce(med['product'], u''),
 							med['preparation']
 						)
-#				self.SetCellValue(row_idx, 6, gmTools.wrap(text = brand, width = 35))
-				self.SetCellValue(row_idx, 5, gmTools.wrap(text = brand, width = 35))
+#				self.SetCellValue(row_idx, 6, gmTools.wrap(text = product, width = 35))
+				self.SetCellValue(row_idx, 5, gmTools.wrap(text = product, width = 35))
 
 			elif self.__grouping_mode == u'issue':
 				if med['pk_health_issue'] is None:
@@ -1521,46 +1520,46 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 #					else:
 #						self.SetCellValue(row_idx, 5, med['discontinued'].strftime('%Y-%m-%d'))
 
-				if med['pk_brand'] is None:
-					brand = u'%s (%s)' % (gmTools.u_diameter, med['preparation'])
+				if med['pk_drug_product'] is None:
+					product = u'%s (%s)' % (gmTools.u_diameter, med['preparation'])
 				else:
-					if med['is_fake_brand']:
-						brand = u'%s (%s)' % (
-							gmTools.coalesce(med['brand'], u'', _('%s <fake>')),
+					if med['is_fake_product']:
+						product = u'%s (%s)' % (
+							gmTools.coalesce(med['product'], u'', _('%s <fake>')),
 							med['preparation']
 						)
 					else:
-						brand = u'%s (%s)' % (
-							gmTools.coalesce(med['brand'], u''),
+						product = u'%s (%s)' % (
+							gmTools.coalesce(med['product'], u''),
 							med['preparation']
 						)
-#				self.SetCellValue(row_idx, 6, gmTools.wrap(text = brand, width = 35))
-				self.SetCellValue(row_idx, 5, gmTools.wrap(text = brand, width = 35))
+#				self.SetCellValue(row_idx, 6, gmTools.wrap(text = product, width = 35))
+				self.SetCellValue(row_idx, 5, gmTools.wrap(text = product, width = 35))
 
-			elif self.__grouping_mode == u'brand':
+			elif self.__grouping_mode == u'product':
 
-				if med['pk_brand'] is None:
+				if med['pk_drug_product'] is None:
 					self.__prev_cell_0 = None
-					brand =  u'%s (%s)' % (
+					product =  u'%s (%s)' % (
 						gmTools.u_diameter,
 						med['preparation']
 					)
 				else:
-					if self.__prev_cell_0 == med['brand']:
-						brand = u''
+					if self.__prev_cell_0 == med['product']:
+						product = u''
 					else:
-						self.__prev_cell_0 = med['brand']
-						if med['is_fake_brand']:
-							brand = u'%s (%s)' % (
-								gmTools.coalesce(med['brand'], u'', _('%s <fake>')),
+						self.__prev_cell_0 = med['product']
+						if med['is_fake_product']:
+							product = u'%s (%s)' % (
+								gmTools.coalesce(med['product'], u'', _('%s <fake>')),
 								med['preparation']
 							)
 						else:
-							brand = u'%s (%s)' % (
-								gmTools.coalesce(med['brand'], u''),
+							product = u'%s (%s)' % (
+								gmTools.coalesce(med['product'], u''),
 								med['preparation']
 							)
-				self.SetCellValue(row_idx, 0, gmTools.wrap(text = brand, width = 35))
+				self.SetCellValue(row_idx, 0, gmTools.wrap(text = product, width = 35))
 
 				self.SetCellValue(row_idx, 1, gmTools.coalesce(med['schedule'], u''))
 				self.SetCellValue(row_idx, 2, med['substance'])
@@ -1640,7 +1639,7 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 			return
 
 		intake = self.get_selected_data()[0]		# just in case
-		if intake['brand'] is None:
+		if intake['product'] is None:
 			drug_db.show_info_on_substance(substance_intake = intake)
 		else:
 			drug_db.show_info_on_drug(substance_intake = intake)
@@ -1748,9 +1747,9 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 		atcs = []
 		if entry['atc_substance'] is not None:
 			atcs.append(entry['atc_substance'])
-#		if entry['atc_brand'] is not None:
-#			atcs.append(entry['atc_brand'])
-#		allg = emr.is_allergic_to(atcs = tuple(atcs), inns = (entry['substance'],), brand = entry['brand'])
+#		if entry['atc_drug'] is not None:
+#			atcs.append(entry['atc_drug'])
+#		allg = emr.is_allergic_to(atcs = tuple(atcs), inns = (entry['substance'],), product_name = entry['product'])
 		allg = emr.is_allergic_to(atcs = tuple(atcs), inns = (entry['substance'],))
 
 		tt = _('Substance intake entry (%s, %s)   [#%s]                     \n') % (
@@ -1793,11 +1792,11 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 		tt += u'\n'
 
 		tt += gmTools.coalesce (
-			entry['brand'],
+			entry['product'],
 			u'',
-			_(' Brand name: %%s   [#%s]\n') % entry['pk_brand']
+			_(' Product name: %%s   [#%s]\n') % entry['pk_drug_product']
 		)
-		tt += gmTools.coalesce(entry['atc_brand'], u'', _(' ATC (brand): %s\n'))
+		tt += gmTools.coalesce(entry['atc_drug'], u'', _(' ATC (drug): %s\n'))
 
 		tt += u'\n'
 
@@ -1970,7 +1969,7 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 
 		self.__grouping_choice_labels = [
 			{u'label': _('Health issue'), u'data': u'issue'} ,
-			{u'label': _('Brand'), u'data': u'brand'},
+			{u'label': _('Drug product'), u'data': u'product'},
 			{u'label': _('Episode'), u'data': u'episode'},
 			{u'label': _('Started'), u'data': u'start'}
 		]
@@ -2168,11 +2167,11 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._on_post_patient_selection)
 		gmDispatcher.connect(signal = u'clin.substance_intake_mod_db', receiver = self._schedule_data_reget)
 		gmDispatcher.connect(signal = u'clin.test_result_mod_db', receiver = self._on_test_result_mod)
-		# active_substance_mod_db
-		# substance_brand_mod_db
+
 	#--------------------------------------------------------
 	def _on_test_result_mod(self):
 		self.__refresh_lab(patient = self._grid_substances.patient)
+
 	#--------------------------------------------------------
 	def _on_pre_patient_unselection(self):
 		dbcfg = gmCfg.cCfgSQL()
@@ -2257,6 +2256,6 @@ if __name__ == '__main__':
 
 	#----------------------------------------
 	app = wx.PyWidgetTester(size = (600, 300))
-	app.SetWidget(cBrandOrSubstancePhraseWheel, -1)
+	app.SetWidget(cProductOrSubstancePhraseWheel, -1)
 	app.MainLoop()
 	#manage_substance_intakes()

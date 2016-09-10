@@ -9,13 +9,8 @@
 --set default_transaction_read_only to off;
 
 -- --------------------------------------------------------------
-drop table if exists ref.lnk_dose2drug cascade;
-
-create table ref.lnk_dose2drug (
-	pk serial primary key,
-	fk_drug_product integer,
-	fk_dose integer
-) inherits (audit.audit_fields);
+alter table ref.branded_drug
+	rename to drug_product;
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('v22-ref-lnk_dose2drug-static.sql', '22.0');
+select gm.log_script_insertion('v22-ref-drug_product-static.sql', '22.0');

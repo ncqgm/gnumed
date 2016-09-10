@@ -163,7 +163,7 @@ def manage_vaccines(parent=None):
 		vaccines = gmVaccination.get_vaccines(order_by = 'vaccine')
 
 		items = [ [
-			u'%s' % v['pk_brand'],
+			u'%s' % v['pk_drug_product'],
 			u'%s%s' % (
 				v['vaccine'],
 				gmTools.bool2subst (
@@ -189,8 +189,8 @@ def manage_vaccines(parent=None):
 		parent = parent,
 		msg = _('\nThe vaccines currently known to GNUmed.\n'),
 		caption = _('Showing vaccines.'),
-		#columns = [ u'#', _('Brand'), _('Preparation'), _(u'Route'), _('Live'), _('ATC'), _('Age range'), _('Comment') ],
-		columns = [ u'#', _('Brand'), _('Preparation'), _('ATC'), _('Age range'), _('Comment') ],
+		#columns = [ u'#', _('Product'), _('Preparation'), _(u'Route'), _('Live'), _('ATC'), _('Age range'), _('Comment') ],
+		columns = [ u'#', _('Product'), _('Preparation'), _('ATC'), _('Age range'), _('Comment') ],
 		single_selection = True,
 		refresh_callback = refresh,
 		edit_callback = edit,
@@ -265,7 +265,7 @@ class cVaccinePhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
 
-		# consider ATCs in ref.branded_drug and vacc_indication
+		# consider ATCs in ref.drug_product and vacc_indication
 		query = u"""
 SELECT data, list_label, field_label FROM (
 
@@ -355,11 +355,11 @@ class cVaccineEAPnl(wxgVaccineEAPnl.wxgVaccineEAPnl, gmEditArea.cGenericEditArea
 
 		has_errors = False
 
-		if self._PRW_brand.GetValue().strip() == u'':
+		if self._PRW_drug_product.GetValue().strip() == u'':
 			has_errors = True
-			self._PRW_brand.display_as_valid(False)
+			self._PRW_drug_product.display_as_valid(False)
 		else:
-			self._PRW_brand.display_as_valid(True)
+			self._PRW_drug_product.display_as_valid(True)
 
 		if self._PRW_atc.GetValue().strip() in [u'', u'J07']:
 			self._PRW_atc.display_as_valid(True)
@@ -396,8 +396,8 @@ class cVaccineEAPnl(wxgVaccineEAPnl.wxgVaccineEAPnl, gmEditArea.cGenericEditArea
 		ask_user = (ask_user and self.data.is_in_use)
 		# a change ...
 		ask_user = ask_user and (
-			# ... of brand ...
-			(self.data['pk_brand'] != self._PRW_route.GetData())
+			# ... of product ...
+			(self.data['pk_drug_product'] != self._PRW_route.GetData())
 				or
 			# ... or indications ?
 			(set(self.data['pk_indications']) != set([ i['id'] for i in self.__indications ]))
@@ -419,7 +419,7 @@ class cVaccineEAPnl(wxgVaccineEAPnl.wxgVaccineEAPnl, gmEditArea.cGenericEditArea
 					u'conditions in each patient this vaccine was\n'
 					u'used in to document a vaccination with.\n'
 				) % (
-					self._PRW_brand.GetValue().strip(),
+					self._PRW_drug_product.GetValue().strip(),
 					u', '.join(self.data['l10n_indications'])
 				)
 			)
@@ -439,8 +439,8 @@ class cVaccineEAPnl(wxgVaccineEAPnl.wxgVaccineEAPnl, gmEditArea.cGenericEditArea
 
 		# save the data as a new instance
 		data = gmVaccination.create_vaccine (
-			pk_brand = self._PRW_brand.GetData(),
-			brand_name = self._PRW_brand.GetValue(),
+			pk_drug_product = self._PRW_drug_product.GetData(),
+			product_name = self._PRW_drug_product.GetValue(),
 			pk_indications = [ i['id'] for i in self.__indications ]
 		)
 
@@ -457,8 +457,8 @@ class cVaccineEAPnl(wxgVaccineEAPnl.wxgVaccineEAPnl, gmEditArea.cGenericEditArea
 
 		data.save()
 
-		drug = data.brand
-		drug['is_fake_brand'] = self._CHBOX_fake.GetValue()
+		drug = data.product
+		drug['is_fake_product'] = self._CHBOX_fake.GetValue()
 		val = self._PRW_atc.GetData()
 		if val is not None:
 			if val != u'J07':
@@ -481,9 +481,9 @@ class cVaccineEAPnl(wxgVaccineEAPnl.wxgVaccineEAPnl, gmEditArea.cGenericEditArea
 			)
 			return False
 
-		drug = self.data.brand
-		drug['brand'] = self._PRW_brand.GetValue().strip()
-		drug['is_fake_brand'] = self._CHBOX_fake.GetValue()
+		drug = self.data.product
+		drug['product'] = self._PRW_drug_product.GetValue().strip()
+		drug['is_fake_product'] = self._CHBOX_fake.GetValue()
 		val = self._PRW_atc.GetData()
 		if val is not None:
 			if val != u'J07':
@@ -507,7 +507,7 @@ class cVaccineEAPnl(wxgVaccineEAPnl.wxgVaccineEAPnl, gmEditArea.cGenericEditArea
 		return True
 	#----------------------------------------------------------------
 	def _refresh_as_new(self):
-		self._PRW_brand.SetText(value = u'', data = None, suppress_smarts = True)
+		self._PRW_drug_product.SetText(value = u'', data = None, suppress_smarts = True)
 #		self._CHBOX_live.SetValue(True)
 		self._CHBOX_fake.SetValue(False)
 		self._PRW_atc.SetText(value = u'', data = None, suppress_smarts = True)
@@ -518,10 +518,10 @@ class cVaccineEAPnl(wxgVaccineEAPnl.wxgVaccineEAPnl, gmEditArea.cGenericEditArea
 		self.__indications = []
 		self.__refresh_indications()
 
-		self._PRW_brand.SetFocus()
+		self._PRW_drug_product.SetFocus()
 	#----------------------------------------------------------------
 	def _refresh_from_existing(self):
-		self._PRW_brand.SetText(value = self.data['vaccine'], data = self.data['pk_brand'])
+		self._PRW_drug_product.SetText(value = self.data['vaccine'], data = self.data['pk_drug_product'])
 #		self._CHBOX_live.SetValue(self.data['is_live'])
 		self._CHBOX_fake.SetValue(self.data['is_fake_vaccine'])
 		self._PRW_atc.SetText(value = self.data['atc_code'], data = self.data['atc_code'])
@@ -544,7 +544,7 @@ class cVaccineEAPnl(wxgVaccineEAPnl.wxgVaccineEAPnl, gmEditArea.cGenericEditArea
 		self.__indications = self.data.indications
 		self.__refresh_indications()
 
-		self._PRW_brand.SetFocus()
+		self._PRW_drug_product.SetFocus()
 	#----------------------------------------------------------------
 	def _refresh_as_new_from_existing(self):
 		self._refresh_as_new()

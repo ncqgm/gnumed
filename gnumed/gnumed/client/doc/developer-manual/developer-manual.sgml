@@ -2420,7 +2420,7 @@ should be del()ed after use, actually
     	        <title>Pharmaceutical reference </title>
 		<orderedlist numeration="arabic">
 		    <listitem><para>
-		    drug listing: generic and brand names 
+		    drug listing: generic and product names 
 		    </para></listitem>
 		    <listitem><para>
 		    drug properties 
@@ -3097,7 +3097,7 @@ health issue
 	    <sect2>
 		<title>Functionality</title>
 		<itemizedlist mark=opencircle>
-		    <listitem><para>Browse drugs by generic name, brand name and inidication.</para></listitem>
+		    <listitem><para>Browse drugs by generic name, product name and inidication.</para></listitem>
 		    <listitem><para>Hold tool icons and generally important information specific to the current module</para></listitem>
 		</itemizedlist>
     	    </sect2>
@@ -3207,13 +3207,13 @@ configfile = &lt;PathToDrugDBConfigFile&gt;
 	</para>
 	<itemizedlist>
 	<listitem><para>
-      	'brand_index_exact' : a index of brand products selected from a list by a at least partial name
+      	'product_index_exact' : a index of drug products selected from a list by a at least partial name
        (mapping : 'Key' - holding the name (or parts of it) to search for; 
-       parameters expected as result : a list of brand products identified by at least parameters 'id' and 'name', additional parameters will be displayed, too)
+       parameters expected as result : a list of drug products identified by at least parameters 'id' and 'name', additional parameters will be displayed, too)
 	</para></listitem>
-	<listitem><para>'generic_index_exact' : a index of generic substances, see  'brand_index_exact' for details
+	<listitem><para>'generic_index_exact' : a index of generic substances, see  'product_index_exact' for details
 	</para></listitem>        
-       <listitem><para> 'product_info' : a group holding all details on a specific drug (brand product) selected by a unique ID (var 'ID') from the list of all drugs. 
+       <listitem><para> 'product_info' : a group holding all details on a specific drug product selected by a unique ID (var 'ID') from the list of all drugs. 
         This group should contain queries that select information from different
         tables using only the drug ID. The number of queries is not limited.
 	</para></listitem>
@@ -3255,7 +3255,7 @@ configfile = &lt;PathToDrugDBConfigFile&gt;
 		<itemizedlist mark=opencircle>
 		    <listitem><para>Class of Drug []</para></listitem>
 		    <listitem><para>Generic Name []</para></listitem>
-		    <listitem><para>Brand Name []</para></listitem>
+		    <listitem><para>Product Name []</para></listitem>
 		    <listitem><para>Strength []</para></listitem>
 		    <listitem><para>Direction []</para></listitem>
 		    <listitem><para>Indication (what is the drug prescribed for) []</para></listitem>

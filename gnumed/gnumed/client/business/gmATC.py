@@ -55,7 +55,7 @@ def propagate_atc(substance=None, atc=None):
 	queries = [
 		{'cmd': u"UPDATE ref.substance SET atc = %(atc)s WHERE lower(description) = lower(%(term)s) AND atc IS NULL",
 		 'args': args},
-		{'cmd': u"UPDATE ref.branded_drug SET atc_code = %(atc)s WHERE lower(description) = lower(%(term)s) AND atc_code IS NULL",
+		{'cmd': u"UPDATE ref.drug_product SET atc_code = %(atc)s WHERE lower(description) = lower(%(term)s) AND atc_code IS NULL",
 		 'args': args}
 	]
 	gmPG2.run_rw_queries(queries = queries)
@@ -81,7 +81,7 @@ def text2atc(text=None, fuzzy=False):
 				WHERE description ilike %(term)s AND atc IS NOT NULL
 					UNION
 				SELECT atc_code, null, null
-				FROM ref.branded_drug
+				FROM ref.drug_product
 				WHERE description ilike %(term)s AND atc_code IS NOT NULL
 			) as tmp
 			ORDER BY atc_code
@@ -100,7 +100,7 @@ def text2atc(text=None, fuzzy=False):
 				WHERE lower(description) = lower(%(term)s) AND atc IS NOT NULL
 					UNION
 				SELECT atc_code, null, null
-				FROM ref.branded_drug
+				FROM ref.drug_product
 				WHERE lower(description) = lower(%(term)s) AND atc_code IS NOT NULL
 			) as tmp
 			ORDER BY atc_code

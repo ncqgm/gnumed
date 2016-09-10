@@ -17,16 +17,16 @@
                 <flag>wxALIGN_CENTER_VERTICAL</flag>
                 <border>0</border>
                 <option>0</option>
-                <object class="wxStaticText" name="__lbl_brand" base="EditStaticText">
+                <object class="wxStaticText" name="__lbl_product" base="EditStaticText">
                     <attribute>0</attribute>
-                    <label>Brand</label>
+                    <label>Product</label>
                 </object>
             </object>
             <object class="sizeritem">
                 <flag>wxEXPAND|wxALIGN_CENTER_VERTICAL</flag>
                 <border>0</border>
                 <option>0</option>
-                <object class="wxTextCtrl" name="_TCTRL_brand" base="EditTextCtrl">
+                <object class="wxTextCtrl" name="_TCTRL_product_name" base="EditTextCtrl">
                     <style>wxTE_READONLY|wxNO_BORDER</style>
                     <background>wxSYS_COLOUR_BACKGROUND</background>
                 </object>
@@ -107,7 +107,7 @@
                         <option>1</option>
                         <object class="wxTextCtrl" name="_TCTRL_amount" base="EditTextCtrl">
                             <style>wxNO_BORDER</style>
-                            <tooltip>The numeric amount of substance per dose in brand.\n\nExamples:\n- 100mg per tablet: amount = 100, unit = mg(/tablet)\n- 10mg/ampulla: amount = 10, unit = mg(/ampulla)\n- 5mg/ml solution: amount = 5, unit = mg/ml</tooltip>
+                            <tooltip>The numeric amount of substance per dose in the product.\n\nExamples:\n- 100mg per tablet: amount = 100, unit = mg(/tablet)\n- 10mg/ampulla: amount = 10, unit = mg(/ampulla)\n- 5mg/ml solution: amount = 5, unit = mg/ml</tooltip>
                         </object>
                     </object>
                     <object class="sizeritem">

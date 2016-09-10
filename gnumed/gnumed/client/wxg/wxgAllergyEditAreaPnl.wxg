@@ -45,25 +45,25 @@
                 <option>0</option>
                 <object class="gmPhraseWheel.cPhraseWheel" name="_PRW_trigger" base="EditTextCtrl">
                     <style>wxNO_BORDER</style>
-                    <tooltip>What is reported to be the trigger for the reaction. Can be\n- a drug (brand name, generic, constrast media, ...)\n- a chemical (household, job related)\n- an animal (cat fur, lice, ...)\n- a metal (CrNi, ...)\n- a foodstuff (lactose, ...)\n- a type of pollen (birch, ...)\n- ...</tooltip>
+                    <tooltip>What is reported to be the trigger for the reaction. Can be\n- a drug (product name, generic, constrast media, ...)\n- a chemical (household, job related)\n- an animal (cat fur, lice, ...)\n- a metal (CrNi, ...)\n- a foodstuff (lactose, ...)\n- a type of pollen (birch, ...)\n- ...</tooltip>
                 </object>
             </object>
             <object class="sizeritem">
                 <flag>wxALIGN_CENTER_VERTICAL</flag>
                 <border>0</border>
                 <option>0</option>
-                <object class="wxStaticText" name="__lbl_brand_name" base="EditStaticText">
+                <object class="wxStaticText" name="__lbl_product_name" base="EditStaticText">
                     <attribute>0</attribute>
-                    <label>Brand Name</label>
+                    <label>Product Name</label>
                 </object>
             </object>
             <object class="sizeritem">
                 <flag>wxEXPAND|wxALIGN_CENTER_VERTICAL</flag>
                 <border>0</border>
                 <option>0</option>
-                <object class="wxTextCtrl" name="_TCTRL_brand_name" base="EditTextCtrl">
+                <object class="wxTextCtrl" name="_TCTRL_product_name" base="EditTextCtrl">
                     <style>wxNO_BORDER</style>
-                    <tooltip>Brand name if a drug is entered as the trigger.</tooltip>
+                    <tooltip>Product name if a drug is entered as the trigger.</tooltip>
                     <disabled>1</disabled>
                 </object>
             </object>
@@ -88,7 +88,7 @@
                         <option>1</option>
                         <object class="wxTextCtrl" name="_TCTRL_generic" base="EditTextCtrl">
                             <style>wxNO_BORDER</style>
-                            <tooltip>Brand name if a drug is entered as the trigger.</tooltip>
+                            <tooltip>Product name if a drug is entered as the trigger.</tooltip>
                             <disabled>1</disabled>
                         </object>
                     </object>

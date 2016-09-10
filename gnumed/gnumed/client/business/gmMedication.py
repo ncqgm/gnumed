@@ -57,21 +57,21 @@ def drug2renal_insufficiency_url(search_term=None):
 	terms = []
 	names = []
 
-	if isinstance(search_term, cBrandedDrug):
+	if isinstance(search_term, cDrugProduct):
 		if search_term['atc'] is not None:
 			terms.append(search_term['atc'])
 
 	elif isinstance(search_term, cSubstanceIntakeEntry):
 		names.append(search_term['substance'])
-		if search_term['atc_brand'] is not None:
-			terms.append(search_term['atc_brand'])
+		if search_term['atc_drug'] is not None:
+			terms.append(search_term['atc_drug'])
 		if search_term['atc_substance'] is not None:
 			terms.append(search_term['atc_substance'])
 
 	elif isinstance(search_term, cDrugComponent):
 		names.append(search_term['substance'])
-		if search_term['atc_brand'] is not None:
-			terms.append(search_term['atc_brand'])
+		if search_term['atc_drug'] is not None:
+			terms.append(search_term['atc_drug'])
 		if search_term['atc_substance'] is not None:
 			terms.append(search_term['atc_substance'])
 
@@ -611,10 +611,10 @@ class cSubstanceDoseMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
 		return self._find_matches(fragment_condition)
 
 #------------------------------------------------------------
-class cBrandOrSubstanceMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
+class cProductOrSubstanceMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
 
-	# by brand name
-	_query_brand_by_name = u"""
+	# by product name
+	_query_drug_product_by_name = u"""
 		SELECT
 			ARRAY[1, pk]::INTEGER[]
 				AS data,
@@ -623,21 +623,21 @@ class cBrandOrSubstanceMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
 			(description || ' (' || preparation || ')' || coalesce(' [' || atc_code || ']', ''))
 				AS field_label,
 			1 AS rank
-		FROM ref.branded_drug
+		FROM ref.drug_product
 		WHERE description %(fragment_condition)s
 		LIMIT 50
 	"""
-	_query_brand_by_name_and_strength = u"""
+	_query_drug_product_by_name_and_strength = u"""
 		SELECT
-			ARRAY[1, pk_brand]::INTEGER[]
+			ARRAY[1, pk_drug_product]::INTEGER[]
 				AS data,
-			(brand || ' (' || preparation || %s || amount || unit || ' ' || substance || ')' || coalesce(' [' || atc_brand || ']', ''))
+			(product || ' (' || preparation || %s || amount || unit || ' ' || substance || ')' || coalesce(' [' || atc_drug || ']', ''))
 				AS list_label,
-			(brand || ' (' || preparation || %s || amount || unit || ' ' || substance || ')' || coalesce(' [' || atc_brand || ']', ''))
+			(product || ' (' || preparation || %s || amount || unit || ' ' || substance || ')' || coalesce(' [' || atc_drug || ']', ''))
 				AS field_label,
 			1 AS rank
 		FROM
-			(SELECT *, brand AS description FROM ref.v_drug_components) AS _components
+			(SELECT *, product AS description FROM ref.v_drug_components) AS _components
 		WHERE %%(fragment_condition)s
 		LIMIT 50
 	""" % (
@@ -651,51 +651,52 @@ class cBrandOrSubstanceMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
 			ARRAY[3, r_vdc1.pk_component]::INTEGER[]
 				AS data,
 			(r_vdc1.substance || ' ' || r_vdc1.amount || r_vdc1.unit || ' ' || r_vdc1.preparation || ' ('
-				|| r_vdc1.brand || ' ['
+				|| r_vdc1.product || ' ['
 					|| (
 						SELECT array_to_string(array_agg(r_vdc2.amount), ' / ')
 						FROM ref.v_drug_components r_vdc2
-						WHERE r_vdc2.pk_brand = r_vdc1.pk_brand
+						WHERE r_vdc2.pk_drug_product = r_vdc1.pk_drug_product
 					)
 				|| ']'
 			|| ')'
 			)	AS field_label,
 			(r_vdc1.substance || ' ' || r_vdc1.amount || r_vdc1.unit || ' ' || r_vdc1.preparation || ' ('
-				|| r_vdc1.brand || ' ['
+				|| r_vdc1.product || ' ['
 					|| (
 						SELECT array_to_string(array_agg(r_vdc2.amount), ' / ')
 						FROM ref.v_drug_components r_vdc2
-						WHERE r_vdc2.pk_brand = r_vdc1.pk_brand
+						WHERE r_vdc2.pk_drug_product = r_vdc1.pk_drug_product
 					)
 				|| ']'
 			|| ')'
 			)	AS list_label,
 			1 AS rank
 		FROM
-			(SELECT *, brand AS description FROM ref.v_drug_components) AS r_vdc1
+			(SELECT *, product AS description FROM ref.v_drug_components) AS r_vdc1
 		WHERE
 			r_vdc1.substance %(fragment_condition)s
 		LIMIT 50"""
+
 	_query_component_by_name_and_strength = u"""
 		SELECT
 			ARRAY[3, r_vdc1.pk_component]::INTEGER[]
 				AS data,
 			(r_vdc1.substance || ' ' || r_vdc1.amount || r_vdc1.unit || ' ' || r_vdc1.preparation || ' ('
-				|| r_vdc1.brand || ' ['
+				|| r_vdc1.product || ' ['
 					|| (
 						SELECT array_to_string(array_agg(r_vdc2.amount), ' / ')
 						FROM ref.v_drug_components r_vdc2
-						WHERE r_vdc2.pk_brand = r_vdc1.pk_brand
+						WHERE r_vdc2.pk_drug_product = r_vdc1.pk_drug_product
 					)
 				|| ']'
 			|| ')'
 			)	AS field_label,
 			(r_vdc1.substance || ' ' || r_vdc1.amount || r_vdc1.unit || ' ' || r_vdc1.preparation || ' ('
-				|| r_vdc1.brand || ' ['
+				|| r_vdc1.product || ' ['
 					|| (
 						SELECT array_to_string(array_agg(r_vdc2.amount), ' / ')
 						FROM ref.v_drug_components r_vdc2
-						WHERE r_vdc2.pk_brand = r_vdc1.pk_brand
+						WHERE r_vdc2.pk_drug_product = r_vdc1.pk_drug_product
 					)
 				|| ']'
 			|| ')'
@@ -727,7 +728,7 @@ class cBrandOrSubstanceMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
 					substance AS description,
 					amount,
 					unit
-				FROM clin.v_nonbrand_intakes
+				FROM clin.v_nonbraXXXnd_intakes
 			) AS normalized_intakes
 			WHERE description %%(fragment_condition)s
 
@@ -769,7 +770,7 @@ class cBrandOrSubstanceMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
 					substance AS description,
 					amount,
 					unit
-				FROM clin.v_nonbrand_intakes
+				FROM clin.v_nonbraXXXnd_intakes
 			) AS normalized_intakes
 			WHERE
 				%%(fragment_condition)s
@@ -809,15 +810,15 @@ class cBrandOrSubstanceMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
 	def getMatchesByPhrase(self, aFragment):
 		"""Return matches for aFragment at start of phrases."""
 
-		if cBrandOrSubstanceMatchProvider._pattern.match(aFragment):
+		if cProductOrSubstanceMatchProvider._pattern.match(aFragment):
 			self._queries = [
-				cBrandOrSubstanceMatchProvider._master_query % (
-					cBrandOrSubstanceMatchProvider._query_brand_by_name_and_strength,
-					cBrandOrSubstanceMatchProvider._query_substance_by_name_and_strength,
-					cBrandOrSubstanceMatchProvider._query_component_by_name_and_strength
+				cProductOrSubstanceMatchProvider._master_query % (
+					cProductOrSubstanceMatchProvider._query_drug_product_by_name_and_strength,
+					cProductOrSubstanceMatchProvider._query_substance_by_name_and_strength,
+					cProductOrSubstanceMatchProvider._query_component_by_name_and_strength
 				)
 			]
-			#self._queries = [cBrandOrSubstanceMatchProvider._query_substance_by_name_and_strength]
+			#self._queries = [cProductOrSubstanceMatchProvider._query_substance_by_name_and_strength]
 			fragment_condition = """description ILIKE %(desc)s
 				AND
 			amount::text ILIKE %(amount)s"""
@@ -825,13 +826,13 @@ class cBrandOrSubstanceMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
 			self._args['amount'] = u'%s%%' % regex.sub(r'^\D+\s*', u'', aFragment)
 		else:
 			self._queries = [
-				cBrandOrSubstanceMatchProvider._master_query % (
-					cBrandOrSubstanceMatchProvider._query_brand_by_name,
-					cBrandOrSubstanceMatchProvider._query_substance_by_name,
-					cBrandOrSubstanceMatchProvider._query_component_by_name
+				cProductOrSubstanceMatchProvider._master_query % (
+					cProductOrSubstanceMatchProvider._query_drug_product_by_name,
+					cProductOrSubstanceMatchProvider._query_substance_by_name,
+					cProductOrSubstanceMatchProvider._query_component_by_name
 				)
 			]
-			#self._queries = [cBrandOrSubstanceMatchProvider._query_substance_by_name]
+			#self._queries = [cProductOrSubstanceMatchProvider._query_substance_by_name]
 			fragment_condition = u"ILIKE %(fragment)s"
 			self._args['fragment'] = u"%s%%" % aFragment
 
@@ -841,15 +842,15 @@ class cBrandOrSubstanceMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
 	def getMatchesByWord(self, aFragment):
 		"""Return matches for aFragment at start of words inside phrases."""
 
-		if cBrandOrSubstanceMatchProvider._pattern.match(aFragment):
+		if cProductOrSubstanceMatchProvider._pattern.match(aFragment):
 			self._queries = [
-				cBrandOrSubstanceMatchProvider._master_query % (
-					cBrandOrSubstanceMatchProvider._query_brand_by_name_and_strength,
-					cBrandOrSubstanceMatchProvider._query_substance_by_name_and_strength,
-					cBrandOrSubstanceMatchProvider._query_component_by_name_and_strength
+				cProductOrSubstanceMatchProvider._master_query % (
+					cProductOrSubstanceMatchProvider._query_drug_product_by_name_and_strength,
+					cProductOrSubstanceMatchProvider._query_substance_by_name_and_strength,
+					cProductOrSubstanceMatchProvider._query_component_by_name_and_strength
 				)
 			]
-			#self._queries = [cBrandOrSubstanceMatchProvider._query_substance_by_name_and_strength]
+			#self._queries = [cProductOrSubstanceMatchProvider._query_substance_by_name_and_strength]
 
 			desc = regex.sub(r'\s*\d+$', u'', aFragment)
 			desc = gmPG2.sanitize_pg_regex(expression = desc, escape_all = False)
@@ -862,13 +863,13 @@ class cBrandOrSubstanceMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
 			self._args['amount'] = u'%s%%' % regex.sub(r'^\D+\s*', u'', aFragment)
 		else:
 			self._queries = [
-				cBrandOrSubstanceMatchProvider._master_query % (
-					cBrandOrSubstanceMatchProvider._query_brand_by_name,
-					cBrandOrSubstanceMatchProvider._query_substance_by_name,
-					cBrandOrSubstanceMatchProvider._query_component_by_name
+				cProductOrSubstanceMatchProvider._master_query % (
+					cProductOrSubstanceMatchProvider._query_drug_product_by_name,
+					cProductOrSubstanceMatchProvider._query_substance_by_name,
+					cProductOrSubstanceMatchProvider._query_component_by_name
 				)
 			]
-			#self._queries = [cBrandOrSubstanceMatchProvider._query_substance_by_name]
+			#self._queries = [cProductOrSubstanceMatchProvider._query_substance_by_name]
 			fragment_condition = u"~* %(fragment)s"
 			aFragment = gmPG2.sanitize_pg_regex(expression = aFragment, escape_all = False)
 			self._args['fragment'] = u"( %s)|(^%s)" % (aFragment, aFragment)
@@ -879,15 +880,15 @@ class cBrandOrSubstanceMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
 	def getMatchesBySubstr(self, aFragment):
 		"""Return matches for aFragment as a true substring."""
 
-		if cBrandOrSubstanceMatchProvider._pattern.match(aFragment):
+		if cProductOrSubstanceMatchProvider._pattern.match(aFragment):
 			self._queries = [
-				cBrandOrSubstanceMatchProvider._master_query % (
-					cBrandOrSubstanceMatchProvider._query_brand_by_name_and_strength,
-					cBrandOrSubstanceMatchProvider._query_substance_by_name_and_strength,
-					cBrandOrSubstanceMatchProvider._query_component_by_name_and_strength
+				cProductOrSubstanceMatchProvider._master_query % (
+					cProductOrSubstanceMatchProvider._query_drug_product_by_name_and_strength,
+					cProductOrSubstanceMatchProvider._query_substance_by_name_and_strength,
+					cProductOrSubstanceMatchProvider._query_component_by_name_and_strength
 				)
 			]
-			#self._queries = [cBrandOrSubstanceMatchProvider._query_substance_by_name_and_strength]
+			#self._queries = [cProductOrSubstanceMatchProvider._query_substance_by_name_and_strength]
 			fragment_condition = """description ILIKE %(desc)s
 				AND
 			amount::text ILIKE %(amount)s"""
@@ -895,13 +896,13 @@ class cBrandOrSubstanceMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
 			self._args['amount'] = u'%s%%' % regex.sub(r'^\D+\s*', u'', aFragment)
 		else:
 			self._queries = [
-				cBrandOrSubstanceMatchProvider._master_query % (
-					cBrandOrSubstanceMatchProvider._query_brand_by_name,
-					cBrandOrSubstanceMatchProvider._query_substance_by_name,
-					cBrandOrSubstanceMatchProvider._query_component_by_name
+				cProductOrSubstanceMatchProvider._master_query % (
+					cProductOrSubstanceMatchProvider._query_drug_product_by_name,
+					cProductOrSubstanceMatchProvider._query_substance_by_name,
+					cProductOrSubstanceMatchProvider._query_component_by_name
 				)
 			]
-			#self._queries = [cBrandOrSubstanceMatchProvider._query_substance_by_name]
+			#self._queries = [cProductOrSubstanceMatchProvider._query_substance_by_name]
 			fragment_condition = u"ILIKE %(fragment)s"
 			self._args['fragment'] = u"%%%s%%" % aFragment
 
@@ -917,7 +918,7 @@ class cDrugComponent(gmBusinessDBObject.cBusinessDBObject):
 	_cmd_fetch_payload = _SQL_get_drug_components % u'pk_component = %s'
 	_cmds_store_payload = [
 		u"""UPDATE ref.lnk_dose2drug SET
-				fk_brand = %(pk_brand)s,
+				fk_drug_product = %(pk_drug_product)s,
 				fk_dose = %(pk_dose)s
 			WHERE
 				pk = %(pk_component)s
@@ -935,7 +936,7 @@ class cDrugComponent(gmBusinessDBObject.cBusinessDBObject):
 		"""
 	]
 	_updatable_fields = [
-		u'pk_brand',
+		u'pk_drug_product',
 		u'pk_dose'
 	]
 	#--------------------------------------------------------
@@ -948,18 +949,18 @@ class cDrugComponent(gmBusinessDBObject.cBusinessDBObject):
 			gmTools.coalesce(self._payload[self._idx['dose_unit']], _('delivery unit (%s)') % self._payload[self._idx['preparation']])
 		))
 		lines.append(_('Component of %s (%s)') % (
-			self._payload[self._idx['brand']],
+			self._payload[self._idx['product']],
 			self._payload[self._idx['preparation']]
 		))
-		if self._payload[self._idx['is_fake_brand']]:
-			lines.append(u' ' + _('(not a real brand)'))
+		if self._payload[self._idx['is_fake_product']]:
+			lines.append(u' ' + _('(not a real drug product)'))
 
 		if self._payload[self._idx['intake_instructions']] is not None:
 			lines.append(_(u'Instructions: %s') % self._payload[self._idx['intake_instructions']])
 		if self._payload[self._idx['atc_substance']] is not None:
 			lines.append(_('ATC (substance): %s') % self._payload[self._idx['atc_substance']])
-		if self._payload[self._idx['atc_brand']] is not None:
-			lines.append(_('ATC (brand): %s') % self._payload[self._idx['atc_brand']])
+		if self._payload[self._idx['atc_drug']] is not None:
+			lines.append(_('ATC (drug): %s') % self._payload[self._idx['atc_drug']])
 		if self._payload[self._idx['external_code']] is not None:
 			lines.append(u'%s: %s' % (
 				self._payload[self._idx['external_code_type']],
@@ -998,7 +999,7 @@ class cDrugComponent(gmBusinessDBObject.cBusinessDBObject):
 	# properties
 	#--------------------------------------------------------
 	def _get_containing_drug(self):
-		return cBrandedDrug(aPK_obj = self._payload[self._idx['pk_brand']])
+		return cDrugProduct(aPK_obj = self._payload[self._idx['pk_product']])
 
 	containing_drug = property(_get_containing_drug, lambda x:x)
 
@@ -1022,7 +1023,7 @@ class cDrugComponent(gmBusinessDBObject.cBusinessDBObject):
 
 #------------------------------------------------------------
 def get_drug_components():
-	cmd = _SQL_get_drug_components % u'true ORDER BY brand, substance'
+	cmd = _SQL_get_drug_components % u'true ORDER BY product, substance'
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
 	return [ cDrugComponent(row = {'data': r, 'idx': idx, 'pk_field': 'pk_component'}) for r in rows ]
 
@@ -1038,11 +1039,11 @@ class cDrugComponentMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
 			(r_vdc1.substance || ' '
 				|| r_vdc1.amount || r_vdc1.unit || ' '
 				|| r_vdc1.preparation || ' ('
-				|| r_vdc1.brand || ' ['
+				|| r_vdc1.product || ' ['
 					|| (
 						SELECT array_to_string(array_agg(r_vdc2.amount), ' / ')
 						FROM ref.v_drug_components r_vdc2
-						WHERE r_vdc2.pk_brand = r_vdc1.pk_brand
+						WHERE r_vdc2.pk_drug_product = r_vdc1.pk_drug_product
 					)
 				|| ']'
 			 || ')'
@@ -1050,11 +1051,11 @@ class cDrugComponentMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
 			(r_vdc1.substance || ' '
 				|| r_vdc1.amount || r_vdc1.unit || ' '
 				|| r_vdc1.preparation || ' ('
-				|| r_vdc1.brand || ' ['
+				|| r_vdc1.product || ' ['
 					|| (
 						SELECT array_to_string(array_agg(r_vdc2.amount), ' / ')
 						FROM ref.v_drug_components r_vdc2
-						WHERE r_vdc2.pk_brand = r_vdc1.pk_brand
+						WHERE r_vdc2.pk_drug_product = r_vdc1.pk_drug_product
 					)
 				|| ']'
 			 || ')'
@@ -1063,7 +1064,7 @@ class cDrugComponentMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
 		WHERE
 			r_vdc1.substance %(fragment_condition)s
 				OR
-			r_vdc1.brand %(fragment_condition)s
+			r_vdc1.product %(fragment_condition)s
 		ORDER BY list_label
 		LIMIT 50"""
 
@@ -1073,11 +1074,11 @@ class cDrugComponentMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
 			(r_vdc1.substance || ' '
 				|| r_vdc1.amount || r_vdc1.unit || ' '
 				|| r_vdc1.preparation || ' ('
-				|| r_vdc1.brand || ' ['
+				|| r_vdc1.product || ' ['
 					|| (
 						SELECT array_to_string(array_agg(r_vdc2.amount), ' / ')
 						FROM ref.v_drug_components r_vdc2
-						WHERE r_vdc2.pk_brand = r_vdc1.pk_brand
+						WHERE r_vdc2.pk_drug_product = r_vdc1.pk_drug_product
 					)
 				|| ']'
 			 || ')'
@@ -1085,11 +1086,11 @@ class cDrugComponentMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
 			(r_vdc1.substance || ' '
 				|| r_vdc1.amount || r_vdc1.unit || ' '
 				|| r_vdc1.preparation || ' ('
-				|| r_vdc1.brand || ' ['
+				|| r_vdc1.product || ' ['
 					|| (
 						SELECT array_to_string(array_agg(r_vdc2.amount), ' / ')
 						FROM ref.v_drug_components r_vdc2
-						WHERE r_vdc2.pk_brand = r_vdc1.pk_brand
+						WHERE r_vdc2.pk_drug_product = r_vdc1.pk_drug_product
 					)
 				|| ']'
 			 || ')'
@@ -1105,7 +1106,7 @@ class cDrugComponentMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
 
 		if cDrugComponentMatchProvider._pattern.match(aFragment):
 			self._queries = [cDrugComponentMatchProvider._query_desc_and_amount]
-			fragment_condition = """(substance ILIKE %(desc)s OR brand ILIKE %(desc)s)
+			fragment_condition = """(substance ILIKE %(desc)s OR product ILIKE %(desc)s)
 				AND
 			amount::text ILIKE %(amount)s"""
 			self._args['desc'] = u'%s%%' % regex.sub(r'\s*\d+$', u'', aFragment)
@@ -1126,7 +1127,7 @@ class cDrugComponentMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
 			desc = regex.sub(r'\s*\d+$', u'', aFragment)
 			desc = gmPG2.sanitize_pg_regex(expression = desc, escape_all = False)
 
-			fragment_condition = """(substance ~* %(desc)s OR brand ~* %(desc)s)
+			fragment_condition = """(substance ~* %(desc)s OR product ~* %(desc)s)
 				AND
 			amount::text ILIKE %(amount)s"""
 
@@ -1145,7 +1146,7 @@ class cDrugComponentMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
 
 		if cDrugComponentMatchProvider._pattern.match(aFragment):
 			self._queries = [cDrugComponentMatchProvider._query_desc_and_amount]
-			fragment_condition = """(substance ILIKE %(desc)s OR brand ILIKE %(desc)s)
+			fragment_condition = """(substance ILIKE %(desc)s OR product ILIKE %(desc)s)
 				AND
 			amount::text ILIKE %(amount)s"""
 			self._args['desc'] = u'%%%s%%' % regex.sub(r'\s*\d+$', u'', aFragment)
@@ -1158,36 +1159,36 @@ class cDrugComponentMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
 		return self._find_matches(fragment_condition)
 
 #============================================================
-# branded drugs
+# drug products
 #------------------------------------------------------------
-_SQL_get_branded_drug = u"SELECT * FROM ref.v_branded_drugs WHERE %s"
+_SQL_get_drug_product = u"SELECT * FROM ref.v_drug_products WHERE %s"
 
-class cBrandedDrug(gmBusinessDBObject.cBusinessDBObject):
+class cDrugProduct(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents a drug as marketed by a manufacturer."""
 
-	_cmd_fetch_payload = _SQL_get_branded_drug % u'pk_brand = %s'
+	_cmd_fetch_payload = _SQL_get_drug_product % u'pk_drug_product = %s'
 	_cmds_store_payload = [
-		u"""UPDATE ref.branded_drug SET
-				description = %(brand)s,
+		u"""UPDATE ref.drug_product SET
+				description = %(product)s,
 				preparation = %(preparation)s,
 				atc_code = gm.nullify_empty_string(%(atc)s),
 				external_code = gm.nullify_empty_string(%(external_code)s),
 				external_code_type = gm.nullify_empty_string(%(external_code_type)s),
-				is_fake = %(is_fake_brand)s,
+				is_fake = %(is_fake_product)s,
 				fk_data_source = %(pk_data_source)s
 			WHERE
-				pk = %(pk_brand)s
+				pk = %(pk_drug_product)s
 					AND
-				xmin = %(xmin_branded_drug)s
+				xmin = %(xmin_drug_product)s
 			RETURNING
-				xmin AS xmin_branded_drug
+				xmin AS xmin_drug_product
 		"""
 	]
 	_updatable_fields = [
-		u'brand',
+		u'product',
 		u'preparation',
 		u'atc',
-		u'is_fake_brand',
+		u'is_fake_product',
 		u'external_code',
 		u'external_code_type',
 		u'pk_data_source'
@@ -1196,7 +1197,7 @@ class cBrandedDrug(gmBusinessDBObject.cBusinessDBObject):
 	def format(self, left_margin=0, include_component_details=False):
 		lines = []
 		lines.append(u'%s (%s)' % (
-			self._payload[self._idx['brand']],
+			self._payload[self._idx['product']],
 			self._payload[self._idx['preparation']]
 			)
 		)
@@ -1222,9 +1223,9 @@ class cBrandedDrug(gmBusinessDBObject.cBusinessDBObject):
 						gmTools.coalesce(l['comment'], u'', u' (%s)')
 					) for l in comp['loincs'] ])
 
-		if self._payload[self._idx['is_fake_brand']]:
+		if self._payload[self._idx['is_fake_product']]:
 			lines.append(u'')
-			lines.append(_('this is a fake brand'))
+			lines.append(_('this is a fake drug product'))
 		if self.is_vaccine:
 			lines.append(_('this is a vaccine'))
 
@@ -1241,7 +1242,7 @@ class cBrandedDrug(gmBusinessDBObject.cBusinessDBObject):
 			atc = self._payload[self._idx['atc']].strip()
 			if atc != u'':
 				gmATC.propagate_atc (
-					substance = self._payload[self._idx['brand']].strip(),
+					substance = self._payload[self._idx['product']].strip(),
 					atc = atc
 				)
 
@@ -1253,22 +1254,22 @@ class cBrandedDrug(gmBusinessDBObject.cBusinessDBObject):
 			return False
 
 		pk_doses2keep = [ s['pk_dose'] for s in substance_doses ]
-		args = {'pk_brand': self._payload[self._idx['pk_brand']]}
+		args = {'pk_drug_product': self._payload[self._idx['pk_drug_product']]}
 		queries = []
 
 		# INSERT those which are not there yet
 		cmd = u"""
 			INSERT INTO ref.lnk_dose2drug (
-				fk_brand,
+				fk_drug_product,
 				fk_dose
 			)
 			SELECT
-				%(pk_brand)s,
+				%(pk_drug_product)s,
 				%(pk_dose)s
 			WHERE NOT EXISTS (
 				SELECT 1 FROM ref.lnk_dose2drug
 				WHERE
-					fk_brand = %(pk_brand)s
+					fk_drug_product = %(pk_drug_product)s
 						AND
 					fk_dose = %(pk_dose)s
 			)"""
@@ -1281,7 +1282,7 @@ class cBrandedDrug(gmBusinessDBObject.cBusinessDBObject):
 		cmd = u"""
 			DELETE FROM ref.lnk_dose2drug
 			WHERE
-				fk_brand = %(pk_brand)s
+				fk_drug_product = %(pk_drug_product)s
 					AND
 				fk_dose NOT IN %(doses2keep)s"""
 		queries.append({'cmd': cmd, 'args': args})
@@ -1302,18 +1303,18 @@ class cBrandedDrug(gmBusinessDBObject.cBusinessDBObject):
 
 		args = {
 			'pk_dose': pk_dose,
-			'pk_brand': self.pk_obj
+			'pk_drug_product': self.pk_obj
 		}
 
 		cmd = u"""
-			INSERT INTO ref.lnk_dose2drug (fk_brand, fk_dose)
+			INSERT INTO ref.lnk_dose2drug (fk_drug_product, fk_dose)
 			SELECT
-				%(pk_brand)s,
+				%(pk_drug_product)s,
 				%(pk_dose)s
 			WHERE NOT EXISTS (
 				SELECT 1 FROM ref.lnk_dose2drug
 				WHERE
-					fk_brand = %(pk_brand)s
+					fk_drug_product = %(pk_drug_product)s
 						AND
 					fk_dose = %(pk_dose)s
 			)"""
@@ -1326,7 +1327,7 @@ class cBrandedDrug(gmBusinessDBObject.cBusinessDBObject):
 			_log.error('will not remove the only component of a drug')
 			return False
 
-		args = {'pk_brand': self.pk_obj, 'pk_substance': pk_substance, 'pk_dose': pk_dose, 'pk_component': pk_component}
+		args = {'pk_drug_product': self.pk_obj, 'pk_substance': pk_substance, 'pk_dose': pk_dose, 'pk_component': pk_component}
 
 		if pk_component is None:
 			if pk_dose is None:
@@ -1336,7 +1337,7 @@ class cBrandedDrug(gmBusinessDBObject.cBusinessDBObject):
 			cmd = u"""
 				DELETE FROM ref.lnk_dose2drug
 				WHERE
-					fk_brand = %(pk_brand)s
+					fk_drug_product = %(pk_drug_product)s
 						AND
 					fk_dose = %(pk_dose)s
 						AND
@@ -1364,14 +1365,14 @@ class cBrandedDrug(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	def exists_as_intake(self, pk_patient=None):
 		return substance_intake_exists (
-			pk_brand = self._payload[self._idx['pk_brand']],
+			pk_drug_product = self._payload[self._idx['pk_drug_product']],
 			pk_identity = pk_patient
 		)
 
 	#--------------------------------------------------------
 	def turn_into_intake(self, emr=None, encounter=None, episode=None):
 		return create_substance_intake (
-			pk_brand = self._payload[self._idx['pk_brand']],
+			pk_drug_product = self._payload[self._idx['pk_drug_product']],
 			pk_encounter = encounter,
 			pk_episode = episode
 		)
@@ -1397,8 +1398,8 @@ class cBrandedDrug(gmBusinessDBObject.cBusinessDBObject):
 
 	#--------------------------------------------------------
 	def _get_components(self):
-		cmd = _SQL_get_drug_components % u'pk_brand = %(brand)s'
-		args = {'brand': self._payload[self._idx['pk_brand']]}
+		cmd = _SQL_get_drug_components % u'pk_product = %(product)s'
+		args = {'product': self._payload[self._idx['pk_drug_product']]}
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 		return [ cDrugComponent(row = {'data': r, 'idx': idx, 'pk_field': 'pk_component'}) for r in rows ]
 
@@ -1406,7 +1407,7 @@ class cBrandedDrug(gmBusinessDBObject.cBusinessDBObject):
 
 	#--------------------------------------------------------
 	def _get_components_as_doses(self):
-		pk_doses = [ c['pk_dose'] for c in components ]
+		pk_doses = [ c['pk_dose'] for c in self._payload[self._idx['components']] ]
 		if len(pk_doses) == 0:
 			return []
 		if self._payload[self._idx['pk_doses']] is None:
@@ -1420,7 +1421,7 @@ class cBrandedDrug(gmBusinessDBObject.cBusinessDBObject):
 
 	#--------------------------------------------------------
 	def _get_components_as_substances(self):
-		pk_substances = [ c['pk_substance'] for c in components ]
+		pk_substances = [ c['pk_substance'] for c in self._payload[self._idx['components']] ]
 		if len(pk_substances) == 0:
 			return []
 		cmd = _SQL_get_substance % u'pk IN %(pks)s'
@@ -1431,15 +1432,15 @@ class cBrandedDrug(gmBusinessDBObject.cBusinessDBObject):
 	components_as_substances = property(_get_components_as_substances, lambda x:x)
 
 	#--------------------------------------------------------
-	def _get_is_fake_brand(self):
-		return self._payload[self._idx['is_fake_brand']]
+	def _get_is_fake_product(self):
+		return self._payload[self._idx['is_fake_product']]
 
-	is_fake_brand = property(_get_is_fake_brand, lambda x:x)
+	is_fake_product = property(_get_is_fake_product, lambda x:x)
 
 	#--------------------------------------------------------
 	def _get_is_vaccine(self):
-		cmd = u'SELECT EXISTS (SELECT 1 FROM clin.vaccine WHERE fk_brand = %(fk_brand)s)'
-		args = {'fk_brand': self._payload[self._idx['pk_brand']]}
+		cmd = u'SELECT EXISTS (SELECT 1 FROM clin.vaccine WHERE fk_drug_product = %(pk_prod)s)'
+		args = {'pk_prod': self._payload[self._idx['pk_drug_product']]}
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
 		return rows[0][0]
 
@@ -1451,7 +1452,7 @@ class cBrandedDrug(gmBusinessDBObject.cBusinessDBObject):
 			SELECT EXISTS (
 				SELECT 1 FROM clin.substance_intake WHERE
 					fk_drug_component IN (
-						SELECT pk FROM ref.lnk_dose2drug WHERE fk_brand = %(pk)s
+						SELECT pk FROM ref.lnk_dose2drug WHERE fk_drug_product = %(pk)s
 					)
 				LIMIT 1
 			)"""
@@ -1462,22 +1463,22 @@ class cBrandedDrug(gmBusinessDBObject.cBusinessDBObject):
 	is_in_use_by_patients = property(_get_is_in_use_by_patients, lambda x:x)
 
 #------------------------------------------------------------
-def get_branded_drugs():
-	cmd = _SQL_get_branded_drug % u'TRUE ORDER BY brand'
+def get_drug_products():
+	cmd = _SQL_get_drug_product % u'TRUE ORDER BY product'
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
-	return [ cBrandedDrug(row = {'data': r, 'idx': idx, 'pk_field': 'pk_brand'}) for r in rows ]
+	return [ cDrugProduct(row = {'data': r, 'idx': idx, 'pk_field': 'pk_drug_product'}) for r in rows ]
 
 #------------------------------------------------------------
-def get_drug_by_brand(brand_name=None, preparation=None):
-	args = {'brand': brand_name, 'prep': preparation}
-	cmd = u'SELECT pk FROM ref.branded_drug WHERE lower(description) = lower(%(brand)s) AND lower(preparation) = lower(%(prep)s)'
+def get_drug_by_name(product_name=None, preparation=None):
+	args = {'prod_name': product_name, 'prep': preparation}
+	cmd = u'SELECT pk FROM ref.drug_product WHERE lower(description) = lower(%(prod_name)s) AND lower(preparation) = lower(%(prep)s)'
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
 	if len(rows) == 0:
 		return None
-	return cBrandedDrug(aPK_obj = rows[0]['pk'])
+	return cDrugProduct(aPK_obj = rows[0]['pk'])
 
 #------------------------------------------------------------
-def create_branded_drug(brand_name=None, preparation=None, return_existing=False):
+def create_drug_product(product_name=None, preparation=None, return_existing=False):
 
 	if preparation is None:
 		preparation = _('units')
@@ -1486,44 +1487,44 @@ def create_branded_drug(brand_name=None, preparation=None, return_existing=False
 		preparation = _('units')
 
 	if return_existing:
-		drug = get_drug_by_brand(brand_name = brand_name, preparation = preparation)
+		drug = get_drug_by_name(product_name = product_name, preparation = preparation)
 		if drug is not None:
 			return drug
 
-	cmd = u'INSERT INTO ref.branded_drug (description, preparation) VALUES (%(brand)s, %(prep)s) RETURNING pk'
-	args = {'brand': brand_name, 'prep': preparation}
+	cmd = u'INSERT INTO ref.drug_product (description, preparation) VALUES (%(prod_name)s, %(prep)s) RETURNING pk'
+	args = {'prod_name': product_name, 'prep': preparation}
 	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True, get_col_idx = False)
 
-	return cBrandedDrug(aPK_obj = rows[0]['pk'])
+	return cDrugProduct(aPK_obj = rows[0]['pk'])
 
 #------------------------------------------------------------
-def delete_branded_drug(pk_brand=None):
+def delete_drug_product(pk_drug_product=None):
 	queries = []
 	# delete components
 	cmd = u"""
 		DELETE FROM ref.lnk_dose2drug
 		WHERE
-			fk_brand = %(pk)s
+			fk_drug_product = %(pk)s
 				AND
 			NOT EXISTS (
 				SELECT 1
 				FROM clin.v_substance_intakes
-				WHERE pk_brand = %(pk)s
+				WHERE pk_drug_product = %(pk)s
 				LIMIT 1
 			)"""
 	queries.append({'cmd': cmd, 'args': args})
 	# delete drug
 	cmd = u"""
-		DELETE FROM ref.branded_drug
+		DELETE FROM ref.drug_product
 		WHERE
 			pk = %(pk)s
 				AND
 			NOT EXISTS (
 				SELECT 1 FROM clin.v_substance_intakes
-				WHERE pk_brand = %(pk)s
+				WHERE pk_drug_product = %(pk)s
 				LIMIT 1
 			)"""
-	args = {'pk': pk_brand}
+	args = {'pk': pk_drug_product}
 	queries.append({'cmd': cmd, 'args': args})
 	gmPG2.run_rw_queries(queries = queries)
 
@@ -1606,14 +1607,14 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 	def format_maximum_information(self, patient=None):
 		return self.format (
 			single_line = False,
-			show_all_brand_components = True,
+			show_all_product_components = True,
 			include_metadata = True,
 			date_format = '%Y %b %d',
 			include_instructions = True
 		).split(u'\n')
 
 	#--------------------------------------------------------
-	def format(self, left_margin=0, date_format='%Y %b %d', single_line=True, allergy=None, show_all_brand_components=False, include_metadata=True, include_instructions=False):
+	def format(self, left_margin=0, date_format='%Y %b %d', single_line=True, allergy=None, show_all_product_components=False, include_metadata=True, include_instructions=False):
 
 		# medication
 		if self._payload[self._idx['harmful_use_type']] is None:
@@ -1623,7 +1624,7 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 				left_margin = left_margin,
 				date_format = date_format,
 				allergy = allergy,
-				show_all_brand_components = show_all_brand_components,
+				show_all_product_components = show_all_product_components,
 				include_instructions = include_instructions
 			)
 
@@ -1709,7 +1710,7 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 		return txt
 
 	#--------------------------------------------------------
-	def format_as_multiple_lines(self, left_margin=0, date_format='%Y %b %d', allergy=None, show_all_brand_components=False, include_instructions=False):
+	def format_as_multiple_lines(self, left_margin=0, date_format='%Y %b %d', allergy=None, show_all_product_components=False, include_instructions=False):
 
 		txt = _('Substance intake entry (%s, %s)   [#%s]                     \n') % (
 			gmTools.bool2subst (
@@ -1754,12 +1755,12 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 
 		txt += u'\n'
 
-		txt += _(' Brand name: %s   [#%s]\n') % (self._payload[self._idx['brand']], self._payload[self._idx['pk_brand']])
-		txt += gmTools.coalesce(self._payload[self._idx['atc_brand']], u'', _(' ATC (brand): %s\n'))
-		if show_all_brand_components:
-			brand = self.containing_drug
-			if len(brand['components']) > 1:
-				for comp in brand['components']:
+		txt += _(' Product name: %s   [#%s]\n') % (self._payload[self._idx['product']], self._payload[self._idx['pk_drug_product']])
+		txt += gmTools.coalesce(self._payload[self._idx['atc_drug']], u'', _(' ATC (drug): %s\n'))
+		if show_all_product_components:
+			product = self.containing_drug
+			if len(product['components']) > 1:
+				for comp in product['components']:
 					if comp['pk_substance'] == self._payload[self._idx['substance']]:
 						continue
 					txt += (u'  ' + _('Other component: %s %s %s%s\n') % (
@@ -1840,15 +1841,15 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 			encounter_id = encounter_id
 		)
 		allg['substance'] = gmTools.coalesce (
-			self._payload[self._idx['brand']],
+			self._payload[self._idx['product']],
 			self._payload[self._idx['substance']]
 		)
 		allg['reaction'] = self._payload[self._idx['discontinue_reason']]
-		allg['atc_code'] = gmTools.coalesce(self._payload[self._idx['atc_substance']], self._payload[self._idx['atc_brand']])
-		if self._payload[self._idx['external_code_brand']] is not None:
-			allg['substance_code'] = u'%s::::%s' % (self._payload[self._idx['external_code_type_brand']], self._payload[self._idx['external_code_brand']])
+		allg['atc_code'] = gmTools.coalesce(self._payload[self._idx['atc_substance']], self._payload[self._idx['atc_drug']])
+		if self._payload[self._idx['external_code_product']] is not None:
+			allg['substance_code'] = u'%s::::%s' % (self._payload[self._idx['external_code_type_product']], self._payload[self._idx['external_code_product']])
 
-		if self._payload[self._idx['pk_brand']] is None:
+		if self._payload[self._idx['pk_drug_product']] is None:
 			allg['generics'] = self._payload[self._idx['substance']]
 		else:
 			comps = [ c['substance'] for c in self.containing_drug.components ]
@@ -1906,10 +1907,10 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 
 	#--------------------------------------------------------
 	def _get_containing_drug(self):
-		if self._payload[self._idx['pk_brand']] is None:
+		if self._payload[self._idx['pk_drug_product']] is None:
 			return None
 
-		return cBrandedDrug(aPK_obj = self._payload[self._idx['pk_brand']])
+		return cDrugProduct(aPK_obj = self._payload[self._idx['pk_drug_product']])
 
 	containing_drug = property(_get_containing_drug, lambda x:x)
 
@@ -2200,16 +2201,16 @@ def get_substance_intakes(pk_patient=None):
 	return [ cSubstanceIntakeEntry(row = {'data': r, 'idx': idx, 'pk_field': 'pk_substance_intake'}) for r in rows ]
 
 #------------------------------------------------------------
-def substance_intake_exists(pk_component=None, pk_substance=None, pk_identity=None, pk_brand=None, pk_dose=None):
+def substance_intake_exists(pk_component=None, pk_substance=None, pk_identity=None, pk_drug_product=None, pk_dose=None):
 
-	if [pk_substance, pk_component, pk_brand, pk_dose].count(None) != 3:
-		raise ValueError('only one of pk_substance, pk_component, pk_dose, and pk_brand can be non-NULL')
+	if [pk_substance, pk_component, pk_drug_product, pk_dose].count(None) != 3:
+		raise ValueError('only one of pk_substance, pk_component, pk_dose, and pk_drug_product can be non-NULL')
 
 	args = {
 		'pk_comp': pk_component,
 		'pk_subst': pk_substance,
 		'pk_pat': pk_identity,
-		'pk_brand': pk_brand,
+		'pk_drug_product': pk_drug_product,
 		'pk_dose': pk_dose
 	}
 	where_parts = [u'fk_encounter IN (SELECT pk FROM clin.encounter WHERE fk_patient = %(pk_pat)s)']
@@ -2220,8 +2221,8 @@ def substance_intake_exists(pk_component=None, pk_substance=None, pk_identity=No
 		where_parts.append(u'fk_drug_component IN (SELECT pk FROM ref.lnk_dose2drug WHERE fk_dose = %(pk_dose)s)')
 	if pk_component is not None:
 		where_parts.append(u'fk_drug_component = %(pk_comp)s')
-	if pk_brand is not None:
-		where_parts.append(u'fk_drug_component IN (SELECT pk FROM ref.lnk_dose2drug WHERE fk_brand = %(pk_brand)s)')
+	if pk_drug_product is not None:
+		where_parts.append(u'fk_drug_component IN (SELECT pk FROM ref.lnk_dose2drug WHERE fk_drug_product = %(pk_drug_product)s)')
 
 	cmd = u"""
 		SELECT EXISTS (
@@ -2247,7 +2248,7 @@ def substance_intake_exists_by_atc(pk_identity=None, atc=None):
 	}
 	where_parts = [
 		u'pk_patient = %(pat)s',
-		u'((atc_substance = %(atc)s) OR (atc_brand = %(atc)s))'
+		u'((atc_substance = %(atc)s) OR (atc_drug = %(atc)s))'
 	]
 	cmd = u"""
 		SELECT EXISTS (
@@ -2262,19 +2263,19 @@ def substance_intake_exists_by_atc(pk_identity=None, atc=None):
 	return rows[0][0]
 
 #------------------------------------------------------------
-def create_substance_intake(pk_component=None, pk_encounter=None, pk_episode=None, pk_brand=None):
+def create_substance_intake(pk_component=None, pk_encounter=None, pk_episode=None, pk_drug_product=None):
 
-	if [pk_component, pk_brand].count(None) != 1:
-		raise ValueError('only one of pk_component and pk_brand can be non-NULL')
+	if [pk_component, pk_drug_product].count(None) != 1:
+		raise ValueError('only one of pk_component and pk_drug_product can be non-NULL')
 
 	args = {
 		'pk_enc': pk_encounter,
 		'pk_epi': pk_episode,
 		'pk_comp': pk_component,
-		'pk_brand': pk_brand
+		'pk_drug_product': pk_drug_product
 	}
 
-	if pk_brand is not None:
+	if pk_drug_product is not None:
 		cmd = u"""
 			INSERT INTO clin.substance_intake (
 				fk_encounter,
@@ -2286,7 +2287,7 @@ def create_substance_intake(pk_component=None, pk_encounter=None, pk_episode=Non
 				%(pk_epi)s,
 				False,
 				-- select one of the components (the others will be added by a trigger)
-				(SELECT pk FROM ref.lnk_dose2drug WHERE fk_brand = %(pk_brand)s LIMIT 1)
+				(SELECT pk FROM ref.lnk_dose2drug WHERE fk_drug_product = %(pk_drug_product)s LIMIT 1)
 			)
 			RETURNING pk"""
 
@@ -2332,7 +2333,7 @@ def format_substance_intake_as_amts_latex(intake=None, strict=True):
 
 	_esc = gmTools.tex_escape_string
 
-	# %(contains)s & %(brand)s & %(amount)s%(unit)s & %(preparation)s & \multicolumn{4}{l|}{%(schedule)s} & Einheit & %(notes)s & %(aim)s \tabularnewline \hline
+	# %(contains)s & %(product)s & %(amount)s%(unit)s & %(preparation)s & \multicolumn{4}{l|}{%(schedule)s} & Einheit & %(notes)s & %(aim)s \tabularnewline \hline
 	cells = []
 	# components
 	components = [ c.split('::') for c in intake.containing_drug['components'] ]
@@ -2349,11 +2350,11 @@ def format_substance_intake_as_amts_latex(intake=None, strict=True):
 			cells.append(u'\\fontsize{10pt}{12pt}\selectfont %s ' % u'\\newline '.join([u'\\mbox{%s}' % _esc(c[0][:80]) for c in components]))
 		else:
 			cells.append(u'\\fontsize{10pt}{12pt}\selectfont %s ' % u'\\newline '.join([u'\\mbox{%s}' % _esc(c[0]) for c in components]))
-	# brand
+	# product
 	if strict:
-		cells.append(_esc(intake['brand'][:50]))
+		cells.append(_esc(intake['product'][:50]))
 	else:
-		cells.append(_esc(intake['brand']))
+		cells.append(_esc(intake['product']))
 	# Wirkstärken
 	if len(components) > 3:
 		cells.append(u'')
@@ -2420,8 +2421,8 @@ def format_substance_intake_as_amts_data(intake=None, strict=True):
 		# relax length checks
 
 	M_fields = []
-	if intake['pk_brand'] is not None:
-		M_fields.append(u'a="%s"' % intake['brand'])
+	if intake['pk_drug_product'] is not None:
+		M_fields.append(u'a="%s"' % intake['product'])
 	M_fields.append(u'fd="%s"' % intake['preparation'])
 	if intake['schedule'] is not None:
 		M_fields.append(u't="%s"' % intake['schedule'])
@@ -2434,7 +2435,7 @@ def format_substance_intake_as_amts_data(intake=None, strict=True):
 		M_fields.append(u'i="%s"' % intake['notes'])
 	M_line = u'<M %s>' % u' '.join(M_fields)
 
-	if intake['pk_brand'] is None:
+	if intake['pk_drug_product'] is None:
 		components = [[intake['substance'], intake['amount'], intake['unit'], u'']]
 	else:
 		components = [ c.split('::') for c in intake.containing_drug['components'] ]
@@ -2537,8 +2538,8 @@ def format_substance_intake_as_amts_data_v2_0(intake=None, strict=True):
 		fields.append(c[0][:80])
 	else:
 		fields.append(u'~'.join([c[0][:80] for c in components]))
-	# brand
-	fields.append(intake['brand'][:50])
+	# product
+	fields.append(intake['product'][:50])
 	# Wirkstärken
 	if len(components) > 3:
 		fields.append(u'')
@@ -2563,10 +2564,10 @@ def format_substance_intake_as_amts_data_v2_0(intake=None, strict=True):
 #------------------------------------------------------------
 def calculate_amts_data_check_symbol_v2_0(intakes=None):
 
-	# first char of generic substance or brand name
+	# first char of generic substance or product name
 	first_chars = []
 	for intake in intakes:
-		first_chars.append(intake['brand'][0])
+		first_chars.append(intake['product'][0])
 
 	# add up_per page
 	val_sum = 0
@@ -2698,14 +2699,14 @@ def __generate_enhanced_amts_data_template_definition_file_v_2_0(work_dir=None):
 #------------------------------------------------------------
 # other formatting
 #------------------------------------------------------------
-def format_substance_intake_notes(emr=None, output_format=u'latex', table_type=u'by-brand'):
+def format_substance_intake_notes(emr=None, output_format=u'latex', table_type=u'by-product'):
 
 	tex = u'\\noindent %s\n' % _('Additional notes')
 	tex += u'%%%% requires "\\usepackage{longtable}"\n'
 	tex += u'%%%% requires "\\usepackage{tabu}"\n'
 	tex += u'\\noindent \\begin{longtabu} to \\textwidth {|X[,L]|r|X[,L]|}\n'
 	tex += u'\\hline\n'
-	tex += u'%s {\\scriptsize (%s)} & %s & %s \\tabularnewline \n' % (_('Substance'), _('Brand'), _('Strength'), _('Aim'))
+	tex += u'%s {\\scriptsize (%s)} & %s & %s \\tabularnewline \n' % (_('Substance'), _('Product'), _('Strength'), _('Aim'))
 	tex += u'\\hline\n'
 	tex += u'\\hline\n'
 	tex += u'%s\n'
@@ -2714,13 +2715,13 @@ def format_substance_intake_notes(emr=None, output_format=u'latex', table_type=u
 	current_meds = emr.get_current_medications (
 		include_inactive = False,
 		include_unapproved = False,
-		order_by = u'brand, substance'
+		order_by = u'product, substance'
 	)
 
 	# create lines
 	lines = []
 	for med in current_meds:
-		brand = u'{\\small :} {\\tiny %s}' % gmTools.tex_escape_string(med['brand'])
+		product = u'{\\small :} {\\tiny %s}' % gmTools.tex_escape_string(med['product'])
 		if med['aim'] is None:
 			aim = u''
 		else:
@@ -2728,7 +2729,7 @@ def format_substance_intake_notes(emr=None, output_format=u'latex', table_type=u
 		lines.append(u'%s ({\\small %s}%s) & %s%s & %s \\tabularnewline\n \\hline' % (
 			gmTools.tex_escape_string(med['substance']),
 			gmTools.tex_escape_string(med['preparation']),
-			brand,
+			product,
 			med['amount'],
 			gmTools.tex_escape_string(med['unit']),
 			aim
@@ -2737,7 +2738,7 @@ def format_substance_intake_notes(emr=None, output_format=u'latex', table_type=u
 	return tex % u'\n'.join(lines)
 
 #------------------------------------------------------------
-def format_substance_intake(emr=None, output_format=u'latex', table_type=u'by-brand'):
+def format_substance_intake(emr=None, output_format=u'latex', table_type=u'by-product'):
 
 	# FIXME: add intake_instructions
 
@@ -2760,20 +2761,20 @@ def format_substance_intake(emr=None, output_format=u'latex', table_type=u'by-br
 	current_meds = emr.get_current_medications (
 		include_inactive = False,
 		include_unapproved = False,
-		order_by = u'brand, substance'
+		order_by = u'product, substance'
 	)
 
 	# aggregate data
 	line_data = {}
 	for med in current_meds:
-		identifier = gmTools.coalesce(med['brand'], med['substance'])
+		identifier = gmTools.coalesce(med['product'], med['substance'])
 
 		try:
 			line_data[identifier]
 		except KeyError:
-			line_data[identifier] = {'brand': u'', 'preparation': u'', 'schedule': u'', 'notes': [], 'strengths': []}
+			line_data[identifier] = {'product': u'', 'preparation': u'', 'schedule': u'', 'notes': [], 'strengths': []}
 
-		line_data[identifier]['brand'] = identifier
+		line_data[identifier]['product'] = identifier
 		line_data[identifier]['strengths'].append(u'%s %s%s' % (med['substance'][:20], med['amount'], med['unit'].strip()))
 		line_data[identifier]['preparation'] = med['preparation']
 		if med['duration'] is not None:
@@ -2791,7 +2792,7 @@ def format_substance_intake(emr=None, output_format=u'latex', table_type=u'by-br
 	line3_template = u'                                & {\\scriptsize %s} \\tabularnewline'
 
 	for med in current_meds:
-		identifier = gmTools.coalesce(med['brand'], med['substance'])
+		identifier = gmTools.coalesce(med['product'], med['substance'])
 
 		if identifier in already_seen:
 			continue
@@ -2799,7 +2800,7 @@ def format_substance_intake(emr=None, output_format=u'latex', table_type=u'by-br
 		already_seen.append(identifier)
 
 		lines.append (line1_template % (
-			gmTools.tex_escape_string(line_data[identifier]['brand']),
+			gmTools.tex_escape_string(line_data[identifier]['product']),
 			gmTools.tex_escape_string(line_data[identifier]['preparation']),
 			gmTools.tex_escape_string(line_data[identifier]['schedule'])
 		))
@@ -2834,12 +2835,12 @@ def create_default_medication_history_episode(pk_health_issue=None, encounter=No
 
 #------------------------------------------------------------
 def get_tobacco():
-	tobacco = create_branded_drug (
-		brand_name = _(u'nicotine'),
+	tobacco = create_drug_product (
+		drug_product = _(u'nicotine'),
 		preparation = _(u'tobacco'),
 		return_existing = True
 	)
-	tobacco['is_fake_brand'] = True
+	tobacco['is_fake_product'] = True
 	tobacco.save()
 	nicotine = create_substance_dose_by_atc (
 		substance = _('nicotine'),
@@ -2853,12 +2854,12 @@ def get_tobacco():
 
 #------------------------------------------------------------
 def get_alcohol():
-	drink = create_branded_drug (
-		brand_name = _(u'alcohol'),
+	drink = create_drug_product (
+		drug_product = _(u'alcohol'),
 		preparation = _(u'liquid'),
 		return_existing = True
 	)
-	drink['is_fake_brand'] = True
+	drink['is_fake_product'] = True
 	drink.save()
 	ethanol = create_substance_dose_by_atc (
 		substance = _(u'ethanol'),
@@ -2872,12 +2873,12 @@ def get_alcohol():
 
 #------------------------------------------------------------
 def get_other_drug(name=None, pk_dose=None):
-	drug = create_branded_drug (
-		brand_name = name,
+	drug = create_drug_product (
+		drug_product = name,
 		preparation = _(u'unit'),
 		return_existing = True
 	)
-	drug['is_fake_brand'] = True
+	drug['is_fake_product'] = True
 	drug.save()
 	if pk_dose is None:
 		content = create_substance_dose (
@@ -2955,8 +2956,8 @@ if __name__ == "__main__":
 
 	#--------------------------------------------------------
 	def test_get_drugs():
-		for d in get_branded_drugs():
-			if d['is_fake_brand'] or d.is_vaccine:
+		for d in get_drug_products():
+			if d['is_fake_product'] or d.is_vaccine:
 				continue
 			print '--------------------------------------'
 			print d.format()
@@ -2989,7 +2990,7 @@ if __name__ == "__main__":
 		for row in rows:
 			entry = cSubstanceIntakeEntry(row['pk_substance_intake'])
 			print u'==============================================================='
-			print entry.format(left_margin = 1, single_line = False, show_all_brand_components = True)
+			print entry.format(left_margin = 1, single_line = False, show_all_product_components = True)
 			print u'--------------------------------'
 			print entry.medically_formatted_start_end
 			gmTools.prompted_input()

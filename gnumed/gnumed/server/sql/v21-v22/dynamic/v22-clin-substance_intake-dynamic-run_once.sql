@@ -50,16 +50,16 @@ create function _tmp_convert_substance_intakes()
 DECLARE
 	_intake_row record;
 	_pk_dose integer;
-	_pk_brand integer;
+	_pk_drug_product integer;
 	_pk_component integer;
 BEGIN
 	raise notice ''[_tmp_convert_substance_intakes]: start'';
-	-- update branded intakes ------------------
-	raise notice ''- converting branded intakes'';
+	-- update product intakes ------------------
+	raise notice ''- converting product intakes'';
 	for _intake_row in
 		select * from clin.v_brand_intakes
 	loop
-		raise notice ''-- branded intake -----------------------------------------'';
+		raise notice ''-- product intake -----------------------------------------'';
 		raise notice ''- converting [%]'', _intake_row;
 		select pk_dose into strict _pk_dose from ref.v_substance_doses r_vsd where
 			r_vsd.substance = _intake_row.substance
@@ -69,7 +69,7 @@ BEGIN
 			r_vsd.unit = _intake_row.unit
 		;
 		if not FOUND then
-			raise exception ''[_tmp_convert_substance_intakes]: ref.dose dose not contain row for branded intake [%]'', _intake_row;
+			raise exception ''[_tmp_convert_substance_intakes]: ref.dose dose not contain row for product intake [%]'', _intake_row;
 			return FALSE;
 		end if;
 		raise notice ''- dose PK: [%]'', _pk_dose;
@@ -77,10 +77,10 @@ BEGIN
 		select pk into strict _pk_component from ref.lnk_dose2drug r_ld2d where
 			r_ld2d.fk_dose = _pk_dose
 				and
-			r_ld2d.fk_brand = _intake_row.pk_brand
+			r_ld2d.fk_drug_product = _intake_row.pk_brand
 		;
 		if not FOUND then
-			raise exception ''[_tmp_convert_substance_intakes]: ref.lnk_dose2drug dose not contain row for branded intake [%]'', _intake_row;
+			raise exception ''[_tmp_convert_substance_intakes]: ref.lnk_dose2drug dose not contain row for product intake [%]'', _intake_row;
 			return FALSE;
 		end if;
 		raise notice ''- component PK: [%]'', _pk_component;
@@ -96,11 +96,11 @@ BEGIN
 	end loop;
 
 	-- update generic intakes --------------------
-	raise notice ''- converting generic intakes'';
+	raise notice ''- converting non-product (to-be-generic) intakes'';
 	for _intake_row in
 		select * from clin.v_nonbrand_intakes
 	loop
-		raise notice ''-- non-brand intake -------------------------'';
+		raise notice ''-- non-product intake -------------------------'';
 		raise notice ''- converting [%]'', _intake_row;
 
 		-- check for appropriate substance dose entry
@@ -114,7 +114,7 @@ BEGIN
 		if FOUND then
 			raise notice ''- appropriate dose exists: [%]'', _pk_dose;
 		else
-			raise notice ''- creating dose for generic brand as [%] [%] [%]'', _intake_row.pk_substance, _intake_row.amount, _intake_row.unit;
+			raise notice ''- creating dose for generic drug product as [%] [%] [%]'', _intake_row.pk_substance, _intake_row.amount, _intake_row.unit;
 			insert into ref.dose (
 				fk_substance,
 				amount,
@@ -127,13 +127,13 @@ BEGIN
 			raise notice ''- appropriate dose created: [%]'', _pk_dose;
 		end if;
 
-		-- check for generic brand
-		select pk_brand into _pk_brand from ref._tmp_v_branded_drugs r_tvbd where
-			r_tvbd.brand = _intake_row.substance
+		-- check for generic drug product existence
+		select pk_drug_product into _pk_drug_product from ref._tmp_v_branded_drugs r_tvbd where
+			r_tvbd.product = _intake_row.substance
 				and
 			r_tvbd.preparation = _intake_row.preparation
 				and
-			r_tvbd.is_fake_brand is TRUE
+			r_tvbd.is_fake_product is TRUE
 --				and
 --			_intake_row.pk_substance = ANY(r_tvbd.pk_substances)
 --				and
@@ -142,11 +142,11 @@ BEGIN
 --			array_length(r_tvbd.pk_substances, 1) = 1
 		;
 		if FOUND then
-			raise notice ''- generic brand found: [%]'', _pk_brand;
+			raise notice ''- generic drug product found: [%]'', _pk_drug_product;
 		else
-			raise notice ''- adding generic brand for [%]'', _intake_row;
-			raise notice ''- creating generic brand for [%] [%] [atc=%s] [is_fake=TRUE] '', _intake_row.substance, _intake_row.preparation, coalesce(_intake_row.atc_brand::text, _intake_row.atc_substance::text, ''NULL''::text);
-			insert into ref.branded_drug (
+			raise notice ''- adding generic drug product for [%]'', _intake_row;
+			raise notice ''- creating generic drug product for [%] [%] [atc=%s] [is_fake=TRUE] '', _intake_row.substance, _intake_row.preparation, coalesce(_intake_row.atc_brand::text, _intake_row.atc_substance::text, ''NULL''::text);
+			insert into ref.drug_product (
 				description,
 				preparation,
 				atc_code,
@@ -156,26 +156,26 @@ BEGIN
 				_intake_row.preparation,
 				coalesce(_intake_row.atc_brand::text, _intake_row.atc_substance::text),
 				TRUE
-			) returning pk into strict _pk_brand;
-			raise notice ''- generic brand created: [%]'', _pk_brand;
+			) returning pk into strict _pk_drug_product;
+			raise notice ''- generic drug product created: [%]'', _pk_drug_product;
 		end if;
 
 		-- check for drug component
-		raise notice ''- checking for drug component, brand [%] dose [%]'', _pk_brand, _pk_dose;
+		raise notice ''- checking for drug component, product [%] dose [%]'', _pk_drug_product, _pk_dose;
 		select pk into _pk_component from ref.lnk_dose2drug r_ld2d where
 			r_ld2d.fk_dose = _pk_dose
 				and
-			r_ld2d.fk_brand = _pk_brand
+			r_ld2d.fk_drug_product = _pk_drug_product
 		;
 		if FOUND then
 			raise notice ''- drug component found: [%]'', _pk_component;
 		else
-			raise notice ''- linking generic dose [%] to generic brand [%]'', _pk_dose, _pk_brand;
+			raise notice ''- linking generic dose [%] to generic drug product [%]'', _pk_dose, _pk_drug_product;
 			insert into ref.lnk_dose2drug (
-				fk_brand,
+				fk_drug_product,
 				fk_dose
 			) values (
-				_pk_brand,
+				_pk_drug_product,
 				_pk_dose
 			) returning pk into strict _pk_component;
 			raise notice ''- drug component created: [%]'', _pk_component;
@@ -207,6 +207,10 @@ select _tmp_convert_substance_intakes();
 
 drop function if exists _tmp_convert_substance_intakes() cascade;
 drop view if exists ref._tmp_v_branded_drugs cascade;
+
+
+alter table if exists audit.log_branded_drug
+	rename to log_drug_product;
 
 -- --------------------------------------------------------------
 select gm.log_script_insertion('v22-clin-substance_intake-dynamic-run_once.sql', '22.0');

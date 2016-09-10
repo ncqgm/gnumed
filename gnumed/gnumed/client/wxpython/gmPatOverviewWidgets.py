@@ -822,12 +822,12 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 			list_items.append(_('active substance abuse'))
 			data_items.append(u'\n'.join([ a.format(left_margin=0, date_format='%Y %b %d', single_line=True) for a in abuses ]))
 
-		# list by brand or substance:
+		# list by product or substance:
 		intakes = emr.get_current_medications(include_inactive = False, include_unapproved = True, order_by = u'substance')
-		multi_brands_already_seen = []
+		multi_products_already_seen = []
 		for intake in intakes:
-			brand = intake.containing_drug
-			if len(brand['components']) == 1:
+			drug = intake.containing_drug
+			if len(drug['components']) == 1:
 				list_items.append(_('%s %s%s%s%s') % (
 					intake['substance'],
 					intake['amount'],
@@ -837,12 +837,12 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 				))
 				data_items.append(intake)
 			else:
-				if intake['brand'] in multi_brands_already_seen:
+				if intake['product'] in multi_products_already_seen:
 					continue
-				multi_brands_already_seen.append(intake['brand'])
+				multi_products_already_seen.append(intake['product'])
 				list_items.append(_('%s %s%s') % (
-					intake['brand'],
-					brand['preparation'],
+					intake['product'],
+					drug['preparation'],
 					gmTools.coalesce(intake['schedule'], u'', u': %s')
 				))
 				data_items.append(intake)
@@ -861,13 +861,13 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		atcs = []
 		if data['atc_substance'] is not None:
 			atcs.append(data['atc_substance'])
-#		if data['atc_brand'] is not None:
-#			atcs.append(data['atc_brand'])
-#		allg = emr.is_allergic_to(atcs = tuple(atcs), inns = (data['substance'],), brand = data['brand'])
+#		if data['atc_drug'] is not None:
+#			atcs.append(data['atc_drug'])
+#		allg = emr.is_allergic_to(atcs = tuple(atcs), inns = (data['substance'],), drug = data['product'])
 		allg = emr.is_allergic_to(atcs = tuple(atcs), inns = (data['substance'],))
 		if allg is False:
 			allg = None
-		return data.format(single_line = False, allergy = allg, show_all_brand_components = True)
+		return data.format(single_line = False, allergy = allg, show_all_product_components = True)
 	#-----------------------------------------------------
 	def _on_meds_item_activated(self, event):
 		data = self._LCTRL_meds.get_selected_item_data(only_one = True)

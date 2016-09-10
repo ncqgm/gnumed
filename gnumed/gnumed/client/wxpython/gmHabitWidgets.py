@@ -154,22 +154,22 @@ class cSubstanceAbuseEAPnl(wxgSubstanceAbuseEAPnl.wxgSubstanceAbuseEAPnl, gmEdit
 	def _save_as_new(self):
 
 		if self._RBTN_tobacco.GetValue() is True:
-			pk_brand = gmMedication.get_tobacco()['pk_brand']
+			pk_drug_product = gmMedication.get_tobacco()['pk_drug_product']
 
 		elif self._RBTN_c2.GetValue() is True:
-			pk_brand = gmMedication.get_alcohol()['pk_brand']
+			pk_drug_product = gmMedication.get_alcohol()['pk_drug_product']
 
 		elif self._RBTN_other_substance.GetValue() is True:
 			#xxxxxxxxx
 			#PRW_substance -> _dose
-			pk_brand = gmMedication.get_other_drug (
+			pk_drug_product = gmMedication.get_other_drug (
 				name = self._PRW_substance.GetValue().strip(),
 				pk_dose = self._PRW_substance.GetData()
-			)['pk_brand']
+			)['pk_drug_product']
 
 		pk_encounter = self.__patient.emr.active_encounter['pk_encounter']
 		intake = gmMedication.create_substance_intake (
-			pk_brand = pk_brand,
+			pk_drug_product = pk_drug_product,
 			pk_encounter = pk_encounter,
 			pk_episode = gmMedication.create_default_medication_history_episode(encounter = pk_encounter)['pk_episode']
 		)

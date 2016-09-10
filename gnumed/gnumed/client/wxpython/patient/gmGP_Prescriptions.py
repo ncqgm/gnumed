@@ -79,7 +79,7 @@ scriptprompts = {
 1:("Prescribe For"),
 2:("Class"),
 3:("Generic"),
-4:("Brand"),
+4:("Product"),
 5:("Strength"),
 6:("Directions"),
 7:("For"),

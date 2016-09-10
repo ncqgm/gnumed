@@ -84,21 +84,21 @@ create or replace function clin.trf_DEL_intake_turns_other_components_into_subst
 	language 'plpgsql'
 	as '
 DECLARE
-	_pk_brand integer;
+	_pk_drug_product integer;
 	_component_count integer;
 	_pk_patient integer;
 BEGIN
 	return NULL;
 
 	-- which drug ?
-	select fk_brand into _pk_brand
-	from ref.lnk_substance2brand
+	select fk_drug_product into _pk_drug_product
+	from ref.lnk_dose2drug
 	where pk = OLD.fk_drug_component;
 
 	-- how many components therein ?
 	select count(1) into _component_count
-	from ref.lnk_substance2brand
-	where fk_brand = _pk_brand;
+	from ref.lnk_dose2drug
+	where fk_drug_product = _pk_drug_product;
 
 	-- only one component anyways ? (which then has been deleted already)
 	if _component_count = 1 then
@@ -112,9 +112,9 @@ BEGIN
 
 	-- delete those components which cannot be converted:
 --	delete from clin.substance_intake c_si1 where
---		-- entries which belong to the brand in question
+--		-- entries which belong to the drug product in question
 --		c_si1.fk_drug_component in (
---			select pk from ref.lnk_substance2brand where fk_brand = _pk_brand
+--			select pk from ref.lnk_dose2drug where fk_drug_product = _pk_drug_product
 --		)
 --			and
 --		-- entries for this one patient only (via proxy of encounter)
@@ -128,7 +128,7 @@ BEGIN
 --			where
 --				-- as substance-only links
 --				c_si2.fk_substance = (
---					select fk_substance from ref.lnk_substance2brand where pk = c_si1.fk_drug_component
+--					select fk_substance from ref.lnk_dose2drug where pk = c_si1.fk_drug_component
 --				)
 --					and
 --				-- for this very patient
@@ -142,15 +142,15 @@ BEGIN
 	update clin.substance_intake c_si set
 		fk_drug_component = null,
 		fk_substance = (
-			select fk_substance from ref.lnk_substance2brand where pk = c_si.fk_drug_component
+			select fk_substance from ref.lnk_dose2drug where pk = c_si.fk_drug_component
 		),
 		preparation = (
-			select r_bd.preparation from ref.branded_drug r_bd where r_bd.pk = _pk_brand
+			select r_bd.preparation from ref.drug_product r_bd where r_bd.pk = _pk_drug_product
 		)
 	where
-		-- ... which belong to the brand in question
+		-- ... which belong to the drug product in question
 		c_si.fk_drug_component in (
-			select pk from ref.lnk_substance2brand where fk_brand = _pk_brand
+			select pk from ref.lnk_dose2drug where fk_drug_product = _pk_drug_product
 		)
 			and
 		-- ... which belong to this one patient (via proxy of encounter)
@@ -163,7 +163,7 @@ BEGIN
 END;';
 
 comment on function clin.trf_DEL_intake_turns_other_components_into_substances() is
-	'If a patient is stopped from a multi-component drug intake other components thereof must be turned into non-brand substance intakes.';
+	'If a patient is stopped from a multi-component drug intake other components thereof must be turned into generic product substance intakes.';
 
 create trigger tr_DEL_intake_turns_other_components_into_substances
 	after delete on clin.substance_intake

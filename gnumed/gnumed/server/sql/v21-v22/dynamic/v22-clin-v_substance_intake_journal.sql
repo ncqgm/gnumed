@@ -53,7 +53,7 @@ create view clin.v_substance_intake_journal as
 			|| coalesce(' [' || r_s.atc || '] ', ' ')				-- [ATC]
 			|| r_d.amount::text										-- 100
 			|| r_d.unit || ' '										-- mg
-			|| r_bd.preparation										-- tab
+			|| r_dp.preparation										-- tab
 			|| coalesce(' ' || c_si.schedule, '')					-- 1-0-0
 			|| ', ' || (case
 					when c_si.comment_on_start = '?' then '?'		-- start = unknown
@@ -74,9 +74,9 @@ create view clin.v_substance_intake_journal as
 			|| coalesce(E'\n ' || _('Notes') || ': ' || c_si.narrative, '')					-- report if unwell
 			|| coalesce(E'\n ' || _('Instructions') || ': ' || r_s.intake_instructions, '')	-- take with a glass of water
 
-			|| coalesce (' "' || r_bd.description || '"'													-- "MetoPharm"
-				|| coalesce(' [' || r_bd.atc_code || ']', '')												-- [ATC code]
-				|| coalesce(' (' || r_bd.external_code_type || ': ' || r_bd.external_code || ')', ''),		-- (external code)
+			|| coalesce (' "' || r_dp.description || '"'													-- "MetoPharm"
+				|| coalesce(' [' || r_dp.atc_code || ']', '')												-- [ATC code]
+				|| coalesce(' (' || r_dp.external_code_type || ': ' || r_dp.external_code || ')', ''),		-- (external code)
 				'')
 
 		as narrative,
@@ -125,7 +125,7 @@ create view clin.v_substance_intake_journal as
 	from
 		clin.substance_intake c_si
 			inner join ref.lnk_dose2drug r_ld2d on (c_si.fk_drug_component = r_ld2d.pk)
-				inner join ref.branded_drug r_bd on (r_ld2d.fk_brand = r_bd.pk)
+				inner join ref.drug_product r_dp on (r_ld2d.fk_drug_product = r_dp.pk)
 				inner join ref.dose r_d on (r_ld2d.fk_dose = r_d.pk)
 					inner join ref.substance r_s on (r_d.fk_substance = r_s.pk)
 			inner join clin.encounter c_enc on (c_si.fk_encounter = c_enc.pk)

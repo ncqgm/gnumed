@@ -53,7 +53,7 @@ class cUserRolePRW(gmPhraseWheel.cPhraseWheel):
 		mp.setThresholds(1, 2, 3)
 		mp.word_separators = None
 		#mp.ignored_chars = r"[.'\\(){}\[\]<>~#*$%^_=&@\t0123456789]+" + r'"'
-		#self.SetToolTipString(_('The preparation (form) of the substance or brand.'))
+		#self.SetToolTipString(_('The preparation (form) of the substance or drug.'))
 		self.matcher = mp
 		self.selection_only = True
 
