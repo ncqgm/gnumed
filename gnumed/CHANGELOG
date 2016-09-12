@@ -12,6 +12,7 @@ FIX: faulty detection of dynamic hint applicability
 FIX: exception on Orthanc port out of bounds
 FIX: setting address from list in receiver selection widget
 FIX: no EMR user interaction when updating active encounter display
+FIX: faulty by-day measurements display after patient change
 
 IMPROVED: start-end formatting of substance intake
 IMPROVED: select unicode character from SOAP STC context menu

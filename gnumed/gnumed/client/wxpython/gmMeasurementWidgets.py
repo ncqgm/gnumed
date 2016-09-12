@@ -807,6 +807,7 @@ class cMeasurementsByDayPnl(wxgMeasurementsByDayPnl.wxgMeasurementsByDayPnl, gmR
 	def __repopulate_ui(self):
 		if self.__patient is None:
 			self._LCTRL_days.set_string_items()
+			self._LCTRL_results.set_string_items()
 			self._TCTRL_measurements.SetValue(u'')
 			return
 
