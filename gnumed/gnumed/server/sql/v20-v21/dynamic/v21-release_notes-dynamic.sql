@@ -20,7 +20,7 @@ INSERT INTO dem.message_inbox (
 	'Release Notes for GNUmed 1.6.9 (database v21.9)',
 	'GNUmed 1.6.9 Release Notes:
 
-	1.6.8
+	1.6.9
 
 FIX: faulty detection of dynamic hint applicability
 FIX: exception on Orthanc port out of bounds
