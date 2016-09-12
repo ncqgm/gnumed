@@ -128,7 +128,7 @@ BEGIN
 		end if;
 
 		-- check for generic drug product existence
-		select pk_drug_product into _pk_drug_product from ref._tmp_v_branded_drugs r_tvbd where
+		select pk_drug_product into _pk_drug_product from ref._tmp_v_drug_products r_tvbd where
 			r_tvbd.product = _intake_row.substance
 				and
 			r_tvbd.preparation = _intake_row.preparation
@@ -206,8 +206,10 @@ END;';
 select _tmp_convert_substance_intakes();
 
 drop function if exists _tmp_convert_substance_intakes() cascade;
-drop view if exists ref._tmp_v_branded_drugs cascade;
-
+drop view if exists ref._tmp_v_drug_products cascade;
+drop view if exists clin.v_brand_intakes cascade;
+drop view if exists clin.v_nonbrand_intakes cascade;
+drop view if exists clin.v_substance_intakes cascade;
 
 alter table if exists audit.log_branded_drug
 	rename to log_drug_product;

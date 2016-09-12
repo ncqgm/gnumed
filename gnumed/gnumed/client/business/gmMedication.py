@@ -370,12 +370,11 @@ class cSubstanceDose(gmBusinessDBObject.cBusinessDBObject):
 					) for l in self._payload[self._idx['loincs']] 
 				])
 			)
-		return (u' ' * left_margin) + u'%s: %s %s%s/%s%s%s%s' % (
+		return (u' ' * left_margin) + u'%s: %s %s%s%s%s%s' % (
 			_('Substance dose'),
 			self._payload[self._idx['substance']],
 			self._payload[self._idx['amount']],
-			self._payload[self._idx['unit']],
-			gmTools.coalesce(gmTools.coalesce(self._payload[self._idx['dose_unit']], _('delivery unit'))),
+			self.formatted_units,
 			gmTools.coalesce(self._payload[self._idx['atc_substance']], u'', u' [%s]'),
 			gmTools.coalesce(self._payload[self._idx['intake_instructions']], u'', u'\n' + (u' ' * left_margin) + u' ' + _(u'Instructions: %s')),
 			loincs
@@ -421,6 +420,16 @@ class cSubstanceDose(gmBusinessDBObject.cBusinessDBObject):
 		return rows[0][0]
 
 	is_drug_component = property(_get_is_drug_component, lambda x:x)
+
+	#--------------------------------------------------------
+	def _get_formatted_units(self, short=True):
+		return format_units (
+			self._payload[self._idx['unit']],
+			gmTools.coalesce(self._payload[self._idx['dose_unit']], _('delivery unit')),
+			short = short
+		)
+
+	formatted_units = property(_get_formatted_units, lambda x:x)
 
 #------------------------------------------------------------
 def get_substance_doses(order_by=None):
@@ -942,11 +951,10 @@ class cDrugComponent(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	def format(self, left_margin=0, include_loincs=False):
 		lines = []
-		lines.append(u'%s %s%s/%s' % (
+		lines.append(u'%s %s%s' % (
 			self._payload[self._idx['substance']],
 			self._payload[self._idx['amount']],
-			self._payload[self._idx['unit']],
-			gmTools.coalesce(self._payload[self._idx['dose_unit']], _('delivery unit (%s)') % self._payload[self._idx['preparation']])
+			self.formatted_units
 		))
 		lines.append(_('Component of %s (%s)') % (
 			self._payload[self._idx['product']],
@@ -1020,6 +1028,16 @@ class cDrugComponent(gmBusinessDBObject.cBusinessDBObject):
 		return cSubstance(aPK_obj = self._payload[self._idx['pk_substance']])
 
 	substance =  property(_get_substance, lambda x:x)
+
+	#--------------------------------------------------------
+	def _get_formatted_units(self, short=True):
+		return format_units (
+			self._payload[self._idx['unit']],
+			self._payload[self._idx['dose_unit']],
+			self._payload[self._idx['preparation']]
+		)
+
+	formatted_units = property(_get_formatted_units, lambda x:x)
 
 #------------------------------------------------------------
 def get_drug_components():
@@ -1164,7 +1182,7 @@ class cDrugComponentMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
 _SQL_get_drug_product = u"SELECT * FROM ref.v_drug_products WHERE %s"
 
 class cDrugProduct(gmBusinessDBObject.cBusinessDBObject):
-	"""Represents a drug as marketed by a manufacturer."""
+	"""Represents a drug as marketed by a manufacturer or a generic drug product."""
 
 	_cmd_fetch_payload = _SQL_get_drug_product % u'pk_drug_product = %s'
 	_cmds_store_payload = [
@@ -1208,11 +1226,10 @@ class cDrugProduct(gmBusinessDBObject.cBusinessDBObject):
 		if len(self._payload[self._idx['components']]) > 0:
 			lines.append(_('Components:'))
 			for comp in self._payload[self._idx['components']]:
-				lines.append(u' %s %s %s%s' % (
+				lines.append(u' %s %s %s' % (
 					comp['substance'],
 					comp['amount'],
-					comp['unit'],
-					gmTools.coalesce(comp['dose_unit'], u'', u' / %s')
+					format_units(comp['unit'], comp['dose_unit'], short = False)
 				))
 				if include_component_details:
 					if comp['intake_instructions'] is not None:
@@ -1322,41 +1339,33 @@ class cDrugProduct(gmBusinessDBObject.cBusinessDBObject):
 		self.refetch_payload()
 
 	#------------------------------------------------------------
-	def remove_component(self, pk_dose=None, pk_substance=None, pk_component=None):
+	def remove_component(self, pk_dose=None, pk_component=None):
 		if len(self._payload[self._idx['components']]) == 1:
 			_log.error('will not remove the only component of a drug')
 			return False
 
-		args = {'pk_drug_product': self.pk_obj, 'pk_substance': pk_substance, 'pk_dose': pk_dose, 'pk_component': pk_component}
+		args = {'pk_drug_product': self.pk_obj, 'pk_dose': pk_dose, 'pk_component': pk_component}
 
 		if pk_component is None:
-			if pk_dose is None:
-				cmd = u"SELECT pk FROM ref.dose WHERE fk_substance = %(pk_substance)s"
-				rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
-				pk_dose = rows[0][0]
-			cmd = u"""
-				DELETE FROM ref.lnk_dose2drug
-				WHERE
-					fk_drug_product = %(pk_drug_product)s
-						AND
-					fk_dose = %(pk_dose)s
-						AND
-					NOT EXISTS (
-						SELECT 1 FROM clin.v_substance_intakes
-						WHERE pk_dose = %(pk_dose)s
-						LIMIT 1
-					)"""
+			cmd = u"""DELETE FROM ref.lnk_dose2drug WHERE
+						fk_drug_product = %(pk_drug_product)s
+							AND
+						fk_dose = %(pk_dose)s
+							AND
+						NOT EXISTS (
+							SELECT 1 FROM clin.v_substance_intakes
+							WHERE pk_dose = %(pk_dose)s
+							LIMIT 1
+						)"""
 		else:
-			cmd = u"""
-				DELETE FROM ref.lnk_dose2drug
-				WHERE
-					pk = %(pk_component)s
-						AND
-					NOT EXISTS (
-						SELECT 1 FROM clin.substance_intake
-						WHERE fk_drug_component = %(pk_component)s
-						LIMIT 1
-					)"""
+			cmd = u"""DELETE FROM ref.lnk_dose2drug WHERE
+						pk = %(pk_component)s
+							AND
+						NOT EXISTS (
+							SELECT 1 FROM clin.substance_intake
+							WHERE fk_drug_component = %(pk_component)s
+							LIMIT 1
+						)"""
 
 		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 		self.refetch_payload()
@@ -1381,8 +1390,6 @@ class cDrugProduct(gmBusinessDBObject.cBusinessDBObject):
 	# properties
 	#--------------------------------------------------------
 	def _get_external_code(self):
-		if self._payload[self._idx['external_code']] is None:
-			return None
 		return self._payload[self._idx['external_code']]
 
 	external_code = property(_get_external_code, lambda x:x)
@@ -1390,8 +1397,6 @@ class cDrugProduct(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	def _get_external_code_type(self):
 		# FIXME: maybe evaluate fk_data_source ?
-		if self._payload[self._idx['external_code_type']] is None:
-			return None
 		return self._payload[self._idx['external_code_type']]
 
 	external_code_type = property(_get_external_code_type, lambda x:x)
@@ -1410,10 +1415,8 @@ class cDrugProduct(gmBusinessDBObject.cBusinessDBObject):
 		pk_doses = [ c['pk_dose'] for c in self._payload[self._idx['components']] ]
 		if len(pk_doses) == 0:
 			return []
-		if self._payload[self._idx['pk_doses']] is None:
-			return []
 		cmd = _SQL_get_substance_dose % u'pk_dose IN %(pks)s'
-		args = {'pks': tuple(self._payload[self._idx['pk_doses']])}
+		args = {'pks': tuple(pk_doses)}
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 		return [ cSubstanceDose(row = {'data': r, 'idx': idx, 'pk_field': 'pk_dose'}) for r in rows ]
 
@@ -1439,10 +1442,7 @@ class cDrugProduct(gmBusinessDBObject.cBusinessDBObject):
 
 	#--------------------------------------------------------
 	def _get_is_vaccine(self):
-		cmd = u'SELECT EXISTS (SELECT 1 FROM clin.vaccine WHERE fk_drug_product = %(pk_prod)s)'
-		args = {'pk_prod': self._payload[self._idx['pk_drug_product']]}
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
-		return rows[0][0]
+		return self._payload[self._idx['is_vaccine']]
 
 	is_vaccine = property(_get_is_vaccine, lambda x:x)
 
@@ -1527,7 +1527,6 @@ def delete_drug_product(pk_drug_product=None):
 	args = {'pk': pk_drug_product}
 	queries.append({'cmd': cmd, 'args': args})
 	gmPG2.run_rw_queries(queries = queries)
-
 
 #============================================================
 # substance intakes
@@ -1662,16 +1661,14 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 		else:
 			duration = gmDateTime.pydt_strftime(self._payload[self._idx['discontinued']], date_format)
 
-		line = u'%s%s (%s %s): %s %s%s%s %s (%s)' % (
+		line = u'%s%s (%s %s): %s %s%s (%s)' % (
 			u' ' * left_margin,
 			self.medically_formatted_start,
 			gmTools.u_arrow2right,
 			duration,
 			self._payload[self._idx['substance']],
 			self._payload[self._idx['amount']],
-			self._payload[self._idx['unit']],
-			gmTools.coalesce(self._payload[self._idx['dose_unit']], u'', u'/%s'),
-			self._payload[self._idx['preparation']],
+			self.formatted_units,
 			gmTools.bool2subst(self._payload[self._idx['is_currently_active']], _('ongoing'), _('inactive'), _('?ongoing'))
 		)
 
@@ -1745,10 +1742,9 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 
 		txt += u' ' + _('Substance: %s   [#%s]\n') % (self._payload[self._idx['substance']], self._payload[self._idx['pk_substance']])
 		txt += u' ' + _('Preparation: %s\n') % self._payload[self._idx['preparation']]
-		txt += u' ' + _('Amount per dose: %s %s%s') % (
+		txt += u' ' + _('Amount per dose: %s %s') % (
 			self._payload[self._idx['amount']],
-			self._payload[self._idx['unit']],
-			gmTools.coalesce(self._payload[self._idx['dose_unit']], u'', u' / %s')
+			self._get_formatted_units(short = False)
 		)
 		txt += u'\n'
 		txt += gmTools.coalesce(self._payload[self._idx['atc_substance']], u'', _(' ATC (substance): %s\n'))
@@ -1763,11 +1759,10 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 				for comp in product['components']:
 					if comp['pk_substance'] == self._payload[self._idx['substance']]:
 						continue
-					txt += (u'  ' + _('Other component: %s %s %s%s\n') % (
+					txt += (u'  ' + _('Other component: %s %s %s\n') % (
 						comp['substance'],
 						comp['amount'],
-						comp['unit'],
-						gmTools.coalesce(comp['dose_unit'], u'', u'/%s')
+						format_units(comp['unit'], comp['dose_unit'])
 					))
 					txt += gmTools.coalesce(comp['intake_instructions'], u'', u'   ' + _('Intake: %s') + u'\n')
 					if len(comp['loincs']) > 0:
@@ -1913,6 +1908,17 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 		return cDrugProduct(aPK_obj = self._payload[self._idx['pk_drug_product']])
 
 	containing_drug = property(_get_containing_drug, lambda x:x)
+
+	#--------------------------------------------------------
+	def _get_formatted_units(self, short=True):
+		return format_units (
+			self._payload[self._idx['unit']],
+			self._payload[self._idx['dose_unit']],
+			self._payload[self._idx['preparation']],
+			short = short
+		)
+
+	formatted_units = property(_get_formatted_units, lambda x:x)
 
 	#--------------------------------------------------------
 	def _get_medically_formatted_start(self):
@@ -2201,22 +2207,19 @@ def get_substance_intakes(pk_patient=None):
 	return [ cSubstanceIntakeEntry(row = {'data': r, 'idx': idx, 'pk_field': 'pk_substance_intake'}) for r in rows ]
 
 #------------------------------------------------------------
-def substance_intake_exists(pk_component=None, pk_substance=None, pk_identity=None, pk_drug_product=None, pk_dose=None):
+def substance_intake_exists(pk_component=None, pk_identity=None, pk_drug_product=None, pk_dose=None):
 
-	if [pk_substance, pk_component, pk_drug_product, pk_dose].count(None) != 3:
-		raise ValueError('only one of pk_substance, pk_component, pk_dose, and pk_drug_product can be non-NULL')
+	if [pk_component, pk_drug_product, pk_dose].count(None) != 2:
+		raise ValueError('only one of pk_component, pk_dose, and pk_drug_product can be non-NULL')
 
 	args = {
 		'pk_comp': pk_component,
-		'pk_subst': pk_substance,
 		'pk_pat': pk_identity,
 		'pk_drug_product': pk_drug_product,
 		'pk_dose': pk_dose
 	}
 	where_parts = [u'fk_encounter IN (SELECT pk FROM clin.encounter WHERE fk_patient = %(pk_pat)s)']
 
-	if pk_substance is not None:
-		where_parts.append(u'fk_drug_component IN (SELECT pk FROM ref.lnk_dose2drug WHERE fk_dose IN (SELECT pk FROM ref.dose WHERE fk_substance = %(pk_subst)s))')
 	if pk_dose is not None:
 		where_parts.append(u'fk_drug_component IN (SELECT pk FROM ref.lnk_dose2drug WHERE fk_dose = %(pk_dose)s)')
 	if pk_component is not None:
@@ -2336,20 +2339,20 @@ def format_substance_intake_as_amts_latex(intake=None, strict=True):
 	# %(contains)s & %(product)s & %(amount)s%(unit)s & %(preparation)s & \multicolumn{4}{l|}{%(schedule)s} & Einheit & %(notes)s & %(aim)s \tabularnewline \hline
 	cells = []
 	# components
-	components = [ c.split('::') for c in intake.containing_drug['components'] ]
+	components = intake.containing_drug['components']
 	if len(components) > 3:
 		cells.append(_esc(u'WS-Kombi.'))
 	elif len(components) == 1:
 		c = components[0]
 		if strict:
-			cells.append(u'\\mbox{%s}' % _esc(c[0][:80]))
+			cells.append(u'\\mbox{%s}' % _esc(c['substance'][:80]))
 		else:
-			cells.append(u'\\mbox{%s}' % _esc(c[0]))
+			cells.append(u'\\mbox{%s}' % _esc(c['substance']))
 	else:
 		if strict:
-			cells.append(u'\\fontsize{10pt}{12pt}\selectfont %s ' % u'\\newline '.join([u'\\mbox{%s}' % _esc(c[0][:80]) for c in components]))
+			cells.append(u'\\fontsize{10pt}{12pt}\selectfont %s ' % u'\\newline '.join([u'\\mbox{%s}' % _esc(c['substance'][:80]) for c in components]))
 		else:
-			cells.append(u'\\fontsize{10pt}{12pt}\selectfont %s ' % u'\\newline '.join([u'\\mbox{%s}' % _esc(c[0]) for c in components]))
+			cells.append(u'\\fontsize{10pt}{12pt}\selectfont %s ' % u'\\newline '.join([u'\\mbox{%s}' % _esc(c['substance']) for c in components]))
 	# product
 	if strict:
 		cells.append(_esc(intake['product'][:50]))
@@ -2360,15 +2363,26 @@ def format_substance_intake_as_amts_latex(intake=None, strict=True):
 		cells.append(u'')
 	elif len(components) == 1:
 		c = components[0]
+		dose = (u'%s%s%s' % (c['amount'], format_units(c['unit'], c['dose_unit'], short = True))).replace(u'.', u',')
 		if strict:
-			cells.append(_esc((u'%s%s' % ((u'%s' % c[1]).replace(u'.', u','), c[2]))[:11]))
-		else:
-			cells.append(_esc(u'%s%s' % ((u'%s' % c[1]).replace(u'.', u','), c[2])))
-	else:
+			dose = dose[:11]
+		cells.append(_esc(dose))
+	else:		# 2
 		if strict:
-			cells.append(u'\\fontsize{10pt}{12pt}\selectfont %s ' % u'\\newline\\ '.join([_esc((u'%s%s' % ((u'%s' % c[1]).replace(u'.', u','), c[2]))[:11]) for c in components]))
+			doses = u'\\fontsize{10pt}{12pt}\selectfont %s ' % u'\\newline\\ '.join ([
+				_esc((u'%s%s' % (
+					(u'%s' % c['amount']).replace(u'.', u','),
+					format_units(c['unit'], c['dose_unit'], short = True)
+				))[:11]) for c in components
+			])
 		else:
-			cells.append(u'\\fontsize{10pt}{12pt}\selectfont %s ' % u'\\newline\\ '.join([_esc(u'%s%s' % ((u'%s' % c[1]).replace(u'.', u','), c[2])) for c in components]))
+			doses = u'\\fontsize{10pt}{12pt}\selectfont %s ' % u'\\newline\\ '.join ([
+				_esc(u'%s%s' % (
+					(u'%s' % c['amount']).replace(u'.', u','),
+					format_units(c['unit'], c['dose_unit'], short = True)
+				)) for c in components
+			])
+		cells.append(doses)
 	# preparation
 	if strict:
 		cells.append(_esc(intake['preparation'][:7]))
@@ -2421,8 +2435,7 @@ def format_substance_intake_as_amts_data(intake=None, strict=True):
 		# relax length checks
 
 	M_fields = []
-	if intake['pk_drug_product'] is not None:
-		M_fields.append(u'a="%s"' % intake['product'])
+	M_fields.append(u'a="%s"' % intake['product'])
 	M_fields.append(u'fd="%s"' % intake['preparation'])
 	if intake['schedule'] is not None:
 		M_fields.append(u't="%s"' % intake['schedule'])
@@ -2435,13 +2448,13 @@ def format_substance_intake_as_amts_data(intake=None, strict=True):
 		M_fields.append(u'i="%s"' % intake['notes'])
 	M_line = u'<M %s>' % u' '.join(M_fields)
 
-	if intake['pk_drug_product'] is None:
-		components = [[intake['substance'], intake['amount'], intake['unit'], u'']]
-	else:
-		components = [ c.split('::') for c in intake.containing_drug['components'] ]
 	W_lines = []
-	for comp in components:
-		W_lines.append(u'<W w="%s" s="%s %s"/>' % (comp[0], comp[1], comp[2]))
+	for comp in intake.containing_drug['components']:
+		W_lines.append(u'<W w="%s" s="%s %s"/>' % (
+			comp['substance'],
+			comp['amount'],
+			format_units(comp['unit'], comp['dose_unit'], short = True)
+		))
 
 	return M_line + u''.join(W_lines) + u'</M>'
 
@@ -2590,7 +2603,7 @@ def calculate_amts_data_check_symbol_v2_0(intakes=None):
 	return chr(remainder + 55)
 
 #------------------------------------------------------------
-def generate_amts_data_template_definition_file_v_2_0(work_dir=None, strict=True):
+def generate_amts_data_template_definition_file_v2_0(work_dir=None, strict=True):
 
 	if not strict:
 		return __generate_enhanced_amts_data_template_definition_file(work_dir = work_dir)
@@ -2644,7 +2657,7 @@ def generate_amts_data_template_definition_file_v_2_0(work_dir=None, strict=True
 	return amts_fname
 
 #------------------------------------------------------------
-def __generate_enhanced_amts_data_template_definition_file_v_2_0(work_dir=None):
+def __generate_enhanced_amts_data_template_definition_file_v2_0(work_dir=None):
 
 	amts_fields = [
 		u'MP',
@@ -2706,7 +2719,7 @@ def format_substance_intake_notes(emr=None, output_format=u'latex', table_type=u
 	tex += u'%%%% requires "\\usepackage{tabu}"\n'
 	tex += u'\\noindent \\begin{longtabu} to \\textwidth {|X[,L]|r|X[,L]|}\n'
 	tex += u'\\hline\n'
-	tex += u'%s {\\scriptsize (%s)} & %s & %s \\tabularnewline \n' % (_('Substance'), _('Product'), _('Strength'), _('Aim'))
+	tex += u'%s {\\scriptsize (%s)} & %s & %s \\tabularnewline \n' % (_('Substance'), _('Drug Product'), _('Strength'), _('Aim'))
 	tex += u'\\hline\n'
 	tex += u'\\hline\n'
 	tex += u'%s\n'
@@ -2731,7 +2744,7 @@ def format_substance_intake_notes(emr=None, output_format=u'latex', table_type=u
 			gmTools.tex_escape_string(med['preparation']),
 			product,
 			med['amount'],
-			gmTools.tex_escape_string(med['unit']),
+			gmTools.tex_escape_string(med.formatted_units),
 			aim
 		))
 
@@ -2767,7 +2780,7 @@ def format_substance_intake(emr=None, output_format=u'latex', table_type=u'by-pr
 	# aggregate data
 	line_data = {}
 	for med in current_meds:
-		identifier = gmTools.coalesce(med['product'], med['substance'])
+		identifier = med['product']
 
 		try:
 			line_data[identifier]
@@ -2775,7 +2788,7 @@ def format_substance_intake(emr=None, output_format=u'latex', table_type=u'by-pr
 			line_data[identifier] = {'product': u'', 'preparation': u'', 'schedule': u'', 'notes': [], 'strengths': []}
 
 		line_data[identifier]['product'] = identifier
-		line_data[identifier]['strengths'].append(u'%s %s%s' % (med['substance'][:20], med['amount'], med['unit'].strip()))
+		line_data[identifier]['strengths'].append(u'%s %s%s' % (med['substance'][:20], med['amount'], med.formatted_units))
 		line_data[identifier]['preparation'] = med['preparation']
 		if med['duration'] is not None:
 			line_data[identifier]['schedule'] = u'%s: ' % gmDateTime.format_interval(med['duration'], gmDateTime.acc_days, verbose = True)
@@ -2792,7 +2805,7 @@ def format_substance_intake(emr=None, output_format=u'latex', table_type=u'by-pr
 	line3_template = u'                                & {\\scriptsize %s} \\tabularnewline'
 
 	for med in current_meds:
-		identifier = gmTools.coalesce(med['product'], med['substance'])
+		identifier = med['product']
 
 		if identifier in already_seen:
 			continue
@@ -2818,7 +2831,6 @@ def format_substance_intake(emr=None, output_format=u'latex', table_type=u'by-pr
 		lines.append(u'\\hline')
 
 	return tex % u'\n'.join(lines)
-
 
 #============================================================
 # convenience functions
@@ -2891,6 +2903,20 @@ def get_other_drug(name=None, pk_dose=None):
 		content = {'pk_dose': pk_dose}		#cSubstanceDose(aPK_obj = pk_dose)
 	drug.set_substance_doses_as_components(substance_doses = [content])
 	return drug
+
+#------------------------------------------------------------
+def format_units(unit, dose_unit, preparation=None, short=True):
+	if short:
+		return u'%s%s' % (unit, gmTools.coalesce(dose_unit, u'', u'/%s'))
+
+	return u'%s / %s' % (
+		unit,
+		gmTools.coalesce (
+			dose_unit,
+			_('delivery unit%s') % gmTools.coalesce(preparation, u'', u' (%s)'),
+			u'%s'
+		)
+	)
 
 #============================================================
 # main

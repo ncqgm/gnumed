@@ -828,11 +828,10 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		for intake in intakes:
 			drug = intake.containing_drug
 			if len(drug['components']) == 1:
-				list_items.append(_('%s %s%s%s%s') % (
+				list_items.append(_('%s %s%s%s') % (
 					intake['substance'],
 					intake['amount'],
-					intake['unit'],
-					gmTools.coalesce(intake['dose_unit'], u'', u'/%s'),
+					intake.formatted_units,
 					gmTools.coalesce(intake['schedule'], u'', u': %s')
 				))
 				data_items.append(intake)

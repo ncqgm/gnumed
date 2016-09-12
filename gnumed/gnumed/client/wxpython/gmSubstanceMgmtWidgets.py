@@ -512,8 +512,7 @@ def manage_substance_doses(parent=None):
 		items = [ [
 			s['substance'],
 			s['amount'],
-			s['unit'],
-			gmTools.coalesce(s['dose_unit'], u''),
+			s.formatted_units,
 			gmTools.coalesce(s['atc_substance'], u''),
 			gmTools.coalesce(s['intake_instructions'], u''),
 			s['pk_dose']
@@ -525,7 +524,7 @@ def manage_substance_doses(parent=None):
 	gmListWidgets.get_choices_from_list (
 		parent = parent,
 		caption = _('Substance doses registered with GNUmed.'),
-		columns = [_('Substance'), _(u'Amount'), _(u'Unit'), _(u'Dose Unit'), 'ATC', _('Instructions'), u'#'],
+		columns = [_('Substance'), _(u'Amount'), _(u'Unit'), 'ATC', _('Instructions'), u'#'],
 		single_selection = True,
 		new_callback = edit,
 		edit_callback = edit,
@@ -706,7 +705,7 @@ def manage_drug_components(parent=None):
 		comps = gmMedication.get_drug_components()
 		items = [ [
 			u'%s%s' % (c['substance'], gmTools.coalesce(c['atc_substance'], u'', u' [%s]')),
-			u'%s %s%s' % (c['amount'], c['unit'], gmTools.coalesce(c['dose_unit'], u'', u'/%s')),
+			u'%s %s' % (c['amount'], c.formatted_units),
 			u'%s%s' % (c['product'], gmTools.coalesce(c['atc_drug'], u'', u' [%s]')),
 			c['preparation'],
 			gmTools.coalesce(c['external_code'], u'', u'%%s [%s]' % c['external_code_type']),
@@ -989,11 +988,10 @@ def manage_drug_products(parent=None, ignore_OK_button=False):
 			),
 			d['preparation'],
 			gmTools.coalesce(d['atc'], u''),
-			u'; '.join([ u'%s %s%s%s' % (
+			u'; '.join([ u'%s %s%s' % (
 				c['substance'],
 				c['amount'],
-				c['unit'],
-				gmTools.coalesce(c['dose_unit'], u'', u'/%s')
+				gmMedication.format_units(c['unit'], c['dose_unit'])
 			) for c in d['components']]),
 			gmTools.coalesce(d['external_code'], u'', u'%%s [%s]' % d['external_code_type']),
 			d['pk_drug_product']
@@ -1034,17 +1032,20 @@ def manage_components_of_drug_product(parent=None, product=None):
 				) % (product['product'], product['preparation'])
 			)
 			return False
+
 	#--------------------------------------------------------
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
+
 	#--------------------------------------------------------
 #	def manage_substances():
 #		pass
+
 	#--------------------------------------------------------
 	if product is None:
-		msg = _('Pick the substances which are components of this drug.')
+		msg = _('Pick the substance doses which are components of this drug.')
 		right_col = _('Components of drug')
-		comp_substs = []
+		comp_doses = []
 	else:
 		right_col = u'%s (%s)' % (product['product'], product['preparation'])
 		msg = _(
@@ -1053,11 +1054,11 @@ def manage_components_of_drug_product(parent=None, product=None):
 			'The drug must contain at least one component. Any given\n'
 			'substance can only be included once per drug.'
 		) % right_col
-		comp_substs = [ c.substance for c in product.components ]
+		comp_doses = [ comp.substance_dose for comp in product.components ]
 
-	substs = gmMedication.get_substance_doses(order_by = 'substance')
-	choices = [ u'%s %s %s' % (s['substance'], s['amount'], s['unit']) for s in substs ]
-	picks = [ u'%s %s %s' % (c['substance'], c['amount'], c['unit']) for c in comp_substs ]
+	doses = gmMedication.get_substance_doses(order_by = 'substance')
+	choices = [ u'%s %s %s' % (d['substance'], d['amount'], d.formatted_units) for d in doses ]
+	picks = [ u'%s %s %s' % (d['substance'], d['amount'], d.formatted_units) for d in comp_doses ]
 
 	picker = gmListWidgets.cItemPickerDlg (
 		parent,
@@ -1065,9 +1066,9 @@ def manage_components_of_drug_product(parent=None, product=None):
 		title = _('Managing components of a drug ...'),
 		msg = msg
 	)
-	picker.set_columns(['Substances'], [right_col])
-	picker.set_choices(choices = choices, data = substs)
-	picker.set_picks(picks = picks, data = comp_substs)
+	picker.set_columns(['Substance doses'], [right_col])
+	picker.set_choices(choices = choices, data = doses)
+	picker.set_picks(picks = picks, data = comp_doses)
 #	picker.extra_button = (
 #		_('Substances'),
 #		_('Manage list of substances'),
@@ -1075,17 +1076,16 @@ def manage_components_of_drug_product(parent=None, product=None):
 #	)
 
 	btn_pressed = picker.ShowModal()
-	substs = picker.get_picks()
+	doses2set = picker.get_picks()
 	picker.Destroy()
 
 	if btn_pressed != wx.ID_OK:
 		return (False, None)
 
 	if product is not None:
-		# xxxxxxxxx
-		product.set_substance_doses_as_components(substance_doses = xxxx_substs)
+		product.set_substance_doses_as_components(substance_doses = doses2set)
 
-	return (True, substs)
+	return (True, doses2set)
 
 #------------------------------------------------------------
 from Gnumed.wxGladeWidgets import wxgDrugProductEAPnl
@@ -1106,8 +1106,7 @@ class cDrugProductEAPnl(wxgDrugProductEAPnl.wxgDrugProductEAPnl, gmEditArea.cGen
 		self.data = data
 		if data is not None:
 			self.mode = 'edit'
-			xxxxxxxxxx
-			self.__component_substances = data.components_as_substances
+			self.__component_doses = data.components_as_doses
 
 		#self.__init_ui()
 	#----------------------------------------------------------------
@@ -1160,7 +1159,7 @@ class cDrugProductEAPnl(wxgDrugProductEAPnl.wxgDrugProductEAPnl, gmEditArea.cGen
 			else:
 				# lacking components ?
 				self._TCTRL_components.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_BACKGROUND))
-				if len(self.__component_substances) == 0:
+				if len(self.__component_doses) == 0:
 					wants_empty = gmGuiHelpers.gm_show_question (
 						title = _('Checking product data'),
 						question = _(
@@ -1182,6 +1181,7 @@ class cDrugProductEAPnl(wxgDrugProductEAPnl.wxgDrugProductEAPnl, gmEditArea.cGen
 			self.status_message = _('Cannot save drug product. Invalid or missing essential input.')
 
 		return validity
+
 	#----------------------------------------------------------------
 	def _save_as_new(self):
 
@@ -1202,12 +1202,13 @@ class cDrugProductEAPnl(wxgDrugProductEAPnl.wxgDrugProductEAPnl, gmEditArea.cGen
 
 		drug.save()
 
-		if len(self.__component_substances) > 0:
-			drug.set_substance_doses_as_components(substance_doses = xxx_self.__component_substances)			#xxxxxxx
+		if len(self.__component_doses) > 0:
+			drug.set_substance_doses_as_components(substance_doses = self.__component_doses)
 
 		self.data = drug
 
 		return True
+
 	#----------------------------------------------------------------
 	def _save_as_update(self):
 		self.data['product'] = self._PRW_product_name.GetValue().strip()
@@ -1252,10 +1253,10 @@ class cDrugProductEAPnl(wxgDrugProductEAPnl.wxgDrugProductEAPnl, gmEditArea.cGen
 		self._PRW_product_name.SetText(self.data['product'], self.data['pk_drug_product'])
 		self._PRW_preparation.SetText(self.data['preparation'], self.data['preparation'])
 		self._CHBOX_is_fake.SetValue(self.data['is_fake_product'])
-		comps = u''
-		if self.data['components'] is not None:
-			comps = u'- %s' % u'\n- '.join(self.data['components'])
-		self._TCTRL_components.SetValue(comps)
+		comp_str = u''
+		if len(self.data['components']) > 0:
+			comp_str = u'- %s' % u'\n- '.join([ u'%s %s %s%s' % (c['substance'], c['amount'], c['unit'], gmTools.coalesce(c['dose_unit'], u'')) for c in self.data['components'] ])
+		self._TCTRL_components.SetValue(comp_str)
 		self._PRW_atc.SetText(gmTools.coalesce(self.data['atc'], u''), self.data['atc'])
 		self._TCTRL_external_code.SetValue(gmTools.coalesce(self.data['external_code'], u''))
 		t = gmTools.coalesce(self.data['external_code_type'], u'')
@@ -1263,8 +1264,7 @@ class cDrugProductEAPnl(wxgDrugProductEAPnl.wxgDrugProductEAPnl, gmEditArea.cGen
 
 		self._PRW_product_name.SetFocus()
 
-		xxxxxxxxxxxxxxxx
-		self.__component_substances = self.data.components_as_substances
+		self.__component_doses = self.data.components_as_doses
 
 	#----------------------------------------------------------------
 	# event handler
@@ -1275,13 +1275,13 @@ class cDrugProductEAPnl(wxgDrugProductEAPnl.wxgDrugProductEAPnl, gmEditArea.cGen
 			product = None
 		else:
 			product = self.data
-		OKed, substs = manage_components_of_drug_product(parent = self, product = product)
+		OKed, doses = manage_components_of_drug_product(parent = self, product = product)
 		if OKed is True:
-			self.__component_substances = substs
-			comps = u''
-			if len(substs) > 0:
-				comps = u'- %s' % u'\n- '.join([ u'%s %s %s' % (s['substance'], s['amount'], s['unit']) for s in substs ])
-			self._TCTRL_components.SetValue(comps)
+			self.__component_doses = doses
+			comp_str = u''
+			if len(doses) > 0:
+				comp_str = u'- %s' % u'\n- '.join([ u'%s %s %s%s' % (d['substance'], d['amount'], d['unit'], gmTools.coalesce(d['dose_unit'], u'')) for d in doses ])
+			self._TCTRL_components.SetValue(comp_str)
 
 #------------------------------------------------------------
 class cDrugProductPhraseWheel(gmPhraseWheel.cPhraseWheel):

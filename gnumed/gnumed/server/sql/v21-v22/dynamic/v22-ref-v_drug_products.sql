@@ -12,6 +12,14 @@
 delete from audit.audited_tables where schema = 'ref' and table_name = 'branded_drug';
 select audit.add_table_for_audit('ref', 'drug_product');
 
+drop function if exists audit.ft_del_branded_drug() cascade;
+drop function if exists audit.ft_ins_branded_drug() cascade;
+drop function if exists audit.ft_upd_branded_drug() cascade;
+
+drop trigger if exists zzz_tr_announce_ref_branded_drug_del on ref.drug_product cascade;
+drop trigger if exists zzz_tr_announce_ref_branded_drug_ins_upd on ref.drug_product cascade;
+
+
 delete from gm.notifying_tables where schema_name = 'ref' and table_name = 'branded_drug';
 select gm.add_table_for_notifies('ref', 'drug_product');
 
@@ -20,7 +28,7 @@ select gm.add_table_for_notifies('ref', 'drug_product');
 --drop index if exists ref.idx_drug_product_uniq_generic_drugs cascade;
 --create unique index idx_drug_product_uniq_generic_drugs on ref.drug_product(description, preparation, is_fake);
 
-drop index if exists ref.idx_drug_product_uniq_brand_no_code cascade;
+drop index if exists ref.idx_branded_drug_uniq_brand_no_code cascade;
 drop index if exists ref.idx_drug_product_uniq_product_no_code cascade;
 
 create unique index idx_drug_product_uniq_product_no_code
@@ -47,6 +55,9 @@ select
 		as external_code_type,
 	r_dp.is_fake
 		as is_fake_product,
+	exists (
+		SELECT 1 FROM clin.vaccine c_v WHERE c_v.fk_drug_product = r_dp.pk
+	)	as is_vaccine,
 --	exists (
 --		select 1 from clin.substance_intake c_si
 --		where
@@ -88,9 +99,9 @@ grant select on ref.v_drug_products to group "gm-doctors";
 
 -- --------------------------------------------------------------
 -- only needed for data conversion
-drop view if exists ref._tmp_v_branded_drugs cascade;
+drop view if exists ref._tmp_v_drug_products cascade;
 
-create view ref._tmp_v_branded_drugs as
+create view ref._tmp_v_drug_products as
 select
 	r_vdp.*,
 	(select array_agg(r_vdc.pk_substance)
