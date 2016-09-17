@@ -129,7 +129,7 @@ BEGIN
 
 		-- check for generic drug product existence
 		select pk_drug_product into _pk_drug_product from ref._tmp_v_drug_products r_tvbd where
-			r_tvbd.product = _intake_row.substance
+			r_tvbd.product = _intake_row.substance || '' '' || _intake_row.amount || '' '' || _intake_row.unit || '' '' ||  _intake_row.preparation
 				and
 			r_tvbd.preparation = _intake_row.preparation
 				and
@@ -145,14 +145,15 @@ BEGIN
 			raise notice ''- generic drug product found: [%]'', _pk_drug_product;
 		else
 			raise notice ''- adding generic drug product for [%]'', _intake_row;
-			raise notice ''- creating generic drug product for [%] [%] [atc=%s] [is_fake=TRUE] '', _intake_row.substance, _intake_row.preparation, coalesce(_intake_row.atc_brand::text, _intake_row.atc_substance::text, ''NULL''::text);
+			raise notice ''- creating generic drug product for [%] [%] [atc=%s] [is_fake=TRUE] '', _intake_row.substance || '' '' || _intake_row.amount || '' '' || _intake_row.unit || '' '' ||  _intake_row.preparation, _intake_row.preparation, coalesce(_intake_row.atc_brand::text, _intake_row.atc_substance::text, ''NULL''::text);
 			insert into ref.drug_product (
 				description,
 				preparation,
 				atc_code,
 				is_fake
 			) values (
-				_intake_row.substance,
+				_intake_row.substance || '' '' || _intake_row.amount || '' '' || _intake_row.unit || '' '' ||  _intake_row.preparation,
+				--_intake_row.substance,
 				_intake_row.preparation,
 				coalesce(_intake_row.atc_brand::text, _intake_row.atc_substance::text),
 				TRUE
