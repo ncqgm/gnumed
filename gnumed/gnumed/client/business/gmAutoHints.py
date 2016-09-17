@@ -125,7 +125,6 @@ def get_dynamic_hints(order_by=None, link_obj=None):
 		order_by = u'TRUE'
 	else:
 		order_by = u'TRUE ORDER BY %s' % order_by
-
 	cmd = _SQL_get_dynamic_hints % order_by
 	rows, idx = gmPG2.run_ro_queries(link_obj = link_obj, queries = [{'cmd': cmd}], get_col_idx = True)
 	return [ cDynamicHint(row = {'data': r, 'idx': idx, 'pk_field': 'pk_auto_hint'}) for r in rows ]
@@ -166,7 +165,7 @@ def delete_dynamic_hint(link_obj=None, pk_hint=None):
 	return True
 
 #------------------------------------------------------------
-def get_hints_for_patient(pk_identity=None, include_suppressed_needing_invalidation=False):
+def get_hints_for_patient(pk_identity=None, pk_encounter=None):
 	conn = gmPG2.get_connection()
 	curs = conn.cursor()
 	curs.callproc('clin.get_hints_for_patient', [pk_identity])
@@ -174,9 +173,26 @@ def get_hints_for_patient(pk_identity=None, include_suppressed_needing_invalidat
 	idx = gmPG2.get_col_indices(curs)
 	curs.close()
 	conn.rollback()
-	if include_suppressed_needing_invalidation:
-		return [ cDynamicHint(row = {'data': r, 'idx': idx, 'pk_field': 'pk_auto_hint'}) for r in rows ]
-	return [ cDynamicHint(row = {'data': r, 'idx': idx, 'pk_field': 'pk_auto_hint'}) for r in rows if r['rationale4suppression'] != 'magic_tag::please_invalidate_suppression' ]
+
+	applying_rows = []
+	for row in rows:
+		if row['rationale4suppression'] is None:
+			applying_rows.append(row)
+			continue
+		if row['rationale4suppression'].startswith(u'magic_tag::'):
+			_log.debug('hint with magic tag: %s', row['rationale4suppression'])
+			if u'suppression_needs_invalidation' in row['rationale4suppression']:
+				_log.debug('database asks for invalidation of suppression of hint [%s]', row)
+				if pk_encounter is not None:
+					invalidate_hint_suppression(pk_hint = row['pk_auto_hint'], pk_encounter = pk_encounter)
+			if u'does_not_apply' in row['rationale4suppression']:
+				continue
+			# we would need to reload the relevant hint at this time,
+			# however currently, only hints which do not apply ask
+			# for invalidation of suppression
+		applying_rows.append(row)
+
+	return [ cDynamicHint(row = {'data': r, 'idx': idx, 'pk_field': 'pk_auto_hint'}) for r in applying_rows ]
 
 #------------------------------------------------------------
 def suppress_dynamic_hint(pk_hint=None, rationale=None, pk_encounter=None):
@@ -303,7 +319,7 @@ def invalidate_hint_suppression(pk_hint=None, pk_encounter=None):
 						SELECT fk_patient FROM clin.encounter WHERE pk = %(enc)s
 					)
 			)
-		"""
+	"""
 	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 	return True
 

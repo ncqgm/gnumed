@@ -6,6 +6,10 @@
 # rel-1-6-patches
 ------------------------------------------------
 
+	1.6.10
+
+FIX: more faults with dynamic hint detection
+
 	1.6.9
 
 FIX: faulty detection of dynamic hint applicability
@@ -1810,6 +1814,10 @@ IMPROVED: staging._journal_without_suppressed_hints -> clin._v_emr_journal_witho
 ------------------------------------------------
 # gnumed_v21
 ------------------------------------------------
+
+	21.10
+
+FIX: clin.get_hints_for_patient()
 
 	21.3
 

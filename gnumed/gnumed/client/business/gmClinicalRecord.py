@@ -2872,6 +2872,13 @@ SELECT MIN(earliest) FROM (
 		return self.calculator.bmi
 
 	bmi = property(_get_bmi, lambda x:x)
+
+	#------------------------------------------------------------------
+	def _get_dynamic_hints(self):
+		return gmAutoHints.get_hints_for_patient(pk_identity = self.pk_patient, pk_encounter = self.current_encounter['pk_encounter'])
+
+	dynamic_hints = property(_get_dynamic_hints, lambda x:x)
+
 	#------------------------------------------------------------------
 	#------------------------------------------------------------------
 	#------------------------------------------------------------------

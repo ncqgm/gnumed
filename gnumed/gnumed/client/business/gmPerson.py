@@ -1741,17 +1741,20 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 		return gmProviderInbox.get_overdue_messages(pk_patient = self._payload[self._idx['pk_identity']])
 
 	overdue_messages = property(_get_overdue_messages, lambda x:x)
+
 	#--------------------------------------------------------
 	def delete_message(self, pk=None):
 		return gmProviderInbox.delete_inbox_message(inbox_message = pk)
+
 	#--------------------------------------------------------
-	def _get_dynamic_hints(self, include_suppressed_needing_invalidation=False):
+	def _get_dynamic_hints(self, pk_encounter=None):
 		return gmAutoHints.get_hints_for_patient (
 			pk_identity = self._payload[self._idx['pk_identity']],
-			include_suppressed_needing_invalidation = include_suppressed_needing_invalidation
+			pk_encounter = pk_encounter
 		)
 
 	dynamic_hints = property(_get_dynamic_hints, lambda x:x)
+
 	#--------------------------------------------------------
 	def _get_suppressed_hints(self):
 		return gmAutoHints.get_suppressed_hints(pk_identity = self._payload[self._idx['pk_identity']])
@@ -1969,6 +1972,7 @@ class cPatient(cPerson):
 		return self.__emr
 
 	emr = property(get_emr, lambda x:x)
+
 	#----------------------------------------------------------
 	def get_document_folder(self):
 		if self.__doc_folder is None:
