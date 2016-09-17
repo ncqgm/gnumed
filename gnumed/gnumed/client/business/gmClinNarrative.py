@@ -457,10 +457,7 @@ def get_as_journal(since=None, until=None, encounters=None, episodes=None, issue
 	if active_encounter is not None:
 		# get rows from clin.get_hints_for_patient()
 		pk_identity = journal_rows[0]['pk_patient']
-		hints = gmAutoHints.get_hints_for_patient (
-			pk_identity = pk_identity,
-			include_suppressed_needing_invalidation = True
-		)
+		hints = gmAutoHints.get_hints_for_patient(pk_identity = pk_identity)
 		for hint in hints:
 			d = {}
 			d['date'] = gmDateTime.pydt_strftime(active_encounter['started'], '%Y-%m-%d')

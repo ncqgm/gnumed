@@ -320,7 +320,8 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 			list_items.append(label)
 			list_data.append(msg)
 
-		for hint in patient.dynamic_hints:
+		pk_enc = patient.get_emr(allow_user_interaction = False).active_encounter['pk_encounter']
+		for hint in patient._get_dynamic_hints(pk_encounter = pk_enc):
 			list_items.append(hint['title'])
 			list_data.append(hint)
 
@@ -335,6 +336,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		if no_of_overdues > 0:
 			for idx in range(no_of_overdues):
 				self._LCTRL_inbox.SetItemTextColour(idx, wx.NamedColour('RED'))
+
 	#-----------------------------------------------------
 	def _calc_inbox_item_tooltip(self, data):
 		if isinstance(data, gmProviderInbox.cInboxMessage):
