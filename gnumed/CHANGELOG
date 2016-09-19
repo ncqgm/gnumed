@@ -9,7 +9,7 @@
 	1.7.0
 
 IMPROVED: EMR journal retrieval speed
-
+IMPROVED: patient overview now acts on changes to ref.auto_hint
 
 ------------------------------------------------
 # rel-1-6-patches

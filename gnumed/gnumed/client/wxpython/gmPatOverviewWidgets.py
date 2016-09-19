@@ -183,7 +183,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 			u'dem.lnk_identity2comm',
 			u'dem.lnk_job2person',
 			u'dem.message_inbox',
-			u'ref.auto_hint'		# no signal triggers in v21 just yet, however ...
+			u'ref.auto_hint'
 		]:
 			self._schedule_data_reget()
 			return True
@@ -355,6 +355,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 			return data
 
 		return None
+
 	#-----------------------------------------------------
 	def _on_inbox_item_activated(self, event):
 

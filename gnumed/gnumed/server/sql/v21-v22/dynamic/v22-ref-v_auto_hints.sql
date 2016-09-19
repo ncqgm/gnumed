@@ -10,6 +10,9 @@
 --set default_transaction_read_only to off;
 
 -- --------------------------------------------------------------
+select gm.add_table_for_notifies('ref', 'auto_hint');
+
+-- --------------------------------------------------------------
 update ref.auto_hint set
 	query = 'SELECT EXISTS (
 	-- substance check
