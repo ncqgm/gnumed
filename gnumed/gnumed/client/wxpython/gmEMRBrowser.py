@@ -1516,17 +1516,17 @@ class cEMRListJournalPluginPnl(wxgEMRListJournalPluginPnl.wxgEMRListJournalPlugi
 		self._TCTRL_details.SetValue(u'')
 
 		if self._RBTN_by_encounter.Value:		# (... is True:)
-			order_by = u'c_vej.encounter_started, c_vej.pk_episode, c_vej.src_table, scr, c_vej.modified_when'
-						#, c_vej.clin_when (should not make a relevant difference)
+			order_by = u'encounter_started, pk_episode, src_table, scr, modified_when'
+						#, clin_when (should not make a relevant difference)
 			date_col_header = _('Encounter')
 			date_fields = ['encounter_started', 'modified_when']
 		elif self._RBTN_by_last_modified.Value:	# (... is True:)
-			order_by = u'c_vej.modified_when, c_vej.pk_episode, c_vej.src_table, scr'
-						#, c_vej.clin_when (should not make a relevant difference)
+			order_by = u'modified_when, pk_episode, src_table, scr'
+						#, clin_when (should not make a relevant difference)
 			date_col_header = _('Modified')
 			date_fields = ['modified_when']
 		elif self._RBTN_by_item_time.Value:		# (... is True:)
-			order_by = u'c_vej.clin_when, c_vej.pk_episode, c_vej.src_table, scr, c_vej.modified_when'
+			order_by = u'clin_when, pk_episode, src_table, scr, modified_when'
 			date_col_header = _('Clinical time')
 			date_fields = ['clin_when', 'modified_when']
 		else:

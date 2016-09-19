@@ -382,7 +382,7 @@ def get_as_journal(since=None, until=None, encounters=None, episodes=None, issue
 		raise ValueError('at least one of <patient>, <episodes>, <issues>, <encounters> must not be None')
 
 	if order_by is None:
-		order_by = u'ORDER BY c_vej.clin_when, c_vej.pk_episode, scr, c_vej.modified_when, c_vej.src_table'
+		order_by = u'ORDER BY clin_when, pk_episode, scr, modified_when, src_table'
 	else:
 		order_by = u'ORDER BY %s' % order_by
 
@@ -416,8 +416,7 @@ def get_as_journal(since=None, until=None, encounters=None, episodes=None, issue
 
 	# FIXME: implement more constraints
 
-	# get rows from clin.v_emr_journal
-	cmd = u"""
+	cmd_journal = u"""
 		SELECT
 			to_char(c_vej.clin_when, 'YYYY-MM-DD') AS date,
 			c_vej.clin_when,
@@ -448,43 +447,50 @@ def get_as_journal(since=None, until=None, encounters=None, episodes=None, issue
 				join clin.soap_cat_ranks c_scr on (c_scr.soap_cat IS NOT DISTINCT FROM c_vej.soap_cat)
 		WHERE
 			%s
-		%s""" % (
-			u'\n\t\t\t\t\tAND\n\t\t\t\t'.join(where_parts),
-			order_by
-		)
-	journal_rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+	""" % u'\n\t\t\t\t\tAND\n\t\t\t\t'.join(where_parts)
 
-	if active_encounter is not None:
-		# get rows from clin.get_hints_for_patient()
-		pk_identity = journal_rows[0]['pk_patient']
-		hints = gmAutoHints.get_hints_for_patient(pk_identity = pk_identity)
-		for hint in hints:
-			d = {}
-			d['date'] = gmDateTime.pydt_strftime(active_encounter['started'], '%Y-%m-%d')
-			d['clin_when'] = active_encounter['started']
-			d['soap_cat'] = u'a'
-			d['narrative'] = hint.format()
-			d['src_table'] = u'ref.auto_hint'
-			d['rank'] = 3									# FIXME: should be rank_of['a']
-			d['modified_when'] = active_encounter['started']		# FIXME: should be hint['modified_when']
-			d['date_modified'] = gmDateTime.pydt_strftime(active_encounter['started'], '%Y-%m-%d %H:%M')	# FIXME: should use hint['modified_when']
-			d['modified_by'] = active_encounter['modified_by']		# FIXME: should be hint['modified_by']
-			d['row_version'] = 0							# FIXME: should be hint['row_version']
-			d['pk_episode'] = None
-			d['pk_encounter'] = active_encounter['pk_encounter']
-			d['real_soap_cat'] = u'a'
-			d['src_pk'] = hint['pk_auto_hint']
-			d['pk_health_issue'] = None
-			d['health_issue'] = u''
-			d['episode'] = u''
-			d['issue_active'] = False
-			d['issue_clinically_relevant'] = False
-			d['episode_open'] = False
-			d['encounter_started'] = active_encounter['started']
-			d['encounter_last_affirmed'] = active_encounter['last_affirmed']
-			d['encounter_l10n_type'] = active_encounter['l10n_type']
-			d['pk_patient'] = pk_identity
-			journal_rows.append(d)
+	if active_encounter is None:
+		cmd = cmd_journal + u'\n ' + order_by
+	else:
+		args['pk_enc'] = active_encounter['pk_encounter']
+		args['enc_start'] = active_encounter['started']
+		args['enc_last_affirmed'] = active_encounter['last_affirmed']
+		args['enc_type'] = active_encounter['l10n_type']
+		args['enc_pat'] = active_encounter['pk_patient']
+		cmd_hints = u"""
+			SELECT
+				to_char(now(), 'YYYY-MM-DD') AS date,
+				now() as clin_when,
+				'a'::text as soap_cat,
+				hints.title || E'\n' || hints.hint
+					as narrative,
+				'ref.auto_hint'::text as src_table,
+				c_scr.rank AS scr,
+				now() as modified_when,
+				to_char(now(), 'YYYY-MM-DD HH24:MI') AS date_modified,
+				current_user as modified_by,
+				0::integer as row_version,
+				NULL::integer as pk_episode,
+				%(pk_enc)s as pk_encounter,
+				'a'::text as real_soap_cat,
+				hints.pk_auto_hint as src_pk,
+				NULL::integer as pk_health_issue,
+				''::text as health_issue,
+				''::text as episode,
+				False as issue_active,
+				False as issue_clinically_relevant,
+				False as episode_open,
+				%(enc_start)s as encounter_started,
+				%(enc_last_affirmed)s  as encounter_last_affirmed,
+				%(enc_type)s as encounter_l10n_type,
+				%(enc_pat)s as pk_patient
+			FROM
+				clin.get_hints_for_patient(%(enc_pat)s) as hints
+					join clin.soap_cat_ranks c_scr on (c_scr.soap_cat = 'a')
+		"""
+		cmd = cmd_journal + u'\nUNION ALL\n' + cmd_hints + u'\n' + order_by
+
+	journal_rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 
 	return journal_rows
 
