@@ -46,6 +46,8 @@ from Gnumed.wxpython import gmVaccWidgets
 from Gnumed.wxpython import gmFamilyHistoryWidgets
 from Gnumed.wxpython import gmFormWidgets
 from Gnumed.wxpython import gmTimer
+from Gnumed.wxpython import gmHospitalStayWidgets
+from Gnumed.wxpython import gmProcedureWidgets
 
 
 _log = logging.getLogger('gm.ui')
@@ -863,7 +865,7 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 
 	#--------------------------------------------------------
 	def __manage_procedures(self, event):
-		gmEMRStructWidgets.manage_performed_procedures(parent = self)
+		gmProcedureWidgets.manage_performed_procedures(parent = self)
 
 	#--------------------------------------------------------
 	def __manage_family_history(self, event):
@@ -871,7 +873,7 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 
 	#--------------------------------------------------------
 	def __manage_hospital_stays(self, event):
-		gmEMRStructWidgets.manage_hospital_stays(parent = self)
+		gmHospitalStayWidgets.manage_hospital_stays(parent = self)
 
 	#--------------------------------------------------------
 	def __manage_occupation(self, event):

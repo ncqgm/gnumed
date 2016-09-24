@@ -829,6 +829,7 @@ class cDocument(gmBusinessDBObject.cBusinessDBObject):
 			gmTools.coalesce(self._payload[self._idx['unit']], u'', _(' Organization: %%s @ %s\n') % self._payload[self._idx['organization']]),
 			gmTools.coalesce(self._payload[self._idx['comment']], u'', u' %s')
 		)
+
 		return txt
 
 	#--------------------------------------------------------

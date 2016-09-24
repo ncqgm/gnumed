@@ -209,6 +209,7 @@ class cPhraseWheelBase(wx.TextCtrl):
 				self._create_data()
 
 		return self._data
+
 	#---------------------------------------------------------
 	def SetText(self, value=u'', data=None, suppress_smarts=False):
 
@@ -593,6 +594,7 @@ class cPhraseWheelBase(wx.TextCtrl):
 						for suggestion in suggestions
 				]
 				self._picklist.SetItems(self._current_match_candidates)
+
 	#--------------------------------------------------------
 	# tooltip handling
 	#--------------------------------------------------------
@@ -601,6 +603,7 @@ class cPhraseWheelBase(wx.TextCtrl):
 		# per data item dynamic tooltips,
 		# by default do not support dynamic tooltip parts:
 		return None
+
 	#--------------------------------------------------------
 	def __recalculate_tooltip(self):
 		"""Calculate dynamic tooltip part based on data item.
@@ -1073,6 +1076,7 @@ class cPhraseWheel(cPhraseWheelBase):
 			return None
 
 		return self._data.values()[0]['data']
+
 	#---------------------------------------------------------
 	def SetData(self, data=None):
 		"""Set the data and thereby set the value, too. if possible.
@@ -1114,6 +1118,7 @@ class cPhraseWheel(cPhraseWheelBase):
 		self.data = self._dictify_data(data = data)
 		self.display_as_valid(valid = True)
 		return True
+
 	#--------------------------------------------------------
 	# internal API
 	#--------------------------------------------------------
@@ -1127,6 +1132,7 @@ class cPhraseWheel(cPhraseWheelBase):
 			return
 
 		return super(cPhraseWheel, self)._show_picklist(input2match = input2match)
+
 	#--------------------------------------------------------
 	def _set_data_to_first_match(self):
 		# data already set ?
@@ -1156,12 +1162,15 @@ class cPhraseWheel(cPhraseWheelBase):
 			return False
 
 		return True
+
 	#---------------------------------------------------------
 	def _adjust_data_after_text_update(self):
 		self.data = {}
+
 	#---------------------------------------------------------
 	def _extract_fragment_to_match_on(self):
 		return self.GetValue().strip()
+
 	#---------------------------------------------------------
 	def _dictify_data(self, data=None, value=None):
 		# assume data to always be old style

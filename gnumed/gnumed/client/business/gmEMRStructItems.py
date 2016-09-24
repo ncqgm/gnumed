@@ -31,6 +31,7 @@ from Gnumed.business import gmCoding
 from Gnumed.business import gmPraxis
 from Gnumed.business import gmOrganization
 from Gnumed.business import gmExternalCare
+from Gnumed.business import gmDocuments
 
 
 _log = logging.getLogger('gm.emr')
@@ -3122,7 +3123,9 @@ class cPerformedProcedure(gmBusinessDBObject.cBusinessDBObject):
 					ELSE NULL
 				END)::integer,
 				fk_episode = %(pk_episode)s,
-				fk_encounter = %(pk_encounter)s
+				fk_encounter = %(pk_encounter)s,
+				fk_doc = %(pk_doc)s,
+				comment = gm.nullify_empty_string(%(comment)s)
 			WHERE
 				pk = %(pk_procedure)s AND
 				xmin = %(xmin_procedure)s
@@ -3136,7 +3139,9 @@ class cPerformedProcedure(gmBusinessDBObject.cBusinessDBObject):
 		'pk_hospital_stay',
 		'pk_org_unit',
 		'pk_episode',
-		'pk_encounter'
+		'pk_encounter',
+		'pk_doc',
+		'comment'
 	]
 	#-------------------------------------------------------
 	def __setitem__(self, attribute, value):
@@ -3150,16 +3155,18 @@ class cPerformedProcedure(gmBusinessDBObject.cBusinessDBObject):
 		gmBusinessDBObject.cBusinessDBObject.__setitem__(self, attribute, value)
 
 	#--------------------------------------------------------
-	def format_maximum_information(self, patient=None):
+	def format_maximum_information(self, left_margin=0, patient=None):
 		return self.format (
+			left_margin = left_margin,
 			include_episode = True,
 			include_codes = True,
 			include_address = True,
-			include_comm = True
+			include_comm = True,
+			include_doc = True
 		).split(u'\n')
 
 	#-------------------------------------------------------
-	def format(self, left_margin=0, include_episode=True, include_codes=False, include_address=False, include_comm=False):
+	def format(self, left_margin=0, include_episode=True, include_codes=False, include_address=False, include_comm=False, include_doc=False):
 
 		if self._payload[self._idx['is_ongoing']]:
 			end = _(' (ongoing)')
@@ -3180,6 +3187,8 @@ class cPerformedProcedure(gmBusinessDBObject.cBusinessDBObject):
 			self._payload[self._idx['organization']]
 		)
 
+		line += gmTools.coalesce(self._payload[self._idx['comment']], u'', u'\n' + (u' ' * left_margin) + _(u'Comment: ') + u'%s')
+
 		if include_comm:
 			for channel in self.org_unit.comm_channels:
 				line += (u'\n%(comm_type)s: %(url)s' % channel)
@@ -3189,6 +3198,13 @@ class cPerformedProcedure(gmBusinessDBObject.cBusinessDBObject):
 			if adr is not None:
 				line += u'\n'
 				line += u'\n'.join(adr.format(single_line = False, show_type = False))
+				line += u'\n'
+
+		if include_doc:
+			doc = self.doc
+			if doc is not None:
+				line += u'\n'
+				line += _(u'Document') + u': ' + doc.format(single_line = True)
 				line += u'\n'
 
 		if include_codes:
@@ -3206,6 +3222,7 @@ class cPerformedProcedure(gmBusinessDBObject.cBusinessDBObject):
 			del codes
 
 		return line
+
 	#--------------------------------------------------------
 	def add_code(self, pk_code=None):
 		"""<pk_code> must be a value from ref.coding_system_root.pk_coding_system (clin.lnk_code2item_root.fk_generic_code)"""
@@ -3216,6 +3233,7 @@ class cPerformedProcedure(gmBusinessDBObject.cBusinessDBObject):
 		}
 		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 		return True
+
 	#--------------------------------------------------------
 	def remove_code(self, pk_code=None):
 		"""<pk_code> must be a value from ref.coding_system_root.pk_coding_system (clin.lnk_code2item_root.fk_generic_code)"""
@@ -3243,6 +3261,13 @@ class cPerformedProcedure(gmBusinessDBObject.cBusinessDBObject):
 
 	org_unit = property(_get_org_unit, lambda x:x)
 
+	#--------------------------------------------------------
+	def _get_doc(self):
+		if self._payload[self._idx['pk_doc']] is None:
+			return None
+		return gmDocuments.cDocument(aPK_obj = self._payload[self._idx['pk_doc']])
+
+	doc = property(_get_doc, lambda x:x)
 	#--------------------------------------------------------
 	def _get_generic_codes(self):
 		if len(self._payload[self._idx['pk_generic_codes']]) == 0:

@@ -1766,7 +1766,7 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 					))
 					txt += gmTools.coalesce(comp['intake_instructions'], u'', u'   ' + _('Intake: %s') + u'\n')
 					if len(comp['loincs']) > 0:
-						txt += (u'   ' + _('LOINCS to monitor:') + u'\n')
+						txt += (u'   ' + _('LOINCs to monitor:') + u'\n')
 						txt += u'\n'.join([ u'    %s%s%s' % (
 							l['loinc'],
 							gmTools.coalesce(l['max_age_str'], u'', u': %s'),

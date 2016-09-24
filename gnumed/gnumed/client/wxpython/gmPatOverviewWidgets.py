@@ -44,6 +44,8 @@ from Gnumed.wxpython import gmDocumentWidgets
 from Gnumed.wxpython import gmGuiHelpers
 from Gnumed.wxpython import gmPregWidgets
 from Gnumed.wxpython import gmHabitWidgets
+from Gnumed.wxpython import gmHospitalStayWidgets
+from Gnumed.wxpython import gmProcedureWidgets
 
 
 _log = logging.getLogger('gm.patient')
@@ -597,7 +599,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 				gmDispatcher.send(signal = 'display_widget', name = 'gmWaitingListPlugin')
 				return
 			if key == 'stay':
-				wx.CallAfter(gmEMRStructWidgets.manage_hospital_stays, parent = self)
+				wx.CallAfter(gmHospitalStayWidgets.manage_hospital_stays, parent = self)
 				return
 
 		wx.CallAfter(gmEncounterWidgets.manage_encounters, parent = self, ignore_OK_button = False)
@@ -782,10 +784,10 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 				FamilyHistoryWidgets.edit_family_history(parent = self, family_history = data)
 				return
 			if isinstance(data, gmEMRStructItems.cHospitalStay):
-				gmEMRStructWidgets.edit_hospital_stay(parent = self, hospital_stay = data)
+				gmHospitalStayWidgets.edit_hospital_stay(parent = self, hospital_stay = data)
 				return
 			if isinstance(data, gmEMRStructItems.cPerformedProcedure):
-				gmEMRStructWidgets.edit_procedure(parent = self, procedure = data)
+				gmProcedureWidgets.edit_procedure(parent = self, procedure = data)
 				return
 			if isinstance(data, gmVaccination.cVaccination):
 				gmVaccWidgets.edit_vaccination(parent = self, vaccination = data, single_entry = True)
@@ -799,10 +801,10 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 			FamilyHistoryWidgets.manage_family_history(parent = self)
 			return
 		if isinstance(data, gmEMRStructItems.cHospitalStay):
-			gmEMRStructWidgets.manage_hospital_stays(parent = self)
+			gmHospitalStayWidgets.manage_hospital_stays(parent = self)
 			return
 		if isinstance(data, gmEMRStructItems.cPerformedProcedure):
-			gmEMRStructWidgets.manage_performed_procedures(parent = self)
+			gmProcedureWidgets.manage_performed_procedures(parent = self)
 			return
 		if isinstance(data, gmVaccination.cVaccination):
 			gmVaccWidgets.manage_vaccinations(parent = self)
@@ -1006,7 +1008,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 			# <ctrl> down ?
 			if wx.GetKeyState(wx.WXK_CONTROL):
 				if isinstance(data, gmEMRStructItems.cHospitalStay):
-					gmEMRStructWidgets.edit_hospital_stay(parent = self, hospital_stay = data)
+					gmHospitalStayWidgets.edit_hospital_stay(parent = self, hospital_stay = data)
 					return
 				if isinstance(data, gmDemographicRecord.cPatientAddress):
 					pass

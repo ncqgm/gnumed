@@ -8,6 +8,8 @@
 
 	1.7.0
 
+NEW: link document to procedure
+
 IMPROVED: EMR journal retrieval speed
 IMPROVED: patient overview now acts on changes to ref.auto_hint
 

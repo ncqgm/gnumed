@@ -13,7 +13,7 @@ class wxgHospitalStayEditAreaPnl(wx.Panel):
     def __init__(self, *args, **kwds):
 
         from Gnumed.wxpython.gmEMRStructWidgets import cEpisodeSelectionPhraseWheel
-        from Gnumed.wxpython.gmEMRStructWidgets import cHospitalWardPhraseWheel
+        from Gnumed.wxpython.gmHospitalStayWidgets import cHospitalWardPhraseWheel
         from Gnumed.wxpython import gmDateTimeInput
 
         # begin wxGlade: wxgHospitalStayEditAreaPnl.__init__

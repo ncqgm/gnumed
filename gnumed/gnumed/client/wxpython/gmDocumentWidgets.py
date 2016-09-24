@@ -22,6 +22,9 @@ import wx.lib.mixins.treemixin as treemixin
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmI18N
+if __name__ == '__main__':
+	gmI18N.activate_locale()
+	gmI18N.install_domain(domain = 'gnumed')
 from Gnumed.pycommon import gmCfg
 from Gnumed.pycommon import gmPG2
 from Gnumed.pycommon import gmMimeLib
@@ -44,7 +47,6 @@ from Gnumed.wxpython import gmGuiHelpers
 from Gnumed.wxpython import gmRegetMixin
 from Gnumed.wxpython import gmPhraseWheel
 from Gnumed.wxpython import gmPlugin
-from Gnumed.wxpython import gmEMRStructWidgets
 from Gnumed.wxpython import gmEncounterWidgets
 from Gnumed.wxpython import gmListWidgets
 from Gnumed.wxpython import gmRegetMixin
@@ -54,6 +56,7 @@ _log = logging.getLogger('gm.ui')
 
 
 default_chunksize = 1 * 1024 * 1024		# 1 MB
+
 #============================================================
 def manage_document_descriptions(parent=None, document=None):
 
@@ -171,7 +174,8 @@ def save_files_as_new_document(parent=None, filenames=None, document_type=None, 
 		if len(all_epis) == 0:
 			episode = emr.add_episode(episode_name = _('Documents'), is_open = False)
 		else:
-			dlg = gmEMRStructWidgets.cEpisodeListSelectorDlg(parent = parent, id = -1, episodes = all_epis)
+			from Gnumed.wxpython.gmEMRStructWidgets import cEpisodeListSelectorDlg
+			dlg = cEpisodeListSelectorDlg(parent = parent, id = -1, episodes = all_epis)
 			dlg.SetTitle(_('Select the episode under which to file the document ...'))
 			btn_pressed = dlg.ShowModal()
 			episode = dlg.get_selected_item_data(only_one = True)
@@ -288,6 +292,51 @@ gmDispatcher.connect(signal = u'import_document_from_file', receiver = _save_fil
 gmDispatcher.connect(signal = u'import_document_from_files', receiver = _save_files_as_new_document)
 
 #============================================================
+class cDocumentPhraseWheel(gmPhraseWheel.cPhraseWheel):
+
+	def __init__(self, *args, **kwargs):
+
+		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
+
+		ctxt = {'ctxt_pat': {
+			'where_part': u'(pk_patient = %(pat)s) AND',
+			'placeholder': u'pat'
+		}}
+
+		mp = gmMatchProvider.cMatchProvider_SQL2 (
+			queries = [u"""
+SELECT DISTINCT ON (list_label)
+	pk_doc AS data,
+	l10n_type || ' (' || to_char(clin_when, 'YYYY Mon DD') || ')' || coalesce(': ' || unit || '@' || organization, '') || ' - ' || episode || coalesce(' (' || health_issue || ')', '') AS list_label,
+	l10n_type || ' (' || to_char(clin_when, 'YYYY Mon DD') || ')' || coalesce(': ' || organization, '') || ' - ' || coalesce(' (' || health_issue || ')', episode) AS field_label
+FROM blobs.v_doc_med
+WHERE
+		%(ctxt_pat)s
+(
+	l10n_type %(fragment_condition)s
+		OR
+	unit %(fragment_condition)s
+		OR
+	organization %(fragment_condition)s
+		OR
+	episode %(fragment_condition)s
+		OR
+	health_issue %(fragment_condition)s
+)
+ORDER BY list_label
+LIMIT 25"""],
+			context = ctxt
+		)
+		mp.setThresholds(1, 3, 5)
+		mp.unset_context(u'pat')
+
+		self.matcher = mp
+		self.picklist_delay = 50
+		self.selection_only = True
+
+		self.SetToolTipString(_('Select a document.'))
+
+#============================================================
 class cDocumentCommentPhraseWheel(gmPhraseWheel.cPhraseWheel):
 	"""Let user select a document comment from all existing comments."""
 	def __init__(self, *args, **kwargs):
@@ -344,6 +393,18 @@ LIMIT 25"""],
 		self.picklist_delay = 50
 
 		self.SetToolTipString(_('Enter a comment on the document.'))
+
+	#--------------------------------------------------------
+	def _data2instance(self):
+		if len(self._data) == 0:
+			return None
+		return gmDocuments.cDocument(aPK_obj = self.GetData())
+
+	#--------------------------------------------------------
+	def _get_data_tooltip(self):
+		if len(self._data) == 0:
+			return u''
+		return gmDocuments.cDocument(aPK_obj = self.GetData()).format(single_line = False)
 
 #============================================================
 # document type widgets
@@ -3297,13 +3358,23 @@ def upload_files():
 #------------------------------------------------------------
 if __name__ == '__main__':
 
-	gmI18N.activate_locale()
-	gmI18N.install_domain(domain = 'gnumed')
+	if len(sys.argv) < 2:
+		sys.exit()
 
-	#----------------------------------------
-	#----------------------------------------
-	if (len(sys.argv) > 1) and (sys.argv[1] == 'test'):
-#		test_*()
-		pass
+	if sys.argv[1] != 'test':
+		sys.exit()
 
-#============================================================
+	from Gnumed.business import gmPersonSearch
+	from Gnumed.wxpython import gmPatSearchWidgets
+
+	#----------------------------------------------------------------
+	def test_document_prw():
+		app = wx.PyWidgetTester(size = (180, 20))
+		#pnl = cEncounterEditAreaPnl(app.frame, -1, encounter=enc)
+		prw = cDocumentPhraseWheel(app.frame, -1)
+		prw.set_context('pat', 12)
+		app.frame.Show(True)
+		app.MainLoop()
+
+	#----------------------------------------------------------------
+	test_document_prw()

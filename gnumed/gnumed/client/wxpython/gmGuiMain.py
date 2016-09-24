@@ -138,6 +138,8 @@ from Gnumed.wxpython import gmSubstanceMgmtWidgets
 from Gnumed.wxpython import gmATCWidgets
 from Gnumed.wxpython import gmLOINCWidgets
 from Gnumed.wxpython import gmVisualProgressNoteWidgets
+from Gnumed.wxpython import gmHospitalStayWidgets
+from Gnumed.wxpython import gmProcedureWidgets
 
 
 try:
@@ -2755,7 +2757,7 @@ class gmTopLevelFrame(wx.Frame):
 		if not pat.connected:
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot manage performed procedures. No active patient.'))
 			return False
-		gmEMRStructWidgets.manage_performed_procedures(parent = self)
+		gmProcedureWidgets.manage_performed_procedures(parent = self)
 		evt.Skip()
 	#----------------------------------------------
 	def __on_manage_hospital_stays(self, evt):
@@ -2763,7 +2765,7 @@ class gmTopLevelFrame(wx.Frame):
 		if not pat.connected:
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot manage hospitalizations. No active patient.'))
 			return False
-		gmEMRStructWidgets.manage_hospital_stays(parent = self)
+		gmHospitalStayWidgets.manage_hospital_stays(parent = self)
 		evt.Skip()
 	#----------------------------------------------
 	def __on_manage_external_care(self, evt):
