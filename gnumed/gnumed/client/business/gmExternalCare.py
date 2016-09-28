@@ -33,7 +33,7 @@ _SQL_get_external_care_items = u"""SELECT * FROM clin.v_external_care WHERE %s""
 class cExternalCareItem(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents an external care item.
 
-	Note: Upon saving .issue being non-empty and not None will
+	Note: Upon saving .issue being (non-empty AND not None) will
 	override .fk_health_issue (IOW, if your code wants to set
 	.fk_health_issue to something other than NULL it needs to
 	unset .issue explicitly (to u'' or None)).
@@ -46,6 +46,7 @@ class cExternalCareItem(gmBusinessDBObject.cBusinessDBObject):
 				issue = gm.nullify_empty_string(%(issue)s),
 				provider = gm.nullify_empty_string(%(provider)s),
 				fk_org_unit = %(pk_org_unit)s,
+				inactive = %(inactive)s,
 				fk_health_issue = (
 					CASE
 						WHEN gm.is_null_or_blank_string(%(issue)s) IS TRUE THEN %(pk_health_issue)s
@@ -67,12 +68,21 @@ class cExternalCareItem(gmBusinessDBObject.cBusinessDBObject):
 		u'pk_org_unit',
 		u'issue',
 		u'provider',
-		u'comment'
+		u'comment',
+		u'inactive'
 	]
 	#--------------------------------------------------------
 	def format(self, with_health_issue=True, with_address=False, with_comms=False):
 		lines = []
-		lines.append(_(u'External care               #%s') % self._payload[self._idx['pk_external_care']])
+		lines.append(_(u'External care%s             #%s') % (
+			gmTools.bool2subst (
+				self._payload[self._idx['inactive']],
+				u' (%s)' % _('inactive'),
+				u'',
+				u' [ERROR: .inactive is NULL]'
+			),
+			self._payload[self._idx['pk_external_care']]
+		))
 		if with_health_issue:
 			if self._payload[self._idx['pk_health_issue']] is None:
 				lines.append(u' ' + _(u'Issue: %s') % self._payload[self._idx['issue']])

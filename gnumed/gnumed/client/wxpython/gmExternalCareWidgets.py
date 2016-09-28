@@ -41,6 +41,7 @@ def manage_external_care(parent=None):
 	#-----------------------------------------
 	def edit(external_care_item=None):
 		return edit_external_care_item(parent = parent, external_care_item = external_care_item)
+
 	#-----------------------------------------
 	def delete(external_care_item=None):
 		if gmExternalCare.delete_external_care_item(pk_external_care = external_care_item['pk_external_care']):
@@ -52,6 +53,7 @@ def manage_external_care(parent=None):
 			beep = True
 		)
 		return False
+
 	#------------------------------------------------------------
 	def get_tooltip(data):
 		if data is None:
@@ -60,7 +62,7 @@ def manage_external_care(parent=None):
 
 	#------------------------------------------------------------
 	def refresh(lctrl):
-		care = emr.get_external_care_items(order_by = u'issue, provider, unit, organization')
+		care = emr.get_external_care_items(order_by = u'inactive, issue, provider, unit, organization')
 		items = [ [
 			u'%s @ %s' % (
 				c['unit'],
@@ -68,16 +70,18 @@ def manage_external_care(parent=None):
 			),
 			gmTools.coalesce(c['provider'], u''),
 			c['issue'],
+			gmTools.bool2subst(c['inactive'], _(u'inactive'), u'', u'<ERROR: .inactive IS NULL>'),
 			gmTools.coalesce(c['comment'], u'')
 		] for c in care ]
 		lctrl.set_string_items(items)
 		lctrl.set_data(care)
+
 	#------------------------------------------------------------
 	return gmListWidgets.get_choices_from_list (
 		parent = parent,
 		msg = _('External care of this patient.'),
 		caption = _('Showing external care network.'),
-		columns = [ _('Location'), _('Provider'), _('Care issue'), _('Comment') ],
+		columns = [ _('Location'), _('Provider'), _('Reason for care'), _(u'Status'), _('Comment') ],
 		single_selection = False,
 		can_return_empty = True,
 		ignore_OK_button = False,
@@ -155,6 +159,7 @@ class cExternalCareEAPnl(wxgExternalCareEAPnl.wxgExternalCareEAPnl, gmEditArea.c
 				self._PRW_issue.SetFocus()
 
 		return validity
+
 	#----------------------------------------------------------------
 	def _save_as_new(self):
 		data = gmExternalCare.create_external_care_item (
@@ -165,9 +170,11 @@ class cExternalCareEAPnl(wxgExternalCareEAPnl.wxgExternalCareEAPnl, gmEditArea.c
 		)
 		data['provider'] = self._TCTRL_provider.GetValue().strip()
 		data['comment'] = self._TCTRL_comment.GetValue().strip()
+		data['inactive'] = self._CHBOX_inactive.IsChecked()
 		data.save()
 		self.data = data
 		return True
+
 	#----------------------------------------------------------------
 	def _save_as_update(self):
 		self.data['pk_encounter'] = gmPerson.gmCurrentPatient().emr.current_encounter['pk_encounter']
@@ -176,25 +183,31 @@ class cExternalCareEAPnl(wxgExternalCareEAPnl.wxgExternalCareEAPnl, gmEditArea.c
 		self.data['pk_org_unit'] = self._PRW_care_location.GetData()
 		self.data['provider'] = self._TCTRL_provider.GetValue().strip()
 		self.data['comment'] = self._TCTRL_comment.GetValue().strip()
+		self.data['inactive'] = self._CHBOX_inactive.IsChecked()
 		self.data.save()
 		return True
+
 	#----------------------------------------------------------------
 	def _refresh_as_new(self):
 		self._PRW_issue.SetText(u'', None)
 		self._PRW_care_location.SetText(u'', None)
 		self._TCTRL_provider.SetValue(u'')
 		self._TCTRL_comment.SetValue(u'')
+		self._CHBOX_inactive.Value = False
 
 		self._PRW_issue.SetFocus()
+
 	#----------------------------------------------------------------
 	def _refresh_as_new_from_existing(self):
 		self._refresh_as_new()
+
 	#----------------------------------------------------------------
 	def _refresh_from_existing(self):
 		self._PRW_issue.SetText(value = self.data['issue'], data = self.data['pk_health_issue'], suppress_smarts = True)
 		self._PRW_care_location.SetText(value = u'%s @ %s' % (self.data['unit'], self.data['organization']), data = self.data['pk_org_unit'])
 		self._TCTRL_provider.SetValue(gmTools.coalesce(self.data['provider'], u''))
 		self._TCTRL_comment.SetValue(gmTools.coalesce(self.data['comment'], u''))
+		self._CHBOX_inactive.Value = self.data['inactive']
 
 		self._TCTRL_comment.SetFocus()
 
@@ -230,7 +243,7 @@ class cExternalCareMgrPnl(gmListWidgets.cGenericListManagerPnl):
 			return
 
 		emr = self.__identity.emr
-		care = emr.get_external_care_items(order_by = u'issue, provider, unit, organization')
+		care = emr.get_external_care_items(order_by = u'inactive, issue, provider, unit, organization')
 		items = [ [
 			u'%s @ %s' % (
 				c['unit'],
@@ -238,11 +251,13 @@ class cExternalCareMgrPnl(gmListWidgets.cGenericListManagerPnl):
 			),
 			gmTools.coalesce(c['provider'], u''),
 			c['issue'],
+			gmTools.bool2subst(c['inactive'], _(u'inactive'), u'', u'<ERROR: .inactive IS NULL>'),
 			gmTools.coalesce(c['comment'], u'')
 		] for c in care ]
 		self._LCTRL_items.set_string_items(items)
 		self._LCTRL_items.set_column_widths()
 		self._LCTRL_items.set_data(data = care)
+
 	#--------------------------------------------------------
 	# internal helpers
 	#--------------------------------------------------------
@@ -250,15 +265,19 @@ class cExternalCareMgrPnl(gmListWidgets.cGenericListManagerPnl):
 		self._LCTRL_items.set_columns(columns = [
 			_('Care location'),
 			_('Provider'),
-			_('Care issue'),
+			_('Reason for care'),
+			_(u'Status'),
 			_('Comment')
 		])
+
 	#--------------------------------------------------------
 	def _add_care(self):
 		return edit_external_care_item(parent = self, external_care_item = None)
+
 	#--------------------------------------------------------
 	def _edit_care(self, external_care_item):
 		return edit_external_care_item(parent = self, external_care_item = external_care_item)
+
 	#--------------------------------------------------------
 	def _del_care(self, external_care_item):
 		go_ahead = gmGuiHelpers.gm_show_question (
@@ -276,6 +295,7 @@ class cExternalCareMgrPnl(gmListWidgets.cGenericListManagerPnl):
 			beep = True
 		)
 		return False
+
 	#--------------------------------------------------------
 	# properties
 	#--------------------------------------------------------

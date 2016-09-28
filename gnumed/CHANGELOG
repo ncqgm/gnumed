@@ -10,6 +10,7 @@
 
 NEW: link document to procedure
 NEW: support receiver on documents
+NEW: support inactivity of external care entries
 
 IMPROVED: EMR journal retrieval speed
 IMPROVED: patient overview now acts on changes to ref.auto_hint
