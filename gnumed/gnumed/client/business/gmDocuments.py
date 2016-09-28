@@ -597,20 +597,21 @@ class cDocument(gmBusinessDBObject.cBusinessDBObject):
 
 	_cmd_fetch_payload = _sql_fetch_document_fields % u"pk_doc = %s"
 	_cmds_store_payload = [
-		u"""update blobs.doc_med set
+		u"""UPDATE blobs.doc_med SET
 				fk_type = %(pk_type)s,
 				fk_episode = %(pk_episode)s,
 				fk_encounter = %(pk_encounter)s,
 				fk_org_unit = %(pk_org_unit)s,
+				unit_is_receiver = %(unit_is_receiver)s,
 				clin_when = %(clin_when)s,
 				comment = gm.nullify_empty_string(%(comment)s),
 				ext_ref = gm.nullify_empty_string(%(ext_ref)s)
-			where
+			WHERE
 				pk = %(pk_doc)s and
-				xmin = %(xmin_doc_med)s""",
-		u"""select xmin_doc_med from blobs.v_doc_med where pk_doc = %(pk_doc)s"""
-		]
-
+				xmin = %(xmin_doc_med)s
+			RETURNING
+				xmin AS xmin_doc_med"""
+	]
 	_updatable_fields = [
 		'pk_type',
 		'comment',
@@ -618,14 +619,17 @@ class cDocument(gmBusinessDBObject.cBusinessDBObject):
 		'ext_ref',
 		'pk_episode',
 		'pk_encounter',			# mainly useful when moving visual progress notes to their respective encounters
-		'pk_org_unit'
+		'pk_org_unit',
+		'unit_is_receiver'
 	]
+
 	#--------------------------------------------------------
 	def refetch_payload(self, ignore_changes=False, link_obj=None):
 		try: del self.__has_unreviewed_parts
 		except AttributeError: pass
 
 		return super(cDocument, self).refetch_payload(ignore_changes = ignore_changes, link_obj = link_obj)
+
 	#--------------------------------------------------------
 	def get_descriptions(self, max_lng=250):
 		"""Get document descriptions.
@@ -638,11 +642,13 @@ class cDocument(gmBusinessDBObject.cBusinessDBObject):
 			cmd = u"SELECT pk, substring(text from 1 for %s) FROM blobs.doc_desc WHERE fk_doc=%%s" % max_lng
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_obj]}])
 		return rows
+
 	#--------------------------------------------------------
 	def add_description(self, description=None):
 		cmd = u"insert into blobs.doc_desc (fk_doc, text) values (%s, %s)"
 		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': [self.pk_obj, description]}])
 		return True
+
 	#--------------------------------------------------------
 	def update_description(self, pk=None, description=None):
 		cmd = u"update blobs.doc_desc set text = %(desc)s where fk_doc = %(doc)s and pk = %(pk_desc)s"
@@ -650,11 +656,13 @@ class cDocument(gmBusinessDBObject.cBusinessDBObject):
 			{'cmd': cmd, 'args': {'doc': self.pk_obj, 'pk_desc': pk, 'desc': description}}
 		])
 		return True
+
 	#--------------------------------------------------------
 	def delete_description(self, pk=None):
 		cmd = u"delete from blobs.doc_desc where fk_doc = %(doc)s and pk = %(desc)s"
 		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': {'doc': self.pk_obj, 'desc': pk}}])
 		return True
+
 	#--------------------------------------------------------
 	def _get_parts(self):
 		cmd = _sql_fetch_document_part_fields % u"pk_doc = %s ORDER BY seq_idx"
@@ -662,6 +670,7 @@ class cDocument(gmBusinessDBObject.cBusinessDBObject):
 		return [ cDocumentPart(row = {'pk_field': 'pk_obj', 'idx': idx, 'data': r}) for r in rows ]
 
 	parts = property(_get_parts, lambda x:x)
+
 	#--------------------------------------------------------
 	def add_part(self, file=None, link_obj=None):
 		"""Add a part to the document."""
@@ -693,6 +702,7 @@ class cDocument(gmBusinessDBObject.cBusinessDBObject):
 		new_part.save_payload(conn = link_obj)
 
 		return new_part
+
 	#--------------------------------------------------------
 	def add_parts_from_files(self, files=None, reviewer=None):
 
@@ -716,6 +726,7 @@ class cDocument(gmBusinessDBObject.cBusinessDBObject):
 					return (False, msg, filename)
 
 		return (True, '', new_parts)
+
 	#--------------------------------------------------------
 	def export_parts_to_files(self, export_dir=None, chunksize=0):
 		fnames = []
@@ -726,6 +737,7 @@ class cDocument(gmBusinessDBObject.cBusinessDBObject):
 				fname = os.path.join(export_dir, os.path.split(fname)[1])
 			fnames.append(fname)
 		return fnames
+
 	#--------------------------------------------------------
 	def _get_has_unreviewed_parts(self):
 		try:
@@ -810,6 +822,18 @@ class cDocument(gmBusinessDBObject.cBusinessDBObject):
 			parts = _('1 part')
 		else:
 			parts = _('%s parts') % part_count
+		org = u''
+		if self._payload[self._idx['unit']] is not None:
+			if self._payload[self._idx['unit_is_receiver']]:
+				org = _(' Receiver: %s @ %s\n') % (
+					self._payload[self._idx['unit']],
+					self._payload[self._idx['organization']]
+				)
+			else:
+				org = _(' Sender: %s @ %s\n') % (
+					self._payload[self._idx['unit']],
+					self._payload[self._idx['organization']]
+				)
 		txt = _(
 			'%s (%s)   #%s\n'
 			' Created: %s\n'
@@ -826,7 +850,7 @@ class cDocument(gmBusinessDBObject.cBusinessDBObject):
 			self._payload[self._idx['episode']],
 			gmTools.coalesce(self._payload[self._idx['health_issue']], u'', _(' Health issue: %s\n')),
 			gmTools.coalesce(self._payload[self._idx['ext_ref']], u'', _(' External reference: %s\n')),
-			gmTools.coalesce(self._payload[self._idx['unit']], u'', _(' Organization: %%s @ %s\n') % self._payload[self._idx['organization']]),
+			org,
 			gmTools.coalesce(self._payload[self._idx['comment']], u'', u' %s')
 		)
 
@@ -834,6 +858,8 @@ class cDocument(gmBusinessDBObject.cBusinessDBObject):
 
 	#--------------------------------------------------------
 	def _get_org_unit(self):
+		if self._payload[self._idx['pk_org_unit']] is None:
+			return None
 		return gmOrganization.cOrgUnit(self._payload[self._idx['pk_org_unit']])
 
 	org_unit = property(_get_org_unit, lambda x:x)

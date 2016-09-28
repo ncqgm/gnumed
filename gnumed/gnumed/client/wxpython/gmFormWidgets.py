@@ -775,6 +775,7 @@ class cReceiverSelectionDlg(wxgReceiverSelectionDlg.wxgReceiverSelectionDlg):
 
 	#------------------------------------------------------------
 	def __populate_candidates_list(self):
+
 		list_items = [[_('Patient'), self.__patient[u'description_gender'].strip()]]
 		list_data = [(self.__patient[u'description'].strip(), self.__patient.get_addresses(), u'', None)]
 

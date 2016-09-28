@@ -336,6 +336,18 @@ LIMIT 25"""],
 
 		self.SetToolTipString(_('Select a document.'))
 
+	#--------------------------------------------------------
+	def _data2instance(self):
+		if len(self._data) == 0:
+			return None
+		return gmDocuments.cDocument(aPK_obj = self.GetData())
+
+	#--------------------------------------------------------
+	def _get_data_tooltip(self):
+		if len(self._data) == 0:
+			return u''
+		return gmDocuments.cDocument(aPK_obj = self.GetData()).format(single_line = False)
+
 #============================================================
 class cDocumentCommentPhraseWheel(gmPhraseWheel.cPhraseWheel):
 	"""Let user select a document comment from all existing comments."""
@@ -393,18 +405,6 @@ LIMIT 25"""],
 		self.picklist_delay = 50
 
 		self.SetToolTipString(_('Enter a comment on the document.'))
-
-	#--------------------------------------------------------
-	def _data2instance(self):
-		if len(self._data) == 0:
-			return None
-		return gmDocuments.cDocument(aPK_obj = self.GetData())
-
-	#--------------------------------------------------------
-	def _get_data_tooltip(self):
-		if len(self._data) == 0:
-			return u''
-		return gmDocuments.cDocument(aPK_obj = self.GetData()).format(single_line = False)
 
 #============================================================
 # document type widgets
@@ -694,6 +694,12 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 
 		if self.__doc['pk_org_unit'] is not None:
 			self._PRW_org.SetText(value = u'%s @ %s' % (self.__doc['unit'], self.__doc['organization']), data = self.__doc['pk_org_unit'])
+
+		if self.__doc['unit_is_receiver']:
+			self._RBTN_org_is_receiver.Value = True
+		else:
+			self._RBTN_org_is_source.Value = True
+
 		if self.__reviewing_doc:
 			self._PRW_org.Enable()
 		else:
@@ -824,8 +830,12 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 			self.__doc['clin_when'] = self._PhWheel_doc_date.GetData().get_pydt()
 		self.__doc['ext_ref'] = self._TCTRL_reference.GetValue().strip()
 		self.__doc['pk_org_unit'] = self._PRW_org.GetData()
+		if self._RBTN_org_is_receiver.Value is True:
+			self.__doc['unit_is_receiver'] = True
+		else:
+			self.__doc['unit_is_receiver'] = False
 
-		success, data = self.__doc.save_payload()
+		success, data = self.__doc.save()
 		if not success:
 			gmGuiHelpers.gm_show_error (
 				_('Cannot link the document to episode\n\n [%s]') % epi_name,
@@ -1020,6 +1030,8 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 		fts = gmDateTime.cFuzzyTimestamp()
 		self._PhWheel_doc_date.SetText(fts.strftime('%Y-%m-%d'), fts)
 		self._PRW_doc_comment.SetText('')
+		self._PhWheel_source.SetText(u'', None)
+		self._RBTN_org_is_source.SetValue(1)
 		# FIXME: should be set to patient's primary doc
 		self._PhWheel_reviewer.selection_only = True
 		me = gmStaff.gmCurrentProvider()
@@ -1310,6 +1322,10 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 		if new_doc is None:
 			return False
 
+		if self._RBTN_org_is_receiver.Value is True:
+			new_doc['unit_is_receiver'] = True
+			new_doc.save()
+
 		# - long description
 		description = self._TBOX_description.GetValue().strip()
 		if description != u'':
@@ -1453,10 +1469,12 @@ def manage_documents(parent=None, msg=None, single_selection=True):
 
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
+
 	#--------------------------------------------------------
 	def edit(document=None):
 		return
 		#return edit_substance(parent = parent, substance = substance, single_entry = (substance is not None))
+
 	#--------------------------------------------------------
 	def delete(document):
 		return
@@ -1465,6 +1483,7 @@ def manage_documents(parent=None, msg=None, single_selection=True):
 #			return False
 #
 #		return gmMedication.delete_substance(substance = substance['pk'])
+
 	#------------------------------------------------------------
 	def refresh(lctrl):
 		docs = pat.document_folder.get_documents()
@@ -1477,13 +1496,11 @@ def manage_documents(parent=None, msg=None, single_selection=True):
 		] for d in docs ]
 		lctrl.set_string_items(items)
 		lctrl.set_data(docs)
+
 	#------------------------------------------------------------
-	if msg is None:
-		msg = _('Document list for this patient.')
 	return gmListWidgets.get_choices_from_list (
 		parent = parent,
-		msg = msg,
-		caption = _('Showing documents.'),
+		caption = _('Patient document list'),
 		columns = [_('Generated'), _('Type'), _('Comment'), _('Ref #'), u'#'],
 		single_selection = single_selection,
 		#new_callback = edit,
@@ -1852,7 +1869,16 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 					intermediate_label = _('unknown organization')
 					tt = u''
 				else:
-					intermediate_label = doc['organization']
+					if doc['unit_is_receiver']:
+						direction = _(u'to: %s')
+					else:
+						direction = _(u'from: %s')
+					# this praxis ?
+					if doc['pk_org'] == gmPraxis.gmCurrentPraxisBranch()['pk_org']:
+						org_str = _(u'this praxis')
+					else:
+						 org_str = doc['organization']
+					intermediate_label = direction % org_str
 					# not quite right: always shows data of the _first_ document of _any_ org unit of this org
 					tt = u'\n'.join(doc.org_unit.format(with_address = True, with_org = True, with_comms = True))
 				doc_label = _('%s%7s %s:%s (%s)') % (
@@ -2112,12 +2138,16 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 			return True
 
 		# string nodes are labels such as episodes which may or may not have children
-		if type(node_data) == type('string'):
+		if isinstance(node_data, basestring):
+		#if type(node_data) == type('string'):
 			self.Toggle(node)
 			return True
 
-		self.__display_part(part = node_data)
-		return True
+		if isinstance(node_data, gmDocuments.cDocumentPart):
+			self.__display_part(part = node_data)
+			return True
+
+		raise ValueError(_('invalid document tree node data type: %s') % type(node_data))
 
 	#--------------------------------------------------------
 	def __on_right_click(self, evt):
