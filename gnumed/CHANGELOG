@@ -14,6 +14,7 @@ NEW: support inactivity of external care entries
 
 IMPROVED: EMR journal retrieval speed
 IMPROVED: patient overview now acts on changes to ref.auto_hint
+IMPROVED: document tree details view
 
 ------------------------------------------------
 # rel-1-6-patches

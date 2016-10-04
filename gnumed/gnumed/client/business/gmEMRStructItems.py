@@ -3268,6 +3268,7 @@ class cPerformedProcedure(gmBusinessDBObject.cBusinessDBObject):
 		return gmDocuments.cDocument(aPK_obj = self._payload[self._idx['pk_doc']])
 
 	doc = property(_get_doc, lambda x:x)
+
 	#--------------------------------------------------------
 	def _get_generic_codes(self):
 		if len(self._payload[self._idx['pk_generic_codes']]) == 0:
@@ -3309,28 +3310,31 @@ class cPerformedProcedure(gmBusinessDBObject.cBusinessDBObject):
 #-----------------------------------------------------------
 def get_performed_procedures(patient=None):
 
-	queries = [
-		{
+	queries = [{
 		'cmd': u'SELECT * FROM clin.v_procedures WHERE pk_patient = %(pat)s ORDER BY clin_when',
 		'args': {'pat': patient}
-		}
-	]
-
+	}]
 	rows, idx = gmPG2.run_ro_queries(queries = queries, get_col_idx = True)
-
 	return [ cPerformedProcedure(row = {'idx': idx, 'data': r, 'pk_field': 'pk_procedure'})  for r in rows ]
+
+#-----------------------------------------------------------
+def get_procedures4document(pk_document=None):
+	args = {'pk_doc': pk_document}
+	cmd = _SQL_get_procedures % u'pk_doc = %(pk_doc)s'
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+	return [ cPerformedProcedure(row = {'idx': idx, 'data': r, 'pk_field': 'pk_procedure'})  for r in rows ]
+
 #-----------------------------------------------------------
 def get_latest_performed_procedure(patient=None):
-	queries = [
-		{
+	queries = [{
 		'cmd': u'select * FROM clin.v_procedures WHERE pk_patient = %(pat)s ORDER BY clin_when DESC LIMIT 1',
 		'args': {'pat': patient}
-		}
-	]
+	}]
 	rows, idx = gmPG2.run_ro_queries(queries = queries, get_col_idx = True)
 	if len(rows) == 0:
 		return None
 	return cPerformedProcedure(row = {'idx': idx, 'data': rows[0], 'pk_field': 'pk_procedure'})
+
 #-----------------------------------------------------------
 def create_performed_procedure(encounter=None, episode=None, location=None, hospital_stay=None, procedure=None):
 

@@ -366,7 +366,7 @@ class cBill(gmBusinessDBObject.cBusinessDBObject):
 		u'pk_doc'
 	]
 	#--------------------------------------------------------
-	def format(self):
+	def format(self, include_receiver=True, include_doc=True):
 		txt = u'%s                       [#%s]\n' % (
 			gmTools.bool2subst (
 				(self._payload[self._idx['close_date']] is None),
@@ -412,21 +412,23 @@ class cBill(gmBusinessDBObject.cBusinessDBObject):
 			txt += _(' Items billed: 0\n')
 		else:
 			txt += _(' Items billed: %s\n') % len(self._payload[self._idx['pk_bill_items']])
-		txt += _(' Invoice: %s\n') % (
-			gmTools.bool2subst (
-				self._payload[self._idx['pk_doc']] is None,
-				_('not available'),
-				u'#%s' % self._payload[self._idx['pk_doc']]
+		if include_doc:
+			txt += _(' Invoice: %s\n') % (
+				gmTools.bool2subst (
+					self._payload[self._idx['pk_doc']] is None,
+					_('not available'),
+					u'#%s' % self._payload[self._idx['pk_doc']]
+				)
 			)
-		)
 		txt += _(' Patient: #%s\n') % self._payload[self._idx['pk_patient']]
-		txt += gmTools.coalesce (
-			self._payload[self._idx['pk_receiver_identity']],
-			u'',
-			_(' Receiver: #%s\n')
-		)
-		if self._payload[self._idx['pk_receiver_address']] is not None:
-			txt += u'\n '.join(gmDemographicRecord.get_patient_address(pk_patient_address = self._payload[self._idx['pk_receiver_address']]).format())
+		if include_receiver:
+			txt += gmTools.coalesce (
+				self._payload[self._idx['pk_receiver_identity']],
+				u'',
+				_(' Receiver: #%s\n')
+			)
+			if self._payload[self._idx['pk_receiver_address']] is not None:
+				txt += u'\n '.join(gmDemographicRecord.get_patient_address(pk_patient_address = self._payload[self._idx['pk_receiver_address']]).format())
 
 		return txt
 	#--------------------------------------------------------
@@ -503,6 +505,13 @@ def get_bills(order_by=None, pk_patient=None):
 		order_by = u' ORDER BY %s' % order_by
 
 	cmd = (_SQL_get_bill_fields % u' AND '.join(where_parts)) + order_by
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+	return [ cBill(row = {'data': r, 'idx': idx, 'pk_field': 'pk_bill'}) for r in rows ]
+
+#------------------------------------------------------------
+def get_bills4document(pk_document=None):
+	args = {'pk_doc': pk_document}
+	cmd = _SQL_get_bill_fields % u'pk_doc = %(pk_doc)s'
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 	return [ cBill(row = {'data': r, 'idx': idx, 'pk_field': 'pk_bill'}) for r in rows ]
 

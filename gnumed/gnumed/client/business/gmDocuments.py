@@ -158,6 +158,7 @@ class cDocumentFolder:
 			episodes = episodes,
 			encounter = encounter
 		)
+
 	#--------------------------------------------------------
 	def get_unsigned_documents(self):
 		args = {'pat': self.pk_patient}
@@ -173,6 +174,7 @@ class cDocumentFolder:
 			ORDER BY clin_when DESC"""
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 		return [ cDocument(row = {'pk_field': 'pk_doc', 'idx': idx, 'data': r}) for r in rows ]
+
 	#--------------------------------------------------------
 	def get_documents(self, doc_type=None, episodes=None, encounter=None, order_by=None, exclude_unsigned=False):
 		"""Return list of documents."""
@@ -863,6 +865,20 @@ class cDocument(gmBusinessDBObject.cBusinessDBObject):
 		return gmOrganization.cOrgUnit(self._payload[self._idx['pk_org_unit']])
 
 	org_unit = property(_get_org_unit, lambda x:x)
+
+	#--------------------------------------------------------
+	def _get_procedures(self):
+		from gmEMRStructItems import get_procedures4document
+		return get_procedures4document(pk_document = self.pk_obj)
+
+	procedures = property(_get_procedures, lambda x:x)
+
+	#--------------------------------------------------------
+	def _get_bills(self):
+		from gmBilling import get_bills4document
+		return get_bills4document(pk_document = self.pk_obj)
+
+	bills = property(_get_bills, lambda x:x)
 
 #------------------------------------------------------------
 def create_document(document_type=None, encounter=None, episode=None, link_obj=None):

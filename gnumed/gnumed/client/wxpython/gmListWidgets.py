@@ -1298,6 +1298,10 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 		widths != None:
 			use this policy and remember it for later calls
 
+		options:
+			wx.LIST_AUTOSIZE_USEHEADER
+			wx.LIST_AUTOSIZE
+
 		This means there is no way to *revert* to the default policy :-(
 		"""
 		# explicit policy ?

@@ -1515,6 +1515,14 @@ from Gnumed.wxGladeWidgets import wxgSelectablySortedDocTreePnl
 
 class cSelectablySortedDocTreePnl(wxgSelectablySortedDocTreePnl.wxgSelectablySortedDocTreePnl):
 	"""A panel with a document tree which can be sorted."""
+
+	def __init__(self, parent, id, *args, **kwds):
+		wxgSelectablySortedDocTreePnl.wxgSelectablySortedDocTreePnl.__init__(self, parent, id, *args, **kwds)
+
+		self._LCTRL_details.set_columns([u'', u''])
+
+		self._doc_tree.show_details_callback = self._update_details
+
 	#--------------------------------------------------------
 	# inherited event handlers
 	#--------------------------------------------------------
@@ -1522,11 +1530,13 @@ class cSelectablySortedDocTreePnl(wxgSelectablySortedDocTreePnl.wxgSelectablySor
 		self._doc_tree.sort_mode = 'age'
 		self._doc_tree.SetFocus()
 		self._rbtn_sort_by_age.SetValue(True)
+
 	#--------------------------------------------------------
 	def _on_sort_by_review_selected(self, evt):
 		self._doc_tree.sort_mode = 'review'
 		self._doc_tree.SetFocus()
 		self._rbtn_sort_by_review.SetValue(True)
+
 	#--------------------------------------------------------
 	def _on_sort_by_episode_selected(self, evt):
 		self._doc_tree.sort_mode = 'episode'
@@ -1548,6 +1558,77 @@ class cSelectablySortedDocTreePnl(wxgSelectablySortedDocTreePnl.wxgSelectablySor
 		self._doc_tree.SetFocus()
 		self._rbtn_sort_by_org.SetValue(True)
 
+	#--------------------------------------------------------
+	def _update_details(self, document=None, part=None):
+
+		if document is None:
+			if part is not None:
+				document = part.document
+
+		items = []
+		if document is not None:
+			items.append([_(u'Document'), u'%s [#%s]' % (document['l10n_type'], document['pk_doc'])])
+			items.append([_(u'Generated'), gmDateTime.pydt_strftime(document['clin_when'], '%Y %b %d')])
+			items.append([_(u'Health issue'), gmTools.coalesce(document['health_issue'], u'', u'%%s [#%s]' % document['pk_health_issue'])])
+			items.append([_(u'Episode'), u'%s (%s) [#%s]' % (
+				document['episode'],
+				gmTools.bool2subst(document['episode_open'], _(u'open'), _(u'closed')),
+				document['pk_episode']
+			)])
+			if document['pk_org_unit'] is not None:
+				if document['unit_is_receiver']:
+					header = _(u'Receiver')
+				else:
+					header = _(u'Sender')
+				items.append([header, u'%s @ %s' % (document['unit'], document['organization'])])
+			if document['ext_ref'] is not None:
+				items.append([_(u'Reference'), document['ext_ref']])
+			if document['comment'] is not None:
+				items.append([_(u'Comment'), u' / '.join(document['comment'].split(u'\n'))])
+			for proc in document.procedures:
+				items.append([_(u'Procedure'), proc.format (
+					left_margin = 0,
+					include_episode = False,
+					include_codes = False,
+					include_address = False,
+					include_comm = False,
+					include_doc = False
+				)])
+			for bill in document.bills:
+				items.append([_(u'Bill'), bill.format (
+					include_receiver = False,
+					include_doc = False
+				)])
+			items.append([_(u'Modified'), gmDateTime.pydt_strftime(document['modified_when'], '%Y %b %d')])
+			items.append([_(u'... by'), document['modified_by']])
+			items.append([_(u'# encounter'), document['pk_encounter']])
+
+		if part is not None:
+			items.append([u'', u''])
+			if part['seq_idx'] is None:
+				items.append([_(u'Part'), u'#%s' % part['pk_obj']])
+			else:
+				items.append([_(u'Part'), u'%s [#%s]' % (part['seq_idx'], part['pk_obj'])])
+			if part['obj_comment'] is not None:
+				items.append([_(u'Comment'), part['obj_comment']])
+			if part['filename'] is not None:
+				items.append([_(u'Filename'), part['filename']])
+			items.append([_(u'Data size'), gmTools.size2str(part['size'])])
+			review_parts = []
+			if part['reviewed_by_you']:
+				review_parts.append(_(u'by you'))
+			if part['reviewed_by_intended_reviewer']:
+				review_parts.append(_(u'by intended reviewer'))
+			review = u', '.join(review_parts)
+			if review == u'':
+				review = gmTools.u_diameter
+			items.append([_(u'Reviewed'), review])
+			#items.append([_(u'Reviewed'), gmTools.bool2subst(part['reviewed'], review, u'', u'?')])
+
+		self._LCTRL_details.set_string_items(items)
+		self._LCTRL_details.set_column_widths()
+		self._LCTRL_details.set_resize_column(1)
+
 #============================================================
 class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.ExpansionState):
 	"""This wx.TreeCtrl derivative displays a tree view of stored medical documents.
@@ -1558,6 +1639,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 	"""
 	_sort_modes = ['age', 'review', 'episode', 'type', 'issue', 'org']
 	_root_node_labels = None
+
 	#--------------------------------------------------------
 	def __init__(self, parent, id, *args, **kwds):
 		"""Set up our specialised tree.
@@ -1582,10 +1664,12 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 		self.__sort_mode = 'age'
 
 		self.__expanded_nodes = None
+		self.__show_details_callback = None
 
 		self.__build_context_menus()
 		self.__register_interests()
 		self._schedule_data_reget()
+
 	#--------------------------------------------------------
 	# external API
 	#--------------------------------------------------------
@@ -1599,6 +1683,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 
 		self.__display_part(part = node_data)
 		return True
+
 	#--------------------------------------------------------
 	# properties
 	#--------------------------------------------------------
@@ -1625,6 +1710,16 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 		self._schedule_data_reget()
 
 	sort_mode = property(_get_sort_mode, _set_sort_mode)
+
+	#--------------------------------------------------------
+	def _set_show_details_callback(self, callback):
+		if callback is not None:
+			if not callable(callback):
+				raise ValueError('<%s> is not callable')
+		self.__show_details_callback = callback
+
+	show_details_callback = property(lambda x:x, _set_show_details_callback)
+
 	#--------------------------------------------------------
 	# reget-on-paint API
 	#--------------------------------------------------------
@@ -1638,11 +1733,13 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 			return False
 
 		return True
+
 	#--------------------------------------------------------
 	# internal helpers
 	#--------------------------------------------------------
 	def __register_interests(self):
 		# connect handlers
+		wx.EVT_TREE_SEL_CHANGED (self, self.GetId(), self._on_tree_item_selected)
 		wx.EVT_TREE_ITEM_ACTIVATED (self, self.GetId(), self._on_activate)
 		wx.EVT_TREE_ITEM_RIGHT_CLICK (self, self.GetId(), self.__on_right_click)
 		wx.EVT_TREE_ITEM_GETTOOLTIP(self, -1, self._on_tree_item_gettooltip)
@@ -1831,12 +1928,11 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 
 			elif self.__sort_mode == 'type':
 				intermediate_label = doc['l10n_type']
-				doc_label = _('%s%7s (%s):%s (%s)') % (
+				doc_label = _('%s%7s (%s):%s') % (
 					gmTools.bool2subst(doc.has_unreviewed_parts, gmTools.u_writing_hand, u'', u'?'),
 					doc['clin_when'].strftime('%m/%Y'),
 					no_parts,
-					gmTools.coalesce(initial = doc['comment'], instead = u'', template_initial = u' %s'),
-					u'%s%s' % (gmTools.coalesce(doc['health_issue'], u'', u'%s: '), doc['episode'])
+					gmTools.coalesce(initial = doc['comment'], instead = u'', template_initial = u' %s')
 				)
 				if intermediate_label not in intermediate_nodes:
 					intermediate_nodes[intermediate_label] = self.AppendItem(parent = self.root, text = intermediate_label)
@@ -1960,6 +2056,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 		wx.EndBusyCursor()
 
 		return True
+
 	#------------------------------------------------------------------------
 	def OnCompareItems (self, node1=None, node2=None):
 		"""Used in sorting items.
@@ -2123,6 +2220,34 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 		# FIXME: self.__load_expansion_history_from_db (but not apply it !)
 		self.__expanded_nodes = None
 		self._schedule_data_reget()
+
+	#--------------------------------------------------------
+	def _on_tree_item_selected(self, event):
+		node = event.GetItem()
+		node_data = self.GetPyData(node)
+
+		# pseudo root node
+		if node_data is None:
+			self.__show_details_callback(document = None, part = None)
+			return
+
+		# document node
+		if isinstance(node_data, gmDocuments.cDocument):
+			self.__show_details_callback(document = node_data, part = None)
+			return
+
+		# string nodes are labels such as episodes which may or may not have children
+		if isinstance(node_data, basestring):
+			self.__show_details_callback(document = None, part = None)
+			return
+
+		if isinstance(node_data, gmDocuments.cDocumentPart):
+			doc = self.GetPyData(self.GetItemParent(node))
+			self.__show_details_callback(document = doc, part = node_data)
+			return
+
+		raise ValueError(_('invalid document tree node data type: %s') % type(node_data))
+
 	#------------------------------------------------------------------------
 	def _on_activate(self, event):
 		node = event.GetItem()
@@ -2139,7 +2264,6 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 
 		# string nodes are labels such as episodes which may or may not have children
 		if isinstance(node_data, basestring):
-		#if type(node_data) == type('string'):
 			self.Toggle(node)
 			return True
 
@@ -2169,6 +2293,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 
 		del self.__curr_node_data
 		evt.Skip()
+
 	#--------------------------------------------------------
 	def __activate_as_current_photo(self, evt):
 		self.__curr_node_data.set_as_active_photograph()
