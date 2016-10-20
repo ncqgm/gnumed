@@ -446,6 +446,30 @@ class cOrthancServer:
 		return target_dir
 
 	#--------------------------------------------------------
+	def get_instance_preview(self, instance_id, filename=None):
+		if filename is None:
+			filename = gmTools.get_unique_filename(suffix = '.png')
+
+		_log.debug('exporting preview for instance [%s] into [%s]', instance_id, filename)
+		download_url = '%s/instances/%s/preview' % (self.__server_url, instance_id)
+		f = io.open(filename, 'wb')
+		f.write(self.__run_GET(url = download_url))
+		f.close()
+		return filename
+
+	#--------------------------------------------------------
+	def get_instance(self, instance_id, filename=None):
+		if filename is None:
+			filename = gmTools.get_unique_filename(suffix = '.dcm')
+
+		_log.debug('exporting instance [%s] into [%s]', instance_id, filename)
+		download_url = '%s/instances/%s/attachments/dicom/data' % (self.__server_url, instance_id)
+		f = io.open(filename, 'wb')
+		f.write(self.__run_GET(url = download_url))
+		f.close()
+		return filename
+
+	#--------------------------------------------------------
 	# server-side API
 	#--------------------------------------------------------
 	def protect_patient(self, orthanc_id):
@@ -733,7 +757,7 @@ class cOrthancServer:
 						return []
 					series_dict = {
 						'orthanc_id': orth_series['ID'],
-						'instances': len(orth_series['Instances']),
+						'instances': orth_series['Instances'],
 						'modality': None,
 						'date': None,
 						'time': None,
@@ -978,7 +1002,7 @@ if __name__ == "__main__":
 							gmTools.format_dict_like (
 								series,
 								relevant_keys = ['orthanc_id', 'date', 'time', 'modality', 'instances', 'body_part', 'protocol', 'description', 'station'],
-								template = u'series [%(orthanc_id)s] at %(date)s %(time)s: "%(description)s" %(modality)s@%(station)s (%(protocol)s) of body part "%(body_part)s" holds %(instances)s images'
+								template = u'series [%(orthanc_id)s] at %(date)s %(time)s: "%(description)s" %(modality)s@%(station)s (%(protocol)s) of body part "%(body_part)s" holds images:\n%(instances)s'
 							)
 						)
 				#print(orthanc.get_study_as_zip_with_dicomdir(study_id = study['orthanc_id'], filename = 'study_%s.zip' % study['orthanc_id']))
@@ -1058,6 +1082,27 @@ if __name__ == "__main__":
 		orthanc.upload_from_directory(directory = sys.argv[2], recursive = True, check_mime_type = False, ignore_other_files = True)
 
 	#--------------------------------------------------------
+	def test_get_instance_preview():
+		host = None
+		port = '8042'
+
+		orthanc = cOrthancServer()
+		if not orthanc.connect(host, port, user = None, password = None):		#, expected_aet = 'another AET'
+			print('error connecting to server:', orthanc.connect_error)
+			return False
+		print('Connected to Orthanc server "%s" (AET [%s] - version [%s] - DB [%s])' % (
+			orthanc.server_identification['Name'],
+			orthanc.server_identification['DicomAet'],
+			orthanc.server_identification['Version'],
+			orthanc.server_identification['DatabaseVersion']
+		))
+		print('')
+
+		print(orthanc.get_instance_preview('f4f07d22-0d8265ef-112ea4e9-dc140e13-350c06d1'))
+		print(orthanc.get_instance('f4f07d22-0d8265ef-112ea4e9-dc140e13-350c06d1'))
+
+	#--------------------------------------------------------
 	#run_console()
 	#test_modify_patient_id()
-	test_upload_files()
+	#test_upload_files()
+	test_get_instance_preview()

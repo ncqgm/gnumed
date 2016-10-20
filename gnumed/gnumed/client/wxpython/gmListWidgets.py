@@ -1237,6 +1237,7 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 
 		# event callbacks
 		self.__select_callback = None
+		self.__deselect_callback = None
 		self.__activate_callback = None
 		self.__new_callback = None
 		self.__edit_callback = None
@@ -1418,6 +1419,9 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 
 	#--------------------------
 	def get_string_items(self):
+		if self.ItemCount == 0:
+			return []
+
 		rows = []
 		for row_idx in range(self.ItemCount):
 			row = []
@@ -1500,6 +1504,8 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 			self.Select(idx = idx, on = 1)
 
 	def __get_selections(self):
+		if self.ItemCount == 0:
+			return []
 		if self.__is_single_selection:
 			return [self.GetFirstSelected()]
 		selections = []
@@ -1525,17 +1531,29 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 
 	#------------------------------------------------------------
 	def get_item(self, item_idx=None):
+		if self.ItemCount == 0:
+			_log.warning('no items')
+			return None
 		if item_idx is not None:
 			return self.GetItem(item_idx)
+		_log.error('get_item(None) called')
+		return None
 
 	#------------------------------------------------------------
 	def get_items(self):
-		return [ self.GetItem(item_idx) for item_idx in range(self.GetItemCount()) ]
+		if self.ItemCount == 0:
+			return []
+		return [ self.GetItem(item_idx) for item_idx in range(self.ItemCount) ]
 
 	items = property(get_items, lambda x:x)
 
 	#------------------------------------------------------------
 	def get_selected_items(self, only_one=False):
+
+		if self.ItemCount == 0:
+			if self.__is_single_selection or only_one:
+				return None
+			return []
 
 		if self.__is_single_selection or only_one:
 			return self.GetFirstSelected()
@@ -1553,6 +1571,11 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 	#------------------------------------------------------------
 	def get_selected_string_items(self, only_one=False):
 
+		if self.ItemCount == 0:
+			if self.__is_single_selection or only_one:
+				return None
+			return []
+
 		if self.__is_single_selection or only_one:
 			return self.GetItemText(self.GetFirstSelected())
 
@@ -1568,6 +1591,7 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 
 	#------------------------------------------------------------
 	def get_item_data(self, item_idx=None):
+
 		if self.__data is None:	# this isn't entirely clean
 			return None
 
@@ -1934,6 +1958,13 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 	def _on_list_item_selected(self, event):
 		if self.__select_callback is not None:
 			self.__select_callback(event)
+		else:
+			event.Skip()
+
+	#------------------------------------------------------------
+	def _on_list_item_deselected(self, event):
+		if self.__deselect_callback is not None:
+			self.__deselect_callback(event)
 		else:
 			event.Skip()
 
@@ -2765,6 +2796,22 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 		self.__select_callback = callback
 
 	select_callback = property(_get_select_callback, _set_select_callback)
+
+	#------------------------------------------------------------
+	def _get_deselect_callback(self):
+		return self.__deselect_callback
+
+	def _set_deselect_callback(self, callback):
+		if callback is None:
+			self.Unbind(wx.EVT_LIST_ITEM_DESELECTED)
+			self.__deselect_callback = None
+			return
+		if not callable(callback):
+			raise ValueError('<deselected> callback is not a callable: %s' % callback)
+		self.Bind(wx.EVT_LIST_ITEM_DESELECTED, self._on_list_item_deselected)
+		self.__deselect_callback = callback
+
+	deselect_callback = property(_get_deselect_callback, _set_deselect_callback)
 
 	#------------------------------------------------------------
 	def _get_delete_callback(self):

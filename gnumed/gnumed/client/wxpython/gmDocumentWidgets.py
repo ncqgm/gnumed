@@ -2876,10 +2876,14 @@ from Gnumed.wxGladeWidgets.wxgPACSPluginPnl import wxgPACSPluginPnl
 class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 
 	def __init__(self, *args, **kwargs):
+		# would need to be here but can not because _BMP_preview
+		# does not yet exist
+		#self._BMP_preview.SetBitmap(wx.EmptyBitmap(1,1))
 		wxgPACSPluginPnl.__init__(self, *args, **kwargs)
 		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
 		self.__pacs = None
 		self.__patient = gmPerson.gmCurrentPatient()
+		self.__image_data = None
 
 		self.__init_ui()
 		self.__register_interests()
@@ -2889,22 +2893,90 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 	#--------------------------------------------------------
 	def __init_ui(self):
 		self._LCTRL_studies.set_columns(columns = [_('Date'), _('Description'), _('Organization'), _('Referrer')])
+		self._LCTRL_studies.select_callback = self._on_studies_list_item_selected
+		self._LCTRL_studies.deselect_callback = self._on_studies_list_item_deselected
 
 		self._LCTRL_series.set_columns(columns = [_(u'Time'), _(u'Method'), _(u'Body part'), _(u'Description')])
 		self._LCTRL_series.select_callback = self._on_series_list_item_selected
+		self._LCTRL_series.deselect_callback = self._on_series_list_item_deselected
+
+		self._BMP_preview.SetBitmap(wx.EmptyBitmap(1,1))
+
+	#--------------------------------------------------------
+	def __set_button_states(self):
+
+		# disable all buttons
+		# server
+		self._BTN_browse_pacs.Disable()
+		self._BTN_upload.Disable()
+		self._BTN_modify_orthanc_content.Disable()
+		# patient (= all studies of patient)
+		self._BTN_browse_patient.Disable()
+		self._BTN_save_patient_as_dicom_dir.Disable()
+		self._BTN_save_patient_as_zip.Disable()
+		# study
+		self._BTN_browse_study.Disable()
+		self._BTN_save_studies_as_dicom_dir.Disable()
+		self._BTN_save_studies_as_zip.Disable()
+		# series
+		# image
+		self._BTN_image_show.Disable()
+		self._BTN_image_show_dicom.Disable()
+		self._BTN_image_export.Disable()
+		self._BTN_save_image_as_dicom.Disable()
+		self._BTN_save_image_preview.Disable()
+		self._BTN_previous_image.Disable()
+		self._BTN_next_image.Disable()
+
+		if self.__pacs is None:
+			return
+
+		# server buttons
+		self._BTN_browse_pacs.Enable()
+		self._BTN_upload.Enable()
+		self._BTN_modify_orthanc_content.Enable()
+
+		if not self.__patient.connected:
+			return
+
+		# patient buttons (= all studies of patient)
+		self._BTN_browse_patient.Enable()
+		self._BTN_save_patient_as_dicom_dir.Enable()
+		self._BTN_save_patient_as_zip.Enable()
+
+		if len(self._LCTRL_studies.selected_items) == 0:
+			return
+
+		# study buttons
+		self._BTN_browse_study.Enable()
+		self._BTN_save_studies_as_dicom_dir.Enable()
+		self._BTN_save_studies_as_zip.Enable()
+
+		if len(self._LCTRL_series.selected_items) == 0:
+			return
+
+		series = self._LCTRL_series.get_selected_item_data(only_one = True)
+		if len(series['instances']) == 0:
+			return
+
+		# image buttons
+		self._BTN_image_show.Enable()
+		self._BTN_image_show_dicom.Enable()
+		self._BTN_image_export.Enable()
+		self._BTN_save_image_as_dicom.Enable()
+		self._BTN_save_image_preview.Enable()
+		if len(series['instances']) > 1:
+			self._BTN_previous_image.Enable()
+			self._BTN_next_image.Enable()
 
 	#--------------------------------------------------------
 	def __reset_patient_data(self):
 		self._LBL_patient_identification.SetLabel(u'')
-		self._LBL_no_of_studies.SetLabel(u'')
-		self._BTN_browse_patient.Disable()
-		self._BTN_browse_study.Disable()
-		self._BTN_export_study.Disable()
-		self._BTN_export_all_studies.Disable()
-		self._BTN_save_selected_studies.Disable()
 		self._LCTRL_studies.set_string_items(items = [])
 		self._LCTRL_series.set_string_items(items = [])
 		self._TCTRL_details.Value = u''
+		self.__refresh_image()
+
 		#self.Layout()
 
 	#--------------------------------------------------------
@@ -2915,11 +2987,13 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 	def __reset_ui_content(self):
 		self.__reset_server_identification()
 		self.__reset_patient_data()
+		self.__set_button_states()
 
 	#-----------------------------------------------------
 	def __connect(self):
-		self.__pacs = None
 
+		self.__pacs = None
+		self.__set_button_states()
 		self.__reset_server_identification()
 
 		host = self._TCTRL_host.Value.strip()
@@ -2952,6 +3026,7 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 		))
 
 		self.__pacs = pacs
+		self.__set_button_states()
 		return True
 
 	#--------------------------------------------------------
@@ -2959,37 +3034,50 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 
 		if not self.__patient.connected:
 			self.__reset_patient_data()
+			self.__set_button_states()
 			return True
 
 		if not self.__connect():
 			return False
 
-		info_lines = []
+		tt_lines = [_(u'Known PACS IDs:')]
 		for pacs_id in self.__patient.suggest_external_ids(target = u'PACS'):
-			info_lines.append(_(u'GNUmed patient: %s (generic PACS ID)') % pacs_id)
+			tt_lines.append(u' ' + _(u'generic: %s') % pacs_id)
 		for pacs_id in self.__patient.get_external_ids(id_type = u'PACS', issuer = self.__pacs.as_external_id_issuer):
-			info_lines.append(_(u'GNUmed patient: "%(value)s" @ [%(issuer)s] (stored PACS ID)') % pacs_id)
+			tt_lines.append(u' ' + _(u'stored: "%(value)s" @ [%(issuer)s]') % pacs_id)
+		tt_lines.append(u'')
+		tt_lines.append(_('Patients found in PACS:'))
 
+		info_lines = []
 		# try to find patient
 		matching_pats = self.__pacs.get_matching_patients(person = self.__patient)
 		if len(matching_pats) == 0:
 			info_lines.append(_('PACS: no patients with matching IDs found'))
 		no_of_studies = 0
 		for pat in matching_pats:
-			info_lines.append (u'%s [#%s]' % (
+			info_lines.append(u'"%s" %s "%s (%s) %s"' % (
+				pat['MainDicomTags']['PatientID'],
+				gmTools.u_arrow2right,
+				gmTools.coalesce(pat['MainDicomTags']['PatientName'], u'?'),
+				gmTools.coalesce(pat['MainDicomTags']['PatientSex'], u'?'),
+				gmTools.coalesce(pat['MainDicomTags']['PatientBirthDate'], u'?')
+			))
+			no_of_studies += len(pat['Studies'])
+			tt_lines.append(u'%s [#%s]' % (
 				gmTools.format_dict_like (
 					pat['MainDicomTags'],
 					relevant_keys = [u'PatientName', u'PatientSex', u'PatientBirthDate', u'PatientID'],
-					template = u'PACS patient: "%(PatientID)s" = %(PatientName)s (%(PatientSex)s) %(PatientBirthDate)s',
+					template = u' %(PatientID)s = %(PatientName)s (%(PatientSex)s) %(PatientBirthDate)s',
 					missing_key_template = u'?'
 				),
 				pat['ID']
 			))
-			no_of_studies += len(pat['Studies'])
 		if len(matching_pats) > 1:
 			info_lines.append(_('PACS: more than one patient with matching IDs found, carefully check studies'))
-
 		self._LBL_patient_identification.SetLabel(u'\n'.join(info_lines))
+		tt_lines.append(u'')
+		tt_lines.append(_(u'Studies found: %s') % no_of_studies)
+		self._LBL_patient_identification.SetToolTipString(u'\n'.join(tt_lines))
 
 		# get studies
 		study_list_items = []
@@ -3018,26 +3106,59 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 		self._LCTRL_studies.set_data(data = study_list_data)
 		self._LCTRL_studies.SortListItems(col = 0, ascending = 0)
 
-		if len(study_list_items) == 0:
-			self._LBL_no_of_studies.SetLabel(_('no studies'))
-			self._BTN_browse_patient.Disable()
-			self._BTN_browse_study.Disable()
-			self._BTN_export_study.Disable()
-			self._BTN_export_all_studies.Disable()
-			self._BTN_save_selected_studies.Disable()
-		else:
-			self._LBL_no_of_studies.SetLabel(_('%s studies') % len(study_list_items))
-			self._BTN_browse_patient.Enable()
-			self._BTN_browse_study.Enable()
-			self._BTN_export_study.Enable()
-			self._BTN_export_all_studies.Enable()
-			self._BTN_save_selected_studies.Enable()
-
 		self._LCTRL_series.set_string_items(items = [])
 		self._TCTRL_details.Value = u''
+		self.__refresh_image()
+
+		self.__set_button_states()
 
 		self.Layout()
 		return True
+
+	#--------------------------------------------------------
+	def __refresh_image(self, idx=None):
+		if idx is None:
+			self._BMP_preview.SetBitmap(wx.EmptyBitmap(1,1))
+			self.__image_data = None
+			return
+
+		if self.__pacs is None:
+			self._BMP_preview.SetBitmap(wx.EmptyBitmap(1,1))
+			self.__image_data = None
+			return
+
+		series = self._LCTRL_series.get_selected_item_data(only_one = True)
+		if series is None:
+			self._BMP_preview.SetBitmap(wx.EmptyBitmap(1,1))
+			self.__image_data = None
+			return
+
+		if idx > len(series['instances']) - 1:
+			raise ValueError('trying to go beyond instances in series: %s of %s', idx, len(series['instances']))
+
+		# get image
+		uuid = series['instances'][idx]
+		img_file = self.__pacs.get_instance_preview(instance_id = uuid)
+		# scale
+		wx_bmp = gmGuiHelpers.file2scaled_image(filename = img_file, height = 100)
+		# show
+		if wx_bmp is None:
+			_log.error('cannot load DICOM instance from PACS: %s', uuid)
+			self._BMP_preview.SetBitmap(wx.EmptyBitmap(1,1))
+			self.__image_data = None
+		else:
+			self._BMP_preview.SetBitmap(wx_bmp)
+			self.__image_data = {'idx': idx, 'uuid': uuid}
+			self.Layout()
+
+		if idx == 0:
+			self._BTN_previous_image.Disable()
+		else:
+			self._BTN_previous_image.Enable()
+		if idx == len(series['instances']) - 1:
+			self._BTN_next_image.Disable()
+		else:
+			self._BTN_next_image.Enable()
 
 	#--------------------------------------------------------
 	# reget-on-paint mixin API
@@ -3092,166 +3213,64 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 		return True
 
 	#--------------------------------------------------------
-	def _on_connect_button_pressed(self, event):
-		event.Skip()
-
-		if not self.__connect():
-			return False
-
-		if not self.__refresh_patient_data():
-			return False
-
-		return True
-
+	# events: lists
 	#--------------------------------------------------------
-	def _on_browse_pacs_button_pressed(self, event):
-		event.Skip()
-		if self.__connect() is False:
-			return
-		gmNetworkTools.open_url_in_browser(self.__pacs.url_browse_patients)
+	def _on_series_list_item_selected(self, event):
 
-	#--------------------------------------------------------
-	def _on_browse_patient_button_pressed(self, event):
-		event.Skip()
-		if self.__connect() is False:
-			return
-		gmNetworkTools.open_url_in_browser(self.__pacs.get_url_browse_patient(patient_id = self.__orthanc_patient['ID']))
-
-	#--------------------------------------------------------
-	def _on_browse_study_button_pressed(self, event):
 		event.Skip()
 		if self.__pacs is None:
 			return
+
 		study_data = self._LCTRL_studies.get_selected_item_data(only_one = True)
 		if study_data is None:
 			return
-		gmNetworkTools.open_url_in_browser(self.__pacs.get_url_browse_study(study_id = study_data['orthanc_id']))
+
+		series = self._LCTRL_series.get_selected_item_data(only_one = True)
+		if series is None:
+			self.__set_button_states()
+			return
+
+		self._TCTRL_details.Value = u'%s\n%s\n\n%s\n%s' % (
+			_(u'Study'),
+			gmTools.format_dict_like(study_data['all_tags'], tabular = True, value_delimiters = None, left_margin = 2),
+			_(u'Series'),
+			gmTools.format_dict_like(series['all_tags'], tabular = True, value_delimiters = None, left_margin = 2)
+		)
+
+		if len(series['instances']) == 0:
+			self.__set_button_states()
+			return
+
+		self.__set_button_states()
+
+		# get first image
+		img_file = self.__pacs.get_instance_preview(instance_id = series['instances'][0])
+		# scale
+		wx_bmp = gmGuiHelpers.file2scaled_image(filename = img_file, height = 100)
+		# show
+		if wx_bmp is None:
+			self._BMP_preview.SetBitmap(wx.EmptyBitmap(1,1))
+			self.__image_data = None
+		else:
+			self._BMP_preview.SetBitmap(wx_bmp)
+			self.__image_data = {'idx': 0, 'uuid': series['instances'][0]}
+			self._BTN_previous_image.Disable()
+			self.Layout()
 
 	#--------------------------------------------------------
-	def _on_export_study_button_pressed(self, event):
+	def _on_series_list_item_deselected(self, event):
 		event.Skip()
-		if self.__pacs is None:
+
+		self.__set_button_states()
+
+		self.__refresh_image()
+		study_data = self._LCTRL_studies.get_selected_item_data(only_one = True)
+		if study_data is None:
 			return
-
-		study_data = self._LCTRL_studies.get_selected_item_data(only_one = False)
-		if len(study_data) == 0:
-			return
-
-		wx.BeginBusyCursor()
-		filename = self.__pacs.get_studies_with_dicomdir(study_ids = [ s['orthanc_id'] for s in study_data ], create_zip = True)
-		wx.EndBusyCursor()
-
-		if filename is False:
-			gmGuiHelpers.gm_show_error (
-				title = _('Exporting DICOM studies'),
-				error = _('Unable to export selected studies.')
-			)
-			return
-
-		# check size and confirm if huge
-		zip_size = os.path.getsize(filename)
-		if zip_size > (300 * gmTools._MB):		# ~ 1/2 CD-ROM
-			really_export = gmGuiHelpers.gm_show_question (
-				title = _('Exporting DICOM studies'),
-				question = _('The DICOM studies are %s in compressed size.\n\nReally copy to export area ?') % gmTools.size2str(zip_size),
-				cancel_button = False
-			)
-			if not really_export:
-				wx.BeginBusyCursor()
-				gmTools.remove_file(filename)
-				wx.EndBusyCursor()
-				return
-
-		# import into export area
-		wx.BeginBusyCursor()
-		self.__patient.export_area.add_file (
-			filename = filename,
-			hint = _('DICOM studies of [%s] from Orthanc PACS "%s" (AET "%s")') % (
-				self.__orthanc_patient['MainDicomTags']['PatientID'],
-				self.__pacs.server_identification['Name'],
-				self.__pacs.server_identification['DicomAet']
-			)
+		self._TCTRL_details.Value = u'%s\n%s' % (
+			_(u'Study'),
+			gmTools.format_dict_like(study_data['all_tags'], tabular = True, value_delimiters = None, left_margin = 2)
 		)
-		gmTools.remove_file(filename)
-		wx.EndBusyCursor()
-
-	#--------------------------------------------------------
-	def _on_save_selected_studies_button_pressed(self, event):
-		event.Skip()
-		if self.__pacs is None:
-			return
-
-		study_data = self._LCTRL_studies.get_selected_item_data(only_one = False)
-		if len(study_data) == 0:
-			return
-
-		# get target dir
-		default_path = os.path.join(gmTools.gmPaths().home_dir, 'gnumed', self.__patient.dirname)
-		gmTools.mkdir(default_path)
-		dlg = wx.DirDialog (
-			self,
-			message = _('Select the directory into which to save the DICOM studies.'),
-			defaultPath = default_path
-		)
-		choice = dlg.ShowModal()
-		target_dir = dlg.GetPath()
-		dlg.Destroy()
-		if choice != wx.ID_OK:
-			return True
-
-		wx.BeginBusyCursor()
-		target_dir = self.__pacs.get_studies_with_dicomdir(study_ids = [ s['orthanc_id'] for s in study_data ], target_dir = target_dir)
-		wx.EndBusyCursor()
-
-		if target_dir is False:
-			gmGuiHelpers.gm_show_error (
-				title = _('Saving DICOM studies'),
-				error = _('Unable to save selected studies.')
-			)
-
-	#--------------------------------------------------------
-	def _on_export_all_studies_button_pressed(self, event):
-		event.Skip()
-		if self.__pacs is None:
-			return
-
-		wx.BeginBusyCursor()
-		filename = self.__pacs.get_studies_with_dicomdir(patient_id = self.__orthanc_patient['ID'], create_zip = True)
-		wx.EndBusyCursor()
-
-		if filename is False:
-			gmGuiHelpers.gm_show_error (
-				title = _('Exporting DICOM studies'),
-				error = _('Unable to export studies.')
-			)
-			return
-
-		# check size and confirm if huge
-		zip_size = os.path.getsize(filename)
-		if zip_size > (300 * gmTools._MB):		# ~ 1/2 CD-ROM
-			really_export = gmGuiHelpers.gm_show_question (
-				title = _('Exporting DICOM studies'),
-				question = _('The DICOM studies are %s in compressed size.\n\nReally copy to export area ?') % gmTools.size2str(zip_size),
-				cancel_button = False
-			)
-			if not really_export:
-				wx.BeginBusyCursor()
-				gmTools.remove_file(filename)
-				wx.EndBusyCursor()
-				return
-
-		# import into export area
-		wx.BeginBusyCursor()
-		self.__patient.export_area.add_file (
-			filename = filename,
-			hint = _('All DICOM studies of [%s] from Orthanc PACS "%s" (AET "%s")') % (
-				self.__orthanc_patient['MainDicomTags']['PatientID'],
-				self.__pacs.server_identification['Name'],
-				self.__pacs.server_identification['DicomAet']
-			)
-		)
-		gmTools.remove_file(filename)
-		wx.EndBusyCursor()
 
 	#--------------------------------------------------------
 	def _on_studies_list_item_selected(self, event):
@@ -3262,6 +3281,7 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 		study_data = self._LCTRL_studies.get_selected_item_data(only_one = True)
 		if study_data is None:
 			return
+
 		series_list_items = []
 		series_list_data = []
 		for series in study_data['series']:
@@ -3285,7 +3305,7 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 					series_desc = series['protocol'].strip()
 			if len(series_desc) > 0:
 				series_desc = u': ' + series_desc
-			series_desc = _(u'%s image(s)%s') % (series['instances'], series_desc)
+			series_desc = _(u'%s image(s)%s') % (len(series['instances']), series_desc)
 
 			series_list_items.append ([
 				series_time,
@@ -3304,37 +3324,60 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 			gmTools.format_dict_like(study_data['all_tags'], tabular = True, value_delimiters = None, left_margin = 2)
 		)
 
-	#--------------------------------------------------------
-	def _on_series_list_item_selected(self, event):
-		event.Skip()
-		if self.__pacs is None:
-			return
+		self.__set_button_states()
 
+	#--------------------------------------------------------
+	def _on_studies_list_item_deselected(self, event):
+		event.Skip()
+
+		self._LCTRL_series.remove_items_safely()
+
+		self.__set_button_states()
+
+		self.__refresh_image()
+		self._TCTRL_details.Value = u''
+
+	#--------------------------------------------------------
+	# events: buttons
+	#--------------------------------------------------------
+	def _on_connect_button_pressed(self, event):
+		event.Skip()
+
+		if not self.__connect():
+			self.__reset_patient_data()
+			self.__set_button_states()
+			return False
+
+		if not self.__refresh_patient_data():
+			self.__set_button_states()
+			return False
+
+		self.__set_button_states()
+		return True
+
+	#--------------------------------------------------------
+	def _on_browse_pacs_button_pressed(self, event):
+		event.Skip()
+		if self.__connect() is False:
+			return
+		gmNetworkTools.open_url_in_browser(self.__pacs.url_browse_patients)
+
+	#--------------------------------------------------------
+	def _on_browse_patient_button_pressed(self, event):
+		event.Skip()
+		if self.__connect() is False:
+			return
+		gmNetworkTools.open_url_in_browser(self.__pacs.get_url_browse_patient(patient_id = self.__orthanc_patient['ID']))
+
+	#--------------------------------------------------------
+	def _on_browse_study_button_pressed(self, event):
+		event.Skip()
+		if self.__connect() is False:
+			return
 		study_data = self._LCTRL_studies.get_selected_item_data(only_one = True)
 		if study_data is None:
 			return
-
-		series = self._LCTRL_series.get_selected_item_data(only_one = True)
-		if series is None:
-			return
-
-		self._TCTRL_details.Value = u'%s\n%s\n\n%s\n%s' % (
-			_(u'Study'),
-			gmTools.format_dict_like(study_data['all_tags'], tabular = True, value_delimiters = None, left_margin = 2),
-			_(u'Series'),
-			gmTools.format_dict_like(series['all_tags'], tabular = True, value_delimiters = None, left_margin = 2)
-		)
-
-	#--------------------------------------------------------
-	def _on_modify_orthanc_content_button_pressed(self, event):
-		event.Skip()
-		if self.__pacs is None:
-			return
-
-		dlg = cModifyOrthancContentDlg(self, -1, server = self.__pacs)
-		dlg.ShowModal()
-		dlg.Destroy()
-		self._schedule_data_reget()
+		gmNetworkTools.open_url_in_browser(self.__pacs.get_url_browse_study(study_id = study_data['orthanc_id']))
 
 	#--------------------------------------------------------
 	def _on_upload_button_pressed(self, event):
@@ -3381,6 +3424,311 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 		for f in uploaded:
 			gmTools.remove_file(f)
 		wx.EndBusyCursor()
+
+	#--------------------------------------------------------
+	def _on_modify_orthanc_content_button_pressed(self, event):
+		event.Skip()
+		if self.__pacs is None:
+			return
+
+		dlg = cModifyOrthancContentDlg(self, -1, server = self.__pacs)
+		dlg.ShowModal()
+		dlg.Destroy()
+		self._schedule_data_reget()
+
+	#--------------------------------------------------------
+	# - image buttons
+	#--------------------------------------------------------
+	def _on_next_image_button_pressed(self, event):
+		if self.__image_data is None:
+			return
+		self.__refresh_image(idx = self.__image_data['idx'] + 1)
+
+	#--------------------------------------------------------
+	def _on_previous_image_button_pressed(self, event):
+		if self.__image_data is None:
+			return
+		self.__refresh_image(idx = self.__image_data['idx'] - 1)
+
+	#--------------------------------------------------------
+	def _on_button_image_show_pressed(self, event):
+		if self.__image_data is None:
+			return False
+
+		# get image
+		uuid = self.__image_data['uuid']
+		img_file = self.__pacs.get_instance_preview(instance_id = uuid)
+		(success, msg) = gmMimeLib.call_viewer_on_file(img_file)
+		if not success:
+			gmGuiHelpers.gm_show_warning (
+				aMessage = _('Cannot preview DICOM image:\n%s') % msg,
+				aTitle = _('Previewing DICOM image')
+			)
+
+	#--------------------------------------------------------
+	def _on_button_image_show_dicom_pressed(self, event):
+		if self.__image_data is None:
+			return False
+
+		uuid = self.__image_data['uuid']
+		img_file = self.__pacs.get_instance(instance_id = uuid)
+		(success, msg) = gmMimeLib.call_viewer_on_file(img_file)
+		if not success:
+			gmGuiHelpers.gm_show_warning (
+				aMessage = _('Cannot show DICOM image:\n%s') % msg,
+				aTitle = _('Showing DICOM image')
+			)
+
+	#--------------------------------------------------------
+	def _on_save_image_preview_button_pressed(self, event):
+		if self.__image_data is None:
+			return False
+
+		uuid = self.__image_data['uuid']
+		fname = gmTools.get_unique_filename (
+			prefix = u'%s-orthanc_%s' % (self.__patient.dirname, uuid),
+			suffix = u'.png',
+			tmp_dir = os.path.join(gmTools.gmPaths().home_dir, u'gnumed')
+		)
+		img_file = self.__pacs.get_instance_preview(filename = fname, instance_id = uuid)
+		gmDispatcher.send(signal = 'statustext', msg = _('Successfully saved as [%s].') % fname)
+
+	#--------------------------------------------------------
+	def _on_save_image_as_dicom_button_pressed(self, event):
+		if self.__image_data is None:
+			return False
+
+		uuid = self.__image_data['uuid']
+		fname = gmTools.get_unique_filename (
+			prefix = u'%s-orthanc_%s' % (self.__patient.dirname, uuid),
+			suffix = u'.dcm',
+			tmp_dir = os.path.join(gmTools.gmPaths().home_dir, u'gnumed')
+		)
+		img_file = self.__pacs.get_instance(filename = fname, instance_id = uuid)
+		gmDispatcher.send(signal = 'statustext', msg = _('Successfully saved as [%s].') % fname)
+
+	#--------------------------------------------------------
+	def _on_button_image_export_pressed(self, event):
+		if self.__image_data is None:
+			return False
+
+		wx.BeginBusyCursor()
+		uuid = self.__image_data['uuid']
+		png_file = self.__pacs.get_instance_preview(instance_id = uuid)
+		dcm_file = self.__pacs.get_instance(instance_id = uuid)
+		self.__patient.export_area.add_files (
+			filenames = [png_file, dcm_file],
+			hint = _('DICOM image of [%s] from Orthanc PACS "%s" (AET "%s")') % (
+				self.__orthanc_patient['MainDicomTags']['PatientID'],
+				self.__pacs.server_identification['Name'],
+				self.__pacs.server_identification['DicomAet']
+			)
+		)
+		gmTools.remove_file(png_file)
+		gmTools.remove_file(dcm_file)
+		wx.EndBusyCursor()
+
+		gmDispatcher.send(signal = 'statustext', msg = _('Successfully stored in export area.'))
+
+	#--------------------------------------------------------
+	# - study buttons
+	#--------------------------------------------------------
+	def _on_save_studies_as_dicom_dir_button_pressed(self, event):
+		if self.__pacs is None:
+			return
+
+		study_data = self._LCTRL_studies.get_selected_item_data(only_one = False)
+		if len(study_data) == 0:
+			return
+
+		# get target dir
+		default_path = os.path.join(gmTools.gmPaths().home_dir, 'gnumed', self.__patient.dirname)
+		gmTools.mkdir(default_path)
+		dlg = wx.DirDialog (
+			self,
+			message = _('Select the directory into which to save the DICOM studies.'),
+			defaultPath = default_path
+		)
+		choice = dlg.ShowModal()
+		target_dir = dlg.GetPath()
+		dlg.Destroy()
+		if choice != wx.ID_OK:
+			return True
+
+		wx.BeginBusyCursor()
+		target_dir = self.__pacs.get_studies_with_dicomdir(study_ids = [ s['orthanc_id'] for s in study_data ], target_dir = target_dir)
+		wx.EndBusyCursor()
+
+		if target_dir is False:
+			gmGuiHelpers.gm_show_error (
+				title = _('Saving DICOM studies'),
+				error = _('Unable to save selected studies.')
+			)
+
+		gmMimeLib.call_viewer_on_file(target_dir, block = False)
+
+	#--------------------------------------------------------
+	def _on_save_studies_as_zip_button_pressed(self, event):
+		if self.__pacs is None:
+			return
+
+		study_data = self._LCTRL_studies.get_selected_item_data(only_one = False)
+		if len(study_data) == 0:
+			return
+
+		wx.BeginBusyCursor()
+		target_dir = os.path.join(gmTools.gmPaths().home_dir, 'gnumed', self.__patient.dirname)
+		filename = self.__pacs.get_studies_with_dicomdir (
+			study_ids = [ s['orthanc_id'] for s in study_data ],
+			create_zip = True,
+			target_dir = target_dir
+		)
+		wx.EndBusyCursor()
+
+		if filename is False:
+			gmGuiHelpers.gm_show_error (
+				title = _('Saving DICOM studies'),
+				error = _('Unable to save selected studies.')
+			)
+			return
+
+		gmDispatcher.send(signal = 'statustext', msg = _('Successfully saved as [%s].') % filename)
+
+	#--------------------------------------------------------
+	# - patient buttons (= all studies)
+	#--------------------------------------------------------
+	def _on_save_patient_as_dicom_dir_button_pressed(self, event):  # wxGlade: wxgPACSPluginPnl.<event_handler>
+		if self.__pacs is None:
+			return
+
+		default_path = os.path.join(gmTools.gmPaths().home_dir, 'gnumed', self.__patient.dirname)
+		gmTools.mkdir(default_path)
+		dlg = wx.DirDialog (
+			self,
+			message = _('Select the directory into which to save the DICOM studies.'),
+			defaultPath = default_path
+		)
+		choice = dlg.ShowModal()
+		target_dir = dlg.GetPath()
+		dlg.Destroy()
+		if choice != wx.ID_OK:
+			return True
+
+		wx.BeginBusyCursor()
+		target_dir = self.__pacs.get_studies_with_dicomdir (
+			patient_id = self.__orthanc_patient['ID'],
+			target_dir = target_dir
+		)
+		wx.EndBusyCursor()
+
+		if target_dir is False:
+			gmGuiHelpers.gm_show_error (
+				title = _('Saving DICOM studies'),
+				error = _('Unable to save patient studies.')
+			)
+
+		gmMimeLib.call_viewer_on_file(target_dir, block = False)
+
+	#--------------------------------------------------------
+	def _on_save_patient_as_zip_button_pressed(self, event):
+		event.Skip()
+		if self.__pacs is None:
+			return
+
+		wx.BeginBusyCursor()
+		target_dir = os.path.join(gmTools.gmPaths().home_dir, 'gnumed', self.__patient.dirname)
+		gmTools.mkdir(target_dir)
+		filename = self.__pacs.get_studies_with_dicomdir (
+			patient_id = self.__orthanc_patient['ID'],
+			create_zip = True,
+			target_dir = target_dir
+		)
+		wx.EndBusyCursor()
+
+		if filename is False:
+			gmGuiHelpers.gm_show_error (
+				title = _('Exporting DICOM studies'),
+				error = _('Unable to export studies.')
+			)
+			return
+
+		gmDispatcher.send(signal = 'statustext', msg = _('Successfully saved as [%s].') % filename)
+		return
+
+#	#--------------------------------------------------------
+#		# check size and confirm if huge
+#		zip_size = os.path.getsize(filename)
+#		if zip_size > (300 * gmTools._MB):		# ~ 1/2 CD-ROM
+#			really_export = gmGuiHelpers.gm_show_question (
+#				title = _('Exporting DICOM studies'),
+#				question = _('The DICOM studies are %s in compressed size.\n\nReally copy to export area ?') % gmTools.size2str(zip_size),
+#				cancel_button = False
+#			)
+#			if not really_export:
+#				wx.BeginBusyCursor()
+#				gmTools.remove_file(filename)
+#				wx.EndBusyCursor()
+#				return
+#
+#		# import into export area
+#		wx.BeginBusyCursor()
+#		self.__patient.export_area.add_file (
+#			filename = filename,
+#			hint = _('All DICOM studies of [%s] from Orthanc PACS "%s" (AET "%s")') % (
+#				self.__orthanc_patient['MainDicomTags']['PatientID'],
+#				self.__pacs.server_identification['Name'],
+#				self.__pacs.server_identification['DicomAet']
+#			)
+#		)
+#		gmTools.remove_file(filename)
+#		wx.EndBusyCursor()
+#
+#	def _on_export_study_button_pressed(self, event):
+#		event.Skip()
+#		if self.__pacs is None:
+#			return
+#
+#		study_data = self._LCTRL_studies.get_selected_item_data(only_one = False)
+#		if len(study_data) == 0:
+#			return
+#
+#		wx.BeginBusyCursor()
+#		filename = self.__pacs.get_studies_with_dicomdir(study_ids = [ s['orthanc_id'] for s in study_data ], create_zip = True)
+#		wx.EndBusyCursor()
+#
+#		if filename is False:
+#			gmGuiHelpers.gm_show_error (
+#				title = _('Exporting DICOM studies'),
+#				error = _('Unable to export selected studies.')
+#			)
+#			return
+#
+#		# check size and confirm if huge
+#		zip_size = os.path.getsize(filename)
+#		if zip_size > (300 * gmTools._MB):		# ~ 1/2 CD-ROM
+#			really_export = gmGuiHelpers.gm_show_question (
+#				title = _('Exporting DICOM studies'),
+#				question = _('The DICOM studies are %s in compressed size.\n\nReally copy to export area ?') % gmTools.size2str(zip_size),
+#				cancel_button = False
+#			)
+#			if not really_export:
+#				wx.BeginBusyCursor()
+#				gmTools.remove_file(filename)
+#				wx.EndBusyCursor()
+#				return
+#
+#		# import into export area
+#		wx.BeginBusyCursor()
+#		self.__patient.export_area.add_file (
+#			filename = filename,
+#			hint = _('DICOM studies of [%s] from Orthanc PACS "%s" (AET "%s")') % (
+#				self.__orthanc_patient['MainDicomTags']['PatientID'],
+#				self.__pacs.server_identification['Name'],
+#				self.__pacs.server_identification['DicomAet']
+#			)
+#		)
+#		gmTools.remove_file(filename)
+#		wx.EndBusyCursor()
 
 #------------------------------------------------------------
 from Gnumed.wxGladeWidgets.wxgModifyOrthancContentDlg import wxgModifyOrthancContentDlg

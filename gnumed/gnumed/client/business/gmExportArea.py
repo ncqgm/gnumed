@@ -187,6 +187,7 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 		self.save()
 
 	is_print_job = property(_get_is_print_job, _set_is_print_job)
+
 #------------------------------------------------------------
 def get_export_items(order_by=None, pk_identity=None, designation=None):
 
