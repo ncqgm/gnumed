@@ -1825,6 +1825,7 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 ------------------------------------------------
 
 IMPROVED: staging._journal_without_suppressed_hints -> clin._v_emr_journal_without_suppressed_hints
+IMPROVED: safer backup file compression
 
 ------------------------------------------------
 # gnumed_v21

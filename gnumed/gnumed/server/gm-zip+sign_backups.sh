@@ -55,10 +55,10 @@ shopt -s -q nullglob
 for BACKUP in ${BACKUP_BASENAME}-*.tar ; do
 
 	# are the backup and ...
-	TAR_OPEN=`lsof | grep ${BACKUP}`
+	TAR_IS_OPEN=`lsof | grep ${BACKUP}`
 	# ... the corresponding bz2 both open at the moment ?
-	BZ2_OPEN=`lsof | grep ${BACKUP}.bz2`
-	if test -z "${TAR_OPEN}" -a -z "${BZ2_OPEN}" ; then
+	BZ2_IS_OPEN=`lsof | grep ${BACKUP}.bz2`
+	if test -z "${TAR_IS_OPEN}" -a -z "${BZ2_IS_OPEN}" ; then
 		# no: remove the bz2 and start over compressing
 		rm -f ${BACKUP}.bz2
 	else
@@ -68,9 +68,18 @@ for BACKUP in ${BACKUP_BASENAME}-*.tar ; do
 
 	# I have tried "xz -9 -e" and it did not make much of
 	# a difference (48 MB in a 1.2 GB backup)
+	#xz --quiet --extreme --check sha256 --no-warn -${COMPRESSION_LEVEL} ${BACKUP}
+	#xz --quiet --test ${BACKUP}.xz
 	bzip2 -zq -${COMPRESSION_LEVEL} ${BACKUP}
+	if test "$?" != "0" ; then
+		echo "Cannot compress backup [${BACKUP}]. Aborting."
+		exit 1
+	fi
 	bzip2 -tq ${BACKUP}.bz2
-	# FIXME: add check for exit code
+	if test "$?" != "0" ; then
+		echo "Cannot verify compressed backup [${BACKUP}.bz2]. Aborting."
+		exit 1
+	fi
 
 	chmod ${BACKUP_MASK} ${BACKUP}.bz2
 	chown ${BACKUP_OWNER} ${BACKUP}.bz2
