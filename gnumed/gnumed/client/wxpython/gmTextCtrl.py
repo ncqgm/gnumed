@@ -98,20 +98,34 @@ class cColoredStatus_TextCtrlMixin():
 		self.Refresh()
 
 #============================================================
+_KNOWN_UNICODE_SELECTORS = [
+	'kcharselect',			# KDE
+	'gucharmap',			# GNOME
+	'BabelMap.exe',			# Windows, supposed to be better than charmap.exe
+	'charmap.exe',			# Microsoft utility
+	'gm-unicode2clipboard'	# generic GNUmed workaround
+	# Mac OSX supposedly features built-in support
+]
+
 class cUnicodeInsertion_TextCtrlMixin():
 	"""Mixin for inserting unicode characters via selection tool."""
+
+	_unicode_selector = None
+
 	def __init__(self, *args, **kwargs):
 		if not isinstance(self, (wx.TextCtrl, wx.stc.StyledTextCtrl)):
 			raise TypeError('[%s]: can only be applied to wx.TextCtrl or wx.stc.StyledTextCtrl, not [%s]' % (cUnicodeInsertion_TextCtrlMixin, self.__class__.__name__))
 
-		found, self.__unicode_selector = gmShellAPI.find_first_binary(binaries = ['kcharselect', 'gucharmap', 'charmap.exe', 'gm-unicode2clipboard'])
-		if not found:
-			_log.error('no unicode character selection tool found')
-			return
+		if cUnicodeInsertion_TextCtrlMixin._unicode_selector is None:
+			found, cUnicodeInsertion_TextCtrlMixin._unicode_selector = gmShellAPI.find_first_binary(binaries = _KNOWN_UNICODE_SELECTORS)
+			if found:
+				_log.debug('found [%s] for unicode character selection', cUnicodeInsertion_TextCtrlMixin._unicode_selector)
+			else:
+				_log.error('no unicode character selection tool found')
 
 	#--------------------------------------------------------
 	def mixin_insert_unicode_character(self):
-		if self.__unicode_selector is None:
+		if cUnicodeInsertion_TextCtrlMixin._unicode_selector is None:
 			return False
 
 		# read clipboard
@@ -128,7 +142,7 @@ class cUnicodeInsertion_TextCtrlMixin():
 			prev_clip = data_obj.Text
 
 		# run selector
-		if not gmShellAPI.run_command_in_shell(command = self.__unicode_selector, blocking = True):
+		if not gmShellAPI.run_command_in_shell(command = cUnicodeInsertion_TextCtrlMixin._unicode_selector, blocking = True):
 			wx.TheClipboard.Close()
 			return False
 
