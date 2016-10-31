@@ -24,6 +24,9 @@ IMPROVED: document tree details view
 	1.6.10
 
 FIX: more faults with dynamic hint detection
+FIX: exception on verifying substance intake EA
+FIX: failure to download studies from early Orthanc versions
+FIX: failure to create BMP when no allergy check date available
 
 	1.6.9
 
