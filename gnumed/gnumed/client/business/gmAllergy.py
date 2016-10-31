@@ -138,7 +138,7 @@ class cAllergyState(gmBusinessDBObject.cBusinessDBObject):
 		# Zwischenüberschrift: 31 Zeichen, $..., 14pt, no frame, \textwidth
 		state = u'%s (%s)' % (
 			self.state_string,
-			gmDateTime.pydt_strftime(self['last_confirmed'], '%b %Y', none_str = u'?')
+			gmDateTime.pydt_strftime(self['last_confirmed'], '%b %Y')
 		)
 		if strict:
 			state = state[:31]
@@ -162,7 +162,7 @@ class cAllergyState(gmBusinessDBObject.cBusinessDBObject):
 		# Zwischenüberschrift: 31 Zeichen, $..., \textwidth
 		txt = u'$%s (%s)' % (
 			self.state_string,
-			gmDateTime.pydt_strftime(self['last_confirmed'], '%b %Y', none_str = u'?')
+			gmDateTime.pydt_strftime(self['last_confirmed'], '%b %Y')
 		)
 		if strict:
 			lines.append(txt[:32])
@@ -179,7 +179,7 @@ class cAllergyState(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	def _get_as_amts_data(self, strict=True):
 		# Zwischenüberschrift
-		state = u'%s (%s)' % (self.state_string, gmDateTime.pydt_strftime(self['last_confirmed'], '%b %Y', none_str = u'?'))
+		state = u'%s (%s)' % (self.state_string, gmDateTime.pydt_strftime(self['last_confirmed'], '%b %Y'))
 		if strict:
 			state = state[:32]
 		# Freitextzeile

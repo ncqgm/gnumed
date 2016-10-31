@@ -560,7 +560,6 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 				self._PRW_duration.display_as_valid(True)
 
 		# started must exist or be unknown
-		started = None
 		if self._CHBOX_start_unknown.IsChecked() is False:
 			started = self._DP_started.GetData()
 			if started is None:
@@ -588,25 +587,23 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 				validity = False
 				gmDispatcher.send(signal = 'statustext', msg = _('Discontinued (%s) in the future (now: %s)!') % (discontinued, now))
 			else:
-				if started is not None:
-					started = started.replace (
-						hour = 0,
-						minute = 0,
-						second = 0,
-						microsecond = 1
-					)
-					# and not before it was started
-					if started > discontinued:
-						self._DP_started.display_as_valid(False)
-						self._DP_discontinued.display_as_valid(False)
-						validity = False
-						gmDispatcher.send(signal = 'statustext', msg = _('Discontinued (%s) before started (%s) !') % (discontinued, started))
-					else:
-						self._DP_started.display_as_valid(True)
-						self._DP_discontinued.display_as_valid(True)
+				started = started.replace (
+					hour = 0,
+					minute = 0,
+					second = 0,
+					microsecond = 1
+				)
+				# and not before it was started
+				if started > discontinued:
+					self._DP_started.display_as_valid(False)
+					self._DP_discontinued.display_as_valid(False)
+					validity = False
+					gmDispatcher.send(signal = 'statustext', msg = _('Discontinued (%s) before started (%s) !') % (discontinued, started))
+				else:
+					self._DP_started.display_as_valid(True)
+					self._DP_discontinued.display_as_valid(True)
 
 		return validity
-
 	#----------------------------------------------------------------
 	def _save_as_new(self):
 
@@ -653,7 +650,6 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 		self.data = intake
 
 		return True
-
 	#----------------------------------------------------------------
 	def _save_as_update(self):
 
