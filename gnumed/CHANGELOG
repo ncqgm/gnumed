@@ -16,6 +16,7 @@ NEW: DICOM image preview in PACS plugin
 IMPROVED: EMR journal retrieval speed
 IMPROVED: patient overview now acts on changes to ref.auto_hint
 IMPROVED: document tree details view
+IMPROVED: LaTeX formatting of current medications (port from 1.6 branch)
 
 ------------------------------------------------
 # rel-1-6-patches

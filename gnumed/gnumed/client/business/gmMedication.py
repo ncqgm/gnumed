@@ -2790,9 +2790,12 @@ def format_substance_intake(emr=None, output_format=u'latex', table_type=u'by-pr
 		line_data[identifier]['product'] = identifier
 		line_data[identifier]['strengths'].append(u'%s %s%s' % (med['substance'][:20], med['amount'], med.formatted_units))
 		line_data[identifier]['preparation'] = med['preparation']
+		sched_parts = []
 		if med['duration'] is not None:
-			line_data[identifier]['schedule'] = u'%s: ' % gmDateTime.format_interval(med['duration'], gmDateTime.acc_days, verbose = True)
-		line_data[identifier]['schedule'] += gmTools.coalesce(med['schedule'], u'')
+			sched_parts.append(gmDateTime.format_interval(med['duration'], gmDateTime.acc_days, verbose = True))
+		if med['schedule'] is not None:
+			sched_parts.append(med['schedule'])
+		line_data[identifier]['schedule'] = u': '.join(sched_parts)
 		if med['notes'] is not None:
 			if med['notes'] not in line_data[identifier]['notes']:
 				line_data[identifier]['notes'].append(med['notes'])
