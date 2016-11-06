@@ -430,7 +430,16 @@ __known_variant_placeholders = {
 	u'bill_item': u"""retrieve the items of a previously retrieved (and therefore cached until the next retrieval) bill
 		args: <template>//<date format>
 		template:		something %(field)s something else (do not include '//' or '::' itself in the template)
-		date format:	strftime date format"""
+		date format:	strftime date format""",
+	u'bill_adr_street': u"args: optional template (%s-style formatting template); cached per bill",
+	u'bill_adr_number': u"args: optional template (%s-style formatting template); cached per bill",
+	u'bill_adr_subunit': u"args: optional template (%s-style formatting template); cached per bill",
+	u'bill_adr_location': u"args: optional template (%s-style formatting template); cached per bill",
+	u'bill_adr_suburb': u"args: optional template (%s-style formatting template); cached per bill",
+	u'bill_adr_postcode': u"args: optional template (%s-style formatting template); cached per bill",
+	u'bill_adr_region': u"args: optional template (%s-style formatting template); cached per bill",
+	u'bill_adr_country': u"args: optional template (%s-style formatting template); cached per bill"
+
 }
 
 known_variant_placeholders = __known_variant_placeholders.keys()
@@ -2329,6 +2338,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			date_format = '%Y %B %d'
 
 		return template % bill.fields_as_dict(date_format = date_format, escape_style = self.__esc_style)
+
 	#--------------------------------------------------------
 	def _get_variant_bill_item(self, data=None):
 		try:
@@ -2350,6 +2360,74 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			date_format = '%Y %B %d'
 
 		return u'\n'.join([ template % i.fields_as_dict(date_format = date_format, escape_style = self.__esc_style) for i in bill.bill_items ])
+
+	#--------------------------------------------------------
+	def __get_variant_bill_adr_part(self, data=None, part=None):
+		try:
+			bill = self.__cache['bill']
+		except KeyError:
+			from Gnumed.wxpython import gmBillingWidgets
+			bill = gmBillingWidgets.manage_bills(patient = self.pat)
+			if bill is None:
+				if self.debug:
+					return self._escape(_('no bill selected'))
+				return u''
+			self.__cache['bill'] = bill
+			self.__cache['bill-adr'] = bill.address
+
+		try:
+			bill_adr = self.__cache['bill-adr']
+		except KeyError:
+			bill_adr = bill.address
+			self.__cache['bill-adr'] = bill_adr
+
+		if bill_adr is None:
+			if self.debug:
+				return self._escape(_('[%s] bill has no address') % part)
+			return u''
+
+		if bill_adr[part] is None:
+			return self._escape(u'')
+
+		if data is None:
+			return self._escape(bill_adr[part])
+
+		if data == u'':
+			return self._escape(bill_adr[part])
+
+		return data % self._escape(bill_adr[part])
+
+	#--------------------------------------------------------
+	def _get_variant_bill_adr_street(self, data=u'?'):
+		return self.__get_variant_bill_adr_part(data = data, part = 'street')
+
+	#--------------------------------------------------------
+	def _get_variant_bill_adr_number(self, data=u'?'):
+		return self.__get_variant_bill_adr_part(data = data, part = 'number')
+
+	#--------------------------------------------------------
+	def _get_variant_bill_adr_subunit(self, data=u'?'):
+		return self.__get_variant_bill_adr_part(data = data, part = 'subunit')
+	#--------------------------------------------------------
+	def _get_variant_bill_adr_location(self, data=u'?'):
+		return self.__get_variant_bill_adr_part(data = data, part = 'urb')
+
+	#--------------------------------------------------------
+	def _get_variant_bill_adr_suburb(self, data=u'?'):
+		return self.__get_variant_bill_adr_part(data = data, part = 'suburb')
+
+	#--------------------------------------------------------
+	def _get_variant_bill_adr_postcode(self, data=u'?'):
+		return self.__get_variant_bill_adr_part(data = data, part = 'postcode')
+
+	#--------------------------------------------------------
+	def _get_variant_bill_adr_region(self, data=u'?'):
+		return self.__get_variant_bill_adr_part(data = data, part = 'l10n_region')
+
+	#--------------------------------------------------------
+	def _get_variant_bill_adr_country(self, data=u'?'):
+		return self.__get_variant_bill_adr_part(data = data, part = 'l10n_country')
+
 	#--------------------------------------------------------
 	# internal helpers
 	#--------------------------------------------------------
@@ -3024,7 +3102,13 @@ if __name__ == '__main__':
 			#u'$<receiver_country::, %s::120>$',
 			#u'$<external_care::%(issue)s: %(provider)s of %(unit)s@%(organization)s (%(comment)s)::1024>$',
 			#u'$<url_escape::hello world ü::>$',
-			u'$<substance_abuse::%(substance)s (%(harmful_use_type)s) last=%(last_checked_when)s stop=%(discontinued)s // %(notes)s::>$'
+			#u'$<substance_abuse::%(substance)s (%(harmful_use_type)s) last=%(last_checked_when)s stop=%(discontinued)s // %(notes)s::>$',
+			#u'bill_adr_region::region %s::1234',
+			#u'bill_adr_country::%s::1234',
+			#u'bill_adr_subunit::subunit: %s::1234',
+			#u'bill_adr_suburb::-> %s::1234',
+			#u'bill_adr_street::::1234',
+			u'bill_adr_number::%s::1234'
 		]
 
 		handler = gmPlaceholderHandler()

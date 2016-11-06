@@ -29,6 +29,10 @@ FIX: exception on verifying substance intake EA
 FIX: failure to download studies from early Orthanc versions
 FIX: failure to create BMP when no allergy check date available
 
+IMPROVED: LaTeX formatting of current medications
+
+NEW: placeholders $<bill_adr_*>$ for accessing the address of a bill
+
 	1.6.9
 
 FIX: faulty detection of dynamic hint applicability
