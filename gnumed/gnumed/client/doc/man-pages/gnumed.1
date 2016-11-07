@@ -20,6 +20,7 @@ You have been warned.
 .RB [--conf-file=FILE]
 .RB [--lang-gettext=LANGUAGE]
 .RB [--ui=UI-TYPE]
+.RB [--wxp=VERSION]
 .RB [--override-schema-check]
 .RB [--local-import]
 .RB [--help]
@@ -86,8 +87,19 @@ default the interface to wxPython.
 Valid values are:
 
 	wxp: wxPython Python client (default)
+.\"
+.\"	web: CherryPy web client
+.TP
+.B \--wxp=VERSION
+Explicitly request a wxPython major version. Omitting the argument
+will default to trying wxPython 3 first, then attempting to fall
+back to wxPython 2.
 
-	web: CherryPy web client
+Valid values are:
+
+	2: request wxPython 2
+
+	3: request wxPython 3
 .TP
 .B \--override-schema-check
 Continue loading the client even if the database schema

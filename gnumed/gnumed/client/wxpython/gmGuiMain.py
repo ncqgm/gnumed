@@ -31,27 +31,51 @@ import glob
 
 _log = logging.getLogger('gm.main')
 
-# 3rd party libs
-# maybe show HTML page if wxversion/wx cannot be imported (and thus needs to be installed) ?
+
+# GNUmed libs
+from Gnumed.pycommon import gmCfg2
+_cfg = gmCfg2.gmCfgData()
+
+
+# 3rd party libs: wxPython
+
 # wxpython version cannot be enforced inside py2exe and friends
 if not hasattr(sys, 'frozen'):
+	# maybe show HTML page if wxversion/wx cannot be imported (and thus needs to be installed) ?
 	import wxversion
 	_log.debug(u'wxPython versions available on this machine: %s', wxversion.getInstalled())
-	# we'll check options further down because we want to
-	# support 3.0 as well and while that supports unicode
-	# builds only anyway it don't respond well to requiring
-	# a "-unicode" option indicator, ... :-/
-	# try to select wxPython 3 but fall back to 2.8 on failure
-	try:
-		wxversion.select(versions = '3.0')
-	except wxversion.VersionError:
-		_log.exception('cannot select wxPython 3.0')
+	desired_wxp = _cfg.get(option = '--wxp', source_order = [('cli', 'return')])
+	if desired_wxp is None:
+		desired_wxp = None
+	# let GNUmed work out the best wxPython available
+	if desired_wxp is None:
+		_log.debug('no wxPython version requested explicitely, trying wxp3, then wxp2')
+		# we'll check options further down because we want to
+		# support 3.0 as well and while that supports unicode
+		# builds only anyway it don't respond well to requiring
+		# a "-unicode" option indicator, ... :-/
+		# try to select wxPython 3 but fall back to 2.8 on failure
+		try:
+			wxversion.select(versions = '3.0')
+		except wxversion.VersionError:
+			_log.exception('cannot select wxPython 3.0')
+			wxversion.select(versions = '2.8-unicode', optionsRequired = True)
+	elif desired_wxp == u'2':
+		_log.debug('wxPython 2 requested explicitely')
 		wxversion.select(versions = '2.8-unicode', optionsRequired = True)
+	elif desired_wxp == u'3':
+		_log.debug('wxPython 3 requested explicitely')
+		wxversion.select(versions = '3.0')
+	else:
+		_log.error('invalid wxPython version requested: %s', desired_wxp)
+		print('CRITICAL ERROR: Invalid wxPython version requested. Halted.')
+		raise ValueError('invalid wxPython version requested: %s' % desired_wxp)
 
 try:
 	import wx
 	_log.info('wxPython version loaded: %s %s' % (wx.VERSION_STRING, wx.PlatformInfo))
 except ImportError:
+	_log.exception('cannot import wxPython')
 	print('GNUmed startup: Cannot import wxPython library.')
 	print('GNUmed startup: Make sure wxPython is installed.')
 	print('CRITICAL ERROR: Error importing wxPython. Halted.')
@@ -67,7 +91,7 @@ if (version < 28) or ('unicode' not in wx.PlatformInfo):
 	raise ValueError('wxPython 2.8+ with unicode support not found')
 
 
-# GNUmed libs
+# more GNUmed libs
 from Gnumed.pycommon import gmCfg
 from Gnumed.pycommon import gmPG2
 from Gnumed.pycommon import gmDispatcher
@@ -79,7 +103,6 @@ from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmDateTime
 from Gnumed.pycommon import gmHooks
 from Gnumed.pycommon import gmBackendListener
-from Gnumed.pycommon import gmCfg2
 from Gnumed.pycommon import gmLog2
 from Gnumed.pycommon import gmNetworkTools
 from Gnumed.pycommon import gmMimeLib
@@ -143,7 +166,6 @@ try:
 except NameError:
 	_ = lambda x:x
 
-_cfg = gmCfg2.gmCfgData()
 _provider = None
 _scripting_listener = None
 _original_wxEndBusyCursor = None

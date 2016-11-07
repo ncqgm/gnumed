@@ -45,7 +45,10 @@ care of all the pre- and post-GUI runtime environment setup.
  Adjust the PYTHONPATH such that GNUmed can be run from a local source tree.
 --ui=<ui type>
  Start an alternative UI. Defaults to wxPython if not specified.
- Valid values: chweb (CherryPy), wxp (wxPython), web (ProxiedWeb)
+ Currently "wxp" (wxPython) only.
+--wxp=<version>
+ Explicitely request a wxPython version. Can be set to either "2" or "3".
+ Defaults to "try 3, then 2" if not set.
 --version, -V
  Show version information.
 --help, -h, or -?
@@ -110,7 +113,8 @@ _known_long_options = [
 	u'local-import',
 	u'help',
 	u'version',
-	u'hipaa'
+	u'hipaa',
+	u'wxp='
 ]
 
 _known_ui_types = [
