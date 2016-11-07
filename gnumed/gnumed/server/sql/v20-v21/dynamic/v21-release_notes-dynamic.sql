@@ -17,26 +17,25 @@ INSERT INTO dem.message_inbox (
 ) VALUES (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
-	'Release Notes for GNUmed 1.6.9 (database v21.9)',
-	'GNUmed 1.6.9 Release Notes:
+	'Release Notes for GNUmed 1.6.10 (database v21.10)',
+	'GNUmed 1.6.10 Release Notes:
 
-	1.6.9
+	1.6.10
 
-FIX: faulty detection of dynamic hint applicability
-FIX: exception on Orthanc port out of bounds
-FIX: setting address from list in receiver selection widget
-FIX: no EMR user interaction when updating active encounter display
-FIX: faulty by-day measurements display after patient change
+FIX: more faults with dynamic hint detection
+FIX: exception on verifying substance intake EA
+FIX: failure to download studies from early Orthanc versions
+FIX: failure to create BMP when no allergy check date available
 
-IMPROVED: start-end formatting of substance intake
-IMPROVED: select unicode character from SOAP STC context menu
-IMPROVED: edit test results by context menu from lists
-IMPROVED: AMTS data file generation (v2 -> v2.3)
-IMPROVED: color of focussed line in STC-based SOAP editor
-IMPROVED: information in Hx box of patient overview plugin
+IMPROVED: LaTeX formatting of current medications
 
-NEW: placeholder $<if_not_empty>$
+NEW: placeholders $<bill_adr_*>$ for accessing the address of a bill
+NEW: --wxp=2|3 command line option
+
+	21.10
+
+FIX: clin.get_hints_for_patient()
 ');
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('v21-release_notes-dynamic.sql', '21.9');
+select gm.log_script_insertion('v21-release_notes-dynamic.sql', '21.10');
