@@ -6,6 +6,10 @@
 # rel-1-6-patches
 ------------------------------------------------
 
+	1.6.11
+
+IMPROVE: edit area refresh on first setting data
+
 	1.6.10
 
 FIX: more faults with dynamic hint detection
