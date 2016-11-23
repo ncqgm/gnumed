@@ -69,9 +69,16 @@ def _display_clinical_reminders():
 		)
 
 	# dynamic hints
+	hints2aggregate = []
 	emr = pat.get_emr(allow_user_interaction = False)
 	hint_dlg = cDynamicHintDlg(wx.GetApp().GetTopWindow(), -1)
+	# single-hint popups
 	for hint in emr.dynamic_hints:
+		if hint['popup_type'] == 0:
+			continue
+		if hint['popup_type'] == 2:
+			hints2aggregate.append(hint)
+			continue
 		hint_dlg.hint = hint
 		if hint_dlg.ShowModal() == wx.ID_APPLY:
 			hint.suppress (
@@ -79,6 +86,13 @@ def _display_clinical_reminders():
 				pk_encounter = emr.current_encounter['pk_encounter']
 			)
 	hint_dlg.Destroy()
+	# aggregate popup
+	if len(hints2aggregate) > 0:
+		hints_dlg = cDynamicHintListDlg(wx.GetApp().GetTopWindow(), -1)
+		hints_dlg.pk_encounter = emr.current_encounter['pk_encounter']
+		hints_dlg.hints = hints2aggregate
+		hints_dlg.ShowModal()
+		hints_dlg.Destroy()
 
 	return
 
@@ -150,6 +164,7 @@ def manage_dynamic_hints(parent=None):
 		] for h in hints ]
 		lctrl.set_string_items(items)
 		lctrl.set_data(hints)
+
 	#------------------------------------------------------------
 	gmListWidgets.get_choices_from_list (
 		parent = parent,
@@ -203,11 +218,13 @@ class cDynamicHintDlg(wxgDynamicHintDlg.wxgDynamicHintDlg):
 		return self._TCTRL_rationale.GetValue().strip()
 
 	rationale = property(_get_rationale, lambda x:x)
+
 	#------------------------------------------------------------
 	# internal helpers
 	#------------------------------------------------------------
 	def __init_ui(self):
 		self._TCTRL_rationale.add_callback_on_modified(callback = self._on_rationale_modified)
+
 	#------------------------------------------------------------
 	def __refresh(self):
 		if self.__hint is None:
@@ -242,6 +259,7 @@ class cDynamicHintDlg(wxgDynamicHintDlg.wxgDynamicHintDlg):
 		self._TCTRL_rationale.SetValue(u'')
 		self._BTN_suppress.Disable()
 		self._TCTRL_rationale.SetFocus()
+
 	#------------------------------------------------------------
 	# event handlers
 	#------------------------------------------------------------
@@ -250,6 +268,7 @@ class cDynamicHintDlg(wxgDynamicHintDlg.wxgDynamicHintDlg):
 			self._BTN_suppress.Disable()
 		else:
 			self._BTN_suppress.Enable()
+
 	#------------------------------------------------------------
 	def _on_suppress_button_pressed(self, event):
 		event.Skip()
@@ -262,6 +281,165 @@ class cDynamicHintDlg(wxgDynamicHintDlg.wxgDynamicHintDlg):
 			self.EndModal(wx.ID_APPLY)
 		else:
 			self.Close()
+
+	#------------------------------------------------------------
+	def _on_manage_hints_button_pressed(self, event):
+		event.Skip()
+		manage_dynamic_hints(parent = self)
+
+#================================================================
+from Gnumed.wxGladeWidgets import wxgDynamicHintListDlg
+
+class cDynamicHintListDlg(wxgDynamicHintListDlg.wxgDynamicHintListDlg):
+
+	def __init__(self, *args, **kwargs):
+
+		try:
+			self.__hints = kwargs['hints']
+			del kwargs['hints']
+		except KeyError:
+			self.__hints = None
+		wxgDynamicHintListDlg.wxgDynamicHintListDlg.__init__(self, *args, **kwargs)
+		self.__pk_encounter = None
+		self.__init_ui()
+
+	#------------------------------------------------------------
+	def _get_hints(self):
+		return self.__hints
+
+	def _set_hints(self, hints):
+		if len(hints) == 0:
+			hints = None
+		self.__hints = hints
+		self.__refresh()
+
+	hints = property(_get_hints, _set_hints)
+
+	#------------------------------------------------------------
+	def _set_pk_encounter(self, pk_encounter):
+		self.__pk_encounter = pk_encounter
+
+	pk_encounter = property(lambda x:x, _set_pk_encounter)
+
+	#------------------------------------------------------------
+	# internal helpers
+	#------------------------------------------------------------
+	def __init_ui(self):
+		self._LCTRL_hints.set_columns([_(u'Hint'), _('Source')])
+		self._LCTRL_hints.set_column_widths([wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE])
+		self._LCTRL_hints.set_resize_column(column = 0)
+		self._LCTRL_hints.select_callback = self._on_hint_selected
+		self._LCTRL_hints.deselect_callback = self._on_hint_deselected
+		self._TCTRL_rationale.add_callback_on_modified(callback = self._on_rationale_modified)
+
+	#------------------------------------------------------------
+	def __refresh(self):
+		if self.__hints is None:
+			self._LCTRL_hints.set_string_items()
+			self._TCTRL_hint.SetValue(u'')
+			self._URL_info.SetURL(u'')
+			self._URL_info.Disable()
+			self._TCTRL_source.SetValue(u'')
+			self._TCTRL_rationale.SetValue(u'')
+			self._BTN_suppress.Disable()
+			self._LBL_previous_rationale.Hide()
+			self._TCTRL_previous_rationale.Hide()
+			self._LCTRL_hints.SetFocus()
+			return
+
+		priority_hints = []
+		non_priority_hints = []
+		for hint in self.__hints:
+			if hint['highlight_as_priority']:
+				priority_hints.append(hint)
+			else:
+				non_priority_hints.append(hint)
+
+		ordered_hints = []
+		ordered_hints.extend(priority_hints)
+		ordered_hints.extend(non_priority_hints)
+
+		self._LCTRL_hints.set_string_items([ [h['title'], h['source']] for h in ordered_hints ])
+		self._LCTRL_hints.set_data(ordered_hints)
+		for idx in range(len(priority_hints)):
+			self._LCTRL_hints.SetItemTextColour(idx, wx.NamedColour('YELLOW'))
+		self._LCTRL_hints.Select(0)
+
+	#------------------------------------------------------------
+	def _on_hint_selected(self, evt):
+		hint = self._LCTRL_hints.get_selected_item_data(only_one = True)
+
+		self._TCTRL_hint.SetValue(u'%s%s' % (
+			hint['hint'],
+			gmTools.coalesce(hint['recommendation'], u'', u'\n\n%s')
+		))
+		if hint['url'] is None:
+			self._URL_info.SetURL(u'')
+			self._URL_info.Disable()
+		else:
+			self._URL_info.SetURL(hint['url'])
+			self._URL_info.Enable()
+		self._TCTRL_source.SetValue(_('By: %s') % hint['source'])
+		self._TCTRL_rationale.SetValue(u'')
+		self._BTN_suppress.Disable()
+
+		if hint['rationale4suppression'] is None:
+			self._LBL_previous_rationale.Hide()
+			self._TCTRL_previous_rationale.Hide()
+			self._TCTRL_previous_rationale.SetValue(u'')
+		else:
+			self._LBL_previous_rationale.Show()
+			self._TCTRL_previous_rationale.SetValue(hint['rationale4suppression'])
+			self._TCTRL_previous_rationale.Show()
+
+		self._TCTRL_rationale.SetFocus()
+
+	#------------------------------------------------------------
+	def _on_hint_deselected(self, evt):
+		self._TCTRL_hint.SetValue(u'')
+		self._URL_info.SetURL(u'')
+		self._URL_info.Disable()
+		self._TCTRL_source.SetValue(u'')
+		self._TCTRL_rationale.SetValue(u'')
+		self._LBL_previous_rationale.Hide()
+		self._TCTRL_previous_rationale.Hide()
+		self._TCTRL_previous_rationale.SetValue(u'')
+		self._BTN_suppress.Disable()
+
+	#------------------------------------------------------------
+	# event handlers
+	#------------------------------------------------------------
+	def _on_rationale_modified(self):
+		if self._TCTRL_rationale.GetValue().strip() == u'':
+			self._BTN_suppress.Disable()
+		else:
+			self._BTN_suppress.Enable()
+
+	#------------------------------------------------------------
+	def _on_suppress_button_pressed(self, event):
+		event.Skip()
+		val = self._TCTRL_rationale.GetValue().strip()
+		if val == u'':
+			return
+		hint = self._LCTRL_hints.get_selected_item_data(only_one = True)
+		suppressed = hint.suppress (
+			rationale = val,
+			pk_encounter = self.__pk_encounter
+		)
+		if not suppressed:
+			self.status_message = _(u'Cannot suppress hint.')
+			return False
+		if len(self.__hints) == 1:
+			# singular hint now suppressed -> close
+			if self.IsModal():
+				self.EndModal(wx.ID_APPLY)
+			else:
+				self.Close()
+		self.status_message = _(u'Hint now suppressed in this patient.')
+		pk_of_suppressed_hint = hint['pk_auto_hint']
+		remaining_hints = [ h for h in self.__hints if h['pk_auto_hint'] <> pk_of_suppressed_hint ]
+		self.hints = remaining_hints
+
 	#------------------------------------------------------------
 	def _on_manage_hints_button_pressed(self, event):
 		event.Skip()
@@ -335,6 +513,7 @@ class cAutoHintEAPnl(wxgAutoHintEAPnl.wxgAutoHintEAPnl, gmEditArea.cGenericEditA
 			self.display_tctrl_as_valid(tctrl = self._TCTRL_title, valid = True)
 
 		return validity
+
 	#----------------------------------------------------------------
 	def _save_as_new(self):
 		conn = gmAuthWidgets.get_dbowner_connection(procedure = _('creating a new dynamic hint'))
@@ -350,11 +529,19 @@ class cAutoHintEAPnl(wxgAutoHintEAPnl.wxgAutoHintEAPnl, gmEditArea.cGenericEditA
 			source = self._TCTRL_source.GetValue().strip()
 		)
 		curs.close()
-		url = self._TCTRL_url.GetValue().strip()
-		if url != u'':
-			data['url'] = url
-			data.save(conn = conn)
-
+		data['url'] = self._TCTRL_url.GetValue().strip()
+		data['recommendation_query'] = self._TCTRL_recommendation_query.GetValue().strip()
+		data['is_active'] = self._CHBOX_is_active.GetValue()
+		data['highlight_as_priority'] = self._CHBOX_highlight.GetValue()
+		if self._RBTN_popup_none.GetValue() is True:
+			data['popup_type'] = 0
+		elif self._RBTN_popup_single.GetValue() is True:
+			data['popup_type'] = 1
+		elif self._RBTN_popup_multiple.GetValue() is True:
+			data['popup_type'] = 2
+		else:
+			raise ValueError('no popup type radio button selected - should be impossible')
+		data.save(conn = conn)
 		conn.commit()
 		conn.close()
 
@@ -373,7 +560,17 @@ class cAutoHintEAPnl(wxgAutoHintEAPnl.wxgAutoHintEAPnl, gmEditArea.cGenericEditA
 		self.data['query'] = self._TCTRL_query.GetValue().strip()
 		self.data['source'] = self._TCTRL_source.GetValue().strip()
 		self.data['url'] = self._TCTRL_url.GetValue().strip()
+		self.data['recommendation_query'] = self._TCTRL_recommendation_query.GetValue().strip()
 		self.data['is_active'] = self._CHBOX_is_active.GetValue()
+		self.data['highlight_as_priority'] = self._CHBOX_highlight.GetValue()
+		if self._RBTN_popup_none.GetValue() is True:
+			self.data['popup_type'] = 0
+		elif self._RBTN_popup_single.GetValue() is True:
+			self.data['popup_type'] = 1
+		elif self._RBTN_popup_multiple.GetValue() is True:
+			self.data['popup_type'] = 2
+		else:
+			raise ValueError('no popup type radio button selected - should be impossible')
 		self.data.save(conn = conn)
 		conn.commit()
 		conn.close()
@@ -385,28 +582,43 @@ class cAutoHintEAPnl(wxgAutoHintEAPnl.wxgAutoHintEAPnl, gmEditArea.cGenericEditA
 		self._TCTRL_title.SetValue(u'')
 		self._TCTRL_hint.SetValue(u'')
 		self._TCTRL_query.SetValue(u'')
+		self._TCTRL_recommendation_query.SetValue(u'')
 		self._TCTRL_source.SetValue(u'')
 		self._TCTRL_url.SetValue(u'')
 		self._CHBOX_is_active.SetValue(True)
+		self._CHBOX_highlight.SetValue(True)
+		self._RBTN_popup_single.SetValue(True)
 
 		self._TCTRL_title.SetFocus()
+
 	#----------------------------------------------------------------
 	def _refresh_as_new_from_existing(self):
 		self._refresh_as_new()
 		self._TCTRL_source.SetValue(self.data['source'])
-		self._CHBOX_is_active.SetValue(True)
 
 		self._TCTRL_title.SetFocus()
+
 	#----------------------------------------------------------------
 	def _refresh_from_existing(self):
 		self._TCTRL_title.SetValue(self.data['title'])
 		self._TCTRL_hint.SetValue(self.data['hint'])
 		self._TCTRL_query.SetValue(self.data['query'])
+		self._TCTRL_recommendation_query.SetValue(gmTools.coalesce(self.data['recommendation_query'], u''))
 		self._TCTRL_source.SetValue(self.data['source'])
 		self._TCTRL_url.SetValue(gmTools.coalesce(self.data['url'], u''))
 		self._CHBOX_is_active.SetValue(self.data['is_active'])
+		self._CHBOX_highlight.SetValue(self.data['highlight_as_priority'])
+		if self.data['popup_type'] == 0:
+			self._RBTN_popup_none.SetValue(True)
+		elif self.data['popup_type'] == 1:
+			self._RBTN_popup_single.SetValue(True)
+		elif self.data['popup_type'] == 2:
+			self._RBTN_popup_multiple.SetValue(True)
+		else:
+			raise ValueError('invalid popup type value [%s] - should be impossible' % self.data['popup_type'])
 
 		self._TCTRL_query.SetFocus()
+
 	#----------------------------------------------------------------
 	# event handlers
 	#----------------------------------------------------------------
@@ -501,7 +713,6 @@ if __name__ == '__main__':
 #		app = wx.PyWidgetTester(size = (800, 600))
 #		app.SetWidget(cInboxMessageEAPnl, -1)
 #		app.MainLoop()
-
 
 	#test_message_inbox()
 	#test_msg_ea()

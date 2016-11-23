@@ -40,7 +40,9 @@ class cDynamicHint(gmBusinessDBObject.cBusinessDBObject):
 				hint = gm.nullify_empty_string(%(hint)s),
 				url = gm.nullify_empty_string(%(url)s),
 				source = gm.nullify_empty_string(%(source)s),
-				is_active = %(is_active)s
+				is_active = %(is_active)s,
+				popup_type = %(popup_type)s,
+				highlight_as_priority = %(highlight_as_priority)s
 			WHERE
 				pk = %(pk_auto_hint)s
 					AND
@@ -56,7 +58,9 @@ class cDynamicHint(gmBusinessDBObject.cBusinessDBObject):
 		u'hint',
 		u'url',
 		u'source',
-		u'is_active'
+		u'is_active',
+		u'popup_type',
+		u'highlight_as_priority'
 	]
 	#--------------------------------------------------------
 	def format_maximum_information(self, patient):

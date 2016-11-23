@@ -6,11 +6,46 @@
 --
 -- ==============================================================
 \set ON_ERROR_STOP 1
-
 --set default_transaction_read_only to off;
 
 -- --------------------------------------------------------------
+update ref.auto_hint set
+	popup_type = 1,
+	highlight_as_priority = True,
+	query = 'SELECT EXISTS (
+	-- substance check
+	SELECT 1 FROM clin.v_substance_intakes WHERE
+		pk_patient = ID_ACTIVE_PATIENT
+			AND
+		-- on Sartan or ACEI
+		(
+			substance ~* ''.*sartan.*''
+				OR
+			substance ~* ''.*angiotensin.*''
+				OR
+			substance ~ ''.*ACE.*''
+				OR
+			substance ~* ''.+pril.*''
+				OR
+			atc_drug ~* ''^C09.*''
+				OR
+			atc_substance ~* ''^C09.*''
+	)
+) AND EXISTS (
+	-- pregnancy check
+	SELECT 1 FROM clin.patient WHERE
+		fk_identity = ID_ACTIVE_PATIENT
+			AND
+		coalesce(edc BETWEEN now() - ''1 month''::interval AND now() + ''11 months''::interval, FALSE)
+);'
+where
+	title = 'Contraindication: ACEI/Sartan <-> Pregnancy'
+;
+
+-- --------------------------------------------------------------
 UPDATE ref.auto_hint SET
+	popup_type = 2,
+	highlight_as_priority = False,
 	query = 'SELECT NOT EXISTS (
 	SELECT 1 FROM clin.v_substance_intakes WHERE pk_patient = ID_ACTIVE_PATIENT AND atc_substance = ''N07BA01'' AND harmful_use_type IS NOT NULL
 	);'
@@ -18,6 +53,8 @@ WHERE title = 'Lack of smoking status documentation';
 
 -- --------------------------------------------------------------
 UPDATE ref.auto_hint SET
+	popup_type = 0,
+	highlight_as_priority = False,
 	query = 'SELECT EXISTS (
 	SELECT 1 FROM clin.v_substance_intakes WHERE
 		(pk_patient = ID_ACTIVE_PATIENT)
@@ -46,4 +83,4 @@ WHERE pk_patient = ID_ACTIVE_PATIENT;'
 WHERE title = 'Outdated smoking status documentation';
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('v22-ref-auto_hint-smoking_status.sql', '22.0');
+select gm.log_script_insertion('v22-ref-v_auto_hints.sql', '22.0');

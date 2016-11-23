@@ -12,15 +12,17 @@ import gettext
 
 # begin wxGlade: extracode
 from Gnumed.wxpython.gmTextCtrl import cTextCtrl
+from Gnumed.wxpython.gmListWidgets import cReportListCtrl
 # end wxGlade
 
 
-class wxgDynamicHintDlg(wx.Dialog):
+class wxgDynamicHintListDlg(wx.Dialog):
 	def __init__(self, *args, **kwds):
-		# begin wxGlade: wxgDynamicHintDlg.__init__
+		# begin wxGlade: wxgDynamicHintListDlg.__init__
 		kwds["style"] = wx.DEFAULT_DIALOG_STYLE | wx.MAXIMIZE_BOX | wx.MINIMIZE_BOX | wx.RESIZE_BORDER
 		wx.Dialog.__init__(self, *args, **kwds)
-		self._TCTRL_title = wx.TextCtrl(self, wx.ID_ANY, _("<hint title>"), style=wx.BORDER_NONE | wx.TE_CENTRE | wx.TE_READONLY)
+		self._TCTRL_header = wx.TextCtrl(self, wx.ID_ANY, _("Dynamic hints"), style=wx.BORDER_NONE | wx.TE_CENTRE | wx.TE_READONLY)
+		self._LCTRL_hints = cReportListCtrl(self, wx.ID_ANY, style=wx.BORDER_SIMPLE | wx.LC_REPORT | wx.LC_SINGLE_SEL)
 		self._TCTRL_hint = wx.TextCtrl(self, wx.ID_ANY, "", style=wx.TE_MULTILINE | wx.TE_READONLY | wx.TE_WORDWRAP)
 		self._TCTRL_source = wx.TextCtrl(self, wx.ID_ANY, _("<hint source>"), style=wx.BORDER_NONE | wx.TE_CENTRE | wx.TE_READONLY)
 		self._URL_info = wx.HyperlinkCtrl(self, wx.ID_ANY, _("Further information"), _("http://www.duckduckgo.com"), style=wx.HL_DEFAULT_STYLE)
@@ -39,12 +41,12 @@ class wxgDynamicHintDlg(wx.Dialog):
 		# end wxGlade
 
 	def __set_properties(self):
-		# begin wxGlade: wxgDynamicHintDlg.__set_properties
+		# begin wxGlade: wxgDynamicHintListDlg.__set_properties
 		self.SetTitle(_("Dynamic hint"))
-		self.SetSize((400, 400))
-		self._TCTRL_title.SetBackgroundColour(wx.Colour(255, 0, 0))
-		self._TCTRL_title.SetForegroundColour(wx.Colour(255, 255, 0))
-		self._TCTRL_title.SetFont(wx.Font(10, wx.DEFAULT, wx.NORMAL, wx.BOLD, 0, ""))
+		self.SetSize((400, 615))
+		self._TCTRL_header.SetBackgroundColour(wx.Colour(255, 0, 0))
+		self._TCTRL_header.SetForegroundColour(wx.Colour(255, 255, 0))
+		self._TCTRL_header.SetFont(wx.Font(10, wx.DEFAULT, wx.NORMAL, wx.BOLD, 0, ""))
 		self._TCTRL_hint.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_BACKGROUND))
 		self._TCTRL_source.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_BACKGROUND))
 		self._URL_info.Enable(False)
@@ -58,11 +60,12 @@ class wxgDynamicHintDlg(wx.Dialog):
 		# end wxGlade
 
 	def __do_layout(self):
-		# begin wxGlade: wxgDynamicHintDlg.__do_layout
+		# begin wxGlade: wxgDynamicHintListDlg.__do_layout
 		__szr_main = wx.BoxSizer(wx.VERTICAL)
 		__szr_buttons = wx.BoxSizer(wx.HORIZONTAL)
 		__gszr_rationale = wx.FlexGridSizer(2, 2, 3, 5)
-		__szr_main.Add(self._TCTRL_title, 0, wx.BOTTOM | wx.EXPAND | wx.LEFT | wx.RIGHT, 3)
+		__szr_main.Add(self._TCTRL_header, 0, wx.BOTTOM | wx.EXPAND | wx.LEFT | wx.RIGHT, 3)
+		__szr_main.Add(self._LCTRL_hints, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL | wx.EXPAND, 0)
 		__szr_main.Add(self._TCTRL_hint, 1, wx.ALIGN_CENTER_VERTICAL | wx.BOTTOM | wx.EXPAND | wx.LEFT | wx.RIGHT, 3)
 		__szr_main.Add(self._TCTRL_source, 0, wx.BOTTOM | wx.EXPAND | wx.LEFT | wx.RIGHT, 3)
 		__szr_main.Add(self._URL_info, 0, wx.ALIGN_CENTER | wx.BOTTOM, 5)
@@ -86,12 +89,12 @@ class wxgDynamicHintDlg(wx.Dialog):
 		self.Layout()
 		# end wxGlade
 
-	def _on_suppress_button_pressed(self, event):  # wxGlade: wxgDynamicHintDlg.<event_handler>
+	def _on_suppress_button_pressed(self, event):  # wxGlade: wxgDynamicHintListDlg.<event_handler>
 		print "Event handler '_on_suppress_button_pressed' not implemented!"
 		event.Skip()
 
-	def _on_manage_hints_button_pressed(self, event):  # wxGlade: wxgDynamicHintDlg.<event_handler>
+	def _on_manage_hints_button_pressed(self, event):  # wxGlade: wxgDynamicHintListDlg.<event_handler>
 		print "Event handler '_on_manage_hints_button_pressed' not implemented!"
 		event.Skip()
 
-# end of class wxgDynamicHintDlg
+# end of class wxgDynamicHintListDlg

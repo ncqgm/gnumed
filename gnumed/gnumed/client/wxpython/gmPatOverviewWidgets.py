@@ -291,10 +291,14 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 	def __refresh_inbox(self, patient=None):
 		list_items = []
 		list_data = []
+		highlight_list = []
+		line_idx = -1
 
 		overdue_messages = patient.overdue_messages
-		no_of_overdues = len(overdue_messages)
+		if len(overdue_messages) > 0:
+			highlight_list.extend(range(len(overdue_messages)))
 		for msg in overdue_messages:
+			line_idx += 1
 			list_items.append(_('overdue %s: %s') % (
 				gmDateTime.format_interval_medically(msg['interval_due']),
 				gmTools.coalesce(msg['comment'], u'?')
@@ -308,6 +312,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 			# not relevant anymore ?
 			if msg['is_expired']:
 				continue
+			line_idx += 1
 			if msg['due_date'] is None:
 				label = u'%s%s' % (
 					msg['l10n_type'],
@@ -318,14 +323,16 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 					gmDateTime.format_interval_medically(msg['interval_due']),
 					gmTools.coalesce(msg['comment'], u'', u': %s')
 				)
-
 			list_items.append(label)
 			list_data.append(msg)
 
 		pk_enc = patient.get_emr(allow_user_interaction = False).active_encounter['pk_encounter']
 		for hint in patient._get_dynamic_hints(pk_encounter = pk_enc):
+			line_idx += 1
 			list_items.append(hint['title'])
 			list_data.append(hint)
+			if hint['highlight_as_priority']:
+				highlight_list.append(line_idx)
 
 		hints = patient.suppressed_hints
 		if len(hints) > 0:
@@ -335,9 +342,8 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		self._LCTRL_inbox.set_string_items(items = list_items)
 		self._LCTRL_inbox.set_data(data = list_data)
 
-		if no_of_overdues > 0:
-			for idx in range(no_of_overdues):
-				self._LCTRL_inbox.SetItemTextColour(idx, wx.NamedColour('RED'))
+		for idx in highlight_list:
+			self._LCTRL_inbox.SetItemTextColour(idx, wx.NamedColour('RED'))
 
 	#-----------------------------------------------------
 	def _calc_inbox_item_tooltip(self, data):
@@ -765,6 +771,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 			return data
 
 		return None
+
 	#-----------------------------------------------------
 	def _on_history_item_activated(self, event):
 		data = self._LCTRL_history.get_selected_item_data(only_one = True)
