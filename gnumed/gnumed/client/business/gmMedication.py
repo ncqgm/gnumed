@@ -2363,7 +2363,7 @@ def format_substance_intake_as_amts_latex(intake=None, strict=True):
 		cells.append(u'')
 	elif len(components) == 1:
 		c = components[0]
-		dose = (u'%s%s%s' % (c['amount'], format_units(c['unit'], c['dose_unit'], short = True))).replace(u'.', u',')
+		dose = (u'%s%s' % (c['amount'], format_units(c['unit'], c['dose_unit'], short = True))).replace(u'.', u',')
 		if strict:
 			dose = dose[:11]
 		cells.append(_esc(dose))
