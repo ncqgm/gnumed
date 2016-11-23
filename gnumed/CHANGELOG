@@ -10,6 +10,8 @@
 
 IMPROVE: edit area refresh on first setting data
 
+FIX: stall of gm-create_datamatrix in swap storm
+
 	1.6.10
 
 FIX: more faults with dynamic hint detection
