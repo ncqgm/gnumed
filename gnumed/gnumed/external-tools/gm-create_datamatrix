@@ -58,7 +58,6 @@ if test "$?" != "0" ; then
 	exit 1
 fi
 
-sync
 mv -vf ${OUTPUT_FILE}.png ${OUTPUT_FILE} &>> ${LOG}
 
 exit 0
