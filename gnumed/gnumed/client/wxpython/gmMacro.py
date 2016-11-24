@@ -1801,6 +1801,8 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		intakes2export = gmMedicationWidgets.manage_substance_intakes(emr = emr)
 		if intakes2export is None:
 			return u''
+		if len(intakes2export) == 0:
+			return u''
 
 		# make them unique:
 		unique_intakes = {}

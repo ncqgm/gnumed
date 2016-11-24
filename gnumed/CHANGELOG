@@ -27,6 +27,7 @@ IMPROVED: LaTeX formatting of current medications (port from 1.6 branch)
 IMPROVE: edit area refresh on first setting data
 
 FIX: stall of gm-create_datamatrix in swap storm
+FIX: BMP creation without substance intakes
 
 	1.6.10
 
