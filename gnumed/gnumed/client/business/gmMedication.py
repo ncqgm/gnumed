@@ -2984,9 +2984,9 @@ def generate_amts_data_template_definition_file(work_dir=None, strict=True):
  n="$<<range_of::$<praxis::%(praxis)s,%(branch)s::>$,$<current_provider::::>$::30>>$"
 $<praxis_address:: s="%(street)s"::>$
 $<praxis_address:: z="%(postcode)s"::>$
-$<praxis_address:: c="%(urb)s::>$
-$<praxis_comm::workphone// p="%(url)s::20>$
-$<praxis_comm::email// e="%(url)s::80>$
+$<praxis_address:: c="%(urb)s"::>$
+$<praxis_comm::workphone// p="%(url)s"::20>$
+$<praxis_comm::email// e="%(url)s"::80>$
  t="$<today::%Y%m%d::8>$"
 />
 <O ai="s.S.$<amts_total_pages::::1>$ unten"/>
@@ -3018,9 +3018,9 @@ def __generate_enhanced_amts_data_template_definition_file(work_dir=None):
  n="$<praxis::%(praxis)s,%(branch)s::>$,$<current_provider::::>$"
 $<praxis_address:: s="%(street)s %(number)s %(subunit)s"::>$
 $<praxis_address:: z="%(postcode)s"::>$
-$<praxis_address:: c="%(urb)s::>$
-$<praxis_comm::workphone// p="%(url)s::>$
-$<praxis_comm::email// e="%(url)s::>$
+$<praxis_address:: c="%(urb)s"::>$
+$<praxis_comm::workphone// p="%(url)s"::>$
+$<praxis_comm::email// e="%(url)s"::>$
  t="$<today::%Y%m%d::8>$"
 />
 <O ai="Seite 1 unten"/>
