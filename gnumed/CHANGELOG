@@ -12,6 +12,10 @@ NEW: link document to procedure
 NEW: support receiver on documents
 NEW: support inactivity of external care entries
 NEW: DICOM image preview in PACS plugin
+NEW: placeholder <$current_provider_name$>
+NEW: placeholder <$current_provider_title$>
+NEW: placeholder <$current_provider_firstnames$>
+NEW: placeholder <$current_provider_lastnames$>
 
 IMPROVED: EMR journal retrieval speed
 IMPROVED: patient overview now acts on changes to ref.auto_hint

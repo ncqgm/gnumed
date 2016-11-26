@@ -64,7 +64,7 @@ class wxgProcedureEAPnl(wx.ScrolledWindow):
 		self._PRW_hospital_stay.SetToolTipString(_("During which hospitalization was this procedure performed."))
 		self._BTN_add_stay.SetToolTipString(_("Add a hospitalization."))
 		self._TCTRL_comment.SetToolTipString(_("A comment on the procedure (say, the relevant outcome)."))
-		self._PRW_document.SetToolTipString(_("The document most related to this procedure (say, the most recent one)."))
+		self._PRW_document.SetToolTipString(_("The document most relevant to this procedure (say, the most recent one)."))
 		self._PRW_codes.SetToolTipString(_("Codes relevant to this procedure."))
 		# end wxGlade
 

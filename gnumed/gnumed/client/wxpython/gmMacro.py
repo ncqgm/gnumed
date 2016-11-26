@@ -403,6 +403,22 @@ __known_variant_placeholders = {
 
 	# provider related:
 	u'current_provider': u"no arguments",
+	u'current_provider_name': u"""formatted name of current provider:
+		args: <template>,
+		template:	something %(field)s something else (do not include '//' or '::' itself in the template)
+	""",
+	u'current_provider_title': u"""formatted name of current provider:
+		args: <optional template>,
+		template:	something %(title)s something else (do not include '//' or '::' itself in the template)
+	""",
+	u'current_provider_firstnames': u"""formatted name of current provider:
+		args: <optional template>,
+		template:	something %(firstnames)s something else (do not include '//' or '::' itself in the template)
+	""",
+	u'current_provider_lastnames': u"""formatted name of current provider:
+		args: <optional template>,
+		template:	something %(lastnames)s something else (do not include '//' or '::' itself in the template)
+	""",
 	u'current_provider_external_id': u"args: <type of ID>//<issuer of ID>",
 	u'primary_praxis_provider': u"primary provider for current patient in this praxis",
 	u'primary_praxis_provider_external_id': u"args: <type of ID>//<issuer of ID>",
@@ -1184,6 +1200,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			return u'cannot mix "%%s" and "%%(field)s" in template [%s]' % template
 
 		return u'\n'.join(narr)
+
 	#--------------------------------------------------------
 	def _get_variant_title(self, data=None):
 		return self._get_variant_name(data = u'%(title)s')
@@ -1212,9 +1229,11 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		}
 
 		return data % parts
+
 	#--------------------------------------------------------
 	def _get_variant_date_of_birth(self, data='%Y %b %d'):
 		return self.pat.get_formatted_dob(format = str(data), encoding = gmI18N.get_encoding())
+
 	#--------------------------------------------------------
 	# FIXME: extend to all supported genders
 	def _get_variant_gender_mapper(self, data='male//female//other'):
@@ -1603,6 +1622,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			_log.error('template: %s', template)
 
 		return None
+
 	#--------------------------------------------------------
 	def _get_variant_praxis_comm(self, data=None):
 		options = data.split(self.__args_divider)
@@ -1618,6 +1638,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			return u''
 
 		return template % comms[0].fields_as_dict(escape_style = self.__esc_style)
+
 	#--------------------------------------------------------
 	def _get_variant_praxis_id(self, data=None):
 		options = data.split(self.__args_divider)
@@ -1651,17 +1672,49 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 	def _get_variant_current_provider(self, data=None):
 		prov = gmStaff.gmCurrentProvider()
 
-		title = gmTools.coalesce (
-			prov['title'],
-			gmPerson.map_gender2salutation(prov['gender'])
-		)
-
-		tmp = u'%s %s. %s' % (
-			title,
+		tmp = u'%s%s. %s' % (
+			gmTools.coalesce(prov['title'], u'', u'%s '),
 			prov['firstnames'][:1],
 			prov['lastnames']
 		)
 		return self._escape(tmp)
+
+	#--------------------------------------------------------
+	def _get_variant_current_provider_title(self, data=None):
+		if data is None:
+			data = u'%(title)s'
+		elif data.strip() == u'':
+			data = u'%(title)s'
+		return self._get_variant_name(data = data)
+	#--------------------------------------------------------
+	def _get_variant_current_provider_firstnames(self, data=None):
+		if data is None:
+			data = u'%(firstnames)s'
+		elif data.strip() == u'':
+			data = u'%(firstnames)s'
+		return self._get_variant_name(data = data)
+	#--------------------------------------------------------
+	def _get_variant_current_provider_lastnames(self, data=None):
+		if data is None:
+			data = u'%(lastnames)s'
+		elif data.strip() == u'':
+			data = u'%(lastnames)s'
+		return self._get_variant_name(data = data)
+	#--------------------------------------------------------
+	def _get_variant_current_provider_name(self, data=None):
+		if data is None:
+			return [_('template is missing')]
+		if data.strip() == u'':
+			return [_('template is empty')]
+		name = gmStaff.gmCurrentProvider().identity.get_active_name()
+		parts = {
+			'title': self._escape(gmTools.coalesce(name['title'], u'')),
+			'firstnames': self._escape(name['firstnames']),
+			'lastnames': self._escape(name['lastnames']),
+			'preferred': self._escape(gmTools.coalesce(name['preferred'], u''))
+		}
+		return data % parts
+
 	#--------------------------------------------------------
 	def _get_variant_current_provider_external_id(self, data=u''):
 		data_parts = data.split(self.__args_divider)
@@ -1685,6 +1738,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			return u''
 
 		return self._escape(ids[0]['value'])
+
 	#--------------------------------------------------------
 	def _get_variant_primary_praxis_provider(self, data=None):
 		prov = self.pat.primary_provider
@@ -1702,6 +1756,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			prov['lastnames']
 		)
 		return self._escape(tmp)
+
 	#--------------------------------------------------------
 	def _get_variant_primary_praxis_provider_external_id(self, data=u''):
 		data_parts = data.split(self.__args_divider)
@@ -1730,6 +1785,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			return u''
 
 		return self._escape(ids[0]['value'])
+
 	#--------------------------------------------------------
 	def _get_variant_external_id(self, data=u''):
 		data_parts = data.split(self.__args_divider)
@@ -1814,7 +1870,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		del intakes2export
 		unique_intakes = unique_intakes.values()
 
-		# create data files / QR code files
+		# create data files / datamatrix code files
 		self.__create_amts_datamatrix_files(intakes = unique_intakes)
 
 		# create AMTS-LaTeX per intake

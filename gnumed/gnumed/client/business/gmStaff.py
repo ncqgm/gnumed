@@ -45,6 +45,7 @@ class cStaff(gmBusinessDBObject.cBusinessDBObject):
 				xmin AS xmin_staff"""
 	]
 	_updatable_fields = ['short_alias', 'comment', 'is_active', 'db_user']
+
 	#--------------------------------------------------------
 	def __init__(self, aPK_obj=None, row=None):
 		# by default get staff corresponding to CURRENT_USER
@@ -71,6 +72,7 @@ class cStaff(gmBusinessDBObject.cBusinessDBObject):
 		self.__is_current_user = (gmPG2.get_current_user() == self._payload[self._idx['db_user']])
 
 		self.__inbox = None
+
 	#--------------------------------------------------------
 	def __setitem__(self, attribute, value):
 		if attribute == 'db_user':
@@ -78,6 +80,7 @@ class cStaff(gmBusinessDBObject.cBusinessDBObject):
 				_log.debug('will not modify database account association of CURRENT_USER staff member')
 				return
 		gmBusinessDBObject.cBusinessDBObject.__setitem__(self, attribute, value)
+
 	#--------------------------------------------------------
 	def _get_db_lang(self):
 		rows, idx = gmPG2.run_ro_queries (
@@ -96,6 +99,7 @@ class cStaff(gmBusinessDBObject.cBusinessDBObject):
 		return
 
 	database_language = property(_get_db_lang, _set_db_lang)
+
 	#--------------------------------------------------------
 	def _get_inbox(self):
 		if self.__inbox is None:
@@ -107,12 +111,14 @@ class cStaff(gmBusinessDBObject.cBusinessDBObject):
 		return
 
 	inbox = property(_get_inbox, _set_inbox)
+
 	#--------------------------------------------------------
 	def _get_identity(self):
 		from Gnumed.business.gmPerson import cPerson
 		return cPerson(self._payload[self._idx['pk_identity']])
 
 	identity = property(_get_identity, lambda x:x)
+
 	#--------------------------------------------------------
 	def set_role(self, conn=None, role=None):
 		if role.strip() == self._payload[self._idx['role']]:
@@ -292,6 +298,7 @@ class gmCurrentProvider(gmBorg.cBorg):
 	#--------------------------------------------------------
 	def get_staff(self):
 		return self.provider
+
 	#--------------------------------------------------------
 	# __getitem__ handling
 	#--------------------------------------------------------
@@ -299,6 +306,7 @@ class gmCurrentProvider(gmBorg.cBorg):
 		"""Return any attribute if known how to retrieve it by proxy.
 		"""
 		return self.provider[aVar]
+
 	#--------------------------------------------------------
 	# __s/getattr__ handling
 	#--------------------------------------------------------

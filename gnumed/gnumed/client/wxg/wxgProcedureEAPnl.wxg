@@ -275,7 +275,7 @@
                 <option>0</option>
                 <object class="cDocumentPhraseWheel" name="_PRW_document" base="EditTextCtrl">
                     <style>wxNO_BORDER</style>
-                    <tooltip>The document most related to this procedure (say, the most recent one).</tooltip>
+                    <tooltip>The document most relevant to this procedure (say, the most recent one).</tooltip>
                 </object>
             </object>
             <object class="sizeritem">
