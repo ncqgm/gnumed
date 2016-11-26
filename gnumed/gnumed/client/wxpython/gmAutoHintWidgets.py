@@ -437,7 +437,7 @@ class cDynamicHintListDlg(wxgDynamicHintListDlg.wxgDynamicHintListDlg):
 				self.Close()
 		self.status_message = _(u'Hint now suppressed in this patient.')
 		pk_of_suppressed_hint = hint['pk_auto_hint']
-		remaining_hints = [ h for h in self.__hints if h['pk_auto_hint'] <> pk_of_suppressed_hint ]
+		remaining_hints = [ h for h in self.__hints if h['pk_auto_hint'] != pk_of_suppressed_hint ]
 		self.hints = remaining_hints
 
 	#------------------------------------------------------------

@@ -444,6 +444,7 @@ def __request_login_params_tui():
 		raise gmExceptions.ConnectionError(_("Cannot connect to database without login information!"))
 
 	return login
+
 #---------------------------------------------------
 def __request_login_params_gui_wx():
 	"""GUI (wx) input request for database login parameters.
@@ -469,6 +470,7 @@ def __request_login_params_gui_wx():
 		raise gmExceptions.ConnectionError(_("Can't connect to database without login information!"))
 
 	return login
+
 #---------------------------------------------------
 def request_login_params():
 	"""Request login parameters for database connection."""
@@ -510,6 +512,7 @@ def make_psycopg2_dsn(database=None, host=None, port=5432, user=None, password=N
 		dsn_parts.append('password=%s' % password)
 
 	dsn_parts.append('sslmode=prefer')
+	dsn_parts.append('fallback_application_name=GNUmed')
 
 	return ' '.join(dsn_parts)
 
@@ -1848,9 +1851,19 @@ def get_raw_connection(dsn=None, verbose=False, readonly=True):
 	if u'host=salaam.homeunix' in dsn:
 		raise ValueError('The public database is not hosted by <salaam.homeunix.com> anymore.\n\nPlease point your configuration files to <publicdb.gnumed.de>.')
 
+	# try to enforce a useful encoding early on so that we
+	# have a good chance of decoding authentication errors
+	# containing foreign language characters
+	if u' client_encoding=' not in dsn:
+		dsn += u' client_encoding=utf8'
+
+	if u' application_name' not in dsn:
+		dsn += u" application_name=GNUmed"
+
 	try:
-		conn = dbapi.connect(dsn=dsn, connection_factory=psycopg2.extras.DictConnection)
 		#conn = dbapi.connect(dsn=dsn, cursor_factory=psycopg2.extras.RealDictCursor)
+		# DictConnection now _is_ a real dictionary
+		conn = dbapi.connect(dsn=dsn, connection_factory=psycopg2.extras.DictConnection)
 	except dbapi.OperationalError, e:
 
 		t, v, tb = sys.exc_info()
@@ -1859,22 +1872,24 @@ def get_raw_connection(dsn=None, verbose=False, readonly=True):
 		except (AttributeError, IndexError, TypeError):
 			raise
 
-		msg = unicode(msg, gmI18N.get_encoding(), 'replace')
+		#msg = unicode(msg, gmI18N.get_encoding(), 'replace')
+		msg = unicode(msg, u'utf8', 'replace')
 
-		if msg.find('fe_sendauth') != -1:
+		if u'fe_sendauth' in msg:
 			raise cAuthenticationError, (dsn, msg), tb
 
 		if regex.search('user ".*" does not exist', msg) is not None:
 			raise cAuthenticationError, (dsn, msg), tb
 
-		if msg.find('uthenti') != -1:
+		if u'uthenti' in msg:
 			raise cAuthenticationError, (dsn, msg), tb
 
 		raise
 
 	_log.debug('new database connection, backend PID: %s, readonly: %s', conn.get_backend_pid(), readonly)
 
-	# do first-time stuff
+	# do first-connection-only stuff
+	# - verify PG version
 	global postgresql_version
 	if postgresql_version is None:
 		curs = conn.cursor()
@@ -1897,7 +1912,7 @@ def get_raw_connection(dsn=None, verbose=False, readonly=True):
 			_log_PG_settings(curs=curs)
 		curs.close()
 		conn.commit()
-
+	# - verify PG understands client time zone
 	if _default_client_timezone is None:
 		__detect_client_timezone(conn = conn)
 
@@ -1930,6 +1945,7 @@ def get_raw_connection(dsn=None, verbose=False, readonly=True):
 	conn.is_decorated = False
 
 	return conn
+
 # =======================================================================
 def get_connection(dsn=None, readonly=True, encoding=None, verbose=False, pooled=True):
 	"""Get a new connection.
@@ -2013,19 +2029,23 @@ def get_connection(dsn=None, readonly=True, encoding=None, verbose=False, pooled
 	conn.is_decorated = True
 
 	return conn
+
 #-----------------------------------------------------------------------
 def shutdown():
 	if __ro_conn_pool is None:
 		return
 	__ro_conn_pool.shutdown()
+
 # ======================================================================
 # internal helpers
 #-----------------------------------------------------------------------
 def __noop():
 	pass
+
 #-----------------------------------------------------------------------
 def _raise_exception_on_ro_conn_close():
 	raise TypeError(u'close() called on read-only connection')
+
 #-----------------------------------------------------------------------
 def log_database_access(action=None):
 	run_insert (
@@ -2034,6 +2054,7 @@ def log_database_access(action=None):
 		values = {u'user_action': action},
 		end_tx = True
 	)
+
 #-----------------------------------------------------------------------
 def sanity_check_time_skew(tolerance=60):
 	"""Check server time and local time to be within
@@ -2077,6 +2098,7 @@ def sanity_check_time_skew(tolerance=60):
 		return False
 
 	return True
+
 #-----------------------------------------------------------------------
 def sanity_check_database_settings():
 	"""Checks database settings.
@@ -2164,6 +2186,7 @@ def sanity_check_database_settings():
 		return 1, u'\n'.join(msg)
 
 	return 0, u''
+
 #------------------------------------------------------------------------
 def _log_PG_settings(curs=None):
 	# don't use any of the run_*()s since that might
@@ -2194,6 +2217,7 @@ def _log_PG_settings(curs=None):
 		_log.debug(u'PG extension: %s', ext['pg_available_extensions'])
 
 	return True
+
 #========================================================================
 def make_pg_exception_fields_unicode(exc):
 
@@ -2213,6 +2237,7 @@ def make_pg_exception_fields_unicode(exc):
 	exc.u_pgerror = unicode(exc.pgerror, gmI18N.get_encoding(), 'replace').strip().strip(u'\n').strip().strip(u'\n')
 
 	return exc
+
 #------------------------------------------------------------------------
 def extract_msg_from_pg_exception(exc=None):
 
@@ -2223,6 +2248,7 @@ def extract_msg_from_pg_exception(exc=None):
 
 	# assumption
 	return unicode(msg, gmI18N.get_encoding(), 'replace')
+
 # =======================================================================
 class cAuthenticationError(dbapi.OperationalError):
 
