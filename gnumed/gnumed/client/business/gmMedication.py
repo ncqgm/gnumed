@@ -2714,7 +2714,7 @@ def __generate_enhanced_amts_data_template_definition_file_v2_0(work_dir=None):
 #------------------------------------------------------------
 def format_substance_intake_notes(emr=None, output_format=u'latex', table_type=u'by-product'):
 
-	tex = u'\\noindent %s\n' % _('Additional notes')
+	tex = u'\\noindent %s\n' % _('Additional notes for healthcare professionals')
 	tex += u'%%%% requires "\\usepackage{longtable}"\n'
 	tex += u'%%%% requires "\\usepackage{tabu}"\n'
 	tex += u'\\noindent \\begin{longtabu} to \\textwidth {|X[,L]|r|X[,L]|}\n'

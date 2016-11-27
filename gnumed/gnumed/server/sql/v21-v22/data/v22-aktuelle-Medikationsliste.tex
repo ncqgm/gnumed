@@ -1,0 +1,270 @@
+%------------------------------------------------------------------
+% Current medication list
+%
+% Author: Karsten Hilbert
+% Author: karsten.hilbert@gmx.net
+% License: GPL v2 or later
+%
+% requires pdflatex to be run with -recorder option
+%------------------------------------------------------------------
+
+% debugging
+\listfiles
+\errorcontextlines 10000
+
+\documentclass[
+	version=last,
+	paper=portrait,
+	paper=a4,
+	DIV=9,									% help typearea find a good Satzspiegel
+	BCOR=0mm,								% keine BindeCORrektur
+	fontsize=12pt,							% per spec
+	parskip=full,							% Absätze mit Leerzeilen trennen, kein Einzug
+	headsepline=on,
+	footsepline=on,
+	titlepage=false
+]{scrartcl}
+
+%------------------------------------------------------------------
+% packages
+\usepackage{scrlayer-scrpage}				% Kopf- und Fußzeilen
+\usepackage{geometry}						% setup margins
+\usepackage{microtype}						% micro-adjustments to typesetting
+\usepackage[cjkjis,graphics]{ucs}			% lots of UTF8 symbols, breaks with xelatex
+\usepackage[T1]{fontenc}					% fonts are T1
+\usepackage[ngerman]{babel}					% Deutsch und Trennung
+\usepackage[utf8x]{inputenc}				% content is UTF8, breaks with xelatex
+\usepackage{textcomp}						% Symbole für Textmodus zum Escapen
+\usepackage{ragged2e}						% improved alignment, needed for raggedleft in header table cell
+\usepackage{tabularx}						% bessere Tabellen
+\usepackage{tabu}							% bessere Tabellen
+\usepackage{longtable}						% Tabellen über mehrere Seiten
+%\usepackage[table]{xcolor}					% gray headers
+%\usepackage{helvet}						% Arial alike Helvetica
+\usepackage{lastpage}						% easy access to page number of last page
+%\usepackage{embedfile}						% store copy of data file for producing data matrix inside PDF
+\usepackage{array}							% improved column styles
+%\usepackage[abspath]{currfile}				% generically refer to input file
+%\usepackage{graphicx}						% Grafiken laden (datamatrix)
+%\usepackage[space]{grffile}					% besserer Zugriff auf Grafikdateien
+%\usepackage[export]{adjustbox}				% improved options for \includegraphics
+\usepackage{marvosym}						% Symbole: Handy, Telefon, E-Mail, used in non-conformant layout
+%\usepackage[ocgcolorlinks=true]{hyperref}	% aktive URLs, needs to be loaded last, most of the time
+\usepackage{hyperref}						% aktive URLs, needs to be loaded last, most of the time
+
+% debugging:
+%\usepackage{showkeys}						% print labels (anchors and stuff) as margin notes
+%\usepackage{interfaces}					% \papergraduate
+
+%\usepackage{calc}							% \widthof (für signature)
+
+%------------------------------------------------------------------
+% setup:
+% - debugging
+% %\tracingtabu=3
+%\usetikz{basic}
+%\hypersetup{debug=true}
+
+
+% - PDF metadata
+\hypersetup{
+	pdftitle = {Medikationsplan: $<name::%(firstnames)s %(lastnames)s::>$, $<date_of_birth::%d.%m.%Y::>$},
+	pdfauthor = {$<current_provider::::>$, $<praxis::%(branch)s, %(praxis)s::>$},
+	pdfsubject = {Medikationsplan},
+	pdfproducer = {GNUmed $<client_version::::>$, Vorlage $<form_name_long::::>$, $<form_version::::>$ [$<form_version_internal::::>$, $<form_last_modified::::>$]},
+	pdfdisplaydoctitle = true
+}
+
+
+% - precise positioning of things to satisfy spec
+%\setlength{\tabcolsep}{0pt}
+\setlength{\parskip}{0pt}
+\setlength{\topskip}{0pt}
+\setlength{\floatsep}{0pt}
+\setlength{\textfloatsep}{0pt}
+
+
+% - page
+\geometry{
+	verbose,
+	% debugging:
+%	showframe,											% show page frames
+%	showcrop,											% show crop marks
+	a4paper,
+	portrait,
+	bindingoffset=0pt,
+% %
+%	% top-to-bottom on page:
+%	top=8mm,					% per spec
+%	includehead,				% into <total body>, not into topmargin
+%	headheight=48mm,			% per spec, decrease textheight, top margin (8mm) + actual header size (40mm)
+	headsep=0mm,				% no more space until *top* of textheight (not baseline of first line ...)
+%	%textheight,				% is calculated by the other dimensions, should amount to 144mm (210 - (8+40+0+10+9))
+%	includefoot,				% into <total body>, not into bottommargin
+%	% need to be calculated to work:
+%	footskip=\dimexpr+\ht\strutbox\relax,		% 10mm per spec, decreases textheight
+	bottom=\dimexpr25mm+\ht\strutbox\relax,		% 8mm per spec, 15mm found empirically (includes the 10mm footskip, but why ?)
+% %
+%	% left-to-right on page:
+%	left=8mm,					% per spec
+%	%textwidth,					% is calculated by the other dimensions, should amount to 281mm (297 - (8+0+0+8))
+%	includemp,					% include marginparsep and marginparwidth into width, decreases textwidth (but set to 0 below)
+%	marginparsep=0mm,			% no margin notes offset
+%	marginparwidth=0mm,			% no margin notes width
+%	right=8mm					% per spec
+}
+
+
+% - tabu
+\tabulinesep=^1mm_1mm
+
+
+% - header = top part
+\lohead{{
+	\parbox[t]{\textwidth}{
+		\upshape
+		{\centering {\LARGE Medikamentenliste} \\}
+		{\centering $<today::%d.%B %Y::>$ -- Seite \thepage von \pageref{LastPage} \\}
+		\begin{tabular}[t]{ll}
+			Patient & {\large $<lastname::::1>$\textsc{$<<lastname::::2-99>>$}, $<firstname::::>$}\tabularnewline
+			geb     & $<date_of_birth::%d.%B %Y::>$\tabularnewline
+			$<<if_not_empty::$<adr_street::home::>$$<adr_number::home::>$//\multicolumn{2}{l}{$<adr_street::home::>$ $<adr_number::home::>$}\tabularnewline//% address empty::>>$
+			$<<if_not_empty::$<adr_postcode::home::>$$<adr_location::home::>$//\multicolumn{2}{l}{$<adr_postcode::home::>$ $<adr_location::home::>$}\tabularnewline//% address empty::>>$
+		\end{tabular}
+		\hfill
+		\begin{tabular}[t]{ll}
+			Arzt & $<current_provider::::>$\tabularnewline
+			$<<if_not_empty::$<current_provider_external_id::Fachgebiet//Ärztekammer::>$// FA für & %s\tabularnewline//% speciality not available::>>$
+			$<<if_not_empty::$<current_provider_external_id::KV-LANR//KV::>$//LANR & %s\tabularnewline//% no LANR available::>>$
+		\end{tabular}
+	}
+}}
+\lehead{{
+	\parbox[t]{\textwidth}{
+		\upshape
+		{\centering {\LARGE Medikamentenliste} \\}
+		{\centering $<today::%d.%B %Y::>$ -- Seite \thepage von \pageref{LastPage} \\}
+		\begin{tabular}[t]{ll}
+			Patient & {\large $<lastname::::1>$\textsc{$<<lastname::::2-99>>$}, $<firstname::::>$}\tabularnewline
+			geb     & $<date_of_birth::%d.%B %Y::>$\tabularnewline
+			$<<if_not_empty::$<adr_street::home::>$$<adr_number::home::>$//\multicolumn{2}{l}{$<adr_street::home::>$ $<adr_number::home::>$}\tabularnewline//% address empty::>>$
+			$<<if_not_empty::$<adr_postcode::home::>$$<adr_location::home::>$//\multicolumn{2}{l}{$<adr_postcode::home::>$ $<adr_location::home::>$}\tabularnewline//% address empty::>>$
+		\end{tabular}
+		\hfill
+		\begin{tabular}[t]{ll}
+			Arzt & $<current_provider::::>$\tabularnewline
+			$<<if_not_empty::$<current_provider_external_id::Fachgebiet//Ärztekammer::>$// FA für & %s\tabularnewline//% speciality not available::>>$
+			$<<if_not_empty::$<current_provider_external_id::KV-LANR//KV::>$//LANR & %s\tabularnewline//% no LANR available::>>$
+		\end{tabular}
+	}
+}}
+\cehead{}
+\cohead{}
+\rehead{}
+\rohead{}
+
+
+% footer setup = bottom part
+\lofoot{{%
+	\parbox[t]{\textwidth}{
+		\tiny
+		\begin{tabular}[t]{ll}%
+			\Telefon       & $<praxis_comm::workphone::>$\\
+			\FAX           & $<praxis_comm::fax::>$\\
+			\Email         & $<<if_not_empty::$<praxis_comm::email::>$//\href{mailto:$<praxis_comm::email::>$}{%s}//::>>$\\
+		\end{tabular}%
+		\hfill
+		\begin{tabular}[t]{ll}%
+			BSNR       & $<praxis_id::KV-BSNR//KV//%(value)s::>$\\
+			           & \\
+			$<<ph_cfg::argumentsdivider//##//%% <%(name)s> set to [%(value)s]::>>$
+			$<<if_not_empty::$<praxis_comm::web::>$##\ComputerMouse & \href{http://%s}{%s}\\##% no praxis web address available::>>$
+			$<<ph_cfg::argumentsdivider//DEFAULT//%% <%(name)s> set to [%(value)s]::>>$
+		\end{tabular}%
+		\hfill
+		\begin{tabular}[t]{l}%
+			\\
+			GNUmed $<client_version::::>$ (\href{http://www.gnumed.org}{www.gnumed.org})\\
+			Vorlage $<form_name_long::::>$ v$<form_version::::>$\\
+		\end{tabular}%
+	}
+}}
+\lefoot{{%
+	\parbox[t]{\textwidth}{
+		\tiny
+		\begin{tabular}[t]{ll}%
+			\Telefon       & $<praxis_comm::workphone::>$\\
+			\FAX           & $<praxis_comm::fax::>$\\
+			\Email         & $<<if_not_empty::$<praxis_comm::email::>$//\href{mailto:$<praxis_comm::email::>$}{%s}//::>>$\\
+		\end{tabular}%
+		\hfill
+		\begin{tabular}[t]{ll}%
+			BSNR       & $<praxis_id::KV-BSNR//KV//%(value)s::>$\\
+			           & \\
+			$<<ph_cfg::argumentsdivider//##//%% <%(name)s> set to [%(value)s]::>>$
+			$<<if_not_empty::$<praxis_comm::web::>$##\ComputerMouse & \href{http://%s}{%s}\\##% no praxis web address available::>>$
+			$<<ph_cfg::argumentsdivider//DEFAULT//%% <%(name)s> set to [%(value)s]::>>$
+		\end{tabular}%
+		\hfill
+		\begin{tabular}[t]{l}%
+			\\
+			GNUmed $<client_version::::>$ (\href{http://www.gnumed.org}{www.gnumed.org})\\
+			Vorlage $<form_name_long::::>$ v$<form_version::::>$\\
+		\end{tabular}%
+	}
+}}
+\cefoot{}
+\cofoot{}
+\refoot{}
+\rofoot{}
+
+%------------------------------------------------------------------
+\begin{document}
+
+% debugging
+%\papergraduate
+
+%------------------------------------------------------------------
+% Medikamente
+$<current_meds_table::latex::>$
+
+% Hinweise
+% uncomment, if and as needed, the next lines to append text below the table
+%{\footnotesize			% start smaller font
+% <any line(s) of info you wish to always be printed immediately below the table>
+%}						% end smaller font
+
+$<free_text::Hinweise an den Patienten::9999>$
+
+% Arztinformationen
+$<current_meds_notes::latex::>$
+
+%------------------------------------------------------------------
+
+\vfill{}
+
+%------------------------------------------------------------------
+% Allergien
+\noindent Bislang bekannte Allergien:
+
+\noindent $<allergy_state::::>$
+
+\noindent \begin{tabularx}{\textwidth}{|l|l|X|}
+\hline
+Auslöser & Typ & Reaktion\tabularnewline
+\hline
+$<allergies::%(descriptor)s & %(l10n_type)s & {\footnotesize %(reaction)s} \tabularnewline \hline::>$
+\end{tabularx}
+%------------------------------------------------------------------
+
+\medskip{}
+
+%------------------------------------------------------------------
+% Unterschrift
+\noindent \begin{flushright}
+\texttt{\textsl{\footnotesize Stempel / Unterschrift}}
+\par\end{flushright}
+
+%------------------------------------------------------------------
+\end{document}
+%------------------------------------------------------------------

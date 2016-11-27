@@ -684,7 +684,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			_log.debug('region definition not a simple length')
 
 		# note that we only check for "legality", not for reasonable bounds
-		first_last = region_str.split('-')
+		first_last = region_str.split(u'-')
 		if len(first_last) != 2:
 			_log.error('invalid placeholder region definition: %s', region_str)
 			raise ValueError
@@ -2328,6 +2328,8 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			return None
 
 		parts = data.split(self.__args_divider)
+		if len(parts) < 3:
+			return u'IF_NOT_EMPTY lacks <instead> definition'
 		txt = parts[0]
 		template = parts[1]
 		instead = parts[2]
