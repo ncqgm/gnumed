@@ -20,7 +20,7 @@
 	BCOR=0mm,								% keine BindeCORrektur
 	fontsize=12pt,							% per spec
 	parskip=full,							% Absätze mit Leerzeilen trennen, kein Einzug
-	headsepline=on,
+	headsepline=off,
 	footsepline=on,
 	titlepage=false
 ]{scrartcl}
@@ -128,14 +128,13 @@
 		\begin{tabular}[t]{ll}
 			Patient & {\large $<lastname::::1>$\textsc{$<<lastname::::2-99>>$}, $<firstname::::>$}\tabularnewline
 			geb     & $<date_of_birth::%d.%B %Y::>$\tabularnewline
-			$<<if_not_empty::$<adr_street::home::>$$<adr_number::home::>$//\multicolumn{2}{l}{$<adr_street::home::>$ $<adr_number::home::>$}\tabularnewline//% address empty::>>$
-			$<<if_not_empty::$<adr_postcode::home::>$$<adr_location::home::>$//\multicolumn{2}{l}{$<adr_postcode::home::>$ $<adr_location::home::>$}\tabularnewline//% address empty::>>$
+			$<<if_not_empty::$<adr_street::home::>$$<adr_number::home::>$$<adr_postcode::home::>$$<adr_location::home::>$//\multicolumn{2}{l}{{\footnotesize $<adr_street::home::>$ $<adr_number::home::>$, $<adr_postcode::home::>$ $<adr_location::home::>$}}\tabularnewline//% address empty::>>$
 		\end{tabular}
 		\hfill
 		\begin{tabular}[t]{ll}
 			Arzt & $<current_provider::::>$\tabularnewline
-			$<<if_not_empty::$<current_provider_external_id::Fachgebiet//Ärztekammer::>$// FA für & %s\tabularnewline//% speciality not available::>>$
-			$<<if_not_empty::$<current_provider_external_id::KV-LANR//KV::>$//LANR & %s\tabularnewline//% no LANR available::>>$
+			$<<if_not_empty::$<current_provider_external_id::Fachgebiet//Ärztekammer::>$//{\footnotesize FA für & %s}\tabularnewline//% speciality not available::>>$
+			$<<if_not_empty::$<current_provider_external_id::KV-LANR//KV::>$//{\footnotesize LANR & %s}\tabularnewline//% no LANR available::>>$
 		\end{tabular}
 	}
 }}
@@ -147,14 +146,13 @@
 		\begin{tabular}[t]{ll}
 			Patient & {\large $<lastname::::1>$\textsc{$<<lastname::::2-99>>$}, $<firstname::::>$}\tabularnewline
 			geb     & $<date_of_birth::%d.%B %Y::>$\tabularnewline
-			$<<if_not_empty::$<adr_street::home::>$$<adr_number::home::>$//\multicolumn{2}{l}{$<adr_street::home::>$ $<adr_number::home::>$}\tabularnewline//% address empty::>>$
-			$<<if_not_empty::$<adr_postcode::home::>$$<adr_location::home::>$//\multicolumn{2}{l}{$<adr_postcode::home::>$ $<adr_location::home::>$}\tabularnewline//% address empty::>>$
+			$<<if_not_empty::$<adr_street::home::>$$<adr_number::home::>$$<adr_postcode::home::>$$<adr_location::home::>$//\multicolumn{2}{l}{{\footnotesize $<adr_street::home::>$ $<adr_number::home::>$, $<adr_postcode::home::>$ $<adr_location::home::>$}}\tabularnewline//% address empty::>>$
 		\end{tabular}
 		\hfill
 		\begin{tabular}[t]{ll}
 			Arzt & $<current_provider::::>$\tabularnewline
-			$<<if_not_empty::$<current_provider_external_id::Fachgebiet//Ärztekammer::>$// FA für & %s\tabularnewline//% speciality not available::>>$
-			$<<if_not_empty::$<current_provider_external_id::KV-LANR//KV::>$//LANR & %s\tabularnewline//% no LANR available::>>$
+			$<<if_not_empty::$<current_provider_external_id::Fachgebiet//Ärztekammer::>$//{\footnotesize FA für & %s}\tabularnewline//% speciality not available::>>$
+			$<<if_not_empty::$<current_provider_external_id::KV-LANR//KV::>$//{\footnotesize LANR & %s}\tabularnewline//% no LANR available::>>$
 		\end{tabular}
 	}
 }}
@@ -169,23 +167,24 @@
 	\parbox[t]{\textwidth}{
 		\tiny
 		\begin{tabular}[t]{ll}%
-			\Telefon       & $<praxis_comm::workphone::>$\\
-			\FAX           & $<praxis_comm::fax::>$\\
-			\Email         & $<<if_not_empty::$<praxis_comm::email::>$//\href{mailto:$<praxis_comm::email::>$}{%s}//::>>$\\
+			\multicolumn{2}{l}{$<praxis::%(praxis)s, %(branch)s::>$}\tabularnewline
+			\multicolumn{2}{l}{$<praxis_address::%(street)s %(number)s %(subunit)s, %(postcode)s %(urb)s::>$}\tabularnewline
+			\multicolumn{2}{l}{\Email $<<if_not_empty::$<praxis_comm::email::>$//\href{mailto:$<praxis_comm::email::>$}{%s}//::>>$}\tabularnewline
+			%\Email         & $<<if_not_empty::$<praxis_comm::email::>$//\href{mailto:$<praxis_comm::email::>$}{%s}//::>>$\tabularnewline
 		\end{tabular}%
-		\hfill
+		%\hfill
 		\begin{tabular}[t]{ll}%
-			BSNR       & $<praxis_id::KV-BSNR//KV//%(value)s::>$\\
-			           & \\
+			\Telefon       & $<praxis_comm::workphone::>$\tabularnewline
+			\FAX           & $<praxis_comm::fax::>$\tabularnewline
 			$<<ph_cfg::argumentsdivider//##//%% <%(name)s> set to [%(value)s]::>>$
-			$<<if_not_empty::$<praxis_comm::web::>$##\ComputerMouse & \href{http://%s}{%s}\\##% no praxis web address available::>>$
+			$<<if_not_empty::$<praxis_comm::web::>$##\ComputerMouse & \href{http://%s}{%s}\tabularnewline##% no praxis web address available::>>$
 			$<<ph_cfg::argumentsdivider//DEFAULT//%% <%(name)s> set to [%(value)s]::>>$
 		\end{tabular}%
-		\hfill
-		\begin{tabular}[t]{l}%
-			\\
-			GNUmed $<client_version::::>$ (\href{http://www.gnumed.org}{www.gnumed.org})\\
-			Vorlage $<form_name_long::::>$ v$<form_version::::>$\\
+		%\hfill
+		\begin{tabular}[t]{ll}%
+			BSNR    & $<praxis_id::KV-BSNR//KV//%(value)s::>$\tabularnewline
+			GNUmed  & v$<client_version::::>$ (\href{http://www.gnumed.org}{www.gnumed.org})\tabularnewline
+			Vorlage & $<form_name_long::::>$ v$<form_version::::>$\tabularnewline
 		\end{tabular}%
 	}
 }}
@@ -193,23 +192,24 @@
 	\parbox[t]{\textwidth}{
 		\tiny
 		\begin{tabular}[t]{ll}%
-			\Telefon       & $<praxis_comm::workphone::>$\\
-			\FAX           & $<praxis_comm::fax::>$\\
-			\Email         & $<<if_not_empty::$<praxis_comm::email::>$//\href{mailto:$<praxis_comm::email::>$}{%s}//::>>$\\
+			\multicolumn{2}{l}{$<praxis::%(praxis)s, %(branch)s::>$}\tabularnewline
+			\multicolumn{2}{l}{$<praxis_address::%(street)s %(number)s %(subunit)s, %(postcode)s %(urb)s::>$}\tabularnewline
+			\multicolumn{2}{l}{\Email $<<if_not_empty::$<praxis_comm::email::>$//\href{mailto:$<praxis_comm::email::>$}{%s}//::>>$}\tabularnewline
+			%\Email         & $<<if_not_empty::$<praxis_comm::email::>$//\href{mailto:$<praxis_comm::email::>$}{%s}//::>>$\tabularnewline
 		\end{tabular}%
-		\hfill
+		%\hfill
 		\begin{tabular}[t]{ll}%
-			BSNR       & $<praxis_id::KV-BSNR//KV//%(value)s::>$\\
-			           & \\
+			\Telefon       & $<praxis_comm::workphone::>$\tabularnewline
+			\FAX           & $<praxis_comm::fax::>$\tabularnewline
 			$<<ph_cfg::argumentsdivider//##//%% <%(name)s> set to [%(value)s]::>>$
-			$<<if_not_empty::$<praxis_comm::web::>$##\ComputerMouse & \href{http://%s}{%s}\\##% no praxis web address available::>>$
+			$<<if_not_empty::$<praxis_comm::web::>$##\ComputerMouse & \href{http://%s}{%s}\tabularnewline##% no praxis web address available::>>$
 			$<<ph_cfg::argumentsdivider//DEFAULT//%% <%(name)s> set to [%(value)s]::>>$
 		\end{tabular}%
-		\hfill
-		\begin{tabular}[t]{l}%
-			\\
-			GNUmed $<client_version::::>$ (\href{http://www.gnumed.org}{www.gnumed.org})\\
-			Vorlage $<form_name_long::::>$ v$<form_version::::>$\\
+		%\hfill
+		\begin{tabular}[t]{ll}%
+			BSNR    & $<praxis_id::KV-BSNR//KV//%(value)s::>$\tabularnewline
+			GNUmed  & v$<client_version::::>$ (\href{http://www.gnumed.org}{www.gnumed.org})\tabularnewline
+			Vorlage & $<form_name_long::::>$ v$<form_version::::>$\tabularnewline
 		\end{tabular}%
 	}
 }}
@@ -236,14 +236,11 @@ $<current_meds_table::latex::>$
 
 $<free_text::Hinweise an den Patienten::9999>$
 
+%------------------------------------------------------------------
 % Arztinformationen
+\clearpage
 $<current_meds_notes::latex::>$
 
-%------------------------------------------------------------------
-
-\vfill{}
-
-%------------------------------------------------------------------
 % Allergien
 \noindent Bislang bekannte Allergien:
 
