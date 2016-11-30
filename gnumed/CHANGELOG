@@ -12,7 +12,8 @@ IMPROVE: edit area refresh on first setting data
 
 FIX: stall of gm-create_datamatrix in swap storm
 FIX: BMP creation without substance intakes
-FIX: missing quotes in BMP datafile
+FIX: missing quotes in BMP datafile [thanks Moritz]
+FIX: failure to sometimes store progress notes [thanks Marc]
 
 	1.6.10
 
@@ -1824,6 +1825,10 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 ------------------------------------------------
 # gnumed_v21
 ------------------------------------------------
+
+	21.11
+
+FIX: serialization failures due to table mod announcement triggers
 
 	21.10
 
