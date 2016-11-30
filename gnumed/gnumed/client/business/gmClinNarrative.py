@@ -225,19 +225,46 @@ def create_narrative_item(narrative=None, soap_cat=None, episode_id=None, encoun
 		soap_cat - soap category
 		episode_id - episodes's primary key
 		encounter_id - encounter's primary key
+
+		any of the args being None (except soap_cat) will fail the SQL code
 	"""
-	# any of the args being None (except soap_cat) should fail the SQL code
-
-	# sanity checks:
-
-	# 1) silently do not insert empty narrative
+	# silently do not insert empty narrative
 	narrative = narrative.strip()
 	if narrative == u'':
 		return None
 
-	# 2) also, silently do not insert true duplicates
-	# FIXME: this should check for .provider = current_user but
-	# FIXME: the view has provider mapped to their staff alias
+	args = {'enc': encounter_id, 'epi': episode_id, 'soap': soap_cat, 'narr': narrative}
+
+	# insert new narrative
+	# but, also silently, do not insert true duplicates
+	# this should check for .provider = current_user but
+	# the view has provider mapped to their staff alias
+	cmd = u"""
+		INSERT INTO clin.clin_narrative
+			(fk_encounter, fk_episode, narrative, soap_cat)
+		SELECT
+			%(enc)s, %(epi)s, %(narr)s, %(soap)s
+		WHERE NOT EXISTS (
+			SELECT 1 FROM clin.v_narrative
+			WHERE
+				pk_encounter = %(enc)s
+					AND
+				pk_episode = %(epi)s
+					AND
+				soap_cat = %(soap)s
+					AND
+				narrative = %(narr)s
+		)
+		RETURNING pk"""
+	rows, idx = gmPG2.run_rw_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': args}], return_data = True, get_col_idx = False)
+	if len(rows) == 1:
+		# re-use same link_obj if given because when called from create_progress_note we won't yet see rows inside a new tx
+		return cNarrative(aPK_obj = rows[0]['pk'], link_obj = link_obj)
+
+	if len(rows) > 1:
+		raise Exception('more than one row returned from single-row INSERT')
+
+	# retrieve existing narrative
 	cmd = u"""
 		SELECT * FROM clin.v_narrative
 		WHERE
@@ -249,41 +276,16 @@ def create_narrative_item(narrative=None, soap_cat=None, episode_id=None, encoun
 				AND
 			narrative = %(narr)s
 	"""
-	args = {
-		'enc': encounter_id,
-		'epi': episode_id,
-		'soap': soap_cat,
-		'narr': narrative
-	}
 	rows, idx = gmPG2.run_ro_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 	if len(rows) == 1:
-		narrative = cNarrative(row = {'pk_field': 'pk_narrative', 'data': rows[0], 'idx': idx})
-		return narrative
+		return cNarrative(row = {'pk_field': 'pk_narrative', 'data': rows[0], 'idx': idx})
 
-	# insert new narrative
-	queries = [
-		{'cmd': u"""
-			INSERT INTO clin.clin_narrative
-				(fk_encounter, fk_episode, narrative, soap_cat)
-			VALUES
-				(%s, %s, %s, lower(%s))""",
-		 'args': [encounter_id, episode_id, narrative, soap_cat]
-		},
-		{'cmd': u"""
-			SELECT * FROM clin.v_narrative
-			WHERE
-				pk_narrative = currval(pg_get_serial_sequence('clin.clin_narrative', 'pk'))"""
-		}
-	]
-	rows, idx = gmPG2.run_rw_queries(link_obj = link_obj, queries = queries, return_data = True, get_col_idx = True)
-
-	narrative = cNarrative(row = {'pk_field': 'pk_narrative', 'idx': idx, 'data': rows[0]})
-	return narrative
+	raise Exception('retrieving known-to-exist narrative row returned 0 or >1 result: %s' % len(rows))
 
 #------------------------------------------------------------
 def delete_clin_narrative(narrative=None):
 	"""Deletes a clin.clin_narrative row by it's PK."""
-	cmd = u"delete from clin.clin_narrative where pk=%s"
+	cmd = u"DELETE FROM clin.clin_narrative WHERE pk=%s"
 	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': [narrative]}])
 	return True
 
