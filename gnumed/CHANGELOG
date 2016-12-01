@@ -29,7 +29,8 @@ IMPROVED: early-connect error decoding
 
 	1.6.11
 
-IMPROVE: edit area refresh on first setting data
+IMPROVED: edit area refresh on first setting data
+IMPROVED: DB link error logging
 
 FIX: stall of gm-create_datamatrix in swap storm
 FIX: BMP creation without substance intakes

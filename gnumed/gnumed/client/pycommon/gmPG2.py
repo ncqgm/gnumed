@@ -1498,6 +1498,52 @@ def sanitize_pg_regex(expression=None, escape_all=False):
 		#']', '\]',			# not needed
 
 #------------------------------------------------------------------------
+def capture_cursor_state(cursor=None):
+	conn = cursor.connection
+	txt = u"""Link state:
+Cursor
+  identity: %s; name: %s
+  closed: %s; scrollable: %s; with hold: %s; arraysize: %s; itersize: %s;
+  last rowcount: %s; rownumber: %s; lastrowid (OID): %s;
+  last description: %s
+  statusmessage: %s
+Connection
+  identity: %s; backend pid: %s; protocol version: %s;
+  closed: %s; autocommit: %s; isolation level: %s; encoding: %s; async: %s;
+  TX status: %s; CX status: %s; executing async op: %s;
+Query
+  %s
+""" % (
+		id(cursor),
+		cursor.name,
+		cursor.closed,
+		cursor.scrollable,
+		cursor.withhold,
+		cursor.arraysize,
+		cursor.itersize,
+		cursor.rowcount,
+		cursor.rownumber,
+		cursor.lastrowid,
+		cursor.description,
+		cursor.statusmessage,
+
+		id(conn),
+		conn.get_backend_pid(),
+		conn.protocol_version,
+		conn.closed,
+		conn.autocommit,
+		conn.isolation_level,
+		conn.encoding,
+		conn.async,
+		conn.get_transaction_status(),
+		conn.status,
+		conn.isexecuting(),
+
+		cursor.query,
+	)
+	return txt
+
+#------------------------------------------------------------------------
 def run_ro_queries(link_obj=None, queries=None, verbose=False, return_data=True, get_col_idx=False):
 	"""Run read-only queries.
 
@@ -1510,9 +1556,9 @@ def run_ro_queries(link_obj=None, queries=None, verbose=False, return_data=True,
 	"""
 	if isinstance(link_obj, dbapi._psycopg.cursor):
 		curs = link_obj
-		curs_close = __noop
-		tx_rollback = __noop
-		readonly_rollback_just_in_case = __noop
+		curs_close = lambda :1
+		tx_rollback = lambda :1
+		readonly_rollback_just_in_case = lambda :1
 	elif isinstance(link_obj, dbapi._psycopg.connection):
 		curs = link_obj.cursor()
 		curs_close = curs.close
@@ -1523,7 +1569,7 @@ def run_ro_queries(link_obj=None, queries=None, verbose=False, return_data=True,
 			# do not rollback readonly queries on passed-in readwrite
 			# connections just in case because they may have already
 			# seen fully legitimate write action which would get lost
-			readonly_rollback_just_in_case = __noop
+			readonly_rollback_just_in_case = lambda :1
 	elif link_obj is None:
 		conn = get_connection(readonly=True, verbose=verbose)
 		curs = conn.cursor()
@@ -1547,14 +1593,10 @@ def run_ro_queries(link_obj=None, queries=None, verbose=False, return_data=True,
 		try:
 			curs.execute(query['cmd'], args)
 			if verbose:
-				_log.debug('ran query: [%s]', curs.query)
-				if curs.statusmessage != u'':
-					_log.debug('PG status message: %s', curs.statusmessage)
-				_log.debug('cursor description: %s', str(curs.description))
+				_log.debug(capture_cursor_state(curs))
 		except dbapi.Error as pg_exc:
-			_log.error('query failed: [%s]', curs.query)
-			if curs.statusmessage != u'':
-				_log.error('PG status message: %s', curs.statusmessage)
+			_log.error('query failed in RO connection')
+			_log.error(capture_cursor_state(curs))
 			pg_exc = make_pg_exception_fields_unicode(pg_exc)
 			_log.error('PG error code: %s', pg_exc.pgcode)
 			if pg_exc.pgerror is not None:
@@ -1583,9 +1625,8 @@ def run_ro_queries(link_obj=None, queries=None, verbose=False, return_data=True,
 				)
 			raise
 		except:
-			_log.error('query failed: [%s]', curs.query)
-			if curs.statusmessage != u'':
-				_log.error('PG status message: %s', curs.statusmessage)
+			_log.exception('query failed in RO connection')
+			_log.error(capture_cursor_state(curs))
 			try:
 				curs_close()
 			except dbapi.InterfaceError:
@@ -1655,19 +1696,19 @@ def run_rw_queries(link_obj=None, queries=None, end_tx=False, return_data=None, 
 			* for <index> see <get_col_idx>
 	"""
 	if isinstance(link_obj, dbapi._psycopg.cursor):
-		conn_close = __noop
-		conn_commit = __noop
-		tx_rollback = __noop
+		conn_close = lambda :1
+		conn_commit = lambda :1
+		tx_rollback = lambda :1
 		curs = link_obj
 		curs_close = __noop
 	elif isinstance(link_obj, dbapi._psycopg.connection):
-		conn_close = __noop
+		conn_close = lambda :1
 		if end_tx:
 			conn_commit = link_obj.commit
 			tx_rollback = link_obj.rollback
 		else:
-			conn_commit = __noop
-			tx_rollback = __noop
+			conn_commit = lambda :1
+			tx_rollback = lambda :1
 		curs = link_obj.cursor()
 		curs_close = curs.close
 	elif link_obj is None:
@@ -1690,20 +1731,17 @@ def run_rw_queries(link_obj=None, queries=None, end_tx=False, return_data=None, 
 			args = None
 		try:
 			curs.execute(query['cmd'], args)
+			if verbose:
+				_log.debug(capture_cursor_state(curs))
+		# DB related exceptions
 		except dbapi.Error as pg_exc:
-			_log.error('RW query failed: [%s]', curs.query)
-			if curs.statusmessage != u'':
-				_log.error('PG status message: %s', curs.statusmessage)
+			_log.error('query failed in RW connection')
+			_log.error(capture_cursor_state(curs))
 			pg_exc = make_pg_exception_fields_unicode(pg_exc)
 			_log.error(u'PG error code: %s', pg_exc.pgcode)
 			if pg_exc.pgerror is not None:
 				_log.error(u'PG error message: %s', pg_exc.u_pgerror)
-			try:
-				curs_close()
-				tx_rollback()			# just for good measure
-				conn_close()
-			except dbapi.InterfaceError:
-				_log.exception('cannot cleanup')
+			# privilege problem
 			if pg_exc.pgcode == sql_error_codes.INSUFFICIENT_PRIVILEGE:
 				details = u'Query: [%s]' % curs.query.strip().strip(u'\n').strip().strip(u'\n')
 				if curs.statusmessage != u'':
@@ -1715,15 +1753,31 @@ def run_rw_queries(link_obj=None, queries=None, end_tx=False, return_data=None, 
 					msg = u'[%s]' % pg_exc.pgcode
 				else:
 					msg = u'[%s]: %s' % (pg_exc.pgcode, pg_exc.u_pgerror)
+				try:
+					curs_close()
+					tx_rollback()			# just for good measure
+					conn_close()
+				except dbapi.InterfaceError:
+					_log.exception('cannot cleanup')
 				raise gmExceptions.AccessDenied (
 					msg,
 					source = u'PostgreSQL',
 					code = pg_exc.pgcode,
 					details = details
 				)
+			# other problem
+			gmLog2.log_stack_trace()
+			try:
+				curs_close()
+				tx_rollback()			# just for good measure
+				conn_close()
+			except dbapi.InterfaceError:
+				_log.exception('cannot cleanup')
 			raise
+		# other exception
 		except:
-			_log.exception('error running RW query')
+			_log.exception('error running query in RW connection')
+			_log.error(capture_cursor_state(curs))
 			gmLog2.log_stack_trace()
 			try:
 				curs_close()
@@ -1731,7 +1785,6 @@ def run_rw_queries(link_obj=None, queries=None, end_tx=False, return_data=None, 
 				conn_close()
 			except dbapi.InterfaceError:
 				_log.exception('cannot cleanup')
-				raise
 			raise
 
 	data = None
@@ -2805,6 +2858,10 @@ SELECT to_timestamp (foofoo,'YYMMDD.HH24MI') FROM (
 		print get_index_name(indexed_table = 'clin.vaccination', indexed_column = 'fk_episode')
 
 	#--------------------------------------------------------------------
+	def test_faulty_SQL():
+		run_ro_queries(queries = [{'cmd': u'SELEC 1'}])
+
+	#--------------------------------------------------------------------
 	# run tests
 	#test_get_connection()
 	#test_exceptions()
@@ -2828,6 +2885,7 @@ SELECT to_timestamp (foofoo,'YYMMDD.HH24MI') FROM (
 	#test_file2bytea()
 	#test_file2bytea_overlay()
 	#test_file2bytea_copy_from()
-	test_file2bytea_lo()
+	#test_file2bytea_lo()
+	test_faulty_SQL()
 
 # ======================================================================
