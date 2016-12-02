@@ -1694,7 +1694,8 @@ def run_rw_queries(link_obj=None, queries=None, end_tx=False, return_data=None, 
 		conn_commit = lambda :1
 		tx_rollback = lambda :1
 		curs = link_obj
-		curs_close = __noop
+		curs_close = lambda :1
+		notices_accessor = curs.connection
 	elif isinstance(link_obj, dbapi._psycopg.connection):
 		conn_close = lambda :1
 		if end_tx:
@@ -1705,6 +1706,7 @@ def run_rw_queries(link_obj=None, queries=None, end_tx=False, return_data=None, 
 			tx_rollback = lambda :1
 		curs = link_obj.cursor()
 		curs_close = curs.close
+		notices_accessor = link_obj
 	elif link_obj is None:
 		conn = get_connection(readonly=False)
 		conn_close = conn.close
@@ -1712,6 +1714,7 @@ def run_rw_queries(link_obj=None, queries=None, end_tx=False, return_data=None, 
 		tx_rollback = conn.rollback
 		curs = conn.cursor()
 		curs_close = curs.close
+		notices_accessor = conn
 	else:
 		raise ValueError('link_obj must be cursor, connection or None but not [%s]' % link_obj)
 
@@ -1727,10 +1730,16 @@ def run_rw_queries(link_obj=None, queries=None, end_tx=False, return_data=None, 
 			curs.execute(query['cmd'], args)
 			if verbose:
 				_log.debug(capture_cursor_state(curs))
+			for notice in notices_accessor.notices:
+				_log.debug(notice.strip(u'\n').strip(u'\r'))
+			del notices_accessor.notices[:]
 		# DB related exceptions
 		except dbapi.Error as pg_exc:
 			_log.error('query failed in RW connection')
 			_log.error(capture_cursor_state(curs))
+			for notice in notices_accessor.notices:
+				_log.error(notice.strip(u'\n').strip(u'\r'))
+			del notices_accessor.notices[:]
 			pg_exc = make_pg_exception_fields_unicode(pg_exc)
 			_log.error(u'PG error code: %s', pg_exc.pgcode)
 			if pg_exc.pgerror is not None:
@@ -1772,6 +1781,9 @@ def run_rw_queries(link_obj=None, queries=None, end_tx=False, return_data=None, 
 		except:
 			_log.exception('error running query in RW connection')
 			_log.error(capture_cursor_state(curs))
+			for notice in notices_accessor.notices:
+				_log.debug(notice.strip(u'\n').strip(u'\r'))
+			del notices_accessor.notices[:]
 			gmLog2.log_stack_trace()
 			try:
 				curs_close()
