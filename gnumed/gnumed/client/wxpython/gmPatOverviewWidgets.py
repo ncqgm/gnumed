@@ -336,8 +336,8 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 
 		hints = patient.suppressed_hints
 		if len(hints) > 0:
-			list_items.append(_("suppr'd:") + u' ' + u','.join([h['title'][:7] + gmTools.u_ellipsis for h in hints]))
-			list_data.append(_('Suppressed hints:\n') + u'\n'.join([h['title'] for h in hints]))
+			list_items.append((_("suppr'd (%s):") % len(hints)) + u' ' + u','.join([h['title'][:7] + gmTools.u_ellipsis for h in hints]))
+			list_data.append(_('Suppressed hints:\n') + u'\n'.join([u'%s: %s' % (hints.index(h) + 1, h['title']) for h in hints]))
 
 		self._LCTRL_inbox.set_string_items(items = list_items)
 		self._LCTRL_inbox.set_data(data = list_data)
@@ -655,19 +655,41 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		]
 		for issue in issues:
 			last_encounter = emr.get_last_encounter(issue_id = issue['pk_health_issue'])
-			if last_encounter is None:
-				last = gmDateTime.pydt_strftime(issue['modified_when'], format = '%Y %b')
-				sort_key = u'%s::%s' % (gmDateTime.pydt_strftime(issue['modified_when'], format = date_format4sorting), issue['pk_health_issue'])
+			linked_encounter = gmEMRStructItems.cEncounter(issue['pk_encounter'])
+			when_candidates = [issue['modified_when'], linked_encounter['last_affirmed']]
+			if last_encounter is not None:
+				when_candidates.append(last_encounter['last_affirmed'])
+			if (patient['dob'] is not None) and (issue['age_noted'] is not None):
+				when_candidates.append(patient['dob'] + issue['age_noted'])
+			if issue['is_active']:
+				# sort active issues by time of most recent clinical access, which
+				# means the most recent of:
+				# issue.modified_when
+				# last_encounter.last_affirmed
+				# linked_encounter.last_affirmed
+				# dob + age
+				relevant_date = max(when_candidates)
 			else:
-				last = gmDateTime.pydt_strftime(last_encounter['last_affirmed'], format = '%Y %b')
-				sort_key = u'%s::%s' % (gmDateTime.pydt_strftime(last_encounter['last_affirmed'], format = date_format4sorting), issue['pk_health_issue'])
-			sort_key_list.append(sort_key)
+				# sort IN-active issues by best guess of real clinical start
+				# means either:
+				# - dob + age
+				# or the earliest of:
+				# - issue.modified_when
+				# - last_encounter.last_affirmed
+				# - linked_encounter.last_affirmed
+				if (patient['dob'] is not None) and (issue['age_noted'] is not None):
+					relevant_date = patient['dob'] + issue['age_noted']
+				else:
+					relevant_date = min(when_candidates)
+			sort_key = u'%s::%s' % (gmDateTime.pydt_strftime(relevant_date, format = date_format4sorting), issue['pk_health_issue'])
+			relevant_date_str = gmDateTime.pydt_strftime(relevant_date, format = '%Y %b')
 			if issue['age_noted'] is None:
 				encounter = gmEMRStructItems.cEncounter(issue['pk_encounter'])
 				age = _(u' (entered %s ago)') % gmDateTime.format_interval_medically(now - encounter['started'])
 			else:
 				age = u' (@ %s)' % gmDateTime.format_interval_medically(issue['age_noted'])
-			data[sort_key] = [u'%s %s%s' % (last, issue['description'], age), issue]
+			sort_key_list.append(sort_key)
+			data[sort_key] = [u'%s %s%s' % (relevant_date_str, issue['description'], age), issue]
 		del issues
 
 		stays = emr.get_hospital_stays()
