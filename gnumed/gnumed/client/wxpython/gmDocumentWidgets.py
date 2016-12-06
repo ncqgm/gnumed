@@ -2051,7 +2051,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 			return True
 
 		# string nodes are labels such as episodes which may or may not have children
-		if type(node_data) == type('string'):
+		if isinstance(node_data, basestring):
 			self.Toggle(node)
 			return True
 

@@ -10,11 +10,14 @@
 
 IMPROVED: edit area refresh on first setting data
 IMPROVED: DB link error logging
+IMPROVED: suppressed hints display in patient overview
+IMPROVED: sorting of Hx items in patient overview
 
 FIX: stall of gm-create_datamatrix in swap storm
 FIX: BMP creation without substance intakes
 FIX: missing quotes in BMP datafile [thanks Moritz]
 FIX: failure to sometimes store progress notes [thanks Marc]
+FIX: exception on double-clicking document tree label node
 
 	1.6.10
 
