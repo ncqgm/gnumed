@@ -1860,6 +1860,8 @@ IMPROVED: safer backup file compression
 
 	21.11
 
+IMPROVED: backup scripts error checking
+
 FIX: serialization failures due to table mod announcement triggers
 
 	21.10

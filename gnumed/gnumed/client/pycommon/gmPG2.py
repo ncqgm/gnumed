@@ -1500,6 +1500,13 @@ def sanitize_pg_regex(expression=None, escape_all=False):
 #------------------------------------------------------------------------
 def capture_cursor_state(cursor=None):
 	conn = cursor.connection
+
+	tx_status = conn.get_transaction_status()
+	if tx_status in [ psycopg2.extensions.TRANSACTION_STATUS_INERROR, psycopg2.extensions.TRANSACTION_STATUS_UNKNOWN ]:
+		isolation_level = u'tx aborted or unknown, cannot retrieve'
+	else:
+		isolation_level = conn.isolation_level
+
 	txt = u"""Link state:
 Cursor
   identity: %s; name: %s
@@ -1532,10 +1539,10 @@ Query
 		conn.protocol_version,
 		conn.closed,
 		conn.autocommit,
-		conn.isolation_level,
+		isolation_level,
 		conn.encoding,
 		conn.async,
-		conn.get_transaction_status(),
+		tx_status,
 		conn.status,
 		conn.isexecuting(),
 
@@ -2871,7 +2878,7 @@ SELECT to_timestamp (foofoo,'YYMMDD.HH24MI') FROM (
 
 	#--------------------------------------------------------------------
 	def test_faulty_SQL():
-		run_ro_queries(queries = [{'cmd': u'SELEC 1'}])
+		run_rw_queries(queries = [{'cmd': u'SELEC 1'}])
 
 	#--------------------------------------------------------------------
 	# run tests

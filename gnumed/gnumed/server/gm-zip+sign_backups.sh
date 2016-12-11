@@ -52,37 +52,58 @@ fi
 shopt -s -q nullglob
 
 # zip up any backups
-for BACKUP in ${BACKUP_BASENAME}-*.tar ; do
+AGGREGATE_EXIT_CODE=0
+for TAR_FILE in ${BACKUP_BASENAME}-*.tar ; do
+
+	BZ2_FILE="${TAR_FILE}.bz2"
 
 	# are the backup and ...
-	TAR_IS_OPEN=`lsof | grep ${BACKUP}`
+	TAR_OPEN=`lsof | grep ${TAR_FILE}`
 	# ... the corresponding bz2 both open at the moment ?
-	BZ2_IS_OPEN=`lsof | grep ${BACKUP}.bz2`
-	if test -z "${TAR_IS_OPEN}" -a -z "${BZ2_IS_OPEN}" ; then
+	BZ2_OPEN=`lsof | grep ${BZ2_FILE}`
+	if test -z "${TAR_OPEN}" -a -z "${BZ2_OPEN}" ; then
 		# no: remove the bz2 and start over compressing
-		rm -f ${BACKUP}.bz2
+		rm -f ${BZ2_FILE}
 	else
 		# yes: skip to next backup
 		continue
 	fi
 
+	# verify tar archive
+	if test -z ${VERIFY_TAR} ; then
+		tar -xOf ${TAR_FILE} > /dev/null
+		RESULT="$?"
+		if test "${RESULT}" != "0" ; then
+			echo "Verifying backup tar archive [${TAR_FILE}] failed (${RESULT}). Skipping."
+			AGGREGATE_EXIT_CODE=${RESULT}
+			continue
+		fi
+	fi
+
+	# compress tar archive
 	# I have tried "xz -9 -e" and it did not make much of
 	# a difference (48 MB in a 1.2 GB backup)
 	#xz --quiet --extreme --check sha256 --no-warn -${COMPRESSION_LEVEL} ${BACKUP}
 	#xz --quiet --test ${BACKUP}.xz
-	bzip2 -zq -${COMPRESSION_LEVEL} ${BACKUP}
-	if test "$?" != "0" ; then
-		echo "Cannot compress backup [${BACKUP}]. Aborting."
-		exit 1
+	bzip2 -zq -${COMPRESSION_LEVEL} ${TAR_FILE}
+	RESULT="$?"
+	if test "${RESULT}" != "0" ; then
+		echo "Compressing tar archive [${TAR_FILE}] as bz2 failed (${RESULT}). Skipping."
+		AGGREGATE_EXIT_CODE=${RESULT}
+		continue
 	fi
-	bzip2 -tq ${BACKUP}.bz2
-	if test "$?" != "0" ; then
-		echo "Cannot verify compressed backup [${BACKUP}.bz2]. Aborting."
-		exit 1
+	# verify compressed archive
+	bzip2 -tq ${BZ2_FILE}
+	RESULT="$?"
+	if test "${RESULT}" != "0" ; then
+		echo "Verifying compressed archive [${BZ2_FILE}] failed (${RESULT}). Removing."
+		AGGREGATE_EXIT_CODE=${RESULT}
+		rm -f ${BZ2_FILE}
+		continue
 	fi
 
-	chmod ${BACKUP_MASK} ${BACKUP}.bz2
-	chown ${BACKUP_OWNER} ${BACKUP}.bz2
+	chmod ${BACKUP_MASK} ${BZ2_FILE}
+	chown ${BACKUP_OWNER} ${BZ2_FILE}
 
 	# Reed-Solomon error protection support
 #	if test -n ${ADD_ECC} ; then
@@ -94,8 +115,8 @@ for BACKUP in ${BACKUP_BASENAME}-*.tar ; do
 		LOCAL_MAILER=`which mail`
 
 		#SHA512="SHA 512:"`sha512sum -b ${BACKUP_FILENAME}.tar.bz2`
-		SHA512=`openssl dgst -sha512 -hex ${BACKUP}.bz2`
-		RMD160=`openssl dgst -ripemd160 -hex ${BACKUP}.bz2`
+		SHA512=`openssl dgst -sha512 -hex ${BZ2_FILE}`
+		RMD160=`openssl dgst -ripemd160 -hex ${BZ2_FILE}`
 
 		export REPLYTO=${SIG_RECEIVER}
 
@@ -107,8 +128,8 @@ for BACKUP in ${BACKUP_BASENAME}-*.tar ; do
 			echo "	<tan>$GNOTARY_TAN</tan>"
 			echo "	<action>notarize</action>"
 			echo "	<hashes number=\"2\">"
-			echo "		<hash file=\"${BACKUP}.bz2\" modified=\"${TS}\" algorithm=\"SHA-512\">${SHA512}</hash>"
-			echo "		<hash file=\"${BACKUP}.bz2\" modified=\"${TS}\" algorithm=\"RIPE-MD-160\">${RMD160}</hash>"
+			echo "		<hash file=\"${BZ2_FILE}\" modified=\"${TS}\" algorithm=\"SHA-512\">${SHA512}</hash>"
+			echo "		<hash file=\"${BZ2_FILE}\" modified=\"${TS}\" algorithm=\"RIPE-MD-160\">${RMD160}</hash>"
 			echo "	</hashes>"
 			echo "</message>"
 			echo " "
@@ -117,6 +138,5 @@ for BACKUP in ${BACKUP_BASENAME}-*.tar ; do
 
 done
 
-exit 0
 
-#==============================================================
+exit ${AGGREGATE_EXIT_CODE}
