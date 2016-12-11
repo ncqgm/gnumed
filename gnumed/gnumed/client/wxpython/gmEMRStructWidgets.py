@@ -710,6 +710,7 @@ class cHospitalStayEditAreaPnl(wxgHospitalStayEditAreaPnl.wxgHospitalStayEditAre
 	def __init__(self, *args, **kwargs):
 		wxgHospitalStayEditAreaPnl.wxgHospitalStayEditAreaPnl.__init__(self, *args, **kwargs)
 		gmEditArea.cGenericEditAreaMixin.__init__(self)
+
 	#----------------------------------------------------------------
 	# generic Edit Area mixin API
 	#----------------------------------------------------------------
@@ -749,6 +750,7 @@ class cHospitalStayEditAreaPnl(wxgHospitalStayEditAreaPnl.wxgHospitalStayEditAre
 						self._PRW_discharge.SetFocus()
 
 		if self._PRW_hospital.GetData() is None:
+			valid = False
 			self._PRW_hospital.display_as_valid(False)
 			self.status_message = _('Must select a hospital. Cannot save hospitalization.')
 			self._PRW_hospital.SetFocus()
@@ -756,6 +758,7 @@ class cHospitalStayEditAreaPnl(wxgHospitalStayEditAreaPnl.wxgHospitalStayEditAre
 			self._PRW_hospital.display_as_valid(True)
 
 		return (valid is True)
+
 	#----------------------------------------------------------------
 	def _save_as_new(self):
 
@@ -770,6 +773,7 @@ class cHospitalStayEditAreaPnl(wxgHospitalStayEditAreaPnl.wxgHospitalStayEditAre
 
 		self.data = stay
 		return True
+
 	#----------------------------------------------------------------
 	def _save_as_update(self):
 
@@ -781,6 +785,7 @@ class cHospitalStayEditAreaPnl(wxgHospitalStayEditAreaPnl.wxgHospitalStayEditAre
 		self.data.save_payload()
 
 		return True
+
 	#----------------------------------------------------------------
 	def _refresh_as_new(self):
 		self._PRW_hospital.SetText(value = u'', data = None)
@@ -789,6 +794,7 @@ class cHospitalStayEditAreaPnl(wxgHospitalStayEditAreaPnl.wxgHospitalStayEditAre
 		self._PRW_discharge.SetText()
 		self._TCTRL_comment.SetValue(u'')
 		self._PRW_hospital.SetFocus()
+
 	#----------------------------------------------------------------
 	def _refresh_from_existing(self):
 		self._PRW_hospital.SetText(value = u'%s @ %s' % (self.data['ward'], self.data['hospital']), data = self.data['pk_org_unit'])

@@ -2561,7 +2561,7 @@ class gmTopLevelFrame(wx.Frame):
 		curr_pat = gmPerson.gmCurrentPatient()
 		if not curr_pat.connected:
 			curr_pat = None
-		gmSubstanceMgmtWidgets.jump_to_drug_database(parent = self, patient = curr_pat)
+		gmSubstanceMgmtWidgets.jump_to_drug_database(patient = curr_pat)
 
 	#----------------------------------------------
 	def __on_kompendium_ch(self, evt):
