@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-09-02 08:48+0200\n"
+"POT-Creation-Date: 2016-12-11 13:20+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -9536,7 +9536,8 @@ msgstr ""
 msgid "due in %s%s"
 msgstr ""
 
-msgid "suppr'd:"
+#, python-format
+msgid "suppr'd (%s):"
 msgstr ""
 
 msgid "Suppressed hints:\n"
@@ -10053,6 +10054,10 @@ msgid "Text input cancelled by user."
 msgstr ""
 
 msgid "no bill selected"
+msgstr ""
+
+#, python-format
+msgid "[%s] bill has no address"
 msgstr ""
 
 msgid "attach rejected, already serving a client"
@@ -14647,7 +14652,7 @@ msgstr ""
 msgid "&Vaccinations"
 msgstr ""
 
-msgid "Add (a) vaccination(s) for the current patient."
+msgid "Manage vaccinations for the current patient."
 msgstr ""
 
 msgid "&Family history (FHx)"
