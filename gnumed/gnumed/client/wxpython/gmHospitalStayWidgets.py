@@ -318,6 +318,7 @@ class cHospitalStayEditAreaPnl(wxgHospitalStayEditAreaPnl.wxgHospitalStayEditAre
 						self._PRW_discharge.SetFocus()
 
 		if self._PRW_hospital.GetData() is None:
+			valid = False
 			self._PRW_hospital.display_as_valid(False)
 			self.status_message = _('Must select a hospital. Cannot save hospitalization.')
 			self._PRW_hospital.SetFocus()

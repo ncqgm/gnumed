@@ -114,7 +114,7 @@ def get_drug_database(parent=None, patient=None):
 			return None
 
 	if patient is not None:
-		drug_db.patient = pat
+		drug_db.patient = patient
 
 	return drug_db
 
