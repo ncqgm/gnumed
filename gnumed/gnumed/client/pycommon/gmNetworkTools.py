@@ -202,7 +202,8 @@ def check_for_update(url=None, current_branch=None, current_version=None, consid
 
 	try:
 		remote_file = wget.urlopen(url)
-	except (wget.URLError, ValueError, OSError):
+	except (wget.URLError, ValueError, OSError, IOError):
+		# IOError: socket.error
 		_log.exception("cannot retrieve version file from [%s]", url)
 		return (None, _('Cannot retrieve version information from:\n\n%s') % url)
 

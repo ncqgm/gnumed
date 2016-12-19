@@ -40,6 +40,9 @@ FIX: BMP creation without substance intakes
 FIX: missing quotes in BMP datafile [thanks Moritz]
 FIX: failure to sometimes store progress notes [thanks Marc]
 FIX: exception on double-clicking document tree label node
+FIX: exception on switching to drug database frontend [thanks a sk_SK]
+FIX: exception on saving hospital stay [thanks a sk_SK]
+FIX: exception on checking for upgrade [thanks Philipp]
 
 	1.6.10
 
