@@ -106,7 +106,7 @@ select
 	r_vdp.*,
 	(select array_agg(r_vdc.pk_substance)
 	 from ref.v_drug_components r_vdc
-	 where r_vdc.pk_product = r_vdp.pk_drug_product
+	 where r_vdc.pk_drug_product = r_vdp.pk_drug_product
 	) as pk_substances
 from
 	ref.v_drug_products r_vdp

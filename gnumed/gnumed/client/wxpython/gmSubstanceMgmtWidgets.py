@@ -1334,7 +1334,6 @@ if __name__ == '__main__':
 
 	#----------------------------------------
 	app = wx.PyWidgetTester(size = (600, 300))
-	#app.SetWidget(cSubstancePhraseWheel, -1)
-	app.SetWidget(cProductOrSubstancePhraseWheel, -1)
+	app.SetWidget(cSubstancePhraseWheel, -1)
 	app.MainLoop()
 	#manage_substance_intakes()

@@ -112,7 +112,7 @@ select
 	)	as is_in_use,
 
 	r_dp.pk
-		as pk_product,
+		as pk_drug_product,
 	r_vsd.pk_dose,
 	r_vsd.pk_substance,
 	r_dp.fk_data_source

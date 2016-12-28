@@ -620,6 +620,7 @@ class cSubstanceDoseMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
 		return self._find_matches(fragment_condition)
 
 #------------------------------------------------------------
+#------------------------------------------------------------
 class cProductOrSubstanceMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
 
 	# by product name
@@ -640,9 +641,9 @@ class cProductOrSubstanceMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
 		SELECT
 			ARRAY[1, pk_drug_product]::INTEGER[]
 				AS data,
-			(product || ' (' || preparation || %s || amount || unit || ' ' || substance || ')' || coalesce(' [' || atc_drug || ']', ''))
+			(product || ' (' || preparation || ' %s ' || amount || unit || coalesce('/' || dose_unit, '') || ' ' || substance || ')' || coalesce(' [' || atc_drug || ']', ''))
 				AS list_label,
-			(product || ' (' || preparation || %s || amount || unit || ' ' || substance || ')' || coalesce(' [' || atc_drug || ']', ''))
+			(product || ' (' || preparation || ' %s ' || amount || unit || coalesce('/' || dose_unit, '') || ' ' || substance || ')' || coalesce(' [' || atc_drug || ']', ''))
 				AS field_label,
 			1 AS rank
 		FROM
@@ -655,69 +656,69 @@ class cProductOrSubstanceMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
 	)
 
 	# by component
-	_query_component_by_name = u"""
-		SELECT
-			ARRAY[3, r_vdc1.pk_component]::INTEGER[]
-				AS data,
-			(r_vdc1.substance || ' ' || r_vdc1.amount || r_vdc1.unit || ' ' || r_vdc1.preparation || ' ('
-				|| r_vdc1.product || ' ['
-					|| (
-						SELECT array_to_string(array_agg(r_vdc2.amount), ' / ')
-						FROM ref.v_drug_components r_vdc2
-						WHERE r_vdc2.pk_drug_product = r_vdc1.pk_drug_product
-					)
-				|| ']'
-			|| ')'
-			)	AS field_label,
-			(r_vdc1.substance || ' ' || r_vdc1.amount || r_vdc1.unit || ' ' || r_vdc1.preparation || ' ('
-				|| r_vdc1.product || ' ['
-					|| (
-						SELECT array_to_string(array_agg(r_vdc2.amount), ' / ')
-						FROM ref.v_drug_components r_vdc2
-						WHERE r_vdc2.pk_drug_product = r_vdc1.pk_drug_product
-					)
-				|| ']'
-			|| ')'
-			)	AS list_label,
-			1 AS rank
-		FROM
-			(SELECT *, product AS description FROM ref.v_drug_components) AS r_vdc1
-		WHERE
-			r_vdc1.substance %(fragment_condition)s
-		LIMIT 50"""
+#	_query_component_by_name = u"""
+#		SELECT
+#			ARRAY[3, r_vdc1.pk_component]::INTEGER[]
+#				AS data,
+#			(r_vdc1.substance || ' ' || r_vdc1.amount || r_vdc1.unit || ' ' || r_vdc1.preparation || ' ('
+#				|| r_vdc1.product || ' ['
+#					|| (
+#						SELECT array_to_string(array_agg(r_vdc2.amount), ' / ')
+#						FROM ref.v_drug_components r_vdc2
+#						WHERE r_vdc2.pk_drug_product = r_vdc1.pk_drug_product
+#					)
+#				|| ']'
+#			|| ')'
+#			)	AS field_label,
+#			(r_vdc1.substance || ' ' || r_vdc1.amount || r_vdc1.unit || ' ' || r_vdc1.preparation || ' ('
+#				|| r_vdc1.product || ' ['
+#					|| (
+#						SELECT array_to_string(array_agg(r_vdc2.amount), ' / ')
+#						FROM ref.v_drug_components r_vdc2
+#						WHERE r_vdc2.pk_drug_product = r_vdc1.pk_drug_product
+#					)
+#				|| ']'
+#			|| ')'
+#			)	AS list_label,
+#			1 AS rank
+#		FROM
+#			(SELECT *, product AS description FROM ref.v_drug_components) AS r_vdc1
+#		WHERE
+#			r_vdc1.substance %(fragment_condition)s
+#		LIMIT 50"""
 
-	_query_component_by_name_and_strength = u"""
-		SELECT
-			ARRAY[3, r_vdc1.pk_component]::INTEGER[]
-				AS data,
-			(r_vdc1.substance || ' ' || r_vdc1.amount || r_vdc1.unit || ' ' || r_vdc1.preparation || ' ('
-				|| r_vdc1.product || ' ['
-					|| (
-						SELECT array_to_string(array_agg(r_vdc2.amount), ' / ')
-						FROM ref.v_drug_components r_vdc2
-						WHERE r_vdc2.pk_drug_product = r_vdc1.pk_drug_product
-					)
-				|| ']'
-			|| ')'
-			)	AS field_label,
-			(r_vdc1.substance || ' ' || r_vdc1.amount || r_vdc1.unit || ' ' || r_vdc1.preparation || ' ('
-				|| r_vdc1.product || ' ['
-					|| (
-						SELECT array_to_string(array_agg(r_vdc2.amount), ' / ')
-						FROM ref.v_drug_components r_vdc2
-						WHERE r_vdc2.pk_drug_product = r_vdc1.pk_drug_product
-					)
-				|| ']'
-			|| ')'
-			)	AS list_label,
-			1 AS rank
-		FROM (SELECT *, substance AS description FROM ref.v_drug_components) AS r_vdc1
-		WHERE
-			%(fragment_condition)s
-		ORDER BY list_label
-		LIMIT 50"""
+#	_query_component_by_name_and_strength = u"""
+#		SELECT
+#			ARRAY[3, r_vdc1.pk_component]::INTEGER[]
+#				AS data,
+#			(r_vdc1.substance || ' ' || r_vdc1.amount || r_vdc1.unit || ' ' || r_vdc1.preparation || ' ('
+#				|| r_vdc1.product || ' ['
+#					|| (
+#						SELECT array_to_string(array_agg(r_vdc2.amount), ' / ')
+#						FROM ref.v_drug_components r_vdc2
+#						WHERE r_vdc2.pk_drug_product = r_vdc1.pk_drug_product
+#					)
+#				|| ']'
+#			|| ')'
+#			)	AS field_label,
+#			(r_vdc1.substance || ' ' || r_vdc1.amount || r_vdc1.unit || ' ' || r_vdc1.preparation || ' ('
+#				|| r_vdc1.product || ' ['
+#					|| (
+#						SELECT array_to_string(array_agg(r_vdc2.amount), ' / ')
+#						FROM ref.v_drug_components r_vdc2
+#						WHERE r_vdc2.pk_drug_product = r_vdc1.pk_drug_product
+#					)
+#				|| ']'
+#			|| ')'
+#			)	AS list_label,
+#			1 AS rank
+#		FROM (SELECT *, substance AS description FROM ref.v_drug_components) AS r_vdc1
+#		WHERE
+#			%(fragment_condition)s
+#		ORDER BY list_label
+#		LIMIT 50"""
 
-	# by substance name
+	# by substance name in doses
 	_query_substance_by_name = u"""
 		SELECT
 			data,
@@ -728,21 +729,22 @@ class cProductOrSubstanceMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
 			-- first: substance intakes which match, because we tend to reuse them often
 			SELECT
 				ARRAY[2, pk_substance]::INTEGER[] AS data,
-				(description || ' ' || amount || ' ' || unit) AS field_label,
-				(description || ' ' || amount || ' ' || unit || ' (%s)') AS list_label,
+				(description || ' ' || amount || unit || coalesce('/' || dose_unit, '')) AS field_label,
+				(description || ' ' || amount || unit || coalesce('/' || dose_unit, '') || ' (%s)') AS list_label,
 				1 AS rank
 			FROM (
-				SELECT DISTINCT ON (description, amount, unit)
+				SELECT DISTINCT ON (description, amount, unit, dose_unit)
 					pk_substance,
 					substance AS description,
 					amount,
-					unit
-				FROM clin.v_nonbraXXXnd_intakes
+					unit,
+					dose_unit
+				FROM clin.v_substance_intakes
 			) AS normalized_intakes
 			WHERE description %%(fragment_condition)s
 
 		) UNION ALL (
-
+xxxxxxxxxxxxxxxxxxxxxxxxxxxx
 			-- second: consumable substances which match but are not intakes
 			SELECT
 				ARRAY[2, pk]::INTEGER[] AS data,
@@ -761,6 +763,7 @@ class cProductOrSubstanceMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
 		)) AS candidates
 		--ORDER BY rank, list_label
 		LIMIT 50""" % _('in use')
+
 	_query_substance_by_name_and_strength = 	u"""
 		SELECT
 			data,
@@ -917,6 +920,179 @@ class cProductOrSubstanceMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
 
 		return self._find_matches(fragment_condition)
 
+#------------------------------------------------------------
+class cSubstanceIntakeObjectMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
+
+	# (product name) -> product
+	_SQL_drug_product_by_name = u"""
+		SELECT
+			pk_drug_product
+				AS data,
+			(product || ' (' || preparation || ')' || coalesce(' [' || atc || ']', ''))
+				AS list_label,
+			(product || ' (' || preparation || ')' || coalesce(' [' || atc || ']', ''))
+				AS field_label
+		FROM ref.v_drug_products
+		WHERE
+			is_vaccine IS FALSE
+				AND
+			product %(fragment_condition)s
+		LIMIT 50
+	"""
+	# (component name) -> product
+	_SQL_drug_product_by_component_name = u"""
+		SELECT
+			pk_drug_product
+				AS data,
+			(product || ' (' || preparation || ' %s ' || amount || unit || coalesce('/' || dose_unit, '') || ' ' || substance || ')' || coalesce(' [' || atc_drug || ']', ''))
+				AS list_label,
+			(product || ' (' || preparation || ' %s ' || amount || unit || coalesce('/' || dose_unit, '') || ' ' || substance || ')' || coalesce(' [' || atc_drug || ']', ''))
+				AS field_label
+		FROM
+			ref.v_drug_components
+		WHERE substance %%(fragment_condition)s
+		LIMIT 50
+	""" % (
+		_('w/'),
+		_('w/')
+	)
+	# (product name + component strength) -> product
+	_SQL_drug_product_by_name_and_strength = u"""
+		SELECT
+			pk_drug_product
+				AS data,
+			(product || ' (' || preparation || ' %s ' || amount || unit || coalesce('/' || dose_unit, '') || ' ' || substance || ')' || coalesce(' [' || atc_drug || ']', ''))
+				AS list_label,
+			(product || ' (' || preparation || ' %s ' || amount || unit || coalesce('/' || dose_unit, '') || ' ' || substance || ')' || coalesce(' [' || atc_drug || ']', ''))
+				AS field_label
+		FROM
+			(SELECT *, product AS description FROM ref.v_drug_components) AS _components
+		WHERE %%(fragment_condition)s
+		LIMIT 50
+	""" % (
+		_('w/'),
+		_('w/')
+	)
+	# (component name + component strength) -> product
+	_SQL_drug_product_by_component_name_and_strength = u"""
+		SELECT
+			pk_drug_product
+				AS data,
+			(product || ' (' || preparation || ' %s ' || amount || unit || coalesce('/' || dose_unit, '') || ' ' || substance || ')' || coalesce(' [' || atc_drug || ']', ''))
+				AS list_label,
+			(product || ' (' || preparation || ' %s ' || amount || unit || coalesce('/' || dose_unit, '') || ' ' || substance || ')' || coalesce(' [' || atc_drug || ']', ''))
+				AS field_label
+		FROM
+			(SELECT *, substance AS description FROM ref.v_drug_components) AS _components
+		WHERE %%(fragment_condition)s
+		LIMIT 50
+	""" % (
+		_('w/'),
+		_('w/')
+	)
+
+	# this query UNIONs together individual queries
+	_SQL_master_query = u"""
+		SELECT
+			data, field_label, list_label
+		FROM ((%s) UNION (%s))
+			AS _union
+		ORDER BY list_label
+		LIMIT 50
+	"""
+
+	_REGEX_name_and_strength = regex.compile(r'^\D+\s*\d+$', regex.UNICODE | regex.LOCALE)
+
+	#--------------------------------------------------------
+	def getMatchesByPhrase(self, aFragment):
+		"""Return matches for aFragment at start of phrases."""
+
+		if cSubstanceIntakeObjectMatchProvider._REGEX_name_and_strength.match(aFragment):
+			self._queries = [
+				cSubstanceIntakeObjectMatchProvider._SQL_master_query % (
+					cSubstanceIntakeObjectMatchProvider._SQL_drug_product_by_name_and_strength,
+					cSubstanceIntakeObjectMatchProvider._SQL_drug_product_by_component_name_and_strength
+				)
+			]
+			fragment_condition = """description ILIKE %(desc)s
+				AND
+			amount::text ILIKE %(amount)s"""
+			self._args['desc'] = u'%s%%' % regex.sub(r'\s*\d+$', u'', aFragment)
+			self._args['amount'] = u'%s%%' % regex.sub(r'^\D+\s*', u'', aFragment)
+		else:
+			self._queries = [
+				cSubstanceIntakeObjectMatchProvider._SQL_master_query % (
+					cSubstanceIntakeObjectMatchProvider._SQL_drug_product_by_name,
+					cSubstanceIntakeObjectMatchProvider._SQL_drug_product_by_component_name
+				)
+			]
+			fragment_condition = u"ILIKE %(fragment)s"
+			self._args['fragment'] = u"%s%%" % aFragment
+
+		return self._find_matches(fragment_condition)
+
+	#--------------------------------------------------------
+	def getMatchesByWord(self, aFragment):
+		"""Return matches for aFragment at start of words inside phrases."""
+
+		if cSubstanceIntakeObjectMatchProvider._REGEX_name_and_strength.match(aFragment):
+			self._queries = [
+				cSubstanceIntakeObjectMatchProvider._SQL_master_query % (
+					cSubstanceIntakeObjectMatchProvider._SQL_drug_product_by_name_and_strength,
+					cSubstanceIntakeObjectMatchProvider._SQL_drug_product_by_component_name_and_strength
+				)
+			]
+
+			desc = regex.sub(r'\s*\d+$', u'', aFragment)
+			desc = gmPG2.sanitize_pg_regex(expression = desc, escape_all = False)
+
+			fragment_condition = """description ~* %(desc)s
+				AND
+			amount::text ILIKE %(amount)s"""
+
+			self._args['desc'] = u"( %s)|(^%s)" % (desc, desc)
+			self._args['amount'] = u'%s%%' % regex.sub(r'^\D+\s*', u'', aFragment)
+		else:
+			self._queries = [
+				cSubstanceIntakeObjectMatchProvider._SQL_master_query % (
+					cSubstanceIntakeObjectMatchProvider._SQL_drug_product_by_name,
+					cSubstanceIntakeObjectMatchProvider._SQL_drug_product_by_component_name
+				)
+			]
+			fragment_condition = u"~* %(fragment)s"
+			aFragment = gmPG2.sanitize_pg_regex(expression = aFragment, escape_all = False)
+			self._args['fragment'] = u"( %s)|(^%s)" % (aFragment, aFragment)
+
+		return self._find_matches(fragment_condition)
+
+	#--------------------------------------------------------
+	def getMatchesBySubstr(self, aFragment):
+		"""Return matches for aFragment as a true substring."""
+
+		if cSubstanceIntakeObjectMatchProvider._REGEX_name_and_strength.match(aFragment):
+			self._queries = [
+				cSubstanceIntakeObjectMatchProvider._SQL_master_query % (
+					cSubstanceIntakeObjectMatchProvider._SQL_drug_product_by_name_and_strength,
+					cSubstanceIntakeObjectMatchProvider._SQL_drug_product_by_component_name_and_strength
+				)
+			]
+			fragment_condition = """description ILIKE %(desc)s
+				AND
+			amount::text ILIKE %(amount)s"""
+			self._args['desc'] = u'%%%s%%' % regex.sub(r'\s*\d+$', u'', aFragment)
+			self._args['amount'] = u'%s%%' % regex.sub(r'^\D+\s*', u'', aFragment)
+		else:
+			self._queries = [
+				cSubstanceIntakeObjectMatchProvider._SQL_master_query % (
+					cSubstanceIntakeObjectMatchProvider._SQL_drug_product_by_name,
+					cSubstanceIntakeObjectMatchProvider._SQL_drug_product_by_component_name
+				)
+			]
+			fragment_condition = u"ILIKE %(fragment)s"
+			self._args['fragment'] = u"%%%s%%" % aFragment
+
+		return self._find_matches(fragment_condition)
+
 #============================================================
 # drug components
 #------------------------------------------------------------
@@ -1007,7 +1183,7 @@ class cDrugComponent(gmBusinessDBObject.cBusinessDBObject):
 	# properties
 	#--------------------------------------------------------
 	def _get_containing_drug(self):
-		return cDrugProduct(aPK_obj = self._payload[self._idx['pk_product']])
+		return cDrugProduct(aPK_obj = self._payload[self._idx['pk_drug_product']])
 
 	containing_drug = property(_get_containing_drug, lambda x:x)
 
@@ -1403,7 +1579,7 @@ class cDrugProduct(gmBusinessDBObject.cBusinessDBObject):
 
 	#--------------------------------------------------------
 	def _get_components(self):
-		cmd = _SQL_get_drug_components % u'pk_product = %(product)s'
+		cmd = _SQL_get_drug_components % u'pk_drug_product = %(product)s'
 		args = {'product': self._payload[self._idx['pk_drug_product']]}
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 		return [ cDrugComponent(row = {'data': r, 'idx': idx, 'pk_field': 'pk_component'}) for r in rows ]
@@ -1427,7 +1603,7 @@ class cDrugProduct(gmBusinessDBObject.cBusinessDBObject):
 		pk_substances = [ c['pk_substance'] for c in self._payload[self._idx['components']] ]
 		if len(pk_substances) == 0:
 			return []
-		cmd = _SQL_get_substance % u'pk IN %(pks)s'
+		cmd = _SQL_get_substance % u'pk_substance IN %(pks)s'
 		args = {'pks': tuple(pk_substances)}
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 		return [ cSubstance(row = {'data': r, 'idx': idx, 'pk_field': 'pk_substance'}) for r in rows ]

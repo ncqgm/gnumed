@@ -265,6 +265,9 @@ class gmTopLevelFrame(wx.Frame):
 			fonts2try.append(desired_font_face)
 
 		if wx.Platform == '__WXMSW__':
+			sane_font_face = u'Noto Sans'
+			_log.info('MS Windows: appending fallback font candidate [%s]', sane_font_face)
+			fonts2try.append(sane_font_face)
 			sane_font_face = u'DejaVu Sans'
 			_log.info('MS Windows: appending fallback font candidate [%s]', sane_font_face)
 			fonts2try.append(sane_font_face)
