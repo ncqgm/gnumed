@@ -284,7 +284,7 @@ def edit_visual_progress_note(filename=None, episode=None, discard_unmodified=Fa
 		if episode is None:
 			episode = _('visual progress notes')
 		pat = gmPerson.gmCurrentPatient()
-		emr = pat.get_emr()
+		emr = pat.emr
 		episode = emr.add_episode(episode_name = episode.strip(), pk_health_issue = health_issue, is_open = False)
 
 	doc = gmDocumentWidgets.save_file_as_new_document (

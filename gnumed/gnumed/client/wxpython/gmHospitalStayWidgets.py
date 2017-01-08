@@ -43,7 +43,7 @@ _log = logging.getLogger('gm.ui')
 def manage_hospital_stays(parent=None):
 
 	pat = gmPerson.gmCurrentPatient()
-	emr = pat.get_emr()
+	emr = pat.emr
 
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
@@ -330,7 +330,7 @@ class cHospitalStayEditAreaPnl(wxgHospitalStayEditAreaPnl.wxgHospitalStayEditAre
 	def _save_as_new(self):
 
 		pat = gmPerson.gmCurrentPatient()
-		emr = pat.get_emr()
+		emr = pat.emr
 		stay = emr.add_hospital_stay(episode = self._PRW_episode.GetData(can_create = True), fk_org_unit = self._PRW_hospital.GetData())
 		stay['comment'] = self._TCTRL_comment.GetValue().strip()
 		stay['admission'] = self._PRW_admission.GetData()

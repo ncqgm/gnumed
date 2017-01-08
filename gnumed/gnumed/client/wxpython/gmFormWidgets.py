@@ -215,7 +215,7 @@ def act_on_generated_forms(parent=None, forms=None, jobtype=None, episode_name=N
 		if soap.strip() == u'':
 			return
 		pat = gmPerson.gmCurrentPatient()
-		emr = pat.get_emr()
+		emr = pat.emr
 		epi = emr.add_episode(episode_name = episode_name, is_open = False)
 		emr.add_clin_narrative (
 			soap_cat = None,
@@ -228,7 +228,7 @@ def act_on_generated_forms(parent=None, forms=None, jobtype=None, episode_name=N
 			epi = None				# will ask for episode further down
 		else:
 			pat = gmPerson.gmCurrentPatient()
-			emr = pat.get_emr()
+			emr = pat.emr
 			epi = emr.add_episode(episode_name = episode_name, is_open = False)
 
 		for form in forms:

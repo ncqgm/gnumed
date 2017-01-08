@@ -1811,7 +1811,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 
 	#--------------------------------------------------------
 	def _get_variant_allergy_state(self, data=None):
-		allg_state = self.pat.get_emr().allergy_state
+		allg_state = self.pat.emr.allergy_state
 
 		if allg_state['last_confirmed'] is None:
 			date_confirmed = u''
@@ -1852,7 +1852,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 	def _get_variant_current_meds_AMTS(self, data=None, strict=True):
 
 		# select intakes
-		emr = self.pat.get_emr()
+		emr = self.pat.emr
 		from Gnumed.wxpython import gmMedicationWidgets
 		intakes2export = gmMedicationWidgets.manage_substance_intakes(emr = emr)
 		if intakes2export is None:
@@ -1942,7 +1942,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			i._get_as_amts_data(strict = False) for i in intakes
 		])
 		# <S>ection with allergy data</S>
-		emr = self.pat.get_emr()
+		emr = self.pat.emr
 		amts_sections += emr.allergy_state._get_as_amts_data(strict = False) % u''.join ([
 			a._get_as_amts_data(strict = False) for a in emr.get_allergies()
 		])
@@ -1985,7 +1985,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			])
 			if this_page == total_pages:
 				# <S>ection with allergy data</S>
-				emr = self.pat.get_emr()
+				emr = self.pat.emr
 				amts_sections += emr.allergy_state._get_as_amts_data(strict = False) % u''.join ([
 					a._get_as_amts_data(strict = False) for a in emr.get_allergies()
 				])
@@ -2031,7 +2031,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		if data is None:
 			return self._escape(_('current_meds_for_rx: template is missing'))
 
-		emr = self.pat.get_emr()
+		emr = self.pat.emr
 		from Gnumed.wxpython import gmMedicationWidgets
 		current_meds = gmMedicationWidgets.manage_substance_intakes(emr = emr)
 		if current_meds is None:
@@ -2089,7 +2089,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		if len(parts) > 1:
 			ask_user = (parts[1] == u'select')
 
-		emr = self.pat.get_emr()
+		emr = self.pat.emr
 		if ask_user:
 			from Gnumed.wxpython import gmMedicationWidgets
 			current_meds = gmMedicationWidgets.manage_substance_intakes(emr = emr)
@@ -2121,7 +2121,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 	#--------------------------------------------------------
 	def _get_variant_current_meds_notes(self, data=None):
 		return gmMedication.format_substance_intake_notes (
-			emr = self.pat.get_emr(),
+			emr = self.pat.emr,
 			output_format = self.__esc_style,
 			table_type = u'by-product'
 		)

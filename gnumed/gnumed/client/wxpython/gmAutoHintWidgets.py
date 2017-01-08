@@ -70,7 +70,7 @@ def _display_clinical_reminders():
 
 	# dynamic hints
 	hints2aggregate = []
-	emr = pat.get_emr(allow_user_interaction = False)
+	emr = pat.emr
 	hint_dlg = cDynamicHintDlg(wx.GetApp().GetTopWindow(), -1)
 	# single-hint popups
 	for hint in emr.dynamic_hints:

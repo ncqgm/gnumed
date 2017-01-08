@@ -316,7 +316,7 @@ class cTopPnl(wxgTopPnl.wxgTopPnl):
 
 		show_red = True
 
-		emr = self.curr_pat.get_emr()
+		emr = self.curr_pat.emr
 		state = emr.allergy_state
 
 		# state in tooltip

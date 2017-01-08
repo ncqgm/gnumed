@@ -1515,7 +1515,7 @@ class gmPastHistoryEditArea(gmEditArea):
 		return values 
 
 	def _save_data(self):
-		clinical = self._patient.get_emr().get_past_history()
+		clinical = self._patient.emr.get_past_history()
 		if self.getDataId() is None:
 			id = clinical.create_history( self.get_fields_formatting_values() )
 			self.setDataId(id)

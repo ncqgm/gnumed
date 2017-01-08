@@ -140,7 +140,7 @@ class cProgressNoteInputNotebook(wx.Notebook, gmRegetMixin.cRegetOnPaintMixin):
 			label = _('new problem')
 		else:
 			# normalize problem type
-			emr = self.__pat.get_emr()
+			emr = self.__pat.emr
 			if isinstance(problem_to_add, gmEMRStructItems.cEpisode):
 				problem_to_add = emr.episode2problem(episode = problem_to_add)
 			elif isinstance(problem_to_add, gmEMRStructItems.cHealthIssue):
@@ -479,7 +479,7 @@ class cNotebookedProgressNoteInputPanel(wx.Panel):
 		"""Update health problems list.
 		"""
 		self.__LST_problems.Clear()
-		emr = self.__pat.get_emr()
+		emr = self.__pat.emr
 		problems = emr.get_problems()
 		for problem in problems:
 			if not problem['problem_active']:
@@ -562,7 +562,7 @@ class cNotebookedProgressNoteInputPanel(wx.Panel):
 		- if patient has episodes:
 			- allow several NEWs per configuration
 		"""
-		emr = self.__pat.get_emr()
+		emr = self.__pat.emr
 		epis = emr.get_episodes()
 
 		if len(epis) == 0:
@@ -777,7 +777,7 @@ class cResizingSoapWin(gmResizingWidgets.cResizingWindow):
 			if line_content.data.soap_cat == u'a':
 				aoe += line_content.text.rstrip()
 
-		emr = self.__pat.get_emr()
+		emr = self.__pat.emr
 
 		# - new episode, must get name from narrative (or user)
 		if (self.__problem is None) or (self.__problem['type'] == 'issue'):
@@ -1072,7 +1072,7 @@ class cSingleBoxSOAPPanel(wx.Panel):
 		if note.strip() == '':
 			return True
 		# now save note
-		emr = self.__pat.get_emr()
+		emr = self.__pat.emr
 		if emr is None:
 			_log.error('cannot access clinical record of patient')
 			return False
@@ -1117,7 +1117,7 @@ if __name__ == "__main__":
 		}
 
 		pat = gmPerson.gmCurrentPatient()
-		emr = pat.get_emr()
+		emr = pat.emr
 		soap_lines = []
 		# for each soap cat
 		for soap_cat in gmSOAPimporter.soap_bundle_SOAP_CATS:

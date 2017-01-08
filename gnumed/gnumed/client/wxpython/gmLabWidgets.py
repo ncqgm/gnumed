@@ -588,7 +588,7 @@ class cLabJournalNB(wx.Notebook):
 				_('saving request id')
 			)
 			return None
-		emr = self.__pat.get_emr()
+		emr = self.__pat.emr
 		request = emr.add_lab_request(lab=int(self.lab), req_id = req_id)
 		if request is None:
 			gmDispatcher.send(signal = 'statustext', msg =_('Cannot save lab request.'))
@@ -748,7 +748,7 @@ class cLabDataGrid(wx.Grid):
 				2: profile -> smart sorting first
 				3: profile -> user defined profile order
 		"""
-		emr = self.__pat.get_emr()
+		emr = self.__pat.emr
 		results = None
 		if results is None:
 			name = self.__pat.get_names()

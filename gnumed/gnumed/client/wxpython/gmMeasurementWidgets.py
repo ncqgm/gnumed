@@ -1440,7 +1440,7 @@ class cMeasurementsGrid(wx.grid.Grid):
 			self.__repopulate_grid(tests4rows = tests, test_pks2show = self.__panel_to_show['pk_test_types'])
 			return
 
-		emr = self.__patient.get_emr()
+		emr = self.__patient.emr
 		tests = emr.get_test_types_for_results(order_by = u'unified_abbrev', unique_meta_types = True)
 		self.__repopulate_grid(tests4rows = tests)
 
@@ -1457,7 +1457,7 @@ class cMeasurementsGrid(wx.grid.Grid):
 			) for test_type in self.__row_label_data
 		]
 
-		emr = self.__patient.get_emr()
+		emr = self.__patient.emr
 		col_labels = [ gmDateTime.pydt_strftime(date[0], self.__date_format, accuracy = gmDateTime.acc_days) for date in emr.get_dates_for_results (
 				tests = test_pks2show,
 				reverse_chronological = True
@@ -2355,7 +2355,7 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 	#--------------------------------------------------------
 	def _save_as_new(self):
 
-		emr = gmPerson.gmCurrentPatient().get_emr()
+		emr = gmPerson.gmCurrentPatient().emr
 
 		success, result = gmTools.input2decimal(self._TCTRL_result.GetValue())
 		if success:

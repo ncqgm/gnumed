@@ -93,7 +93,7 @@ class cSOAPImporter:
 			_log.error('cannot verify soap entry')
 			return False
 		# obtain clinical context information
-		emr = gmPerson.gmCurrentPatient().get_emr()
+		emr = gmPerson.gmCurrentPatient().emr
 		epi_id = soap_entry[soap_bundle_CLIN_CTX_KEY][soap_bundle_EPISODE_ID_KEY]
 		try:
 			enc_id = soap_entry[soap_bundle_CLIN_CTX_KEY][soap_bundle_ENCOUNTER_ID_KEY]

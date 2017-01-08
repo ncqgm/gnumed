@@ -2735,7 +2735,7 @@ class gmTopLevelFrame(wx.Frame):
 		if not pat.connected:
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot start new encounter. No active patient.'))
 			return False
-		emr = pat.get_emr()
+		emr = pat.emr
 		gmEncounterWidgets.start_new_encounter(emr = emr)
 	#----------------------------------------------
 	def __on_list_encounters(self, evt):
@@ -2866,7 +2866,7 @@ class gmTopLevelFrame(wx.Frame):
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot show EMR summary. No active patient.'))
 			return False
 
-		emr = pat.get_emr()
+		emr = pat.emr
 		dlg = wx.MessageDialog (
 			parent = self,
 			message = emr.format_statistics(),
@@ -3584,9 +3584,10 @@ class gmApp(wx.App):
 	#----------------------------------------------
 	def _do_after_init(self):
 		self.__starting_up = False
-		gmClinicalRecord.set_func_ask_user(a_func = gmEncounterWidgets.ask_for_encounter_continuation)
+		#gmClinicalRecord.set_func_ask_user(a_func = gmEncounterWidgets.ask_for_encounter_continuation)
 		self.__guibroker['horstspace.top_panel']._TCTRL_patient_selector.SetFocus()
 		gmHooks.run_hook_script(hook = u'startup-after-GUI-init')
+
 	#----------------------------------------------
 	def __setup_user_activity_timer(self):
 		self.user_activity_detected = True
@@ -3991,10 +3992,9 @@ def setup_safe_wxEndBusyCursor():
 	_log.debug('[%s] -> [%s]', _original_wxEndBusyCursor, _safe_wxEndBusyCursor)
 
 #==============================================================================
-def setup_chart_puller():
-	from Gnumed.wxpython import gmChartPullingWidgets
-	gmPerson.set_chart_puller(gmChartPullingWidgets.pull_chart)
+def setup_callbacks():
 	gmPerson.set_yielder(wx.Yield)
+	gmClinicalRecord.set_delayed_executor(wx.CallAfter)
 
 #==============================================================================
 def main():
@@ -4009,7 +4009,7 @@ def main():
 
 	setup_safe_wxEndBusyCursor()
 
-	setup_chart_puller()
+	setup_callbacks()
 
 	# create an instance of our GNUmed main application
 	# - do not redirect stdio (yet)

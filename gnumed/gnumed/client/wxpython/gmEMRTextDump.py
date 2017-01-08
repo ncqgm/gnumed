@@ -57,7 +57,7 @@ class gmEMRDumpPanel(wx.Panel):
 			_log.Log(gmLog.lErr, 'no active patient, cannot get EMR text dump')
 			self.txt.SetValue(_('Currently there is no active patient. Cannot retrieve EMR text.'))
 			return None
-		emr = pat.get_emr()
+		emr = pat.emr
 		if emr is None:
 			_log.Log(gmLog.lErr, 'cannot get EMR text dump')
 			self.txt.SetValue(_(

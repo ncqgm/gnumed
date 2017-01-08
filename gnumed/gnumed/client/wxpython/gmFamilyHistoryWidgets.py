@@ -32,7 +32,7 @@ _log = logging.getLogger('gm.ui')
 def manage_family_history(parent=None):
 
 	pat = gmPerson.gmCurrentPatient()
-	emr = pat.get_emr()
+	emr = pat.emr
 
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
@@ -153,7 +153,7 @@ class cFamilyHistoryEAPnl(wxgFamilyHistoryEAPnl.wxgFamilyHistoryEAPnl, gmEditAre
 	def _save_as_new(self):
 
 		pat = gmPerson.gmCurrentPatient()
-		emr = pat.get_emr()
+		emr = pat.emr
 
 		data = emr.add_family_history (
 			episode = self._PRW_episode.GetData(can_create = True),

@@ -11,9 +11,9 @@ set check_function_bodies to on;
 
 -- --------------------------------------------------------------
 drop function if exists clin.trf_insert_intake_prevent_duplicate_component_links() cascade;
-drop function if exists clin.trf_ins_upd_intake_prevent_duplicate_component_links() cascade;
+drop function if exists clin.trf_ins_intake_prevent_duplicate_component_links() cascade;
 
-create or replace function clin.trf_ins_upd_intake_prevent_duplicate_component_links()
+create or replace function clin.trf_ins_intake_prevent_duplicate_component_links()
 	returns trigger
 	language 'plpgsql'
 	as '
@@ -39,7 +39,7 @@ BEGIN
 	;
 
 	if FOUND then
-		_msg := ''[clin.trf_ins_upd_intake_prevent_duplicate_component_links]: drug component ref.lnk_dose2drug.pk=('' || NEW.fk_drug_component || '') ''
+		_msg := ''[clin.trf_ins_intake_prevent_duplicate_component_links]: drug component ref.lnk_dose2drug.pk=('' || NEW.fk_drug_component || '') ''
 			|| ''already linked to patient=('' || _pk_patient || '') ''
 			|| ''as clin.substance_intake.pk=('' || _pk_intake || '')'';
 		raise exception unique_violation using message = _msg;
@@ -48,13 +48,59 @@ BEGIN
 	return NEW;
 END;';
 
-comment on function clin.trf_ins_upd_intake_prevent_duplicate_component_links() is
+comment on function clin.trf_ins_intake_prevent_duplicate_component_links() is
 	'Prevent patient from being put on a particular component twice.';
 
 create trigger tr_insert_intake_prevent_duplicate_component_links
-	before insert or update
+	before insert
 	on clin.substance_intake
-		for each row execute procedure clin.trf_ins_upd_intake_prevent_duplicate_component_links();
+		for each row execute procedure clin.trf_ins_intake_prevent_duplicate_component_links();
+
+-- --------------------------------------------------------------
+drop function if exists clin.trf_upd_intake_prevent_duplicate_component_links() cascade;
+
+create or replace function clin.trf_upd_intake_prevent_duplicate_component_links()
+	returns trigger
+	language 'plpgsql'
+	as '
+DECLARE
+	_pk_patient integer;
+	_intake_count integer;
+	_msg text;
+BEGIN
+	-- which patient ?
+	select fk_patient into _pk_patient
+	from clin.encounter
+	where pk = NEW.fk_encounter;
+
+	-- already exists ?
+	select count(1) into strict _intake_count
+	from clin.substance_intake
+	where
+		fk_encounter in (
+			select pk from clin.encounter where fk_patient = _pk_patient
+		)
+			and
+		fk_drug_component = NEW.fk_drug_component
+	;
+
+	if _intake_count > 1 then
+		_msg := ''[clin.trf_upd_intake_prevent_duplicate_component_links]: drug component ref.lnk_dose2drug.pk=('' || NEW.fk_drug_component || '') ''
+			|| ''already linked to patient=('' || _pk_patient || '') as clin.substance_intake'';
+		raise exception unique_violation using message = _msg;
+	end if;
+
+	return NEW;
+END;';
+
+comment on function clin.trf_upd_intake_prevent_duplicate_component_links() is
+	'Prevent patient from being put on a particular component twice.';
+
+create trigger tr_update_intake_prevent_duplicate_component_links
+	after update on clin.substance_intake
+	for each row
+	when (NEW.fk_drug_component IS DISTINCT FROM OLD.fk_drug_component)
+	execute procedure clin.trf_upd_intake_prevent_duplicate_component_links();
 
 
 -- --------------------------------------------------------------

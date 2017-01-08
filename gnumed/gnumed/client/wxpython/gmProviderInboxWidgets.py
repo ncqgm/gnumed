@@ -757,11 +757,7 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 
 		pk_patient = self.__focussed_msg['pk_patient']
 		if pk_patient is not None:
-			#emr = gmClinicalRecord.cClinicalRecord(aPKey = pk_patient, allow_user_interaction = False)
-			from Gnumed.wxpython import gmChartPullingWidgets
-			emr = gmChartPullingWidgets.pull_chart(gmPerson.cPerson(pk_patient))
-			if emr is None:
-				return False
+			emr = gmClinicalRecord.cClinicalRecord(aPKey = pk_patient)
 			epi = emr.add_episode(episode_name = 'administrative', is_open = False)
 			soap_cat = gmTools.bool2subst (
 				(self.__focussed_msg['category'] == u'clinical'),

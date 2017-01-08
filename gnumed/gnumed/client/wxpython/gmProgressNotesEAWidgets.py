@@ -162,7 +162,7 @@ class cProgressNotesEAPnl(gmTextCtrl.cExpandoTextCtrlHandling_PanelMixin, wxgPro
 		if self.problem['type'] == u'episode':
 			pat = gmPerson.gmCurrentPatient()
 			doc_folder = pat.get_document_folder()
-			emr = pat.get_emr()
+			emr = pat.emr
 			self._PNL_visual_soap.refresh (
 				document_folder = doc_folder,
 				episodes = [self.problem['pk_episode']],

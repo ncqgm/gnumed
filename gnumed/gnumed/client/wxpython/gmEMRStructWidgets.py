@@ -87,7 +87,7 @@ def edit_episode(parent=None, episode=None):
 def manage_episodes(parent=None):
 
 	pat = gmPerson.gmCurrentPatient()
-	emr = pat.get_emr()
+	emr = pat.emr
 
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
@@ -513,7 +513,7 @@ limit 30"""
 		else:
 			pat = gmPerson.cPatient(aPK_obj = self.__patient_id)
 
-		emr = pat.get_emr()
+		emr = pat.emr
 		epi = emr.add_episode(episode_name = epi_name, is_open = self.__is_open_for_create_data)
 		if epi is None:
 			self.data = {}
@@ -581,7 +581,7 @@ class cEpisodeEditAreaPnl(gmEditArea.cGenericEditAreaMixin, wxgEpisodeEditAreaPn
 	def _save_as_new(self):
 
 		pat = gmPerson.gmCurrentPatient()
-		emr = pat.get_emr()
+		emr = pat.emr
 
 		epi = emr.add_episode(episode_name = self._PRW_description.GetValue().strip())
 		epi['summary'] = self._TCTRL_status.GetValue().strip()
@@ -887,7 +887,7 @@ class cIssueSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
 		else:
 			pat = gmPerson.cPatient(aPK_obj = self.__patient_id)
 
-		emr = pat.get_emr()
+		emr = pat.emr
 		issue = emr.add_health_issue(issue_name = issue_name)
 
 		if issue is None:
@@ -1067,7 +1067,7 @@ limit 50""" % gmPerson.gmCurrentPatient().ID
 	#----------------------------------------------------------------
 	def _save_as_new(self):
 		pat = gmPerson.gmCurrentPatient()
-		emr = pat.get_emr()
+		emr = pat.emr
 
 		issue = emr.add_health_issue(issue_name = self._PRW_condition.GetValue().strip())
 
@@ -1359,7 +1359,7 @@ if __name__ == '__main__':
 	#----------------------------------------------------------------
 	def test_epsiode_edit_area_pnl():
 		app = wx.PyWidgetTester(size = (200, 300))
-		emr = pat.get_emr()
+		emr = pat.emr
 		epi = emr.get_episodes()[0]
 		pnl = cEpisodeEditAreaPnl(app.frame, -1, episode=epi)
 		app.frame.Show(True)
@@ -1367,7 +1367,7 @@ if __name__ == '__main__':
 	#----------------------------------------------------------------
 	def test_episode_edit_area_dialog():
 		app = wx.PyWidgetTester(size = (200, 300))
-		emr = pat.get_emr()
+		emr = pat.emr
 		epi = emr.get_episodes()[0]
 		edit_episode(parent=app.frame, episode=epi)
 

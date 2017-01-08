@@ -458,7 +458,7 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 	def save_soap_note(self, soap=None):
 		if soap.strip() == u'':
 			return
-		emr = gmPerson.gmCurrentPatient().get_emr(allow_user_interaction = False)
+		emr = gmPerson.gmCurrentPatient().emr
 		epi = emr.add_episode(episode_name = u'administrative', is_open = False)
 		emr.add_clin_narrative (
 			soap_cat = None,

@@ -122,7 +122,7 @@ class cEmrExport:
         """
         Retrieves string containg ASCII vaccination table
         """
-        emr = self.__patient.get_emr()
+        emr = self.__patient.emr
         # patient dob
         patient_dob = self.__patient['dob']
         date_length = len(gmDateTime.pydt_strftime(patient_dob, '%Y %b %d')) + 2
@@ -297,7 +297,7 @@ class cEmrExport:
         Iterate over patient scheduled regimes preparing vacc tables dump
         """           
         
-        emr = self.__patient.get_emr()
+        emr = self.__patient.emr
         
         # vaccination regimes
         all_vacc_regimes = emr.get_scheduled_vaccination_regimes()
@@ -391,7 +391,7 @@ class cEmrExport:
         """
         if not self.__patient.connected:
             return False
-        emr = self.__patient.get_emr()
+        emr = self.__patient.emr
         filtered_items = []
         filtered_items.extend(emr.get_allergies(
             since=self.__constraints['since'],
@@ -489,7 +489,7 @@ class cEmrExport:
         # which is a sane representation when no patient is selected.
         if not self.__fetch_filtered_items():
             return
-        emr = self.__patient.get_emr()
+        emr = self.__patient.emr
         unlinked_episodes = emr.get_episodes(issues = [None])
         h_issues = []
         h_issues.extend(emr.get_health_issues(id_list = self.__constraints['issues']))
@@ -513,7 +513,7 @@ class cEmrExport:
     #--------------------------------------------------------
     def _add_health_issue_branch( self, emr_tree, a_health_issue):
             """appends to a wx emr_tree  , building wx treenodes from the health_issue  make this reusable for non-collapsing tree updates"""
-            emr = self.__patient.get_emr()
+            emr = self.__patient.emr
             root_node = emr_tree.GetRootItem()
             issue_node =  emr_tree.AppendItem(root_node, a_health_issue['description'])
             emr_tree.SetItemPyData(issue_node, a_health_issue)
@@ -574,7 +574,7 @@ class cEmrExport:
                return encounters
     #--------------------------------------------------------             
     def  _update_health_issue_branch(self, emr_tree, a_health_issue):
-		emr = self.__patient.get_emr()
+		emr = self.__patient.emr
 		root_node = emr_tree.GetRootItem()
 		id, cookie = emr_tree.GetFirstChild(root_node)
 		found = False
@@ -651,7 +651,7 @@ class cEmrExport:
     #--------------------------------------------------------
     def get_episode_summary (self, episode, left_margin = 0):
         """Dumps episode specific data"""
-        emr = self.__patient.get_emr()
+        emr = self.__patient.emr
         encs = emr.get_encounters(episodes = [episode['pk_episode']])
         if encs is None:
             txt = left_margin * ' ' + _('Error retrieving encounters for episode\n%s') % str(episode)
@@ -681,7 +681,7 @@ class cEmrExport:
         """
         Dumps encounter specific data (rfe, aoe and soap)
         """
-        emr = self.__patient.get_emr()
+        emr = self.__patient.emr
         # general
         txt = (' ' * left_margin) + '#%s: %s - %s   %s' % (
             encounter['pk_encounter'],
@@ -749,7 +749,7 @@ class cEmrExport:
 
         # fecth all values
         self.__fetch_filtered_items()
-        emr = self.__patient.get_emr()
+        emr = self.__patient.emr
 
         # dump clinically relevant items summary
         for an_item in self.__filtered_items:
@@ -796,7 +796,7 @@ class cEmrExport:
         """
         Dumps in ASCII format patient's clinical record
         """
-        emr = self.__patient.get_emr()
+        emr = self.__patient.emr
         if emr is None:
             _log.error('cannot get EMR text dump')
             print(_(

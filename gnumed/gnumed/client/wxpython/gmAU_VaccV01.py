@@ -479,7 +479,7 @@ class cAU_VaccV01Panel(wx.Panel):
     	# populate vaccination history
     	print self, "got on patient selected"
 	p = gmPerson.gmCurrentPatient()	
-	emr = p.get_emr()
+	emr = p.emr
 	vv = emr.get_vaccinations()
 	l = self.list_ctrl_1
 	l.ClearAll()
@@ -562,7 +562,7 @@ class cAU_VaccV01Panel(wx.Panel):
     	t = self.tree_ctrl_2
 	t.DeleteAllItems()
     	p = gmPerson.gmCurrentPatient()	
-	emr = p.get_emr()
+	emr = p.emr
 	mv = gmVaccination.get_missing_vaccinations_ordered_min_due( p.ID )
 	lmv = [ dict( [ (field, v[i] ) for field, i  in zip(
 		['indication', 'regime', 

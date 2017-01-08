@@ -696,7 +696,7 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 				_log.warning('cannot create prescription file because there is neither a patient nor a substance intake list')
 				# do fail because __export_latest_prescription() should not have been called without patient
 				return False
-			emr = self.patient.get_emr()
+			emr = self.patient.emr
 			substance_intakes = emr.get_current_medications (
 				include_inactive = False,
 				include_unapproved = True
@@ -848,7 +848,7 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 		else:
 			dob = self.patient['dob'].strftime(cFreeDiamsInterface.default_dob_format)
 
-		emr = self.patient.get_emr()
+		emr = self.patient.emr
 		allgs = emr.get_allergies()
 		atc_allgs = [
 			a['atc_code'] for a in allgs if ((a['atc_code'] is not None) and (a['type'] == u'allergy'))
@@ -940,7 +940,7 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 		_log.debug('listed PDF prescription files: %s', fd_filenames)
 
 		docs = self.patient.get_document_folder()
-		emr = self.patient.get_emr()
+		emr = self.patient.emr
 
 		prescription = docs.add_prescription (
 			encounter = emr.active_encounter['pk_encounter'],
@@ -1359,7 +1359,7 @@ if __name__ == "__main__":
 		gmPerson.set_active_patient(patient = gmPerson.cPerson(aPK_obj = 12))
 		fd = cFreeDiamsInterface()
 		fd.patient = gmPerson.gmCurrentPatient()
-		fd.check_interactions(substances = fd.patient.get_emr().get_current_medications(include_unapproved = True))
+		fd.check_interactions(substances = fd.patient.emr.get_current_medications(include_unapproved = True))
 
 	#--------------------------------------------------------
 	# MMI/Gelbe Liste

@@ -47,6 +47,7 @@ class cClinicalResult(object):
 		self.sub_results = []
 		self.warnings = [_('THIS IS NOT A VERIFIED MEASUREMENT. DO NOT USE FOR ACTUAL CARE.')]
 		self.hints = []
+
 	#--------------------------------------------------------
 	def __unicode__(self):
 		txt = u'[cClinicalResult]: %s %s (%s)\n\n%s' % (
@@ -65,6 +66,7 @@ class cClinicalResult(object):
 			)
 		)
 		return txt
+
 	#--------------------------------------------------------
 	def format(self, left_margin=0, eol=u'\n', width=None, with_formula=False, with_warnings=True, with_variables=False, with_sub_results=False, with_hints=True, return_list=False):
 		lines = []
@@ -147,6 +149,7 @@ class cClinicalCalculator(object):
 	def __init__(self, patient=None):
 		self.__cache = {}
 		self.__patient = patient
+
 	#--------------------------------------------------------
 	def _get_patient(self):
 		return self.__patient
@@ -158,9 +161,7 @@ class cClinicalCalculator(object):
 		self.remove_from_cache()			# uncache all values
 
 	patient = property(lambda x:x, _set_patient)
-	#--------------------------------------------------------
-#	def suggest_algorithm(self, pk_test_type):
-#		return None
+
 	#--------------------------------------------------------
 	def remove_from_cache(self, key=None):
 		if key is None:
@@ -172,6 +173,7 @@ class cClinicalCalculator(object):
 		except KeyError:
 			_log.error('key [%s] does not exist in cache', key)
 			return False
+
 	#--------------------------------------------------------
 	# formulae
 	#--------------------------------------------------------
@@ -780,6 +782,7 @@ class cClinicalCalculator(object):
 		return result
 
 	body_surface_area = property(_get_body_surface_area, lambda x:x)
+
 	#--------------------------------------------------------
 	def _get_body_mass_index(self):
 
@@ -862,6 +865,7 @@ class cClinicalCalculator(object):
 
 	body_mass_index = property(_get_body_mass_index, lambda x:x)
 	bmi = property(_get_body_mass_index, lambda x:x)
+
 	#--------------------------------------------------------
 	# helper functions
 	#--------------------------------------------------------

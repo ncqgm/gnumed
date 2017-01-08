@@ -43,7 +43,7 @@ _log = logging.getLogger('gm.ui')
 def manage_performed_procedures(parent=None):
 
 	pat = gmPerson.gmCurrentPatient()
-	emr = pat.get_emr()
+	emr = pat.emr
 
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
@@ -286,7 +286,7 @@ limit 25
 	def _save_as_new(self):
 
 		pat = gmPerson.gmCurrentPatient()
-		emr = pat.get_emr()
+		emr = pat.emr
 
 		stay = self._PRW_hospital_stay.GetData()
 		if stay is None:

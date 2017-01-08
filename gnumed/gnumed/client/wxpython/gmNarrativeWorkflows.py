@@ -58,7 +58,7 @@ def move_progress_notes_to_another_encounter(parent=None, encounters=None, episo
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
 
-	emr = patient.get_emr()
+	emr = patient.emr
 
 	if encounters is None:
 		all_encs_in_epi = emr.get_encounters(episodes = episodes, skip_empty = True)
@@ -137,7 +137,7 @@ def manage_progress_notes(parent=None, encounters=None, episodes=None, patient=N
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
 
-	emr = patient.get_emr()
+	emr = patient.emr
 	#--------------------------
 	def delete(item):
 		if item is None:
@@ -309,7 +309,7 @@ def search_narrative_in_emr(parent=None, patient=None):
 	wx.BeginBusyCursor()
 	val = search_term_dlg.GetValue()
 	search_term_dlg.Destroy()
-	emr = patient.get_emr()
+	emr = patient.emr
 	rows = emr.search_narrative_simple(val)
 	wx.EndBusyCursor()
 
@@ -373,7 +373,7 @@ def export_narrative_for_medistar_import(parent=None, soap_cats=u'soapu', encoun
 		return False
 
 	if encounter is None:
-		encounter = pat.get_emr().active_encounter
+		encounter = pat.emr.active_encounter
 
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
@@ -430,7 +430,7 @@ def export_narrative_for_medistar_import(parent=None, soap_cats=u'soapu', encoun
 def select_narrative(parent=None, soap_cats=None, msg=None):
 
 	pat = gmPerson.gmCurrentPatient()
-	emr = pat.get_emr()
+	emr = pat.emr
 
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
@@ -475,7 +475,7 @@ def select_narrative(parent=None, soap_cats=None, msg=None):
 def select_narrative_by_issue(parent=None, soap_cats=None):
 
 	pat = gmPerson.gmCurrentPatient()
-	emr = pat.get_emr()
+	emr = pat.emr
 
 	# not useful if you think about it:
 #	issues = [ i for i in emr.health_issues ]
@@ -604,7 +604,7 @@ def select_narrative_by_issue(parent=None, soap_cats=None):
 def select_narrative_by_episode(parent=None, soap_cats=None):
 
 	pat = gmPerson.gmCurrentPatient()
-	emr = pat.get_emr()
+	emr = pat.emr
 
 	all_epis = [ epi for epi in emr.get_episodes(order_by = u'description') if epi.has_narrative ]
 	if len(all_epis) == 0:
@@ -745,7 +745,7 @@ def select_narrative_from_episodes(parent=None, soap_cats=None):
 	"""soap_cats needs to be a list"""
 
 	pat = gmPerson.gmCurrentPatient()
-	emr = pat.get_emr()
+	emr = pat.emr
 
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()

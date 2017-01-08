@@ -899,7 +899,7 @@ if __name__ == '__main__':
 			myPatient.export_as_gdt(filename='apw.gdt', encoding = 'cp850')
 #		docs = myPatient.get_document_folder()
 #		print "docs     ", docs
-#		emr = myPatient.get_emr()
+#		emr = myPatient.emr
 #		print "EMR      ", emr
 	#--------------------------------------------------------
 	#test_patient_search_queries()

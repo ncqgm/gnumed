@@ -163,7 +163,7 @@ def save_files_as_new_document(parent=None, filenames=None, document_type=None, 
 	if not pat.connected:
 		return None
 
-	emr = pat.get_emr()
+	emr = pat.emr
 
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
@@ -2863,7 +2863,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 		)
 		if delete_it is True:
 			curr_pat = gmPerson.gmCurrentPatient()
-			emr = curr_pat.get_emr()
+			emr = curr_pat.emr
 			enc = emr.active_encounter
 			gmDocuments.delete_document(document_id = self.__curr_node_data['pk_doc'], encounter_id = enc['pk_encounter'])
 

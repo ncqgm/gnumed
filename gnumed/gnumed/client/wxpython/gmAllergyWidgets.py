@@ -164,7 +164,7 @@ where narrative %(fragment_condition)s
 				return False
 
 			pat = gmPerson.gmCurrentPatient()
-			emr = pat.get_emr()
+			emr = pat.emr
 
 			if self._RBTN_type_allergy.GetValue():
 				allg_type = 'allergy'
@@ -258,7 +258,7 @@ class cAllergyManagerDlg(wxgAllergyManagerDlg.wxgAllergyManagerDlg):
 	def __refresh_state_ui(self):
 
 		pat = gmPerson.gmCurrentPatient()
-		emr = pat.get_emr()
+		emr = pat.emr
 		state = emr.allergy_state
 
 		self._TXT_current_state.SetLabel(state.state_string)
@@ -308,7 +308,7 @@ class cAllergyManagerDlg(wxgAllergyManagerDlg.wxgAllergyManagerDlg):
 	def __refresh_details_ui(self):
 
 		pat = gmPerson.gmCurrentPatient()
-		emr = pat.get_emr()
+		emr = pat.emr
 		allergies = emr.get_allergies()
 		no_of_allergies = len(allergies)
 
@@ -363,7 +363,7 @@ class cAllergyManagerDlg(wxgAllergyManagerDlg.wxgAllergyManagerDlg):
 	#--------------------------------------------------------
 	def _on_delete_button_pressed(self, evt):
 		pat = gmPerson.gmCurrentPatient()
-		emr = pat.get_emr()
+		emr = pat.emr
 
 		allergy = self._LCTRL_allergies.get_selected_item_data(only_one=True)
 		if allergy is None:
@@ -387,7 +387,7 @@ class cAllergyManagerDlg(wxgAllergyManagerDlg.wxgAllergyManagerDlg):
 	#--------------------------------------------------------
 	def _on_confirm_button_pressed(self, evt):
 		pat = gmPerson.gmCurrentPatient()
-		emr = pat.get_emr()
+		emr = pat.emr
 		allergies = emr.get_allergies()
 		state = emr.allergy_state
 
@@ -430,7 +430,7 @@ class cAllergyManagerDlg(wxgAllergyManagerDlg.wxgAllergyManagerDlg):
 			return False
 
 		pat = gmPerson.gmCurrentPatient()
-		emr = pat.get_emr()
+		emr = pat.emr
 		state = emr.allergy_state
 		state['last_confirmed'] = u'now'
 		state.save_payload()
@@ -522,7 +522,7 @@ class cAllergyPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 
 		self.LCTRL_allergies.DeleteAllItems()
 
-		emr = self.__pat.get_emr()
+		emr = self.__pat.emr
 		allergies = emr.get_allergies()
 		if allergies is None:
 			return False
@@ -548,7 +548,7 @@ class cAllergyPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 	#-----------------------------------------------
 	def _on_allergy_activated(self, evt):
 		pk_allg = evt.GetData()
-		emr = self.__pat.get_emr()
+		emr = self.__pat.emr
 		allgs = emr.get_allergies(ID_list=[pk_allg])
 		self.editarea.set_data(allergy = allgs[0])
 #======================================================================
@@ -566,7 +566,7 @@ if __name__ == "__main__":
 		app = wx.PyWidgetTester(size = (600, 600))
 		dlg = cAllergyEditAreaDlg(parent=app.frame, id=-1)
 		dlg.ShowModal()
-#		emr = pat.get_emr()
+#		emr = pat.emr
 #		allergy = emr.get_allergies()[0]
 #		dlg = cAllergyEditAreaDlg(parent=app.frame, id=-1, allergy=allergy)
 #		dlg.ShowModal()

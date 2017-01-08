@@ -506,7 +506,7 @@ class cLDTImporter:
 			except gmExceptions.ConstructorError:
 				_log.LogException('patient error', sys.exc_info())
 				return None
-			emr = pat.get_emr()
+			emr = pat.emr
 			if request_data.has_key('8310'):
 				reqid = request_data['8310'][0]
 			elif request_data.has_key('8311'):

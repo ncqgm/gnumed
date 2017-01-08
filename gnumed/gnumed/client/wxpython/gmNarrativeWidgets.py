@@ -90,7 +90,7 @@ class cMoveNarrativeDlg(wxgMoveNarrativeDlg.wxgMoveNarrativeDlg):
 			gmDateTime.pydt_strftime(self.encounter['last_affirmed'], '%H:%M')
 		))
 		pat = gmPerson.gmCurrentPatient()
-		emr = pat.get_emr()
+		emr = pat.emr
 		narr = emr.get_clin_narrative(episodes=[self.source_episode['pk_episode']], encounters=[self.encounter['pk_encounter']])
 		if len(narr) == 0:
 			narr = [{'narrative': _('There is no narrative for this episode in this encounter.')}]
@@ -195,7 +195,7 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 
 		self._LCTRL_active_problems.set_string_items()
 
-		emr = self.__pat.get_emr()
+		emr = self.__pat.emr
 		problems = emr.get_problems (
 			include_closed_episodes = self._CHBOX_show_closed_episodes.IsChecked(),
 			include_irrelevant_issues = self._CHBOX_irrelevant_issues.IsChecked()
@@ -252,7 +252,7 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 	#--------------------------------------------------------
 	def __get_info_for_issue_problem(self, problem=None, fancy=False):
 		soap = u''
-		emr = self.__pat.get_emr()
+		emr = self.__pat.emr
 		prev_enc = emr.get_last_but_one_encounter(issue_id = problem['pk_health_issue'])
 		if prev_enc is not None:
 			soap += prev_enc.format (
@@ -289,7 +289,7 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 	#--------------------------------------------------------
 	def __get_info_for_episode_problem(self, problem=None, fancy=False):
 		soap = u''
-		emr = self.__pat.get_emr()
+		emr = self.__pat.emr
 		prev_enc = emr.get_last_but_one_encounter(episode_id = problem['pk_episode'])
 		if prev_enc is not None:
 			soap += prev_enc.format (
@@ -595,7 +595,7 @@ class cFancySoapEditorPnl(wxgFancySoapEditorPnl.wxgFancySoapEditorPnl):
 #	def __encounter_modified(self):
 #		"""Assumes that the field data is valid."""
 #
-#		emr = self.__pat.get_emr()
+#		emr = self.__pat.emr
 #		enc = emr.active_encounter
 #
 #		data = {
@@ -752,7 +752,7 @@ class cFancySoapEditorPnl(wxgFancySoapEditorPnl.wxgFancySoapEditorPnl):
 		wx.SafeYield()
 	#--------------------------------------------------------
 	def _save_all_button_pressed_bottom_half(self):
-		emr = self.__pat.get_emr()
+		emr = self.__pat.emr
 		saved = self._NB_soap_editors.save_all_editors (
 			emr = emr,
 			episode_name_candidates = [
@@ -1049,7 +1049,7 @@ class cSimpleSoapPluginPnl(wxgSimpleSoapPluginPnl.wxgSimpleSoapPluginPnl, gmRege
 	#-----------------------------------------------------
 	def __refresh_problem_list(self):
 		self._LCTRL_problems.set_string_items()
-		emr = self.__curr_pat.get_emr()
+		emr = self.__curr_pat.emr
 		epis = emr.get_episodes(open_status = True)
 		if len(epis) > 0:
 			self._LCTRL_problems.set_string_items(items = [ u'%s%s' % (

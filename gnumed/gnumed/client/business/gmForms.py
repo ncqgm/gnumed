@@ -718,7 +718,7 @@ class cFormEngine(object):
 #		# some forms may not have values ...
 #		if params is None:
 #			params = {}
-#		patient_clinical = self.patient.get_emr()
+#		patient_clinical = self.patient.emr
 #		encounter = patient_clinical.active_encounter['pk_encounter']
 #		# FIXME: get_active_episode is no more
 #		#episode = patient_clinical.get_active_episode()['pk_episode']

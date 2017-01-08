@@ -987,7 +987,7 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 		return turn_substance_intake_into_allergy (
 			parent = self,
 			intake = self.data,
-			emr = gmPerson.gmCurrentPatient().get_emr()
+			emr = gmPerson.gmCurrentPatient().emr
 		)
 
 #============================================================
@@ -1455,7 +1455,7 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 		if self.__patient is None:
 			return
 
-		emr = self.__patient.get_emr()
+		emr = self.__patient.emr
 		meds = emr.get_current_medications (
 			order_by = self.__grouping2order_by_clauses[self.__grouping_mode],
 			include_unapproved = self.__filter_show_unapproved,
@@ -1793,7 +1793,7 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 		return turn_substance_intake_into_allergy (
 			parent = self,
 			intake = self.get_selected_data()[0],
-			emr = self.__patient.get_emr()
+			emr = self.__patient.emr
 		)
 	#------------------------------------------------------------
 	def print_medication_list(self):
@@ -1807,7 +1807,7 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 		except KeyError:
 			return u' '
 
-		emr = self.__patient.get_emr()
+		emr = self.__patient.emr
 		atcs = []
 		if entry['atc_substance'] is not None:
 			atcs.append(entry['atc_substance'])

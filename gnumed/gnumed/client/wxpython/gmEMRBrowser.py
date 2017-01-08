@@ -463,7 +463,7 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 		# root node == EMR level
 		self.__cb__enable_display_mode_selection(True)
 		if self.__soap_display_mode == u'details':
-			emr = self.__pat.get_emr()
+			emr = self.__pat.emr
 			txt = emr.format_summary()
 		else:
 			txt = self.__pat.emr.format_as_journal(left_margin = 1, patient = self.__pat)

@@ -41,6 +41,102 @@ _log = logging.getLogger('gm.ui')
 #================================================================
 # encounter related widgets/functions
 #----------------------------------------------------------------
+def _ask_for_encounter_continuation(new_encounter=None, fairly_recent_encounter=None):
+	"""This is used as the callback when the EMR detects that the
+	   patient was here rather recently and wants to ask the
+	   provider whether to continue the recent encounter.
+	"""
+	# better safe than sorry
+	if new_encounter['pk_patient'] != fairly_recent_encounter['pk_patient']:
+		raise ValueError(u'pk_patient values on new (enc=%s pat=%s) and fairly-recent (enc=%s pat=%s) encounter do not match' % (
+			new_encounter['pk_encounter'],
+			new_encounter['pk_patient'],
+			fairly_recent_encounter['pk_encounter'],
+			fairly_recent_encounter['pk_patient']
+		))
+
+	# only pester user if current patient is concerned
+	curr_pat = gmPerson.gmCurrentPatient()
+	if new_encounter['pk_patient'] != curr_pat.ID:
+		return
+
+	# ask user
+	msg = _(
+		'%s, %s  [#%s]\n'
+		'\n'
+		"This patient's chart was worked on only recently:\n"
+		'\n'
+		' %s'
+		'\n'
+		'Do you want to continue that consultation ?\n'
+		' (If not a new one will be used.)\n'
+	) % (
+		curr_pat.get_description_gender(with_nickname = False),
+		gmDateTime.pydt_strftime(curr_pat['dob'], '%Y %b %d'),
+		curr_pat.ID,
+		fairly_recent_encounter.format (
+			episodes = None,
+			with_soap = False,
+			left_margin = 1,
+			patient = None,
+			issues = None,
+			with_docs = False,
+			with_tests = False,
+			fancy_header = False,
+			with_vaccinations = False,
+			with_rfe_aoe = True,
+			with_family_history = False,
+			with_co_encountlet_hints = False,
+			by_episode = False
+		)
+	)
+	dlg = gmGuiHelpers.c2ButtonQuestionDlg (
+		parent = None,
+		id = -1,
+		caption = _(u'Pulling chart'),
+		question = msg,
+		button_defs = [
+			{'label': _('Continue recent'), 'tooltip': _('Continue the existing recent encounter.'), 'default': False},
+			{'label': _('Start new'), 'tooltip': _('Start a new encounter. The existing one will be closed.'), 'default': True}
+		],
+		show_checkbox = False
+	)
+	result = dlg.ShowModal()
+	dlg.Destroy()
+
+	# switch encounters
+	if result == wx.ID_YES:
+		_log.info('user wants to continue fairly-recent encounter')
+		curr_pat.emr.active_encounter = fairly_recent_encounter
+		if new_encounter.transfer_all_data_to_another_encounter(pk_target_encounter = fairly_recent_encounter['pk_encounter']):
+			if not gmEMRStructItems.delete_encounter(pk_encounter = new_encounter['pk_encounter']):
+				gmGuiHelpers.gm_show_info (
+					_(u'Properly switched to fairly recent encounter but unable to delete newly-created encounter.'),
+					_(u'Pulling chart')
+				)
+		else:
+			gmGuiHelpers.gm_show_info (
+				_(u'Unable to transfer the data from newly-created to fairly recent encounter.'),
+				_(u'Pulling chart')
+			)
+		return
+
+	_log.debug('stayed with newly created encounter')
+
+#----------------------------------------------------------------
+def __ask_for_encounter_continuation(**kwargs):
+	try:
+		del kwargs['signal']
+		del kwargs['sender']
+	except KeyError:
+		pass
+	wx.CallAfter(_ask_for_encounter_continuation, **kwargs)
+
+#----------------------------------------------------------------
+# listen for encounter continuation inquiry requests
+gmDispatcher.connect(signal = u'ask_for_encounter_continuation', receiver = __ask_for_encounter_continuation)
+
+#----------------------------------------------------------------
 def start_new_encounter(emr=None):
 	emr.start_new_encounter()
 	gmDispatcher.send(signal = 'statustext', msg = _('Started a new encounter for the active patient.'), beep = True)
@@ -73,7 +169,7 @@ def sanity_check_encounter_of_active_patient(parent=None, msg=None):
 	if not check_enc:
 		return True
 
-	emr = pat.get_emr(allow_user_interaction = False)
+	emr = pat.emr
 	enc = emr.active_encounter
 
 	# did we add anything to the EMR ?
@@ -122,35 +218,6 @@ def sanity_check_encounter_of_active_patient(parent=None, msg=None):
 	return True
 
 #----------------------------------------------------------------
-def ask_for_encounter_continuation(msg=None, caption=None, encounter=None, parent=None):
-	"""This is used as the callback when the EMR detects that the
-	   patient was here rather recently and wants to ask the
-	   provider whether to continue the recent encounter.
-	"""
-	if parent is None:
-		parent = wx.GetApp().GetTopWindow()
-
-	dlg = gmGuiHelpers.c2ButtonQuestionDlg (
-		parent = None,
-		id = -1,
-		caption = caption,
-		question = msg,
-		button_defs = [
-			{'label': _('Continue'), 'tooltip': _('Continue the existing recent encounter.'), 'default': False},
-			{'label': _('Start new'), 'tooltip': _('Start a new encounter. The existing one will be closed.'), 'default': True}
-		],
-		show_checkbox = False
-	)
-
-	result = dlg.ShowModal()
-	dlg.Destroy()
-
-	if result == wx.ID_YES:
-		return True
-
-	return False
-
-#----------------------------------------------------------------
 def edit_encounter(parent=None, encounter=None, msg=None):
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
@@ -179,7 +246,7 @@ def select_encounters(parent=None, patient=None, single_selection=True, encounte
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
 
-	emr = patient.get_emr(allow_user_interaction = False)
+	emr = patient.emr
 
 	#--------------------
 	def new():
@@ -586,7 +653,7 @@ class cEncounterEditAreaDlg(wxgEncounterEditAreaDlg.wxgEncounterEditAreaDlg):
 			self._PRW_encounter_end.SetText(fts.format_accurately(), data = fts)
 			return
 
-		emr = self.__pat.get_emr()
+		emr = self.__pat.emr
 		if start != emr.active_encounter['started']:
 			end = end.replace (
 				year = start.year,
@@ -631,7 +698,7 @@ class cActiveEncounterPnl(wxgActiveEncounterPnl.wxgActiveEncounterPnl):
 
 	#------------------------------------------------------------
 	def __refresh(self):
-		enc = gmPerson.gmCurrentPatient().get_emr(allow_user_interaction = False).active_encounter
+		enc = gmPerson.gmCurrentPatient().emr.active_encounter
 		self._TCTRL_encounter.SetValue(enc.format (
 			with_docs = False,
 			with_tests = False,
@@ -673,14 +740,14 @@ class cActiveEncounterPnl(wxgActiveEncounterPnl.wxgActiveEncounterPnl):
 		pat = gmPerson.gmCurrentPatient()
 		if not pat.connected:
 			return
-		edit_encounter(encounter = pat.get_emr().active_encounter)
+		edit_encounter(encounter = pat.emr.active_encounter)
 
 	#------------------------------------------------------------
 	def _on_new_button_pressed(self, event):
 		pat = gmPerson.gmCurrentPatient()
 		if not pat.connected:
 			return
-		start_new_encounter(emr = pat.get_emr())
+		start_new_encounter(emr = pat.emr)
 
 	#------------------------------------------------------------
 	def _on_list_button_pressed(self, event):
@@ -889,7 +956,7 @@ if __name__ == '__main__':
 	#----------------------------------------------------------------
 	def test_encounter_edit_area_panel():
 		app = wx.PyWidgetTester(size = (200, 300))
-		emr = pat.get_emr()
+		emr = pat.emr
 		enc = emr.active_encounter
 		#enc = gmEMRStructItems.cEncounter(1)
 		pnl = cEncounterEditAreaPnl(app.frame, -1, encounter=enc)
@@ -899,7 +966,7 @@ if __name__ == '__main__':
 	#----------------------------------------------------------------
 	def test_encounter_edit_area_dialog():
 		app = wx.PyWidgetTester(size = (200, 300))
-		emr = pat.get_emr()
+		emr = pat.emr
 		enc = emr.active_encounter
 		#enc = gmEMRStructItems.cEncounter(1)
 

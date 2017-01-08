@@ -614,7 +614,7 @@ def edit_vaccination(parent=None, vaccination=None, single_entry=True):
 def manage_vaccinations(parent=None):
 
 	pat = gmPerson.gmCurrentPatient()
-	emr = pat.get_emr()
+	emr = pat.emr
 
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
@@ -866,7 +866,7 @@ class cVaccinationEAPnl(wxgVaccinationEAPnl.wxgVaccinationEAPnl, gmEditArea.cGen
 	#----------------------------------------------------------------
 	def __save_new_from_vaccine(self, vaccine=None):
 
-		emr = gmPerson.gmCurrentPatient().get_emr()
+		emr = gmPerson.gmCurrentPatient().emr
 
 		data = emr.add_vaccination (
 			episode = self._PRW_episode.GetData(can_create = True, is_open = False),
@@ -1153,7 +1153,7 @@ class cImmunisationsPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 		ind = ind_list.GetClientData(selected_item)
 		# clear list
 		self.LBOX_given_shots.Set([])
-		emr = self.__pat.get_emr()
+		emr = self.__pat.emr
 		shots = emr.get_vaccinations(indications = [ind])
 		# FIXME: use Set() for entire array (but problem with client_data)
 		for shot in shots:
@@ -1180,7 +1180,7 @@ class cImmunisationsPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 		self.LBOX_active_schedules.Clear()
 		self.LBOX_missing_shots.Clear()
 
-		emr = self.__pat.get_emr()
+		emr = self.__pat.emr
 
 		t1 = time.time()
 		# populate vaccinated-indications list

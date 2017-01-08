@@ -22,6 +22,7 @@ IMPROVED: patient overview now acts on changes to ref.auto_hint
 IMPROVED: document tree details view
 IMPROVED: LaTeX formatting of current medications (port from 1.6 branch)
 IMPROVED: early-connect error decoding
+IMPROVED: fairly-recent encounter continuation logic
 
 ------------------------------------------------
 # rel-1-6-patches

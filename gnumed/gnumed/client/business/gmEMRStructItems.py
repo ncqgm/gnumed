@@ -383,7 +383,7 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 					self._payload[self._idx['pk_patient']]
 				)
 				raise ValueError(msg)
-			emr = patient.get_emr()
+			emr = patient.emr
 
 			# episodes
 			if with_episodes:
@@ -1143,7 +1143,7 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 					self._payload[self._idx['pk_patient']]
 				)
 				raise ValueError(msg)
-			emr = patient.get_emr()
+			emr = patient.emr
 		else:
 			with_encounters = False
 			with_documents = False
@@ -1660,10 +1660,12 @@ def episode2problem(episode=None, allow_closed=False):
 #============================================================
 # encounter API
 #============================================================
+SQL_get_encounters = u"SELECT * FROM clin.v_pat_encounters WHERE %s"
+
 class cEncounter(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one encounter."""
 
-	_cmd_fetch_payload = u"SELECT * FROM clin.v_pat_encounters WHERE pk_encounter = %s"
+	_cmd_fetch_payload = SQL_get_encounters % u'pk_encounter = %s'
 	_cmds_store_payload = [
 		u"""UPDATE clin.encounter SET
 				started = %(started)s,
@@ -1735,6 +1737,27 @@ class cEncounter(gmBusinessDBObject.cBusinessDBObject):
 		}])
 		self.refetch_payload()
 		return True
+
+	#--------------------------------------------------------
+	def transfer_all_data_to_another_encounter(self, pk_target_encounter=None):
+		if pk_target_encounter == self.pk_obj:
+			return True
+		cmd = u"SELECT clin.transfer_all_encounter_data(%(src)s, %(trg)s)"
+		args = {
+			'src': self.pk_obj,
+			'trg': pk_target_encounter
+		}
+		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+		return True
+
+#	conn = gmPG2.get_connection()
+#	curs = conn.cursor()
+#	curs.callproc('clin.get_hints_for_patient', [pk_identity])
+#	rows = curs.fetchall()
+#	idx = gmPG2.get_col_indices(curs)
+#	curs.close()
+#	conn.rollback()
+
 	#--------------------------------------------------------
 	def same_payload(self, another_object=None):
 
@@ -2404,7 +2427,7 @@ limit 1
 						self._payload[self._idx['pk_patient']]
 					)
 					raise ValueError(msg)
-				emr = patient.get_emr()
+				emr = patient.emr
 				lines.extend(self.format_soap (
 					episodes = episodes,
 					left_margin = left_margin,
@@ -2430,7 +2453,7 @@ limit 1
 
 			# test results
 			if with_tests:
-				emr = patient.get_emr()
+				emr = patient.emr
 				tests = emr.get_test_results_by_date (
 					episodes = episodes,
 					encounter = self._payload[self._idx['pk_encounter']]
@@ -2444,7 +2467,7 @@ limit 1
 
 			# vaccinations
 			if with_vaccinations:
-				emr = patient.get_emr()
+				emr = patient.emr
 				vaccs = emr.get_vaccinations (
 					episodes = episodes,
 					encounters = [ self._payload[self._idx['pk_encounter']] ],
@@ -2900,7 +2923,7 @@ class cProblem(gmBusinessDBObject.cBusinessDBObject):
 			episodes = [ cHealthIssue(aPK_obj = self._payload[self._idx['pk_health_issue']]).latest_episode ]
 			#xxxxxxxxxxxxx
 
-		emr = patient.get_emr()
+		emr = patient.emr
 
 		doc_folder = gmDocuments.cDocumentFolder(aPKey = patient.ID)
 		return doc_folder.get_visual_progress_notes (
@@ -3460,7 +3483,9 @@ if __name__ == '__main__':
 		for field in fields:
 			print field, ':', encounter[field]
 		print "updatable:", encounter.get_updatable_fields()
-		print encounter.formatted_revision_history
+		#print encounter.formatted_revision_history
+		print encounter.transfer_all_data_to_another_encounter(pk_target_encounter = 2)
+
 	#--------------------------------------------------------
 	def test_encounter2latex():
 		encounter = cEncounter(aPK_obj=1)
@@ -3498,12 +3523,12 @@ if __name__ == '__main__':
 	# run them
 	#test_episode()
 	#test_problem()
-	#test_encounter()
+	test_encounter()
 	#test_health_issue()
 	#test_hospital_stay()
 	#test_performed_procedure()
 	#test_diagnostic_certainty_classification_map()
-	test_encounter2latex()
+	#test_encounter2latex()
 	#test_episode_codes()
-#============================================================
 
+#============================================================

@@ -72,7 +72,7 @@ def run_importer():
 
 	# ensure structure of EMR
 	curr_pat = gmPerson.gmCurrentPatient()
-	emr = curr_pat.get_emr()
+	emr = curr_pat.emr
 	epi = emr.add_episode(episode_name = u'Gewichtsmonitoring', is_open = False)
 
 	# and import our stuff

@@ -51,7 +51,6 @@ from Gnumed.business import gmExportArea
 from Gnumed.business import gmBilling
 from Gnumed.business import gmAutoHints
 from Gnumed.business.gmDocuments import cDocumentFolder
-from Gnumed.business.gmChartPulling import tui_chart_puller
 
 
 _log = logging.getLogger('gm.person')
@@ -1839,29 +1838,6 @@ def turn_identity_into_patient(pk_identity):
 #============================================================
 # helper functions
 #------------------------------------------------------------
-#_spin_on_emr_access = None
-#
-#def set_emr_access_spinner(func=None):
-#	if not callable(func):
-#		_log.error('[%] not callable, not setting _spin_on_emr_access', func)
-#		return False
-#
-#	_log.debug('setting _spin_on_emr_access to [%s]', func)
-#
-#	global _spin_on_emr_access
-#	_spin_on_emr_access = func
-#
-
-#------------------------------------------------------------
-_pull_chart = tui_chart_puller
-
-def set_chart_puller(chart_puller):
-	if not callable(chart_puller):
-		raise TypeError('chart puller <%s> not callable' % chart_puller)
-	global _pull_chart
-	_pull_chart = chart_puller
-	_log.debug('setting chart puller to <%s>', chart_puller)
-
 _yield = lambda x:x
 
 def set_yielder(yielder):
@@ -1883,6 +1859,7 @@ class cPatient(cPerson):
 		self.__emr_access_lock = threading.Lock()
 		self.__emr = None
 		self.__doc_folder = None
+
 	#--------------------------------------------------------
 	def cleanup(self):
 		"""Do cleanups before dying.
@@ -1894,80 +1871,62 @@ class cPatient(cPerson):
 		if self.__doc_folder is not None:
 			self.__doc_folder.cleanup()
 		cPerson.cleanup(self)
+
 	#----------------------------------------------------------------
 	def ensure_has_allergy_state(self, pk_encounter=None):
 		from Gnumed.business.gmAllergy import ensure_has_allergy_state
 		ensure_has_allergy_state(encounter = pk_encounter)
 		return True
-	#----------------------------------------------------------
-	#----------------------------------------------------------
-#	def get_emr(self, allow_user_interaction=True):
-#		if not self.__emr_access_lock.acquire(False):
-#			# maybe something slow is happening on the machine
-#			_log.debug('failed to acquire EMR access lock, sleeping for 500ms')
-#			time.sleep(0.5)
-#			if not self.__emr_access_lock.acquire(False):
-#				_log.error('still failed to acquire EMR access lock, aborting')
-#				raise AttributeError('cannot lock access to EMR')
-#
-#		if self.__emr is None:
-#			self.__emr = gmClinicalRecord.cClinicalRecord(aPKey = self._payload[self._idx['pk_identity']], allow_user_interaction = allow_user_interaction)
-#			self.__emr.gender = self['gender']
-#			self.__emr.dob = self['dob']
-#
-#		self.__emr_access_lock.release()
-#		return self.__emr
 
-	def get_emr(self, allow_user_interaction=True):
+	#----------------------------------------------------------
+	def get_emr(self):
 		_log.debug('accessing EMR for identity [%s], thread [%s]', self._payload[self._idx['pk_identity']], thread.get_ident())
+
+		# fast path: already set, just return it
+		if self.__emr is not None:
+			return self.__emr
+
 		stack_logged = False
-		if not self.__emr_access_lock.acquire(False):
-			got_lock = False
+		got_lock = self.__emr_access_lock.acquire(False)
+		if not got_lock:
 			# do some logging as we failed to get the lock
 			call_stack = inspect.stack()
+			call_stack.reverse()
 			for idx in range(1, len(call_stack)):
 				caller = call_stack[idx]
 				_log.debug('%s[%s] @ [%s] in [%s]', u' '* idx, caller[3], caller[2], caller[1])
 			del call_stack
 			stack_logged = True
 			# now loop a bit
-			for idx in range(100):
+			for idx in range(500):
 				_yield()
 				time.sleep(0.1)
 				_yield()
-				if self.__emr_access_lock.acquire(False):
-					got_lock = True
+				got_lock = self.__emr_access_lock.acquire(False)
+				if got_lock:
 					break
 			if not got_lock:
 				_log.error('still failed to acquire EMR access lock, aborting (thread [%s])', thread.get_ident())
+				self.__emr_access_lock.release()
 				raise AttributeError('cannot lock access to EMR for identity [%s]' % self._payload[self._idx['pk_identity']])
 
-#			# maybe something slow is happening on the machine
-#			_log.debug('failed to acquire EMR access lock, sleeping for 500ms (thread %s)', thread.get_ident())
-#			time.sleep(0.5)
-#			if not self.__emr_access_lock.acquire(False):
-#				_log.error('still failed to acquire EMR access lock, aborting (thread %s)', thread.get_ident())
-#				raise AttributeError('cannot lock access to EMR')
+		_log.debug('pulling chart for identity [%s], thread [%s]', self._payload[self._idx['pk_identity']], thread.get_ident())
+		if not stack_logged:
+			# do some logging as we are pulling the chart for the first time
+			call_stack = inspect.stack()
+			call_stack.reverse()
+			for idx in range(1, len(call_stack)):
+				caller = call_stack[idx]
+				_log.debug('%s[%s] @ [%s] in [%s]', u' '* idx, caller[3], caller[2], caller[1])
+			del call_stack
+			stack_logged = True
 
-		if self.__emr is None:
-			_log.debug('pulling chart for identity [%s], thread [%s]', self._payload[self._idx['pk_identity']], thread.get_ident())
-			if not stack_logged:
-				# do some logging as we are pulling the chart for the first time
-				call_stack = inspect.stack()
-				for idx in range(1, len(call_stack)):
-					caller = call_stack[idx]
-					_log.debug('%s[%s] @ [%s] in [%s]', u' '* idx, caller[3], caller[2], caller[1])
-				del call_stack
-				stack_logged = True
-			#emr = _pull_chart(self._payload[self._idx['pk_identity']])
-			emr = _pull_chart(self)
-			if emr is None:		# user aborted pulling chart
-				_log.info('user aborted pulling chart, returning None')
-				self.__emr_access_lock.release()
-				return None
-			self.__emr = emr
+		self.is_patient = True
+		from Gnumed.business import gmClinicalRecord
+		emr = gmClinicalRecord.cClinicalRecord(aPKey = self._payload[self._idx['pk_identity']])
 
 		_log.debug('returning EMR for identity [%s], thread [%s]', self._payload[self._idx['pk_identity']], thread.get_ident())
+		self.__emr = emr
 		self.__emr_access_lock.release()
 		return self.__emr
 
@@ -2100,10 +2059,11 @@ class gmCurrentPatient(gmBorg.cBorg):
 		self.patient = patient
 		# for good measure ...
 		# however, actually we want to get rid of that
-		self.patient.get_emr()
+		self.patient.emr
 		self.__send_selection_notification()
 
 		return None
+
 	#--------------------------------------------------------
 	def __register_interests(self):
 		gmDispatcher.connect(signal = u'gm_table_mod', receiver = self._on_database_signal)
@@ -2644,7 +2604,7 @@ if __name__ == '__main__':
 	#--------------------------------------------------------
 	def test_current_patient():
 		pat = gmCurrentPatient()
-		print "pat.get_emr()", pat.get_emr()
+		print "pat.emr", pat.emr
 
 	#--------------------------------------------------------
 	def test_ext_id():

@@ -33,7 +33,7 @@ _log = logging.getLogger('gm.ui')
 def manage_external_care(parent=None):
 
 	pat = gmPerson.gmCurrentPatient()
-	emr = pat.get_emr()
+	emr = pat.emr
 
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()

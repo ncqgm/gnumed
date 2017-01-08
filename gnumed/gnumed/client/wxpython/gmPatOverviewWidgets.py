@@ -221,7 +221,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		list_items = []
 		list_data = []
 
-		emr = patient.get_emr()
+		emr = patient.emr
 		most_recent = emr.get_most_recent_results(no_of_results = 1)
 		if most_recent is None:
 			self._LCTRL_results.set_string_items(items = [])
@@ -326,7 +326,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 			list_items.append(label)
 			list_data.append(msg)
 
-		pk_enc = patient.get_emr(allow_user_interaction = False).active_encounter['pk_encounter']
+		pk_enc = patient.emr.active_encounter['pk_encounter']
 		for hint in patient._get_dynamic_hints(pk_encounter = pk_enc):
 			line_idx += 1
 			list_items.append(hint['title'])
@@ -460,7 +460,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 				self._LCTRL_documents.SetItemTextColour(idx, wx.NamedColour('RED'))
 	#-----------------------------------------------------
 	def _calc_documents_list_item_tooltip(self, data):
-		emr = gmPerson.gmCurrentPatient().get_emr()
+		emr = gmPerson.gmCurrentPatient().emr
 
 		if isinstance(data, gmDocuments.cDocument):
 			return data.format()
@@ -491,7 +491,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 			if self._PRW_encounter_range.GetValue().strip() != u'':
 				return
 
-		emr = patient.get_emr()
+		emr = patient.emr
 
 		list_items = []
 		list_data = []
@@ -570,7 +570,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 
 	#-----------------------------------------------------
 	def _calc_encounters_list_item_tooltip(self, data):
-		emr = gmPerson.gmCurrentPatient().get_emr()
+		emr = gmPerson.gmCurrentPatient().emr
 
 		if isinstance(data, gmEMRStructItems.cEncounter):
 			return data.format (
@@ -613,7 +613,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 	#-----------------------------------------------------
 	#-----------------------------------------------------
 	def __refresh_history(self, patient=None):
-		emr = patient.get_emr()
+		emr = patient.emr
 
 		sort_key_list = []
 		date_format4sorting = '%Y %m %d %H %M %S'
@@ -844,7 +844,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 	#-----------------------------------------------------
 	def __refresh_meds(self, patient=None):
 
-		emr = patient.get_emr()
+		emr = patient.emr
 
 		list_items = []
 		data_items = []
@@ -890,7 +890,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 	def _calc_meds_list_item_tooltip(self, data):
 		if isinstance(data, basestring):
 			return data
-		emr = gmPerson.gmCurrentPatient().get_emr()
+		emr = gmPerson.gmCurrentPatient().emr
 		atcs = []
 		if data['atc_substance'] is not None:
 			atcs.append(data['atc_substance'])
@@ -921,7 +921,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 	#-----------------------------------------------------
 	#-----------------------------------------------------
 	def __refresh_contacts(self, patient=None):
-		emr = patient.get_emr()
+		emr = patient.emr
 
 		list_items = []
 		list_data = []
@@ -1053,7 +1053,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 	#-----------------------------------------------------
 	#-----------------------------------------------------
 	def __refresh_problems(self, patient=None):
-		emr = patient.get_emr()
+		emr = patient.emr
 
 		problems = [
 			p for p in emr.get_problems(include_closed_episodes = False, include_irrelevant_issues = False)
@@ -1104,7 +1104,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 				with_comms = True
 			))
 
-		emr = gmPerson.gmCurrentPatient().get_emr()
+		emr = gmPerson.gmCurrentPatient().emr
 
 		if data['type'] == 'issue':
 			issue = emr.problem2issue(data)
@@ -1142,7 +1142,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		if data is not None:
 			# <ctrl> down ?
 			if wx.GetKeyState(wx.WXK_CONTROL):
-				emr = gmPerson.gmCurrentPatient().get_emr()
+				emr = gmPerson.gmCurrentPatient().emr
 				if data['type'] == 'issue':
 					gmEMRStructWidgets.edit_health_issue(parent = self, issue = emr.problem2issue(data))
 					return

@@ -14,7 +14,7 @@ from Gnumed.business import gmClinNarrative, gmPerson, gmPersonSearch
 db = gmPG.ConnectionPool()
 pat = gmPersonSearch.ask_for_patient()
 #gmPerson.set_active_patient(patient=pat)
-emr = pat.get_emr()
+emr = pat.emr
 epi = emr.get_episodes()[0]
 
 print "creating new narrative row"
