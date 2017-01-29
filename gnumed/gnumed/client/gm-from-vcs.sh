@@ -33,7 +33,7 @@ CONF="--conf-file=gm-from-vcs.conf"
 
 # options useful for development and debugging:
 TS=`date +%m_%d-%H_%M_%S`
-DEV_OPTS="--log-file=gm-vcs-${TS}-$$.log --override-schema-check --skip-update-check --local-import --debug"
+DEV_OPTS="--log-file=gm-vcs-${TS}-$$.log --override-schema-check --local-import --debug"
 # --profile=gm-from-vcs.prof
 
 # options for running from released tarballs:

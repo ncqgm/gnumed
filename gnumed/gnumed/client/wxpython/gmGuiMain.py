@@ -3414,7 +3414,8 @@ class gmTopLevelFrame(wx.Frame):
 		return
 	#-----------------------------------------------
 	def OnPanelSize (self, event):
-		wx.LayoutAlgorithm().LayoutWindow (self.LayoutMgr, self.nb)
+		wx.LayoutAlgorithm().LayoutWindow(self.LayoutMgr, self.nb)
+
 #==============================================================================
 class gmApp(wx.App):
 
@@ -3619,22 +3620,22 @@ class gmApp(wx.App):
 
 		self.Bind(wx.EVT_MOUSE_EVENTS, self._on_user_activity)
 		self.Bind(wx.EVT_KEY_DOWN, self._on_user_activity)
+
 	#----------------------------------------------
 	def __check_for_updates(self):
 
 		dbcfg = gmCfg.cCfgSQL()
-
 		do_check = bool(dbcfg.get2 (
 			option = u'horstspace.update.autocheck_at_startup',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			bias = 'workplace',
 			default = True
 		))
-
 		if not do_check:
 			return
 
-		gmCfgWidgets.check_for_updates()
+		gmCfgWidgets.check_for_updates(async = True)
+
 	#----------------------------------------------
 	def __establish_backend_connection(self):
 		"""Handle all the database related tasks necessary for startup."""

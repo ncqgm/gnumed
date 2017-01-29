@@ -1370,11 +1370,10 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 		return True
 
 	#--------------------------------------------------------
-	def _on_part_selected(self, event):
-		event.Skip()
-		fname, source = self._LCTRL_doc_pages.get_item_data(item_idx = event.Index)
-		status, desc = gmMimeLib.describe_file(fname)
-		self._TCTRL_metadata.SetValue (_(
+	def _on_update_file_description(self, result):
+		status, description = result
+		fname, source = self._LCTRL_doc_pages.get_selected_item_data(only_one = True)
+		txt = _(
 			u'Source: %s\n'
 			u'File: %s\n'
 			u'\n'
@@ -1382,8 +1381,16 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 		) % (
 			source,
 			fname,
-			desc
-		))
+			description
+		)
+		wx.CallAfter(self._TCTRL_metadata.SetValue, txt)
+
+	#--------------------------------------------------------
+	def _on_part_selected(self, event):
+		event.Skip()
+		fname, source = self._LCTRL_doc_pages.get_item_data(item_idx = event.Index)
+		self._TCTRL_metadata.SetValue(u'Retrieving details from [%s] ...' % fname)
+		gmMimeLib.describe_file(fname, callback = self._on_update_file_description)
 
 #============================================================
 def display_document_part(parent=None, part=None):

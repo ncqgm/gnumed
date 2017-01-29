@@ -21,6 +21,7 @@ from Gnumed.pycommon import gmNetworkTools
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmCfg2
+from Gnumed.pycommon import gmWorkerThread
 from Gnumed.business import gmPraxis
 from Gnumed.wxpython import gmGuiHelpers
 from Gnumed.wxpython import gmListWidgets
@@ -30,17 +31,15 @@ _log = logging.getLogger('gm.ui')
 _log.info(__version__)
 
 #==============================================================================
-def check_for_updates():
+def _get_update_status():
 
 	dbcfg = gmCfg.cCfgSQL()
-
 	url = dbcfg.get2 (
 		option = u'horstspace.update.url',
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 		bias = 'workplace',
 		default = u'http://www.gnumed.de/downloads/gnumed-versions.txt'
 	)
-
 	consider_latest_branch = bool(dbcfg.get2 (
 		option = u'horstspace.update.consider_latest_branch',
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
@@ -49,15 +48,21 @@ def check_for_updates():
 	))
 
 	_cfg = gmCfg2.gmCfgData()
-
-	found, msg = gmNetworkTools.check_for_update (
+	update_found, msg = gmNetworkTools.check_for_update (
 		url = url,
 		current_branch = _cfg.get(option = 'client_branch'),
 		current_version = _cfg.get(option = 'client_version'),
 		consider_latest_branch = consider_latest_branch
 	)
 
-	if found is False:
+	return update_found, msg
+
+#------------------------------------------------------------------------------
+def _signal_update_status(status):
+
+	update_found, msg = status
+	if update_found is False:
+		_cfg = gmCfg2.gmCfgData()
 		gmDispatcher.send(signal = 'statustext', msg = _('Your client (%s) is up to date.') % _cfg.get(option = 'client_version'))
 		return
 
@@ -65,6 +70,20 @@ def check_for_updates():
 		msg,
 		_('Checking for client updates')
 	)
+
+#------------------------------------------------------------------------------
+def check_for_updates(async=False):
+
+	if async:
+		gmWorkerThread.execute_in_worker_thread (
+			payload_function = _get_update_status,
+			payload_kwargs = None,
+			completion_callback = _signal_update_status
+		)
+		return
+
+	_signal_update_status(_get_update_status())
+
 #================================================================
 def list_configuration(parent=None):
 

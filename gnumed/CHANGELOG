@@ -24,6 +24,8 @@ IMPROVED: LaTeX formatting of current medications (port from 1.6 branch)
 IMPROVED: early-connect error decoding
 IMPROVED: fairly-recent encounter continuation logic
 IMPROGED: handling of empty-encounter cleanup
+IMPROVED: non-blocking update check
+IMPROVED: non-blocking file description retrieval
 
 ------------------------------------------------
 # rel-1-6-patches

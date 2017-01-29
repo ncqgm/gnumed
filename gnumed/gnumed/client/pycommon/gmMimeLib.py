@@ -25,6 +25,7 @@ if __name__ == '__main__':
 import gmShellAPI
 import gmTools
 import gmCfg2
+import gmWorkerThread
 
 
 _log = logging.getLogger('gm.docs')
@@ -256,7 +257,7 @@ def convert_file(filename=None, target_mime=None, target_filename=None, target_e
 	return True
 
 #-----------------------------------------------------------------------------------
-def describe_file(filename):
+def __run_file_describer(filename=None):
 
 	base_name = u'gm-describe_file'
 
@@ -298,6 +299,18 @@ def describe_file(filename):
 	desc = u''.join(desc_file.readlines())
 	desc_file.close()
 	return (True, desc)
+
+#-----------------------------------------------------------------------------------
+def describe_file(filename, callback=None):
+	if callback is None:
+		return __run_file_describer(filename)
+
+	payload_kwargs = {'filename': filename}
+	gmWorkerThread.execute_in_worker_thread (
+		payload_function = __run_file_describer,
+		payload_kwargs = payload_kwargs,
+		completion_callback = callback
+	)
 
 #-----------------------------------------------------------------------------------
 def call_viewer_on_file(aFile = None, block=None):
