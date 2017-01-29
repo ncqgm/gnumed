@@ -1362,7 +1362,7 @@ class cClinicalRecord(object):
 	#--------------------------------------------------------
 	# API: allergy
 	#--------------------------------------------------------
- 	def get_allergies(self, remove_sensitivities=False, since=None, until=None, encounters=None, episodes=None, issues=None, ID_list=None):
+	def get_allergies(self, remove_sensitivities=False, since=None, until=None, encounters=None, episodes=None, issues=None, ID_list=None):
 		"""Retrieves patient allergy items.
 
 			remove_sensitivities
@@ -2103,7 +2103,7 @@ WHERE
 			filtered_shots = filter(lambda shot: shot['pk_health_issue'] in issues, filtered_shots)
 		if episodes is not None:
 			filtered_shots = filter(lambda shot: shot['pk_episode'] in episodes, filtered_shots)
- 		if encounters is not None:
+		if encounters is not None:
 			filtered_shots = filter(lambda shot: shot['pk_encounter'] in encounters, filtered_shots)
 		if indications is not None:
 			filtered_shots = filter(lambda shot: shot['indication'] in indications, filtered_shots)
@@ -2756,10 +2756,13 @@ SELECT MIN(earliest) FROM (
 		cmd = u"SELECT clin.remove_old_empty_encounters(%(pat)s::INTEGER, %(ttl)s::INTERVAL)"
 		args = {'pat': self.pk_patient, 'ttl': ttl}
 		try:
-			rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+			rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True)
 		except:
 			_log.exception('error deleting empty encounters')
 			return False
+
+		if not rows[0][0]:
+			_log.debug('no encounters deleted (less than 2 exist)')
 
 		return True
 

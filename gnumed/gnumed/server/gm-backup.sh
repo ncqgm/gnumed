@@ -97,9 +97,10 @@ BACKUP_FILENAME="${BACKUP_BASENAME}-${TS}"
 
 
 cd ${BACKUP_DIR}
-if test "$?" != "0" ; then
-	echo "Cannot change into backup directory [${BACKUP_DIR}]. Aborting."
-	exit 1
+RESULT="$?"
+if test "${RESULT}" != "0" ; then
+	echo "Cannot change into backup directory [${BACKUP_DIR}] (${RESULT}). Aborting."
+	exit ${RESULT}
 fi
 
 
@@ -168,27 +169,68 @@ fi
 
 # create tar archive
 TAR_FILE="${BACKUP_FILENAME}.tar"
-tar -cf ${TAR_FILE} ${ROLES_FILE} ${BACKUP_DATA_DIR}/
+TAR_SCRATCHFILE="${TAR_FILE}.untested"
+TAR_CMD="tar -cf ${TAR_SCRATCHFILE} ${ROLES_FILE} ${BACKUP_DATA_DIR}/"
+${TAR_CMD}
 RESULT="$?"
 if test "${RESULT}" != "0" ; then
-	echo "Creating backup tar archive [${TAR_FILE}] failed (${RESULT}). Aborting."
+	echo "Creating backup tar archive [${TAR_SCRATCHFILE}] failed (${RESULT}). Aborting."
+	echo "Command: ${TAR_CMD}"
 	exit ${RESULT}
 fi
 
 
 # test tar archive
-if test -z ${VERIFY_TAR} ; then
-	tar -xOf ${TAR_FILE} > /dev/null
-	RESULT="$?"
-	if test "${RESULT}" != "0" ; then
-		echo "Verifying backup tar archive [${TAR_FILE}] failed (${RESULT}). Aborting."
-		exit ${RESULT}
-	fi
+TEST_CMD="tar -xOf ${TAR_SCRATCHFILE} > /dev/null"
+${TEST_CMD}
+RESULT="$?"
+if test "${RESULT}" != "0" ; then
+	echo "Verifying backup tar archive [${TAR_SCRATCHFILE}] failed (${RESULT}). Aborting."
+	echo "Command: ${TEST_CMD}"
+	exit ${RESULT}
 fi
 rm --dir --recursive --one-file-system ${BACKUP_DATA_DIR}/
 rm -f ${ROLES_FILE}
 
 
+# rename to final archive name which
+# indicates successful testing
+mv -f ${TAR_SCRATCHFILE} ${TAR_FILE}
+RESULT="$?"
+if test "${RESULT}" != "0" ; then
+	echo "cannot rename TAR archive: ${TAR_SCRATCHFILE} => ${TAR_FILE}"
+	exit ${RESULT}
+fi
 chown ${BACKUP_OWNER} ${TAR_FILE}
+
+
+# find any leftover, untested tar files
+# and test them so they can be compressed
+shopt -s -q nullglob				# no matches -> ""
+SCRATCH_FILES=${BACKUP_BASENAME}-*.tar.untested
+for SCRATCH_FILE in ${SCRATCH_FILES} ; do
+
+	# test
+	TEST_CMD="tar -xOf ${SCRATCH_FILE} > /dev/null"
+	${TEST_CMD}
+	RESULT="$?"
+	if test "${RESULT}" != "0" ; then
+		echo "Verifying backup tar archive [${SCRATCH_FILE}] failed (${RESULT}). Skipping."
+		echo "Command: ${TEST_CMD}"
+		continue
+	fi
+
+	# rename to final archive name
+	TAR_FILE=`basename ${SCRATCH_FILE} .untested`
+	mv -f ${SCRATCH_FILE} ${TAR_FILE}
+	RESULT="$?"
+	if test "${RESULT}" != "0" ; then
+		echo "Cannot rename tar archive (${RESULT}). Skipping."
+		echo "FILES: ${TAR_SCRATCHFILE} => ${TAR_FILE}"
+		continue
+	fi
+	chown ${BACKUP_OWNER} ${TAR_FILE}
+
+done
 
 exit 0

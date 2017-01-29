@@ -23,6 +23,7 @@ IMPROVED: document tree details view
 IMPROVED: LaTeX formatting of current medications (port from 1.6 branch)
 IMPROVED: early-connect error decoding
 IMPROVED: fairly-recent encounter continuation logic
+IMPROGED: handling of empty-encounter cleanup
 
 ------------------------------------------------
 # rel-1-6-patches
@@ -1858,6 +1859,7 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 
 IMPROVED: staging._journal_without_suppressed_hints -> clin._v_emr_journal_without_suppressed_hints
 IMPROVED: safer backup file compression
+IMPROVED: don't fail clin.remove_old_empty_encounters() but return FALSE on <2 encounters
 
 ------------------------------------------------
 # gnumed_v21

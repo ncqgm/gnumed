@@ -70,22 +70,16 @@ for TAR_FILE in ${BACKUP_BASENAME}-*.tar ; do
 	fi
 
 	# verify tar archive
-	if test -z ${VERIFY_TAR} ; then
-		tar -xOf ${TAR_FILE} > /dev/null
-		RESULT="$?"
-		if test "${RESULT}" != "0" ; then
-			echo "Verifying backup tar archive [${TAR_FILE}] failed (${RESULT}). Skipping."
-			AGGREGATE_EXIT_CODE=${RESULT}
-			continue
-		fi
-	fi
+	# already done by backup script:
+	# if verification fails, *.tar.untested
+	# will not have been renamed to *.tar
 
 	# compress tar archive
 	# I have tried "xz -9 -e" and it did not make much of
 	# a difference (48 MB in a 1.2 GB backup)
 	#xz --quiet --extreme --check sha256 --no-warn -${COMPRESSION_LEVEL} ${BACKUP}
 	#xz --quiet --test ${BACKUP}.xz
-	bzip2 -zq -${COMPRESSION_LEVEL} ${TAR_FILE}
+	bzip2 --quiet --keep --compress -${COMPRESSION_LEVEL} ${TAR_FILE}
 	RESULT="$?"
 	if test "${RESULT}" != "0" ; then
 		echo "Compressing tar archive [${TAR_FILE}] as bz2 failed (${RESULT}). Skipping."
@@ -93,7 +87,7 @@ for TAR_FILE in ${BACKUP_BASENAME}-*.tar ; do
 		continue
 	fi
 	# verify compressed archive
-	bzip2 -tq ${BZ2_FILE}
+	bzip2 --quiet --test ${BZ2_FILE}
 	RESULT="$?"
 	if test "${RESULT}" != "0" ; then
 		echo "Verifying compressed archive [${BZ2_FILE}] failed (${RESULT}). Removing."
@@ -101,14 +95,9 @@ for TAR_FILE in ${BACKUP_BASENAME}-*.tar ; do
 		rm -f ${BZ2_FILE}
 		continue
 	fi
-
+	rm -f ${TAR_FILE}
 	chmod ${BACKUP_MASK} ${BZ2_FILE}
 	chown ${BACKUP_OWNER} ${BZ2_FILE}
-
-	# Reed-Solomon error protection support
-#	if test -n ${ADD_ECC} ; then
-#		rsbep
-#	fi
 
 	# GNotary support
 	if test -n ${GNOTARY_TAN} ; then
