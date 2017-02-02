@@ -170,23 +170,19 @@ fi
 # create tar archive
 TAR_FILE="${BACKUP_FILENAME}.tar"
 TAR_SCRATCHFILE="${TAR_FILE}.untested"
-TAR_CMD="tar -cf ${TAR_SCRATCHFILE} ${ROLES_FILE} ${BACKUP_DATA_DIR}/"
-${TAR_CMD}
+tar -cf ${TAR_SCRATCHFILE} ${ROLES_FILE} ${BACKUP_DATA_DIR}/
 RESULT="$?"
 if test "${RESULT}" != "0" ; then
 	echo "Creating backup tar archive [${TAR_SCRATCHFILE}] failed (${RESULT}). Aborting."
-	echo "Command: ${TAR_CMD}"
 	exit ${RESULT}
 fi
 
 
 # test tar archive
-TEST_CMD="tar -xOf ${TAR_SCRATCHFILE} > /dev/null"
-${TEST_CMD}
+tar -xOf ${TAR_SCRATCHFILE} > /dev/null
 RESULT="$?"
 if test "${RESULT}" != "0" ; then
 	echo "Verifying backup tar archive [${TAR_SCRATCHFILE}] failed (${RESULT}). Aborting."
-	echo "Command: ${TEST_CMD}"
 	exit ${RESULT}
 fi
 rm --dir --recursive --one-file-system ${BACKUP_DATA_DIR}/
@@ -211,12 +207,10 @@ SCRATCH_FILES=${BACKUP_BASENAME}-*.tar.untested
 for SCRATCH_FILE in ${SCRATCH_FILES} ; do
 
 	# test
-	TEST_CMD="tar -xOf ${SCRATCH_FILE} > /dev/null"
-	${TEST_CMD}
+	tar -xOf ${SCRATCH_FILE} > /dev/null
 	RESULT="$?"
 	if test "${RESULT}" != "0" ; then
 		echo "Verifying backup tar archive [${SCRATCH_FILE}] failed (${RESULT}). Skipping."
-		echo "Command: ${TEST_CMD}"
 		continue
 	fi
 

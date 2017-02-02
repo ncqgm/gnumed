@@ -56,18 +56,25 @@ AGGREGATE_EXIT_CODE=0
 for TAR_FILE in ${BACKUP_BASENAME}-*.tar ; do
 
 	BZ2_FILE="${TAR_FILE}.bz2"
+	LOCK_FILE="${BZ2_FILE}.in_progress"
 
-	# are the backup and ...
-	TAR_OPEN=`lsof | grep ${TAR_FILE}`
-	# ... the corresponding bz2 both open at the moment ?
-	BZ2_OPEN=`lsof | grep ${BZ2_FILE}`
-	if test -z "${TAR_OPEN}" -a -z "${BZ2_OPEN}" ; then
-		# no: remove the bz2 and start over compressing
-		rm -f ${BZ2_FILE}
-	else
-		# yes: skip to next backup
-		continue
+	if test -f ${LOCK_FILE} ; then
+		if test -f ${BZ2_FILE} ; then
+			# skip to next backup
+			continue
+		fi;
+		# we might be racing between "touch LOCK_FILE" and "bzip2 ..."
+		# so wait a bit to potentially give the .bz2 time to show up
+		sleep 1
+		if test -f ${BZ2_FILE} ; then
+			# skip to next backup
+			continue
+		fi;
+		rm --force ${LOCK_FILE}
 	fi
+
+	# touch lockfile
+	touch ${LOCK_FILE}
 
 	# verify tar archive
 	# already done by backup script:
@@ -84,6 +91,7 @@ for TAR_FILE in ${BACKUP_BASENAME}-*.tar ; do
 	if test "${RESULT}" != "0" ; then
 		echo "Compressing tar archive [${TAR_FILE}] as bz2 failed (${RESULT}). Skipping."
 		AGGREGATE_EXIT_CODE=${RESULT}
+		rm --force ${LOCK_FILE}
 		continue
 	fi
 	# verify compressed archive
@@ -92,10 +100,11 @@ for TAR_FILE in ${BACKUP_BASENAME}-*.tar ; do
 	if test "${RESULT}" != "0" ; then
 		echo "Verifying compressed archive [${BZ2_FILE}] failed (${RESULT}). Removing."
 		AGGREGATE_EXIT_CODE=${RESULT}
-		rm -f ${BZ2_FILE}
+		rm --force ${BZ2_FILE} ${LOCK_FILE}
 		continue
 	fi
-	rm -f ${TAR_FILE}
+	rm ${TAR_FILE}
+	rm --force ${LOCK_FILE}
 	chmod ${BACKUP_MASK} ${BZ2_FILE}
 	chown ${BACKUP_OWNER} ${BZ2_FILE}
 
