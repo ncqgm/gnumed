@@ -1864,6 +1864,8 @@ IMPROVED: staging._journal_without_suppressed_hints -> clin._v_emr_journal_witho
 IMPROVED: safer backup scripts
 IMPROVED: don't fail clin.remove_old_empty_encounters() but return FALSE on <2 encounters
 
+FIX: constrain clin.clin_root_item.soap_cat CHECK to lower case
+
 ------------------------------------------------
 # gnumed_v21
 ------------------------------------------------
