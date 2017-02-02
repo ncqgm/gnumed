@@ -53,9 +53,11 @@ class cXxxEAPnl(wxgXxxEAPnl.wxgXxxEAPnl, gmEditArea.cGenericEditAreaMixin):
 			self.mode = 'edit'
 
 		#self.__init_ui()
+
 	#----------------------------------------------------------------
 #	def __init_ui(self):
 #		# adjust phrasewheels etc
+
 	#----------------------------------------------------------------
 	# generic Edit Area mixin API
 	#----------------------------------------------------------------
@@ -86,6 +88,7 @@ class cXxxEAPnl(wxgXxxEAPnl.wxgXxxEAPnl, gmEditArea.cGenericEditAreaMixin):
 			self._PRW_xxx.display_as_valid(True)
 
 		return validity
+
 	#----------------------------------------------------------------
 	def _save_as_new(self):
 
@@ -106,6 +109,7 @@ class cXxxEAPnl(wxgXxxEAPnl.wxgXxxEAPnl, gmEditArea.cGenericEditAreaMixin):
 		self.data = data
 		return False
 		return True
+
 	#----------------------------------------------------------------
 	def _save_as_update(self):
 
@@ -118,15 +122,37 @@ class cXxxEAPnl(wxgXxxEAPnl.wxgXxxEAPnl, gmEditArea.cGenericEditAreaMixin):
 		self.data[''] = self._CHBOX_xxx.GetValue()
 		self.data.save()
 		return True
+
 	#----------------------------------------------------------------
 	def _refresh_as_new(self):
 		pass
+
 	#----------------------------------------------------------------
 	def _refresh_as_new_from_existing(self):
 		self._refresh_as_new()
+
 	#----------------------------------------------------------------
 	def _refresh_from_existing(self):
 		pass
+
+	#----------------------------------------------------------------
+	def set_fields(self, fields):
+		# <fields> must be a dict compatible with the
+		# structure of the business object this edit
+		# area is for,
+		# thusly, the edit area knows how to set its
+		# controls from it,
+		# <fields> doesn't have to contain all keys, however:
+		# - missing ones are skipped
+		# - unknown ones are ignored
+		# each key must hold a dict with at least a key 'value'
+		# and _can_ contain another key 'data',
+		# 'value' and 'data' must be compatible with the
+		# control they go into,
+		# controls which don't require 'data' (say, RadioButton)
+		# will ignore an existing 'data' key
+		pass
+
 	#----------------------------------------------------------------
 
 	**************** end of template ****************
