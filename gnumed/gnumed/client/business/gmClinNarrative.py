@@ -181,6 +181,9 @@ def create_progress_note(soap=None, episode_id=None, encounter_id=None, link_obj
 	if soap is None:
 		return True
 
+	if not gmSoapDefs.are_valid_soap_cats(soap.keys(), allow_upper = True):
+		raise ValueError(u'invalid SOAP category in <soap> dictionary: %s', soap)
+
 	if link_obj is None:
 		link_obj = gmPG2.get_connection(readonly = False)
 		conn_rollback = link_obj.rollback
@@ -193,10 +196,6 @@ def create_progress_note(soap=None, episode_id=None, encounter_id=None, link_obj
 
 	instances = {}
 	for cat in soap:
-		if cat not in gmSoapDefs.KNOWN_SOAP_CATS:
-			conn_rollback()
-			conn_close()
-			raise ValueError(u'invalid SOAP category [%s] in <soap> dictionary: %s', cat, soap)
 		val = soap[cat]
 		if val is None:
 			continue
@@ -243,7 +242,7 @@ def create_narrative_item(narrative=None, soap_cat=None, episode_id=None, encoun
 		INSERT INTO clin.clin_narrative
 			(fk_encounter, fk_episode, narrative, soap_cat)
 		SELECT
-			%(enc)s, %(epi)s, %(narr)s, %(soap)s
+			%(enc)s, %(epi)s, %(narr)s, lower(%(soap)s)
 		WHERE NOT EXISTS (
 			SELECT 1 FROM clin.v_narrative
 			WHERE
@@ -251,7 +250,7 @@ def create_narrative_item(narrative=None, soap_cat=None, episode_id=None, encoun
 					AND
 				pk_episode = %(epi)s
 					AND
-				soap_cat = %(soap)s
+				soap_cat = lower(%(soap)s)
 					AND
 				narrative = %(narr)s
 		)
@@ -272,7 +271,7 @@ def create_narrative_item(narrative=None, soap_cat=None, episode_id=None, encoun
 				AND
 			pk_episode = %(epi)s
 				AND
-			soap_cat = %(soap)s
+			soap_cat = lower(%(soap)s)
 				AND
 			narrative = %(narr)s
 	"""

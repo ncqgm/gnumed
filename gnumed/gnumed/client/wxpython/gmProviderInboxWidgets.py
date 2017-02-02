@@ -761,7 +761,7 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 			epi = emr.add_episode(episode_name = 'administrative', is_open = False)
 			soap_cat = gmTools.bool2subst (
 				(self.__focussed_msg['category'] == u'clinical'),
-				u'U',
+				u'u',
 				None
 			)
 			narr = _('Deleted inbox message:\n%s') % self.__focussed_msg.format(with_patient = False)

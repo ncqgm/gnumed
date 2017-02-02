@@ -47,6 +47,7 @@ FIX: exception on double-clicking document tree label node
 FIX: exception on switching to drug database frontend [thanks a sk_SK]
 FIX: exception on saving hospital stay [thanks a sk_SK]
 FIX: exception on checking for upgrade [thanks Philipp]
+FIX: force soap cat to lower case on creating progress notes
 
 	1.6.10
 
@@ -1872,6 +1873,7 @@ IMPROVED: don't fail clin.remove_old_empty_encounters() but return FALSE on <2 e
 IMPROVED: backup scripts error checking
 
 FIX: serialization failures due to table mod announcement triggers
+FIX: reset upper case soap cats to lower case
 
 	21.10
 
