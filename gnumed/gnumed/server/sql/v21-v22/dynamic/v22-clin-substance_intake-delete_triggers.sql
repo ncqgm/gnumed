@@ -77,9 +77,9 @@ create trigger tr_DEL_intake_document_deleted
 
 -- --------------------------------------------------------------
 drop function if exists clin.trf_delete_intake_turns_other_components_into_substances() cascade;
-drop function if exists clin.trf_DEL_intake_turns_other_components_into_substances() cascade;
+drop function if exists clin.trf_del_intake_must_unlink_all_drug_components() cascade;
 
-create or replace function clin.trf_DEL_intake_turns_other_components_into_substances()
+create or replace function clin.trf_del_intake_must_unlink_all_drug_components()
 	returns trigger
 	language 'plpgsql'
 	as '
@@ -87,9 +87,9 @@ DECLARE
 	_pk_drug_product integer;
 	_component_count integer;
 	_pk_patient integer;
+	_intake_count integer;
+	_msg text;
 BEGIN
-	return NULL;
-
 	-- which drug ?
 	select fk_drug_product into _pk_drug_product
 	from ref.lnk_dose2drug
@@ -100,74 +100,50 @@ BEGIN
 	from ref.lnk_dose2drug
 	where fk_drug_product = _pk_drug_product;
 
-	-- only one component anyways ? (which then has been deleted already)
+	-- only one component anyways ?
 	if _component_count = 1 then
 		return NULL;
 	end if;
 
-	-- which patient ?
+	-- retrieve patient
 	select fk_patient into _pk_patient
 	from clin.encounter
 	where pk = OLD.fk_encounter;
 
-	-- delete those components which cannot be converted:
---	delete from clin.substance_intake c_si1 where
---		-- entries which belong to the drug product in question
---		c_si1.fk_drug_component in (
---			select pk from ref.lnk_dose2drug where fk_drug_product = _pk_drug_product
---		)
---			and
---		-- entries for this one patient only (via proxy of encounter)
---		c_si1.fk_encounter in (
---			select pk from clin.encounter where fk_patient = _pk_patient
---		)
---			and
---		-- which already exist
---		exists (
---			select 1 from clin.substance_intake c_si2
---			where
---				-- as substance-only links
---				c_si2.fk_substance = (
---					select fk_substance from ref.lnk_dose2drug where pk = c_si1.fk_drug_component
---				)
---					and
---				-- for this very patient
---				c_si2.fk_encounter in (
---					select pk from clin.encounter where fk_patient = _pk_patient
---				)
---		)
---	;
-
-	-- relink all other intakes into substances
-	update clin.substance_intake c_si set
-		fk_drug_component = null,
-		fk_substance = (
-			select fk_substance from ref.lnk_dose2drug where pk = c_si.fk_drug_component
-		),
-		preparation = (
-			select r_bd.preparation from ref.drug_product r_bd where r_bd.pk = _pk_drug_product
-		)
+	-- how many intakes of this drug are linked to this patient
+	select count(1) into _intake_count
+	from clin.substance_intake
 	where
-		-- ... which belong to the drug product in question
-		c_si.fk_drug_component in (
+		fk_drug_component in (
 			select pk from ref.lnk_dose2drug where fk_drug_product = _pk_drug_product
 		)
 			and
-		-- ... which belong to this one patient (via proxy of encounter)
-		c_si.fk_encounter in (
+		fk_encounter in (
 			select pk from clin.encounter where fk_patient = _pk_patient
-		)
-	;
+		);
+
+	-- intake count must be 0
+	if _intake_count = 0 then
+		return NULL;
+	end if;
+
+	_msg := ''[clin.trf_del_intake_must_unlink_all_drug_components]: deleting a multi-component intake [''
+		|| OLD.pk || ''] must unlink all components of the drug product [''
+		|| _pk_drug_product || ''] ''
+		|| ''(unlinked component ['' || OLD.fk_drug_component || ''])'';
+	raise exception check_violation using message = _msg;
 
 	return NULL;
 END;';
 
-comment on function clin.trf_DEL_intake_turns_other_components_into_substances() is
-	'If a patient is stopped from a multi-component drug intake other components thereof must be turned into generic product substance intakes.';
+comment on function clin.trf_del_intake_must_unlink_all_drug_components() is
+	'If a multi-component drug intake is deleted from a patient ALL components thereof must be unlinked.';
 
-create trigger tr_DEL_intake_turns_other_components_into_substances
+create constraint trigger tr_del_intake_must_unlink_all_drug_components
 	after delete on clin.substance_intake
-	for each row execute procedure clin.trf_DEL_intake_turns_other_components_into_substances();
+	deferrable initially deferred
+	for each row
+	execute procedure clin.trf_del_intake_must_unlink_all_drug_components();
 
 -- --------------------------------------------------------------
 select gm.log_script_insertion('v22-clin-substance_intake-delete_triggers.sql', '22.0');
