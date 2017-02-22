@@ -1350,6 +1350,7 @@ class database:
 
 		self.conn.commit()
 		return True
+
 #==================================================================
 class gmBundle:
 	def __init__(self, aBundleAlias = None):

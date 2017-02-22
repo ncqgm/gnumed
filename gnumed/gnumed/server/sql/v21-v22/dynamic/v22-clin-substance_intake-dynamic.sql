@@ -38,8 +38,9 @@ drop table if exists ref.consumable_substance cascade;
 delete from audit.audited_tables where schema = 'ref' and table_name = 'consumable_substance';
 delete from gm.notifying_tables where schema_name = 'ref' and table_name = 'consumable_substance';
 
-drop table if exists ref.lnk_substance2drug cascade;
-delete from audit.audited_tables where schema = 'ref' and table_name = 'lnk_substance2drug';
+drop table if exists ref.lnk_substance2brand cascade;
+delete from audit.audited_tables where schema = 'ref' and table_name = 'lnk_substance2brand';
+delete from gm.notifying_tables where schema_name = 'ref' and table_name = 'lnk_substance2brand';
 
 drop function if exists clin.trf_ins_intake_set_substance_from_component() cascade;
 
