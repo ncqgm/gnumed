@@ -263,7 +263,10 @@ def create_substance(substance=None, atc=None):
 		cmd = u"""
 			INSERT INTO ref.substance (description, atc) VALUES (
 				%(desc)s,
-				gm.nullify_empty_string(%(atc)s)
+				coalesce (
+					gm.nullify_empty_string(%(atc)s),
+					(SELECT code FROM ref.atc WHERE term = %(desc)s LIMIT 1)
+				)
 			) RETURNING pk"""
 		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True, get_col_idx = False)
 
@@ -452,7 +455,7 @@ def create_substance_dose(pk_substance=None, substance=None, atc=None, amount=No
 		raise ValueError('<amount> must be a number: %s (is: %s)', amount, type(amount))
 
 	if pk_substance is None:
-		pk_substance = create_substance(substance = substance, atc = atc)['pk']
+		pk_substance = create_substance(substance = substance, atc = atc)['pk_substance']
 
 	args = {
 		'pk_subst': pk_substance,
@@ -488,7 +491,7 @@ def create_substance_dose(pk_substance=None, substance=None, atc=None, amount=No
 #------------------------------------------------------------
 def create_substance_dose_by_atc(substance=None, atc=None, amount=None, unit=None, dose_unit=None):
 	return create_substance_dose (
-		pk_substance = create_substance_by_atc(substance = substance, atc = atc)['pk'],
+		pk_substance = create_substance_by_atc(substance = substance, atc = atc)['pk_substance'],
 		amount = amount,
 		unit = unit,
 		dose_unit = dose_unit
@@ -496,7 +499,7 @@ def create_substance_dose_by_atc(substance=None, atc=None, amount=None, unit=Non
 
 #------------------------------------------------------------
 def delete_substance_dose(pk_dose=None):
-	args = {'pk': pk_dose}
+	args = {'pk_dose': pk_dose}
 	cmd = u"""
 		DELETE FROM ref.dose WHERE
 			pk = %(pk_dose)s
@@ -990,42 +993,83 @@ class cSubstanceIntakeObjectMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
 		_('w/'),
 		_('w/')
 	)
+	# non-drug substance name
+	_SQL_substance_name = u"""
+		SELECT DISTINCT ON (field_label)
+			data, list_label, field_label
+		FROM (
+			SELECT DISTINCT ON (term)
+				NULL::integer
+					AS data,
+				term || ' (ATC: ' || code || ')'
+					AS list_label,
+				term
+					AS field_label
+			FROM
+				ref.atc
+			WHERE
+				lower(term) %(fragment_condition)s
+
+			UNION ALL
+
+			SELECT DISTINCT ON (description)
+				NULL::integer
+					AS data,
+				description || coalesce(' (ATC: ' || atc || ')', '')
+					AS list_label,
+				description
+					AS field_label
+			FROM
+				ref.substance
+			WHERE
+				lower(description) %(fragment_condition)s
+		) AS nondrug_substances
+		WHERE NOT EXISTS (
+			SELECT 1 FROM ref.v_drug_components WHERE lower(substance) = lower(nondrug_substances.field_label)
+		)
+		LIMIT 30
+	"""
 
 	# this query UNIONs together individual queries
-	_SQL_master_query = u"""
+	_SQL_regex_master_query = u"""
 		SELECT
 			data, field_label, list_label
 		FROM ((%s) UNION (%s))
 			AS _union
 		ORDER BY list_label
 		LIMIT 50
-	"""
+	""" % (
+		_SQL_drug_product_by_name_and_strength,
+		_SQL_drug_product_by_component_name_and_strength
+	)
+	_SQL_nonregex_master_query = u"""
+		SELECT
+			data, field_label, list_label
+		FROM ((%s) UNION (%s) UNION (%s))
+			AS _union
+		ORDER BY list_label
+		LIMIT 50
+	""" % (
+		_SQL_drug_product_by_name,
+		_SQL_drug_product_by_component_name,
+		_SQL_substance_name
+	)
 
 	_REGEX_name_and_strength = regex.compile(r'^\D+\s*\d+$', regex.UNICODE | regex.LOCALE)
 
 	#--------------------------------------------------------
-	def getMatchesByPhrase(self, aFragment):
+ 	def getMatchesByPhrase(self, aFragment):
 		"""Return matches for aFragment at start of phrases."""
 
 		if cSubstanceIntakeObjectMatchProvider._REGEX_name_and_strength.match(aFragment):
-			self._queries = [
-				cSubstanceIntakeObjectMatchProvider._SQL_master_query % (
-					cSubstanceIntakeObjectMatchProvider._SQL_drug_product_by_name_and_strength,
-					cSubstanceIntakeObjectMatchProvider._SQL_drug_product_by_component_name_and_strength
-				)
-			]
+			self._queries = [cSubstanceIntakeObjectMatchProvider._SQL_regex_master_query]
 			fragment_condition = """description ILIKE %(desc)s
 				AND
 			amount::text ILIKE %(amount)s"""
 			self._args['desc'] = u'%s%%' % regex.sub(r'\s*\d+$', u'', aFragment)
 			self._args['amount'] = u'%s%%' % regex.sub(r'^\D+\s*', u'', aFragment)
 		else:
-			self._queries = [
-				cSubstanceIntakeObjectMatchProvider._SQL_master_query % (
-					cSubstanceIntakeObjectMatchProvider._SQL_drug_product_by_name,
-					cSubstanceIntakeObjectMatchProvider._SQL_drug_product_by_component_name
-				)
-			]
+			self._queries = [ cSubstanceIntakeObjectMatchProvider._SQL_nonregex_master_query ]
 			fragment_condition = u"ILIKE %(fragment)s"
 			self._args['fragment'] = u"%s%%" % aFragment
 
@@ -1036,12 +1080,7 @@ class cSubstanceIntakeObjectMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
 		"""Return matches for aFragment at start of words inside phrases."""
 
 		if cSubstanceIntakeObjectMatchProvider._REGEX_name_and_strength.match(aFragment):
-			self._queries = [
-				cSubstanceIntakeObjectMatchProvider._SQL_master_query % (
-					cSubstanceIntakeObjectMatchProvider._SQL_drug_product_by_name_and_strength,
-					cSubstanceIntakeObjectMatchProvider._SQL_drug_product_by_component_name_and_strength
-				)
-			]
+			self._queries = [cSubstanceIntakeObjectMatchProvider._SQL_regex_master_query]
 
 			desc = regex.sub(r'\s*\d+$', u'', aFragment)
 			desc = gmPG2.sanitize_pg_regex(expression = desc, escape_all = False)
@@ -1053,12 +1092,7 @@ class cSubstanceIntakeObjectMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
 			self._args['desc'] = u"( %s)|(^%s)" % (desc, desc)
 			self._args['amount'] = u'%s%%' % regex.sub(r'^\D+\s*', u'', aFragment)
 		else:
-			self._queries = [
-				cSubstanceIntakeObjectMatchProvider._SQL_master_query % (
-					cSubstanceIntakeObjectMatchProvider._SQL_drug_product_by_name,
-					cSubstanceIntakeObjectMatchProvider._SQL_drug_product_by_component_name
-				)
-			]
+			self._queries = [ cSubstanceIntakeObjectMatchProvider._SQL_nonregex_master_query ]
 			fragment_condition = u"~* %(fragment)s"
 			aFragment = gmPG2.sanitize_pg_regex(expression = aFragment, escape_all = False)
 			self._args['fragment'] = u"( %s)|(^%s)" % (aFragment, aFragment)
@@ -1070,24 +1104,14 @@ class cSubstanceIntakeObjectMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
 		"""Return matches for aFragment as a true substring."""
 
 		if cSubstanceIntakeObjectMatchProvider._REGEX_name_and_strength.match(aFragment):
-			self._queries = [
-				cSubstanceIntakeObjectMatchProvider._SQL_master_query % (
-					cSubstanceIntakeObjectMatchProvider._SQL_drug_product_by_name_and_strength,
-					cSubstanceIntakeObjectMatchProvider._SQL_drug_product_by_component_name_and_strength
-				)
-			]
+			self._queries = [cSubstanceIntakeObjectMatchProvider._SQL_regex_master_query]
 			fragment_condition = """description ILIKE %(desc)s
 				AND
 			amount::text ILIKE %(amount)s"""
 			self._args['desc'] = u'%%%s%%' % regex.sub(r'\s*\d+$', u'', aFragment)
 			self._args['amount'] = u'%s%%' % regex.sub(r'^\D+\s*', u'', aFragment)
 		else:
-			self._queries = [
-				cSubstanceIntakeObjectMatchProvider._SQL_master_query % (
-					cSubstanceIntakeObjectMatchProvider._SQL_drug_product_by_name,
-					cSubstanceIntakeObjectMatchProvider._SQL_drug_product_by_component_name
-				)
-			]
+			self._queries = [ cSubstanceIntakeObjectMatchProvider._SQL_nonregex_master_query ]
 			fragment_condition = u"ILIKE %(fragment)s"
 			self._args['fragment'] = u"%%%s%%" % aFragment
 
@@ -1675,6 +1699,7 @@ def create_drug_product(product_name=None, preparation=None, return_existing=Fal
 
 #------------------------------------------------------------
 def delete_drug_product(pk_drug_product=None):
+	args = {'pk': pk_drug_product}
 	queries = []
 	# delete components
 	cmd = u"""
@@ -1700,7 +1725,6 @@ def delete_drug_product(pk_drug_product=None):
 				WHERE pk_drug_product = %(pk)s
 				LIMIT 1
 			)"""
-	args = {'pk': pk_drug_product}
 	queries.append({'cmd': cmd, 'args': args})
 	gmPG2.run_rw_queries(queries = queries)
 
@@ -2034,7 +2058,7 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 
 	#--------------------------------------------------------
 	def delete(self):
-		return delete_substance_intake(substance = self._payload[self._idx['pk_substance_intake']])
+		return delete_substance_intake(pk_intake = self._payload[self._idx['pk_substance_intake']])
 
 	#--------------------------------------------------------
 	# properties
@@ -2500,9 +2524,28 @@ def create_substance_intake(pk_component=None, pk_encounter=None, pk_episode=Non
 	return cSubstanceIntakeEntry(aPK_obj = rows[0][0])
 
 #------------------------------------------------------------
-def delete_substance_intake(substance=None):
-	cmd = u'DELETE FROM clin.substance_intake WHERE pk = %(pk)s'
-	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': {'pk': substance}}])
+def delete_substance_intake(pk_intake=None, delete_siblings=False):
+	if delete_siblings:
+		cmd = u"""
+			DELETE FROM clin.substance_intake c_si
+			WHERE
+				c_si.fk_drug_component IN (
+					SELECT r_ld2d.pk FROM ref.lnk_dose2drug r_ld2d
+					WHERE r_ld2d.fk_drug_product = (
+						SELECT c_vsi1.pk_drug_product FROM clin.v_substance_intakes c_vsi1 WHERE c_vsi1.pk_substance_intake = %(pk)s
+					)
+				)
+					AND
+				c_si.fk_encounter IN (
+					SELECT c_e.pk FROM clin.encounter c_e
+					WHERE c_e.fk_patient = (
+						SELECT c_vsi2.pk_patient FROM clin.v_substance_intakes c_vsi2 WHERE c_vsi2.pk_substance_intake = %(pk)s
+					)
+				)"""
+	else:
+		cmd = u'DELETE FROM clin.substance_intake WHERE pk = %(pk)s'
+
+	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': {'pk': pk_intake}}])
 	return True
 
 #------------------------------------------------------------
@@ -3028,7 +3071,7 @@ def create_default_medication_history_episode(pk_health_issue=None, encounter=No
 #------------------------------------------------------------
 def get_tobacco():
 	tobacco = create_drug_product (
-		drug_product = _(u'nicotine'),
+		product_name = _(u'nicotine'),
 		preparation = _(u'tobacco'),
 		return_existing = True
 	)
@@ -3047,7 +3090,7 @@ def get_tobacco():
 #------------------------------------------------------------
 def get_alcohol():
 	drink = create_drug_product (
-		drug_product = _(u'alcohol'),
+		product_name = _(u'alcohol'),
 		preparation = _(u'liquid'),
 		return_existing = True
 	)
@@ -3066,7 +3109,7 @@ def get_alcohol():
 #------------------------------------------------------------
 def get_other_drug(name=None, pk_dose=None):
 	drug = create_drug_product (
-		drug_product = name,
+		product_name = name,
 		preparation = _(u'unit'),
 		return_existing = True
 	)
@@ -3211,6 +3254,10 @@ if __name__ == "__main__":
 		print cSubstanceIntakeEntry(1).as_amts_data
 
 	#--------------------------------------------------------
+	def test_delete_intake():
+		delete_substance_intake(pk_intake = 1, delete_siblings = True)
+
+	#--------------------------------------------------------
 	# generic
 	#test_drug2renal_insufficiency_url()
 	#test_interaction_check()
@@ -3220,8 +3267,9 @@ if __name__ == "__main__":
 	#test_get_doses()
 	#test_get_components()
 	#test_get_drugs()
-	test_get_intakes()
+	#test_get_intakes()
 	#test_create_substance_intake()
+	test_delete_intake()
 
 	#test_get_habit_drugs()
 

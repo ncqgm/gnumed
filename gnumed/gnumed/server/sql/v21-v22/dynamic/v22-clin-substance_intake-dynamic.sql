@@ -47,6 +47,22 @@ drop function if exists clin.trf_ins_intake_set_substance_from_component() casca
 drop function if exists clin.trf_ins_upd_intake_prevent_duplicate_substance_links() cascade;
 
 -- --------------------------------------------------------------
+alter table clin.substance_intake
+	drop constraint if exists discontinued_after_started cascade;
+
+alter table clin.substance_intake
+	add constraint discontinued_after_started
+		check (
+			(harmful_use_type IS NOT NULL)
+				or
+			(clin_when is null)
+				or
+			(discontinued is null)
+				or
+			((discontinued >= clin_when) and (discontinued <= current_timestamp))
+		);
+
+-- --------------------------------------------------------------
 -- recreate views
 drop view if exists clin.v_substance_intakes cascade;
 

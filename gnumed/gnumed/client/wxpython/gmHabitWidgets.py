@@ -291,7 +291,7 @@ class cSubstanceAbuseEAPnl(wxgSubstanceAbuseEAPnl.wxgSubstanceAbuseEAPnl, gmEdit
 			self._RBTN_presently_addicted.SetValue(False)
 			self._RBTN_previously_addicted.SetValue(True)
 
-		self._TCTRL_comment.SetValue(gmTools.coalesce(self.data['notes']))
+		self._TCTRL_comment.SetValue(gmTools.coalesce(self.data['notes'], u''))
 		self._DPRW_quit_when.SetText(data = self.data['discontinued'])
 		self._LBL_confirm_date.SetLabel(gmDateTime.pydt_strftime(self.data['last_checked_when'], '%Y %b %d', none_str = u''))
 		self._CHBOX_confirm.Enable()

@@ -119,7 +119,9 @@ BEGIN
 			discontinued,					-- harmonize
 			narrative,
 			aim,
-			discontinue_reason
+			discontinue_reason,
+			comment_on_start,
+			harmful_use_type
 		) values (
 			_pk_component,
 			NEW.clin_when,
@@ -133,7 +135,9 @@ BEGIN
 			NEW.discontinued,
 			NEW.narrative,
 			NEW.aim,
-			NEW.discontinue_reason
+			NEW.discontinue_reason,
+			NEW.comment_on_start,
+			NEW.harmful_use_type
 		);
 	end loop;
 

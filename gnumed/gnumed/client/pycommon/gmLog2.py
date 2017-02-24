@@ -150,7 +150,7 @@ def log_stack_trace(message=None, t=None, v=None, tb=None):
 	if tb is None:
 		tb = sys.exc_info()[2]
 	if tb is None:
-		logger.debug('sys.exc_info() did not return a traceback object, trying sys.last_traceback')
+		logger.debug(u'sys.exc_info() did not return a traceback object, trying sys.last_traceback')
 		try:
 			tb = sys.last_traceback
 		except AttributeError:
@@ -158,11 +158,11 @@ def log_stack_trace(message=None, t=None, v=None, tb=None):
 			return
 
 	# log exception details
-	logger.debug('exception: %s', v)
-	logger.debug('type: %s', t)
-	logger.debug('list of attributes:')
-	for attr in [ a for a in dir(v) if not a.startswith('__') ]:
-		logger.debug('  %s: %s', attr, getattr(v, attr))
+	logger.debug(u'exception: %s', v)
+	logger.debug(u'type: %s', t)
+	logger.debug(u'list of attributes:')
+	for attr in [ a for a in dir(v) if not a.startswith(u'__') ]:
+		logger.debug(u'  %s: %s', attr, getattr(v, attr))
 
 	# make sure we don't leave behind a bind
 	# to the traceback as warned against in
@@ -238,6 +238,7 @@ def set_string_encoding(encoding=None):
 	_string_encoding = locale.getpreferredencoding(do_setlocale=False)
 	logger.info(u'setting python.str -> python.unicode encoding to <%s> (locale.getpreferredencoding)', _string_encoding)
 	return True
+
 #===============================================================
 # internal API
 #===============================================================
@@ -309,6 +310,7 @@ def __get_logfile_name():
 	_logfile_name = os.path.join(dir_name, default_logfile_name)
 
 	return True
+
 #===============================================================
 # main
 #---------------------------------------------------------------

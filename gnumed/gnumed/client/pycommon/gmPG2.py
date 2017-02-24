@@ -1546,7 +1546,7 @@ Query
 		conn.status,
 		conn.isexecuting(),
 
-		cursor.query,
+		cursor.query
 	)
 	return txt
 
@@ -1604,6 +1604,14 @@ def run_ro_queries(link_obj=None, queries=None, verbose=False, return_data=True,
 		except dbapi.Error as pg_exc:
 			_log.error('query failed in RO connection')
 			_log.error(capture_cursor_state(curs))
+			if hasattr(pg_exc, 'diag'):
+				for prop in dir(pg_exc.diag):
+					if prop.startswith(u'__'):
+						continue
+					val = getattr(pg_exc.diag, prop)
+					if val is None:
+						continue
+					_log.error(u'PG diags %s: %s', prop, val)
 			pg_exc = make_pg_exception_fields_unicode(pg_exc)
 			_log.error('PG error code: %s', pg_exc.pgcode)
 			if pg_exc.pgerror is not None:
@@ -1750,6 +1758,14 @@ def run_rw_queries(link_obj=None, queries=None, end_tx=False, return_data=None, 
 		except dbapi.Error as pg_exc:
 			_log.error('query failed in RW connection')
 			_log.error(capture_cursor_state(curs))
+			if hasattr(pg_exc, 'diag'):
+				for prop in dir(pg_exc.diag):
+					if prop.startswith(u'__'):
+						continue
+					val = getattr(pg_exc.diag, prop)
+					if val is None:
+						continue
+					_log.error(u'PG diags %s: %s', prop, val)
 			for notice in notices_accessor.notices:
 				_log.error(notice.strip(u'\n').strip(u'\r'))
 			del notices_accessor.notices[:]
@@ -2261,20 +2277,36 @@ def sanity_check_database_settings():
 
 #------------------------------------------------------------------------
 def _log_PG_settings(curs=None):
-	# don't use any of the run_*()s since that might
-	# create a loop if we fail here
-	# FIXME: use pg_settings
+	# don't use any of the run_*()s helper functions
+	# since that might create a loop if we fail here
 	try:
-		curs.execute(u'show all')
+		curs.execute(u'SELECT name, setting, unit, source, reset_val, sourcefile, sourceline, pending_restart FROM pg_settings')
 	except:
-		_log.exception(u'cannot log PG settings (>>>show all<<< failed)')
+		_log.exception(u'cannot log PG settings ("SELECT ... FROM pg_settings" failed)')
 		return False
 	settings = curs.fetchall()
-	if settings is None:
-		_log.error(u'cannot log PG settings (>>>show all<<< did not return rows)')
-		return False
 	for setting in settings:
-		_log.debug(u'PG option [%s]: %s', setting['name'], setting['setting'])
+		if setting['unit'] is None:
+			unit = u''
+		else:
+			unit = u' %s' % setting['unit']
+		if setting['sourcefile'] is None:
+			sfile = u''
+		else:
+			sfile = u'// %s @ %s' % (setting['sourcefile'], setting['sourceline'])
+		if setting['pending_restart'] is False:
+			pending_restart = u''
+		else:
+			pending_restart = u'// needs restart'
+		_log.debug(u'%s: %s%s (set from: [%s] // sess RESET will set to: [%s]%s%s)',
+			setting['name'],
+			setting['setting'],
+			unit,
+			setting['source'],
+			setting['reset_val'],
+			pending_restart,
+			sfile
+		)
 
 	try:
 		curs.execute(u'select pg_available_extensions()')
@@ -2287,6 +2319,17 @@ def _log_PG_settings(curs=None):
 		return False
 	for ext in extensions:
 		_log.debug(u'PG extension: %s', ext['pg_available_extensions'])
+
+	# not really that useful because:
+	# - clusterwide
+	# - not retained across server restart (fixed in 9.6.1 - really ?)
+#	try:
+#		curs.execute(u'SELECT pg_last_committed_xact()')
+#	except:
+#		_log.exception(u'cannot retrieve last committed xact')
+#	xact = curs.fetchall()
+#	if xact is not None:
+#		_log.debug(u'last committed transaction in cluster: %s', xact[0])
 
 	return True
 
@@ -2744,6 +2787,7 @@ if __name__ == "__main__":
 	#--------------------------------------------------------------------
 	def test_sanity_check_time_skew():
 		sanity_check_time_skew()
+
 	#--------------------------------------------------------------------
 	def test_get_foreign_key_names():
 		print get_foreign_key_names (
@@ -2754,6 +2798,7 @@ if __name__ == "__main__":
 			target_table = u'episode',
 			target_column = u'pk'
 		)
+
 	#--------------------------------------------------------------------
 	def test_get_foreign_key_details():
 		for row in get_foreign_keys2column (
@@ -2768,6 +2813,7 @@ if __name__ == "__main__":
 				row['referenced_table'],
 				row['referenced_column']
 			)
+
 	#--------------------------------------------------------------------
 	def test_set_user_language():
 		# (user, language, result, exception type)
@@ -2797,10 +2843,12 @@ if __name__ == "__main__":
 				print "test:", test
 				print "expected exception"
 				print "result:", e
+
 	#--------------------------------------------------------------------
 	def test_get_schema_revision_history():
 		for line in get_schema_revision_history():
 			print u' - '.join(line)
+
 	#--------------------------------------------------------------------
 	def test_run_query():
 		gmDateTime.init()
@@ -2881,6 +2929,11 @@ SELECT to_timestamp (foofoo,'YYMMDD.HH24MI') FROM (
 		run_rw_queries(queries = [{'cmd': u'SELEC 1'}])
 
 	#--------------------------------------------------------------------
+	def test_log_settings():
+		conn = conn = get_connection()
+		_log_PG_settings(curs = conn.cursor())
+
+	#--------------------------------------------------------------------
 	# run tests
 	#test_get_connection()
 	#test_exceptions()
@@ -2906,5 +2959,6 @@ SELECT to_timestamp (foofoo,'YYMMDD.HH24MI') FROM (
 	#test_file2bytea_copy_from()
 	#test_file2bytea_lo()
 	test_faulty_SQL()
+	#test_log_settings()
 
 # ======================================================================

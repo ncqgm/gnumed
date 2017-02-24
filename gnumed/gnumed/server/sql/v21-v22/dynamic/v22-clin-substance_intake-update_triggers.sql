@@ -199,7 +199,10 @@ BEGIN
 		duration = NEW.duration,
 		intake_is_approved_of = NEW.intake_is_approved_of,
 		is_long_term = NEW.is_long_term,
-		discontinued = NEW.discontinued
+		discontinued = NEW.discontinued,
+		discontinue_reason = NEW.discontinue_reason,
+		comment_on_start = NEW.comment_on_start,
+		harmful_use_type = NEW.harmful_use_type
 	where
 		-- ... which belong to this drug ...
 		fk_drug_component in (
@@ -231,6 +234,12 @@ BEGIN
 			is_long_term is distinct from NEW.is_long_term
 				OR
 			discontinued is distinct from NEW.discontinued
+				OR
+			discontinue_reason is distinct from NEW.discontinue_reason
+				OR
+			comment_on_start is distinct from NEW.comment_on_start
+				OR
+			harmful_use_type is distinct from NEW.harmful_use_type
 		)
 	;
 	return NEW;

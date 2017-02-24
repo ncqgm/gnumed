@@ -1489,7 +1489,7 @@ def manage_documents(parent=None, msg=None, single_selection=True):
 #			gmDispatcher.send(signal = 'statustext', msg = _('Cannot delete this substance. It is in use.'), beep = True)
 #			return False
 #
-#		return gmMedication.delete_substance(substance = substance['pk'])
+#		return gmMedication.delete_x_substance(substance = substance['pk'])
 
 	#------------------------------------------------------------
 	def refresh(lctrl):

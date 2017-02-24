@@ -16,6 +16,7 @@ NEW: placeholder <$current_provider_name$>
 NEW: placeholder <$current_provider_title$>
 NEW: placeholder <$current_provider_firstnames$>
 NEW: placeholder <$current_provider_lastnames$>
+NEW: switch substance intakes to drug components only
 
 IMPROVED: EMR journal retrieval speed
 IMPROVED: patient overview now acts on changes to ref.auto_hint
@@ -1863,6 +1864,7 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 IMPROVED: staging._journal_without_suppressed_hints -> clin._v_emr_journal_without_suppressed_hints
 IMPROVED: safer backup scripts
 IMPROVED: don't fail clin.remove_old_empty_encounters() but return FALSE on <2 encounters
+IMPROVED: substance abuse entries can have arbitrary .discontinued
 
 FIX: constrain clin.clin_root_item.soap_cat CHECK to lower case
 

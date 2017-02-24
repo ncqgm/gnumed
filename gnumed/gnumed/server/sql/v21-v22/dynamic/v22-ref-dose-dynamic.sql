@@ -132,8 +132,71 @@ from
 --		inner join ref.substance r_s on (r_d.fk_substance = r_s.pk)
 ;
 
-
 grant select on ref.v_substance_doses to "gm-public";
+
+-- --------------------------------------------------------------
+drop function if exists ref.trf_upd_assert_dose_unit_in_multi_component_drugs() cascade;
+
+create or replace function ref.trf_upd_assert_dose_unit_in_multi_component_drugs()
+	returns trigger
+	language 'plpgsql'
+	as '
+DECLARE
+	_pk_drug_product integer;
+	_component_count integer;
+	_dose_unit_count integer;
+	_msg text;
+BEGIN
+	SELECT fk_drug_product into strict _pk_drug_product
+	FROM ref.lnk_dose2drug
+	WHERE fk_dose = NEW.pk;
+
+	if FOUND IS FALSE then
+		return NEW;
+	end if;
+
+	SELECT count(1) into strict _component_count
+	FROM ref.lnk_dose2drug
+	WHERE fk_drug_product = _pk_drug_product;
+
+	if _component_count = 1 then
+		return NEW;
+	end if;
+
+	SELECT count(1) into strict _dose_unit_count
+	FROM (
+		SELECT dose_unit
+		FROM ref.v_drug_components
+		WHERE pk_drug_product = _pk_drug_product
+		GROUP BY dose_unit
+	) AS dose_unit_count;
+
+	if _dose_unit_count = 1 then
+		return NEW;
+	end if;
+
+	_msg := ''[ref.trf_upd_assert_dose_unit_in_multi_component_drugs()]: cannot change <dose_unit> on dose ['' || NEW.pk || ''] ''
+		|| ''from ['' || coalesce(OLD.dose_unit, ''<NULL>'') || ''] ''
+		|| ''to ['' || coalesce(NEW.dose_unit, ''<NULL>'') || ''] ''
+		|| ''because all doses linked to drug product ['' || _pk_drug_product || ''] ''
+		|| ''must have the same <dose_unit>'';
+	raise exception check_violation using message = _msg;
+
+	return NEW;
+END;';
+
+
+comment on function ref.trf_upd_assert_dose_unit_in_multi_component_drugs() is
+	'Assert that after updates to ref.dose.dose_unit all substance doses linked into a multi-component drug still carry the same <dose_unit>.';
+
+
+create constraint trigger tr_upd_assert_dose_unit_in_multi_component_drugs
+	after update on ref.dose
+	deferrable initially deferred
+	for each row when (
+		(NEW.dose_unit IS DISTINCT FROM OLD.dose_unit)
+	)
+	execute procedure ref.trf_upd_assert_dose_unit_in_multi_component_drugs();
 
 -- --------------------------------------------------------------
 select gm.log_script_insertion('v22-ref-dose-dynamic.sql', '22.0');

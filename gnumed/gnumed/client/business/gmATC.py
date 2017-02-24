@@ -113,6 +113,13 @@ def text2atc(text=None, fuzzy=False):
 	return rows
 
 #============================================================
+def exists_as_atc(substance):
+	args = {'term': substance}
+	cmd = u'SELECT EXISTS (SELECT 1 FROM ref.atc WHERE lower(term) = lower(%(term)s))'
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+	return rows[0][0]
+
+#============================================================
 def get_reference_atcs(order_by=u'atc, term, lang'):
 	cmd = u'SELECT * FROM ref.v_atc ORDER BY %s' % order_by
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = False)

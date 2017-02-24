@@ -59,11 +59,6 @@ alter table ref.lnk_dose2drug
 ;
 
 -- --------------------------------------------------------------
--- trigger to maintain consistency
---	tr_do_not_update_component_if_taken_by_patient
---	tr_true_products_must_have_components
-
--- --------------------------------------------------------------
 -- create dose/drug links for existing drug products
 insert into ref.lnk_dose2drug (fk_drug_product, fk_dose)
 	select
@@ -126,6 +121,53 @@ from
 ;
 
 grant select on ref.v_drug_components to "gm-public";
+
+-- --------------------------------------------------------------
+drop function if exists ref.trf_ins_upd_assert_dose_unit_across_drug_components() cascade;
+
+create or replace function ref.trf_ins_upd_assert_dose_unit_across_drug_components()
+	returns trigger
+	language 'plpgsql'
+	as '
+DECLARE
+	_dose_unit_count integer;
+	_msg text;
+BEGIN
+	SELECT count(1) into strict _dose_unit_count
+	FROM (
+		SELECT dose_unit
+		FROM ref.v_drug_components
+		WHERE pk_drug_product = NEW.fk_drug_product
+		GROUP BY dose_unit
+	) AS dose_unit_count;
+
+	if _dose_unit_count = 1 then
+		return NEW;
+	end if;
+
+	_msg := ''[ref.trf_ins_upd_assert_dose_unit_across_drug_components()]: cannot link substance dose ['' || NEW.fk_dose || ''] ''
+		|| ''to drug product ['' || NEW.fk_drug_product || ''] ''
+		|| ''because all components must have the same <dose_unit>'';
+	raise exception check_violation using message = _msg;
+
+	return NEW;
+END;';
+
+
+comment on function ref.trf_ins_upd_assert_dose_unit_across_drug_components() is
+	'Assert that all substance doses linked into a multi-component drug carry the same <dose_unit>';
+
+
+create constraint trigger tr_ins_upd_assert_dose_unit_across_drug_components
+	after insert or update on ref.lnk_dose2drug
+	deferrable initially deferred
+	for each row
+	execute procedure ref.trf_ins_upd_assert_dose_unit_across_drug_components();
+
+-- --------------------------------------------------------------
+-- trigger to maintain consistency
+--	tr_do_not_update_component_if_taken_by_patient
+--	tr_true_products_must_have_components
 
 -- --------------------------------------------------------------
 select gm.log_script_insertion('v22-ref-lnk_dose2drug-dynamic.sql', '22.0');

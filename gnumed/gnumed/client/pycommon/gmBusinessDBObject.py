@@ -406,10 +406,14 @@ def delete_xxx(pk_XXX=None):
 				if self._payload[self._idx[attr]] is None:
 					lines.append(u'%s: NULL' % attr)
 				else:
-					lines.append('%s: %s' % (attr, self._payload[self._idx[attr]]))
-			return '[%s:%s]:\n%s' % (self.__class__.__name__, self.pk_obj, u'\n'.join(lines))
+					lines.append(u'%s: %s [%s]' % (
+						attr,
+						self._payload[self._idx[attr]],
+						type(self._payload[self._idx[attr]])
+					))
+			return u'[%s:%s]:\n%s' % (self.__class__.__name__, self.pk_obj, u'\n'.join(lines))
 		except:
-			return 'nascent [%s @ %s], cannot show payload and primary key' %(self.__class__.__name__, id(self))
+			return u'likely nascent [%s @ %s], error adding payload and primary key' % (self.__class__.__name__, id(self))
 
 	#--------------------------------------------------------
 	def __getitem__(self, attribute):

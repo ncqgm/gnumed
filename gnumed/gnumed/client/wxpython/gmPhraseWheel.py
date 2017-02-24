@@ -1148,7 +1148,7 @@ class cPhraseWheel(cPhraseWheelBase):
 		self._update_candidates_in_picklist(val = val)
 		for candidate in self._current_match_candidates:
 			if candidate['field_label'] == val:
-				self.data = {candidate['field_label']: candidate}
+				self._update_data_from_picked_item(candidate)
 				self.MarkDirty()
 				# tell listeners about the user's selection
 				for callback in self._on_selection_callbacks:

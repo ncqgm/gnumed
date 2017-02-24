@@ -33,6 +33,7 @@ from Gnumed.business import gmPerson
 from Gnumed.business import gmPraxis
 from Gnumed.business import gmMedication
 from Gnumed.business import gmDrugDataSources
+from Gnumed.business import gmATC
 
 from Gnumed.wxpython import gmGuiHelpers
 from Gnumed.wxpython import gmEditArea
@@ -243,7 +244,7 @@ def manage_substances(parent=None):
 		if substance.is_in_use_by_patients:
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot delete this substance. It is in use.'), beep = True)
 			return False
-		return gmMedication.delete_substance(substance = substance['pk'])
+		return gmMedication.delete_substance(pk_substance = substance['pk_substance'])
 
 	#------------------------------------------------------------
 	def get_item_tooltip(substance):
@@ -1315,6 +1316,307 @@ class cDrugProductPhraseWheel(gmPhraseWheel.cPhraseWheel):
 		self.selection_only = False
 
 #============================================================
+# single-component generic drugs
+# drug name is forced to substance + amount + unit + dose_unit
+#------------------------------------------------------------
+def edit_single_component_generic_drug(parent=None, drug=None, single_entry=False, fields=None, return_drug=False):
+
+#	if drug is not None:
+#		if drug.is_in_use_by_patients:
+#			gmGuiHelpers.gm_show_info (
+#				aTitle = _('Editing single-component generic drug'),
+#				aMessage = _(
+#					'Cannot edit the single-component generic drug\n'
+#					'\n'
+#					' "%s" (%s)\n'
+#					'\n'
+#					'because it is currently taken by patients.\n'
+#				) % (drug['product'], drug['preparation'])
+#			)
+#			return False
+
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+
+#	#--------------------------------------------
+#	def manage_substances(drug):
+#		manage_substance_doses(parent = parent)
+
+	#--------------------------------------------
+	ea = cSingleComponentGenericDrugEAPnl(parent = parent, id = -1)
+	ea.data = drug
+	ea.mode = gmTools.coalesce(drug, 'new', 'edit')
+	dlg = gmEditArea.cGenericEditAreaDlg2(parent = parent, id = -1, edit_area = ea, single_entry = single_entry)
+	if fields is not None:
+		ea.set_fields(fields)
+	dlg.SetTitle(gmTools.coalesce(drug, _('Adding new single-component generic drug'), _('Editing single-component generic drug')))
+#	dlg.left_extra_button = (
+#		_('Substances'),
+#		_('Manage substances'),
+#		manage_substances
+#	)
+	if dlg.ShowModal() == wx.ID_OK:
+		drug = ea.data
+		dlg.Destroy()
+		if return_drug:
+			return drug
+		return True
+	dlg.Destroy()
+	if return_drug:
+		return None
+	return False
+
+#------------------------------------------------------------
+def manage_single_component_generic_drugs(parent=None, ignore_OK_button=False):
+
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+
+	#------------------------------------------------------------
+	def add_from_db(drug):
+		drug_db = get_drug_database(parent = parent)
+		if drug_db is None:
+			return False
+		drug_db.import_drugs()
+		return True
+
+	#------------------------------------------------------------
+	def get_tooltip(product=None):
+		return product.format(include_component_details = True)
+
+	#------------------------------------------------------------
+	def edit(product):
+		if product is not None:
+			if product.is_vaccine:
+				gmGuiHelpers.gm_show_info (
+					aTitle = _('Editing medication'),
+					aMessage = _(
+						'Cannot edit the medication\n'
+						'\n'
+						' "%s" (%s)\n'
+						'\n'
+						'because it is a vaccine. Please edit it\n'
+						'from the vaccine management section !\n'
+					) % (product['product'], product['preparation'])
+				)
+				return False
+
+		return edit_drug_product(parent = parent, drug_product = product, single_entry = True)
+
+	#------------------------------------------------------------
+	def delete(product):
+		if product.is_vaccine:
+			gmGuiHelpers.gm_show_info (
+				aTitle = _('Deleting medication'),
+				aMessage = _(
+					'Cannot delete the medication\n'
+					'\n'
+					' "%s" (%s)\n'
+					'\n'
+					'because it is a vaccine. Please delete it\n'
+					'from the vaccine management section !\n'
+				) % (product['product'], product['preparation'])
+			)
+			return False
+		gmMedication.delete_drug_product(pk_drug_product = product['pk_drug_product'])
+		return True
+
+	#------------------------------------------------------------
+	def new():
+		return edit_drug_product(parent = parent, drug_product = None, single_entry = False)
+
+	#------------------------------------------------------------
+	def refresh(lctrl):
+		drugs = gmMedication.get_drug_products()
+		items = [ [
+			u'%s%s' % (
+				d['product'],
+				gmTools.bool2subst(d['is_fake_product'], ' (%s)' % _('fake'), u'')
+			),
+			d['preparation'],
+			gmTools.coalesce(d['atc'], u''),
+			u'; '.join([ u'%s %s%s' % (
+				c['substance'],
+				c['amount'],
+				gmMedication.format_units(c['unit'], c['dose_unit'])
+			) for c in d['components']]),
+			gmTools.coalesce(d['external_code'], u'', u'%%s [%s]' % d['external_code_type']),
+			d['pk_drug_product']
+		] for d in drugs ]
+		lctrl.set_string_items(items)
+		lctrl.set_data(drugs)
+
+	#------------------------------------------------------------
+	gmListWidgets.get_choices_from_list (
+		parent = parent,
+		caption = _('Drug products currently known to GNUmed.'),
+		columns = [_('Name'), _('Preparation'), _('ATC'), _('Components'), _('Code'), u'#'],
+		single_selection = True,
+		ignore_OK_button = ignore_OK_button,
+		refresh_callback = refresh,
+		new_callback = new,
+		edit_callback = edit,
+		delete_callback = delete,
+		list_tooltip_callback = get_tooltip,
+		#left_extra_button = (_('Import'), _('Import substances and products from a drug database.'), add_from_db)
+		#, middle_extra_button = (_('Clone'), _('Clone selected drug into a new entry for editing.'), clone_from_existing)
+		#, right_extra_button = (_('Reassign'), _('Reassign all patients taking the selected drug to another drug.'), reassign_patients)
+	)
+
+#------------------------------------------------------------
+from Gnumed.wxGladeWidgets import wxgSingleComponentGenericDrugEAPnl
+
+class cSingleComponentGenericDrugEAPnl(wxgSingleComponentGenericDrugEAPnl.wxgSingleComponentGenericDrugEAPnl, gmEditArea.cGenericEditAreaMixin):
+
+	def __init__(self, *args, **kwargs):
+
+		try:
+			data = kwargs['drug']
+			del kwargs['drug']
+		except KeyError:
+			data = None
+
+		wxgSingleComponentGenericDrugEAPnl.wxgSingleComponentGenericDrugEAPnl.__init__(self, *args, **kwargs)
+		gmEditArea.cGenericEditAreaMixin.__init__(self)
+
+		self.mode = 'new'
+		self.data = data
+		if data is not None:
+			self.mode = 'edit'
+
+		self.__init_ui()
+
+	#----------------------------------------------------------------
+	def __init_ui(self):
+		self._PRW_substance.add_callback_on_modified(callback = self._on_name_field_modified)
+		self._PRW_substance.add_callback_on_selection(callback = self._on_name_field_modified)
+		self._TCTRL_amount.add_callback_on_modified(callback = self._on_name_field_modified)
+		self._PRW_unit.add_callback_on_modified(callback = self._on_name_field_modified)
+		self._PRW_unit.add_callback_on_selection(callback = self._on_name_field_modified)
+		self._PRW_dose_unit.add_callback_on_modified(callback = self._on_name_field_modified)
+		self._PRW_dose_unit.add_callback_on_selection(callback = self._on_name_field_modified)
+
+	#----------------------------------------------------------------
+	# generic Edit Area mixin API
+	#----------------------------------------------------------------
+	def _valid_for_save(self):
+
+		validity = True
+
+		if self._PRW_preparation.Value.strip() == u'':
+			validity = False
+			self._PRW_preparation.display_as_valid(False)
+			self.status_message = _('Drug form is missing.')
+			self._PRW_preparation.SetFocus()
+		else:
+			self._PRW_preparation.display_as_valid(True)
+
+		if self._PRW_unit.GetData() is None:
+			validity = False
+			self._PRW_unit.display_as_valid(False)
+			self.status_message = _('Unit for amount is missing.')
+			self._PRW_unit.SetFocus()
+		else:
+			self._PRW_unit.display_as_valid(True)
+
+		if self._TCTRL_amount.GetValue().strip() == u'':
+			validity = False
+			self.display_tctrl_as_valid(tctrl = self._TCTRL_amount, valid = False)
+			self.status_message = _('Amount is missing.')
+			self._TCTRL_amount.SetFocus()
+		else:
+			self.display_tctrl_as_valid(tctrl = self._TCTRL_amount, valid = True)
+
+		if self._PRW_substance.GetData() is None:
+			val = self._PRW_substance.Value.strip()
+			if val != u'' and gmATC.exists_as_atc(val):
+				subst = gmMedication.create_substance(substance = val)
+				self._PRW_substance.SetText(subst['substance'], subst['pk_substance'])
+				self._PRW_substance.display_as_valid(True)
+			else:
+				validity = False
+				self._PRW_substance.display_as_valid(False)
+				self.status_message = _('Substance is missing.')
+				self._PRW_substance.SetFocus()
+		else:
+			self._PRW_substance.display_as_valid(True)
+
+		return validity
+
+	#----------------------------------------------------------------
+	def _save_as_new(self):
+
+		dose = gmMedication.create_substance_dose (
+			pk_substance = self._PRW_substance.GetData(),
+			amount = self._TCTRL_amount.Value.strip(),
+			unit = self._PRW_unit.GetData(),
+			dose_unit = self._PRW_dose_unit.GetData()
+		)
+		dose_unit = self._PRW_dose_unit.GetValue().strip()
+		if dose_unit != u'':
+			dose_unit = u'/' + dose_unit
+		name = u'%s %s%s%s' % (
+			self._PRW_substance.GetValue().strip(),
+			self._TCTRL_amount.Value.strip(),
+			self._PRW_unit.GetValue().strip(),
+			dose_unit
+		)
+		drug = gmMedication.create_drug_product (
+			product_name = name,
+			preparation = self._PRW_preparation.GetValue().strip(),
+			return_existing = True
+		)
+		drug['is_fake_product'] = True
+		drug.save()
+		drug.set_substance_doses_as_components(substance_doses = [dose])
+		self.data = drug
+		return True
+
+	#----------------------------------------------------------------
+	def _save_as_update(self):
+		return False
+#		self.data[''] = self._CHBOX_xxx.GetValue()
+#		self.data.save()
+#		return True
+
+	#----------------------------------------------------------------
+	def _refresh_as_new(self):
+		self._LBL_drug_name.SetLabel(u'')
+		self._PRW_substance.SetText(u'', None)
+		self._TCTRL_amount.SetValue(u'')
+		self._PRW_unit.SetText(u'', None)
+		self._PRW_dose_unit.SetText(u'', None)
+		self._PRW_preparation.SetText(u'', None)
+
+	#----------------------------------------------------------------
+	def _refresh_as_new_from_existing(self):
+		self._refresh_as_new()
+
+	#----------------------------------------------------------------
+	def _refresh_from_existing(self):
+		pass
+
+	#----------------------------------------------------------------
+	def set_fields(self, fields):
+		try:
+			self._PRW_substance.SetText(fields['substance']['value'], fields['substance']['data'])
+		except KeyError:
+			_log.error('cannot set field [substance] from <>', fields)
+
+	#----------------------------------------------------------------
+	def _on_name_field_modified(self, data=None):
+		dose_unit = self._PRW_dose_unit.GetValue().strip()
+		if dose_unit != u'':
+			dose_unit = u'/' + dose_unit
+		name = u'%s %s%s%s' % (
+			self._PRW_substance.GetValue().strip(),
+			self._TCTRL_amount.Value.strip(),
+			self._PRW_unit.GetValue().strip(),
+			dose_unit
+		)
+		self._LBL_drug_name.SetLabel(u'"%s"' % name.strip())
+
+#============================================================
 # main
 #------------------------------------------------------------
 if __name__ == '__main__':
@@ -1337,3 +1639,8 @@ if __name__ == '__main__':
 	app.SetWidget(cSubstancePhraseWheel, -1)
 	app.MainLoop()
 	#manage_substance_intakes()
+	edit_single_component_generic_drug (
+		single_entry = True,
+		fields = {u'substance': {u'value': val, 'data': None}},
+		return_drug = True
+	)

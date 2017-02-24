@@ -64,24 +64,14 @@ class cSubstancePreparationPhraseWheel(gmPhraseWheel.cPhraseWheel):
 	def __init__(self, *args, **kwargs):
 
 		query = u"""
-(
-	SELECT DISTINCT ON (list_label)
-		preparation AS data,
-		preparation AS list_label,
-		preparation AS field_label
-	FROM ref.drug_product
-	WHERE preparation %(fragment_condition)s
-) UNION (
-	SELECT DISTINCT ON (list_label)
-		preparation AS data,
-		preparation AS list_label,
-		preparation AS field_label
-	FROM clin.substance_intake
-	WHERE preparation %(fragment_condition)s
-)
+SELECT DISTINCT ON (list_label)
+	preparation AS data,
+	preparation AS list_label,
+	preparation AS field_label
+FROM ref.drug_product
+WHERE preparation %(fragment_condition)s
 ORDER BY list_label
 LIMIT 30"""
-
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries = query)
 		mp.setThresholds(1, 2, 4)
 		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
@@ -105,7 +95,10 @@ class cSubstanceIntakeObjectPhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 	#--------------------------------------------------------
 	def _data2instance(self):
-		return gmMedication.cDrugProduct(aPK_obj = self.GetData(as_instance = False, can_create = False))
+		pk = self.GetData(as_instance = False, can_create = False)
+		if pk is None:
+			return None
+		return gmMedication.cDrugProduct(aPK_obj = pk)
 
 #------------------------------------------------------------
 class cProductOrSubstancePhraseWheel(gmPhraseWheel.cPhraseWheel):
@@ -272,7 +265,7 @@ def manage_substance_intakes(parent=None, emr=None):
 #			return False
 #
 #		xxxxx -> substance_dose
-#		return gmMedication.delete_substance(substance = substance['pk'])
+#		return gmMedication.delete_xsubstance(substance = substance['pk'])
 	#------------------------------------------------------------
 	def get_tooltip(intake=None):
 		return intake.format(single_line = False, show_all_product_components = True)
@@ -310,6 +303,7 @@ def manage_substance_intakes(parent=None, emr=None):
 			])
 		lctrl.set_string_items(items)
 		lctrl.set_data(intakes)
+
 	#------------------------------------------------------------
 	return gmListWidgets.get_choices_from_list (
 		parent = parent,
@@ -348,6 +342,7 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 			self.mode = 'edit'
 
 		self.__init_ui()
+
 	#----------------------------------------------------------------
 	def __init_ui(self):
 
@@ -472,38 +467,6 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 			self.Layout()
 			return
 
-#		entry_type, pk = self._PRW_drug.GetData(as_instance = False)
-#
-#		if entry_type == self._PRW_drug.IS_SUBSTANCE:
-#			self._LBL_drug_details.SetValue (u'%s %s%s%s' % (
-#				drug['description'],
-#				drug['amount'],
-#				drug['unit'],
-#				gmTools.coalesce(drug['atc_code'], u'', u' [%s]')
-#			))
-#			self._LBL_drug_details.SetToolTipString(u'')
-#			return
-#
-#		if entry_type == self._PRW_drug.IS_COMPONENT:
-#			component = drug
-#			drug = component.containing_drug
-#			self._LBL_drug_details.SetValue(u'%s: %s' % (drug['product'], u'; '.join(drug['components'])))
-#			self._LBL_drug_details.SetToolTipString(component.format())
-#			return
-#
-#		if entry_type == self._PRW_drug.IS_PRODUCT:
-#			if drug['components'] is not None:
-#				comps = u'; '.join(drug['components'])
-#			else:
-#				comps = _(u'<no components>')
-#			self._LBL_drug_details.SetValue(u'%s: %s' % (drug['product'], comps))
-#			self._LBL_drug_details.SetToolTipString(drug.format())
-#			return
-
-#		if drug['components'] is not None:
-#			comps = u'; '.join(drug['components'])
-#		else:
-#			comps = _(u'<no components>')
 		if len(drug['components']) == 0:
 			comps = _(u'<no components>')
 		else:
@@ -536,8 +499,41 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 
 		# no drug selected
 		if selected_drug is None:
-			self._PRW_drug.display_as_valid(False)
+			val = self._PRW_drug.GetValue().strip()
+			if val == u'':
+				self._PRW_drug.display_as_valid(False)
+				self._PRW_drug.SetFocus()
+				return False
+			# create as a generic, single-substance drug if that does not exist
+			drug = gmSubstanceMgmtWidgets.edit_single_component_generic_drug (
+				parent = self,
+				drug = None,
+				single_entry = True,
+				fields = {u'substance': {u'value': val, 'data': None}},
+				return_drug = True
+			)
+			if drug is None:
+				self._PRW_drug.display_as_valid(False)
+				self._PRW_drug.SetFocus()
+				return False
+			comp = drug.components[0]
+			self._PRW_drug.SetText (
+				_(u'%s w/ %s%s%s of %s') % (
+					comp['product'],
+					comp['amount'],
+					comp['unit'],
+					gmTools.coalesce(comp['dose_unit'], u'', u'/%s'),
+					comp['substance']
+				),
+				drug['pk_drug_product']
+			)
+			selected_drug = drug
+			self.__refresh_drug_details()
+			self._PRW_drug.display_as_valid(True)
 			self._PRW_drug.SetFocus()
+			# return False despite there's now a drug such
+			# that the user has another chance to inspect
+			# the edit area data after creating a new drug
 			return False
 
 		# drug already exists as intake
@@ -556,15 +552,7 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 			self._PRW_drug.SetFocus()
 			return False
 
-#		entry_type, pk = self._PRW_drug.GetData(as_instance = False)
-#		if entry_type in [self._PRW_drug.IS_COMPONENT, self._PRW_drug.IS_PRODUCT]:
-#			self._PRW_preparation.display_as_valid(True)
-#			return True
-#
-#		if self._PRW_preparation.GetValue().strip() == u'':
-#			self._PRW_preparation.display_as_valid(False)
-#			return False
-
+		self._PRW_drug.display_as_valid(True)
 		return True
 
 	#----------------------------------------------------------------
@@ -652,11 +640,9 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 			epi = self._PRW_episode.GetData(can_create = True, is_open = True)
 
 		selected_drug = self._PRW_drug.GetData(as_instance = True)
-		#xxxxxxx
 		intake = selected_drug.turn_into_intake (
 			encounter = gmPerson.gmCurrentPatient().emr.current_encounter['pk_encounter'],
 			episode = epi
-			#, preparation = self._PRW_preparation.GetValue().strip()
 		)
 
 		if intake is None:
@@ -716,9 +702,6 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 			else:
 				self.data['duration'] = self._PRW_duration.GetData()
 
-#		# applies to non-component substances only
-#		self.data['preparation'] = self._PRW_preparation.GetValue()
-
 		# per-component
 		self.data['aim'] = self._PRW_aim.GetValue()
 		self.data['notes'] = self._PRW_notes.GetValue()
@@ -735,9 +718,6 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 	#----------------------------------------------------------------
 	def _refresh_as_new(self):
 		self._PRW_drug.SetText(u'', None)
-
-#		self._PRW_preparation.SetText(u'', None)
-#		self._PRW_preparation.Enable(True)
 
 		self._PRW_schedule.SetText(u'', None)
 		self._PRW_duration.SetText(u'', None)
@@ -761,19 +741,9 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 		self.__refresh_precautions()
 
 		self._PRW_drug.SetFocus()
+
 	#----------------------------------------------------------------
 	def _refresh_from_existing(self):
-
-#		if self.data['pk_drug_product'] is None:
-#			self._PRW_drug.SetText (
-#				u'%s %s %s' % (self.data['substance'], self.data['amount'], self.data['unit']),
-#				[self._PRW_drug.IS_SUBSTANCE, self.data['pk_substance']]
-#			)
-#		else:
-#			self._PRW_drug.SetText (
-#				u'%s %s %s' % (self.data['substance'], self.data['amount'], self.data['unit']),
-#				[self._PRW_drug.IS_COMPONENT, self.data['pk_drug_component']]
-#			)
 
 		self._PRW_drug.SetText (
 			_(u'%s w/ %s%s%s of %s') % (
@@ -784,12 +754,9 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 				self.data['substance']
 			),
 			self.data['pk_drug_product']
-			#[self._PRW_drug.IS_COMPONENT, self.data['pk_drug_component']]
 		)
 
 		self._PRW_drug.Disable()
-#		self._PRW_preparation.SetText(self.data['preparation'], self.data['preparation'])
-#		self._PRW_preparation.Disable()
 
 		if self.data['is_long_term']:
 	 		self._CHBOX_long_term.SetValue(True)
@@ -801,10 +768,6 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 			self._PRW_duration.Enable(True)
 			self._BTN_discontinued_as_planned.Enable(True)
 			self._PRW_duration.SetData(self.data['duration'])
-#			if self.data['duration'] is None:
-#				self._PRW_duration.SetText(u'', None)
-#			else:
-#				self._PRW_duration.SetText(gmDateTime.format_interval(self.data['duration'], gmDateTime.acc_days), self.data['duration'])
 		self._PRW_aim.SetText(gmTools.coalesce(self.data['aim'], u''), self.data['aim'])
 		self._PRW_notes.SetText(gmTools.coalesce(self.data['notes'], u''), self.data['notes'])
 		self._PRW_episode.SetData(self.data['pk_episode'])
@@ -848,25 +811,6 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 	def _on_leave_drug(self):
 		self.__refresh_drug_details()
 
-#		drug = self._PRW_drug.GetData(as_instance = True)
-#		if drug is None:
-#			self._PRW_preparation.Enable(True)
-#			return
-#
-#		if isinstance(drug, gmMedication.cConsumableSubstance):
-#			self._PRW_preparation.Enable(True)
-#			return
-#
-#		if isinstance(drug, gmMedication.cDrugProduct):
-#			self._PRW_preparation.SetValue(drug['preparation'])
-#			self._PRW_preparation.Enable(False)
-#			return
-#
-#		if isinstance(drug, gmMedication.cDrugComponent):
-#			self._PRW_preparation.SetValue(drug['preparation'])
-#			self._PRW_preparation.Enable(False)
-#			return
-
 	#----------------------------------------------------------------
 	def _on_enter_aim(self):
 		drug = self._PRW_drug.GetData(as_instance = True)
@@ -876,16 +820,6 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 		# do not set to self._PRW_drug.GetValue() as that will contain all
 		# sorts of additional info, rather set to the canonical drug['substance']
 #		self._PRW_aim.set_context(context = u'substance', val = drug['substance'])
-
-#		if isinstance(drug, gmMedication.cDrugProduct):
-#			self._PRW_aim.unset_context(context = u'substance')
-#			return
-#		if isinstance(drug, gmMedication.cConsumableSubstance):
-#			self._PRW_aim.set_context(context = u'substance', val = drug['description'])
-#			return
-#		if isinstance(drug, gmMedication.cDrugComponent):
-#			self._PRW_aim.set_context(context = u'substance', val = drug['substance'])
-#			return
 
 	#----------------------------------------------------------------
 	def _on_discontinued_date_changed(self, event):
@@ -991,9 +925,26 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 		)
 
 #============================================================
-def delete_substance_intake(parent=None, substance=None):
+def delete_substance_intake(parent=None, intake=None):
 
-	subst = gmMedication.cSubstanceIntakeEntry(aPK_obj = substance)
+	comps = intake.containing_drug.components
+	if len(comps) > 1:
+		msg = _(
+			u'This intake is part of a multi-component drug product:\n'
+			u'\n'
+			u' %s\n'
+			u'\n'
+			u'Really delete all intakes related to this drug product ?'
+		) % u'\n '.join (
+			[ u'%s %s%s' % (c['substance'], c['amount'], c.formatted_units) for c in comps ]
+		)
+		delete_all = gmGuiHelpers.gm_show_question (
+			title = _('Deleting medication / substance intake'),
+			question = msg
+		)
+		if not delete_all:
+			return
+
 	msg = _(
 		'\n'
 		'[%s]\n'
@@ -1001,7 +952,7 @@ def delete_substance_intake(parent=None, substance=None):
 		'It may be prudent to edit (before deletion) the details\n'
 		'of this substance intake entry so as to leave behind\n'
 		'some indication of why it was deleted.\n'
-	) % subst.format()
+	) % intake.format()
 
 	dlg = gmGuiHelpers.c3ButtonQuestionDlg (
 		parent,
@@ -1022,7 +973,7 @@ def delete_substance_intake(parent=None, substance=None):
 		return
 
 	if edit_first == wx.ID_YES:
-		edit_intake_of_substance(parent = parent, substance = subst)
+		edit_intake_of_substance(parent = parent, substance = intake)
 		delete_it = gmGuiHelpers.gm_show_question (
 			aMessage = _('Now delete substance intake entry ?'),
 			aTitle = _('Deleting medication / substance intake')
@@ -1033,7 +984,8 @@ def delete_substance_intake(parent=None, substance=None):
 	if not delete_it:
 		return
 
-	gmMedication.delete_substance_intake(substance = substance)
+	gmMedication.delete_substance_intake(pk_intake = intake['pk_substance_intake'], delete_siblings = True)
+
 #------------------------------------------------------------
 def edit_intake_of_substance(parent = None, substance=None):
 	ea = cSubstanceIntakeEAPnl(parent = parent, id = -1, substance = substance)
@@ -1044,6 +996,7 @@ def edit_intake_of_substance(parent = None, substance=None):
 		_('Document an allergy against this substance.'),
 		ea.turn_into_allergy
 	)
+	dlg.SetSize((650,500))
 	if dlg.ShowModal() == wx.ID_OK:
 		dlg.Destroy()
 		return True
@@ -1080,6 +1033,7 @@ def configure_medication_list_template(parent=None):
 	)
 
 	return template
+
 #------------------------------------------------------------
 def print_medication_list(parent=None):
 
@@ -1765,8 +1719,9 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 
 		subst = self.get_selected_data()[0]
 		edit_intake_of_substance(parent = self, substance = subst)
+
 	#------------------------------------------------------------
-	def delete_substance(self):
+	def delete_intake(self):
 
 		rows = self.get_selected_rows()
 
@@ -1777,8 +1732,9 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot delete more than one substance at once.'), beep = True)
 			return
 
-		subst = self.get_selected_data()[0]
-		delete_substance_intake(parent = self, substance = subst['pk_substance_intake'])
+		intake = self.get_selected_data()[0]
+		delete_substance_intake(parent = self, intake = intake)
+
 	#------------------------------------------------------------
 	def create_allergy_from_substance(self):
 		rows = self.get_selected_rows()
@@ -2261,7 +2217,7 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 		self._grid_substances.edit_substance()
 	#--------------------------------------------------------
 	def _on_delete_button_pressed(self, event):
-		self._grid_substances.delete_substance()
+		self._grid_substances.delete_intake()
 	#--------------------------------------------------------
 	def _on_info_button_pressed(self, event):
 		self._grid_substances.show_info_on_entry()
