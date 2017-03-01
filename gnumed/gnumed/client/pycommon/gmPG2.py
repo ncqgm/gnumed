@@ -2280,7 +2280,9 @@ def _log_PG_settings(curs=None):
 	# don't use any of the run_*()s helper functions
 	# since that might create a loop if we fail here
 	try:
-		curs.execute(u'SELECT name, setting, unit, source, reset_val, sourcefile, sourceline, pending_restart FROM pg_settings')
+		# .pending_restart does not exist in PG 9.4 yet
+		#curs.execute(u'SELECT name, setting, unit, source, reset_val, sourcefile, sourceline, pending_restart FROM pg_settings')
+		curs.execute(u'SELECT name, setting, unit, source, reset_val, sourcefile, sourceline FROM pg_settings')
 	except:
 		_log.exception(u'cannot log PG settings ("SELECT ... FROM pg_settings" failed)')
 		return False
@@ -2294,17 +2296,19 @@ def _log_PG_settings(curs=None):
 			sfile = u''
 		else:
 			sfile = u'// %s @ %s' % (setting['sourcefile'], setting['sourceline'])
-		if setting['pending_restart'] is False:
-			pending_restart = u''
-		else:
-			pending_restart = u'// needs restart'
-		_log.debug(u'%s: %s%s (set from: [%s] // sess RESET will set to: [%s]%s%s)',
+#		# .pending_restart does not exist in PG 9.4 yet
+#		if setting['pending_restart'] is False:
+#			pending_restart = u''
+#		else:
+#			pending_restart = u'// needs restart'
+#		_log.debug(u'%s: %s%s (set from: [%s] // sess RESET will set to: [%s]%s%s)',
+		_log.debug(u'%s: %s%s (set from: [%s] // sess RESET will set to: [%s]%s)',
 			setting['name'],
 			setting['setting'],
 			unit,
 			setting['source'],
 			setting['reset_val'],
-			pending_restart,
+#			pending_restart,
 			sfile
 		)
 

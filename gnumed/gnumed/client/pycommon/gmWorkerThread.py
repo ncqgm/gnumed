@@ -9,6 +9,8 @@ __license__ = "GPL v2 or later"
 import sys
 import logging
 import threading
+import datetime as dt
+
 # wx.CallAfter() does not seem to work with multiprocessing !
 #import multiprocessing
 
@@ -36,15 +38,16 @@ def execute_in_worker_thread(payload_function=None, payload_kwargs=None, complet
 			else:
 				payload_result = payload_function(**payload_kwargs)
 		except StandardError:
-			_log.exception('error running payload %s of worker thread (%s) named "%s"', payload_function, worker.ident, worker.name)
+			_log.exception('error running worker payload: %s', payload_function)
 			return
-		_log.debug(u'finished running payload in worker thread %s', worker.ident)
+		_log.debug(u'finished running worker payload')
 		if completion_callback is None:
 			return
 		try:
 			completion_callback(payload_result)
 		except StandardError:
-			_log.exception('error running completion %s for worker thread (%s) named "%s"', completion_callback, worker.ident, worker.name)
+			_log.exception('error running worker completion callback: %s', completion_callback)
+		_log.debug(u'finished running worker completion callback')
 		return
 	#-------------------------------
 
@@ -53,16 +56,18 @@ def execute_in_worker_thread(payload_function=None, payload_kwargs=None, complet
 	if completion_callback is not None:
 		if not callable(completion_callback):
 			raise ValueError(u'<%s> is not callable', completion_callback)
-	_log.info(u'running <%s> in thread and calling <%s>', payload_function, completion_callback)
+	thread_name = dt.datetime.now().strftime('%f-%H:%M:%S-%Y%m%d')
+	_log.info(u'creating thread "%s"', thread_name)
+	_log.debug(u' "%s" payload function: %s', thread_name, payload_function)
+	_log.debug(u' "%s" results callback: %s', thread_name, completion_callback)
 
 	#worker = multiprocessing.Process (
 	worker = threading.Thread (
 		target = _run_payload,
-		name = u'%s=>%s' % (payload_function, completion_callback)
+		name = thread_name
 	)
-	_log.debug('starting worker thread "%s"', worker.name)
 	worker.start()
-	_log.debug('thread pid: %s', worker.ident)
+	_log.debug(' "%s" PID: %s', worker.name, worker.ident)
 	# from here on, another thread executes _run_payload()
 	# which executes payload_function(), and possibly
 	# completion_callback()
@@ -83,7 +88,7 @@ if __name__ == "__main__":
 
 	from Gnumed.pycommon import gmLog2
 
-	def test_print_dots():
+	def test_print_dots(ident=None):
 
 		def slowly_print_dots(info=None):
 			for i in range(5):
@@ -96,9 +101,9 @@ if __name__ == "__main__":
 
 		execute_in_worker_thread (
 			payload_function = slowly_print_dots,
-			payload_kwargs = {},
+			payload_kwargs = {'info': ident},
 			completion_callback = print_dot_end_time
 		)
 
-	test_print_dots()
-	test_print_dots()
+	test_print_dots('A')
+	test_print_dots('B')

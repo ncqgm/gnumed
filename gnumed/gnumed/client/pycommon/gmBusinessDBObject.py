@@ -655,12 +655,13 @@ def delete_xxx(pk_XXX=None):
 			get_col_idx = True
 		)
 
-		# this can happen if:
-		# - someone else updated the row so XMIN does not match anymore
-		# - the PK went away (rows were deleted from under us)
-		# - another WHERE condition of the UPDATE did not produce any rows to update
-		# - savepoints are used since subtransactions may relevantly change the xmin/xmax ...
+		# success ?
 		if len(rows) == 0:
+			# nothing updated - this can happen if:
+			# - someone else updated the row so XMIN does not match anymore
+			# - the PK went away (rows were deleted from under us)
+			# - another WHERE condition of the UPDATE did not produce any rows to update
+			# - savepoints are used since subtransactions may relevantly change the xmin/xmax ...
 			return (False, (u'cannot update row', _('[%s:%s]: row not updated (nothing returned), row in use ?') % (self.__class__.__name__, self.pk_obj)))
 
 		# update cached values from should-be-first-and-only

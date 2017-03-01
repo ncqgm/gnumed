@@ -72,13 +72,17 @@ def _signal_update_status(status):
 	)
 
 #------------------------------------------------------------------------------
+def _async_signal_update_status(status):
+	wx.CallAfter(_signal_update_status, status)
+
+#------------------------------------------------------------------------------
 def check_for_updates(async=False):
 
 	if async:
 		gmWorkerThread.execute_in_worker_thread (
 			payload_function = _get_update_status,
 			payload_kwargs = None,
-			completion_callback = _signal_update_status
+			completion_callback = _async_signal_update_status
 		)
 		return
 

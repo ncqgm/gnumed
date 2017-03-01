@@ -254,9 +254,9 @@ def __setup_logging():
 		return False
 
 	if sys.version[:3] < '2.5':
-		fmt = u'%(asctime)s  %(levelname)-8s  %(name)s (%(pathname)s @ #%(lineno)d): %(message)s'
+		fmt = u'%(asctime)s  %(levelname)-8s  %(name)-12s  (%(pathname)s @ #%(lineno)d): %(message)s'
 	else:
-		fmt = u'%(asctime)s  %(levelname)-8s  %(name)s (%(pathname)s::%(funcName)s() #%(lineno)d): %(message)s'
+		fmt = u'%(asctime)s  %(levelname)-8s  %(name)-12s  %(threadName)-10s (%(thread)d)  (%(pathname)s::%(funcName)s() #%(lineno)d): %(message)s'
 
 	_logfile = io.open(_logfile_name, mode = 'wt', encoding = 'utf8', errors = 'replace')
 
@@ -273,6 +273,7 @@ def __setup_logging():
 	logger.info(u'log level is [%s]', logging.getLevelName(logger.getEffectiveLevel()))
 	logger.info(u'log file encoding is <utf8>')
 	logger.info(u'initial python.str -> python.unicode encoding is <%s>', _string_encoding)
+
 #---------------------------------------------------------------
 def __get_logfile_name():
 
