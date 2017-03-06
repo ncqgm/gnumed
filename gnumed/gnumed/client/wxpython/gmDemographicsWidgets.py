@@ -1128,7 +1128,7 @@ class cPersonNameEAPnl(wxgPersonNameEAPnl.wxgPersonNameEAPnl, gmEditArea.cGeneri
 			data = self.__identity.add_name(first, last, active)
 		except gmPG2.dbapi.IntegrityError as exc:
 			_log.exception('cannot save new name')
-			exc = make_pg_exception_fields_unicode(exc)
+			exc = gmPG2.make_pg_exception_fields_unicode(exc)
 			gmGuiHelpers.gm_show_error (
 				aTitle = _('Adding name'),
 				aMessage = _(
@@ -1136,7 +1136,6 @@ class cPersonNameEAPnl(wxgPersonNameEAPnl.wxgPersonNameEAPnl, gmEditArea.cGeneri
 					'\n'
 					' %s'
 				) % exc.u_pgerror
-#				) % str(exc)
 			)
 			return False
 
@@ -1176,7 +1175,7 @@ class cPersonNameEAPnl(wxgPersonNameEAPnl.wxgPersonNameEAPnl, gmEditArea.cGeneri
 				name = self.__identity.add_name(first, last, active)
 			except gmPG2.dbapi.IntegrityError as exc:
 				_log.exception('cannot clone name when editing existing name')
-				exc = make_pg_exception_fields_unicode(exc)
+				exc = gmPG2.make_pg_exception_fields_unicode(exc)
 				gmGuiHelpers.gm_show_error (
 					aTitle = _('Editing name'),
 					aMessage = _(

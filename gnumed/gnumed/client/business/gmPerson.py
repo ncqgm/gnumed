@@ -920,6 +920,9 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 			if other_identity.ID == curr_pat.ID:
 				return False, _('Cannot merge active patient into another patient.')
 
+		now_here = gmDateTime.pydt_strftime(gmDateTime.pydt_now_here())
+		distinguisher = _(u'merge of #%s into #%s @ %s') % (other_identity.ID, self.ID, now_here)
+
 		queries = []
 		args = {'pat2del': other_identity.ID, 'pat2keep': self.ID}
 
@@ -943,7 +946,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 		})
 		# delete old allergy state
 		queries.append ({
-			'cmd': u'delete from clin.allergy_state where pk = (select pk_allergy_state from clin.v_pat_allergy_state where pk_patient = %(pat2del)s)',
+			'cmd': u'DELETE FROM clin.allergy_state WHERE pk = (SELECT pk_allergy_state FROM clin.v_pat_allergy_state WHERE pk_patient = %(pat2del)s)',
 			'args': args
 		})
 
@@ -962,11 +965,23 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 		})
 
 		# transfer names
-		# 1) disambiguate names in old pat
+		# 0) force pat2del to be a unique identity from pat2keep
+		#    should identical names happen to occur
+		queries.append ({
+			'cmd': u"""
+				UPDATE dem.identity SET
+					comment = coalesce(comment || ' ', '') || '(%s)'
+				WHERE
+					pk = %%(pat2del)s
+			""" % distinguisher,
+			'args': args
+		})
+
+		# 1) disambiguate names in old patient
 		queries.append ({
 			'cmd': u"""
 				UPDATE dem.names d_n1 SET
-					lastnames = lastnames || ' (%s %s)'
+					lastnames = lastnames || ' (%s)'
 				WHERE
 					d_n1.id_identity = %%(pat2del)s
 						AND
@@ -978,10 +993,10 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 							d_n2.lastnames = d_n1.lastnames
 								AND
 							d_n2.firstnames = d_n1.firstnames
-					)""" % (_('assimilated'), gmDateTime.pydt_strftime(gmDateTime.pydt_now_here())),
+					)""" % distinguisher,
 			'args': args
 		})
-		# 2) move inactive ones (but beware of dupes)
+		# 2) move inactive ones (dupes are expected to have been eliminated in step 1 above)
 		queries.append ({
 			'cmd': u"""
 				UPDATE dem.names SET
@@ -989,16 +1004,25 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 				WHERE id_identity = %(pat2del)s AND active IS false""",
 			'args': args
 		})
-		# 3) copy active ones
+		# 3) copy active name (because each identity MUST have at least one
+		#    *active* name so we can't just UPDATE over to pat2keep),
+		#    also, needs de-duplication or else it would conflict with *itself*
+		#    on pat2keep, said de-duplication happened in step 0 above
+		#    whereby pat2del is made unique by means of adding a pseudo-random
+		#    dem.identity.comment
 		queries.append ({
 			'cmd': u"""
 				INSERT INTO dem.names (
 					id_identity, active, lastnames, firstnames, preferred, comment
 				)
 					SELECT
-						%(pat2keep)s, false, lastnames, firstnames, preferred, comment
+						%%(pat2keep)s, false, lastnames, firstnames, preferred, comment || ' (%s)'
 					FROM dem.names d_n
-					WHERE d_n.id_identity = %(pat2del)s AND d_n.active IS true""",
+					WHERE
+						d_n.id_identity = %%(pat2del)s
+							AND
+						d_n.active IS true
+				""" % distinguisher,
 			'args': args
 		})
 
@@ -1007,7 +1031,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 		queries.append ({
 			'cmd': u"""
 				UPDATE dem.lnk_identity2comm
-				SET url = url || ' (%s %s)'
+				SET url = url || ' (%s)'
 				WHERE
 					fk_identity = %%(pat2del)s
 						AND
@@ -1015,14 +1039,14 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 						SELECT 1 FROM dem.lnk_identity2comm d_li2c
 						WHERE d_li2c.fk_identity = %%(pat2keep)s AND d_li2c.url = url
 					)
-				""" % (_('merged'),	gmDateTime.pydt_strftime(gmDateTime.pydt_now_here())),
+				""" % distinguisher,
 			'args': args
 		})
 		# - same-value external IDs
 		queries.append ({
 			'cmd': u"""
 				UPDATE dem.lnk_identity2ext_id
-				SET external_id = external_id || ' (%s %s)'
+				SET external_id = external_id || ' (%s)'
 				WHERE
 					id_identity = %%(pat2del)s
 						AND
@@ -1035,7 +1059,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 								AND
 							d_li2e.fk_origin = fk_origin
 					)
-				""" % (_('merged'),	gmDateTime.pydt_strftime(gmDateTime.pydt_now_here())),
+				""" % distinguisher,
 			'args': args
 		})
 		# - same addresses
@@ -1095,7 +1119,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 		args['date'] = gmDateTime.pydt_strftime(gmDateTime.pydt_now_here(), '%Y %B %d  %H:%M')
 		script.write(_MERGE_SCRIPT_HEADER % args)
 		for query in queries:
-			script.write((query['cmd'].lstrip()) % args)
+			script.write(query['cmd'] % args)
 			script.write(u';\n')
 		script.write(u'\nROLLBACK;\n')
 		script.write(u'--COMMIT;\n')

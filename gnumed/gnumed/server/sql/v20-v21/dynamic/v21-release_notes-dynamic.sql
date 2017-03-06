@@ -17,25 +17,17 @@ INSERT INTO dem.message_inbox (
 ) VALUES (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
-	'Release Notes for GNUmed 1.6.10 (database v21.10)',
-	'GNUmed 1.6.10 Release Notes:
+	'Release Notes for GNUmed 1.6.12 (database v21.12)',
+	'GNUmed 1.6.12 Release Notes:
 
-	1.6.10
+	1.6.12
 
-FIX: more faults with dynamic hint detection
-FIX: exception on verifying substance intake EA
-FIX: failure to download studies from early Orthanc versions
-FIX: failure to create BMP when no allergy check date available
+FIX: patient merging [thanks Marc]
 
-IMPROVED: LaTeX formatting of current medications
+	21.12
 
-NEW: placeholders $<bill_adr_*>$ for accessing the address of a bill
-NEW: --wxp=2|3 command line option
-
-	21.10
-
-FIX: clin.get_hints_for_patient()
+IMPROVED: logging on dem.identity/dem.names uniqueness violation
 ');
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('v21-release_notes-dynamic.sql', '21.10');
+select gm.log_script_insertion('v21-release_notes-dynamic.sql', '21.12');
