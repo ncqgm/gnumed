@@ -1540,7 +1540,7 @@ Query
 		conn.status,
 		conn.isexecuting(),
 
-		cursor.query,
+		unicode(cursor.query, 'utf8', 'replace'),
 	)
 	return txt
 

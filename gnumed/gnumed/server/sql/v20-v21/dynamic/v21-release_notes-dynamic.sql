@@ -17,32 +17,17 @@ INSERT INTO dem.message_inbox (
 ) VALUES (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
-	'Release Notes for GNUmed 1.6.11 (database v21.11)',
-	'GNUmed 1.6.11 Release Notes:
+	'Release Notes for GNUmed 1.6.12 (database v21.12)',
+	'GNUmed 1.6.12 Release Notes:
 
-	1.6.11
+	1.6.12
 
-IMPROVED: edit area refresh on first setting data
-IMPROVED: DB link error logging
-IMPROVED: suppressed hints display in patient overview
-IMPROVED: sorting of Hx items in patient overview
-IMPROVED: use of pdfinfo in gm-describe_file
+FIX: patient merging [thanks Marc]
 
-FIX: stall of gm-create_datamatrix in swap storm
-FIX: BMP creation without substance intakes
-FIX: missing quotes in BMP datafile [thanks Moritz]
-FIX: failure to sometimes store progress notes [thanks Marc]
-FIX: exception on double-clicking document tree label node
-FIX: exception on switching to drug database frontend [thanks a sk_SK]
-FIX: exception on saving hospital stay [thanks a sk_SK]
-FIX: exception on checking for upgrade [thanks Philipp]
+	21.12
 
-	21.11
-
-IMPROVED: backup scripts error checking
-
-FIX: serialization failures due to table mod announcement triggers
+IMPROVED: logging on dem.identity/dem.names uniqueness violation
 ');
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('v21-release_notes-dynamic.sql', '21.11');
+select gm.log_script_insertion('v21-release_notes-dynamic.sql', '21.12');

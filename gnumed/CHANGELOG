@@ -6,6 +6,10 @@
 # rel-1-6-patches
 ------------------------------------------------
 
+	1.6.12
+
+FIX: patient merging [thanks Marc]
+
 	1.6.11
 
 IMPROVED: edit area refresh on first setting data
@@ -17,7 +21,6 @@ IMPROVED: use of pdfinfo in gm-describe_file
 FIX: stall of gm-create_datamatrix in swap storm
 FIX: BMP creation without substance intakes
 FIX: missing quotes in BMP datafile [thanks Moritz]
-FIX: failure to sometimes store progress notes [thanks Marc]
 FIX: exception on double-clicking document tree label node
 FIX: exception on switching to drug database frontend [thanks a sk_SK]
 FIX: exception on saving hospital stay [thanks a sk_SK]
@@ -1834,6 +1837,12 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 ------------------------------------------------
 # gnumed_v21
 ------------------------------------------------
+
+	21.12
+
+IMPROVED: logging on dem.identity/dem.names uniqueness violation
+
+FIX: remove no longer needed public.array_agg
 
 	21.11
 
