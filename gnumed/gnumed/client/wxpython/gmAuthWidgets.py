@@ -29,6 +29,7 @@ from Gnumed.pycommon import gmBackendListener
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmCfg2
 from Gnumed.pycommon import gmI18N
+from Gnumed.pycommon import gmLog2
 
 from Gnumed.business import gmPraxis
 
@@ -134,6 +135,8 @@ def connect_to_database(max_attempts=3, expected_version=None, require_version=T
 		if login is None:
 			_log.info("user cancelled login dialog")
 			break
+
+		gmLog2.add_word2hide(login.password)
 
 		# try getting a connection to verify the DSN works
 		dsn = gmPG2.make_psycopg2_dsn (
@@ -287,6 +290,7 @@ def connect_to_database(max_attempts=3, expected_version=None, require_version=T
 	dlg.Destroy()
 
 	return connected
+
 #================================================================
 def get_dbowner_connection(procedure=None, dbo_password=None, dbo_account=u'gm-dbo'):
 	if procedure is None:
@@ -309,6 +313,8 @@ Please enter the current password for <%s>:""") % (
 		)
 		if dbo_password == '':
 			return None
+
+	gmLog2.add_word2hide(dbo_password)
 
 	# 2) connect as gm-dbo
 	login = gmPG2.get_default_login()
@@ -336,6 +342,7 @@ Please enter the current password for <%s>:""") % (
 		return None
 
 	return conn
+
 #================================================================
 def change_gmdbowner_password():
 
@@ -364,6 +371,8 @@ def change_gmdbowner_password():
 	if dbo_pwd_new_1.strip() == u'':
 		return False
 
+	gmLog2.add_word2hide(dbo_pwd_new_1)
+
 	dbo_pwd_new_2 = wx.GetPasswordFromUser (
 		message = _(u"""Enter the NEW password for the GNUmed database owner, again.
 
@@ -377,6 +386,49 @@ def change_gmdbowner_password():
 	if dbo_pwd_new_1 != dbo_pwd_new_2:
 		return False
 
+	# pwd2 == pwd1 at this point so no need to hide (again)
+
+	"""	On Mon, Mar 13, 2017 at 12:19:22PM -0400, Tom Lane wrote:
+		> Date: Mon, 13 Mar 2017 12:19:22 -0400
+		> From: Tom Lane <tgl@sss.pgh.pa.us>
+		> To: Adrian Klaver <adrian.klaver@aklaver.com>
+		> cc: Schmid Andreas <Andreas.Schmid@bd.so.ch>,
+		>  "'pgsql-general@postgresql.org'" <pgsql-general@postgresql.org>
+		> Subject: Re: [GENERAL] createuser: How to specify a database to connect to
+		> 
+		> Adrian Klaver <adrian.klaver@aklaver.com> writes:
+		> > On 03/13/2017 08:52 AM, Tom Lane wrote:
+		> >> If by "history" you're worried about the server-side statement log, this
+		> >> is merest fantasy: the createuser program is not magic, it just constructs
+		> >> and sends a CREATE USER command for you.  You'd actually be more secure
+		> >> using psql, where (if you're superuser) you could shut off log_statement
+		> >> for your session first.
+		> 
+		> > There is a difference though:
+		> 
+		> > psql> CREATE USER:
+		> 
+		> > postgres-2017-03-13 09:03:27.147 PDT-0LOG:  statement: create user 
+		> > dummy_user with login password '1234';
+		> 
+		> Well, what you're supposed to do is
+		> 
+		> postgres=# create user dummy_user;
+		> postgres=# \password dummy_user
+		> Enter new password: 
+		> Enter it again: 
+		> postgres=# 
+		> 
+		> which will result in sending something like
+		> 
+		> ALTER USER dummy_user PASSWORD 'md5c5e9567bc40082671d02c654260e0e09'
+		> 
+		> You can additionally protect that by wrapping it into one transaction
+		> (if you have a setup where the momentary existence of the role without a
+		> password would be problematic) and/or shutting off logging beforehand.
+	"""
+
+	# this REALLY should be prefixed with md5 and the md5sum sent rather than the pwd
 	cmd = u"""ALTER ROLE "%s" ENCRYPTED PASSWORD '%s';""" % (
 		dbo_account,
 		dbo_pwd_new_2
@@ -384,9 +436,11 @@ def change_gmdbowner_password():
 	gmPG2.run_rw_queries(link_obj = dbo_conn, queries = [{'cmd': cmd}], end_tx = True)
 
 	return True
+
 #================================================================
 class cBackendProfile:
 	pass
+
 #================================================================
 class cLoginDialog(wx.Dialog):
 	"""cLoginDialog - window holding cLoginPanel"""
@@ -398,6 +452,7 @@ class cLoginDialog(wx.Dialog):
 		self.Centre()
 
 		self.SetIcon(gmTools.get_icon(wx = wx))
+
 #================================================================
 class cLoginPanel(wx.Panel):
 	"""GUI panel class that interactively gets Postgres login parameters.
