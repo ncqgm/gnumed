@@ -540,7 +540,7 @@ def format_interval(interval=None, accuracy_wanted=None, none_string=None, verbo
 				tag = u' ' + _('second')
 		else:
 			tag = u's'
-		tmp += u' %s%s' % (int(mins), tag)
+		tmp += u' %s%s' % (int(secs), tag)
 
 	if tmp == u'':
 		if verbose:
@@ -2235,10 +2235,19 @@ if __name__ == '__main__':
 	]
 	#-----------------------------------------------------------------------
 	def test_format_interval():
+		intv = pyDT.timedelta(minutes=1, seconds=2)
+		for acc in _accuracy_strings.keys():
+			print ('[%s]: "%s" -> "%s"' % (acc, intv, format_interval(intv, acc)))
+		return
+
 		for tmp in intervals_as_str:
 			intv = str2interval(str_interval = tmp)
+			if intv is None:
+				print(tmp, '->', intv)
+				continue
 			for acc in _accuracy_strings.keys():
 				print ('[%s]: "%s" -> "%s"' % (acc, tmp, format_interval(intv, acc)))
+
 	#-----------------------------------------------------------------------
 	def test_format_interval_medically():
 
@@ -2471,11 +2480,11 @@ if __name__ == '__main__':
 	#test_cFuzzyTimeStamp()
 	#test_get_pydt()
 	#test_str2interval()
-	#test_format_interval()
+	test_format_interval()
 	#test_format_interval_medically()
 	#test_str2pydt()
 	#test_pydt_strftime()
 	#test_calculate_apparent_age()
-	test_is_leap_year()
+	#test_is_leap_year()
 
 #===========================================================================
