@@ -34,6 +34,8 @@ IMPROVED: non-blocking file description retrieval
 
 	1.6.13
 
+FIX: formatting of intervals with seconds [thanks Rickard]
+
 IMPROVED: more fully prevent logfile based password leaks
 
 	1.6.12
