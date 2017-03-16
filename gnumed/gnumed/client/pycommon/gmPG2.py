@@ -434,6 +434,7 @@ def __request_login_params_tui():
 		login.user = prompted_input(prompt = "user name", default = '')
 		tmp = 'password for "%s" (not shown): ' % login.user
 		login.password = getpass.getpass(tmp)
+		gmLog2.add_word2hide(login.password)
 		login.port = prompted_input(prompt = "port", default = 5432)
 	except KeyboardInterrupt:
 		_log.warning("user cancelled text mode login dialog")
@@ -465,7 +466,10 @@ def __request_login_params_gui_wx():
 	if login is None:
 		raise gmExceptions.ConnectionError(_("Can't connect to database without login information!"))
 
+	gmLog2.add_word2hide(login.password)
+
 	return login
+
 #---------------------------------------------------
 def request_login_params():
 	"""Request login parameters for database connection."""

@@ -51,6 +51,9 @@ import io
 import codecs
 import locale
 import datetime as pydt
+import random
+import time
+import calendar
 
 
 _logfile_name = None
@@ -238,9 +241,35 @@ def set_string_encoding(encoding=None):
 	_string_encoding = locale.getpreferredencoding(do_setlocale=False)
 	logger.info(u'setting python.str -> python.unicode encoding to <%s> (locale.getpreferredencoding)', _string_encoding)
 	return True
+
 #===============================================================
 # internal API
 #===============================================================
+__words2hide = []
+
+def add_word2hide(word):
+	if word not in __words2hide:
+		__words2hide.append(word)
+
+#---------------------------------------------------------------
+__original_logger_write_func = None
+
+def __safe_logger_write_func(s):
+	for word in __words2hide:
+		# random is seeded from system time at import,
+		# jump ahead, scrambled by whatever is "now"
+		random.jumpahead(calendar.timegm(time.gmtime()))
+		# from that generate a replacement string valid for
+		# *this* round of replacements of *this* word,
+		# this approach won't mitigate guessing trivial passwords
+		# from replacements of known data (a known-plaintext attack)
+		# but will make automated searching for replaced strings
+		# in the log more difficult
+		bummer = hex(random.randint(0, sys.maxint)).lstrip(u'0x')
+		s = s.replace(word, bummer)
+	__original_logger_write_func(s)
+
+#---------------------------------------------------------------
 def __setup_logging():
 
 	set_string_encoding()
@@ -259,6 +288,10 @@ def __setup_logging():
 
 	_logfile = io.open(_logfile_name, mode = 'wt', encoding = 'utf8', errors = 'replace')
 
+	global __original_logger_write_func
+	__original_logger_write_func = _logfile.write
+	_logfile.write = __safe_logger_write_func
+
 	logging.basicConfig (
 		format = fmt,
 		datefmt = '%Y-%m-%d %H:%M:%S',
@@ -266,12 +299,16 @@ def __setup_logging():
 		stream = _logfile
 	)
 
+	logging.captureWarnings(True)
+
 	logger = logging.getLogger('gm.logging')
 	logger.critical(u'-------- start of logging ------------------------------')
 	logger.info(u'log file is <%s>', _logfile_name)
 	logger.info(u'log level is [%s]', logging.getLevelName(logger.getEffectiveLevel()))
 	logger.info(u'log file encoding is <utf8>')
 	logger.info(u'initial python.str -> python.unicode encoding is <%s>', _string_encoding)
+	logger.debug(u'log file .write() patched from original %s to patched %s', __original_logger_write_func, __safe_logger_write_func)
+
 #---------------------------------------------------------------
 def __get_logfile_name():
 
@@ -309,6 +346,7 @@ def __get_logfile_name():
 	_logfile_name = os.path.join(dir_name, default_logfile_name)
 
 	return True
+
 #===============================================================
 # main
 #---------------------------------------------------------------
@@ -316,10 +354,19 @@ __setup_logging()
 
 if __name__ == '__main__':
 
+	if len(sys.argv) < 2:
+		sys.exit()
+
+	if sys.argv[1] != u'test':
+		sys.exit()
+
 	#-----------------------------------------------------------
 	def test():
 		logger = logging.getLogger('gmLog2.test')
 		logger.error("I expected to see %s::test()" % __file__)
+		add_word2hide(u'super secret passphrase')
+		logger.debug('credentials: super secret passphrase')
+
 		try:
 			int(None)
 		except:
@@ -327,6 +374,4 @@ if __name__ == '__main__':
 			log_stack_trace()
 		flush()
 	#-----------------------------------------------------------
-	if len(sys.argv) > 1 and sys.argv[1] == u'test':
-		test()
-#===============================================================
+	test()
