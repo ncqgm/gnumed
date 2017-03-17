@@ -1857,10 +1857,6 @@ WHERE
 			where_parts.append(u'c_v_pv.pk_episode IN (select pk from clin.episode where fk_health_issue IN %(issues)s)')
 			args['issues'] = tuple(issues)
 
-		## find the PKs
-		#cmd = u'SELECT pk_vaccination, l10n_indication, no_of_shots FROM clin.v_pat_last_vacc4indication WHERE %s' % u'\nAND '.join(where_parts)
-		#rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
-
 		# find the shots
 		cmd = u"""
 			SELECT
@@ -1887,23 +1883,6 @@ WHERE
 				shot_row['no_of_shots'],
 				gmVaccination.cVaccination(row = {'idx': idx, 'data': shot_row, 'pk_field': 'pk_vaccination'})
 			)
-
-		#shot_pks = [ shot_for_ind['pk_vaccination'] for shot_for_ind in rows ]
-		#shot_inds = [ shot_for_ind['l10n_indication'] for shot_for_ind in rows ]
-		#counts_of_shots = [ shot_for_ind['no_of_shots'] for shot_for_ind in rows ]
-
-		## turn them into vaccinations
-		#cmd = gmVaccination.sql_fetch_vaccination % u'pk_vaccination IN %(pks)s'
-		#args = {'pks': tuple(shot_pks)}
-		#rows, row_idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
-
-		#vaccs = {}
-		#for shot_num in range(len(shot_pks)):
-		#	pk = shot_pks[shot_num]
-		#	count_of_shots = counts_of_shots[shot_num]
-		#	for r in rows:
-		#		if r['pk_vaccination'] == pk:
-		#			vaccs[shot_inds[shot_num]] = (count_of_shots, gmVaccination.cVaccination(row = {'idx': row_idx, 'data': r, 'pk_field': 'pk_vaccination'}))
 
 		return vaccs
 

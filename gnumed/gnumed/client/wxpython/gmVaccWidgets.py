@@ -611,7 +611,7 @@ def edit_vaccination(parent=None, vaccination=None, single_entry=True):
 	return False
 
 #----------------------------------------------------------------------
-def manage_vaccinations(parent=None):
+def manage_vaccinations(parent=None, latest_only=False):
 
 	pat = gmPerson.gmCurrentPatient()
 	emr = pat.get_emr()
@@ -665,6 +665,7 @@ def manage_vaccinations(parent=None):
 		)
 
 		return False
+
 	#------------------------------------------------------------
 	def get_tooltip(vaccination):
 		if vaccination is None:
@@ -675,36 +676,70 @@ def manage_vaccinations(parent=None):
 			with_reaction = True,
 			date_format = '%Y %b %d'
 		))
+
 	#------------------------------------------------------------
 	def edit(vaccination=None):
 		return edit_vaccination(parent = parent, vaccination = vaccination, single_entry = (vaccination is not None))
+
 	#------------------------------------------------------------
 	def delete(vaccination=None):
 		gmVaccination.delete_vaccination(vaccination = vaccination['pk_vaccination'])
 		return True
+
 	#------------------------------------------------------------
 	def refresh(lctrl):
 
-		vaccs = emr.get_vaccinations(order_by = 'date_given DESC, pk_vaccination')
-
-		items = [ [
-			gmDateTime.pydt_strftime(v['date_given'], '%Y %b %d'),
-			v['vaccine'],
-			u', '.join(v['l10n_indications']),
-			v['batch_no'],
-			gmTools.coalesce(v['site'], u''),
-			gmTools.coalesce(v['reaction'], u''),
-			gmTools.coalesce(v['comment'], u'')
-		] for v in vaccs ]
+		if latest_only:
+			items = []
+			vaccs = []
+			latest_vaccs = emr.get_latest_vaccinations()
+			for indication in sorted(latest_vaccs.keys()):
+				no_shots4ind, latest_vacc4ind = latest_vaccs[indication]
+			#for indication, no_shots_and_latest_shot in latest_vaccs.items():
+				#no_shots4ind, latest_vacc4ind = no_shots_and_latest_shot
+				items.append ([
+					indication,
+					_(u'%s (latest of %s: %s ago)') % (
+						gmDateTime.pydt_strftime(latest_vacc4ind['date_given'], format = '%Y %b'),
+						no_shots4ind,
+						gmDateTime.format_interval_medically(gmDateTime.pydt_now_here() - latest_vacc4ind['date_given'])
+					),
+					latest_vacc4ind['vaccine'],
+					latest_vacc4ind['batch_no'],
+					gmTools.coalesce(latest_vacc4ind['site'], u''),
+					gmTools.coalesce(latest_vacc4ind['reaction'], u''),
+					gmTools.coalesce(latest_vacc4ind['comment'], u'')
+				])
+				vaccs.append(latest_vacc4ind)
+		else:
+			vaccs = emr.get_vaccinations(order_by = 'date_given DESC, pk_vaccination')
+			items = [ [
+				gmDateTime.pydt_strftime(v['date_given'], '%Y %b %d'),
+				v['vaccine'],
+				u', '.join(v['l10n_indications']),
+				v['batch_no'],
+				gmTools.coalesce(v['site'], u''),
+				gmTools.coalesce(v['reaction'], u''),
+				gmTools.coalesce(v['comment'], u'')
+			] for v in vaccs ]
 
 		lctrl.set_string_items(items)
 		lctrl.set_data(vaccs)
+
 	#------------------------------------------------------------
 	gmListWidgets.get_choices_from_list (
 		parent = parent,
-		msg = _('\nComplete vaccination history for this patient.\n'),
+		msg = gmTools.bool2subst (
+			latest_only,
+			_(u'Most recent vaccination for each indication.\n'),
+			_(u'Complete vaccination history.\n')
+		),
 		caption = _('Showing vaccinations.'),
-		columns = [ _('Date'), _('Vaccine'), _(u'Intended to protect from'), _('Batch'), _('Site'), _('Reaction'), _('Comment') ],
+		columns = gmTools.bool2subst (
+			latest_only,
+			[ _('Indication'), _('Date'), _('Vaccine'), _('Batch'), _('Site'), _('Reaction'), _('Comment') ],
+			[ _('Date'), _('Vaccine'), _(u'Intended to protect from'), _('Batch'), _('Site'), _('Reaction'), _('Comment') ]
+		),
 		single_selection = True,
 		refresh_callback = refresh,
 		new_callback = edit,
@@ -715,6 +750,7 @@ def manage_vaccinations(parent=None):
 		middle_extra_button = (_('Recall'), _('Add a recall for a vaccination'), add_recall),
 		right_extra_button = (_('Vx schedules'), _('Open a browser showing vaccination schedules.'), browse2schedules)
 	)
+
 #----------------------------------------------------------------------
 from Gnumed.wxGladeWidgets import wxgVaccinationEAPnl
 
