@@ -730,8 +730,11 @@ class gmTopLevelFrame(wx.Frame):
 		item = menu_emr_edit.Append(-1, _('&Measurements'), _('Manage measurement results for the current patient.'))
 		self.Bind(wx.EVT_MENU, self.__on_manage_measurements, item)
 
-		item = menu_emr_edit.Append(-1, _('&Vaccinations'), _('Manage vaccinations for the current patient.'))
+		item = menu_emr_edit.Append(-1, _('&Vaccination history'), _('Manage vaccinations for the current patient.'))
 		self.Bind(wx.EVT_MENU, self.__on_add_vaccination, item)
+
+		item = menu_emr_edit.Append(-1, _('&Vaccinations (latest)'), _('List latest vaccinations for the current patient.'))
+		self.Bind(wx.EVT_MENU, self.__on_show_latest_vaccinations, item)
 
 		item = menu_emr_edit.Append(-1, _('&Family history (FHx)'), _('Manage family history.'))
 		self.Bind(wx.EVT_MENU, self.__on_manage_fhx, item)
@@ -2808,6 +2811,7 @@ class gmTopLevelFrame(wx.Frame):
 			return False
 		gmDemographicsWidgets.edit_occupation()
 		evt.Skip()
+
 	#----------------------------------------------
 	@gmAccessPermissionWidgets.verify_minimum_required_role('full clinical access', activity = _('manage vaccinations'))
 	def __on_add_vaccination(self, evt):
@@ -2816,8 +2820,20 @@ class gmTopLevelFrame(wx.Frame):
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot add vaccinations. No active patient.'))
 			return False
 
-		gmVaccWidgets.manage_vaccinations(parent = self)
+		gmVaccWidgets.manage_vaccinations(parent = self, latest_only = False)
 		evt.Skip()
+
+	#----------------------------------------------
+	@gmAccessPermissionWidgets.verify_minimum_required_role('full clinical access', activity = _('manage vaccinations'))
+	def __on_show_latest_vaccinations(self, evt):
+		pat = gmPerson.gmCurrentPatient()
+		if not pat.connected:
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot manage vaccinations. No active patient.'))
+			return False
+
+		gmVaccWidgets.manage_vaccinations(parent = self, latest_only = True)
+		evt.Skip()
+
 	#----------------------------------------------
 	@gmAccessPermissionWidgets.verify_minimum_required_role('full clinical access', activity = _('manage family history'))
 	def __on_manage_fhx(self, evt):
