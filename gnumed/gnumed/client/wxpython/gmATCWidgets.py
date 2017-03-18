@@ -144,7 +144,7 @@ class cATCPhraseWheel(gmPhraseWheel.cPhraseWheel):
 							OR
 						atc_code %(fragment_condition)s
 				)
-				-- it would be nice to be able to include clin.vacc_indication but that's hard to do in SQL
+				-- it would be nice to be able to include ref.vacc_indication but that's hard to do in SQL
 			) AS candidates
 			WHERE data IS NOT NULL
 			ORDER BY data, list_label

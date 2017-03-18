@@ -265,7 +265,7 @@ class cVaccinePhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
 
-		# consider ATCs in ref.drug_product and vacc_indication
+		# consider ATCs in ref.drug_product and ref.vacc_indication
 		query = u"""
 SELECT data, list_label, field_label FROM (
 
@@ -280,7 +280,7 @@ SELECT data, list_label, field_label FROM (
 				vaccine || ' (' || array_to_string(l10n_indications, ', ') || ')' AS list_label,
 				vaccine AS field_label
 			FROM
-				clin.v_vaccines
+				ref.v_vaccines
 			WHERE
 				vaccine %(fragment_condition)s
 
@@ -292,7 +292,7 @@ SELECT data, list_label, field_label FROM (
 				vaccine || ' (' || array_to_string(l10n_indications, ', ') || ')' AS list_label,
 				vaccine AS field_label
 			FROM
-				clin.v_indications4vaccine
+				ref.v_indications4vaccine
 			WHERE
 				l10n_indication %(fragment_condition)s
 
@@ -304,7 +304,7 @@ SELECT data, list_label, field_label FROM (
 				vaccine || ' (' || array_to_string(indications, ', ') || ')' AS list_label,
 				vaccine AS field_label
 			FROM
-				clin.v_indications4vaccine
+				ref.v_indications4vaccine
 			WHERE
 				indication %(fragment_condition)s
 		)

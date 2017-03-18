@@ -24,7 +24,7 @@ _log = logging.getLogger('gm.vaccination')
 
 #============================================================
 def get_indications(order_by=None, pk_indications=None):
-	cmd = u'SELECT *, _(description) AS l10n_description FROM clin.vacc_indication'
+	cmd = u'SELECT *, _(description) AS l10n_description FROM ref.vacc_indication'
 	args = {}
 
 	if pk_indications is not None:
@@ -40,7 +40,7 @@ def get_indications(order_by=None, pk_indications=None):
 	return rows
 
 #============================================================
-_sql_fetch_vaccine = u"""SELECT *, xmin_vaccine FROM clin.v_vaccines WHERE %s"""
+_sql_fetch_vaccine = u"""SELECT * FROM ref.v_vaccines WHERE %s"""
 
 class cVaccine(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one vaccine."""
@@ -48,7 +48,7 @@ class cVaccine(gmBusinessDBObject.cBusinessDBObject):
 	_cmd_fetch_payload = _sql_fetch_vaccine % u"pk_vaccine = %s"
 
 	_cmds_store_payload = [
-		u"""UPDATE clin.vaccine SET
+		u"""UPDATE ref.vaccine SET
 				--id_route = %(pk_route)s,
 				--is_live = %(is_live)s,
 				min_age = %(min_age)s,
@@ -78,7 +78,7 @@ class cVaccine(gmBusinessDBObject.cBusinessDBObject):
 
 	def set_indications(self, indications=None, pk_indications=None):
 		queries = [{
-			'cmd': u'DELETE FROM clin.lnk_vaccine2inds WHERE fk_vaccine = %(pk_vacc)s',
+			'cmd': u'DELETE FROM ref.lnk_vaccine2inds WHERE fk_vaccine = %(pk_vacc)s',
 			'args': {'pk_vacc': self._payload[self._idx['pk_vaccine']]}
 		}]
 
@@ -89,12 +89,12 @@ class cVaccine(gmBusinessDBObject.cBusinessDBObject):
 			for ind in indications:
 				queries.append ({
 					'cmd': u"""
-						INSERT INTO clin.lnk_vaccine2inds (
+						INSERT INTO ref.lnk_vaccine2inds (
 							fk_vaccine,
 							fk_indication
 						) VALUES (
 							%(pk_vacc)s,
-							(SELECT id FROM clin.vacc_indication WHERE description = %(ind)s)
+							(SELECT id FROM ref.vacc_indication WHERE description = %(ind)s)
 						)""",
 					'args': {'pk_vacc': self._payload[self._idx['pk_vaccine']], 'ind': ind}
 				})
@@ -105,7 +105,7 @@ class cVaccine(gmBusinessDBObject.cBusinessDBObject):
 			for pk_ind in pk_indications:
 				queries.append ({
 					'cmd': u"""
-						INSERT INTO clin.lnk_vaccine2inds (
+						INSERT INTO ref.lnk_vaccine2inds (
 							fk_vaccine,
 							fk_indication
 						) VALUES (
@@ -152,20 +152,20 @@ def create_vaccine(pk_drug_product=None, product_name=None, indications=None, pk
 		prod.save()
 		pk_drug_product = prod['pk_drug_product']
 
-	cmd = u'INSERT INTO clin.vaccine (fk_drug_product) values (%(pk_drug_product)s) RETURNING pk'
+	cmd = u'INSERT INTO ref.vaccine (fk_drug_product) values (%(pk_drug_product)s) RETURNING pk'
 	queries = [{'cmd': cmd, 'args': {'pk_drug_product': pk_drug_product}}]
 
 
 	if pk_indications is None:
 		for indication in indications:
 			cmd = u"""
-				INSERT INTO clin.lnk_vaccine2inds (
+				INSERT INTO ref.lnk_vaccine2inds (
 					fk_vaccine,
 					fk_indication
 				) VALUES (
-					currval(pg_get_serial_sequence('clin.vaccine', 'pk')),
+					currval(pg_get_serial_sequence('ref.vaccine', 'pk')),
 					(SELECT id
-					 FROM clin.vacc_indication
+					 FROM ref.vacc_indication
 					 WHERE
 						lower(description) = lower(%(ind)s)
 					 LIMIT 1
@@ -177,11 +177,11 @@ def create_vaccine(pk_drug_product=None, product_name=None, indications=None, pk
 	else:
 		for pk_indication in pk_indications:
 			cmd = u"""
-				INSERT INTO clin.lnk_vaccine2inds (
+				INSERT INTO ref.lnk_vaccine2inds (
 					fk_vaccine,
 					fk_indication
 				) VALUES (
-					currval(pg_get_serial_sequence('clin.vaccine', 'pk')),
+					currval(pg_get_serial_sequence('ref.vaccine', 'pk')),
 					%(pk_ind)s
 				)
 				RETURNING fk_vaccine
@@ -195,7 +195,7 @@ def create_vaccine(pk_drug_product=None, product_name=None, indications=None, pk
 #------------------------------------------------------------
 def delete_vaccine(vaccine=None):
 
-	cmd = u'DELETE FROM clin.vaccine WHERE pk = %(pk)s'
+	cmd = u'DELETE FROM ref.vaccine WHERE pk = %(pk)s'
 	args = {'pk': vaccine}
 
 	try:
@@ -518,7 +518,7 @@ class cVaccinationCourse(gmBusinessDBObject.cBusinessDBObject):
 		"""update clin.vaccination_course set
 				name=%(course)s,
 				fk_recommended_by=%(pk_recommended_by)s,
-				fk_indication=(select id from clin.vacc_indication where description=%(indication)s),
+				fk_indication=(select id from ref.vacc_indication where description=%(indication)s),
 				comment=%(comment)s
 			where id=%(pk_course)s""",
 		"""select xmin_vaccination_course from clin.v_vaccination_courses where pk_course=%(pk_course)s"""
@@ -559,7 +559,7 @@ where pk_encounter=%s"""
 				 values (%s, %s, %s, %s, %s)"""
 	else:
 		cmd = """insert into clin.vaccination (fk_encounter, fk_episode, fk_patient, fk_provider, fk_vaccine)
-				 values (%s, %s, %s, %s, (select pk from clin.vaccine where trade_name=%s))"""
+				 values (%s, %s, %s, %s, (select pk from ref.vaccine where trade_name=%s))"""
 		vaccine = str(vaccine)
 	queries.append((cmd, [encounter_id, episode_id, patient_id, staff_id, vaccine]))
 	# get PK of inserted row
@@ -762,7 +762,7 @@ def get_matching_vaccines_for_indications( all_ind):
 #	cmd_inds_per_vaccine = """
 #		select count(v.trade_name) , v.trade_name 
 #		from 
-#			clin.vaccine v, clin.lnk_vaccine2inds l, clin.vacc_indication i
+#			ref.vaccine v, ref.lnk_vaccine2inds l, ref.vacc_indication i
 #		where 
 #			v.pk = l.fk_vaccine and l.fk_indication = i.id 
 #		group 
@@ -780,7 +780,7 @@ group by trade_name"""
 			select count(v.trade_name) , v.trade_name 
 
 		from 
-			clin.vaccine v, clin.lnk_vaccine2inds l, clin.vacc_indication i
+			ref.vaccine v, ref.lnk_vaccine2inds l, ref.vacc_indication i
 		where 
 			v.pk = l.fk_vaccine and l.fk_indication = i.id 	
 		and  

@@ -147,7 +147,7 @@ else:
 		# get vaccines suitable for this schedule
 		cmd = """
 select trade_name, short_name
-from clin.vaccine
+from ref.vaccine
 where
 	select () = ()
 """
