@@ -27,6 +27,7 @@ IMPROVED: fairly-recent encounter continuation logic
 IMPROGED: handling of empty-encounter cleanup
 IMPROVED: non-blocking update check
 IMPROVED: non-blocking file description retrieval
+IMPROVED: patient merging
 
 ------------------------------------------------
 # rel-1-6-patches
@@ -1876,6 +1877,7 @@ IMPROVED: safer backup scripts
 IMPROVED: don't fail clin.remove_old_empty_encounters() but return FALSE on <2 encounters
 IMPROVED: substance abuse entries can have arbitrary .discontinued
 IMPROVED: move vaccine tables from clin. to ref.
+IMPROVED: turn unique identity assertion into deferred constraint trigger
 
 FIX: constrain clin.clin_root_item.soap_cat CHECK to lower case
 

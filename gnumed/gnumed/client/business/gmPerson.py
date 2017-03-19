@@ -965,23 +965,14 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 		})
 
 		# transfer names
-		# 0) force pat2del to be a unique identity from pat2keep
-		#    should identical names happen to occur
-		queries.append ({
-			'cmd': u"""
-				UPDATE dem.identity SET
-					comment = coalesce(comment || ' ', '') || '(%s)'
-				WHERE
-					pk = %%(pat2del)s
-			""" % distinguisher,
-			'args': args
-		})
-
 		# 1) disambiguate names in old patient
 		queries.append ({
 			'cmd': u"""
 				UPDATE dem.names d_n1 SET
-					lastnames = lastnames || ' (%s)'
+					lastnames = lastnames || coalesce (
+						' (from "' || (SELECT comment FROM dem.identity WHERE pk = %%(pat2del)s) || '")',
+						' (%s)'
+					)
 				WHERE
 					d_n1.id_identity = %%(pat2del)s
 						AND
@@ -1000,29 +991,34 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 		queries.append ({
 			'cmd': u"""
 				UPDATE dem.names SET
-					id_identity = %(pat2keep)s
-				WHERE id_identity = %(pat2del)s AND active IS false""",
+					id_identity = %%(pat2keep)s,
+					comment = coalesce(comment || ' (%s)', '%s')
+				WHERE
+					id_identity = %%(pat2del)s
+						AND
+					active IS false
+				""" % (distinguisher, distinguisher),
 			'args': args
 		})
-		# 3) copy active name (because each identity MUST have at least one
+		# 3) copy active name (because each identity MUST have at most one
 		#    *active* name so we can't just UPDATE over to pat2keep),
-		#    also, needs de-duplication or else it would conflict with *itself*
-		#    on pat2keep, said de-duplication happened in step 0 above
-		#    whereby pat2del is made unique by means of adding a pseudo-random
-		#    dem.identity.comment
+#		#    also, needs de-duplication or else it would conflict with *itself*
+#		#    on pat2keep, said de-duplication happened in step 0 above
+#		#    whereby pat2del is made unique by means of adding a pseudo-random
+#		#    dem.identity.comment
 		queries.append ({
 			'cmd': u"""
 				INSERT INTO dem.names (
 					id_identity, active, lastnames, firstnames, preferred, comment
 				)
 					SELECT
-						%%(pat2keep)s, false, lastnames, firstnames, preferred, comment || ' (%s)'
+						%%(pat2keep)s, false, lastnames, firstnames, preferred, coalesce(comment || ' (%s)', '%s')
 					FROM dem.names d_n
 					WHERE
 						d_n.id_identity = %%(pat2del)s
 							AND
 						d_n.active IS true
-				""" % distinguisher,
+				""" % (distinguisher, distinguisher),
 			'args': args
 		})
 
