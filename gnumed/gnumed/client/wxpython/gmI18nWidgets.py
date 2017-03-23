@@ -223,13 +223,12 @@ def manage_translations(parent=None, language=None):
 			'\tThe GNUmed "%s" Client'
 		) % gmI18N.system_locale
 
-		if not gmNetworkTools.send_mail (
+		if not gmNetworkTools.compose_and_send_email (
 			auth = {'user': gmNetworkTools.default_mail_sender, 'password': u'gnumed-at-gmx-net'},
 			sender = u'GNUmed Client <gnumed@gmx.net>',
 			receiver = [u'gnumed-bugs@gnu.org'],
 			subject = u'<contribution>: database translation',
 			message = msg,
-			encoding = gmI18N.get_encoding(),
 			attachments = [[fname, u'text/plain', u'quoted-printable']]
 		):
 			gmDispatcher.send(signal = 'statustext', msg = _('Unable to send mail. Cannot contribute translations to GNUmed community.') % report, beep = True)

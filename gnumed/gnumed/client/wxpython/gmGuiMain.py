@@ -3303,8 +3303,12 @@ class gmTopLevelFrame(wx.Frame):
 		_log.debug("%s active threads", threading.activeCount())
 		for t in threading.enumerate():
 			_log.debug('thread %s', t)
+			if t.name == u'MainThread':
+				continue
+			print('GNUmed: waiting for thread [%s] to finish' % t.name)
 
 		_log.debug('gmTopLevelFrame._clean_exit() end')
+
 	#----------------------------------------------
 	# internal API
 	#----------------------------------------------

@@ -31,7 +31,7 @@ import gmWorkerThread
 _log = logging.getLogger('gm.docs')
 
 #=======================================================================================
-def guess_mimetype(filename = None):
+def guess_mimetype(filename=None):
 	"""Guess mime type of arbitrary file.
 
 	filenames are supposed to be in Unicode

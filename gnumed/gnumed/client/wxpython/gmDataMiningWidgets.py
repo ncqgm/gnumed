@@ -301,7 +301,6 @@ class cDataMiningPnl(wxgDataMiningPnl.wxgDataMiningPnl):
 		if not do_it:
 			return
 
-		auth = {'user': gmNetworkTools.default_mail_sender, 'password': u'gnumed-at-gmx-net'}
 		msg = u"""--- This is a report definition contributed by a GNUmed user.
 
 --- Save it as a text file and drop it onto the Report Generator
@@ -318,12 +317,12 @@ class cDataMiningPnl(wxgDataMiningPnl.wxgDataMiningPnl):
 --- The GNUmed client.
 """ % (report, query)
 
-		if not gmNetworkTools.send_mail (
+		auth = {'user': gmNetworkTools.default_mail_sender, 'password': u'gnumed-at-gmx-net'}
+		if not gmNetworkTools.compose_and_send_email (
 			sender = u'GNUmed Report Generator <gnumed@gmx.net>',
 			receiver = [u'gnumed-devel@gnu.org'],
 			subject = u'user contributed report',
 			message = msg,
-			encoding = gmI18N.get_encoding(),
 			server = gmNetworkTools.default_mail_server,
 			auth = auth
 		):

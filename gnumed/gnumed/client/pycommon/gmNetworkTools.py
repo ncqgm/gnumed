@@ -14,10 +14,6 @@ import os.path
 import logging
 import urllib2 as wget
 import urllib
-import MimeWriter
-import mimetypes
-import mimetools
-import StringIO
 import zipfile
 import webbrowser
 import io
@@ -30,6 +26,7 @@ from Gnumed.pycommon import gmLog2
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmShellAPI
 from Gnumed.pycommon import gmCfg2
+from Gnumed.pycommon import gmMimeLib
 
 
 _log = logging.getLogger('gm.net')
@@ -321,6 +318,7 @@ def check_for_update(url=None, current_branch=None, current_version=None, consid
 	msg += _('Version information loaded from:\n\n %s') % url
 
 	return (True, msg)
+
 #===========================================================================
 # mail handling
 #---------------------------------------------------------------------------
@@ -328,15 +326,88 @@ default_mail_sender = u'gnumed@gmx.net'
 default_mail_receiver = u'gnumed-devel@gnu.org'
 default_mail_server = u'mail.gmx.net'
 
-def send_mail(sender=None, receiver=None, message=None, server=None, auth=None, debug=False, subject=None, encoding='quoted-printable', attachments=None):
-	# FIXME: How to generate and send mails: a step by step tutorial
-	# FIXME: http://groups.google.com/group/comp.lang.python/browse_thread/thread/e0793c1007361398/
-	# FIXME: google for aspineux blog
+
+#---------------------------------------------------------------------------
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+from email.mime.image import MIMEImage
+from email.mime.audio import MIMEAudio
+from email.mime.application import MIMEApplication
+
+def compose_email(sender=None, receiver=None, message=None, subject=None, files2attach=None):
+	# filenames unicode
+	# file content binary or utf8
+	# files2attach = [(filename, mimetype-or-None), ...]
 
 	if message is None:
-		return False
+		raise ValueError('<message> is None, cannot compose email')
 
-	message = message.lstrip().lstrip('\r\n').lstrip()
+	message = message.lstrip().lstrip(u'\r\n').lstrip()
+
+	if sender is None:
+		sender = default_mail_sender
+
+	if receiver is None:
+		receiver = [default_mail_receiver]
+
+	if subject is None:
+		subject = u'compose_email() test'
+
+	if files2attach is None:
+		email = MIMEText(message, 'plain', 'utf8')
+	else:
+		email = MIMEMultipart()
+		email.attach(MIMEText(message, u'plain', u'utf8'))
+
+	email['From'] = sender
+	email['To'] = u', '.join(receiver)
+	email['Subject'] = subject
+
+	if files2attach is None:
+		return email
+
+	for file2attach in files2attach:
+		filename = file2attach[0]
+		try:
+			mimetype = file2attach[1]
+		except IndexError:
+			mimetype = gmMimeLib.guess_mimetype(filename = filename)
+		# text/*
+		if mimetype.startswith('text/'):
+			txt = io.open(filename, mode = 'rt', encoding = 'utf8')
+			attachment = MIMEText(txt.read(), u'plain', u'utf8')
+			txt.close()
+		# image/*
+		elif mimetype.startswith('image/'):
+			img = io.open(filename, mode = 'rb')
+			attachment = MIMEImage(img.read())
+			img.close()
+		# audio/*
+		elif mimetype.startswith('audio/'):
+			song = io.open(filename, mode = 'rb')
+			attachment = MIMEAudio(song.read())
+			song.close()
+		# catch-all application/*
+		else:
+			_log.debug(u'attaching [%s] with type [%s]', filename, mimetype)
+			mime_subtype = mimetype.split(u'/', 1)[1]
+			data = io.open(filename, mode = 'rb')
+			attachment = MIMEApplication(data.read(), mime_subtype)
+			data.close()
+
+		try:
+			attachment.replace_header(u'Content-Disposition', 'attachment; filename="%s"' % gmTools.fname_from_path(filename))
+		except KeyError:
+			attachment.add_header(u'Content-Disposition', 'attachment; filename="%s"' % gmTools.fname_from_path(filename))
+		email.attach(attachment)
+
+	return email
+
+#---------------------------------------------------------------------------
+def send_email(sender=None, receiver=None, email=None, server=None, auth=None, debug=False):
+
+	if email is None:
+		raise ValueError('<email> is None, cannot send')
 
 	if sender is None:
 		sender = default_mail_sender
@@ -347,66 +418,26 @@ def send_mail(sender=None, receiver=None, message=None, server=None, auth=None, 
 	if server is None:
 		server = default_mail_server
 
-	if subject is None:
-		subject = u'gmTools.py: send_mail() test'
-
-	msg = StringIO.StringIO()
-	writer = MimeWriter.MimeWriter(msg)
-	writer.addheader('To', u', '.join(receiver))
-	writer.addheader('From', sender)
-	writer.addheader('Subject', subject[:50].replace('\r', '/').replace('\n', '/'))
-	writer.addheader('MIME-Version', '1.0')
-
-	writer.startmultipartbody('mixed')
-
-	# start with a text/plain part
-	part = writer.nextpart()
-	body = part.startbody('text/plain')
-	part.flushheaders()
-	body.write(message.encode(encoding))
-
-	# now add the attachments
-	if attachments is not None:
-		for attmt in attachments:
-			filename = os.path.basename(attmt[0])
-			try:
-				mtype = attmt[1]
-				encoding = attmt[2]
-			except IndexError:
-				mtype, encoding = mimetypes.guess_type(attmt[0])
-				if mtype is None:
-					mtype = 'application/octet-stream'
-					encoding = 'base64'
-				elif mtype == 'text/plain':
-					encoding = 'quoted-printable'
-				else:
-					encoding = 'base64'
-
-			part = writer.nextpart()
-			part.addheader('Content-Transfer-Encoding', encoding)
-			body = part.startbody("%s; name=%s" % (mtype, filename))
-			mimetools.encode(open(attmt[0], 'rb'), body, encoding)
-
-	writer.lastpart()
-
 	import smtplib
 	failed = False
 	refused = []
 	try:
 		session = smtplib.SMTP(server)
 		session.set_debuglevel(debug)
-		session.starttls()
+		try:
+			session.starttls()
+		except smtplib.SMTPException:
+			_log.error('cannot enable TLS on [%s]', server)
 		session.ehlo()
 		if auth is not None:
 			session.login(auth['user'], auth['password'])
-		refused = session.sendmail(sender, receiver, msg.getvalue())
+		refused = session.sendmail(sender, receiver, email.as_string())
 		session.quit()
 	except smtplib.SMTPException:
 		failed = True
-		_log.exception('cannot send mail')
+		_log.exception('cannot send email')
 		gmLog2.log_stack_trace()
 
-	msg.close()
 	if len(refused) > 0:
 		_log.error("refused recipients: %s" % refused)
 
@@ -414,6 +445,25 @@ def send_mail(sender=None, receiver=None, message=None, server=None, auth=None, 
 		return False
 
 	return True
+
+#---------------------------------------------------------------------------
+def compose_and_send_email(sender=None, receiver=None, message=None, server=None, auth=None, debug=False, subject=None, attachments=None):
+	email = compose_email (
+		sender = sender,
+		receiver = receiver,
+		message = message,
+		subject = subject,
+		files2attach = attachments
+	)
+	return send_email (
+		sender = sender,
+		receiver = receiver,
+		email = email,
+		server = server,
+		auth = auth,
+		debug = debug
+	)
+
 #===========================================================================
 # main
 #---------------------------------------------------------------------------
@@ -426,22 +476,28 @@ if __name__ == '__main__':
 		sys.exit()
 
 	#-----------------------------------------------------------------------
-	def test_send_mail():
-		msg = u"""
-To: %s
-From: %s
-Subject: gmTools test suite mail
+	def test_compose_email():
+		email = compose_email (
+			message = u'compose_email() test: üü ßß',
+			files2attach = [[sys.argv[2]]]
+		)
+		print(email.as_string())
+		return email
 
-This is a test mail from the gmTools.py module.
-""" % (default_mail_receiver, default_mail_sender)
-		print("mail sending succeeded:", send_mail (
-#			sender = 'abc@xyz.123',
-			receiver = [default_mail_receiver, u'karsten.hilbert@gmx.net'],
-			message = msg,
-			auth = {'user': default_mail_sender, 'password': u'gnumed-at-gmx-net'}, # u'gm/bugs/gmx'
-			debug = True,
-			attachments = [[sys.argv[2]]]
+	#-----------------------------------------------------------------------
+	def test_send_email():
+		email = compose_email (
+			message = u'compose_email() test: üü ßß',
+			files2attach = [[sys.argv[2]]]
+		)
+		print(send_email (
+#			receiver = u'ncq@localhost',
+			email = email,
+#			server = 'localhost',
+			auth = {'user': default_mail_sender, 'password': u'gnumed-at-gmx-net'},
+			debug = True
 		))
+
 	#-----------------------------------------------------------------------
 	def test_check_for_update():
 
@@ -468,14 +524,17 @@ This is a test mail from the gmTools.py module.
 		print(url, "->", dl_name)
 		unzip_dir = unzip_data_pack(dl_name)
 		print("unzipped into", unzip_dir)
+
 	#-----------------------------------------------------------------------
 	def test_browser():
 		success = open_url_in_browser(sys.argv[2])
 		print(success)
 		open_url_in_browser(sys.argv[2], abc=222)
+
 	#-----------------------------------------------------------------------
 	#test_check_for_update()
-	test_send_mail()
+	#test_compose_email()
+	test_send_email()
 	#test_dl_data_pack()
 	#test_browser()
 

@@ -23,6 +23,7 @@ _log2 = logging.getLogger('gm.gui')
 
 _prev_excepthook = None
 application_is_closing = False
+
 #=========================================================================
 def set_client_version(version):
 	global _client_version
@@ -283,6 +284,7 @@ def _on_application_closing():
 	# used to ignore a few exceptions, such as when the
 	# C++ object has been destroyed before the Python one
 	application_is_closing = True
+
 # ========================================================================
 def mail_log(parent=None, comment=None, helpdesk=None, sender=None):
 
@@ -412,15 +414,16 @@ sender email  : %s
 		dlg.Destroy()
 
 		wx.BeginBusyCursor()
+		_cfg = gmCfg2.gmCfgData()
 		try:
-			gmNetworkTools.send_mail (
+			gmNetworkTools.compose_and_send_email (
 				sender = '%s <%s>' % (_staff_name, gmNetworkTools.default_mail_sender),
 				receiver = receivers,
 				subject = u'<bug>: %s' % comment,
 				message = msg,
-				encoding = gmI18N.get_encoding(),
 				server = gmNetworkTools.default_mail_server,
 				auth = {'user': gmNetworkTools.default_mail_sender, 'password': u'gnumed-at-gmx-net'},
+				debug = _cfg.get(option = 'debug'),
 				attachments = attachments
 			)
 			gmDispatcher.send(signal='statustext', msg = _('Bug report has been emailed.'))

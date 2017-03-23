@@ -28,6 +28,7 @@ IMPROGED: handling of empty-encounter cleanup
 IMPROVED: non-blocking update check
 IMPROVED: non-blocking file description retrieval
 IMPROVED: patient merging
+IMPROVED: email sending framework
 
 ------------------------------------------------
 # rel-1-6-patches
