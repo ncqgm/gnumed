@@ -102,7 +102,7 @@ def connect(receiver=None, signal=Any, sender=Any, weak=1):
 		raise ValueError('gmDispatcher.connect(): must define <receiver>')
 
 	if signal not in known_signals:
-		_log.error('unknown signal [%(sig)s]', {'sig': signal})
+		_log.warning('unknown signal [%(sig)s]', {'sig': signal})
 
 	if signal is not Any:
 		signal = str(signal)
@@ -141,7 +141,7 @@ def disconnect(receiver, signal=Any, sender=Any, weak=1):
 	Disconnecting is not required. The use of disconnect is the same as for
 	connect, only in reverse. Think of it as undoing a previous connection."""
 	if signal not in known_signals:
-		_log.error('unknown signal [%(sig)s]', {'sig': signal})
+		_log.warning('unknown signal [%(sig)s]', {'sig': signal})
 
 	if signal is not Any:
 		signal = str(signal)
@@ -150,13 +150,13 @@ def disconnect(receiver, signal=Any, sender=Any, weak=1):
 	try:
 		receivers = connections[senderkey][signal]
 	except KeyError:
-		_log.error('no receivers for signal %(sig)s from sender %(sender)s', {'sig': repr(signal), 'sender': sender})
+		_log.warning('no receivers for signal %(sig)s from sender %(sender)s', {'sig': repr(signal), 'sender': sender})
 		print('DISPATCHER ERROR: no receivers for signal %s from sender %s' % (repr(signal), sender))
 		return
 	try:
 		receivers.remove(receiver)
 	except ValueError:
-		_log.error('receiver [%(rx)s] not connected to signal [%(sig)s] from [%(sender)s]', {'rx': receiver, 'sig': repr(signal), 'sender': sender})
+		_log.warning('receiver [%(rx)s] not connected to signal [%(sig)s] from [%(sender)s]', {'rx': receiver, 'sig': repr(signal), 'sender': sender})
 		print("DISPATCHER ERROR: receiver [%s] not connected to signal [%s] from [%s]" % (receiver, repr(signal), sender))
 	_cleanupConnections(senderkey, signal)
 #---------------------------------------------------------------------

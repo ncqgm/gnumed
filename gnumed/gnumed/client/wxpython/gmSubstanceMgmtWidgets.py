@@ -992,19 +992,20 @@ class cBrandedDrugEAPnl(wxgBrandedDrugEAPnl.wxgBrandedDrugEAPnl, gmEditArea.cGen
 			# dupe ?
 			drug = gmMedication.get_drug_by_brand(brand_name = brand_name, preparation = preparation)
 			if drug is not None:
-				validity = False
-				self._PRW_brand.display_as_valid(False)
-				self._PRW_preparation.display_as_valid(False)
-				gmGuiHelpers.gm_show_error (
-					title = _('Checking brand data'),
-					error = _(
-						'The brand information you entered:\n'
-						'\n'
-						' [%s %s]\n'
-						'\n'
-						'already exists as a drug product.'
-					) % (brand_name, preparation)
-				)
+				if self.mode != 'edit':
+					validity = False
+					self._PRW_brand.display_as_valid(False)
+					self._PRW_preparation.display_as_valid(False)
+					gmGuiHelpers.gm_show_error (
+						title = _('Checking brand data'),
+						error = _(
+							'The brand information you entered:\n'
+							'\n'
+							' [%s %s]\n'
+							'\n'
+							'already exists as a drug product.'
+						) % (brand_name, preparation)
+					)
 
 			else:
 				# lacking components ?
