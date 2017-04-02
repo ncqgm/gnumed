@@ -1143,20 +1143,20 @@ class cDrugProductEAPnl(wxgDrugProductEAPnl.wxgDrugProductEAPnl, gmEditArea.cGen
 			# dupe ?
 			drug = gmMedication.get_drug_by_name(product_name = product_name, preparation = preparation)
 			if drug is not None:
-				validity = False
-				self._PRW_product_name.display_as_valid(False)
-				self._PRW_preparation.display_as_valid(False)
-				gmGuiHelpers.gm_show_error (
-					title = _('Checking product data'),
-					error = _(
-						'The information you entered:\n'
-						'\n'
-						' [%s %s]\n'
-						'\n'
-						'already exists as a drug product.'
-					) % (product_name, preparation)
-				)
-
+				if self.mode != 'edit':
+					validity = False
+					self._PRW_product_name.display_as_valid(False)
+					self._PRW_preparation.display_as_valid(False)
+					gmGuiHelpers.gm_show_error (
+						title = _('Checking product data'),
+						error = _(
+							'The information you entered:\n'
+							'\n'
+							' [%s %s]\n'
+							'\n'
+							'already exists as a drug product.'
+						) % (product_name, preparation)
+					)
 			else:
 				# lacking components ?
 				self._TCTRL_components.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_BACKGROUND))

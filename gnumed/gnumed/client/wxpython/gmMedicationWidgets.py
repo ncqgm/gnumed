@@ -491,8 +491,8 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 
 		self._PRW_drug.display_as_valid(True)
 
-		# we aren't editing
-		if self.mode != 'new':
+		# if we are editing the drug SHOULD exist so don't error
+		if self.mode == 'edit':
 			return True
 
 		selected_drug = self._PRW_drug.GetData(as_instance = True)
