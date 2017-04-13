@@ -42,6 +42,7 @@ FIX: robustify backend listener against change notification trigger errors
 
 IMPROVED: more fully prevent logfile based password leaks
 IMPROVED: add listing of latest vaccination per indication
+IMPROVED: export area change listening and sortability
 
 	1.6.12
 

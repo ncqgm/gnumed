@@ -433,13 +433,30 @@ class cExportArea(object):
 	#--------------------------------------------------------
 	def add_documents(self, documents=None):
 		for doc in documents:
+			doc_tag = _(u'%s (%s)%s') % (
+				doc['l10n_type'],
+				gmDateTime.pydt_strftime(doc['clin_when'], '%Y %b %d'),
+				gmTools.coalesce(doc['comment'], u'', u' "%s"')
+			)
 			for obj in doc.parts:
 				if self.document_part_item_exists(pk_part = obj['pk_obj']):
 					continue
+				f_ext = u''
+				if obj['filename'] is not None:
+					f_ext = os.path.splitext(ob['filename'])[1].strip('.').strip()
+				if f_ext != u'':
+					f_ext = u' .' + f_ext.upper()
+				obj_tag = _(u'part %s (%s%s)%s') % (
+					obj['seq_idx'],
+					gmTools.size2str(obj['size']),
+					f_ext,
+					gmTools.coalesce(obj['obj_comment'], u'', u' "%s"')
+				)
 				create_export_item (
-					description = _('doc: %s') % obj.format_single_line(),
+					description = u'%s - %s' % (doc_tag, obj_tag),
 					pk_doc_obj = obj['pk_obj']
 				)
+
 	#--------------------------------------------------------
 	def document_part_item_exists(self, pk_part=None):
 		cmd = u"SELECT EXISTS (SELECT 1 FROM clin.export_item WHERE fk_doc_obj = %(pk_obj)s)"
