@@ -883,10 +883,13 @@ def delete_translation_from_database(link_obj=None, language=None, original=None
 	return True
 
 #------------------------------------------------------------------------
-def update_translation_in_database(language=None, original=None, translation=None):
-	cmd = u'SELECT i18n.upd_tx(%(lang)s, %(orig)s, %(trans)s)'
+def update_translation_in_database(language=None, original=None, translation=None, link_obj=None):
+	if language is None:
+		cmd = u'SELECT i18n.upd_tx(%(orig)s, %(trans)s)'
+	else:
+		cmd = u'SELECT i18n.upd_tx(%(lang)s, %(orig)s, %(trans)s)'
 	args = {'lang': language, 'orig': original, 'trans': translation}
-	run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = False)
+	run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = False, link_obj = link_obj)
 	return args
 
 #------------------------------------------------------------------------
@@ -1663,6 +1666,9 @@ def run_ro_queries(link_obj=None, queries=None, verbose=False, return_data=True,
 			col_idx = get_col_indices(curs)
 
 	curs_close()
+	# so we can see data committed meanwhile if the
+	# link object had been passed in and thusly might
+	# be part of a long-running read-only transaction
 	readonly_rollback_just_in_case()
 	return (data, col_idx)
 
