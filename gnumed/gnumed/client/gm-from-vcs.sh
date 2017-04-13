@@ -49,13 +49,14 @@ echo "-------------------------------------------------"
 echo "Running from Git branch: "`git branch | grep \*`
 echo "-------------------------------------------------"
 echo "config file: ${CONF}"
-echo "options: ${DEV_OPTS}"
 ##python -Q warn -3 gnumed.py ${CONF} ${DEV_OPTS} $@
 ##python -Q warn -3 gnumed.py ${CONF} ${DEV_OPTS} $@ 2> >(grep -v wx > gm-vcs-py2to3_warnings.log) # 1>&2)
+#echo "options: ${DEV_OPTS}"
 #python -Q warn -3 gnumed.py ${CONF} ${DEV_OPTS} $@ |& tee gm-vcs-py2to3_warnings.log
 
 
 # - *released* tarball version:
+echo "options: ${TARBALL_OPTS}"
 python gnumed.py ${CONF} ${TARBALL_OPTS} $@
 
 # - production version (does not use tarball files !):
