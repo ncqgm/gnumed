@@ -63,14 +63,11 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 	def _on_table_mod(self, *args, **kwargs):
 		if kwargs['table'] != 'clin.export_item':
 			return
-		# work around problem in v21 change notification trigger on clin.export_item
-		# properly fixed in v22
-		if kwargs['pk_identity'] != -1:
-			pat = gmPerson.gmCurrentPatient()
-			if not pat.connected:
-				return
-			if kwargs['pk_identity'] != pat.ID:
-				return
+		pat = gmPerson.gmCurrentPatient()
+		if not pat.connected:
+			return
+		if kwargs['pk_identity'] != pat.ID:
+			return
 		self._schedule_data_reget()
 
 	#--------------------------------------------------------

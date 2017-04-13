@@ -47,10 +47,7 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 	_cmd_fetch_payload = _SQL_get_export_items % u"pk_export_item = %s"
 	_cmds_store_payload = [
 		u"""UPDATE clin.export_item SET
-				fk_identity = CASE
-					WHEN %(pk_doc_obj)s IS NULL THEN %(pk_identity)s
-					ELSE NULL
-				END,
+				fk_identity = %(pk_identity)s,
 				created_by = gm.nullify_empty_string(%(created_by)s),
 				created_when = %(created_when)s,
 				designation = gm.nullify_empty_string(%(designation)s),
@@ -80,6 +77,27 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 		u'filename'
 	]
 	#--------------------------------------------------------
+	def __init__(self, aPK_obj=None, row=None, link_obj=None):
+		super(cExportItem, self).__init__(aPK_obj = aPK_obj, row = row, link_obj = link_obj)
+		# force auto-healing if need be
+		if self._payload[self._idx['pk_identity_raw_needs_update']]:
+			_log.warning (
+				u'auto-healing export item [%s] from identity [%s] to [%s] because of document part [%s] seems necessary',
+				self._payload[self._idx['pk_export_item']],
+				self._payload[self._idx['pk_identity_raw']],
+				self._payload[self._idx['pk_identity']],
+				self._payload[self._idx['pk_doc_obj']]
+			)
+			if self._payload[self._idx['pk_doc_obj']] is None:
+				_log.error(u'however, .fk_doc_obj is NULL, which should not happen, leaving things alone for manual inspection')
+				return
+			# only flag ourselves as modified, do not actually
+			# modify any values, better safe than sorry
+			self._is_modified = True
+			self.save()
+			self.refetch_payload(ignore_changes = False, link_obj = link_obj)
+
+	#--------------------------------------------------------
 #	def format(self):
 #		return u'%s' % self
 	#--------------------------------------------------------
@@ -102,6 +120,7 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 		# must update XMIN now ...
 		self.refetch_payload()
 		return True
+
 	#--------------------------------------------------------
 	def export_to_file(self, aChunkSize=0, filename=None, directory=None):
 
@@ -130,6 +149,7 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 			return None
 
 		return filename
+
 	#--------------------------------------------------------
 	def display_via_mime(self, chunksize=0, block=None):
 
@@ -145,6 +165,7 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 			return False, msg
 
 		return True, ''
+
 	#--------------------------------------------------------
 	def get_useful_filename(self, patient=None, directory=None):
 		patient_part = ''
@@ -166,6 +187,7 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 		)
 
 		return os.path.join(directory, fname)
+
 	#--------------------------------------------------------
 	# properties
 	#--------------------------------------------------------
@@ -198,6 +220,8 @@ def get_export_items(order_by=None, pk_identity=None, designation=None):
 	where_parts = []
 	if pk_identity is not None:
 		where_parts.append(u'pk_identity = %(pat)s')
+		# note that invalidly linked items will be
+		# auto-healed when instantiated
 	if designation is None:
 		where_parts.append(u"designation IS DISTINCT FROM %(desig)s")
 	else:
@@ -236,10 +260,7 @@ def create_export_item(description=None, pk_identity=None, pk_doc_obj=None, file
 		) VALUES (
 			gm.nullify_empty_string(%(desc)s),
 			%(pk_obj)s,
-			(CASE
-				WHEN %(pk_obj)s IS NULL THEN %(pk_pat)s
-				ELSE NULL::integer
-			END),
+			%(pk_pat)s,
 			(CASE
 				WHEN %(pk_obj)s IS NULL THEN %(fname)s::bytea
 				ELSE NULL::bytea

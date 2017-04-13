@@ -301,7 +301,7 @@ def delete_xxx(pk_XXX=None):
 
 		Call from child classes:
 
-			super(cChildClass, self).__init__(aPK_obj = aPK_obj, row = row)
+			super(cChildClass, self).__init__(aPK_obj = aPK_obj, row = row, link_obj = link_obj)
 		"""
 		# initialize those "too early" because checking descendants might
 		# fail which will then call __str__ in stack trace logging if --debug
@@ -323,6 +323,7 @@ def delete_xxx(pk_XXX=None):
 			self._init_from_row_data(row=row)
 
 		self._is_modified = False
+
 	#--------------------------------------------------------
 	def __init_from_pk(self, aPK_obj=None, link_obj=None):
 		"""Creates a new clinical item instance by its PK.
@@ -346,6 +347,7 @@ def delete_xxx(pk_XXX=None):
 
 		if result is False:
 			raise gmExceptions.ConstructorError, "[%s:%s]: error loading instance" % (self.__class__.__name__, self.pk_obj)
+
 	#--------------------------------------------------------
 	def _init_from_row_data(self, row=None):
 		"""Creates a new clinical item instance given its fields.
@@ -377,6 +379,7 @@ def delete_xxx(pk_XXX=None):
 		self.payload_most_recently_fetched = {}
 		for field in self._idx.keys():
 			self.payload_most_recently_fetched[field] = self._payload[self._idx[field]]
+
 	#--------------------------------------------------------
 	def __del__(self):
 		if u'_is_modified' in self.__dict__:
@@ -384,6 +387,7 @@ def delete_xxx(pk_XXX=None):
 				_log.critical('[%s:%s]: loosing payload changes' % (self.__class__.__name__, self.pk_obj))
 				_log.debug('most recently fetched: %s' % self.payload_most_recently_fetched)
 				_log.debug('modified: %s' % self._payload)
+
 	#--------------------------------------------------------
 	def __str__(self):
 		tmp = []
@@ -476,6 +480,7 @@ def delete_xxx(pk_XXX=None):
 		methods = filter(lambda x: x[0].startswith('set_'), inspect.getmembers(self, inspect.ismethod))
 		_log.warning('[%s]: valid setter methods: %s' % (self.__class__.__name__, str(methods)))
 		raise AttributeError('[%s]: cannot set [%s]' % (self.__class__.__name__, attribute))
+
 	#--------------------------------------------------------
 	# external API
 	#--------------------------------------------------------
@@ -615,12 +620,15 @@ def delete_xxx(pk_XXX=None):
 			return False
 		self._payload = rows[0]
 		return True
+
 	#--------------------------------------------------------
 	def __noop(self):
 		pass
+
 	#--------------------------------------------------------
 	def save(self, conn=None):
 		return self.save_payload(conn = conn)
+
 	#--------------------------------------------------------
 	def save_payload(self, conn=None):
 		"""Store updated values (if any) in database.
