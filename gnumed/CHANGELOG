@@ -38,6 +38,7 @@ IMPROVED: email sending framework
 
 FIX: editing of drug products
 FIX: formatting of intervals with seconds [thanks Rickard]
+FIX: robustify backend listener against change notification trigger errors
 
 IMPROVED: more fully prevent logfile based password leaks
 IMPROVED: add listing of latest vaccination per indication

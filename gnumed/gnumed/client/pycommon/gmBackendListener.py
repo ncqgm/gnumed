@@ -238,7 +238,11 @@ class gmBackendListener(gmBorg.cBorg):
 					if item.startswith(u'row PK='):
 						pk_row = int(item.split(u'=')[1])
 					if item.startswith(u'person PK='):
-						pk_identity = int(item.split(u'=')[1])
+						try:
+							pk_identity = int(item.split(u'=')[1])
+						except ValueError:
+							_log.exception(u'error in change notification trigger')
+							pk_identity = -1
 				# try sending intra-client signals:
 				# 1) generic signal
 				self.__messages_sent += 1
