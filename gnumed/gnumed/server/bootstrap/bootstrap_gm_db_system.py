@@ -1510,6 +1510,7 @@ def ask_for_confirmation():
 		else:
 			return None
 	return True
+
 #--------------------------------------------------------------
 def _import_schema (group=None, schema_opt="schema", conn=None):
 	# load schema
@@ -1533,14 +1534,21 @@ def _import_schema (group=None, schema_opt="schema", conn=None):
 
 	# and import them
 	psql = gmPsql.Psql(conn)
-	for file in schema_files:
-		the_file = os.path.join(schema_base_dir, file)
-		if psql.run(the_file) == 0:
-			_log.info('successfully imported [%s]' % the_file)
-		else:
-			_log.error('failed to import [%s]' % the_file)
-			return None
+	for filename in schema_files:
+		if filename.strip() == u'':
+			continue						# skip empty line
+		if filename.startswith(u'# '):
+			_log.info(filename)				# log as comment
+			continue
+		full_path = os.path.join(schema_base_dir, filename)
+		if psql.run(full_path) == 0:
+			_log.info('success')
+			continue
+		_log.error(u'failure')
+		return None
+
 	return True
+
 #------------------------------------------------------------------
 def exit_with_msg(aMsg = None):
 	if aMsg is not None:

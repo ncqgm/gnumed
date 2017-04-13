@@ -1883,6 +1883,7 @@ IMPROVED: don't fail clin.remove_old_empty_encounters() but return FALSE on <2 e
 IMPROVED: substance abuse entries can have arbitrary .discontinued
 IMPROVED: move vaccine tables from clin. to ref.
 IMPROVED: turn unique identity assertion into deferred constraint trigger
+IMPROVED: allow empty and comment lines in schema change file list definitions
 
 FIX: constrain clin.clin_root_item.soap_cat CHECK to lower case
 
