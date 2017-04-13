@@ -33,7 +33,7 @@ ATC_NICOTINE = u'N07BA01'
 ATC_ETHANOL  = u'V03AB16'
 
 #============================================================
-def propagate_atc(substance=None, atc=None):
+def propagate_atc(substance=None, atc=None, link_obj=None):
 
 	_log.debug('substance <%s>, ATC <%s>', substance, atc)
 
@@ -42,7 +42,7 @@ def propagate_atc(substance=None, atc=None):
 			atc = None
 
 	if atc is None:
-		atcs = text2atc(text = substance, fuzzy = False)
+		atcs = text2atc(text = substance, fuzzy = False, link_obj = link_obj)
 		if len(atcs) == 0:
 			_log.debug(u'no ATC found, aborting')
 			return atc
@@ -58,12 +58,12 @@ def propagate_atc(substance=None, atc=None):
 		{'cmd': u"UPDATE ref.drug_product SET atc_code = %(atc)s WHERE lower(description) = lower(%(term)s) AND atc_code IS NULL",
 		 'args': args}
 	]
-	gmPG2.run_rw_queries(queries = queries)
+	gmPG2.run_rw_queries(link_obj = link_obj, queries = queries)
 
 	return atc
 
 #============================================================
-def text2atc(text=None, fuzzy=False):
+def text2atc(text=None, fuzzy=False, link_obj=None):
 
 	text = text.strip()
 
@@ -106,7 +106,7 @@ def text2atc(text=None, fuzzy=False):
 			ORDER BY atc_code
 		"""
 
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+	rows, idx = gmPG2.run_ro_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
 
 	_log.debug(u'term: %s => ATCs: %s (fuzzy: %s)', text, rows, fuzzy)
 
