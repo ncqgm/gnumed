@@ -1067,6 +1067,7 @@ def move_episode_to_issue(episode=None, target_issue=None, save_to_backend=False
 	if save_to_backend:
 		episode.save_payload()
 	return True
+
 #----------------------------------------------------------------
 class cEpisodeListSelectorDlg(gmListWidgets.cGenericListSelectorDlg):
 
@@ -1302,6 +1303,7 @@ class cEpisodeEditAreaPnl(gmEditArea.cGenericEditAreaMixin, wxgEpisodeEditAreaPn
 		gmEditArea.cGenericEditAreaMixin.__init__(self)
 
 		self.data = episode
+
 	#----------------------------------------------------------------
 	# generic Edit Area mixin API
 	#----------------------------------------------------------------
@@ -1318,6 +1320,7 @@ class cEpisodeEditAreaPnl(gmEditArea.cGenericEditAreaMixin, wxgEpisodeEditAreaPn
 		self._PRW_description.Refresh()
 
 		return not errors
+
 	#----------------------------------------------------------------
 	def _save_as_new(self):
 
@@ -1351,6 +1354,7 @@ class cEpisodeEditAreaPnl(gmEditArea.cGenericEditAreaMixin, wxgEpisodeEditAreaPn
 
 		self.data = epi
 		return True
+
 	#----------------------------------------------------------------
 	def _save_as_update(self):
 
@@ -1380,6 +1384,7 @@ class cEpisodeEditAreaPnl(gmEditArea.cGenericEditAreaMixin, wxgEpisodeEditAreaPn
 		self.data.generic_codes = [ c['data'] for c in self._PRW_codes.GetData() ]
 
 		return True
+
 	#----------------------------------------------------------------
 	def _refresh_as_new(self):
 		if self.data is None:
@@ -1393,15 +1398,24 @@ class cEpisodeEditAreaPnl(gmEditArea.cGenericEditAreaMixin, wxgEpisodeEditAreaPn
 		self._PRW_certainty.SetText()
 		self._CHBOX_closed.SetValue(False)
 		self._PRW_codes.SetText()
+
+		self._PRW_issue.SetFocus()
+
 	#----------------------------------------------------------------
 	def _refresh_from_existing(self):
 		ident = gmPerson.cPerson(aPK_obj = self.data['pk_patient'])
 		self._TCTRL_patient.SetValue(ident.get_description_gender())
 
 		if self.data['pk_health_issue'] is not None:
-			self._PRW_issue.SetText(self.data['health_issue'], data=self.data['pk_health_issue'])
+			self._PRW_issue.SetText (
+				self.data['health_issue'],
+				data = self.data['pk_health_issue']
+			)
 
-		self._PRW_description.SetText(self.data['description'], data=self.data['description'])
+		self._PRW_description.SetText (
+			self.data['description'],
+			data = self.data['description']
+		)
 
 		self._TCTRL_status.SetValue(gmTools.coalesce(self.data['summary'], u''))
 
@@ -1412,6 +1426,12 @@ class cEpisodeEditAreaPnl(gmEditArea.cGenericEditAreaMixin, wxgEpisodeEditAreaPn
 
 		val, data = self._PRW_codes.generic_linked_codes2item_dict(self.data.generic_codes)
 		self._PRW_codes.SetText(val, data)
+
+		if self.data['pk_health_issue'] is None:
+			self._PRW_issue.SetFocus()
+		else:
+			self._PRW_description.SetFocus()
+
 	#----------------------------------------------------------------
 	def _refresh_as_new_from_existing(self):
 		self._refresh_as_new()
