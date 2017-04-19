@@ -41,9 +41,9 @@ drop function if exists clin.trf_update_intake_must_link_all_drug_components() c
 drop function if exists clin.trf_upd_intake_updates_all_drug_components() cascade;
 
 -- create conversion function
-drop function if exists _tmp_convert_substance_intakes() cascade;
+drop function if exists staging._tmp_convert_substance_intakes() cascade;
 
-create function _tmp_convert_substance_intakes()
+create function staging._tmp_convert_substance_intakes()
 	returns boolean
 	language 'plpgsql'
 	as '
@@ -128,7 +128,7 @@ BEGIN
 		end if;
 
 		-- check for generic drug product existence
-		select pk_drug_product into _pk_drug_product from ref._tmp_v_drug_products r_tvbd where
+		select pk_drug_product into _pk_drug_product from staging._tmp_v_drug_products r_tvbd where
 			r_tvbd.product = _intake_row.substance || '' '' || _intake_row.amount || '' '' || _intake_row.unit || '' '' ||  _intake_row.preparation
 				and
 			r_tvbd.preparation = _intake_row.preparation
@@ -204,10 +204,10 @@ BEGIN
 END;';
 
 -- convert
-select _tmp_convert_substance_intakes();
+select staging._tmp_convert_substance_intakes();
 
-drop function if exists _tmp_convert_substance_intakes() cascade;
-drop view if exists ref._tmp_v_drug_products cascade;
+drop function if exists staging._tmp_convert_substance_intakes() cascade;
+drop view if exists staging._tmp_v_drug_products cascade;
 drop view if exists clin.v_brand_intakes cascade;
 drop view if exists clin.v_nonbrand_intakes cascade;
 drop view if exists clin.v_substance_intakes cascade;

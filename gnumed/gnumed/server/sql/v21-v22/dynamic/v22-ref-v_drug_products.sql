@@ -8,7 +8,10 @@
 \set ON_ERROR_STOP 1
 --set default_transaction_read_only to off;
 
+set check_function_bodies to on;
+
 -- --------------------------------------------------------------
+-- table drug_product
 delete from audit.audited_tables where schema = 'ref' and table_name = 'branded_drug';
 select audit.add_table_for_audit('ref', 'drug_product');
 
@@ -35,7 +38,43 @@ create unique index idx_drug_product_uniq_product_no_code
 	on ref.drug_product (description, preparation, is_fake)
 	where ref.drug_product.external_code is NULL;
 
+
+-- trigger to ensure that at the end of a tx a product does have
+-- components (and, by extension, a vaccine has indications)
+drop function if exists ref.trf_assert_product_has_components() cascade;
+
+create function ref.trf_assert_product_has_components()
+	returns trigger
+	language 'plpgsql'
+	as '
+DECLARE
+	_msg text;
+BEGIN
+	PERFORM 1 FROM ref.lnk_dose2drug WHERE fk_drug_product = NEW.pk LIMIT 1;
+	IF FOUND THEN
+		RETURN NEW;
+	END IF;
+
+	_msg := ''[ref.trf_assert_product_has_components()]: ''
+		|| TG_OP
+		|| '' failed: no components (doses) linked to drug product [''
+		|| NEW.pk
+		|| ''].''
+	;
+	RAISE EXCEPTION integrity_constraint_violation using message = _msg;
+
+	RETURN NEW;
+END;';
+
+create constraint trigger tr_assert_product_has_components
+	after insert or update on ref.drug_product
+	deferrable
+	initially deferred
+		for each row execute procedure ref.trf_assert_product_has_components()
+;
+
 -- --------------------------------------------------------------
+-- view
 drop view if exists ref.v_branded_drugs cascade;
 drop view if exists ref.v_drug_products cascade;
 
@@ -99,9 +138,9 @@ grant select on ref.v_drug_products to group "gm-doctors";
 
 -- --------------------------------------------------------------
 -- only needed for data conversion
-drop view if exists ref._tmp_v_drug_products cascade;
+drop view if exists staging._tmp_v_drug_products cascade;
 
-create view ref._tmp_v_drug_products as
+create view staging._tmp_v_drug_products as
 select
 	r_vdp.*,
 	(select array_agg(r_vdc.pk_substance)

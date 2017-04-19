@@ -1882,9 +1882,10 @@ IMPROVED: staging._journal_without_suppressed_hints -> clin._v_emr_journal_witho
 IMPROVED: safer backup scripts
 IMPROVED: don't fail clin.remove_old_empty_encounters() but return FALSE on <2 encounters
 IMPROVED: substance abuse entries can have arbitrary .discontinued
-IMPROVED: move vaccine tables from clin. to ref.
+IMPROVED: rework vaccine/vaccination tables/views
 IMPROVED: turn unique identity assertion into deferred constraint trigger
 IMPROVED: allow empty and comment lines in schema change file list definitions
+IMPROVED: bootstrapper error logging
 
 FIX: constrain clin.clin_root_item.soap_cat CHECK to lower case
 

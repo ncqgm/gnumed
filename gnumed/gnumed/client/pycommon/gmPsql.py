@@ -180,16 +180,24 @@ class Psql:
 							else:
 								curs.execute (curr_cmd)
 #								if not transaction_started:
-					except Exception, error:
+					except Exception as error:
 						_log.debug(curr_cmd)
 						if re.match (r"^NOTICE:.*", str(error)):
 							_log.warning(self.fmt_msg(error))
 						else:
+							_log.error(self.fmt_msg(error))
+							if hasattr(error, 'diag'):
+								for prop in dir(error.diag):
+									if prop.startswith(u'__'):
+										continue
+									val = getattr(error.diag, prop)
+									if val is None:
+										continue
+									_log.error(u'PG diags %s: %s', prop, val)
 							if self.vars['ON_ERROR_STOP']:
-								_log.error(self.fmt_msg(error))
+								self.conn.commit()
+								curs.close()
 								return 1
-							else:
-								_log.debug(self.fmt_msg(error))
 
 					self.conn.commit()
 					curs.close()

@@ -9,14 +9,25 @@
 --set default_transaction_read_only to off;
 
 -- --------------------------------------------------------------
+drop function if exists clin.trf_sanity_check_vaccine_has_indications() cascade;
+
 alter table if exists clin.vaccine
 	set schema ref;
+
+alter table if exists clin.v_vaccines
+	set schema ref;
+
+alter table if exists clin.v_indications4vaccine
+	set schema ref;
+
 
 alter table if exists clin.vacc_route
 	set schema ref;
 
+
 alter table if exists clin.lnk_vaccine2inds
 	set schema ref;
+
 
 alter table if exists clin.vacc_indication
 	set schema ref;
@@ -30,11 +41,8 @@ where
 	table_name in ('vaccine', 'vacc_route', 'lnk_vaccine2inds', 'vacc_indication');
 
 
-alter table if exists clin.v_vaccines
-	set schema ref;
-
-alter table if exists clin.v_indications4vaccine
-	set schema ref;
+drop function if exists gm.create_generic_monovalent_vaccines() cascade;
+drop function if exists gm.create_generic_combi_vaccines() cascade;
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('v22-clin-vaccine-dynamic.sql', '22.0');
+select gm.log_script_insertion('v22-ref-move_vacc_objects_to_clin.sql', '22.0');

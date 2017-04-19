@@ -1542,7 +1542,7 @@ def _import_schema (group=None, schema_opt="schema", conn=None):
 			continue
 		full_path = os.path.join(schema_base_dir, filename)
 		if psql.run(full_path) == 0:
-			_log.info('success')
+			#_log.info('success')
 			continue
 		_log.error(u'failure')
 		return None
