@@ -29,7 +29,8 @@ CREATE UNLOGGED TABLE staging.lnk_vacc_ind2subst_dose (
 		BOOLEAN
 		NOT NULL
 		DEFAULT false,
-	UNIQUE(fk_indication, fk_dose)
+	UNIQUE(fk_indication, fk_dose),
+	UNIQUE(fk_indication, is_live)
 );
 
 -- --------------------------------------------------------------
@@ -971,7 +972,7 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 -- add vaccine if necessary
 INSERT INTO ref.vaccine (is_live, fk_drug_product)
 	SELECT
-		false,
+		False,
 		(SELECT pk FROM ref.drug_product WHERE
 			description = 'influenza vaccine'
 				AND
@@ -983,7 +984,7 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 		)
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.vaccine WHERE
-			is_live IS NOT DISTINCT FROM false
+			is_live IS False
 				AND
 			fk_drug_product = (
 				SELECT pk FROM ref.drug_product WHERE
@@ -1156,7 +1157,7 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 -- add vaccine if necessary
 INSERT INTO ref.vaccine (is_live, fk_drug_product)
 	SELECT
-		true,
+		True,
 		(SELECT pk FROM ref.drug_product WHERE
 			description = 'measles-mumps vaccine, live'
 				AND
@@ -1168,7 +1169,7 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 		)
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.vaccine WHERE
-			is_live IS NOT DISTINCT FROM true
+			is_live IS True
 				AND
 			fk_drug_product = (
 				SELECT pk FROM ref.drug_product WHERE
@@ -1277,7 +1278,7 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 -- add vaccine if necessary
 INSERT INTO ref.vaccine (is_live, fk_drug_product)
 	SELECT
-		false,
+		False,
 		(SELECT pk FROM ref.drug_product WHERE
 			description = 'tetanus vaccine'
 				AND
@@ -1289,7 +1290,7 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 		)
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.vaccine WHERE
-			is_live IS NOT DISTINCT FROM false
+			is_live IS False
 				AND
 			fk_drug_product = (
 				SELECT pk FROM ref.drug_product WHERE
@@ -1654,7 +1655,7 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 -- add vaccine if necessary
 INSERT INTO ref.vaccine (is_live, fk_drug_product)
 	SELECT
-		false,
+		False,
 		(SELECT pk FROM ref.drug_product WHERE
 			description = 'TdaPPol-HepB'
 				AND
@@ -1666,7 +1667,7 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 		)
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.vaccine WHERE
-			is_live IS NOT DISTINCT FROM false
+			is_live IS False
 				AND
 			fk_drug_product = (
 				SELECT pk FROM ref.drug_product WHERE
@@ -2031,7 +2032,7 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 -- add vaccine if necessary
 INSERT INTO ref.vaccine (is_live, fk_drug_product)
 	SELECT
-		false,
+		False,
 		(SELECT pk FROM ref.drug_product WHERE
 			description = 'TdaP-Hib-HepB'
 				AND
@@ -2043,7 +2044,7 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 		)
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.vaccine WHERE
-			is_live IS NOT DISTINCT FROM false
+			is_live IS False
 				AND
 			fk_drug_product = (
 				SELECT pk FROM ref.drug_product WHERE
@@ -2152,7 +2153,7 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 -- add vaccine if necessary
 INSERT INTO ref.vaccine (is_live, fk_drug_product)
 	SELECT
-		false,
+		False,
 		(SELECT pk FROM ref.drug_product WHERE
 			description = 'HiB vaccine'
 				AND
@@ -2164,7 +2165,7 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 		)
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.vaccine WHERE
-			is_live IS NOT DISTINCT FROM false
+			is_live IS False
 				AND
 			fk_drug_product = (
 				SELECT pk FROM ref.drug_product WHERE
@@ -2273,7 +2274,7 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 -- add vaccine if necessary
 INSERT INTO ref.vaccine (is_live, fk_drug_product)
 	SELECT
-		true,
+		True,
 		(SELECT pk FROM ref.drug_product WHERE
 			description = 'influenza vaccine, live'
 				AND
@@ -2285,7 +2286,7 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 		)
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.vaccine WHERE
-			is_live IS NOT DISTINCT FROM true
+			is_live IS True
 				AND
 			fk_drug_product = (
 				SELECT pk FROM ref.drug_product WHERE
@@ -2522,7 +2523,7 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 -- add vaccine if necessary
 INSERT INTO ref.vaccine (is_live, fk_drug_product)
 	SELECT
-		true,
+		True,
 		(SELECT pk FROM ref.drug_product WHERE
 			description = 'MMR vaccine, live'
 				AND
@@ -2534,7 +2535,7 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 		)
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.vaccine WHERE
-			is_live IS NOT DISTINCT FROM true
+			is_live IS True
 				AND
 			fk_drug_product = (
 				SELECT pk FROM ref.drug_product WHERE
@@ -2643,7 +2644,7 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 -- add vaccine if necessary
 INSERT INTO ref.vaccine (is_live, fk_drug_product)
 	SELECT
-		true,
+		True,
 		(SELECT pk FROM ref.drug_product WHERE
 			description = 'yellow fever vaccine'
 				AND
@@ -2655,7 +2656,7 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 		)
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.vaccine WHERE
-			is_live IS NOT DISTINCT FROM true
+			is_live IS True
 				AND
 			fk_drug_product = (
 				SELECT pk FROM ref.drug_product WHERE
@@ -2764,7 +2765,7 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 -- add vaccine if necessary
 INSERT INTO ref.vaccine (is_live, fk_drug_product)
 	SELECT
-		false,
+		False,
 		(SELECT pk FROM ref.drug_product WHERE
 			description = 'tick-borne encephalitis vaccine'
 				AND
@@ -2776,7 +2777,7 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 		)
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.vaccine WHERE
-			is_live IS NOT DISTINCT FROM false
+			is_live IS False
 				AND
 			fk_drug_product = (
 				SELECT pk FROM ref.drug_product WHERE
@@ -2885,7 +2886,7 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 -- add vaccine if necessary
 INSERT INTO ref.vaccine (is_live, fk_drug_product)
 	SELECT
-		false,
+		False,
 		(SELECT pk FROM ref.drug_product WHERE
 			description = 'typhus exanthematicus vaccine'
 				AND
@@ -2897,7 +2898,7 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 		)
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.vaccine WHERE
-			is_live IS NOT DISTINCT FROM false
+			is_live IS False
 				AND
 			fk_drug_product = (
 				SELECT pk FROM ref.drug_product WHERE
@@ -3006,7 +3007,7 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 -- add vaccine if necessary
 INSERT INTO ref.vaccine (is_live, fk_drug_product)
 	SELECT
-		true,
+		True,
 		(SELECT pk FROM ref.drug_product WHERE
 			description = 'varicella vaccine, live'
 				AND
@@ -3018,7 +3019,7 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 		)
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.vaccine WHERE
-			is_live IS NOT DISTINCT FROM true
+			is_live IS True
 				AND
 			fk_drug_product = (
 				SELECT pk FROM ref.drug_product WHERE
@@ -3127,7 +3128,7 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 -- add vaccine if necessary
 INSERT INTO ref.vaccine (is_live, fk_drug_product)
 	SELECT
-		true,
+		True,
 		(SELECT pk FROM ref.drug_product WHERE
 			description = 'variola vaccine, live'
 				AND
@@ -3139,7 +3140,7 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 		)
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.vaccine WHERE
-			is_live IS NOT DISTINCT FROM true
+			is_live IS True
 				AND
 			fk_drug_product = (
 				SELECT pk FROM ref.drug_product WHERE
@@ -3312,7 +3313,7 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 -- add vaccine if necessary
 INSERT INTO ref.vaccine (is_live, fk_drug_product)
 	SELECT
-		true,
+		True,
 		(SELECT pk FROM ref.drug_product WHERE
 			description = 'mumps-rubella vaccine, live'
 				AND
@@ -3324,7 +3325,7 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 		)
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.vaccine WHERE
-			is_live IS NOT DISTINCT FROM true
+			is_live IS True
 				AND
 			fk_drug_product = (
 				SELECT pk FROM ref.drug_product WHERE
@@ -3433,7 +3434,7 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 -- add vaccine if necessary
 INSERT INTO ref.vaccine (is_live, fk_drug_product)
 	SELECT
-		true,
+		True,
 		(SELECT pk FROM ref.drug_product WHERE
 			description = 'poliomyelitis vaccine, live'
 				AND
@@ -3445,7 +3446,7 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 		)
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.vaccine WHERE
-			is_live IS NOT DISTINCT FROM true
+			is_live IS True
 				AND
 			fk_drug_product = (
 				SELECT pk FROM ref.drug_product WHERE
@@ -3618,7 +3619,7 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 -- add vaccine if necessary
 INSERT INTO ref.vaccine (is_live, fk_drug_product)
 	SELECT
-		false,
+		False,
 		(SELECT pk FROM ref.drug_product WHERE
 			description = 'typhoid-hepA vaccine'
 				AND
@@ -3630,7 +3631,7 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 		)
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.vaccine WHERE
-			is_live IS NOT DISTINCT FROM false
+			is_live IS False
 				AND
 			fk_drug_product = (
 				SELECT pk FROM ref.drug_product WHERE
@@ -3739,7 +3740,7 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 -- add vaccine if necessary
 INSERT INTO ref.vaccine (is_live, fk_drug_product)
 	SELECT
-		true,
+		True,
 		(SELECT pk FROM ref.drug_product WHERE
 			description = 'mumps vaccine, live'
 				AND
@@ -3751,7 +3752,7 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 		)
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.vaccine WHERE
-			is_live IS NOT DISTINCT FROM true
+			is_live IS True
 				AND
 			fk_drug_product = (
 				SELECT pk FROM ref.drug_product WHERE
@@ -3860,7 +3861,7 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 -- add vaccine if necessary
 INSERT INTO ref.vaccine (is_live, fk_drug_product)
 	SELECT
-		true,
+		True,
 		(SELECT pk FROM ref.drug_product WHERE
 			description = 'Tbc vaccine'
 				AND
@@ -3872,7 +3873,7 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 		)
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.vaccine WHERE
-			is_live IS NOT DISTINCT FROM true
+			is_live IS True
 				AND
 			fk_drug_product = (
 				SELECT pk FROM ref.drug_product WHERE
@@ -3981,7 +3982,7 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 -- add vaccine if necessary
 INSERT INTO ref.vaccine (is_live, fk_drug_product)
 	SELECT
-		false,
+		False,
 		(SELECT pk FROM ref.drug_product WHERE
 			description = 'meningococcus A vaccine'
 				AND
@@ -3993,7 +3994,7 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 		)
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.vaccine WHERE
-			is_live IS NOT DISTINCT FROM false
+			is_live IS False
 				AND
 			fk_drug_product = (
 				SELECT pk FROM ref.drug_product WHERE
@@ -4102,7 +4103,7 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 -- add vaccine if necessary
 INSERT INTO ref.vaccine (is_live, fk_drug_product)
 	SELECT
-		false,
+		False,
 		(SELECT pk FROM ref.drug_product WHERE
 			description = 'meningococcus B vaccine'
 				AND
@@ -4114,7 +4115,7 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 		)
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.vaccine WHERE
-			is_live IS NOT DISTINCT FROM false
+			is_live IS False
 				AND
 			fk_drug_product = (
 				SELECT pk FROM ref.drug_product WHERE
@@ -4223,7 +4224,7 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 -- add vaccine if necessary
 INSERT INTO ref.vaccine (is_live, fk_drug_product)
 	SELECT
-		false,
+		False,
 		(SELECT pk FROM ref.drug_product WHERE
 			description = 'cholera vaccine'
 				AND
@@ -4235,7 +4236,7 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 		)
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.vaccine WHERE
-			is_live IS NOT DISTINCT FROM false
+			is_live IS False
 				AND
 			fk_drug_product = (
 				SELECT pk FROM ref.drug_product WHERE
@@ -4472,7 +4473,7 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 -- add vaccine if necessary
 INSERT INTO ref.vaccine (is_live, fk_drug_product)
 	SELECT
-		false,
+		False,
 		(SELECT pk FROM ref.drug_product WHERE
 			description = 'TdPol vaccine'
 				AND
@@ -4484,7 +4485,7 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 		)
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.vaccine WHERE
-			is_live IS NOT DISTINCT FROM false
+			is_live IS False
 				AND
 			fk_drug_product = (
 				SELECT pk FROM ref.drug_product WHERE
@@ -4593,7 +4594,7 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 -- add vaccine if necessary
 INSERT INTO ref.vaccine (is_live, fk_drug_product)
 	SELECT
-		false,
+		False,
 		(SELECT pk FROM ref.drug_product WHERE
 			description = 'plague vaccine'
 				AND
@@ -4605,7 +4606,7 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 		)
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.vaccine WHERE
-			is_live IS NOT DISTINCT FROM false
+			is_live IS False
 				AND
 			fk_drug_product = (
 				SELECT pk FROM ref.drug_product WHERE
@@ -4906,7 +4907,7 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 -- add vaccine if necessary
 INSERT INTO ref.vaccine (is_live, fk_drug_product)
 	SELECT
-		false,
+		False,
 		(SELECT pk FROM ref.drug_product WHERE
 			description = 'TdaPPol vaccine'
 				AND
@@ -4918,7 +4919,7 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 		)
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.vaccine WHERE
-			is_live IS NOT DISTINCT FROM false
+			is_live IS False
 				AND
 			fk_drug_product = (
 				SELECT pk FROM ref.drug_product WHERE
@@ -5027,7 +5028,7 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 -- add vaccine if necessary
 INSERT INTO ref.vaccine (is_live, fk_drug_product)
 	SELECT
-		false,
+		True,
 		(SELECT pk FROM ref.drug_product WHERE
 			description = 'rotavirus vaccine, live'
 				AND
@@ -5039,7 +5040,7 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 		)
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.vaccine WHERE
-			is_live IS NOT DISTINCT FROM false
+			is_live IS True
 				AND
 			fk_drug_product = (
 				SELECT pk FROM ref.drug_product WHERE
@@ -5148,7 +5149,7 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 -- add vaccine if necessary
 INSERT INTO ref.vaccine (is_live, fk_drug_product)
 	SELECT
-		false,
+		False,
 		(SELECT pk FROM ref.drug_product WHERE
 			description = 'pneumococcus vaccine'
 				AND
@@ -5160,7 +5161,7 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 		)
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.vaccine WHERE
-			is_live IS NOT DISTINCT FROM false
+			is_live IS False
 				AND
 			fk_drug_product = (
 				SELECT pk FROM ref.drug_product WHERE
@@ -5269,7 +5270,7 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 -- add vaccine if necessary
 INSERT INTO ref.vaccine (is_live, fk_drug_product)
 	SELECT
-		true,
+		True,
 		(SELECT pk FROM ref.drug_product WHERE
 			description = 'typhoid vaccine, live'
 				AND
@@ -5281,7 +5282,7 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 		)
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.vaccine WHERE
-			is_live IS NOT DISTINCT FROM true
+			is_live IS True
 				AND
 			fk_drug_product = (
 				SELECT pk FROM ref.drug_product WHERE
@@ -5390,7 +5391,7 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 -- add vaccine if necessary
 INSERT INTO ref.vaccine (is_live, fk_drug_product)
 	SELECT
-		false,
+		True,
 		(SELECT pk FROM ref.drug_product WHERE
 			description = 'zoster vaccine, live'
 				AND
@@ -5402,7 +5403,7 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 		)
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.vaccine WHERE
-			is_live IS NOT DISTINCT FROM false
+			is_live IS True
 				AND
 			fk_drug_product = (
 				SELECT pk FROM ref.drug_product WHERE
@@ -5703,7 +5704,7 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 -- add vaccine if necessary
 INSERT INTO ref.vaccine (is_live, fk_drug_product)
 	SELECT
-		true,
+		True,
 		(SELECT pk FROM ref.drug_product WHERE
 			description = 'MMRV vaccine, live'
 				AND
@@ -5715,7 +5716,7 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 		)
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.vaccine WHERE
-			is_live IS NOT DISTINCT FROM true
+			is_live IS True
 				AND
 			fk_drug_product = (
 				SELECT pk FROM ref.drug_product WHERE
@@ -5824,7 +5825,7 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 -- add vaccine if necessary
 INSERT INTO ref.vaccine (is_live, fk_drug_product)
 	SELECT
-		false,
+		False,
 		(SELECT pk FROM ref.drug_product WHERE
 			description = 'pertussis vaccine'
 				AND
@@ -5836,7 +5837,7 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 		)
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.vaccine WHERE
-			is_live IS NOT DISTINCT FROM false
+			is_live IS False
 				AND
 			fk_drug_product = (
 				SELECT pk FROM ref.drug_product WHERE
@@ -5945,7 +5946,7 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 -- add vaccine if necessary
 INSERT INTO ref.vaccine (is_live, fk_drug_product)
 	SELECT
-		false,
+		False,
 		(SELECT pk FROM ref.drug_product WHERE
 			description = 'brucellosis vaccine'
 				AND
@@ -5957,7 +5958,7 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 		)
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.vaccine WHERE
-			is_live IS NOT DISTINCT FROM false
+			is_live IS False
 				AND
 			fk_drug_product = (
 				SELECT pk FROM ref.drug_product WHERE
@@ -6066,7 +6067,7 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 -- add vaccine if necessary
 INSERT INTO ref.vaccine (is_live, fk_drug_product)
 	SELECT
-		true,
+		True,
 		(SELECT pk FROM ref.drug_product WHERE
 			description = 'cholera vaccine, live'
 				AND
@@ -6078,7 +6079,7 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 		)
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.vaccine WHERE
-			is_live IS NOT DISTINCT FROM true
+			is_live IS True
 				AND
 			fk_drug_product = (
 				SELECT pk FROM ref.drug_product WHERE
@@ -6379,7 +6380,7 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 -- add vaccine if necessary
 INSERT INTO ref.vaccine (is_live, fk_drug_product)
 	SELECT
-		false,
+		False,
 		(SELECT pk FROM ref.drug_product WHERE
 			description = 'TdaP-HepB vaccine'
 				AND
@@ -6391,7 +6392,7 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 		)
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.vaccine WHERE
-			is_live IS NOT DISTINCT FROM false
+			is_live IS False
 				AND
 			fk_drug_product = (
 				SELECT pk FROM ref.drug_product WHERE
@@ -6628,7 +6629,7 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 -- add vaccine if necessary
 INSERT INTO ref.vaccine (is_live, fk_drug_product)
 	SELECT
-		false,
+		False,
 		(SELECT pk FROM ref.drug_product WHERE
 			description = 'Td-HepB vaccine'
 				AND
@@ -6640,7 +6641,7 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 		)
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.vaccine WHERE
-			is_live IS NOT DISTINCT FROM false
+			is_live IS False
 				AND
 			fk_drug_product = (
 				SELECT pk FROM ref.drug_product WHERE
@@ -7197,7 +7198,7 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 -- add vaccine if necessary
 INSERT INTO ref.vaccine (is_live, fk_drug_product)
 	SELECT
-		false,
+		False,
 		(SELECT pk FROM ref.drug_product WHERE
 			description = 'TdaPPol-HiB-HepB-MenAC'
 				AND
@@ -7209,7 +7210,7 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 		)
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.vaccine WHERE
-			is_live IS NOT DISTINCT FROM false
+			is_live IS False
 				AND
 			fk_drug_product = (
 				SELECT pk FROM ref.drug_product WHERE
@@ -7318,7 +7319,7 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 -- add vaccine if necessary
 INSERT INTO ref.vaccine (is_live, fk_drug_product)
 	SELECT
-		true,
+		False,
 		(SELECT pk FROM ref.drug_product WHERE
 			description = 'anthrax vaccine'
 				AND
@@ -7330,7 +7331,7 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 		)
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.vaccine WHERE
-			is_live IS NOT DISTINCT FROM true
+			is_live IS False
 				AND
 			fk_drug_product = (
 				SELECT pk FROM ref.drug_product WHERE
@@ -7439,7 +7440,7 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 -- add vaccine if necessary
 INSERT INTO ref.vaccine (is_live, fk_drug_product)
 	SELECT
-		false,
+		False,
 		(SELECT pk FROM ref.drug_product WHERE
 			description = 'poliomyelitis vaccine'
 				AND
@@ -7451,7 +7452,7 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 		)
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.vaccine WHERE
-			is_live IS NOT DISTINCT FROM false
+			is_live IS False
 				AND
 			fk_drug_product = (
 				SELECT pk FROM ref.drug_product WHERE
@@ -7624,7 +7625,7 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 -- add vaccine if necessary
 INSERT INTO ref.vaccine (is_live, fk_drug_product)
 	SELECT
-		true,
+		True,
 		(SELECT pk FROM ref.drug_product WHERE
 			description = 'measles-rubella vaccine, live'
 				AND
@@ -7636,7 +7637,7 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 		)
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.vaccine WHERE
-			is_live IS NOT DISTINCT FROM true
+			is_live IS True
 				AND
 			fk_drug_product = (
 				SELECT pk FROM ref.drug_product WHERE
@@ -7745,7 +7746,7 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 -- add vaccine if necessary
 INSERT INTO ref.vaccine (is_live, fk_drug_product)
 	SELECT
-		false,
+		False,
 		(SELECT pk FROM ref.drug_product WHERE
 			description = 'Q fever vaccine'
 				AND
@@ -7757,7 +7758,7 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 		)
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.vaccine WHERE
-			is_live IS NOT DISTINCT FROM false
+			is_live IS False
 				AND
 			fk_drug_product = (
 				SELECT pk FROM ref.drug_product WHERE
@@ -7866,7 +7867,7 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 -- add vaccine if necessary
 INSERT INTO ref.vaccine (is_live, fk_drug_product)
 	SELECT
-		false,
+		False,
 		(SELECT pk FROM ref.drug_product WHERE
 			description = 'typhoid/paratyphus vaccine'
 				AND
@@ -7878,7 +7879,7 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 		)
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.vaccine WHERE
-			is_live IS NOT DISTINCT FROM false
+			is_live IS False
 				AND
 			fk_drug_product = (
 				SELECT pk FROM ref.drug_product WHERE
@@ -8179,7 +8180,7 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 -- add vaccine if necessary
 INSERT INTO ref.vaccine (is_live, fk_drug_product)
 	SELECT
-		false,
+		False,
 		(SELECT pk FROM ref.drug_product WHERE
 			description = 'meningococcus ACYW135 vaccine'
 				AND
@@ -8191,7 +8192,7 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 		)
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.vaccine WHERE
-			is_live IS NOT DISTINCT FROM false
+			is_live IS False
 				AND
 			fk_drug_product = (
 				SELECT pk FROM ref.drug_product WHERE
@@ -8300,7 +8301,7 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 -- add vaccine if necessary
 INSERT INTO ref.vaccine (is_live, fk_drug_product)
 	SELECT
-		false,
+		False,
 		(SELECT pk FROM ref.drug_product WHERE
 			description = 'hepatitis A vaccine'
 				AND
@@ -8312,7 +8313,7 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 		)
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.vaccine WHERE
-			is_live IS NOT DISTINCT FROM false
+			is_live IS False
 				AND
 			fk_drug_product = (
 				SELECT pk FROM ref.drug_product WHERE
@@ -8421,7 +8422,7 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 -- add vaccine if necessary
 INSERT INTO ref.vaccine (is_live, fk_drug_product)
 	SELECT
-		false,
+		False,
 		(SELECT pk FROM ref.drug_product WHERE
 			description = 'hepatitis B vaccine'
 				AND
@@ -8433,7 +8434,7 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 		)
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.vaccine WHERE
-			is_live IS NOT DISTINCT FROM false
+			is_live IS False
 				AND
 			fk_drug_product = (
 				SELECT pk FROM ref.drug_product WHERE
@@ -8542,7 +8543,7 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 -- add vaccine if necessary
 INSERT INTO ref.vaccine (is_live, fk_drug_product)
 	SELECT
-		false,
+		False,
 		(SELECT pk FROM ref.drug_product WHERE
 			description = 'meningococcus C vaccine'
 				AND
@@ -8554,7 +8555,7 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 		)
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.vaccine WHERE
-			is_live IS NOT DISTINCT FROM false
+			is_live IS False
 				AND
 			fk_drug_product = (
 				SELECT pk FROM ref.drug_product WHERE
@@ -8663,7 +8664,7 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 -- add vaccine if necessary
 INSERT INTO ref.vaccine (is_live, fk_drug_product)
 	SELECT
-		true,
+		True,
 		(SELECT pk FROM ref.drug_product WHERE
 			description = 'rubella vaccine, live'
 				AND
@@ -8675,7 +8676,7 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 		)
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.vaccine WHERE
-			is_live IS NOT DISTINCT FROM true
+			is_live IS True
 				AND
 			fk_drug_product = (
 				SELECT pk FROM ref.drug_product WHERE
@@ -8784,7 +8785,7 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 -- add vaccine if necessary
 INSERT INTO ref.vaccine (is_live, fk_drug_product)
 	SELECT
-		false,
+		False,
 		(SELECT pk FROM ref.drug_product WHERE
 			description = 'rabies vaccine'
 				AND
@@ -8796,7 +8797,7 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 		)
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.vaccine WHERE
-			is_live IS NOT DISTINCT FROM false
+			is_live IS False
 				AND
 			fk_drug_product = (
 				SELECT pk FROM ref.drug_product WHERE
@@ -8905,7 +8906,7 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 -- add vaccine if necessary
 INSERT INTO ref.vaccine (is_live, fk_drug_product)
 	SELECT
-		false,
+		False,
 		(SELECT pk FROM ref.drug_product WHERE
 			description = 'typhoid vaccine'
 				AND
@@ -8917,7 +8918,7 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 		)
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.vaccine WHERE
-			is_live IS NOT DISTINCT FROM false
+			is_live IS False
 				AND
 			fk_drug_product = (
 				SELECT pk FROM ref.drug_product WHERE
@@ -9026,7 +9027,7 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 -- add vaccine if necessary
 INSERT INTO ref.vaccine (is_live, fk_drug_product)
 	SELECT
-		false,
+		False,
 		(SELECT pk FROM ref.drug_product WHERE
 			description = 'HPV vaccine'
 				AND
@@ -9038,7 +9039,7 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 		)
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.vaccine WHERE
-			is_live IS NOT DISTINCT FROM false
+			is_live IS False
 				AND
 			fk_drug_product = (
 				SELECT pk FROM ref.drug_product WHERE
@@ -9275,7 +9276,7 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 -- add vaccine if necessary
 INSERT INTO ref.vaccine (is_live, fk_drug_product)
 	SELECT
-		true,
+		True,
 		(SELECT pk FROM ref.drug_product WHERE
 			description = 'Td-rubella vaccine'
 				AND
@@ -9287,7 +9288,7 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 		)
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.vaccine WHERE
-			is_live IS NOT DISTINCT FROM true
+			is_live IS True
 				AND
 			fk_drug_product = (
 				SELECT pk FROM ref.drug_product WHERE
@@ -9524,7 +9525,7 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 -- add vaccine if necessary
 INSERT INTO ref.vaccine (is_live, fk_drug_product)
 	SELECT
-		false,
+		False,
 		(SELECT pk FROM ref.drug_product WHERE
 			description = 'DTPol vaccine'
 				AND
@@ -9536,7 +9537,7 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 		)
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.vaccine WHERE
-			is_live IS NOT DISTINCT FROM false
+			is_live IS False
 				AND
 			fk_drug_product = (
 				SELECT pk FROM ref.drug_product WHERE
@@ -9709,7 +9710,7 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 -- add vaccine if necessary
 INSERT INTO ref.vaccine (is_live, fk_drug_product)
 	SELECT
-		false,
+		False,
 		(SELECT pk FROM ref.drug_product WHERE
 			description = 'tetanus-diptheria vaccine'
 				AND
@@ -9721,7 +9722,7 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 		)
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.vaccine WHERE
-			is_live IS NOT DISTINCT FROM false
+			is_live IS False
 				AND
 			fk_drug_product = (
 				SELECT pk FROM ref.drug_product WHERE
@@ -9894,7 +9895,7 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 -- add vaccine if necessary
 INSERT INTO ref.vaccine (is_live, fk_drug_product)
 	SELECT
-		false,
+		False,
 		(SELECT pk FROM ref.drug_product WHERE
 			description = 'cholera-typhoid vaccine'
 				AND
@@ -9906,7 +9907,7 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 		)
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.vaccine WHERE
-			is_live IS NOT DISTINCT FROM false
+			is_live IS False
 				AND
 			fk_drug_product = (
 				SELECT pk FROM ref.drug_product WHERE
@@ -10335,7 +10336,7 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 -- add vaccine if necessary
 INSERT INTO ref.vaccine (is_live, fk_drug_product)
 	SELECT
-		false,
+		False,
 		(SELECT pk FROM ref.drug_product WHERE
 			description = 'TdaPPol-HiB-HepB'
 				AND
@@ -10347,7 +10348,7 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 		)
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.vaccine WHERE
-			is_live IS NOT DISTINCT FROM false
+			is_live IS False
 				AND
 			fk_drug_product = (
 				SELECT pk FROM ref.drug_product WHERE
@@ -10456,7 +10457,7 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 -- add vaccine if necessary
 INSERT INTO ref.vaccine (is_live, fk_drug_product)
 	SELECT
-		true,
+		True,
 		(SELECT pk FROM ref.drug_product WHERE
 			description = 'japanese encephalitis vaccine, live'
 				AND
@@ -10468,7 +10469,7 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 		)
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.vaccine WHERE
-			is_live IS NOT DISTINCT FROM true
+			is_live IS True
 				AND
 			fk_drug_product = (
 				SELECT pk FROM ref.drug_product WHERE
@@ -10833,7 +10834,7 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 -- add vaccine if necessary
 INSERT INTO ref.vaccine (is_live, fk_drug_product)
 	SELECT
-		false,
+		False,
 		(SELECT pk FROM ref.drug_product WHERE
 			description = 'DTaPPol-Hib vaccine'
 				AND
@@ -10845,7 +10846,7 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 		)
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.vaccine WHERE
-			is_live IS NOT DISTINCT FROM false
+			is_live IS False
 				AND
 			fk_drug_product = (
 				SELECT pk FROM ref.drug_product WHERE
@@ -10954,7 +10955,7 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 -- add vaccine if necessary
 INSERT INTO ref.vaccine (is_live, fk_drug_product)
 	SELECT
-		false,
+		False,
 		(SELECT pk FROM ref.drug_product WHERE
 			description = 'diphtheria vaccine'
 				AND
@@ -10966,7 +10967,7 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 		)
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.vaccine WHERE
-			is_live IS NOT DISTINCT FROM false
+			is_live IS False
 				AND
 			fk_drug_product = (
 				SELECT pk FROM ref.drug_product WHERE
@@ -11075,7 +11076,7 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 -- add vaccine if necessary
 INSERT INTO ref.vaccine (is_live, fk_drug_product)
 	SELECT
-		true,
+		True,
 		(SELECT pk FROM ref.drug_product WHERE
 			description = 'measles vaccine, live'
 				AND
@@ -11087,7 +11088,7 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 		)
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.vaccine WHERE
-			is_live IS NOT DISTINCT FROM true
+			is_live IS True
 				AND
 			fk_drug_product = (
 				SELECT pk FROM ref.drug_product WHERE
@@ -11260,7 +11261,7 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 -- add vaccine if necessary
 INSERT INTO ref.vaccine (is_live, fk_drug_product)
 	SELECT
-		false,
+		False,
 		(SELECT pk FROM ref.drug_product WHERE
 			description = 'meningococcus AC vaccine'
 				AND
@@ -11272,7 +11273,7 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 		)
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.vaccine WHERE
-			is_live IS NOT DISTINCT FROM false
+			is_live IS False
 				AND
 			fk_drug_product = (
 				SELECT pk FROM ref.drug_product WHERE
@@ -11381,7 +11382,7 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 -- add vaccine if necessary
 INSERT INTO ref.vaccine (is_live, fk_drug_product)
 	SELECT
-		false,
+		False,
 		(SELECT pk FROM ref.drug_product WHERE
 			description = 'japanese encephalitis vaccine'
 				AND
@@ -11393,7 +11394,7 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 		)
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.vaccine WHERE
-			is_live IS NOT DISTINCT FROM false
+			is_live IS False
 				AND
 			fk_drug_product = (
 				SELECT pk FROM ref.drug_product WHERE
@@ -11576,7 +11577,7 @@ INSERT INTO staging.lnk_vacc_ind2subst_dose (fk_indication, fk_dose, is_live)
 				AND
 			substance = 'mumps, live, attenuated'
 		),
-		false
+		true
 	WHERE EXISTS (
 		SELECT 1 FROM ref.vacc_indication WHERE description = 'mumps'
 	);
@@ -11612,7 +11613,7 @@ INSERT INTO staging.lnk_vacc_ind2subst_dose (fk_indication, fk_dose, is_live)
 				AND
 			substance = 'poliomyelitis, live, attenuated'
 		),
-		false
+		true
 	WHERE EXISTS (
 		SELECT 1 FROM ref.vacc_indication WHERE description = 'poliomyelitis'
 	);
@@ -11648,7 +11649,7 @@ INSERT INTO staging.lnk_vacc_ind2subst_dose (fk_indication, fk_dose, is_live)
 				AND
 			substance = 'yellow fever virus, live'
 		),
-		false
+		true
 	WHERE EXISTS (
 		SELECT 1 FROM ref.vacc_indication WHERE description = 'yellow fever'
 	);
@@ -11684,7 +11685,7 @@ INSERT INTO staging.lnk_vacc_ind2subst_dose (fk_indication, fk_dose, is_live)
 				AND
 			substance = 'rubella, live'
 		),
-		false
+		true
 	WHERE EXISTS (
 		SELECT 1 FROM ref.vacc_indication WHERE description = 'rubella'
 	);
@@ -11702,7 +11703,7 @@ INSERT INTO staging.lnk_vacc_ind2subst_dose (fk_indication, fk_dose, is_live)
 				AND
 			substance = 'flavivirus, live, attenuated'
 		),
-		false
+		true
 	WHERE EXISTS (
 		SELECT 1 FROM ref.vacc_indication WHERE description = 'japanese B encephalitis'
 	);
@@ -11756,7 +11757,7 @@ INSERT INTO staging.lnk_vacc_ind2subst_dose (fk_indication, fk_dose, is_live)
 				AND
 			substance = 'tuberculosis, live, attenuated'
 		),
-		false
+		true
 	WHERE EXISTS (
 		SELECT 1 FROM ref.vacc_indication WHERE description = 'tuberculosis'
 	);
@@ -11828,7 +11829,7 @@ INSERT INTO staging.lnk_vacc_ind2subst_dose (fk_indication, fk_dose, is_live)
 				AND
 			substance = 'salmonella typhi, live, attenuated'
 		),
-		false
+		true
 	WHERE EXISTS (
 		SELECT 1 FROM ref.vacc_indication WHERE description = 'salmonella typhi (typhoid)'
 	);
@@ -11864,7 +11865,7 @@ INSERT INTO staging.lnk_vacc_ind2subst_dose (fk_indication, fk_dose, is_live)
 				AND
 			substance = 'variola virus, live'
 		),
-		false
+		true
 	WHERE EXISTS (
 		SELECT 1 FROM ref.vacc_indication WHERE description = 'variola virus (smallpox)'
 	);
@@ -11972,7 +11973,7 @@ INSERT INTO staging.lnk_vacc_ind2subst_dose (fk_indication, fk_dose, is_live)
 				AND
 			substance = 'influenza, live, attenuated'
 		),
-		false
+		true
 	WHERE EXISTS (
 		SELECT 1 FROM ref.vacc_indication WHERE description = 'influenza (seasonal)'
 	);
@@ -11990,7 +11991,7 @@ INSERT INTO staging.lnk_vacc_ind2subst_dose (fk_indication, fk_dose, is_live)
 				AND
 			substance = 'influenza, live, attenuated'
 		),
-		false
+		true
 	WHERE EXISTS (
 		SELECT 1 FROM ref.vacc_indication WHERE description = 'influenza (H3N2)'
 	);
@@ -12008,7 +12009,7 @@ INSERT INTO staging.lnk_vacc_ind2subst_dose (fk_indication, fk_dose, is_live)
 				AND
 			substance = 'influenza, live, attenuated'
 		),
-		false
+		true
 	WHERE EXISTS (
 		SELECT 1 FROM ref.vacc_indication WHERE description = 'influenza (H1N1)'
 	);
@@ -12044,7 +12045,7 @@ INSERT INTO staging.lnk_vacc_ind2subst_dose (fk_indication, fk_dose, is_live)
 				AND
 			substance = 'rotavirus, live'
 		),
-		false
+		true
 	WHERE EXISTS (
 		SELECT 1 FROM ref.vacc_indication WHERE description = 'rotavirus'
 	);
@@ -12080,7 +12081,7 @@ INSERT INTO staging.lnk_vacc_ind2subst_dose (fk_indication, fk_dose, is_live)
 				AND
 			substance = 'cholera, live, attenuated'
 		),
-		false
+		true
 	WHERE EXISTS (
 		SELECT 1 FROM ref.vacc_indication WHERE description = 'cholera'
 	);
@@ -12098,7 +12099,7 @@ INSERT INTO staging.lnk_vacc_ind2subst_dose (fk_indication, fk_dose, is_live)
 				AND
 			substance = 'herpes virus (chickenpox), live'
 		),
-		false
+		true
 	WHERE EXISTS (
 		SELECT 1 FROM ref.vacc_indication WHERE description = 'varicella (chickenpox, shingles)'
 	);
@@ -12116,10 +12117,10 @@ INSERT INTO staging.lnk_vacc_ind2subst_dose (fk_indication, fk_dose, is_live)
 				AND
 			substance = 'measles, live, attenuated'
 		),
-		false
+		true
 	WHERE EXISTS (
 		SELECT 1 FROM ref.vacc_indication WHERE description = 'measles'
 	);
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('v22-ref-create_generic_vaccines.sql', '22.0');
+select gm.log_script_insertion('v22.0-ref-create_generic_vaccines.sql', '22.0');

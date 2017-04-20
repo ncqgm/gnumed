@@ -162,8 +162,8 @@ END;';
 select staging.v22_convert_vaccines();
 
 drop function staging.v22_convert_vaccines() cascade;
--- --------------------------------------------------------------
 
+-- --------------------------------------------------------------
 -- cleanup schema objects
 drop table if exists ref.lnk_vaccine2inds cascade;
 delete from audit.audited_tables where
