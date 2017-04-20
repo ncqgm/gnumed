@@ -11,7 +11,9 @@
 --set default_transaction_read_only to off;
 
 -- --------------------------------------------------------------
--- set up helper table, to be dropped after use
+-- set up helper table for conversion of vaccines from using
+-- linked indications to using linked substances,
+-- to be dropped after converting vaccines
 DROP TABLE IF EXISTS staging.lnk_vacc_ind2subst_dose CASCADE;
 
 CREATE UNLOGGED TABLE staging.lnk_vacc_ind2subst_dose (
@@ -902,6 +904,11 @@ SELECT i18n.upd_tx('J07BD01-target', 'measles');
 -- --------------------------------------------------------------
 -- generic vaccines
 -- --------------------------------------------------------------
+-- new vaccines are not linked to indications, so disable that
+-- trigger for the time being
+ALTER TABLE ref.vaccine
+	DISABLE TRIGGER tr_sanity_check_vaccine_has_indications
+;
 
 -- need to disable trigger before running
 ALTER TABLE ref.drug_product

@@ -9,8 +9,6 @@
 --set default_transaction_read_only to off;
 
 -- --------------------------------------------------------------
-drop function if exists clin.trf_sanity_check_vaccine_has_indications() cascade;
-
 alter table if exists clin.vaccine
 	set schema ref;
 
@@ -45,4 +43,4 @@ drop function if exists gm.create_generic_monovalent_vaccines() cascade;
 drop function if exists gm.create_generic_combi_vaccines() cascade;
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('v22-ref-move_vacc_objects_to_clin.sql', '22.0');
+select gm.log_script_insertion('v22-clin-move_vacc_objects_to_ref.sql', '22.0');

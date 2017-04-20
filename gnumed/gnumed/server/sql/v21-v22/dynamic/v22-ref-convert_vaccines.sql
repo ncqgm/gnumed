@@ -1,4 +1,4 @@
--- ==============<================================================
+-- ==============================================================
 -- GNUmed database schema change script
 --
 -- License: GPL v2 or later
@@ -159,25 +159,14 @@ BEGIN
 	RETURN TRUE;
 END;';
 
-
+-- --------------------------------------------------------------
+-- actually convert
 select staging.v22_convert_vaccines();
 
+-- and clean up
 drop function if exists staging.v22_convert_vaccines() cascade;
 drop table if exists staging.lnk_vacc_ind2subst_dose cascade;
-
--- --------------------------------------------------------------
--- cleanup schema objects
-drop table if exists ref.lnk_vaccine2inds cascade;
-delete from audit.audited_tables where
-	schema = 'ref'
-		and
-	table_name = 'lnk_vaccine2inds';
-
-drop table if exists ref.vacc_indication cascade;
-delete from audit.audited_tables where
-	schema = 'ref'
-		and
-	table_name = 'vacc_indication';
+drop view if exists staging.v_lnk_vacc_ind2subst_dose cascade;
 
 -- --------------------------------------------------------------
 select gm.log_script_insertion('v22-ref-convert_vaccines.sql', '22.0');

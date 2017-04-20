@@ -178,7 +178,16 @@ DECLARE
 	_msg text;
 BEGIN
 	PERFORM 1 FROM ref.lnk_dose2drug WHERE fk_drug_product = OLD.pk LIMIT 1;
+	-- any components left ?
 	IF FOUND THEN
+		-- does not matter
+		RETURN OLD;
+	END IF;
+
+	PERFORM 1 FROM ref.drug_product WHERE pk = OLD.fk_drug_product LIMIT 1;
+
+	-- drug AND components deleted ?
+	IF NOT FOUND THEN
 		-- does not matter
 		RETURN OLD;
 	END IF;
