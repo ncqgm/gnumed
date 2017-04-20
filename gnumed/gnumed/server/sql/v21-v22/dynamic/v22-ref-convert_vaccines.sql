@@ -66,7 +66,7 @@ BEGIN
 		END LOOP;
 		RAISE NOTICE ''found doses: %'', _new_vacc_doses;
 
-		-- find new vaccine product with same list of substance doses
+		-- find new vaccine drug product with same list of substance doses
 		SELECT fk_drug_product INTO STRICT _new_vacc_prod FROM (
 			SELECT fk_drug_product, doses, preparation, is_fake_product, product FROM (
 				select fk_drug_product, array_agg(fk_dose) AS doses from ref.lnk_dose2drug group by fk_drug_product
@@ -88,10 +88,11 @@ BEGIN
 		;
 
 		-- update ref.vaccine to point to the new fk_drug_product
+		RAISE NOTICE ''updating vaccine with fk_drug_product=% to point to fk_drug_product=%'', _old_vacc_prod_row.pk_drug_product, _new_vacc_prod;
 		UPDATE ref.vaccine SET
 			fk_drug_product = _new_vacc_prod
 		WHERE
-			pk = _old_vacc_prod_row.pk_drug_product
+			fk_drug_product = _old_vacc_prod_row.pk_drug_product
 		;
 
 		-- delete old vaccine product
@@ -161,7 +162,8 @@ END;';
 
 select staging.v22_convert_vaccines();
 
-drop function staging.v22_convert_vaccines() cascade;
+drop function if exists staging.v22_convert_vaccines() cascade;
+drop table if exists staging.lnk_vacc_ind2subst_dose cascade;
 
 -- --------------------------------------------------------------
 -- cleanup schema objects

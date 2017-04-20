@@ -33,6 +33,37 @@ CREATE UNLOGGED TABLE staging.lnk_vacc_ind2subst_dose (
 	UNIQUE(fk_indication, is_live)
 );
 
+
+DROP VIEW IF EXISTS staging.v_lnk_vacc_ind2subst_dose CASCADE;
+
+CREATE VIEW staging.v_lnk_vacc_ind2subst_dose AS
+SELECT
+	s_lvi2sd.is_live
+		as mapping_is_for_live_vaccines,
+	r_vi.id
+		as pk_indication,
+	r_vi.description
+		as indication,
+	r_vi.atcs_single_indication,
+	r_vi.atcs_combi_indication,
+	r_d.pk
+		as pk_dose,
+	r_d.amount,
+	r_d.unit,
+	r_d.dose_unit,
+	r_s.pk
+		as pk_substance,
+	r_s.description
+		as substance,
+	r_s.atc
+		as atc_substance
+FROM
+	staging.lnk_vacc_ind2subst_dose s_lvi2sd
+		inner join ref.vacc_indication r_vi on (r_vi.id = s_lvi2sd.fk_indication)
+		inner join ref.dose r_d on (r_d.pk = s_lvi2sd.fk_dose)
+			inner join ref.substance r_s on (r_s.pk = r_d.fk_substance)
+;
+
 -- --------------------------------------------------------------
 -- generic vaccine "substances" (= indications)
 -- --------------------------------------------------------------
@@ -12123,4 +12154,4 @@ INSERT INTO staging.lnk_vacc_ind2subst_dose (fk_indication, fk_dose, is_live)
 	);
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('v22.0-ref-create_generic_vaccines.sql', '22.0');
+select gm.log_script_insertion('v22-ref-create_generic_vaccines.sql', '22.0');
