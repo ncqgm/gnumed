@@ -4289,11 +4289,11 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 	);
 
 -- --------------------------------------------------------------
--- in case <TdPol vaccine> exists: add ATC
+-- in case <DTPol vaccine> exists: add ATC
 UPDATE ref.drug_product SET atc_code = 'J07CA01' WHERE
 	atc_code IS NULL
 		AND
-	description = 'TdPol vaccine'
+	description = 'DTPol vaccine'
 		AND
 	preparation = 'vaccine'
 		AND
@@ -4301,13 +4301,13 @@ UPDATE ref.drug_product SET atc_code = 'J07CA01' WHERE
 
 INSERT INTO ref.drug_product (description, preparation, is_fake, atc_code)
 	SELECT
-		'TdPol vaccine',
+		'DTPol vaccine',
 		'vaccine',
 		TRUE,
 		'J07CA01'
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.drug_product WHERE
-			description = 'TdPol vaccine'
+			description = 'DTPol vaccine'
 				AND
 			preparation = 'vaccine'
 				AND
@@ -4347,7 +4347,7 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 					dose_unit IS NOT DISTINCT FROM 'shot'
 		),
 		(SELECT pk FROM ref.drug_product WHERE
-			description = 'TdPol vaccine'
+			description = 'DTPol vaccine'
 				AND
 			preparation = 'vaccine'
 				AND
@@ -4370,7 +4370,7 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 				AND
 			fk_drug_product = (
 				SELECT pk FROM ref.drug_product WHERE
-					description = 'TdPol vaccine'
+					description = 'DTPol vaccine'
 						AND
 					preparation = 'vaccine'
 						AND
@@ -4411,7 +4411,7 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 					dose_unit IS NOT DISTINCT FROM 'shot'
 		),
 		(SELECT pk FROM ref.drug_product WHERE
-			description = 'TdPol vaccine'
+			description = 'DTPol vaccine'
 				AND
 			preparation = 'vaccine'
 				AND
@@ -4434,7 +4434,7 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 				AND
 			fk_drug_product = (
 				SELECT pk FROM ref.drug_product WHERE
-					description = 'TdPol vaccine'
+					description = 'DTPol vaccine'
 						AND
 					preparation = 'vaccine'
 						AND
@@ -4475,7 +4475,7 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 					dose_unit IS NOT DISTINCT FROM 'shot'
 		),
 		(SELECT pk FROM ref.drug_product WHERE
-			description = 'TdPol vaccine'
+			description = 'DTPol vaccine'
 				AND
 			preparation = 'vaccine'
 				AND
@@ -4498,7 +4498,7 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 				AND
 			fk_drug_product = (
 				SELECT pk FROM ref.drug_product WHERE
-					description = 'TdPol vaccine'
+					description = 'DTPol vaccine'
 						AND
 					preparation = 'vaccine'
 						AND
@@ -4513,7 +4513,7 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 	SELECT
 		False,
 		(SELECT pk FROM ref.drug_product WHERE
-			description = 'TdPol vaccine'
+			description = 'DTPol vaccine'
 				AND
 			preparation = 'vaccine'
 				AND
@@ -4527,7 +4527,7 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 				AND
 			fk_drug_product = (
 				SELECT pk FROM ref.drug_product WHERE
-					description = 'TdPol vaccine'
+					description = 'DTPol vaccine'
 						AND
 					preparation = 'vaccine'
 						AND
@@ -5331,6 +5331,255 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 					is_fake = TRUE
 						AND
 					atc_code = 'J07AP'
+			)
+	);
+
+-- --------------------------------------------------------------
+-- in case <TdaP vaccine> exists: add ATC
+UPDATE ref.drug_product SET atc_code = 'J07CA' WHERE
+	atc_code IS NULL
+		AND
+	description = 'TdaP vaccine'
+		AND
+	preparation = 'vaccine'
+		AND
+	is_fake IS TRUE;
+
+INSERT INTO ref.drug_product (description, preparation, is_fake, atc_code)
+	SELECT
+		'TdaP vaccine',
+		'vaccine',
+		TRUE,
+		'J07CA'
+	WHERE NOT EXISTS (
+		SELECT 1 FROM ref.drug_product WHERE
+			description = 'TdaP vaccine'
+				AND
+			preparation = 'vaccine'
+				AND
+			is_fake = TRUE
+				AND
+			atc_code = 'J07CA'
+	);
+
+-- create dose, assumes substance exists
+INSERT INTO ref.dose (fk_substance, amount, unit, dose_unit)
+	SELECT
+		(SELECT pk FROM ref.substance WHERE atc = 'J07AM01' LIMIT 1),
+		1,
+		'dose',
+		'shot'
+	WHERE NOT EXISTS (
+		SELECT 1 FROM ref.dose WHERE
+			fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07AM01' LIMIT 1)
+				AND
+			amount = 1
+				AND
+			unit = 'dose'
+				AND
+			dose_unit IS NOT DISTINCT FROM 'shot'
+	);
+
+-- link dose to product
+INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
+	SELECT
+		(SELECT pk from ref.dose WHERE
+					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07AM01' LIMIT 1)
+						AND
+					amount = 1
+						AND
+					unit = 'dose'
+						AND
+					dose_unit IS NOT DISTINCT FROM 'shot'
+		),
+		(SELECT pk FROM ref.drug_product WHERE
+			description = 'TdaP vaccine'
+				AND
+			preparation = 'vaccine'
+				AND
+			is_fake = TRUE
+				AND
+			atc_code = 'J07CA'
+		)
+	WHERE NOT EXISTS (
+		SELECT 1 FROM ref.lnk_dose2drug WHERE
+			fk_dose = (
+				SELECT PK from ref.dose WHERE
+					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07AM01' LIMIT 1)
+						AND
+					amount = 1
+						AND
+					unit = 'dose'
+						AND
+					dose_unit IS NOT DISTINCT FROM 'shot'
+			)
+				AND
+			fk_drug_product = (
+				SELECT pk FROM ref.drug_product WHERE
+					description = 'TdaP vaccine'
+						AND
+					preparation = 'vaccine'
+						AND
+					is_fake = TRUE
+						AND
+					atc_code = 'J07CA'
+			)
+	);
+
+-- create dose, assumes substance exists
+INSERT INTO ref.dose (fk_substance, amount, unit, dose_unit)
+	SELECT
+		(SELECT pk FROM ref.substance WHERE atc = 'J07AF01' LIMIT 1),
+		1,
+		'dose',
+		'shot'
+	WHERE NOT EXISTS (
+		SELECT 1 FROM ref.dose WHERE
+			fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07AF01' LIMIT 1)
+				AND
+			amount = 1
+				AND
+			unit = 'dose'
+				AND
+			dose_unit IS NOT DISTINCT FROM 'shot'
+	);
+
+-- link dose to product
+INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
+	SELECT
+		(SELECT pk from ref.dose WHERE
+					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07AF01' LIMIT 1)
+						AND
+					amount = 1
+						AND
+					unit = 'dose'
+						AND
+					dose_unit IS NOT DISTINCT FROM 'shot'
+		),
+		(SELECT pk FROM ref.drug_product WHERE
+			description = 'TdaP vaccine'
+				AND
+			preparation = 'vaccine'
+				AND
+			is_fake = TRUE
+				AND
+			atc_code = 'J07CA'
+		)
+	WHERE NOT EXISTS (
+		SELECT 1 FROM ref.lnk_dose2drug WHERE
+			fk_dose = (
+				SELECT PK from ref.dose WHERE
+					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07AF01' LIMIT 1)
+						AND
+					amount = 1
+						AND
+					unit = 'dose'
+						AND
+					dose_unit IS NOT DISTINCT FROM 'shot'
+			)
+				AND
+			fk_drug_product = (
+				SELECT pk FROM ref.drug_product WHERE
+					description = 'TdaP vaccine'
+						AND
+					preparation = 'vaccine'
+						AND
+					is_fake = TRUE
+						AND
+					atc_code = 'J07CA'
+			)
+	);
+
+-- create dose, assumes substance exists
+INSERT INTO ref.dose (fk_substance, amount, unit, dose_unit)
+	SELECT
+		(SELECT pk FROM ref.substance WHERE atc = 'J07AJ0' LIMIT 1),
+		1,
+		'dose',
+		'shot'
+	WHERE NOT EXISTS (
+		SELECT 1 FROM ref.dose WHERE
+			fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07AJ0' LIMIT 1)
+				AND
+			amount = 1
+				AND
+			unit = 'dose'
+				AND
+			dose_unit IS NOT DISTINCT FROM 'shot'
+	);
+
+-- link dose to product
+INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
+	SELECT
+		(SELECT pk from ref.dose WHERE
+					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07AJ0' LIMIT 1)
+						AND
+					amount = 1
+						AND
+					unit = 'dose'
+						AND
+					dose_unit IS NOT DISTINCT FROM 'shot'
+		),
+		(SELECT pk FROM ref.drug_product WHERE
+			description = 'TdaP vaccine'
+				AND
+			preparation = 'vaccine'
+				AND
+			is_fake = TRUE
+				AND
+			atc_code = 'J07CA'
+		)
+	WHERE NOT EXISTS (
+		SELECT 1 FROM ref.lnk_dose2drug WHERE
+			fk_dose = (
+				SELECT PK from ref.dose WHERE
+					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07AJ0' LIMIT 1)
+						AND
+					amount = 1
+						AND
+					unit = 'dose'
+						AND
+					dose_unit IS NOT DISTINCT FROM 'shot'
+			)
+				AND
+			fk_drug_product = (
+				SELECT pk FROM ref.drug_product WHERE
+					description = 'TdaP vaccine'
+						AND
+					preparation = 'vaccine'
+						AND
+					is_fake = TRUE
+						AND
+					atc_code = 'J07CA'
+			)
+	);
+
+-- add vaccine if necessary
+INSERT INTO ref.vaccine (is_live, fk_drug_product)
+	SELECT
+		False,
+		(SELECT pk FROM ref.drug_product WHERE
+			description = 'TdaP vaccine'
+				AND
+			preparation = 'vaccine'
+				AND
+			is_fake = TRUE
+				AND
+			atc_code = 'J07CA'
+		)
+	WHERE NOT EXISTS (
+		SELECT 1 FROM ref.vaccine WHERE
+			is_live IS False
+				AND
+			fk_drug_product = (
+				SELECT pk FROM ref.drug_product WHERE
+					description = 'TdaP vaccine'
+						AND
+					preparation = 'vaccine'
+						AND
+					is_fake = TRUE
+						AND
+					atc_code = 'J07CA'
 			)
 	);
 
@@ -9341,260 +9590,11 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 	);
 
 -- --------------------------------------------------------------
--- in case <DTPol vaccine> exists: add ATC
-UPDATE ref.drug_product SET atc_code = 'J07CA01' WHERE
-	atc_code IS NULL
-		AND
-	description = 'DTPol vaccine'
-		AND
-	preparation = 'vaccine'
-		AND
-	is_fake IS TRUE;
-
-INSERT INTO ref.drug_product (description, preparation, is_fake, atc_code)
-	SELECT
-		'DTPol vaccine',
-		'vaccine',
-		TRUE,
-		'J07CA01'
-	WHERE NOT EXISTS (
-		SELECT 1 FROM ref.drug_product WHERE
-			description = 'DTPol vaccine'
-				AND
-			preparation = 'vaccine'
-				AND
-			is_fake = TRUE
-				AND
-			atc_code = 'J07CA01'
-	);
-
--- create dose, assumes substance exists
-INSERT INTO ref.dose (fk_substance, amount, unit, dose_unit)
-	SELECT
-		(SELECT pk FROM ref.substance WHERE atc = 'J07AM01' LIMIT 1),
-		1,
-		'dose',
-		'shot'
-	WHERE NOT EXISTS (
-		SELECT 1 FROM ref.dose WHERE
-			fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07AM01' LIMIT 1)
-				AND
-			amount = 1
-				AND
-			unit = 'dose'
-				AND
-			dose_unit IS NOT DISTINCT FROM 'shot'
-	);
-
--- link dose to product
-INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
-	SELECT
-		(SELECT pk from ref.dose WHERE
-					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07AM01' LIMIT 1)
-						AND
-					amount = 1
-						AND
-					unit = 'dose'
-						AND
-					dose_unit IS NOT DISTINCT FROM 'shot'
-		),
-		(SELECT pk FROM ref.drug_product WHERE
-			description = 'DTPol vaccine'
-				AND
-			preparation = 'vaccine'
-				AND
-			is_fake = TRUE
-				AND
-			atc_code = 'J07CA01'
-		)
-	WHERE NOT EXISTS (
-		SELECT 1 FROM ref.lnk_dose2drug WHERE
-			fk_dose = (
-				SELECT PK from ref.dose WHERE
-					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07AM01' LIMIT 1)
-						AND
-					amount = 1
-						AND
-					unit = 'dose'
-						AND
-					dose_unit IS NOT DISTINCT FROM 'shot'
-			)
-				AND
-			fk_drug_product = (
-				SELECT pk FROM ref.drug_product WHERE
-					description = 'DTPol vaccine'
-						AND
-					preparation = 'vaccine'
-						AND
-					is_fake = TRUE
-						AND
-					atc_code = 'J07CA01'
-			)
-	);
-
--- create dose, assumes substance exists
-INSERT INTO ref.dose (fk_substance, amount, unit, dose_unit)
-	SELECT
-		(SELECT pk FROM ref.substance WHERE atc = 'J07AF01' LIMIT 1),
-		1,
-		'dose',
-		'shot'
-	WHERE NOT EXISTS (
-		SELECT 1 FROM ref.dose WHERE
-			fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07AF01' LIMIT 1)
-				AND
-			amount = 1
-				AND
-			unit = 'dose'
-				AND
-			dose_unit IS NOT DISTINCT FROM 'shot'
-	);
-
--- link dose to product
-INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
-	SELECT
-		(SELECT pk from ref.dose WHERE
-					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07AF01' LIMIT 1)
-						AND
-					amount = 1
-						AND
-					unit = 'dose'
-						AND
-					dose_unit IS NOT DISTINCT FROM 'shot'
-		),
-		(SELECT pk FROM ref.drug_product WHERE
-			description = 'DTPol vaccine'
-				AND
-			preparation = 'vaccine'
-				AND
-			is_fake = TRUE
-				AND
-			atc_code = 'J07CA01'
-		)
-	WHERE NOT EXISTS (
-		SELECT 1 FROM ref.lnk_dose2drug WHERE
-			fk_dose = (
-				SELECT PK from ref.dose WHERE
-					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07AF01' LIMIT 1)
-						AND
-					amount = 1
-						AND
-					unit = 'dose'
-						AND
-					dose_unit IS NOT DISTINCT FROM 'shot'
-			)
-				AND
-			fk_drug_product = (
-				SELECT pk FROM ref.drug_product WHERE
-					description = 'DTPol vaccine'
-						AND
-					preparation = 'vaccine'
-						AND
-					is_fake = TRUE
-						AND
-					atc_code = 'J07CA01'
-			)
-	);
-
--- create dose, assumes substance exists
-INSERT INTO ref.dose (fk_substance, amount, unit, dose_unit)
-	SELECT
-		(SELECT pk FROM ref.substance WHERE atc = 'J07BF03' LIMIT 1),
-		1,
-		'dose',
-		'shot'
-	WHERE NOT EXISTS (
-		SELECT 1 FROM ref.dose WHERE
-			fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BF03' LIMIT 1)
-				AND
-			amount = 1
-				AND
-			unit = 'dose'
-				AND
-			dose_unit IS NOT DISTINCT FROM 'shot'
-	);
-
--- link dose to product
-INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
-	SELECT
-		(SELECT pk from ref.dose WHERE
-					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BF03' LIMIT 1)
-						AND
-					amount = 1
-						AND
-					unit = 'dose'
-						AND
-					dose_unit IS NOT DISTINCT FROM 'shot'
-		),
-		(SELECT pk FROM ref.drug_product WHERE
-			description = 'DTPol vaccine'
-				AND
-			preparation = 'vaccine'
-				AND
-			is_fake = TRUE
-				AND
-			atc_code = 'J07CA01'
-		)
-	WHERE NOT EXISTS (
-		SELECT 1 FROM ref.lnk_dose2drug WHERE
-			fk_dose = (
-				SELECT PK from ref.dose WHERE
-					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BF03' LIMIT 1)
-						AND
-					amount = 1
-						AND
-					unit = 'dose'
-						AND
-					dose_unit IS NOT DISTINCT FROM 'shot'
-			)
-				AND
-			fk_drug_product = (
-				SELECT pk FROM ref.drug_product WHERE
-					description = 'DTPol vaccine'
-						AND
-					preparation = 'vaccine'
-						AND
-					is_fake = TRUE
-						AND
-					atc_code = 'J07CA01'
-			)
-	);
-
--- add vaccine if necessary
-INSERT INTO ref.vaccine (is_live, fk_drug_product)
-	SELECT
-		False,
-		(SELECT pk FROM ref.drug_product WHERE
-			description = 'DTPol vaccine'
-				AND
-			preparation = 'vaccine'
-				AND
-			is_fake = TRUE
-				AND
-			atc_code = 'J07CA01'
-		)
-	WHERE NOT EXISTS (
-		SELECT 1 FROM ref.vaccine WHERE
-			is_live IS False
-				AND
-			fk_drug_product = (
-				SELECT pk FROM ref.drug_product WHERE
-					description = 'DTPol vaccine'
-						AND
-					preparation = 'vaccine'
-						AND
-					is_fake = TRUE
-						AND
-					atc_code = 'J07CA01'
-			)
-	);
-
--- --------------------------------------------------------------
--- in case <tetanus-diptheria vaccine> exists: add ATC
+-- in case <Td vaccine> exists: add ATC
 UPDATE ref.drug_product SET atc_code = 'J07AM51' WHERE
 	atc_code IS NULL
 		AND
-	description = 'tetanus-diptheria vaccine'
+	description = 'Td vaccine'
 		AND
 	preparation = 'vaccine'
 		AND
@@ -9602,13 +9602,13 @@ UPDATE ref.drug_product SET atc_code = 'J07AM51' WHERE
 
 INSERT INTO ref.drug_product (description, preparation, is_fake, atc_code)
 	SELECT
-		'tetanus-diptheria vaccine',
+		'Td vaccine',
 		'vaccine',
 		TRUE,
 		'J07AM51'
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.drug_product WHERE
-			description = 'tetanus-diptheria vaccine'
+			description = 'Td vaccine'
 				AND
 			preparation = 'vaccine'
 				AND
@@ -9648,7 +9648,7 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 					dose_unit IS NOT DISTINCT FROM 'shot'
 		),
 		(SELECT pk FROM ref.drug_product WHERE
-			description = 'tetanus-diptheria vaccine'
+			description = 'Td vaccine'
 				AND
 			preparation = 'vaccine'
 				AND
@@ -9671,7 +9671,7 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 				AND
 			fk_drug_product = (
 				SELECT pk FROM ref.drug_product WHERE
-					description = 'tetanus-diptheria vaccine'
+					description = 'Td vaccine'
 						AND
 					preparation = 'vaccine'
 						AND
@@ -9712,7 +9712,7 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 					dose_unit IS NOT DISTINCT FROM 'shot'
 		),
 		(SELECT pk FROM ref.drug_product WHERE
-			description = 'tetanus-diptheria vaccine'
+			description = 'Td vaccine'
 				AND
 			preparation = 'vaccine'
 				AND
@@ -9735,7 +9735,7 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 				AND
 			fk_drug_product = (
 				SELECT pk FROM ref.drug_product WHERE
-					description = 'tetanus-diptheria vaccine'
+					description = 'Td vaccine'
 						AND
 					preparation = 'vaccine'
 						AND
@@ -9750,7 +9750,7 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 	SELECT
 		False,
 		(SELECT pk FROM ref.drug_product WHERE
-			description = 'tetanus-diptheria vaccine'
+			description = 'Td vaccine'
 				AND
 			preparation = 'vaccine'
 				AND
@@ -9764,7 +9764,7 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 				AND
 			fk_drug_product = (
 				SELECT pk FROM ref.drug_product WHERE
-					description = 'tetanus-diptheria vaccine'
+					description = 'Td vaccine'
 						AND
 					preparation = 'vaccine'
 						AND

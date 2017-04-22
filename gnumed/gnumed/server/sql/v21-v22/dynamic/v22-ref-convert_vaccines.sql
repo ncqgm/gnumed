@@ -20,6 +20,47 @@ set check_function_bodies to on;
 -- drug_product links to substance via dose via component
 
 -- --------------------------------------------------------------
+-- fix faulty old data
+
+-- Tbc is live
+update ref.vaccine set
+	is_live = TRUE
+where
+	pk IN (
+		select fk_vaccine from ref.lnk_vaccine2inds where fk_indication = (
+			select id from ref.vacc_indication where description = 'tuberculosis'
+		)
+	)
+;
+
+-- measles is live
+update ref.vaccine set
+	is_live = TRUE
+where
+	pk IN (
+		select fk_vaccine from ref.lnk_vaccine2inds where fk_indication = (
+			select id from ref.vacc_indication where description = 'measles'
+		)
+	)
+;
+
+-- rubella is live
+update ref.vaccine set
+	is_live = TRUE
+where
+	pk IN (
+		select fk_vaccine from ref.lnk_vaccine2inds where fk_indication = (
+			select id from ref.vacc_indication where description = 'rubella'
+		)
+	)
+;
+
+-- --------------------------------------------------------------
+-- drop assertion trigger which accesses old tables and
+-- is better done in client code
+drop function if exists clin.trf_warn_on_duplicate_vaccinations() cascade;
+
+-- --------------------------------------------------------------
 drop function if exists staging.v22_convert_vaccines() cascade;
 
 create function staging.v22_convert_vaccines()
@@ -59,6 +100,7 @@ BEGIN
 				)
 		LOOP
 			-- translate indication to substance dose
+			RAISE NOTICE ''mapping old indication [%] to dose'', _pk_old_vacc_indication;
 			SELECT fk_dose INTO STRICT _pk_new_vacc_dose
 			FROM staging.lnk_vacc_ind2subst_dose
 			WHERE
@@ -69,7 +111,7 @@ BEGIN
 					WHERE fk_drug_product = _pk_old_vacc_prod
 				)
 			;
-			RAISE NOTICE ''mapping ind [%] to dose [%]'', _pk_old_vacc_indication, _pk_new_vacc_dose;
+			RAISE NOTICE ''mapping to dose [%]'', _pk_new_vacc_dose;
 			_new_vacc_doses := _new_vacc_doses ||_pk_new_vacc_dose;
 		END LOOP;
 		RAISE NOTICE ''found doses: %'', _new_vacc_doses;
@@ -124,8 +166,8 @@ BEGIN
 
 		-- delete old vaccine product
 		RAISE NOTICE ''deleting old-style generic vaccine product %'', _pk_old_vacc_prod;
-		DELETE FROM ref.drug_product WHERE pk = _pk_old_vacc_prod;
 		DELETE FROM ref.vaccine WHERE pk = _pk_old_vaccine;
+		DELETE FROM ref.drug_product WHERE pk = _pk_old_vacc_prod;
 
 	END LOOP;
 
