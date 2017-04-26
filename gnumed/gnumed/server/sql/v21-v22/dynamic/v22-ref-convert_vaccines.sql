@@ -194,17 +194,25 @@ BEGIN
 				)
 		LOOP
 			-- translate indication to substance dose
+			RAISE NOTICE ''mapping old indication [%] to dose'', _pk_old_vacc_indication;
 			SELECT fk_dose INTO STRICT _pk_new_vacc_dose
 			FROM staging.lnk_vacc_ind2subst_dose
 			WHERE
 				fk_indication = _pk_old_vacc_indication
 					AND
-				is_live = (
-					SELECT is_live FROM ref.vaccine
-					WHERE fk_drug_product = _pk_old_vacc_prod
+				is_live = coalesce (
+					(	SELECT r_v.is_live FROM ref.vaccine r_v
+						WHERE r_v.fk_drug_product = _pk_old_vacc_prod
+					),
+					staging.lnk_vacc_ind2subst_dose.is_live
 				)
-			;
-			RAISE NOTICE ''mapping ind [%] to dose [%]'', _pk_old_vacc_indication, _pk_new_vacc_dose;
+			-- prefer inactive over live vaccine mapping if
+			-- a) original vaccine entry dose not specify and
+			-- b) there are mapping entries for both active and
+			--    inactive vaccines for this indication
+			ORDER BY staging.lnk_vacc_ind2subst_dose.is_live ASC
+			LIMIT 1;
+			RAISE NOTICE ''mapping to dose [%]'', _pk_new_vacc_dose;
 			-- link dose to old-style vaccine product as component
 			INSERT INTO ref.lnk_dose2drug (fk_drug_product, fk_dose) (
 				SELECT
