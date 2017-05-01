@@ -100,6 +100,7 @@ def unzip_data_pack(filename=None):
 	data_pack.extractall(unzip_dir)
 
 	return unzip_dir
+
 #---------------------------------------------------------------------------
 def install_data_pack(data_pack=None, conn=None):
 	from Gnumed.pycommon import gmPsql

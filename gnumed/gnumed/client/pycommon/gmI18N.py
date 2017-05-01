@@ -208,6 +208,7 @@ def __log_locale_settings(message=None):
 	_log.debug('gmI18N.get_encoding(): %s', get_encoding())
 
 #---------------------------------------------------------------------------
+#def _translate_protected(term, strip_left=None, strip_right=None):
 def _translate_protected(term):
 	"""This wraps _().
 
@@ -230,6 +231,12 @@ def _translate_protected(term):
 		_log.error('original   : %s', term)
 		_log.error('translation: %s', translation)
 		return term
+
+#	if strip_left is not None:
+#		translation = translation.lstrip(strip_left)
+#
+#	if strip_right is not None:
+#		translation = translation.rstrip(strip_right)
 
 	return translation
 

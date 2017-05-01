@@ -1030,10 +1030,12 @@ def force_user_language(language=None):
 def send_maintenance_notification():
 	cmd = u'notify "db_maintenance_warning"'
 	run_rw_queries(queries = [{'cmd': cmd}], return_data = False)
+
 #------------------------------------------------------------------------
 def send_maintenance_shutdown():
 	cmd = u'notify "db_maintenance_disconnect"'
 	run_rw_queries(queries = [{'cmd': cmd}], return_data = False)
+
 #------------------------------------------------------------------------
 def is_pg_interval(candidate=None):
 	cmd = u'SELECT %(candidate)s::interval'
@@ -1474,6 +1476,27 @@ def file2bytea_overlay(query=None, args=None, filename=None, conn=None, md5_quer
 		return True
 	close_conn()
 	_log.error('MD5 sums of data file and database BYTEA field do not match: [file::%s] <> [DB::%s]', file_md5, db_md5)
+	return False
+
+#---------------------------------------------------------------------------
+def run_sql_script(sql_script, conn=None):
+
+	if conn is None:
+		conn = get_connection(readonly = False)
+
+	from Gnumed.pycommon import gmPsql
+	psql = gmPsql.Psql(conn)
+
+	if psql.run(sql_script) == 0:
+		query = {
+			'cmd': u'select gm.log_script_insertion(%(name)s, %(ver)s)',
+			'args': {'name': sql_script, 'ver': u'current'}
+		}
+		run_rw_queries(link_obj = conn, queries = [query])
+		conn.commit()
+		return True
+
+	_log.error('error running sql script: %s', sql_script)
 	return False
 
 #------------------------------------------------------------------------
