@@ -91,6 +91,8 @@ select
 	r_vsd.dose_unit,
 	r_dp.preparation
 		as preparation,
+	_(r_dp.preparation)
+		as l10n_preparation,
 	r_vsd.intake_instructions,
 	r_vsd.loincs,
 	r_vsd.atc_substance,

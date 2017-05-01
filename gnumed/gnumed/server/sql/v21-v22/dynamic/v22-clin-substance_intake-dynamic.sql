@@ -76,6 +76,8 @@ select
 	r_dp.description
 		as product,
 	r_dp.preparation,
+	_(r_dp.preparation)
+		as l10n_preparation,
 	r_s.description
 		as substance,
 	r_d.amount,

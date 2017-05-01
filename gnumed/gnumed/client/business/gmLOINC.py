@@ -83,6 +83,7 @@ SELECT coalesce (
 		return []
 
 	return [ r[0] for r in rows ]
+
 #============================================================
 def split_LOINCDBTXT(input_fname=None, data_fname=None, license_fname=None):
 

@@ -20,6 +20,8 @@ create view ref.v_vaccines as
 			as vaccine,
 		r_dp.preparation
 			as preparation,
+		_(r_dp.preparation)
+			as l10n_preparation,
 		r_dp.atc_code
 			as atc_code,
 		r_dp.is_fake

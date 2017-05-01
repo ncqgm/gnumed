@@ -86,6 +86,8 @@ select
 		as product,
 	r_dp.preparation
 		as preparation,
+	_(r_dp.preparation)
+		as l10n_preparation,
 	r_dp.atc_code
 		as atc,
 	r_dp.external_code

@@ -4,7 +4,9 @@
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
-import sys, copy, logging
+import sys
+import logging
+import io
 
 
 if __name__ == '__main__':
@@ -20,10 +22,382 @@ if __name__ == '__main__':
 from Gnumed.business import gmMedication
 
 
-_log = logging.getLogger('gm.vaccination')
+_log = logging.getLogger('gm.vacc')
 
 #============================================================
-def get_indications(order_by=None, pk_indications=None):
+_SQL_create_substance = u"""-- in case <%(moniker)s> already exists: add ATC
+UPDATE ref.substance SET atc = '%(atc)s' WHERE lower(description) = lower('%(desc)s') AND atc IS NULL;
+
+INSERT INTO ref.substance (description, atc)
+	SELECT
+		'%(desc)s',
+		'%(atc)s'
+	WHERE NOT EXISTS (
+		SELECT 1 FROM ref.substance WHERE atc = '%(atc)s'
+	);
+
+-- generic English
+SELECT i18n.upd_tx('en', '%(orig)s', '%(trans)s');
+-- user language, if any, fails if not set
+SELECT i18n.upd_tx('%(orig)s', '%(trans)s');"""
+
+_SQL_map_indication2substance = u"""-- old-style "%(v21_ind)s" => "%(desc)s"
+INSERT INTO staging.lnk_vacc_ind2subst_dose (fk_indication, fk_dose, is_live)
+	SELECT
+		(SELECT id FROM ref.vacc_indication WHERE description = '%(v21_ind)s'),
+		(SELECT pk_dose FROM ref.v_substance_doses WHERE
+			amount = 1
+				AND
+			unit = 'dose'
+				AND
+			dose_unit = 'shot'
+				AND
+			substance = '%(desc)s'
+		),
+		%(is_live)s
+	WHERE EXISTS (
+		SELECT 1 FROM ref.vacc_indication WHERE description = '%(v21_ind)s'
+	);"""
+
+_SQL_create_vacc_product = u"""-- --------------------------------------------------------------
+-- in case <%(prod_name)s> exists: add ATC
+UPDATE ref.drug_product SET atc_code = '%(atc_prod)s' WHERE
+	atc_code IS NULL
+		AND
+	description = '%(prod_name)s'
+		AND
+	preparation = '%(prep)s'
+		AND
+	is_fake IS TRUE;
+
+INSERT INTO ref.drug_product (description, preparation, is_fake, atc_code)
+	SELECT
+		'%(prod_name)s',
+		'%(prep)s',
+		TRUE,
+		'%(atc_prod)s'
+	WHERE NOT EXISTS (
+		SELECT 1 FROM ref.drug_product WHERE
+			description = '%(prod_name)s'
+				AND
+			preparation = '%(prep)s'
+				AND
+			is_fake = TRUE
+				AND
+			atc_code = '%(atc_prod)s'
+	);"""
+
+_SQL_create_vaccine = u"""-- add vaccine if necessary
+INSERT INTO ref.vaccine (is_live, fk_drug_product)
+	SELECT
+		%(is_live)s,
+		(SELECT pk FROM ref.drug_product WHERE
+			description = '%(prod_name)s'
+				AND
+			preparation = '%(prep)s'
+				AND
+			is_fake = TRUE
+				AND
+			atc_code = '%(atc_prod)s'
+		)
+	WHERE NOT EXISTS (
+		SELECT 1 FROM ref.vaccine WHERE
+			is_live IS %(is_live)s
+				AND
+			fk_drug_product = (
+				SELECT pk FROM ref.drug_product WHERE
+					description = '%(prod_name)s'
+						AND
+					preparation = '%(prep)s'
+						AND
+					is_fake = TRUE
+						AND
+					atc_code = '%(atc_prod)s'
+			)
+	);"""
+
+_SQL_create_vacc_subst_dose = u"""-- create dose, assumes substance exists
+INSERT INTO ref.dose (fk_substance, amount, unit, dose_unit)
+	SELECT
+		(SELECT pk FROM ref.substance WHERE atc = '%(atc_subst)s' LIMIT 1),
+		1,
+		'dose',
+		'shot'
+	WHERE NOT EXISTS (
+		SELECT 1 FROM ref.dose WHERE
+			fk_substance = (SELECT pk FROM ref.substance WHERE atc = '%(atc_subst)s' LIMIT 1)
+				AND
+			amount = 1
+				AND
+			unit = 'dose'
+				AND
+			dose_unit IS NOT DISTINCT FROM 'shot'
+	);"""
+
+_SQL_link_dose2vacc_prod = u"""-- link dose to product
+INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
+	SELECT
+		(SELECT pk from ref.dose WHERE
+					fk_substance = (SELECT pk FROM ref.substance WHERE atc = '%(atc_subst)s' LIMIT 1)
+						AND
+					amount = 1
+						AND
+					unit = 'dose'
+						AND
+					dose_unit IS NOT DISTINCT FROM 'shot'
+		),
+		(SELECT pk FROM ref.drug_product WHERE
+			description = '%(prod_name)s'
+				AND
+			preparation = '%(prep)s'
+				AND
+			is_fake = TRUE
+				AND
+			atc_code = '%(atc_prod)s'
+		)
+	WHERE NOT EXISTS (
+		SELECT 1 FROM ref.lnk_dose2drug WHERE
+			fk_dose = (
+				SELECT PK from ref.dose WHERE
+					fk_substance = (SELECT pk FROM ref.substance WHERE atc = '%(atc_subst)s' LIMIT 1)
+						AND
+					amount = 1
+						AND
+					unit = 'dose'
+						AND
+					dose_unit IS NOT DISTINCT FROM 'shot'
+			)
+				AND
+			fk_drug_product = (
+				SELECT pk FROM ref.drug_product WHERE
+					description = '%(prod_name)s'
+						AND
+					preparation = '%(prep)s'
+						AND
+					is_fake = TRUE
+						AND
+					atc_code = '%(atc_prod)s'
+			)
+	);"""
+
+_SQL_create_indications_mapping_table = u"""-- set up helper table for conversion of vaccines from using
+-- linked indications to using linked substances,
+-- to be dropped after converting vaccines
+DROP TABLE IF EXISTS staging.lnk_vacc_ind2subst_dose CASCADE;
+
+CREATE UNLOGGED TABLE staging.lnk_vacc_ind2subst_dose (
+	fk_indication INTEGER
+		NOT NULL
+		REFERENCES ref.vacc_indication(id)
+			ON UPDATE CASCADE
+			ON DELETE RESTRICT,
+	fk_dose INTEGER
+		NOT NULL
+		REFERENCES ref.dose(pk)
+			ON UPDATE CASCADE
+			ON DELETE RESTRICT,
+	is_live
+		BOOLEAN
+		NOT NULL
+		DEFAULT false,
+	UNIQUE(fk_indication, fk_dose),
+	UNIQUE(fk_indication, is_live)
+);
+
+
+DROP VIEW IF EXISTS staging.v_lnk_vacc_ind2subst_dose CASCADE;
+
+CREATE VIEW staging.v_lnk_vacc_ind2subst_dose AS
+SELECT
+	s_lvi2sd.is_live
+		as mapping_is_for_live_vaccines,
+	r_vi.id
+		as pk_indication,
+	r_vi.description
+		as indication,
+	r_vi.atcs_single_indication,
+	r_vi.atcs_combi_indication,
+	r_d.pk
+		as pk_dose,
+	r_d.amount,
+	r_d.unit,
+	r_d.dose_unit,
+	r_s.pk
+		as pk_substance,
+	r_s.description
+		as substance,
+	r_s.atc
+		as atc_substance
+FROM
+	staging.lnk_vacc_ind2subst_dose s_lvi2sd
+		inner join ref.vacc_indication r_vi on (r_vi.id = s_lvi2sd.fk_indication)
+		inner join ref.dose r_d on (r_d.pk = s_lvi2sd.fk_dose)
+			inner join ref.substance r_s on (r_s.pk = r_d.fk_substance)
+;"""
+
+
+#============================================================
+def write_generic_vaccine_sql(version, create_indications_mapping_table=False, filename=None):
+	if filename is None:
+		filename = gmTools.get_unique_filename(suffix = u'.sql')
+	_log.debug('writing SQL for creating generic vaccines to: %s', filename)
+	sql_file = io.open(filename, mode = 'wt', encoding = 'utf8')
+	sql_file.write(create_generic_vaccine_sql (
+		version,
+		create_indications_mapping_table = create_indications_mapping_table
+	))
+	sql_file.close()
+	return filename
+
+#------------------------------------------------------------
+def create_generic_vaccine_sql(version, create_indications_mapping_table=False):
+
+	_log.debug('including indications mapping table with generic vaccines creation SQL: %s', create_indications_mapping_table)
+
+	from Gnumed.business import gmVaccDefs
+
+	sql_create_substances = []
+	sql_populate_ind2subst_map = []
+	sql_create_vaccines = []
+
+	for moniker in gmVaccDefs._VACCINE_SUBSTANCES:
+		subst = gmVaccDefs._VACCINE_SUBSTANCES[moniker]
+		args = {
+			'moniker': moniker,
+			'atc': subst['atc'],
+			'desc': subst['name'],
+			'orig': subst['target'].split(u'::')[0],
+			'trans': subst['target'].split(u'::')[-1]
+		}
+		sql_create_substances.append(_SQL_create_substance % args)
+		try:
+			for v21_ind in subst['v21_indications']:
+				args['v21_ind'] = v21_ind
+				args['is_live'] = u'false'
+				sql_populate_ind2subst_map.append(_SQL_map_indication2substance % args)
+		except KeyError:
+			pass
+		try:
+			for v21_ind in subst['v21_indications_live']:
+				args['v21_ind'] = v21_ind
+				args['is_live'] = u'true'
+				sql_populate_ind2subst_map.append(_SQL_map_indication2substance % args)
+		except KeyError:
+			pass
+		args = {}
+
+	for key in gmVaccDefs._GENERIC_VACCINES:
+		vaccine_def = gmVaccDefs._GENERIC_VACCINES[key]
+		# create product
+		args = {
+			'atc_prod': vaccine_def['atc'],
+			'prod_name': vaccine_def['name'],
+			'prep': _('vaccine'),
+			#'is_live': u'false'
+			'is_live': vaccine_def['live']
+		}
+		sql_create_vaccines.append(_SQL_create_vacc_product % args)
+		# create doses
+		for ing_moniker in vaccine_def['ingredients']:
+			vacc_subst_def = gmVaccDefs._VACCINE_SUBSTANCES[ing_moniker]
+			args['atc_subst'] = vacc_subst_def['atc']
+			# substance already created, only need to create dose
+			sql_create_vaccines.append(_SQL_create_vacc_subst_dose % args)
+			# link dose to product
+			sql_create_vaccines.append(_SQL_link_dose2vacc_prod % args)
+			# the following does not work because there are mixed vaccines
+			# any live ingredients included ?
+#			if vacc_subst_def.has_key('v21_indications_live'):
+#				if vaccine_def['live'] is False:
+#					print vaccine_def
+#					raise Exception('vaccine def says "NOT live" but ingredients DO map to <v21_indications_LIVE>')
+#			if vacc_subst_def.has_key('v21_indications'):
+#				if vaccine_def['live'] is True:
+#					print vaccine_def
+#					raise Exception('vaccine def says "live" but ingredients do NOT map to v21_indications_LIVE')
+
+		# create vaccine
+		sql_create_vaccines.append(_SQL_create_vaccine % args)
+
+	# join
+	sql = u"""-- ==============================================================
+-- GNUmed database schema change script
+--
+-- License: GPL v2 or later
+-- Author: karsten.hilbert@gmx.net
+--
+-- THIS IS A GENERATED FILE. DO NOT EDIT.
+--
+-- ==============================================================
+\set ON_ERROR_STOP 1
+--set default_transaction_read_only to off;
+
+-- --------------------------------------------------------------
+%s
+
+-- --------------------------------------------------------------
+-- generic vaccine "substances" (= indications)
+-- --------------------------------------------------------------
+%s
+
+-- --------------------------------------------------------------
+-- generic vaccines
+-- --------------------------------------------------------------
+-- new-style vaccines are not linked to indications, so drop
+-- trigger asserting that condition,
+DROP FUNCTION IF EXISTS clin.trf_sanity_check_vaccine_has_indications() CASCADE;
+
+
+-- need to disable trigger before running
+ALTER TABLE ref.drug_product
+	DISABLE TRIGGER tr_assert_product_has_components
+;
+
+%s
+
+-- want to re-enable trigger as now all inserted
+-- vaccines satisfy the conditions
+ALTER TABLE ref.drug_product
+	ENABLE TRIGGER tr_assert_product_has_components
+;
+
+-- --------------------------------------------------------------
+%s
+%s
+
+-- --------------------------------------------------------------
+select gm.log_script_insertion('v%s-ref-create_generic_vaccines.sql', '%s');""" % (
+
+		gmTools.bool2subst (
+			create_indications_mapping_table,
+			_SQL_create_indications_mapping_table,
+			u'-- indications mapping table not included'
+		),
+
+		u'\n\n'.join(sql_create_substances),
+
+		u'\n\n'.join(sql_create_vaccines),
+
+		gmTools.bool2subst (
+			create_indications_mapping_table,
+			u'-- populate helper table\n-- map old style\n--		(clin|ref).vacc_indication.description\n-- to new style\n--		ref.v_substance_doses.substance\n',
+			u''
+		),
+
+		gmTools.bool2subst (
+			create_indications_mapping_table,
+			u'\n\n'.join(sql_populate_ind2subst_map),
+			u'-- indications mapping table not populated'
+		),
+
+		version,
+
+		version
+	)
+	return sql
+
+#============================================================
+def __old_get_indications(order_by=None, pk_indications=None):
 	cmd = u'SELECT *, _(description) AS l10n_description FROM ref.vacc_indication'
 	args = {}
 
@@ -219,7 +593,7 @@ def get_vaccines(order_by=None):
 	return [ cVaccine(row = {'data': r, 'idx': idx, 'pk_field': 'pk_vaccine'}) for r in rows ]
 
 #------------------------------------------------------------
-def map_indications2generic_vaccine(indications=None):
+def __old_map_indications2generic_vaccine(indications=None):
 
 	args = {'inds': indications}
 	cmd = _sql_fetch_vaccine % (u'is_fake_vaccine is True AND indications @> %(inds)s AND %(inds)s @> indications')
@@ -231,17 +605,6 @@ def map_indications2generic_vaccine(indications=None):
 		return None
 
 	return cVaccine(row = {'data': rows[0], 'idx': idx, 'pk_field': 'pk_vaccine'})
-
-#------------------------------------------------------------
-def regenerate_generic_vaccines():
-
-	cmd = u'select gm.create_generic_monovalent_vaccines()'
-	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd}], return_data = True)
-
-	cmd = u'select gm.create_generic_combi_vaccines()'
-	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd}], return_data = True)
-
-	return rows[0][0]
 
 #============================================================
 # vaccination related classes
@@ -906,6 +1269,17 @@ if __name__ == '__main__':
 			print v
 
 	#--------------------------------------------------------
+	def test_create_generic_vaccine_sql():
+		print create_generic_vaccine_sql(u'22.0')
+
+	#--------------------------------------------------------
+	def test_write_generic_vaccine_sql(version):
+		print write_generic_vaccine_sql (
+			version,
+			create_indications_mapping_table = True
+		)
+
+	#--------------------------------------------------------
 	#test_vaccination_course()
 	#test_put_patient_on_schedule()
 	#test_scheduled_vacc()
@@ -913,4 +1287,6 @@ if __name__ == '__main__':
 	#test_due_vacc()
 	#test_due_booster()
 
-	test_get_vaccines()
+	#test_get_vaccines()
+	#test_create_generic_vaccine_sql()
+	test_write_generic_vaccine_sql(sys.argv[2])

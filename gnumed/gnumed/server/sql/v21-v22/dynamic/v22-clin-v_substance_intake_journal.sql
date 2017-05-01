@@ -53,7 +53,7 @@ create view clin.v_substance_intake_journal as
 			|| coalesce(' [' || r_s.atc || '] ', ' ')				-- [ATC]
 			|| r_d.amount::text										-- 100
 			|| r_d.unit || ' '										-- mg
-			|| r_dp.preparation										-- tab
+			|| _(r_dp.preparation)									-- tab
 			|| coalesce(' ' || c_si.schedule, '')					-- 1-0-0
 			|| ', ' || (case
 					when c_si.comment_on_start = '?' then '?'		-- start = unknown

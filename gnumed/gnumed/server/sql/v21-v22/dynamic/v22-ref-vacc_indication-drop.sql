@@ -23,10 +23,4 @@ delete from audit.audited_tables where
 	table_name = 'vacc_indication';
 
 -- --------------------------------------------------------------
--- new-style vaccines are not linked to indications, so drop
--- trigger asserting that condition,
--- it had already been disabled for creation of new vaccines
-drop function if exists clin.trf_sanity_check_vaccine_has_indications() cascade;
-
--- --------------------------------------------------------------
 select gm.log_script_insertion('v22-ref-vacc_indication-drop.sql', '22.0');

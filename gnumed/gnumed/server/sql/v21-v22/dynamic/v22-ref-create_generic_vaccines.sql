@@ -11,6 +11,8 @@
 --set default_transaction_read_only to off;
 
 -- --------------------------------------------------------------
+-- indications mapping helper table
+-- --------------------------------------------------------------
 -- set up helper table for conversion of vaccines from using
 -- linked indications to using linked substances,
 -- to be dropped after converting vaccines
@@ -904,11 +906,10 @@ SELECT i18n.upd_tx('J07BD01-target', 'measles');
 -- --------------------------------------------------------------
 -- generic vaccines
 -- --------------------------------------------------------------
--- new vaccines are not linked to indications, so disable that
--- trigger for the time being
-ALTER TABLE ref.vaccine
-	DISABLE TRIGGER tr_sanity_check_vaccine_has_indications
-;
+-- new-style vaccines are not linked to indications, so drop
+-- trigger asserting that condition,
+DROP FUNCTION IF EXISTS clin.trf_sanity_check_vaccine_has_indications() CASCADE;
+
 
 -- need to disable trigger before running
 ALTER TABLE ref.drug_product
@@ -11453,11 +11454,13 @@ ALTER TABLE ref.drug_product
 ;
 
 -- --------------------------------------------------------------
--- populate helper table
+-- indications mapping data
+-- --------------------------------------------------------------
 -- map old style
 --		(clin|ref).vacc_indication.description
 -- to new style
 --		ref.v_substance_doses.substance
+
 -- old-style "meningococcus Y" => "meningococcus Y antigen"
 INSERT INTO staging.lnk_vacc_ind2subst_dose (fk_indication, fk_dose, is_live)
 	SELECT
@@ -12161,4 +12164,4 @@ INSERT INTO staging.lnk_vacc_ind2subst_dose (fk_indication, fk_dose, is_live)
 	);
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('v22-ref-create_generic_vaccines.sql', '22.0');
+select gm.log_script_insertion('v22-ref-create_generic_vaccines.sql', '22');
