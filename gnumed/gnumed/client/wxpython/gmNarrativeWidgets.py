@@ -778,6 +778,8 @@ class cSoapNoteInputNotebook(wx.Notebook):
 		kwargs['style'] = wx.NB_TOP | wx.NB_MULTILINE | wx.NO_BORDER
 
 		wx.Notebook.__init__(self, *args, **kwargs)
+
+		_log.debug('created wx.Notebook: %s with ID %s', self.__class__.__name__, self.Id)
 	#--------------------------------------------------------
 	# public API
 	#--------------------------------------------------------
