@@ -142,6 +142,13 @@ def flush():
 #		logger.debug('  %s: %s', attr, getattr(v, attr))
 
 #===============================================================
+def log_instance_state(instance):
+	logger = logging.getLogger('gm.logging')
+	logger.debug('state of %s', instance)
+	for attr in [ a for a in dir(instance) if not a.startswith('__') ]:
+		logger.debug('  %s: %s', attr, getattr(instance, attr))
+
+#===============================================================
 def log_stack_trace(message=None, t=None, v=None, tb=None):
 
 	logger = logging.getLogger('gm.logging')

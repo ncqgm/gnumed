@@ -1192,6 +1192,7 @@ class cMeasurementsNb(wx.Notebook, gmPlugin.cPatientChange_PluginMixin):
 			style = wx.NB_TOP | wx.NB_MULTILINE | wx.NO_BORDER,
 			name = self.__class__.__name__
 		)
+		_log.debug('created wx.Notebook: %s with ID %s', self.__class__.__name__, self.Id)
 		gmPlugin.cPatientChange_PluginMixin.__init__(self)
 		self.__patient = gmPerson.gmCurrentPatient()
 		self.__init_ui()
