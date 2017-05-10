@@ -554,7 +554,7 @@ class cOrthancServer:
 	#--------------------------------------------------------
 	def upload_dicom_file(self, filename, check_mime_type=False):
 		if gmTools.fname_stem(filename) == u'DICOMDIR':
-			_log.debug('ignoring [%s], no use uploading DICOMDIR files to Orthanc', filename)
+			_log.debug(u'ignoring [%s], no use uploading DICOMDIR files to Orthanc', filename)
 			return True
 
 		if check_mime_type:
@@ -568,6 +568,7 @@ class cOrthancServer:
 			return False
 		dcm_data = f.read()
 		f.close()
+		_log.debug(u'uploading [%s]', filename)
 		upload_url = '%s/instances' % self.__server_url
 		uploaded = self.__run_POST(upload_url, data = dcm_data, content_type = 'application/dicom')
 		if uploaded is False:
@@ -604,7 +605,7 @@ class cOrthancServer:
 			not_uploaded.append(filename)
 
 		if len(not_uploaded) > 0:
-			_log.error('not all files uploaded')
+			_log.error(u'not all files uploaded')
 		return (uploaded, not_uploaded)
 
 	#--------------------------------------------------------
@@ -616,21 +617,25 @@ class cOrthancServer:
 			_log.error(exc)
 		#--------------------
 
-		_log.debug('uploading DICOM files from [%s]', directory)
+		_log.debug(u'uploading DICOM files from [%s]', directory)
 		if not recursive:
 			files2try = os.listdir(directory)
+			_log.debug(u'found %s files', len(files2try))
 			if ignore_other_files:
 				files2try = [ f for f in files2try if gmMimeLib.guess_mimetype(f) == u'application/dicom' ]
+				_log.debug(u'DICOM files therein: %s', len(files2try))
 			return self.upload_dicom_files(files = files2try, check_mime_type = check_mime_type)
 
-		_log.debug('recursing for DICOM files')
+		_log.debug(u'recursing for DICOM files')
 		uploaded = []
 		not_uploaded = []
 		for curr_root, curr_root_subdirs, curr_root_files in os.walk(directory, onerror = _on_error):
-			_log.debug('recursing into [%s]', curr_root)
+			_log.debug(u'recursing into [%s]', curr_root)
 			files2try = [ os.path.join(curr_root, f) for f in curr_root_files ]
+			_log.debug(u'found %s files', len(files2try))
 			if ignore_other_files:
 				files2try = [ f for f in files2try if gmMimeLib.guess_mimetype(f) == u'application/dicom' ]
+				_log.debug(u'DICOM files therein: %s', len(files2try))
 			up, not_up = self.upload_dicom_files (
 				files = files2try,
 				check_mime_type = check_mime_type
@@ -840,6 +845,12 @@ class cOrthancServer:
 		except httplib.ResponseNotReady:
 			_log.exception('cannot GET: %s', full_url)
 			return False
+		except httplib.InvalidURL:
+			_log.exception('cannot GET: %s', full_url)
+			return False
+		except httplib2.ServerNotFoundError:
+			_log.exception('cannot GET: %s', full_url)
+			return False
 		except socket.error:
 			_log.exception('cannot GET: %s', full_url)
 			return False
@@ -867,24 +878,31 @@ class cOrthancServer:
 		else:
 			body = json.dumps(data)
 			headers = { 'content-type' : 'application/json' }
+
 		try:
-			response, content = self.__conn.request(url, 'POST', body = body, headers = headers)
-		except httplib.ResponseNotReady:
-			_log.exception('cannot POST: %s', url)
-			return False
+			try:
+				response, content = self.__conn.request(url, 'POST', body = body, headers = headers)
+			except socket.error as exc:
+				if exc.errno != 32:
+					raise
+				_log.exception(u'retrying POST [%s] after: %s', url, exc)
+				response, content = self.__conn.request(url, 'POST', body = body, headers = headers)
 		except socket.error:
-			_log.exception('cannot POST: %s', url)
+			_log.exception(u'cannot POST: %s', url)
+			return False
+		except httplib.ResponseNotReady:
+			_log.exception(u'cannot POST: %s', url)
 			return False
 		except OverflowError:
-			_log.exception('cannot POST: %s', url)
+			_log.exception(u'cannot POST: %s', url)
 			return False
 
 		if response.status == 404:
-			_log.debug('no data, response: %s', response)
+			_log.debug(u'no data, response: %s', response)
 			return []
 		if not (response.status in [ 200, 302 ]):
-			_log.error('cannot POST: %s', url)
-			_log.error('response: %s', response)
+			_log.error(u'cannot POST: %s', url)
+			_log.error(u'response: %s', response)
 			return False
 		try:
 			return json.loads(content)
