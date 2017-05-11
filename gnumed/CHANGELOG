@@ -48,6 +48,7 @@ IMPROVED: more fully prevent logfile based password leaks
 IMPROVED: add listing of latest vaccination per indication
 IMPROVED: export area change listening and sortability
 IMPROVED: episode edit area behaviour
+IMPROVED: add measurement by clicking empty cell in grid
 
 	1.6.12
 
