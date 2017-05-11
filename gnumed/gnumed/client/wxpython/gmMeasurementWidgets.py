@@ -1294,7 +1294,6 @@ class cMeasurementsGrid(wx.grid.Grid):
 	- thereby it can display any patient at any time
 	"""
 	# FIXME: sort-by-battery
-	# FIXME: filter-by-battery
 	# FIXME: filter out empty
 	# FIXME: filter by tests of a selected date
 	# FIXME: dates DESC/ASC by cfg
@@ -1829,8 +1828,8 @@ class cMeasurementsGrid(wx.grid.Grid):
 		try:
 			self.__cell_data[col][row]
 		except KeyError:
-			# FIXME: invoke editor for adding value for day of that column
-			# FIMXE: and test of that row
+			# FIXME: preset date/test type from cell location, preset episode/med context from other tests on this date
+			edit_measurement(parent = self, measurement = None, single_entry = True)
 			return
 
 		if len(self.__cell_data[col][row]) > 1:
