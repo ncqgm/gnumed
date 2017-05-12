@@ -50,6 +50,8 @@ IMPROVED: export area change listening and sortability
 IMPROVED: episode edit area behaviour
 IMPROVED: add measurement by clicking empty cell in grid
 
+NEW: add Constans algorithm for upper extremity DVT
+
 	1.6.12
 
 FIX: patient merging [thanks Marc]
