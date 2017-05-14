@@ -609,7 +609,7 @@ def __old_map_indications2generic_vaccine(indications=None):
 #============================================================
 # vaccination related classes
 #============================================================
-sql_fetch_vaccination = u"""SELECT * FROM clin.v_pat_vaccinations WHERE %s"""
+sql_fetch_vaccination = u"""SELECT * FROM clin.v_vaccinations WHERE %s"""
 
 class cVaccination(gmBusinessDBObject.cBusinessDBObject):
 

@@ -905,8 +905,8 @@ class database:
 			try:
 				tag, old_query = check_def.split('::::')
 			except:
-				_log.exception('error in plausibility check, aborting')
-				_log.error('check definition: %s', check_def)
+				_log.exception(u'error in plausibility check, aborting')
+				_log.error(u'check definition: %s', check_def)
 				print_msg("    ... failed (check definition error)")
 				all_tests_successful = False
 				continue
@@ -919,8 +919,8 @@ class database:
 				)
 				old_val = rows[0][0]
 			except:
-				_log.exception('error in plausibility check [%s] (old), aborting' % tag)
-				_log.error('SQL: %s', old_query)
+				_log.exception(u'error in plausibility check [%s] (old), aborting' % tag)
+				_log.error(u'SQL: %s', old_query)
 				print_msg("    ... failed (SQL error)")
 				all_tests_successful = False
 				continue
@@ -932,21 +932,21 @@ class database:
 				)
 				new_val = rows[0][0]
 			except:
-				_log.exception('error in plausibility check [%s] (new), aborting' % tag)
-				_log.error('SQL: %s', new_query)
+				_log.exception(u'error in plausibility check [%s] (new), aborting' % tag)
+				_log.error(u'SQL: %s', new_query)
 				print_msg("    ... failed (SQL error)")
 				all_tests_successful = False
 				continue
 
 			if new_val != old_val:
-				_log.error('plausibility check [%s] failed, expected [%s], found [%s]' % (tag, old_val, new_val))
-				_log.error('SQL (old DB): %s', old_query)
-				_log.error('SQL (new DB): %s', new_query)
+				_log.error(u'plausibility check [%s] failed, expected: %s (in old DB), found: %s (in new DB)' % (tag, old_val, new_val))
+				_log.error(u'SQL (old DB): %s', old_query)
+				_log.error(u'SQL (new DB): %s', new_query)
 				print_msg("    ... failed (data error, check [%s])" % tag)
 				all_tests_successful = False
 				continue
 
-			_log.info('plausibility check [%s] succeeded' % tag)
+			_log.info(u'plausibility check [%s] succeeded' % tag)
 
 		template_conn.close()
 		target_conn.close()

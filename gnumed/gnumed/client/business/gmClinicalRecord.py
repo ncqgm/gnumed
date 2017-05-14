@@ -1171,7 +1171,7 @@ class cClinicalRecord(object):
 					is_currently_active IN (null, true)
 						AND
 					intake_is_approved_of IN (null, true)""",
-			u'SELECT count(1) FROM clin.v_pat_vaccinations WHERE pk_patient = %(pat)s'
+			u'SELECT count(1) FROM clin.v_vaccinations WHERE pk_patient = %(pat)s'
 		])
 
 		rows, idx = gmPG2.run_ro_queries (
@@ -1887,7 +1887,7 @@ WHERE
 				c_v_plv4i.no_of_shots
 				--c_v_plv4i.indication_count as no_of_shots
 			FROM
-				clin.v_pat_vaccinations c_v_pv
+				clin.v_vaccinations c_v_pv
 					JOIN clin.v_pat_last_vacc4indication c_v_plv4i ON (c_v_pv.pk_vaccination = c_v_plv4i.pk_vaccination)
 			WHERE %s
 		""" % u'\nAND '.join(where_parts)

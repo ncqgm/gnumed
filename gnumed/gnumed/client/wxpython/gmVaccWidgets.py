@@ -227,7 +227,7 @@ SELECT data, field_label, list_label FROM (
 				batch_no || ' (' || vaccine || ')' AS list_label,
 				1 as rank
 			FROM
-				clin.v_pat_vaccinations
+				clin.v_vaccinations
 			WHERE
 				batch_no %(fragment_condition)s
 				%(ctxt_vaccine)s
@@ -239,7 +239,7 @@ SELECT data, field_label, list_label FROM (
 				batch_no || ' (' || vaccine || ')' AS list_label,
 				2 AS rank
 			FROM
-				clin.v_pat_vaccinations
+				clin.v_vaccinations
 			WHERE
 				batch_no %(fragment_condition)s
 		)
