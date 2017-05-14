@@ -17,17 +17,26 @@ INSERT INTO dem.message_inbox (
 ) VALUES (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
-	'Release Notes for GNUmed 1.6.12 (database v21.12)',
-	'GNUmed 1.6.12 Release Notes:
+	'Release Notes for GNUmed 1.6.13 (database v21.13)',
+	'GNUmed 1.6.13 Release Notes:
 
-	1.6.12
+	1.6.13
 
-FIX: patient merging [thanks Marc]
+FIX: editing of drug products
+FIX: formatting of intervals with seconds [thanks Rickard]
+FIX: robustify backend listener against change notification trigger errors
+FIX: backport once-only detection of unicode char selector
+FIX: improper handling of notebook page change events
+FIX: error handling on uploading DICOM to Orthanc
 
-	21.12
+IMPROVED: more fully prevent logfile based password leaks
+IMPROVED: add listing of latest vaccination per indication
+IMPROVED: export area change listening and sortability
+IMPROVED: episode edit area behaviour
+IMPROVED: add measurement by clicking empty cell in grid
 
-IMPROVED: logging on dem.identity/dem.names uniqueness violation
+NEW: add Constans algorithm for upper extremity DVT
 ');
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('v21-release_notes-dynamic.sql', '21.12');
+select gm.log_script_insertion('v21-release_notes-dynamic.sql', '21.13');

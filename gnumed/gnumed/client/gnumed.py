@@ -91,7 +91,7 @@ against. Please run GNUmed as a non-root user.
 	sys.exit(1)
 
 #----------------------------------------------------------
-current_client_version = u'1.6.12'
+current_client_version = u'1.6.13'
 current_client_branch = u'1.6'
 
 _log = None
@@ -374,7 +374,8 @@ def setup_cli():
 		val = False
 	_cfg.set_option (
 		option = u'skip-update-check',
-		value = val
+		value = True
+#		value = val
 	)
 
 	val = _cfg.get(option = '--hipaa', source_order = [('cli', 'return')])
