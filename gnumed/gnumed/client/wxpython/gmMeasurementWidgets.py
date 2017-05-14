@@ -340,12 +340,14 @@ def call_browser_on_measurement_type(measurement_type=None):
 	gmNetworkTools.open_url_in_browser(url = url)
 
 #----------------------------------------------------------------
-def edit_measurement(parent=None, measurement=None, single_entry=False):
+def edit_measurement(parent=None, measurement=None, single_entry=False, fields=None):
 	ea = cMeasurementEditAreaPnl(parent = parent, id = -1)
 	ea.data = measurement
 	ea.mode = gmTools.coalesce(measurement, 'new', 'edit')
 	dlg = gmEditArea.cGenericEditAreaDlg2(parent = parent, id = -1, edit_area = ea, single_entry = single_entry)
 	dlg.SetTitle(gmTools.coalesce(measurement, _('Adding new measurement'), _('Editing measurement')))
+	if fields is not None:
+		ea.set_fields(fields)
 	if dlg.ShowModal() == wx.ID_OK:
 		dlg.Destroy()
 		return True
@@ -768,7 +770,8 @@ class cMeasurementsByDayPnl(wxgMeasurementsByDayPnl.wxgMeasurementsByDayPnl, gmR
 			self._TCTRL_measurements.SetValue(u'')
 			return
 
-		dates = [ d[0] for d in self.__patient.emr.get_dates_for_results(reverse_chronological = True) ]
+		#dates = [ d[0] for d in self.__patient.emr.get_dates_for_results(reverse_chronological = True) ]
+		dates = self.__patient.emr.get_dates_for_results(reverse_chronological = True)
 		items = [ [gmDateTime.pydt_strftime(d, self.__date_format)] for d in dates ]
 
 		self._LCTRL_days.set_string_items(items)
@@ -1264,6 +1267,7 @@ class cMeasurementsGrid(wx.grid.Grid):
 		self.__show_by_panel = False
 		self.__cell_data = {}
 		self.__row_label_data = []
+		self.__col_label_data = []
 
 		self.__prev_row = None
 		self.__prev_col = None
@@ -1450,6 +1454,8 @@ class cMeasurementsGrid(wx.grid.Grid):
 		if len(tests4rows) == 0:
 			return
 
+		emr = self.__patient.emr
+
 		self.__row_label_data = tests4rows
 		row_labels = [ u'%s%s' % (
 				gmTools.bool2subst(test_type['is_fake_meta_type'], u'', gmTools.u_sum, u''),
@@ -1457,11 +1463,11 @@ class cMeasurementsGrid(wx.grid.Grid):
 			) for test_type in self.__row_label_data
 		]
 
-		emr = self.__patient.emr
-		col_labels = [ gmDateTime.pydt_strftime(date[0], self.__date_format, accuracy = gmDateTime.acc_days) for date in emr.get_dates_for_results (
-				tests = test_pks2show,
-				reverse_chronological = True
-		)]
+		self.__col_label_data = emr.get_dates_for_results (
+			tests = test_pks2show,
+			reverse_chronological = True
+		)
+		col_labels = [ gmDateTime.pydt_strftime(date, self.__date_format, accuracy = gmDateTime.acc_days) for date in self.__col_label_data ]
 
 		results = emr.get_test_results_by_date (
 			tests = test_pks2show,
@@ -1607,6 +1613,8 @@ class cMeasurementsGrid(wx.grid.Grid):
 		self.EndBatch()
 		self.__cell_data = {}
 		self.__row_label_data = []
+		self.__col_label_data = []
+
 	#------------------------------------------------------------
 	def get_row_tooltip(self, row=None):
 		# include details about test types included ?
@@ -1625,6 +1633,7 @@ class cMeasurementsGrid(wx.grid.Grid):
 		txt = meta_tt.format(with_tests = True, patient = self.__patient.ID)
 
 		return txt
+
 	#------------------------------------------------------------
 	def get_cell_tooltip(self, col=None, row=None):
 		try:
@@ -1785,8 +1794,23 @@ class cMeasurementsGrid(wx.grid.Grid):
 		try:
 			self.__cell_data[col][row]
 		except KeyError:
-			# FIXME: preset date/test type from cell location, preset episode/med context from other tests on this date
-			edit_measurement(parent = self, measurement = None, single_entry = True)
+			# FIXME: preset episode/med context from other tests on this date
+			col_date = self.__col_label_data[col]
+			ttype = self.__row_label_data[row]
+			temporally_closest_result = ttype.meta_test_type.get_temporally_closest_result(col_date, self.__patient.ID)
+			fields = {
+				u'clin_when': {'data': col_date},
+#				u'pk_episode': {'data'},
+#				u'comment': {'value': }
+			}
+			if temporally_closest_result is not None:
+				fields[u'pk_test_type'] = {'data': temporally_closest_result['pk_test_type']}
+			edit_measurement (
+				parent = self,
+				measurement = None,
+				single_entry = True,
+				fields = fields
+			)
 			return
 
 		if len(self.__cell_data[col][row]) > 1:
@@ -1798,6 +1822,7 @@ class cMeasurementsGrid(wx.grid.Grid):
 			return
 
 		edit_measurement(parent = self, measurement = data, single_entry = True)
+
 	#------------------------------------------------------------
 #     def OnMouseMotionRowLabel(self, evt):
 #         x, y = self.CalcUnscrolledPosition(evt.GetPosition())
@@ -2197,6 +2222,18 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 		self._DPRW_evaluated.display_accuracy = gmDateTime.acc_minutes
 	#--------------------------------------------------------
 	# generic edit area mixin API
+	#----------------------------------------------------------------
+	def set_fields(self, fields):
+		try:
+			self._PRW_test.SetData(data = fields['pk_test_type']['data'])
+		except KeyError:
+			pass
+		try:
+			self._DPRW_evaluated.SetData(data = fields['clin_when']['data'])
+		except KeyError:
+			pass
+		self._TCTRL_result.SetFocus()
+
 	#--------------------------------------------------------
 	def _refresh_as_new(self):
 		self._PRW_test.SetText(u'', None, True)
@@ -2876,12 +2913,14 @@ LIMIT 50""" % {'in_house': _('generic / in house lab')}
 		self.matcher = mp
 		self.SetToolTipString(_('Select the type of measurement.'))
 		self.selection_only = False
+
 	#------------------------------------------------------------
 	def _data2instance(self):
 		if self.GetData() is None:
 			return None
 
 		return gmPathLab.cMeasurementType(aPK_obj = self.GetData())
+
 #----------------------------------------------------------------
 from Gnumed.wxGladeWidgets import wxgMeasurementTypeEAPnl
 

@@ -1536,6 +1536,11 @@ def capture_cursor_state(cursor=None):
 	else:
 		isolation_level = conn.isolation_level
 
+	if cursor.query is None:
+		query = u'<no query>'
+	else:
+		query = unicode(cursor.query, 'utf8', 'replace')
+
 	txt = u"""Link state:
 Cursor
   identity: %s; name: %s
@@ -1575,7 +1580,7 @@ Query
 		conn.status,
 		conn.isexecuting(),
 
-		unicode(cursor.query, 'utf8', 'replace')
+		query
 	)
 	return txt
 

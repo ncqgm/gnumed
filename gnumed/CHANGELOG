@@ -30,6 +30,7 @@ IMPROVED: non-blocking file description retrieval
 IMPROVED: patient merging
 IMPROVED: email sending framework
 IMPROVED: export area change signalling
+IMPROVED: add test result by clicking empty results grid cell
 
 ------------------------------------------------
 # rel-1-6-patches

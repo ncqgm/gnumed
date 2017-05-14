@@ -484,6 +484,53 @@ class cMetaTestType(gmBusinessDBObject.cBusinessDBObject):
 		return cTestResult(row = {'pk_field': 'pk_test_result', 'idx': idx, 'data': rows[0]})
 
 	#--------------------------------------------------------
+	def get_temporally_closest_result(self, date, pk_patient):
+
+		args = {
+			'pat': pk_patient,
+			'mtyp': self._payload[self._idx['pk']],
+			'mloinc': self._payload[self._idx['loinc']],
+			'when': date
+		}
+		WHERE_meta = u''
+
+		SQL = u"""
+			SELECT * FROM clin.v_test_results
+			WHERE
+				pk_patient = %%(pat)s
+					AND
+				clin_when %s %%(when)s
+					AND
+				((pk_meta_test_type = %%(mtyp)s) OR (loinc_meta = %%(mloinc)s))
+			ORDER BY clin_when
+			LIMIT 1"""
+
+		# get earlier results by meta type
+		earlier_result = None
+		cmd = SQL % u'<'
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+		if len(rows) > 0:
+			earlier_result = cTestResult(row = {'pk_field': 'pk_test_result', 'idx': idx, 'data': rows[0]})
+
+		# get later results by meta type ?
+		later_result = None
+		cmd = SQL % u'>'
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+		if len(rows) > 0:
+			later_result = cTestResult(row = {'pk_field': 'pk_test_result', 'idx': idx, 'data': rows[0]})
+
+		if earlier_result is None:
+			return later_result
+		if later_result is None:
+			return earlier_result
+
+		earlier_ago = date - earlier_result['clin_when']
+		later_ago = later_result['clin_when'] - date
+		if earlier_ago < later_ago:
+			return earlier_result
+		return later_result
+
+	#--------------------------------------------------------
 	# properties
 	#--------------------------------------------------------
 	def _get_included_test_types(self):
@@ -640,6 +687,7 @@ class cMeasurementType(gmBusinessDBObject.cBusinessDBObject):
 		return cMetaTestType(aPK_obj = self._payload[self._idx['pk_meta_test_type']])
 
 	meta_test_type = property(get_meta_test_type, lambda x:x)
+
 	#--------------------------------------------------------
 	def get_temporally_closest_normal_range(self, unit, timestamp=None):
 		"""Returns the closest test result which does have normal range information.

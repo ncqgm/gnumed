@@ -2849,7 +2849,8 @@ SELECT MIN(earliest) FROM (
 			gmTools.bool2subst(reverse_chronological, u'DESC', u'ASC', u'DESC')
 		)
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
-		return rows
+		return [ r[0] for r in rows ]
+
 	#------------------------------------------------------------------
 	def get_test_results(self, encounters=None, episodes=None, tests=None, order_by=None):
 		return gmPathLab.get_test_results (
