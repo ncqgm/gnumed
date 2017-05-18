@@ -1169,6 +1169,8 @@ class cLaTeXForm(cFormEngine):
 		mimetypes = [
 			u'application/x-latex',
 			u'application/x-tex',
+			u'text/latex',
+			u'text/tex',
 			u'text/plain'
 		]
 

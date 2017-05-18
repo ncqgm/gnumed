@@ -400,8 +400,14 @@ if __name__ == "__main__":
 	#print(_system_startfile_cmd)
 	#print(guess_mimetype(filename))
 	#print(get_viewer_cmd(guess_mimetype(filename), filename))
+	print(get_editor_cmd(guess_mimetype(filename), filename))
+	print(get_editor_cmd('application/x-latex', filename))
+	print(get_editor_cmd('application/x-tex', filename))
+	print(get_editor_cmd('text/latex', filename))
+	print(get_editor_cmd('text/tex', filename))
+	print(get_editor_cmd('text/plain', filename))
 	#print(guess_ext_by_mimetype(mimetype=filename))
 	#call_viewer_on_file(aFile = filename, block=None)
-	status, desc = describe_file(filename)
-	print status
-	print desc
+	#status, desc = describe_file(filename)
+	#print status
+	#print desc
