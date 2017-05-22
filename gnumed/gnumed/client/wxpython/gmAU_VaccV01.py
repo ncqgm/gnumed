@@ -408,7 +408,7 @@ class cAU_VaccV01Panel(wx.Panel):
 	all_ind = get_unique_indications ( to_ind)
 	#import pdb
 	#pdb.set_trace()
-	vaccines = gmVaccination.get_matching_vaccines_for_indications(all_ind)
+#	vaccines = gmVaccination.get_matching_vaccines_for_indications(all_ind)
 
 	nchecked = len( [ x for x in l if x] )
 	

@@ -218,6 +218,8 @@ def connect_to_database(max_attempts=3, expected_version=None, require_version=T
 			del exc
 			continue
 
+		conn.close()
+
 		# connect was successful
 		gmPG2.set_default_login(login = login)
 		gmPG2.set_default_client_encoding(encoding = dlg.panel.backend_profile.encoding)
@@ -284,6 +286,7 @@ def connect_to_database(max_attempts=3, expected_version=None, require_version=T
 		gmExceptionHandlingWidgets.set_is_public_database(login.public_db)
 		gmExceptionHandlingWidgets.set_helpdesk(login.helpdesk)
 
+		conn = gmPG2.get_connection(verbose = True, connection_name = u'GNUmed_backend_listener', pooled = False)
 		listener = gmBackendListener.gmBackendListener(conn = conn)
 		break
 

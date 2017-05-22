@@ -188,7 +188,7 @@ def init():
 
 	# do some magic to convert Python's timezone to a valid ISO timezone
 	# is this safe or will it return things like 13.5 hours ?
-	#_default_client_timezone = "%+.1f" % (-tz / 3600.0)
+	#_default_client_timezone = "%+.1f" % (-tz // 3600.0)
 	#_log.info('assuming default client time zone of [%s]' % _default_client_timezone)
 
 	global gmCurrentLocalTimezone
@@ -213,12 +213,12 @@ def mxdt2py_dt(mxDateTime):
 
 	if dst_currently_in_effect:
 		tz = cFixedOffsetTimezone (
-			offset = ((time.altzone * -1) / 60),
+			offset = ((time.altzone * -1) // 60),
 			name = tz_name
 		)
 	else:
 		tz = cFixedOffsetTimezone (
-			offset = ((time.timezone * -1) / 60),
+			offset = ((time.timezone * -1) // 60),
 			name = tz_name
 		)
 

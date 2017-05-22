@@ -183,6 +183,7 @@ def install_data_pack(data_pack=None):
 	gmGuiHelpers.gm_show_info(msg, _('Installing data pack'))
 
 	return True
+
 #----------------------------------------------------------------
 def load_data_packs_list():
 

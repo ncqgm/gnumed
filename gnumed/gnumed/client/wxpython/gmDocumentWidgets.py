@@ -275,9 +275,7 @@ def save_files_as_new_document(parent=None, filenames=None, document_type=None, 
 				u'\n'
 				u'Do you want to delete imported files from the filesystem ?\n'
 				u'\n'
-				u' %s\n'
-				u'\n'
-				u'Note that temporary files will be deleted anyway.'
+				u' %s'
 			) % u'\n '.join(files2remove),
 			_('Removing files')
 		)

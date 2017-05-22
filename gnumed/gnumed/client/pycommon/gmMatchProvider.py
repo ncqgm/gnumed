@@ -195,6 +195,7 @@ class cMatchProvider_FixedList(cMatchProvider):
 
 		self.__items = aSeq
 		cMatchProvider.__init__(self)
+
 	#--------------------------------------------------------
 	# internal matching algorithms
 	#
@@ -215,8 +216,10 @@ class cMatchProvider_FixedList(cMatchProvider):
 		if len(matches) == 0:
 			return (False, [])
 
-		matches.sort(self.__cmp_items)
+		#matches.sort(self.__cmp_items)
+		matches.sort(key = lambda x: x['weight'], reverse = True)
 		return (True, matches)
+
 	#--------------------------------------------------------
 	def getMatchesByWord(self, aFragment):
 		"""Return matches for aFragment at start of words inside phrases."""
@@ -237,8 +240,10 @@ class cMatchProvider_FixedList(cMatchProvider):
 		if len(matches) == 0:
 			return (False, [])
 
-		matches.sort(self.__cmp_items)
+		#matches.sort(self.__cmp_items)
+		matches.sort(key = lambda x: x['weight'], reverse = True)
 		return (True, matches)
+
 	#--------------------------------------------------------
 	def getMatchesBySubstr(self, aFragment):
 		"""Return matches for aFragment as a true substring."""
@@ -251,8 +256,10 @@ class cMatchProvider_FixedList(cMatchProvider):
 		if len(matches) == 0:
 			return (False, [])
 
-		matches.sort(self.__cmp_items)
+		#matches.sort(self.__cmp_items)
+		matches.sort(key = lambda x: x['weight'], reverse = True)
 		return (True, matches)
+
 	#--------------------------------------------------------
 	def getAllMatches(self):
 		"""Return all items."""
@@ -261,23 +268,27 @@ class cMatchProvider_FixedList(cMatchProvider):
 		if len(matches) == 0:
 			return (False, [])
 
-		matches.sort(self.__cmp_items)
+		#matches.sort(self.__cmp_items)
+		matches.sort(key = lambda x: x['weight'], reverse = True)
 		return (True, matches)
+
 	#--------------------------------------------------------
 	def set_items(self, items):
 		"""items must be a list of dicts. Each dict must have the keys (data, list_label, weight)"""
 		self.__items = items
-	#--------------------------------------------------------
-	def __cmp_items(self, item1, item2):
-		"""Compare items based on weight."""
-		if item1['weight'] == item2['weight']:
-			return 0
 
-		# do it the wrong way round to do sorting/reversing at once
-		if item1['weight'] < item2['weight']:
-			return 1
-		if item1['weight'] > item2['weight']:
-			return -1
+#	#--------------------------------------------------------
+#	def __cmp_items(self, item1, item2):
+#		"""Compare items based on weight."""
+#		if item1['weight'] == item2['weight']:
+#			return 0
+#
+#		# do it the wrong way round to do sorting/reversing at once
+#		if item1['weight'] < item2['weight']:
+#			return 1
+#		if item1['weight'] > item2['weight']:
+#			return -1
+
 # ===========================================================
 class cMatchProvider_Func(cMatchProvider):
 	"""Match provider which searches matches
@@ -312,7 +323,7 @@ class cMatchProvider_Func(cMatchProvider):
 		if len(matches) == 0:
 			return (False, [])
 
-		matches.sort(self.__cmp_candidates)
+		matches.sort(key = self.__cmp_candidates)
 		return (True, matches)
 	#--------------------------------------------------------
 	def getMatchesByWord(self, aFragment):
@@ -332,7 +343,7 @@ class cMatchProvider_Func(cMatchProvider):
 		if len(matches) == 0:
 			return (False, [])
 
-		matches.sort(self.__cmp_candidates)
+		matches.sort(key = self.__cmp_candidates)
 		return (True, matches)
 	#--------------------------------------------------------
 	def getMatchesBySubstr(self, aFragment):
@@ -348,14 +359,15 @@ class cMatchProvider_Func(cMatchProvider):
 		if len(matches) == 0:
 			return (False, [])
 
-		matches.sort(self.__cmp_candidates)
+		matches.sort(key = self.__cmp_candidates)
 		return (True, matches)
 	#--------------------------------------------------------
 	def getAllMatches(self):
 		"""Return all candidates."""
 		return self._get_candidates()
 	#--------------------------------------------------------
-	def __cmp_candidates(self, candidate1, candidate2):
+	#def __cmp_candidates(self, candidate1, candidate2):
+	def __cmp_candidates(self, candidate):
 		"""naive ordering"""
 		return 0
 		# FIXME: do ordering

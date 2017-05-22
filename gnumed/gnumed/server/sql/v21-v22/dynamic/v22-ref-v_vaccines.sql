@@ -8,6 +8,11 @@
 \set ON_ERROR_STOP 1
 
 -- --------------------------------------------------------------
+alter table ref.vaccine
+	alter column is_live
+		set not null;
+
+-- --------------------------------------------------------------
 drop view if exists ref.v_vaccines cascade;
 
 create view ref.v_vaccines as

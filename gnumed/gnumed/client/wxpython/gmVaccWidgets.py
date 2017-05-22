@@ -8,7 +8,8 @@ copyright: authors
 __author__ = "R.Terry, S.J.Tan, K.Hilbert"
 __license__ = "GPL v2 or later (details at http://www.gnu.org)"
 
-import sys, time, logging
+import sys
+import logging
 
 
 import wx
@@ -21,9 +22,11 @@ from Gnumed.pycommon import gmMatchProvider
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmI18N
 from Gnumed.pycommon import gmCfg
+from Gnumed.pycommon import gmCfg2
 from Gnumed.pycommon import gmDateTime
 from Gnumed.pycommon import gmNetworkTools
 from Gnumed.pycommon import gmPrinting
+from Gnumed.pycommon import gmPG2
 
 from Gnumed.business import gmPerson
 from Gnumed.business import gmVaccination
@@ -38,84 +41,40 @@ from Gnumed.wxpython import gmEditArea
 from Gnumed.wxpython import gmListWidgets
 from Gnumed.wxpython import gmFormWidgets
 from Gnumed.wxpython import gmMacro
+from Gnumed.wxpython import gmAuthWidgets
+from Gnumed.wxpython import gmSubstanceMgmtWidgets
 
 
-_log = logging.getLogger('gm.vaccination')
-
-#======================================================================
-# vaccination indication related widgets
-#----------------------------------------------------------------------
-def manage_vaccination_indications(parent=None):
-
-	if parent is None:
-		parent = wx.GetApp().GetTopWindow()
-	#------------------------------------------------------------
-	def refresh(lctrl):
-		inds = gmVaccination.get_indications(order_by = 'l10n_description')
-
-		items = [ [
-			i['l10n_description'],
-			gmTools.coalesce (
-				i['atcs_single_indication'],
-				u'',
-				u'%s'
-			),
-			gmTools.coalesce (
-				i['atcs_combi_indication'],
-				u'',
-				u'%s'
-			),
-			u'%s' % i['id']
-		] for i in inds ]
-
-		lctrl.set_string_items(items)
-		lctrl.set_data(inds)
-	#------------------------------------------------------------
-	gmListWidgets.get_choices_from_list (
-		parent = parent,
-		msg = _('\nConditions preventable by vaccination as currently known to GNUmed.\n'),
-		caption = _('Showing vaccination preventable conditions.'),
-		columns = [ _('Condition'), _('ATCs: single-condition vaccines'), _('ATCs: multi-condition vaccines'), u'#' ],
-		single_selection = True,
-		refresh_callback = refresh
-	)
-#----------------------------------------------------------------------
-def pick_indications(parent=None, msg=None, right_column=None, picks=None):
-
-	if parent is None:
-		parent = wx.GetApp().GetTopWindow()
-
-	if msg is None:
-		msg = _('Pick the relevant indications.')
-
-	if right_column is None:
-		right_columns = ['This vaccine']
-	else:
-		right_columns = [right_column]
-
-	picker = gmListWidgets.cItemPickerDlg(parent, -1, msg = msg)
-	picker.set_columns(columns = [_('Known indications')], columns_right = right_columns)
-	inds = gmVaccination.get_indications(order_by = 'l10n_description')
-	picker.set_choices (
-		choices = [ i['l10n_description'] for i in inds ],
-		data = inds
-	)
-	picker.set_picks (
-		picks = [ p['l10n_description'] for p in picks ],
-		data = picks
-	)
-	result = picker.ShowModal()
-
-	if result == wx.ID_CANCEL:
-		picker.Destroy()
-		return None
-
-	picks = picker.picks
-	picker.Destroy()
-	return picks
+_log = logging.getLogger('gm.vacc')
 
 #======================================================================
-# vaccines related widgets
+# vaccine related widgets
+#----------------------------------------------------------------------
+def regenerate_generic_vaccines():
+
+	dbo_conn = gmAuthWidgets.get_dbowner_connection(procedure = _('Regenerating generic vaccines'))
+	if dbo_conn is None:
+		return False
+
+	wx.BeginBusyCursor()
+	_cfg = gmCfg2.gmCfgData()
+	sql_script = gmVaccination.write_generic_vaccine_sql (
+		u'client-%s' % _cfg.get(option = 'client_version'),
+		include_indications_mapping = False
+	)
+	_log.debug('regenerating generic vaccines, SQL script: %s', sql_script)
+	if not gmPG2.run_sql_script(sql_script, conn = dbo_conn):
+		wx.EndBusyCursor()
+		gmGuiHelpers.gm_show_warning (
+			aMessage = _(u'Error regenerating generic vaccines.\n\nSee [%s]') % sql_script,
+			aTitle = _('Regenerating generic vaccines')
+		)
+		return False
+
+	gmDispatcher.send(signal = 'statustext', msg = _('Successfully regenerated generic vaccines ...'), beep = False)
+	wx.EndBusyCursor()
+	return True
+
 #----------------------------------------------------------------------
 def edit_vaccine(parent=None, vaccine=None, single_entry=True):
 	ea = cVaccineEAPnl(parent = parent, id = -1)
@@ -128,39 +87,62 @@ def edit_vaccine(parent=None, vaccine=None, single_entry=True):
 		return True
 	dlg.Destroy()
 	return False
+
 #----------------------------------------------------------------------
 def manage_vaccines(parent=None):
 
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
+
+#	#------------------------------------------------------------
+#	def delete(vaccine=None):
+#		product = vaccine.product
+#		deleted = gmVaccination.delete_vaccine(vaccine = vaccine['pk_vaccine'])
+#		if not deleted:
+#			gmGuiHelpers.gm_show_info (
+#				_(	'Cannot delete vaccine\n'
+#					'\n'
+#					' %s - %s (#%s)\n'
+#					'\n'
+#					'It is probably documented in a vaccination.'
+#				) % (
+#					vaccine['vaccine'],
+#					vaccine['l10n_preparation'],
+#					vaccine['pk_vaccine']
+#				),
+#				_('Deleting vaccine')
+#			)
+#			return False
+#		delete_product = gmGuiHelpers.gm_show_question (
+#			title = _('Deleting vaccine'),
+#			question = _(
+#				u'Fully delete the vaccine (including the associated drug product) ?\n'
+#				u'\n'
+#				u' "%s" (%s)'
+#			) % (product['product'], product['l10n_preparation'])
+#		)
+#		if delete_product:
+#			pass
+#		return True
+
 	#------------------------------------------------------------
-	def delete(vaccine=None):
-		deleted = gmVaccination.delete_vaccine(vaccine = vaccine['pk_vaccine'])
-		if deleted:
-			return True
+	def manage_drug_products(vaccine):
+		gmSubstanceMgmtWidgets.manage_drug_products(parent = parent)
+		return True
 
-		gmGuiHelpers.gm_show_info (
-			_(
-				'Cannot delete vaccine\n'
-				'\n'
-				' %s - %s (#%s)\n'
-				'\n'
-				'It is probably documented in a vaccination.'
-			) % (
-				vaccine['vaccine'],
-				vaccine['preparation'],
-				vaccine['pk_vaccine']
-			),
-			_('Deleting vaccine')
-		)
-
-		return False
 	#------------------------------------------------------------
 	def edit(vaccine=None):
 		return edit_vaccine(parent = parent, vaccine = vaccine, single_entry = True)
+
+	#------------------------------------------------------------
+	def get_tooltip(vaccine):
+		if vaccine is None:
+			return None
+		return u'\n'.join(vaccine.format())
+
 	#------------------------------------------------------------
 	def refresh(lctrl):
-		vaccines = gmVaccination.get_vaccines(order_by = 'vaccine')
+		vaccines = gmVaccination.get_vaccines(order_by = u'vaccine')
 
 		items = [ [
 			u'%s' % v['pk_drug_product'],
@@ -172,31 +154,31 @@ def manage_vaccines(parent=None):
 					u''
 				)
 			),
-			v['preparation'],
-			#u'%s (%s)' % (v['route_abbreviation'], v['route_description']),
-			#gmTools.bool2subst(v['is_live'], gmTools.u_checkmark_thin, u'', u'?'),
+			v['l10n_preparation'],
 			gmTools.coalesce(v['atc_code'], u''),
-			u'%s%s' % (
+			u'%s - %s' % (
 				gmTools.coalesce(v['min_age'], u'?'),
-				gmTools.coalesce(v['max_age'], u'?', u' - %s'),
+				gmTools.coalesce(v['max_age'], u'?'),
 			),
 			gmTools.coalesce(v['comment'], u'')
 		] for v in vaccines ]
 		lctrl.set_string_items(items)
 		lctrl.set_data(vaccines)
+
 	#------------------------------------------------------------
 	gmListWidgets.get_choices_from_list (
 		parent = parent,
-		msg = _('\nThe vaccines currently known to GNUmed.\n'),
-		caption = _('Showing vaccines.'),
-		#columns = [ u'#', _('Product'), _('Preparation'), _(u'Route'), _('Live'), _('ATC'), _('Age range'), _('Comment') ],
-		columns = [ u'#', _('Product'), _('Preparation'), _('ATC'), _('Age range'), _('Comment') ],
+		caption = _('Showing vaccine details'),
+		columns = [ u'#', _('Vaccine'), _('Preparation'), _('ATC'), _('Age range'), _('Comment') ],
 		single_selection = True,
 		refresh_callback = refresh,
 		edit_callback = edit,
 		new_callback = edit,
-		delete_callback = delete
+		#delete_callback = delete,
+		list_tooltip_callback = get_tooltip,
+		left_extra_button = (_('Products'), _('Manage drug products'), manage_drug_products)
 	)
+
 #----------------------------------------------------------------------
 class cBatchNoPhraseWheel(gmPhraseWheel.cPhraseWheel):
 
@@ -258,6 +240,7 @@ LIMIT 25
 		self.unset_context(context = u'pk_vaccine')
 		self.SetToolTipString(_('Enter or select the batch/lot number of the vaccine used.'))
 		self.selection_only = False
+
 #----------------------------------------------------------------------
 class cVaccinePhraseWheel(gmPhraseWheel.cPhraseWheel):
 
@@ -276,37 +259,58 @@ SELECT data, list_label, field_label FROM (
 	FROM ((
 			-- fragment -> vaccine
 			SELECT
-				pk_vaccine AS data,
-				vaccine || ' (' || array_to_string(l10n_indications, ', ') || ')' AS list_label,
-				vaccine AS field_label
+				r_v_v.pk_vaccine
+					AS data,
+				r_v_v.vaccine || ' ('
+				||	(SELECT string_agg(l10n_inds.ind_desc::text, ', ') FROM (
+						SELECT unnest(r_v_v.indications)->>'l10n_indication' AS ind_desc
+					) AS l10n_inds)
+				|| ')'
+					AS list_label,
+				r_v_v.vaccine
+					AS field_label
 			FROM
-				ref.v_vaccines
+				ref.v_vaccines r_v_v
 			WHERE
-				vaccine %(fragment_condition)s
+				r_v_v.vaccine %(fragment_condition)s
 
 		) union all (
 
 			-- fragment -> localized indication -> vaccines
 			SELECT
-				pk_vaccine AS data,
-				vaccine || ' (' || array_to_string(l10n_indications, ', ') || ')' AS list_label,
-				vaccine AS field_label
+				 r_vi4v.pk_vaccine
+					AS data,
+				r_vi4v.vaccine || ' ('
+				||	(SELECT string_agg(l10n_inds.ind_desc::text, ', ') FROM (
+						SELECT unnest(r_vi4v.indications)->>'l10n_indication' AS ind_desc
+					) AS l10n_inds)
+				|| ')'
+					AS list_label,
+				r_vi4v.vaccine
+					AS field_label
 			FROM
-				ref.v_indications4vaccine
+				ref.v_indications4vaccine r_vi4v
 			WHERE
-				l10n_indication %(fragment_condition)s
+				 r_vi4v.l10n_indication %(fragment_condition)s
 
 		) union all (
 
 			-- fragment -> indication -> vaccines
 			SELECT
-				pk_vaccine AS data,
-				vaccine || ' (' || array_to_string(indications, ', ') || ')' AS list_label,
-				vaccine AS field_label
+				r_vi4v.pk_vaccine
+					AS data,
+				r_vi4v.vaccine || ' ('
+				||	(SELECT string_agg(l10n_inds.ind_desc::text, ', ') FROM (
+						SELECT unnest(r_vi4v.indications)->>'l10n_indication' AS ind_desc
+					) AS l10n_inds)
+				|| ')'
+					AS list_label,
+				r_vi4v.vaccine
+					AS field_label
 			FROM
-				ref.v_indications4vaccine
+				ref.v_indications4vaccine r_vi4v
 			WHERE
-				indication %(fragment_condition)s
+				r_vi4v.indication %(fragment_condition)s
 		)
 	) AS distinct_total
 
@@ -323,6 +327,7 @@ LIMIT 25
 	#------------------------------------------------------------------
 	def _data2instance(self):
 		return gmVaccination.cVaccine(aPK_obj = self.GetData())
+
 #----------------------------------------------------------------------
 from Gnumed.wxGladeWidgets import wxgVaccineEAPnl
 
@@ -342,12 +347,16 @@ class cVaccineEAPnl(wxgVaccineEAPnl.wxgVaccineEAPnl, gmEditArea.cGenericEditArea
 		self.data = data
 		if data is not None:
 			self.mode = 'edit'
+
+		self.__indications = None
+
 	#----------------------------------------------------------------
 	def __refresh_indications(self):
 		self._TCTRL_indications.SetValue(u'')
-		if len(self.__indications) == 0:
+		if self.data is None:
 			return
-		self._TCTRL_indications.SetValue(u'- ' + u'\n- '.join([ i['l10n_description'] for i in self.__indications ]))
+		self._TCTRL_indications.SetValue(u'- ' + u'\n- '.join([ i['l10n_indication'] for i in self.data['indications'] ]))
+
 	#----------------------------------------------------------------
 	# generic Edit Area mixin API
 	#----------------------------------------------------------------
@@ -361,7 +370,8 @@ class cVaccineEAPnl(wxgVaccineEAPnl.wxgVaccineEAPnl, gmEditArea.cGenericEditArea
 		else:
 			self._PRW_drug_product.display_as_valid(True)
 
-		if self._PRW_atc.GetValue().strip() in [u'', u'J07']:
+		atc = self._PRW_atc.GetValue().strip()
+		if (atc == u'') or (atc.startswith(u'J07')):
 			self._PRW_atc.display_as_valid(True)
 		else:
 			if self._PRW_atc.GetData() is None:
@@ -390,74 +400,64 @@ class cVaccineEAPnl(wxgVaccineEAPnl.wxgVaccineEAPnl, gmEditArea.cGenericEditArea
 			else:
 				self._PRW_age_max.display_as_valid(True)
 
+		# complex conditions
 		# are we editing ?
-		ask_user = (self.mode == 'edit')
-		# is this vaccine in use ?
-		ask_user = (ask_user and self.data.is_in_use)
-		# a change ...
-		ask_user = ask_user and (
-			# ... of product ...
-			(self.data['pk_drug_product'] != self._PRW_route.GetData())
-				or
-			# ... or indications ?
-			(set(self.data['pk_indications']) != set([ i['id'] for i in self.__indications ]))
-		)
-
-		if ask_user:
-			do_it = gmGuiHelpers.gm_show_question (
-				aTitle = _('Saving vaccine'),
-				aMessage = _(
-					u'This vaccine is already in use:\n'
-					u'\n'
-					u' "%s"\n'
-					u' (%s)\n'
-					u'\n'
-					u'Are you absolutely positively sure that\n'
-					u'you really want to edit this vaccine ?\n'
-					'\n'
-					u'This will change the vaccine name and/or target\n'
-					u'conditions in each patient this vaccine was\n'
-					u'used in to document a vaccination with.\n'
-				) % (
-					self._PRW_drug_product.GetValue().strip(),
-					u', '.join(self.data['l10n_indications'])
+		if self.mode == 'edit':
+			change_of_product = self.data['pk_drug_product'] != self._PRW_drug_product.GetData()
+			if change_of_product and self.data.is_in_use:
+				do_it = gmGuiHelpers.gm_show_question (
+					aTitle = _('Saving vaccine'),
+					aMessage = _(
+						u'This vaccine is already in use:\n'
+						u'\n'
+						u' "%s"\n'
+						u'\n'
+						u'Are you absolutely positively sure that\n'
+						u'you really want to edit this vaccine ?\n'
+						'\n'
+						u'This will change the vaccine name and/or target\n'
+						u'conditions in each patient this vaccine was\n'
+						u'used in to document a vaccination with.\n'
+					) % self._PRW_drug_product.GetValue().strip()
 				)
-			)
-			if not do_it:
-				has_errors = True
+				if not do_it:
+					has_errors = True
+		else:
+			if self._PRW_drug_product.GetData() is None:
+				# need to ask for indications ?
+				if self._PRW_drug_product.GetValue().strip() != u'':
+					self.__indications = gmSubstanceMgmtWidgets.manage_substance_doses(vaccine_indications_only = True)
+					if self.__indications is None:
+						has_errors = True
+			else:
+				# existing drug product selected
+				pass
 
 		return (has_errors is False)
+
 	#----------------------------------------------------------------
 	def _save_as_new(self):
 
-		if len(self.__indications) == 0:
-			gmGuiHelpers.gm_show_info (
-				aTitle = _('Saving vaccine'),
-				aMessage = _('You must select at least one indication.')
-			)
-			return False
-
 		# save the data as a new instance
-		data = gmVaccination.create_vaccine (
+		vaccine = gmVaccination.create_vaccine (
 			pk_drug_product = self._PRW_drug_product.GetData(),
-			product_name = self._PRW_drug_product.GetValue(),
-			pk_indications = [ i['id'] for i in self.__indications ]
+			product_name = self._PRW_drug_product.GetValue().strip(),
+			indications = self.__indications
 		)
 
-#		data['is_live'] = self._CHBOX_live.GetValue()
+		vaccine['is_live'] = self._CHBOX_live.GetValue()
 		val = self._PRW_age_min.GetValue().strip()
 		if val != u'':
-			data['min_age'] = gmDateTime.str2interval(val)
+			vaccine['min_age'] = gmDateTime.str2interval(val)
 		val = self._PRW_age_max.GetValue().strip()
 		if val != u'':
-			data['max_age'] = gmDateTime.str2interval(val)
+			vaccine['max_age'] = gmDateTime.str2interval(val)
 		val = self._TCTRL_comment.GetValue().strip()
 		if val != u'':
-			data['comment'] = val
+			vaccine['comment'] = val
+		vaccine.save()
 
-		data.save()
-
-		drug = data.product
+		drug = vaccine.product
 		drug['is_fake_product'] = self._CHBOX_fake.GetValue()
 		val = self._PRW_atc.GetData()
 		if val is not None:
@@ -468,18 +468,12 @@ class cVaccineEAPnl(wxgVaccineEAPnl.wxgVaccineEAPnl, gmEditArea.cGenericEditArea
 		# must be done very late or else the property access
 		# will refresh the display such that later field
 		# access will return empty values
-		self.data = data
+		self.data = vaccine
 
 		return True
+
 	#----------------------------------------------------------------
 	def _save_as_update(self):
-
-		if len(self.__indications) == 0:
-			gmGuiHelpers.gm_show_info (
-				aTitle = _('Saving vaccine'),
-				aMessage = _('You must select at least one indication.')
-			)
-			return False
 
 		drug = self.data.product
 		drug['product'] = self._PRW_drug_product.GetValue().strip()
@@ -490,10 +484,7 @@ class cVaccineEAPnl(wxgVaccineEAPnl.wxgVaccineEAPnl, gmEditArea.cGenericEditArea
 				drug['atc'] = val.strip()
 		drug.save()
 
-		# the validator already asked for changes so just do it
-		self.data.set_indications(pk_indications = [ i['id'] for i in self.__indications ])
-
-#		self.data['is_live'] = self._CHBOX_live.GetValue()
+		self.data['is_live'] = self._CHBOX_live.GetValue()
 		val = self._PRW_age_min.GetValue().strip()
 		if val != u'':
 			self.data['min_age'] = gmDateTime.str2interval(val)
@@ -502,27 +493,28 @@ class cVaccineEAPnl(wxgVaccineEAPnl.wxgVaccineEAPnl, gmEditArea.cGenericEditArea
 		val = self._TCTRL_comment.GetValue().strip()
 		if val != u'':
 			self.data['comment'] = val
-
 		self.data.save()
+
 		return True
+
 	#----------------------------------------------------------------
 	def _refresh_as_new(self):
 		self._PRW_drug_product.SetText(value = u'', data = None, suppress_smarts = True)
-#		self._CHBOX_live.SetValue(True)
+		self._CHBOX_live.SetValue(False)
 		self._CHBOX_fake.SetValue(False)
 		self._PRW_atc.SetText(value = u'', data = None, suppress_smarts = True)
 		self._PRW_age_min.SetText(value = u'', data = None, suppress_smarts = True)
 		self._PRW_age_max.SetText(value = u'', data = None, suppress_smarts = True)
 		self._TCTRL_comment.SetValue(u'')
 
-		self.__indications = []
 		self.__refresh_indications()
 
 		self._PRW_drug_product.SetFocus()
+
 	#----------------------------------------------------------------
 	def _refresh_from_existing(self):
 		self._PRW_drug_product.SetText(value = self.data['vaccine'], data = self.data['pk_drug_product'])
-#		self._CHBOX_live.SetValue(self.data['is_live'])
+		self._CHBOX_live.SetValue(self.data['is_live'])
 		self._CHBOX_fake.SetValue(self.data['is_fake_vaccine'])
 		self._PRW_atc.SetText(value = self.data['atc_code'], data = self.data['atc_code'])
 		if self.data['min_age'] is None:
@@ -541,29 +533,16 @@ class cVaccineEAPnl(wxgVaccineEAPnl.wxgVaccineEAPnl, gmEditArea.cGenericEditArea
 			)
 		self._TCTRL_comment.SetValue(gmTools.coalesce(self.data['comment'], u''))
 
-		self.__indications = self.data.indications
 		self.__refresh_indications()
 
 		self._PRW_drug_product.SetFocus()
+
 	#----------------------------------------------------------------
 	def _refresh_as_new_from_existing(self):
 		self._refresh_as_new()
+
 	#----------------------------------------------------------------
 	#----------------------------------------------------------------
-	def _on_manage_indications_button_pressed(self, event):
-		event.Skip()
-
-		picks = pick_indications (
-			parent = self,
-			msg = _('Pick the diseases this vaccine protects against.'),
-			right_column = _('This vaccine'),
-			picks = self.__indications
-		)
-		if picks is None:
-			return
-
-		self.__indications = picks
-		self.__refresh_indications()
 
 #======================================================================
 # vaccination related widgets
@@ -716,7 +695,7 @@ def manage_vaccinations(parent=None, latest_only=False):
 			items = [ [
 				gmDateTime.pydt_strftime(v['date_given'], '%Y %b %d'),
 				v['vaccine'],
-				u', '.join(v['l10n_indications']),
+				u', '.join([ i['l10n_indication'] for i in v['indications'] ]),
 				v['batch_no'],
 				gmTools.coalesce(v['site'], u''),
 				gmTools.coalesce(v['reaction'], u''),
@@ -779,51 +758,48 @@ class cVaccinationEAPnl(wxgVaccinationEAPnl.wxgVaccinationEAPnl, gmEditArea.cGen
 			self.mode = 'edit'
 
 		self.__init_ui()
+
 	#----------------------------------------------------------------
 	def __init_ui(self):
 		# adjust phrasewheels etc
 		self._PRW_vaccine.add_callback_on_lose_focus(self._on_PRW_vaccine_lost_focus)
 		self._PRW_provider.selection_only = False
 		self._PRW_reaction.add_callback_on_lose_focus(self._on_PRW_reaction_lost_focus)
-		if self.mode == 'edit':
-			self._BTN_select_indications.Disable()
+
 	#----------------------------------------------------------------
 	def _on_PRW_vaccine_lost_focus(self):
 
 		vaccine = self._PRW_vaccine.GetData(as_instance=True)
 
-		# if we are editing we do not allow using indications rather than a vaccine
 		if self.mode == u'edit':
 			if vaccine is None:
 				self._PRW_batch.unset_context(context = 'pk_vaccine')
-				self.__indications = []
 			else:
 				self._PRW_batch.set_context(context = 'pk_vaccine', val = vaccine['pk_vaccine'])
-				self.__indications = vaccine.indications
 		# we are entering a new vaccination
 		else:
 			if vaccine is None:
 				self._PRW_batch.unset_context(context = 'pk_vaccine')
-				self.__indications = []
-				self._BTN_select_indications.Enable()
 			else:
 				self._PRW_batch.set_context(context = 'pk_vaccine', val = vaccine['pk_vaccine'])
-				self.__indications = vaccine.indications
-				self._BTN_select_indications.Disable()
 
 		self.__refresh_indications()
+
 	#----------------------------------------------------------------
 	def _on_PRW_reaction_lost_focus(self):
 		if self._PRW_reaction.GetValue().strip() == u'':
 			self._BTN_report.Enable(False)
 		else:
 			self._BTN_report.Enable(True)
+
 	#----------------------------------------------------------------
 	def __refresh_indications(self):
 		self._TCTRL_indications.SetValue(u'')
-		if len(self.__indications) == 0:
+		vaccine = self._PRW_vaccine.GetData(as_instance = True)
+		if vaccine is None:
 			return
-		self._TCTRL_indications.SetValue(u'- ' + u'\n- '.join([ i['l10n_description'] for i in self.__indications ]))
+		self._TCTRL_indications.SetValue(u'- ' + u'\n- '.join([ i['l10n_indication'] for i in vaccine['indications'] ]))
+
 	#----------------------------------------------------------------
 	# generic Edit Area mixin API
 	#----------------------------------------------------------------
@@ -835,24 +811,11 @@ class cVaccinationEAPnl(wxgVaccinationEAPnl.wxgVaccinationEAPnl, gmEditArea.cGen
 			has_errors = True
 
 		vaccine = self._PRW_vaccine.GetData(as_instance = True)
-
-		# we are editing, require vaccine rather than indications
-		if self.mode == u'edit':
-			if vaccine is None:
-				has_errors = True
-				self._PRW_vaccine.display_as_valid(False)
-			else:
-				self._PRW_vaccine.display_as_valid(True)
-		# we are creating, allow either vaccine or indications
+		if vaccine is None:
+			has_errors = True
+			self._PRW_vaccine.display_as_valid(False)
 		else:
-			if vaccine is None:
-				if len(self.__indications) == 0:
-					self._PRW_vaccine.display_as_valid(False)
-					has_errors = True
-				else:
-					self._PRW_vaccine.display_as_valid(True)
-			else:
-				self._PRW_vaccine.display_as_valid(True)
+			self._PRW_vaccine.display_as_valid(True)
 
 		if self._PRW_batch.GetValue().strip() == u'':
 			has_errors = True
@@ -864,14 +827,12 @@ class cVaccinationEAPnl(wxgVaccinationEAPnl.wxgVaccinationEAPnl, gmEditArea.cGen
 			self._PRW_episode.SetText(value = _('prevention'))
 
 		return (has_errors is False)
+
 	#----------------------------------------------------------------
 	def _save_as_new(self):
 
 		vaccine = self._PRW_vaccine.GetData()
-		if vaccine is None:
-			data = self.__save_new_from_indications()
-		else:
-			data = self.__save_new_from_vaccine(vaccine = vaccine)
+		data = self.__save_new_from_vaccine(vaccine = vaccine)
 
 		# must be done very late or else the property access
 		# will refresh the display such that later field
@@ -879,26 +840,7 @@ class cVaccinationEAPnl(wxgVaccinationEAPnl.wxgVaccinationEAPnl, gmEditArea.cGen
 		self.data = data
 
 		return True
-	#----------------------------------------------------------------
-	def __save_new_from_indications(self):
 
-		if len(self.__indications) == 0:
-			gmGuiHelpers.gm_show_info (
-				aTitle = _('Saving vaccination'),
-				aMessage = _('You must select at least one indication.')
-			)
-			return False
-
-		vaccine = gmVaccination.map_indications2generic_vaccine(indications = [ i['description'] for i in self.__indications ])
-
-		if vaccine is None:
-			for ind in self.__indications:
-				vaccine = gmVaccination.map_indications2generic_vaccine(indications = [ind['description']])
-				data = self.__save_new_from_vaccine(vaccine = vaccine['pk_vaccine'])
-		else:
-			data = self.__save_new_from_vaccine(vaccine = vaccine['pk_vaccine'])
-
-		return data
 	#----------------------------------------------------------------
 	def __save_new_from_vaccine(self, vaccine=None):
 
@@ -924,6 +866,7 @@ class cVaccinationEAPnl(wxgVaccinationEAPnl.wxgVaccinationEAPnl, gmEditArea.cGen
 		data.save()
 
 		return data
+
 	#----------------------------------------------------------------
 	def _save_as_update(self):
 
@@ -944,6 +887,7 @@ class cVaccinationEAPnl(wxgVaccinationEAPnl.wxgVaccinationEAPnl, gmEditArea.cGen
 		self.data.save()
 
 		return True
+
 	#----------------------------------------------------------------
 	def _refresh_as_new(self):
 		self._PRW_date_given.SetText(data = gmDateTime.pydt_now_here())
@@ -958,11 +902,10 @@ class cVaccinationEAPnl(wxgVaccinationEAPnl.wxgVaccinationEAPnl, gmEditArea.cGen
 		self._BTN_report.Enable(False)
 		self._TCTRL_comment.SetValue(u'')
 
-		self.__indications = []
 		self.__refresh_indications()
-		self._BTN_select_indications.Enable()
 
 		self._PRW_date_given.SetFocus()
+
 	#----------------------------------------------------------------
 	def _refresh_from_existing(self):
 		self._PRW_date_given.SetText(data = self.data['date_given'])
@@ -983,11 +926,10 @@ class cVaccinationEAPnl(wxgVaccinationEAPnl.wxgVaccinationEAPnl, gmEditArea.cGen
 			self._BTN_report.Enable(True)
 		self._TCTRL_comment.SetValue(gmTools.coalesce(self.data['comment'], u''))
 
-		self.__indications = self.data.vaccine.indications
 		self.__refresh_indications()
-		self._BTN_select_indications.Disable()
 
 		self._PRW_date_given.SetFocus()
+
 	#----------------------------------------------------------------
 	def _refresh_as_new_from_existing(self):
 		self._PRW_date_given.SetText(data = self.data['date_given'])
@@ -1004,11 +946,10 @@ class cVaccinationEAPnl(wxgVaccinationEAPnl.wxgVaccinationEAPnl, gmEditArea.cGen
 		self._BTN_report.Enable(False)
 		self._TCTRL_comment.SetValue(u'')
 
-		self.__indications = self.data.vaccine.indications
 		self.__refresh_indications()
-		self._BTN_select_indications.Enable()
 
 		self._PRW_date_given.SetFocus()
+
 	#----------------------------------------------------------------
 	# event handlers
 	#----------------------------------------------------------------
@@ -1033,21 +974,6 @@ class cVaccinationEAPnl(wxgVaccinationEAPnl.wxgVaccinationEAPnl, gmEditArea.cGen
 	def _on_add_vaccine_button_pressed(self, event):
 		edit_vaccine(parent = self, vaccine = None, single_entry = False)
 		# FIXME: could set newly generated vaccine here
-	#----------------------------------------------------------------
-	def _on_select_indications_button_pressed(self, event):
-		event.Skip()
-
-		picks = pick_indications (
-			parent = self,
-			msg = _('Pick the diseases this vaccination was given against.'),
-			right_column = _('This vaccine'),
-			picks = self.__indications
-		)
-		if picks is None:
-			return
-
-		self.__indications = picks
-		self.__refresh_indications()
 
 #======================================================================
 #======================================================================

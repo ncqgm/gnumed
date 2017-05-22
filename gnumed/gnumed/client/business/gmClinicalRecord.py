@@ -1869,26 +1869,26 @@ WHERE
 		Note that this will produce duplicate vaccination instances on combi-indication vaccines !
 		"""
 		args = {'pat': self.pk_patient}
-		where_parts = [u'c_v_pv.pk_patient = %(pat)s']
+		where_parts = [u'c_v_shots.pk_patient = %(pat)s']
 
 		if (episodes is not None) and (len(episodes) > 0):
-			where_parts.append(u'c_v_pv.pk_episode IN %(epis)s')
+			where_parts.append(u'c_v_shots.pk_episode IN %(epis)s')
 			args['epis'] = tuple(episodes)
 
 		if (issues is not None) and (len(issues) > 0):
-			where_parts.append(u'c_v_pv.pk_episode IN (select pk from clin.episode where fk_health_issue IN %(issues)s)')
+			where_parts.append(u'c_v_shots.pk_episode IN (select pk from clin.episode where fk_health_issue IN %(issues)s)')
 			args['issues'] = tuple(issues)
 
 		# find the shots
 		cmd = u"""
 			SELECT
-				c_v_pv.*,
+				c_v_shots.*,
 				c_v_plv4i.l10n_indication,
 				c_v_plv4i.no_of_shots
 				--c_v_plv4i.indication_count as no_of_shots
 			FROM
-				clin.v_vaccinations c_v_pv
-					JOIN clin.v_pat_last_vacc4indication c_v_plv4i ON (c_v_pv.pk_vaccination = c_v_plv4i.pk_vaccination)
+				clin.v_vaccinations c_v_shots
+					JOIN clin.v_pat_last_vacc4indication c_v_plv4i ON (c_v_shots.pk_vaccination = c_v_plv4i.pk_vaccination)
 			WHERE %s
 		""" % u'\nAND '.join(where_parts)
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
@@ -1941,6 +1941,7 @@ WHERE
 		return vaccs
 
 	vaccinations = property(get_vaccinations, lambda x:x)
+
 	#--------------------------------------------------------
 	# old/obsolete:
 	#--------------------------------------------------------
@@ -2475,7 +2476,7 @@ WHERE
 		_log.debug('new encounter [%s] activated', enc['pk_encounter'])
 
 	#------------------------------------------------------------------
-	def get_encounters(self, since=None, until=None, id_list=None, episodes=None, issues=None, skip_empty=False):
+	def get_encounters(self, since=None, until=None, id_list=None, episodes=None, issues=None, skip_empty=False, order_by=None, max_encounters=None):
 		"""Retrieves patient's encounters.
 
 		id_list - PKs of encounters to fetch
@@ -2517,13 +2518,24 @@ WHERE
 			where_parts.append(u'c_vpe.last_affirmed <= %(end)s')
 			args['end'] = since
 
+		if order_by is None:
+			order_by = u'c_vpe.started'
+
+		if max_encounters is None:
+			limit = u''
+		else:
+			limit = u'LIMIT %s' % max_encounters
+
 		cmd = u"""
-			SELECT *
-			FROM clin.v_pat_encounters c_vpe
+			SELECT * FROM clin.v_pat_encounters c_vpe
 			WHERE
 				%s
-			ORDER BY started
-		""" % u' AND '.join(where_parts)
+			ORDER BY %s %s
+		""" % (
+			u' AND '.join(where_parts),
+			order_by,
+			limit
+		)
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 		encounters = [ gmEMRStructItems.cEncounter(row = {'data': r, 'idx': idx, 'pk_field': 'pk_encounter'}) for r in rows ]
 
@@ -2555,6 +2567,7 @@ WHERE
 			filtered_encounters = filter(lambda enc: enc['pk_encounter'] in enc_ids, filtered_encounters)
 
 		return filtered_encounters
+
 	#--------------------------------------------------------
 	def get_first_encounter(self, issue_id=None, episode_id=None):
 		"""Retrieves first encounter for a particular issue and/or episode.
@@ -2562,7 +2575,6 @@ WHERE
 		issue_id - First encounter associated health issue
 		episode - First encounter associated episode
 		"""
-		# FIXME: use direct query
 		if issue_id is None:
 			issues = None
 		else:
@@ -2573,13 +2585,14 @@ WHERE
 		else:
 			episodes = [episode_id]
 
-		encounters = self.get_encounters(issues=issues, episodes=episodes)
+		encounters = self.get_encounters(issues = issues, episodes = episodes, order_by = u'started', max_encounters = 1)
 		if len(encounters) == 0:
 			return None
 
-		# FIXME: this does not scale particularly well, I assume
-		encounters.sort(lambda x,y: cmp(x['started'], y['started']))
 		return encounters[0]
+
+	first_encounter = property(get_first_encounter, lambda x:x)
+
 	#--------------------------------------------------------
 	def get_earliest_care_date(self):
 		args = {'pat': self.pk_patient}
@@ -2618,6 +2631,7 @@ SELECT MIN(earliest) FROM (
 		return rows[0][0]
 
 	earliest_care_date = property(get_earliest_care_date, lambda x:x)
+
 	#--------------------------------------------------------
 	def get_last_encounter(self, issue_id=None, episode_id=None):
 		"""Retrieves last encounter for a concrete issue and/or episode
@@ -2625,8 +2639,6 @@ SELECT MIN(earliest) FROM (
 		issue_id - Last encounter associated health issue
 		episode_id - Last encounter associated episode
 		"""
-		# FIXME: use direct query
-
 		if issue_id is None:
 			issues = None
 		else:
@@ -2637,15 +2649,14 @@ SELECT MIN(earliest) FROM (
 		else:
 			episodes = [episode_id]
 
-		encounters = self.get_encounters(issues=issues, episodes=episodes)
+		encounters = self.get_encounters(issues = issues, episodes = episodes, order_by = u'started DESC', max_encounters = 1)
 		if len(encounters) == 0:
 			return None
 
-		# FIXME: this does not scale particularly well, I assume
-		encounters.sort(lambda x,y: cmp(x['started'], y['started']))
-		return encounters[-1]
+		return encounters[0]
 
 	last_encounter = property(get_last_encounter, lambda x:x)
+
 	#------------------------------------------------------------------
 	def get_encounter_stats_by_type(self, cover_period=None):
 		args = {'pat': self.pk_patient, 'range': cover_period}
@@ -2663,6 +2674,7 @@ SELECT MIN(earliest) FROM (
 		""" % u' AND '.join(where_parts)
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 		return rows
+
 	#------------------------------------------------------------------
 	def get_last_but_one_encounter(self, issue_id=None, episode_id=None):
 
@@ -2721,6 +2733,9 @@ SELECT MIN(earliest) FROM (
 			return gmEMRStructItems.cEncounter(row = {'data': rows[1], 'idx': idx, 'pk_field': 'pk_encounter'})
 
 		return gmEMRStructItems.cEncounter(row = {'data': rows[0], 'idx': idx, 'pk_field': 'pk_encounter'})
+
+	last_but_one_encounter = property(get_last_but_one_encounter, lambda x:x)
+
 	#------------------------------------------------------------------
 	def remove_empty_encounters(self):
 		_log.debug('removing empty encounters for pk_identity [%s]', self.pk_patient)

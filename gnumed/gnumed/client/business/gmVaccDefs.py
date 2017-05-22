@@ -366,83 +366,83 @@ _GENERIC_VACCINES = {
 	# J07A - antibacterial vaccines
 
 	'anthrax': {
-		'name': _(u'anthrax vaccine'),
+		'name': _(u'generic anthrax vaccine'),
 		'atc': u'J07AC',
 		'live': False,
 		'ingredients': ['anthrax']
 	},
 
 	'brucellosis': {
-		'name': _(u'brucellosis vaccine'),
+		'name': _(u'generic brucellosis vaccine'),
 		'atc': u'J07AD',
 		'live': False,
 		'ingredients': ['brucellosis']
 	},
 
 	'cholera': {
-		'name': _(u'cholera vaccine'),
+		'name': _(u'generic cholera vaccine'),
 		'atc': u'J07AE',
 		'live': False,
 		'ingredients': ['cholera']
 	},
 	'cholera, live': {
-		'name': _(u'cholera vaccine, live'),
+		'name': _(u'generic cholera vaccine, live'),
 		'atc': u'J07AE',
 		'live': True,
 		'ingredients': ['cholera-live']
 	},
 
 	'diphtheria': {
-		'name': _(u'diphtheria vaccine'),
+		'name': _(u'generic diphtheria vaccine'),
 		'atc': u'J07AF',
 		'live': False,
 		'ingredients': ['diphtheria']
 	},
 
 	'HiB': {
-		'name': _(u'HiB vaccine'),
+		'name': _(u'generic HiB vaccine'),
 		'atc': u'J07AG',
 		'live': False,
 		'ingredients': ['HiB']
 	},
 
 	'meningococcus A': {
-		'name': _(u'meningococcus A vaccine'),
+		'name': _(u'generic meningococcus A vaccine'),
 		'atc': u'J07AH',
 		'live': False,
 		# for generic vaccine do not differentiate between conjugated or not
 		'ingredients': ['menA']
 	},
 	'meningococcus B': {
-		'name': _(u'meningococcus B vaccine'),
+		'name': _(u'generic meningococcus B vaccine'),
 		'atc': u'J07AH',
 		'live': False,
 		# do not differentiate membrane vs multicomponent in generic vaccine
 		'ingredients': ['menBmem']
 	},
 	'meningococcus C': {
-		'name': _(u'meningococcus C vaccine'),
+		'name': _(u'generic meningococcus C vaccine'),
 		'atc': u'J07AH',
 		'live': False,
 		'ingredients': ['menC']
 	},
 
 	'pertussis': {
-		'name': _(u'pertussis vaccine'),
+		'name': _(u'generic pertussis vaccine'),
 		'atc': u'J07AJ',
 		'live': False,
 		'ingredients': ['pertussis']
 	},
 
 	'plague': {
-		'name': _(u'plague vaccine'),
+		'name': _(u'generic plague vaccine'),
 		'atc': u'J07AK',
 		'live': False,
 		'ingredients': ['plague']
 	},
 
 	'pneumococcus': {
-		'name': _(u'pneumococcus vaccine'),
+		'name': _(u'generic pneumococcus vaccine'),
 		'atc': u'J07AL',
 		'live': False,
 		# for generic vaccine do not differentiate between conjugated or not
@@ -450,47 +450,47 @@ _GENERIC_VACCINES = {
 	},
 
 	'tetanus': {
-		'name': _(u'tetanus vaccine'),
+		'name': _(u'generic tetanus vaccine'),
 		'atc': u'J07AM',
 		'live': False,
 		'ingredients': ['tetanus']
 	},
 
 	'Tbc': {
-		'name': _(u'Tbc vaccine'),
+		'name': _(u'generic Tbc vaccine'),
 		'atc': u'J07AN',
 		'live': True,
 		'ingredients': ['tbc-live']
 	},
 
 	'typhoid': {
-		'name': _(u'typhoid vaccine'),
+		'name': _(u'generic typhoid vaccine'),
 		'atc': u'J07AP',
 		'live': False,
 		'ingredients': ['salmo-inact']
 	},
 	'typhoid, live': {
-		'name': _(u'typhoid vaccine, live'),
+		'name': _(u'generic typhoid vaccine, live'),
 		'atc': u'J07AP',
 		'live': True,
 		'ingredients': ['salmo-live']
 	},
 	'typhoid, paratyphus': {
-		'name': _(u'typhoid/paratyphus vaccine'),
+		'name': _(u'generic typhoid/paratyphus vaccine'),
 		'atc': u'J07AP10',
 		'live': False,
 		'ingredients': ['salmo-typh+ent']
 	},
 
 	'typhus exanthematicus': {
-		'name': _(u'typhus exanthematicus vaccine'),
+		'name': _(u'generic typhus exanthematicus vaccine'),
 		'atc': u'J07AR',
 		'live': False,
 		'ingredients': ['typh-exanth']
 	},
 
 	'q fever': {
-		'name': _(u'Q fever vaccine'),
+		'name': _(u'generic Q fever vaccine'),
 		'atc': u'J07AXQF',
 		'live': False,
 		'ingredients': ['qfever']
@@ -499,130 +499,130 @@ _GENERIC_VACCINES = {
 	# J07B - antiviral vaccines
 
 	'tick-borne encephalitis': {
-		'name': _(u'tick-borne encephalitis vaccine'),
+		'name': _(u'generic tick-borne encephalitis vaccine'),
 		'atc': u'J07BA',
 		'live': False,
 		'ingredients': ['fsme']
 	},
 
 	'japanese encephalitis': {
-		'name': _(u'japanese encephalitis vaccine'),
+		'name': _(u'generic japanese encephalitis vaccine'),
 		'atc': u'J07BA',
 		'live': False,
 		'ingredients': ['japEnc']
 	},
 	'japanese encephalitis, live': {
-		'name': _(u'japanese encephalitis vaccine, live'),
+		'name': _(u'generic japanese encephalitis vaccine, live'),
 		'atc': u'J07BA03',
 		'live': True,
 		'ingredients': ['japEnc-live']
 	},
 
 	'influenza': {
-		'name': _(u'influenza vaccine'),
+		'name': _(u'generic influenza vaccine'),
 		'atc': u'J07BB',
 		'live': False,
 		'ingredients': ['influ-inact']
 	},
 	'influenza, live': {
-		'name': _(u'influenza vaccine, live'),
+		'name': _(u'generic influenza vaccine, live'),
 		'atc': u'J07BB',
 		'live': True,
 		'ingredients': ['influ-live']
 	},
 
 	'hepatitis A': {
-		'name': _(u'hepatitis A vaccine'),
+		'name': _(u'generic hepatitis A vaccine'),
 		'atc': u'J07BC02',
 		'live': False,
 		'ingredients': ['hepA-inact']
 	},
 
 	'hepatitis B': {
-		'name': _(u'hepatitis B vaccine'),
+		'name': _(u'generic hepatitis B vaccine'),
 		'atc': u'J07BC01',
 		'live': False,
 		'ingredients': ['hepB']
 	},
 
 	'measles-live': {
-		'name': _(u'measles vaccine, live'),
+		'name': _(u'generic measles vaccine, live'),
 		'atc': u'J07BD',
 		'live': True,
 		'ingredients': ['measles-live']
 	},
 
 	'mumps-live': {
-		'name': _(u'mumps vaccine, live'),
+		'name': _(u'generic mumps vaccine, live'),
 		'atc': u'J07BE',
 		'live': True,
 		'ingredients': ['mumps-live']
 	},
 
 	'poliomyelitis': {
-		'name': _(u'poliomyelitis vaccine'),
+		'name': _(u'generic poliomyelitis vaccine'),
 		'atc': u'J07BF',
 		'live': False,
 		'ingredients': ['polio-inact']
 	},
 
 	'poliomyelitis, live': {
-		'name': _(u'poliomyelitis vaccine, live'),
+		'name': _(u'generic poliomyelitis vaccine, live'),
 		'atc': u'J07BF',
 		'live': True,
 		'ingredients': ['polio-live']
 	},
 
 	'rabies': {
-		'name': _(u'rabies vaccine'),
+		'name': _(u'generic rabies vaccine'),
 		'atc': u'J07BG',
 		'live': False,
 		'ingredients': ['rabies']
 	},
 
 	'rotavirus, live': {
-		'name': _(u'rotavirus vaccine, live'),
+		'name': _(u'generic rotavirus vaccine, live'),
 		'atc': u'J07BH',
 		'live': True,
 		'ingredients': ['rota-live-atten']
 	},
 
 	'rubella': {
-		'name': _(u'rubella vaccine, live'),
+		'name': _(u'generic rubella vaccine, live'),
 		'atc': u'J07BJ',
 		'live': True,
 		'ingredients': ['rubella-live']
 	},
 
 	'varicella': {
-		'name': _(u'varicella vaccine, live'),
+		'name': _(u'generic varicella vaccine, live'),
 		'atc': u'J07BK',
 		'live': True,
 		'ingredients': ['chickenpox-live']
 	},
 	'zoster': {
-		'name': _(u'zoster vaccine, live'),
+		'name': _(u'generic zoster vaccine, live'),
 		'atc': u'J07BK',
 		'live': True,
 		'ingredients': ['shingles-live']
 	},
 
 	'yellow fever': {
-		'name': _(u'yellow fever vaccine'),
+		'name': _(u'generic yellow fever vaccine'),
 		'atc': u'J07BL',
 		'live': True,
 		'ingredients': ['yellow_fever-live']
 	},
 
 	'HPV': {
-		'name': _(u'HPV vaccine'),
+		'name': _(u'generic HPV vaccine'),
 		'atc': u'J07BM',
 		'live': False,
 		'ingredients': ['pap-generic']
 	},
 
 	'variola': {
-		'name': _(u'variola vaccine, live'),
+		'name': _(u'generic variola vaccine, live'),
 		'atc': u'J07BX01',
 		'live': True,
 		'ingredients': ['smallpox']
@@ -631,75 +631,75 @@ _GENERIC_VACCINES = {
 	# combinations
 
 	'meningococcus AC': {
-		'name': _(u'meningococcus AC vaccine'),
+		'name': _(u'generic meningococcus AC vaccine'),
 		'atc': u'J07AH03',
 		'live': False,
 		'ingredients': ['menA', 'menC']
 	},
 	'meningococcus ACYW135': {
-		'name': _(u'meningococcus ACYW135 vaccine'),
+		'name': _(u'generic meningococcus ACYW135 vaccine'),
 		'atc': u'J07AH04', # 4/8
 		'live': False,
 		'ingredients': ['menA', 'menC', 'menY', 'menW']
 	},
 
 	'measles, mumps': {
-		'name': _(u'measles-mumps vaccine, live'),
+		'name': _(u'generic measles-mumps vaccine, live'),
 		'atc': u'J07BD51',
 		'live': True,
 		'ingredients': ['measles-live', 'mumps-live']
 	},
 
 	'measles, mumps, rubella': {
-		'name': _(u'MMR vaccine, live'),
+		'name': _(u'generic MMR vaccine, live'),
 		'atc': u'J07BD52',
 		'live': True,
 		'ingredients': ['measles-live', 'mumps-live', 'rubella-live']
 	},
 
 	'measles, mumps, rubella, varicella': {
-		'name': _(u'MMRV vaccine, live'),
+		'name': _(u'generic MMRV vaccine, live'),
 		'atc': u'J07BD54',
 		'live': True,
 		'ingredients': ['measles-live', 'mumps-live', 'rubella-live', 'chickenpox-live']
 	},
 
 	'measles, rubella': {
-		'name': _(u'measles-rubella vaccine, live'),
+		'name': _(u'generic measles-rubella vaccine, live'),
 		'atc': u'J07BD53',
 		'live': True,
 		'ingredients': ['measles-live', 'rubella-live']
 	},
 
 	'mumps, rubella': {
-		'name': _(u'mumps-rubella vaccine, live'),
+		'name': _(u'generic mumps-rubella vaccine, live'),
 		'atc': u'J07BJ51',
 		'live': True,
 		'ingredients': ['mumps-live', 'rubella-live']
 	},
 
 	'cholera, typhoid': {
-		'name': _(u'cholera-typhoid vaccine'),
+		'name': _(u'generic cholera-typhoid vaccine'),
 		'atc': u'J07AE51',
 		'live': False,
 		'ingredients': ['cholera', 'salmo-inact']
 	},
 
 	'typhoid, hepatitis A': {
-		'name': _(u'typhoid-hepA vaccine'),
+		'name': _(u'generic typhoid-hepA vaccine'),
 		'atc': u'J07CA10',
 		'live': False,
 		'ingredients': ['salmo-inact', 'hepA-inact']
 	},
 
 	'tetanus, diphtheria': {
-		'name': _(u'Td vaccine'),
+		'name': _(u'generic Td vaccine'),
 		'atc': u'J07AM51',
 		'live': False,
 		'ingredients': ['tetanus', 'diphtheria']
 	},
 #	'Diphtheria, tetanus': {
-#		'name': _(u'DT vaccine'),
+#		'name': _(u'generic DT vaccine'),
 #		'atc': u'J07AM51',
 #		'live': False,
 #		'ingredients': ['diphtheria', 'tetanus']
@@ -707,83 +707,83 @@ _GENERIC_VACCINES = {
 	#J07AM52,,"Tetanus-Toxoid, Kombinationen mit Tetanus-Immunglobulin",,,,,,
 
 	'tetanus, diphtheria, poliomyelitis': {
-		'name': _(u'TdPol vaccine'),
+		'name': _(u'generic TdPol vaccine'),
 		'atc': u'J07CA01',
 		'live': False,
 		'ingredients': ['tetanus', 'diphtheria', 'polio-inact']
 	},
 	'tetanus, diphtheria, poliomyelitis': {
-		'name': _(u'DTPol vaccine'),
+		'name': _(u'generic DTPol vaccine'),
 		'atc': u'J07CA01',
 		'live': False,
 		'ingredients': ['tetanus', 'diphtheria', 'polio-inact']
 	},
 
 	'tetanus, diphtheria, HepB': {
-		'name': _(u'Td-HepB vaccine'),
+		'name': _(u'generic Td-HepB vaccine'),
 		'atc': u'J07CA07',
 		'live': False,
 		'ingredients': ['tetanus', 'diphtheria', 'hepB']
 	},
 
 	'tetanus, diphtheria, rubella': {
-		'name': _(u'Td-rubella vaccine'),
+		'name': _(u'generic Td-rubella vaccine'),
 		'atc': u'J07CA03',
 		'live': True,
 		'ingredients': ['tetanus', 'diphtheria', 'rubella-live']
 	},
 
 	'tetanus, diphtheria, pertussis, poliomyelitis': {
-		'name': _(u'TdaPPol vaccine'),
+		'name': _(u'generic TdaPPol vaccine'),
 		'atc': u'J07CA02',
 		'live': False,
 		'ingredients': ['tetanus', 'diphtheria', 'pertussis', 'polio-inact']
 	},
 
 	'tetanus, diphtheria, pertussis, HepB': {
-		'name': _(u'TdaP-HepB vaccine'),
+		'name': _(u'generic TdaP-HepB vaccine'),
 		'atc': u'J07CA05',
 		'live': False,
 		'ingredients': ['tetanus', 'diphtheria', 'pertussis', 'hepB']
 	},
 
 	'tetanus, diphtheria, pertussis': {
-		'name': _(u'TdaP vaccine'),
+		'name': _(u'generic TdaP vaccine'),
 		'atc': u'J07CA',
 		'live': False,
 		'ingredients': ['tetanus', 'diphtheria', 'pertussis']
 	},
 
 	'tetanus, diphtheria, pertussis, poliomyelitis, HiB': {
-		'name': _(u'DTaPPol-Hib vaccine'),
+		'name': _(u'generic DTaPPol-Hib vaccine'),
 		'atc': u'J07CA06',
 		'live': False,
 		'ingredients': ['tetanus', 'diphtheria', 'pertussis', 'polio-inact', 'HiB']
 	},
 
 	'tetanus, diphtheria, pertussis, HiB, HepB': {
-		'name': _(u'TdaP-Hib-HepB'),
+		'name': _(u'generic TdaP-Hib-HepB vaccine'),
 		'atc': u'J07CA11',
 		'live': False,
 		'ingredients': ['tetanus', 'diphtheria', 'pertussis', 'HiB', 'hepB']
 	},
 
 	'tetanus, diphtheria, pertussis, poliomyelitis, HepB': {
-		'name': _(u'TdaPPol-HepB'),
+		'name': _(u'generic TdaPPol-HepB vaccine'),
 		'atc': u'J07CA12',
 		'live': False,
 		'ingredients': ['tetanus', 'diphtheria', 'pertussis', 'polio-inact', 'hepB']
 	},
 
 	'tetanus, diphtheria, pertussis, poliomyelitis, HiB, HepB': {
-		'name': _(u'TdaPPol-HiB-HepB'),
+		'name': _(u'generic TdaPPol-HiB-HepB vaccine'),
 		'atc': u'J07CA09',
 		'live': False,
 		'ingredients': ['tetanus', 'diphtheria', 'pertussis', 'polio-inact', 'HiB', 'hepB']
 	},
 
 	'tetanus, diphtheria, pertussis, poliomyelitis, HiB, HepB, MenAC': {
-		'name': _(u'TdaPPol-HiB-HepB-MenAC'),
+		'name': _(u'generic TdaPPol-HiB-HepB-MenAC vaccine'),
 		'atc': u'J07CA13',
 		'live': False,
 		'ingredients': ['tetanus', 'diphtheria', 'pertussis', 'polio-inact', 'HiB', 'hepB', 'menA', 'menC']
@@ -825,7 +825,7 @@ J07CA04,,Haemophilus influenzae B und Poliomyelitis,,,,,,
 J07CA08,,Haemophilus influenzae B und Hepatitis B,,Standarddosis: 1 Einzeldosis P ,,,,
 
 	'': {
-		'name': _(u' vaccine'),
+		'name': _(u'generic NNN vaccine'),
 		'atc': u'',
 		'live': True/False,
 		'ingredients': [u'']

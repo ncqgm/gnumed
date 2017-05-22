@@ -766,7 +766,7 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 				intake['substance'],
 				intake['amount'],
 				intake['unit'],
-				intake['preparation']
+				intake['l10n_preparation']
 			)
 			drug_snippets.append(drug_snippet % (
 				gmTools.xml_escape_string(text = drug_name.strip()),
@@ -775,7 +775,7 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 
 		intakes_pooled_by_product = {}
 		for intake in non_fd_product_intakes:
-			prod = u'%s %s' % (intake['product'], intake['preparation'])
+			prod = u'%s %s' % (intake['product'], intake['l10n_preparation'])
 			try:
 				intakes_pooled_by_product[prod].append(intake)
 			except KeyError:

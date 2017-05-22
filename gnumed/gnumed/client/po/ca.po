@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-09-10 23:39+0200\n"
+"POT-Creation-Date: 2017-05-18 12:04+0200\n"
 "PO-Revision-Date: 2012-06-01 01:20+0000\n"
 "Last-Translator: ncq <Unknown>\n"
 "Language-Team: Catalan <ca@li.org>\n"
@@ -2264,6 +2264,13 @@ msgstr ""
 msgid "New patient ID:"
 msgstr "Identificació pacient intern"
 
+msgid "Source"
+msgstr ""
+
+#, fuzzy
+msgid "Receiver"
+msgstr "Pacient"
+
 msgid "(you are/are not the primary reviewer)"
 msgstr "(no ets el revisior primari)"
 
@@ -2299,6 +2306,15 @@ msgstr ""
 #, fuzzy
 msgid "The organizational unit this document originates from."
 msgstr "Vacunació"
+
+msgid "Select if the organization is the source (sender) of the document."
+msgstr ""
+
+msgid ""
+"Select if the organization is the target (receiver) of the document.\n"
+"\n"
+"Mostly when the document was sent from this praxis."
+msgstr ""
 
 msgid "Enter the date of creation of the document."
 msgstr ""
@@ -2363,7 +2379,7 @@ msgstr "Revisions d'altri"
 msgid "Episode"
 msgstr ""
 
-msgid "Source"
+msgid "➔"
 msgstr ""
 
 msgid "Date"
@@ -2546,29 +2562,45 @@ msgstr ""
 msgid "&Connect"
 msgstr "Documents"
 
-msgid "&Browse"
-msgstr ""
-
 #, fuzzy
 msgid "<not connected>"
 msgstr "Vacunació"
 
-msgid "Browse all"
+msgid "◄"
+msgstr ""
+
+msgid "►"
 msgstr ""
 
 #, fuzzy
-msgid "Export all"
+msgid "E&xport"
 msgstr "Informe"
 
 msgid "Browse"
 msgstr ""
 
 #, fuzzy
-msgid "Export"
-msgstr "Informe"
+msgid "&Show (D)"
+msgstr "Mostra l'hora"
 
-msgid "Upload"
+#, fuzzy
+msgid "Save (&D)"
+msgstr "Guarda"
+
+#, fuzzy
+msgid "Save (D)"
+msgstr "Guarda"
+
+msgid "&Upload"
 msgstr ""
+
+#, fuzzy
+msgid "Show (&P)"
+msgstr "Mostra l'hora"
+
+#, fuzzy
+msgid "Save (Z)"
+msgstr "Guarda"
 
 #, fuzzy
 msgid "Enter the PACS host address."
@@ -2589,18 +2621,15 @@ msgstr ""
 msgid "Connect to PACS."
 msgstr "Connectat a GNUmed"
 
-msgid "Browse PACS at top level."
-msgstr ""
-
-msgid "Modify some of Orthanc content (such as patient IDs)."
+msgid "Review previous image."
 msgstr ""
 
 #, fuzzy
-msgid "Browse overview of studies for this patient."
-msgstr "No hi ha episodis per aquest assumpte mèdic."
+msgid "Preview next image."
+msgstr "Arxius de línia de temps"
 
 #, fuzzy
-msgid "Copy all studies into export area."
+msgid "Store image into export area."
 msgstr "Llistat de vacunes buit"
 
 #, fuzzy
@@ -2608,12 +2637,24 @@ msgid "Browse topmost selected study."
 msgstr "Edita l'entrada seleccionada."
 
 #, fuzzy
-msgid "Copy selected studies into export area."
-msgstr "Llistat de vacunes buit"
+msgid "Browse overview of all studies for this patient."
+msgstr "No hi ha episodis per aquest assumpte mèdic."
+
+msgid "Browse PACS at top level."
+msgstr ""
+
+msgid "Show image in DICOM viewer."
+msgstr ""
+
+msgid "Save image in DICOM format."
+msgstr ""
 
 #, fuzzy
-msgid "Save selected studies to disk."
+msgid "Save selected studies to disk as DICOM directory."
 msgstr "Esborra les entrades seleccionades de la llista."
+
+msgid "Save all studies as one DICOM directory."
+msgstr ""
 
 msgid ""
 "Upload DICOM files from a directory, recursively, into the Orthanc PACS\n"
@@ -2621,6 +2662,22 @@ msgid ""
 "The currently active patient does not matter. Orthanc will associate "
 "uploaded files with the patient found within the DICOM metadata. It will "
 "create new patients as needed."
+msgstr ""
+
+msgid "Show image in external viewer (PNG format)."
+msgstr ""
+
+msgid "Save image preview (PNG format)."
+msgstr ""
+
+#, fuzzy
+msgid "Save selected studies as DICOM archive."
+msgstr "Esborra les entrades seleccionades de la llista."
+
+msgid "Save all studies of patient as DICOM archive."
+msgstr ""
+
+msgid "Modify some of Orthanc content (such as patient IDs)."
 msgstr ""
 
 msgid "Host:"
@@ -2635,9 +2692,18 @@ msgstr ""
 msgid "Password"
 msgstr "Contrasenya"
 
+msgid "Image"
+msgstr ""
+
 #, fuzzy
-msgid "Selected studies:"
-msgstr "Selecciona"
+msgid "Study"
+msgstr "Mostra l'hora"
+
+msgid "Patient"
+msgstr "Pacient"
+
+msgid "PACS"
+msgstr ""
 
 msgid "A descriptive name for this test type."
 msgstr ""
@@ -2936,6 +3002,10 @@ msgstr "missatge d'error genèric"
 msgid "&Load"
 msgstr ""
 
+#, fuzzy
+msgid "Export"
+msgstr "Informe"
+
 msgid "A long, descriptive name for this form template."
 msgstr "Un nom llarg i descriptiu per aquesta plantilla."
 
@@ -3007,9 +3077,6 @@ msgstr ""
 msgid "&Clipboard"
 msgstr ""
 
-msgid "Part Sources"
-msgstr ""
-
 msgid "Intended reviewer:"
 msgstr ""
 
@@ -3020,9 +3087,6 @@ msgid "&technically abnormal"
 msgstr ""
 
 msgid "&clinically relevant"
-msgstr ""
-
-msgid "Document Properties"
 msgstr ""
 
 #, fuzzy
@@ -3060,7 +3124,20 @@ msgstr ""
 msgid "Required: The primary episode this document is to be listed under."
 msgstr ""
 
-msgid "Optional: The organization (unit) this document originated from."
+#, fuzzy
+msgid ""
+"Optional: The organization (unit) this document originates from (sender) or "
+"is intended for (receiver)."
+msgstr "Vacunació"
+
+msgid "Select if the organization is the source of the document (the default)."
+msgstr ""
+
+msgid ""
+"Select if the organization is the receiver of the document.\n"
+"\n"
+"In most cases this means that the document was created in this praxis and "
+"sent to the organization."
 msgstr ""
 
 msgid ""
@@ -3107,6 +3184,12 @@ msgstr "Guarda el document finalitzat."
 msgid "Start over (discards current data)."
 msgstr ""
 
+msgid "Document Properties"
+msgstr ""
+
+msgid "Part Sources"
+msgstr ""
+
 #, fuzzy
 msgid "Document type:"
 msgstr "Tipus de document"
@@ -3119,8 +3202,8 @@ msgid "Associate to episode:"
 msgstr "Associa a l'episodi:"
 
 #, fuzzy
-msgid "Document source:"
-msgstr "Documents"
+msgid "Organization:"
+msgstr "Vacunació"
 
 msgid "Comment / Identification:"
 msgstr ""
@@ -3128,9 +3211,13 @@ msgstr ""
 msgid "&Manage"
 msgstr ""
 
+#, fuzzy
+msgid "&Inactive"
+msgstr "Nom del fitxer"
+
 msgid ""
-"Mandatory: Select a health issue or enter a new description for which care "
-"is rendered."
+"Mandatory: Select a health issue or enter a new reason for which care is "
+"rendered."
 msgstr ""
 
 msgid "Mandatory: The location care is rendered at."
@@ -3148,7 +3235,10 @@ msgstr ""
 msgid "Optional: A comment on this external care relationship."
 msgstr "Sisuplau, seleccioni un assumpte mèdic."
 
-msgid "Care Target"
+msgid "Check this if the external care entry is inactive (IOW, historic)."
+msgstr ""
+
+msgid "Reason"
 msgstr ""
 
 msgid "Location"
@@ -3373,9 +3463,6 @@ msgstr ""
 
 msgid "Audience"
 msgstr ""
-
-msgid "Patient"
-msgstr "Pacient"
 
 msgid "Message"
 msgstr ""
@@ -3652,9 +3739,6 @@ msgstr ""
 msgid " + "
 msgstr ""
 
-msgid "Select"
-msgstr ""
-
 msgid "Mandatory: When was the vaccination given to the patient ?"
 msgstr ""
 
@@ -3672,9 +3756,6 @@ msgstr ""
 #, fuzzy
 msgid "Add a vaccine to GNUmed."
 msgstr "Interromput  i no connectat a GNUmed"
-
-msgid "Select the indications this vaccination was given against."
-msgstr ""
 
 msgid "The batch number of the vaccine."
 msgstr ""
@@ -3911,6 +3992,13 @@ msgstr ""
 msgid "Add a hospitalization."
 msgstr "Llistat de vacunes buit"
 
+msgid "A comment on the procedure (say, the relevant outcome)."
+msgstr ""
+
+msgid ""
+"The document most relevant to this procedure (say, the most recent one)."
+msgstr ""
+
 msgid "Codes relevant to this procedure."
 msgstr ""
 
@@ -3929,6 +4017,10 @@ msgstr ""
 
 msgid "Hospitalization"
 msgstr ""
+
+#, fuzzy
+msgid "Document"
+msgstr "Documents"
 
 msgid "Enter the actual ID (number, identifier, ...) here."
 msgstr "Entra l'actual identifació (nom, identificador, ...) aquí."
@@ -4638,6 +4730,53 @@ msgid ""
 msgstr ""
 "Esborra la primera, o única entrada, seleccionada de la llista de sobre."
 
+#, fuzzy
+msgid "Dynamic hints"
+msgstr "Guarda el document finalitzat."
+
+#, fuzzy
+msgid "<hint source>"
+msgstr "Vacunació"
+
+#, fuzzy
+msgid "Further information"
+msgstr "Instruccions"
+
+msgid "http://www.duckduckgo.com"
+msgstr ""
+
+msgid ""
+"Previous\n"
+"rationale"
+msgstr ""
+
+msgid "&Suppress"
+msgstr ""
+
+#, fuzzy
+msgid "Dynamic hint"
+msgstr "Guarda el document finalitzat."
+
+msgid "Enter a rationale for suppressing this hint."
+msgstr ""
+
+msgid "Dismiss this hint for now."
+msgstr ""
+
+msgid "Suppress this hint in this patient (needs a rationale)."
+msgstr ""
+
+#, fuzzy
+msgid "Manage dynamic hints."
+msgstr "Guarda el document finalitzat."
+
+#, fuzzy
+msgid ""
+"Rationale for\n"
+"suppression\n"
+"for this patient"
+msgstr "Identificació pacient extern"
+
 msgid "Activate"
 msgstr ""
 
@@ -4747,9 +4886,6 @@ msgstr ""
 #, fuzzy
 msgid "Check if this is a live attenuated vaccine."
 msgstr "Comprova si és un problema clínicament rellevant."
-
-msgid "Manage the indications for this vaccine."
-msgstr ""
 
 msgid "The ATC for this vaccine."
 msgstr ""
@@ -5206,14 +5342,19 @@ msgid "Drugs"
 msgstr ""
 
 #, fuzzy
+msgid "Components"
+msgstr "Documents"
+
+#, fuzzy
+msgid "Doses"
+msgstr "Dosi"
+
+#, fuzzy
 msgid "Substances"
 msgstr "Substància"
 
-msgid "Preparation"
-msgstr ""
-
 #, fuzzy
-msgid "&Unknown or date:"
+msgid "&Unknown - or Date:"
 msgstr "reacció desconeguda"
 
 msgid "Approved of"
@@ -5231,7 +5372,7 @@ msgstr ""
 msgid ""
 "A drug the patient is taking.\n"
 "\n"
-"Lookup and select an intake by either of\n"
+"Lookup and select a (real or generic) drug product by either of\n"
 "- a generic substance name\n"
 "- a drug product name\n"
 "- an active ingredient of a drug\n"
@@ -5239,10 +5380,6 @@ msgid ""
 "Note that all components of multi-component drugs will be displayed and "
 "automatically added to the patient's list."
 msgstr ""
-
-#, fuzzy
-msgid "Details on the selected drug."
-msgstr "Edita l'entrada seleccionada."
 
 msgid "Show cardiac information relevant to substance selection."
 msgstr ""
@@ -5258,15 +5395,17 @@ msgid ""
 "you can select a component."
 msgstr ""
 
-msgid ""
-"Manage substances.\n"
-"\n"
-"This will not select a substance for you. It will, however, enable you to "
-"manage (add/edit/delete) the substances available for selection."
-msgstr ""
+#, fuzzy
+msgid "Manage drug components."
+msgstr "Detalls de la mesura"
 
-msgid "The preparation or form of the substance."
-msgstr ""
+#, fuzzy
+msgid "Manage substance doses."
+msgstr "Vacunació"
+
+#, fuzzy
+msgid "Manage substances."
+msgstr "Vacunació"
 
 #, fuzzy
 msgid "Check here if the start date simply isn't known."
@@ -5309,7 +5448,7 @@ msgstr ""
 msgid "When was intake of this substance discontinued ?"
 msgstr ""
 
-msgid "Press if discontinuation was as planned."
+msgid "Discontinued as planned (start + duration)."
 msgstr ""
 
 msgid "Reason for discontinuation."
@@ -5532,9 +5671,17 @@ msgstr ""
 msgid "Chec&k"
 msgstr ""
 
-#, fuzzy
-msgid "is &active"
-msgstr "Administratiu"
+msgid "&Highlight"
+msgstr ""
+
+msgid "None"
+msgstr ""
+
+msgid "Individual"
+msgstr ""
+
+msgid "Aggregate"
+msgstr ""
 
 msgid "Required: A concise, unique title for this automatic hint."
 msgstr ""
@@ -5542,6 +5689,11 @@ msgstr ""
 msgid ""
 "Required: The full text to be displayed when the conditions for this "
 "automatic hint apply."
+msgstr ""
+
+msgid ""
+"Required: Who is responsible for this automatic hint (inhouse and possibly "
+"externally)."
 msgstr ""
 
 msgid ""
@@ -5555,8 +5707,13 @@ msgid ""
 msgstr ""
 
 msgid ""
-"Required: Who is responsible for this automatic hint (inhouse and possibly "
-"externally)."
+"Optional: The SQL query to be run for retrieving further information and "
+"perhaps a recommendation in case this automatic hint applies.\n"
+"\n"
+"Must return NULL or a string (TEXT).\n"
+"\n"
+"Any occurrence of ID_ACTIVE_PATIENT will be replaced by the internal GNUmed "
+"ID of the currently active patient."
 msgstr ""
 
 msgid "Optional: An URL under which additional information can be found."
@@ -5567,11 +5724,34 @@ msgstr ""
 
 msgid ""
 "Whether or not this automatic hint is active. If not active it will not be "
-"displayed even if the SQL-defined conditions do match."
+"displayed even if the SQL-defined conditions do match.\n"
+"\n"
+"Cave: This setting applies across ALL PATIENTS."
 msgstr ""
 
 msgid ""
-"Conditions\n"
+"Whether or not to highlight this hint among others (where deemed "
+"appropriate)."
+msgstr ""
+
+msgid "Do not show this hint with a popup."
+msgstr ""
+
+msgid "Show hint in individual popup."
+msgstr ""
+
+msgid "Show hint with other hints in aggregate popup."
+msgstr ""
+
+msgid ""
+"Applicability\n"
+"check\n"
+"(SQL query)"
+msgstr ""
+
+msgid ""
+"Retrieval of\n"
+"recommendation\n"
 "(SQL query)"
 msgstr ""
 
@@ -5580,6 +5760,9 @@ msgstr ""
 
 msgid "Options"
 msgstr "Opcions"
+
+msgid "Popup:"
+msgstr ""
 
 msgid "Show non-invoiced only"
 msgstr ""
@@ -5759,6 +5942,22 @@ msgid "First name"
 msgstr "Nom"
 
 msgid "The name of the organization."
+msgstr ""
+
+msgid "The active component of this generic drug."
+msgstr ""
+
+#, fuzzy
+msgid "Drug name"
+msgstr "Cognom"
+
+msgid "per"
+msgstr ""
+
+msgid "Preparation"
+msgstr ""
+
+msgid "Select"
 msgstr ""
 
 msgid "Select person from list"
@@ -6260,10 +6459,6 @@ msgstr ""
 msgid "Product name"
 msgstr "Nom"
 
-#, fuzzy
-msgid "Components"
-msgstr "Documents"
-
 msgid "External code"
 msgstr ""
 
@@ -6362,49 +6557,6 @@ msgstr ""
 msgid "<hint title>"
 msgstr ""
 
-#, fuzzy
-msgid "<hint source>"
-msgstr "Vacunació"
-
-#, fuzzy
-msgid "Further information"
-msgstr "Instruccions"
-
-msgid "http://www.duckduckgo.com"
-msgstr ""
-
-msgid ""
-"Previous\n"
-"rationale"
-msgstr ""
-
-msgid "&Suppress"
-msgstr ""
-
-#, fuzzy
-msgid "Dynamic hint"
-msgstr "Guarda el document finalitzat."
-
-msgid "Enter a rationale for suppressing this hint."
-msgstr ""
-
-msgid "Dismiss this hint for now."
-msgstr ""
-
-msgid "Suppress this hint in this patient (needs a rationale)."
-msgstr ""
-
-#, fuzzy
-msgid "Manage dynamic hints."
-msgstr "Guarda el document finalitzat."
-
-#, fuzzy
-msgid ""
-"Rationale for\n"
-"suppression\n"
-"for this patient"
-msgstr "Identificació pacient extern"
-
 msgid "Save &under"
 msgstr ""
 
@@ -6495,9 +6647,6 @@ msgstr "Cognom"
 #, fuzzy
 msgid "File name"
 msgstr "Nom del fitxer"
-
-msgid "Image"
-msgstr ""
 
 msgid "Database welcome message editor"
 msgstr ""
@@ -6876,21 +7025,17 @@ msgstr "Instruccions"
 msgid "Substance dose"
 msgstr "Substància"
 
-msgid "delivery unit"
-msgstr ""
-
 #, fuzzy, python-format
 msgid "Instructions: %s"
 msgstr "Instruccions"
+
+msgid "delivery unit"
+msgstr ""
 
 msgid "w/"
 msgstr ""
 
 msgid "in use"
-msgstr ""
-
-#, python-format
-msgid "delivery unit (%s)"
 msgstr ""
 
 #, fuzzy, python-format
@@ -6996,9 +7141,9 @@ msgstr ""
 msgid "Preparation: %s\n"
 msgstr ""
 
-#, fuzzy, python-format
-msgid "Amount per dose: %s %s%s"
-msgstr "Visites: %s (%s - %s):"
+#, python-format
+msgid "Amount per dose: %s %s"
+msgstr ""
 
 #, python-format
 msgid " ATC (substance): %s\n"
@@ -7013,15 +7158,12 @@ msgid " ATC (drug): %s\n"
 msgstr "Substància"
 
 #, fuzzy, python-format
-msgid "Other component: %s %s %s%s\n"
+msgid "Other component: %s %s %s\n"
 msgstr "Documents"
 
 #, fuzzy, python-format
 msgid "Intake: %s"
 msgstr "Pacient"
-
-msgid "LOINCS to monitor:"
-msgstr ""
 
 #, python-format
 msgid " Regimen: %s\n"
@@ -7133,8 +7275,12 @@ msgstr "  risc: %s"
 msgid "today"
 msgstr "avui"
 
-msgid "Additional notes"
-msgstr "Annotacions adicionals"
+msgid "Additional notes for healthcare professionals"
+msgstr ""
+
+#, fuzzy
+msgid "Drug Product"
+msgstr "Vacunació"
 
 msgid "Strength"
 msgstr ""
@@ -7167,6 +7313,10 @@ msgstr ""
 #, fuzzy
 msgid "unit"
 msgstr "unitats"
+
+#, python-format
+msgid "delivery unit%s"
+msgstr ""
 
 msgid "virtual message"
 msgstr ""
@@ -7258,8 +7408,12 @@ msgid "file"
 msgstr ""
 
 #, fuzzy, python-format
-msgid "doc: %s"
-msgstr "   Doc: %s"
+msgid "%s (%s)%s"
+msgstr "Documents: %s"
+
+#, fuzzy, python-format
+msgid "part %s (%s%s)%s"
+msgstr "%s la setmana passada (%s of %s)"
 
 #, fuzzy
 msgid "Patient data for"
@@ -7463,10 +7617,6 @@ msgid "Family history"
 msgstr "Guarda el document finalitzat."
 
 #, fuzzy
-msgid "Document"
-msgstr "Documents"
-
-#, fuzzy
 msgid "Inbox message"
 msgstr "missatge d'inforamció genèric"
 
@@ -7627,29 +7777,6 @@ msgstr "al·lèrgies/intoleràncies"
 #, fuzzy, python-format
 msgid "Allergy detail: %s"
 msgstr "Detalls de l'al·lèrgia"
-
-#, python-format
-msgid ""
-"%s\n"
-"\n"
-"This patient's chart was worked on only recently:\n"
-"\n"
-" %s  %s - %s  (%s)\n"
-"\n"
-" Reason for Encounter:\n"
-"  %s\n"
-" Assessment of Encounter:\n"
-"  %s\n"
-"\n"
-"Do you want to continue that consultation\n"
-"or do you want to start a new one ?\n"
-msgstr ""
-
-msgid "none given"
-msgstr "no administrat"
-
-msgid "Starting patient encounter"
-msgstr "Començant visita amb el pacient"
 
 msgid "expired"
 msgstr ""
@@ -7813,19 +7940,6 @@ msgid ""
 "%(praxis)s"
 msgstr ""
 
-msgid "Privacy notice"
-msgstr ""
-
-#, python-format
-msgid ""
-"%s: Your chart has been accessed by %s (without user interaction, probably "
-"by a script)."
-msgstr ""
-
-#, python-format
-msgid "%s: Staff member %s has been notified of your chart access."
-msgstr ""
-
 #, python-format
 msgid ""
 "%s: %s by %.8s (v%s)\n"
@@ -7833,7 +7947,7 @@ msgid ""
 msgstr ""
 
 #, python-format
-msgid "External care               #%s"
+msgid "External care%s             #%s"
 msgstr ""
 
 #, fuzzy, python-format
@@ -7905,10 +8019,8 @@ msgstr ""
 msgid "Cannot merge active patient into another patient."
 msgstr ""
 
-msgid "assimilated"
-msgstr ""
-
-msgid "merged"
+#, python-format
+msgid "merge of #%s into #%s @ %s"
 msgstr ""
 
 msgid "invalid age: DOB in the future"
@@ -8279,6 +8391,14 @@ msgstr "part"
 msgid "%s of %s"
 msgstr " %s documents\n"
 
+#, fuzzy, python-format
+msgid " Receiver: %s @ %s\n"
+msgstr "Pacient"
+
+#, fuzzy, python-format
+msgid " Sender: %s @ %s\n"
+msgstr "Visites: %s (%s - %s):"
+
 #, python-format
 msgid ""
 "%s (%s)   #%s\n"
@@ -8290,10 +8410,6 @@ msgstr ""
 #, python-format
 msgid " External reference: %s\n"
 msgstr ""
-
-#, fuzzy, python-format
-msgid " Organization: %%s @ %s\n"
-msgstr "Vacunació"
 
 msgid "Cannot run [arriba] !"
 msgstr ""
@@ -8483,9 +8599,6 @@ msgstr "Descripció"
 msgid "prescription data"
 msgstr "Descripció"
 
-msgid "vaccine"
-msgstr "vacuna"
-
 #, fuzzy, python-format
 msgid "unknown vaccinations output format [%s]"
 msgstr "estat de la prova desconegut [%s]"
@@ -8525,22 +8638,6 @@ msgstr ""
 msgid "Injection site"
 msgstr "Lloc d'injecció"
 
-msgid "internal error, check log"
-msgstr "error intern, comprova el registre"
-
-msgid "consistency error, check log"
-msgstr "error de consistència, comprova el registre"
-
-msgid "ERROR: list of vaccinations not supplied"
-msgstr "ERROR: no s'ha documentat el llistat de vacunes"
-
-msgid "empty list of vaccinations"
-msgstr "Llistat de vacunes buit"
-
-#, python-format
-msgid "vacc -> ind error: %s"
-msgstr ""
-
 #, fuzzy, python-format
 msgid "Organization #%s"
 msgstr "Vacunació"
@@ -8560,6 +8657,375 @@ msgstr "La teva revisió"
 #, python-format
 msgid "Organization: %s (%s)"
 msgstr ""
+
+msgid "J07AC01-target::anthrax"
+msgstr ""
+
+msgid "J07AD01-target::brucellosis"
+msgstr ""
+
+msgid "J07AE01-target::cholera"
+msgstr ""
+
+msgid "J07AE02-target::cholera"
+msgstr ""
+
+msgid "J07AF01-target::diphtheria"
+msgstr ""
+
+msgid "J07AG01-target::HiB"
+msgstr ""
+
+msgid "J07AH01-target::meningococcus A"
+msgstr ""
+
+msgid "J07AH10-target::meningococcus A"
+msgstr ""
+
+msgid "J07AH06-target::meningococcus B"
+msgstr ""
+
+msgid "J07AH09-target::meningococcus B"
+msgstr ""
+
+msgid "J07AH07-target::meningococcus C"
+msgstr ""
+
+msgid "J07AH0Y-target::meningococcus Y"
+msgstr ""
+
+msgid "J07AH0W-target::meningococcus W"
+msgstr ""
+
+msgid "J07AJ0-target::pertussis"
+msgstr ""
+
+msgid "J07AJ01-target::pertussis"
+msgstr ""
+
+msgid "J07AJ02-target::pertussis"
+msgstr ""
+
+msgid "J07AK01-target::plague"
+msgstr ""
+
+msgid "J07AL01-target::pneumococcus"
+msgstr ""
+
+msgid "J07AL02-target::pneumococcus"
+msgstr ""
+
+msgid "J07AM01-target::tetanus"
+msgstr ""
+
+msgid "J07AN01-target::tbc"
+msgstr ""
+
+msgid "J07AP01-target::typhoid"
+msgstr ""
+
+msgid "J07AP02-target::typhoid"
+msgstr ""
+
+msgid "J07AP03-target::typhoid"
+msgstr ""
+
+msgid "J07AP10-target::typhoid, paratyphus"
+msgstr ""
+
+msgid "J07AR01-target::typhus exanthematicus"
+msgstr ""
+
+msgid "J07AXQF-target::Q fever"
+msgstr ""
+
+msgid "J07BA01-target::tick-borne encephalitis"
+msgstr ""
+
+msgid "J07BA02-target::japanese encephalitis"
+msgstr ""
+
+msgid "J07BA03-target::japanese encephalitis"
+msgstr ""
+
+msgid "J07BB01-target::influenza"
+msgstr ""
+
+msgid "J07BB02-target::influenza"
+msgstr ""
+
+msgid "J07BB03-target::influenza"
+msgstr ""
+
+msgid "J07BC01-target::hepatitis B"
+msgstr ""
+
+msgid "J07BC02-target::hepatitis A"
+msgstr ""
+
+msgid "J07BC03-target::hepatitis A"
+msgstr ""
+
+msgid "J07BD01-target::measles"
+msgstr ""
+
+msgid "J07BE01-target::mumps"
+msgstr ""
+
+msgid "J07BF01-target::poliomyelitis"
+msgstr ""
+
+msgid "J07BF03-target::poliomyelitis"
+msgstr ""
+
+msgid "J07BG01-target::rabies"
+msgstr ""
+
+msgid "J07BH01-target::rotavirus diarrhea"
+msgstr ""
+
+msgid "J07BH02-target::rotavirus diarrhea"
+msgstr ""
+
+msgid "J07BJ01-target::rubella"
+msgstr ""
+
+msgid "J07BK01-target::varicella (chickenpox)"
+msgstr ""
+
+msgid "J07BK02-target::zoster (shingles)"
+msgstr ""
+
+msgid "J07BL01-target::yellow fever"
+msgstr ""
+
+msgid "J07BM0-target::HPV"
+msgstr ""
+
+msgid "J07BM01-target::HPV"
+msgstr ""
+
+msgid "J07BM02-target::HPV"
+msgstr ""
+
+msgid "J07BM03-target::HPV"
+msgstr ""
+
+msgid "J07BX01-target::variola (smallpox)"
+msgstr ""
+
+#, fuzzy
+msgid "anthrax vaccine"
+msgstr "vacuna"
+
+#, fuzzy
+msgid "brucellosis vaccine"
+msgstr "vacuna"
+
+#, fuzzy
+msgid "cholera vaccine"
+msgstr "vacuna"
+
+msgid "cholera vaccine, live"
+msgstr ""
+
+#, fuzzy
+msgid "diphtheria vaccine"
+msgstr "vacuna"
+
+#, fuzzy
+msgid "HiB vaccine"
+msgstr "vacuna"
+
+msgid "meningococcus A vaccine"
+msgstr ""
+
+msgid "meningococcus B vaccine"
+msgstr ""
+
+msgid "meningococcus C vaccine"
+msgstr ""
+
+#, fuzzy
+msgid "pertussis vaccine"
+msgstr "vacuna"
+
+#, fuzzy
+msgid "plague vaccine"
+msgstr "vacuna"
+
+msgid "pneumococcus vaccine"
+msgstr ""
+
+#, fuzzy
+msgid "tetanus vaccine"
+msgstr "vacuna"
+
+#, fuzzy
+msgid "Tbc vaccine"
+msgstr "vacuna"
+
+#, fuzzy
+msgid "typhoid vaccine"
+msgstr "vacuna"
+
+#, fuzzy
+msgid "typhoid vaccine, live"
+msgstr "vacuna"
+
+msgid "typhoid/paratyphus vaccine"
+msgstr ""
+
+#, fuzzy
+msgid "typhus exanthematicus vaccine"
+msgstr "vacuna"
+
+#, fuzzy
+msgid "Q fever vaccine"
+msgstr "vacuna"
+
+msgid "tick-borne encephalitis vaccine"
+msgstr ""
+
+msgid "japanese encephalitis vaccine"
+msgstr ""
+
+msgid "japanese encephalitis vaccine, live"
+msgstr ""
+
+#, fuzzy
+msgid "influenza vaccine"
+msgstr "vacuna"
+
+msgid "influenza vaccine, live"
+msgstr ""
+
+#, fuzzy
+msgid "hepatitis A vaccine"
+msgstr "vacuna"
+
+#, fuzzy
+msgid "hepatitis B vaccine"
+msgstr "vacuna"
+
+msgid "measles vaccine, live"
+msgstr ""
+
+msgid "mumps vaccine, live"
+msgstr ""
+
+#, fuzzy
+msgid "poliomyelitis vaccine"
+msgstr "vacuna"
+
+msgid "poliomyelitis vaccine, live"
+msgstr ""
+
+#, fuzzy
+msgid "rabies vaccine"
+msgstr "vacuna"
+
+msgid "rotavirus vaccine, live"
+msgstr ""
+
+msgid "rubella vaccine, live"
+msgstr ""
+
+msgid "varicella vaccine, live"
+msgstr ""
+
+msgid "zoster vaccine, live"
+msgstr ""
+
+msgid "yellow fever vaccine"
+msgstr ""
+
+#, fuzzy
+msgid "HPV vaccine"
+msgstr "vacuna"
+
+msgid "variola vaccine, live"
+msgstr ""
+
+msgid "meningococcus AC vaccine"
+msgstr ""
+
+msgid "meningococcus ACYW135 vaccine"
+msgstr ""
+
+msgid "measles-mumps vaccine, live"
+msgstr ""
+
+msgid "MMR vaccine, live"
+msgstr ""
+
+msgid "MMRV vaccine, live"
+msgstr ""
+
+msgid "measles-rubella vaccine, live"
+msgstr ""
+
+msgid "mumps-rubella vaccine, live"
+msgstr ""
+
+msgid "cholera-typhoid vaccine"
+msgstr ""
+
+#, fuzzy
+msgid "typhoid-hepA vaccine"
+msgstr "vacuna"
+
+#, fuzzy
+msgid "Td vaccine"
+msgstr "vacuna"
+
+#, fuzzy
+msgid "TdPol vaccine"
+msgstr "vacuna"
+
+#, fuzzy
+msgid "DTPol vaccine"
+msgstr "vacuna"
+
+#, fuzzy
+msgid "Td-HepB vaccine"
+msgstr "vacuna"
+
+#, fuzzy
+msgid "Td-rubella vaccine"
+msgstr "vacuna"
+
+#, fuzzy
+msgid "TdaPPol vaccine"
+msgstr "vacuna"
+
+#, fuzzy
+msgid "TdaP-HepB vaccine"
+msgstr "vacuna"
+
+#, fuzzy
+msgid "TdaP vaccine"
+msgstr "vacuna"
+
+#, fuzzy
+msgid "DTaPPol-Hib vaccine"
+msgstr "vacuna"
+
+#, fuzzy
+msgid "TdaP-Hib-HepB vaccine"
+msgstr "vacuna"
+
+#, fuzzy
+msgid "TdaPPol-HepB vaccine"
+msgstr "vacuna"
+
+#, fuzzy
+msgid "TdaPPol-HiB-HepB vaccine"
+msgstr "vacuna"
+
+#, fuzzy
+msgid "TdaPPol-HiB-HepB-MenAC vaccine"
+msgstr "vacuna"
 
 msgid "A: Sign"
 msgstr "A: Signes"
@@ -8750,6 +9216,10 @@ msgid " (ongoing)"
 msgstr "en curs"
 
 #, fuzzy
+msgid "Comment: "
+msgstr "Comentaris:"
+
+#, fuzzy
 msgid "Health issues"
 msgstr "Sisuplau, seleccioni un assumpte mèdic."
 
@@ -8865,72 +9335,6 @@ msgid "Chronological EMR Journal\n"
 msgstr ""
 
 msgid "Doc"
-msgstr ""
-
-msgid "Cannot delete performed procedure."
-msgstr ""
-
-msgid ""
-"\n"
-"Select the procedure you want to edit !\n"
-msgstr ""
-
-msgid "Editing performed procedures ..."
-msgstr ""
-
-msgid "Where"
-msgstr ""
-
-msgid "Adding a procedure"
-msgstr ""
-
-msgid "Editing a procedure"
-msgstr ""
-
-msgid "Cannot save procedure."
-msgstr ""
-
-msgid "Cannot delete hospitalization."
-msgstr ""
-
-msgid "The patient's hospitalizations:\n"
-msgstr ""
-
-#, fuzzy
-msgid "Editing hospitalizations ..."
-msgstr "Vacunació"
-
-msgid "Admission"
-msgstr ""
-
-msgid "Discharge"
-msgstr ""
-
-msgid "Reason"
-msgstr ""
-
-#, fuzzy
-msgid "Adding a hospitalization"
-msgstr "Llistat de vacunes buit"
-
-#, fuzzy
-msgid "Editing a hospitalization"
-msgstr "Vacunació"
-
-msgid ""
-"Must select an episode or enter a name for a new one. Cannot save "
-"hospitalization."
-msgstr ""
-
-msgid "Missing admission data. Cannot save hospitalization."
-msgstr ""
-
-msgid ""
-"Discharge date must be empty or later than admission. Cannot save "
-"hospitalization."
-msgstr ""
-
-msgid "Must select a hospital. Cannot save hospitalization."
 msgstr ""
 
 msgid "Adding a new episode"
@@ -9273,6 +9677,29 @@ msgstr ""
 
 #, python-format
 msgid "Cannot switch to [%s]: no patient selected"
+msgstr ""
+
+msgid "Cannot delete performed procedure."
+msgstr ""
+
+msgid ""
+"\n"
+"Select the procedure you want to edit !\n"
+msgstr ""
+
+msgid "Editing performed procedures ..."
+msgstr ""
+
+msgid "Where"
+msgstr ""
+
+msgid "Adding a procedure"
+msgstr ""
+
+msgid "Editing a procedure"
+msgstr ""
+
+msgid "Cannot save procedure."
 msgstr ""
 
 msgid "Cannot move progress notes. No active patient."
@@ -9786,26 +10213,18 @@ msgstr ""
 msgid "Pass phrase expired"
 msgstr ""
 
+msgid "Regenerating generic vaccines"
+msgstr ""
+
+#, python-format
 msgid ""
+"Error regenerating generic vaccines.\n"
 "\n"
-"Conditions preventable by vaccination as currently known to GNUmed.\n"
+"See [%s]"
 msgstr ""
 
-msgid "Showing vaccination preventable conditions."
+msgid "Successfully regenerated generic vaccines ..."
 msgstr ""
-
-msgid "ATCs: single-condition vaccines"
-msgstr ""
-
-msgid "ATCs: multi-condition vaccines"
-msgstr ""
-
-msgid "Pick the relevant indications."
-msgstr ""
-
-#, fuzzy
-msgid "Known indications"
-msgstr "Vacunació"
 
 msgid "Adding new vaccine"
 msgstr ""
@@ -9828,11 +10247,6 @@ msgstr ""
 msgid "fake"
 msgstr ""
 
-msgid ""
-"\n"
-"The vaccines currently known to GNUmed.\n"
-msgstr ""
-
 msgid "Showing vaccines."
 msgstr ""
 
@@ -9847,7 +10261,6 @@ msgid ""
 "This vaccine is already in use:\n"
 "\n"
 " \"%s\"\n"
-" (%s)\n"
 "\n"
 "Are you absolutely positively sure that\n"
 "you really want to edit this vaccine ?\n"
@@ -9856,16 +10269,6 @@ msgid ""
 "conditions in each patient this vaccine was\n"
 "used in to document a vaccination with.\n"
 msgstr ""
-
-msgid "You must select at least one indication."
-msgstr ""
-
-msgid "Pick the diseases this vaccine protects against."
-msgstr ""
-
-#, fuzzy
-msgid "This vaccine"
-msgstr "vacuna"
 
 #, fuzzy
 msgid "Adding new vaccinations"
@@ -9890,14 +10293,24 @@ msgid ""
 "%s"
 msgstr "Vacunació"
 
-msgid ""
-"\n"
-"Complete vaccination history for this patient.\n"
-msgstr ""
+#, fuzzy, python-format
+msgid "%s (latest of %s: %s ago)"
+msgstr "  risc: %s"
+
+#, fuzzy
+msgid "Most recent vaccination for each indication.\n"
+msgstr "Vacunació"
+
+#, fuzzy
+msgid "Complete vaccination history.\n"
+msgstr "Vacunació"
 
 #, fuzzy
 msgid "Showing vaccinations."
 msgstr "Vacunació"
+
+msgid "Indication"
+msgstr ""
 
 msgid "Intended to protect from"
 msgstr ""
@@ -9922,13 +10335,6 @@ msgstr ""
 #, fuzzy
 msgid "prevention"
 msgstr "Direccions"
-
-#, fuzzy
-msgid "Saving vaccination"
-msgstr "Vacunació"
-
-msgid "Pick the diseases this vaccination was given against."
-msgstr ""
 
 msgid "  IMMUNISATIONS  "
 msgstr ""
@@ -10042,7 +10448,8 @@ msgstr "  risc: %s"
 msgid "due in %s%s"
 msgstr "  risc: %s"
 
-msgid "suppr'd:"
+#, python-format
+msgid "suppr'd (%s):"
 msgstr ""
 
 #, fuzzy
@@ -10115,7 +10522,7 @@ msgid "active substance abuse"
 msgstr ""
 
 #, fuzzy, python-format
-msgid "%s %s%s%s%s"
+msgid "%s %s%s%s"
 msgstr "%s la setmana passada (%s of %s)"
 
 #, python-format
@@ -10496,6 +10903,10 @@ msgstr ""
 msgid "no external ID [%s] by [%s]"
 msgstr ""
 
+#, fuzzy
+msgid "template is empty"
+msgstr "Tipus de plantilla"
+
 msgid "no primary in-praxis provider"
 msgstr ""
 
@@ -10569,6 +10980,10 @@ msgstr ""
 #, fuzzy
 msgid "no bill selected"
 msgstr "Vacunació"
+
+#, python-format
+msgid "[%s] bill has no address"
+msgstr ""
 
 msgid "attach rejected, already serving a client"
 msgstr ""
@@ -10870,9 +11285,8 @@ msgstr "Identificació pacient extern"
 msgid "Showing external care network."
 msgstr "Vacunació"
 
-#, fuzzy
-msgid "Care issue"
-msgstr "Sisuplau, seleccioni un assumpte mèdic."
+msgid "Reason for care"
+msgstr ""
 
 #, fuzzy
 msgid "Adding external care"
@@ -11308,20 +11722,6 @@ msgstr ""
 
 msgid "Ok"
 msgstr "D'acord"
-
-#, python-format
-msgid ""
-"%s\n"
-"\n"
-"This patient's chart was worked on only recently:\n"
-"\n"
-" %s\n"
-"Do you want to continue that consultation ?\n"
-" (if not a new one will be started)\n"
-msgstr ""
-
-msgid "Pulling electronic chart"
-msgstr ""
 
 #, python-format
 msgid ""
@@ -12962,6 +13362,42 @@ msgid ""
 "%s"
 msgstr ""
 
+#, python-format
+msgid ""
+"%s, %s  [#%s]\n"
+"\n"
+"This patient's chart was worked on only recently:\n"
+"\n"
+" %s\n"
+"Do you want to continue that consultation ?\n"
+" (If not a new one will be used.)\n"
+msgstr ""
+
+msgid "Pulling chart"
+msgstr ""
+
+#, fuzzy
+msgid "Continue recent"
+msgstr "Contacteu amb nosaltres"
+
+msgid "Continue the existing recent encounter."
+msgstr ""
+
+msgid "Start new"
+msgstr ""
+
+msgid "Start a new encounter. The existing one will be closed."
+msgstr ""
+
+msgid ""
+"Properly switched to fairly recent encounter but unable to delete newly-"
+"created encounter."
+msgstr ""
+
+msgid ""
+"Unable to transfer the data from newly-created to fairly recent encounter."
+msgstr ""
+
 msgid "Started a new encounter for the active patient."
 msgstr ""
 
@@ -12979,18 +13415,6 @@ msgstr ""
 #, fuzzy
 msgid "Edit the encounter details of the active patient before moving on:"
 msgstr "No hi ha entrades per aquest episodi"
-
-msgid "Continue"
-msgstr ""
-
-msgid "Continue the existing recent encounter."
-msgstr ""
-
-msgid "Start new"
-msgstr ""
-
-msgid "Start a new encounter. The existing one will be closed."
-msgstr ""
 
 msgid "Cannot list encounters. No active patient."
 msgstr ""
@@ -13392,8 +13816,15 @@ msgid ""
 "Are you sure you want to draw this chart ?"
 msgstr ""
 
+msgid "Privacy notice"
+msgstr ""
+
 #, python-format
 msgid "%s: Your chart has been accessed by %s."
+msgstr ""
+
+#, python-format
+msgid "%s: Staff member %s has been notified of your chart access."
 msgstr ""
 
 msgid "Checking date of birth"
@@ -13432,6 +13863,10 @@ msgstr ""
 
 msgid "The preparation (form) of the substance or product."
 msgstr ""
+
+#, fuzzy
+msgid "A drug product."
+msgstr "Vacunació"
 
 msgid "A substance with optional strength or a drug product."
 msgstr ""
@@ -13495,6 +13930,10 @@ msgstr ""
 msgid "<no components>"
 msgstr "Documents"
 
+#, fuzzy, python-format
+msgid "%s w/ %s%s%s of %s"
+msgstr "%s la setmana passada (%s of %s)"
+
 msgid "Adding substance intake entry"
 msgstr ""
 
@@ -13524,15 +13963,24 @@ msgstr ""
 
 #, python-format
 msgid ""
+"This intake is part of a multi-component drug product:\n"
+"\n"
+" %s\n"
+"\n"
+"Really delete all intakes related to this drug product ?"
+msgstr ""
+
+msgid "Deleting medication / substance intake"
+msgstr ""
+
+#, python-format
+msgid ""
 "\n"
 "[%s]\n"
 "\n"
 "It may be prudent to edit (before deletion) the details\n"
 "of this substance intake entry so as to leave behind\n"
 "some indication of why it was deleted.\n"
-msgstr ""
-
-msgid "Deleting medication / substance intake"
 msgstr ""
 
 msgid "Allow editing of substance intake entry before deletion."
@@ -13628,10 +14076,6 @@ msgid "Cannot delete more than one substance at once."
 msgstr ""
 
 msgid "Cannot create allergy from more than one substance at once."
-msgstr ""
-
-#, python-format
-msgid "Amount per dose: %s %s"
 msgstr ""
 
 #, fuzzy, python-format
@@ -14082,10 +14526,6 @@ msgstr ""
 msgid "Enter a filename to save the template to"
 msgstr ""
 
-#, fuzzy
-msgid "Receiver"
-msgstr "Pacient"
-
 msgid "Emergency contact"
 msgstr ""
 
@@ -14171,14 +14611,16 @@ msgid ""
 "\n"
 "Do you want to delete imported files from the filesystem ?\n"
 "\n"
-" %s\n"
-"\n"
-"Note that temporary files will be deleted anyway."
+" %s"
 msgstr ""
 
 #, fuzzy
 msgid "Removing files"
 msgstr "Ennlista la persona com a usuari/a de GNUmed"
+
+#, fuzzy
+msgid "Select a document."
+msgstr "Guarda el document finalitzat."
 
 msgid "Enter a comment on the document."
 msgstr ""
@@ -14407,15 +14849,40 @@ msgstr ""
 msgid "showing document"
 msgstr ""
 
-msgid "Document list for this patient."
-msgstr ""
-
 #, fuzzy
-msgid "Showing documents."
+msgid "Patient document list"
 msgstr "Guarda el document finalitzat."
 
 msgid "Ref #"
 msgstr ""
+
+msgid "Bill"
+msgstr ""
+
+#, fuzzy
+msgid "Modified"
+msgstr "entrada modificada"
+
+msgid "... by"
+msgstr ""
+
+#, fuzzy
+msgid "# encounter"
+msgstr "Visita"
+
+msgid "Part"
+msgstr ""
+
+#, fuzzy
+msgid "Data size"
+msgstr "Vacunació"
+
+msgid "by you"
+msgstr ""
+
+#, fuzzy
+msgid "by intended reviewer"
+msgstr "La teva revisió"
 
 #, python-format
 msgid "available documents (%s)"
@@ -14526,7 +14993,7 @@ msgid "%s%7s %s:%s (%s)"
 msgstr "%s la setmana passada (%s of %s)"
 
 #, fuzzy, python-format
-msgid "%s%7s (%s):%s (%s)"
+msgid "%s%7s (%s):%s"
 msgstr "%s la setmana passada (%s of %s)"
 
 #, fuzzy, python-format
@@ -14537,9 +15004,25 @@ msgstr "Episodis no atribuïts"
 msgid "unknown organization"
 msgstr "reacció desconeguda"
 
+#, fuzzy, python-format
+msgid "to: %s"
+msgstr "   Doc: %s"
+
+#, fuzzy, python-format
+msgid "from: %s"
+msgstr "Pacient"
+
+#, fuzzy
+msgid "this praxis"
+msgstr "La teva revisió"
+
 #, python-format
 msgid "part %2s"
 msgstr ""
+
+#, fuzzy, python-format
+msgid "invalid document tree node data type: %s"
+msgstr "estat de la prova desconegut [%s]"
 
 msgid "Activate as current photo"
 msgstr ""
@@ -14712,12 +15195,18 @@ msgstr "no es pot connectar al servei [%s]"
 msgid "PACS: Orthanc \"%s\" (AET \"%s\", Version %s, DB v%s)"
 msgstr ""
 
-#, python-format
-msgid "GNUmed patient: %s (generic PACS ID)"
+msgid "Known PACS IDs:"
 msgstr ""
 
+#, fuzzy, python-format
+msgid "generic: %s"
+msgstr "Genèrics"
+
 #, python-format
-msgid "GNUmed patient: \"%(value)s\" @ [%(issuer)s] (stored PACS ID)"
+msgid "stored: \"%(value)s\" @ [%(issuer)s]"
+msgstr ""
+
+msgid "Patients found in PACS:"
 msgstr ""
 
 msgid "PACS: no patients with matching IDs found"
@@ -14727,64 +15216,21 @@ msgid ""
 "PACS: more than one patient with matching IDs found, carefully check studies"
 msgstr ""
 
+#, python-format
+msgid "Studies found: %s"
+msgstr ""
+
 #, fuzzy, python-format
 msgid "%s series%s"
 msgstr "%s la setmana passada (%s of %s)"
 
-msgid "no studies"
-msgstr ""
-
-#, python-format
-msgid "%s studies"
-msgstr ""
-
-msgid "Exporting DICOM studies"
-msgstr ""
-
 #, fuzzy
-msgid "Unable to export selected studies."
-msgstr "Edita l'entrada seleccionada."
-
-#, python-format
-msgid ""
-"The DICOM studies are %s in compressed size.\n"
-"\n"
-"Really copy to export area ?"
-msgstr ""
-
-#, python-format
-msgid "DICOM studies of [%s] from Orthanc PACS \"%s\" (AET \"%s\")"
-msgstr ""
-
-msgid "Select the directory into which to save the DICOM studies."
-msgstr ""
-
-msgid "Saving DICOM studies"
-msgstr ""
-
-#, fuzzy
-msgid "Unable to save selected studies."
-msgstr "Edita l'entrada seleccionada."
-
-#, fuzzy
-msgid "Unable to export studies."
-msgstr "No es pot obrir la línia de temps '%s'."
-
-#, python-format
-msgid "All DICOM studies of [%s] from Orthanc PACS \"%s\" (AET \"%s\")"
-msgstr ""
+msgid "Series"
+msgstr "Categories"
 
 #, fuzzy, python-format
 msgid "%s image(s)%s"
 msgstr "Documents: %s"
-
-#, fuzzy
-msgid "Study"
-msgstr "Mostra l'hora"
-
-#, fuzzy
-msgid "Series"
-msgstr "Categories"
 
 msgid "Select the directory from which to recursively upload DICOM files."
 msgstr ""
@@ -14801,6 +15247,57 @@ msgstr ""
 
 msgid "Uploading DICOM files"
 msgstr ""
+
+#, python-format
+msgid ""
+"Cannot preview DICOM image:\n"
+"%s"
+msgstr ""
+
+msgid "Previewing DICOM image"
+msgstr ""
+
+#, python-format
+msgid ""
+"Cannot show DICOM image:\n"
+"%s"
+msgstr ""
+
+msgid "Showing DICOM image"
+msgstr ""
+
+#, python-format
+msgid "Successfully saved as [%s]."
+msgstr ""
+
+#, python-format
+msgid "DICOM image of [%s] from Orthanc PACS \"%s\" (AET \"%s\")"
+msgstr ""
+
+#, fuzzy
+msgid "Successfully stored in export area."
+msgstr "Llistat de vacunes buit"
+
+msgid "Select the directory into which to save the DICOM studies."
+msgstr ""
+
+msgid "Saving DICOM studies"
+msgstr ""
+
+#, fuzzy
+msgid "Unable to save selected studies."
+msgstr "Edita l'entrada seleccionada."
+
+#, fuzzy
+msgid "Unable to save patient studies."
+msgstr "Edita l'entrada seleccionada."
+
+msgid "Exporting DICOM studies"
+msgstr ""
+
+#, fuzzy
+msgid "Unable to export studies."
+msgstr "No es pot obrir la línia de temps '%s'."
 
 #, fuzzy
 msgid "Editing Orthanc content"
@@ -15362,11 +15859,21 @@ msgstr "Detalls de la mesura"
 msgid "Manage measurement results for the current patient."
 msgstr "No hi ha entrades per aquest episodi"
 
-msgid "&Vaccinations"
-msgstr ""
+#, fuzzy
+msgid "&Vaccination history"
+msgstr "Vacunacions"
 
-msgid "Add (a) vaccination(s) for the current patient."
-msgstr ""
+#, fuzzy
+msgid "Manage vaccinations for the current patient."
+msgstr "No hi ha entrades per aquest episodi"
+
+#, fuzzy
+msgid "&Vaccinations (latest)"
+msgstr "Vacunació"
+
+#, fuzzy
+msgid "List latest vaccinations for the current patient."
+msgstr "No hi ha entrades per aquest episodi"
 
 msgid "&Family history (FHx)"
 msgstr ""
@@ -16269,8 +16776,19 @@ msgstr ""
 msgid "Communication channel types"
 msgstr ""
 
-msgid "Diagnostic organizations (path labs, ...)"
+msgid "Organizations with their units, addresses, and comm channels"
 msgstr ""
+
+msgid "Measurements: diagnostic organizations (path labs, ...)"
+msgstr ""
+
+#, fuzzy
+msgid "Measurements: test types"
+msgstr "Medicions i Resultats:"
+
+#, fuzzy
+msgid "Measurements: test panels/profiles/batteries"
+msgstr "Detalls de la mesura"
 
 msgid "Document templates (forms, letters, plots, ...)"
 msgstr ""
@@ -16287,11 +16805,8 @@ msgid "Keyword based text expansion macros"
 msgstr ""
 
 #, fuzzy
-msgid "Meta test/measurement types"
-msgstr "Detalls de la mesura"
-
-msgid "Organizations with their units, addresses, and comm channels"
-msgstr ""
+msgid "Measurements: aggregate test types"
+msgstr "Vacunació"
 
 #, fuzzy
 msgid "Patient tags"
@@ -16305,18 +16820,8 @@ msgid "String translations in the database"
 msgstr "Guardi les al·lèrgies/intoleràncies a la base de dades."
 
 #, fuzzy
-msgid "Test/measurement types"
-msgstr "Detalls de la mesura"
-
-msgid "Vaccination targets (conditions known to be preventable by vaccination)"
-msgstr ""
-
-#, fuzzy
-msgid "Vaccines"
-msgstr "Vacunació"
-
-msgid "Workplace profiles (which plugins to load)"
-msgstr ""
+msgid "Medications: vaccines"
+msgstr "Preguntes més freqüents"
 
 #, fuzzy
 msgid "Medications: base substances"
@@ -16333,15 +16838,14 @@ msgstr "Detalls de la mesura"
 msgid "Medications: drug products and generic drugs"
 msgstr ""
 
+msgid "Workplace profiles (which plugins to load)"
+msgstr ""
+
 msgid "Billable items"
 msgstr ""
 
 msgid "Reference data sources"
 msgstr ""
-
-#, fuzzy
-msgid "Test/measurement panels/profiles"
-msgstr "Detalls de la mesura"
 
 msgid "Master data management"
 msgstr ""
@@ -16440,6 +16944,10 @@ msgstr "Vacunació"
 
 msgid "Cannot add vaccinations. No active patient."
 msgstr ""
+
+#, fuzzy
+msgid "Cannot manage vaccinations. No active patient."
+msgstr "No hi ha entrades per aquest episodi"
 
 #, fuzzy
 msgid "manage family history"
@@ -16707,6 +17215,46 @@ msgstr "Arxius de línia de temps"
 msgid "timeline data"
 msgstr "No s'ha establert cap línia de temps"
 
+msgid "Cannot delete hospitalization."
+msgstr ""
+
+msgid "The patient's hospitalizations:\n"
+msgstr ""
+
+#, fuzzy
+msgid "Editing hospitalizations ..."
+msgstr "Vacunació"
+
+msgid "Admission"
+msgstr ""
+
+msgid "Discharge"
+msgstr ""
+
+#, fuzzy
+msgid "Adding a hospitalization"
+msgstr "Llistat de vacunes buit"
+
+#, fuzzy
+msgid "Editing a hospitalization"
+msgstr "Vacunació"
+
+msgid ""
+"Must select an episode or enter a name for a new one. Cannot save "
+"hospitalization."
+msgstr ""
+
+msgid "Missing admission data. Cannot save hospitalization."
+msgstr ""
+
+msgid ""
+"Discharge date must be empty or later than admission. Cannot save "
+"hospitalization."
+msgstr ""
+
+msgid "Must select a hospital. Cannot save hospitalization."
+msgstr ""
+
 msgid "Cannot change notebook tabs. No active patient."
 msgstr ""
 
@@ -16854,6 +17402,14 @@ msgstr ""
 #, fuzzy, python-format
 msgid "By: %s"
 msgstr "Pacient"
+
+#, fuzzy
+msgid "Cannot suppress hint."
+msgstr "Vacunació"
+
+#, fuzzy
+msgid "Hint now suppressed in this patient."
+msgstr "No hi ha entrades per aquest episodi"
 
 msgid "No entry in field <Source>."
 msgstr ""
@@ -17040,10 +17596,6 @@ msgstr "Vacunació"
 msgid "Substance doses registered with GNUmed."
 msgstr ""
 
-#, fuzzy
-msgid "Dose Unit"
-msgstr "Dosi"
-
 msgid "Import substance doses from a drug database."
 msgstr ""
 
@@ -17154,7 +17706,7 @@ msgid ""
 "because it is currently taken by patients.\n"
 msgstr ""
 
-msgid "Pick the substances which are components of this drug."
+msgid "Pick the substance doses which are components of this drug."
 msgstr ""
 
 msgid "Components of drug"
@@ -17207,6 +17759,28 @@ msgid ""
 "one or more components before it can be used,\n"
 "except in the case of fake (generic) vaccines."
 msgstr ""
+
+msgid "Adding new single-component generic drug"
+msgstr ""
+
+msgid "Editing single-component generic drug"
+msgstr ""
+
+#, fuzzy
+msgid "Drug form is missing."
+msgstr "Descripció"
+
+#, fuzzy
+msgid "Unit for amount is missing."
+msgstr "Descripció"
+
+#, fuzzy
+msgid "Amount is missing."
+msgstr "Descripció"
+
+#, fuzzy
+msgid "Substance is missing."
+msgstr "Descripció"
 
 msgid "No EMR data loaded."
 msgstr ""
@@ -17913,10 +18487,6 @@ msgstr ""
 
 msgid "Find text in EMR Journal"
 msgstr ""
-
-#, fuzzy
-msgid "Modified"
-msgstr "entrada modificada"
 
 #, fuzzy
 msgid "Clinical time"
@@ -18647,6 +19217,9 @@ msgstr ""
 msgid "EMR &Journal (list)"
 msgstr ""
 
+msgid "&Vaccinations"
+msgstr ""
+
 msgid "Appointments"
 msgstr ""
 
@@ -18657,9 +19230,6 @@ msgid "lab journal"
 msgstr ""
 
 msgid "Show &lab journal"
-msgstr ""
-
-msgid "PACS"
 msgstr ""
 
 msgid "&PACS"
@@ -18708,9 +19278,6 @@ msgid "Any"
 msgstr ""
 
 msgid "Generic name"
-msgstr ""
-
-msgid "Indication"
 msgstr ""
 
 msgid "&Prescribe"
@@ -18931,6 +19498,95 @@ msgid "Abort and do NOT connect to GNUmed."
 msgstr "Interromput  i no connectat a GNUmed"
 
 #, fuzzy
+#~ msgid "Export all"
+#~ msgstr "Informe"
+
+#, fuzzy
+#~ msgid "Copy selected studies into export area."
+#~ msgstr "Llistat de vacunes buit"
+
+#, fuzzy
+#~ msgid "Selected studies:"
+#~ msgstr "Selecciona"
+
+#, fuzzy
+#~ msgid "Document source:"
+#~ msgstr "Documents"
+
+#, fuzzy
+#~ msgid "Details on the selected drug."
+#~ msgstr "Edita l'entrada seleccionada."
+
+#, fuzzy
+#~ msgid "is &active"
+#~ msgstr "Administratiu"
+
+#, fuzzy
+#~ msgid "Amount per dose: %s %s%s"
+#~ msgstr "Visites: %s (%s - %s):"
+
+#~ msgid "Additional notes"
+#~ msgstr "Annotacions adicionals"
+
+#~ msgid "none given"
+#~ msgstr "no administrat"
+
+#~ msgid "Starting patient encounter"
+#~ msgstr "Començant visita amb el pacient"
+
+#, fuzzy
+#~ msgid " Organization: %%s @ %s\n"
+#~ msgstr "Vacunació"
+
+#~ msgid "internal error, check log"
+#~ msgstr "error intern, comprova el registre"
+
+#~ msgid "consistency error, check log"
+#~ msgstr "error de consistència, comprova el registre"
+
+#~ msgid "ERROR: list of vaccinations not supplied"
+#~ msgstr "ERROR: no s'ha documentat el llistat de vacunes"
+
+#~ msgid "empty list of vaccinations"
+#~ msgstr "Llistat de vacunes buit"
+
+#, fuzzy
+#~ msgid "Known indications"
+#~ msgstr "Vacunació"
+
+#, fuzzy
+#~ msgid "Saving vaccination"
+#~ msgstr "Vacunació"
+
+#, fuzzy
+#~ msgid "Care issue"
+#~ msgstr "Sisuplau, seleccioni un assumpte mèdic."
+
+#, fuzzy
+#~ msgid "Showing documents."
+#~ msgstr "Guarda el document finalitzat."
+
+#, fuzzy
+#~ msgid "Unable to export selected studies."
+#~ msgstr "Edita l'entrada seleccionada."
+
+#, fuzzy
+#~ msgid "Meta test/measurement types"
+#~ msgstr "Detalls de la mesura"
+
+#, fuzzy
+#~ msgid "Test/measurement types"
+#~ msgstr "Detalls de la mesura"
+
+#, fuzzy
+#~ msgid "Vaccines"
+#~ msgstr "Vacunació"
+
+#, fuzzy
+#~ msgid "Dose Unit"
+#~ msgstr "Dosi"
+
+#, fuzzy
 #~ msgid "&Addresses"
 #~ msgstr "Direcció"
 
@@ -19037,10 +19693,6 @@ msgstr "Interromput  i no connectat a GNUmed"
 #~ msgid "Setup page for printing"
 #~ msgstr "Configuració d'imprssió"
 
-#, fuzzy
-#~ msgid "Print Preview"
-#~ msgstr "La teva revisió"
-
 #~ msgid "Active medications: %s"
 #~ msgstr "Medicació actual:"
 
@@ -19072,10 +19724,6 @@ msgstr "Interromput  i no connectat a GNUmed"
 
 #, fuzzy
 #~ msgid "Printing vaccinations"
-#~ msgstr "Vacunació"
-
-#, fuzzy
-#~ msgid "Vaccination Plans"
 #~ msgstr "Vacunació"
 
 #~ msgid "Save the entered data into the database."

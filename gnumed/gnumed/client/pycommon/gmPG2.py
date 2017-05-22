@@ -1961,7 +1961,7 @@ class cConnectionPool(psycopg2.pool.PersistentConnectionPool):
 			self._used[conn_key].original_close()
 
 # -----------------------------------------------------------------------
-def get_raw_connection(dsn=None, verbose=False, readonly=True):
+def get_raw_connection(dsn=None, verbose=False, readonly=True, connection_name=None):
 	"""Get a raw, unadorned connection.
 
 	- this will not set any parameters such as encoding, timezone, datestyle
@@ -1982,8 +1982,12 @@ def get_raw_connection(dsn=None, verbose=False, readonly=True):
 	if u' client_encoding=' not in dsn:
 		dsn += u' client_encoding=utf8'
 
-	if u' application_name' not in dsn:
-		dsn += u" application_name=GNUmed"
+	if connection_name is None:
+		if u' application_name' not in dsn:
+			dsn += u" application_name=GNUmed"
+	else:
+		if u' application_name' not in dsn:
+			dsn += u" application_name=%s" % connection_name
 
 	try:
 		#conn = dbapi.connect(dsn=dsn, cursor_factory=psycopg2.extras.RealDictCursor)
@@ -2011,7 +2015,10 @@ def get_raw_connection(dsn=None, verbose=False, readonly=True):
 
 		raise
 
-	_log.debug('new database connection, backend PID: %s, readonly: %s', conn.get_backend_pid(), readonly)
+	if connection_name is None:
+		_log.debug('new anonymous database connection, backend PID: %s, readonly: %s', conn.get_backend_pid(), readonly)
+	else:
+		_log.debug('new database connection "%s", backend PID: %s, readonly: %s', connection_name, conn.get_backend_pid(), readonly)
 
 	# do first-connection-only stuff
 	# - verify PG version
@@ -2072,7 +2079,7 @@ def get_raw_connection(dsn=None, verbose=False, readonly=True):
 	return conn
 
 # =======================================================================
-def get_connection(dsn=None, readonly=True, encoding=None, verbose=False, pooled=True):
+def get_connection(dsn=None, readonly=True, encoding=None, verbose=False, pooled=True, connection_name=None):
 	"""Get a new connection.
 
 	This assumes the locale system has been initialized
@@ -2091,7 +2098,7 @@ def get_connection(dsn=None, readonly=True, encoding=None, verbose=False, pooled
 			)
 		conn = __ro_conn_pool.getconn()
 	else:
-		conn = get_raw_connection(dsn=dsn, verbose=verbose, readonly=False)
+		conn = get_raw_connection(dsn=dsn, verbose=verbose, readonly = readonly, connection_name = connection_name)
 
 	if conn.is_decorated:
 		return conn

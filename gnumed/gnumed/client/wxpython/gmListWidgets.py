@@ -71,8 +71,9 @@ def get_choices_from_list (
 	- list_tooltip_callback: (item data)
 
 	- left/middle/right_extra_button: (label, tooltip, <callback> [, wants_list_ctrl])
-		wants_list_ctrl is optional
+		<wants_list_ctrl> is optional
 		<callback> is called with item_data (or listctrl) as the only argument
+		if <callback> returns TRUE, the listctrl will be refreshed, if a refresh_callback is available
 
 	returns:
 		on [CANCEL]: None

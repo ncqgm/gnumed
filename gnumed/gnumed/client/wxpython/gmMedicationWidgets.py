@@ -285,7 +285,7 @@ def manage_substance_intakes(parent=None, emr=None):
 					gmTools.coalesce(i['product'], u'', u' (%s)'),
 					i['amount'],
 					i['unit'],
-					i['preparation'],
+					i['l10n_preparation'],
 					gmTools.coalesce(i['external_code_product'], u'', u' [%s::%s]' % (i['external_code_type_product'], i['external_code_product']))
 				),
 				u'%s%s%s' % (
@@ -1251,7 +1251,7 @@ def update_substance_intake_list_from_prescription(parent=None, prescribed_drugs
 		columns = [_('Newly prescribed drugs')],
 		columns_right = [_('Add to medication list')]
 	)
-	choices = [ (u'%s %s (%s)' % (d['product'], d['preparation'], u'; '.join(d['components']))) for d in new_drugs ]
+	choices = [ (u'%s %s (%s)' % (d['product'], d['l10n_preparation'], u'; '.join(d['components']))) for d in new_drugs ]
 	picker.set_choices (
 		choices = choices,
 		data = new_drugs
@@ -1491,17 +1491,17 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 #						self.SetCellValue(row_idx, 5, med['discontinued'].strftime('%Y-%m-%d'))
 
 				if med['pk_drug_product'] is None:
-					product = u'%s (%s)' % (gmTools.u_diameter, med['preparation'])
+					product = u'%s (%s)' % (gmTools.u_diameter, med['l10n_preparation'])
 				else:
 					if med['is_fake_product']:
 						product = u'%s (%s)' % (
 							gmTools.coalesce(med['product'], u'', _('%s <fake>')),
-							med['preparation']
+							med['l10n_preparation']
 						)
 					else:
 						product = u'%s (%s)' % (
 							gmTools.coalesce(med['product'], u''),
-							med['preparation']
+							med['l10n_preparation']
 						)
 #				self.SetCellValue(row_idx, 6, gmTools.wrap(text = product, width = 35))
 				self.SetCellValue(row_idx, 5, gmTools.wrap(text = product, width = 35))
@@ -1539,17 +1539,17 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 #						self.SetCellValue(row_idx, 5, med['discontinued'].strftime('%Y-%m-%d'))
 
 				if med['pk_drug_product'] is None:
-					product = u'%s (%s)' % (gmTools.u_diameter, med['preparation'])
+					product = u'%s (%s)' % (gmTools.u_diameter, med['l10n_preparation'])
 				else:
 					if med['is_fake_product']:
 						product = u'%s (%s)' % (
 							gmTools.coalesce(med['product'], u'', _('%s <fake>')),
-							med['preparation']
+							med['l10n_preparation']
 						)
 					else:
 						product = u'%s (%s)' % (
 							gmTools.coalesce(med['product'], u''),
-							med['preparation']
+							med['l10n_preparation']
 						)
 #				self.SetCellValue(row_idx, 6, gmTools.wrap(text = product, width = 35))
 				self.SetCellValue(row_idx, 5, gmTools.wrap(text = product, width = 35))
@@ -1560,7 +1560,7 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 					self.__prev_cell_0 = None
 					product =  u'%s (%s)' % (
 						gmTools.u_diameter,
-						med['preparation']
+						med['l10n_preparation']
 					)
 				else:
 					if self.__prev_cell_0 == med['product']:
@@ -1570,12 +1570,12 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 						if med['is_fake_product']:
 							product = u'%s (%s)' % (
 								gmTools.coalesce(med['product'], u'', _('%s <fake>')),
-								med['preparation']
+								med['l10n_preparation']
 							)
 						else:
 							product = u'%s (%s)' % (
 								gmTools.coalesce(med['product'], u''),
-								med['preparation']
+								med['l10n_preparation']
 							)
 				self.SetCellValue(row_idx, 0, gmTools.wrap(text = product, width = 35))
 
@@ -1804,7 +1804,7 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 			tt += u'\n'
 
 		tt += u' ' + _('Substance: %s   [#%s]\n') % (entry['substance'], entry['pk_substance'])
-		tt += u' ' + _('Preparation: %s\n') % entry['preparation']
+		tt += u' ' + _('Preparation: %s\n') % entry['l10n_preparation']
 		tt += u' ' + _('Amount per dose: %s %s') % (entry['amount'], entry['unit'])
 		tt += u'\n'
 		tt += gmTools.coalesce(entry['atc_substance'], u'', _(' ATC (substance): %s\n'))

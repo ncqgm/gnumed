@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-09-10 23:39+0200\n"
+"POT-Creation-Date: 2017-05-18 12:04+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2147,6 +2147,12 @@ msgstr ""
 msgid "New patient ID:"
 msgstr "Internt patient ID"
 
+msgid "Source"
+msgstr ""
+
+msgid "Receiver"
+msgstr ""
+
 msgid "(you are/are not the primary reviewer)"
 msgstr ""
 
@@ -2180,6 +2186,15 @@ msgid ""
 msgstr ""
 
 msgid "The organizational unit this document originates from."
+msgstr ""
+
+msgid "Select if the organization is the source (sender) of the document."
+msgstr ""
+
+msgid ""
+"Select if the organization is the target (receiver) of the document.\n"
+"\n"
+"Mostly when the document was sent from this praxis."
 msgstr ""
 
 msgid "Enter the date of creation of the document."
@@ -2245,7 +2260,7 @@ msgstr ""
 msgid "Episode"
 msgstr ""
 
-msgid "Source"
+msgid "➔"
 msgstr ""
 
 msgid "Date"
@@ -2427,25 +2442,37 @@ msgstr ""
 msgid "&Connect"
 msgstr ""
 
-msgid "&Browse"
-msgstr ""
-
 msgid "<not connected>"
 msgstr ""
 
-msgid "Browse all"
+msgid "◄"
 msgstr ""
 
-msgid "Export all"
+msgid "►"
+msgstr ""
+
+msgid "E&xport"
 msgstr ""
 
 msgid "Browse"
 msgstr ""
 
-msgid "Export"
+msgid "&Show (D)"
 msgstr ""
 
-msgid "Upload"
+msgid "Save (&D)"
+msgstr ""
+
+msgid "Save (D)"
+msgstr ""
+
+msgid "&Upload"
+msgstr ""
+
+msgid "Show (&P)"
+msgstr ""
+
+msgid "Save (Z)"
 msgstr ""
 
 msgid "Enter the PACS host address."
@@ -2463,26 +2490,35 @@ msgstr ""
 msgid "Connect to PACS."
 msgstr ""
 
-msgid "Browse PACS at top level."
+msgid "Review previous image."
 msgstr ""
 
-msgid "Modify some of Orthanc content (such as patient IDs)."
+msgid "Preview next image."
 msgstr ""
 
-#, fuzzy
-msgid "Browse overview of studies for this patient."
-msgstr "Ekstern patient ID"
-
-msgid "Copy all studies into export area."
+msgid "Store image into export area."
 msgstr ""
 
 msgid "Browse topmost selected study."
 msgstr ""
 
-msgid "Copy selected studies into export area."
+#, fuzzy
+msgid "Browse overview of all studies for this patient."
+msgstr "Ekstern patient ID"
+
+msgid "Browse PACS at top level."
 msgstr ""
 
-msgid "Save selected studies to disk."
+msgid "Show image in DICOM viewer."
+msgstr ""
+
+msgid "Save image in DICOM format."
+msgstr ""
+
+msgid "Save selected studies to disk as DICOM directory."
+msgstr ""
+
+msgid "Save all studies as one DICOM directory."
 msgstr ""
 
 msgid ""
@@ -2491,6 +2527,21 @@ msgid ""
 "The currently active patient does not matter. Orthanc will associate "
 "uploaded files with the patient found within the DICOM metadata. It will "
 "create new patients as needed."
+msgstr ""
+
+msgid "Show image in external viewer (PNG format)."
+msgstr ""
+
+msgid "Save image preview (PNG format)."
+msgstr ""
+
+msgid "Save selected studies as DICOM archive."
+msgstr ""
+
+msgid "Save all studies of patient as DICOM archive."
+msgstr ""
+
+msgid "Modify some of Orthanc content (such as patient IDs)."
 msgstr ""
 
 msgid "Host:"
@@ -2505,7 +2556,16 @@ msgstr ""
 msgid "Password"
 msgstr ""
 
-msgid "Selected studies:"
+msgid "Image"
+msgstr ""
+
+msgid "Study"
+msgstr ""
+
+msgid "Patient"
+msgstr ""
+
+msgid "PACS"
 msgstr ""
 
 msgid "A descriptive name for this test type."
@@ -2782,6 +2842,9 @@ msgstr ""
 msgid "&Load"
 msgstr ""
 
+msgid "Export"
+msgstr ""
+
 msgid "A long, descriptive name for this form template."
 msgstr ""
 
@@ -2851,9 +2914,6 @@ msgstr ""
 msgid "&Clipboard"
 msgstr ""
 
-msgid "Part Sources"
-msgstr ""
-
 msgid "Intended reviewer:"
 msgstr ""
 
@@ -2864,9 +2924,6 @@ msgid "&technically abnormal"
 msgstr ""
 
 msgid "&clinically relevant"
-msgstr ""
-
-msgid "Document Properties"
 msgstr ""
 
 msgid "Show"
@@ -2902,7 +2959,19 @@ msgstr ""
 msgid "Required: The primary episode this document is to be listed under."
 msgstr ""
 
-msgid "Optional: The organization (unit) this document originated from."
+msgid ""
+"Optional: The organization (unit) this document originates from (sender) or "
+"is intended for (receiver)."
+msgstr ""
+
+msgid "Select if the organization is the source of the document (the default)."
+msgstr ""
+
+msgid ""
+"Select if the organization is the receiver of the document.\n"
+"\n"
+"In most cases this means that the document was created in this praxis and "
+"sent to the organization."
 msgstr ""
 
 msgid ""
@@ -2949,6 +3018,12 @@ msgstr ""
 msgid "Start over (discards current data)."
 msgstr ""
 
+msgid "Document Properties"
+msgstr ""
+
+msgid "Part Sources"
+msgstr ""
+
 msgid "Document type:"
 msgstr ""
 
@@ -2959,8 +3034,8 @@ msgid "Associate to episode:"
 msgstr ""
 
 #, fuzzy
-msgid "Document source:"
-msgstr "Dokumenter:"
+msgid "Organization:"
+msgstr "Vaccinationer"
 
 msgid "Comment / Identification:"
 msgstr ""
@@ -2968,9 +3043,13 @@ msgstr ""
 msgid "&Manage"
 msgstr ""
 
+#, fuzzy
+msgid "&Inactive"
+msgstr "inaktiv"
+
 msgid ""
-"Mandatory: Select a health issue or enter a new description for which care "
-"is rendered."
+"Mandatory: Select a health issue or enter a new reason for which care is "
+"rendered."
 msgstr ""
 
 msgid "Mandatory: The location care is rendered at."
@@ -2986,7 +3065,10 @@ msgstr ""
 msgid "Optional: A comment on this external care relationship."
 msgstr ""
 
-msgid "Care Target"
+msgid "Check this if the external care entry is inactive (IOW, historic)."
+msgstr ""
+
+msgid "Reason"
 msgstr ""
 
 msgid "Location"
@@ -3203,9 +3285,6 @@ msgid "Category"
 msgstr ""
 
 msgid "Audience"
-msgstr ""
-
-msgid "Patient"
 msgstr ""
 
 msgid "Message"
@@ -3476,9 +3555,6 @@ msgstr ""
 msgid " + "
 msgstr ""
 
-msgid "Select"
-msgstr ""
-
 msgid "Mandatory: When was the vaccination given to the patient ?"
 msgstr ""
 
@@ -3494,9 +3570,6 @@ msgid ""
 msgstr ""
 
 msgid "Add a vaccine to GNUmed."
-msgstr ""
-
-msgid "Select the indications this vaccination was given against."
 msgstr ""
 
 msgid "The batch number of the vaccine."
@@ -3717,6 +3790,13 @@ msgstr ""
 msgid "Add a hospitalization."
 msgstr ""
 
+msgid "A comment on the procedure (say, the relevant outcome)."
+msgstr ""
+
+msgid ""
+"The document most relevant to this procedure (say, the most recent one)."
+msgstr ""
+
 msgid "Codes relevant to this procedure."
 msgstr ""
 
@@ -3734,6 +3814,10 @@ msgstr ""
 
 msgid "Hospitalization"
 msgstr ""
+
+#, fuzzy
+msgid "Document"
+msgstr "Dokumenter:"
 
 msgid "Enter the actual ID (number, identifier, ...) here."
 msgstr ""
@@ -4411,6 +4495,49 @@ msgid ""
 "Delete - if possible - the (first or only) item selected in the list above."
 msgstr ""
 
+#, fuzzy
+msgid "Dynamic hints"
+msgstr "Helbredsproblem %s"
+
+msgid "<hint source>"
+msgstr ""
+
+msgid "Further information"
+msgstr ""
+
+msgid "http://www.duckduckgo.com"
+msgstr ""
+
+msgid ""
+"Previous\n"
+"rationale"
+msgstr ""
+
+msgid "&Suppress"
+msgstr ""
+
+msgid "Dynamic hint"
+msgstr ""
+
+msgid "Enter a rationale for suppressing this hint."
+msgstr ""
+
+msgid "Dismiss this hint for now."
+msgstr ""
+
+msgid "Suppress this hint in this patient (needs a rationale)."
+msgstr ""
+
+msgid "Manage dynamic hints."
+msgstr ""
+
+#, fuzzy
+msgid ""
+"Rationale for\n"
+"suppression\n"
+"for this patient"
+msgstr "Ekstern patient ID"
+
 msgid "Activate"
 msgstr ""
 
@@ -4513,9 +4640,6 @@ msgid ""
 msgstr ""
 
 msgid "Check if this is a live attenuated vaccine."
-msgstr ""
-
-msgid "Manage the indications for this vaccine."
 msgstr ""
 
 msgid "The ATC for this vaccine."
@@ -4963,14 +5087,17 @@ msgstr ""
 msgid "Drugs"
 msgstr ""
 
+msgid "Components"
+msgstr ""
+
+msgid "Doses"
+msgstr ""
+
 msgid "Substances"
 msgstr ""
 
-msgid "Preparation"
-msgstr ""
-
 #, fuzzy
-msgid "&Unknown or date:"
+msgid "&Unknown - or Date:"
 msgstr "Ukendt reaktion"
 
 msgid "Approved of"
@@ -4988,16 +5115,13 @@ msgstr ""
 msgid ""
 "A drug the patient is taking.\n"
 "\n"
-"Lookup and select an intake by either of\n"
+"Lookup and select a (real or generic) drug product by either of\n"
 "- a generic substance name\n"
 "- a drug product name\n"
 "- an active ingredient of a drug\n"
 "\n"
 "Note that all components of multi-component drugs will be displayed and "
 "automatically added to the patient's list."
-msgstr ""
-
-msgid "Details on the selected drug."
 msgstr ""
 
 msgid "Show cardiac information relevant to substance selection."
@@ -5014,15 +5138,17 @@ msgid ""
 "you can select a component."
 msgstr ""
 
-msgid ""
-"Manage substances.\n"
-"\n"
-"This will not select a substance for you. It will, however, enable you to "
-"manage (add/edit/delete) the substances available for selection."
-msgstr ""
+#, fuzzy
+msgid "Manage drug components."
+msgstr "Dokumenter:"
 
-msgid "The preparation or form of the substance."
-msgstr ""
+#, fuzzy
+msgid "Manage substance doses."
+msgstr "Helbredsproblem %s"
+
+#, fuzzy
+msgid "Manage substances."
+msgstr "Helbredsproblem %s"
 
 msgid "Check here if the start date simply isn't known."
 msgstr ""
@@ -5064,7 +5190,7 @@ msgstr ""
 msgid "When was intake of this substance discontinued ?"
 msgstr ""
 
-msgid "Press if discontinuation was as planned."
+msgid "Discontinued as planned (start + duration)."
 msgstr ""
 
 msgid "Reason for discontinuation."
@@ -5279,9 +5405,17 @@ msgstr ""
 msgid "Chec&k"
 msgstr ""
 
-#, fuzzy
-msgid "is &active"
-msgstr "inaktiv"
+msgid "&Highlight"
+msgstr ""
+
+msgid "None"
+msgstr ""
+
+msgid "Individual"
+msgstr ""
+
+msgid "Aggregate"
+msgstr ""
 
 msgid "Required: A concise, unique title for this automatic hint."
 msgstr ""
@@ -5289,6 +5423,11 @@ msgstr ""
 msgid ""
 "Required: The full text to be displayed when the conditions for this "
 "automatic hint apply."
+msgstr ""
+
+msgid ""
+"Required: Who is responsible for this automatic hint (inhouse and possibly "
+"externally)."
 msgstr ""
 
 msgid ""
@@ -5302,8 +5441,13 @@ msgid ""
 msgstr ""
 
 msgid ""
-"Required: Who is responsible for this automatic hint (inhouse and possibly "
-"externally)."
+"Optional: The SQL query to be run for retrieving further information and "
+"perhaps a recommendation in case this automatic hint applies.\n"
+"\n"
+"Must return NULL or a string (TEXT).\n"
+"\n"
+"Any occurrence of ID_ACTIVE_PATIENT will be replaced by the internal GNUmed "
+"ID of the currently active patient."
 msgstr ""
 
 msgid "Optional: An URL under which additional information can be found."
@@ -5314,11 +5458,34 @@ msgstr ""
 
 msgid ""
 "Whether or not this automatic hint is active. If not active it will not be "
-"displayed even if the SQL-defined conditions do match."
+"displayed even if the SQL-defined conditions do match.\n"
+"\n"
+"Cave: This setting applies across ALL PATIENTS."
 msgstr ""
 
 msgid ""
-"Conditions\n"
+"Whether or not to highlight this hint among others (where deemed "
+"appropriate)."
+msgstr ""
+
+msgid "Do not show this hint with a popup."
+msgstr ""
+
+msgid "Show hint in individual popup."
+msgstr ""
+
+msgid "Show hint with other hints in aggregate popup."
+msgstr ""
+
+msgid ""
+"Applicability\n"
+"check\n"
+"(SQL query)"
+msgstr ""
+
+msgid ""
+"Retrieval of\n"
+"recommendation\n"
 "(SQL query)"
 msgstr ""
 
@@ -5326,6 +5493,9 @@ msgid "URL"
 msgstr ""
 
 msgid "Options"
+msgstr ""
+
+msgid "Popup:"
 msgstr ""
 
 msgid "Show non-invoiced only"
@@ -5495,6 +5665,22 @@ msgid "First name"
 msgstr ""
 
 msgid "The name of the organization."
+msgstr ""
+
+msgid "The active component of this generic drug."
+msgstr ""
+
+#, fuzzy
+msgid "Drug name"
+msgstr "fornavn"
+
+msgid "per"
+msgstr ""
+
+msgid "Preparation"
+msgstr ""
+
+msgid "Select"
 msgstr ""
 
 msgid "Select person from list"
@@ -5983,9 +6169,6 @@ msgstr ""
 msgid "Product name"
 msgstr "fornavn"
 
-msgid "Components"
-msgstr ""
-
 msgid "External code"
 msgstr ""
 
@@ -6080,45 +6263,6 @@ msgstr ""
 msgid "<hint title>"
 msgstr ""
 
-msgid "<hint source>"
-msgstr ""
-
-msgid "Further information"
-msgstr ""
-
-msgid "http://www.duckduckgo.com"
-msgstr ""
-
-msgid ""
-"Previous\n"
-"rationale"
-msgstr ""
-
-msgid "&Suppress"
-msgstr ""
-
-msgid "Dynamic hint"
-msgstr ""
-
-msgid "Enter a rationale for suppressing this hint."
-msgstr ""
-
-msgid "Dismiss this hint for now."
-msgstr ""
-
-msgid "Suppress this hint in this patient (needs a rationale)."
-msgstr ""
-
-msgid "Manage dynamic hints."
-msgstr ""
-
-#, fuzzy
-msgid ""
-"Rationale for\n"
-"suppression\n"
-"for this patient"
-msgstr "Ekstern patient ID"
-
 msgid "Save &under"
 msgstr ""
 
@@ -6205,9 +6349,6 @@ msgid "Tag name"
 msgstr ""
 
 msgid "File name"
-msgstr ""
-
-msgid "Image"
 msgstr ""
 
 msgid "Database welcome message editor"
@@ -6573,21 +6714,17 @@ msgstr ""
 msgid "Substance dose"
 msgstr "%s: tilfælde (%s)"
 
-msgid "delivery unit"
-msgstr ""
-
 #, fuzzy, python-format
 msgid "Instructions: %s"
 msgstr "Vaccinationer:"
+
+msgid "delivery unit"
+msgstr ""
 
 msgid "w/"
 msgstr ""
 
 msgid "in use"
-msgstr ""
-
-#, python-format
-msgid "delivery unit (%s)"
 msgstr ""
 
 #, fuzzy, python-format
@@ -6692,9 +6829,9 @@ msgstr ""
 msgid "Preparation: %s\n"
 msgstr ""
 
-#, fuzzy, python-format
-msgid "Amount per dose: %s %s%s"
-msgstr "%s: tilfælde (%s)"
+#, python-format
+msgid "Amount per dose: %s %s"
+msgstr ""
 
 #, python-format
 msgid " ATC (substance): %s\n"
@@ -6709,15 +6846,12 @@ msgid " ATC (drug): %s\n"
 msgstr ""
 
 #, fuzzy, python-format
-msgid "Other component: %s %s %s%s\n"
+msgid "Other component: %s %s %s\n"
 msgstr "%s: tilfælde (%s)"
 
 #, fuzzy, python-format
 msgid "Intake: %s"
 msgstr "Helbredsproblem %s"
-
-msgid "LOINCS to monitor:"
-msgstr ""
 
 #, python-format
 msgid " Regimen: %s\n"
@@ -6826,7 +6960,10 @@ msgstr ""
 msgid "today"
 msgstr ""
 
-msgid "Additional notes"
+msgid "Additional notes for healthcare professionals"
+msgstr ""
+
+msgid "Drug Product"
 msgstr ""
 
 msgid "Strength"
@@ -6857,6 +6994,10 @@ msgid "ethanol"
 msgstr ""
 
 msgid "unit"
+msgstr ""
+
+#, python-format
+msgid "delivery unit%s"
 msgstr ""
 
 msgid "virtual message"
@@ -6948,8 +7089,12 @@ msgid "file"
 msgstr ""
 
 #, fuzzy, python-format
-msgid "doc: %s"
-msgstr "Dokumenter: %s"
+msgid "%s (%s)%s"
+msgstr "%s: tilfælde (%s)"
+
+#, fuzzy, python-format
+msgid "part %s (%s%s)%s"
+msgstr "%s: tilfælde (%s)"
 
 msgid "Patient data for"
 msgstr ""
@@ -7144,10 +7289,6 @@ msgstr ""
 msgid "Family history"
 msgstr "Familiehistorik"
 
-#, fuzzy
-msgid "Document"
-msgstr "Dokumenter:"
-
 msgid "Inbox message"
 msgstr ""
 
@@ -7301,29 +7442,6 @@ msgstr ""
 
 #, python-format
 msgid "Allergy detail: %s"
-msgstr ""
-
-#, python-format
-msgid ""
-"%s\n"
-"\n"
-"This patient's chart was worked on only recently:\n"
-"\n"
-" %s  %s - %s  (%s)\n"
-"\n"
-" Reason for Encounter:\n"
-"  %s\n"
-" Assessment of Encounter:\n"
-"  %s\n"
-"\n"
-"Do you want to continue that consultation\n"
-"or do you want to start a new one ?\n"
-msgstr ""
-
-msgid "none given"
-msgstr ""
-
-msgid "Starting patient encounter"
 msgstr ""
 
 msgid "expired"
@@ -7483,19 +7601,6 @@ msgid ""
 "%(praxis)s"
 msgstr ""
 
-msgid "Privacy notice"
-msgstr ""
-
-#, python-format
-msgid ""
-"%s: Your chart has been accessed by %s (without user interaction, probably "
-"by a script)."
-msgstr ""
-
-#, python-format
-msgid "%s: Staff member %s has been notified of your chart access."
-msgstr ""
-
 #, python-format
 msgid ""
 "%s: %s by %.8s (v%s)\n"
@@ -7503,7 +7608,7 @@ msgid ""
 msgstr ""
 
 #, python-format
-msgid "External care               #%s"
+msgid "External care%s             #%s"
 msgstr ""
 
 #, fuzzy, python-format
@@ -7574,10 +7679,8 @@ msgstr ""
 msgid "Cannot merge active patient into another patient."
 msgstr ""
 
-msgid "assimilated"
-msgstr ""
-
-msgid "merged"
+#, python-format
+msgid "merge of #%s into #%s @ %s"
 msgstr ""
 
 msgid "invalid age: DOB in the future"
@@ -7941,6 +8044,14 @@ msgid "%s of %s"
 msgstr ""
 
 #, python-format
+msgid " Receiver: %s @ %s\n"
+msgstr ""
+
+#, python-format
+msgid " Sender: %s @ %s\n"
+msgstr ""
+
+#, python-format
 msgid ""
 "%s (%s)   #%s\n"
 " Created: %s\n"
@@ -7951,10 +8062,6 @@ msgstr ""
 #, python-format
 msgid " External reference: %s\n"
 msgstr ""
-
-#, fuzzy, python-format
-msgid " Organization: %%s @ %s\n"
-msgstr "Vaccinationer"
 
 msgid "Cannot run [arriba] !"
 msgstr ""
@@ -8141,9 +8248,6 @@ msgstr ""
 msgid "prescription data"
 msgstr ""
 
-msgid "vaccine"
-msgstr ""
-
 #, python-format
 msgid "unknown vaccinations output format [%s]"
 msgstr ""
@@ -8182,22 +8286,6 @@ msgstr ""
 msgid "Injection site"
 msgstr ""
 
-msgid "internal error, check log"
-msgstr "Intern fejl, check log filen"
-
-msgid "consistency error, check log"
-msgstr ""
-
-msgid "ERROR: list of vaccinations not supplied"
-msgstr ""
-
-msgid "empty list of vaccinations"
-msgstr ""
-
-#, python-format
-msgid "vacc -> ind error: %s"
-msgstr ""
-
 #, python-format
 msgid "Organization #%s"
 msgstr ""
@@ -8214,6 +8302,342 @@ msgstr ""
 
 #, python-format
 msgid "Organization: %s (%s)"
+msgstr ""
+
+msgid "J07AC01-target::anthrax"
+msgstr ""
+
+msgid "J07AD01-target::brucellosis"
+msgstr ""
+
+msgid "J07AE01-target::cholera"
+msgstr ""
+
+msgid "J07AE02-target::cholera"
+msgstr ""
+
+msgid "J07AF01-target::diphtheria"
+msgstr ""
+
+msgid "J07AG01-target::HiB"
+msgstr ""
+
+msgid "J07AH01-target::meningococcus A"
+msgstr ""
+
+msgid "J07AH10-target::meningococcus A"
+msgstr ""
+
+msgid "J07AH06-target::meningococcus B"
+msgstr ""
+
+msgid "J07AH09-target::meningococcus B"
+msgstr ""
+
+msgid "J07AH07-target::meningococcus C"
+msgstr ""
+
+msgid "J07AH0Y-target::meningococcus Y"
+msgstr ""
+
+msgid "J07AH0W-target::meningococcus W"
+msgstr ""
+
+msgid "J07AJ0-target::pertussis"
+msgstr ""
+
+msgid "J07AJ01-target::pertussis"
+msgstr ""
+
+msgid "J07AJ02-target::pertussis"
+msgstr ""
+
+msgid "J07AK01-target::plague"
+msgstr ""
+
+msgid "J07AL01-target::pneumococcus"
+msgstr ""
+
+msgid "J07AL02-target::pneumococcus"
+msgstr ""
+
+msgid "J07AM01-target::tetanus"
+msgstr ""
+
+msgid "J07AN01-target::tbc"
+msgstr ""
+
+msgid "J07AP01-target::typhoid"
+msgstr ""
+
+msgid "J07AP02-target::typhoid"
+msgstr ""
+
+msgid "J07AP03-target::typhoid"
+msgstr ""
+
+msgid "J07AP10-target::typhoid, paratyphus"
+msgstr ""
+
+msgid "J07AR01-target::typhus exanthematicus"
+msgstr ""
+
+msgid "J07AXQF-target::Q fever"
+msgstr ""
+
+msgid "J07BA01-target::tick-borne encephalitis"
+msgstr ""
+
+msgid "J07BA02-target::japanese encephalitis"
+msgstr ""
+
+msgid "J07BA03-target::japanese encephalitis"
+msgstr ""
+
+msgid "J07BB01-target::influenza"
+msgstr ""
+
+msgid "J07BB02-target::influenza"
+msgstr ""
+
+msgid "J07BB03-target::influenza"
+msgstr ""
+
+msgid "J07BC01-target::hepatitis B"
+msgstr ""
+
+msgid "J07BC02-target::hepatitis A"
+msgstr ""
+
+msgid "J07BC03-target::hepatitis A"
+msgstr ""
+
+msgid "J07BD01-target::measles"
+msgstr ""
+
+msgid "J07BE01-target::mumps"
+msgstr ""
+
+msgid "J07BF01-target::poliomyelitis"
+msgstr ""
+
+msgid "J07BF03-target::poliomyelitis"
+msgstr ""
+
+msgid "J07BG01-target::rabies"
+msgstr ""
+
+msgid "J07BH01-target::rotavirus diarrhea"
+msgstr ""
+
+msgid "J07BH02-target::rotavirus diarrhea"
+msgstr ""
+
+msgid "J07BJ01-target::rubella"
+msgstr ""
+
+msgid "J07BK01-target::varicella (chickenpox)"
+msgstr ""
+
+msgid "J07BK02-target::zoster (shingles)"
+msgstr ""
+
+msgid "J07BL01-target::yellow fever"
+msgstr ""
+
+msgid "J07BM0-target::HPV"
+msgstr ""
+
+msgid "J07BM01-target::HPV"
+msgstr ""
+
+msgid "J07BM02-target::HPV"
+msgstr ""
+
+msgid "J07BM03-target::HPV"
+msgstr ""
+
+msgid "J07BX01-target::variola (smallpox)"
+msgstr ""
+
+msgid "anthrax vaccine"
+msgstr ""
+
+msgid "brucellosis vaccine"
+msgstr ""
+
+msgid "cholera vaccine"
+msgstr ""
+
+msgid "cholera vaccine, live"
+msgstr ""
+
+msgid "diphtheria vaccine"
+msgstr ""
+
+msgid "HiB vaccine"
+msgstr ""
+
+msgid "meningococcus A vaccine"
+msgstr ""
+
+msgid "meningococcus B vaccine"
+msgstr ""
+
+msgid "meningococcus C vaccine"
+msgstr ""
+
+msgid "pertussis vaccine"
+msgstr ""
+
+msgid "plague vaccine"
+msgstr ""
+
+msgid "pneumococcus vaccine"
+msgstr ""
+
+msgid "tetanus vaccine"
+msgstr ""
+
+msgid "Tbc vaccine"
+msgstr ""
+
+msgid "typhoid vaccine"
+msgstr ""
+
+msgid "typhoid vaccine, live"
+msgstr ""
+
+msgid "typhoid/paratyphus vaccine"
+msgstr ""
+
+msgid "typhus exanthematicus vaccine"
+msgstr ""
+
+msgid "Q fever vaccine"
+msgstr ""
+
+msgid "tick-borne encephalitis vaccine"
+msgstr ""
+
+msgid "japanese encephalitis vaccine"
+msgstr ""
+
+msgid "japanese encephalitis vaccine, live"
+msgstr ""
+
+msgid "influenza vaccine"
+msgstr ""
+
+msgid "influenza vaccine, live"
+msgstr ""
+
+msgid "hepatitis A vaccine"
+msgstr ""
+
+msgid "hepatitis B vaccine"
+msgstr ""
+
+msgid "measles vaccine, live"
+msgstr ""
+
+msgid "mumps vaccine, live"
+msgstr ""
+
+msgid "poliomyelitis vaccine"
+msgstr ""
+
+msgid "poliomyelitis vaccine, live"
+msgstr ""
+
+msgid "rabies vaccine"
+msgstr ""
+
+msgid "rotavirus vaccine, live"
+msgstr ""
+
+msgid "rubella vaccine, live"
+msgstr ""
+
+msgid "varicella vaccine, live"
+msgstr ""
+
+msgid "zoster vaccine, live"
+msgstr ""
+
+msgid "yellow fever vaccine"
+msgstr ""
+
+msgid "HPV vaccine"
+msgstr ""
+
+msgid "variola vaccine, live"
+msgstr ""
+
+msgid "meningococcus AC vaccine"
+msgstr ""
+
+msgid "meningococcus ACYW135 vaccine"
+msgstr ""
+
+msgid "measles-mumps vaccine, live"
+msgstr ""
+
+msgid "MMR vaccine, live"
+msgstr ""
+
+msgid "MMRV vaccine, live"
+msgstr ""
+
+msgid "measles-rubella vaccine, live"
+msgstr ""
+
+msgid "mumps-rubella vaccine, live"
+msgstr ""
+
+msgid "cholera-typhoid vaccine"
+msgstr ""
+
+msgid "typhoid-hepA vaccine"
+msgstr ""
+
+msgid "Td vaccine"
+msgstr ""
+
+msgid "TdPol vaccine"
+msgstr ""
+
+msgid "DTPol vaccine"
+msgstr ""
+
+msgid "Td-HepB vaccine"
+msgstr ""
+
+msgid "Td-rubella vaccine"
+msgstr ""
+
+msgid "TdaPPol vaccine"
+msgstr ""
+
+msgid "TdaP-HepB vaccine"
+msgstr ""
+
+msgid "TdaP vaccine"
+msgstr ""
+
+msgid "DTaPPol-Hib vaccine"
+msgstr ""
+
+msgid "TdaP-Hib-HepB vaccine"
+msgstr ""
+
+msgid "TdaPPol-HepB vaccine"
+msgstr ""
+
+msgid "TdaPPol-HiB-HepB vaccine"
+msgstr ""
+
+msgid "TdaPPol-HiB-HepB-MenAC vaccine"
 msgstr ""
 
 msgid "A: Sign"
@@ -8401,6 +8825,10 @@ msgstr "%s: tilfælde (%s)"
 msgid " (ongoing)"
 msgstr ""
 
+#, fuzzy
+msgid "Comment: "
+msgstr "Dokumenter: %s"
+
 msgid "Health issues"
 msgstr ""
 
@@ -8508,69 +8936,6 @@ msgid "Chronological EMR Journal\n"
 msgstr ""
 
 msgid "Doc"
-msgstr ""
-
-msgid "Cannot delete performed procedure."
-msgstr ""
-
-msgid ""
-"\n"
-"Select the procedure you want to edit !\n"
-msgstr ""
-
-msgid "Editing performed procedures ..."
-msgstr ""
-
-msgid "Where"
-msgstr ""
-
-msgid "Adding a procedure"
-msgstr ""
-
-msgid "Editing a procedure"
-msgstr ""
-
-msgid "Cannot save procedure."
-msgstr ""
-
-msgid "Cannot delete hospitalization."
-msgstr ""
-
-msgid "The patient's hospitalizations:\n"
-msgstr ""
-
-msgid "Editing hospitalizations ..."
-msgstr ""
-
-msgid "Admission"
-msgstr ""
-
-msgid "Discharge"
-msgstr ""
-
-msgid "Reason"
-msgstr ""
-
-msgid "Adding a hospitalization"
-msgstr ""
-
-msgid "Editing a hospitalization"
-msgstr ""
-
-msgid ""
-"Must select an episode or enter a name for a new one. Cannot save "
-"hospitalization."
-msgstr ""
-
-msgid "Missing admission data. Cannot save hospitalization."
-msgstr ""
-
-msgid ""
-"Discharge date must be empty or later than admission. Cannot save "
-"hospitalization."
-msgstr ""
-
-msgid "Must select a hospital. Cannot save hospitalization."
 msgstr ""
 
 msgid "Adding a new episode"
@@ -8901,6 +9266,29 @@ msgstr ""
 
 #, python-format
 msgid "Cannot switch to [%s]: no patient selected"
+msgstr ""
+
+msgid "Cannot delete performed procedure."
+msgstr ""
+
+msgid ""
+"\n"
+"Select the procedure you want to edit !\n"
+msgstr ""
+
+msgid "Editing performed procedures ..."
+msgstr ""
+
+msgid "Where"
+msgstr ""
+
+msgid "Adding a procedure"
+msgstr ""
+
+msgid "Editing a procedure"
+msgstr ""
+
+msgid "Cannot save procedure."
 msgstr ""
 
 msgid "Cannot move progress notes. No active patient."
@@ -9409,24 +9797,17 @@ msgstr ""
 msgid "Pass phrase expired"
 msgstr ""
 
+msgid "Regenerating generic vaccines"
+msgstr ""
+
+#, python-format
 msgid ""
+"Error regenerating generic vaccines.\n"
 "\n"
-"Conditions preventable by vaccination as currently known to GNUmed.\n"
+"See [%s]"
 msgstr ""
 
-msgid "Showing vaccination preventable conditions."
-msgstr ""
-
-msgid "ATCs: single-condition vaccines"
-msgstr ""
-
-msgid "ATCs: multi-condition vaccines"
-msgstr ""
-
-msgid "Pick the relevant indications."
-msgstr ""
-
-msgid "Known indications"
+msgid "Successfully regenerated generic vaccines ..."
 msgstr ""
 
 msgid "Adding new vaccine"
@@ -9450,11 +9831,6 @@ msgstr ""
 msgid "fake"
 msgstr ""
 
-msgid ""
-"\n"
-"The vaccines currently known to GNUmed.\n"
-msgstr ""
-
 msgid "Showing vaccines."
 msgstr ""
 
@@ -9469,7 +9845,6 @@ msgid ""
 "This vaccine is already in use:\n"
 "\n"
 " \"%s\"\n"
-" (%s)\n"
 "\n"
 "Are you absolutely positively sure that\n"
 "you really want to edit this vaccine ?\n"
@@ -9477,15 +9852,6 @@ msgid ""
 "This will change the vaccine name and/or target\n"
 "conditions in each patient this vaccine was\n"
 "used in to document a vaccination with.\n"
-msgstr ""
-
-msgid "You must select at least one indication."
-msgstr ""
-
-msgid "Pick the diseases this vaccine protects against."
-msgstr ""
-
-msgid "This vaccine"
 msgstr ""
 
 msgid "Adding new vaccinations"
@@ -9509,12 +9875,21 @@ msgid ""
 "%s"
 msgstr ""
 
-msgid ""
-"\n"
-"Complete vaccination history for this patient.\n"
+#, fuzzy, python-format
+msgid "%s (latest of %s: %s ago)"
+msgstr "%s: tilfælde (%s)"
+
+#, fuzzy
+msgid "Most recent vaccination for each indication.\n"
+msgstr "Vaccinationer"
+
+msgid "Complete vaccination history.\n"
 msgstr ""
 
 msgid "Showing vaccinations."
+msgstr ""
+
+msgid "Indication"
 msgstr ""
 
 msgid "Intended to protect from"
@@ -9537,12 +9912,6 @@ msgid "Open a browser showing vaccination schedules."
 msgstr ""
 
 msgid "prevention"
-msgstr ""
-
-msgid "Saving vaccination"
-msgstr ""
-
-msgid "Pick the diseases this vaccination was given against."
 msgstr ""
 
 msgid "  IMMUNISATIONS  "
@@ -9654,7 +10023,8 @@ msgstr ""
 msgid "due in %s%s"
 msgstr ""
 
-msgid "suppr'd:"
+#, python-format
+msgid "suppr'd (%s):"
 msgstr ""
 
 msgid "Suppressed hints:\n"
@@ -9724,7 +10094,7 @@ msgid "active substance abuse"
 msgstr ""
 
 #, fuzzy, python-format
-msgid "%s %s%s%s%s"
+msgid "%s %s%s%s"
 msgstr "%s: tilfælde (%s)"
 
 #, python-format
@@ -10101,6 +10471,9 @@ msgstr ""
 msgid "no external ID [%s] by [%s]"
 msgstr ""
 
+msgid "template is empty"
+msgstr ""
+
 msgid "no primary in-praxis provider"
 msgstr ""
 
@@ -10171,6 +10544,10 @@ msgid "Text input cancelled by user."
 msgstr ""
 
 msgid "no bill selected"
+msgstr ""
+
+#, python-format
+msgid "[%s] bill has no address"
 msgstr ""
 
 msgid "attach rejected, already serving a client"
@@ -10470,7 +10847,7 @@ msgstr "Ekstern patient ID"
 msgid "Showing external care network."
 msgstr ""
 
-msgid "Care issue"
+msgid "Reason for care"
 msgstr ""
 
 msgid "Adding external care"
@@ -10897,20 +11274,6 @@ msgstr ""
 
 msgid "Ok"
 msgstr "Ok"
-
-#, python-format
-msgid ""
-"%s\n"
-"\n"
-"This patient's chart was worked on only recently:\n"
-"\n"
-" %s\n"
-"Do you want to continue that consultation ?\n"
-" (if not a new one will be started)\n"
-msgstr ""
-
-msgid "Pulling electronic chart"
-msgstr ""
 
 #, python-format
 msgid ""
@@ -12489,6 +12852,41 @@ msgid ""
 "%s"
 msgstr ""
 
+#, python-format
+msgid ""
+"%s, %s  [#%s]\n"
+"\n"
+"This patient's chart was worked on only recently:\n"
+"\n"
+" %s\n"
+"Do you want to continue that consultation ?\n"
+" (If not a new one will be used.)\n"
+msgstr ""
+
+msgid "Pulling chart"
+msgstr ""
+
+msgid "Continue recent"
+msgstr ""
+
+msgid "Continue the existing recent encounter."
+msgstr ""
+
+msgid "Start new"
+msgstr ""
+
+msgid "Start a new encounter. The existing one will be closed."
+msgstr ""
+
+msgid ""
+"Properly switched to fairly recent encounter but unable to delete newly-"
+"created encounter."
+msgstr ""
+
+msgid ""
+"Unable to transfer the data from newly-created to fairly recent encounter."
+msgstr ""
+
 msgid "Started a new encounter for the active patient."
 msgstr ""
 
@@ -12504,18 +12902,6 @@ msgid "only documents added"
 msgstr ""
 
 msgid "Edit the encounter details of the active patient before moving on:"
-msgstr ""
-
-msgid "Continue"
-msgstr ""
-
-msgid "Continue the existing recent encounter."
-msgstr ""
-
-msgid "Start new"
-msgstr ""
-
-msgid "Start a new encounter. The existing one will be closed."
 msgstr ""
 
 msgid "Cannot list encounters. No active patient."
@@ -12905,8 +13291,15 @@ msgid ""
 "Are you sure you want to draw this chart ?"
 msgstr ""
 
+msgid "Privacy notice"
+msgstr ""
+
 #, python-format
 msgid "%s: Your chart has been accessed by %s."
+msgstr ""
+
+#, python-format
+msgid "%s: Staff member %s has been notified of your chart access."
 msgstr ""
 
 msgid "Checking date of birth"
@@ -12944,6 +13337,9 @@ msgid "In case of emergency contact:"
 msgstr ""
 
 msgid "The preparation (form) of the substance or product."
+msgstr ""
+
+msgid "A drug product."
 msgstr ""
 
 msgid "A substance with optional strength or a drug product."
@@ -13007,6 +13403,10 @@ msgstr ""
 msgid "<no components>"
 msgstr "Dokumenter:"
 
+#, fuzzy, python-format
+msgid "%s w/ %s%s%s of %s"
+msgstr "%s: tilfælde (%s)"
+
 msgid "Adding substance intake entry"
 msgstr ""
 
@@ -13036,15 +13436,24 @@ msgstr ""
 
 #, python-format
 msgid ""
+"This intake is part of a multi-component drug product:\n"
+"\n"
+" %s\n"
+"\n"
+"Really delete all intakes related to this drug product ?"
+msgstr ""
+
+msgid "Deleting medication / substance intake"
+msgstr ""
+
+#, python-format
+msgid ""
 "\n"
 "[%s]\n"
 "\n"
 "It may be prudent to edit (before deletion) the details\n"
 "of this substance intake entry so as to leave behind\n"
 "some indication of why it was deleted.\n"
-msgstr ""
-
-msgid "Deleting medication / substance intake"
 msgstr ""
 
 msgid "Allow editing of substance intake entry before deletion."
@@ -13136,10 +13545,6 @@ msgid "Cannot delete more than one substance at once."
 msgstr ""
 
 msgid "Cannot create allergy from more than one substance at once."
-msgstr ""
-
-#, python-format
-msgid "Amount per dose: %s %s"
 msgstr ""
 
 #, fuzzy, python-format
@@ -13571,9 +13976,6 @@ msgstr ""
 msgid "Enter a filename to save the template to"
 msgstr ""
 
-msgid "Receiver"
-msgstr ""
-
 msgid "Emergency contact"
 msgstr ""
 
@@ -13656,13 +14058,15 @@ msgid ""
 "\n"
 "Do you want to delete imported files from the filesystem ?\n"
 "\n"
-" %s\n"
-"\n"
-"Note that temporary files will be deleted anyway."
+" %s"
 msgstr ""
 
 msgid "Removing files"
 msgstr ""
+
+#, fuzzy
+msgid "Select a document."
+msgstr "Dokumenter:"
 
 msgid "Enter a comment on the document."
 msgstr ""
@@ -13885,13 +14289,36 @@ msgstr ""
 msgid "showing document"
 msgstr ""
 
-msgid "Document list for this patient."
-msgstr ""
-
-msgid "Showing documents."
-msgstr ""
+#, fuzzy
+msgid "Patient document list"
+msgstr "Dokumenter:"
 
 msgid "Ref #"
+msgstr ""
+
+msgid "Bill"
+msgstr ""
+
+msgid "Modified"
+msgstr ""
+
+msgid "... by"
+msgstr ""
+
+#, fuzzy
+msgid "# encounter"
+msgstr "%s: tilfælde (%s)"
+
+msgid "Part"
+msgstr ""
+
+msgid "Data size"
+msgstr ""
+
+msgid "by you"
+msgstr ""
+
+msgid "by intended reviewer"
 msgstr ""
 
 #, python-format
@@ -13995,9 +14422,9 @@ msgstr ""
 msgid "%s%7s %s:%s (%s)"
 msgstr ""
 
-#, python-format
-msgid "%s%7s (%s):%s (%s)"
-msgstr ""
+#, fuzzy, python-format
+msgid "%s%7s (%s):%s"
+msgstr "%s: tilfælde (%s)"
 
 #, python-format
 msgid "%s (unattributed episode)"
@@ -14007,8 +14434,23 @@ msgstr ""
 msgid "unknown organization"
 msgstr "Ukendt reaktion"
 
+#, fuzzy, python-format
+msgid "to: %s"
+msgstr "Dokumenter: %s"
+
+#, fuzzy, python-format
+msgid "from: %s"
+msgstr "Dokumenter: %s"
+
+msgid "this praxis"
+msgstr ""
+
 #, python-format
 msgid "part %2s"
+msgstr ""
+
+#, python-format
+msgid "invalid document tree node data type: %s"
 msgstr ""
 
 msgid "Activate as current photo"
@@ -14177,12 +14619,18 @@ msgstr ""
 msgid "PACS: Orthanc \"%s\" (AET \"%s\", Version %s, DB v%s)"
 msgstr ""
 
-#, python-format
-msgid "GNUmed patient: %s (generic PACS ID)"
+msgid "Known PACS IDs:"
 msgstr ""
 
 #, python-format
-msgid "GNUmed patient: \"%(value)s\" @ [%(issuer)s] (stored PACS ID)"
+msgid "generic: %s"
+msgstr ""
+
+#, python-format
+msgid "stored: \"%(value)s\" @ [%(issuer)s]"
+msgstr ""
+
+msgid "Patients found in PACS:"
 msgstr ""
 
 msgid "PACS: no patients with matching IDs found"
@@ -14192,59 +14640,20 @@ msgid ""
 "PACS: more than one patient with matching IDs found, carefully check studies"
 msgstr ""
 
+#, python-format
+msgid "Studies found: %s"
+msgstr ""
+
 #, fuzzy, python-format
 msgid "%s series%s"
 msgstr "%s: tilfælde (%s)"
 
-msgid "no studies"
-msgstr ""
-
-#, python-format
-msgid "%s studies"
-msgstr ""
-
-msgid "Exporting DICOM studies"
-msgstr ""
-
-msgid "Unable to export selected studies."
-msgstr ""
-
-#, python-format
-msgid ""
-"The DICOM studies are %s in compressed size.\n"
-"\n"
-"Really copy to export area ?"
-msgstr ""
-
-#, python-format
-msgid "DICOM studies of [%s] from Orthanc PACS \"%s\" (AET \"%s\")"
-msgstr ""
-
-msgid "Select the directory into which to save the DICOM studies."
-msgstr ""
-
-msgid "Saving DICOM studies"
-msgstr ""
-
-msgid "Unable to save selected studies."
-msgstr ""
-
-msgid "Unable to export studies."
-msgstr ""
-
-#, python-format
-msgid "All DICOM studies of [%s] from Orthanc PACS \"%s\" (AET \"%s\")"
+msgid "Series"
 msgstr ""
 
 #, fuzzy, python-format
 msgid "%s image(s)%s"
 msgstr "%s: tilfælde (%s)"
-
-msgid "Study"
-msgstr ""
-
-msgid "Series"
-msgstr ""
 
 msgid "Select the directory from which to recursively upload DICOM files."
 msgstr ""
@@ -14260,6 +14669,53 @@ msgid ""
 msgstr ""
 
 msgid "Uploading DICOM files"
+msgstr ""
+
+#, python-format
+msgid ""
+"Cannot preview DICOM image:\n"
+"%s"
+msgstr ""
+
+msgid "Previewing DICOM image"
+msgstr ""
+
+#, python-format
+msgid ""
+"Cannot show DICOM image:\n"
+"%s"
+msgstr ""
+
+msgid "Showing DICOM image"
+msgstr ""
+
+#, python-format
+msgid "Successfully saved as [%s]."
+msgstr ""
+
+#, python-format
+msgid "DICOM image of [%s] from Orthanc PACS \"%s\" (AET \"%s\")"
+msgstr ""
+
+msgid "Successfully stored in export area."
+msgstr ""
+
+msgid "Select the directory into which to save the DICOM studies."
+msgstr ""
+
+msgid "Saving DICOM studies"
+msgstr ""
+
+msgid "Unable to save selected studies."
+msgstr ""
+
+msgid "Unable to save patient studies."
+msgstr ""
+
+msgid "Exporting DICOM studies"
+msgstr ""
+
+msgid "Unable to export studies."
 msgstr ""
 
 msgid "Editing Orthanc content"
@@ -14807,10 +15263,19 @@ msgstr ""
 msgid "Manage measurement results for the current patient."
 msgstr ""
 
-msgid "&Vaccinations"
-msgstr ""
+#, fuzzy
+msgid "&Vaccination history"
+msgstr "Vaccinationer"
 
-msgid "Add (a) vaccination(s) for the current patient."
+#, fuzzy
+msgid "Manage vaccinations for the current patient."
+msgstr "Ekstern patient ID"
+
+#, fuzzy
+msgid "&Vaccinations (latest)"
+msgstr "Vaccinationer"
+
+msgid "List latest vaccinations for the current patient."
 msgstr ""
 
 msgid "&Family history (FHx)"
@@ -15701,7 +16166,17 @@ msgstr ""
 msgid "Communication channel types"
 msgstr ""
 
-msgid "Diagnostic organizations (path labs, ...)"
+msgid "Organizations with their units, addresses, and comm channels"
+msgstr ""
+
+msgid "Measurements: diagnostic organizations (path labs, ...)"
+msgstr ""
+
+#, fuzzy
+msgid "Measurements: test types"
+msgstr "Målinger og resultater:"
+
+msgid "Measurements: test panels/profiles/batteries"
 msgstr ""
 
 msgid "Document templates (forms, letters, plots, ...)"
@@ -15716,11 +16191,9 @@ msgstr ""
 msgid "Keyword based text expansion macros"
 msgstr ""
 
-msgid "Meta test/measurement types"
-msgstr ""
-
-msgid "Organizations with their units, addresses, and comm channels"
-msgstr ""
+#, fuzzy
+msgid "Measurements: aggregate test types"
+msgstr "Målinger og resultater: %s"
 
 msgid "Patient tags"
 msgstr ""
@@ -15731,16 +16204,7 @@ msgstr ""
 msgid "String translations in the database"
 msgstr ""
 
-msgid "Test/measurement types"
-msgstr ""
-
-msgid "Vaccination targets (conditions known to be preventable by vaccination)"
-msgstr ""
-
-msgid "Vaccines"
-msgstr ""
-
-msgid "Workplace profiles (which plugins to load)"
+msgid "Medications: vaccines"
 msgstr ""
 
 msgid "Medications: base substances"
@@ -15755,13 +16219,13 @@ msgstr ""
 msgid "Medications: drug products and generic drugs"
 msgstr ""
 
+msgid "Workplace profiles (which plugins to load)"
+msgstr ""
+
 msgid "Billable items"
 msgstr ""
 
 msgid "Reference data sources"
-msgstr ""
-
-msgid "Test/measurement panels/profiles"
 msgstr ""
 
 msgid "Master data management"
@@ -15857,6 +16321,9 @@ msgid "manage vaccinations"
 msgstr ""
 
 msgid "Cannot add vaccinations. No active patient."
+msgstr ""
+
+msgid "Cannot manage vaccinations. No active patient."
 msgstr ""
 
 #, fuzzy
@@ -16115,6 +16582,43 @@ msgstr ""
 msgid "timeline data"
 msgstr ""
 
+msgid "Cannot delete hospitalization."
+msgstr ""
+
+msgid "The patient's hospitalizations:\n"
+msgstr ""
+
+msgid "Editing hospitalizations ..."
+msgstr ""
+
+msgid "Admission"
+msgstr ""
+
+msgid "Discharge"
+msgstr ""
+
+msgid "Adding a hospitalization"
+msgstr ""
+
+msgid "Editing a hospitalization"
+msgstr ""
+
+msgid ""
+"Must select an episode or enter a name for a new one. Cannot save "
+"hospitalization."
+msgstr ""
+
+msgid "Missing admission data. Cannot save hospitalization."
+msgstr ""
+
+msgid ""
+"Discharge date must be empty or later than admission. Cannot save "
+"hospitalization."
+msgstr ""
+
+msgid "Must select a hospital. Cannot save hospitalization."
+msgstr ""
+
 msgid "Cannot change notebook tabs. No active patient."
 msgstr ""
 
@@ -16255,6 +16759,13 @@ msgstr ""
 #, fuzzy, python-format
 msgid "By: %s"
 msgstr "Dokumenter: %s"
+
+msgid "Cannot suppress hint."
+msgstr ""
+
+#, fuzzy
+msgid "Hint now suppressed in this patient."
+msgstr "Ekstern patient ID"
 
 msgid "No entry in field <Source>."
 msgstr ""
@@ -16428,9 +16939,6 @@ msgstr ""
 msgid "Substance doses registered with GNUmed."
 msgstr ""
 
-msgid "Dose Unit"
-msgstr ""
-
 msgid "Import substance doses from a drug database."
 msgstr ""
 
@@ -16539,7 +17047,7 @@ msgid ""
 "because it is currently taken by patients.\n"
 msgstr ""
 
-msgid "Pick the substances which are components of this drug."
+msgid "Pick the substance doses which are components of this drug."
 msgstr ""
 
 msgid "Components of drug"
@@ -16592,6 +17100,25 @@ msgid ""
 "one or more components before it can be used,\n"
 "except in the case of fake (generic) vaccines."
 msgstr ""
+
+msgid "Adding new single-component generic drug"
+msgstr ""
+
+msgid "Editing single-component generic drug"
+msgstr ""
+
+msgid "Drug form is missing."
+msgstr ""
+
+msgid "Unit for amount is missing."
+msgstr ""
+
+msgid "Amount is missing."
+msgstr ""
+
+#, fuzzy
+msgid "Substance is missing."
+msgstr "%s: tilfælde (%s)"
 
 msgid "No EMR data loaded."
 msgstr ""
@@ -17258,9 +17785,6 @@ msgid "&New notes %s"
 msgstr ""
 
 msgid "Find text in EMR Journal"
-msgstr ""
-
-msgid "Modified"
 msgstr ""
 
 msgid "Clinical time"
@@ -17979,6 +18503,9 @@ msgstr ""
 msgid "EMR &Journal (list)"
 msgstr ""
 
+msgid "&Vaccinations"
+msgstr ""
+
 msgid "Appointments"
 msgstr ""
 
@@ -17989,9 +18516,6 @@ msgid "lab journal"
 msgstr ""
 
 msgid "Show &lab journal"
-msgstr ""
-
-msgid "PACS"
 msgstr ""
 
 msgid "&PACS"
@@ -18040,9 +18564,6 @@ msgid "Any"
 msgstr ""
 
 msgid "Generic name"
-msgstr ""
-
-msgid "Indication"
 msgstr ""
 
 msgid "&Prescribe"
@@ -18258,6 +18779,25 @@ msgstr ""
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr ""
+
+#, fuzzy
+#~ msgid "Document source:"
+#~ msgstr "Dokumenter:"
+
+#, fuzzy
+#~ msgid "is &active"
+#~ msgstr "inaktiv"
+
+#, fuzzy
+#~ msgid "Amount per dose: %s %s%s"
+#~ msgstr "%s: tilfælde (%s)"
+
+#, fuzzy
+#~ msgid " Organization: %%s @ %s\n"
+#~ msgstr "Vaccinationer"
+
+#~ msgid "internal error, check log"
+#~ msgstr "Intern fejl, check log filen"
 
 #, fuzzy
 #~ msgid "Or&Ganizations"

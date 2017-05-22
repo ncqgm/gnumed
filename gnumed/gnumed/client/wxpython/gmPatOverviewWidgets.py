@@ -875,7 +875,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 				multi_products_already_seen.append(intake['product'])
 				list_items.append(_('%s %s%s') % (
 					intake['product'],
-					drug['preparation'],
+					drug['l10n_preparation'],
 					gmTools.coalesce(intake['schedule'], u'', u': %s')
 				))
 				data_items.append(intake)

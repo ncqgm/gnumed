@@ -31,6 +31,7 @@ IMPROVED: patient merging
 IMPROVED: email sending framework
 IMPROVED: export area change signalling
 IMPROVED: add test result by clicking empty results grid cell
+IMPROVED: vaccine handling
 
 ------------------------------------------------
 # rel-1-6-patches

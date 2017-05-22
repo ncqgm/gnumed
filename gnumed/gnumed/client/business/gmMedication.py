@@ -276,17 +276,23 @@ def create_substance(substance=None, atc=None):
 	return cSubstance(aPK_obj = rows[0]['pk'])
 
 #------------------------------------------------------------
-def create_substance_by_atc(substance=None, atc=None):
+def create_substance_by_atc(substance=None, atc=None, link_obj=None):
 
 	if atc is None:
 		raise ValueError('<atc> must be supplied')
 	atc = atc.strip()
 	if atc == u'':
 		raise ValueError('<atc> cannot be empty: [%s]', atc)
+
+	queries = []
 	args = {
 		'desc': substance.strip(),
 		'atc': atc
 	}
+	# in case the substance already exists: add ATC
+	cmd = u"UPDATE ref.substance SET atc = %(atc)s WHERE lower(description) = lower(%(desc)s) AND atc IS NULL"
+	queries.append({'cmd': cmd, 'args': args})
+	# or else INSERT the substance
 	cmd = u"""
 		INSERT INTO ref.substance (description, atc)
 			SELECT
@@ -296,12 +302,13 @@ def create_substance_by_atc(substance=None, atc=None):
 				SELECT 1 FROM ref.substance WHERE atc = %(atc)s
 			)
 		RETURNING pk"""
-	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True, get_col_idx = False)
+	queries.append({'cmd': cmd, 'args': args})
+	rows, idx = gmPG2.run_rw_queries(link_obj = link_obj, queries = queries, return_data = True, get_col_idx = False)
 	if len(rows) == 0:
 		cmd = u"SELECT pk FROM ref.substance WHERE atc = %(atc)s LIMIT 1"
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+		rows, idx = gmPG2.run_ro_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': args}])
 
-	return cSubstance(aPK_obj = rows[0]['pk'])
+	return cSubstance(aPK_obj = rows[0]['pk'], link_obj = link_obj)
 
 #------------------------------------------------------------
 def delete_substance(pk_substance=None):
@@ -445,7 +452,7 @@ def get_substance_doses(order_by=None):
 	return [ cSubstanceDose(row = {'data': r, 'idx': idx, 'pk_field': 'pk_dose'}) for r in rows ]
 
 #------------------------------------------------------------
-def create_substance_dose(pk_substance=None, substance=None, atc=None, amount=None, unit=None, dose_unit=None):
+def create_substance_dose(link_obj=None, pk_substance=None, substance=None, atc=None, amount=None, unit=None, dose_unit=None):
 
 	if [pk_substance, substance].count(None) != 1:
 		raise ValueError('exctly one of <pk_substance> and <substance> must be None')
@@ -455,7 +462,7 @@ def create_substance_dose(pk_substance=None, substance=None, atc=None, amount=No
 		raise ValueError('<amount> must be a number: %s (is: %s)', amount, type(amount))
 
 	if pk_substance is None:
-		pk_substance = create_substance(substance = substance, atc = atc)['pk_substance']
+		pk_substance = create_substance(link_obj = link_obj, substance = substance, atc = atc)['pk_substance']
 
 	args = {
 		'pk_subst': pk_substance,
@@ -474,7 +481,7 @@ def create_substance_dose(pk_substance=None, substance=None, atc=None, amount=No
 				AND
 			dose_unit IS NOT DISTINCT FROM gm.nullify_empty_string(%(dose_unit)s)
 		"""
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+	rows, idx = gmPG2.run_ro_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': args}])
 
 	if len(rows) == 0:
 		cmd = u"""
@@ -484,14 +491,20 @@ def create_substance_dose(pk_substance=None, substance=None, atc=None, amount=No
 				gm.nullify_empty_string(%(unit)s),
 				gm.nullify_empty_string(%(dose_unit)s)
 			) RETURNING pk"""
-		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True, get_col_idx = False)
+		rows, idx = gmPG2.run_rw_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': args}], return_data = True, get_col_idx = False)
 
-	return cSubstanceDose(aPK_obj = rows[0]['pk'])
+	return cSubstanceDose(aPK_obj = rows[0]['pk'], link_obj = link_obj)
 
 #------------------------------------------------------------
-def create_substance_dose_by_atc(substance=None, atc=None, amount=None, unit=None, dose_unit=None):
+def create_substance_dose_by_atc(link_obj=None, substance=None, atc=None, amount=None, unit=None, dose_unit=None):
+	subst = create_substance_by_atc (
+		link_obj = link_obj,
+		substance = substance,
+		atc = atc
+	)
 	return create_substance_dose (
-		pk_substance = create_substance_by_atc(substance = substance, atc = atc)['pk_substance'],
+		link_obj = link_obj,
+		pk_substance = subst['pk_substance'],
 		amount = amount,
 		unit = unit,
 		dose_unit = dose_unit
@@ -1158,7 +1171,7 @@ class cDrugComponent(gmBusinessDBObject.cBusinessDBObject):
 		))
 		lines.append(_('Component of %s (%s)') % (
 			self._payload[self._idx['product']],
-			self._payload[self._idx['preparation']]
+			self._payload[self._idx['l10n_preparation']]
 		))
 		if self._payload[self._idx['is_fake_product']]:
 			lines.append(u' ' + _('(not a real drug product)'))
@@ -1234,7 +1247,7 @@ class cDrugComponent(gmBusinessDBObject.cBusinessDBObject):
 		return format_units (
 			self._payload[self._idx['unit']],
 			self._payload[self._idx['dose_unit']],
-			self._payload[self._idx['preparation']]
+			self._payload[self._idx['l10n_preparation']]
 		)
 
 	formatted_units = property(_get_formatted_units, lambda x:x)
@@ -1416,7 +1429,7 @@ class cDrugProduct(gmBusinessDBObject.cBusinessDBObject):
 		lines = []
 		lines.append(u'%s (%s)' % (
 			self._payload[self._idx['product']],
-			self._payload[self._idx['preparation']]
+			self._payload[self._idx['l10n_preparation']]
 			)
 		)
 		if self._payload[self._idx['atc']] is not None:
@@ -1459,6 +1472,7 @@ class cDrugProduct(gmBusinessDBObject.cBusinessDBObject):
 			atc = self._payload[self._idx['atc']].strip()
 			if atc != u'':
 				gmATC.propagate_atc (
+					link_obj = conn,
 					substance = self._payload[self._idx['product']].strip(),
 					atc = atc
 				)
@@ -1466,14 +1480,15 @@ class cDrugProduct(gmBusinessDBObject.cBusinessDBObject):
 		return (success, data)
 
 	#--------------------------------------------------------
-	def set_substance_doses_as_components(self, substance_doses=None):
+	def set_substance_doses_as_components(self, substance_doses=None, link_obj=None):
 		if self.is_in_use_by_patients:
 			return False
 
 		pk_doses2keep = [ s['pk_dose'] for s in substance_doses ]
+		_log.debug('setting components of "%s" from doses: %s', self._payload[self._idx['product']], pk_doses2keep)
+
 		args = {'pk_drug_product': self._payload[self._idx['pk_drug_product']]}
 		queries = []
-
 		# INSERT those which are not there yet
 		cmd = u"""
 			INSERT INTO ref.lnk_dose2drug (
@@ -1490,9 +1505,9 @@ class cDrugProduct(gmBusinessDBObject.cBusinessDBObject):
 						AND
 					fk_dose = %(pk_dose)s
 			)"""
-		for pk in pk_doses2keep:
-			args['pk_dose'] = pk
-			queries.append({'cmd': cmd, 'args': args})
+		for pk_dose in pk_doses2keep:
+			args['pk_dose'] = pk_dose
+			queries.append({'cmd': cmd, 'args': args.copy()})
 
 		# DELETE those that don't belong anymore
 		args['doses2keep'] = tuple(pk_doses2keep)
@@ -1503,9 +1518,8 @@ class cDrugProduct(gmBusinessDBObject.cBusinessDBObject):
 					AND
 				fk_dose NOT IN %(doses2keep)s"""
 		queries.append({'cmd': cmd, 'args': args})
-
-		gmPG2.run_rw_queries(queries = queries)
-		self.refetch_payload()
+		gmPG2.run_rw_queries(link_obj = link_obj, queries = queries)
+		self.refetch_payload(link_obj = link_obj)
 
 		return True
 
@@ -1587,6 +1601,29 @@ class cDrugProduct(gmBusinessDBObject.cBusinessDBObject):
 		)
 
 	#--------------------------------------------------------
+	def delete_associated_vaccine(self):
+		if self._payload[self._idx['is_vaccine']] is False:
+			return True
+
+		args = {u'pk_product': self._payload[self._idx['pk_drug_product']]}
+		cmd = u"""DELETE FROM ref.vaccine
+		WHERE
+			fk_drug_product = %(pk_product)s
+				AND
+			-- not in use:
+			NOT EXISTS (
+				SELECT 1 FROM clin.vaccination WHERE fk_vaccine = (
+					select pk from ref.vaccine where fk_drug_product = %(pk_product)s
+				)
+			)
+		RETURNING *"""
+		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False, return_data = True)
+		if len(rows) == 0:
+			_log.debug('cannot delete vaccine on: %s', self)
+			return False
+		return True
+
+	#--------------------------------------------------------
 	# properties
 	#--------------------------------------------------------
 	def _get_external_code(self):
@@ -1662,6 +1699,17 @@ class cDrugProduct(gmBusinessDBObject.cBusinessDBObject):
 
 	is_in_use_by_patients = property(_get_is_in_use_by_patients, lambda x:x)
 
+	#--------------------------------------------------------
+	def _get_is_in_use_as_vaccine(self):
+		if self._payload[self._idx['is_vaccine']] is False:
+			return False
+		cmd = u'SELECT EXISTS(SELECT 1 FROM clin.vaccination WHERE fk_vaccine = (select pk from ref.vaccine where fk_drug_product = %(pk)s))'
+		args = {'pk': self.pk_obj}
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+		return rows[0][0]
+
+	is_in_use_as_vaccine = property(_get_is_in_use_as_vaccine, lambda x:x)
+
 #------------------------------------------------------------
 def get_drug_products():
 	cmd = _SQL_get_drug_product % u'TRUE ORDER BY product'
@@ -1669,16 +1717,25 @@ def get_drug_products():
 	return [ cDrugProduct(row = {'data': r, 'idx': idx, 'pk_field': 'pk_drug_product'}) for r in rows ]
 
 #------------------------------------------------------------
-def get_drug_by_name(product_name=None, preparation=None):
+def get_drug_by_name(product_name=None, preparation=None, link_obj=None):
 	args = {'prod_name': product_name, 'prep': preparation}
-	cmd = u'SELECT pk FROM ref.drug_product WHERE lower(description) = lower(%(prod_name)s) AND lower(preparation) = lower(%(prep)s)'
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+	cmd = u'SELECT * FROM ref.v_drug_products WHERE lower(product) = lower(%(prod_name)s) AND lower(preparation) = lower(%(prep)s)'
+	rows, idx = gmPG2.run_ro_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 	if len(rows) == 0:
 		return None
-	return cDrugProduct(aPK_obj = rows[0]['pk'])
+	return cDrugProduct(row = {'data': rows[0], 'idx': idx, 'pk_field': 'pk_drug_product'})
 
 #------------------------------------------------------------
-def create_drug_product(product_name=None, preparation=None, return_existing=False):
+def get_drug_by_atc(atc=None, preparation=None, link_obj=None):
+	args = {'atc': atc, 'prep': preparation}
+	cmd = u'SELECT * FROM ref.v_drug_products WHERE lower(atc) = lower(%(atc)s) AND lower(preparation) = lower(%(prep)s)'
+	rows, idx = gmPG2.run_ro_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+	if len(rows) == 0:
+		return None
+	return cDrugProduct(row = {'data': rows[0], 'idx': idx, 'pk_field': 'pk_drug_product'}, link_obj = link_obj)
+
+#------------------------------------------------------------
+def create_drug_product(product_name=None, preparation=None, return_existing=False, link_obj=None, doses=None):
 
 	if preparation is None:
 		preparation = _('units')
@@ -1687,15 +1744,45 @@ def create_drug_product(product_name=None, preparation=None, return_existing=Fal
 		preparation = _('units')
 
 	if return_existing:
-		drug = get_drug_by_name(product_name = product_name, preparation = preparation)
+		drug = get_drug_by_name(product_name = product_name, preparation = preparation, link_obj = link_obj)
 		if drug is not None:
 			return drug
 
 	cmd = u'INSERT INTO ref.drug_product (description, preparation) VALUES (%(prod_name)s, %(prep)s) RETURNING pk'
 	args = {'prod_name': product_name, 'prep': preparation}
-	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True, get_col_idx = False)
+	rows, idx = gmPG2.run_rw_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': args}], return_data = True, get_col_idx = False)
+	product = cDrugProduct(aPK_obj = rows[0]['pk'], link_obj = link_obj)
+	if doses is not None:
+		product.set_substance_doses_as_components(substance_doses = doses, link_obj = link_obj)
 
-	return cDrugProduct(aPK_obj = rows[0]['pk'])
+	return product
+
+#------------------------------------------------------------
+def create_drug_product_by_atc(atc=None, product_name=None, preparation=None, return_existing=False, link_obj=None):
+
+	if atc is None:
+		raise ValueError('cannot create drug product by ATC without ATC')
+
+	if preparation is None:
+		preparation = _('units')
+
+	if preparation.strip() == u'':
+		preparation = _('units')
+
+	if return_existing:
+		drug = get_drug_by_atc(atc = atc, preparation = preparation, link_obj = link_obj)
+		if drug is not None:
+			return drug
+
+	drug = create_drug_product (
+		link_obj = link_obj,
+		product_name = product_name,
+		preparation = preparation,
+		return_existing = False
+	)
+	drug['atc'] = atc
+	drug.save(conn = link_obj)
+	return drug
 
 #------------------------------------------------------------
 def delete_drug_product(pk_drug_product=None):
@@ -1941,7 +2028,7 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 			txt += u'\n'
 
 		txt += u' ' + _('Substance: %s   [#%s]\n') % (self._payload[self._idx['substance']], self._payload[self._idx['pk_substance']])
-		txt += u' ' + _('Preparation: %s\n') % self._payload[self._idx['preparation']]
+		txt += u' ' + _('Preparation: %s\n') % self._payload[self._idx['l10n_preparation']]
 		txt += u' ' + _('Amount per dose: %s %s') % (
 			self._payload[self._idx['amount']],
 			self._get_formatted_units(short = False)
@@ -2114,7 +2201,7 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 		return format_units (
 			self._payload[self._idx['unit']],
 			self._payload[self._idx['dose_unit']],
-			self._payload[self._idx['preparation']],
+			self._payload[self._idx['l10n_preparation']],
 			short = short
 		)
 
@@ -2604,9 +2691,9 @@ def format_substance_intake_as_amts_latex(intake=None, strict=True):
 		cells.append(doses)
 	# preparation
 	if strict:
-		cells.append(_esc(intake['preparation'][:7]))
+		cells.append(_esc(intake['l10n_preparation'][:7]))
 	else:
-		cells.append(_esc(intake['preparation']))
+		cells.append(_esc(intake['l10n_preparation']))
 	# schedule - for now be simple - maybe later parse 1-1-1-1 etc
 	if intake['schedule'] is None:
 		cells.append(u'\\multicolumn{4}{p{3.2cm}|}{\\ }')
@@ -2655,7 +2742,7 @@ def format_substance_intake_as_amts_data(intake=None, strict=True):
 
 	M_fields = []
 	M_fields.append(u'a="%s"' % intake['product'])
-	M_fields.append(u'fd="%s"' % intake['preparation'])
+	M_fields.append(u'fd="%s"' % intake['l10n_preparation'])
 	if intake['schedule'] is not None:
 		M_fields.append(u't="%s"' % intake['schedule'])
 	#M_fields.append(u'dud="%s"' % intake['dose unit, like Stück'])
@@ -2781,7 +2868,7 @@ def format_substance_intake_as_amts_data_v2_0(intake=None, strict=True):
 	else:
 		fields.append(u'~'.join([(u'%s%s' % (c[1], c[2]))[:11] for c in components]))
 	# preparation
-	fields.append(intake['preparation'][:7])
+	fields.append(intake['l10n_preparation'][:7])
 	# schedule - for now be simple - maybe later parse 1-1-1-1 etc
 	fields.append(gmTools.coalesce(intake['schedule'], u'')[:20])
 	# Einheit to take
@@ -2960,7 +3047,7 @@ def format_substance_intake_notes(emr=None, output_format=u'latex', table_type=u
 			aim = u'{\\scriptsize %s}' % gmTools.tex_escape_string(med['aim'])
 		lines.append(u'%s ({\\small %s}%s) & %s%s & %s \\tabularnewline\n \\hline' % (
 			gmTools.tex_escape_string(med['substance']),
-			gmTools.tex_escape_string(med['preparation']),
+			gmTools.tex_escape_string(med['l10n_preparation']),
 			product,
 			med['amount'],
 			gmTools.tex_escape_string(med.formatted_units),
@@ -3004,12 +3091,12 @@ def format_substance_intake(emr=None, output_format=u'latex', table_type=u'by-pr
 		try:
 			line_data[identifier]
 		except KeyError:
-			line_data[identifier] = {'product': u'', 'preparation': u'', 'schedule': u'', 'notes': [], 'strengths': []}
+			line_data[identifier] = {'product': u'', 'l10n_preparation': u'', 'schedule': u'', 'notes': [], 'strengths': []}
 
 		line_data[identifier]['product'] = identifier
 		line_data[identifier]['strengths'].append(u'%s %s%s' % (med['substance'][:20], med['amount'], med.formatted_units))
-		if med['preparation'] not in identifier:
-			line_data[identifier]['preparation'] = med['preparation']
+		if med['l10n_preparation'] not in identifier:
+			line_data[identifier]['l10n_preparation'] = med['l10n_preparation']
 		sched_parts = []
 		if med['duration'] is not None:
 			sched_parts.append(gmDateTime.format_interval(med['duration'], gmDateTime.acc_days, verbose = True))
@@ -3037,7 +3124,7 @@ def format_substance_intake(emr=None, output_format=u'latex', table_type=u'by-pr
 
 		lines.append (line1_template % (
 			gmTools.tex_escape_string(line_data[identifier]['product']),
-			gmTools.tex_escape_string(line_data[identifier]['preparation']),
+			gmTools.tex_escape_string(line_data[identifier]['l10n_preparation']),
 			gmTools.tex_escape_string(line_data[identifier]['schedule'])
 		))
 

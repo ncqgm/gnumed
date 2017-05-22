@@ -111,7 +111,6 @@ from Gnumed.business import gmPerson
 from Gnumed.business import gmClinicalRecord
 from Gnumed.business import gmPraxis
 from Gnumed.business import gmEMRStructItems
-from Gnumed.business import gmVaccination
 from Gnumed.business import gmArriba
 from Gnumed.business import gmStaff
 
@@ -2309,29 +2308,28 @@ class gmTopLevelFrame(wx.Frame):
 		# this is how it is sorted
 		master_data_lists = [
 			'adr',
-			'billables',
-			'hints',
+			'provinces',
 			'codes',
-			'communication_channel_types',
+			'billables',
+			'ref_data_sources',
 			'meds_substances',
 			'meds_doses',
 			'meds_components',
 			'meds_drugs',
+			'meds_vaccines',
+			'orgs',
 			'labs',
+			'meta_test_types',
+			'test_types',
+			'test_panels',
 			'form_templates',
 			'doc_types',
 			'enc_types',
+			'communication_channel_types',
 			'text_expansions',
-			'meta_test_types',
-			'orgs',
 			'patient_tags',
-			'provinces',
+			'hints',
 			'db_translations',
-			'ref_data_sources',
-			'test_types',
-			'test_panels',
-			'vacc_indications',
-			'vaccines',
 			'workplaces'
 		]
 
@@ -2340,27 +2338,26 @@ class gmTopLevelFrame(wx.Frame):
 			'hints': _('Dynamic automatic hints'),
 			'codes': _('Codes and their respective terms'),
 			'communication_channel_types': _('Communication channel types'),
-			'labs': _('Diagnostic organizations (path labs, ...)'),
+			'orgs': _('Organizations with their units, addresses, and comm channels'),
+			'labs': _('Measurements: diagnostic organizations (path labs, ...)'),
+			'test_types': _('Measurements: test types'),
+			'test_panels': _('Measurements: test panels/profiles/batteries'),
 			'form_templates': _('Document templates (forms, letters, plots, ...)'),
 			'doc_types': _('Document types'),
 			'enc_types': _('Encounter types'),
 			'text_expansions': _('Keyword based text expansion macros'),
-			'meta_test_types': _('Meta test/measurement types'),
-			'orgs': _('Organizations with their units, addresses, and comm channels'),
+			'meta_test_types': _('Measurements: aggregate test types'),
 			'patient_tags': _('Patient tags'),
 			'provinces': _('Provinces (counties, territories, states, regions, ...)'),
 			'db_translations': _('String translations in the database'),
-			'test_types': _('Test/measurement types'),
-			'vacc_indications': _('Vaccination targets (conditions known to be preventable by vaccination)'),
-			'vaccines': _('Vaccines'),
-			'workplaces': _('Workplace profiles (which plugins to load)'),
+			'meds_vaccines': _('Medications: vaccines'),
 			'meds_substances': _('Medications: base substances'),
 			'meds_doses':      _('Medications: substance dosage'),
 			'meds_components': _('Medications: drug components'),
 			'meds_drugs':      _('Medications: drug products and generic drugs'),
+			'workplaces': _('Workplace profiles (which plugins to load)'),
 			'billables': _('Billable items'),
-			'ref_data_sources': _('Reference data sources'),
-			'test_panels': _('Test/measurement panels/profiles')
+			'ref_data_sources': _('Reference data sources')
 		}
 
 		map_list2handler = {
@@ -2372,17 +2369,16 @@ class gmTopLevelFrame(wx.Frame):
 			'enc_types': gmEncounterWidgets.manage_encounter_types,
 			'provinces': gmAddressWidgets.manage_regions,
 			'workplaces': gmPraxisWidgets.configure_workplace_plugins,
-			'meds_drugs': gmSubstanceMgmtWidgets.manage_drug_products,
-			'meds_components': gmSubstanceMgmtWidgets.manage_drug_components,
 			'labs': gmMeasurementWidgets.manage_measurement_orgs,
 			'test_types': gmMeasurementWidgets.manage_measurement_types,
 			'meta_test_types': gmMeasurementWidgets.manage_meta_test_types,
-			'vaccines': gmVaccWidgets.manage_vaccines,
-			'vacc_indications': gmVaccWidgets.manage_vaccination_indications,
 			'orgs': gmOrganizationWidgets.manage_orgs,
 			'adr': gmAddressWidgets.manage_addresses,
 			'meds_substances': gmSubstanceMgmtWidgets.manage_substances,
 			'meds_doses': gmSubstanceMgmtWidgets.manage_substance_doses,
+			'meds_components': gmSubstanceMgmtWidgets.manage_drug_components,
+			'meds_drugs': gmSubstanceMgmtWidgets.manage_drug_products,
+			'meds_vaccines': gmVaccWidgets.manage_vaccines,
 			'patient_tags': gmDemographicsWidgets.manage_tag_images,
 			'communication_channel_types': gmContactWidgets.manage_comm_channel_types,
 			'billables': gmBillingWidgets.manage_billables,
@@ -3217,9 +3213,7 @@ class gmTopLevelFrame(wx.Frame):
 
 	#----------------------------------------------
 	def __on_generate_vaccines(self, evt):
-		wx.BeginBusyCursor()
-		gmVaccination.regenerate_generic_vaccines()
-		wx.EndBusyCursor()
+		gmVaccWidgets.regenerate_generic_vaccines()
 
 	#----------------------------------------------
 	def _clean_exit(self):

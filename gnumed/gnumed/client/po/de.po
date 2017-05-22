@@ -5,8 +5,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-12-12 12:18+0100\n"
-"PO-Revision-Date: 2016-12-12 12:47+0100\n"
+"POT-Creation-Date: 2017-05-21 22:07+0200\n"
+"PO-Revision-Date: 2017-05-21 22:16+0200\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "Language: de_DE\n"
@@ -4007,9 +4007,6 @@ msgstr "Anamnestisch"
 msgid " + "
 msgstr ""
 
-msgid "Select"
-msgstr "Auswählen"
-
 msgid "Mandatory: When was the vaccination given to the patient ?"
 msgstr "Pflichtfeld: Wann wurde die Impfung verabreicht ?"
 
@@ -4031,10 +4028,6 @@ msgstr ""
 
 msgid "Add a vaccine to GNUmed."
 msgstr "Einen Impfstoff zu GNUmed hinzufügen."
-
-msgid "Select the indications this vaccination was given against."
-msgstr ""
-"Wählen Sie die Indikationen, gegen welche die Impfung verabreicht wurde."
 
 msgid "The batch number of the vaccine."
 msgstr "Die Chargennummer des Impfstoffs."
@@ -5245,9 +5238,6 @@ msgstr ""
 msgid "Check if this is a live attenuated vaccine."
 msgstr "Handelt es sich um einen Lebendimpfstoff ?"
 
-msgid "Manage the indications for this vaccine."
-msgstr "Verwalten der Indikationen für diese Impfung."
-
 msgid "The ATC for this vaccine."
 msgstr "Der ATC für diesen Impfstoff."
 
@@ -5758,13 +5748,16 @@ msgstr "Niere"
 msgid "Drugs"
 msgstr "Medikamente"
 
+msgid "Components"
+msgstr "Bestandteile"
+
+msgid "Doses"
+msgstr "Dosen"
+
 msgid "Substances"
 msgstr "Substanzen"
 
-msgid "Preparation"
-msgstr "Darreichungsform"
-
-msgid "&Unknown or date:"
+msgid "&Unknown - or Date:"
 msgstr "&Unbekannt oder Datum:"
 
 msgid "Approved of"
@@ -5782,7 +5775,7 @@ msgstr "... Grund"
 msgid ""
 "A drug the patient is taking.\n"
 "\n"
-"Lookup and select an intake by either of\n"
+"Lookup and select a (real or generic) drug product by either of\n"
 "- a generic substance name\n"
 "- a drug product name\n"
 "- an active ingredient of a drug\n"
@@ -5792,16 +5785,13 @@ msgid ""
 msgstr ""
 "Ein Medikament, das der Patient nimmt.\n"
 "\n"
-"Suche und Wahl anhand\n"
+"Suche und Wahl eines (Pseudo)-Präparats anhand\n"
 "- eines Wirkstoffs\n"
-"- der Bezeichnung eines Präparats\n"
+"- der Produktbezeichnung\n"
 "- eines Bestandteils eines Kombipräparats\n"
 "\n"
 "Bei Kombipräparaten werden alle Wirkstoffe angezeigt und automatisch der "
 "Medikamentenliste hinzugefügt."
-
-msgid "Details on the selected drug."
-msgstr "Details zum gewählten Medikament."
 
 msgid "Show cardiac information relevant to substance selection."
 msgstr ""
@@ -5825,19 +5815,14 @@ msgstr ""
 "Hiermit können Sie keine Komponente auswählen, sondern Arzneiprodukte "
 "anlegen, ändern und löschen."
 
-msgid ""
-"Manage substances.\n"
-"\n"
-"This will not select a substance for you. It will, however, enable you to "
-"manage (add/edit/delete) the substances available for selection."
-msgstr ""
-"Substanzen verwalten.\n"
-"\n"
-"Hiermit können Sie keine Substanz wählen, sondern die Liste der wählbaren "
-"Substanzen bearbeiten."
+msgid "Manage drug components."
+msgstr "Medikamentenbestandteile bearbeiten."
 
-msgid "The preparation or form of the substance."
-msgstr "Die Darreichungs-/Zubereitungsform der Substanz."
+msgid "Manage substance doses."
+msgstr "Wirkstoffdosen verwalten."
+
+msgid "Manage substances."
+msgstr "Wirkstoffe verwalten."
 
 msgid "Check here if the start date simply isn't known."
 msgstr "Hier markieren, wenn das Anfangsdatum schlicht nicht bekannt ist."
@@ -5885,8 +5870,8 @@ msgstr "Kommentare oder Hinweise zur Einnahme dieser Substanz."
 msgid "When was intake of this substance discontinued ?"
 msgstr "Wann wurde die Einnahme dieser Substanz beendet ?"
 
-msgid "Press if discontinuation was as planned."
-msgstr "Einnahmeende auf plangemäßes Datum setzen."
+msgid "Discontinued as planned (start + duration)."
+msgstr "Beendet wie geplant (Start + Dauer)."
 
 msgid "Reason for discontinuation."
 msgstr "Grund der Beendigung"
@@ -6436,6 +6421,21 @@ msgstr "Vorname"
 
 msgid "The name of the organization."
 msgstr "Die Bezeichnung der Organisation."
+
+msgid "The active component of this generic drug."
+msgstr "Die Wirkstoffe in diesem Pseudomedikament."
+
+msgid "Drug name"
+msgstr "Produktname"
+
+msgid "per"
+msgstr "je"
+
+msgid "Preparation"
+msgstr "Darreichungsform"
+
+msgid "Select"
+msgstr "Auswählen"
 
 msgid "Select person from list"
 msgstr "Person aus der Liste wählen"
@@ -7029,9 +7029,6 @@ msgstr "Typ der externen ID dieses Medikaments."
 
 msgid "Product name"
 msgstr "Handelsname"
-
-msgid "Components"
-msgstr "Bestandteile"
 
 msgid "External code"
 msgstr "Externe ID"
@@ -8002,8 +7999,12 @@ msgid "file"
 msgstr "Datei"
 
 #, python-format
-msgid "doc: %s"
-msgstr "Dokument: %s"
+msgid "%s (%s)%s"
+msgstr "%s (%s)%s"
+
+#, python-format
+msgid "part %s (%s%s)%s"
+msgstr "Teil %s (%s%s)%s"
 
 msgid "Patient data for"
 msgstr "Patientendaten für"
@@ -8375,42 +8376,6 @@ msgstr "Allergien/Unverträglichkeiten"
 msgid "Allergy detail: %s"
 msgstr "Allergiedetails: %s"
 
-#, python-format
-msgid ""
-"%s\n"
-"\n"
-"This patient's chart was worked on only recently:\n"
-"\n"
-" %s  %s - %s  (%s)\n"
-"\n"
-" Reason for Encounter:\n"
-"  %s\n"
-" Assessment of Encounter:\n"
-"  %s\n"
-"\n"
-"Do you want to continue that consultation\n"
-"or do you want to start a new one ?\n"
-msgstr ""
-"%s\n"
-"\n"
-"Diese Karteikarte wurde erst kürzlich bearbeitet:\n"
-"\n"
-" %s  %s - %s (%s)\n"
-"\n"
-" Beratungsanlaß:\n"
-"  %s\n"
-" Beratungsergebnis:\n"
-"  %s\n"
-"\n"
-"Wollen Sie diese Konsultation fortsetzen oder\n"
-"lieber eine neue Konsultation beginnen ?\n"
-
-msgid "none given"
-msgstr "nicht angegeben"
-
-msgid "Starting patient encounter"
-msgstr "beginne Arzt-Patienten-Kontakt"
-
 msgid "expired"
 msgstr "verfallen"
 
@@ -8577,21 +8542,6 @@ msgstr ""
 "FN:%(l10n_unit_category)s %(branch)s in %(l10n_organization_category)s "
 "%(praxis)s"
 
-msgid "Privacy notice"
-msgstr "Datenschutzhinweis"
-
-#, python-format
-msgid ""
-"%s: Your chart has been accessed by %s (without user interaction, probably "
-"by a script)."
-msgstr ""
-"%s: Ihre Karteikarte wurde von %s aufgerufen (ohne Nutzerinteraktion, "
-"wahrscheinlich durch ein Skript)."
-
-#, python-format
-msgid "%s: Staff member %s has been notified of your chart access."
-msgstr "%s: Mitarbeiter %s wurde über Ihre Akteneinsicht benachrichtigt."
-
 #, python-format
 msgid ""
 "%s: %s by %.8s (v%s)\n"
@@ -8672,11 +8622,9 @@ msgstr "%(title)s %(last)s, %(first)s"
 msgid "Cannot merge active patient into another patient."
 msgstr "Kann aktiven Patienten nicht in einen anderen Patienten einfügen."
 
-msgid "assimilated"
-msgstr "zusammengeführt"
-
-msgid "merged"
-msgstr "zusammengeführt"
+#, python-format
+msgid "merge of #%s into #%s @ %s"
+msgstr "Übernahme von #%s in #%s @ %s"
 
 msgid "invalid age: DOB in the future"
 msgstr "ungültiges Alter: Geburtsdatum in der Zukunft"
@@ -9258,8 +9206,42 @@ msgstr "Kopie des gedruckten Rezepts"
 msgid "prescription data"
 msgstr "Rezeptdaten"
 
-msgid "vaccine"
-msgstr "Impfstoff"
+#, python-format
+msgid "%s with %s %s     #%s"
+msgstr "%s mit %s %s     #%s"
+
+msgid "Live vaccine"
+msgstr "Lebendimpfstoff"
+
+msgid "Inactive vaccine"
+msgstr "Totimpfstoff"
+
+msgid "indication"
+msgstr "Indikation"
+
+msgid "indications"
+msgstr "Indikationen"
+
+msgid "indication(s)"
+msgstr "Indikation(en)"
+
+#, python-format
+msgid " Product: \"%s\"     #%s"
+msgstr " Medikament: \"%s\"     #%s"
+
+#, python-format
+msgid "  %s%s%s%s"
+msgstr "  %s%s%s%s"
+
+msgid "fake product"
+msgstr "Pseudoprodukt"
+
+#, python-format
+msgid " %sage %s - %s"
+msgstr " %sAlter %s - %s"
+
+msgid " Indications"
+msgstr " Indikationen"
 
 #, python-format
 msgid "unknown vaccinations output format [%s]"
@@ -9301,22 +9283,6 @@ msgstr "Gesamtzahl dokumentierter Impfungen für das jeweilige Impfziel."
 msgid "Injection site"
 msgstr "Impfstelle"
 
-msgid "internal error, check log"
-msgstr "interner Fehler, Log kontrollieren"
-
-msgid "consistency error, check log"
-msgstr "Konsistenzfehler, siehe Log"
-
-msgid "ERROR: list of vaccinations not supplied"
-msgstr "FEHLER: Liste der Impfungen nicht angegeben."
-
-msgid "empty list of vaccinations"
-msgstr "Liste der Impfungen leer"
-
-#, python-format
-msgid "vacc -> ind error: %s"
-msgstr "vacc -> ind Fehler: %s"
-
 #, python-format
 msgid "Organization #%s"
 msgstr "Organisation #%s"
@@ -9334,6 +9300,342 @@ msgstr " (Ihrer Praxis)"
 #, python-format
 msgid "Organization: %s (%s)"
 msgstr "Organisation: %s (%s)"
+
+msgid "J07AC01-target::anthrax"
+msgstr "Anthrax"
+
+msgid "J07AD01-target::brucellosis"
+msgstr "Brucellose"
+
+msgid "J07AE01-target::cholera"
+msgstr "Cholera"
+
+msgid "J07AE02-target::cholera"
+msgstr "Cholera"
+
+msgid "J07AF01-target::diphtheria"
+msgstr "Diphtherie"
+
+msgid "J07AG01-target::HiB"
+msgstr "HiB"
+
+msgid "J07AH01-target::meningococcus A"
+msgstr "A-Meningokokken"
+
+msgid "J07AH10-target::meningococcus A"
+msgstr "A-Meningokokken"
+
+msgid "J07AH06-target::meningococcus B"
+msgstr "Meningokokkus B"
+
+msgid "J07AH09-target::meningococcus B"
+msgstr "Meningokokkus B"
+
+msgid "J07AH07-target::meningococcus C"
+msgstr "C-Meningokokken"
+
+msgid "J07AH0Y-target::meningococcus Y"
+msgstr "Y-Meningokokken"
+
+msgid "J07AH0W-target::meningococcus W"
+msgstr "W-Meningokokken"
+
+msgid "J07AJ0-target::pertussis"
+msgstr "Pertussis"
+
+msgid "J07AJ01-target::pertussis"
+msgstr "Pertussis"
+
+msgid "J07AJ02-target::pertussis"
+msgstr "Pertussis"
+
+msgid "J07AK01-target::plague"
+msgstr "Pest"
+
+msgid "J07AL01-target::pneumococcus"
+msgstr "Pneumokokken"
+
+msgid "J07AL02-target::pneumococcus"
+msgstr "Pneumokokken"
+
+msgid "J07AM01-target::tetanus"
+msgstr "Tetanus"
+
+msgid "J07AN01-target::tbc"
+msgstr "Tbc"
+
+msgid "J07AP01-target::typhoid"
+msgstr "Typhus"
+
+msgid "J07AP02-target::typhoid"
+msgstr "Typhus"
+
+msgid "J07AP03-target::typhoid"
+msgstr "Typhus"
+
+msgid "J07AP10-target::typhoid, paratyphus"
+msgstr "Typhus, Paratyphus"
+
+msgid "J07AR01-target::typhus exanthematicus"
+msgstr "Fleckfieber"
+
+msgid "J07AXQF-target::Q fever"
+msgstr "Q-Fieber"
+
+msgid "J07BA01-target::tick-borne encephalitis"
+msgstr "Zecken-Meningoenzephalitis (FSME)"
+
+msgid "J07BA02-target::japanese encephalitis"
+msgstr "Japanische B-Enzephalitis"
+
+msgid "J07BA03-target::japanese encephalitis"
+msgstr "Japanische B-Enzephalitis"
+
+msgid "J07BB01-target::influenza"
+msgstr "Influenza"
+
+msgid "J07BB02-target::influenza"
+msgstr "Influenza"
+
+msgid "J07BB03-target::influenza"
+msgstr "Influenza"
+
+msgid "J07BC01-target::hepatitis B"
+msgstr "Hepatitis B"
+
+msgid "J07BC02-target::hepatitis A"
+msgstr "Hepatitis A"
+
+msgid "J07BC03-target::hepatitis A"
+msgstr "Hepatitis A"
+
+msgid "J07BD01-target::measles"
+msgstr "Masern"
+
+msgid "J07BE01-target::mumps"
+msgstr "Mumps"
+
+msgid "J07BF01-target::poliomyelitis"
+msgstr "Poliomyelitis"
+
+msgid "J07BF03-target::poliomyelitis"
+msgstr "Poliomyelitis"
+
+msgid "J07BG01-target::rabies"
+msgstr "Tollwut"
+
+msgid "J07BH01-target::rotavirus diarrhea"
+msgstr "Rotavirus"
+
+msgid "J07BH02-target::rotavirus diarrhea"
+msgstr "Rotavirus"
+
+msgid "J07BJ01-target::rubella"
+msgstr "Röteln"
+
+msgid "J07BK01-target::varicella (chickenpox)"
+msgstr "Windpocken"
+
+msgid "J07BK02-target::zoster (shingles)"
+msgstr "Gürtelrose"
+
+msgid "J07BL01-target::yellow fever"
+msgstr "Gelbfieber"
+
+msgid "J07BM0-target::HPV"
+msgstr "HPV"
+
+msgid "J07BM01-target::HPV"
+msgstr "HPV"
+
+msgid "J07BM02-target::HPV"
+msgstr "HPV"
+
+msgid "J07BM03-target::HPV"
+msgstr "HPV"
+
+msgid "J07BX01-target::variola (smallpox)"
+msgstr "Variola"
+
+msgid "generic anthrax vaccine"
+msgstr ""
+
+msgid "generic brucellosis vaccine"
+msgstr ""
+
+msgid "generic cholera vaccine"
+msgstr ""
+
+msgid "generic cholera vaccine, live"
+msgstr ""
+
+msgid "generic diphtheria vaccine"
+msgstr ""
+
+msgid "generic HiB vaccine"
+msgstr ""
+
+msgid "generic meningococcus A vaccine"
+msgstr ""
+
+msgid "generic meningococcus B vaccine"
+msgstr ""
+
+msgid "generic meningococcus C vaccine"
+msgstr ""
+
+msgid "generic pertussis vaccine"
+msgstr ""
+
+msgid "generic plague vaccine"
+msgstr ""
+
+msgid "generic pneumococcus vaccine"
+msgstr ""
+
+msgid "generic tetanus vaccine"
+msgstr ""
+
+msgid "generic Tbc vaccine"
+msgstr ""
+
+msgid "generic typhoid vaccine"
+msgstr ""
+
+msgid "generic typhoid vaccine, live"
+msgstr ""
+
+msgid "generic typhoid/paratyphus vaccine"
+msgstr ""
+
+msgid "generic typhus exanthematicus vaccine"
+msgstr ""
+
+msgid "generic Q fever vaccine"
+msgstr ""
+
+msgid "generic tick-borne encephalitis vaccine"
+msgstr ""
+
+msgid "generic japanese encephalitis vaccine"
+msgstr ""
+
+msgid "generic japanese encephalitis vaccine, live"
+msgstr ""
+
+msgid "generic influenza vaccine"
+msgstr ""
+
+msgid "generic influenza vaccine, live"
+msgstr ""
+
+msgid "generic hepatitis A vaccine"
+msgstr ""
+
+msgid "generic hepatitis B vaccine"
+msgstr ""
+
+msgid "generic measles vaccine, live"
+msgstr ""
+
+msgid "generic mumps vaccine, live"
+msgstr ""
+
+msgid "generic poliomyelitis vaccine"
+msgstr ""
+
+msgid "generic poliomyelitis vaccine, live"
+msgstr ""
+
+msgid "generic rabies vaccine"
+msgstr ""
+
+msgid "generic rotavirus vaccine, live"
+msgstr ""
+
+msgid "generic rubella vaccine, live"
+msgstr ""
+
+msgid "generic varicella vaccine, live"
+msgstr ""
+
+msgid "generic zoster vaccine, live"
+msgstr ""
+
+msgid "generic yellow fever vaccine"
+msgstr ""
+
+msgid "generic HPV vaccine"
+msgstr ""
+
+msgid "generic variola vaccine, live"
+msgstr ""
+
+msgid "generic meningococcus AC vaccine"
+msgstr ""
+
+msgid "generic meningococcus ACYW135 vaccine"
+msgstr ""
+
+msgid "generic measles-mumps vaccine, live"
+msgstr ""
+
+msgid "generic MMR vaccine, live"
+msgstr ""
+
+msgid "generic MMRV vaccine, live"
+msgstr ""
+
+msgid "generic measles-rubella vaccine, live"
+msgstr ""
+
+msgid "generic mumps-rubella vaccine, live"
+msgstr ""
+
+msgid "generic cholera-typhoid vaccine"
+msgstr ""
+
+msgid "generic typhoid-hepA vaccine"
+msgstr ""
+
+msgid "generic Td vaccine"
+msgstr ""
+
+msgid "generic TdPol vaccine"
+msgstr ""
+
+msgid "generic DTPol vaccine"
+msgstr ""
+
+msgid "generic Td-HepB vaccine"
+msgstr ""
+
+msgid "generic Td-rubella vaccine"
+msgstr ""
+
+msgid "generic TdaPPol vaccine"
+msgstr ""
+
+msgid "generic TdaP-HepB vaccine"
+msgstr ""
+
+msgid "generic TdaP vaccine"
+msgstr ""
+
+msgid "generic DTaPPol-Hib vaccine"
+msgstr ""
+
+msgid "generic TdaP-Hib-HepB vaccine"
+msgstr ""
+
+msgid "generic TdaPPol-HepB vaccine"
+msgstr ""
+
+msgid "generic TdaPPol-HiB-HepB vaccine"
+msgstr ""
+
+msgid "generic TdaPPol-HiB-HepB-MenAC vaccine"
+msgstr ""
 
 msgid "A: Sign"
 msgstr "A: Symptom"
@@ -10652,27 +10954,21 @@ msgstr "Bitte geben Sie Ihr Passwort ein:"
 msgid "Pass phrase expired"
 msgstr "Passwort verfallen"
 
+msgid "Regenerating generic vaccines"
+msgstr "Generische Impfstoffe neu erzeugen."
+
+#, python-format
 msgid ""
+"Error regenerating generic vaccines.\n"
 "\n"
-"Conditions preventable by vaccination as currently known to GNUmed.\n"
+"See [%s]"
 msgstr ""
+"Fehler beim Erzeugen der generischen Impfstoffe.\n"
 "\n"
-"GNUmed als durch Impfung verhinderbar bekannte Krankheiten.\n"
+"Siehe [%s]"
 
-msgid "Showing vaccination preventable conditions."
-msgstr "Zeige durch Impfung verhinderbare Krankheiten."
-
-msgid "ATCs: single-condition vaccines"
-msgstr "ATCs: Einfachimpfstoffe"
-
-msgid "ATCs: multi-condition vaccines"
-msgstr "ATCs: Kombinationsimpfstoffe"
-
-msgid "Pick the relevant indications."
-msgstr "Wählen Sie die relevanten Indikationen."
-
-msgid "Known indications"
-msgstr "Bekannte Indikationen"
+msgid "Successfully regenerated generic vaccines ..."
+msgstr "Generische Impfstoff neu erzeugt ..."
 
 msgid "Adding new vaccine"
 msgstr "Impfstoff hinzufügen"
@@ -10680,35 +10976,17 @@ msgstr "Impfstoff hinzufügen"
 msgid "Editing vaccine"
 msgstr "Impfstoff bearbeiten"
 
-#, python-format
-msgid ""
-"Cannot delete vaccine\n"
-"\n"
-" %s - %s (#%s)\n"
-"\n"
-"It is probably documented in a vaccination."
-msgstr ""
-"Kann Impfstoff nicht löschen\n"
-"\n"
-" %s - %s (#%s)\n"
-"\n"
-"Er wurde wohl bei einer Impfung dokumentiert."
-
-msgid "Deleting vaccine"
-msgstr "Impfung löschen"
-
 msgid "fake"
 msgstr "unecht"
 
-msgid ""
-"\n"
-"The vaccines currently known to GNUmed.\n"
-msgstr ""
-"\n"
-"Die GNUmed bekannten Impfstoffe.\n"
+msgid "Showing vaccine details"
+msgstr "Zeige Impfstoffdetails"
 
-msgid "Showing vaccines."
-msgstr "Zeige Impfstoffe."
+msgid "Products"
+msgstr "Medikamente"
+
+msgid "Manage drug products"
+msgstr "Medikamente verwalten"
 
 msgid "Enter or select the batch/lot number of the vaccine used."
 msgstr "Die Chargennummer des verwendeten Impfstoffes eingeben oder auswählen."
@@ -10721,7 +10999,6 @@ msgid ""
 "This vaccine is already in use:\n"
 "\n"
 " \"%s\"\n"
-" (%s)\n"
 "\n"
 "Are you absolutely positively sure that\n"
 "you really want to edit this vaccine ?\n"
@@ -10733,7 +11010,6 @@ msgstr ""
 "Dieser Impfstoff ist bereits in Verwendung:\n"
 "\n"
 " \"%s\"\n"
-" (%s)\n"
 "\n"
 "Sind Sie sich absolut und wirklich sicher, daß\n"
 "Sie diesen Impfstoff verändern wollen ?\n"
@@ -10741,15 +11017,6 @@ msgstr ""
 "Das würde dann Impfstoffbezeichnung und Impf-\n"
 "indikation bei allen Patienten ändern, bei denen\n"
 "die Verwendung dieses Impfstoffs dokumentiert wurde.\n"
-
-msgid "You must select at least one indication."
-msgstr "Sie müssen wenigstens eine Indikation auswählen."
-
-msgid "Pick the diseases this vaccine protects against."
-msgstr "Wählen Sie die Krankheiten, vor denen dieser Impfstoff schützt."
-
-msgid "This vaccine"
-msgstr "Dieser Impfstoff"
 
 msgid "Adding new vaccinations"
 msgstr "Neue Impfungen hinzufügen"
@@ -10774,15 +11041,21 @@ msgstr ""
 "\n"
 "%s"
 
-msgid ""
-"\n"
-"Complete vaccination history for this patient.\n"
-msgstr ""
-"\n"
-"Vollständige Impfhistorie für diesen Patienten.\n"
+#, python-format
+msgid "%s (latest of %s: %s ago)"
+msgstr "%s (jüngste von %s: vor %s)"
+
+msgid "Most recent vaccination for each indication.\n"
+msgstr "Jüngste Impfung je impfpräventable Erkrankung.\n"
+
+msgid "Complete vaccination history.\n"
+msgstr "Vollständige Impfhistorie für diesen Patienten.\n"
 
 msgid "Showing vaccinations."
 msgstr "Zeige Impfungen."
+
+msgid "Indication"
+msgstr "Indikation"
 
 msgid "Intended to protect from"
 msgstr "Soll schützen vor"
@@ -10804,13 +11077,6 @@ msgstr "Impfpläne im Browser anzeigen."
 
 msgid "prevention"
 msgstr "Prävention"
-
-msgid "Saving vaccination"
-msgstr "Speichere Impfung"
-
-msgid "Pick the diseases this vaccination was given against."
-msgstr ""
-"Wählen Sie die Krankheiten, gegen welche dieser Impfstoff verabreicht wurde."
 
 msgid "  IMMUNISATIONS  "
 msgstr "IMPFUNGEN"
@@ -12318,27 +12584,6 @@ msgstr "signifikant"
 
 msgid "Ok"
 msgstr "Ok"
-
-#, python-format
-msgid ""
-"%s\n"
-"\n"
-"This patient's chart was worked on only recently:\n"
-"\n"
-" %s\n"
-"Do you want to continue that consultation ?\n"
-" (if not a new one will be started)\n"
-msgstr ""
-"%s\n"
-"\n"
-"Diese Karteikarte wurde erst kürzlich bearbeitet:\n"
-"\n"
-" %s\n"
-"Wollen Sie diese Konsultation fortsetzen ?\n"
-" (wenn nicht, wird eine neue Konsultation begonnen)\n"
-
-msgid "Pulling electronic chart"
-msgstr "Ziehen der elektronischen Karteikarte"
 
 #, python-format
 msgid ""
@@ -14215,6 +14460,52 @@ msgstr ""
 "unter dem ersten Buchstaben des Nutzernamens eingeordnet.\n"
 "%s"
 
+#, python-format
+msgid ""
+"%s, %s  [#%s]\n"
+"\n"
+"This patient's chart was worked on only recently:\n"
+"\n"
+" %s\n"
+"Do you want to continue that consultation ?\n"
+" (If not a new one will be used.)\n"
+msgstr ""
+"%s, %s  [#%s]\n"
+"\n"
+"Diese Karteikarte wurde erst kürzlich bearbeitet:\n"
+"\n"
+" %s\n"
+"Wollen Sie diese Konsultation fortsetzen ?\n"
+" (wenn nicht, wird eine neue Konsultation begonnen)\n"
+
+msgid "Pulling chart"
+msgstr "Ziehen der Karteikarte"
+
+msgid "Continue recent"
+msgstr "Fortsetzen"
+
+msgid "Continue the existing recent encounter."
+msgstr "Die existierende Konsultation von neulich fortsetzen."
+
+msgid "Start new"
+msgstr "Neubeginn"
+
+msgid "Start a new encounter. The existing one will be closed."
+msgstr "Einen neuen Kontakt anlegen. Der aktive Kontakt endet."
+
+msgid ""
+"Properly switched to fairly recent encounter but unable to delete newly-"
+"created encounter."
+msgstr ""
+"Der kürzliche APK wurde erfolgreich aktiviert, aber der vorher neu angelegte "
+"APK konnte nicht gelöscht werden."
+
+msgid ""
+"Unable to transfer the data from newly-created to fairly recent encounter."
+msgstr ""
+"Konnte etwaige Daten des neu gestarteten in den kürzlich stattgehabten APK "
+"transferieren."
+
 msgid "Started a new encounter for the active patient."
 msgstr "Für den aktiven Patienten wurde ein neuer Kontakt begonnen."
 
@@ -14234,18 +14525,6 @@ msgstr "nur Dokumente hinzugefügt"
 msgid "Edit the encounter details of the active patient before moving on:"
 msgstr ""
 "Bearbeiten Sie die Details der aktiven Konsultation vor dem Patientenwechsel:"
-
-msgid "Continue"
-msgstr "Fortsetzen"
-
-msgid "Continue the existing recent encounter."
-msgstr "Die existierende Konsultation von neulich fortsetzen."
-
-msgid "Start new"
-msgstr "Neubeginn"
-
-msgid "Start a new encounter. The existing one will be closed."
-msgstr "Einen neuen Kontakt anlegen. Der aktive Kontakt endet."
 
 msgid "Cannot list encounters. No active patient."
 msgstr "Kann Kontakte nicht auflisten. Kein Patient aktiv."
@@ -14735,9 +15014,16 @@ msgstr ""
 "\n"
 "Wollen Sie dennoch diese Kartei aufrufen ?"
 
+msgid "Privacy notice"
+msgstr "Datenschutzhinweis"
+
 #, python-format
 msgid "%s: Your chart has been accessed by %s."
 msgstr "%s: Ihre Karteikarte wurde von %s aufgerufen."
+
+#, python-format
+msgid "%s: Staff member %s has been notified of your chart access."
+msgstr "%s: Mitarbeiter %s wurde über Ihre Akteneinsicht benachrichtigt."
 
 msgid "Checking date of birth"
 msgstr "Prüfe Geburtsdatum"
@@ -14785,6 +15071,9 @@ msgstr "Im Notfall verständigen:"
 
 msgid "The preparation (form) of the substance or product."
 msgstr "Die Darreichungs-/Zubereitungsform des Wirkstoffs bzw Medikaments."
+
+msgid "A drug product."
+msgstr "Medikament"
 
 msgid "A substance with optional strength or a drug product."
 msgstr "Ein Wirkstoff, optional mit Stärke, oder ein Arzneiprodukt."
@@ -14855,6 +15144,10 @@ msgstr "GFR stammt aus Labor"
 msgid "<no components>"
 msgstr "<keine Bestandteile>"
 
+#, python-format
+msgid "%s w/ %s%s%s of %s"
+msgstr "%s mit %s%s%s von %s"
+
 msgid "Adding substance intake entry"
 msgstr "Substanzeinnahme hinzufügen"
 
@@ -14890,6 +15183,24 @@ msgstr "Kann kein Duplikat einer (evtl. inaktiven) Medikation eintragen."
 
 #, python-format
 msgid ""
+"This intake is part of a multi-component drug product:\n"
+"\n"
+" %s\n"
+"\n"
+"Really delete all intakes related to this drug product ?"
+msgstr ""
+"Diese Substanzeinnahme bezieht sich auf ein Medikament mit mehreren "
+"Wirkstoffen:\n"
+"\n"
+" %s\n"
+"\n"
+"Sollen alle Einnahmen dieses Medikaments gelöscht werden ?"
+
+msgid "Deleting medication / substance intake"
+msgstr "Medikation / Substanzeinnahme löschen"
+
+#, python-format
+msgid ""
 "\n"
 "[%s]\n"
 "\n"
@@ -14903,9 +15214,6 @@ msgstr ""
 "Es kann sinnvoll sein, vor dem Löschen dieser\n"
 "Medikation / Substanzeinnahme einen Hinweis auf\n"
 "den Grund der Löschung einzufügen.\n"
-
-msgid "Deleting medication / substance intake"
-msgstr "Medikation / Substanzeinnahme löschen"
 
 msgid "Allow editing of substance intake entry before deletion."
 msgstr "Die Medikation / Substanzeinnahme vor dem Löschen noch bearbeiten."
@@ -15603,17 +15911,13 @@ msgid ""
 "\n"
 "Do you want to delete imported files from the filesystem ?\n"
 "\n"
-" %s\n"
-"\n"
-"Note that temporary files will be deleted anyway."
+" %s"
 msgstr ""
 "Dateien erfolgreich als Dokument importiert.\n"
 "\n"
 "Wollen Sie die importierten Dateien löschen ?\n"
 "\n"
-" %s\n"
-"\n"
-"(Temporäre Dateien werden ohnehin gelöscht.)"
+" %s"
 
 msgid "Removing files"
 msgstr "Dateien löschen"
@@ -16937,11 +17241,17 @@ msgstr "&Meßwerte"
 msgid "Manage measurement results for the current patient."
 msgstr "Meßergebnisse für den aktiven Patienten verwalten."
 
-msgid "&Vaccinations"
-msgstr "Impfungen"
+msgid "&Vaccination history"
+msgstr "&Impfhistorie"
 
 msgid "Manage vaccinations for the current patient."
 msgstr "Impfungen des aktiven Patienten verwalten."
+
+msgid "&Vaccinations (latest)"
+msgstr "&Impfungen (neueste)"
+
+msgid "List latest vaccinations for the current patient."
+msgstr "Jüngste Impfungen des aktiven Patienten anzeigen."
 
 msgid "&Family history (FHx)"
 msgstr "&Familienanamnese"
@@ -18101,8 +18411,17 @@ msgstr "Codes und dazugehörige Termini"
 msgid "Communication channel types"
 msgstr "Kommunikationskanaltypen"
 
-msgid "Diagnostic organizations (path labs, ...)"
-msgstr "Labore/Meßfirmen"
+msgid "Organizations with their units, addresses, and comm channels"
+msgstr "Organisationen (inkl. Abteilungen, Adressen, Kommunikationskanäle)"
+
+msgid "Measurements: diagnostic organizations (path labs, ...)"
+msgstr "Meßwerte: Labore/Meßfirmen"
+
+msgid "Measurements: test types"
+msgstr "Meßwerte: Testverfahren"
+
+msgid "Measurements: test panels/profiles/batteries"
+msgstr "Meßwerte: Profile (Panele, Batterien)"
 
 msgid "Document templates (forms, letters, plots, ...)"
 msgstr "Dokumentenvorlagen (Briefe, Formulare, Plots, ...)"
@@ -18116,11 +18435,8 @@ msgstr "Konsultationstypen"
 msgid "Keyword based text expansion macros"
 msgstr "Textmakros (schlüsselwortbasiert)"
 
-msgid "Meta test/measurement types"
-msgstr "Testverfahrensgruppe"
-
-msgid "Organizations with their units, addresses, and comm channels"
-msgstr "Organisationen (inkl. Abteilungen, Adressen, Kommunikationskanäle)"
+msgid "Measurements: aggregate test types"
+msgstr "Meßwerte: Gruppierungen von Testverfahren"
 
 msgid "Patient tags"
 msgstr "Patientensymbole"
@@ -18131,18 +18447,8 @@ msgstr "Bundesländer (Provinzen, Staaten, Regionen, ...)"
 msgid "String translations in the database"
 msgstr "Zeichenkettenübersetzungen in der Datenbank"
 
-msgid "Test/measurement types"
-msgstr "Meßverfahren"
-
-msgid "Vaccination targets (conditions known to be preventable by vaccination)"
-msgstr ""
-"Impfindikationen (Krankheiten, die durch Impfung verhindert werden können)"
-
-msgid "Vaccines"
-msgstr "Impfstoffe"
-
-msgid "Workplace profiles (which plugins to load)"
-msgstr "Arbeitsplatz-Profile (Laden welcher Plugins)"
+msgid "Medications: vaccines"
+msgstr "Medikamente: Impfstoffe"
 
 msgid "Medications: base substances"
 msgstr "Medikamente: Wirkstoffe"
@@ -18156,14 +18462,14 @@ msgstr "Medikamente: Produktbestandteile"
 msgid "Medications: drug products and generic drugs"
 msgstr "Medikamente: Produkte und Pseudoprodukte"
 
+msgid "Workplace profiles (which plugins to load)"
+msgstr "Arbeitsplatz-Profile (Laden welcher Plugins)"
+
 msgid "Billable items"
 msgstr "Gebührenordnungspositionen"
 
 msgid "Reference data sources"
 msgstr "Quellen für Referenzdaten"
-
-msgid "Test/measurement panels/profiles"
-msgstr "Meßprofile (Panele, Batterien)"
 
 msgid "Master data management"
 msgstr "Stammdatenverwaltung"
@@ -18259,6 +18565,9 @@ msgstr "Impfungen verwalten"
 
 msgid "Cannot add vaccinations. No active patient."
 msgstr "Kann Impfung nicht eintragen. Kein Patient aktiv."
+
+msgid "Cannot manage vaccinations. No active patient."
+msgstr "Kann Impfungen nicht bearbeiten. Kein Patient aktiv."
 
 msgid "manage family history"
 msgstr "Familienanamnese verwalten"
@@ -19014,38 +19323,32 @@ msgstr "Bearbeite Medikation"
 
 #, python-format
 msgid ""
-"Cannot edit the medication\n"
+"Cannot edit the vaccine product\n"
 "\n"
 " \"%s\" (%s)\n"
 "\n"
-"because it is a vaccine. Please edit it\n"
-"from the vaccine management section !\n"
+"because it is in use."
 msgstr ""
 "Kann den Impfstoff\n"
-"\n"
 " \"%s\" (%s)\n"
 "\n"
-"nicht verändern. Bearbeiten Sie\n"
-"Impfstoffe bitte in der Impfverwaltung !\n"
+"nicht ändern, da er in Benutzung ist."
 
-msgid "Deleting medication"
-msgstr "Medikament löschen"
+msgid "Deleting vaccine"
+msgstr "Impfung löschen"
 
 #, python-format
 msgid ""
-"Cannot delete the medication\n"
+"Cannot delete the vaccine product\n"
 "\n"
 " \"%s\" (%s)\n"
 "\n"
-"because it is a vaccine. Please delete it\n"
-"from the vaccine management section !\n"
+"because it is in use."
 msgstr ""
-"Kann dieses Medikament nicht löschen\n"
-"\n"
+"Kann den Impfstoff\n"
 " \"%s\" (%s)\n"
 "\n"
-"weil es sich um einen Impfstoff handelt. Löschen\n"
-"Sie Impfstoffe bitte in der Impfverwaltung !\n"
+"nicht löschen, da er in Benutzung ist."
 
 msgid "Drug products currently known to GNUmed."
 msgstr "In GNUmed gespeicherte Arzneiprodukte."
@@ -19145,6 +19448,59 @@ msgstr ""
 "Achtung: Dem Produkt müssen eine oder mehrere\n"
 "Substanzen zugeordnet werden, ehe es verwendet\n"
 "werden kann (außer bei generischen Impfstoffen)."
+
+msgid "Adding new single-component generic drug"
+msgstr "Generisches Einzelwirkstoffprodukt hinzufügen"
+
+msgid "Editing single-component generic drug"
+msgstr "Generisches Einzelwirkstoffprodukt bearbeiten"
+
+#, python-format
+msgid ""
+"Cannot edit the medication\n"
+"\n"
+" \"%s\" (%s)\n"
+"\n"
+"because it is a vaccine. Please edit it\n"
+"from the vaccine management section !\n"
+msgstr ""
+"Kann den Impfstoff\n"
+"\n"
+" \"%s\" (%s)\n"
+"\n"
+"nicht verändern. Bearbeiten Sie\n"
+"Impfstoffe bitte in der Impfverwaltung !\n"
+
+msgid "Deleting medication"
+msgstr "Medikament löschen"
+
+#, python-format
+msgid ""
+"Cannot delete the medication\n"
+"\n"
+" \"%s\" (%s)\n"
+"\n"
+"because it is a vaccine. Please delete it\n"
+"from the vaccine management section !\n"
+msgstr ""
+"Kann dieses Medikament nicht löschen\n"
+"\n"
+" \"%s\" (%s)\n"
+"\n"
+"weil es sich um einen Impfstoff handelt. Löschen\n"
+"Sie Impfstoffe bitte in der Impfverwaltung !\n"
+
+msgid "Drug form is missing."
+msgstr "Darreichungsform fehlt."
+
+msgid "Unit for amount is missing."
+msgstr "Einheit für Menge fehlt."
+
+msgid "Amount is missing."
+msgstr "Menge fehlt."
+
+msgid "Substance is missing."
+msgstr "Wirkstoff fehlt."
 
 msgid "No EMR data loaded."
 msgstr "Keine Karteieinträge geladen."
@@ -20815,6 +21171,9 @@ msgstr "Karteijournal"
 msgid "EMR &Journal (list)"
 msgstr "Kartei: &Journal (Liste)"
 
+msgid "&Vaccinations"
+msgstr "Impfungen"
+
 msgid "Appointments"
 msgstr "Termine"
 
@@ -20877,9 +21236,6 @@ msgstr "Irgendeine"
 
 msgid "Generic name"
 msgstr "Freiname"
-
-msgid "Indication"
-msgstr "Indikation"
 
 msgid "&Prescribe"
 msgstr "&Verschreibe"
@@ -21116,6 +21472,169 @@ msgstr "Abbrechen"
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
+
+#~ msgid ""
+#~ "Cannot delete vaccine\n"
+#~ "\n"
+#~ " %s - %s (#%s)\n"
+#~ "\n"
+#~ "It is probably documented in a vaccination."
+#~ msgstr ""
+#~ "Kann Impfstoff nicht löschen\n"
+#~ "\n"
+#~ " %s - %s (#%s)\n"
+#~ "\n"
+#~ "Er wurde wohl bei einer Impfung dokumentiert."
+
+#~ msgid "Select the indications this vaccination was given against."
+#~ msgstr ""
+#~ "Wählen Sie die Indikationen, gegen welche die Impfung verabreicht wurde."
+
+#~ msgid "Manage the indications for this vaccine."
+#~ msgstr "Verwalten der Indikationen für diese Impfung."
+
+#~ msgid "doc: %s"
+#~ msgstr "Dokument: %s"
+
+#~ msgid "internal error, check log"
+#~ msgstr "interner Fehler, Log kontrollieren"
+
+#~ msgid "consistency error, check log"
+#~ msgstr "Konsistenzfehler, siehe Log"
+
+#~ msgid "ERROR: list of vaccinations not supplied"
+#~ msgstr "FEHLER: Liste der Impfungen nicht angegeben."
+
+#~ msgid "empty list of vaccinations"
+#~ msgstr "Liste der Impfungen leer"
+
+#~ msgid "vacc -> ind error: %s"
+#~ msgstr "vacc -> ind Fehler: %s"
+
+#~ msgid ""
+#~ "\n"
+#~ "Conditions preventable by vaccination as currently known to GNUmed.\n"
+#~ msgstr ""
+#~ "\n"
+#~ "GNUmed als durch Impfung verhinderbar bekannte Krankheiten.\n"
+
+#~ msgid "Showing vaccination preventable conditions."
+#~ msgstr "Zeige durch Impfung verhinderbare Krankheiten."
+
+#~ msgid "ATCs: single-condition vaccines"
+#~ msgstr "ATCs: Einfachimpfstoffe"
+
+#~ msgid "ATCs: multi-condition vaccines"
+#~ msgstr "ATCs: Kombinationsimpfstoffe"
+
+#~ msgid "Pick the relevant indications."
+#~ msgstr "Wählen Sie die relevanten Indikationen."
+
+#~ msgid "Known indications"
+#~ msgstr "Bekannte Indikationen"
+
+#~ msgid ""
+#~ "\n"
+#~ "The vaccines currently known to GNUmed.\n"
+#~ msgstr ""
+#~ "\n"
+#~ "Die GNUmed bekannten Impfstoffe.\n"
+
+#~ msgid "You must select at least one indication."
+#~ msgstr "Sie müssen wenigstens eine Indikation auswählen."
+
+#~ msgid "Pick the diseases this vaccine protects against."
+#~ msgstr "Wählen Sie die Krankheiten, vor denen dieser Impfstoff schützt."
+
+#~ msgid "Saving vaccination"
+#~ msgstr "Speichere Impfung"
+
+#~ msgid "Pick the diseases this vaccination was given against."
+#~ msgstr ""
+#~ "Wählen Sie die Krankheiten, gegen welche dieser Impfstoff verabreicht "
+#~ "wurde."
+
+#~ msgid "Meta test/measurement types"
+#~ msgstr "Testverfahrensgruppe"
+
+#~ msgid "Test/measurement types"
+#~ msgstr "Meßverfahren"
+
+#~ msgid ""
+#~ "Vaccination targets (conditions known to be preventable by vaccination)"
+#~ msgstr ""
+#~ "Impfindikationen (Krankheiten, die durch Impfung verhindert werden können)"
+
+#~ msgid "Vaccines"
+#~ msgstr "Impfstoffe"
+
+#~ msgid "Details on the selected drug."
+#~ msgstr "Details zum gewählten Medikament."
+
+#~ msgid ""
+#~ "Manage substances.\n"
+#~ "\n"
+#~ "This will not select a substance for you. It will, however, enable you to "
+#~ "manage (add/edit/delete) the substances available for selection."
+#~ msgstr ""
+#~ "Substanzen verwalten.\n"
+#~ "\n"
+#~ "Hiermit können Sie keine Substanz wählen, sondern die Liste der wählbaren "
+#~ "Substanzen bearbeiten."
+
+#~ msgid "The preparation or form of the substance."
+#~ msgstr "Die Darreichungs-/Zubereitungsform der Substanz."
+
+#~ msgid "Press if discontinuation was as planned."
+#~ msgstr "Einnahmeende auf plangemäßes Datum setzen."
+
+#~ msgid ""
+#~ "%s\n"
+#~ "\n"
+#~ "This patient's chart was worked on only recently:\n"
+#~ "\n"
+#~ " %s  %s - %s  (%s)\n"
+#~ "\n"
+#~ " Reason for Encounter:\n"
+#~ "  %s\n"
+#~ " Assessment of Encounter:\n"
+#~ "  %s\n"
+#~ "\n"
+#~ "Do you want to continue that consultation\n"
+#~ "or do you want to start a new one ?\n"
+#~ msgstr ""
+#~ "%s\n"
+#~ "\n"
+#~ "Diese Karteikarte wurde erst kürzlich bearbeitet:\n"
+#~ "\n"
+#~ " %s  %s - %s (%s)\n"
+#~ "\n"
+#~ " Beratungsanlaß:\n"
+#~ "  %s\n"
+#~ " Beratungsergebnis:\n"
+#~ "  %s\n"
+#~ "\n"
+#~ "Wollen Sie diese Konsultation fortsetzen oder\n"
+#~ "lieber eine neue Konsultation beginnen ?\n"
+
+#~ msgid "none given"
+#~ msgstr "nicht angegeben"
+
+#~ msgid "Starting patient encounter"
+#~ msgstr "beginne Arzt-Patienten-Kontakt"
+
+#~ msgid ""
+#~ "%s: Your chart has been accessed by %s (without user interaction, "
+#~ "probably by a script)."
+#~ msgstr ""
+#~ "%s: Ihre Karteikarte wurde von %s aufgerufen (ohne Nutzerinteraktion, "
+#~ "wahrscheinlich durch ein Skript)."
+
+#~ msgid "assimilated"
+#~ msgstr "zusammengeführt"
+
+#~ msgid "merged"
+#~ msgstr "zusammengeführt"
 
 #~ msgid "Additional notes"
 #~ msgstr "Zusätzliche Angaben"
@@ -22071,9 +22590,6 @@ msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
 #~ msgid "Invalid medication list template [%s - %s (%s)]"
 #~ msgstr "Unbrauchbare Vorlage für die Medikamentenliste [%s - %s (%s)]"
 
-#~ msgid "Error generating the medication list."
-#~ msgstr "Fehler beim Erzeugen der Medikamentenliste."
-
 #~ msgid "Error printing the medication list."
 #~ msgstr "Fehler beim Drucken der Medikamentenliste."
 
@@ -22112,9 +22628,6 @@ msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
 
 #~ msgid "Print vaccinations using a template."
 #~ msgstr "Impfungen mittels einer Druckvorlage drucken."
-
-#~ msgid "Vaccination Plans"
-#~ msgstr "Impfpläne"
 
 #~ msgid "Add billing item"
 #~ msgstr "Abrechungsposition hinzufügen"
@@ -22492,10 +23005,6 @@ msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
 #~ "\n"
 #~ "Untenstehend sind die relevanten Kontakte des Patienten aufgeführt.\n"
 
-#, fuzzy
-#~ msgid "  %s Value: %s %s\n"
-#~ msgstr " Rechnungswert: %s %s\n"
-
 #~ msgid "Browse billables"
 #~ msgstr "GNr durchblättern"
 
@@ -22623,9 +23132,6 @@ msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
 #~ msgid "Cholera"
 #~ msgstr "Cholera"
 
-#~ msgid "Poliomyelitis"
-#~ msgstr "Poliomyelitis"
-
 #~ msgid "Varicella"
 #~ msgstr "Varizellen"
 
@@ -22662,9 +23168,6 @@ msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
 #~ msgid "Rabies"
 #~ msgstr "Tollwut"
 
-#~ msgid "Yellow fever"
-#~ msgstr "Gelbfieber"
-
 #~ msgid "Anthrax"
 #~ msgstr "Anthra"
 
@@ -22680,29 +23183,8 @@ msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
 #~ msgid "Seasonal influenza"
 #~ msgstr "Saisonale Influenza"
 
-#~ msgid "Meningococcus A"
-#~ msgstr "A-Meningokokken"
-
-#~ msgid "Meningococcus C"
-#~ msgstr "C-Meningokokken"
-
-#~ msgid "Pneumococcus"
-#~ msgstr "Pneumokokken"
-
-#~ msgid "Meningococcus W"
-#~ msgstr "W-Meningokokken"
-
-#~ msgid "Meningococcus Y"
-#~ msgstr "Y-Meningokokken"
-
-#~ msgid "Varicella zoster (shingles)"
-#~ msgstr "Varizella zoster (Windpocken)"
-
 #~ msgid "Coxiella burnetii (Q fever)"
 #~ msgstr "Coxiella burnetii (Q-Fieber)"
-
-#~ msgid "Tick-borne meningoencephalitis"
-#~ msgstr "Zecken-Meningoenzephalitis (FSME)"
 
 #~ msgid "Salmonella typhi (typhoid)"
 #~ msgstr "Salmonella typhi (Typhus)"
@@ -22712,9 +23194,6 @@ msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
 
 #~ msgid "H1N1 influenza"
 #~ msgstr "H1N1-Influenza"
-
-#~ msgid "Japanese B encephalitis"
-#~ msgstr "Japanische B-Enzephalitis"
 
 #~ msgid "Human papilloma virus"
 #~ msgstr "Humanes Papillomvirus"
@@ -24246,9 +24725,6 @@ msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
 
 #~ msgid "Checked if the original template was modified."
 #~ msgstr "Angekreuzt wenn die Originalvorlage modifiziert wurde."
-
-#~ msgid "generic single choice dialog"
-#~ msgstr "allgemeine Nutzerauswahl"
 
 #~ msgid "Edit episode details"
 #~ msgstr "Details der Episode ändern"
