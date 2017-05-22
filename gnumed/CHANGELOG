@@ -19,7 +19,7 @@ NEW: placeholder <$current_provider_lastnames$>
 NEW: switch substance intakes to drug components only
 
 IMPROVED: EMR journal retrieval speed
-IMPROVED: patient overview now acts on changes to ref.auto_hint
+IMPROVED: patient overview usability
 IMPROVED: document tree details view
 IMPROVED: LaTeX formatting of current medications (port from 1.6 branch)
 IMPROVED: early-connect error decoding
@@ -30,7 +30,7 @@ IMPROVED: non-blocking file description retrieval
 IMPROVED: patient merging
 IMPROVED: email sending framework
 IMPROVED: export area change signalling
-IMPROVED: add test result by clicking empty results grid cell
+IMPROVED: test results usability
 IMPROVED: vaccine handling
 
 ------------------------------------------------

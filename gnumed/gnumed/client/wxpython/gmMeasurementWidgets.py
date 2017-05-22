@@ -770,9 +770,13 @@ class cMeasurementsByDayPnl(wxgMeasurementsByDayPnl.wxgMeasurementsByDayPnl, gmR
 			self._TCTRL_measurements.SetValue(u'')
 			return
 
-		#dates = [ d[0] for d in self.__patient.emr.get_dates_for_results(reverse_chronological = True) ]
 		dates = self.__patient.emr.get_dates_for_results(reverse_chronological = True)
-		items = [ [gmDateTime.pydt_strftime(d, self.__date_format)] for d in dates ]
+		items = [ [u'%s%s' % (
+					gmDateTime.pydt_strftime(d['clin_when_day'], self.__date_format),
+					gmTools.bool2subst(d['is_reviewed'], u'', gmTools.u_writing_hand, gmTools.u_writing_hand)
+				)]
+			for d in dates
+		]
 
 		self._LCTRL_days.set_string_items(items)
 		self._LCTRL_days.set_data(dates)
@@ -809,7 +813,7 @@ class cMeasurementsByDayPnl(wxgMeasurementsByDayPnl.wxgMeasurementsByDayPnl, gmR
 	def _on_day_selected(self, event):
 		event.Skip()
 
-		day = self._LCTRL_days.get_item_data(item_idx = event.Index)
+		day = self._LCTRL_days.get_item_data(item_idx = event.Index)['clin_when_day']
 		results = self.__patient.emr.get_results_for_day(timestamp = day)
 		items = []
 		data = []
@@ -1463,10 +1467,10 @@ class cMeasurementsGrid(wx.grid.Grid):
 			) for test_type in self.__row_label_data
 		]
 
-		self.__col_label_data = emr.get_dates_for_results (
+		self.__col_label_data = [ d['clin_when_day'] for d in emr.get_dates_for_results (
 			tests = test_pks2show,
 			reverse_chronological = True
-		)
+		)]
 		col_labels = [ gmDateTime.pydt_strftime(date, self.__date_format, accuracy = gmDateTime.acc_days) for date in self.__col_label_data ]
 
 		results = emr.get_test_results_by_date (

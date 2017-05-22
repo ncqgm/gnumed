@@ -116,7 +116,7 @@ class cExternalCareItem(gmBusinessDBObject.cBusinessDBObject):
 	org_unit = property(_get_org_unit, lambda x:x)
 
 #------------------------------------------------------------
-def get_external_care_items(order_by=None, pk_identity=None, pk_health_issue=None):
+def get_external_care_items(order_by=None, pk_identity=None, pk_health_issue=None, exclude_inactive=False):
 
 	args = {
 		'pk_pat': pk_identity,
@@ -127,6 +127,8 @@ def get_external_care_items(order_by=None, pk_identity=None, pk_health_issue=Non
 		where_parts.append(u'pk_identity = %(pk_pat)s')
 	if pk_health_issue is not None:
 		where_parts.append(u'pk_health_issue = %(pk_issue)s')
+	if exclude_inactive is True:
+		where_parts.append(u'inactive IS FALSE')
 
 	if len(where_parts) == 0:
 		where = u'TRUE'

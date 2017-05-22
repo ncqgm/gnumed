@@ -1322,7 +1322,7 @@ class cClinicalRecord(object):
 				gmTools.u_right_double_angle_quote
 			)
 
-		care = self.get_external_care_items(order_by = u'issue, organization, unit, provider')
+		care = self.get_external_care_items(order_by = u'issue, organization, unit, provider', exclude_inactive = True)
 		if len(care) > 0:
 			txt += u'\n'
 			txt += _('External care')
@@ -1504,8 +1504,12 @@ WHERE
 	#--------------------------------------------------------
 	# API: external care
 	#--------------------------------------------------------
-	def get_external_care_items(self, order_by=None):
-		return gmExternalCare.get_external_care_items(pk_identity = self.pk_patient, order_by = order_by)
+	def get_external_care_items(self, order_by=None, exclude_inactive=False):
+		return gmExternalCare.get_external_care_items (
+			pk_identity = self.pk_patient,
+			order_by = order_by,
+			exclude_inactive = exclude_inactive
+		)
 
 	external_care_items = property(get_external_care_items, lambda x:x)
 
@@ -2855,16 +2859,35 @@ SELECT MIN(earliest) FROM (
 			args['tests'] = tuple(tests)
 
 		cmd = u"""
-			SELECT DISTINCT ON (clin_when_day) date_trunc('day', clin_when) as clin_when_day
-			FROM clin.v_test_results
-			WHERE %s
+			SELECT DISTINCT ON (clin_when_day)
+				clin_when_day,
+				is_reviewed
+			FROM (
+				SELECT
+					date_trunc('day', clin_when)
+						AS clin_when_day,
+					bool_and(reviewed)
+						AS is_reviewed
+				FROM (
+					SELECT
+						clin_when,
+						reviewed,
+						pk_patient,
+						pk_test_result
+					FROM clin.v_test_results
+					WHERE %s
+				)
+					AS patient_tests
+				GROUP BY clin_when_day
+			)
+				AS grouped_days
 			ORDER BY clin_when_day %s
 		""" % (
 			u' AND '.join(where_parts),
 			gmTools.bool2subst(reverse_chronological, u'DESC', u'ASC', u'DESC')
 		)
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
-		return [ r[0] for r in rows ]
+		return rows
 
 	#------------------------------------------------------------------
 	def get_test_results(self, encounters=None, episodes=None, tests=None, order_by=None):

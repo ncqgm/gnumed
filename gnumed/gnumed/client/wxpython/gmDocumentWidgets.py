@@ -1034,7 +1034,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 		self._PhWheel_reviewer.selection_only = True
 		me = gmStaff.gmCurrentProvider()
 		self._PhWheel_reviewer.SetText (
-			value = u'%s (%s%s %s)' % (me['short_alias'], me['title'], me['firstnames'], me['lastnames']),
+			value = u'%s (%s%s %s)' % (me['short_alias'], gmTools.coalesce(me['title'], u''), me['firstnames'], me['lastnames']),
 			data = me['pk_staff']
 		)
 		# -----------------------------

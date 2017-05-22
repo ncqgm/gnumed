@@ -180,6 +180,8 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 			u'clin.vaccination',
 			u'clin.family_history',
 			u'clin.test_result',
+			u'clin.export_item',
+			u'clin.external_care',
 			u'dem.identity',
 			u'dem.names',
 			u'dem.lnk_identity2comm',
@@ -958,7 +960,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 
 		provider = patient.primary_provider
 		if provider is not None:
-			list_items.append(_('in-praxis: %s') % patient.primary_provider_identity['description_gender'])
+			list_items.append(_('in-praxis: %s') % patient.primary_provider_identity.get_description_gender(with_nickname = False))
 			list_data.append(provider)
 
 		for item in emr.external_care_items:
@@ -973,6 +975,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		self._LCTRL_contacts.set_data(data = list_data)
 		if is_in_hospital:
 			self._LCTRL_contacts.SetItemTextColour(0, wx.NamedColour('RED'))
+
 	#-----------------------------------------------------
 	def _calc_contacts_list_item_tooltip(self, data):
 
@@ -1050,6 +1053,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 					pass
 
 		gmDispatcher.send(signal = 'display_widget', name = 'gmNotebookedPatientEditionPlugin')
+
 	#-----------------------------------------------------
 	#-----------------------------------------------------
 	def __refresh_problems(self, patient=None):
@@ -1081,8 +1085,9 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 				list_items.append(u'%s: %s' % (problem['problem'], last))
 			list_data.append(problem)
 
-		care = emr.get_external_care_items()
+		care = emr.get_external_care_items(exclude_inactive = True)
 		for item in care:
+			# skip those already-shown(-or-not)
 			if item['pk_health_issue'] is not None:
 				continue
 			list_items.append(_('extrnl: %s (%s@%s)') % (
@@ -1094,6 +1099,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 
 		self._LCTRL_problems.set_string_items(items = list_items)
 		self._LCTRL_problems.set_data(data = list_data)
+
 	#-----------------------------------------------------
 	def _calc_problem_list_item_tooltip(self, data):
 
