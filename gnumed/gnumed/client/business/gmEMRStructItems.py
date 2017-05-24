@@ -1178,16 +1178,29 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 			if (encs is not None) and (len(encs) > 0):
 				first_encounter = emr.get_first_encounter(episode_id = self._payload[self._idx['pk_episode']])
 				last_encounter = emr.get_last_encounter(episode_id = self._payload[self._idx['pk_episode']])
+				if first_encounter is None:
+					start = None
+					start_str = u'?'
+				else:
+					start = first_encounter['started']
+					start_str = first_encounter['started'].strftime('%m/%Y')
 				if self._payload[self._idx['episode_open']]:
 					end = gmDateTime.pydt_now_here()
 					end_str = gmTools.u_ellipsis
 				else:
-					end = last_encounter['last_affirmed']
-					end_str = last_encounter['last_affirmed'].strftime('%m/%Y')
-				age = gmDateTime.format_interval_medically(end - first_encounter['started'])
+					if last_encounter is None:
+						end = None
+						end_str = u'?'
+					else:
+						end = last_encounter['last_affirmed']
+						end_str = last_encounter['last_affirmed'].strftime('%m/%Y')
+				if None in [start, end]:
+					age_str = u'?'
+				else:
+					age_str = gmDateTime.format_interval_medically(end - start)
 				lines.append(_(' Duration: %s (%s - %s)') % (
-					age,
-					first_encounter['started'].strftime('%m/%Y'),
+					age_str,
+					start_str,
 					end_str
 				))
 
@@ -3520,10 +3533,15 @@ if __name__ == '__main__':
 		print epi
 		print epi.generic_codes
 	#--------------------------------------------------------
+	def test_episode_encounters():
+		epi = cEpisode(aPK_obj = 1638)
+		print epi.format()
+	#--------------------------------------------------------
 	# run them
 	#test_episode()
+	test_episode_encounters()
 	#test_problem()
-	test_encounter()
+	#test_encounter()
 	#test_health_issue()
 	#test_hospital_stay()
 	#test_performed_procedure()

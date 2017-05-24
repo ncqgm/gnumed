@@ -2499,6 +2499,29 @@ WHERE
 		Rationale: If it was the other way round it would be
 		redundant to specify the list of issues at all.
 		"""
+		# if issues are given, translate them to their episodes
+		if (issues is not None) and (len(issues) > 0):
+			# - find episodes corresponding to the health issues in question
+			cmd = u"SELECT distinct pk_episode FROM clin.v_pat_episodes WHERE pk_health_issue in %(issue_pks)s AND pk_patient = %(pat)s"
+			args = {'issue_pks': tuple(issues), 'pat': self.pk_patient}
+			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+			epis4issues_pks = [ r['pk_episode']  for r in rows ]
+			if episodes is None:
+				episodes = []
+			episodes.extend(epis4issues_pks)
+
+		if (episodes is not None) and (len(episodes) > 0):
+			# since the episodes to filter by belong to the patient in question so will
+			# the encounters found with them - hence we don't need a WHERE on the patient ...
+			# but, better safe than sorry ...
+			args = {'epi_pks': tuple(episodes), 'pat': self.pk_patient}
+			cmd = u"SELECT distinct fk_encounter FROM clin.clin_root_item WHERE fk_episode IN %(epi_pks)s AND fk_encounter IN (SELECT pk FROM clin.encounter WHERE fk_patient = %(pat)s)"
+			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+			encs4epis_pks = [ r['fk_encounter'] for r in rows ]
+			if id_list is None:
+				id_list = []
+			id_list.extend(encs4epis_pks)
+
 		where_parts = [u'c_vpe.pk_patient = %(pat)s']
 		args = {'pat': self.pk_patient}
 
@@ -2521,6 +2544,10 @@ WHERE
 		if until is not None:
 			where_parts.append(u'c_vpe.last_affirmed <= %(end)s')
 			args['end'] = since
+
+		if (id_list is not None) and (len(id_list) > 0):
+			where_parts.append(u'c_vpe.pk_encounter IN %(enc_pks)s')
+			args['enc_pks'] = tuple(id_list)
 
 		if order_by is None:
 			order_by = u'c_vpe.started'
@@ -2547,28 +2574,15 @@ WHERE
 		filtered_encounters = []
 		filtered_encounters.extend(encounters)
 
-		if id_list is not None:
-			filtered_encounters = filter(lambda enc: enc['pk_encounter'] in id_list, filtered_encounters)
-
-		if (issues is not None) and (len(issues) > 0):
-			issues = tuple(issues)
-			# however, this seems like the proper approach:
-			# - find episodes corresponding to the health issues in question
-			cmd = u"SELECT distinct pk FROM clin.episode WHERE fk_health_issue in %(issues)s"
-			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': {'issues': issues}}])
-			epi_ids = map(lambda x:x[0], rows)
-			if episodes is None:
-				episodes = []
-			episodes.extend(epi_ids)
-
 		if (episodes is not None) and (len(episodes) > 0):
-			episodes = tuple(episodes)
-			# if the episodes to filter by belong to the patient in question so will
+			# since the episodes to filter by belong to the patient in question so will
 			# the encounters found with them - hence we don't need a WHERE on the patient ...
-			cmd = u"SELECT distinct fk_encounter FROM clin.clin_root_item WHERE fk_episode in %(epis)s"
-			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': {'epis': episodes}}])
-			enc_ids = map(lambda x:x[0], rows)
-			filtered_encounters = filter(lambda enc: enc['pk_encounter'] in enc_ids, filtered_encounters)
+			# but, better safe than sorry ...
+			args = {'epi_pks': tuple(episodes), 'pat': self.pk_patient}
+			cmd = u"SELECT distinct fk_encounter FROM clin.clin_root_item WHERE fk_episode IN %(epi_pks)s AND fk_encounter IN (SELECT pk FROM clin.encounter WHERE fk_patient = %(pat)s)"
+			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+			encs4epis_pks = [ r['fk_encounter'] for r in rows ]
+			filtered_encounters = [ enc for enc in filtered_encounters if enc['pk_encounter'] in encs4epis_pks ]
 
 		return filtered_encounters
 
@@ -3051,6 +3065,14 @@ if __name__ == "__main__":
 	from Gnumed.business import gmPraxis
 	branches = gmPraxis.get_praxis_branches()
 	praxis = gmPraxis.gmCurrentPraxisBranch(branches[0])
+
+	def _do_delayed(*args, **kwargs):
+		print args
+		print kwargs
+		args[0](*args[1:], **kwargs)
+
+	set_delayed_executor(_do_delayed)
+
 	#-----------------------------------------
 	def test_allergy_state():
 		emr = cClinicalRecord(aPKey=1)
@@ -3142,6 +3164,12 @@ if __name__ == "__main__":
 		emr = cClinicalRecord(aPKey=12)
 		print emr.get_last_encounter(issue_id=2)
 		print emr.get_last_but_one_encounter(issue_id=2)
+
+	#-----------------------------------------
+	def test_get_encounters():
+		emr = cClinicalRecord(aPKey = 5)
+		print emr.get_first_encounter(episode_id = 1638)
+		print emr.get_last_encounter(episode_id = 1638)
 	#-----------------------------------------
 	def test_get_meds():
 		emr = cClinicalRecord(aPKey=12)
@@ -3212,7 +3240,8 @@ if __name__ == "__main__":
 	#test_episodes()
 	#test_format_as_journal()
 	#test_smoking()
-	test_get_abuses()
+	#test_get_abuses()
+	test_get_encounters()
 
 #	emr = cClinicalRecord(aPKey = 12)
 
