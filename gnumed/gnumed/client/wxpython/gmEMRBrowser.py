@@ -1411,7 +1411,8 @@ class cSplittedEMRTreeBrowserPnl(wxgSplittedEMRTreeBrowserPnl.wxgSplittedEMRTree
 		pat = gmPerson.gmCurrentPatient()
 		self._pnl_emr_tree._emr_tree.patient = pat
 		self._PNL_edit.patient = pat
-		self._splitter_browser.SetSashPosition(self._splitter_browser.GetSizeTuple()[0]/3, True)
+		self._splitter_browser.SetSashPosition(self._splitter_browser.GetSizeTuple()[0] // 3, True)
+
 		return True
 	#--------------------------------------------------------
 	def enable_display_mode_selection(self, enable):
