@@ -8,6 +8,11 @@
 \set ON_ERROR_STOP 1
 
 -- --------------------------------------------------------------
+update ref.vaccine set
+	is_live = True
+where
+	is_live IS NULL;
+
 alter table ref.vaccine
 	alter column is_live
 		set not null;
