@@ -2073,9 +2073,8 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 			lbl = wx.StaticText(self, -1, _('eGFR:'))
 			lbl.SetForegroundColour('blue')
 			val = wx.StaticText(self, -1, gfr_msg)
-			egfrs = calc.eGFRs
 			tts = []
-			for egfr in egfrs:
+			for egfr in calc.eGFRs:
 				if egfr.numeric_value is None:
 					continue
 				tts.append(egfr.format (
@@ -2088,8 +2087,7 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 					with_sub_results = False,
 					return_list = False
 				))
-				tt = u'\n'.join(tts)
-			val.SetToolTipString(tt)
+			val.SetToolTipString(u'\n'.join(tts))
 			szr = wx.BoxSizer(wx.HORIZONTAL)
 			szr.Add(lbl, 0, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL, 3)
 			szr.Add(val, 1, wx.ALIGN_CENTER_VERTICAL)
