@@ -153,8 +153,7 @@ class cTestPanel(gmBusinessDBObject.cBusinessDBObject):
 		u"""
 			UPDATE clin.test_panel SET
 				description = gm.nullify_empty_string(%(description)s),
-				comment = gm.nullify_empty_string(%(comment)s),
-				fk_test_types = %(pk_test_types)s
+				comment = gm.nullify_empty_string(%(comment)s)
 			WHERE
 				pk = %(pk_test_panel)s
 					AND
@@ -165,8 +164,7 @@ class cTestPanel(gmBusinessDBObject.cBusinessDBObject):
 	]
 	_updatable_fields = [
 		u'description',
-		u'comment',
-		u'pk_test_types'
+		u'comment'
 	]
 	#--------------------------------------------------------
 	def format(self):
@@ -190,7 +188,8 @@ class cTestPanel(gmBusinessDBObject.cBusinessDBObject):
 			txt += u'\n'
 			txt += _('Included test types:\n')
 			for tt in tts:
-				txt += u' %s: %s\n' % (
+				txt += u' [%s] %s: %s\n' % (
+					tt['loinc'],
 					tt['abbrev'],
 					tt['name']
 				)
@@ -208,6 +207,7 @@ class cTestPanel(gmBusinessDBObject.cBusinessDBObject):
 				)
 
 		return txt
+
 	#--------------------------------------------------------
 	def add_code(self, pk_code=None):
 		"""<pk_code> must be a value from ref.coding_system_root.pk_coding_system (clin.lnk_code2item_root.fk_generic_code)"""
@@ -218,6 +218,7 @@ class cTestPanel(gmBusinessDBObject.cBusinessDBObject):
 		}
 		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 		return True
+
 	#--------------------------------------------------------
 	def remove_code(self, pk_code=None):
 		"""<pk_code> must be a value from ref.coding_system_root.pk_coding_system (clin.lnk_code2item_root.fk_generic_code)"""
@@ -228,6 +229,7 @@ class cTestPanel(gmBusinessDBObject.cBusinessDBObject):
 		}
 		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 		return True
+
 	#--------------------------------------------------------
 	def get_test_types_for_results(self, pk_patient, order_by=None, unique_meta_types=False):
 		"""Retrieve data about test types on this panel (for which this patient has results)."""
@@ -275,27 +277,52 @@ class cTestPanel(gmBusinessDBObject.cBusinessDBObject):
 
 		args = {
 			'pat': pk_patient,
-			'pks': tuple(self._payload[self._idx['pk_test_types']])
+			'pks': tuple([ tt['pk_test_type'] for tt in self._payload[self._idx['test_types']] ])
 		}
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 		return [ cMeasurementType(row = {'pk_field': 'pk_test_type', 'idx': idx, 'data': r}) for r in rows ]
 
 	#--------------------------------------------------------
+	def _get_included_loincs(self):
+		return [ tt['loinc'] for tt in self._payload[self._idx['test_types']] ]
+
+	def _set_included_loincs(self, loincs):
+		queries = []
+		# remove those which don't belong
+		cmd = u'DELETE FROM clin.lnk_loinc2test_panel WHERE loinc NOT IN %(loincs)s'
+		queries.append({'cmd': cmd, 'args': {'loincs': tuple(loincs)}})
+		# add those not there yet
+		for loinc in loincs:
+			cmd = u"""INSERT INTO clin.lnk_loinc2test_panel (fk_test_panel, loinc)
+			SELECT %(pk_pnl)s, %(loinc)s WHERE NOT EXISTS (
+				SELECT 1 FROM clin.lnk_loinc2test_panel WHERE
+					fk_test_panel = %(pk_pnl)s
+						AND
+					loinc = %(loinc)s
+			)"""
+			queries.append({'cmd': cmd, 'args': {'loinc': loinc, 'pk_pnl': self._payload[self._idx['pk_test_panel']]}})
+		return gmPG2.run_rw_queries(queries = queries)
+
+	included_loincs = property(_get_included_loincs, _set_included_loincs)
+
+	#--------------------------------------------------------
 	# properties
 	#--------------------------------------------------------
 	def _get_test_types(self):
-		if self._payload[self._idx['pk_test_types']] is None:
+		if len(self._payload[self._idx['test_types']]) == 0:
 			return None
+
 		rows, idx = gmPG2.run_ro_queries (
 			queries = [{
-				'cmd': _SQL_get_test_types % u'pk_test_type IN %(pks)s ORDER BY unified_abbrev',
-				'args': {'pks': tuple(self._payload[self._idx['pk_test_types']])}
+				'cmd': _SQL_get_test_types % u'loinc IN %(loincs)s ORDER BY unified_abbrev',
+				'args': {'loincs': tuple([ tt['loinc'] for tt in self._payload[self._idx['test_types']] ] )}
 			}],
 			get_col_idx = True
 		)
 		return [ cMeasurementType(row = {'data': r, 'idx': idx, 'pk_field': 'pk_test_type'}) for r in rows ]
 
 	test_types = property(_get_test_types, lambda x:x)
+
 	#--------------------------------------------------------
 	def _get_generic_codes(self):
 		if len(self._payload[self._idx['pk_generic_codes']]) == 0:
@@ -1950,7 +1977,7 @@ def get_most_recent_results_for_panel(pk_patient=None, pk_panel=None, order_by=N
 
 	args = {
 		'pat': pk_patient,
-		'pnl': pk_panel
+		'pk_pnl': pk_panel
 	}
 
 	if group_by_meta_type:
@@ -1970,8 +1997,8 @@ def get_most_recent_results_for_panel(pk_patient=None, pk_panel=None, order_by=N
 						AND
 					pk_meta_test_type IS DISTINCT FROM NULL
 						AND
-					pk_test_type = ANY (
-						(SELECT fk_test_types FROM clin.test_panel WHERE pk = %(pnl)s)::int[]
+					pk_test_type IN (
+						(SELECT c_vtt4tp.pk_test_type FROM clin.v_test_types4test_panel c_vtt4tp WHERE c_vtt4tp.pk_test_panel = %(pk_pnl)s)
 					)
 				GROUP BY pk_meta_test_type
 			) AS latest_results
@@ -1994,8 +2021,8 @@ def get_most_recent_results_for_panel(pk_patient=None, pk_panel=None, order_by=N
 					AND
 				pk_meta_test_type IS NULL
 					AND
-				pk_test_type = ANY (
-					(SELECT fk_test_types FROM clin.test_panel WHERE pk = %(pnl)s)::int[]
+				pk_test_type IN (
+					(SELECT c_vtt4tp.pk_test_type FROM clin.v_test_types4test_panel c_vtt4tp WHERE c_vtt4tp.pk_test_panel = %(pk_pnl)s)
 				)
 			GROUP BY pk_test_type
 		) AS latest_results
@@ -2019,8 +2046,8 @@ def get_most_recent_results_for_panel(pk_patient=None, pk_panel=None, order_by=N
 				WHERE
 					pk_patient = %(pat)s
 						AND
-					pk_test_type = ANY (
-						(SELECT fk_test_types FROM clin.test_panel WHERE pk = %(pnl)s)::int[]
+					pk_test_type IN (
+						(SELECT c_vtt4tp.pk_test_type FROM clin.v_test_types4test_panel c_vtt4tp WHERE c_vtt4tp.pk_test_panel = %(pk_pnl)s)
 					)
 				GROUP BY pk_test_type
 			) AS latest_results
@@ -2907,6 +2934,7 @@ def get_next_request_ID(lab=None, incrementor_func=None):
 			header = most_recent[:-1]
 			trailer = most_recent[-1:]
 			return '%s%s' % (header, chr(ord(trailer) + 1))
+
 #============================================================
 def calculate_bmi(mass=None, height=None, age=None):
 	"""Calculate BMI.
@@ -2937,6 +2965,7 @@ def calculate_bmi(mass=None, height=None, age=None):
 	upper_normal_mass = 25.0 * approx_surface
 
 	return True, (bmi, lower_normal_mass, upper_normal_mass)
+
 #============================================================
 # main - unit testing
 #------------------------------------------------------------
@@ -3063,28 +3092,29 @@ if __name__ == '__main__':
 	def test_calculate_bmi():
 		done, data = calculate_bmi(mass = sys.argv[2], height = sys.argv[3])
 		bmi, low, high = data
-
 		print "BMI:", bmi
 		print "low:", low, "kg"
 		print "hi :", high, "kg"
+
 	#--------------------------------------------------------
 	def test_test_panel():
 		tp = cTestPanel(aPK_obj = 1)
 		print tp
+		print tp.test_types
 		print tp.format()
+
 	#--------------------------------------------------------
 	def test_get_most_recent_results_for_panel():
-		#tp = cTestPanel(aPK_obj = 1)
-		tp = cTestPanel(aPK_obj = 3)
+		tp = cTestPanel(aPK_obj = 1)
+		#print tp.included_loincs
+		#tp = cTestPanel(aPK_obj = 3)
 		print tp.format()
 		#most_recent = tp.get_most_recent_results(pk_patient = 12, group_by_meta_type = False)
-		most_recent = tp.get_most_recent_results(pk_patient = 138, group_by_meta_type = False)
-		print len(most_recent)
-		#most_recent = tp.get_most_recent_results(pk_patient = 12, group_by_meta_type = True)
-		most_recent = tp.get_most_recent_results(pk_patient = 138, group_by_meta_type = True)
-		print len(most_recent)
-
-		return
+		#most_recent = tp.get_most_recent_results(pk_patient = 138, group_by_meta_type = False)
+		#print len(most_recent)
+		most_recent = tp.get_most_recent_results(pk_patient = 12, group_by_meta_type = True)
+		#most_recent = tp.get_most_recent_results(pk_patient = 138, group_by_meta_type = True)
+		print 'found:', len(most_recent)
 
 		for t in most_recent:
 			print '--------------'

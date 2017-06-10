@@ -32,6 +32,7 @@ IMPROVED: email sending framework
 IMPROVED: export area change signalling
 IMPROVED: test results usability
 IMPROVED: vaccine handling
+IMPROVED: test panels now LOINC based
 
 ------------------------------------------------
 # rel-1-6-patches
