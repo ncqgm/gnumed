@@ -2308,10 +2308,8 @@ INSERT INTO dem.names (
 def disable_identity(pk_identity):
 	_log.info('disabling identity [%s]', pk_identity)
 	cmd = u"UPDATE dem.identity SET deleted = true WHERE pk = %(pk)s"
-	args = {'pk': identity['pk_identity']}
-	gmPG2.run_rw_queries(queries = [
-		{'cmd': cmd, 'args': args}
-	])
+	args = {'pk': pk_identity}
+	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 	return True
 
 #============================================================
