@@ -3924,27 +3924,63 @@ class cTestPanelEAPnl(wxgTestPanelEAPnl.wxgTestPanelEAPnl, gmEditArea.cGenericEd
 		wxgTestPanelEAPnl.wxgTestPanelEAPnl.__init__(self, *args, **kwargs)
 		gmEditArea.cGenericEditAreaMixin.__init__(self)
 
-		self._test_types = None
+		self.__loincs = None
 
 		self.mode = 'new'
 		self.data = data
 		if data is not None:
 			self.mode = 'edit'
 
-		#self.__init_ui()
+		self.__init_ui()
+
 	#----------------------------------------------------------------
-#	def __init_ui(self):
-#		# adjust phrasewheels etc
+	def __init_ui(self):
+		self._LCTRL_loincs.set_columns([_(u'LOINC'), _(u'Term'), _(u'Units')])
+		self._LCTRL_loincs.set_column_widths(widths = [wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE])
+		#self._LCTRL_loincs.set_resize_column(column = 2)
+		self._LCTRL_loincs.delete_callback = self._remove_loincs_from_list
+		self.__refresh_loinc_list()
+
+		self._PRW_loinc.final_regex = r'.*'
+		self._PRW_loinc.add_callback_on_selection(callback = self._on_loinc_selected)
+
+	#----------------------------------------------------------------
+	def __refresh_loinc_list(self):
+		self._LCTRL_loincs.remove_items_safely()
+		if self.__loincs is None:
+			if self.data is None:
+				return
+			self.__loincs = self.data['loincs']
+
+		items = []
+		for loinc in self.__loincs:
+			loinc_detail = gmLOINC.loinc2data(loinc = loinc)
+			if len(loinc_detail) == 0:
+				items.append([loinc, _(u'code not found'), u''])
+				continue
+			items.append ([
+				loinc,
+				loinc_detail['term'],
+				gmTools.coalesce(loinc_detail['example_units'], u'', u'%s')
+			])
+
+		self._LCTRL_loincs.set_string_items(items)
+		self._LCTRL_loincs.set_column_widths()
+
 	#----------------------------------------------------------------
 	# generic Edit Area mixin API
 	#----------------------------------------------------------------
 	def _valid_for_save(self):
 		validity = True
 
-		if self._test_types is None:
-			validity = False
-			gmDispatcher.send(signal = 'statustext', msg = _('No test types selected.'))
-			self._BTN_select_tests.SetFocus()
+		if self.__loincs is None:
+			if self.data is not None:
+				self.__loincs = self.data['loincs']
+
+		if self.__loincs is None:
+			# not fatal despite panel being useless
+			self.status_message = _('No LOINC codes selected.')
+			self._PRW_loinc.SetFocus()
 
 		if self._TCTRL_description.GetValue().strip() == u'':
 			validity = False
@@ -3954,75 +3990,109 @@ class cTestPanelEAPnl(wxgTestPanelEAPnl.wxgTestPanelEAPnl, gmEditArea.cGenericEd
 			self.display_tctrl_as_valid(tctrl = self._TCTRL_description, valid = True)
 
 		return validity
+
 	#----------------------------------------------------------------
 	def _save_as_new(self):
 		data = gmPathLab.create_test_panel(description = self._TCTRL_description.GetValue().strip())
 		data['comment'] = self._TCTRL_comment.GetValue().strip()
-		data['pk_test_types'] = [ tt['pk_test_type'] for tt in self._test_types ]
 		data.save()
-		data.generic_codes = [ c['data'] for c in self._PRW_codes.GetData() ]
+		if self.__loincs is not None:
+			data.included_loincs = self.__loincs
 		self.data = data
 		return True
+
 	#----------------------------------------------------------------
 	def _save_as_update(self):
 		self.data['description'] = self._TCTRL_description.GetValue().strip()
 		self.data['comment'] = self._TCTRL_comment.GetValue().strip()
-		self.data['pk_test_types'] = [ tt['pk_test_type'] for tt in self._test_types ]
 		self.data.save()
-		self.data.generic_codes = [ c['data'] for c in self._PRW_codes.GetData() ]
+		if self.__loincs is not None:
+			self.data.included_loincs = self.__loincs
 		return True
-	#----------------------------------------------------------------
-	def __refresh_test_types_field(self, test_types=None):
-		self._TCTRL_tests.SetValue(u'')
-		self._test_types = test_types
-		if self._test_types is None:
-			return
-		tmp = u';\n'.join ([
-			u'%s: %s%s' % (
-				t['unified_abbrev'],
-				t['unified_name'],
-				gmTools.coalesce(t['name_org'], u'', u' (%s)')
-			)
-			for t in self._test_types
-		])
-		self._TCTRL_tests.SetValue(tmp)
+
 	#----------------------------------------------------------------
 	def _refresh_as_new(self):
 		self._TCTRL_description.SetValue(u'')
 		self._TCTRL_comment.SetValue(u'')
-		self.__refresh_test_types_field()
-		self._PRW_codes.SetText()
+		self._PRW_loinc.SetText(u'', None)
+		self._LBL_loinc.SetLabel(u'')
+		self.__loincs = None
+		self.__refresh_loinc_list()
 
 		self._TCTRL_description.SetFocus()
+
 	#----------------------------------------------------------------
 	def _refresh_as_new_from_existing(self):
 		self._refresh_as_new()
-		self.__refresh_test_types_field(test_types = self.data.test_types)
+
 	#----------------------------------------------------------------
 	def _refresh_from_existing(self):
 		self._TCTRL_description.SetValue(self.data['description'])
 		self._TCTRL_comment.SetValue(gmTools.coalesce(self.data['comment'], u''))
-		self.__refresh_test_types_field(test_types = self.data.test_types)
-		val, data = self._PRW_codes.generic_linked_codes2item_dict(self.data.generic_codes)
-		self._PRW_codes.SetText(val, data)
+		self._PRW_loinc.SetText(u'', None)
+		self._LBL_loinc.SetLabel(u'')
+		self.__loincs = self.data['loincs']
+		self.__refresh_loinc_list()
 
-		self._BTN_select_tests.SetFocus()
+		self._PRW_loinc.SetFocus()
+
 	#----------------------------------------------------------------
-	def _on_select_tests_button_pressed(self, event):
-		desc = self._TCTRL_description.GetValue().strip()
-		if desc == u'':
-			desc = None
-		picked = pick_measurement_types (
-			parent = self,
-			msg = _('Pick the measurement types for this panel.'),
-			right_column = desc,
-			picks = self._test_types
-		)
-		if picked is None:
+	# event handlers
+	#----------------------------------------------------------------
+	def _on_loinc_selected(self, loinc):
+		loinc = self._PRW_loinc.GetData()
+		if loinc is None:
+			self._LBL_loinc.SetLabel(u'')
 			return
-		if len(picked) == 0:
-			picked = None
-		self.__refresh_test_types_field(test_types = picked)
+		loinc_detail = gmLOINC.loinc2data(loinc = loinc)
+		if len(loinc_detail) == 0:
+			loinc_str = _('no LOINC details found')
+		else:
+			loinc_str = u'%s: %s%s' % (
+				loinc,
+				loinc_detail['term'],
+				gmTools.coalesce(loinc_detail['example_units'], u'', u' (%s)')
+			)
+		self._LBL_loinc.SetLabel(loinc_str)
+
+	#----------------------------------------------------------------
+	def _on_add_loinc_button_pressed(self, event):
+		event.Skip()
+
+		loinc = self._PRW_loinc.GetData()
+		if loinc is None:
+			loinc = self._PRW_loinc.GetValue().strip()
+		if loinc.strip() == u'':
+			return
+
+		if self.__loincs is None:
+			self.__loincs = [loinc]
+		else:
+			if loinc in self.__loincs:
+				return
+			self.__loincs.append(loinc)
+
+		self.__refresh_loinc_list()
+		self._PRW_loinc.SetText(u'', None)
+		self._LBL_loinc.SetLabel(u'')
+
+	#----------------------------------------------------------------
+	def _on_remove_loinc_button_pressed(self, event):
+		event.Skip()
+		self._remove_loincs_from_list()
+
+	#----------------------------------------------------------------
+	def _remove_loincs_from_list(self):
+		loincs2remove = self._LCTRL_loincs.selected_item_data
+		if loincs2remove is None:
+			return
+		for loinc in loincs2remove:
+			try:
+				while True:
+					self.__loincs.remove(loinc[0])
+			except ValueError:
+				pass
+		self.__refresh_loinc_list()
 
 #================================================================
 # main

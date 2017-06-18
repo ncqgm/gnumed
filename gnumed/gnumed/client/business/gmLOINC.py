@@ -45,6 +45,15 @@ LOINC_heart_rate_quantity = ['8867-4', '67129-7', '40443-4', '69000-8', '69001-6
 LOINC_inr_quantity = ['34714-6', '46418-0', '6301-6', '38875-1']
 
 #============================================================
+def loinc2data(loinc):
+	cmd = u'SELECT * FROM ref.loinc WHERE code = %(loinc)s'
+	args = {'loinc': loinc}
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+	if len(rows) == 0:
+		return []
+	return rows[0]
+
+#============================================================
 def loinc2term(loinc=None):
 
 	# NOTE: will return [NULL] on no-match due to the coalesce()

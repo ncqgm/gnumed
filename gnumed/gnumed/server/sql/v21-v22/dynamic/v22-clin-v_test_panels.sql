@@ -22,6 +22,11 @@ select
 	c_tp.comment,
 	c_tp.modified_when,
 	c_tp.modified_by,
+	coalesce (
+		(select array_agg(c_ll2tp.loinc) from clin.lnk_loinc2test_panel c_ll2tp where c_ll2tp.fk_test_panel = c_tp.pk),
+		ARRAY[]::text[]
+	)
+		as loincs,
 	ARRAY (
 		select row_to_json(test_type_row) from (
 			select
@@ -32,6 +37,8 @@ select
 					as pk_meta_test_type
 			from clin.lnk_loinc2test_panel c_ll2tp
 				inner join clin.test_type c_tt on (c_ll2tp.loinc = c_tt.loinc)
+			where
+				c_ll2tp.fk_test_panel = c_tp.pk
 		) as test_type_row
 	)
 		as test_types,

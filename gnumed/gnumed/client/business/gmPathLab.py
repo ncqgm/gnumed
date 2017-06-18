@@ -284,23 +284,27 @@ class cTestPanel(gmBusinessDBObject.cBusinessDBObject):
 
 	#--------------------------------------------------------
 	def _get_included_loincs(self):
-		return [ tt['loinc'] for tt in self._payload[self._idx['test_types']] ]
+		return self._payload[self._idx['loincs']]
 
 	def _set_included_loincs(self, loincs):
 		queries = []
 		# remove those which don't belong
-		cmd = u'DELETE FROM clin.lnk_loinc2test_panel WHERE loinc NOT IN %(loincs)s'
-		queries.append({'cmd': cmd, 'args': {'loincs': tuple(loincs)}})
+		if len(loincs) == 0:
+			cmd = u'DELETE FROM clin.lnk_loinc2test_panel WHERE fk_test_panel = %(pk_pnl)s'
+		else:
+			cmd = u'DELETE FROM clin.lnk_loinc2test_panel WHERE fk_test_panel = %(pk_pnl)s AND loinc NOT IN %(loincs)s'
+		queries.append({'cmd': cmd, 'args': {'loincs': tuple(loincs), 'pk_pnl': self._payload[self._idx['pk_test_panel']]}})
 		# add those not there yet
-		for loinc in loincs:
-			cmd = u"""INSERT INTO clin.lnk_loinc2test_panel (fk_test_panel, loinc)
-			SELECT %(pk_pnl)s, %(loinc)s WHERE NOT EXISTS (
-				SELECT 1 FROM clin.lnk_loinc2test_panel WHERE
-					fk_test_panel = %(pk_pnl)s
-						AND
-					loinc = %(loinc)s
-			)"""
-			queries.append({'cmd': cmd, 'args': {'loinc': loinc, 'pk_pnl': self._payload[self._idx['pk_test_panel']]}})
+		if len(loincs) > 0:
+			for loinc in loincs:
+				cmd = u"""INSERT INTO clin.lnk_loinc2test_panel (fk_test_panel, loinc)
+				SELECT %(pk_pnl)s, %(loinc)s WHERE NOT EXISTS (
+					SELECT 1 FROM clin.lnk_loinc2test_panel WHERE
+						fk_test_panel = %(pk_pnl)s
+							AND
+						loinc = %(loinc)s
+				)"""
+				queries.append({'cmd': cmd, 'args': {'loinc': loinc, 'pk_pnl': self._payload[self._idx['pk_test_panel']]}})
 		return gmPG2.run_rw_queries(queries = queries)
 
 	included_loincs = property(_get_included_loincs, _set_included_loincs)
@@ -314,8 +318,10 @@ class cTestPanel(gmBusinessDBObject.cBusinessDBObject):
 
 		rows, idx = gmPG2.run_ro_queries (
 			queries = [{
-				'cmd': _SQL_get_test_types % u'loinc IN %(loincs)s ORDER BY unified_abbrev',
-				'args': {'loincs': tuple([ tt['loinc'] for tt in self._payload[self._idx['test_types']] ] )}
+				#'cmd': _SQL_get_test_types % u'loinc IN %(loincs)s ORDER BY unified_abbrev',
+				#'args': {'loincs': tuple(self._payload[self._idx['loincs']])}
+				'cmd': _SQL_get_test_types % u'pk_test_type IN %(pks)s ORDER BY unified_abbrev',
+				'args': {'pks': tuple([ tt['pk_test_type'] for tt in self._payload[self._idx['test_types']] ])}
 			}],
 			get_col_idx = True
 		)
