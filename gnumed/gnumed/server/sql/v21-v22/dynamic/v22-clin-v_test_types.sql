@@ -8,6 +8,10 @@
 \set ON_ERROR_STOP 1
 
 -- --------------------------------------------------------------
+drop index if exists clin.idx_test_type_loinc cascade;
+create index idx_test_type_loinc on clin.test_type(loinc) where (loinc is not null);
+
+-- --------------------------------------------------------------
 drop view if exists clin.v_test_types cascade;
 
 
