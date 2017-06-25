@@ -122,13 +122,13 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 _SQL_create_vacc_subst_dose = u"""-- create dose, assumes substance exists
 INSERT INTO ref.dose (fk_substance, amount, unit, dose_unit)
 	SELECT
-		(SELECT pk FROM ref.substance WHERE atc = '%(atc_subst)s' LIMIT 1),
+		(SELECT pk FROM ref.substance WHERE atc = '%(atc_subst)s' AND description = '%(name_subst)s' LIMIT 1),
 		1,
 		'dose',
 		'shot'
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.dose WHERE
-			fk_substance = (SELECT pk FROM ref.substance WHERE atc = '%(atc_subst)s' LIMIT 1)
+			fk_substance = (SELECT pk FROM ref.substance WHERE atc = '%(atc_subst)s' AND description = '%(name_subst)s' LIMIT 1)
 				AND
 			amount = 1
 				AND
@@ -141,13 +141,13 @@ _SQL_link_dose2vacc_prod = u"""-- link dose to product
 INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 	SELECT
 		(SELECT pk from ref.dose WHERE
-					fk_substance = (SELECT pk FROM ref.substance WHERE atc = '%(atc_subst)s' LIMIT 1)
-						AND
-					amount = 1
-						AND
-					unit = 'dose'
-						AND
-					dose_unit IS NOT DISTINCT FROM 'shot'
+			fk_substance = (SELECT pk FROM ref.substance WHERE atc = '%(atc_subst)s' AND description = '%(name_subst)s' LIMIT 1)
+				AND
+			amount = 1
+				AND
+			unit = 'dose'
+				AND
+			dose_unit IS NOT DISTINCT FROM 'shot'
 		),
 		(SELECT pk FROM ref.drug_product WHERE
 			description = '%(prod_name)s'
@@ -162,7 +162,7 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 		SELECT 1 FROM ref.lnk_dose2drug WHERE
 			fk_dose = (
 				SELECT PK from ref.dose WHERE
-					fk_substance = (SELECT pk FROM ref.substance WHERE atc = '%(atc_subst)s' LIMIT 1)
+					fk_substance = (SELECT pk FROM ref.substance WHERE atc = '%(atc_subst)s' AND description = '%(name_subst)s' LIMIT 1)
 						AND
 					amount = 1
 						AND
@@ -360,6 +360,7 @@ def create_generic_vaccine_sql(version, include_indications_mapping=False):
 		for ingredient_tag in vaccine_def['ingredients']:
 			vacc_subst_def = gmVaccDefs._VACCINE_SUBSTANCES[ingredient_tag]
 			args['atc_subst'] = vacc_subst_def['atc4target']
+			args['name_subst'] = vacc_subst_def['name']
 			# substance already created, only need to create dose
 			sql_create_vaccines.append(_SQL_create_vacc_subst_dose % args)
 			# link dose to product
