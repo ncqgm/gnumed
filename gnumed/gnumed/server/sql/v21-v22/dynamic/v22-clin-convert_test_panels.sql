@@ -46,14 +46,30 @@ BEGIN
 		IF _row_test_panel.fk_test_types IS NULL THEN
 			CONTINUE;
 		END IF;
+		RAISE NOTICE ''staging.v22_convert_test_panels(): converting test panel "%" (%)'', _row_test_panel.description, _row_test_panel.pk;
 		-- loop over test types
 		FOREACH _pk_test_type IN ARRAY _row_test_panel.fk_test_types LOOP
-			SELECT loinc, name INTO STRICT _loinc, _test_name FROM clin.test_type WHERE pk = _pk_test_type;
+			RAISE NOTICE ''staging.v22_convert_test_panels(): transferring test type #%'', _pk_test_type;
+			SELECT loinc, name INTO _loinc, _test_name FROM clin.test_type WHERE pk = _pk_test_type;
+			IF FOUND IS FALSE THEN
+				RAISE NOTICE ''staging.v22_convert_test_panels(): test type on panel but does not exist anymore, skipping'';
+				CONTINUE;
+			END IF;
 			IF _loinc IS NULL THEN
 				_loinc := ''pseudo LOINC ['' || _test_name || ''::'' || _pk_test_type || ''] (v21->v22 test panel conversion)'';
+				RAISE NOTICE ''staging.v22_convert_test_panels(): generated pseudo LOINC for "%": %'', _test_name, _loinc;
 				UPDATE clin.test_type SET loinc = _loinc WHERE pk = _pk_test_type;
 			END IF;
-			INSERT INTO clin.lnk_loinc2test_panel (fk_test_panel, loinc) VALUES (_row_test_panel.pk, _loinc);
+			INSERT INTO clin.lnk_loinc2test_panel (fk_test_panel, loinc)
+				SELECT
+					_row_test_panel.pk, _loinc
+				WHERE NOT EXISTS (
+					SELECT 1 FROM clin.lnk_loinc2test_panel
+					WHERE
+						fk_test_panel = _row_test_panel.pk
+							AND
+						loinc = _loinc
+				);
 		END LOOP;
 	END LOOP;
 
