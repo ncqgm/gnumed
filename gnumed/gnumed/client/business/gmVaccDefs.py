@@ -34,166 +34,166 @@ _VACCINE_SUBSTANCES = {
 
 	'anthrax': {
 		'name': u'bacillus anthracis antigen',
-		'atc': u'J07AC01',
+		'atc4target': u'J07AC01',
 		'target': _(u'J07AC01-target::anthrax'),
 		'v21_indications': [u'bacillus anthracis (Anthrax)']
 	},
 
 	'brucellosis': {
 		'name': u'brucella antigen',
-		'atc': u'J07AD01',
+		'atc4target': u'J07AD01',
 		'target': _(u'J07AD01-target::brucellosis')
 	},
 
 	'cholera': {
 		'name': u'cholera, inactivated',
-		'atc': u'J07AE01',
-		'target': _(u'J07AE01-target::cholera'),
+		'atc4target': u'J07AE0',
+		'target': _(u'J07AE0-target::cholera'),
 		'v21_indications': [u'cholera']
 	},
 	'cholera-live': {
 		'name': u'cholera, live, attenuated',
-		'atc': u'J07AE02',
-		'target': _(u'J07AE02-target::cholera'),
+		'atc4target': u'J07AE0',
+		'target': _(u'J07AE0-target::cholera'),
 		'v21_indications_live': [u'cholera']
 	},
 
 	'diphtheria': {
 		'name': u'diphtheria toxoid',
-		'atc': u'J07AF01',
+		'atc4target': u'J07AF01',
 		'target': _(u'J07AF01-target::diphtheria'),
 		'v21_indications': [u'diphtheria']
 	},
 
 	'HiB': {
 		'name': u'hemophilus influenzae B antigen',
-		'atc': u'J07AG01',
+		'atc4target': u'J07AG01',
 		'target': _(u'J07AG01-target::HiB'),
 		'v21_indications': [u'haemophilus influenzae b']
 	},
 
 	'menA': {
 		'name': u'meningococcus A antigen',
-		'atc': u'J07AH01',
+		'atc4target': u'J07AH01',
 		'target': _(u'J07AH01-target::meningococcus A'),
 		'v21_indications': [u'meningococcus A']
 	},
-	'menA-conj': {
-		'name': u'meningococcus A antigen, conjugated',
-		'atc': u'J07AH10',
-		'target': _(u'J07AH10-target::meningococcus A')
-	},
+#	'menA-conj': {
+#		'name': u'meningococcus A antigen, conjugated',
+#		'atc4target': u'J07AH10',
+#		'target': _(u'J07AH10-target::meningococcus A')
+#	},
 	'menBmem': {
 		'name': u'meningococcus B membrane',
-		'atc': u'J07AH06',
+		'atc4target': u'J07AH06',
 		'target': _(u'J07AH06-target::meningococcus B')
 	},
-	'menBmulti': {
-		'name': u'meningococcus B multicomponent',
-		'atc': u'J07AH09',
-		'target': _(u'J07AH09-target::meningococcus B'),
-	},
+#	'menBmulti': {
+#		'name': u'meningococcus B multicomponent',
+#		'atc4target': u'J07AH09',
+#		'target': _(u'J07AH09-target::meningococcus B'),
+#	},
 	'menC': {
 		'name': u'meningococcus C antigen',
-		'atc': u'J07AH07',
+		'atc4target': u'J07AH07',
 		'target': _(u'J07AH07-target::meningococcus C'),
 		'v21_indications': [u'meningococcus C']
 	},
 	'menY': {		# fake
 		'name': u'meningococcus Y antigen',
-		'atc': u'J07AH0Y',
+		'atc4target': u'J07AH0Y',
 		'target': _(u'J07AH0Y-target::meningococcus Y'),
 		'v21_indications': [u'meningococcus Y']
 	},
 	'menW': {		# fake
 		'name': u'meningococcus W-135 antigen',
-		'atc': u'J07AH0W',
+		'atc4target': u'J07AH0W',
 		'target': _(u'J07AH0W-target::meningococcus W'),
 		'v21_indications': [u'meningococcus W']
 	},
 
 	'pertussis': {		# fake
 		'name': u'pertussis',
-		'atc': u'J07AJ0',
+		'atc4target': u'J07AJ0',
 		'target': _(u'J07AJ0-target::pertussis'),
 		'v21_indications': [u'pertussis']
 	},
-	'pertussis-inactivated': {
-		'name': u'pertussis, inactivated',
-		'atc': u'J07AJ01',
-		'target': _(u'J07AJ01-target::pertussis')
-	},
-	'pertussis-antigen': {
-		'name': u'pertussis, antigen',
-		'atc': u'J07AJ02',
-		'target': _(u'J07AJ02-target::pertussis')
-	},
+#	'pertussis-inactivated': {
+#		'name': u'pertussis, inactivated',
+#		'atc4target': u'J07AJ01',
+#		'target': _(u'J07AJ01-target::pertussis')
+#	},
+#	'pertussis-antigen': {
+#		'name': u'pertussis, antigen',
+#		'atc4target': u'J07AJ02',
+#		'target': _(u'J07AJ02-target::pertussis')
+#	},
 
 	'plague': {
 		'name': u'yersinia pestis, inactivated',
-		'atc': u'J07AK01',
+		'atc4target': u'J07AK01',
 		'target': _(u'J07AK01-target::plague'),
 		'v21_indications': [u'yersinia pestis']
 	},
 
 	'pneumococcus': {
 		'name': u'pneumococcus antigen',
-		'atc': u'J07AL01',
-		'target': _(u'J07AL01-target::pneumococcus'),
+		'atc4target': u'J07AL0',
+		'target': _(u'J07AL0-target::pneumococcus'),
 		'v21_indications': [u'pneumococcus']
 	},
-	'pneumococcus-conjugated': {
-		'name': u'pneumococcus antigen, conjugated',
-		'atc': u'J07AL02',
-		'target': _(u'J07AL02-target::pneumococcus'),
-	},
+#	'pneumococcus-conjugated': {
+#		'name': u'pneumococcus antigen, conjugated',
+#		'atc4target': u'J07AL02',
+#		'target': _(u'J07AL02-target::pneumococcus'),
+#	},
 
 	'tetanus': {
 		'name': u'tetanus toxoid',
-		'atc': u'J07AM01',
+		'atc4target': u'J07AM01',
 		'target': _(u'J07AM01-target::tetanus'),
 		'v21_indications': [u'tetanus']
 	},
 
 	'tbc-live': {
 		'name': u'tuberculosis, live, attenuated',
-		'atc': u'J07AN01',
+		'atc4target': u'J07AN01',
 		'target': _(u'J07AN01-target::tbc'),
 		'v21_indications_live': [u'tuberculosis']
 	},
 
 	'salmo-live': {
 		'name': u'salmonella typhi, live, attenuated',
-		'atc': u'J07AP01',
-		'target': _(u'J07AP01-target::typhoid'),
+		'atc4target': u'J07AP0',
+		'target': _(u'J07AP0-target::typhoid'),
 		'v21_indications_live': [u'salmonella typhi (typhoid)']
 	},
 	'salmo-inact': {
 		'name': u'salmonella typhi, inactivated',
-		'atc': u'J07AP02',
-		'target': _(u'J07AP02-target::typhoid')
+		'atc4target': u'J07AP0',
+		'target': _(u'J07AP0-target::typhoid')
 	},
-	'salmo-antigen': {
-		'name': u'salmonella typhi antigen',
-		'atc': u'J07AP03',
-		'target': _(u'J07AP03-target::typhoid')
-	},
+#	'salmo-antigen': {
+#		'name': u'salmonella typhi antigen',
+#		'atc4target': u'J07AP03',
+#		'target': _(u'J07AP03-target::typhoid')
+#	},
 	'salmo-typh+ent': {
 		'name': u'salmonella typhi, enterica',
-		'atc': u'J07AP10',
-		'target': _(u'J07AP10-target::typhoid, paratyphus'),
+		'atc4target': u'J07AP1',
+		'target': _(u'J07AP1-target::typhoid, paratyphus'),
 		'v21_indications': [u'salmonella typhi (typhoid)']
 	},
 
 	'typh-exanth': {
 		'name': u'rickettsia prowazekii, inactivated',
-		'atc': u'J07AR01',
+		'atc4target': u'J07AR01',
 		'target': _(u'J07AR01-target::typhus exanthematicus')
 	},
 
 	'qfever': {		# fake
 		'name': u'coxiella burnetii',
-		'atc': u'J07AXQF',
+		'atc4target': u'J07AXQF',
 		'target': _(u'J07AXQF-target::Q fever'),
 		'v21_indications': [u'coxiella burnetii (Q fever)']
 	},
@@ -202,157 +202,158 @@ _VACCINE_SUBSTANCES = {
 
 	'fsme': {
 		'name': u'flavivirus, tick-borne',
-		'atc': u'J07BA01',
+		'atc4target': u'J07BA01',
 		'target': _(u'J07BA01-target::tick-borne encephalitis'),
 		'v21_indications': [u'tick-borne meningoencephalitis']
 	},
 
 	'japEnc': {
 		'name': u'flavivirus, japanese',
-		'atc': u'J07BA02',
-		'target': _(u'J07BA02-target::japanese encephalitis'),
+		'atc4target': u'J07BA0J',		# fake
+		'target': _(u'J07BA0J-target::japanese encephalitis'),
 		'v21_indications': [u'japanese B encephalitis']
 	},
 	'japEnc-live': {
-		'name': u'flavivirus, live, attenuated',
-		'atc': u'J07BA03',
-		'target': _(u'J07BA03-target::japanese encephalitis'),
+		'name': u'flavivirus, japanese, live, attenuated',
+		'atc4target': u'J07BA0J',		# fake
+		'target': _(u'J07BA0J-target::japanese encephalitis'),
 		'v21_indications_live': [u'japanese B encephalitis']
 	},
 
 	'influ-inact': {
 		'name': u'influenza, inactivated',
-		'atc': u'J07BB01',
-		'target': _(u'J07BB01-target::influenza'),
+		'atc4target': u'J07BB0',
+		'target': _(u'J07BB0-target::influenza'),
 		'v21_indications': [u'influenza (seasonal)', u'influenza (H3N2)', u'influenza (H1N1)']
 	},
-	'influ-inact-surf': {
-		'name': u'influenza, inactivated, surface',
-		'atc': u'J07BB02',
-		'target': _(u'J07BB02-target::influenza')
-	},
+#	'influ-inact-surf': {
+#		'name': u'influenza, inactivated, surface',
+#		'atc4target': u'J07BB0',
+#		'target': _(u'J07BB0-target::influenza')
+#	},
 	'influ-live': {
 		'name': u'influenza, live, attenuated',
-		'atc': u'J07BB03',
-		'target': _(u'J07BB03-target::influenza'),
+		'atc4target': u'J07BB0',
+		'target': _(u'J07BB0-target::influenza'),
 		'v21_indications_live': [u'influenza (seasonal)', u'influenza (H3N2)', u'influenza (H1N1)']
 	},
 
 	'hepB': {
 		'name': u'hepatitis B antigen',
-		'atc': u'J07BC01',
+		'atc4target': u'J07BC01',
 		'target': _(u'J07BC01-target::hepatitis B'),
 		'v21_indications': [u'hepatitis B']
 	},
+
 	'hepA-inact': {
 		'name': u'hepatitis A, inactivated',
-		'atc': u'J07BC02',
-		'target': _(u'J07BC02-target::hepatitis A'),
+		'atc4target': u'J07BC0',	# 02
+		'target': _(u'J07BC0-target::hepatitis A'),
 		'v21_indications': [u'hepatitis A']
 	},
-	'hepA-antig': {
-		'name': u'hepatitis A antigen',
-		'atc': u'J07BC03',
-		'target': _(u'J07BC03-target::hepatitis A')
-	},
+#	'hepA-antig': {
+#		'name': u'hepatitis A antigen',
+#		'atc4target': u'J07BC0', # 03
+#		'target': _(u'J07BC0-target::hepatitis A')
+#	},
 
 	'measles-live': {
 		'name': u'measles, live, attenuated',
-		'atc': u'J07BD01',
+		'atc4target': u'J07BD01',
 		'target': _(u'J07BD01-target::measles'),
 		'v21_indications_live': [u'measles']
 	},
 
 	'mumps-live': {
 		'name': u'mumps, live, attenuated',
-		'atc': u'J07BE01',
+		'atc4target': u'J07BE01',
 		'target': _(u'J07BE01-target::mumps'),
 		'v21_indications_live': [u'mumps']
 	},
 
 	'polio-live': {
 		'name': u'poliomyelitis, live, attenuated',
-		'atc': u'J07BF01',
-		'target': _(u'J07BF01-target::poliomyelitis'),
+		'atc4target': u'J07BF0',	# 01
+		'target': _(u'J07BF0-target::poliomyelitis'),
 		'v21_indications_live': [u'poliomyelitis']
 	},
 	'polio-inact': {
 		'name': u'poliomyelitis, inactivated',
-		'atc': u'J07BF03',
-		'target': _(u'J07BF03-target::poliomyelitis'),
+		'atc4target': u'J07BF0',
+		'target': _(u'J07BF0-target::poliomyelitis'),
 		'v21_indications': [u'poliomyelitis']
 	},
 
 	'rabies': {
 		'name': u'rabies, inactivated',
-		'atc': u'J07BG01',
+		'atc4target': u'J07BG01',
 		'target': _(u'J07BG01-target::rabies'),
 		'v21_indications': [u'rabies']
 	},
 
 	'rota-live-atten': {
 		'name': u'rotavirus, live, attenuated',
-		'atc': u'J07BH01',
-		'target': _(u'J07BH01-target::rotavirus diarrhea')
+		'atc4target': u'J07BH0',		# 01
+		'target': _(u'J07BH0-target::rotavirus diarrhea')
 	},
-	'rota-live': {
-		'name': u'rotavirus, live',
-		'atc': u'J07BH02',
-		'target': _(u'J07BH02-target::rotavirus diarrhea'),
-		'v21_indications_live': [u'rotavirus']
-	},
+#	'rota-live': {
+#		'name': u'rotavirus, live',
+#		'atc4target': u'J07BH0',		# 02
+#		'target': _(u'J07BH0-target::rotavirus diarrhea'),
+#		'v21_indications_live': [u'rotavirus']
+#	},
 
 	'rubella-live': {
 		'name': u'rubella, live',
-		'atc': u'J07BJ01',
+		'atc4target': u'J07BJ01',
 		'target': _(u'J07BJ01-target::rubella'),
 		'v21_indications_live': [u'rubella']
 	},
 
 	'chickenpox-live': {
 		'name': u'herpes virus (chickenpox), live',
-		'atc': u'J07BK01',
-		'target': _(u'J07BK01-target::varicella (chickenpox)'),
+		'atc4target': u'J07BK0',	# 01
+		'target': _(u'J07BK0-target::varicella (chickenpox)'),
 		'v21_indications_live': [u'varicella (chickenpox, shingles)']
 	},
 	'shingles-live': {
 		'name': u'herpes virus (shingles), live',
-		'atc': u'J07BK02',
-		'target': _(u'J07BK02-target::zoster (shingles)')
+		'atc4target': u'J07BK0',	# 02
+		'target': _(u'J07BK0-target::zoster (shingles)')
 	},
 
 	'yellow_fever-live': {
 		'name': u'yellow fever virus, live',
-		'atc': u'J07BL01',
+		'atc4target': u'J07BL01',
 		'target': _(u'J07BL01-target::yellow fever'),
 		'v21_indications_live': [u'yellow fever']
 	},
 
 	'pap-generic': {		# fake
 		'name': u'papillomavirus',
-		'atc': u'J07BM0',
+		'atc4target': u'J07BM0',
 		'target': _(u'J07BM0-target::HPV'),
 		'v21_indications': [u'human papillomavirus']
 	},
 	'pap6-11-16-18': {
 		'name': u'papillomavirus 6,11,16,18',
-		'atc': u'J07BM01',
+		'atc4target': u'J07BM01',
 		'target': _(u'J07BM01-target::HPV')
 	},
 	'pap16-18': {
 		'name': u'papillomavirus 16,18',
-		'atc': u'J07BM02',
+		'atc4target': u'J07BM02',
 		'target': _(u'J07BM02-target::HPV')
 	},
 	'pap6-11-16-18-31-33-45-52-58': {
 		'name': u'papillomavirus 6,11,16,18,31,33,45,52,58',
-		'atc': u'J07BM03',
+		'atc4target': u'J07BM03',
 		'target': _(u'J07BM03-target::HPV')
 	},
 
 	'smallpox': {
 		'name': u'variola virus, live',
-		'atc': u'J07BX01',
+		'atc4target': u'J07BX01',
 		'target': _(u'J07BX01-target::variola (smallpox)'),
 		'v21_indications_live': [u'variola virus (smallpox)']
 	}
@@ -381,13 +382,13 @@ _GENERIC_VACCINES = {
 
 	'cholera': {
 		'name': _(u'generic cholera vaccine'),
-		'atc': u'J07AE',
+		'atc': u'J07AE01',
 		'live': False,
 		'ingredients': ['cholera']
 	},
 	'cholera, live': {
 		'name': _(u'generic cholera vaccine, live'),
-		'atc': u'J07AE',
+		'atc': u'J07AE02',
 		'live': True,
 		'ingredients': ['cholera-live']
 	},
@@ -408,14 +409,14 @@ _GENERIC_VACCINES = {
 
 	'meningococcus A': {
 		'name': _(u'generic meningococcus A vaccine'),
-		'atc': u'J07AH',
+		'atc': u'J07AH01',
 		'live': False,
 		# for generic vaccine do not differentiate between conjugated or not
 		'ingredients': ['menA']
 	},
 	'meningococcus B': {
 		'name': _(u'generic meningococcus B vaccine'),
-		'atc': u'J07AH',
+		'atc': u'J07AH06',
 		'live': False,
 		# do not differentiate membrane vs multicomponent in generic vaccine
 		'ingredients': ['menBmem']
@@ -429,7 +430,7 @@ _GENERIC_VACCINES = {
 
 	'pertussis': {
 		'name': _(u'generic pertussis vaccine'),
-		'atc': u'J07AJ',
+		'atc': u'J07AJ01',
 		'live': False,
 		'ingredients': ['pertussis']
 	},
@@ -443,7 +444,7 @@ _GENERIC_VACCINES = {
 
 	'pneumococcus': {
 		'name': _(u'generic pneumococcus vaccine'),
-		'atc': u'J07AL',
+		'atc': u'J07AL0',
 		'live': False,
 		# for generic vaccine do not differentiate between conjugated or not
 		'ingredients': ['pneumococcus']
@@ -465,13 +466,13 @@ _GENERIC_VACCINES = {
 
 	'typhoid': {
 		'name': _(u'generic typhoid vaccine'),
-		'atc': u'J07AP',
+		'atc': u'J07AP02',
 		'live': False,
 		'ingredients': ['salmo-inact']
 	},
 	'typhoid, live': {
 		'name': _(u'generic typhoid vaccine, live'),
-		'atc': u'J07AP',
+		'atc': u'J07AP01',
 		'live': True,
 		'ingredients': ['salmo-live']
 	},
@@ -507,7 +508,7 @@ _GENERIC_VACCINES = {
 
 	'japanese encephalitis': {
 		'name': _(u'generic japanese encephalitis vaccine'),
-		'atc': u'J07BA',
+		'atc': u'J07BA02',
 		'live': False,
 		'ingredients': ['japEnc']
 	},
@@ -520,13 +521,13 @@ _GENERIC_VACCINES = {
 
 	'influenza': {
 		'name': _(u'generic influenza vaccine'),
-		'atc': u'J07BB',
+		'atc': u'J07BB01',
 		'live': False,
 		'ingredients': ['influ-inact']
 	},
 	'influenza, live': {
 		'name': _(u'generic influenza vaccine, live'),
-		'atc': u'J07BB',
+		'atc': u'J07BB03',
 		'live': True,
 		'ingredients': ['influ-live']
 	},
@@ -561,14 +562,14 @@ _GENERIC_VACCINES = {
 
 	'poliomyelitis': {
 		'name': _(u'generic poliomyelitis vaccine'),
-		'atc': u'J07BF',
+		'atc': u'J07BF03',
 		'live': False,
 		'ingredients': ['polio-inact']
 	},
 
 	'poliomyelitis, live': {
 		'name': _(u'generic poliomyelitis vaccine, live'),
-		'atc': u'J07BF',
+		'atc': u'J07BF01',
 		'live': True,
 		'ingredients': ['polio-live']
 	},
@@ -582,7 +583,7 @@ _GENERIC_VACCINES = {
 
 	'rotavirus, live': {
 		'name': _(u'generic rotavirus vaccine, live'),
-		'atc': u'J07BH',
+		'atc': u'J07BH01',
 		'live': True,
 		'ingredients': ['rota-live-atten']
 	},
@@ -596,13 +597,13 @@ _GENERIC_VACCINES = {
 
 	'varicella': {
 		'name': _(u'generic varicella vaccine, live'),
-		'atc': u'J07BK',
+		'atc': u'J07BK01',
 		'live': True,
 		'ingredients': ['chickenpox-live']
 	},
 	'zoster': {
 		'name': _(u'generic zoster vaccine, live'),
-		'atc': u'J07BK',
+		'atc': u'J07BK02',
 		'live': True,
 		'ingredients': ['shingles-live']
 	},
@@ -858,7 +859,7 @@ if __name__ == '__main__':
 			print(u'vaccine "%s" (ATC %s)' % (vacc['name'], vacc['atc']))
 			for key in vacc['ingredients']:
 				subst = _VACCINE_SUBSTANCES[key]
-				atc = subst['atc']
+				atc = subst['atc4target']
 				print(' contains: %s (ATC %s)' % (subst['name'], atc))
 				print('  protects against: "%s" [%s]' % (_(subst['target']).lstrip(u'%s-target::' % atc), subst['target']))
 

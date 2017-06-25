@@ -71,22 +71,6 @@ FROM
 -- --------------------------------------------------------------
 -- generic vaccine "substances" (= indications)
 -- --------------------------------------------------------------
--- in case <salmo-antigen> already exists: add ATC
-UPDATE ref.substance SET atc = 'J07AP03' WHERE lower(description) = lower('salmonella typhi antigen') AND atc IS NULL;
-
-INSERT INTO ref.substance (description, atc)
-	SELECT
-		'salmonella typhi antigen',
-		'J07AP03'
-	WHERE NOT EXISTS (
-		SELECT 1 FROM ref.substance WHERE atc = 'J07AP03'
-	);
-
--- generic English
-SELECT i18n.upd_tx('en', 'J07AP03-target', 'typhoid');
--- user language, if any, fails if not set
-SELECT i18n.upd_tx('J07AP03-target', 'typhoid');
-
 -- in case <menY> already exists: add ATC
 UPDATE ref.substance SET atc = 'J07AH0Y' WHERE lower(description) = lower('meningococcus Y antigen') AND atc IS NULL;
 
@@ -95,7 +79,10 @@ INSERT INTO ref.substance (description, atc)
 		'meningococcus Y antigen',
 		'J07AH0Y'
 	WHERE NOT EXISTS (
-		SELECT 1 FROM ref.substance WHERE atc = 'J07AH0Y'
+		SELECT 1 FROM ref.substance WHERE
+			atc = 'J07AH0Y'
+				AND
+			description = 'meningococcus Y antigen'
 	);
 
 -- generic English
@@ -103,21 +90,24 @@ SELECT i18n.upd_tx('en', 'J07AH0Y-target', 'meningococcus Y');
 -- user language, if any, fails if not set
 SELECT i18n.upd_tx('J07AH0Y-target', 'meningococcus Y');
 
--- in case <menW> already exists: add ATC
-UPDATE ref.substance SET atc = 'J07AH0W' WHERE lower(description) = lower('meningococcus W-135 antigen') AND atc IS NULL;
+-- in case <yellow_fever-live> already exists: add ATC
+UPDATE ref.substance SET atc = 'J07BL01' WHERE lower(description) = lower('yellow fever virus, live') AND atc IS NULL;
 
 INSERT INTO ref.substance (description, atc)
 	SELECT
-		'meningococcus W-135 antigen',
-		'J07AH0W'
+		'yellow fever virus, live',
+		'J07BL01'
 	WHERE NOT EXISTS (
-		SELECT 1 FROM ref.substance WHERE atc = 'J07AH0W'
+		SELECT 1 FROM ref.substance WHERE
+			atc = 'J07BL01'
+				AND
+			description = 'yellow fever virus, live'
 	);
 
 -- generic English
-SELECT i18n.upd_tx('en', 'J07AH0W-target', 'meningococcus W');
+SELECT i18n.upd_tx('en', 'J07BL01-target', 'yellow fever');
 -- user language, if any, fails if not set
-SELECT i18n.upd_tx('J07AH0W-target', 'meningococcus W');
+SELECT i18n.upd_tx('J07BL01-target', 'yellow fever');
 
 -- in case <menBmem> already exists: add ATC
 UPDATE ref.substance SET atc = 'J07AH06' WHERE lower(description) = lower('meningococcus B membrane') AND atc IS NULL;
@@ -127,7 +117,10 @@ INSERT INTO ref.substance (description, atc)
 		'meningococcus B membrane',
 		'J07AH06'
 	WHERE NOT EXISTS (
-		SELECT 1 FROM ref.substance WHERE atc = 'J07AH06'
+		SELECT 1 FROM ref.substance WHERE
+			atc = 'J07AH06'
+				AND
+			description = 'meningococcus B membrane'
 	);
 
 -- generic English
@@ -143,7 +136,10 @@ INSERT INTO ref.substance (description, atc)
 		'hemophilus influenzae B antigen',
 		'J07AG01'
 	WHERE NOT EXISTS (
-		SELECT 1 FROM ref.substance WHERE atc = 'J07AG01'
+		SELECT 1 FROM ref.substance WHERE
+			atc = 'J07AG01'
+				AND
+			description = 'hemophilus influenzae B antigen'
 	);
 
 -- generic English
@@ -159,7 +155,10 @@ INSERT INTO ref.substance (description, atc)
 		'meningococcus A antigen',
 		'J07AH01'
 	WHERE NOT EXISTS (
-		SELECT 1 FROM ref.substance WHERE atc = 'J07AH01'
+		SELECT 1 FROM ref.substance WHERE
+			atc = 'J07AH01'
+				AND
+			description = 'meningococcus A antigen'
 	);
 
 -- generic English
@@ -175,7 +174,10 @@ INSERT INTO ref.substance (description, atc)
 		'tetanus toxoid',
 		'J07AM01'
 	WHERE NOT EXISTS (
-		SELECT 1 FROM ref.substance WHERE atc = 'J07AM01'
+		SELECT 1 FROM ref.substance WHERE
+			atc = 'J07AM01'
+				AND
+			description = 'tetanus toxoid'
 	);
 
 -- generic English
@@ -184,20 +186,23 @@ SELECT i18n.upd_tx('en', 'J07AM01-target', 'tetanus');
 SELECT i18n.upd_tx('J07AM01-target', 'tetanus');
 
 -- in case <polio-inact> already exists: add ATC
-UPDATE ref.substance SET atc = 'J07BF03' WHERE lower(description) = lower('poliomyelitis, inactivated') AND atc IS NULL;
+UPDATE ref.substance SET atc = 'J07BF0' WHERE lower(description) = lower('poliomyelitis, inactivated') AND atc IS NULL;
 
 INSERT INTO ref.substance (description, atc)
 	SELECT
 		'poliomyelitis, inactivated',
-		'J07BF03'
+		'J07BF0'
 	WHERE NOT EXISTS (
-		SELECT 1 FROM ref.substance WHERE atc = 'J07BF03'
+		SELECT 1 FROM ref.substance WHERE
+			atc = 'J07BF0'
+				AND
+			description = 'poliomyelitis, inactivated'
 	);
 
 -- generic English
-SELECT i18n.upd_tx('en', 'J07BF03-target', 'poliomyelitis');
+SELECT i18n.upd_tx('en', 'J07BF0-target', 'poliomyelitis');
 -- user language, if any, fails if not set
-SELECT i18n.upd_tx('J07BF03-target', 'poliomyelitis');
+SELECT i18n.upd_tx('J07BF0-target', 'poliomyelitis');
 
 -- in case <fsme> already exists: add ATC
 UPDATE ref.substance SET atc = 'J07BA01' WHERE lower(description) = lower('flavivirus, tick-borne') AND atc IS NULL;
@@ -207,7 +212,10 @@ INSERT INTO ref.substance (description, atc)
 		'flavivirus, tick-borne',
 		'J07BA01'
 	WHERE NOT EXISTS (
-		SELECT 1 FROM ref.substance WHERE atc = 'J07BA01'
+		SELECT 1 FROM ref.substance WHERE
+			atc = 'J07BA01'
+				AND
+			description = 'flavivirus, tick-borne'
 	);
 
 -- generic English
@@ -223,7 +231,10 @@ INSERT INTO ref.substance (description, atc)
 		'coxiella burnetii',
 		'J07AXQF'
 	WHERE NOT EXISTS (
-		SELECT 1 FROM ref.substance WHERE atc = 'J07AXQF'
+		SELECT 1 FROM ref.substance WHERE
+			atc = 'J07AXQF'
+				AND
+			description = 'coxiella burnetii'
 	);
 
 -- generic English
@@ -239,7 +250,10 @@ INSERT INTO ref.substance (description, atc)
 		'mumps, live, attenuated',
 		'J07BE01'
 	WHERE NOT EXISTS (
-		SELECT 1 FROM ref.substance WHERE atc = 'J07BE01'
+		SELECT 1 FROM ref.substance WHERE
+			atc = 'J07BE01'
+				AND
+			description = 'mumps, live, attenuated'
 	);
 
 -- generic English
@@ -248,100 +262,99 @@ SELECT i18n.upd_tx('en', 'J07BE01-target', 'mumps');
 SELECT i18n.upd_tx('J07BE01-target', 'mumps');
 
 -- in case <salmo-typh+ent> already exists: add ATC
-UPDATE ref.substance SET atc = 'J07AP10' WHERE lower(description) = lower('salmonella typhi, enterica') AND atc IS NULL;
+UPDATE ref.substance SET atc = 'J07AP1' WHERE lower(description) = lower('salmonella typhi, enterica') AND atc IS NULL;
 
 INSERT INTO ref.substance (description, atc)
 	SELECT
 		'salmonella typhi, enterica',
-		'J07AP10'
+		'J07AP1'
 	WHERE NOT EXISTS (
-		SELECT 1 FROM ref.substance WHERE atc = 'J07AP10'
+		SELECT 1 FROM ref.substance WHERE
+			atc = 'J07AP1'
+				AND
+			description = 'salmonella typhi, enterica'
 	);
 
 -- generic English
-SELECT i18n.upd_tx('en', 'J07AP10-target', 'typhoid, paratyphus');
+SELECT i18n.upd_tx('en', 'J07AP1-target', 'typhoid, paratyphus');
 -- user language, if any, fails if not set
-SELECT i18n.upd_tx('J07AP10-target', 'typhoid, paratyphus');
+SELECT i18n.upd_tx('J07AP1-target', 'typhoid, paratyphus');
 
 -- in case <polio-live> already exists: add ATC
-UPDATE ref.substance SET atc = 'J07BF01' WHERE lower(description) = lower('poliomyelitis, live, attenuated') AND atc IS NULL;
+UPDATE ref.substance SET atc = 'J07BF0' WHERE lower(description) = lower('poliomyelitis, live, attenuated') AND atc IS NULL;
 
 INSERT INTO ref.substance (description, atc)
 	SELECT
 		'poliomyelitis, live, attenuated',
-		'J07BF01'
+		'J07BF0'
 	WHERE NOT EXISTS (
-		SELECT 1 FROM ref.substance WHERE atc = 'J07BF01'
+		SELECT 1 FROM ref.substance WHERE
+			atc = 'J07BF0'
+				AND
+			description = 'poliomyelitis, live, attenuated'
 	);
 
 -- generic English
-SELECT i18n.upd_tx('en', 'J07BF01-target', 'poliomyelitis');
+SELECT i18n.upd_tx('en', 'J07BF0-target', 'poliomyelitis');
 -- user language, if any, fails if not set
-SELECT i18n.upd_tx('J07BF01-target', 'poliomyelitis');
+SELECT i18n.upd_tx('J07BF0-target', 'poliomyelitis');
 
 -- in case <pneumococcus> already exists: add ATC
-UPDATE ref.substance SET atc = 'J07AL01' WHERE lower(description) = lower('pneumococcus antigen') AND atc IS NULL;
+UPDATE ref.substance SET atc = 'J07AL0' WHERE lower(description) = lower('pneumococcus antigen') AND atc IS NULL;
 
 INSERT INTO ref.substance (description, atc)
 	SELECT
 		'pneumococcus antigen',
-		'J07AL01'
+		'J07AL0'
 	WHERE NOT EXISTS (
-		SELECT 1 FROM ref.substance WHERE atc = 'J07AL01'
+		SELECT 1 FROM ref.substance WHERE
+			atc = 'J07AL0'
+				AND
+			description = 'pneumococcus antigen'
 	);
 
 -- generic English
-SELECT i18n.upd_tx('en', 'J07AL01-target', 'pneumococcus');
+SELECT i18n.upd_tx('en', 'J07AL0-target', 'pneumococcus');
 -- user language, if any, fails if not set
-SELECT i18n.upd_tx('J07AL01-target', 'pneumococcus');
+SELECT i18n.upd_tx('J07AL0-target', 'pneumococcus');
 
--- in case <yellow_fever-live> already exists: add ATC
-UPDATE ref.substance SET atc = 'J07BL01' WHERE lower(description) = lower('yellow fever virus, live') AND atc IS NULL;
+-- in case <menW> already exists: add ATC
+UPDATE ref.substance SET atc = 'J07AH0W' WHERE lower(description) = lower('meningococcus W-135 antigen') AND atc IS NULL;
 
 INSERT INTO ref.substance (description, atc)
 	SELECT
-		'yellow fever virus, live',
-		'J07BL01'
+		'meningococcus W-135 antigen',
+		'J07AH0W'
 	WHERE NOT EXISTS (
-		SELECT 1 FROM ref.substance WHERE atc = 'J07BL01'
+		SELECT 1 FROM ref.substance WHERE
+			atc = 'J07AH0W'
+				AND
+			description = 'meningococcus W-135 antigen'
 	);
 
 -- generic English
-SELECT i18n.upd_tx('en', 'J07BL01-target', 'yellow fever');
+SELECT i18n.upd_tx('en', 'J07AH0W-target', 'meningococcus W');
 -- user language, if any, fails if not set
-SELECT i18n.upd_tx('J07BL01-target', 'yellow fever');
+SELECT i18n.upd_tx('J07AH0W-target', 'meningococcus W');
 
 -- in case <cholera> already exists: add ATC
-UPDATE ref.substance SET atc = 'J07AE01' WHERE lower(description) = lower('cholera, inactivated') AND atc IS NULL;
+UPDATE ref.substance SET atc = 'J07AE0' WHERE lower(description) = lower('cholera, inactivated') AND atc IS NULL;
 
 INSERT INTO ref.substance (description, atc)
 	SELECT
 		'cholera, inactivated',
-		'J07AE01'
+		'J07AE0'
 	WHERE NOT EXISTS (
-		SELECT 1 FROM ref.substance WHERE atc = 'J07AE01'
+		SELECT 1 FROM ref.substance WHERE
+			atc = 'J07AE0'
+				AND
+			description = 'cholera, inactivated'
 	);
 
 -- generic English
-SELECT i18n.upd_tx('en', 'J07AE01-target', 'cholera');
+SELECT i18n.upd_tx('en', 'J07AE0-target', 'cholera');
 -- user language, if any, fails if not set
-SELECT i18n.upd_tx('J07AE01-target', 'cholera');
-
--- in case <menA-conj> already exists: add ATC
-UPDATE ref.substance SET atc = 'J07AH10' WHERE lower(description) = lower('meningococcus A antigen, conjugated') AND atc IS NULL;
-
-INSERT INTO ref.substance (description, atc)
-	SELECT
-		'meningococcus A antigen, conjugated',
-		'J07AH10'
-	WHERE NOT EXISTS (
-		SELECT 1 FROM ref.substance WHERE atc = 'J07AH10'
-	);
-
--- generic English
-SELECT i18n.upd_tx('en', 'J07AH10-target', 'meningococcus A');
--- user language, if any, fails if not set
-SELECT i18n.upd_tx('J07AH10-target', 'meningococcus A');
+SELECT i18n.upd_tx('J07AE0-target', 'cholera');
 
 -- in case <rubella-live> already exists: add ATC
 UPDATE ref.substance SET atc = 'J07BJ01' WHERE lower(description) = lower('rubella, live') AND atc IS NULL;
@@ -351,7 +364,10 @@ INSERT INTO ref.substance (description, atc)
 		'rubella, live',
 		'J07BJ01'
 	WHERE NOT EXISTS (
-		SELECT 1 FROM ref.substance WHERE atc = 'J07BJ01'
+		SELECT 1 FROM ref.substance WHERE
+			atc = 'J07BJ01'
+				AND
+			description = 'rubella, live'
 	);
 
 -- generic English
@@ -360,36 +376,23 @@ SELECT i18n.upd_tx('en', 'J07BJ01-target', 'rubella');
 SELECT i18n.upd_tx('J07BJ01-target', 'rubella');
 
 -- in case <japEnc-live> already exists: add ATC
-UPDATE ref.substance SET atc = 'J07BA03' WHERE lower(description) = lower('flavivirus, live, attenuated') AND atc IS NULL;
+UPDATE ref.substance SET atc = 'J07BA0J' WHERE lower(description) = lower('flavivirus, japanese, live, attenuated') AND atc IS NULL;
 
 INSERT INTO ref.substance (description, atc)
 	SELECT
-		'flavivirus, live, attenuated',
-		'J07BA03'
+		'flavivirus, japanese, live, attenuated',
+		'J07BA0J'
 	WHERE NOT EXISTS (
-		SELECT 1 FROM ref.substance WHERE atc = 'J07BA03'
+		SELECT 1 FROM ref.substance WHERE
+			atc = 'J07BA0J'
+				AND
+			description = 'flavivirus, japanese, live, attenuated'
 	);
 
 -- generic English
-SELECT i18n.upd_tx('en', 'J07BA03-target', 'japanese encephalitis');
+SELECT i18n.upd_tx('en', 'J07BA0J-target', 'japanese encephalitis');
 -- user language, if any, fails if not set
-SELECT i18n.upd_tx('J07BA03-target', 'japanese encephalitis');
-
--- in case <pertussis-antigen> already exists: add ATC
-UPDATE ref.substance SET atc = 'J07AJ02' WHERE lower(description) = lower('pertussis, antigen') AND atc IS NULL;
-
-INSERT INTO ref.substance (description, atc)
-	SELECT
-		'pertussis, antigen',
-		'J07AJ02'
-	WHERE NOT EXISTS (
-		SELECT 1 FROM ref.substance WHERE atc = 'J07AJ02'
-	);
-
--- generic English
-SELECT i18n.upd_tx('en', 'J07AJ02-target', 'pertussis');
--- user language, if any, fails if not set
-SELECT i18n.upd_tx('J07AJ02-target', 'pertussis');
+SELECT i18n.upd_tx('J07BA0J-target', 'japanese encephalitis');
 
 -- in case <plague> already exists: add ATC
 UPDATE ref.substance SET atc = 'J07AK01' WHERE lower(description) = lower('yersinia pestis, inactivated') AND atc IS NULL;
@@ -399,7 +402,10 @@ INSERT INTO ref.substance (description, atc)
 		'yersinia pestis, inactivated',
 		'J07AK01'
 	WHERE NOT EXISTS (
-		SELECT 1 FROM ref.substance WHERE atc = 'J07AK01'
+		SELECT 1 FROM ref.substance WHERE
+			atc = 'J07AK01'
+				AND
+			description = 'yersinia pestis, inactivated'
 	);
 
 -- generic English
@@ -408,52 +414,42 @@ SELECT i18n.upd_tx('en', 'J07AK01-target', 'plague');
 SELECT i18n.upd_tx('J07AK01-target', 'plague');
 
 -- in case <salmo-inact> already exists: add ATC
-UPDATE ref.substance SET atc = 'J07AP02' WHERE lower(description) = lower('salmonella typhi, inactivated') AND atc IS NULL;
+UPDATE ref.substance SET atc = 'J07AP0' WHERE lower(description) = lower('salmonella typhi, inactivated') AND atc IS NULL;
 
 INSERT INTO ref.substance (description, atc)
 	SELECT
 		'salmonella typhi, inactivated',
-		'J07AP02'
+		'J07AP0'
 	WHERE NOT EXISTS (
-		SELECT 1 FROM ref.substance WHERE atc = 'J07AP02'
+		SELECT 1 FROM ref.substance WHERE
+			atc = 'J07AP0'
+				AND
+			description = 'salmonella typhi, inactivated'
 	);
 
 -- generic English
-SELECT i18n.upd_tx('en', 'J07AP02-target', 'typhoid');
+SELECT i18n.upd_tx('en', 'J07AP0-target', 'typhoid');
 -- user language, if any, fails if not set
-SELECT i18n.upd_tx('J07AP02-target', 'typhoid');
-
--- in case <hepA-antig> already exists: add ATC
-UPDATE ref.substance SET atc = 'J07BC03' WHERE lower(description) = lower('hepatitis A antigen') AND atc IS NULL;
-
-INSERT INTO ref.substance (description, atc)
-	SELECT
-		'hepatitis A antigen',
-		'J07BC03'
-	WHERE NOT EXISTS (
-		SELECT 1 FROM ref.substance WHERE atc = 'J07BC03'
-	);
-
--- generic English
-SELECT i18n.upd_tx('en', 'J07BC03-target', 'hepatitis A');
--- user language, if any, fails if not set
-SELECT i18n.upd_tx('J07BC03-target', 'hepatitis A');
+SELECT i18n.upd_tx('J07AP0-target', 'typhoid');
 
 -- in case <japEnc> already exists: add ATC
-UPDATE ref.substance SET atc = 'J07BA02' WHERE lower(description) = lower('flavivirus, japanese') AND atc IS NULL;
+UPDATE ref.substance SET atc = 'J07BA0J' WHERE lower(description) = lower('flavivirus, japanese') AND atc IS NULL;
 
 INSERT INTO ref.substance (description, atc)
 	SELECT
 		'flavivirus, japanese',
-		'J07BA02'
+		'J07BA0J'
 	WHERE NOT EXISTS (
-		SELECT 1 FROM ref.substance WHERE atc = 'J07BA02'
+		SELECT 1 FROM ref.substance WHERE
+			atc = 'J07BA0J'
+				AND
+			description = 'flavivirus, japanese'
 	);
 
 -- generic English
-SELECT i18n.upd_tx('en', 'J07BA02-target', 'japanese encephalitis');
+SELECT i18n.upd_tx('en', 'J07BA0J-target', 'japanese encephalitis');
 -- user language, if any, fails if not set
-SELECT i18n.upd_tx('J07BA02-target', 'japanese encephalitis');
+SELECT i18n.upd_tx('J07BA0J-target', 'japanese encephalitis');
 
 -- in case <tbc-live> already exists: add ATC
 UPDATE ref.substance SET atc = 'J07AN01' WHERE lower(description) = lower('tuberculosis, live, attenuated') AND atc IS NULL;
@@ -463,7 +459,10 @@ INSERT INTO ref.substance (description, atc)
 		'tuberculosis, live, attenuated',
 		'J07AN01'
 	WHERE NOT EXISTS (
-		SELECT 1 FROM ref.substance WHERE atc = 'J07AN01'
+		SELECT 1 FROM ref.substance WHERE
+			atc = 'J07AN01'
+				AND
+			description = 'tuberculosis, live, attenuated'
 	);
 
 -- generic English
@@ -471,37 +470,24 @@ SELECT i18n.upd_tx('en', 'J07AN01-target', 'tbc');
 -- user language, if any, fails if not set
 SELECT i18n.upd_tx('J07AN01-target', 'tbc');
 
--- in case <influ-inact-surf> already exists: add ATC
-UPDATE ref.substance SET atc = 'J07BB02' WHERE lower(description) = lower('influenza, inactivated, surface') AND atc IS NULL;
-
-INSERT INTO ref.substance (description, atc)
-	SELECT
-		'influenza, inactivated, surface',
-		'J07BB02'
-	WHERE NOT EXISTS (
-		SELECT 1 FROM ref.substance WHERE atc = 'J07BB02'
-	);
-
--- generic English
-SELECT i18n.upd_tx('en', 'J07BB02-target', 'influenza');
--- user language, if any, fails if not set
-SELECT i18n.upd_tx('J07BB02-target', 'influenza');
-
 -- in case <rota-live-atten> already exists: add ATC
-UPDATE ref.substance SET atc = 'J07BH01' WHERE lower(description) = lower('rotavirus, live, attenuated') AND atc IS NULL;
+UPDATE ref.substance SET atc = 'J07BH0' WHERE lower(description) = lower('rotavirus, live, attenuated') AND atc IS NULL;
 
 INSERT INTO ref.substance (description, atc)
 	SELECT
 		'rotavirus, live, attenuated',
-		'J07BH01'
+		'J07BH0'
 	WHERE NOT EXISTS (
-		SELECT 1 FROM ref.substance WHERE atc = 'J07BH01'
+		SELECT 1 FROM ref.substance WHERE
+			atc = 'J07BH0'
+				AND
+			description = 'rotavirus, live, attenuated'
 	);
 
 -- generic English
-SELECT i18n.upd_tx('en', 'J07BH01-target', 'rotavirus diarrhea');
+SELECT i18n.upd_tx('en', 'J07BH0-target', 'rotavirus diarrhea');
 -- user language, if any, fails if not set
-SELECT i18n.upd_tx('J07BH01-target', 'rotavirus diarrhea');
+SELECT i18n.upd_tx('J07BH0-target', 'rotavirus diarrhea');
 
 -- in case <pap6-11-16-18-31-33-45-52-58> already exists: add ATC
 UPDATE ref.substance SET atc = 'J07BM03' WHERE lower(description) = lower('papillomavirus 6,11,16,18,31,33,45,52,58') AND atc IS NULL;
@@ -511,29 +497,16 @@ INSERT INTO ref.substance (description, atc)
 		'papillomavirus 6,11,16,18,31,33,45,52,58',
 		'J07BM03'
 	WHERE NOT EXISTS (
-		SELECT 1 FROM ref.substance WHERE atc = 'J07BM03'
+		SELECT 1 FROM ref.substance WHERE
+			atc = 'J07BM03'
+				AND
+			description = 'papillomavirus 6,11,16,18,31,33,45,52,58'
 	);
 
 -- generic English
 SELECT i18n.upd_tx('en', 'J07BM03-target', 'HPV');
 -- user language, if any, fails if not set
 SELECT i18n.upd_tx('J07BM03-target', 'HPV');
-
--- in case <pertussis-inactivated> already exists: add ATC
-UPDATE ref.substance SET atc = 'J07AJ01' WHERE lower(description) = lower('pertussis, inactivated') AND atc IS NULL;
-
-INSERT INTO ref.substance (description, atc)
-	SELECT
-		'pertussis, inactivated',
-		'J07AJ01'
-	WHERE NOT EXISTS (
-		SELECT 1 FROM ref.substance WHERE atc = 'J07AJ01'
-	);
-
--- generic English
-SELECT i18n.upd_tx('en', 'J07AJ01-target', 'pertussis');
--- user language, if any, fails if not set
-SELECT i18n.upd_tx('J07AJ01-target', 'pertussis');
 
 -- in case <hepB> already exists: add ATC
 UPDATE ref.substance SET atc = 'J07BC01' WHERE lower(description) = lower('hepatitis B antigen') AND atc IS NULL;
@@ -543,7 +516,10 @@ INSERT INTO ref.substance (description, atc)
 		'hepatitis B antigen',
 		'J07BC01'
 	WHERE NOT EXISTS (
-		SELECT 1 FROM ref.substance WHERE atc = 'J07BC01'
+		SELECT 1 FROM ref.substance WHERE
+			atc = 'J07BC01'
+				AND
+			description = 'hepatitis B antigen'
 	);
 
 -- generic English
@@ -559,7 +535,10 @@ INSERT INTO ref.substance (description, atc)
 		'pertussis',
 		'J07AJ0'
 	WHERE NOT EXISTS (
-		SELECT 1 FROM ref.substance WHERE atc = 'J07AJ0'
+		SELECT 1 FROM ref.substance WHERE
+			atc = 'J07AJ0'
+				AND
+			description = 'pertussis'
 	);
 
 -- generic English
@@ -568,20 +547,23 @@ SELECT i18n.upd_tx('en', 'J07AJ0-target', 'pertussis');
 SELECT i18n.upd_tx('J07AJ0-target', 'pertussis');
 
 -- in case <hepA-inact> already exists: add ATC
-UPDATE ref.substance SET atc = 'J07BC02' WHERE lower(description) = lower('hepatitis A, inactivated') AND atc IS NULL;
+UPDATE ref.substance SET atc = 'J07BC0' WHERE lower(description) = lower('hepatitis A, inactivated') AND atc IS NULL;
 
 INSERT INTO ref.substance (description, atc)
 	SELECT
 		'hepatitis A, inactivated',
-		'J07BC02'
+		'J07BC0'
 	WHERE NOT EXISTS (
-		SELECT 1 FROM ref.substance WHERE atc = 'J07BC02'
+		SELECT 1 FROM ref.substance WHERE
+			atc = 'J07BC0'
+				AND
+			description = 'hepatitis A, inactivated'
 	);
 
 -- generic English
-SELECT i18n.upd_tx('en', 'J07BC02-target', 'hepatitis A');
+SELECT i18n.upd_tx('en', 'J07BC0-target', 'hepatitis A');
 -- user language, if any, fails if not set
-SELECT i18n.upd_tx('J07BC02-target', 'hepatitis A');
+SELECT i18n.upd_tx('J07BC0-target', 'hepatitis A');
 
 -- in case <brucellosis> already exists: add ATC
 UPDATE ref.substance SET atc = 'J07AD01' WHERE lower(description) = lower('brucella antigen') AND atc IS NULL;
@@ -591,7 +573,10 @@ INSERT INTO ref.substance (description, atc)
 		'brucella antigen',
 		'J07AD01'
 	WHERE NOT EXISTS (
-		SELECT 1 FROM ref.substance WHERE atc = 'J07AD01'
+		SELECT 1 FROM ref.substance WHERE
+			atc = 'J07AD01'
+				AND
+			description = 'brucella antigen'
 	);
 
 -- generic English
@@ -600,20 +585,23 @@ SELECT i18n.upd_tx('en', 'J07AD01-target', 'brucellosis');
 SELECT i18n.upd_tx('J07AD01-target', 'brucellosis');
 
 -- in case <salmo-live> already exists: add ATC
-UPDATE ref.substance SET atc = 'J07AP01' WHERE lower(description) = lower('salmonella typhi, live, attenuated') AND atc IS NULL;
+UPDATE ref.substance SET atc = 'J07AP0' WHERE lower(description) = lower('salmonella typhi, live, attenuated') AND atc IS NULL;
 
 INSERT INTO ref.substance (description, atc)
 	SELECT
 		'salmonella typhi, live, attenuated',
-		'J07AP01'
+		'J07AP0'
 	WHERE NOT EXISTS (
-		SELECT 1 FROM ref.substance WHERE atc = 'J07AP01'
+		SELECT 1 FROM ref.substance WHERE
+			atc = 'J07AP0'
+				AND
+			description = 'salmonella typhi, live, attenuated'
 	);
 
 -- generic English
-SELECT i18n.upd_tx('en', 'J07AP01-target', 'typhoid');
+SELECT i18n.upd_tx('en', 'J07AP0-target', 'typhoid');
 -- user language, if any, fails if not set
-SELECT i18n.upd_tx('J07AP01-target', 'typhoid');
+SELECT i18n.upd_tx('J07AP0-target', 'typhoid');
 
 -- in case <anthrax> already exists: add ATC
 UPDATE ref.substance SET atc = 'J07AC01' WHERE lower(description) = lower('bacillus anthracis antigen') AND atc IS NULL;
@@ -623,7 +611,10 @@ INSERT INTO ref.substance (description, atc)
 		'bacillus anthracis antigen',
 		'J07AC01'
 	WHERE NOT EXISTS (
-		SELECT 1 FROM ref.substance WHERE atc = 'J07AC01'
+		SELECT 1 FROM ref.substance WHERE
+			atc = 'J07AC01'
+				AND
+			description = 'bacillus anthracis antigen'
 	);
 
 -- generic English
@@ -639,7 +630,10 @@ INSERT INTO ref.substance (description, atc)
 		'variola virus, live',
 		'J07BX01'
 	WHERE NOT EXISTS (
-		SELECT 1 FROM ref.substance WHERE atc = 'J07BX01'
+		SELECT 1 FROM ref.substance WHERE
+			atc = 'J07BX01'
+				AND
+			description = 'variola virus, live'
 	);
 
 -- generic English
@@ -647,53 +641,43 @@ SELECT i18n.upd_tx('en', 'J07BX01-target', 'variola (smallpox)');
 -- user language, if any, fails if not set
 SELECT i18n.upd_tx('J07BX01-target', 'variola (smallpox)');
 
--- in case <shingles-live> already exists: add ATC
-UPDATE ref.substance SET atc = 'J07BK02' WHERE lower(description) = lower('herpes virus (shingles), live') AND atc IS NULL;
+-- in case <influ-live> already exists: add ATC
+UPDATE ref.substance SET atc = 'J07BB0' WHERE lower(description) = lower('influenza, live, attenuated') AND atc IS NULL;
 
 INSERT INTO ref.substance (description, atc)
 	SELECT
-		'herpes virus (shingles), live',
-		'J07BK02'
+		'influenza, live, attenuated',
+		'J07BB0'
 	WHERE NOT EXISTS (
-		SELECT 1 FROM ref.substance WHERE atc = 'J07BK02'
+		SELECT 1 FROM ref.substance WHERE
+			atc = 'J07BB0'
+				AND
+			description = 'influenza, live, attenuated'
 	);
 
 -- generic English
-SELECT i18n.upd_tx('en', 'J07BK02-target', 'zoster (shingles)');
+SELECT i18n.upd_tx('en', 'J07BB0-target', 'influenza');
 -- user language, if any, fails if not set
-SELECT i18n.upd_tx('J07BK02-target', 'zoster (shingles)');
+SELECT i18n.upd_tx('J07BB0-target', 'influenza');
 
 -- in case <influ-inact> already exists: add ATC
-UPDATE ref.substance SET atc = 'J07BB01' WHERE lower(description) = lower('influenza, inactivated') AND atc IS NULL;
+UPDATE ref.substance SET atc = 'J07BB0' WHERE lower(description) = lower('influenza, inactivated') AND atc IS NULL;
 
 INSERT INTO ref.substance (description, atc)
 	SELECT
 		'influenza, inactivated',
-		'J07BB01'
+		'J07BB0'
 	WHERE NOT EXISTS (
-		SELECT 1 FROM ref.substance WHERE atc = 'J07BB01'
+		SELECT 1 FROM ref.substance WHERE
+			atc = 'J07BB0'
+				AND
+			description = 'influenza, inactivated'
 	);
 
 -- generic English
-SELECT i18n.upd_tx('en', 'J07BB01-target', 'influenza');
+SELECT i18n.upd_tx('en', 'J07BB0-target', 'influenza');
 -- user language, if any, fails if not set
-SELECT i18n.upd_tx('J07BB01-target', 'influenza');
-
--- in case <menBmulti> already exists: add ATC
-UPDATE ref.substance SET atc = 'J07AH09' WHERE lower(description) = lower('meningococcus B multicomponent') AND atc IS NULL;
-
-INSERT INTO ref.substance (description, atc)
-	SELECT
-		'meningococcus B multicomponent',
-		'J07AH09'
-	WHERE NOT EXISTS (
-		SELECT 1 FROM ref.substance WHERE atc = 'J07AH09'
-	);
-
--- generic English
-SELECT i18n.upd_tx('en', 'J07AH09-target', 'meningococcus B');
--- user language, if any, fails if not set
-SELECT i18n.upd_tx('J07AH09-target', 'meningococcus B');
+SELECT i18n.upd_tx('J07BB0-target', 'influenza');
 
 -- in case <menC> already exists: add ATC
 UPDATE ref.substance SET atc = 'J07AH07' WHERE lower(description) = lower('meningococcus C antigen') AND atc IS NULL;
@@ -703,7 +687,10 @@ INSERT INTO ref.substance (description, atc)
 		'meningococcus C antigen',
 		'J07AH07'
 	WHERE NOT EXISTS (
-		SELECT 1 FROM ref.substance WHERE atc = 'J07AH07'
+		SELECT 1 FROM ref.substance WHERE
+			atc = 'J07AH07'
+				AND
+			description = 'meningococcus C antigen'
 	);
 
 -- generic English
@@ -719,7 +706,10 @@ INSERT INTO ref.substance (description, atc)
 		'papillomavirus',
 		'J07BM0'
 	WHERE NOT EXISTS (
-		SELECT 1 FROM ref.substance WHERE atc = 'J07BM0'
+		SELECT 1 FROM ref.substance WHERE
+			atc = 'J07BM0'
+				AND
+			description = 'papillomavirus'
 	);
 
 -- generic English
@@ -735,7 +725,10 @@ INSERT INTO ref.substance (description, atc)
 		'papillomavirus 6,11,16,18',
 		'J07BM01'
 	WHERE NOT EXISTS (
-		SELECT 1 FROM ref.substance WHERE atc = 'J07BM01'
+		SELECT 1 FROM ref.substance WHERE
+			atc = 'J07BM01'
+				AND
+			description = 'papillomavirus 6,11,16,18'
 	);
 
 -- generic English
@@ -743,21 +736,24 @@ SELECT i18n.upd_tx('en', 'J07BM01-target', 'HPV');
 -- user language, if any, fails if not set
 SELECT i18n.upd_tx('J07BM01-target', 'HPV');
 
--- in case <influ-live> already exists: add ATC
-UPDATE ref.substance SET atc = 'J07BB03' WHERE lower(description) = lower('influenza, live, attenuated') AND atc IS NULL;
+-- in case <shingles-live> already exists: add ATC
+UPDATE ref.substance SET atc = 'J07BK0' WHERE lower(description) = lower('herpes virus (shingles), live') AND atc IS NULL;
 
 INSERT INTO ref.substance (description, atc)
 	SELECT
-		'influenza, live, attenuated',
-		'J07BB03'
+		'herpes virus (shingles), live',
+		'J07BK0'
 	WHERE NOT EXISTS (
-		SELECT 1 FROM ref.substance WHERE atc = 'J07BB03'
+		SELECT 1 FROM ref.substance WHERE
+			atc = 'J07BK0'
+				AND
+			description = 'herpes virus (shingles), live'
 	);
 
 -- generic English
-SELECT i18n.upd_tx('en', 'J07BB03-target', 'influenza');
+SELECT i18n.upd_tx('en', 'J07BK0-target', 'zoster (shingles)');
 -- user language, if any, fails if not set
-SELECT i18n.upd_tx('J07BB03-target', 'influenza');
+SELECT i18n.upd_tx('J07BK0-target', 'zoster (shingles)');
 
 -- in case <rabies> already exists: add ATC
 UPDATE ref.substance SET atc = 'J07BG01' WHERE lower(description) = lower('rabies, inactivated') AND atc IS NULL;
@@ -767,7 +763,10 @@ INSERT INTO ref.substance (description, atc)
 		'rabies, inactivated',
 		'J07BG01'
 	WHERE NOT EXISTS (
-		SELECT 1 FROM ref.substance WHERE atc = 'J07BG01'
+		SELECT 1 FROM ref.substance WHERE
+			atc = 'J07BG01'
+				AND
+			description = 'rabies, inactivated'
 	);
 
 -- generic English
@@ -783,7 +782,10 @@ INSERT INTO ref.substance (description, atc)
 		'rickettsia prowazekii, inactivated',
 		'J07AR01'
 	WHERE NOT EXISTS (
-		SELECT 1 FROM ref.substance WHERE atc = 'J07AR01'
+		SELECT 1 FROM ref.substance WHERE
+			atc = 'J07AR01'
+				AND
+			description = 'rickettsia prowazekii, inactivated'
 	);
 
 -- generic English
@@ -791,53 +793,24 @@ SELECT i18n.upd_tx('en', 'J07AR01-target', 'typhus exanthematicus');
 -- user language, if any, fails if not set
 SELECT i18n.upd_tx('J07AR01-target', 'typhus exanthematicus');
 
--- in case <rota-live> already exists: add ATC
-UPDATE ref.substance SET atc = 'J07BH02' WHERE lower(description) = lower('rotavirus, live') AND atc IS NULL;
-
-INSERT INTO ref.substance (description, atc)
-	SELECT
-		'rotavirus, live',
-		'J07BH02'
-	WHERE NOT EXISTS (
-		SELECT 1 FROM ref.substance WHERE atc = 'J07BH02'
-	);
-
--- generic English
-SELECT i18n.upd_tx('en', 'J07BH02-target', 'rotavirus diarrhea');
--- user language, if any, fails if not set
-SELECT i18n.upd_tx('J07BH02-target', 'rotavirus diarrhea');
-
--- in case <diphtheria> already exists: add ATC
-UPDATE ref.substance SET atc = 'J07AF01' WHERE lower(description) = lower('diphtheria toxoid') AND atc IS NULL;
-
-INSERT INTO ref.substance (description, atc)
-	SELECT
-		'diphtheria toxoid',
-		'J07AF01'
-	WHERE NOT EXISTS (
-		SELECT 1 FROM ref.substance WHERE atc = 'J07AF01'
-	);
-
--- generic English
-SELECT i18n.upd_tx('en', 'J07AF01-target', 'diphtheria');
--- user language, if any, fails if not set
-SELECT i18n.upd_tx('J07AF01-target', 'diphtheria');
-
 -- in case <cholera-live> already exists: add ATC
-UPDATE ref.substance SET atc = 'J07AE02' WHERE lower(description) = lower('cholera, live, attenuated') AND atc IS NULL;
+UPDATE ref.substance SET atc = 'J07AE0' WHERE lower(description) = lower('cholera, live, attenuated') AND atc IS NULL;
 
 INSERT INTO ref.substance (description, atc)
 	SELECT
 		'cholera, live, attenuated',
-		'J07AE02'
+		'J07AE0'
 	WHERE NOT EXISTS (
-		SELECT 1 FROM ref.substance WHERE atc = 'J07AE02'
+		SELECT 1 FROM ref.substance WHERE
+			atc = 'J07AE0'
+				AND
+			description = 'cholera, live, attenuated'
 	);
 
 -- generic English
-SELECT i18n.upd_tx('en', 'J07AE02-target', 'cholera');
+SELECT i18n.upd_tx('en', 'J07AE0-target', 'cholera');
 -- user language, if any, fails if not set
-SELECT i18n.upd_tx('J07AE02-target', 'cholera');
+SELECT i18n.upd_tx('J07AE0-target', 'cholera');
 
 -- in case <pap16-18> already exists: add ATC
 UPDATE ref.substance SET atc = 'J07BM02' WHERE lower(description) = lower('papillomavirus 16,18') AND atc IS NULL;
@@ -847,7 +820,10 @@ INSERT INTO ref.substance (description, atc)
 		'papillomavirus 16,18',
 		'J07BM02'
 	WHERE NOT EXISTS (
-		SELECT 1 FROM ref.substance WHERE atc = 'J07BM02'
+		SELECT 1 FROM ref.substance WHERE
+			atc = 'J07BM02'
+				AND
+			description = 'papillomavirus 16,18'
 	);
 
 -- generic English
@@ -856,36 +832,42 @@ SELECT i18n.upd_tx('en', 'J07BM02-target', 'HPV');
 SELECT i18n.upd_tx('J07BM02-target', 'HPV');
 
 -- in case <chickenpox-live> already exists: add ATC
-UPDATE ref.substance SET atc = 'J07BK01' WHERE lower(description) = lower('herpes virus (chickenpox), live') AND atc IS NULL;
+UPDATE ref.substance SET atc = 'J07BK0' WHERE lower(description) = lower('herpes virus (chickenpox), live') AND atc IS NULL;
 
 INSERT INTO ref.substance (description, atc)
 	SELECT
 		'herpes virus (chickenpox), live',
-		'J07BK01'
+		'J07BK0'
 	WHERE NOT EXISTS (
-		SELECT 1 FROM ref.substance WHERE atc = 'J07BK01'
+		SELECT 1 FROM ref.substance WHERE
+			atc = 'J07BK0'
+				AND
+			description = 'herpes virus (chickenpox), live'
 	);
 
 -- generic English
-SELECT i18n.upd_tx('en', 'J07BK01-target', 'varicella (chickenpox)');
+SELECT i18n.upd_tx('en', 'J07BK0-target', 'varicella (chickenpox)');
 -- user language, if any, fails if not set
-SELECT i18n.upd_tx('J07BK01-target', 'varicella (chickenpox)');
+SELECT i18n.upd_tx('J07BK0-target', 'varicella (chickenpox)');
 
--- in case <pneumococcus-conjugated> already exists: add ATC
-UPDATE ref.substance SET atc = 'J07AL02' WHERE lower(description) = lower('pneumococcus antigen, conjugated') AND atc IS NULL;
+-- in case <diphtheria> already exists: add ATC
+UPDATE ref.substance SET atc = 'J07AF01' WHERE lower(description) = lower('diphtheria toxoid') AND atc IS NULL;
 
 INSERT INTO ref.substance (description, atc)
 	SELECT
-		'pneumococcus antigen, conjugated',
-		'J07AL02'
+		'diphtheria toxoid',
+		'J07AF01'
 	WHERE NOT EXISTS (
-		SELECT 1 FROM ref.substance WHERE atc = 'J07AL02'
+		SELECT 1 FROM ref.substance WHERE
+			atc = 'J07AF01'
+				AND
+			description = 'diphtheria toxoid'
 	);
 
 -- generic English
-SELECT i18n.upd_tx('en', 'J07AL02-target', 'pneumococcus');
+SELECT i18n.upd_tx('en', 'J07AF01-target', 'diphtheria');
 -- user language, if any, fails if not set
-SELECT i18n.upd_tx('J07AL02-target', 'pneumococcus');
+SELECT i18n.upd_tx('J07AF01-target', 'diphtheria');
 
 -- in case <measles-live> already exists: add ATC
 UPDATE ref.substance SET atc = 'J07BD01' WHERE lower(description) = lower('measles, live, attenuated') AND atc IS NULL;
@@ -895,7 +877,10 @@ INSERT INTO ref.substance (description, atc)
 		'measles, live, attenuated',
 		'J07BD01'
 	WHERE NOT EXISTS (
-		SELECT 1 FROM ref.substance WHERE atc = 'J07BD01'
+		SELECT 1 FROM ref.substance WHERE
+			atc = 'J07BD01'
+				AND
+			description = 'measles, live, attenuated'
 	);
 
 -- generic English
@@ -918,7 +903,7 @@ ALTER TABLE ref.drug_product
 
 -- --------------------------------------------------------------
 -- in case <generic influenza vaccine> exists: add ATC
-UPDATE ref.drug_product SET atc_code = 'J07BB' WHERE
+UPDATE ref.drug_product SET atc_code = 'J07BB01' WHERE
 	atc_code IS NULL
 		AND
 	description = 'generic influenza vaccine'
@@ -932,7 +917,7 @@ INSERT INTO ref.drug_product (description, preparation, is_fake, atc_code)
 		'generic influenza vaccine',
 		'vaccine',
 		TRUE,
-		'J07BB'
+		'J07BB01'
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.drug_product WHERE
 			description = 'generic influenza vaccine'
@@ -941,19 +926,19 @@ INSERT INTO ref.drug_product (description, preparation, is_fake, atc_code)
 				AND
 			is_fake = TRUE
 				AND
-			atc_code = 'J07BB'
+			atc_code = 'J07BB01'
 	);
 
 -- create dose, assumes substance exists
 INSERT INTO ref.dose (fk_substance, amount, unit, dose_unit)
 	SELECT
-		(SELECT pk FROM ref.substance WHERE atc = 'J07BB01' LIMIT 1),
+		(SELECT pk FROM ref.substance WHERE atc = 'J07BB0' LIMIT 1),
 		1,
 		'dose',
 		'shot'
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.dose WHERE
-			fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BB01' LIMIT 1)
+			fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BB0' LIMIT 1)
 				AND
 			amount = 1
 				AND
@@ -966,7 +951,7 @@ INSERT INTO ref.dose (fk_substance, amount, unit, dose_unit)
 INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 	SELECT
 		(SELECT pk from ref.dose WHERE
-					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BB01' LIMIT 1)
+					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BB0' LIMIT 1)
 						AND
 					amount = 1
 						AND
@@ -981,13 +966,13 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 				AND
 			is_fake = TRUE
 				AND
-			atc_code = 'J07BB'
+			atc_code = 'J07BB01'
 		)
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.lnk_dose2drug WHERE
 			fk_dose = (
 				SELECT PK from ref.dose WHERE
-					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BB01' LIMIT 1)
+					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BB0' LIMIT 1)
 						AND
 					amount = 1
 						AND
@@ -1004,7 +989,7 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 						AND
 					is_fake = TRUE
 						AND
-					atc_code = 'J07BB'
+					atc_code = 'J07BB01'
 			)
 	);
 
@@ -1019,7 +1004,7 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 				AND
 			is_fake = TRUE
 				AND
-			atc_code = 'J07BB'
+			atc_code = 'J07BB01'
 		)
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.vaccine WHERE
@@ -1033,7 +1018,7 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 						AND
 					is_fake = TRUE
 						AND
-					atc_code = 'J07BB'
+					atc_code = 'J07BB01'
 			)
 	);
 
@@ -1566,13 +1551,13 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 -- create dose, assumes substance exists
 INSERT INTO ref.dose (fk_substance, amount, unit, dose_unit)
 	SELECT
-		(SELECT pk FROM ref.substance WHERE atc = 'J07BF03' LIMIT 1),
+		(SELECT pk FROM ref.substance WHERE atc = 'J07BF0' LIMIT 1),
 		1,
 		'dose',
 		'shot'
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.dose WHERE
-			fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BF03' LIMIT 1)
+			fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BF0' LIMIT 1)
 				AND
 			amount = 1
 				AND
@@ -1585,7 +1570,7 @@ INSERT INTO ref.dose (fk_substance, amount, unit, dose_unit)
 INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 	SELECT
 		(SELECT pk from ref.dose WHERE
-					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BF03' LIMIT 1)
+					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BF0' LIMIT 1)
 						AND
 					amount = 1
 						AND
@@ -1606,7 +1591,7 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 		SELECT 1 FROM ref.lnk_dose2drug WHERE
 			fk_dose = (
 				SELECT PK from ref.dose WHERE
-					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BF03' LIMIT 1)
+					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BF0' LIMIT 1)
 						AND
 					amount = 1
 						AND
@@ -2220,7 +2205,7 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 
 -- --------------------------------------------------------------
 -- in case <generic influenza vaccine, live> exists: add ATC
-UPDATE ref.drug_product SET atc_code = 'J07BB' WHERE
+UPDATE ref.drug_product SET atc_code = 'J07BB03' WHERE
 	atc_code IS NULL
 		AND
 	description = 'generic influenza vaccine, live'
@@ -2234,7 +2219,7 @@ INSERT INTO ref.drug_product (description, preparation, is_fake, atc_code)
 		'generic influenza vaccine, live',
 		'vaccine',
 		TRUE,
-		'J07BB'
+		'J07BB03'
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.drug_product WHERE
 			description = 'generic influenza vaccine, live'
@@ -2243,19 +2228,19 @@ INSERT INTO ref.drug_product (description, preparation, is_fake, atc_code)
 				AND
 			is_fake = TRUE
 				AND
-			atc_code = 'J07BB'
+			atc_code = 'J07BB03'
 	);
 
 -- create dose, assumes substance exists
 INSERT INTO ref.dose (fk_substance, amount, unit, dose_unit)
 	SELECT
-		(SELECT pk FROM ref.substance WHERE atc = 'J07BB03' LIMIT 1),
+		(SELECT pk FROM ref.substance WHERE atc = 'J07BB0' LIMIT 1),
 		1,
 		'dose',
 		'shot'
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.dose WHERE
-			fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BB03' LIMIT 1)
+			fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BB0' LIMIT 1)
 				AND
 			amount = 1
 				AND
@@ -2268,7 +2253,7 @@ INSERT INTO ref.dose (fk_substance, amount, unit, dose_unit)
 INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 	SELECT
 		(SELECT pk from ref.dose WHERE
-					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BB03' LIMIT 1)
+					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BB0' LIMIT 1)
 						AND
 					amount = 1
 						AND
@@ -2283,13 +2268,13 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 				AND
 			is_fake = TRUE
 				AND
-			atc_code = 'J07BB'
+			atc_code = 'J07BB03'
 		)
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.lnk_dose2drug WHERE
 			fk_dose = (
 				SELECT PK from ref.dose WHERE
-					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BB03' LIMIT 1)
+					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BB0' LIMIT 1)
 						AND
 					amount = 1
 						AND
@@ -2306,7 +2291,7 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 						AND
 					is_fake = TRUE
 						AND
-					atc_code = 'J07BB'
+					atc_code = 'J07BB03'
 			)
 	);
 
@@ -2321,7 +2306,7 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 				AND
 			is_fake = TRUE
 				AND
-			atc_code = 'J07BB'
+			atc_code = 'J07BB03'
 		)
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.vaccine WHERE
@@ -2335,7 +2320,7 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 						AND
 					is_fake = TRUE
 						AND
-					atc_code = 'J07BB'
+					atc_code = 'J07BB03'
 			)
 	);
 
@@ -2953,7 +2938,7 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 
 -- --------------------------------------------------------------
 -- in case <generic varicella vaccine, live> exists: add ATC
-UPDATE ref.drug_product SET atc_code = 'J07BK' WHERE
+UPDATE ref.drug_product SET atc_code = 'J07BK01' WHERE
 	atc_code IS NULL
 		AND
 	description = 'generic varicella vaccine, live'
@@ -2967,7 +2952,7 @@ INSERT INTO ref.drug_product (description, preparation, is_fake, atc_code)
 		'generic varicella vaccine, live',
 		'vaccine',
 		TRUE,
-		'J07BK'
+		'J07BK01'
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.drug_product WHERE
 			description = 'generic varicella vaccine, live'
@@ -2976,19 +2961,19 @@ INSERT INTO ref.drug_product (description, preparation, is_fake, atc_code)
 				AND
 			is_fake = TRUE
 				AND
-			atc_code = 'J07BK'
+			atc_code = 'J07BK01'
 	);
 
 -- create dose, assumes substance exists
 INSERT INTO ref.dose (fk_substance, amount, unit, dose_unit)
 	SELECT
-		(SELECT pk FROM ref.substance WHERE atc = 'J07BK01' LIMIT 1),
+		(SELECT pk FROM ref.substance WHERE atc = 'J07BK0' LIMIT 1),
 		1,
 		'dose',
 		'shot'
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.dose WHERE
-			fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BK01' LIMIT 1)
+			fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BK0' LIMIT 1)
 				AND
 			amount = 1
 				AND
@@ -3001,7 +2986,7 @@ INSERT INTO ref.dose (fk_substance, amount, unit, dose_unit)
 INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 	SELECT
 		(SELECT pk from ref.dose WHERE
-					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BK01' LIMIT 1)
+					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BK0' LIMIT 1)
 						AND
 					amount = 1
 						AND
@@ -3016,13 +3001,13 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 				AND
 			is_fake = TRUE
 				AND
-			atc_code = 'J07BK'
+			atc_code = 'J07BK01'
 		)
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.lnk_dose2drug WHERE
 			fk_dose = (
 				SELECT PK from ref.dose WHERE
-					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BK01' LIMIT 1)
+					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BK0' LIMIT 1)
 						AND
 					amount = 1
 						AND
@@ -3039,7 +3024,7 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 						AND
 					is_fake = TRUE
 						AND
-					atc_code = 'J07BK'
+					atc_code = 'J07BK01'
 			)
 	);
 
@@ -3054,7 +3039,7 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 				AND
 			is_fake = TRUE
 				AND
-			atc_code = 'J07BK'
+			atc_code = 'J07BK01'
 		)
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.vaccine WHERE
@@ -3068,7 +3053,7 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 						AND
 					is_fake = TRUE
 						AND
-					atc_code = 'J07BK'
+					atc_code = 'J07BK01'
 			)
 	);
 
@@ -3380,7 +3365,7 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 
 -- --------------------------------------------------------------
 -- in case <generic poliomyelitis vaccine, live> exists: add ATC
-UPDATE ref.drug_product SET atc_code = 'J07BF' WHERE
+UPDATE ref.drug_product SET atc_code = 'J07BF01' WHERE
 	atc_code IS NULL
 		AND
 	description = 'generic poliomyelitis vaccine, live'
@@ -3394,7 +3379,7 @@ INSERT INTO ref.drug_product (description, preparation, is_fake, atc_code)
 		'generic poliomyelitis vaccine, live',
 		'vaccine',
 		TRUE,
-		'J07BF'
+		'J07BF01'
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.drug_product WHERE
 			description = 'generic poliomyelitis vaccine, live'
@@ -3403,19 +3388,19 @@ INSERT INTO ref.drug_product (description, preparation, is_fake, atc_code)
 				AND
 			is_fake = TRUE
 				AND
-			atc_code = 'J07BF'
+			atc_code = 'J07BF01'
 	);
 
 -- create dose, assumes substance exists
 INSERT INTO ref.dose (fk_substance, amount, unit, dose_unit)
 	SELECT
-		(SELECT pk FROM ref.substance WHERE atc = 'J07BF01' LIMIT 1),
+		(SELECT pk FROM ref.substance WHERE atc = 'J07BF0' LIMIT 1),
 		1,
 		'dose',
 		'shot'
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.dose WHERE
-			fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BF01' LIMIT 1)
+			fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BF0' LIMIT 1)
 				AND
 			amount = 1
 				AND
@@ -3428,7 +3413,7 @@ INSERT INTO ref.dose (fk_substance, amount, unit, dose_unit)
 INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 	SELECT
 		(SELECT pk from ref.dose WHERE
-					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BF01' LIMIT 1)
+					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BF0' LIMIT 1)
 						AND
 					amount = 1
 						AND
@@ -3443,13 +3428,13 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 				AND
 			is_fake = TRUE
 				AND
-			atc_code = 'J07BF'
+			atc_code = 'J07BF01'
 		)
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.lnk_dose2drug WHERE
 			fk_dose = (
 				SELECT PK from ref.dose WHERE
-					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BF01' LIMIT 1)
+					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BF0' LIMIT 1)
 						AND
 					amount = 1
 						AND
@@ -3466,7 +3451,7 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 						AND
 					is_fake = TRUE
 						AND
-					atc_code = 'J07BF'
+					atc_code = 'J07BF01'
 			)
 	);
 
@@ -3481,7 +3466,7 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 				AND
 			is_fake = TRUE
 				AND
-			atc_code = 'J07BF'
+			atc_code = 'J07BF01'
 		)
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.vaccine WHERE
@@ -3495,7 +3480,7 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 						AND
 					is_fake = TRUE
 						AND
-					atc_code = 'J07BF'
+					atc_code = 'J07BF01'
 			)
 	);
 
@@ -3530,13 +3515,13 @@ INSERT INTO ref.drug_product (description, preparation, is_fake, atc_code)
 -- create dose, assumes substance exists
 INSERT INTO ref.dose (fk_substance, amount, unit, dose_unit)
 	SELECT
-		(SELECT pk FROM ref.substance WHERE atc = 'J07AP02' LIMIT 1),
+		(SELECT pk FROM ref.substance WHERE atc = 'J07AP0' LIMIT 1),
 		1,
 		'dose',
 		'shot'
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.dose WHERE
-			fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07AP02' LIMIT 1)
+			fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07AP0' LIMIT 1)
 				AND
 			amount = 1
 				AND
@@ -3549,7 +3534,7 @@ INSERT INTO ref.dose (fk_substance, amount, unit, dose_unit)
 INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 	SELECT
 		(SELECT pk from ref.dose WHERE
-					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07AP02' LIMIT 1)
+					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07AP0' LIMIT 1)
 						AND
 					amount = 1
 						AND
@@ -3570,7 +3555,7 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 		SELECT 1 FROM ref.lnk_dose2drug WHERE
 			fk_dose = (
 				SELECT PK from ref.dose WHERE
-					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07AP02' LIMIT 1)
+					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07AP0' LIMIT 1)
 						AND
 					amount = 1
 						AND
@@ -3594,13 +3579,13 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 -- create dose, assumes substance exists
 INSERT INTO ref.dose (fk_substance, amount, unit, dose_unit)
 	SELECT
-		(SELECT pk FROM ref.substance WHERE atc = 'J07BC02' LIMIT 1),
+		(SELECT pk FROM ref.substance WHERE atc = 'J07BC0' LIMIT 1),
 		1,
 		'dose',
 		'shot'
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.dose WHERE
-			fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BC02' LIMIT 1)
+			fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BC0' LIMIT 1)
 				AND
 			amount = 1
 				AND
@@ -3613,7 +3598,7 @@ INSERT INTO ref.dose (fk_substance, amount, unit, dose_unit)
 INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 	SELECT
 		(SELECT pk from ref.dose WHERE
-					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BC02' LIMIT 1)
+					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BC0' LIMIT 1)
 						AND
 					amount = 1
 						AND
@@ -3634,7 +3619,7 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 		SELECT 1 FROM ref.lnk_dose2drug WHERE
 			fk_dose = (
 				SELECT PK from ref.dose WHERE
-					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BC02' LIMIT 1)
+					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BC0' LIMIT 1)
 						AND
 					amount = 1
 						AND
@@ -3928,7 +3913,7 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 
 -- --------------------------------------------------------------
 -- in case <generic meningococcus A vaccine> exists: add ATC
-UPDATE ref.drug_product SET atc_code = 'J07AH' WHERE
+UPDATE ref.drug_product SET atc_code = 'J07AH01' WHERE
 	atc_code IS NULL
 		AND
 	description = 'generic meningococcus A vaccine'
@@ -3942,7 +3927,7 @@ INSERT INTO ref.drug_product (description, preparation, is_fake, atc_code)
 		'generic meningococcus A vaccine',
 		'vaccine',
 		TRUE,
-		'J07AH'
+		'J07AH01'
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.drug_product WHERE
 			description = 'generic meningococcus A vaccine'
@@ -3951,7 +3936,7 @@ INSERT INTO ref.drug_product (description, preparation, is_fake, atc_code)
 				AND
 			is_fake = TRUE
 				AND
-			atc_code = 'J07AH'
+			atc_code = 'J07AH01'
 	);
 
 -- create dose, assumes substance exists
@@ -3991,7 +3976,7 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 				AND
 			is_fake = TRUE
 				AND
-			atc_code = 'J07AH'
+			atc_code = 'J07AH01'
 		)
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.lnk_dose2drug WHERE
@@ -4014,7 +3999,7 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 						AND
 					is_fake = TRUE
 						AND
-					atc_code = 'J07AH'
+					atc_code = 'J07AH01'
 			)
 	);
 
@@ -4029,7 +4014,7 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 				AND
 			is_fake = TRUE
 				AND
-			atc_code = 'J07AH'
+			atc_code = 'J07AH01'
 		)
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.vaccine WHERE
@@ -4043,13 +4028,13 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 						AND
 					is_fake = TRUE
 						AND
-					atc_code = 'J07AH'
+					atc_code = 'J07AH01'
 			)
 	);
 
 -- --------------------------------------------------------------
 -- in case <generic meningococcus B vaccine> exists: add ATC
-UPDATE ref.drug_product SET atc_code = 'J07AH' WHERE
+UPDATE ref.drug_product SET atc_code = 'J07AH06' WHERE
 	atc_code IS NULL
 		AND
 	description = 'generic meningococcus B vaccine'
@@ -4063,7 +4048,7 @@ INSERT INTO ref.drug_product (description, preparation, is_fake, atc_code)
 		'generic meningococcus B vaccine',
 		'vaccine',
 		TRUE,
-		'J07AH'
+		'J07AH06'
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.drug_product WHERE
 			description = 'generic meningococcus B vaccine'
@@ -4072,7 +4057,7 @@ INSERT INTO ref.drug_product (description, preparation, is_fake, atc_code)
 				AND
 			is_fake = TRUE
 				AND
-			atc_code = 'J07AH'
+			atc_code = 'J07AH06'
 	);
 
 -- create dose, assumes substance exists
@@ -4112,7 +4097,7 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 				AND
 			is_fake = TRUE
 				AND
-			atc_code = 'J07AH'
+			atc_code = 'J07AH06'
 		)
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.lnk_dose2drug WHERE
@@ -4135,7 +4120,7 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 						AND
 					is_fake = TRUE
 						AND
-					atc_code = 'J07AH'
+					atc_code = 'J07AH06'
 			)
 	);
 
@@ -4150,7 +4135,7 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 				AND
 			is_fake = TRUE
 				AND
-			atc_code = 'J07AH'
+			atc_code = 'J07AH06'
 		)
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.vaccine WHERE
@@ -4164,13 +4149,13 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 						AND
 					is_fake = TRUE
 						AND
-					atc_code = 'J07AH'
+					atc_code = 'J07AH06'
 			)
 	);
 
 -- --------------------------------------------------------------
 -- in case <generic cholera vaccine> exists: add ATC
-UPDATE ref.drug_product SET atc_code = 'J07AE' WHERE
+UPDATE ref.drug_product SET atc_code = 'J07AE01' WHERE
 	atc_code IS NULL
 		AND
 	description = 'generic cholera vaccine'
@@ -4184,7 +4169,7 @@ INSERT INTO ref.drug_product (description, preparation, is_fake, atc_code)
 		'generic cholera vaccine',
 		'vaccine',
 		TRUE,
-		'J07AE'
+		'J07AE01'
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.drug_product WHERE
 			description = 'generic cholera vaccine'
@@ -4193,19 +4178,19 @@ INSERT INTO ref.drug_product (description, preparation, is_fake, atc_code)
 				AND
 			is_fake = TRUE
 				AND
-			atc_code = 'J07AE'
+			atc_code = 'J07AE01'
 	);
 
 -- create dose, assumes substance exists
 INSERT INTO ref.dose (fk_substance, amount, unit, dose_unit)
 	SELECT
-		(SELECT pk FROM ref.substance WHERE atc = 'J07AE01' LIMIT 1),
+		(SELECT pk FROM ref.substance WHERE atc = 'J07AE0' LIMIT 1),
 		1,
 		'dose',
 		'shot'
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.dose WHERE
-			fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07AE01' LIMIT 1)
+			fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07AE0' LIMIT 1)
 				AND
 			amount = 1
 				AND
@@ -4218,7 +4203,7 @@ INSERT INTO ref.dose (fk_substance, amount, unit, dose_unit)
 INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 	SELECT
 		(SELECT pk from ref.dose WHERE
-					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07AE01' LIMIT 1)
+					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07AE0' LIMIT 1)
 						AND
 					amount = 1
 						AND
@@ -4233,13 +4218,13 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 				AND
 			is_fake = TRUE
 				AND
-			atc_code = 'J07AE'
+			atc_code = 'J07AE01'
 		)
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.lnk_dose2drug WHERE
 			fk_dose = (
 				SELECT PK from ref.dose WHERE
-					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07AE01' LIMIT 1)
+					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07AE0' LIMIT 1)
 						AND
 					amount = 1
 						AND
@@ -4256,7 +4241,7 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 						AND
 					is_fake = TRUE
 						AND
-					atc_code = 'J07AE'
+					atc_code = 'J07AE01'
 			)
 	);
 
@@ -4271,7 +4256,7 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 				AND
 			is_fake = TRUE
 				AND
-			atc_code = 'J07AE'
+			atc_code = 'J07AE01'
 		)
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.vaccine WHERE
@@ -4285,7 +4270,7 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 						AND
 					is_fake = TRUE
 						AND
-					atc_code = 'J07AE'
+					atc_code = 'J07AE01'
 			)
 	);
 
@@ -4448,13 +4433,13 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 -- create dose, assumes substance exists
 INSERT INTO ref.dose (fk_substance, amount, unit, dose_unit)
 	SELECT
-		(SELECT pk FROM ref.substance WHERE atc = 'J07BF03' LIMIT 1),
+		(SELECT pk FROM ref.substance WHERE atc = 'J07BF0' LIMIT 1),
 		1,
 		'dose',
 		'shot'
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.dose WHERE
-			fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BF03' LIMIT 1)
+			fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BF0' LIMIT 1)
 				AND
 			amount = 1
 				AND
@@ -4467,7 +4452,7 @@ INSERT INTO ref.dose (fk_substance, amount, unit, dose_unit)
 INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 	SELECT
 		(SELECT pk from ref.dose WHERE
-					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BF03' LIMIT 1)
+					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BF0' LIMIT 1)
 						AND
 					amount = 1
 						AND
@@ -4488,7 +4473,7 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 		SELECT 1 FROM ref.lnk_dose2drug WHERE
 			fk_dose = (
 				SELECT PK from ref.dose WHERE
-					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BF03' LIMIT 1)
+					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BF0' LIMIT 1)
 						AND
 					amount = 1
 						AND
@@ -4882,13 +4867,13 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 -- create dose, assumes substance exists
 INSERT INTO ref.dose (fk_substance, amount, unit, dose_unit)
 	SELECT
-		(SELECT pk FROM ref.substance WHERE atc = 'J07BF03' LIMIT 1),
+		(SELECT pk FROM ref.substance WHERE atc = 'J07BF0' LIMIT 1),
 		1,
 		'dose',
 		'shot'
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.dose WHERE
-			fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BF03' LIMIT 1)
+			fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BF0' LIMIT 1)
 				AND
 			amount = 1
 				AND
@@ -4901,7 +4886,7 @@ INSERT INTO ref.dose (fk_substance, amount, unit, dose_unit)
 INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 	SELECT
 		(SELECT pk from ref.dose WHERE
-					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BF03' LIMIT 1)
+					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BF0' LIMIT 1)
 						AND
 					amount = 1
 						AND
@@ -4922,7 +4907,7 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 		SELECT 1 FROM ref.lnk_dose2drug WHERE
 			fk_dose = (
 				SELECT PK from ref.dose WHERE
-					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BF03' LIMIT 1)
+					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BF0' LIMIT 1)
 						AND
 					amount = 1
 						AND
@@ -4974,7 +4959,7 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 
 -- --------------------------------------------------------------
 -- in case <generic rotavirus vaccine, live> exists: add ATC
-UPDATE ref.drug_product SET atc_code = 'J07BH' WHERE
+UPDATE ref.drug_product SET atc_code = 'J07BH01' WHERE
 	atc_code IS NULL
 		AND
 	description = 'generic rotavirus vaccine, live'
@@ -4988,7 +4973,7 @@ INSERT INTO ref.drug_product (description, preparation, is_fake, atc_code)
 		'generic rotavirus vaccine, live',
 		'vaccine',
 		TRUE,
-		'J07BH'
+		'J07BH01'
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.drug_product WHERE
 			description = 'generic rotavirus vaccine, live'
@@ -4997,19 +4982,19 @@ INSERT INTO ref.drug_product (description, preparation, is_fake, atc_code)
 				AND
 			is_fake = TRUE
 				AND
-			atc_code = 'J07BH'
+			atc_code = 'J07BH01'
 	);
 
 -- create dose, assumes substance exists
 INSERT INTO ref.dose (fk_substance, amount, unit, dose_unit)
 	SELECT
-		(SELECT pk FROM ref.substance WHERE atc = 'J07BH01' LIMIT 1),
+		(SELECT pk FROM ref.substance WHERE atc = 'J07BH0' LIMIT 1),
 		1,
 		'dose',
 		'shot'
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.dose WHERE
-			fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BH01' LIMIT 1)
+			fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BH0' LIMIT 1)
 				AND
 			amount = 1
 				AND
@@ -5022,7 +5007,7 @@ INSERT INTO ref.dose (fk_substance, amount, unit, dose_unit)
 INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 	SELECT
 		(SELECT pk from ref.dose WHERE
-					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BH01' LIMIT 1)
+					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BH0' LIMIT 1)
 						AND
 					amount = 1
 						AND
@@ -5037,13 +5022,13 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 				AND
 			is_fake = TRUE
 				AND
-			atc_code = 'J07BH'
+			atc_code = 'J07BH01'
 		)
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.lnk_dose2drug WHERE
 			fk_dose = (
 				SELECT PK from ref.dose WHERE
-					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BH01' LIMIT 1)
+					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BH0' LIMIT 1)
 						AND
 					amount = 1
 						AND
@@ -5060,7 +5045,7 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 						AND
 					is_fake = TRUE
 						AND
-					atc_code = 'J07BH'
+					atc_code = 'J07BH01'
 			)
 	);
 
@@ -5075,7 +5060,7 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 				AND
 			is_fake = TRUE
 				AND
-			atc_code = 'J07BH'
+			atc_code = 'J07BH01'
 		)
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.vaccine WHERE
@@ -5089,13 +5074,13 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 						AND
 					is_fake = TRUE
 						AND
-					atc_code = 'J07BH'
+					atc_code = 'J07BH01'
 			)
 	);
 
 -- --------------------------------------------------------------
 -- in case <generic pneumococcus vaccine> exists: add ATC
-UPDATE ref.drug_product SET atc_code = 'J07AL' WHERE
+UPDATE ref.drug_product SET atc_code = 'J07AL0' WHERE
 	atc_code IS NULL
 		AND
 	description = 'generic pneumococcus vaccine'
@@ -5109,7 +5094,7 @@ INSERT INTO ref.drug_product (description, preparation, is_fake, atc_code)
 		'generic pneumococcus vaccine',
 		'vaccine',
 		TRUE,
-		'J07AL'
+		'J07AL0'
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.drug_product WHERE
 			description = 'generic pneumococcus vaccine'
@@ -5118,19 +5103,19 @@ INSERT INTO ref.drug_product (description, preparation, is_fake, atc_code)
 				AND
 			is_fake = TRUE
 				AND
-			atc_code = 'J07AL'
+			atc_code = 'J07AL0'
 	);
 
 -- create dose, assumes substance exists
 INSERT INTO ref.dose (fk_substance, amount, unit, dose_unit)
 	SELECT
-		(SELECT pk FROM ref.substance WHERE atc = 'J07AL01' LIMIT 1),
+		(SELECT pk FROM ref.substance WHERE atc = 'J07AL0' LIMIT 1),
 		1,
 		'dose',
 		'shot'
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.dose WHERE
-			fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07AL01' LIMIT 1)
+			fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07AL0' LIMIT 1)
 				AND
 			amount = 1
 				AND
@@ -5143,7 +5128,7 @@ INSERT INTO ref.dose (fk_substance, amount, unit, dose_unit)
 INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 	SELECT
 		(SELECT pk from ref.dose WHERE
-					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07AL01' LIMIT 1)
+					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07AL0' LIMIT 1)
 						AND
 					amount = 1
 						AND
@@ -5158,13 +5143,13 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 				AND
 			is_fake = TRUE
 				AND
-			atc_code = 'J07AL'
+			atc_code = 'J07AL0'
 		)
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.lnk_dose2drug WHERE
 			fk_dose = (
 				SELECT PK from ref.dose WHERE
-					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07AL01' LIMIT 1)
+					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07AL0' LIMIT 1)
 						AND
 					amount = 1
 						AND
@@ -5181,7 +5166,7 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 						AND
 					is_fake = TRUE
 						AND
-					atc_code = 'J07AL'
+					atc_code = 'J07AL0'
 			)
 	);
 
@@ -5196,7 +5181,7 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 				AND
 			is_fake = TRUE
 				AND
-			atc_code = 'J07AL'
+			atc_code = 'J07AL0'
 		)
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.vaccine WHERE
@@ -5210,13 +5195,13 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 						AND
 					is_fake = TRUE
 						AND
-					atc_code = 'J07AL'
+					atc_code = 'J07AL0'
 			)
 	);
 
 -- --------------------------------------------------------------
 -- in case <generic typhoid vaccine, live> exists: add ATC
-UPDATE ref.drug_product SET atc_code = 'J07AP' WHERE
+UPDATE ref.drug_product SET atc_code = 'J07AP01' WHERE
 	atc_code IS NULL
 		AND
 	description = 'generic typhoid vaccine, live'
@@ -5230,7 +5215,7 @@ INSERT INTO ref.drug_product (description, preparation, is_fake, atc_code)
 		'generic typhoid vaccine, live',
 		'vaccine',
 		TRUE,
-		'J07AP'
+		'J07AP01'
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.drug_product WHERE
 			description = 'generic typhoid vaccine, live'
@@ -5239,19 +5224,19 @@ INSERT INTO ref.drug_product (description, preparation, is_fake, atc_code)
 				AND
 			is_fake = TRUE
 				AND
-			atc_code = 'J07AP'
+			atc_code = 'J07AP01'
 	);
 
 -- create dose, assumes substance exists
 INSERT INTO ref.dose (fk_substance, amount, unit, dose_unit)
 	SELECT
-		(SELECT pk FROM ref.substance WHERE atc = 'J07AP01' LIMIT 1),
+		(SELECT pk FROM ref.substance WHERE atc = 'J07AP0' LIMIT 1),
 		1,
 		'dose',
 		'shot'
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.dose WHERE
-			fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07AP01' LIMIT 1)
+			fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07AP0' LIMIT 1)
 				AND
 			amount = 1
 				AND
@@ -5264,7 +5249,7 @@ INSERT INTO ref.dose (fk_substance, amount, unit, dose_unit)
 INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 	SELECT
 		(SELECT pk from ref.dose WHERE
-					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07AP01' LIMIT 1)
+					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07AP0' LIMIT 1)
 						AND
 					amount = 1
 						AND
@@ -5279,13 +5264,13 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 				AND
 			is_fake = TRUE
 				AND
-			atc_code = 'J07AP'
+			atc_code = 'J07AP01'
 		)
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.lnk_dose2drug WHERE
 			fk_dose = (
 				SELECT PK from ref.dose WHERE
-					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07AP01' LIMIT 1)
+					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07AP0' LIMIT 1)
 						AND
 					amount = 1
 						AND
@@ -5302,7 +5287,7 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 						AND
 					is_fake = TRUE
 						AND
-					atc_code = 'J07AP'
+					atc_code = 'J07AP01'
 			)
 	);
 
@@ -5317,7 +5302,7 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 				AND
 			is_fake = TRUE
 				AND
-			atc_code = 'J07AP'
+			atc_code = 'J07AP01'
 		)
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.vaccine WHERE
@@ -5331,7 +5316,7 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 						AND
 					is_fake = TRUE
 						AND
-					atc_code = 'J07AP'
+					atc_code = 'J07AP01'
 			)
 	);
 
@@ -5586,7 +5571,7 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 
 -- --------------------------------------------------------------
 -- in case <generic zoster vaccine, live> exists: add ATC
-UPDATE ref.drug_product SET atc_code = 'J07BK' WHERE
+UPDATE ref.drug_product SET atc_code = 'J07BK02' WHERE
 	atc_code IS NULL
 		AND
 	description = 'generic zoster vaccine, live'
@@ -5600,7 +5585,7 @@ INSERT INTO ref.drug_product (description, preparation, is_fake, atc_code)
 		'generic zoster vaccine, live',
 		'vaccine',
 		TRUE,
-		'J07BK'
+		'J07BK02'
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.drug_product WHERE
 			description = 'generic zoster vaccine, live'
@@ -5609,19 +5594,19 @@ INSERT INTO ref.drug_product (description, preparation, is_fake, atc_code)
 				AND
 			is_fake = TRUE
 				AND
-			atc_code = 'J07BK'
+			atc_code = 'J07BK02'
 	);
 
 -- create dose, assumes substance exists
 INSERT INTO ref.dose (fk_substance, amount, unit, dose_unit)
 	SELECT
-		(SELECT pk FROM ref.substance WHERE atc = 'J07BK02' LIMIT 1),
+		(SELECT pk FROM ref.substance WHERE atc = 'J07BK0' LIMIT 1),
 		1,
 		'dose',
 		'shot'
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.dose WHERE
-			fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BK02' LIMIT 1)
+			fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BK0' LIMIT 1)
 				AND
 			amount = 1
 				AND
@@ -5634,7 +5619,7 @@ INSERT INTO ref.dose (fk_substance, amount, unit, dose_unit)
 INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 	SELECT
 		(SELECT pk from ref.dose WHERE
-					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BK02' LIMIT 1)
+					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BK0' LIMIT 1)
 						AND
 					amount = 1
 						AND
@@ -5649,13 +5634,13 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 				AND
 			is_fake = TRUE
 				AND
-			atc_code = 'J07BK'
+			atc_code = 'J07BK02'
 		)
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.lnk_dose2drug WHERE
 			fk_dose = (
 				SELECT PK from ref.dose WHERE
-					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BK02' LIMIT 1)
+					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BK0' LIMIT 1)
 						AND
 					amount = 1
 						AND
@@ -5672,7 +5657,7 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 						AND
 					is_fake = TRUE
 						AND
-					atc_code = 'J07BK'
+					atc_code = 'J07BK02'
 			)
 	);
 
@@ -5687,7 +5672,7 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 				AND
 			is_fake = TRUE
 				AND
-			atc_code = 'J07BK'
+			atc_code = 'J07BK02'
 		)
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.vaccine WHERE
@@ -5701,7 +5686,7 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 						AND
 					is_fake = TRUE
 						AND
-					atc_code = 'J07BK'
+					atc_code = 'J07BK02'
 			)
 	);
 
@@ -5928,13 +5913,13 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 -- create dose, assumes substance exists
 INSERT INTO ref.dose (fk_substance, amount, unit, dose_unit)
 	SELECT
-		(SELECT pk FROM ref.substance WHERE atc = 'J07BK01' LIMIT 1),
+		(SELECT pk FROM ref.substance WHERE atc = 'J07BK0' LIMIT 1),
 		1,
 		'dose',
 		'shot'
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.dose WHERE
-			fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BK01' LIMIT 1)
+			fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BK0' LIMIT 1)
 				AND
 			amount = 1
 				AND
@@ -5947,7 +5932,7 @@ INSERT INTO ref.dose (fk_substance, amount, unit, dose_unit)
 INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 	SELECT
 		(SELECT pk from ref.dose WHERE
-					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BK01' LIMIT 1)
+					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BK0' LIMIT 1)
 						AND
 					amount = 1
 						AND
@@ -5968,7 +5953,7 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 		SELECT 1 FROM ref.lnk_dose2drug WHERE
 			fk_dose = (
 				SELECT PK from ref.dose WHERE
-					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BK01' LIMIT 1)
+					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BK0' LIMIT 1)
 						AND
 					amount = 1
 						AND
@@ -6020,7 +6005,7 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 
 -- --------------------------------------------------------------
 -- in case <generic pertussis vaccine> exists: add ATC
-UPDATE ref.drug_product SET atc_code = 'J07AJ' WHERE
+UPDATE ref.drug_product SET atc_code = 'J07AJ01' WHERE
 	atc_code IS NULL
 		AND
 	description = 'generic pertussis vaccine'
@@ -6034,7 +6019,7 @@ INSERT INTO ref.drug_product (description, preparation, is_fake, atc_code)
 		'generic pertussis vaccine',
 		'vaccine',
 		TRUE,
-		'J07AJ'
+		'J07AJ01'
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.drug_product WHERE
 			description = 'generic pertussis vaccine'
@@ -6043,7 +6028,7 @@ INSERT INTO ref.drug_product (description, preparation, is_fake, atc_code)
 				AND
 			is_fake = TRUE
 				AND
-			atc_code = 'J07AJ'
+			atc_code = 'J07AJ01'
 	);
 
 -- create dose, assumes substance exists
@@ -6083,7 +6068,7 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 				AND
 			is_fake = TRUE
 				AND
-			atc_code = 'J07AJ'
+			atc_code = 'J07AJ01'
 		)
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.lnk_dose2drug WHERE
@@ -6106,7 +6091,7 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 						AND
 					is_fake = TRUE
 						AND
-					atc_code = 'J07AJ'
+					atc_code = 'J07AJ01'
 			)
 	);
 
@@ -6121,7 +6106,7 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 				AND
 			is_fake = TRUE
 				AND
-			atc_code = 'J07AJ'
+			atc_code = 'J07AJ01'
 		)
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.vaccine WHERE
@@ -6135,7 +6120,7 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 						AND
 					is_fake = TRUE
 						AND
-					atc_code = 'J07AJ'
+					atc_code = 'J07AJ01'
 			)
 	);
 
@@ -6262,7 +6247,7 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 
 -- --------------------------------------------------------------
 -- in case <generic cholera vaccine, live> exists: add ATC
-UPDATE ref.drug_product SET atc_code = 'J07AE' WHERE
+UPDATE ref.drug_product SET atc_code = 'J07AE02' WHERE
 	atc_code IS NULL
 		AND
 	description = 'generic cholera vaccine, live'
@@ -6276,7 +6261,7 @@ INSERT INTO ref.drug_product (description, preparation, is_fake, atc_code)
 		'generic cholera vaccine, live',
 		'vaccine',
 		TRUE,
-		'J07AE'
+		'J07AE02'
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.drug_product WHERE
 			description = 'generic cholera vaccine, live'
@@ -6285,19 +6270,19 @@ INSERT INTO ref.drug_product (description, preparation, is_fake, atc_code)
 				AND
 			is_fake = TRUE
 				AND
-			atc_code = 'J07AE'
+			atc_code = 'J07AE02'
 	);
 
 -- create dose, assumes substance exists
 INSERT INTO ref.dose (fk_substance, amount, unit, dose_unit)
 	SELECT
-		(SELECT pk FROM ref.substance WHERE atc = 'J07AE02' LIMIT 1),
+		(SELECT pk FROM ref.substance WHERE atc = 'J07AE0' LIMIT 1),
 		1,
 		'dose',
 		'shot'
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.dose WHERE
-			fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07AE02' LIMIT 1)
+			fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07AE0' LIMIT 1)
 				AND
 			amount = 1
 				AND
@@ -6310,7 +6295,7 @@ INSERT INTO ref.dose (fk_substance, amount, unit, dose_unit)
 INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 	SELECT
 		(SELECT pk from ref.dose WHERE
-					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07AE02' LIMIT 1)
+					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07AE0' LIMIT 1)
 						AND
 					amount = 1
 						AND
@@ -6325,13 +6310,13 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 				AND
 			is_fake = TRUE
 				AND
-			atc_code = 'J07AE'
+			atc_code = 'J07AE02'
 		)
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.lnk_dose2drug WHERE
 			fk_dose = (
 				SELECT PK from ref.dose WHERE
-					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07AE02' LIMIT 1)
+					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07AE0' LIMIT 1)
 						AND
 					amount = 1
 						AND
@@ -6348,7 +6333,7 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 						AND
 					is_fake = TRUE
 						AND
-					atc_code = 'J07AE'
+					atc_code = 'J07AE02'
 			)
 	);
 
@@ -6363,7 +6348,7 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 				AND
 			is_fake = TRUE
 				AND
-			atc_code = 'J07AE'
+			atc_code = 'J07AE02'
 		)
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.vaccine WHERE
@@ -6377,7 +6362,7 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 						AND
 					is_fake = TRUE
 						AND
-					atc_code = 'J07AE'
+					atc_code = 'J07AE02'
 			)
 	);
 
@@ -7166,13 +7151,13 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 -- create dose, assumes substance exists
 INSERT INTO ref.dose (fk_substance, amount, unit, dose_unit)
 	SELECT
-		(SELECT pk FROM ref.substance WHERE atc = 'J07BF03' LIMIT 1),
+		(SELECT pk FROM ref.substance WHERE atc = 'J07BF0' LIMIT 1),
 		1,
 		'dose',
 		'shot'
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.dose WHERE
-			fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BF03' LIMIT 1)
+			fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BF0' LIMIT 1)
 				AND
 			amount = 1
 				AND
@@ -7185,7 +7170,7 @@ INSERT INTO ref.dose (fk_substance, amount, unit, dose_unit)
 INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 	SELECT
 		(SELECT pk from ref.dose WHERE
-					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BF03' LIMIT 1)
+					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BF0' LIMIT 1)
 						AND
 					amount = 1
 						AND
@@ -7206,7 +7191,7 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 		SELECT 1 FROM ref.lnk_dose2drug WHERE
 			fk_dose = (
 				SELECT PK from ref.dose WHERE
-					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BF03' LIMIT 1)
+					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BF0' LIMIT 1)
 						AND
 					amount = 1
 						AND
@@ -7635,7 +7620,7 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 
 -- --------------------------------------------------------------
 -- in case <generic poliomyelitis vaccine> exists: add ATC
-UPDATE ref.drug_product SET atc_code = 'J07BF' WHERE
+UPDATE ref.drug_product SET atc_code = 'J07BF03' WHERE
 	atc_code IS NULL
 		AND
 	description = 'generic poliomyelitis vaccine'
@@ -7649,7 +7634,7 @@ INSERT INTO ref.drug_product (description, preparation, is_fake, atc_code)
 		'generic poliomyelitis vaccine',
 		'vaccine',
 		TRUE,
-		'J07BF'
+		'J07BF03'
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.drug_product WHERE
 			description = 'generic poliomyelitis vaccine'
@@ -7658,19 +7643,19 @@ INSERT INTO ref.drug_product (description, preparation, is_fake, atc_code)
 				AND
 			is_fake = TRUE
 				AND
-			atc_code = 'J07BF'
+			atc_code = 'J07BF03'
 	);
 
 -- create dose, assumes substance exists
 INSERT INTO ref.dose (fk_substance, amount, unit, dose_unit)
 	SELECT
-		(SELECT pk FROM ref.substance WHERE atc = 'J07BF03' LIMIT 1),
+		(SELECT pk FROM ref.substance WHERE atc = 'J07BF0' LIMIT 1),
 		1,
 		'dose',
 		'shot'
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.dose WHERE
-			fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BF03' LIMIT 1)
+			fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BF0' LIMIT 1)
 				AND
 			amount = 1
 				AND
@@ -7683,7 +7668,7 @@ INSERT INTO ref.dose (fk_substance, amount, unit, dose_unit)
 INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 	SELECT
 		(SELECT pk from ref.dose WHERE
-					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BF03' LIMIT 1)
+					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BF0' LIMIT 1)
 						AND
 					amount = 1
 						AND
@@ -7698,13 +7683,13 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 				AND
 			is_fake = TRUE
 				AND
-			atc_code = 'J07BF'
+			atc_code = 'J07BF03'
 		)
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.lnk_dose2drug WHERE
 			fk_dose = (
 				SELECT PK from ref.dose WHERE
-					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BF03' LIMIT 1)
+					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BF0' LIMIT 1)
 						AND
 					amount = 1
 						AND
@@ -7721,7 +7706,7 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 						AND
 					is_fake = TRUE
 						AND
-					atc_code = 'J07BF'
+					atc_code = 'J07BF03'
 			)
 	);
 
@@ -7736,7 +7721,7 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 				AND
 			is_fake = TRUE
 				AND
-			atc_code = 'J07BF'
+			atc_code = 'J07BF03'
 		)
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.vaccine WHERE
@@ -7750,7 +7735,7 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 						AND
 					is_fake = TRUE
 						AND
-					atc_code = 'J07BF'
+					atc_code = 'J07BF03'
 			)
 	);
 
@@ -8091,13 +8076,13 @@ INSERT INTO ref.drug_product (description, preparation, is_fake, atc_code)
 -- create dose, assumes substance exists
 INSERT INTO ref.dose (fk_substance, amount, unit, dose_unit)
 	SELECT
-		(SELECT pk FROM ref.substance WHERE atc = 'J07AP10' LIMIT 1),
+		(SELECT pk FROM ref.substance WHERE atc = 'J07AP1' LIMIT 1),
 		1,
 		'dose',
 		'shot'
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.dose WHERE
-			fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07AP10' LIMIT 1)
+			fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07AP1' LIMIT 1)
 				AND
 			amount = 1
 				AND
@@ -8110,7 +8095,7 @@ INSERT INTO ref.dose (fk_substance, amount, unit, dose_unit)
 INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 	SELECT
 		(SELECT pk from ref.dose WHERE
-					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07AP10' LIMIT 1)
+					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07AP1' LIMIT 1)
 						AND
 					amount = 1
 						AND
@@ -8131,7 +8116,7 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 		SELECT 1 FROM ref.lnk_dose2drug WHERE
 			fk_dose = (
 				SELECT PK from ref.dose WHERE
-					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07AP10' LIMIT 1)
+					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07AP1' LIMIT 1)
 						AND
 					amount = 1
 						AND
@@ -8525,13 +8510,13 @@ INSERT INTO ref.drug_product (description, preparation, is_fake, atc_code)
 -- create dose, assumes substance exists
 INSERT INTO ref.dose (fk_substance, amount, unit, dose_unit)
 	SELECT
-		(SELECT pk FROM ref.substance WHERE atc = 'J07BC02' LIMIT 1),
+		(SELECT pk FROM ref.substance WHERE atc = 'J07BC0' LIMIT 1),
 		1,
 		'dose',
 		'shot'
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.dose WHERE
-			fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BC02' LIMIT 1)
+			fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BC0' LIMIT 1)
 				AND
 			amount = 1
 				AND
@@ -8544,7 +8529,7 @@ INSERT INTO ref.dose (fk_substance, amount, unit, dose_unit)
 INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 	SELECT
 		(SELECT pk from ref.dose WHERE
-					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BC02' LIMIT 1)
+					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BC0' LIMIT 1)
 						AND
 					amount = 1
 						AND
@@ -8565,7 +8550,7 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 		SELECT 1 FROM ref.lnk_dose2drug WHERE
 			fk_dose = (
 				SELECT PK from ref.dose WHERE
-					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BC02' LIMIT 1)
+					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BC0' LIMIT 1)
 						AND
 					amount = 1
 						AND
@@ -9101,7 +9086,7 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 
 -- --------------------------------------------------------------
 -- in case <generic typhoid vaccine> exists: add ATC
-UPDATE ref.drug_product SET atc_code = 'J07AP' WHERE
+UPDATE ref.drug_product SET atc_code = 'J07AP02' WHERE
 	atc_code IS NULL
 		AND
 	description = 'generic typhoid vaccine'
@@ -9115,7 +9100,7 @@ INSERT INTO ref.drug_product (description, preparation, is_fake, atc_code)
 		'generic typhoid vaccine',
 		'vaccine',
 		TRUE,
-		'J07AP'
+		'J07AP02'
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.drug_product WHERE
 			description = 'generic typhoid vaccine'
@@ -9124,19 +9109,19 @@ INSERT INTO ref.drug_product (description, preparation, is_fake, atc_code)
 				AND
 			is_fake = TRUE
 				AND
-			atc_code = 'J07AP'
+			atc_code = 'J07AP02'
 	);
 
 -- create dose, assumes substance exists
 INSERT INTO ref.dose (fk_substance, amount, unit, dose_unit)
 	SELECT
-		(SELECT pk FROM ref.substance WHERE atc = 'J07AP02' LIMIT 1),
+		(SELECT pk FROM ref.substance WHERE atc = 'J07AP0' LIMIT 1),
 		1,
 		'dose',
 		'shot'
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.dose WHERE
-			fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07AP02' LIMIT 1)
+			fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07AP0' LIMIT 1)
 				AND
 			amount = 1
 				AND
@@ -9149,7 +9134,7 @@ INSERT INTO ref.dose (fk_substance, amount, unit, dose_unit)
 INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 	SELECT
 		(SELECT pk from ref.dose WHERE
-					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07AP02' LIMIT 1)
+					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07AP0' LIMIT 1)
 						AND
 					amount = 1
 						AND
@@ -9164,13 +9149,13 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 				AND
 			is_fake = TRUE
 				AND
-			atc_code = 'J07AP'
+			atc_code = 'J07AP02'
 		)
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.lnk_dose2drug WHERE
 			fk_dose = (
 				SELECT PK from ref.dose WHERE
-					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07AP02' LIMIT 1)
+					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07AP0' LIMIT 1)
 						AND
 					amount = 1
 						AND
@@ -9187,7 +9172,7 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 						AND
 					is_fake = TRUE
 						AND
-					atc_code = 'J07AP'
+					atc_code = 'J07AP02'
 			)
 	);
 
@@ -9202,7 +9187,7 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 				AND
 			is_fake = TRUE
 				AND
-			atc_code = 'J07AP'
+			atc_code = 'J07AP02'
 		)
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.vaccine WHERE
@@ -9216,7 +9201,7 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 						AND
 					is_fake = TRUE
 						AND
-					atc_code = 'J07AP'
+					atc_code = 'J07AP02'
 			)
 	);
 
@@ -9806,13 +9791,13 @@ INSERT INTO ref.drug_product (description, preparation, is_fake, atc_code)
 -- create dose, assumes substance exists
 INSERT INTO ref.dose (fk_substance, amount, unit, dose_unit)
 	SELECT
-		(SELECT pk FROM ref.substance WHERE atc = 'J07AE01' LIMIT 1),
+		(SELECT pk FROM ref.substance WHERE atc = 'J07AE0' LIMIT 1),
 		1,
 		'dose',
 		'shot'
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.dose WHERE
-			fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07AE01' LIMIT 1)
+			fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07AE0' LIMIT 1)
 				AND
 			amount = 1
 				AND
@@ -9825,7 +9810,7 @@ INSERT INTO ref.dose (fk_substance, amount, unit, dose_unit)
 INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 	SELECT
 		(SELECT pk from ref.dose WHERE
-					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07AE01' LIMIT 1)
+					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07AE0' LIMIT 1)
 						AND
 					amount = 1
 						AND
@@ -9846,7 +9831,7 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 		SELECT 1 FROM ref.lnk_dose2drug WHERE
 			fk_dose = (
 				SELECT PK from ref.dose WHERE
-					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07AE01' LIMIT 1)
+					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07AE0' LIMIT 1)
 						AND
 					amount = 1
 						AND
@@ -9870,13 +9855,13 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 -- create dose, assumes substance exists
 INSERT INTO ref.dose (fk_substance, amount, unit, dose_unit)
 	SELECT
-		(SELECT pk FROM ref.substance WHERE atc = 'J07AP02' LIMIT 1),
+		(SELECT pk FROM ref.substance WHERE atc = 'J07AP0' LIMIT 1),
 		1,
 		'dose',
 		'shot'
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.dose WHERE
-			fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07AP02' LIMIT 1)
+			fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07AP0' LIMIT 1)
 				AND
 			amount = 1
 				AND
@@ -9889,7 +9874,7 @@ INSERT INTO ref.dose (fk_substance, amount, unit, dose_unit)
 INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 	SELECT
 		(SELECT pk from ref.dose WHERE
-					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07AP02' LIMIT 1)
+					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07AP0' LIMIT 1)
 						AND
 					amount = 1
 						AND
@@ -9910,7 +9895,7 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 		SELECT 1 FROM ref.lnk_dose2drug WHERE
 			fk_dose = (
 				SELECT PK from ref.dose WHERE
-					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07AP02' LIMIT 1)
+					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07AP0' LIMIT 1)
 						AND
 					amount = 1
 						AND
@@ -10183,13 +10168,13 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 -- create dose, assumes substance exists
 INSERT INTO ref.dose (fk_substance, amount, unit, dose_unit)
 	SELECT
-		(SELECT pk FROM ref.substance WHERE atc = 'J07BF03' LIMIT 1),
+		(SELECT pk FROM ref.substance WHERE atc = 'J07BF0' LIMIT 1),
 		1,
 		'dose',
 		'shot'
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.dose WHERE
-			fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BF03' LIMIT 1)
+			fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BF0' LIMIT 1)
 				AND
 			amount = 1
 				AND
@@ -10202,7 +10187,7 @@ INSERT INTO ref.dose (fk_substance, amount, unit, dose_unit)
 INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 	SELECT
 		(SELECT pk from ref.dose WHERE
-					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BF03' LIMIT 1)
+					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BF0' LIMIT 1)
 						AND
 					amount = 1
 						AND
@@ -10223,7 +10208,7 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 		SELECT 1 FROM ref.lnk_dose2drug WHERE
 			fk_dose = (
 				SELECT PK from ref.dose WHERE
-					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BF03' LIMIT 1)
+					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BF0' LIMIT 1)
 						AND
 					amount = 1
 						AND
@@ -10432,13 +10417,13 @@ INSERT INTO ref.drug_product (description, preparation, is_fake, atc_code)
 -- create dose, assumes substance exists
 INSERT INTO ref.dose (fk_substance, amount, unit, dose_unit)
 	SELECT
-		(SELECT pk FROM ref.substance WHERE atc = 'J07BA03' LIMIT 1),
+		(SELECT pk FROM ref.substance WHERE atc = 'J07BA0J' LIMIT 1),
 		1,
 		'dose',
 		'shot'
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.dose WHERE
-			fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BA03' LIMIT 1)
+			fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BA0J' LIMIT 1)
 				AND
 			amount = 1
 				AND
@@ -10451,7 +10436,7 @@ INSERT INTO ref.dose (fk_substance, amount, unit, dose_unit)
 INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 	SELECT
 		(SELECT pk from ref.dose WHERE
-					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BA03' LIMIT 1)
+					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BA0J' LIMIT 1)
 						AND
 					amount = 1
 						AND
@@ -10472,7 +10457,7 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 		SELECT 1 FROM ref.lnk_dose2drug WHERE
 			fk_dose = (
 				SELECT PK from ref.dose WHERE
-					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BA03' LIMIT 1)
+					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BA0J' LIMIT 1)
 						AND
 					amount = 1
 						AND
@@ -10745,13 +10730,13 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 -- create dose, assumes substance exists
 INSERT INTO ref.dose (fk_substance, amount, unit, dose_unit)
 	SELECT
-		(SELECT pk FROM ref.substance WHERE atc = 'J07BF03' LIMIT 1),
+		(SELECT pk FROM ref.substance WHERE atc = 'J07BF0' LIMIT 1),
 		1,
 		'dose',
 		'shot'
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.dose WHERE
-			fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BF03' LIMIT 1)
+			fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BF0' LIMIT 1)
 				AND
 			amount = 1
 				AND
@@ -10764,7 +10749,7 @@ INSERT INTO ref.dose (fk_substance, amount, unit, dose_unit)
 INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 	SELECT
 		(SELECT pk from ref.dose WHERE
-					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BF03' LIMIT 1)
+					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BF0' LIMIT 1)
 						AND
 					amount = 1
 						AND
@@ -10785,7 +10770,7 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 		SELECT 1 FROM ref.lnk_dose2drug WHERE
 			fk_dose = (
 				SELECT PK from ref.dose WHERE
-					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BF03' LIMIT 1)
+					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BF0' LIMIT 1)
 						AND
 					amount = 1
 						AND
@@ -11328,7 +11313,7 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 
 -- --------------------------------------------------------------
 -- in case <generic japanese encephalitis vaccine> exists: add ATC
-UPDATE ref.drug_product SET atc_code = 'J07BA' WHERE
+UPDATE ref.drug_product SET atc_code = 'J07BA02' WHERE
 	atc_code IS NULL
 		AND
 	description = 'generic japanese encephalitis vaccine'
@@ -11342,7 +11327,7 @@ INSERT INTO ref.drug_product (description, preparation, is_fake, atc_code)
 		'generic japanese encephalitis vaccine',
 		'vaccine',
 		TRUE,
-		'J07BA'
+		'J07BA02'
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.drug_product WHERE
 			description = 'generic japanese encephalitis vaccine'
@@ -11351,19 +11336,19 @@ INSERT INTO ref.drug_product (description, preparation, is_fake, atc_code)
 				AND
 			is_fake = TRUE
 				AND
-			atc_code = 'J07BA'
+			atc_code = 'J07BA02'
 	);
 
 -- create dose, assumes substance exists
 INSERT INTO ref.dose (fk_substance, amount, unit, dose_unit)
 	SELECT
-		(SELECT pk FROM ref.substance WHERE atc = 'J07BA02' LIMIT 1),
+		(SELECT pk FROM ref.substance WHERE atc = 'J07BA0J' LIMIT 1),
 		1,
 		'dose',
 		'shot'
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.dose WHERE
-			fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BA02' LIMIT 1)
+			fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BA0J' LIMIT 1)
 				AND
 			amount = 1
 				AND
@@ -11376,7 +11361,7 @@ INSERT INTO ref.dose (fk_substance, amount, unit, dose_unit)
 INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 	SELECT
 		(SELECT pk from ref.dose WHERE
-					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BA02' LIMIT 1)
+					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BA0J' LIMIT 1)
 						AND
 					amount = 1
 						AND
@@ -11391,13 +11376,13 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 				AND
 			is_fake = TRUE
 				AND
-			atc_code = 'J07BA'
+			atc_code = 'J07BA02'
 		)
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.lnk_dose2drug WHERE
 			fk_dose = (
 				SELECT PK from ref.dose WHERE
-					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BA02' LIMIT 1)
+					fk_substance = (SELECT pk FROM ref.substance WHERE atc = 'J07BA0J' LIMIT 1)
 						AND
 					amount = 1
 						AND
@@ -11414,7 +11399,7 @@ INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
 						AND
 					is_fake = TRUE
 						AND
-					atc_code = 'J07BA'
+					atc_code = 'J07BA02'
 			)
 	);
 
@@ -11429,7 +11414,7 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 				AND
 			is_fake = TRUE
 				AND
-			atc_code = 'J07BA'
+			atc_code = 'J07BA02'
 		)
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.vaccine WHERE
@@ -11443,7 +11428,7 @@ INSERT INTO ref.vaccine (is_live, fk_drug_product)
 						AND
 					is_fake = TRUE
 						AND
-					atc_code = 'J07BA'
+					atc_code = 'J07BA02'
 			)
 	);
 
@@ -11479,10 +11464,10 @@ INSERT INTO staging.lnk_vacc_ind2subst_dose (fk_indication, fk_dose, is_live)
 		SELECT 1 FROM ref.vacc_indication WHERE description = 'meningococcus Y'
 	);
 
--- old-style "meningococcus W" => "meningococcus W-135 antigen"
+-- old-style "yellow fever" => "yellow fever virus, live"
 INSERT INTO staging.lnk_vacc_ind2subst_dose (fk_indication, fk_dose, is_live)
 	SELECT
-		(SELECT id FROM ref.vacc_indication WHERE description = 'meningococcus W'),
+		(SELECT id FROM ref.vacc_indication WHERE description = 'yellow fever'),
 		(SELECT pk_dose FROM ref.v_substance_doses WHERE
 			amount = 1
 				AND
@@ -11490,11 +11475,11 @@ INSERT INTO staging.lnk_vacc_ind2subst_dose (fk_indication, fk_dose, is_live)
 				AND
 			dose_unit = 'shot'
 				AND
-			substance = 'meningococcus W-135 antigen'
+			substance = 'yellow fever virus, live'
 		),
-		false
+		true
 	WHERE EXISTS (
-		SELECT 1 FROM ref.vacc_indication WHERE description = 'meningococcus W'
+		SELECT 1 FROM ref.vacc_indication WHERE description = 'yellow fever'
 	);
 
 -- old-style "haemophilus influenzae b" => "hemophilus influenzae B antigen"
@@ -11677,10 +11662,10 @@ INSERT INTO staging.lnk_vacc_ind2subst_dose (fk_indication, fk_dose, is_live)
 		SELECT 1 FROM ref.vacc_indication WHERE description = 'pneumococcus'
 	);
 
--- old-style "yellow fever" => "yellow fever virus, live"
+-- old-style "meningococcus W" => "meningococcus W-135 antigen"
 INSERT INTO staging.lnk_vacc_ind2subst_dose (fk_indication, fk_dose, is_live)
 	SELECT
-		(SELECT id FROM ref.vacc_indication WHERE description = 'yellow fever'),
+		(SELECT id FROM ref.vacc_indication WHERE description = 'meningococcus W'),
 		(SELECT pk_dose FROM ref.v_substance_doses WHERE
 			amount = 1
 				AND
@@ -11688,11 +11673,11 @@ INSERT INTO staging.lnk_vacc_ind2subst_dose (fk_indication, fk_dose, is_live)
 				AND
 			dose_unit = 'shot'
 				AND
-			substance = 'yellow fever virus, live'
+			substance = 'meningococcus W-135 antigen'
 		),
-		true
+		false
 	WHERE EXISTS (
-		SELECT 1 FROM ref.vacc_indication WHERE description = 'yellow fever'
+		SELECT 1 FROM ref.vacc_indication WHERE description = 'meningococcus W'
 	);
 
 -- old-style "cholera" => "cholera, inactivated"
@@ -11731,7 +11716,7 @@ INSERT INTO staging.lnk_vacc_ind2subst_dose (fk_indication, fk_dose, is_live)
 		SELECT 1 FROM ref.vacc_indication WHERE description = 'rubella'
 	);
 
--- old-style "japanese B encephalitis" => "flavivirus, live, attenuated"
+-- old-style "japanese B encephalitis" => "flavivirus, japanese, live, attenuated"
 INSERT INTO staging.lnk_vacc_ind2subst_dose (fk_indication, fk_dose, is_live)
 	SELECT
 		(SELECT id FROM ref.vacc_indication WHERE description = 'japanese B encephalitis'),
@@ -11742,7 +11727,7 @@ INSERT INTO staging.lnk_vacc_ind2subst_dose (fk_indication, fk_dose, is_live)
 				AND
 			dose_unit = 'shot'
 				AND
-			substance = 'flavivirus, live, attenuated'
+			substance = 'flavivirus, japanese, live, attenuated'
 		),
 		true
 	WHERE EXISTS (
@@ -11911,6 +11896,60 @@ INSERT INTO staging.lnk_vacc_ind2subst_dose (fk_indication, fk_dose, is_live)
 		SELECT 1 FROM ref.vacc_indication WHERE description = 'variola virus (smallpox)'
 	);
 
+-- old-style "influenza (seasonal)" => "influenza, live, attenuated"
+INSERT INTO staging.lnk_vacc_ind2subst_dose (fk_indication, fk_dose, is_live)
+	SELECT
+		(SELECT id FROM ref.vacc_indication WHERE description = 'influenza (seasonal)'),
+		(SELECT pk_dose FROM ref.v_substance_doses WHERE
+			amount = 1
+				AND
+			unit = 'dose'
+				AND
+			dose_unit = 'shot'
+				AND
+			substance = 'influenza, live, attenuated'
+		),
+		true
+	WHERE EXISTS (
+		SELECT 1 FROM ref.vacc_indication WHERE description = 'influenza (seasonal)'
+	);
+
+-- old-style "influenza (H3N2)" => "influenza, live, attenuated"
+INSERT INTO staging.lnk_vacc_ind2subst_dose (fk_indication, fk_dose, is_live)
+	SELECT
+		(SELECT id FROM ref.vacc_indication WHERE description = 'influenza (H3N2)'),
+		(SELECT pk_dose FROM ref.v_substance_doses WHERE
+			amount = 1
+				AND
+			unit = 'dose'
+				AND
+			dose_unit = 'shot'
+				AND
+			substance = 'influenza, live, attenuated'
+		),
+		true
+	WHERE EXISTS (
+		SELECT 1 FROM ref.vacc_indication WHERE description = 'influenza (H3N2)'
+	);
+
+-- old-style "influenza (H1N1)" => "influenza, live, attenuated"
+INSERT INTO staging.lnk_vacc_ind2subst_dose (fk_indication, fk_dose, is_live)
+	SELECT
+		(SELECT id FROM ref.vacc_indication WHERE description = 'influenza (H1N1)'),
+		(SELECT pk_dose FROM ref.v_substance_doses WHERE
+			amount = 1
+				AND
+			unit = 'dose'
+				AND
+			dose_unit = 'shot'
+				AND
+			substance = 'influenza, live, attenuated'
+		),
+		true
+	WHERE EXISTS (
+		SELECT 1 FROM ref.vacc_indication WHERE description = 'influenza (H1N1)'
+	);
+
 -- old-style "influenza (seasonal)" => "influenza, inactivated"
 INSERT INTO staging.lnk_vacc_ind2subst_dose (fk_indication, fk_dose, is_live)
 	SELECT
@@ -12001,60 +12040,6 @@ INSERT INTO staging.lnk_vacc_ind2subst_dose (fk_indication, fk_dose, is_live)
 		SELECT 1 FROM ref.vacc_indication WHERE description = 'human papillomavirus'
 	);
 
--- old-style "influenza (seasonal)" => "influenza, live, attenuated"
-INSERT INTO staging.lnk_vacc_ind2subst_dose (fk_indication, fk_dose, is_live)
-	SELECT
-		(SELECT id FROM ref.vacc_indication WHERE description = 'influenza (seasonal)'),
-		(SELECT pk_dose FROM ref.v_substance_doses WHERE
-			amount = 1
-				AND
-			unit = 'dose'
-				AND
-			dose_unit = 'shot'
-				AND
-			substance = 'influenza, live, attenuated'
-		),
-		true
-	WHERE EXISTS (
-		SELECT 1 FROM ref.vacc_indication WHERE description = 'influenza (seasonal)'
-	);
-
--- old-style "influenza (H3N2)" => "influenza, live, attenuated"
-INSERT INTO staging.lnk_vacc_ind2subst_dose (fk_indication, fk_dose, is_live)
-	SELECT
-		(SELECT id FROM ref.vacc_indication WHERE description = 'influenza (H3N2)'),
-		(SELECT pk_dose FROM ref.v_substance_doses WHERE
-			amount = 1
-				AND
-			unit = 'dose'
-				AND
-			dose_unit = 'shot'
-				AND
-			substance = 'influenza, live, attenuated'
-		),
-		true
-	WHERE EXISTS (
-		SELECT 1 FROM ref.vacc_indication WHERE description = 'influenza (H3N2)'
-	);
-
--- old-style "influenza (H1N1)" => "influenza, live, attenuated"
-INSERT INTO staging.lnk_vacc_ind2subst_dose (fk_indication, fk_dose, is_live)
-	SELECT
-		(SELECT id FROM ref.vacc_indication WHERE description = 'influenza (H1N1)'),
-		(SELECT pk_dose FROM ref.v_substance_doses WHERE
-			amount = 1
-				AND
-			unit = 'dose'
-				AND
-			dose_unit = 'shot'
-				AND
-			substance = 'influenza, live, attenuated'
-		),
-		true
-	WHERE EXISTS (
-		SELECT 1 FROM ref.vacc_indication WHERE description = 'influenza (H1N1)'
-	);
-
 -- old-style "rabies" => "rabies, inactivated"
 INSERT INTO staging.lnk_vacc_ind2subst_dose (fk_indication, fk_dose, is_live)
 	SELECT
@@ -12071,42 +12056,6 @@ INSERT INTO staging.lnk_vacc_ind2subst_dose (fk_indication, fk_dose, is_live)
 		false
 	WHERE EXISTS (
 		SELECT 1 FROM ref.vacc_indication WHERE description = 'rabies'
-	);
-
--- old-style "rotavirus" => "rotavirus, live"
-INSERT INTO staging.lnk_vacc_ind2subst_dose (fk_indication, fk_dose, is_live)
-	SELECT
-		(SELECT id FROM ref.vacc_indication WHERE description = 'rotavirus'),
-		(SELECT pk_dose FROM ref.v_substance_doses WHERE
-			amount = 1
-				AND
-			unit = 'dose'
-				AND
-			dose_unit = 'shot'
-				AND
-			substance = 'rotavirus, live'
-		),
-		true
-	WHERE EXISTS (
-		SELECT 1 FROM ref.vacc_indication WHERE description = 'rotavirus'
-	);
-
--- old-style "diphtheria" => "diphtheria toxoid"
-INSERT INTO staging.lnk_vacc_ind2subst_dose (fk_indication, fk_dose, is_live)
-	SELECT
-		(SELECT id FROM ref.vacc_indication WHERE description = 'diphtheria'),
-		(SELECT pk_dose FROM ref.v_substance_doses WHERE
-			amount = 1
-				AND
-			unit = 'dose'
-				AND
-			dose_unit = 'shot'
-				AND
-			substance = 'diphtheria toxoid'
-		),
-		false
-	WHERE EXISTS (
-		SELECT 1 FROM ref.vacc_indication WHERE description = 'diphtheria'
 	);
 
 -- old-style "cholera" => "cholera, live, attenuated"
@@ -12143,6 +12092,24 @@ INSERT INTO staging.lnk_vacc_ind2subst_dose (fk_indication, fk_dose, is_live)
 		true
 	WHERE EXISTS (
 		SELECT 1 FROM ref.vacc_indication WHERE description = 'varicella (chickenpox, shingles)'
+	);
+
+-- old-style "diphtheria" => "diphtheria toxoid"
+INSERT INTO staging.lnk_vacc_ind2subst_dose (fk_indication, fk_dose, is_live)
+	SELECT
+		(SELECT id FROM ref.vacc_indication WHERE description = 'diphtheria'),
+		(SELECT pk_dose FROM ref.v_substance_doses WHERE
+			amount = 1
+				AND
+			unit = 'dose'
+				AND
+			dose_unit = 'shot'
+				AND
+			substance = 'diphtheria toxoid'
+		),
+		false
+	WHERE EXISTS (
+		SELECT 1 FROM ref.vacc_indication WHERE description = 'diphtheria'
 	);
 
 -- old-style "measles" => "measles, live, attenuated"

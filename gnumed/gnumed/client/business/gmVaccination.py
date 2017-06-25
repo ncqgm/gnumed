@@ -25,7 +25,7 @@ from Gnumed.business import gmMedication
 _log = logging.getLogger('gm.vacc')
 
 #============================================================
-_SQL_create_substance = u"""-- in case <%(moniker)s> already exists: add ATC
+_SQL_create_substance = u"""-- in case <%(substance_tag)s> already exists: add ATC
 UPDATE ref.substance SET atc = '%(atc)s' WHERE lower(description) = lower('%(desc)s') AND atc IS NULL;
 
 INSERT INTO ref.substance (description, atc)
@@ -33,7 +33,10 @@ INSERT INTO ref.substance (description, atc)
 		'%(desc)s',
 		'%(atc)s'
 	WHERE NOT EXISTS (
-		SELECT 1 FROM ref.substance WHERE atc = '%(atc)s'
+		SELECT 1 FROM ref.substance WHERE
+			atc = '%(atc)s'
+				AND
+			description = '%(desc)s'
 	);
 
 -- generic English
@@ -316,11 +319,11 @@ def create_generic_vaccine_sql(version, include_indications_mapping=False):
 	sql_populate_ind2subst_map = []
 	sql_create_vaccines = []
 
-	for moniker in gmVaccDefs._VACCINE_SUBSTANCES:
-		subst = gmVaccDefs._VACCINE_SUBSTANCES[moniker]
+	for substance_tag in gmVaccDefs._VACCINE_SUBSTANCES:
+		subst = gmVaccDefs._VACCINE_SUBSTANCES[substance_tag]
 		args = {
-			'moniker': moniker,
-			'atc': subst['atc'],
+			'substance_tag': substance_tag,
+			'atc': subst['atc4target'],
 			'desc': subst['name'],
 			'orig': subst['target'].split(u'::')[0],
 			'trans': subst['target'].split(u'::')[-1]
@@ -354,9 +357,9 @@ def create_generic_vaccine_sql(version, include_indications_mapping=False):
 		}
 		sql_create_vaccines.append(_SQL_create_vacc_product % args)
 		# create doses
-		for ing_moniker in vaccine_def['ingredients']:
-			vacc_subst_def = gmVaccDefs._VACCINE_SUBSTANCES[ing_moniker]
-			args['atc_subst'] = vacc_subst_def['atc']
+		for ingredient_tag in vaccine_def['ingredients']:
+			vacc_subst_def = gmVaccDefs._VACCINE_SUBSTANCES[ingredient_tag]
+			args['atc_subst'] = vacc_subst_def['atc4target']
 			# substance already created, only need to create dose
 			sql_create_vaccines.append(_SQL_create_vacc_subst_dose % args)
 			# link dose to product
@@ -823,10 +826,11 @@ if __name__ == '__main__':
 		print create_generic_vaccine_sql(u'22.0')
 
 	#--------------------------------------------------------
-	def test_write_generic_vaccine_sql(version):
+	def test_write_generic_vaccine_sql(version, filename):
 		print write_generic_vaccine_sql (
 			version,
-			include_indications_mapping = True
+			include_indications_mapping = True,
+			filename = filename
 		)
 
 	#--------------------------------------------------------
@@ -837,7 +841,7 @@ if __name__ == '__main__':
 	#test_due_vacc()
 	#test_due_booster()
 
-	test_get_vaccines()
+	#test_get_vaccines()
 	#test_get_vaccinations()
 	#test_create_generic_vaccine_sql()
-	#test_write_generic_vaccine_sql(sys.argv[2])
+	test_write_generic_vaccine_sql(sys.argv[2], sys.argv[3])
