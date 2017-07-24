@@ -42,6 +42,7 @@ IMPROVED: test panels now LOINC based
 
 FIX: exception when having issues with calculating eGFR in medication plugin
 FIX: exception on disabling identity [thanks Marc]
+FIX: exception on adding archived documents to export area
 
 	1.6.13
 

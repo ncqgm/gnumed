@@ -464,7 +464,7 @@ class cExportArea(object):
 					continue
 				f_ext = u''
 				if obj['filename'] is not None:
-					f_ext = os.path.splitext(ob['filename'])[1].strip('.').strip()
+					f_ext = os.path.splitext(obj['filename'])[1].strip('.').strip()
 				if f_ext != u'':
 					f_ext = u' .' + f_ext.upper()
 				obj_tag = _(u'part %s (%s%s)%s') % (
