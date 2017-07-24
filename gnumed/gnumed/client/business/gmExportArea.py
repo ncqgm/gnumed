@@ -124,14 +124,25 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	def export_to_file(self, aChunkSize=0, filename=None, directory=None):
 
+		# data linked from archive
 		if self._payload[self._idx['pk_doc_obj']] is not None:
-			return self.document_part.export_to_file (
+			part = self.document_part
+			if filename is None:
+				filename = part.get_useful_filename (
+					make_unique = False,
+					directory = directory,
+					include_gnumed_tag = False,
+					date_before_type = True,
+					name_first = False
+				)
+			return part.export_to_file (
 				aChunkSize = aChunkSize,
 				filename = filename,
-				ignore_conversion_problems = True,
-				directory = directory
+				ignore_conversion_problems = True
+				#, directory = directory
 			)
 
+		# data in export area table
 		if filename is None:
 			filename = self.get_useful_filename(directory = directory)
 
@@ -176,7 +187,7 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 		suffix = '.dat'
 		if self._payload[self._idx['filename']] is not None:
 			tmp, suffix = os.path.splitext(self._payload[self._idx['filename']])
-			suffix = suffix.strip().replace(' ', '-')
+			suffix = suffix.strip().replace(' ', '-').lower()
 			if suffix == u'':
 				suffix = '.dat'
 
@@ -444,6 +455,7 @@ class cExportArea(object):
 
 		delete_export_item(pk_export_item = item['pk_export_item'])
 		return None
+
 	#--------------------------------------------------------
 	def add_files(self, filenames=None, hint=None):
 		all_ok = True
@@ -451,6 +463,7 @@ class cExportArea(object):
 			all_ok = all_ok and (self.add_file(filename = fname, hint = hint) is not None)
 
 		return all_ok
+
 	#--------------------------------------------------------
 	def add_documents(self, documents=None):
 		for doc in documents:
@@ -484,6 +497,7 @@ class cExportArea(object):
 		args = {'pk_obj': pk_part}
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
 		return rows[0][0]
+
 	#--------------------------------------------------------
 	def md5_exists(self, md5=None, include_document_parts=False):
 		where_parts = [
@@ -554,7 +568,7 @@ class cExportArea(object):
 		if u'DICOMDIR' in existing_files:
 			_html_start_data[u'browse_dicomdir'] = u'	<li><a href="./DICOMDIR">browse DICOMDIR</a></li>'
 		idx_file.write(_html_start % _html_start_data)
-		# middle
+		# middle (side effect ! -> exports items into files ...)
 		for item in items:
 			item_path = item.export_to_file(directory = doc_dir)
 			item_fname = os.path.split(item_path)[1]
@@ -590,6 +604,13 @@ class cExportArea(object):
 		}
 		idx_file.write(_html_end % _html_end_data)
 		idx_file.close()
+
+		# start.html (just a copy of index.html, really ;-)
+		start_fname = os.path.join(base_dir, u'start.html')
+		try:
+			shutil.copy2(idx_fname, start_fname)
+		except Exception:
+			_log.exception('cannot copy %s to %s', idx_fname, start_fname)
 
 		# autorun.inf
 		autorun_fname = os.path.join(base_dir, u'autorun.inf')
@@ -632,6 +653,7 @@ class cExportArea(object):
 		shutil.move(prax.vcf, os.path.join(base_dir, u'praxis.vcf'))
 
 		return base_dir
+
 	#--------------------------------------------------------
 	# properties
 	#--------------------------------------------------------

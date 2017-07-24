@@ -228,7 +228,7 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 				return True
 			if reuse_nonempty_dir is False:
 				path = gmTools.mk_sandbox_dir (
-					prefix = u'export-%s-' % gmPerson.gmCurrentPatient().dirname,
+					prefix = u'%s-' % gmPerson.gmCurrentPatient().dirname,
 					base_dir = path
 				)
 

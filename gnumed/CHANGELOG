@@ -44,6 +44,8 @@ FIX: exception when having issues with calculating eGFR in medication plugin
 FIX: exception on disabling identity [thanks Marc]
 FIX: exception on adding archived documents to export area
 
+IMPROVED: improved saving of export area items
+
 	1.6.13
 
 FIX: editing of drug products
