@@ -313,6 +313,7 @@ class cDocumentPart(gmBusinessDBObject.cBusinessDBObject):
 
 		_log.warning('programmed to ignore conversion problems, hoping receiver can handle [%s]', filename)
 		return filename
+
 	#--------------------------------------------------------
 	def get_reviews(self):
 		cmd = u"""
@@ -333,9 +334,11 @@ ORDER BY
 """
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_obj]}])
 		return rows
+
 	#--------------------------------------------------------
 	def get_containing_document(self):
 		return cDocument(aPK_obj = self._payload[self._idx['pk_doc']])
+
 	#--------------------------------------------------------
 	# store data
 	#--------------------------------------------------------
@@ -357,6 +360,7 @@ ORDER BY
 		# must update XMIN now ...
 		self.refetch_payload(link_obj = link_obj)
 		return True
+
 	#--------------------------------------------------------
 	def set_reviewed(self, technically_abnormal=None, clinically_relevant=None):
 		# row already there ?
@@ -535,26 +539,44 @@ insert into blobs.reviewed_doc_objs (
 		return txt
 
 	#--------------------------------------------------------
-	def get_useful_filename(self, patient=None, make_unique=False, directory=None):
-		patient_part = ''
+	def get_useful_filename(self, patient=None, make_unique=False, directory=None, include_gnumed_tag=True, date_before_type=False, name_first=True):
+		patient_part = u''
 		if patient is not None:
-			patient_part = '-%s-' % patient['dirname']
+			if name_first:
+				patient_part = u'%s-' % patient['dirname']
+			else:
+				patient_part = u'-%s' % patient['dirname']
 
 		# preserve original filename extension if available
 		suffix = '.dat'
 		if self._payload[self._idx['filename']] is not None:
 			tmp, suffix = os.path.splitext(self._payload[self._idx['filename']])
-			suffix = suffix.strip().replace(' ', '-')
+			suffix = suffix.strip().replace(' ', '-').lower()
 			if suffix == u'':
 				suffix = '.dat'
 
-		fname = 'gm_doc-part_%s-%s-%s-%s-' % (
-			self._payload[self._idx['seq_idx']],
-			patient_part,
-			self._payload[self._idx['l10n_type']].replace(' ', '_'),
-			gmDateTime.pydt_strftime(self._payload[self._idx['date_generated']], '%Y-%m-%d', 'utf-8', gmDateTime.acc_days)
-			#,gmTools.coalesce(self.__curr_node_data['ext_ref'], '', '-%s').replace(' ', '_')
-		)
+		if include_gnumed_tag:
+			fname_template = u'gm_doc-part_%s-%%s' % self._payload[self._idx['seq_idx']]
+		else:
+			fname_template = u'%%s-part_%s' % self._payload[self._idx['seq_idx']]
+
+		if date_before_type:
+			date_type_part = u'%s-%s' % (
+				gmDateTime.pydt_strftime(self._payload[self._idx['date_generated']], '%Y-%m-%d', 'utf-8', gmDateTime.acc_days),
+				self._payload[self._idx['l10n_type']].replace(u' ', u'_').replace(u'-', u'_'),
+			)
+		else:
+			date_type_part = u'%s-%s' % (
+				self._payload[self._idx['l10n_type']].replace(u' ', u'_').replace(u'-', u'_'),
+				gmDateTime.pydt_strftime(self._payload[self._idx['date_generated']], '%Y-%m-%d', 'utf-8', gmDateTime.acc_days)
+			)
+
+		if name_first:
+			date_type_name_part = patient_part + date_type_part
+		else:
+			date_type_name_part = date_type_part + patient_part
+
+		fname = fname_template % date_type_name_part
 
 		if make_unique:
 			fname = gmTools.get_unique_filename (
@@ -1088,12 +1110,30 @@ if __name__ == '__main__':
 			print doc.format()
 		#pprint(gmBusinessDBObject.jsonclasshintify(docs))
 	#--------------------------------------------------------
+	def test_get_useful_filename():
+		pk = 12
+		from Gnumed.business.gmPerson import cPatient
+		pat = cPatient(pk)
+		doc_folder = cDocumentFolder(aPKey = pk)
+		for doc in doc_folder.documents:
+			for part in doc.parts:
+				print part.get_useful_filename (
+					patient = pat,
+					make_unique = True,
+					directory = None,
+					include_gnumed_tag = False,
+					date_before_type = True,
+					name_first = False
+				)
+
+	#--------------------------------------------------------
 	from Gnumed.pycommon import gmI18N
 	gmI18N.activate_locale()
 	gmI18N.install_domain()
 
 	#test_doc_types()
 	#test_adding_doc_part()
-	test_get_documents()
+	#test_get_documents()
+	test_get_useful_filename()
 
 #	print get_ext_ref()
