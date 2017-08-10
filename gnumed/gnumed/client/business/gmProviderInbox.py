@@ -26,7 +26,11 @@ _log = logging.getLogger('gm.inbox')
 #============================================================
 # provider message inbox
 #------------------------------------------------------------
-_SQL_get_inbox_messages = u"SELECT * FROM dem.v_message_inbox WHERE %s"
+_SQL_get_inbox_messages = u"""
+SELECT * FROM
+	dem.v_message_inbox d_vi
+		LEFT OUTER JOIN dem.v_persons d_vp ON (d_vi.pk_patient = d_vp.pk_identity)
+WHERE %s"""
 
 class cInboxMessage(gmBusinessDBObject.cBusinessDBObject):
 
@@ -92,12 +96,14 @@ class cInboxMessage(gmBusinessDBObject.cBusinessDBObject):
 			gmTools.u_right_double_angle_quote
 		)
 
-		if with_patient:
-			tt += gmTools.coalesce (
-				self._payload[self._idx['pk_patient']],
-				u'',
-				u'%s\n\n' % _('Patient #%s')
-			)
+		if with_patient and (self._payload[self._idx['pk_patient']] is not None):
+			tt += _(u'Patient: %s, %s%s %s   #%s\n' % (
+				self._payload[self._idx['lastnames']],
+				self._payload[self._idx['firstnames']],
+				gmTools.coalesce(self._payload[self._idx['l10n_gender']], u'', u' (%s)'),
+				gmDateTime.pydt_strftime(self._payload[self._idx['dob_only']], u'%Y %b %d', none_str = u''),
+				self._payload[self._idx['pk_patient']]
+			))
 
 		if self._payload[self._idx['due_date']] is not None:
 			if self._payload[self._idx['is_overdue']]:

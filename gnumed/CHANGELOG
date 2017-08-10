@@ -12,7 +12,8 @@ FIX: exception when having issues with calculating eGFR in medication plugin
 FIX: exception on disabling identity [thanks Marc]
 FIX: exception on adding archived documents to export area
 
-IMPROVED: improved saving of export area items
+IMPROVED: saving of export area items
+IMPROVED: patient display in provider inbox
 
 	1.6.13
 
