@@ -41,6 +41,7 @@ class Psql:
 		"""
 		self.conn = conn
 		self.vars = {'ON_ERROR_STOP':None}
+
 	#---------------------------------------------------------------
 	def match (self, str):
 		match = re.match (str, self.line)
@@ -50,6 +51,7 @@ class Psql:
 			ret = 1
 			self.groups = match.groups ()
 		return ret
+
 	#---------------------------------------------------------------
 	def fmt_msg(self, aMsg):
 		try:
@@ -65,6 +67,7 @@ class Psql:
 			except: pass
 			unformattable_error_id += 1
 		return tmp
+
 	#---------------------------------------------------------------
 	def run (self, filename):
 		"""
@@ -89,8 +92,8 @@ class Psql:
 		in_string = False
 		bracketlevel = 0
 		curr_cmd = ''
-		curs = self.conn.cursor ()
-##		transaction_started = False
+		curs = self.conn.cursor()
+
 		for self.line in self.file.readlines():
 			self.lineno += 1
 			if len(self.line.strip()) == 0:
@@ -100,20 +103,24 @@ class Psql:
 			if self.match (r"^\\echo (.*)"):
 				_log.info(self.fmt_msg(shell(self.groups[0])))
 				continue
+
 			# \qecho
 			if self.match (r"^\\qecho (.*)"):
 				_log.info(self.fmt_msg(shell (self.groups[0])))
 				continue
+
 			# \q
 			if self.match (r"^\\q"):
 				_log.warning(self.fmt_msg(u"script terminated by \\q"))
 				return 0
+
 			# \set
 			if self.match (r"^\\set (\S+) (\S+)"):
 				self.vars[self.groups[0]] = shell (self.groups[1])
 				if self.groups[0] == 'ON_ERROR_STOP':
 					self.vars['ON_ERROR_STOP'] = int (self.vars['ON_ERROR_STOP'])
 				continue
+
 			# \unset
 			if self.match (r"^\\unset (\S+)"):
 				self.vars[self.groups[0]] = None
@@ -150,46 +157,26 @@ class Psql:
 					curr_cmd += this_char
 				else:
 					try:
-#						if curr_cmd.strip ().upper () == 'COMMIT':
-#							if transaction_started:
-#								self.conn.commit ()
-#								curs.close ()
-#								curs = self.conn.cursor ()
-#								_log.debug(self.fmt_msg ("transaction committed"))
-#							else:
-#								_log.warning(self.fmt_msg ("COMMIT without BEGIN: no actual transaction happened!"))
-#							transaction_started = False
-
-#						elif curr_cmd.strip ().upper () == 'BEGIN':
-#							if transaction_started:
-#								_log.warning(self.fmt_msg ("BEGIN inside transaction"))
-#							else:
-#								transaction_started = True
-#								_log.debug(self.fmt_msg ("starting transaction"))
-
-#						else:
 						if curr_cmd.strip() != '':
-							if curr_cmd.find('vacuum'):
-								self.conn.commit();
-								curs.close()
-								old_iso_level = self.conn.isolation_level
-								self.conn.set_isolation_level(0)
-								curs = self.conn.cursor()
-								curs.execute (curr_cmd)
-								self.conn.set_isolation_level(old_iso_level)
-							else:
-								curs.execute (curr_cmd)
-#								if not transaction_started:
-					except Exception, error:
-						_log.debug(curr_cmd)
+							curs.execute (curr_cmd)
+					except Exception as error:
+						_log.exception(curr_cmd)
 						if re.match (r"^NOTICE:.*", str(error)):
 							_log.warning(self.fmt_msg(error))
 						else:
+							_log.error(self.fmt_msg(error))
+							if hasattr(error, 'diag'):
+								for prop in dir(error.diag):
+									if prop.startswith(u'__'):
+										continue
+									val = getattr(error.diag, prop)
+									if val is None:
+										continue
+									_log.error(u'PG diags %s: %s', prop, val)
 							if self.vars['ON_ERROR_STOP']:
-								_log.error(self.fmt_msg(error))
+								self.conn.commit()
+								curs.close()
 								return 1
-							else:
-								_log.debug(self.fmt_msg(error))
 
 					self.conn.commit()
 					curs.close()
@@ -204,6 +191,7 @@ class Psql:
 		self.conn.commit()
 		curs.close()
 		return 0
+
 #===================================================================
 # testing code
 if __name__ == '__main__':
@@ -219,4 +207,3 @@ if __name__ == '__main__':
 	psql = Psql (conn)
 	psql.run (sys.argv[1])
 	conn.close ()
-#===================================================================
