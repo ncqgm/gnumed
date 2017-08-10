@@ -473,12 +473,13 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 		gmDispatcher.connect(signal = u'blobs.doc_med_mod_db', receiver = self._on_doc_mod_db)
 		gmDispatcher.connect(signal = u'blobs.reviewed_doc_objs_mod_db', receiver = self._on_doc_obj_review_mod_db)
 		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._on_post_patient_selection)
+
 	#--------------------------------------------------------
 	def __init_ui(self):
 		self._LCTRL_provider_inbox.debug = 'provider inbox list'
 
-		self._LCTRL_provider_inbox.set_columns([u'', _('Generated'), _('Status'), _('Category - Type'), _('Message')])
-		self._LCTRL_provider_inbox.searchable_columns = [2, 3, 4]
+		self._LCTRL_provider_inbox.set_columns([u'', _('Generated'), _('Status'), _('Patient'), _('Message'), _('Category - Type')])
+		self._LCTRL_provider_inbox.searchable_columns = [2, 3, 4, 5]
 		self._LCTRL_provider_inbox.item_tooltip_callback = self._get_msg_tooltip
 		self._LCTRL_provider_inbox.extend_popup_menu_callback = self._extend_popup_menu
 
@@ -486,6 +487,7 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 
 		if gmPerson.gmCurrentPatient().connected:
 			self._CHBOX_active_patient.Enable()
+
 	#--------------------------------------------------------
 	def __update_greeting(self, no_of_messages=None):
 		msg = _(' Inbox of %s %s%s') % (
@@ -497,6 +499,7 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 			gmTools.coalesce(no_of_messages, u'.', _(': %s message(s)'))
 		)
 		self._msg_welcome.SetLabel(msg)
+
 	#--------------------------------------------------------
 	def __populate_inbox(self):
 		_log.debug('populating provider inbox')
@@ -601,8 +604,19 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 						item.append(_('%s overdue') % gmDateTime.format_interval_medically(m['interval_due']))
 					else:
 						item.append(_('due in %s') % gmDateTime.format_interval_medically(m['interval_due']))
-			item.append(u'%s - %s' % (m['l10n_category'], m['l10n_type']))
+			#pat
+			if m['pk_patient'] is None:
+				item.append(u'')
+			else:
+				item.append(u'%s, %s%s %s #%s' % (
+					m['lastnames'],
+					m['firstnames'],
+					gmTools.coalesce(m['l10n_gender'], u'', u' (%s)'),
+					gmDateTime.pydt_strftime(m['dob_only'], u'%Y %b %d', none_str = u''),
+					m['pk_patient']
+				))
 			item.append(m['comment'])
+			item.append(u'%s - %s' % (m['l10n_category'], m['l10n_type']))
 			items.append(item)
 
 		_log.debug('# of list items created from msgs: %s', len(items))
