@@ -92,7 +92,7 @@ class Psql:
 		in_string = False
 		bracketlevel = 0
 		curr_cmd = ''
-		curs = self.conn.cursor ()
+		curs = self.conn.cursor()
 
 		for self.line in self.file.readlines():
 			self.lineno += 1
@@ -158,18 +158,9 @@ class Psql:
 				else:
 					try:
 						if curr_cmd.strip() != '':
-							if curr_cmd.find('vacuum'):
-								self.conn.commit();
-								curs.close()
-								old_iso_level = self.conn.isolation_level
-								self.conn.set_isolation_level(0)
-								curs = self.conn.cursor()
-								curs.execute (curr_cmd)
-								self.conn.set_isolation_level(old_iso_level)
-							else:
-								curs.execute (curr_cmd)
+							curs.execute (curr_cmd)
 					except Exception as error:
-						_log.debug(curr_cmd)
+						_log.exception(curr_cmd)
 						if re.match (r"^NOTICE:.*", str(error)):
 							_log.warning(self.fmt_msg(error))
 						else:

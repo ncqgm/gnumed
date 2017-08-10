@@ -24,6 +24,8 @@ further details.
 --quiet
 --log-file=
 --conf-file=
+
+Requires psycopg 2.7 !
 """
 #==================================================================
 # TODO
@@ -36,7 +38,14 @@ __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL v2 or later"
 
 # standard library
-import sys, string, os.path, fileinput, os, time, getpass, glob, re as regex, tempfile
+import sys
+import os.path
+import fileinput
+import os
+import getpass
+import glob
+import re as regex
+import tempfile
 import io
 import logging
 
@@ -239,7 +248,7 @@ def create_db_group(cursor=None, group=None):
 
 	return True
 #==================================================================
-def connect(host, port, db, user, passwd):
+def connect(host, port, db, user, passwd, conn_name=None):
 	"""
 	This is a wrapper to the database connect function.
 	Will try to recover gracefully from connection errors where possible
@@ -259,7 +268,7 @@ def connect(host, port, db, user, passwd):
 	dsn = gmPG2.make_psycopg2_dsn(database=db, host=host, port=port, user=user, password=passwd)
 	_log.info("trying DB connection to %s on %s as %s", db, host or 'localhost', user)
 	try:
-		conn = gmPG2.get_connection(dsn=dsn, readonly=False, pooled=False, verbose=True)
+		conn = gmPG2.get_connection(dsn=dsn, readonly=False, pooled=False, verbose=True, connection_name = conn_name)
 	except:
 		_log.exception(u'connection failed')
 		raise
@@ -270,6 +279,7 @@ def connect(host, port, db, user, passwd):
 
 	_log.info('successfully connected')
 	return conn
+
 #==================================================================
 class user:
 	def __init__(self, anAlias = None, aPassword = None):
@@ -372,7 +382,7 @@ class db_server:
 			if self.conn.closed == 0:
 				self.conn.close()
 
-		self.conn = connect(self.name, self.port, self.template_db, self.superuser.name, self.superuser.password)
+		self.conn = connect(self.name, self.port, self.template_db, self.superuser.name, self.superuser.password, conn_name = u'root@template.server')
 		if self.conn is None:
 			_log.error('Cannot connect.')
 			return None
@@ -578,6 +588,7 @@ class database:
 		return None
 	#--------------------------------------------------------------
 	def __bootstrap(self):
+
 		global _dbowner
 
 		# get owner
@@ -654,6 +665,7 @@ class database:
 		#self.conn.close()
 
 		return True
+
 	#--------------------------------------------------------------
 	def __connect_superuser_to_template(self):
 		if self.conn is not None:
@@ -665,7 +677,8 @@ class database:
 			self.server.port,
 			self.template_db,
 			self.server.superuser.name,
-			self.server.superuser.password
+			self.server.superuser.password,
+			conn_name = u'postgres@template.db'
 		)
 
 		self.conn.cookie = 'database.__connect_superuser_to_template'
@@ -675,6 +688,7 @@ class database:
 		curs.close()
 
 		return self.conn and 1
+
 	#--------------------------------------------------------------
 	def __connect_superuser_to_db(self):
 		if self.conn is not None:
@@ -686,7 +700,8 @@ class database:
 			self.server.port,
 			self.name,
 			self.server.superuser.name,
-			self.server.superuser.password
+			self.server.superuser.password,
+			conn_name = u'postgres@gnumed_vX'
 		)
 
 		self.conn.cookie = 'database.__connect_superuser_to_db'
@@ -749,7 +764,8 @@ class database:
 		return self.conn and 1
 	#--------------------------------------------------------------
 	def __db_exists(self):
-		cmd = "BEGIN; SELECT datname FROM pg_database WHERE datname='%s'" % self.name
+		#cmd = "BEGIN; SELECT datname FROM pg_database WHERE datname='%s'" % self.name
+		cmd = "SELECT datname FROM pg_database WHERE datname='%s'" % self.name
 
 		aCursor = self.conn.cursor()
 		try:
@@ -790,16 +806,23 @@ class database:
 				print_msg("==> dropping pre-existing target database [%s] ..." % self.name)
 				_log.info('trying to drop target database')
 				cmd = 'DROP DATABASE "%s"' % self.name
-				self.conn.set_isolation_level(0)
+				_log.debug('committing existing connection before setting autocommit')
+				self.conn.commit()
+				_log.debug('setting autocommit to TRUE')
+				self.conn.autocommit = True
+				self.conn.readonly = False
 				cursor = self.conn.cursor()
 				try:
+					cursor.execute(u'SET default_transaction_read_only TO OFF')
+					_log.debug('running SQL: %s', cmd)
 					cursor.execute(cmd)
 				except:
 					_log.exception(">>>[%s]<<< failed" % cmd)
-					cursor.close()
+					_log.debug(u'conn state after failed DROP: %s', gmPG2.capture_conn_state(self.conn))
 					return False
-				cursor.close()
-				self.conn.commit()
+				finally:
+					cursor.close()
+					self.conn.set_session(readonly = False, autocommit = False)
 			else:
 				use_existing = bool(int(cfg_get(self.section, 'use existing target database')))
 				if use_existing:
@@ -828,35 +851,36 @@ class database:
 					tablespace = '%s'
 				;""" % (self.name, self.owner.name, self.template_db, tablespace)
 
-		# create DB must be run outside transactions
-		old_iso = self.conn.isolation_level
-		self.conn.set_isolation_level(0)
-		cursor = self.conn.cursor()
-
 		# get size
+		cursor = self.conn.cursor()
 		size_cmd = "SELECT pg_size_pretty(pg_database_size('%s'))" % self.template_db
 		cursor.execute(size_cmd)
 		size = cursor.fetchone()[0]
+		cursor.close()
 
 		# create database by cloning
 		print_msg("==> cloning [%s] (%s) as target database [%s] ..." % (self.template_db, size, self.name))
+		# create DB must be run outside transactions
+		self.conn.commit()
+		self.conn.autocommit = True
+		self.conn.readonly = False
+		cursor = self.conn.cursor()
 		try:
+			cursor.execute(u'SET default_transaction_read_only TO OFF')
 			cursor.execute(create_db_cmd)
 		except:
 			_log.exception(">>>[%s]<<< failed" % create_db_cmd)
-			cursor.close()
-			self.conn.set_isolation_level(old_iso)
 			return False
-		cursor.close()
-
-		self.conn.commit()
-		self.conn.set_isolation_level(old_iso)
+		finally:
+			cursor.close()
+			self.conn.set_session(readonly = False, autocommit = False)
 
 		if not self.__db_exists():
 			return None
 		_log.info("Successfully created GNUmed database [%s]." % self.name)
 
 		return True
+
 	#--------------------------------------------------------------
 	def check_data_plausibility(self):
 
@@ -1115,28 +1139,31 @@ class database:
 		_log.info('this may potentially take "quite a long time" depending on how much data there is in the database')
 		_log.info('you may want to monitor the PostgreSQL log for signs of progress')
 
-		old_iso = self.conn.isolation_level
-		self.conn.set_isolation_level(0)
-		curs = self.conn.cursor()
+		self.conn.commit()
+		self.conn.set_session(readonly = False, autocommit = True)
+		curs_outer = self.conn.cursor()
+		curs_outer.execute(u'SET default_transaction_read_only TO OFF')
 		cmd = 'REINDEX (VERBOSE) DATABASE %s' % self.name
 		try:
-			curs.execute(cmd)
+			curs_outer.execute(cmd)
 		except:
 			_log.exception(">>>[%s]<<< failed" % cmd)
-			curs.close()
 			# re-attempt w/o VERBOSE
 			_log.info('attempting REINDEXing without VERBOSE')
-			curs = self.conn.cursor()
+			curs_inner = self.conn.cursor()
 			cmd = 'REINDEX DATABASE %s' % self.name
 			try:
-				curs.execute(cmd)
+				curs_inner.execute(cmd)
 			except:
 				_log.exception(">>>[%s]<<< failed" % cmd)
-				curs.close()
-				self.conn.set_isolation_level(old_iso)
 				return False
-		curs.close()
-		self.conn.set_isolation_level(old_iso)
+			finally:
+				curs_inner.close()
+				self.conn.set_session(readonly = False, autocommit = False)
+		finally:
+			curs_outer.close()
+			self.conn.set_session(readonly = False, autocommit = False)
+
 		return True
 
 	#--------------------------------------------------------------

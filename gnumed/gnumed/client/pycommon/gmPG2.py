@@ -35,7 +35,7 @@ from Gnumed.pycommon import gmDateTime
 from Gnumed.pycommon import gmBorg
 from Gnumed.pycommon import gmI18N
 from Gnumed.pycommon import gmLog2
-from Gnumed.pycommon.gmTools import prompted_input, u_replacement_character
+from Gnumed.pycommon.gmTools import prompted_input, u_replacement_character, format_dict_like
 
 _log = logging.getLogger('gm.db')
 
@@ -170,6 +170,30 @@ map_client_branch2required_db_version = {
 	u'1.5': 20,
 	u'1.6': 21,
 	u'1.7': 22
+}
+
+map_psyco_tx_status2str = [
+	u'TRANSACTION_STATUS_IDLE',
+	u'TRANSACTION_STATUS_ACTIVE',
+	u'TRANSACTION_STATUS_INTRANS',
+	u'TRANSACTION_STATUS_INERROR',
+	u'TRANSACTION_STATUS_UNKNOWN'
+]
+
+map_psyco_conn_status2str = [
+	u'0 - ?',
+	u'STATUS_READY',
+	u'STATUS_BEGIN_ALIAS_IN_TRANSACTION',
+	u'STATUS_PREPARED'
+]
+
+map_psyco_iso_level2str = {
+	None: u'ISOLATION_LEVEL_DEFAULT (configured on server)',
+	0: u'ISOLATION_LEVEL_AUTOCOMMIT',
+	1: u'ISOLATION_LEVEL_READ_UNCOMMITTED',
+	2: u'ISOLATION_LEVEL_REPEATABLE_READ',
+	3: u'ISOLATION_LEVEL_SERIALIZABLE',
+	4: u'ISOLATION_LEVEL_READ_UNCOMMITTED'
 }
 
 # get columns and data types for a given table
@@ -1171,15 +1195,6 @@ def bytea2file_object(data_query=None, file_obj=None, chunk_size=0, data_size=No
 	needed_chunks, remainder = divmod(data_size, chunk_size)
 	_log.debug('# of chunks: %s; remainder: %s bytes', needed_chunks, remainder)
 
-#	# since we now require PG 9.1 we can disable this workaround:
-#	# try setting "bytea_output"
-#	# - fails if not necessary
-#	# - succeeds if necessary
-#	try:
-#		run_ro_queries(link_obj = conn, queries = [{'cmd': u"set bytea_output to 'escape'"}])
-#	except dbapi.ProgrammingError:
-#		_log.debug('failed to set bytea_output to "escape", not necessary')
-
 	# retrieve chunks, skipped if data size < chunk size,
 	# does this not carry the danger of cutting up multi-byte escape sequences ?
 	# no, since bytea is binary,
@@ -1527,6 +1542,56 @@ def sanitize_pg_regex(expression=None, escape_all=False):
 		#']', '\]',			# not needed
 
 #------------------------------------------------------------------------
+def capture_conn_state(conn=None):
+
+	tx_status = conn.get_transaction_status()
+	if tx_status in [ psycopg2.extensions.TRANSACTION_STATUS_INERROR, psycopg2.extensions.TRANSACTION_STATUS_UNKNOWN ]:
+		isolation_level = u'%s (tx aborted or unknown, cannot retrieve)' % conn.isolation_level
+	else:
+		isolation_level = u'%s (%s)' % (conn.isolation_level, map_psyco_iso_level2str[conn.isolation_level])
+	conn_status = u'%s (%s)' % (conn.status, map_psyco_conn_status2str[conn.status])
+	if conn.closed != 0:
+		conn_status = u'undefined (%s)' % conn_status
+
+	d = {
+		u'identity': id(conn),
+		u'backend PID': conn.get_backend_pid(),
+		u'protocol version': conn.protocol_version,
+		u'encoding': conn.encoding,
+		u'closed': conn.closed,
+		u'readonly': conn.readonly,
+		u'autocommit': conn.autocommit,
+		u'isolation level (psyco)': isolation_level,
+		u'async': conn.async,
+		u'deferrable': conn.deferrable,
+		u'transaction status': u'%s (%s)' % (tx_status, map_psyco_tx_status2str[tx_status]),
+		u'connection status': conn_status,
+		u'executing async op': conn.isexecuting(),
+		u'type': type(conn)
+	}
+	return u'%s\n' % conn + format_dict_like (
+		d,
+		relevant_keys = [
+			u'type',
+			u'identity',
+			u'backend PID',
+			u'protocol version',
+			u'encoding',
+			u'isolation level (psyco)',
+			u'readonly',
+			u'autocommit',
+			u'closed',
+			u'connection status',
+			u'transaction status',
+			u'deferrable',
+			u'async',
+			u'executing async op'
+		],
+		tabular = True,
+		value_delimiters = None
+	)
+
+#------------------------------------------------------------------------
 def capture_cursor_state(cursor=None):
 	conn = cursor.connection
 
@@ -1550,7 +1615,7 @@ Cursor
   statusmessage: %s
 Connection
   identity: %s; backend pid: %s; protocol version: %s;
-  closed: %s; autocommit: %s; isolation level: %s; encoding: %s; async: %s;
+  closed: %s; autocommit: %s; isolation level: %s; encoding: %s; async: %s; deferrable: %s; readonly: %s;
   TX status: %s; CX status: %s; executing async op: %s;
 Query
   %s
@@ -1576,8 +1641,10 @@ Query
 		isolation_level,
 		conn.encoding,
 		conn.async,
-		tx_status,
-		conn.status,
+		conn.deferrable,
+		conn.readonly,
+		map_psyco_tx_status2str[tx_status],
+		map_psyco_conn_status2str[conn.status],
 		conn.isexecuting(),
 
 		query
@@ -1961,7 +2028,7 @@ class cConnectionPool(psycopg2.pool.PersistentConnectionPool):
 			self._used[conn_key].original_close()
 
 # -----------------------------------------------------------------------
-def get_raw_connection(dsn=None, verbose=False, readonly=True, connection_name=None):
+def get_raw_connection(dsn=None, verbose=False, readonly=True, connection_name=None, autocommit=False):
 	"""Get a raw, unadorned connection.
 
 	- this will not set any parameters such as encoding, timezone, datestyle
@@ -1990,7 +2057,6 @@ def get_raw_connection(dsn=None, verbose=False, readonly=True, connection_name=N
 			dsn += u" application_name=%s" % connection_name
 
 	try:
-		#conn = dbapi.connect(dsn=dsn, cursor_factory=psycopg2.extras.RealDictCursor)
 		# DictConnection now _is_ a real dictionary
 		conn = dbapi.connect(dsn=dsn, connection_factory=psycopg2.extras.DictConnection)
 	except dbapi.OperationalError, e:
@@ -2016,9 +2082,9 @@ def get_raw_connection(dsn=None, verbose=False, readonly=True, connection_name=N
 		raise
 
 	if connection_name is None:
-		_log.debug('new anonymous database connection, backend PID: %s, readonly: %s', conn.get_backend_pid(), readonly)
+		_log.debug('established anonymous database connection, backend PID: %s', conn.get_backend_pid())
 	else:
-		_log.debug('new database connection "%s", backend PID: %s, readonly: %s', connection_name, conn.get_backend_pid(), readonly)
+		_log.debug('established database connection "%s", backend PID: %s', connection_name, conn.get_backend_pid())
 
 	# do first-connection-only stuff
 	# - verify PG version
@@ -2041,45 +2107,29 @@ def get_raw_connection(dsn=None, verbose=False, readonly=True, connection_name=N
 		except:
 			pass
 		if verbose:
-			_log_PG_settings(curs=curs)
+			_log_PG_settings(curs = curs)
 		curs.close()
 		conn.commit()
 	# - verify PG understands client time zone
 	if _default_client_timezone is None:
 		__detect_client_timezone(conn = conn)
 
-	curs = conn.cursor()
-
-	# set access mode
-	conn.set_session(readonly = readonly)
-	conn.set_session(autocommit = readonly)
-	if readonly:
-		_log.debug('access mode [READ ONLY]')
-		#conn.set_session(readonly = True)
-		_log.debug('readonly: autocommit=True to avoid <IDLE IN TRANSACTION>')
-#		conn.autocommit = True
-#		cmd = 'set session characteristics as transaction READ ONLY'
-#		curs.execute(cmd)
-#		cmd = 'set default_transaction_read_only to on'
-#		curs.execute(cmd)
+	# - set access mode
+	if readonly is True:
+		_log.debug('readonly: forcing autocommit=True to avoid <IDLE IN TRANSACTION>')
+		autocommit = True
 	else:
-		_log.debug('access mode [READ WRITE]')
-#		conn.set_session(readonly = False)
-		_log.debug('readwrite: autocommit=False')
-#		cmd = 'set session characteristics as transaction READ WRITE'
-#		curs.execute(cmd)
-#		cmd = 'set default_transaction_read_only to off'
-#		curs.execute(cmd)
-
-	curs.close()
+		_log.debug('autocommit is desired to be: %s', autocommit)
 	conn.commit()
+	conn.autocommit = autocommit
+	conn.readonly = readonly
 
 	conn.is_decorated = False
 
 	return conn
 
 # =======================================================================
-def get_connection(dsn=None, readonly=True, encoding=None, verbose=False, pooled=True, connection_name=None):
+def get_connection(dsn=None, readonly=True, encoding=None, verbose=False, pooled=True, connection_name=None, autocommit=False):
 	"""Get a new connection.
 
 	This assumes the locale system has been initialized
@@ -2090,15 +2140,20 @@ def get_connection(dsn=None, readonly=True, encoding=None, verbose=False, pooled
 	if pooled and readonly and (dsn is None):
 		global __ro_conn_pool
 		if __ro_conn_pool is None:
+			log_ro_conn = True
 			__ro_conn_pool = cConnectionPool (
 				minconn = 1,
 				maxconn = 2,
 				dsn = dsn,
 				verbose = verbose
 			)
+		else:
+			log_ro_conn = False
 		conn = __ro_conn_pool.getconn()
+		if log_ro_conn:
+			[ _log.debug(line) for line in capture_conn_state(conn = conn).split(u'\n') ]
 	else:
-		conn = get_raw_connection(dsn=dsn, verbose=verbose, readonly = readonly, connection_name = connection_name)
+		conn = get_raw_connection(dsn = dsn, verbose = verbose, readonly = readonly, connection_name = connection_name, autocommit = autocommit)
 
 	if conn.is_decorated:
 		return conn
@@ -2123,42 +2178,23 @@ def get_connection(dsn=None, readonly=True, encoding=None, verbose=False, pooled
 
 	# - transaction isolation level
 	if readonly:
-		# alter-database default, checked at connect, no need to set now
-		iso_level = u'read committed'
+		# alter-database default, checked at connect, no need to set here
+		pass
 	else:
 		conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_SERIALIZABLE)
-		iso_level = u'serializable'
 
-	_log.debug('client string encoding [%s], isolation level [%s], time zone [%s]', encoding, iso_level, _default_client_timezone)
-
-	curs = conn.cursor()
+	_log.debug('client time zone [%s]', _default_client_timezone)
 
 	# - client time zone
+	curs = conn.cursor()
 	curs.execute(_sql_set_timezone, [_default_client_timezone])
-
-	conn.commit()
-
-#	# FIXME: remove this whole affair once either 9.0 is standard (Ubuntu 10 LTS is
-#	# FIXME: PG 8.4, however!) or else when psycopg2 supports a workaround
-#	#
-#	# - bytea data format
-#	# PG 9.0 switched to - by default - using "hex" rather than "escape",
-#	# however, psycopg2's linked with a pre-9.0 libpq do assume "escape"
-#	# as the transmission mode for bytea output,
-#	# so try to set this setting back to "escape",
-#	# if that's not possible the reason will be that PG < 9.0 does not support
-#	# that setting - which also means we don't need it and can ignore the
-#	# failure
-#	cmd = "set bytea_output to 'escape'"
-#	try:
-#		curs.execute(cmd)
-#	except dbapi.ProgrammingError:
-#		_log.error('cannot set bytea_output format')
-
 	curs.close()
 	conn.commit()
 
 	conn.is_decorated = True
+
+	if verbose:
+		[ _log.debug(line) for line in capture_conn_state(conn = conn).split(u'\n') ]
 
 	return conn
 
