@@ -60,7 +60,7 @@ class cKeywordExpansion(gmBusinessDBObject.cBusinessDBObject):
 	]
 
 	#--------------------------------------------------------
-	def export_to_file(self, aChunkSize=0, target_mime=None, target_extension=None, ignore_conversion_problems=False):
+	def save_to_file(self, aChunkSize=0, target_mime=None, target_extension=None, ignore_conversion_problems=False):
 
 		if self._payload[self._idx['is_textual']]:
 			return None

@@ -1611,8 +1611,9 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 		wx.EVT_MENU(self.__part_context_menu, ID, self.__mail_part)
 
 		ID = wx.NewId()
-		self.__part_context_menu.Append(ID, _('Export part'))
-		wx.EVT_MENU(self.__part_context_menu, ID, self.__export_part_to_disk)
+		self.__part_context_menu.Append(ID, _('Save part to disk'))
+		wx.EVT_MENU(self.__part_context_menu, ID, self.__save_part_to_disk)
+
 
 		self.__part_context_menu.AppendSeparator()			# so we can append some items
 
@@ -1648,8 +1649,11 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 		wx.EVT_MENU(self.__doc_context_menu, ID, self.__mail_doc)
 
 		ID = wx.NewId()
-		self.__doc_context_menu.Append(ID, _('Export all parts'))
-		wx.EVT_MENU(self.__doc_context_menu, ID, self.__export_doc_to_disk)
+		self.__doc_context_menu.Append(ID, _('Save all parts to disk'))
+		wx.EVT_MENU(self.__doc_context_menu, ID, self.__save_doc_to_disk)
+
+		item = self.__doc_context_menu.Append(-1, _('Copy all parts to export area'))
+		self.Bind(wx.EVT_MENU, self.__copy_doc_to_export_area, item)
 
 		self.__doc_context_menu.AppendSeparator()
 
@@ -2321,7 +2325,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 			default = default_chunksize
 		))
 
-		part_file = self.__curr_node_data.export_to_file(aChunkSize = chunksize)
+		part_file = self.__curr_node_data.save_to_file(aChunkSize = chunksize)
 
 		if action == 'print':
 			cmd = u'%s generic_document %s' % (external_cmd, part_file)
@@ -2370,8 +2374,8 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 	def __mail_part(self, evt):
 		self.__process_part(action = u'mail', l10n_action = _('mail'))
 	#--------------------------------------------------------
-	def __export_part_to_disk(self, evt):
-		"""Export document part into directory."""
+	def __save_part_to_disk(self, evt):
+		"""Save document part into directory."""
 
 		dlg = wx.DirDialog (
 			parent = self,
@@ -2405,7 +2409,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 			default = default_chunksize
 		))
 
-		fname = self.__curr_node_data.export_to_file (
+		fname = self.__curr_node_data.save_to_file (
 			aChunkSize = chunksize,
 			filename = fname,
 			target_mime = None
@@ -2413,9 +2417,10 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 
 		wx.EndBusyCursor()
 
-		gmDispatcher.send(signal = 'statustext', msg = _('Successfully exported document part as [%s].') % fname)
+		gmDispatcher.send(signal = 'statustext', msg = _('Successfully saved document part as [%s].') % fname)
 
 		return True
+
 	#--------------------------------------------------------
 	# document level context menu handlers
 	#--------------------------------------------------------
@@ -2467,7 +2472,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 			default = default_chunksize
 		))
 
-		part_files = self.__curr_node_data.export_parts_to_files(chunksize = chunksize)
+		part_files = self.__curr_node_data.save_parts_to_files(chunksize = chunksize)
 
 		if os.name == 'nt':
 			blocking = True
@@ -2597,8 +2602,8 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 				_('Accessing external document')
 			)
 	#--------------------------------------------------------
-	def __export_doc_to_disk(self, evt):
-		"""Export document into directory.
+	def __save_doc_to_disk(self, evt):
+		"""Save document into directory.
 
 		- one file per object
 		- into subdirectory named after patient
@@ -2632,13 +2637,18 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 			default = default_chunksize
 		))
 
-		fnames = self.__curr_node_data.export_parts_to_files(export_dir = dirname, chunksize = chunksize)
+		fnames = self.__curr_node_data.save_parts_to_files(export_dir = dirname, chunksize = chunksize)
 
 		wx.EndBusyCursor()
 
-		gmDispatcher.send(signal='statustext', msg=_('Successfully exported %s parts into the directory [%s].') % (len(fnames), dirname))
+		gmDispatcher.send(signal='statustext', msg=_('Successfully saved %s parts into the directory [%s].') % (len(fnames), dirname))
 
 		return True
+
+	#--------------------------------------------------------
+	def __copy_doc_to_export_area(self, evt):
+		gmPerson.gmCurrentPatient().export_area.add_documents(documents = [self.__curr_node_data])
+
 	#--------------------------------------------------------
 	def __delete_document(self, evt):
 		delete_it = gmGuiHelpers.gm_show_question (

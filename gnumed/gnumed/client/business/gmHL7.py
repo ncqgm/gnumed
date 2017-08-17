@@ -493,7 +493,7 @@ def process_staged_single_PID_hl7_file(staged_item):
 
 	_log.debug('reference ID of staged HL7 data: %s', staged_item['external_data_id'])
 
-	filename = staged_item.export_to_file()
+	filename = staged_item.save_to_file()
 	_log.debug('unstaged HL7 data into: %s', filename)
 
 	if staged_item['pk_identity_disambiguated'] is None:

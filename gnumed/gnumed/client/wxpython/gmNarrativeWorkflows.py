@@ -407,7 +407,7 @@ def export_narrative_for_medistar_import(parent=None, soap_cats=u'soapu', encoun
 	wx.BeginBusyCursor()
 	_log.debug('exporting encounter for medistar import to [%s]', fname)
 	exporter = gmPatientExporter.cMedistarSOAPExporter(patient = pat)
-	successful, fname = exporter.export_to_file (
+	successful, fname = exporter.save_to_file (
 		filename = fname,
 		encounter = encounter,
 		soap_cats = u'soapu',

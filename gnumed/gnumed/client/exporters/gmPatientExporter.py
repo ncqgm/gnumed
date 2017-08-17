@@ -922,9 +922,9 @@ class cEMRJournalExporter:
 	#--------------------------------------------------------
 	# external API
 	#--------------------------------------------------------
-	def export_to_file_by_mod_time(self, filename=None, patient=None):
+	def save_to_file_by_mod_time(self, filename=None, patient=None):
 		if patient is None:
-			raise ValueError('[%s].export_to_file_by_mod_time(): no patient' % self.__class__.__name__)
+			raise ValueError('[%s].save_to_file_by_mod_time(): no patient' % self.__class__.__name__)
 
 		if filename is None:
 			filename = gmTools.get_unique_filename(prefix = 'gm-emr_by_mod_time-', suffix = '.txt')
@@ -990,14 +990,14 @@ class cEMRJournalExporter:
 		return filename
 
 	#--------------------------------------------------------
-	def export_to_file_by_encounter(self, filename=None, patient=None):
+	def save_to_file_by_encounter(self, filename=None, patient=None):
 		"""Export medical record into a file.
 
 		@type filename: None (creates filename by itself) or string
 		@type patient: <cPerson> instance
 		"""
 		if patient is None:
-			raise ValueError('[%s].export_to_file_by_encounter(): no patient' % self.__class__.__name__)
+			raise ValueError('[%s].save_to_file_by_encounter(): no patient' % self.__class__.__name__)
 
 		if filename is None:
 			filename = gmTools.get_unique_filename(prefix = 'gm-emr_journal-', suffix = '.txt')
@@ -1169,7 +1169,7 @@ class cMedistarSOAPExporter:
 	#--------------------------------------------------------
 	# external API
 	#--------------------------------------------------------
-	def export_to_file(self, filename=None, encounter=None, soap_cats=u'soapu', export_to_import_file=False):
+	def save_to_file(self, filename=None, encounter=None, soap_cats=u'soapu', export_to_import_file=False):
 		if not self.__pat.connected:
 			return (False, 'no active patient')
 
@@ -1257,7 +1257,7 @@ def run():
             break
         # FIXME: needed ?
         exporter = cEMRJournalExporter()
-        exporter.export_to_file(patient=patient)
+        exporter.save_to_file(patient=patient)
 #        export_tool.set_patient(patient)
         # Dump patient EMR sections
 #        export_tool.dump_constraints()
@@ -1292,7 +1292,7 @@ if __name__ == "__main__":
 				break
 
 			exporter = cEMRJournalExporter()
-			print "exported into file:", exporter.export_to_file_by_encounter(patient = patient)
+			print "exported into file:", exporter.save_to_file_by_encounter(patient = patient)
 
 			if patient is not None:
 				try:
@@ -1308,7 +1308,7 @@ if __name__ == "__main__":
 			return
 
 		exporter = cEMRJournalExporter()
-		print "exported into file:", exporter.export_to_file_by_mod_time(patient = patient)
+		print "exported into file:", exporter.save_to_file_by_mod_time(patient = patient)
 	#--------------------------------------------------------
 	print "\n\nGNUmed ASCII EMR Export"
 	print     "======================="

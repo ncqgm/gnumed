@@ -81,7 +81,7 @@ def print_doc_from_template(parent=None, jobtype=None, episode=None, edit_form=N
 def print_doc_from_ooo_template(template=None):
 
 	# export template to file
-	filename = template.export_to_file()
+	filename = template.save_to_file()
 	if filename is None:
 		gmGuiHelpers.gm_show_error (
 			_(	'Error exporting form template\n'
@@ -730,7 +730,7 @@ class cFormTemplateEAPnl(wxgFormTemplateEditAreaPnl.wxgFormTemplateEditAreaPnl, 
 		result = dlg.ShowModal()
 		if result != wx.ID_CANCEL:
 			fname = dlg.GetPath()
-			self.data.export_to_file(filename = fname)
+			self.data.save_to_file(filename = fname)
 		dlg.Destroy()
 
 		event.Skip()

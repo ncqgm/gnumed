@@ -174,7 +174,7 @@ class cPatientPicture(wx.StaticBitmap):
 			))
 #			gmDispatcher.send(signal='statustext', msg=_('Cannot get most recent patient photo from database.'))
 		else:
-			fname = photo.export_to_file()
+			fname = photo.save_to_file()
 			self.SetToolTipString (_(
 				'Patient picture (%s).\n'
 				'\n'

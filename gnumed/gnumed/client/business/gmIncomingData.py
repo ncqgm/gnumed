@@ -111,7 +111,7 @@ class cIncomingData(gmBusinessDBObject.cBusinessDBObject):
 		return True
 
 	#--------------------------------------------------------
-	def export_to_file(self, aChunkSize=0, filename=None):
+	def save_to_file(self, aChunkSize=0, filename=None):
 
 		if self._payload[self._idx['data_size']] == 0:
 			return None

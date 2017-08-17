@@ -104,7 +104,7 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 		return True
 
 	#--------------------------------------------------------
-	def export_to_file(self, aChunkSize=0, filename=None, directory=None):
+	def save_to_file(self, aChunkSize=0, filename=None, directory=None):
 
 		# data linked from archive
 		if self._payload[self._idx['pk_doc_obj']] is not None:
@@ -117,7 +117,7 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 					date_before_type = True,
 					name_first = False
 				)
-			return part.export_to_file (
+			return part.save_to_file (
 				aChunkSize = aChunkSize,
 				filename = filename,
 				ignore_conversion_problems = True
@@ -149,7 +149,7 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 		if self._payload[self._idx['pk_doc_obj']] is not None:
 			return self.document_part.display_via_mime(chunksize = chunksize, block = block)
 
-		fname = self.export_to_file(aChunkSize = chunksize)
+		fname = self.save_to_file(aChunkSize = chunksize)
 		if fname is None:
 			return False, ''
 
@@ -536,7 +536,7 @@ class cExportArea(object):
 
 		mugshot = pat.document_folder.latest_mugshot
 		if mugshot is not None:
-			_html_start_data['mugshot_url'] = mugshot.export_to_file(directory = doc_dir)
+			_html_start_data['mugshot_url'] = mugshot.save_to_file(directory = doc_dir)
 			_html_start_data['mugshot_alt'] =_('patient photograph from %s') % gmDateTime.pydt_strftime(mugshot['date_generated'], '%B %Y')
 			_html_start_data['mugshot_title'] = gmDateTime.pydt_strftime(mugshot['date_generated'], '%B %Y')
 
@@ -550,7 +550,7 @@ class cExportArea(object):
 		idx_file.write(_html_start % _html_start_data)
 		# middle (side effect ! -> exports items into files ...)
 		for item in items:
-			item_path = item.export_to_file(directory = doc_dir)
+			item_path = item.save_to_file(directory = doc_dir)
 			item_fname = os.path.split(item_path)[1]
 			idx_file.write(_html_list_item % (
 				item_fname,

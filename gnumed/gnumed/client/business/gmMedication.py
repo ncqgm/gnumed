@@ -442,7 +442,7 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 
 		for part in prescription.parts:
 			if part['filename'] == u'freediams-prescription.xml':
-				if part.export_to_file(filename = self.__fd2gm_filename) is not None:
+				if part.save_to_file(filename = self.__fd2gm_filename) is not None:
 					return True
 
 		_log.error('cannot export latest FreeDiams prescription to XML file')
