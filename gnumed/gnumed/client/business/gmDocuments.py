@@ -268,7 +268,7 @@ class cDocumentPart(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	# retrieve data
 	#--------------------------------------------------------
-	def export_to_file(self, aChunkSize=0, filename=None, target_mime=None, target_extension=None, ignore_conversion_problems=False, directory=None):
+	def save_to_file(self, aChunkSize=0, filename=None, target_mime=None, target_extension=None, ignore_conversion_problems=False, directory=None):
 
 		if self._payload[self._idx['size']] == 0:
 			return None
@@ -473,7 +473,7 @@ insert into blobs.reviewed_doc_objs (
 	#--------------------------------------------------------
 	def display_via_mime(self, chunksize=0, block=None):
 
-		fname = self.export_to_file(aChunkSize = chunksize)
+		fname = self.save_to_file(aChunkSize = chunksize)
 		if fname is None:
 			return False, ''
 
@@ -752,10 +752,10 @@ class cDocument(gmBusinessDBObject.cBusinessDBObject):
 		return (True, '', new_parts)
 
 	#--------------------------------------------------------
-	def export_parts_to_files(self, export_dir=None, chunksize=0):
+	def save_parts_to_files(self, export_dir=None, chunksize=0):
 		fnames = []
 		for part in self.parts:
-			fname = part.export_to_file(aChunkSize = chunksize)
+			fname = part.save_to_file(aChunkSize = chunksize)
 			if export_dir is not None:
 				shutil.move(fname, export_dir)
 				fname = os.path.join(export_dir, os.path.split(fname)[1])

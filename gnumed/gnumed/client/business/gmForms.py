@@ -193,7 +193,7 @@ class cFormTemplate(gmBusinessDBObject.cBusinessDBObject):
 
 	template_data = property(_get_template_data, lambda x:x)
 	#--------------------------------------------------------
-	def export_to_file(self, filename=None, chunksize=0):
+	def save_to_file(self, filename=None, chunksize=0):
 		"""Export form template from database into file."""
 
 		if filename is None:
@@ -240,7 +240,7 @@ class cFormTemplate(gmBusinessDBObject.cBusinessDBObject):
 		self.refetch_payload()
 	#--------------------------------------------------------
 	def instantiate(self):
-		fname = self.export_to_file()
+		fname = self.save_to_file()
 		engine = form_engines[self._payload[self._idx['engine']]]
 		form = engine(template_file = fname)
 		form.template = self
@@ -2150,7 +2150,7 @@ if __name__ == '__main__':
 	def test_cFormTemplate():
 		template = cFormTemplate(aPK_obj = sys.argv[2])
 		print template
-		print template.export_to_file()
+		print template.save_to_file()
 	#--------------------------------------------------------
 	def set_template_from_file():
 		template = cFormTemplate(aPK_obj = sys.argv[2])

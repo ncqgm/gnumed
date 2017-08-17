@@ -164,7 +164,7 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 
 		files2print = []
 		for item in items:
-			files2print.append(item.export_to_file())
+			files2print.append(item.save_to_file())
 
 		if len(files2print) == 0:
 			return
@@ -342,7 +342,7 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 
 		files2mail = []
 		for item in items:
-			files2mail.append(item.export_to_file())
+			files2mail.append(item.save_to_file())
 
 		cmd = u'%s %s' % (external_cmd, u' '.join(files2mail))
 		if os.name == 'nt':
@@ -377,7 +377,7 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 
 		files2fax = []
 		for item in items:
-			files2fax.append(item.export_to_file())
+			files2fax.append(item.save_to_file())
 
 		fax_number = wx.GetTextFromUser (
 			_('Please enter the fax number here !\n\n'
@@ -593,7 +593,7 @@ class cPrintMgrPluginPnl(wxgPrintMgrPluginPnl.wxgPrintMgrPluginPnl, gmRegetMixin
 
 		files2print = []
 		for printout in printouts:
-			files2print.append(printout.export_to_file())
+			files2print.append(printout.save_to_file())
 
 		if len(files2print) == 0:
 			return

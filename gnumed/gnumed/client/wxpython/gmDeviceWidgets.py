@@ -107,7 +107,7 @@ class cCardiacDevicePluginPnl(wxgCardiacDevicePluginPnl.wxgCardiacDevicePluginPn
 			# since get_documents() is sorted I simply get the first one as the most recent one
 			# for now assume that the xml file provide the cardiac device context.
 			# that pretty much means logical connection of leads and generator is provided in the xml
-			xml_fname = checkups[-1].parts[0].export_to_file()
+			xml_fname = checkups[-1].parts[0].save_to_file()
 			tree = etree.parse(xml_fname)
 			DevicesDisplayed = gmDevices.device_status_as_text(tree)
 			text = u''.join(DevicesDisplayed)

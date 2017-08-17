@@ -945,7 +945,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 				for desc in doc.get_descriptions(max_lng = None):
 					lines.append(self._escape(desc['text'] + u'\n'))
 			if path_template is not None:
-				for part_name in doc.export_parts_to_files(export_dir = export_path):
+				for part_name in doc.save_parts_to_files(export_dir = export_path):
 					path, name = os.path.split(part_name)
 					lines.append(path_template % {'fullpath': part_name, 'name': name})
 
@@ -1511,7 +1511,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 				if self.debug:
 					return self._escape(_('no mugshot available'))
 				return u''
-			fname = mugshot.export_to_file (
+			fname = mugshot.save_to_file (
 				target_mime = target_mime,
 				target_extension = target_ext,
 				ignore_conversion_problems = True
@@ -2283,7 +2283,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 				return self._escape(_('no binary expansion found for keyword <%s>') % keyword)
 			return u''
 
-		filename = expansion.export_to_file()
+		filename = expansion.save_to_file()
 		if filename is None:
 			if self.debug:
 				return self._escape(_('cannot export data of binary expansion keyword <%s>') % keyword)

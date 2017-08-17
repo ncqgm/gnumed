@@ -46,6 +46,7 @@ FIX: exception on adding archived documents to export area
 
 IMPROVED: saving of export area items
 IMPROVED: patient display in provider inbox
+IMPROVED: copy document to export area from document plugin
 
 	1.6.13
 

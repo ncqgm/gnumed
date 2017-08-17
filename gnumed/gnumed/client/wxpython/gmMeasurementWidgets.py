@@ -196,7 +196,7 @@ def browse_incoming_unmatched(parent=None):
 			return False
 		if u'HL7' not in staged_item['data_type']:
 			return False
-		filename = staged_item.export_to_file()
+		filename = staged_item.save_to_file()
 		if filename is None:
 			filename = gmTools.get_unique_filename()
 		tmp_file = io.open(filename, mode = 'at', encoding = 'utf8')

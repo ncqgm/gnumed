@@ -2931,7 +2931,7 @@ class gmTopLevelFrame(wx.Frame):
 
 		wx.BeginBusyCursor()
 		try:
-			fname = exporter.export_to_file_by_mod_time(filename = fname, patient = pat)
+			fname = exporter.save_to_file_by_mod_time(filename = fname, patient = pat)
 		except:
 			wx.EndBusyCursor()
 			_log.exception('error exporting EMR')
@@ -2977,7 +2977,7 @@ class gmTopLevelFrame(wx.Frame):
 
 		wx.BeginBusyCursor()
 		try:
-			fname = exporter.export_to_file_by_encounter(filename = fname, patient = pat)
+			fname = exporter.save_to_file_by_encounter(filename = fname, patient = pat)
 		except:
 			wx.EndBusyCursor()
 			_log.exception('error exporting EMR')
@@ -3003,7 +3003,7 @@ class gmTopLevelFrame(wx.Frame):
 		exporter = gmPatientExporter.cEMRJournalExporter()
 		wx.BeginBusyCursor()
 		try:
-			fname = exporter.export_to_file_by_mod_time(patient = pat)
+			fname = exporter.save_to_file_by_mod_time(patient = pat)
 		except:
 			wx.EndBusyCursor()
 			_log.exception('error exporting EMR')
@@ -3029,7 +3029,7 @@ class gmTopLevelFrame(wx.Frame):
 		exporter = gmPatientExporter.cEMRJournalExporter()
 		wx.BeginBusyCursor()
 		try:
-			fname = exporter.export_to_file_by_encounter(patient = pat)
+			fname = exporter.save_to_file_by_encounter(patient = pat)
 		except:
 			wx.EndBusyCursor()
 			_log.exception('error exporting EMR')

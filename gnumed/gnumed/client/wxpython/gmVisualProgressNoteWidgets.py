@@ -152,7 +152,7 @@ def select_visual_progress_note_template(parent=None):
 		)
 		if template is None:
 			return (None, None)
-		filename = template.export_to_file()
+		filename = template.save_to_file()
 		if filename is None:
 			gmDispatcher.send(signal = u'statustext', msg = _('Cannot export visual progress note template for [%s].') % template['name_long'])
 			return (None, None)
@@ -189,7 +189,7 @@ def edit_visual_progress_note(filename=None, episode=None, discard_unmodified=Fa
 	"""This assumes <filename> contains an image which can be handled by the configured image editor."""
 
 	if doc_part is not None:
-		filename = doc_part.export_to_file()
+		filename = doc_part.save_to_file()
 		if filename is None:
 			gmDispatcher.send(signal = u'statustext', msg = _('Cannot export visual progress note to file.'))
 			return None
@@ -368,7 +368,7 @@ class cVisualSoapPresenterPnl(wxgVisualSoapPresenterPnl.wxgVisualSoapPresenterPn
 			if len(parts) > 1:
 				parts_str = _(' [part 1 of %s]') % len(parts)
 			part = parts[0]
-			fname = part.export_to_file()
+			fname = part.save_to_file()
 			if fname is None:
 				continue
 

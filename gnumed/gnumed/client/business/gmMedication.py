@@ -425,7 +425,6 @@ class cSubstanceDose(gmBusinessDBObject.cBusinessDBObject):
 				LIMIT 1
 			)"""
 		args = {'pk': self.pk_obj}
-
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
 		return rows[0][0]
 
