@@ -494,6 +494,9 @@ class cOrthancServer:
 				#,u'0010,0021': praxis.name / "GNUmed vX.X.X"
 				#,u'0010,1002': series of (old) patient IDs
 			}
+			, u'Force': True
+			# "Keep" doesn't seem to do what it suggests ATM
+			#, u'Keep': True
 		}
 		o_pats = self.get_patients_by_external_id(external_id = old_patient_id)
 		all_modified = True

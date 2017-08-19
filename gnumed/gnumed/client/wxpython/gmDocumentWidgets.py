@@ -271,9 +271,7 @@ def save_files_as_new_document(parent=None, filenames=None, document_type=None, 
 				u'\n'
 				u'Do you want to delete imported files from the filesystem ?\n'
 				u'\n'
-				u' %s\n'
-				u'\n'
-				u'Note that temporary files will be deleted anyway.'
+				u' %s'
 			) % u'\n '.join(files2remove),
 			_('Removing files')
 		)
@@ -3125,7 +3123,14 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 		if self.__pacs is None:
 			return
 
-		dlg = cModifyOrthancContentDlg(self, -1, server = self.__pacs)
+		title = _('Working on: Orthanc "%s" (AET "%s" @ %s:%s, Version %s)') % (
+			self.__pacs.server_identification['Name'],
+			self.__pacs.server_identification['DicomAet'],
+			self._TCTRL_host.Value.strip(),
+			self._TCTRL_port.Value.strip(),
+			self.__pacs.server_identification['Version']
+		)
+		dlg = cModifyOrthancContentDlg(self, -1, server = self.__pacs, title = title)
 		dlg.ShowModal()
 		dlg.Destroy()
 		self._schedule_data_reget()
@@ -3183,8 +3188,10 @@ class cModifyOrthancContentDlg(wxgModifyOrthancContentDlg):
 	def __init__(self, *args, **kwds):
 		self.__srv = kwds['server']
 		del kwds['server']
-		kwds['title'] = _('Editing Orthanc content')
+		title = kwds['title']
+		del kwds['title']
 		wxgModifyOrthancContentDlg.__init__(self, *args, **kwds)
+		self.SetTitle(title)
 		self._LCTRL_patients.set_columns( [_('Patient ID'), _('Name'), _('Birth date'), _('Gender'), _('Orthanc')] )
 
 	#--------------------------------------------------------
@@ -3256,51 +3263,60 @@ class cModifyOrthancContentDlg(wxgModifyOrthancContentDlg):
 			if not success:
 				all_modified = False
 		self.__refresh_patient_list()
+
+		if not all_modified:
+			gmGuiHelpers.gm_show_warning (
+				aTitle = _(u'Modifying patient ID'),
+				aMessage = _(
+					u'I was unable to modify all DICOM patients.\n'
+					u'\n'
+					u'Please refer to the log file.'
+				)
+			)
 		return all_modified
 
 #------------------------------------------------------------
+# outdated:
 def upload_files():
-#	_on_upload_button_pressed(self, event)
-		event.Skip()
-		dlg = wx.DirDialog (
-			self,
-			message = _('Select the directory from which to recursively upload DICOM files.'),
-			defaultPath = os.path.join(gmTools.gmPaths().home_dir, 'gnumed')
+	event.Skip()
+	dlg = wx.DirDialog (
+		self,
+		message = _('Select the directory from which to recursively upload DICOM files.'),
+		defaultPath = os.path.join(gmTools.gmPaths().home_dir, 'gnumed')
+	)
+	choice = dlg.ShowModal()
+	dicom_dir = dlg.GetPath()
+	dlg.Destroy()
+	if choice != wx.ID_OK:
+		return True
+	wx.BeginBusyCursor()
+	try:
+		uploaded, not_uploaded = self.__pacs.upload_from_directory (
+			directory = dicom_dir,
+			recursive = True,
+			check_mime_type = False,
+			ignore_other_files = True
 		)
-		choice = dlg.ShowModal()
-		dicom_dir = dlg.GetPath()
-		dlg.Destroy()
-		if choice != wx.ID_OK:
-			return True
-		wx.BeginBusyCursor()
-		try:
-			uploaded, not_uploaded = self.__pacs.upload_from_directory (
-				directory = dicom_dir,
-				recursive = True,
-				check_mime_type = False,
-				ignore_other_files = True
-			)
-		finally:
-			wx.EndBusyCursor()
-		if len(not_uploaded) == 0:
-			q = _('Delete the uploaded DICOM files now ?')
-		else:
-			q = _('Some files have not been uploaded.\n\nDo you want to delete those DICOM files which have been sent to the PACS successfully ?')
-			_log.error(u'not uploaded:')
-			for f in not_uploaded:
-				_log.error(f)
-
-		delete_uploaded = gmGuiHelpers.gm_show_question (
-			title = _('Uploading DICOM files'),
-			question = q,
-			cancel_button = False
-		)
-		if not delete_uploaded:
-			return
-		wx.BeginBusyCursor()
-		for f in uploaded:
-			gmTools.remove_file(f)
+	finally:
 		wx.EndBusyCursor()
+	if len(not_uploaded) == 0:
+		q = _('Delete the uploaded DICOM files now ?')
+	else:
+		q = _('Some files have not been uploaded.\n\nDo you want to delete those DICOM files which have been sent to the PACS successfully ?')
+		_log.error(u'not uploaded:')
+		for f in not_uploaded:
+			_log.error(f)
+		delete_uploaded = gmGuiHelpers.gm_show_question (
+		title = _('Uploading DICOM files'),
+		question = q,
+		cancel_button = False
+	)
+	if not delete_uploaded:
+		return
+	wx.BeginBusyCursor()
+	for f in uploaded:
+		gmTools.remove_file(f)
+	wx.EndBusyCursor()
 
 #============================================================
 # main

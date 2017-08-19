@@ -11,10 +11,13 @@
 FIX: exception when having issues with calculating eGFR in medication plugin
 FIX: exception on disabling identity [thanks Marc]
 FIX: exception on adding archived documents to export area
+FIX: Orthanc DICOM patient ID modification
 
 IMPROVED: saving of export area items
 IMPROVED: patient display in provider inbox
 IMPROVED: copy document to export area from document plugin
+IMPROVED: Orthanc modification dialog title
+IMPROVED: imported documents deletion confirmation
 
 	1.6.13
 
