@@ -2915,6 +2915,9 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 		self._LCTRL_series.select_callback = self._on_series_list_item_selected
 		self._LCTRL_series.deselect_callback = self._on_series_list_item_deselected
 
+		self._LCTRL_details.set_columns(columns = [_(u'DICOM field'), _(u'Value')])
+		self._LCTRL_details.set_column_widths()
+
 		self._BMP_preview.SetBitmap(wx.EmptyBitmap(1,1))
 
 	#--------------------------------------------------------
@@ -2989,10 +2992,8 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 		self._LBL_patient_identification.SetLabel(u'')
 		self._LCTRL_studies.set_string_items(items = [])
 		self._LCTRL_series.set_string_items(items = [])
-		self._TCTRL_details.Value = u''
 		self.__refresh_image()
-
-		#self.Layout()
+		self.__refresh_details()
 
 	#--------------------------------------------------------
 	def __reset_server_identification(self):
@@ -3117,37 +3118,65 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 					study_list_data.append(study)
 
 		self._LCTRL_studies.set_string_items(items = study_list_items)
-		self._LCTRL_studies.set_column_widths()
 		self._LCTRL_studies.set_data(data = study_list_data)
 		self._LCTRL_studies.SortListItems(col = 0, ascending = 0)
 
-		self._LCTRL_series.set_string_items(items = [])
-		self._TCTRL_details.Value = u''
 		self.__refresh_image()
-
+		self.__refresh_details()
 		self.__set_button_states()
 
 		self.Layout()
 		return True
 
 	#--------------------------------------------------------
-	def __refresh_image(self, idx=None):
-		if idx is None:
-			self._BMP_preview.SetBitmap(wx.EmptyBitmap(1,1))
-			self.__image_data = None
-			return
+	def __refresh_details(self):
 
+		self._LCTRL_details.remove_items_safely()
 		if self.__pacs is None:
-			self._BMP_preview.SetBitmap(wx.EmptyBitmap(1,1))
-			self.__image_data = None
 			return
 
+		# study available ?
+		study_data = self._LCTRL_studies.get_selected_item_data(only_one = True)
+		if study_data is None:
+			return
+		items = []
+		items = [ [key, study_data['all_tags'][key]] for key in study_data['all_tags'] if (u'%s' % study_data['all_tags'][key]).strip() != u'' ]
+
+		# series available ?
 		series = self._LCTRL_series.get_selected_item_data(only_one = True)
 		if series is None:
-			self._BMP_preview.SetBitmap(wx.EmptyBitmap(1,1))
-			self.__image_data = None
+			self._LCTRL_details.set_string_items(items = items)
+			self._LCTRL_details.set_column_widths()
 			return
+		items.append([u' ----- ', u'--- %s ----------' % _(u'Series')])
+		items.extend([ [key, series['all_tags'][key]] for key in series['all_tags'] if (u'%s' % series['all_tags'][key]).strip() != u'' ])
 
+		# image available ?
+		if self.__image_data is None:
+			self._LCTRL_details.set_string_items(items = items)
+			self._LCTRL_details.set_column_widths()
+			return
+		tags = self.__pacs.get_instance_dicom_tags(instance_id = self.__image_data['uuid'])
+		items.append([u' ----- ', u'--- %s ----------' % _(u'Image')])
+		items.extend([ [key, tags[key]] for key in tags if (u'%s' % tags[key]).strip() != u'' ])
+
+		self._LCTRL_details.set_string_items(items = items)
+		self._LCTRL_details.set_column_widths()
+
+	#--------------------------------------------------------
+	def __refresh_image(self, idx=None):
+
+		self.__image_data = None
+		self._LBL_image.Label = _(u'Image')
+		self._BMP_preview.SetBitmap(wx.EmptyBitmap(1,1))
+
+		if idx is None:
+			return
+		if self.__pacs is None:
+			return
+		series = self._LCTRL_series.get_selected_item_data(only_one = True)
+		if series is None:
+			return
 		if idx > len(series['instances']) - 1:
 			raise ValueError('trying to go beyond instances in series: %s of %s', idx, len(series['instances']))
 
@@ -3159,11 +3188,10 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 		# show
 		if wx_bmp is None:
 			_log.error('cannot load DICOM instance from PACS: %s', uuid)
-			self._BMP_preview.SetBitmap(wx.EmptyBitmap(1,1))
-			self.__image_data = None
 		else:
-			self._BMP_preview.SetBitmap(wx_bmp)
 			self.__image_data = {'idx': idx, 'uuid': uuid}
+			self._BMP_preview.SetBitmap(wx_bmp)
+			self._LBL_image.Label = _(u'Image %s/%s') % (idx+1, len(series['instances']))
 			self.Layout()
 
 		if idx == 0:
@@ -3245,47 +3273,25 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 			self.__set_button_states()
 			return
 
-		self._TCTRL_details.Value = u'%s\n%s\n\n%s\n%s' % (
-			_(u'Study'),
-			gmTools.format_dict_like(study_data['all_tags'], tabular = True, value_delimiters = None, left_margin = 2),
-			_(u'Series'),
-			gmTools.format_dict_like(series['all_tags'], tabular = True, value_delimiters = None, left_margin = 2)
-		)
-
 		if len(series['instances']) == 0:
+			self.__refresh_image()
+			self.__refresh_details()
 			self.__set_button_states()
 			return
 
+		# set first image
+		self.__refresh_image(0)
+		self.__refresh_details()
 		self.__set_button_states()
-
-		# get first image
-		img_file = self.__pacs.get_instance_preview(instance_id = series['instances'][0])
-		# scale
-		wx_bmp = gmGuiHelpers.file2scaled_image(filename = img_file, height = 100)
-		# show
-		if wx_bmp is None:
-			self._BMP_preview.SetBitmap(wx.EmptyBitmap(1,1))
-			self.__image_data = None
-		else:
-			self._BMP_preview.SetBitmap(wx_bmp)
-			self.__image_data = {'idx': 0, 'uuid': series['instances'][0]}
-			self._BTN_previous_image.Disable()
-			self.Layout()
+		self._BTN_previous_image.Disable()
 
 	#--------------------------------------------------------
 	def _on_series_list_item_deselected(self, event):
 		event.Skip()
 
-		self.__set_button_states()
-
 		self.__refresh_image()
-		study_data = self._LCTRL_studies.get_selected_item_data(only_one = True)
-		if study_data is None:
-			return
-		self._TCTRL_details.Value = u'%s\n%s' % (
-			_(u'Study'),
-			gmTools.format_dict_like(study_data['all_tags'], tabular = True, value_delimiters = None, left_margin = 2)
-		)
+		self.__refresh_details()
+		self.__set_button_states()
 
 	#--------------------------------------------------------
 	def _on_studies_list_item_selected(self, event):
@@ -3295,6 +3301,7 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 
 		study_data = self._LCTRL_studies.get_selected_item_data(only_one = True)
 		if study_data is None:
+			self.__set_button_states()
 			return
 
 		series_list_items = []
@@ -3331,14 +3338,11 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 			series_list_data.append(series)
 
 		self._LCTRL_series.set_string_items(items = series_list_items)
-		self._LCTRL_series.set_column_widths()
 		self._LCTRL_series.set_data(data = series_list_data)
 		self._LCTRL_series.SortListItems(col = 0)
-		self._TCTRL_details.Value = u'%s\n%s' % (
-			_(u'Study'),
-			gmTools.format_dict_like(study_data['all_tags'], tabular = True, value_delimiters = None, left_margin = 2)
-		)
 
+		self.__refresh_image()
+		self.__refresh_details()
 		self.__set_button_states()
 
 	#--------------------------------------------------------
@@ -3346,11 +3350,9 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 		event.Skip()
 
 		self._LCTRL_series.remove_items_safely()
-
-		self.__set_button_states()
-
 		self.__refresh_image()
-		self._TCTRL_details.Value = u''
+		self.__refresh_details()
+		self.__set_button_states()
 
 	#--------------------------------------------------------
 	# events: buttons
@@ -3465,12 +3467,14 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 		if self.__image_data is None:
 			return
 		self.__refresh_image(idx = self.__image_data['idx'] + 1)
+		self.__refresh_details()
 
 	#--------------------------------------------------------
 	def _on_previous_image_button_pressed(self, event):
 		if self.__image_data is None:
 			return
 		self.__refresh_image(idx = self.__image_data['idx'] - 1)
+		self.__refresh_details()
 
 	#--------------------------------------------------------
 	def _on_button_image_show_pressed(self, event):

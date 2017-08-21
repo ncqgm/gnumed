@@ -58,7 +58,11 @@ class cOrthancServer:
 	def connect(self, host, port, user, password, expected_minimal_version=None, expected_name=None, expected_aet=None):
 		if (host is None) or (host.strip() == u''):
 			host = u'localhost'
-		self.__server_url = str('http://%s:%s' % (host, port))
+		try:
+			self.__server_url = str('http://%s:%s' % (host, port))
+		except Exception:
+			_log.exception(u'cannot create server url from: host [%s] and port [%s]', host, port)
+			return False
 		self.__user = user
 		self.__password = password
 		_log.info('connecting as [%s] to Orthanc server at [%s]', self.__user, self.__server_url)
@@ -451,6 +455,15 @@ class cOrthancServer:
 		return target_dir
 
 	#--------------------------------------------------------
+	def get_instance_dicom_tags(self, instance_id, simplified=True):
+		_log.debug('retrieving DICOM tags for instance [%s]', instance_id)
+		if simplified:
+			download_url = '%s/instances/%s/simplified-tags' % (self.__server_url, instance_id)
+		else:
+			download_url = '%s/instances/%s/tags' % (self.__server_url, instance_id)
+		return self.__run_GET(url = download_url)
+
+	#--------------------------------------------------------
 	def get_instance_preview(self, instance_id, filename=None):
 		if filename is None:
 			filename = gmTools.get_unique_filename(suffix = '.png')
@@ -691,11 +704,7 @@ class cOrthancServer:
 			except KeyError:
 				pass
 			for key in pat_dict:
-				if pat_dict[key] == u'unknown':
-					pat_dict[key] = None
-				if pat_dict[key] == u'(null)':
-					pat_dict[key] = None
-				if pat_dict[key] == u'':
+				if pat_dict[key] in [u'unknown', u'(null)', u'']:
 					pat_dict[key] = None
 			studies_by_patient.append(pat_dict)
 
@@ -735,11 +744,7 @@ class cOrthancServer:
 				except KeyError:
 					pass
 				for key in study_dict:
-					if study_dict[key] == u'unknown':
-						study_dict[key] = None
-					if study_dict[key] == u'(null)':
-						study_dict[key] = None
-					if study_dict[key] == u'':
+					if study_dict[key] in [u'unknown', u'(null)', u'']:
 						study_dict[key] = None
 				study_dict['all_tags'] = {}
 				try:
@@ -765,12 +770,15 @@ class cOrthancServer:
 				# loop over series in study
 				for orth_series_id in orth_study['Series']:
 					orth_series = self.__run_GET(url = u'%s/series/%s' % (self.__server_url, orth_series_id))
+					#slices = orth_series['Instances']
+					ordered_slices = self.__run_GET(url = u'%s/series/%s/ordered-slices' % (self.__server_url, orth_series_id))
+					slices = [ s[0] for s in ordered_slices['SlicesShort'] ]
 					if orth_series is False:
 						_log.error('cannot retrieve series')
 						return []
 					series_dict = {
 						'orthanc_id': orth_series['ID'],
-						'instances': orth_series['Instances'],
+						'instances': slices,
 						'modality': None,
 						'date': None,
 						'time': None,
@@ -803,11 +811,7 @@ class cOrthancServer:
 					except KeyError:
 						pass
 					for key in series_dict:
-						if series_dict[key] == u'unknown':
-							series_dict[key] = None
-						if series_dict[key] == u'(null)':
-							series_dict[key] = None
-						if series_dict[key] == u'':
+						if series_dict[key] in [u'unknown', u'(null)', u'']:
 							series_dict[key] = None
 					if series_dict['description'] == series_dict['protocol']:
 						_log.debug('<series description> matches <series protocol>, ignoring protocol')
