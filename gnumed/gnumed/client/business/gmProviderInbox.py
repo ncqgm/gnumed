@@ -26,11 +26,7 @@ _log = logging.getLogger('gm.inbox')
 #============================================================
 # provider message inbox
 #------------------------------------------------------------
-_SQL_get_inbox_messages = u"""
-SELECT * FROM
-	dem.v_message_inbox d_vi
-		LEFT OUTER JOIN dem.v_persons d_vp ON (d_vi.pk_patient = d_vp.pk_identity)
-WHERE %s"""
+_SQL_get_inbox_messages = u"""SELECT * FROM dem.v_message_inbox d_vi WHERE %s"""
 
 class cInboxMessage(gmBusinessDBObject.cBusinessDBObject):
 
@@ -101,7 +97,7 @@ class cInboxMessage(gmBusinessDBObject.cBusinessDBObject):
 				self._payload[self._idx['lastnames']],
 				self._payload[self._idx['firstnames']],
 				gmTools.coalesce(self._payload[self._idx['l10n_gender']], u'', u' (%s)'),
-				gmDateTime.pydt_strftime(self._payload[self._idx['dob_only']], u'%Y %b %d', none_str = u''),
+				gmDateTime.pydt_strftime(self._payload[self._idx['dob']], u'%Y %b %d', none_str = u''),
 				self._payload[self._idx['pk_patient']]
 			))
 

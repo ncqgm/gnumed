@@ -14,6 +14,25 @@ drop view if exists dem.v_message_inbox cascade;
 
 create view dem.v_message_inbox as
 
+SELECT
+	all_msgs.*,
+	d_n.lastnames,
+	d_n.firstnames,
+	d_n.preferred
+		AS preferred_name,
+	d_n.comment
+		AS comment_name,
+	d_i.gender,
+	_(d_i.gender)
+		AS l10n_gender,
+	date_trunc('day'::text, d_i.dob) + COALESCE(d_i.tob, d_i.dob::time without time zone)::interval
+		AS dob,
+	d_i.deceased,
+	d_i.title,
+	d_i.comment
+		AS comment_identity
+FROM (
+
 	select
 		mi.modified_when
 			as received_when,
@@ -209,6 +228,13 @@ UNION
 			((is_technically_abnormal is null) and (abnormality_indicator is not null))
 		)
 
+) AS all_msgs
+
+	LEFT OUTER JOIN dem.identity d_i ON (all_msgs.pk_patient = d_i.pk)
+		INNER JOIN dem.names d_n ON (d_i.pk = d_n.id_identity)
+
+WHERE
+	d_n.active IS TRUE
 ;
 
 
