@@ -453,12 +453,11 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 				tt = _('<gm-burn_doc(.bat) not found>')
 			self._BTN_burn_items.SetToolTipString(tt)
 
-		# make me and listctrl a file drop target
-		dt = gmGuiHelpers.cFileDropTarget(self)
+		# make me and listctrl file drop targets
+		dt = gmGuiHelpers.cFileDropTarget(target = self)
 		self.SetDropTarget(dt)
-		dt = gmGuiHelpers.cFileDropTarget(self._LCTRL_items)
+		dt = gmGuiHelpers.cFileDropTarget(on_drop_callback = self._drop_target_consume_filenames)
 		self._LCTRL_items.SetDropTarget(dt)
-		self._LCTRL_items.add_filenames = self.add_filenames_to_listctrl
 
 	#--------------------------------------------------------
 	def save_soap_note(self, soap=None):
@@ -475,10 +474,7 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 	#--------------------------------------------------------
 	# file drop target API
 	#--------------------------------------------------------
-	def add_filenames_to_listctrl(self, filenames):
-		self.add_filenames(filenames = filenames)
-	#--------------------------------------------------------
-	def add_filenames(self, filenames):
+	def _drop_target_consume_filenames(self, filenames):
 		pat = gmPerson.gmCurrentPatient()
 		if not pat.connected:
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot accept new documents. No active patient.'))

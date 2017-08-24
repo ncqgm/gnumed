@@ -891,12 +891,11 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 		self.__init_ui_data()
 		self._PhWheel_doc_type.add_callback_on_lose_focus(self._on_doc_type_loses_focus)
 
-		# make me and listctrl a file drop target
-		dt = gmGuiHelpers.cFileDropTarget(self)
+		# make me and listctrl file drop targets
+		dt = gmGuiHelpers.cFileDropTarget(target = self)
 		self.SetDropTarget(dt)
-		dt = gmGuiHelpers.cFileDropTarget(self._LCTRL_doc_pages)
+		dt = gmGuiHelpers.cFileDropTarget(on_drop_callback = self._drop_target_consume_filenames)
 		self._LCTRL_doc_pages.SetDropTarget(dt)
-		self._LCTRL_doc_pages.add_filenames = self._add_parts_from_dropped_path_or_files
 
 		# do not import globally since we might want to use
 		# this module without requiring any scanner to be available
@@ -906,7 +905,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 	#--------------------------------------------------------
 	# file drop target API
 	#--------------------------------------------------------
-	def _add_parts_from_dropped_path_or_files(self, filenames):
+	def _drop_target_consume_filenames(self, filenames):
 		pat = gmPerson.gmCurrentPatient()
 		if not pat.connected:
 			gmDispatcher.send(signal='statustext', msg=_('Cannot accept new documents. No active patient.'))
@@ -919,8 +918,8 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 				files = os.listdir(pathname)
 				source = _('directory dropped on client')
 				gmDispatcher.send(signal = 'statustext', msg = _('Extracting files from folder [%s] ...') % pathname)
-				for file in files:
-					fullname = os.path.join(pathname, file)
+				for filename in files:
+					fullname = os.path.join(pathname, filename)
 					if not os.path.isfile(fullname):
 						continue
 					real_filenames.append(fullname)

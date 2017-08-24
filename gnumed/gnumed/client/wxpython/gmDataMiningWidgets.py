@@ -215,7 +215,7 @@ class cDataMiningPnl(wxgDataMiningPnl.wxgDataMiningPnl):
 		self.__init_ui()
 
 		# make me a file drop target
-		dt = gmGuiHelpers.cFileDropTarget(self)
+		dt = gmGuiHelpers.cFileDropTarget(target = self)
 		self.SetDropTarget(dt)
 	#--------------------------------------------------------
 	def __init_ui(self):
@@ -248,7 +248,7 @@ class cDataMiningPnl(wxgDataMiningPnl.wxgDataMiningPnl):
 	#--------------------------------------------------------
 	# file drop target API
 	#--------------------------------------------------------
-	def add_filenames(self, filenames):
+	def _drop_target_consume_filenames(self, filenames):
 		# act on first file only
 		fname = filenames[0]
 		_log.debug('importing SQL from <%s>', fname)
