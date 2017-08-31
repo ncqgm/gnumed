@@ -328,22 +328,22 @@ _html_end = u"""
 
 
 _autorun_inf = (
-u'[AutoRun]\r\n'						# needs \r\n for Windows
-u'label=%s\r\n'							# patient name/DOB
-u'shellexecute=index.html\r\n'
-u'action=%s\r\n'						# % _('Browse patient data')
-u'\r\n'
-u'[Content]\r\n'
-u'PictureFiles=yes\r\n'
-u'VideoFiles=yes\r\n'
-u'MusicFiles=no\r\n'
-u'\r\n'
-u'[IgnoreContentPaths]\r\n'
-u'\documents\r\n'
-u'\r\n'
-u'[unused]\r\n'
-u'open=requires explicit executable\r\n'
-u'icon=use standard icon for storage unit\r\n'
+	u'[AutoRun]\r\n'						# needs \r\n for Windows
+	u'label=%s\r\n'							# patient name/DOB
+	u'shellexecute=index.html\r\n'
+	u'action=%s\r\n'						# % _('Browse patient data')
+	u'\r\n'
+	u'[Content]\r\n'
+	u'PictureFiles=yes\r\n'
+	u'VideoFiles=yes\r\n'
+	u'MusicFiles=no\r\n'
+	u'\r\n'
+	u'[IgnoreContentPaths]\r\n'
+	u'\documents\r\n'
+	u'\r\n'
+	u'[unused]\r\n'
+	u'open=requires explicit executable\r\n'
+	u'icon=use standard icon for storage unit\r\n'
 )
 
 
@@ -593,12 +593,18 @@ class cExportArea(object):
 			_log.exception('cannot copy %s to %s', idx_fname, start_fname)
 
 		# autorun.inf
+		name = pat.active_name
+		last = name['lastnames'][:14]
+		first = name['firstnames'][:min(14, 18 - len(last))]
+		label = ((u'%s%s%s' % (
+			u'%s,%s' % (last, first),
+			gmTools.coalesce(pat['gender'], u'', u' (%s)'),
+			pat.get_formatted_dob(format = ' %Y%m%d', none_string = u'', honor_estimation = False)
+		)).strip())[:32]		# max 32 chars, supposedly ASCII, but LATIN1 works pretty well
+		action = _('Browse patient data')
 		autorun_fname = os.path.join(base_dir, u'autorun.inf')
 		autorun_file = io.open(autorun_fname, mode = u'wt', encoding = u'utf8')
-		autorun_file.write(_autorun_inf % (
-			(pat.get_description_gender(with_nickname = False) + u', ' + _(u'born') + u' ' + pat.get_formatted_dob('%Y %B %d')).strip(),
-			_('Browse patient data')
-		))
+		autorun_file.write(_autorun_inf % (label, action))
 		autorun_file.close()
 
 		# cd.inf
