@@ -17,26 +17,24 @@ INSERT INTO dem.message_inbox (
 ) VALUES (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
-	'Release Notes for GNUmed 1.6.13 (database v21.13)',
-	'GNUmed 1.6.13 Release Notes:
+	'Release Notes for GNUmed 1.6.14 (database v21.14)',
+	'GNUmed 1.6.14 Release Notes:
 
-	1.6.13
+	1.6.14
 
-FIX: editing of drug products
-FIX: formatting of intervals with seconds [thanks Rickard]
-FIX: robustify backend listener against change notification trigger errors
-FIX: backport once-only detection of unicode char selector
-FIX: improper handling of notebook page change events
-FIX: error handling on uploading DICOM to Orthanc
+FIX: exception when having issues with calculating eGFR in medication plugin
+FIX: exception on disabling identity [thanks Marc]
+FIX: exception on adding archived documents to export area
+FIX: Orthanc DICOM patient ID modification
+FIX: faulty file drop target declarations
 
-IMPROVED: more fully prevent logfile based password leaks
-IMPROVED: add listing of latest vaccination per indication
-IMPROVED: export area change listening and sortability
-IMPROVED: episode edit area behaviour
-IMPROVED: add measurement by clicking empty cell in grid
-
-NEW: add Constans algorithm for upper extremity DVT
+IMPROVED: saving of export area items
+IMPROVED: patient display in provider inbox
+IMPROVED: copy document to export area from document plugin
+IMPROVED: Orthanc modification dialog title
+IMPROVED: imported documents deletion confirmation
+IMPROVED: patient media metadata
 ');
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('v21-release_notes-dynamic.sql', '21.13');
+select gm.log_script_insertion('v21-release_notes-dynamic.sql', '21.14');

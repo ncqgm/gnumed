@@ -91,7 +91,7 @@ against. Please run GNUmed as a non-root user.
 	sys.exit(1)
 
 #----------------------------------------------------------
-current_client_version = u'1.6.13'
+current_client_version = u'1.6.14'
 current_client_branch = u'1.6'
 
 _log = None
