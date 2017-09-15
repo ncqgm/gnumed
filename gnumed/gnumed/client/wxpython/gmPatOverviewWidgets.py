@@ -340,7 +340,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 	#-----------------------------------------------------
 	def _calc_inbox_item_tooltip(self, data):
 		if isinstance(data, gmProviderInbox.cInboxMessage):
-			return data.format()
+			return data.format(with_patient = False)
 
 		if isinstance(data, gmAutoHints.cDynamicHint):
 			return u'%s\n\n%s%s\n\n%s          %s' % (
