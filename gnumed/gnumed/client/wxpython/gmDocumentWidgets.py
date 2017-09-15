@@ -2800,7 +2800,10 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 							gmTools.coalesce(study['description'], u'', u': %s')
 						),
 						gmTools.coalesce(study['radiology_org'], u''),
-						gmTools.coalesce(study['referring_doc'], u'')
+						gmTools.coalesce (
+							study['referring_doc'],
+							gmTools.coalesce(study['requesting_doc'], u'')
+						)
 					] )
 					study_list_data.append(study)
 

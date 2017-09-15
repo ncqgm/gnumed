@@ -13,6 +13,7 @@ __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 import io
 import os
 import sys
+import re as regex
 import logging
 import httplib			# needed for exception names thrown by httplib2, duh |-(
 import socket			# needed for exception names thrown by httplib2, duh |-(
@@ -673,6 +674,7 @@ class cOrthancServer:
 					pat_dict[key] = None
 				if pat_dict[key] == u'':
 					pat_dict[key] = None
+				pat_dict[key] = cleanup_dicom_string(pat_dict[key])
 			studies_by_patient.append(pat_dict)
 
 			# loop over studies of patient
@@ -687,6 +689,7 @@ class cOrthancServer:
 					'time': None,
 					'description': None,
 					'referring_doc': None,
+					'requesting_doc': None,
 					'radiology_org': None,
 					'series': []
 				}
@@ -707,6 +710,10 @@ class cOrthancServer:
 				except KeyError:
 					pass
 				try:
+					study_dict['requesting_doc'] = orth_study['MainDicomTags'][u'RequestingPhysician'].strip()
+				except KeyError:
+					pass
+				try:
 					study_dict['radiology_org'] = orth_study['MainDicomTags'][u'InstitutionName'].strip()
 				except KeyError:
 					pass
@@ -717,6 +724,7 @@ class cOrthancServer:
 						study_dict[key] = None
 					if study_dict[key] == u'':
 						study_dict[key] = None
+					study_dict[key] = cleanup_dicom_string(study_dict[key])
 				study_dict['all_tags'] = {}
 				try:
 					orth_study['PatientMainDicomTags']
@@ -794,6 +802,8 @@ class cOrthancServer:
 					if series_dict['time'] == study_dict['time']:
 						_log.debug('<series time> matches <study time>, ignoring time')
 						series_dict['time'] = None
+					for key in series_dict:
+						series_dict[key] = cleanup_dicom_string(series_dict[key])
 					series_dict['all_tags'] = {}
 					for key in orth_series.keys():
 						if key == 'MainDicomTags':
@@ -945,6 +955,12 @@ class cOrthancServer:
 			return json.loads(content)
 		except StandardError:
 			return content
+
+#------------------------------------------------------------
+def cleanup_dicom_string(dicom_str):
+	if not isinstance(dicom_str, basestring):
+		return dicom_str
+	return regex.sub('\^+', ' ', dicom_str.strip(u'^'))
 
 #============================================================
 # main
