@@ -38,6 +38,9 @@ IMPROVED: test panels now LOINC based
 # rel-1-6-patches
 ------------------------------------------------
 
+IMPROVED: use Dicom[RequestingPhysician] if available
+IMPROVED: user visible rendering of raw DICOM strings
+
 	1.6.14
 
 FIX: exception when having issues with calculating eGFR in medication plugin
