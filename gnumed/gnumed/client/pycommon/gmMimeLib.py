@@ -223,6 +223,12 @@ def convert_file(filename=None, target_mime=None, target_filename=None, target_e
 
 		target_mime: a mime type
 	"""
+	source_mime = guess_mimetype(filename = filename)
+	if source_mime.lower() == target_mime.lower():
+		_log.debug(u'source file [%s] already target mime type [%s]', filename, target_mime)
+		shutil.copyfile(filename, target_filename)
+		return True
+
 	if target_extension is None:
 		tmp, target_extension = os.path.splitext(target_filename)
 

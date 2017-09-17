@@ -33,6 +33,7 @@ IMPROVED: export area change signalling
 IMPROVED: test results usability
 IMPROVED: vaccine handling
 IMPROVED: test panels now LOINC based
+IMPROVED: patient data export media metadata
 
 ------------------------------------------------
 # rel-1-6-patches

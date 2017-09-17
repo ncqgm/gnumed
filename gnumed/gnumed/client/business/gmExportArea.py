@@ -30,6 +30,7 @@ from Gnumed.pycommon import gmDateTime
 from Gnumed.pycommon import gmCfg2
 
 from Gnumed.business import gmDocuments
+from Gnumed.business import gmKeywordExpansion
 
 
 _log = logging.getLogger('gm.exp_area')
@@ -300,6 +301,7 @@ _html_start = u"""<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
 <html>
 <head>
 <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link rel="icon" type="image/x-icon" href="gnumed.ico">
 <title>%(html_title_header)s %(html_title_patient)s</title>
 </head>
 <body>
@@ -350,6 +352,7 @@ _autorun_inf = (
 	u'label=%s\r\n'							# patient name/DOB
 	u'shellexecute=index.html\r\n'
 	u'action=%s\r\n'						# % _('Browse patient data')
+	u'%s\r\n'								# "icon=gnumed.ico" or ""
 	u'\r\n'
 	u'[Content]\r\n'
 	u'PictureFiles=yes\r\n'
@@ -361,7 +364,6 @@ _autorun_inf = (
 	u'\r\n'
 	u'[unused]\r\n'
 	u'open=requires explicit executable\r\n'
-	u'icon=use standard icon for storage unit\r\n'
 )
 
 
@@ -616,15 +618,40 @@ class cExportArea(object):
 		name = pat.active_name
 		last = name['lastnames'][:14]
 		first = name['firstnames'][:min(14, 18 - len(last))]
-		label = ((u'%s%s%s' % (
+		media_label = ((u'%s%s%s' % (
 			u'%s,%s' % (last, first),
 			gmTools.coalesce(pat['gender'], u'', u' (%s)'),
 			pat.get_formatted_dob(format = ' %Y%m%d', none_string = u'', honor_estimation = False)
-		)).strip())[:32]		# max 32 chars, supposedly ASCII, but LATIN1 works pretty well
-		action = _('Browse patient data')
+		)).strip())[:32]		# max 32 chars, supposedly ASCII, but CP1252 likely works pretty well
+		media_icon_kwd = u'$$gnumed_patient_media_export_icon'
+		media_icon_kwd_exp = gmKeywordExpansion.get_expansion (
+			keyword = media_icon_kwd,
+			textual_only = False,
+			binary_only = True
+		)
+		icon_tmp_file = media_icon_kwd_exp.save_to_file (
+			target_mime = u'image/x-icon',
+			target_extension = u'.ico',
+			ignore_conversion_problems = True
+		)
+		media_icon = u''
+		if icon_tmp_file is None:
+			_log.debug(u'cannot retrieve <%s>', media_icon_kwd)
+		else:
+			media_icon_fname = os.path.join(base_dir, u'gnumed.ico')
+			try:
+				shutil.move(icon_tmp_file, media_icon_fname)
+				media_icon = u'icon=gnumed.ico'
+			except Exception:
+				_log.exception('cannot move %s to %s', icon_tmp_file, media_icon_fname)
+		default_action = _('Browse patient data')
 		autorun_fname = os.path.join(base_dir, u'autorun.inf')
-		autorun_file = io.open(autorun_fname, mode = u'wt', encoding = u'utf8')
-		autorun_file.write(_autorun_inf % (label, action))
+		autorun_file = io.open(autorun_fname, mode = 'wt', encoding = 'cp1252', errors = 'replace')
+		autorun_file.write(_autorun_inf % (
+			media_label,
+			default_action,
+			media_icon
+		))
 		autorun_file.close()
 
 		# cd.inf

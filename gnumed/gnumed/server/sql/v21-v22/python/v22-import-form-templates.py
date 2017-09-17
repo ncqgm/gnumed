@@ -38,6 +38,29 @@ def run(conn=None):
 		conn = conn
 	)
 
+	# GNUmed icons
+	gmPG2.file2bytea (
+		query = u"""
+			update ref.keyword_expansion set
+				textual_data = NULL,
+				binary_data = %(data)s::bytea
+			where
+				keyword = '$$gnumed_patient_media_export_icon'""",
+		filename = os.path.join('..', 'sql', 'v21-v22', 'data', 'GNUmed_Data_2.ico'),
+		conn = conn
+	)
+
+	gmPG2.file2bytea (
+		query = u"""
+			update ref.keyword_expansion set
+				textual_data = NULL,
+				binary_data = %(data)s::bytea
+			where
+				keyword = '$$gnumed_patient_media_export_icon_2'""",
+		filename = os.path.join('..', 'sql', 'v21-v22', 'data', 'GNUmed_Data.ico'),
+		conn = conn
+	)
+
 	return True
 
 #---------------------------

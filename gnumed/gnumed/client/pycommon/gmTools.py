@@ -1439,6 +1439,7 @@ def get_icon(wx=None):
 			_log.exception(u"this platform doesn't support wx.Icon().LoadFile()")
 
 	return icon
+
 #===========================================================================
 # main
 #---------------------------------------------------------------------------

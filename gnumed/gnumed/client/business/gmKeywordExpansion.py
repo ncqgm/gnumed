@@ -106,6 +106,7 @@ class cKeywordExpansion(gmBusinessDBObject.cBusinessDBObject):
 
 		_log.warning('programmed to ignore conversion problems, hoping receiver can handle [%s]', filename)
 		return filename
+
 	#--------------------------------------------------------
 	def update_data_from_file(self, filename=None):
 		if not (os.access(filename, os.R_OK) and os.path.isfile(filename)):
@@ -127,6 +128,7 @@ class cKeywordExpansion(gmBusinessDBObject.cBusinessDBObject):
 		__keyword_expansions = None
 
 		return True
+
 	#--------------------------------------------------------
 	def format(self):
 		txt = u'%s            #%s\n' % (
