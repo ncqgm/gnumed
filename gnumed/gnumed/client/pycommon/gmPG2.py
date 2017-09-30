@@ -1549,6 +1549,10 @@ def capture_conn_state(conn=None):
 	conn_status = u'%s (%s)' % (conn.status, map_psyco_conn_status2str[conn.status])
 	if conn.closed != 0:
 		conn_status = u'undefined (%s)' % conn_status
+	try:
+		conn_deferrable = conn.deferrable
+	except AttributeError:
+		conn_deferrable = u'unavailable'
 
 	d = {
 		u'identity': id(conn),
@@ -1560,7 +1564,7 @@ def capture_conn_state(conn=None):
 		u'autocommit': conn.autocommit,
 		u'isolation level (psyco)': isolation_level,
 		u'async': conn.async,
-		u'deferrable': conn.deferrable,
+		u'deferrable': conn_deferrable,
 		u'transaction status': u'%s (%s)' % (tx_status, map_psyco_tx_status2str[tx_status]),
 		u'connection status': conn_status,
 		u'executing async op': conn.isexecuting(),
@@ -1597,6 +1601,10 @@ def capture_cursor_state(cursor=None):
 		isolation_level = u'tx aborted or unknown, cannot retrieve'
 	else:
 		isolation_level = conn.isolation_level
+	try:
+		conn_deferrable = conn.deferrable
+	except AttributeError:
+		conn_deferrable = u'unavailable'
 
 	if cursor.query is None:
 		query = u'<no query>'
@@ -1638,7 +1646,7 @@ Query
 		isolation_level,
 		conn.encoding,
 		conn.async,
-		conn.deferrable,
+		conn_deferrable,
 		conn.readonly,
 		map_psyco_tx_status2str[tx_status],
 		map_psyco_conn_status2str[conn.status],

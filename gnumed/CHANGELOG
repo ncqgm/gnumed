@@ -9,6 +9,7 @@
 	1.6.15
 
 FIX: exception on tooltipping patient overview inbox item
+FIX: exception in cursor/connection state logging w/ older psycopg2's
 
 IMPROVED: use Dicom[RequestingPhysician] if available
 IMPROVED: user visible rendering of raw DICOM strings
