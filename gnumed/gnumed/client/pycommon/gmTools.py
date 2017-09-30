@@ -173,6 +173,29 @@ def rmdir(directory):
 	return error_count
 
 #---------------------------------------------------------------------------
+def rm_dir_content(directory):
+	_log.debug('cleaning out [%s]', directory)
+	try:
+		items = os.listdir(directory)
+	except OSError:
+		return False
+	for item in items:
+		# attempt file/link removal and ignore (but log) errors
+		full_item = os.path.join(directory, item)
+		try:
+			os.remove(full_item)
+		except OSError:		# as per the docs, this is a directory
+			_log.debug('[%s] seems to be a subdirectory', full_item)
+			errors = rmdir(full_item)
+			if errors > 0:
+				return False
+		except StandardError:
+			_log.exception('cannot os.remove(%s) [a file or a link]', full_item)
+			return False
+
+	return True
+
+#---------------------------------------------------------------------------
 def mk_sandbox_dir(prefix=None, base_dir=None):
 	if prefix is None:
 		if base_dir is None:
@@ -197,7 +220,12 @@ def dirname_stem(directory):
 
 #---------------------------------------------------------------------------
 def dir_is_empty(directory=None):
-	return len(os.listdir(directory)) == 0
+	try:
+		return len(os.listdir(directory)) == 0
+	except OSError as exc:
+		if exc.errno == 2:
+			return None
+		raise
 
 #---------------------------------------------------------------------------
 class gmPaths(gmBorg.cBorg):
@@ -1776,6 +1804,7 @@ second line\n
 	#-----------------------------------------------------------------------
 	def test_dir_is_empty():
 		print(sys.argv[2], 'empty:', dir_is_empty(sys.argv[2]))
+
 	#-----------------------------------------------------------------------
 	def test_compare_dicts():
 		d1 = {}
@@ -1825,6 +1854,12 @@ second line\n
 	#-----------------------------------------------------------------------
 	def test_rm_dir():
 		rmdir('cx:\windows\system3__2xxxxxxxxxxxxx')
+
+	#-----------------------------------------------------------------------
+	def test_rm_dir_content():
+		#print(rm_dir_content('cx:\windows\system3__2xxxxxxxxxxxxx'))
+		print(rm_dir_content('/tmp/user/1000/tmp'))
+
 	#-----------------------------------------------------------------------
 	def test_strip_prefix():
 		tests = [
@@ -1880,8 +1915,9 @@ second line\n
 	#test_fname_stem()
 	#test_tex_escape()
 	#test_dir_is_empty()
-	test_compare_dicts()
+	#test_compare_dicts()
 	#test_rm_dir()
+	test_rm_dir_content()
 	#test_strip_prefix()
 	#test_shorten_text()
 	#test_format_compare_dicts()

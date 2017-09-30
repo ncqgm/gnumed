@@ -38,6 +38,8 @@ def guess_mimetype(filename=None):
 	"""
 	worst_case = "application/octet-stream"
 
+	_log.debug('guessing mime type of [%s]', filename)
+
 	# 1) use Python libextractor
 	try:
 		import extractor
@@ -161,6 +163,7 @@ def guess_ext_by_mimetype(mimetype=''):
 	_log.error("<%s>: no suitable file extension found in config files" % mimetype)
 
 	return ext
+
 #-----------------------------------------------------------------------------------
 def guess_ext_for_file(aFile=None):
 	if aFile is None:
@@ -178,6 +181,26 @@ def guess_ext_for_file(aFile=None):
 		return None
 
 	return f_ext
+
+#-----------------------------------------------------------------------------------
+def adjust_extension_by_mimetype(filename):
+	mimetype = gmMimeLib.guess_mimetype(filename)
+	mime_suffix = gmMimeLib.guess_ext_by_mimetype(mimetype)
+	if mime_suffix is None:
+		return filename
+	old_name, old_ext = os.path.splitext(filename)
+	if old_ext == u'':
+		new_filename = filename + mime_suffix
+	elif old_ext == mime_suffix:
+		return filename
+	new_filename = old_name + mime_suffix
+	_log.debug(u'[%s] -> [%s]', filename, new_filename)
+	try:
+		os.rename(filename, new_filename)
+		return new_filename
+	except OSError:
+		_log.exception(u'cannot rename, returning original filename')
+	return filename
 
 #-----------------------------------------------------------------------------------
 _system_startfile_cmd = None
