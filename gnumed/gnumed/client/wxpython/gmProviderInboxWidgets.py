@@ -612,7 +612,7 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 					m['lastnames'],
 					m['firstnames'],
 					gmTools.coalesce(m['l10n_gender'], u'', u' (%s)'),
-					gmDateTime.pydt_strftime(m['dob_only'], u'%Y %b %d', none_str = u''),
+					gmDateTime.pydt_strftime(m['dob'], u'%Y %b %d', none_str = u''),
 					m['pk_patient']
 				))
 			item.append(m['comment'])

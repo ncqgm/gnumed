@@ -3194,7 +3194,7 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 			self.__image_data = {'idx': idx, 'uuid': uuid}
 			self._BMP_preview.SetBitmap(wx_bmp)
 			self._LBL_image.Label = _(u'Image %s/%s') % (idx+1, len(series['instances']))
-			self.Layout()
+			#self.Layout()
 
 		if idx == 0:
 			self._BTN_previous_image.Disable()
@@ -3287,6 +3287,8 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 		self.__set_button_states()
 		self._BTN_previous_image.Disable()
 
+		self.Layout()
+
 	#--------------------------------------------------------
 	def _on_series_list_item_deselected(self, event):
 		event.Skip()
@@ -3319,14 +3321,18 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 				series['time'][4:6]
 			)
 
-			series_desc = u''
+			series_desc_parts = []
 			if series['description'] is not None:
-				series_desc = series['description'].strip()
-			if series['protocol'] is not None:
-				if len(series_desc) > 0:
-					series_desc += u' [%s]' % (series['protocol'].strip())
+				if series['protocol'] is None:
+					series_desc_parts.append(series['description'].strip())
 				else:
-					series_desc = series['protocol'].strip()
+					if series['description'].strip() not in series['protocol'].strip():
+						series_desc_parts.append(series['description'].strip())
+			if series['protocol'] is not None:
+				series_desc_parts.append(u'[%s]' % series['protocol'].strip())
+			if series['performed_procedure_step_description'] is not None:
+				series_desc_parts.append(series['performed_procedure_step_description'].strip())
+			series_desc = u' / '.join(series_desc_parts)
 			if len(series_desc) > 0:
 				series_desc = u': ' + series_desc
 			series_desc = _(u'%s image(s)%s') % (len(series['instances']), series_desc)

@@ -792,7 +792,8 @@ class cOrthancServer:
 						'time': None,
 						'description': None,
 						'body_part': None,
-						'protocol': None
+						'protocol': None,
+						'performed_procedure_step_description': None
 					}
 					try:
 						series_dict['modality'] = orth_series['MainDicomTags']['Modality'].strip()
@@ -818,12 +819,20 @@ class cOrthancServer:
 						series_dict['protocol'] = orth_series['MainDicomTags']['ProtocolName'].strip()
 					except KeyError:
 						pass
+					try:
+						series_dict['performed_procedure_step_description'] = orth_series['MainDicomTags']['PerformedProcedureStepDescription'].strip()
+					except KeyError:
+						pass
 					for key in series_dict:
 						if series_dict[key] in [u'unknown', u'(null)', u'']:
 							series_dict[key] = None
 					if series_dict['description'] == series_dict['protocol']:
 						_log.debug('<series description> matches <series protocol>, ignoring protocol')
 						series_dict['protocol'] = None
+					if series_dict['performed_procedure_step_description'] in [series_dict['description'], series_dict['protocol']]:
+						series_dict['performed_procedure_step_description'] = None
+					if regex.match ('[.,/\|\-\s\d]+', series_dict['performed_procedure_step_description'], flags = regex.UNICODE):
+						series_dict['performed_procedure_step_description'] = None
 					if series_dict['date'] == study_dict['date']:
 						_log.debug('<series date> matches <study date>, ignoring date')
 						series_dict['date'] = None
