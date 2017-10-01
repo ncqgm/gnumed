@@ -1807,30 +1807,34 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 	#----------------------------------------------------------------------
 	def get_dirname(self):
 		"""Format patient demographics into patient specific path name fragment."""
-		#return (u'%s-%s%s-%s' % (
-		return (u'%s-%s-%s' % (
-			self._payload[self._idx['lastnames']].replace(u' ', u'_'),
-			self._payload[self._idx['firstnames']].replace(u' ', u'_'),
-			# privacy
-			#gmTools.coalesce(self._payload[self._idx['preferred']], u'', template_initial = u'-(%s)').replace(u' ', u'_'),
+
+		return gmTools.fname_sanitize(u'%s-%s-%s' % (
+			self._payload[self._idx['lastnames']],
+			self._payload[self._idx['firstnames']],
 			self.get_formatted_dob(format = '%Y-%m-%d', encoding = gmI18N.get_encoding())
-		)).replace (
-			u"'", u""
-		).replace (
-			u'"', u''
-		).replace (
-			u'/', u'_'
-		).replace (
-			u'\\', u'_'
-		).replace (
-			u'~', u''
-		).replace (
-			u'|', u'_'
-		).replace (
-			u'*', u''
-		).replace (
-			u'\u2248', u''			# "approximately", having been added by dob_is_estimated
-		)
+		))
+#		return (u'%s-%s-%s' % (
+#			self._payload[self._idx['lastnames']].replace(u' ', u'_'),
+#			self._payload[self._idx['firstnames']].replace(u' ', u'_'),
+#			self.get_formatted_dob(format = '%Y-%m-%d', encoding = gmI18N.get_encoding())
+#		)).replace (
+#			u"'", u""
+#		).replace (
+#			u'"', u''
+#		).replace (
+#			u'/', u'_'
+#		).replace (
+#			u'\\', u'_'
+#		).replace (
+#			u'~', u''
+#		).replace (
+#			u'|', u'_'
+#		).replace (
+#			u'*', u''
+#		).replace (
+#			u'\u2248', u''			# "approximately", having been added by dob_is_estimated
+#		)
+
 
 	dirname = property(get_dirname, lambda x:x)
 

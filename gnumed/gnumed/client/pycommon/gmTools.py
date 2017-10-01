@@ -633,19 +633,46 @@ def unicode_csv_reader(unicode_csv_data, dialect=csv.excel, encoding='utf-8', **
 			#yield [unicode(cell, 'utf-8') for cell in row]
 
 #---------------------------------------------------------------------------
+def fname_sanitize(filename):
+	"""Normalizes unicode, removes non-alpha characters, converts spaces to underscores."""
+
+	dir_part, name_part = os.path.split(filename)
+	if name_part == u'':
+		return filename
+
+	import unicodedata
+	name_part = unicodedata.normalize('NFKD', name_part)
+	# remove everything not in group []
+	name_part = regex.sub (
+		'[^.\w\s[\]()%§+-]',
+		u'',
+		name_part,
+		flags = regex.UNICODE | regex.LOCALE
+	).strip()
+	# translate whitespace to underscore
+	name_part = regex.sub (
+		'\s+',
+		u'_',
+		name_part,
+		flags = regex.UNICODE | regex.LOCALE
+	)
+	return os.path.join(dir_part, name_part)
+
+#---------------------------------------------------------------------------
 def fname_stem(filename):
-	# /home/user/dir/filename.ext -> filename
+	"""/home/user/dir/filename.ext -> filename"""
 	return os.path.splitext(os.path.basename(filename))[0]
 
 #---------------------------------------------------------------------------
 def fname_stem_with_path(filename):
-	# /home/user/dir/filename.ext -> /home/user/dir/filename
+	"""/home/user/dir/filename.ext -> /home/user/dir/filename"""
 	return os.path.splitext(filename)[0]
 
 #---------------------------------------------------------------------------
 def fname_extension(filename=None, fallback=None):
-	# /home/user/dir/filename.ext -> .ext
-	# '' or '.' -> fallback if any else ''
+	"""	/home/user/dir/filename.ext -> .ext
+		'' or '.' -> fallback if any else ''
+	"""
 	ext = os.path.splitext(filename)[1]
 	if ext.strip() not in [u'.', u'']:
 		return ext
@@ -1891,6 +1918,16 @@ second line\n
 		]
 		for txt, lng in tst:
 			print(u'max', lng, 'of', txt, '=', shorten_text(txt, lng))
+	#-----------------------------------------------------------------------
+	def test_fname_sanitize():
+		tests = [
+			u'/tmp/test.txt',
+			u'/tmp/ test.txt',
+			u'/tmp/ tes\\t.txt',
+			u'test'
+		]
+		for test in tests:
+			print (test, fname_sanitize(test))
 
 	#-----------------------------------------------------------------------
 	#test_coalesce()
@@ -1917,9 +1954,10 @@ second line\n
 	#test_dir_is_empty()
 	#test_compare_dicts()
 	#test_rm_dir()
-	test_rm_dir_content()
+	#test_rm_dir_content()
 	#test_strip_prefix()
 	#test_shorten_text()
 	#test_format_compare_dicts()
+	test_fname_sanitize()
 
 #===========================================================================

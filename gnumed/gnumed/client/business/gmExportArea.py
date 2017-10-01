@@ -140,7 +140,6 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 				aChunkSize = aChunkSize,
 				filename = filename,
 				ignore_conversion_problems = True
-				#, directory = directory
 			)
 
 		# data in export area table
@@ -156,11 +155,13 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 			chunk_size = aChunkSize,
 			data_size = self._payload[self._idx['size']]
 		)
-
 		if not success:
 			return None
 
-		return filename
+		if not filename.endswith(u'.dat'):
+			return filename
+
+		return gmMimeLib.adjust_extension_by_mimetype(filename)
 
 	#--------------------------------------------------------
 	def display_via_mime(self, chunksize=0, block=None):
@@ -187,8 +188,9 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 		# preserve original filename extension if available
 		suffix = '.dat'
 		if self._payload[self._idx['filename']] is not None:
-			tmp, suffix = os.path.splitext(self._payload[self._idx['filename']])
-			suffix = suffix.strip().replace(' ', '-').lower()
+			tmp, suffix = os.path.splitext (
+				gmTools.fname_sanitize(self._payload[self._idx['filename']]).lower()
+			)
 			if suffix == u'':
 				suffix = '.dat'
 
@@ -209,6 +211,7 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 		return gmDocuments.cDocumentPart(aPK_obj = self._payload[self._idx['pk_doc_obj']])
 
 	document_part = property(_get_doc_part, lambda x:x)
+
 	#--------------------------------------------------------
 	def _get_is_print_job(self):
 		return self._payload[self._idx['designation']] == PRINT_JOB_DESIGNATION

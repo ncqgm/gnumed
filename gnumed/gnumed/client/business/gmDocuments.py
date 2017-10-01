@@ -285,11 +285,12 @@ class cDocumentPart(gmBusinessDBObject.cBusinessDBObject):
 			chunk_size = aChunkSize,
 			data_size = self._payload[self._idx['size']]
 		)
-
 		if not success:
 			return None
 
 		if target_mime is None:
+			if filename.endswith(u'.dat'):
+				return gmMimeLib.adjust_extension_by_mimetype(filename)
 			return filename
 
 		if target_extension is None:
@@ -298,7 +299,7 @@ class cDocumentPart(gmBusinessDBObject.cBusinessDBObject):
 		target_path, name = os.path.split(filename)
 		name, tmp = os.path.splitext(name)
 		target_fname = gmTools.get_unique_filename (
-			prefix = '%s-converted-' % name,
+			prefix = '%s-conv-' % name,
 			suffix = target_extension
 		)
 		_log.debug('attempting conversion: [%s] -> [<%s>:%s]', filename, target_mime, target_fname)
@@ -313,6 +314,8 @@ class cDocumentPart(gmBusinessDBObject.cBusinessDBObject):
 		if not ignore_conversion_problems:
 			return None
 
+		if filename.endswith(u'.dat'):
+			filename = gmMimeLib.adjust_extension_by_mimetype(filename)
 		_log.warning('programmed to ignore conversion problems, hoping receiver can handle [%s]', filename)
 		return filename
 
@@ -552,8 +555,9 @@ insert into blobs.reviewed_doc_objs (
 		# preserve original filename extension if available
 		suffix = '.dat'
 		if self._payload[self._idx['filename']] is not None:
-			tmp, suffix = os.path.splitext(self._payload[self._idx['filename']])
-			suffix = suffix.strip().replace(' ', '-').lower()
+			tmp, suffix = os.path.splitext (
+				gmTools.fname_sanitize(self._payload[self._idx['filename']]).lower()
+			)
 			if suffix == u'':
 				suffix = '.dat'
 
@@ -582,12 +586,12 @@ insert into blobs.reviewed_doc_objs (
 
 		if make_unique:
 			fname = gmTools.get_unique_filename (
-				prefix = '%s-' % fname,
+				prefix = '%s-' % gmTools.fname_sanitize(fname),
 				suffix = suffix,
 				tmp_dir = directory
 			)
 		else:
-			fname = os.path.join(gmTools.coalesce(directory, u''), fname + suffix)
+			fname = gmTools.fname_sanitize(os.path.join(gmTools.coalesce(directory, u''), fname + suffix))
 
 		return fname
 

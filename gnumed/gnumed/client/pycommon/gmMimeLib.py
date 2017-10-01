@@ -191,7 +191,7 @@ def adjust_extension_by_mimetype(filename):
 	old_name, old_ext = os.path.splitext(filename)
 	if old_ext == u'':
 		new_filename = filename + mime_suffix
-	elif old_ext == mime_suffix:
+	elif old_ext.lower() == mime_suffix.lower():
 		return filename
 	new_filename = old_name + mime_suffix
 	_log.debug(u'[%s] -> [%s]', filename, new_filename)
