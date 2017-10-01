@@ -184,8 +184,8 @@ def guess_ext_for_file(aFile=None):
 
 #-----------------------------------------------------------------------------------
 def adjust_extension_by_mimetype(filename):
-	mimetype = gmMimeLib.guess_mimetype(filename)
-	mime_suffix = gmMimeLib.guess_ext_by_mimetype(mimetype)
+	mimetype = guess_mimetype(filename)
+	mime_suffix = guess_ext_by_mimetype(mimetype)
 	if mime_suffix is None:
 		return filename
 	old_name, old_ext = os.path.splitext(filename)

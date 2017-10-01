@@ -268,7 +268,7 @@ class cDocumentPart(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	# retrieve data
 	#--------------------------------------------------------
-	def save_to_file(self, aChunkSize=0, filename=None, target_mime=None, target_extension=None, ignore_conversion_problems=False, directory=None):
+	def save_to_file(self, aChunkSize=0, filename=None, target_mime=None, target_extension=None, ignore_conversion_problems=False, directory=None, adjust_extension=False):
 
 		if self._payload[self._idx['size']] == 0:
 			return None
@@ -290,7 +290,8 @@ class cDocumentPart(gmBusinessDBObject.cBusinessDBObject):
 
 		if target_mime is None:
 			if filename.endswith(u'.dat'):
-				return gmMimeLib.adjust_extension_by_mimetype(filename)
+				if adjust_extension:
+					return gmMimeLib.adjust_extension_by_mimetype(filename)
 			return filename
 
 		if target_extension is None:
@@ -315,7 +316,8 @@ class cDocumentPart(gmBusinessDBObject.cBusinessDBObject):
 			return None
 
 		if filename.endswith(u'.dat'):
-			filename = gmMimeLib.adjust_extension_by_mimetype(filename)
+			if adjust_extension:
+				filename = gmMimeLib.adjust_extension_by_mimetype(filename)
 		_log.warning('programmed to ignore conversion problems, hoping receiver can handle [%s]', filename)
 		return filename
 

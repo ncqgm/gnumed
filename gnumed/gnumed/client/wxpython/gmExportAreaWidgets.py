@@ -7,6 +7,7 @@ __license__ = "GPL v2 or later"
 import sys
 import logging
 import os.path
+import shutil
 
 
 # 3rd party
@@ -34,6 +35,214 @@ from Gnumed.wxpython import gmDocumentWidgets
 
 
 _log = logging.getLogger('gm.ui')
+
+
+#============================================================
+from Gnumed.wxGladeWidgets import wxgCreatePatientMediaDlg
+
+class cCreatePatientMediaDlg(wxgCreatePatientMediaDlg.wxgCreatePatientMediaDlg):
+
+	def __init__(self, *args, **kwargs):
+		self.__burn2cd = False
+		try:
+			self.__burn2cd = kwargs['burn2cd']
+			del kwargs['burn2cd']
+			_log.debug(u'planning to burn export area items to CD/DVD')
+		except KeyError:
+			pass
+		self.__patient = kwargs['patient']
+		del kwargs['patient']
+		self.__item_count = kwargs['item_count']
+		del kwargs['item_count']
+		wxgCreatePatientMediaDlg.wxgCreatePatientMediaDlg.__init__(self, *args, **kwargs)
+		self.__init_ui()
+
+	#--------------------------------------------------------
+	# event handling
+	#--------------------------------------------------------
+	def _on_select_directory_button_pressed(self, event):
+		event.Skip()
+		if self.__burn2cd:
+			msg = _(u'Select a directory for inclusion into the patient CD / DVD.')
+		else:
+			msg = _(u'Select a directory in which to create the patient media.')
+		def_path = self._LBL_directory.Label
+		dlg = wx.DirDialog (
+			self,
+			message = msg,
+			defaultPath = def_path
+		)
+		choice = dlg.ShowModal()
+		path = dlg.GetPath()
+		dlg.Destroy()
+		if choice != wx.ID_OK:
+			return
+		self._LBL_directory.Label = path
+		self.__refresh_dir_is_empty()
+		self.__refresh_include_or_remove_existing_data()
+
+	#--------------------------------------------------------
+	def _on_use_subdirectory_changed(self, event):
+		event.Skip()
+
+		self.__refresh_include_or_remove_existing_data()
+
+		if self._CHBOX_use_subdirectory.IsChecked():
+			self._LBL_subdirectory.Label = u'%s/%s-###' % (
+				self._LBL_directory.Label,
+				self.__patient.dirname
+			)
+			return
+
+		self._LBL_subdirectory.Label = u''
+
+	#--------------------------------------------------------
+	def _on_save_button_pressed(self, event):
+		event.Skip()
+
+		if self.__burn2cd:
+			self.EndModal(wx.ID_SAVE)
+
+		if self._CHBOX_use_subdirectory.IsChecked() is True:
+			self.EndModal(wx.ID_SAVE)
+
+		path = self._LBL_directory.Label
+
+		if gmTools.dir_is_empty(path) is True:
+			self.EndModal(wx.ID_SAVE)
+
+		if self._RBTN_remove_data.Value is True:
+			really_remove_existing_data = gmGuiHelpers.gm_show_question (
+				title = _(u'Creating patient media'),
+				question = _(
+					u'Really delete any existing data under\n'
+					u'\n'
+					u' [%s]\n'
+					u'\n'
+					u'from disk ?\n'
+					u'\n'
+					u'(this operation is generally not reversible)'
+				) % path
+			)
+			if really_remove_existing_data is True:
+				self.EndModal(wx.ID_SAVE)
+
+	#--------------------------------------------------------
+	def _on_browse_directory_button_pressed(self, event):
+		event.Skip()
+		path = self._LBL_directory.Label.strip()
+		if path == u'':
+			return
+		gmMimeLib.call_viewer_on_file(path, block = False)
+
+	#--------------------------------------------------------
+	# internal API
+	#--------------------------------------------------------
+	def __init_ui(self):
+
+		self._LBL_dir_is_empty.Label = u''
+		self._LBL_subdirectory.Label = u''
+
+		if self.__burn2cd:
+			self._LBL_existing_data.Hide()
+			self._BTN_browse_directory.Disable()
+			self._RBTN_include_data.Hide()
+			self._RBTN_remove_data.Hide()
+			self._CHBOX_include_directory.Show()
+			self._CHBOX_use_subdirectory.Hide()
+			self._LBL_subdirectory.Hide()
+			found, external_cmd = gmShellAPI.detect_external_binary('gm-burn_doc')
+			if not found:
+				msg = _(
+					u'Script <gm-burn_doc(.bat)> not found.\n'
+					u'\n'
+					u'Cannot create patient CD/DVD.'
+				)
+				self._BTN_save.Disable()
+			else:
+				msg = _(
+					u'Patient: %s\n'
+					u'\n'
+					u'Items to include into CD/DVD: %s\n'
+				) % (
+					self.__patient['description_gender'],
+					self.__item_count
+				)
+			self._LBL_header.Label = msg
+			return
+
+		msg = _(
+			u'Patient: %s\n'
+			u'\n'
+			u'Items to save: %s\n'
+		) % (
+			self.__patient['description_gender'],
+			self.__item_count
+		)
+		self._LBL_header.Label = msg
+		self._LBL_directory.Label = os.path.join(gmTools.gmPaths().home_dir, 'gnumed')
+		self.__refresh_dir_is_empty()
+
+	#--------------------------------------------------------
+	def __refresh_dir_is_empty(self):
+		path = self._LBL_directory.Label.strip()
+		if path == u'':
+			self._LBL_dir_is_empty.Label = u''
+			self._BTN_browse_directory.Disable()
+			self._CHBOX_include_directory.Disable()
+			return
+		is_empty = gmTools.dir_is_empty(directory = path)
+		if is_empty is None:
+			self._LBL_dir_is_empty.Label = _(u'(cannot check directory)')
+			self._BTN_browse_directory.Disable()
+			self._CHBOX_include_directory.Disable()
+			return
+		if is_empty is True:
+			self._LBL_dir_is_empty.Label = _(u'(directory appears empty)')
+			self._BTN_browse_directory.Disable()
+			self._CHBOX_include_directory.Disable()
+			return
+
+		msg = _(u'directory already contains data')
+		self._BTN_browse_directory.Enable()
+		self._CHBOX_include_directory.Enable()
+
+		if os.path.isfile(os.path.join(path, 'DICOMDIR')):
+			msg = _(u'%s\n- DICOM data') % msg
+
+		if os.path.isdir(os.path.join(path, 'documents')):
+			if len(os.listdir(os.path.join(path, 'documents'))) > 0:
+				msg = _(u'%s\n- additional documents') % msg
+
+		self._LBL_dir_is_empty.Label = msg
+		self.Layout()
+
+	#--------------------------------------------------------
+	def __refresh_include_or_remove_existing_data(self):
+		if self._CHBOX_use_subdirectory.IsChecked():
+			self._RBTN_include_data.Disable()
+			self._RBTN_remove_data.Disable()
+			return
+
+		path = self._LBL_directory.Label.strip()
+		if path == u'':
+			self._RBTN_include_data.Disable()
+			self._RBTN_remove_data.Disable()
+			return
+
+		is_empty = gmTools.dir_is_empty(directory = path)
+		if is_empty is None:
+			self._RBTN_include_data.Disable()
+			self._RBTN_remove_data.Disable()
+			return
+
+		if is_empty is True:
+			self._RBTN_include_data.Disable()
+			self._RBTN_remove_data.Disable()
+			return
+
+		self._RBTN_include_data.Enable()
+		self._RBTN_remove_data.Enable()
 
 #============================================================
 from Gnumed.wxGladeWidgets import wxgExportAreaPluginPnl
@@ -196,105 +405,101 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 		if len(items) == 0:
 			items = self._LCTRL_items.get_item_data()
 
-		dlg = wx.DirDialog (
+		if len(items) == 0:
+			return
+
+		dlg = cCreatePatientMediaDlg (
 			self,
-			message = _('Select the directory into which to export the documents.'),
-			defaultPath = os.path.join(gmTools.gmPaths().home_dir, 'gnumed')
+			-1,
+			burn2cd = False,
+			patient = gmPerson.gmCurrentPatient(),
+			item_count = len(items)
 		)
 		choice = dlg.ShowModal()
-		path = dlg.GetPath()
-		if choice != wx.ID_OK:
-			return True
+		if choice != wx.ID_SAVE:
+			dlg.Destroy()
+			return
 
-		if not gmTools.dir_is_empty(path):
-			reuse_nonempty_dir = gmGuiHelpers.gm_show_question (
-				title = _(u'Saving export area documents'),
-				question = _(
-					u'The chosen export directory\n'
-					u'\n'
-					u' [%s]\n'
-					u'\n'
-					u'already contains files. Do you still want to save the\n'
-					u'selected export area documents into that directory ?\n'
-					u'\n'
-					u'(this is useful for including the external documents\n'
-					u' already stored in or below this directory)\n'
-					u'\n'
-					u'[NO] will create a subdirectory for you and use that.'
-				) % path,
-				cancel_button = True
+		use_subdir = dlg._CHBOX_use_subdirectory.IsChecked()
+		path = dlg._LBL_directory.Label.strip()
+		remove_existing_data = dlg._RBTN_remove_data.Value is True
+		dlg.Destroy()
+		if use_subdir:
+			path = gmTools.mk_sandbox_dir (
+				prefix = u'%s-' % gmPerson.gmCurrentPatient().dirname,
+				base_dir = path
 			)
-			if reuse_nonempty_dir is None:
-				return True
-			if reuse_nonempty_dir is False:
-				path = gmTools.mk_sandbox_dir (
-					prefix = u'%s-' % gmPerson.gmCurrentPatient().dirname,
-					base_dir = path
-				)
+		else:
+			if remove_existing_data is True:
+				if gmTools.rm_dir_content(path) is False:
+					gmGuiHelpers.gm_show_error (
+						title = _(u'Creating patient media'),
+						error = _(u'Cannot remove content from\n [%s]') % path
+					)
+					return False
 
-		include_metadata = gmGuiHelpers.gm_show_question (
-			title = _(u'Saving export area documents'),
-			question = _(
-				u'Create descriptive metadata files\n'
-				u'and save them alongside the\n'
-				u'selected export area documents ?'
-			),
-			cancel_button = True
-		)
-		if include_metadata is None:
-			return True
-
-		export_dir = gmPerson.gmCurrentPatient().export_area.export(base_dir = path, items = items, with_metadata = include_metadata)
+		export_dir = gmPerson.gmCurrentPatient().export_area.export(base_dir = path, items = items, with_metadata = True)
 
 		self.save_soap_note(soap = _('Saved to [%s]:\n - %s') % (
 			export_dir,
 			u'\n - '.join([ i['description'] for i in items ])
 		))
 
-		title = _('Saving export area documents')
 		msg = _('Saved documents into directory:\n\n %s') % export_dir
-		if include_metadata:
-			browse_index = gmGuiHelpers.gm_show_question (
-				title = title,
-				question = msg + u'\n\n' + _('Browse patient data pack ?'),
-				cancel_button = False
-			)
-			if browse_index:
-				gmNetworkTools.open_url_in_browser(url = u'file://%s' % os.path.join(export_dir, u'index.html'))
-		else:
-			gmGuiHelpers.gm_show_info(title = title, info = msg)
-
+		browse_index = gmGuiHelpers.gm_show_question (
+			title = _(u'Creating patient media'),
+			question = msg + u'\n\n' + _('Browse patient data pack ?'),
+			cancel_button = False
+		)
+		if browse_index:
+			gmNetworkTools.open_url_in_browser(url = u'file://%s' % os.path.join(export_dir, u'index.html'))
 		return True
 
 	#--------------------------------------------------------
 	def _on_burn_items_button_pressed(self, event):
 		event.Skip()
 
+		# anything to do ?
 		found, external_cmd = gmShellAPI.detect_external_binary('gm-burn_doc')
 		if not found:
-			return False
-
+			return
 		items = self._LCTRL_items.get_selected_item_data(only_one = False)
 		if len(items) == 0:
 			items = self._LCTRL_items.get_item_data()
+		if len(items) == 0:
+			return
 
-		base_dir = None
-		dlg = wx.DirDialog (
+		# get options from user
+		dlg = cCreatePatientMediaDlg (
 			self,
-			message = _('If you wish to include an existing directory select it here:'),
-			defaultPath = os.path.join(gmTools.gmPaths().home_dir, 'gnumed'),
-			style = wx.DD_DEFAULT_STYLE | wx.DD_DIR_MUST_EXIST
+			-1,
+			burn2cd = True,
+			patient = gmPerson.gmCurrentPatient(),
+			item_count = len(items)
 		)
 		choice = dlg.ShowModal()
-		path2include = dlg.GetPath()
-		if choice == wx.ID_OK:
-			if not gmTools.dir_is_empty(path2include):
-				base_dir = path2include
+		if choice != wx.ID_SAVE:
+			return
+		path2include = dlg._LBL_directory.Label.strip()
+		include_selected_dir = dlg._CHBOX_include_directory.IsChecked()
+		dlg.Destroy()
+
+		# do the export
+		base_dir = None
+		if include_selected_dir:
+			if gmTools.dir_is_empty(path2include) is False:
+				base_dir = gmTools.get_unique_filename(suffix = u'.iso')
+				try:
+					shutil.copytree(path2include, base_dir)
+				except shutil.Error:
+					_log.exception(u'cannot copy include directory [%s] -> [%s]', path2include, base_dir)
+					return
 
 		export_dir = gmPerson.gmCurrentPatient().export_area.export(base_dir = base_dir, items = items, with_metadata = True)
 		if export_dir is None:
-			return False
+			return
 
+		# burn onto media
 		cmd = u'%s %s' % (external_cmd, export_dir)
 		if os.name == 'nt':
 			blocking = True
@@ -309,12 +514,12 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 				aMessage = _('Error burning documents to CD/DVD.'),
 				aTitle = _('Burning documents')
 			)
-			return False
+			return
 
 		self.save_soap_note(soap = _('Burned onto CD/DVD:\n - %s') % u'\n - '.join([ i['description'] for i in items ]))
 
 		browse_index = gmGuiHelpers.gm_show_question (
-			title = title,
+			title = _(u'Creating patient media'),
 			question = _('Browse patient data pack ?'),
 			cancel_button = False
 		)

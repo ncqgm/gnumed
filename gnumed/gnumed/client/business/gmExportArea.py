@@ -139,7 +139,8 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 			return part.save_to_file (
 				aChunkSize = aChunkSize,
 				filename = filename,
-				ignore_conversion_problems = True
+				ignore_conversion_problems = True,
+				adjust_extension = True
 			)
 
 		# data in export area table
@@ -158,10 +159,10 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 		if not success:
 			return None
 
-		if not filename.endswith(u'.dat'):
-			return filename
+		if filename.endswith(u'.dat'):
+			return gmMimeLib.adjust_extension_by_mimetype(filename)
 
-		return gmMimeLib.adjust_extension_by_mimetype(filename)
+		return filename
 
 	#--------------------------------------------------------
 	def display_via_mime(self, chunksize=0, block=None):
@@ -565,7 +566,7 @@ class cExportArea(object):
 
 		mugshot = pat.document_folder.latest_mugshot
 		if mugshot is not None:
-			_html_start_data['mugshot_url'] = mugshot.save_to_file(directory = doc_dir)
+			_html_start_data['mugshot_url'] = mugshot.save_to_file(directory = doc_dir, adjust_extension = True)
 			_html_start_data['mugshot_alt'] =_('patient photograph from %s') % gmDateTime.pydt_strftime(mugshot['date_generated'], '%B %Y')
 			_html_start_data['mugshot_title'] = gmDateTime.pydt_strftime(mugshot['date_generated'], '%B %Y')
 

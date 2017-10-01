@@ -1938,7 +1938,7 @@ second line\n
 	#test_none_if()
 	#test_bool2str()
 	#test_bool2subst()
-	#test_get_unique_filename()
+	test_get_unique_filename()
 	#test_size2str()
 	#test_wrap()
 	#test_input2decimal()
@@ -1958,6 +1958,6 @@ second line\n
 	#test_strip_prefix()
 	#test_shorten_text()
 	#test_format_compare_dicts()
-	test_fname_sanitize()
+	#test_fname_sanitize()
 
 #===========================================================================
