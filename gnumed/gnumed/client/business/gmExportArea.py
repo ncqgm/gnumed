@@ -542,7 +542,11 @@ class cExportArea(object):
 		_log.debug('base dir: %s', base_dir)
 
 		doc_dir = os.path.join(base_dir, r'documents')
-		gmTools.mkdir(doc_dir)
+		if os.path.isdir(doc_dir):
+			index_existing_docs = True
+		else:
+			index_existing_docs = False
+			gmTools.mkdir(doc_dir)
 
 		_html_start_data = {
 			u'html_title_header': _('Patient data for'),
@@ -574,12 +578,20 @@ class cExportArea(object):
 			_html_start_data[u'browse_dicomdir'] = u'	<li><a href="./DICOMDIR">browse DICOMDIR</a></li>'
 		idx_file.write(_html_start % _html_start_data)
 		# middle (side effect ! -> exports items into files ...)
+		existing_docs = os.listdir(doc_dir)
+		# - export items
 		for item in items:
 			item_path = item.save_to_file(directory = doc_dir)
 			item_fname = os.path.split(item_path)[1]
 			idx_file.write(_html_list_item % (
 				item_fname,
 				gmTools.html_escape_string(item['description'])
+			))
+		# - preexisting documents
+		for doc_fname in existing_docs:
+			idx_file.write(_html_list_item % (
+				doc_fname,
+				gmTools.html_escape_string(_(u'other: %s') % doc_fname)
 			))
 		# footer
 		_cfg = gmCfg2.gmCfgData()
