@@ -8,14 +8,12 @@
 \set ON_ERROR_STOP 1
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
 -- very old:
-alter table blobs.doc_obj drop constraint "$1" cascade;
+alter table blobs.doc_obj drop constraint if exists "$1" cascade;
 -- medium age:
-alter table blobs.doc_obj drop constraint doc_obj_doc_id_fkey cascade;
+alter table blobs.doc_obj drop constraint if exists doc_obj_doc_id_fkey cascade;
 -- current:
-alter table blobs.doc_obj drop constraint doc_obj_fk_doc_fkey cascade;
-\set ON_ERROR_STOP 1
+alter table blobs.doc_obj drop constraint if exists doc_obj_fk_doc_fkey cascade;
 
 -- recreate:
 alter table blobs.doc_obj

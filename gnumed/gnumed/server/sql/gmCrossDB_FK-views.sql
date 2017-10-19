@@ -12,7 +12,7 @@
 -- ===================================================================
 -- remote foreign keys definition
 -- -------------------------------------------------------------------
-create or replace function add_x_db_fk_def (name, name, text, name, name) returns unknown as '
+create or replace function add_x_db_fk_def (name, name, text, name, name) returns boolean as '
 DECLARE
 	src_table ALIAS FOR $1;
 	src_col ALIAS FOR $2;
@@ -87,7 +87,7 @@ create view v_x_db_fk_violation as
 	;
 
 -- -------------------------------------------------------------------
-create or replace function log_x_db_fk_violation (integer, text, text, text) returns unknown as '
+create or replace function log_x_db_fk_violation (integer, text, text, text) returns boolean as '
 DECLARE
 	fk_def_id alias for $1;
 	viol_pk alias for $2;

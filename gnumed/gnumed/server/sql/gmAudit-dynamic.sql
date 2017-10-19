@@ -48,7 +48,7 @@ comment on column audit.audit_trail.audit_by is
 
 -- ===================================================================
 create or replace function audit.add_table_for_audit(name, name)
-	returns unknown
+	returns boolean
 	language 'plpgsql'
 	security definer
 	as '
@@ -87,7 +87,7 @@ comment on function audit.add_table_for_audit (name, name) is
 
 
 create or replace function audit.add_table_for_audit(name)
-	returns unknown
+	returns boolean
 	language SQL
 	security definer
 	as '

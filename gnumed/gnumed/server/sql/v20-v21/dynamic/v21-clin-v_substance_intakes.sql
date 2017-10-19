@@ -139,7 +139,7 @@ select
 	(select fk_patient from clin.encounter where pk = c_si.fk_encounter)
 		as pk_patient,
 	c_si.soap_cat,
-	null
+	null::text
 		as brand,
 	c_si.preparation,
 	r_cs.description
@@ -149,11 +149,11 @@ select
 		as unit,
 	r_cs.atc_code
 		as atc_substance,
-	null
+	null::text
 		as atc_brand,
-	null
+	null::text
 		as external_code_brand,
-	null
+	null::text
 		as external_code_type_brand,
 
 	-- uncertainty of start
@@ -192,7 +192,7 @@ select
 		as health_issue,
 	c_si.narrative
 		as notes,
-	null
+	null::boolean
 		as fake_brand,
 	-- currently active ?
 	case
@@ -218,13 +218,13 @@ select
 		else null
 	end::boolean
 		as seems_inactive,
-	null
+	null::integer
 		as pk_brand,
-	null
+	null::integer
 		as pk_data_source,
 	r_cs.pk
 		as pk_substance,
-	null
+	null::integer
 		as pk_drug_component,
 	c_si.fk_encounter
 		as pk_encounter,
@@ -416,4 +416,4 @@ INSERT INTO clin.substance_intake (
 ;
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('v21-clin-v_substance_intakes.sql', '21.0');
+select gm.log_script_insertion('v21-clin-v_substance_intakes.sql', '21.15');

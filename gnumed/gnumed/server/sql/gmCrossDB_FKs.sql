@@ -62,7 +62,7 @@ comment on column x_db_fk.last_checked is
 drop function add_x_db_fk_def (name, name, text, name, name);
 \set ON_ERROR_STOP 1
 
-create function add_x_db_fk_def (name, name, text, name, name) returns unknown as '
+create function add_x_db_fk_def (name, name, text, name, name) returns boolean as '
 DECLARE
 	src_table ALIAS FOR $1;
 	src_col ALIAS FOR $2;
