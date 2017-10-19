@@ -15,7 +15,7 @@
 
 \unset ON_ERROR_STOP
 
-set client_encoding 'utf8';
+set client_encoding to 'utf8';
 
 select i18n.upd_tx(quote_literal(E'fr'), quote_literal(E'British Columbia'), quote_literal(E'Colombie-Britannique'));
 select i18n.upd_tx(quote_literal(E'fr'), quote_literal(E'New Brunswick'), quote_literal(E'Nouveau-Brunswick'));

@@ -15,7 +15,7 @@
 
 \unset ON_ERROR_STOP
 
-set client_encoding 'utf8';
+set client_encoding to 'utf8';
 
 select i18n.upd_tx(quote_literal(E'ru'), quote_literal(E'cause of death'), quote_literal(E'причина смерти'));
 select i18n.upd_tx(quote_literal(E'ru_RU'), quote_literal(E'Abakan'), quote_literal(E'Абакан'));

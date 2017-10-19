@@ -20,7 +20,7 @@ drop function i18n.force_curr_lang(text, name) cascade;
 
 
 create or replace function i18n.force_curr_lang(text, name)
-	returns unknown
+	returns boolean
 	language 'plpgsql'
 	security definer
 	as E'
@@ -41,7 +41,7 @@ comment on function i18n.force_curr_lang(text, name) is
 
 -- =============================================
 create or replace function i18n.force_curr_lang(text)
-	returns unknown
+	returns boolean
 	language 'plpgsql'
 	as '
 DECLARE
