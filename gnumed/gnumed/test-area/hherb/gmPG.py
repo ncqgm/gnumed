@@ -46,7 +46,6 @@ _listener_api = None
 _default_client_encoding = {'wire': None, 'string': None}
 
 # default time zone for connections
-# OR: mxDT.now().gmtoffset()
 if time.daylight:
 	tz = time.altzone
 else:

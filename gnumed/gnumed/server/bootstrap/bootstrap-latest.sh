@@ -78,8 +78,10 @@ done
 LOG="${GM_LOG_BASE}/bootstrap-latest.log"
 CONF="bootstrap-latest.conf"
 ./bootstrap_gm_db_system.py --log-file=${LOG} --conf-file=${CONF} --${QUIET}
-if test "$?" != "0" ; then
-	echo "Bootstrapping \"gnumed_v${VER}\" did not finish successfully. Aborting."
+#gdb --args /usr/bin/python2.7-dbg ./bootstrap_gm_db_system.py --log-file=${LOG} --conf-file=${CONF} --${QUIET}
+RESULT="$?"
+if test "${RESULT}" != "0" ; then
+	echo "Bootstrapping \"gnumed_v${VER}\" did not finish successfully (${RESULT}). Aborting."
 	read
 	exit 1
 fi
