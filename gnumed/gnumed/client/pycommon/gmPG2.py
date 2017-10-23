@@ -1864,7 +1864,7 @@ def run_rw_queries(link_obj=None, queries=None, end_tx=False, return_data=None, 
 			if verbose:
 				_log.debug(capture_cursor_state(curs))
 			for notice in notices_accessor.notices:
-				_log.debug(notice.strip(u'\n').strip(u'\r'))
+				_log.debug(unicode(notice, 'utf8', 'replace').strip(u'\n').strip(u'\r'))
 			del notices_accessor.notices[:]
 		# DB related exceptions
 		except dbapi.Error as pg_exc:
@@ -1879,7 +1879,7 @@ def run_rw_queries(link_obj=None, queries=None, end_tx=False, return_data=None, 
 						continue
 					_log.error(u'PG diags %s: %s', prop, val)
 			for notice in notices_accessor.notices:
-				_log.error(notice.strip(u'\n').strip(u'\r'))
+				_log.error(unicode(notice, 'utf8', 'replace').strip(u'\n').strip(u'\r'))
 			del notices_accessor.notices[:]
 			pg_exc = make_pg_exception_fields_unicode(pg_exc)
 			_log.error(u'PG error code: %s', pg_exc.pgcode)
@@ -1923,7 +1923,7 @@ def run_rw_queries(link_obj=None, queries=None, end_tx=False, return_data=None, 
 			_log.exception('error running query in RW connection')
 			_log.error(capture_cursor_state(curs))
 			for notice in notices_accessor.notices:
-				_log.debug(notice.strip(u'\n').strip(u'\r'))
+				_log.debug(unicode(notice, 'utf8', 'replace').strip(u'\n').strip(u'\r'))
 			del notices_accessor.notices[:]
 			gmLog2.log_stack_trace()
 			try:
@@ -2311,7 +2311,7 @@ def sanity_check_database_settings():
 		u'password_encryption': [u'on', u'breach of confidentiality', False],
 		#u'regex_flavor': [u'advanced', u'query breakage', False],					# 9.0 doesn't support this anymore, default now advanced anyway
 		u'synchronous_commit': [u'on', u'data loss/corruption', False],
-		u'sql_inheritance': [u'on', u'query breakage, data loss/corruption', True],
+		u'sql_inheritance': [u'on', u'query breakage, data loss/corruption', False],
 		u'ignore_checksum_failure': [u'off', u'data loss/corruption', False],		# starting with PG 9.3
 		u'track_commit_timestamp': [u'on', u'suboptimal auditing', False]			# starting with PG 9.3
 	}
@@ -2501,27 +2501,6 @@ class cAdapterPyDateTime(object):
 
 	def getquoted(self):
 		return _timestamp_template % self.__dt.isoformat()
-
-## remove for 0.9
-## ----------------------------------------------------------------------
-##class cAdapterMxDateTime(object):
-##
-##	def __init__(self, dt):
-##		if dt.tz == '???':
-##			_log.info('[%s]: no time zone string available in (%s), assuming local time zone', self.__class__.__name__, dt)
-##		self.__dt = dt
-##
-##	def getquoted(self):
-##		# under some locale settings the mx.DateTime ISO formatter
-##		# will insert "," into the ISO string,
-##		# while this is allowed per the ISO8601 spec PostgreSQL
-##		# cannot currently handle that,
-##		# so map those "," to "." to make things work:
-##		return mxDT.ISO.str(self.__dt).replace(',', '.')
-##
-## ----------------------------------------------------------------------
-## PostgreSQL -> Python
-## ----------------------------------------------------------------------
 
 #=======================================================================
 #  main

@@ -9,28 +9,16 @@ __author__ = "Ian Haywood"
 __license__ = "GPL v2 or later (details at http://www.gnu.org)"
 
 # stdlib
-import sys, os, string, re, urllib2, logging, io
+import sys
+import os
+import re
+import logging
+import io
 
 
 _log = logging.getLogger('gm.bootstrapper')
 
 unformattable_error_id = 12345
-#===================================================================
-def shellrun (cmd):
-	"""
-	runs the shell command and returns a string
-	"""
-	stdin, stdout = os.popen4 (cmd.group (1))
-	r = stdout.read ()
-	stdout.close()
-	stdin.close()
-	return r
-#-------------------------------------------------------------------
-def shell(str):
-	"""
-	performs backtick shell extension in a string
-	"""
-	return re.sub (r"`(.*)`", shellrun, str)
 
 #===================================================================
 class Psql:
@@ -40,17 +28,16 @@ class Psql:
 		db : the interpreter to connect to, must be a DBAPI compliant interface
 		"""
 		self.conn = conn
-		self.vars = {'ON_ERROR_STOP':None}
+		self.vars = {'ON_ERROR_STOP': None}
 
 	#---------------------------------------------------------------
-	def match (self, str):
-		match = re.match (str, self.line)
+	def match(self, pattern):
+		match = re.match(pattern, self.line)
 		if match is None:
-			ret = 0
-		else:
-			ret = 1
-			self.groups = match.groups ()
-		return ret
+			return 0
+
+		self.groups = match.groups()
+		return 1
 
 	#---------------------------------------------------------------
 	def fmt_msg(self, aMsg):
@@ -74,18 +61,17 @@ class Psql:
 		filename: a file, containg semicolon-separated SQL commands
 		"""
 		_log.debug('processing [%s]', filename)
-		if re.match ("http://.*", filename) or re.match ("ftp://.*", filename) or re.match ("gopher://.*", filename):
-			try:
-				self.file = urllib2.urlopen (filename)
-			except URLError:
-				_log.error(u"cannot access [%s]", filename)
-				return 1
+		curs = self.conn.cursor()
+		curs.execute(u'show session authorization')
+		start_auth = curs.fetchall()[0][0]
+		curs.close()
+		_log.debug(u'session auth: %s', start_auth)
+
+		if os.access (filename, os.R_OK):
+			sql_file = io.open(filename, mode = 'rt', encoding = 'utf8')
 		else:
-			if os.access (filename, os.R_OK):
-				self.file = io.open(filename, mode = 'rt', encoding = 'utf8')
-			else:
-				_log.error(u"cannot open file [%s]", filename)
-				return 1
+			_log.error(u"cannot open file [%s]", filename)
+			return 1
 
 		self.lineno = 0
 		self.filename = filename
@@ -94,31 +80,18 @@ class Psql:
 		curr_cmd = ''
 		curs = self.conn.cursor()
 
-		for self.line in self.file.readlines():
+		for self.line in sql_file.readlines():
 			self.lineno += 1
 			if len(self.line.strip()) == 0:
 				continue
 
-			# \echo
-			if self.match (r"^\\echo (.*)"):
-				_log.info(self.fmt_msg(shell(self.groups[0])))
-				continue
-
-			# \qecho
-			if self.match (r"^\\qecho (.*)"):
-				_log.info(self.fmt_msg(shell (self.groups[0])))
-				continue
-
-			# \q
-			if self.match (r"^\\q"):
-				_log.warning(self.fmt_msg(u"script terminated by \\q"))
-				return 0
-
 			# \set
-			if self.match (r"^\\set (\S+) (\S+)"):
-				self.vars[self.groups[0]] = shell (self.groups[1])
+			if self.match(r"^\\set (\S+) (\S+)"):
+				_log.debug(u'"\set" found: %s', self.groups)
+				self.vars[self.groups[0]] = self.groups[1]
 				if self.groups[0] == 'ON_ERROR_STOP':
-					self.vars['ON_ERROR_STOP'] = int (self.vars['ON_ERROR_STOP'])
+					# adjusting from string to int so that "1" -> 1 -> True
+					self.vars['ON_ERROR_STOP'] = int(self.vars['ON_ERROR_STOP'])
 				continue
 
 			# \unset
@@ -142,7 +115,7 @@ class Psql:
 				if this_char == "'":
 					in_string = not in_string
 
-				# detect -- style comments
+				# detect "--"-style comments
 				if this_char == '-' and next_char == '-' and not in_string:
 					break
 
@@ -152,31 +125,39 @@ class Psql:
 				if this_char == ')' and not in_string:
 					bracketlevel -= 1
 
-				# found end of command, not inside string, not inside bracket ?
-				if not (not in_string and (bracketlevel == 0) and (this_char == ';')):
+				# have we:
+				# - found end of command ?
+				# - are not inside a string ?
+				# - are not inside bracket pair ?
+				if not ((in_string is False) and (bracketlevel == 0) and (this_char == ';')):
 					curr_cmd += this_char
 				else:
-					try:
-						if curr_cmd.strip() != '':
-							curs.execute (curr_cmd)
-					except Exception as error:
-						_log.exception(curr_cmd)
-						if re.match (r"^NOTICE:.*", str(error)):
-							_log.warning(self.fmt_msg(error))
-						else:
-							_log.error(self.fmt_msg(error))
-							if hasattr(error, 'diag'):
-								for prop in dir(error.diag):
-									if prop.startswith(u'__'):
-										continue
-									val = getattr(error.diag, prop)
-									if val is None:
-										continue
-									_log.error(u'PG diags %s: %s', prop, val)
-							if self.vars['ON_ERROR_STOP']:
-								self.conn.commit()
-								curs.close()
-								return 1
+					if curr_cmd.strip() != '':
+						try:
+							curs.execute(curr_cmd)
+							try:
+								data = curs.fetchall()
+								_log.debug(u'cursor data: %s', data)
+							except StandardError:	# actually: psycopg2.ProgrammingError but no handle
+								pass
+						except Exception as error:
+							_log.exception(curr_cmd)
+							if re.match(r"^NOTICE:.*", str(error)):
+								_log.warning(self.fmt_msg(error))
+							else:
+								_log.error(self.fmt_msg(error))
+								if hasattr(error, 'diag'):
+									for prop in dir(error.diag):
+										if prop.startswith(u'__'):
+											continue
+										val = getattr(error.diag, prop)
+										if val is None:
+											continue
+										_log.error(u'PG diags %s: %s', prop, val)
+								if self.vars['ON_ERROR_STOP']:
+									self.conn.commit()
+									curs.close()
+									return 1
 
 					self.conn.commit()
 					curs.close()
@@ -184,12 +165,17 @@ class Psql:
 					curr_cmd = ''
 
 				this_char = next_char
-
 			# end of loop over chars
 
 		# end of loop over lines
 		self.conn.commit()
+		curs.execute(u'show session authorization')
+		end_auth = curs.fetchall()[0][0]
 		curs.close()
+		_log.debug(u'session auth after sql file processing: %s', end_auth)
+		if start_auth != end_auth:
+			_log.error('session auth changed before/after processing sql file')
+
 		return 0
 
 #===================================================================
@@ -203,7 +189,7 @@ if __name__ == '__main__':
 		sys.exit()
 
 	#from pyPgSQL import PgSQL
-	conn = PgSQL.connect (user='gm-dbo', database = 'gnumed')
-	psql = Psql (conn)
-	psql.run (sys.argv[1])
-	conn.close ()
+	conn = PgSQL.connect(user='gm-dbo', database = 'gnumed')
+	psql = Psql(conn)
+	psql.run(sys.argv[1])
+	conn.close()

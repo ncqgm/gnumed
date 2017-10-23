@@ -11,9 +11,6 @@ __license__ = "GPL"
 import os.path, sys, linecache, io, re as regex, time, datetime as pyDT, logging, io
 
 
-import mx.DateTime as mxDT
-
-
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmDateTime, gmTools
