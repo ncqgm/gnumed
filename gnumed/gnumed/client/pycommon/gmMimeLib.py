@@ -46,8 +46,13 @@ def guess_mimetype(filename = None):
 			if (prop == 'mimetype') and (val != worst_case):
 				return val
 	except ImportError:
-		_log.debug('module <extractor> (python wrapper for libextractor) not installed')
-
+		_log.debug(u'module <extractor> (python wrapper for libextractor) not installed')
+	except OSError as exc:
+		# winerror 126, errno 22
+		if exc.errno == 22:
+			_log.exception(u'module <extractor> (python wrapper for libextractor) not installed')
+		else:
+			raise
 	ret_code = -1
 
 	# 2) use "file" system command
@@ -385,10 +390,11 @@ if __name__ == "__main__":
 
 	#_get_system_startfile_cmd(filename)
 	#print(_system_startfile_cmd)
-	#print(guess_mimetype(filename))
+	print(guess_mimetype(filename))
 	#print(get_viewer_cmd(guess_mimetype(filename), filename))
 	#print(guess_ext_by_mimetype(mimetype=filename))
 	#call_viewer_on_file(aFile = filename, block=None)
-	status, desc = describe_file(filename)
-	print status
-	print desc
+
+	#status, desc = describe_file(filename)
+	#print status
+	#print desc

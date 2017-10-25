@@ -69,11 +69,18 @@ def __handle_exceptions_on_shutdown(t, v, tb):
 
 	gmLog2.log_stack_trace('exception on shutdown', t, v, tb)
 	return True
+
 #-------------------------------------------------------------------------
 def __handle_import_error(t, v, tb):
 
-	if t != exceptions.ImportError:
-		return False
+	if t == exceptions.OSError:
+		if not hasattr('winerror'):
+			return False
+		if getattr(t, 'winerror') != 126:
+			return False
+	else:
+		if t != exceptions.ImportError:
+			return False
 
 	wx.EndBusyCursor()
 
@@ -93,6 +100,7 @@ def __handle_import_error(t, v, tb):
 		) % v
 	)
 	return True
+
 #-------------------------------------------------------------------------
 def __handle_ctrl_c(t, v, tb):
 
