@@ -49,8 +49,13 @@ def guess_mimetype(filename=None):
 			if (prop == 'mimetype') and (val != worst_case):
 				return val
 	except ImportError:
-		_log.debug('module <extractor> (python wrapper for libextractor) not installed')
-
+		_log.debug(u'module <extractor> (python wrapper for libextractor) not installed')
+	except OSError as exc:
+		# winerror 126, errno 22
+		if exc.errno == 22:
+			_log.exception(u'module <extractor> (python wrapper for libextractor) not installed')
+		else:
+			raise
 	ret_code = -1
 
 	# 2) use "file" system command
