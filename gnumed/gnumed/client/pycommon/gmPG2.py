@@ -2300,30 +2300,30 @@ def sanity_check_database_settings():
 
 	options2check = {
 		# setting: [expected value, risk, fatal?]
-		u'allow_system_table_mods': [u'off', u'system breakage', False],
-		u'check_function_bodies': [u'on', u'suboptimal error detection', False],
-		u'datestyle': [u'ISO', u'faulty timestamp parsing', True],
-		u'default_transaction_isolation': [u'read committed', u'faulty database reads', True],
-		u'default_transaction_read_only': [u'on', u'accidental database writes', False],
-		u'fsync': [u'on', u'data loss/corruption', True],
-		u'full_page_writes': [u'on', u'data loss/corruption', False],
-		u'lc_messages': [u'C', u'suboptimal error detection', False],
-		u'password_encryption': [u'on', u'breach of confidentiality', False],
-		#u'regex_flavor': [u'advanced', u'query breakage', False],					# 9.0 doesn't support this anymore, default now advanced anyway
-		u'synchronous_commit': [u'on', u'data loss/corruption', False],
-		u'sql_inheritance': [u'on', u'query breakage, data loss/corruption', True], # IF returned, it better be ON, if NOT returned: hardwired (PG10)
-		u'ignore_checksum_failure': [u'off', u'data loss/corruption', False],		# starting with PG 9.3
-		u'track_commit_timestamp': [u'on', u'suboptimal auditing', False]			# starting with PG 9.3
+		u'allow_system_table_mods': [[u'off'], u'system breakage', False],
+		u'check_function_bodies': [[u'on'], u'suboptimal error detection', False],
+		u'datestyle': [[u'ISO'], u'faulty timestamp parsing', True],
+		u'default_transaction_isolation': [[u'read committed'], u'faulty database reads', True],
+		u'default_transaction_read_only': [[u'on'], u'accidental database writes', False],
+		u'fsync': [[u'on'], u'data loss/corruption', True],
+		u'full_page_writes': [[u'on'], u'data loss/corruption', False],
+		u'lc_messages': [[u'C'], u'suboptimal error detection', False],
+		u'password_encryption': [[u'on', u'md5', u'scram-sha-256'], u'breach of confidentiality', False],
+		#u'regex_flavor': [[u'advanced'], u'query breakage', False],					# 9.0 doesn't support this anymore, default now advanced anyway
+		u'synchronous_commit': [[u'on'], u'data loss/corruption', False],
+		u'sql_inheritance': [[u'on'], u'query breakage, data loss/corruption', True],	# IF returned (<PG10): better be ON, if NOT returned (PG10): hardwired
+		u'ignore_checksum_failure': [[u'off'], u'data loss/corruption', False],		# starting with PG 9.3
+		u'track_commit_timestamp': [[u'on'], u'suboptimal auditing', False]			# starting with PG 9.3
 	}
 
 	from Gnumed.pycommon import gmCfg2
 	_cfg = gmCfg2.gmCfgData()
 	if _cfg.get(option = u'hipaa'):
-		options2check[u'log_connections'] = [u'on', u'non-compliance with HIPAA', True]
-		options2check[u'log_disconnections'] = [u'on', u'non-compliance with HIPAA', True]
+		options2check[u'log_connections'] = [[u'on'], u'non-compliance with HIPAA', True]
+		options2check[u'log_disconnections'] = [[u'on'], u'non-compliance with HIPAA', True]
 	else:
-		options2check[u'log_connections'] = [u'on', u'non-compliance with HIPAA', None]
-		options2check[u'log_disconnections'] = [u'on', u'non-compliance with HIPAA', None]
+		options2check[u'log_connections'] = [[u'on'], u'non-compliance with HIPAA', None]
+		options2check[u'log_disconnections'] = [[u'on'], u'non-compliance with HIPAA', None]
 
 	cmd = u"SELECT name, setting from pg_settings where name in %(settings)s"
 	rows, idx = run_ro_queries (
@@ -2338,10 +2338,10 @@ def sanity_check_database_settings():
 	for row in rows:
 		option = row['name']
 		value_found = row['setting']
-		value_expected = options2check[option][0]
+		values_expected = options2check[option][0]
 		risk = options2check[option][1]
 		fatal_setting = options2check[option][2]
-		if value_found != value_expected:
+		if value_found not in values_expected:
 			if fatal_setting is True:
 				found_error = True
 			elif fatal_setting is False:
@@ -2353,7 +2353,7 @@ def sanity_check_database_settings():
 				raise ValueError(u'invalid database configuration sanity check')
 			msg.append(_(' option [%s]: %s') % (option, value_found))
 			msg.append(_('  risk: %s') % risk)
-			_log.warning('PG option [%s] set to [%s], expected [%s], risk: <%s>' % (option, value_found, value_expected, risk))
+			_log.warning('PG option [%s] set to [%s], expected %s, risk: <%s>' % (option, value_found, values_expected, risk))
 
 	if found_error:
 		return 2, u'\n'.join(msg)

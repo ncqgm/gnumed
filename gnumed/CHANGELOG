@@ -47,6 +47,7 @@ FIX: exception on import error inside portable app
 
 IMPROVED: use Dicom[RequestingPhysician] if available
 IMPROVED: user visible rendering of raw DICOM strings
+IMPROVED: baptize SCRAM for PG passwords in settings check
 
 	1.6.14
 
