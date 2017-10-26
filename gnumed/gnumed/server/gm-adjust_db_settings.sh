@@ -51,18 +51,13 @@ echo "alter database ${TARGET_DB} set default_transaction_isolation to 'read com
 echo "alter database ${TARGET_DB} set lc_messages to 'C';" >> $SQL_FILE
 echo "alter database ${TARGET_DB} set password_encryption to 'on';" >> $SQL_FILE
 echo "alter database ${TARGET_DB} set synchronous_commit to 'on';" >> $SQL_FILE
-echo "alter database ${TARGET_DB} set sql_inheritance to 'on';" >> $SQL_FILE
 echo "alter database ${TARGET_DB} set check_function_bodies to 'on';" >> $SQL_FILE
+echo "-- starting with 9.3:" >> $SQL_FILE
+echo "alter database ${TARGET_DB} set ignore_checksum_failure to 'off';" >> $SQL_FILE
+
 echo "" >> $SQL_FILE
-echo "-- starting with 9.3 (remove when 9.3 is required):" >> $SQL_FILE
-echo "\unset ON_ERROR_STOP" >> $SQL_FILE
-echo "alter database ${TARGET_DB} set ignore_checksum_failure to 'off';     -- comment out if the script fails" >> $SQL_FILE
-echo "\set ON_ERROR_STOP 1" >> $SQL_FILE
-echo "" >> $SQL_FILE
-echo "-- < PG 9.0 only:" >> $SQL_FILE
-echo "--\unset ON_ERROR_STOP" >> $SQL_FILE
-echo "--alter database ${TARGET_DB} set regex_flavor to 'advanced';" >> $SQL_FILE
-echo "--\set ON_ERROR_STOP 1" >> $SQL_FILE
+echo "-- PG < 10 only:" >> $SQL_FILE
+echo "--alter database ${TARGET_DB} set sql_inheritance to 'on';" >> $SQL_FILE
 
 echo "" >> $SQL_FILE
 echo "-- the following can only be set at server start" >> $SQL_FILE
