@@ -732,12 +732,14 @@ class database:
 		curs.close()
 		self.conn.commit()
 
-		# we need inheritance or else things will fail miserably
+		# we need inheritance or else things will fail miserably but:
+		# default now ON and PG10.0 hardwired to ON
+		# so remove database specific setting
 		curs = self.conn.cursor()
 		try:
-			curs.execute("alter database %s set sql_inheritance to on" % self.name)
+			curs.execute("alter database %s set sql_inheritance to DEFAULT" % self.name)
 		except:
-			_log.exception(u'PG 10 hardwired for sql_inheritance')
+			_log.exception('PostgreSQL 10 onwards: <sql_inheritance> hardwired')
 		curs.close()
 
 		# we want to track commit timestamps if available

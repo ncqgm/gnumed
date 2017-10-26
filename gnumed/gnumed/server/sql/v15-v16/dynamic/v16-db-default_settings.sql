@@ -14,9 +14,8 @@ ALTER DATABASE gnumed_v16
 ALTER DATABASE gnumed_v16
 	SET default_transaction_isolation to 'read committed';
 
--- does not exist on PG10 anymore, so can't be set if bootstrapping on PG10
---ALTER DATABASE gnumed_v16
---	SET sql_inheritance to 'on';
+ALTER DATABASE gnumed_v16
+	SET sql_inheritance to default;
 
 -- --------------------------------------------------------------
 select gm.log_script_insertion('v16-db-default_settings.sql', 'v16');

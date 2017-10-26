@@ -51,7 +51,7 @@ echo "alter database ${TARGET_DB} set default_transaction_isolation to 'read com
 echo "alter database ${TARGET_DB} set lc_messages to 'C';" >> $SQL_FILE
 echo "alter database ${TARGET_DB} set password_encryption to 'on';" >> $SQL_FILE
 echo "alter database ${TARGET_DB} set synchronous_commit to 'on';" >> $SQL_FILE
-echo "alter database ${TARGET_DB} set sql_inheritance to 'on';" >> $SQL_FILE
+#echo "alter database ${TARGET_DB} set sql_inheritance to 'on';" >> $SQL_FILE
 echo "alter database ${TARGET_DB} set check_function_bodies to 'on';" >> $SQL_FILE
 echo "" >> $SQL_FILE
 echo "-- starting with 9.3 (remove when 9.3 is required):" >> $SQL_FILE
@@ -113,6 +113,7 @@ echo ""
 echo "You will now have to take one of the following actions"
 echo "to make PostgreSQL recognize some of the changes:"
 echo ""
+echo "- run systemctl stop postgresql.service && systemctl start postgresql.service"
 echo "- run '/etc/init.d/postgresql reload (adjust to version)'"
 echo "- run 'pg_ctlcluster <version> <name> reload'"
 echo "- run 'pg_ctl reload'"
