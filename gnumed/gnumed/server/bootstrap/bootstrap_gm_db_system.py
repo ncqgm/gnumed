@@ -741,6 +741,7 @@ class database:
 		except:
 			_log.exception('PostgreSQL 10 onwards: <sql_inheritance> hardwired')
 		curs.close()
+		self.conn.commit()
 
 		# we want to track commit timestamps if available
 		# remove exception handler when 9.5 is default
@@ -750,7 +751,6 @@ class database:
 		except:
 			_log.exception(u'PostgreSQL version < 9.5 does not support <track_commit_timestamp> OR <track_commit_timestamp> cannot be set at runtime')
 		curs.close()
-
 		self.conn.commit()
 
 		curs = self.conn.cursor()

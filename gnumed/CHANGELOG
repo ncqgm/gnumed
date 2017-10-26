@@ -1927,6 +1927,12 @@ FIX: constrain clin.clin_root_item.soap_cat CHECK to lower case
 # gnumed_v21
 ------------------------------------------------
 
+	21.15
+
+FIX: handle SQL_INHERITANCE in a way compatible with PG10
+FIX: untyped UNIONs not tolerated by PG10 anymore
+FIX: RETURNS UNKNOWN functions not tolerated by PG10 anymore
+
 	21.12
 
 IMPROVED: logging on dem.identity/dem.names uniqueness violation
