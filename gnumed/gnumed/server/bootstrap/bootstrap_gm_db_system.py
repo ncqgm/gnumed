@@ -735,10 +735,11 @@ class database:
 		# we need inheritance or else things will fail miserably
 		curs = self.conn.cursor()
 		try:
-			curs.execute("alter database %s set sql_inheritance to on" % self.name)
+			curs.execute("alter database %s set sql_inheritance to DEFAULT" % self.name)
 		except:
 			_log.exception(u'PG 10 hardwired for sql_inheritance')
 		curs.close()
+		self.conn.commit()
 
 		# we want to track commit timestamps if available
 		# remove exception handler when 9.5 is default
@@ -748,7 +749,6 @@ class database:
 		except:
 			_log.exception(u'PostgreSQL version < 9.5 does not support <track_commit_timestamp> OR <track_commit_timestamp> cannot be set at runtime')
 		curs.close()
-
 		self.conn.commit()
 
 		curs = self.conn.cursor()
