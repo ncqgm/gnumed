@@ -17,24 +17,27 @@ INSERT INTO dem.message_inbox (
 ) VALUES (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
-	'Release Notes for GNUmed 1.6.14 (database v21.14)',
-	'GNUmed 1.6.14 Release Notes:
+	'Release Notes for GNUmed 1.6.15 (database v21.15)',
+	'GNUmed 1.6.15 Release Notes:
 
-	1.6.14
+	1.6.15
 
-FIX: exception when having issues with calculating eGFR in medication plugin
-FIX: exception on disabling identity [thanks Marc]
-FIX: exception on adding archived documents to export area
-FIX: Orthanc DICOM patient ID modification
-FIX: faulty file drop target declarations
+FIX: exception on tooltipping patient overview inbox item
+FIX: exception in cursor/connection state logging w/ older psycopg2s
+FIX: exception on import error inside portable app
 
-IMPROVED: saving of export area items
-IMPROVED: patient display in provider inbox
-IMPROVED: copy document to export area from document plugin
-IMPROVED: Orthanc modification dialog title
-IMPROVED: imported documents deletion confirmation
-IMPROVED: patient media metadata
+IMPROVED: use Dicom[RequestingPhysician] if available
+IMPROVED: user visible rendering of raw DICOM strings
+IMPROVED: baptize SCRAM for PG passwords in settings check
+
+	21.15
+
+FIX: handle SQL_INHERITANCE in a way compatible with PG10
+FIX: untyped UNIONs not tolerated by PG10 anymore
+FIX: RETURNS UNKNOWN functions not tolerated by PG10 anymore
+
+IMPROVED: script to adjust db settings
 ');
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('v21-release_notes-dynamic.sql', '21.14');
+select gm.log_script_insertion('v21-release_notes-dynamic.sql', '21.15');
