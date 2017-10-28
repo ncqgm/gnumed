@@ -6,6 +6,10 @@
 # rel-1-6-patches
 ------------------------------------------------
 
+	1.6.16
+
+IMPROVED: visual progress note editing workflow
+
 	1.6.15
 
 FIX: exception on tooltipping patient overview inbox item
