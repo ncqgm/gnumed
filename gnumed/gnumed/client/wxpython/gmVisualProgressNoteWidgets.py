@@ -31,6 +31,7 @@ from Gnumed.pycommon import gmDateTime
 from Gnumed.pycommon import gmShellAPI
 from Gnumed.pycommon import gmCfg
 from Gnumed.pycommon import gmMatchProvider
+from Gnumed.pycommon import gmMimeLib
 
 from Gnumed.business import gmPerson
 from Gnumed.business import gmEMRStructItems
@@ -79,6 +80,7 @@ def configure_visual_progress_note_editor():
 			return True, value
 
 		return True, binary
+
 	#------------------------------------------
 	cmd = gmCfgWidgets.configure_string_option (
 		message = _(
@@ -195,40 +197,71 @@ def edit_visual_progress_note(filename=None, episode=None, discard_unmodified=Fa
 			return None
 
 	dbcfg = gmCfg.cCfgSQL()
-	cmd = dbcfg.get2 (
+	editor = dbcfg.get2 (
 		option = u'external.tools.visual_soap_editor_cmd',
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 		bias = 'user'
 	)
 
-	if cmd is None:
+	if editor is None:
+		_log.error(u'no editor for visual progress notes configured, trying mimetype editor')
 		gmDispatcher.send(signal = u'statustext', msg = _('Editor for visual progress note not configured.'), beep = False)
-		cmd = configure_visual_progress_note_editor()
-		if cmd is None:
-			gmDispatcher.send(signal = u'statustext', msg = _('Editor for visual progress note not configured.'), beep = True)
-			return None
+		mimetype = gmMimeLib.guess_mimetype(filename = filename)
+		editor = gmMimeLib.get_editor_cmd(mimetype = mimetype, filename = filename)
+		if editor is None:
+			_log.error('no editor for mimetype <%s> configured, trying mimetype viewer', mimetype)
+			success, msg = gmMimeLib.call_viewer_on_file(aFile = filename, block = True)
+			if not success:
+				_log.debug('problem running mimetype <%s> viewer', mimetype)
+				gmGuiHelpers.gm_show_error (
+					_(	u'There is no editor for visual progress notes defined.\n'
+						u'Also, there is no editor command defined for the file type\n'
+						u'\n'
+						u' [%s].\n'
+						u'\n'
+						u'Therefor GNUmed attempted to at least *show* this\n'
+						u'visual progress note. That failed as well, however:\n'
+						u'\n'
+						u'%s'
+					) % (mimetype, msg),
+					_('Editing visual progress note')
+				)
+				editor = configure_visual_progress_note_editor()
+				if editor is None:
+					gmDispatcher.send(signal = u'statustext', msg = _('Editor for visual progress note not configured.'), beep = True)
+					return None
 
-	if u'%(img)s' in cmd:
-		cmd = cmd % {u'img': filename}
+	if u'%(img)s' in editor:
+		editor = editor % {u'img': filename}
 	else:
-		cmd = u'%s %s' % (cmd, filename)
+		editor = u'%s %s' % (editor, filename)
 
 	if discard_unmodified:
 		original_stat = os.stat(filename)
 		original_md5 = gmTools.file2md5(filename)
 
-	success = gmShellAPI.run_command_in_shell(cmd, blocking = True)
+	success = gmShellAPI.run_command_in_shell(editor, blocking = True)
 	if not success:
-		gmGuiHelpers.gm_show_error (
-			_(
-				'There was a problem with running the editor\n'
-				'for visual progress notes.\n'
-				'\n'
-				' [%s]\n'
-				'\n'
-			) % cmd,
-			_('Editing visual progress note')
-		)
+		success, msg = gmMimeLib.call_viewer_on_file(aFile = filename, block = True)
+		if not success:
+			_log.debug('problem running mimetype <%s> viewer', mimetype)
+			gmGuiHelpers.gm_show_error (
+				_(	u'There was a problem running the editor\n'
+					u'\n'
+					u' [%s] (%s)\n'
+					u'\n'
+					u'on the visual progress note.\n'
+					u'\n'
+					u'Therefor GNUmed attempted to at least *show* it.\n'
+					u'That failed as well, however:\n'
+					u'\n'
+					u'%s'
+				) % (editor, mimetype, msg),
+				_('Editing visual progress note')
+			)
+			editor = configure_visual_progress_note_editor()
+			if editor is None:
+				gmDispatcher.send(signal = u'statustext', msg = _('Editor for visual progress note not configured.'), beep = True)
 		return None
 
 	try:
@@ -236,8 +269,7 @@ def edit_visual_progress_note(filename=None, episode=None, discard_unmodified=Fa
 	except Exception:
 		_log.exception('problem accessing visual progress note file [%s]', filename)
 		gmGuiHelpers.gm_show_error (
-			_(
-				'There was a problem reading the visual\n'
+			_(	'There was a problem reading the visual\n'
 				'progress note from the file:\n'
 				'\n'
 				' [%s]\n'
@@ -345,6 +377,7 @@ class cVisualSoapPresenterPnl(wxgVisualSoapPresenterPnl.wxgVisualSoapPresenterPn
 		wxgVisualSoapPresenterPnl.wxgVisualSoapPresenterPnl.__init__(self, *args, **kwargs)
 		self._SZR_soap = self.GetSizer()
 		self.__bitmaps = []
+
 	#--------------------------------------------------------
 	# external API
 	#--------------------------------------------------------
@@ -402,6 +435,7 @@ class cVisualSoapPresenterPnl(wxgVisualSoapPresenterPnl.wxgVisualSoapPresenterPn
 			self.__bitmaps.append(bmp)
 
 		self.GetParent().Layout()
+
 	#--------------------------------------------------------
 	def clear(self):
 		while len(self._SZR_soap.GetChildren()) > 0:
@@ -411,6 +445,7 @@ class cVisualSoapPresenterPnl(wxgVisualSoapPresenterPnl.wxgVisualSoapPresenterPn
 		for bmp in self.__bitmaps:
 			bmp.Destroy()
 		self.__bitmaps = []
+
 	#--------------------------------------------------------
 	def _on_bitmap_leftclicked(self, evt):
 		wx.CallAfter (
