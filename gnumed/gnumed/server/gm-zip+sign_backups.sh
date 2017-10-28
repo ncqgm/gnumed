@@ -31,6 +31,11 @@ CONF="/etc/gnumed/gnumed-backup.conf"
 # There really should not be any need to
 # change anything below this line.
 #==============================================================
+set -o pipefail
+
+# do not run twice
+[ "${FLOCKER}" != "$0" ] && exec env FLOCKER="$0" flock --exclusive --nonblock "$0" "$0" "$@" || :
+
 
 # load config file
 if [ -r ${CONF} ] ; then
@@ -49,72 +54,87 @@ if test "$?" != "0" ; then
 	exit 1
 fi
 
-shopt -s -q nullglob
 
-# zip up any backups
+shopt -s -q nullglob				# no glob matches -> ""
 AGGREGATE_EXIT_CODE=0
-for TAR_FILE in ${BACKUP_BASENAME}-*.tar ; do
 
-	BZ2_FILE="${TAR_FILE}.bz2"
-	LOCK_FILE="${BZ2_FILE}.in_progress"
 
-	if test -f ${LOCK_FILE} ; then
-		if test -f ${BZ2_FILE} ; then
-			# skip to next backup
-			continue
-		fi;
-		# we might be racing between "touch LOCK_FILE" and "bzip2 ..."
-		# so wait a bit to potentially give the .bz2 time to show up
-		sleep 1
-		if test -f ${BZ2_FILE} ; then
-			# skip to next backup
-			continue
-		fi;
-		rm --force ${LOCK_FILE}
+# find any leftover, untested tar files
+# and test them so they can be compressed
+for TAR_UNTESTED in ${BACKUP_BASENAME}-*.tar.untested ; do
+
+	# test
+	tar --extract --to-stdout --file=${TAR_UNTESTED} > /dev/null
+	RESULT="$?"
+	if test "${RESULT}" != "0" ; then
+		echo "Verifying backup tar archive [${TAR_UNTESTED}] failed (${RESULT}). Skipping."
+		AGGREGATE_EXIT_CODE=${RESULT}
+		continue
 	fi
 
-	# touch lockfile
-	touch ${LOCK_FILE}
+	# rename to final archive name
+	TAR_FINAL=`basename ${TAR_UNTESTED} .untested`
+	mv --force ${TAR_UNTESTED} ${TAR_FINAL}
+	RESULT="$?"
+	if test "${RESULT}" != "0" ; then
+		echo "Cannot rename tar archive (${RESULT}). Skipping."
+		echo "FILES: ${TAR_UNTESTED} => ${TAR_FINAL}"
+		AGGREGATE_EXIT_CODE=${RESULT}
+		continue
+	fi
+	chown ${BACKUP_OWNER} ${TAR_FINAL}
 
-	# verify tar archive
-	# already done by backup script:
-	# if verification fails, *.tar.untested
-	# will not have been renamed to *.tar
+done
+
+
+# zip up any backups
+for TAR_FINAL in ${BACKUP_BASENAME}-*.tar ; do
+
+	BZ2_FINAL="${TAR_FINAL}.bz2"
+	BZ2_UNTESTED="${BZ2_FINAL}.untested"
 
 	# compress tar archive
 	# I have tried "xz -9 -e" and it did not make much of
 	# a difference (48 MB in a 1.2 GB backup)
 	#xz --quiet --extreme --check sha256 --no-warn -${COMPRESSION_LEVEL} ${BACKUP}
 	#xz --quiet --test ${BACKUP}.xz
-	bzip2 --quiet --keep --compress -${COMPRESSION_LEVEL} ${TAR_FILE}
+	bzip2 --quiet --stdout --keep --compress -${COMPRESSION_LEVEL} ${TAR_FINAL} > ${BZ2_UNTESTED}
 	RESULT="$?"
 	if test "${RESULT}" != "0" ; then
-		echo "Compressing tar archive [${TAR_FILE}] as bz2 failed (${RESULT}). Skipping."
+		echo "Compressing tar archive [${TAR_FINAL}] into [${BZ2_UNTESTED}] failed (${RESULT}). Skipping."
 		AGGREGATE_EXIT_CODE=${RESULT}
-		rm --force ${LOCK_FILE}
+		rm --force ${BZ2_UNTESTED}
 		continue
 	fi
 	# verify compressed archive
-	bzip2 --quiet --test ${BZ2_FILE}
+	bzip2 --quiet --test ${BZ2_UNTESTED}
 	RESULT="$?"
 	if test "${RESULT}" != "0" ; then
-		echo "Verifying compressed archive [${BZ2_FILE}] failed (${RESULT}). Removing."
+		echo "Verifying compressed archive [${BZ2_UNTESTED}] failed (${RESULT}). Removing."
 		AGGREGATE_EXIT_CODE=${RESULT}
-		rm --force ${BZ2_FILE} ${LOCK_FILE}
+		rm --force ${BZ2_UNTESTED}
 		continue
 	fi
-	rm ${TAR_FILE}
-	rm --force ${LOCK_FILE}
-	chmod ${BACKUP_MASK} ${BZ2_FILE}
-	chown ${BACKUP_OWNER} ${BZ2_FILE}
+	# rename to final archive name
+	mv --force ${BZ2_UNTESTED} ${BZ2_FINAL}
+	RESULT="$?"
+	if test "${RESULT}" != "0" ; then
+		echo "Renaming tested compressed archive [${BZ2_UNTESTED}] to [${BZ2_FINAL}] failed (${RESULT}). Skipping."
+		AGGREGATE_EXIT_CODE=${RESULT}
+		continue
+	fi
+
+	rm ${TAR_FINAL}
+	chmod ${BACKUP_MASK} ${BZ2_FINAL}
+	chown ${BACKUP_OWNER} ${BZ2_FINAL}
 
 	# GNotary support
 	if test -n ${GNOTARY_TAN} ; then
 		LOCAL_MAILER=`which mail`
 
 		#SHA512="SHA 512:"`sha512sum -b ${BACKUP_FILENAME}.tar.bz2`
-		SHA512=`openssl dgst -sha512 -hex ${BZ2_FILE}`
-		RMD160=`openssl dgst -ripemd160 -hex ${BZ2_FILE}`
+		SHA512=`openssl dgst -sha512 -hex ${BZ2_FINAL}`
+		RMD160=`openssl dgst -ripemd160 -hex ${BZ2_FINAL}`
 
 		export REPLYTO=${SIG_RECEIVER}
 
@@ -126,8 +146,8 @@ for TAR_FILE in ${BACKUP_BASENAME}-*.tar ; do
 			echo "	<tan>$GNOTARY_TAN</tan>"
 			echo "	<action>notarize</action>"
 			echo "	<hashes number=\"2\">"
-			echo "		<hash file=\"${BZ2_FILE}\" modified=\"${TS}\" algorithm=\"SHA-512\">${SHA512}</hash>"
-			echo "		<hash file=\"${BZ2_FILE}\" modified=\"${TS}\" algorithm=\"RIPE-MD-160\">${RMD160}</hash>"
+			echo "		<hash file=\"${BZ2_FINAL}\" modified=\"${TS}\" algorithm=\"SHA-512\">${SHA512}</hash>"
+			echo "		<hash file=\"${BZ2_FINAL}\" modified=\"${TS}\" algorithm=\"RIPE-MD-160\">${RMD160}</hash>"
 			echo "	</hashes>"
 			echo "</message>"
 			echo " "

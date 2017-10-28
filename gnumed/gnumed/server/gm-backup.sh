@@ -38,6 +38,7 @@ CONF="/etc/gnumed/gnumed-backup.conf"
 # There really should not be any need to
 # change anything below this line.
 #==============================================================
+set -o pipefail
 
 # load config file
 if [ -r ${CONF} ] ; then
@@ -59,7 +60,7 @@ fi
 # sanity check
 # (his does not work on Mac, so you
 #  may need to comment this out)
-if ! su -c "psql -t -l -p ${GM_PORT}" -l postgres | grep -q "^[[:space:]]*${GM_DATABASE}" ; then
+if ! su --login --command "psql --no-psqlrc --tuples-only --list --port=${GM_PORT}" postgres | grep --quiet "^[[:space:]]*${GM_DATABASE}" ; then
 	echo "The configuration in ${CONF} is set to backup"
 	echo "the GNUmed database ${GM_DATABASE}. This"
 	echo "database does not exist, however. Aborting."
@@ -69,10 +70,11 @@ fi
 
 # are we backing up the latest DB ?
 OUR_VER=`echo ${GM_DATABASE} | cut -f 2 -d v`
+SQL_COMPARE_VERSIONS="SELECT EXISTS (SELECT 1 FROM pg_database WHERE datname LIKE 'gnumed_v%' AND substring(datname from 9 for 3)::integer > '${OUR_VER}');"
 if test -z ${GM_HOST} ; then
-	HAS_HIGHER_VER=`sudo -u postgres psql -A -t -d ${GM_DATABASE} -p ${GM_PORT} -c "SELECT exists (select 1 from pg_database where datname like 'gnumed_v%' and substring(datname from 9 for 3)::integer > '${OUR_VER}');"`
+	HAS_HIGHER_VER=`sudo --user=postgres psql --no-psqlrc --no-align --tuples-only --dbname=${GM_DATABASE} --port=${GM_PORT} --command="${SQL_COMPARE_VERSIONS}"`
 else
-	HAS_HIGHER_VER=`sudo -u postgres psql -A -t -h ${GM_HOST} -d ${GM_DATABASE} -p ${GM_PORT} -c "SELECT exists (select 1 from pg_database where datname like 'gnumed_v%' and substring(datname from 9 for 3)::integer > '${OUR_VER}');"`
+	HAS_HIGHER_VER=`sudo --user=postgres psql --no-psqlrc --no-align --tuples-only --dbname=${GM_DATABASE} --port=${GM_PORT} --host=${GM_HOST} --command="${SQL_COMPARE_VERSIONS}"`
 fi
 
 if test "${HAS_HIGHER_VER}" = "t" ; then
@@ -80,7 +82,7 @@ if test "${HAS_HIGHER_VER}" = "t" ; then
 	echo ""
 	echo "However, a newer database seems to exist:"
 	echo ""
-	sudo -u postgres psql -l -p ${GM_PORT} | grep gnumed_v
+	sudo --user=postgres psql --no-psqlrc --list --port=${GM_PORT} | grep gnumed_v
 	echo ""
 	echo "Make sure you really want to backup the older database !"
 fi
@@ -111,11 +113,11 @@ if test -z ${GM_HOST} ; then
 	# locally
 
 	# database
-	pg_dump -v --format=directory --compress=0 --column-inserts --clean --if-exists --serializable-deferrable -p ${GM_PORT} -U ${GM_DBO} -f ${BACKUP_DATA_DIR} ${GM_DATABASE} 2> /dev/null
+	pg_dump -v --format=directory --compress=0 --column-inserts --clean --if-exists --serializable-deferrable --port=${GM_PORT} --username=${GM_DBO} -f ${BACKUP_DATA_DIR} ${GM_DATABASE} 2> /dev/null
 
 	# roles
 	# -r -> -g for older versions
-	sudo -u postgres pg_dumpall -v --roles-only -p ${GM_PORT} > ${ROLES_FILE} 2> /dev/null
+	sudo --user=postgres pg_dumpall -v --roles-only --port=${GM_PORT} > ${ROLES_FILE} 2> /dev/null
 
 	echo "" >> ${ROLES_FILE} 2> /dev/null
 	echo "-- -----------------------------------------------------" >> ${ROLES_FILE} 2> /dev/null
@@ -130,7 +132,7 @@ if test -z ${GM_HOST} ; then
 	echo "-- comment out the 'postgres' role."                      >> ${ROLES_FILE} 2> /dev/null
 	echo "-- -----------------------------------------------------" >> ${ROLES_FILE} 2> /dev/null
 	echo "" >> ${ROLES_FILE} 2> /dev/null
-	ROLES=`psql -A -t -d ${GM_DATABASE} -p ${GM_PORT} -U ${GM_DBO} -c "select gm.get_users('${GM_DATABASE}');"`
+	ROLES=`psql --no-psqlrc --no-align --tuples-only --dbname=${GM_DATABASE} --port=${GM_PORT} --username=${GM_DBO} --command="select gm.get_users('${GM_DATABASE}');"`
 	echo "-- ${ROLES}" >> ${ROLES_FILE} 2> /dev/null
 
 else
@@ -138,11 +140,11 @@ else
 	if ping -c 3 -i 2 ${GM_HOST} > /dev/null; then
 
 		# database
-		pg_dump -v --format=directory --compress=0 --column-inserts --clean --if-exists --serializable-deferrable -p ${GM_PORT} -U ${GM_DBO} -f ${BACKUP_DATA_DIR} -h ${GM_HOST} ${GM_DATABASE} 2> /dev/null
+		pg_dump --verbose --format=directory --compress=0 --column-inserts --clean --if-exists --serializable-deferrable --port=${GM_PORT} --username=${GM_DBO} -f ${BACKUP_DATA_DIR} --host=${GM_HOST} ${GM_DATABASE} 2> /dev/null
 
 		# roles
 		# -r -> -g for older versions
-		pg_dumpall -v --roles-only -h ${GM_HOST} -p ${GM_PORT} -U postgres > ${ROLES_FILE} 2> /dev/null
+		pg_dumpall --verbose --roles-only --host=${GM_HOST} --port=${GM_PORT} --username=postgres > ${ROLES_FILE} 2> /dev/null
 
 		echo "" >> ${ROLES_FILE} 2> /dev/null
 		echo "-- -----------------------------------------------------" >> ${ROLES_FILE} 2> /dev/null
@@ -157,7 +159,7 @@ else
 		echo "-- comment out the 'postgres' role."                      >> ${ROLES_FILE} 2> /dev/null
 		echo "-- -----------------------------------------------------" >> ${ROLES_FILE} 2> /dev/null
 		echo "" >> ${ROLES_FILE} 2> /dev/null
-		ROLES=`psql -A -t -d ${GM_DATABASE} -p ${GM_PORT} -U ${GM_DBO} -c "select gm.get_users('${GM_DATABASE}');"`
+		ROLES=`psql --no-psqlrc --no-align --tuples-only --dbname=${GM_DATABASE} --port=${GM_PORT} --username=${GM_DBO} --command="select gm.get_users('${GM_DATABASE}');"`
 		echo "-- ${ROLES}" >> ${ROLES_FILE} 2> /dev/null
 
 	else
@@ -169,62 +171,36 @@ fi
 
 # create tar archive
 TAR_FILE="${BACKUP_FILENAME}.tar"
-TAR_SCRATCHFILE="${TAR_FILE}.untested"
-tar -cf ${TAR_SCRATCHFILE} ${ROLES_FILE} ${BACKUP_DATA_DIR}/
+TAR_UNTESTED="${TAR_FILE}.untested"
+tar --create --file=${TAR_UNTESTED} ${ROLES_FILE} ${BACKUP_DATA_DIR}/
 RESULT="$?"
 if test "${RESULT}" != "0" ; then
-	echo "Creating backup tar archive [${TAR_SCRATCHFILE}] failed (${RESULT}). Aborting."
+	echo "Creating backup tar archive [${TAR_UNTESTED}] failed (${RESULT}). Aborting."
+	rm --force ${TAR_UNTESTED}
 	exit ${RESULT}
 fi
 
 
 # test tar archive
-tar -xOf ${TAR_SCRATCHFILE} > /dev/null
+tar --extract --to-stdout --file=${TAR_UNTESTED} > /dev/null
 RESULT="$?"
 if test "${RESULT}" != "0" ; then
-	echo "Verifying backup tar archive [${TAR_SCRATCHFILE}] failed (${RESULT}). Aborting."
+	echo "Verifying backup tar archive [${TAR_UNTESTED}] failed (${RESULT}). Aborting."
+	rm --force ${TAR_UNTESTED}
 	exit ${RESULT}
 fi
 rm --dir --recursive --one-file-system ${BACKUP_DATA_DIR}/
-rm -f ${ROLES_FILE}
+rm --force ${ROLES_FILE}
 
 
 # rename to final archive name which
 # indicates successful testing
-mv -f ${TAR_SCRATCHFILE} ${TAR_FILE}
+mv --force ${TAR_UNTESTED} ${TAR_FILE}
 RESULT="$?"
 if test "${RESULT}" != "0" ; then
-	echo "cannot rename TAR archive: ${TAR_SCRATCHFILE} => ${TAR_FILE}"
+	echo "cannot rename TAR archive: ${TAR_UNTESTED} => ${TAR_FILE}"
 	exit ${RESULT}
 fi
 chown ${BACKUP_OWNER} ${TAR_FILE}
-
-
-# find any leftover, untested tar files
-# and test them so they can be compressed
-shopt -s -q nullglob				# no matches -> ""
-SCRATCH_FILES=${BACKUP_BASENAME}-*.tar.untested
-for SCRATCH_FILE in ${SCRATCH_FILES} ; do
-
-	# test
-	tar -xOf ${SCRATCH_FILE} > /dev/null
-	RESULT="$?"
-	if test "${RESULT}" != "0" ; then
-		echo "Verifying backup tar archive [${SCRATCH_FILE}] failed (${RESULT}). Skipping."
-		continue
-	fi
-
-	# rename to final archive name
-	TAR_FILE=`basename ${SCRATCH_FILE} .untested`
-	mv -f ${SCRATCH_FILE} ${TAR_FILE}
-	RESULT="$?"
-	if test "${RESULT}" != "0" ; then
-		echo "Cannot rename tar archive (${RESULT}). Skipping."
-		echo "FILES: ${TAR_SCRATCHFILE} => ${TAR_FILE}"
-		continue
-	fi
-	chown ${BACKUP_OWNER} ${TAR_FILE}
-
-done
 
 exit 0
