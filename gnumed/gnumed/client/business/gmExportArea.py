@@ -351,12 +351,18 @@ _html_end = u"""
 """
 
 
-_autorun_inf = (
-	u'[AutoRun]\r\n'						# needs \r\n for Windows
-	u'label=%s\r\n'							# patient name/DOB
+_autorun_inf = (							# needs \r\n for Windows
+	u'[AutoRun.Amd64]\r\n'					# 64 bit
+	u'label=%(label)s\r\n'					# patient name/DOB
 	u'shellexecute=index.html\r\n'
-	u'action=%s\r\n'						# % _('Browse patient data')
-	u'%s\r\n'								# "icon=gnumed.ico" or ""
+	u'action=%(action)s\r\n'				# % _('Browse patient data')
+	u'%(icon)s\r\n'							# "icon=gnumed.ico" or ""
+	u'\r\n'
+	u'[AutoRun]\r\n'						# 32 bit
+	u'label=%(label)s\r\n'					# patient name/DOB
+	u'shellexecute=index.html\r\n'
+	u'action=%(action)s\r\n'				# % _('Browse patient data')
+	u'%(icon)s\r\n'							# "icon=gnumed.ico" or ""
 	u'\r\n'
 	u'[Content]\r\n'
 	u'PictureFiles=yes\r\n'
@@ -631,14 +637,17 @@ class cExportArea(object):
 			_log.exception('cannot copy %s to %s', idx_fname, start_fname)
 
 		# autorun.inf
+		# - compute label
+		autorun_dict = {}
 		name = pat.active_name
 		last = name['lastnames'][:14]
 		first = name['firstnames'][:min(14, 18 - len(last))]
-		media_label = ((u'%s%s%s' % (
+		autorun_dict['label'] = ((u'%s%s%s' % (
 			u'%s,%s' % (last, first),
 			gmTools.coalesce(pat['gender'], u'', u' (%s)'),
 			pat.get_formatted_dob(format = ' %Y%m%d', none_string = u'', honor_estimation = False)
 		)).strip())[:32]		# max 32 chars, supposedly ASCII, but CP1252 likely works pretty well
+		# - compute icon
 		media_icon_kwd = u'$$gnumed_patient_media_export_icon'
 		media_icon_kwd_exp = gmKeywordExpansion.get_expansion (
 			keyword = media_icon_kwd,
@@ -650,24 +659,22 @@ class cExportArea(object):
 			target_extension = u'.ico',
 			ignore_conversion_problems = True
 		)
-		media_icon = u''
+		autorun_dict['icon'] = u''
 		if icon_tmp_file is None:
 			_log.debug(u'cannot retrieve <%s>', media_icon_kwd)
 		else:
 			media_icon_fname = os.path.join(base_dir, u'gnumed.ico')
 			try:
 				shutil.move(icon_tmp_file, media_icon_fname)
-				media_icon = u'icon=gnumed.ico'
+				autorun_dict['icon'] = u'icon=gnumed.ico'
 			except Exception:
 				_log.exception('cannot move %s to %s', icon_tmp_file, media_icon_fname)
-		default_action = _('Browse patient data')
+		# - compute action
+		autorun_dict['action'] = _('Browse patient data')
+		# - create file
 		autorun_fname = os.path.join(base_dir, u'autorun.inf')
 		autorun_file = io.open(autorun_fname, mode = 'wt', encoding = 'cp1252', errors = 'replace')
-		autorun_file.write(_autorun_inf % (
-			media_label,
-			default_action,
-			media_icon
-		))
+		autorun_file.write(_autorun_inf % autorun_dict)
 		autorun_file.close()
 
 		# cd.inf
@@ -757,3 +764,20 @@ if __name__ == '__main__':
 	#---------------------------------------
 	#test_export_items()
 	test_export_area()
+
+	sys.exit(0)
+
+#============================================================
+# CDROM "run.bat":
+#
+#@echo off
+#
+#if defined ProgramFiles(x86) (
+#    ::64-bit
+#    start /B x64\mdicom.exe /scan .
+#) else (
+#    ::32-bit
+#    start /B win32\mdicom.exe /scan .
+#)
+#
+#--------------------------------------------------
