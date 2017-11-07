@@ -1794,21 +1794,32 @@ class cMeasurementsGrid(wx.grid.Grid):
 		col = evt.GetCol()
 		row = evt.GetRow()
 
-		# empty cell, perhaps ?
 		try:
 			self.__cell_data[col][row]
-		except KeyError:
-			# FIXME: preset episode/med context from other tests on this date
+		except KeyError:		# empty cell
+			fields = {}
 			col_date = self.__col_label_data[col]
-			ttype = self.__row_label_data[row]
-			temporally_closest_result = ttype.meta_test_type.get_temporally_closest_result(col_date, self.__patient.ID)
-			fields = {
-				u'clin_when': {'data': col_date},
-#				u'pk_episode': {'data'},
-#				u'comment': {'value': }
-			}
-			if temporally_closest_result is not None:
-				fields[u'pk_test_type'] = {'data': temporally_closest_result['pk_test_type']}
+			fields[u'clin_when'] = {'data': col_date}
+			test_type = self.__row_label_data[row]
+			temporally_closest_result_of_row_type = test_type.meta_test_type.get_temporally_closest_result(col_date, self.__patient.ID)
+			if temporally_closest_result_of_row_type is not None:
+				fields[u'pk_test_type'] = {'data': temporally_closest_result_of_row_type['pk_test_type']}
+			same_day_results = gmPathLab.get_results_for_day (
+				timestamp = col_date,
+				patient = self.__patient.ID,
+				order_by = None
+			)
+			if len(same_day_results) > 0:
+				fields[u'pk_episode'] = {'data': same_day_results[0]['pk_episode']}
+				# maybe ['comment'] as in "medical context" ? - not thought through yet
+			# no need to set because because setting pk_test_type will do so:
+			#	fields['val_unit']
+			#	fields['val_normal_min']
+			#	fields['val_normal_max']
+			#	fields['val_normal_range']
+			#	fields['val_target_min']
+			#	fields['val_target_max']
+			#	fields['val_target_range']
 			edit_measurement (
 				parent = self,
 				measurement = None,
@@ -2224,6 +2235,7 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 		self.successful_save_msg = _('Successfully saved measurement.')
 
 		self._DPRW_evaluated.display_accuracy = gmDateTime.acc_minutes
+
 	#--------------------------------------------------------
 	# generic edit area mixin API
 	#----------------------------------------------------------------
@@ -2236,6 +2248,39 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 			self._DPRW_evaluated.SetData(data = fields['clin_when']['data'])
 		except KeyError:
 			pass
+		try:
+			self._PRW_problem.SetData(data = fields['pk_episode']['data'])
+		except KeyError:
+			pass
+		try:
+			self._PRW_units.SetText(fields['val_unit']['data'], fields['val_unit']['data'], True)
+		except KeyError:
+			pass
+		try:
+			self._TCTRL_normal_min.SetValue(fields['val_normal_min']['data'])
+		except KeyError:
+			pass
+		try:
+			self._TCTRL_normal_max.SetValue(fields['val_normal_max']['data'])
+		except KeyError:
+			pass
+		try:
+			self._TCTRL_normal_range.SetValue(fields['val_normal_range']['data'])
+		except KeyError:
+			pass
+		try:
+			self._TCTRL_target_min.SetValue(fields['val_target_min']['data'])
+		except KeyError:
+			pass
+		try:
+			self._TCTRL_target_max.SetValue(fields['val_target_max']['data'])
+		except KeyError:
+			pass
+		try:
+			self._TCTRL_target_range.SetValue(fields['val_target_range']['data'])
+		except KeyError:
+			pass
+
 		self._TCTRL_result.SetFocus()
 
 	#--------------------------------------------------------

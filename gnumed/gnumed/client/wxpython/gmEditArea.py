@@ -142,7 +142,7 @@ class cXxxEAPnl(wxgXxxEAPnl.wxgXxxEAPnl, gmEditArea.cGenericEditAreaMixin):
 		# area is for,
 		# thusly, the edit area knows how to set its
 		# controls from it,
-		# <fields> doesn't have to contain all keys, however:
+		# <fields> doesn't have to contain all keys, rather:
 		# - missing ones are skipped
 		# - unknown ones are ignored
 		# each key must hold a dict with at least a key 'value'
