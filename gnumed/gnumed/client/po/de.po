@@ -5,8 +5,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-05-21 22:07+0200\n"
-"PO-Revision-Date: 2017-05-21 22:16+0200\n"
+"POT-Creation-Date: 2017-11-05 16:11+0100\n"
+"PO-Revision-Date: 2017-11-06 11:20+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "Language: de_DE\n"
@@ -14,7 +14,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: pygettext.py 1.3\n"
-"X-Generator: Poedit 1.8.11\n"
+"X-Generator: Poedit 2.0.4\n"
 
 #, python-format
 msgid "unknown test status [%s]"
@@ -2735,11 +2735,26 @@ msgstr "Speichern:"
 msgid "Editor:"
 msgstr "Editor:"
 
+msgid "Host:"
+msgstr "Server:"
+
+msgid "Port:"
+msgstr "Port:"
+
+msgid "User:"
+msgstr "Nutzer:"
+
+msgid "Password"
+msgstr "Passwort"
+
 msgid "&Connect"
 msgstr "&Verbinden"
 
 msgid "<not connected>"
 msgstr "<nicht verbunden>"
+
+msgid "Image"
+msgstr "Bild"
 
 msgid "◄"
 msgstr ""
@@ -2844,21 +2859,6 @@ msgstr "Alle Studien des Patienten als DICOM-Archiv speichern."
 
 msgid "Modify some of Orthanc content (such as patient IDs)."
 msgstr "Einige Orthanc-Inhalte (z.B.Patienten-IDs) bearbeiten."
-
-msgid "Host:"
-msgstr "Server:"
-
-msgid "Port:"
-msgstr "Port:"
-
-msgid "User:"
-msgstr "Nutzer:"
-
-msgid "Password"
-msgstr "Passwort"
-
-msgid "Image"
-msgstr "Bild"
 
 msgid "Study"
 msgstr "Studie"
@@ -5155,6 +5155,77 @@ msgid "Activate the respective patient by double-clicking a row."
 msgstr ""
 "Der zugehörige Patient kann durch Doppelklick einer Zeile aktiviert werden."
 
+msgid "Describe the intended action."
+msgstr ""
+
+msgid "&Select"
+msgstr "&Auswahl"
+
+msgid ""
+"empty?\n"
+"DICOMDIR ?\n"
+"documents/ ?"
+msgstr ""
+"leer ?\n"
+"DICOMDIR ?\n"
+"documents/ ?"
+
+msgid "Existing data:"
+msgstr "Existierende Daten:"
+
+msgid "Include"
+msgstr "Einschließen"
+
+msgid "&Include into CD / DVD"
+msgstr "Mit auf CD / DVD &brennen"
+
+msgid "Use subdirectory:"
+msgstr "Unterverzeichnis benutzen:"
+
+msgid "<patient directory>"
+msgstr "<Patienten-Verzeichnis>"
+
+msgid "Creating patient media"
+msgstr "Patienten-Datenträger erstellen"
+
+msgid "Select the directory."
+msgstr "Wählen Sie ein Verzeichnis."
+
+msgid "Browse the selected directory."
+msgstr "Gewähltes Verzeichnis durchblättern."
+
+msgid "Include existing data if any."
+msgstr "Ggf. existierende Daten einschließen."
+
+msgid "Remove existing data if any."
+msgstr "Ggf. existierende Daten entfernen."
+
+msgid "Check if you want to include the selected directory into the CD / DVD."
+msgstr ""
+"Ankreuzen, wenn das gewählte Verzeichnis mit auf die CD / DVD gebrannt "
+"werden soll."
+
+msgid ""
+"Check if you want to use a subdirectory within the directory selected "
+"above.\n"
+"\n"
+"This will leave alone any existing data."
+msgstr ""
+"Markieren, wenn ein Unterverzeichnis im gewählten Pfad verwendet werden "
+"soll.\n"
+"\n"
+"Dadurch werden existierende Daten ignoriert."
+
+msgid "Create patient media (in target directory or on CD / DVD)."
+msgstr ""
+"Patienten-Datenträger erstellen (im Zielverzeichnis oder auf CD / DVD)."
+
+msgid "Abort creating patient media."
+msgstr "Datenträgererstellung abbrechen."
+
+msgid "Path:"
+msgstr "Pfad:"
+
 msgid "Edit Allergy/Intolerance"
 msgstr "Allergie/Unverträglichkeit .ändern"
 
@@ -5193,27 +5264,17 @@ msgstr "Landessprachlich"
 msgid "Encounter type"
 msgstr "Typ des APK"
 
-msgid "&Manage..."
-msgstr "&Verwalten..."
-
 msgid "A short description for this test panel."
 msgstr "Eine kurze, sprechende Bezeichnung für dieses Meßprofil."
 
 msgid "A comment on, or long-form description of, this test panel."
 msgstr "Eine Langbezeichnung für oder ein Kommentar zu diesem Meßprofil."
 
-msgid "Manage which test types are members of this panel (battery)."
-msgstr "Verwalten der zu diesem Profil gehörenden Messungen."
+msgid "Add the selected LOINC to the test panel."
+msgstr "Gewählte LOINC zur Meßwertgruppe hinzufügen."
 
-msgid ""
-"Codes relevant to this test panel\n"
-"separated by \";\"."
-msgstr ""
-"Codes für dieses Meßprofil,\n"
-"abgetrennt mittels \";\"."
-
-msgid "Test types"
-msgstr "Meßmethoden"
+msgid "Remove selected LOINC from test panel."
+msgstr "Gewählte LOINC aus Meßwertgruppe entfernen."
 
 msgid "Fake"
 msgstr "unecht"
@@ -6002,9 +6063,6 @@ msgid ""
 msgstr ""
 "\n"
 "Geben Sie einen passenden Wert ein.\n"
-
-msgid "&Select"
-msgstr "&Auswahl"
 
 msgid "&VAT applies"
 msgstr "&USt. anwenden"
@@ -7918,8 +7976,8 @@ msgid "everyone"
 msgstr "jeder"
 
 #, python-format
-msgid "Patient #%s"
-msgstr "Patient #%s"
+msgid "Patient: %s, %s%s %s   #%s\n"
+msgstr "Patient: %s, %s%s %s   #%s\n"
 
 #, python-format
 msgid "Due: %s (%s ago)\n"
@@ -8030,6 +8088,10 @@ msgstr "Dokumentenbereich durchblättern"
 #, python-format
 msgid "patient photograph from %s"
 msgstr "Patientenbild von %s"
+
+#, python-format
+msgid "other: %s"
+msgstr "anderes: %s"
 
 msgid "Browse patient data"
 msgstr "Patientendaten durchblättern"
@@ -9237,8 +9299,8 @@ msgid "fake product"
 msgstr "Pseudoprodukt"
 
 #, python-format
-msgid " %sage %s - %s"
-msgstr " %sAlter %s - %s"
+msgid " Age %s - %s"
+msgstr " Alter %s - %s"
 
 msgid " Indications"
 msgstr " Indikationen"
@@ -9307,10 +9369,7 @@ msgstr "Anthrax"
 msgid "J07AD01-target::brucellosis"
 msgstr "Brucellose"
 
-msgid "J07AE01-target::cholera"
-msgstr "Cholera"
-
-msgid "J07AE02-target::cholera"
+msgid "J07AE0-target::cholera"
 msgstr "Cholera"
 
 msgid "J07AF01-target::diphtheria"
@@ -9322,13 +9381,7 @@ msgstr "HiB"
 msgid "J07AH01-target::meningococcus A"
 msgstr "A-Meningokokken"
 
-msgid "J07AH10-target::meningococcus A"
-msgstr "A-Meningokokken"
-
 msgid "J07AH06-target::meningococcus B"
-msgstr "Meningokokkus B"
-
-msgid "J07AH09-target::meningococcus B"
 msgstr "Meningokokkus B"
 
 msgid "J07AH07-target::meningococcus C"
@@ -9343,19 +9396,10 @@ msgstr "W-Meningokokken"
 msgid "J07AJ0-target::pertussis"
 msgstr "Pertussis"
 
-msgid "J07AJ01-target::pertussis"
-msgstr "Pertussis"
-
-msgid "J07AJ02-target::pertussis"
-msgstr "Pertussis"
-
 msgid "J07AK01-target::plague"
 msgstr "Pest"
 
-msgid "J07AL01-target::pneumococcus"
-msgstr "Pneumokokken"
-
-msgid "J07AL02-target::pneumococcus"
+msgid "J07AL0-target::pneumococcus"
 msgstr "Pneumokokken"
 
 msgid "J07AM01-target::tetanus"
@@ -9364,16 +9408,10 @@ msgstr "Tetanus"
 msgid "J07AN01-target::tbc"
 msgstr "Tbc"
 
-msgid "J07AP01-target::typhoid"
+msgid "J07AP0-target::typhoid"
 msgstr "Typhus"
 
-msgid "J07AP02-target::typhoid"
-msgstr "Typhus"
-
-msgid "J07AP03-target::typhoid"
-msgstr "Typhus"
-
-msgid "J07AP10-target::typhoid, paratyphus"
+msgid "J07AP1-target::typhoid, paratyphus"
 msgstr "Typhus, Paratyphus"
 
 msgid "J07AR01-target::typhus exanthematicus"
@@ -9385,28 +9423,16 @@ msgstr "Q-Fieber"
 msgid "J07BA01-target::tick-borne encephalitis"
 msgstr "Zecken-Meningoenzephalitis (FSME)"
 
-msgid "J07BA02-target::japanese encephalitis"
+msgid "J07BA0J-target::japanese encephalitis"
 msgstr "Japanische B-Enzephalitis"
 
-msgid "J07BA03-target::japanese encephalitis"
-msgstr "Japanische B-Enzephalitis"
-
-msgid "J07BB01-target::influenza"
-msgstr "Influenza"
-
-msgid "J07BB02-target::influenza"
-msgstr "Influenza"
-
-msgid "J07BB03-target::influenza"
+msgid "J07BB0-target::influenza"
 msgstr "Influenza"
 
 msgid "J07BC01-target::hepatitis B"
 msgstr "Hepatitis B"
 
-msgid "J07BC02-target::hepatitis A"
-msgstr "Hepatitis A"
-
-msgid "J07BC03-target::hepatitis A"
+msgid "J07BC0-target::hepatitis A"
 msgstr "Hepatitis A"
 
 msgid "J07BD01-target::measles"
@@ -9415,28 +9441,22 @@ msgstr "Masern"
 msgid "J07BE01-target::mumps"
 msgstr "Mumps"
 
-msgid "J07BF01-target::poliomyelitis"
-msgstr "Poliomyelitis"
-
-msgid "J07BF03-target::poliomyelitis"
+msgid "J07BF0-target::poliomyelitis"
 msgstr "Poliomyelitis"
 
 msgid "J07BG01-target::rabies"
 msgstr "Tollwut"
 
-msgid "J07BH01-target::rotavirus diarrhea"
-msgstr "Rotavirus"
-
-msgid "J07BH02-target::rotavirus diarrhea"
+msgid "J07BH0-target::rotavirus diarrhea"
 msgstr "Rotavirus"
 
 msgid "J07BJ01-target::rubella"
 msgstr "Röteln"
 
-msgid "J07BK01-target::varicella (chickenpox)"
+msgid "J07BK0-target::varicella (chickenpox)"
 msgstr "Windpocken"
 
-msgid "J07BK02-target::zoster (shingles)"
+msgid "J07BK0-target::zoster (shingles)"
 msgstr "Gürtelrose"
 
 msgid "J07BL01-target::yellow fever"
@@ -11535,20 +11555,52 @@ msgstr "Kein Editor für Bildnotizen konfiguriert."
 
 #, python-format
 msgid ""
-"There was a problem with running the editor\n"
-"for visual progress notes.\n"
+"There is no editor for visual progress notes defined.\n"
+"Also, there is no editor command defined for the file type\n"
 "\n"
-" [%s]\n"
+" [%s].\n"
 "\n"
+"Therefor GNUmed attempted to at least *show* this\n"
+"visual progress note. That failed as well, however:\n"
+"\n"
+"%s"
 msgstr ""
-"Es gab ein Problem beim Aufrufen des Editors\n"
-"für Bildnotizen.\n"
+"Es ist kein Editor für Bildnotizen eingestellt.\n"
+"Es ist auch kein Editor für Dateien folgenden Typs bekannt:\n"
 "\n"
 " [%s]\n"
 "\n"
+"Daher hat GNUmed versucht, die Bildnotiz wenigstens\n"
+"anzuzeigen. Das hat aber auch nicht funktioniert:\n"
+"\n"
+"%s"
 
 msgid "Editing visual progress note"
 msgstr "Bearbeite Bildnotiz"
+
+#, python-format
+msgid ""
+"There was a problem running the editor\n"
+"\n"
+" [%s] (%s)\n"
+"\n"
+"on the visual progress note.\n"
+"\n"
+"Therefor GNUmed attempted to at least *show* it.\n"
+"That failed as well, however:\n"
+"\n"
+"%s"
+msgstr ""
+"Der Editor für Bildnotizen\n"
+"\n"
+" [%] (%s)\n"
+"\n"
+"funktionierte nicht.\n"
+"\n"
+"GNUmed versuchte, die Bildnotiz wenigstens anzuzeigen.\n"
+"Das hat aber auch nicht geklappt:\n"
+"\n"
+"%s"
 
 #, python-format
 msgid ""
@@ -15448,6 +15500,86 @@ msgstr "Karteieintrag verwerfen"
 msgid "clinical progress note"
 msgstr "klinische Verlaufsnotiz"
 
+msgid "Select a directory for inclusion into the patient CD / DVD."
+msgstr "Ein Verzeichnis zum Einschluß auf CD / DVD wählen."
+
+msgid "Select a directory in which to create the patient media."
+msgstr ""
+"Verzeichnis wählen, in welchem der Patienten-Datenträger erstellt werden "
+"soll."
+
+#, python-format
+msgid ""
+"Really delete any existing data under\n"
+"\n"
+" [%s]\n"
+"\n"
+"from disk ?\n"
+"\n"
+"(this operation is generally not reversible)"
+msgstr ""
+"Sollen die existierenden Daten in\n"
+"\n"
+" [%s]\n"
+"\n"
+"wirklich gelöscht werden ?\n"
+"\n"
+"(dies läßt sich normalerweise nicht rückgängig machen)"
+
+msgid ""
+"Script <gm-burn_doc(.bat)> not found.\n"
+"\n"
+"Cannot create patient CD/DVD."
+msgstr ""
+"Programm <gm-burn_doc(.bat)> nicht gefunden.\n"
+"\n"
+"Kann Patienten-Datenträger nicht erstellen."
+
+#, python-format
+msgid ""
+"Patient: %s\n"
+"\n"
+"Items to include into CD/DVD: %s\n"
+msgstr ""
+"Patient: %s\n"
+"\n"
+"Objekte für die CD/DVD: %s\n"
+
+#, python-format
+msgid ""
+"Patient: %s\n"
+"\n"
+"Items to save: %s\n"
+msgstr ""
+"Patient: %s\n"
+"\n"
+"Objekte: %s\n"
+
+msgid "(cannot check directory)"
+msgstr "(Verzeichnis kann nicht geprüft werden)"
+
+msgid "(directory appears empty)"
+msgstr "(Verzeichnis scheint leer)"
+
+msgid "directory already contains data"
+msgstr "Verzeichnis enthält Daten"
+
+#, python-format
+msgid ""
+"%s\n"
+"- DICOM data"
+msgstr ""
+"%s\n"
+"- DICOM data"
+
+#, python-format
+msgid ""
+"%s\n"
+"- additional documents"
+msgstr ""
+"%s\n"
+"- zusätzliche Dokumente"
+
 msgid "Select files to add to the export area"
 msgstr "Wählen Sie Dateien für die Aufnahme in den Exportbereich"
 
@@ -15520,48 +15652,13 @@ msgstr ""
 "Gedruckt:\n"
 " - %s"
 
-msgid "Select the directory into which to export the documents."
-msgstr ""
-"Wählen Sie das Verzeichnis, in welches Dokumente aus dem Exportbereich "
-"gespeichert werden sollen."
-
-msgid "Saving export area documents"
-msgstr "Speichere Dokumente des Exportbereichs"
-
 #, python-format
 msgid ""
-"The chosen export directory\n"
-"\n"
-" [%s]\n"
-"\n"
-"already contains files. Do you still want to save the\n"
-"selected export area documents into that directory ?\n"
-"\n"
-"(this is useful for including the external documents\n"
-" already stored in or below this directory)\n"
-"\n"
-"[NO] will create a subdirectory for you and use that."
+"Cannot remove content from\n"
+" [%s]"
 msgstr ""
-"Das gewählte Zielverzeichnis\n"
-"\n"
-" [%s]\n"
-"\n"
-"enthält schon Dateien. Wollen Sie es dort trotzdem\n"
-"die ausgewählten Dokumente des Exportbereits speichern ?\n"
-"\n"
-"(so können Sie externe Dateien einschließen, die schon\n"
-" in oder unter diesem Verzeichnis gespeichert sind)\n"
-"\n"
-"[Nein]: Legt ein Unterverzeichnis an und nutzt dieses."
-
-msgid ""
-"Create descriptive metadata files\n"
-"and save them alongside the\n"
-"selected export area documents ?"
-msgstr ""
-"Sollen beschreibende Begleitdateien erstellt\n"
-"und gemeinsam mit den im Exportbereich\n"
-"gewählten Dokumenten abgespeichert werden ?"
+"Kann Inhalte nicht entfernen:\n"
+" [%s]"
 
 #, python-format
 msgid ""
@@ -15583,11 +15680,6 @@ msgstr ""
 
 msgid "Browse patient data pack ?"
 msgstr "Patientendaten durchblättern ?"
-
-msgid "If you wish to include an existing directory select it here:"
-msgstr ""
-"Wenn Sie ein existierendes Verzeichnis hinzufügen wollen, wählen Sie dieses "
-"hier:"
 
 msgid "Error burning documents to CD/DVD."
 msgstr "Fehler beim Brennen der Dokumente auf CD/DVD."
@@ -16273,8 +16365,8 @@ msgstr "Teil faxen"
 msgid "Mail part"
 msgstr "Teil mailen"
 
-msgid "Export part"
-msgstr "Teil exportieren"
+msgid "Save part to disk"
+msgstr "Teil auf Festplatte speichern"
 
 msgid "Document Actions:"
 msgstr "Dokument-Aktionen:"
@@ -16297,8 +16389,11 @@ msgstr "Alle Teile faxen"
 msgid "Mail all parts"
 msgstr "Alle Teile mailen"
 
-msgid "Export all parts"
-msgstr "Alle Teile exportieren"
+msgid "Save all parts to disk"
+msgstr "Alle Teile auf Festplatte speichern"
+
+msgid "Copy all parts to export area"
+msgstr "Alle Teile in Exportbereich kopieren"
 
 msgid "Access external original"
 msgstr "Zugriff auf das externe Original"
@@ -16448,8 +16543,8 @@ msgid "Save document part to directory ..."
 msgstr "Dokumententeil speichern in Verzeichnis ..."
 
 #, python-format
-msgid "Successfully exported document part as [%s]."
-msgstr "Erfolgreich Dokumententeil unter [%s] gespeichert."
+msgid "Successfully saved document part as [%s]."
+msgstr "Dokumententeil unter [%s] gespeichert."
 
 #, python-format
 msgid ""
@@ -16534,8 +16629,8 @@ msgid "Save document into directory ..."
 msgstr "Dokument speichern in das Verzeichnis ..."
 
 #, python-format
-msgid "Successfully exported %s parts into the directory [%s]."
-msgstr "Erfolgreich %s Teile in das Verzeichnis [%s] gespeichert."
+msgid "Successfully saved %s parts into the directory [%s]."
+msgstr "%s Teile ins Verzeichnis [%s] gespeichert."
 
 msgid "Are you sure you want to delete the document ?"
 msgstr "Sind Sie sicher, daß das Dokument gelöscht werden soll ?"
@@ -16554,6 +16649,9 @@ msgstr "Methode"
 
 msgid "Body part"
 msgstr "Körperteil"
+
+msgid "DICOM field"
+msgstr "DICOM-Feld"
 
 msgid "Cannot connect without port (try 8042)."
 msgstr "Kann ohne Port nicht verbinden (versuchen Sie 8042)."
@@ -16604,6 +16702,10 @@ msgid "Series"
 msgstr "Serien"
 
 #, python-format
+msgid "Image %s/%s"
+msgstr "Bild %s/%s"
+
+#, python-format
 msgid "%s image(s)%s"
 msgstr "%s Bild(er)%s"
 
@@ -16627,6 +16729,10 @@ msgstr ""
 
 msgid "Uploading DICOM files"
 msgstr "Lade DICOM-Dateien hoch"
+
+#, python-format
+msgid "Working on: Orthanc \"%s\" (AET \"%s\" @ %s:%s, Version %s)"
+msgstr "Verbunden mit: Orthanc \"%s\" (AET \"%s\" @ %s:%s, Version %s)"
 
 #, python-format
 msgid ""
@@ -16680,9 +16786,6 @@ msgstr "DICOM-Studien exportieren"
 msgid "Unable to export studies."
 msgstr "Kann Studien nicht exportieren."
 
-msgid "Editing Orthanc content"
-msgstr "Orthanc-Inhalt bearbeiten"
-
 msgid "Patient ID"
 msgstr "Patienten-ID"
 
@@ -16708,6 +16811,15 @@ msgstr ""
 " [%s]\n"
 "\n"
 "im Orthanc DICOM-Server gespeichert wird ?"
+
+msgid ""
+"I was unable to modify all DICOM patients.\n"
+"\n"
+"Please refer to the log file."
+msgstr ""
+"GNUmed konnte nicht alle DICOM-Patienten bearbeiten.\n"
+"\n"
+"Näheres ist in der Logdatei zu finden."
 
 #, python-format
 msgid "You are logged in as %s%s.%s (%s). DB account <%s>."
@@ -20036,11 +20148,14 @@ msgstr "Zeige Meßprofile."
 msgid "Select a test panel."
 msgstr "Wählen Sie das Meßprofil."
 
-msgid "No test types selected."
-msgstr "Keine Meßverfahren gewählt."
+msgid "code not found"
+msgstr "Code nicht gefunden"
 
-msgid "Pick the measurement types for this panel."
-msgstr "Wählen Sie die Meßmethoden für dieses Profil."
+msgid "No LOINC codes selected."
+msgstr "Keine LOINC-Codes gewählt."
+
+msgid "no LOINC details found"
+msgstr "keine LOINC-Details gefunden"
 
 msgid "Cannot export EMR. No active patient."
 msgstr "Kann Kartei nicht exportieren. Kein Patient aktiv."
@@ -21473,6 +21588,139 @@ msgstr "Abbrechen"
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
 
+#~ msgid "&Manage..."
+#~ msgstr "&Verwalten..."
+
+#~ msgid "Manage which test types are members of this panel (battery)."
+#~ msgstr "Verwalten der zu diesem Profil gehörenden Messungen."
+
+#~ msgid ""
+#~ "Codes relevant to this test panel\n"
+#~ "separated by \";\"."
+#~ msgstr ""
+#~ "Codes für dieses Meßprofil,\n"
+#~ "abgetrennt mittels \";\"."
+
+#~ msgid "Test types"
+#~ msgstr "Meßmethoden"
+
+#~ msgid "Patient #%s"
+#~ msgstr "Patient #%s"
+
+#~ msgid "J07AE02-target::cholera"
+#~ msgstr "Cholera"
+
+#~ msgid "J07AH10-target::meningococcus A"
+#~ msgstr "A-Meningokokken"
+
+#~ msgid "J07AH09-target::meningococcus B"
+#~ msgstr "Meningokokkus B"
+
+#~ msgid "J07AJ01-target::pertussis"
+#~ msgstr "Pertussis"
+
+#~ msgid "J07AJ02-target::pertussis"
+#~ msgstr "Pertussis"
+
+#~ msgid "J07AL02-target::pneumococcus"
+#~ msgstr "Pneumokokken"
+
+#~ msgid "J07AP02-target::typhoid"
+#~ msgstr "Typhus"
+
+#~ msgid "J07AP03-target::typhoid"
+#~ msgstr "Typhus"
+
+#~ msgid "J07BA03-target::japanese encephalitis"
+#~ msgstr "Japanische B-Enzephalitis"
+
+#~ msgid "J07BB02-target::influenza"
+#~ msgstr "Influenza"
+
+#~ msgid "J07BB03-target::influenza"
+#~ msgstr "Influenza"
+
+#~ msgid "J07BC03-target::hepatitis A"
+#~ msgstr "Hepatitis A"
+
+#~ msgid "J07BF03-target::poliomyelitis"
+#~ msgstr "Poliomyelitis"
+
+#~ msgid "J07BH02-target::rotavirus diarrhea"
+#~ msgstr "Rotavirus"
+
+#~ msgid ""
+#~ "There was a problem with running the editor\n"
+#~ "for visual progress notes.\n"
+#~ "\n"
+#~ " [%s]\n"
+#~ "\n"
+#~ msgstr ""
+#~ "Es gab ein Problem beim Aufrufen des Editors\n"
+#~ "für Bildnotizen.\n"
+#~ "\n"
+#~ " [%s]\n"
+#~ "\n"
+
+#~ msgid "Select the directory into which to export the documents."
+#~ msgstr ""
+#~ "Wählen Sie das Verzeichnis, in welches Dokumente aus dem Exportbereich "
+#~ "gespeichert werden sollen."
+
+#~ msgid "Saving export area documents"
+#~ msgstr "Speichere Dokumente des Exportbereichs"
+
+#~ msgid ""
+#~ "The chosen export directory\n"
+#~ "\n"
+#~ " [%s]\n"
+#~ "\n"
+#~ "already contains files. Do you still want to save the\n"
+#~ "selected export area documents into that directory ?\n"
+#~ "\n"
+#~ "(this is useful for including the external documents\n"
+#~ " already stored in or below this directory)\n"
+#~ "\n"
+#~ "[NO] will create a subdirectory for you and use that."
+#~ msgstr ""
+#~ "Das gewählte Zielverzeichnis\n"
+#~ "\n"
+#~ " [%s]\n"
+#~ "\n"
+#~ "enthält schon Dateien. Wollen Sie es dort trotzdem\n"
+#~ "die ausgewählten Dokumente des Exportbereits speichern ?\n"
+#~ "\n"
+#~ "(so können Sie externe Dateien einschließen, die schon\n"
+#~ " in oder unter diesem Verzeichnis gespeichert sind)\n"
+#~ "\n"
+#~ "[Nein]: Legt ein Unterverzeichnis an und nutzt dieses."
+
+#~ msgid ""
+#~ "Create descriptive metadata files\n"
+#~ "and save them alongside the\n"
+#~ "selected export area documents ?"
+#~ msgstr ""
+#~ "Sollen beschreibende Begleitdateien erstellt\n"
+#~ "und gemeinsam mit den im Exportbereich\n"
+#~ "gewählten Dokumenten abgespeichert werden ?"
+
+#~ msgid "If you wish to include an existing directory select it here:"
+#~ msgstr ""
+#~ "Wenn Sie ein existierendes Verzeichnis hinzufügen wollen, wählen Sie "
+#~ "dieses hier:"
+
+#~ msgid "Export part"
+#~ msgstr "Teil exportieren"
+
+#~ msgid "Export all parts"
+#~ msgstr "Alle Teile exportieren"
+
+#~ msgid "Editing Orthanc content"
+#~ msgstr "Orthanc-Inhalt bearbeiten"
+
+#~ msgid "Pick the measurement types for this panel."
+#~ msgstr "Wählen Sie die Meßmethoden für dieses Profil."
+
 #~ msgid ""
 #~ "Cannot delete vaccine\n"
 #~ "\n"
@@ -21650,9 +21898,6 @@ msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
 
 #~ msgid "Export all"
 #~ msgstr "Alle exportieren"
-
-#~ msgid "Copy all studies into export area."
-#~ msgstr "Alle Studien in Exportbereich kopieren."
 
 #~ msgid "Copy selected studies into export area."
 #~ msgstr "Gewählte Studien in Exportbereich kopieren."
@@ -22396,9 +22641,6 @@ msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
 #~ "Wirklich ALLE Dokumenten auf CD/DVD brennen (und nicht nur einige "
 #~ "ausgewählte) ?"
 
-#~ msgid "Select directory in which to create patient directory ..."
-#~ msgstr "Wo soll das patientenspezifische Unterverzeichnis angelegt werden ?"
-
 #~ msgid "Saved to disk: %s"
 #~ msgstr "Auf Festplatte gespeichert: %s"
 
@@ -22671,9 +22913,6 @@ msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
 
 #~ msgid "Sandboxed PDF output file cannot be moved."
 #~ msgstr "PDF-Datei im Sandkasten kann nicht geöffnet werden."
-
-#~ msgid "patient only"
-#~ msgstr "Patienten"
 
 #~ msgid "provider only"
 #~ msgstr "Anwender"
@@ -23606,9 +23845,6 @@ msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
 #~ msgid "Configure the directory to use as scratch space for temporary files."
 #~ msgstr "Wahl des Arbeitserzeichnisses für temporäre Dateien."
 
-#~ msgid "Temporary directory"
-#~ msgstr "Arbeitsverzeichnis"
-
 #~ msgid "category"
 #~ msgstr "Kategorie"
 
@@ -24033,9 +24269,6 @@ msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
 #~ "Patienten in die Warteliste eintragen.\n"
 #~ "\n"
 #~ "Bei leerem Suchfeld wird der aktive Patient eingetragen."
-
-#~ msgid "Export to disk"
-#~ msgstr "In Dateien exportieren"
 
 #~ msgid "Enlist current patient as staff member"
 #~ msgstr "aktuellen Patienten als Mitarbeiter aufnehmen"
@@ -25247,9 +25480,6 @@ msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
 
 #~ msgid "Sex"
 #~ msgstr "Geschlecht"
-
-#~ msgid "no results found"
-#~ msgstr "keine Ergebnisse gefunden"
 
 #~ msgid "home"
 #~ msgstr "privat"
