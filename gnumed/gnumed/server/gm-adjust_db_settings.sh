@@ -19,7 +19,7 @@ SQL_FILE="/tmp/gnumed/gm-db-settings-$$.sql"
 #==============================================================
 
 TARGET_DB="$1"
-if test -z ${TARGET_DB} ; then
+if test -z "${TARGET_DB}" ; then
 	echo "============================================================="
 	echo "usage: $0 <target database>"
 	echo ""
@@ -35,73 +35,69 @@ echo "    ${SQL_FILE}"
 
 mkdir -p /tmp/gnumed
 
-echo "-- GNUmed database settings adjustment script" > $SQL_FILE
-echo "-- (created by: $0 $*)" >> $SQL_FILE
-echo "" >> $SQL_FILE
-echo "\set ON_ERROR_STOP 1" >> $SQL_FILE
-echo "\set ECHO queries" >> $SQL_FILE
-echo "" >> $SQL_FILE
-echo "set default_transaction_read_only to 'off';" >> $SQL_FILE
-echo "" >> $SQL_FILE
+{
+	echo "-- GNUmed database settings adjustment script"
+	echo "-- (created by: $0 $*)"
+	echo ""
+	echo "\set ON_ERROR_STOP 1"
+	echo "\set ECHO queries"
+	echo ""
+	echo "set default_transaction_read_only to 'off';"
+	echo ""
+	echo "begin;"
+	echo "alter database ${TARGET_DB} set datestyle to 'ISO';"
+	echo "alter database ${TARGET_DB} set default_transaction_read_only to 'on';"
+	echo "alter database ${TARGET_DB} set default_transaction_isolation to 'read committed';"
+	echo "alter database ${TARGET_DB} set lc_messages to 'C';"
+	echo "alter database ${TARGET_DB} set password_encryption to 'on';"
+	echo "alter database ${TARGET_DB} set synchronous_commit to 'on';"
+	echo "alter database ${TARGET_DB} set check_function_bodies to 'on';"
+	echo "-- starting with 9.3:"
+	echo "alter database ${TARGET_DB} set ignore_checksum_failure to 'off';"
+	echo ""
+	echo "-- PG < 10 only:"
+	echo "--alter database ${TARGET_DB} set sql_inheritance to 'on';"
+	echo ""
+	echo "-- the following can only be set at server start"
+	echo "-- (therefore must be set in postgresql.conf)"
+	echo "-- 1) allow_system_table_mods = off"
+	echo "-- 2) log_connections = on (only needed for HIPAA compliance)"
+	echo "-- 3) log_disconnections = on (only needed for HIPAA compliance)"
+	echo "-- 4) fsync = on"
+	echo "-- 5) full_page_writes = on"
+	echo "-- 6) wal_sync_method = <see PostgreSQL docs>"
+	echo "-- 7) track_commit_timestamp = on"
+	echo ""
+	echo ""
+	echo "-- cannot be changed without an initdb (pg_dropcluster/pg_createcluster):"
+	echo "-- lc_ctype = *.UTF-8"
+	echo "-- server_encoding = UTF8"
+	echo ""
+	echo "select gm.log_script_insertion('gm-adjust_db_settings.sh', '22.0');"
+	echo "commit;"
+	echo ""
+	echo "-- should be checked in pg_hba.conf in case of client connection problems:"
+	echo "--local   samerole    +gm-logins   md5"
+	echo "-- should be checked in pg_controldata /var/lib/postgresql/x.y/main output:"
+	echo "-- data checksum version != 0"
+	echo ""
+	echo "-- current relevant settings:"
+	echo "select name, setting from pg_settings where name in ('server_version', 'allow_system_table_mods', 'log_connections', 'log_disconnections', 'fsync', 'full_page_writes', 'wal_sync_method', 'track_commit_timestamp', 'data_checksums', 'lc_ctype', 'server_encoding', 'hba_file', 'config_file');"
+	echo ""
+} > $SQL_FILE
 
-echo "begin;" >> $SQL_FILE
-echo "alter database ${TARGET_DB} set datestyle to 'ISO';" >> $SQL_FILE
-echo "alter database ${TARGET_DB} set default_transaction_read_only to 'on';" >> $SQL_FILE
-echo "alter database ${TARGET_DB} set default_transaction_isolation to 'read committed';" >> $SQL_FILE
-echo "alter database ${TARGET_DB} set lc_messages to 'C';" >> $SQL_FILE
-echo "alter database ${TARGET_DB} set password_encryption to 'on';" >> $SQL_FILE
-echo "alter database ${TARGET_DB} set synchronous_commit to 'on';" >> $SQL_FILE
-echo "alter database ${TARGET_DB} set check_function_bodies to 'on';" >> $SQL_FILE
-echo "-- starting with 9.3:" >> $SQL_FILE
-echo "alter database ${TARGET_DB} set ignore_checksum_failure to 'off';" >> $SQL_FILE
-
-echo "" >> $SQL_FILE
-echo "-- PG < 10 only:" >> $SQL_FILE
-echo "--alter database ${TARGET_DB} set sql_inheritance to 'on';" >> $SQL_FILE
-
-echo "" >> $SQL_FILE
-echo "-- the following can only be set at server start" >> $SQL_FILE
-echo "-- (therefore must be set in postgresql.conf)" >> $SQL_FILE
-echo "-- 1) allow_system_table_mods = off" >> $SQL_FILE
-echo "-- 2) log_connections = on (only needed for HIPAA compliance)" >> $SQL_FILE
-echo "-- 3) log_disconnections = on (only needed for HIPAA compliance)" >> $SQL_FILE
-echo "-- 4) fsync = on" >> $SQL_FILE
-echo "-- 5) full_page_writes = on" >> $SQL_FILE
-echo "-- 6) wal_sync_method = <see PostgreSQL docs>" >> $SQL_FILE
-echo "-- 7) track_commit_timestamp = on" >> $SQL_FILE
-echo "" >> $SQL_FILE
-
-echo "" >> $SQL_FILE
-echo "-- cannot be changed without an initdb (pg_dropcluster):" >> $SQL_FILE
-echo "-- lc_ctype = *.UTF-8" >> $SQL_FILE
-echo "-- server_encoding = UTF8"
-
-echo "" >> $SQL_FILE
-echo "select gm.log_script_insertion('gm-adjust_db_settings.sh', '21.0');" >> $SQL_FILE
-echo "commit;" >> $SQL_FILE
-
-echo "" >> $SQL_FILE
-echo "-- should be checked in pg_hba.conf in case of client connection problems:" >> $SQL_FILE
-echo "--local   samerole    +gm-logins   md5" >> $SQL_FILE
-echo "-- should be checked in pg_controldata /var/lib/postgresql/x.y/main output:" >> $SQL_FILE
-echo "-- data checksum version != 0" >> $SQL_FILE
-
-echo "" >> $SQL_FILE
-echo "-- current relevant settings:" >> $SQL_FILE
-echo "select name, setting from pg_settings where name in ('allow_system_table_mods', 'log_connections', 'log_disconnections', 'fsync', 'full_page_writes', 'wal_sync_method', 'track_commit_timestamp', 'data_checksums', 'lc_ctype', 'server_encoding', 'hba_file', 'config_file');" >> $SQL_FILE
-echo "" >> $SQL_FILE
 
 echo ""
 echo "==> Adjusting settings of database ${TARGET_DB} ..."
-LOG="/tmp/gnumed/$(basename $0)-$$.log"
-sudo -u postgres psql -d ${TARGET_DB} -f ${SQL_FILE} &> ${LOG}
+LOG="/tmp/gnumed/$(basename "$0")-$$.log"
+sudo -u postgres psql -d "${TARGET_DB}" -f ${SQL_FILE} &> "${LOG}"
 if test $? -ne 0 ; then
 	echo "    ERROR: failed to adjust database settings. Aborting."
 	echo "    LOG  : ${LOG}"
-	chmod 0666 ${LOG}
+	chmod 0666 "${LOG}"
 	exit 1
 fi
-chmod 0666 ${LOG}
+chmod 0666 "${LOG}"
 
 
 echo ""

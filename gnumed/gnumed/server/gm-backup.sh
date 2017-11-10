@@ -69,12 +69,14 @@ fi
 
 
 # are we backing up the latest DB ?
-OUR_VER=`echo ${GM_DATABASE} | cut -f 2 -d v`
+OUR_VER=$(echo "${GM_DATABASE}" | cut -f 2 -d v)
 SQL_COMPARE_VERSIONS="SELECT EXISTS (SELECT 1 FROM pg_database WHERE datname LIKE 'gnumed_v%' AND substring(datname from 9 for 3)::integer > '${OUR_VER}');"
-if test -z ${GM_HOST} ; then
-	HAS_HIGHER_VER=`sudo --user=postgres psql --no-psqlrc --no-align --tuples-only --dbname=${GM_DATABASE} --port=${GM_PORT} --command="${SQL_COMPARE_VERSIONS}"`
+if test -z "${GM_HOST}" ; then
+	HAS_HIGHER_VER=$(sudo --user=postgres psql --no-psqlrc --no-align --tuples-only --dbname="${GM_DATABASE}" --port="${GM_PORT}" --command="${SQL_COMPARE_VERSIONS}")
+	#HAS_HIGHER_VER=`sudo --user=postgres psql --no-psqlrc --no-align --tuples-only --dbname="${GM_DATABASE}" --port="${GM_PORT}" --command="${SQL_COMPARE_VERSIONS}"`
 else
-	HAS_HIGHER_VER=`sudo --user=postgres psql --no-psqlrc --no-align --tuples-only --dbname=${GM_DATABASE} --port=${GM_PORT} --host=${GM_HOST} --command="${SQL_COMPARE_VERSIONS}"`
+	HAS_HIGHER_VER=$(sudo --user=postgres psql --no-psqlrc --no-align --tuples-only --dbname="${GM_DATABASE}" --port="${GM_PORT}" --host="${GM_HOST}" --command="${SQL_COMPARE_VERSIONS}")
+	#HAS_HIGHER_VER=`sudo --user=postgres psql --no-psqlrc --no-align --tuples-only --dbname="${GM_DATABASE}" --port="${GM_PORT}" --host="${GM_HOST}" --command="${SQL_COMPARE_VERSIONS}"`
 fi
 
 if test "${HAS_HIGHER_VER}" = "t" ; then
@@ -82,23 +84,23 @@ if test "${HAS_HIGHER_VER}" = "t" ; then
 	echo ""
 	echo "However, a newer database seems to exist:"
 	echo ""
-	sudo --user=postgres psql --no-psqlrc --list --port=${GM_PORT} | grep gnumed_v
+	sudo --user=postgres psql --no-psqlrc --list --port="${GM_PORT}" | grep gnumed_v
 	echo ""
 	echo "Make sure you really want to backup the older database !"
 fi
 
 
 # generate backup file name
-TS=`date +%Y-%m-%d-%H-%M-%S`
-if test -z ${GM_HOST} ; then
-	BACKUP_BASENAME="backup-${GM_DATABASE}-${INSTANCE_OWNER}-"`hostname`
+TS=$(date +%Y-%m-%d-%H-%M-%S)
+if test -z "${GM_HOST}" ; then
+	BACKUP_BASENAME="backup-${GM_DATABASE}-${INSTANCE_OWNER}-"$(hostname)
 else
 	BACKUP_BASENAME="backup-${GM_DATABASE}-${INSTANCE_OWNER}-${GM_HOST}"
 fi
 BACKUP_FILENAME="${BACKUP_BASENAME}-${TS}"
 
 
-cd ${BACKUP_DIR}
+cd "${BACKUP_DIR}"
 RESULT="$?"
 if test "${RESULT}" != "0" ; then
 	echo "Cannot change into backup directory [${BACKUP_DIR}] (${RESULT}). Aborting."
@@ -109,59 +111,60 @@ fi
 # create dumps
 BACKUP_DATA_DIR="${BACKUP_FILENAME}.dir"
 ROLES_FILE="${BACKUP_FILENAME}-roles.sql"
-if test -z ${GM_HOST} ; then
+if test -z "${GM_HOST}" ; then
 	# locally
 
 	# database
-	pg_dump -v --format=directory --compress=0 --column-inserts --clean --if-exists --serializable-deferrable --port=${GM_PORT} --username=${GM_DBO} -f ${BACKUP_DATA_DIR} ${GM_DATABASE} 2> /dev/null
+	pg_dump -v --format=directory --compress=0 --column-inserts --clean --if-exists --serializable-deferrable --port="${GM_PORT}" --username="${GM_DBO}" -f "${BACKUP_DATA_DIR}" "${GM_DATABASE}" 2> /dev/null
 
 	# roles
 	# -r -> -g for older versions
-	sudo --user=postgres pg_dumpall -v --roles-only --port=${GM_PORT} > ${ROLES_FILE} 2> /dev/null
-
-	echo "" >> ${ROLES_FILE} 2> /dev/null
-	echo "-- -----------------------------------------------------" >> ${ROLES_FILE} 2> /dev/null
-	echo "-- Below find a list of database roles which were in use" >> ${ROLES_FILE} 2> /dev/null
-	echo "-- in the GNUmed database \"${GM_DATABASE}\"."            >> ${ROLES_FILE} 2> /dev/null
-	echo "--" >> ${ROLES_FILE} 2> /dev/null
-	echo "-- Only those need to be restored to create a working"    >> ${ROLES_FILE} 2> /dev/null
-	echo "-- copy of your original database. All other roles can"   >> ${ROLES_FILE} 2> /dev/null
-	echo "-- be commented out by prepending '-- ' to the relevant"  >> ${ROLES_FILE} 2> /dev/null
-	echo "-- lines above."                                          >> ${ROLES_FILE} 2> /dev/null
-	echo "-- In particular, you will very very likely want to"      >> ${ROLES_FILE} 2> /dev/null
-	echo "-- comment out the 'postgres' role."                      >> ${ROLES_FILE} 2> /dev/null
-	echo "-- -----------------------------------------------------" >> ${ROLES_FILE} 2> /dev/null
-	echo "" >> ${ROLES_FILE} 2> /dev/null
-	ROLES=`psql --no-psqlrc --no-align --tuples-only --dbname=${GM_DATABASE} --port=${GM_PORT} --username=${GM_DBO} --command="select gm.get_users('${GM_DATABASE}');"`
-	echo "-- ${ROLES}" >> ${ROLES_FILE} 2> /dev/null
+	sudo --user=postgres pg_dumpall -v --roles-only --port="${GM_PORT}" > "${ROLES_FILE}" 2> /dev/null
+	ROLES=`psql --no-psqlrc --no-align --tuples-only --dbname="${GM_DATABASE}" --port="${GM_PORT}" --username="${GM_DBO}" --command="select gm.get_users('${GM_DATABASE}');"`
+	{
+		echo ""
+		echo "-- -----------------------------------------------------"
+		echo "-- Below find a list of database roles which were in use"
+		echo "-- in the GNUmed database \"${GM_DATABASE}\"."
+		echo "--"
+		echo "-- Only those need to be restored to create a working"
+		echo "-- copy of your original database. All other roles can"
+		echo "-- be commented out by prepending '-- ' to the relevant"
+		echo "-- lines above."
+		echo "-- In particular, you will very very likely want to"
+		echo "-- comment out the 'postgres' role."
+		echo "-- -----------------------------------------------------"
+		echo ""
+		echo "-- ${ROLES}"
+	} >> "${ROLES_FILE}" 2> /dev/null
 
 else
 	# remotely
-	if ping -c 3 -i 2 ${GM_HOST} > /dev/null; then
+	if ping -c 3 -i 2 "${GM_HOST}" > /dev/null; then
 
 		# database
-		pg_dump --verbose --format=directory --compress=0 --column-inserts --clean --if-exists --serializable-deferrable --port=${GM_PORT} --username=${GM_DBO} -f ${BACKUP_DATA_DIR} --host=${GM_HOST} ${GM_DATABASE} 2> /dev/null
+		pg_dump --verbose --format=directory --compress=0 --column-inserts --clean --if-exists --serializable-deferrable --port="${GM_PORT}" --username="${GM_DBO}" -f "${BACKUP_DATA_DIR}" --host="${GM_HOST}" "${GM_DATABASE}" 2> /dev/null
 
 		# roles
 		# -r -> -g for older versions
-		pg_dumpall --verbose --roles-only --host=${GM_HOST} --port=${GM_PORT} --username=postgres > ${ROLES_FILE} 2> /dev/null
-
-		echo "" >> ${ROLES_FILE} 2> /dev/null
-		echo "-- -----------------------------------------------------" >> ${ROLES_FILE} 2> /dev/null
-		echo "-- Below find a list of database roles which were in use" >> ${ROLES_FILE} 2> /dev/null
-		echo "-- in the GNUmed database \"${GM_DATABASE}\"."            >> ${ROLES_FILE} 2> /dev/null
-		echo "--" >> ${ROLES_FILE} 2> /dev/null
-		echo "-- Only those need to be restored to create a working"    >> ${ROLES_FILE} 2> /dev/null
-		echo "-- copy of your original database. All other roles can"   >> ${ROLES_FILE} 2> /dev/null
-		echo "-- be commented out by prepending '-- ' to the relevant"  >> ${ROLES_FILE} 2> /dev/null
-		echo "-- lines above."                                          >> ${ROLES_FILE} 2> /dev/null
-		echo "-- In particular, you will very very likely want to"      >> ${ROLES_FILE} 2> /dev/null
-		echo "-- comment out the 'postgres' role."                      >> ${ROLES_FILE} 2> /dev/null
-		echo "-- -----------------------------------------------------" >> ${ROLES_FILE} 2> /dev/null
-		echo "" >> ${ROLES_FILE} 2> /dev/null
-		ROLES=`psql --no-psqlrc --no-align --tuples-only --dbname=${GM_DATABASE} --port=${GM_PORT} --username=${GM_DBO} --command="select gm.get_users('${GM_DATABASE}');"`
-		echo "-- ${ROLES}" >> ${ROLES_FILE} 2> /dev/null
-
+		pg_dumpall --verbose --roles-only --host="${GM_HOST}" --port="${GM_PORT}" --username=postgres > "${ROLES_FILE}" 2> /dev/null
+		ROLES=`psql --no-psqlrc --no-align --tuples-only --dbname="${GM_DATABASE}" --port="${GM_PORT}" --username="${GM_DBO}" --command="select gm.get_users('${GM_DATABASE}');"`
+		{
+			echo ""
+			echo "-- -----------------------------------------------------"
+			echo "-- Below find a list of database roles which were in use"
+			echo "-- in the GNUmed database \"${GM_DATABASE}\"."
+			echo "--"
+			echo "-- Only those need to be restored to create a working"
+			echo "-- copy of your original database. All other roles can"
+			echo "-- be commented out by prepending '-- ' to the relevant"
+			echo "-- lines above."
+			echo "-- In particular, you will very very likely want to"
+			echo "-- comment out the 'postgres' role."
+			echo "-- -----------------------------------------------------"
+			echo ""
+			echo "-- ${ROLES}"
+		} >> "${ROLES_FILE}" 2> /dev/null
 	else
 		echo "Cannot ping database host ${GM_HOST}."
 		exit 1
@@ -172,35 +175,35 @@ fi
 # create tar archive
 TAR_FILE="${BACKUP_FILENAME}.tar"
 TAR_UNTESTED="${TAR_FILE}.untested"
-tar --create --file=${TAR_UNTESTED} ${ROLES_FILE} ${BACKUP_DATA_DIR}/
+tar --create --file="${TAR_UNTESTED}" "${ROLES_FILE}" "${BACKUP_DATA_DIR}"/
 RESULT="$?"
 if test "${RESULT}" != "0" ; then
 	echo "Creating backup tar archive [${TAR_UNTESTED}] failed (${RESULT}). Aborting."
-	rm --force ${TAR_UNTESTED}
+	rm --force "${TAR_UNTESTED}"
 	exit ${RESULT}
 fi
 
 
 # test tar archive
-tar --extract --to-stdout --file=${TAR_UNTESTED} > /dev/null
+tar --extract --to-stdout --file="${TAR_UNTESTED}" > /dev/null
 RESULT="$?"
 if test "${RESULT}" != "0" ; then
 	echo "Verifying backup tar archive [${TAR_UNTESTED}] failed (${RESULT}). Aborting."
-	rm --force ${TAR_UNTESTED}
+	rm --force "${TAR_UNTESTED}"
 	exit ${RESULT}
 fi
-rm --dir --recursive --one-file-system ${BACKUP_DATA_DIR}/
-rm --force ${ROLES_FILE}
+rm --dir --recursive --one-file-system "${BACKUP_DATA_DIR:?}"/
+rm --force "${ROLES_FILE}"
 
 
 # rename to final archive name which
 # indicates successful testing
-mv --force ${TAR_UNTESTED} ${TAR_FILE}
+mv --force "${TAR_UNTESTED}" "${TAR_FILE}"
 RESULT="$?"
 if test "${RESULT}" != "0" ; then
 	echo "cannot rename TAR archive: ${TAR_UNTESTED} => ${TAR_FILE}"
 	exit ${RESULT}
 fi
-chown ${BACKUP_OWNER} ${TAR_FILE}
+chown "${BACKUP_OWNER}" "${TAR_FILE}"
 
 exit 0

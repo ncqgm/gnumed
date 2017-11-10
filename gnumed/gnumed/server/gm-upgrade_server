@@ -18,9 +18,9 @@ GM_SERVER_DIR="/var/lib/gnumed/server/bootstrap"
 
 #==============================================================
 
-cd ${GM_SERVER_DIR}
+cd ${GM_SERVER_DIR} || ( echo "=> Cannot change into ${GM_SERVER_DIR}. Aborting." ; exit 1 )
 mkdir -p ${GM_LOG_BASE}
 export GM_LOG_BASE
-./upgrade-db.sh $@
+./upgrade-db.sh "$@"
 
 #==============================================================

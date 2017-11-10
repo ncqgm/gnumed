@@ -25,7 +25,7 @@ if ! su -c "psql -t -d template1 -c \"show lc_ctype;\"" -l postgres | grep -q -e
 	echo "This will most probably lead to failures of the GNUmed server installation."
 fi
 
-cd ${GM_SERVER_DIR}
+cd ${GM_SERVER_DIR} || ( echo "=> Cannot change into ${GM_SERVER_DIR}. Aborting." ; exit 1 )
 mkdir -p ${GM_LOG_BASE}
 export GM_LOG_BASE
 ./bootstrap-latest.sh

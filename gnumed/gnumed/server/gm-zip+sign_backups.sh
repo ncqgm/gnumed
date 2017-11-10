@@ -45,10 +45,10 @@ else
 	exit 1
 fi
 
-TS=`date +%Y-%m-%d-%H-%M-%S`
+TS=$(date +%Y-%m-%d-%H-%M-%S)
 BACKUP_BASENAME="backup-${GM_DATABASE}-${INSTANCE_OWNER}"
 
-cd ${BACKUP_DIR}
+cd "${BACKUP_DIR}"
 if test "$?" != "0" ; then
 	echo "Cannot change into backup directory [${BACKUP_DIR}]. Aborting."
 	exit 1
@@ -64,7 +64,7 @@ AGGREGATE_EXIT_CODE=0
 for TAR_UNTESTED in ${BACKUP_BASENAME}-*.tar.untested ; do
 
 	# test
-	tar --extract --to-stdout --file=${TAR_UNTESTED} > /dev/null
+	tar --extract --to-stdout --file="${TAR_UNTESTED}" > /dev/null
 	RESULT="$?"
 	if test "${RESULT}" != "0" ; then
 		echo "Verifying backup tar archive [${TAR_UNTESTED}] failed (${RESULT}). Skipping."
@@ -73,8 +73,8 @@ for TAR_UNTESTED in ${BACKUP_BASENAME}-*.tar.untested ; do
 	fi
 
 	# rename to final archive name
-	TAR_FINAL=`basename ${TAR_UNTESTED} .untested`
-	mv --force ${TAR_UNTESTED} ${TAR_FINAL}
+	TAR_FINAL=$(basename "${TAR_UNTESTED}" .untested)
+	mv --force "${TAR_UNTESTED}" "${TAR_FINAL}"
 	RESULT="$?"
 	if test "${RESULT}" != "0" ; then
 		echo "Cannot rename tar archive (${RESULT}). Skipping."
@@ -82,7 +82,7 @@ for TAR_UNTESTED in ${BACKUP_BASENAME}-*.tar.untested ; do
 		AGGREGATE_EXIT_CODE=${RESULT}
 		continue
 	fi
-	chown ${BACKUP_OWNER} ${TAR_FINAL}
+	chown "${BACKUP_OWNER}" "${TAR_FINAL}"
 
 done
 
@@ -98,25 +98,25 @@ for TAR_FINAL in ${BACKUP_BASENAME}-*.tar ; do
 	# a difference (48 MB in a 1.2 GB backup)
 	#xz --quiet --extreme --check sha256 --no-warn -${COMPRESSION_LEVEL} ${BACKUP}
 	#xz --quiet --test ${BACKUP}.xz
-	bzip2 --quiet --stdout --keep --compress -${COMPRESSION_LEVEL} ${TAR_FINAL} > ${BZ2_UNTESTED}
+	bzip2 --quiet --stdout --keep --compress -"${COMPRESSION_LEVEL}" "${TAR_FINAL}" > "${BZ2_UNTESTED}"
 	RESULT="$?"
 	if test "${RESULT}" != "0" ; then
 		echo "Compressing tar archive [${TAR_FINAL}] into [${BZ2_UNTESTED}] failed (${RESULT}). Skipping."
 		AGGREGATE_EXIT_CODE=${RESULT}
-		rm --force ${BZ2_UNTESTED}
+		rm --force "${BZ2_UNTESTED}"
 		continue
 	fi
 	# verify compressed archive
-	bzip2 --quiet --test ${BZ2_UNTESTED}
+	bzip2 --quiet --test "${BZ2_UNTESTED}"
 	RESULT="$?"
 	if test "${RESULT}" != "0" ; then
 		echo "Verifying compressed archive [${BZ2_UNTESTED}] failed (${RESULT}). Removing."
 		AGGREGATE_EXIT_CODE=${RESULT}
-		rm --force ${BZ2_UNTESTED}
+		rm --force "${BZ2_UNTESTED}"
 		continue
 	fi
 	# rename to final archive name
-	mv --force ${BZ2_UNTESTED} ${BZ2_FINAL}
+	mv --force "${BZ2_UNTESTED}" "${BZ2_FINAL}"
 	RESULT="$?"
 	if test "${RESULT}" != "0" ; then
 		echo "Renaming tested compressed archive [${BZ2_UNTESTED}] to [${BZ2_FINAL}] failed (${RESULT}). Skipping."
@@ -124,17 +124,17 @@ for TAR_FINAL in ${BACKUP_BASENAME}-*.tar ; do
 		continue
 	fi
 
-	rm ${TAR_FINAL}
-	chmod ${BACKUP_MASK} ${BZ2_FINAL}
-	chown ${BACKUP_OWNER} ${BZ2_FINAL}
+	rm --force "${TAR_FINAL}"
+	chmod "${BACKUP_MASK}" "${BZ2_FINAL}"
+	chown "${BACKUP_OWNER}" "${BZ2_FINAL}"
 
 	# GNotary support
-	if test -n ${GNOTARY_TAN} ; then
-		LOCAL_MAILER=`which mail`
+	if test -n "${GNOTARY_TAN}" ; then
+		LOCAL_MAILER=$(which mail)
 
 		#SHA512="SHA 512:"`sha512sum -b ${BACKUP_FILENAME}.tar.bz2`
-		SHA512=`openssl dgst -sha512 -hex ${BZ2_FINAL}`
-		RMD160=`openssl dgst -ripemd160 -hex ${BZ2_FINAL}`
+		SHA512=$(openssl dgst -sha512 -hex "${BZ2_FINAL}")
+		RMD160=$(openssl dgst -ripemd160 -hex "${BZ2_FINAL}")
 
 		export REPLYTO=${SIG_RECEIVER}
 
@@ -151,7 +151,7 @@ for TAR_FINAL in ${BACKUP_BASENAME}-*.tar ; do
 			echo "	</hashes>"
 			echo "</message>"
 			echo " "
-		) | $LOCAL_MAILER -s "gnotarize" $GNOTARY_SERVER
+		) | $LOCAL_MAILER -s "gnotarize" "$GNOTARY_SERVER"
 	fi
 
 done
