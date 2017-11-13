@@ -1932,6 +1932,10 @@ FIX: constrain clin.clin_root_item.soap_cat CHECK to lower case
 # gnumed_v21
 ------------------------------------------------
 
+	21.16
+
+FIX: typo in fingerprint script man page [thanks Debian]
+
 	21.15
 
 FIX: handle SQL_INHERITANCE in a way compatible with PG10
