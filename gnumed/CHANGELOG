@@ -1884,6 +1884,10 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 # gnumed_v21
 ------------------------------------------------
 
+	21.16
+
+FIX: typo in fingerprint script man page [thanks Debian]
+
 	21.15
 
 FIX: handle SQL_INHERITANCE in a way compatible with PG10
