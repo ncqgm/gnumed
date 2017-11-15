@@ -643,9 +643,11 @@ def review_document_part(parent=None, part=None):
 	)
 	dlg.ShowModal()
 	dlg.Destroy()
+
 #------------------------------------------------------------
 def review_document(parent=None, document=None):
 	return review_document_part(parent = parent, part = document)
+
 #------------------------------------------------------------
 from Gnumed.wxGladeWidgets import wxgReviewDocPartDlg
 
@@ -702,6 +704,9 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 			self._PRW_org.Enable()
 		else:
 			self._PRW_org.Disable()
+
+		if self.__doc['pk_hospital_stay'] is not None:
+			self._PRW_hospital_stay.SetText(data = self.__doc['pk_hospital_stay'])
 
 		fts = gmDateTime.cFuzzyTimestamp(timestamp = self.__doc['clin_when'])
 		self._PhWheel_doc_date.SetText(fts.strftime('%Y-%m-%d'), fts)
@@ -832,6 +837,7 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 			self.__doc['unit_is_receiver'] = True
 		else:
 			self.__doc['unit_is_receiver'] = False
+		self.__doc['pk_hospital_stay'] = self._PRW_hospital_stay.GetData()
 
 		success, data = self.__doc.save()
 		if not success:
@@ -1565,9 +1571,12 @@ class cSelectablySortedDocTreePnl(wxgSelectablySortedDocTreePnl.wxgSelectablySor
 	#--------------------------------------------------------
 	def _update_details(self, document=None, part=None):
 
+		if (document is None) and (part is None):
+			self._LCTRL_details.set_string_items([])
+			return
+
 		if document is None:
-			if part is not None:
-				document = part.document
+			document = part.document
 
 		items = []
 		if document is not None:
@@ -1598,6 +1607,9 @@ class cSelectablySortedDocTreePnl(wxgSelectablySortedDocTreePnl.wxgSelectablySor
 					include_comm = False,
 					include_doc = False
 				)])
+			stay = document.hospital_stay
+			if stay is not None:
+				items.append([_('Hospital stay'), stay.format(include_episode = False)])
 			for bill in document.bills:
 				items.append([_(u'Bill'), bill.format (
 					include_receiver = False,

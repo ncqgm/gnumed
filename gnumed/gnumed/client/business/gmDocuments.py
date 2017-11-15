@@ -609,18 +609,7 @@ def delete_document_part(part_pk=None, encounter_pk=None):
 	return
 
 #============================================================
-_sql_fetch_document_fields = u"""
-		SELECT
-			*,
-		COALESCE (
-			(SELECT array_agg(seq_idx) FROM blobs.doc_obj b_do WHERE b_do.fk_doc = b_vdm.pk_doc),
-			ARRAY[]::integer[]
-		)
-			AS seq_idx_list
-		FROM
-			blobs.v_doc_med b_vdm
-		WHERE
-			%s"""
+_sql_fetch_document_fields = u"SELECT * FROM blobs.v_doc_med b_vdm	WHERE %s"
 
 class cDocument(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one medical document."""
@@ -635,7 +624,8 @@ class cDocument(gmBusinessDBObject.cBusinessDBObject):
 				unit_is_receiver = %(unit_is_receiver)s,
 				clin_when = %(clin_when)s,
 				comment = gm.nullify_empty_string(%(comment)s),
-				ext_ref = gm.nullify_empty_string(%(ext_ref)s)
+				ext_ref = gm.nullify_empty_string(%(ext_ref)s),
+				fk_hospital_stay = %(pk_hospital_stay)s
 			WHERE
 				pk = %(pk_doc)s and
 				xmin = %(xmin_doc_med)s
@@ -650,7 +640,8 @@ class cDocument(gmBusinessDBObject.cBusinessDBObject):
 		'pk_episode',
 		'pk_encounter',			# mainly useful when moving visual progress notes to their respective encounters
 		'pk_org_unit',
-		'unit_is_receiver'
+		'unit_is_receiver',
+		'pk_hospital_stay'
 	]
 
 	#--------------------------------------------------------
@@ -864,10 +855,20 @@ class cDocument(gmBusinessDBObject.cBusinessDBObject):
 					self._payload[self._idx['unit']],
 					self._payload[self._idx['organization']]
 				)
+		stay = u''
+		if self._payload[self._idx['pk_hospital_stay']] is not None:
+			stay = _(u'Hospital stay') + u': %s\n' % self.hospital_stay.format (
+				left_margin = 0,
+				include_procedures = False,
+				include_docs = False,
+				include_episode = False
+			)
+
 		txt = _(
 			'%s (%s)   #%s\n'
 			' Created: %s\n'
 			' Episode: %s\n'
+			'%s'
 			'%s'
 			'%s'
 			'%s'
@@ -881,10 +882,20 @@ class cDocument(gmBusinessDBObject.cBusinessDBObject):
 			gmTools.coalesce(self._payload[self._idx['health_issue']], u'', _(' Health issue: %s\n')),
 			gmTools.coalesce(self._payload[self._idx['ext_ref']], u'', _(' External reference: %s\n')),
 			org,
+			stay,
 			gmTools.coalesce(self._payload[self._idx['comment']], u'', u' %s')
 		)
 
 		return txt
+
+	#--------------------------------------------------------
+	def _get_hospital_stay(self):
+		if self._payload[self._idx['pk_hospital_stay']] is None:
+			return None
+		from Gnumed.business import gmEMRStructItems
+		return gmEMRStructItems.cHospitalStay(self._payload[self._idx['pk_hospital_stay']])
+
+	hospital_stay = property(_get_hospital_stay, lambda x:x)
 
 	#--------------------------------------------------------
 	def _get_org_unit(self):
@@ -1182,7 +1193,7 @@ if __name__ == '__main__':
 
 	#test_doc_types()
 	#test_adding_doc_part()
-	#test_get_documents()
-	test_get_useful_filename()
+	test_get_documents()
+	#test_get_useful_filename()
 
 #	print get_ext_ref()

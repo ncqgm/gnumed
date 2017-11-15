@@ -61,6 +61,7 @@ select
 		as pk_health_issue,
 	b_vdm.pk_org,
 	b_vdm.pk_org_unit,
+	b_vdm.pk_hospital_stay,
 	b_do.xmin
 		as xmin_doc_obj
 from

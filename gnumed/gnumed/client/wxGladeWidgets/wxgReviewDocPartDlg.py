@@ -11,6 +11,7 @@ import gettext
 # end wxGlade
 
 # begin wxGlade: extracode
+from Gnumed.wxpython.gmHospitalStayWidgets import cHospitalStayPhraseWheel
 # end wxGlade
 
 
@@ -28,6 +29,7 @@ class wxgReviewDocPartDlg(wx.Dialog):
 		self._PRW_org = gmOrganizationWidgets.cOrgUnitPhraseWheel(self, wx.ID_ANY, "", style=wx.BORDER_NONE)
 		self._RBTN_org_is_source = wx.RadioButton(self, wx.ID_ANY, _("Source"))
 		self._RBTN_org_is_receiver = wx.RadioButton(self, wx.ID_ANY, _("Receiver"))
+		self._PRW_hospital_stay = cHospitalStayPhraseWheel(self, wx.ID_ANY, "", style=wx.BORDER_NONE)
 		self._PRW_doc_comment = gmDocumentWidgets.cDocumentCommentPhraseWheel(self, wx.ID_ANY, "", style=wx.BORDER_NONE)
 		self._PhWheel_doc_date = gmDateTimeInput.cFuzzyTimestampInput(self, wx.ID_ANY, style=wx.NO_BORDER)
 		self._TCTRL_reference = wx.TextCtrl(self, wx.ID_ANY, "", style=wx.BORDER_NONE)
@@ -55,10 +57,10 @@ class wxgReviewDocPartDlg(wx.Dialog):
 		self.SetTitle(_("Edit document properties"))
 		self._PhWheel_episode.SetToolTipString(_("Shows the episode associated with this document. Select another one or type in a new episode name to associate a different one."))
 		self._PRW_org.SetToolTipString(_("The organizational unit this document originates from."))
-		self._PRW_org.Enable(False)
 		self._RBTN_org_is_source.SetToolTipString(_("Select if the organization is the source (sender) of the document."))
 		self._RBTN_org_is_source.SetValue(1)
 		self._RBTN_org_is_receiver.SetToolTipString(_("Select if the organization is the target (receiver) of the document.\n\nMostly when the document was sent from this praxis."))
+		self._PRW_hospital_stay.SetToolTipString(_("Select the hospital stay associated with this document."))
 		self._PhWheel_doc_date.SetToolTipString(_("Enter the date of creation of the document."))
 		self._TCTRL_reference.SetToolTipString(_("Enter the ID by which this document is referenced externally."))
 		self._TCTRL_filename.SetToolTipString(_("An example file name for this document type.\n\nMainly used to derive a file name extension during export for operating systems which need that to guesstimate the viewer."))
@@ -89,7 +91,7 @@ class wxgReviewDocPartDlg(wx.Dialog):
 		__szr_box_review = wx.StaticBoxSizer(wx.StaticBox(self, wx.ID_ANY, _("Your review")), wx.VERTICAL)
 		__szr_grid_review = wx.FlexGridSizer(4, 2, 0, 0)
 		__szr_reviews = wx.StaticBoxSizer(wx.StaticBox(self, wx.ID_ANY, _("Reviews by others")), wx.HORIZONTAL)
-		__szr_grid_properties = wx.FlexGridSizer(8, 2, 2, 3)
+		__szr_grid_properties = wx.FlexGridSizer(9, 2, 2, 3)
 		__szr_org_details = wx.BoxSizer(wx.HORIZONTAL)
 		__lbl_episode_picker = wx.StaticText(self, wx.ID_ANY, _("Episode"))
 		__lbl_episode_picker.SetForegroundColour(wx.Colour(255, 0, 0))
@@ -106,7 +108,10 @@ class wxgReviewDocPartDlg(wx.Dialog):
 		__szr_org_details.Add(__lbl_org_arrow, 0, wx.ALIGN_CENTER_VERTICAL | wx.LEFT | wx.RIGHT, 5)
 		__szr_org_details.Add(self._RBTN_org_is_source, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND | wx.RIGHT, 3)
 		__szr_org_details.Add(self._RBTN_org_is_receiver, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 3)
-		__szr_grid_properties.Add(__szr_org_details, 1, wx.EXPAND, 0)
+		__szr_grid_properties.Add(__szr_org_details, 1, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
+		__lbl_stay = wx.StaticText(self, wx.ID_ANY, _("Hospital Stay"))
+		__szr_grid_properties.Add(__lbl_stay, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+		__szr_grid_properties.Add(self._PRW_hospital_stay, 1, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
 		__lbl_comment = wx.StaticText(self, wx.ID_ANY, _("Comment"))
 		__szr_grid_properties.Add(__lbl_comment, 0, wx.ALIGN_CENTER_VERTICAL, 0)
 		__szr_grid_properties.Add(self._PRW_doc_comment, 1, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
@@ -116,7 +121,7 @@ class wxgReviewDocPartDlg(wx.Dialog):
 		__szr_grid_properties.Add(self._PhWheel_doc_date, 1, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
 		__lbl_reference = wx.StaticText(self, wx.ID_ANY, _("Reference"))
 		__szr_grid_properties.Add(__lbl_reference, 0, wx.ALIGN_CENTER_VERTICAL, 0)
-		__szr_grid_properties.Add(self._TCTRL_reference, 1, wx.EXPAND, 0)
+		__szr_grid_properties.Add(self._TCTRL_reference, 1, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
 		__lbl_filename = wx.StaticText(self, wx.ID_ANY, _("Filename"))
 		__lbl_filename.SetToolTipString(_("The original filename (if any). Only editable if invoked from a single part of the document."))
 		__szr_grid_properties.Add(__lbl_filename, 0, wx.ALIGN_CENTER_VERTICAL, 0)
@@ -124,9 +129,9 @@ class wxgReviewDocPartDlg(wx.Dialog):
 		__lbl_seq_idx = wx.StaticText(self, wx.ID_ANY, _("Seq #"))
 		__lbl_seq_idx.SetToolTipString(_("The sequence index or page number. If invoked from a document instead of a page always applies to the first page."))
 		__szr_grid_properties.Add(__lbl_seq_idx, 0, wx.ALIGN_CENTER_VERTICAL, 0)
-		__szr_grid_properties.Add(self._SPINCTRL_seq_idx, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+		__szr_grid_properties.Add(self._SPINCTRL_seq_idx, 1, wx.ALIGN_CENTER_VERTICAL, 0)
 		__szr_grid_properties.AddGrowableCol(1)
-		__szr_main.Add(__szr_grid_properties, 1, wx.BOTTOM | wx.EXPAND, 5)
+		__szr_main.Add(__szr_grid_properties, 1, wx.EXPAND, 5)
 		__szr_reviews.Add(self._LCTRL_existing_reviews, 1, wx.EXPAND, 0)
 		__szr_main.Add(__szr_reviews, 1, wx.EXPAND, 0)
 		__szr_box_review.Add(self._TCTRL_responsible, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.EXPAND, 0)

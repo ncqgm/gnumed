@@ -47,6 +47,7 @@ def manage_hospital_stays(parent=None):
 
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
+
 	#-----------------------------------------
 	def get_tooltip(stay=None):
 		if stay is None:
@@ -55,9 +56,11 @@ def manage_hospital_stays(parent=None):
 			include_procedures = True,
 			include_docs = True
 		)
+
 	#-----------------------------------------
 	def edit(stay=None):
 		return edit_hospital_stay(parent = parent, hospital_stay = stay)
+
 	#-----------------------------------------
 	def delete(stay=None):
 		if gmEMRStructItems.delete_hospital_stay(stay = stay['pk_hospital_stay']):
@@ -68,6 +71,7 @@ def manage_hospital_stays(parent=None):
 			beep = True
 		)
 		return False
+
 	#-----------------------------------------
 	def refresh(lctrl):
 		stays = emr.get_hospital_stays()

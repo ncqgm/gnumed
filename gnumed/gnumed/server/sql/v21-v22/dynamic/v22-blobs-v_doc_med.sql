@@ -38,6 +38,13 @@ select
 	d_o.description
 		as organization,
 	b_dm.unit_is_receiver,
+
+	COALESCE (
+		(SELECT array_agg(seq_idx) FROM blobs.doc_obj b_do WHERE b_do.fk_doc = b_dm.pk),
+		ARRAY[]::integer[]
+	)
+		AS seq_idx_list,
+
 	b_dm.fk_type
 		as pk_type,
 	b_dm.fk_encounter
@@ -48,6 +55,8 @@ select
 		as pk_health_issue,
 	d_ou.fk_org
 		as pk_org,
+	b_dm.fk_hospital_stay
+		as pk_hospital_stay,
 	b_dm.fk_org_unit
 		as pk_org_unit,
 	b_dm.modified_when

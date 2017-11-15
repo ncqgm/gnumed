@@ -9,6 +9,7 @@
 	1.7.0
 
 NEW: link document to procedure
+NEW: link document to hospital stay
 NEW: support receiver on documents
 NEW: support inactivity of external care entries
 NEW: DICOM image preview in PACS plugin

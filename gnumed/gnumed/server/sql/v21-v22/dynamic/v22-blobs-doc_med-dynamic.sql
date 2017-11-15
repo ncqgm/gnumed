@@ -25,5 +25,17 @@ alter table blobs.doc_med
 	alter column unit_is_receiver
 		set not null;
 
+
+-- .fk_hospital_stay
+comment on column blobs.doc_med.fk_hospital_stay is 'the hospital stay this document is associated with';
+
+update blobs.doc_med set
+	fk_hospital_stay = (
+		select fk_stay from blobs.lnk_doc2hospital_stay where fk_document = blobs.doc_med.pk
+	)
+;
+
+drop table if exists blobs.lnk_doc2hospital_stay cascade;
+
 -- --------------------------------------------------------------
 select gm.log_script_insertion('v22-blobs-doc_med-dynamic.sql', '22.0');

@@ -3076,24 +3076,45 @@ class cHospitalStay(gmBusinessDBObject.cBusinessDBObject):
 		).split(u'\n')
 
 	#-------------------------------------------------------
-	def format(self, left_margin=0, include_procedures=False, include_docs=False):
+	def format(self, left_margin=0, include_procedures=False, include_docs=False, include_episode=True):
 
 		if self._payload[self._idx['discharge']] is not None:
 			discharge = u' - %s' % gmDateTime.pydt_strftime(self._payload[self._idx['discharge']], '%Y %b %d')
 		else:
 			discharge = u''
 
-		line = u'%s%s%s (%s@%s): %s%s%s' % (
+		episode = u''
+		if include_episode:
+			episode = u': %s%s%s' % (
+				gmTools.u_left_double_angle_quote,
+				self._payload[self._idx['episode']],
+				gmTools.u_right_double_angle_quote
+			)
+
+		lines = [u'%s%s%s (%s@%s)%s' % (
 			u' ' * left_margin,
 			gmDateTime.pydt_strftime(self._payload[self._idx['admission']], '%Y %b %d'),
 			discharge,
 			self._payload[self._idx['ward']],
 			self._payload[self._idx['hospital']],
-			gmTools.u_left_double_angle_quote,
-			self._payload[self._idx['episode']],
-			gmTools.u_right_double_angle_quote
-		)
-		return line
+			episode
+		)]
+
+		if include_docs:
+			for doc in self.documents:
+				lines.append(u'%s%s: %s\n' % (
+					u' ' * left_margin,
+					_('Document'),
+					doc.format(single_line = True)
+				))
+
+		return u'\n'.join(lines)
+
+	#--------------------------------------------------------
+	def _get_documents(self):
+		return [ gmDocuments.cDocument(aPK_obj = pk_doc) for pk_doc in  self._payload[self._idx['pk_documents']] ]
+
+	documents = property(_get_documents, lambda x:x)
 
 #-----------------------------------------------------------
 def get_latest_patient_hospital_stay(patient=None):
