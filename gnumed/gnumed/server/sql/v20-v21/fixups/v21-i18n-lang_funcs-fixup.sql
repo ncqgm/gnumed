@@ -5,7 +5,9 @@
 \set ON_ERROR_STOP 1
 
 -- =============================================
-create or replace function i18n.set_curr_lang(text)
+drop function if exists i18n.set_curr_lang(text) cascade;
+
+create function i18n.set_curr_lang(text)
 	returns boolean
 	language 'plpgsql'
 	security definer
@@ -29,7 +31,9 @@ comment on function i18n.set_curr_lang(text) is
 	 - only if translations for this language are available';
 
 -- =============================================
-create or replace function i18n.force_curr_lang(text)
+drop function if exists i18n.force_curr_lang(text) cascade;
+
+create function i18n.force_curr_lang(text)
 	returns boolean
 	language 'plpgsql'
 	security definer
@@ -49,4 +53,4 @@ comment on function i18n.force_curr_lang(text) is
 	 - for "current user"';
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('v21-i18n-lang_funcs-fixup.sql', '21.15');
+select gm.log_script_insertion('v21-i18n-lang_funcs-fixup.sql', '21.16');

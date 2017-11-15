@@ -8,6 +8,8 @@
 \set ON_ERROR_STOP 1
 
 -- --------------------------------------------------------------
+drop function if exists audit.add_table_for_audit(name, name) cascade;
+
 create or replace function audit.add_table_for_audit(name, name)
 	returns boolean
 	language 'plpgsql'
@@ -47,6 +49,8 @@ comment on function audit.add_table_for_audit (name, name) is
 	'sanity-checking convenience function for marking tables for auditing';
 
 
+drop function if exists audit.add_table_for_audit(name) cascade;
+
 create or replace function audit.add_table_for_audit(name)
 	returns boolean
 	language SQL
@@ -59,4 +63,4 @@ comment on function audit.add_table_for_audit(name) is
 	 for auditing, schema is always "public"';
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('v21-audit-add_table_for_audit-fixup.sql', '21.15');
+select gm.log_script_insertion('v21-audit-add_table_for_audit-fixup.sql', '21.16');

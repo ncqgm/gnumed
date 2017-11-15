@@ -1887,6 +1887,7 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 	21.16
 
 FIX: typo in fingerprint script man page [thanks Debian]
+FIX: failure to recreate functions changing return type on upgrade
 
 	21.15
 
