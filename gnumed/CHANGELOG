@@ -1936,6 +1936,7 @@ FIX: constrain clin.clin_root_item.soap_cat CHECK to lower case
 	21.16
 
 FIX: typo in fingerprint script man page [thanks Debian]
+FIX: failure to recreate functions changing return type on upgrade
 
 	21.15
 
