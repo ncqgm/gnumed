@@ -1559,7 +1559,9 @@ class cEMRListJournalPluginPnl(wxgEMRListJournalPluginPnl.wxgEMRListJournalPlugi
 				date2show = entry_date
 				prev_date = entry_date
 			lines = entry['narrative'].strip().split(u'\n')
-			entry_line = lines[0].rstrip()
+			line_0 = lines[0].rstrip()				# assumes there's at least one line ...
+			delim = gmTools.u_box_horiz_light_3dashes * 10
+			entry_line = u'%s %s' % (line_0, delim)
 			items.append([date2show, soap_cat, entry_line, who])
 			try:
 				self.__data[entry['src_table']]
