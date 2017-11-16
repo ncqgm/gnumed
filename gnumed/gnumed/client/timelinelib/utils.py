@@ -1,4 +1,4 @@
-# Copyright (C) 2009, 2010, 2011  Rickard Lindberg, Roger Lindberg
+# Copyright (C) 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017  Rickard Lindberg, Roger Lindberg
 #
 # This file is part of Timeline.
 #
@@ -15,16 +15,21 @@
 # You should have received a copy of the GNU General Public License
 # along with Timeline.  If not, see <http://www.gnu.org/licenses/>.
 
+"""Contains non-gui related, utility functions."""
+
 
 def ex_msg(e):
-    """Return exception error string."""
+    """
+    Return exception error string.
+    Solves a UnicodeEncodeError problem.
+    """
     try:
         return str(e)
     except UnicodeEncodeError:
         if len(e.args) == 1:
             return e.args[0]
         else:
-            # Exceptions raised by Timeline (the only ones that might be
-            # unicode) should always contain a single unicode message. So we
-            # should never end up here.
+            # Exceptions raised by Timeline (the only ones that might
+            # be unicode) should always contain a single unicode message.
+            # So we should never end up here.
             return ""

@@ -1,4 +1,4 @@
-# Copyright (C) 2009, 2010, 2011  Rickard Lindberg, Roger Lindberg
+# Copyright (C) 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017  Rickard Lindberg, Roger Lindberg
 #
 # This file is part of Timeline.
 #
@@ -19,7 +19,7 @@
 from optparse import OptionParser
 import os.path
 
-from timelinelib.meta.version import get_version
+from timelinelib.meta.version import get_full_version
 
 import wx
 
@@ -27,19 +27,35 @@ import wx
 class ApplicationArguments(object):
 
     def __init__(self):
-        version_string = "%prog " + get_version()
+        version_string = "%prog " + get_full_version()
         self.option_parser = OptionParser(
             usage="%prog [options] [filename]",
             version=version_string)
         self.option_parser.add_option(
             "-c", "--config-file", dest="config_file_path", default=None,
             help="Path to config file")
+        self.option_parser.add_option(
+            "--debug",
+            default=False, action="store_true",
+            help="Run Timeline with extra debug output")
 
     def parse_from(self, arguments):
         (self.options, self.arguments) = self.option_parser.parse_args(arguments)
 
     def get_files(self):
         return self.arguments
+
+    def get_first_file(self):
+        try:
+            return self.arguments[0]
+        except IndexError:
+            return None
+
+    def has_files(self):
+        return len(self.arguments) > 0
+
+    def get_debug_flag(self):
+        return self.options.debug
 
     def get_config_file_path(self):
         if self.options.config_file_path:

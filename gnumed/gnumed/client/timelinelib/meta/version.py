@@ -1,4 +1,4 @@
-# Copyright (C) 2009, 2010, 2011  Rickard Lindberg, Roger Lindberg
+# Copyright (C) 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017  Rickard Lindberg, Roger Lindberg
 #
 # This file is part of Timeline.
 #
@@ -16,27 +16,49 @@
 # along with Timeline.  If not, see <http://www.gnu.org/licenses/>.
 
 
-VERSION = (1, 3, 0)
-DEV = False
+TYPE_DEV = "development"
+TYPE_BETA = "beta"
+TYPE_FINAL = ""
+
+VERSION = (1, 16, 0)
+TYPE = TYPE_FINAL
+REVISION_HASH = "400493e48573"
+REVISION_DATE = "2017-11-13"
 
 
-def get_version():
-    if DEV:
-        return ("%s.%s.%sdev" % VERSION) + DEV_REVISION
+def get_full_version():
+    parts = []
+    parts.append(get_version_number_string())
+    if TYPE:
+        parts.append(TYPE)
+    if (REVISION_HASH or REVISION_DATE):
+        revision_parts = []
+        if REVISION_HASH:
+            revision_parts.append(REVISION_HASH)
+        if REVISION_DATE:
+            revision_parts.append(REVISION_DATE)
+        parts.append("(%s)" % " ".join(revision_parts))
+    return " ".join(parts)
+
+
+def get_filename_version():
+    parts = []
+    parts.append("timeline")
+    parts.append(get_version_number_string())
+    if not is_final():
+        parts.append(TYPE)
+        parts.append(REVISION_HASH)
+        parts.append(REVISION_DATE)
+    return "-".join(parts)
+
+
+def get_version_number_string():
     return "%s.%s.%s" % VERSION
 
 
-def _get_revision():
-    try:
-        import os
-        from subprocess import Popen, PIPE
-        root = os.path.join(os.path.dirname(__file__), "..", "..")
-        cmd = ["hg", "id", "-i", "-R", root]
-        rev = Popen(cmd, stdout=PIPE).communicate()[0].strip()
-        return rev
-    except:
-        return "0"
+def is_dev():
+    return TYPE == TYPE_DEV
 
 
-if DEV:
-    DEV_REVISION = _get_revision()
+def is_final():
+    return TYPE == TYPE_FINAL

@@ -1,4 +1,4 @@
-# Copyright (C) 2009, 2010, 2011  Rickard Lindberg, Roger Lindberg
+# Copyright (C) 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017  Rickard Lindberg, Roger Lindberg
 #
 # This file is part of Timeline.
 #
@@ -31,4 +31,8 @@ class ContainerStrategy(object):
 
     def update(self, subevent):
         """Update container properties when adding a new sub-event."""
+        raise NotImplementedError()
+
+    def allow_ends_today_on_subevents(self):
+        """Allow to set the ends-today attribute on container subevents"""
         raise NotImplementedError()

@@ -1,4 +1,4 @@
-# Copyright (C) 2009, 2010, 2011  Rickard Lindberg, Roger Lindberg
+# Copyright (C) 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017  Rickard Lindberg, Roger Lindberg
 #
 # This file is part of Timeline.
 #
@@ -17,20 +17,11 @@
 
 
 import codecs
-import os
 import os.path
 
-from timelinelib.db.exceptions import TimelineIOError
-
-
-class IdCounter(object):
-
-    def __init__(self, initial_id=0):
-        self.id = initial_id
-
-    def get_next(self):
-        self.id += 1
-        return self.id
+from timelinelib.canvas.data.exceptions import TimelineIOError
+from timelinelib.wxgui.utils import register_unlock_function
+from timelinelib.general.encodings import to_unicode
 
 
 def safe_write(path, encoding, write_fn):
@@ -39,46 +30,46 @@ def safe_write(path, encoding, write_fn):
     correctly or not modified at all.
 
     In some extremely rare cases the contents of path might be incorrect, but
-    in those cases the correct content is always present in another file.
+    in those cases the correct content is always present in another dbfile.
     """
     def raise_error(specific_msg, cause_exception):
         err_general = _("Unable to save timeline data to '%s'. File left unmodified.") % path
         err_template = "%s\n\n%%s\n\n%%s" % err_general
-        raise TimelineIOError(err_template % (specific_msg, cause_exception))
+        raise TimelineIOError(err_template % (to_unicode(specific_msg), to_unicode(cause_exception)))
     tmp_path = create_non_exising_path(path, "tmp")
     backup_path = create_non_exising_path(path, "bak")
-    # Write data to tmp file
+    # Write data to tmp dbfile
     try:
         if encoding is None:
-            file = open(tmp_path, "wb")
+            dbfile = open(tmp_path, "wb")
         else:
-            file = codecs.open(tmp_path, "w", encoding)
+            dbfile = codecs.open(tmp_path, "w", encoding)
         try:
             try:
-                write_fn(file)
-            except Exception, e:
+                write_fn(dbfile)
+            except Exception as e:
                 raise_error(_("Unable to write timeline data."), e)
         finally:
-            file.close()
-    except IOError, e:
-        raise_error(_("Unable to write to temporary file '%s'.") % tmp_path, e)
+            dbfile.close()
+    except IOError as e:
+        raise_error(_("Unable to write to temporary dbfile '%s'.") % tmp_path, e)
     # Copy original to backup (if original exists)
     if os.path.exists(path):
         try:
             os.rename(path, backup_path)
-        except Exception, e: # Can this only be a OSError?
+        except Exception as e:  # Can this only be a OSError?
             raise_error(_("Unable to take backup to '%s'.") % backup_path, e)
     # Copy tmp to original
     try:
         os.rename(tmp_path, path)
-    except Exception, e: # Can this only be a OSError?
-        raise_error(_("Unable to rename temporary file '%s' to original.") % tmp_path, e)
+    except Exception as e:  # Can this only be a OSError?
+        raise_error(_("Unable to rename temporary dbfile '%s' to original.") % tmp_path, e)
     # Delete backup (if backup was created)
     if os.path.exists(backup_path):
         try:
             os.remove(backup_path)
-        except Exception, e: # Can this only be a OSError?
-            raise_error(_("Unable to delete backup file '%s'.") % backup_path, e)
+        except Exception as e:  # Can this only be a OSError?
+            raise_error(_("Unable to delete backup dbfile '%s'.") % backup_path, e)
 
 
 def create_non_exising_path(base, suffix):
@@ -89,17 +80,18 @@ def create_non_exising_path(base, suffix):
             i += 1
         else:
             return new_path
-        
-        
+
+
 def safe_locking(controller, edit_function, exception_handler=None):
     if controller.ok_to_edit():
         try:
+            register_unlock_function(controller.edit_ends)
             edit_function()
-        except Exception, e:
+        except Exception as e:
             if exception_handler is not None:
-                controller.edit_ends()        
+                controller.edit_ends()
                 exception_handler(e)
             else:
                 raise
         finally:
-            controller.edit_ends()        
+            controller.edit_ends()

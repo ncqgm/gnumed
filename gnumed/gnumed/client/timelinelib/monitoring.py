@@ -1,4 +1,4 @@
-# Copyright (C) 2009, 2010, 2011  Rickard Lindberg, Roger Lindberg
+# Copyright (C) 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017  Rickard Lindberg, Roger Lindberg
 #
 # This file is part of Timeline.
 #
@@ -15,57 +15,41 @@
 # You should have received a copy of the GNU General Public License
 # along with Timeline.  If not, see <http://www.gnu.org/licenses/>.
 
+"""Contains the Monitoring class."""
 
-import sys
-import time
-
-from timelinelib.meta.version import DEV
+from timelinelib.timer import Timer
 
 
 class Monitoring(object):
-
-    IS_ENABLED = DEV
-
-    def __init__(self):
-        self.timeline_redraw_count = 0
-        self.category_redraw_count = 0
-        self.timer = Timer()
+    """
+    * Kepp track of the number of times the timeline has been redrawn.
+    * Measure the time it takes to redraw.
+    """
+    def __init__(self, timer=None):
+        self._timeline_redraw_count = 0
+        self._category_redraw_count = 0
+        if timer is None:
+            self._timer = Timer()
+        else:
+            self._timer = timer
 
     def count_timeline_redraw(self):
-        self.timeline_redraw_count += 1
+        """Increment counter."""
+        self._timeline_redraw_count += 1
 
     def count_category_redraw(self):
-        self.category_redraw_count += 1
+        """Increment counter."""
+        self._category_redraw_count += 1
 
     def timer_start(self):
-        self.timer.start()
+        """Start time measurement."""
+        self._timer.start()
 
     def timer_end(self):
-        self.timer.end()
+        """Stop time measurement."""
+        self._timer.end()
 
+    @property
     def timer_elapsed_ms(self):
-        return self.timer.elapsed_ms()
-
-
-class Timer(object):
-
-    def __init__(self):
-        # Taken from timeit.py (Python standard library)
-        if sys.platform == "win32":
-            # On Windows, the best timer is time.clock()
-            self.default_timer = time.clock
-        else:
-            # On most other platforms the best timer is time.time()
-            self.default_timer = time.time
-
-    def start(self):
-        self._start = self.default_timer()
-
-    def end(self):
-        self._end = self.default_timer()
-
-    def elapsed_ms(self):
-        return (self._end - self._start) * 1000
-
-
-monitoring = Monitoring()
+        "return the elapsed time in milliseconds."
+        return self._timer.elapsed_ms

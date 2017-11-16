@@ -1,4 +1,4 @@
-# Copyright (C) 2009, 2010, 2011  Rickard Lindberg, Roger Lindberg
+# Copyright (C) 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017  Rickard Lindberg, Roger Lindberg
 #
 # This file is part of Timeline.
 #
@@ -16,7 +16,7 @@
 # along with Timeline.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from timelinelib.utilities.observer import Observable
+from timelinelib.general.observer import Observable
 
 
 class CategoriesFacade(Observable):
@@ -33,7 +33,7 @@ class CategoriesFacade(Observable):
 
     def get_immediate_children(self, parent):
         return [category for category in self.db.get_categories()
-                if category.parent == parent]
+                if category._get_parent() == parent]
 
     def get_all_children(self, parent):
         all_children = []
@@ -44,9 +44,9 @@ class CategoriesFacade(Observable):
 
     def get_parents(self, child):
         parents = []
-        while child.parent:
-            parents.append(child.parent)
-            child = child.parent
+        while child._get_parent():
+            parents.append(child._get_parent())
+            child = child._get_parent()
         return parents
 
     def get_parents_for_checked_childs(self):

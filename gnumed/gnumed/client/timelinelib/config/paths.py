@@ -1,4 +1,4 @@
-# Copyright (C) 2009, 2010, 2011  Rickard Lindberg, Roger Lindberg
+# Copyright (C) 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017  Rickard Lindberg, Roger Lindberg
 #
 # This file is part of Timeline.
 #
@@ -19,7 +19,11 @@
 import os.path
 
 
-_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-ICONS_DIR = os.path.join(_ROOT, "icons")
-LOCALE_DIR = os.path.join(_ROOT, "po")
-HELP_RESOURCES_DIR = os.path.join(_ROOT, "help_resources")
+_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+_ROOT = _ROOT.decode("utf-8")
+_ICONROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+_ICONROOT = _ICONROOT.decode("utf-8")
+ICONS_DIR = os.path.join(_ICONROOT, u"tlicons")
+EVENT_ICONS_DIR = os.path.join(_ICONROOT, u"tlicons", u"event_icons")
+LOCALE_DIR = os.path.join(_ROOT, u"translations")
+HELP_RESOURCES_DIR = os.path.join(_ROOT, u"help_resources")

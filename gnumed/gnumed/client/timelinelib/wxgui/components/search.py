@@ -1,4 +1,4 @@
-# Copyright (C) 2009, 2010, 2011  Rickard Lindberg, Roger Lindberg
+# Copyright (C) 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017  Rickard Lindberg, Roger Lindberg
 #
 # This file is part of Timeline.
 #
@@ -21,7 +21,8 @@ import os.path
 import wx
 
 from timelinelib.config.paths import ICONS_DIR
-from timelinelib.wxgui.dialogs.eventlist import EventListDialog 
+from timelinelib.wxgui.dialogs.eventlist.view import EventListDialog
+
 
 class GuiCreator(object):
 
@@ -51,8 +52,7 @@ class GuiCreator(object):
         if 'wxMSW' in wx.PlatformInfo:
             close_bmp = wx.Bitmap(os.path.join(ICONS_DIR, "close.png"))
         else:
-            close_bmp = wx.ArtProvider.GetBitmap(wx.ART_CROSS_MARK, wx.ART_TOOLBAR,
-                                             self.icon_size)
+            close_bmp = wx.ArtProvider.GetBitmap(wx.ART_CROSS_MARK, wx.ART_TOOLBAR, self.icon_size)
         self.AddLabelTool(wx.ID_CLOSE, "", close_bmp, shortHelp="")
         self.Bind(wx.EVT_TOOL, self._btn_close_on_click, id=wx.ID_CLOSE)
 
@@ -84,6 +84,7 @@ class GuiCreator(object):
 
     def _btn_close_on_click(self, e):
         self.Show(False)
+        self.GetParent().Layout()
 
     def _search_on_search_btn(self, e):
         self.controller.search()
@@ -109,9 +110,9 @@ class SearchBarController(object):
         self.result_index = 0
         self.last_search = None
 
-    def set_drawing_area_panel(self, drawing_area_panel):
-        self.drawing_area_panel = drawing_area_panel
-        self.view.Enable(drawing_area_panel is not None)
+    def set_timeline_canvas(self, timeline_canvas):
+        self.timeline_canvas = timeline_canvas
+        self.view.Enable(timeline_canvas is not None)
 
     def search(self):
         new_search = self.view.get_value()
@@ -119,8 +120,8 @@ class SearchBarController(object):
             self.next()
         else:
             self.last_search = new_search
-            if self.drawing_area_panel is not None:
-                self.result = self.drawing_area_panel.get_filtered_events(new_search)
+            if self.timeline_canvas is not None:
+                self.result = self.timeline_canvas.get_filtered_events(new_search)
             else:
                 self.result = []
             self.result_index = 0
@@ -142,17 +143,18 @@ class SearchBarController(object):
             self.view.update_buttons()
 
     def list(self):
-        event_list = [event.get_label() for event in self.result]
+        event_list = [event.get_label(self.timeline_canvas.GetTimeType()) for event in self.result]
         dlg = EventListDialog(self.view, event_list)
         if dlg.ShowModal() == wx.ID_OK:
-            self.result_index = dlg.get_selected_index()
+            self.result_index = dlg.GetSelectedIndex()
             self.navigate_to_match()
         dlg.Destroy()
-    
+
     def navigate_to_match(self):
-        if (self.drawing_area_panel is not None and self.result_index in range(len(self.result))):
+        if (self.timeline_canvas is not None and self.result_index in range(len(self.result))):
             event = self.result[self.result_index]
-            self.drawing_area_panel.navigate_timeline(lambda tp: tp.center(event.mean_time()))
+            self.timeline_canvas.Navigate(lambda tp: tp.center(event.mean_time()))
+            self.timeline_canvas.highligt_event(event, clear=True)
 
     def enable_backward(self):
         return bool(self.result and self.result_index > 0)
@@ -167,19 +169,19 @@ class SearchBarController(object):
         return self.result > 0 and self.result_index == 0
 
     def _on_last_match(self):
-        return self.result > 0 and self.result_index ==  (len(self.result) - 1)
+        return self.result > 0 and self.result_index == (len(self.result) - 1)
 
 
 class SearchBar(wx.ToolBar, GuiCreator):
 
     def __init__(self, parent):
-        wx.ToolBar.__init__(self, parent, style=wx.TB_HORIZONTAL|wx.TB_BOTTOM)
+        wx.ToolBar.__init__(self, parent, style=wx.TB_HORIZONTAL | wx.TB_BOTTOM)
         self.controller = SearchBarController(self)
         self._create_gui()
         self.update_buttons()
 
-    def set_drawing_area_panel(self, drawing_area_panel):
-        self.controller.set_drawing_area_panel(drawing_area_panel)
+    def set_timeline_canvas(self, timeline_canvas):
+        self.controller.set_timeline_canvas(timeline_canvas)
 
     def get_value(self):
         return self.search.GetValue()

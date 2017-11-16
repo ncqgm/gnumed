@@ -1,4 +1,4 @@
-# Copyright (C) 2009, 2010, 2011  Rickard Lindberg, Roger Lindberg
+# Copyright (C) 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017  Rickard Lindberg, Roger Lindberg
 #
 # This file is part of Timeline.
 #
@@ -21,7 +21,7 @@ import os.path
 import wx
 
 from timelinelib.config.paths import ICONS_DIR
-from timelinelib.wxgui.dialogs.feedback import show_feedback_dialog
+from timelinelib.wxgui.dialogs.feedback.view import show_feedback_dialog
 
 
 class FeedbackButton(wx.BitmapButton):

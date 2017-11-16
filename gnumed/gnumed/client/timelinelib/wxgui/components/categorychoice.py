@@ -1,4 +1,4 @@
-# Copyright (C) 2009, 2010, 2011  Rickard Lindberg, Roger Lindberg
+# Copyright (C) 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017  Rickard Lindberg, Roger Lindberg
 #
 # This file is part of Timeline.
 #
@@ -18,50 +18,71 @@
 
 import wx
 
-from timelinelib.db.exceptions import TimelineIOError
-from timelinelib.db.objects.category import sort_categories
-from timelinelib.wxgui.dialogs.categorieseditor import CategoriesEditor
-from timelinelib.wxgui.dialogs.categoryeditor import WxCategoryEdtiorDialog
+from timelinelib.canvas.data.exceptions import TimelineIOError
+from timelinelib.repositories.dbwrapper import DbWrapperCategoryRepository
+from timelinelib.wxgui.dialogs.editcategory.view import EditCategoryDialog
 import timelinelib.wxgui.utils as gui_utils
 
 
 class CategoryChoice(wx.Choice):
 
-    def __init__(self, parent, timeline):
-        wx.Choice.__init__(self, parent, wx.ID_ANY)
+    def __init__(self, parent, timeline, allow_add=False, allow_edit=False, **kwargs):
+        wx.Choice.__init__(self, parent, wx.ID_ANY, **kwargs)
         self.timeline = timeline
+        self.category_repository = DbWrapperCategoryRepository(self.timeline)
+        self.allow_add = allow_add
+        self.allow_edit = allow_edit
+        self.Bind(wx.EVT_CHOICE, self._on_choice)
+        self._clear()
 
-    def select(self, select_category):
-        # We can not do error handling here since this method is also called
-        # from the constructor (and then error handling is done by the code
-        # calling the constructor).
-        self.Clear()
-        self.Append("", None) # The None-category
-        selection_set = False
-        current_item_index = 1
-        for cat in sort_categories(self.timeline.get_categories()):
-            self.Append(cat.name, cat)
-            if cat == select_category:
-                self.SetSelection(current_item_index)
-                selection_set = True
-            current_item_index += 1
-        self.last_real_category_index = current_item_index - 1
-        self.add_category_item_index = self.last_real_category_index + 2
-        self.edit_categoris_item_index = self.last_real_category_index + 3
-        self.Append("", None)
-        self.Append(_("Add new"), None)
-        self.Append(_("Edit categories"), None)
-        if not selection_set:
-            self.SetSelection(0)
+    def Populate(self, exclude=None, select=None):
+        self.exclude = exclude
+        self._clear()
+        self._populate_tree(self.category_repository.get_tree(remove=exclude))
+        self.SetSelectedCategory(select)
+
+    def GetSelectedCategory(self):
+        if self.GetSelection() == wx.NOT_FOUND:
+            return None
+        return self.GetClientData(self.GetSelection())
+
+    def SetSelectedCategory(self, category):
+        self.SetSelection(self._get_index(category))
         self.current_category_selection = self.GetSelection()
 
-    def get(self):
-        selection = self.GetSelection()
-        category = self.GetClientData(selection)
-        return category
+    def _clear(self):
+        self.Clear()
+        self.add_category_item_index = None
+        self.edit_categoris_item_index = None
+        self.last_real_category_index = None
+        self.current_category_selection = self.GetSelection()
 
-    def on_choice(self, e):
-        new_selection_index = e.GetSelection()
+    def _get_index(self, category):
+        for index in range(self.GetCount()):
+            if self.GetClientData(index) == category:
+                return index
+        return 0
+
+    def _populate_tree(self, tree):
+        self.Append("", None)
+        self._append_tree(tree)
+        self.last_real_category_index = self.GetCount() - 1
+        if self.allow_add or self.allow_edit:
+            self.Append("", None)
+        if self.allow_add:
+            self.add_category_item_index = self.GetCount()
+            self.Append(_("Add new"), None)
+        if self.allow_edit:
+            self.edit_categoris_item_index = self.GetCount()
+            self.Append(_("Edit categories"), None)
+
+    def _append_tree(self, tree, indent=""):
+        for (category, subtree) in tree:
+            self.Append(indent + category.name, category)
+            self._append_tree(subtree, indent + "    ")
+
+    def _on_choice(self, event):
+        new_selection_index = event.GetSelection()
         if new_selection_index > self.last_real_category_index:
             self.SetSelection(self.current_category_selection)
             if new_selection_index == self.add_category_item_index:
@@ -72,29 +93,14 @@ class CategoryChoice(wx.Choice):
             self.current_category_selection = new_selection_index
 
     def _add_category(self):
-        def create_category_editor():
-            return WxCategoryEdtiorDialog(self, _("Add Category"),
-                                          self.timeline, None)
-        def handle_success(dialog):
-            if dialog.GetReturnCode() == wx.ID_OK:
-                try:
-                    self.select(dialog.get_edited_category())
-                except TimelineIOError, e:
-                    gui_utils.handle_db_error_in_dialog(self, e)
-        gui_utils.show_modal(create_category_editor,
-                             gui_utils.create_dialog_db_error_handler(self),
-                             handle_success)
+        dialog = EditCategoryDialog(self,
+                                    _("Add Category"),
+                                    self.timeline,
+                                    None)
+        if dialog.ShowModal() == wx.ID_OK:
+            self.Populate(select=dialog.GetEditedCategory(),
+                          exclude=self.exclude)
+        dialog.Destroy()
 
     def _edit_categories(self):
-        def create_categories_editor():
-            return CategoriesEditor(self, self.timeline)
-        def handle_success(dialog):
-            try:
-                prev_index = self.GetSelection()
-                prev_category = self.GetClientData(prev_index)
-                self.select(prev_category)
-            except TimelineIOError, e:
-                gui_utils.handle_db_error_in_dialog(self, e)
-        gui_utils.show_modal(create_categories_editor,
-                             gui_utils.create_dialog_db_error_handler(self),
-                             handle_success)
+        gui_utils.display_categories_editor_moved_message(self)
