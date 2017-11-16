@@ -387,9 +387,9 @@ class cPhraseWheelBase(wx.TextCtrl):
 	#--------------------------------------------------------
 	def _set_speller_word_separators(self, word_separators):
 		if word_separators is None:
-			self.__speller_word_separators = regex.compile(default_spelling_word_separators, flags = regex.LOCALE | regex.UNICODE)
+			self.__speller_word_separators = regex.compile(default_spelling_word_separators, flags = regex.UNICODE)
 		else:
-			self.__speller_word_separators = regex.compile(word_separators, flags = regex.LOCALE | regex.UNICODE)
+			self.__speller_word_separators = regex.compile(word_separators, flags = regex.UNICODE)
 
 	def _get_speller_word_separators(self):
 		return self.__speller_word_separators.pattern
@@ -946,7 +946,7 @@ class cPhraseWheelBase(wx.TextCtrl):
 
 	#--------------------------------------------------------
 	def _set_final_regex(self, final_regex=r'.*'):
-		self.__final_regex = regex.compile(final_regex, flags = regex.LOCALE | regex.UNICODE)
+		self.__final_regex = regex.compile(final_regex, flags = regex.UNICODE)
 
 	def _get_final_regex(self):
 		return self.__final_regex.pattern
@@ -1326,7 +1326,7 @@ class cMultiPhraseWheel(cPhraseWheelBase):
 		after selection from picklist phrase_separators[0] is
 		added to the end of the match in the PRW
 		"""
-		self.__phrase_separators = regex.compile(phrase_separators, flags = regex.LOCALE | regex.UNICODE)
+		self.__phrase_separators = regex.compile(phrase_separators, flags = regex.UNICODE)
 
 	def _get_phrase_separators(self):
 		return self.__phrase_separators.pattern

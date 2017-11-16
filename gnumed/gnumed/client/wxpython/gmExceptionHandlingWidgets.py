@@ -313,7 +313,7 @@ def mail_log(parent=None, comment=None, helpdesk=None, sender=None):
 			receivers = regex.findall (
 				'[\S]+@[\S]+',
 				helpdesk.strip(),
-				flags = regex.UNICODE | regex.LOCALE
+				flags = regex.UNICODE
 			)
 		if len(receivers) == 0:
 			if _is_public_database:
@@ -337,7 +337,7 @@ def mail_log(parent=None, comment=None, helpdesk=None, sender=None):
 		receivers = regex.findall (
 			'[\S]+@[\S]+',
 			receiver_string,
-			flags = regex.UNICODE | regex.LOCALE
+			flags = regex.UNICODE
 		)
 
 		dlg = gmGuiHelpers.c2ButtonQuestionDlg (

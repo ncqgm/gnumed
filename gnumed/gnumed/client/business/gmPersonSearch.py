@@ -165,7 +165,7 @@ class cPatientSearcher_SQL:
 		raw = raw.strip().rstrip(u',').rstrip(u';').strip()
 
 		# "<digits>" - GNUmed patient PK or DOB
-		if regex.match(u"^(\s|\t)*\d+(\s|\t)*$", raw, flags = regex.LOCALE | regex.UNICODE):
+		if regex.match(u"^(\s|\t)*\d+(\s|\t)*$", raw, flags = regex.UNICODE):
 			_log.debug("[%s]: a PK or DOB" % raw)
 			tmp = raw.strip()
 			queries.append ({
@@ -193,7 +193,7 @@ class cPatientSearcher_SQL:
 			return queries
 
 		# "<d igi ts>" - DOB or patient PK
-		if regex.match(u"^(\d|\s|\t)+$", raw, flags = regex.LOCALE | regex.UNICODE):
+		if regex.match(u"^(\d|\s|\t)+$", raw, flags = regex.UNICODE):
 			_log.debug("[%s]: a DOB or PK" % raw)
 			queries.append ({
 				'cmd': u"SELECT *, %s::text AS match_type FROM dem.v_active_persons WHERE dem.date_trunc_utc('day'::text, dob) = dem.date_trunc_utc('day'::text, %s::timestamp with time zone) ORDER BY lastnames, firstnames, dob",
@@ -208,7 +208,7 @@ class cPatientSearcher_SQL:
 			return queries
 
 		# "#<di git  s>" - GNUmed patient PK
-		if regex.match(u"^(\s|\t)*#(\d|\s|\t)+$", raw, flags = regex.LOCALE | regex.UNICODE):
+		if regex.match(u"^(\s|\t)*#(\d|\s|\t)+$", raw, flags = regex.UNICODE):
 			_log.debug("[%s]: a PK or external ID" % raw)
 			tmp = raw.replace(u'#', u'')
 			tmp = tmp.strip()
@@ -235,7 +235,7 @@ class cPatientSearcher_SQL:
 			return queries
 
 		# "#<di/git s or c-hars>" - external ID
-		if regex.match(u"^(\s|\t)*#.+$", raw, flags = regex.LOCALE | regex.UNICODE):
+		if regex.match(u"^(\s|\t)*#.+$", raw, flags = regex.UNICODE):
 			_log.debug("[%s]: an external ID" % raw)
 			tmp = raw.replace(u'#', u'')
 			tmp = tmp.strip()
@@ -263,7 +263,7 @@ class cPatientSearcher_SQL:
 			return queries
 
 		# digits interspersed with "./-" or blank space - DOB
-		if regex.match(u"^(\s|\t)*\d+(\s|\t|\.|\-|/)*\d+(\s|\t|\.|\-|/)*\d+(\s|\t|\.)*$", raw, flags = regex.LOCALE | regex.UNICODE):
+		if regex.match(u"^(\s|\t)*\d+(\s|\t|\.|\-|/)*\d+(\s|\t|\.|\-|/)*\d+(\s|\t|\.)*$", raw, flags = regex.UNICODE):
 			_log.debug("[%s]: a DOB" % raw)
 			tmp = raw.strip()
 			while u'\t\t' in tmp: tmp = tmp.replace(u'\t\t', u' ')
@@ -278,7 +278,7 @@ class cPatientSearcher_SQL:
 			return queries
 
 		# " , <alpha>" - first name
-		if regex.match(u"^(\s|\t)*,(\s|\t)*([^0-9])+(\s|\t)*$", raw, flags = regex.LOCALE | regex.UNICODE):
+		if regex.match(u"^(\s|\t)*,(\s|\t)*([^0-9])+(\s|\t)*$", raw, flags = regex.UNICODE):
 			_log.debug("[%s]: a firstname" % raw)
 			tmp = self._normalize_soundalikes(raw[1:].strip())
 			cmd = u"""
@@ -300,7 +300,7 @@ SELECT DISTINCT ON (pk_identity) * FROM (
 			return queries
 
 		# "*|$<...>" - DOB
-		if regex.match(u"^(\s|\t)*(\*|\$).+$", raw, flags = regex.LOCALE | regex.UNICODE):
+		if regex.match(u"^(\s|\t)*(\*|\$).+$", raw, flags = regex.UNICODE):
 			_log.debug("[%s]: a DOB" % raw)
 			tmp = raw.replace(u'*', u'')
 			tmp = tmp.replace(u'$', u'')
@@ -385,7 +385,7 @@ SELECT DISTINCT ON (pk_identity) * FROM (
 
 		# "<CHARS>" - single name part
 		# yes, I know, this is culture specific (did you read the docs ?)
-		if regex.match(u"^(\s|\t)*[a-zäöüßéáúóçøA-ZÄÖÜÇØ]+(\s|\t)*$", search_term, flags = regex.LOCALE | regex.UNICODE):	
+		if regex.match(u"^(\s|\t)*[a-zäöüßéáúóçøA-ZÄÖÜÇØ]+(\s|\t)*$", search_term, flags = regex.UNICODE):
 			_log.debug("[%s]: a single name part", search_term)
 			# there's no intermediate whitespace due to the regex
 			cmd = u"""
@@ -456,7 +456,7 @@ SELECT DISTINCT ON (pk_identity) * FROM (
 					continue
 				# any digit signifies a date
 				# FIXME: what about "<40" ?
-				if regex.search(u"\d", part, flags = regex.LOCALE | regex.UNICODE):
+				if regex.search(u"\d", part, flags = regex.UNICODE):
 					date_count = date_count + 1
 					date_part = part
 				else:
@@ -580,7 +580,7 @@ SELECT DISTINCT ON (pk_identity) * FROM (
 				if part.strip() == u'':
 					continue
 				# any digits ?
-				if regex.search(u"\d+", part, flags = regex.LOCALE | regex.UNICODE):
+				if regex.search(u"\d+", part, flags = regex.UNICODE):
 					# FIXME: parse out whitespace *not* adjacent to a *word*
 					date_parts.append(part)
 				else:

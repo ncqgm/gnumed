@@ -417,7 +417,7 @@ _SQL_LOINC_from_any_coded_term = u"""
 #------------------------------------------------------------
 class cLOINCMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
 
-	_pattern = regex.compile(r'^\D+\s+\D+$', regex.UNICODE | regex.LOCALE)
+	_pattern = regex.compile(r'^\D+\s+\D+$', regex.UNICODE)
 
 	_normal_query = u"""
 		SELECT DISTINCT ON (list_label)

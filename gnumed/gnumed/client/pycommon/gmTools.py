@@ -648,14 +648,14 @@ def fname_sanitize(filename):
 		'[^.\w\s[\]()%§+-]',
 		u'',
 		name_part,
-		flags = regex.UNICODE | regex.LOCALE
+		flags = regex.UNICODE
 	).strip()
 	# translate whitespace to underscore
 	name_part = regex.sub (
 		'\s+',
 		u'_',
 		name_part,
-		flags = regex.UNICODE | regex.LOCALE
+		flags = regex.UNICODE
 	)
 	return os.path.join(dir_part, name_part)
 

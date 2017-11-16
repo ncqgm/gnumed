@@ -536,7 +536,7 @@ def delete_substance_dose(pk_dose=None):
 #------------------------------------------------------------
 class cSubstanceDoseMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
 
-	_pattern = regex.compile(r'^\D+\s*\d+$', regex.UNICODE | regex.LOCALE)
+	_pattern = regex.compile(r'^\D+\s*\d+$', regex.UNICODE)
 
 	# the "normal query" is run when the search fragment
 	# does NOT match the regex ._pattern (which is: "chars SPACE digits")
@@ -823,7 +823,7 @@ xxxxxxxxxxxxxxxxxxxxxxxxxxxx
 		--ORDER BY rank, list_label
 		LIMIT 50""" % _('in use')
 
-	_pattern = regex.compile(r'^\D+\s*\d+$', regex.UNICODE | regex.LOCALE)
+	_pattern = regex.compile(r'^\D+\s*\d+$', regex.UNICODE)
 
 	_master_query = u"""
 		SELECT
@@ -1067,7 +1067,7 @@ class cSubstanceIntakeObjectMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
 		_SQL_substance_name
 	)
 
-	_REGEX_name_and_strength = regex.compile(r'^\D+\s*\d+$', regex.UNICODE | regex.LOCALE)
+	_REGEX_name_and_strength = regex.compile(r'^\D+\s*\d+$', regex.UNICODE)
 
 	#--------------------------------------------------------
  	def getMatchesByPhrase(self, aFragment):
@@ -1260,7 +1260,7 @@ def get_drug_components():
 #------------------------------------------------------------
 class cDrugComponentMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
 
-	_pattern = regex.compile(r'^\D+\s*\d+$', regex.UNICODE | regex.LOCALE)
+	_pattern = regex.compile(r'^\D+\s*\d+$', regex.UNICODE)
 
 	_query_desc_only = u"""
 		SELECT DISTINCT ON (list_label)
