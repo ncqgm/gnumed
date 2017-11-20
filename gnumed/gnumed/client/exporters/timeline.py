@@ -159,7 +159,7 @@ def __format_health_issue_as_timeline_xml(issue, patient, emr):
 		txt += __xml_issue_template % (
 			format_pydt(possible_start),									# start
 			format_pydt(safe_start),										# end
-			u''																# empty = no container ID
+			u'',															# empty = no container ID
 			gmTools.xml_escape_string(u'?[%s]?' % issue['description']),	# text
 			u'False',														# ends_today
 			_('Health issues'),												# category
