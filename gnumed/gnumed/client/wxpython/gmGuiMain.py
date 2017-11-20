@@ -949,6 +949,9 @@ class gmTopLevelFrame(wx.Frame):
 		item = help_menu.Append(-1, _('&Clear status line'), _('Clear out the status line.'))
 		self.Bind(wx.EVT_MENU, self.__on_clear_status_line, item)
 
+		item = help_menu.Append(-1, _('Browse work dir'), _('Browse user working directory [%s].') % os.path.join(gmTools.gmPaths().home_dir, u'gnumed'))
+		self.Bind(wx.EVT_MENU, self.__on_browse_work_dir, item)
+
 		menu_debugging = wx.Menu()
 
 		ID_SCREENSHOT = wx.NewId()
@@ -967,9 +970,6 @@ class gmTopLevelFrame(wx.Frame):
 
 		item = menu_debugging.Append(-1, _('Browse tmp dir'), _('Browse temporary directory [%s].') % gmTools.gmPaths().tmp_dir)
 		self.Bind(wx.EVT_MENU, self.__on_browse_tmp_dir, item)
-
-		item = menu_debugging.Append(-1, _('Browse work dir'), _('Browse user working directory [%s].') % os.path.join(gmTools.gmPaths().home_dir, u'gnumed'))
-		self.Bind(wx.EVT_MENU, self.__on_browse_work_dir, item)
 
 		item = menu_debugging.Append(-1, _('Browse internal work dir'), _('Browse internal working directory [%s].') % os.path.join(gmTools.gmPaths().home_dir, u'.gnumed'))
 		self.Bind(wx.EVT_MENU, self.__on_browse_internal_work_dir, item)
