@@ -24,7 +24,25 @@ _log = logging.getLogger('gm.tl')
 #============================================================
 xml_start = u"""<?xml version="1.0" encoding="utf-8"?>
 <timeline>
-	<version>0.17.0</version>
+	<version>1.16.0</version>
+	<!-- ======================================== Eras ======================================== -->
+	<eras>
+		<era>
+			<name>%s</name>
+			<start>%s</start>
+			<end>%s</end>
+			<color>205,238,241</color>
+			<ends_today>%s</ends_today>
+		</era>
+		<era>
+			<name>%s</name>
+			<start>%s</start>
+			<end>%s</end>
+			<color>161,210,226</color>
+			<ends_today>%s</ends_today>
+		</era>
+	</eras>
+	<!-- ======================================== Categories ======================================== -->
 	<categories>
 		<!-- health issues -->
 		<category>
@@ -81,6 +99,7 @@ xml_start = u"""<?xml version="1.0" encoding="utf-8"?>
 			<font_color>0,0,0</font_color>
 		</category>
 	</categories>
+	<!-- ======================================== Events ======================================== -->
 	<events>"""
 
 xml_end = u"""
@@ -106,7 +125,7 @@ __xml_issue_template = u"""
 		<event>
 			<start>%s</start>
 			<end>%s</end>
-			<text>%s</text>
+			<text>%s%s</text>
 			<fuzzy>False</fuzzy>
 			<locked>True</locked>
 			<ends_today>%s</ends_today>
@@ -116,6 +135,9 @@ __xml_issue_template = u"""
 		</event>"""
 
 def __format_health_issue_as_timeline_xml(issue, patient, emr):
+	# container issues do not support <description> (tooltips)
+	# container IDs are supposed to be numeric
+	# 85bd7a14a1e74aab8db072ff8f417afb@H30.rldata.local
 	tooltip = issue.format (
 		patient = patient,
 		with_summary = True,
@@ -137,6 +159,7 @@ def __format_health_issue_as_timeline_xml(issue, patient, emr):
 		txt += __xml_issue_template % (
 			format_pydt(possible_start),									# start
 			format_pydt(safe_start),										# end
+			u''																# empty = no container ID
 			gmTools.xml_escape_string(u'?[%s]?' % issue['description']),	# text
 			u'False',														# ends_today
 			_('Health issues'),												# category
@@ -145,12 +168,14 @@ def __format_health_issue_as_timeline_xml(issue, patient, emr):
 	txt += __xml_issue_template % (
 		format_pydt(safe_start),											# start
 		format_pydt(issue.end_date),										# end
+		u'[%s]' % issue['pk_health_issue'],									# container ID
 		gmTools.xml_escape_string(issue['description']),					# text
 		gmTools.bool2subst(issue['is_active'], u'True', u'False'),			# ends_today
 		_('Health issues'),													# category
 		gmTools.xml_escape_string(tooltip)									# description
 	)
 	return txt
+
 #------------------------------------------------------------
 # episodes
 #------------------------------------------------------------
@@ -158,7 +183,7 @@ __xml_episode_template = u"""
 		<event>
 			<start>%s</start>
 			<end>%s</end>
-			<text>%s</text>
+			<text>%s%s</text>
 			<fuzzy>False</fuzzy>
 			<locked>True</locked>
 			<ends_today>%s</ends_today>
@@ -176,6 +201,7 @@ def __format_episode_as_timeline_xml(episode, patient):
 	return __xml_episode_template % (
 		format_pydt(episode.best_guess_start_date),							# start
 		end,																# end
+		gmTools.coalesce(episode['pk_health_issue'], u'', u'(%s)'),			# container ID
 		gmTools.xml_escape_string(episode['description']),					# text
 		gmTools.bool2subst(episode['episode_open'], u'True', u'False'),		# ends_today
 		_('Episodes'),														# category
@@ -202,12 +228,14 @@ __xml_encounter_template = u"""
 			<start>%s</start>
 			<end>%s</end>
 			<text>%s</text>
+			<progress>0</progress>
 			<fuzzy>False</fuzzy>
 			<locked>True</locked>
 			<ends_today>False</ends_today>
 			<category>%s</category>
 			<description>%s
 			</description>
+			<milestone>%s</milestone>
 		</event>"""
 
 def __format_encounter_as_timeline_xml(encounter, patient):
@@ -227,7 +255,8 @@ def __format_encounter_as_timeline_xml(encounter, patient):
 			with_co_encountlet_hints = False,
 			with_rfe_aoe = True,
 			with_family_history = False
-		))
+		)),
+		u'False'
 	)
 
 #------------------------------------------------------------
@@ -349,7 +378,7 @@ def __format_vaccination_as_timeline_xml(vacc):
 	)
 
 #------------------------------------------------------------
-# substance intakt
+# substance intake
 #------------------------------------------------------------
 __xml_intake_template = u"""
 		<event>
@@ -402,7 +431,39 @@ def create_timeline_file(patient=None, filename=None):
 		timeline_fname = filename
 	_log.debug('exporting EMR as timeline into [%s]', timeline_fname)
 	timeline = io.open(timeline_fname, mode = 'wt', encoding = 'utf8', errors = 'xmlcharrefreplace')
+
+	if patient['dob'] is None:
+		lifespan_start = format_pydt(now.replace(year = now.year - 100))
+	else:
+		lifespan_start = format_pydt(patient['dob'])
+
+	if patient['deceased'] is None:
+		life_ends2day = u'True'
+		lifespan_end = format_pydt(now)
+	else:
+		life_ends2day = u'False'
+		lifespan_end = format_pydt(patient['deceased'])
+
+	earliest_care_date = emr.earliest_care_date
+	most_recent_care_date = emr.most_recent_care_date
+	if most_recent_care_date is None:
+		most_recent_care_date = lifespan_end
+		care_ends2day = life_ends2day
+	else:
+		most_recent_care_date = format_pydt(most_recent_care_date)
+		care_ends2day = u'False'
+
 	timeline.write(xml_start % (
+		# era: life span of patient
+		_(u'Lifespan'),
+		lifespan_start,
+		lifespan_end,
+		life_ends2day,
+		_(u'Care Period'),
+		format_pydt(earliest_care_date),
+		most_recent_care_date,
+		care_ends2day,
+		# categories
 		_('Health issues'),
 		_('Episodes'),
 		_('Encounters'),
@@ -419,29 +480,38 @@ def create_timeline_file(patient=None, filename=None):
 		timeline.write(__xml_encounter_template % (
 			format_pydt(start),
 			format_pydt(start),
-			_('Birth') + u': ?',
+			u'?',
 			_('Life events'),
-			_('Date of birth unknown')
+			_('Date of birth unknown'),
+			u'True'
 		))
 	else:
 		start = patient['dob']
 		timeline.write(__xml_encounter_template % (
 			format_pydt(patient['dob']),
 			format_pydt(patient['dob']),
-			_('Birth') + gmTools.bool2subst(patient['dob_is_estimated'], u' (%s)' % gmTools.u_almost_equal_to, u''),
+			u'*',
 			_('Life events'),
-			u''
+			u'%s: %s%s' % (
+				_(u'Birth'),
+				format_pydt(patient['dob']),
+				gmTools.bool2subst(patient['dob_is_estimated'], u' (%s)' % gmTools.u_almost_equal_to, u'')
+			),
+			u'True'
 		))
 
 	# start of care
 	timeline.write(__xml_encounter_template % (
-		format_pydt(emr.earliest_care_date),
-		format_pydt(emr.earliest_care_date),
-		_('Start of Care'),
+		format_pydt(earliest_care_date),
+		format_pydt(earliest_care_date),
+		gmTools.u_heavy_greek_cross,
 		_('Life events'),
-		_('The earliest recorded event of care in this praxis.')
+		_('Start of Care: %s (the earliest recorded event of care in this praxis)') % format_pydt(earliest_care_date, format = '%Y-%m-%d'),
+		u'True'
 	))
 
+	# containers must be defined before their
+	# subevents, so put health issues first
 	timeline.write(u'\n<!--\n========================================\n Health issues\n======================================== -->')
 	for issue in emr.health_issues:
 		timeline.write(__format_health_issue_as_timeline_xml(issue, patient, emr))
@@ -485,10 +555,9 @@ def create_timeline_file(patient=None, filename=None):
 		timeline.write(__xml_encounter_template % (
 			format_pydt(end),
 			format_pydt(end),
-			#u'',
-			_('Death'),
+			gmTools.u_dagger,
 			_('Life events'),
-			u''
+			_(u'Death: %s') % format_pydt(end)
 		))
 
 	# display range
@@ -559,7 +628,8 @@ def create_fake_timeline_file(patient=None, filename=None):
 			format_pydt(start),
 			_('Birth') + u': ?',
 			_('Life events'),
-			_('Date of birth unknown')
+			_('Date of birth unknown'),
+			u'False'
 		))
 	else:
 		start = patient['dob']
@@ -568,7 +638,8 @@ def create_fake_timeline_file(patient=None, filename=None):
 			format_pydt(patient['dob']),
 			_('Birth') + gmTools.bool2subst(patient['dob_is_estimated'], u' (%s)' % gmTools.u_almost_equal_to, u''),
 			_('Life events'),
-			u''
+			u'',
+			u'False'
 		))
 
 	# death
@@ -582,7 +653,8 @@ def create_fake_timeline_file(patient=None, filename=None):
 			#u'',
 			_('Death'),
 			_('Life events'),
-			u''
+			u'',
+			u'False'
 		))
 
 	# fake issue

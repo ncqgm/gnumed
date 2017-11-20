@@ -35,6 +35,7 @@ IMPROVED: test results usability
 IMPROVED: vaccine handling
 IMPROVED: test panels now LOINC based
 IMPROVED: patient media creation
+IMPROVED: use new timeline upstream
 
 ------------------------------------------------
 # rel-1-6-patches

@@ -31,17 +31,91 @@ _log = logging.getLogger('gm.ui.tl')
 
 #============================================================
 from Gnumed.timelinelib.canvas import TimelineCanvas	# works because of __init__.py
+from timelinelib.wxgui.components.maincanvas.noop import NoOpInputHandler
 
 class cEMRTimelinePnl(TimelineCanvas):
 
 	def __init__(self, *args, **kwargs):
-		TimelineCanvas.__init__(self, args[0])
+		TimelineCanvas.__init__(self, args[0])	# args[0] should be "parent"
+
+		self.__init_ui()
+		self.__register_interests()
+		"""
+        self.balloon_show_timer = wx.Timer(self, -1)
+        self.balloon_hide_timer = wx.Timer(self, -1)
+        self.dragscroll_timer = wx.Timer(self, -1)
+        self.Bind(wx.EVT_LEFT_DOWN, self._on_left_down)
+        self.Bind(wx.EVT_LEFT_DCLICK, self._on_left_dclick)
+        self.Bind(wx.EVT_LEFT_UP, self._on_left_up)
+        self.Bind(wx.EVT_MOTION, self._on_motion)
+        self.Bind(wx.EVT_TIMER, self._on_balloon_show_timer, self.balloon_show_timer)
+        self.Bind(wx.EVT_TIMER, self._on_balloon_hide_timer, self.balloon_hide_timer)
+        self.Bind(wx.EVT_TIMER, self._on_dragscroll, self.dragscroll_timer)
+        self.Bind(wx.EVT_MIDDLE_DOWN, self._on_middle_down)
+        self.Bind(wx.EVT_MOUSEWHEEL, self._on_mousewheel)
+		"""
+
+	#--------------------------------------------------------
+	def __init_ui(self):
+		appearance = self.GetAppearance()
+		appearance.set_balloons_visible(True)
+		appearance.set_hide_events_done(True)
+		"""
+            appearance.set_legend_visible(self.config.show_legend)
+            appearance.set_minor_strip_divider_line_colour(self.config.minor_strip_divider_line_colour)
+            appearance.set_major_strip_divider_line_colour(self.config.major_strip_divider_line_colour)
+            appearance.set_now_line_colour(self.config.now_line_colour)
+            appearance.set_weekend_colour(self.config.weekend_colour)
+            appearance.set_bg_colour(self.config.bg_colour)
+            appearance.set_colorize_weekends(self.config.colorize_weekends)
+            appearance.set_draw_period_events_to_right(self.config.draw_point_events_to_right)
+            appearance.set_text_below_icon(self.config.text_below_icon)
+            appearance.set_minor_strip_font(self.config.minor_strip_font)
+            appearance.set_major_strip_font(self.config.major_strip_font)
+            appearance.set_balloon_font(self.config.balloon_font)
+            appearance.set_legend_font(self.config.legend_font)
+            appearance.set_center_event_texts(self.config.center_event_texts)
+            appearance.set_never_show_period_events_as_point_events(self.config.never_show_period_events_as_point_events)
+            appearance.set_week_start(self.config.get_week_start())
+            appearance.set_use_inertial_scrolling(self.config.use_inertial_scrolling)
+            appearance.set_fuzzy_icon(self.config.fuzzy_icon)
+            appearance.set_locked_icon(self.config.locked_icon)
+            appearance.set_hyperlink_icon(self.config.hyperlink_icon)
+            appearance.set_vertical_space_between_events(self.config.vertical_space_between_events)
+            appearance.set_skip_s_in_decade_text(self.config.skip_s_in_decade_text)
+            appearance.set_display_checkmark_on_events_done(self.config.display_checkmark_on_events_done)
+            appearance.set_never_use_time(self.config.never_use_time)
+            appearance.set_legend_pos(self.config.legend_pos)
+		"""
+	#--------------------------------------------------------
+	# event handling
+	#--------------------------------------------------------
+	def __register_interests(self):
+		#self._input_handler = NoOpInputHandler(self)
+
+		#self.Bind(wx.EVT_MOTION, self._on_mouse_motion)
 		self.Bind(wx.EVT_MOUSEWHEEL, self._on_mousewheel_action)
+		#self.Bind(wx.EVT_TIMER, self._on_balloon_show_timer, self.balloon_show_timer_fired)
+		#self.Bind(wx.EVT_TIMER, self._on_balloon_hide_timer, self.balloon_hide_timer_fired)
+
+#	#--------------------------------------------------------
+#	def _on_mouse_motion(self, event):
+#		self._input_handler.mouse_moved(event.GetX(), event.GetY(), event.AltDown())
 
 	#--------------------------------------------------------
 	def _on_mousewheel_action(self, event):
 		self.Scroll(event.GetWheelRotation() / 1200.0)
 
+#	#--------------------------------------------------------
+#	def _on_balloon_show_timer_fired(self, event):
+#		self._input_handler.balloon_show_timer_fired()
+
+#	#--------------------------------------------------------
+#	def _on_balloon_hide_timer_fired(self, event):
+#		self._input_handler.balloon_hide_timer_fired()
+
+	#--------------------------------------------------------
+	# internal API
 	#--------------------------------------------------------
 	def clear_timeline(self):
 		self.set_timeline(None)
@@ -56,7 +130,14 @@ class cEMRTimelinePnl(TimelineCanvas):
 	def export_as_svg(self, filename=None):
 		if filename is None:
 			filename = gmTools.get_unique_filename(suffix = u'.svg')
-		self.SaveAsSvg(self, filename)
+		self.SaveAsSvg(filename)
+		return filename
+
+	#--------------------------------------------------------
+	def export_as_png(self, filename=None):
+		if filename is None:
+			filename = gmTools.get_unique_filename(suffix = u'.png')
+		self.SaveAsPng(filename)
 		return filename
 
 #============================================================
@@ -70,6 +151,7 @@ class cEMRTimelinePluginPnl(wxgEMRTimelinePluginPnl.wxgEMRTimelinePluginPnl, gmR
 		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
 #		self.__init_ui()
 		self.__register_interests()
+
 	#--------------------------------------------------------
 	# event handling
 	#--------------------------------------------------------
@@ -118,7 +200,8 @@ class cEMRTimelinePluginPnl(wxgEMRTimelinePluginPnl.wxgEMRTimelinePluginPnl, gmR
 		pat = gmPerson.gmCurrentPatient()
 		if not pat.connected:
 			return
-		pat.export_area.add_file(filename = self._PNL_timeline.export_as_svg(), hint = _(u'timeline image'))
+		pat.export_area.add_file(filename = self._PNL_timeline.export_as_png(), hint = _(u'timeline image'))
+		pat.export_area.add_file(filename = self._PNL_timeline.export_as_svg(), hint = _(u'timeline image (scalable)'))
 		pat.export_area.add_file(filename = self.__tl_file, hint = _('timeline data'))
 
 	#--------------------------------------------------------

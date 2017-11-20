@@ -1753,6 +1753,7 @@ WHERE
 		return filtered_issues
 
 	health_issues = property(get_health_issues, lambda x:x)
+
 	#------------------------------------------------------------------
 	def add_health_issue(self, issue_name=None):
 		"""Adds patient health issue."""
@@ -2651,6 +2652,15 @@ SELECT MIN(earliest) FROM (
 	earliest_care_date = property(get_earliest_care_date, lambda x:x)
 
 	#--------------------------------------------------------
+	def get_most_recent_care_date(self):
+		encounters = self.get_encounters(order_by = u'started DESC', max_encounters = 1)
+		if len(encounters) == 0:
+			return None
+		return encounters[0]['last_affirmed']
+
+	most_recent_care_date = property(get_most_recent_care_date)
+
+	#--------------------------------------------------------
 	def get_last_encounter(self, issue_id=None, episode_id=None):
 		"""Retrieves last encounter for a concrete issue and/or episode
 
@@ -3170,6 +3180,13 @@ if __name__ == "__main__":
 		emr = cClinicalRecord(aPKey = 5)
 		print emr.get_first_encounter(episode_id = 1638)
 		print emr.get_last_encounter(episode_id = 1638)
+
+	#-----------------------------------------
+	def test_get_issues():
+		emr = cClinicalRecord(aPKey = 12)
+		for issue in emr.health_issues:
+			print issue['description']
+
 	#-----------------------------------------
 	def test_get_meds():
 		emr = cClinicalRecord(aPKey=12)
@@ -3241,7 +3258,8 @@ if __name__ == "__main__":
 	#test_format_as_journal()
 	#test_smoking()
 	#test_get_abuses()
-	test_get_encounters()
+	#test_get_encounters()
+	test_get_issues()
 
 #	emr = cClinicalRecord(aPKey = 12)
 
