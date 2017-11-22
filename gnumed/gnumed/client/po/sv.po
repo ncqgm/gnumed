@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-05-18 12:04+0200\n"
+"POT-Creation-Date: 2017-11-22 21:34+0100\n"
 "PO-Revision-Date: 2012-04-07 10:15+0000\n"
 "Last-Translator: Rikard Edgren <Unknown>\n"
 "Language-Team: Swedish <kde-i18n-doc@kde.org>\n"
@@ -33,6 +33,85 @@ msgid ""
 "%s"
 msgstr ""
 
+msgid "Can't scroll more to the left"
+msgstr "Det går inte att scrolla mer åt vänster"
+
+msgid "Can't scroll more to the right"
+msgstr "Det går inte att scrolla mer åt höger"
+
+msgid "No timeline set"
+msgstr "Ingen tidslinje vald"
+
+msgid "Name"
+msgstr "Namn"
+
+msgid "Color"
+msgstr "Färg"
+
+msgid "Progress Color"
+msgstr "Färg för Progress"
+
+msgid "Done Color"
+msgstr "Färg för Färdig"
+
+msgid "Parent"
+msgstr "Förälder"
+
+msgid "Invalid start time"
+msgstr "Ogiltig Starttid"
+
+msgid "Invalid end time"
+msgstr "Ogiltig Sluttid"
+
+#, fuzzy, python-format
+msgid "Start time can't be after end time. Start:%s End:%s"
+msgstr "Starttiden kan inte vara efter sluttiden"
+
+msgid "Text"
+msgstr "Text"
+
+msgid "Description"
+msgstr "Beskrivning"
+
+msgid "Start"
+msgstr "Början"
+
+msgid "End"
+msgstr "Slut"
+
+msgid "Category"
+msgstr "Kategori"
+
+msgid "Fuzzy"
+msgstr "Luddig"
+
+msgid "Locked"
+msgstr "Låst"
+
+msgid "Ends Today"
+msgstr "Slutar idag"
+
+msgid "Hyperlink"
+msgstr "Hyperlänk"
+
+msgid "Progress"
+msgstr "Framsteg"
+
+msgid "Alert"
+msgstr "Larm"
+
+msgid "Is Container"
+msgstr "Är en Behållare"
+
+msgid "Is Subevent"
+msgstr "Är en Underhändelse"
+
+msgid "Duration"
+msgstr "Varaktighet"
+
+msgid "Displayed period must be > 0."
+msgstr "Perioden måste vara större än 0."
+
 #, python-format
 msgid "Unable to open timeline '%s'."
 msgstr "Kan inte öppna tidslinje '%s'."
@@ -49,40 +128,1959 @@ msgstr ""
 "Timeline. Du måste installera version 0.21.1 av Timeline för att konvertera "
 "filen till det nya formatet."
 
-msgid "Other timelines can't be imported to a directory timeline"
-msgstr "Man kan inte importera andra Timelines till en katalog-timeline"
+msgid ""
+"Since the directory of the Timeline file is not writable,\n"
+"the timeline is opened in read-only mode"
+msgstr ""
+"Eftersom katalogen där Timelinefilen finns, inte är skrivbar, så öppnas "
+"Timelinefilen i Läs-läge"
 
 msgid ""
-"Tutorial must be saved as a timeline to be able to import other timeline"
+"Could not find iCalendar Python package. It is required for working with ICS "
+"files."
 msgstr ""
-"För att kunna importera en timeline till Tuturial så måste den först sparas "
-"som en timeline."
+"Kunde inte hitta Pythonmodulen iCalender. Denna modul krävs för att kunna "
+"hantera ICS-filer"
 
 #, python-format
-msgid "Only %s files can be imported"
-msgstr "Det går bara att importera %s filer"
+msgid "Unable to save timeline data to '%s'. File left unmodified."
+msgstr "Det gick inte att spara Timelinedata till '%s'. Filen är oförändrad."
+
+msgid "Unable to write timeline data."
+msgstr "Det går inte att skriva Timelinedata"
+
+#, python-format
+msgid "Unable to write to temporary dbfile '%s'."
+msgstr "Kan inte skriva till temporär databasfil '%s'."
+
+#, python-format
+msgid "Unable to take backup to '%s'."
+msgstr "Det gick inte att göra backup till '%s'."
+
+#, python-format
+msgid "Unable to rename temporary dbfile '%s' to original."
+msgstr ""
+"Kan inte namnändra den temporära databasfilen '%s' till origininalnamnet"
+
+#, python-format
+msgid "Unable to delete backup dbfile '%s'."
+msgstr "Kan inte radera backupen av databasfilen '%s'."
+
+msgid "Other Gradient Event box drawer"
+msgstr "Annan gradientritare för Händelsers rektangel"
+
+msgid "Default Event box drawer"
+msgstr "Standardritare för Händelsers rektangel"
+
+msgid "Gradient Event box drawer"
+msgstr "Gradientritare för Händelsers rektangel"
+
+msgid "Plain text to HTML transformer"
+msgstr ""
+
+msgid "Default Text transformer"
+msgstr ""
+
+#, fuzzy
+msgid "Export Current view to Image..."
+msgstr "&Exportera till Bild..."
+
+#, fuzzy
+msgid "Export Whole Timeline to Images..."
+msgstr "&Exportera till Bild..."
+
+msgid ""
+"The first image contains a Julian day < 0\n"
+"\n"
+"Navigate to first event or\n"
+"Use the feature 'Accept negative Julian days'"
+msgstr ""
+
+msgid "Image files"
+msgstr "Bildfiler"
+
+msgid "Export to Image"
+msgstr "Exportera till Bild"
+
+#, python-format
+msgid "File '%s' exists. Overwrite?"
+msgstr "Filen '%s' finns redan. Vill du skriva över den?"
+
+msgid "Export to Listbox..."
+msgstr "Exportera till en listbox..."
+
+msgid "Unable to copy to clipboard."
+msgstr "Misslyckades med att kopiera till klippbordet"
+
+msgid "Time period"
+msgstr ""
+
+msgid "Event"
+msgstr ""
+
+msgid "Export Timeline to File..."
+msgstr "Exportera till en fil..."
+
+msgid "Events"
+msgstr "Händelser"
+
+msgid "Categories"
+msgstr "Kategorier"
+
+msgid "export files"
+msgstr "exportera filer"
+
+msgid "Export"
+msgstr "Exportera"
+
+#, fuzzy
+msgid "Export to SVG..."
+msgstr "Exportera som &SVG..."
+
+msgid "Could not find pysvg Python package. It is needed to export to SVG."
+msgstr ""
+"Kunde inte hitta Pythonmodulen pysvg. Modulen behövs för att kunna exportera "
+"till SVG-filer"
+
+msgid "SVG files"
+msgstr "SVG-filer"
+
+msgid "Export to SVG"
+msgstr "Exportera till SVG"
+
+msgid "Use extended Container strategy"
+msgstr "Använd Behållarstrategin för utökad funktionalitet"
+
+msgid ""
+"\n"
+"              This strategy makes it possible to have overlapping subevents\n"
+"              in a container.\n"
+"\n"
+"              The container expands in the vertical direction if it has\n"
+"              overlapping subevents.\n"
+"              "
+msgstr ""
+
+msgid "Accept negative Julian days"
+msgstr "Acceptera negativa värden på Julianska dagar"
+
+msgid ""
+"\n"
+"              Enables the use of dates before Julian day = 0 (4713 BC)\n"
+"\n"
+"              This means that prehistorical dates can be used.\n"
+"              We are not quiet sure that the calculations works correctly\n"
+"              for negative julian days and therefore it's an experimental "
+"feature.\n"
+"\n"
+"              Be aware of the fact that a timeline created with this feature "
+"active,\n"
+"              may not be readable with Timeline if the feature is switched "
+"off.\n"
+"              "
+msgstr ""
+
+msgid "Extend Container height"
+msgstr "Utöka Behållarens höjd"
+
+msgid ""
+"\n"
+"              Extend the height of a container so that the container name "
+"becomes visible.\n"
+"\n"
+"              This also has the side effect that ordinary events come "
+"farther apart in\n"
+"              the vertical direction.\n"
+"\n"
+"              The font for the container name has a fixed size when you zoom "
+"vertically (Alt + Mouse wheel)\n"
+"              "
+msgstr ""
+
+msgid "to"
+msgstr "till"
+
+msgid "Period"
+msgstr "Period"
+
+msgid "Go to &Zero"
+msgstr "Gå till &Noll"
+
+msgid "Go to &Time"
+msgstr "Gå till &Tid"
+
+msgid "Backward"
+msgstr "Bakåt"
+
+msgid "Forward"
+msgstr "Framåt"
+
+msgid "Can't zoom deeper than 5"
+msgstr "Det går inte att zooma in mer än 5"
+
+msgid "1-period"
+msgstr "1-period"
+
+msgid "10-period"
+msgstr "10-period"
+
+msgid "100-period"
+msgstr "100-period"
+
+msgid "1000-period"
+msgstr "1000-period"
+
+msgid "Go to Time"
+msgstr "Gå till tid"
+
+msgid "Show time"
+msgstr "Visa tid"
+
+msgid "Praios"
+msgstr ""
+
+msgid "Rondra"
+msgstr ""
+
+msgid "Efferd"
+msgstr ""
+
+msgid "Travia"
+msgstr ""
+
+msgid "Boron"
+msgstr ""
+
+msgid "Hesinde"
+msgstr ""
+
+msgid "Firun"
+msgstr ""
+
+msgid "Tsa"
+msgstr ""
+
+msgid "Phex"
+msgstr ""
+
+msgid "Peraine"
+msgstr ""
+
+msgid "Ingerimm"
+msgstr ""
+
+msgid "Rahja"
+msgstr ""
+
+msgid "Nameless Days"
+msgstr ""
+
+msgid "PRA"
+msgstr ""
+
+msgid "RON"
+msgstr ""
+
+msgid "EFF"
+msgstr ""
+
+msgid "TRA"
+msgstr ""
+
+msgid "BOR"
+msgstr ""
+
+msgid "HES"
+msgstr ""
+
+msgid "FIR"
+msgstr ""
+
+msgid "TSA"
+msgstr ""
+
+msgid "PHE"
+msgstr ""
+
+msgid "PER"
+msgstr ""
+
+msgid "ING"
+msgstr ""
+
+msgid "RAH"
+msgstr ""
+
+msgid "NL"
+msgstr ""
+
+msgid "Open &Now Date Editor"
+msgstr ""
+
+msgid "Go to &Date..."
+msgstr "Gå till &Datum..."
+
+msgid "Forward One Wee&k"
+msgstr "Framåt en Vec&ka"
+
+msgid "Back One &Week"
+msgstr "Bakåt en &Vecka"
+
+msgid "Forward One Mont&h"
+msgstr "Framåt en Må&nad"
+
+msgid "Back One &Month"
+msgstr "Bakåt en &Månad"
+
+msgid "Forward One Yea&r"
+msgstr "Framåt ett Å&r"
+
+msgid "Back One &Year"
+msgstr "Bakåt ett &År"
+
+msgid "Fit Millennium"
+msgstr "Anpassa Millenium"
+
+msgid "Fit Century"
+msgstr "Anpass Århundrade"
+
+msgid "Fit Decade"
+msgstr "Anpassa Decennium"
+
+msgid "Fit Year"
+msgstr "Anpassa År"
+
+msgid "Fit Month"
+msgstr "Anpassa Månad"
+
+msgid "Fit Week"
+msgstr "Anpassa Vecka"
+
+msgid "Fit Day"
+msgstr "Anpassa Dag"
+
+msgid "Can't zoom deeper than 1 minute"
+msgstr "Det går inte att zooma djupare än 1 minut"
+
+msgid "Day"
+msgstr "Dag"
+
+msgid "Week"
+msgstr "Vecka"
+
+msgid "Month"
+msgstr "Månad"
+
+msgid "Year"
+msgstr "År"
+
+msgid "Change Now Date"
+msgstr ""
+
+msgid "Go to Date"
+msgstr "Gå till Datum"
+
+msgid "Wind"
+msgstr ""
+
+msgid "Earth"
+msgstr ""
+
+msgid "Market"
+msgstr ""
+
+msgid "Rohal"
+msgstr ""
+
+msgid "Fire"
+msgstr ""
+
+msgid "Water"
+msgstr ""
+
+msgid "Jan"
+msgstr "Jan"
+
+msgid "Feb"
+msgstr "Feb"
+
+msgid "Mar"
+msgstr "Mar"
+
+msgid "Apr"
+msgstr "Apr"
+
+msgid "May"
+msgstr "Maj"
+
+msgid "Jun"
+msgstr "Jun"
+
+msgid "Jul"
+msgstr "Jul"
+
+msgid "Aug"
+msgstr "Aug"
+
+msgid "Sep"
+msgstr "Sep"
+
+msgid "Oct"
+msgstr "Okt"
+
+#, fuzzy
+msgid "Nov"
+msgstr "Nej"
+
+msgid "Dec"
+msgstr "Dec"
+
+msgid "BC"
+msgstr ""
+
+msgid "The date control can't handle the given date"
+msgstr ""
+
+msgid "Go to &Today"
+msgstr "Gå till &Idag"
+
+msgid "years"
+msgstr "år"
+
+msgid "year"
+msgstr "år"
+
+#, fuzzy
+msgid "months"
+msgstr "Månad"
+
+#, fuzzy
+msgid "month"
+msgstr "Månad"
+
+msgid "weeks"
+msgstr "veckor"
+
+msgid "week"
+msgstr "vecka"
+
+msgid "days"
+msgstr "dagar"
+
+msgid "day"
+msgstr "dag"
+
+msgid "hours"
+msgstr "timmar"
+
+msgid "hour"
+msgstr "timme"
+
+msgid "minutes"
+msgstr "minuter"
+
+msgid "minute"
+msgstr "minut"
+
+msgid "seconds"
+msgstr "sekunder"
+
+msgid "second"
+msgstr "sekund"
+
+msgid "Mon"
+msgstr "Mån"
+
+msgid "Tue"
+msgstr "Tis"
+
+msgid "Wed"
+msgstr "Ons"
+
+msgid "Thu"
+msgstr "Tor"
+
+msgid "Fri"
+msgstr "Fre"
+
+#, fuzzy
+msgid "Sat"
+msgstr "Status"
+
+msgid "Sun"
+msgstr "Sön"
+
+msgid "Edit..."
+msgstr "Redigera..."
+
+msgid "Add..."
+msgstr "Lägg till..."
+
+msgid "Delete"
+msgstr "Ta bort"
+
+msgid "Check All"
+msgstr "Markera alla"
+
+msgid "Check children"
+msgstr "Markera undernivåer"
+
+msgid "Check all children"
+msgstr "Markera alla undernivåer"
+
+msgid "Check all parents"
+msgstr "Markera alla överliggande nivåer"
+
+msgid "Check parents for checked children"
+msgstr ""
+
+msgid "Uncheck All"
+msgstr "Avmarkera alla"
+
+msgid "Uncheck children"
+msgstr "Avmarkera undernivåer"
+
+msgid "Uncheck all children"
+msgstr "Avmarkera alla undernivåer"
+
+msgid "Uncheck all parents"
+msgstr "Avmarkera alla överliggande nivåer"
+
+msgid "Edit Category"
+msgstr "Redigera Kategori"
+
+msgid "Add Category"
+msgstr "Lägg till Kategori"
+
+#, python-format
+msgid "Are you sure you want to delete category '%s'?"
+msgstr "Är du säker på att du vill radera kategorin '%s'?"
+
+#, python-format
+msgid "Events belonging to '%s' will no longer belong to a category."
+msgstr ""
+"Händelser knutna till '%s' kommer inte längre att vara knutna till någon "
+"kategori."
+
+#, python-format
+msgid "Events belonging to '%s' will now belong to '%s'."
+msgstr "Händelser knutna till '%s' kommer nu att vara knutna till '%s'."
+
+msgid "No match"
+msgstr "Ingen träff"
+
+msgid "Only one match"
+msgstr "Endast en träff"
+
+msgid "No timeline opened."
+msgstr "Ingen tidslinje öppnad."
+
+msgid "First time using Timeline?"
+msgstr "Första gången du använder Timeline?"
+
+msgid "Getting started tutorial"
+msgstr "Kom igång övning"
+
+msgid "Center"
+msgstr "Centrera"
+
+msgid "Edit"
+msgstr "Redigera"
+
+msgid "Duplicate..."
+msgstr "Duplicera..."
+
+msgid "Mark Event as Done"
+msgstr "Klarmarkera Händelsen"
+
+msgid "Select Category..."
+msgstr "Välj kategori..."
+
+msgid "Sticky Balloon"
+msgstr "Fäst ballong"
+
+msgid "Goto URL"
+msgstr "Gå till URL"
+
+#, fuzzy, python-format
+msgid "Are you sure you want to delete %d events?"
+msgstr "Är du säker på att du vill ta bort den här händelsen?"
+
+msgid "Are you sure you want to delete this event?"
+msgstr "Är du säker på att du vill ta bort den här händelsen?"
+
+#, python-format
+msgid "%s events hidden"
+msgstr "%s gömda händelser"
+
+msgid "This timeline is read-only."
+msgstr "Denna timeline är enbart läsbar."
+
+msgid "To edit this timeline, save it to a new file: File -> Save As."
+msgstr ""
+"För att ändra i denna timeline, spara den till en ny fil: Arkiv -> Spara Som."
+
+msgid "This timeline is not being saved."
+msgstr "Denna timeline blir inte sparad."
+
+msgid "To save this timeline, save it to a new file: File -> Save As."
+msgstr ""
+"För att spara denna timeline, spara den till en ny fil: Arkiv -> Spara Som."
+
+msgid "Give feedback"
+msgstr "Ge återkoppling"
+
+msgid "When:"
+msgstr "När:"
+
+msgid "Text:"
+msgstr "Text:"
+
+msgid "Color used when the Event has no category associated with it."
+msgstr ""
+"Färg som används för händelser som inte är associerade med någon kategori."
+
+msgid "Progress %:"
+msgstr "Framsteg %:"
+
+msgid "&Append"
+msgstr "&Lägg till"
+
+msgid "&Remove"
+msgstr "Ta bo&rt"
+
+msgid "Te&st"
+msgstr "Te&st"
+
+msgid "URL:"
+msgstr "URL:"
+
+#, python-format
+msgid "Images will be scaled to fit inside a %ix%i box."
+msgstr "Bilder kommer skalas ner så att de inte är större än %ix%i."
+
+msgid "Select Icon"
+msgstr "Välj Ikon"
+
+msgid "Select region to zoom into"
+msgstr "Välj område att zooma in"
+
+msgid "Can't move locked event"
+msgstr "Det går inte att flytta låsta händelser"
+
+msgid "Add new"
+msgstr "Lägg till ny"
+
+msgid "Edit categories"
+msgstr "Redigera kategorier"
+
+msgid "Choose file"
+msgstr "Välj fil"
+
+msgid "Add Container"
+msgstr "Lägg til Behållare"
+
+msgid "View Categories Individually"
+msgstr "Visa enbart markerade Kategorier"
+
+msgid "Add an Era"
+msgstr "Lägg till en Era"
+
+msgid "Edit an Era"
+msgstr "Redigera en Era"
+
+msgid "Edit Era's"
+msgstr "Redigera Eror"
+
+msgid "CSV File"
+msgstr "CSV-Fil"
+
+msgid "Invalid Data"
+msgstr "Ogiltigt Data"
+
+msgid "At least one Export Item must be selected"
+msgstr "Minst ett exportobjekt måste väljas."
+
+msgid "At least one Event Field must be selected"
+msgstr "Minst ett händelsefält måste väljas."
+
+msgid "At least one Category Field must be selected"
+msgstr "Minst ett kategorifält måste väljas."
+
+msgid "Ignore"
+msgstr ""
+
+msgid "Replace"
+msgstr ""
+
+msgid "XML-Replace"
+msgstr ""
+
+msgid "Strict"
+msgstr ""
+
+msgid "Select Export File Type"
+msgstr "Välj filtyp att exportera till"
+
+msgid "Select Text Encoding"
+msgstr "Välj Text-kodning"
+
+msgid "Select encoding error strategy"
+msgstr ""
+
+msgid "Select Items to export"
+msgstr "Välj objekt att exportera"
+
+msgid "Select Fields..."
+msgstr "Välj Fält..."
+
+msgid "Export Timeline"
+msgstr "Exportera"
+
+msgid "Select Event Fields"
+msgstr "Välj händelsefält"
+
+msgid "Select Category Fields"
+msgstr "Välj kategorifält"
+
+msgid "You can't save a milestone with an invalid date/time"
+msgstr ""
+
+msgid "Milestone Properties"
+msgstr "Egenskaper för milstolpe"
+
+msgid "Description:"
+msgstr ""
+
+msgid "Label:"
+msgstr ""
+
+msgid "Category:"
+msgstr "Kategori:"
+
+msgid "Colour:"
+msgstr "Färg:"
+
+msgid "Create Milestone"
+msgstr "Skapa Milstolpe"
+
+msgid "Edit Milestone"
+msgstr "Ändra Milstolpe"
+
+#, fuzzy, python-format
+msgid "Field '%s' can't be empty."
+msgstr "fältet <utfärdare> kan ej lämnas tomt"
+
+msgid "Name:"
+msgstr "Namn:"
+
+msgid "Color:"
+msgstr "Färg:"
+
+msgid "Progress Color:"
+msgstr "Färg för framsteg:"
+
+msgid "Done Color:"
+msgstr "Färg för färdig:"
+
+msgid "Font Color:"
+msgstr "Textfärg"
+
+msgid "Parent:"
+msgstr "Förälder"
+
+#, python-format
+msgid "Category name '%s' not valid. Must be non-empty."
+msgstr "Ogiltigt kategorinamn '%s'. Får inte vara blankt."
+
+#, python-format
+msgid "Category name '%s' already in use."
+msgstr "Kategorinamnet '%s' används redan."
+
+msgid "Other email client"
+msgstr "Annan epostklient"
+
+msgid ""
+"Copy and paste this email into your favorite email client and send it from "
+"there."
+msgstr ""
+"Kopiera och klistra in detta email i den epostklient du föredrar och skicka "
+"det därifrån."
+
+msgid "Email Feedback"
+msgstr "Återkoppling Email"
+
+msgid "To:"
+msgstr "Till:"
+
+#, fuzzy
+msgid "Subject:"
+msgstr "Välj Ikon"
+
+msgid "Body:"
+msgstr "Innehåll:"
+
+msgid "Send With:"
+msgstr "Skicka med:"
+
+msgid "Default client"
+msgstr "Förvald klient"
+
+msgid "Gmail"
+msgstr "Gmail"
+
+msgid "Other"
+msgstr "Övriga"
+
+msgid "Invalid date"
+msgstr "Ogiltigt datum"
+
+msgid "Choose what type of timeline you want to create."
+msgstr "Välj den typ av timeline som du vill skapa"
+
+msgid "Create new timeline"
+msgstr "Skapa en ny timeline"
+
+msgid "System version:"
+msgstr "Systemversion"
+
+msgid "Python version:"
+msgstr "Pythonversion"
+
+msgid "wxPython version:"
+msgstr "wxPythonversion"
+
+msgid "Locale setting:"
+msgstr ""
+
+msgid "Locale date format:"
+msgstr ""
+
+msgid "Configuration file:"
+msgstr ""
+
+msgid "System Information"
+msgstr "Systeminformation"
+
+msgid "File does not exist."
+msgstr "Filen finns inte."
+
+#, python-format
+msgid "Unable to load events: %s."
+msgstr "Kan inte läs in händelser: %s"
+
+#, python-format
+msgid "%d events will be imported."
+msgstr "%d händelser kommer att importeras"
+
+msgid "The selected timeline has a different time type."
+msgstr "Den valda timelinen har en annan tidstyp"
+
+msgid "Select timeline to import from:"
+msgstr "Välj timeline som ska importeras"
+
+msgid "Timeline files"
+msgstr "Tidslinjefiler"
+
+msgid "Import events"
+msgstr "Importera händelser"
+
+msgid "Check"
+msgstr "Markera"
+
+msgid "Uncheck"
+msgstr "Avmarkera"
+
+#, fuzzy
+msgid "Category Finder"
+msgstr "Kategorier"
+
+msgid "You must select a category!"
+msgstr "Du måste välja en kategori!"
+
+msgid "Set Category on events without category"
+msgstr "Sätt Kategori på Händelser utan Kategori"
+
+msgid "Set Category on selected events"
+msgstr "Välj kategori för markerade händelser"
+
+msgid "Select a Category:"
+msgstr "Välj en kategori:"
+
+msgid "The html pages directory is mandatory"
+msgstr ""
+
+msgid "Can't find the html pages directory!"
+msgstr ""
+
+msgid "Do you want to create it?"
+msgstr ""
+
+msgid "The html pages director isn't empty!"
+msgstr ""
+
+msgid "Do you want overwrite it?"
+msgstr ""
+
+msgid "Select Events"
+msgstr ""
+
+msgid "Save html pages at"
+msgstr ""
+
+msgid "Start Slide Show"
+msgstr ""
+
+msgid "Select html pages directory"
+msgstr ""
+
+#, fuzzy
+msgid "Found Events"
+msgstr "Händelser"
+
+msgid "Date format:"
+msgstr ""
+
+msgid "Locale Date format:"
+msgstr ""
+
+msgid "Set Date format"
+msgstr ""
+
+msgid "Era Properties"
+msgstr "Egenskaper för Era"
+
+msgid "Ends today"
+msgstr "Slutar idag"
+
+msgid "Current"
+msgstr "Aktuellt"
+
+#, fuzzy
+msgid "General"
+msgstr "Generika"
+
+msgid "Open most recent timeline on startup"
+msgstr "Öppna senaste tidslinje vid start"
+
+msgid "Use inertial scrolling"
+msgstr "Använd scrollning med fördröjning"
+
+msgid "Never show period Events as point Events"
+msgstr "Visa aldrig periodhändelser som punkthändelser"
+
+msgid "Center Event texts"
+msgstr "Centrera händelsens text"
+
+msgid "Uncheck time checkbox for new events"
+msgstr "Avmarkera checkboxen 'Visa tid'  för nya händelser"
+
+msgid "Balloon text below icon"
+msgstr ""
+
+msgid "Select Event Editor Tab Order"
+msgstr "Välj Tab-ordning för händelseredigeraren"
+
+msgid "Select Date format"
+msgstr "Välj datumformat"
+
+msgid "Date && Time"
+msgstr "Datum && tid"
+
+msgid "Week start on:"
+msgstr "Veckan börjar på"
+
+msgid "Monday"
+msgstr "Måndag"
+
+msgid "Sunday"
+msgstr "Söndag"
+
+msgid "Fonts"
+msgstr "Teckensnitt"
+
+msgid "Colours"
+msgstr "Färger"
+
+msgid "Major Strips:"
+msgstr "Huvudskalor:"
+
+msgid "Minor Strips:"
+msgstr "Underskalor:"
+
+#, fuzzy
+msgid "Balloons:"
+msgstr "Fäst ballong"
+
+msgid "Icons"
+msgstr "Ikoner"
+
+msgid "Fuzzy icon"
+msgstr "Ikon för obestämd period"
+
+msgid "Locked icon"
+msgstr "Ikon för låst händelse"
+
+msgid "Hyperlink icon"
+msgstr "Ikon för hyperlänk"
+
+msgid "Legends:"
+msgstr "Teckenförklaringar"
+
+msgid "Experimental Features"
+msgstr "Experimentella funktioner"
+
+msgid "Minor strip divider line:"
+msgstr "Underskalans linje"
+
+msgid "Major strip divider line:"
+msgstr "Huvudskalans linje"
+
+msgid "Now line:"
+msgstr "Nu-linjen"
+
+msgid "Weekends:"
+msgstr "Veckoslut"
+
+msgid "Background"
+msgstr "Bakgrund"
+
+msgid "Vertical space between Events (px)"
+msgstr "Vertikalt mellanrum mellan händelser"
+
+msgid "Colorize weekends"
+msgstr "Färgmarkera veckoslut"
+
+msgid "Skip s in decade text"
+msgstr "Inget s i decenniumtext"
+
+msgid "Display checkmark when events are done"
+msgstr "Visa check-markering för färdiga händelser"
+
+msgid "Never use time precision for events"
+msgstr "Använd aldrig klockslag för händelser"
+
+msgid "Legend Position"
+msgstr "Position på teckenförklaring"
+
+msgid "Bottom-Left"
+msgstr "Nederst till vänster"
+
+msgid "Top-Left"
+msgstr "Överst till vänster"
+
+msgid "Top-Right"
+msgstr "Överst till höger"
+
+msgid "Bottom-Right"
+msgstr "Nederst till höger"
+
+msgid "Preferences"
+msgstr "Inställningar"
+
+msgid "Select Fields to Export"
+msgstr "Välj fält som ska exporteras"
+
+msgid "Number of duplicates:"
+msgstr "Antal dupliceringar"
+
+#, fuzzy
+msgid "Direction"
+msgstr "Reaktion"
+
+msgid "Frequency:"
+msgstr "Frekvens:"
+
+msgid "Both"
+msgstr "Både och"
+
+msgid "Duplicate Event"
+msgstr "Duplicera händelse"
+
+#, python-format
+msgid "%d Events not duplicated due to missing dates."
+msgstr "%d händelser duplicerades inte pga ogiltiga datum"
+
+msgid "Shortcut is saved"
+msgstr "Genväg är sparad"
+
+msgid "Both Modifier and Shortcut key must be given!"
+msgstr "Både modifierare och snabbtangent måste anges!"
+
+#, python-format
+msgid "The shortcut %s is already bound to function '%s'!"
+msgstr "Snabbtangenten %s är redan kopplad till funktionen '%s'!"
+
+#, fuzzy
+msgid "Functions:"
+msgstr "Undesökningsåtgärder:"
+
+#, fuzzy
+msgid "Modifier:"
+msgstr "Ändrat fält."
+
+msgid "Shortcut Key:"
+msgstr "Snabbtangent:"
+
+msgid "Edit Shortcuts"
+msgstr "Redigera snabbtangenter"
+
+msgid "Give Feedback"
+msgstr "Tyck till/Lämna respons"
+
+msgid "Feedback On Feature"
+msgstr "Återkoppling av funktion"
+
+msgid "Select Tab Order:"
+msgstr "Välj Tab-ordning"
+
+msgid "Event Editor Tab Order"
+msgstr "Händelseredigerarens Tab-ordning"
+
+msgid "You can't change time when the Event is locked"
+msgstr "Det går inte att ändra tid när en händelse är låst"
+
+msgid "End must be > Start"
+msgstr "Slut måste vara > Start"
+
+msgid "Event Properties"
+msgstr "Egenskaper för Händelse"
+
+msgid "Container:"
+msgstr "Behållare:"
+
+msgid "Icon"
+msgstr "Ikon"
+
+msgid "Default color"
+msgstr "Förvald färg"
+
+msgid "Add more events after this one"
+msgstr "Lägg till fler händelser efter denna"
+
+msgid "&Enlarge"
+msgstr "&Förstora"
+
+msgid "&Reduce"
+msgstr "&Reducera"
+
+msgid "Save and Duplicate"
+msgstr ""
+
+msgid "Edit Container"
+msgstr "Redigera Behållare"
+
+msgid "Edit Event"
+msgstr "Redigera Händelse"
+
+msgid "Create Event"
+msgstr "Skapa Händelse"
+
+msgid "Import in event description"
+msgstr ""
+
+msgid "Use as start date of event"
+msgstr ""
+
+msgid "Use as event alarm time"
+msgstr ""
+
+msgid "Options for ICS import"
+msgstr ""
+
+msgid "read-only"
+msgstr "skrivskyddad"
+
+#, python-format
+msgid "File '%s' does not exist."
+msgstr "Filen '%s' finns inte."
+
+msgid ""
+"Someoneelse has changed the Timeline.\n"
+"You have two choices!\n"
+"  1. Set Timeline in Read-Only mode.\n"
+"  2. Synchronize Timeline.\n"
+"\n"
+"Do you want to Synchronize?"
+msgstr "Timeline har blivit ändrad av någon annan."
+
+#, python-format
+msgid ""
+"Unable to take lock on %s\n"
+"This means you can't edit the timeline.\n"
+"Check if you have write access to this directory."
+msgstr ""
+"Det lyckades inte att ta ett lås för %s\n"
+"Det betyder att det inte går att ändra i din timeline.\n"
+"Kontrollera om du har skrivrättigheter till katalogen där din timelinefile "
+"ligger."
+
+#, python-format
+msgid ""
+"The lockfile used to protect the timeline from concurrent updates is opened "
+"by another program or process.\n"
+"This lockfile must be removed in order be able to continue editing the "
+"timeline!\n"
+"The lockfile is found at: %s"
+msgstr ""
+"Låsfilen som används för att skydda timeline mot samtidiga uppdateringar "
+"från två användare, är öppnad av ett annat program eller process.\n"
+"Låsfilen måste tas bort för att du ska kunna fortsätta ändra i din "
+"timeline.\n"
+"Låsfilen hittar du här: %s"
+
+msgid "Create Timeline"
+msgstr "Skapa Tidslinje"
+
+msgid "The specified timeline already exists."
+msgstr "Den angivna tidslinjen finns redan."
+
+msgid "Opening timeline instead of creating new."
+msgstr "Öppnar tidslinje istället för att skapa ny."
+
+msgid "Information"
+msgstr "Information"
+
+msgid "Open Timeline"
+msgstr "Öppna Tidslinje"
+
+msgid "Save Timeline As"
+msgstr "Spara Timeline som"
+
+msgid "Unable to write configuration file."
+msgstr "Det gick inte att skriva till konfigurationsfilen."
+
+msgid "Distance between selected events"
+msgstr "Avstånd mellan markerade händelser"
+
+msgid "Events are overlapping or distance is 0"
+msgstr "Antingen överlappar händelserna varandra eller så är  avståndet 0"
+
+msgid "Left"
+msgstr "Vänster"
+
+msgid "&File"
+msgstr "&Arkiv"
+
+msgid "&Edit"
+msgstr "&Redigera"
+
+msgid "&View"
+msgstr "&Visa"
+
+msgid "&Timeline"
+msgstr "&Tidslinje"
+
+msgid "&Navigate"
+msgstr "&Navigera"
+
+msgid "&Help"
+msgstr "&Hjälp"
+
+msgid "New..."
+msgstr "Ny…"
+
+msgid "Create a new timeline"
+msgstr "Skapa en ny tidslinje"
+
+msgid "Open an existing timeline"
+msgstr "Öppna en befintlig tidslinje"
+
+msgid "Open &Recent"
+msgstr "Öppna s&enaste"
+
+msgid "Save As..."
+msgstr "Spara som…"
+
+msgid "Import events..."
+msgstr "Importera händelser..."
+
+msgid "Exit the program"
+msgstr "Avsluta programmet"
+
+#, fuzzy
+msgid "Find Categories..."
+msgstr "Redigera Kategorier"
+
+msgid "Select All Events"
+msgstr "Markera alla Händelser"
+
+msgid "Shortcuts..."
+msgstr "Genvägar..."
+
+msgid "&Sidebar"
+msgstr ""
+
+msgid "&Legend"
+msgstr "&Teckenförklaring"
+
+msgid "&Balloons on hover"
+msgstr "&Ballonger vid hovring"
+
+msgid "Zoom &In"
+msgstr "Zooma &in"
+
+msgid "Zoom &Out"
+msgstr "Zooma &ut"
+
+msgid "Vertical Zoom &In"
+msgstr "Zooma in vertikalt"
+
+msgid "Vertical Zoom &Out"
+msgstr "Zooma ut vertikalt"
+
+msgid "Start slide show"
+msgstr "Starta bildspel"
+
+msgid "&Hide Events done"
+msgstr "Visa inte färdiga händelser"
+
+msgid "Toolbar"
+msgstr "Verktygsfält"
+
+msgid "Event appearance"
+msgstr "Utseende på händelser"
+
+msgid "Point event alignment"
+msgstr "Justering av punkt-händelser"
+
+msgid "Create &Event..."
+msgstr "Skapa &Händelse..."
+
+msgid "&Edit Selected Event..."
+msgstr "&Editera valda Händelser..."
+
+msgid "&Duplicate Selected Event..."
+msgstr "&Duplicera Markerad Händelse..."
+
+msgid "Set Category on Selected Events..."
+msgstr "Sätt Kategori på valda Händelser..."
+
+msgid "Move event up"
+msgstr "Flytta händelser uppåt"
+
+msgid "Move event down"
+msgstr "Flytta händelser nedåt"
+
+msgid "Create &Milestone..."
+msgstr "Skapa &Milstolpe"
+
+msgid "&Compress timeline Events"
+msgstr "Komprimera timelinehändelser"
+
+msgid "&Measure Distance between two Events..."
+msgstr "&Mät avståndet mellan två händelser..."
+
+msgid "Set Category on events &without category..."
+msgstr "Välj kategori för alla händelser som saknar kategori..."
+
+msgid "Edit &Categories"
+msgstr "Redigera &Kategorier"
+
+msgid "Edit Era's..."
+msgstr "Redigera Eror"
+
+msgid "&Read Only"
+msgstr "Sk&rivskyddad"
+
+msgid "&Undo"
+msgstr "&Ångra"
+
+msgid "&Redo"
+msgstr "&Gör om"
+
+#, fuzzy
+msgid "Find &First Event"
+msgstr "Sök Första Händelsen"
+
+#, fuzzy
+msgid "Find &Last Event"
+msgstr "Senast angiven"
+
+#, fuzzy
+msgid "Fit &All Events"
+msgstr "Sök Alla Händelser"
+
+msgid "Go to previous time period"
+msgstr "Gå till föregående tidsperiod"
+
+msgid "Feedback"
+msgstr "Återkoppling"
+
+msgid "&Contents"
+msgstr ""
+
+#, fuzzy
+msgid "Getting started &tutorial"
+msgstr "Kom igång övning"
+
+msgid "Give &Feedback..."
+msgstr "Ge &Feedback..."
+
+#, fuzzy
+msgid "Co&ntact"
+msgstr "Kontakta"
+
+msgid "System information"
+msgstr "Systeminformation"
+
+msgid "Gregorian"
+msgstr "Gregoriansk"
+
+msgid "This creates a timeline using the standard calendar."
+msgstr "Detta alternativ skapar en timeline som använder datum på tidsaxeln"
+
+msgid "Numeric"
+msgstr "Numeriskt"
+
+msgid ""
+"This creates a timeline that has numbers on the x-axis instead of dates."
+msgstr ""
+"Detta alternativ skapar en timeline som har nummer på tidsaxeln i stället "
+"för datum"
+
+msgid "Directory"
+msgstr "Katalog"
+
+msgid ""
+"This creates a timeline where the modification date of files in a directory "
+"are shown as events."
+msgstr ""
+"Detta alternativ skapar en timeline som visar filer i en katalog som "
+"händelser. Händelsernas tidpunkt är lika med filernas ändringsdatum."
+
+msgid "Bosparanian"
+msgstr ""
+
+msgid ""
+"This creates a timeline using the fictuous Bosparanian calendar from the "
+"German pen-and-paper RPG \"The Dark Eye\" (\"Das schwarze Auge\", DSA)."
+msgstr ""
+"Detta alternativ skapar en timeline med den påhittade Bosoporiska kalendern "
+"från den Tyska pen-and-paper RPG \"The Dark Eye\" (Das schwarze Auge\", DSA)"
+
+msgid "Help"
+msgstr "Hjälp"
+
+msgid ""
+"Could not find markdown Python package. It is needed by the help system."
+msgstr ""
+"Kunde inte hitta python-modulen markdown. Den är nödvändig för att "
+"hjälpsystemet ska fungera."
+
+msgid "Go to home page"
+msgstr "Gå till startsidan"
+
+msgid "Go back one page"
+msgstr "Gå bakåt en sida"
+
+msgid "Go forward one page"
+msgstr "Gå framåt en sida"
+
+msgid "Page not found"
+msgstr "Sidan hittades inte"
+
+#, python-format
+msgid "Could not find page '%s'."
+msgstr "Kunde inte hitta sidan '%s'."
+
+msgid "Error"
+msgstr "Fel"
+
+msgid "Warning"
+msgstr "Varning"
+
+msgid "Dialog moved"
+msgstr "Dialogen är flyttad"
+
+msgid "This dialog has been removed. Edit categories in the sidebar instead."
+msgstr "Dialogen har tagits bort. Ändra kategorier i sidebaren i stället."
+
+#, fuzzy
+msgid "Question"
+msgstr "Reaktion"
+
+msgid "Help contents"
+msgstr "Hjälpinnehåll"
+
+msgid "Questions and answers"
+msgstr "Frågor och svar"
+
+msgid "Concepts"
+msgstr "Begrepp"
+
+msgid "Tasks"
+msgstr "Aktiviteter"
+
+msgid "Where is the save button?"
+msgstr "Var är sparaknappen?"
+
+msgid ""
+"\n"
+"There is no save button. Timeline will automatically save your data whenever "
+"needed.\n"
+msgstr ""
+"\n"
+"Det finns ingen sparaknapp. Timeline sparar automatiskt ditt data när det "
+"behövs.\n"
+
+msgid "Where do the week numbers go if I start my weeks on Sunday?"
+msgstr ""
+"Hur blir det med veckonummer om jag väljer att veckan ska börja på en Söndag?"
+
+msgid ""
+"\n"
+"The date data object used does not support week numbers for weeks that start "
+"on Sunday at present.  We plan on using a different date object that will "
+"support this in future versions.\n"
+msgstr ""
+"\n"
+"Datumobjektet som används stöder inte veckonummer för veckor som börjar på "
+"en Söndag. I framtiden planerar att använda olika datumobjekt som stödjer "
+"detta.\n"
+
+msgid "Can multiple users work with the same timeline?"
+msgstr "Kan fler personer arbeta samtidigt med samma timeline?"
+
+msgid ""
+"\n"
+"There are some support for multiple users to work on the same timeline "
+"file.\n"
+"\n"
+"When you try to make a change and someone else has made a change you will be "
+"asked to make one of two choices:\n"
+"\n"
+"- Set timeline in read-only mode.\n"
+"- Synchronize the timeline.\n"
+"\n"
+"During the your edit action the timeline is locked for changes by others. If "
+"you try to edit a timeline when it is locked by someone else you will be "
+"notified about this situation.\n"
+msgstr ""
+
+msgid "Can I Check or Uncheck all categories?"
+msgstr ""
+
+msgid ""
+"\n"
+"Yes you can check or uncheck all categories as well as a lot of other "
+"selection alternatives.\n"
+"\n"
+"Make sure the categories pane is visible and then right-click with the mouse "
+"in the pane.\n"
+"A context menu will now show up with all the check/uncheck alternatives "
+"available.\n"
+"\n"
+msgstr ""
+
+msgid "Timeline"
+msgstr "Tidslinje"
+
+msgid ""
+"\n"
+"The timeline shows dates according to the Gregorian calendar on the x-axis. "
+"Currently the earliest date is limited to Julian day 0 (November 24, 4714 "
+"BC).\n"
+"\n"
+"Future versions might support various kinds of timelines so that you for "
+"example can specify a time in terms of number of minutes since a start time. "
+"If you are interested in such a feature, please get in touch.\n"
+"\n"
+"The timeline is divided in two areas with a horizontal adjustable divider "
+"line. Period events are displayed below the line and point events are "
+"displayed above the line.\n"
+msgstr ""
+
+#, fuzzy
+msgid "Scrolling Timeline"
+msgstr "Öppna Tidslinje"
+
+msgid ""
+"\n"
+"A Timeline can be scrolled both horizontal (along time axis) and vertically "
+"(along event axis)\n"
+"\n"
+"There are two ways to scroll horizontal. You can either use the different "
+"options in the Navigation menu or you can use the mouse. To use the mouse, "
+"hold down the left mouse button and drag the mouse horizontally.\n"
+"\n"
+"To scroll vertically, hold down the Shift- and Ctrl-keys and scroll the "
+"mouse wheel.\n"
+"Events are scrolled towards or away from the divider line separating point- "
+"and period-events.\n"
+"\n"
+msgstr ""
+
+#, fuzzy
+msgid "Zooming Timeline"
+msgstr "Öppna Tidslinje"
+
+msgid ""
+"\n"
+"A Timeline can be Zoomed both horizontal (along time axis) and vertically "
+"(along event axis)\n"
+"\n"
+"To zoom horizontal, hold down the Ctrl-key and scroll the mouse wheel.\n"
+"\n"
+"To zoom vertically, hold down the Alt-key and scroll the mouse wheel.\n"
+msgstr ""
 
 #, fuzzy
 msgid ""
-"Could not find iCalendar Python package. It is required for working with ICS "
-"files. See the Timeline website or the doc/installing.rst file for "
-"instructions how to install it."
+"\n"
+"An event is the basic data type for representing information on the "
+"timeline.  It must specify where on the timeline it should be placed (when "
+"that event happened). This can be either a specific point in time or a "
+"period.\n"
 msgstr ""
-"Kunde inte hitta lämplig iCalender Python-distribution. Detta krävs för att "
-"använda ICS-filer. För vidare instruktioner om hur du installerar "
-"distributionen, följ anvisningar på websidan Timeline eller den fil INSTALL "
-"som medföljer distributionen."
+"\n"
+"En händelse är den bastyp som används för att representera information på "
+"tidslinjen. Den måste specificera var på tidslinjen den ska placeras (när "
+"händelsen inträffar). Detta can vara antingen en specifik tidpunkt eller en "
+"tidsperiod.\n"
+
+msgid "Era"
+msgstr "Era"
+
+msgid ""
+"\n"
+"An Era is A clearly defined period of time of arbitrary but well-defined "
+"length.\n"
+"\n"
+"An Era is displayed as a background with the color defined for the Era. The "
+"Era name is written att the bottom of the timeline.\n"
+msgstr ""
+
+msgid ""
+"\n"
+"For an event the following properties can be defined.\n"
+"\n"
+" - Start Date and Time.\n"
+" - End Date and Time (if period event).\n"
+" - Text - The label displayed for an event.\n"
+" - Category - A way to group events together.\n"
+" - Container - Another way to group events together.\n"
+" - Fuzzy - Draw start and end of event fuzzy, to indicate that exact times "
+"are unknown.\n"
+" - Locked - Start- and End-points can't be changed.\n"
+" - Ends Today - The End-point is always set to current date.\n"
+" - Description - Event description that is shown i the balloon.\n"
+" - Icon - Image icon shown in balloon.\n"
+" - Alert - An alert dialog is opened at the specified alert time.\n"
+" - Hyperlinks - A list of hyperlink that can be reached in the event context "
+"menu.\n"
+msgstr ""
+
+msgid "Milestones"
+msgstr "Milstolpe"
+
+msgid ""
+"\n"
+"A milestone is a special case of a point event. It is rendered on the "
+"timescale of a timeline and it can have a desciption shown when hooverd "
+"over. It can also have a one character label that is displayed in the "
+"milestone box.\n"
+"\n"
+"A milestone ...\n"
+"\n"
+"* is created by selecting the menu alternative Timeline -> Create "
+"milestone.\n"
+"\n"
+"* is edited by doubleclicking on it.\n"
+"\n"
+"* is deleted by clicking on it and thereafter click the delete button.\n"
+"\n"
+"* can be dragged to a new position.\n"
+msgstr ""
+
+msgid ""
+"\n"
+"Categories are used to group events. An event can only belong to one "
+"category. All events that belong to the same category are displayed with the "
+"same background color.\n"
+msgstr ""
+"\n"
+"Kategorier används för att gruppera händelser. En händelse kan tillhöra en "
+"och endast en kategori. Alla händelser som tillhör samma kategori visas med "
+"den bakgrundsfärg som man valt för kategorin.\n"
+
+msgid ""
+"\n"
+"Experimental features are features implemented in Timeline but not yet "
+"decided to be permanent.\n"
+"\n"
+"An experimental feature can be switched on or off in the preferences "
+"dialog.\n"
+"\n"
+"The functionality in these features may not be fully implemented and may not "
+"have been as extensively tested as the rest of the application.\n"
+"\n"
+"The users feedback can be important when the decision to make the features "
+"permanent or not, is taken.\n"
+msgstr ""
+
+msgid "Create event"
+msgstr "Skapa händelse"
+
+msgid ""
+"\n"
+"The *Create Event* dialog can be opened in the following ways:\n"
+"\n"
+"- Select *Timeline* - *Create Event* from the menu.\n"
+"- Double click with the *left* mouse button on the timeline.\n"
+"- Press the *Ctrl* key, thereafter hold *left* mouse button down on the "
+"timeline, drag the mouse and release it.\n"
+msgstr ""
+"\n"
+"Dialogen *Skapa Händelse* kan öppnas på följande sätt:\n"
+"\n"
+"- Välj *Tidslinje* - *Skapa Händelse* från menyn\n"
+"- Dubbelklicka med den *vänstra* musknappen på tidslinjen\n"
+"- Håll *Ctrl* tangenten, håll *vänster* musknapp nedtryckt, dra den över "
+"tidslinjen och släpp den.\n"
+
+msgid "Undo/Redo"
+msgstr "Ångra/Gör om"
+
+msgid ""
+"\n"
+"The *Undo* function can revert an action such as creating an event, editing "
+"a category or deleting an event.\n"
+"\n"
+"To revert an action you:\n"
+"\n"
+"- Use the Ctrl+Z key (Key combination can be changed by user)\n"
+"- Select the menu *Timeline* - *Undo*\n"
+"\n"
+"To save memory usage we have decided to limit the number of actions that can "
+"be reverted.\n"
+"This means that only the 10 latest actions can be Undone.\n"
+"\n"
+"An action that is Undone can also be Redone if you:\n"
+"\n"
+"- Use the Alt+Z key (Key combination can be changed by user)\n"
+"- Select the menu *Timeline* - *Redo*\n"
+"\n"
+msgstr ""
+
+msgid "Edit event"
+msgstr "Redigera händelse"
+
+msgid ""
+"\n"
+"The *Edit Event* dialog can be opened by double clicking on an event or by "
+"selecting one event and select the 'Timeline -> Edit Selected Event...' "
+"menu.\n"
+"\n"
+"An image icon can be associated with an event by dragging the image file and "
+"dropping it on an event.\n"
+msgstr ""
+
+msgid "Move event vertically"
+msgstr "Flytta händelser vertikalt"
+
+msgid ""
+"\n"
+"An event can be moved vertically. This is done by first selecting the event "
+"and thereafter using the Up or Down keys.\n"
+msgstr ""
+
+#, fuzzy
+msgid "Duplicate event"
+msgstr "Duplicera händelse"
+
+msgid ""
+"\n"
+"An event can be duplicated. Select the event you want to duplicate and "
+"select the 'Timeline -> Duplicate Selected Event...' menu.\n"
+"Now a dialog appears in which you can define\n"
+"\n"
+" - How many duplications to do\n"
+" - The time period used\n"
+" - The frequency of time periods\n"
+" - The direction\n"
+"\n"
+" If number of duplications = 3, time span = day and frequency = 2, you will "
+"get 3 new copies of the event spread out with the time span of 2 days "
+"between them.\n"
+"\n"
+" You can also get to the duplication dialog from the event context menu, "
+"wich appears if you right-click an event with the mouse.\n"
+msgstr ""
+
+msgid "Search event"
+msgstr ""
+
+msgid ""
+"\n"
+"You can search for an event by selecting the Edit -> Search menu.\n"
+"\n"
+"A text control is opened in the lower left corner of the application.\n"
+"\n"
+"Enter a target text in the text control and click Enter.\n"
+"If the text is found in the Text or Description of any event, the first "
+"event\n"
+"found is highlighted for a short period of time.\n"
+"\n"
+"By clicking on the icons to the right of the text control you can navigate\n"
+"back and forth between all the events that has been found. You can also\n"
+"select an event from a list of all found events.\n"
+msgstr ""
+
+msgid "Selecting events"
+msgstr "Markera händelser"
+
+msgid ""
+"\n"
+"To select an event, click on it. To select multiple events, hold down the "
+"*Ctrl* key while clicking events.\n"
+msgstr ""
+"\n"
+"För att markera en händelse så klickar man på den. För att markera flera "
+"händelser samtidigt håller man ner *Ctrl* knappen samtidigt som man klickar "
+"på händelserna.\n"
+
+#, fuzzy
+msgid "Import timeline"
+msgstr "Ingen tidslinje vald"
+
+msgid ""
+"\n"
+"This feature can be used to merge two timelines into one.\n"
+"\n"
+"First open a timeline and then select menu 'File -> Import timeline...' and "
+"select the timeline to be imported.\n"
+msgstr ""
+
+#, fuzzy
+msgid "Event Containers"
+msgstr "Redigera Behållare"
+
+msgid ""
+"\n"
+"Containers are a way to group events together.\n"
+"In a container events can not overlap, so if you add a new event to a "
+"container\n"
+"all other events are moved to give room for the new event. The same thing "
+"happens\n"
+"if you resize an event within the container.\n"
+"\n"
+"Have a look at this video for a demo.\n"
+"    <http://www.youtube.com/watch?v=dBwEQ3vqB_I>\n"
+"\n"
+"From version 1.8 there is a second container strategy that let's events "
+"overlap in time within the container.\n"
+"This strategy is implemented as an experimental feature and can be selected "
+"in the preferences dialog.\n"
+msgstr ""
+
+msgid "Delete event"
+msgstr "Ta bort händelse"
+
+msgid ""
+"\n"
+"To delete an event, select it and press the *Del* key. Multiple events can "
+"be deleted at the same time.\n"
+msgstr ""
+"\n"
+"För att ta bort en händelse, markera den och tryck på *Del*. Flera händelser "
+"kan tas bort samtidigt.\n"
+
+msgid "Will associated events be deleted when I delete a category?"
+msgstr "Kommer associerade händelser tas bort när jag tar bort en kategori?"
+
+msgid ""
+"\n"
+"No. The events will still be there but they will not belong to a category.\n"
+msgstr ""
+"\n"
+"Nej. Händelserna kommer fortfarande att vara kvar men de kommer inte att "
+"tillhöra någon kategori.\n"
+
+msgid "Add a user defined icon"
+msgstr ""
+
+msgid ""
+"\n"
+"Icons used for the event properties\n"
+"\n"
+" - Fuzzy\n"
+" - Locked\n"
+" - Hyperlink\n"
+"\n"
+"can be user defined.\n"
+"\n"
+"To use an icon of your own you create a png image file and place it in\n"
+"the subdirectory icons/event_icons.\n"
+"Now the icon can be selected in the properties dialog on the Icons tab.\n"
+msgstr ""
+
+msgid ""
+"\n"
+"Categories can be managed in the *Edit Categories* dialog (*Timeline* > "
+"*Edit Categories*). To edit an existing category, double click on it.\n"
+"\n"
+"The visibility of categories can also be edited in the sidebar (*View* > "
+"*Sidebar*).\n"
+msgstr ""
+"\n"
+"Kategorier kan redigerasi dialogen \"Redigera Kategorier\" (*Timeline* > * "
+"Redigera Kategorier*). För att ändra data för en kategori så dubbelklickar "
+"du på den.\n"
+"\n"
+"Om befintliga kategorier ska visas  i sidopanelen eller inte är valfritt "
+"(*Visa* > *Sidopanel*)\n"
+
+msgid "Contact"
+msgstr "Kontakta"
+
+msgid ""
+"\n"
+"If you have more questions about Timeline, or if you want to get in contact "
+"with users and developers of Timeline, send an email to the user mailing "
+"list: <thetimelineproj-user@lists.sourceforge.net>. (Please use English.)\n"
+msgstr ""
+"\n"
+"Om du har fler frågor om Timeline eller om du vill komma i kontakt med "
+"användare och utvecklare av Timeline, skicka ett email till mailinglistan "
+"för användare: <thetimelineproj-user@lists.sourceforge.net>. (Vänligen skriv "
+"på engelska.)\n"
+
+msgid "Why is Timeline not available in my language?"
+msgstr "Varför finns inte Timeline på mitt språk?"
+
+msgid ""
+"\n"
+"Timeline is developed and translated by volunteers. If you would like to "
+"contribute translations you are very much welcome to contact us.\n"
+msgstr ""
+"\n"
+"Timeline utvecklas och översätts av volontärer. Om du vill hjälpa till att "
+"översätta så är du mycket välkommen att kontakta oss.\n"
 
 #, python-format
-msgid "Unable to read timeline data from '%s'."
-msgstr "Kunde inte läsa tidslinjedata från '%s'."
+msgid "Search results for '%s'"
+msgstr "Sökresultat för '%s'"
+
+msgid "Related pages"
+msgstr "Relaterade sidor"
+
+msgid "Location"
+msgstr "Position"
+
+msgid "Unable to read calendar data."
+msgstr ""
 
 #, python-format
 msgid "Unable to read from file '%s'."
 msgstr "Kan inte läsa från filen '%s'."
 
-msgid "Displayed period must be > 0."
-msgstr "Perioden måste vara större än 0."
+#, python-format
+msgid "Unable to read timeline data from '%s'."
+msgstr "Kunde inte läsa tidslinjedata från '%s'."
+
+msgid "Example era"
+msgstr ""
 
 msgid "Welcome"
 msgstr "Välkommen"
@@ -92,6 +2090,12 @@ msgstr "Välkommen till Timeline"
 
 msgid "Intro"
 msgstr "Intro"
+
+msgid "This event has hyperlinks"
+msgstr "Den här händelsen har en hyperlänk"
+
+msgid "Right-click for context menu where the hyperlinks can be accessed."
+msgstr "Höger-klicka för att öppna menyn där hyperlänk kan väljas."
 
 msgid "Hover me!"
 msgstr "Rör musen över mig!"
@@ -152,6 +2156,18 @@ msgid ""
 "and drag it."
 msgstr ""
 
+msgid "View Container demo video"
+msgstr "Se video  med Container demo"
+
+msgid ""
+"Container Subevent 3\n"
+"\n"
+"Select hyperlink to show demo video.\n"
+"\n"
+"Right-click in the event and select 'Goto URL' in the popup menu and select "
+"the first (and only) link"
+msgstr ""
+
 msgid "Zoom"
 msgstr "Zooma"
 
@@ -164,9 +2180,6 @@ msgstr ""
 "\n"
 "Håll nere Shift-knappen medan du navigerar med musen."
 
-msgid "Create event"
-msgstr "Skapa händelse"
-
 msgid ""
 "Double click somewhere on the timeline.\n"
 "\n"
@@ -175,9 +2188,6 @@ msgstr ""
 "Dubbelklicka vid önskad punkt på tidslinjen.\n"
 "\n"
 "Håll nere Ctrl-knappen då du navigerar och väljer en period med musen."
-
-msgid "Edit event"
-msgstr "Redigera händelse"
 
 msgid "Double click on an event."
 msgstr "Dubbelklicka på en händelse."
@@ -193,9 +2203,6 @@ msgstr ""
 "Klicka på den.\n"
 "\n"
 "Håll ner Ctrl-knappen då du klickar för att markera flera händelser."
-
-msgid "Delete event"
-msgstr "Ta bort händelse"
 
 msgid "Select events to be deleted and press the Del key."
 msgstr "Välj händelser som skall tas bort och tryck Del-knappen."
@@ -220,1223 +2227,27 @@ msgstr ""
 "\n"
 "Välj Arkiv/Ny/Timelinefil för att skapa en Timeline som sparas på disk."
 
-msgid "Start time "
-msgstr "Starttid "
-
-msgid "End time "
-msgstr "Sluttid "
-
-msgid "Start time can't be after end time"
-msgstr "Starttiden kan inte vara efter sluttiden"
-
-msgid "Duration"
-msgstr "Varaktighet"
-
 #, python-format
-msgid "Unable to save timeline data to '%s'. File left unmodified."
-msgstr "Det gick inte att spara Timelinedata till '%s'. Filen är oförändrad."
-
-msgid "Unable to write timeline data."
-msgstr "Det går inte att skriva Timelinedata"
-
-#, python-format
-msgid "Unable to write to temporary file '%s'."
-msgstr "Det gick inte att skriva till den temporära filen '%s'."
-
-#, python-format
-msgid "Unable to take backup to '%s'."
-msgstr "Det gick inte att göra backup till '%s'."
-
-#, python-format
-msgid "Unable to rename temporary file '%s' to original."
-msgstr "Det gick inte att döpa om den temporära filen '%s' till originalet."
-
-#, python-format
-msgid "Unable to delete backup file '%s'."
-msgstr "Det gick inte att ta bort backupfilen '%s'."
-
-msgid "Image files"
-msgstr "Bildfiler"
-
-msgid "Export to Image"
-msgstr "Exportera till Bild"
-
-#, python-format
-msgid "File '%s' exists. Overwrite?"
-msgstr "Filen '%s' finns redan. Vill du skriva över den?"
-
-msgid "Jan"
-msgstr "Jan"
-
-msgid "Feb"
-msgstr "Feb"
-
-msgid "Mar"
-msgstr "Mar"
-
-msgid "Apr"
-msgstr "Apr"
-
-msgid "May"
-msgstr "Maj"
-
-msgid "Jun"
-msgstr "Jun"
-
-msgid "Jul"
-msgstr "Jul"
-
-msgid "Aug"
-msgstr "Aug"
-
-msgid "Sep"
-msgstr "Sep"
-
-msgid "Oct"
-msgstr "Okt"
-
-#, fuzzy
-msgid "Nov"
-msgstr "Nej"
-
-msgid "Dec"
-msgstr "Dec"
-
-msgid "Mon"
-msgstr "Mån"
-
-msgid "Tue"
-msgstr "Tis"
-
-msgid "Wed"
-msgstr "Ons"
-
-msgid "Thu"
-msgstr "Tor"
-
-msgid "Fri"
-msgstr "Fre"
-
-#, fuzzy
-msgid "Sat"
-msgstr "Status"
-
-msgid "Sun"
-msgstr "Sön"
-
-msgid "Edit..."
-msgstr "Redigera..."
-
-msgid "Add..."
-msgstr "Lägg till..."
-
-msgid "Delete"
-msgstr "Ta bort"
-
-msgid "Check All"
-msgstr "Markera alla"
-
-msgid "Check children"
-msgstr "Markera undernivåer"
-
-msgid "Check all children"
-msgstr "Markera alla undernivåer"
-
-msgid "Check all parents"
-msgstr "Markera alla överliggande nivåer"
-
-msgid "Check parents for checked children"
-msgstr ""
-
-msgid "Uncheck All"
-msgstr "Avmarkera alla"
-
-msgid "Uncheck children"
-msgstr "Avmarkera undernivåer"
-
-msgid "Uncheck all children"
-msgstr "Avmarkera alla undernivåer"
-
-msgid "Uncheck all parents"
-msgstr "Avmarkera alla överliggande nivåer"
-
-msgid "Check all parents of all childs"
-msgstr ""
-
-msgid "Checking not allowed when there is no timeline view."
-msgstr ""
-
-msgid "Edit Category"
-msgstr "Redigera Kategori"
-
-msgid "Add Category"
-msgstr "Lägg till Kategori"
-
-#, python-format
-msgid "Are you sure you want to delete category '%s'?"
-msgstr "Är du säker på att du vill radera kategorin '%s'?"
-
-#, python-format
-msgid "Events belonging to '%s' will no longer belong to a category."
-msgstr ""
-"Händelser knutna till '%s' kommer inte längre att vara knutna till någon "
-"kategori."
-
-#, python-format
-msgid "Events belonging to '%s' will now belong to '%s'."
-msgstr "Händelser knutna till '%s' kommer nu att vara knutna till '%s'."
-
-msgid "No match"
-msgstr "Ingen träff"
-
-msgid "Only one match"
-msgstr "Endast en träff"
-
-msgid "Invalid date"
-msgstr "Ogiltigt datum"
-
-msgid "Give feedback"
-msgstr "Ge återkoppling"
-
-msgid "Add new"
-msgstr "Lägg till ny"
-
-msgid "Edit categories"
-msgstr "Redigera kategorier"
-
-msgid "Select a Category:"
-msgstr "Välj en kategori:"
-
-msgid "Set Category on events without category"
-msgstr "Sätt Kategori på Händelser utan Kategori"
-
-msgid "Set Category on selected events"
-msgstr "Välj kategori för markerade händelser"
-
-msgid "Show time"
-msgstr "Visa tid"
-
-#, fuzzy
-msgid "Found Events"
-msgstr "Händelser"
-
-msgid "&Enlarge"
-msgstr "&Förstora"
-
-msgid "&Reduce"
-msgstr "&Reducera"
-
-msgid "Event Properties"
-msgstr "Egenskaper för Händelse"
-
-msgid "When:"
-msgstr "När:"
-
-msgid "to"
-msgstr "till"
-
-msgid "Container:"
-msgstr "Behållare:"
-
-msgid "Add Container"
-msgstr "Lägg til Behållare"
-
-msgid "Period"
-msgstr "Period"
-
-msgid "Fuzzy"
-msgstr "Luddig"
-
-msgid "Locked"
-msgstr "Låst"
-
-msgid "Ends today"
-msgstr "Slutar idag"
-
-msgid "Text:"
-msgstr "Text:"
-
-msgid "Category:"
-msgstr "Kategori:"
-
-msgid "Description"
-msgstr "Beskrivning"
-
-msgid "Alert"
-msgstr "Larm"
-
-msgid "Icon"
-msgstr "Ikon"
-
-msgid "Hyperlink"
-msgstr "Hyperlänk"
-
-msgid "Progress"
-msgstr "Framsteg"
-
-msgid "Add more events after this one"
-msgstr "Lägg till fler händelser efter denna"
-
-msgid "Edit Container"
-msgstr "Redigera Behållare"
-
-msgid "Edit Event"
-msgstr "Redigera Händelse"
-
-msgid "Create Event"
-msgstr "Skapa Händelse"
-
-msgid "Email Feedback"
-msgstr "Återkoppling Email"
-
-msgid "Default client"
-msgstr "Förvald klient"
-
-msgid "Gmail"
-msgstr "Gmail"
-
-msgid "Other email client"
-msgstr "Annan epostklient"
+msgid "Unable to read from filename '%s'."
+msgstr "Det går inte att läsa filen '%s'"
 
 msgid ""
-"Copy and paste this email into your favorite email client and send it from "
-"there."
+"Invalid Date Format:\n"
+"\n"
+"The format should contain\n"
+"    one year placeholder  = yyyy\n"
+"    one month placeholder = mmm or mm\n"
+"    one day placeholder   = dd\n"
+"    two placeholders for separators between year, month and day\n"
+"\n"
+"Separators can't contain the letters y, m or d\n"
+"\n"
+"Example of valid formats:\n"
+"    yyyy-mm-dd\n"
+"    dd/mm/yyyy\n"
+"    mmm/dd-yyyy\n"
+"        "
 msgstr ""
-"Kopiera och klistra in detta email i den epostklient du föredrar och skicka "
-"det därifrån."
-
-msgid "Other"
-msgstr "Övriga"
-
-msgid "To:"
-msgstr "Till:"
-
-#, fuzzy
-msgid "Subject:"
-msgstr "Välj Ikon"
-
-msgid "Body:"
-msgstr "Innehåll:"
-
-msgid "Send With:"
-msgstr "Skicka med:"
-
-msgid "&File"
-msgstr "&Arkiv"
-
-msgid "New"
-msgstr "Ny"
-
-msgid "Create a new timeline"
-msgstr "Skapa en ny tidslinje"
-
-msgid "File Timeline..."
-msgstr "Timelinefil..."
-
-#, fuzzy
-msgid "Numeric Timeline..."
-msgstr "Timelinefil..."
-
-msgid "Directory Timeline..."
-msgstr "Timeline från filkataloger..."
-
-msgid "Open an existing timeline"
-msgstr "Öppna en befintlig tidslinje"
-
-msgid "Open &Recent"
-msgstr "Öppna s&enaste"
-
-msgid "Save As..."
-msgstr "Spara som…"
-
-msgid "Import timeline..."
-msgstr ""
-
-#, fuzzy
-msgid "&Export Current view to Image..."
-msgstr "&Exportera till Bild..."
-
-msgid "Export the current view to a PNG image"
-msgstr "Exportera nuvarande vy till en PNG-bild"
-
-#, fuzzy
-msgid "&Export Whole Timeline to Images..."
-msgstr "&Exportera till Bild..."
-
-#, fuzzy
-msgid "Export whole Timeline to PNG images"
-msgstr "Exportera nuvarande vy till en PNG-bild"
-
-msgid "&Export to SVG..."
-msgstr "Exportera som &SVG..."
-
-msgid "Export the current view to a SVG image"
-msgstr "Exportera nuvarande vy till en SVG-bild"
-
-msgid "Exit the program"
-msgstr "Avsluta programmet"
-
-#, fuzzy
-msgid "Find Categories..."
-msgstr "Redigera Kategorier"
-
-msgid "Shortcuts..."
-msgstr "Genvägar..."
-
-msgid "&Edit"
-msgstr "&Redigera"
-
-msgid "&Sidebar\tCtrl+I"
-msgstr "&Sidopanel\tCtrl+I"
-
-msgid "&Legend"
-msgstr "&Teckenförklaring"
-
-msgid "&Balloons on hover"
-msgstr "&Ballonger vid hovring"
-
-#, fuzzy
-msgid "Zoom &In\tCtrl++"
-msgstr "Gå till &Noll \t Ctrl+0"
-
-msgid "Zoom &Out\tCtrl+-"
-msgstr "Z&ooma Ut\tCtrl+-"
-
-msgid "Vertical Zoom &In\tAlt++"
-msgstr "Zooma in vertikalt\tAlt++"
-
-msgid "Vertical Zoom &Out\tAlt+-"
-msgstr "Zooma ut vertikalt\tAlt+-"
-
-msgid "&View"
-msgstr "&Visa"
-
-msgid "Create &Event..."
-msgstr "Skapa &Händelse..."
-
-msgid "&Edit Selected Event..."
-msgstr "&Editera valda Händelser..."
-
-msgid "&Duplicate Selected Event..."
-msgstr "&Duplicera Markerad Händelse..."
-
-msgid "Set Category on Selected Events..."
-msgstr "Sätt Kategori på valda Händelser..."
-
-msgid "&Measure Distance between two Events..."
-msgstr "&Mät avståndet mellan två händelser..."
-
-msgid "Set Category on events &without category..."
-msgstr "Välj kategori för alla händelser som saknar kategori..."
-
-msgid "Edit &Categories"
-msgstr "Redigera &Kategorier"
-
-msgid "&Read Only"
-msgstr "Sk&rivskyddad"
-
-msgid "&Timeline"
-msgstr "&Tidslinje"
-
-#, fuzzy
-msgid "Find &First Event"
-msgstr "Sök Första Händelsen"
-
-#, fuzzy
-msgid "Find &Last Event"
-msgstr "Senast angiven"
-
-#, fuzzy
-msgid "Fit &All Events"
-msgstr "Sök Alla Händelser"
-
-msgid "&Navigate"
-msgstr "&Navigera"
-
-msgid "Feedback"
-msgstr "Återkoppling"
-
-msgid "&Contents\tF1"
-msgstr "&Innehåll\tF1"
-
-#, fuzzy
-msgid "Getting started &tutorial"
-msgstr "Kom igång övning"
-
-msgid "Give &Feedback..."
-msgstr "Ge &Feedback..."
-
-#, fuzzy
-msgid "Co&ntact"
-msgstr "Kontakta"
-
-msgid "&Help"
-msgstr "&Hjälp"
-
-msgid "read-only"
-msgstr "skrivskyddad"
-
-msgid "Timeline files"
-msgstr "Tidslinjefiler"
-
-msgid "SVG files"
-msgstr "SVG-filer"
-
-msgid "Create Timeline"
-msgstr "Skapa Tidslinje"
-
-msgid "The specified timeline already exists."
-msgstr "Den angivna tidslinjen finns redan."
-
-msgid "Opening timeline instead of creating new."
-msgstr "Öppnar tidslinje istället för att skapa ny."
-
-msgid "Information"
-msgstr "Information"
-
-msgid "Open Timeline"
-msgstr "Öppna Tidslinje"
-
-msgid "Save Timeline As"
-msgstr "Spara Timeline som"
-
-#, fuzzy
-msgid ""
-"Could not find pysvg Python package. It is needed to export to SVG. See the "
-"Timeline website or the doc/installing.rst file for instructions how to "
-"install it."
-msgstr ""
-"Det gick inte att hitta Python-paketet pysvg. Paketet behövs för att kunna "
-"exportera till SVG. Läs mer på Timeline's webplats eller läs INSTALL-filen "
-"för att få instruktion om hur paketet installeras."
-
-msgid "Export to SVG"
-msgstr "Exportera till SVG"
-
-msgid "Unable to write configuration file."
-msgstr "Det gick inte att skriva till konfigurationsfilen."
-
-msgid "Distance between selected events"
-msgstr "Avstånd mellan markerade händelser"
-
-msgid "Events are overlapping or distance is 0"
-msgstr "Antingen överlappar händelserna varandra eller så är  avståndet 0"
-
-msgid "No timeline opened."
-msgstr "Ingen tidslinje öppnad."
-
-msgid "First time using Timeline?"
-msgstr "Första gången du använder Timeline?"
-
-msgid "Getting started tutorial"
-msgstr "Kom igång övning"
-
-msgid "Relevant help topics:"
-msgstr "Relevanta hjälpavsnitt:"
-
-msgid "Contact"
-msgstr "Kontakta"
-
-msgid "View Categories Individually"
-msgstr "Visa enbart markerade Kategorier"
-
-#, python-format
-msgid "Category name '%s' not valid. Must be non-empty."
-msgstr "Ogiltigt kategorinamn '%s'. Får inte vara blankt."
-
-#, python-format
-msgid "Category name '%s' already in use."
-msgstr "Kategorinamnet '%s' används redan."
-
-msgid "Name:"
-msgstr "Namn:"
-
-msgid "Color:"
-msgstr "Färg:"
-
-msgid "Font Color:"
-msgstr "Textfärg"
-
-msgid "Parent:"
-msgstr "Förälder"
-
-msgid "Preferences"
-msgstr "Inställningar"
-
-#, fuzzy
-msgid "General"
-msgstr "Generika"
-
-msgid "Date && Time"
-msgstr "Datum && tid"
-
-msgid "Week start on:"
-msgstr "Veckan börjar på"
-
-msgid "Open most recent timeline on startup"
-msgstr "Öppna senaste tidslinje vid start"
-
-msgid "Use inertial scrolling"
-msgstr "Använd scrollning med fördröjning"
-
-msgid "Monday"
-msgstr "Måndag"
-
-msgid "Sunday"
-msgstr "Söndag"
-
-#, fuzzy
-msgid "Category Finder"
-msgstr "Kategorier"
-
-msgid "Check"
-msgstr "Markera"
-
-msgid "Uncheck"
-msgstr "Avmarkera"
-
-msgid "Feedback On Feature"
-msgstr "Återkoppling av funktion"
-
-msgid "Give Feedback"
-msgstr "Tyck till/Lämna respons"
-
-msgid "Help"
-msgstr "Hjälp"
-
-#, fuzzy
-msgid ""
-"Could not find markdown Python package.  It is needed by the help system. "
-"See the Timeline website or the doc/installing.rst file for instructions how "
-"to install it."
-msgstr ""
-"Det gick inte att hitta Python-paketet markdown. Paketet används av "
-"hjälpsystemet. Läs mer på Timeline's webplats eller i INSTALL-filen för att "
-"få instruktioner om hur paketet installeras."
-
-msgid "Go to home page"
-msgstr "Gå till startsidan"
-
-msgid "Go back one page"
-msgstr "Gå bakåt en sida"
-
-msgid "Go forward one page"
-msgstr "Gå framåt en sida"
-
-msgid "Page not found"
-msgstr "Sidan hittades inte"
-
-#, python-format
-msgid "Could not find page '%s'."
-msgstr "Kunde inte hitta sidan '%s'."
-
-msgid "Container Properties"
-msgstr "Egenskaper för Behållare"
-
-msgid "Edit Shortcuts"
-msgstr "Redigera snabbtangenter"
-
-#, fuzzy
-msgid "Functions:"
-msgstr "Undesökningsåtgärder:"
-
-#, fuzzy
-msgid "Modifier:"
-msgstr "Ändrat fält."
-
-msgid "Shortcut Key:"
-msgstr "Snabbtangent:"
-
-msgid "Unable to copy to clipboard."
-msgstr "Misslyckades med att kopiera till klippbordet"
-
-msgid "Duplicate Event"
-msgstr "Duplicera händelse"
-
-#, python-format
-msgid "%d Events not duplicated due to missing dates."
-msgstr "%d händelser duplicerades inte pga ogiltiga datum"
-
-msgid "Number of duplicates:"
-msgstr "Antal dupliceringar"
-
-msgid "Frequency:"
-msgstr "Frekvens:"
-
-msgid "Forward"
-msgstr "Framåt"
-
-msgid "Backward"
-msgstr "Bakåt"
-
-msgid "Both"
-msgstr "Både och"
-
-#, fuzzy
-msgid "Direction"
-msgstr "Reaktion"
-
-msgid "Edit Categories"
-msgstr "Redigera Kategorier"
-
-msgid "Error"
-msgstr "Fel"
-
-msgid "Warning"
-msgstr "Varning"
-
-#, fuzzy
-msgid "Question"
-msgstr "Reaktion"
-
-msgid "Both Modifier and Shortcut key must be given!"
-msgstr "Både modifierare och snabbtangent måste anges!"
-
-#, python-format
-msgid "The shortcut %s is already bound to function '%s'!"
-msgstr "Snabbtangenten %s är redan kopplad till funktionen '%s'!"
-
-msgid "You must select a category!"
-msgstr "Du måste välja en kategori!"
-
-msgid "Progress %:"
-msgstr "Framsteg %:"
-
-msgid "Test"
-msgstr ""
-
-msgid "URL:"
-msgstr "URL:"
-
-#, python-format
-msgid "Images will be scaled to fit inside a %ix%i box."
-msgstr "Bilder kommer skalas ner så att de inte är större än %ix%i."
-
-msgid "Select Icon"
-msgstr "Välj Ikon"
-
-msgid "You can't change time when the Event is locked"
-msgstr "Det går inte att ändra tid när en händelse är låst"
-
-msgid "End must be > Start"
-msgstr "Slut måste vara > Start"
-
-msgid "Entered period is too long."
-msgstr "Angiven period är för lång."
-
-#, fuzzy
-msgid "Start time > Now."
-msgstr "Starttid "
-
-#, fuzzy, python-format
-msgid "Field '%s' can't be empty."
-msgstr "fältet <utfärdare> kan ej lämnas tomt"
-
-msgid "Text"
-msgstr "Text"
-
-msgid "Name"
-msgstr "Namn"
-
-#, python-format
-msgid "Search results for '%s'"
-msgstr "Sökresultat för '%s'"
-
-msgid "Related pages"
-msgstr "Relaterade sidor"
-
-msgid "Help contents"
-msgstr "Hjälpinnehåll"
-
-msgid "Questions and answers"
-msgstr "Frågor och svar"
-
-msgid "Concepts"
-msgstr "Begrepp"
-
-msgid "Tasks"
-msgstr "Aktiviteter"
-
-msgid "Where is the save button?"
-msgstr "Var är sparaknappen?"
-
-msgid ""
-"\n"
-"There is no save button. Timeline will automatically save your data whenever "
-"needed.\n"
-msgstr ""
-"\n"
-"Det finns ingen sparaknapp. Timeline sparar automatiskt ditt data när det "
-"behövs.\n"
-
-msgid "Where do the week numbers go if I start my weeks on Sunday?"
-msgstr ""
-"Hur blir det med veckonummer om jag väljer att veckan ska börja på en Söndag?"
-
-msgid ""
-"\n"
-"The date data object used does not support week numbers for weeks that start "
-"on Sunday at present.  We plan on using a different date object that will "
-"support this in future versions.\n"
-msgstr ""
-"\n"
-"Datumobjektet som används stöder inte veckonummer för veckor som börjar på "
-"en Söndag. I framtiden planerar att använda olika datumobjekt som stödjer "
-"detta.\n"
-
-msgid "Can multiple users work with the same timeline?"
-msgstr "Kan fler personer arbeta samtidigt med samma timeline?"
-
-msgid ""
-"\n"
-"There are some support for multiple users to work on the same timeline "
-"file.\n"
-"\n"
-"When you try to make a change and someone else has made a change you will be "
-"asked to make one of two choices:\n"
-"\n"
-"- Set timeline in read-only mode.\n"
-"- Synchronize the timeline.\n"
-" \n"
-"During the your edit action the timeline is locked for changes by others. If "
-"you try to edit a timeline when it is locked by someone else you will be "
-"notified about this situation.\n"
-msgstr ""
-
-msgid "Timeline"
-msgstr "Tidslinje"
-
-msgid ""
-"\n"
-"The timeline shows dates according to the Gregorian calendar on the x-axis. "
-"Currently the earliest date is limited to Julian day 0 (November 24, 4714 "
-"BC).\n"
-"\n"
-"Future versions might support various kinds of timelines so that you for "
-"example can specify a time in terms of number of minutes since a start time. "
-"If you are interested in such a feature, please get in touch.\n"
-"\n"
-"The timeline is divided in two areas with a horizontal adjustable divider "
-"line. Period events are displayed below the line and point events are "
-"displayed above the line.\n"
-msgstr ""
-
-#, fuzzy
-msgid "Scrolling Timeline"
-msgstr "Öppna Tidslinje"
-
-msgid ""
-"\n"
-"A Timeline can be scrolled both horizontal (along time axis) and vertically "
-"(along event axis)\n"
-"\n"
-"There are two ways to scroll horizontal. You can either use the different "
-"options in the Navigation menu or you can use the mouse. To use the mouse, "
-"hold down the left mouse button and drag the mouse horizontally.\n"
-"\n"
-"To scroll vertically, hold down the Shift- and Ctrl-keys and scroll the "
-"mouse wheel.\n"
-"Events are scrolled towards or away from the divider line separating point- "
-"and period-events.\n"
-"\n"
-msgstr ""
-
-#, fuzzy
-msgid "Zooming Timeline"
-msgstr "Öppna Tidslinje"
-
-msgid ""
-"\n"
-"A Timeline can be Zoomed both horizontal (along time axis) and vertically "
-"(along event axis)\n"
-"\n"
-"To zoom horizontal, hold down the Ctrl-key and scroll the mouse wheel.\n"
-"\n"
-"To zoom vertically, hold down the Alt-key and scroll the mouse wheel.\n"
-msgstr ""
-
-msgid "Events"
-msgstr "Händelser"
-
-#, fuzzy
-msgid ""
-"\n"
-"An event is the basic data type for representing information on the "
-"timeline.  It must specify where on the timeline it should be placed (when "
-"that event happened). This can be either a specific point in time or a "
-"period.\n"
-msgstr ""
-"\n"
-"En händelse är den bastyp som används för att representera information på "
-"tidslinjen. Den måste specificera var på tidslinjen den ska placeras (när "
-"händelsen inträffar). Detta can vara antingen en specifik tidpunkt eller en "
-"tidsperiod.\n"
-
-msgid ""
-"\n"
-"For an event the following properties can be defined.\n"
-"\n"
-" - Start Date and Time.\n"
-" - End Date and Time (if period event).\n"
-" - Text - The label displayed for an event.\n"
-" - Category - A way to group events together.\n"
-" - Container - Another way to group events together.\n"
-" - Fuzzy - Draw start and end of event fuzzy, to indicate that exact times "
-"are unknown.\n"
-" - Locked - Start- and End-points can't be changed.\n"
-" - Ends Today - The End-point is always set to current date.\n"
-" - Description - Event description that is shown i the balloon.\n"
-" - Icon - Image icon shown in balloon.\n"
-" - Alert - An alert dialog is opened at the specified alert time.\n"
-" - Hyperlink - A hyperlink that can be reached in the event context menu.\n"
-msgstr ""
-
-msgid "Categories"
-msgstr "Kategorier"
-
-msgid ""
-"\n"
-"Categories are used to group events. An event can only belong to one "
-"category. All events that belong to the same category are displayed with the "
-"same background color.\n"
-msgstr ""
-"\n"
-"Kategorier används för att gruppera händelser. En händelse kan tillhöra en "
-"och endast en kategori. Alla händelser som tillhör samma kategori visas med "
-"den bakgrundsfärg som man valt för kategorin.\n"
-
-msgid ""
-"\n"
-"The *Create Event* dialog can be opened in the following ways:\n"
-"\n"
-"- Select *Timeline* - *Create Event* from the menu.\n"
-"- Double click with the *left* mouse button on the timeline.\n"
-"- Press the *Ctrl* key, thereafter hold *left* mouse button down on the "
-"timeline, drag the mouse and release it.\n"
-msgstr ""
-"\n"
-"Dialogen *Skapa Händelse* kan öppnas på följande sätt:\n"
-"\n"
-"- Välj *Tidslinje* - *Skapa Händelse* från menyn\n"
-"- Dubbelklicka med den *vänstra* musknappen på tidslinjen\n"
-"- Håll *Ctrl* tangenten, håll *vänster* musknapp nedtryckt, dra den över "
-"tidslinjen och släpp den.\n"
-
-#, fuzzy
-msgid ""
-"\n"
-"The *Edit Event* dialog can be opened by double clicking on an event or by "
-"selecting one event and select the 'Timeline -> Edit Selected Event...' "
-"menu.\n"
-msgstr ""
-"\n"
-"Dialogen \"Uppdatera Händelse\" öppnas genom att dubbelklicka på en "
-"händelse.\n"
-
-msgid "Move event vertically"
-msgstr "Flytta händelser vertikalt"
-
-msgid ""
-"\n"
-"An event can be moved vertically. This is done by first selecting the event "
-"and therefter using the Alt+Up or Alt+Down keys.\n"
-msgstr ""
-
-#, fuzzy
-msgid "Duplicate event"
-msgstr "Duplicera händelse"
-
-msgid ""
-"\n"
-"An event can be duplicated. Select the event you want to duplicate and "
-"select the 'Timeline -> Duplicate Selected Event...' menu.\n"
-"Now a dialog appears in which you can define\n"
-"\n"
-" - How many duplications to do\n"
-" - The time period used\n"
-" - The frequency of time periods\n"
-" - The direction\n"
-" \n"
-" If number of duplications = 3, time span = day and frequency = 2, you will "
-"get 3 new copies of the event spread out with the time span of 2 days "
-"between them.\n"
-" \n"
-" You can also get to the duplication dialog from the event context menu, "
-"wich appears if you right-click an event with the mouse.\n"
-msgstr ""
-
-msgid "Selecting events"
-msgstr "Markera händelser"
-
-msgid ""
-"\n"
-"To select an event, click on it. To select multiple events, hold down the "
-"*Ctrl* key while clicking events.\n"
-msgstr ""
-"\n"
-"För att markera en händelse så klickar man på den. För att markera flera "
-"händelser samtidigt håller man ner *Ctrl* knappen samtidigt som man klickar "
-"på händelserna.\n"
-
-#, fuzzy
-msgid "Import timeline"
-msgstr "Ingen tidslinje vald"
-
-msgid ""
-"\n"
-"This feature can be used to merge two timelines into one.\n"
-"\n"
-"First open a timeline and then select menu 'File -> Import timeline...' and "
-"select the timeline to be imported.\n"
-msgstr ""
-
-#, fuzzy
-msgid "Event Containers"
-msgstr "Redigera Behållare"
-
-msgid ""
-"\n"
-"Containers are a way to group events together.\n"
-"In a container events can not overlap, so if you add a new event to a "
-"container\n"
-"all other events are moved to give room for the new event. The same thing "
-"happens\n"
-"if you resize an event within the container.\n"
-"             \n"
-"Have a look at this video for a demo. \n"
-"    <http://www.youtube.com/watch?v=dBwEQ3vqB_I>\n"
-msgstr ""
-
-msgid ""
-"\n"
-"To delete an event, select it and press the *Del* key. Multiple events can "
-"be deleted at the same time.\n"
-msgstr ""
-"\n"
-"För att ta bort en händelse, markera den och tryck på *Del*. Flera händelser "
-"kan tas bort samtidigt.\n"
-
-msgid "Will associated events be deleted when I delete a category?"
-msgstr "Kommer associerade händelser tas bort när jag tar bort en kategori?"
-
-msgid ""
-"\n"
-"No. The events will still be there but they will not belong to a category.\n"
-msgstr ""
-"\n"
-"Nej. Händelserna kommer fortfarande att vara kvar men de kommer inte att "
-"tillhöra någon kategori.\n"
-
-msgid ""
-"\n"
-"Categories can be managed in the *Edit Categories* dialog (*Timeline* > "
-"*Edit Categories*). To edit an existing category, double click on it.\n"
-"\n"
-"The visibility of categories can also be edited in the sidebar (*View* > "
-"*Sidebar*).\n"
-msgstr ""
-"\n"
-"Kategorier kan redigerasi dialogen \"Redigera Kategorier\" (*Timeline* > * "
-"Redigera Kategorier*). För att ändra data för en kategori så dubbelklickar "
-"du på den.\n"
-"\n"
-"Om befintliga kategorier ska visas  i sidopanelen eller inte är valfritt "
-"(*Visa* > *Sidopanel*)\n"
-
-msgid ""
-"\n"
-"If you have more questions about Timeline, or if you want to get in contact "
-"with users and developers of Timeline, send an email to the user mailing "
-"list: <thetimelineproj-user@lists.sourceforge.net>. (Please use English.)\n"
-msgstr ""
-"\n"
-"Om du har fler frågor om Timeline eller om du vill komma i kontakt med "
-"användare och utvecklare av Timeline, skicka ett email till mailinglistan "
-"för användare: <thetimelineproj-user@lists.sourceforge.net>. (Vänligen skriv "
-"på engelska.)\n"
-
-msgid "Why is Timeline not available in my language?"
-msgstr "Varför finns inte Timeline på mitt språk?"
-
-msgid ""
-"\n"
-"Timeline is developed and translated by volunteers. If you would like to "
-"contribute translations you are very much welcome to contact us.\n"
-msgstr ""
-"\n"
-"Timeline utvecklas och översätts av volontärer. Om du vill hjälpa till att "
-"översätta så är du mycket välkommen att kontakta oss.\n"
-
-msgid "No timeline set"
-msgstr "Ingen tidslinje vald"
-
-msgid "Can't scroll more to the left"
-msgstr "Det går inte att scrolla mer åt vänster"
-
-msgid "Can't scroll more to the right"
-msgstr "Det går inte att scrolla mer åt höger"
-
-msgid "Edit"
-msgstr "Redigera"
-
-msgid "Duplicate..."
-msgstr "Duplicera..."
-
-msgid "Sticky Balloon"
-msgstr "Fäst ballong"
-
-msgid "Goto URL"
-msgstr "Gå till URL"
-
-msgid "Center"
-msgstr "Centrera"
-
-#, python-format
-msgid "%s events hidden"
-msgstr "%s gömda händelser"
-
-#, fuzzy, python-format
-msgid "Are you sure you want to delete %d events?"
-msgstr "Är du säker på att du vill ta bort den här händelsen?"
-
-msgid "Are you sure you want to delete this event?"
-msgstr "Är du säker på att du vill ta bort den här händelsen?"
-
-msgid "Select region to zoom into"
-msgstr "Välj område att zooma in"
-
-msgid "Region too long"
-msgstr "Området för stort"
-
-msgid "Region too short"
-msgstr "Området för litet"
-
-msgid "Can't move locked event"
-msgstr "Det går inte att flytta låsta händelser"
-
-msgid "Period is too long"
-msgstr "För lång period"
-
-msgid "Go to &Today\tCtrl+T"
-msgstr "Gå till &Idag \tCtrl+I"
-
-#, fuzzy
-msgid "Go to &Date...\tCtrl+G"
-msgstr "Gå till D&atum...\tCtrl+G"
-
-msgid "Backward\tPgUp"
-msgstr "Bakåt\tPgUp"
-
-msgid "Forward\tPgDn"
-msgstr "Framåt\tPgDn"
-
-msgid "Forward One Wee&k\tCtrl+K"
-msgstr "Framåt En Vec&ka\tCtrl+K"
-
-msgid "Back One &Week\tCtrl+W"
-msgstr "Bakåt En &Vecka\tCtrl+V"
-
-msgid "Forward One Mont&h\tCtrl+h"
-msgstr "Framåt En Måna&d\tCtrl+D"
-
-msgid "Back One &Month\tCtrl+M"
-msgstr "Bakåt en &Månad\tCtrl+M"
-
-msgid "Forward One Yea&r\tCtrl+R"
-msgstr "Framåt ett Å&r\tCtrl+R"
-
-msgid "Back One &Year\tCtrl+Y"
-msgstr "Bakåt Ett &År\tCtrl+Å"
-
-msgid "Fit Millennium"
-msgstr "Anpassa Millenium"
-
-msgid "Fit Century"
-msgstr "Anpass Århundrade"
-
-msgid "Fit Decade"
-msgstr "Anpassa Decennium"
-
-msgid "Fit Year"
-msgstr "Anpassa År"
-
-msgid "Fit Month"
-msgstr "Anpassa Månad"
-
-msgid "Fit Week"
-msgstr "Anpassa Vecka"
-
-msgid "Fit Day"
-msgstr "Anpassa Dag"
-
-msgid "day"
-msgstr "dag"
-
-msgid "days"
-msgstr "dagar"
-
-msgid "hour"
-msgstr "timme"
-
-msgid "hours"
-msgstr "timmar"
-
-msgid "minute"
-msgstr "minut"
-
-msgid "minutes"
-msgstr "minuter"
-
-msgid "can't be before year 10"
-msgstr "kan inta vara tidigare än år 10"
-
-msgid "can't be after year 9989"
-msgstr "kan inte vara efter år 9989"
-
-msgid "Can't zoom wider than 1200 years"
-msgstr "Kan inte zooma ut mer än 1200 år"
-
-msgid "Can't zoom deeper than 1 hour"
-msgstr "Kan inte zooma djupare än 1 timme"
-
-msgid "Day"
-msgstr "Dag"
-
-msgid "Week"
-msgstr "Vecka"
-
-msgid "Month"
-msgstr "Månad"
-
-msgid "Year"
-msgstr "År"
-
-msgid "Go to Date"
-msgstr "Gå till Datum"
-
-msgid "Go to &Zero\tCtrl+Z"
-msgstr "Gå till &Noll \t Ctrl+0"
-
-msgid "Go to &Time\tCtrl+T"
-msgstr "Gå till &Tid \t Ctrl+T"
-
-msgid "Can't zoom deeper than 5"
-msgstr "Det går inte att zooma in mer än 5"
-
-msgid "1-period"
-msgstr "1-period"
-
-msgid "10-period"
-msgstr "10-period"
-
-msgid "100-period"
-msgstr "100-period"
-
-msgid "1000-period"
-msgstr "1000-period"
-
-msgid "Go to Time"
-msgstr "Gå till tid"
 
 msgid "File"
 msgstr "Arkiv"
@@ -1451,18 +2262,6 @@ msgstr "&Navigera"
 
 msgid "Import..."
 msgstr "Importera..."
-
-#, fuzzy
-msgid "Export Current view to Image..."
-msgstr "&Exportera till Bild..."
-
-#, fuzzy
-msgid "Export Whole Timeline to Images..."
-msgstr "&Exportera till Bild..."
-
-#, fuzzy
-msgid "Export to SVG..."
-msgstr "Exportera som &SVG..."
 
 msgid "Exit"
 msgstr "Avsluta"
@@ -1515,8 +2314,17 @@ msgstr "Duplicera den Markerade Händelsen"
 msgid "Measure Distance between two Events"
 msgstr "&Mät avståndet mellan två händelser..."
 
+msgid "Edit Categories"
+msgstr "Redigera Kategorier"
+
 msgid "Read Only"
 msgstr "Skrivskyddad"
+
+msgid "Undo"
+msgstr "Ångra"
+
+msgid "Redo"
+msgstr "Gör om"
 
 #, fuzzy
 msgid "Contents"
@@ -1537,18 +2345,8 @@ msgstr "Senast angiven"
 msgid "Find All Events"
 msgstr "Sök Alla Händelser"
 
-#, python-format
-msgid "File '%s' does not exist."
-msgstr "Filen '%s' finns inte."
-
-msgid ""
-"Someoneelse has changed the Timeline.\n"
-"You have two choices!\n"
-"  1. Set Timeline in Read-Only mode.\n"
-"  2. Synchronize Timeline.\n"
-"\n"
-"Do you want to Synchronize?"
-msgstr "Timeline har blivit ändrad av någon annan."
+msgid "The selected value contains invalid characters and can't be saved"
+msgstr ""
 
 msgid ""
 "Help requested\n"
@@ -1716,25 +2514,11 @@ msgstr "Fel då hulling (eng. hook) i skript [%s] exekverades."
 msgid "** DOB unknown **"
 msgstr "** Födelsedag okänd **"
 
-msgid "years"
-msgstr ""
-
-msgid "year"
-msgstr ""
-
 msgid "interval_format_tag::years::y"
 msgstr ""
 
 msgid "0 years"
 msgstr ""
-
-#, fuzzy
-msgid "months"
-msgstr "Månad"
-
-#, fuzzy
-msgid "month"
-msgstr "Månad"
 
 msgid "interval_format_tag::months::m"
 msgstr ""
@@ -1742,12 +2526,6 @@ msgstr ""
 #, fuzzy
 msgid "0 months"
 msgstr "Månad"
-
-msgid "weeks"
-msgstr ""
-
-msgid "week"
-msgstr ""
 
 msgid "interval_format_tag::weeks::w"
 msgstr ""
@@ -1769,12 +2547,6 @@ msgstr "timmar"
 #, fuzzy
 msgid "0 minutes"
 msgstr "minuter"
-
-msgid "seconds"
-msgstr ""
-
-msgid "second"
-msgstr ""
 
 msgid "0 seconds"
 msgstr ""
@@ -2401,6 +3173,12 @@ msgid ""
 "Mostly when the document was sent from this praxis."
 msgstr ""
 
+#, fuzzy
+msgid "Select the hospital stay associated with this document."
+msgstr ""
+"\n"
+"Välj den undersökningstyp du vill redigera!\n"
+
 msgid "Enter the date of creation of the document."
 msgstr ""
 
@@ -2467,6 +3245,9 @@ msgstr "Episod"
 msgid "➔"
 msgstr ""
 
+msgid "Hospital Stay"
+msgstr ""
+
 msgid "Date"
 msgstr ""
 
@@ -2530,6 +3311,9 @@ msgid ""
 "RV Lead: Medtronic ? (explanted)                        Explanted: Feb 09 "
 "2008"
 msgstr ""
+
+msgid "New"
+msgstr "Ny"
 
 msgid "&All"
 msgstr ""
@@ -2656,11 +3440,26 @@ msgstr ""
 msgid "Editor:"
 msgstr ""
 
+msgid "Host:"
+msgstr ""
+
+msgid "Port:"
+msgstr ""
+
+msgid "User:"
+msgstr ""
+
+msgid "Password"
+msgstr "Lösenord"
+
 #, fuzzy
 msgid "&Connect"
 msgstr "&Innehåll\tF1"
 
 msgid "<not connected>"
+msgstr ""
+
+msgid "Image"
 msgstr ""
 
 msgid "◄"
@@ -2768,21 +3567,6 @@ msgid "Save all studies of patient as DICOM archive."
 msgstr ""
 
 msgid "Modify some of Orthanc content (such as patient IDs)."
-msgstr ""
-
-msgid "Host:"
-msgstr ""
-
-msgid "Port:"
-msgstr ""
-
-msgid "User:"
-msgstr ""
-
-msgid "Password"
-msgstr "Lösenord"
-
-msgid "Image"
 msgstr ""
 
 #, fuzzy
@@ -3085,9 +3869,6 @@ msgstr "Allmänt felmeddelanden"
 msgid "&Load"
 msgstr ""
 
-msgid "Export"
-msgstr "Exportera"
-
 msgid "A long, descriptive name for this form template."
 msgstr ""
 
@@ -3323,9 +4104,6 @@ msgstr ""
 msgid "Reason"
 msgstr ""
 
-msgid "Location"
-msgstr ""
-
 msgid "Provider"
 msgstr ""
 
@@ -3536,9 +4314,6 @@ msgid "Lower than normal (standard) urgency of message."
 msgstr ""
 
 msgid "Subject"
-msgstr ""
-
-msgid "Category"
 msgstr ""
 
 msgid "Audience"
@@ -4099,9 +4874,6 @@ msgstr ""
 msgid "Procedure"
 msgstr ""
 
-msgid "End"
-msgstr ""
-
 msgid "and Episode"
 msgstr ""
 
@@ -4214,6 +4986,9 @@ msgstr ""
 msgid "Measurement details"
 msgstr ""
 
+msgid "Test"
+msgstr ""
+
 msgid "Units"
 msgstr ""
 
@@ -4283,9 +5058,6 @@ msgstr ""
 
 msgid "↢ C&lipboard"
 msgstr ""
-
-msgid "&Remove"
-msgstr "Ta bo&rt"
 
 msgid "&Print"
 msgstr ""
@@ -4886,6 +5658,72 @@ msgstr ""
 msgid "Activate the respective patient by double-clicking a row."
 msgstr ""
 
+msgid "Describe the intended action."
+msgstr ""
+
+msgid "&Select"
+msgstr ""
+
+msgid ""
+"empty?\n"
+"DICOMDIR ?\n"
+"documents/ ?"
+msgstr ""
+
+#, fuzzy
+msgid "Existing data:"
+msgstr "Senaste vaccineringar"
+
+msgid "Include"
+msgstr ""
+
+msgid "&Include into CD / DVD"
+msgstr ""
+
+#, fuzzy
+msgid "Use subdirectory:"
+msgstr "Katalog"
+
+msgid "<patient directory>"
+msgstr ""
+
+#, fuzzy
+msgid "Creating patient media"
+msgstr "Skapa en ny händelse"
+
+#, fuzzy
+msgid "Select the directory."
+msgstr "Välj kategori..."
+
+#, fuzzy
+msgid "Browse the selected directory."
+msgstr "&Duplicera Markerad Händelse..."
+
+msgid "Include existing data if any."
+msgstr ""
+
+msgid "Remove existing data if any."
+msgstr ""
+
+msgid "Check if you want to include the selected directory into the CD / DVD."
+msgstr ""
+
+msgid ""
+"Check if you want to use a subdirectory within the directory selected "
+"above.\n"
+"\n"
+"This will leave alone any existing data."
+msgstr ""
+
+msgid "Create patient media (in target directory or on CD / DVD)."
+msgstr ""
+
+msgid "Abort creating patient media."
+msgstr ""
+
+msgid "Path:"
+msgstr ""
+
 msgid "Edit Allergy/Intolerance"
 msgstr "Redigera Allergi/Intolerans"
 
@@ -4924,29 +5762,17 @@ msgstr ""
 msgid "Encounter type"
 msgstr "Typ av undersökning"
 
-msgid "&Manage..."
-msgstr ""
-
 msgid "A short description for this test panel."
 msgstr ""
 
 msgid "A comment on, or long-form description of, this test panel."
 msgstr ""
 
-msgid "Manage which test types are members of this panel (battery)."
+msgid "Add the selected LOINC to the test panel."
 msgstr ""
 
-#, fuzzy
-msgid ""
-"Codes relevant to this test panel\n"
-"separated by \";\"."
+msgid "Remove selected LOINC from test panel."
 msgstr ""
-"Koder som berör Anledning till Undersökning\n"
-"separerade med \";\"."
-
-#, fuzzy
-msgid "Test types"
-msgstr "Provtagnings-resultat"
 
 msgid "Fake"
 msgstr ""
@@ -5652,9 +6478,6 @@ msgstr ""
 msgid ""
 "\n"
 "Please fill in an appropriate value below.\n"
-msgstr ""
-
-msgid "&Select"
 msgstr ""
 
 msgid "&VAT applies"
@@ -7410,9 +8233,9 @@ msgstr ""
 msgid "everyone"
 msgstr ""
 
-#, python-format
-msgid "Patient #%s"
-msgstr ""
+#, fuzzy, python-format
+msgid "Patient: %s, %s%s %s   #%s\n"
+msgstr "Patient: %s (%s), Nummer: %s\n"
 
 #, fuzzy, python-format
 msgid "Due: %s (%s ago)\n"
@@ -7526,6 +8349,12 @@ msgstr " %s dokument\n"
 #, python-format
 msgid "patient photograph from %s"
 msgstr ""
+
+#, fuzzy, python-format
+msgid "other: %s"
+msgstr ""
+"\n"
+" Ta(inta): %s"
 
 #, fuzzy
 msgid "Browse patient data"
@@ -8533,7 +9362,7 @@ msgid ""
 "%s (%s)   #%s\n"
 " Created: %s\n"
 " Episode: %s\n"
-"%s%s%s%s"
+"%s%s%s%s%s"
 msgstr ""
 
 #, python-format
@@ -8727,6 +9556,51 @@ msgstr "Beskrivning"
 msgid "prescription data"
 msgstr "Beskrivning"
 
+#, fuzzy, python-format
+msgid "%s with %s %s     #%s"
+msgstr "Episod %s%s%s   [#%s]"
+
+#, fuzzy
+msgid "Live vaccine"
+msgstr "vaccin"
+
+#, fuzzy
+msgid "Inactive vaccine"
+msgstr "vaccin"
+
+#, fuzzy
+msgid "indication"
+msgstr "Information"
+
+#, fuzzy
+msgid "indications"
+msgstr "Vaccinering"
+
+#, fuzzy
+msgid "indication(s)"
+msgstr "Medicinlista"
+
+#, fuzzy, python-format
+msgid " Product: \"%s\"     #%s"
+msgstr ""
+"\n"
+" Ta(inta): %s"
+
+#, fuzzy, python-format
+msgid "  %s%s%s%s"
+msgstr "Episod %s%s%s   [#%s]"
+
+msgid "fake product"
+msgstr ""
+
+#, fuzzy, python-format
+msgid " Age %s - %s"
+msgstr "om %d dagar - %s"
+
+#, fuzzy
+msgid " Indications"
+msgstr "Information"
+
 #, python-format
 msgid "unknown vaccinations output format [%s]"
 msgstr "okänt format på resultat gällande vaccinationer [%s]"
@@ -8793,10 +9667,7 @@ msgstr ""
 msgid "J07AD01-target::brucellosis"
 msgstr ""
 
-msgid "J07AE01-target::cholera"
-msgstr ""
-
-msgid "J07AE02-target::cholera"
+msgid "J07AE0-target::cholera"
 msgstr ""
 
 msgid "J07AF01-target::diphtheria"
@@ -8808,13 +9679,7 @@ msgstr ""
 msgid "J07AH01-target::meningococcus A"
 msgstr ""
 
-msgid "J07AH10-target::meningococcus A"
-msgstr ""
-
 msgid "J07AH06-target::meningococcus B"
-msgstr ""
-
-msgid "J07AH09-target::meningococcus B"
 msgstr ""
 
 msgid "J07AH07-target::meningococcus C"
@@ -8829,19 +9694,10 @@ msgstr ""
 msgid "J07AJ0-target::pertussis"
 msgstr ""
 
-msgid "J07AJ01-target::pertussis"
-msgstr ""
-
-msgid "J07AJ02-target::pertussis"
-msgstr ""
-
 msgid "J07AK01-target::plague"
 msgstr ""
 
-msgid "J07AL01-target::pneumococcus"
-msgstr ""
-
-msgid "J07AL02-target::pneumococcus"
+msgid "J07AL0-target::pneumococcus"
 msgstr ""
 
 msgid "J07AM01-target::tetanus"
@@ -8850,16 +9706,10 @@ msgstr ""
 msgid "J07AN01-target::tbc"
 msgstr ""
 
-msgid "J07AP01-target::typhoid"
+msgid "J07AP0-target::typhoid"
 msgstr ""
 
-msgid "J07AP02-target::typhoid"
-msgstr ""
-
-msgid "J07AP03-target::typhoid"
-msgstr ""
-
-msgid "J07AP10-target::typhoid, paratyphus"
+msgid "J07AP1-target::typhoid, paratyphus"
 msgstr ""
 
 msgid "J07AR01-target::typhus exanthematicus"
@@ -8871,28 +9721,16 @@ msgstr ""
 msgid "J07BA01-target::tick-borne encephalitis"
 msgstr ""
 
-msgid "J07BA02-target::japanese encephalitis"
+msgid "J07BA0J-target::japanese encephalitis"
 msgstr ""
 
-msgid "J07BA03-target::japanese encephalitis"
-msgstr ""
-
-msgid "J07BB01-target::influenza"
-msgstr ""
-
-msgid "J07BB02-target::influenza"
-msgstr ""
-
-msgid "J07BB03-target::influenza"
+msgid "J07BB0-target::influenza"
 msgstr ""
 
 msgid "J07BC01-target::hepatitis B"
 msgstr ""
 
-msgid "J07BC02-target::hepatitis A"
-msgstr ""
-
-msgid "J07BC03-target::hepatitis A"
+msgid "J07BC0-target::hepatitis A"
 msgstr ""
 
 msgid "J07BD01-target::measles"
@@ -8901,28 +9739,22 @@ msgstr ""
 msgid "J07BE01-target::mumps"
 msgstr ""
 
-msgid "J07BF01-target::poliomyelitis"
-msgstr ""
-
-msgid "J07BF03-target::poliomyelitis"
+msgid "J07BF0-target::poliomyelitis"
 msgstr ""
 
 msgid "J07BG01-target::rabies"
 msgstr ""
 
-msgid "J07BH01-target::rotavirus diarrhea"
-msgstr ""
-
-msgid "J07BH02-target::rotavirus diarrhea"
+msgid "J07BH0-target::rotavirus diarrhea"
 msgstr ""
 
 msgid "J07BJ01-target::rubella"
 msgstr ""
 
-msgid "J07BK01-target::varicella (chickenpox)"
+msgid "J07BK0-target::varicella (chickenpox)"
 msgstr ""
 
-msgid "J07BK02-target::zoster (shingles)"
+msgid "J07BK0-target::zoster (shingles)"
 msgstr ""
 
 msgid "J07BL01-target::yellow fever"
@@ -8944,203 +9776,217 @@ msgid "J07BX01-target::variola (smallpox)"
 msgstr ""
 
 #, fuzzy
-msgid "anthrax vaccine"
+msgid "generic anthrax vaccine"
 msgstr "vaccin"
 
-msgid "brucellosis vaccine"
+msgid "generic brucellosis vaccine"
 msgstr ""
 
 #, fuzzy
-msgid "cholera vaccine"
-msgstr "vaccin"
-
-msgid "cholera vaccine, live"
-msgstr ""
-
-msgid "diphtheria vaccine"
-msgstr ""
-
-#, fuzzy
-msgid "HiB vaccine"
-msgstr "vaccin"
-
-msgid "meningococcus A vaccine"
-msgstr ""
-
-msgid "meningococcus B vaccine"
-msgstr ""
-
-msgid "meningococcus C vaccine"
-msgstr ""
-
-msgid "pertussis vaccine"
-msgstr ""
-
-#, fuzzy
-msgid "plague vaccine"
-msgstr "vaccin"
-
-msgid "pneumococcus vaccine"
-msgstr ""
-
-#, fuzzy
-msgid "tetanus vaccine"
+msgid "generic cholera vaccine"
 msgstr "vaccin"
 
 #, fuzzy
-msgid "Tbc vaccine"
+msgid "generic cholera vaccine, live"
 msgstr "vaccin"
 
 #, fuzzy
-msgid "typhoid vaccine"
-msgstr "vaccin"
-
-msgid "typhoid vaccine, live"
-msgstr ""
-
-msgid "typhoid/paratyphus vaccine"
-msgstr ""
-
-msgid "typhus exanthematicus vaccine"
-msgstr ""
-
-#, fuzzy
-msgid "Q fever vaccine"
-msgstr "vaccin"
-
-msgid "tick-borne encephalitis vaccine"
-msgstr ""
-
-msgid "japanese encephalitis vaccine"
-msgstr ""
-
-msgid "japanese encephalitis vaccine, live"
-msgstr ""
-
-msgid "influenza vaccine"
-msgstr ""
-
-msgid "influenza vaccine, live"
-msgstr ""
-
-msgid "hepatitis A vaccine"
-msgstr ""
-
-msgid "hepatitis B vaccine"
-msgstr ""
-
-msgid "measles vaccine, live"
-msgstr ""
-
-msgid "mumps vaccine, live"
-msgstr ""
-
-msgid "poliomyelitis vaccine"
-msgstr ""
-
-msgid "poliomyelitis vaccine, live"
-msgstr ""
-
-#, fuzzy
-msgid "rabies vaccine"
-msgstr "vaccin"
-
-msgid "rotavirus vaccine, live"
-msgstr ""
-
-msgid "rubella vaccine, live"
-msgstr ""
-
-msgid "varicella vaccine, live"
-msgstr ""
-
-msgid "zoster vaccine, live"
-msgstr ""
-
-msgid "yellow fever vaccine"
-msgstr ""
-
-#, fuzzy
-msgid "HPV vaccine"
-msgstr "vaccin"
-
-msgid "variola vaccine, live"
-msgstr ""
-
-msgid "meningococcus AC vaccine"
-msgstr ""
-
-msgid "meningococcus ACYW135 vaccine"
-msgstr ""
-
-msgid "measles-mumps vaccine, live"
-msgstr ""
-
-msgid "MMR vaccine, live"
-msgstr ""
-
-msgid "MMRV vaccine, live"
-msgstr ""
-
-msgid "measles-rubella vaccine, live"
-msgstr ""
-
-msgid "mumps-rubella vaccine, live"
-msgstr ""
-
-msgid "cholera-typhoid vaccine"
-msgstr ""
-
-msgid "typhoid-hepA vaccine"
-msgstr ""
-
-#, fuzzy
-msgid "Td vaccine"
+msgid "generic diphtheria vaccine"
 msgstr "vaccin"
 
 #, fuzzy
-msgid "TdPol vaccine"
+msgid "generic HiB vaccine"
 msgstr "vaccin"
 
-#, fuzzy
-msgid "DTPol vaccine"
-msgstr "vaccin"
+msgid "generic meningococcus A vaccine"
+msgstr ""
 
-#, fuzzy
-msgid "Td-HepB vaccine"
-msgstr "vaccin"
+msgid "generic meningococcus B vaccine"
+msgstr ""
 
-msgid "Td-rubella vaccine"
+msgid "generic meningococcus C vaccine"
 msgstr ""
 
 #, fuzzy
-msgid "TdaPPol vaccine"
+msgid "generic pertussis vaccine"
 msgstr "vaccin"
 
-msgid "TdaP-HepB vaccine"
+#, fuzzy
+msgid "generic plague vaccine"
+msgstr "vaccin"
+
+msgid "generic pneumococcus vaccine"
 msgstr ""
 
 #, fuzzy
-msgid "TdaP vaccine"
+msgid "generic tetanus vaccine"
 msgstr "vaccin"
 
-msgid "DTaPPol-Hib vaccine"
+#, fuzzy
+msgid "generic Tbc vaccine"
+msgstr "vaccin"
+
+#, fuzzy
+msgid "generic typhoid vaccine"
+msgstr "vaccin"
+
+#, fuzzy
+msgid "generic typhoid vaccine, live"
+msgstr "vaccin"
+
+#, fuzzy
+msgid "generic typhoid/paratyphus vaccine"
+msgstr "vaccin"
+
+msgid "generic typhus exanthematicus vaccine"
 msgstr ""
 
 #, fuzzy
-msgid "TdaP-Hib-HepB vaccine"
+msgid "generic Q fever vaccine"
+msgstr "vaccin"
+
+msgid "generic tick-borne encephalitis vaccine"
+msgstr ""
+
+msgid "generic japanese encephalitis vaccine"
+msgstr ""
+
+msgid "generic japanese encephalitis vaccine, live"
+msgstr ""
+
+#, fuzzy
+msgid "generic influenza vaccine"
+msgstr "Allmänt informationsmeddelande"
+
+msgid "generic influenza vaccine, live"
+msgstr ""
+
+#, fuzzy
+msgid "generic hepatitis A vaccine"
+msgstr "Medicinlista"
+
+#, fuzzy
+msgid "generic hepatitis B vaccine"
+msgstr "Medicinlista"
+
+msgid "generic measles vaccine, live"
+msgstr ""
+
+msgid "generic mumps vaccine, live"
+msgstr ""
+
+#, fuzzy
+msgid "generic poliomyelitis vaccine"
+msgstr "Allmänt informationsmeddelande"
+
+msgid "generic poliomyelitis vaccine, live"
+msgstr ""
+
+#, fuzzy
+msgid "generic rabies vaccine"
+msgstr "vaccin"
+
+msgid "generic rotavirus vaccine, live"
+msgstr ""
+
+msgid "generic rubella vaccine, live"
+msgstr ""
+
+msgid "generic varicella vaccine, live"
+msgstr ""
+
+msgid "generic zoster vaccine, live"
+msgstr ""
+
+#, fuzzy
+msgid "generic yellow fever vaccine"
 msgstr "vaccin"
 
 #, fuzzy
-msgid "TdaPPol-HepB vaccine"
+msgid "generic HPV vaccine"
+msgstr "vaccin"
+
+msgid "generic variola vaccine, live"
+msgstr ""
+
+msgid "generic meningococcus AC vaccine"
+msgstr ""
+
+msgid "generic meningococcus ACYW135 vaccine"
+msgstr ""
+
+msgid "generic measles-mumps vaccine, live"
+msgstr ""
+
+msgid "generic MMR vaccine, live"
+msgstr ""
+
+msgid "generic MMRV vaccine, live"
+msgstr ""
+
+msgid "generic measles-rubella vaccine, live"
+msgstr ""
+
+msgid "generic mumps-rubella vaccine, live"
+msgstr ""
+
+#, fuzzy
+msgid "generic cholera-typhoid vaccine"
 msgstr "vaccin"
 
 #, fuzzy
-msgid "TdaPPol-HiB-HepB vaccine"
+msgid "generic typhoid-hepA vaccine"
 msgstr "vaccin"
 
 #, fuzzy
-msgid "TdaPPol-HiB-HepB-MenAC vaccine"
+msgid "generic Td vaccine"
+msgstr "vaccin"
+
+#, fuzzy
+msgid "generic TdPol vaccine"
+msgstr "vaccin"
+
+#, fuzzy
+msgid "generic DTPol vaccine"
+msgstr "vaccin"
+
+#, fuzzy
+msgid "generic Td-HepB vaccine"
+msgstr "vaccin"
+
+msgid "generic Td-rubella vaccine"
+msgstr ""
+
+#, fuzzy
+msgid "generic TdaPPol vaccine"
+msgstr "vaccin"
+
+#, fuzzy
+msgid "generic TdaP-HepB vaccine"
+msgstr "vaccin"
+
+#, fuzzy
+msgid "generic TdaP vaccine"
+msgstr "vaccin"
+
+#, fuzzy
+msgid "generic DTaPPol-Hib vaccine"
+msgstr "vaccin"
+
+#, fuzzy
+msgid "generic TdaP-Hib-HepB vaccine"
+msgstr "vaccin"
+
+#, fuzzy
+msgid "generic TdaPPol-HepB vaccine"
+msgstr "vaccin"
+
+#, fuzzy
+msgid "generic TdaPPol-HiB-HepB vaccine"
+msgstr "vaccin"
+
+#, fuzzy
+msgid "generic TdaPPol-HiB-HepB-MenAC vaccine"
 msgstr "vaccin"
 
 msgid "A: Sign"
@@ -9354,21 +10200,30 @@ msgstr ""
 msgid "Procedures"
 msgstr ""
 
-msgid "Life events"
+msgid "Lifespan"
 msgstr ""
 
-msgid "Birth"
+#, fuzzy
+msgid "Care Period"
+msgstr "Period"
+
+msgid "Life events"
 msgstr ""
 
 #, fuzzy
 msgid "Date of birth unknown"
 msgstr "födelsedag"
 
-msgid "Start of Care"
+msgid "Birth"
 msgstr ""
 
-msgid "The earliest recorded event of care in this praxis."
+#, python-format
+msgid "Start of Care: %s (the earliest recorded event of care in this praxis)"
 msgstr ""
+
+#, fuzzy, python-format
+msgid "Death: %s"
+msgstr "   Dokument: %s"
 
 msgid "Death"
 msgstr ""
@@ -10359,23 +11214,19 @@ msgstr ""
 msgid "Editing vaccine"
 msgstr ""
 
-#, python-format
-msgid ""
-"Cannot delete vaccine\n"
-"\n"
-" %s - %s (#%s)\n"
-"\n"
-"It is probably documented in a vaccination."
-msgstr ""
-
-msgid "Deleting vaccine"
-msgstr ""
-
 msgid "fake"
 msgstr ""
 
-msgid "Showing vaccines."
+msgid "Showing vaccine details"
 msgstr ""
+
+#, fuzzy
+msgid "Products"
+msgstr "Märkesnamn"
+
+#, fuzzy
+msgid "Manage drug products"
+msgstr "Lägger till ny undersökningstyp"
 
 msgid "Enter or select the batch/lot number of the vaccine used."
 msgstr ""
@@ -10873,14 +11724,32 @@ msgstr ""
 
 #, python-format
 msgid ""
-"There was a problem with running the editor\n"
-"for visual progress notes.\n"
+"There is no editor for visual progress notes defined.\n"
+"Also, there is no editor command defined for the file type\n"
 "\n"
-" [%s]\n"
+" [%s].\n"
 "\n"
+"Therefor GNUmed attempted to at least *show* this\n"
+"visual progress note. That failed as well, however:\n"
+"\n"
+"%s"
 msgstr ""
 
 msgid "Editing visual progress note"
+msgstr ""
+
+#, python-format
+msgid ""
+"There was a problem running the editor\n"
+"\n"
+" [%s] (%s)\n"
+"\n"
+"on the visual progress note.\n"
+"\n"
+"Therefor GNUmed attempted to at least *show* it.\n"
+"That failed as well, however:\n"
+"\n"
+"%s"
 msgstr ""
 
 #, python-format
@@ -12621,9 +13490,6 @@ msgstr ""
 msgid "Table"
 msgstr ""
 
-msgid "Event"
-msgstr ""
-
 msgid ""
 "\n"
 "Please select the provider to fall back to in case\n"
@@ -14287,6 +15153,67 @@ msgstr ""
 msgid "clinical progress note"
 msgstr ""
 
+msgid "Select a directory for inclusion into the patient CD / DVD."
+msgstr ""
+
+#, fuzzy
+msgid "Select a directory in which to create the patient media."
+msgstr ""
+"\n"
+"Välj den undersökningstyp du vill redigera!\n"
+
+#, python-format
+msgid ""
+"Really delete any existing data under\n"
+"\n"
+" [%s]\n"
+"\n"
+"from disk ?\n"
+"\n"
+"(this operation is generally not reversible)"
+msgstr ""
+
+msgid ""
+"Script <gm-burn_doc(.bat)> not found.\n"
+"\n"
+"Cannot create patient CD/DVD."
+msgstr ""
+
+#, python-format
+msgid ""
+"Patient: %s\n"
+"\n"
+"Items to include into CD/DVD: %s\n"
+msgstr ""
+
+#, fuzzy, python-format
+msgid ""
+"Patient: %s\n"
+"\n"
+"Items to save: %s\n"
+msgstr "Patient: %s (%s), Nummer: %s\n"
+
+msgid "(cannot check directory)"
+msgstr ""
+
+msgid "(directory appears empty)"
+msgstr ""
+
+msgid "directory already contains data"
+msgstr ""
+
+#, python-format
+msgid ""
+"%s\n"
+"- DICOM data"
+msgstr ""
+
+#, fuzzy, python-format
+msgid ""
+"%s\n"
+"- additional documents"
+msgstr " %s dokument\n"
+
 msgid "Select files to add to the export area"
 msgstr ""
 
@@ -14354,36 +15281,14 @@ msgid ""
 " - %s"
 msgstr "Exporterat: %s\n"
 
-#, fuzzy
-msgid "Select the directory into which to export the documents."
-msgstr ""
-"\n"
-"Välj den undersökningstyp du vill redigera!\n"
-
-#, fuzzy
-msgid "Saving export area documents"
-msgstr " %s dokument\n"
-
-#, python-format
+#, fuzzy, python-format
 msgid ""
-"The chosen export directory\n"
-"\n"
-" [%s]\n"
-"\n"
-"already contains files. Do you still want to save the\n"
-"selected export area documents into that directory ?\n"
-"\n"
-"(this is useful for including the external documents\n"
-" already stored in or below this directory)\n"
-"\n"
-"[NO] will create a subdirectory for you and use that."
+"Cannot remove content from\n"
+" [%s]"
 msgstr ""
-
-msgid ""
-"Create descriptive metadata files\n"
-"and save them alongside the\n"
-"selected export area documents ?"
-msgstr ""
+"Kan inte läsa information om version från:\n"
+"\n"
+"%s"
 
 #, fuzzy, python-format
 msgid ""
@@ -14401,9 +15306,6 @@ msgstr ""
 #, fuzzy
 msgid "Browse patient data pack ?"
 msgstr "Beskrivning"
-
-msgid "If you wish to include an existing directory select it here:"
-msgstr ""
 
 #, fuzzy
 msgid "Error burning documents to CD/DVD."
@@ -15014,8 +15916,8 @@ msgid "Mail part"
 msgstr ""
 
 #, fuzzy
-msgid "Export part"
-msgstr "Exportera till SVG"
+msgid "Save part to disk"
+msgstr "  risk: %s"
 
 msgid "Document Actions:"
 msgstr ""
@@ -15038,8 +15940,13 @@ msgstr ""
 msgid "Mail all parts"
 msgstr ""
 
-msgid "Export all parts"
-msgstr ""
+#, fuzzy
+msgid "Save all parts to disk"
+msgstr "  risk: %s"
+
+#, fuzzy
+msgid "Copy all parts to export area"
+msgstr "Lägger till ny undersökningstyp"
 
 msgid "Access external original"
 msgstr ""
@@ -15169,9 +16076,9 @@ msgstr ""
 msgid "Save document part to directory ..."
 msgstr ""
 
-#, python-format
-msgid "Successfully exported document part as [%s]."
-msgstr ""
+#, fuzzy, python-format
+msgid "Successfully saved document part as [%s]."
+msgstr "Lägger till ny undersökningstyp"
 
 #, python-format
 msgid ""
@@ -15229,7 +16136,7 @@ msgid "Save document into directory ..."
 msgstr ""
 
 #, python-format
-msgid "Successfully exported %s parts into the directory [%s]."
+msgid "Successfully saved %s parts into the directory [%s]."
 msgstr ""
 
 msgid "Are you sure you want to delete the document ?"
@@ -15251,6 +16158,9 @@ msgstr ""
 #, fuzzy
 msgid "Body part"
 msgstr "del"
+
+msgid "DICOM field"
+msgstr ""
 
 msgid "Cannot connect without port (try 8042)."
 msgstr ""
@@ -15301,6 +16211,10 @@ msgid "Series"
 msgstr "Kategorier"
 
 #, fuzzy, python-format
+msgid "Image %s/%s"
+msgstr "Bildfiler"
+
+#, fuzzy, python-format
 msgid "%s image(s)%s"
 msgstr "Enhet: %s (%s)"
 
@@ -15321,6 +16235,10 @@ msgid ""
 msgstr ""
 
 msgid "Uploading DICOM files"
+msgstr ""
+
+#, python-format
+msgid "Working on: Orthanc \"%s\" (AET \"%s\" @ %s:%s, Version %s)"
 msgstr ""
 
 #, python-format
@@ -15378,10 +16296,6 @@ msgid "Unable to export studies."
 msgstr "Kan inte öppna tidslinje '%s'."
 
 #, fuzzy
-msgid "Editing Orthanc content"
-msgstr "Välj typ av undersökning"
-
-#, fuzzy
 msgid "Patient ID"
 msgstr "Exporterat: %s\n"
 
@@ -15402,6 +16316,12 @@ msgid ""
 " [%s]\n"
 "\n"
 "stored in the Orthanc DICOM server ?"
+msgstr ""
+
+msgid ""
+"I was unable to modify all DICOM patients.\n"
+"\n"
+"Please refer to the log file."
 msgstr ""
 
 #, python-format
@@ -16216,6 +17136,14 @@ msgstr ""
 msgid "Clear out the status line."
 msgstr ""
 
+#, fuzzy
+msgid "Browse work dir"
+msgstr "Beskrivning"
+
+#, python-format
+msgid "Browse user working directory [%s]."
+msgstr ""
+
 msgid "Screenshot"
 msgstr ""
 
@@ -16246,14 +17174,6 @@ msgstr "Beskrivning"
 
 #, python-format
 msgid "Browse temporary directory [%s]."
-msgstr ""
-
-#, fuzzy
-msgid "Browse work dir"
-msgstr "Beskrivning"
-
-#, python-format
-msgid "Browse user working directory [%s]."
 msgstr ""
 
 msgid "Browse internal work dir"
@@ -17334,6 +18254,10 @@ msgid "timeline image"
 msgstr "Tidslinjefiler"
 
 #, fuzzy
+msgid "timeline image (scalable)"
+msgstr "Tidslinjefiler"
+
+#, fuzzy
 msgid "timeline data"
 msgstr "Ingen tidslinje vald"
 
@@ -17774,28 +18698,26 @@ msgstr "Provtagnings-resultat"
 msgid "Editing medication"
 msgstr ""
 
-#, python-format
+#, fuzzy, python-format
 msgid ""
-"Cannot edit the medication\n"
+"Cannot edit the vaccine product\n"
 "\n"
 " \"%s\" (%s)\n"
 "\n"
-"because it is a vaccine. Please edit it\n"
-"from the vaccine management section !\n"
+"because it is in use."
+msgstr "Kan inte radera undersökningstyp [%s]. Den används."
+
+msgid "Deleting vaccine"
 msgstr ""
 
-msgid "Deleting medication"
-msgstr ""
-
-#, python-format
+#, fuzzy, python-format
 msgid ""
-"Cannot delete the medication\n"
+"Cannot delete the vaccine product\n"
 "\n"
 " \"%s\" (%s)\n"
 "\n"
-"because it is a vaccine. Please delete it\n"
-"from the vaccine management section !\n"
-msgstr ""
+"because it is in use."
+msgstr "Kan inte radera undersökningstyp [%s]. Den används."
 
 msgid "Drug products currently known to GNUmed."
 msgstr ""
@@ -17874,6 +18796,29 @@ msgid "Adding new single-component generic drug"
 msgstr ""
 
 msgid "Editing single-component generic drug"
+msgstr ""
+
+#, python-format
+msgid ""
+"Cannot edit the medication\n"
+"\n"
+" \"%s\" (%s)\n"
+"\n"
+"because it is a vaccine. Please edit it\n"
+"from the vaccine management section !\n"
+msgstr ""
+
+msgid "Deleting medication"
+msgstr ""
+
+#, python-format
+msgid ""
+"Cannot delete the medication\n"
+"\n"
+" \"%s\" (%s)\n"
+"\n"
+"because it is a vaccine. Please delete it\n"
+"from the vaccine management section !\n"
 msgstr ""
 
 #, fuzzy
@@ -18397,10 +19342,14 @@ msgstr ""
 msgid "Select a test panel."
 msgstr ""
 
-msgid "No test types selected."
+#, fuzzy
+msgid "code not found"
+msgstr "Sidan hittades inte"
+
+msgid "No LOINC codes selected."
 msgstr ""
 
-msgid "Pick the measurement types for this panel."
+msgid "no LOINC details found"
 msgstr ""
 
 msgid "Cannot export EMR. No active patient."
@@ -18711,9 +19660,6 @@ msgid "Cannot access KOrganizer transfer file [%s]"
 msgstr ""
 
 msgid "Place"
-msgstr ""
-
-msgid "Start"
 msgstr ""
 
 #, python-format
@@ -19631,6 +20577,220 @@ msgstr "Avbryt"
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Avbryt och anslut EJ till GNUmed."
 
+#~ msgid "Other timelines can't be imported to a directory timeline"
+#~ msgstr "Man kan inte importera andra Timelines till en katalog-timeline"
+
+#~ msgid ""
+#~ "Tutorial must be saved as a timeline to be able to import other timeline"
+#~ msgstr ""
+#~ "För att kunna importera en timeline till Tuturial så måste den först "
+#~ "sparas som en timeline."
+
+#~ msgid "Only %s files can be imported"
+#~ msgstr "Det går bara att importera %s filer"
+
+#, fuzzy
+#~ msgid ""
+#~ "Could not find iCalendar Python package. It is required for working with "
+#~ "ICS files. See the Timeline website or the doc/installing.rst file for "
+#~ "instructions how to install it."
+#~ msgstr ""
+#~ "Kunde inte hitta lämplig iCalender Python-distribution. Detta krävs för "
+#~ "att använda ICS-filer. För vidare instruktioner om hur du installerar "
+#~ "distributionen, följ anvisningar på websidan Timeline eller den fil "
+#~ "INSTALL som medföljer distributionen."
+
+#~ msgid "Start time "
+#~ msgstr "Starttid "
+
+#~ msgid "End time "
+#~ msgstr "Sluttid "
+
+#~ msgid "Unable to write to temporary file '%s'."
+#~ msgstr "Det gick inte att skriva till den temporära filen '%s'."
+
+#~ msgid "Unable to rename temporary file '%s' to original."
+#~ msgstr "Det gick inte att döpa om den temporära filen '%s' till originalet."
+
+#~ msgid "Unable to delete backup file '%s'."
+#~ msgstr "Det gick inte att ta bort backupfilen '%s'."
+
+#~ msgid "File Timeline..."
+#~ msgstr "Timelinefil..."
+
+#, fuzzy
+#~ msgid "Numeric Timeline..."
+#~ msgstr "Timelinefil..."
+
+#~ msgid "Directory Timeline..."
+#~ msgstr "Timeline från filkataloger..."
+
+#, fuzzy
+#~ msgid "&Export Current view to Image..."
+#~ msgstr "&Exportera till Bild..."
+
+#~ msgid "Export the current view to a PNG image"
+#~ msgstr "Exportera nuvarande vy till en PNG-bild"
+
+#, fuzzy
+#~ msgid "&Export Whole Timeline to Images..."
+#~ msgstr "&Exportera till Bild..."
+
+#, fuzzy
+#~ msgid "Export whole Timeline to PNG images"
+#~ msgstr "Exportera nuvarande vy till en PNG-bild"
+
+#~ msgid "&Export to SVG..."
+#~ msgstr "Exportera som &SVG..."
+
+#~ msgid "Export the current view to a SVG image"
+#~ msgstr "Exportera nuvarande vy till en SVG-bild"
+
+#~ msgid "&Sidebar\tCtrl+I"
+#~ msgstr "&Sidopanel\tCtrl+I"
+
+#, fuzzy
+#~ msgid "Zoom &In\tCtrl++"
+#~ msgstr "Gå till &Noll \t Ctrl+0"
+
+#~ msgid "Zoom &Out\tCtrl+-"
+#~ msgstr "Z&ooma Ut\tCtrl+-"
+
+#~ msgid "Vertical Zoom &In\tAlt++"
+#~ msgstr "Zooma in vertikalt\tAlt++"
+
+#~ msgid "Vertical Zoom &Out\tAlt+-"
+#~ msgstr "Zooma ut vertikalt\tAlt+-"
+
+#~ msgid "&Contents\tF1"
+#~ msgstr "&Innehåll\tF1"
+
+#, fuzzy
+#~ msgid ""
+#~ "Could not find pysvg Python package. It is needed to export to SVG. See "
+#~ "the Timeline website or the doc/installing.rst file for instructions how "
+#~ "to install it."
+#~ msgstr ""
+#~ "Det gick inte att hitta Python-paketet pysvg. Paketet behövs för att "
+#~ "kunna exportera till SVG. Läs mer på Timeline's webplats eller läs "
+#~ "INSTALL-filen för att få instruktion om hur paketet installeras."
+
+#~ msgid "Relevant help topics:"
+#~ msgstr "Relevanta hjälpavsnitt:"
+
+#, fuzzy
+#~ msgid ""
+#~ "Could not find markdown Python package.  It is needed by the help system. "
+#~ "See the Timeline website or the doc/installing.rst file for instructions "
+#~ "how to install it."
+#~ msgstr ""
+#~ "Det gick inte att hitta Python-paketet markdown. Paketet används av "
+#~ "hjälpsystemet. Läs mer på Timeline's webplats eller i INSTALL-filen för "
+#~ "att få instruktioner om hur paketet installeras."
+
+#~ msgid "Container Properties"
+#~ msgstr "Egenskaper för Behållare"
+
+#~ msgid "Entered period is too long."
+#~ msgstr "Angiven period är för lång."
+
+#, fuzzy
+#~ msgid "Start time > Now."
+#~ msgstr "Starttid "
+
+#, fuzzy
+#~ msgid ""
+#~ "\n"
+#~ "The *Edit Event* dialog can be opened by double clicking on an event or "
+#~ "by selecting one event and select the 'Timeline -> Edit Selected "
+#~ "Event...' menu.\n"
+#~ msgstr ""
+#~ "\n"
+#~ "Dialogen \"Uppdatera Händelse\" öppnas genom att dubbelklicka på en "
+#~ "händelse.\n"
+
+#~ msgid "Region too long"
+#~ msgstr "Området för stort"
+
+#~ msgid "Region too short"
+#~ msgstr "Området för litet"
+
+#~ msgid "Period is too long"
+#~ msgstr "För lång period"
+
+#~ msgid "Go to &Today\tCtrl+T"
+#~ msgstr "Gå till &Idag \tCtrl+I"
+
+#, fuzzy
+#~ msgid "Go to &Date...\tCtrl+G"
+#~ msgstr "Gå till D&atum...\tCtrl+G"
+
+#~ msgid "Backward\tPgUp"
+#~ msgstr "Bakåt\tPgUp"
+
+#~ msgid "Forward\tPgDn"
+#~ msgstr "Framåt\tPgDn"
+
+#~ msgid "Forward One Wee&k\tCtrl+K"
+#~ msgstr "Framåt En Vec&ka\tCtrl+K"
+
+#~ msgid "Back One &Week\tCtrl+W"
+#~ msgstr "Bakåt En &Vecka\tCtrl+V"
+
+#~ msgid "Forward One Mont&h\tCtrl+h"
+#~ msgstr "Framåt En Måna&d\tCtrl+D"
+
+#~ msgid "Back One &Month\tCtrl+M"
+#~ msgstr "Bakåt en &Månad\tCtrl+M"
+
+#~ msgid "Forward One Yea&r\tCtrl+R"
+#~ msgstr "Framåt ett Å&r\tCtrl+R"
+
+#~ msgid "Back One &Year\tCtrl+Y"
+#~ msgstr "Bakåt Ett &År\tCtrl+Å"
+
+#~ msgid "can't be before year 10"
+#~ msgstr "kan inta vara tidigare än år 10"
+
+#~ msgid "can't be after year 9989"
+#~ msgstr "kan inte vara efter år 9989"
+
+#~ msgid "Can't zoom wider than 1200 years"
+#~ msgstr "Kan inte zooma ut mer än 1200 år"
+
+#~ msgid "Can't zoom deeper than 1 hour"
+#~ msgstr "Kan inte zooma djupare än 1 timme"
+
+#~ msgid "Go to &Zero\tCtrl+Z"
+#~ msgstr "Gå till &Noll \t Ctrl+0"
+
+#~ msgid "Go to &Time\tCtrl+T"
+#~ msgstr "Gå till &Tid \t Ctrl+T"
+
+#, fuzzy
+#~ msgid ""
+#~ "Codes relevant to this test panel\n"
+#~ "separated by \";\"."
+#~ msgstr ""
+#~ "Koder som berör Anledning till Undersökning\n"
+#~ "separerade med \";\"."
+
+#, fuzzy
+#~ msgid "Test types"
+#~ msgstr "Provtagnings-resultat"
+
+#, fuzzy
+#~ msgid "Saving export area documents"
+#~ msgstr " %s dokument\n"
+
+#, fuzzy
+#~ msgid "Export part"
+#~ msgstr "Exportera till SVG"
+
+#, fuzzy
+#~ msgid "Editing Orthanc content"
+#~ msgstr "Välj typ av undersökning"
+
 #, fuzzy
 #~ msgid "Export all"
 #~ msgstr "Exportera till SVG"
@@ -19730,10 +20890,6 @@ msgstr "Avbryt och anslut EJ till GNUmed."
 #, fuzzy
 #~ msgid "%s ago (for %s: %s %s %s)"
 #~ msgstr " Spann: %s (%s - %s)"
-
-#, fuzzy
-#~ msgid "Copy to e&xport area..."
-#~ msgstr "Lägger till ny undersökningstyp"
 
 #, fuzzy
 #~ msgid "&Entry time"
@@ -19904,10 +21060,6 @@ msgstr "Avbryt och anslut EJ till GNUmed."
 #, fuzzy
 #~ msgid "to file(s)"
 #~ msgstr "SVG-filer"
-
-#, fuzzy
-#~ msgid "Saved to disk: %s"
-#~ msgstr "  risk: %s"
 
 #, fuzzy
 #~ msgid "Faxed to %s: %s"

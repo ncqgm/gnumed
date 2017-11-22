@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-05-18 12:04+0200\n"
+"POT-Creation-Date: 2017-11-22 21:34+0100\n"
 "PO-Revision-Date: 2012-06-01 01:18+0000\n"
 "Last-Translator: Rogerio Luz Coelho <dr.rogerioluzcoelho@gmail.com>\n"
 "Language-Team: Brazilian Portuguese <pt_BR@li.org>\n"
@@ -32,6 +32,86 @@ msgid ""
 "%s"
 msgstr ""
 
+msgid "Can't scroll more to the left"
+msgstr "Não é possível rolar mais para a esquerda"
+
+msgid "Can't scroll more to the right"
+msgstr "Não é possível rolar mais para a direita"
+
+msgid "No timeline set"
+msgstr "Nenhum cronograma definido"
+
+msgid "Name"
+msgstr "Nome"
+
+msgid "Color"
+msgstr ""
+
+msgid "Progress Color"
+msgstr ""
+
+msgid "Done Color"
+msgstr ""
+
+msgid "Parent"
+msgstr ""
+
+msgid "Invalid start time"
+msgstr ""
+
+msgid "Invalid end time"
+msgstr ""
+
+#, fuzzy, python-format
+msgid "Start time can't be after end time. Start:%s End:%s"
+msgstr "Data de início não pode ser após data de término"
+
+msgid "Text"
+msgstr "Texto"
+
+msgid "Description"
+msgstr "Descrição"
+
+msgid "Start"
+msgstr "Começo"
+
+msgid "End"
+msgstr ""
+
+msgid "Category"
+msgstr ""
+
+msgid "Fuzzy"
+msgstr ""
+
+msgid "Locked"
+msgstr ""
+
+msgid "Ends Today"
+msgstr ""
+
+msgid "Hyperlink"
+msgstr ""
+
+#, fuzzy
+msgid "Progress"
+msgstr "Notas de Evolução"
+
+msgid "Alert"
+msgstr ""
+
+msgid "Is Container"
+msgstr ""
+
+msgid "Is Subevent"
+msgstr ""
+
+msgid "Duration"
+msgstr "Duração"
+
+msgid "Displayed period must be > 0."
+msgstr "Período deve ser > 0"
+
 #, fuzzy, python-format
 msgid "Unable to open timeline '%s'."
 msgstr "Falha ao alocar paciente ao regime de %s"
@@ -47,192 +127,15 @@ msgstr ""
 "Você está tentando abrir um arquivo antigo com uma nova versão do timeline. "
 "Por favor instale a versão 0.21.1 do timeline para converter ao novo formato."
 
-msgid "Other timelines can't be imported to a directory timeline"
-msgstr ""
-
 msgid ""
-"Tutorial must be saved as a timeline to be able to import other timeline"
+"Since the directory of the Timeline file is not writable,\n"
+"the timeline is opened in read-only mode"
 msgstr ""
 
-#, python-format
-msgid "Only %s files can be imported"
-msgstr ""
-
-#, fuzzy
 msgid ""
 "Could not find iCalendar Python package. It is required for working with ICS "
-"files. See the Timeline website or the doc/installing.rst file for "
-"instructions how to install it."
+"files."
 msgstr ""
-"Não é possível encontrar o pacote iCalender Python. É necessário para "
-"trabalhar com arquivos ICS. Veja o site Timeline ou o arquivo de instalação "
-"(INSTALL) para instruções de como instalá-lo."
-
-#, fuzzy, python-format
-msgid "Unable to read timeline data from '%s'."
-msgstr "Falha ao remover o paciente de %s"
-
-#, python-format
-msgid "Unable to read from file '%s'."
-msgstr "Impossível ler o arquivo '%s'."
-
-msgid "Displayed period must be > 0."
-msgstr "Período deve ser > 0"
-
-#, fuzzy
-msgid "Welcome"
-msgstr "Bem vindo a"
-
-#, fuzzy
-msgid "Welcome to Timeline"
-msgstr "Bem vindo a"
-
-msgid "Intro"
-msgstr "Introdução"
-
-msgid "Hover me!"
-msgstr "Ponha o mouse em cima de mim!"
-
-msgid "Hovering events with a triangle shows the event description."
-msgstr "Colocando o mouse sobre eventos com triângulos mostra sua descrição."
-
-msgid "Features"
-msgstr "Recursos"
-
-msgid "Scroll"
-msgstr "Rolagem"
-
-msgid ""
-"Left click somewhere on the timeline and start dragging.\n"
-"\n"
-"You can also use the mouse wheel.\n"
-"\n"
-"You can also middle click with the mouse to center around that point."
-msgstr ""
-"Clique com o botão esquerdo em algum local na linha do tempo e comece a "
-"puxar.\n"
-"\n"
-"Você também pode usar a botão de rolagem do mouse.\n"
-"\n"
-"Você também pode clicar com o botão do meio do mouse para centralizar no "
-"ponto."
-
-#, fuzzy
-msgid "Container"
-msgstr "Continue"
-
-msgid "?"
-msgstr "?"
-
-#, fuzzy
-msgid "Resize me"
-msgstr "Redimensione e me mova!"
-
-msgid ""
-"Container Subevent 1\n"
-"Click on the event to get the resize handles"
-msgstr ""
-"Container Subevento 1\n"
-"Click no evento para disponibilizar as alças de redimensionamento."
-
-msgid "Drag me"
-msgstr "Arraste-me"
-
-msgid ""
-"Container Subevent 2\n"
-"\n"
-"Click on the event to get the drag handle and drag it.\n"
-"\n"
-"To drag the whole container, click on it while holding down the Alt key. "
-"Keep the Alt key down and find the drag point at the center of the container "
-"and drag it."
-msgstr ""
-
-msgid "Zoom"
-msgstr "Zoom"
-
-msgid ""
-"Hold down Ctrl while scrolling the mouse wheel.\n"
-"\n"
-"Hold down Shift while dragging with the mouse."
-msgstr ""
-"Segure Ctrl e use o botão de rolagem do mouse.\n"
-"\n"
-"Segure Shift enquanto mover com o mouse."
-
-#, fuzzy
-msgid "Create event"
-msgstr "Episódio Selecionado."
-
-msgid ""
-"Double click somewhere on the timeline.\n"
-"\n"
-"Hold down Ctrl while dragging the mouse to select a period."
-msgstr ""
-"Dê um duplo clique em algum local na linha do tempo.\n"
-"\n"
-"Segure Ctrl enquanto puxar com o mouse para selecionar o período."
-
-#, fuzzy
-msgid "Edit event"
-msgstr "inativo"
-
-msgid "Double click on an event."
-msgstr "Dê um duplo clique em um evento."
-
-#, fuzzy
-msgid "Select event"
-msgstr "Selecionando paciente"
-
-msgid ""
-"Click on it.\n"
-"\n"
-"Hold down Ctrl while clicking events to select multiple."
-msgstr ""
-"Clique nele.\n"
-"\n"
-"Segure Ctrl e clique em eventos para selecionar vários."
-
-#, fuzzy
-msgid "Delete event"
-msgstr "apagar porção"
-
-msgid "Select events to be deleted and press the Del key."
-msgstr "Selecione evento para ser deletado e prescione a tecla Del."
-
-msgid "Resize and move me!"
-msgstr "Redimensione e me mova!"
-
-msgid "First select me and then drag the handles."
-msgstr "Primeiro me selecione e depois arraste."
-
-msgid "Saving"
-msgstr "Salvando"
-
-msgid ""
-"This timeline is stored in memory and modifications to it will not be "
-"persisted between sessions.\n"
-"\n"
-"Choose File/New/File Timeline to create a timeline that is saved on disk."
-msgstr ""
-"Esta linha do tempo só está salva na memória e modificações não serão "
-"mantidas em outras seções.\n"
-"\n"
-"Selecione arquivo/Novo/Arquivo de Linha do Tempo para criar uma linha do "
-"tempo que é salva em disco."
-
-#, fuzzy
-msgid "Start time "
-msgstr "Iniciar Nova"
-
-msgid "End time "
-msgstr "Tempo de fim "
-
-msgid "Start time can't be after end time"
-msgstr "Data de início não pode ser após data de término"
-
-msgid "Duration"
-msgstr "Duração"
 
 #, python-format
 msgid "Unable to save timeline data to '%s'. File left unmodified."
@@ -242,20 +145,50 @@ msgid "Unable to write timeline data."
 msgstr "Incapaz de escrever informações sobre a linha do tempo."
 
 #, python-format
-msgid "Unable to write to temporary file '%s'."
-msgstr "Incapaz de escrever no arquivo temporário '%s'."
+msgid "Unable to write to temporary dbfile '%s'."
+msgstr ""
 
 #, python-format
 msgid "Unable to take backup to '%s'."
 msgstr "Incapaz de levar backup a '%s'."
 
 #, python-format
-msgid "Unable to rename temporary file '%s' to original."
-msgstr "Incapaz de renomear arquivo temporário '%s' para original."
+msgid "Unable to rename temporary dbfile '%s' to original."
+msgstr ""
 
 #, python-format
-msgid "Unable to delete backup file '%s'."
-msgstr "Incapaz de remover arquivo de backup '%s'."
+msgid "Unable to delete backup dbfile '%s'."
+msgstr ""
+
+msgid "Other Gradient Event box drawer"
+msgstr ""
+
+msgid "Default Event box drawer"
+msgstr ""
+
+msgid "Gradient Event box drawer"
+msgstr ""
+
+msgid "Plain text to HTML transformer"
+msgstr ""
+
+msgid "Default Text transformer"
+msgstr ""
+
+#, fuzzy
+msgid "Export Current view to Image..."
+msgstr "Exportar como ..."
+
+#, fuzzy
+msgid "Export Whole Timeline to Images..."
+msgstr "Exportar como ..."
+
+msgid ""
+"The first image contains a Julian day < 0\n"
+"\n"
+"Navigate to first event or\n"
+"Use the feature 'Accept negative Julian days'"
+msgstr ""
 
 #, fuzzy
 msgid "Image files"
@@ -268,6 +201,303 @@ msgstr "Exportar para GDT"
 #, python-format
 msgid "File '%s' exists. Overwrite?"
 msgstr "O arquivo '%s' já existe. Sobrescrever?"
+
+msgid "Export to Listbox..."
+msgstr ""
+
+msgid "Unable to copy to clipboard."
+msgstr ""
+
+msgid "Time period"
+msgstr ""
+
+msgid "Event"
+msgstr ""
+
+msgid "Export Timeline to File..."
+msgstr ""
+
+msgid "Events"
+msgstr "Eventos"
+
+msgid "Categories"
+msgstr "Categorias"
+
+msgid "export files"
+msgstr ""
+
+#, fuzzy
+msgid "Export"
+msgstr "Relatório"
+
+#, fuzzy
+msgid "Export to SVG..."
+msgstr "Exportar para GDT"
+
+msgid "Could not find pysvg Python package. It is needed to export to SVG."
+msgstr ""
+
+#, fuzzy
+msgid "SVG files"
+msgstr "todos os arquivos"
+
+#, fuzzy
+msgid "Export to SVG"
+msgstr "Exportar para GDT"
+
+msgid "Use extended Container strategy"
+msgstr ""
+
+msgid ""
+"\n"
+"              This strategy makes it possible to have overlapping subevents\n"
+"              in a container.\n"
+"\n"
+"              The container expands in the vertical direction if it has\n"
+"              overlapping subevents.\n"
+"              "
+msgstr ""
+
+msgid "Accept negative Julian days"
+msgstr ""
+
+msgid ""
+"\n"
+"              Enables the use of dates before Julian day = 0 (4713 BC)\n"
+"\n"
+"              This means that prehistorical dates can be used.\n"
+"              We are not quiet sure that the calculations works correctly\n"
+"              for negative julian days and therefore it's an experimental "
+"feature.\n"
+"\n"
+"              Be aware of the fact that a timeline created with this feature "
+"active,\n"
+"              may not be readable with Timeline if the feature is switched "
+"off.\n"
+"              "
+msgstr ""
+
+msgid "Extend Container height"
+msgstr ""
+
+msgid ""
+"\n"
+"              Extend the height of a container so that the container name "
+"becomes visible.\n"
+"\n"
+"              This also has the side effect that ordinary events come "
+"farther apart in\n"
+"              the vertical direction.\n"
+"\n"
+"              The font for the container name has a fixed size when you zoom "
+"vertically (Alt + Mouse wheel)\n"
+"              "
+msgstr ""
+
+msgid "to"
+msgstr "para"
+
+msgid "Period"
+msgstr "Período"
+
+msgid "Go to &Zero"
+msgstr ""
+
+msgid "Go to &Time"
+msgstr ""
+
+msgid "Backward"
+msgstr ""
+
+msgid "Forward"
+msgstr ""
+
+msgid "Can't zoom deeper than 5"
+msgstr "Não é possível ampliar mais do que 5"
+
+msgid "1-period"
+msgstr "1-período"
+
+msgid "10-period"
+msgstr "10-períodos"
+
+msgid "100-period"
+msgstr "100-períodos"
+
+msgid "1000-period"
+msgstr "1000-períodos"
+
+#, fuzzy
+msgid "Go to Time"
+msgstr " opção [%s]: %s"
+
+#, fuzzy
+msgid "Show time"
+msgstr "Mostrar arquivo de Log"
+
+msgid "Praios"
+msgstr ""
+
+msgid "Rondra"
+msgstr ""
+
+msgid "Efferd"
+msgstr ""
+
+msgid "Travia"
+msgstr ""
+
+msgid "Boron"
+msgstr ""
+
+msgid "Hesinde"
+msgstr ""
+
+msgid "Firun"
+msgstr ""
+
+msgid "Tsa"
+msgstr ""
+
+msgid "Phex"
+msgstr ""
+
+msgid "Peraine"
+msgstr ""
+
+msgid "Ingerimm"
+msgstr ""
+
+msgid "Rahja"
+msgstr ""
+
+msgid "Nameless Days"
+msgstr ""
+
+msgid "PRA"
+msgstr ""
+
+msgid "RON"
+msgstr ""
+
+msgid "EFF"
+msgstr ""
+
+msgid "TRA"
+msgstr ""
+
+msgid "BOR"
+msgstr ""
+
+msgid "HES"
+msgstr ""
+
+msgid "FIR"
+msgstr ""
+
+msgid "TSA"
+msgstr ""
+
+msgid "PHE"
+msgstr ""
+
+msgid "PER"
+msgstr ""
+
+msgid "ING"
+msgstr ""
+
+msgid "RAH"
+msgstr ""
+
+msgid "NL"
+msgstr ""
+
+msgid "Open &Now Date Editor"
+msgstr ""
+
+msgid "Go to &Date..."
+msgstr ""
+
+msgid "Forward One Wee&k"
+msgstr ""
+
+msgid "Back One &Week"
+msgstr ""
+
+msgid "Forward One Mont&h"
+msgstr ""
+
+msgid "Back One &Month"
+msgstr ""
+
+msgid "Forward One Yea&r"
+msgstr ""
+
+msgid "Back One &Year"
+msgstr ""
+
+msgid "Fit Millennium"
+msgstr "Ajustar Milênio"
+
+msgid "Fit Century"
+msgstr "Encaixar Século"
+
+msgid "Fit Decade"
+msgstr "Encaixar Década"
+
+msgid "Fit Year"
+msgstr "Ajustar Ano"
+
+msgid "Fit Month"
+msgstr "Ajustar Mês"
+
+msgid "Fit Week"
+msgstr ""
+
+#, fuzzy
+msgid "Fit Day"
+msgstr "Primeira Data"
+
+msgid "Can't zoom deeper than 1 minute"
+msgstr ""
+
+msgid "Day"
+msgstr ""
+
+msgid "Week"
+msgstr "Semana"
+
+msgid "Month"
+msgstr ""
+
+msgid "Year"
+msgstr ""
+
+msgid "Change Now Date"
+msgstr ""
+
+#, fuzzy
+msgid "Go to Date"
+msgstr "Última Data"
+
+msgid "Wind"
+msgstr ""
+
+msgid "Earth"
+msgstr ""
+
+msgid "Market"
+msgstr ""
+
+msgid "Rohal"
+msgstr ""
+
+msgid "Fire"
+msgstr ""
+
+msgid "Water"
+msgstr ""
 
 msgid "Jan"
 msgstr "Jan"
@@ -310,6 +540,59 @@ msgstr "Não"
 #, fuzzy
 msgid "Dec"
 msgstr "Médico"
+
+msgid "BC"
+msgstr ""
+
+msgid "The date control can't handle the given date"
+msgstr ""
+
+msgid "Go to &Today"
+msgstr ""
+
+#, fuzzy
+msgid "years"
+msgstr "ou Ano:"
+
+#, fuzzy
+msgid "year"
+msgstr "ou Ano:"
+
+msgid "months"
+msgstr ""
+
+msgid "month"
+msgstr ""
+
+msgid "weeks"
+msgstr ""
+
+msgid "week"
+msgstr ""
+
+msgid "days"
+msgstr ""
+
+msgid "day"
+msgstr ""
+
+msgid "hours"
+msgstr ""
+
+msgid "hour"
+msgstr ""
+
+msgid "minutes"
+msgstr ""
+
+msgid "minute"
+msgstr ""
+
+msgid "seconds"
+msgstr ""
+
+msgid "second"
+msgstr ""
 
 msgid "Mon"
 msgstr "Seg"
@@ -375,12 +658,6 @@ msgstr ""
 msgid "Uncheck all parents"
 msgstr ""
 
-msgid "Check all parents of all childs"
-msgstr ""
-
-msgid "Checking not allowed when there is no timeline view."
-msgstr ""
-
 #, fuzzy
 msgid "Edit Category"
 msgstr "inativo"
@@ -407,12 +684,104 @@ msgstr "Lote"
 msgid "Only one match"
 msgstr "Somente uma associação"
 
+msgid "No timeline opened."
+msgstr "Nenhuma linha do tempo aberta."
+
+msgid "First time using Timeline?"
+msgstr "Primeira vez usando o Timeline?"
+
+msgid "Getting started tutorial"
+msgstr "Tutorial de iniciante"
+
+msgid "Center"
+msgstr "Centralizado"
+
+msgid "Edit"
+msgstr "Editar"
+
+msgid "Duplicate..."
+msgstr ""
+
+msgid "Mark Event as Done"
+msgstr ""
+
+msgid "Select Category..."
+msgstr ""
+
+msgid "Sticky Balloon"
+msgstr "Balão Grudento"
+
 #, fuzzy
-msgid "Invalid date"
-msgstr "Digitação Inválida"
+msgid "Goto URL"
+msgstr "fatal"
+
+#, fuzzy, python-format
+msgid "Are you sure you want to delete %d events?"
+msgstr "Você realmente quer apagar esse documento?"
+
+#, fuzzy
+msgid "Are you sure you want to delete this event?"
+msgstr "Você realmente quer apagar esse documento?"
+
+#, python-format
+msgid "%s events hidden"
+msgstr "%s eventos ocultos"
+
+msgid "This timeline is read-only."
+msgstr ""
+
+msgid "To edit this timeline, save it to a new file: File -> Save As."
+msgstr ""
+
+msgid "This timeline is not being saved."
+msgstr ""
+
+msgid "To save this timeline, save it to a new file: File -> Save As."
+msgstr ""
 
 msgid "Give feedback"
 msgstr ""
+
+msgid "When:"
+msgstr "Quando:"
+
+#, fuzzy
+msgid "Text:"
+msgstr "Texto"
+
+msgid "Color used when the Event has no category associated with it."
+msgstr ""
+
+#, fuzzy
+msgid "Progress %:"
+msgstr "Notas de Evolução"
+
+msgid "&Append"
+msgstr ""
+
+msgid "&Remove"
+msgstr ""
+
+msgid "Te&st"
+msgstr ""
+
+msgid "URL:"
+msgstr ""
+
+#, python-format
+msgid "Images will be scaled to fit inside a %ix%i box."
+msgstr "Imagens serão reduzidas ou ampliadas para caber em uma caixa %ix%i."
+
+#, fuzzy
+msgid "Select Icon"
+msgstr "Selecione"
+
+#, fuzzy
+msgid "Select region to zoom into"
+msgstr "Selecione pessoa da lista"
+
+msgid "Can't move locked event"
+msgstr "Não é possível mover evento bloqueado"
 
 #, fuzzy
 msgid "Add new"
@@ -422,107 +791,132 @@ msgstr "Adicionando novo nome"
 msgid "Edit categories"
 msgstr "inativo"
 
-msgid "Select a Category:"
+msgid "Choose file"
 msgstr ""
-
-msgid "Set Category on events without category"
-msgstr "Definir categoria para eventos sem categoria"
-
-msgid "Set Category on selected events"
-msgstr ""
-
-#, fuzzy
-msgid "Show time"
-msgstr "Mostrar arquivo de Log"
-
-#, fuzzy
-msgid "Found Events"
-msgstr "Eventos"
-
-msgid "&Enlarge"
-msgstr ""
-
-msgid "&Reduce"
-msgstr ""
-
-#, fuzzy
-msgid "Event Properties"
-msgstr "Propriedades do Documento"
-
-msgid "When:"
-msgstr "Quando:"
-
-msgid "to"
-msgstr "para"
-
-#, fuzzy
-msgid "Container:"
-msgstr "Continue"
 
 #, fuzzy
 msgid "Add Container"
 msgstr "Continue"
 
-msgid "Period"
-msgstr "Período"
-
-msgid "Fuzzy"
+msgid "View Categories Individually"
 msgstr ""
 
-msgid "Locked"
+msgid "Add an Era"
 msgstr ""
 
-#, fuzzy
-msgid "Ends today"
-msgstr "hoje"
+msgid "Edit an Era"
+msgstr ""
 
-#, fuzzy
-msgid "Text:"
-msgstr "Texto"
+msgid "Edit Era's"
+msgstr ""
+
+msgid "CSV File"
+msgstr ""
+
+msgid "Invalid Data"
+msgstr ""
+
+msgid "At least one Export Item must be selected"
+msgstr ""
+
+msgid "At least one Event Field must be selected"
+msgstr ""
+
+msgid "At least one Category Field must be selected"
+msgstr ""
+
+msgid "Ignore"
+msgstr ""
+
+msgid "Replace"
+msgstr ""
+
+msgid "XML-Replace"
+msgstr ""
+
+msgid "Strict"
+msgstr ""
+
+msgid "Select Export File Type"
+msgstr ""
+
+msgid "Select Text Encoding"
+msgstr ""
+
+msgid "Select encoding error strategy"
+msgstr ""
+
+msgid "Select Items to export"
+msgstr ""
+
+msgid "Select Fields..."
+msgstr ""
+
+msgid "Export Timeline"
+msgstr ""
+
+msgid "Select Event Fields"
+msgstr ""
+
+msgid "Select Category Fields"
+msgstr ""
+
+msgid "You can't save a milestone with an invalid date/time"
+msgstr ""
+
+msgid "Milestone Properties"
+msgstr ""
+
+msgid "Description:"
+msgstr ""
+
+msgid "Label:"
+msgstr ""
 
 msgid "Category:"
 msgstr "Categoria:"
 
-msgid "Description"
-msgstr "Descrição"
-
-msgid "Alert"
+msgid "Colour:"
 msgstr ""
 
-msgid "Icon"
-msgstr "Ícone"
-
-msgid "Hyperlink"
+msgid "Create Milestone"
 msgstr ""
 
-#, fuzzy
-msgid "Progress"
-msgstr "Notas de Evolução"
+msgid "Edit Milestone"
+msgstr ""
 
-msgid "Add more events after this one"
-msgstr "Adicionar mais eventos após este"
-
-#, fuzzy
-msgid "Edit Container"
-msgstr "inativo"
+#, fuzzy, python-format
+msgid "Field '%s' can't be empty."
+msgstr "<issuer> não pode ser vazio"
 
 #, fuzzy
-msgid "Edit Event"
-msgstr "inativo"
+msgid "Name:"
+msgstr "Nome"
 
 #, fuzzy
-msgid "Create Event"
-msgstr "Episódio Selecionado."
+msgid "Color:"
+msgstr "Coloração"
 
-msgid "Email Feedback"
+msgid "Progress Color:"
+msgstr ""
+
+msgid "Done Color:"
+msgstr ""
+
+msgid "Font Color:"
 msgstr ""
 
 #, fuzzy
-msgid "Default client"
-msgstr "Tipo inicial"
+msgid "Parent:"
+msgstr "Paciente"
 
-msgid "Gmail"
-msgstr ""
+#, python-format
+msgid "Category name '%s' not valid. Must be non-empty."
+msgstr "Nome de categoria '%s' é inválido. Precisa ser preenchido."
+
+#, python-format
+msgid "Category name '%s' already in use."
+msgstr "Nome de categoria '%s' já é usado."
 
 msgid "Other email client"
 msgstr ""
@@ -532,7 +926,7 @@ msgid ""
 "there."
 msgstr ""
 
-msgid "Other"
+msgid "Email Feedback"
 msgstr ""
 
 #, fuzzy
@@ -550,175 +944,414 @@ msgid "Send With:"
 msgstr ""
 
 #, fuzzy
-msgid "&File"
-msgstr "Arquivo"
+msgid "Default client"
+msgstr "Tipo inicial"
 
-msgid "New"
-msgstr "Novo"
+msgid "Gmail"
+msgstr ""
 
-#, fuzzy
-msgid "Create a new timeline"
-msgstr "Criando um novo problema de saúde ..."
-
-msgid "File Timeline..."
+msgid "Other"
 msgstr ""
 
 #, fuzzy
-msgid "Numeric Timeline..."
-msgstr "Episódio Selecionado."
+msgid "Invalid date"
+msgstr "Digitação Inválida"
 
-msgid "Directory Timeline..."
+msgid "Choose what type of timeline you want to create."
 msgstr ""
 
-msgid "Open an existing timeline"
-msgstr "Abrir um cronograma existente"
-
-msgid "Open &Recent"
-msgstr "Abrir &Recente"
-
-msgid "Save As..."
-msgstr "Salvar como..."
-
-msgid "Import timeline..."
+msgid "Create new timeline"
 msgstr ""
 
-#, fuzzy
-msgid "&Export Current view to Image..."
-msgstr "Exportar como ..."
-
-#, fuzzy
-msgid "Export the current view to a PNG image"
-msgstr "Exportar o Prontuário do paciente ativo em um arquivo de texto"
-
-#, fuzzy
-msgid "&Export Whole Timeline to Images..."
-msgstr "Exportar como ..."
-
-#, fuzzy
-msgid "Export whole Timeline to PNG images"
-msgstr "Exportar o Prontuário do paciente ativo em um arquivo de texto"
-
-#, fuzzy
-msgid "&Export to SVG..."
-msgstr "Exportar para GDT"
-
-#, fuzzy
-msgid "Export the current view to a SVG image"
-msgstr "Exportar o Prontuário do paciente ativo em um arquivo de texto"
-
-msgid "Exit the program"
-msgstr "Sair do programa"
-
-#, fuzzy
-msgid "Find Categories..."
-msgstr "inativo"
-
-msgid "Shortcuts..."
+msgid "System version:"
 msgstr ""
 
-msgid "&Edit"
-msgstr "&Editar"
-
-msgid "&Sidebar\tCtrl+I"
-msgstr "&Barra Lateral\tCtrl+I"
-
-msgid "&Legend"
-msgstr "&Legenda"
-
-msgid "&Balloons on hover"
+msgid "Python version:"
 msgstr ""
 
-#, fuzzy
-msgid "Zoom &In\tCtrl++"
-msgstr "Ir para & Tempo\tCtrl+T"
-
-msgid "Zoom &Out\tCtrl+-"
+msgid "wxPython version:"
 msgstr ""
 
-msgid "Vertical Zoom &In\tAlt++"
+msgid "Locale setting:"
 msgstr ""
 
-msgid "Vertical Zoom &Out\tAlt+-"
+msgid "Locale date format:"
 msgstr ""
 
-#, fuzzy
-msgid "&View"
-msgstr "Veja o log"
-
-msgid "Create &Event..."
-msgstr "Criar &Evento..."
-
-msgid "&Edit Selected Event..."
+msgid "Configuration file:"
 msgstr ""
 
-msgid "&Duplicate Selected Event..."
+msgid "System Information"
 msgstr ""
 
-msgid "Set Category on Selected Events..."
+msgid "File does not exist."
 msgstr ""
 
-msgid "&Measure Distance between two Events..."
+#, python-format
+msgid "Unable to load events: %s."
 msgstr ""
 
-msgid "Set Category on events &without category..."
+#, python-format
+msgid "%d events will be imported."
 msgstr ""
 
-#, fuzzy
-msgid "Edit &Categories"
-msgstr "inativo"
-
-msgid "&Read Only"
+msgid "The selected timeline has a different time type."
 msgstr ""
 
-msgid "&Timeline"
-msgstr "&Cronograma"
-
-#, fuzzy
-msgid "Find &First Event"
-msgstr "Encontrar Primeiro Evento"
-
-#, fuzzy
-msgid "Find &Last Event"
-msgstr "Última"
-
-#, fuzzy
-msgid "Fit &All Events"
-msgstr "Imprimir Todos Itens"
-
-msgid "&Navigate"
-msgstr "&Navegar"
-
-msgid "Feedback"
+msgid "Select timeline to import from:"
 msgstr ""
-
-#, fuzzy
-msgid "&Contents\tF1"
-msgstr "Componentes"
-
-#, fuzzy
-msgid "Getting started &tutorial"
-msgstr "Tutorial de iniciante"
-
-msgid "Give &Feedback..."
-msgstr ""
-
-#, fuzzy
-msgid "Co&ntact"
-msgstr "Contatar"
-
-msgid "&Help"
-msgstr "&Ajuda"
-
-msgid "read-only"
-msgstr "somente leitura"
 
 #, fuzzy
 msgid "Timeline files"
 msgstr "todos os arquivos"
 
+msgid "Import events"
+msgstr ""
+
 #, fuzzy
-msgid "SVG files"
-msgstr "todos os arquivos"
+msgid "Check"
+msgstr "Checar abrangência"
+
+msgid "Uncheck"
+msgstr ""
+
+#, fuzzy
+msgid "Category Finder"
+msgstr "Categorias"
+
+msgid "You must select a category!"
+msgstr ""
+
+msgid "Set Category on events without category"
+msgstr "Definir categoria para eventos sem categoria"
+
+msgid "Set Category on selected events"
+msgstr ""
+
+msgid "Select a Category:"
+msgstr ""
+
+msgid "The html pages directory is mandatory"
+msgstr ""
+
+msgid "Can't find the html pages directory!"
+msgstr ""
+
+msgid "Do you want to create it?"
+msgstr ""
+
+msgid "The html pages director isn't empty!"
+msgstr ""
+
+msgid "Do you want overwrite it?"
+msgstr ""
+
+msgid "Select Events"
+msgstr ""
+
+msgid "Save html pages at"
+msgstr ""
+
+msgid "Start Slide Show"
+msgstr ""
+
+msgid "Select html pages directory"
+msgstr ""
+
+#, fuzzy
+msgid "Found Events"
+msgstr "Eventos"
+
+msgid "Date format:"
+msgstr ""
+
+msgid "Locale Date format:"
+msgstr ""
+
+msgid "Set Date format"
+msgstr ""
+
+msgid "Era Properties"
+msgstr ""
+
+#, fuzzy
+msgid "Ends today"
+msgstr "hoje"
+
+msgid "Current"
+msgstr ""
+
+#, fuzzy
+msgid "General"
+msgstr "Generalizado"
+
+msgid "Open most recent timeline on startup"
+msgstr "Abrir linha do tempo mais recente ao iniciar"
+
+msgid "Use inertial scrolling"
+msgstr ""
+
+msgid "Never show period Events as point Events"
+msgstr ""
+
+msgid "Center Event texts"
+msgstr ""
+
+msgid "Uncheck time checkbox for new events"
+msgstr ""
+
+msgid "Balloon text below icon"
+msgstr ""
+
+msgid "Select Event Editor Tab Order"
+msgstr ""
+
+msgid "Select Date format"
+msgstr ""
+
+msgid "Date && Time"
+msgstr "Data && Hora"
+
+msgid "Week start on:"
+msgstr "Semana começa no(a):"
+
+msgid "Monday"
+msgstr "Segunda-feira"
+
+msgid "Sunday"
+msgstr "Domingo"
+
+msgid "Fonts"
+msgstr ""
+
+msgid "Colours"
+msgstr ""
+
+msgid "Major Strips:"
+msgstr ""
+
+msgid "Minor Strips:"
+msgstr ""
+
+#, fuzzy
+msgid "Balloons:"
+msgstr "Balão Grudento"
+
+msgid "Icons"
+msgstr ""
+
+msgid "Fuzzy icon"
+msgstr ""
+
+msgid "Locked icon"
+msgstr ""
+
+msgid "Hyperlink icon"
+msgstr ""
+
+msgid "Legends:"
+msgstr ""
+
+msgid "Experimental Features"
+msgstr ""
+
+msgid "Minor strip divider line:"
+msgstr ""
+
+msgid "Major strip divider line:"
+msgstr ""
+
+msgid "Now line:"
+msgstr ""
+
+msgid "Weekends:"
+msgstr ""
+
+msgid "Background"
+msgstr ""
+
+msgid "Vertical space between Events (px)"
+msgstr ""
+
+msgid "Colorize weekends"
+msgstr ""
+
+msgid "Skip s in decade text"
+msgstr ""
+
+msgid "Display checkmark when events are done"
+msgstr ""
+
+msgid "Never use time precision for events"
+msgstr ""
+
+msgid "Legend Position"
+msgstr ""
+
+msgid "Bottom-Left"
+msgstr ""
+
+msgid "Top-Left"
+msgstr ""
+
+msgid "Top-Right"
+msgstr ""
+
+msgid "Bottom-Right"
+msgstr ""
+
+#, fuzzy
+msgid "Preferences"
+msgstr "Referência"
+
+msgid "Select Fields to Export"
+msgstr ""
+
+msgid "Number of duplicates:"
+msgstr "Número de duplicatas:"
+
+#, fuzzy
+msgid "Direction"
+msgstr "Informações Adicionais"
+
+#, fuzzy
+msgid "Frequency:"
+msgstr "Sequencia"
+
+msgid "Both"
+msgstr "Ambas"
+
+msgid "Duplicate Event"
+msgstr "Evento Duplicado"
+
+#, python-format
+msgid "%d Events not duplicated due to missing dates."
+msgstr "%d Evento não duplicados devido a ausência de datas."
+
+msgid "Shortcut is saved"
+msgstr ""
+
+msgid "Both Modifier and Shortcut key must be given!"
+msgstr ""
+
+#, python-format
+msgid "The shortcut %s is already bound to function '%s'!"
+msgstr ""
+
+#, fuzzy
+msgid "Functions:"
+msgstr "Documentos"
+
+#, fuzzy
+msgid "Modifier:"
+msgstr "registro modificado"
+
+msgid "Shortcut Key:"
+msgstr ""
+
+#, fuzzy
+msgid "Edit Shortcuts"
+msgstr "Editar os Formatos de Documentos"
+
+msgid "Give Feedback"
+msgstr "Dê a sua opinião"
+
+msgid "Feedback On Feature"
+msgstr ""
+
+msgid "Select Tab Order:"
+msgstr ""
+
+msgid "Event Editor Tab Order"
+msgstr ""
+
+msgid "You can't change time when the Event is locked"
+msgstr "Você não pode modificar a hora quando o evento está bloqueado."
+
+msgid "End must be > Start"
+msgstr "Final deve ser > Início"
+
+#, fuzzy
+msgid "Event Properties"
+msgstr "Propriedades do Documento"
+
+#, fuzzy
+msgid "Container:"
+msgstr "Continue"
+
+msgid "Icon"
+msgstr "Ícone"
+
+msgid "Default color"
+msgstr ""
+
+msgid "Add more events after this one"
+msgstr "Adicionar mais eventos após este"
+
+msgid "&Enlarge"
+msgstr ""
+
+msgid "&Reduce"
+msgstr ""
+
+msgid "Save and Duplicate"
+msgstr ""
+
+#, fuzzy
+msgid "Edit Container"
+msgstr "inativo"
+
+#, fuzzy
+msgid "Edit Event"
+msgstr "inativo"
+
+#, fuzzy
+msgid "Create Event"
+msgstr "Episódio Selecionado."
+
+msgid "Import in event description"
+msgstr ""
+
+msgid "Use as start date of event"
+msgstr ""
+
+msgid "Use as event alarm time"
+msgstr ""
+
+msgid "Options for ICS import"
+msgstr ""
+
+msgid "read-only"
+msgstr "somente leitura"
+
+#, python-format
+msgid "File '%s' does not exist."
+msgstr ""
+
+msgid ""
+"Someoneelse has changed the Timeline.\n"
+"You have two choices!\n"
+"  1. Set Timeline in Read-Only mode.\n"
+"  2. Synchronize Timeline.\n"
+"\n"
+"Do you want to Synchronize?"
+msgstr ""
+
+#, python-format
+msgid ""
+"Unable to take lock on %s\n"
+"This means you can't edit the timeline.\n"
+"Check if you have write access to this directory."
+msgstr ""
+
+#, python-format
+msgid ""
+"The lockfile used to protect the timeline from concurrent updates is opened "
+"by another program or process.\n"
+"This lockfile must be removed in order be able to continue editing the "
+"timeline!\n"
+"The lockfile is found at: %s"
+msgstr ""
 
 #, fuzzy
 msgid "Create Timeline"
@@ -741,20 +1374,6 @@ msgstr "Abrir Item"
 msgid "Save Timeline As"
 msgstr ""
 
-#, fuzzy
-msgid ""
-"Could not find pysvg Python package. It is needed to export to SVG. See the "
-"Timeline website or the doc/installing.rst file for instructions how to "
-"install it."
-msgstr ""
-"Não é possível encontrar pacote Python markdown. Ele é necessário pelo "
-"sistema de ajuda. Veja o site da Linha do Tempo ou o arquivo de INSTALAÇÃO "
-"para instruções de como instalá-lo."
-
-#, fuzzy
-msgid "Export to SVG"
-msgstr "Exportar para GDT"
-
 msgid "Unable to write configuration file."
 msgstr "Incapaz de escrever no arquivo de configuração."
 
@@ -764,102 +1383,213 @@ msgstr ""
 msgid "Events are overlapping or distance is 0"
 msgstr ""
 
-msgid "No timeline opened."
-msgstr "Nenhuma linha do tempo aberta."
+msgid "Left"
+msgstr ""
 
-msgid "First time using Timeline?"
-msgstr "Primeira vez usando o Timeline?"
+#, fuzzy
+msgid "&File"
+msgstr "Arquivo"
 
-msgid "Getting started tutorial"
+msgid "&Edit"
+msgstr "&Editar"
+
+#, fuzzy
+msgid "&View"
+msgstr "Veja o log"
+
+msgid "&Timeline"
+msgstr "&Cronograma"
+
+msgid "&Navigate"
+msgstr "&Navegar"
+
+msgid "&Help"
+msgstr "&Ajuda"
+
+msgid "New..."
+msgstr ""
+
+#, fuzzy
+msgid "Create a new timeline"
+msgstr "Criando um novo problema de saúde ..."
+
+msgid "Open an existing timeline"
+msgstr "Abrir um cronograma existente"
+
+msgid "Open &Recent"
+msgstr "Abrir &Recente"
+
+msgid "Save As..."
+msgstr "Salvar como..."
+
+msgid "Import events..."
+msgstr ""
+
+msgid "Exit the program"
+msgstr "Sair do programa"
+
+#, fuzzy
+msgid "Find Categories..."
+msgstr "inativo"
+
+msgid "Select All Events"
+msgstr ""
+
+msgid "Shortcuts..."
+msgstr ""
+
+msgid "&Sidebar"
+msgstr ""
+
+msgid "&Legend"
+msgstr "&Legenda"
+
+msgid "&Balloons on hover"
+msgstr ""
+
+msgid "Zoom &In"
+msgstr ""
+
+msgid "Zoom &Out"
+msgstr ""
+
+msgid "Vertical Zoom &In"
+msgstr ""
+
+msgid "Vertical Zoom &Out"
+msgstr ""
+
+msgid "Start slide show"
+msgstr ""
+
+msgid "&Hide Events done"
+msgstr ""
+
+msgid "Toolbar"
+msgstr ""
+
+msgid "Event appearance"
+msgstr ""
+
+msgid "Point event alignment"
+msgstr ""
+
+msgid "Create &Event..."
+msgstr "Criar &Evento..."
+
+msgid "&Edit Selected Event..."
+msgstr ""
+
+msgid "&Duplicate Selected Event..."
+msgstr ""
+
+msgid "Set Category on Selected Events..."
+msgstr ""
+
+msgid "Move event up"
+msgstr ""
+
+msgid "Move event down"
+msgstr ""
+
+msgid "Create &Milestone..."
+msgstr ""
+
+msgid "&Compress timeline Events"
+msgstr ""
+
+msgid "&Measure Distance between two Events..."
+msgstr ""
+
+msgid "Set Category on events &without category..."
+msgstr ""
+
+#, fuzzy
+msgid "Edit &Categories"
+msgstr "inativo"
+
+msgid "Edit Era's..."
+msgstr ""
+
+msgid "&Read Only"
+msgstr ""
+
+msgid "&Undo"
+msgstr ""
+
+msgid "&Redo"
+msgstr ""
+
+#, fuzzy
+msgid "Find &First Event"
+msgstr "Encontrar Primeiro Evento"
+
+#, fuzzy
+msgid "Find &Last Event"
+msgstr "Última"
+
+#, fuzzy
+msgid "Fit &All Events"
+msgstr "Imprimir Todos Itens"
+
+msgid "Go to previous time period"
+msgstr ""
+
+msgid "Feedback"
+msgstr ""
+
+msgid "&Contents"
+msgstr ""
+
+#, fuzzy
+msgid "Getting started &tutorial"
 msgstr "Tutorial de iniciante"
 
-msgid "Relevant help topics:"
+msgid "Give &Feedback..."
 msgstr ""
 
-msgid "Contact"
+#, fuzzy
+msgid "Co&ntact"
 msgstr "Contatar"
 
-msgid "View Categories Individually"
+msgid "System information"
 msgstr ""
 
-#, python-format
-msgid "Category name '%s' not valid. Must be non-empty."
-msgstr "Nome de categoria '%s' é inválido. Precisa ser preenchido."
-
-#, python-format
-msgid "Category name '%s' already in use."
-msgstr "Nome de categoria '%s' já é usado."
-
-#, fuzzy
-msgid "Name:"
-msgstr "Nome"
-
-#, fuzzy
-msgid "Color:"
-msgstr "Coloração"
-
-msgid "Font Color:"
+msgid "Gregorian"
 msgstr ""
 
-#, fuzzy
-msgid "Parent:"
-msgstr "Paciente"
-
-#, fuzzy
-msgid "Preferences"
-msgstr "Referência"
-
-#, fuzzy
-msgid "General"
-msgstr "Generalizado"
-
-msgid "Date && Time"
-msgstr "Data && Hora"
-
-msgid "Week start on:"
-msgstr "Semana começa no(a):"
-
-msgid "Open most recent timeline on startup"
-msgstr "Abrir linha do tempo mais recente ao iniciar"
-
-msgid "Use inertial scrolling"
+msgid "This creates a timeline using the standard calendar."
 msgstr ""
 
-msgid "Monday"
-msgstr "Segunda-feira"
-
-msgid "Sunday"
-msgstr "Domingo"
-
-#, fuzzy
-msgid "Category Finder"
-msgstr "Categorias"
-
-#, fuzzy
-msgid "Check"
-msgstr "Checar abrangência"
-
-msgid "Uncheck"
+msgid "Numeric"
 msgstr ""
 
-msgid "Feedback On Feature"
+msgid ""
+"This creates a timeline that has numbers on the x-axis instead of dates."
 msgstr ""
 
-msgid "Give Feedback"
-msgstr "Dê a sua opinião"
+msgid "Directory"
+msgstr ""
+
+msgid ""
+"This creates a timeline where the modification date of files in a directory "
+"are shown as events."
+msgstr ""
+
+msgid "Bosparanian"
+msgstr ""
+
+msgid ""
+"This creates a timeline using the fictuous Bosparanian calendar from the "
+"German pen-and-paper RPG \"The Dark Eye\" (\"Das schwarze Auge\", DSA)."
+msgstr ""
 
 msgid "Help"
 msgstr "Ajuda"
 
-#, fuzzy
 msgid ""
-"Could not find markdown Python package.  It is needed by the help system. "
-"See the Timeline website or the doc/installing.rst file for instructions how "
-"to install it."
+"Could not find markdown Python package. It is needed by the help system."
 msgstr ""
-"Não é possível encontrar pacote Python markdown. Ele é necessário pelo "
-"sistema de ajuda. Veja o site da Linha do Tempo ou o arquivo de INSTALAÇÃO "
-"para instruções de como instalá-lo."
 
 msgid "Go to home page"
 msgstr "Ir para a página inicial"
@@ -877,127 +1607,21 @@ msgstr "Página não encontrada"
 msgid "Could not find page '%s'."
 msgstr "Não foi possível achar imagem"
 
-#, fuzzy
-msgid "Container Properties"
-msgstr "Propriedades do Documento"
-
-#, fuzzy
-msgid "Edit Shortcuts"
-msgstr "Editar os Formatos de Documentos"
-
-#, fuzzy
-msgid "Functions:"
-msgstr "Documentos"
-
-#, fuzzy
-msgid "Modifier:"
-msgstr "registro modificado"
-
-msgid "Shortcut Key:"
-msgstr ""
-
-msgid "Unable to copy to clipboard."
-msgstr ""
-
-msgid "Duplicate Event"
-msgstr "Evento Duplicado"
-
-#, python-format
-msgid "%d Events not duplicated due to missing dates."
-msgstr "%d Evento não duplicados devido a ausência de datas."
-
-msgid "Number of duplicates:"
-msgstr "Número de duplicatas:"
-
-#, fuzzy
-msgid "Frequency:"
-msgstr "Sequencia"
-
-msgid "Forward"
-msgstr ""
-
-msgid "Backward"
-msgstr ""
-
-msgid "Both"
-msgstr "Ambas"
-
-#, fuzzy
-msgid "Direction"
-msgstr "Informações Adicionais"
-
-#, fuzzy
-msgid "Edit Categories"
-msgstr "inativo"
-
 msgid "Error"
 msgstr "Erro"
 
 msgid "Warning"
 msgstr ""
 
+msgid "Dialog moved"
+msgstr ""
+
+msgid "This dialog has been removed. Edit categories in the sidebar instead."
+msgstr ""
+
 #, fuzzy
 msgid "Question"
 msgstr "Sensibilidade"
-
-msgid "Both Modifier and Shortcut key must be given!"
-msgstr ""
-
-#, python-format
-msgid "The shortcut %s is already bound to function '%s'!"
-msgstr ""
-
-msgid "You must select a category!"
-msgstr ""
-
-#, fuzzy
-msgid "Progress %:"
-msgstr "Notas de Evolução"
-
-msgid "Test"
-msgstr "Exame"
-
-msgid "URL:"
-msgstr ""
-
-#, python-format
-msgid "Images will be scaled to fit inside a %ix%i box."
-msgstr "Imagens serão reduzidas ou ampliadas para caber em uma caixa %ix%i."
-
-#, fuzzy
-msgid "Select Icon"
-msgstr "Selecione"
-
-msgid "You can't change time when the Event is locked"
-msgstr "Você não pode modificar a hora quando o evento está bloqueado."
-
-msgid "End must be > Start"
-msgstr "Final deve ser > Início"
-
-msgid "Entered period is too long."
-msgstr "Intervalo é muito longo."
-
-#, fuzzy
-msgid "Start time > Now."
-msgstr "Iniciar Nova"
-
-#, fuzzy, python-format
-msgid "Field '%s' can't be empty."
-msgstr "<issuer> não pode ser vazio"
-
-msgid "Text"
-msgstr "Texto"
-
-msgid "Name"
-msgstr "Nome"
-
-#, python-format
-msgid "Search results for '%s'"
-msgstr "Resultados da pesquisa por '%s'"
-
-#, fuzzy
-msgid "Related pages"
-msgstr "Tipo de modelo"
 
 #, fuzzy
 msgid "Help contents"
@@ -1052,10 +1676,25 @@ msgid ""
 "\n"
 "- Set timeline in read-only mode.\n"
 "- Synchronize the timeline.\n"
-" \n"
+"\n"
 "During the your edit action the timeline is locked for changes by others. If "
 "you try to edit a timeline when it is locked by someone else you will be "
 "notified about this situation.\n"
+msgstr ""
+
+msgid "Can I Check or Uncheck all categories?"
+msgstr ""
+
+msgid ""
+"\n"
+"Yes you can check or uncheck all categories as well as a lot of other "
+"selection alternatives.\n"
+"\n"
+"Make sure the categories pane is visible and then right-click with the mouse "
+"in the pane.\n"
+"A context menu will now show up with all the check/uncheck alternatives "
+"available.\n"
+"\n"
 msgstr ""
 
 msgid "Timeline"
@@ -1119,9 +1758,6 @@ msgid ""
 "To zoom vertically, hold down the Alt-key and scroll the mouse wheel.\n"
 msgstr ""
 
-msgid "Events"
-msgstr "Eventos"
-
 #, fuzzy
 msgid ""
 "\n"
@@ -1135,6 +1771,18 @@ msgstr ""
 "tempo. Deve ser especificado onde, na linha de tempo, que deve ser colocar "
 "(ou seja, quando esse evento aconteceu). Isso pode ser um ponto específico "
 "na linha de tempo ou um período.\n"
+
+msgid "Era"
+msgstr ""
+
+msgid ""
+"\n"
+"An Era is A clearly defined period of time of arbitrary but well-defined "
+"length.\n"
+"\n"
+"An Era is displayed as a background with the color defined for the Era. The "
+"Era name is written att the bottom of the timeline.\n"
+msgstr ""
 
 msgid ""
 "\n"
@@ -1152,11 +1800,31 @@ msgid ""
 " - Description - Event description that is shown i the balloon.\n"
 " - Icon - Image icon shown in balloon.\n"
 " - Alert - An alert dialog is opened at the specified alert time.\n"
-" - Hyperlink - A hyperlink that can be reached in the event context menu.\n"
+" - Hyperlinks - A list of hyperlink that can be reached in the event context "
+"menu.\n"
 msgstr ""
 
-msgid "Categories"
-msgstr "Categorias"
+msgid "Milestones"
+msgstr ""
+
+msgid ""
+"\n"
+"A milestone is a special case of a point event. It is rendered on the "
+"timescale of a timeline and it can have a desciption shown when hooverd "
+"over. It can also have a one character label that is displayed in the "
+"milestone box.\n"
+"\n"
+"A milestone ...\n"
+"\n"
+"* is created by selecting the menu alternative Timeline -> Create "
+"milestone.\n"
+"\n"
+"* is edited by doubleclicking on it.\n"
+"\n"
+"* is deleted by clicking on it and thereafter click the delete button.\n"
+"\n"
+"* can be dragged to a new position.\n"
+msgstr ""
 
 msgid ""
 "\n"
@@ -1168,6 +1836,25 @@ msgstr ""
 "Categorias são usadas para agrupar eventos. Um evento só pode pertencer a "
 "uma categoria. Todos eventos que pertencem a uma mesma categoria são "
 "mostrados com a mesma cor de fundo.\n"
+
+msgid ""
+"\n"
+"Experimental features are features implemented in Timeline but not yet "
+"decided to be permanent.\n"
+"\n"
+"An experimental feature can be switched on or off in the preferences "
+"dialog.\n"
+"\n"
+"The functionality in these features may not be fully implemented and may not "
+"have been as extensively tested as the rest of the application.\n"
+"\n"
+"The users feedback can be important when the decision to make the features "
+"permanent or not, is taken.\n"
+msgstr ""
+
+#, fuzzy
+msgid "Create event"
+msgstr "Episódio Selecionado."
 
 msgid ""
 "\n"
@@ -1187,16 +1874,43 @@ msgstr ""
 "linha de tempo, araste o mouse e o solte no local\n"
 "  desejado.\n"
 
+msgid "Undo/Redo"
+msgstr ""
+
+msgid ""
+"\n"
+"The *Undo* function can revert an action such as creating an event, editing "
+"a category or deleting an event.\n"
+"\n"
+"To revert an action you:\n"
+"\n"
+"- Use the Ctrl+Z key (Key combination can be changed by user)\n"
+"- Select the menu *Timeline* - *Undo*\n"
+"\n"
+"To save memory usage we have decided to limit the number of actions that can "
+"be reverted.\n"
+"This means that only the 10 latest actions can be Undone.\n"
+"\n"
+"An action that is Undone can also be Redone if you:\n"
+"\n"
+"- Use the Alt+Z key (Key combination can be changed by user)\n"
+"- Select the menu *Timeline* - *Redo*\n"
+"\n"
+msgstr ""
+
 #, fuzzy
+msgid "Edit event"
+msgstr "inativo"
+
 msgid ""
 "\n"
 "The *Edit Event* dialog can be opened by double clicking on an event or by "
 "selecting one event and select the 'Timeline -> Edit Selected Event...' "
 "menu.\n"
-msgstr ""
 "\n"
-"A janela *Editar Evento* pode ser aberta com um clique duplo do mouse em "
-"cima de um evento.\n"
+"An image icon can be associated with an event by dragging the image file and "
+"dropping it on an event.\n"
+msgstr ""
 
 msgid "Move event vertically"
 msgstr ""
@@ -1204,7 +1918,7 @@ msgstr ""
 msgid ""
 "\n"
 "An event can be moved vertically. This is done by first selecting the event "
-"and therefter using the Alt+Up or Alt+Down keys.\n"
+"and thereafter using the Up or Down keys.\n"
 msgstr ""
 
 #, fuzzy
@@ -1221,13 +1935,32 @@ msgid ""
 " - The time period used\n"
 " - The frequency of time periods\n"
 " - The direction\n"
-" \n"
+"\n"
 " If number of duplications = 3, time span = day and frequency = 2, you will "
 "get 3 new copies of the event spread out with the time span of 2 days "
 "between them.\n"
-" \n"
+"\n"
 " You can also get to the duplication dialog from the event context menu, "
 "wich appears if you right-click an event with the mouse.\n"
+msgstr ""
+
+msgid "Search event"
+msgstr ""
+
+msgid ""
+"\n"
+"You can search for an event by selecting the Edit -> Search menu.\n"
+"\n"
+"A text control is opened in the lower left corner of the application.\n"
+"\n"
+"Enter a target text in the text control and click Enter.\n"
+"If the text is found in the Text or Description of any event, the first "
+"event\n"
+"found is highlighted for a short period of time.\n"
+"\n"
+"By clicking on the icons to the right of the text control you can navigate\n"
+"back and forth between all the events that has been found. You can also\n"
+"select an event from a list of all found events.\n"
 msgstr ""
 
 #, fuzzy
@@ -1267,10 +2000,19 @@ msgid ""
 "all other events are moved to give room for the new event. The same thing "
 "happens\n"
 "if you resize an event within the container.\n"
-"             \n"
-"Have a look at this video for a demo. \n"
+"\n"
+"Have a look at this video for a demo.\n"
 "    <http://www.youtube.com/watch?v=dBwEQ3vqB_I>\n"
+"\n"
+"From version 1.8 there is a second container strategy that let's events "
+"overlap in time within the container.\n"
+"This strategy is implemented as an experimental feature and can be selected "
+"in the preferences dialog.\n"
 msgstr ""
+
+#, fuzzy
+msgid "Delete event"
+msgstr "apagar porção"
 
 msgid ""
 "\n"
@@ -1291,6 +2033,24 @@ msgstr ""
 "\n"
 "Não. Os eventos ainda estarão lá, mas não pertencerão a uma categoria.\n"
 
+msgid "Add a user defined icon"
+msgstr ""
+
+msgid ""
+"\n"
+"Icons used for the event properties\n"
+"\n"
+" - Fuzzy\n"
+" - Locked\n"
+" - Hyperlink\n"
+"\n"
+"can be user defined.\n"
+"\n"
+"To use an icon of your own you create a png image file and place it in\n"
+"the subdirectory icons/event_icons.\n"
+"Now the icon can be selected in the properties dialog on the Icons tab.\n"
+msgstr ""
+
 msgid ""
 "\n"
 "Categories can be managed in the *Edit Categories* dialog (*Timeline* > "
@@ -1299,6 +2059,9 @@ msgid ""
 "The visibility of categories can also be edited in the sidebar (*View* > "
 "*Sidebar*).\n"
 msgstr ""
+
+msgid "Contact"
+msgstr "Contatar"
 
 msgid ""
 "\n"
@@ -1324,182 +2087,202 @@ msgstr ""
 "A Linha do Tempo é desenvolvida e traduzida por voluntários. Se você quiser "
 "contruibuir nas traduções você é muito bem vindo para nos contatar.\n"
 
-msgid "No timeline set"
-msgstr "Nenhum cronograma definido"
-
-msgid "Can't scroll more to the left"
-msgstr "Não é possível rolar mais para a esquerda"
-
-msgid "Can't scroll more to the right"
-msgstr "Não é possível rolar mais para a direita"
-
-msgid "Edit"
-msgstr "Editar"
-
-msgid "Duplicate..."
-msgstr ""
-
-msgid "Sticky Balloon"
-msgstr "Balão Grudento"
+#, python-format
+msgid "Search results for '%s'"
+msgstr "Resultados da pesquisa por '%s'"
 
 #, fuzzy
-msgid "Goto URL"
-msgstr "fatal"
+msgid "Related pages"
+msgstr "Tipo de modelo"
 
-msgid "Center"
-msgstr "Centralizado"
+msgid "Location"
+msgstr ""
+
+msgid "Unable to read calendar data."
+msgstr ""
 
 #, python-format
-msgid "%s events hidden"
-msgstr "%s eventos ocultos"
+msgid "Unable to read from file '%s'."
+msgstr "Impossível ler o arquivo '%s'."
 
 #, fuzzy, python-format
-msgid "Are you sure you want to delete %d events?"
-msgstr "Você realmente quer apagar esse documento?"
+msgid "Unable to read timeline data from '%s'."
+msgstr "Falha ao remover o paciente de %s"
 
-#, fuzzy
-msgid "Are you sure you want to delete this event?"
-msgstr "Você realmente quer apagar esse documento?"
-
-#, fuzzy
-msgid "Select region to zoom into"
-msgstr "Selecione pessoa da lista"
-
-msgid "Region too long"
-msgstr "Região muito longa"
-
-msgid "Region too short"
-msgstr "Região muito curta"
-
-msgid "Can't move locked event"
-msgstr "Não é possível mover evento bloqueado"
-
-msgid "Period is too long"
-msgstr "Período é muito longo"
-
-msgid "Go to &Today\tCtrl+T"
-msgstr "Ir para &Hoje\tCtrl+T"
-
-#, fuzzy
-msgid "Go to &Date...\tCtrl+G"
-msgstr "Vá para a D&ata...\tCtrl+G"
-
-msgid "Backward\tPgUp"
-msgstr "Para Trás \tPgUp"
-
-msgid "Forward\tPgDn"
-msgstr "Para Frente\tPgDn"
-
-msgid "Forward One Wee&k\tCtrl+K"
-msgstr "Avançar uma &Semana\tCtrl+K"
-
-msgid "Back One &Week\tCtrl+W"
-msgstr "Voltar uma S&emana\tCtrl+W"
-
-msgid "Forward One Mont&h\tCtrl+h"
-msgstr "Avançar um &Mes\tCtrl+h"
-
-msgid "Back One &Month\tCtrl+M"
-msgstr "Voltar um M&es\tCtrl+M"
-
-msgid "Forward One Yea&r\tCtrl+R"
-msgstr "Avançar um &Ano\tCtrl+R"
-
-msgid "Back One &Year\tCtrl+Y"
-msgstr "Voltar um A&no\tCtrl+Y"
-
-msgid "Fit Millennium"
-msgstr "Ajustar Milênio"
-
-msgid "Fit Century"
-msgstr "Encaixar Século"
-
-msgid "Fit Decade"
-msgstr "Encaixar Década"
-
-msgid "Fit Year"
-msgstr "Ajustar Ano"
-
-msgid "Fit Month"
-msgstr "Ajustar Mês"
-
-msgid "Fit Week"
+msgid "Example era"
 msgstr ""
 
 #, fuzzy
-msgid "Fit Day"
-msgstr "Primeira Data"
-
-msgid "day"
-msgstr ""
-
-msgid "days"
-msgstr ""
-
-msgid "hour"
-msgstr ""
-
-msgid "hours"
-msgstr ""
-
-msgid "minute"
-msgstr ""
-
-msgid "minutes"
-msgstr ""
-
-msgid "can't be before year 10"
-msgstr "não pode ser antes do ano 10"
-
-msgid "can't be after year 9989"
-msgstr "não pode ser depois do ano 9989"
-
-msgid "Can't zoom wider than 1200 years"
-msgstr "Não é possível ampliar mais que 1200 anos"
-
-msgid "Can't zoom deeper than 1 hour"
-msgstr "Não é possível fechar zoom para menos de 1 hora"
-
-msgid "Day"
-msgstr ""
-
-msgid "Week"
-msgstr "Semana"
-
-msgid "Month"
-msgstr ""
-
-msgid "Year"
-msgstr ""
+msgid "Welcome"
+msgstr "Bem vindo a"
 
 #, fuzzy
-msgid "Go to Date"
-msgstr "Última Data"
+msgid "Welcome to Timeline"
+msgstr "Bem vindo a"
 
-msgid "Go to &Zero\tCtrl+Z"
+msgid "Intro"
+msgstr "Introdução"
+
+msgid "This event has hyperlinks"
+msgstr "Esse evento tem hiperlinks"
+
+msgid "Right-click for context menu where the hyperlinks can be accessed."
 msgstr ""
+"Clique com o botão direito para abrir o menu de contexto, onde os hiperlinks "
+"podem ser acessados."
 
-msgid "Go to &Time\tCtrl+T"
-msgstr "Ir para & Tempo\tCtrl+T"
+msgid "Hover me!"
+msgstr "Ponha o mouse em cima de mim!"
 
-msgid "Can't zoom deeper than 5"
-msgstr "Não é possível ampliar mais do que 5"
+msgid "Hovering events with a triangle shows the event description."
+msgstr "Colocando o mouse sobre eventos com triângulos mostra sua descrição."
 
-msgid "1-period"
-msgstr "1-período"
+msgid "Features"
+msgstr "Recursos"
 
-msgid "10-period"
-msgstr "10-períodos"
+msgid "Scroll"
+msgstr "Rolagem"
 
-msgid "100-period"
-msgstr "100-períodos"
-
-msgid "1000-period"
-msgstr "1000-períodos"
+msgid ""
+"Left click somewhere on the timeline and start dragging.\n"
+"\n"
+"You can also use the mouse wheel.\n"
+"\n"
+"You can also middle click with the mouse to center around that point."
+msgstr ""
+"Clique com o botão esquerdo em algum local na linha do tempo e comece a "
+"puxar.\n"
+"\n"
+"Você também pode usar a botão de rolagem do mouse.\n"
+"\n"
+"Você também pode clicar com o botão do meio do mouse para centralizar no "
+"ponto."
 
 #, fuzzy
-msgid "Go to Time"
-msgstr " opção [%s]: %s"
+msgid "Container"
+msgstr "Continue"
+
+msgid "?"
+msgstr "?"
+
+#, fuzzy
+msgid "Resize me"
+msgstr "Redimensione e me mova!"
+
+msgid ""
+"Container Subevent 1\n"
+"Click on the event to get the resize handles"
+msgstr ""
+"Container Subevento 1\n"
+"Click no evento para disponibilizar as alças de redimensionamento."
+
+msgid "Drag me"
+msgstr "Arraste-me"
+
+msgid ""
+"Container Subevent 2\n"
+"\n"
+"Click on the event to get the drag handle and drag it.\n"
+"\n"
+"To drag the whole container, click on it while holding down the Alt key. "
+"Keep the Alt key down and find the drag point at the center of the container "
+"and drag it."
+msgstr ""
+
+msgid "View Container demo video"
+msgstr ""
+
+msgid ""
+"Container Subevent 3\n"
+"\n"
+"Select hyperlink to show demo video.\n"
+"\n"
+"Right-click in the event and select 'Goto URL' in the popup menu and select "
+"the first (and only) link"
+msgstr ""
+
+msgid "Zoom"
+msgstr "Zoom"
+
+msgid ""
+"Hold down Ctrl while scrolling the mouse wheel.\n"
+"\n"
+"Hold down Shift while dragging with the mouse."
+msgstr ""
+"Segure Ctrl e use o botão de rolagem do mouse.\n"
+"\n"
+"Segure Shift enquanto mover com o mouse."
+
+msgid ""
+"Double click somewhere on the timeline.\n"
+"\n"
+"Hold down Ctrl while dragging the mouse to select a period."
+msgstr ""
+"Dê um duplo clique em algum local na linha do tempo.\n"
+"\n"
+"Segure Ctrl enquanto puxar com o mouse para selecionar o período."
+
+msgid "Double click on an event."
+msgstr "Dê um duplo clique em um evento."
+
+#, fuzzy
+msgid "Select event"
+msgstr "Selecionando paciente"
+
+msgid ""
+"Click on it.\n"
+"\n"
+"Hold down Ctrl while clicking events to select multiple."
+msgstr ""
+"Clique nele.\n"
+"\n"
+"Segure Ctrl e clique em eventos para selecionar vários."
+
+msgid "Select events to be deleted and press the Del key."
+msgstr "Selecione evento para ser deletado e prescione a tecla Del."
+
+msgid "Resize and move me!"
+msgstr "Redimensione e me mova!"
+
+msgid "First select me and then drag the handles."
+msgstr "Primeiro me selecione e depois arraste."
+
+msgid "Saving"
+msgstr "Salvando"
+
+msgid ""
+"This timeline is stored in memory and modifications to it will not be "
+"persisted between sessions.\n"
+"\n"
+"Choose File/New/File Timeline to create a timeline that is saved on disk."
+msgstr ""
+"Esta linha do tempo só está salva na memória e modificações não serão "
+"mantidas em outras seções.\n"
+"\n"
+"Selecione arquivo/Novo/Arquivo de Linha do Tempo para criar uma linha do "
+"tempo que é salva em disco."
+
+#, python-format
+msgid "Unable to read from filename '%s'."
+msgstr "Não foi possível ler o arquivo '%s'"
+
+msgid ""
+"Invalid Date Format:\n"
+"\n"
+"The format should contain\n"
+"    one year placeholder  = yyyy\n"
+"    one month placeholder = mmm or mm\n"
+"    one day placeholder   = dd\n"
+"    two placeholders for separators between year, month and day\n"
+"\n"
+"Separators can't contain the letters y, m or d\n"
+"\n"
+"Example of valid formats:\n"
+"    yyyy-mm-dd\n"
+"    dd/mm/yyyy\n"
+"    mmm/dd-yyyy\n"
+"        "
+msgstr ""
 
 msgid "File"
 msgstr "Arquivo"
@@ -1515,18 +2298,6 @@ msgstr "&Navegar"
 #, fuzzy
 msgid "Import..."
 msgstr "Exportar como ..."
-
-#, fuzzy
-msgid "Export Current view to Image..."
-msgstr "Exportar como ..."
-
-#, fuzzy
-msgid "Export Whole Timeline to Images..."
-msgstr "Exportar como ..."
-
-#, fuzzy
-msgid "Export to SVG..."
-msgstr "Exportar para GDT"
 
 msgid "Exit"
 msgstr "Sair"
@@ -1577,8 +2348,18 @@ msgstr "Editar o item selecionado."
 msgid "Measure Distance between two Events"
 msgstr "Medir distância entre dois eventos"
 
+#, fuzzy
+msgid "Edit Categories"
+msgstr "inativo"
+
 msgid "Read Only"
 msgstr "Somente leitura"
+
+msgid "Undo"
+msgstr "Desfazer"
+
+msgid "Redo"
+msgstr ""
 
 #, fuzzy
 msgid "Contents"
@@ -1599,17 +2380,7 @@ msgstr "Última"
 msgid "Find All Events"
 msgstr "Imprimir Todos Itens"
 
-#, python-format
-msgid "File '%s' does not exist."
-msgstr ""
-
-msgid ""
-"Someoneelse has changed the Timeline.\n"
-"You have two choices!\n"
-"  1. Set Timeline in Read-Only mode.\n"
-"  2. Synchronize Timeline.\n"
-"\n"
-"Do you want to Synchronize?"
+msgid "The selected value contains invalid characters and can't be saved"
 msgstr ""
 
 msgid ""
@@ -1774,14 +2545,6 @@ msgstr "Erro ao executar o script de hook [%s]"
 msgid "** DOB unknown **"
 msgstr "** DN desconhecida **"
 
-#, fuzzy
-msgid "years"
-msgstr "ou Ano:"
-
-#, fuzzy
-msgid "year"
-msgstr "ou Ano:"
-
 msgid "interval_format_tag::years::y"
 msgstr ""
 
@@ -1789,22 +2552,10 @@ msgstr ""
 msgid "0 years"
 msgstr "ou Ano:"
 
-msgid "months"
-msgstr ""
-
-msgid "month"
-msgstr ""
-
 msgid "interval_format_tag::months::m"
 msgstr ""
 
 msgid "0 months"
-msgstr ""
-
-msgid "weeks"
-msgstr ""
-
-msgid "week"
 msgstr ""
 
 msgid "interval_format_tag::weeks::w"
@@ -1823,12 +2574,6 @@ msgid "0 hours"
 msgstr ""
 
 msgid "0 minutes"
-msgstr ""
-
-msgid "seconds"
-msgstr ""
-
-msgid "second"
 msgstr ""
 
 msgid "0 seconds"
@@ -2482,6 +3227,10 @@ msgid ""
 "Mostly when the document was sent from this praxis."
 msgstr ""
 
+#, fuzzy
+msgid "Select the hospital stay associated with this document."
+msgstr "Selecione o episódio para o qual você quer mover a descrição"
+
 msgid "Enter the date of creation of the document."
 msgstr ""
 
@@ -2563,6 +3312,10 @@ msgstr "Episódio"
 msgid "➔"
 msgstr "℞"
 
+#, fuzzy
+msgid "Hospital Stay"
+msgstr "População"
+
 msgid "Date"
 msgstr "Data"
 
@@ -2628,6 +3381,9 @@ msgid ""
 "RV Lead: Medtronic ? (explanted)                        Explanted: Feb 09 "
 "2008"
 msgstr ""
+
+msgid "New"
+msgstr "Novo"
 
 msgid "&All"
 msgstr "&Todos"
@@ -2769,6 +3525,19 @@ msgstr "Salvar"
 msgid "Editor:"
 msgstr "Editar"
 
+msgid "Host:"
+msgstr ""
+
+msgid "Port:"
+msgstr ""
+
+#, fuzzy
+msgid "User:"
+msgstr "Nome de Usuário"
+
+msgid "Password"
+msgstr "Senha"
+
 #, fuzzy
 msgid "&Connect"
 msgstr "Componentes"
@@ -2776,6 +3545,9 @@ msgstr "Componentes"
 #, fuzzy
 msgid "<not connected>"
 msgstr "= selected =>"
+
+msgid "Image"
+msgstr ""
 
 #, fuzzy
 msgid "◄"
@@ -2893,22 +3665,6 @@ msgid "Save all studies of patient as DICOM archive."
 msgstr ""
 
 msgid "Modify some of Orthanc content (such as patient IDs)."
-msgstr ""
-
-msgid "Host:"
-msgstr ""
-
-msgid "Port:"
-msgstr ""
-
-#, fuzzy
-msgid "User:"
-msgstr "Nome de Usuário"
-
-msgid "Password"
-msgstr "Senha"
-
-msgid "Image"
 msgstr ""
 
 #, fuzzy
@@ -3227,10 +3983,6 @@ msgstr "mensagem de erro genérica"
 msgid "&Load"
 msgstr ""
 
-#, fuzzy
-msgid "Export"
-msgstr "Relatório"
-
 msgid "A long, descriptive name for this form template."
 msgstr "Um nome longo descrevendo esse modelo."
 
@@ -3495,9 +4247,6 @@ msgstr ""
 msgid "Reason"
 msgstr ""
 
-msgid "Location"
-msgstr ""
-
 msgid "Provider"
 msgstr ""
 
@@ -3726,9 +4475,6 @@ msgstr ""
 #, fuzzy
 msgid "Subject"
 msgstr "Subjetivo"
-
-msgid "Category"
-msgstr ""
 
 #, fuzzy
 msgid "Audience"
@@ -4333,9 +5079,6 @@ msgstr ""
 msgid "Procedure"
 msgstr ""
 
-msgid "End"
-msgstr ""
-
 msgid "and Episode"
 msgstr ""
 
@@ -4459,6 +5202,9 @@ msgstr "O grupo de referência que os valores normais pertencem."
 msgid "Measurement details"
 msgstr "Detalhes dos Resultados"
 
+msgid "Test"
+msgstr "Exame"
+
 msgid "Units"
 msgstr "Unidade Padrão"
 
@@ -4530,9 +5276,6 @@ msgid "↢ S&can"
 msgstr ""
 
 msgid "↢ C&lipboard"
-msgstr ""
-
-msgid "&Remove"
 msgstr ""
 
 msgid "&Print"
@@ -5186,6 +5929,78 @@ msgstr ""
 msgid "Activate the respective patient by double-clicking a row."
 msgstr "Ativar o paciente clicando duas vezes na sua linha."
 
+msgid "Describe the intended action."
+msgstr ""
+
+msgid "&Select"
+msgstr "&Selecionar"
+
+#, fuzzy
+msgid ""
+"empty?\n"
+"DICOMDIR ?\n"
+"documents/ ?"
+msgstr "Documentos vazios"
+
+#, fuzzy
+msgid "Existing data:"
+msgstr "Verificando a versão do banco de dados"
+
+#, fuzzy
+msgid "Include"
+msgstr "Incluir:"
+
+msgid "&Include into CD / DVD"
+msgstr ""
+
+msgid "Use subdirectory:"
+msgstr ""
+
+#, fuzzy
+msgid "<patient directory>"
+msgstr "Mover paciente para baixo."
+
+#, fuzzy
+msgid "Creating patient media"
+msgstr "Selecionando paciente"
+
+#, fuzzy
+msgid "Select the directory."
+msgstr "Selecione o tipo de consulta"
+
+#, fuzzy
+msgid "Browse the selected directory."
+msgstr "obrigatório selecionar endereço"
+
+msgid "Include existing data if any."
+msgstr ""
+
+msgid "Remove existing data if any."
+msgstr ""
+
+#, fuzzy
+msgid "Check if you want to include the selected directory into the CD / DVD."
+msgstr ""
+"Selecione se você concorda com a opinião atual de resultado clinicamente "
+"relevante."
+
+msgid ""
+"Check if you want to use a subdirectory within the directory selected "
+"above.\n"
+"\n"
+"This will leave alone any existing data."
+msgstr ""
+
+msgid "Create patient media (in target directory or on CD / DVD)."
+msgstr ""
+
+#, fuzzy
+msgid "Abort creating patient media."
+msgstr "Não foi encontrado esse paciente."
+
+msgid "Path:"
+msgstr ""
+
 msgid "Edit Allergy/Intolerance"
 msgstr "Editar Alergia/Intolerância"
 
@@ -5219,10 +6034,6 @@ msgid "Encounter type"
 msgstr "Tipo de Consulta"
 
 #, fuzzy
-msgid "&Manage..."
-msgstr "&Gerenciar"
-
-#, fuzzy
 msgid "A short description for this test panel."
 msgstr "Um nome curto e fácil de lembrar para esse modelo."
 
@@ -5230,18 +6041,13 @@ msgstr "Um nome curto e fácil de lembrar para esse modelo."
 msgid "A comment on, or long-form description of, this test panel."
 msgstr "Um nome curto e fácil de lembrar para esse modelo."
 
-msgid "Manage which test types are members of this panel (battery)."
-msgstr ""
+#, fuzzy
+msgid "Add the selected LOINC to the test panel."
+msgstr "Remover o(s) item(s) selecionado(s) da lista."
 
 #, fuzzy
-msgid ""
-"Codes relevant to this test panel\n"
-"separated by \";\"."
-msgstr "Mover dados para outro episódio"
-
-#, fuzzy
-msgid "Test types"
-msgstr "Tipo de modelo"
+msgid "Remove selected LOINC from test panel."
+msgstr "Remover o(s) item(s) selecionado(s) da lista."
 
 msgid "Fake"
 msgstr ""
@@ -5998,9 +6804,6 @@ msgid ""
 "\n"
 "Please fill in an appropriate value below.\n"
 msgstr ""
-
-msgid "&Select"
-msgstr "&Selecionar"
 
 msgid "&VAT applies"
 msgstr ""
@@ -7875,8 +8678,8 @@ msgid "everyone"
 msgstr ""
 
 #, fuzzy, python-format
-msgid "Patient #%s"
-msgstr "Paciente"
+msgid "Patient: %s, %s%s %s   #%s\n"
+msgstr "Pacientes: %s (%s), Não: %s\n"
 
 #, fuzzy, python-format
 msgid "Due: %s (%s ago)\n"
@@ -7992,6 +8795,10 @@ msgstr "somente documentos adicionados"
 #, python-format
 msgid "patient photograph from %s"
 msgstr ""
+
+#, fuzzy, python-format
+msgid "other: %s"
+msgstr "Local"
 
 #, fuzzy
 msgid "Browse patient data"
@@ -8997,7 +9804,7 @@ msgid ""
 "%s (%s)   #%s\n"
 " Created: %s\n"
 " Episode: %s\n"
-"%s%s%s%s"
+"%s%s%s%s%s"
 msgstr ""
 
 #, fuzzy, python-format
@@ -9194,6 +10001,50 @@ msgstr "Erro ao executar o script de hook [%s]"
 msgid "prescription data"
 msgstr "Prescrições"
 
+#, fuzzy, python-format
+msgid "%s with %s %s     #%s"
+msgstr " Estado: %s, %s%s"
+
+#, fuzzy
+msgid "Live vaccine"
+msgstr "vacina"
+
+#, fuzzy
+msgid "Inactive vaccine"
+msgstr "vacina"
+
+#, fuzzy
+msgid "indication"
+msgstr "Condição"
+
+#, fuzzy
+msgid "indications"
+msgstr "Condição"
+
+#, fuzzy
+msgid "indication(s)"
+msgstr "Condição"
+
+#, fuzzy, python-format
+msgid " Product: \"%s\"     #%s"
+msgstr "Substâncias"
+
+#, fuzzy, python-format
+msgid "  %s%s%s%s"
+msgstr " Estado: %s, %s%s"
+
+#, fuzzy
+msgid "fake product"
+msgstr "Marca falsa"
+
+#, fuzzy, python-format
+msgid " Age %s - %s"
+msgstr "Comentário: %s"
+
+#, fuzzy
+msgid " Indications"
+msgstr "Indicador"
+
 #, python-format
 msgid "unknown vaccinations output format [%s]"
 msgstr "formato de vacina desconhecido [%s]"
@@ -9262,10 +10113,7 @@ msgstr ""
 msgid "J07AD01-target::brucellosis"
 msgstr ""
 
-msgid "J07AE01-target::cholera"
-msgstr ""
-
-msgid "J07AE02-target::cholera"
+msgid "J07AE0-target::cholera"
 msgstr ""
 
 msgid "J07AF01-target::diphtheria"
@@ -9277,13 +10125,7 @@ msgstr ""
 msgid "J07AH01-target::meningococcus A"
 msgstr ""
 
-msgid "J07AH10-target::meningococcus A"
-msgstr ""
-
 msgid "J07AH06-target::meningococcus B"
-msgstr ""
-
-msgid "J07AH09-target::meningococcus B"
 msgstr ""
 
 msgid "J07AH07-target::meningococcus C"
@@ -9298,19 +10140,10 @@ msgstr ""
 msgid "J07AJ0-target::pertussis"
 msgstr ""
 
-msgid "J07AJ01-target::pertussis"
-msgstr ""
-
-msgid "J07AJ02-target::pertussis"
-msgstr ""
-
 msgid "J07AK01-target::plague"
 msgstr ""
 
-msgid "J07AL01-target::pneumococcus"
-msgstr ""
-
-msgid "J07AL02-target::pneumococcus"
+msgid "J07AL0-target::pneumococcus"
 msgstr ""
 
 msgid "J07AM01-target::tetanus"
@@ -9319,16 +10152,10 @@ msgstr ""
 msgid "J07AN01-target::tbc"
 msgstr ""
 
-msgid "J07AP01-target::typhoid"
+msgid "J07AP0-target::typhoid"
 msgstr ""
 
-msgid "J07AP02-target::typhoid"
-msgstr ""
-
-msgid "J07AP03-target::typhoid"
-msgstr ""
-
-msgid "J07AP10-target::typhoid, paratyphus"
+msgid "J07AP1-target::typhoid, paratyphus"
 msgstr ""
 
 msgid "J07AR01-target::typhus exanthematicus"
@@ -9340,28 +10167,16 @@ msgstr ""
 msgid "J07BA01-target::tick-borne encephalitis"
 msgstr ""
 
-msgid "J07BA02-target::japanese encephalitis"
+msgid "J07BA0J-target::japanese encephalitis"
 msgstr ""
 
-msgid "J07BA03-target::japanese encephalitis"
-msgstr ""
-
-msgid "J07BB01-target::influenza"
-msgstr ""
-
-msgid "J07BB02-target::influenza"
-msgstr ""
-
-msgid "J07BB03-target::influenza"
+msgid "J07BB0-target::influenza"
 msgstr ""
 
 msgid "J07BC01-target::hepatitis B"
 msgstr ""
 
-msgid "J07BC02-target::hepatitis A"
-msgstr ""
-
-msgid "J07BC03-target::hepatitis A"
+msgid "J07BC0-target::hepatitis A"
 msgstr ""
 
 msgid "J07BD01-target::measles"
@@ -9370,28 +10185,22 @@ msgstr ""
 msgid "J07BE01-target::mumps"
 msgstr ""
 
-msgid "J07BF01-target::poliomyelitis"
-msgstr ""
-
-msgid "J07BF03-target::poliomyelitis"
+msgid "J07BF0-target::poliomyelitis"
 msgstr ""
 
 msgid "J07BG01-target::rabies"
 msgstr ""
 
-msgid "J07BH01-target::rotavirus diarrhea"
-msgstr ""
-
-msgid "J07BH02-target::rotavirus diarrhea"
+msgid "J07BH0-target::rotavirus diarrhea"
 msgstr ""
 
 msgid "J07BJ01-target::rubella"
 msgstr ""
 
-msgid "J07BK01-target::varicella (chickenpox)"
+msgid "J07BK0-target::varicella (chickenpox)"
 msgstr ""
 
-msgid "J07BK02-target::zoster (shingles)"
+msgid "J07BK0-target::zoster (shingles)"
 msgstr ""
 
 msgid "J07BL01-target::yellow fever"
@@ -9413,216 +10222,231 @@ msgid "J07BX01-target::variola (smallpox)"
 msgstr ""
 
 #, fuzzy
-msgid "anthrax vaccine"
+msgid "generic anthrax vaccine"
 msgstr "vacina"
 
 #, fuzzy
-msgid "brucellosis vaccine"
+msgid "generic brucellosis vaccine"
 msgstr "vacina"
 
 #, fuzzy
-msgid "cholera vaccine"
+msgid "generic cholera vaccine"
 msgstr "vacina"
 
-msgid "cholera vaccine, live"
+#, fuzzy
+msgid "generic cholera vaccine, live"
+msgstr "vacina"
+
+#, fuzzy
+msgid "generic diphtheria vaccine"
+msgstr "vacina"
+
+#, fuzzy
+msgid "generic HiB vaccine"
+msgstr "vacina"
+
+msgid "generic meningococcus A vaccine"
+msgstr ""
+
+msgid "generic meningococcus B vaccine"
+msgstr ""
+
+msgid "generic meningococcus C vaccine"
 msgstr ""
 
 #, fuzzy
-msgid "diphtheria vaccine"
+msgid "generic pertussis vaccine"
 msgstr "vacina"
 
 #, fuzzy
-msgid "HiB vaccine"
+msgid "generic plague vaccine"
 msgstr "vacina"
 
-msgid "meningococcus A vaccine"
-msgstr ""
-
-msgid "meningococcus B vaccine"
-msgstr ""
-
-msgid "meningococcus C vaccine"
+msgid "generic pneumococcus vaccine"
 msgstr ""
 
 #, fuzzy
-msgid "pertussis vaccine"
+msgid "generic tetanus vaccine"
 msgstr "vacina"
 
 #, fuzzy
-msgid "plague vaccine"
+msgid "generic Tbc vaccine"
 msgstr "vacina"
 
-msgid "pneumococcus vaccine"
+#, fuzzy
+msgid "generic typhoid vaccine"
+msgstr "vacina"
+
+#, fuzzy
+msgid "generic typhoid vaccine, live"
+msgstr "vacina"
+
+#, fuzzy
+msgid "generic typhoid/paratyphus vaccine"
+msgstr "vacina"
+
+#, fuzzy
+msgid "generic typhus exanthematicus vaccine"
+msgstr "vacina"
+
+#, fuzzy
+msgid "generic Q fever vaccine"
+msgstr "vacina"
+
+msgid "generic tick-borne encephalitis vaccine"
+msgstr ""
+
+msgid "generic japanese encephalitis vaccine"
+msgstr ""
+
+msgid "generic japanese encephalitis vaccine, live"
 msgstr ""
 
 #, fuzzy
-msgid "tetanus vaccine"
+msgid "generic influenza vaccine"
 msgstr "vacina"
 
 #, fuzzy
-msgid "Tbc vaccine"
+msgid "generic influenza vaccine, live"
 msgstr "vacina"
 
 #, fuzzy
-msgid "typhoid vaccine"
+msgid "generic hepatitis A vaccine"
 msgstr "vacina"
 
 #, fuzzy
-msgid "typhoid vaccine, live"
+msgid "generic hepatitis B vaccine"
 msgstr "vacina"
 
-msgid "typhoid/paratyphus vaccine"
+#, fuzzy
+msgid "generic measles vaccine, live"
+msgstr "vacina"
+
+#, fuzzy
+msgid "generic mumps vaccine, live"
+msgstr "vacina"
+
+#, fuzzy
+msgid "generic poliomyelitis vaccine"
+msgstr "vacina"
+
+#, fuzzy
+msgid "generic poliomyelitis vaccine, live"
+msgstr "vacina"
+
+#, fuzzy
+msgid "generic rabies vaccine"
+msgstr "vacina"
+
+#, fuzzy
+msgid "generic rotavirus vaccine, live"
+msgstr "vacina"
+
+#, fuzzy
+msgid "generic rubella vaccine, live"
+msgstr "vacina"
+
+msgid "generic varicella vaccine, live"
 msgstr ""
 
 #, fuzzy
-msgid "typhus exanthematicus vaccine"
+msgid "generic zoster vaccine, live"
 msgstr "vacina"
 
 #, fuzzy
-msgid "Q fever vaccine"
-msgstr "vacina"
-
-msgid "tick-borne encephalitis vaccine"
-msgstr ""
-
-msgid "japanese encephalitis vaccine"
-msgstr ""
-
-msgid "japanese encephalitis vaccine, live"
-msgstr ""
-
-#, fuzzy
-msgid "influenza vaccine"
-msgstr "vacina"
-
-msgid "influenza vaccine, live"
-msgstr ""
-
-#, fuzzy
-msgid "hepatitis A vaccine"
+msgid "generic yellow fever vaccine"
 msgstr "vacina"
 
 #, fuzzy
-msgid "hepatitis B vaccine"
-msgstr "vacina"
-
-msgid "measles vaccine, live"
-msgstr ""
-
-msgid "mumps vaccine, live"
-msgstr ""
-
-#, fuzzy
-msgid "poliomyelitis vaccine"
-msgstr "vacina"
-
-msgid "poliomyelitis vaccine, live"
-msgstr ""
-
-#, fuzzy
-msgid "rabies vaccine"
-msgstr "vacina"
-
-msgid "rotavirus vaccine, live"
-msgstr ""
-
-msgid "rubella vaccine, live"
-msgstr ""
-
-msgid "varicella vaccine, live"
-msgstr ""
-
-msgid "zoster vaccine, live"
-msgstr ""
-
-msgid "yellow fever vaccine"
-msgstr ""
-
-#, fuzzy
-msgid "HPV vaccine"
-msgstr "vacina"
-
-msgid "variola vaccine, live"
-msgstr ""
-
-msgid "meningococcus AC vaccine"
-msgstr ""
-
-msgid "meningococcus ACYW135 vaccine"
-msgstr ""
-
-msgid "measles-mumps vaccine, live"
-msgstr ""
-
-msgid "MMR vaccine, live"
-msgstr ""
-
-msgid "MMRV vaccine, live"
-msgstr ""
-
-msgid "measles-rubella vaccine, live"
-msgstr ""
-
-msgid "mumps-rubella vaccine, live"
-msgstr ""
-
-msgid "cholera-typhoid vaccine"
-msgstr ""
-
-#, fuzzy
-msgid "typhoid-hepA vaccine"
+msgid "generic HPV vaccine"
 msgstr "vacina"
 
 #, fuzzy
-msgid "Td vaccine"
+msgid "generic variola vaccine, live"
+msgstr "vacina"
+
+msgid "generic meningococcus AC vaccine"
+msgstr ""
+
+msgid "generic meningococcus ACYW135 vaccine"
+msgstr ""
+
+msgid "generic measles-mumps vaccine, live"
+msgstr ""
+
+#, fuzzy
+msgid "generic MMR vaccine, live"
 msgstr "vacina"
 
 #, fuzzy
-msgid "TdPol vaccine"
+msgid "generic MMRV vaccine, live"
+msgstr "vacina"
+
+msgid "generic measles-rubella vaccine, live"
+msgstr ""
+
+#, fuzzy
+msgid "generic mumps-rubella vaccine, live"
 msgstr "vacina"
 
 #, fuzzy
-msgid "DTPol vaccine"
+msgid "generic cholera-typhoid vaccine"
 msgstr "vacina"
 
 #, fuzzy
-msgid "Td-HepB vaccine"
+msgid "generic typhoid-hepA vaccine"
 msgstr "vacina"
 
 #, fuzzy
-msgid "Td-rubella vaccine"
+msgid "generic Td vaccine"
 msgstr "vacina"
 
 #, fuzzy
-msgid "TdaPPol vaccine"
+msgid "generic TdPol vaccine"
 msgstr "vacina"
 
 #, fuzzy
-msgid "TdaP-HepB vaccine"
+msgid "generic DTPol vaccine"
 msgstr "vacina"
 
 #, fuzzy
-msgid "TdaP vaccine"
+msgid "generic Td-HepB vaccine"
 msgstr "vacina"
 
 #, fuzzy
-msgid "DTaPPol-Hib vaccine"
+msgid "generic Td-rubella vaccine"
 msgstr "vacina"
 
 #, fuzzy
-msgid "TdaP-Hib-HepB vaccine"
+msgid "generic TdaPPol vaccine"
 msgstr "vacina"
 
 #, fuzzy
-msgid "TdaPPol-HepB vaccine"
+msgid "generic TdaP-HepB vaccine"
 msgstr "vacina"
 
 #, fuzzy
-msgid "TdaPPol-HiB-HepB vaccine"
+msgid "generic TdaP vaccine"
 msgstr "vacina"
 
 #, fuzzy
-msgid "TdaPPol-HiB-HepB-MenAC vaccine"
+msgid "generic DTaPPol-Hib vaccine"
+msgstr "vacina"
+
+#, fuzzy
+msgid "generic TdaP-Hib-HepB vaccine"
+msgstr "vacina"
+
+#, fuzzy
+msgid "generic TdaPPol-HepB vaccine"
+msgstr "vacina"
+
+#, fuzzy
+msgid "generic TdaPPol-HiB-HepB vaccine"
+msgstr "vacina"
+
+#, fuzzy
+msgid "generic TdaPPol-HiB-HepB-MenAC vaccine"
 msgstr "vacina"
 
 msgid "A: Sign"
@@ -9835,22 +10659,30 @@ msgstr "População"
 msgid "Procedures"
 msgstr ""
 
-msgid "Life events"
+msgid "Lifespan"
 msgstr ""
 
-msgid "Birth"
+#, fuzzy
+msgid "Care Period"
+msgstr "Período"
+
+msgid "Life events"
 msgstr ""
 
 #, fuzzy
 msgid "Date of birth unknown"
 msgstr "Data de Nascimento"
 
-#, fuzzy
-msgid "Start of Care"
-msgstr "Iniciar Nova"
-
-msgid "The earliest recorded event of care in this praxis."
+msgid "Birth"
 msgstr ""
+
+#, python-format
+msgid "Start of Care: %s (the earliest recorded event of care in this praxis)"
+msgstr ""
+
+#, fuzzy, python-format
+msgid "Death: %s"
+msgstr "   Doc: %s"
 
 msgid "Death"
 msgstr ""
@@ -10914,23 +11746,20 @@ msgstr ""
 msgid "Editing vaccine"
 msgstr ""
 
-#, python-format
-msgid ""
-"Cannot delete vaccine\n"
-"\n"
-" %s - %s (#%s)\n"
-"\n"
-"It is probably documented in a vaccination."
-msgstr ""
-
-msgid "Deleting vaccine"
-msgstr ""
-
 msgid "fake"
 msgstr ""
 
-msgid "Showing vaccines."
-msgstr ""
+#, fuzzy
+msgid "Showing vaccine details"
+msgstr "Agrupar pacientes"
+
+#, fuzzy
+msgid "Products"
+msgstr "Nome de Marca"
+
+#, fuzzy
+msgid "Manage drug products"
+msgstr "Editando a profissão"
 
 msgid "Enter or select the batch/lot number of the vaccine used."
 msgstr ""
@@ -11447,14 +12276,32 @@ msgstr ""
 
 #, python-format
 msgid ""
-"There was a problem with running the editor\n"
-"for visual progress notes.\n"
+"There is no editor for visual progress notes defined.\n"
+"Also, there is no editor command defined for the file type\n"
 "\n"
-" [%s]\n"
+" [%s].\n"
 "\n"
+"Therefor GNUmed attempted to at least *show* this\n"
+"visual progress note. That failed as well, however:\n"
+"\n"
+"%s"
 msgstr ""
 
 msgid "Editing visual progress note"
+msgstr ""
+
+#, python-format
+msgid ""
+"There was a problem running the editor\n"
+"\n"
+" [%s] (%s)\n"
+"\n"
+"on the visual progress note.\n"
+"\n"
+"Therefor GNUmed attempted to at least *show* it.\n"
+"That failed as well, however:\n"
+"\n"
+"%s"
 msgstr ""
 
 #, python-format
@@ -13292,9 +14139,6 @@ msgstr ""
 msgid "Table"
 msgstr ""
 
-msgid "Event"
-msgstr ""
-
 msgid ""
 "\n"
 "Please select the provider to fall back to in case\n"
@@ -15045,6 +15889,65 @@ msgstr ""
 msgid "clinical progress note"
 msgstr ""
 
+msgid "Select a directory for inclusion into the patient CD / DVD."
+msgstr ""
+
+#, fuzzy
+msgid "Select a directory in which to create the patient media."
+msgstr "Selecione o episódio para o qual você quer mover a descrição"
+
+#, python-format
+msgid ""
+"Really delete any existing data under\n"
+"\n"
+" [%s]\n"
+"\n"
+"from disk ?\n"
+"\n"
+"(this operation is generally not reversible)"
+msgstr ""
+
+msgid ""
+"Script <gm-burn_doc(.bat)> not found.\n"
+"\n"
+"Cannot create patient CD/DVD."
+msgstr ""
+
+#, python-format
+msgid ""
+"Patient: %s\n"
+"\n"
+"Items to include into CD/DVD: %s\n"
+msgstr ""
+
+#, fuzzy, python-format
+msgid ""
+"Patient: %s\n"
+"\n"
+"Items to save: %s\n"
+msgstr "Pacientes: %s (%s), Não: %s\n"
+
+msgid "(cannot check directory)"
+msgstr ""
+
+msgid "(directory appears empty)"
+msgstr ""
+
+msgid "directory already contains data"
+msgstr ""
+
+#, python-format
+msgid ""
+"%s\n"
+"- DICOM data"
+msgstr ""
+
+#, fuzzy, python-format
+msgid ""
+"%s\n"
+"- additional documents"
+msgstr "Apagando documento"
+
 msgid "Select files to add to the export area"
 msgstr ""
 
@@ -15110,34 +16013,14 @@ msgid ""
 " - %s"
 msgstr "Fechado"
 
-#, fuzzy
-msgid "Select the directory into which to export the documents."
-msgstr "Selecione o episódio para o qual você quer mover a descrição"
-
-#, fuzzy
-msgid "Saving export area documents"
-msgstr "Apagando documento"
-
-#, python-format
+#, fuzzy, python-format
 msgid ""
-"The chosen export directory\n"
-"\n"
-" [%s]\n"
-"\n"
-"already contains files. Do you still want to save the\n"
-"selected export area documents into that directory ?\n"
-"\n"
-"(this is useful for including the external documents\n"
-" already stored in or below this directory)\n"
-"\n"
-"[NO] will create a subdirectory for you and use that."
+"Cannot remove content from\n"
+" [%s]"
 msgstr ""
-
-msgid ""
-"Create descriptive metadata files\n"
-"and save them alongside the\n"
-"selected export area documents ?"
-msgstr ""
+"Não foi possível checar a versão em:\n"
+"\n"
+"%s"
 
 #, fuzzy, python-format
 msgid ""
@@ -15155,9 +16038,6 @@ msgstr "salvar entrada no prontuário médico"
 #, fuzzy
 msgid "Browse patient data pack ?"
 msgstr "Agrupar pacientes"
-
-msgid "If you wish to include an existing directory select it here:"
-msgstr ""
 
 #, fuzzy
 msgid "Error burning documents to CD/DVD."
@@ -15807,8 +16687,8 @@ msgid "Mail part"
 msgstr ""
 
 #, fuzzy
-msgid "Export part"
-msgstr "Relatório"
+msgid "Save part to disk"
+msgstr "  risco: %s"
 
 #, fuzzy
 msgid "Document Actions:"
@@ -15833,8 +16713,13 @@ msgstr ""
 msgid "Mail all parts"
 msgstr ""
 
-msgid "Export all parts"
-msgstr ""
+#, fuzzy
+msgid "Save all parts to disk"
+msgstr "= selected =>"
+
+#, fuzzy
+msgid "Copy all parts to export area"
+msgstr "Adicionando novo nome"
 
 msgid "Access external original"
 msgstr ""
@@ -15970,7 +16855,7 @@ msgid "Save document part to directory ..."
 msgstr ""
 
 #, fuzzy, python-format
-msgid "Successfully exported document part as [%s]."
+msgid "Successfully saved document part as [%s]."
 msgstr "Prontuário exportado para arquivo: %s"
 
 #, python-format
@@ -16028,9 +16913,9 @@ msgstr ""
 msgid "Save document into directory ..."
 msgstr ""
 
-#, python-format
-msgid "Successfully exported %s parts into the directory [%s]."
-msgstr ""
+#, fuzzy, python-format
+msgid "Successfully saved %s parts into the directory [%s]."
+msgstr "Prontuário exportado para arquivo: %s"
 
 msgid "Are you sure you want to delete the document ?"
 msgstr "Você realmente quer apagar esse documento?"
@@ -16052,6 +16937,10 @@ msgstr ""
 #, fuzzy
 msgid "Body part"
 msgstr "mostrar porção"
+
+#, fuzzy
+msgid "DICOM field"
+msgstr "visualizador DICOM"
 
 msgid "Cannot connect without port (try 8042)."
 msgstr ""
@@ -16102,6 +16991,10 @@ msgid "Series"
 msgstr "Categorias"
 
 #, fuzzy, python-format
+msgid "Image %s/%s"
+msgstr "todos os arquivos"
+
+#, fuzzy, python-format
 msgid "%s image(s)%s"
 msgstr "%s atrás"
 
@@ -16122,6 +17015,10 @@ msgstr ""
 #, fuzzy
 msgid "Uploading DICOM files"
 msgstr "carregando arquivo xDT"
+
+#, python-format
+msgid "Working on: Orthanc \"%s\" (AET \"%s\" @ %s:%s, Version %s)"
+msgstr ""
 
 #, python-format
 msgid ""
@@ -16177,10 +17074,6 @@ msgid "Unable to export studies."
 msgstr "Falha ao alocar paciente ao regime de %s"
 
 #, fuzzy
-msgid "Editing Orthanc content"
-msgstr "Editar os detalhes da consulta abaixo:"
-
-#, fuzzy
 msgid "Patient ID"
 msgstr "Paciente"
 
@@ -16202,6 +17095,12 @@ msgid ""
 " [%s]\n"
 "\n"
 "stored in the Orthanc DICOM server ?"
+msgstr ""
+
+msgid ""
+"I was unable to modify all DICOM patients.\n"
+"\n"
+"Please refer to the log file."
 msgstr ""
 
 #, python-format
@@ -17068,6 +17967,14 @@ msgstr ""
 msgid "Clear out the status line."
 msgstr ""
 
+#, fuzzy
+msgid "Browse work dir"
+msgstr "Agrupar pacientes"
+
+#, python-format
+msgid "Browse user working directory [%s]."
+msgstr ""
+
 msgid "Screenshot"
 msgstr "Screenshot"
 
@@ -17100,14 +18007,6 @@ msgstr "Agrupar pacientes"
 
 #, python-format
 msgid "Browse temporary directory [%s]."
-msgstr ""
-
-#, fuzzy
-msgid "Browse work dir"
-msgstr "Agrupar pacientes"
-
-#, python-format
-msgid "Browse user working directory [%s]."
 msgstr ""
 
 msgid "Browse internal work dir"
@@ -18243,6 +19142,10 @@ msgid "timeline image"
 msgstr "todos os arquivos"
 
 #, fuzzy
+msgid "timeline image (scalable)"
+msgstr "todos os arquivos"
+
+#, fuzzy
 msgid "timeline data"
 msgstr "Nenhum cronograma definido"
 
@@ -18704,28 +19607,26 @@ msgstr "Editar as substâncias consumíveis."
 msgid "Editing medication"
 msgstr ""
 
-#, python-format
+#, fuzzy, python-format
 msgid ""
-"Cannot edit the medication\n"
+"Cannot edit the vaccine product\n"
 "\n"
 " \"%s\" (%s)\n"
 "\n"
-"because it is a vaccine. Please edit it\n"
-"from the vaccine management section !\n"
+"because it is in use."
+msgstr "Não é possível apagar o tipo de consulta [%s]. Está em uso."
+
+msgid "Deleting vaccine"
 msgstr ""
 
-msgid "Deleting medication"
-msgstr ""
-
-#, python-format
+#, fuzzy, python-format
 msgid ""
-"Cannot delete the medication\n"
+"Cannot delete the vaccine product\n"
 "\n"
 " \"%s\" (%s)\n"
 "\n"
-"because it is a vaccine. Please delete it\n"
-"from the vaccine management section !\n"
-msgstr ""
+"because it is in use."
+msgstr "Não é possível apagar o tipo de consulta [%s]. Está em uso."
 
 msgid "Drug products currently known to GNUmed."
 msgstr ""
@@ -18806,6 +19707,29 @@ msgid "Adding new single-component generic drug"
 msgstr ""
 
 msgid "Editing single-component generic drug"
+msgstr ""
+
+#, python-format
+msgid ""
+"Cannot edit the medication\n"
+"\n"
+" \"%s\" (%s)\n"
+"\n"
+"because it is a vaccine. Please edit it\n"
+"from the vaccine management section !\n"
+msgstr ""
+
+msgid "Deleting medication"
+msgstr ""
+
+#, python-format
+msgid ""
+"Cannot delete the medication\n"
+"\n"
+" \"%s\" (%s)\n"
+"\n"
+"because it is a vaccine. Please delete it\n"
+"from the vaccine management section !\n"
 msgstr ""
 
 #, fuzzy
@@ -19346,12 +20270,15 @@ msgid "Select a test panel."
 msgstr ""
 
 #, fuzzy
-msgid "No test types selected."
-msgstr "Editar o item selecionado."
+msgid "code not found"
+msgstr "Página não encontrada"
 
 #, fuzzy
-msgid "Pick the measurement types for this panel."
-msgstr "Um comentário sobre esse paciente."
+msgid "No LOINC codes selected."
+msgstr "Editar o item selecionado."
+
+msgid "no LOINC details found"
+msgstr ""
 
 msgid "Cannot export EMR. No active patient."
 msgstr "Não é possível exportar Prontuário Eletrônico. Não há paciente ativo."
@@ -19696,9 +20623,6 @@ msgstr "Não é possível acessar o arquivo de transferência do KOrganizer [%s]
 
 msgid "Place"
 msgstr "Lugar"
-
-msgid "Start"
-msgstr "Começo"
 
 #, python-format
 msgid ""
@@ -20696,12 +21620,208 @@ msgid "Abort and do NOT connect to GNUmed."
 msgstr "Cancelar e NÃO conectar ao GNUmed."
 
 #, fuzzy
-#~ msgid "Export all"
+#~ msgid ""
+#~ "Could not find iCalendar Python package. It is required for working with "
+#~ "ICS files. See the Timeline website or the doc/installing.rst file for "
+#~ "instructions how to install it."
+#~ msgstr ""
+#~ "Não é possível encontrar o pacote iCalender Python. É necessário para "
+#~ "trabalhar com arquivos ICS. Veja o site Timeline ou o arquivo de "
+#~ "instalação (INSTALL) para instruções de como instalá-lo."
+
+#, fuzzy
+#~ msgid "Start time "
+#~ msgstr "Iniciar Nova"
+
+#~ msgid "End time "
+#~ msgstr "Tempo de fim "
+
+#~ msgid "Unable to write to temporary file '%s'."
+#~ msgstr "Incapaz de escrever no arquivo temporário '%s'."
+
+#~ msgid "Unable to rename temporary file '%s' to original."
+#~ msgstr "Incapaz de renomear arquivo temporário '%s' para original."
+
+#~ msgid "Unable to delete backup file '%s'."
+#~ msgstr "Incapaz de remover arquivo de backup '%s'."
+
+#, fuzzy
+#~ msgid "Numeric Timeline..."
+#~ msgstr "Episódio Selecionado."
+
+#, fuzzy
+#~ msgid "&Export Current view to Image..."
+#~ msgstr "Exportar como ..."
+
+#, fuzzy
+#~ msgid "Export the current view to a PNG image"
+#~ msgstr "Exportar o Prontuário do paciente ativo em um arquivo de texto"
+
+#, fuzzy
+#~ msgid "&Export Whole Timeline to Images..."
+#~ msgstr "Exportar como ..."
+
+#, fuzzy
+#~ msgid "Export whole Timeline to PNG images"
+#~ msgstr "Exportar o Prontuário do paciente ativo em um arquivo de texto"
+
+#, fuzzy
+#~ msgid "&Export to SVG..."
+#~ msgstr "Exportar para GDT"
+
+#, fuzzy
+#~ msgid "Export the current view to a SVG image"
+#~ msgstr "Exportar o Prontuário do paciente ativo em um arquivo de texto"
+
+#~ msgid "&Sidebar\tCtrl+I"
+#~ msgstr "&Barra Lateral\tCtrl+I"
+
+#, fuzzy
+#~ msgid "Zoom &In\tCtrl++"
+#~ msgstr "Ir para & Tempo\tCtrl+T"
+
+#, fuzzy
+#~ msgid "&Contents\tF1"
+#~ msgstr "Componentes"
+
+#, fuzzy
+#~ msgid ""
+#~ "Could not find pysvg Python package. It is needed to export to SVG. See "
+#~ "the Timeline website or the doc/installing.rst file for instructions how "
+#~ "to install it."
+#~ msgstr ""
+#~ "Não é possível encontrar pacote Python markdown. Ele é necessário pelo "
+#~ "sistema de ajuda. Veja o site da Linha do Tempo ou o arquivo de "
+#~ "INSTALAÇÃO para instruções de como instalá-lo."
+
+#, fuzzy
+#~ msgid ""
+#~ "Could not find markdown Python package.  It is needed by the help system. "
+#~ "See the Timeline website or the doc/installing.rst file for instructions "
+#~ "how to install it."
+#~ msgstr ""
+#~ "Não é possível encontrar pacote Python markdown. Ele é necessário pelo "
+#~ "sistema de ajuda. Veja o site da Linha do Tempo ou o arquivo de "
+#~ "INSTALAÇÃO para instruções de como instalá-lo."
+
+#, fuzzy
+#~ msgid "Container Properties"
+#~ msgstr "Propriedades do Documento"
+
+#~ msgid "Entered period is too long."
+#~ msgstr "Intervalo é muito longo."
+
+#, fuzzy
+#~ msgid "Start time > Now."
+#~ msgstr "Iniciar Nova"
+
+#, fuzzy
+#~ msgid ""
+#~ "\n"
+#~ "The *Edit Event* dialog can be opened by double clicking on an event or "
+#~ "by selecting one event and select the 'Timeline -> Edit Selected "
+#~ "Event...' menu.\n"
+#~ msgstr ""
+#~ "\n"
+#~ "A janela *Editar Evento* pode ser aberta com um clique duplo do mouse em "
+#~ "cima de um evento.\n"
+
+#~ msgid "Region too long"
+#~ msgstr "Região muito longa"
+
+#~ msgid "Region too short"
+#~ msgstr "Região muito curta"
+
+#~ msgid "Period is too long"
+#~ msgstr "Período é muito longo"
+
+#~ msgid "Go to &Today\tCtrl+T"
+#~ msgstr "Ir para &Hoje\tCtrl+T"
+
+#, fuzzy
+#~ msgid "Go to &Date...\tCtrl+G"
+#~ msgstr "Vá para a D&ata...\tCtrl+G"
+
+#~ msgid "Backward\tPgUp"
+#~ msgstr "Para Trás \tPgUp"
+
+#~ msgid "Forward\tPgDn"
+#~ msgstr "Para Frente\tPgDn"
+
+#~ msgid "Forward One Wee&k\tCtrl+K"
+#~ msgstr "Avançar uma &Semana\tCtrl+K"
+
+#~ msgid "Back One &Week\tCtrl+W"
+#~ msgstr "Voltar uma S&emana\tCtrl+W"
+
+#~ msgid "Forward One Mont&h\tCtrl+h"
+#~ msgstr "Avançar um &Mes\tCtrl+h"
+
+#~ msgid "Back One &Month\tCtrl+M"
+#~ msgstr "Voltar um M&es\tCtrl+M"
+
+#~ msgid "Forward One Yea&r\tCtrl+R"
+#~ msgstr "Avançar um &Ano\tCtrl+R"
+
+#~ msgid "Back One &Year\tCtrl+Y"
+#~ msgstr "Voltar um A&no\tCtrl+Y"
+
+#~ msgid "can't be before year 10"
+#~ msgstr "não pode ser antes do ano 10"
+
+#~ msgid "can't be after year 9989"
+#~ msgstr "não pode ser depois do ano 9989"
+
+#~ msgid "Can't zoom wider than 1200 years"
+#~ msgstr "Não é possível ampliar mais que 1200 anos"
+
+#~ msgid "Can't zoom deeper than 1 hour"
+#~ msgstr "Não é possível fechar zoom para menos de 1 hora"
+
+#~ msgid "Go to &Time\tCtrl+T"
+#~ msgstr "Ir para & Tempo\tCtrl+T"
+
+#, fuzzy
+#~ msgid "&Manage..."
+#~ msgstr "&Gerenciar"
+
+#, fuzzy
+#~ msgid ""
+#~ "Codes relevant to this test panel\n"
+#~ "separated by \";\"."
+#~ msgstr "Mover dados para outro episódio"
+
+#, fuzzy
+#~ msgid "Test types"
+#~ msgstr "Tipo de modelo"
+
+#, fuzzy
+#~ msgid "Patient #%s"
+#~ msgstr "Paciente"
+
+#, fuzzy
+#~ msgid "Start of Care"
+#~ msgstr "Iniciar Nova"
+
+#, fuzzy
+#~ msgid "Saving export area documents"
+#~ msgstr "Apagando documento"
+
+#, fuzzy
+#~ msgid "Export part"
 #~ msgstr "Relatório"
 
 #, fuzzy
-#~ msgid "Copy all studies into export area."
-#~ msgstr "Adicionando novo nome"
+#~ msgid "Editing Orthanc content"
+#~ msgstr "Editar os detalhes da consulta abaixo:"
+
+#, fuzzy
+#~ msgid "Pick the measurement types for this panel."
+#~ msgstr "Um comentário sobre esse paciente."
+
+#, fuzzy
+#~ msgid "Export all"
+#~ msgstr "Relatório"
 
 #, fuzzy
 #~ msgid "Copy selected studies into export area."
@@ -20821,10 +21941,6 @@ msgstr "Cancelar e NÃO conectar ao GNUmed."
 #, fuzzy
 #~ msgid "Pick the relevant indications."
 #~ msgstr "Imprimir a lista de medicações."
-
-#, fuzzy
-#~ msgid "Known indications"
-#~ msgstr "Condição"
 
 #, fuzzy
 #~ msgid "You must select at least one indication."
@@ -21178,10 +22294,6 @@ msgstr "Cancelar e NÃO conectar ao GNUmed."
 #~ msgstr "Agir nos resultados selecionados"
 
 #, fuzzy
-#~ msgid "Saved to disk: %s"
-#~ msgstr "  risco: %s"
-
-#, fuzzy
 #~ msgid "Faxed to %s: %s"
 #~ msgstr " opção [%s]: %s"
 
@@ -21321,10 +22433,6 @@ msgstr "Cancelar e NÃO conectar ao GNUmed."
 
 #~ msgid "Sandboxed PDF output file cannot be moved."
 #~ msgstr "Arquivo PDF criado não pode ser movido."
-
-#, fuzzy
-#~ msgid "patient only"
-#~ msgstr "Mover paciente para baixo."
 
 #, fuzzy
 #~ msgid "provider only"

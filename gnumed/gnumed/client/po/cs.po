@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-05-18 12:04+0200\n"
+"POT-Creation-Date: 2017-11-22 21:34+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -30,6 +30,91 @@ msgid ""
 "%s"
 msgstr ""
 
+msgid "Can't scroll more to the left"
+msgstr "Nelze rolovat více vlevo"
+
+msgid "Can't scroll more to the right"
+msgstr "Nelze rolovat více vpravo"
+
+msgid "No timeline set"
+msgstr "Není stanovena časová osa"
+
+msgid "Name"
+msgstr "Jméno"
+
+#, fuzzy
+msgid "Color"
+msgstr "Barva:"
+
+msgid "Progress Color"
+msgstr ""
+
+#, fuzzy
+msgid "Done Color"
+msgstr "Barva písma:"
+
+msgid "Parent"
+msgstr ""
+
+#, fuzzy
+msgid "Invalid start time"
+msgstr "Neplatné datum"
+
+#, fuzzy
+msgid "Invalid end time"
+msgstr "Neplatné datum"
+
+#, fuzzy, python-format
+msgid "Start time can't be after end time. Start:%s End:%s"
+msgstr "Počáteční čas nemůže být po koncovém čase"
+
+msgid "Text"
+msgstr "Text"
+
+msgid "Description"
+msgstr "Popis"
+
+msgid "Start"
+msgstr ""
+
+msgid "End"
+msgstr ""
+
+msgid "Category"
+msgstr ""
+
+msgid "Fuzzy"
+msgstr ""
+
+msgid "Locked"
+msgstr "Zamčeno"
+
+#, fuzzy
+msgid "Ends Today"
+msgstr "Končí dnes"
+
+msgid "Hyperlink"
+msgstr "Odkaz"
+
+msgid "Progress"
+msgstr ""
+
+msgid "Alert"
+msgstr "Upozornění"
+
+#, fuzzy
+msgid "Is Container"
+msgstr "Kontejner:"
+
+msgid "Is Subevent"
+msgstr ""
+
+msgid "Duration"
+msgstr ""
+
+msgid "Displayed period must be > 0."
+msgstr "Zobrazené období musí být > 0."
+
 #, python-format
 msgid "Unable to open timeline '%s'."
 msgstr "Nemohu otevřít časovou osu '%s'."
@@ -42,181 +127,19 @@ msgid ""
 "install version 0.21.1 of timeline to convert it to the new format."
 msgstr ""
 
-msgid "Other timelines can't be imported to a directory timeline"
-msgstr ""
-
 msgid ""
-"Tutorial must be saved as a timeline to be able to import other timeline"
-msgstr ""
-
-#, python-format
-msgid "Only %s files can be imported"
+"Since the directory of the Timeline file is not writable,\n"
+"the timeline is opened in read-only mode"
 msgstr ""
 
 #, fuzzy
 msgid ""
 "Could not find iCalendar Python package. It is required for working with ICS "
-"files. See the Timeline website or the doc/installing.rst file for "
-"instructions how to install it."
+"files."
 msgstr ""
 "Nemohu najít balík iCalendar Python. Je potřeba pro práci s ICS soubory. "
 "Podívejte se na Timeline stránky nebo na INSTALAČNÍ soubor s instrukcemi jak "
 "ho nainstalovat."
-
-#, python-format
-msgid "Unable to read timeline data from '%s'."
-msgstr "Nemohu číst data časové osy z '%s'."
-
-#, python-format
-msgid "Unable to read from file '%s'."
-msgstr "Nemohu číst ze souboru '%s'."
-
-msgid "Displayed period must be > 0."
-msgstr "Zobrazené období musí být > 0."
-
-msgid "Welcome"
-msgstr "Vítejte"
-
-msgid "Welcome to Timeline"
-msgstr "Vítejte na Časové ose."
-
-msgid "Intro"
-msgstr "Úvod"
-
-msgid "Hover me!"
-msgstr "Najeďte kurzorem!"
-
-msgid "Hovering events with a triangle shows the event description."
-msgstr "Najetím trojúhelníků na událost se ukáže popis události."
-
-msgid "Features"
-msgstr "Vlastnosti"
-
-msgid "Scroll"
-msgstr "Posouvat"
-
-msgid ""
-"Left click somewhere on the timeline and start dragging.\n"
-"\n"
-"You can also use the mouse wheel.\n"
-"\n"
-"You can also middle click with the mouse to center around that point."
-msgstr ""
-"Klikněte levým tlačítkem někde na časové ose a začněte táhnout.\n"
-"\n"
-"Můžete také použít kolečko myši.\n"
-"\n"
-"Můžete kliknout myší doprostřed aby jste vycentrovali tento bod."
-
-#, fuzzy
-msgid "Container"
-msgstr "Kontejner:"
-
-msgid "?"
-msgstr ""
-
-#, fuzzy
-msgid "Resize me"
-msgstr "Změň velikost a posuň mě!"
-
-msgid ""
-"Container Subevent 1\n"
-"Click on the event to get the resize handles"
-msgstr ""
-
-msgid "Drag me"
-msgstr ""
-
-msgid ""
-"Container Subevent 2\n"
-"\n"
-"Click on the event to get the drag handle and drag it.\n"
-"\n"
-"To drag the whole container, click on it while holding down the Alt key. "
-"Keep the Alt key down and find the drag point at the center of the container "
-"and drag it."
-msgstr ""
-
-msgid "Zoom"
-msgstr "Přiblížit"
-
-msgid ""
-"Hold down Ctrl while scrolling the mouse wheel.\n"
-"\n"
-"Hold down Shift while dragging with the mouse."
-msgstr ""
-"Podržte Ctrl zatím co  otáčíte kolečko myši.\n"
-"\n"
-"Podržte Shift zatím co táhnete myší."
-
-msgid "Create event"
-msgstr "Vytvořit událost."
-
-msgid ""
-"Double click somewhere on the timeline.\n"
-"\n"
-"Hold down Ctrl while dragging the mouse to select a period."
-msgstr ""
-"Dvojitý klik někde na časové ose.\n"
-"\n"
-"Podržte Ctrl zatímco táhnete myší, aby jste vybrali období."
-
-msgid "Edit event"
-msgstr "Upravit událost."
-
-msgid "Double click on an event."
-msgstr "Dvojití klik na událost."
-
-msgid "Select event"
-msgstr "Vybrat událost."
-
-msgid ""
-"Click on it.\n"
-"\n"
-"Hold down Ctrl while clicking events to select multiple."
-msgstr ""
-"Klikněte zde.\n"
-"\n"
-"Podržte Ctrl když klikáte na událost, aby jste zvolili  multiple."
-
-msgid "Delete event"
-msgstr "Smazat událost"
-
-msgid "Select events to be deleted and press the Del key."
-msgstr "Vyberte událost, která má být smazána a zmáčkněte klávesu Del ."
-
-msgid "Resize and move me!"
-msgstr "Změň velikost a posuň mě!"
-
-msgid "First select me and then drag the handles."
-msgstr "Nejprve mě vyber a potom táhni úchytkami."
-
-msgid "Saving"
-msgstr "Ukládání"
-
-msgid ""
-"This timeline is stored in memory and modifications to it will not be "
-"persisted between sessions.\n"
-"\n"
-"Choose File/New/File Timeline to create a timeline that is saved on disk."
-msgstr ""
-"Tato časová osa je uložena v paměti a její modifikování nebude přetrvávat "
-"mezi sezeními.\n"
-"\n"
-"Zvolte soubor/Nový/Soubor Timeline k vytvoření časové osy, která bude "
-"uložena na disk."
-
-msgid "Start time "
-msgstr "Počáteční čas "
-
-msgid "End time "
-msgstr "Koncový čas "
-
-msgid "Start time can't be after end time"
-msgstr "Počáteční čas nemůže být po koncovém čase"
-
-msgid "Duration"
-msgstr ""
 
 #, python-format
 msgid "Unable to save timeline data to '%s'. File left unmodified."
@@ -225,21 +148,51 @@ msgstr "Nemůžu uložit data časové osy do  '%s'. Soubor zůstane nezměněn.
 msgid "Unable to write timeline data."
 msgstr "Nelze zapsat data časové osy."
 
-#, python-format
-msgid "Unable to write to temporary file '%s'."
+#, fuzzy, python-format
+msgid "Unable to write to temporary dbfile '%s'."
 msgstr "Nelze zapisovat do dočasneho souboru '%s'."
 
 #, python-format
 msgid "Unable to take backup to '%s'."
 msgstr "Nelze vytvořit zálohu do '%s'."
 
-#, python-format
-msgid "Unable to rename temporary file '%s' to original."
+#, fuzzy, python-format
+msgid "Unable to rename temporary dbfile '%s' to original."
 msgstr "Nelze přejmenovat dočasný soubor '%s' na originál."
 
-#, python-format
-msgid "Unable to delete backup file '%s'."
+#, fuzzy, python-format
+msgid "Unable to delete backup dbfile '%s'."
 msgstr "Nelze vymazat soubor zálohy '%s'."
+
+msgid "Other Gradient Event box drawer"
+msgstr ""
+
+msgid "Default Event box drawer"
+msgstr ""
+
+msgid "Gradient Event box drawer"
+msgstr ""
+
+msgid "Plain text to HTML transformer"
+msgstr ""
+
+msgid "Default Text transformer"
+msgstr ""
+
+#, fuzzy
+msgid "Export Current view to Image..."
+msgstr "&Export do obrázku ..."
+
+#, fuzzy
+msgid "Export Whole Timeline to Images..."
+msgstr "&Export do obrázku ..."
+
+msgid ""
+"The first image contains a Julian day < 0\n"
+"\n"
+"Navigate to first event or\n"
+"Use the feature 'Accept negative Julian days'"
+msgstr ""
 
 msgid "Image files"
 msgstr "Obrázkové soubory"
@@ -250,6 +203,307 @@ msgstr "Exportovat do obrázku"
 #, python-format
 msgid "File '%s' exists. Overwrite?"
 msgstr "Soubor '%s' již existuje. Přepsat?"
+
+#, fuzzy
+msgid "Export to Listbox..."
+msgstr "&Export do SVG..."
+
+msgid "Unable to copy to clipboard."
+msgstr "Nelze kopírovat do schránky."
+
+#, fuzzy
+msgid "Time period"
+msgstr "1-období"
+
+msgid "Event"
+msgstr ""
+
+#, fuzzy
+msgid "Export Timeline to File..."
+msgstr "&Export do obrázku ..."
+
+msgid "Events"
+msgstr "Události"
+
+msgid "Categories"
+msgstr "Kategorie"
+
+#, fuzzy
+msgid "export files"
+msgstr "Export do SVG"
+
+msgid "Export"
+msgstr ""
+
+#, fuzzy
+msgid "Export to SVG..."
+msgstr "&Export do SVG..."
+
+msgid "Could not find pysvg Python package. It is needed to export to SVG."
+msgstr ""
+
+msgid "SVG files"
+msgstr "SVG soubory"
+
+msgid "Export to SVG"
+msgstr "Export do SVG"
+
+msgid "Use extended Container strategy"
+msgstr ""
+
+msgid ""
+"\n"
+"              This strategy makes it possible to have overlapping subevents\n"
+"              in a container.\n"
+"\n"
+"              The container expands in the vertical direction if it has\n"
+"              overlapping subevents.\n"
+"              "
+msgstr ""
+
+msgid "Accept negative Julian days"
+msgstr ""
+
+msgid ""
+"\n"
+"              Enables the use of dates before Julian day = 0 (4713 BC)\n"
+"\n"
+"              This means that prehistorical dates can be used.\n"
+"              We are not quiet sure that the calculations works correctly\n"
+"              for negative julian days and therefore it's an experimental "
+"feature.\n"
+"\n"
+"              Be aware of the fact that a timeline created with this feature "
+"active,\n"
+"              may not be readable with Timeline if the feature is switched "
+"off.\n"
+"              "
+msgstr ""
+
+#, fuzzy
+msgid "Extend Container height"
+msgstr "Upravit kontejner"
+
+msgid ""
+"\n"
+"              Extend the height of a container so that the container name "
+"becomes visible.\n"
+"\n"
+"              This also has the side effect that ordinary events come "
+"farther apart in\n"
+"              the vertical direction.\n"
+"\n"
+"              The font for the container name has a fixed size when you zoom "
+"vertically (Alt + Mouse wheel)\n"
+"              "
+msgstr ""
+
+msgid "to"
+msgstr ""
+
+msgid "Period"
+msgstr "Období"
+
+#, fuzzy
+msgid "Go to &Zero"
+msgstr "Jít na datum"
+
+#, fuzzy
+msgid "Go to &Time"
+msgstr "Jít na Čas"
+
+msgid "Backward"
+msgstr "Zpět"
+
+msgid "Forward"
+msgstr "Vpřed"
+
+msgid "Can't zoom deeper than 5"
+msgstr "Nelze přiblížit více než 5"
+
+msgid "1-period"
+msgstr "1-období"
+
+msgid "10-period"
+msgstr "10-období"
+
+msgid "100-period"
+msgstr "100-období"
+
+msgid "1000-period"
+msgstr "1000-období"
+
+msgid "Go to Time"
+msgstr "Jít na Čas"
+
+msgid "Show time"
+msgstr "Zobrazit čas"
+
+msgid "Praios"
+msgstr ""
+
+msgid "Rondra"
+msgstr ""
+
+msgid "Efferd"
+msgstr ""
+
+msgid "Travia"
+msgstr ""
+
+msgid "Boron"
+msgstr ""
+
+msgid "Hesinde"
+msgstr ""
+
+msgid "Firun"
+msgstr ""
+
+msgid "Tsa"
+msgstr ""
+
+msgid "Phex"
+msgstr ""
+
+msgid "Peraine"
+msgstr ""
+
+msgid "Ingerimm"
+msgstr ""
+
+msgid "Rahja"
+msgstr ""
+
+msgid "Nameless Days"
+msgstr ""
+
+msgid "PRA"
+msgstr ""
+
+msgid "RON"
+msgstr ""
+
+msgid "EFF"
+msgstr ""
+
+msgid "TRA"
+msgstr ""
+
+msgid "BOR"
+msgstr ""
+
+msgid "HES"
+msgstr ""
+
+msgid "FIR"
+msgstr ""
+
+msgid "TSA"
+msgstr ""
+
+msgid "PHE"
+msgstr ""
+
+msgid "PER"
+msgstr ""
+
+msgid "ING"
+msgstr ""
+
+msgid "RAH"
+msgstr ""
+
+msgid "NL"
+msgstr ""
+
+msgid "Open &Now Date Editor"
+msgstr ""
+
+#, fuzzy
+msgid "Go to &Date..."
+msgstr "Jít na datum"
+
+#, fuzzy
+msgid "Forward One Wee&k"
+msgstr "Jít o jednu stranu vpřed"
+
+msgid "Back One &Week"
+msgstr ""
+
+msgid "Forward One Mont&h"
+msgstr ""
+
+msgid "Back One &Month"
+msgstr ""
+
+#, fuzzy
+msgid "Forward One Yea&r"
+msgstr "Jít o jednu stranu vpřed"
+
+msgid "Back One &Year"
+msgstr ""
+
+msgid "Fit Millennium"
+msgstr ""
+
+msgid "Fit Century"
+msgstr ""
+
+msgid "Fit Decade"
+msgstr ""
+
+msgid "Fit Year"
+msgstr ""
+
+msgid "Fit Month"
+msgstr ""
+
+msgid "Fit Week"
+msgstr ""
+
+msgid "Fit Day"
+msgstr ""
+
+#, fuzzy
+msgid "Can't zoom deeper than 1 minute"
+msgstr "Nelze přiblížit více než na hodinu"
+
+msgid "Day"
+msgstr "Den"
+
+msgid "Week"
+msgstr "Týden"
+
+msgid "Month"
+msgstr "Měsíc"
+
+msgid "Year"
+msgstr "Rok"
+
+msgid "Change Now Date"
+msgstr ""
+
+msgid "Go to Date"
+msgstr "Jít na datum"
+
+msgid "Wind"
+msgstr ""
+
+msgid "Earth"
+msgstr ""
+
+msgid "Market"
+msgstr ""
+
+msgid "Rohal"
+msgstr ""
+
+msgid "Fire"
+msgstr ""
+
+msgid "Water"
+msgstr ""
 
 msgid "Jan"
 msgstr "Led"
@@ -286,6 +540,60 @@ msgstr "Lis"
 
 msgid "Dec"
 msgstr "Pro"
+
+msgid "BC"
+msgstr ""
+
+msgid "The date control can't handle the given date"
+msgstr ""
+
+#, fuzzy
+msgid "Go to &Today"
+msgstr "Jít na datum"
+
+msgid "years"
+msgstr ""
+
+msgid "year"
+msgstr ""
+
+#, fuzzy
+msgid "months"
+msgstr "Měsíc"
+
+#, fuzzy
+msgid "month"
+msgstr "Měsíc"
+
+msgid "weeks"
+msgstr ""
+
+msgid "week"
+msgstr ""
+
+msgid "days"
+msgstr "dny"
+
+msgid "day"
+msgstr "den"
+
+msgid "hours"
+msgstr "hodiny"
+
+msgid "hour"
+msgstr "hodina"
+
+msgid "minutes"
+msgstr "minuty"
+
+msgid "minute"
+msgstr "minuta"
+
+msgid "seconds"
+msgstr ""
+
+msgid "second"
+msgstr ""
 
 msgid "Mon"
 msgstr "Po"
@@ -344,12 +652,6 @@ msgstr ""
 msgid "Uncheck all parents"
 msgstr ""
 
-msgid "Check all parents of all childs"
-msgstr ""
-
-msgid "Checking not allowed when there is no timeline view."
-msgstr ""
-
 msgid "Edit Category"
 msgstr "Upravit kategorii"
 
@@ -374,11 +676,100 @@ msgstr "Bez shody"
 msgid "Only one match"
 msgstr "Pouze jedna shoda"
 
-msgid "Invalid date"
-msgstr "Neplatné datum"
+msgid "No timeline opened."
+msgstr "Není otevřena žádná časová osa."
+
+msgid "First time using Timeline?"
+msgstr "Je to poprvé co používáte Timeline?"
+
+msgid "Getting started tutorial"
+msgstr "Začínáme tutoriál"
+
+msgid "Center"
+msgstr "Na střed"
+
+msgid "Edit"
+msgstr "Upravit"
+
+msgid "Duplicate..."
+msgstr "Duplikovat..."
+
+msgid "Mark Event as Done"
+msgstr ""
+
+#, fuzzy
+msgid "Select Category..."
+msgstr "Kategorie:"
+
+msgid "Sticky Balloon"
+msgstr ""
+
+msgid "Goto URL"
+msgstr "Přejít na URL"
+
+#, fuzzy, python-format
+msgid "Are you sure you want to delete %d events?"
+msgstr "Opravdu chcete smazat tuto událost?"
+
+msgid "Are you sure you want to delete this event?"
+msgstr "Opravdu chcete smazat tuto událost?"
+
+#, python-format
+msgid "%s events hidden"
+msgstr "%s událostí skryto"
+
+msgid "This timeline is read-only."
+msgstr ""
+
+msgid "To edit this timeline, save it to a new file: File -> Save As."
+msgstr ""
+
+#, fuzzy
+msgid "This timeline is not being saved."
+msgstr "Otevření časové osy namísto vytvoření nové."
+
+msgid "To save this timeline, save it to a new file: File -> Save As."
+msgstr ""
 
 msgid "Give feedback"
 msgstr ""
+
+msgid "When:"
+msgstr ""
+
+msgid "Text:"
+msgstr "Text:"
+
+msgid "Color used when the Event has no category associated with it."
+msgstr ""
+
+msgid "Progress %:"
+msgstr ""
+
+msgid "&Append"
+msgstr ""
+
+msgid "&Remove"
+msgstr ""
+
+msgid "Te&st"
+msgstr ""
+
+msgid "URL:"
+msgstr "URL:"
+
+#, python-format
+msgid "Images will be scaled to fit inside a %ix%i box."
+msgstr "Obrázky budou zmenšeny, aby se vyšly do boxu %ix%i."
+
+msgid "Select Icon"
+msgstr "Vybrat ikonu"
+
+msgid "Select region to zoom into"
+msgstr "Vyberte oblast pro přibližení"
+
+msgid "Can't move locked event"
+msgstr "Nelze přesunout uzamčenou událost."
 
 msgid "Add new"
 msgstr "Přidat nový"
@@ -387,97 +778,145 @@ msgid "Edit categories"
 msgstr "Upravit kategorie"
 
 #, fuzzy
-msgid "Select a Category:"
-msgstr "Kategorie:"
-
-msgid "Set Category on events without category"
-msgstr ""
-
-#, fuzzy
-msgid "Set Category on selected events"
-msgstr "Vzdálenost mezi dvěma událostmi"
-
-msgid "Show time"
-msgstr "Zobrazit čas"
-
-#, fuzzy
-msgid "Found Events"
-msgstr "Události"
-
-msgid "&Enlarge"
-msgstr ""
-
-msgid "&Reduce"
-msgstr ""
-
-msgid "Event Properties"
-msgstr "Vlastnosti události"
-
-msgid "When:"
-msgstr ""
-
-msgid "to"
-msgstr ""
-
-msgid "Container:"
-msgstr "Kontejner:"
+msgid "Choose file"
+msgstr "SVG soubory"
 
 msgid "Add Container"
 msgstr "Přidat kontejner"
 
-msgid "Period"
-msgstr "Období"
-
-msgid "Fuzzy"
+msgid "View Categories Individually"
 msgstr ""
 
-msgid "Locked"
-msgstr "Zamčeno"
+#, fuzzy
+msgid "Add an Era"
+msgstr "Přidat kontejner"
 
-msgid "Ends today"
-msgstr "Končí dnes"
+#, fuzzy
+msgid "Edit an Era"
+msgstr "Upravit kontejner"
 
-msgid "Text:"
-msgstr "Text:"
+#, fuzzy
+msgid "Edit Era's"
+msgstr "Upravit událost"
+
+#, fuzzy
+msgid "CSV File"
+msgstr "SVG soubory"
+
+#, fuzzy
+msgid "Invalid Data"
+msgstr "Neplatné datum"
+
+msgid "At least one Export Item must be selected"
+msgstr ""
+
+msgid "At least one Event Field must be selected"
+msgstr ""
+
+msgid "At least one Category Field must be selected"
+msgstr ""
+
+msgid "Ignore"
+msgstr ""
+
+msgid "Replace"
+msgstr ""
+
+msgid "XML-Replace"
+msgstr ""
+
+msgid "Strict"
+msgstr ""
+
+msgid "Select Export File Type"
+msgstr ""
+
+#, fuzzy
+msgid "Select Text Encoding"
+msgstr "Vybrat ikonu"
+
+msgid "Select encoding error strategy"
+msgstr ""
+
+#, fuzzy
+msgid "Select Items to export"
+msgstr "Kategorie:"
+
+#, fuzzy
+msgid "Select Fields..."
+msgstr "Vybrat událost."
+
+#, fuzzy
+msgid "Export Timeline"
+msgstr "Není stanovena časová osa"
+
+#, fuzzy
+msgid "Select Event Fields"
+msgstr "Vybrat událost."
+
+#, fuzzy
+msgid "Select Category Fields"
+msgstr "Kategorie:"
+
+msgid "You can't save a milestone with an invalid date/time"
+msgstr ""
+
+#, fuzzy
+msgid "Milestone Properties"
+msgstr "Vlastnosti události"
+
+#, fuzzy
+msgid "Description:"
+msgstr "Popis"
+
+msgid "Label:"
+msgstr ""
 
 msgid "Category:"
 msgstr "Kategorie:"
 
-msgid "Description"
-msgstr "Popis"
+#, fuzzy
+msgid "Colour:"
+msgstr "Barva:"
 
-msgid "Alert"
-msgstr "Upozornění"
+#, fuzzy
+msgid "Create Milestone"
+msgstr "Vytvořit Časovou osu"
 
-msgid "Icon"
-msgstr "Ikona"
-
-msgid "Hyperlink"
-msgstr "Odkaz"
-
-msgid "Progress"
+msgid "Edit Milestone"
 msgstr ""
 
-msgid "Add more events after this one"
-msgstr "Po této události přidat další"
+#, python-format
+msgid "Field '%s' can't be empty."
+msgstr "Pole '%s' nemůže být prázdné."
 
-msgid "Edit Container"
-msgstr "Upravit kontejner"
-
-msgid "Edit Event"
-msgstr "Upravit událost"
-
-msgid "Create Event"
-msgstr "Vytvořit událost"
-
-msgid "Email Feedback"
+msgid "Name:"
 msgstr ""
 
-msgid "Default client"
+msgid "Color:"
+msgstr "Barva:"
+
+#, fuzzy
+msgid "Progress Color:"
+msgstr "Barva písma:"
+
+#, fuzzy
+msgid "Done Color:"
+msgstr "Barva písma:"
+
+msgid "Font Color:"
+msgstr "Barva písma:"
+
+msgid "Parent:"
 msgstr ""
 
-msgid "Gmail"
-msgstr ""
+#, python-format
+msgid "Category name '%s' not valid. Must be non-empty."
+msgstr "Jmého kategorie '%s' je neplatné. Nesmí být prázdné."
+
+#, python-format
+msgid "Category name '%s' already in use."
+msgstr "Jméno kategorie '%s' je již použito."
 
 msgid "Other email client"
 msgstr ""
@@ -487,7 +926,7 @@ msgid ""
 "there."
 msgstr ""
 
-msgid "Other"
+msgid "Email Feedback"
 msgstr ""
 
 msgid "To:"
@@ -503,169 +942,425 @@ msgstr ""
 msgid "Send With:"
 msgstr ""
 
-msgid "&File"
-msgstr "&Soubor"
+msgid "Default client"
+msgstr ""
 
-msgid "New"
-msgstr "Nová"
+msgid "Gmail"
+msgstr ""
 
-msgid "Create a new timeline"
+msgid "Other"
+msgstr ""
+
+msgid "Invalid date"
+msgstr "Neplatné datum"
+
+msgid "Choose what type of timeline you want to create."
+msgstr ""
+
+#, fuzzy
+msgid "Create new timeline"
 msgstr "Vytvořit novou časovou osu"
 
-msgid "File Timeline..."
-msgstr "Soubor Timeline..."
+msgid "System version:"
+msgstr ""
 
-#, fuzzy
-msgid "Numeric Timeline..."
-msgstr "Soubor Timeline..."
+msgid "Python version:"
+msgstr ""
 
-msgid "Directory Timeline..."
-msgstr "Adresář Timeline..."
+msgid "wxPython version:"
+msgstr ""
 
-msgid "Open an existing timeline"
-msgstr "Otevřít existující časovou osu"
+msgid "Locale setting:"
+msgstr ""
 
-msgid "Open &Recent"
-msgstr "Otevřít &nedávné"
-
-msgid "Save As..."
+msgid "Locale date format:"
 msgstr ""
 
 #, fuzzy
-msgid "Import timeline..."
-msgstr "Adresář Timeline..."
+msgid "Configuration file:"
+msgstr "Nelze vytvořit konfigurační soubor."
 
 #, fuzzy
-msgid "&Export Current view to Image..."
-msgstr "&Export do obrázku ..."
-
-msgid "Export the current view to a PNG image"
-msgstr "Export momentálního náhledu do PNG obrázku"
+msgid "System Information"
+msgstr "Informace"
 
 #, fuzzy
-msgid "&Export Whole Timeline to Images..."
-msgstr "&Export do obrázku ..."
+msgid "File does not exist."
+msgstr "Soubor '%s' neexistuje."
 
-#, fuzzy
-msgid "Export whole Timeline to PNG images"
-msgstr "Export momentálního náhledu do PNG obrázku"
+#, fuzzy, python-format
+msgid "Unable to load events: %s."
+msgstr "Nemohu otevřít časovou osu '%s'."
 
-msgid "&Export to SVG..."
-msgstr "&Export do SVG..."
-
-msgid "Export the current view to a SVG image"
-msgstr "Export momentálního náhledu do SVG obrázku"
-
-msgid "Exit the program"
-msgstr "Ukončit program"
-
-#, fuzzy
-msgid "Find Categories..."
-msgstr "Upravit kategorie"
-
-msgid "Shortcuts..."
-msgstr ""
-
-msgid "&Edit"
-msgstr "&Upravit"
-
-msgid "&Sidebar\tCtrl+I"
-msgstr ""
-
-msgid "&Legend"
-msgstr "&Legenda"
-
-msgid "&Balloons on hover"
-msgstr ""
-
-msgid "Zoom &In\tCtrl++"
-msgstr ""
-
-msgid "Zoom &Out\tCtrl+-"
-msgstr ""
-
-msgid "Vertical Zoom &In\tAlt++"
-msgstr ""
-
-msgid "Vertical Zoom &Out\tAlt+-"
-msgstr ""
-
-msgid "&View"
-msgstr ""
-
-msgid "Create &Event..."
-msgstr "Vytvořit &Událost..."
-
-#, fuzzy
-msgid "&Edit Selected Event..."
-msgstr "&Duplikovat vybranou událost..."
-
-msgid "&Duplicate Selected Event..."
-msgstr "&Duplikovat vybranou událost..."
-
-#, fuzzy
-msgid "Set Category on Selected Events..."
-msgstr "&Duplikovat vybranou událost..."
-
-msgid "&Measure Distance between two Events..."
-msgstr "&Měřit Vzdálenost mezi dvěma Událostmi..."
-
-#, fuzzy
-msgid "Set Category on events &without category..."
-msgstr "&Duplikovat vybranou událost..."
-
-msgid "Edit &Categories"
-msgstr "Upravit &Kategorie"
-
-msgid "&Read Only"
-msgstr ""
-
-msgid "&Timeline"
-msgstr "&Časová osa"
-
-#, fuzzy
-msgid "Find &First Event"
-msgstr "Najít První Událost"
-
-#, fuzzy
-msgid "Find &Last Event"
-msgstr "Najít Poslední Událost"
-
-#, fuzzy
-msgid "Fit &All Events"
-msgstr "Upravit událost"
-
-msgid "&Navigate"
-msgstr "&Navigovat"
-
-msgid "Feedback"
-msgstr ""
-
-msgid "&Contents\tF1"
+#, python-format
+msgid "%d events will be imported."
 msgstr ""
 
 #, fuzzy
-msgid "Getting started &tutorial"
-msgstr "Začínáme tutoriál"
+msgid "The selected timeline has a different time type."
+msgstr "Stanovena časová osa již existuje."
 
-msgid "Give &Feedback..."
+msgid "Select timeline to import from:"
 msgstr ""
-
-#, fuzzy
-msgid "Co&ntact"
-msgstr "Kontakt"
-
-msgid "&Help"
-msgstr "&Nápověda"
-
-msgid "read-only"
-msgstr "pouze ke čtení"
 
 msgid "Timeline files"
 msgstr "Soubory Timeline"
 
-msgid "SVG files"
-msgstr "SVG soubory"
+#, fuzzy
+msgid "Import events"
+msgstr "Není stanovena časová osa"
+
+msgid "Check"
+msgstr ""
+
+msgid "Uncheck"
+msgstr ""
+
+#, fuzzy
+msgid "Category Finder"
+msgstr "Kategorie"
+
+msgid "You must select a category!"
+msgstr ""
+
+msgid "Set Category on events without category"
+msgstr ""
+
+#, fuzzy
+msgid "Set Category on selected events"
+msgstr "Vzdálenost mezi dvěma událostmi"
+
+#, fuzzy
+msgid "Select a Category:"
+msgstr "Kategorie:"
+
+msgid "The html pages directory is mandatory"
+msgstr ""
+
+msgid "Can't find the html pages directory!"
+msgstr ""
+
+#, fuzzy
+msgid "Do you want to create it?"
+msgstr "Opravdu chcete smazat tuto událost?"
+
+msgid "The html pages director isn't empty!"
+msgstr ""
+
+msgid "Do you want overwrite it?"
+msgstr ""
+
+#, fuzzy
+msgid "Select Events"
+msgstr "Vybrat událost."
+
+msgid "Save html pages at"
+msgstr ""
+
+#, fuzzy
+msgid "Start Slide Show"
+msgstr "Počáteční čas "
+
+msgid "Select html pages directory"
+msgstr ""
+
+#, fuzzy
+msgid "Found Events"
+msgstr "Události"
+
+msgid "Date format:"
+msgstr ""
+
+msgid "Locale Date format:"
+msgstr ""
+
+msgid "Set Date format"
+msgstr ""
+
+#, fuzzy
+msgid "Era Properties"
+msgstr "Vlastnosti události"
+
+msgid "Ends today"
+msgstr "Končí dnes"
+
+msgid "Current"
+msgstr ""
+
+msgid "General"
+msgstr ""
+
+msgid "Open most recent timeline on startup"
+msgstr "Otevřít poslední časovou osu při startu"
+
+msgid "Use inertial scrolling"
+msgstr "Použít inerciální posouvání"
+
+msgid "Never show period Events as point Events"
+msgstr ""
+
+#, fuzzy
+msgid "Center Event texts"
+msgstr "Vytvořit událost"
+
+msgid "Uncheck time checkbox for new events"
+msgstr ""
+
+msgid "Balloon text below icon"
+msgstr ""
+
+msgid "Select Event Editor Tab Order"
+msgstr ""
+
+#, fuzzy
+msgid "Select Date format"
+msgstr "Kategorie:"
+
+msgid "Date && Time"
+msgstr "Datum && Čas"
+
+msgid "Week start on:"
+msgstr "Týden začína v:"
+
+msgid "Monday"
+msgstr "Pondělí"
+
+msgid "Sunday"
+msgstr "Něděle"
+
+msgid "Fonts"
+msgstr ""
+
+#, fuzzy
+msgid "Colours"
+msgstr "Barva:"
+
+msgid "Major Strips:"
+msgstr ""
+
+msgid "Minor Strips:"
+msgstr ""
+
+msgid "Balloons:"
+msgstr ""
+
+#, fuzzy
+msgid "Icons"
+msgstr "Ikona"
+
+msgid "Fuzzy icon"
+msgstr ""
+
+#, fuzzy
+msgid "Locked icon"
+msgstr "Zamčeno"
+
+#, fuzzy
+msgid "Hyperlink icon"
+msgstr "Odkaz"
+
+#, fuzzy
+msgid "Legends:"
+msgstr "&Legenda"
+
+msgid "Experimental Features"
+msgstr ""
+
+msgid "Minor strip divider line:"
+msgstr ""
+
+msgid "Major strip divider line:"
+msgstr ""
+
+#, fuzzy
+msgid "Now line:"
+msgstr "Není stanovena časová osa"
+
+#, fuzzy
+msgid "Weekends:"
+msgstr "Týden"
+
+#, fuzzy
+msgid "Background"
+msgstr "Zpět"
+
+#, fuzzy
+msgid "Vertical space between Events (px)"
+msgstr "&Měřit Vzdálenost mezi dvěma Událostmi..."
+
+msgid "Colorize weekends"
+msgstr ""
+
+msgid "Skip s in decade text"
+msgstr ""
+
+msgid "Display checkmark when events are done"
+msgstr ""
+
+msgid "Never use time precision for events"
+msgstr ""
+
+msgid "Legend Position"
+msgstr ""
+
+msgid "Bottom-Left"
+msgstr ""
+
+msgid "Top-Left"
+msgstr ""
+
+msgid "Top-Right"
+msgstr ""
+
+msgid "Bottom-Right"
+msgstr ""
+
+msgid "Preferences"
+msgstr "Předvolby"
+
+msgid "Select Fields to Export"
+msgstr ""
+
+msgid "Number of duplicates:"
+msgstr "Počet kopii:"
+
+msgid "Direction"
+msgstr "Směr"
+
+msgid "Frequency:"
+msgstr "Frekvence:"
+
+msgid "Both"
+msgstr "Obojí"
+
+msgid "Duplicate Event"
+msgstr "Duplikovat událost"
+
+#, python-format
+msgid "%d Events not duplicated due to missing dates."
+msgstr "%d události nebyly duplikovány, chybí data."
+
+msgid "Shortcut is saved"
+msgstr ""
+
+msgid "Both Modifier and Shortcut key must be given!"
+msgstr ""
+
+#, python-format
+msgid "The shortcut %s is already bound to function '%s'!"
+msgstr ""
+
+#, fuzzy
+msgid "Functions:"
+msgstr "Očkování:"
+
+#, fuzzy
+msgid "Modifier:"
+msgstr "změněná položka"
+
+msgid "Shortcut Key:"
+msgstr ""
+
+msgid "Edit Shortcuts"
+msgstr ""
+
+msgid "Give Feedback"
+msgstr ""
+
+msgid "Feedback On Feature"
+msgstr ""
+
+#, fuzzy
+msgid "Select Tab Order:"
+msgstr "Kategorie:"
+
+msgid "Event Editor Tab Order"
+msgstr ""
+
+msgid "You can't change time when the Event is locked"
+msgstr "Nemůžete změnit čas pokud je Událost uzamčená."
+
+msgid "End must be > Start"
+msgstr "Konec musí být > Začátek"
+
+msgid "Event Properties"
+msgstr "Vlastnosti události"
+
+msgid "Container:"
+msgstr "Kontejner:"
+
+msgid "Icon"
+msgstr "Ikona"
+
+msgid "Default color"
+msgstr ""
+
+msgid "Add more events after this one"
+msgstr "Po této události přidat další"
+
+msgid "&Enlarge"
+msgstr ""
+
+msgid "&Reduce"
+msgstr ""
+
+#, fuzzy
+msgid "Save and Duplicate"
+msgstr "Duplikovat..."
+
+msgid "Edit Container"
+msgstr "Upravit kontejner"
+
+msgid "Edit Event"
+msgstr "Upravit událost"
+
+msgid "Create Event"
+msgstr "Vytvořit událost"
+
+#, fuzzy
+msgid "Import in event description"
+msgstr "Popis"
+
+msgid "Use as start date of event"
+msgstr ""
+
+msgid "Use as event alarm time"
+msgstr ""
+
+msgid "Options for ICS import"
+msgstr ""
+
+msgid "read-only"
+msgstr "pouze ke čtení"
+
+#, python-format
+msgid "File '%s' does not exist."
+msgstr "Soubor '%s' neexistuje."
+
+msgid ""
+"Someoneelse has changed the Timeline.\n"
+"You have two choices!\n"
+"  1. Set Timeline in Read-Only mode.\n"
+"  2. Synchronize Timeline.\n"
+"\n"
+"Do you want to Synchronize?"
+msgstr ""
+
+#, python-format
+msgid ""
+"Unable to take lock on %s\n"
+"This means you can't edit the timeline.\n"
+"Check if you have write access to this directory."
+msgstr ""
+
+#, python-format
+msgid ""
+"The lockfile used to protect the timeline from concurrent updates is opened "
+"by another program or process.\n"
+"This lockfile must be removed in order be able to continue editing the "
+"timeline!\n"
+"The lockfile is found at: %s"
+msgstr ""
 
 msgid "Create Timeline"
 msgstr "Vytvořit Časovou osu"
@@ -686,19 +1381,6 @@ msgstr "Otevřít Časovou osu"
 msgid "Save Timeline As"
 msgstr "Vytvořit Časovou osu"
 
-#, fuzzy
-msgid ""
-"Could not find pysvg Python package. It is needed to export to SVG. See the "
-"Timeline website or the doc/installing.rst file for instructions how to "
-"install it."
-msgstr ""
-"Nemohu najít balík iCalendar Python. Je potřeba pro práci s ICS soubory. "
-"Podívejte se na Timeline stránky nebo na INSTALAČNÍ soubor s instrukcemi jak "
-"ho nainstalovat."
-
-msgid "Export to SVG"
-msgstr "Export do SVG"
-
 msgid "Unable to write configuration file."
 msgstr "Nelze vytvořit konfigurační soubor."
 
@@ -708,82 +1390,219 @@ msgstr "Vzdálenost mezi dvěma událostmi"
 msgid "Events are overlapping or distance is 0"
 msgstr "Události se překrývají nebo je mezi nimi vzdálenost 0"
 
-msgid "No timeline opened."
-msgstr "Není otevřena žádná časová osa."
-
-msgid "First time using Timeline?"
-msgstr "Je to poprvé co používáte Timeline?"
-
-msgid "Getting started tutorial"
-msgstr "Začínáme tutoriál"
-
-msgid "Relevant help topics:"
-msgstr "Relevantní témata nápovědy:"
-
-msgid "Contact"
-msgstr "Kontakt"
-
-msgid "View Categories Individually"
+msgid "Left"
 msgstr ""
 
-#, python-format
-msgid "Category name '%s' not valid. Must be non-empty."
-msgstr "Jmého kategorie '%s' je neplatné. Nesmí být prázdné."
+msgid "&File"
+msgstr "&Soubor"
 
-#, python-format
-msgid "Category name '%s' already in use."
-msgstr "Jméno kategorie '%s' je již použito."
+msgid "&Edit"
+msgstr "&Upravit"
 
-msgid "Name:"
+msgid "&View"
 msgstr ""
 
-msgid "Color:"
-msgstr "Barva:"
+msgid "&Timeline"
+msgstr "&Časová osa"
 
-msgid "Font Color:"
-msgstr "Barva písma:"
+msgid "&Navigate"
+msgstr "&Navigovat"
 
-msgid "Parent:"
+msgid "&Help"
+msgstr "&Nápověda"
+
+msgid "New..."
 msgstr ""
 
-msgid "Preferences"
-msgstr "Předvolby"
+msgid "Create a new timeline"
+msgstr "Vytvořit novou časovou osu"
 
-msgid "General"
+msgid "Open an existing timeline"
+msgstr "Otevřít existující časovou osu"
+
+msgid "Open &Recent"
+msgstr "Otevřít &nedávné"
+
+msgid "Save As..."
 msgstr ""
-
-msgid "Date && Time"
-msgstr "Datum && Čas"
-
-msgid "Week start on:"
-msgstr "Týden začína v:"
-
-msgid "Open most recent timeline on startup"
-msgstr "Otevřít poslední časovou osu při startu"
-
-msgid "Use inertial scrolling"
-msgstr "Použít inerciální posouvání"
-
-msgid "Monday"
-msgstr "Pondělí"
-
-msgid "Sunday"
-msgstr "Něděle"
 
 #, fuzzy
-msgid "Category Finder"
-msgstr "Kategorie"
+msgid "Import events..."
+msgstr "Adresář Timeline..."
 
-msgid "Check"
+msgid "Exit the program"
+msgstr "Ukončit program"
+
+#, fuzzy
+msgid "Find Categories..."
+msgstr "Upravit kategorie"
+
+#, fuzzy
+msgid "Select All Events"
+msgstr "Vybrat událost."
+
+msgid "Shortcuts..."
 msgstr ""
 
-msgid "Uncheck"
+msgid "&Sidebar"
 msgstr ""
 
-msgid "Feedback On Feature"
+msgid "&Legend"
+msgstr "&Legenda"
+
+msgid "&Balloons on hover"
 msgstr ""
 
-msgid "Give Feedback"
+#, fuzzy
+msgid "Zoom &In"
+msgstr "Přiblížit"
+
+#, fuzzy
+msgid "Zoom &Out"
+msgstr "Přiblížit"
+
+msgid "Vertical Zoom &In"
+msgstr ""
+
+#, fuzzy
+msgid "Vertical Zoom &Out"
+msgstr "Přiblížit"
+
+#, fuzzy
+msgid "Start slide show"
+msgstr "Počáteční čas "
+
+msgid "&Hide Events done"
+msgstr ""
+
+msgid "Toolbar"
+msgstr ""
+
+#, fuzzy
+msgid "Event appearance"
+msgstr "Vlastnosti události"
+
+msgid "Point event alignment"
+msgstr ""
+
+msgid "Create &Event..."
+msgstr "Vytvořit &Událost..."
+
+#, fuzzy
+msgid "&Edit Selected Event..."
+msgstr "&Duplikovat vybranou událost..."
+
+msgid "&Duplicate Selected Event..."
+msgstr "&Duplikovat vybranou událost..."
+
+#, fuzzy
+msgid "Set Category on Selected Events..."
+msgstr "&Duplikovat vybranou událost..."
+
+#, fuzzy
+msgid "Move event up"
+msgstr "Posuňte událost vertikálně"
+
+#, fuzzy
+msgid "Move event down"
+msgstr "Posuňte událost vertikálně"
+
+#, fuzzy
+msgid "Create &Milestone..."
+msgstr "Vytvořit &Událost..."
+
+#, fuzzy
+msgid "&Compress timeline Events"
+msgstr "Není stanovena časová osa"
+
+msgid "&Measure Distance between two Events..."
+msgstr "&Měřit Vzdálenost mezi dvěma Událostmi..."
+
+#, fuzzy
+msgid "Set Category on events &without category..."
+msgstr "&Duplikovat vybranou událost..."
+
+msgid "Edit &Categories"
+msgstr "Upravit &Kategorie"
+
+#, fuzzy
+msgid "Edit Era's..."
+msgstr "Upravit..."
+
+msgid "&Read Only"
+msgstr ""
+
+msgid "&Undo"
+msgstr ""
+
+msgid "&Redo"
+msgstr ""
+
+#, fuzzy
+msgid "Find &First Event"
+msgstr "Najít První Událost"
+
+#, fuzzy
+msgid "Find &Last Event"
+msgstr "Najít Poslední Událost"
+
+#, fuzzy
+msgid "Fit &All Events"
+msgstr "Upravit událost"
+
+msgid "Go to previous time period"
+msgstr ""
+
+msgid "Feedback"
+msgstr ""
+
+#, fuzzy
+msgid "&Contents"
+msgstr "Kontejner:"
+
+#, fuzzy
+msgid "Getting started &tutorial"
+msgstr "Začínáme tutoriál"
+
+msgid "Give &Feedback..."
+msgstr ""
+
+#, fuzzy
+msgid "Co&ntact"
+msgstr "Kontakt"
+
+#, fuzzy
+msgid "System information"
+msgstr "Informace"
+
+msgid "Gregorian"
+msgstr ""
+
+msgid "This creates a timeline using the standard calendar."
+msgstr ""
+
+msgid "Numeric"
+msgstr ""
+
+msgid ""
+"This creates a timeline that has numbers on the x-axis instead of dates."
+msgstr ""
+
+#, fuzzy
+msgid "Directory"
+msgstr "Směr"
+
+msgid ""
+"This creates a timeline where the modification date of files in a directory "
+"are shown as events."
+msgstr ""
+
+msgid "Bosparanian"
+msgstr ""
+
+msgid ""
+"This creates a timeline using the fictuous Bosparanian calendar from the "
+"German pen-and-paper RPG \"The Dark Eye\" (\"Das schwarze Auge\", DSA)."
 msgstr ""
 
 msgid "Help"
@@ -791,9 +1610,7 @@ msgstr "Nápověda"
 
 #, fuzzy
 msgid ""
-"Could not find markdown Python package.  It is needed by the help system. "
-"See the Timeline website or the doc/installing.rst file for instructions how "
-"to install it."
+"Could not find markdown Python package. It is needed by the help system."
 msgstr ""
 "Nemohu najít balík iCalendar Python. Je potřeba pro práci s ICS soubory. "
 "Podívejte se na Timeline stránky nebo na INSTALAČNÍ soubor s instrukcemi jak "
@@ -815,118 +1632,20 @@ msgstr "Stránka nenalezena"
 msgid "Could not find page '%s'."
 msgstr "Nelze najít stránku '%s'."
 
-msgid "Container Properties"
-msgstr "Vlastnosti Kontejnéru"
-
-msgid "Edit Shortcuts"
-msgstr ""
-
-#, fuzzy
-msgid "Functions:"
-msgstr "Očkování:"
-
-#, fuzzy
-msgid "Modifier:"
-msgstr "změněná položka"
-
-msgid "Shortcut Key:"
-msgstr ""
-
-msgid "Unable to copy to clipboard."
-msgstr "Nelze kopírovat do schránky."
-
-msgid "Duplicate Event"
-msgstr "Duplikovat událost"
-
-#, python-format
-msgid "%d Events not duplicated due to missing dates."
-msgstr "%d události nebyly duplikovány, chybí data."
-
-msgid "Number of duplicates:"
-msgstr "Počet kopii:"
-
-msgid "Frequency:"
-msgstr "Frekvence:"
-
-msgid "Forward"
-msgstr "Vpřed"
-
-msgid "Backward"
-msgstr "Zpět"
-
-msgid "Both"
-msgstr "Obojí"
-
-msgid "Direction"
-msgstr "Směr"
-
-msgid "Edit Categories"
-msgstr "Upravit kategorie"
-
 msgid "Error"
 msgstr "Chyba"
 
 msgid "Warning"
 msgstr ""
 
+msgid "Dialog moved"
+msgstr ""
+
+msgid "This dialog has been removed. Edit categories in the sidebar instead."
+msgstr ""
+
 msgid "Question"
 msgstr "Dotaz"
-
-msgid "Both Modifier and Shortcut key must be given!"
-msgstr ""
-
-#, python-format
-msgid "The shortcut %s is already bound to function '%s'!"
-msgstr ""
-
-msgid "You must select a category!"
-msgstr ""
-
-msgid "Progress %:"
-msgstr ""
-
-msgid "Test"
-msgstr "Vyzkoušet"
-
-msgid "URL:"
-msgstr "URL:"
-
-#, python-format
-msgid "Images will be scaled to fit inside a %ix%i box."
-msgstr "Obrázky budou zmenšeny, aby se vyšly do boxu %ix%i."
-
-msgid "Select Icon"
-msgstr "Vybrat ikonu"
-
-msgid "You can't change time when the Event is locked"
-msgstr "Nemůžete změnit čas pokud je Událost uzamčená."
-
-msgid "End must be > Start"
-msgstr "Konec musí být > Začátek"
-
-msgid "Entered period is too long."
-msgstr "Vložené období je příliš dlouhé."
-
-#, fuzzy
-msgid "Start time > Now."
-msgstr "Počáteční čas "
-
-#, python-format
-msgid "Field '%s' can't be empty."
-msgstr "Pole '%s' nemůže být prázdné."
-
-msgid "Text"
-msgstr "Text"
-
-msgid "Name"
-msgstr "Jméno"
-
-#, python-format
-msgid "Search results for '%s'"
-msgstr "Výsledky hledání pro '%s'"
-
-msgid "Related pages"
-msgstr "Podobné stránky"
 
 msgid "Help contents"
 msgstr "Obsah nápovědy"
@@ -979,10 +1698,25 @@ msgid ""
 "\n"
 "- Set timeline in read-only mode.\n"
 "- Synchronize the timeline.\n"
-" \n"
+"\n"
 "During the your edit action the timeline is locked for changes by others. If "
 "you try to edit a timeline when it is locked by someone else you will be "
 "notified about this situation.\n"
+msgstr ""
+
+msgid "Can I Check or Uncheck all categories?"
+msgstr ""
+
+msgid ""
+"\n"
+"Yes you can check or uncheck all categories as well as a lot of other "
+"selection alternatives.\n"
+"\n"
+"Make sure the categories pane is visible and then right-click with the mouse "
+"in the pane.\n"
+"A context menu will now show up with all the check/uncheck alternatives "
+"available.\n"
+"\n"
 msgstr ""
 
 msgid "Timeline"
@@ -1046,9 +1780,6 @@ msgid ""
 "To zoom vertically, hold down the Alt-key and scroll the mouse wheel.\n"
 msgstr ""
 
-msgid "Events"
-msgstr "Události"
-
 #, fuzzy
 msgid ""
 "\n"
@@ -1061,6 +1792,18 @@ msgstr ""
 "Událost je základní datový typ pro prezentaci informací na časové ose. Musí "
 "určovat, kde na časové ose má být umístěna (když událost nastane). Může to "
 "být buď bod v čase nebo období.\n"
+
+msgid "Era"
+msgstr ""
+
+msgid ""
+"\n"
+"An Era is A clearly defined period of time of arbitrary but well-defined "
+"length.\n"
+"\n"
+"An Era is displayed as a background with the color defined for the Era. The "
+"Era name is written att the bottom of the timeline.\n"
+msgstr ""
 
 msgid ""
 "\n"
@@ -1078,11 +1821,31 @@ msgid ""
 " - Description - Event description that is shown i the balloon.\n"
 " - Icon - Image icon shown in balloon.\n"
 " - Alert - An alert dialog is opened at the specified alert time.\n"
-" - Hyperlink - A hyperlink that can be reached in the event context menu.\n"
+" - Hyperlinks - A list of hyperlink that can be reached in the event context "
+"menu.\n"
 msgstr ""
 
-msgid "Categories"
-msgstr "Kategorie"
+msgid "Milestones"
+msgstr ""
+
+msgid ""
+"\n"
+"A milestone is a special case of a point event. It is rendered on the "
+"timescale of a timeline and it can have a desciption shown when hooverd "
+"over. It can also have a one character label that is displayed in the "
+"milestone box.\n"
+"\n"
+"A milestone ...\n"
+"\n"
+"* is created by selecting the menu alternative Timeline -> Create "
+"milestone.\n"
+"\n"
+"* is edited by doubleclicking on it.\n"
+"\n"
+"* is deleted by clicking on it and thereafter click the delete button.\n"
+"\n"
+"* can be dragged to a new position.\n"
+msgstr ""
 
 msgid ""
 "\n"
@@ -1094,6 +1857,24 @@ msgstr ""
 "Kategorie uspořádávají události do skupin. Událost může být součástí pouze "
 "jedné kategorie. Všechny události, které patří do stejné kategorie jsou "
 "zobrazovány se stejném pozadí.\n"
+
+msgid ""
+"\n"
+"Experimental features are features implemented in Timeline but not yet "
+"decided to be permanent.\n"
+"\n"
+"An experimental feature can be switched on or off in the preferences "
+"dialog.\n"
+"\n"
+"The functionality in these features may not be fully implemented and may not "
+"have been as extensively tested as the rest of the application.\n"
+"\n"
+"The users feedback can be important when the decision to make the features "
+"permanent or not, is taken.\n"
+msgstr ""
+
+msgid "Create event"
+msgstr "Vytvořit událost."
 
 msgid ""
 "\n"
@@ -1112,12 +1893,42 @@ msgstr ""
 "- Držte *Ctrl*, potom  *levým* tlačítkem myši na časové ose posuňte a "
 "pusťte.\n"
 
+msgid "Undo/Redo"
+msgstr ""
+
+msgid ""
+"\n"
+"The *Undo* function can revert an action such as creating an event, editing "
+"a category or deleting an event.\n"
+"\n"
+"To revert an action you:\n"
+"\n"
+"- Use the Ctrl+Z key (Key combination can be changed by user)\n"
+"- Select the menu *Timeline* - *Undo*\n"
+"\n"
+"To save memory usage we have decided to limit the number of actions that can "
+"be reverted.\n"
+"This means that only the 10 latest actions can be Undone.\n"
+"\n"
+"An action that is Undone can also be Redone if you:\n"
+"\n"
+"- Use the Alt+Z key (Key combination can be changed by user)\n"
+"- Select the menu *Timeline* - *Redo*\n"
+"\n"
+msgstr ""
+
+msgid "Edit event"
+msgstr "Upravit událost."
+
 #, fuzzy
 msgid ""
 "\n"
 "The *Edit Event* dialog can be opened by double clicking on an event or by "
 "selecting one event and select the 'Timeline -> Edit Selected Event...' "
 "menu.\n"
+"\n"
+"An image icon can be associated with an event by dragging the image file and "
+"dropping it on an event.\n"
 msgstr ""
 "\n"
 "Dialogové okno *Upravit Událost* může být otevřeno dvojitým kliknutím na "
@@ -1126,10 +1937,11 @@ msgstr ""
 msgid "Move event vertically"
 msgstr "Posuňte událost vertikálně"
 
+#, fuzzy
 msgid ""
 "\n"
 "An event can be moved vertically. This is done by first selecting the event "
-"and therefter using the Alt+Up or Alt+Down keys.\n"
+"and thereafter using the Up or Down keys.\n"
 msgstr ""
 "\n"
 "Událost může být posouvána vertikálně.  Označením události a použitím kláves "
@@ -1149,13 +1961,33 @@ msgid ""
 " - The time period used\n"
 " - The frequency of time periods\n"
 " - The direction\n"
-" \n"
+"\n"
 " If number of duplications = 3, time span = day and frequency = 2, you will "
 "get 3 new copies of the event spread out with the time span of 2 days "
 "between them.\n"
-" \n"
+"\n"
 " You can also get to the duplication dialog from the event context menu, "
 "wich appears if you right-click an event with the mouse.\n"
+msgstr ""
+
+#, fuzzy
+msgid "Search event"
+msgstr "Vybrat událost."
+
+msgid ""
+"\n"
+"You can search for an event by selecting the Edit -> Search menu.\n"
+"\n"
+"A text control is opened in the lower left corner of the application.\n"
+"\n"
+"Enter a target text in the text control and click Enter.\n"
+"If the text is found in the Text or Description of any event, the first "
+"event\n"
+"found is highlighted for a short period of time.\n"
+"\n"
+"By clicking on the icons to the right of the text control you can navigate\n"
+"back and forth between all the events that has been found. You can also\n"
+"select an event from a list of all found events.\n"
 msgstr ""
 
 msgid "Selecting events"
@@ -1194,10 +2026,18 @@ msgid ""
 "all other events are moved to give room for the new event. The same thing "
 "happens\n"
 "if you resize an event within the container.\n"
-"             \n"
-"Have a look at this video for a demo. \n"
+"\n"
+"Have a look at this video for a demo.\n"
 "    <http://www.youtube.com/watch?v=dBwEQ3vqB_I>\n"
+"\n"
+"From version 1.8 there is a second container strategy that let's events "
+"overlap in time within the container.\n"
+"This strategy is implemented as an experimental feature and can be selected "
+"in the preferences dialog.\n"
 msgstr ""
+
+msgid "Delete event"
+msgstr "Smazat událost"
 
 msgid ""
 "\n"
@@ -1218,6 +2058,24 @@ msgstr ""
 "\n"
 "Ne. Události budou zachovány, pouze nebudou patřit do kategorie.\n"
 
+msgid "Add a user defined icon"
+msgstr ""
+
+msgid ""
+"\n"
+"Icons used for the event properties\n"
+"\n"
+" - Fuzzy\n"
+" - Locked\n"
+" - Hyperlink\n"
+"\n"
+"can be user defined.\n"
+"\n"
+"To use an icon of your own you create a png image file and place it in\n"
+"the subdirectory icons/event_icons.\n"
+"Now the icon can be selected in the properties dialog on the Icons tab.\n"
+msgstr ""
+
 msgid ""
 "\n"
 "Categories can be managed in the *Edit Categories* dialog (*Timeline* > "
@@ -1233,6 +2091,9 @@ msgstr ""
 "\n"
 "Viditelnost kategorií lze upravovat na postranním panelu. (*Zobrazit* > "
 "*Postranní panel*).\n"
+
+msgid "Contact"
+msgstr "Kontakt"
 
 msgid ""
 "\n"
@@ -1257,176 +2118,193 @@ msgstr ""
 "Timeline je programována a překládána dobrovolníky. Pokud byste chtěl(-a) "
 "pomoci s překladem neváhejte nás kontaktovat, rádi vás uvítáme.\n"
 
-msgid "No timeline set"
-msgstr "Není stanovena časová osa"
-
-msgid "Can't scroll more to the left"
-msgstr "Nelze rolovat více vlevo"
-
-msgid "Can't scroll more to the right"
-msgstr "Nelze rolovat více vpravo"
-
-msgid "Edit"
-msgstr "Upravit"
-
-msgid "Duplicate..."
-msgstr "Duplikovat..."
-
-msgid "Sticky Balloon"
-msgstr ""
-
-msgid "Goto URL"
-msgstr "Přejít na URL"
-
-msgid "Center"
-msgstr "Na střed"
-
 #, python-format
-msgid "%s events hidden"
-msgstr "%s událostí skryto"
+msgid "Search results for '%s'"
+msgstr "Výsledky hledání pro '%s'"
 
-#, fuzzy, python-format
-msgid "Are you sure you want to delete %d events?"
-msgstr "Opravdu chcete smazat tuto událost?"
+msgid "Related pages"
+msgstr "Podobné stránky"
 
-msgid "Are you sure you want to delete this event?"
-msgstr "Opravdu chcete smazat tuto událost?"
-
-msgid "Select region to zoom into"
-msgstr "Vyberte oblast pro přibližení"
-
-msgid "Region too long"
-msgstr "Oblast je příliš dlouhá"
-
-msgid "Region too short"
-msgstr "Oblast je příliš krátká"
-
-msgid "Can't move locked event"
-msgstr "Nelze přesunout uzamčenou událost."
-
-msgid "Period is too long"
-msgstr "Období je příliš dlouhé"
-
-msgid "Go to &Today\tCtrl+T"
+msgid "Location"
 msgstr ""
 
 #, fuzzy
-msgid "Go to &Date...\tCtrl+G"
-msgstr "Jít na datum"
+msgid "Unable to read calendar data."
+msgstr "Nelze zapsat data časové osy."
 
-msgid "Backward\tPgUp"
+#, python-format
+msgid "Unable to read from file '%s'."
+msgstr "Nemohu číst ze souboru '%s'."
+
+#, python-format
+msgid "Unable to read timeline data from '%s'."
+msgstr "Nemohu číst data časové osy z '%s'."
+
+msgid "Example era"
 msgstr ""
 
-msgid "Forward\tPgDn"
+msgid "Welcome"
+msgstr "Vítejte"
+
+msgid "Welcome to Timeline"
+msgstr "Vítejte na Časové ose."
+
+msgid "Intro"
+msgstr "Úvod"
+
+msgid "This event has hyperlinks"
 msgstr ""
 
-msgid "Forward One Wee&k\tCtrl+K"
+msgid "Right-click for context menu where the hyperlinks can be accessed."
 msgstr ""
 
-msgid "Back One &Week\tCtrl+W"
+msgid "Hover me!"
+msgstr "Najeďte kurzorem!"
+
+msgid "Hovering events with a triangle shows the event description."
+msgstr "Najetím trojúhelníků na událost se ukáže popis události."
+
+msgid "Features"
+msgstr "Vlastnosti"
+
+msgid "Scroll"
+msgstr "Posouvat"
+
+msgid ""
+"Left click somewhere on the timeline and start dragging.\n"
+"\n"
+"You can also use the mouse wheel.\n"
+"\n"
+"You can also middle click with the mouse to center around that point."
+msgstr ""
+"Klikněte levým tlačítkem někde na časové ose a začněte táhnout.\n"
+"\n"
+"Můžete také použít kolečko myši.\n"
+"\n"
+"Můžete kliknout myší doprostřed aby jste vycentrovali tento bod."
+
+#, fuzzy
+msgid "Container"
+msgstr "Kontejner:"
+
+msgid "?"
 msgstr ""
 
-msgid "Forward One Mont&h\tCtrl+h"
+#, fuzzy
+msgid "Resize me"
+msgstr "Změň velikost a posuň mě!"
+
+msgid ""
+"Container Subevent 1\n"
+"Click on the event to get the resize handles"
 msgstr ""
 
-msgid "Back One &Month\tCtrl+M"
+msgid "Drag me"
 msgstr ""
 
-msgid "Forward One Yea&r\tCtrl+R"
+msgid ""
+"Container Subevent 2\n"
+"\n"
+"Click on the event to get the drag handle and drag it.\n"
+"\n"
+"To drag the whole container, click on it while holding down the Alt key. "
+"Keep the Alt key down and find the drag point at the center of the container "
+"and drag it."
 msgstr ""
 
-msgid "Back One &Year\tCtrl+Y"
+msgid "View Container demo video"
 msgstr ""
 
-msgid "Fit Millennium"
+msgid ""
+"Container Subevent 3\n"
+"\n"
+"Select hyperlink to show demo video.\n"
+"\n"
+"Right-click in the event and select 'Goto URL' in the popup menu and select "
+"the first (and only) link"
 msgstr ""
 
-msgid "Fit Century"
+msgid "Zoom"
+msgstr "Přiblížit"
+
+msgid ""
+"Hold down Ctrl while scrolling the mouse wheel.\n"
+"\n"
+"Hold down Shift while dragging with the mouse."
 msgstr ""
+"Podržte Ctrl zatím co  otáčíte kolečko myši.\n"
+"\n"
+"Podržte Shift zatím co táhnete myší."
 
-msgid "Fit Decade"
+msgid ""
+"Double click somewhere on the timeline.\n"
+"\n"
+"Hold down Ctrl while dragging the mouse to select a period."
 msgstr ""
+"Dvojitý klik někde na časové ose.\n"
+"\n"
+"Podržte Ctrl zatímco táhnete myší, aby jste vybrali období."
 
-msgid "Fit Year"
+msgid "Double click on an event."
+msgstr "Dvojití klik na událost."
+
+msgid "Select event"
+msgstr "Vybrat událost."
+
+msgid ""
+"Click on it.\n"
+"\n"
+"Hold down Ctrl while clicking events to select multiple."
 msgstr ""
+"Klikněte zde.\n"
+"\n"
+"Podržte Ctrl když klikáte na událost, aby jste zvolili  multiple."
 
-msgid "Fit Month"
+msgid "Select events to be deleted and press the Del key."
+msgstr "Vyberte událost, která má být smazána a zmáčkněte klávesu Del ."
+
+msgid "Resize and move me!"
+msgstr "Změň velikost a posuň mě!"
+
+msgid "First select me and then drag the handles."
+msgstr "Nejprve mě vyber a potom táhni úchytkami."
+
+msgid "Saving"
+msgstr "Ukládání"
+
+msgid ""
+"This timeline is stored in memory and modifications to it will not be "
+"persisted between sessions.\n"
+"\n"
+"Choose File/New/File Timeline to create a timeline that is saved on disk."
 msgstr ""
+"Tato časová osa je uložena v paměti a její modifikování nebude přetrvávat "
+"mezi sezeními.\n"
+"\n"
+"Zvolte soubor/Nový/Soubor Timeline k vytvoření časové osy, která bude "
+"uložena na disk."
 
-msgid "Fit Week"
+#, fuzzy, python-format
+msgid "Unable to read from filename '%s'."
+msgstr "Nemohu číst ze souboru '%s'."
+
+msgid ""
+"Invalid Date Format:\n"
+"\n"
+"The format should contain\n"
+"    one year placeholder  = yyyy\n"
+"    one month placeholder = mmm or mm\n"
+"    one day placeholder   = dd\n"
+"    two placeholders for separators between year, month and day\n"
+"\n"
+"Separators can't contain the letters y, m or d\n"
+"\n"
+"Example of valid formats:\n"
+"    yyyy-mm-dd\n"
+"    dd/mm/yyyy\n"
+"    mmm/dd-yyyy\n"
+"        "
 msgstr ""
-
-msgid "Fit Day"
-msgstr ""
-
-msgid "day"
-msgstr "den"
-
-msgid "days"
-msgstr "dny"
-
-msgid "hour"
-msgstr "hodina"
-
-msgid "hours"
-msgstr "hodiny"
-
-msgid "minute"
-msgstr "minuta"
-
-msgid "minutes"
-msgstr "minuty"
-
-msgid "can't be before year 10"
-msgstr "nemůže být před rokem 10"
-
-msgid "can't be after year 9989"
-msgstr "nemůže být po roce 9989"
-
-msgid "Can't zoom wider than 1200 years"
-msgstr "Nelze oddálit více než na 1200 let"
-
-msgid "Can't zoom deeper than 1 hour"
-msgstr "Nelze přiblížit více než na hodinu"
-
-msgid "Day"
-msgstr "Den"
-
-msgid "Week"
-msgstr "Týden"
-
-msgid "Month"
-msgstr "Měsíc"
-
-msgid "Year"
-msgstr "Rok"
-
-msgid "Go to Date"
-msgstr "Jít na datum"
-
-msgid "Go to &Zero\tCtrl+Z"
-msgstr ""
-
-msgid "Go to &Time\tCtrl+T"
-msgstr ""
-
-msgid "Can't zoom deeper than 5"
-msgstr "Nelze přiblížit více než 5"
-
-msgid "1-period"
-msgstr "1-období"
-
-msgid "10-period"
-msgstr "10-období"
-
-msgid "100-period"
-msgstr "100-období"
-
-msgid "1000-period"
-msgstr "1000-období"
-
-msgid "Go to Time"
-msgstr "Jít na Čas"
 
 msgid "File"
 msgstr ""
@@ -1441,18 +2319,6 @@ msgstr "&Navigovat"
 #, fuzzy
 msgid "Import..."
 msgstr "Adresář Timeline..."
-
-#, fuzzy
-msgid "Export Current view to Image..."
-msgstr "&Export do obrázku ..."
-
-#, fuzzy
-msgid "Export Whole Timeline to Images..."
-msgstr "&Export do obrázku ..."
-
-#, fuzzy
-msgid "Export to SVG..."
-msgstr "&Export do SVG..."
 
 msgid "Exit"
 msgstr ""
@@ -1503,7 +2369,16 @@ msgstr "&Duplikovat vybranou událost..."
 msgid "Measure Distance between two Events"
 msgstr "&Měřit Vzdálenost mezi dvěma Událostmi..."
 
+msgid "Edit Categories"
+msgstr "Upravit kategorie"
+
 msgid "Read Only"
+msgstr ""
+
+msgid "Undo"
+msgstr ""
+
+msgid "Redo"
 msgstr ""
 
 #, fuzzy
@@ -1525,17 +2400,7 @@ msgstr "Najít Poslední Událost"
 msgid "Find All Events"
 msgstr "Upravit událost"
 
-#, python-format
-msgid "File '%s' does not exist."
-msgstr "Soubor '%s' neexistuje."
-
-msgid ""
-"Someoneelse has changed the Timeline.\n"
-"You have two choices!\n"
-"  1. Set Timeline in Read-Only mode.\n"
-"  2. Synchronize Timeline.\n"
-"\n"
-"Do you want to Synchronize?"
+msgid "The selected value contains invalid characters and can't be saved"
 msgstr ""
 
 msgid ""
@@ -1672,25 +2537,11 @@ msgstr ""
 msgid "** DOB unknown **"
 msgstr ""
 
-msgid "years"
-msgstr ""
-
-msgid "year"
-msgstr ""
-
 msgid "interval_format_tag::years::y"
 msgstr ""
 
 msgid "0 years"
 msgstr ""
-
-#, fuzzy
-msgid "months"
-msgstr "Měsíc"
-
-#, fuzzy
-msgid "month"
-msgstr "Měsíc"
 
 msgid "interval_format_tag::months::m"
 msgstr ""
@@ -1698,12 +2549,6 @@ msgstr ""
 #, fuzzy
 msgid "0 months"
 msgstr "Měsíc"
-
-msgid "weeks"
-msgstr ""
-
-msgid "week"
-msgstr ""
 
 msgid "interval_format_tag::weeks::w"
 msgstr ""
@@ -1725,12 +2570,6 @@ msgstr "hodiny"
 #, fuzzy
 msgid "0 minutes"
 msgstr "minuty"
-
-msgid "seconds"
-msgstr ""
-
-msgid "second"
-msgstr ""
 
 msgid "0 seconds"
 msgstr ""
@@ -2341,6 +3180,9 @@ msgid ""
 "Mostly when the document was sent from this praxis."
 msgstr ""
 
+msgid "Select the hospital stay associated with this document."
+msgstr ""
+
 msgid "Enter the date of creation of the document."
 msgstr ""
 
@@ -2407,6 +3249,10 @@ msgstr ""
 msgid "➔"
 msgstr ""
 
+#, fuzzy
+msgid "Hospital Stay"
+msgstr "Hospitalizace: %s"
+
 msgid "Date"
 msgstr ""
 
@@ -2470,6 +3316,9 @@ msgid ""
 "RV Lead: Medtronic ? (explanted)                        Explanted: Feb 09 "
 "2008"
 msgstr ""
+
+msgid "New"
+msgstr "Nová"
 
 msgid "&All"
 msgstr ""
@@ -2583,10 +3432,25 @@ msgstr ""
 msgid "Editor:"
 msgstr ""
 
+msgid "Host:"
+msgstr ""
+
+msgid "Port:"
+msgstr ""
+
+msgid "User:"
+msgstr ""
+
+msgid "Password"
+msgstr ""
+
 msgid "&Connect"
 msgstr ""
 
 msgid "<not connected>"
+msgstr ""
+
+msgid "Image"
 msgstr ""
 
 msgid "◄"
@@ -2690,21 +3554,6 @@ msgid "Save all studies of patient as DICOM archive."
 msgstr ""
 
 msgid "Modify some of Orthanc content (such as patient IDs)."
-msgstr ""
-
-msgid "Host:"
-msgstr ""
-
-msgid "Port:"
-msgstr ""
-
-msgid "User:"
-msgstr ""
-
-msgid "Password"
-msgstr ""
-
-msgid "Image"
 msgstr ""
 
 #, fuzzy
@@ -2997,9 +3846,6 @@ msgstr ""
 msgid "&Load"
 msgstr ""
 
-msgid "Export"
-msgstr ""
-
 msgid "A long, descriptive name for this form template."
 msgstr ""
 
@@ -3226,9 +4072,6 @@ msgstr ""
 msgid "Reason"
 msgstr ""
 
-msgid "Location"
-msgstr ""
-
 msgid "Provider"
 msgstr ""
 
@@ -3434,9 +4277,6 @@ msgid "Lower than normal (standard) urgency of message."
 msgstr ""
 
 msgid "Subject"
-msgstr ""
-
-msgid "Category"
 msgstr ""
 
 msgid "Audience"
@@ -3963,9 +4803,6 @@ msgstr ""
 msgid "Procedure"
 msgstr ""
 
-msgid "End"
-msgstr ""
-
 msgid "and Episode"
 msgstr ""
 
@@ -4078,6 +4915,9 @@ msgstr ""
 msgid "Measurement details"
 msgstr ""
 
+msgid "Test"
+msgstr "Vyzkoušet"
+
 msgid "Units"
 msgstr ""
 
@@ -4145,9 +4985,6 @@ msgid "↢ S&can"
 msgstr ""
 
 msgid "↢ C&lipboard"
-msgstr ""
-
-msgid "&Remove"
 msgstr ""
 
 msgid "&Print"
@@ -4737,6 +5574,70 @@ msgstr ""
 msgid "Activate the respective patient by double-clicking a row."
 msgstr ""
 
+msgid "Describe the intended action."
+msgstr ""
+
+msgid "&Select"
+msgstr ""
+
+msgid ""
+"empty?\n"
+"DICOMDIR ?\n"
+"documents/ ?"
+msgstr ""
+
+msgid "Existing data:"
+msgstr ""
+
+msgid "Include"
+msgstr ""
+
+msgid "&Include into CD / DVD"
+msgstr ""
+
+msgid "Use subdirectory:"
+msgstr ""
+
+msgid "<patient directory>"
+msgstr ""
+
+#, fuzzy
+msgid "Creating patient media"
+msgstr "Vytvořit novou událost"
+
+#, fuzzy
+msgid "Select the directory."
+msgstr "Kategorie:"
+
+#, fuzzy
+msgid "Browse the selected directory."
+msgstr "&Duplikovat vybranou událost..."
+
+msgid "Include existing data if any."
+msgstr ""
+
+msgid "Remove existing data if any."
+msgstr ""
+
+msgid "Check if you want to include the selected directory into the CD / DVD."
+msgstr ""
+
+msgid ""
+"Check if you want to use a subdirectory within the directory selected "
+"above.\n"
+"\n"
+"This will leave alone any existing data."
+msgstr ""
+
+msgid "Create patient media (in target directory or on CD / DVD)."
+msgstr ""
+
+msgid "Abort creating patient media."
+msgstr ""
+
+msgid "Path:"
+msgstr ""
+
 msgid "Edit Allergy/Intolerance"
 msgstr ""
 
@@ -4768,24 +5669,16 @@ msgstr ""
 msgid "Encounter type"
 msgstr ""
 
-msgid "&Manage..."
-msgstr ""
-
 msgid "A short description for this test panel."
 msgstr ""
 
 msgid "A comment on, or long-form description of, this test panel."
 msgstr ""
 
-msgid "Manage which test types are members of this panel (battery)."
+msgid "Add the selected LOINC to the test panel."
 msgstr ""
 
-msgid ""
-"Codes relevant to this test panel\n"
-"separated by \";\"."
-msgstr ""
-
-msgid "Test types"
+msgid "Remove selected LOINC from test panel."
 msgstr ""
 
 msgid "Fake"
@@ -5480,9 +6373,6 @@ msgstr ""
 msgid ""
 "\n"
 "Please fill in an appropriate value below.\n"
-msgstr ""
-
-msgid "&Select"
 msgstr ""
 
 msgid "&VAT applies"
@@ -7198,9 +8088,9 @@ msgstr ""
 msgid "everyone"
 msgstr ""
 
-#, python-format
-msgid "Patient #%s"
-msgstr ""
+#, fuzzy, python-format
+msgid "Patient: %s, %s%s %s   #%s\n"
+msgstr "Zdravotní problém %s%s%s%s   [#%s]"
 
 #, python-format
 msgid "Due: %s (%s ago)\n"
@@ -7314,6 +8204,10 @@ msgstr " % dokumentů\n"
 #, python-format
 msgid "patient photograph from %s"
 msgstr ""
+
+#, fuzzy, python-format
+msgid "other: %s"
+msgstr " Detaily: %s\n"
 
 #, fuzzy
 msgid "Browse patient data"
@@ -8257,7 +9151,7 @@ msgid ""
 "%s (%s)   #%s\n"
 " Created: %s\n"
 " Episode: %s\n"
-"%s%s%s%s"
+"%s%s%s%s%s"
 msgstr ""
 "%s (%s) #%s\n"
 "\n"
@@ -8453,6 +9347,52 @@ msgstr "Popis"
 msgid "prescription data"
 msgstr "Popis"
 
+#, fuzzy, python-format
+msgid "%s with %s %s     #%s"
+msgstr ""
+"\n"
+"Případ %s%s%s%s:"
+
+msgid "Live vaccine"
+msgstr ""
+
+#, fuzzy
+msgid "Inactive vaccine"
+msgstr "Neaktivní zúčtovatelná položka"
+
+#, fuzzy
+msgid "indication"
+msgstr "Informace"
+
+#, fuzzy
+msgid "indications"
+msgstr "Očkování"
+
+#, fuzzy
+msgid "indication(s)"
+msgstr "Očkování"
+
+#, fuzzy, python-format
+msgid " Product: \"%s\"     #%s"
+msgstr " Jméno souboru: %s\n"
+
+#, fuzzy, python-format
+msgid "  %s%s%s%s"
+msgstr ""
+"\n"
+"Případ %s%s%s%s:"
+
+msgid "fake product"
+msgstr ""
+
+#, fuzzy, python-format
+msgid " Age %s - %s"
+msgstr " Jméno souboru: %s\n"
+
+#, fuzzy
+msgid " Indications"
+msgstr "Informace"
+
 #, python-format
 msgid "unknown vaccinations output format [%s]"
 msgstr ""
@@ -8515,10 +9455,7 @@ msgstr ""
 msgid "J07AD01-target::brucellosis"
 msgstr ""
 
-msgid "J07AE01-target::cholera"
-msgstr ""
-
-msgid "J07AE02-target::cholera"
+msgid "J07AE0-target::cholera"
 msgstr ""
 
 msgid "J07AF01-target::diphtheria"
@@ -8530,13 +9467,7 @@ msgstr ""
 msgid "J07AH01-target::meningococcus A"
 msgstr ""
 
-msgid "J07AH10-target::meningococcus A"
-msgstr ""
-
 msgid "J07AH06-target::meningococcus B"
-msgstr ""
-
-msgid "J07AH09-target::meningococcus B"
 msgstr ""
 
 msgid "J07AH07-target::meningococcus C"
@@ -8551,19 +9482,10 @@ msgstr ""
 msgid "J07AJ0-target::pertussis"
 msgstr ""
 
-msgid "J07AJ01-target::pertussis"
-msgstr ""
-
-msgid "J07AJ02-target::pertussis"
-msgstr ""
-
 msgid "J07AK01-target::plague"
 msgstr ""
 
-msgid "J07AL01-target::pneumococcus"
-msgstr ""
-
-msgid "J07AL02-target::pneumococcus"
+msgid "J07AL0-target::pneumococcus"
 msgstr ""
 
 msgid "J07AM01-target::tetanus"
@@ -8572,16 +9494,10 @@ msgstr ""
 msgid "J07AN01-target::tbc"
 msgstr ""
 
-msgid "J07AP01-target::typhoid"
+msgid "J07AP0-target::typhoid"
 msgstr ""
 
-msgid "J07AP02-target::typhoid"
-msgstr ""
-
-msgid "J07AP03-target::typhoid"
-msgstr ""
-
-msgid "J07AP10-target::typhoid, paratyphus"
+msgid "J07AP1-target::typhoid, paratyphus"
 msgstr ""
 
 msgid "J07AR01-target::typhus exanthematicus"
@@ -8593,28 +9509,16 @@ msgstr ""
 msgid "J07BA01-target::tick-borne encephalitis"
 msgstr ""
 
-msgid "J07BA02-target::japanese encephalitis"
+msgid "J07BA0J-target::japanese encephalitis"
 msgstr ""
 
-msgid "J07BA03-target::japanese encephalitis"
-msgstr ""
-
-msgid "J07BB01-target::influenza"
-msgstr ""
-
-msgid "J07BB02-target::influenza"
-msgstr ""
-
-msgid "J07BB03-target::influenza"
+msgid "J07BB0-target::influenza"
 msgstr ""
 
 msgid "J07BC01-target::hepatitis B"
 msgstr ""
 
-msgid "J07BC02-target::hepatitis A"
-msgstr ""
-
-msgid "J07BC03-target::hepatitis A"
+msgid "J07BC0-target::hepatitis A"
 msgstr ""
 
 msgid "J07BD01-target::measles"
@@ -8623,28 +9527,22 @@ msgstr ""
 msgid "J07BE01-target::mumps"
 msgstr ""
 
-msgid "J07BF01-target::poliomyelitis"
-msgstr ""
-
-msgid "J07BF03-target::poliomyelitis"
+msgid "J07BF0-target::poliomyelitis"
 msgstr ""
 
 msgid "J07BG01-target::rabies"
 msgstr ""
 
-msgid "J07BH01-target::rotavirus diarrhea"
-msgstr ""
-
-msgid "J07BH02-target::rotavirus diarrhea"
+msgid "J07BH0-target::rotavirus diarrhea"
 msgstr ""
 
 msgid "J07BJ01-target::rubella"
 msgstr ""
 
-msgid "J07BK01-target::varicella (chickenpox)"
+msgid "J07BK0-target::varicella (chickenpox)"
 msgstr ""
 
-msgid "J07BK02-target::zoster (shingles)"
+msgid "J07BK0-target::zoster (shingles)"
 msgstr ""
 
 msgid "J07BL01-target::yellow fever"
@@ -8665,184 +9563,192 @@ msgstr ""
 msgid "J07BX01-target::variola (smallpox)"
 msgstr ""
 
-msgid "anthrax vaccine"
+msgid "generic anthrax vaccine"
 msgstr ""
 
-msgid "brucellosis vaccine"
+msgid "generic brucellosis vaccine"
 msgstr ""
 
-msgid "cholera vaccine"
+msgid "generic cholera vaccine"
 msgstr ""
 
-msgid "cholera vaccine, live"
+msgid "generic cholera vaccine, live"
 msgstr ""
 
-msgid "diphtheria vaccine"
+msgid "generic diphtheria vaccine"
 msgstr ""
 
-msgid "HiB vaccine"
+#, fuzzy
+msgid "generic HiB vaccine"
+msgstr "obecná informační hláška"
+
+msgid "generic meningococcus A vaccine"
 msgstr ""
 
-msgid "meningococcus A vaccine"
+msgid "generic meningococcus B vaccine"
 msgstr ""
 
-msgid "meningococcus B vaccine"
+msgid "generic meningococcus C vaccine"
 msgstr ""
 
-msgid "meningococcus C vaccine"
+#, fuzzy
+msgid "generic pertussis vaccine"
+msgstr "obecná chybová zpráva"
+
+msgid "generic plague vaccine"
 msgstr ""
 
-msgid "pertussis vaccine"
+msgid "generic pneumococcus vaccine"
 msgstr ""
 
-msgid "plague vaccine"
+#, fuzzy
+msgid "generic tetanus vaccine"
+msgstr "Otázky a odpovědi"
+
+msgid "generic Tbc vaccine"
 msgstr ""
 
-msgid "pneumococcus vaccine"
+msgid "generic typhoid vaccine"
 msgstr ""
 
-msgid "tetanus vaccine"
+msgid "generic typhoid vaccine, live"
 msgstr ""
 
-msgid "Tbc vaccine"
+msgid "generic typhoid/paratyphus vaccine"
 msgstr ""
 
-msgid "typhoid vaccine"
+msgid "generic typhus exanthematicus vaccine"
 msgstr ""
 
-msgid "typhoid vaccine, live"
+msgid "generic Q fever vaccine"
 msgstr ""
 
-msgid "typhoid/paratyphus vaccine"
+msgid "generic tick-borne encephalitis vaccine"
 msgstr ""
 
-msgid "typhus exanthematicus vaccine"
+msgid "generic japanese encephalitis vaccine"
 msgstr ""
 
-msgid "Q fever vaccine"
+msgid "generic japanese encephalitis vaccine, live"
 msgstr ""
 
-msgid "tick-borne encephalitis vaccine"
+#, fuzzy
+msgid "generic influenza vaccine"
+msgstr "obecná informační hláška"
+
+msgid "generic influenza vaccine, live"
 msgstr ""
 
-msgid "japanese encephalitis vaccine"
+#, fuzzy
+msgid "generic hepatitis A vaccine"
+msgstr "Otázky a odpovědi"
+
+#, fuzzy
+msgid "generic hepatitis B vaccine"
+msgstr "Otázky a odpovědi"
+
+msgid "generic measles vaccine, live"
 msgstr ""
 
-msgid "japanese encephalitis vaccine, live"
+msgid "generic mumps vaccine, live"
 msgstr ""
 
-msgid "influenza vaccine"
+#, fuzzy
+msgid "generic poliomyelitis vaccine"
+msgstr "obecná informační hláška"
+
+msgid "generic poliomyelitis vaccine, live"
 msgstr ""
 
-msgid "influenza vaccine, live"
+#, fuzzy
+msgid "generic rabies vaccine"
+msgstr "Otázky a odpovědi"
+
+msgid "generic rotavirus vaccine, live"
 msgstr ""
 
-msgid "hepatitis A vaccine"
+msgid "generic rubella vaccine, live"
 msgstr ""
 
-msgid "hepatitis B vaccine"
+msgid "generic varicella vaccine, live"
 msgstr ""
 
-msgid "measles vaccine, live"
+msgid "generic zoster vaccine, live"
 msgstr ""
 
-msgid "mumps vaccine, live"
+msgid "generic yellow fever vaccine"
 msgstr ""
 
-msgid "poliomyelitis vaccine"
+msgid "generic HPV vaccine"
 msgstr ""
 
-msgid "poliomyelitis vaccine, live"
+msgid "generic variola vaccine, live"
 msgstr ""
 
-msgid "rabies vaccine"
+msgid "generic meningococcus AC vaccine"
 msgstr ""
 
-msgid "rotavirus vaccine, live"
+msgid "generic meningococcus ACYW135 vaccine"
 msgstr ""
 
-msgid "rubella vaccine, live"
+msgid "generic measles-mumps vaccine, live"
 msgstr ""
 
-msgid "varicella vaccine, live"
+msgid "generic MMR vaccine, live"
 msgstr ""
 
-msgid "zoster vaccine, live"
+msgid "generic MMRV vaccine, live"
 msgstr ""
 
-msgid "yellow fever vaccine"
+msgid "generic measles-rubella vaccine, live"
 msgstr ""
 
-msgid "HPV vaccine"
+msgid "generic mumps-rubella vaccine, live"
 msgstr ""
 
-msgid "variola vaccine, live"
+msgid "generic cholera-typhoid vaccine"
 msgstr ""
 
-msgid "meningococcus AC vaccine"
+msgid "generic typhoid-hepA vaccine"
 msgstr ""
 
-msgid "meningococcus ACYW135 vaccine"
+msgid "generic Td vaccine"
 msgstr ""
 
-msgid "measles-mumps vaccine, live"
+msgid "generic TdPol vaccine"
 msgstr ""
 
-msgid "MMR vaccine, live"
+msgid "generic DTPol vaccine"
 msgstr ""
 
-msgid "MMRV vaccine, live"
+msgid "generic Td-HepB vaccine"
 msgstr ""
 
-msgid "measles-rubella vaccine, live"
+msgid "generic Td-rubella vaccine"
 msgstr ""
 
-msgid "mumps-rubella vaccine, live"
+msgid "generic TdaPPol vaccine"
 msgstr ""
 
-msgid "cholera-typhoid vaccine"
+msgid "generic TdaP-HepB vaccine"
 msgstr ""
 
-msgid "typhoid-hepA vaccine"
+msgid "generic TdaP vaccine"
 msgstr ""
 
-msgid "Td vaccine"
+msgid "generic DTaPPol-Hib vaccine"
 msgstr ""
 
-msgid "TdPol vaccine"
+msgid "generic TdaP-Hib-HepB vaccine"
 msgstr ""
 
-msgid "DTPol vaccine"
+msgid "generic TdaPPol-HepB vaccine"
 msgstr ""
 
-msgid "Td-HepB vaccine"
+msgid "generic TdaPPol-HiB-HepB vaccine"
 msgstr ""
 
-msgid "Td-rubella vaccine"
-msgstr ""
-
-msgid "TdaPPol vaccine"
-msgstr ""
-
-msgid "TdaP-HepB vaccine"
-msgstr ""
-
-msgid "TdaP vaccine"
-msgstr ""
-
-msgid "DTaPPol-Hib vaccine"
-msgstr ""
-
-msgid "TdaP-Hib-HepB vaccine"
-msgstr ""
-
-msgid "TdaPPol-HepB vaccine"
-msgstr ""
-
-msgid "TdaPPol-HiB-HepB vaccine"
-msgstr ""
-
-msgid "TdaPPol-HiB-HepB-MenAC vaccine"
+msgid "generic TdaPPol-HiB-HepB-MenAC vaccine"
 msgstr ""
 
 msgid "A: Sign"
@@ -9054,20 +9960,29 @@ msgstr ""
 msgid "Procedures"
 msgstr ""
 
-msgid "Life events"
+msgid "Lifespan"
 msgstr ""
 
-msgid "Birth"
+#, fuzzy
+msgid "Care Period"
+msgstr "Období"
+
+msgid "Life events"
 msgstr ""
 
 msgid "Date of birth unknown"
 msgstr ""
 
-msgid "Start of Care"
+msgid "Birth"
 msgstr ""
 
-msgid "The earliest recorded event of care in this praxis."
+#, python-format
+msgid "Start of Care: %s (the earliest recorded event of care in this praxis)"
 msgstr ""
+
+#, fuzzy, python-format
+msgid "Death: %s"
+msgstr " Faktura: %s\n"
 
 msgid "Death"
 msgstr ""
@@ -10028,23 +10943,19 @@ msgstr ""
 msgid "Editing vaccine"
 msgstr ""
 
-#, python-format
-msgid ""
-"Cannot delete vaccine\n"
-"\n"
-" %s - %s (#%s)\n"
-"\n"
-"It is probably documented in a vaccination."
-msgstr ""
-
-msgid "Deleting vaccine"
-msgstr ""
-
 msgid "fake"
 msgstr ""
 
-msgid "Showing vaccines."
+msgid "Showing vaccine details"
 msgstr ""
+
+#, fuzzy
+msgid "Products"
+msgstr "Aktívní zúčtovatelná položka"
+
+#, fuzzy
+msgid "Manage drug products"
+msgstr "Aktívní zúčtovatelná položka"
 
 msgid "Enter or select the batch/lot number of the vaccine used."
 msgstr ""
@@ -10538,14 +11449,32 @@ msgstr ""
 
 #, python-format
 msgid ""
-"There was a problem with running the editor\n"
-"for visual progress notes.\n"
+"There is no editor for visual progress notes defined.\n"
+"Also, there is no editor command defined for the file type\n"
 "\n"
-" [%s]\n"
+" [%s].\n"
 "\n"
+"Therefor GNUmed attempted to at least *show* this\n"
+"visual progress note. That failed as well, however:\n"
+"\n"
+"%s"
 msgstr ""
 
 msgid "Editing visual progress note"
+msgstr ""
+
+#, python-format
+msgid ""
+"There was a problem running the editor\n"
+"\n"
+" [%s] (%s)\n"
+"\n"
+"on the visual progress note.\n"
+"\n"
+"Therefor GNUmed attempted to at least *show* it.\n"
+"That failed as well, however:\n"
+"\n"
+"%s"
 msgstr ""
 
 #, python-format
@@ -12278,9 +13207,6 @@ msgstr ""
 msgid "Table"
 msgstr ""
 
-msgid "Event"
-msgstr ""
-
 msgid ""
 "\n"
 "Please select the provider to fall back to in case\n"
@@ -13920,6 +14846,64 @@ msgstr ""
 msgid "clinical progress note"
 msgstr ""
 
+msgid "Select a directory for inclusion into the patient CD / DVD."
+msgstr ""
+
+msgid "Select a directory in which to create the patient media."
+msgstr ""
+
+#, python-format
+msgid ""
+"Really delete any existing data under\n"
+"\n"
+" [%s]\n"
+"\n"
+"from disk ?\n"
+"\n"
+"(this operation is generally not reversible)"
+msgstr ""
+
+msgid ""
+"Script <gm-burn_doc(.bat)> not found.\n"
+"\n"
+"Cannot create patient CD/DVD."
+msgstr ""
+
+#, python-format
+msgid ""
+"Patient: %s\n"
+"\n"
+"Items to include into CD/DVD: %s\n"
+msgstr ""
+
+#, python-format
+msgid ""
+"Patient: %s\n"
+"\n"
+"Items to save: %s\n"
+msgstr ""
+
+msgid "(cannot check directory)"
+msgstr ""
+
+msgid "(directory appears empty)"
+msgstr ""
+
+msgid "directory already contains data"
+msgstr ""
+
+#, python-format
+msgid ""
+"%s\n"
+"- DICOM data"
+msgstr ""
+
+#, fuzzy, python-format
+msgid ""
+"%s\n"
+"- additional documents"
+msgstr " % dokumentů\n"
+
 msgid "Select files to add to the export area"
 msgstr ""
 
@@ -13981,33 +14965,11 @@ msgid ""
 " - %s"
 msgstr "Tisk"
 
-msgid "Select the directory into which to export the documents."
-msgstr ""
-
-#, fuzzy
-msgid "Saving export area documents"
-msgstr " % dokumentů\n"
-
-#, python-format
+#, fuzzy, python-format
 msgid ""
-"The chosen export directory\n"
-"\n"
-" [%s]\n"
-"\n"
-"already contains files. Do you still want to save the\n"
-"selected export area documents into that directory ?\n"
-"\n"
-"(this is useful for including the external documents\n"
-" already stored in or below this directory)\n"
-"\n"
-"[NO] will create a subdirectory for you and use that."
-msgstr ""
-
-msgid ""
-"Create descriptive metadata files\n"
-"and save them alongside the\n"
-"selected export area documents ?"
-msgstr ""
+"Cannot remove content from\n"
+" [%s]"
+msgstr "Nelze přesunout uzamčenou událost."
 
 #, python-format
 msgid ""
@@ -14025,9 +14987,6 @@ msgstr ""
 #, fuzzy
 msgid "Browse patient data pack ?"
 msgstr "Popis"
-
-msgid "If you wish to include an existing directory select it here:"
-msgstr ""
 
 msgid "Error burning documents to CD/DVD."
 msgstr ""
@@ -14631,9 +15590,8 @@ msgstr ""
 msgid "Mail part"
 msgstr ""
 
-#, fuzzy
-msgid "Export part"
-msgstr "Export do SVG"
+msgid "Save part to disk"
+msgstr ""
 
 msgid "Document Actions:"
 msgstr ""
@@ -14656,8 +15614,12 @@ msgstr ""
 msgid "Mail all parts"
 msgstr ""
 
-msgid "Export all parts"
+msgid "Save all parts to disk"
 msgstr ""
+
+#, fuzzy
+msgid "Copy all parts to export area"
+msgstr "Nelze kopírovat do schránky."
 
 msgid "Access external original"
 msgstr ""
@@ -14785,7 +15747,7 @@ msgid "Save document part to directory ..."
 msgstr ""
 
 #, python-format
-msgid "Successfully exported document part as [%s]."
+msgid "Successfully saved document part as [%s]."
 msgstr ""
 
 #, python-format
@@ -14844,7 +15806,7 @@ msgid "Save document into directory ..."
 msgstr ""
 
 #, python-format
-msgid "Successfully exported %s parts into the directory [%s]."
+msgid "Successfully saved %s parts into the directory [%s]."
 msgstr ""
 
 msgid "Are you sure you want to delete the document ?"
@@ -14866,6 +15828,9 @@ msgstr ""
 #, fuzzy
 msgid "Body part"
 msgstr "žádné části"
+
+msgid "DICOM field"
+msgstr ""
 
 msgid "Cannot connect without port (try 8042)."
 msgstr ""
@@ -14914,6 +15879,10 @@ msgstr ""
 msgid "Series"
 msgstr "Kategorie"
 
+#, fuzzy, python-format
+msgid "Image %s/%s"
+msgstr "Obrázkové soubory"
+
 #, python-format
 msgid "%s image(s)%s"
 msgstr ""
@@ -14932,6 +15901,10 @@ msgid ""
 msgstr ""
 
 msgid "Uploading DICOM files"
+msgstr ""
+
+#, python-format
+msgid "Working on: Orthanc \"%s\" (AET \"%s\" @ %s:%s, Version %s)"
 msgstr ""
 
 #, python-format
@@ -14984,9 +15957,6 @@ msgstr ""
 msgid "Unable to export studies."
 msgstr "Nemohu otevřít časovou osu '%s'."
 
-msgid "Editing Orthanc content"
-msgstr ""
-
 #, fuzzy
 msgid "Patient ID"
 msgstr " Pacient: #%s\n"
@@ -15007,6 +15977,12 @@ msgid ""
 " [%s]\n"
 "\n"
 "stored in the Orthanc DICOM server ?"
+msgstr ""
+
+msgid ""
+"I was unable to modify all DICOM patients.\n"
+"\n"
+"Please refer to the log file."
 msgstr ""
 
 #, python-format
@@ -15798,6 +16774,14 @@ msgstr ""
 msgid "Clear out the status line."
 msgstr ""
 
+#, fuzzy
+msgid "Browse work dir"
+msgstr "Popis"
+
+#, python-format
+msgid "Browse user working directory [%s]."
+msgstr ""
+
 msgid "Screenshot"
 msgstr ""
 
@@ -15828,14 +16812,6 @@ msgstr "Popis"
 
 #, python-format
 msgid "Browse temporary directory [%s]."
-msgstr ""
-
-#, fuzzy
-msgid "Browse work dir"
-msgstr "Popis"
-
-#, python-format
-msgid "Browse user working directory [%s]."
 msgstr ""
 
 msgid "Browse internal work dir"
@@ -16851,6 +17827,10 @@ msgid "timeline image"
 msgstr "Soubory Timeline"
 
 #, fuzzy
+msgid "timeline image (scalable)"
+msgstr "Soubory Timeline"
+
+#, fuzzy
 msgid "timeline data"
 msgstr "Není stanovena časová osa"
 
@@ -17291,25 +18271,23 @@ msgstr ""
 
 #, python-format
 msgid ""
-"Cannot edit the medication\n"
+"Cannot edit the vaccine product\n"
 "\n"
 " \"%s\" (%s)\n"
 "\n"
-"because it is a vaccine. Please edit it\n"
-"from the vaccine management section !\n"
+"because it is in use."
 msgstr ""
 
-msgid "Deleting medication"
+msgid "Deleting vaccine"
 msgstr ""
 
 #, python-format
 msgid ""
-"Cannot delete the medication\n"
+"Cannot delete the vaccine product\n"
 "\n"
 " \"%s\" (%s)\n"
 "\n"
-"because it is a vaccine. Please delete it\n"
-"from the vaccine management section !\n"
+"because it is in use."
 msgstr ""
 
 msgid "Drug products currently known to GNUmed."
@@ -17388,6 +18366,29 @@ msgid "Adding new single-component generic drug"
 msgstr ""
 
 msgid "Editing single-component generic drug"
+msgstr ""
+
+#, python-format
+msgid ""
+"Cannot edit the medication\n"
+"\n"
+" \"%s\" (%s)\n"
+"\n"
+"because it is a vaccine. Please edit it\n"
+"from the vaccine management section !\n"
+msgstr ""
+
+msgid "Deleting medication"
+msgstr ""
+
+#, python-format
+msgid ""
+"Cannot delete the medication\n"
+"\n"
+" \"%s\" (%s)\n"
+"\n"
+"because it is a vaccine. Please delete it\n"
+"from the vaccine management section !\n"
 msgstr ""
 
 #, fuzzy
@@ -17895,10 +18896,14 @@ msgstr ""
 msgid "Select a test panel."
 msgstr ""
 
-msgid "No test types selected."
+#, fuzzy
+msgid "code not found"
+msgstr "Stránka nenalezena"
+
+msgid "No LOINC codes selected."
 msgstr ""
 
-msgid "Pick the measurement types for this panel."
+msgid "no LOINC details found"
 msgstr ""
 
 msgid "Cannot export EMR. No active patient."
@@ -18209,9 +19214,6 @@ msgid "Cannot access KOrganizer transfer file [%s]"
 msgstr ""
 
 msgid "Place"
-msgstr ""
-
-msgid "Start"
 msgstr ""
 
 #, python-format
@@ -19084,13 +20086,96 @@ msgstr ""
 msgid "Abort and do NOT connect to GNUmed."
 msgstr ""
 
-#, fuzzy
-#~ msgid "Export all"
-#~ msgstr "Export do SVG"
+#~ msgid "End time "
+#~ msgstr "Koncový čas "
+
+#~ msgid "File Timeline..."
+#~ msgstr "Soubor Timeline..."
 
 #, fuzzy
-#~ msgid "Selected studies:"
-#~ msgstr "Vybrat událost."
+#~ msgid "Numeric Timeline..."
+#~ msgstr "Soubor Timeline..."
+
+#~ msgid "Directory Timeline..."
+#~ msgstr "Adresář Timeline..."
+
+#, fuzzy
+#~ msgid "Import timeline..."
+#~ msgstr "Adresář Timeline..."
+
+#, fuzzy
+#~ msgid "&Export Current view to Image..."
+#~ msgstr "&Export do obrázku ..."
+
+#~ msgid "Export the current view to a PNG image"
+#~ msgstr "Export momentálního náhledu do PNG obrázku"
+
+#, fuzzy
+#~ msgid "&Export Whole Timeline to Images..."
+#~ msgstr "&Export do obrázku ..."
+
+#, fuzzy
+#~ msgid "Export whole Timeline to PNG images"
+#~ msgstr "Export momentálního náhledu do PNG obrázku"
+
+#~ msgid "&Export to SVG..."
+#~ msgstr "&Export do SVG..."
+
+#~ msgid "Export the current view to a SVG image"
+#~ msgstr "Export momentálního náhledu do SVG obrázku"
+
+#, fuzzy
+#~ msgid ""
+#~ "Could not find pysvg Python package. It is needed to export to SVG. See "
+#~ "the Timeline website or the doc/installing.rst file for instructions how "
+#~ "to install it."
+#~ msgstr ""
+#~ "Nemohu najít balík iCalendar Python. Je potřeba pro práci s ICS soubory. "
+#~ "Podívejte se na Timeline stránky nebo na INSTALAČNÍ soubor s instrukcemi "
+#~ "jak ho nainstalovat."
+
+#~ msgid "Relevant help topics:"
+#~ msgstr "Relevantní témata nápovědy:"
+
+#~ msgid "Container Properties"
+#~ msgstr "Vlastnosti Kontejnéru"
+
+#~ msgid "Entered period is too long."
+#~ msgstr "Vložené období je příliš dlouhé."
+
+#, fuzzy
+#~ msgid "Start time > Now."
+#~ msgstr "Počáteční čas "
+
+#~ msgid "Region too long"
+#~ msgstr "Oblast je příliš dlouhá"
+
+#~ msgid "Region too short"
+#~ msgstr "Oblast je příliš krátká"
+
+#~ msgid "Period is too long"
+#~ msgstr "Období je příliš dlouhé"
+
+#, fuzzy
+#~ msgid "Go to &Date...\tCtrl+G"
+#~ msgstr "Jít na datum"
+
+#~ msgid "can't be before year 10"
+#~ msgstr "nemůže být před rokem 10"
+
+#~ msgid "can't be after year 9989"
+#~ msgstr "nemůže být po roce 9989"
+
+#~ msgid "Can't zoom wider than 1200 years"
+#~ msgstr "Nelze oddálit více než na 1200 let"
+
+#, fuzzy
+#~ msgid "Saving export area documents"
+#~ msgstr " % dokumentů\n"
+
+#, fuzzy
+#~ msgid "Export part"
+#~ msgstr "Export do SVG"
 
 #, fuzzy
 #~ msgid "Document source:"

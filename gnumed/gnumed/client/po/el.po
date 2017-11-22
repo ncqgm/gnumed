@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-05-18 12:04+0200\n"
+"POT-Creation-Date: 2017-11-22 21:34+0100\n"
 "PO-Revision-Date: 2012-06-01 01:24+0000\n"
 "Last-Translator: ncq <Unknown>\n"
 "Language-Team: Ελληνικά, Σύγχρονα <opensuse-translation-el@opensuse.org>\n"
@@ -36,6 +36,86 @@ msgid ""
 "%s"
 msgstr ""
 
+msgid "Can't scroll more to the left"
+msgstr "Αδύνατη η κύλιση προς τα αριστερά"
+
+msgid "Can't scroll more to the right"
+msgstr "Αδύνατη η κύλιση προς τα δεξιά"
+
+msgid "No timeline set"
+msgstr "Δεν έχει ορισθεί χρονογραμμή"
+
+msgid "Name"
+msgstr "Όνομα"
+
+msgid "Color"
+msgstr "Χρώμα"
+
+msgid "Progress Color"
+msgstr "Χρώμα προόδου"
+
+msgid "Done Color"
+msgstr "Χρώμα ολοκληρωμένου"
+
+msgid "Parent"
+msgstr "Πρόγονος"
+
+msgid "Invalid start time"
+msgstr "Μη έγκυρος χρόνος έναρξης"
+
+msgid "Invalid end time"
+msgstr "Μη έγκυρος χρόνος λήξης"
+
+#, fuzzy, python-format
+msgid "Start time can't be after end time. Start:%s End:%s"
+msgstr "Ο χρόνος έναρξης δεν μπορεί να είναι μετά τον χρόνο λήξης"
+
+msgid "Text"
+msgstr "Κείμενο"
+
+msgid "Description"
+msgstr "Περιγραφή"
+
+msgid "Start"
+msgstr "Έναρξη"
+
+msgid "End"
+msgstr "Τέλος"
+
+msgid "Category"
+msgstr "Κατηγορία"
+
+msgid "Fuzzy"
+msgstr "Ασαφές"
+
+msgid "Locked"
+msgstr "Κλειδωμένο"
+
+msgid "Ends Today"
+msgstr "Ολοκληρώνεται σήμερα"
+
+msgid "Hyperlink"
+msgstr "Σύνδεσμος"
+
+#, fuzzy
+msgid "Progress"
+msgstr "Σημειώσεις προόδου"
+
+msgid "Alert"
+msgstr "Ειδοποίηση"
+
+msgid "Is Container"
+msgstr "Ομαδοποίηση"
+
+msgid "Is Subevent"
+msgstr "Υπογεγονός"
+
+msgid "Duration"
+msgstr "Διάρκεια"
+
+msgid "Displayed period must be > 0."
+msgstr "Η εμφανιζόμενη χρονική περίοδος πρέπει να είναι > 0."
+
 #, python-format
 msgid "Unable to open timeline '%s'."
 msgstr "Αδύνατο το άνοιγμα ου χρονοδιαγράμματος '%s'."
@@ -52,33 +132,2310 @@ msgstr ""
 "Παρακαλώ εγκαταστήστε την έκδοση 0.21.1 του Timeline για να το μετατρέψετε "
 "σε νέα μορφή αρχείου."
 
-msgid "Other timelines can't be imported to a directory timeline"
-msgstr ""
-
 msgid ""
-"Tutorial must be saved as a timeline to be able to import other timeline"
+"Since the directory of the Timeline file is not writable,\n"
+"the timeline is opened in read-only mode"
 msgstr ""
-
-#, python-format
-msgid "Only %s files can be imported"
-msgstr ""
+"Από τη στιγμή που ο φάκελος του αρχείου Timeline δεν είναι εγγράψιμος,\n"
+"η χρονογραμμή ανοίγει σε λειτουργία ανάγνωσης."
 
 msgid ""
 "Could not find iCalendar Python package. It is required for working with ICS "
-"files. See the Timeline website or the doc/installing.rst file for "
-"instructions how to install it."
+"files."
 msgstr ""
+"Δεν εντοπίστηκε το πακέτο Calendar Python. Είναι απαραίτητο για εργασία με "
+"αρχεία ICS."
 
 #, python-format
-msgid "Unable to read timeline data from '%s'."
-msgstr "Αδυναμία ανάγνωσης  δεδομένων χρονοδιαγράμματος από το '%s'."
+msgid "Unable to save timeline data to '%s'. File left unmodified."
+msgstr ""
+"Αδυναμία αποθήκευσης των δεδομένων της χρονογραμμής στο '%s'. Το αρχείο "
+"παρέμεινε ως είχε."
+
+msgid "Unable to write timeline data."
+msgstr "Αδυναμία εγγραφής δεδομένων χρονογραμμής."
+
+#, python-format
+msgid "Unable to write to temporary dbfile '%s'."
+msgstr "Αδυναμία εγγραφή στο προσωρινό αρχείο βάσης δεδομένων '%s'."
+
+#, python-format
+msgid "Unable to take backup to '%s'."
+msgstr "Αδυναμία λήψης αντιγράφου ασφαλείας στο '%s'."
+
+#, python-format
+msgid "Unable to rename temporary dbfile '%s' to original."
+msgstr ""
+"Αδυναμία μετονομασίας του προσωρινού αρχείου βάσης δεδομένων '%s' στην "
+"αρχική του ονομασία."
+
+#, python-format
+msgid "Unable to delete backup dbfile '%s'."
+msgstr "Αδυναμία διαγραφής αντιγράφου ασφαλείας αρχείου βάσης δεδομένων '%s'."
+
+msgid "Other Gradient Event box drawer"
+msgstr "Άλλος σχεδιαστής διαβαθμισμένου χρωματικά πλαισίου γεγονότος"
+
+msgid "Default Event box drawer"
+msgstr "Προκαθορισμένος σχεδιαστής πλαισίου γεγονότος"
+
+msgid "Gradient Event box drawer"
+msgstr "Σχεδιαστής διαβαθμισμένου χρωματικά πλαισίου γεγονότος"
+
+msgid "Plain text to HTML transformer"
+msgstr "Μετατροπέας απλού κειμένου σε HTML"
+
+msgid "Default Text transformer"
+msgstr "Προκαθορισμένος μετατροπέας κειμένου"
+
+#, fuzzy
+msgid "Export Current view to Image..."
+msgstr "Εξαγωγή ως ..."
+
+#, fuzzy
+msgid "Export Whole Timeline to Images..."
+msgstr "Εξαγωγή ως ..."
+
+msgid ""
+"The first image contains a Julian day < 0\n"
+"\n"
+"Navigate to first event or\n"
+"Use the feature 'Accept negative Julian days'"
+msgstr ""
+"Η πρώτη εικόνα περιέχει μια ημέρα του Ιουλιανού ημερολογίου <0\n"
+"\n"
+"Πλοηγηθείτε στο πρώτο γεγονός ή\n"
+"χρησιμοποιήστε τη λειτουργία 'Αποδοχή αρνητικών ημερών Ιουλιανού ημερολογίου'"
+
+#, fuzzy
+msgid "Image files"
+msgstr "όλα τα αρχεία"
+
+#, fuzzy
+msgid "Export to Image"
+msgstr "Εξαγωγή σε &αρχείο"
+
+#, python-format
+msgid "File '%s' exists. Overwrite?"
+msgstr "Το αρχείο '%s' υπάρχει. Θέλετε να αντικατασταθεί;"
+
+msgid "Export to Listbox..."
+msgstr "Εξαγωγή χρονογραμμής σε λίστα..."
+
+msgid "Unable to copy to clipboard."
+msgstr "Αδυναμία αντιγραφής στο πρόχειρο"
+
+msgid "Time period"
+msgstr "Χρονική περίοδος"
+
+msgid "Event"
+msgstr "Συμβάν"
+
+msgid "Export Timeline to File..."
+msgstr "Εξαγωγή χρονογραμμής σε αρχείο..."
+
+#, fuzzy
+msgid "Events"
+msgstr "Συμβάν"
+
+#, fuzzy
+msgid "Categories"
+msgstr "Κατηγορία"
+
+msgid "export files"
+msgstr "εξαγωγή αρχείων"
+
+#, fuzzy
+msgid "Export"
+msgstr "Αναφορά"
+
+#, fuzzy
+msgid "Export to SVG..."
+msgstr "Εξαγωγή ως ..."
+
+msgid "Could not find pysvg Python package. It is needed to export to SVG."
+msgstr ""
+"Δεν εντοπιστηκε το πακέτο pysvg Python. Είναι απαραίτητο για την εξαγωγή "
+"αρχείων σε SVG."
+
+#, fuzzy
+msgid "SVG files"
+msgstr "όλα τα αρχεία"
+
+#, fuzzy
+msgid "Export to SVG"
+msgstr "Εξαγωγή σε &αρχείο"
+
+msgid "Use extended Container strategy"
+msgstr "Χρήση μεθόδου επέκτασης ομαδοποίησης"
+
+msgid ""
+"\n"
+"              This strategy makes it possible to have overlapping subevents\n"
+"              in a container.\n"
+"\n"
+"              The container expands in the vertical direction if it has\n"
+"              overlapping subevents.\n"
+"              "
+msgstr ""
+"\n"
+"              Με αυτή τη μέθοδο μπορούν να υπάρχουν επικαλυπτόμενα\n"
+"              υπογεγονότα σε μια ομαδοποίηση.\n"
+"\n"
+"              Η ομαδοποίηση επεκτείνεται κάθετε εάν υπάρχουν \n"
+"              επικαλυπτόμενα υπογεγονότα.\n"
+"              "
+
+msgid "Accept negative Julian days"
+msgstr "Αποδοχή αρνητικών χρονολογιών Ιουλιανού ημερολογίου"
+
+msgid ""
+"\n"
+"              Enables the use of dates before Julian day = 0 (4713 BC)\n"
+"\n"
+"              This means that prehistorical dates can be used.\n"
+"              We are not quiet sure that the calculations works correctly\n"
+"              for negative julian days and therefore it's an experimental "
+"feature.\n"
+"\n"
+"              Be aware of the fact that a timeline created with this feature "
+"active,\n"
+"              may not be readable with Timeline if the feature is switched "
+"off.\n"
+"              "
+msgstr ""
+"\n"
+"              Ενεργοποιεί τη χρήση χρονολογιών πριν την έναρξη του "
+"Ιουλιανού\n"
+"              ημερολογίου (4713 π.Χ.).\n"
+"\n"
+"              Αυτό σημαίνει ότι μπορούν να χρησιμοποιηθούν προϊστορικές\n"
+"              χρονολογίες.\n"
+"              Δεν είναι απολύτως βέβαιο ότι οι υπολογισμοί θα είναι "
+"ακριβείς\n"
+"              για τις αρνητικές χρονολογίες του Ιουλιανού ημερολογίου.Η \n"
+"              λειτουργία αυτή θεωρείται πειραματική.\n"
+"\n"
+"              Έχετε υπόψη ότι μια χρονογραμμή που δημιουργείται με ενεργή\n"
+"              αυτή την επιλογή, ενδεχομένως να μην είναι αναγνώσιμη από\n"
+"              το Timeline εάν αυτή η λειτουργία είναι απενεργοποιημένη.\n"
+"              "
+
+msgid "Extend Container height"
+msgstr "Επέκταση ύψους ομαδοποίησης"
+
+msgid ""
+"\n"
+"              Extend the height of a container so that the container name "
+"becomes visible.\n"
+"\n"
+"              This also has the side effect that ordinary events come "
+"farther apart in\n"
+"              the vertical direction.\n"
+"\n"
+"              The font for the container name has a fixed size when you zoom "
+"vertically (Alt + Mouse wheel)\n"
+"              "
+msgstr ""
+"\n"
+"              Επέκταση του ύψους της ομαδοποίησης, έτσι ώστε το όνομά της να "
+"είναι ορατό.\n"
+"\n"
+"              Αυτό, επίσης, έχει ως αποτέλεσμα τα κανονικά γεγονότα να "
+"μετακινούνται πιο\n"
+"              μακριά κατά την κάθετη κατεύθυνση.\n"
+"\n"
+"              Το μέγεθος της γραμματοσειράς του ονόματος της ομαδοποίησης "
+"παραμένει\n"
+"              σταθερό όταν γίνεται κάθετη μεγέθυνση (Alt + ροδάκι κύλισης "
+"ποντικιού).\n"
+"              "
+
+msgid "to"
+msgstr "μέχρι"
+
+msgid "Period"
+msgstr "Χρονικό διάστημα"
+
+msgid "Go to &Zero"
+msgstr "Μετάβαση στο 0"
+
+msgid "Go to &Time"
+msgstr "Μετάβαση στην ώρα"
+
+msgid "Backward"
+msgstr "Πίσω"
+
+msgid "Forward"
+msgstr "Εμπρός"
+
+msgid "Can't zoom deeper than 5"
+msgstr "Είναι αδύνταη η εστίαση περισσότερο από 5"
+
+msgid "1-period"
+msgstr "1-χρονική περίοδος"
+
+msgid "10-period"
+msgstr "10-χρονικές περίοδοι"
+
+msgid "100-period"
+msgstr "100-περίοδοι"
+
+msgid "1000-period"
+msgstr "1000-περίοδοι"
+
+msgid "Go to Time"
+msgstr "Μετάβαση στην ώρα"
+
+#, fuzzy
+msgid "Show time"
+msgstr "Εμφάνιση μηνυμάτων:"
+
+msgid "Praios"
+msgstr "Praios"
+
+msgid "Rondra"
+msgstr "Rondra"
+
+msgid "Efferd"
+msgstr "Efferd"
+
+msgid "Travia"
+msgstr "Travia"
+
+msgid "Boron"
+msgstr "Boron"
+
+msgid "Hesinde"
+msgstr "Hesinde"
+
+msgid "Firun"
+msgstr "Firun"
+
+msgid "Tsa"
+msgstr "Tsa"
+
+msgid "Phex"
+msgstr "Phex"
+
+msgid "Peraine"
+msgstr "Peraine"
+
+msgid "Ingerimm"
+msgstr "Ingerimm"
+
+msgid "Rahja"
+msgstr "Rahja"
+
+msgid "Nameless Days"
+msgstr "Ανώνυμες ημέρες"
+
+msgid "PRA"
+msgstr "PRA"
+
+msgid "RON"
+msgstr "RON"
+
+msgid "EFF"
+msgstr "EFF"
+
+msgid "TRA"
+msgstr "TRA"
+
+msgid "BOR"
+msgstr "BOR"
+
+msgid "HES"
+msgstr "HES"
+
+msgid "FIR"
+msgstr "FIR"
+
+msgid "TSA"
+msgstr "TSA"
+
+msgid "PHE"
+msgstr "PHE"
+
+msgid "PER"
+msgstr "PER"
+
+msgid "ING"
+msgstr "ING"
+
+msgid "RAH"
+msgstr "RAH"
+
+msgid "NL"
+msgstr "NL"
+
+msgid "Open &Now Date Editor"
+msgstr "Άνοιγμα επεξεργαστή σημερινής ημέρας"
+
+msgid "Go to &Date..."
+msgstr "Μετάβαση στην ημερομηνία..."
+
+msgid "Forward One Wee&k"
+msgstr "Μια εβδομάδα μετά"
+
+msgid "Back One &Week"
+msgstr "Μια εβδομάδα πριν"
+
+msgid "Forward One Mont&h"
+msgstr "Ένα μήνα μετά"
+
+msgid "Back One &Month"
+msgstr "Ένα μήνα πριν"
+
+msgid "Forward One Yea&r"
+msgstr "Ένα χρόνο μετά"
+
+msgid "Back One &Year"
+msgstr "Ένα χρόνο πριν"
+
+msgid "Fit Millennium"
+msgstr "Προσαρμογή σε χιλιετία"
+
+msgid "Fit Century"
+msgstr "Προσαρμογή σε αιώνα"
+
+msgid "Fit Decade"
+msgstr "Προσαρμογή σε δεκαετία"
+
+msgid "Fit Year"
+msgstr "Προσαρμογή σε έτος"
+
+msgid "Fit Month"
+msgstr "Προσαρμογή σε μήνα"
+
+#, fuzzy
+msgid "Fit Week"
+msgstr "Εβδομάδες"
+
+#, fuzzy
+msgid "Fit Day"
+msgstr "Πρώτη Μέρα"
+
+msgid "Can't zoom deeper than 1 minute"
+msgstr "Δεν είναι δυνατή η μεγέθυνση πέρα από το 1 λεπτό"
+
+#, fuzzy
+msgid "Day"
+msgstr "Μέρες"
+
+#, fuzzy
+msgid "Week"
+msgstr "Εβδομάδες"
+
+msgid "Month"
+msgstr "Μήνας"
+
+msgid "Year"
+msgstr "Έτος"
+
+msgid "Change Now Date"
+msgstr "Αλλαγή σημερινής ημέρας"
+
+#, fuzzy
+msgid "Go to Date"
+msgstr "Τελευταία Ημέρα"
+
+msgid "Wind"
+msgstr "Wind"
+
+msgid "Earth"
+msgstr "Γη"
+
+msgid "Market"
+msgstr "Αγορά"
+
+msgid "Rohal"
+msgstr "Rohal"
+
+msgid "Fire"
+msgstr "Φωτιά"
+
+msgid "Water"
+msgstr "Νερό"
+
+msgid "Jan"
+msgstr "Ιαν"
+
+msgid "Feb"
+msgstr "Φεβ"
+
+#, fuzzy
+msgid "Mar"
+msgstr "Κύριος"
+
+msgid "Apr"
+msgstr "Απρ"
+
+#, fuzzy
+msgid "May"
+msgstr "ημέρα"
+
+#, fuzzy
+msgid "Jun"
+msgstr "Εκτέλεση"
+
+msgid "Jul"
+msgstr "Ιούλ"
+
+#, fuzzy
+msgid "Aug"
+msgstr "Ηλικία"
+
+#, fuzzy
+msgid "Sep"
+msgstr "Ρύθμιση"
+
+msgid "Oct"
+msgstr "Οκτ"
+
+#, fuzzy
+msgid "Nov"
+msgstr "Όχι"
+
+#, fuzzy
+msgid "Dec"
+msgstr "Συσκευή"
+
+msgid "BC"
+msgstr "π.Χ."
+
+msgid "The date control can't handle the given date"
+msgstr "Ο έλεγχος ημερομηνιών δεν μπορεί  να χειριστεί τη δοσμένη ημερομηνία."
+
+msgid "Go to &Today"
+msgstr "Μετάβαση στη σημερινή ημέρα"
+
+msgid "years"
+msgstr "έτη"
+
+msgid "year"
+msgstr "έτος"
+
+msgid "months"
+msgstr "μήνες"
+
+msgid "month"
+msgstr "μήνας"
+
+msgid "weeks"
+msgstr "εβδομάδες"
+
+msgid "week"
+msgstr "εβδομάδα"
+
+msgid "days"
+msgstr "ημέρες"
+
+msgid "day"
+msgstr "ημέρα"
+
+msgid "hours"
+msgstr "ώρες"
+
+msgid "hour"
+msgstr "ώρα"
+
+msgid "minutes"
+msgstr "λεπτά"
+
+msgid "minute"
+msgstr "λεπτό"
+
+msgid "seconds"
+msgstr "δευτερόλεπτα"
+
+msgid "second"
+msgstr "δευτερόλεπτο"
+
+msgid "Mon"
+msgstr "Δευ"
+
+msgid "Tue"
+msgstr "Τρί"
+
+msgid "Wed"
+msgstr "Τετ"
+
+msgid "Thu"
+msgstr "Πέμ"
+
+#, fuzzy
+msgid "Fri"
+msgstr "Για"
+
+#, fuzzy
+msgid "Sat"
+msgstr "Έναρξη"
+
+#, fuzzy
+msgid "Sun"
+msgstr "Εκτέλεση"
+
+#, fuzzy
+msgid "Edit..."
+msgstr "Επεξεργασία"
+
+msgid "Add..."
+msgstr "Προσθήκη..."
+
+msgid "Delete"
+msgstr "Διαγραφή"
+
+msgid "Check All"
+msgstr "Επιλογή όλων"
+
+msgid "Check children"
+msgstr "Επιλογή απόγονου"
+
+msgid "Check all children"
+msgstr "Επιλογή όλων των απόγονων"
+
+#, fuzzy
+msgid "Check all parents"
+msgstr "Έλεγχος ενημερώσεων"
+
+msgid "Check parents for checked children"
+msgstr "Επιλογή προγόνων για τους επιλεγμένους απόγονους"
+
+msgid "Uncheck All"
+msgstr "Αποεπιλογή όλων"
+
+msgid "Uncheck children"
+msgstr "Αποεπιλογή απογόνων"
+
+msgid "Uncheck all children"
+msgstr "Αποεπιλογή όλων των απογόνων"
+
+msgid "Uncheck all parents"
+msgstr "Αποεπιλογή όλων των προγόνων"
+
+#, fuzzy
+msgid "Edit Category"
+msgstr "Κατηγορία"
+
+#, fuzzy
+msgid "Add Category"
+msgstr "Κατηγορία"
+
+#, python-format
+msgid "Are you sure you want to delete category '%s'?"
+msgstr "Είστε βέβαιος ότι θέλετε να διαγράψετε την κατηγορία '%s';"
+
+#, python-format
+msgid "Events belonging to '%s' will no longer belong to a category."
+msgstr ""
+"Τα γεγονότα που ανήκουν στην κατηγορία '%s' δεν θα ανήκουν πλέον σε μια "
+"κατηγορία."
+
+#, python-format
+msgid "Events belonging to '%s' will now belong to '%s'."
+msgstr ""
+"Τα γεγονότα που ανήκουν στην κατηγορία '%s' τώρα θα ανήκουν πλέον στην "
+"κατηγορία '%s'."
+
+#, fuzzy
+msgid "No match"
+msgstr "Ταίριασμα"
+
+msgid "Only one match"
+msgstr "Μόνο μία αντιστοίχιση"
+
+msgid "No timeline opened."
+msgstr "Δεν άνοιξε καμιά χρονογραμμή"
+
+msgid "First time using Timeline?"
+msgstr "Είναι η πρώτη σας φορά στο Timeline;"
+
+msgid "Getting started tutorial"
+msgstr "Βοήθημα για να ξεκινήσετε"
+
+msgid "Center"
+msgstr "Κέντρο"
+
+msgid "Edit"
+msgstr "Επεξεργασία"
+
+msgid "Duplicate..."
+msgstr "Δημιουργία αντιγράφου..."
+
+msgid "Mark Event as Done"
+msgstr "Σημείωση γεγονότος ως ολοκληρωμένου"
+
+msgid "Select Category..."
+msgstr "Επιλογή κατηγορίας..."
+
+msgid "Sticky Balloon"
+msgstr "Αναδυόμενο μπαλόνι"
+
+msgid "Goto URL"
+msgstr "Μετάβαση στο URL"
+
+#, python-format
+msgid "Are you sure you want to delete %d events?"
+msgstr "Είστε βέβαιος ότι θέλετε να διαγράψετε %d γεγονότα;"
+
+msgid "Are you sure you want to delete this event?"
+msgstr "Είστε σίγουρος ότι θέλετε να διαγράψετε αυτό το γεγονός;"
+
+#, python-format
+msgid "%s events hidden"
+msgstr "%s των συμβάντων είναι κρυφά"
+
+msgid "This timeline is read-only."
+msgstr "Η χρονογραμμή είναι μόνο για ανάγνωση."
+
+msgid "To edit this timeline, save it to a new file: File -> Save As."
+msgstr ""
+"Για να επεξεργαστείτε αυτή τη χρονογραμμή, αποθηκεύστε τη σε νέο αρχείο: "
+"Αρχείο -> Αποθήκευση ως."
+
+msgid "This timeline is not being saved."
+msgstr "Αν κάνατε αλλαγές στη χρονογραμμή αυτή"
+
+msgid "To save this timeline, save it to a new file: File -> Save As."
+msgstr "και θέλετε να την αποθηκεύσετε, επιλέξτε: Αρχείο -> Αποθήκευση ως."
+
+#, fuzzy
+msgid "Give feedback"
+msgstr "Μετάβαση πίσω"
+
+#, fuzzy
+msgid "When:"
+msgstr "Πότε"
+
+#, fuzzy
+msgid "Text:"
+msgstr "Κείμενο"
+
+msgid "Color used when the Event has no category associated with it."
+msgstr ""
+"Χρώμα που χρησιμοποιείται όταν το γεγονός δεν έχει συσχετιστεί με κάποια "
+"κατηγορία."
+
+#, fuzzy
+msgid "Progress %:"
+msgstr "Σημειώσεις προόδου"
+
+msgid "&Append"
+msgstr "Προσάρτηση"
+
+msgid "&Remove"
+msgstr "Αφαίρεση"
+
+msgid "Te&st"
+msgstr "Έλεγχος"
+
+msgid "URL:"
+msgstr "Διεύθυνση URL:"
+
+#, python-format
+msgid "Images will be scaled to fit inside a %ix%i box."
+msgstr ""
+"Το μέγεθος των εικόνων θα αλλάξει ώστε να ταιριάζουν μέσα σε ένα %ix%i "
+"πλαίσιο."
+
+#, fuzzy
+msgid "Select Icon"
+msgstr "Επιλογή"
+
+msgid "Select region to zoom into"
+msgstr "Επιλέξτε την περιοχή που θέλετε να μεγεθύνετε"
+
+msgid "Can't move locked event"
+msgstr "Αδύνατη η μετακίνηση ενός κλειδωμένου γεγονότος"
+
+#, fuzzy
+msgid "Add new"
+msgstr "Προσθήκη νέου ονόματος"
+
+#, fuzzy
+msgid "Edit categories"
+msgstr "ανενεργό"
+
+msgid "Choose file"
+msgstr "Επιλογή αρχείου"
+
+#, fuzzy
+msgid "Add Container"
+msgstr "Συνέχεια"
+
+msgid "View Categories Individually"
+msgstr "Ξεχωριστή προβολή κατηγοριών"
+
+msgid "Add an Era"
+msgstr "Προσθήκη χρονικής περιόδου"
+
+msgid "Edit an Era"
+msgstr "Επεξεργασία χρονικής περιόδου"
+
+msgid "Edit Era's"
+msgstr "Δημιουργία χρονικής περιόδου"
+
+msgid "CSV File"
+msgstr "Αρχείο CSV"
+
+msgid "Invalid Data"
+msgstr "Μη έγκυρα δεδομένα"
+
+msgid "At least one Export Item must be selected"
+msgstr "Θα πρέπει να επιλεγεί τουλάχιστον ένα αντικείμενο προς εξαγωγή"
+
+msgid "At least one Event Field must be selected"
+msgstr "Θα πρέπει να επιλεγεί τουλάχιστον ένα πεδίο γεγονότος"
+
+msgid "At least one Category Field must be selected"
+msgstr "Θα πρέπει να επιλεγεί  τουλάχιστον μια κατηγορία"
+
+msgid "Ignore"
+msgstr "Παράβλεψη"
+
+msgid "Replace"
+msgstr "Αντικατάσταση"
+
+msgid "XML-Replace"
+msgstr "XML-Αντικατάσταση"
+
+msgid "Strict"
+msgstr "Αυστηρά"
+
+msgid "Select Export File Type"
+msgstr "Επιλογή είδους αρχείου προς εξαγωγή"
+
+msgid "Select Text Encoding"
+msgstr "Επιλογή κωδικοποίησης κειμένου"
+
+msgid "Select encoding error strategy"
+msgstr "Επιλογή στρατηγικής για κωδικοποίηση σφαλμάτων"
+
+msgid "Select Items to export"
+msgstr "Επιλογή αντικειμένων προς εξαγωγή"
+
+msgid "Select Fields..."
+msgstr "Επιλογή πεδίων..."
+
+msgid "Export Timeline"
+msgstr "Εξαγωγή χρονογραμμής"
+
+msgid "Select Event Fields"
+msgstr "Επιλογή πεδίων γεγονότος"
+
+msgid "Select Category Fields"
+msgstr "Επιλογή πεδίων κατηγορίας"
+
+msgid "You can't save a milestone with an invalid date/time"
+msgstr ""
+"Δεν μπορείτε να αποθηκεύσετε ένα ορόσημο, εάν δεν έχει έγκυρη ημερομηνία/ώρα."
+
+msgid "Milestone Properties"
+msgstr "Ιδιότητες ορόσημου"
+
+msgid "Description:"
+msgstr "Περιγραφή:"
+
+msgid "Label:"
+msgstr "Ετικέτα:"
+
+#, fuzzy
+msgid "Category:"
+msgstr "Κατηγορία"
+
+msgid "Colour:"
+msgstr "Χρώμα:"
+
+msgid "Create Milestone"
+msgstr "Δημιουργία ορόσημου"
+
+msgid "Edit Milestone"
+msgstr "Επεξεργασία ορόσημου"
+
+#, fuzzy, python-format
+msgid "Field '%s' can't be empty."
+msgstr "<εκδότης> δεν μπορεί να είναι κενό"
+
+#, fuzzy
+msgid "Name:"
+msgstr "Όνομα"
+
+msgid "Color:"
+msgstr "Χρώμα:"
+
+msgid "Progress Color:"
+msgstr "Χρώμα προόδου:"
+
+msgid "Done Color:"
+msgstr "Χρώμα ολοκλήρωσης:"
+
+msgid "Font Color:"
+msgstr "Χρώμα γραμματοσειράς:"
+
+#, fuzzy
+msgid "Parent:"
+msgstr "Ασθενής:"
+
+#, python-format
+msgid "Category name '%s' not valid. Must be non-empty."
+msgstr ""
+"Το όνομα της κατηγορίας '%s' δεν είναι έγκυρο. Πρέπει να μην είναι κενό."
+
+#, python-format
+msgid "Category name '%s' already in use."
+msgstr "Το όνομα της κατηγορίας '%s' χρησιμοποιείται ήδη."
+
+msgid "Other email client"
+msgstr "Άλλος email client"
+
+msgid ""
+"Copy and paste this email into your favorite email client and send it from "
+"there."
+msgstr ""
+"Αντιγράψτε και επικολήστε αυτό το email στον email client που χρησιμοποιείτε "
+"και στείλτε το από εκεί."
+
+msgid "Email Feedback"
+msgstr "Αποστολή ανατροφοδότησης με email"
+
+#, fuzzy
+msgid "To:"
+msgstr "Προς"
+
+#, fuzzy
+msgid "Subject:"
+msgstr "Θέμα"
+
+msgid "Body:"
+msgstr "Κείμενο:"
+
+#, fuzzy
+msgid "Send With:"
+msgstr "Αποστολή Email"
+
+#, fuzzy
+msgid "Default client"
+msgstr "Προεπιλεγμένη χώρα"
+
+#, fuzzy
+msgid "Gmail"
+msgstr "αλληλογραφία"
+
+msgid "Other"
+msgstr "Άλλα"
+
+#, fuzzy
+msgid "Invalid date"
+msgstr "όνομα, ημερομηνία γέννησης"
+
+msgid "Choose what type of timeline you want to create."
+msgstr "Επιλέξτε ποιο είδος χρονογραμμής θέλετε να δημιουργήσετε."
+
+msgid "Create new timeline"
+msgstr "Δημιουργία νέας χρονογραμμής"
+
+msgid "System version:"
+msgstr "Λειτουργικό σύστημα:"
+
+msgid "Python version:"
+msgstr "Έκδοση Python:"
+
+msgid "wxPython version:"
+msgstr "Έκδοση wxPython:"
+
+msgid "Locale setting:"
+msgstr "Τοπική ρύθμιση:"
+
+msgid "Locale date format:"
+msgstr "Τοπική μορφή ημερομηνίας:"
+
+msgid "Configuration file:"
+msgstr "Αρχείο ρυθμίσεων:"
+
+msgid "System Information"
+msgstr "Πληροφορίες συστήματος"
+
+msgid "File does not exist."
+msgstr "Το αρχείο δεν υπάρχει."
+
+#, python-format
+msgid "Unable to load events: %s."
+msgstr "Αδυναμία φόρτωσης γεγονότων: %s."
+
+#, python-format
+msgid "%d events will be imported."
+msgstr "Θα γίνει εισαγωγή %d γεγονότων."
+
+msgid "The selected timeline has a different time type."
+msgstr "Η επιλεγμένη χρονογραμμή έχει διαφορετικό είδος χρόνου."
+
+msgid "Select timeline to import from:"
+msgstr "Επιλέξτε τη χρονογραμμή από την οποία θα γίνει η εισαγωγή:"
+
+#, fuzzy
+msgid "Timeline files"
+msgstr "όλα τα αρχεία"
+
+msgid "Import events"
+msgstr "Εισαγωγή γεγονότων"
+
+msgid "Check"
+msgstr "Επιλογή"
+
+msgid "Uncheck"
+msgstr "Αποεπιλογή"
+
+#, fuzzy
+msgid "Category Finder"
+msgstr "Κατηγορία"
+
+#, fuzzy
+msgid "You must select a category!"
+msgstr "Πρέπει να επιλέξετε μορφή και τύπο"
+
+msgid "Set Category on events without category"
+msgstr "Καθορισμός κατηγορίας για γεγονότα χωρίς κατηγορία"
+
+#, fuzzy
+msgid "Set Category on selected events"
+msgstr "διορθωμένο αποτέλεσμα"
+
+#, fuzzy
+msgid "Select a Category:"
+msgstr "Κατηγορία"
+
+msgid "The html pages directory is mandatory"
+msgstr "Ο φάκελος σελίδων html είναι υποχρεωτικός"
+
+msgid "Can't find the html pages directory!"
+msgstr "Αδυναμία εύρεσης φακέλου σελίδων html"
+
+msgid "Do you want to create it?"
+msgstr "Θέλετε να δημιουργηθεί;"
+
+msgid "The html pages director isn't empty!"
+msgstr "Ο φάκελος σελίδων html δεν είναι κενός"
+
+msgid "Do you want overwrite it?"
+msgstr "Θέλετε να αντικαταστήσετε τα περιεχόμενα;"
+
+msgid "Select Events"
+msgstr "Επιλογή γεγονότων"
+
+msgid "Save html pages at"
+msgstr "Αποθήκευση σελίδων html στο"
+
+msgid "Start Slide Show"
+msgstr "Προβολή διαφανειών"
+
+msgid "Select html pages directory"
+msgstr "Επιλογή φακέλου σελίδων html"
+
+#, fuzzy
+msgid "Found Events"
+msgstr "Συμβάν"
+
+msgid "Date format:"
+msgstr "Μορφή ημεροχρονολογίας:"
+
+msgid "Locale Date format:"
+msgstr "Τοπική μορφή ημεροχρονολογίας:"
+
+msgid "Set Date format"
+msgstr "Καθορισμός μορφής ημεροχρονολογίας:"
+
+msgid "Era Properties"
+msgstr "Ιδιότητες χρονικής περιόδου"
+
+#, fuzzy
+msgid "Ends today"
+msgstr "σήμερα(%s)"
+
+msgid "Current"
+msgstr "Τρέχουσα:"
+
+#, fuzzy
+msgid "General"
+msgstr "Γενικευμένο"
+
+msgid "Open most recent timeline on startup"
+msgstr "Άνοιγμα της πιο πρόσφατης χρονογραμμής στο ξεκίνημα"
+
+msgid "Use inertial scrolling"
+msgstr "Χρήση αδρανούς κύλισης"
+
+msgid "Never show period Events as point Events"
+msgstr "Να μην εμφανίζονται ποτέ οι χρονικές περίοδοι ως γεγονότα"
+
+msgid "Center Event texts"
+msgstr "Κεντράρισμα κειμένου γεγονότων"
+
+msgid "Uncheck time checkbox for new events"
+msgstr "Αποεπιλογή ώρας στο παράθυρο διαλόγου προσθήκης νέου γεγονότος"
+
+msgid "Balloon text below icon"
+msgstr "Μπαλόνι κειμένου κάτω από το εικονίδιο"
+
+msgid "Select Event Editor Tab Order"
+msgstr "Επιλογή επεξεργαστή σειράς Tab"
+
+msgid "Select Date format"
+msgstr "Επιλογή μορφής ημεροχρονολογίας"
+
+#, fuzzy
+msgid "Date && Time"
+msgstr "Ημερομηνία / Ώρα"
+
+msgid "Week start on:"
+msgstr "Η εβδομάδα αρχίζει από:"
+
+msgid "Monday"
+msgstr "Δευτέρα"
+
+msgid "Sunday"
+msgstr "Κυριακή"
+
+msgid "Fonts"
+msgstr "Γραμματοσειρές"
+
+msgid "Colours"
+msgstr "Χρώματα"
+
+msgid "Major Strips:"
+msgstr "Μεγάλες λωρίδες"
+
+msgid "Minor Strips:"
+msgstr "Μικρές λωρίδες"
+
+#, fuzzy
+msgid "Balloons:"
+msgstr "Αναδυόμενο μπαλόνι"
+
+msgid "Icons"
+msgstr "Εικονίδια"
+
+msgid "Fuzzy icon"
+msgstr "Εικονίδιο ασαφούς"
+
+msgid "Locked icon"
+msgstr "Εικονίδιο κλειδωμένου"
+
+msgid "Hyperlink icon"
+msgstr "Εικονίδιο υπερσυνδέσμου"
+
+msgid "Legends:"
+msgstr "Υπομνήματα:"
+
+msgid "Experimental Features"
+msgstr "Δοκιμαστικά χαρακτηριστικά"
+
+msgid "Minor strip divider line:"
+msgstr "Μικρή διαχωριστική γραμμή:"
+
+msgid "Major strip divider line:"
+msgstr "Μεγάλη διαχωριστική γραμμή:"
+
+msgid "Now line:"
+msgstr "Νέα γραμμή:"
+
+msgid "Weekends:"
+msgstr "Σαββατοκύριακα"
+
+msgid "Background"
+msgstr "Παρασκήνιο"
+
+msgid "Vertical space between Events (px)"
+msgstr "Κάθετο διάστημα μεταξύ γεγονότων (px)"
+
+msgid "Colorize weekends"
+msgstr "Χρωματισμός σαββατοκύριακων"
+
+msgid "Skip s in decade text"
+msgstr "Παράλειψη του 's' από την ένδειξη δεκαετίας"
+
+msgid "Display checkmark when events are done"
+msgstr "Επισήμανση ολοκληρωμένων γεγονότων"
+
+msgid "Never use time precision for events"
+msgstr "Να μη χρησιμοποιείται ακριβής χρόνος (ώρες) για τα γεγονότα"
+
+msgid "Legend Position"
+msgstr "Θέση υπομνήματος"
+
+msgid "Bottom-Left"
+msgstr "Κάτω αριστερά"
+
+msgid "Top-Left"
+msgstr "Πάνω αριστερά"
+
+msgid "Top-Right"
+msgstr "Πάνω δεξιά"
+
+msgid "Bottom-Right"
+msgstr "Κάτω δεξιά"
+
+#, fuzzy
+msgid "Preferences"
+msgstr "Παραπομπές ..."
+
+msgid "Select Fields to Export"
+msgstr "Επιλογή πεδίων προς εξαγωγή"
+
+msgid "Number of duplicates:"
+msgstr "Αριθμός αντιγράφων:"
+
+#, fuzzy
+msgid "Direction"
+msgstr "Κατευθύνσεις"
+
+#, fuzzy
+msgid "Frequency:"
+msgstr "Ακολουθία"
+
+msgid "Both"
+msgstr "Εμπρός και Πίσω"
+
+#, fuzzy
+msgid "Duplicate Event"
+msgstr "Ημέρα χορήγησης"
+
+#, python-format
+msgid "%d Events not duplicated due to missing dates."
+msgstr "%d γεγονότα δεν αντιγράφηκαν επειδή έλειπαν ημερομηνίες."
+
+msgid "Shortcut is saved"
+msgstr "Η συντόμευση αποθηκεύτηκε"
+
+msgid "Both Modifier and Shortcut key must be given!"
+msgstr "Και ο μετατροπέας και το πλήκτρο συντόμευσης πρέπει να δίνονται."
+
+#, python-format
+msgid "The shortcut %s is already bound to function '%s'!"
+msgstr "Η συντόμευση %s είναι ήδη προορισμένη για τη λειτουργία '%s'."
+
+#, fuzzy
+msgid "Functions:"
+msgstr "Αρχεία:"
+
+#, fuzzy
+msgid "Modifier:"
+msgstr "τροποποιημένη καταχώρηση"
+
+msgid "Shortcut Key:"
+msgstr "Πλήκτρο συντόμευσης:"
+
+msgid "Edit Shortcuts"
+msgstr "Επεξεργασία συντομεύσεων"
+
+#, fuzzy
+msgid "Give Feedback"
+msgstr "Μετάβαση πίσω"
+
+msgid "Feedback On Feature"
+msgstr "Ανατροφοδότηση για τη λειτουργία"
+
+msgid "Select Tab Order:"
+msgstr "Επιλογή σειράς Tab:"
+
+msgid "Event Editor Tab Order"
+msgstr "Επεξεργαστής σειράς Tab"
+
+msgid "You can't change time when the Event is locked"
+msgstr "Δεν μπορείτε να αλλάξετε τον χρόνο όταν το γεγονός είναι κλειδωμένο"
+
+msgid "End must be > Start"
+msgstr "Το Τέλος πρέπει να είναι > Αρχή"
+
+#, fuzzy
+msgid "Event Properties"
+msgstr "Διαγραφή περιγραφής αρχείου"
+
+#, fuzzy
+msgid "Container:"
+msgstr "Συνέχεια"
+
+msgid "Icon"
+msgstr "Εικόνα"
+
+msgid "Default color"
+msgstr "Προκαθορισμένο χρώμα"
+
+msgid "Add more events after this one"
+msgstr "Συνέχιση προσθήκης γεγονότων"
+
+msgid "&Enlarge"
+msgstr "&Μεγέθυνση"
+
+msgid "&Reduce"
+msgstr "&Σμίκρυνση"
+
+msgid "Save and Duplicate"
+msgstr "Αποθήκευση και δημιουργία αντίγραφου"
+
+#, fuzzy
+msgid "Edit Container"
+msgstr "ανενεργό"
+
+#, fuzzy
+msgid "Edit Event"
+msgstr "ανενεργό"
+
+#, fuzzy
+msgid "Create Event"
+msgstr "Δημιουργία νέου"
+
+msgid "Import in event description"
+msgstr "Εισαγωγή στην περιγραφή γεγονότος"
+
+msgid "Use as start date of event"
+msgstr "Να χρησιμοποιηθεί ως ημεροχρονολογία έναρξης"
+
+msgid "Use as event alarm time"
+msgstr "Να χρησιμοποιηθεί ως χρόνος συναγερμού"
+
+msgid "Options for ICS import"
+msgstr "Επιλογές για εισαγωγή ICS"
+
+msgid "read-only"
+msgstr "μόνο για ανάγνωση"
+
+#, python-format
+msgid "File '%s' does not exist."
+msgstr "Το αρχείο '%s' δεν υπάρχει."
+
+msgid ""
+"Someoneelse has changed the Timeline.\n"
+"You have two choices!\n"
+"  1. Set Timeline in Read-Only mode.\n"
+"  2. Synchronize Timeline.\n"
+"\n"
+"Do you want to Synchronize?"
+msgstr ""
+"Κάποιος έχει μετατρέψει την εφαρμογή Timeline.\n"
+"Έχετε δύο επιλογές:\n"
+"  1. Να βάλετε την εφαρμογή σε λειτουργία 'Μόνο ανάγνωση'.\n"
+"  2. Να κάνετε συγχρονισμό της εφαρμογής.\n"
+"\n"
+"Θέλετε να κάνετε συγχρονισμό;"
+
+#, python-format
+msgid ""
+"Unable to take lock on %s\n"
+"This means you can't edit the timeline.\n"
+"Check if you have write access to this directory."
+msgstr ""
+"Αδυναμία ξεκλειδώματος στο  %s.\n"
+"Αυτό σημαίνει ότι δεν μπορείτε να επεξεργαστείτε αυτή τη χρονογραμμή.\n"
+"Ελέγξτε αν έχετε άδεια εγγραφής σε αυτόν τον φάκελο."
+
+#, python-format
+msgid ""
+"The lockfile used to protect the timeline from concurrent updates is opened "
+"by another program or process.\n"
+"This lockfile must be removed in order be able to continue editing the "
+"timeline!\n"
+"The lockfile is found at: %s"
+msgstr ""
+"Το αρχείο κλειδώματος στοχεύει στην προστασία της χρονογραμμής από "
+"ταυτόχρονες ενημερώσεις άλλου προγράμματος ή διαδικασίας.\n"
+"Αυτό το αρχείο θα πρέπει να αφαιρεθεί, ώστε να είναι δυνατή η επεξεργασία "
+"της χρονογραμμής.\n"
+"Το αρχείο βρέθηκε στη θέση: %s"
+
+#, fuzzy
+msgid "Create Timeline"
+msgstr "Δημιουργία νέου"
+
+msgid "The specified timeline already exists."
+msgstr "Η συγκεκριμένη χρονογραμμή υπάρχει ήδη."
+
+msgid "Opening timeline instead of creating new."
+msgstr "Άνοιγμα χρονογραμμής αντί για δημιουργία νέας."
+
+#, fuzzy
+msgid "Information"
+msgstr "Αλληλεπιδράσεις"
+
+#, fuzzy
+msgid "Open Timeline"
+msgstr "OpenOffice"
+
+#, fuzzy
+msgid "Save Timeline As"
+msgstr "Δημιουργία νέου"
+
+msgid "Unable to write configuration file."
+msgstr "Αδυναμία εγγραφής στο αρχείο ρυθμίσεων."
+
+msgid "Distance between selected events"
+msgstr "Απόσταση μεταξύ επιλεγμένων γεγονότων."
+
+msgid "Events are overlapping or distance is 0"
+msgstr "Τα γεγονότα επικαλύπτονται ή η απόσταση είναι 0"
+
+msgid "Left"
+msgstr "Αριστερά"
+
+#, fuzzy
+msgid "&File"
+msgstr "Αρχείο"
+
+msgid "&Edit"
+msgstr "&Επεξεργασία"
+
+#, fuzzy
+msgid "&View"
+msgstr "Προβολή  καταγραφής"
+
+msgid "&Timeline"
+msgstr "&Χρονογραμμή"
+
+msgid "&Navigate"
+msgstr "&Περιήγηση"
+
+msgid "&Help"
+msgstr "&Βοήθεια"
+
+msgid "New..."
+msgstr "Νέο..."
+
+#, fuzzy
+msgid "Create a new timeline"
+msgstr "Δημιουργία νέου"
+
+msgid "Open an existing timeline"
+msgstr "Άνοιγμα υπάρχουσας χρονογραμμής"
+
+msgid "Open &Recent"
+msgstr "Άνοιγμα &πρόσφατου αρχείου"
+
+#, fuzzy
+msgid "Save As..."
+msgstr " Αποθήκευση "
+
+msgid "Import events..."
+msgstr "Εισαγωγή γεγονότων..."
+
+msgid "Exit the program"
+msgstr "Τερματισμός του προγράμματος"
+
+#, fuzzy
+msgid "Find Categories..."
+msgstr "Κατηγορία"
+
+msgid "Select All Events"
+msgstr "Επιλογή όλων των γεγονότων"
+
+msgid "Shortcuts..."
+msgstr "Συντομεύσεις..."
+
+msgid "&Sidebar"
+msgstr "Πλευρική μπάρα"
+
+msgid "&Legend"
+msgstr "&Υπόμνημα"
+
+msgid "&Balloons on hover"
+msgstr "&Μπαλόνια κατά την αιώρηση"
+
+msgid "Zoom &In"
+msgstr "Μεγέθυνση"
+
+msgid "Zoom &Out"
+msgstr "Σμίκρυνση"
+
+msgid "Vertical Zoom &In"
+msgstr "Κάθετη μεγέθυνση"
+
+msgid "Vertical Zoom &Out"
+msgstr "Κάθετη σμίκρυνση"
+
+msgid "Start slide show"
+msgstr "Προβολή διαφανειών"
+
+msgid "&Hide Events done"
+msgstr "&Απόκρυψη ολοκληρωμένων γεγονότων"
+
+msgid "Toolbar"
+msgstr "Εργαλειοθήκη"
+
+msgid "Event appearance"
+msgstr "Εμφάνιση γεγονότος"
+
+msgid "Point event alignment"
+msgstr "Σημείο ευθυγράμμισης γεγονότος"
+
+#, fuzzy
+msgid "Create &Event..."
+msgstr "Δημιουργία νέου"
+
+#, fuzzy
+msgid "&Edit Selected Event..."
+msgstr "Επεξεργασία του επιλεγμένου αντικειμένου."
+
+msgid "&Duplicate Selected Event..."
+msgstr "&Δημιουργία αντιγράφου επιλεγμένου γεγονότος..."
+
+#, fuzzy
+msgid "Set Category on Selected Events..."
+msgstr "Επεξεργασία του επιλεγμένου αντικειμένου."
+
+msgid "Move event up"
+msgstr "Μετακίνηση γεγονότος επάνω"
+
+msgid "Move event down"
+msgstr "Μετακίνηση γεγονότος κάτω"
+
+msgid "Create &Milestone..."
+msgstr "Δημιουργία &ορόσημου..."
+
+msgid "&Compress timeline Events"
+msgstr "&Σύμπτυξη γεγονότων χρονογραμμής"
+
+msgid "&Measure Distance between two Events..."
+msgstr "&Μέτρηση απόστασης μεταξύ δύο γεγονότων..."
+
+#, fuzzy
+msgid "Set Category on events &without category..."
+msgstr "Επεξεργασία του επιλεγμένου αντικειμένου."
+
+#, fuzzy
+msgid "Edit &Categories"
+msgstr "Κατηγορία"
+
+msgid "Edit Era's..."
+msgstr "Δημιουργία χρονικής περιόδου..."
+
+msgid "&Read Only"
+msgstr "Μόνο για &ανάγνωση"
+
+msgid "&Undo"
+msgstr "Αναίρεση"
+
+msgid "&Redo"
+msgstr "Ακύρωση αναίρεσης"
+
+#, fuzzy
+msgid "Find &First Event"
+msgstr "Τελευταίο έχει δοθεί"
+
+#, fuzzy
+msgid "Find &Last Event"
+msgstr "Τελευταίο έχει δοθεί"
+
+#, fuzzy
+msgid "Fit &All Events"
+msgstr "ανενεργό"
+
+msgid "Go to previous time period"
+msgstr "Μετάβαση στην προηγούμενη χρονική περίοδο"
+
+msgid "Feedback"
+msgstr "Ανατροφοδότηση"
+
+msgid "&Contents"
+msgstr "Περιεχόμενα"
+
+msgid "Getting started &tutorial"
+msgstr "&Βοήθημα για να ξεκινήσετε"
+
+#, fuzzy
+msgid "Give &Feedback..."
+msgstr "Μετάβαση πίσω"
+
+#, fuzzy
+msgid "Co&ntact"
+msgstr "Επαφή"
+
+msgid "System information"
+msgstr "Πληροφορίες συστήματος"
+
+msgid "Gregorian"
+msgstr "Γρηγοριανό"
+
+msgid "This creates a timeline using the standard calendar."
+msgstr ""
+"Αυτό θα δημιουργήσει μια χρονογραμμή χρησιμοποιώντας το ημερολόγιο που "
+"χρησιμοποιείται σήμερα."
+
+msgid "Numeric"
+msgstr "Αριθμητικό"
+
+msgid ""
+"This creates a timeline that has numbers on the x-axis instead of dates."
+msgstr ""
+"Αυτό δημιουργεί χρονογραμή που έχει αριθμούς στον άξονα x αντί για "
+"ημερομηνίες."
+
+msgid "Directory"
+msgstr "Φάκελος"
+
+msgid ""
+"This creates a timeline where the modification date of files in a directory "
+"are shown as events."
+msgstr ""
+"Αυτό δημιουργεί χρονογραμή στην οποία οι ημερομηνίες τροποποίησης των "
+"αρχείων σε ένα φάκελο εμφανίζονται ως γεγονότα."
+
+msgid "Bosparanian"
+msgstr "Bosparanian"
+
+msgid ""
+"This creates a timeline using the fictuous Bosparanian calendar from the "
+"German pen-and-paper RPG \"The Dark Eye\" (\"Das schwarze Auge\", DSA)."
+msgstr ""
+"Αυτή η επιλογή οδηγεί στη δημιουργία χρονογραμμής με τη χρήση του "
+"φανταστικού ημερολογίου Bosparanian από το γερμανικό παιχνίδι \"The Dark Eye"
+"\" (\"Das schwarze Auge\", DSA)."
+
+msgid "Help"
+msgstr "Βοήθεια"
+
+msgid ""
+"Could not find markdown Python package. It is needed by the help system."
+msgstr ""
+"Δεν εντοπίστηκε το πακέτο markdown Python. Είναι απαραίτητο για το σύστημα "
+"βοήθειας."
+
+msgid "Go to home page"
+msgstr "Μετάβαση στην αρχική σελίδα"
+
+#, fuzzy
+msgid "Go back one page"
+msgstr "Μετάβαση πίσω"
+
+msgid "Go forward one page"
+msgstr "Μπροστά μια σελίδα"
+
+msgid "Page not found"
+msgstr "Η σελίδα δεν βρέθηκε"
+
+#, python-format
+msgid "Could not find page '%s'."
+msgstr "Αδυναμία εύρεσης της σελίδας '%s'."
+
+msgid "Error"
+msgstr "Σφάλμα"
+
+msgid "Warning"
+msgstr "Προειδοποίηση"
+
+msgid "Dialog moved"
+msgstr "Το παράθυρο μετακινήθηκε"
+
+msgid "This dialog has been removed. Edit categories in the sidebar instead."
+msgstr ""
+"Αυτό το παράθυρο διαλόγου έχει αφαιρεθεί. Αντ' αυτού, επεξεργαστείτε τις "
+"κατηγορίες στην πλευρική στήλη."
+
+#, fuzzy
+msgid "Question"
+msgstr "Περιγραφή"
+
+#, fuzzy
+msgid "Help contents"
+msgstr "Ραντεβού"
+
+msgid "Questions and answers"
+msgstr "Ερωτήσεις και απαντήσεις"
+
+msgid "Concepts"
+msgstr "Έννοιες"
+
+msgid "Tasks"
+msgstr "Εργασίες"
+
+msgid "Where is the save button?"
+msgstr "Πού είναι το κουμπί για την αποθήκευση;"
+
+msgid ""
+"\n"
+"There is no save button. Timeline will automatically save your data whenever "
+"needed.\n"
+msgstr ""
+"\n"
+"Δεν υπάρχει κουμπί για την αποθήκευση. Η χρονογραμμή θα αποθηκεύει αυτόματα "
+"τα δεδομένα σας όποτε χρειάζεται.\n"
+
+msgid "Where do the week numbers go if I start my weeks on Sunday?"
+msgstr "Τι γίνεται με τους αριθμούς των εβδομάδων εάν αυτές ξεκινούν Κυριακή;"
+
+msgid ""
+"\n"
+"The date data object used does not support week numbers for weeks that start "
+"on Sunday at present.  We plan on using a different date object that will "
+"support this in future versions.\n"
+msgstr ""
+"\n"
+"Μέχρι στιγμής δεν υποστηρίζεται η δυνατότητα εμφάνισης αριθμού εβδομάδων που "
+"αρχίζουν Κυριακή. Σχεδιάζουμε να χρησιμοποιήσουμε ένα διαφορετικό τρόπο για "
+"την εμφάνισή τους σε επόμενες εκδόσεις.\n"
+
+msgid "Can multiple users work with the same timeline?"
+msgstr "Είναι εφικτή η εργασία πολλών χρηστών στην ίδια χρονογραμμή;"
+
+msgid ""
+"\n"
+"There are some support for multiple users to work on the same timeline "
+"file.\n"
+"\n"
+"When you try to make a change and someone else has made a change you will be "
+"asked to make one of two choices:\n"
+"\n"
+"- Set timeline in read-only mode.\n"
+"- Synchronize the timeline.\n"
+"\n"
+"During the your edit action the timeline is locked for changes by others. If "
+"you try to edit a timeline when it is locked by someone else you will be "
+"notified about this situation.\n"
+msgstr ""
+"\n"
+"Υπάρχει μερική υποστήριξη για εργασία στο ίδιο αρχείο από πολλούς χρήστες.\n"
+"\n"
+"Εάν επιχειρήσετε να κάνετε μια αλλαγή και κάποιος άλλος έχει κάνει αλλαγή, "
+"τότε θα σας ζητηθεί να επιλέξετε ένα από τα δύο:\n"
+"\n"
+"- Ορισμός χρονογραμμής σε λειτουργία ανάγνωσης.\n"
+"- Συγχρονισμός της χρονογραμμής.\n"
+"\n"
+"Κατά τη διάρκεια της επεξεργασίας η χρονογραμμή θα παραμένει κλειδωμένη για "
+"τους άλλους χρήστες. Εάν επιχειρήσετε να εξεπεργαστείτε μια χρονογραμμή ενώ "
+"έχει κλειδωθεί από κάποιον άλλο, θα ενημερωθείτε σχετικά.\n"
+
+msgid "Can I Check or Uncheck all categories?"
+msgstr "Μπορώ να επιλέξω ή να αποεπιλέξω όλες τις κατηγορίες;"
+
+msgid ""
+"\n"
+"Yes you can check or uncheck all categories as well as a lot of other "
+"selection alternatives.\n"
+"\n"
+"Make sure the categories pane is visible and then right-click with the mouse "
+"in the pane.\n"
+"A context menu will now show up with all the check/uncheck alternatives "
+"available.\n"
+"\n"
+msgstr ""
+"\n"
+"Ναι μπορείτε να επιλέξετε ή να αποεπιλέξετε όλες τις κατηγορίες, ενώ "
+"διατίθενται και πολλές άλλες δυνατότητες επιλογών.\n"
+"\n"
+"Βεβαιωθείτε ότι το τμήμα του παραθύρου με τις κατηγορίες είναι ορατό και "
+"κατόπιν κάντε δεξί κλικ με το ποντίκι σας στο τμήμα αυτό.\n"
+"Ένα μενού θα εμφανιστεί με όλες τις δυνατότητες επιλογής, αποεπιλογής και "
+"επεξεργασίας των κατηγοριών διαθέσιμες.\n"
+"\n"
+
+#, fuzzy
+msgid "Timeline"
+msgstr "Ώρα:"
+
+msgid ""
+"\n"
+"The timeline shows dates according to the Gregorian calendar on the x-axis. "
+"Currently the earliest date is limited to Julian day 0 (November 24, 4714 "
+"BC).\n"
+"\n"
+"Future versions might support various kinds of timelines so that you for "
+"example can specify a time in terms of number of minutes since a start time. "
+"If you are interested in such a feature, please get in touch.\n"
+"\n"
+"The timeline is divided in two areas with a horizontal adjustable divider "
+"line. Period events are displayed below the line and point events are "
+"displayed above the line.\n"
+msgstr ""
+"\n"
+"Το Timeline εμφανίζει ημεροχρονολογίες σύμφωνα με το Γρηγοριανό ημερολόγιο "
+"στον άξονα x. Προς το παρόν, η παλαιότερη χρονολογία που μπορούμε να "
+"χρησιμοποιήσουμε περιορίζεται από την ημέρα 0 του Ιουλιανού ημερολογίου (24 "
+"Νοεμβρίου του 4714 π.Χ.).\n"
+"\n"
+"Οι μελλοντικές εκδόσεις του Timeline ενδεχομένως να υποστηρίζουν περισσότερα "
+"και διαφορετικά είδη χρονογραμμών, έτσι ώστε, για παράδειγμα, να μπορείτε να "
+"ορίσετε ένα χρονικό σημείο με βάση τον αριθμό των λεπτών από το σημείο "
+"έναρξης. Εάν σας ενδιαφέρει μια τέτοια λειτουργία, παρακαλώ μείνετε σε "
+"επαφή.\n"
+"\n"
+"Η οθόνη του Timeline χωρίζεται σε δύο μέρη με μια οριζόντια προσαρμοζόμενη "
+"γραμμή. Γεγονότα που ορίζονται με χρονικά διαστήματα (με έναρξη και λήξη) "
+"εμφανίζονται κάτω από τη γραμμή, ενώ τα γεγονότα που ορίζονται από ένα μόνο "
+"χρονικό σημείο εμφανίζονται πάνω από αυτήν.\n"
+
+#, fuzzy
+msgid "Scrolling Timeline"
+msgstr "Δείξε &ΠαράδειγμαΠρόσθετου"
+
+msgid ""
+"\n"
+"A Timeline can be scrolled both horizontal (along time axis) and vertically "
+"(along event axis)\n"
+"\n"
+"There are two ways to scroll horizontal. You can either use the different "
+"options in the Navigation menu or you can use the mouse. To use the mouse, "
+"hold down the left mouse button and drag the mouse horizontally.\n"
+"\n"
+"To scroll vertically, hold down the Shift- and Ctrl-keys and scroll the "
+"mouse wheel.\n"
+"Events are scrolled towards or away from the divider line separating point- "
+"and period-events.\n"
+"\n"
+msgstr ""
+"\n"
+"Σε μια χρονογραμμή μπορεί να γίνει οριζόντια (κατά μήκος του χρονικού άξονα) "
+"και κάθετη (κατά μήκος του άξονα του γεγονότος) κύλιση .\n"
+"\n"
+"Υπάρχουν δύο τρόποι οριζόντιας κύλισης. Μπορείτε είτε να χρησιμοποιήσετε τις "
+"διαφορετικές επιλογές από το μενού Περιήγηση είτε το ποντίκι σας. Στη "
+"δεύτερη περίπτωση, κρατήστε πατημένο το αριστερό πλήκτρο του ποντικιού και "
+"σύρετέ το οριζόντια.\n"
+"\n"
+"Για κάθετη κύλιση, κρατήστε πατημένο το πλήκτρο Shift ή το Ctrl και κυλίστε "
+"το ροδάκι του ποντικιού.\n"
+"Τα γεγονότα μετακινούνται είτε προς  είτε απομακρύνονται από τη διαχωριστική "
+"γραμμή, που ξεχωρίζει τα γεγονότα συγκεκριμένων ημερομηνιών και γεγονότων με "
+"χρονική διάρκεια.\n"
+"\n"
+
+#, fuzzy
+msgid "Zooming Timeline"
+msgstr "OpenOffice"
+
+msgid ""
+"\n"
+"A Timeline can be Zoomed both horizontal (along time axis) and vertically "
+"(along event axis)\n"
+"\n"
+"To zoom horizontal, hold down the Ctrl-key and scroll the mouse wheel.\n"
+"\n"
+"To zoom vertically, hold down the Alt-key and scroll the mouse wheel.\n"
+msgstr ""
+"\n"
+"Εστίαση μπορεί να γίνει σε μια χρονογραμμή είτε οριζόντια (κατά μήκος του "
+"χρονικού άξονα) είτε κάθετα (κατά μήκος του άξονα του γεγονότος).\n"
+"\n"
+"Για την οριζόντια κύλιση, κρατήστε πατημένο το πλήκτρο Ctrl και κυλίστε το "
+"ροδάκι του ποντικιού.\n"
+"\n"
+"Για την κάθετη κύλιση, κρατήστε πατημένο το πλήκτρο Alt και κυλίστε το "
+"ροδάκι του ποντικιού.\n"
+
+msgid ""
+"\n"
+"An event is the basic data type for representing information on the "
+"timeline.  It must specify where on the timeline it should be placed (when "
+"that event happened). This can be either a specific point in time or a "
+"period.\n"
+msgstr ""
+"\n"
+"Το γεγονός είναι ο βασικός τύπος αναπαράστασης πληροφοριών σε μια "
+"χρονογραμμή. Θα πρέπει να καθορίζεται πάντα σε ποιο σημείο της χρονογραμμής "
+"θα πρέπει να τοποθετηθεί, ανάλογα με το πότε συνέβη. Αυτό μπορεί να είναι "
+"ένα συγκεκριμενο σημείο στη χρονογραμμή, ακριβής χρονολογία, ή μια χρονική "
+"περίοδος.\n"
+
+msgid "Era"
+msgstr "Χρονική περίοδος"
+
+msgid ""
+"\n"
+"An Era is A clearly defined period of time of arbitrary but well-defined "
+"length.\n"
+"\n"
+"An Era is displayed as a background with the color defined for the Era. The "
+"Era name is written att the bottom of the timeline.\n"
+msgstr ""
+"\n"
+"Η χρονική περίοδος είναι μια σαφώς οριοθετημένη περίοδος χρόνου. Eμφανίζεται "
+"στο παρασκήνιο με το χρώμα που έχει επιλεγεί γι' αυτήν. Το όνομά της "
+"εμφανίζεται στο κάτω μέρος της χρονογραμμής.\n"
+
+msgid ""
+"\n"
+"For an event the following properties can be defined.\n"
+"\n"
+" - Start Date and Time.\n"
+" - End Date and Time (if period event).\n"
+" - Text - The label displayed for an event.\n"
+" - Category - A way to group events together.\n"
+" - Container - Another way to group events together.\n"
+" - Fuzzy - Draw start and end of event fuzzy, to indicate that exact times "
+"are unknown.\n"
+" - Locked - Start- and End-points can't be changed.\n"
+" - Ends Today - The End-point is always set to current date.\n"
+" - Description - Event description that is shown i the balloon.\n"
+" - Icon - Image icon shown in balloon.\n"
+" - Alert - An alert dialog is opened at the specified alert time.\n"
+" - Hyperlinks - A list of hyperlink that can be reached in the event context "
+"menu.\n"
+msgstr ""
+"\n"
+"Για κάθε γεγονός είναι διαθέσιμες οι παρακάτω ιδιότητες:\n"
+"\n"
+" - Ημεροχρονολογία και ώρα έναρξης.\n"
+" - Ημεροχρονολογία και ώρα  λήξης (όταν πρόκειται για χρονικό διάστημα).\n"
+" - Τίτλος- Η ετικέτα που εμφανίζεται στη χρονογραμμή για το γεγονός.\n"
+" - Κατηγορία - Ένας τρόπος ταξινόμησηςτων γεγονότων.\n"
+" - Ομαδοποίηση - Ένας τρόπος ομαδοποίησης των γεγονότων.\n"
+" - Ασαφές - Δεικτοδοτεί ένα γεγονός όταν οι ημεροχρονολογίες που συνδέονται "
+"με αυτό είναι ασαφείς.\n"
+" - Κλειδωμένο - Οι ημεροχρονολογίες έναρξης και λήξης δεν μπορούν να "
+"τροποποιηθούν.\n"
+" - Λήγει σήμερα - Η ημεροχρονολογία λήξης ορίζεται πάντα στην τρέχουσα "
+"ημεροχρονολογία.\n"
+" - Περιγραφή - Μια περιγραφή του γεγονότος που εμφανίζεται σε αναδυόμενο "
+"πλαίσιο.\n"
+" - Εικόνα - Εικόνα που εμφανίζεται στο αναδυόμενο πλαίσιο της περιγραφής.\n"
+" - Ειδοποίηση - Ένα μήνυμα εμφανίζεται στον προκαθορισμένο χρόνο.\n"
+" - Σύνδεσμοι - Μια λίστα υπερσυνδέμσων προσβάσιμων από το πλαίσιο "
+"\"Επεξεργασία γεγονότος\".\n"
+
+msgid "Milestones"
+msgstr "Ορόσημα"
+
+msgid ""
+"\n"
+"A milestone is a special case of a point event. It is rendered on the "
+"timescale of a timeline and it can have a desciption shown when hooverd "
+"over. It can also have a one character label that is displayed in the "
+"milestone box.\n"
+"\n"
+"A milestone ...\n"
+"\n"
+"* is created by selecting the menu alternative Timeline -> Create "
+"milestone.\n"
+"\n"
+"* is edited by doubleclicking on it.\n"
+"\n"
+"* is deleted by clicking on it and thereafter click the delete button.\n"
+"\n"
+"* can be dragged to a new position.\n"
+msgstr ""
+"\n"
+"Το ορόσημο είναι μια ειδική περίπτωση χρονικού σημείου. Τοποθετείται πάνω "
+"στη γραμμή της χρονικής κλίμακας και μπορεί να διαθέτει περιγραφή που "
+"εμφανίζεται καθώς το ποντίκι αιωρείται επάνω από το πλαίσιό του. Μπορεί, "
+"επίσης, να έχει ετικέτα ενός χαρακτήρα η οποία θα εμφανίζεται μέσα στο "
+"πλαίσιο του ορόσημου.\n"
+"\n"
+"Ένα ορόσημο μπορούμε...\n"
+"\n"
+"* να το δημιουργήσουμε από το μενού Χρονογραμμή -> Δημιουργία ορόσημου...\n"
+"\n"
+"* να το επεξεργαστούμε κάνοντας διπλό κλικ επάνω στο πλαίσιό του\n"
+"\n"
+"* να το διαγράψουμε κάνοντας κλικ στο πλαίσιό του και πατώντας το πλήκτρο "
+"διαγραφή\n"
+"\n"
+"* να το σύρουμε  και να το αποθέσουμε σε μια νέα θέση επάνω στη γραμμή της "
+"χρονικής κλίμακας.\n"
+
+msgid ""
+"\n"
+"Categories are used to group events. An event can only belong to one "
+"category. All events that belong to the same category are displayed with the "
+"same background color.\n"
+msgstr ""
+"\n"
+"Με τις κατηγορίες ομαδοποιούνται τα γεγονότα. Ένα γεγονός μπορεί να ανήκει "
+"μόνο σε μία κατηγορία. Όλα τα γεγονότας της ίδιας κατηγορίας, εμφανίζονται "
+"με το ίδιο χρώμα παρασκηνίου.\n"
+
+msgid ""
+"\n"
+"Experimental features are features implemented in Timeline but not yet "
+"decided to be permanent.\n"
+"\n"
+"An experimental feature can be switched on or off in the preferences "
+"dialog.\n"
+"\n"
+"The functionality in these features may not be fully implemented and may not "
+"have been as extensively tested as the rest of the application.\n"
+"\n"
+"The users feedback can be important when the decision to make the features "
+"permanent or not, is taken.\n"
+msgstr ""
+"\n"
+"Οι πειραματικές λειτουργίες έχουν τεθεί σε εφαρμογή, όμως δεν έχει "
+"αποφασιστεί αν θα είναι μόνιμες.\n"
+"\n"
+"Μια πειραματική λειτουργία μπορεί να ενεργοποιηθεί ή απενεργοποιηθεί από το "
+"μενού των Προτιμήσεων.\n"
+"\n"
+"Οι λειτουργίες αυτές ενδέχεται να μην είναι πλήρως λειτουργικές και δεν "
+"έχουν δοκιμαστεί εκτεταμένα όπως οι άλλες λειτουργίες της εφαρμογής.\n"
+"\n"
+"Η ανατροφοδότηση των χρηστών μπορεί να συμβάλλει αποφασιστικά στη μόνιμη ή "
+"όχι ενσωμάτωση αυτών των λειτουργιών.\n"
+
+#, fuzzy
+msgid "Create event"
+msgstr "Δημιουργία νέου"
+
+msgid ""
+"\n"
+"The *Create Event* dialog can be opened in the following ways:\n"
+"\n"
+"- Select *Timeline* - *Create Event* from the menu.\n"
+"- Double click with the *left* mouse button on the timeline.\n"
+"- Press the *Ctrl* key, thereafter hold *left* mouse button down on the "
+"timeline, drag the mouse and release it.\n"
+msgstr ""
+"\n"
+"Η *Δημιουργία Γεγονότος* μπορεί να ανοίξει με τους εξής τρόπους:\n"
+"\n"
+"- Επιλέξτε από το μενού  *Χρονογραμμή* - *Δημιουργία Γεγονότος*.\n"
+"- Κάντε διπλό κλικ με το *αριστερό* πλήκτρο του ποντικιού, πάνω στη "
+"χρονογραμμή.\n"
+"- Πατήστε ταυτόχρονα το *Ctrl* και το *αριστερό* κουμπί του ποντικιού πάνω "
+"στη χρονογραμμή, σύρτε το ποντίκι και αφήστε το για δημιουργία χρονικής "
+"περιόδου.\n"
+
+msgid "Undo/Redo"
+msgstr "Αναίρεση/Ακύρωση αναίρεσης"
+
+msgid ""
+"\n"
+"The *Undo* function can revert an action such as creating an event, editing "
+"a category or deleting an event.\n"
+"\n"
+"To revert an action you:\n"
+"\n"
+"- Use the Ctrl+Z key (Key combination can be changed by user)\n"
+"- Select the menu *Timeline* - *Undo*\n"
+"\n"
+"To save memory usage we have decided to limit the number of actions that can "
+"be reverted.\n"
+"This means that only the 10 latest actions can be Undone.\n"
+"\n"
+"An action that is Undone can also be Redone if you:\n"
+"\n"
+"- Use the Alt+Z key (Key combination can be changed by user)\n"
+"- Select the menu *Timeline* - *Redo*\n"
+"\n"
+msgstr ""
+"\n"
+"Η λειτουργία *Αναίρεση* μπορεί να επαναφέρει μια ενέργεια, όπως η δημιουργία "
+"ή η διαγραφή ενός γεγονότος, η επεξεργασία μιας κατηγορίας.\n"
+"\n"
+"Για να επαναφέρετε μια ενέργεια:\n"
+"\n"
+"- Χρησιμοποιήστε τον συνδυασμό πλήκτρων Ctrl+z (ο συνδυασμός μπορεί να "
+"αλλάξει από τον χρήστη).\n"
+"- Επιλέξτε από το μενού *Χρονογραμμή* τη λειτουργία *Αναίρεση*.\n"
+"\n"
+"Προκειμένου να μειωθεί η χρήση της μνήμης του υπολογιστή, έχει αποφασιστεί ο "
+"περιορισμός του αριθμού των ενεργειών που είναι δυνατόν να επαναφέρει ο "
+"χρήστης. \n"
+"Αυτό σημαίνει ότι μπορεί να γίνει επαναφορά μόνο των τελευταίων 10 "
+"ενεργειών.\n"
+"\n"
+"Μπορείτε να ακυρώσετε μια αναίρεση:\n"
+"\n"
+"- Χρησιμοποιήστε τον συνδυασμό πλήκτρων Alt+z (ο συνδυασμός μπορεί να "
+"αλλάξει από τον χρήστη).\n"
+"- Επιλέξτε από το μενού *Χρονογραμμή* τη λειτουργία *Ακύρωση αναίρεσης*.\n"
+"\n"
+
+#, fuzzy
+msgid "Edit event"
+msgstr "ανενεργό"
+
+msgid ""
+"\n"
+"The *Edit Event* dialog can be opened by double clicking on an event or by "
+"selecting one event and select the 'Timeline -> Edit Selected Event...' "
+"menu.\n"
+"\n"
+"An image icon can be associated with an event by dragging the image file and "
+"dropping it on an event.\n"
+msgstr ""
+"\n"
+"Το πλαίσιο *Επεξεργασία γεγονότος* μπορεί να ανοίξει με διπλό κλικ σε κάθε "
+"γεγονός ή επιλέγοντας ένα γεγονός και ανοίγοντας το μενού 'Χρονογραμμή -> "
+"Επεξεργασία επιλεγμένου γεγονότος'.\n"
+"\n"
+"Μια εικόνα μπορεί να συνδεθεί με ένα γεγονός σύροντας και αποθέτοντάς τη "
+"επάνω στο γεγονός.\n"
+
+msgid "Move event vertically"
+msgstr "Κάθετη μετακίνηση γεγονότος"
+
+msgid ""
+"\n"
+"An event can be moved vertically. This is done by first selecting the event "
+"and thereafter using the Up or Down keys.\n"
+msgstr ""
+"\n"
+"Ένα γεγονός μπορεί να μετακινηθεί κάθετα, αν πρώτα επιλεγεί και κατόπιν "
+"χρησιμοποιηθούν τα βελάκια πάνω ή κάτω.\n"
+
+#, fuzzy
+msgid "Duplicate event"
+msgstr "Ημέρα χορήγησης"
+
+msgid ""
+"\n"
+"An event can be duplicated. Select the event you want to duplicate and "
+"select the 'Timeline -> Duplicate Selected Event...' menu.\n"
+"Now a dialog appears in which you can define\n"
+"\n"
+" - How many duplications to do\n"
+" - The time period used\n"
+" - The frequency of time periods\n"
+" - The direction\n"
+"\n"
+" If number of duplications = 3, time span = day and frequency = 2, you will "
+"get 3 new copies of the event spread out with the time span of 2 days "
+"between them.\n"
+"\n"
+" You can also get to the duplication dialog from the event context menu, "
+"wich appears if you right-click an event with the mouse.\n"
+msgstr ""
+"\n"
+"Μπορεί να γίνει αντιγραφή ενός γεγονότος. Επιλέξτε το και μεταβείτε στο "
+"μενού 'Χρονογραμμή -> Δημιουργία αντιγράφου επιλεγμένου γεγονότος...'.\n"
+"Εμφανίζεται ένα πλαίσιο διαλόγου στο οποίο μπορείτε να ορίσετε:\n"
+"\n"
+" - Πόσα αντίγραφα θα γίνουν.\n"
+" - Το χρονικό διάστημα μεταξύ τους.\n"
+" - Τη συχνότητα του χρονικού διαστήματος.\n"
+" - Την κατεύθυνση.\n"
+"\n"
+" Εάν ο αριθμός των αντιγράφων είναι = 3, το χρονικό διάστημα = ημέρα και η "
+"συχνότητα = 2, τότε θα λάβετε 3 αντίγραφα του γεγονότος που επιλέξατε, "
+"μεταξύ των οποίων θα υπάρχει χρονικό διάστημα 2 ημερών.\n"
+" \n"
+" Πρόσβαση στο μενού για τα αντίγραφα μπορείτε να αποκτήσετε με δεξί κλικ "
+"επάνω στο γεγονός και επιλογή 'Δημιουργία αντιγράφου...'.\n"
+
+msgid "Search event"
+msgstr "Αναζήτηση γεγονότος"
+
+msgid ""
+"\n"
+"You can search for an event by selecting the Edit -> Search menu.\n"
+"\n"
+"A text control is opened in the lower left corner of the application.\n"
+"\n"
+"Enter a target text in the text control and click Enter.\n"
+"If the text is found in the Text or Description of any event, the first "
+"event\n"
+"found is highlighted for a short period of time.\n"
+"\n"
+"By clicking on the icons to the right of the text control you can navigate\n"
+"back and forth between all the events that has been found. You can also\n"
+"select an event from a list of all found events.\n"
+msgstr ""
+"\n"
+"Μπορείτε να κάνετε αναζήτηση γεγονότος επιλέγοντας 'Επεξεργασία'  -> "
+"'Εύρεση'.\n"
+"\n"
+"Το πεδίο αναζήτησης εμφανίζεται στην κάτω αριστερή γωνία της εφαρμογής.\n"
+"\n"
+"Πληκτρολογήστε το κείμενο στο πεδίο αυτό και πατήστε Enter.\n"
+"Εάν αυτό που πληκτρολογήσατε βρεθεί στο πεδίο 'Τίτλος' ή στο πεδίο "
+"'Περιγραφή',\n"
+"το πρώτο αποτέλεσμα θα εμφανιστεί στην οθόνη  με οπτική επισήμανση για λίγο "
+"χρόνο.\n"
+"\n"
+"Πιέζοντας τα εικονίδια κατεύθυνσης στα δεξιά του πεδίου αναζήτησης θα "
+"περιηγηθείτε\n"
+"στα αποτελέσματα της αναζήτησης. Επίσης, μπορείτε να δείτε τα αποτελέσματα "
+"σε λίστα πιέζοντας στο τρίτο πλήκτρο μετά τα εικονίδια κατεύθυνσης και από "
+"εκεί να μεταβείτε σε κάθε γεγονός.\n"
+
+#, fuzzy
+msgid "Selecting events"
+msgstr "Διαγραφή ονόματος"
+
+msgid ""
+"\n"
+"To select an event, click on it. To select multiple events, hold down the "
+"*Ctrl* key while clicking events.\n"
+msgstr ""
+"\n"
+"Για να επιλέξετε ένα γεγονός, κάντε κλικ επάνω του. Για να επιλέξετε πολλά "
+"γεγονότα μαζί, πατήστε το πλήκτρο *Ctrl* και κάνετε κλικ στα γεγονότα.\n"
+
+#, fuzzy
+msgid "Import timeline"
+msgstr "Δημιουργία νέου"
+
+msgid ""
+"\n"
+"This feature can be used to merge two timelines into one.\n"
+"\n"
+"First open a timeline and then select menu 'File -> Import timeline...' and "
+"select the timeline to be imported.\n"
+msgstr ""
+"\n"
+"Αυτή η λειτουργία χρησιμοποιείται για τη συνένωση δύο χρονογραμμών σε μια.\n"
+"\n"
+"Ανοίξτε μια χρονογραμμή και μετά επιλέξτε από το μενού 'Αρχείο -> Εισαγωγή "
+"χρονογραμμής...' και επιλέξτε τη χρονογραμμή που θέλετε να εισάγετε.\n"
+
+#, fuzzy
+msgid "Event Containers"
+msgstr "ανενεργό"
+
+msgid ""
+"\n"
+"Containers are a way to group events together.\n"
+"In a container events can not overlap, so if you add a new event to a "
+"container\n"
+"all other events are moved to give room for the new event. The same thing "
+"happens\n"
+"if you resize an event within the container.\n"
+"\n"
+"Have a look at this video for a demo.\n"
+"    <http://www.youtube.com/watch?v=dBwEQ3vqB_I>\n"
+"\n"
+"From version 1.8 there is a second container strategy that let's events "
+"overlap in time within the container.\n"
+"This strategy is implemented as an experimental feature and can be selected "
+"in the preferences dialog.\n"
+msgstr ""
+"\n"
+"Οι ομαδοποιήσεις είναι ένας τρόπος οργάνωσης των γεγονότων σε ομάδες.\n"
+"Σε μια τέτοια ομαδοποίηση τα γεγονότα δεν επικαλύπτουν το ένα το άλλο κι "
+"έτσι εάν \n"
+"προσθέσετε ένα νέο γεγονός σε μια ομαδοποίηση όλα τα άλλα γεγονότα θα "
+"μετακινηθούν \n"
+"για να εξασφαλιστεί χώρος και γι' αυτό. Το ίδιο συμβαίνει και όταν αλλάζετε "
+"το μέγεθος\n"
+"ενός γεγονότος που βρίσκεται μέσα σε μια ομαδοποίηση.\n"
+"\n"
+"Δείτε αυτό το βίντεο για μια επίδειξη.\n"
+"    <http://www.youtube.com/watch?v=dBwEQ3vqB_I>\n"
+"\n"
+"Από την έκδοση 1.8 υπάρχει μια δεύτερη μέθοδος ομαδοποίησης που επιτρέπει "
+"την επικάλυψη γεγονότων μιας ομαδοποίησης.\n"
+"Αυτή η μέθοδος τίθεται σε εφαρμογή ως πειραματική λειτουργία και μπορεί να "
+"επιλεγεί από το παράθυρο των προτιμήσεων.\n"
+
+#, fuzzy
+msgid "Delete event"
+msgstr " Διαγραφή "
+
+msgid ""
+"\n"
+"To delete an event, select it and press the *Del* key. Multiple events can "
+"be deleted at the same time.\n"
+msgstr ""
+"\n"
+"Για να διαγράψετε ένα γεγονός επιλέξτε το και πατήστε το πλήκτρο *Del*. "
+"Μπορείτε να διαγράψετε πολλά γεγονότα ταυτόχρονα με τον ίδιο τρόπο.\n"
+
+msgid "Will associated events be deleted when I delete a category?"
+msgstr ""
+"Αν διαγράψω μια κατηγορία, θα διαγραφούν και τα σχετιζόμενα με αυτή γεγονότα;"
+
+msgid ""
+"\n"
+"No. The events will still be there but they will not belong to a category.\n"
+msgstr ""
+"\n"
+"Όχι. Τα γεγονότα θα είναι ακόμη εκεί, αλλά δεν θα ανήκουν πλέον σε κάποια "
+"κατηγορία.\n"
+
+msgid "Add a user defined icon"
+msgstr "Προσθήκη εικονιδίου από τον χρήστη"
+
+msgid ""
+"\n"
+"Icons used for the event properties\n"
+"\n"
+" - Fuzzy\n"
+" - Locked\n"
+" - Hyperlink\n"
+"\n"
+"can be user defined.\n"
+"\n"
+"To use an icon of your own you create a png image file and place it in\n"
+"the subdirectory icons/event_icons.\n"
+"Now the icon can be selected in the properties dialog on the Icons tab.\n"
+msgstr ""
+"\n"
+"Τα εικονίδια που χρησιμοποιούνται για τις ιδιότητες των γεγονότων\n"
+"\n"
+" - Ασαφές\n"
+" - Κλειδωμένο\n"
+" - Υπερσύνδεσμος\n"
+"\n"
+"ορίζονται από τον χρήστη.\n"
+"\n"
+"Για να χρησιμοποιήσετε δικά σας εικονίδια, δημιουργήστε αρχεία\n"
+"εικόνας png και τοποθετήστε τα στον υποφάκελο icons/event_icons.\n"
+"Τα εικονίδια επιλέγονται στην καρτέλα \"Εικονίδια\" στις \"Προτιμήσεις\".\n"
+
+msgid ""
+"\n"
+"Categories can be managed in the *Edit Categories* dialog (*Timeline* > "
+"*Edit Categories*). To edit an existing category, double click on it.\n"
+"\n"
+"The visibility of categories can also be edited in the sidebar (*View* > "
+"*Sidebar*).\n"
+msgstr ""
+"\n"
+"Μπορείτε να διαχειρισθείτε τις κατηγορίες από το μενού **Χρονογραμμή* > "
+"*Επεξεργασία κατηγοριών*. Για την επεξεργασία μιας υπάρχουσας κατηγορίας, "
+"κάντε διπλό κλικ  επάνω της.\n"
+"\n"
+"Μπορείτε, επίσης, να επεξεργασθείτε την ορατότητα των κατηγοριών μέσα από "
+"την πλευρική μπάρα (*Εμφάνιση* > *Πλευρική μπάρα*).\n"
+
+msgid "Contact"
+msgstr "Επαφή"
+
+msgid ""
+"\n"
+"If you have more questions about Timeline, or if you want to get in contact "
+"with users and developers of Timeline, send an email to the user mailing "
+"list: <thetimelineproj-user@lists.sourceforge.net>. (Please use English.)\n"
+msgstr ""
+"\n"
+"Αν έχετε περισσότερες απορίες για το Timeline, ή αν θέλετε να έρθετε σε "
+"επαφή με τους χρήστες και τους developers του Timeline, στείλτε ένα e-mail "
+"στη λίστα χρηστών: <thetimelineproj-user@lists.sourceforge.net>. (Παρακαλώ "
+"χρησιμοποιήστε αγγλικά)\n"
+
+msgid "Why is Timeline not available in my language?"
+msgstr "Γιατί το Timeline δεν είναι διαθέσιμο στη γλώσσα μου;"
+
+msgid ""
+"\n"
+"Timeline is developed and translated by volunteers. If you would like to "
+"contribute translations you are very much welcome to contact us.\n"
+msgstr ""
+"\n"
+"Το Timeline αναπτύσσεται και μεταφράζεται από εθελοντές. Αν θέλετε να "
+"συνεισφέρετε με τις μεταφράσεις σας, τότε επικοινωνήστε μαζί μας.\n"
+
+#, fuzzy, python-format
+msgid "Search results for '%s'"
+msgstr "Αποτελέσματα αναζήτησης για %s"
+
+#, fuzzy
+msgid "Related pages"
+msgstr "Τύπος προτύπου"
+
+msgid "Location"
+msgstr "Τοποθεσία"
+
+msgid "Unable to read calendar data."
+msgstr "Αδυναμία ανάγνωσης δεδομένων ημερολογίου."
 
 #, python-format
 msgid "Unable to read from file '%s'."
 msgstr "Αδυναμία ανάγνωσης από το αρχείο '%s'."
 
-msgid "Displayed period must be > 0."
-msgstr "Η εμφανιζόμενη χρονική περίοδος πρέπει να είναι > 0."
+#, python-format
+msgid "Unable to read timeline data from '%s'."
+msgstr "Αδυναμία ανάγνωσης  δεδομένων χρονοδιαγράμματος από το '%s'."
+
+msgid "Example era"
+msgstr "Παράδειγμα χρονικής περιόδου"
 
 #, fuzzy
 msgid "Welcome"
@@ -90,6 +2447,13 @@ msgstr "Μήνυμα υποδοχής"
 
 msgid "Intro"
 msgstr "Εισαγωγή"
+
+msgid "This event has hyperlinks"
+msgstr "Αυτό το γεγονός διαθέτει υπερσυνδέσμους"
+
+msgid "Right-click for context menu where the hyperlinks can be accessed."
+msgstr ""
+"Με δεξί κλικ ανοίγει μενού απ' όπου έχετε πρόσβαση στους υπερσυνδέσμους"
 
 msgid "Hover me!"
 msgstr "Αιωρήσου επάνω μου!"
@@ -154,6 +2518,24 @@ msgstr ""
 "Για να σύρετε ολόκληρη την ομαδοποίηση, ενώ κρατάτε πατημένο το πλήκτρο Alt "
 "κάντε κλικ στο σημείο συρσίματος στο κέντρο της ομαδοποίησης και σύρετέ την."
 
+msgid "View Container demo video"
+msgstr "Προβολή βίντεο επίδειξης της ομαδοποίησης"
+
+msgid ""
+"Container Subevent 3\n"
+"\n"
+"Select hyperlink to show demo video.\n"
+"\n"
+"Right-click in the event and select 'Goto URL' in the popup menu and select "
+"the first (and only) link"
+msgstr ""
+"Ομαδοποίηση υπογεγονότος 3\n"
+"\n"
+"Επιλέξτε τον υπερσύνδεσμο για να εμφανίσετε το βίντεο επίδειξης.\n"
+"\n"
+"Κάντε δεξί κλικ στο γεγονός, επιλέξτε 'Μετάβαση στο URL' από το αναδυόμενο "
+"μενού και μετά επιλέξτε τον πρώτο υπερσύνδεσμο (μόνο ανάγνωση)."
+
 msgid "Zoom"
 msgstr "Μεγέθυνση"
 
@@ -166,10 +2548,6 @@ msgstr ""
 "\n"
 "Κρατήστε πατημένο το Shift καθώς σύρετε με το ποντίκι."
 
-#, fuzzy
-msgid "Create event"
-msgstr "Δημιουργία νέου"
-
 msgid ""
 "Double click somewhere on the timeline.\n"
 "\n"
@@ -179,10 +2557,6 @@ msgstr ""
 "\n"
 "Κρατήστε πατημένο το Ctrl καθώς σύρετε το ποντίκι για να επιλέξετε μια "
 "χρονική περίοδο."
-
-#, fuzzy
-msgid "Edit event"
-msgstr "ανενεργό"
 
 msgid "Double click on an event."
 msgstr "Διπλό κλικ σε ένα γεγονός"
@@ -200,10 +2574,6 @@ msgstr ""
 "\n"
 "Κρατήστε πατημένο το Ctrl ενώ κάνετε κλικ σε γεγονότα, για να επιλέξετε "
 "πολλά από αυτά."
-
-#, fuzzy
-msgid "Delete event"
-msgstr " Διαγραφή "
 
 msgid "Select events to be deleted and press the Del key."
 msgstr "Επιλέξτε γεγονότα προς διαγραφή και πατήστε το πλήκτρο Del."
@@ -230,1345 +2600,42 @@ msgstr ""
 "Επιλέξτε Αρχείο/Νέα/Χρονογραμμή για δημιουργία χρονογραμμής που αποθηκεύεται "
 "στον σκληρό δίσκο."
 
-#, fuzzy
-msgid "Start time "
-msgstr "Άρχισε νέο"
-
-msgid "End time "
-msgstr "Χρόνος λήξης "
-
-msgid "Start time can't be after end time"
-msgstr "Ο χρόνος έναρξης δεν μπορεί να είναι μετά τον χρόνο λήξης"
-
-msgid "Duration"
-msgstr "Διάρκεια"
-
 #, python-format
-msgid "Unable to save timeline data to '%s'. File left unmodified."
-msgstr ""
-"Αδυναμία αποθήκευσης των δεδομένων της χρονογραμμής στο '%s'. Το αρχείο "
-"παρέμεινε ως είχε."
-
-msgid "Unable to write timeline data."
-msgstr "Αδυναμία εγγραφής δεδομένων χρονογραμμής."
-
-#, python-format
-msgid "Unable to write to temporary file '%s'."
-msgstr ""
-
-#, python-format
-msgid "Unable to take backup to '%s'."
-msgstr "Αδυναμία λήψης αντιγράφου ασφαλείας στο '%s'."
-
-#, python-format
-msgid "Unable to rename temporary file '%s' to original."
-msgstr ""
-
-#, python-format
-msgid "Unable to delete backup file '%s'."
-msgstr ""
-
-#, fuzzy
-msgid "Image files"
-msgstr "όλα τα αρχεία"
-
-#, fuzzy
-msgid "Export to Image"
-msgstr "Εξαγωγή σε &αρχείο"
-
-#, python-format
-msgid "File '%s' exists. Overwrite?"
-msgstr "Το αρχείο '%s' υπάρχει. Θέλετε να αντικατασταθεί;"
-
-msgid "Jan"
-msgstr "Ιαν"
-
-msgid "Feb"
-msgstr "Φεβ"
-
-#, fuzzy
-msgid "Mar"
-msgstr "Κύριος"
-
-msgid "Apr"
-msgstr "Απρ"
-
-#, fuzzy
-msgid "May"
-msgstr "ημέρα"
-
-#, fuzzy
-msgid "Jun"
-msgstr "Εκτέλεση"
-
-msgid "Jul"
-msgstr "Ιούλ"
-
-#, fuzzy
-msgid "Aug"
-msgstr "Ηλικία"
-
-#, fuzzy
-msgid "Sep"
-msgstr "Ρύθμιση"
-
-msgid "Oct"
-msgstr "Οκτ"
-
-#, fuzzy
-msgid "Nov"
-msgstr "Όχι"
-
-#, fuzzy
-msgid "Dec"
-msgstr "Συσκευή"
-
-msgid "Mon"
-msgstr "Δευ"
-
-msgid "Tue"
-msgstr "Τρί"
-
-msgid "Wed"
-msgstr "Τετ"
-
-msgid "Thu"
-msgstr "Πέμ"
-
-#, fuzzy
-msgid "Fri"
-msgstr "Για"
-
-#, fuzzy
-msgid "Sat"
-msgstr "Έναρξη"
-
-#, fuzzy
-msgid "Sun"
-msgstr "Εκτέλεση"
-
-#, fuzzy
-msgid "Edit..."
-msgstr "Επεξεργασία"
-
-msgid "Add..."
-msgstr "Προσθήκη..."
-
-msgid "Delete"
-msgstr "Διαγραφή"
-
-msgid "Check All"
-msgstr "Επιλογή όλων"
-
-msgid "Check children"
-msgstr "Επιλογή απόγονου"
-
-msgid "Check all children"
-msgstr "Επιλογή όλων των απόγονων"
-
-#, fuzzy
-msgid "Check all parents"
-msgstr "Έλεγχος ενημερώσεων"
-
-msgid "Check parents for checked children"
-msgstr "Επιλογή προγόνων για τους επιλεγμένους απόγονους"
-
-msgid "Uncheck All"
-msgstr "Αποεπιλογή όλων"
-
-msgid "Uncheck children"
-msgstr "Αποεπιλογή απογόνων"
-
-msgid "Uncheck all children"
-msgstr "Αποεπιλογή όλων των απογόνων"
-
-msgid "Uncheck all parents"
-msgstr "Αποεπιλογή όλων των προγόνων"
-
-msgid "Check all parents of all childs"
-msgstr ""
-
-msgid "Checking not allowed when there is no timeline view."
-msgstr ""
-
-#, fuzzy
-msgid "Edit Category"
-msgstr "Κατηγορία"
-
-#, fuzzy
-msgid "Add Category"
-msgstr "Κατηγορία"
-
-#, python-format
-msgid "Are you sure you want to delete category '%s'?"
-msgstr "Είστε βέβαιος ότι θέλετε να διαγράψετε την κατηγορία '%s';"
-
-#, python-format
-msgid "Events belonging to '%s' will no longer belong to a category."
-msgstr ""
-"Τα γεγονότα που ανήκουν στην κατηγορία '%s' δεν θα ανήκουν πλέον σε μια "
-"κατηγορία."
-
-#, python-format
-msgid "Events belonging to '%s' will now belong to '%s'."
-msgstr ""
-"Τα γεγονότα που ανήκουν στην κατηγορία '%s' τώρα θα ανήκουν πλέον στην "
-"κατηγορία '%s'."
-
-#, fuzzy
-msgid "No match"
-msgstr "Ταίριασμα"
-
-msgid "Only one match"
-msgstr "Μόνο μία αντιστοίχιση"
-
-#, fuzzy
-msgid "Invalid date"
-msgstr "όνομα, ημερομηνία γέννησης"
-
-#, fuzzy
-msgid "Give feedback"
-msgstr "Μετάβαση πίσω"
-
-#, fuzzy
-msgid "Add new"
-msgstr "Προσθήκη νέου ονόματος"
-
-#, fuzzy
-msgid "Edit categories"
-msgstr "ανενεργό"
-
-#, fuzzy
-msgid "Select a Category:"
-msgstr "Κατηγορία"
-
-msgid "Set Category on events without category"
-msgstr "Καθορισμός κατηγορίας για γεγονότα χωρίς κατηγορία"
-
-#, fuzzy
-msgid "Set Category on selected events"
-msgstr "διορθωμένο αποτέλεσμα"
-
-#, fuzzy
-msgid "Show time"
-msgstr "Εμφάνιση μηνυμάτων:"
-
-#, fuzzy
-msgid "Found Events"
-msgstr "Συμβάν"
-
-msgid "&Enlarge"
-msgstr "&Μεγέθυνση"
-
-msgid "&Reduce"
-msgstr "&Σμίκρυνση"
-
-#, fuzzy
-msgid "Event Properties"
-msgstr "Διαγραφή περιγραφής αρχείου"
-
-#, fuzzy
-msgid "When:"
-msgstr "Πότε"
-
-msgid "to"
-msgstr "μέχρι"
-
-#, fuzzy
-msgid "Container:"
-msgstr "Συνέχεια"
-
-#, fuzzy
-msgid "Add Container"
-msgstr "Συνέχεια"
-
-msgid "Period"
-msgstr "Χρονικό διάστημα"
-
-msgid "Fuzzy"
-msgstr "Ασαφές"
-
-msgid "Locked"
-msgstr "Κλειδωμένο"
-
-#, fuzzy
-msgid "Ends today"
-msgstr "σήμερα(%s)"
-
-#, fuzzy
-msgid "Text:"
-msgstr "Κείμενο"
-
-#, fuzzy
-msgid "Category:"
-msgstr "Κατηγορία"
-
-msgid "Description"
-msgstr "Περιγραφή"
-
-msgid "Alert"
-msgstr "Ειδοποίηση"
-
-msgid "Icon"
-msgstr "Εικόνα"
-
-msgid "Hyperlink"
-msgstr "Σύνδεσμος"
-
-#, fuzzy
-msgid "Progress"
-msgstr "Σημειώσεις προόδου"
-
-msgid "Add more events after this one"
-msgstr "Συνέχιση προσθήκης γεγονότων"
-
-#, fuzzy
-msgid "Edit Container"
-msgstr "ανενεργό"
-
-#, fuzzy
-msgid "Edit Event"
-msgstr "ανενεργό"
-
-#, fuzzy
-msgid "Create Event"
-msgstr "Δημιουργία νέου"
-
-msgid "Email Feedback"
-msgstr "Αποστολή ανατροφοδότησης με email"
-
-#, fuzzy
-msgid "Default client"
-msgstr "Προεπιλεγμένη χώρα"
-
-#, fuzzy
-msgid "Gmail"
-msgstr "αλληλογραφία"
-
-msgid "Other email client"
-msgstr "Άλλος email client"
+msgid "Unable to read from filename '%s'."
+msgstr "Αδυναμία ανάγνωσης από το αρχείο '%s'."
 
 msgid ""
-"Copy and paste this email into your favorite email client and send it from "
-"there."
+"Invalid Date Format:\n"
+"\n"
+"The format should contain\n"
+"    one year placeholder  = yyyy\n"
+"    one month placeholder = mmm or mm\n"
+"    one day placeholder   = dd\n"
+"    two placeholders for separators between year, month and day\n"
+"\n"
+"Separators can't contain the letters y, m or d\n"
+"\n"
+"Example of valid formats:\n"
+"    yyyy-mm-dd\n"
+"    dd/mm/yyyy\n"
+"    mmm/dd-yyyy\n"
+"        "
 msgstr ""
-"Αντιγράψτε και επικολήστε αυτό το email στον email client που χρησιμοποιείτε "
-"και στείλτε το από εκεί."
-
-msgid "Other"
-msgstr "Άλλα"
-
-#, fuzzy
-msgid "To:"
-msgstr "Προς"
-
-#, fuzzy
-msgid "Subject:"
-msgstr "Θέμα"
-
-msgid "Body:"
-msgstr "Κείμενο:"
-
-#, fuzzy
-msgid "Send With:"
-msgstr "Αποστολή Email"
-
-#, fuzzy
-msgid "&File"
-msgstr "Αρχείο"
-
-msgid "New"
-msgstr "Νέο"
-
-#, fuzzy
-msgid "Create a new timeline"
-msgstr "Δημιουργία νέου"
-
-msgid "File Timeline..."
-msgstr ""
-
-#, fuzzy
-msgid "Numeric Timeline..."
-msgstr "Δημιουργία νέου"
-
-msgid "Directory Timeline..."
-msgstr ""
-
-msgid "Open an existing timeline"
-msgstr "Άνοιγμα υπάρχουσας χρονογραμμής"
-
-msgid "Open &Recent"
-msgstr "Άνοιγμα &πρόσφατου αρχείου"
-
-#, fuzzy
-msgid "Save As..."
-msgstr " Αποθήκευση "
-
-#, fuzzy
-msgid "Import timeline..."
-msgstr "Δημιουργία νέου"
-
-#, fuzzy
-msgid "&Export Current view to Image..."
-msgstr "Εξαγωγή ως ..."
-
-msgid "Export the current view to a PNG image"
-msgstr ""
-
-#, fuzzy
-msgid "&Export Whole Timeline to Images..."
-msgstr "Εξαγωγή ως ..."
-
-msgid "Export whole Timeline to PNG images"
-msgstr ""
-
-#, fuzzy
-msgid "&Export to SVG..."
-msgstr "Εξαγωγή ως ..."
-
-msgid "Export the current view to a SVG image"
-msgstr ""
-
-msgid "Exit the program"
-msgstr "Τερματισμός του προγράμματος"
-
-#, fuzzy
-msgid "Find Categories..."
-msgstr "Κατηγορία"
-
-msgid "Shortcuts..."
-msgstr "Συντομεύσεις..."
-
-msgid "&Edit"
-msgstr "&Επεξεργασία"
-
-msgid "&Sidebar\tCtrl+I"
-msgstr "&Πλευρική μπάρα\tCtrl+I"
-
-msgid "&Legend"
-msgstr "&Υπόμνημα"
-
-msgid "&Balloons on hover"
-msgstr "&Μπαλόνια κατά την αιώρηση"
-
-msgid "Zoom &In\tCtrl++"
-msgstr "Μεγέθυνση \tCtrl++"
-
-msgid "Zoom &Out\tCtrl+-"
-msgstr "Σμίκρυνση \tCtrl+-"
-
-msgid "Vertical Zoom &In\tAlt++"
-msgstr "Κάθετη μεγέθυνση\tAlt++"
-
-msgid "Vertical Zoom &Out\tAlt+-"
-msgstr "Κάθετη σμίκρυνση\tAlt+-"
-
-#, fuzzy
-msgid "&View"
-msgstr "Προβολή  καταγραφής"
-
-#, fuzzy
-msgid "Create &Event..."
-msgstr "Δημιουργία νέου"
-
-#, fuzzy
-msgid "&Edit Selected Event..."
-msgstr "Επεξεργασία του επιλεγμένου αντικειμένου."
-
-msgid "&Duplicate Selected Event..."
-msgstr "&Δημιουργία αντιγράφου επιλεγμένου γεγονότος..."
-
-#, fuzzy
-msgid "Set Category on Selected Events..."
-msgstr "Επεξεργασία του επιλεγμένου αντικειμένου."
-
-msgid "&Measure Distance between two Events..."
-msgstr "&Μέτρηση απόστασης μεταξύ δύο γεγονότων..."
-
-#, fuzzy
-msgid "Set Category on events &without category..."
-msgstr "Επεξεργασία του επιλεγμένου αντικειμένου."
-
-#, fuzzy
-msgid "Edit &Categories"
-msgstr "Κατηγορία"
-
-msgid "&Read Only"
-msgstr "Μόνο για &ανάγνωση"
-
-msgid "&Timeline"
-msgstr "&Χρονογραμμή"
-
-#, fuzzy
-msgid "Find &First Event"
-msgstr "Τελευταίο έχει δοθεί"
-
-#, fuzzy
-msgid "Find &Last Event"
-msgstr "Τελευταίο έχει δοθεί"
-
-#, fuzzy
-msgid "Fit &All Events"
-msgstr "ανενεργό"
-
-msgid "&Navigate"
-msgstr "&Περιήγηση"
-
-msgid "Feedback"
-msgstr "Ανατροφοδότηση"
-
-#, fuzzy
-msgid "&Contents\tF1"
-msgstr "&Επαφές"
-
-msgid "Getting started &tutorial"
-msgstr "&Βοήθημα για να ξεκινήσετε"
-
-#, fuzzy
-msgid "Give &Feedback..."
-msgstr "Μετάβαση πίσω"
-
-#, fuzzy
-msgid "Co&ntact"
-msgstr "Επαφή"
-
-msgid "&Help"
-msgstr "&Βοήθεια"
-
-msgid "read-only"
-msgstr "μόνο για ανάγνωση"
-
-#, fuzzy
-msgid "Timeline files"
-msgstr "όλα τα αρχεία"
-
-#, fuzzy
-msgid "SVG files"
-msgstr "όλα τα αρχεία"
-
-#, fuzzy
-msgid "Create Timeline"
-msgstr "Δημιουργία νέου"
-
-msgid "The specified timeline already exists."
-msgstr "Η συγκεκριμένη χρονογραμμή υπάρχει ήδη."
-
-msgid "Opening timeline instead of creating new."
-msgstr "Άνοιγμα χρονογραμμής αντί για δημιουργία νέας."
-
-#, fuzzy
-msgid "Information"
-msgstr "Αλληλεπιδράσεις"
-
-#, fuzzy
-msgid "Open Timeline"
-msgstr "OpenOffice"
-
-#, fuzzy
-msgid "Save Timeline As"
-msgstr "Δημιουργία νέου"
-
-msgid ""
-"Could not find pysvg Python package. It is needed to export to SVG. See the "
-"Timeline website or the doc/installing.rst file for instructions how to "
-"install it."
-msgstr ""
-
-#, fuzzy
-msgid "Export to SVG"
-msgstr "Εξαγωγή σε &αρχείο"
-
-msgid "Unable to write configuration file."
-msgstr "Αδυναμία εγγραφής στο αρχείο ρυθμίσεων."
-
-msgid "Distance between selected events"
-msgstr "Απόσταση μεταξύ επιλεγμένων γεγονότων."
-
-msgid "Events are overlapping or distance is 0"
-msgstr "Τα γεγονότα επικαλύπτονται ή η απόσταση είναι 0"
-
-msgid "No timeline opened."
-msgstr "Δεν άνοιξε καμιά χρονογραμμή"
-
-msgid "First time using Timeline?"
-msgstr "Είναι η πρώτη σας φορά στο Timeline;"
-
-msgid "Getting started tutorial"
-msgstr "Βοήθημα για να ξεκινήσετε"
-
-msgid "Relevant help topics:"
-msgstr ""
-
-msgid "Contact"
-msgstr "Επαφή"
-
-msgid "View Categories Individually"
-msgstr "Ξεχωριστή προβολή κατηγοριών"
-
-#, python-format
-msgid "Category name '%s' not valid. Must be non-empty."
-msgstr ""
-"Το όνομα της κατηγορίας '%s' δεν είναι έγκυρο. Πρέπει να μην είναι κενό."
-
-#, python-format
-msgid "Category name '%s' already in use."
-msgstr "Το όνομα της κατηγορίας '%s' χρησιμοποιείται ήδη."
-
-#, fuzzy
-msgid "Name:"
-msgstr "Όνομα"
-
-msgid "Color:"
-msgstr "Χρώμα:"
-
-msgid "Font Color:"
-msgstr "Χρώμα γραμματοσειράς:"
-
-#, fuzzy
-msgid "Parent:"
-msgstr "Ασθενής:"
-
-#, fuzzy
-msgid "Preferences"
-msgstr "Παραπομπές ..."
-
-#, fuzzy
-msgid "General"
-msgstr "Γενικευμένο"
-
-#, fuzzy
-msgid "Date && Time"
-msgstr "Ημερομηνία / Ώρα"
-
-msgid "Week start on:"
-msgstr "Η εβδομάδα αρχίζει από:"
-
-msgid "Open most recent timeline on startup"
-msgstr "Άνοιγμα της πιο πρόσφατης χρονογραμμής στο ξεκίνημα"
-
-msgid "Use inertial scrolling"
-msgstr "Χρήση αδρανούς κύλισης"
-
-msgid "Monday"
-msgstr "Δευτέρα"
-
-msgid "Sunday"
-msgstr "Κυριακή"
-
-#, fuzzy
-msgid "Category Finder"
-msgstr "Κατηγορία"
-
-msgid "Check"
-msgstr "Επιλογή"
-
-msgid "Uncheck"
-msgstr "Αποεπιλογή"
-
-msgid "Feedback On Feature"
-msgstr "Ανατροφοδότηση για τη λειτουργία"
-
-#, fuzzy
-msgid "Give Feedback"
-msgstr "Μετάβαση πίσω"
-
-msgid "Help"
-msgstr "Βοήθεια"
-
-msgid ""
-"Could not find markdown Python package.  It is needed by the help system. "
-"See the Timeline website or the doc/installing.rst file for instructions how "
-"to install it."
-msgstr ""
-
-msgid "Go to home page"
-msgstr "Μετάβαση στην αρχική σελίδα"
-
-#, fuzzy
-msgid "Go back one page"
-msgstr "Μετάβαση πίσω"
-
-msgid "Go forward one page"
-msgstr "Μπροστά μια σελίδα"
-
-msgid "Page not found"
-msgstr "Η σελίδα δεν βρέθηκε"
-
-#, python-format
-msgid "Could not find page '%s'."
-msgstr "Αδυναμία εύρεσης της σελίδας '%s'."
-
-msgid "Container Properties"
-msgstr ""
-
-msgid "Edit Shortcuts"
-msgstr "Επεξεργασία συντομεύσεων"
-
-#, fuzzy
-msgid "Functions:"
-msgstr "Αρχεία:"
-
-#, fuzzy
-msgid "Modifier:"
-msgstr "τροποποιημένη καταχώρηση"
-
-msgid "Shortcut Key:"
-msgstr "Πλήκτρο συντόμευσης:"
-
-msgid "Unable to copy to clipboard."
-msgstr "Αδυναμία αντιγραφής στο πρόχειρο"
-
-#, fuzzy
-msgid "Duplicate Event"
-msgstr "Ημέρα χορήγησης"
-
-#, python-format
-msgid "%d Events not duplicated due to missing dates."
-msgstr "%d γεγονότα δεν αντιγράφηκαν επειδή έλειπαν ημερομηνίες."
-
-msgid "Number of duplicates:"
-msgstr "Αριθμός αντιγράφων:"
-
-#, fuzzy
-msgid "Frequency:"
-msgstr "Ακολουθία"
-
-msgid "Forward"
-msgstr "Εμπρός"
-
-msgid "Backward"
-msgstr "Πίσω"
-
-msgid "Both"
-msgstr "Εμπρός και Πίσω"
-
-#, fuzzy
-msgid "Direction"
-msgstr "Κατευθύνσεις"
-
-#, fuzzy
-msgid "Edit Categories"
-msgstr "Κατηγορία"
-
-msgid "Error"
-msgstr "Σφάλμα"
-
-msgid "Warning"
-msgstr "Προειδοποίηση"
-
-#, fuzzy
-msgid "Question"
-msgstr "Περιγραφή"
-
-msgid "Both Modifier and Shortcut key must be given!"
-msgstr "Και ο μετατροπέας και το πλήκτρο συντόμευσης πρέπει να δίνονται."
-
-#, python-format
-msgid "The shortcut %s is already bound to function '%s'!"
-msgstr "Η συντόμευση %s είναι ήδη προορισμένη για τη λειτουργία '%s'."
-
-#, fuzzy
-msgid "You must select a category!"
-msgstr "Πρέπει να επιλέξετε μορφή και τύπο"
-
-#, fuzzy
-msgid "Progress %:"
-msgstr "Σημειώσεις προόδου"
-
-msgid "Test"
-msgstr "Δοκιμή"
-
-msgid "URL:"
-msgstr "Διεύθυνση URL:"
-
-#, python-format
-msgid "Images will be scaled to fit inside a %ix%i box."
-msgstr ""
-"Το μέγεθος των εικόνων θα αλλάξει ώστε να ταιριάζουν μέσα σε ένα %ix%i "
-"πλαίσιο."
-
-#, fuzzy
-msgid "Select Icon"
-msgstr "Επιλογή"
-
-msgid "You can't change time when the Event is locked"
-msgstr "Δεν μπορείτε να αλλάξετε τον χρόνο όταν το γεγονός είναι κλειδωμένο"
-
-msgid "End must be > Start"
-msgstr "Το Τέλος πρέπει να είναι > Αρχή"
-
-msgid "Entered period is too long."
-msgstr ""
-
-#, fuzzy
-msgid "Start time > Now."
-msgstr "Άρχισε νέο"
-
-#, fuzzy, python-format
-msgid "Field '%s' can't be empty."
-msgstr "<εκδότης> δεν μπορεί να είναι κενό"
-
-msgid "Text"
-msgstr "Κείμενο"
-
-msgid "Name"
-msgstr "Όνομα"
-
-#, fuzzy, python-format
-msgid "Search results for '%s'"
-msgstr "Αποτελέσματα αναζήτησης για %s"
-
-#, fuzzy
-msgid "Related pages"
-msgstr "Τύπος προτύπου"
-
-#, fuzzy
-msgid "Help contents"
-msgstr "Ραντεβού"
-
-msgid "Questions and answers"
-msgstr "Ερωτήσεις και απαντήσεις"
-
-msgid "Concepts"
-msgstr "Έννοιες"
-
-msgid "Tasks"
-msgstr "Εργασίες"
-
-msgid "Where is the save button?"
-msgstr "Πού είναι το κουμπί για την αποθήκευση;"
-
-msgid ""
+"Μη έγκυρη μορφή ημερομηνίας:\n"
 "\n"
-"There is no save button. Timeline will automatically save your data whenever "
-"needed.\n"
-msgstr ""
+"Η μορφή πρέπει να περιέχει\n"
+"    αντικαταστάστη έτους = yyyy\n"
+"    αντικαταστάτη μηνός = mmm ή mm\n"
+"    αντικαταστάτη ημέρας = dd\n"
+"    δύο αντικαταστάτες για τις πλαγιοκάθετους μεταξύ έτους, μήνα και ημέρας\n"
 "\n"
-"Δεν υπάρχει κουμπί για την αποθήκευση. Η χρονογραμμή θα αποθηκεύει αυτόματα "
-"τα δεδομένα σας όποτε χρειάζεται.\n"
-
-msgid "Where do the week numbers go if I start my weeks on Sunday?"
-msgstr "Τι γίνεται με τους αριθμούς των εβδομάδων εάν αυτές ξεκινούν Κυριακή;"
-
-msgid ""
+"Οι διαχωριστές δεν είναι δυνατό να περιέχουν τα γράμματα y, m ή d\n"
 "\n"
-"The date data object used does not support week numbers for weeks that start "
-"on Sunday at present.  We plan on using a different date object that will "
-"support this in future versions.\n"
-msgstr ""
-"\n"
-"Μέχρι στιγμής δεν υποστηρίζεται η δυνατότητα εμφάνισης αριθμού εβδομάδων που "
-"αρχίζουν Κυριακή. Σχεδιάζουμε να χρησιμοποιήσουμε ένα διαφορετικό τρόπο για "
-"την εμφάνισή τους σε επόμενες εκδόσεις.\n"
-
-msgid "Can multiple users work with the same timeline?"
-msgstr "Είναι εφικτή η εργασία πολλών χρηστών στην ίδια χρονογραμμή;"
-
-msgid ""
-"\n"
-"There are some support for multiple users to work on the same timeline "
-"file.\n"
-"\n"
-"When you try to make a change and someone else has made a change you will be "
-"asked to make one of two choices:\n"
-"\n"
-"- Set timeline in read-only mode.\n"
-"- Synchronize the timeline.\n"
-" \n"
-"During the your edit action the timeline is locked for changes by others. If "
-"you try to edit a timeline when it is locked by someone else you will be "
-"notified about this situation.\n"
-msgstr ""
-
-#, fuzzy
-msgid "Timeline"
-msgstr "Ώρα:"
-
-msgid ""
-"\n"
-"The timeline shows dates according to the Gregorian calendar on the x-axis. "
-"Currently the earliest date is limited to Julian day 0 (November 24, 4714 "
-"BC).\n"
-"\n"
-"Future versions might support various kinds of timelines so that you for "
-"example can specify a time in terms of number of minutes since a start time. "
-"If you are interested in such a feature, please get in touch.\n"
-"\n"
-"The timeline is divided in two areas with a horizontal adjustable divider "
-"line. Period events are displayed below the line and point events are "
-"displayed above the line.\n"
-msgstr ""
-
-#, fuzzy
-msgid "Scrolling Timeline"
-msgstr "Δείξε &ΠαράδειγμαΠρόσθετου"
-
-msgid ""
-"\n"
-"A Timeline can be scrolled both horizontal (along time axis) and vertically "
-"(along event axis)\n"
-"\n"
-"There are two ways to scroll horizontal. You can either use the different "
-"options in the Navigation menu or you can use the mouse. To use the mouse, "
-"hold down the left mouse button and drag the mouse horizontally.\n"
-"\n"
-"To scroll vertically, hold down the Shift- and Ctrl-keys and scroll the "
-"mouse wheel.\n"
-"Events are scrolled towards or away from the divider line separating point- "
-"and period-events.\n"
-"\n"
-msgstr ""
-"\n"
-"Σε μια χρονογραμμή μπορεί να γίνει οριζόντια (κατά μήκος του χρονικού άξονα) "
-"και κάθετη (κατά μήκος του άξονα του γεγονότος) κύλιση .\n"
-"\n"
-"Υπάρχουν δύο τρόποι οριζόντιας κύλισης. Μπορείτε είτε να χρησιμοποιήσετε τις "
-"διαφορετικές επιλογές από το μενού Περιήγηση είτε το ποντίκι σας. Στη "
-"δεύτερη περίπτωση, κρατήστε πατημένο το αριστερό πλήκτρο του ποντικιού και "
-"σύρετέ το οριζόντια.\n"
-"\n"
-"Για κάθετη κύλιση, κρατήστε πατημένο το πλήκτρο Shift ή το Ctrl και κυλίστε "
-"το ροδάκι του ποντικιού.\n"
-"Τα γεγονότα μετακινούνται είτε προς  είτε απομακρύνονται από τη διαχωριστική "
-"γραμμή, που ξεχωρίζει τα γεγονότα συγκεκριμένων ημερομηνιών και γεγονότων με "
-"χρονική διάρκεια.\n"
-"\n"
-
-#, fuzzy
-msgid "Zooming Timeline"
-msgstr "OpenOffice"
-
-msgid ""
-"\n"
-"A Timeline can be Zoomed both horizontal (along time axis) and vertically "
-"(along event axis)\n"
-"\n"
-"To zoom horizontal, hold down the Ctrl-key and scroll the mouse wheel.\n"
-"\n"
-"To zoom vertically, hold down the Alt-key and scroll the mouse wheel.\n"
-msgstr ""
-"\n"
-"Εστίαση μπορεί να γίνει σε μια χρονογραμμή είτε οριζόντια (κατά μήκος του "
-"χρονικού άξονα) είτε κάθετα (κατά μήκος του άξονα του γεγονότος).\n"
-"\n"
-"Για την οριζόντια κύλιση, κρατήστε πατημένο το πλήκτρο Ctrl και κυλίστε το "
-"ροδάκι του ποντικιού.\n"
-"\n"
-"Για την κάθετη κύλιση, κρατήστε πατημένο το πλήκτρο Alt και κυλίστε το "
-"ροδάκι του ποντικιού.\n"
-
-#, fuzzy
-msgid "Events"
-msgstr "Συμβάν"
-
-msgid ""
-"\n"
-"An event is the basic data type for representing information on the "
-"timeline.  It must specify where on the timeline it should be placed (when "
-"that event happened). This can be either a specific point in time or a "
-"period.\n"
-msgstr ""
-"\n"
-"Το γεγονός είναι ο βασικός τύπος αναπαράστασης πληροφοριών σε μια "
-"χρονογραμμή. Θα πρέπει να καθορίζεται πάντα σε ποιο σημείο της χρονογραμμής "
-"θα πρέπει να τοποθετηθεί, ανάλογα με το πότε συνέβη. Αυτό μπορεί να είναι "
-"ένα συγκεκριμενο σημείο στη χρονογραμμή, ακριβής χρονολογία, ή μια χρονική "
-"περίοδος.\n"
-
-msgid ""
-"\n"
-"For an event the following properties can be defined.\n"
-"\n"
-" - Start Date and Time.\n"
-" - End Date and Time (if period event).\n"
-" - Text - The label displayed for an event.\n"
-" - Category - A way to group events together.\n"
-" - Container - Another way to group events together.\n"
-" - Fuzzy - Draw start and end of event fuzzy, to indicate that exact times "
-"are unknown.\n"
-" - Locked - Start- and End-points can't be changed.\n"
-" - Ends Today - The End-point is always set to current date.\n"
-" - Description - Event description that is shown i the balloon.\n"
-" - Icon - Image icon shown in balloon.\n"
-" - Alert - An alert dialog is opened at the specified alert time.\n"
-" - Hyperlink - A hyperlink that can be reached in the event context menu.\n"
-msgstr ""
-"\n"
-"Για κάθε γεγονός υπάρχουν οι παρακάτω επιλογές:\n"
-"\n"
-" - Ημερομηνία και ώρα έναρξης.\n"
-" - Ημερομηνία και ώρα λήξης (για χρονικές περιόδους).\n"
-" - Τίτλος: το κείμενο που αποτελεί τον τίτλο κάθε γεγονότος.\n"
-" - Κατηγορία: τρόπος ομαδοποίησης γεγονότων.\n"
-" - Ομαδοποίηση: ένας διαφορετικός τρόπος ομαδοποίησης γεγονότων.\n"
-" - Ασαφές: δείχνει ότι δεν είναι γνωστοί οι ακριβείς χρόνοι.\n"
-" - Κλειδωμένο: οι χρόνοι έναρξης και λήξης δεν μπορούν να αλλάξουν.\n"
-" - Λήγει σήμερα: ο χρόνος λήξης του γεγονότος είναι η τρέχουσα ημέρα.\n"
-" - Περιγραφή: λεπτομέρειες που εμφανίζονται σε αναδυόμενο μπαλόνι.\n"
-" - Εικόνα: εισαγωγή εικόνας και εμφάνισή της σε μπαλόνι.\n"
-" - Ειδοποίηση: εμφανίζει ένα πλαίσιο διαλόγου σε μια συγκεκριμένη χρονική "
-"στιγμή.\n"
-" - Σύνδεσμος: εισαγωγή συνδέσμου και πρόσβαση σε αυτόν με δεξί κλικ.\n"
-
-#, fuzzy
-msgid "Categories"
-msgstr "Κατηγορία"
-
-msgid ""
-"\n"
-"Categories are used to group events. An event can only belong to one "
-"category. All events that belong to the same category are displayed with the "
-"same background color.\n"
-msgstr ""
-"\n"
-"Με τις κατηγορίες ομαδοποιούνται τα γεγονότα. Ένα γεγονός μπορεί να ανήκει "
-"μόνο σε μία κατηγορία. Όλα τα γεγονότας της ίδιας κατηγορίας, εμφανίζονται "
-"με το ίδιο χρώμα παρασκηνίου.\n"
-
-msgid ""
-"\n"
-"The *Create Event* dialog can be opened in the following ways:\n"
-"\n"
-"- Select *Timeline* - *Create Event* from the menu.\n"
-"- Double click with the *left* mouse button on the timeline.\n"
-"- Press the *Ctrl* key, thereafter hold *left* mouse button down on the "
-"timeline, drag the mouse and release it.\n"
-msgstr ""
-"\n"
-"Η *Δημιουργία Γεγονότος* μπορεί να ανοίξει με τους εξής τρόπους:\n"
-"\n"
-"- Επιλέξτε από το μενού  *Χρονογραμμή* - *Δημιουργία Γεγονότος*.\n"
-"- Κάντε διπλό κλικ με το *αριστερό* πλήκτρο του ποντικιού, πάνω στη "
-"χρονογραμμή.\n"
-"- Πατήστε ταυτόχρονα το *Ctrl* και το *αριστερό* κουμπί του ποντικιού πάνω "
-"στη χρονογραμμή, σύρτε το ποντίκι και αφήστε το για δημιουργία χρονικής "
-"περιόδου.\n"
-
-msgid ""
-"\n"
-"The *Edit Event* dialog can be opened by double clicking on an event or by "
-"selecting one event and select the 'Timeline -> Edit Selected Event...' "
-"menu.\n"
-msgstr ""
-"\n"
-"Η *Επεξεργασία γεγονότος* με διπλό κλικ σε ένα γεγονός ή με επιλογή ενός "
-"γεγονότος και επιλογή 'Χρονογραμμή -> Επεξεργασία επιλεγμένου γεγονότος...'\n"
-
-msgid "Move event vertically"
-msgstr "Κάθετη μετακίνηση γεγονότος"
-
-msgid ""
-"\n"
-"An event can be moved vertically. This is done by first selecting the event "
-"and therefter using the Alt+Up or Alt+Down keys.\n"
-msgstr ""
-
-#, fuzzy
-msgid "Duplicate event"
-msgstr "Ημέρα χορήγησης"
-
-msgid ""
-"\n"
-"An event can be duplicated. Select the event you want to duplicate and "
-"select the 'Timeline -> Duplicate Selected Event...' menu.\n"
-"Now a dialog appears in which you can define\n"
-"\n"
-" - How many duplications to do\n"
-" - The time period used\n"
-" - The frequency of time periods\n"
-" - The direction\n"
-" \n"
-" If number of duplications = 3, time span = day and frequency = 2, you will "
-"get 3 new copies of the event spread out with the time span of 2 days "
-"between them.\n"
-" \n"
-" You can also get to the duplication dialog from the event context menu, "
-"wich appears if you right-click an event with the mouse.\n"
-msgstr ""
-
-#, fuzzy
-msgid "Selecting events"
-msgstr "Διαγραφή ονόματος"
-
-msgid ""
-"\n"
-"To select an event, click on it. To select multiple events, hold down the "
-"*Ctrl* key while clicking events.\n"
-msgstr ""
-"\n"
-"Για να επιλέξετε ένα γεγονός, κάντε κλικ επάνω του. Για να επιλέξετε πολλά "
-"γεγονότα μαζί, πατήστε το πλήκτρο *Ctrl* και κάνετε κλικ στα γεγονότα.\n"
-
-#, fuzzy
-msgid "Import timeline"
-msgstr "Δημιουργία νέου"
-
-msgid ""
-"\n"
-"This feature can be used to merge two timelines into one.\n"
-"\n"
-"First open a timeline and then select menu 'File -> Import timeline...' and "
-"select the timeline to be imported.\n"
-msgstr ""
-"\n"
-"Αυτή η λειτουργία χρησιμοποιείται για τη συνένωση δύο χρονογραμμών σε μια.\n"
-"\n"
-"Ανοίξτε μια χρονογραμμή και μετά επιλέξτε από το μενού 'Αρχείο -> Εισαγωγή "
-"χρονογραμμής...' και επιλέξτε τη χρονογραμμή που θέλετε να εισάγετε.\n"
-
-#, fuzzy
-msgid "Event Containers"
-msgstr "ανενεργό"
-
-msgid ""
-"\n"
-"Containers are a way to group events together.\n"
-"In a container events can not overlap, so if you add a new event to a "
-"container\n"
-"all other events are moved to give room for the new event. The same thing "
-"happens\n"
-"if you resize an event within the container.\n"
-"             \n"
-"Have a look at this video for a demo. \n"
-"    <http://www.youtube.com/watch?v=dBwEQ3vqB_I>\n"
-msgstr ""
-
-msgid ""
-"\n"
-"To delete an event, select it and press the *Del* key. Multiple events can "
-"be deleted at the same time.\n"
-msgstr ""
-"\n"
-"Για να διαγράψετε ένα γεγονός επιλέξτε το και πατήστε το πλήκτρο *Del*. "
-"Μπορείτε να διαγράψετε πολλά γεγονότα ταυτόχρονα με τον ίδιο τρόπο.\n"
-
-msgid "Will associated events be deleted when I delete a category?"
-msgstr ""
-"Αν διαγράψω μια κατηγορία, θα διαγραφούν και τα σχετιζόμενα με αυτή γεγονότα;"
-
-msgid ""
-"\n"
-"No. The events will still be there but they will not belong to a category.\n"
-msgstr ""
-"\n"
-"Όχι. Τα γεγονότα θα είναι ακόμη εκεί, αλλά δεν θα ανήκουν πλέον σε κάποια "
-"κατηγορία.\n"
-
-msgid ""
-"\n"
-"Categories can be managed in the *Edit Categories* dialog (*Timeline* > "
-"*Edit Categories*). To edit an existing category, double click on it.\n"
-"\n"
-"The visibility of categories can also be edited in the sidebar (*View* > "
-"*Sidebar*).\n"
-msgstr ""
-"\n"
-"Μπορείτε να διαχειρισθείτε τις κατηγορίες από το μενού **Χρονογραμμή* > "
-"*Επεξεργασία κατηγοριών*. Για την επεξεργασία μιας υπάρχουσας κατηγορίας, "
-"κάντε διπλό κλικ  επάνω της.\n"
-"\n"
-"Μπορείτε, επίσης, να επεξεργασθείτε την ορατότητα των κατηγοριών μέσα από "
-"την πλευρική μπάρα (*Εμφάνιση* > *Πλευρική μπάρα*).\n"
-
-msgid ""
-"\n"
-"If you have more questions about Timeline, or if you want to get in contact "
-"with users and developers of Timeline, send an email to the user mailing "
-"list: <thetimelineproj-user@lists.sourceforge.net>. (Please use English.)\n"
-msgstr ""
-"\n"
-"Αν έχετε περισσότερες απορίες για το Timeline, ή αν θέλετε να έρθετε σε "
-"επαφή με τους χρήστες και τους developers του Timeline, στείλτε ένα e-mail "
-"στη λίστα χρηστών: <thetimelineproj-user@lists.sourceforge.net>. (Παρακαλώ "
-"χρησιμοποιήστε αγγλικά)\n"
-
-msgid "Why is Timeline not available in my language?"
-msgstr "Γιατί το Timeline δεν είναι διαθέσιμο στη γλώσσα μου;"
-
-msgid ""
-"\n"
-"Timeline is developed and translated by volunteers. If you would like to "
-"contribute translations you are very much welcome to contact us.\n"
-msgstr ""
-"\n"
-"Το Timeline αναπτύσσεται και μεταφράζεται από εθελοντές. Αν θέλετε να "
-"συνεισφέρετε με τις μεταφράσεις σας, τότε επικοινωνήστε μαζί μας.\n"
-
-msgid "No timeline set"
-msgstr "Δεν έχει ορισθεί χρονογραμμή"
-
-msgid "Can't scroll more to the left"
-msgstr "Αδύνατη η κύλιση προς τα αριστερά"
-
-msgid "Can't scroll more to the right"
-msgstr "Αδύνατη η κύλιση προς τα δεξιά"
-
-msgid "Edit"
-msgstr "Επεξεργασία"
-
-msgid "Duplicate..."
-msgstr "Δημιουργία αντιγράφου..."
-
-msgid "Sticky Balloon"
-msgstr "Αναδυόμενο μπαλόνι"
-
-msgid "Goto URL"
-msgstr "Μετάβαση στο URL"
-
-msgid "Center"
-msgstr "Κέντρο"
-
-#, python-format
-msgid "%s events hidden"
-msgstr "%s των συμβάντων είναι κρυφά"
-
-#, python-format
-msgid "Are you sure you want to delete %d events?"
-msgstr "Είστε βέβαιος ότι θέλετε να διαγράψετε %d γεγονότα;"
-
-msgid "Are you sure you want to delete this event?"
-msgstr "Είστε σίγουρος ότι θέλετε να διαγράψετε αυτό το γεγονός;"
-
-msgid "Select region to zoom into"
-msgstr "Επιλέξτε την περιοχή που θέλετε να μεγεθύνετε"
-
-msgid "Region too long"
-msgstr "Η περιοχή είναι πολύ μεγάλη"
-
-msgid "Region too short"
-msgstr "Η περιοχή είναι πολύ μικρή"
-
-msgid "Can't move locked event"
-msgstr "Αδύνατη η μετακίνηση ενός κλειδωμένου γεγονότος"
-
-msgid "Period is too long"
-msgstr ""
-
-msgid "Go to &Today\tCtrl+T"
-msgstr "Μετάβαση στη σημερινή ημέρα\tCtrl+T"
-
-#, fuzzy
-msgid "Go to &Date...\tCtrl+G"
-msgstr "Τελευταία Ημέρα"
-
-msgid "Backward\tPgUp"
-msgstr "Μετακίνηση πίσω\tPgUp"
-
-msgid "Forward\tPgDn"
-msgstr "Μετακίνηση εμπρός\tPgDn"
-
-msgid "Forward One Wee&k\tCtrl+K"
-msgstr "Εμπρός κατά μία εβδομάδα\tCtrl+K"
-
-msgid "Back One &Week\tCtrl+W"
-msgstr "Πίσω κατά μία εβδομάδα\tCtrl+W"
-
-msgid "Forward One Mont&h\tCtrl+h"
-msgstr ""
-
-msgid "Back One &Month\tCtrl+M"
-msgstr "Πίσω κατά ένα μήνα\tCtrl+M"
-
-msgid "Forward One Yea&r\tCtrl+R"
-msgstr "Εμπρός κατά ένα έτος\tCtrl+R"
-
-msgid "Back One &Year\tCtrl+Y"
-msgstr "Πίσω κατά ένα έτος\tCtrl+Y"
-
-msgid "Fit Millennium"
-msgstr "Προσαρμογή σε χιλιετία"
-
-msgid "Fit Century"
-msgstr "Προσαρμογή σε αιώνα"
-
-msgid "Fit Decade"
-msgstr "Προσαρμογή σε δεκαετία"
-
-msgid "Fit Year"
-msgstr "Προσαρμογή σε έτος"
-
-msgid "Fit Month"
-msgstr "Προσαρμογή σε μήνα"
-
-#, fuzzy
-msgid "Fit Week"
-msgstr "Εβδομάδες"
-
-#, fuzzy
-msgid "Fit Day"
-msgstr "Πρώτη Μέρα"
-
-msgid "day"
-msgstr "ημέρα"
-
-msgid "days"
-msgstr "ημέρες"
-
-msgid "hour"
-msgstr "ώρα"
-
-msgid "hours"
-msgstr "ώρες"
-
-msgid "minute"
-msgstr "λεπτό"
-
-msgid "minutes"
-msgstr "λεπτά"
-
-msgid "can't be before year 10"
-msgstr "δεν μπορεί να είναι πριν το έτος 10"
-
-msgid "can't be after year 9989"
-msgstr "δεν μπορεί να είναι πριν το έτος 9989"
-
-msgid "Can't zoom wider than 1200 years"
-msgstr ""
-
-msgid "Can't zoom deeper than 1 hour"
-msgstr ""
-
-#, fuzzy
-msgid "Day"
-msgstr "Μέρες"
-
-#, fuzzy
-msgid "Week"
-msgstr "Εβδομάδες"
-
-msgid "Month"
-msgstr "Μήνας"
-
-msgid "Year"
-msgstr "Έτος"
-
-#, fuzzy
-msgid "Go to Date"
-msgstr "Τελευταία Ημέρα"
-
-msgid "Go to &Zero\tCtrl+Z"
-msgstr "Μετάβαση στο έτος μηδέν\tCtrl+Z"
-
-msgid "Go to &Time\tCtrl+T"
-msgstr "Μετάβαση στην ώρα\tCtrl+T"
-
-msgid "Can't zoom deeper than 5"
-msgstr "Είναι αδύνταη η εστίαση περισσότερο από 5"
-
-msgid "1-period"
-msgstr "1-χρονική περίοδος"
-
-msgid "10-period"
-msgstr "10-χρονικές περίοδοι"
-
-msgid "100-period"
-msgstr "100-περίοδοι"
-
-msgid "1000-period"
-msgstr "1000-περίοδοι"
-
-msgid "Go to Time"
-msgstr "Μετάβαση στην ώρα"
+"Παραδείγματα έγκυρων μορφών:\n"
+"    yyyy-mm-dd\n"
+"    dd/mm/yyyy\n"
+"    mmm/dd-yyyy\n"
+"        "
 
 msgid "File"
 msgstr "Αρχείο"
@@ -1583,18 +2650,6 @@ msgstr "Περιήγηση"
 #, fuzzy
 msgid "Import..."
 msgstr "Εισαγωγή"
-
-#, fuzzy
-msgid "Export Current view to Image..."
-msgstr "Εξαγωγή ως ..."
-
-#, fuzzy
-msgid "Export Whole Timeline to Images..."
-msgstr "Εξαγωγή ως ..."
-
-#, fuzzy
-msgid "Export to SVG..."
-msgstr "Εξαγωγή ως ..."
 
 msgid "Exit"
 msgstr "Έξοδος"
@@ -1641,8 +2696,18 @@ msgstr "Επεξεργασία του επιλεγμένου αντικειμέ�
 msgid "Measure Distance between two Events"
 msgstr "Μέτρηση απόστασης μεταξύ δύο γεγονότων"
 
+#, fuzzy
+msgid "Edit Categories"
+msgstr "Κατηγορία"
+
 msgid "Read Only"
 msgstr "Μόνο για ανάγνωση"
+
+msgid "Undo"
+msgstr "Αναίρεση"
+
+msgid "Redo"
+msgstr "Ακύρωση αναίρεσης"
 
 #, fuzzy
 msgid "Contents"
@@ -1663,24 +2728,10 @@ msgstr "Τελευταίο έχει δοθεί"
 msgid "Find All Events"
 msgstr "ανενεργό"
 
-#, python-format
-msgid "File '%s' does not exist."
-msgstr "Το αρχείο '%s' δεν υπάρχει."
-
-msgid ""
-"Someoneelse has changed the Timeline.\n"
-"You have two choices!\n"
-"  1. Set Timeline in Read-Only mode.\n"
-"  2. Synchronize Timeline.\n"
-"\n"
-"Do you want to Synchronize?"
+msgid "The selected value contains invalid characters and can't be saved"
 msgstr ""
-"Κάποιος έχει μετατρέψει την εφαρμογή Timeline.\n"
-"Έχετε δύο επιλογές:\n"
-"  1. Να βάλετε την εφαρμογή σε λειτουργία 'Μόνο ανάγνωση'.\n"
-"  2. Να κάνετε συγχρονισμό της εφαρμογής.\n"
-"\n"
-"Θέλετε να κάνετε συγχρονισμό;"
+"Η επιλεγμένη τιμή περιέχει μη έγκυρους χαρακτήρες και δεν μπορεί να "
+"αποθηκευτεί."
 
 msgid ""
 "Help requested\n"
@@ -1825,22 +2876,10 @@ msgstr ""
 msgid "** DOB unknown **"
 msgstr ""
 
-msgid "years"
-msgstr ""
-
-msgid "year"
-msgstr ""
-
 msgid "interval_format_tag::years::y"
 msgstr ""
 
 msgid "0 years"
-msgstr ""
-
-msgid "months"
-msgstr ""
-
-msgid "month"
 msgstr ""
 
 msgid "interval_format_tag::months::m"
@@ -1849,12 +2888,6 @@ msgstr ""
 #, fuzzy
 msgid "0 months"
 msgstr "Μήνας"
-
-msgid "weeks"
-msgstr "εβδομάδες"
-
-msgid "week"
-msgstr "εβδομάδα"
 
 msgid "interval_format_tag::weeks::w"
 msgstr ""
@@ -1877,12 +2910,6 @@ msgstr "ώρες"
 #, fuzzy
 msgid "0 minutes"
 msgstr "λεπτά"
-
-msgid "seconds"
-msgstr ""
-
-msgid "second"
-msgstr ""
 
 msgid "0 seconds"
 msgstr ""
@@ -2506,6 +3533,10 @@ msgid ""
 "Mostly when the document was sent from this praxis."
 msgstr ""
 
+#, fuzzy
+msgid "Select the hospital stay associated with this document."
+msgstr "Η εμπορική ονομασία του φάρμακου που λαμβάνει ο ασθενής."
+
 msgid "Enter the date of creation of the document."
 msgstr ""
 
@@ -2571,6 +3602,10 @@ msgstr "Επεισόδιο"
 
 msgid "➔"
 msgstr ""
+
+#, fuzzy
+msgid "Hospital Stay"
+msgstr "Νοσοκομείο"
 
 msgid "Date"
 msgstr "Ημέρα"
@@ -2668,6 +3703,9 @@ msgstr ""
 "RA Lead: Medtronic ? (inactive, capped)             Implanted: Jan 23 2000\n"
 "RV Lead: Medtronic ? (explanted)                        Explanted: Feb 09 "
 "2008"
+
+msgid "New"
+msgstr "Νέο"
 
 msgid "&All"
 msgstr "&Όλα"
@@ -2807,6 +3845,19 @@ msgstr "Αποθήκευση:"
 msgid "Editor:"
 msgstr "Εκδότης:"
 
+msgid "Host:"
+msgstr ""
+
+msgid "Port:"
+msgstr ""
+
+#, fuzzy
+msgid "User:"
+msgstr "Χρήστης"
+
+msgid "Password"
+msgstr "Κωδικός Πρόσβασης"
+
 #, fuzzy
 msgid "&Connect"
 msgstr "Σύνδεση"
@@ -2814,6 +3865,9 @@ msgstr "Σύνδεση"
 #, fuzzy
 msgid "<not connected>"
 msgstr "Επεξεργασία φαρμακευτικής αγωγής"
+
+msgid "Image"
+msgstr ""
 
 msgid "◄"
 msgstr ""
@@ -2930,22 +3984,6 @@ msgid "Save all studies of patient as DICOM archive."
 msgstr ""
 
 msgid "Modify some of Orthanc content (such as patient IDs)."
-msgstr ""
-
-msgid "Host:"
-msgstr ""
-
-msgid "Port:"
-msgstr ""
-
-#, fuzzy
-msgid "User:"
-msgstr "Χρήστης"
-
-msgid "Password"
-msgstr "Κωδικός Πρόσβασης"
-
-msgid "Image"
 msgstr ""
 
 #, fuzzy
@@ -3255,10 +4293,6 @@ msgstr "Μήνυμα γενικού σφάλματος"
 msgid "&Load"
 msgstr ""
 
-#, fuzzy
-msgid "Export"
-msgstr "Αναφορά"
-
 msgid "A long, descriptive name for this form template."
 msgstr ""
 
@@ -3494,9 +4528,6 @@ msgstr ""
 msgid "Reason"
 msgstr "Αιτία"
 
-msgid "Location"
-msgstr "Τοποθεσία"
-
 msgid "Provider"
 msgstr "Πάροχος"
 
@@ -3716,9 +4747,6 @@ msgstr ""
 
 msgid "Subject"
 msgstr "Θέμα"
-
-msgid "Category"
-msgstr "Κατηγορία"
 
 #, fuzzy
 msgid "Audience"
@@ -4289,9 +5317,6 @@ msgstr ""
 msgid "Procedure"
 msgstr ""
 
-msgid "End"
-msgstr "Τέλος"
-
 msgid "and Episode"
 msgstr "και Επεισόδιο"
 
@@ -4405,6 +5430,9 @@ msgstr ""
 msgid "Measurement details"
 msgstr ""
 
+msgid "Test"
+msgstr "Δοκιμή"
+
 msgid "Units"
 msgstr "Μονάδες"
 
@@ -4475,9 +5503,6 @@ msgstr ""
 
 msgid "↢ C&lipboard"
 msgstr ""
-
-msgid "&Remove"
-msgstr "Αφαίρεση"
 
 msgid "&Print"
 msgstr "&Εκτύπωση"
@@ -5102,6 +6127,74 @@ msgstr ""
 msgid "Activate the respective patient by double-clicking a row."
 msgstr ""
 
+msgid "Describe the intended action."
+msgstr ""
+
+msgid "&Select"
+msgstr "&Επιλογή"
+
+msgid ""
+"empty?\n"
+"DICOMDIR ?\n"
+"documents/ ?"
+msgstr ""
+
+#, fuzzy
+msgid "Existing data:"
+msgstr "Επεξεργασία φαρμακευτικής αγωγής"
+
+msgid "Include"
+msgstr ""
+
+msgid "&Include into CD / DVD"
+msgstr ""
+
+#, fuzzy
+msgid "Use subdirectory:"
+msgstr "Φάκελος"
+
+#, fuzzy
+msgid "<patient directory>"
+msgstr "ασθενής"
+
+#, fuzzy
+msgid "Creating patient media"
+msgstr "Διαγραφή φαρμακευτικής αγωγής"
+
+#, fuzzy
+msgid "Select the directory."
+msgstr "Επιλογή φακέλου σελίδων html"
+
+#, fuzzy
+msgid "Browse the selected directory."
+msgstr "Επεξεργασία του επιλεγμένου αντικειμένου."
+
+msgid "Include existing data if any."
+msgstr ""
+
+msgid "Remove existing data if any."
+msgstr ""
+
+msgid "Check if you want to include the selected directory into the CD / DVD."
+msgstr ""
+
+msgid ""
+"Check if you want to use a subdirectory within the directory selected "
+"above.\n"
+"\n"
+"This will leave alone any existing data."
+msgstr ""
+
+msgid "Create patient media (in target directory or on CD / DVD)."
+msgstr ""
+
+#, fuzzy
+msgid "Abort creating patient media."
+msgstr "Διαγραφή φαρμακευτικής αγωγής"
+
+msgid "Path:"
+msgstr ""
+
 msgid "Edit Allergy/Intolerance"
 msgstr "Επεξεργασία Αλλεγία/Δυσανεξία"
 
@@ -5142,10 +6235,6 @@ msgstr "Τοπικό όνομα"
 msgid "Encounter type"
 msgstr "Τύπος συνεδρίας"
 
-#, fuzzy
-msgid "&Manage..."
-msgstr "&Διαχείριση"
-
 msgid "A short description for this test panel."
 msgstr ""
 
@@ -5153,18 +6242,13 @@ msgstr ""
 msgid "A comment on, or long-form description of, this test panel."
 msgstr "Σχόλιο για την αλλεργική κατάσταση."
 
-msgid "Manage which test types are members of this panel (battery)."
-msgstr ""
+#, fuzzy
+msgid "Add the selected LOINC to the test panel."
+msgstr "Διαγραφή της επιλεγμένης αλλεργίας από την λίστα στην βάση δεδομένων."
 
 #, fuzzy
-msgid ""
-"Codes relevant to this test panel\n"
-"separated by \";\"."
-msgstr "Δεν υπάρχουν συνεδρίες για αυτό το επεισόδιο."
-
-#, fuzzy
-msgid "Test types"
-msgstr "Τύπος προτύπου"
+msgid "Remove selected LOINC from test panel."
+msgstr "Διαγραφή μηνύματος"
 
 msgid "Fake"
 msgstr "Ψευδές"
@@ -5893,9 +6977,6 @@ msgid ""
 "\n"
 "Please fill in an appropriate value below.\n"
 msgstr ""
-
-msgid "&Select"
-msgstr "&Επιλογή"
 
 msgid "&VAT applies"
 msgstr ""
@@ -7696,8 +8777,8 @@ msgid "everyone"
 msgstr "ποτέ"
 
 #, fuzzy, python-format
-msgid "Patient #%s"
-msgstr "Ασθενής"
+msgid "Patient: %s, %s%s %s   #%s\n"
+msgstr "Ασθενής:%s(%s), Οχι:%s\n"
 
 #, fuzzy, python-format
 msgid "Due: %s (%s ago)\n"
@@ -7814,6 +8895,10 @@ msgstr "Επισύναψη αρχείων"
 #, python-format
 msgid "patient photograph from %s"
 msgstr ""
+
+#, fuzzy, python-format
+msgid "other: %s"
+msgstr " Κωδικός: %s\n"
 
 #, fuzzy
 msgid "Browse patient data"
@@ -8844,7 +9929,7 @@ msgid ""
 "%s (%s)   #%s\n"
 " Created: %s\n"
 " Episode: %s\n"
-"%s%s%s%s"
+"%s%s%s%s%s"
 msgstr ""
 
 #, python-format
@@ -9040,6 +10125,53 @@ msgstr "Συνταγές"
 msgid "prescription data"
 msgstr "Συνταγές"
 
+#, fuzzy, python-format
+msgid "%s with %s %s     #%s"
+msgstr ""
+"%s: %s από  %.8s (v%s)\n"
+"%s"
+
+#, fuzzy
+msgid "Live vaccine"
+msgstr "εμβόλιο"
+
+#, fuzzy
+msgid "Inactive vaccine"
+msgstr "εμβόλιο"
+
+#, fuzzy
+msgid "indication"
+msgstr "Ένδειξη"
+
+#, fuzzy
+msgid "indications"
+msgstr "Ένδειξη"
+
+#, fuzzy
+msgid "indication(s)"
+msgstr "Ένδειξη"
+
+#, fuzzy, python-format
+msgid " Product: \"%s\"     #%s"
+msgstr "Ουσία"
+
+#, fuzzy, python-format
+msgid "  %s%s%s%s"
+msgstr ""
+"%s: %s από  %.8s (v%s)\n"
+"%s"
+
+msgid "fake product"
+msgstr ""
+
+#, fuzzy, python-format
+msgid " Age %s - %s"
+msgstr "σε %d μέρα(ες): %s"
+
+#, fuzzy
+msgid " Indications"
+msgstr "Ένδειξη"
+
 #, python-format
 msgid "unknown vaccinations output format [%s]"
 msgstr ""
@@ -9104,10 +10236,7 @@ msgstr ""
 msgid "J07AD01-target::brucellosis"
 msgstr ""
 
-msgid "J07AE01-target::cholera"
-msgstr ""
-
-msgid "J07AE02-target::cholera"
+msgid "J07AE0-target::cholera"
 msgstr ""
 
 msgid "J07AF01-target::diphtheria"
@@ -9119,13 +10248,7 @@ msgstr ""
 msgid "J07AH01-target::meningococcus A"
 msgstr ""
 
-msgid "J07AH10-target::meningococcus A"
-msgstr ""
-
 msgid "J07AH06-target::meningococcus B"
-msgstr ""
-
-msgid "J07AH09-target::meningococcus B"
 msgstr ""
 
 msgid "J07AH07-target::meningococcus C"
@@ -9140,19 +10263,10 @@ msgstr ""
 msgid "J07AJ0-target::pertussis"
 msgstr ""
 
-msgid "J07AJ01-target::pertussis"
-msgstr ""
-
-msgid "J07AJ02-target::pertussis"
-msgstr ""
-
 msgid "J07AK01-target::plague"
 msgstr ""
 
-msgid "J07AL01-target::pneumococcus"
-msgstr ""
-
-msgid "J07AL02-target::pneumococcus"
+msgid "J07AL0-target::pneumococcus"
 msgstr ""
 
 msgid "J07AM01-target::tetanus"
@@ -9161,16 +10275,10 @@ msgstr ""
 msgid "J07AN01-target::tbc"
 msgstr ""
 
-msgid "J07AP01-target::typhoid"
+msgid "J07AP0-target::typhoid"
 msgstr ""
 
-msgid "J07AP02-target::typhoid"
-msgstr ""
-
-msgid "J07AP03-target::typhoid"
-msgstr ""
-
-msgid "J07AP10-target::typhoid, paratyphus"
+msgid "J07AP1-target::typhoid, paratyphus"
 msgstr ""
 
 msgid "J07AR01-target::typhus exanthematicus"
@@ -9182,28 +10290,16 @@ msgstr ""
 msgid "J07BA01-target::tick-borne encephalitis"
 msgstr ""
 
-msgid "J07BA02-target::japanese encephalitis"
+msgid "J07BA0J-target::japanese encephalitis"
 msgstr ""
 
-msgid "J07BA03-target::japanese encephalitis"
-msgstr ""
-
-msgid "J07BB01-target::influenza"
-msgstr ""
-
-msgid "J07BB02-target::influenza"
-msgstr ""
-
-msgid "J07BB03-target::influenza"
+msgid "J07BB0-target::influenza"
 msgstr ""
 
 msgid "J07BC01-target::hepatitis B"
 msgstr ""
 
-msgid "J07BC02-target::hepatitis A"
-msgstr ""
-
-msgid "J07BC03-target::hepatitis A"
+msgid "J07BC0-target::hepatitis A"
 msgstr ""
 
 msgid "J07BD01-target::measles"
@@ -9212,28 +10308,22 @@ msgstr ""
 msgid "J07BE01-target::mumps"
 msgstr ""
 
-msgid "J07BF01-target::poliomyelitis"
-msgstr ""
-
-msgid "J07BF03-target::poliomyelitis"
+msgid "J07BF0-target::poliomyelitis"
 msgstr ""
 
 msgid "J07BG01-target::rabies"
 msgstr ""
 
-msgid "J07BH01-target::rotavirus diarrhea"
-msgstr ""
-
-msgid "J07BH02-target::rotavirus diarrhea"
+msgid "J07BH0-target::rotavirus diarrhea"
 msgstr ""
 
 msgid "J07BJ01-target::rubella"
 msgstr ""
 
-msgid "J07BK01-target::varicella (chickenpox)"
+msgid "J07BK0-target::varicella (chickenpox)"
 msgstr ""
 
-msgid "J07BK02-target::zoster (shingles)"
+msgid "J07BK0-target::zoster (shingles)"
 msgstr ""
 
 msgid "J07BL01-target::yellow fever"
@@ -9255,216 +10345,231 @@ msgid "J07BX01-target::variola (smallpox)"
 msgstr ""
 
 #, fuzzy
-msgid "anthrax vaccine"
+msgid "generic anthrax vaccine"
 msgstr "εμβόλιο"
 
 #, fuzzy
-msgid "brucellosis vaccine"
+msgid "generic brucellosis vaccine"
 msgstr "εμβόλιο"
 
 #, fuzzy
-msgid "cholera vaccine"
+msgid "generic cholera vaccine"
 msgstr "εμβόλιο"
 
-msgid "cholera vaccine, live"
+#, fuzzy
+msgid "generic cholera vaccine, live"
+msgstr "εμβόλιο"
+
+#, fuzzy
+msgid "generic diphtheria vaccine"
+msgstr "εμβόλιο"
+
+#, fuzzy
+msgid "generic HiB vaccine"
+msgstr "εμβόλιο"
+
+msgid "generic meningococcus A vaccine"
+msgstr ""
+
+msgid "generic meningococcus B vaccine"
+msgstr ""
+
+msgid "generic meningococcus C vaccine"
 msgstr ""
 
 #, fuzzy
-msgid "diphtheria vaccine"
+msgid "generic pertussis vaccine"
 msgstr "εμβόλιο"
 
 #, fuzzy
-msgid "HiB vaccine"
+msgid "generic plague vaccine"
 msgstr "εμβόλιο"
 
-msgid "meningococcus A vaccine"
-msgstr ""
-
-msgid "meningococcus B vaccine"
-msgstr ""
-
-msgid "meningococcus C vaccine"
+msgid "generic pneumococcus vaccine"
 msgstr ""
 
 #, fuzzy
-msgid "pertussis vaccine"
+msgid "generic tetanus vaccine"
 msgstr "εμβόλιο"
 
 #, fuzzy
-msgid "plague vaccine"
+msgid "generic Tbc vaccine"
 msgstr "εμβόλιο"
 
-msgid "pneumococcus vaccine"
+#, fuzzy
+msgid "generic typhoid vaccine"
+msgstr "εμβόλιο"
+
+#, fuzzy
+msgid "generic typhoid vaccine, live"
+msgstr "εμβόλιο"
+
+#, fuzzy
+msgid "generic typhoid/paratyphus vaccine"
+msgstr "εμβόλιο"
+
+#, fuzzy
+msgid "generic typhus exanthematicus vaccine"
+msgstr "εμβόλιο"
+
+#, fuzzy
+msgid "generic Q fever vaccine"
+msgstr "εμβόλιο"
+
+msgid "generic tick-borne encephalitis vaccine"
+msgstr ""
+
+msgid "generic japanese encephalitis vaccine"
+msgstr ""
+
+msgid "generic japanese encephalitis vaccine, live"
 msgstr ""
 
 #, fuzzy
-msgid "tetanus vaccine"
+msgid "generic influenza vaccine"
 msgstr "εμβόλιο"
 
 #, fuzzy
-msgid "Tbc vaccine"
+msgid "generic influenza vaccine, live"
 msgstr "εμβόλιο"
 
 #, fuzzy
-msgid "typhoid vaccine"
+msgid "generic hepatitis A vaccine"
 msgstr "εμβόλιο"
 
 #, fuzzy
-msgid "typhoid vaccine, live"
+msgid "generic hepatitis B vaccine"
 msgstr "εμβόλιο"
 
-msgid "typhoid/paratyphus vaccine"
+#, fuzzy
+msgid "generic measles vaccine, live"
+msgstr "εμβόλιο"
+
+#, fuzzy
+msgid "generic mumps vaccine, live"
+msgstr "εμβόλιο"
+
+#, fuzzy
+msgid "generic poliomyelitis vaccine"
+msgstr "εμβόλιο"
+
+#, fuzzy
+msgid "generic poliomyelitis vaccine, live"
+msgstr "εμβόλιο"
+
+#, fuzzy
+msgid "generic rabies vaccine"
+msgstr "εμβόλιο"
+
+#, fuzzy
+msgid "generic rotavirus vaccine, live"
+msgstr "εμβόλιο"
+
+#, fuzzy
+msgid "generic rubella vaccine, live"
+msgstr "εμβόλιο"
+
+msgid "generic varicella vaccine, live"
 msgstr ""
 
 #, fuzzy
-msgid "typhus exanthematicus vaccine"
+msgid "generic zoster vaccine, live"
 msgstr "εμβόλιο"
 
 #, fuzzy
-msgid "Q fever vaccine"
-msgstr "εμβόλιο"
-
-msgid "tick-borne encephalitis vaccine"
-msgstr ""
-
-msgid "japanese encephalitis vaccine"
-msgstr ""
-
-msgid "japanese encephalitis vaccine, live"
-msgstr ""
-
-#, fuzzy
-msgid "influenza vaccine"
-msgstr "εμβόλιο"
-
-msgid "influenza vaccine, live"
-msgstr ""
-
-#, fuzzy
-msgid "hepatitis A vaccine"
+msgid "generic yellow fever vaccine"
 msgstr "εμβόλιο"
 
 #, fuzzy
-msgid "hepatitis B vaccine"
-msgstr "εμβόλιο"
-
-msgid "measles vaccine, live"
-msgstr ""
-
-msgid "mumps vaccine, live"
-msgstr ""
-
-#, fuzzy
-msgid "poliomyelitis vaccine"
-msgstr "εμβόλιο"
-
-msgid "poliomyelitis vaccine, live"
-msgstr ""
-
-#, fuzzy
-msgid "rabies vaccine"
-msgstr "εμβόλιο"
-
-msgid "rotavirus vaccine, live"
-msgstr ""
-
-msgid "rubella vaccine, live"
-msgstr ""
-
-msgid "varicella vaccine, live"
-msgstr ""
-
-msgid "zoster vaccine, live"
-msgstr ""
-
-msgid "yellow fever vaccine"
-msgstr ""
-
-#, fuzzy
-msgid "HPV vaccine"
-msgstr "εμβόλιο"
-
-msgid "variola vaccine, live"
-msgstr ""
-
-msgid "meningococcus AC vaccine"
-msgstr ""
-
-msgid "meningococcus ACYW135 vaccine"
-msgstr ""
-
-msgid "measles-mumps vaccine, live"
-msgstr ""
-
-msgid "MMR vaccine, live"
-msgstr ""
-
-msgid "MMRV vaccine, live"
-msgstr ""
-
-msgid "measles-rubella vaccine, live"
-msgstr ""
-
-msgid "mumps-rubella vaccine, live"
-msgstr ""
-
-msgid "cholera-typhoid vaccine"
-msgstr ""
-
-#, fuzzy
-msgid "typhoid-hepA vaccine"
+msgid "generic HPV vaccine"
 msgstr "εμβόλιο"
 
 #, fuzzy
-msgid "Td vaccine"
+msgid "generic variola vaccine, live"
+msgstr "εμβόλιο"
+
+msgid "generic meningococcus AC vaccine"
+msgstr ""
+
+msgid "generic meningococcus ACYW135 vaccine"
+msgstr ""
+
+msgid "generic measles-mumps vaccine, live"
+msgstr ""
+
+#, fuzzy
+msgid "generic MMR vaccine, live"
 msgstr "εμβόλιο"
 
 #, fuzzy
-msgid "TdPol vaccine"
+msgid "generic MMRV vaccine, live"
+msgstr "εμβόλιο"
+
+msgid "generic measles-rubella vaccine, live"
+msgstr ""
+
+#, fuzzy
+msgid "generic mumps-rubella vaccine, live"
 msgstr "εμβόλιο"
 
 #, fuzzy
-msgid "DTPol vaccine"
+msgid "generic cholera-typhoid vaccine"
 msgstr "εμβόλιο"
 
 #, fuzzy
-msgid "Td-HepB vaccine"
+msgid "generic typhoid-hepA vaccine"
 msgstr "εμβόλιο"
 
 #, fuzzy
-msgid "Td-rubella vaccine"
+msgid "generic Td vaccine"
 msgstr "εμβόλιο"
 
 #, fuzzy
-msgid "TdaPPol vaccine"
+msgid "generic TdPol vaccine"
 msgstr "εμβόλιο"
 
 #, fuzzy
-msgid "TdaP-HepB vaccine"
+msgid "generic DTPol vaccine"
 msgstr "εμβόλιο"
 
 #, fuzzy
-msgid "TdaP vaccine"
+msgid "generic Td-HepB vaccine"
 msgstr "εμβόλιο"
 
 #, fuzzy
-msgid "DTaPPol-Hib vaccine"
+msgid "generic Td-rubella vaccine"
 msgstr "εμβόλιο"
 
 #, fuzzy
-msgid "TdaP-Hib-HepB vaccine"
+msgid "generic TdaPPol vaccine"
 msgstr "εμβόλιο"
 
 #, fuzzy
-msgid "TdaPPol-HepB vaccine"
+msgid "generic TdaP-HepB vaccine"
 msgstr "εμβόλιο"
 
 #, fuzzy
-msgid "TdaPPol-HiB-HepB vaccine"
+msgid "generic TdaP vaccine"
 msgstr "εμβόλιο"
 
 #, fuzzy
-msgid "TdaPPol-HiB-HepB-MenAC vaccine"
+msgid "generic DTaPPol-Hib vaccine"
+msgstr "εμβόλιο"
+
+#, fuzzy
+msgid "generic TdaP-Hib-HepB vaccine"
+msgstr "εμβόλιο"
+
+#, fuzzy
+msgid "generic TdaPPol-HepB vaccine"
+msgstr "εμβόλιο"
+
+#, fuzzy
+msgid "generic TdaPPol-HiB-HepB vaccine"
+msgstr "εμβόλιο"
+
+#, fuzzy
+msgid "generic TdaPPol-HiB-HepB-MenAC vaccine"
 msgstr "εμβόλιο"
 
 msgid "A: Sign"
@@ -9679,22 +10784,30 @@ msgstr "Νοσοκομείο"
 msgid "Procedures"
 msgstr ""
 
-msgid "Life events"
+msgid "Lifespan"
 msgstr ""
 
-msgid "Birth"
+#, fuzzy
+msgid "Care Period"
+msgstr "Χρονικό διάστημα"
+
+msgid "Life events"
 msgstr ""
 
 #, fuzzy
 msgid "Date of birth unknown"
 msgstr "Ημερομηνία γέννησης"
 
-#, fuzzy
-msgid "Start of Care"
-msgstr "Άρχισε νέο"
-
-msgid "The earliest recorded event of care in this praxis."
+msgid "Birth"
 msgstr ""
+
+#, python-format
+msgid "Start of Care: %s (the earliest recorded event of care in this praxis)"
+msgstr ""
+
+#, fuzzy, python-format
+msgid "Death: %s"
+msgstr "Λεπτομέρειες: %s\n"
 
 msgid "Death"
 msgstr ""
@@ -10694,23 +11807,20 @@ msgstr ""
 msgid "Editing vaccine"
 msgstr ""
 
-#, python-format
-msgid ""
-"Cannot delete vaccine\n"
-"\n"
-" %s - %s (#%s)\n"
-"\n"
-"It is probably documented in a vaccination."
-msgstr ""
-
-msgid "Deleting vaccine"
-msgstr ""
-
 msgid "fake"
 msgstr ""
 
-msgid "Showing vaccines."
-msgstr ""
+#, fuzzy
+msgid "Showing vaccine details"
+msgstr "Αποθήκευση εγγράφου"
+
+#, fuzzy
+msgid "Products"
+msgstr "Εμπορική ονομασία"
+
+#, fuzzy
+msgid "Manage drug products"
+msgstr "Επεξεργασία φαρμακευτικής αγωγής"
 
 msgid "Enter or select the batch/lot number of the vaccine used."
 msgstr ""
@@ -11217,14 +12327,32 @@ msgstr ""
 
 #, python-format
 msgid ""
-"There was a problem with running the editor\n"
-"for visual progress notes.\n"
+"There is no editor for visual progress notes defined.\n"
+"Also, there is no editor command defined for the file type\n"
 "\n"
-" [%s]\n"
+" [%s].\n"
 "\n"
+"Therefor GNUmed attempted to at least *show* this\n"
+"visual progress note. That failed as well, however:\n"
+"\n"
+"%s"
 msgstr ""
 
 msgid "Editing visual progress note"
+msgstr ""
+
+#, python-format
+msgid ""
+"There was a problem running the editor\n"
+"\n"
+" [%s] (%s)\n"
+"\n"
+"on the visual progress note.\n"
+"\n"
+"Therefor GNUmed attempted to at least *show* it.\n"
+"That failed as well, however:\n"
+"\n"
+"%s"
 msgstr ""
 
 #, python-format
@@ -13014,9 +14142,6 @@ msgstr ""
 msgid "Table"
 msgstr "Πίνακας"
 
-msgid "Event"
-msgstr "Συμβάν"
-
 msgid ""
 "\n"
 "Please select the provider to fall back to in case\n"
@@ -14727,6 +15852,65 @@ msgstr ""
 msgid "clinical progress note"
 msgstr ""
 
+msgid "Select a directory for inclusion into the patient CD / DVD."
+msgstr ""
+
+#, fuzzy
+msgid "Select a directory in which to create the patient media."
+msgstr "Αρχή νέας συνεδρίας για τον ενεργό ασθενή αμέσως τώρα."
+
+#, python-format
+msgid ""
+"Really delete any existing data under\n"
+"\n"
+" [%s]\n"
+"\n"
+"from disk ?\n"
+"\n"
+"(this operation is generally not reversible)"
+msgstr ""
+
+msgid ""
+"Script <gm-burn_doc(.bat)> not found.\n"
+"\n"
+"Cannot create patient CD/DVD."
+msgstr ""
+
+#, python-format
+msgid ""
+"Patient: %s\n"
+"\n"
+"Items to include into CD/DVD: %s\n"
+msgstr ""
+
+#, fuzzy, python-format
+msgid ""
+"Patient: %s\n"
+"\n"
+"Items to save: %s\n"
+msgstr "Ασθενής:%s(%s), Οχι:%s\n"
+
+msgid "(cannot check directory)"
+msgstr ""
+
+msgid "(directory appears empty)"
+msgstr ""
+
+msgid "directory already contains data"
+msgstr ""
+
+#, python-format
+msgid ""
+"%s\n"
+"- DICOM data"
+msgstr ""
+
+#, fuzzy, python-format
+msgid ""
+"%s\n"
+"- additional documents"
+msgstr "Αποθήκευση εγγράφου"
+
 msgid "Select files to add to the export area"
 msgstr ""
 
@@ -14793,33 +15977,14 @@ msgid ""
 " - %s"
 msgstr "Ημερομηνία: %s\n"
 
-msgid "Select the directory into which to export the documents."
-msgstr ""
-
-#, fuzzy
-msgid "Saving export area documents"
-msgstr "Αποθήκευση εγγράφου"
-
-#, python-format
+#, fuzzy, python-format
 msgid ""
-"The chosen export directory\n"
-"\n"
-" [%s]\n"
-"\n"
-"already contains files. Do you still want to save the\n"
-"selected export area documents into that directory ?\n"
-"\n"
-"(this is useful for including the external documents\n"
-" already stored in or below this directory)\n"
-"\n"
-"[NO] will create a subdirectory for you and use that."
+"Cannot remove content from\n"
+" [%s]"
 msgstr ""
-
-msgid ""
-"Create descriptive metadata files\n"
-"and save them alongside the\n"
-"selected export area documents ?"
-msgstr ""
+"Δεν είναι δυνατή η ανάκτηση πληροφοριών για την έκδοση από:\n"
+"\n"
+"%s"
 
 #, fuzzy, python-format
 msgid ""
@@ -14837,9 +16002,6 @@ msgstr ""
 #, fuzzy
 msgid "Browse patient data pack ?"
 msgstr "Αποθήκευση εγγράφου"
-
-msgid "If you wish to include an existing directory select it here:"
-msgstr ""
 
 #, fuzzy
 msgid "Error burning documents to CD/DVD."
@@ -15464,8 +16626,8 @@ msgid "Mail part"
 msgstr ""
 
 #, fuzzy
-msgid "Export part"
-msgstr "Αναφορά"
+msgid "Save part to disk"
+msgstr "  κίνδυνος:%s"
 
 #, fuzzy
 msgid "Document Actions:"
@@ -15491,8 +16653,13 @@ msgstr ""
 msgid "Mail all parts"
 msgstr ""
 
-msgid "Export all parts"
-msgstr ""
+#, fuzzy
+msgid "Save all parts to disk"
+msgstr "Επεξεργασία του επιλεγμένου αντικειμένου."
+
+#, fuzzy
+msgid "Copy all parts to export area"
+msgstr "Προσθήκη νέου ονόματος"
 
 msgid "Access external original"
 msgstr ""
@@ -15627,7 +16794,7 @@ msgid "Save document part to directory ..."
 msgstr ""
 
 #, fuzzy, python-format
-msgid "Successfully exported document part as [%s]."
+msgid "Successfully saved document part as [%s]."
 msgstr "Επιτυχής εξαγωγή του ΗΙΦ στο αρχείο:%s"
 
 #, python-format
@@ -15686,9 +16853,9 @@ msgstr ""
 msgid "Save document into directory ..."
 msgstr ""
 
-#, python-format
-msgid "Successfully exported %s parts into the directory [%s]."
-msgstr ""
+#, fuzzy, python-format
+msgid "Successfully saved %s parts into the directory [%s]."
+msgstr "Επιτυχής εξαγωγή του ΗΙΦ στο αρχείο:%s"
 
 msgid "Are you sure you want to delete the document ?"
 msgstr ""
@@ -15710,6 +16877,10 @@ msgstr ""
 #, fuzzy
 msgid "Body part"
 msgstr "μέρος"
+
+#, fuzzy
+msgid "DICOM field"
+msgstr "Πεδίο αγνοούμενο"
 
 msgid "Cannot connect without port (try 8042)."
 msgstr ""
@@ -15759,6 +16930,10 @@ msgid "Series"
 msgstr "Κατηγορία"
 
 #, fuzzy, python-format
+msgid "Image %s/%s"
+msgstr "όλα τα αρχεία"
+
+#, fuzzy, python-format
 msgid "%s image(s)%s"
 msgstr "Ημερομηνία: %s\n"
 
@@ -15778,6 +16953,10 @@ msgstr ""
 #, fuzzy
 msgid "Uploading DICOM files"
 msgstr "αρχεία καταγραφής"
+
+#, python-format
+msgid "Working on: Orthanc \"%s\" (AET \"%s\" @ %s:%s, Version %s)"
+msgstr ""
 
 #, python-format
 msgid ""
@@ -15832,10 +17011,6 @@ msgid "Unable to export studies."
 msgstr "Αδύνατο το άνοιγμα ου χρονοδιαγράμματος '%s'."
 
 #, fuzzy
-msgid "Editing Orthanc content"
-msgstr "Επεξεργασία λεπτομερειών της συνεδρίας παρακάτω:"
-
-#, fuzzy
 msgid "Patient ID"
 msgstr "Ασθενής"
 
@@ -15857,6 +17032,12 @@ msgid ""
 " [%s]\n"
 "\n"
 "stored in the Orthanc DICOM server ?"
+msgstr ""
+
+msgid ""
+"I was unable to modify all DICOM patients.\n"
+"\n"
+"Please refer to the log file."
 msgstr ""
 
 #, python-format
@@ -16687,6 +17868,14 @@ msgstr ""
 msgid "Clear out the status line."
 msgstr ""
 
+#, fuzzy
+msgid "Browse work dir"
+msgstr "Αποθήκευση εγγράφου"
+
+#, python-format
+msgid "Browse user working directory [%s]."
+msgstr ""
+
 msgid "Screenshot"
 msgstr "Στιγμιότυπο"
 
@@ -16717,14 +17906,6 @@ msgstr "Αποθήκευση εγγράφου"
 
 #, python-format
 msgid "Browse temporary directory [%s]."
-msgstr ""
-
-#, fuzzy
-msgid "Browse work dir"
-msgstr "Αποθήκευση εγγράφου"
-
-#, python-format
-msgid "Browse user working directory [%s]."
 msgstr ""
 
 msgid "Browse internal work dir"
@@ -17760,6 +18941,10 @@ msgid "timeline image"
 msgstr "όλα τα αρχεία"
 
 #, fuzzy
+msgid "timeline image (scalable)"
+msgstr "όλα τα αρχεία"
+
+#, fuzzy
 msgid "timeline data"
 msgstr "Ώρα:"
 
@@ -18219,14 +19404,13 @@ msgstr "&Διαχείριση"
 msgid "Editing medication"
 msgstr "Επεξεργασία φαρμακευτικής αγωγής"
 
-#, python-format
+#, fuzzy, python-format
 msgid ""
-"Cannot edit the medication\n"
+"Cannot edit the vaccine product\n"
 "\n"
 " \"%s\" (%s)\n"
 "\n"
-"because it is a vaccine. Please edit it\n"
-"from the vaccine management section !\n"
+"because it is in use."
 msgstr ""
 "Δεν μπορώ να επεξεργαστώ τη φαρμακευτική αγωγή\n"
 " \"%s\" (%s)\n"
@@ -18234,22 +19418,21 @@ msgstr ""
 "γιατί είναι εμβόλιο. Παρακαλώ η επεξεργασία να γίνει\n"
 "από από το τμήμα διαχείρισης των εμβολίων !\n"
 
-msgid "Deleting medication"
-msgstr "Διαγραφή φαρμακευτικής αγωγής"
-
-#, python-format
-msgid ""
-"Cannot delete the medication\n"
-"\n"
-" \"%s\" (%s)\n"
-"\n"
-"because it is a vaccine. Please delete it\n"
-"from the vaccine management section !\n"
+msgid "Deleting vaccine"
 msgstr ""
-"Δεν μπορώ να διαγράψω τη φαρμακευτική αγωγή\n"
+
+#, fuzzy, python-format
+msgid ""
+"Cannot delete the vaccine product\n"
+"\n"
 " \"%s\" (%s)\n"
 "\n"
-"γιατί είναι εμβόλιο. Παρακαλώ η διαγραφή να γίνει\n"
+"because it is in use."
+msgstr ""
+"Δεν μπορώ να επεξεργαστώ τη φαρμακευτική αγωγή\n"
+" \"%s\" (%s)\n"
+"\n"
+"γιατί είναι εμβόλιο. Παρακαλώ η επεξεργασία να γίνει\n"
 "από από το τμήμα διαχείρισης των εμβολίων !\n"
 
 msgid "Drug products currently known to GNUmed."
@@ -18330,6 +19513,39 @@ msgstr ""
 
 msgid "Editing single-component generic drug"
 msgstr ""
+
+#, python-format
+msgid ""
+"Cannot edit the medication\n"
+"\n"
+" \"%s\" (%s)\n"
+"\n"
+"because it is a vaccine. Please edit it\n"
+"from the vaccine management section !\n"
+msgstr ""
+"Δεν μπορώ να επεξεργαστώ τη φαρμακευτική αγωγή\n"
+" \"%s\" (%s)\n"
+"\n"
+"γιατί είναι εμβόλιο. Παρακαλώ η επεξεργασία να γίνει\n"
+"από από το τμήμα διαχείρισης των εμβολίων !\n"
+
+msgid "Deleting medication"
+msgstr "Διαγραφή φαρμακευτικής αγωγής"
+
+#, python-format
+msgid ""
+"Cannot delete the medication\n"
+"\n"
+" \"%s\" (%s)\n"
+"\n"
+"because it is a vaccine. Please delete it\n"
+"from the vaccine management section !\n"
+msgstr ""
+"Δεν μπορώ να διαγράψω τη φαρμακευτική αγωγή\n"
+" \"%s\" (%s)\n"
+"\n"
+"γιατί είναι εμβόλιο. Παρακαλώ η διαγραφή να γίνει\n"
+"από από το τμήμα διαχείρισης των εμβολίων !\n"
 
 #, fuzzy
 msgid "Drug form is missing."
@@ -18869,10 +20085,14 @@ msgid "Select a test panel."
 msgstr "Διαγραφή μηνύματος"
 
 #, fuzzy
-msgid "No test types selected."
+msgid "code not found"
+msgstr "Η σελίδα δεν βρέθηκε"
+
+#, fuzzy
+msgid "No LOINC codes selected."
 msgstr "Επεξεργασία του επιλεγμένου αντικειμένου."
 
-msgid "Pick the measurement types for this panel."
+msgid "no LOINC details found"
 msgstr ""
 
 msgid "Cannot export EMR. No active patient."
@@ -19195,9 +20415,6 @@ msgstr ""
 
 msgid "Place"
 msgstr "Τόπος"
-
-msgid "Start"
-msgstr "Έναρξη"
 
 #, python-format
 msgid ""
@@ -20117,12 +21334,185 @@ msgid "Abort and do NOT connect to GNUmed."
 msgstr "Ματαίωση και ΔΕΝ θα συνδεθείτε με το GNUmed."
 
 #, fuzzy
-#~ msgid "Export all"
+#~ msgid "Start time "
+#~ msgstr "Άρχισε νέο"
+
+#~ msgid "End time "
+#~ msgstr "Χρόνος λήξης "
+
+#, fuzzy
+#~ msgid "Numeric Timeline..."
+#~ msgstr "Δημιουργία νέου"
+
+#, fuzzy
+#~ msgid "Import timeline..."
+#~ msgstr "Δημιουργία νέου"
+
+#, fuzzy
+#~ msgid "&Export Current view to Image..."
+#~ msgstr "Εξαγωγή ως ..."
+
+#, fuzzy
+#~ msgid "&Export Whole Timeline to Images..."
+#~ msgstr "Εξαγωγή ως ..."
+
+#, fuzzy
+#~ msgid "&Export to SVG..."
+#~ msgstr "Εξαγωγή ως ..."
+
+#~ msgid "&Sidebar\tCtrl+I"
+#~ msgstr "&Πλευρική μπάρα\tCtrl+I"
+
+#~ msgid "Zoom &In\tCtrl++"
+#~ msgstr "Μεγέθυνση \tCtrl++"
+
+#~ msgid "Zoom &Out\tCtrl+-"
+#~ msgstr "Σμίκρυνση \tCtrl+-"
+
+#~ msgid "Vertical Zoom &In\tAlt++"
+#~ msgstr "Κάθετη μεγέθυνση\tAlt++"
+
+#~ msgid "Vertical Zoom &Out\tAlt+-"
+#~ msgstr "Κάθετη σμίκρυνση\tAlt+-"
+
+#, fuzzy
+#~ msgid "&Contents\tF1"
+#~ msgstr "&Επαφές"
+
+#, fuzzy
+#~ msgid "Start time > Now."
+#~ msgstr "Άρχισε νέο"
+
+#~ msgid ""
+#~ "\n"
+#~ "For an event the following properties can be defined.\n"
+#~ "\n"
+#~ " - Start Date and Time.\n"
+#~ " - End Date and Time (if period event).\n"
+#~ " - Text - The label displayed for an event.\n"
+#~ " - Category - A way to group events together.\n"
+#~ " - Container - Another way to group events together.\n"
+#~ " - Fuzzy - Draw start and end of event fuzzy, to indicate that exact "
+#~ "times are unknown.\n"
+#~ " - Locked - Start- and End-points can't be changed.\n"
+#~ " - Ends Today - The End-point is always set to current date.\n"
+#~ " - Description - Event description that is shown i the balloon.\n"
+#~ " - Icon - Image icon shown in balloon.\n"
+#~ " - Alert - An alert dialog is opened at the specified alert time.\n"
+#~ " - Hyperlink - A hyperlink that can be reached in the event context "
+#~ "menu.\n"
+#~ msgstr ""
+#~ "\n"
+#~ "Για κάθε γεγονός υπάρχουν οι παρακάτω επιλογές:\n"
+#~ "\n"
+#~ " - Ημερομηνία και ώρα έναρξης.\n"
+#~ " - Ημερομηνία και ώρα λήξης (για χρονικές περιόδους).\n"
+#~ " - Τίτλος: το κείμενο που αποτελεί τον τίτλο κάθε γεγονότος.\n"
+#~ " - Κατηγορία: τρόπος ομαδοποίησης γεγονότων.\n"
+#~ " - Ομαδοποίηση: ένας διαφορετικός τρόπος ομαδοποίησης γεγονότων.\n"
+#~ " - Ασαφές: δείχνει ότι δεν είναι γνωστοί οι ακριβείς χρόνοι.\n"
+#~ " - Κλειδωμένο: οι χρόνοι έναρξης και λήξης δεν μπορούν να αλλάξουν.\n"
+#~ " - Λήγει σήμερα: ο χρόνος λήξης του γεγονότος είναι η τρέχουσα ημέρα.\n"
+#~ " - Περιγραφή: λεπτομέρειες που εμφανίζονται σε αναδυόμενο μπαλόνι.\n"
+#~ " - Εικόνα: εισαγωγή εικόνας και εμφάνισή της σε μπαλόνι.\n"
+#~ " - Ειδοποίηση: εμφανίζει ένα πλαίσιο διαλόγου σε μια συγκεκριμένη χρονική "
+#~ "στιγμή.\n"
+#~ " - Σύνδεσμος: εισαγωγή συνδέσμου και πρόσβαση σε αυτόν με δεξί κλικ.\n"
+
+#~ msgid ""
+#~ "\n"
+#~ "The *Edit Event* dialog can be opened by double clicking on an event or "
+#~ "by selecting one event and select the 'Timeline -> Edit Selected "
+#~ "Event...' menu.\n"
+#~ msgstr ""
+#~ "\n"
+#~ "Η *Επεξεργασία γεγονότος* με διπλό κλικ σε ένα γεγονός ή με επιλογή ενός "
+#~ "γεγονότος και επιλογή 'Χρονογραμμή -> Επεξεργασία επιλεγμένου "
+#~ "γεγονότος...'\n"
+
+#~ msgid "Region too long"
+#~ msgstr "Η περιοχή είναι πολύ μεγάλη"
+
+#~ msgid "Region too short"
+#~ msgstr "Η περιοχή είναι πολύ μικρή"
+
+#~ msgid "Go to &Today\tCtrl+T"
+#~ msgstr "Μετάβαση στη σημερινή ημέρα\tCtrl+T"
+
+#, fuzzy
+#~ msgid "Go to &Date...\tCtrl+G"
+#~ msgstr "Τελευταία Ημέρα"
+
+#~ msgid "Backward\tPgUp"
+#~ msgstr "Μετακίνηση πίσω\tPgUp"
+
+#~ msgid "Forward\tPgDn"
+#~ msgstr "Μετακίνηση εμπρός\tPgDn"
+
+#~ msgid "Forward One Wee&k\tCtrl+K"
+#~ msgstr "Εμπρός κατά μία εβδομάδα\tCtrl+K"
+
+#~ msgid "Back One &Week\tCtrl+W"
+#~ msgstr "Πίσω κατά μία εβδομάδα\tCtrl+W"
+
+#~ msgid "Back One &Month\tCtrl+M"
+#~ msgstr "Πίσω κατά ένα μήνα\tCtrl+M"
+
+#~ msgid "Forward One Yea&r\tCtrl+R"
+#~ msgstr "Εμπρός κατά ένα έτος\tCtrl+R"
+
+#~ msgid "Back One &Year\tCtrl+Y"
+#~ msgstr "Πίσω κατά ένα έτος\tCtrl+Y"
+
+#~ msgid "can't be before year 10"
+#~ msgstr "δεν μπορεί να είναι πριν το έτος 10"
+
+#~ msgid "can't be after year 9989"
+#~ msgstr "δεν μπορεί να είναι πριν το έτος 9989"
+
+#~ msgid "Go to &Zero\tCtrl+Z"
+#~ msgstr "Μετάβαση στο έτος μηδέν\tCtrl+Z"
+
+#~ msgid "Go to &Time\tCtrl+T"
+#~ msgstr "Μετάβαση στην ώρα\tCtrl+T"
+
+#, fuzzy
+#~ msgid "&Manage..."
+#~ msgstr "&Διαχείριση"
+
+#, fuzzy
+#~ msgid ""
+#~ "Codes relevant to this test panel\n"
+#~ "separated by \";\"."
+#~ msgstr "Δεν υπάρχουν συνεδρίες για αυτό το επεισόδιο."
+
+#, fuzzy
+#~ msgid "Test types"
+#~ msgstr "Τύπος προτύπου"
+
+#, fuzzy
+#~ msgid "Patient #%s"
+#~ msgstr "Ασθενής"
+
+#, fuzzy
+#~ msgid "Start of Care"
+#~ msgstr "Άρχισε νέο"
+
+#, fuzzy
+#~ msgid "Saving export area documents"
+#~ msgstr "Αποθήκευση εγγράφου"
+
+#, fuzzy
+#~ msgid "Export part"
 #~ msgstr "Αναφορά"
 
 #, fuzzy
-#~ msgid "Copy all studies into export area."
-#~ msgstr "Προσθήκη νέου ονόματος"
+#~ msgid "Editing Orthanc content"
+#~ msgstr "Επεξεργασία λεπτομερειών της συνεδρίας παρακάτω:"
+
+#, fuzzy
+#~ msgid "Export all"
+#~ msgstr "Αναφορά"
 
 #, fuzzy
 #~ msgid "Copy selected studies into export area."
@@ -20431,10 +21821,6 @@ msgstr "Ματαίωση και ΔΕΝ θα συνδεθείτε με το GNUme
 #~ msgstr "Απενεργοποίησε"
 
 #, fuzzy
-#~ msgid "Saved to disk: %s"
-#~ msgstr "  κίνδυνος:%s"
-
-#, fuzzy
 #~ msgid "Faxed to %s: %s"
 #~ msgstr "μέρος %s: %s"
 
@@ -20510,10 +21896,6 @@ msgstr "Ματαίωση και ΔΕΝ θα συνδεθείτε με το GNUme
 
 #~ msgid "Sandboxed PDF output file cannot be moved."
 #~ msgstr "Το Sandboxed PDF αρχείο εξαγωγής δεν μπορεί να μετακινηθεί."
-
-#, fuzzy
-#~ msgid "patient only"
-#~ msgstr "ασθενής"
 
 #, fuzzy
 #~ msgid "provider only"
