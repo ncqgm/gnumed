@@ -75,7 +75,7 @@ def __handle_exceptions_on_shutdown(t, v, tb):
 def __handle_import_error(t, v, tb):
 
 	if t == exceptions.OSError:
-		if not hasattr('winerror'):
+		if not hasattr(t, 'winerror'):
 			return False
 		if getattr(t, 'winerror') != 126:
 			return False

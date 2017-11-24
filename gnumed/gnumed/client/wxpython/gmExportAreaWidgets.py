@@ -47,9 +47,12 @@ class cCreatePatientMediaDlg(wxgCreatePatientMediaDlg.wxgCreatePatientMediaDlg):
 		try:
 			self.__burn2cd = kwargs['burn2cd']
 			del kwargs['burn2cd']
-			_log.debug(u'planning to burn export area items to CD/DVD')
 		except KeyError:
 			pass
+		if self.__burn2cd:
+			_log.debug(u'planning to burn export area items to CD/DVD')
+		else:
+			_log.debug(u'planning to save export area items to disk')
 		self.__patient = kwargs['patient']
 		del kwargs['patient']
 		self.__item_count = kwargs['item_count']
@@ -124,8 +127,10 @@ class cCreatePatientMediaDlg(wxgCreatePatientMediaDlg.wxgCreatePatientMediaDlg):
 					u'(this operation is generally not reversible)'
 				) % path
 			)
-			if really_remove_existing_data is True:
-				self.EndModal(wx.ID_SAVE)
+			if really_remove_existing_data is False:
+				return
+
+		self.EndModal(wx.ID_SAVE)
 
 	#--------------------------------------------------------
 	def _on_browse_directory_button_pressed(self, event):
@@ -151,35 +156,31 @@ class cCreatePatientMediaDlg(wxgCreatePatientMediaDlg.wxgCreatePatientMediaDlg):
 			self._CHBOX_include_directory.Show()
 			self._CHBOX_use_subdirectory.Hide()
 			self._LBL_subdirectory.Hide()
+			lines = [
+				_(u'Preparing patient media for burning onto CD / DVD'),
+				u''
+			]
 			found, external_cmd = gmShellAPI.detect_external_binary('gm-burn_doc')
 			if not found:
-				msg = _(
-					u'Script <gm-burn_doc(.bat)> not found.\n'
-					u'\n'
-					u'Cannot create patient CD/DVD.'
-				)
+				lines.append(_(u'Script <gm-burn_doc(.bat)> not found.'))
+				lines.append(u'')
+				lines.append(_(u'Cannot attempt to burn patient media onto CD/DVD.'))
 				self._BTN_save.Disable()
 			else:
-				msg = _(
-					u'Patient: %s\n'
-					u'\n'
-					u'Items to include into CD/DVD: %s\n'
-				) % (
-					self.__patient['description_gender'],
-					self.__item_count
-				)
-			self._LBL_header.Label = msg
+				lines.append(_(u'Patient: %s') % self.__patient['description_gender'])
+				lines.append(u'')
+				lines.append(_(u'Number of items to export onto CD/DVD: %s\n') % self.__item_count)
+			self._LBL_header.Label = u'\n'.join(lines)
 			return
 
-		msg = _(
-			u'Patient: %s\n'
-			u'\n'
-			u'Items to save: %s\n'
-		) % (
-			self.__patient['description_gender'],
-			self.__item_count
-		)
-		self._LBL_header.Label = msg
+		lines = [
+			_(u'Preparing patient media for saving to disk (USB, harddrive).'),
+			u'',
+			_(u'Patient: %s') % self.__patient['description_gender'],
+			u'',
+			_(u'Number of items to export to disk: %s\n') % self.__item_count
+		]
+		self._LBL_header.Label = u'\n'.join(lines)
 		self._LBL_directory.Label = os.path.join(gmTools.gmPaths().home_dir, 'gnumed')
 		self.__refresh_dir_is_empty()
 

@@ -325,6 +325,7 @@ _html_start = u"""<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
 	<li><a href="./">%(browse_root)s</a></li>
 	<li><a href="documents/">%(browse_docs)s</a></li>
 	%(browse_dicomdir)s
+	%(run_dicom_viewer)s
 </ul>
 
 <ul>
@@ -357,12 +358,14 @@ _autorun_inf = (							# needs \r\n for Windows
 	u'shellexecute=index.html\r\n'
 	u'action=%(action)s\r\n'				# % _('Browse patient data')
 	u'%(icon)s\r\n'							# "icon=gnumed.ico" or ""
+	u'UseAutoPlay=1\r\n'
 	u'\r\n'
 	u'[AutoRun]\r\n'						# 32 bit
 	u'label=%(label)s\r\n'					# patient name/DOB
 	u'shellexecute=index.html\r\n'
 	u'action=%(action)s\r\n'				# % _('Browse patient data')
 	u'%(icon)s\r\n'							# "icon=gnumed.ico" or ""
+	u'UseAutoPlay=1\r\n'
 	u'\r\n'
 	u'[Content]\r\n'
 	u'PictureFiles=yes\r\n'
@@ -542,13 +545,15 @@ class cExportArea(object):
 		if len(items) == 0:
 			return None
 
+		media_base_dir = base_dir
+
 		from Gnumed.business.gmPerson import cPatient
 		pat = cPatient(aPK_obj = self.__pk_identity)
-		if base_dir is None:
-			base_dir = gmTools.mk_sandbox_dir(prefix = u'exp-%s-' % pat.dirname)
-		_log.debug('base dir: %s', base_dir)
+		if media_base_dir is None:
+			media_base_dir = gmTools.mk_sandbox_dir(prefix = u'exp-%s-' % pat.dirname)
+		_log.debug('patient media base dir: %s', media_base_dir)
 
-		doc_dir = os.path.join(base_dir, r'documents')
+		doc_dir = os.path.join(media_base_dir, r'documents')
 		if os.path.isdir(doc_dir):
 			index_existing_docs = True
 		else:
@@ -567,7 +572,8 @@ class cExportArea(object):
 			u'docs_title': _(u'Documents'),
 			u'browse_root': _(u'browse storage medium'),
 			u'browse_docs': _(u'browse documents area'),
-			u'browse_dicomdir': u''
+			u'browse_dicomdir': u'',
+			u'run_dicom_viewer': u''
 		}
 
 		mugshot = pat.document_folder.latest_mugshot
@@ -576,15 +582,26 @@ class cExportArea(object):
 			_html_start_data['mugshot_alt'] =_('patient photograph from %s') % gmDateTime.pydt_strftime(mugshot['date_generated'], '%B %Y')
 			_html_start_data['mugshot_title'] = gmDateTime.pydt_strftime(mugshot['date_generated'], '%B %Y')
 
+		if u'DICOMDIR' in os.listdir(media_base_dir):
+			_html_start_data[u'browse_dicomdir'] = u'<li><a href="./DICOMDIR">%s</a></li>' % _(u'show DICOMDIR file')
+			# copy DWV into target dir
+			dwv_target_dir = os.path.join(media_base_dir, u'dwv')
+			gmTools.rmdir(dwv_target_dir)
+			dwv_src_dir = os.path.join(gmTools.gmPaths().local_base_dir, u'dwv4export')
+			if not os.path.isdir(dwv_src_dir):
+				dwv_src_dir = os.path.join(gmTools.gmPaths().system_app_data_dir, u'dwv4export')
+			try:
+				shutil.copytree(dwv_src_dir, dwv_target_dir)
+				_html_start_data[u'run_dicom_viewer'] = u'<li><a href="./dwv/viewers/mobile-local/index.html">%s</a></li>' % _(u'run Radiology Images (DICOM) Viewer')
+			except shutil.Error, OSError:
+				_log.exception('cannot include DWV, skipping')
+
 		# index.html
-		idx_fname = os.path.join(base_dir, u'index.html')
+		# - header
+		idx_fname = os.path.join(media_base_dir, u'index.html')
 		idx_file = io.open(idx_fname, mode = u'wt', encoding = u'utf8')
-		# header
-		existing_files = os.listdir(base_dir)
-		if u'DICOMDIR' in existing_files:
-			_html_start_data[u'browse_dicomdir'] = u'	<li><a href="./DICOMDIR">browse DICOMDIR</a></li>'
 		idx_file.write(_html_start % _html_start_data)
-		# middle (side effect ! -> exports items into files ...)
+		# - middle (side effect ! -> exports items into files ...)
 		existing_docs = os.listdir(doc_dir)
 		# - export items
 		for item in items:
@@ -600,7 +617,7 @@ class cExportArea(object):
 				doc_fname,
 				gmTools.html_escape_string(_(u'other: %s') % doc_fname)
 			))
-		# footer
+		# - footer
 		_cfg = gmCfg2.gmCfgData()
 		from Gnumed.business.gmPraxis import gmCurrentPraxisBranch
 		prax = gmCurrentPraxisBranch()
@@ -630,7 +647,7 @@ class cExportArea(object):
 		idx_file.close()
 
 		# start.html (just a copy of index.html, really ;-)
-		start_fname = os.path.join(base_dir, u'start.html')
+		start_fname = os.path.join(media_base_dir, u'start.html')
 		try:
 			shutil.copy2(idx_fname, start_fname)
 		except Exception:
@@ -663,7 +680,7 @@ class cExportArea(object):
 		if icon_tmp_file is None:
 			_log.debug(u'cannot retrieve <%s>', media_icon_kwd)
 		else:
-			media_icon_fname = os.path.join(base_dir, u'gnumed.ico')
+			media_icon_fname = os.path.join(media_base_dir, u'gnumed.ico')
 			try:
 				shutil.move(icon_tmp_file, media_icon_fname)
 				autorun_dict['icon'] = u'icon=gnumed.ico'
@@ -672,13 +689,13 @@ class cExportArea(object):
 		# - compute action
 		autorun_dict['action'] = _('Browse patient data')
 		# - create file
-		autorun_fname = os.path.join(base_dir, u'autorun.inf')
+		autorun_fname = os.path.join(media_base_dir, u'autorun.inf')
 		autorun_file = io.open(autorun_fname, mode = 'wt', encoding = 'cp1252', errors = 'replace')
 		autorun_file.write(_autorun_inf % autorun_dict)
 		autorun_file.close()
 
 		# cd.inf
-		cd_inf_fname = os.path.join(base_dir, u'cd.inf')
+		cd_inf_fname = os.path.join(media_base_dir, u'cd.inf')
 		cd_inf_file = io.open(cd_inf_fname, mode = u'wt', encoding = u'utf8')
 		cd_inf_file.write(_cd_inf % (
 			pat['lastnames'],
@@ -693,7 +710,7 @@ class cExportArea(object):
 		cd_inf_file.close()
 
 		# README
-		readme_fname = os.path.join(base_dir, u'README')
+		readme_fname = os.path.join(media_base_dir, u'README')
 		readme_file = io.open(readme_fname, mode = u'wt', encoding = u'utf8')
 		readme_file.write(_README % (
 			pat.get_description_gender(with_nickname = False) + u', ' + _(u'born') + u' ' + pat.get_formatted_dob('%Y %B %d')
@@ -701,14 +718,14 @@ class cExportArea(object):
 		readme_file.close()
 
 		# patient demographics as GDT/XML/VCF
-		pat.export_as_gdt(filename = os.path.join(base_dir, u'patient.gdt'))
-		pat.export_as_xml_linuxmednews(filename = os.path.join(base_dir, u'patient.xml'))
-		pat.export_as_vcard(filename = os.path.join(base_dir, u'patient.vcf'))
+		pat.export_as_gdt(filename = os.path.join(media_base_dir, u'patient.gdt'))
+		pat.export_as_xml_linuxmednews(filename = os.path.join(media_base_dir, u'patient.xml'))
+		pat.export_as_vcard(filename = os.path.join(media_base_dir, u'patient.vcf'))
 
 		# praxis VCF
-		shutil.move(prax.vcf, os.path.join(base_dir, u'praxis.vcf'))
+		shutil.move(prax.vcf, os.path.join(media_base_dir, u'praxis.vcf'))
 
-		return base_dir
+		return media_base_dir
 
 	#--------------------------------------------------------
 	# properties
