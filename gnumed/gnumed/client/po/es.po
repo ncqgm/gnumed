@@ -17747,7 +17747,7 @@ msgid "PACS: Orthanc \"%s\" (AET \"%s\", Version %s, DB v%s)"
 msgstr "SCAI: Orthanc \"%s\" (AET \"%s\", Versión %s, DB v%s)"
 
 msgid "Known PACS IDs:"
-msgstr "IDs conocidas de PACS:"
+msgstr "IDs conocidas de SCAI:"
 
 #, fuzzy, python-format
 msgid "generic: %s"
@@ -17758,7 +17758,7 @@ msgid "stored: \"%(value)s\" @ [%(issuer)s]"
 msgstr "Paciente GNUmed: \"%(value)s\" @ [%(issuer)s] (ID SCAI guardada)"
 
 msgid "Patients found in PACS:"
-msgstr "Pacientes encontrados en PACS:"
+msgstr "Pacientes encontrados en SCAI:"
 
 msgid "PACS: no patients with matching IDs found"
 msgstr "SCAI: no se han encontrado pacientes de ID's coincidentes"

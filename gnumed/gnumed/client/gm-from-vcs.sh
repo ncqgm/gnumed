@@ -52,7 +52,7 @@ echo "config file: ${CONF}"
 echo "options: ${DEV_OPTS}"
 #python -Q warn -3 gnumed.py ${CONF} ${DEV_OPTS} $@
 #python -Q warn -3 gnumed.py ${CONF} ${DEV_OPTS} $@ 2> >(grep -v wx > gm-vcs-py2to3_warnings.log) # 1>&2)
-python -Q warn -3 gnumed.py ${CONF} ${DEV_OPTS} $@ |& tee gm-vcs-py2to3_warnings.log
+python -Q warn -3 gnumed.py ${CONF} ${DEV_OPTS} $@ |& tee gm-vcs-console_output.log
 
 
 # - *released* tarball version:
