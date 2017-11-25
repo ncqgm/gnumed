@@ -1732,6 +1732,7 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 		return None
 
 	formatted_abnormality_indicator = property(_get_formatted_abnormality_indicator, lambda x:x)
+
 	#--------------------------------------------------------
 	def _get_is_long_text(self):
 		if self._payload[self._idx['val_alpha']] is None:
@@ -2066,12 +2067,9 @@ def get_most_recent_results_for_panel(pk_patient=None, pk_panel=None, order_by=N
 						AND
 					c_vtr.clin_when = latest_results.max_clin_when
 			"""
-
 	cmd += order_by
-
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
-	tests = [ cTestResult(row = {'pk_field': 'pk_test_result', 'idx': idx, 'data': r}) for r in rows ]
-	return tests
+	return [ cTestResult(row = {'pk_field': 'pk_test_result', 'idx': idx, 'data': r}) for r in rows ]
 
 #------------------------------------------------------------
 def get_result_at_timestamp(timestamp=None, test_type=None, loinc=None, tolerance_interval=None, patient=None):
@@ -2141,7 +2139,76 @@ def get_results_for_day(timestamp=None, patient=None, order_by=None):
 	return [ cTestResult(row = {'pk_field': 'pk_test_result', 'idx': idx, 'data': r}) for r in rows ]
 
 #------------------------------------------------------------
+def get_most_recent_results_by_loinc(loinc=None, no_of_results=1, patient=None, consider_meta_type=False, max_age=None):
+	# <loinc> must be a list or tuple or set, NOT a single string
+	# <max_age> must be a string holding a PG interval or else a pydt interval
+
+	if no_of_results < 1:
+		raise ValueError('<no_of_results> must be > 0')
+
+	if not consider_meta_type:
+		return get_most_recent_results (
+			loinc = loinc,
+			no_of_results = no_of_results,
+			patient = patient
+		)
+
+	args = {'pat': patient, 'loinc': tuple(loinc)}
+	if max_age is None:
+		max_age_cond = u''
+	else:
+		max_age_cond = u'AND clin_when > (now() - %(max_age)s::interval)'
+		args['max_age'] = max_age
+
+	if consider_meta_type:
+		rank_order = u'_rank ASC'
+	else:
+		rank_order = u'_rank DESC'
+
+	cmd = u"""
+	SELECT DISTINCT ON (pk_test_type) * FROM (
+		(	-- get results for meta type loinc
+			SELECT *, 1 AS _rank
+			FROM clin.v_test_results
+			WHERE
+				pk_patient = %%(pat)s
+					AND
+				loinc_meta IN %%(loinc)s
+				%s
+		-- no use weeding out duplicates by UNION-only, because _rank will make them unique anyway
+		) UNION ALL (
+			-- get results for direct loinc
+			SELECT *, 2 AS _rank
+			FROM clin.v_test_results
+			WHERE
+				pk_patient = %%(pat)s
+					AND
+				loinc_tt IN %%(loinc)s
+				%s
+		)
+		ORDER BY
+			-- all of them by most-recent
+			clin_when DESC,
+			-- then by rank-of meta vs direct
+			%s
+	) AS ordered_results
+	-- then return only what's needed
+	LIMIT %s""" % (
+		max_age_cond,
+		max_age_cond,
+		rank_order,
+		no_of_results
+	)
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+	if no_of_results == 1:
+		if len(rows) == 0:
+			return None
+		return cTestResult(row = {'pk_field': 'pk_test_result', 'idx': idx, 'data': rows[0]})
+	return [ cTestResult(row = {'pk_field': 'pk_test_result', 'idx': idx, 'data': r}) for r in rows ]
+
+#------------------------------------------------------------
 def get_most_recent_results(test_type=None, loinc=None, no_of_results=1, patient=None):
+	# <loinc> must be a list or tuple or set, NOT a single string
 
 	if None not in [test_type, loinc]:
 		raise ValueError('either <test_type> or <loinc> must be None')
@@ -2154,14 +2221,12 @@ def get_most_recent_results(test_type=None, loinc=None, no_of_results=1, patient
 		'ttyp': test_type,
 		'loinc': loinc
 	}
-
 	where_parts = [u'pk_patient = %(pat)s']
 	if test_type is not None:
 		where_parts.append(u'pk_test_type = %(ttyp)s')		# consider: pk_meta_test_type = %(pkmtt)s / self._payload[self._idx['pk_meta_test_type']]
 	elif loinc is not None:
 		where_parts.append(u'((loinc_tt IN %(loinc)s) OR (loinc_meta IN %(loinc)s))')
 		args['loinc'] = tuple(loinc)
-
 	cmd = u"""
 		SELECT * FROM clin.v_test_results
 		WHERE
@@ -2172,12 +2237,10 @@ def get_most_recent_results(test_type=None, loinc=None, no_of_results=1, patient
 			no_of_results
 		)
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
-	if len(rows) == 0:
-		return None
-
 	if no_of_results == 1:
+		if len(rows) == 0:
+			return None
 		return cTestResult(row = {'pk_field': 'pk_test_result', 'idx': idx, 'data': rows[0]})
-
 	return [ cTestResult(row = {'pk_field': 'pk_test_result', 'idx': idx, 'data': r}) for r in rows ]
 
 #------------------------------------------------------------
@@ -3131,6 +3194,23 @@ if __name__ == '__main__':
 			print t.format()
 
 	#--------------------------------------------------------
+	def test_get_most_recent_results_by_loinc():
+		most_recent = get_most_recent_results_by_loinc (
+			#loinc = [u'pseudo LOINC [C-reactive protein (EML)::9] (v21->v22 test panel conversion)'],
+			loinc = [u'8867-4'],
+			no_of_results = 2,
+			patient = 12,
+			consider_meta_type = True
+			#consider_meta_type = False
+		)
+		for t in most_recent:
+			if t['pk_meta_test_type'] is None:
+				print "---- standalone ----"
+			else:
+				print "---- meta ----"
+			print t.format()
+
+	#--------------------------------------------------------
 
 	#test_result()
 	#test_create_test_result()
@@ -3146,6 +3226,7 @@ if __name__ == '__main__':
 	#test_format_test_results()
 	#test_calculate_bmi()
 	#test_test_panel()
-	test_get_most_recent_results_for_panel()
+	#test_get_most_recent_results_for_panel()
+	test_get_most_recent_results_by_loinc()
 
 #============================================================

@@ -525,6 +525,12 @@ def manage_substance_doses(parent=None, vaccine_indications_only=False):
 		lctrl.set_data(substs)
 
 	#------------------------------------------------------------
+	def get_item_tooltip(substance_dose):
+		if not isinstance(substance_dose, gmMedication.cSubstanceDose):
+			return None
+		return substance_dose.format(include_loincs = True)
+
+	#------------------------------------------------------------
 	return gmListWidgets.get_choices_from_list (
 		parent = parent,
 		caption = _('Substance doses registered with GNUmed.'),
@@ -535,7 +541,8 @@ def manage_substance_doses(parent=None, vaccine_indications_only=False):
 		edit_callback = edit,
 		delete_callback = delete,
 		refresh_callback = refresh,
-		left_extra_button = (_('Import'), _('Import substance doses from a drug database.'), add_from_db)
+		left_extra_button = (_('Import'), _('Import substance doses from a drug database.'), add_from_db),
+		list_tooltip_callback = get_item_tooltip
 	)
 
 #------------------------------------------------------------
@@ -720,6 +727,12 @@ def manage_drug_components(parent=None):
 		lctrl.set_data(comps)
 
 	#------------------------------------------------------------
+	def get_item_tooltip(component):
+		if not isinstance(component, gmMedication.cDrugComponent):
+			return None
+		return component.format(include_loincs = True)
+
+	#------------------------------------------------------------
 	gmListWidgets.get_choices_from_list (
 		parent = parent,
 		caption = _('Drug components currently known to GNUmed'),
@@ -728,7 +741,8 @@ def manage_drug_components(parent=None):
 		#new_callback = edit,
 		edit_callback = edit,
 		delete_callback = delete,
-		refresh_callback = refresh
+		refresh_callback = refresh,
+		list_tooltip_callback = get_item_tooltip
 	)
 
 #------------------------------------------------------------

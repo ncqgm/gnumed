@@ -2791,6 +2791,15 @@ SELECT MIN(earliest) FROM (
 	#------------------------------------------------------------------
 	# API: measurements / test results
 	#------------------------------------------------------------------
+	def get_most_recent_results_by_loinc(self, loinc=None, no_of_results=1, consider_meta_type=False):
+		return gmPathLab.get_most_recent_results_by_loinc (
+			loinc = loinc,
+			no_of_results = no_of_results,
+			consider_meta_type = consider_meta_type,
+			patient = self.pk_patient
+		)
+
+	#------------------------------------------------------------------
 	def get_most_recent_results(self, test_type=None, loinc=None, no_of_results=1):
 		return gmPathLab.get_most_recent_results (
 			test_type = test_type,
@@ -2798,6 +2807,7 @@ SELECT MIN(earliest) FROM (
 			no_of_results = no_of_results,
 			patient = self.pk_patient
 		)
+
 	#------------------------------------------------------------------
 	def get_result_at_timestamp(self, timestamp=None, test_type=None, loinc=None, tolerance_interval='12 hours'):
 		return gmPathLab.get_result_at_timestamp (

@@ -107,4 +107,82 @@ from
 grant select on ref.v_substances to "gm-public";
 
 -- --------------------------------------------------------------
+-- add gamma-glutamyltransferase LOINC to ethanol ATCs
+
+-- alcohol
+insert into ref.lnk_loinc2substance (
+	fk_substance,
+	loinc,
+	comment,
+	max_age
+) select
+	(select r_vs.pk_substance from ref.v_substances r_vs where r_vs.atc = 'V03AB16' and array_dims(r_vs.loincs) IS NULL limit 1),
+	'2324-2',
+	'liver screening',
+	'1 year'
+where exists (
+	select 1 from ref.v_substances r_vs where r_vs.atc = 'V03AB16' and array_dims(r_vs.loincs) IS NULL
+);
+
+-- Alkohol
+insert into ref.lnk_loinc2substance (
+	fk_substance,
+	loinc,
+	comment,
+	max_age
+) select
+	(select r_vs.pk_substance from ref.v_substances r_vs where r_vs.atc = 'V03AB16' and array_dims(r_vs.loincs) IS NULL limit 1),
+	'2324-2',
+	'liver screening',
+	'1 year'
+where exists (
+	select 1 from ref.v_substances r_vs where r_vs.atc = 'V03AB16' and array_dims(r_vs.loincs) IS NULL
+);
+
+-- ethanol
+insert into ref.lnk_loinc2substance (
+	fk_substance,
+	loinc,
+	comment,
+	max_age
+) select
+	(select r_vs.pk_substance from ref.v_substances r_vs where r_vs.atc = 'V03AB16' and array_dims(r_vs.loincs) IS NULL limit 1),
+	'2324-2',
+	'liver screening',
+	'1 year'
+where exists (
+	select 1 from ref.v_substances r_vs where r_vs.atc = 'V03AB16' and array_dims(r_vs.loincs) IS NULL
+);
+
+-- add pulse screening to metoprolole
+insert into ref.lnk_loinc2substance (
+	fk_substance,
+	loinc,
+	comment,
+	max_age
+) select
+	(select r_vs.pk_substance from ref.v_substances r_vs where r_vs.atc = 'C07AB02' and array_dims(r_vs.loincs) IS NULL limit 1),
+	'8867-4',
+	'pulse screening',
+	'1 month'
+where exists (
+	select 1 from ref.v_substances r_vs where r_vs.atc = 'C07AB02' and array_dims(r_vs.loincs) IS NULL
+);
+
+-- add K / potassium screening to HCT
+insert into ref.lnk_loinc2substance (
+	fk_substance,
+	loinc,
+	comment,
+	max_age
+) select
+	(select r_vs.pk_substance from ref.v_substances r_vs where r_vs.atc = 'C03AA03' and array_dims(r_vs.loincs) IS NULL limit 1),
+	'6298-4',
+	'potassium depletion',
+	'1 year'
+where exists (
+	select 1 from ref.v_substances r_vs where r_vs.atc = 'C03AA03' and array_dims(r_vs.loincs) IS NULL
+);
+
+-- --------------------------------------------------------------
 select gm.log_script_insertion('v22-ref-substance-dynamic.sql', '22.0');

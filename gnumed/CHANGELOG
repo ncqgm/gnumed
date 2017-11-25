@@ -18,6 +18,7 @@ NEW: placeholder <$current_provider_title$>
 NEW: placeholder <$current_provider_firstnames$>
 NEW: placeholder <$current_provider_lastnames$>
 NEW: switch substance intakes to drug components only
+NEW: monitor test results relevant to intakes
 
 IMPROVED: EMR journal layout/retrieval speed
 IMPROVED: patient overview usability

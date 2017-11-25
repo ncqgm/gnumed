@@ -1195,7 +1195,7 @@ class cDrugComponent(gmBusinessDBObject.cBusinessDBObject):
 					loinc['loinc'],
 					gmTools.coalesce(loinc['max_age_str'], u'', u': ' + _(u'once within %s')),
 					gmTools.coalesce(loinc['comment'], u'', u' (%s)')
-				) for l in self._payload[self._idx['loincs']]
+				) for loinc in self._payload[self._idx['loincs']]
 			])
 
 		return (u' ' * left_margin) + (u'\n' + (u' ' * left_margin)).join(lines)
@@ -1895,11 +1895,12 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 			show_all_product_components = True,
 			include_metadata = True,
 			date_format = '%Y %b %d',
-			include_instructions = True
+			include_instructions = True,
+			include_loincs = True
 		).split(u'\n')
 
 	#--------------------------------------------------------
-	def format(self, left_margin=0, date_format='%Y %b %d', single_line=True, allergy=None, show_all_product_components=False, include_metadata=True, include_instructions=False):
+	def format(self, left_margin=0, date_format='%Y %b %d', single_line=True, allergy=None, show_all_product_components=False, include_metadata=True, include_instructions=False, include_loincs=False):
 
 		# medication
 		if self._payload[self._idx['harmful_use_type']] is None:
@@ -1993,7 +1994,7 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 		return txt
 
 	#--------------------------------------------------------
-	def format_as_multiple_lines(self, left_margin=0, date_format='%Y %b %d', allergy=None, show_all_product_components=False, include_instructions=False):
+	def format_as_multiple_lines(self, left_margin=0, date_format='%Y %b %d', allergy=None, show_all_product_components=False, include_instructions=False, include_loincs=False):
 
 		txt = _('Substance intake entry (%s, %s)   [#%s]                     \n') % (
 			gmTools.bool2subst (
@@ -2034,6 +2035,22 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 		)
 		txt += u'\n'
 		txt += gmTools.coalesce(self._payload[self._idx['atc_substance']], u'', _(' ATC (substance): %s\n'))
+		if include_loincs and (len(self._payload[self._idx['loincs']]) > 0):
+			loincs = u"""
+%s %s
+%s  %s""" 	% (
+				(u' ' * left_margin),
+				_(u'LOINCs to monitor:'),
+				(u' ' * left_margin),
+				(u'\n' + (u' ' * (left_margin + 1))).join ([
+					u'%s%s%s' % (
+						l['loinc'],
+						gmTools.coalesce(l['max_age_str'], u'', u': ' + _(u'once within %s')),
+						gmTools.coalesce(l['comment'], u'', u' (%s)')
+					) for l in self._payload[self._idx['loincs']]
+				])
+			)
+		txt += u'\n'
 
 		txt += u'\n'
 
@@ -2051,7 +2068,7 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 						format_units(comp['unit'], comp['dose_unit'])
 					))
 					txt += gmTools.coalesce(comp['intake_instructions'], u'', u'   ' + _('Intake: %s') + u'\n')
-					if len(comp['loincs']) > 0:
+					if include_loincs and (len(comp['loincs']) > 0):
 						txt += (u'   ' + _('LOINCs to monitor:') + u'\n')
 						txt += u'\n'.join([ u'    %s%s%s' % (
 							l['loinc'],

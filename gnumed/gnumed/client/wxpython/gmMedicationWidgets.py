@@ -250,7 +250,7 @@ def manage_substance_intakes(parent=None, emr=None):
 		emr = gmPerson.gmCurrentPatient().emr
 #	#------------------------------------------------------------
 #	def add_from_db(substance):
-#		drug_db = get_drug_database(parent = parent, patient = gmPerson.gmCurrentPatient())
+#		drug_db = gmSubstanceMgmtWidgets.get_drug_database(parent = parent, patient = gmPerson.gmCurrentPatient())
 #		if drug_db is None:
 #			return False
 #		drug_db.import_drugs()
@@ -1208,7 +1208,7 @@ def prescribe_drugs(parent=None, emr=None):
 		return print_prescription(parent = parent, emr = emr)
 
 	if rx_mode == 'database':
-		drug_db = get_drug_database()		#gmPerson.gmCurrentPatient() xxxxxxx ?
+		drug_db = gmSubstanceMgmtWidgets.get_drug_database()		#gmPerson.gmCurrentPatient() xxxxxxx ?
 		if drug_db is None:
 			return
 		drug_db.reviewer = gmStaff.gmCurrentProvider()
@@ -1303,8 +1303,6 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 				_('Strength'),
 				_('Schedule'),
 				_('Timeframe'),
-#				_('Started'),
-#				_('Duration / Until'),
 				_('Product'),
 				_('Advice')
 			],
@@ -1314,8 +1312,6 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 				_('Substance'),
 				_('Strength'),
 				_('Timeframe'),
-#				_('Started'),
-#				_('Duration / Until'),
 				_('Health issue'),
 				_('Advice')
 			],
@@ -1325,8 +1321,6 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 				_('Strength'),
 				_('Schedule'),
 				_('Timeframe'),
-#				_('Started'),
-#				_('Duration / Until'),
 				_('Product'),
 				_('Advice')
 			],
@@ -1336,8 +1330,6 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 				_('Strength'),
 				_('Schedule'),
 				_('Timeframe'),
-#				_('Started'),
-#				_('Duration / Until'),
 				_('Product'),
 				_('Advice')
 			],
@@ -1352,6 +1344,7 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 
 		self.__init_ui()
 		self.__register_events()
+
 	#------------------------------------------------------------
 	# external API
 	#------------------------------------------------------------
@@ -1390,6 +1383,7 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 			]
 
 		return set(selected_cells)
+
 	#------------------------------------------------------------
 	def get_selected_rows(self):
 		rows = {}
@@ -1398,9 +1392,15 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 			rows[row] = True
 
 		return rows.keys()
+
 	#------------------------------------------------------------
 	def get_selected_data(self):
 		return [ self.__row_data[row] for row in self.get_selected_rows() ]
+
+	#------------------------------------------------------------
+	def get_row_data(self):
+		return self.__row_data.values()
+
 	#------------------------------------------------------------
 	def repopulate_grid(self):
 
@@ -1475,20 +1475,7 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 				self.SetCellValue(row_idx, 1, med['substance'])
 				self.SetCellValue(row_idx, 2, u'%s %s' % (med['amount'], med['unit']))
 				self.SetCellValue(row_idx, 3, gmTools.coalesce(med['schedule'], u''))
-
 				self.SetCellValue(row_idx, 4, med.medically_formatted_start_end)
-#				self.SetCellValue(row_idx, 4, med.medically_formatted_start)
-#
-#				if med['is_long_term']:
-#					self.SetCellValue(row_idx, 5, gmTools.u_infinity)
-#				else:
-#					if med['discontinued'] is None:
-#						if med['duration'] is None:
-#							self.SetCellValue(row_idx, 5, u'')
-#						else:
-#							self.SetCellValue(row_idx, 5, gmDateTime.format_interval(med['duration'], gmDateTime.acc_days))
-#					else:
-#						self.SetCellValue(row_idx, 5, med['discontinued'].strftime('%Y-%m-%d'))
 
 				if med['pk_drug_product'] is None:
 					product = u'%s (%s)' % (gmTools.u_diameter, med['l10n_preparation'])
@@ -1503,7 +1490,6 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 							gmTools.coalesce(med['product'], u''),
 							med['l10n_preparation']
 						)
-#				self.SetCellValue(row_idx, 6, gmTools.wrap(text = product, width = 35))
 				self.SetCellValue(row_idx, 5, gmTools.wrap(text = product, width = 35))
 
 			elif self.__grouping_mode == u'issue':
@@ -1524,19 +1510,7 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 				self.SetCellValue(row_idx, 1, med['substance'])
 				self.SetCellValue(row_idx, 2, u'%s %s' % (med['amount'], med['unit']))
 				self.SetCellValue(row_idx, 3, gmTools.coalesce(med['schedule'], u''))
-
 				self.SetCellValue(row_idx, 4, med.medically_formatted_start_end)
-#
-#				if med['is_long_term']:
-#					self.SetCellValue(row_idx, 5, gmTools.u_infinity)
-#				else:
-#					if med['discontinued'] is None:
-#						if med['duration'] is None:
-#							self.SetCellValue(row_idx, 5, u'')
-#						else:
-#							self.SetCellValue(row_idx, 5, gmDateTime.format_interval(med['duration'], gmDateTime.acc_days))
-#					else:
-#						self.SetCellValue(row_idx, 5, med['discontinued'].strftime('%Y-%m-%d'))
 
 				if med['pk_drug_product'] is None:
 					product = u'%s (%s)' % (gmTools.u_diameter, med['l10n_preparation'])
@@ -1551,7 +1525,6 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 							gmTools.coalesce(med['product'], u''),
 							med['l10n_preparation']
 						)
-#				self.SetCellValue(row_idx, 6, gmTools.wrap(text = product, width = 35))
 				self.SetCellValue(row_idx, 5, gmTools.wrap(text = product, width = 35))
 
 			elif self.__grouping_mode == u'product':
@@ -1582,20 +1555,7 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 				self.SetCellValue(row_idx, 1, gmTools.coalesce(med['schedule'], u''))
 				self.SetCellValue(row_idx, 2, med['substance'])
 				self.SetCellValue(row_idx, 3, u'%s %s' % (med['amount'], med['unit']))
-
 				self.SetCellValue(row_idx, 4, med.medically_formatted_start_end)
-#				self.SetCellValue(row_idx, 4, med.medically_formatted_start)
-#
-#				if med['is_long_term']:
-#					self.SetCellValue(row_idx, 5, gmTools.u_infinity)
-#				else:
-#					if med['discontinued'] is None:
-#						if med['duration'] is None:
-#							self.SetCellValue(row_idx, 5, u'')
-#						else:
-#							self.SetCellValue(row_idx, 5, gmDateTime.format_interval(med['duration'], gmDateTime.acc_days))
-#					else:
-#						self.SetCellValue(row_idx, 5, med['discontinued'].strftime('%Y-%m-%d'))
 
 				if med['pk_health_issue'] is None:
 					issue = u'%s%s' % (
@@ -1604,21 +1564,18 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 					)
 				else:
 					issue = gmTools.coalesce(med['health_issue'], u'')
-#				self.SetCellValue(row_idx, 6, gmTools.wrap(text = issue, width = 40))
 				self.SetCellValue(row_idx, 5, gmTools.wrap(text = issue, width = 40))
 
 			else:
 				raise ValueError('unknown grouping mode [%s]' % self.__grouping_mode)
 
 			if med['notes'] is not None:
-#				self.SetCellValue(row_idx, 7, gmTools.wrap(text = med['notes'], width = 50))
 				self.SetCellValue(row_idx, 6, gmTools.wrap(text = med['notes'], width = 50))
 
 			if self.__filter_show_unapproved:
 				self.SetCellValue (
 					row_idx,
 					len(labels),
-					#gmTools.bool2subst(med['intake_is_approved_of'], gmTools.u_checkmark_thin, u'', u'?')
 					gmTools.bool2subst(med['intake_is_approved_of'], gmTools.u_checkmark_thin, gmTools.u_frowning_face, u'?')
 				)
 				font = self.GetCellFont(row_idx, len(labels))
@@ -1642,6 +1599,7 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 		self.EndBatch()
 		self.__row_data = {}
 		self.__prev_cell_0 = None
+
 	#------------------------------------------------------------
 	def show_info_on_entry(self):
 
@@ -1652,7 +1610,7 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 		if len(sel_rows) != 1:
 			return
 
-		drug_db = get_drug_database(patient = self.__patient)
+		drug_db = gmSubstanceMgmtWidgets.get_drug_database(patient = self.__patient)
 		if drug_db is None:
 			return
 
@@ -1661,6 +1619,7 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 			drug_db.show_info_on_substance(substance_intake = intake)
 		else:
 			drug_db.show_info_on_drug(substance_intake = intake)
+
 	#------------------------------------------------------------
 	def show_renal_insufficiency_info(self):
 		search_term = None
@@ -1669,9 +1628,11 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 			if len(sel_rows) == 1:
 				search_term = self.get_selected_data()[0]
 		gmNetworkTools.open_url_in_browser(url = gmMedication.drug2renal_insufficiency_url(search_term = search_term))
+
 	#------------------------------------------------------------
 	def show_cardiac_info(self):
 		gmNetworkTools.open_url_in_browser(url = u'http://www.qtsyndrome.ch/drugs.html')
+
 	#------------------------------------------------------------
 	def report_ADR(self):
 		dbcfg = gmCfg.cCfgSQL()
@@ -1694,7 +1655,7 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 		if len(self.__row_data) == 0:
 			return
 
-		drug_db = get_drug_database(patient = self.__patient)
+		drug_db = gmSubstanceMgmtWidgets.get_drug_database(patient = self.__patient)
 		if drug_db is None:
 			return
 
@@ -1997,12 +1958,14 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 
 		self.__init_ui()
 		self.__register_interests()
+
 	#-----------------------------------------------------
 	def __init_ui(self):
 		self._CHCE_grouping.Clear()
 		for option in self.__grouping_choice_labels:
 			self._CHCE_grouping.Append(option['label'], option['data'])
 		self._CHCE_grouping.SetSelection(0)
+
 	#-----------------------------------------------------
 	# reget-on-paint mixin API
 	#-----------------------------------------------------
@@ -2018,6 +1981,7 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 			self.__clear_gfr()
 			self.__refresh_lab(patient = None)
 		return True
+
 	#--------------------------------------------------------
 	def __refresh_lab(self, patient):
 
@@ -2028,19 +1992,61 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 			self.Layout()
 			return
 
-		if self.__lab_panel is None:
-			self.Layout()
-			return
+		emr = patient.emr
+		most_recent_results = {}
 
-		most_recent_results = self.__lab_panel.get_most_recent_results(pk_patient = patient.ID, order_by = u'unified_abbrev', group_by_meta_type = True)
-		edc = patient.emr.EDC
-		gfr = patient.emr.get_most_recent_results(loinc = gmLOINC.LOINC_gfr_quantity, no_of_results = 1)
-		crea = patient.emr.get_most_recent_results(loinc = gmLOINC.LOINC_creatinine_quantity, no_of_results = 1)
+		# get most recent results for "LOINCs to monitor"
+		loincs2monitor = set()
+		loinc_max_age = {}
+		loinc_max_age_str = {}
+		loinc_monitor_substance = {}
+		for intake in self._grid_substances.get_row_data():
+			for l in intake['loincs']:
+				loincs2monitor.add(l['loinc'])
+				loinc_monitor_substance[l['loinc']] = intake['substance']
+				if l['max_age_in_secs'] is not None:
+					try:
+						if loinc_max_age[l['loinc']] > l['max_age_in_secs']:
+							loinc_max_age[l['loinc']] = l['max_age_in_secs']
+							loinc_max_age_str[l['loinc']] = l['max_age_str']
+					except KeyError:
+						loinc_max_age[l['loinc']] = l['max_age_in_secs']
+						loinc_max_age_str[l['loinc']] = l['max_age_str']
+		loincs2monitor_missing = loincs2monitor.copy()
+		for loinc in loincs2monitor:
+			result = emr.get_most_recent_results_by_loinc (
+				loinc = [loinc],
+				no_of_results = 1,
+				consider_meta_type = True
+			)
+			if result is None:
+				continue
+			loincs2monitor_missing.remove(loinc)
+			# make unique
+			most_recent_results[result['pk_test_result']] = result
 
-		if (len(most_recent_results) == 0) and (edc is None) and (gfr is None) and (crea is None):
-			self.Layout()
-			return
+		# get most recent results for "general medication monitoring lab panel"
+		if self.__lab_panel is not None:
+			for result in self.__lab_panel.get_most_recent_results (
+				pk_patient = patient.ID,
+				order_by = u'unified_abbrev',
+				group_by_meta_type = True
+			):
+				loincs2monitor_missing.remove(result['loinc_tt'])
+				loincs2monitor_missing.remove(result['loinc_meta'])
+				# make unique
+				most_recent_results[result['pk_test_result']] = result
 
+		# those need special treatment
+		gfr = emr.get_most_recent_results(loinc = gmLOINC.LOINC_gfr_quantity, no_of_results = 1)
+		crea = emr.get_most_recent_results(loinc = gmLOINC.LOINC_creatinine_quantity, no_of_results = 1)
+		edc = emr.EDC
+
+#		if (len(most_recent_results) == 0) and (edc is None) and (gfr is None) and (crea is None):
+#			self.Layout()
+#			return
+
+		# display EDC
 		if edc is not None:
 			if emr.EDC_is_fishy:
 				lbl = wx.StaticText(self, -1, _(u'EDC (!?!):'))
@@ -2054,6 +2060,7 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 			szr.Add(val, 1, wx.ALIGN_CENTER_VERTICAL)
 			self._GSZR_lab.Add(szr)
 
+		# decide which among Crea or GFR to show
 		if crea is None:
 			gfr_3_months_older_than_crea = False
 			if gfr is not None:
@@ -2066,9 +2073,8 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 			if not gfr_3_months_older_than_crea:
 				most_recent_results = [gfr] + most_recent_results
 
-		now = gmDateTime.pydt_now_here()
-
 		# if GFR not found in most_recent_results or old, then calculate
+		now = gmDateTime.pydt_now_here()
 		if gfr_3_months_older_than_crea:
 			calc = gmClinicalCalculator.cClinicalCalculator()
 			calc.patient = patient
@@ -2103,16 +2109,56 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 			szr.Add(val, 1, wx.ALIGN_CENTER_VERTICAL)
 			self._GSZR_lab.Add(szr)
 
-		for result in most_recent_results:
+		# eventually add most-recent results from monitoring panel and substances monitoring
+		for pk_result in most_recent_results:
+			result = most_recent_results[pk_result]
 			lbl = wx.StaticText(self, -1, u'%s:' % result['unified_abbrev'])
 			lbl.SetForegroundColour('blue')
-			val = wx.StaticText(self, -1, _(u'%s%s%s (%s ago)') % (
+			indicate_attention = False
+			if result.is_considered_abnormal:
+				indicate_attention = True
+			max_age = None
+			try:
+				max_age = loinc_max_age[result['loinc_tt']]
+				max_age_str = loinc_max_age_str[result['loinc_tt']]
+			except KeyError:
+				max_age = loinc_max_age[result['loinc_meta']]
+				max_age_str = loinc_max_age_str[result['loinc_meta']]
+			result_age = now - result['clin_when']
+			tt = []
+			indicator = result.formatted_abnormality_indicator
+			if max_age is None:
+				# this is a panel result
+				tt.append(_(u'Most recent: %s ago') % gmDateTime.format_interval_medically(now - result['clin_when']))
+				if indicator is not None:
+					tt.append(_(u'Unhappy because: abnormal (%s)') % indicator)
+			else:
+				# this result is to be shown because of a LOINC defined in a substance
+				tt.append(_(u'Why monitor: %s' % loinc_monitor_substance[loinc]))
+				unhappy_reasons = []
+				if indicator is not None:
+					unhappy_reasons.append(_(u' - abnormal: %s') % indicator)
+				if result_age.total_seconds > max_age:
+					unhappy_reasons.append(_(u' - too old: %s ago (max: %s)') % (
+						gmDateTime.format_interval_medically(now - result['clin_when']),
+						max_age_str
+					))
+				if len(unhappy_reasons) == 0:
+					tt.append(_(u'Most recent: %s ago') % gmDateTime.format_interval_medically(now - result['clin_when']))
+				else:
+					indicate_attention = True
+					tt.append(_(u'Unhappy because:'))
+					tt.extend(unhappy_reasons)
+			val = wx.StaticText(self, -1, u'%s%s%s' % (
 				result['unified_val'],
 				gmTools.coalesce(result['val_unit'], u'', u' %s'),
-				gmTools.coalesce(result.formatted_abnormality_indicator, u'', u' %s'),
-				gmDateTime.format_interval_medically(now - result['clin_when'])
+				gmTools.bool2subst(indicate_attention, gmTools.u_frowning_face, u'', u'')
 			))
-			val.SetToolTipString(result.format())
+			tt = u'%s\n\n%s' % (
+				u'\n'.join(tt),
+				result.format()
+			)
+			val.SetToolTipString(tt)
 			if result.is_considered_abnormal:
 				val.SetForegroundColour('red')
 			szr = wx.BoxSizer(wx.HORIZONTAL)
@@ -2120,8 +2166,30 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 			szr.Add(val, 1, wx.ALIGN_CENTER_VERTICAL)
 			self._GSZR_lab.Add(szr)
 
+		# hint at missing, but required results (set to be
+		# monitored under intakes based on LOINCs):
+		for loinc in loincs2monitor_missing:
+			#szr.Add(lbl, 0, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL, 3)
+			loinc_data = gmLOINC.loinc2data(loinc)
+			if len(loinc_data) == 0:
+				loinc_str = loinc
+			else:
+				loinc_str = loinc_data['term']
+			val = wx.StaticText(self, -1, u'%s!' % loinc_str)
+			tt = [
+				_(u'No test result for: %s (%s)') % (loinc_str, loinc),
+				u'',
+				_(u'Why monitor: %s' % loinc_monitor_substance[loinc])
+			]
+			val.SetToolTipString(u'\n'.join(tt))
+			val.SetForegroundColour('orange')
+			szr = wx.BoxSizer(wx.HORIZONTAL)
+			szr.Add(val, 1, wx.ALIGN_CENTER_VERTICAL)
+			self._GSZR_lab.Add(szr)
+
 		self._HLINE_lab.Show()
 		self.Layout()
+
 	#--------------------------------------------------------
 	def __refresh_gfr(self, patient):
 		gfr = patient.emr.get_most_recent_results(loinc = gmLOINC.LOINC_gfr_quantity, no_of_results = 1)
@@ -2172,11 +2240,13 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 		self._LBL_gfr.SetToolTipString(tt)
 		self._LBL_gfr.Refresh()
 		self.Layout()
+
 	#--------------------------------------------------------
 	def __clear_gfr(self):
 		self._LBL_gfr.SetLabel(_('GFR: ?'))
 		self._LBL_gfr.Refresh()
 		self.Layout()
+
 	#--------------------------------------------------------
 	# event handling
 	#--------------------------------------------------------
