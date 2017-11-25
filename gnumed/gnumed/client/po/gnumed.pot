@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-12-11 13:20+0100\n"
+"POT-Creation-Date: 2017-11-25 13:01+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -6767,7 +6767,7 @@ msgid "everyone"
 msgstr ""
 
 #, python-format
-msgid "Patient #%s"
+msgid "Patient: %s, %s%s %s   #%s\n"
 msgstr ""
 
 #, python-format
@@ -6846,7 +6846,11 @@ msgid "file"
 msgstr ""
 
 #, python-format
-msgid "doc: %s"
+msgid "%s (%s)%s"
+msgstr ""
+
+#, python-format
+msgid "part %s (%s%s)%s"
 msgstr ""
 
 msgid "Patient data for"
@@ -7462,10 +7466,8 @@ msgstr ""
 msgid "Cannot merge active patient into another patient."
 msgstr ""
 
-msgid "assimilated"
-msgstr ""
-
-msgid "merged"
+#, python-format
+msgid "merge of #%s into #%s @ %s"
 msgstr ""
 
 msgid "invalid age: DOB in the future"
@@ -9383,12 +9385,20 @@ msgid ""
 "%s"
 msgstr ""
 
-msgid ""
-"\n"
-"Complete vaccination history for this patient.\n"
+#, python-format
+msgid "%s (latest of %s: %s ago)"
+msgstr ""
+
+msgid "Most recent vaccination for each indication.\n"
+msgstr ""
+
+msgid "Complete vaccination history.\n"
 msgstr ""
 
 msgid "Showing vaccinations."
+msgstr ""
+
+msgid "Indication"
 msgstr ""
 
 msgid "Intended to protect from"
@@ -9833,14 +9843,32 @@ msgstr ""
 
 #, python-format
 msgid ""
-"There was a problem with running the editor\n"
-"for visual progress notes.\n"
+"There is no editor for visual progress notes defined.\n"
+"Also, there is no editor command defined for the file type\n"
 "\n"
-" [%s]\n"
+" [%s].\n"
 "\n"
+"Therefor GNUmed attempted to at least *show* this\n"
+"visual progress note. That failed as well, however:\n"
+"\n"
+"%s"
 msgstr ""
 
 msgid "Editing visual progress note"
+msgstr ""
+
+#, python-format
+msgid ""
+"There was a problem running the editor\n"
+"\n"
+" [%s] (%s)\n"
+"\n"
+"on the visual progress note.\n"
+"\n"
+"Therefor GNUmed attempted to at least *show* it.\n"
+"That failed as well, however:\n"
+"\n"
+"%s"
 msgstr ""
 
 #, python-format
@@ -13505,9 +13533,7 @@ msgid ""
 "\n"
 "Do you want to delete imported files from the filesystem ?\n"
 "\n"
-" %s\n"
-"\n"
-"Note that temporary files will be deleted anyway."
+" %s"
 msgstr ""
 
 msgid "Removing files"
@@ -13794,7 +13820,7 @@ msgstr ""
 msgid "Mail part"
 msgstr ""
 
-msgid "Export part"
+msgid "Save part to disk"
 msgstr ""
 
 msgid "Document Actions:"
@@ -13818,7 +13844,10 @@ msgstr ""
 msgid "Mail all parts"
 msgstr ""
 
-msgid "Export all parts"
+msgid "Save all parts to disk"
+msgstr ""
+
+msgid "Copy all parts to export area"
 msgstr ""
 
 msgid "Access external original"
@@ -13929,7 +13958,7 @@ msgid "Save document part to directory ..."
 msgstr ""
 
 #, python-format
-msgid "Successfully exported document part as [%s]."
+msgid "Successfully saved document part as [%s]."
 msgstr ""
 
 #, python-format
@@ -13988,7 +14017,7 @@ msgid "Save document into directory ..."
 msgstr ""
 
 #, python-format
-msgid "Successfully exported %s parts into the directory [%s]."
+msgid "Successfully saved %s parts into the directory [%s]."
 msgstr ""
 
 msgid "Are you sure you want to delete the document ?"
@@ -14092,6 +14121,10 @@ msgstr ""
 msgid "Series"
 msgstr ""
 
+#, python-format
+msgid "Working on: Orthanc \"%s\" (AET \"%s\" @ %s:%s, Version %s)"
+msgstr ""
+
 msgid "Select the directory from which to recursively upload DICOM files."
 msgstr ""
 
@@ -14106,9 +14139,6 @@ msgid ""
 msgstr ""
 
 msgid "Uploading DICOM files"
-msgstr ""
-
-msgid "Editing Orthanc content"
 msgstr ""
 
 msgid "Patient ID"
@@ -14130,6 +14160,12 @@ msgid ""
 " [%s]\n"
 "\n"
 "stored in the Orthanc DICOM server ?"
+msgstr ""
+
+msgid ""
+"I was unable to modify all DICOM patients.\n"
+"\n"
+"Please refer to the log file."
 msgstr ""
 
 #, python-format
@@ -14649,10 +14685,16 @@ msgstr ""
 msgid "Manage measurement results for the current patient."
 msgstr ""
 
-msgid "&Vaccinations"
+msgid "&Vaccination history"
 msgstr ""
 
 msgid "Manage vaccinations for the current patient."
+msgstr ""
+
+msgid "&Vaccinations (latest)"
+msgstr ""
+
+msgid "List latest vaccinations for the current patient."
 msgstr ""
 
 msgid "&Family history (FHx)"
@@ -15693,6 +15735,9 @@ msgid "manage vaccinations"
 msgstr ""
 
 msgid "Cannot add vaccinations. No active patient."
+msgstr ""
+
+msgid "Cannot manage vaccinations. No active patient."
 msgstr ""
 
 msgid "manage family history"
@@ -17809,6 +17854,9 @@ msgstr ""
 msgid "EMR &Journal (list)"
 msgstr ""
 
+msgid "&Vaccinations"
+msgstr ""
+
 msgid "Appointments"
 msgstr ""
 
@@ -17870,9 +17918,6 @@ msgid "Any"
 msgstr ""
 
 msgid "Generic name"
-msgstr ""
-
-msgid "Indication"
 msgstr ""
 
 msgid "&Prescribe"
