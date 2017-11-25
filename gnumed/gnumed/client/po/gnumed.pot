@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-11-22 22:11+0100\n"
+"POT-Creation-Date: 2017-11-25 13:04+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -7912,6 +7912,12 @@ msgstr ""
 msgid "patient photograph from %s"
 msgstr ""
 
+msgid "show DICOMDIR file"
+msgstr ""
+
+msgid "run Radiology Images (DICOM) Viewer"
+msgstr ""
+
 #, python-format
 msgid "other: %s"
 msgstr ""
@@ -14470,24 +14476,28 @@ msgid ""
 "(this operation is generally not reversible)"
 msgstr ""
 
-msgid ""
-"Script <gm-burn_doc(.bat)> not found.\n"
-"\n"
-"Cannot create patient CD/DVD."
+msgid "Preparing patient media for burning onto CD / DVD"
+msgstr ""
+
+msgid "Script <gm-burn_doc(.bat)> not found."
+msgstr ""
+
+msgid "Cannot attempt to burn patient media onto CD/DVD."
 msgstr ""
 
 #, python-format
-msgid ""
-"Patient: %s\n"
-"\n"
-"Items to include into CD/DVD: %s\n"
+msgid "Patient: %s"
 msgstr ""
 
 #, python-format
-msgid ""
-"Patient: %s\n"
-"\n"
-"Items to save: %s\n"
+msgid "Number of items to export onto CD/DVD: %s\n"
+msgstr ""
+
+msgid "Preparing patient media for saving to disk (USB, harddrive)."
+msgstr ""
+
+#, python-format
+msgid "Number of items to export to disk: %s\n"
 msgstr ""
 
 msgid "(cannot check directory)"
