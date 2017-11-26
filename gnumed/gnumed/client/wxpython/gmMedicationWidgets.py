@@ -1997,13 +1997,18 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 
 		# get most recent results for "LOINCs to monitor"
 		loincs2monitor = set()
+		loincs2monitor_data = {}
 		loinc_max_age = {}
 		loinc_max_age_str = {}
-		loinc_monitor_substance = {}
+		#loinc_monitor_substance = {}
 		for intake in self._grid_substances.get_row_data():
 			for l in intake['loincs']:
 				loincs2monitor.add(l['loinc'])
-				loinc_monitor_substance[l['loinc']] = intake['substance']
+				loincs2monitor_data[l['loinc']] = {
+					'substance': intake['substance'],
+					'comment': l['comment']
+				}
+				#loinc_monitor_substance[l['loinc']] = intake['substance']
 				if l['max_age_in_secs'] is not None:
 					try:
 						if loinc_max_age[l['loinc']] > l['max_age_in_secs']:
@@ -2112,11 +2117,14 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 		# eventually add most-recent results from monitoring panel and substances monitoring
 		for pk_result in most_recent_results:
 			result = most_recent_results[pk_result]
+			# test type
 			lbl = wx.StaticText(self, -1, u'%s:' % result['unified_abbrev'])
 			lbl.SetForegroundColour('blue')
+			# calculate test result
 			indicate_attention = False
 			if result.is_considered_abnormal:
 				indicate_attention = True
+			# calculate tooltip data
 			max_age = None
 			try:
 				max_age = loinc_max_age[result['loinc_tt']]
@@ -2124,40 +2132,47 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 			except KeyError:
 				max_age = loinc_max_age[result['loinc_meta']]
 				max_age_str = loinc_max_age_str[result['loinc_meta']]
+			subst2monitor = None
+			try:
+				subst2monitor = loincs2monitor_data[result['loinc_tt']]['substance']
+			except KeyError:
+				subst2monitor = loincs2monitor_data[result['loinc_meta']]['substance']
+			monitor_comment = None
+			try:
+				monitor_comment = loincs2monitor_data[result['loinc_tt']]['comment']
+			except KeyError:
+				monitor_comment = loincs2monitor_data[result['loinc_meta']]['comment']
 			result_age = now - result['clin_when']
-			tt = []
 			indicator = result.formatted_abnormality_indicator
-			if max_age is None:
-				# this is a panel result
-				tt.append(_(u'Most recent: %s ago') % gmDateTime.format_interval_medically(now - result['clin_when']))
-				if indicator is not None:
-					tt.append(_(u'Unhappy because: abnormal (%s)') % indicator)
-			else:
-				# this result is to be shown because of a LOINC defined in a substance
-				tt.append(_(u'Why monitor: %s' % loinc_monitor_substance[loinc]))
-				unhappy_reasons = []
-				if indicator is not None:
-					unhappy_reasons.append(_(u' - abnormal: %s') % indicator)
+			unhappy_reasons = []
+			if indicator is not None:
+				unhappy_reasons.append(_(u' - abnormal: %s') % indicator)
+			if max_age is not None:
 				if result_age.total_seconds > max_age:
 					unhappy_reasons.append(_(u' - too old: %s ago (max: %s)') % (
-						gmDateTime.format_interval_medically(now - result['clin_when']),
+						gmDateTime.format_interval_medically(result_age),
 						max_age_str
 					))
-				if len(unhappy_reasons) == 0:
-					tt.append(_(u'Most recent: %s ago') % gmDateTime.format_interval_medically(now - result['clin_when']))
-				else:
-					indicate_attention = True
-					tt.append(_(u'Unhappy because:'))
-					tt.extend(unhappy_reasons)
+			# generate tooltip
+			tt = [_(u'Most recent: %s ago') % gmDateTime.format_interval_medically(result_age)]
+			if subst2monitor is not None:
+				tt.append(_(u'Why monitor: %s') % subst2monitor)
+			if monitor_comment is not None:
+				tt.append(u' %s' % monitor_comment)
+			if len(unhappy_reasons) > 0:
+				indicate_attention = True
+				tt.append(_(u'Problems:'))
+				tt.extend(unhappy_reasons)
+			tt = u'%s\n\n%s' % (
+				u'\n'.join(tt),
+				result.format()
+			)
+			# set test result and tooltip
 			val = wx.StaticText(self, -1, u'%s%s%s' % (
 				result['unified_val'],
 				gmTools.coalesce(result['val_unit'], u'', u' %s'),
 				gmTools.bool2subst(indicate_attention, gmTools.u_frowning_face, u'', u'')
 			))
-			tt = u'%s\n\n%s' % (
-				u'\n'.join(tt),
-				result.format()
-			)
 			val.SetToolTipString(tt)
 			if result.is_considered_abnormal:
 				val.SetForegroundColour('red')
@@ -2179,8 +2194,12 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 			tt = [
 				_(u'No test result for: %s (%s)') % (loinc_str, loinc),
 				u'',
-				_(u'Why monitor: %s' % loinc_monitor_substance[loinc])
+				_(u'Why monitor: %s' % loincs2monitor_data[loinc]['substance'])
 			]
+			try:
+				tt.append(u' %s' % loincs2monitor_data[loinc]['comment'])
+			except KeyError:
+				pass
 			val.SetToolTipString(u'\n'.join(tt))
 			val.SetForegroundColour('orange')
 			szr = wx.BoxSizer(wx.HORIZONTAL)

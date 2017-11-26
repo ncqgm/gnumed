@@ -5,8 +5,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-11-22 22:11+0100\n"
-"PO-Revision-Date: 2017-11-22 22:07+0100\n"
+"POT-Creation-Date: 2017-11-26 13:13+0100\n"
+"PO-Revision-Date: 2017-11-26 13:15+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "Language: de_DE\n"
@@ -8880,6 +8880,12 @@ msgstr "Dokumentenbereich durchblättern"
 msgid "patient photograph from %s"
 msgstr "Patientenbild von %s"
 
+msgid "show DICOMDIR file"
+msgstr "Datei DICOMDIR anzeigen"
+
+msgid "run Radiology Images (DICOM) Viewer"
+msgstr "Röntgen/CT/MRT ansehen"
+
 #, python-format
 msgid "other: %s"
 msgstr "anderes: %s"
@@ -16192,11 +16198,30 @@ msgid "%.1f (%s ago)"
 msgstr "%.1f (vor %s)"
 
 msgid "eGFR:"
-msgstr ""
+msgstr "eGFR:"
 
 #, python-format
-msgid "%s%s%s (%s ago)"
-msgstr "%s%s%s (vor %s)"
+msgid " - abnormal: %s"
+msgstr " - abnormal: %s"
+
+#, python-format
+msgid " - too old: %s ago (max: %s)"
+msgstr " - zu alt: %s ago (max: %s)"
+
+#, python-format
+msgid "Most recent: %s ago"
+msgstr "Zuletzt: vor %s"
+
+#, python-format
+msgid "Why monitor: %s"
+msgstr "Beobachten wegen: %s"
+
+msgid "Problems:"
+msgstr "Probleme:"
+
+#, python-format
+msgid "No test result for: %s (%s)"
+msgstr "Keine Meßwerte für %s (%s)"
 
 #, python-format
 msgid "eGFR: %.1f (%s)"
@@ -16323,34 +16348,29 @@ msgstr ""
 "\n"
 "(dies läßt sich normalerweise nicht rückgängig machen)"
 
-msgid ""
-"Script <gm-burn_doc(.bat)> not found.\n"
-"\n"
-"Cannot create patient CD/DVD."
-msgstr ""
-"Programm <gm-burn_doc(.bat)> nicht gefunden.\n"
-"\n"
-"Kann Patienten-Datenträger nicht erstellen."
+msgid "Preparing patient media for burning onto CD / DVD"
+msgstr "Patientendaten zum Brennen auf CD / DVD vorbereiten"
+
+msgid "Script <gm-burn_doc(.bat)> not found."
+msgstr "Programm <gm-burn_doc(.bat). nicht gefunden."
+
+msgid "Cannot attempt to burn patient media onto CD/DVD."
+msgstr "Kann Patientendaten nicht auf CD/DVD brennen."
 
 #, python-format
-msgid ""
-"Patient: %s\n"
-"\n"
-"Items to include into CD/DVD: %s\n"
-msgstr ""
-"Patient: %s\n"
-"\n"
-"Objekte für die CD/DVD: %s\n"
+msgid "Patient: %s"
+msgstr "Patient: %s"
 
 #, python-format
-msgid ""
-"Patient: %s\n"
-"\n"
-"Items to save: %s\n"
-msgstr ""
-"Patient: %s\n"
-"\n"
-"Objekte: %s\n"
+msgid "Number of items to export onto CD/DVD: %s\n"
+msgstr "Anzahl Objekte für die CD/DVD: %s\n"
+
+msgid "Preparing patient media for saving to disk (USB, harddrive)."
+msgstr "Patientendaten zum Speichern (USB, Festplatte) vorbereiten."
+
+#, python-format
+msgid "Number of items to export to disk: %s\n"
+msgstr "Anzahl Objekte für den Export: %s\n"
 
 msgid "(cannot check directory)"
 msgstr "(Verzeichnis kann nicht geprüft werden)"
@@ -22385,6 +22405,33 @@ msgstr "Abbrechen"
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
 
+#~ msgid "Unhappy because: abnormal (%s)"
+#~ msgstr "Problem: abnormal (%s)"
+
+#~ msgid "Unhappy because:"
+#~ msgstr "Problem:"
+
+#~ msgid "%s%s%s (%s ago)"
+#~ msgstr "%s%s%s (vor %s)"
+
+#~ msgid ""
+#~ "Script <gm-burn_doc(.bat)> not found.\n"
+#~ "\n"
+#~ "Cannot create patient CD/DVD."
+#~ msgstr ""
+#~ "Programm <gm-burn_doc(.bat)> nicht gefunden.\n"
+#~ "\n"
+#~ "Kann Patienten-Datenträger nicht erstellen."
+
+#~ msgid ""
+#~ "Patient: %s\n"
+#~ "\n"
+#~ "Items to save: %s\n"
+#~ msgstr ""
+#~ "Patient: %s\n"
+#~ "\n"
+#~ "Objekte: %s\n"
+
 #~ msgid "End time "
 #~ msgstr "Endzeit"
 
@@ -22478,9 +22525,6 @@ msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
 
 #~ msgid "Test types"
 #~ msgstr "Meßmethoden"
-
-#~ msgid "Patient #%s"
-#~ msgstr "Patient #%s"
 
 #~ msgid "J07AE02-target::cholera"
 #~ msgstr "Cholera"
@@ -25541,9 +25585,6 @@ msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
 
 #~ msgid "All normal "
 #~ msgstr "alle normal"
-
-#~ msgid "All abnormal "
-#~ msgstr "alle außerhalb Normbereich"
 
 #~ msgid "Clinically &significant"
 #~ msgstr "Klinisch &relevant"

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-11-25 13:04+0100\n"
+"POT-Creation-Date: 2017-11-26 13:13+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -14367,7 +14367,26 @@ msgid "eGFR:"
 msgstr ""
 
 #, python-format
-msgid "%s%s%s (%s ago)"
+msgid " - abnormal: %s"
+msgstr ""
+
+#, python-format
+msgid " - too old: %s ago (max: %s)"
+msgstr ""
+
+#, python-format
+msgid "Most recent: %s ago"
+msgstr ""
+
+#, python-format
+msgid "Why monitor: %s"
+msgstr ""
+
+msgid "Problems:"
+msgstr ""
+
+#, python-format
+msgid "No test result for: %s (%s)"
 msgstr ""
 
 #, python-format
