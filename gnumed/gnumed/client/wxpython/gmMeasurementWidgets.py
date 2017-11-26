@@ -317,14 +317,14 @@ def call_browser_on_measurement_type(measurement_type=None):
 		option = u'external.urls.measurements_search',
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 		bias = 'user',
-		default = u"http://www.google.de/search?as_oq=%(search_term)s&num=10&as_sitesearch=laborlexikon.de"
+		default = gmPathLab.URL_test_result_information_search
 	)
 
 	base_url = dbcfg.get2 (
 		option = u'external.urls.measurements_encyclopedia',
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 		bias = 'user',
-		default = u'http://www.laborlexikon.de'
+		default = gmPathLab.URL_test_result_information
 	)
 
 	if measurement_type is None:
@@ -1694,7 +1694,7 @@ class cMeasurementsGrid(wx.grid.Grid):
 			option = u'external.urls.measurements_encyclopedia',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			bias = 'user',
-			default = u'http://www.laborlexikon.de'
+			default = gmPathLab.URL_test_result_information
 		)
 
 		self.__WIN_corner = self.GetGridCornerLabelWindow()		# a wx.Window instance

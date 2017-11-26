@@ -604,11 +604,12 @@ def manage_vaccinations(parent=None, latest_only=False):
 			option = 'external.urls.vaccination_plans',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			bias = 'user',
-			default = u'http://www.bundesaerztekammer.de/downloads/STIKOEmpf2011.pdf'
+			default = gmVaccination.URL_vaccination_plan
 		)
 
 		gmNetworkTools.open_url_in_browser(url = url)
 		return False
+
 	#------------------------------------------------------------
 	def print_vaccs(vaccination=None):
 		print_vaccinations(parent = parent)

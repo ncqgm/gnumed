@@ -36,7 +36,7 @@ from Gnumed.business import gmCoding
 
 _log = logging.getLogger('gm.lab')
 
-
+#============================================================
 HL7_RESULT_STATI = {
 	None: _(u'unknown'),
 	u'': _(u'empty status'),
@@ -51,6 +51,9 @@ HL7_RESULT_STATI = {
 	u'U': _(u'U (HL7: mark as final (I/P/R/S -> F, value Unchanged)'),
 	u'W': _(u'W (HL7: original Wrong (say, wrong patient))')
 }
+
+URL_test_result_information = u'http://www.laborlexikon.de'
+URL_test_result_information_search = u"http://www.google.de/search?as_oq=%(search_term)s&num=10&as_sitesearch=laborlexikon.de"
 
 #============================================================
 def _on_test_result_modified():

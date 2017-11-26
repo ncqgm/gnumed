@@ -1575,7 +1575,8 @@ class gmTopLevelFrame(wx.Frame):
 	#----------------------------------------------
 	def __on_configure_measurements_url(self, evt):
 
-		german_default = u'http://www.laborlexikon.de',
+		from Gnumed.business import gmPathLab
+		german_default = gmPathLab.URL_test_result_information
 
 		def is_valid(value):
 			value = value.strip()
@@ -1603,7 +1604,8 @@ class gmTopLevelFrame(wx.Frame):
 	#----------------------------------------------
 	def __on_configure_vaccination_plans_url(self, evt):
 
-		german_default = u'http://www.bundesaerztekammer.de/downloads/ImpfempfehlungenRKI2009.pdf'
+		from Gnumed.business import gmVaccination
+		german_default = gmVaccination.URL_vaccination_plan
 
 		def is_valid(value):
 			value = value.strip()

@@ -90,6 +90,7 @@ def manage_tag_images(parent=None):
 
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
+
 	#------------------------------------------------------------
 	def go_to_openclipart_org(tag_image):
 		gmNetworkTools.open_url_in_browser(url = u'http://www.openclipart.org')
@@ -97,9 +98,11 @@ def manage_tag_images(parent=None):
 		gmNetworkTools.open_url_in_browser(url = u'http://www.duckduckgo.com')
 		gmNetworkTools.open_url_in_browser(url = u'http://images.google.com')
 		return True
+
 	#------------------------------------------------------------
 	def edit(tag_image=None):
 		return edit_tag_image(parent = parent, tag_image = tag_image, single_entry = (tag_image is not None))
+
 	#------------------------------------------------------------
 	def delete(tag):
 		if tag['is_in_use']:
@@ -107,6 +110,7 @@ def manage_tag_images(parent=None):
 			return False
 
 		return gmDemographicRecord.delete_tag_image(tag_image = tag['pk_tag_image'])
+
 	#------------------------------------------------------------
 	def refresh(lctrl):
 		tags = gmDemographicRecord.get_tag_images(order_by = u'l10n_description')
@@ -119,6 +123,7 @@ def manage_tag_images(parent=None):
 		lctrl.set_string_items(items)
 		lctrl.set_column_widths(widths = [wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE_USEHEADER, wx.LIST_AUTOSIZE_USEHEADER, wx.LIST_AUTOSIZE])
 		lctrl.set_data(tags)
+
 	#------------------------------------------------------------
 	msg = _('\nTags with images registered with GNUmed.\n')
 

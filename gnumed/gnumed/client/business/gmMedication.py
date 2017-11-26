@@ -39,6 +39,8 @@ _log = logging.getLogger('gm.meds')
 DEFAULT_MEDICATION_HISTORY_EPISODE = _('Medication history')
 
 URL_renal_insufficiency = u'http://www.dosing.de'
+URL_renal_insufficiency_search_template = u'http://www.google.com/search?hl=de&source=hp&q=site%%3Adosing.de+%s&btnG=Google-Suche'
+
 URL_long_qt = u'https://www.crediblemeds.org'
 
 #============================================================
@@ -101,8 +103,7 @@ def drug2renal_insufficiency_url(search_term=None):
 
 	#url_template = u'http://www.google.de/#q=site%%3Adosing.de+%s'
 	#url = url_template % u'+OR+'.join(terms)
-	url_template = u'http://www.google.com/search?hl=de&source=hp&q=site%%3Adosing.de+%s&btnG=Google-Suche'
-	url = url_template % u'+OR+'.join(terms)
+	url = URL_renal_insufficiency_search_template % u'+OR+'.join(terms)
 
 	_log.debug(u'renal insufficiency URL: %s', url)
 

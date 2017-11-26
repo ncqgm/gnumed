@@ -25,7 +25,10 @@ from Gnumed.business import gmMedication
 _log = logging.getLogger('gm.vacc')
 
 #============================================================
-_SQL_create_substance = u"""-- in case <%(substance_tag)s> already exists: add ATC
+URL_vaccination_plan = u'http://www.rki.de/DE/Content/Infekt/EpidBull/Archiv/2017/Ausgaben/34_17.pdf?__blob=publicationFile'
+
+#============================================================
+_SQL_create_substance4vaccine = u"""-- in case <%(substance_tag)s> already exists: add ATC
 UPDATE ref.substance SET atc = '%(atc)s' WHERE lower(description) = lower('%(desc)s') AND atc IS NULL;
 
 INSERT INTO ref.substance (description, atc)
@@ -328,7 +331,7 @@ def create_generic_vaccine_sql(version, include_indications_mapping=False):
 			'orig': subst['target'].split(u'::')[0],
 			'trans': subst['target'].split(u'::')[-1]
 		}
-		sql_create_substances.append(_SQL_create_substance % args)
+		sql_create_substances.append(_SQL_create_substance4vaccine % args)
 		try:
 			for v21_ind in subst['v21_indications']:
 				args['v21_ind'] = v21_ind
