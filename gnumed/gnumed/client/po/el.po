@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-11-22 21:34+0100\n"
+"POT-Creation-Date: 2017-11-26 17:08+0100\n"
 "PO-Revision-Date: 2012-06-01 01:24+0000\n"
 "Last-Translator: ncq <Unknown>\n"
 "Language-Team: Ελληνικά, Σύγχρονα <opensuse-translation-el@opensuse.org>\n"
@@ -3417,14 +3417,14 @@ msgstr ""
 msgid "Show in-depth information on the selected substance if available."
 msgstr ""
 
-msgid ""
-"Show <http://www.qtsyndrome.ch> information on handling of drugs in the "
-"presence of long Qt duration."
+#, python-format
+msgid "Information on handling drugs in the presence of long Qt syndrome (%s)."
 msgstr ""
 
+#, python-format
 msgid ""
-"Show <www.dosing.de> information on handling of drugs / the selected drug in "
-"the presence of renal insufficiency."
+"Information on handling of drugs / the selected drug in the presence of "
+"renal insufficiency (%s)."
 msgstr ""
 
 msgid ""
@@ -8894,6 +8894,13 @@ msgstr "Επισύναψη αρχείων"
 
 #, python-format
 msgid "patient photograph from %s"
+msgstr ""
+
+#, fuzzy
+msgid "show DICOMDIR file"
+msgstr "αρχεία καταγραφής"
+
+msgid "run Radiology Images (DICOM) Viewer"
 msgstr ""
 
 #, fuzzy, python-format
@@ -15758,10 +15765,28 @@ msgid "eGFR:"
 msgstr ""
 
 #, fuzzy, python-format
-msgid "%s%s%s (%s ago)"
+msgid " - abnormal: %s"
+msgstr " Κωδικός: %s\n"
+
+#, python-format
+msgid " - too old: %s ago (max: %s)"
 msgstr ""
-"%s: %s από  %.8s (v%s)\n"
-"%s"
+
+#, fuzzy, python-format
+msgid "Most recent: %s ago"
+msgstr " Πιο πρόσφατο:%s-%s"
+
+#, fuzzy, python-format
+msgid "Why monitor: %s"
+msgstr "Οικογενειακό Ιστορικό: %s"
+
+#, fuzzy
+msgid "Problems:"
+msgstr "Πρόβλημα"
+
+#, fuzzy, python-format
+msgid "No test result for: %s (%s)"
+msgstr "Χωρίς αποτελέσματα της εξέτασης προς μορφοποίηση."
 
 #, python-format
 msgid "eGFR: %.1f (%s)"
@@ -15870,25 +15895,29 @@ msgid ""
 "(this operation is generally not reversible)"
 msgstr ""
 
-msgid ""
-"Script <gm-burn_doc(.bat)> not found.\n"
-"\n"
-"Cannot create patient CD/DVD."
+msgid "Preparing patient media for burning onto CD / DVD"
 msgstr ""
 
-#, python-format
-msgid ""
-"Patient: %s\n"
-"\n"
-"Items to include into CD/DVD: %s\n"
+msgid "Script <gm-burn_doc(.bat)> not found."
+msgstr ""
+
+msgid "Cannot attempt to burn patient media onto CD/DVD."
 msgstr ""
 
 #, fuzzy, python-format
-msgid ""
-"Patient: %s\n"
-"\n"
-"Items to save: %s\n"
-msgstr "Ασθενής:%s(%s), Οχι:%s\n"
+msgid "Patient: %s"
+msgstr "Ασθενής"
+
+#, python-format
+msgid "Number of items to export onto CD/DVD: %s\n"
+msgstr ""
+
+msgid "Preparing patient media for saving to disk (USB, harddrive)."
+msgstr ""
+
+#, python-format
+msgid "Number of items to export to disk: %s\n"
+msgstr ""
 
 msgid "(cannot check directory)"
 msgstr ""
@@ -21334,6 +21363,19 @@ msgid "Abort and do NOT connect to GNUmed."
 msgstr "Ματαίωση και ΔΕΝ θα συνδεθείτε με το GNUmed."
 
 #, fuzzy
+#~ msgid "%s%s%s (%s ago)"
+#~ msgstr ""
+#~ "%s: %s από  %.8s (v%s)\n"
+#~ "%s"
+
+#, fuzzy
+#~ msgid ""
+#~ "Patient: %s\n"
+#~ "\n"
+#~ "Items to save: %s\n"
+#~ msgstr "Ασθενής:%s(%s), Οχι:%s\n"
+
+#, fuzzy
 #~ msgid "Start time "
 #~ msgstr "Άρχισε νέο"
 
@@ -21489,10 +21531,6 @@ msgstr "Ματαίωση και ΔΕΝ θα συνδεθείτε με το GNUme
 #, fuzzy
 #~ msgid "Test types"
 #~ msgstr "Τύπος προτύπου"
-
-#, fuzzy
-#~ msgid "Patient #%s"
-#~ msgstr "Ασθενής"
 
 #, fuzzy
 #~ msgid "Start of Care"

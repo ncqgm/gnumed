@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-11-26 13:13+0100\n"
+"POT-Creation-Date: 2017-11-26 17:09+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2856,14 +2856,14 @@ msgstr ""
 msgid "Show in-depth information on the selected substance if available."
 msgstr ""
 
-msgid ""
-"Show <http://www.qtsyndrome.ch> information on handling of drugs in the "
-"presence of long Qt duration."
+#, python-format
+msgid "Information on handling drugs in the presence of long Qt syndrome (%s)."
 msgstr ""
 
+#, python-format
 msgid ""
-"Show <www.dosing.de> information on handling of drugs / the selected drug in "
-"the presence of renal insufficiency."
+"Information on handling of drugs / the selected drug in the presence of "
+"renal insufficiency (%s)."
 msgstr ""
 
 msgid ""

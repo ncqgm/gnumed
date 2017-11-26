@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed 0.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-11-22 21:34+0100\n"
+"POT-Creation-Date: 2017-11-26 17:08+0100\n"
 "PO-Revision-Date: 2012-06-01 01:16+0000\n"
 "Last-Translator: ncq <Unknown>\n"
 "Language-Team: FR <LL@li.org>\n"
@@ -3091,17 +3091,16 @@ msgstr ""
 "Afficher en détails les informations de la substance sélectionnée si "
 "disponible."
 
-#, fuzzy
-msgid ""
-"Show <http://www.qtsyndrome.ch> information on handling of drugs in the "
-"presence of long Qt duration."
+#, fuzzy, python-format
+msgid "Information on handling drugs in the presence of long Qt syndrome (%s)."
 msgstr ""
 "Voir les informations sur <www.dosing.de>  pour l'utilisation des "
 "médicaments / Le médicament selectionné dans l'insuffisance rénale."
 
+#, fuzzy, python-format
 msgid ""
-"Show <www.dosing.de> information on handling of drugs / the selected drug in "
-"the presence of renal insufficiency."
+"Information on handling of drugs / the selected drug in the presence of "
+"renal insufficiency (%s)."
 msgstr ""
 "Voir les informations sur <www.dosing.de>  pour l'utilisation des "
 "médicaments / Le médicament selectionné dans l'insuffisance rénale."
@@ -8954,6 +8953,13 @@ msgstr "Attacher des documents"
 
 #, python-format
 msgid "patient photograph from %s"
+msgstr ""
+
+#, fuzzy
+msgid "show DICOMDIR file"
+msgstr "Enregistrer le vaccin"
+
+msgid "run Radiology Images (DICOM) Viewer"
 msgstr ""
 
 #, fuzzy, python-format
@@ -15947,8 +15953,28 @@ msgid "eGFR:"
 msgstr ""
 
 #, fuzzy, python-format
-msgid "%s%s%s (%s ago)"
-msgstr "%s %s (%s aujourd'hui !)"
+msgid " - abnormal: %s"
+msgstr "Patient :"
+
+#, python-format
+msgid " - too old: %s ago (max: %s)"
+msgstr ""
+
+#, fuzzy, python-format
+msgid "Most recent: %s ago"
+msgstr " Plus récent : %s - %s"
+
+#, fuzzy, python-format
+msgid "Why monitor: %s"
+msgstr "Antécédants familiaux"
+
+#, fuzzy
+msgid "Problems:"
+msgstr "Problème"
+
+#, fuzzy, python-format
+msgid "No test result for: %s (%s)"
+msgstr "Pas de résultats à mettre en forme."
 
 #, python-format
 msgid "eGFR: %.1f (%s)"
@@ -16064,25 +16090,30 @@ msgid ""
 "(this operation is generally not reversible)"
 msgstr ""
 
-msgid ""
-"Script <gm-burn_doc(.bat)> not found.\n"
-"\n"
-"Cannot create patient CD/DVD."
+msgid "Preparing patient media for burning onto CD / DVD"
 msgstr ""
 
-#, python-format
-msgid ""
-"Patient: %s\n"
-"\n"
-"Items to include into CD/DVD: %s\n"
+#, fuzzy
+msgid "Script <gm-burn_doc(.bat)> not found."
+msgstr "Page introuvable"
+
+msgid "Cannot attempt to burn patient media onto CD/DVD."
 msgstr ""
 
 #, fuzzy, python-format
-msgid ""
-"Patient: %s\n"
-"\n"
-"Items to save: %s\n"
-msgstr "Patient: %s (%s), No: %s\n"
+msgid "Patient: %s"
+msgstr "Patient #%s"
+
+#, python-format
+msgid "Number of items to export onto CD/DVD: %s\n"
+msgstr ""
+
+msgid "Preparing patient media for saving to disk (USB, harddrive)."
+msgstr ""
+
+#, python-format
+msgid "Number of items to export to disk: %s\n"
+msgstr ""
 
 msgid "(cannot check directory)"
 msgstr ""
@@ -21626,6 +21657,17 @@ msgid "Abort and do NOT connect to GNUmed."
 msgstr "Annuler et ne PAS se connecter a GNUmed."
 
 #, fuzzy
+#~ msgid "%s%s%s (%s ago)"
+#~ msgstr "%s %s (%s aujourd'hui !)"
+
+#, fuzzy
+#~ msgid ""
+#~ "Patient: %s\n"
+#~ "\n"
+#~ "Items to save: %s\n"
+#~ msgstr "Patient: %s (%s), No: %s\n"
+
+#, fuzzy
 #~ msgid ""
 #~ "Could not find iCalendar Python package. It is required for working with "
 #~ "ICS files. See the Timeline website or the doc/installing.rst file for "
@@ -21780,9 +21822,6 @@ msgstr "Annuler et ne PAS se connecter a GNUmed."
 #, fuzzy
 #~ msgid "Test types"
 #~ msgstr "Type de modèle"
-
-#~ msgid "Patient #%s"
-#~ msgstr "Patient #%s"
 
 #, fuzzy
 #~ msgid "Start of Care"

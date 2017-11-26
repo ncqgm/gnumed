@@ -232,6 +232,7 @@ class cClinicalCalculator(object):
 		_log.debug(u'%s' % result)
 
 		return result
+
 	#--------------------------------------------------------
 	def _get_egfrs(self):
 		egfrs = [
@@ -255,7 +256,7 @@ class cClinicalCalculator(object):
 		# this logic is based on "KVH aktuell 2/2014 Seite 10-15"
 		# expect normal GFR
 		CKD = self.eGFR_CKD_EPI
-		if CKD.numeric_value > 60:
+		if CKD.numeric_value > self.d(60):
 			return CKD
 
 		# CKD at or below 60
@@ -284,7 +285,7 @@ class cClinicalCalculator(object):
 			age = gmDateTime.calculate_apparent_age(start = self.__patient['dob'])[0]
 
 		# geriatric ?
-		if age > 65:
+		if age > self.d(65):
 			if CG.numeric_value is not None:
 				return CG
 
@@ -294,7 +295,7 @@ class cClinicalCalculator(object):
 				return CKD
 			return CG
 
-		if MDRD.numeric_value > 60:
+		if MDRD.numeric_value > self.d(60):
 			if CKD.numeric_value is not None:
 				# probably normal after all (>60) -> use CKD-EPI
 				return CKD

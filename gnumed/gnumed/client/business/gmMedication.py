@@ -34,8 +34,12 @@ from Gnumed.business import gmEMRStructItems
 
 _log = logging.getLogger('gm.meds')
 
+#============================================================
 #_ = lambda x:x
 DEFAULT_MEDICATION_HISTORY_EPISODE = _('Medication history')
+
+URL_renal_insufficiency = u'http://www.dosing.de'
+URL_long_qt = u'https://www.crediblemeds.org'
 
 #============================================================
 def _on_substance_intake_modified():
@@ -48,11 +52,11 @@ gmDispatcher.connect(_on_substance_intake_modified, u'clin.substance_intake_mod_
 def drug2renal_insufficiency_url(search_term=None):
 
 	if search_term is None:
-		return u'http://www.dosing.de'
+		return URL_renal_insufficiency
 
 	if isinstance(search_term, basestring):
 		if search_term.strip() == u'':
-			return u'http://www.dosing.de'
+			return URL_renal_insufficiency
 
 	terms = []
 	names = []
@@ -97,7 +101,6 @@ def drug2renal_insufficiency_url(search_term=None):
 
 	#url_template = u'http://www.google.de/#q=site%%3Adosing.de+%s'
 	#url = url_template % u'+OR+'.join(terms)
-
 	url_template = u'http://www.google.com/search?hl=de&source=hp&q=site%%3Adosing.de+%s&btnG=Google-Suche'
 	url = url_template % u'+OR+'.join(terms)
 

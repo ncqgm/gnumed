@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-11-25 13:04+0100\n"
+"POT-Creation-Date: 2017-11-26 17:08+0100\n"
 "PO-Revision-Date: 2016-02-24 18:28+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: colombiano <es@li.org>\n"
@@ -3066,16 +3066,16 @@ msgstr ""
 "Muestre información detallada de la sustancia seleccionada si está "
 "disponible."
 
-msgid ""
-"Show <http://www.qtsyndrome.ch> information on handling of drugs in the "
-"presence of long Qt duration."
+#, fuzzy, python-format
+msgid "Information on handling drugs in the presence of long Qt syndrome (%s)."
 msgstr ""
 "Muestre información respecto al manejo de drogas en <www.qtdrugs.org>  en "
 "presencia de un intervalo QT largo."
 
+#, fuzzy, python-format
 msgid ""
-"Show <www.dosing.de> information on handling of drugs / the selected drug in "
-"the presence of renal insufficiency."
+"Information on handling of drugs / the selected drug in the presence of "
+"renal insufficiency (%s)."
 msgstr ""
 "Muestro información de <www.dosing.de> sobre cómo manejar medicamentos / el "
 "medicamento seleccionado ante la presencia de insuficiencia renal."
@@ -16453,9 +16453,29 @@ msgstr "%.1f (%s atrás)"
 msgid "eGFR:"
 msgstr "TFGe"
 
+#, fuzzy, python-format
+msgid " - abnormal: %s"
+msgstr "Norma: %s"
+
 #, python-format
-msgid "%s%s%s (%s ago)"
-msgstr "%s%s%s (%s atrás)"
+msgid " - too old: %s ago (max: %s)"
+msgstr ""
+
+#, fuzzy, python-format
+msgid "Most recent: %s ago"
+msgstr " La más reciente: %s - %s"
+
+#, fuzzy, python-format
+msgid "Why monitor: %s"
+msgstr "Historial Familiar: %s"
+
+#, fuzzy
+msgid "Problems:"
+msgstr "Problema"
+
+#, fuzzy, python-format
+msgid "No test result for: %s (%s)"
+msgstr "No hay resultados de exámenes a los que dar formato."
 
 #, python-format
 msgid "eGFR: %.1f (%s)"
@@ -22776,6 +22796,9 @@ msgstr "Aborto"
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Aborto y NO conecto a GNUMed."
+
+#~ msgid "%s%s%s (%s ago)"
+#~ msgstr "%s%s%s (%s atrás)"
 
 #, fuzzy
 #~ msgid ""

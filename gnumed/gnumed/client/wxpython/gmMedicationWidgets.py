@@ -846,7 +846,7 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 
 	#----------------------------------------------------------------
 	def _on_heart_button_pressed(self, event):
-		gmNetworkTools.open_url_in_browser(url = u'http://www.qtsyndrome.ch/drugs.html')
+		gmNetworkTools.open_url_in_browser(url = gmMedication.URL_long_qt)
 
 	#----------------------------------------------------------------
 	def _on_kidneys_button_pressed(self, event):
@@ -1631,7 +1631,7 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 
 	#------------------------------------------------------------
 	def show_cardiac_info(self):
-		gmNetworkTools.open_url_in_browser(url = u'http://www.qtsyndrome.ch/drugs.html')
+		gmNetworkTools.open_url_in_browser(url = gmMedication.URL_long_qt)
 
 	#------------------------------------------------------------
 	def report_ADR(self):
@@ -1643,6 +1643,7 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 			default = u'https://dcgma.org/uaw/meldung.php'		# http://www.akdae.de/Arzneimittelsicherheit/UAW-Meldung/UAW-Meldung-online.html
 		)
 		gmNetworkTools.open_url_in_browser(url = url)
+
 	#------------------------------------------------------------
 	def prescribe(self):
 		prescribe_drugs (
@@ -1817,6 +1818,7 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 		})
 
 		return tt
+
 	#------------------------------------------------------------
 	# internal helpers
 	#------------------------------------------------------------
@@ -1830,6 +1832,7 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 
 		self.SetRowLabelSize(0)
 		self.SetRowLabelAlignment(horiz = wx.ALIGN_RIGHT, vert = wx.ALIGN_CENTRE)
+
 	#------------------------------------------------------------
 	# properties
 	#------------------------------------------------------------
@@ -1965,6 +1968,18 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 		for option in self.__grouping_choice_labels:
 			self._CHCE_grouping.Append(option['label'], option['data'])
 		self._CHCE_grouping.SetSelection(0)
+
+		tt = self._BTN_heart.GetToolTipString()
+		try:
+			self._BTN_heart.SetToolTipString(tt % gmMedication.URL_long_qt)
+		except TypeError:
+			_log.exception(u'translation error: %s', tt)
+
+		tt = self._BTN_kidneys.GetToolTipString()
+		try:
+			self._BTN_kidneys.SetToolTipString(tt % gmMedication.URL_renal_insufficiency)
+		except TypeError:
+			_log.exception(u'translation error: %s', tt)
 
 	#-----------------------------------------------------
 	# reget-on-paint mixin API
@@ -2148,7 +2163,7 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 			if indicator is not None:
 				unhappy_reasons.append(_(u' - abnormal: %s') % indicator)
 			if max_age is not None:
-				if result_age.total_seconds > max_age:
+				if result_age.total_seconds() > max_age:
 					unhappy_reasons.append(_(u' - too old: %s ago (max: %s)') % (
 						gmDateTime.format_interval_medically(result_age),
 						max_age_str

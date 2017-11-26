@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-11-22 21:34+0100\n"
+"POT-Creation-Date: 2017-11-26 17:09+0100\n"
 "PO-Revision-Date: 2012-01-21 13:50+0000\n"
 "Last-Translator: YvLy <Unknown>\n"
 "Language-Team: Russian <ru@li.org>\n"
@@ -3142,17 +3142,16 @@ msgstr "Прервать выбранную запись, относящуюся
 msgid "Show in-depth information on the selected substance if available."
 msgstr "Показать подробную информацию по выбранному веществу, если имеется."
 
-#, fuzzy
-msgid ""
-"Show <http://www.qtsyndrome.ch> information on handling of drugs in the "
-"presence of long Qt duration."
+#, fuzzy, python-format
+msgid "Information on handling drugs in the presence of long Qt syndrome (%s)."
 msgstr ""
 "Паказать информацию <www.dosing.de> по применению препаратов или выбранному "
 "препарату при почечной недостаточности."
 
+#, fuzzy, python-format
 msgid ""
-"Show <www.dosing.de> information on handling of drugs / the selected drug in "
-"the presence of renal insufficiency."
+"Information on handling of drugs / the selected drug in the presence of "
+"renal insufficiency (%s)."
 msgstr ""
 "Паказать информацию <www.dosing.de> по применению препаратов или выбранному "
 "препарату при почечной недостаточности."
@@ -9099,6 +9098,13 @@ msgstr "добавлены только документы"
 #, fuzzy, python-format
 msgid "patient photograph from %s"
 msgstr "Невозможно установить изображение пациента из [%s]."
+
+#, fuzzy
+msgid "show DICOMDIR file"
+msgstr "Сохранение записи SOAP"
+
+msgid "run Radiology Images (DICOM) Viewer"
+msgstr ""
 
 #, fuzzy, python-format
 msgid "other: %s"
@@ -16661,8 +16667,28 @@ msgid "eGFR:"
 msgstr ""
 
 #, fuzzy, python-format
-msgid "%s%s%s (%s ago)"
-msgstr "%s%7s %s:%s (%s часть(и)%s)"
+msgid " - abnormal: %s"
+msgstr "Зона: %s\n"
+
+#, python-format
+msgid " - too old: %s ago (max: %s)"
+msgstr ""
+
+#, fuzzy, python-format
+msgid "Most recent: %s ago"
+msgstr " Самое последнее: %s - %s"
+
+#, fuzzy, python-format
+msgid "Why monitor: %s"
+msgstr "Семейный анамнез: %s"
+
+#, fuzzy
+msgid "Problems:"
+msgstr "Проблема"
+
+#, fuzzy, python-format
+msgid "No test result for: %s (%s)"
+msgstr "Для форматирования нет результатов анализов."
 
 #, python-format
 msgid "eGFR: %.1f (%s)"
@@ -16782,25 +16808,30 @@ msgid ""
 "(this operation is generally not reversible)"
 msgstr ""
 
-msgid ""
-"Script <gm-burn_doc(.bat)> not found.\n"
-"\n"
-"Cannot create patient CD/DVD."
+msgid "Preparing patient media for burning onto CD / DVD"
 msgstr ""
 
-#, python-format
-msgid ""
-"Patient: %s\n"
-"\n"
-"Items to include into CD/DVD: %s\n"
+#, fuzzy
+msgid "Script <gm-burn_doc(.bat)> not found."
+msgstr "pgAdmin III не найден."
+
+msgid "Cannot attempt to burn patient media onto CD/DVD."
 msgstr ""
 
 #, fuzzy, python-format
-msgid ""
-"Patient: %s\n"
-"\n"
-"Items to save: %s\n"
-msgstr "Пациент: %s (%s), Номер: %s\n"
+msgid "Patient: %s"
+msgstr "Пациент #%s"
+
+#, python-format
+msgid "Number of items to export onto CD/DVD: %s\n"
+msgstr ""
+
+msgid "Preparing patient media for saving to disk (USB, harddrive)."
+msgstr ""
+
+#, python-format
+msgid "Number of items to export to disk: %s\n"
+msgstr ""
 
 msgid "(cannot check directory)"
 msgstr ""
@@ -23044,6 +23075,17 @@ msgid "Abort and do NOT connect to GNUmed."
 msgstr "Отменить и НЕ подключаться к GNUmed."
 
 #, fuzzy
+#~ msgid "%s%s%s (%s ago)"
+#~ msgstr "%s%7s %s:%s (%s часть(и)%s)"
+
+#, fuzzy
+#~ msgid ""
+#~ "Patient: %s\n"
+#~ "\n"
+#~ "Items to save: %s\n"
+#~ msgstr "Пациент: %s (%s), Номер: %s\n"
+
+#, fuzzy
 #~ msgid ""
 #~ "Could not find iCalendar Python package. It is required for working with "
 #~ "ICS files. See the Timeline website or the doc/installing.rst file for "
@@ -23230,9 +23272,6 @@ msgstr "Отменить и НЕ подключаться к GNUmed."
 #, fuzzy
 #~ msgid "Test types"
 #~ msgstr "Тип анализа:\n"
-
-#~ msgid "Patient #%s"
-#~ msgstr "Пациент #%s"
 
 #, fuzzy
 #~ msgid "J07BA03-target::japanese encephalitis"

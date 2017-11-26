@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-11-22 21:34+0100\n"
+"POT-Creation-Date: 2017-11-26 17:09+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2869,14 +2869,14 @@ msgstr ""
 msgid "Show in-depth information on the selected substance if available."
 msgstr ""
 
-msgid ""
-"Show <http://www.qtsyndrome.ch> information on handling of drugs in the "
-"presence of long Qt duration."
+#, python-format
+msgid "Information on handling drugs in the presence of long Qt syndrome (%s)."
 msgstr ""
 
+#, python-format
 msgid ""
-"Show <www.dosing.de> information on handling of drugs / the selected drug in "
-"the presence of renal insufficiency."
+"Information on handling of drugs / the selected drug in the presence of "
+"renal insufficiency (%s)."
 msgstr ""
 
 msgid ""
@@ -7941,6 +7941,12 @@ msgstr ""
 
 #, python-format
 msgid "patient photograph from %s"
+msgstr ""
+
+msgid "show DICOMDIR file"
+msgstr ""
+
+msgid "run Radiology Images (DICOM) Viewer"
 msgstr ""
 
 #, fuzzy, python-format
@@ -14407,7 +14413,26 @@ msgid "eGFR:"
 msgstr ""
 
 #, python-format
-msgid "%s%s%s (%s ago)"
+msgid " - abnormal: %s"
+msgstr ""
+
+#, python-format
+msgid " - too old: %s ago (max: %s)"
+msgstr ""
+
+#, python-format
+msgid "Most recent: %s ago"
+msgstr ""
+
+#, python-format
+msgid "Why monitor: %s"
+msgstr ""
+
+msgid "Problems:"
+msgstr ""
+
+#, python-format
+msgid "No test result for: %s (%s)"
 msgstr ""
 
 #, python-format
@@ -14516,24 +14541,28 @@ msgid ""
 "(this operation is generally not reversible)"
 msgstr ""
 
-msgid ""
-"Script <gm-burn_doc(.bat)> not found.\n"
-"\n"
-"Cannot create patient CD/DVD."
+msgid "Preparing patient media for burning onto CD / DVD"
+msgstr ""
+
+msgid "Script <gm-burn_doc(.bat)> not found."
+msgstr ""
+
+msgid "Cannot attempt to burn patient media onto CD/DVD."
+msgstr ""
+
+#, fuzzy, python-format
+msgid "Patient: %s"
+msgstr "Genel bilgi mesajı"
+
+#, python-format
+msgid "Number of items to export onto CD/DVD: %s\n"
+msgstr ""
+
+msgid "Preparing patient media for saving to disk (USB, harddrive)."
 msgstr ""
 
 #, python-format
-msgid ""
-"Patient: %s\n"
-"\n"
-"Items to include into CD/DVD: %s\n"
-msgstr ""
-
-#, python-format
-msgid ""
-"Patient: %s\n"
-"\n"
-"Items to save: %s\n"
+msgid "Number of items to export to disk: %s\n"
 msgstr ""
 
 msgid "(cannot check directory)"
