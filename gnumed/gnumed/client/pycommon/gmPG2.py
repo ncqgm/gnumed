@@ -1252,7 +1252,8 @@ def file2bytea(query=None, filename=None, args=None, conn=None, file_md5=None):
 	infile.close()
 	if args is None:
 		args = {}
-	args['data'] = buffer(data_as_byte_string)
+	# really still needed for BYTEA input ?
+	args['data'] = memoryview(data_as_byte_string)
 	del(data_as_byte_string)
 
 	# insert the data
@@ -1450,7 +1451,8 @@ def file2bytea_overlay(query=None, args=None, filename=None, conn=None, md5_quer
 		args['start'] = chunk_start
 		args['size'] = chunk_size
 		data_as_byte_string = infile.read(chunk_size)
-		args['data'] = buffer(data_as_byte_string)
+		# really still needed for BYTEA input ?
+		args['data'] = memoryview(data_as_byte_string)
 		del(data_as_byte_string)
 		try:
 			rows, idx = run_rw_queries(link_obj = conn, queries = [{'cmd': query, 'args': args}], end_tx = False, return_data = False)
@@ -1466,7 +1468,8 @@ def file2bytea_overlay(query=None, args=None, filename=None, conn=None, md5_quer
 		args['start'] = chunk_start
 		args['size'] = remainder
 		data_as_byte_string = infile.read(remainder)
-		args['data'] = buffer(data_as_byte_string)
+		# really still needed for BYTEA input ?
+		args['data'] = memoryview(data_as_byte_string)
 		del(data_as_byte_string)
 		try:
 			rows, idx = run_rw_queries(link_obj = conn, queries = [{'cmd': query, 'args': args}], end_tx = False, return_data = False)
