@@ -1397,7 +1397,7 @@ def format_dict_like(d, relevant_keys=None, template=None, missing_key_template=
 	else:
 		delim_left, delim_right = value_delimiters
 	if tabular:
-		max_len = max([ len(i) for i in relevant_keys ])
+		max_len = max([ len(u'%s' % k) for k in relevant_keys ])
 		max_len_str = u'%s.%s' % (max_len, max_len)
 		line_template = (u' ' * left_margin) + u'%' + max_len_str + ('s: %s%%s%s' % (delim_left, delim_right))
 	else:
@@ -1851,14 +1851,15 @@ second line\n
 		# 3
 		d2[4] = 4
 
-		compare_dict_likes(d1, d2)
+		#compare_dict_likes(d1, d2)
 
 		d1 = {1: 1, 2: 2}
 		d2 = {1: 1, 2: 2}
 
-		compare_dict_likes(d1, d2, 'same1', 'same2')
-		print(format_dict_like(d1))
-		print(format_dict_like(d2))
+		#compare_dict_likes(d1, d2, 'same1', 'same2')
+		print(format_dict_like(d1, tabular = False))
+		print(format_dict_like(d1, tabular = True))
+		#print(format_dict_like(d2))
 
 	#-----------------------------------------------------------------------
 	def test_format_compare_dicts():
@@ -1942,7 +1943,7 @@ second line\n
 	#test_none_if()
 	#test_bool2str()
 	#test_bool2subst()
-	test_get_unique_filename()
+	#test_get_unique_filename()
 	#test_size2str()
 	#test_wrap()
 	#test_input2decimal()
@@ -1956,7 +1957,7 @@ second line\n
 	#test_fname_stem()
 	#test_tex_escape()
 	#test_dir_is_empty()
-	#test_compare_dicts()
+	test_compare_dicts()
 	#test_rm_dir()
 	#test_rm_dir_content()
 	#test_strip_prefix()

@@ -358,6 +358,7 @@ class gmCfgData(gmBorg.cBorg):
 		except AttributeError:
 			self.__cfg_data = {}
 			self.source_files = {}
+
 	#--------------------------------------------------
 	def get(self, group=None, option=None, source_order=None):
 		"""Get the value of a configuration option in a config file.
@@ -407,6 +408,7 @@ class gmCfgData(gmBorg.cBorg):
 			return None
 
 		return results
+
 	#--------------------------------------------------
 	def set_option(self, option=None, value=None, group=None, source=None):
 		"""Set a particular option to a particular value.

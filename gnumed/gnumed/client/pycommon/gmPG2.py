@@ -296,6 +296,29 @@ WHERE
 	)
 """
 
+SQL_get_pk_col_def = u"""
+SELECT
+	pg_attribute.attname
+		AS pk_col,
+	format_type(pg_attribute.atttypid, pg_attribute.atttypmod)
+		AS pk_type
+FROM pg_index, pg_class, pg_attribute, pg_namespace
+WHERE
+	pg_class.oid = %(table)s::regclass
+		AND
+	indrelid = pg_class.oid
+		AND
+--	nspname = %%(schema)s
+--		AND
+	pg_class.relnamespace = pg_namespace.oid
+		AND
+	pg_attribute.attrelid = pg_class.oid
+		AND
+	pg_attribute.attnum = any(pg_index.indkey)
+		AND
+	indisprimary
+"""
+
 # =======================================================================
 # module globals API
 # =======================================================================
@@ -506,12 +529,13 @@ def request_login_params():
 		raise Exception('Cannot request login parameters.')
 
 	# are we inside X ?
-	# (if we aren't wxGTK will crash hard at
-	# C-level with "can't open Display")
+	# if we aren't wxGTK will crash hard at the C-level with "can't open Display"
 	if u'DISPLAY' in os.environ:
 		# try wxPython GUI
-		try: return __request_login_params_gui_wx()
-		except: pass
+		try:
+			return __request_login_params_gui_wx()
+		except:
+			pass
 
 	# well, either we are on the console or
 	# wxPython does not work, use text mode
@@ -637,6 +661,7 @@ def database_schema_compatible(link_obj=None, version=None, verbose=True):
 		return False
 	_log.info('detected schema version [%s], hash [%s]' % (map_schema_hash2version[rows[0]['md5']], rows[0]['md5']))
 	return True
+
 #------------------------------------------------------------------------
 def get_schema_version(link_obj=None):
 	rows, idx = run_ro_queries(link_obj=link_obj, queries = [{'cmd': u'select md5(gm.concat_table_structure()) as md5'}])
@@ -644,14 +669,17 @@ def get_schema_version(link_obj=None):
 		return map_schema_hash2version[rows[0]['md5']]
 	except KeyError:
 		return u'unknown database schema version, MD5 hash is [%s]' % rows[0]['md5']
+
 #------------------------------------------------------------------------
 def get_schema_structure(link_obj=None):
 	rows, idx = run_ro_queries(link_obj=link_obj, queries = [{'cmd': u'select gm.concat_table_structure()'}])
 	return rows[0][0]
+
 #------------------------------------------------------------------------
 def get_schema_hash(link_obj=None):
 	rows, idx = run_ro_queries(link_obj=link_obj, queries = [{'cmd': u'select md5(gm.concat_table_structure()) as md5'}])
 	return rows[0]['md5']
+
 #------------------------------------------------------------------------
 def get_schema_revision_history(link_obj=None):
 
@@ -680,6 +708,7 @@ def get_schema_revision_history(link_obj=None):
 def get_current_user():
 	rows, idx = run_ro_queries(queries = [{'cmd': u'select CURRENT_USER'}])
 	return rows[0][0]
+
 #------------------------------------------------------------------------
 def get_foreign_keys2column(schema='public', table=None, column=None, link_obj=None):
 	"""Get the foreign keys pointing to schema.table.column.
@@ -687,20 +716,26 @@ def get_foreign_keys2column(schema='public', table=None, column=None, link_obj=N
 	Does not properly work with multi-column FKs.
 	GNUmed doesn't use any, however.
 	"""
+	args = {
+		'schema': schema,
+		'tbl': table,
+		'col': column
+	}
 	cmd = u"""
-select
-	%(schema)s as referenced_schema,
-	%(tbl)s as referenced_table,
-	%(col)s as referenced_column,
-	pgc.confkey as referenced_column_list,
-	pgc.conrelid::regclass as referencing_table,
-	pgc.conkey as referencing_column_list,
-	(select attname from pg_attribute where attnum = pgc.conkey[1] and attrelid = pgc.conrelid) as referencing_column
-from
+SELECT
+	%(schema)s AS referenced_schema,
+	%(tbl)s AS referenced_table,
+	%(col)s AS referenced_column,
+	pgc.confkey AS referenced_column_list,
+
+	pgc.conrelid::regclass AS referencing_table,
+	pgc.conkey AS referencing_column_list,
+	(select attname from pg_attribute where attnum = pgc.conkey[1] and attrelid = pgc.conrelid) AS referencing_column
+FROM
 	pg_constraint pgc
-where
+WHERE
 	pgc.contype = 'f'
-		and
+		AND
 	pgc.confrelid = (
 		select oid from pg_class where relname = %(tbl)s and relnamespace = (
 			select oid from pg_namespace where nspname = %(schema)s
@@ -717,13 +752,6 @@ where
 			attname = %(col)s
 	) = any(pgc.confkey)
 """
-
-	args = {
-		'schema': schema,
-		'tbl': table,
-		'col': column
-	}
-
 	rows, idx = run_ro_queries (
 		link_obj = link_obj,
 		queries = [
@@ -790,12 +818,14 @@ where
 	)"""
 	rows, idx = run_ro_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': {'schema': schema, 'table': table}}])
 	return rows
+
 #------------------------------------------------------------------------
 def schema_exists(link_obj=None, schema=u'gm'):
 	cmd = u"""SELECT EXISTS (SELECT 1 FROM pg_namespace WHERE nspname = %(schema)s)"""
 	args = {'schema': schema}
 	rows, idx = run_ro_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': args}])
 	return rows[0][0]
+
 #------------------------------------------------------------------------
 def table_exists(link_obj=None, schema=None, table=None):
 	"""Returns false, true."""
@@ -2875,17 +2905,18 @@ if __name__ == "__main__":
 
 	#--------------------------------------------------------------------
 	def test_get_foreign_key_details():
+		schema = u'clin'
+		table = u'episode'
+		col = u'pk'
+		print 'column %s.%s.%s is referenced by:' % (schema, table, col)
 		for row in get_foreign_keys2column (
-			schema = u'clin',
-			table = u'episode',
-			column = u'pk'
+			schema = schema,
+			table = table,
+			column = col
 		):
-			print '%s.%s references %s.%s.%s' % (
+			print ' <- %s.%s' % (
 				row['referencing_table'],
-				row['referencing_column'],
-				row['referenced_schema'],
-				row['referenced_table'],
-				row['referenced_column']
+				row['referencing_column']
 			)
 
 	#--------------------------------------------------------------------
@@ -2984,6 +3015,7 @@ SELECT to_timestamp (foofoo,'YYMMDD.HH24MI') FROM (
 		print " locked:", row_is_locked(table = 'dem.identity', pk = 12)
 
 		conn.close()
+
 	#--------------------------------------------------------------------
 	def test_get_foreign_key_names():
 		print get_foreign_key_names (
@@ -2994,6 +3026,7 @@ SELECT to_timestamp (foofoo,'YYMMDD.HH24MI') FROM (
 			target_table = 'identity',
 			target_column = 'pk'
 		)
+
 	#--------------------------------------------------------------------
 	def test_get_index_name():
 		print get_index_name(indexed_table = 'clin.vaccination', indexed_column = 'fk_episode')
@@ -3019,7 +3052,7 @@ SELECT to_timestamp (foofoo,'YYMMDD.HH24MI') FROM (
 	#test_sanitize_pg_regex()
 	#test_is_pg_interval()
 	#test_sanity_check_time_skew()
-	#test_get_foreign_key_details()
+	test_get_foreign_key_details()
 	#test_get_foreign_key_names()
 	#test_get_index_name()
 	#test_set_user_language()
@@ -3032,7 +3065,7 @@ SELECT to_timestamp (foofoo,'YYMMDD.HH24MI') FROM (
 	#test_file2bytea_overlay()
 	#test_file2bytea_copy_from()
 	#test_file2bytea_lo()
-	test_faulty_SQL()
+	#test_faulty_SQL()
 	#test_log_settings()
 
 # ======================================================================

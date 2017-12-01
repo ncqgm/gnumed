@@ -20,6 +20,9 @@ care of all the pre- and post-GUI runtime environment setup.
  Enable HIPAA functionality which has user impact.
 --profile=<file>
  Activate profiling and write profile data to <file>.
+--tool=<TOOL>
+ Run TOOL instead of the main GUI.
+ Currently, "check_enc_epi_xref" only.
 --text-domain=<text domain>
  Set this to change the name of the language file to be loaded.
  Note, this does not change the directory the file is searched in,
@@ -58,6 +61,7 @@ care of all the pre- and post-GUI runtime environment setup.
 #==========================================================
 __author__ = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 __license__ = "GPL v2 or later (details at http://www.gnu.org)"
+
 
 # standard library
 import sys
@@ -115,7 +119,8 @@ _known_long_options = [
 	u'help',
 	u'version',
 	u'hipaa',
-	u'wxp='
+	u'wxp=',
+	u'tool='
 ]
 
 _known_ui_types = [
@@ -123,6 +128,11 @@ _known_ui_types = [
 	u'wxp',
 	u'chweb'
 ]
+
+_known_tools = [
+	u'check_enc_epi_xref'
+]
+
 
 import_error_sermon = """
 GNUmed startup: Cannot load GNUmed Python modules !
@@ -172,9 +182,10 @@ files could be found:
 
 Cannot run GNUmed without any of them.
 """
+
 #==========================================================
 # convenience functions
-#==========================================================
+#----------------------------------------------------------
 def _symlink_windows(source, link_name):
 	import ctypes
 	csl = ctypes.windll.kernel32.CreateSymbolicLinkW
@@ -190,6 +201,8 @@ def _symlink_windows(source, link_name):
 	return ret_code
 
 #==========================================================
+# startup helpers
+#----------------------------------------------------------
 def setup_python_path():
 
 	if not u'--local-import' in sys.argv:
@@ -301,7 +314,8 @@ def setup_logging():
 	try:
 		from Gnumed.pycommon import gmLog2 as _gmLog2
 	except ImportError:
-		sys.exit(import_error_sermon % '\n '.join(sys.path))
+		print(import_error_sermon % '\n '.join(sys.path))
+		sys.exit(1)
 
 	print("Log file:", _gmLog2._logfile.name)
 	setup_fault_handler(target = _gmLog2._logfile)
@@ -415,7 +429,7 @@ def handle_sig_term(signum, frame):
 	# FIXME: need to do something useful here
 
 	if _old_sig_term in [None, signal.SIG_IGN]:
-		sys.exit(signal.SIGTERM)
+		sys.exit(1)
 	else:
 		_old_sig_term(signum, frame)
 
@@ -564,7 +578,8 @@ def setup_cfg():
 	if explicit_fname is not None:
 		if _cfg.source_files['explicit'] is None:
 			_log.error('--conf-file argument does not exist')
-			sys.exit(missing_cli_config_file % explicit_fname)
+			print(missing_cli_config_file % explicit_fname)
+			sys.exit(1)
 
 	# any config file found at all ?
 	found_any_file = False
@@ -574,7 +589,8 @@ def setup_cfg():
 			break
 	if not found_any_file:
 		_log.error('no config file found at all')
-		sys.exit(no_config_files % '\n '.join(candidates))
+		print(no_config_files % '\n '.join(candidates))
+		sys.exit(1)
 
 	# mime type handling sources
 	fname = u'mime_type2file_extension.conf'
@@ -588,26 +604,23 @@ def setup_cfg():
 		file = os.path.join(paths.system_config_dir, fname),
 		encoding = enc
 	)
+
 #==========================================================
 def setup_ui_type():
 	global ui_type
-
 	ui_type = _cfg.get(option = u'--ui', source_order = [(u'cli', u'return')])
-
 	if ui_type in [True, False, None]:
 		ui_type = 'wxp'
-
 	ui_type = ui_type.strip()
-
 	if ui_type not in _known_ui_types:
-		_log.error('unknown UI type: %s', ui_type)
-		_log.debug('known UI types: %s', str(_known_ui_types))
+		_log.error('unknown UI type requested: %s', ui_type)
+		_log.debug('known UI types are: %s', str(_known_ui_types))
 		print("GNUmed startup: Unknown UI type (%s). Defaulting to wxPython client." % ui_type)
 		ui_type = 'wxp'
-
 	_log.debug('UI type: %s', ui_type)
+
 #==========================================================
-def setup_backend():
+def setup_backend_environment():
 
 	db_version = gmPG2.map_client_branch2required_db_version[current_client_branch]
 	_log.info('client expects database version [%s]', db_version)
@@ -630,9 +643,57 @@ def setup_backend():
 	)
 	if timezone is not None:
 		gmPG2.set_default_client_timezone(timezone)
+
 #==========================================================
+def run_gui():
+	gmHooks.run_hook_script(hook = u'startup-before-GUI')
+
+	if ui_type == u'wxp':
+		from Gnumed.wxpython import gmGuiMain
+		profile_file = _cfg.get(option = u'--profile', source_order = [(u'cli', u'return')])
+		if profile_file is not None:
+			_log.info('writing profiling data into %s', profile_file)
+			import profile
+			profile.run('gmGuiMain.main()', profile_file)
+		else:
+			gmGuiMain.main()
+	#elif ui_type == u'web':
+	#	from Gnumed.proxiedpyjamas import gmWebGuiServer
+	#	gmWebGuiServer.main()
+	#elif ui_type == u'chweb':
+	#	from Gnumed.CherryPy import gmGuiWeb
+	#	gmGuiWeb.main()
+
+	gmHooks.run_hook_script(hook = u'shutdown-post-GUI')
+
+	return 0
+
+#==========================================================
+def run_tool():
+	tool = _cfg.get(option = u'--tool', source_order = [(u'cli', u'return')])
+	if tool is None:
+		# not running a tool
+		return None
+
+	if tool not in _known_tools:
+		_log.error(u'unknown tool requested: %s', tool)
+		print('GNUmed startup: Unknown tool [%s] requested.' % tool)
+		print('GNUmed startup: Known tools: %s' % _known_tools)
+		return -1
+
+	if tool == u'check_enc_epi_xref':
+		from Gnumed.business import gmEMRStructItems
+		return gmEMRStructItems.check_fk_encounter_fk_episode_x_ref()
+
+	# should not happen (because checked against _known_tools)
+	return -1
+
+#==========================================================
+# shutdown helpers
+#----------------------------------------------------------
 def shutdown_backend():
 	gmPG2.shutdown()
+
 #==========================================================
 def shutdown_logging():
 
@@ -673,9 +734,12 @@ def shutdown_tmp_dir():
 
 	_log.warning('removing tmp dir: %s', tmp_dir)
 	shutil.rmtree(tmp_dir, True)
+
 #==========================================================
 # main - launch the GNUmed wxPython GUI client
 #----------------------------------------------------------
+
+# setup
 setup_fault_handler(target = None)
 setup_python_path()
 setup_logging()
@@ -700,34 +764,20 @@ setup_ui_type()
 from Gnumed.pycommon import gmPG2
 if ui_type in [u'web']:
 	gmPG2.auto_request_login_params = False
-setup_backend()
+setup_backend_environment()
 
+# main
+exit_code = run_tool()
+if exit_code is None:
+	from Gnumed.pycommon import gmHooks
+	exit_code = run_gui()
 
-from Gnumed.pycommon import gmHooks
-gmHooks.run_hook_script(hook = u'startup-before-GUI')
-
-if ui_type == u'wxp':
-	from Gnumed.wxpython import gmGuiMain
-	profile_file = _cfg.get(option = u'--profile', source_order = [(u'cli', u'return')])
-	if profile_file is not None:
-		_log.info('writing profiling data into %s', profile_file)
-		import profile
-		profile.run('gmGuiMain.main()', profile_file)
-	else:
-		gmGuiMain.main()
-#elif ui_type == u'web':
-#	from Gnumed.proxiedpyjamas import gmWebGuiServer
-#	gmWebGuiServer.main()
-
-#elif ui_type == u'chweb':
-#	from Gnumed.CherryPy import gmGuiWeb
-#	gmGuiWeb.main()
-
-gmHooks.run_hook_script(hook = u'shutdown-post-GUI')
-
+# shutdown
 shutdown_backend()
 shutdown_tmp_dir()
 _log.info('Normally shutting down as main module.')
 shutdown_logging()
+
+sys.exit(exit_code)
 
 #==========================================================

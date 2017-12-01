@@ -112,6 +112,7 @@ def __handle_ctrl_c(t, v, tb):
 	top_win = wx.GetApp().GetTopWindow()
 	wx.CallAfter(top_win.Close)
 	return True
+
 #-------------------------------------------------------------------------
 def __handle_access_violation(t, v, tb):
 
@@ -141,6 +142,7 @@ def __handle_access_violation(t, v, tb):
 		) % txt
 	)
 	return True
+
 #-------------------------------------------------------------------------
 def __handle_lost_db_connection(t, v, tb):
 
@@ -198,6 +200,7 @@ def __handle_lost_db_connection(t, v, tb):
 		)
 	)
 	return True
+
 #-------------------------------------------------------------------------
 def handle_uncaught_exception_wx(t, v, tb):
 
@@ -257,7 +260,8 @@ def handle_uncaught_exception_wx(t, v, tb):
 	gmLog2.flush()
 	# keep a copy around
 	shutil.copy2(_logfile_name, new_name)
-# ------------------------------------------------------------------------
+
+#------------------------------------------------------------------------
 def install_wx_exception_handler():
 
 	global _logfile_name
@@ -279,14 +283,16 @@ def install_wx_exception_handler():
 	sys.excepthook = handle_uncaught_exception_wx
 
 	return True
-# ------------------------------------------------------------------------
+
+#------------------------------------------------------------------------
 def uninstall_wx_exception_handler():
 	if _prev_excepthook is None:
 		sys.excepthook = sys.__excepthook__
 		return True
 	sys.excepthook = _prev_excepthook
 	return True
-# ------------------------------------------------------------------------
+
+#------------------------------------------------------------------------
 def _on_application_closing():
 	global application_is_closing
 	# used to ignore a few exceptions, such as when the

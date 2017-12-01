@@ -12,7 +12,7 @@ import string
 import datetime
 import logging
 import time
-import pprint
+import io
 
 
 if __name__ == '__main__':
@@ -76,7 +76,8 @@ laterality2str = {
 class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one health issue."""
 
-	_cmd_fetch_payload = u"select *, xmin_health_issue from clin.v_health_issues where pk_health_issue=%s"
+	#_cmd_fetch_payload = u"select *, xmin_health_issue from clin.v_health_issues where pk_health_issue=%s"
+	_cmd_fetch_payload = u"select * from clin.v_health_issues where pk_health_issue = %s"
 	_cmds_store_payload = [
 		u"""update clin.health_issue set
 				description = %(description)s,
@@ -89,8 +90,9 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 				clinically_relevant = %(clinically_relevant)s,
 				is_confidential = %(is_confidential)s,
 				is_cause_of_death = %(is_cause_of_death)s
-			where
-				pk = %(pk_health_issue)s and
+			WHERE
+				pk = %(pk_health_issue)s
+					AND
 				xmin = %(xmin_health_issue)s""",
 		u"select xmin as xmin_health_issue from clin.health_issue where pk = %(pk_health_issue)s"
 	]
@@ -106,6 +108,7 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 		'is_cause_of_death',
 		'diagnostic_certainty_classification'
 	]
+
 	#--------------------------------------------------------
 	def __init__(self, aPK_obj=None, encounter=None, name='xxxDEFAULTxxx', patient=None, row=None):
 		pk = aPK_obj
@@ -2851,6 +2854,7 @@ def delete_encounter_type(description=None):
 		raise
 
 	return True
+
 #============================================================
 class cProblem(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one problem.
@@ -3428,6 +3432,110 @@ def delete_performed_procedure(procedure=None):
 	return True
 
 #============================================================
+# tools
+#------------------------------------------------------------
+def check_fk_encounter_fk_episode_x_ref():
+
+	aggregate_result = 0
+
+	fks_linking2enc = gmPG2.get_foreign_keys2column(schema = 'clin', table = 'encounter', column = 'pk')
+	tables_linking2enc = set([ r['referencing_table'] for r in fks_linking2enc ])
+
+	fks_linking2epi = gmPG2.get_foreign_keys2column(schema = 'clin', table = 'episode', column = 'pk')
+	tables_linking2epi = [ r['referencing_table'] for r in fks_linking2epi ]
+
+	tables_linking2both = tables_linking2enc.intersection(tables_linking2epi)
+
+	tables_linking2enc = {}
+	for fk in fks_linking2enc:
+		table = fk['referencing_table']
+		tables_linking2enc[table] = fk
+
+	tables_linking2epi = {}
+	for fk in fks_linking2epi:
+		table = fk['referencing_table']
+		tables_linking2epi[table] = fk
+
+	for t in tables_linking2both:
+
+		table_file_name = u'x-check_enc_epi_xref-%s.log' % t
+		table_file = io.open(table_file_name, 'w+', encoding = 'utf8')
+
+		# get PK column
+		args = {'table': t}
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': gmPG2.SQL_get_pk_col_def, 'args': args}])
+		pk_col = rows[0][0]
+		print "checking table:", t, '- pk col:', pk_col
+		print ' =>', table_file_name
+		table_file.write(u'table: %s\n' % t)
+		table_file.write(u'PK col: %s\n' % pk_col)
+
+		# get PKs
+		cmd = u'select %s from %s' % (pk_col, t)
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
+		pks = [ r[0] for r in rows ]
+		for pk in pks:
+			args = {'pk': pk, 'tbl': t}
+			enc_cmd = u"select fk_patient from clin.encounter where pk = (select fk_encounter from %s where %s = %%(pk)s)" % (t, pk_col)
+			epi_cmd = u"select fk_patient from clin.encounter where pk = (select fk_encounter from clin.episode where pk = (select fk_episode from %s where %s = %%(pk)s))" % (t, pk_col)
+			enc_rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': enc_cmd, 'args': args}])
+			epi_rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': epi_cmd, 'args': args}])
+			enc_pat = enc_rows[0][0]
+			epi_pat = epi_rows[0][0]
+			args['pat_enc'] = enc_pat
+			args['pat_epi'] = epi_pat
+			if epi_pat != enc_pat:
+				print ' mismatch: row pk=%s, enc pat=%s, epi pat=%s' % (pk, enc_pat, epi_pat)
+				aggregate_result = -2
+
+				table_file.write(u'--------------------------------------------------------------------------------\n')
+				table_file.write(u'mismatch on row with pk: %s\n' % pk)
+				table_file.write(u'\n')
+
+				table_file.write(u'journal entry:\n')
+				cmd = u'SELECT * from clin.v_emr_journal where src_table = %(tbl)s AND src_pk = %(pk)s'
+				rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+				if len(rows) > 0:
+					table_file.write(gmTools.format_dict_like(rows[0], left_margin = 1, tabular = False, value_delimiters = None))
+				table_file.write(u'\n\n')
+
+				table_file.write(u'row data:\n')
+				cmd = u'SELECT * from %s where %s = %%(pk)s' % (t, pk_col)
+				rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+				table_file.write(gmTools.format_dict_like(rows[0], left_margin = 1, tabular = False, value_delimiters = None))
+				table_file.write(u'\n\n')
+
+				table_file.write(u'episode:\n')
+				cmd = u'SELECT * from clin.v_pat_episodes WHERE pk_episode = (select fk_episode from %s where %s = %%(pk)s)' % (t, pk_col)
+				rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+				table_file.write(gmTools.format_dict_like(rows[0], left_margin = 1, tabular = False, value_delimiters = None))
+				table_file.write(u'\n\n')
+
+				table_file.write(u'patient of episode:\n')
+				cmd = u'SELECT * FROM dem.v_persons WHERE pk_identity = %(pat_epi)s'
+				rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+				table_file.write(gmTools.format_dict_like(rows[0], left_margin = 1, tabular = False, value_delimiters = None))
+				table_file.write(u'\n\n')
+
+				table_file.write(u'encounter:\n')
+				cmd = u'SELECT * from clin.v_pat_encounters WHERE pk_encounter = (select fk_encounter from %s where %s = %%(pk)s)' % (t, pk_col)
+				rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+				table_file.write(gmTools.format_dict_like(rows[0], left_margin = 1, tabular = False, value_delimiters = None))
+				table_file.write(u'\n\n')
+
+				table_file.write(u'patient of encounter:\n')
+				cmd = u'SELECT * FROM dem.v_persons WHERE pk_identity = %(pat_enc)s'
+				rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+				table_file.write(gmTools.format_dict_like(rows[0], left_margin = 1, tabular = False, value_delimiters = None))
+				table_file.write(u'\n')
+
+		table_file.write(u'done\n')
+		table_file.close()
+
+	return aggregate_result
+
+
+#============================================================
 # main - unit testing
 #------------------------------------------------------------
 if __name__ == '__main__':
@@ -3437,6 +3545,8 @@ if __name__ == '__main__':
 
 	if sys.argv[1] != 'test':
 		sys.exit()
+
+	_ = lambda x:x
 
 	#--------------------------------------------------------
 	# define tests
@@ -3560,10 +3670,10 @@ if __name__ == '__main__':
 	#--------------------------------------------------------
 	# run them
 	#test_episode()
-	test_episode_encounters()
+	#test_episode_encounters()
 	#test_problem()
 	#test_encounter()
-	#test_health_issue()
+	test_health_issue()
 	#test_hospital_stay()
 	#test_performed_procedure()
 	#test_diagnostic_certainty_classification_map()
