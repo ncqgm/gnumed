@@ -831,8 +831,9 @@ class cOrthancServer:
 						series_dict['protocol'] = None
 					if series_dict['performed_procedure_step_description'] in [series_dict['description'], series_dict['protocol']]:
 						series_dict['performed_procedure_step_description'] = None
-					if regex.match ('[.,/\|\-\s\d]+', series_dict['performed_procedure_step_description'], flags = regex.UNICODE):
-						series_dict['performed_procedure_step_description'] = None
+					if series_dict['performed_procedure_step_description'] is not None:
+						if regex.match ('[.,/\|\-\s\d]+', series_dict['performed_procedure_step_description'], flags = regex.UNICODE):
+							series_dict['performed_procedure_step_description'] = None
 					if series_dict['date'] == study_dict['date']:
 						_log.debug('<series date> matches <study date>, ignoring date')
 						series_dict['date'] = None

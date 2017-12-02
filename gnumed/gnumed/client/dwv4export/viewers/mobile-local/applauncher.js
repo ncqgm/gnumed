@@ -42,32 +42,25 @@ function startApp() {
     //myapp.addEventListener("filter-undo", listener);
 
     // initialise the application
-    myapp.init({
+    var options = {
         "containerDivId": "dwv",
         "fitToWindow": true,
         "gui": ["tool", "load", "help", "undo", "version", "tags", "drawList"],
-        "loaders": ["File", "Url"],
+        //"loaders": ["File", "Url"],
+        "loaders": ["File"],
         "tools": ["Scroll", "WindowLevel", "ZoomAndPan", "Draw", "Livewire", "Filter", "Floodfill"],
         "filters": ["Threshold", "Sharpen", "Sobel"],
         "shapes": ["Arrow", "Ruler", "Protractor", "Rectangle", "Roi", "Ellipse", "FreeHand"],
         "isMobile": true
         //"defaultCharacterSet": "chinese"
-    });
+    };
+    if ( dwv.browser.hasInputDirectory() ) {
+        options.loaders.splice(0, 0, "Folder");
+    }
+    myapp.init(options);
 
     var size = dwv.gui.getWindowSize();
     $(".layerContainer").height(size.height);
-
-    // convert base64 string to binary string
-    var binary_string = window.atob(dwv.inputData);
-    // convert binary string to ArrayBuffer
-    var len = binary_string.length;
-    var bytes = new Uint8Array( len );
-    for ( var i = 0; i < len; ++i ) {
-        bytes[i] = binary_string.charCodeAt(i);
-    }
-
-    // load the image object
-    myapp.loadImageObject([{name: "local", filename: "local.dcm", data: bytes.buffer}]);
 }
 
 // Image decoders (for web workers)
@@ -89,25 +82,18 @@ function launchApp() {
 // i18n ready?
 dwv.i18nOnInitialised( function () {
     // call next once the overlays are loaded
-    var onLoaded = function (/*data*/) {
-        //dwv.gui.info.overlayMaps = data;
+    var onLoaded = function () {
         dwv.gui.info.overlayMaps = dwv.locales.en.overlays;
         i18nInitialised = true;
         launchApp();
     };
-    // load overlay map info
-    /*$.getJSON( dwv.i18nGetLocalePath("overlays.json"), onLoaded )
-    .fail( function () {
-        console.log("Using fallback overlays.");
-        $.getJSON( dwv.i18nGetFallbackLocalePath("overlays.json"), onLoaded );
-    });*/
+    // directly call onLoaded
     onLoaded();
 });
 
 // check browser support
 dwv.browser.check();
-// initialise i18n
-//dwv.i18nInitialise();
+// initialise i18n with local resources
 dwv.i18nInitialiseWithResources("en", dwv.locales);
 
 // DOM ready?

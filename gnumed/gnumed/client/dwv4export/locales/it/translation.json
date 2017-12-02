@@ -1,113 +1,108 @@
-// namespaces
-var dwv = dwv || {};
-dwv.locales = dwv.locales || {};
-dwv.locales.en = dwv.locales.en || {};
-
-dwv.locales.en.translation = {
+{
     "basics": {
-        "open": "Open",
-        "close": "Close",
-        "help": "Help",
-        "back": "Back",
-        "reset": "Reset",
-        "apply": "Apply",
-        "name": "Name",
-        "value": "Value",
-        "dicomTags": "DICOM Tags",
-        "columns": "Columns",
-        "group": "Group",
-        "element": "Element",
+        "open": "Apri",
+        "close": "Chiudi",
+        "help": "Aiuto",
+        "back": "Indietro",
+        "reset": "Azzera",
+        "apply": "Applica",
+        "name": "Nome",
+        "value": "Valore",
+        "dicomTags": "Tag DICOM",
+        "columns": "Colonne",
+        "group": "Gruppo",
+        "element": "Elemento",
         "vr": "VR",
         "vl": "VL",
-        "presets": "Presets",
-        "toolbox": "Toolbox",
-        "history": "History",
-        "image": "Image",
-        "info": "Info",
-        "downloadState": "Download state",
-        "drawList": "Annotations",
-        "search": "Search",
+        "presets": "Preimpostazioni",
+        "toolbox": "Cassetta degli attrezzi",
+        "history": "Storico",
+        "image": "Immagine",
+        "info": "Informazioni",
+        "downloadState": "Stato download",
+        "drawList": "Annotazioni",
+        "search": "Cerca",
         "id": "ID",
-        "slice": "Slice",
-        "frame": "Frame",
-        "type": "Type",
-        "color": "Color",
-        "label": "Label",
-        "description": "Description",
-        "editMode": "Edit Mode",
-        "deleteDraws": "Delete All",
-        "visible": "Visible"
+        "slice": "Taglia",
+        "frame": "Cornice",
+        "type": "Tipo",
+        "color": "Colore",
+        "label": "Etichetta",
+        "description": "Descrizione",
+        "editMode": "Modalità modifica",
+        "deleteDraws": "Elimina tutto",
+        "visible": "Visibile"
     },
     "colour": {
         "Yellow": {
-            "name": "Yellow"
+            "name": "Giallo"
         },
         "Red": {
-            "name": "Red"
+            "name": "Rosso"
         },
         "White": {
-            "name": "White"
+            "name": "Bianco"
         },
         "Green": {
-            "name": "Green"
+            "name": "Verde"
         },
         "Blue": {
-            "name": "Blue"
+            "name": "Blu"
         },
         "Lime": {
             "name": "Lime"
         },
         "Fuchsia": {
-            "name": "Fuchsia"
+            "name": "Fucsia"
         },
         "Black": {
-            "name": "Black"
+            "name": "Nero"
         }
     },
     "unit": {
         "mm": "mm",
         "cm2": "cm2",
-        "degree": "\u00B0"
+        "degree": "°"
     },
     "help": {
         "intro": {
             "p0": "DWV (DICOM Web Viewer) is an open source zero footprint medical image viewer. It uses only javascript and HTML5 technologies, meaning that it can be run on any platform that provides a modern browser (laptop, tablet, phone and even modern TVs). It can load local or remote data in DICOM format (the standard for medical imaging data such as MR, CT, Echo, Mammo, NM...) and provides standard tools for its manipulation such as contrast, zoom, drag, possibility to draw regions on top of the image and imaging filters such as threshold and sharpening.",
             "p1": "All DICOM tags are available in a searchable table, press the 'tags' or grid button. You can choose to display the image information overlay by pressing the 'info' or i button."
         },
-        "tool_intro": "Each tool defines the possible user interactions. Here are the available tools:"
+        "tool_intro": "Ogni strumento definisce le possibili interazioni utente. Qui ci sono i tool disponibili:"
     },
     "tool": {
         "WindowLevel": {
-            "name": "Window/Level",
-            "brief": "Changes the Window and Level of the image.",
+            "name": "Finestra/Livello",
+            "brief": "Cambia la finestra e il livello dell'immagine.",
             "mouse_drag": "A single mouse drag changes the window in the horizontal direction and the level in the vertical one.",
             "double_click": "A double click will center the window and level on the clicked intensity.",
             "touch_drag": "A single touch drag changes the window in the horizontal direction and the level in the vertical one."
         },
         "ZoomAndPan": {
             "name": "Zoom/Pan",
-            "brief": "The Zoom/Pan tool allows to zoom and pan the image.",
-            "mouse_wheel": "The mouse wheel is used to zoom the image.",
-            "mouse_drag": "A single mouse drag drags the image in the desired direction.",
-            "twotouch_pinch": "A pinch in or out allows to zoom the image.",
-            "touch_drag": "A single touch drag drags the image in the desired direction."
+            "brief": "Lo strumento Zoom/Pan permette l'ingrandimento e lo spostamento dell'immagine.",
+            "mouse_wheel": "La rotellina del mouse è usata per ingrandire l'immagine.",
+            "mouse_drag": "Un singolo spostamento del mouse sposta l'immagine nella direzione desiderata.",
+            "twotouch_pinch": "Un pinch in o out permette l'ingrandimento dell'immagine.",
+            "touch_drag": "Un singolo spostamento sul touch sposta l'immagine nella direzione desiderata."
         },
         "Scroll": {
-            "name": "Scroll",
-            "brief": "The scroll tool allows to scroll through slices/frames. ",
+            "name": "Scorrimento",
+            "brief": "Lo strumento scorrimento permette lo scorrimento tra i tagli/cornici.",
             "double_click": "A double click launches a slice or frame play. A single click stops it.",
             "tap_and_hold": "A tap and hold launches a slice or frame play. A single tap stops it.",
             "mouse_drag": "Drag the mouse vertically to change the slice, horizontally to change the frame. Keyboard shortcuts: CTRL + up or down arrow to change slices, CTRL + left or right arrow to change frames.",
             "touch_drag": "Drag your finger vertically to change the slice, horizontally to change the frame."
         },
         "Draw": {
-            "name": "Draw",
+            "name": "Disegno",
             "brief": "Allows to draw shapes on the image. Choose the shape and its colour from the drop down menus. Once created, shapes can be edited by selecting them. Anchors will appear and allow specific shape edition. Drag the shape on the top red cross to delete it. All actions are undoable.",
             "mouse_drag": "A single mouse drag draws the desired shape. For the protractor, click to start, draw the first ray to the vertex, wait half a second and draw the second ray.",
             "touch_drag": "A single touch drag draws the desired shape. For the protractor, tap to start, draw the first ray to the vertex, wait half a second and draw the second ray."
         },
         "Filter": {
-            "name": "Filter",
+            "name": "Filtro",
             "brief": "A few simple image filters are available: a Threshold filter to limit the image intensities between a chosen minimum and maximum, a Sharpen filter to convolute the image with a sharpen matrix, a Sobel filter to get the gradient of the image in both directions."
         },
         "Livewire": {
@@ -122,7 +117,7 @@ dwv.locales.en.translation = {
         },
         "info": {
             "position": "Pos = {{value}}",
-            "value": "Value = {{value}}",
+            "value": "Valore = {{value}}",
             "frame": "Frame = {{value}}",
             "window_center": "WindowCenter = {{value}}",
             "window_width": "WindowWidth = {{value}}"
@@ -130,28 +125,28 @@ dwv.locales.en.translation = {
     },
     "shape": {
         "Line": {
-            "name": "Line"
+            "name": "Linea"
         },
         "Ruler": {
-            "name": "Ruler"
+            "name": "Righello"
         },
         "Protractor": {
             "name": "Protractor"
         },
         "Rectangle": {
-            "name": "Rectangle"
+            "name": "Rettangolo"
         },
         "Roi": {
             "name": "Roi"
         },
         "Ellipse": {
-            "name": "Ellipse"
+            "name": "Elissi"
         },
         "Arrow": {
-            "name": "Arrow"
+            "name": "Freccia"
         },
         "FreeHand": {
-            "name": "Free hand"
+            "name": "Mano libera"
         }
     },
     "io": {
@@ -164,9 +159,9 @@ dwv.locales.en.translation = {
         "GoogleDrive": {
             "name": "GoogleDrive",
             "auth": {
-                "title": "Google Drive Authorization",
+                "title": "Autorizzazione Google Drive",
                 "body": "Please authorize DWV to access your Google Drive. \nThis is only needed the first time you connect.",
-                "button": "Authorize"
+                "button": "Autorizza"
             }
         },
         "Dropbox": {
@@ -192,7 +187,7 @@ dwv.locales.en.translation = {
             "name": "Invplain"
         },
         "rainbow": {
-            "name": "Rainbow"
+            "name": "Arcobaleno"
         },
         "hot": {
             "name": "Hot"
@@ -216,23 +211,23 @@ dwv.locales.en.translation = {
                 "name": "Mediastinum"
             },
             "lung": {
-                "name": "Lung"
+                "name": "Polmone"
             },
             "bone": {
-                "name": "Bone"
+                "name": "Osso"
             },
             "brain": {
-                "name": "Brain"
+                "name": "Cervello "
             },
             "head": {
-                "name": "Head"
+                "name": "Testa"
             },
             "manual": {
-                "name": "Manual"
+                "name": "Manuale"
             },
             "minmax": {
                 "name": "Min/Max"
             }
         }
     }
-};
+}
