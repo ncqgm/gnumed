@@ -130,8 +130,7 @@ __xml_issue_template = u"""
 			<locked>True</locked>
 			<ends_today>%s</ends_today>
 			<category>%s</category>
-			<description>%s
-			</description>
+			<description>%s</description>
 		</event>"""
 
 def __format_health_issue_as_timeline_xml(issue, patient, emr):
@@ -151,7 +150,7 @@ def __format_health_issue_as_timeline_xml(issue, patient, emr):
 		with_documents = False,
 		with_tests = False,
 		with_vaccinations = False
-	)
+	).strip().strip(u'\n').strip()
 	safe_start = issue.safe_start_date
 	possible_start = issue.possible_start_date
 	txt = u''
@@ -188,8 +187,7 @@ __xml_episode_template = u"""
 			<locked>True</locked>
 			<ends_today>%s</ends_today>
 			<category>%s</category>
-			<description>%s
-			</description>
+			<description>%s</description>
 		</event>"""
 
 def __format_episode_as_timeline_xml(episode, patient):
@@ -217,7 +215,7 @@ def __format_episode_as_timeline_xml(episode, patient):
 			with_tests = False,
 			with_vaccinations = False,
 			with_health_issue = True
-		))
+		).strip().strip(u'\n').strip())
 	)
 
 #------------------------------------------------------------
@@ -233,8 +231,7 @@ __xml_encounter_template = u"""
 			<locked>True</locked>
 			<ends_today>False</ends_today>
 			<category>%s</category>
-			<description>%s
-			</description>
+			<description>%s</description>
 			<milestone>%s</milestone>
 		</event>"""
 
@@ -255,7 +252,7 @@ def __format_encounter_as_timeline_xml(encounter, patient):
 			with_co_encountlet_hints = False,
 			with_rfe_aoe = True,
 			with_family_history = False
-		)),
+		).strip().strip(u'\n').strip()),
 		u'False'
 	)
 
@@ -271,8 +268,7 @@ __xml_hospital_stay_template = u"""
 			<locked>True</locked>
 			<ends_today>False</ends_today>
 			<category>%s</category>
-			<description>%s
-			</description>
+			<description>%s</description>
 		</event>"""
 
 def __format_hospital_stay_as_timeline_xml(stay):
@@ -284,7 +280,7 @@ def __format_hospital_stay_as_timeline_xml(stay):
 		format_pydt(end),
 		gmTools.xml_escape_string(stay['hospital']),
 		_('Hospital stays'),												# category
-		gmTools.xml_escape_string(stay.format())
+		gmTools.xml_escape_string(stay.format().strip().strip(u'\n').strip())
 	)
 
 #------------------------------------------------------------
@@ -299,8 +295,7 @@ __xml_procedure_template = u"""
 			<locked>True</locked>
 			<ends_today>False</ends_today>
 			<category>%s</category>
-			<description>%s
-			</description>
+			<description>%s</description>
 		</event>"""
 
 def __format_procedure_as_timeline_xml(proc):
@@ -319,7 +314,7 @@ def __format_procedure_as_timeline_xml(proc):
 		gmTools.xml_escape_string(proc.format (
 			include_episode = True,
 			include_codes = True
-		))
+		).strip().strip(u'\n').strip())
 	)
 
 #------------------------------------------------------------
@@ -334,8 +329,7 @@ __xml_document_template = u"""
 			<locked>True</locked>
 			<ends_today>False</ends_today>
 			<category>%s</category>
-			<description>%s
-			</description>
+			<description>%s</description>
 		</event>"""
 
 def __format_document_as_timeline_xml(doc):
@@ -344,7 +338,7 @@ def __format_document_as_timeline_xml(doc):
 		format_pydt(doc['clin_when']),
 		gmTools.xml_escape_string(doc['l10n_type']),
 		_('Documents'),
-		gmTools.xml_escape_string(doc.format())
+		gmTools.xml_escape_string(doc.format().strip().strip(u'\n').strip())
 	)
 
 #------------------------------------------------------------
@@ -359,8 +353,7 @@ __xml_vaccination_template = u"""
 			<locked>True</locked>
 			<ends_today>False</ends_today>
 			<category>%s</category>
-			<description>%s
-			</description>
+			<description>%s</description>
 		</event>"""
 
 def __format_vaccination_as_timeline_xml(vacc):
@@ -374,7 +367,7 @@ def __format_vaccination_as_timeline_xml(vacc):
 			with_comment = True,
 			with_reaction = True,
 			date_format = '%Y %b %d'
-		)))
+		)).strip().strip(u'\n').strip())
 	)
 
 #------------------------------------------------------------
@@ -389,8 +382,7 @@ __xml_intake_template = u"""
 			<locked>True</locked>
 			<ends_today>False</ends_today>
 			<category>%s</category>
-			<description>%s
-			</description>
+			<description>%s</description>
 		</event>"""
 
 def __format_intake_as_timeline_xml(intake):
@@ -413,7 +405,7 @@ def __format_intake_as_timeline_xml(intake):
 		gmTools.xml_escape_string(intake.format (
 			single_line = False,
 			show_all_product_components = False
-		))
+		).strip().strip(u'\n').strip())
 	)
 
 #------------------------------------------------------------

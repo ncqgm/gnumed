@@ -30,8 +30,14 @@ from Gnumed.exporters import timeline
 _log = logging.getLogger('gm.ui.tl')
 
 #============================================================
+#class cTLCursorDummy:
+#	def __init__(self, x, y):
+#		self.x = x
+#		self.y = y
+
+#------------------------------------------------------------
 from Gnumed.timelinelib.canvas import TimelineCanvas	# works because of __init__.py
-from timelinelib.wxgui.components.maincanvas.noop import NoOpInputHandler
+#from timelinelib.wxgui.components.maincanvas.noop import NoOpInputHandler
 
 class cEMRTimelinePnl(TimelineCanvas):
 
@@ -47,7 +53,6 @@ class cEMRTimelinePnl(TimelineCanvas):
         self.Bind(wx.EVT_LEFT_DOWN, self._on_left_down)
         self.Bind(wx.EVT_LEFT_DCLICK, self._on_left_dclick)
         self.Bind(wx.EVT_LEFT_UP, self._on_left_up)
-        self.Bind(wx.EVT_MOTION, self._on_motion)
         self.Bind(wx.EVT_TIMER, self._on_balloon_show_timer, self.balloon_show_timer)
         self.Bind(wx.EVT_TIMER, self._on_balloon_hide_timer, self.balloon_hide_timer)
         self.Bind(wx.EVT_TIMER, self._on_dragscroll, self.dragscroll_timer)
@@ -93,14 +98,16 @@ class cEMRTimelinePnl(TimelineCanvas):
 	def __register_interests(self):
 		#self._input_handler = NoOpInputHandler(self)
 
-		#self.Bind(wx.EVT_MOTION, self._on_mouse_motion)
 		self.Bind(wx.EVT_MOUSEWHEEL, self._on_mousewheel_action)
+		self.Bind(wx.EVT_MOTION, self._on_mouse_motion)
 		#self.Bind(wx.EVT_TIMER, self._on_balloon_show_timer, self.balloon_show_timer_fired)
 		#self.Bind(wx.EVT_TIMER, self._on_balloon_hide_timer, self.balloon_hide_timer_fired)
 
-#	#--------------------------------------------------------
-#	def _on_mouse_motion(self, event):
-#		self._input_handler.mouse_moved(event.GetX(), event.GetY(), event.AltDown())
+	#--------------------------------------------------------
+	def _on_mouse_motion(self, event):
+		#cursor = cTLCursorDummy(event.GetX(), event.GetY())
+		#self.SetHoveredEvent(self.GetEventAt(cursor))
+		self.SetHoveredEvent(self.GetEventAt(event.GetX(), event.GetY()))
 
 	#--------------------------------------------------------
 	def _on_mousewheel_action(self, event):

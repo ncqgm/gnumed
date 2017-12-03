@@ -14,8 +14,9 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Timeline.  If not, see <http://www.gnu.org/licenses/>.
-import logging
-log = logging.getLogger('tline')
+
+#import logging
+#log = logging.getLogger('tline')
 
 
 import os
@@ -370,7 +371,7 @@ class DefaultEventBoxDrawer(object):
         return self._get_bitmap(self.view_properties.get_fuzzy_icon())
 
     def _get_bitmap(self, name):
-        log.debug(u'%s / %s', EVENT_ICONS_DIR, name)
+        #log.debug(u'%s / %s', EVENT_ICONS_DIR, name)
         return wx.Bitmap(os.path.join(EVENT_ICONS_DIR, name))
 
     def _draw_milestone_event(self, dc, rect, scene, event, selected):
