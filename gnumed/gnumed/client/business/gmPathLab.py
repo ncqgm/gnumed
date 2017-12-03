@@ -1696,6 +1696,7 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 		return
 
 	reference_range = property(lambda x:x, _set_reference_range)
+
 	#--------------------------------------------------------
 	def _get_formatted_abnormality_indicator(self):
 		# 1) the user is right
@@ -1746,6 +1747,7 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 		return False
 
 	is_long_text = property(_get_is_long_text, lambda x:x)
+
 	#--------------------------------------------------------
 	def _get_estimate_numeric_value_from_alpha(self):
 		if self._payload[self._idx['val_alpha']] is None:
@@ -1765,6 +1767,7 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 		return val * factor
 
 	estimate_numeric_value_from_alpha = property(_get_estimate_numeric_value_from_alpha, lambda x:x)
+
 	#--------------------------------------------------------
 	def set_review(self, technically_abnormal=None, clinically_relevant=None, comment=None, make_me_responsible=False):
 

@@ -2015,7 +2015,6 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 		loincs2monitor_data = {}
 		loinc_max_age = {}
 		loinc_max_age_str = {}
-		#loinc_monitor_substance = {}
 		for intake in self._grid_substances.get_row_data():
 			for l in intake['loincs']:
 				loincs2monitor.add(l['loinc'])
@@ -2023,7 +2022,6 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 					'substance': intake['substance'],
 					'comment': l['comment']
 				}
-				#loinc_monitor_substance[l['loinc']] = intake['substance']
 				if l['max_age_in_secs'] is not None:
 					try:
 						if loinc_max_age[l['loinc']] > l['max_age_in_secs']:
@@ -2052,8 +2050,10 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 				order_by = u'unified_abbrev',
 				group_by_meta_type = True
 			):
-				loincs2monitor_missing.remove(result['loinc_tt'])
-				loincs2monitor_missing.remove(result['loinc_meta'])
+				try: loincs2monitor_missing.remove(result['loinc_tt'])
+				except KeyError: pass
+				try: loincs2monitor_missing.remove(result['loinc_meta'])
+				except KeyError: pass
 				# make unique
 				most_recent_results[result['pk_test_result']] = result
 
@@ -2061,10 +2061,6 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 		gfr = emr.get_most_recent_results(loinc = gmLOINC.LOINC_gfr_quantity, no_of_results = 1)
 		crea = emr.get_most_recent_results(loinc = gmLOINC.LOINC_creatinine_quantity, no_of_results = 1)
 		edc = emr.EDC
-
-#		if (len(most_recent_results) == 0) and (edc is None) and (gfr is None) and (crea is None):
-#			self.Layout()
-#			return
 
 		# display EDC
 		if edc is not None:
@@ -2145,23 +2141,35 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 				max_age = loinc_max_age[result['loinc_tt']]
 				max_age_str = loinc_max_age_str[result['loinc_tt']]
 			except KeyError:
-				max_age = loinc_max_age[result['loinc_meta']]
-				max_age_str = loinc_max_age_str[result['loinc_meta']]
+				try:
+					max_age = loinc_max_age[result['loinc_meta']]
+					max_age_str = loinc_max_age_str[result['loinc_meta']]
+				except KeyError:
+					pass
 			subst2monitor = None
 			try:
 				subst2monitor = loincs2monitor_data[result['loinc_tt']]['substance']
 			except KeyError:
-				subst2monitor = loincs2monitor_data[result['loinc_meta']]['substance']
+				try:
+					subst2monitor = loincs2monitor_data[result['loinc_meta']]['substance']
+				except KeyError:
+					pass
 			monitor_comment = None
 			try:
 				monitor_comment = loincs2monitor_data[result['loinc_tt']]['comment']
 			except KeyError:
-				monitor_comment = loincs2monitor_data[result['loinc_meta']]['comment']
+				try:
+					monitor_comment = loincs2monitor_data[result['loinc_meta']]['comment']
+				except KeyError:
+					pass
 			result_age = now - result['clin_when']
-			indicator = result.formatted_abnormality_indicator
 			unhappy_reasons = []
-			if indicator is not None:
-				unhappy_reasons.append(_(u' - abnormal: %s') % indicator)
+			if result.is_considered_abnormal:
+				indicator = result.formatted_abnormality_indicator
+				if indicator == u'':
+					unhappy_reasons.append(_(u' - abnormal'))
+				else:
+					unhappy_reasons.append(_(u' - abnormal: %s') % indicator)
 			if max_age is not None:
 				if result_age.total_seconds() > max_age:
 					unhappy_reasons.append(_(u' - too old: %s ago (max: %s)') % (
