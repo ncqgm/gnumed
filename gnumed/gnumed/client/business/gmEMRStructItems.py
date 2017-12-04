@@ -613,6 +613,7 @@ WHERE c_hi.pk = %(pk)s"""
 		return rows[0][0]
 
 	safe_start_date = property(_get_safe_start_date, lambda x:x)
+
 	#--------------------------------------------------------
 	def _get_possible_start_date(self):
 		args = {'pk': self._payload[self._idx['pk_health_issue']]}
@@ -652,6 +653,7 @@ UNION ALL
 		return rows[0][0]
 
 	possible_start_date = property(_get_possible_start_date)
+
 	#--------------------------------------------------------
 	def _get_end_date(self):
 		if self._payload[self._idx['is_active']]:
@@ -661,6 +663,7 @@ UNION ALL
 		return self.latest_access_date
 
 	end_date = property(_get_end_date)
+
 	#--------------------------------------------------------
 	def _get_latest_access_date(self):
 		args = {
@@ -1408,119 +1411,149 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 	# properties
 	#--------------------------------------------------------
 	def _get_best_guess_start_date(self):
-		cmd = u"""
-SELECT
-	MIN(earliest)
-FROM (
-	-- last modification, earliest = when created in/changed to the current state
-	(SELECT c_epi.modified_when AS earliest FROM clin.episode c_epi WHERE c_epi.pk = %(pk)s)
+		cmd = u"""SELECT MIN(earliest) FROM (
+			-- last modification, earliest = when created in/changed to the current state
+			(SELECT c_epi.modified_when AS earliest FROM clin.episode c_epi WHERE c_epi.pk = %(pk)s)
 
-		UNION ALL
+				UNION ALL
 
-	-- last modification of encounter in which created, earliest = initial creation of that encounter
-	(SELECT c_enc.modified_when AS earliest FROM clin.encounter c_enc WHERE c_enc.pk = (
-	 	SELECT fk_encounter FROM clin.episode WHERE pk = %(pk)s
-	 )
-	)
-		UNION ALL
+			-- last modification of encounter in which created, earliest = initial creation of that encounter
+			(SELECT c_enc.modified_when AS earliest FROM clin.encounter c_enc WHERE c_enc.pk = (
+			 	SELECT fk_encounter FROM clin.episode WHERE pk = %(pk)s
+			))
+				UNION ALL
 
-	-- start of encounter in which created, earliest = explicitely set
-	(SELECT c_enc.started AS earliest FROM clin.encounter c_enc WHERE c_enc.pk = (
-	 	SELECT fk_encounter FROM clin.episode WHERE pk = %(pk)s
-	 )
-	)
-		UNION ALL
+			-- start of encounter in which created, earliest = explicitely set
+			(SELECT c_enc.started AS earliest FROM clin.encounter c_enc WHERE c_enc.pk = (
+			 	SELECT fk_encounter FROM clin.episode WHERE pk = %(pk)s
+			))
+				UNION ALL
 
-	-- earliest start of encounters of clinical items linked to this episode
-	(SELECT MIN(started) AS earliest FROM clin.encounter WHERE pk IN (
-		SELECT fk_encounter FROM clin.clin_root_item WHERE fk_episode = %(pk)s
-	 )
-	)
-		UNION ALL
+			-- earliest start of encounters of clinical items linked to this episode
+			(SELECT MIN(started) AS earliest FROM clin.encounter WHERE pk IN (
+				SELECT fk_encounter FROM clin.clin_root_item WHERE fk_episode = %(pk)s
+			))
+				UNION ALL
 
-	-- earliest explicit .clin_when of clinical items linked to this episode
-	(SELECT MIN(clin_when) AS earliest FROM clin.clin_root_item WHERE fk_episode = %(pk)s)
+			-- earliest explicit .clin_when of clinical items linked to this episode
+			(SELECT MIN(clin_when) AS earliest FROM clin.clin_root_item WHERE fk_episode = %(pk)s)
 
-		UNION ALL
+				UNION ALL
 
-	-- earliest modification time of clinical items linked to this episode
-	-- this CAN be used since if an item is linked to an episode it can be
-	-- assumed the episode (should have) existed at the time of creation
-	(SELECT MIN(modified_when) AS earliest FROM clin.clin_root_item WHERE fk_episode = %(pk)s)
+			-- earliest modification time of clinical items linked to this episode
+			-- this CAN be used since if an item is linked to an episode it can be
+			-- assumed the episode (should have) existed at the time of creation
+			(SELECT MIN(modified_when) AS earliest FROM clin.clin_root_item WHERE fk_episode = %(pk)s)
 
-	-- not sure about this one:
-	-- .pk -> clin.clin_root_item.fk_encounter.modified_when
+			-- not sure about this one:
+			-- .pk -> clin.clin_root_item.fk_encounter.modified_when
 
-) AS candidates"""
+		) AS candidates"""
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': {'pk': self.pk_obj}}])
 		return rows[0][0]
 
 	best_guess_start_date = property(_get_best_guess_start_date)
+
+	#--------------------------------------------------------
+	def _get_best_guess_end_date(self):
+		cmd = u"""
+			SELECT COALESCE (
+				(SELECT
+					latest
+					--, source_type
+				 FROM (
+					-- latest end of encounters of clinical items linked to this episode
+					(SELECT
+						MAX(last_affirmed) AS latest,
+						'clin.episode.pk = clin.clin_root_item,fk_episode -> .fk_encounter.last_affirmed'::text AS source_type
+					 FROM clin.encounter
+					 WHERE pk IN (
+						SELECT fk_encounter FROM clin.clin_root_item WHERE fk_episode = %(pk)s
+					))
+						UNION ALL
+
+					-- latest explicit .clin_when of clinical items linked to this episode
+					(SELECT
+						MAX(clin_when) AS latest,
+						'clin.episode.pk = clin.clin_root_item,fk_episode -> .clin_when'::text AS source_type
+					 FROM clin.clin_root_item
+					 WHERE fk_episode = %(pk)s
+					)
+				) AS candidates
+				ORDER BY latest DESC LIMIT 1
+				),
+				-- last ditch, always exists, only use when no clinical items linked:
+				-- last modification, latest = when last changed to the current state
+				(SELECT c_epi.modified_when AS latest
+				 --, 'clin.episode.modified_when'::text AS candidate
+				 FROM clin.episode c_epi WHERE c_epi.pk = %(pk)s
+				)
+			)"""
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': {'pk': self.pk_obj}}])
+		return rows[0][0]
+
+	best_guess_end_date = property(_get_best_guess_end_date)
+
 	#--------------------------------------------------------
 	def _get_latest_access_date(self):
-		cmd = u"""
-SELECT
-	MAX(latest)
-FROM (
-	-- last modification, latest = when last changed to the current state
-	(SELECT c_epi.modified_when AS latest, 'clin.episode.modified_when'::text AS candidate FROM clin.episode c_epi WHERE c_epi.pk = %(pk)s)
+		cmd = u"""SELECT MAX(latest) FROM (
+			-- last modification, latest = when last changed to the current state
+			(SELECT c_epi.modified_when AS latest, 'clin.episode.modified_when'::text AS candidate FROM clin.episode c_epi WHERE c_epi.pk = %(pk)s)
 
-		UNION ALL
+				UNION ALL
 
-	-- last modification of encounter in which created, latest = initial creation of that encounter
-	-- DO NOT USE: just because one corrects a typo does not mean the episode took longer
-	--(SELECT c_enc.modified_when AS latest FROM clin.encounter c_enc WHERE c_enc.pk = (
-	-- 	SELECT fk_encounter FROM clin.episode WHERE pk = %(pk)s
-	-- )
-	--)
+			-- last modification of encounter in which created, latest = initial creation of that encounter
+			-- DO NOT USE: just because one corrects a typo does not mean the episode took longer
+			--(SELECT c_enc.modified_when AS latest FROM clin.encounter c_enc WHERE c_enc.pk = (
+			-- 	SELECT fk_encounter FROM clin.episode WHERE pk = %(pk)s
+			--))
 
-	-- end of encounter in which created, latest = explicitely set
-	-- DO NOT USE: we can retrospectively create episodes which
-	-- DO NOT USE: are long since finished
-	--(SELECT c_enc.last_affirmed AS latest FROM clin.encounter c_enc WHERE c_enc.pk = (
-	-- 	SELECT fk_encounter FROM clin.episode WHERE pk = %(pk)s
-	-- )
-	--)
+			-- end of encounter in which created, latest = explicitely set
+			-- DO NOT USE: we can retrospectively create episodes which
+			-- DO NOT USE: are long since finished
+			--(SELECT c_enc.last_affirmed AS latest FROM clin.encounter c_enc WHERE c_enc.pk = (
+			-- 	SELECT fk_encounter FROM clin.episode WHERE pk = %(pk)s
+			--))
 
-	-- latest end of encounters of clinical items linked to this episode
-	(SELECT
-		MAX(last_affirmed) AS latest,
-		'clin.episode.pk = clin.clin_root_item,fk_episode -> .fk_encounter.last_affirmed'::text AS candidate
-	 FROM clin.encounter
-	 WHERE pk IN (
-		SELECT fk_encounter FROM clin.clin_root_item WHERE fk_episode = %(pk)s
-	 )
-	)
-		UNION ALL
+			-- latest end of encounters of clinical items linked to this episode
+			(SELECT
+				MAX(last_affirmed) AS latest,
+				'clin.episode.pk = clin.clin_root_item,fk_episode -> .fk_encounter.last_affirmed'::text AS candidate
+			 FROM clin.encounter
+			 WHERE pk IN (
+				SELECT fk_encounter FROM clin.clin_root_item WHERE fk_episode = %(pk)s
+			))
+				UNION ALL
 
-	-- latest explicit .clin_when of clinical items linked to this episode
-	(SELECT
-		MAX(clin_when) AS latest,
-		'clin.episode.pk = clin.clin_root_item,fk_episode -> .clin_when'::text AS candidate
-	 FROM clin.clin_root_item
-	 WHERE fk_episode = %(pk)s
-	)
+			-- latest explicit .clin_when of clinical items linked to this episode
+			(SELECT
+				MAX(clin_when) AS latest,
+				'clin.episode.pk = clin.clin_root_item,fk_episode -> .clin_when'::text AS candidate
+			 FROM clin.clin_root_item
+			 WHERE fk_episode = %(pk)s
+			)
 
-	-- latest modification time of clinical items linked to this episode
-	-- this CAN be used since if an item is linked to an episode it can be
-	-- assumed the episode (should have) existed at the time of creation
-	-- DO NOT USE, because typo fixes should not extend the episode
-	--(SELECT MIN(modified_when) AS latest FROM clin.clin_root_item WHERE fk_episode = %(pk)s)
+			-- latest modification time of clinical items linked to this episode
+			-- this CAN be used since if an item is linked to an episode it can be
+			-- assumed the episode (should have) existed at the time of creation
+			-- DO NOT USE, because typo fixes should not extend the episode
+			--(SELECT MIN(modified_when) AS latest FROM clin.clin_root_item WHERE fk_episode = %(pk)s)
 
-	-- not sure about this one:
-	-- .pk -> clin.clin_root_item.fk_encounter.modified_when
+			-- not sure about this one:
+			-- .pk -> clin.clin_root_item.fk_encounter.modified_when
 
-) AS candidates"""
+		) AS candidates"""
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': {'pk': self.pk_obj}}])
-		#_log.debug('last episode access: %s (%s)', rows[0][0], rows[0][1])
 		return rows[0][0]
 
 	latest_access_date = property(_get_latest_access_date)
+
 	#--------------------------------------------------------
 	def _get_diagnostic_certainty_description(self):
 		return diagnostic_certainty_classification2str(self._payload[self._idx['diagnostic_certainty_classification']])
 
 	diagnostic_certainty_description = property(_get_diagnostic_certainty_description, lambda x:x)
+
 	#--------------------------------------------------------
 	def _get_formatted_revision_history(self):
 		cmd = u"""SELECT
@@ -3586,9 +3619,13 @@ if __name__ == '__main__':
 		print h_issue.formatted_revision_history
 	#--------------------------------------------------------	
 	def test_episode():
-		print "\nepisode test"
+		print "episode test"
 		print "------------"
-		episode = cEpisode(aPK_obj=1)
+		episode = cEpisode(aPK_obj = 1354) # 1461 1299
+
+		print episode['description'], episode.best_guess_end_date
+		return
+
 		print episode
 		fields = episode.get_fields()
 		for field in fields:
@@ -3669,11 +3706,11 @@ if __name__ == '__main__':
 		print epi.format()
 	#--------------------------------------------------------
 	# run them
-	#test_episode()
+	test_episode()
 	#test_episode_encounters()
 	#test_problem()
 	#test_encounter()
-	test_health_issue()
+	#test_health_issue()
 	#test_hospital_stay()
 	#test_performed_procedure()
 	#test_diagnostic_certainty_classification_map()

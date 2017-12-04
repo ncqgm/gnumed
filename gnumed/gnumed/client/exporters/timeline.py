@@ -194,7 +194,7 @@ def __format_episode_as_timeline_xml(episode, patient):
 	end = gmTools.bool2subst (
 		episode['episode_open'],
 		format_pydt(now),
-		format_pydt(episode.latest_access_date),
+		format_pydt(episode.best_guess_end_date)
 	)
 	return __xml_episode_template % (
 		format_pydt(episode.best_guess_start_date),							# start
@@ -409,7 +409,7 @@ def __format_intake_as_timeline_xml(intake):
 	)
 
 #------------------------------------------------------------
-# library entry point
+# main library entry point
 #------------------------------------------------------------
 def create_timeline_file(patient=None, filename=None):
 
@@ -498,7 +498,7 @@ def create_timeline_file(patient=None, filename=None):
 		format_pydt(earliest_care_date),
 		gmTools.u_heavy_greek_cross,
 		_('Life events'),
-		_('Start of Care: %s (the earliest recorded event of care in this praxis)') % format_pydt(earliest_care_date, format = '%Y-%m-%d'),
+		_('Start of Care: %s\n(the earliest recorded event of care in this praxis)') % format_pydt(earliest_care_date, format = '%Y-%m-%d'),
 		u'True'
 	))
 
@@ -512,9 +512,10 @@ def create_timeline_file(patient=None, filename=None):
 	for epi in emr.get_episodes(order_by = u'pk_health_issue'):
 		timeline.write(__format_episode_as_timeline_xml(epi, patient))
 
-	timeline.write(u'\n<!--\n========================================\n Encounters\n======================================== -->')
-	for enc in emr.get_encounters(skip_empty = True):
-		timeline.write(__format_encounter_as_timeline_xml(enc, patient))
+	# simply too many
+	#timeline.write(u'\n<!--\n========================================\n Encounters\n======================================== -->')
+	#for enc in emr.get_encounters(skip_empty = True):
+	#	timeline.write(__format_encounter_as_timeline_xml(enc, patient))
 
 	timeline.write(u'\n<!--\n========================================\n Hospital stays\n======================================== -->')
 	for stay in emr.hospital_stays:
@@ -537,7 +538,9 @@ def create_timeline_file(patient=None, filename=None):
 		timeline.write(__format_document_as_timeline_xml(doc))
 
 	# allergies ?
+	# - unclear where and how to place
 	# test results ?
+	# - too many events, at most "day sample drawn"
 
 	# death
 	if patient['deceased'] is None:
@@ -563,6 +566,7 @@ def create_timeline_file(patient=None, filename=None):
 		format_pydt(start),
 		format_pydt(end)
 	))
+
 	timeline.close()
 	return timeline_fname
 

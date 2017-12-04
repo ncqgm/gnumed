@@ -37,7 +37,6 @@ _log = logging.getLogger('gm.ui.tl')
 
 #------------------------------------------------------------
 from Gnumed.timelinelib.canvas import TimelineCanvas	# works because of __init__.py
-#from timelinelib.wxgui.components.maincanvas.noop import NoOpInputHandler
 
 class cEMRTimelinePnl(TimelineCanvas):
 
@@ -46,25 +45,13 @@ class cEMRTimelinePnl(TimelineCanvas):
 
 		self.__init_ui()
 		self.__register_interests()
-		"""
-        self.balloon_show_timer = wx.Timer(self, -1)
-        self.balloon_hide_timer = wx.Timer(self, -1)
-        self.dragscroll_timer = wx.Timer(self, -1)
-        self.Bind(wx.EVT_LEFT_DOWN, self._on_left_down)
-        self.Bind(wx.EVT_LEFT_DCLICK, self._on_left_dclick)
-        self.Bind(wx.EVT_LEFT_UP, self._on_left_up)
-        self.Bind(wx.EVT_TIMER, self._on_balloon_show_timer, self.balloon_show_timer)
-        self.Bind(wx.EVT_TIMER, self._on_balloon_hide_timer, self.balloon_hide_timer)
-        self.Bind(wx.EVT_TIMER, self._on_dragscroll, self.dragscroll_timer)
-        self.Bind(wx.EVT_MIDDLE_DOWN, self._on_middle_down)
-        self.Bind(wx.EVT_MOUSEWHEEL, self._on_mousewheel)
-		"""
 
 	#--------------------------------------------------------
 	def __init_ui(self):
 		appearance = self.GetAppearance()
 		appearance.set_balloons_visible(True)
 		appearance.set_hide_events_done(True)
+		return
 		"""
             appearance.set_legend_visible(self.config.show_legend)
             appearance.set_minor_strip_divider_line_colour(self.config.minor_strip_divider_line_colour)
@@ -96,12 +83,14 @@ class cEMRTimelinePnl(TimelineCanvas):
 	# event handling
 	#--------------------------------------------------------
 	def __register_interests(self):
-		#self._input_handler = NoOpInputHandler(self)
-
 		self.Bind(wx.EVT_MOUSEWHEEL, self._on_mousewheel_action)
 		self.Bind(wx.EVT_MOTION, self._on_mouse_motion)
-		#self.Bind(wx.EVT_TIMER, self._on_balloon_show_timer, self.balloon_show_timer_fired)
-		#self.Bind(wx.EVT_TIMER, self._on_balloon_hide_timer, self.balloon_hide_timer_fired)
+
+        #self.Bind(wx.EVT_LEFT_DOWN, self._on_left_down)
+        #self.Bind(wx.EVT_LEFT_DCLICK, self._on_left_dclick)
+        #self.Bind(wx.EVT_LEFT_UP, self._on_left_up)
+        #self.Bind(wx.EVT_MIDDLE_DOWN, self._on_middle_down)
+        #self.Bind(wx.EVT_MOUSEWHEEL, self._on_mousewheel)
 
 	#--------------------------------------------------------
 	def _on_mouse_motion(self, event):
@@ -112,14 +101,6 @@ class cEMRTimelinePnl(TimelineCanvas):
 	#--------------------------------------------------------
 	def _on_mousewheel_action(self, event):
 		self.Scroll(event.GetWheelRotation() / 1200.0)
-
-#	#--------------------------------------------------------
-#	def _on_balloon_show_timer_fired(self, event):
-#		self._input_handler.balloon_show_timer_fired()
-
-#	#--------------------------------------------------------
-#	def _on_balloon_hide_timer_fired(self, event):
-#		self._input_handler.balloon_hide_timer_fired()
 
 	#--------------------------------------------------------
 	# internal API
@@ -180,7 +161,7 @@ class cEMRTimelinePluginPnl(wxgEMRTimelinePluginPnl.wxgEMRTimelinePluginPnl, gmR
 			return
 		dlg = wx.FileDialog (
 			parent = self,
-			message = _("Save timeline as SVG image under..."),
+			message = _("Save timeline as images (SVG, PNG) under..."),
 			defaultDir = os.path.expanduser(os.path.join('~', 'gnumed')),
 			defaultFile = u'timeline.svg',
 			wildcard = u'%s (*.svg)|*.svg' % _('SVG files'),
@@ -192,13 +173,15 @@ class cEMRTimelinePluginPnl(wxgEMRTimelinePluginPnl.wxgEMRTimelinePluginPnl, gmR
 		if choice != wx.ID_OK:
 			return False
 		self._PNL_timeline.export_as_svg(filename = fname)
+		self._PNL_timeline.export_as_png(filename = gmTools.fname_stem_with_path(fname) + u'.png')
 
 	#--------------------------------------------------------
 	def _on_print_button_pressed(self, event):
 		if self.__tl_file is None:
 			return
-		svg_file = self._PNL_timeline.export_as_svg()
-		gmMimeLib.call_viewer_on_file(aFile = svg_file, block = None)
+		#tl_image_file = self._PNL_timeline.export_as_svg()
+		tl_image_file = self._PNL_timeline.export_as_png()
+		gmMimeLib.call_viewer_on_file(aFile = tl_image_file, block = None)
 
 	#--------------------------------------------------------
 	def _on_export_area_button_pressed(self, event):
@@ -207,10 +190,22 @@ class cEMRTimelinePluginPnl(wxgEMRTimelinePluginPnl.wxgEMRTimelinePluginPnl, gmR
 		pat = gmPerson.gmCurrentPatient()
 		if not pat.connected:
 			return
-		pat.export_area.add_file(filename = self._PNL_timeline.export_as_png(), hint = _(u'timeline image'))
-		pat.export_area.add_file(filename = self._PNL_timeline.export_as_svg(), hint = _(u'timeline image (scalable)'))
-		pat.export_area.add_file(filename = self.__tl_file, hint = _('timeline data'))
+		pat.export_area.add_file(filename = self._PNL_timeline.export_as_png(), hint = _(u'timeline image (png)'))
+		pat.export_area.add_file(filename = self._PNL_timeline.export_as_svg(), hint = _(u'timeline image (svg)'))
+		pat.export_area.add_file(filename = self.__tl_file, hint = _('timeline data (xml)'))
 
+	#--------------------------------------------------------
+	def _on_zoom_in_button_pressed(self, event):
+		#event.Skip()
+		self._PNL_timeline.zoom_in()
+
+	#--------------------------------------------------------
+	def _on_zoom_out_button_pressed(self, event):
+		#event.Skip()
+		self._PNL_timeline.zoom_out()
+
+	#--------------------------------------------------------
+	# notebook plugin glue
 	#--------------------------------------------------------
 	def repopulate_ui(self):
 		self._populate_with_data()
@@ -233,6 +228,7 @@ class cEMRTimelinePluginPnl(wxgEMRTimelinePluginPnl.wxgEMRTimelinePluginPnl, gmR
 		if not pat.connected:
 			return True
 
+		wx.BeginBusyCursor()
 		try:
 			self.__tl_file = timeline.create_timeline_file(patient = pat)
 			self._PNL_timeline.open_timeline(self.__tl_file)
@@ -242,6 +238,8 @@ class cEMRTimelinePluginPnl(wxgEMRTimelinePluginPnl.wxgEMRTimelinePluginPnl, gmR
 			self.__tl_file = timeline.create_fake_timeline_file(patient = pat)
 			self._PNL_timeline.open_timeline(self.__tl_file)
 			return True
+		finally:
+			wx.EndBusyCursor()
 
 		return True
 
