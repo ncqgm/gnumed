@@ -36,6 +36,14 @@ _log = logging.getLogger('gm.ui.tl')
 #		self.y = y
 
 #------------------------------------------------------------
+from Gnumed.timelinelib.canvas.data import TimePeriod
+
+# activate experimental container features
+from Gnumed.timelinelib.features.experimental import experimentalfeatures
+experimentalfeatures.EXTENDED_CONTAINER_HEIGHT.set_active(True)
+experimentalfeatures.EXTENDED_CONTAINER_STRATEGY.set_active(True)
+
+#------------------------------------------------------------
 from Gnumed.timelinelib.canvas import TimelineCanvas	# works because of __init__.py
 
 class cEMRTimelinePnl(TimelineCanvas):
@@ -51,6 +59,8 @@ class cEMRTimelinePnl(TimelineCanvas):
 		appearance = self.GetAppearance()
 		appearance.set_balloons_visible(True)
 		appearance.set_hide_events_done(True)
+		appearance.set_colorize_weekends(True)
+		appearance.set_display_checkmark_on_events_done(True)
 		return
 		"""
             appearance.set_legend_visible(self.config.show_legend)
@@ -59,7 +69,6 @@ class cEMRTimelinePnl(TimelineCanvas):
             appearance.set_now_line_colour(self.config.now_line_colour)
             appearance.set_weekend_colour(self.config.weekend_colour)
             appearance.set_bg_colour(self.config.bg_colour)
-            appearance.set_colorize_weekends(self.config.colorize_weekends)
             appearance.set_draw_period_events_to_right(self.config.draw_point_events_to_right)
             appearance.set_text_below_icon(self.config.text_below_icon)
             appearance.set_minor_strip_font(self.config.minor_strip_font)
@@ -75,7 +84,6 @@ class cEMRTimelinePnl(TimelineCanvas):
             appearance.set_hyperlink_icon(self.config.hyperlink_icon)
             appearance.set_vertical_space_between_events(self.config.vertical_space_between_events)
             appearance.set_skip_s_in_decade_text(self.config.skip_s_in_decade_text)
-            appearance.set_display_checkmark_on_events_done(self.config.display_checkmark_on_events_done)
             appearance.set_never_use_time(self.config.never_use_time)
             appearance.set_legend_pos(self.config.legend_pos)
 		"""
@@ -127,6 +135,42 @@ class cEMRTimelinePnl(TimelineCanvas):
 			filename = gmTools.get_unique_filename(suffix = u'.png')
 		self.SaveAsPng(filename)
 		return filename
+
+	#--------------------------------------------------------
+	def fit_all_events(self):
+		all_events = self.get_timeline().get_all_events()
+		if len(all_events) == 0:
+			period4all_events = None
+		start = self._first_time(all_events)
+		end = self._last_time(all_events)
+		period4all_events = TimePeriod(start, end).zoom(-1)
+
+		if period4all_events is None:
+			return
+		if period4all_events.is_period():
+			self.Navigate(lambda tp: tp.update(period4all_events.start_time, period4all_events.end_time))
+		else:
+			self.Navigate(lambda tp: tp.center(period4all_events.mean_time()))
+
+	#--------------------------------------------------------
+	def _first_time(self, events):
+		start_time = lambda event: event.get_start_time()
+		return start_time(min(events, key=start_time))
+
+	#--------------------------------------------------------
+	def _last_time(self, events):
+		end_time = lambda event: event.get_end_time()
+		return end_time(max(events, key=end_time))
+
+	#--------------------------------------------------------
+	def fit_care_era(self):
+		all_eras = self.get_timeline().get_all_eras()
+		care_era = [ e for e in all_eras if e.name == timeline.ERA_NAME_CARE_PERIOD ][0]
+		era_period = care_era.time_period
+		if era_period.is_period():
+			self.Navigate(lambda tp: tp.update(era_period.start_time, era_period.end_time))
+		else:
+			self.Navigate(lambda tp: tp.center(era_period.mean_time()))
 
 #============================================================
 from Gnumed.wxGladeWidgets import wxgEMRTimelinePluginPnl
@@ -196,13 +240,19 @@ class cEMRTimelinePluginPnl(wxgEMRTimelinePluginPnl.wxgEMRTimelinePluginPnl, gmR
 
 	#--------------------------------------------------------
 	def _on_zoom_in_button_pressed(self, event):
-		#event.Skip()
 		self._PNL_timeline.zoom_in()
 
 	#--------------------------------------------------------
 	def _on_zoom_out_button_pressed(self, event):
-		#event.Skip()
 		self._PNL_timeline.zoom_out()
+
+	#--------------------------------------------------------
+	def _on_zoom_fit_all_button_pressed(self, event):
+		self._PNL_timeline.fit_all_events()
+
+	#--------------------------------------------------------
+	def _on_zoom_fit_care_period_button_pressed(self, event):
+		self._PNL_timeline.fit_care_era()
 
 	#--------------------------------------------------------
 	# notebook plugin glue

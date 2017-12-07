@@ -1155,6 +1155,29 @@ def shorten_text(text=None, max_length=None):
 	return text[:max_length-1] + u_ellipsis
 
 #---------------------------------------------------------------------------
+def shorten_words_in_line(text=None, max_length=None, min_word_length=None, ignore_numbers=True, ellipsis=u_ellipsis):
+	if max_length is None:
+		max_length = len(text)
+	else:
+		if len(text) <= max_length:
+			return text
+	old_words = regex.split('\s+', text, flags = regex.UNICODE)
+	no_old_words = len(old_words)
+	max_word_length = max(min_word_length, (max_length / no_old_words))
+	words = []
+	for word in old_words:
+		if len(word) <= max_word_length:
+			words.append(word)
+			continue
+		if ignore_numbers:
+			tmp = word.replace(u'-', u'').replace(u'+', u'').replace(u'.', u'').replace(u',', u'').replace(u'/', u'').replace(u'&', u'').replace(u'*', u'')
+			if tmp.isdigit():
+				words.append(word)
+				continue
+		words.append(word[:max_word_length] + ellipsis)
+	return u' '.join(words)
+
+#---------------------------------------------------------------------------
 def xml_escape_string(text=None):
 	"""check for special XML characters and transform them"""
 	return xml_tools.escape(text)

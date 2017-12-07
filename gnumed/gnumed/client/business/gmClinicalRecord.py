@@ -152,7 +152,12 @@ def format_clin_root_item(table, pk, patient=None):
 	return gmTools.format_dict_like(d, tabular = True, value_delimiters = None)
 
 #============================================================
-_delayed_execute = lambda x:x
+def __noop_delayed_execute(*args, **kwargs):
+	pass
+
+
+_delayed_execute = __noop_delayed_execute
+
 
 def set_delayed_executor(executor):
 	if not callable(executor):

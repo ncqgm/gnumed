@@ -1239,8 +1239,8 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 
 		# episodes: chronologically
 		if isinstance(item1, gmEMRStructItems.cEpisode):
-			start1 = item1.best_guess_start_date
-			start2 = item2.best_guess_start_date
+			start1 = item1.best_guess_clinical_start_date
+			start2 = item2.best_guess_clinical_start_date
 			if start1 == start2:
 				return 0
 			if start1 < start2:

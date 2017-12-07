@@ -321,6 +321,7 @@ class gmCurrentPraxisBranch(gmBorg.cBorg):
 		_log.debug('current praxis branch now: %s', self.branch)
 
 		return None
+
 	#--------------------------------------------------------
 	# __getattr__ handling
 	#--------------------------------------------------------

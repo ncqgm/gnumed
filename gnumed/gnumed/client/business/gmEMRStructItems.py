@@ -6,13 +6,11 @@ license: GPL v2 or later
 #============================================================
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, <karsten.hilbert@gmx.net>"
 
-import types
 import sys
-import string
 import datetime
 import logging
-import time
 import io
+import os
 
 
 if __name__ == '__main__':
@@ -36,8 +34,11 @@ from Gnumed.business import gmDocuments
 
 _log = logging.getLogger('gm.emr')
 
-try: _
-except NameError: _ = lambda x:x
+
+if __name__ == '__main__':
+	gmI18N.activate_locale()
+	gmI18N.install_domain('gnumed')
+
 #============================================================
 # diagnostic certainty classification
 #============================================================
@@ -170,22 +171,24 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 		cmd = u"SELECT * FROM clin.v_pat_episodes WHERE pk_health_issue = %(pk)s"
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': {'pk': self.pk_obj}}], get_col_idx = True)
 		return [ cEpisode(row = {'data': r, 'idx': idx, 'pk_field': 'pk_episode'})  for r in rows ]
+
 	#--------------------------------------------------------
 	def close_expired_episode(self, ttl=180):
 		"""ttl in days"""
-		open_episode = self.get_open_episode()
+		open_episode = self.open_episode
 		if open_episode is None:
 			return True
-		latest = open_episode.latest_access_date
+		clinical_end = open_episode.best_guess_clinical_end_date
 		ttl = datetime.timedelta(ttl)
-		now = datetime.datetime.now(tz=latest.tzinfo)
-		if (latest + ttl) > now:
+		now = datetime.datetime.now(tz = clinical_end.tzinfo)
+		if (clinical_end + ttl) > now:
 			return False
 		open_episode['episode_open'] = False
 		success, data = open_episode.save_payload()
 		if success:
 			return True
 		return False		# should be an exception
+
 	#--------------------------------------------------------
 	def close_episode(self):
 		open_episode = self.get_open_episode()
@@ -194,18 +197,19 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 		if success:
 			return True
 		return False
+
 	#--------------------------------------------------------
 	def has_open_episode(self):
-		cmd = u"select exists (select 1 from clin.episode where fk_health_issue = %s and is_open is True)"
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_obj]}])
-		return rows[0][0]
+		return self._payload[self._idx['has_open_episode']]
+
 	#--------------------------------------------------------
 	def get_open_episode(self):
-		cmd = u"select pk from clin.episode where fk_health_issue = %s and is_open is True"
+		cmd = u"select pk from clin.episode where fk_health_issue = %s and is_open IS True LIMIT 1"
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_obj]}])
 		if len(rows) == 0:
 			return None
 		return cEpisode(aPK_obj=rows[0][0])
+
 	#--------------------------------------------------------
 	def age_noted_human_readable(self):
 		if self._payload[self._idx['age_noted']] is None:
@@ -215,6 +219,7 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 		# further transformation will only introduce more errors,
 		# later we can improve this deeper inside
 		return gmDateTime.format_interval_medically(self._payload[self._idx['age_noted']])
+
 	#--------------------------------------------------------
 	def add_code(self, pk_code=None):
 		"""<pk_code> must be a value from ref.coding_system_root.pk_coding_system (clin.lnk_code2item_root.fk_generic_code)"""
@@ -225,6 +230,7 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 		}
 		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 		return True
+
 	#--------------------------------------------------------
 	def remove_code(self, pk_code=None):
 		"""<pk_code> must be a value from ref.coding_system_root.pk_coding_system (clin.lnk_code2item_root.fk_generic_code)"""
@@ -235,6 +241,7 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 		}
 		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 		return True
+
 	#--------------------------------------------------------
 	def format_as_journal(self, left_margin=0, date_format='%a, %b %d %Y'):
 		rows = gmClinNarrative.get_as_journal (
@@ -288,6 +295,7 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 
 		eol_w_margin = u'\n%s' % left_margin
 		return left_margin + eol_w_margin.join(lines) + u'\n'
+
 	#--------------------------------------------------------
 	def format (self, left_margin=0, patient=None,
 		with_summary=True,
@@ -539,76 +547,229 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 		return gmExternalCare.get_external_care_items(pk_health_issue = self.pk_obj, order_by = order_by)
 
 	external_care = property(_get_external_care, lambda x:x)
+
 	#--------------------------------------------------------
 	episodes = property(get_episodes, lambda x:x)
-	#--------------------------------------------------------
+
 	open_episode = property(get_open_episode, lambda x:x)
-	#--------------------------------------------------------
+
 	has_open_episode = property(has_open_episode, lambda x:x)
+
 	#--------------------------------------------------------
 	def _get_first_episode(self):
-		cmd = u"""SELECT pk_episode FROM clin.v_pat_episodes WHERE pk_health_issue = %(issue)s ORDER BY started_first limit 1"""
-		args = {'issue': self.pk_obj}
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+
+		args = {'pk_issue': self.pk_obj}
+
+		cmd = u"""SELECT
+			earliest, pk_episode
+		FROM (
+				-- .modified_when of all episodes of this issue,
+				-- earliest-possible thereof = when created,
+				-- should actually go all the way back into audit.log_episode
+				(SELECT
+					c_epi.modified_when AS earliest,
+					c_epi.pk AS pk_episode
+				 FROM clin.episode c_epi
+				 WHERE c_epi.fk_health_issue = %(pk_issue)s
+				)
+			UNION ALL
+
+				-- last modification of encounter in which episodes of this issue were created,
+				-- earliest-possible thereof = initial creation of that encounter
+				(SELECT
+					c_enc.modified_when AS earliest,
+					c_epi.pk AS pk_episode
+				 FROM
+					clin.episode c_epi
+						INNER JOIN clin.encounter c_enc ON (c_enc.pk = c_epi.fk_encounter)
+						INNER JOIN clin.health_issue c_hi ON (c_hi.pk = c_epi.fk_health_issue)
+				 WHERE c_hi.pk = %(pk_issue)s
+				)
+			UNION ALL
+
+				-- start of encounter in which episodes of this issue were created,
+				-- earliest-possible thereof = set by user
+				(SELECT
+					c_enc.started AS earliest,
+					c_epi.pk AS pk_episode
+				 FROM
+					clin.episode c_epi
+						INNER JOIN clin.encounter c_enc ON (c_enc.pk = c_epi.fk_encounter)
+						INNER JOIN clin.health_issue c_hi ON (c_hi.pk = c_epi.fk_health_issue)
+				 WHERE c_hi.pk = %(pk_issue)s
+				)
+			UNION ALL
+
+				-- start of encounters of clinical items linked to episodes of this issue,
+				-- earliest-possible thereof = explicitely set by user
+				(SELECT
+					c_enc.started AS earliest,
+					c_epi.pk AS pk_episode
+				 FROM
+					clin.clin_root_item c_cri
+						INNER JOIN clin.encounter c_enc ON (c_cri.fk_encounter = c_enc.pk)
+						INNER JOIN clin.episode c_epi ON (c_cri.fk_episode = c_epi.pk)
+							INNER JOIN clin.health_issue c_hi ON (c_epi.fk_health_issue = c_hi.pk)
+				 WHERE c_hi.pk = %(pk_issue)s
+				)
+			UNION ALL
+
+				-- .clin_when of clinical items linked to episodes of this issue,
+				-- earliest-possible thereof = explicitely set by user
+				(SELECT
+					c_cri.clin_when AS earliest,
+					c_epi.pk AS pk_episode
+				 FROM
+					clin.clin_root_item c_cri
+						INNER JOIN clin.episode c_epi ON (c_cri.fk_episode = c_epi.pk)
+							INNER JOIN clin.health_issue c_hi ON (c_epi.fk_health_issue = c_hi.pk)
+				 WHERE c_hi.pk = %(pk_issue)s
+				)
+			UNION ALL
+
+				-- earliest modification time of clinical items linked to episodes of this issue
+				-- this CAN be used since if an item is linked to an episode it can be
+				-- assumed the episode (should have) existed at the time of creation
+				(SELECT
+					c_cri.modified_when AS earliest,
+					c_epi.pk AS pk_episode
+				 FROM
+					clin.clin_root_item c_cri
+						INNER JOIN clin.episode c_epi ON (c_cri.fk_episode = c_epi.pk)
+							INNER JOIN clin.health_issue c_hi ON (c_epi.fk_health_issue = c_hi.pk)
+				 WHERE c_hi.pk = %(pk_issue)s
+				)
+			UNION ALL
+
+				-- there may not be items, but there may still be documents ...
+				(SELECT
+					b_dm.clin_when AS earliest,
+					c_epi.pk AS pk_episode
+				 FROM
+					blobs.doc_med b_dm
+						INNER JOIN clin.episode c_epi ON (b_dm.fk_episode = c_epi.pk)
+							INNER JOIN clin.health_issue c_hi ON (c_epi.fk_health_issue = c_hi.pk)
+				  WHERE c_hi.pk = %(pk_issue)s
+				)
+		) AS candidates
+		ORDER BY earliest NULLS LAST
+		LIMIT 1"""
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 		if len(rows) == 0:
 			return None
-		return cEpisode(aPK_obj = rows[0][0])
+		return cEpisode(aPK_obj = rows[0]['pk_episode'])
 
 	first_episode = property(_get_first_episode, lambda x:x)
+
 	#--------------------------------------------------------
 	def _get_latest_episode(self):
-		cmd = u"""SELECT
-			coalesce (
-				(SELECT pk FROM clin.episode WHERE fk_health_issue = %(issue)s AND is_open IS TRUE),
-				(SELECT pk_episode AS pk FROM clin.v_pat_episodes WHERE pk_health_issue = %(issue)s ORDER BY last_affirmed DESC limit 1)
-		)"""
-		args = {'issue': self.pk_obj}
+
+		# explicit always wins:
+		if self._payload[self._idx['has_open_episode']]:
+			return self.open_episode
+
+		args = {'pk_issue': self.pk_obj}
+
+		# cheap query first: any episodes at all ?
+		cmd = u"SELECT 1 FROM clin.episode WHERE fk_health_issue = %(pk_issue)s"
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
 		if len(rows) == 0:
 			return None
-		if rows[0][0] is None:
+
+		cmd = u"""SELECT
+			latest, pk_episode
+		FROM (
+				-- .clin_when of clinical items linked to episodes of this issue,
+				-- latest-possible thereof = explicitely set by user
+				(SELECT
+					c_cri.clin_when AS latest,
+					c_epi.pk AS pk_episode,
+					1 AS rank
+				 FROM
+					clin.clin_root_item c_cri
+						INNER JOIN clin.episode c_epi ON (c_cri.fk_episode = c_epi.pk)
+							INNER JOIN clin.health_issue c_hi ON (c_epi.fk_health_issue = c_hi.pk)
+				 WHERE c_hi.pk = %(pk_issue)s
+				)
+			UNION ALL
+
+				-- .clin_when of documents linked to episodes of this issue
+				(SELECT
+					b_dm.clin_when AS latest,
+					c_epi.pk AS pk_episode,
+					1 AS rank
+				 FROM
+					blobs.doc_med b_dm
+						INNER JOIN clin.episode c_epi ON (b_dm.fk_episode = c_epi.pk)
+							INNER JOIN clin.health_issue c_hi ON (c_epi.fk_health_issue = c_hi.pk)
+				 WHERE c_hi.pk = %(pk_issue)s
+				)
+			UNION ALL
+
+				-- last_affirmed of encounter in which episodes of this issue were created,
+				-- earliest-possible thereof = set by user
+				(SELECT
+					c_enc.last_affirmed AS latest,
+					c_epi.pk AS pk_episode,
+					2 AS rank
+				 FROM
+					clin.episode c_epi
+						INNER JOIN clin.encounter c_enc ON (c_enc.pk = c_epi.fk_encounter)
+						INNER JOIN clin.health_issue c_hi ON (c_hi.pk = c_epi.fk_health_issue)
+				 WHERE c_hi.pk = %(pk_issue)s
+				)
+
+		) AS candidates
+		WHERE
+			-- weed out NULL rows due to episodes w/o clinical items and w/o documents
+			latest IS NOT NULL
+		ORDER BY
+			rank,
+			latest DESC
+		LIMIT 1
+		"""
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+		if len(rows) == 0:
+			# there were no episodes for this issue
 			return None
-		return cEpisode(aPK_obj = rows[0][0])
+		return cEpisode(aPK_obj = rows[0]['pk_episode'])
 
 	latest_episode = property(_get_latest_episode, lambda x:x)
+
 	#--------------------------------------------------------
-	# Steffi suggested we divide into safe and assumed start dates
+	# Steffi suggested we divide into safe and assumed (= possible) start dates
 	def _get_safe_start_date(self):
-		"""This returns the date when we can assume to safely
-		   KNOW the health issue existed (because
-		   the provider said so)."""
+		"""This returns the date when we can assume to safely KNOW
+		   the health issue existed (because the provider said so)."""
+
 		args = {
 			'enc': self._payload[self._idx['pk_encounter']],
 			'pk': self._payload[self._idx['pk_health_issue']]
 		}
-		cmd = u"""
-SELECT COALESCE (
-	-- this one must override all:
-	-- .age_noted if not null and DOB is known
-	(CASE
-		WHEN c_hi.age_noted IS NULL
-		THEN NULL::timestamp with time zone
-		WHEN
-			(SELECT d_i.dob FROM dem.identity d_i WHERE d_i.pk = (
-				SELECT c_enc.fk_patient FROM clin.encounter c_enc WHERE c_enc.pk = %(enc)s
-			)) IS NULL
-		THEN NULL::timestamp with time zone
-		ELSE
-			c_hi.age_noted + (
-				SELECT d_i.dob FROM dem.identity d_i WHERE d_i.pk = (
-					SELECT c_enc.fk_patient FROM clin.encounter c_enc WHERE c_enc.pk = %(enc)s
-				)
-			)
-	END),
+		cmd = u"""SELECT COALESCE (
+			-- this one must override all:
+			-- .age_noted if not null and DOB is known
+			(CASE
+				WHEN c_hi.age_noted IS NULL
+				THEN NULL::timestamp with time zone
+				WHEN
+					(SELECT d_i.dob FROM dem.identity d_i WHERE d_i.pk = (
+						SELECT c_enc.fk_patient FROM clin.encounter c_enc WHERE c_enc.pk = %(enc)s
+					)) IS NULL
+				THEN NULL::timestamp with time zone
+				ELSE
+					c_hi.age_noted + (
+						SELECT d_i.dob FROM dem.identity d_i WHERE d_i.pk = (
+							SELECT c_enc.fk_patient FROM clin.encounter c_enc WHERE c_enc.pk = %(enc)s
+						)
+					)
+			END),
 
-	-- start of encounter in which created, earliest = explicitely set
-	(SELECT c_enc.started AS earliest FROM clin.encounter c_enc WHERE c_enc.pk = (
-			c_hi.fk_encounter
-			--SELECT fk_encounter FROM clin.health_issue WHERE clin.health_issue.pk = %(pk)s
-	))
-)
-FROM clin.health_issue c_hi
-WHERE c_hi.pk = %(pk)s"""
+			-- start of encounter in which created, earliest = explicitely set
+			(SELECT c_enc.started AS earliest FROM clin.encounter c_enc WHERE c_enc.pk = c_hi.fk_encounter)
+		)
+		FROM clin.health_issue c_hi
+		WHERE c_hi.pk = %(pk)s"""
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 		return rows[0][0]
 
@@ -645,7 +806,7 @@ UNION ALL
 	))
 
 -- here we should be looking at
--- .best_guess_start_date of all episodes linked to this encounter
+-- .best_guess_clinical_start_date of all episodes linked to this encounter
 
 ) AS candidates"""
 
@@ -655,14 +816,20 @@ UNION ALL
 	possible_start_date = property(_get_possible_start_date)
 
 	#--------------------------------------------------------
-	def _get_end_date(self):
+	def _get_clinical_end_date(self):
 		if self._payload[self._idx['is_active']]:
-			return gmDateTime.pydt_now_here()
-		if self.has_open_episode:
-			return gmDateTime.pydt_now_here()
-		return self.latest_access_date
+			return None
+		if self._payload[self._idx['has_open_episode']]:
+			return None
+		latest_episode = self.latest_episode
+		if latest_episode is not None:
+			return latest_episode.best_guess_clinical_end_date
+		# apparently, there are no episodes for this issue
+		# and the issue is not active either
+		# so, we simply do not know, the safest assumption is:
+		return self.safe_start_date
 
-	end_date = property(_get_end_date)
+	clinical_end_date = property(_get_clinical_end_date)
 
 	#--------------------------------------------------------
 	def _get_latest_access_date(self):
@@ -724,6 +891,7 @@ FROM (
 		return rows[0][0]
 
 	latest_access_date = property(_get_latest_access_date)
+
 	#--------------------------------------------------------
 	def _get_laterality_description(self):
 		try:
@@ -901,6 +1069,7 @@ def health_issue2problem(health_issue=None, allow_irrelevant=False):
 		},
 		try_potential_problems = allow_irrelevant
 	)
+
 #============================================================
 # episodes API
 #============================================================
@@ -966,18 +1135,13 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 
 		else:
 			gmBusinessDBObject.cBusinessDBObject.__init__(self, aPK_obj=pk, row=row, link_obj = link_obj)
+
 	#--------------------------------------------------------
 	# external API
 	#--------------------------------------------------------
-	def get_access_range(self):
-		"""Get earliest and latest access to this episode.
-
-		Returns a tuple(earliest, latest).
-		"""
-		return (self.best_guess_start_date, self.latest_access_date)
-	#--------------------------------------------------------
 	def get_patient(self):
 		return self._payload[self._idx['pk_patient']]
+
 	#--------------------------------------------------------
 	def get_narrative(self, soap_cats=None, encounters=None, order_by = None):
 		return gmClinNarrative.get_narrative (
@@ -1009,6 +1173,7 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 			self._payload[self._idx['description']] = old_description
 			return False
 		return True
+
 	#--------------------------------------------------------
 	def add_code(self, pk_code=None):
 		"""<pk_code> must be a value from ref.coding_system_root.pk_coding_system (clin.lnk_code2item_root.fk_generic_code)"""
@@ -1035,6 +1200,7 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 		}
 		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 		return
+
 	#--------------------------------------------------------
 	def remove_code(self, pk_code=None):
 		"""<pk_code> must be a value from ref.coding_system_root.pk_coding_system (clin.lnk_code2item_root.fk_generic_code)"""
@@ -1410,32 +1576,39 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	# properties
 	#--------------------------------------------------------
-	def _get_best_guess_start_date(self):
-		cmd = u"""SELECT MIN(earliest) FROM (
-			-- last modification, earliest = when created in/changed to the current state
+	def _get_best_guess_clinical_start_date(self):
+		cmd = u"""SELECT MIN(earliest) FROM
+		(
+			-- last modification of episode,
+			-- earliest-possible thereof = when created,
+			-- should actually go all the way back into audit.log_episode
 			(SELECT c_epi.modified_when AS earliest FROM clin.episode c_epi WHERE c_epi.pk = %(pk)s)
 
 				UNION ALL
 
-			-- last modification of encounter in which created, earliest = initial creation of that encounter
+			-- last modification of encounter in which created,
+			-- earliest-possible thereof = initial creation of that encounter
 			(SELECT c_enc.modified_when AS earliest FROM clin.encounter c_enc WHERE c_enc.pk = (
 			 	SELECT fk_encounter FROM clin.episode WHERE pk = %(pk)s
 			))
 				UNION ALL
 
-			-- start of encounter in which created, earliest = explicitely set
+			-- start of encounter in which created,
+			-- earliest-possible thereof = explicitely set by user
 			(SELECT c_enc.started AS earliest FROM clin.encounter c_enc WHERE c_enc.pk = (
 			 	SELECT fk_encounter FROM clin.episode WHERE pk = %(pk)s
 			))
 				UNION ALL
 
-			-- earliest start of encounters of clinical items linked to this episode
+			-- start of encounters of clinical items linked to this episode,
+			-- earliest-possible thereof = explicitely set by user
 			(SELECT MIN(started) AS earliest FROM clin.encounter WHERE pk IN (
 				SELECT fk_encounter FROM clin.clin_root_item WHERE fk_episode = %(pk)s
 			))
 				UNION ALL
 
-			-- earliest explicit .clin_when of clinical items linked to this episode
+			-- .clin_when of clinical items linked to this episode,
+			-- earliest-possible thereof = explicitely set by user
 			(SELECT MIN(clin_when) AS earliest FROM clin.clin_root_item WHERE fk_episode = %(pk)s)
 
 				UNION ALL
@@ -1445,54 +1618,54 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 			-- assumed the episode (should have) existed at the time of creation
 			(SELECT MIN(modified_when) AS earliest FROM clin.clin_root_item WHERE fk_episode = %(pk)s)
 
-			-- not sure about this one:
-			-- .pk -> clin.clin_root_item.fk_encounter.modified_when
+				UNION ALL
 
+			-- there may not be items, but there may still be documents ...
+			(SELECT MIN(clin_when) AS earliest FROM blobs.doc_med WHERE fk_episode = %(pk)s)
 		) AS candidates"""
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': {'pk': self.pk_obj}}])
 		return rows[0][0]
 
-	best_guess_start_date = property(_get_best_guess_start_date)
+	best_guess_clinical_start_date = property(_get_best_guess_clinical_start_date)
 
 	#--------------------------------------------------------
-	def _get_best_guess_end_date(self):
-		cmd = u"""
-			SELECT COALESCE (
-				(SELECT
-					latest
-					--, source_type
-				 FROM (
-					-- latest end of encounters of clinical items linked to this episode
-					(SELECT
-						MAX(last_affirmed) AS latest,
-						'clin.episode.pk = clin.clin_root_item,fk_episode -> .fk_encounter.last_affirmed'::text AS source_type
-					 FROM clin.encounter
-					 WHERE pk IN (
-						SELECT fk_encounter FROM clin.clin_root_item WHERE fk_episode = %(pk)s
-					))
-						UNION ALL
+	def _get_best_guess_clinical_end_date(self):
+		if self._payload[self._idx['episode_open']]:
+			return None
 
-					-- latest explicit .clin_when of clinical items linked to this episode
-					(SELECT
-						MAX(clin_when) AS latest,
-						'clin.episode.pk = clin.clin_root_item,fk_episode -> .clin_when'::text AS source_type
-					 FROM clin.clin_root_item
-					 WHERE fk_episode = %(pk)s
-					)
-				) AS candidates
-				ORDER BY latest DESC LIMIT 1
-				),
-				-- last ditch, always exists, only use when no clinical items linked:
-				-- last modification, latest = when last changed to the current state
-				(SELECT c_epi.modified_when AS latest
-				 --, 'clin.episode.modified_when'::text AS candidate
-				 FROM clin.episode c_epi WHERE c_epi.pk = %(pk)s
+		cmd = u"""SELECT COALESCE (
+			(SELECT
+				latest --, source_type
+			 FROM (
+				-- latest explicit .clin_when of clinical items linked to this episode
+				(SELECT
+					MAX(clin_when) AS latest,
+					'clin.episode.pk = clin.clin_root_item.fk_episode -> .clin_when'::text AS source_type
+				 FROM clin.clin_root_item
+				 WHERE fk_episode = %(pk)s
 				)
-			)"""
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': {'pk': self.pk_obj}}])
+					UNION ALL
+				-- latest explicit .clin_when of documents linked to this episode
+				(SELECT
+					MAX(clin_when) AS latest,
+					'clin.episode.pk = blobs.doc_med.fk_episode -> .clin_when'::text AS source_type
+				 FROM blobs.doc_med
+				 WHERE fk_episode = %(pk)s
+				)
+			 ) AS candidates
+			 ORDER BY latest DESC NULLS LAST
+			 LIMIT 1
+			),
+			-- last ditch, always exists, only use when no clinical items or documents linked:
+			-- last modification, latest = when last changed to the current state
+			(SELECT c_epi.modified_when AS latest --, 'clin.episode.modified_when'::text AS source_type
+			 FROM clin.episode c_epi WHERE c_epi.pk = %(pk)s
+			)
+		)"""
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': {'pk': self.pk_obj}}], get_col_idx = False)
 		return rows[0][0]
 
-	best_guess_end_date = property(_get_best_guess_end_date)
+	best_guess_clinical_end_date = property(_get_best_guess_clinical_end_date)
 
 	#--------------------------------------------------------
 	def _get_latest_access_date(self):
@@ -2970,8 +3143,10 @@ class cProblem(gmBusinessDBObject.cBusinessDBObject):
 	def get_visual_progress_notes(self, encounter_id=None):
 
 		if self._payload[self._idx['type']] == u'issue':
-			episodes = [ cHealthIssue(aPK_obj = self._payload[self._idx['pk_health_issue']]).latest_episode ]
-			#xxxxxxxxxxxxx
+			latest = cHealthIssue(aPK_obj = self._payload[self._idx['pk_health_issue']]).latest_episode
+			if latest is None:
+				return []
+			episodes = [ latest ]
 
 		emr = patient.emr
 
@@ -2980,6 +3155,7 @@ class cProblem(gmBusinessDBObject.cBusinessDBObject):
 			health_issue = self._payload[self._idx['pk_health_issue']],
 			episode = self._payload[self._idx['pk_episode']]
 		)
+
 	#--------------------------------------------------------
 	# properties
 	#--------------------------------------------------------
@@ -3579,8 +3755,6 @@ if __name__ == '__main__':
 	if sys.argv[1] != 'test':
 		sys.exit()
 
-	_ = lambda x:x
-
 	#--------------------------------------------------------
 	# define tests
 	#--------------------------------------------------------
@@ -3598,6 +3772,7 @@ if __name__ == '__main__':
 		if epi is not None:
 			for field in epi.get_fields():
 				print '   .%s : %s' % (field, epi[field])
+
 	#--------------------------------------------------------
 	def test_health_issue():
 		print "\nhealth issue test"
@@ -3605,7 +3780,7 @@ if __name__ == '__main__':
 		h_issue = cHealthIssue(aPK_obj=2)
 		print h_issue
 		print h_issue.latest_access_date
-		print h_issue.end_date
+		print h_issue.clinical_end_date
 #		fields = h_issue.get_fields()
 #		for field in fields:
 #			print field, ':', h_issue[field]
@@ -3617,13 +3792,16 @@ if __name__ == '__main__':
 #		print h_issue
 #		print h_issue.format_as_journal()
 		print h_issue.formatted_revision_history
+
 	#--------------------------------------------------------	
 	def test_episode():
 		print "episode test"
 		print "------------"
-		episode = cEpisode(aPK_obj = 1354) # 1461 1299
+		episode = cEpisode(aPK_obj = 1322) #1674) #1354) #1461) #1299)
 
-		print episode['description'], episode.best_guess_end_date
+		print episode['description']
+		print 'start:', episode.best_guess_clinical_start_date
+		print 'end  :', episode.best_guess_clinical_end_date
 		return
 
 		print episode
@@ -3647,8 +3825,6 @@ if __name__ == '__main__':
 			print "success"
 			for field in fields:
 				print field, ':', episode[field]
-
-		print "episode range:", episode.get_access_range()
 
 		print episode.formatted_revision_history
 
@@ -3704,9 +3880,60 @@ if __name__ == '__main__':
 	def test_episode_encounters():
 		epi = cEpisode(aPK_obj = 1638)
 		print epi.format()
+
+	#--------------------------------------------------------
+	def export_emr_structure():
+
+		praxis = gmPraxis.gmCurrentPraxisBranch(branch = gmPraxis.get_praxis_branches()[0])
+
+		from Gnumed.business import gmPerson
+		# 12 / 20 / 138 / 58 / 20 / 5
+		pat = gmPerson.gmCurrentPatient(gmPerson.cPatient(aPK_obj = 14))
+		fname = os.path.expanduser(u'~/gnumed/emr_structure-%s.txt' % pat.dirname)
+		f = io.open(fname, 'w+', encoding = 'utf8')
+
+		f.write(u'patient [%s]\n' % pat['description_gender'])
+		emr = pat.emr
+		for issue in emr.health_issues:
+			f.write(u'\n')
+			f.write(u'\n')
+			f.write(u'issue [%s] #%s\n' % (issue['description'], issue['pk_health_issue']))
+			f.write(u' is active     : %s\n' % issue['is_active'])
+			f.write(u' has open epi  : %s\n' % issue['has_open_episode'])
+			f.write(u' possible start: %s\n' % issue.possible_start_date)
+			f.write(u' safe start    : %s\n' % issue.safe_start_date)
+			end = issue.clinical_end_date
+			if end is None:
+				f.write(u' end           : active and/or open episode\n')
+			else:
+				f.write(u' end           : %s\n' % end)
+			f.write(u' latest access : %s\n' % issue.latest_access_date)
+			first = issue.first_episode
+			if first is not None:
+				first = first['description']
+			f.write(u' 1st episode   : %s\n' % first)
+			last = issue.latest_episode
+			if last is not None:
+				last = last['description']
+			f.write(u' latest episode: %s\n' % last)
+			epis = sorted(issue.get_episodes(), key = lambda e: e.best_guess_clinical_start_date)
+			for epi in epis:
+				f.write(u'\n')
+				f.write(u' episode [%s] #%s\n' % (epi['description'], epi['pk_episode']))
+				f.write(u'  is open         : %s\n' % epi['episode_open'])
+				f.write(u'  best guess start: %s\n' % epi.best_guess_clinical_start_date)
+				f.write(u'  best guess end  : %s\n' % epi.best_guess_clinical_end_date)
+				f.write(u'  latest access   : %s\n' % epi.latest_access_date)
+				f.write(u'  start 1st enc   : %s\n' % epi['started_first'])
+				f.write(u'  start last enc  : %s\n' % epi['started_last'])
+				f.write(u'  end last enc    : %s\n' % epi['last_affirmed'])
+
+		f.close()
+		print fname
+
 	#--------------------------------------------------------
 	# run them
-	test_episode()
+	#test_episode()
 	#test_episode_encounters()
 	#test_problem()
 	#test_encounter()
@@ -3716,5 +3943,7 @@ if __name__ == '__main__':
 	#test_diagnostic_certainty_classification_map()
 	#test_encounter2latex()
 	#test_episode_codes()
+
+	export_emr_structure()
 
 #============================================================

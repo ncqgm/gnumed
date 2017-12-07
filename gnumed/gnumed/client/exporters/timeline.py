@@ -22,6 +22,12 @@ from Gnumed.pycommon import gmDateTime
 _log = logging.getLogger('gm.tl')
 
 #============================================================
+if __name__ == '__main__':
+	_ = lambda x:x
+
+ERA_NAME_CARE_PERIOD = _(u'Care Period')
+
+#============================================================
 xml_start = u"""<?xml version="1.0" encoding="utf-8"?>
 <timeline>
 	<version>1.16.0</version>
@@ -151,29 +157,36 @@ def __format_health_issue_as_timeline_xml(issue, patient, emr):
 		with_tests = False,
 		with_vaccinations = False
 	).strip().strip(u'\n').strip()
-	safe_start = issue.safe_start_date
 	possible_start = issue.possible_start_date
-	txt = u''
+	safe_start = issue.safe_start_date
+	end = issue.clinical_end_date
+	ends_today = u'False'
+	if end is None:
+		# open episode or active
+		ends_today = u'True'
+		end = now
+	xml = u''
+	desc = gmTools.shorten_words_in_line(text = issue['description'], max_length = 25, min_word_length = 5)
 	if possible_start < safe_start:
-		txt += __xml_issue_template % (
+		xml += __xml_issue_template % (
 			format_pydt(possible_start),									# start
 			format_pydt(safe_start),										# end
 			u'',															# empty = no container ID
-			gmTools.xml_escape_string(u'?[%s]?' % issue['description']),	# text
+			gmTools.xml_escape_string(u'?%s?' % desc),						# text
 			u'False',														# ends_today
 			_('Health issues'),												# category
 			gmTools.xml_escape_string(tooltip)								# description
 		)
-	txt += __xml_issue_template % (
+	xml += __xml_issue_template % (
 		format_pydt(safe_start),											# start
-		format_pydt(issue.end_date),										# end
+		format_pydt(end),													# end
 		u'[%s]' % issue['pk_health_issue'],									# container ID
-		gmTools.xml_escape_string(issue['description']),					# text
-		gmTools.bool2subst(issue['is_active'], u'True', u'False'),			# ends_today
+		gmTools.xml_escape_string(desc),									# text
+		ends_today,															# ends_today
 		_('Health issues'),													# category
 		gmTools.xml_escape_string(tooltip)									# description
 	)
-	return txt
+	return xml
 
 #------------------------------------------------------------
 # episodes
@@ -191,16 +204,17 @@ __xml_episode_template = u"""
 		</event>"""
 
 def __format_episode_as_timeline_xml(episode, patient):
-	end = gmTools.bool2subst (
-		episode['episode_open'],
-		format_pydt(now),
-		format_pydt(episode.best_guess_end_date)
-	)
+	end = episode.best_guess_clinical_end_date
+	if end is None:
+		end = format_pydt(now)
+	else:
+		end = format_pydt(end)
+	desc = gmTools.shorten_words_in_line(text = episode['description'], max_length = 20, min_word_length = 5)
 	return __xml_episode_template % (
-		format_pydt(episode.best_guess_start_date),							# start
+		format_pydt(episode.best_guess_clinical_start_date),				# start
 		end,																# end
 		gmTools.coalesce(episode['pk_health_issue'], u'', u'(%s)'),			# container ID
-		gmTools.xml_escape_string(episode['description']),					# text
+		gmTools.xml_escape_string(desc),									# text
 		gmTools.bool2subst(episode['episode_open'], u'True', u'False'),		# ends_today
 		_('Episodes'),														# category
 		gmTools.xml_escape_string(episode.format (							# description
@@ -306,10 +320,11 @@ def __format_procedure_as_timeline_xml(proc):
 			end = proc['clin_when']
 		else:
 			end = proc['clin_end']
+	desc = gmTools.shorten_words_in_line(text = proc['performed_procedure'], max_length = 20, min_word_length = 5)
 	return __xml_procedure_template % (
 		format_pydt(proc['clin_when']),
 		format_pydt(end),
-		gmTools.xml_escape_string(proc['performed_procedure']),
+		gmTools.xml_escape_string(desc),
 		_('Procedures'),
 		gmTools.xml_escape_string(proc.format (
 			include_episode = True,
@@ -333,10 +348,11 @@ __xml_document_template = u"""
 		</event>"""
 
 def __format_document_as_timeline_xml(doc):
+	desc = gmTools.shorten_words_in_line(text = doc['l10n_type'], max_length = 20, min_word_length = 5)
 	return __xml_document_template % (
 		format_pydt(doc['clin_when']),
 		format_pydt(doc['clin_when']),
-		gmTools.xml_escape_string(doc['l10n_type']),
+		gmTools.xml_escape_string(desc),
 		_('Documents'),
 		gmTools.xml_escape_string(doc.format().strip().strip(u'\n').strip())
 	)
@@ -418,7 +434,7 @@ def create_timeline_file(patient=None, filename=None):
 	now = gmDateTime.pydt_now_here()
 
 	if filename is None:
-		timeline_fname = gmTools.get_unique_filename(prefix = u'gm-', suffix = u'.timeline')
+		timeline_fname = gmTools.get_unique_filename(prefix = u'gm-', suffix = u'.timeline')	# .timeline required ...
 	else:
 		timeline_fname = filename
 	_log.debug('exporting EMR as timeline into [%s]', timeline_fname)
@@ -451,7 +467,7 @@ def create_timeline_file(patient=None, filename=None):
 		lifespan_start,
 		lifespan_end,
 		life_ends2day,
-		_(u'Care Period'),
+		ERA_NAME_CARE_PERIOD,
 		format_pydt(earliest_care_date),
 		most_recent_care_date,
 		care_ends2day,
@@ -484,10 +500,10 @@ def create_timeline_file(patient=None, filename=None):
 			format_pydt(patient['dob']),
 			u'*',
 			_('Life events'),
-			u'%s: %s%s' % (
+			u'%s: %s (%s)' % (
 				_(u'Birth'),
-				format_pydt(patient['dob']),
-				gmTools.bool2subst(patient['dob_is_estimated'], u' (%s)' % gmTools.u_almost_equal_to, u'')
+				patient.get_formatted_dob(format = '%Y %b %d %H:%M', encoding = 'utf8', honor_estimation = True),
+				patient.get_medical_age()
 			),
 			u'True'
 		))
@@ -498,7 +514,7 @@ def create_timeline_file(patient=None, filename=None):
 		format_pydt(earliest_care_date),
 		gmTools.u_heavy_greek_cross,
 		_('Life events'),
-		_('Start of Care: %s\n(the earliest recorded event of care in this praxis)') % format_pydt(earliest_care_date, format = '%Y-%m-%d'),
+		_('Start of Care: %s\n(the earliest recorded event of care in this praxis)') % format_pydt(earliest_care_date, format = '%Y %b %d'),
 		u'True'
 	))
 
@@ -529,9 +545,9 @@ def create_timeline_file(patient=None, filename=None):
 	for vacc in emr.vaccinations:
 		timeline.write(__format_vaccination_as_timeline_xml(vacc))
 
-	timeline.write(u'\n<!--\n========================================\n Substance intakes\n======================================== -->')
-	for intake in emr.get_current_medications(include_inactive = True, include_unapproved = False):
-		timeline.write(__format_intake_as_timeline_xml(intake))
+#	timeline.write(u'\n<!--\n========================================\n Substance intakes\n======================================== -->')
+#	for intake in emr.get_current_medications(include_inactive = True, include_unapproved = False):
+#		timeline.write(__format_intake_as_timeline_xml(intake))
 
 	timeline.write(u'\n<!--\n========================================\n Documents\n======================================== -->')
 	for doc in patient.document_folder.documents:
@@ -552,7 +568,7 @@ def create_timeline_file(patient=None, filename=None):
 			format_pydt(end),
 			gmTools.u_dagger,
 			_('Life events'),
-			_(u'Death: %s') % format_pydt(end)
+			_(u'Death: %s') % format_pydt(end, format = '%Y %b %d %H:%M')
 		))
 
 	# display range
@@ -690,9 +706,13 @@ if __name__ == '__main__':
 	from Gnumed.pycommon import gmI18N
 	gmI18N.activate_locale()
 	gmI18N.install_domain('gnumed')
+
+	from Gnumed.business import gmPraxis
+	praxis = gmPraxis.gmCurrentPraxisBranch(branch = gmPraxis.get_praxis_branches()[0])
+
 	from Gnumed.business import gmPerson
 	# 14 / 20 / 138 / 58 / 20 / 5
-	pat = gmPerson.gmCurrentPatient(gmPerson.cPatient(aPK_obj = 12))
-	fname = u'~/tmp/gm2tl-%s.timeline' % pat.get_dirname()
+	pat = gmPerson.gmCurrentPatient(gmPerson.cPatient(aPK_obj = 14))
+	fname = u'~/gnumed/gm2tl-%s.timeline' % pat.get_dirname()
 
 	print create_timeline_file(patient = pat, filename = os.path.expanduser(fname))

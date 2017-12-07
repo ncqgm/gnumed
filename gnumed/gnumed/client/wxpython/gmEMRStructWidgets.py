@@ -130,7 +130,7 @@ def manage_episodes(parent=None):
 		items = [
 			[	e['description'],
 				gmTools.bool2subst(e['episode_open'], _(u'ongoing'), _(u'closed'), u'<unknown>'),
-				gmDateTime.pydt_strftime(e.best_guess_start_date, '%Y %b %d'),
+				gmDateTime.pydt_strftime(e.best_guess_clinical_start_date, '%Y %b %d'),
 				gmTools.coalesce(e['health_issue'], u'')
 			] for e in epis
 		]
@@ -272,8 +272,16 @@ def move_episode_to_issue(episode=None, target_issue=None, save_to_backend=False
 		return True
 
 	# we got two open episodes at once, ask user
-	move_range = episode.get_access_range()
-	exist_range = existing_epi.get_access_range()
+	move_range = (episode.best_guess_clinical_start_date, episode.best_guess_clinical_end_date)
+	if move_range[1] is None:
+		move_range_end = u'?'
+	else:
+		move_range_end = move_range[1].strftime('%m/%y')
+	exist_range = (existing_epi.best_guess_clinical_start_date, existing_epi.best_guess_clinical_end_date)
+	if exist_range[1] is None:
+		exist_range_end = u'?'
+	else:
+		exist_range_end = exist_range[1].strftime('%m/%y')
 	question = _(
 		'You want to associate the running episode:\n\n'
 		' "%(new_epi_name)s" (%(new_epi_start)s - %(new_epi_end)s)\n\n'
@@ -288,11 +296,11 @@ def move_episode_to_issue(episode=None, target_issue=None, save_to_backend=False
 	) % {
 		'new_epi_name': episode['description'],
 		'new_epi_start': move_range[0].strftime('%m/%y'),
-		'new_epi_end': move_range[1].strftime('%m/%y'),
+		'new_epi_end': move_range_end,
 		'issue_name': target_issue['description'],
 		'old_epi_name': existing_epi['description'],
 		'old_epi_start': exist_range[0].strftime('%m/%y'),
-		'old_epi_end': exist_range[1].strftime('%m/%y')
+		'old_epi_end': exist_range_end
 	}
 	dlg = gmGuiHelpers.c3ButtonQuestionDlg (
 		parent = None,

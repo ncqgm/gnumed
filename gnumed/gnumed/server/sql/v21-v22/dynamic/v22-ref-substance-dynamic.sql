@@ -178,7 +178,7 @@ insert into ref.lnk_loinc2substance (
 ) select
 	(select r_vs.pk_substance from ref.v_substances r_vs where r_vs.atc = 'C03AA03' and array_dims(r_vs.loincs) IS NULL limit 1),
 	'6298-4',
-	'potassium depletion',
+	'monitor potassium depletion',
 	'1 year'
 where exists (
 	select 1 from ref.v_substances r_vs where r_vs.atc = 'C03AA03' and array_dims(r_vs.loincs) IS NULL
