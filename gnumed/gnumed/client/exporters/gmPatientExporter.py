@@ -703,6 +703,7 @@ class cEmrExport:
             'o': _('Objective'),
             'a': _('Assessment'),
             'p': _('Plan'),
+            'u': _('Unspecified'),
             None: _('Administrative')
         }
         eol_w_margin = '\n' + (' ' * (left_margin+3))
@@ -739,6 +740,7 @@ class cEmrExport:
             if an_item['pk_encounter'] == encounter['pk_encounter']:
                 txt += self.get_item_output(an_item, left_margin)
         return txt
+
     #--------------------------------------------------------  
     def dump_historical_tree(self):
         """Dumps patient's historical in form of a tree of health issues
@@ -934,12 +936,12 @@ class cEMRJournalExporter:
 		self.__narrative_wrap_len = 80
 
 		# write header
-		txt = _('EMR Journal sorted by last modification time\n')
+		txt = _(u'EMR Journal sorted by last modification time\n')
 		f.write(txt)
 		f.write(u'=' * (len(txt)-1))
 		f.write(u'\n')
-		f.write(_('Patient: %s (%s), No: %s\n') % (patient['description'], patient['gender'], patient['pk_identity']))
-		f.write(_('Born   : %s, age: %s\n\n') % (
+		f.write(_(u'Patient: %s (%s), No: %s\n') % (patient['description'], patient['gender'], patient['pk_identity']))
+		f.write(_(u'Born   : %s, age: %s\n\n') % (
 			patient.get_formatted_dob(format = '%Y %b %d', encoding = 'utf8'),
 			patient.get_medical_age()
 		))

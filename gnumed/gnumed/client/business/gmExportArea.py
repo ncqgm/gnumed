@@ -537,7 +537,26 @@ class cExportArea(object):
 		return cExportItem(row = {'data': r, 'idx': idx, 'pk_field': 'pk_export_item'})
 
 	#--------------------------------------------------------
-	def export(self, base_dir=None, items=None, with_metadata=True, expand_compressed=False):
+	def dump_items_to_disk(self, base_dir=None, items=None):
+		if items is None:
+			items = self.items
+
+		if len(items) == 0:
+			return None
+
+		if base_dir is None:
+			from Gnumed.business.gmPerson import cPatient
+			pat = cPatient(aPK_obj = self.__pk_identity)
+			base_dir = gmTools.mk_sandbox_dir(prefix = u'exp-%s-' % pat.dirname)
+		_log.debug('dumping export items to: %s', base_dir)
+
+		gmTools.mkdir(base_dir)
+		for item in items:
+			item.save_to_file(directory = base_dir)
+		return base_dir
+
+	#--------------------------------------------------------
+	def export(self, base_dir=None, items=None, expand_compressed=False):
 
 		if items is None:
 			items = self.items
@@ -602,7 +621,7 @@ class cExportArea(object):
 		idx_file = io.open(idx_fname, mode = u'wt', encoding = u'utf8')
 		idx_file.write(_html_start % _html_start_data)
 		# - middle (side effect ! -> exports items into files ...)
-		existing_docs = os.listdir(doc_dir)
+		existing_docs = os.listdir(doc_dir)		# get them now, or else we will include the to-be-exported items
 		# - export items
 		for item in items:
 			item_path = item.save_to_file(directory = doc_dir)
@@ -777,7 +796,7 @@ if __name__ == '__main__':
 		prax = gmPraxis.gmCurrentPraxisBranch(branch = gmPraxis.cPraxisBranch(1))
 		print prax
 		print prax.branch
-		print exp.export(with_metadata = True)
+		print exp.export()
 	#---------------------------------------
 	#test_export_items()
 	test_export_area()

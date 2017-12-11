@@ -22,7 +22,6 @@ care of all the pre- and post-GUI runtime environment setup.
  Activate profiling and write profile data to <file>.
 --tool=<TOOL>
  Run TOOL instead of the main GUI.
- Currently, "check_enc_epi_xref" only.
 --text-domain=<text domain>
  Set this to change the name of the language file to be loaded.
  Note, this does not change the directory the file is searched in,
@@ -130,7 +129,8 @@ _known_ui_types = [
 ]
 
 _known_tools = [
-	u'check_enc_epi_xref'
+	u'check_enc_epi_xref',
+	u'export_pat_emr_structure'
 ]
 
 
@@ -681,9 +681,19 @@ def run_tool():
 		print('GNUmed startup: Known tools: %s' % _known_tools)
 		return -1
 
+	print('')
+	print('==============================================')
+	print('Running tool: %s' % tool)
+	print('----------------------------------------------')
+	print('')
+
 	if tool == u'check_enc_epi_xref':
 		from Gnumed.business import gmEMRStructItems
 		return gmEMRStructItems.check_fk_encounter_fk_episode_x_ref()
+
+	if tool == u'export_pat_emr_structure':
+		from Gnumed.business import gmEMRStructItems
+		return gmEMRStructItems.export_patient_emr_structure()
 
 	# should not happen (because checked against _known_tools)
 	return -1

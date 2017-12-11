@@ -129,21 +129,29 @@ def format_pydt(pydt, format = '%Y-%m-%d %H:%M:%S'):
 #------------------------------------------------------------
 __xml_issue_template = u"""
 		<event>
-			<start>%s</start>
-			<end>%s</end>
-			<text>%s%s</text>
-			<fuzzy>False</fuzzy>
+			<start>%(start)s</start>
+			<end>%(end)s</end>
+			<text>%(container_id)s%(label)s</text>
+			<fuzzy>%(fuzzy)s</fuzzy>
 			<locked>True</locked>
-			<ends_today>%s</ends_today>
-			<category>%s</category>
-			<description>%s</description>
+			<ends_today>%(ends2day)s</ends_today>
+			<category>%(category)s</category>
+			<description>%(desc)s</description>
 		</event>"""
 
 def __format_health_issue_as_timeline_xml(issue, patient, emr):
-	# container issues do not support <description> (tooltips)
 	# container IDs are supposed to be numeric
 	# 85bd7a14a1e74aab8db072ff8f417afb@H30.rldata.local
-	tooltip = issue.format (
+	data = {'category': _('Health issues')}
+	possible_start = issue.possible_start_date
+	safe_start = issue.safe_start_date
+	end = issue.clinical_end_date
+	ends_today = u'False'
+	if end is None:
+		# open episode or active
+		ends_today = u'True'
+		end = now
+	data['desc'] = gmTools.xml_escape_string(issue.format (
 		patient = patient,
 		with_summary = True,
 		with_codes = True,
@@ -156,36 +164,24 @@ def __format_health_issue_as_timeline_xml(issue, patient, emr):
 		with_documents = False,
 		with_tests = False,
 		with_vaccinations = False
-	).strip().strip(u'\n').strip()
-	possible_start = issue.possible_start_date
-	safe_start = issue.safe_start_date
-	end = issue.clinical_end_date
-	ends_today = u'False'
-	if end is None:
-		# open episode or active
-		ends_today = u'True'
-		end = now
+	).strip().strip(u'\n').strip())
+	txt = gmTools.shorten_words_in_line(text = issue['description'], max_length = 25, min_word_length = 5)
 	xml = u''
-	desc = gmTools.shorten_words_in_line(text = issue['description'], max_length = 25, min_word_length = 5)
 	if possible_start < safe_start:
-		xml += __xml_issue_template % (
-			format_pydt(possible_start),									# start
-			format_pydt(safe_start),										# end
-			u'',															# empty = no container ID
-			gmTools.xml_escape_string(u'?%s?' % desc),						# text
-			u'False',														# ends_today
-			_('Health issues'),												# category
-			gmTools.xml_escape_string(tooltip)								# description
-		)
-	xml += __xml_issue_template % (
-		format_pydt(safe_start),											# start
-		format_pydt(end),													# end
-		u'[%s]' % issue['pk_health_issue'],									# container ID
-		gmTools.xml_escape_string(desc),									# text
-		ends_today,															# ends_today
-		_('Health issues'),													# category
-		gmTools.xml_escape_string(tooltip)									# description
-	)
+		data['start'] = format_pydt(possible_start)
+		data['end'] = format_pydt(safe_start)
+		data['ends2day'] = u'False'
+		data['fuzzy'] = u'True'
+		data['container_id'] = u''
+		data['label'] = u'?%s?' % gmTools.xml_escape_string(txt)
+		xml += __xml_issue_template % data
+	data['start'] = format_pydt(safe_start)
+	data['end'] = format_pydt(end)
+	data['ends2day'] = ends_today
+	data['fuzzy'] = u'False'
+	data['container_id'] = u'[%s]' % issue['pk_health_issue']
+	data['label'] = gmTools.xml_escape_string(txt)
+	xml += __xml_issue_template % data
 	return xml
 
 #------------------------------------------------------------
@@ -193,31 +189,28 @@ def __format_health_issue_as_timeline_xml(issue, patient, emr):
 #------------------------------------------------------------
 __xml_episode_template = u"""
 		<event>
-			<start>%s</start>
-			<end>%s</end>
-			<text>%s%s</text>
+			<start>%(start)s</start>
+			<end>%(end)s</end>
+			<text>%(container_id)s%(label)s</text>
+			<progress>%(progress)s</progress>
 			<fuzzy>False</fuzzy>
 			<locked>True</locked>
-			<ends_today>%s</ends_today>
-			<category>%s</category>
-			<description>%s</description>
+			<ends_today>%(ends2day)s</ends_today>
+			<category>%(category)s</category>
+			<description>%(desc)s</description>
 		</event>"""
 
 def __format_episode_as_timeline_xml(episode, patient):
-	end = episode.best_guess_clinical_end_date
-	if end is None:
-		end = format_pydt(now)
-	else:
-		end = format_pydt(end)
-	desc = gmTools.shorten_words_in_line(text = episode['description'], max_length = 20, min_word_length = 5)
-	return __xml_episode_template % (
-		format_pydt(episode.best_guess_clinical_start_date),				# start
-		end,																# end
-		gmTools.coalesce(episode['pk_health_issue'], u'', u'(%s)'),			# container ID
-		gmTools.xml_escape_string(desc),									# text
-		gmTools.bool2subst(episode['episode_open'], u'True', u'False'),		# ends_today
-		_('Episodes'),														# category
-		gmTools.xml_escape_string(episode.format (							# description
+	data = {
+		'category': _('Episodes'),
+		'start': format_pydt(episode.best_guess_clinical_start_date),
+		'container_id': gmTools.coalesce(episode['pk_health_issue'], u'', u'(%s)'),
+		'label': gmTools.xml_escape_string (
+			gmTools.shorten_words_in_line(text = episode['description'], max_length = 20, min_word_length = 5)
+		),
+		'ends2day': gmTools.bool2subst(episode['episode_open'], u'True', u'False'),
+		'progress': gmTools.bool2subst(episode['episode_open'], u'0', u'100'),
+		'desc': gmTools.xml_escape_string(episode.format (
 			patient = patient,
 			with_summary = True,
 			with_codes = True,
@@ -230,7 +223,13 @@ def __format_episode_as_timeline_xml(episode, patient):
 			with_vaccinations = False,
 			with_health_issue = True
 		).strip().strip(u'\n').strip())
-	)
+	}
+	end = episode.best_guess_clinical_end_date
+	if end is None:
+		data['end'] = format_pydt(now)
+	else:
+		data['end'] = format_pydt(end)
+	return __xml_episode_template % data
 
 #------------------------------------------------------------
 # encounters
@@ -520,11 +519,11 @@ def create_timeline_file(patient=None, filename=None):
 
 	# containers must be defined before their
 	# subevents, so put health issues first
-	timeline.write(u'\n<!--\n========================================\n Health issues\n======================================== -->')
+	timeline.write(u'\n		<!-- ========================================\n Health issues\n======================================== -->')
 	for issue in emr.health_issues:
 		timeline.write(__format_health_issue_as_timeline_xml(issue, patient, emr))
 
-	timeline.write(u'\n<!--\n========================================\n Episodes\n======================================== -->')
+	timeline.write(u'\n		<!-- ========================================\n Episodes\n======================================== -->')
 	for epi in emr.get_episodes(order_by = u'pk_health_issue'):
 		timeline.write(__format_episode_as_timeline_xml(epi, patient))
 
@@ -533,25 +532,25 @@ def create_timeline_file(patient=None, filename=None):
 	#for enc in emr.get_encounters(skip_empty = True):
 	#	timeline.write(__format_encounter_as_timeline_xml(enc, patient))
 
-	timeline.write(u'\n<!--\n========================================\n Hospital stays\n======================================== -->')
-	for stay in emr.hospital_stays:
-		timeline.write(__format_hospital_stay_as_timeline_xml(stay))
+#	timeline.write(u'\n<!--\n========================================\n Hospital stays\n======================================== -->')
+#	for stay in emr.hospital_stays:
+#		timeline.write(__format_hospital_stay_as_timeline_xml(stay))
 
-	timeline.write(u'\n<!--\n========================================\n Procedures\n======================================== -->')
-	for proc in emr.performed_procedures:
-		timeline.write(__format_procedure_as_timeline_xml(proc))
+#	timeline.write(u'\n<!--\n========================================\n Procedures\n======================================== -->')
+#	for proc in emr.performed_procedures:
+#		timeline.write(__format_procedure_as_timeline_xml(proc))
 
-	timeline.write(u'\n<!--\n========================================\n Vaccinations\n======================================== -->')
-	for vacc in emr.vaccinations:
-		timeline.write(__format_vaccination_as_timeline_xml(vacc))
+#	timeline.write(u'\n<!--\n========================================\n Vaccinations\n======================================== -->')
+#	for vacc in emr.vaccinations:
+#		timeline.write(__format_vaccination_as_timeline_xml(vacc))
 
 #	timeline.write(u'\n<!--\n========================================\n Substance intakes\n======================================== -->')
 #	for intake in emr.get_current_medications(include_inactive = True, include_unapproved = False):
 #		timeline.write(__format_intake_as_timeline_xml(intake))
 
-	timeline.write(u'\n<!--\n========================================\n Documents\n======================================== -->')
-	for doc in patient.document_folder.documents:
-		timeline.write(__format_document_as_timeline_xml(doc))
+#	timeline.write(u'\n<!--\n========================================\n Documents\n======================================== -->')
+#	for doc in patient.document_folder.documents:
+#		timeline.write(__format_document_as_timeline_xml(doc))
 
 	# allergies ?
 	# - unclear where and how to place

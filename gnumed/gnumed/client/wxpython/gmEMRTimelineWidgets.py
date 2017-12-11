@@ -24,7 +24,7 @@ from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmMimeLib
 from Gnumed.business import gmPerson
 from Gnumed.wxpython import gmRegetMixin
-from Gnumed.exporters import timeline
+from Gnumed.exporters import gmTimelineExporter
 
 
 _log = logging.getLogger('gm.ui.tl')
@@ -165,7 +165,7 @@ class cEMRTimelinePnl(TimelineCanvas):
 	#--------------------------------------------------------
 	def fit_care_era(self):
 		all_eras = self.get_timeline().get_all_eras()
-		care_era = [ e for e in all_eras if e.name == timeline.ERA_NAME_CARE_PERIOD ][0]
+		care_era = [ e for e in all_eras if e.name == gmTimelineExporter.ERA_NAME_CARE_PERIOD ][0]
 		era_period = care_era.time_period
 		if era_period.is_period():
 			self.Navigate(lambda tp: tp.update(era_period.start_time, era_period.end_time))
@@ -280,12 +280,12 @@ class cEMRTimelinePluginPnl(wxgEMRTimelinePluginPnl.wxgEMRTimelinePluginPnl, gmR
 
 		wx.BeginBusyCursor()
 		try:
-			self.__tl_file = timeline.create_timeline_file(patient = pat)
+			self.__tl_file = gmTimelineExporter.create_timeline_file(patient = pat)
 			self._PNL_timeline.open_timeline(self.__tl_file)
 		except Exception:		# more specifically: TimelineIOError
 			_log.exception('cannot load EMR from timeline XML')
 			self._PNL_timeline.clear_timeline()
-			self.__tl_file = timeline.create_fake_timeline_file(patient = pat)
+			self.__tl_file = gmTimelineExporter.create_fake_timeline_file(patient = pat)
 			self._PNL_timeline.open_timeline(self.__tl_file)
 			return True
 		finally:

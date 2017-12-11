@@ -58,6 +58,7 @@ class cCreatePatientMediaDlg(wxgCreatePatientMediaDlg.wxgCreatePatientMediaDlg):
 		self.__item_count = kwargs['item_count']
 		del kwargs['item_count']
 		wxgCreatePatientMediaDlg.wxgCreatePatientMediaDlg.__init__(self, *args, **kwargs)
+
 		self.__init_ui()
 
 	#--------------------------------------------------------
@@ -103,15 +104,21 @@ class cCreatePatientMediaDlg(wxgCreatePatientMediaDlg.wxgCreatePatientMediaDlg):
 	def _on_save_button_pressed(self, event):
 		event.Skip()
 
+		print "Is modal ? ->", self.IsModal()
+
 		if self.__burn2cd:
+			print "EndModal on burn2cd=True"
 			self.EndModal(wx.ID_SAVE)
 
 		if self._CHBOX_use_subdirectory.IsChecked() is True:
+			print "EndModal on use_subdir=True"
 			self.EndModal(wx.ID_SAVE)
+			print "after EndModal !!"
 
 		path = self._LBL_directory.Label
 
 		if gmTools.dir_is_empty(path) is True:
+			print "EndModal on dir_is_empty=True"
 			self.EndModal(wx.ID_SAVE)
 
 		if self._RBTN_remove_data.Value is True:
@@ -130,6 +137,8 @@ class cCreatePatientMediaDlg(wxgCreatePatientMediaDlg.wxgCreatePatientMediaDlg):
 			if really_remove_existing_data is False:
 				return
 
+		print "Is modal ? ->", self.IsModal()
+		print "now calling EndModal(wx.ID_SAVE)"
 		self.EndModal(wx.ID_SAVE)
 
 	#--------------------------------------------------------
@@ -156,6 +165,7 @@ class cCreatePatientMediaDlg(wxgCreatePatientMediaDlg.wxgCreatePatientMediaDlg):
 			self._CHBOX_include_directory.Show()
 			self._CHBOX_use_subdirectory.Hide()
 			self._LBL_subdirectory.Hide()
+			self._CHBOX_generate_metadata.Hide()
 			lines = [
 				_(u'Preparing patient media for burning onto CD / DVD'),
 				u''
@@ -259,6 +269,7 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
 		self.__init_ui()
 		self.__register_interests()
+
 	#--------------------------------------------------------
 	# event handling
 	#--------------------------------------------------------
@@ -266,9 +277,11 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 		gmDispatcher.connect(signal = u'pre_patient_unselection', receiver = self._on_pre_patient_unselection)
 #		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._schedule_data_reget)
 		gmDispatcher.connect(signal = u'gm_table_mod', receiver = self._on_table_mod)
+
 	#--------------------------------------------------------
 	def _on_pre_patient_unselection(self):
 		self._LCTRL_items.set_string_items([])
+
 	#--------------------------------------------------------
 	def _on_table_mod(self, *args, **kwargs):
 		if kwargs['table'] != 'clin.export_item':
@@ -311,6 +324,7 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 				title = _(u'Adding files to export area'),
 				error = _(u'Cannot add (some of) the following files to the export area:\n%s ') % u'\n '.join(fnames)
 			)
+
 	#--------------------------------------------------------
 	def _on_add_from_archive_button_pressed(self, event):
 		event.Skip()
@@ -409,14 +423,11 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 		if len(items) == 0:
 			return
 
-		dlg = cCreatePatientMediaDlg (
-			self,
-			-1,
-			burn2cd = False,
-			patient = gmPerson.gmCurrentPatient(),
-			item_count = len(items)
-		)
+		pat = gmPerson.gmCurrentPatient()
+		dlg = cCreatePatientMediaDlg (self, -1, burn2cd = False, patient = pat, item_count = len(items))
+		print "calling dlg.ShowModal()"
 		choice = dlg.ShowModal()
+		print "after returning from dlg.ShowModal()"
 		if choice != wx.ID_SAVE:
 			dlg.Destroy()
 			return
@@ -424,10 +435,11 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 		use_subdir = dlg._CHBOX_use_subdirectory.IsChecked()
 		path = dlg._LBL_directory.Label.strip()
 		remove_existing_data = dlg._RBTN_remove_data.Value is True
+		generate_metadata = dlg._CHBOX_generate_metadata.IsChecked()
 		dlg.Destroy()
 		if use_subdir:
 			path = gmTools.mk_sandbox_dir (
-				prefix = u'%s-' % gmPerson.gmCurrentPatient().dirname,
+				prefix = u'%s-' % pat.dirname,
 				base_dir = path
 			)
 		else:
@@ -439,7 +451,11 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 					)
 					return False
 
-		export_dir = gmPerson.gmCurrentPatient().export_area.export(base_dir = path, items = items, with_metadata = True)
+		exp_area = pat.export_area
+		if generate_metadata:
+			export_dir = exp_area.export(base_dir = path, items = items)
+		else:
+			export_dir = exp_area.dump_items_to_disk(base_dir = path, items = items)
 
 		self.save_soap_note(soap = _('Saved to [%s]:\n - %s') % (
 			export_dir,
@@ -453,7 +469,11 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 			cancel_button = False
 		)
 		if browse_index:
-			gmNetworkTools.open_url_in_browser(url = u'file://%s' % os.path.join(export_dir, u'index.html'))
+			if generate_metadata:
+				gmNetworkTools.open_url_in_browser(url = u'file://%s' % os.path.join(export_dir, u'index.html'))
+			else:
+				gmMimeLib.call_viewer_on_file(export_dir, block = False)
+
 		return True
 
 	#--------------------------------------------------------
@@ -470,14 +490,8 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 		if len(items) == 0:
 			return
 
-		# get options from user
-		dlg = cCreatePatientMediaDlg (
-			self,
-			-1,
-			burn2cd = True,
-			patient = gmPerson.gmCurrentPatient(),
-			item_count = len(items)
-		)
+		pat = gmPerson.gmCurrentPatient()
+		dlg = cCreatePatientMediaDlg(self, -1, burn2cd = True, patient = pat, item_count = len(items))
 		choice = dlg.ShowModal()
 		if choice != wx.ID_SAVE:
 			return

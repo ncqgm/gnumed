@@ -61,6 +61,7 @@ def diagnostic_certainty_classification2str(classification):
 		return __diagnostic_certainty_classification_map[classification]
 	except KeyError:
 		return _(u'<%s>: unknown diagnostic certainty classification') % classification
+
 #============================================================
 # Health Issues API
 #============================================================
@@ -141,6 +142,7 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 		r = {'idx': idx, 'data': rows[0], 'pk_field': 'pk_health_issue'}
 
 		gmBusinessDBObject.cBusinessDBObject.__init__(self, row=r)
+
 	#--------------------------------------------------------
 	# external API
 	#--------------------------------------------------------
@@ -166,6 +168,7 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 			self._payload[self._idx['description']] = old_description
 			return False
 		return True
+
 	#--------------------------------------------------------
 	def get_episodes(self):
 		cmd = u"SELECT * FROM clin.v_pat_episodes WHERE pk_health_issue = %(pk)s"
@@ -765,6 +768,8 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 					)
 			END),
 
+			-- look at best_guess_clinical_start_date of all linked episodes
+
 			-- start of encounter in which created, earliest = explicitely set
 			(SELECT c_enc.started AS earliest FROM clin.encounter c_enc WHERE c_enc.pk = c_hi.fk_encounter)
 		)
@@ -1344,37 +1349,20 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 		))
 
 		if patient is not None:
-			encs = emr.get_encounters(episodes = [self._payload[self._idx['pk_episode']]])
-			first_encounter = None
-			last_encounter = None
-			if (encs is not None) and (len(encs) > 0):
-				first_encounter = emr.get_first_encounter(episode_id = self._payload[self._idx['pk_episode']])
-				last_encounter = emr.get_last_encounter(episode_id = self._payload[self._idx['pk_episode']])
-				if first_encounter is None:
-					start = None
-					start_str = u'?'
-				else:
-					start = first_encounter['started']
-					start_str = first_encounter['started'].strftime('%m/%Y')
-				if self._payload[self._idx['episode_open']]:
-					end = gmDateTime.pydt_now_here()
-					end_str = gmTools.u_ellipsis
-				else:
-					if last_encounter is None:
-						end = None
-						end_str = u'?'
-					else:
-						end = last_encounter['last_affirmed']
-						end_str = last_encounter['last_affirmed'].strftime('%m/%Y')
-				if None in [start, end]:
-					age_str = u'?'
-				else:
-					age_str = gmDateTime.format_interval_medically(end - start)
-				lines.append(_(' Duration: %s (%s - %s)') % (
-					age_str,
-					start_str,
-					end_str
-				))
+			start_date = self.best_guess_clinical_start_date
+			start_str = gmDateTime.pydt_strftime(start_date, '%m/%Y')
+			end_date = self.best_guess_clinical_end_date
+			if end_date is None:
+				end_date = gmDateTime.pydt_now_here()
+				end_str = gmTools.u_ellipsis
+			else:
+				end_str = gmDateTime.pydt_strftime(end_date, '%m/%Y')
+			age_str = gmDateTime.format_interval_medically(end_date - start_date)
+			lines.append(_(' Duration: %s (%s - %s)') % (
+				age_str,
+				start_str,
+				end_str
+			))
 
 		lines.append(u' ' + _('Status') + u': %s%s' % (
 			gmTools.bool2subst(self._payload[self._idx['episode_open']], _('active'), _('finished')),
@@ -1421,14 +1409,16 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 
 		# encounters
 		if with_encounters:
+			encs = emr.get_encounters(episodes = [self._payload[self._idx['pk_episode']]])
 			if encs is None:
-				lines.append(_('Error retrieving encounters for this health issue.'))
+				lines.append(_('Error retrieving encounters for this episode.'))
 			elif len(encs) == 0:
 				#lines.append(_('There are no encounters for this issue.'))
 				pass
 			else:
+				first_encounter = emr.get_first_encounter(episode_id = self._payload[self._idx['pk_episode']])
+				last_encounter = emr.get_last_encounter(episode_id = self._payload[self._idx['pk_episode']])
 				lines.append(_('Last worked on: %s\n') % last_encounter['last_affirmed_original_tz'].strftime('%Y-%m-%d %H:%M'))
-
 				if len(encs) < 4:
 					line = _('%s encounter(s) (%s - %s):')
 				else:
@@ -1438,7 +1428,6 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 					first_encounter['started'].strftime('%m/%Y'),
 					last_encounter['last_affirmed'].strftime('%m/%Y')
 				))
-
 				lines.append(u' %s - %s (%s):%s' % (
 					first_encounter['started_original_tz'].strftime('%Y-%m-%d %H:%M'),
 					first_encounter['last_affirmed_original_tz'].strftime('%H:%M'),
@@ -1453,10 +1442,12 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 						u' \u00BB%s\u00AB' + (u' (%s)' % _('AOE'))
 					)
 				))
-
 				if len(encs) > 4:
-					lines.append(_(' ... %s skipped ...') % (len(encs) - 4))
-
+					lines.append(_(' %s %s skipped %s') % (
+						gmTools.u_ellipsis,
+						(len(encs) - 4),
+						gmTools.u_ellipsis
+					))
 				for enc in encs[1:][-3:]:
 					lines.append(u' %s - %s (%s):%s' % (
 						enc['started_original_tz'].strftime('%Y-%m-%d %H:%M'),
@@ -1473,17 +1464,16 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 						)
 					))
 				del encs
-
-			# spell out last encounter
-			if last_encounter is not None:
-				lines.append('')
-				lines.append(_('Progress notes in most recent encounter:'))
-				lines.extend(last_encounter.format_soap (
-					episodes = [ self._payload[self._idx['pk_episode']] ],
-					left_margin = left_margin,
-					soap_cats = 'soapu',
-					emr = emr
-				))
+				# spell out last encounter
+				if last_encounter is not None:
+					lines.append('')
+					lines.append(_('Progress notes in most recent encounter:'))
+					lines.extend(last_encounter.format_soap (
+						episodes = [ self._payload[self._idx['pk_episode']] ],
+						left_margin = left_margin,
+						soap_cats = 'soapu',
+						emr = emr
+					))
 
 		# documents
 		if with_documents:
@@ -3641,6 +3631,53 @@ def delete_performed_procedure(procedure=None):
 	return True
 
 #============================================================
+def export_emr_structure(patient=None, filename=None):
+
+	if filename is None:
+		filename = gmTools.get_unique_filename(prefix = u'gm-emr_struct-%s-' % patient.dirname, suffix = u'.txt')
+
+	f = io.open(filename, 'w+', encoding = 'utf8')
+
+	f.write(u'patient [%s]\n' % patient['description_gender'])
+	emr = patient.emr
+	for issue in emr.health_issues:
+		f.write(u'\n')
+		f.write(u'\n')
+		f.write(u'issue [%s] #%s\n' % (issue['description'], issue['pk_health_issue']))
+		f.write(u' is active     : %s\n' % issue['is_active'])
+		f.write(u' has open epi  : %s\n' % issue['has_open_episode'])
+		f.write(u' possible start: %s\n' % issue.possible_start_date)
+		f.write(u' safe start    : %s\n' % issue.safe_start_date)
+		end = issue.clinical_end_date
+		if end is None:
+			f.write(u' end           : active and/or open episode\n')
+		else:
+			f.write(u' end           : %s\n' % end)
+		f.write(u' latest access : %s\n' % issue.latest_access_date)
+		first = issue.first_episode
+		if first is not None:
+			first = first['description']
+		f.write(u' 1st episode   : %s\n' % first)
+		last = issue.latest_episode
+		if last is not None:
+			last = last['description']
+		f.write(u' latest episode: %s\n' % last)
+		epis = sorted(issue.get_episodes(), key = lambda e: e.best_guess_clinical_start_date)
+		for epi in epis:
+			f.write(u'\n')
+			f.write(u' episode [%s] #%s\n' % (epi['description'], epi['pk_episode']))
+			f.write(u'  is open         : %s\n' % epi['episode_open'])
+			f.write(u'  best guess start: %s\n' % epi.best_guess_clinical_start_date)
+			f.write(u'  best guess end  : %s\n' % epi.best_guess_clinical_end_date)
+			f.write(u'  latest access   : %s\n' % epi.latest_access_date)
+			f.write(u'  start 1st enc   : %s\n' % epi['started_first'])
+			f.write(u'  start last enc  : %s\n' % epi['started_last'])
+			f.write(u'  end last enc    : %s\n' % epi['last_affirmed'])
+
+	f.close()
+	return filename
+
+#============================================================
 # tools
 #------------------------------------------------------------
 def check_fk_encounter_fk_episode_x_ref():
@@ -3743,6 +3780,18 @@ def check_fk_encounter_fk_episode_x_ref():
 
 	return aggregate_result
 
+#------------------------------------------------------------
+def export_patient_emr_structure():
+	from Gnumed.business import gmPersonSearch
+	praxis = gmPraxis.gmCurrentPraxisBranch(branch = gmPraxis.get_praxis_branches()[0])
+	pat = gmPersonSearch.ask_for_patient()
+	while pat is not None:
+		print 'patient:', pat['description_gender']
+		fname = os.path.expanduser(u'~/gnumed/gm-emr_structure-%s.txt' % pat.dirname)
+		print 'exported into:', export_emr_structure(patient = pat, filename = fname)
+		pat = gmPersonSearch.ask_for_patient()
+
+	return 0
 
 #============================================================
 # main - unit testing
@@ -3882,54 +3931,14 @@ if __name__ == '__main__':
 		print epi.format()
 
 	#--------------------------------------------------------
-	def export_emr_structure():
-
-		praxis = gmPraxis.gmCurrentPraxisBranch(branch = gmPraxis.get_praxis_branches()[0])
-
-		from Gnumed.business import gmPerson
-		# 12 / 20 / 138 / 58 / 20 / 5
-		pat = gmPerson.gmCurrentPatient(gmPerson.cPatient(aPK_obj = 14))
-		fname = os.path.expanduser(u'~/gnumed/emr_structure-%s.txt' % pat.dirname)
-		f = io.open(fname, 'w+', encoding = 'utf8')
-
-		f.write(u'patient [%s]\n' % pat['description_gender'])
-		emr = pat.emr
-		for issue in emr.health_issues:
-			f.write(u'\n')
-			f.write(u'\n')
-			f.write(u'issue [%s] #%s\n' % (issue['description'], issue['pk_health_issue']))
-			f.write(u' is active     : %s\n' % issue['is_active'])
-			f.write(u' has open epi  : %s\n' % issue['has_open_episode'])
-			f.write(u' possible start: %s\n' % issue.possible_start_date)
-			f.write(u' safe start    : %s\n' % issue.safe_start_date)
-			end = issue.clinical_end_date
-			if end is None:
-				f.write(u' end           : active and/or open episode\n')
-			else:
-				f.write(u' end           : %s\n' % end)
-			f.write(u' latest access : %s\n' % issue.latest_access_date)
-			first = issue.first_episode
-			if first is not None:
-				first = first['description']
-			f.write(u' 1st episode   : %s\n' % first)
-			last = issue.latest_episode
-			if last is not None:
-				last = last['description']
-			f.write(u' latest episode: %s\n' % last)
-			epis = sorted(issue.get_episodes(), key = lambda e: e.best_guess_clinical_start_date)
-			for epi in epis:
-				f.write(u'\n')
-				f.write(u' episode [%s] #%s\n' % (epi['description'], epi['pk_episode']))
-				f.write(u'  is open         : %s\n' % epi['episode_open'])
-				f.write(u'  best guess start: %s\n' % epi.best_guess_clinical_start_date)
-				f.write(u'  best guess end  : %s\n' % epi.best_guess_clinical_end_date)
-				f.write(u'  latest access   : %s\n' % epi.latest_access_date)
-				f.write(u'  start 1st enc   : %s\n' % epi['started_first'])
-				f.write(u'  start last enc  : %s\n' % epi['started_last'])
-				f.write(u'  end last enc    : %s\n' % epi['last_affirmed'])
-
-		f.close()
-		print fname
+	def test_export_emr_structure():
+		export_patient_emr_structure()
+		#praxis = gmPraxis.gmCurrentPraxisBranch(branch = gmPraxis.get_praxis_branches()[0])
+		#from Gnumed.business import gmPerson
+		## 12 / 20 / 138 / 58 / 20 / 5 / 14
+		#pat = gmPerson.gmCurrentPatient(gmPerson.cPatient(aPK_obj = 138))
+		#fname = os.path.expanduser(u'~/gnumed/emr_structure-%s.txt' % pat.dirname)
+		#print export_emr_structure(patient = pat, filename = fname)
 
 	#--------------------------------------------------------
 	# run them
@@ -3944,6 +3953,6 @@ if __name__ == '__main__':
 	#test_encounter2latex()
 	#test_episode_codes()
 
-	export_emr_structure()
+	test_export_emr_structure()
 
 #============================================================

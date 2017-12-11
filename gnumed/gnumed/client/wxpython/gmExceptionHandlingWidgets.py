@@ -9,7 +9,11 @@ import logging, exceptions, traceback, re as regex, sys, os, shutil, datetime as
 import wx
 
 
-from Gnumed.pycommon import gmDispatcher, gmCfg2, gmI18N, gmLog2, gmPG2
+from Gnumed.pycommon import gmDispatcher
+from Gnumed.pycommon import gmCfg2
+from Gnumed.pycommon import gmI18N
+from Gnumed.pycommon import gmLog2
+from Gnumed.pycommon import gmPG2
 from Gnumed.pycommon import gmExceptions
 from Gnumed.pycommon import gmNetworkTools
 from Gnumed.pycommon.gmTools import u_box_horiz_single
@@ -19,7 +23,7 @@ from Gnumed.business import gmPraxis
 from Gnumed.wxpython import gmGuiHelpers
 
 
-_log2 = logging.getLogger('gm.gui')
+_log = logging.getLogger('gm.gui')
 
 _prev_excepthook = None
 application_is_closing = False
@@ -28,22 +32,27 @@ application_is_closing = False
 def set_client_version(version):
 	global _client_version
 	_client_version = version
+
 #-------------------------------------------------------------------------
 def set_sender_email(email):
 	global _sender_email
 	_sender_email = email
+
 #-------------------------------------------------------------------------
 def set_helpdesk(helpdesk):
 	global _helpdesk
 	_helpdesk = helpdesk
+
 #-------------------------------------------------------------------------
 def set_staff_name(staff_name):
 	global _staff_name
 	_staff_name = staff_name
+
 #-------------------------------------------------------------------------
 def set_is_public_database(value):
 	global _is_public_database
 	_is_public_database = value
+
 #-------------------------------------------------------------------------
 # exception handlers
 #-------------------------------------------------------------------------
@@ -56,8 +65,9 @@ def __ignore_dead_objects_from_async(t, v, tb):
 
 	# try to ignore those, they come about from doing
 	# async work in wx as Robin tells us
-	_log2.warning('continuing and hoping for the best')
+	_log.warning('continuing and hoping for the best')
 	return True
+
 #-------------------------------------------------------------------------
 def __handle_exceptions_on_shutdown(t, v, tb):
 
@@ -85,7 +95,7 @@ def __handle_import_error(t, v, tb):
 
 	wx.EndBusyCursor()
 
-	_log2.error('module [%s] not installed', v)
+	_log.error('module [%s] not installed', v)
 	gmGuiHelpers.gm_show_error (
 		aTitle = _('Missing GNUmed module'),
 		aMessage = _(
@@ -119,7 +129,7 @@ def __handle_access_violation(t, v, tb):
 	if t != gmExceptions.AccessDenied:
 		return False
 
-	_log2.error('access permissions violation detected')
+	_log.error('access permissions violation detected')
 	wx.EndBusyCursor()
 	gmLog2.flush()
 	txt = u' ' + v.errmsg
@@ -202,9 +212,20 @@ def __handle_lost_db_connection(t, v, tb):
 	return True
 
 #-------------------------------------------------------------------------
+def __handle_wxgtk_assertion(t, v, tb):
+	if t != wx.PyAssertionError:
+		return False
+	_log.exception('a wxGTK assertion failed:')
+	_log.warning('continuing and hoping for the best')
+	return True
+
+#-------------------------------------------------------------------------
 def handle_uncaught_exception_wx(t, v, tb):
 
-	_log2.debug('unhandled exception caught:', exc_info = (t, v, tb))
+	_log.debug('unhandled exception caught:', exc_info = (t, v, tb))
+
+	if __handle_access_violation(t, v, tb):
+		return
 
 	if __handle_ctrl_c(t, v, tb):
 		return
@@ -218,17 +239,17 @@ def handle_uncaught_exception_wx(t, v, tb):
 	if __handle_import_error(t, v, tb):
 		return
 
-	if __handle_access_violation(t, v, tb):
-		return
+#	if __handle_wxgtk_assertion(t, v, tb)
+#		return
 
 	# other exceptions
 	_cfg = gmCfg2.gmCfgData()
 	if _cfg.get(option = 'debug') is False:
-		_log2.error('enabling debug mode')
+		_log.error('enabling debug mode')
 		_cfg.set_option(option = 'debug', value = True)
 		root_logger = logging.getLogger()
 		root_logger.setLevel(logging.DEBUG)
-		_log2.debug('unhandled exception caught:', exc_info = (t, v, tb))
+		_log.debug('unhandled exception caught:', exc_info = (t, v, tb))
 
 	if __handle_lost_db_connection(t, v, tb):
 		return
@@ -254,9 +275,9 @@ def handle_uncaught_exception_wx(t, v, tb):
 	comment = dlg._TCTRL_comment.GetValue()
 	dlg.Destroy()
 	if (comment is not None) and (comment.strip() != u''):
-		_log2.error(u'user comment: %s', comment.strip())
+		_log.error(u'user comment: %s', comment.strip())
 
-	_log2.warning('syncing log file for backup to [%s]', new_name)
+	_log.warning('syncing log file for backup to [%s]', new_name)
 	gmLog2.flush()
 	# keep a copy around
 	shutil.copy2(_logfile_name, new_name)
@@ -418,8 +439,8 @@ sender email  : %s
 
 """ % (comment, _client_version, _local_account, _staff_name, sender)
 		if include_log:
-			_log2.error(comment)
-			_log2.warning('syncing log file for emailing')
+			_log.error(comment)
+			_log.warning('syncing log file for emailing')
 			gmLog2.flush()
 			attachments = [ [_logfile_name, 'text/plain', 'quoted-printable'] ]
 		else:
@@ -442,7 +463,7 @@ sender email  : %s
 			)
 			gmDispatcher.send(signal='statustext', msg = _('Bug report has been emailed.'))
 		except:
-			_log2.exception('cannot send bug report')
+			_log.exception('cannot send bug report')
 			gmDispatcher.send(signal='statustext', msg = _('Bug report COULD NOT be emailed.'))
 		wx.EndBusyCursor()
 
@@ -474,13 +495,13 @@ class cUnhandledExceptionDlg(wxgUnhandledExceptionDlg.wxgUnhandledExceptionDlg):
 	def _on_close_gnumed_button_pressed(self, evt):
 		comment = self._TCTRL_comment.GetValue()
 		if (comment is not None) and (comment.strip() != u''):
-			_log2.error(u'user comment: %s', comment.strip())
-		_log2.warning('syncing log file for backup to [%s]', self.logfile)
+			_log.error(u'user comment: %s', comment.strip())
+		_log.warning('syncing log file for backup to [%s]', self.logfile)
 		gmLog2.flush()
 		try:
 			shutil.copy2(_logfile_name, self.logfile)
 		except IOError:
-			_log2.error('cannot backup log file')
+			_log.error('cannot backup log file')
 		top_win = wx.GetApp().GetTopWindow()
 		wx.CallAfter(top_win.Close)
 		evt.Skip()

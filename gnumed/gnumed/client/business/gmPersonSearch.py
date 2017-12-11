@@ -16,6 +16,7 @@ from Gnumed.business import gmPerson
 
 
 _log = logging.getLogger('gm.person')
+
 #============================================================
 class cPatientSearcher_SQL:
 	"""UI independant i18n aware patient searcher."""
@@ -484,8 +485,6 @@ SELECT DISTINCT ON (pk_identity) * FROM (
 						'cmd': u"SELECT DISTINCT ON (id_identity) d_vap.*, %s::text AS match_type FROM dem.v_active_persons d_vap, dem.names n WHERE d_vap.pk_identity = n.id_identity and lower(n.firstnames) ~* lower(%s) AND lower(n.lastnames) ~* lower(%s)",
 						'args': [_('name: last-first'), '^' + name_parts[1], '^' + name_parts[0]]
 					})
-					print "before nick"
-					print queries
 					# assumption: last nick
 					queries.append ({
 						'cmd': u"SELECT DISTINCT ON (id_identity) d_vap.*, %s::text AS match_type FROM dem.v_active_persons d_vap, dem.names n WHERE d_vap.pk_identity = n.id_identity and n.preferred ~ %s AND n.lastnames ~ %s",
@@ -495,8 +494,6 @@ SELECT DISTINCT ON (pk_identity) * FROM (
 						'cmd': u"SELECT DISTINCT ON (id_identity) d_vap.*, %s::text AS match_type FROM dem.v_active_persons d_vap, dem.names n WHERE d_vap.pk_identity = n.id_identity and lower(n.preferred) ~* lower(%s) AND lower(n.lastnames) ~* lower(%s)",
 						'args': [_('name: last-nick'), '^' + name_parts[1], '^' + name_parts[0]]
 					})
-					print "after nick"
-					print queries
 					# name parts anywhere inside name - third order query ...
 					queries.append ({
 						'cmd': u"""SELECT DISTINCT ON (id_identity)
@@ -742,6 +739,7 @@ SELECT DISTINCT ON (pk_identity) * FROM (
 ) AS ordered_list""" % (_('full name'), where_clause)
 
 		return ({'cmd': query, 'args': args})
+
 #============================================================
 def ask_for_patient():
 	"""Text mode UI function to ask for patient."""
@@ -758,21 +756,23 @@ def ask_for_patient():
 		pats = person_searcher.get_patients(search_term = search_fragment)
 
 		if (pats is None) or (len(pats) == 0):
-			print "No patient matches the query term."
+			print "No patient matches the search term."
 			print ""
 			continue
 
 		if len(pats) > 1:
-			print "Several patients match the query term:"
+			print "Several patients match the search term:"
 			print ""
 			for pat in pats:
 				print pat
 				print ""
+			print "Please refine the search term so it matches one patient only."
 			continue
 
 		return pats[0]
 
 	return None
+
 #============================================================
 # main/testing
 #============================================================
