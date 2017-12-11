@@ -1,5 +1,7 @@
 #!/bin/bash
 
+echo "Using <$0> is discouraged. Please switch to <gm-backup(.sh)>."
+
 #==============================================================
 #
 # This script creates a backup of the data of a GNUmed
