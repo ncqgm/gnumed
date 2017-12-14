@@ -246,7 +246,7 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 		return True
 
 	#--------------------------------------------------------
-	def format_as_journal(self, left_margin=0, date_format='%a, %b %d %Y'):
+	def format_as_journal(self, left_margin=0, date_format='%Y %b %d, %a'):
 		rows = gmClinNarrative.get_as_journal (
 			issues = (self.pk_obj,),
 			order_by = u'pk_episode, pk_encounter, clin_when, scr, src_table'
@@ -266,7 +266,7 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 				lines.append(u'')
 				prev_epi = row['pk_episode']
 
-			when = row['clin_when'].strftime(date_format).decode(gmI18N.get_encoding())
+			when = gmDateTime.pydt_strftime(row['clin_when'], date_format, encoding = gmI18N.get_encoding())
 			top_row = u'%s%s %s (%s) %s' % (
 				gmTools.u_box_top_left_arc,
 				gmTools.u_box_horiz_single,
@@ -288,7 +288,7 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 				gmTools.u_box_horiz_light_heavy,
 				row['modified_by'],
 				row_ver,
-				row['date_modified'],
+				gmDateTime.pydt_strftime(row['modified_when'], date_format, encoding = gmI18N.get_encoding()),
 				gmTools.u_box_horiz_heavy_light
 			)
 
@@ -1218,7 +1218,7 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 		return True
 
 	#--------------------------------------------------------
-	def format_as_journal(self, left_margin=0, date_format='%a, %b %d %Y'):
+	def format_as_journal(self, left_margin=0, date_format='%Y %b %d, %a'):
 		rows = gmClinNarrative.get_as_journal (
 			episodes = (self.pk_obj,),
 			order_by = u'pk_encounter, clin_when, scr, src_table'
@@ -1262,7 +1262,7 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 				gmTools.u_box_horiz_light_heavy,
 				row['modified_by'],
 				row_ver,
-				row['date_modified'],
+				gmDateTime.pydt_strftime(row['modified_when'], date_format, encoding = gmI18N.get_encoding()),
 				gmTools.u_box_horiz_heavy_light
 			)
 
@@ -1349,20 +1349,8 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 		))
 
 		if patient is not None:
-			start_date = self.best_guess_clinical_start_date
-			start_str = gmDateTime.pydt_strftime(start_date, '%m/%Y')
-			end_date = self.best_guess_clinical_end_date
-			if end_date is None:
-				end_date = gmDateTime.pydt_now_here()
-				end_str = gmTools.u_ellipsis
-			else:
-				end_str = gmDateTime.pydt_strftime(end_date, '%m/%Y')
-			age_str = gmDateTime.format_interval_medically(end_date - start_date)
-			lines.append(_(' Duration: %s (%s - %s)') % (
-				age_str,
-				start_str,
-				end_str
-			))
+			range_str, range_str_verb, duration_str = self.formatted_clinical_duration
+			lines.append(_(' Duration: %s (%s)') % (duration_str, range_str_verb))
 
 		lines.append(u' ' + _('Status') + u': %s%s' % (
 			gmTools.bool2subst(self._payload[self._idx['episode_open']], _('active'), _('finished')),
@@ -1656,6 +1644,54 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 		return rows[0][0]
 
 	best_guess_clinical_end_date = property(_get_best_guess_clinical_end_date)
+
+	#--------------------------------------------------------
+	def _get_formatted_clinical_duration(self):
+		start = self.best_guess_clinical_start_date
+		end = self.best_guess_clinical_end_date
+		if end is None:
+			range_str = u'%s-%s' % (
+				gmDateTime.pydt_strftime(start, '%b %y', encoding = 'utf8'),
+				gmTools.u_ellipsis
+			)
+			range_str_verb = u'%s - %s' % (
+				gmDateTime.pydt_strftime(start, '%b %d %Y', encoding = 'utf8'),
+				gmTools.u_ellipsis
+			)
+			duration_str = _(u'%s so far') % gmDateTime.format_interval_medically(gmDateTime.pydt_now_here() - start)
+			return (range_str, range_str_verb, duration_str)
+
+		duration_str = gmDateTime.format_interval_medically(end - start)
+		# year different:
+		if end.year != start.year:
+			range_str = u'%s-%s' % (
+				gmDateTime.pydt_strftime(start, '%b %y', encoding = 'utf8'),
+				gmDateTime.pydt_strftime(end, '%b %y', encoding = 'utf8')
+			)
+			range_str_verb = u'%s - %s' % (
+				gmDateTime.pydt_strftime(start, '%b %d %y', encoding = 'utf8'),
+				gmDateTime.pydt_strftime(end, '%b %d %Y', encoding = 'utf8')
+			)
+			return (range_str, range_str_verb, duration_str)
+
+		# same year:
+		if end.month != start.month:
+			range_str = u'%s-%s' % (
+				gmDateTime.pydt_strftime(start, '%b', encoding = 'utf8'),
+				gmDateTime.pydt_strftime(end, '%b %y', encoding = 'utf8')
+			)
+			range_str_verb = u'%s - %s' % (
+				gmDateTime.pydt_strftime(start, '%b %d', encoding = 'utf8'),
+				gmDateTime.pydt_strftime(end, '%b %d %Y', encoding = 'utf8')
+			)
+			return (range_str, range_str_verb, duration_str)
+
+		# same year and same month
+		range_str = gmDateTime.pydt_strftime(start, '%b %y', encoding = 'utf8')
+		range_str_verb = gmDateTime.pydt_strftime(start, '%b %d %Y', encoding = 'utf8')
+		return (range_str, range_str_verb, duration_str)
+
+	formatted_clinical_duration = property(_get_formatted_clinical_duration)
 
 	#--------------------------------------------------------
 	def _get_latest_access_date(self):
@@ -2054,6 +2090,7 @@ select exists (
 			}]
 		)
 		return rows[0][0]
+
 	#--------------------------------------------------------
 	def has_narrative(self):
 		cmd = u"""

@@ -56,6 +56,7 @@ class cTopPnl(wxgTopPnl.wxgTopPnl):
 
 		self.__init_ui()
 		self.__register_interests()
+
 	#-------------------------------------------------------
 	def __init_ui(self):
 		cfg = gmCfg2.gmCfgData()
@@ -82,6 +83,7 @@ class cTopPnl(wxgTopPnl.wxgTopPnl):
 			self.__lab_panel = None
 		else:
 			self.__lab_panel = gmPathLab.cTestPanel(aPK_obj = pk_panel)
+
 	#-------------------------------------------------------
 	def __register_interests(self):
 		# events
@@ -103,6 +105,7 @@ class cTopPnl(wxgTopPnl.wxgTopPnl):
 		dlg = gmAllergyWidgets.cAllergyManagerDlg(parent=self, id=-1)
 		dlg.ShowModal()
 		return
+
 	#----------------------------------------------
 	def _on_database_signal(self, **kwds):
 
@@ -154,11 +157,13 @@ class cTopPnl(wxgTopPnl.wxgTopPnl):
 	#-------------------------------------------------------
 	def _on_focus_patient_search(self, **kwargs):
 		wx.CallAfter(self._TCTRL_patient_selector.SetFocus)
+
 	#-------------------------------------------------------
 	# internal API
 	#-------------------------------------------------------
 	def __update_tags(self):
 		self._PNL_tags.refresh(patient = self.curr_pat)
+
 	#-------------------------------------------------------
 	def __update_lab(self):
 
@@ -267,21 +272,27 @@ class cTopPnl(wxgTopPnl.wxgTopPnl):
 		if self.curr_pat.get_formatted_dob(format = '%m-%d', honor_estimation = False) == now.strftime('%m-%d'):
 			template = _('%(sex)s  %(dob)s (%(age)s today !)')
 			tt += _("\nToday is the patient's birthday !\n\n")
+			tt += _('Age: %s\n') % self.curr_pat['medical_age']
 		else:
+			tt += _(u'Age: %s, birthday:\n') % self.curr_pat['medical_age']
 			if self.curr_pat.current_birthday_passed is True:
 				template = u'%(sex)s  %(dob)s%(l_arr)s (%(age)s)'
-				tt += _(u'Birthday: %s ago\n') % gmDateTime.format_apparent_age_medically (
+				tt += u' ' + _(u'%s ago (this year)\n') % gmDateTime.format_apparent_age_medically (
 					age = gmDateTime.calculate_apparent_age(start = self.curr_pat.birthday_this_year, end = now)
+				)
+				tt += u' ' + _(u'in %s (next year)\n') % gmDateTime.format_apparent_age_medically (
+					age = gmDateTime.calculate_apparent_age(start = now, end = self.curr_pat.birthday_next_year)
 				)
 			elif self.curr_pat.current_birthday_passed is False:
 				template = u'%(sex)s  %(r_arr)s%(dob)s (%(age)s)'
-				tt += _(u'Birthday: in %s\n') % gmDateTime.format_apparent_age_medically (
+				tt += u' ' + _(u'in %s (this year)\n') % gmDateTime.format_apparent_age_medically (
 					age = gmDateTime.calculate_apparent_age(start = now, end = self.curr_pat.birthday_this_year)
+				)
+				tt += u' ' + _(u'%s ago (last year)\n') % gmDateTime.format_apparent_age_medically (
+					age = gmDateTime.calculate_apparent_age(start = self.curr_pat.birthday_last_year, end = now)
 				)
 			else:	# None, unknown
 				template = u'%(sex)s  %(dob)s (%(age)s)'
-
-		tt += _('Age: %s\n') % self.curr_pat['medical_age']
 
 		# FIXME: if the age is below, say, 2 hours we should fire
 		# a timer here that updates the age in increments of 1 minute ... :-)
@@ -304,6 +315,7 @@ class cTopPnl(wxgTopPnl.wxgTopPnl):
 
 		self._LBL_age.SetLabel(age)
 		self._LBL_age.SetToolTipString(tt)
+
 	#-------------------------------------------------------
 	def __update_allergies(self, **kwargs):
 

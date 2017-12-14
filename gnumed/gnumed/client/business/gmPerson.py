@@ -1725,7 +1725,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 		# -> DOB is today
 		return False
 
-	current_birthday_passed = property(_get_current_birthday_passed, lambda x:x)
+	current_birthday_passed = property(_get_current_birthday_passed)
 
 	#----------------------------------------------------------------------
 	def _get_birthday_this_year(self):
@@ -1738,7 +1738,33 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 			strict = False
 		)
 
-	birthday_this_year = property(_get_birthday_this_year, lambda x:x)
+	birthday_this_year = property(_get_birthday_this_year)
+
+	#----------------------------------------------------------------------
+	def _get_birthday_next_year(self):
+		if self['dob'] is None:
+			return None
+		now = gmDateTime.pydt_now_here()
+		return gmDateTime.pydt_replace (
+			dt = self['dob'],
+			year = now.year + 1,
+			strict = False
+		)
+
+	birthday_next_year = property(_get_birthday_next_year)
+
+	#----------------------------------------------------------------------
+	def _get_birthday_last_year(self):
+		if self['dob'] is None:
+			return None
+		now = gmDateTime.pydt_now_here()
+		return gmDateTime.pydt_replace (
+			dt = self['dob'],
+			year = now.year - 1,
+			strict = False
+		)
+
+	birthday_last_year = property(_get_birthday_last_year, lambda x:x)
 
 	#----------------------------------------------------------------------
 	# practice related

@@ -258,6 +258,7 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 
 		wx.EndBusyCursor()
 		return True
+
 	#--------------------------------------------------------
 	def __populate_root_node(self):
 
@@ -806,9 +807,13 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 		self.SetItemHasChildren(issue_node, True)
 
 		for episode in episodes:
-			episode_node =  self.AppendItem(issue_node, episode['description'])
+			range_str, range_str_verb, duration_str = episode.formatted_clinical_duration
+			episode_node =  self.AppendItem(issue_node, u'%s (%s)' % (
+				episode['description'],
+				range_str
+			))
 			self.SetItemPyData(episode_node, episode)
-			# fake it so we can expand it
+			# assume children so we can try to expand it
 			self.SetItemHasChildren(episode_node, True)
 
 		self.SortChildren(issue_node)
@@ -825,11 +830,15 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 		self.SetItemHasChildren(fake_issue_node, True)
 
 		for episode in episodes:
-			episode_node =  self.AppendItem(fake_issue_node, episode['description'])
+			range_str, range_str_verb, duration_str = episode.formatted_clinical_duration
+			episode_node =  self.AppendItem(fake_issue_node, u'%s (%s)' % (
+				episode['description'],
+				range_str
+			))
 			self.SetItemPyData(episode_node, episode)
 			if episode['episode_open']:
 				self.SetItemBold(fake_issue_node, True)
-			# fake it so we can expand it
+			# assume children so we can try to expand it
 			self.SetItemHasChildren(episode_node, True)
 
 		self.SortChildren(fake_issue_node)
@@ -987,10 +996,12 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 	def _on_episode_mod_db(self, *args, **kwargs):
 		self.__expanded_nodes = self.ExpansionState
 		self.__populate_tree()
+
 	#--------------------------------------------------------
 	def _on_issue_mod_db(self, *args, **kwargs):
 		self.__expanded_nodes = self.ExpansionState
 		self.__populate_tree()
+
 	#--------------------------------------------------------
 	def _on_tree_item_expanding(self, event):
 		event.Skip()
@@ -1017,6 +1028,7 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 
 		# encounter nodes do not need expanding
 		#if isinstance(node_data, gmEMRStructItems.cEncounter):
+
 	#--------------------------------------------------------
 	def _on_tree_item_selected(self, event):
 		sel_item = event.GetItem()
@@ -1172,6 +1184,7 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 #otherwise a test would be needed
 #if widgetXY.GetToolTip():
 #    widgetXY.GetToolTip().Enable(False)
+
 	#--------------------------------------------------------
 	def _on_tree_item_right_clicked(self, event):
 		"""Right button clicked: display the popup for the tree"""
@@ -1196,6 +1209,7 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 		else:
 			print "error: unknown node type, no popup menu"
 		event.Skip()
+
 	#--------------------------------------------------------
 	def OnCompareItems (self, node1=None, node2=None):
 		"""Used in sorting items.
@@ -1237,15 +1251,20 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 				return -1
 			return 1
 
-		# episodes: chronologically
+		# episodes: open, then reverse chronologically
 		if isinstance(item1, gmEMRStructItems.cEpisode):
+			# open episodes first
+			if item1['episode_open']:
+				return -1
+			if item2['episode_open']:
+				return 1
 			start1 = item1.best_guess_clinical_start_date
 			start2 = item2.best_guess_clinical_start_date
 			if start1 == start2:
 				return 0
 			if start1 < start2:
-				return -1
-			return 1
+				return 1
+			return -1
 
 		# issues: alpha by grouping, no grouping at the bottom
 		if isinstance(item1, gmEMRStructItems.cHealthIssue):
