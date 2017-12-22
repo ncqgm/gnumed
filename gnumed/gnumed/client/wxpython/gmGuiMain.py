@@ -785,8 +785,8 @@ class gmTopLevelFrame(wx.Frame):
 		item = menu_emr_export.Append(-1, _('Timeline file'), _("Copy EMR of active patient as timeline file (XML) into export area"))
 		self.Bind(wx.EVT_MENU, self.__export_emr_as_timeline_xml, item)
 
-		item = menu_emr_export.Append(-1, _('Care chronology'), _("Copy EMR of active patient as care chronology text file into export area"))
-		self.Bind(wx.EVT_MENU, self.__export_emr_as_care_chronology, item)
+		item = menu_emr_export.Append(-1, _('Care structure'), _("Copy EMR of active patient as care structure text file into export area"))
+		self.Bind(wx.EVT_MENU, self.__export_emr_as_care_structure, item)
 
 		# structure file
 
@@ -2934,7 +2934,7 @@ class gmTopLevelFrame(wx.Frame):
 			wx.EndBusyCursor()
 
 	#----------------------------------------------
-	def __export_emr_as_care_chronology(self, event):
+	def __export_emr_as_care_structure(self, event):
 		pat = gmPerson.gmCurrentPatient()
 		if not pat.connected:
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot export EMR. No active patient.'))
@@ -2942,7 +2942,7 @@ class gmTopLevelFrame(wx.Frame):
 		wx.BeginBusyCursor()
 		try:
 			fname = gmEMRStructItems.export_emr_structure(patient = pat)
-			pat.export_area.add_file(filename = fname, hint = _(u'EMR as care chronology file'))
+			pat.export_area.add_file(filename = fname, hint = _(u'EMR as care structure file'))
 		except StandardError:
 			raise
 		finally:

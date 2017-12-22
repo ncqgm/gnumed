@@ -5,8 +5,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-11-26 17:08+0100\n"
-"PO-Revision-Date: 2017-11-26 16:31+0100\n"
+"POT-Creation-Date: 2017-12-22 12:19+0100\n"
+"PO-Revision-Date: 2017-12-22 12:25+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "Language: de_DE\n"
@@ -14,7 +14,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: pygettext.py 1.3\n"
-"X-Generator: Poedit 2.0.4\n"
+"X-Generator: Poedit 2.0.5\n"
 
 #, python-format
 msgid "unknown test status [%s]"
@@ -3920,17 +3920,44 @@ msgstr "Zeige Ausdrucke für:"
 msgid "E&xport area"
 msgstr "E&xportbereich"
 
-msgid "Refresh the timeline display."
-msgstr "Zeitstrahl neu aufbauen."
+msgid "Care"
+msgstr "Behandlung"
 
-msgid "Save timeline as SVG image."
-msgstr "Zeitstrahl als SVG-Bild speichern."
+msgid "12 mo"
+msgstr "12 Mo"
+
+msgid "Today"
+msgstr "Heute"
+
+msgid "All"
+msgstr "Alles"
+
+msgid "Refresh display from the patient's chart."
+msgstr "Zeitlinie aus Karteikarte neu aufbauen."
+
+msgid "Save timeline as images."
+msgstr "Zeitstrahl als Bilder speichern."
 
 msgid "Put timeline into export area."
 msgstr "Zeitstrahl in Exportbereich ablegen."
 
 msgid "Print timeline."
 msgstr "Zeitstrahl drucken."
+
+msgid "Fit timeline to the Care Period."
+msgstr "Den Behandlungszeitraum einpassen."
+
+msgid "Fit timeline to the the last 12 months."
+msgstr "Die letzten 12 Monate des Zeitstrahls einpassen."
+
+msgid "Center timeline on today."
+msgstr "Zeitstrahl auf den heutigen Tag zentrieren."
+
+msgid "Zoom to fit all events."
+msgstr "Auf alle Ereignisse zoomen."
+
+msgid "Show:"
+msgstr "Zeige:"
 
 msgid "active"
 msgstr "aktiv"
@@ -5945,7 +5972,7 @@ msgstr ""
 "Der zugehörige Patient kann durch Doppelklick einer Zeile aktiviert werden."
 
 msgid "Describe the intended action."
-msgstr ""
+msgstr "Beschreiben Sie die beabsichtigte Aktion."
 
 msgid "&Select"
 msgstr "&Auswahl"
@@ -5973,6 +6000,9 @@ msgstr "Unterverzeichnis benutzen:"
 
 msgid "<patient directory>"
 msgstr "<Patienten-Verzeichnis>"
+
+msgid "Generate metadata"
+msgstr "Beschreibungen erstellen"
 
 msgid "Creating patient media"
 msgstr "Patienten-Datenträger erstellen"
@@ -6004,6 +6034,18 @@ msgstr ""
 "soll.\n"
 "\n"
 "Dadurch werden existierende Daten ignoriert."
+
+msgid ""
+"Check if you want GNUmed to generate and include metadata describing the "
+"exported patient data files.\n"
+"\n"
+"If unchecked, export items will simply be dumped into the target directory."
+msgstr ""
+"Hier ankreuzen, wenn GNUmed Metadaten hinzufügen soll, welche die "
+"exportierten Patientendaten beschreiben.\n"
+"\n"
+"Ohne Kreuz hier werden die Exportdaten einfach ins Zielverzeichnis "
+"gespeichert."
 
 msgid "Create patient media (in target directory or on CD / DVD)."
 msgstr ""
@@ -6588,9 +6630,6 @@ msgid ""
 msgstr ""
 "Hiermit können Sie zwischen Blättern und Bearbeiten von ABDT-Einträgen "
 "wechseln."
-
-msgid "Show:"
-msgstr "Zeige:"
 
 msgid "Kidneys"
 msgstr "Niere"
@@ -9545,7 +9584,7 @@ msgstr ""
 
 #, python-format
 msgid " Name: %s (%s)\n"
-msgstr ""
+msgstr " Name: %s (%s)\n"
 
 #, python-format
 msgid " Comment: %s\n"
@@ -10564,8 +10603,8 @@ msgid "Created during encounter: %s (%s - %s)   [#%s]"
 msgstr "Angelegt während Konsultation: %s (%s - %s)   [#%s]"
 
 #, python-format
-msgid " Duration: %s (%s - %s)"
-msgstr " Dauer: %s (%s - %s)"
+msgid " Duration: %s (%s)"
+msgstr " Dauer: %s (%s)"
 
 msgid "finished"
 msgstr "beendet"
@@ -10573,8 +10612,8 @@ msgstr "beendet"
 msgid "none associated"
 msgstr "keine zugeordnet"
 
-msgid "Error retrieving encounters for this health issue."
-msgstr "Fehler beim Laden der Kontakte für diese Grunderkrankung."
+msgid "Error retrieving encounters for this episode."
+msgstr "Fehler beim Laden der APK für diese Episode."
 
 #, python-format
 msgid "Last worked on: %s\n"
@@ -10595,14 +10634,18 @@ msgid "AOE"
 msgstr "BE"
 
 #, python-format
-msgid " ... %s skipped ..."
-msgstr " ... %s übersprungen ..."
+msgid " %s %s skipped %s"
+msgstr " %s %s übersprungen %s"
 
 msgid "Progress notes in most recent encounter:"
 msgstr "Notizen der letzten Konsultation:"
 
 msgid "Measurements and Results:"
 msgstr "Messungen und Ergebnisse:"
+
+#, python-format
+msgid "%s so far"
+msgstr "%s bislang"
 
 #, python-format
 msgid "Episode: %s%s%s"
@@ -10641,6 +10684,9 @@ msgstr " (andauernd)"
 msgid "Comment: "
 msgstr "Kommentar: "
 
+msgid "Care Period"
+msgstr "Behandlungszeitraum"
+
 msgid "Health issues"
 msgstr "Grunderkrankungen"
 
@@ -10659,9 +10705,6 @@ msgstr "Maßnahmen"
 msgid "Lifespan"
 msgstr "Lebensspanne"
 
-msgid "Care Period"
-msgstr "Behandlungszeitraum"
-
 msgid "Life events"
 msgstr "Lebensereignis"
 
@@ -10672,9 +10715,12 @@ msgid "Birth"
 msgstr "Geburt"
 
 #, python-format
-msgid "Start of Care: %s (the earliest recorded event of care in this praxis)"
+msgid ""
+"Start of Care: %s\n"
+"(the earliest recorded event of care in this praxis)"
 msgstr ""
-"Behandlungsbeginn: %s (die erste in dieser Praxis dokumentierte Behandlung)"
+"Behandlungsbeginn: %s\n"
+"(die erste in dieser Praxis dokumentierte Behandlung)"
 
 #, python-format
 msgid "Death: %s"
@@ -10713,6 +10759,9 @@ msgstr ""
 "%sEpisode \"%s\" [%s]\n"
 "%sAPKs: %s (%s - %s)\n"
 "%sZuletzt bearbeitet: %s\n"
+
+msgid "Unspecified"
+msgstr "Unbestimmt"
 
 msgid "Administrative"
 msgstr "Verwaltung"
@@ -16198,6 +16247,9 @@ msgstr "%.1f (vor %s)"
 msgid "eGFR:"
 msgstr "eGFR:"
 
+msgid " - abnormal"
+msgstr " - abnormal"
+
 #, python-format
 msgid " - abnormal: %s"
 msgstr " - abnormal: %s"
@@ -18231,17 +18283,8 @@ msgstr "Statistik"
 msgid "Show a high-level statistic summary of the EMR."
 msgstr "Eine grobe Statistik der Karteikarte zeigen."
 
-msgid "Journal (encounters) to file"
-msgstr "Journal (APK) in Datei"
-
-msgid ""
-"Save the EMR of the active patient as a chronological journal into a text "
-"file"
-msgstr ""
-"Karteikarte des aktiven Patienten als chronologisches Journal speichern"
-
-msgid "Journal (encounters) to export area"
-msgstr "Journal (APKs) in Exportbereich"
+msgid "Journal (encounters)"
+msgstr "Journal (APK)"
 
 msgid ""
 "Copy EMR of the active patient as a chronological journal into export area"
@@ -18249,34 +18292,40 @@ msgstr ""
 "Karteikarte des aktiven Patienten als chronologisches Journal im "
 "Exportbereich ablegen"
 
-msgid "Journal (mod time) to file"
-msgstr "Journal (Bearb.zeit) in Datei"
+msgid "Journal (mod time)"
+msgstr "Journal (Bearb.zeit)"
 
 msgid ""
-"Save the EMR of the active patient as journal by last modification time into "
-"a text file"
-msgstr ""
-"Karteikarte des aktiven Patienten als Journal nach Bearbeitungszeitpunkt "
-"speichern"
-
-msgid "Journal (mod time) to export area"
-msgstr "Journal (Bearb.zeit) in Exportbereich"
-
-msgid ""
-"Copy EMR of the active patient as journal by last modification time into "
+"Copy EMR of active patient as journal (by last modification time) into "
 "export area"
 msgstr ""
-"Karteikarte des aktiven Patienten als Journal nach Bearbeitungszeitpunkt im "
+"Kartei des aktiven Patienten als Journal (nach Bearbeitungszeitpunkt) im "
 "Exportbereich ablegen"
 
 msgid "Text document"
 msgstr "Textdatei"
 
-msgid "Save the EMR of the active patient into a text file"
-msgstr "Karteikarte des aktiven Patienten als Textdatei speichern"
+msgid "Copy EMR of active patient as text document into export area"
+msgstr "Kartei des aktiven Patienten als Textdokument im Exportbereich ablegen"
 
-msgid "MEDISTAR import format"
-msgstr "MEDISTAR-Importformat"
+msgid "Timeline file"
+msgstr "Zeitstrahl-Datei"
+
+msgid "Copy EMR of active patient as timeline file (XML) into export area"
+msgstr ""
+"Kartei des aktiven Patienten als Zeitstrahl-Datei (XML) im Exportbereich "
+"ablegen"
+
+msgid "Care structure"
+msgstr "Behandlungsstruktur"
+
+msgid "Copy EMR of active patient as care structure text file into export area"
+msgstr ""
+"Kartei des aktiven Patienten als Behandlungsstruktur-Datei im Exportbereich "
+"ablegen"
+
+msgid "MEDISTAR import format (as file)"
+msgstr "MEDISTAR-Importformat (als Datei)"
 
 msgid ""
 "GNUmed -> MEDISTAR. Save progress notes of active patient's active encounter "
@@ -18285,8 +18334,8 @@ msgstr ""
 "GNUmed -> MEDISTAR. Speichern der Verlaufsnotizen der aktiven Konsultation "
 "des aktiven Patienten in eine von Medistar importierbare Textdatei."
 
-msgid "Export as ..."
-msgstr "Exportieren als ..."
+msgid "Put into export area as ..."
+msgstr "In Exportbereich ablegen als ..."
 
 msgid "&EMR"
 msgstr "&Karteikarte"
@@ -19429,7 +19478,7 @@ msgid "There was a problem accessing the [arriba] result in [%s] !"
 msgstr "Problem beim Zugriff auf das [arriba]-Ergebnis in [%s] !"
 
 msgid "[-9999]: <access violation test error>"
-msgstr ""
+msgstr "[-9999]: <Zugriffsverletzungstestfehler>"
 
 msgid ""
 "This is a deliberate AccessDenied exception thrown to test the handling of "
@@ -19437,7 +19486,7 @@ msgid ""
 msgstr ""
 
 msgid "testing access check for non-existant <admin> role"
-msgstr ""
+msgstr "teste Zugriffsprüfung für die nicht existente Rolle <admin>"
 
 msgid ""
 "This is a deliberate AccessDenied exception. You should not see this message "
@@ -19523,14 +19572,20 @@ msgstr "Kann Karteizusammenfassung nicht zeigen. Kein Patient aktiv."
 msgid "EMR Summary"
 msgstr "Zusammenfassung der Kartei"
 
+msgid "Cannot export EMR. No active patient."
+msgstr "Kann Kartei nicht exportieren. Kein Patient aktiv."
+
+msgid "EMR as text document"
+msgstr "Kartei als Textdokument"
+
+msgid "EMR as timeline file (XML)"
+msgstr "Kartei als Zeitstrahl-Datei (XML)"
+
+msgid "EMR as care structure file"
+msgstr "Kartei als Behandlungsstruktur"
+
 msgid "Cannot export EMR journal by last modification time. No active patient."
 msgstr "Kann Karteijournal (Bearb.zeit) nicht exportieren. Kein Patient aktiv."
-
-msgid "journal_by_last_mod_time"
-msgstr "Journal_nach_Bearbeitungszeit"
-
-msgid "Save patient's EMR journal as..."
-msgstr "Speichere Karteikarten des Patienten als Journal in ..."
 
 msgid "Error exporting patient EMR as journal by last modification time."
 msgstr ""
@@ -19540,28 +19595,14 @@ msgstr ""
 msgid "EMR journal export"
 msgstr "Journalexport der Karteikarte"
 
-#, python-format
-msgid ""
-"Successfully exported EMR as journal by last modification time into file "
-"[%s]."
-msgstr ""
-"Karteikarte als Journal nach Bearbeitungszeitpunkt in Datei [%s] exportiert."
+msgid "EMR journal by last modification time"
+msgstr "Karteijournal nach letzter Bearbeitungszeit"
 
 msgid "Cannot export EMR journal. No active patient."
 msgstr "Kann Karteijournal nicht exportieren. Kein Patient aktiv."
 
-msgid "emr-journal"
-msgstr "Kartei-Journal"
-
 msgid "Error exporting patient EMR as chronological journal."
 msgstr "Fehler beim Exportieren der Karteikarte des Patienten als Journal."
-
-#, python-format
-msgid "Successfully exported EMR as chronological journal into file [%s]."
-msgstr "Karteikarte als chronologisches Journal in Datei [%s] exportiert."
-
-msgid "EMR journal by last modification time"
-msgstr "Karteijournal nach letzter Bearbeitungszeit"
 
 msgid "EMR journal by encounter"
 msgstr "Karteijournal nach APK"
@@ -19781,17 +19822,17 @@ msgstr ""
 "\n"
 "  [%s]"
 
-msgid "Save timeline as SVG image under..."
-msgstr "Zeitstrahl als SVG-Bild speichern unter..."
+msgid "Save timeline as images (SVG, PNG) under..."
+msgstr "Zeitstrahl als Bilder (SVG, PNG) speichern unter..."
 
-msgid "timeline image"
-msgstr "Zeitstrahl-Bild"
+msgid "timeline image (png)"
+msgstr "Zeitstrahl-Bild (png)"
 
-msgid "timeline image (scalable)"
-msgstr "Zeitstrahl-Bild (skalierbar)"
+msgid "timeline image (svg)"
+msgstr "Zeitstrahl-Bild (svg)"
 
-msgid "timeline data"
-msgstr "Zeitstrahl-Daten"
+msgid "timeline data (xml)"
+msgstr "Zeitstrahl-Daten (xml)"
 
 msgid "Cannot delete hospitalization."
 msgstr "Kann Krankenhausaufenthalt nicht löschen."
@@ -19907,16 +19948,28 @@ msgstr ""
 "\n"
 
 #, python-format
-msgid "Birthday: %s ago\n"
-msgstr "Geburtstag: vor %s\n"
-
-#, python-format
-msgid "Birthday: in %s\n"
-msgstr "Geburtstag: in %s\n"
-
-#, python-format
 msgid "Age: %s\n"
 msgstr "Alter: %s\n"
+
+#, python-format
+msgid "Age: %s, birthday:\n"
+msgstr "Alter: %s, Geburtstag:\n"
+
+#, python-format
+msgid "%s ago (= this year)"
+msgstr "vor %s (= dieses Jahr)"
+
+#, python-format
+msgid "in %s (= next year)"
+msgstr "in %s (= nächstes Jahr)"
+
+#, python-format
+msgid "in %s (= this year)"
+msgstr "in %s (= dieses Jahr)"
+
+#, python-format
+msgid "%s ago (= last year)"
+msgstr "vor %s (= letztes Jahr)"
 
 #, python-format
 msgid "last confirmed %s\n"
@@ -20974,9 +21027,6 @@ msgstr "Keine LOINC-Codes gewählt."
 
 msgid "no LOINC details found"
 msgstr "keine LOINC-Details gefunden"
-
-msgid "Cannot export EMR. No active patient."
-msgstr "Kann Kartei nicht exportieren. Kein Patient aktiv."
 
 msgid "emr-export"
 msgstr "Kartei-Export"
@@ -22403,6 +22453,71 @@ msgstr "Abbrechen"
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
 
+#~ msgid "Care chronology"
+#~ msgstr "Behandlungschronologie"
+
+#~ msgid "Fit:"
+#~ msgstr "Einpassen:"
+
+#~ msgid "Error retrieving encounters for this health issue."
+#~ msgstr "Fehler beim Laden der Kontakte für diese Grunderkrankung."
+
+#~ msgid ""
+#~ "Save the EMR of the active patient as a chronological journal into a text "
+#~ "file"
+#~ msgstr ""
+#~ "Karteikarte des aktiven Patienten als chronologisches Journal speichern"
+
+#~ msgid "Journal (encounters) to export area"
+#~ msgstr "Journal (APKs) in Exportbereich"
+
+#~ msgid ""
+#~ "Save the EMR of the active patient as journal by last modification time "
+#~ "into a text file"
+#~ msgstr ""
+#~ "Karteikarte des aktiven Patienten als Journal nach Bearbeitungszeitpunkt "
+#~ "speichern"
+
+#~ msgid "Journal (mod time) to export area"
+#~ msgstr "Journal (Bearb.zeit) in Exportbereich"
+
+#~ msgid "Save the EMR of the active patient into a text file"
+#~ msgstr "Karteikarte des aktiven Patienten als Textdatei speichern"
+
+#~ msgid "Export as ..."
+#~ msgstr "Exportieren als ..."
+
+#~ msgid "journal_by_last_mod_time"
+#~ msgstr "Journal_nach_Bearbeitungszeit"
+
+#~ msgid "Save patient's EMR journal as..."
+#~ msgstr "Speichere Karteikarten des Patienten als Journal in ..."
+
+#~ msgid ""
+#~ "Successfully exported EMR as journal by last modification time into file "
+#~ "[%s]."
+#~ msgstr ""
+#~ "Karteikarte als Journal nach Bearbeitungszeitpunkt in Datei [%s] "
+#~ "exportiert."
+
+#~ msgid "emr-journal"
+#~ msgstr "Kartei-Journal"
+
+#~ msgid "Successfully exported EMR as chronological journal into file [%s]."
+#~ msgstr "Karteikarte als chronologisches Journal in Datei [%s] exportiert."
+
+#~ msgid "Birthday: %s ago\n"
+#~ msgstr "Geburtstag: vor %s\n"
+
+#~ msgid "Birthday: in %s\n"
+#~ msgstr "Geburtstag: in %s\n"
+
+#~ msgid "Refresh the timeline display."
+#~ msgstr "Zeitstrahl neu aufbauen."
+
+#~ msgid "timeline image (scalable)"
+#~ msgstr "Zeitstrahl-Bild (skalierbar)"
+
 #~ msgid "Unhappy because: abnormal (%s)"
 #~ msgstr "Problem: abnormal (%s)"
 
@@ -22834,9 +22949,6 @@ msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
 
 #~ msgid " Organization: %%s @ %s\n"
 #~ msgstr " Organisation: %%s @ %s\n"
-
-#~ msgid "Care issue"
-#~ msgstr "Betreuungsgrund"
 
 #~ msgid "Document list for this patient."
 #~ msgstr "Dokumentenliste dieses Patienten."
@@ -23968,9 +24080,6 @@ msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
 
 #~ msgid "part"
 #~ msgstr "Teil"
-
-#~ msgid "Error retrieving encounters for this episode."
-#~ msgstr "Fehler beim Laden der APK für diese Episode."
 
 #~ msgid "%s %s (with %s%% VAT)"
 #~ msgstr " %s %s (inkl %s%% USt)"
