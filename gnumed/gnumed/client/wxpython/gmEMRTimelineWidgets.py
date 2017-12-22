@@ -22,8 +22,12 @@ if __name__ == '__main__':
 from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmMimeLib
+from Gnumed.pycommon import gmDateTime
+
 from Gnumed.business import gmPerson
+
 from Gnumed.wxpython import gmRegetMixin
+
 from Gnumed.exporters import gmTimelineExporter
 
 
@@ -43,6 +47,9 @@ from Gnumed.timelinelib.features.experimental import experimentalfeatures
 experimentalfeatures.EXTENDED_CONTAINER_HEIGHT.set_active(True)
 experimentalfeatures.EXTENDED_CONTAINER_STRATEGY.set_active(True)
 
+from Gnumed.timelinelib.canvas.data.timeperiod import TimePeriod
+from Gnumed.timelinelib.calendar.gregorian.gregorian import GregorianDateTime
+
 #------------------------------------------------------------
 from Gnumed.timelinelib.canvas import TimelineCanvas	# works because of __init__.py
 
@@ -61,6 +68,8 @@ class cEMRTimelinePnl(TimelineCanvas):
 		appearance.set_hide_events_done(True)
 		appearance.set_colorize_weekends(True)
 		appearance.set_display_checkmark_on_events_done(True)
+
+		#self.InitDragScroll(direction=wx.BOTH)
 		return
 		"""
             appearance.set_legend_visible(self.config.show_legend)
@@ -93,12 +102,11 @@ class cEMRTimelinePnl(TimelineCanvas):
 	def __register_interests(self):
 		self.Bind(wx.EVT_MOUSEWHEEL, self._on_mousewheel_action)
 		self.Bind(wx.EVT_MOTION, self._on_mouse_motion)
+		self.Bind(wx.EVT_LEFT_DCLICK, self._on_left_dclick)
+		#self.Bind(wx.EVT_LEFT_DOWN, self._on_left_down)
+		#self.Bind(wx.EVT_LEFT_UP, self._on_left_up)
 
-        #self.Bind(wx.EVT_LEFT_DOWN, self._on_left_down)
-        #self.Bind(wx.EVT_LEFT_DCLICK, self._on_left_dclick)
-        #self.Bind(wx.EVT_LEFT_UP, self._on_left_up)
         #self.Bind(wx.EVT_MIDDLE_DOWN, self._on_middle_down)
-        #self.Bind(wx.EVT_MOUSEWHEEL, self._on_mousewheel)
 
 	#--------------------------------------------------------
 	def _on_mouse_motion(self, event):
@@ -111,7 +119,31 @@ class cEMRTimelinePnl(TimelineCanvas):
 		self.Scroll(event.GetWheelRotation() / 1200.0)
 
 	#--------------------------------------------------------
+	def _on_left_dclick(self, evt):
+		self.CenterAtCursor(evt.GetX())
+
+#	#--------------------------------------------------------
+#	def _on_left_down(self, evt):
+#		self.StartDragScroll(evt)
+#	def _on_motion(self, evt):
+#		self.DragScroll(evt)
+#	def _on_left_up(self, evt):
+#		self.StopDragScroll()
+
+	#--------------------------------------------------------
 	# internal API
+	#--------------------------------------------------------
+	# remove with 1.17. !
+	def CenterAtCursor(self, x):
+		_time_at_cursor = self.GetTimeAt(x)
+		self.Navigate(lambda tp: tp.center(_time_at_cursor))
+
+	#--------------------------------------------------------
+	def center_at_today(self):
+		now = gmDateTime.pydt_now_here()
+		g_now = GregorianDateTime(now.year, now.month, now.day, now.hour, now.minute, now.second).to_time()
+		self.Navigate(lambda tp: tp.center(g_now))
+
 	#--------------------------------------------------------
 	def clear_timeline(self):
 		self.set_timeline(None)
@@ -171,6 +203,14 @@ class cEMRTimelinePnl(TimelineCanvas):
 			self.Navigate(lambda tp: tp.update(era_period.start_time, era_period.end_time))
 		else:
 			self.Navigate(lambda tp: tp.center(era_period.mean_time()))
+
+	#--------------------------------------------------------
+	def fit_last_year(self):
+		end = gmDateTime.pydt_now_here()
+		g_end = GregorianDateTime(end.year, end.month, end.day, end.hour, end.minute, end.second).to_time()
+		g_start = GregorianDateTime(end.year - 1, end.month, end.day, end.hour, end.minute, end.second).to_time()
+		last_year = TimePeriod(g_start, g_end)
+		self.Navigate(lambda tp: tp.update(last_year.start_time, last_year.end_time))
 
 #============================================================
 from Gnumed.wxGladeWidgets import wxgEMRTimelinePluginPnl
@@ -247,8 +287,16 @@ class cEMRTimelinePluginPnl(wxgEMRTimelinePluginPnl.wxgEMRTimelinePluginPnl, gmR
 		self._PNL_timeline.zoom_out()
 
 	#--------------------------------------------------------
+	def _on_go2day_button_pressed(self, event):
+		self._PNL_timeline.center_at_today()
+
+	#--------------------------------------------------------
 	def _on_zoom_fit_all_button_pressed(self, event):
 		self._PNL_timeline.fit_all_events()
+
+	#--------------------------------------------------------
+	def _on_zoom_fit_last_year_button_pressed(self, event):
+		self._PNL_timeline.fit_last_year()
 
 	#--------------------------------------------------------
 	def _on_zoom_fit_care_period_button_pressed(self, event):

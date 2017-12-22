@@ -28,6 +28,8 @@ class wxgEMRTimelinePluginPnl(wx.ScrolledWindow):
 		self._BTN_zoom_in = wx.Button(self, wx.ID_ZOOM_IN, "", style=wx.BU_EXACTFIT)
 		self._BTN_zoom_out = wx.Button(self, wx.ID_ZOOM_OUT, "", style=wx.BU_EXACTFIT)
 		self._BTN_fit_care_period = wx.Button(self, wx.ID_ANY, _("Care"), style=wx.BU_EXACTFIT)
+		self._BTN_fit_last_year = wx.Button(self, wx.ID_ANY, _("12 mo"), style=wx.BU_EXACTFIT)
+		self._BTN_go2day = wx.Button(self, wx.ID_ANY, _("Today"), style=wx.BU_EXACTFIT)
 		self._BTN_fit_all = wx.Button(self, wx.ID_ANY, _("All"), style=wx.BU_EXACTFIT)
 
 		self.__set_properties()
@@ -40,6 +42,8 @@ class wxgEMRTimelinePluginPnl(wx.ScrolledWindow):
 		self.Bind(wx.EVT_BUTTON, self._on_zoom_in_button_pressed, self._BTN_zoom_in)
 		self.Bind(wx.EVT_BUTTON, self._on_zoom_out_button_pressed, self._BTN_zoom_out)
 		self.Bind(wx.EVT_BUTTON, self._on_zoom_fit_care_period_button_pressed, self._BTN_fit_care_period)
+		self.Bind(wx.EVT_BUTTON, self._on_zoom_fit_last_year_button_pressed, self._BTN_fit_last_year)
+		self.Bind(wx.EVT_BUTTON, self._on_go2day_button_pressed, self._BTN_go2day)
 		self.Bind(wx.EVT_BUTTON, self._on_zoom_fit_all_button_pressed, self._BTN_fit_all)
 		# end wxGlade
 
@@ -50,7 +54,9 @@ class wxgEMRTimelinePluginPnl(wx.ScrolledWindow):
 		self._BTN_save.SetToolTipString(_("Save timeline as images."))
 		self._BTN_export_area.SetToolTipString(_("Put timeline into export area."))
 		self._BTN_print.SetToolTipString(_("Print timeline."))
-		self._BTN_fit_care_period.SetToolTipString(_("Zoom to fit the Care Period."))
+		self._BTN_fit_care_period.SetToolTipString(_("Fit timeline to the Care Period."))
+		self._BTN_fit_last_year.SetToolTipString(_("Fit timeline to the the last 12 months."))
+		self._BTN_go2day.SetToolTipString(_("Center timeline on today."))
 		self._BTN_fit_all.SetToolTipString(_("Zoom to fit all events."))
 		# end wxGlade
 
@@ -67,9 +73,11 @@ class wxgEMRTimelinePluginPnl(wx.ScrolledWindow):
 		__szr_buttons.Add((20, 20), 1, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
 		__szr_buttons.Add(self._BTN_zoom_in, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 3)
 		__szr_buttons.Add(self._BTN_zoom_out, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 3)
-		_lbl_fit = wx.StaticText(self, wx.ID_ANY, _("Fit:"))
+		_lbl_fit = wx.StaticText(self, wx.ID_ANY, _("Show:"))
 		__szr_buttons.Add(_lbl_fit, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 3)
 		__szr_buttons.Add(self._BTN_fit_care_period, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 3)
+		__szr_buttons.Add(self._BTN_fit_last_year, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 3)
+		__szr_buttons.Add(self._BTN_go2day, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 3)
 		__szr_buttons.Add(self._BTN_fit_all, 0, wx.ALIGN_CENTER_VERTICAL, 0)
 		__szr_buttons.Add((20, 20), 1, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
 		__szr_main.Add(__szr_buttons, 0, wx.EXPAND, 0)
@@ -104,6 +112,14 @@ class wxgEMRTimelinePluginPnl(wx.ScrolledWindow):
 
 	def _on_zoom_fit_care_period_button_pressed(self, event):  # wxGlade: wxgEMRTimelinePluginPnl.<event_handler>
 		print("Event handler '_on_zoom_fit_care_period_button_pressed' not implemented!")
+		event.Skip()
+
+	def _on_zoom_fit_last_year_button_pressed(self, event):  # wxGlade: wxgEMRTimelinePluginPnl.<event_handler>
+		print("Event handler '_on_zoom_fit_last_year_button_pressed' not implemented!")
+		event.Skip()
+
+	def _on_go2day_button_pressed(self, event):  # wxGlade: wxgEMRTimelinePluginPnl.<event_handler>
+		print("Event handler '_on_go2day_button_pressed' not implemented!")
 		event.Skip()
 
 	def _on_zoom_fit_all_button_pressed(self, event):  # wxGlade: wxgEMRTimelinePluginPnl.<event_handler>

@@ -1163,7 +1163,7 @@ def shorten_words_in_line(text=None, max_length=None, min_word_length=None, igno
 			return text
 	old_words = regex.split('\s+', text, flags = regex.UNICODE)
 	no_old_words = len(old_words)
-	max_word_length = max(min_word_length, (max_length / no_old_words))
+	max_word_length = max(min_word_length, (max_length // no_old_words))
 	words = []
 	for word in old_words:
 		if len(word) <= max_word_length:
