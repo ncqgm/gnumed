@@ -23,28 +23,25 @@ from timelinelib.wxgui.components.maincanvas.scrollbase import ScrollViewInputHa
 
 class ResizeByDragInputHandler(ScrollViewInputHandler):
 
-    def __init__(self, state, timeline_canvas, status_bar, main_frame, event, direction):
+    def __init__(self, state, timeline_canvas, event, direction):
         ScrollViewInputHandler.__init__(self, timeline_canvas)
         self._state = state
-        self._main_frame = main_frame
         self.timeline_canvas = timeline_canvas
-        self.status_bar = status_bar
         self.event = event
         self.direction = direction
         self.timer_running = False
-        self._transaction = self.timeline_canvas.GetDb().transaction(
-            "Resize events"
-        )
+        self._transaction = self.timeline_canvas.GetDb().transaction(_("Resize events"))
+        self._state.display_status("")
 
-    def mouse_moved(self, x, y, alt_down=False):
-        ScrollViewInputHandler.mouse_moved(self, x, y, alt_down)
+    def mouse_moved(self, cursor, keyboard):
+        ScrollViewInputHandler.mouse_moved(self, cursor, keyboard)
         self._resize_event()
 
     def left_mouse_up(self):
         ScrollViewInputHandler.left_mouse_up(self)
-        self._clear_status_text()
+        self._state.display_status("")
         self._transaction.commit()
-        self._main_frame.edit_ends()
+        self._state.edit_ends()
         self._state.change_to_no_op()
 
     def view_scrolled(self):
@@ -67,8 +64,4 @@ class ResizeByDragInputHandler(ScrollViewInputHandler):
                 new_end = new_start
         self.event.update_period(new_start, new_end)
         self.event.save()
-        self._clear_status_text()
         self.timeline_canvas.Redraw()
-
-    def _clear_status_text(self):
-        self.status_bar.set_text("")

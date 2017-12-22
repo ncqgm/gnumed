@@ -23,12 +23,12 @@ from timelinelib.wxgui.components.maincanvas.inputhandler import InputHandler
 
 class ScrollByDragInputHandler(InputHandler):
 
-    def __init__(self, state, timeline_canvas, main_frame, start_time, y):
+    def __init__(self, state, timeline_canvas, start_time, y):
         InputHandler.__init__(self, timeline_canvas)
         self._state = state
-        self._main_frame = main_frame
         self.start_slider_pos = self.timeline_canvas.GetDividerPosition()
         self.start_mouse_pos = y
+        self.last_mouse_pos = y
         self.view_height = self.timeline_canvas.GetSize()[1]
         self.start_time = start_time
         self.last_clock_time = time.clock()
@@ -39,15 +39,18 @@ class ScrollByDragInputHandler(InputHandler):
         self.speed_px_per_sec = 0
         self.INERTIAL_SCROLLING_SPEED_THRESHOLD = 200
 
-    def mouse_moved(self, x, y, alt_down=False):
-        self._calculate_sped(x)
-        self._scroll_timeline(x)
-        percentage_distance = 100 * (y - self.start_mouse_pos) / self.view_height
+    def mouse_moved(self, cursor, keyboard):
+        self.last_mouse_pos = cursor.y
+        self._calculate_sped(cursor.x)
+        self._scroll_timeline(cursor.x)
+        percentage_distance = 100 * (cursor.y - self.start_mouse_pos) / self.view_height
         self.timeline_canvas.SetDividerPosition(self.start_slider_pos + percentage_distance)
 
     def left_mouse_up(self):
+        if self.start_mouse_pos == self.last_mouse_pos:
+            self.timeline_canvas.ClearSelectedEvents()
         self._state.change_to_no_op()
-        self._main_frame.edit_ends()
+        self._state.edit_ends()
         if self.timeline_canvas.GetAppearance().get_use_inertial_scrolling():
             if self.speed_px_per_sec > self.INERTIAL_SCROLLING_SPEED_THRESHOLD:
                 self._inertial_scrolling()
@@ -62,13 +65,13 @@ class ScrollByDragInputHandler(InputHandler):
             self.speed_px_per_sec = MAX_SPEED
         else:
             self.speed_px_per_sec = min(MAX_SPEED, abs(self.last_x_distance /
-                                        elapsed_clock_time))
+                                                       elapsed_clock_time))
         self.last_clock_time = current_clock_time
 
     def _scroll_timeline(self, x):
         self.current_time = self.timeline_canvas.GetTimeAt(x)
         self.timeline_canvas.Navigate(lambda tp:
-            tp.move_delta(self.start_time - self.current_time))
+                                      tp.move_delta(self.start_time - self.current_time))
 
     def _inertial_scrolling(self):
         frame_time = self._calculate_frame_time()

@@ -21,17 +21,12 @@ from timelinelib.wxgui.components.maincanvas.scrollbase import ScrollViewInputHa
 
 class MoveByDragInputHandler(ScrollViewInputHandler):
 
-    def __init__(self, state, timeline_canvas, status_bar, main_frame, event, start_drag_time):
+    def __init__(self, state, timeline_canvas, event, start_drag_time):
         ScrollViewInputHandler.__init__(self, timeline_canvas)
         self._state = state
-        self._main_frame = main_frame
-        self.timeline_canvas = timeline_canvas
-        self.status_bar = status_bar
         self.start_drag_time = start_drag_time
         self._store_event_periods(event)
-        self._transaction = self.timeline_canvas.GetDb().transaction(
-            "Move events"
-        )
+        self._transaction = self.timeline_canvas.GetDb().transaction("Move events")
 
     def _store_event_periods(self, event_being_dragged):
         self.event_periods = []
@@ -50,15 +45,15 @@ class MoveByDragInputHandler(ScrollViewInputHandler):
                     self.event_periods.append(period_pair)
         assert self.event_periods[0][0] == event_being_dragged
 
-    def mouse_moved(self, x, y, alt_down=False):
-        ScrollViewInputHandler.mouse_moved(self, x, y, alt_down)
+    def mouse_moved(self, cursor, keyboard):
+        ScrollViewInputHandler.mouse_moved(self, cursor, keyboard)
         self._move_event()
 
     def left_mouse_up(self):
         ScrollViewInputHandler.left_mouse_up(self)
-        self.status_bar.set_text("")
+        self._state.display_status("")
         self._transaction.commit()
-        self._main_frame.edit_ends()
+        self._state.edit_ends()
         self._state.change_to_no_op()
 
     def view_scrolled(self):
@@ -68,7 +63,7 @@ class MoveByDragInputHandler(ScrollViewInputHandler):
         if len(self.event_periods) == 0:
             return
         if self._any_event_locked():
-            self.status_bar.set_text(_("Can't move locked event"))
+            self._state.display_status(_("Can't move locked event"))
             return
         self._move_selected_events()
         self.timeline_canvas.Redraw()
@@ -99,8 +94,7 @@ class MoveByDragInputHandler(ScrollViewInputHandler):
 
     def _get_moved_delta(self):
         current_time = self.timeline_canvas.GetTimeAt(self.last_x)
-        delta = current_time - self.start_drag_time
-        return delta
+        return current_time - self.start_drag_time
 
     def _snap(self, period):
         start = period.start_time

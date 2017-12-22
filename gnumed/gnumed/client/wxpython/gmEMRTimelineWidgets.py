@@ -34,12 +34,6 @@ from Gnumed.exporters import gmTimelineExporter
 _log = logging.getLogger('gm.ui.tl')
 
 #============================================================
-#class cTLCursorDummy:
-#	def __init__(self, x, y):
-#		self.x = x
-#		self.y = y
-
-#------------------------------------------------------------
 from Gnumed.timelinelib.canvas.data import TimePeriod
 
 # activate experimental container features
@@ -69,7 +63,8 @@ class cEMRTimelinePnl(TimelineCanvas):
 		appearance.set_colorize_weekends(True)
 		appearance.set_display_checkmark_on_events_done(True)
 
-		#self.InitDragScroll(direction=wx.BOTH)
+		self.InitDragScroll(direction = wx.BOTH)
+		self.InitZoomSelect()
 		return
 		"""
             appearance.set_legend_visible(self.config.show_legend)
@@ -103,41 +98,55 @@ class cEMRTimelinePnl(TimelineCanvas):
 		self.Bind(wx.EVT_MOUSEWHEEL, self._on_mousewheel_action)
 		self.Bind(wx.EVT_MOTION, self._on_mouse_motion)
 		self.Bind(wx.EVT_LEFT_DCLICK, self._on_left_dclick)
-		#self.Bind(wx.EVT_LEFT_DOWN, self._on_left_down)
-		#self.Bind(wx.EVT_LEFT_UP, self._on_left_up)
+		self.Bind(wx.EVT_LEFT_DOWN, self._on_left_down)
+		self.Bind(wx.EVT_LEFT_UP, self._on_left_up)
+		self.Bind(wx.EVT_RIGHT_DOWN, self._on_right_down)
+		self.Bind(wx.EVT_RIGHT_UP, self._on_right_up)
 
         #self.Bind(wx.EVT_MIDDLE_DOWN, self._on_middle_down)
 
 	#--------------------------------------------------------
-	def _on_mouse_motion(self, event):
-		#cursor = cTLCursorDummy(event.GetX(), event.GetY())
-		#self.SetHoveredEvent(self.GetEventAt(cursor))
-		self.SetHoveredEvent(self.GetEventAt(event.GetX(), event.GetY()))
+	def _on_mouse_motion(self, evt):
+		# not scrolling or zooming:
+		self.DisplayBalloons(evt)
+
+		# in case we are drag-scrolling:
+		self.DragScroll(evt)
+
+		# in case we are drag-zooming:
+		self.DragZoom(evt)
 
 	#--------------------------------------------------------
-	def _on_mousewheel_action(self, event):
-		self.Scroll(event.GetWheelRotation() / 1200.0)
+	def _on_mousewheel_action(self, evt):
+		self.SpecialScrollVerticallyOnMouseWheel(evt)
 
 	#--------------------------------------------------------
 	def _on_left_dclick(self, evt):
-		self.CenterAtCursor(evt.GetX())
+		self.CenterAtCursor(evt)
 
-#	#--------------------------------------------------------
-#	def _on_left_down(self, evt):
-#		self.StartDragScroll(evt)
-#	def _on_motion(self, evt):
-#		self.DragScroll(evt)
-#	def _on_left_up(self, evt):
-#		self.StopDragScroll()
+	#--------------------------------------------------------
+	def _on_left_down(self, evt):
+		self.StartDragScroll(evt)
+
+	#--------------------------------------------------------
+	def _on_left_up(self, evt):
+		self.StopDragScroll()
+
+	#--------------------------------------------------------
+	def _on_right_down(self, evt):
+		self.StartZoomSelect(evt)
+
+	#--------------------------------------------------------
+	def _on_right_up(self, evt):
+		# right down-up sequence w/o mouse motion leads to
+		# cannot zoom in deeper than 1 minute
+		try:
+			self.StopDragZoom()
+		except ValueError:
+			_log.exception('drag-zoom w/o mouse motion')
 
 	#--------------------------------------------------------
 	# internal API
-	#--------------------------------------------------------
-	# remove with 1.17. !
-	def CenterAtCursor(self, x):
-		_time_at_cursor = self.GetTimeAt(x)
-		self.Navigate(lambda tp: tp.center(_time_at_cursor))
-
 	#--------------------------------------------------------
 	def center_at_today(self):
 		now = gmDateTime.pydt_now_here()
@@ -153,6 +162,7 @@ class cEMRTimelinePnl(TimelineCanvas):
 		from Gnumed.timelinelib.db import db_open
 		db = db_open(tl_file)
 		db.display_in_canvas(self)
+		self.fit_care_era()
 
 	#--------------------------------------------------------
 	def export_as_svg(self, filename=None):
@@ -170,7 +180,7 @@ class cEMRTimelinePnl(TimelineCanvas):
 
 	#--------------------------------------------------------
 	def fit_all_events(self):
-		all_events = self.get_timeline().get_all_events()
+		all_events = self.controller.get_timeline().get_all_events()
 		if len(all_events) == 0:
 			period4all_events = None
 		start = self._first_time(all_events)
@@ -192,11 +202,11 @@ class cEMRTimelinePnl(TimelineCanvas):
 	#--------------------------------------------------------
 	def _last_time(self, events):
 		end_time = lambda event: event.get_end_time()
-		return end_time(max(events, key=end_time))
+		return end_time(max(events, key = end_time))
 
 	#--------------------------------------------------------
 	def fit_care_era(self):
-		all_eras = self.get_timeline().get_all_eras()
+		all_eras = self.controller.get_timeline().get_all_eras()
 		care_era = [ e for e in all_eras if e.name == gmTimelineExporter.ERA_NAME_CARE_PERIOD ][0]
 		era_period = care_era.time_period
 		if era_period.is_period():
@@ -263,7 +273,6 @@ class cEMRTimelinePluginPnl(wxgEMRTimelinePluginPnl.wxgEMRTimelinePluginPnl, gmR
 	def _on_print_button_pressed(self, event):
 		if self.__tl_file is None:
 			return
-		#tl_image_file = self._PNL_timeline.export_as_svg()
 		tl_image_file = self._PNL_timeline.export_as_png()
 		gmMimeLib.call_viewer_on_file(aFile = tl_image_file, block = None)
 

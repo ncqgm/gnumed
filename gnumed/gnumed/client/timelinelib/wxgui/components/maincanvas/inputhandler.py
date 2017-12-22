@@ -20,30 +20,16 @@ class InputHandler(object):
 
     def __init__(self, timeline_canvas):
         self.timeline_canvas = timeline_canvas
+        self._canvas = timeline_canvas
 
-    def left_mouse_down(self, x, y, ctrl_down, shift_down, alt_down=False):
+    def left_mouse_down(self, cursor, keyboard):
         pass
 
-    def mouse_moved(self, x, y, alt_down=False):
+    def mouse_moved(self, cursor, keyboard):
         pass
 
     def left_mouse_up(self):
         pass
 
-    def left_mouse_dclick(self, x, y, ctrl_down, alt_down=False):
-        pass
-
-    def middle_mouse_down(self, x):
-        pass
-
-    def mouse_wheel_moved(self, rotation, ctrl_down, shift_down, alt_down, x):
-        pass
-
     def dragscroll_timer_fired(self):
-        pass
-
-    def balloon_show_timer_fired(self):
-        pass
-
-    def balloon_hide_timer_fired(self):
         pass

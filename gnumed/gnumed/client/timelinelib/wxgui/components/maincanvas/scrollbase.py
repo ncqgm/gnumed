@@ -32,9 +32,9 @@ class ScrollViewInputHandler(InputHandler):
         InputHandler.__init__(self, timeline_canvas)
         self.timer_running = False
 
-    def mouse_moved(self, x, y, alt_down=False):
-        self.last_x = x
-        if self._in_scroll_zone(x) and not self.timer_running:
+    def mouse_moved(self, cursor, keyboard):
+        self.last_x = cursor.x
+        if self._in_scroll_zone(cursor.x) and not self.timer_running:
             self.timeline_canvas.start_dragscroll_timer(milliseconds=DRAGSCROLL_TIMER_MSINTERVAL)
             self.timer_running = True
 

@@ -20,7 +20,6 @@ import wx
 
 from timelinelib.canvas.appearance import Appearance
 from timelinelib.canvas.backgrounddrawers.defaultbgdrawer import DefaultBackgroundDrawer
-from timelinelib.canvas.data.exceptions import TimelineIOError
 from timelinelib.canvas.drawing import get_drawer
 from timelinelib.canvas.drawing.viewproperties import ViewProperties
 from timelinelib.canvas.eventboxdrawers.defaulteventboxdrawer import DefaultEventBoxDrawer
@@ -41,17 +40,18 @@ class TimelineCanvasController(object):
         self.appearance = None
         self.monitoring = Monitoring()
         self.view = view
-        if drawer is not None:
-            self.drawing_algorithm = drawer
-        else:
-            self.drawing_algorithm = get_drawer()
+        self._set_drawing_algorithm(drawer)
         self.timeline = None
         self.set_appearance(Appearance())
         self.set_event_box_drawer(DefaultEventBoxDrawer())
         self.set_background_drawer(self.get_saved_background_drawer())
-        self.drawing_algorithm.use_fast_draw(False)
+        self._fast_draw = False
         self._set_initial_values_to_member_variables()
         self._set_colors_and_styles()
+
+    @property
+    def scene(self):
+        return self.drawing_algorithm.scene
 
     def get_appearance(self):
         return self.appearance
@@ -72,9 +72,6 @@ class TimelineCanvasController(object):
     def set_background_drawer(self, drawer):
         self.drawing_algorithm.set_background_drawer(drawer)
 
-    def get_drawer(self):
-        return self.drawing_algorithm
-
     def get_timeline(self):
         return self.timeline
 
@@ -90,7 +87,7 @@ class TimelineCanvasController(object):
             self._set_non_null_timeline(timeline)
 
     def use_fast_draw(self, value):
-        self.drawing_algorithm.use_fast_draw(value)
+        self._fast_draw = value
 
     def navigate(self, navigation_fn):
         old_period = self.view_properties.displayed_period
@@ -174,19 +171,99 @@ class TimelineCanvasController(object):
     def event_at(self, x, y, alt_down=False):
         return self.drawing_algorithm.event_at(x, y, alt_down)
 
+    def set_selected(self, event, is_selected):
+        self.view_properties.set_selected(event, is_selected)
+
+    def clear_selected(self):
+        self.view_properties.clear_selected()
+
+    def select_all_events(self):
+        self.view_properties.select_all_events()
+
     def is_selected(self, event):
         return self.view_properties.is_selected(event)
 
+    def set_hovered_event(self, event):
+        self.view_properties.change_hovered_event(event)
+
+    def get_hovered_event(self):
+        return self.view_properties.hovered_event
+
+    def set_selection_rect(self, cursor):
+        self.view_properties.set_selection_rect(cursor.rect)
+        self._fast_draw = True
+        self.redraw_timeline()
+
+    def remove_selection_rect(self):
+        self.view_properties.set_selection_rect(None)
+        self._fast_draw = True
+        self.redraw_timeline()
+
+    def get_hscroll_amount(self):
+        return self.view_properties.hscroll_amount
+
+    def set_hscroll_amount(self, amount):
+        self.view_properties.hscroll_amount = amount
+
+    def set_period_selection(self, period):
+        if period is None:
+            self.view_properties.period_selection = None
+        else:
+            self.view_properties.period_selection = (period.start_time, period.end_time)
+        self._redraw_timeline()
+
+    def select_events_in_rect(self, rect):
+        self.view_properties.set_all_selected(self.get_events_in_rect(rect))
+
+    def event_has_sticky_balloon(self, event):
+        return self.view_properties.event_has_sticky_balloon(event)
+
+    def set_event_sticky_balloon(self, event, is_sticky):
+        self.view_properties.set_event_has_sticky_balloon(event, is_sticky)
+        self.redraw_timeline()
+
+    def add_highlight(self, event, clear):
+        self.view_properties.add_highlight(event, clear)
+
+    def tick_highlights(self):
+        self.view_properties.tick_highlights(limit=15)
+
+    def has_higlights(self):
+        return self.view_properties.has_higlights()
+
+    def filter_events(self, events):
+        return self.view_properties.filter_events(events)
+
     def event_is_period(self, event):
-        return self.get_drawer().event_is_period(event.get_time_period())
+        return self.drawing_algorithm.event_is_period(event.get_time_period())
 
     def snap(self, time):
-        return self.get_drawer().snap(time)
+        return self.drawing_algorithm.snap(time)
 
     def get_selected_events(self):
         return self.timeline.find_event_with_ids(
             self.view_properties.get_selected_event_ids()
         )
+
+    def get_events_in_rect(self, rect):
+        return self.drawing_algorithm.get_events_in_rect(rect)
+
+    def get_hidden_event_count(self):
+        return self.drawing_algorithm.get_hidden_event_count()
+
+    def increment_font_size(self):
+        self.drawing_algorithm.increment_font_size()
+        self._redraw_timeline()
+
+    def decrement_font_size(self):
+        self.drawing_algorithm.decrement_font_size()
+        self._redraw_timeline()
+
+    def get_closest_overlapping_event(self, event, up):
+        return self.drawing_algorithm.get_closest_overlapping_event(event, up=up)
+
+    def balloon_at(self, cursor):
+        return self.drawing_algorithm.balloon_at(*cursor.pos)
 
     def _timeline_changed(self, state_change):
         self._redraw_timeline()
@@ -219,13 +296,39 @@ class TimelineCanvasController(object):
 
         def fn_draw(dc):
             self.monitoring.timer_start()
-            self.drawing_algorithm.draw(dc, self.timeline, self.view_properties, self.appearance)
+            self.drawing_algorithm.draw(dc, self.timeline, self.view_properties, self.appearance, fast_draw=self._fast_draw)
             self.monitoring.timer_end()
             if DEBUG_ENABLED:
                 display_monitor_result(dc)
-            self.drawing_algorithm.use_fast_draw(False)
+            self._fast_draw = False
 
         if self.timeline and self.view_properties.displayed_period:
             self.view_properties.divider_position = (float(self.view.GetDividerPosition()) / 100.0)
             self.view.redraw_surface(fn_draw)
             self.view.PostEvent(create_timeline_redrawn_event())
+
+    def _set_drawing_algorithm(self, drawer):
+        """
+        The drawer interface:
+            methods:
+                draw(d, t, p, a, f)
+                set_event_box_drawer(d)
+                set_background_drawer(d)
+                get_time(x)
+                event_with_rect_at(x, y, k)
+                event_at(x, y, k)
+                event_is_period(p)
+                snap(t)
+                get_events_in_rect(r)
+                get_hidden_event_count()
+                increment_font_size()
+                decrement_font_size()
+                get_closest_overlapping_event(...)
+                balloon_at(c)
+            properties:
+                scene
+        """
+        if drawer is not None:
+            self.drawing_algorithm = drawer
+        else:
+            self.drawing_algorithm = get_drawer()

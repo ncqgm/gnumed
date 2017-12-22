@@ -30,6 +30,7 @@ from timelinelib.features.experimental.experimentalfeatures import EXTENDED_CONT
 from timelinelib.wxgui.components.font import Font
 import timelinelib.wxgui.components.font as font
 from timelinelib.canvas.drawing.drawers.legenddrawer import LegendDrawer
+from wx import BRUSHSTYLE_TRANSPARENT
 
 
 OUTER_PADDING = 5  # Space between event boxes (pixels)
@@ -49,7 +50,6 @@ class DefaultDrawingAlgorithm(Drawer):
         self.event_text_font = Font(8)
         self._create_pens()
         self._create_brushes()
-        self.fast_draw = False
         self._fixed_ys = {}
 
     def set_event_box_drawer(self, event_box_drawer):
@@ -102,7 +102,8 @@ class DefaultDrawingAlgorithm(Drawer):
     def get_closest_overlapping_event(self, event_to_move, up=True):
         return self.scene.get_closest_overlapping_event(event_to_move, up=up)
 
-    def draw(self, dc, timeline, view_properties, appearance):
+    def draw(self, dc, timeline, view_properties, appearance, fast_draw=False):
+        self.fast_draw = fast_draw
         view_properties.hide_events_done = appearance.get_hide_events_done()
         view_properties.legend_pos = appearance.get_legend_pos()
         view_properties.set_fuzzy_icon(appearance.get_fuzzy_icon())
@@ -149,7 +150,8 @@ class DefaultDrawingAlgorithm(Drawer):
             self._fixed_ys[evt.id] = rect.GetY()
 
     def _perform_drawing(self, timeline, view_properties):
-        self.background_drawer.draw(self, self.dc, self.scene, timeline, self.colorize_weekends, self.weekend_color, self.bg_color)
+        self.background_drawer.draw(
+            self, self.dc, self.scene, timeline, self.colorize_weekends, self.weekend_color, self.bg_color)
         if self.fast_draw:
             self._perform_fast_drawing(view_properties)
         else:
@@ -158,6 +160,13 @@ class DefaultDrawingAlgorithm(Drawer):
     def _perform_fast_drawing(self, view_properties):
         self._draw_bg()
         self._draw_events(view_properties)
+        self._draw_selection_rect(view_properties)
+
+    def _draw_selection_rect(self, view_properties):
+        if view_properties._selection_rect:
+            self.dc.SetPen(wx.BLACK_PEN)
+            self.dc.SetBrush(wx.Brush(wx.WHITE, style=BRUSHSTYLE_TRANSPARENT))
+            self.dc.DrawRectangle(*view_properties._selection_rect)
 
     def _perform_normal_drawing(self, view_properties):
         self._draw_period_selection(view_properties)
@@ -202,6 +211,8 @@ class DefaultDrawingAlgorithm(Drawer):
     def event_at(self, x, y, alt_down=False):
         container_event = None
         for (event, rect) in self.scene.event_data:
+            if event.is_container():
+                rect = self._adjust_container_rect_for_hittest(rect)
             if rect.Contains(wx.Point(x, y)):
                 if event.is_container():
                     if alt_down:
@@ -210,6 +221,16 @@ class DefaultDrawingAlgorithm(Drawer):
                 else:
                     return event
         return container_event
+
+    def get_events_in_rect(self, rect):
+        wx_rect = wx.Rect(*rect)
+        return [event for (event, rect) in self.scene.event_data if rect.Intersects(wx_rect)]
+
+    def _adjust_container_rect_for_hittest(self, rect):
+        if EXTENDED_CONTAINER_HEIGHT.enabled():
+            return EXTENDED_CONTAINER_HEIGHT.get_vertical_larger_box_rect(rect)
+        else:
+            return rect
 
     def event_with_rect_at(self, x, y, alt_down=False):
         container_event = None
@@ -303,7 +324,8 @@ class DefaultDrawingAlgorithm(Drawer):
                 bold = True
             if self.time_type.is_special_day(strip_period.start_time):
                 italic = True
-            font.set_minor_strip_text_font(self.appearance.get_minor_strip_font(), self.dc, force_bold=bold, force_normal=not bold, force_italic=italic, force_upright=not italic)
+            font.set_minor_strip_text_font(self.appearance.get_minor_strip_font(), self.dc,
+                                           force_bold=bold, force_normal=not bold, force_italic=italic, force_upright=not italic)
         else:
             font.set_minor_strip_text_font(self.appearance.get_minor_strip_font(), self.dc)
 

@@ -121,7 +121,6 @@ class Container(Event):
 create_noop_property(Container, "fuzzy", False)
 create_noop_property(Container, "locked", False)
 create_noop_property(Container, "ends_today", False)
-create_noop_property(Container, "description", None)
 create_noop_property(Container, "icon", None)
 create_noop_property(Container, "hyperlink", None)
 create_noop_property(Container, "alert", None)

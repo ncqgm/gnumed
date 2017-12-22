@@ -132,7 +132,7 @@ class EditMilestoneDialog(Dialog):
         evt.Skip()
 
 
-def open_milestone_editor_for(parent, config, db, event=None):
+def open_milestone_editor_for(edit_controller, parent, config, db, event=None):
 
     def create_milestone_editor():
         if event is None:
@@ -145,4 +145,4 @@ def open_milestone_editor_for(parent, config, db, event=None):
         dialog = create_milestone_editor()
         dialog.ShowModal()
         dialog.Destroy()
-    safe_locking(parent, edit_function)
+    safe_locking(edit_controller, edit_function)

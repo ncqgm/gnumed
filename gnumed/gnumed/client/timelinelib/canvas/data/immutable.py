@@ -73,6 +73,7 @@ class ImmutableContainer(ImmutableRecord):
     text = Field(None)
     category_id = Field(None)
     time_period = Field(None)
+    description = Field(None)
 
 
 class ImmutableDB(ImmutableRecord):

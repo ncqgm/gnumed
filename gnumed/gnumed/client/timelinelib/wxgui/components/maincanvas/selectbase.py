@@ -16,16 +16,25 @@
 # along with Timeline.  If not, see <http://www.gnu.org/licenses/>.
 
 
-import os.path
+from timelinelib.wxgui.components.maincanvas.inputhandler import InputHandler
 
 
-_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
-_ROOT = _ROOT.decode("utf-8")
-_ICONROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-_ICONROOT = _ICONROOT.decode("utf-8")
-ICONS_DIR = os.path.join(_ICONROOT, u"tlicons")
-EVENT_ICONS_DIR = os.path.join(_ICONROOT, u"tlicons", u"event_icons")
-#ICONS_DIR = os.path.join(_ROOT, u"icons")
-#EVENT_ICONS_DIR = os.path.join(_ROOT, u"icons", u"event_icons")
-LOCALE_DIR = os.path.join(_ROOT, u"translations")
-HELP_RESOURCES_DIR = os.path.join(_ROOT, u"help_resources")
+class SelectBase(InputHandler):
+
+    def __init__(self, timeline_canvas, cursor):
+        self._cursor = cursor
+        InputHandler.__init__(self, timeline_canvas)
+
+    def mouse_moved(self, cursor, keyboard):
+        self._cursor.move(*cursor.pos)
+        self.timeline_canvas.DrawSelectionRect(self._cursor)
+
+    def left_mouse_up(self):
+        self.timeline_canvas.RemoveSelectionRect()
+        self._state.change_to_no_op()
+        self.end_action()
+
+    def dragscroll_timer_fired(self):
+        if self._cursor.has_moved():
+            self.timeline_canvas.DrawSelectionRect(self._cursor.start, self._cursor.pos)
+            self._cursor.reset_move()

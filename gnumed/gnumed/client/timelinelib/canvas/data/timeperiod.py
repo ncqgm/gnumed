@@ -37,6 +37,10 @@ class TimePeriod(object):
     def end_time(self):
         return self._end_time
 
+    @property
+    def start_and_end_time(self):
+        return self._start_time, self._end_time
+
     def __eq__(self, other):
         return (isinstance(other, TimePeriod) and
                 self.start_time == other.start_time and

@@ -22,17 +22,16 @@ from timelinelib.wxgui.components.maincanvas.scrollbase import ScrollViewInputHa
 
 class SelectPeriodByDragInputHandler(ScrollViewInputHandler):
 
-    def __init__(self, state, timeline_canvas, main_frame, initial_time):
+    def __init__(self, state, timeline_canvas, initial_time):
         ScrollViewInputHandler.__init__(self, timeline_canvas)
         self._state = state
-        self._main_frame = main_frame
         self.timeline_canvas = timeline_canvas
         self.initial_time = initial_time
         self.last_valid_time = initial_time
         self.current_time = initial_time
 
-    def mouse_moved(self, x, y, alt_down=False):
-        ScrollViewInputHandler.mouse_moved(self, x, y, alt_down)
+    def mouse_moved(self, cursor, keyboard):
+        ScrollViewInputHandler.mouse_moved(self, cursor, keyboard)
         self._move_current_time()
 
     def view_scrolled(self):
@@ -72,7 +71,7 @@ class SelectPeriodByDragInputHandler(ScrollViewInputHandler):
         self.end_action()
         self._remove_selection()
         self._state.change_to_no_op()
-        self._main_frame.edit_ends()
+        self._state.edit_ends()
 
     def _remove_selection(self):
         self.timeline_canvas.SetPeriodSelection(None)

@@ -26,7 +26,7 @@ class Drawer(object):
     Draw timeline onto a device context and provide information about drawing.
     """
 
-    def draw(self, dc, timeline, view_properties, config):
+    def draw(self, dc, timeline, view_properties, config, fast_draw=False):
         """
         Draw a representation of a timeline.
 
@@ -38,9 +38,6 @@ class Drawer(object):
         When the dc is temporarily stored in a class variable such as self.dc,
         this class variable must be deleted before the draw method ends.
         """
-
-    def use_fast_draw(self, value):
-        self.fast_draw = value
 
     def event_is_period(self, time_period):
         """

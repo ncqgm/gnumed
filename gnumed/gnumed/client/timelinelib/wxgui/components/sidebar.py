@@ -23,8 +23,8 @@ from timelinelib.wxgui.components.categorytree import CustomCategoryTree
 
 class Sidebar(wx.Panel):
 
-    def __init__(self, main_frame, parent):
-        self.main_frame = main_frame
+    def __init__(self, edit_controller, parent):
+        self._edit_controller = edit_controller
         wx.Panel.__init__(self, parent, style=wx.BORDER_NONE)
         self.Hide()
         self._create_gui()
@@ -43,10 +43,10 @@ class Sidebar(wx.Panel):
         self.Bind(wx.EVT_CHECKBOX, self._cbx_on_click, self.cbx_toggle_cat_view)
 
     def ok_to_edit(self):
-        return self.main_frame.ok_to_edit()
+        return self._edit_controller.ok_to_edit()
 
     def edit_ends(self):
-        return self.main_frame.edit_ends()
+        return self._edit_controller.edit_ends()
 
     def _cbx_on_click(self, evt):
         from timelinelib.wxgui.frames.mainframe.mainframe import CatsViewChangedEvent

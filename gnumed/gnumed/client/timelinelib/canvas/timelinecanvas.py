@@ -20,6 +20,9 @@ import wx
 
 from timelinelib.canvas.events import create_divider_position_changed_event
 from timelinelib.canvas.timelinecanvascontroller import TimelineCanvasController
+from timelinelib.wxgui.keyboard import Keyboard
+from timelinelib.wxgui.cursor import Cursor
+from timelinelib.canvas.data import TimePeriod
 
 
 MOVE_HANDLE = 0
@@ -31,6 +34,7 @@ HSCROLL_STEP = 25
 
 
 class TimelineCanvas(wx.Panel):
+
     """
     This is the surface on which a timeline is drawn. It is also the object that handles user
     input events such as mouse and keyboard actions.
@@ -44,6 +48,8 @@ class TimelineCanvas(wx.Panel):
         self.SetDividerPosition(50)
         self._highlight_timer = wx.Timer(self)
         self.Bind(wx.EVT_TIMER, self._on_highlight_timer, self._highlight_timer)
+        self._last_balloon_event = None
+        self._waiting = False
 
     def GetAppearance(self):
         return self.controller.get_appearance()
@@ -60,61 +66,63 @@ class TimelineCanvas(wx.Panel):
         self.controller.redraw_timeline()
 
     def GetHiddenEventCount(self):
-        return self.controller.drawing_algorithm.get_hidden_event_count()
+        return self.controller.get_hidden_event_count()
 
     def Scroll(self, factor):
         self.Navigate(lambda tp: tp.move_delta(-tp.delta() * factor))
+
+    def DrawSelectionRect(self, cursor):
+        self.controller.set_selection_rect(cursor)
+
+    def RemoveSelectionRect(self):
+        self.controller.remove_selection_rect()
 
     def UseFastDraw(self, use):
         self.controller.use_fast_draw(use)
         self.Redraw()
 
     def GetHScrollAmount(self):
-        return self.controller.view_properties.hscroll_amount
+        return self.controller.get_hscroll_amount()
 
     def SetHScrollAmount(self, amount):
-        self.controller.view_properties.hscroll_amount = amount
+        self.controller.set_hscroll_amount(amount)
 
     def IncrementEventTextFont(self):
-        self.controller.drawing_algorithm.increment_font_size()
+        self.controller.increment_font_size()
 
     def DecrementEventTextFont(self):
-        self.controller.drawing_algorithm.decrement_font_size()
+        self.controller.decrement_font_size()
 
     def SetPeriodSelection(self, period):
-        if period is None:
-            self.controller.view_properties.period_selection = None
-        else:
-            self.controller.view_properties.period_selection = (period.start_time, period.end_time)
-        self.controller._redraw_timeline()
+        self.controller.set_period_selection(period)
 
     def Snap(self, time):
-        return self.controller.get_drawer().snap(time)
+        return self.controller.snap(time)
 
     def PostEvent(self, event):
         wx.PostEvent(self, event)
 
     def SetEventBoxDrawer(self, event_box_drawer):
         self.controller.set_event_box_drawer(event_box_drawer)
-        self.redraw_timeline()
+        self.Redraw()
 
     def SetEventSelected(self, event, is_selected):
-        self.controller.view_properties.set_selected(event, is_selected)
+        self.controller.set_selected(event, is_selected)
 
     def ClearSelectedEvents(self):
-        self.controller.view_properties.clear_selected()
+        self.controller.clear_selected()
 
     def SelectAllEvents(self):
-        self.controller.view_properties.select_all_events()
+        self.controller.select_all_events()
 
     def IsEventSelected(self, event):
         return self.controller.is_selected(event)
 
     def SetHoveredEvent(self, event):
-        self.controller.view_properties.change_hovered_event(event)
+        self.controller.set_hovered_event(event)
 
     def GetHoveredEvent(self):
-        return self.controller.view_properties.hovered_event
+        return self.controller.get_hovered_event
 
     def GetSelectedEvent(self):
         selected_events = self.GetSelectedEvents()
@@ -126,19 +134,31 @@ class TimelineCanvas(wx.Panel):
         return self.controller.get_selected_events()
 
     def GetClosestOverlappingEvent(self, event, up):
-        return self.controller.drawing_algorithm.get_closest_overlapping_event(event, up=up)
+        return self.controller.get_closest_overlapping_event(event, up=up)
 
     def GetTimeType(self):
-        return self.get_timeline().get_time_type()
+        return self.GetDb().get_time_type()
 
     def GetDb(self):
-        return self.get_timeline()
+        return self.controller.get_timeline()
 
-    def GetEventAt(self, x, y, prefer_container=False):
-        return self.controller.drawing_algorithm.event_at(x, y, prefer_container)
+    def IsReadOnly(self):
+        return self.GetDb().is_read_only()
 
-    def GetEventWithHitInfoAt(self, x, y, prefer_container=False):
-        event_and_rect = self.controller.event_with_rect_at(x, y, prefer_container)
+    def GetEventAtCursor(self, prefer_container=False):
+        cursor = Cursor(*self.ScreenToClient(wx.GetMousePosition()))
+        return self.GetEventAt(cursor, prefer_container)
+
+    def GetEventAt(self, cursor, prefer_container=False):
+        return self.controller.event_at(cursor.x, cursor.y, prefer_container)
+
+    def SelectEventsInRect(self, rect):
+        self.controller.select_events_in_rect(rect)
+
+    def GetEventWithHitInfoAt(self, cursor, keyboard=Keyboard()):
+        x, y = cursor.pos
+        prefer_container = keyboard
+        event_and_rect = self.controller.event_with_rect_at(x, y, prefer_container.alt)
         if event_and_rect is not None:
             event, rect = event_and_rect
             center = rect.X + rect.Width / 2
@@ -150,21 +170,21 @@ class TimelineCanvas(wx.Panel):
                 return (event, RIGHT_RESIZE_HANDLE)
         return None
 
-    def GetBalloonAt(self, x, y):
-        return self.controller.drawing_algorithm.balloon_at(x, y)
+    def GetBalloonAtCursor(self):
+        cursor = Cursor(*self.ScreenToClient(wx.GetMousePosition()))
+        return self.controller.balloon_at(cursor)
+
+    def GetBalloonAt(self, cursor):
+        return self.controller.balloon_at(cursor)
 
     def EventHasStickyBalloon(self, event):
-        return self.controller.view_properties.event_has_sticky_balloon(event)
+        return self.controller.event_has_sticky_balloon(event)
 
     def SetEventStickyBalloon(self, event, is_sticky):
-        self.controller.view_properties.set_event_has_sticky_balloon(event, is_sticky)
-        self.redraw_timeline()
+        self.controller.set_event_sticky_balloon(event, is_sticky)
 
     def GetTimeAt(self, x):
         return self.controller.get_time(x)
-
-    def get_timeline(self):
-        return self.controller.get_timeline()
 
     def set_timeline(self, timeline):
         self.controller.set_timeline(timeline)
@@ -177,12 +197,12 @@ class TimelineCanvas(wx.Panel):
 
     def SaveAsSvg(self, path):
         from timelinelib.canvas.svg import export
-        export(path, self.controller.get_timeline(), self.controller.get_drawer().scene,
-               self.controller.view_properties, self.GetAppearance())
+        export(path, self.controller.get_timeline(), self.controller.scene,
+               self.controller.get_view_properties(), self.GetAppearance())
 
     def get_filtered_events(self, search_target):
-        events = self.get_timeline().search(search_target)
-        return self.get_view_properties().filter_events(events)
+        events = self.GetDb().search(search_target)
+        return self.controller.filter_events(events)
 
     def get_time_period(self):
         return self.controller.get_time_period()
@@ -191,13 +211,10 @@ class TimelineCanvas(wx.Panel):
         self.controller.navigate(navigation_fn)
 
     def Redraw(self):
-        self.redraw_timeline()
+        self.controller.redraw_timeline()
 
     def EventIsPeriod(self, event):
         return self.controller.event_is_period(event)
-
-    def redraw_timeline(self):
-        self.controller.redraw_timeline()
 
     def redraw_surface(self, fn_draw):
         width, height = self.GetSizeTuple()
@@ -231,24 +248,23 @@ class TimelineCanvas(wx.Panel):
     def zoom_out(self):
         self.Zoom(-1, self._get_half_width())
 
-    def vert_zoom_in(self):
-        self.ZoomVertically(1)
-
-    def vert_zoom_out(self):
-        self.ZoomVertically(-1)
-
     def Zoom(self, direction, x):
         """ zoom time line at position x """
         width, _ = self.GetSizeTuple()
         x_percent_of_width = float(x) / width
         self.Navigate(lambda tp: tp.zoom(direction, x_percent_of_width))
 
+    def VertZoomIn(self):
+        self.ZoomVertically(1)
+
+    def VertZoomOut(self):
+        self.ZoomVertically(-1)
+
     def ZoomVertically(self, direction):
         if direction > 0:
             self.IncrementEventTextFont()
         else:
             self.DecrementEventTextFont()
-        self.Redraw()
 
     def Scrollvertically(self, direction):
         if direction > 0:
@@ -256,6 +272,221 @@ class TimelineCanvas(wx.Panel):
         else:
             self._scroll_down()
         self.Redraw()
+
+    # ----(Helper functions simplifying usage of timeline component)--------
+
+    def SetStartTime(self, evt):
+        self._start_time = self.GetTimeAt(evt.GetX())
+
+    def _direction(self, evt):
+        rotation = evt.GetWheelRotation()
+        return 1 if rotation > 0 else -1 if rotation < 0 else 0
+
+    def ZoomHorizontallyOnMouseWheel(self, evt):
+        self.Zoom(self._direction(evt), evt.GetX())
+
+    def ZoomVerticallyOnMouseWheel(self, evt):
+        if self._direction(evt) > 0:
+            self.IncrementEventTextFont()
+        else:
+            self.DecrementEventTextFont()
+
+    def ScrollHorizontallyOnMouseWheel(self, evt):
+        self.Scroll(evt.GetWheelRotation() / 1200.0)
+
+    def ScrollVerticallyOnMouseWheel(self, evt):
+        self.SetDividerPosition(self.GetDividerPosition() + self._direction(evt))
+
+    def SpecialScrollVerticallyOnMouseWheel(self, evt):
+        self.Scrollvertically(self._direction(evt))
+
+    def DisplayBalloons(self, evt):
+
+        def cursor_has_left_event():
+            # TODO: Can't figure out why self.GetEventAtCursor() returns None
+            # in this situation. The LeftDown check saves us for the moment.
+            if wx.GetMouseState().LeftIsDown():
+                return False
+            else:
+                return self.GetEventAtCursor() != self._last_balloon_event
+
+        def no_balloon_at_cursor():
+            return not self.GetBalloonAtCursor()
+
+        def update_last_seen_event():
+            if self._last_balloon_event is None:
+                self._last_balloon_event = self.GetEventAtCursor()
+            elif cursor_has_left_event() and no_balloon_at_cursor():
+                self._last_balloon_event = None
+            return self._last_balloon_event
+
+        def delayed_call():
+            self.SetHoveredEvent(self._last_balloon_event)
+            self._waiting = False
+
+        # Same delay as when we used timers
+        # Don't issue call when in wait state, to avoid flicker
+        if not self._waiting:
+            update_last_seen_event()
+            self._wating = True
+            wx.CallLater(500, delayed_call)
+
+    def GetTimelineInfoText(self, evt):
+
+        def format_current_pos_time_string(x):
+            tm = self.GetTimeAt(x)
+            return self.GetTimeType().format_period(TimePeriod(tm, tm))
+
+        event = self.GetEventAtCursor()
+        if event:
+            return event.get_label(self.GetTimeType())
+        else:
+            return format_current_pos_time_string(evt.GetX())
+
+    def SetCursorShape(self, evt):
+
+        def get_cursor():
+            return Cursor(evt.GetX(), evt.GetY())
+
+        def get_keyboard():
+            return Keyboard(evt.ControlDown(), evt.ShiftDown(), evt.AltDown())
+
+        def hit_resize_handle():
+            try:
+                event, hit_info = self.GetEventWithHitInfoAt(get_cursor(), get_keyboard())
+                if event.get_locked():
+                    return None
+                if event.is_milestone():
+                    return None
+                if not self.IsEventSelected(event):
+                    return None
+                if hit_info == LEFT_RESIZE_HANDLE:
+                    return wx.LEFT
+                if hit_info == RIGHT_RESIZE_HANDLE:
+                    return wx.RIGHT
+                return None
+            except:
+                return None
+
+        def hit_move_handle():
+            event_and_hit_info = self.GetEventWithHitInfoAt(get_cursor(), get_keyboard())
+            if event_and_hit_info is None:
+                return False
+            (event, hit_info) = event_and_hit_info
+            if event.get_locked():
+                return False
+            if not self.IsEventSelected(event):
+                return False
+            return hit_info == MOVE_HANDLE
+
+        def over_resize_handle():
+            return hit_resize_handle() is not None
+
+        def over_move_handle():
+            return hit_move_handle() and not self.GetEventAtCursor(False).get_ends_today()
+
+        if over_resize_handle():
+            self.set_size_cursor()
+        elif over_move_handle():
+            self.set_move_cursor()
+        else:
+            self.set_default_cursor()
+
+    def CenterAtCursor(self, evt):
+        _time_at_cursor = self.GetTimeAt(evt.GetX())
+        self.Navigate(lambda tp: tp.center(_time_at_cursor))
+
+    def ToggleEventSelection(self, evt):
+
+        def get_cursor():
+            return Cursor(evt.GetX(), evt.GetY())
+
+        event = self.GetEventAt(get_cursor(), evt.AltDown())
+        if event:
+            self.SetEventSelected(event, not self.IsEventSelected(event))
+
+    def InitDragScroll(self, direction=wx.HORIZONTAL):
+        self._scrolling = False
+        self._scrolling_direction = direction
+
+    def StartDragScroll(self, evt):
+        self._scrolling = True
+        self._drag_scroll_start_time = self.GetTimeAt(evt.GetX())
+        self._start_mouse_pos = evt.GetY()
+        self._start_divider_pos = self.GetDividerPosition()
+
+    def DragScroll(self, evt):
+        if self._scrolling:
+            if self._scrolling_direction in (wx.HORIZONTAL, wx.BOTH):
+                delta = self._drag_scroll_start_time - self.GetTimeAt(evt.GetX())
+                self.Navigate(lambda tp: tp.move_delta(delta))
+            if self._scrolling_direction in (wx.VERTICAL, wx.BOTH):
+                percentage_distance = 100 * float(evt.GetY() - self._start_mouse_pos) / float(self.GetSize()[1])
+                new_pos = self._start_divider_pos + percentage_distance
+                self.SetDividerPosition(new_pos)
+
+    def StopDragScroll(self):
+        self._scrolling = False
+
+    def InitDragSelect(self):
+        self._selecting = False
+
+    def StartDragSelect(self, evt):
+        self._selecting = True
+        self._cursor = self.GetCursor(evt)
+
+    def DragSelect(self, evt):
+        if self._selecting:
+            cursor = self.GetCursor(evt)
+            self._cursor.move(*cursor.pos)
+            self.DrawSelectionRect(self._cursor)
+
+    def GetCursor(self, evt):
+        return Cursor(evt.GetX(), evt.GetY())
+
+    def StopDragSelect(self):
+        if self._selecting:
+            self.SelectEventsInRect(self._cursor.rect)
+            self.RemoveSelectionRect()
+            self._selecting = False
+
+    def InitZoomSelect(self):
+        self._zooming = False
+
+    def StartZoomSelect(self, evt):
+        self._zooming = True
+        self._start_time = self.GetTimeAt(evt.GetX())
+        self._end_time = self.GetTimeAt(evt.GetX())
+
+    def DragZoom(self, evt):
+        if self._zooming:
+            self._end_time = self.GetTimeAt(evt.GetX())
+            self.SetPeriodSelection(TimePeriod(self._start_time, self._end_time))
+
+    def StopDragZoom(self):
+        self._zooming = False
+        self.SetPeriodSelection(None)
+        self.Navigate(lambda tp: tp.update(self._start_time, self._end_time))
+
+    def InitDragPeriodSelect(self):
+        self._period_select = False
+
+    def StartDragPeriodSelect(self, evt):
+        self._period_select = True
+        self._start_time = self.GetTimeAt(evt.GetX())
+        self._end_time = self.GetTimeAt(evt.GetX())
+
+    def DragPeriodSelect(self, evt):
+        if self._period_select:
+            self._end_time = self.GetTimeAt(evt.GetX())
+            self.SetPeriodSelection(TimePeriod(self._start_time, self._end_time))
+
+    def StopDragPeriodSelect(self):
+        self._period_select = False
+        self.SetPeriodSelection(None)
+        return self._start_time, self._end_time
+
+    # ------------
 
     def _scroll_up(self):
         self.SetHScrollAmount(max(0, self.GetHScrollAmount() - HSCROLL_STEP))
@@ -288,12 +519,12 @@ class TimelineCanvas(wx.Panel):
         self.controller.window_resized()
 
     def highligt_event(self, event, clear=False):
-        self.controller.view_properties.add_highlight(event, clear=clear)
+        self.controller.add_highlight(event, clear)
         if not self._highlight_timer.IsRunning():
             self._highlight_timer.Start(milliseconds=180)
 
     def _on_highlight_timer(self, evt):
-        self.redraw_timeline()
-        self.controller.view_properties.tick_highlights(limit=15)
-        if not self.controller.view_properties.has_higlights():
+        self.Redraw()
+        self.controller.tick_highlights()
+        if not self.controller.has_higlights():
             self._highlight_timer.Stop()

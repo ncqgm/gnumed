@@ -82,6 +82,9 @@ class MainFrame(wx.Frame, guic.GuiCreator, MainFrameApiUsedByController):
     def DisplayErrorMessage(self, message):
         display_error_message(message, parent=self)
 
+    def DisplayStatus(self, message):
+        self.status_bar_adapter.set_text(message)
+
     # API:s used by time types
     def week_starts_on_monday(self):
         return self.controller.week_starts_on_monday()
@@ -232,7 +235,11 @@ class MainFrame(wx.Frame, guic.GuiCreator, MainFrameApiUsedByController):
     def _window_on_close(self, event):
         self.timer.stop()
         self._save_application_config()
-        self.save_current_timeline_data()
+        try:
+            if self.ok_to_edit():
+                self.save_current_timeline_data()
+        finally:
+            self.edit_ends()
         self.Destroy()
 
     def _save_application_config(self):

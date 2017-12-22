@@ -124,7 +124,7 @@ class MainPanel(wx.Panel):
     def _show_new_timeline(self, timeline):
         self.timeline_panel.SetDb(timeline)
         canvas = self.get_timeline_canvas()
-        self.category_tree.set_timeline_view(canvas.get_timeline(), canvas.get_view_properties())
+        self.category_tree.set_timeline_view(canvas.GetDb(), canvas.get_view_properties())
         self.set_searchbar_timeline_canvas(canvas)
         self.show_timeline_panel()
         canvas.SetDropTarget(FileDropTarget(canvas))

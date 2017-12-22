@@ -16,25 +16,16 @@
 # along with Timeline.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from timelinelib.wxgui.components.maincanvas.periodbase import SelectPeriodByDragInputHandler
-from timelinelib.wxgui.dialogs.editevent.view import open_create_event_editor
+from timelinelib.wxgui.components.maincanvas.selectbase import SelectBase
 
 
-class CreatePeriodEventByDragInputHandler(SelectPeriodByDragInputHandler):
+class SelectEventsInputHandler(SelectBase):
 
-    def __init__(self, state, view, config, initial_time):
-        SelectPeriodByDragInputHandler.__init__(self, state, view, initial_time)
-        self._config = config
-
-        self._state.display_status(_("Select region for event"))
+    def __init__(self, state, timeline_canvas, cursor):
+        SelectBase.__init__(self, timeline_canvas, cursor)
+        self._state = state
+        self._state.display_status(_("Select events"))
 
     def end_action(self):
         self._state.display_status("")
-        start, end = self.get_last_valid_period().start_and_end_time
-        open_create_event_editor(
-            self._state,
-            self.timeline_canvas,
-            self._config,
-            self.timeline_canvas.GetDb(),
-            start,
-            end)
+        self.timeline_canvas.SelectEventsInRect(self._cursor.rect)

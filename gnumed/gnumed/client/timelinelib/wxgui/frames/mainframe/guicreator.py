@@ -269,10 +269,10 @@ class GuiCreator(object):
             DrawingAreaProxy(self).zoom_out()
 
         def vert_zoomin(evt):
-            DrawingAreaProxy(self).vert_zoom_in()
+            DrawingAreaProxy(self).VertZoomIn()
 
         def vert_zoomout(evt):
-            DrawingAreaProxy(self).vert_zoom_out()
+            DrawingAreaProxy(self).VertZoomOut()
 
         def start_slide_show(evt):
             canvas = self.main_panel.get_timeline_canvas()
@@ -390,7 +390,7 @@ class GuiCreator(object):
     def _create_timeline_menu(self):
 
         def create_event(evt):
-            open_create_event_editor(self, self.config, self.timeline)
+            open_create_event_editor(self, self, self.config, self.timeline)
 
         def edit_event(evt):
             try:
@@ -411,7 +411,7 @@ class GuiCreator(object):
             open_duplicate_event_dialog_for_event(self, self.timeline, event)
 
         def create_milestone(evt):
-            open_milestone_editor_for(self, self.config, self.timeline)
+            open_milestone_editor_for(self, self, self.config, self.timeline)
 
         def set_categoryon_selected(evt):
 
@@ -469,7 +469,8 @@ class GuiCreator(object):
                       None,
                       (ID_MEASURE_DISTANCE, measure_distance, _("&Measure Distance between two Events..."), cbx),
                       None,
-                      (ID_SET_CATEGORY_ON_WITHOUT, set_category_on_without, _("Set Category on events &without category..."), cbx),
+                      (ID_SET_CATEGORY_ON_WITHOUT, set_category_on_without,
+                       _("Set Category on events &without category..."), cbx),
                       (ID_EDIT_CATEGORIES, edit_categories, _("Edit &Categories"), cbx),
                       None,
                       (ID_EDIT_ERAS, edit_eras, _("Edit Era's..."), cbx),
@@ -581,15 +582,15 @@ class GuiCreator(object):
         self._create_main_menu_bar()
 
     def _create_timeline_context_menu(self):
-            menu = wx.Menu()
-            menu_bar = self._file_menu.GetMenuBar()
-            menu.AppendMenu(wx.ID_ANY, menu_bar.GetMenuLabel(0), self._file_menu)
-            menu.AppendMenu(wx.ID_ANY, menu_bar.GetMenuLabel(1), self._edit_menu)
-            menu.AppendMenu(wx.ID_ANY, menu_bar.GetMenuLabel(2), self._view_menu)
-            menu.AppendMenu(wx.ID_ANY, menu_bar.GetMenuLabel(3), self._timeline_menu)
-            menu.AppendMenu(wx.ID_ANY, menu_bar.GetMenuLabel(4), self._navigate_menu)
-            menu.AppendMenu(wx.ID_ANY, menu_bar.GetMenuLabel(5), self._help_menu)
-            return menu
+        menu = wx.Menu()
+        menu_bar = self._file_menu.GetMenuBar()
+        menu.AppendMenu(wx.ID_ANY, menu_bar.GetMenuLabel(0), self._file_menu)
+        menu.AppendMenu(wx.ID_ANY, menu_bar.GetMenuLabel(1), self._edit_menu)
+        menu.AppendMenu(wx.ID_ANY, menu_bar.GetMenuLabel(2), self._view_menu)
+        menu.AppendMenu(wx.ID_ANY, menu_bar.GetMenuLabel(3), self._timeline_menu)
+        menu.AppendMenu(wx.ID_ANY, menu_bar.GetMenuLabel(4), self._navigate_menu)
+        menu.AppendMenu(wx.ID_ANY, menu_bar.GetMenuLabel(5), self._help_menu)
+        return menu
 
     def _create_menu(self, items_spec):
         menu = wx.Menu()

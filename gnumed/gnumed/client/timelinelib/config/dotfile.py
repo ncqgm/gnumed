@@ -86,7 +86,8 @@ class Config(Observable):
 
     def read(self):
         """Read settings from file specified in constructor."""
-        self.config_parser.read(self.path)
+        if self.path:
+            self.config_parser.read(self.path)
 
     def write(self):
         """

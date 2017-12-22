@@ -135,7 +135,7 @@ class MainFrameController(object):
         displayed_period = vp.get_displayed_period()
         self.open_timeline(self._timelinepath, save_current_data=False)
         vp.set_displayed_period(displayed_period)
-        timeline_canvas.redraw_timeline()
+        timeline_canvas.Redraw()
 
     def select_all(self):
         timeline_canvas = self._main_frame.main_panel.timeline_panel.timeline_canvas

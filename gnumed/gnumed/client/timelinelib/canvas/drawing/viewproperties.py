@@ -48,6 +48,7 @@ class ViewProperties(Observable):
         self._hide_events_done = False
         self._all_events = []
         self._event_highlight_counters = {}
+        self._selection_rect = None
 
     def is_highlighted(self, event):
         return event.get_id() in self._event_highlight_counters
@@ -137,6 +138,9 @@ class ViewProperties(Observable):
             self.hovered_event = event
             self._notify()
 
+    def set_selection_rect(self, rect):
+        self._selection_rect = rect
+
     def change_view_cats_individually(self, view_cats_individually):
         if self.view_cats_individually != view_cats_individually:
             self.view_cats_individually = view_cats_individually
@@ -192,6 +196,12 @@ class ViewProperties(Observable):
         elif is_selected is False and event.get_id() in self.selected_event_ids:
             self.selected_event_ids.remove(event.get_id())
             self._notify()
+
+    def set_all_selected(self, events):
+        for event in events:
+            if not event.get_id() in self.selected_event_ids:
+                self.selected_event_ids.append(event.get_id())
+        self._notify()
 
     def set_only_selected(self, event, is_selected):
         if is_selected:

@@ -215,12 +215,20 @@ class TimelineScene(object):
             rect.Deflate(self._outer_padding, self._outer_padding)
 
     def _create_ideal_rect_for_event(self, event):
-        if event.get_ends_today():
+        self._reset_ends_today_when_start_date_is_in_future(event)
+        if event.ends_today:
             event.set_end_time(self._db.get_time_type().now())
         if self._display_as_period(event):
             return self._calc_ideal_rect_for_period_event(event)
         else:
             return self._calc_ideal_rect_for_non_period_event(event)
+
+    def _reset_ends_today_when_start_date_is_in_future(self, event):
+        if event.ends_today and self._start_date_is_in_future(event):
+            event.ends_today = False
+
+    def _start_date_is_in_future(self, event):
+        return event.get_time_period().start_time > self._db.get_time_type().now()
 
     def _display_as_period(self, event):
         return self._metrics.calc_width(event.get_time_period()) > self._period_threshold
@@ -415,9 +423,9 @@ class TimelineScene(object):
     def _get_list_with_overlapping_subevents(self, subevent, event_rect):
         ls = [(event, rect) for (event, rect) in self.event_data
               if (event.is_subevent() and
-              event.container is subevent.container and
-              self._rects_overlap(event_rect, rect) and
-              rect.Y >= self.divider_y)]
+                  event.container is subevent.container and
+                  self._rects_overlap(event_rect, rect) and
+                  rect.Y >= self.divider_y)]
         return ls
 
     def _adjust_point_rect(self, event_rect):

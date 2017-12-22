@@ -130,11 +130,12 @@ class DuplicateEventDialog(Dialog):
         gui_utils.set_default_cursor(self)
 
 
-def open_duplicate_event_dialog_for_event(parent, db, event):
+def open_duplicate_event_dialog_for_event(edit_controller, parent, db, event):
     def create_dialog():
         return DuplicateEventDialog(parent, db, event)
+
     def edit_function():
         dialog = create_dialog()
         dialog.ShowModal()
         dialog.Destroy()
-    safe_locking(parent, edit_function)
+    safe_locking(edit_controller, edit_function)
