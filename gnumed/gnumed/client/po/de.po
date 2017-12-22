@@ -5,8 +5,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-12-22 12:19+0100\n"
-"PO-Revision-Date: 2017-12-22 12:25+0100\n"
+"POT-Creation-Date: 2017-12-22 14:46+0100\n"
+"PO-Revision-Date: 2017-12-22 15:01+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "Language: de_DE\n"
@@ -773,11 +773,20 @@ msgstr ""
 msgid "Select Icon"
 msgstr "Wählen Sie ein Icon"
 
+msgid "Select region for event"
+msgstr ""
+
 msgid "Select region to zoom into"
 msgstr "Bereich zum vergrößern wählen"
 
+msgid "Resize events"
+msgstr ""
+
 msgid "Can't move locked event"
 msgstr "Kann fixiertes Ereignis nicht verschieben"
+
+msgid "Select events"
+msgstr ""
 
 msgid "Add new"
 msgstr "Neues Ereignis hinzufügen"
