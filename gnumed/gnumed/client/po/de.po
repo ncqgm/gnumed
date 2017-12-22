@@ -5,8 +5,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-12-22 14:46+0100\n"
-"PO-Revision-Date: 2017-12-22 15:01+0100\n"
+"POT-Creation-Date: 2017-12-22 15:03+0100\n"
+"PO-Revision-Date: 2017-12-22 15:05+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "Language: de_DE\n"
@@ -205,7 +205,7 @@ msgid "File '%s' exists. Overwrite?"
 msgstr "Datei '%s' existiert. Überschreiben ?"
 
 msgid "Export to Listbox..."
-msgstr ""
+msgstr "In ein neues Fenster als Auflistung exportieren"
 
 msgid "Unable to copy to clipboard."
 msgstr "Kann nicht in die Zwischenablage kopieren."
@@ -292,7 +292,7 @@ msgstr ""
 "              "
 
 msgid "Extend Container height"
-msgstr ""
+msgstr "Erweitere Containerhöhe"
 
 msgid ""
 "\n"
@@ -369,7 +369,7 @@ msgid "Firun"
 msgstr "Firun"
 
 msgid "Tsa"
-msgstr ""
+msgstr "Tsa"
 
 msgid "Phex"
 msgstr "Phex"
@@ -414,7 +414,7 @@ msgid "PHE"
 msgstr "PHE"
 
 msgid "PER"
-msgstr ""
+msgstr "PER"
 
 msgid "ING"
 msgstr "ING"
@@ -423,7 +423,7 @@ msgid "RAH"
 msgstr "RAH"
 
 msgid "NL"
-msgstr ""
+msgstr "NL"
 
 msgid "Open &Now Date Editor"
 msgstr ""
@@ -486,7 +486,7 @@ msgid "Year"
 msgstr "Jahr"
 
 msgid "Change Now Date"
-msgstr ""
+msgstr "Aktuelles Datum ändern"
 
 msgid "Go to Date"
 msgstr "Zu bestimmtem Datum springen"
@@ -702,7 +702,7 @@ msgid "Mark Event as Done"
 msgstr "Ereignis als \"Erledigt\" markieren"
 
 msgid "Select Category..."
-msgstr ""
+msgstr "Kategorie auswählen …"
 
 msgid "Sticky Balloon"
 msgstr "Haftende Blase"
@@ -730,7 +730,7 @@ msgstr ""
 "Speichern als."
 
 msgid "This timeline is not being saved."
-msgstr ""
+msgstr "Der Zeitstrahl wird nicht gespeichert."
 
 msgid "To save this timeline, save it to a new file: File -> Save As."
 msgstr ""
@@ -753,7 +753,7 @@ msgid "Progress %:"
 msgstr "Fortschritt %:"
 
 msgid "&Append"
-msgstr ""
+msgstr "&Hinzufügen"
 
 msgid "&Remove"
 msgstr "&Entfernen"
@@ -795,7 +795,7 @@ msgid "Edit categories"
 msgstr "Kategorien bearbeiten"
 
 msgid "Choose file"
-msgstr ""
+msgstr "Datei auswählen"
 
 msgid "Add Container"
 msgstr "Behälter hinzufügen"
@@ -804,19 +804,19 @@ msgid "View Categories Individually"
 msgstr "Kategorien individuell betrachten"
 
 msgid "Add an Era"
-msgstr ""
+msgstr "Epoche hinzufügen"
 
 msgid "Edit an Era"
-msgstr ""
+msgstr "Epoche ändern"
 
 msgid "Edit Era's"
-msgstr ""
+msgstr "Epochen ändern"
 
 msgid "CSV File"
-msgstr ""
+msgstr "CSV-Datei"
 
 msgid "Invalid Data"
-msgstr ""
+msgstr "Ungültige Daten"
 
 msgid "At least one Export Item must be selected"
 msgstr "Es muss mindestens ein Exportobjekt ausgewählt werden"
@@ -843,25 +843,25 @@ msgid "Select Export File Type"
 msgstr "Typ der Exportdatei auswählen"
 
 msgid "Select Text Encoding"
-msgstr ""
+msgstr "Textkodierung auswählen"
 
 msgid "Select encoding error strategy"
 msgstr ""
 
 msgid "Select Items to export"
-msgstr ""
+msgstr "Zu exportierende Objekte auswählen"
 
 msgid "Select Fields..."
-msgstr ""
+msgstr "Felder auswählen …"
 
 msgid "Export Timeline"
-msgstr ""
+msgstr "Zeitstrahl exportieren"
 
 msgid "Select Event Fields"
-msgstr ""
+msgstr "Ereignisfelder auswählen"
 
 msgid "Select Category Fields"
-msgstr ""
+msgstr "Kategoriefelder auswählen"
 
 msgid "You can't save a milestone with an invalid date/time"
 msgstr ""
@@ -879,7 +879,7 @@ msgid "Category:"
 msgstr "Kategorie:"
 
 msgid "Colour:"
-msgstr ""
+msgstr "Farbe:"
 
 msgid "Create Milestone"
 msgstr ""
@@ -898,10 +898,10 @@ msgid "Color:"
 msgstr "Farbe:"
 
 msgid "Progress Color:"
-msgstr ""
+msgstr "Farbe für Fortschrittsbalken"
 
 msgid "Done Color:"
-msgstr ""
+msgstr "Farbe für abgeschlossene Aufgaben"
 
 msgid "Font Color:"
 msgstr "Zeichenfarbe:"
@@ -958,19 +958,19 @@ msgid "Choose what type of timeline you want to create."
 msgstr "Wähle den Typ ded zu erzeugenden Zeitstrahls"
 
 msgid "Create new timeline"
-msgstr ""
+msgstr "Neuen Zeitstrahl erstellen"
 
 msgid "System version:"
-msgstr ""
+msgstr "Systemversion"
 
 msgid "Python version:"
-msgstr ""
+msgstr "Python-Version:"
 
 msgid "wxPython version:"
 msgstr ""
 
 msgid "Locale setting:"
-msgstr ""
+msgstr "Lokale Einstellungen:"
 
 msgid "Locale date format:"
 msgstr "Lokales Datumsformat:"
@@ -979,30 +979,30 @@ msgid "Configuration file:"
 msgstr ""
 
 msgid "System Information"
-msgstr ""
+msgstr "Systeminformation"
 
 msgid "File does not exist."
-msgstr ""
+msgstr "Datei ist nicht vorhanden!"
 
 #, python-format
 msgid "Unable to load events: %s."
-msgstr ""
+msgstr "Ereignisse können nicht geladen werden: %s."
 
 #, python-format
 msgid "%d events will be imported."
 msgstr "%d Ereignisse werden importiert."
 
 msgid "The selected timeline has a different time type."
-msgstr ""
+msgstr "Der ausgewählte Zeitstrahl hat einen anderen Zeit-Typ."
 
 msgid "Select timeline to import from:"
-msgstr ""
+msgstr "Wähle zu importierenden Zeitstrahl"
 
 msgid "Timeline files"
 msgstr "Zeitstrahl-Dateien"
 
 msgid "Import events"
-msgstr ""
+msgstr "Ereignisse importieren"
 
 msgid "Check"
 msgstr "Auswählen"
@@ -1056,22 +1056,22 @@ msgid "Found Events"
 msgstr "Gefundene Erreignisse"
 
 msgid "Date format:"
-msgstr ""
+msgstr "Datumsformat:"
 
 msgid "Locale Date format:"
 msgstr "Lokales Datumsformat:"
 
 msgid "Set Date format"
-msgstr ""
+msgstr "Datumsformat festlegen"
 
 msgid "Era Properties"
-msgstr ""
+msgstr "Ära-Eigenschaften"
 
 msgid "Ends today"
 msgstr "Endet heute"
 
 msgid "Current"
-msgstr ""
+msgstr "Aktuell"
 
 msgid "General"
 msgstr "Allgemein"
@@ -1086,7 +1086,7 @@ msgid "Never show period Events as point Events"
 msgstr "Zeitspannen-Ereignisse nie als Punkt-Ereignisse zeigen"
 
 msgid "Center Event texts"
-msgstr ""
+msgstr "Ereignistext zentrieren"
 
 msgid "Uncheck time checkbox for new events"
 msgstr "Zeitfeld Checkbox neuer Ereignisse nicht auswählen"
@@ -1098,7 +1098,7 @@ msgid "Select Event Editor Tab Order"
 msgstr ""
 
 msgid "Select Date format"
-msgstr ""
+msgstr "Datumsformat wählen"
 
 msgid "Date && Time"
 msgstr "Zeitpunkt"
@@ -1116,7 +1116,7 @@ msgid "Fonts"
 msgstr "Schriften"
 
 msgid "Colours"
-msgstr ""
+msgstr "Farben"
 
 msgid "Major Strips:"
 msgstr "Hauptspalten:"
@@ -1128,19 +1128,19 @@ msgid "Balloons:"
 msgstr ""
 
 msgid "Icons"
-msgstr ""
+msgstr "Symbole für Ereignisse"
 
 msgid "Fuzzy icon"
-msgstr ""
+msgstr "Symbol für ungenaue Ereigniszeiten"
 
 msgid "Locked icon"
-msgstr ""
+msgstr "Symbol für gesperrte Ereignisse"
 
 msgid "Hyperlink icon"
-msgstr ""
+msgstr "Symbol für Ereignisse mit Hyper/Weblinks"
 
 msgid "Legends:"
-msgstr ""
+msgstr "Legenden:"
 
 msgid "Experimental Features"
 msgstr "Experimentelle Funktionen"
@@ -1152,16 +1152,16 @@ msgid "Major strip divider line:"
 msgstr "Teilungslinie für Hauptspalten:"
 
 msgid "Now line:"
-msgstr ""
+msgstr "Jetztlinie:"
 
 msgid "Weekends:"
-msgstr ""
+msgstr "Wochenenden:"
 
 msgid "Background"
 msgstr ""
 
 msgid "Vertical space between Events (px)"
-msgstr ""
+msgstr "Vertikaler Abstand zwischen Ereignissen (px)"
 
 msgid "Colorize weekends"
 msgstr "Wochenenden einfärben"
@@ -1194,7 +1194,7 @@ msgid "Preferences"
 msgstr "Voreinstellungen"
 
 msgid "Select Fields to Export"
-msgstr ""
+msgstr "Wähle Felder zum Exportieren"
 
 msgid "Number of duplicates:"
 msgstr "Anzahl duplicate:"
@@ -1217,7 +1217,7 @@ msgstr ""
 "%d Ereignisse konnten aufgrund fehlender Daten nicht dupliziert werden."
 
 msgid "Shortcut is saved"
-msgstr ""
+msgstr "Tastenkürzel wurde gespeichert"
 
 msgid "Both Modifier and Shortcut key must be given!"
 msgstr "Sowohl das Attribut als auch das Tastenkürzel muss angegeben werden!"
@@ -1245,7 +1245,7 @@ msgid "Feedback On Feature"
 msgstr "Rückmeldung zu Funktionen"
 
 msgid "Select Tab Order:"
-msgstr ""
+msgstr "Tabulatorreihenfolge wählen"
 
 msgid "Event Editor Tab Order"
 msgstr "Ereignis-Tabulator-Reihenfolge wählen"
@@ -1267,7 +1267,7 @@ msgid "Icon"
 msgstr "Bildchen"
 
 msgid "Default color"
-msgstr ""
+msgstr "Standardfarbe"
 
 msgid "Add more events after this one"
 msgstr "Weitere Ereignisse hinzufügen"
@@ -1279,7 +1279,7 @@ msgid "&Reduce"
 msgstr "&Verkleinern"
 
 msgid "Save and Duplicate"
-msgstr ""
+msgstr "Sichern und dublizieren"
 
 msgid "Edit Container"
 msgstr "Behälter bearbeiten"
@@ -1291,7 +1291,7 @@ msgid "Create Event"
 msgstr "Neues Ereignis eintragen"
 
 msgid "Import in event description"
-msgstr ""
+msgstr "Ereignisbeschreibung importieren"
 
 msgid "Use as start date of event"
 msgstr "Als Startdatum des Ereignisses nehmen"
@@ -1409,7 +1409,7 @@ msgid "Save As..."
 msgstr "Speichern als …"
 
 msgid "Import events..."
-msgstr ""
+msgstr "Ereignisse importieren …"
 
 msgid "Exit the program"
 msgstr "Programm beenden"
@@ -1451,10 +1451,10 @@ msgid "&Hide Events done"
 msgstr ""
 
 msgid "Toolbar"
-msgstr ""
+msgstr "Werkzeugleiste"
 
 msgid "Event appearance"
-msgstr ""
+msgstr "Ereignis-Ansicht"
 
 msgid "Point event alignment"
 msgstr "Ankerpunkt für Zeitpunkt-Ereignisse"
@@ -1481,7 +1481,7 @@ msgid "Create &Milestone..."
 msgstr ""
 
 msgid "&Compress timeline Events"
-msgstr ""
+msgstr "Ereignisse auf &Zeitstrahl komprimieren"
 
 msgid "&Measure Distance between two Events..."
 msgstr "&Zeit zwischen zwei Ereignissen messen"
@@ -1493,7 +1493,7 @@ msgid "Edit &Categories"
 msgstr "&Kategorien bearbeiten"
 
 msgid "Edit Era's..."
-msgstr ""
+msgstr "Epochen bearbeiten …"
 
 msgid "&Read Only"
 msgstr "&Nur lesbar"
@@ -1532,7 +1532,7 @@ msgid "Co&ntact"
 msgstr "&Kontakt"
 
 msgid "System information"
-msgstr ""
+msgstr "Systeminformationen"
 
 msgid "Gregorian"
 msgstr "Gregorianisch"
@@ -1548,7 +1548,7 @@ msgid ""
 msgstr "Erzeugt einen Zeitstrahl mit Nummern statt Daten auf der X-Achse."
 
 msgid "Directory"
-msgstr ""
+msgstr "Verzeichnis"
 
 msgid ""
 "This creates a timeline where the modification date of files in a directory "
@@ -1573,6 +1573,8 @@ msgstr "Hilfe"
 msgid ""
 "Could not find markdown Python package. It is needed by the help system."
 msgstr ""
+"Das Python-Paket »markdown« konnte nicht gefunden werden: es wird vom "
+"Hilfesystem benötigt."
 
 msgid "Go to home page"
 msgstr "Homepage von Timeline aufrufen"
@@ -2059,7 +2061,7 @@ msgstr ""
 "zugeordnet.\n"
 
 msgid "Add a user defined icon"
-msgstr ""
+msgstr "Eigene Symbole hinzufügen"
 
 msgid ""
 "\n"
@@ -2130,7 +2132,7 @@ msgid "Location"
 msgstr "Ort"
 
 msgid "Unable to read calendar data."
-msgstr ""
+msgstr "Lesen der Kalenderdaten nicht möglich"
 
 #, python-format
 msgid "Unable to read from file '%s'."
@@ -2302,7 +2304,7 @@ msgstr ""
 
 #, python-format
 msgid "Unable to read from filename '%s'."
-msgstr ""
+msgstr "Lesen von Dateiname »%s« nicht möglich."
 
 msgid ""
 "Invalid Date Format:\n"
