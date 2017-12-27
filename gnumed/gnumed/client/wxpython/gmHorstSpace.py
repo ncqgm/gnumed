@@ -6,7 +6,6 @@ originally suggested by Horst Herb.
 copyright: authors
 """
 #==============================================================================
-__version__ = "$Revision: 1.47 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -24,7 +23,7 @@ from Gnumed.business import gmPerson, gmPraxis
 
 
 _log = logging.getLogger('gm.ui')
-_log.info(__version__)
+
 #==============================================================================
 # finding the visible page from a notebook page: self.GetParent.GetCurrentPage == self
 class cHorstSpaceLayoutMgr(wx.Panel):
@@ -89,9 +88,10 @@ class cHorstSpaceLayoutMgr(wx.Panel):
 		#self.nb.Bind(wx.EVT_NOTEBOOK_PAGE_CHANGED, self._on_notebook_page_changed)
 		self.Bind(wx.EVT_NOTEBOOK_PAGE_CHANGED, self._on_notebook_page_changed, self.nb)
 		# - popup menu on right click in notebook
-		wx.EVT_RIGHT_UP(self.nb, self._on_right_click)
+		#wx.EVT_RIGHT_UP(self.nb, self._on_right_click)
 
 		gmDispatcher.connect(self._on_post_patient_selection, u'post_patient_selection')
+
 	#----------------------------------------------
 	def __load_plugins(self):
 
@@ -253,8 +253,6 @@ class cHorstSpaceLayoutMgr(wx.Panel):
 		if self.__target_page_already_checked:
 			_log.debug('target page (evt=%s, nb=%s) claims to have been checked for focussability already: %s', id_evt_page_after_switch, id_nb_page_after_switch, target_page)
 			target_page.receive_focus()
-			# activate toolbar of new page
-			#self.__gb['horstspace.top_panel'].ShowBar(target_page.__class__.__name__)
 			self.__target_page_already_checked = False
 			return
 
@@ -268,53 +266,52 @@ class cHorstSpaceLayoutMgr(wx.Panel):
 		if target_page.can_receive_focus():
 			_log.debug('we are lucky: target page *can* receive focus anyway')
 			target_page.receive_focus()
-			# activate toolbar of new page
-#			self.__gb['horstspace.top_panel'].ShowBar(target_page.__class__.__name__)
 			return
 
 		_log.error('target page cannot receive focus but too late for veto')
 		return
 
-	#----------------------------------------------
-	def _on_right_click(self, evt):
-		evt.Skip()
-		return
+#	#----------------------------------------------
+#	def _on_right_click(self, evt):
+#		evt.Skip()
+#		return
+#
+#		load_menu = wx.Menu()
+#		any_loadable = 0
+#		plugin_list = gmPlugin.GetPluginLoadList('gui')
+#		plugin = None
+#		for plugin_name in plugin_list:
+#			try:
+#				plugin = gmPlugin.instantiate_plugin('gui', plugin_name)
+#			except Exception:
+#				continue
+#			# not a plugin
+#			if not isinstance(plugin, gmPlugin.cNotebookPlugin):
+#				plugin = None
+#				continue
+#			# already loaded ?
+#			if plugin.__class__.__name__ in self.guibroker['horstspace.notebook.gui'].keys():
+#				plugin = None
+#				continue
+#			# add to load menu
+#			nid = wx.NewId()
+#			load_menu.AppendItem(wx.MenuItem(load_menu, nid, plugin.name()))
+#			wx.EVT_MENU(load_menu, nid, plugin.on_load)
+#			any_loadable = 1
+#		# make menus
+#		menu = wx.Menu()
+#		ID_LOAD = wx.NewId()
+#		ID_DROP = wx.NewId()
+#		if any_loadable:
+#			menu.AppendMenu(ID_LOAD, _('add plugin ...'), load_menu)
+#		plugins = self.guibroker['horstspace.notebook.gui']
+#		raised_plugin = plugins[self.nb.GetSelection()].name()
+#		menu.AppendItem(wx.MenuItem(menu, ID_DROP, "drop [%s]" % raised_plugin))
+#		wx.EVT_MENU (menu, ID_DROP, self._on_drop_plugin)
+#		self.PopupMenu(menu, evt.GetPosition())
+#		menu.Destroy()
+#		evt.Skip()
 
-		load_menu = wx.Menu()
-		any_loadable = 0
-		plugin_list = gmPlugin.GetPluginLoadList('gui')
-		plugin = None
-		for plugin_name in plugin_list:
-			try:
-				plugin = gmPlugin.instantiate_plugin('gui', plugin_name)
-			except Exception:
-				continue
-			# not a plugin
-			if not isinstance(plugin, gmPlugin.cNotebookPlugin):
-				plugin = None
-				continue
-			# already loaded ?
-			if plugin.__class__.__name__ in self.guibroker['horstspace.notebook.gui'].keys():
-				plugin = None
-				continue
-			# add to load menu
-			nid = wx.NewId()
-			load_menu.AppendItem(wx.MenuItem(load_menu, nid, plugin.name()))
-			wx.EVT_MENU(load_menu, nid, plugin.on_load)
-			any_loadable = 1
-		# make menus
-		menu = wx.Menu()
-		ID_LOAD = wx.NewId()
-		ID_DROP = wx.NewId()
-		if any_loadable:
-			menu.AppendMenu(ID_LOAD, _('add plugin ...'), load_menu)
-		plugins = self.guibroker['horstspace.notebook.gui']
-		raised_plugin = plugins[self.nb.GetSelection()].name()
-		menu.AppendItem(wx.MenuItem(menu, ID_DROP, "drop [%s]" % raised_plugin))
-		wx.EVT_MENU (menu, ID_DROP, self._on_drop_plugin)
-		self.PopupMenu(menu, evt.GetPosition())
-		menu.Destroy()
-		evt.Skip()
 	#----------------------------------------------		
 	def _on_drop_plugin(self, evt):
 		"""Unload plugin and drop from load list."""
@@ -323,6 +320,7 @@ class cHorstSpaceLayoutMgr(wx.Panel):
 		page.unregister()
 		self.nb.AdvanceSelection()
 		# FIXME:"dropping" means talking to configurator so not reloaded
+
 	#----------------------------------------------
 	def _on_hide_plugin (self, evt):
 		"""Unload plugin but don't touch configuration."""
@@ -330,9 +328,8 @@ class cHorstSpaceLayoutMgr(wx.Panel):
 		pages = self.guibroker['horstspace.notebook.pages']
 		page = pages[self.nb.GetSelection()]
 		page.unregister()
+
 #==============================================================================
 if __name__ == '__main__':
 	wx.InitAllImageHandlers()
 	pgbar = gmPluginLoadProgressBar(3)
-
-#==============================================================================

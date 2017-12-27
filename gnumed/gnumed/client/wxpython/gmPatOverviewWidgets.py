@@ -60,10 +60,14 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 
 		self.__init_ui()
 		self.__register_interests()
+
 	#--------------------------------------------------------
 	# internal API
 	#--------------------------------------------------------
 	def __init_ui(self):
+
+		#self._LCTRL_history.debug = u'LCTRL_history_sizing'
+
 		# left
 		self._LCTRL_identity.set_columns(columns = [u''])
 		self._LCTRL_identity.item_tooltip_callback = self._calc_identity_item_tooltip
@@ -78,13 +82,13 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		self._LCTRL_encounters.activate_callback = self._on_encounter_activated
 
 		# middle
-		self._LCTRL_problems.set_columns(columns = [u''])
-		self._LCTRL_problems.item_tooltip_callback = self._calc_problem_list_item_tooltip
-		self._LCTRL_problems.activate_callback = self._on_problem_activated
-
 		self._LCTRL_meds.set_columns(columns = [u''])
 		self._LCTRL_meds.item_tooltip_callback = self._calc_meds_list_item_tooltip
 		self._LCTRL_meds.activate_callback = self._on_meds_item_activated
+
+		self._LCTRL_problems.set_columns(columns = [u''])
+		self._LCTRL_problems.item_tooltip_callback = self._calc_problem_list_item_tooltip
+		self._LCTRL_problems.activate_callback = self._on_problem_activated
 
 		self._LCTRL_history.set_columns(columns = [u''])
 		self._LCTRL_history.item_tooltip_callback = self._calc_history_list_item_tooltip
@@ -102,12 +106,12 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		self._LCTRL_documents.set_columns(columns = [u''])
 		self._LCTRL_documents.item_tooltip_callback = self._calc_documents_list_item_tooltip
 		self._LCTRL_documents.activate_callback = self._on_document_activated
+
 	#--------------------------------------------------------
 	def __reset_ui_content(self):
 		self._LCTRL_identity.set_string_items()
 		self._LCTRL_contacts.set_string_items()
 		self._LCTRL_encounters.set_string_items()
-		self._PRW_encounter_range.SetText(value = u'', data = None)
 
 		self._LCTRL_problems.set_string_items()
 		self._LCTRL_meds.set_string_items()
@@ -116,6 +120,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		self._LCTRL_inbox.set_string_items()
 		self._LCTRL_results.set_string_items()
 		self._LCTRL_documents.set_string_items()
+
 	#-----------------------------------------------------
 	# event handling
 	#-----------------------------------------------------
@@ -140,26 +145,22 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 #		self.__pat.register_before_switching_from_patient_callback(callback = self._before_switching_from_patient_callback)
 #		gmDispatcher.send(signal = u'register_pre_exit_callback', callback = self._pre_exit_callback)
 
-		self._PRW_encounter_range.add_callback_on_selection(callback = self._on_encounter_range_selected)
-	#--------------------------------------------------------
-	def _on_encounter_range_selected(self, data):
-		wx.CallAfter(self.__refresh_encounters, patient = gmPerson.gmCurrentPatient())
 	#--------------------------------------------------------
 	def _on_pre_patient_unselection(self):
 		# only empty out here, do NOT access the patient
 		# or else we will access the old patient while it
 		# may not be valid anymore ...
 		self.__reset_ui_content()
+
 	#--------------------------------------------------------
 	def _on_post_patient_selection(self):
 		self._schedule_data_reget()
+
 	#--------------------------------------------------------
 	def _on_database_signal(self, **kwds):
 
 		pat = gmPerson.gmCurrentPatient()
 		if not pat.connected:
-			# probably not needed:
-			#self._schedule_data_reget()
 			return True
 
 		if kwds['pk_identity'] != pat.ID:
@@ -193,6 +194,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 			return True
 
 		return True
+
 	#-----------------------------------------------------
 	# reget-on-paint mixin API
 	#-----------------------------------------------------
@@ -488,11 +490,6 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 	#-----------------------------------------------------
 	def __refresh_encounters(self, patient=None):
 
-		cover_period = self._PRW_encounter_range.GetData()
-		if cover_period is None:
-			if self._PRW_encounter_range.GetValue().strip() != u'':
-				return
-
 		emr = patient.emr
 
 		list_items = []
@@ -545,18 +542,13 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 			)
 			list_data.append(last)
 
-		if cover_period is not None:
-			item = _('Last %s:') % self._PRW_encounter_range.GetValue().strip()
-			list_items.append(item)
-			list_data.append(_('Statistics cover period'))
-
-		encs = emr.get_encounter_stats_by_type(cover_period = cover_period)
+		encs = emr.get_encounter_stats_by_type()
 		for enc in encs:
 			item = u' %s x %s' % (enc['frequency'], enc['l10n_type'])
 			list_items.append(item)
 			list_data.append(item)
 
-		stays = emr.get_hospital_stay_stats_by_hospital(cover_period = cover_period)
+		stays = emr.get_hospital_stay_stats_by_hospital()
 		for stay in stays:
 			item = u' %s x %s' % (
 				stay['frequency'],
@@ -903,6 +895,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		if allg is False:
 			allg = None
 		return data.format(single_line = False, allergy = allg, show_all_product_components = True)
+
 	#-----------------------------------------------------
 	def _on_meds_item_activated(self, event):
 		data = self._LCTRL_meds.get_selected_item_data(only_one = True)
@@ -920,6 +913,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 			return
 
 		gmDispatcher.send(signal = 'display_widget', name = 'gmCurrentSubstancesPlugin')
+
 	#-----------------------------------------------------
 	#-----------------------------------------------------
 	def __refresh_contacts(self, patient=None):
@@ -1033,6 +1027,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 			)
 
 		return None
+
 	#-----------------------------------------------------
 	def _on_contacts_item_activated(self, event):
 		data = self._LCTRL_contacts.get_selected_item_data(only_one = True)
@@ -1142,6 +1137,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 			return tt
 
 		return None
+
 	#-----------------------------------------------------
 	def _on_problem_activated(self, event):
 		data = self._LCTRL_problems.get_selected_item_data(only_one = True)
@@ -1157,6 +1153,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 					return
 
 		gmDispatcher.send(signal = 'display_widget', name = 'gmEMRBrowserPlugin')
+
 	#-----------------------------------------------------
 	#-----------------------------------------------------
 	def __refresh_identity(self, patient=None):
@@ -1188,6 +1185,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 
 		self._LCTRL_identity.set_string_items(items = items)
 		self._LCTRL_identity.set_data(data = data)
+
 	#-----------------------------------------------------
 	def _calc_identity_item_tooltip(self, data):
 		if isinstance(data, gmPerson.cPersonName):
@@ -1207,6 +1205,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 				return tt + (u'\n\n' + _('Activities:\n\n%s') % val['activities'])
 
 		return None
+
 	#-----------------------------------------------------
 	def _on_identity_item_activated(self, event):
 		data = self._LCTRL_identity.get_selected_item_data(only_one = True)
@@ -1238,6 +1237,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 			if key == 'job':
 				gmDemographicsWidgets.edit_occupation()
 				return
+
 #============================================================
 # main
 #------------------------------------------------------------

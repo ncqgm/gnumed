@@ -1274,6 +1274,250 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 		self.Bind(wx.EVT_LIST_KEY_DOWN, self._on_list_key_down)		# context menu key -> context menu / DEL / INS
 
 	#------------------------------------------------------------
+	# debug sizing
+	#------------------------------------------------------------
+	def __log_sizing(self, caller_name, *args, **kwargs):
+		if self.debug is None:
+			return False
+		if not self.debug.endswith(u'_sizing'):
+			return False
+		_log.debug(u'[%s.%s]: *args = (%s), **kwargs = (%s)', self.debug, caller_name, unicode(args), unicode(kwargs))
+		return True
+
+	#------------------------------------------------------------
+	def CacheBestSize(self, *args, **kwargs):
+		self.__log_sizing(sys._getframe().f_code.co_name, *args, **kwargs)
+		return super(cReportListCtrl, self).CacheBestSize(*args, **kwargs)
+
+	#------------------------------------------------------------
+	def Fit(self, *args, **kwargs):
+		self.__log_sizing(sys._getframe().f_code.co_name, *args, **kwargs)
+		return super(cReportListCtrl, self).Fit(*args, **kwargs)
+
+	#------------------------------------------------------------
+	def FitInside(self, *args, **kwargs):
+		self.__log_sizing(sys._getframe().f_code.co_name, *args, **kwargs)
+		return super(cReportListCtrl, self).FitInside(*args, **kwargs)
+
+	#------------------------------------------------------------
+	def InvalidateBestSize(self, *args, **kwargs):
+		self.__log_sizing(sys._getframe().f_code.co_name, *args, **kwargs)
+		return super(cReportListCtrl, self).InvalidateBestSize(*args, **kwargs)
+
+	#------------------------------------------------------------
+	def SetBestFittingSize(self, *args, **kwargs):
+		self.__log_sizing(sys._getframe().f_code.co_name, *args, **kwargs)
+		return super(cReportListCtrl, self).SetBestFittingSize(*args, **kwargs)
+
+	#------------------------------------------------------------
+	def SetInitialSize(self, *args, **kwargs):
+		self.__log_sizing(sys._getframe().f_code.co_name, *args, **kwargs)
+		return super(cReportListCtrl, self).SetInitialSize(*args, **kwargs)
+
+	#------------------------------------------------------------
+	def SetClientSize(self, *args, **kwargs):
+		self.__log_sizing(sys._getframe().f_code.co_name, *args, **kwargs)
+		return super(cReportListCtrl, self).SetClientSize(*args, **kwargs)
+
+	#------------------------------------------------------------
+	def SetClientSizeWH(self, *args, **kwargs):
+		self.__log_sizing(sys._getframe().f_code.co_name, *args, **kwargs)
+		return super(cReportListCtrl, self).SetClientSizeWH(*args, **kwargs)
+
+	#------------------------------------------------------------
+	def SetMaxClientSize(self, *args, **kwargs):
+		self.__log_sizing(sys._getframe().f_code.co_name, *args, **kwargs)
+		return super(cReportListCtrl, self).SetMaxClientSize(*args, **kwargs)
+
+	#------------------------------------------------------------
+	def SetMaxSize(self, *args, **kwargs):
+		self.__log_sizing(sys._getframe().f_code.co_name, *args, **kwargs)
+		return super(cReportListCtrl, self).SetMaxSize(*args, **kwargs)
+
+	#------------------------------------------------------------
+	def SetMinClientSize(self, *args, **kwargs):
+		self.__log_sizing(sys._getframe().f_code.co_name, *args, **kwargs)
+		return super(cReportListCtrl, self).SetMinClientSize(*args, **kwargs)
+
+	#------------------------------------------------------------
+	def SetMinSize(self, *args, **kwargs):
+		self.__log_sizing(sys._getframe().f_code.co_name, *args, **kwargs)
+		return super(cReportListCtrl, self).SetMinSize(*args, **kwargs)
+
+	#------------------------------------------------------------
+	def SetSize(self, *args, **kwargs):
+		self.__log_sizing(sys._getframe().f_code.co_name, *args, **kwargs)
+		return super(cReportListCtrl, self).SetSize(*args, **kwargs)
+
+	#------------------------------------------------------------
+	def SetSizeHints(self, *args, **kwargs):
+		self.__log_sizing(sys._getframe().f_code.co_name, *args, **kwargs)
+		return super(cReportListCtrl, self).SetSizeHints(*args, **kwargs)
+
+	#------------------------------------------------------------
+	def SetSizeHintsSz(self, *args, **kwargs):
+		self.__log_sizing(sys._getframe().f_code.co_name, *args, **kwargs)
+		return super(cReportListCtrl, self).SetSizeHintsSz(*args, **kwargs)
+
+	#------------------------------------------------------------
+	def SetSizeWH(self, *args, **kwargs):
+		self.__log_sizing(sys._getframe().f_code.co_name, *args, **kwargs)
+		return super(cReportListCtrl, self).SetSizeWH(*args, **kwargs)
+
+	#------------------------------------------------------------
+	def SetVirtualSize(self, *args, **kwargs):
+		self.__log_sizing(sys._getframe().f_code.co_name, *args, **kwargs)
+		return super(cReportListCtrl, self).SetVirtualSize(*args, **kwargs)
+
+	#------------------------------------------------------------
+	def SetVirtualSizeHints(self, *args, **kwargs):
+		self.__log_sizing(sys._getframe().f_code.co_name, *args, **kwargs)
+		return super(cReportListCtrl, self).SetVirtualSizeHints(self, *args, **kwargs)
+
+	#------------------------------------------------------------
+	def SetVirtualSizeHintsSz(self, *args, **kwargs):
+		self.__log_sizing(sys._getframe().f_code.co_name, *args, **kwargs)
+		return super(cReportListCtrl, self).SetVirtualSizeHintsSz(*args, **kwargs)
+
+	#------------------------------------------------------------
+	def SetVirtualSizeWH(self, *args, **kwargs):
+		self.__log_sizing(sys._getframe().f_code.co_name, *args, **kwargs)
+		return super(cReportListCtrl, self).SetVirtualSizeWH(*args, **kwargs)
+
+	#------------------------------------------------------------
+	def GetAdjustedBestSize(self, *args, **kwargs):
+		res = super(cReportListCtrl, self).GetAdjustedBestSize(*args, **kwargs)
+		kwargs['sizing_function_result'] = res
+		self.__log_sizing(sys._getframe().f_code.co_name, *args, **kwargs)
+		return res
+
+	#------------------------------------------------------------
+	def GetEffectiveMinSize(self, *args, **kwargs):
+		res = super(cReportListCtrl, self).GetEffectiveMinSize(*args, **kwargs)
+		kwargs['sizing_function_result'] = res
+		self.__log_sizing(sys._getframe().f_code.co_name, *args, **kwargs)
+		return res
+
+	#------------------------------------------------------------
+	def GetBestSize(self, *args, **kwargs):
+		res = super(cReportListCtrl, self).GetBestSize(*args, **kwargs)
+		kwargs['sizing_function_result'] = res
+		self.__log_sizing(sys._getframe().f_code.co_name, *args, **kwargs)
+		return res
+
+	#------------------------------------------------------------
+	def GetBestSizeTuple(self, *args, **kwargs):
+		res = super(cReportListCtrl, self).GetBestSizeTuple(*args, **kwargs)
+		kwargs['sizing_function_result'] = res
+		self.__log_sizing(sys._getframe().f_code.co_name, *args, **kwargs)
+		return res
+
+	#------------------------------------------------------------
+	def GetBestVirtualSize(self, *args, **kwargs):
+		res = super(cReportListCtrl, self).GetBestVirtualSize(*args, **kwargs)
+		kwargs['sizing_function_result'] = res
+		self.__log_sizing(sys._getframe().f_code.co_name, *args, **kwargs)
+		return res
+
+	#------------------------------------------------------------
+	def GetClientSize(self, *args, **kwargs):
+		res = super(cReportListCtrl, self).GetClientSize(*args, **kwargs)
+		kwargs['sizing_function_result'] = res
+		self.__log_sizing(sys._getframe().f_code.co_name, *args, **kwargs)
+		return res
+
+	#------------------------------------------------------------
+	def GetClientSizeTuple(self, *args, **kwargs):
+		res = super(cReportListCtrl, self).GetClientSizeTuple(*args, **kwargs)
+		kwargs['sizing_function_result'] = res
+		self.__log_sizing(sys._getframe().f_code.co_name, *args, **kwargs)
+		return res
+
+	#------------------------------------------------------------
+	def GetMaxClientSize(self, *args, **kwargs):
+		res = super(cReportListCtrl, self).GetMaxClientSize(*args, **kwargs)
+		kwargs['sizing_function_result'] = res
+		self.__log_sizing(sys._getframe().f_code.co_name, *args, **kwargs)
+		return res
+
+	#------------------------------------------------------------
+	def GetMaxHeight(self, *args, **kwargs):
+		res = super(cReportListCtrl, self).GetMaxHeight(*args, **kwargs)
+		kwargs['sizing_function_result'] = res
+		self.__log_sizing(sys._getframe().f_code.co_name, *args, **kwargs)
+		return res
+
+	#------------------------------------------------------------
+	def GetMaxSize(self, *args, **kwargs):
+		res = super(cReportListCtrl, self).GetMaxSize(*args, **kwargs)
+		kwargs['sizing_function_result'] = res
+		self.__log_sizing(sys._getframe().f_code.co_name, *args, **kwargs)
+		return res
+
+	#------------------------------------------------------------
+	def GetMaxWidth(self, *args, **kwargs):
+		res = super(cReportListCtrl, self).GetMaxWidth(*args, **kwargs)
+		kwargs['sizing_function_result'] = res
+		self.__log_sizing(sys._getframe().f_code.co_name, *args, **kwargs)
+		return res
+
+	#------------------------------------------------------------
+	def GetMinClientSize(self, *args, **kwargs):
+		res = super(cReportListCtrl, self).GetMinClientSize(*args, **kwargs)
+		kwargs['sizing_function_result'] = res
+		self.__log_sizing(sys._getframe().f_code.co_name, *args, **kwargs)
+		return res
+
+	#------------------------------------------------------------
+	def GetMinHeight(self, *args, **kwargs):
+		res = super(cReportListCtrl, self).GetMinHeight(*args, **kwargs)
+		kwargs['sizing_function_result'] = res
+		self.__log_sizing(sys._getframe().f_code.co_name, *args, **kwargs)
+		return res
+
+	#------------------------------------------------------------
+	def GetMinSize(self, *args, **kwargs):
+		res = super(cReportListCtrl, self).GetMinSize(*args, **kwargs)
+		kwargs['sizing_function_result'] = res
+		self.__log_sizing(sys._getframe().f_code.co_name, *args, **kwargs)
+		return res
+
+	#------------------------------------------------------------
+	def GetMinWidth(self, *args, **kwargs):
+		res = super(cReportListCtrl, self).GetMinWidth(*args, **kwargs)
+		kwargs['sizing_function_result'] = res
+		self.__log_sizing(sys._getframe().f_code.co_name, *args, **kwargs)
+		return res
+
+	#------------------------------------------------------------
+	def GetSize(self, *args, **kwargs):
+		res = super(cReportListCtrl, self).GetSize(*args, **kwargs)
+		kwargs['sizing_function_result'] = res
+		self.__log_sizing(sys._getframe().f_code.co_name, *args, **kwargs)
+		return res
+
+	#------------------------------------------------------------
+	def GetSizeTuple(self, *args, **kwargs):
+		res = super(cReportListCtrl, self).GetSizeTuple(*args, **kwargs)
+		kwargs['sizing_function_result'] = res
+		self.__log_sizing(sys._getframe().f_code.co_name, *args, **kwargs)
+		return res
+
+	#------------------------------------------------------------
+	def GetVirtualSize(self, *args, **kwargs):
+		res = super(cReportListCtrl, self).GetVirtualSize(*args, **kwargs)
+		kwargs['sizing_function_result'] = res
+		self.__log_sizing(sys._getframe().f_code.co_name, *args, **kwargs)
+		return res
+
+	#------------------------------------------------------------
+	def GetVirtualSizeTuple(self, *args, **kwargs):
+		res = super(cReportListCtrl, self).GetVirtualSizeTuple(*args, **kwargs)
+		kwargs['sizing_function_result'] = res
+		self.__log_sizing(sys._getframe().f_code.co_name, *args, **kwargs)
+		return res
+
+	#------------------------------------------------------------
 	# setters
 	#------------------------------------------------------------
 	def set_columns(self, columns=None):
@@ -1340,7 +1584,8 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 		tries = 0
 		while tries < max_tries:
 			if self.debug is not None:
-				_log.debug('[round %s] <%s>.GetItemCount() before DeleteAllItems(): %s (thread [%s])', tries, self.debug, self.GetItemCount(), thread.get_ident())
+				if self.debug.endswith(u'_deleting'):
+					_log.debug('[round %s] <%s>.GetItemCount() before DeleteAllItems(): %s (thread [%s])', tries, self.debug, self.GetItemCount(), thread.get_ident())
 			if not self.DeleteAllItems():
 				_log.error('<%s>.DeleteAllItems() failed', self.debug)
 			item_count = self.GetItemCount()

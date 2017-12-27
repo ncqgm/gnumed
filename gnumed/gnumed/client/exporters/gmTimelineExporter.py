@@ -28,6 +28,10 @@ if __name__ == '__main__':
 ERA_NAME_CARE_PERIOD = _(u'Care Period')
 
 #============================================================
+
+# <icon>base-64 encode PNG image</icon>
+
+#============================================================
 xml_start = u"""<?xml version="1.0" encoding="utf-8"?>
 <timeline>
 	<version>1.16.0</version>

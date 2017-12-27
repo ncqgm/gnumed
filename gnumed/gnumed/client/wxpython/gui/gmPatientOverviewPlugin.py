@@ -26,6 +26,7 @@ from Gnumed.wxpython import gmAccessPermissionWidgets
 
 
 _log = logging.getLogger('gm.ui')
+
 #======================================================================
 class gmPatientOverviewPlugin(gmPlugin.cNotebookPlugin):
 
@@ -40,22 +41,23 @@ class gmPatientOverviewPlugin(gmPlugin.cNotebookPlugin):
 	)
 	def register(self):
 		gmPlugin.cNotebookPlugin.register(self)
+
 	#-------------------------------------------------
-	def name (self):
+	def name(self):
 		return gmPatientOverviewPlugin.tab_name
 
-	def GetWidget (self, parent):
+	def GetWidget(self, parent):
 		self._widget = gmPatOverviewWidgets.cPatientOverviewPnl(parent, -1)
 		return self._widget
 
-	def MenuInfo (self):
+	def MenuInfo(self):
 		return ('emr', _('&Overview'))
 
 	def can_receive_focus(self):
-		# need patient
 		if not self._verify_patient_avail():
 			return None
 		return True
+
 #======================================================================
 # main
 #----------------------------------------------------------------------
@@ -97,4 +99,3 @@ if __name__ == "__main__":
 		raise
 
 	_log.info("closing Notebooked progress notes input plugin...")
-#======================================================================

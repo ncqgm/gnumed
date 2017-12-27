@@ -78,6 +78,7 @@ class cNotebookPlugin:
 		self._set = 'gui'
 		self._widget = None
 		self.__register_events()
+
 	#-----------------------------------------------------
 	# plugin load API
 	#-----------------------------------------------------
@@ -89,17 +90,6 @@ class cNotebookPlugin:
 		# create widget
 		nb = self.gb['horstspace.notebook']
 		widget = self.GetWidget(nb)
-
-		# create toolbar
-		#top_panel = self.gb['horstspace.top_panel']
-		#tb = top_panel.CreateBar()
-		#self.populate_toolbar(tb, widget)
-		#tb.Realize()
-		# place bar in top panel
-		# (pages that don't want a toolbar must install a blank one
-		#  otherwise the previous page's toolbar would be visible)
-		#top_panel.AddBar(key=self.__class__.__name__, bar=tb)
-		#self.gb['toolbar.%s' % self.__class__.__name__] = tb
 
 		# add ourselves to the main notebook
 		nb.AddPage(widget, self.name())
@@ -126,6 +116,7 @@ class cNotebookPlugin:
 			)
 
 		return True
+
 	#-----------------------------------------------------
 	def unregister(self):
 		"""Remove ourselves."""
@@ -138,10 +129,6 @@ class cNotebookPlugin:
 			menu = self.gb['main.%smenu' % menu_info[0]]
 			menu.Delete(self.menu_id)
 
-		# delete toolbar
-		#top_panel = self.gb['main.top_panel']
-		#top_panel.DeleteBar(self.__class__.__name__)
-
 		# correct the notebook page list
 		nb_pages = self.gb['horstspace.notebook.pages']
 		nb_page_num = nb_pages.index(self)
@@ -150,9 +137,11 @@ class cNotebookPlugin:
 		# delete notebook page
 		nb = self.gb['horstspace.notebook']
 		nb.DeletePage(nb_page_num)
+
 	#-----------------------------------------------------
 	def name(self):
 		return 'plugin <%s>' % self.__class__.__name__
+
 	#-----------------------------------------------------
 	def MenuInfo(self):
 		"""Return tuple of (menuname, menuitem).
@@ -160,14 +149,7 @@ class cNotebookPlugin:
 		None: no menu entry wanted
 		"""
 		return None
-	#-----------------------------------------------------
-#	def populate_toolbar (self, tb, widget):
-#		"""Populates the toolbar for this widget.
-#
-#		- tb is the toolbar to populate
-#		- widget is the widget returned by GetWidget()		# FIXME: is this really needed ?
-#		"""
-#		pass
+
 	#-----------------------------------------------------
 	# activation API
 	#-----------------------------------------------------
@@ -179,6 +161,7 @@ class cNotebookPlugin:
 		"""
 		# FIXME: fail if locked
 		return True
+
 	#-----------------------------------------------------
 	def receive_focus(self):
 		"""We *are* receiving focus via wx.EVT_NotebookPageChanged.
@@ -189,6 +172,7 @@ class cNotebookPlugin:
 			self._widget.repopulate_ui()
 		# else apparently it doesn't need it
 		return True
+
 	#-----------------------------------------------------
 	def _verify_patient_avail(self):
 		"""Check for patient availability.
@@ -202,6 +186,7 @@ class cNotebookPlugin:
 			gmDispatcher.send('statustext', msg = _('Cannot switch to [%s]: no patient selected') % self.name())
 			return None
 		return 1
+
 	#-----------------------------------------------------
 	def Raise(self):
 		"""Raise ourselves."""
@@ -210,27 +195,32 @@ class cNotebookPlugin:
 		nb = self.gb['horstspace.notebook']
 		nb.SetSelection(plugin_page)
 		return True
+
 	#-----------------------------------------------------
 	def _on_raise_by_menu(self, event):
 		if not self.can_receive_focus():
 			return False
 		self.Raise()
 		return True
+
 	#-----------------------------------------------------
 	def _on_raise_by_signal(self, **kwds):
 		# does this signal concern us ?
 		if kwds['name'] not in [self.__class__.__name__, self.name()]:
 			return False
 		return self._on_raise_by_menu(None)
+
 	# -----------------------------------------------------
 	# event handlers for the popup window
 	def on_load(self, evt):
 		# FIXME: talk to the configurator so we're loaded next time
 		self.register()
 		# FIXME: raise ?
+
 	# -----------------------------------------------------
 	def OnShow(self, evt):
 		self.register() # register without changing configuration
+
 	# -----------------------------------------------------
 	def __register_events(self):
 		gmDispatcher.connect(signal = 'display_widget', receiver = self._on_raise_by_signal)
@@ -278,6 +268,7 @@ def __gm_import(module_name):
 	for component in components[1:]:
 		mod = getattr(mod, component)
 	return mod
+
 #------------------------------------------------------------------
 def instantiate_plugin(aPackage='xxxDEFAULTxxx', plugin_name='xxxDEFAULTxxx'):
 	"""Instantiates a plugin object from a package directory, returning the object.
@@ -320,6 +311,7 @@ def instantiate_plugin(aPackage='xxxDEFAULTxxx', plugin_name='xxxDEFAULTxxx'):
 		return None
 
 	return plugin
+
 #------------------------------------------------------------------
 def get_installed_plugins(plugin_dir=''):
 	"""Looks for installed plugins in the filesystem.
@@ -373,6 +365,7 @@ def get_installed_plugins(plugin_dir=''):
 	_log.debug("plugins found: %s" % str(plugins))
 
 	return plugins
+
 #------------------------------------------------------------------
 def GetPluginLoadList(option, plugin_dir = '', defaults = None, workplace=None):
 	"""Get a list of plugins to load.
@@ -420,6 +413,7 @@ def GetPluginLoadList(option, plugin_dir = '', defaults = None, workplace=None):
 
 	_log.debug("plugin load list stored: %s" % str(p_list))
 	return p_list
+
 #------------------------------------------------------------------
 def UnloadPlugin (set, name):
 	"""
@@ -428,6 +422,7 @@ def UnloadPlugin (set, name):
 	gb = gmGuiBroker.GuiBroker()
 	plugin = gb['horstspace.notebook.%s' % set][name]
 	plugin.unregister()
+
 #==================================================================
 # Main
 #------------------------------------------------------------------
@@ -435,5 +430,3 @@ if __name__ == '__main__':
 
 	if len(sys.argv) > 1 and sys.argv[1] == 'test':
 		print get_installed_plugins('gui')
-
-#------------------------------------------------------------------
