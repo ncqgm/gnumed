@@ -160,8 +160,13 @@ cp -R ../../../README.timeline ./gnumed-client.$CLIENTREV/client/
 # timeline (this needs to become better later on)
 mkdir -p ./gnumed-client.$CLIENTREV/client/timelinelib/
 cp -R ../../client/timelinelib/* ./gnumed-client.$CLIENTREV/client/timelinelib/
-mkdir -p ./gnumed-client.$CLIENTREV/client/icons/
-cp -R ../../client/icons/* ./gnumed-client.$CLIENTREV/client/icons/
+mkdir -p ./gnumed-client.$CLIENTREV/client/tlicons/
+cp -R ../../client/tlicons/* ./gnumed-client.$CLIENTREV/client/tlicons/
+
+
+# dwv
+mkdir -p ./gnumed-client.$CLIENTREV/client/dwv4export/
+cp -R ../../client/dwv4export/* ./gnumed-client.$CLIENTREV/client/dwv4export/
 
 
 # bitmaps
@@ -214,7 +219,7 @@ cp -R ../../client/etc/gnumed/egk+kvk-demon.conf.example ./gnumed-client.$CLIENT
 mkdir -p ./gnumed-client.$CLIENTREV/client/exporters/
 cp -R ../../client/exporters/__init__.py ./gnumed-client.$CLIENTREV/client/exporters
 cp -R ../../client/exporters/gmPatientExporter.py ./gnumed-client.$CLIENTREV/client/exporters
-cp -R ../../client/exporters/timeline.py ./gnumed-client.$CLIENTREV/client/exporters
+cp -R ../../client/exporters/gmTimelineExporter.py ./gnumed-client.$CLIENTREV/client/exporters
 
 
 # importers
