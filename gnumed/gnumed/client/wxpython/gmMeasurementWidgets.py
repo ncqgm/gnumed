@@ -881,6 +881,158 @@ class cMeasurementsByDayPnl(wxgMeasurementsByDayPnl.wxgMeasurementsByDayPnl, gmR
 	patient = property(_get_patient, _set_patient)
 
 #================================================================
+from Gnumed.wxGladeWidgets import wxgMeasurementsByIssuePnl
+
+class cMeasurementsByIssuePnl(wxgMeasurementsByIssuePnl.wxgMeasurementsByIssuePnl, gmRegetMixin.cRegetOnPaintMixin):
+	"""A class for displaying measurement results as a list partitioned by issue/episode.
+
+	- operates on a cPatient instance handed to it and NOT on the currently active patient
+	"""
+	def __init__(self, *args, **kwargs):
+		wxgMeasurementsByIssuePnl.wxgMeasurementsByIssuePnl.__init__(self, *args, **kwargs)
+
+		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
+
+		self.__patient = None
+		self.__date_format = str('%Y %b %d')
+
+		self.__init_ui()
+		self.__register_events()
+
+	#------------------------------------------------------------
+	# internal helpers
+	#------------------------------------------------------------
+	def __init_ui(self):
+		self._LCTRL_issues.set_columns([_(u'Problem')])
+		self._LCTRL_issues.select_callback = self._on_problem_selected
+		self._LCTRL_results.set_columns([_('When'), _('Test'), _('Result'), _('Reference')])
+		self._LCTRL_results.edit_callback = self._on_edit
+		self._LCTRL_results.select_callback = self._on_result_selected
+
+	#------------------------------------------------------------
+	def __register_events(self):
+		gmDispatcher.connect(signal = u'gm_table_mod', receiver = self._on_database_signal)
+
+	#------------------------------------------------------------
+	def __repopulate_ui(self):
+		if self.__patient is None:
+			self._LCTRL_issues.set_string_items()
+			self._LCTRL_results.set_string_items()
+			self._TCTRL_measurements.SetValue(u'')
+			return
+
+		probs = self.__patient.emr.get_issues_or_episodes_for_results()
+		items = [ [u'%s%s' % (
+			gmTools.coalesce(p['pk_health_issue'], gmTools.u_diameter + u':', u''),
+			gmTools.shorten_words_in_line(text = p['problem'], min_word_length = 5)
+		)] for p in probs ]
+		self._LCTRL_issues.set_string_items(items)
+		self._LCTRL_issues.set_data([ {'pk_issue': p['pk_health_issue'], 'pk_episode': p['pk_episode']} for p in probs ])
+		if len(items) > 0:
+			self._LCTRL_issues.Select(idx = 0, on = 1)
+			self._LCTRL_issues.SetFocus()
+
+	#------------------------------------------------------------
+	def _on_edit(self):
+		item_data = self._LCTRL_results.get_selected_item_data(only_one = True)
+		if item_data is None:
+			return
+		if edit_measurement(parent = self, measurement = item_data['data'], single_entry = True):
+			self.__repopulate_ui()
+
+	#------------------------------------------------------------
+	# event handlers
+	#------------------------------------------------------------
+	def _on_database_signal(self, **kwds):
+		if self.__patient is None:
+			return True
+
+		if kwds['pk_identity'] is not None:				# review table doesn't have pk_identity yet
+			if kwds['pk_identity'] != self.__patient.ID:
+				return True
+
+		if kwds['table'] not in [u'clin.test_result', u'clin.reviewed_test_results']:
+			return True
+
+		self._schedule_data_reget()
+		return True
+
+	#------------------------------------------------------------
+	def _on_problem_selected(self, event):
+		event.Skip()
+
+		pk_issue = self._LCTRL_issues.get_item_data(item_idx = event.Index)['pk_issue']
+		if pk_issue is None:
+			pk_episode = self._LCTRL_issues.get_item_data(item_idx = event.Index)['pk_episode']
+			results = self.__patient.emr.get_results_for_episode(pk_episode = pk_episode)
+		else:
+			results = self.__patient.emr.get_results_for_issue(pk_health_issue = pk_issue)
+		items = []
+		data = []
+		for r in results:
+			range_info = gmTools.coalesce (
+				r.formatted_clinical_range,
+				r.formatted_normal_range
+			)
+			review = gmTools.bool2subst (
+				r['reviewed'],
+				u'',
+				u' ' + gmTools.u_writing_hand,
+				u' ' + gmTools.u_writing_hand
+			)
+			items.append ([
+				gmDateTime.pydt_strftime(r['clin_when'], '%Y %b %d  %H:%M'),
+				r['abbrev_tt'],
+				u'%s%s%s%s' % (
+					gmTools.strip_empty_lines(text = r['unified_val'])[0],
+					gmTools.coalesce(r['val_unit'], u'', u' %s'),
+					gmTools.coalesce(r['abnormality_indicator'], u'', u' %s'),
+					review
+				),
+				gmTools.coalesce(range_info, u'')
+			])
+			data.append({'data': r, 'formatted': r.format(with_source_data = True)})
+
+		self._LCTRL_results.set_string_items(items)
+		self._LCTRL_results.set_column_widths([wx.LIST_AUTOSIZE_USEHEADER, wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE])
+		self._LCTRL_results.set_data(data)
+		self._LCTRL_results.Select(idx = 0, on = 1)
+		self._TCTRL_measurements.SetValue(self._LCTRL_results.get_item_data(item_idx = 0)['formatted'])
+
+	#------------------------------------------------------------
+	def _on_result_selected(self, event):
+		event.Skip()
+		item_data = self._LCTRL_results.get_item_data(item_idx = event.Index)
+		self._TCTRL_measurements.SetValue(item_data['formatted'])
+
+	#------------------------------------------------------------
+	# reget mixin API
+	#------------------------------------------------------------
+	def _populate_with_data(self):
+		self.__repopulate_ui()
+		return True
+
+	#------------------------------------------------------------
+	# properties
+	#------------------------------------------------------------
+	def _get_patient(self):
+		return self.__patient
+
+	def _set_patient(self, patient):
+		if (self.__patient is None) and (patient is None):
+			return
+		if (self.__patient is None) or (patient is None):
+			self.__patient = patient
+			self._schedule_data_reget()
+			return
+		if self.__patient.ID == patient.ID:
+			return
+		self.__patient = patient
+		self._schedule_data_reget()
+
+	patient = property(_get_patient, _set_patient)
+
+#================================================================
 from Gnumed.wxGladeWidgets import wxgMeasurementsByBatteryPnl
 
 class cMeasurementsByBatteryPnl(wxgMeasurementsByBatteryPnl.wxgMeasurementsByBatteryPnl, gmRegetMixin.cRegetOnPaintMixin):
@@ -1139,6 +1291,7 @@ class cMeasurementsNb(wx.Notebook, gmPlugin.cPatientChange_PluginMixin):
 
 		- by test battery
 		- by day
+		- by issue/episode
 		- full grid
 		- full list
 
@@ -1202,6 +1355,15 @@ class cMeasurementsNb(wx.Notebook, gmPlugin.cPatientChange_PluginMixin):
 			page = new_page,
 			text = _('Days'),
 			select = True
+		)
+
+		# by issue
+		new_page = cMeasurementsByIssuePnl(self, -1)
+		new_page.patient = None
+		self.AddPage (
+			page = new_page,
+			text = _('Problems'),
+			select = False
 		)
 
 		# by test panel
@@ -1333,6 +1495,7 @@ class cMeasurementsGrid(wx.grid.Grid):
 				results = self.__cells_to_data(cells = selected_cells, exclude_multi_cells = False)
 			for result in results:
 				gmPathLab.delete_test_result(result)
+
 	#------------------------------------------------------------
 	def sign_current_selection(self):
 		if not self.IsSelection():
@@ -1343,6 +1506,7 @@ class cMeasurementsGrid(wx.grid.Grid):
 		tests = self.__cells_to_data(cells = selected_cells, exclude_multi_cells = False)
 
 		return review_tests(parent = self, tests = tests)
+
 	#------------------------------------------------------------
 	def plot_current_selection(self):
 

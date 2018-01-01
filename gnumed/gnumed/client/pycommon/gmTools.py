@@ -1156,6 +1156,8 @@ def shorten_text(text=None, max_length=None):
 
 #---------------------------------------------------------------------------
 def shorten_words_in_line(text=None, max_length=None, min_word_length=None, ignore_numbers=True, ellipsis=u_ellipsis):
+	if text is None:
+		return None
 	if max_length is None:
 		max_length = len(text)
 	else:
@@ -1605,6 +1607,12 @@ if __name__ == '__main__':
 	#-----------------------------------------------------------------------
 	def test_coalesce():
 
+		val = None
+		print(val, coalesce(val, u'is None', u'is not None'))
+		val = 1
+		print(val, coalesce(val, u'is None', u'is not None'))
+		return
+
 		import datetime as dt
 		print(coalesce(initial = dt.datetime.now(), template_initial = u'-- %s --', function_initial = ('strftime', u'%Y-%m-%d')))
 
@@ -1958,7 +1966,7 @@ second line\n
 			print (test, fname_sanitize(test))
 
 	#-----------------------------------------------------------------------
-	#test_coalesce()
+	test_coalesce()
 	#test_capitalize()
 	#test_import_module()
 	#test_mkdir()
@@ -1980,7 +1988,7 @@ second line\n
 	#test_fname_stem()
 	#test_tex_escape()
 	#test_dir_is_empty()
-	test_compare_dicts()
+	#test_compare_dicts()
 	#test_rm_dir()
 	#test_rm_dir_content()
 	#test_strip_prefix()

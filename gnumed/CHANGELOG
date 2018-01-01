@@ -22,6 +22,7 @@ NEW: monitor test results relevant to intakes
 NEW: add a database sanity check tool
 NEW: add a EMR structure export tool
 NEW: more options for putting formatted EMR into export area
+NEW: measurements sorted by problem
 
 IMPROVED: EMR journal layout/retrieval speed
 IMPROVED: patient overview usability

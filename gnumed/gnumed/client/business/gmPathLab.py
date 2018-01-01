@@ -1351,6 +1351,7 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 			})
 
 		return tt
+
 	#--------------------------------------------------------
 	def _get_has_normal_min_or_max(self):
 		return (
@@ -1360,6 +1361,7 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 		)
 
 	has_normal_min_or_max = property(_get_has_normal_min_or_max, lambda x:x)
+
 	#--------------------------------------------------------
 	def _get_normal_min_max(self):
 		has_range_info = (
@@ -1376,6 +1378,7 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 		)
 
 	normal_min_max = property(_get_normal_min_max, lambda x:x)
+
 	#--------------------------------------------------------
 	def _get_formatted_normal_range(self):
 		has_numerical_range = (
@@ -1405,6 +1408,7 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 		return range_info
 
 	formatted_normal_range = property(_get_formatted_normal_range, lambda x:x)
+
 	#--------------------------------------------------------
 	def _get_has_clinical_min_or_max(self):
 		return (
@@ -1414,6 +1418,7 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 		)
 
 	has_clinical_min_or_max = property(_get_has_clinical_min_or_max, lambda x:x)
+
 	#--------------------------------------------------------
 	def _get_clinical_min_max(self):
 		has_range_info = (
@@ -1430,6 +1435,7 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 		)
 
 	clinical_min_max = property(_get_clinical_min_max, lambda x:x)
+
 	#--------------------------------------------------------
 	def _get_formatted_clinical_range(self):
 		has_numerical_range = (
@@ -1459,6 +1465,7 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 		return range_info
 
 	formatted_clinical_range = property(_get_formatted_clinical_range, lambda x:x)
+
 	#--------------------------------------------------------
 	def _get_temporally_closest_normal_range(self):
 		"""Returns the closest test result which does have normal range information."""
@@ -1499,6 +1506,7 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 		return cTestResult(row = {'pk_field': 'pk_test_result', 'idx': idx, 'data': rows[0]})
 
 	temporally_closest_normal_range = property(_get_temporally_closest_normal_range, lambda x:x)
+
 	#--------------------------------------------------------
 	def _get_formatted_range(self):
 
@@ -1561,11 +1569,13 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 		return None
 
 	formatted_range = property(_get_formatted_range, lambda x:x)
+
 	#--------------------------------------------------------
 	def _get_test_type(self):
 		return cMeasurementType(aPK_obj = self._payload[self._idx['pk_test_type']])
 
 	test_type = property(_get_test_type, lambda x:x)
+
 	#--------------------------------------------------------
 	def _get_is_considered_elevated(self):
 		# 1) the user is right (review)
@@ -1596,6 +1606,7 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 		return None
 
 	is_considered_elevated = property(_get_is_considered_elevated, lambda x:x)
+
 	#--------------------------------------------------------
 	def _get_is_considered_lowered(self):
 		# 1) the user is right (review)
@@ -1626,6 +1637,7 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 		return None
 
 	is_considered_lowered = property(_get_is_considered_lowered, lambda x:x)
+
 	#--------------------------------------------------------
 	def _get_is_considered_abnormal(self):
 		if self.is_considered_lowered is True:
@@ -2139,9 +2151,37 @@ def get_results_for_day(timestamp=None, patient=None, order_by=None):
 			abbrev_tt,
 			clin_when DESC
 	""" % u' AND '.join(where_parts)
-
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+	return [ cTestResult(row = {'pk_field': 'pk_test_result', 'idx': idx, 'data': r}) for r in rows ]
 
+#------------------------------------------------------------
+def get_results_for_issue(pk_health_issue=None, order_by=None):
+	args = {'pk_issue': pk_health_issue}
+	where_parts = [u'pk_health_issue = %(pk_issue)s']
+	cmd = u"""
+		SELECT * FROM clin.v_test_results
+		WHERE %s
+		ORDER BY
+			val_grouping,
+			abbrev_tt,
+			clin_when DESC
+	""" % u' AND '.join(where_parts)
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+	return [ cTestResult(row = {'pk_field': 'pk_test_result', 'idx': idx, 'data': r}) for r in rows ]
+
+#------------------------------------------------------------
+def get_results_for_episode(pk_episode=None):
+	args = {'pk_epi': pk_episode}
+	where_parts = [u'pk_episode = %(pk_epi)s']
+	cmd = u"""
+		SELECT * FROM clin.v_test_results
+		WHERE %s
+		ORDER BY
+			val_grouping,
+			abbrev_tt,
+			clin_when DESC
+	""" % u' AND '.join(where_parts)
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 	return [ cTestResult(row = {'pk_field': 'pk_test_result', 'idx': idx, 'data': r}) for r in rows ]
 
 #------------------------------------------------------------

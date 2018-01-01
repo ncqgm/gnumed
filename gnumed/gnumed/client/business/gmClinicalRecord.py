@@ -2822,6 +2822,7 @@ SELECT MIN(earliest) FROM (
 			tolerance_interval = tolerance_interval,
 			patient = self.pk_patient
 		)
+
 	#------------------------------------------------------------------
 	def get_results_for_day(self, timestamp=None, order_by=None):
 		return gmPathLab.get_results_for_day (
@@ -2829,6 +2830,18 @@ SELECT MIN(earliest) FROM (
 			patient = self.pk_patient,
 			order_by = order_by
 		)
+
+	#------------------------------------------------------------------
+	def get_results_for_issue(self, pk_health_issue=None, order_by=None):
+		return gmPathLab.get_results_for_issue (
+			pk_health_issue = pk_health_issue,
+			order_by = order_by
+		)
+
+	#------------------------------------------------------------------
+	def get_results_for_episode(self, pk_episode=None):
+		return gmPathLab.get_results_for_episode(pk_episode = pk_episode)
+
 	#------------------------------------------------------------------
 	def get_unsigned_results(self, order_by=None):
 		if order_by is None:
@@ -2845,6 +2858,7 @@ SELECT MIN(earliest) FROM (
 		args = {'pat': self.pk_patient}
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 		return [ gmPathLab.cTestResult(row = {'pk_field': 'pk_test_result', 'idx': idx, 'data': r}) for r in rows ]
+
 	#------------------------------------------------------------------
 	# FIXME: use psyopg2 dbapi extension of named cursors - they are *server* side !
 	def get_test_types_for_results(self, order_by=None, unique_meta_types=False):
@@ -2929,6 +2943,43 @@ SELECT MIN(earliest) FROM (
 		return rows
 
 	#------------------------------------------------------------------
+	def get_issues_or_episodes_for_results(self, tests=None):
+		"""Get the issues/episodes for which we have results."""
+		where_parts = [u'pk_patient = %(pat)s']
+		args = {'pat': self.pk_patient}
+
+		if tests is not None:
+			where_parts.append(u'pk_test_type IN %(tests)s')
+			args['tests'] = tuple(tests)
+		where = u' AND '.join(where_parts)
+		cmd = u"""
+		SELECT * FROM ((
+			-- issues, each including all it"s episodes
+			SELECT
+				health_issue AS problem,
+				pk_health_issue,
+				NULL::integer AS pk_episode,
+				1 AS rank
+			FROM clin.v_test_results
+			WHERE pk_health_issue IS NOT NULL AND %s
+			GROUP BY pk_health_issue, problem
+		) UNION ALL (
+			-- episodes w/o issue
+			SELECT
+				episode AS problem,
+				NULL::integer AS pk_health_issue,
+				pk_episode,
+				2 AS rank
+			FROM clin.v_test_results
+			WHERE pk_health_issue IS NULL AND %s
+			GROUP BY pk_episode, problem
+		)) AS grouped_union
+		ORDER BY rank, problem
+		""" % (where, where)
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+		return rows
+
+	#------------------------------------------------------------------
 	def get_test_results(self, encounters=None, episodes=None, tests=None, order_by=None):
 		return gmPathLab.get_test_results (
 			pk_patient = self.pk_patient,
@@ -2992,6 +3043,7 @@ SELECT MIN(earliest) FROM (
 		)
 
 		return tr
+
 	#------------------------------------------------------------------
 	def get_labs_as_org_units(self):
 		where = u'pk_org_unit IN (%s)' % u"""
@@ -3002,6 +3054,7 @@ SELECT MIN(earliest) FROM (
 		cmd = gmOrganization._SQL_get_org_unit % where
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 		return [ gmOrganization.cOrgUnit(row = {'pk_field': 'pk_org_unit', 'data': r, 'idx': idx}) for r in rows ]
+
 	#------------------------------------------------------------------
 	def _get_best_gfr_or_crea(self):
 
