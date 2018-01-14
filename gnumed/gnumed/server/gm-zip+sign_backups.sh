@@ -91,6 +91,7 @@ done
 for TAR_FINAL in ${BACKUP_BASENAME}-*.tar ; do
 
 	BZ2_FINAL="${TAR_FINAL}.bz2"
+	BZ2_SCRATCH="${BZ2_FINAL}.partial"
 	BZ2_UNTESTED="${BZ2_FINAL}.untested"
 
 	# compress tar archive
@@ -98,12 +99,20 @@ for TAR_FINAL in ${BACKUP_BASENAME}-*.tar ; do
 	# a difference (48 MB in a 1.2 GB backup)
 	#xz --quiet --extreme --check sha256 --no-warn -${COMPRESSION_LEVEL} ${BACKUP}
 	#xz --quiet --test ${BACKUP}.xz
-	bzip2 --quiet --stdout --keep --compress -"${COMPRESSION_LEVEL}" "${TAR_FINAL}" > "${BZ2_UNTESTED}"
+	bzip2 --quiet --stdout --keep --compress -"${COMPRESSION_LEVEL}" "${TAR_FINAL}" > "${BZ2_SCRATCH}"
 	RESULT="$?"
 	if test "${RESULT}" != "0" ; then
-		echo "Compressing tar archive [${TAR_FINAL}] into [${BZ2_UNTESTED}] failed (${RESULT}). Skipping."
+		echo "Compressing tar archive [${TAR_FINAL}] into [${BZ2_SCRATCH}] failed (${RESULT}). Skipping."
 		AGGREGATE_EXIT_CODE=${RESULT}
-		rm --force "${BZ2_UNTESTED}"
+		rm --force "${BZ2_SCRATCH}"
+		continue
+	fi
+	# rename to "untested" archive name
+	mv --force "${BZ2_SCRATCH}" "${BZ2_UNTESTED}"
+	RESULT="$?"
+	if test "${RESULT}" != "0" ; then
+		echo "Renaming compressed archive [${BZ2_SCRATCH}] to [${BZ2_UNTESTED}] failed (${RESULT}). Skipping."
+		AGGREGATE_EXIT_CODE=${RESULT}
 		continue
 	fi
 	# verify compressed archive

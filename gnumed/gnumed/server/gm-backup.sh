@@ -174,12 +174,23 @@ fi
 
 # create tar archive
 TAR_FILE="${BACKUP_FILENAME}.tar"
-TAR_UNTESTED="${TAR_FILE}.untested"
-tar --create --file="${TAR_UNTESTED}" "${ROLES_FILE}" "${BACKUP_DATA_DIR}"/
+TAR_SCRATCH="${TAR_FILE}.partial"
+tar --create --file="${TAR_SCRATCH}" "${ROLES_FILE}" "${BACKUP_DATA_DIR}"/
 RESULT="$?"
 if test "${RESULT}" != "0" ; then
-	echo "Creating backup tar archive [${TAR_UNTESTED}] failed (${RESULT}). Aborting."
-	rm --force "${TAR_UNTESTED}"
+	echo "Creating backup tar archive [${TAR_SCRATCH}] failed (${RESULT}). Aborting."
+	rm --force "${TAR_SCRATCH}"
+	exit ${RESULT}
+fi
+
+
+# rename to "untested" tar archive name which
+# indicates that tar finished creating the archive
+TAR_UNTESTED="${TAR_FILE}.untested"
+mv --force "${TAR_SCRATCH}" "${TAR_UNTESTED}"
+RESULT="$?"
+if test "${RESULT}" != "0" ; then
+	echo "cannot rename TAR archive: ${TAR_SCRATCH} => ${TAR_UNTESTED}"
 	exit ${RESULT}
 fi
 
