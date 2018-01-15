@@ -16,7 +16,11 @@ import os.path
 
 import wx
 import wx.grid
-import wx.lib.hyperlink
+try:
+	import wx.lib.hyperlink as wxh
+except ImportError:
+	# Phoenix
+	import wx.adv as wxh
 
 
 if __name__ == '__main__':
@@ -924,7 +928,7 @@ class cMeasurementsByIssuePnl(wxgMeasurementsByIssuePnl.wxgMeasurementsByIssuePn
 		probs = self.__patient.emr.get_issues_or_episodes_for_results()
 		items = [ [u'%s%s' % (
 			gmTools.coalesce(p['pk_health_issue'], gmTools.u_diameter + u':', u''),
-			gmTools.shorten_words_in_line(text = p['problem'], min_word_length = 5)
+			gmTools.shorten_words_in_line(text = p['problem'], min_word_length = 5, max_length = 30)
 		)] for p in probs ]
 		self._LCTRL_issues.set_string_items(items)
 		self._LCTRL_issues.set_data([ {'pk_issue': p['pk_health_issue'], 'pk_episode': p['pk_episode']} for p in probs ])
@@ -1863,7 +1867,7 @@ class cMeasurementsGrid(wx.grid.Grid):
 
 		self.__WIN_corner = self.GetGridCornerLabelWindow()		# a wx.Window instance
 
-		LNK_lab = wx.lib.hyperlink.HyperLinkCtrl (
+		LNK_lab = wxh.HyperLinkCtrl (
 			self.__WIN_corner,
 			-1,
 			label = _('Tests'),
@@ -3901,6 +3905,7 @@ class cMetaTestTypeEAPnl(wxgMetaTestTypeEAPnl.wxgMetaTestTypeEAPnl, gmEditArea.c
 		self._PRW_loinc.matcher = mp
 		self._PRW_loinc.selection_only = False
 		self._PRW_loinc.add_callback_on_lose_focus(callback = self._on_loinc_lost_focus)
+
 	#----------------------------------------------------------------
 	# generic Edit Area mixin API
 	#----------------------------------------------------------------

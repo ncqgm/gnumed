@@ -16,7 +16,11 @@ import re, string, sys, time, datetime as pyDT, logging
 # 3rd party
 import mx.DateTime as mxDT
 import wx
-import wx.calendar
+try:
+	import wx.calendar as wxcal
+except ImportError:
+	# Phoenix
+	import wx.adv as wxcal
 
 
 # GNUmed specific
@@ -171,7 +175,7 @@ class cCalendarDatePickerDlg(wx.Dialog):
 		sizer = wx.BoxSizer(wx.VERTICAL)
 		panel.SetSizer(sizer)
 
-		cal = wx.calendar.CalendarCtrl(panel)
+		cal = wxcal.CalendarCtrl(panel)
 
 		if sys.platform != 'win32':
 			# gtk truncates the year - this fixes it

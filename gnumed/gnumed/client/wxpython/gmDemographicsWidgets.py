@@ -14,7 +14,6 @@ import datetime as pydt
 
 
 import wx
-import wx.wizard
 import wx.lib.imagebrowser as wx_imagebrowser
 import wx.lib.statbmp as wx_genstatbmp
 
