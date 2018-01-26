@@ -734,8 +734,11 @@ class gmTopLevelFrame(wx.Frame):
 		item = menu_emr_edit.Append(-1, _('&Measurements'), _('Manage measurement results for the current patient.'))
 		self.Bind(wx.EVT_MENU, self.__on_manage_measurements, item)
 
-		item = menu_emr_edit.Append(-1, _('&Vaccination history'), _('Manage vaccinations for the current patient.'))
-		self.Bind(wx.EVT_MENU, self.__on_add_vaccination, item)
+		item = menu_emr_edit.Append(-1, _('&Vaccination history (shots)'), _('Manage vaccinations for the current patient (by shots given).'))
+		self.Bind(wx.EVT_MENU, self.__on_manage_vaccination, item)
+
+		item = menu_emr_edit.Append(-1, _('&Vaccination history (indications)'), _('Manage vaccinations for the current patient (by indication).'))
+		self.Bind(wx.EVT_MENU, self.__on_show_all_vaccinations_by_indication, item)
 
 		item = menu_emr_edit.Append(-1, _('&Vaccinations (latest)'), _('List latest vaccinations for the current patient.'))
 		self.Bind(wx.EVT_MENU, self.__on_show_latest_vaccinations, item)
@@ -2819,7 +2822,7 @@ class gmTopLevelFrame(wx.Frame):
 
 	#----------------------------------------------
 	@gmAccessPermissionWidgets.verify_minimum_required_role('full clinical access', activity = _('manage vaccinations'))
-	def __on_add_vaccination(self, evt):
+	def __on_manage_vaccination(self, evt):
 		pat = gmPerson.gmCurrentPatient()
 		if not pat.connected:
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot add vaccinations. No active patient.'))
@@ -2837,6 +2840,17 @@ class gmTopLevelFrame(wx.Frame):
 			return False
 
 		gmVaccWidgets.manage_vaccinations(parent = self, latest_only = True)
+		evt.Skip()
+
+	#----------------------------------------------
+	@gmAccessPermissionWidgets.verify_minimum_required_role('full clinical access', activity = _('manage vaccinations'))
+	def __on_show_all_vaccinations_by_indication(self, evt):
+		pat = gmPerson.gmCurrentPatient()
+		if not pat.connected:
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot manage vaccinations. No active patient.'))
+			return False
+
+		gmVaccWidgets.manage_vaccinations(parent = self, latest_only = False, expand_indications = True)
 		evt.Skip()
 
 	#----------------------------------------------

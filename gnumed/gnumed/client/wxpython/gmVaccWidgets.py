@@ -590,13 +590,14 @@ def edit_vaccination(parent=None, vaccination=None, single_entry=True):
 	return False
 
 #----------------------------------------------------------------------
-def manage_vaccinations(parent=None, latest_only=False):
+def manage_vaccinations(parent=None, latest_only=False, expand_indications=False):
 
 	pat = gmPerson.gmCurrentPatient()
 	emr = pat.emr
 
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
+
 	#------------------------------------------------------------
 	def browse2schedules(vaccination=None):
 		dbcfg = gmCfg.cCfgSQL()
@@ -614,6 +615,7 @@ def manage_vaccinations(parent=None, latest_only=False):
 	def print_vaccs(vaccination=None):
 		print_vaccinations(parent = parent)
 		return False
+
 	#------------------------------------------------------------
 	def add_recall(vaccination=None):
 		if vaccination is None:
@@ -669,19 +671,17 @@ def manage_vaccinations(parent=None, latest_only=False):
 	#------------------------------------------------------------
 	def refresh(lctrl):
 
+		items = []
+		data = []
 		if latest_only:
-			items = []
-			vaccs = []
 			latest_vaccs = emr.get_latest_vaccinations()
 			for indication in sorted(latest_vaccs.keys()):
-				no_shots4ind, latest_vacc4ind = latest_vaccs[indication]
-			#for indication, no_shots_and_latest_shot in latest_vaccs.items():
-				#no_shots4ind, latest_vacc4ind = no_shots_and_latest_shot
+				no_of_shots4ind, latest_vacc4ind = latest_vaccs[indication]
 				items.append ([
 					indication,
 					_(u'%s (latest of %s: %s ago)') % (
 						gmDateTime.pydt_strftime(latest_vacc4ind['date_given'], format = '%Y %b'),
-						no_shots4ind,
+						no_of_shots4ind,
 						gmDateTime.format_interval_medically(gmDateTime.pydt_now_here() - latest_vacc4ind['date_given'])
 					),
 					latest_vacc4ind['vaccine'],
@@ -690,36 +690,66 @@ def manage_vaccinations(parent=None, latest_only=False):
 					gmTools.coalesce(latest_vacc4ind['reaction'], u''),
 					gmTools.coalesce(latest_vacc4ind['comment'], u'')
 				])
-				vaccs.append(latest_vacc4ind)
+				data.append(latest_vacc4ind)
 		else:
-			vaccs = emr.get_vaccinations(order_by = 'date_given DESC, pk_vaccination')
-			items = [ [
-				gmDateTime.pydt_strftime(v['date_given'], '%Y %b %d'),
-				v['vaccine'],
-				u', '.join([ i['l10n_indication'] for i in v['indications'] ]),
-				v['batch_no'],
-				gmTools.coalesce(v['site'], u''),
-				gmTools.coalesce(v['reaction'], u''),
-				gmTools.coalesce(v['comment'], u'')
-			] for v in vaccs ]
+			shots = emr.get_vaccinations(order_by = 'date_given DESC, pk_vaccination')
+			if expand_indications:
+				shots_by_ind = {}
+				for shot in shots:
+					for ind in shot['indications']:
+						try:
+							shots_by_ind[ind['l10n_indication']].append(shot)
+						except KeyError:
+							shots_by_ind[ind['l10n_indication']] = [shot]
+				for ind in sorted(shots_by_ind.keys()):
+					idx = len(shots_by_ind[ind])
+					for shot in shots_by_ind[ind]:
+						items.append ([
+							u'%s (#%s)' % (ind, idx),
+							_(u'%s (%s ago)') % (
+								gmDateTime.pydt_strftime(shot['date_given'], '%Y %b %d'),
+								gmDateTime.format_interval_medically(gmDateTime.pydt_now_here() - shot['date_given'])
+							),
+							shot['vaccine'],
+							shot['batch_no'],
+							gmTools.coalesce(shot['site'], u''),
+							gmTools.coalesce(shot['reaction'], u''),
+							gmTools.coalesce(shot['comment'], u'')
+						])
+						idx -= 1
+						data.append(shot)
+			else:
+				items = [ [
+					gmDateTime.pydt_strftime(s['date_given'], '%Y %b %d'),
+					s['vaccine'],
+					u', '.join([ i['l10n_indication'] for i in s['indications'] ]),
+					s['batch_no'],
+					gmTools.coalesce(s['site'], u''),
+					gmTools.coalesce(s['reaction'], u''),
+					gmTools.coalesce(s['comment'], u'')
+				] for s in shots ]
+				data = shots
 
 		lctrl.set_string_items(items)
-		lctrl.set_data(vaccs)
+		lctrl.set_data(data)
 
 	#------------------------------------------------------------
+	if latest_only:
+		msg = _(u'Most recent vaccination for each indication.\n')
+		cols = [ _('Indication'), _('Date'), _('Vaccine'), _('Batch'), _('Site'), _('Reaction'), _('Comment') ]
+	else:
+		if expand_indications:
+			msg = _(u'Complete vaccination history (per indication).\n')
+			cols = [ _(u'Indication'), _('Date'), _('Vaccine'), _('Batch'), _('Site'), _('Reaction'), _('Comment') ]
+		else:
+			msg = _(u'Complete vaccination history (by shot).\n')
+			cols = [ _('Date'), _('Vaccine'), _(u'Intended to protect from'), _('Batch'), _('Site'), _('Reaction'), _('Comment') ]
+
 	gmListWidgets.get_choices_from_list (
 		parent = parent,
-		msg = gmTools.bool2subst (
-			latest_only,
-			_(u'Most recent vaccination for each indication.\n'),
-			_(u'Complete vaccination history.\n')
-		),
+		msg = msg,
 		caption = _('Showing vaccinations.'),
-		columns = gmTools.bool2subst (
-			latest_only,
-			[ _('Indication'), _('Date'), _('Vaccine'), _('Batch'), _('Site'), _('Reaction'), _('Comment') ],
-			[ _('Date'), _('Vaccine'), _(u'Intended to protect from'), _('Batch'), _('Site'), _('Reaction'), _('Comment') ]
-		),
+		columns = cols,
 		single_selection = True,
 		refresh_callback = refresh,
 		new_callback = edit,
