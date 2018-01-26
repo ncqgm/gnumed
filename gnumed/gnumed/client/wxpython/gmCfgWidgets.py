@@ -174,6 +174,7 @@ def list_configuration(parent=None):
 		ignore_OK_button = True,
 		list_tooltip_callback = tooltip
 	)
+
 #================================================================
 def configure_string_from_list_option(parent=None, message=None, option=None, bias='user', default_value=u'', choices=None, columns=None, data=None, caption=None):
 
@@ -227,6 +228,49 @@ def configure_string_from_list_option(parent=None, message=None, option=None, bi
 	)
 
 	return
+
+#================================================================
+def configure_list_from_list_option(parent=None, message=None, option=None, bias='user', default_value=None, choices=None, columns=None, data=None, caption=None, picks=None):
+
+	if default_value is None:
+		default_value = []
+
+	dbcfg = gmCfg.cCfgSQL()
+
+	current_value = dbcfg.get2 (
+		option = option,
+		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
+		bias = bias,
+		default = default_value
+	)
+
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+
+	if caption is None:
+		caption = _('Configuration')
+
+	# setup item picker
+	picker = gmListWidgets.cItemPickerDlg(parent, -1, msg = message)
+	picker.set_columns(columns)
+	picker.set_choices(choices)
+	picker.set_picks(picks)
+	result = picker.ShowModal()
+	if result == wx.ID_CANCEL:
+		picker.Destroy()
+		return
+
+	picks = picker.get_picks()
+	picker.Destroy()
+
+	dbcfg.set (
+		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
+		option = option,
+		value = picks
+	)
+
+	return
+
 #================================================================
 def configure_string_option(parent=None, message=None, option=None, bias=u'user', default_value=u'', validator=None):
 
@@ -282,6 +326,7 @@ def configure_string_option(parent=None, message=None, option=None, bias=u'user'
 	)
 
 	return user_val
+
 #================================================================
 def configure_boolean_option(parent=None, question=None, option=None, button_tooltips=None):
 
@@ -325,6 +370,7 @@ def configure_boolean_option(parent=None, question=None, option=None, button_too
 		)
 
 	return
+
 #================================================================
 if __name__ == '__main__':
 
@@ -332,8 +378,10 @@ if __name__ == '__main__':
 	gmI18N.activate_locale()
 	gmI18N.install_domain()
 
-	if (len(sys.argv) > 1):
-		if sys.argv[1] == 'test':
-			check_for_updates()
+	if len(sys.argv) < 2:
+		sys.exit()
 
-#================================================================
+	if sys.argv[1] != 'test':
+		sys.exit()
+
+	check_for_updates()

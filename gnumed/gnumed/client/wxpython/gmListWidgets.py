@@ -1047,6 +1047,7 @@ class cItemPickerDlg(wxgItemPickerDlg.wxgItemPickerDlg):
 		self.__extra_button_callback = None
 
 		self._LCTRL_left.SetFocus()
+
 	#------------------------------------------------------------
 	# external API
 	#------------------------------------------------------------
@@ -1060,6 +1061,7 @@ class cItemPickerDlg(wxgItemPickerDlg.wxgItemPickerDlg):
 			else:
 				cols = columns_right[:len(columns)]
 			self._LCTRL_right.set_columns(columns = cols)
+
 	#------------------------------------------------------------
 	def set_string_items(self, items=None, reshow=True):
 		self._LCTRL_left.set_string_items(items = items, reshow = reshow)
@@ -1068,20 +1070,24 @@ class cItemPickerDlg(wxgItemPickerDlg.wxgItemPickerDlg):
 
 		self._BTN_left2right.Enable(False)
 		self._BTN_right2left.Enable(False)
+
 	#------------------------------------------------------------
 	def set_selections(self, selections = None):
 		self._LCTRL_left.set_selections(selections = selections)
+
 	#------------------------------------------------------------
 	def set_choices(self, choices=None, data=None, reshow=True):
 		self.set_string_items(items = choices, reshow = reshow)
 		if data is not None:
 			self.set_data(data = data)
+
 	#------------------------------------------------------------
 	def set_picks(self, picks=None, data=None, reshow=True):
 		self._LCTRL_right.set_string_items(picks, reshow = reshow)
 		self._LCTRL_right.set_column_widths()
 		if data is not None:
 			self._LCTRL_right.set_data(data = data)
+
 	#------------------------------------------------------------
 	def set_data(self, data = None):
 		self._LCTRL_left.set_data(data = data)

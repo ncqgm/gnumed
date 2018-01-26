@@ -1174,7 +1174,7 @@ def __import_single_PID_hl7_file(filename, emr=None):
 	folder = gmPerson.cPatient(emr.pk_patient).document_folder
 	hl7_docs = folder.get_documents (
 		doc_type = u'HL7 data',
-		episodes = [epi['pk_episode']],
+		pk_episodes = [epi['pk_episode']],
 		order_by = u'ORDER BY clin_when DESC'
 	)
 	if len(hl7_docs) > 0:

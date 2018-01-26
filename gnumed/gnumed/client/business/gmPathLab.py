@@ -1813,6 +1813,7 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 			return
 
 		self.refetch_payload()
+
 	#--------------------------------------------------------
 	def get_adjacent_results(self, desired_earlier_results=1, desired_later_results=1, max_offset=None):
 
@@ -1879,6 +1880,7 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 				later_results.extend([ cTestResult(row = {'pk_field': 'pk_test_result', 'idx': idx, 'data': r}) for r in rows ])
 
 		return earlier_results, later_results
+
 	#--------------------------------------------------------
 	# internal API
 	#--------------------------------------------------------
@@ -1919,6 +1921,7 @@ INSERT INTO clin.reviewed_test_results (
 		}
 
 		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+
 	#--------------------------------------------------------
 	def __change_existing_review(self, technically_abnormal=None, clinically_relevant=None, comment=None):
 		"""Change a review on a row.

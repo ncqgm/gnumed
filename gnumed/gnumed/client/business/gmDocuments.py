@@ -155,7 +155,7 @@ class cDocumentFolder:
 	def get_visual_progress_notes(self, episodes=None, encounter=None):
 		return self.get_documents (
 			doc_type = DOCUMENT_TYPE_VISUAL_PROGRESS_NOTE,
-			episodes = episodes,
+			pk_episodes = episodes,
 			encounter = encounter
 		)
 
@@ -176,7 +176,7 @@ class cDocumentFolder:
 		return [ cDocument(row = {'pk_field': 'pk_doc', 'idx': idx, 'data': r}) for r in rows ]
 
 	#--------------------------------------------------------
-	def get_documents(self, doc_type=None, episodes=None, encounter=None, order_by=None, exclude_unsigned=False):
+	def get_documents(self, doc_type=None, pk_episodes=None, encounter=None, order_by=None, exclude_unsigned=False, pk_types=None):
 		"""Return list of documents."""
 
 		args = {
@@ -193,9 +193,13 @@ class cDocumentFolder:
 			except (TypeError, ValueError):
 				where_parts.append(u'pk_type = (SELECT pk FROM blobs.doc_type WHERE name = %(type)s)')
 
-		if (episodes is not None) and (len(episodes) > 0):
-			where_parts.append(u'pk_episode IN %(epi)s')
-			args['epi'] = tuple(episodes)
+		if pk_types is not None:
+			where_parts.append(u'pk_type IN %(pk_types)s')
+			args['pk_types'] = tuple(pk_types)
+
+		if (pk_episodes is not None) and (len(pk_episodes) > 0):
+			where_parts.append(u'pk_episode IN %(epis)s')
+			args['epis'] = tuple(pk_episodes)
 
 		if encounter is not None:
 			where_parts.append(u'pk_encounter = %(enc)s')
@@ -609,7 +613,7 @@ def delete_document_part(part_pk=None, encounter_pk=None):
 	return
 
 #============================================================
-_sql_fetch_document_fields = u"SELECT * FROM blobs.v_doc_med b_vdm	WHERE %s"
+_sql_fetch_document_fields = u"SELECT * FROM blobs.v_doc_med b_vdm WHERE %s"
 
 class cDocument(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one medical document."""
@@ -752,10 +756,13 @@ class cDocument(gmBusinessDBObject.cBusinessDBObject):
 	def save_parts_to_files(self, export_dir=None, chunksize=0):
 		fnames = []
 		for part in self.parts:
-			fname = part.save_to_file(aChunkSize = chunksize)
-			if export_dir is not None:
-				shutil.move(fname, export_dir)
-				fname = os.path.join(export_dir, os.path.split(fname)[1])
+			fname = part.save_to_file(aChunkSize = chunksize, directory = export_dir)
+#			if export_dir is not None:
+#				shutil.move(fname, export_dir)
+#				fname = os.path.join(export_dir, os.path.split(fname)[1])
+			if fname is None:
+				_log.error(u'cannot export document part [%s]', part)
+				continue
 			fnames.append(fname)
 		return fnames
 
@@ -946,19 +953,35 @@ def create_document(document_type=None, encounter=None, episode=None, link_obj=N
 	return doc
 
 #------------------------------------------------------------
-def search_for_documents(patient_id=None, type_id=None, external_reference=None):
+def search_for_documents(patient_id=None, type_id=None, external_reference=None, pk_episode=None, pk_types=None):
 	"""Searches for documents with the given patient and type ID."""
-	if patient_id is None:
-		raise ValueError('need patient id to search for document')
 
-	args = {'pat_id': patient_id, 'type_id': type_id, 'ref': external_reference}
-	where_parts = [u'pk_patient = %(pat_id)s']
+	if (patient_id is None) and (pk_episode is None):
+		raise ValueError('need patient_id or pk_episode to search for document')
+
+	where_parts = []
+	args = {
+		'pat_id': patient_id,
+		'type_id': type_id,
+		'ref': external_reference,
+		'pk_epi': pk_episode
+	}
+
+	if patient_id is not None:
+		where_parts.append(u'pk_patient = %(pat_id)s')
 
 	if type_id is not None:
 		where_parts.append(u'pk_type = %(type_id)s')
 
 	if external_reference is not None:
 		where_parts.append(u'ext_ref = %(ref)s')
+
+	if pk_episode is not None:
+		where_parts.append(u'pk_episode = %(pk_epi)s')
+
+	if pk_types is not None:
+		where_parts.append(u'pk_type IN %(pk_types)s')
+		args['pk_types'] = tuple(pk_types)
 
 	cmd = _sql_fetch_document_fields % u' AND '.join(where_parts)
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
@@ -1036,6 +1059,7 @@ class cDocumentType(gmBusinessDBObject.cBusinessDBObject):
 			return False
 
 		return self.refetch_payload()
+
 #------------------------------------------------------------
 def get_document_types():
 	rows, idx = gmPG2.run_ro_queries (
@@ -1047,6 +1071,7 @@ def get_document_types():
 		row_def = {'pk_field': 'pk_doc_type', 'idx': idx, 'data': row}
 		doc_types.append(cDocumentType(row = row_def))
 	return doc_types
+
 #------------------------------------------------------------
 def get_document_type_pk(document_type=None):
 	args = {'typ': document_type.strip()}
@@ -1061,6 +1086,14 @@ def get_document_type_pk(document_type=None):
 		return None
 
 	return rows[0]['pk']
+
+#------------------------------------------------------------
+def map_types2pk(document_types=None):
+	args = {'types': tuple(document_types)}
+	cmd = u'SELECT pk_doc_type, coalesce(l10n_type, type) as desc FROM blobs.v_doc_type WHERE l10n_type IN %(types)s OR type IN %(types)s'
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+	return rows
+
 #------------------------------------------------------------
 def create_document_type(document_type=None):
 	# check for potential dupes:
@@ -1076,6 +1109,7 @@ def create_document_type(document_type=None):
 			return_data = True
 		)
 	return cDocumentType(aPK_obj = rows[0][0])
+
 #------------------------------------------------------------
 def delete_document_type(document_type=None):
 	if document_type['is_in_use']:
@@ -1087,6 +1121,7 @@ def delete_document_type(document_type=None):
 		}]
 	)
 	return True
+
 #------------------------------------------------------------
 def get_ext_ref():
 	"""This needs *considerably* more smarts."""
@@ -1155,6 +1190,7 @@ if __name__ == '__main__':
 		return
 	#--------------------------------------------------------
 	def test_get_documents():
+
 		doc_folder = cDocumentFolder(aPKey=12)
 
 		#photo = doc_folder.get_latest_mugshot()

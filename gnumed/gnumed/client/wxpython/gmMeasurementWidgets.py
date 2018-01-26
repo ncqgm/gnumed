@@ -45,6 +45,7 @@ from Gnumed.business import gmPersonSearch
 from Gnumed.business import gmOrganization
 from Gnumed.business import gmHL7
 from Gnumed.business import gmIncomingData
+from Gnumed.business import gmDocuments
 
 from Gnumed.wxpython import gmRegetMixin
 from Gnumed.wxpython import gmPlugin
@@ -56,6 +57,7 @@ from Gnumed.wxpython import gmAuthWidgets
 from Gnumed.wxpython import gmOrganizationWidgets
 from Gnumed.wxpython import gmEMRStructWidgets
 from Gnumed.wxpython import gmCfgWidgets
+from Gnumed.wxpython import gmDocumentWidgets
 
 
 _log = logging.getLogger('gm.ui')
@@ -750,6 +752,7 @@ class cMeasurementsByDayPnl(wxgMeasurementsByDayPnl.wxgMeasurementsByDayPnl, gmR
 
 		self.__patient = None
 		self.__date_format = str('%Y %b %d')
+		self.__pk_curr_episode = None
 
 		self.__init_ui()
 		self.__register_events()
@@ -761,6 +764,22 @@ class cMeasurementsByDayPnl(wxgMeasurementsByDayPnl.wxgMeasurementsByDayPnl, gmR
 		self._LCTRL_days.set_columns([_('Day')])
 		self._LCTRL_results.set_columns([_('Time'), _('Test'), _('Result'), _('Reference')])
 		self._LCTRL_results.edit_callback = self._on_edit
+		self._LBL_no_of_docs.SetLabel(_(u'no related documents found'))
+		dbcfg = gmCfg.cCfgSQL()
+		lab_doc_types = dbcfg.get2 (
+			option = u'horstspace.lab_doc_types',
+			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
+			bias = 'user'
+		)
+		if lab_doc_types is None:
+			txt = _(u'No document types declared to contain lab results.')
+		elif len(lab_doc_types) == 0:
+			txt = _(u'No document types declared to contain lab results.')
+		else:
+			txt = _(u'Document types declared to contain lab results:')
+			txt += u'\n '
+			txt += u'\n '.join(lab_doc_types)
+		self._LBL_no_of_docs.SetToolTipString(txt)
 
 	#------------------------------------------------------------
 	def __register_events(self):
@@ -787,6 +806,8 @@ class cMeasurementsByDayPnl(wxgMeasurementsByDayPnl.wxgMeasurementsByDayPnl, gmR
 		if len(items) > 0:
 			self._LCTRL_days.Select(idx = 0, on = 1)
 			self._LCTRL_days.SetFocus()
+
+		self.__pk_curr_episode = None
 
 	#------------------------------------------------------------
 	def _on_edit(self):
@@ -849,13 +870,90 @@ class cMeasurementsByDayPnl(wxgMeasurementsByDayPnl.wxgMeasurementsByDayPnl, gmR
 		self._LCTRL_results.set_column_widths([wx.LIST_AUTOSIZE_USEHEADER, wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE])
 		self._LCTRL_results.set_data(data)
 		self._LCTRL_results.Select(idx = 0, on = 1)
-		self._TCTRL_measurements.SetValue(self._LCTRL_results.get_item_data(item_idx = 0)['formatted'])
 
 	#------------------------------------------------------------
 	def _on_result_selected(self, event):
 		event.Skip()
 		item_data = self._LCTRL_results.get_item_data(item_idx = event.Index)
 		self._TCTRL_measurements.SetValue(item_data['formatted'])
+		pk_episode = item_data['data']['pk_episode']
+		if pk_episode == self.__pk_curr_episode:
+			return
+		self.__pk_curr_episode = pk_episode
+		self._LBL_no_of_docs.SetLabel(_(u'no related documents found'))
+		self._BTN_list_docs.Disable()
+		dbcfg = gmCfg.cCfgSQL()
+		lab_doc_types = dbcfg.get2 (
+			option = u'horstspace.lab_doc_types',
+			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
+			bias = 'user'
+		)
+		if lab_doc_types is None:
+			return
+		d_types = gmDocuments.map_types2pk(lab_doc_types)
+		if len(d_types) is None:
+			return
+		docs = gmDocuments.search_for_documents (
+			pk_episode = pk_episode,
+			pk_types = [ dt['pk_doc_type'] for dt in d_types ]
+		)
+		if len(docs) == 0:
+			return
+		self._LBL_no_of_docs.SetLabel(_("Related documents: %s") % len(docs))
+		self._LBL_no_of_docs.Refresh()
+		self._BTN_list_docs.Enable()
+
+	#------------------------------------------------------------
+	def _on_list_docs_button_pressed(self, event):
+		event.Skip()
+		dbcfg = gmCfg.cCfgSQL()
+		lab_doc_types = dbcfg.get2 (
+			option = u'horstspace.lab_doc_types',
+			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
+			bias = 'user'
+		)
+		if lab_doc_types is None:
+			return
+		d_types = gmDocuments.map_types2pk(lab_doc_types)
+		if len(d_types) is None:
+			return
+		gmDocumentWidgets.manage_documents (
+			parent = self,
+			msg = _(u'Documents possibly related to this episode'),
+			pk_types = [ dt['pk_doc_type'] for dt in d_types ],
+			pk_episodes = [ self.__pk_curr_episode ]
+		)
+
+	#------------------------------------------------------------
+	def _on_select_lab_doc_types_pressed(self, event):
+		event.Skip()
+		doc_types = gmDocuments.get_document_types()
+		gmCfgWidgets.configure_list_from_list_option (
+			parent = self,
+			message = _(u'Select the document types which are expected to contain lab results.'),
+			option = u'horstspace.lab_doc_types',
+			bias = 'user',
+			choices = [ dt['l10n_type'] for dt in doc_types ],
+			columns = [_(u'Document types')]#,
+			#data = None,
+			#caption = None,
+			#picks = None
+		)
+		dbcfg = gmCfg.cCfgSQL()
+		lab_doc_types = dbcfg.get2 (
+			option = u'horstspace.lab_doc_types',
+			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
+			bias = 'user'
+		)
+		if lab_doc_types is None:
+			txt = _(u'No document types declared to contain lab results.')
+		elif len(lab_doc_types) == 0:
+			txt = _(u'No document types declared to contain lab results.')
+		else:
+			txt = _(u'Document types declared to contain lab results:')
+			txt += u'\n '
+			txt += u'\n '.join(lab_doc_types)
+		self._LBL_no_of_docs.SetToolTipString(txt)
 
 	#------------------------------------------------------------
 	# reget mixin API

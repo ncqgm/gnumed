@@ -500,7 +500,7 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 				# documents
 				if with_documents:
 					doc_folder = patient.get_document_folder()
-					docs = doc_folder.get_documents(episodes = epi_pks)
+					docs = doc_folder.get_documents(pk_episodes = epi_pks)
 					if len(docs) > 0:
 						lines.append(u'')
 						lines.append(_('Documents: %s') % len(docs))
@@ -1467,7 +1467,7 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 		if with_documents:
 			doc_folder = patient.get_document_folder()
 			docs = doc_folder.get_documents (
-				episodes = [ self._payload[self._idx['pk_episode']] ]
+				pk_episodes = [ self._payload[self._idx['pk_episode']] ]
 			)
 			if len(docs) > 0:
 				lines.append('')
@@ -2598,7 +2598,7 @@ limit 1
 			if with_docs:
 				doc_folder = patient.get_document_folder()
 				docs = doc_folder.get_documents (
-					episodes = [pk],
+					pk_episodes = [pk],
 					encounter = self._payload[self._idx['pk_encounter']]
 				)
 				if len(docs) > 0:
@@ -2738,7 +2738,7 @@ limit 1
 			if with_docs:
 				doc_folder = patient.get_document_folder()
 				docs = doc_folder.get_documents (
-					episodes = episodes,
+					pk_episodes = episodes,
 					encounter = self._payload[self._idx['pk_encounter']]
 				)
 				if len(docs) > 0:

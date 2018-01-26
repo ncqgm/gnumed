@@ -35,6 +35,7 @@ from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmShellAPI
 from Gnumed.pycommon import gmHooks
 from Gnumed.pycommon import gmNetworkTools
+from Gnumed.pycommon import gmMimeLib
 
 from Gnumed.business import gmPerson
 from Gnumed.business import gmStaff
@@ -1473,7 +1474,7 @@ def display_document_part(parent=None, part=None):
 	return True
 
 #============================================================
-def manage_documents(parent=None, msg=None, single_selection=True):
+def manage_documents(parent=None, msg=None, single_selection=True, pk_types=None, pk_episodes=None):
 
 	pat = gmPerson.gmCurrentPatient()
 
@@ -1496,7 +1497,7 @@ def manage_documents(parent=None, msg=None, single_selection=True):
 
 	#------------------------------------------------------------
 	def refresh(lctrl):
-		docs = pat.document_folder.get_documents()
+		docs = pat.document_folder.get_documents(pk_types = pk_types, pk_episodes = pk_episodes)
 		items = [ [
 			gmDateTime.pydt_strftime(d['clin_when'], u'%Y %b %d', accuracy = gmDateTime.acc_days),
 			d['l10n_type'],
@@ -1507,6 +1508,13 @@ def manage_documents(parent=None, msg=None, single_selection=True):
 		lctrl.set_string_items(items)
 		lctrl.set_data(docs)
 
+	#--------------------------------------------------------
+	def show_doc(doc):
+		if doc is None:
+			return
+		for fname in doc.save_parts_to_files():
+			gmMimeLib.call_viewer_on_file(aFile = fname, block = False)
+
 	#------------------------------------------------------------
 	return gmListWidgets.get_choices_from_list (
 		parent = parent,
@@ -1516,8 +1524,8 @@ def manage_documents(parent=None, msg=None, single_selection=True):
 		#new_callback = edit,
 		#edit_callback = edit,
 		#delete_callback = delete,
-		refresh_callback = refresh
-		#,left_extra_button = (_('Import'), _('Import consumable substances from a drug database.'), add_from_db)
+		refresh_callback = refresh,
+		left_extra_button = (_('Show'), _('Show all parts of this document in external viewer.'), show_doc)
 	)
 
 #============================================================
