@@ -432,20 +432,34 @@ class cOrthancServer:
 		_log.info(u'exporting %s studies into [%s]', len(study_ids), filename)
 		_log.debug(u'studies: %s', study_ids)
 		f = io.open(filename, 'wb')
-		url = '%s/tools/create-media' % self.__server_url
-		_log.debug(url)
 		#  You have to make a POST request against URI "/tools/create-media", with a
 		#  JSON body that contains the array of the resources of interest (as Orthanc
 		#  identifiers). Here is a sample command-line:
 		#  curl -X POST http://localhost:8042/tools/create-media -d '["8c4663df-c3e66066-9e20a8fc-dd14d1e5-251d3d84","2cd4848d-02f0005f-812ffef6-a210bbcf-3f01a00a","6eeded74-75005003-c3ae9738-d4a06a4f-6beedeb8","8a622020-c058291c-7693b63f-bc67aa2e-0a02e69c"]' -v > /tmp/a.zip
 		#  (this will not create duplicates but will also not check for single-patient-ness)
+		url = '%s/tools/create-media-extended' % self.__server_url
+		_log.debug(url)
 		try:
-			f.write(self.__run_POST(url = url, data = study_ids))
+			downloaded = self.__run_POST(url = url, data = study_ids, output_file = f)
+			if not downloaded:
+				_log.error('this Orthanc version probably does not support "create-media-extended"')
 		except TypeError:
 			f.close()
 			_log.exception('cannot retrieve multiple studies as one archive with DICOMDIR, probably not supported by this Orthanc version')
 			return False
-		f.close()
+		# retry with old URL
+		if not downloaded:
+			url = '%s/tools/create-media' % self.__server_url
+			_log.debug(u'retrying: %s', url)
+			try:
+				downloaded = self.__run_POST(url = url, data = study_ids, output_file = f)
+				if not downloaded:
+					return False
+			except TypeError:
+				_log.exception('cannot retrieve multiple studies as one archive with DICOMDIR, probably not supported by this Orthanc version')
+				return False
+			finally:
+				f.close()
 		if create_zip:
 			return filename
 		if target_dir is None:
@@ -895,8 +909,8 @@ class cOrthancServer:
 			return content
 
 	#--------------------------------------------------------
-	def __run_POST(self, url=None, data=None, content_type=u''):
-		if isinstance(data, str):
+	def __run_POST(self, url=None, data=None, content_type=u'', output_file=None):
+		if isinstance(data, basestring):
 			body = data
 			if len(content_type) != 0:
 				headers = { 'content-type' : content_type }
@@ -926,19 +940,27 @@ class cOrthancServer:
 
 		if response.status == 404:
 			_log.debug(u'no data, response: %s', response)
-			return []
+			if output_file is None:
+				return []
+			return False
 		if not (response.status in [ 200, 302 ]):
 			_log.error(u'cannot POST: %s', url)
 			_log.error(u'response: %s', response)
 			return False
 		try:
-			return json.loads(content)
+			content = json.loads(content)
+#			return json.loads(content)
 		except StandardError:
+			pass
+#			return content
+		if output_file is None:
 			return content
+		output_file.write(content)
+		return True
 
 	#--------------------------------------------------------
 	def __run_PUT(self, url=None, data=None, content_type=u''):
-		if isinstance(data, str):
+		if isinstance(data, basestring):
 			body = data
 			if len(content_type) != 0:
 				headers = { 'content-type' : content_type }
@@ -1052,16 +1074,16 @@ if __name__ == "__main__":
 				print(pat['name'])
 				for study in pat['studies']:
 					print(u' ', gmTools.format_dict_like(study, relevant_keys = ['orthanc_id', 'date', 'time'], template = u'study [%%(orthanc_id)s] at %%(date)s %%(time)s contains %s series' % len(study['series'])))
-					for series in study['series']:
-						print (
-							u'  ',
-							gmTools.format_dict_like (
-								series,
-								relevant_keys = ['orthanc_id', 'date', 'time', 'modality', 'instances', 'body_part', 'protocol', 'description', 'station'],
-								template = u'series [%(orthanc_id)s] at %(date)s %(time)s: "%(description)s" %(modality)s@%(station)s (%(protocol)s) of body part "%(body_part)s" holds images:\n%(instances)s'
-							)
-						)
-				#print(orthanc.get_study_as_zip_with_dicomdir(study_id = study['orthanc_id'], filename = 'study_%s.zip' % study['orthanc_id']))
+#					for series in study['series']:
+#						print (
+#							u'  ',
+#							gmTools.format_dict_like (
+#								series,
+#								relevant_keys = ['orthanc_id', 'date', 'time', 'modality', 'instances', 'body_part', 'protocol', 'description', 'station'],
+#								template = u'series [%(orthanc_id)s] at %(date)s %(time)s: "%(description)s" %(modality)s@%(station)s (%(protocol)s) of body part "%(body_part)s" holds images:\n%(instances)s'
+#							)
+#						)
+					print(orthanc.get_studies_with_dicomdir(study_ids = [study['orthanc_id']], filename = 'study_%s.zip' % study['orthanc_id'], create_zip = True))
 				#print(orthanc.get_study_as_zip(study_id = study['orthanc_id'], filename = 'study_%s.zip' % study['orthanc_id']))
 				#print(orthanc.get_studies_as_zip_with_dicomdir(study_ids = [ s['orthanc_id'] for s in pat['studies'] ], filename = 'studies_of_%s.zip' % pat['orthanc_id']))
 				print(u'--------')
@@ -1158,7 +1180,7 @@ if __name__ == "__main__":
 		print(orthanc.get_instance('f4f07d22-0d8265ef-112ea4e9-dc140e13-350c06d1'))
 
 	#--------------------------------------------------------
-	#run_console()
+	run_console()
 	#test_modify_patient_id()
 	#test_upload_files()
-	test_get_instance_preview()
+	#test_get_instance_preview()
