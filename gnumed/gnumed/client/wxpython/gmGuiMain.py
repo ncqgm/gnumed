@@ -734,13 +734,13 @@ class gmTopLevelFrame(wx.Frame):
 		item = menu_emr_edit.Append(-1, _('&Measurements'), _('Manage measurement results for the current patient.'))
 		self.Bind(wx.EVT_MENU, self.__on_manage_measurements, item)
 
-		item = menu_emr_edit.Append(-1, _('&Vaccination history (shots)'), _('Manage vaccinations for the current patient (by shots given).'))
+		item = menu_emr_edit.Append(-1, _('&Vaccinations: by shot'), _('Manage vaccinations for the current patient (by shots given).'))
 		self.Bind(wx.EVT_MENU, self.__on_manage_vaccination, item)
 
-		item = menu_emr_edit.Append(-1, _('&Vaccination history (indications)'), _('Manage vaccinations for the current patient (by indication).'))
+		item = menu_emr_edit.Append(-1, _('&Vaccinations: by indication'), _('Manage vaccinations for the current patient (by indication).'))
 		self.Bind(wx.EVT_MENU, self.__on_show_all_vaccinations_by_indication, item)
 
-		item = menu_emr_edit.Append(-1, _('&Vaccinations (latest)'), _('List latest vaccinations for the current patient.'))
+		item = menu_emr_edit.Append(-1, _('&Vaccinations: latest'), _('List latest vaccinations for the current patient.'))
 		self.Bind(wx.EVT_MENU, self.__on_show_latest_vaccinations, item)
 
 		item = menu_emr_edit.Append(-1, _('&Family history (FHx)'), _('Manage family history.'))

@@ -829,7 +829,20 @@ class cVaccinationEAPnl(wxgVaccinationEAPnl.wxgVaccinationEAPnl, gmEditArea.cGen
 		vaccine = self._PRW_vaccine.GetData(as_instance = True)
 		if vaccine is None:
 			return
-		self._TCTRL_indications.SetValue(u'- ' + u'\n- '.join([ i['l10n_indication'] for i in vaccine['indications'] ]))
+		lines = []
+		emr = gmPerson.gmCurrentPatient().emr
+		latest_vaccs = emr.get_latest_vaccinations (
+			atc_indications = [ i['atc_indication'] for i in vaccine['indications'] ]
+		)
+		for l10n_ind in [ i['l10n_indication'] for i in vaccine['indications'] ]:
+			try:
+				no_of_shots4ind, latest_vacc4ind = latest_vaccs[l10n_ind]
+				ago = gmDateTime.format_interval_medically(gmDateTime.pydt_now_here() - latest_vacc4ind['date_given'])
+				lines.append(_(u'%s  (most recent shot of %s: %s ago)') % (l10n_ind, no_of_shots4ind, ago))
+			except KeyError:
+				lines.append(_(u'%s  (no previous vaccination recorded)') % l10n_ind)
+
+		self._TCTRL_indications.SetValue(_(u'Protects against:\n ') + u'\n '.join(lines))
 
 	#----------------------------------------------------------------
 	# generic Edit Area mixin API

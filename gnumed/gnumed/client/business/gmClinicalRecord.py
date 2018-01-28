@@ -1343,6 +1343,7 @@ class cClinicalRecord(object):
 			)
 
 		return txt
+
 	#--------------------------------------------------------
 	def format_as_journal(self, left_margin=0, patient=None):
 		txt = u''
@@ -1859,6 +1860,7 @@ WHERE
 			pk_identity = self.pk_patient,
 			pk_drug_product = pk_drug_product
 		)
+
 	#--------------------------------------------------------
 	# API: vaccinations
 	#--------------------------------------------------------
@@ -1871,7 +1873,7 @@ WHERE
 		)
 
 	#--------------------------------------------------------
-	def get_latest_vaccinations(self, episodes=None, issues=None):
+	def get_latest_vaccinations(self, episodes=None, issues=None, atc_indications=None):
 		"""Returns latest given vaccination for each vaccinated indication.
 
 		as a dict {'l10n_indication': cVaccination instance}
@@ -1889,13 +1891,16 @@ WHERE
 			where_parts.append(u'c_v_shots.pk_episode IN (select pk from clin.episode where fk_health_issue IN %(issues)s)')
 			args['issues'] = tuple(issues)
 
+		if (atc_indications is not None) and (len(atc_indications) > 0):
+			where_parts.append(u'c_v_plv4i.atc_indication IN %(atc_inds)s')
+			args['atc_inds'] = tuple(atc_indications)
+
 		# find the shots
 		cmd = u"""
 			SELECT
 				c_v_shots.*,
 				c_v_plv4i.l10n_indication,
 				c_v_plv4i.no_of_shots
-				--c_v_plv4i.indication_count as no_of_shots
 			FROM
 				clin.v_vaccinations c_v_shots
 					JOIN clin.v_pat_last_vacc4indication c_v_plv4i ON (c_v_shots.pk_vaccination = c_v_plv4i.pk_vaccination)
