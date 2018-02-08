@@ -291,7 +291,7 @@ def __setup_logging():
 	if sys.version[:3] < '2.5':
 		fmt = u'%(asctime)s  %(levelname)-8s  %(name)-12s  (%(pathname)s @ #%(lineno)d): %(message)s'
 	else:
-		fmt = u'%(asctime)s  %(levelname)-8s  %(name)-12s  %(threadName)-10s (%(thread)d)  (%(pathname)s::%(funcName)s() #%(lineno)d): %(message)s'
+		fmt = u'%(asctime)s  %(levelname)-8s  %(name)-12s  [%(thread)d %(threadName)-10s]  (%(pathname)s::%(funcName)s() #%(lineno)d): %(message)s'
 
 	_logfile = io.open(_logfile_name, mode = 'wt', encoding = 'utf8', errors = 'replace')
 

@@ -93,8 +93,10 @@ FROM
 #==================================================================
 # FIXME: make a cBorg around this
 class cCfgSQL:
-	def __init__(self):
-		self.ro_conn = gmPG2.get_connection()
+
+#	def __init__(self):
+#		pass
+
 	#-----------------------------------------------
 	# external API
 	#-----------------------------------------------
@@ -137,7 +139,7 @@ class cCfgSQL:
 
 		# does this option exist ?
 		cmd = u"select type from cfg.cfg_template where name=%(opt)s"
-		rows, idx = gmPG2.run_ro_queries(link_obj=self.ro_conn, queries = [{'cmd': cmd, 'args': {'opt': option}}])
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': {'opt': option}}])
 		if len(rows) == 0:
 			# not found ...
 			if default is None:
@@ -183,7 +185,7 @@ class cCfgSQL:
 			cfg_table_type_suffix,
 			u' and '.join(where_parts)
 		)
-		rows, idx = gmPG2.run_ro_queries(link_obj=self.ro_conn, queries = [{'cmd': cmd, 'args': args}])
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 		if len(rows) > 0:
 			if cfg_table_type_suffix == u'data':
 				return pickle.loads(str(rows[0][0]))
@@ -214,7 +216,7 @@ class cCfgSQL:
 			cfg_table_type_suffix,
 			u' and '.join(where_parts)
 		)
-		rows, idx = gmPG2.run_ro_queries(link_obj=self.ro_conn, queries = [{'cmd': cmd, 'args': args}])
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 		if len(rows) > 0:
 			# set explicitely for user/workplace
 			self.set (
@@ -240,7 +242,7 @@ class cCfgSQL:
 			cfg_table_type_suffix,
 			u' and '.join(where_parts)
 		)
-		rows, idx = gmPG2.run_ro_queries(link_obj=self.ro_conn, queries = [{'cmd': cmd, 'args': args}])
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 		if len(rows) > 0:
 			# set explicitely for user/workplace
 			self.set (
@@ -307,7 +309,7 @@ from cfg.v_cfg_options vco
 where %s
 limit 1""" % where_clause
 
-		rows, idx = gmPG2.run_ro_queries(link_obj=self.ro_conn, queries = [{'cmd': cmd, 'args': where_args}], return_data=True)
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': where_args}], return_data=True)
 		if len(rows) == 0:
 			_log.warning('option definition for [%s] not in config database' % alias)
 			return None
@@ -373,6 +375,7 @@ limit 1""" % where_clause
 		rw_conn.close()
 
 		return result
+
 	#-------------------------------------------
 	def getAllParams(self, user = None, workplace = cfg_DEFAULT):
 		"""Get names of all stored parameters for a given workplace/(user)/cookie-key.
@@ -400,8 +403,9 @@ from cfg.cfg_template, cfg.cfg_item
 where %s""" % where_clause
 
 		# retrieve option definition
-		rows, idx = gmPG2.run_ro_queries(link_obj=self.ro_conn, queries = [{'cmd': cmd, 'args': where_args}], return_data=True)
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': where_args}], return_data=True)
 		return rows
+
 	#----------------------------
 	def delete(self, conn=None, pk_option=None):
 		if conn is None:

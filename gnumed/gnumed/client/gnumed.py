@@ -66,6 +66,7 @@ __license__ = "GPL v2 or later (details at http://www.gnu.org)"
 import sys
 import os
 import platform
+import random
 import logging
 import signal
 import os.path
@@ -748,6 +749,8 @@ def shutdown_tmp_dir():
 #==========================================================
 # main - launch the GNUmed wxPython GUI client
 #----------------------------------------------------------
+
+random.seed()
 
 # setup
 setup_fault_handler(target = None)

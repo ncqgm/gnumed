@@ -77,6 +77,7 @@ class gmBackendListener(gmBorg.cBorg):
 		self.__start_thread()
 
 		self.already_inited = True
+
 	#-------------------------------
 	# public API
 	#-------------------------------
@@ -126,6 +127,7 @@ class gmBackendListener(gmBorg.cBorg):
 
 		# listen to unspecific notifications
 		self.__register_unspecific_notifications()
+
 	#-------------------------------
 	def __register_unspecific_notifications(self):
 		for sig in self.unspecific_notifications:
@@ -136,6 +138,7 @@ class gmBackendListener(gmBorg.cBorg):
 				self._cursor.execute(cmd)
 			finally:
 				self._conn_lock.release()
+
 	#-------------------------------
 	def __unregister_unspecific_notifications(self):
 		for sig in self.unspecific_notifications:
@@ -146,6 +149,7 @@ class gmBackendListener(gmBorg.cBorg):
 				self._cursor.execute(cmd)
 			finally:
 				self._conn_lock.release()
+
 	#-------------------------------
 	def __shutdown_connection(self):
 		_log.debug('shutting down connection with backend PID [%s]', self.backend_pid)
@@ -157,6 +161,7 @@ class gmBackendListener(gmBorg.cBorg):
 			pass				# connection can already be closed :-(
 		finally:
 			self._conn_lock.release()
+
 	#-------------------------------
 	def __start_thread(self):
 		if self._conn is None:
@@ -169,6 +174,7 @@ class gmBackendListener(gmBorg.cBorg):
 		self._listener_thread.setDaemon(True)
 		_log.info('starting listener thread')
 		self._listener_thread.start()
+
 	#-------------------------------
 	# the actual thread code
 	#-------------------------------

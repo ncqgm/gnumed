@@ -24,6 +24,7 @@ import types
 import logging
 import datetime as pydt
 import re as regex
+import threading
 
 
 # GNUmed
@@ -1165,14 +1166,21 @@ def row_is_locked(table=None, pk=None):
 	return False
 
 #------------------------------------------------------------------------
-def bytea2file(data_query=None, filename=None, chunk_size=0, data_size=None, data_size_query=None):
-	outfile = file(filename, 'wb')
-	result = bytea2file_object(data_query=data_query, file_obj=outfile, chunk_size=chunk_size, data_size=data_size, data_size_query=data_size_query)
+def bytea2file(data_query=None, filename=None, chunk_size=0, data_size=None, data_size_query=None, conn=None):
+	outfile = io.open(filename, 'wb')
+	result = bytea2file_object (
+		data_query = data_query,
+		file_obj = outfile,
+		chunk_size = chunk_size,
+		data_size = data_size,
+		data_size_query = data_size_query,
+		conn = conn
+	)
 	outfile.close()
 	return result
 
 #------------------------------------------------------------------------
-def bytea2file_object(data_query=None, file_obj=None, chunk_size=0, data_size=None, data_size_query=None):
+def bytea2file_object(data_query=None, file_obj=None, chunk_size=0, data_size=None, data_size_query=None, conn=None):
 	"""Store data from a bytea field into a file.
 
 	<data_query>
@@ -1204,7 +1212,8 @@ def bytea2file_object(data_query=None, file_obj=None, chunk_size=0, data_size=No
 	# reported to be fixed > v7.4.
 	# further tests reveal that at least on PG 8.0 this bug still
 	# manifests itself
-	conn = get_raw_connection(readonly=True)
+	if conn is None:
+		conn = get_raw_connection(readonly = True)
 
 	if data_size is None:
 		rows, idx = run_ro_queries(link_obj = conn, queries = [data_size_query])
@@ -2040,28 +2049,39 @@ def run_insert(link_obj=None, schema=None, table=None, values=None, returning=No
 # connection handling API
 # -----------------------------------------------------------------------
 class cConnectionPool(psycopg2.pool.PersistentConnectionPool):
-	"""
-	GNUmed database connection pool.
+	"""GNUmed database connection pool.
 
-	Extends psycopg2's PersistentConnectionPool with
+	Extends psycopg2's ThreadedConnectionPool with
 	a custom _connect() function. Supports one connection
-	per thread - which also ties it to one particular DSN.
-	"""
+	per thread - which also ties it to one particular DSN."""
 	#--------------------------------------------------
 	def _connect(self, key=None):
-
-		conn = get_raw_connection(dsn = self._kwargs['dsn'], verbose = self._kwargs['verbose'], readonly=True)
-
+		_log.debug('conn request with key [%s]', key)
+		conn = get_raw_connection(dsn = self._kwargs['dsn'], verbose = self._kwargs['verbose'], readonly = True)
+		# monkey patching close()
 		conn.original_close = conn.close
 		conn.close = _raise_exception_on_ro_conn_close
-
 		if key is not None:
 			self._used[key] = conn
 			self._rused[id(conn)] = key
 		else:
 			self._pool.append(conn)
-
 		return conn
+
+	#--------------------------------------------------
+	def discard_connection(self, key=None):
+		if key is None:
+			key = threading.current_thread().ident
+		try:
+			conn = self._used[key]
+		except KeyError:
+			_log.error(u'no such key in connection pool: %s', key)
+			_log.debug(u'available keys: %s', self._used.keys())
+			return
+		del self._used[key]
+		del self._rused[id(conn)]
+		conn.original_close()
+
 	#--------------------------------------------------
 	def shutdown(self):
 		for conn_key in self._used.keys():
@@ -2090,11 +2110,10 @@ def get_raw_connection(dsn=None, verbose=False, readonly=True, connection_name=N
 	if u' client_encoding=' not in dsn:
 		dsn += u' client_encoding=utf8'
 
-	if connection_name is None:
-		if u' application_name' not in dsn:
-			dsn += u" application_name=GNUmed"
-	else:
-		if u' application_name' not in dsn:
+	if u' application_name' not in dsn:
+		if connection_name is None:
+			dsn += u" application_name=GNUmed-[%s]"	% threading.current_thread().name.replace(u' ', u'_')
+		else:
 			dsn += u" application_name=%s" % connection_name
 
 	try:
@@ -2190,7 +2209,12 @@ def get_connection(dsn=None, readonly=True, encoding=None, verbose=False, pooled
 			)
 		else:
 			log_ro_conn = False
-		conn = __ro_conn_pool.getconn()
+		try:
+			conn = __ro_conn_pool.getconn()
+		except psycopg2.pool.PoolError:
+			_log.exception('falling back to non-pooled connection')
+			conn = get_raw_connection(dsn = dsn, verbose = verbose, readonly = readonly, connection_name = connection_name, autocommit = autocommit)
+			log_ro_conn = True
 		if log_ro_conn:
 			[ _log.debug(line) for line in capture_conn_state(conn = conn).split(u'\n') ]
 	else:
@@ -2238,6 +2262,12 @@ def get_connection(dsn=None, readonly=True, encoding=None, verbose=False, pooled
 		[ _log.debug(line) for line in capture_conn_state(conn = conn).split(u'\n') ]
 
 	return conn
+
+#-----------------------------------------------------------------------
+def discard_pooled_connection(conn_key=None):
+	if __ro_conn_pool is None:
+		return
+	__ro_conn_pool.discard_connection(key = conn_key)
 
 #-----------------------------------------------------------------------
 def shutdown():

@@ -91,6 +91,7 @@ class cDocumentFolder:
 			return None
 		prescription = cDocument(aPK_obj = rows[0][0])
 		return prescription
+
 	#--------------------------------------------------------
 	def get_latest_mugshot(self):
 		cmd = u"SELECT pk_obj FROM blobs.v_latest_mugshot WHERE pk_patient = %s"
@@ -101,6 +102,7 @@ class cDocumentFolder:
 		return cDocumentPart(aPK_obj = rows[0][0])
 
 	latest_mugshot = property(get_latest_mugshot, lambda x:x)
+
 	#--------------------------------------------------------
 	def get_mugshot_list(self, latest_only=True):
 		if latest_only:
@@ -120,6 +122,7 @@ class cDocumentFolder:
 			"""
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_patient]}])
 		return rows
+
 	#--------------------------------------------------------
 	def get_doc_list(self, doc_type=None):
 		"""return flat list of document IDs"""
@@ -151,6 +154,7 @@ class cDocumentFolder:
 		for row in rows:
 			doc_ids.append(row[0])
 		return doc_ids
+
 	#--------------------------------------------------------
 	def get_visual_progress_notes(self, episodes=None, encounter=None):
 		return self.get_documents (
@@ -272,7 +276,7 @@ class cDocumentPart(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	# retrieve data
 	#--------------------------------------------------------
-	def save_to_file(self, aChunkSize=0, filename=None, target_mime=None, target_extension=None, ignore_conversion_problems=False, directory=None, adjust_extension=False):
+	def save_to_file(self, aChunkSize=0, filename=None, target_mime=None, target_extension=None, ignore_conversion_problems=False, directory=None, adjust_extension=False, conn=None):
 
 		if self._payload[self._idx['size']] == 0:
 			return None
@@ -287,7 +291,8 @@ class cDocumentPart(gmBusinessDBObject.cBusinessDBObject):
 			},
 			filename = filename,
 			chunk_size = aChunkSize,
-			data_size = self._payload[self._idx['size']]
+			data_size = self._payload[self._idx['size']],
+			conn = conn
 		)
 		if not success:
 			return None
@@ -427,6 +432,7 @@ insert into blobs.reviewed_doc_objs (
 		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 
 		return True
+
 	#--------------------------------------------------------
 	def set_as_active_photograph(self):
 		if self._payload[self._idx['type']] != u'patient photograph':
@@ -442,6 +448,7 @@ insert into blobs.reviewed_doc_objs (
 		self._payload[self._idx['seq_idx']] = rows[0][0]
 		self._is_modified = True
 		self.save_payload()
+
 	#--------------------------------------------------------
 	def reattach(self, pk_doc=None):
 		if pk_doc == self._payload[self._idx['pk_doc']]:
@@ -491,6 +498,7 @@ insert into blobs.reviewed_doc_objs (
 			return False, msg
 
 		return True, ''
+
 	#--------------------------------------------------------
 	def format_single_line(self):
 		f_ext = u''
@@ -753,10 +761,10 @@ class cDocument(gmBusinessDBObject.cBusinessDBObject):
 		return (True, '', new_parts)
 
 	#--------------------------------------------------------
-	def save_parts_to_files(self, export_dir=None, chunksize=0):
+	def save_parts_to_files(self, export_dir=None, chunksize=0, conn=None):
 		fnames = []
 		for part in self.parts:
-			fname = part.save_to_file(aChunkSize = chunksize, directory = export_dir)
+			fname = part.save_to_file(aChunkSize = chunksize, directory = export_dir, conn = conn)
 #			if export_dir is not None:
 #				shutil.move(fname, export_dir)
 #				fname = os.path.join(export_dir, os.path.split(fname)[1])

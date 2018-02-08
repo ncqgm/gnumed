@@ -9,6 +9,8 @@ import logging
 import os
 import os.path
 import shutil
+import random
+import threading
 
 
 import wx
@@ -32,6 +34,8 @@ from Gnumed.pycommon import gmShellAPI
 from Gnumed.pycommon import gmCfg
 from Gnumed.pycommon import gmMatchProvider
 from Gnumed.pycommon import gmMimeLib
+from Gnumed.pycommon import gmWorkerThread
+from Gnumed.pycommon import gmPG2
 
 from Gnumed.business import gmPerson
 from Gnumed.business import gmEMRStructItems
@@ -381,71 +385,44 @@ class cVisualSoapPresenterPnl(wxgVisualSoapPresenterPnl.wxgVisualSoapPresenterPn
 	#--------------------------------------------------------
 	# external API
 	#--------------------------------------------------------
-	def refresh(self, document_folder=None, episodes=None, encounter=None):
+	def refresh(self, document_folder=None, episodes=None, encounter=None, async=False):
 
-		self.clear()
 		if document_folder is None:
+			self.clear()
 			self.GetParent().Layout()
 			return
 
 		soap_docs = document_folder.get_visual_progress_notes(episodes = episodes, encounter = encounter)
 		if len(soap_docs) == 0:
+			self.clear()
 			self.GetParent().Layout()
 			return
 
-		for soap_doc in soap_docs:
-			parts = soap_doc.parts
-			if len(parts) == 0:
-				continue
-			parts_str = u''
-			if len(parts) > 1:
-				parts_str = _(' [part 1 of %s]') % len(parts)
-			part = parts[0]
-			fname = part.save_to_file()
-			if fname is None:
-				continue
+		if not async:
+			parts_list = self._worker__export_doc_parts(docs = soap_docs)
+			self.__show_exported_parts(parts_list = parts_list)
+			return
 
-			# create bitmap
-			img = gmGuiHelpers.file2scaled_image (
-				filename = fname,
-				height = 30
-			)
-			bmp = wx_genstatbmp.GenStaticBitmap(self, -1, img, style = wx.NO_BORDER)
-
-			# create tooltip
-			img = gmGuiHelpers.file2scaled_image (
-				filename = fname,
-				height = 150
-			)
-			tip = agw_stt.SuperToolTip (
-				u'',
-				bodyImage = img,
-				header = _('Created: %s%s') % (gmDateTime.pydt_strftime(part['date_generated'], '%Y %b %d'), parts_str),
-				footer = gmTools.coalesce(part['doc_comment'], u'').strip()
-			)
-			tip.SetTopGradientColor('white')
-			tip.SetMiddleGradientColor('white')
-			tip.SetBottomGradientColor('white')
-			tip.SetTarget(bmp)
-
-			bmp.doc_part = part
-			bmp.Bind(wx.EVT_LEFT_UP, self._on_bitmap_leftclicked)
-			# FIXME: add context menu for Delete/Clone/Add/Configure
-			self._SZR_soap.Add(bmp, 0, wx.LEFT | wx.RIGHT | wx.TOP | wx.BOTTOM | wx.EXPAND, 3)
-			self.__bitmaps.append(bmp)
-
-		self.GetParent().Layout()
+		self.__worker_cookie = u'%sCookie-%s' % (self.__class__.__name__, random.random())
+		_log.debug('starting worker thread, cookie: %s', self.__worker_cookie)
+		gmWorkerThread.execute_in_worker_thread (
+			payload_function = self._worker__export_doc_parts,
+			payload_kwargs = {'docs': soap_docs, 'cookie': self.__worker_cookie},
+			completion_callback = self._forwarder__show_exported_doc_parts,
+			worker_name = self.__class__.__name__
+		)
 
 	#--------------------------------------------------------
 	def clear(self):
 		while len(self._SZR_soap.GetChildren()) > 0:
 			self._SZR_soap.Detach(0)
-#		for child_idx in range(len(self._SZR_soap.GetChildren())):
-#			self._SZR_soap.Detach(child_idx)
 		for bmp in self.__bitmaps:
+			bmp.Unbind(wx.EVT_LEFT_UP)
 			bmp.Destroy()
 		self.__bitmaps = []
 
+	#--------------------------------------------------------
+	# event handlers
 	#--------------------------------------------------------
 	def _on_bitmap_leftclicked(self, evt):
 		wx.CallAfter (
@@ -453,6 +430,78 @@ class cVisualSoapPresenterPnl(wxgVisualSoapPresenterPnl.wxgVisualSoapPresenterPn
 			doc_part = evt.GetEventObject().doc_part,
 			discard_unmodified = True
 		)
+
+	#--------------------------------------------------------
+	# internal API
+	#--------------------------------------------------------
+	def _worker__export_doc_parts(self, docs=None, cookie=None):
+		# this is used as the worker thread payload
+		_log.debug('cookie [%s]', cookie)
+		conn = gmPG2.get_raw_connection(readonly = True, connection_name = threading.current_thread().name)
+		parts_list = []
+		for soap_doc in docs:
+			parts = soap_doc.parts
+			if len(parts) == 0:
+				continue
+			parts_counter = u''
+			if len(parts) > 1:
+				parts_counter = _(u' [part 1 of %s]') % len(parts)
+			part = parts[0]
+			fname = part.save_to_file(conn = conn)
+			if fname is None:
+				continue
+			tt_header = _(u'Created: %s%s') % (gmDateTime.pydt_strftime(part['date_generated'], '%Y %b %d'), parts_counter)
+			tt_footer = gmTools.coalesce(part['doc_comment'], u'').strip()
+			parts_list.append([fname, part, tt_header, tt_footer])
+		conn.close()
+		_log.debug('worker finished')
+		return (cookie, parts_list)
+
+	#--------------------------------------------------------
+	def _forwarder__show_exported_doc_parts(self, worker_result):
+		gmPG2.discard_pooled_connection()
+		# this is the worker thread completion callback
+		cookie, parts_list = worker_result
+		# worker still the one we are interested in ?
+		if cookie != self.__worker_cookie:
+			_log.debug('received results from old worker [%s], I am [%s], ignoring', cookie, self.__worker_cookie)
+			return
+		if len(parts_list) == 0:
+			return
+		wx.CallAfter(self.__show_exported_parts, parts_list = parts_list)
+
+	#--------------------------------------------------------
+	def __show_exported_parts(self, parts_list=None):
+		self.clear()
+		for part_def in parts_list:
+			fname, part, tt_header, tt_footer = part_def
+			#_log.debug(tt_header)
+			#_log.debug(tt_footer)
+			img = gmGuiHelpers.file2scaled_image (
+				filename = fname,
+				height = 30
+			)
+			bmp = wx_genstatbmp.GenStaticBitmap(self, -1, img, style = wx.NO_BORDER)
+			bmp.doc_part = part
+			img = gmGuiHelpers.file2scaled_image (
+				filename = fname,
+				height = 150
+			)
+			tip = agw_stt.SuperToolTip (
+				u'',
+				bodyImage = img,
+				header = tt_header,
+				footer = tt_footer
+			)
+			tip.SetTopGradientColor('white')
+			tip.SetMiddleGradientColor('white')
+			tip.SetBottomGradientColor('white')
+			tip.SetTarget(bmp)
+			bmp.Bind(wx.EVT_LEFT_UP, self._on_bitmap_leftclicked)
+			# FIXME: add context menu for Delete/Clone/Add/Configure
+			self._SZR_soap.Add(bmp, 0, wx.LEFT | wx.RIGHT | wx.TOP | wx.BOTTOM | wx.EXPAND, 3)
+			self.__bitmaps.append(bmp)
+		self.GetParent().Layout()
 
 #============================================================
 # main

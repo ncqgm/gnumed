@@ -22,6 +22,7 @@ from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmCfg2
 from Gnumed.pycommon import gmWorkerThread
+from Gnumed.pycommon import gmPG2
 from Gnumed.business import gmPraxis
 from Gnumed.wxpython import gmGuiHelpers
 from Gnumed.wxpython import gmListWidgets
@@ -73,6 +74,7 @@ def _signal_update_status(status):
 
 #------------------------------------------------------------------------------
 def _async_signal_update_status(status):
+	gmPG2.discard_pooled_connection()
 	wx.CallAfter(_signal_update_status, status)
 
 #------------------------------------------------------------------------------
@@ -82,7 +84,8 @@ def check_for_updates(async=False):
 		gmWorkerThread.execute_in_worker_thread (
 			payload_function = _get_update_status,
 			payload_kwargs = None,
-			completion_callback = _async_signal_update_status
+			completion_callback = _async_signal_update_status,
+			worker_name = u'UpdChk'
 		)
 		return
 

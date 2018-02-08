@@ -356,7 +356,8 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 			if len(epis) > 0:
 				self.__img_display.refresh (
 					document_folder = doc_folder,
-					episodes = [ epi['pk_episode'] for epi in epis ]
+					episodes = [ epi['pk_episode'] for epi in epis ],
+					async = True
 				)
 			self.__soap_display.SetFont(font)
 			self.__soap_display.WriteText(txt)
@@ -607,12 +608,10 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 
 	#--------------------------------------------------------
 	def __handle_issue_context(self, pos=wx.DefaultPosition):
-#		self.__issue_context_popup.SetTitle(_('Episode %s') % episode['description'])
 		self.PopupMenu(self.__issue_context_popup, pos)
 
 	#--------------------------------------------------------
 	def __handle_episode_context(self, pos=wx.DefaultPosition):
-#		self.__epi_context_popup.SetTitle(_('Episode %s') % self.__curr_node_data['description'])
 		self.PopupMenu(self.__epi_context_popup, pos)
 
 	#--------------------------------------------------------
@@ -715,6 +714,7 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 			encounters = [encounter['pk_encounter']],
 			episodes = [episode['pk_episode']]
 		)
+
 	#--------------------------------------------------------
 	def __edit_progress_notes(self, event):
 		encounter = self.GetPyData(self.__curr_node)
@@ -726,11 +726,13 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 			encounters = [encounter['pk_encounter']],
 			episodes = [episode['pk_episode']]
 		)
+
 	#--------------------------------------------------------
 	def __edit_encounter_details(self, event):
 		node_data = self.GetPyData(self.__curr_node)
 		gmEncounterWidgets.edit_encounter(parent = self, encounter = node_data)
 		self.__populate_tree()
+
 	#--------------------------------------------------------
 	def __relink_encounter_data2episode(self, event):
 
@@ -749,6 +751,7 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 
 		if result == wx.ID_YES:
 			self.__populate_tree()
+
 	#--------------------------------------------------------
 	# issue level
 	#--------------------------------------------------------
@@ -1035,6 +1038,7 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 		self.__curr_node = sel_item
 		self.__update_text_for_selected_node()
 		return True
+
 #	#--------------------------------------------------------
 #	def _on_mouse_motion(self, event):
 #
@@ -1307,6 +1311,7 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 		_log.error('item2: %s', type(item2))
 
 		return 0
+
 	#--------------------------------------------------------
 	# properties
 	#--------------------------------------------------------
@@ -1377,6 +1382,7 @@ class cSplittedEMRTreeBrowserPnl(wxgSplittedEMRTreeBrowserPnl.wxgSplittedEMRTree
 		gmDispatcher.connect(signal = u'pre_patient_unselection', receiver = self._on_pre_patient_unselection)
 		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._on_post_patient_selection)
 		return True
+
 	#--------------------------------------------------------
 	def _get_editing(self):
 		return self.__editing
@@ -1397,6 +1403,7 @@ class cSplittedEMRTreeBrowserPnl(wxgSplittedEMRTreeBrowserPnl.wxgSplittedEMRTree
 		self._PNL_right_side.GetSizer().Layout()
 
 	editing = property(_get_editing, _set_editing)
+
 	#--------------------------------------------------------
 	# event handler
 	#--------------------------------------------------------
@@ -1404,24 +1411,30 @@ class cSplittedEMRTreeBrowserPnl(wxgSplittedEMRTreeBrowserPnl.wxgSplittedEMRTree
 		self._pnl_emr_tree._emr_tree.patient = None
 		self._PNL_edit.patient = None
 		return True
+
 	#--------------------------------------------------------
 	def _on_post_patient_selection(self):
 		if self.GetParent().GetCurrentPage() != self:
 			return True
 		self.repopulate_ui()
 		return True
+
 	#--------------------------------------------------------
 	def _on_show_details_selected(self, event):
 		self._pnl_emr_tree._emr_tree.details_display_mode = u'details'
+
 	#--------------------------------------------------------
 	def _on_show_journal_selected(self, event):
 		self._pnl_emr_tree._emr_tree.details_display_mode = u'journal'
+
 	#--------------------------------------------------------
 	def _on_show_revisions_selected(self, event):
 		self._pnl_emr_tree._emr_tree.details_display_mode = u'revisions'
+
 	#--------------------------------------------------------
 	def _on_switch_browse_edit_button_pressed(self, event):
 		self.editing = not self.__editing
+
 	#--------------------------------------------------------
 	# external API
 	#--------------------------------------------------------
@@ -1433,6 +1446,7 @@ class cSplittedEMRTreeBrowserPnl(wxgSplittedEMRTreeBrowserPnl.wxgSplittedEMRTree
 		self._splitter_browser.SetSashPosition(self._splitter_browser.GetSizeTuple()[0] // 3, True)
 
 		return True
+
 	#--------------------------------------------------------
 	def enable_display_mode_selection(self, enable):
 		if self.editing:
@@ -1445,9 +1459,11 @@ class cSplittedEMRTreeBrowserPnl(wxgSplittedEMRTreeBrowserPnl.wxgSplittedEMRTree
 		self._RBTN_details.Enable(False)
 		self._RBTN_journal.Enable(False)
 		self._RBTN_revisions.Enable(False)
+
 	#--------------------------------------------------------
 	def _add_soap_editor(self, problem=None, allow_same_problem=False):
 		self._PNL_edit._NB_soap_editors.add_editor(problem = problem, allow_same_problem = allow_same_problem)
+
 	#--------------------------------------------------------
 	def _select_edit_mode(self, edit=True):
 		self.editing = edit

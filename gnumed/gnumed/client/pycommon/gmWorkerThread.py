@@ -10,6 +10,7 @@ import sys
 import logging
 import threading
 import datetime as dt
+import copy
 
 # wx.CallAfter() does not seem to work with multiprocessing !
 #import multiprocessing
@@ -22,13 +23,17 @@ if __name__ == '__main__':
 _log = logging.getLogger('gm.worker')
 
 #=====================================================================
-def execute_in_worker_thread(payload_function=None, payload_kwargs=None, completion_callback=None):
+def execute_in_worker_thread(payload_function=None, payload_kwargs=None, completion_callback=None, worker_name=None):
 	"""Create a thread and have it execute <payload_function>.
 
 	<completion_callback> - if not None - better be prepared to
 	receive the result of <payload_function>.
 	"""
-	worker = None
+	_log.debug(u'worker [%s]', worker_name)
+	# decouple from calling thread
+	__payload_kwargs = copy.deepcopy(payload_kwargs)
+
+	worker_thread = None
 
 	#-------------------------------
 	def _run_payload():
@@ -36,18 +41,19 @@ def execute_in_worker_thread(payload_function=None, payload_kwargs=None, complet
 			if payload_kwargs is None:
 				payload_result = payload_function()
 			else:
-				payload_result = payload_function(**payload_kwargs)
+				payload_result = payload_function(**__payload_kwargs)
+			_log.debug(u'finished running payload function')
 		except StandardError:
-			_log.exception('error running worker payload: %s', payload_function)
+			_log.exception('error running payload function: %s', payload_function)
 			return
-		_log.debug(u'finished running worker payload')
 		if completion_callback is None:
 			return
 		try:
 			completion_callback(payload_result)
+			_log.debug(u'finished running completion callback')
 		except StandardError:
-			_log.exception('error running worker completion callback: %s', completion_callback)
-		_log.debug(u'finished running worker completion callback')
+			_log.exception('error running completion callback: %s', completion_callback)
+		_log.info(u'worker thread [name=%s, PID=%s] shuts down', worker_thread.name, worker_thread.ident)
 		return
 	#-------------------------------
 
@@ -56,21 +62,31 @@ def execute_in_worker_thread(payload_function=None, payload_kwargs=None, complet
 	if completion_callback is not None:
 		if not callable(completion_callback):
 			raise ValueError(u'<%s> is not callable', completion_callback)
-	thread_name = dt.datetime.now().strftime('%f-%H:%M:%S-%Y%m%d')
-	_log.info(u'creating thread "%s"', thread_name)
-	_log.debug(u' "%s" payload function: %s', thread_name, payload_function)
-	_log.debug(u' "%s" results callback: %s', thread_name, completion_callback)
-
-	#worker = multiprocessing.Process (
-	worker = threading.Thread (
+	if worker_name is None:
+		__thread_name = dt.datetime.now().strftime('%f-%S')
+	else:
+		__thread_name = u'%sThread-%s' % (
+			worker_name,
+			dt.datetime.now().strftime('%f')
+		)
+	_log.debug(u'creating thread "%s"', __thread_name)
+	_log.debug(u' "%s" payload function: %s', __thread_name, payload_function)
+	_log.debug(u' "%s" results callback: %s', __thread_name, completion_callback)
+	#worker_thread = multiprocessing.Process (
+	worker_thread = threading.Thread (
 		target = _run_payload,
-		name = thread_name
+		name = __thread_name
 	)
-	worker.start()
-	_log.debug(' "%s" PID: %s', worker.name, worker.ident)
+	# we don't want hung workers to prevent us from exiting GNUmed
+	worker_thread.daemon = True
+	_log.info(u'starting thread "%s"', __thread_name)
+	worker_thread.start()
+	_log.debug(' "%s" ident (= PID): %s', worker_thread.name, worker_thread.ident)
 	# from here on, another thread executes _run_payload()
-	# which executes payload_function(), and possibly
-	# completion_callback()
+	# which executes payload_function() and, eventually,
+	# completion_callback() if available,
+	# return thread ident so people can join() it if needed
+	return worker_thread.ident
 
 #=====================================================================
 # main

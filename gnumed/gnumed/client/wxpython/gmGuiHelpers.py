@@ -420,7 +420,6 @@ def file2scaled_image(filename=None, height=100):
 		del img_data
 		del bitmap
 		return None
-
 	return bitmap
 
 # ========================================================================
