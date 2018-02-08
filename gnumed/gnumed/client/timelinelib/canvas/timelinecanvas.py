@@ -1,4 +1,4 @@
-# Copyright (C) 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017  Rickard Lindberg, Roger Lindberg
+# Copyright (C) 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018  Rickard Lindberg, Roger Lindberg
 #
 # This file is part of Timeline.
 #
@@ -39,6 +39,14 @@ class TimelineCanvas(wx.Panel):
     This is the surface on which a timeline is drawn. It is also the object that handles user
     input events such as mouse and keyboard actions.
     """
+
+    HORIZONTAL = 8
+    VERTICAL = 16
+    BOTH = 32
+
+    START = 0
+    DRAG = 1
+    STOP = 2
 
     def __init__(self, parent):
         wx.Panel.__init__(self, parent, style=wx.NO_BORDER | wx.WANTS_CHARS)
@@ -428,14 +436,14 @@ class TimelineCanvas(wx.Panel):
     def StopDragScroll(self):
         self._scrolling = False
 
-    def InitDragSelect(self):
+    def InitDragEventSelect(self):
         self._selecting = False
 
-    def StartDragSelect(self, evt):
+    def StartDragEventSelect(self, evt):
         self._selecting = True
         self._cursor = self.GetCursor(evt)
 
-    def DragSelect(self, evt):
+    def DragEventSelect(self, evt):
         if self._selecting:
             cursor = self.GetCursor(evt)
             self._cursor.move(*cursor.pos)
@@ -444,7 +452,7 @@ class TimelineCanvas(wx.Panel):
     def GetCursor(self, evt):
         return Cursor(evt.GetX(), evt.GetY())
 
-    def StopDragSelect(self):
+    def StopDragEventSelect(self):
         if self._selecting:
             self.SelectEventsInRect(self._cursor.rect)
             self.RemoveSelectionRect()
@@ -485,6 +493,81 @@ class TimelineCanvas(wx.Panel):
         self._period_select = False
         self.SetPeriodSelection(None)
         return self._start_time, self._end_time
+
+    def InitDrag(self, scroll=None, zoom=None, period_select=None, event_select=None):
+
+        def init_scroll():
+            if self.BOTH & scroll:
+                self.InitDragScroll(direction=wx.BOTH)
+                self._drag_scroll = scroll - self.BOTH
+            elif self.HORIZONTAL & scroll:
+                self.InitDragScroll(direction=wx.HORIZONTAL)
+                self._drag_scroll = scroll - self.HORIZONTAL
+            elif self.VERTICAL & scroll:
+                self.InitDragScroll(direction=wx.VERTICAL)
+                self._drag_scroll = scroll - self.VERTICAL
+            else:
+                self._drag_scroll = None
+            if self._drag_scroll is not None:
+                self._methods[self._drag_scroll] = (self.StartDragScroll,
+                                                    self.DragScroll,
+                                                    self.StopDragScroll)
+
+        def init_zoom():
+            if zoom not in self._methods:
+                self.InitZoomSelect()
+                self._methods[zoom] = (self.StartZoomSelect,
+                                       self.DragZoom,
+                                       self.StopDragZoom)
+
+        def init_period_select():
+            if not period_select in self._methods:
+                self.InitDragPeriodSelect()
+                self._methods[period_select] = (self.StartDragPeriodSelect,
+                                                self.DragPeriodSelect,
+                                                self.StopDragPeriodSelect)
+
+        def init_event_select():
+            if not event_select in self._methods:
+                self.InitDragEventSelect()
+                self._methods[event_select] = (self.StartDragEventSelect,
+                                               self.DragEventSelect,
+                                               self.StopDragEventSelect)
+
+        self._drag_scroll = scroll
+        self._drag_zoom = zoom
+        self._drag_period_select = period_select
+        self._drag_event_select = event_select
+        self._methods = {}
+
+        if scroll:
+            init_scroll()
+        if zoom:
+            init_zoom()
+        if period_select:
+            init_period_select()
+        if event_select:
+            init_event_select()
+
+
+    def CallDragMethod(self, index, evt):
+
+        def calc_cotrol_keys_value(evt):
+            combo = 0
+            if evt.ControlDown():
+                combo += Keyboard.CTRL
+            if evt.ShiftDown():
+                combo += Keyboard.SHIFT
+            if evt.AltDown():
+                combo += Keyboard.ALT
+            return combo
+
+        combo = calc_cotrol_keys_value(evt)
+        if combo in self._methods:
+            if index == self.STOP:
+                self._methods[combo][index]()
+            else:
+                self._methods[combo][index](evt)
 
     # ------------
 

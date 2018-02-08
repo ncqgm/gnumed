@@ -1,4 +1,4 @@
-# Copyright (C) 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017  Rickard Lindberg, Roger Lindberg
+# Copyright (C) 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018  Rickard Lindberg, Roger Lindberg
 #
 # This file is part of Timeline.
 #
@@ -423,7 +423,7 @@ class TimelinePanel(TimelinePanelGuiCreator):
             event)
 
     def redraw_timeline(self):
-        self.timeline_canvas.edraw()
+        self.timeline_canvas.Redraw()
 
     def Navigate(self, navigation_fn):
         return self.timeline_canvas.Navigate(navigation_fn)

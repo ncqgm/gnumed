@@ -1,4 +1,4 @@
-# Copyright (C) 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017  Rickard Lindberg, Roger Lindberg
+# Copyright (C) 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018  Rickard Lindberg, Roger Lindberg
 #
 # This file is part of Timeline.
 #
@@ -112,8 +112,8 @@ class NoOpInputHandler(InputHandler):
         methods = MethodContainer(
             [
                 (Keyboard.NONE, scroll),
-                (Keyboard.ALT, select),
                 (Keyboard.SHIFT, zoom),
-                (Keyboard.CTRL, create_event)
+                (Keyboard.CTRL, create_event),
+                (Keyboard.SHIFT | Keyboard.CTRL, select),
             ])
         methods.select(keyboard.keys_combination)()

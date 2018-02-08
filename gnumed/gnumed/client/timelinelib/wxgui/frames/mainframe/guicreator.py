@@ -1,4 +1,4 @@
-# Copyright (C) 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017  Rickard Lindberg, Roger Lindberg
+# Copyright (C) 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018  Rickard Lindberg, Roger Lindberg
 #
 # This file is part of Timeline.
 #
@@ -119,6 +119,8 @@ class GuiCreator(object):
         main_menu_bar.Append(self._create_help_menu(), _("&Help"))
         self._set_shortcuts()
         self.SetMenuBar(main_menu_bar)
+        self.update_navigation_menu_items()
+        self.enable_disable_menus()
 
     def _set_shortcuts(self):
         from timelinelib.config.shortcut import ShortcutController
@@ -580,6 +582,9 @@ class GuiCreator(object):
             menu = self.context_menu
         self.PopupMenu(menu)
         self._create_main_menu_bar()
+
+    def create_timeline_context_menu(self):
+        self.context_menu = self._create_timeline_context_menu()
 
     def _create_timeline_context_menu(self):
         menu = wx.Menu()

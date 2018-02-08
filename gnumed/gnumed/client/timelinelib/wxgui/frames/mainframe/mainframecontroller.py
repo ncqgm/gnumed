@@ -1,4 +1,4 @@
-# Copyright (C) 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017  Rickard Lindberg, Roger Lindberg
+# Copyright (C) 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018  Rickard Lindberg, Roger Lindberg
 #
 # This file is part of Timeline.
 #
@@ -73,6 +73,8 @@ class MainFrameController(object):
             self._last_changed = self._get_modification_date()
             self._main_frame.update_navigation_menu_items()
             self._main_frame.enable_disable_menus()
+            self._main_frame.create_timeline_context_menu()
+            self._main_frame._create_main_menu_bar()
             if path == ":numtutorial:":
                 self._main_frame._fit_all_events()
 
@@ -99,7 +101,8 @@ class MainFrameController(object):
             return True
         last_changed = self._get_modification_date()
         if last_changed > self._last_changed:
-            ack = get_user_ack(_("Someoneelse has changed the Timeline.\nYou have two choices!\n  1. Set Timeline in Read-Only mode.\n  2. Synchronize Timeline.\n\nDo you want to Synchronize?"))
+            ack = get_user_ack(
+                _("Someoneelse has changed the Timeline.\nYou have two choices!\n  1. Set Timeline in Read-Only mode.\n  2. Synchronize Timeline.\n\nDo you want to Synchronize?"))
             if ack:
                 self.reload_from_disk()
             else:
@@ -151,7 +154,8 @@ class MainFrameController(object):
             fp = open(path, "w")
             fp.write("%s\n%s\n%s" % (getpass.getuser(), ts, os.getpid()))
         except Exception:
-            msg = _("Unable to take lock on %s\nThis means you can't edit the timeline.\nCheck if you have write access to this directory.") % self._timelinepath
+            msg = _(
+                "Unable to take lock on %s\nThis means you can't edit the timeline.\nCheck if you have write access to this directory.") % self._timelinepath
             display_warning_message(msg, self._main_frame)
             raise LockedException()
         finally:
