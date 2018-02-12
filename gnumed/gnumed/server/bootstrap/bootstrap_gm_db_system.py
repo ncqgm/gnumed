@@ -823,14 +823,11 @@ class database:
 				print_msg("==> dropping pre-existing target database [%s] ..." % self.name)
 				_log.info(u'trying to drop target database')
 				cmd = 'DROP DATABASE "%s"' % self.name
-				_log.debug(u'committing existing connection before setting autocommit')
+				# DROP DATABASE must be run outside transactions
 				self.conn.commit()
-				_log.debug(u'setting autocommit to TRUE')
-				self.conn.autocommit = True
-				self.conn.readonly = False
+				self.conn.set_session(readonly = False, autocommit = True)
 				cursor = self.conn.cursor()
 				try:
-					cursor.execute(u'SET default_transaction_read_only TO OFF')
 					_log.debug(u'running SQL: %s', cmd)
 					cursor.execute(cmd)
 				except:
@@ -877,13 +874,11 @@ class database:
 
 		# create database by cloning
 		print_msg("==> cloning [%s] (%s) as target database [%s] ..." % (self.template_db, size, self.name))
-		# create DB must be run outside transactions
+		# CREATE DATABASE must be run outside transactions
 		self.conn.commit()
-		self.conn.autocommit = True
-		self.conn.readonly = False
+		self.conn.set_session(readonly = False, autocommit = True)
 		cursor = self.conn.cursor()
 		try:
-			cursor.execute(u'SET default_transaction_read_only TO OFF')
 			cursor.execute(create_db_cmd)
 		except:
 			_log.exception(u">>>[%s]<<< failed" % create_db_cmd)
@@ -1157,10 +1152,10 @@ class database:
 		_log.info(u'this may potentially take "quite a long time" depending on how much data there is in the database')
 		_log.info(u'you may want to monitor the PostgreSQL log for signs of progress')
 
+		# REINDEX must be run outside transactions
 		self.conn.commit()
 		self.conn.set_session(readonly = False, autocommit = True)
 		curs_outer = self.conn.cursor()
-		curs_outer.execute(u'SET default_transaction_read_only TO OFF')
 		cmd = 'REINDEX (VERBOSE) DATABASE %s' % self.name
 		try:
 			curs_outer.execute(cmd)
