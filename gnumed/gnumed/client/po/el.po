@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-11-26 17:08+0100\n"
+"POT-Creation-Date: 2018-02-18 19:10+0100\n"
 "PO-Revision-Date: 2012-06-01 01:24+0000\n"
 "Last-Translator: ncq <Unknown>\n"
 "Language-Team: Ελληνικά, Σύγχρονα <opensuse-translation-el@opensuse.org>\n"
@@ -843,11 +843,23 @@ msgstr ""
 msgid "Select Icon"
 msgstr "Επιλογή"
 
+#, fuzzy
+msgid "Select region for event"
+msgstr "Επιλέξτε την περιοχή που θέλετε να μεγεθύνετε"
+
 msgid "Select region to zoom into"
 msgstr "Επιλέξτε την περιοχή που θέλετε να μεγεθύνετε"
 
+#, fuzzy
+msgid "Resize events"
+msgstr "Άλλαξε το μέγεθός μου"
+
 msgid "Can't move locked event"
 msgstr "Αδύνατη η μετακίνηση ενός κλειδωμένου γεγονότος"
+
+#, fuzzy
+msgid "Select events"
+msgstr "Επιλογή"
 
 #, fuzzy
 msgid "Add new"
@@ -3480,6 +3492,25 @@ msgstr "Αναζήτηση με"
 msgid "New patient ID:"
 msgstr "ID εσωτερικού ασθενούς"
 
+#, fuzzy
+msgid "Related documents: XX"
+msgstr "Επισύναψη αρχείων"
+
+#, fuzzy
+msgid "List"
+msgstr "Λίστα αναμονής"
+
+#, fuzzy
+msgid "Select types"
+msgstr "Τύπος προτύπου"
+
+msgid "List lab documents within the episode of the selected measurement."
+msgstr ""
+
+#, fuzzy
+msgid "Select the document types expected to contain lab results."
+msgstr "Επέλεξε πρότυπο για την εκτύπωση της φαρμακευτικής αγωγής."
+
 msgid "Source"
 msgstr "Πηγή"
 
@@ -3869,6 +3900,9 @@ msgstr "Επεξεργασία φαρμακευτικής αγωγής"
 msgid "Image"
 msgstr ""
 
+msgid "Patient"
+msgstr "Ασθενής"
+
 msgid "◄"
 msgstr ""
 
@@ -3891,10 +3925,6 @@ msgid "Save (&D)"
 msgstr "Αποθήκευση &όλα"
 
 #, fuzzy
-msgid "Save (D)"
-msgstr " Αποθήκευση "
-
-#, fuzzy
 msgid "&Upload"
 msgstr "Ανανέωση"
 
@@ -3903,8 +3933,11 @@ msgid "Show (&P)"
 msgstr "Εμφάνιση μηνυμάτων:"
 
 #, fuzzy
-msgid "Save (Z)"
+msgid "Save (P)"
 msgstr " Αποθήκευση "
+
+msgid "as ZIP"
+msgstr ""
 
 #, fuzzy
 msgid "Enter the PACS host address."
@@ -3926,6 +3959,9 @@ msgstr ""
 #, fuzzy
 msgid "Connect to PACS."
 msgstr "Σύνδεση στο GNUmed"
+
+msgid "Verify patient data in PACS."
+msgstr ""
 
 msgid "Review previous image."
 msgstr ""
@@ -3989,9 +4025,6 @@ msgstr ""
 #, fuzzy
 msgid "Study"
 msgstr "ημέρα"
-
-msgid "Patient"
-msgstr "Ασθενής"
 
 msgid "PACS"
 msgstr ""
@@ -4243,11 +4276,25 @@ msgstr ""
 msgid "E&xport area"
 msgstr "Αναφορά"
 
-msgid "Refresh the timeline display."
+msgid "Care"
+msgstr ""
+
+msgid "12 mo"
 msgstr ""
 
 #, fuzzy
-msgid "Save timeline as SVG image."
+msgid "Today"
+msgstr "σήμερα(%s)"
+
+#, fuzzy
+msgid "All"
+msgstr "&Όλα"
+
+msgid "Refresh display from the patient's chart."
+msgstr ""
+
+#, fuzzy
+msgid "Save timeline as images."
 msgstr "Δημιουργία νέου"
 
 #, fuzzy
@@ -4257,6 +4304,23 @@ msgstr "Προσθήκη νέου ονόματος"
 #, fuzzy
 msgid "Print timeline."
 msgstr "Δημιουργία νέου"
+
+#, fuzzy
+msgid "Fit timeline to the Care Period."
+msgstr "Προσθήκη νέου ονόματος"
+
+msgid "Fit timeline to the the last 12 months."
+msgstr ""
+
+#, fuzzy
+msgid "Center timeline on today."
+msgstr "Δεν άνοιξε καμιά χρονογραμμή"
+
+msgid "Zoom to fit all events."
+msgstr ""
+
+msgid "Show:"
+msgstr ""
 
 msgid "active"
 msgstr "ενεργό"
@@ -6158,6 +6222,10 @@ msgid "<patient directory>"
 msgstr "ασθενής"
 
 #, fuzzy
+msgid "Generate metadata"
+msgstr "Γενικευμένο"
+
+#, fuzzy
 msgid "Creating patient media"
 msgstr "Διαγραφή φαρμακευτικής αγωγής"
 
@@ -6183,6 +6251,13 @@ msgid ""
 "above.\n"
 "\n"
 "This will leave alone any existing data."
+msgstr ""
+
+msgid ""
+"Check if you want GNUmed to generate and include metadata describing the "
+"exported patient data files.\n"
+"\n"
+"If unchecked, export items will simply be dumped into the target directory."
 msgstr ""
 
 msgid "Create patient media (in target directory or on CD / DVD)."
@@ -6727,9 +6802,6 @@ msgstr "Δείξε &εργαστηριακό ημερολόγιο"
 msgid ""
 "Press this button to switch back and forth between browsing and entering "
 "SOAP notes."
-msgstr ""
-
-msgid "Show:"
 msgstr ""
 
 #, fuzzy
@@ -7657,11 +7729,6 @@ msgstr ""
 msgid "Role:"
 msgstr "Ρόλος"
 
-msgid ""
-"Here you can enter an interval (extending backwards from \"now\") within "
-"which to show health care activity."
-msgstr ""
-
 #, fuzzy
 msgid "Identity:"
 msgstr "Ταυτότητα"
@@ -7673,12 +7740,6 @@ msgstr "Επαφές"
 #, fuzzy
 msgid "Activity:"
 msgstr "Ενεργοποίησε"
-
-msgid "(limit to last:"
-msgstr ""
-
-msgid ")"
-msgstr ""
 
 #, fuzzy
 msgid "Current meds and substances:"
@@ -10694,8 +10755,8 @@ msgstr "Επεισόδια %s%s%s [#%s]"
 msgid "Created during encounter: %s (%s - %s)   [#%s]"
 msgstr "RFE"
 
-#, python-format
-msgid " Duration: %s (%s - %s)"
+#, fuzzy, python-format
+msgid " Duration: %s (%s)"
 msgstr " Διάρκεια: %s (%s - %s)"
 
 msgid "finished"
@@ -10704,9 +10765,8 @@ msgstr "ολοκληρώθηκε"
 msgid "none associated"
 msgstr ""
 
-#, fuzzy
-msgid "Error retrieving encounters for this health issue."
-msgstr "Σφάλμα κατά την ανάκτηση των επεισοδίων για το θέμα αυτό της υγείας."
+msgid "Error retrieving encounters for this episode."
+msgstr "Σφάλμα κατά την ανάκτηση των συνεδριών για αυτό το επεισόδιο."
 
 #, python-format
 msgid "Last worked on: %s\n"
@@ -10726,8 +10786,8 @@ msgstr ""
 msgid "AOE"
 msgstr "AOE"
 
-#, python-format
-msgid " ... %s skipped ..."
+#, fuzzy, python-format
+msgid " %s %s skipped %s"
 msgstr " ...%s παραλείφθηκε ..."
 
 msgid "Progress notes in most recent encounter:"
@@ -10735,6 +10795,10 @@ msgstr "Σημειώσεις προόδου στις πιο πρόσφατη σ�
 
 msgid "Measurements and Results:"
 msgstr "Μετρήσεις και Αποτελέσματα:"
+
+#, python-format
+msgid "%s so far"
+msgstr ""
 
 #, fuzzy, python-format
 msgid "Episode: %s%s%s"
@@ -10773,6 +10837,10 @@ msgid "Comment: "
 msgstr "Σχόλιο:"
 
 #, fuzzy
+msgid "Care Period"
+msgstr "Χρονικό διάστημα"
+
+#, fuzzy
 msgid "Health issues"
 msgstr "Θέμα υγείας"
 
@@ -10794,10 +10862,6 @@ msgstr ""
 msgid "Lifespan"
 msgstr ""
 
-#, fuzzy
-msgid "Care Period"
-msgstr "Χρονικό διάστημα"
-
 msgid "Life events"
 msgstr ""
 
@@ -10809,7 +10873,9 @@ msgid "Birth"
 msgstr ""
 
 #, python-format
-msgid "Start of Care: %s (the earliest recorded event of care in this praxis)"
+msgid ""
+"Start of Care: %s\n"
+"(the earliest recorded event of care in this praxis)"
 msgstr ""
 
 #, fuzzy, python-format
@@ -10850,6 +10916,9 @@ msgstr ""
 "%s Επεισόδιο \"%s\" [%s]\n"
 "%s Συναντήσεις:%s (%s -%s)\n"
 "%s Εργάστηκε για τελευταία φορά την:%s\n"
+
+msgid "Unspecified"
+msgstr ""
 
 msgid "Administrative"
 msgstr "Διοικητικό"
@@ -11874,21 +11943,31 @@ msgstr "Τελευταίοι εμβολιασμοί"
 msgid "%s (latest of %s: %s ago)"
 msgstr "μέρος %s: %s"
 
+#, fuzzy, python-format
+msgid "%s (%s ago)"
+msgstr ""
+"%s: %s από  %.8s (v%s)\n"
+"%s"
+
 #, fuzzy
 msgid "Most recent vaccination for each indication.\n"
 msgstr "Εμβολιασμός"
 
-#, fuzzy
-msgid "Complete vaccination history.\n"
-msgstr "Κανένας εμβολιασμόςπρος μορφοποίηση."
-
-msgid "Showing vaccinations."
-msgstr ""
-
 msgid "Indication"
 msgstr "Ένδειξη"
 
+#, fuzzy
+msgid "Complete vaccination history (per indication).\n"
+msgstr "Κανένας εμβολιασμόςπρος μορφοποίηση."
+
+#, fuzzy
+msgid "Complete vaccination history (by shot).\n"
+msgstr "Κανένας εμβολιασμόςπρος μορφοποίηση."
+
 msgid "Intended to protect from"
+msgstr ""
+
+msgid "Showing vaccinations."
 msgstr ""
 
 #, fuzzy
@@ -11906,6 +11985,19 @@ msgid "Vx schedules"
 msgstr "Προγραμματισμός"
 
 msgid "Open a browser showing vaccination schedules."
+msgstr ""
+
+#, fuzzy, python-format
+msgid "%s  (most recent shot of %s: %s ago)"
+msgstr "μέρος %s: %s"
+
+#, python-format
+msgid "%s  (no previous vaccination recorded)"
+msgstr ""
+
+msgid ""
+"Protects against:\n"
+" "
 msgstr ""
 
 msgid "prevention"
@@ -12065,16 +12157,6 @@ msgstr "μέρος %s: %s"
 #, fuzzy, python-format
 msgid "last: %s, %s"
 msgstr "μέρος %s: %s"
-
-#, fuzzy, python-format
-msgid "Last %s:"
-msgstr "Τελευταίο"
-
-#, fuzzy
-msgid "Statistics cover period"
-msgstr ""
-"Στατιστικά ΗΙΦ\n"
-"\n"
 
 #, python-format
 msgid "EDC (!?!): %s"
@@ -15764,6 +15846,10 @@ msgstr "Ημερομηνία: %s\n"
 msgid "eGFR:"
 msgstr ""
 
+#, fuzzy
+msgid " - abnormal"
+msgstr " Κωδικός: %s\n"
+
 #, fuzzy, python-format
 msgid " - abnormal: %s"
 msgstr " Κωδικός: %s\n"
@@ -16570,6 +16656,9 @@ msgstr "Αποθήκευση εγγράφου"
 msgid "Ref #"
 msgstr ""
 
+msgid "Show all parts of this document in external viewer."
+msgstr ""
+
 msgid "Bill"
 msgstr ""
 
@@ -17027,6 +17116,40 @@ msgstr ""
 #, fuzzy
 msgid "Unable to save selected studies."
 msgstr "Επεξεργασία του επιλεγμένου αντικειμένου."
+
+msgid "DICOM data error"
+msgstr ""
+
+msgid ""
+"There seems to be a data error in the DICOM files\n"
+"stored in the Orthanc server.\n"
+"\n"
+"Please check the inbox."
+msgstr ""
+
+msgid ""
+"Checksum error in DICOM data of this patient.\n"
+"\n"
+msgstr ""
+
+#, fuzzy, python-format
+msgid ""
+"DICOM server: %s\n"
+"\n"
+msgstr " Αιτία: %s\n"
+
+#, python-format
+msgid ""
+"Orthanc patient ID [%s]\n"
+" %s: [%s]\n"
+msgstr ""
+
+#, fuzzy
+msgid "error report"
+msgstr "Αποστολή αναφοράς"
+
+msgid "DICOM data corruption"
+msgstr ""
 
 #, fuzzy
 msgid "Unable to save patient studies."
@@ -17612,15 +17735,23 @@ msgid "Manage measurement results for the current patient."
 msgstr "Αρχή νέας συνεδρίας για τον ενεργό ασθενή αμέσως τώρα."
 
 #, fuzzy
-msgid "&Vaccination history"
-msgstr "&Εμβολιασμοί"
+msgid "&Vaccinations: by shot"
+msgstr "Εμβολιασμοί:"
 
 #, fuzzy
-msgid "Manage vaccinations for the current patient."
+msgid "Manage vaccinations for the current patient (by shots given)."
 msgstr "Αρχή νέας συνεδρίας για τον ενεργό ασθενή αμέσως τώρα."
 
 #, fuzzy
-msgid "&Vaccinations (latest)"
+msgid "&Vaccinations: by indication"
+msgstr "&Εμβολιασμοί"
+
+#, fuzzy
+msgid "Manage vaccinations for the current patient (by indication)."
+msgstr "Αρχή νέας συνεδρίας για τον ενεργό ασθενή αμέσως τώρα."
+
+#, fuzzy
+msgid "&Vaccinations: latest"
 msgstr "&Εμβολιασμοί"
 
 #, fuzzy
@@ -17685,56 +17816,57 @@ msgstr ""
 msgid "Show a high-level statistic summary of the EMR."
 msgstr ""
 
-msgid "Journal (encounters) to file"
-msgstr ""
-
-msgid ""
-"Save the EMR of the active patient as a chronological journal into a text "
-"file"
-msgstr ""
-
 #, fuzzy
-msgid "Journal (encounters) to export area"
+msgid "Journal (encounters)"
 msgstr "Προσθήκη νέου ονόματος"
 
 msgid ""
 "Copy EMR of the active patient as a chronological journal into export area"
 msgstr ""
 
-msgid "Journal (mod time) to file"
-msgstr ""
-
-msgid ""
-"Save the EMR of the active patient as journal by last modification time into "
-"a text file"
-msgstr ""
-
 #, fuzzy
-msgid "Journal (mod time) to export area"
+msgid "Journal (mod time)"
 msgstr "Προσθήκη νέου ονόματος"
 
+#, fuzzy
 msgid ""
-"Copy EMR of the active patient as journal by last modification time into "
+"Copy EMR of active patient as journal (by last modification time) into "
 "export area"
-msgstr ""
+msgstr "Δεν μπορώ να εξάγω τον ΗΙΦ. Χωρίς ενεργό ασθενή."
 
 msgid "Text document"
 msgstr "Έγγραφο κειμένου"
 
 #, fuzzy
-msgid "Save the EMR of the active patient into a text file"
-msgstr "Δεν είναι δυνατή η συγχώνευση ενεργού ασθενή σε άλλον ασθενή."
+msgid "Copy EMR of active patient as text document into export area"
+msgstr "Προσθήκη νέου ονόματος"
 
-msgid "MEDISTAR import format"
+#, fuzzy
+msgid "Timeline file"
+msgstr "όλα τα αρχεία"
+
+msgid "Copy EMR of active patient as timeline file (XML) into export area"
 msgstr ""
+
+#, fuzzy
+msgid "Care structure"
+msgstr "Θέμα υγείας"
+
+msgid "Copy EMR of active patient as care structure text file into export area"
+msgstr ""
+
+#, fuzzy
+msgid "MEDISTAR import format (as file)"
+msgstr "Εισαγωγή από αρχείο"
 
 msgid ""
 "GNUmed -> MEDISTAR. Save progress notes of active patient's active encounter "
 "into a text file."
 msgstr ""
 
-msgid "Export as ..."
-msgstr "Εξαγωγή ως ..."
+#, fuzzy
+msgid "Put into export area as ..."
+msgstr "Προσθήκη νέου ονόματος"
 
 msgid "&EMR"
 msgstr "&Ηλεκτρονικός Ιατρικός Φάκελος"
@@ -18737,15 +18869,23 @@ msgstr ""
 msgid "EMR Summary"
 msgstr "Περίληψη ΗΙΦ"
 
+msgid "Cannot export EMR. No active patient."
+msgstr "Δεν μπορώ να εξάγω τον ΗΙΦ. Χωρίς ενεργό ασθενή."
+
+#, fuzzy
+msgid "EMR as text document"
+msgstr "Έγγραφο κειμένου"
+
+#, fuzzy
+msgid "EMR as timeline file (XML)"
+msgstr "όλα τα αρχεία"
+
+msgid "EMR as care structure file"
+msgstr ""
+
 #, fuzzy
 msgid "Cannot export EMR journal by last modification time. No active patient."
 msgstr "Δεν μπορώ να εξάγω τον ΗΙΦ. Χωρίς ενεργό ασθενή."
-
-msgid "journal_by_last_mod_time"
-msgstr ""
-
-msgid "Save patient's EMR journal as..."
-msgstr ""
 
 msgid "Error exporting patient EMR as journal by last modification time."
 msgstr ""
@@ -18753,26 +18893,13 @@ msgstr ""
 msgid "EMR journal export"
 msgstr "Εξαγωγή εφημερίδας ΗΙΦ"
 
-#, python-format
-msgid ""
-"Successfully exported EMR as journal by last modification time into file "
-"[%s]."
+msgid "EMR journal by last modification time"
 msgstr ""
 
 msgid "Cannot export EMR journal. No active patient."
 msgstr ""
 
-msgid "emr-journal"
-msgstr "τεπ-ημερολόγιο"
-
 msgid "Error exporting patient EMR as chronological journal."
-msgstr ""
-
-#, python-format
-msgid "Successfully exported EMR as chronological journal into file [%s]."
-msgstr ""
-
-msgid "EMR journal by last modification time"
 msgstr ""
 
 #, fuzzy
@@ -18962,19 +19089,20 @@ msgid ""
 "  [%s]"
 msgstr ""
 
-msgid "Save timeline as SVG image under..."
-msgstr ""
+#, fuzzy
+msgid "Save timeline as images (SVG, PNG) under..."
+msgstr "Δημιουργία νέου"
 
 #, fuzzy
-msgid "timeline image"
+msgid "timeline image (png)"
 msgstr "όλα τα αρχεία"
 
 #, fuzzy
-msgid "timeline image (scalable)"
+msgid "timeline image (svg)"
 msgstr "όλα τα αρχεία"
 
 #, fuzzy
-msgid "timeline data"
+msgid "timeline data (xml)"
 msgstr "Ώρα:"
 
 msgid "Cannot delete hospitalization."
@@ -19019,9 +19147,6 @@ msgstr ""
 
 msgid "Cannot change notebook tabs. No active patient."
 msgstr ""
-
-msgid "add plugin ..."
-msgstr "προσθήκη πρόσθετου ..."
 
 msgid "Cannot activate Allergy Manager. No active patient."
 msgstr ""
@@ -19087,17 +19212,29 @@ msgid ""
 "\n"
 msgstr ""
 
-#, python-format
-msgid "Birthday: %s ago\n"
-msgstr ""
-
-#, python-format
-msgid "Birthday: in %s\n"
-msgstr ""
-
 #, fuzzy, python-format
 msgid "Age: %s\n"
 msgstr "Ημερομηνία: %s\n"
+
+#, python-format
+msgid "Age: %s, birthday:\n"
+msgstr ""
+
+#, fuzzy, python-format
+msgid "%s ago (= this year)"
+msgstr "%s (%s αυτό το έτος)"
+
+#, fuzzy, python-format
+msgid "in %s (= next year)"
+msgstr "%s (%s επόμενο έτος)"
+
+#, fuzzy, python-format
+msgid "in %s (= this year)"
+msgstr "%s (%s αυτό το έτος)"
+
+#, fuzzy, python-format
+msgid "%s ago (= last year)"
+msgstr "%s (%s τελευταίο έτος)"
 
 #, python-format
 msgid "last confirmed %s\n"
@@ -19871,6 +20008,28 @@ msgid "Result"
 msgstr "Αποτέλεσμα"
 
 #, fuzzy
+msgid "no related documents found"
+msgstr "Επισύναψη αρχείων"
+
+msgid "No document types declared to contain lab results."
+msgstr ""
+
+msgid "Document types declared to contain lab results:"
+msgstr ""
+
+#, fuzzy, python-format
+msgid "Related documents: %s"
+msgstr "Αρχεία:%s"
+
+#, fuzzy
+msgid "Documents possibly related to this episode"
+msgstr "Δεν υπάρχουν συνεδρίες για αυτό το επεισόδιο."
+
+#, fuzzy
+msgid "Select the document types which are expected to contain lab results."
+msgstr "Επέλεξε πρότυπο για την εκτύπωση της φαρμακευτικής αγωγής."
+
+#, fuzzy
 msgid "Perform on selected results:"
 msgstr "διορθωμένο αποτέλεσμα"
 
@@ -19883,12 +20042,12 @@ msgstr "Εξαγωγή σε &αρχείο"
 msgid "Export to &clipboard"
 msgstr "Εξαγωγή στο &πρόχειρο"
 
+#, fuzzy
+msgid "Problems"
+msgstr "Πρόβλημα"
+
 msgid "Panels"
 msgstr ""
-
-#, fuzzy
-msgid "List"
-msgstr "Λίστα αναμονής"
 
 msgid ""
 "lab_grid_date_format::%Y\n"
@@ -20123,9 +20282,6 @@ msgstr "Επεξεργασία του επιλεγμένου αντικειμέ�
 
 msgid "no LOINC details found"
 msgstr ""
-
-msgid "Cannot export EMR. No active patient."
-msgstr "Δεν μπορώ να εξάγω τον ΗΙΦ. Χωρίς ενεργό ασθενή."
 
 msgid "emr-export"
 msgstr ""
@@ -21363,10 +21519,40 @@ msgid "Abort and do NOT connect to GNUmed."
 msgstr "Ματαίωση και ΔΕΝ θα συνδεθείτε με το GNUmed."
 
 #, fuzzy
-#~ msgid "%s%s%s (%s ago)"
+#~ msgid "Save (Z)"
+#~ msgstr " Αποθήκευση "
+
+#, fuzzy
+#~ msgid "Error retrieving encounters for this health issue."
 #~ msgstr ""
-#~ "%s: %s από  %.8s (v%s)\n"
-#~ "%s"
+#~ "Σφάλμα κατά την ανάκτηση των επεισοδίων για το θέμα αυτό της υγείας."
+
+#, fuzzy
+#~ msgid "Last %s:"
+#~ msgstr "Τελευταίο"
+
+#, fuzzy
+#~ msgid "Statistics cover period"
+#~ msgstr ""
+#~ "Στατιστικά ΗΙΦ\n"
+#~ "\n"
+
+#, fuzzy
+#~ msgid "Save the EMR of the active patient into a text file"
+#~ msgstr "Δεν είναι δυνατή η συγχώνευση ενεργού ασθενή σε άλλον ασθενή."
+
+#~ msgid "Export as ..."
+#~ msgstr "Εξαγωγή ως ..."
+
+#~ msgid "emr-journal"
+#~ msgstr "τεπ-ημερολόγιο"
+
+#, fuzzy
+#~ msgid "timeline image (scalable)"
+#~ msgstr "όλα τα αρχεία"
+
+#~ msgid "add plugin ..."
+#~ msgstr "προσθήκη πρόσθετου ..."
 
 #, fuzzy
 #~ msgid ""
@@ -21529,10 +21715,6 @@ msgstr "Ματαίωση και ΔΕΝ θα συνδεθείτε με το GNUme
 #~ msgstr "Δεν υπάρχουν συνεδρίες για αυτό το επεισόδιο."
 
 #, fuzzy
-#~ msgid "Test types"
-#~ msgstr "Τύπος προτύπου"
-
-#, fuzzy
 #~ msgid "Start of Care"
 #~ msgstr "Άρχισε νέο"
 
@@ -21551,10 +21733,6 @@ msgstr "Ματαίωση και ΔΕΝ θα συνδεθείτε με το GNUme
 #, fuzzy
 #~ msgid "Export all"
 #~ msgstr "Αναφορά"
-
-#, fuzzy
-#~ msgid "Copy selected studies into export area."
-#~ msgstr "Προσθήκη νέου ονόματος"
 
 #, fuzzy
 #~ msgid "Selected studies:"
@@ -21631,10 +21809,6 @@ msgstr "Ματαίωση και ΔΕΝ θα συνδεθείτε με το GNUme
 #, fuzzy
 #~ msgid "Saving vaccination"
 #~ msgstr "Τελευταίοι εμβολιασμοί"
-
-#, fuzzy
-#~ msgid "Care issue"
-#~ msgstr "Θέμα υγείας"
 
 #, fuzzy
 #~ msgid "Showing documents."
@@ -21997,9 +22171,6 @@ msgstr "Ματαίωση και ΔΕΝ θα συνδεθείτε με το GNUme
 
 #~ msgid "part"
 #~ msgstr "μέρος"
-
-#~ msgid "Error retrieving encounters for this episode."
-#~ msgstr "Σφάλμα κατά την ανάκτηση των συνεδριών για αυτό το επεισόδιο."
 
 #~ msgid "Happened"
 #~ msgstr "Έγινε"

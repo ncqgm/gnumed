@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-12-22 15:03+0100\n"
+"POT-Creation-Date: 2018-02-18 19:11+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2924,6 +2924,21 @@ msgstr ""
 msgid "New patient ID:"
 msgstr ""
 
+msgid "Related documents: XX"
+msgstr ""
+
+msgid "List"
+msgstr ""
+
+msgid "Select types"
+msgstr ""
+
+msgid "List lab documents within the episode of the selected measurement."
+msgstr ""
+
+msgid "Select the document types expected to contain lab results."
+msgstr ""
+
 msgid "Source"
 msgstr ""
 
@@ -3246,6 +3261,9 @@ msgstr ""
 msgid "Image"
 msgstr ""
 
+msgid "Patient"
+msgstr ""
+
 msgid "◄"
 msgstr ""
 
@@ -3264,16 +3282,16 @@ msgstr ""
 msgid "Save (&D)"
 msgstr ""
 
-msgid "Save (D)"
-msgstr ""
-
 msgid "&Upload"
 msgstr ""
 
 msgid "Show (&P)"
 msgstr ""
 
-msgid "Save (Z)"
+msgid "Save (P)"
+msgstr ""
+
+msgid "as ZIP"
 msgstr ""
 
 msgid "Enter the PACS host address."
@@ -3289,6 +3307,9 @@ msgid "Enter the PACS password. It will not be shown."
 msgstr ""
 
 msgid "Connect to PACS."
+msgstr ""
+
+msgid "Verify patient data in PACS."
 msgstr ""
 
 msgid "Review previous image."
@@ -3345,9 +3366,6 @@ msgid "Modify some of Orthanc content (such as patient IDs)."
 msgstr ""
 
 msgid "Study"
-msgstr ""
-
-msgid "Patient"
 msgstr ""
 
 msgid "PACS"
@@ -6800,11 +6818,6 @@ msgstr ""
 msgid "Role:"
 msgstr ""
 
-msgid ""
-"Here you can enter an interval (extending backwards from \"now\") within "
-"which to show health care activity."
-msgstr ""
-
 msgid "Identity:"
 msgstr ""
 
@@ -6812,12 +6825,6 @@ msgid "Contacts:"
 msgstr ""
 
 msgid "Activity:"
-msgstr ""
-
-msgid "(limit to last:"
-msgstr ""
-
-msgid ")"
 msgstr ""
 
 msgid "Current meds and substances:"
@@ -10711,19 +10718,26 @@ msgstr ""
 msgid "%s (latest of %s: %s ago)"
 msgstr ""
 
+#, python-format
+msgid "%s (%s ago)"
+msgstr ""
+
 msgid "Most recent vaccination for each indication.\n"
-msgstr ""
-
-msgid "Complete vaccination history.\n"
-msgstr ""
-
-msgid "Showing vaccinations."
 msgstr ""
 
 msgid "Indication"
 msgstr ""
 
+msgid "Complete vaccination history (per indication).\n"
+msgstr ""
+
+msgid "Complete vaccination history (by shot).\n"
+msgstr ""
+
 msgid "Intended to protect from"
+msgstr ""
+
+msgid "Showing vaccinations."
 msgstr ""
 
 msgid "Print vaccinations or recalls."
@@ -10739,6 +10753,19 @@ msgid "Vx schedules"
 msgstr ""
 
 msgid "Open a browser showing vaccination schedules."
+msgstr ""
+
+#, python-format
+msgid "%s  (most recent shot of %s: %s ago)"
+msgstr ""
+
+#, python-format
+msgid "%s  (no previous vaccination recorded)"
+msgstr ""
+
+msgid ""
+"Protects against:\n"
+" "
 msgstr ""
 
 msgid "prevention"
@@ -10889,13 +10916,6 @@ msgstr ""
 
 #, python-format
 msgid "last: %s, %s"
-msgstr ""
-
-#, python-format
-msgid "Last %s:"
-msgstr ""
-
-msgid "Statistics cover period"
 msgstr ""
 
 #, python-format
@@ -15190,6 +15210,9 @@ msgstr ""
 msgid "Ref #"
 msgstr ""
 
+msgid "Show all parts of this document in external viewer."
+msgstr ""
+
 msgid "Bill"
 msgstr ""
 
@@ -15611,6 +15634,39 @@ msgid "Saving DICOM studies"
 msgstr ""
 
 msgid "Unable to save selected studies."
+msgstr ""
+
+msgid "DICOM data error"
+msgstr ""
+
+msgid ""
+"There seems to be a data error in the DICOM files\n"
+"stored in the Orthanc server.\n"
+"\n"
+"Please check the inbox."
+msgstr ""
+
+msgid ""
+"Checksum error in DICOM data of this patient.\n"
+"\n"
+msgstr ""
+
+#, python-format
+msgid ""
+"DICOM server: %s\n"
+"\n"
+msgstr ""
+
+#, python-format
+msgid ""
+"Orthanc patient ID [%s]\n"
+" %s: [%s]\n"
+msgstr ""
+
+msgid "error report"
+msgstr ""
+
+msgid "DICOM data corruption"
 msgstr ""
 
 msgid "Unable to save patient studies."
@@ -16166,13 +16222,19 @@ msgstr ""
 msgid "Manage measurement results for the current patient."
 msgstr ""
 
-msgid "&Vaccination history"
+msgid "&Vaccinations: by shot"
 msgstr ""
 
-msgid "Manage vaccinations for the current patient."
+msgid "Manage vaccinations for the current patient (by shots given)."
 msgstr ""
 
-msgid "&Vaccinations (latest)"
+msgid "&Vaccinations: by indication"
+msgstr ""
+
+msgid "Manage vaccinations for the current patient (by indication)."
+msgstr ""
+
+msgid "&Vaccinations: latest"
 msgstr ""
 
 msgid "List latest vaccinations for the current patient."
@@ -17508,9 +17570,6 @@ msgstr ""
 msgid "Cannot change notebook tabs. No active patient."
 msgstr ""
 
-msgid "add plugin ..."
-msgstr ""
-
 msgid "Cannot activate Allergy Manager. No active patient."
 msgstr ""
 
@@ -18278,6 +18337,25 @@ msgstr ""
 msgid "Result"
 msgstr ""
 
+msgid "no related documents found"
+msgstr ""
+
+msgid "No document types declared to contain lab results."
+msgstr ""
+
+msgid "Document types declared to contain lab results:"
+msgstr ""
+
+#, python-format
+msgid "Related documents: %s"
+msgstr ""
+
+msgid "Documents possibly related to this episode"
+msgstr ""
+
+msgid "Select the document types which are expected to contain lab results."
+msgstr ""
+
 msgid "Perform on selected results:"
 msgstr ""
 
@@ -18290,10 +18368,10 @@ msgstr ""
 msgid "Export to &clipboard"
 msgstr ""
 
-msgid "Panels"
+msgid "Problems"
 msgstr ""
 
-msgid "List"
+msgid "Panels"
 msgstr ""
 
 msgid ""

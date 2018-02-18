@@ -5,8 +5,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-12-22 15:03+0100\n"
-"PO-Revision-Date: 2017-12-22 15:05+0100\n"
+"POT-Creation-Date: 2018-02-18 19:10+0100\n"
+"PO-Revision-Date: 2018-02-18 19:35+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "Language: de_DE\n"
@@ -14,7 +14,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: pygettext.py 1.3\n"
-"X-Generator: Poedit 2.0.5\n"
+"X-Generator: Poedit 2.0.6\n"
 
 #, python-format
 msgid "unknown test status [%s]"
@@ -3198,6 +3198,21 @@ msgstr "Suchbegriff:"
 msgid "New patient ID:"
 msgstr "Neue Patientennummer:"
 
+msgid "Related documents: XX"
+msgstr "Relevante Dokumente: XX"
+
+msgid "List"
+msgstr "Liste"
+
+msgid "Select types"
+msgstr "Typen wählen"
+
+msgid "List lab documents within the episode of the selected measurement."
+msgstr "Labordokumente der Episode der gewählten Messung zeigen."
+
+msgid "Select the document types expected to contain lab results."
+msgstr "Wählen Sie die Dokumententypen, die Laborwerte beinhalten."
+
 msgid "Source"
 msgstr "Quelle"
 
@@ -3568,6 +3583,9 @@ msgstr "<nicht verbunden>"
 msgid "Image"
 msgstr "Bild"
 
+msgid "Patient"
+msgstr "Patient"
+
 msgid "◄"
 msgstr ""
 
@@ -3586,17 +3604,17 @@ msgstr "&Zeigen (D)"
 msgid "Save (&D)"
 msgstr "Speichern (&D)"
 
-msgid "Save (D)"
-msgstr "Speichern (D)"
-
 msgid "&Upload"
 msgstr "&Hochladen"
 
 msgid "Show (&P)"
 msgstr "Zeigen (&P)"
 
-msgid "Save (Z)"
-msgstr "Speichern (Z)"
+msgid "Save (P)"
+msgstr "Speichern (P)"
+
+msgid "as ZIP"
+msgstr "als ZIP"
 
 msgid "Enter the PACS host address."
 msgstr "Geben Sie den Computernamen (host address) des PACS ein."
@@ -3613,6 +3631,9 @@ msgstr ""
 
 msgid "Connect to PACS."
 msgstr "Mit PACS verbinden."
+
+msgid "Verify patient data in PACS."
+msgstr "Patientendaten im PACS prüfen."
 
 msgid "Review previous image."
 msgstr "Vorheriges Bild zeigen."
@@ -3674,9 +3695,6 @@ msgstr "Einige Orthanc-Inhalte (z.B.Patienten-IDs) bearbeiten."
 
 msgid "Study"
 msgstr "Studie"
-
-msgid "Patient"
-msgstr "Patient"
 
 msgid "PACS"
 msgstr ""
@@ -7682,13 +7700,6 @@ msgstr ""
 msgid "Role:"
 msgstr "Rolle:"
 
-msgid ""
-"Here you can enter an interval (extending backwards from \"now\") within "
-"which to show health care activity."
-msgstr ""
-"Hier können Sie den von heute zurückreichenden Zeitraum eingeben, dessen "
-"Aktivität ermittelt werden soll."
-
 msgid "Identity:"
 msgstr "Identität:"
 
@@ -7697,12 +7708,6 @@ msgstr "Kontaktdaten:"
 
 msgid "Activity:"
 msgstr "Aktivität:"
-
-msgid "(limit to last:"
-msgstr "(Zeitraum:"
-
-msgid ")"
-msgstr ")"
 
 msgid "Current meds and substances:"
 msgstr "Medikation und Substanzgebrauch:"
@@ -11929,20 +11934,27 @@ msgstr ""
 msgid "%s (latest of %s: %s ago)"
 msgstr "%s (jüngste von %s: vor %s)"
 
+#, python-format
+msgid "%s (%s ago)"
+msgstr "%s (vor %s)"
+
 msgid "Most recent vaccination for each indication.\n"
 msgstr "Jüngste Impfung je impfpräventable Erkrankung.\n"
-
-msgid "Complete vaccination history.\n"
-msgstr "Vollständige Impfhistorie für diesen Patienten.\n"
-
-msgid "Showing vaccinations."
-msgstr "Zeige Impfungen."
 
 msgid "Indication"
 msgstr "Indikation"
 
+msgid "Complete vaccination history (per indication).\n"
+msgstr "Vollständige Impfhistorie (nach Indikation).\n"
+
+msgid "Complete vaccination history (by shot).\n"
+msgstr "Vollständige Impfhistorie (nach Impfungen).\n"
+
 msgid "Intended to protect from"
 msgstr "Soll schützen vor"
+
+msgid "Showing vaccinations."
+msgstr "Zeige Impfungen."
 
 msgid "Print vaccinations or recalls."
 msgstr "Impfungen oder Recalls drucken."
@@ -11958,6 +11970,19 @@ msgstr "Impfpläne"
 
 msgid "Open a browser showing vaccination schedules."
 msgstr "Impfpläne im Browser anzeigen."
+
+#, python-format
+msgid "%s  (most recent shot of %s: %s ago)"
+msgstr "%s  (jüngste Impfung von %s: vor %s)"
+
+#, python-format
+msgid "%s  (no previous vaccination recorded)"
+msgstr "%s  (Erstimpfung)"
+
+msgid ""
+"Protects against:\n"
+" "
+msgstr "Schützt gegen:"
 
 msgid "prevention"
 msgstr "Prävention"
@@ -12125,13 +12150,6 @@ msgstr "Ersteintrag: %s, %s"
 #, python-format
 msgid "last: %s, %s"
 msgstr "zuletzt: %s, %s"
-
-#, python-format
-msgid "Last %s:"
-msgstr "Letzte %s:"
-
-msgid "Statistics cover period"
-msgstr "Statistikzeitraum"
 
 #, python-format
 msgid "EDC (!?!): %s"
@@ -17168,6 +17186,9 @@ msgstr "Dokumentenliste des Patienten"
 msgid "Ref #"
 msgstr "Ref-No"
 
+msgid "Show all parts of this document in external viewer."
+msgstr "Alle Teile dieses Dokuments in externem Viewer zeigen."
+
 msgid "Bill"
 msgstr "Rechnung"
 
@@ -17654,6 +17675,49 @@ msgstr "Speichere DICOM-Studien"
 
 msgid "Unable to save selected studies."
 msgstr "Kann gewählte Studien nicht speichern."
+
+msgid "DICOM data error"
+msgstr "DICOM-Datenfehler"
+
+msgid ""
+"There seems to be a data error in the DICOM files\n"
+"stored in the Orthanc server.\n"
+"\n"
+"Please check the inbox."
+msgstr ""
+"Es scheint einen Datenfehler in den DICOM-Dateien\n"
+"zu geben, die im Orthanc-Server gespeichert sind.\n"
+"\n"
+"Bitte den Posteingang prüfen."
+
+msgid ""
+"Checksum error in DICOM data of this patient.\n"
+"\n"
+msgstr ""
+"Prüfsummenfehler in den DICOM-Daten dieses Patienten.\n"
+"\n"
+
+#, python-format
+msgid ""
+"DICOM server: %s\n"
+"\n"
+msgstr ""
+"DICOM-Server: %s\n"
+"\n"
+
+#, python-format
+msgid ""
+"Orthanc patient ID [%s]\n"
+" %s: [%s]\n"
+msgstr ""
+"Pat-ID in Orthanc [%s]\n"
+" %s: [%s]\n"
+
+msgid "error report"
+msgstr "Fehlerbericht"
+
+msgid "DICOM data corruption"
+msgstr "DICOM-Datenfehler"
 
 msgid "Unable to save patient studies."
 msgstr "Kann Studien des Patienten nicht speichern."
@@ -18231,14 +18295,20 @@ msgstr "&Meßwerte"
 msgid "Manage measurement results for the current patient."
 msgstr "Meßergebnisse für den aktiven Patienten verwalten."
 
-msgid "&Vaccination history"
-msgstr "&Impfhistorie"
+msgid "&Vaccinations: by shot"
+msgstr "&Impfungen: nach Gabe"
 
-msgid "Manage vaccinations for the current patient."
-msgstr "Impfungen des aktiven Patienten verwalten."
+msgid "Manage vaccinations for the current patient (by shots given)."
+msgstr "Impfungen (nach Impfstoffgaben) des aktiven Patienten verwalten."
 
-msgid "&Vaccinations (latest)"
-msgstr "&Impfungen (neueste)"
+msgid "&Vaccinations: by indication"
+msgstr "&Impfungen: nach Indikation"
+
+msgid "Manage vaccinations for the current patient (by indication)."
+msgstr "Impfungen (nach Indikationen) des aktiven Patienten verwalten."
+
+msgid "&Vaccinations: latest"
+msgstr "&Impfungen: jüngste"
 
 msgid "List latest vaccinations for the current patient."
 msgstr "Jüngste Impfungen des aktiven Patienten anzeigen."
@@ -19889,9 +19959,6 @@ msgstr "Krankenhaus fehlt. Kann Einweisung nicht speichern."
 msgid "Cannot change notebook tabs. No active patient."
 msgstr "Kann Modul nicht aufrufen. Kein Patient aktiv."
 
-msgid "add plugin ..."
-msgstr "lade Modul ..."
-
 msgid "Cannot activate Allergy Manager. No active patient."
 msgstr "Kann Allergiemanager nicht aufrufen. Kein Patient aktiv."
 
@@ -20764,6 +20831,25 @@ msgstr "Kann Meßwerte nicht ohne Plotscript darstellen."
 msgid "Result"
 msgstr "Ergebnis"
 
+msgid "no related documents found"
+msgstr "keine relevanten Dokumente"
+
+msgid "No document types declared to contain lab results."
+msgstr "Keine Dokumententypen für Laborergebnisse gewählt."
+
+msgid "Document types declared to contain lab results:"
+msgstr "Dokumententypen, die Laborwerte enthalten:"
+
+#, python-format
+msgid "Related documents: %s"
+msgstr "Relevante Dokumente: %s"
+
+msgid "Documents possibly related to this episode"
+msgstr "Zur Episode gehörende Dokumente"
+
+msgid "Select the document types which are expected to contain lab results."
+msgstr "Wählen Sie die Dokumententypen, die Laborergebnisse enthalten."
+
 msgid "Perform on selected results:"
 msgstr "Auf markierte Ergebnisse anwenden:"
 
@@ -20776,11 +20862,11 @@ msgstr "In &Datei exportieren"
 msgid "Export to &clipboard"
 msgstr "In die &Zwischenablage kopieren"
 
+msgid "Problems"
+msgstr "Problem"
+
 msgid "Panels"
 msgstr "Profile"
-
-msgid "List"
-msgstr "Liste"
 
 msgid ""
 "lab_grid_date_format::%Y\n"
@@ -22464,6 +22550,31 @@ msgstr "Abbrechen"
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
 
+#~ msgid "Save (Z)"
+#~ msgstr "Speichern (Z)"
+
+#~ msgid ""
+#~ "Here you can enter an interval (extending backwards from \"now\") within "
+#~ "which to show health care activity."
+#~ msgstr ""
+#~ "Hier können Sie den von heute zurückreichenden Zeitraum eingeben, dessen "
+#~ "Aktivität ermittelt werden soll."
+
+#~ msgid "(limit to last:"
+#~ msgstr "(Zeitraum:"
+
+#~ msgid ")"
+#~ msgstr ")"
+
+#~ msgid "Last %s:"
+#~ msgstr "Letzte %s:"
+
+#~ msgid "Statistics cover period"
+#~ msgstr "Statistikzeitraum"
+
+#~ msgid "add plugin ..."
+#~ msgstr "lade Modul ..."
+
 #~ msgid "Care chronology"
 #~ msgstr "Behandlungschronologie"
 
@@ -22534,9 +22645,6 @@ msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
 
 #~ msgid "Unhappy because:"
 #~ msgstr "Problem:"
-
-#~ msgid "%s%s%s (%s ago)"
-#~ msgstr "%s%s%s (vor %s)"
 
 #~ msgid ""
 #~ "Script <gm-burn_doc(.bat)> not found.\n"
@@ -22646,9 +22754,6 @@ msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
 #~ msgstr ""
 #~ "Codes für dieses Meßprofil,\n"
 #~ "abgetrennt mittels \";\"."
-
-#~ msgid "Test types"
-#~ msgstr "Meßmethoden"
 
 #~ msgid "J07AE02-target::cholera"
 #~ msgstr "Cholera"
@@ -23151,9 +23256,6 @@ msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
 #~ msgstr ""
 #~ "\n"
 #~ "jetzige Werte:\n"
-
-#~ msgid "no previous versions of this record"
-#~ msgstr "Keine Vorversionen dieses Eintrags"
 
 #~ msgid ""
 #~ "\n"
@@ -24613,9 +24715,6 @@ msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
 #~ "\n"
 #~ "Sie können auch einfach die relevanten Adressdaten in die passenden "
 #~ "Felder eingeben, ohne nach einer existierenden Adresse zu suchen."
-
-#~ msgid "Codes linked to this episode."
-#~ msgstr "Codes zu dieser Episode."
 
 #~ msgid "Enter codes relevant to this Reason for Encounter."
 #~ msgstr "Wählen Sie die für diese Beratungsursache relevanten Codes."

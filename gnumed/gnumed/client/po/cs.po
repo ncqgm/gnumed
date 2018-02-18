@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-11-26 17:08+0100\n"
+"POT-Creation-Date: 2018-02-18 19:10+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -765,11 +765,23 @@ msgstr "Obrázky budou zmenšeny, aby se vyšly do boxu %ix%i."
 msgid "Select Icon"
 msgstr "Vybrat ikonu"
 
+#, fuzzy
+msgid "Select region for event"
+msgstr "Vyberte oblast pro přibližení"
+
 msgid "Select region to zoom into"
 msgstr "Vyberte oblast pro přibližení"
 
+#, fuzzy
+msgid "Resize events"
+msgstr "Změň velikost a posuň mě!"
+
 msgid "Can't move locked event"
 msgstr "Nelze přesunout uzamčenou událost."
+
+#, fuzzy
+msgid "Select events"
+msgstr "Vybrat událost."
 
 msgid "Add new"
 msgstr "Přidat nový"
@@ -3129,6 +3141,23 @@ msgstr ""
 msgid "New patient ID:"
 msgstr ""
 
+#, fuzzy
+msgid "Related documents: XX"
+msgstr " % dokumentů\n"
+
+msgid "List"
+msgstr ""
+
+#, fuzzy
+msgid "Select types"
+msgstr "Vybrat událost."
+
+msgid "List lab documents within the episode of the selected measurement."
+msgstr ""
+
+msgid "Select the document types expected to contain lab results."
+msgstr ""
+
 msgid "Source"
 msgstr ""
 
@@ -3453,6 +3482,9 @@ msgstr ""
 msgid "Image"
 msgstr ""
 
+msgid "Patient"
+msgstr ""
+
 msgid "◄"
 msgstr ""
 
@@ -3473,9 +3505,6 @@ msgstr "Zobrazit čas"
 msgid "Save (&D)"
 msgstr ""
 
-msgid "Save (D)"
-msgstr ""
-
 msgid "&Upload"
 msgstr ""
 
@@ -3483,7 +3512,10 @@ msgstr ""
 msgid "Show (&P)"
 msgstr "Zobrazit čas"
 
-msgid "Save (Z)"
+msgid "Save (P)"
+msgstr ""
+
+msgid "as ZIP"
 msgstr ""
 
 msgid "Enter the PACS host address."
@@ -3499,6 +3531,9 @@ msgid "Enter the PACS password. It will not be shown."
 msgstr ""
 
 msgid "Connect to PACS."
+msgstr ""
+
+msgid "Verify patient data in PACS."
 msgstr ""
 
 msgid "Review previous image."
@@ -3559,9 +3594,6 @@ msgstr ""
 #, fuzzy
 msgid "Study"
 msgstr "Počáteční čas "
-
-msgid "Patient"
-msgstr ""
 
 msgid "PACS"
 msgstr ""
@@ -3799,11 +3831,24 @@ msgstr ""
 msgid "E&xport area"
 msgstr "Export do SVG"
 
-msgid "Refresh the timeline display."
+msgid "Care"
+msgstr ""
+
+msgid "12 mo"
 msgstr ""
 
 #, fuzzy
-msgid "Save timeline as SVG image."
+msgid "Today"
+msgstr "dnes"
+
+msgid "All"
+msgstr ""
+
+msgid "Refresh display from the patient's chart."
+msgstr ""
+
+#, fuzzy
+msgid "Save timeline as images."
 msgstr "Export momentálního náhledu do SVG obrázku"
 
 msgid "Put timeline into export area."
@@ -3812,6 +3857,22 @@ msgstr ""
 #, fuzzy
 msgid "Print timeline."
 msgstr "Vytvořit Časovou osu"
+
+msgid "Fit timeline to the Care Period."
+msgstr ""
+
+msgid "Fit timeline to the the last 12 months."
+msgstr ""
+
+#, fuzzy
+msgid "Center timeline on today."
+msgstr "Není otevřena žádná časová osa."
+
+msgid "Zoom to fit all events."
+msgstr ""
+
+msgid "Show:"
+msgstr ""
 
 msgid "active"
 msgstr ""
@@ -5601,6 +5662,9 @@ msgstr ""
 msgid "<patient directory>"
 msgstr ""
 
+msgid "Generate metadata"
+msgstr ""
+
 #, fuzzy
 msgid "Creating patient media"
 msgstr "Vytvořit novou událost"
@@ -5627,6 +5691,13 @@ msgid ""
 "above.\n"
 "\n"
 "This will leave alone any existing data."
+msgstr ""
+
+msgid ""
+"Check if you want GNUmed to generate and include metadata describing the "
+"exported patient data files.\n"
+"\n"
+"If unchecked, export items will simply be dumped into the target directory."
 msgstr ""
 
 msgid "Create patient media (in target directory or on CD / DVD)."
@@ -6134,9 +6205,6 @@ msgstr ""
 msgid ""
 "Press this button to switch back and forth between browsing and entering "
 "SOAP notes."
-msgstr ""
-
-msgid "Show:"
 msgstr ""
 
 msgid "Kidneys"
@@ -7021,11 +7089,6 @@ msgstr ""
 msgid "Role:"
 msgstr ""
 
-msgid ""
-"Here you can enter an interval (extending backwards from \"now\") within "
-"which to show health care activity."
-msgstr ""
-
 msgid "Identity:"
 msgstr ""
 
@@ -7033,12 +7096,6 @@ msgid "Contacts:"
 msgstr ""
 
 msgid "Activity:"
-msgstr ""
-
-msgid "(limit to last:"
-msgstr ""
-
-msgid ")"
 msgstr ""
 
 msgid "Current meds and substances:"
@@ -9870,8 +9927,8 @@ msgstr "Případ %s%s%s   [#%s]"
 msgid "Created during encounter: %s (%s - %s)   [#%s]"
 msgstr "Založeno během setkání: %s (%s - %s) [#%s]"
 
-#, python-format
-msgid " Duration: %s (%s - %s)"
+#, fuzzy, python-format
+msgid " Duration: %s (%s)"
 msgstr " Trvání: %s (%s - %s)"
 
 msgid "finished"
@@ -9880,7 +9937,8 @@ msgstr "dokončeno"
 msgid "none associated"
 msgstr ""
 
-msgid "Error retrieving encounters for this health issue."
+#, fuzzy
+msgid "Error retrieving encounters for this episode."
 msgstr "Chyba při načítání setkání pro tento zdravotní problém."
 
 #, python-format
@@ -9901,14 +9959,20 @@ msgstr ""
 msgid "AOE"
 msgstr ""
 
-#, python-format
-msgid " ... %s skipped ..."
+#, fuzzy, python-format
+msgid " %s %s skipped %s"
 msgstr ""
+"\n"
+"Případ %s%s%s%s:"
 
 msgid "Progress notes in most recent encounter:"
 msgstr ""
 
 msgid "Measurements and Results:"
+msgstr ""
+
+#, python-format
+msgid "%s so far"
 msgstr ""
 
 #, fuzzy, python-format
@@ -9951,6 +10015,10 @@ msgstr ""
 msgid "Comment: "
 msgstr " Poznámka: %s\n"
 
+#, fuzzy
+msgid "Care Period"
+msgstr "Období"
+
 msgid "Health issues"
 msgstr ""
 
@@ -9969,10 +10037,6 @@ msgstr ""
 msgid "Lifespan"
 msgstr ""
 
-#, fuzzy
-msgid "Care Period"
-msgstr "Období"
-
 msgid "Life events"
 msgstr ""
 
@@ -9983,7 +10047,9 @@ msgid "Birth"
 msgstr ""
 
 #, python-format
-msgid "Start of Care: %s (the earliest recorded event of care in this praxis)"
+msgid ""
+"Start of Care: %s\n"
+"(the earliest recorded event of care in this praxis)"
 msgstr ""
 
 #, fuzzy, python-format
@@ -10018,6 +10084,9 @@ msgid ""
 "%sEpisode \"%s\" [%s]\n"
 "%sEncounters: %s (%s - %s)\n"
 "%sLast worked on: %s\n"
+msgstr ""
+
+msgid "Unspecified"
 msgstr ""
 
 msgid "Administrative"
@@ -11008,20 +11077,29 @@ msgstr ""
 msgid "%s (latest of %s: %s ago)"
 msgstr " Jméno souboru: %s\n"
 
+#, fuzzy, python-format
+msgid "%s (%s ago)"
+msgstr " Jméno souboru: %s\n"
+
 #, fuzzy
 msgid "Most recent vaccination for each indication.\n"
 msgstr "Očkování"
 
-msgid "Complete vaccination history.\n"
-msgstr ""
-
-msgid "Showing vaccinations."
-msgstr ""
-
 msgid "Indication"
 msgstr ""
 
+#, fuzzy
+msgid "Complete vaccination history (per indication).\n"
+msgstr "Očkování"
+
+#, fuzzy
+msgid "Complete vaccination history (by shot).\n"
+msgstr "Očkování"
+
 msgid "Intended to protect from"
+msgstr ""
+
+msgid "Showing vaccinations."
 msgstr ""
 
 #, fuzzy
@@ -11038,6 +11116,19 @@ msgid "Vx schedules"
 msgstr ""
 
 msgid "Open a browser showing vaccination schedules."
+msgstr ""
+
+#, fuzzy, python-format
+msgid "%s  (most recent shot of %s: %s ago)"
+msgstr " Jméno souboru: %s\n"
+
+#, python-format
+msgid "%s  (no previous vaccination recorded)"
+msgstr ""
+
+msgid ""
+"Protects against:\n"
+" "
 msgstr ""
 
 msgid "prevention"
@@ -11192,13 +11283,6 @@ msgstr ""
 
 #, python-format
 msgid "last: %s, %s"
-msgstr ""
-
-#, python-format
-msgid "Last %s:"
-msgstr ""
-
-msgid "Statistics cover period"
 msgstr ""
 
 #, python-format
@@ -14759,6 +14843,9 @@ msgstr ""
 msgid "eGFR:"
 msgstr ""
 
+msgid " - abnormal"
+msgstr ""
+
 #, python-format
 msgid " - abnormal: %s"
 msgstr ""
@@ -15542,6 +15629,9 @@ msgstr " % dokumentů\n"
 msgid "Ref #"
 msgstr ""
 
+msgid "Show all parts of this document in external viewer."
+msgstr ""
+
 msgid "Bill"
 msgstr ""
 
@@ -15976,6 +16066,39 @@ msgstr ""
 #, fuzzy
 msgid "Unable to save selected studies."
 msgstr "Nelze vymazat soubor zálohy '%s'."
+
+msgid "DICOM data error"
+msgstr ""
+
+msgid ""
+"There seems to be a data error in the DICOM files\n"
+"stored in the Orthanc server.\n"
+"\n"
+"Please check the inbox."
+msgstr ""
+
+msgid ""
+"Checksum error in DICOM data of this patient.\n"
+"\n"
+msgstr ""
+
+#, fuzzy, python-format
+msgid ""
+"DICOM server: %s\n"
+"\n"
+msgstr " Příjemce: #%s\n"
+
+#, python-format
+msgid ""
+"Orthanc patient ID [%s]\n"
+" %s: [%s]\n"
+msgstr ""
+
+msgid "error report"
+msgstr ""
+
+msgid "DICOM data corruption"
+msgstr ""
 
 #, fuzzy
 msgid "Unable to save patient studies."
@@ -16535,14 +16658,22 @@ msgid "Manage measurement results for the current patient."
 msgstr ""
 
 #, fuzzy
-msgid "&Vaccination history"
-msgstr "Očkování"
+msgid "&Vaccinations: by shot"
+msgstr "Očkování:"
 
-msgid "Manage vaccinations for the current patient."
+msgid "Manage vaccinations for the current patient (by shots given)."
 msgstr ""
 
 #, fuzzy
-msgid "&Vaccinations (latest)"
+msgid "&Vaccinations: by indication"
+msgstr "Očkování"
+
+#, fuzzy
+msgid "Manage vaccinations for the current patient (by indication)."
+msgstr "Očkování"
+
+#, fuzzy
+msgid "&Vaccinations: latest"
 msgstr "Očkování"
 
 msgid "List latest vaccinations for the current patient."
@@ -16599,44 +16730,43 @@ msgstr ""
 msgid "Show a high-level statistic summary of the EMR."
 msgstr ""
 
-msgid "Journal (encounters) to file"
-msgstr ""
-
-msgid ""
-"Save the EMR of the active patient as a chronological journal into a text "
-"file"
-msgstr ""
-
-msgid "Journal (encounters) to export area"
-msgstr ""
+#, fuzzy
+msgid "Journal (encounters)"
+msgstr "Výběr událostí"
 
 msgid ""
 "Copy EMR of the active patient as a chronological journal into export area"
 msgstr ""
 
-msgid "Journal (mod time) to file"
+msgid "Journal (mod time)"
 msgstr ""
 
 msgid ""
-"Save the EMR of the active patient as journal by last modification time into "
-"a text file"
-msgstr ""
-
-msgid "Journal (mod time) to export area"
-msgstr ""
-
-msgid ""
-"Copy EMR of the active patient as journal by last modification time into "
+"Copy EMR of active patient as journal (by last modification time) into "
 "export area"
 msgstr ""
 
 msgid "Text document"
 msgstr ""
 
-msgid "Save the EMR of the active patient into a text file"
+msgid "Copy EMR of active patient as text document into export area"
 msgstr ""
 
-msgid "MEDISTAR import format"
+#, fuzzy
+msgid "Timeline file"
+msgstr "Soubory Timeline"
+
+msgid "Copy EMR of active patient as timeline file (XML) into export area"
+msgstr ""
+
+#, fuzzy
+msgid "Care structure"
+msgstr "Zdravotní problém"
+
+msgid "Copy EMR of active patient as care structure text file into export area"
+msgstr ""
+
+msgid "MEDISTAR import format (as file)"
 msgstr ""
 
 msgid ""
@@ -16644,8 +16774,9 @@ msgid ""
 "into a text file."
 msgstr ""
 
-msgid "Export as ..."
-msgstr ""
+#, fuzzy
+msgid "Put into export area as ..."
+msgstr "Nelze kopírovat do schránky."
 
 msgid "&EMR"
 msgstr ""
@@ -17631,13 +17762,21 @@ msgstr ""
 msgid "EMR Summary"
 msgstr ""
 
+msgid "Cannot export EMR. No active patient."
+msgstr ""
+
+#, fuzzy
+msgid "EMR as text document"
+msgstr " % dokumentů\n"
+
+#, fuzzy
+msgid "EMR as timeline file (XML)"
+msgstr "Soubory Timeline"
+
+msgid "EMR as care structure file"
+msgstr ""
+
 msgid "Cannot export EMR journal by last modification time. No active patient."
-msgstr ""
-
-msgid "journal_by_last_mod_time"
-msgstr ""
-
-msgid "Save patient's EMR journal as..."
 msgstr ""
 
 msgid "Error exporting patient EMR as journal by last modification time."
@@ -17646,26 +17785,13 @@ msgstr ""
 msgid "EMR journal export"
 msgstr ""
 
-#, python-format
-msgid ""
-"Successfully exported EMR as journal by last modification time into file "
-"[%s]."
+msgid "EMR journal by last modification time"
 msgstr ""
 
 msgid "Cannot export EMR journal. No active patient."
 msgstr ""
 
-msgid "emr-journal"
-msgstr ""
-
 msgid "Error exporting patient EMR as chronological journal."
-msgstr ""
-
-#, python-format
-msgid "Successfully exported EMR as chronological journal into file [%s]."
-msgstr ""
-
-msgid "EMR journal by last modification time"
 msgstr ""
 
 msgid "EMR journal by encounter"
@@ -17850,19 +17976,20 @@ msgid ""
 "  [%s]"
 msgstr ""
 
-msgid "Save timeline as SVG image under..."
-msgstr ""
+#, fuzzy
+msgid "Save timeline as images (SVG, PNG) under..."
+msgstr "Export momentálního náhledu do SVG obrázku"
 
 #, fuzzy
-msgid "timeline image"
+msgid "timeline image (png)"
 msgstr "Soubory Timeline"
 
 #, fuzzy
-msgid "timeline image (scalable)"
+msgid "timeline image (svg)"
 msgstr "Soubory Timeline"
 
 #, fuzzy
-msgid "timeline data"
+msgid "timeline data (xml)"
 msgstr "Není stanovena časová osa"
 
 msgid "Cannot delete hospitalization."
@@ -17903,9 +18030,6 @@ msgid "Must select a hospital. Cannot save hospitalization."
 msgstr ""
 
 msgid "Cannot change notebook tabs. No active patient."
-msgstr ""
-
-msgid "add plugin ..."
 msgstr ""
 
 msgid "Cannot activate Allergy Manager. No active patient."
@@ -17973,16 +18097,28 @@ msgid ""
 msgstr ""
 
 #, python-format
-msgid "Birthday: %s ago\n"
-msgstr ""
-
-#, python-format
-msgid "Birthday: in %s\n"
-msgstr ""
-
-#, python-format
 msgid "Age: %s\n"
 msgstr ""
+
+#, python-format
+msgid "Age: %s, birthday:\n"
+msgstr ""
+
+#, fuzzy, python-format
+msgid "%s ago (= this year)"
+msgstr " Jméno souboru: %s\n"
+
+#, python-format
+msgid "in %s (= next year)"
+msgstr ""
+
+#, python-format
+msgid "in %s (= this year)"
+msgstr ""
+
+#, fuzzy, python-format
+msgid "%s ago (= last year)"
+msgstr " Jméno souboru: %s\n"
 
 #, python-format
 msgid "last confirmed %s\n"
@@ -18697,6 +18833,26 @@ msgstr ""
 msgid "Result"
 msgstr ""
 
+#, fuzzy
+msgid "no related documents found"
+msgstr " % dokumentů\n"
+
+msgid "No document types declared to contain lab results."
+msgstr ""
+
+msgid "Document types declared to contain lab results:"
+msgstr ""
+
+#, fuzzy, python-format
+msgid "Related documents: %s"
+msgstr "Dokumenty: %s"
+
+msgid "Documents possibly related to this episode"
+msgstr ""
+
+msgid "Select the document types which are expected to contain lab results."
+msgstr ""
+
 msgid "Perform on selected results:"
 msgstr ""
 
@@ -18709,10 +18865,11 @@ msgstr ""
 msgid "Export to &clipboard"
 msgstr ""
 
-msgid "Panels"
-msgstr ""
+#, fuzzy
+msgid "Problems"
+msgstr "Problém"
 
-msgid "List"
+msgid "Panels"
 msgstr ""
 
 msgid ""
@@ -18935,9 +19092,6 @@ msgid "No LOINC codes selected."
 msgstr ""
 
 msgid "no LOINC details found"
-msgstr ""
-
-msgid "Cannot export EMR. No active patient."
 msgstr ""
 
 msgid "emr-export"
@@ -20117,6 +20271,10 @@ msgstr ""
 msgid "Abort and do NOT connect to GNUmed."
 msgstr ""
 
+#, fuzzy
+#~ msgid "timeline image (scalable)"
+#~ msgstr "Soubory Timeline"
+
 #~ msgid "End time "
 #~ msgstr "Koncový čas "
 
@@ -20226,10 +20384,6 @@ msgstr ""
 #, fuzzy
 #~ msgid " Organization: %%s @ %s\n"
 #~ msgstr "Hospitalizace: %s"
-
-#, fuzzy
-#~ msgid "Care issue"
-#~ msgstr "Zdravotní problém"
 
 #, fuzzy
 #~ msgid "Unable to export selected studies."

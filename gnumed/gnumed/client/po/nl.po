@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-11-26 17:09+0100\n"
+"POT-Creation-Date: 2018-02-18 19:10+0100\n"
 "PO-Revision-Date: 2012-06-01 01:19+0000\n"
 "Last-Translator: Anik ten Have <anik@itchi-go.nl>\n"
 "Language-Team: Dutch <nl@li.org>\n"
@@ -797,11 +797,23 @@ msgid "Select Icon"
 msgstr "Selecteer"
 
 #, fuzzy
+msgid "Select region for event"
+msgstr "Selecteer persoon van lijst"
+
+#, fuzzy
 msgid "Select region to zoom into"
 msgstr "Selecteer persoon van lijst"
 
+#, fuzzy
+msgid "Resize events"
+msgstr "Nieuw"
+
 msgid "Can't move locked event"
 msgstr ""
+
+#, fuzzy
+msgid "Select events"
+msgstr "Patiënt selecteren"
 
 #, fuzzy
 msgid "Add new"
@@ -3147,6 +3159,25 @@ msgstr "Geef zoekterm in:"
 msgid "New patient ID:"
 msgstr "interne patiëntennummer"
 
+#, fuzzy
+msgid "Related documents: XX"
+msgstr "Tekstdocument"
+
+msgid "List"
+msgstr ""
+
+#, fuzzy
+msgid "Select types"
+msgstr "Sjabloontype"
+
+#, fuzzy
+msgid "List lab documents within the episode of the selected measurement."
+msgstr "Onderneem actie naar aanleiding van de geselecteerde metingen."
+
+#, fuzzy
+msgid "Select the document types expected to contain lab results."
+msgstr "Selecteer het standaardtype voor nieuwe ontmoetingen.\n"
+
 msgid "Source"
 msgstr "Bron"
 
@@ -3514,6 +3545,9 @@ msgstr "instellingen bewaren"
 msgid "Image"
 msgstr ""
 
+msgid "Patient"
+msgstr "Patiënt"
+
 msgid "◄"
 msgstr ""
 
@@ -3537,10 +3571,6 @@ msgid "Save (&D)"
 msgstr "Bewaar &alles"
 
 #, fuzzy
-msgid "Save (D)"
-msgstr " Bewaren "
-
-#, fuzzy
 msgid "&Upload"
 msgstr "Herladen"
 
@@ -3549,8 +3579,11 @@ msgid "Show (&P)"
 msgstr "toon onderdeel"
 
 #, fuzzy
-msgid "Save (Z)"
+msgid "Save (P)"
 msgstr " Bewaren "
+
+msgid "as ZIP"
+msgstr ""
 
 #, fuzzy
 msgid "Enter the PACS host address."
@@ -3569,6 +3602,9 @@ msgstr "Kan niet verbinden als de database eigenaar <gm-dbo>"
 #, fuzzy
 msgid "Connect to PACS."
 msgstr "Verbinden met GNUmed"
+
+msgid "Verify patient data in PACS."
+msgstr ""
 
 msgid "Review previous image."
 msgstr ""
@@ -3634,9 +3670,6 @@ msgstr ""
 #, fuzzy
 msgid "Study"
 msgstr "datum"
-
-msgid "Patient"
-msgstr "Patiënt"
 
 msgid "PACS"
 msgstr ""
@@ -3900,12 +3933,25 @@ msgstr ""
 msgid "E&xport area"
 msgstr "teken alle delen af"
 
-#, fuzzy
-msgid "Refresh the timeline display."
-msgstr "Scherm verversen"
+msgid "Care"
+msgstr ""
+
+msgid "12 mo"
+msgstr ""
 
 #, fuzzy
-msgid "Save timeline as SVG image."
+msgid "Today"
+msgstr "vandaag (%s)"
+
+#, fuzzy
+msgid "All"
+msgstr "Alle"
+
+msgid "Refresh display from the patient's chart."
+msgstr ""
+
+#, fuzzy
+msgid "Save timeline as images."
 msgstr "Exporteer het EMD van de actieve patiënt in een tekstbestand"
 
 #, fuzzy
@@ -3915,6 +3961,23 @@ msgstr "patiënt activeren van rapportresultaat"
 #, fuzzy
 msgid "Print timeline."
 msgstr "Nieuw"
+
+#, fuzzy
+msgid "Fit timeline to the Care Period."
+msgstr "patiënt activeren van rapportresultaat"
+
+msgid "Fit timeline to the the last 12 months."
+msgstr ""
+
+#, fuzzy
+msgid "Center timeline on today."
+msgstr "Scherm verversen"
+
+msgid "Zoom to fit all events."
+msgstr ""
+
+msgid "Show:"
+msgstr ""
 
 msgid "active"
 msgstr "actief"
@@ -5989,6 +6052,10 @@ msgid "<patient directory>"
 msgstr "patiënt"
 
 #, fuzzy
+msgid "Generate metadata"
+msgstr "Veralgemeniseerd"
+
+#, fuzzy
 msgid "Creating patient media"
 msgstr "Patiënt selecteren"
 
@@ -6017,6 +6084,13 @@ msgid ""
 "above.\n"
 "\n"
 "This will leave alone any existing data."
+msgstr ""
+
+msgid ""
+"Check if you want GNUmed to generate and include metadata describing the "
+"exported patient data files.\n"
+"\n"
+"If unchecked, export items will simply be dumped into the target directory."
 msgstr ""
 
 msgid "Create patient media (in target directory or on CD / DVD)."
@@ -6602,9 +6676,6 @@ msgstr "Toon &laboratoriumjournaal"
 msgid ""
 "Press this button to switch back and forth between browsing and entering "
 "SOAP notes."
-msgstr ""
-
-msgid "Show:"
 msgstr ""
 
 msgid "Kidneys"
@@ -7596,11 +7667,6 @@ msgstr ""
 msgid "Role:"
 msgstr "Functie"
 
-msgid ""
-"Here you can enter an interval (extending backwards from \"now\") within "
-"which to show health care activity."
-msgstr ""
-
 #, fuzzy
 msgid "Identity:"
 msgstr "Identiteit"
@@ -7612,12 +7678,6 @@ msgstr "Contactpersonen"
 #, fuzzy
 msgid "Activity:"
 msgstr "Activeren"
-
-msgid "(limit to last:"
-msgstr ""
-
-msgid ")"
-msgstr ""
 
 #, fuzzy
 msgid "Current meds and substances:"
@@ -10656,7 +10716,7 @@ msgid "Created during encounter: %s (%s - %s)   [#%s]"
 msgstr "Ontmoetingen: %s (%s - %s):"
 
 #, fuzzy, python-format
-msgid " Duration: %s (%s - %s)"
+msgid " Duration: %s (%s)"
 msgstr "Ontmoetingen: %s (%s - %s):"
 
 msgid "finished"
@@ -10665,9 +10725,8 @@ msgstr "voltooid"
 msgid "none associated"
 msgstr ""
 
-#, fuzzy
-msgid "Error retrieving encounters for this health issue."
-msgstr "Fout bij het opvragen van episodes van dit gezondheidsprobleem"
+msgid "Error retrieving encounters for this episode."
+msgstr "Fout bij het laden van ontmoetingen voor deze episode."
 
 #, python-format
 msgid "Last worked on: %s\n"
@@ -10687,8 +10746,8 @@ msgstr "Hulpvraag"
 msgid "AOE"
 msgstr "Consultsamenvatting"
 
-#, python-format
-msgid " ... %s skipped ..."
+#, fuzzy, python-format
+msgid " %s %s skipped %s"
 msgstr " ... %s overgeslagen ..."
 
 msgid "Progress notes in most recent encounter:"
@@ -10696,6 +10755,10 @@ msgstr "Voortgangsrapport van laatste ontmoetingen:"
 
 msgid "Measurements and Results:"
 msgstr "Metingen en Uitslagen:"
+
+#, python-format
+msgid "%s so far"
+msgstr ""
 
 #, fuzzy, python-format
 msgid "Episode: %s%s%s"
@@ -10733,6 +10796,9 @@ msgstr " (voortdurend)"
 msgid "Comment: "
 msgstr "Toelichting:"
 
+msgid "Care Period"
+msgstr ""
+
 #, fuzzy
 msgid "Health issues"
 msgstr "Gezondheidsprobleem"
@@ -10756,9 +10822,6 @@ msgstr "&Provincies"
 msgid "Lifespan"
 msgstr ""
 
-msgid "Care Period"
-msgstr ""
-
 msgid "Life events"
 msgstr ""
 
@@ -10770,7 +10833,9 @@ msgid "Birth"
 msgstr ""
 
 #, python-format
-msgid "Start of Care: %s (the earliest recorded event of care in this praxis)"
+msgid ""
+"Start of Care: %s\n"
+"(the earliest recorded event of care in this praxis)"
 msgstr ""
 
 #, fuzzy, python-format
@@ -10813,6 +10878,10 @@ msgstr ""
 "%sEpisode \"%s\" [%s]\n"
 "%sOntmoetingen: %s (%s - %s)\n"
 "%sLaatst aan gewerkt: %s\n"
+
+#, fuzzy
+msgid "Unspecified"
+msgstr "soap_Bevindingen"
 
 msgid "Administrative"
 msgstr "Beheer"
@@ -12021,23 +12090,31 @@ msgstr "Wijzigen beroep"
 msgid "%s (latest of %s: %s ago)"
 msgstr "part %2s"
 
+#, fuzzy, python-format
+msgid "%s (%s ago)"
+msgstr "%s%7s %s: %s (%s part(s), %s)"
+
 #, fuzzy
 msgid "Most recent vaccination for each indication.\n"
 msgstr "Vaccinatie"
 
+msgid "Indication"
+msgstr "Indicatie"
+
 #, fuzzy
-msgid "Complete vaccination history.\n"
+msgid "Complete vaccination history (per indication).\n"
 msgstr "Bewerk details van het beroep voor de huidige patiënt."
+
+#, fuzzy
+msgid "Complete vaccination history (by shot).\n"
+msgstr "Bewerk details van het beroep voor de huidige patiënt."
+
+msgid "Intended to protect from"
+msgstr ""
 
 #, fuzzy
 msgid "Showing vaccinations."
 msgstr "instellingen bewaren"
-
-msgid "Indication"
-msgstr "Indicatie"
-
-msgid "Intended to protect from"
-msgstr ""
 
 #, fuzzy
 msgid "Print vaccinations or recalls."
@@ -12057,6 +12134,19 @@ msgstr "Actieve Schema"
 #, fuzzy
 msgid "Open a browser showing vaccination schedules."
 msgstr "geen actieve vaccinatieschema's"
+
+#, fuzzy, python-format
+msgid "%s  (most recent shot of %s: %s ago)"
+msgstr "part %2s"
+
+#, python-format
+msgid "%s  (no previous vaccination recorded)"
+msgstr ""
+
+msgid ""
+"Protects against:\n"
+" "
+msgstr ""
 
 #, fuzzy
 msgid "prevention"
@@ -12223,16 +12313,6 @@ msgstr "prik: %s, %s, %s"
 #, fuzzy, python-format
 msgid "last: %s, %s"
 msgstr "prik: %s, %s, %s"
-
-#, fuzzy, python-format
-msgid "Last %s:"
-msgstr "Achternaam"
-
-#, fuzzy
-msgid "Statistics cover period"
-msgstr ""
-"EMD statistieken\n"
-"\n"
 
 #, python-format
 msgid "EDC (!?!): %s"
@@ -16210,6 +16290,10 @@ msgstr "Geexporteerd: %s\n"
 msgid "eGFR:"
 msgstr ""
 
+#, fuzzy
+msgid " - abnormal"
+msgstr "Episodes: %s"
+
 #, fuzzy, python-format
 msgid " - abnormal: %s"
 msgstr "Episodes: %s"
@@ -17134,6 +17218,10 @@ msgstr "documentenlijst laden"
 msgid "Ref #"
 msgstr ""
 
+#, fuzzy
+msgid "Show all parts of this document in external viewer."
+msgstr "logboek bestanden"
+
 msgid "Bill"
 msgstr ""
 
@@ -17650,6 +17738,42 @@ msgstr "opslaan voortgangsrapport"
 #, fuzzy
 msgid "Unable to save selected studies."
 msgstr "moet adres selecteren"
+
+msgid "DICOM data error"
+msgstr ""
+
+msgid ""
+"There seems to be a data error in the DICOM files\n"
+"stored in the Orthanc server.\n"
+"\n"
+"Please check the inbox."
+msgstr ""
+
+msgid ""
+"Checksum error in DICOM data of this patient.\n"
+"\n"
+msgstr ""
+
+#, fuzzy, python-format
+msgid ""
+"DICOM server: %s\n"
+"\n"
+msgstr ""
+"%s Laatst gezien: %s\n"
+"\n"
+
+#, fuzzy, python-format
+msgid ""
+"Orthanc patient ID [%s]\n"
+" %s: [%s]\n"
+msgstr "kan patiënt [%s] (%s/%s) niet activeren"
+
+#, fuzzy
+msgid "error report"
+msgstr "Verzend rapport"
+
+msgid "DICOM data corruption"
+msgstr ""
 
 #, fuzzy
 msgid "Unable to save patient studies."
@@ -18305,15 +18429,23 @@ msgid "Manage measurement results for the current patient."
 msgstr "Voeg meetresultaten toe aan de huidige patiënt."
 
 #, fuzzy
-msgid "&Vaccination history"
-msgstr "&Vaccinaties"
+msgid "&Vaccinations: by shot"
+msgstr "Vaccinaties:"
 
 #, fuzzy
-msgid "Manage vaccinations for the current patient."
+msgid "Manage vaccinations for the current patient (by shots given)."
 msgstr "Voeg meetresultaten toe aan de huidige patiënt."
 
 #, fuzzy
-msgid "&Vaccinations (latest)"
+msgid "&Vaccinations: by indication"
+msgstr "&Vaccinaties"
+
+#, fuzzy
+msgid "Manage vaccinations for the current patient (by indication)."
+msgstr "Voeg meetresultaten toe aan de huidige patiënt."
+
+#, fuzzy
+msgid "&Vaccinations: latest"
 msgstr "Vaccinaties"
 
 #, fuzzy
@@ -18382,19 +18514,8 @@ msgstr ""
 msgid "Show a high-level statistic summary of the EMR."
 msgstr ""
 
-msgid "Journal (encounters) to file"
-msgstr ""
-
 #, fuzzy
-msgid ""
-"Save the EMR of the active patient as a chronological journal into a text "
-"file"
-msgstr ""
-"Exporteer het EMD van de actieve patiënt als een chronologisch journaal naar "
-"een tekstbestand"
-
-#, fuzzy
-msgid "Journal (encounters) to export area"
+msgid "Journal (encounters)"
 msgstr "patiënt activeren van rapportresultaat"
 
 #, fuzzy
@@ -18404,24 +18525,13 @@ msgstr ""
 "Exporteer het EMD van de actieve patiënt als een chronologisch journaal naar "
 "een tekstbestand"
 
-msgid "Journal (mod time) to file"
-msgstr ""
-
 #, fuzzy
-msgid ""
-"Save the EMR of the active patient as journal by last modification time into "
-"a text file"
-msgstr ""
-"Exporteer het EMD van de actieve patiënt als een chronologisch journaal naar "
-"een tekstbestand"
-
-#, fuzzy
-msgid "Journal (mod time) to export area"
+msgid "Journal (mod time)"
 msgstr "patiënt activeren van rapportresultaat"
 
 #, fuzzy
 msgid ""
-"Copy EMR of the active patient as journal by last modification time into "
+"Copy EMR of active patient as journal (by last modification time) into "
 "export area"
 msgstr ""
 "Exporteer het EMD van de actieve patiënt als een chronologisch journaal naar "
@@ -18431,10 +18541,33 @@ msgid "Text document"
 msgstr "Tekstdocument"
 
 #, fuzzy
-msgid "Save the EMR of the active patient into a text file"
-msgstr "Exporteer het EMD van de actieve patiënt in een tekstbestand"
+msgid "Copy EMR of active patient as text document into export area"
+msgstr ""
+"Exporteer het EMD van de actieve patiënt als een chronologisch journaal naar "
+"een tekstbestand"
 
-msgid "MEDISTAR import format"
+#, fuzzy
+msgid "Timeline file"
+msgstr "alle bestanden"
+
+#, fuzzy
+msgid "Copy EMR of active patient as timeline file (XML) into export area"
+msgstr ""
+"Exporteer het EMD van de actieve patiënt als een chronologisch journaal naar "
+"een tekstbestand"
+
+#, fuzzy
+msgid "Care structure"
+msgstr "Gezondheidsprobleem"
+
+#, fuzzy
+msgid "Copy EMR of active patient as care structure text file into export area"
+msgstr ""
+"Exporteer het EMD van de actieve patiënt als een chronologisch journaal naar "
+"een tekstbestand"
+
+#, fuzzy
+msgid "MEDISTAR import format (as file)"
 msgstr "MEDISTAR importeer formaat"
 
 #, fuzzy
@@ -18445,8 +18578,9 @@ msgstr ""
 "GNUmed -> MEDISTAR. Exporteer voortgangsrapport van de actieve patiënt's "
 "huidige ontmoeting in een tekstbestand."
 
-msgid "Export as ..."
-msgstr "Exporteer als ..."
+#, fuzzy
+msgid "Put into export area as ..."
+msgstr "patiënt activeren van rapportresultaat"
 
 msgid "&EMR"
 msgstr "&EMD"
@@ -19689,15 +19823,23 @@ msgstr "Kan geen EMD samenvatting tonen. Geen actieve patiënt."
 msgid "EMR Summary"
 msgstr "EMD samenvatting"
 
+msgid "Cannot export EMR. No active patient."
+msgstr "Kan EMD niet exporteren. Geen actieve patiënt."
+
+#, fuzzy
+msgid "EMR as text document"
+msgstr "Tekstdocument"
+
+#, fuzzy
+msgid "EMR as timeline file (XML)"
+msgstr "alle bestanden"
+
+msgid "EMR as care structure file"
+msgstr ""
+
 #, fuzzy
 msgid "Cannot export EMR journal by last modification time. No active patient."
 msgstr "Kan EMD journaal niet exporteren. Geen actieve patiënt."
-
-msgid "journal_by_last_mod_time"
-msgstr ""
-
-msgid "Save patient's EMR journal as..."
-msgstr "Sla EMD van de patiënt op als..."
 
 #, fuzzy
 msgid "Error exporting patient EMR as journal by last modification time."
@@ -19707,30 +19849,15 @@ msgstr ""
 msgid "EMR journal export"
 msgstr "EMD-journaal export"
 
-#, fuzzy, python-format
-msgid ""
-"Successfully exported EMR as journal by last modification time into file "
-"[%s]."
+msgid "EMR journal by last modification time"
 msgstr ""
-"Het EMD succesvol geëxporteerd als chronologisch journaal in bestand [%s]."
 
 msgid "Cannot export EMR journal. No active patient."
 msgstr "Kan EMD journaal niet exporteren. Geen actieve patiënt."
 
-msgid "emr-journal"
-msgstr "EMD-journaal"
-
 msgid "Error exporting patient EMR as chronological journal."
 msgstr ""
 "Fout bij het exporteren van het patiënt EMD als chronologisch journaal."
-
-#, python-format
-msgid "Successfully exported EMR as chronological journal into file [%s]."
-msgstr ""
-"Het EMD succesvol geëxporteerd als chronologisch journaal in bestand [%s]."
-
-msgid "EMR journal by last modification time"
-msgstr ""
 
 #, fuzzy
 msgid "EMR journal by encounter"
@@ -19947,19 +20074,20 @@ msgid ""
 "  [%s]"
 msgstr ""
 
-msgid "Save timeline as SVG image under..."
-msgstr ""
+#, fuzzy
+msgid "Save timeline as images (SVG, PNG) under..."
+msgstr "Exporteer het EMD van de actieve patiënt in een tekstbestand"
 
 #, fuzzy
-msgid "timeline image"
+msgid "timeline image (png)"
 msgstr "alle bestanden"
 
 #, fuzzy
-msgid "timeline image (scalable)"
+msgid "timeline image (svg)"
 msgstr "alle bestanden"
 
 #, fuzzy
-msgid "timeline data"
+msgid "timeline data (xml)"
 msgstr "Titel"
 
 #, fuzzy
@@ -20009,9 +20137,6 @@ msgstr "Kan patiënt niet verwijderen. Geen actieve patiënt."
 
 msgid "Cannot change notebook tabs. No active patient."
 msgstr "Kan niet van tabblad wijzigen. Geen active patiënt."
-
-msgid "add plugin ..."
-msgstr "plugin toevoegen..."
 
 msgid "Cannot activate Allergy Manager. No active patient."
 msgstr "Kan allergieorganisator niet activeren. Geen actieve patiënt."
@@ -20077,17 +20202,29 @@ msgid ""
 "\n"
 msgstr ""
 
-#, python-format
-msgid "Birthday: %s ago\n"
-msgstr ""
-
-#, fuzzy, python-format
-msgid "Birthday: in %s\n"
-msgstr "Verjaardag herrineren"
-
 #, fuzzy, python-format
 msgid "Age: %s\n"
 msgstr "   MTA: %s"
+
+#, python-format
+msgid "Age: %s, birthday:\n"
+msgstr ""
+
+#, fuzzy, python-format
+msgid "%s ago (= this year)"
+msgstr "%s (%s dit jaar)"
+
+#, fuzzy, python-format
+msgid "in %s (= next year)"
+msgstr "%s (%s volgend jaar)"
+
+#, fuzzy, python-format
+msgid "in %s (= this year)"
+msgstr "%s (%s dit jaar)"
+
+#, fuzzy, python-format
+msgid "%s ago (= last year)"
+msgstr "%s (%s volgend jaar)"
 
 #, fuzzy, python-format
 msgid "last confirmed %s\n"
@@ -20889,6 +21026,31 @@ msgid "Result"
 msgstr "Uitslag"
 
 #, fuzzy
+msgid "no related documents found"
+msgstr "Sorteer documenten op"
+
+#, fuzzy
+msgid "No document types declared to contain lab results."
+msgstr "Nee, verwijder GEEN enkele uitslag."
+
+msgid "Document types declared to contain lab results:"
+msgstr ""
+
+#, fuzzy, python-format
+msgid "Related documents: %s"
+msgstr "Tekstdocument"
+
+#, fuzzy
+msgid "Documents possibly related to this episode"
+msgstr "Een aantekening bij deze patiënt."
+
+#, fuzzy
+msgid "Select the document types which are expected to contain lab results."
+msgstr ""
+"\n"
+"Selecteer het ontmoetingstype dat u wilt bewerken!\n"
+
+#, fuzzy
 msgid "Perform on selected results:"
 msgstr "Handel naar geselecteerde uitslagen"
 
@@ -20901,10 +21063,11 @@ msgstr "Exporteren naar &bestand"
 msgid "Export to &clipboard"
 msgstr "Exporteren naar &clipboard"
 
-msgid "Panels"
-msgstr ""
+#, fuzzy
+msgid "Problems"
+msgstr "Probleem"
 
-msgid "List"
+msgid "Panels"
 msgstr ""
 
 msgid ""
@@ -21164,9 +21327,6 @@ msgstr "Bewerk het geselecteerde item."
 
 msgid "no LOINC details found"
 msgstr ""
-
-msgid "Cannot export EMR. No active patient."
-msgstr "Kan EMD niet exporteren. Geen actieve patiënt."
 
 msgid "emr-export"
 msgstr "emd-export"
@@ -22609,8 +22769,73 @@ msgid "Abort and do NOT connect to GNUmed."
 msgstr "Afbreken en GEEN verbinding maken met GNUmed."
 
 #, fuzzy
-#~ msgid "%s%s%s (%s ago)"
-#~ msgstr "%s%7s %s: %s (%s part(s), %s)"
+#~ msgid "Save (Z)"
+#~ msgstr " Bewaren "
+
+#, fuzzy
+#~ msgid "Error retrieving encounters for this health issue."
+#~ msgstr "Fout bij het opvragen van episodes van dit gezondheidsprobleem"
+
+#, fuzzy
+#~ msgid "Last %s:"
+#~ msgstr "Achternaam"
+
+#, fuzzy
+#~ msgid "Statistics cover period"
+#~ msgstr ""
+#~ "EMD statistieken\n"
+#~ "\n"
+
+#, fuzzy
+#~ msgid ""
+#~ "Save the EMR of the active patient as a chronological journal into a text "
+#~ "file"
+#~ msgstr ""
+#~ "Exporteer het EMD van de actieve patiënt als een chronologisch journaal "
+#~ "naar een tekstbestand"
+
+#, fuzzy
+#~ msgid ""
+#~ "Save the EMR of the active patient as journal by last modification time "
+#~ "into a text file"
+#~ msgstr ""
+#~ "Exporteer het EMD van de actieve patiënt als een chronologisch journaal "
+#~ "naar een tekstbestand"
+
+#, fuzzy
+#~ msgid "Save the EMR of the active patient into a text file"
+#~ msgstr "Exporteer het EMD van de actieve patiënt in een tekstbestand"
+
+#~ msgid "Export as ..."
+#~ msgstr "Exporteer als ..."
+
+#~ msgid "Save patient's EMR journal as..."
+#~ msgstr "Sla EMD van de patiënt op als..."
+
+#, fuzzy
+#~ msgid ""
+#~ "Successfully exported EMR as journal by last modification time into file "
+#~ "[%s]."
+#~ msgstr ""
+#~ "Het EMD succesvol geëxporteerd als chronologisch journaal in bestand [%s]."
+
+#~ msgid "emr-journal"
+#~ msgstr "EMD-journaal"
+
+#~ msgid "Successfully exported EMR as chronological journal into file [%s]."
+#~ msgstr ""
+#~ "Het EMD succesvol geëxporteerd als chronologisch journaal in bestand [%s]."
+
+#, fuzzy
+#~ msgid "timeline image (scalable)"
+#~ msgstr "alle bestanden"
+
+#~ msgid "add plugin ..."
+#~ msgstr "plugin toevoegen..."
+
+#, fuzzy
+#~ msgid "Birthday: in %s\n"
+#~ msgstr "Verjaardag herrineren"
 
 #, fuzzy
 #~ msgid ""
@@ -22680,10 +22905,6 @@ msgstr "Afbreken en GEEN verbinding maken met GNUmed."
 #~ "Codes relevant to this test panel\n"
 #~ "separated by \";\"."
 #~ msgstr "Kan laboratoriumverzoek niet opslaan"
-
-#, fuzzy
-#~ msgid "Test types"
-#~ msgstr "Sjabloontype"
 
 #, fuzzy
 #~ msgid "Start of Care"
@@ -22838,14 +23059,6 @@ msgstr "Afbreken en GEEN verbinding maken met GNUmed."
 #, fuzzy
 #~ msgid "Saving vaccination"
 #~ msgstr "instellingen bewaren"
-
-#, fuzzy
-#~ msgid "Care issue"
-#~ msgstr "Gezondheidsprobleem"
-
-#, fuzzy
-#~ msgid "Document list for this patient."
-#~ msgstr "Een aantekening bij deze patiënt."
 
 #, fuzzy
 #~ msgid "Showing documents."
@@ -23651,9 +23864,6 @@ msgstr "Afbreken en GEEN verbinding maken met GNUmed."
 
 #~ msgid "part"
 #~ msgstr "deel"
-
-#~ msgid "Error retrieving encounters for this episode."
-#~ msgstr "Fout bij het laden van ontmoetingen voor deze episode."
 
 #~ msgid "Happened"
 #~ msgstr "Gebeurd"

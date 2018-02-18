@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-11-26 17:09+0100\n"
+"POT-Creation-Date: 2018-02-18 19:11+0100\n"
 "PO-Revision-Date: 2011-08-25 16:54+0000\n"
 "Last-Translator: Karolina Kalic <Unknown>\n"
 "Language-Team: Serbian <sr@li.org>\n"
@@ -759,11 +759,23 @@ msgstr ""
 msgid "Select Icon"
 msgstr ""
 
+#, fuzzy
+msgid "Select region for event"
+msgstr "Брисање вакцине"
+
 msgid "Select region to zoom into"
 msgstr ""
 
+#, fuzzy
+msgid "Resize events"
+msgstr "Направи лажне вакцине"
+
 msgid "Can't move locked event"
 msgstr ""
+
+#, fuzzy
+msgid "Select events"
+msgstr "Брисање вакцине"
 
 #, fuzzy
 msgid "Add new"
@@ -3013,6 +3025,23 @@ msgstr "Листа лекова"
 msgid "New patient ID:"
 msgstr "Активни проблеми"
 
+#, fuzzy
+msgid "Related documents: XX"
+msgstr " %s докумената\n"
+
+msgid "List"
+msgstr ""
+
+#, fuzzy
+msgid "Select types"
+msgstr "Резултати теста"
+
+msgid "List lab documents within the episode of the selected measurement."
+msgstr ""
+
+msgid "Select the document types expected to contain lab results."
+msgstr ""
+
 msgid "Source"
 msgstr ""
 
@@ -3338,6 +3367,9 @@ msgstr ""
 msgid "Image"
 msgstr ""
 
+msgid "Patient"
+msgstr ""
+
 msgid "◄"
 msgstr ""
 
@@ -3357,16 +3389,16 @@ msgstr ""
 msgid "Save (&D)"
 msgstr ""
 
-msgid "Save (D)"
-msgstr ""
-
 msgid "&Upload"
 msgstr ""
 
 msgid "Show (&P)"
 msgstr ""
 
-msgid "Save (Z)"
+msgid "Save (P)"
+msgstr ""
+
+msgid "as ZIP"
 msgstr ""
 
 #, fuzzy
@@ -3383,6 +3415,9 @@ msgid "Enter the PACS password. It will not be shown."
 msgstr ""
 
 msgid "Connect to PACS."
+msgstr ""
+
+msgid "Verify patient data in PACS."
 msgstr ""
 
 msgid "Review previous image."
@@ -3444,9 +3479,6 @@ msgid "Modify some of Orthanc content (such as patient IDs)."
 msgstr ""
 
 msgid "Study"
-msgstr ""
-
-msgid "Patient"
 msgstr ""
 
 msgid "PACS"
@@ -3696,11 +3728,25 @@ msgstr ""
 msgid "E&xport area"
 msgstr "део"
 
-msgid "Refresh the timeline display."
+msgid "Care"
+msgstr ""
+
+msgid "12 mo"
 msgstr ""
 
 #, fuzzy
-msgid "Save timeline as SVG image."
+msgid "Today"
+msgstr "данас (%s)"
+
+#, fuzzy
+msgid "All"
+msgstr "Алергија"
+
+msgid "Refresh display from the patient's chart."
+msgstr ""
+
+#, fuzzy
+msgid "Save timeline as images."
 msgstr "Направи лажне вакцине"
 
 #, fuzzy
@@ -3710,6 +3756,23 @@ msgstr "Додавање нове вакцине"
 #, fuzzy
 msgid "Print timeline."
 msgstr "Направи лажне вакцине"
+
+#, fuzzy
+msgid "Fit timeline to the Care Period."
+msgstr "Додавање нове вакцине"
+
+msgid "Fit timeline to the the last 12 months."
+msgstr ""
+
+#, fuzzy
+msgid "Center timeline on today."
+msgstr "Направи лажне вакцине"
+
+msgid "Zoom to fit all events."
+msgstr ""
+
+msgid "Show:"
+msgstr ""
 
 msgid "active"
 msgstr "активан"
@@ -5524,6 +5587,9 @@ msgstr ""
 msgid "<patient directory>"
 msgstr ""
 
+msgid "Generate metadata"
+msgstr ""
+
 #, fuzzy
 msgid "Creating patient media"
 msgstr "Брисање вакцине"
@@ -5550,6 +5616,13 @@ msgid ""
 "above.\n"
 "\n"
 "This will leave alone any existing data."
+msgstr ""
+
+msgid ""
+"Check if you want GNUmed to generate and include metadata describing the "
+"exported patient data files.\n"
+"\n"
+"If unchecked, export items will simply be dumped into the target directory."
 msgstr ""
 
 msgid "Create patient media (in target directory or on CD / DVD)."
@@ -6064,9 +6137,6 @@ msgstr "Приказивање вакцинација."
 msgid ""
 "Press this button to switch back and forth between browsing and entering "
 "SOAP notes."
-msgstr ""
-
-msgid "Show:"
 msgstr ""
 
 msgid "Kidneys"
@@ -6954,11 +7024,6 @@ msgstr ""
 msgid "Role:"
 msgstr ""
 
-msgid ""
-"Here you can enter an interval (extending backwards from \"now\") within "
-"which to show health care activity."
-msgstr ""
-
 msgid "Identity:"
 msgstr ""
 
@@ -6968,12 +7033,6 @@ msgstr ""
 #, fuzzy
 msgid "Activity:"
 msgstr "Активни лекови: %s"
-
-msgid "(limit to last:"
-msgstr ""
-
-msgid ")"
-msgstr ""
 
 msgid "Current meds and substances:"
 msgstr ""
@@ -9865,9 +9924,9 @@ msgstr ""
 msgid "Created during encounter: %s (%s - %s)   [#%s]"
 msgstr ""
 
-#, python-format
-msgid " Duration: %s (%s - %s)"
-msgstr ""
+#, fuzzy, python-format
+msgid " Duration: %s (%s)"
+msgstr "Пацијент: %s (%s), Бр: %s\n"
 
 msgid "finished"
 msgstr "завршено"
@@ -9875,8 +9934,9 @@ msgstr "завршено"
 msgid "none associated"
 msgstr ""
 
-msgid "Error retrieving encounters for this health issue."
-msgstr ""
+#, fuzzy
+msgid "Error retrieving encounters for this episode."
+msgstr "Додај вакцинацију(е) за тренутног пацијента."
 
 #, python-format
 msgid "Last worked on: %s\n"
@@ -9896,14 +9956,18 @@ msgstr ""
 msgid "AOE"
 msgstr ""
 
-#, python-format
-msgid " ... %s skipped ..."
-msgstr ""
+#, fuzzy, python-format
+msgid " %s %s skipped %s"
+msgstr "  ваше време: %s - %s  (@%s = %s%s)\n"
 
 msgid "Progress notes in most recent encounter:"
 msgstr ""
 
 msgid "Measurements and Results:"
+msgstr ""
+
+#, python-format
+msgid "%s so far"
 msgstr ""
 
 #, fuzzy, python-format
@@ -9942,6 +10006,9 @@ msgstr " (траје)"
 msgid "Comment: "
 msgstr "Коментар:"
 
+msgid "Care Period"
+msgstr ""
+
 #, fuzzy
 msgid "Health issues"
 msgstr "Здравствени проблем"
@@ -9961,9 +10028,6 @@ msgstr ""
 msgid "Lifespan"
 msgstr ""
 
-msgid "Care Period"
-msgstr ""
-
 msgid "Life events"
 msgstr ""
 
@@ -9975,7 +10039,9 @@ msgid "Birth"
 msgstr ""
 
 #, python-format
-msgid "Start of Care: %s (the earliest recorded event of care in this praxis)"
+msgid ""
+"Start of Care: %s\n"
+"(the earliest recorded event of care in this praxis)"
 msgstr ""
 
 #, fuzzy, python-format
@@ -10010,6 +10076,9 @@ msgid ""
 "%sEpisode \"%s\" [%s]\n"
 "%sEncounters: %s (%s - %s)\n"
 "%sLast worked on: %s\n"
+msgstr ""
+
+msgid "Unspecified"
 msgstr ""
 
 msgid "Administrative"
@@ -11013,24 +11082,34 @@ msgstr "Уређивање вакцинације"
 msgid "%s (latest of %s: %s ago)"
 msgstr "Пацијент: %s (%s), Бр: %s\n"
 
+#, fuzzy, python-format
+msgid "%s (%s ago)"
+msgstr "Документа: %s"
+
 #, fuzzy
 msgid "Most recent vaccination for each indication.\n"
 msgstr "Вакцинација"
 
+msgid "Indication"
+msgstr ""
+
 #, fuzzy
-msgid "Complete vaccination history.\n"
+msgid "Complete vaccination history (per indication).\n"
 msgstr ""
 "\n"
 "Комплетна историја вакцинације овог пацијента.\n"
 
-msgid "Showing vaccinations."
-msgstr "Приказивање вакцинација."
-
-msgid "Indication"
+#, fuzzy
+msgid "Complete vaccination history (by shot).\n"
 msgstr ""
+"\n"
+"Комплетна историја вакцинације овог пацијента.\n"
 
 msgid "Intended to protect from"
 msgstr ""
+
+msgid "Showing vaccinations."
+msgstr "Приказивање вакцинација."
 
 #, fuzzy
 msgid "Print vaccinations or recalls."
@@ -11047,6 +11126,19 @@ msgid "Vx schedules"
 msgstr ""
 
 msgid "Open a browser showing vaccination schedules."
+msgstr ""
+
+#, fuzzy, python-format
+msgid "%s  (most recent shot of %s: %s ago)"
+msgstr "Пацијент: %s (%s), Бр: %s\n"
+
+#, python-format
+msgid "%s  (no previous vaccination recorded)"
+msgstr ""
+
+msgid ""
+"Protects against:\n"
+" "
 msgstr ""
 
 msgid "prevention"
@@ -11204,16 +11296,6 @@ msgstr ""
 #, python-format
 msgid "last: %s, %s"
 msgstr ""
-
-#, python-format
-msgid "Last %s:"
-msgstr ""
-
-#, fuzzy
-msgid "Statistics cover period"
-msgstr ""
-"ЕМР Статистика\n"
-"\n"
 
 #, python-format
 msgid "EDC (!?!): %s"
@@ -14811,6 +14893,10 @@ msgstr "Документа: %s"
 msgid "eGFR:"
 msgstr ""
 
+#, fuzzy
+msgid " - abnormal"
+msgstr "Пацијент: %s (%s), Бр: %s\n"
+
 #, fuzzy, python-format
 msgid " - abnormal: %s"
 msgstr "Пацијент: %s (%s), Бр: %s\n"
@@ -15610,6 +15696,9 @@ msgstr "Приказивање вакцина."
 msgid "Ref #"
 msgstr ""
 
+msgid "Show all parts of this document in external viewer."
+msgstr ""
+
 msgid "Bill"
 msgstr ""
 
@@ -16048,6 +16137,39 @@ msgstr "Чување вакцине"
 #, fuzzy
 msgid "Unable to save selected studies."
 msgstr "Брисање вакцине"
+
+msgid "DICOM data error"
+msgstr ""
+
+msgid ""
+"There seems to be a data error in the DICOM files\n"
+"stored in the Orthanc server.\n"
+"\n"
+"Please check the inbox."
+msgstr ""
+
+msgid ""
+"Checksum error in DICOM data of this patient.\n"
+"\n"
+msgstr ""
+
+#, fuzzy, python-format
+msgid ""
+"DICOM server: %s\n"
+"\n"
+msgstr "Пацијент: %s (%s), Бр: %s\n"
+
+#, python-format
+msgid ""
+"Orthanc patient ID [%s]\n"
+" %s: [%s]\n"
+msgstr ""
+
+msgid "error report"
+msgstr ""
+
+msgid "DICOM data corruption"
+msgstr ""
 
 #, fuzzy
 msgid "Unable to save patient studies."
@@ -16617,15 +16739,23 @@ msgid "Manage measurement results for the current patient."
 msgstr "Додај вакцинацију(е) за тренутног пацијента."
 
 #, fuzzy
-msgid "&Vaccination history"
-msgstr "&Вакцинације"
+msgid "&Vaccinations: by shot"
+msgstr "Вакцинације:"
 
 #, fuzzy
-msgid "Manage vaccinations for the current patient."
+msgid "Manage vaccinations for the current patient (by shots given)."
 msgstr "Додај вакцинацију(е) за тренутног пацијента."
 
 #, fuzzy
-msgid "&Vaccinations (latest)"
+msgid "&Vaccinations: by indication"
+msgstr "&Вакцинације"
+
+#, fuzzy
+msgid "Manage vaccinations for the current patient (by indication)."
+msgstr "Додај вакцинацију(е) за тренутног пацијента."
+
+#, fuzzy
+msgid "&Vaccinations: latest"
 msgstr "Планови вакцинација"
 
 #, fuzzy
@@ -16690,46 +16820,45 @@ msgstr ""
 msgid "Show a high-level statistic summary of the EMR."
 msgstr ""
 
-msgid "Journal (encounters) to file"
-msgstr ""
-
-msgid ""
-"Save the EMR of the active patient as a chronological journal into a text "
-"file"
-msgstr ""
-
 #, fuzzy
-msgid "Journal (encounters) to export area"
+msgid "Journal (encounters)"
 msgstr "Додавање нове вакцине"
 
 msgid ""
 "Copy EMR of the active patient as a chronological journal into export area"
 msgstr ""
 
-msgid "Journal (mod time) to file"
-msgstr ""
-
-msgid ""
-"Save the EMR of the active patient as journal by last modification time into "
-"a text file"
-msgstr ""
-
 #, fuzzy
-msgid "Journal (mod time) to export area"
+msgid "Journal (mod time)"
 msgstr "Додавање нове вакцине"
 
+#, fuzzy
 msgid ""
-"Copy EMR of the active patient as journal by last modification time into "
+"Copy EMR of active patient as journal (by last modification time) into "
 "export area"
-msgstr ""
+msgstr "Не могу да додам вакцинацију. Није изабран активан пацијент."
 
 msgid "Text document"
 msgstr ""
 
-msgid "Save the EMR of the active patient into a text file"
+msgid "Copy EMR of active patient as text document into export area"
 msgstr ""
 
-msgid "MEDISTAR import format"
+#, fuzzy
+msgid "Timeline file"
+msgstr "Направи лажне вакцине"
+
+msgid "Copy EMR of active patient as timeline file (XML) into export area"
+msgstr ""
+
+#, fuzzy
+msgid "Care structure"
+msgstr "Здравствени проблем"
+
+msgid "Copy EMR of active patient as care structure text file into export area"
+msgstr ""
+
+msgid "MEDISTAR import format (as file)"
 msgstr ""
 
 msgid ""
@@ -16737,8 +16866,9 @@ msgid ""
 "into a text file."
 msgstr ""
 
-msgid "Export as ..."
-msgstr ""
+#, fuzzy
+msgid "Put into export area as ..."
+msgstr "Додавање нове вакцине"
 
 msgid "&EMR"
 msgstr ""
@@ -17734,15 +17864,22 @@ msgstr ""
 msgid "EMR Summary"
 msgstr ""
 
+msgid "Cannot export EMR. No active patient."
+msgstr ""
+
+#, fuzzy
+msgid "EMR as text document"
+msgstr " %s докумената\n"
+
+msgid "EMR as timeline file (XML)"
+msgstr ""
+
+msgid "EMR as care structure file"
+msgstr ""
+
 #, fuzzy
 msgid "Cannot export EMR journal by last modification time. No active patient."
 msgstr "Не могу да додам вакцинацију. Није изабран активан пацијент."
-
-msgid "journal_by_last_mod_time"
-msgstr ""
-
-msgid "Save patient's EMR journal as..."
-msgstr ""
 
 msgid "Error exporting patient EMR as journal by last modification time."
 msgstr ""
@@ -17750,26 +17887,13 @@ msgstr ""
 msgid "EMR journal export"
 msgstr ""
 
-#, python-format
-msgid ""
-"Successfully exported EMR as journal by last modification time into file "
-"[%s]."
+msgid "EMR journal by last modification time"
 msgstr ""
 
 msgid "Cannot export EMR journal. No active patient."
 msgstr ""
 
-msgid "emr-journal"
-msgstr ""
-
 msgid "Error exporting patient EMR as chronological journal."
-msgstr ""
-
-#, python-format
-msgid "Successfully exported EMR as chronological journal into file [%s]."
-msgstr ""
-
-msgid "EMR journal by last modification time"
 msgstr ""
 
 msgid "EMR journal by encounter"
@@ -17956,16 +18080,17 @@ msgid ""
 "  [%s]"
 msgstr ""
 
-msgid "Save timeline as SVG image under..."
+#, fuzzy
+msgid "Save timeline as images (SVG, PNG) under..."
+msgstr "Направи лажне вакцине"
+
+msgid "timeline image (png)"
 msgstr ""
 
-msgid "timeline image"
+msgid "timeline image (svg)"
 msgstr ""
 
-msgid "timeline image (scalable)"
-msgstr ""
-
-msgid "timeline data"
+msgid "timeline data (xml)"
 msgstr ""
 
 msgid "Cannot delete hospitalization."
@@ -18009,9 +18134,6 @@ msgid "Must select a hospital. Cannot save hospitalization."
 msgstr ""
 
 msgid "Cannot change notebook tabs. No active patient."
-msgstr ""
-
-msgid "add plugin ..."
 msgstr ""
 
 msgid "Cannot activate Allergy Manager. No active patient."
@@ -18078,16 +18200,28 @@ msgid ""
 msgstr ""
 
 #, python-format
-msgid "Birthday: %s ago\n"
-msgstr ""
-
-#, python-format
-msgid "Birthday: in %s\n"
-msgstr ""
-
-#, python-format
 msgid "Age: %s\n"
 msgstr ""
+
+#, python-format
+msgid "Age: %s, birthday:\n"
+msgstr ""
+
+#, fuzzy, python-format
+msgid "%s ago (= this year)"
+msgstr "Документа: %s"
+
+#, python-format
+msgid "in %s (= next year)"
+msgstr ""
+
+#, fuzzy, python-format
+msgid "in %s (= this year)"
+msgstr "Пацијент: %s (%s), Бр: %s\n"
+
+#, fuzzy, python-format
+msgid "%s ago (= last year)"
+msgstr "Документа: %s"
 
 #, python-format
 msgid "last confirmed %s\n"
@@ -18820,6 +18954,29 @@ msgstr ""
 msgid "Result"
 msgstr ""
 
+#, fuzzy
+msgid "no related documents found"
+msgstr " %s докумената\n"
+
+msgid "No document types declared to contain lab results."
+msgstr ""
+
+msgid "Document types declared to contain lab results:"
+msgstr ""
+
+#, fuzzy, python-format
+msgid "Related documents: %s"
+msgstr "Документа: %s"
+
+#, fuzzy
+msgid "Documents possibly related to this episode"
+msgstr ""
+"\n"
+"Комплетна историја вакцинације овог пацијента.\n"
+
+msgid "Select the document types which are expected to contain lab results."
+msgstr ""
+
 msgid "Perform on selected results:"
 msgstr ""
 
@@ -18832,10 +18989,11 @@ msgstr ""
 msgid "Export to &clipboard"
 msgstr ""
 
-msgid "Panels"
-msgstr ""
+#, fuzzy
+msgid "Problems"
+msgstr "Активни проблеми"
 
-msgid "List"
+msgid "Panels"
 msgstr ""
 
 msgid ""
@@ -19065,9 +19223,6 @@ msgid "No LOINC codes selected."
 msgstr ""
 
 msgid "no LOINC details found"
-msgstr ""
-
-msgid "Cannot export EMR. No active patient."
 msgstr ""
 
 msgid "emr-export"
@@ -20277,8 +20432,10 @@ msgid "Abort and do NOT connect to GNUmed."
 msgstr ""
 
 #, fuzzy
-#~ msgid "%s%s%s (%s ago)"
-#~ msgstr "Документа: %s"
+#~ msgid "Statistics cover period"
+#~ msgstr ""
+#~ "ЕМР Статистика\n"
+#~ "\n"
 
 #, fuzzy
 #~ msgid ""
@@ -20294,10 +20451,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "Go to &Date...\tCtrl+G"
 #~ msgstr "Последњи датум"
-
-#, fuzzy
-#~ msgid "Test types"
-#~ msgstr "Резултати теста"
 
 #~ msgid ""
 #~ "Cannot delete vaccine\n"
@@ -20373,16 +20526,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "Saving vaccination"
 #~ msgstr "Приказивање вакцинација."
-
-#, fuzzy
-#~ msgid "Care issue"
-#~ msgstr "Здравствени проблем"
-
-#, fuzzy
-#~ msgid "Document list for this patient."
-#~ msgstr ""
-#~ "\n"
-#~ "Комплетна историја вакцинације овог пацијента.\n"
 
 #, fuzzy
 #~ msgid "Showing documents."

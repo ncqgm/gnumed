@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-11-26 17:09+0100\n"
+"POT-Creation-Date: 2018-02-18 19:11+0100\n"
 "PO-Revision-Date: 2012-04-07 10:15+0000\n"
 "Last-Translator: Rikard Edgren <Unknown>\n"
 "Language-Team: Swedish <kde-i18n-doc@kde.org>\n"
@@ -762,11 +762,23 @@ msgstr "Bilder kommer skalas ner så att de inte är större än %ix%i."
 msgid "Select Icon"
 msgstr "Välj Ikon"
 
+#, fuzzy
+msgid "Select region for event"
+msgstr "Välj område att zooma in"
+
 msgid "Select region to zoom into"
 msgstr "Välj område att zooma in"
 
+#, fuzzy
+msgid "Resize events"
+msgstr "Ändra storlek och flytta mig!"
+
 msgid "Can't move locked event"
 msgstr "Det går inte att flytta låsta händelser"
+
+#, fuzzy
+msgid "Select events"
+msgstr "Välj händelse"
 
 msgid "Add new"
 msgstr "Lägg till ny"
@@ -3117,6 +3129,24 @@ msgstr "Medicinlista"
 msgid "New patient ID:"
 msgstr "internt patient-ID"
 
+#, fuzzy
+msgid "Related documents: XX"
+msgstr " %s dokument\n"
+
+msgid "List"
+msgstr ""
+
+#, fuzzy
+msgid "Select types"
+msgstr "Provtagnings-resultat"
+
+msgid "List lab documents within the episode of the selected measurement."
+msgstr ""
+
+#, fuzzy
+msgid "Select the document types expected to contain lab results."
+msgstr "Välj förinställda typ på nya undersökningar.\n"
+
 msgid "Source"
 msgstr ""
 
@@ -3462,6 +3492,9 @@ msgstr ""
 msgid "Image"
 msgstr ""
 
+msgid "Patient"
+msgstr ""
+
 msgid "◄"
 msgstr ""
 
@@ -3482,9 +3515,6 @@ msgstr "Visa tid"
 msgid "Save (&D)"
 msgstr ""
 
-msgid "Save (D)"
-msgstr ""
-
 msgid "&Upload"
 msgstr ""
 
@@ -3492,7 +3522,10 @@ msgstr ""
 msgid "Show (&P)"
 msgstr "Visa tid"
 
-msgid "Save (Z)"
+msgid "Save (P)"
+msgstr ""
+
+msgid "as ZIP"
 msgstr ""
 
 msgid "Enter the PACS host address."
@@ -3511,6 +3544,9 @@ msgstr "Lösenord för det nya databaskontot. Inmatning visas ej."
 #, fuzzy
 msgid "Connect to PACS."
 msgstr "Anslut till GNUmed"
+
+msgid "Verify patient data in PACS."
+msgstr ""
 
 msgid "Review previous image."
 msgstr ""
@@ -3572,9 +3608,6 @@ msgstr ""
 #, fuzzy
 msgid "Study"
 msgstr "Starttid "
-
-msgid "Patient"
-msgstr ""
 
 msgid "PACS"
 msgstr ""
@@ -3820,11 +3853,25 @@ msgstr ""
 msgid "E&xport area"
 msgstr "Exportera till SVG"
 
-msgid "Refresh the timeline display."
+msgid "Care"
+msgstr ""
+
+msgid "12 mo"
 msgstr ""
 
 #, fuzzy
-msgid "Save timeline as SVG image."
+msgid "Today"
+msgstr "Slutar idag"
+
+#, fuzzy
+msgid "All"
+msgstr "Allergi"
+
+msgid "Refresh display from the patient's chart."
+msgstr ""
+
+#, fuzzy
+msgid "Save timeline as images."
 msgstr "Exportera nuvarande vy till en SVG-bild"
 
 #, fuzzy
@@ -3834,6 +3881,23 @@ msgstr "Lägger till ny undersökningstyp"
 #, fuzzy
 msgid "Print timeline."
 msgstr "Skapa Tidslinje"
+
+#, fuzzy
+msgid "Fit timeline to the Care Period."
+msgstr "Lägger till ny undersökningstyp"
+
+msgid "Fit timeline to the the last 12 months."
+msgstr ""
+
+#, fuzzy
+msgid "Center timeline on today."
+msgstr "Ingen tidslinje öppnad."
+
+msgid "Zoom to fit all events."
+msgstr ""
+
+msgid "Show:"
+msgstr ""
 
 msgid "active"
 msgstr "aktiv"
@@ -5687,6 +5751,9 @@ msgstr "Katalog"
 msgid "<patient directory>"
 msgstr ""
 
+msgid "Generate metadata"
+msgstr ""
+
 #, fuzzy
 msgid "Creating patient media"
 msgstr "Skapa en ny händelse"
@@ -5713,6 +5780,13 @@ msgid ""
 "above.\n"
 "\n"
 "This will leave alone any existing data."
+msgstr ""
+
+msgid ""
+"Check if you want GNUmed to generate and include metadata describing the "
+"exported patient data files.\n"
+"\n"
+"If unchecked, export items will simply be dumped into the target directory."
 msgstr ""
 
 msgid "Create patient media (in target directory or on CD / DVD)."
@@ -6236,9 +6310,6 @@ msgstr " %s test resultat\n"
 msgid ""
 "Press this button to switch back and forth between browsing and entering "
 "SOAP notes."
-msgstr ""
-
-msgid "Show:"
 msgstr ""
 
 msgid "Kidneys"
@@ -7148,11 +7219,6 @@ msgstr ""
 msgid "Role:"
 msgstr ""
 
-msgid ""
-"Here you can enter an interval (extending backwards from \"now\") within "
-"which to show health care activity."
-msgstr ""
-
 msgid "Identity:"
 msgstr ""
 
@@ -7160,12 +7226,6 @@ msgid "Contacts:"
 msgstr ""
 
 msgid "Activity:"
-msgstr ""
-
-msgid "(limit to last:"
-msgstr ""
-
-msgid ")"
 msgstr ""
 
 msgid "Current meds and substances:"
@@ -10109,8 +10169,8 @@ msgstr "Episod %s%s%s   [#%s]"
 msgid "Created during encounter: %s (%s - %s)   [#%s]"
 msgstr "Skapad vid undersökning: %s (%s - %s)   [#%s]"
 
-#, python-format
-msgid " Duration: %s (%s - %s)"
+#, fuzzy, python-format
+msgid " Duration: %s (%s)"
 msgstr " Spann: %s (%s - %s)"
 
 msgid "finished"
@@ -10119,9 +10179,8 @@ msgstr "avklarad"
 msgid "none associated"
 msgstr ""
 
-#, fuzzy
-msgid "Error retrieving encounters for this health issue."
-msgstr "Fel vid mottagande av episoder för detta vårdärende"
+msgid "Error retrieving encounters for this episode."
+msgstr "Fel vid inhämtning av undersökningar för denna episod."
 
 #, python-format
 msgid "Last worked on: %s\n"
@@ -10142,8 +10201,8 @@ msgstr ""
 msgid "AOE"
 msgstr ""
 
-#, python-format
-msgid " ... %s skipped ..."
+#, fuzzy, python-format
+msgid " %s %s skipped %s"
 msgstr " ... hoppat över %s ..."
 
 msgid "Progress notes in most recent encounter:"
@@ -10151,6 +10210,10 @@ msgstr "Anteckningar om förbättring i senaste undersökning:"
 
 msgid "Measurements and Results:"
 msgstr "Provtagningar och resultat:"
+
+#, python-format
+msgid "%s so far"
+msgstr ""
 
 #, fuzzy, python-format
 msgid "Episode: %s%s%s"
@@ -10189,6 +10252,10 @@ msgid "Comment: "
 msgstr "Kommentar"
 
 #, fuzzy
+msgid "Care Period"
+msgstr "Period"
+
+#, fuzzy
 msgid "Health issues"
 msgstr "Vårdbeteckning"
 
@@ -10209,10 +10276,6 @@ msgstr ""
 msgid "Lifespan"
 msgstr ""
 
-#, fuzzy
-msgid "Care Period"
-msgstr "Period"
-
 msgid "Life events"
 msgstr ""
 
@@ -10224,7 +10287,9 @@ msgid "Birth"
 msgstr ""
 
 #, python-format
-msgid "Start of Care: %s (the earliest recorded event of care in this praxis)"
+msgid ""
+"Start of Care: %s\n"
+"(the earliest recorded event of care in this praxis)"
 msgstr ""
 
 #, fuzzy, python-format
@@ -10265,6 +10330,9 @@ msgstr ""
 "%sEpisod \"%s\" [%s]\n"
 "%sUndersökningar: %s (%s - %s)\n"
 "%sSenast bearbetad: %s\n"
+
+msgid "Unspecified"
+msgstr ""
 
 msgid "Administrative"
 msgstr ""
@@ -11281,21 +11349,29 @@ msgstr ""
 "\n"
 " Ta(inta): %s"
 
+#, fuzzy, python-format
+msgid "%s (%s ago)"
+msgstr "Enhet: %s (%s)"
+
 #, fuzzy
 msgid "Most recent vaccination for each indication.\n"
 msgstr "Vaccinering"
 
-#, fuzzy
-msgid "Complete vaccination history.\n"
-msgstr "Inga vaccinationer aktuella för formatsättning"
-
-msgid "Showing vaccinations."
-msgstr ""
-
 msgid "Indication"
 msgstr ""
 
+#, fuzzy
+msgid "Complete vaccination history (per indication).\n"
+msgstr "Inga vaccinationer aktuella för formatsättning"
+
+#, fuzzy
+msgid "Complete vaccination history (by shot).\n"
+msgstr "Inga vaccinationer aktuella för formatsättning"
+
 msgid "Intended to protect from"
+msgstr ""
+
+msgid "Showing vaccinations."
 msgstr ""
 
 #, fuzzy
@@ -11312,6 +11388,21 @@ msgid "Vx schedules"
 msgstr ""
 
 msgid "Open a browser showing vaccination schedules."
+msgstr ""
+
+#, fuzzy, python-format
+msgid "%s  (most recent shot of %s: %s ago)"
+msgstr ""
+"\n"
+" Ta(inta): %s"
+
+#, python-format
+msgid "%s  (no previous vaccination recorded)"
+msgstr ""
+
+msgid ""
+"Protects against:\n"
+" "
 msgstr ""
 
 msgid "prevention"
@@ -11467,13 +11558,6 @@ msgstr ""
 
 #, python-format
 msgid "last: %s, %s"
-msgstr ""
-
-#, python-format
-msgid "Last %s:"
-msgstr ""
-
-msgid "Statistics cover period"
 msgstr ""
 
 #, python-format
@@ -15066,6 +15150,12 @@ msgstr "Enhet: %s (%s)"
 msgid "eGFR:"
 msgstr ""
 
+#, fuzzy
+msgid " - abnormal"
+msgstr ""
+"\n"
+" Ta(inta): %s"
+
 #, fuzzy, python-format
 msgid " - abnormal: %s"
 msgstr ""
@@ -15869,6 +15959,9 @@ msgstr " %s dokument\n"
 msgid "Ref #"
 msgstr ""
 
+msgid "Show all parts of this document in external viewer."
+msgstr ""
+
 msgid "Bill"
 msgstr ""
 
@@ -16316,6 +16409,39 @@ msgstr ""
 #, fuzzy
 msgid "Unable to save selected studies."
 msgstr "Det gick inte att ta bort backupfilen '%s'."
+
+msgid "DICOM data error"
+msgstr ""
+
+msgid ""
+"There seems to be a data error in the DICOM files\n"
+"stored in the Orthanc server.\n"
+"\n"
+"Please check the inbox."
+msgstr ""
+
+msgid ""
+"Checksum error in DICOM data of this patient.\n"
+"\n"
+msgstr ""
+
+#, python-format
+msgid ""
+"DICOM server: %s\n"
+"\n"
+msgstr ""
+
+#, python-format
+msgid ""
+"Orthanc patient ID [%s]\n"
+" %s: [%s]\n"
+msgstr ""
+
+msgid "error report"
+msgstr ""
+
+msgid "DICOM data corruption"
+msgstr ""
 
 #, fuzzy
 msgid "Unable to save patient studies."
@@ -16887,15 +17013,23 @@ msgid "Manage measurement results for the current patient."
 msgstr ""
 
 #, fuzzy
-msgid "&Vaccination history"
-msgstr "Vaccinering"
+msgid "&Vaccinations: by shot"
+msgstr "Vaccinering:"
 
 #, fuzzy
-msgid "Manage vaccinations for the current patient."
+msgid "Manage vaccinations for the current patient (by shots given)."
 msgstr "externt patient-ID"
 
 #, fuzzy
-msgid "&Vaccinations (latest)"
+msgid "&Vaccinations: by indication"
+msgstr "Vaccinering"
+
+#, fuzzy
+msgid "Manage vaccinations for the current patient (by indication)."
+msgstr "externt patient-ID"
+
+#, fuzzy
+msgid "&Vaccinations: latest"
 msgstr "Vaccinering"
 
 #, fuzzy
@@ -16955,47 +17089,45 @@ msgstr ""
 msgid "Show a high-level statistic summary of the EMR."
 msgstr ""
 
-msgid "Journal (encounters) to file"
-msgstr ""
-
-msgid ""
-"Save the EMR of the active patient as a chronological journal into a text "
-"file"
-msgstr ""
-
 #, fuzzy
-msgid "Journal (encounters) to export area"
+msgid "Journal (encounters)"
 msgstr "Lägger till ny undersökningstyp"
 
 msgid ""
 "Copy EMR of the active patient as a chronological journal into export area"
 msgstr ""
 
-msgid "Journal (mod time) to file"
-msgstr ""
-
-msgid ""
-"Save the EMR of the active patient as journal by last modification time into "
-"a text file"
-msgstr ""
-
 #, fuzzy
-msgid "Journal (mod time) to export area"
+msgid "Journal (mod time)"
 msgstr "Lägger till ny undersökningstyp"
 
+#, fuzzy
 msgid ""
-"Copy EMR of the active patient as journal by last modification time into "
+"Copy EMR of active patient as journal (by last modification time) into "
 "export area"
-msgstr ""
+msgstr "Kan inte lista undersökningar. Ingen patient vald."
 
 msgid "Text document"
 msgstr ""
 
-#, fuzzy
-msgid "Save the EMR of the active patient into a text file"
-msgstr "Kan ej införliva vald patients akt med annan patients akt."
+msgid "Copy EMR of active patient as text document into export area"
+msgstr ""
 
-msgid "MEDISTAR import format"
+#, fuzzy
+msgid "Timeline file"
+msgstr "Tidslinjefiler"
+
+msgid "Copy EMR of active patient as timeline file (XML) into export area"
+msgstr ""
+
+#, fuzzy
+msgid "Care structure"
+msgstr "Vårdbeteckning"
+
+msgid "Copy EMR of active patient as care structure text file into export area"
+msgstr ""
+
+msgid "MEDISTAR import format (as file)"
 msgstr ""
 
 #, fuzzy
@@ -17006,8 +17138,9 @@ msgstr ""
 "GNUmed -> MEDISTAR. Exportera uppföljningsanteckningar för vald patients "
 "valda undersökning till en textfil."
 
-msgid "Export as ..."
-msgstr ""
+#, fuzzy
+msgid "Put into export area as ..."
+msgstr "Lägger till ny undersökningstyp"
 
 msgid "&EMR"
 msgstr ""
@@ -18055,15 +18188,23 @@ msgstr ""
 msgid "EMR Summary"
 msgstr ""
 
+msgid "Cannot export EMR. No active patient."
+msgstr ""
+
+#, fuzzy
+msgid "EMR as text document"
+msgstr " %s dokument\n"
+
+#, fuzzy
+msgid "EMR as timeline file (XML)"
+msgstr "Tidslinjefiler"
+
+msgid "EMR as care structure file"
+msgstr ""
+
 #, fuzzy
 msgid "Cannot export EMR journal by last modification time. No active patient."
 msgstr "Kan inte lista undersökningar. Ingen patient vald."
-
-msgid "journal_by_last_mod_time"
-msgstr ""
-
-msgid "Save patient's EMR journal as..."
-msgstr ""
 
 msgid "Error exporting patient EMR as journal by last modification time."
 msgstr ""
@@ -18071,26 +18212,13 @@ msgstr ""
 msgid "EMR journal export"
 msgstr ""
 
-#, python-format
-msgid ""
-"Successfully exported EMR as journal by last modification time into file "
-"[%s]."
+msgid "EMR journal by last modification time"
 msgstr ""
 
 msgid "Cannot export EMR journal. No active patient."
 msgstr ""
 
-msgid "emr-journal"
-msgstr ""
-
 msgid "Error exporting patient EMR as chronological journal."
-msgstr ""
-
-#, python-format
-msgid "Successfully exported EMR as chronological journal into file [%s]."
-msgstr ""
-
-msgid "EMR journal by last modification time"
 msgstr ""
 
 #, fuzzy
@@ -18279,19 +18407,20 @@ msgid ""
 "  [%s]"
 msgstr ""
 
-msgid "Save timeline as SVG image under..."
-msgstr ""
+#, fuzzy
+msgid "Save timeline as images (SVG, PNG) under..."
+msgstr "Exportera nuvarande vy till en SVG-bild"
 
 #, fuzzy
-msgid "timeline image"
+msgid "timeline image (png)"
 msgstr "Tidslinjefiler"
 
 #, fuzzy
-msgid "timeline image (scalable)"
+msgid "timeline image (svg)"
 msgstr "Tidslinjefiler"
 
 #, fuzzy
-msgid "timeline data"
+msgid "timeline data (xml)"
 msgstr "Ingen tidslinje vald"
 
 msgid "Cannot delete hospitalization."
@@ -18332,9 +18461,6 @@ msgid "Must select a hospital. Cannot save hospitalization."
 msgstr ""
 
 msgid "Cannot change notebook tabs. No active patient."
-msgstr ""
-
-msgid "add plugin ..."
 msgstr ""
 
 msgid "Cannot activate Allergy Manager. No active patient."
@@ -18402,16 +18528,28 @@ msgid ""
 msgstr ""
 
 #, python-format
-msgid "Birthday: %s ago\n"
-msgstr ""
-
-#, python-format
-msgid "Birthday: in %s\n"
-msgstr ""
-
-#, python-format
 msgid "Age: %s\n"
 msgstr ""
+
+#, python-format
+msgid "Age: %s, birthday:\n"
+msgstr ""
+
+#, fuzzy, python-format
+msgid "%s ago (= this year)"
+msgstr "%s (%s innevarande år)"
+
+#, fuzzy, python-format
+msgid "in %s (= next year)"
+msgstr "%s(%s nästkommande år)"
+
+#, fuzzy, python-format
+msgid "in %s (= this year)"
+msgstr "%s (%s innevarande år)"
+
+#, fuzzy, python-format
+msgid "%s ago (= last year)"
+msgstr "%s (%s senaste året)"
 
 #, python-format
 msgid "last confirmed %s\n"
@@ -19140,6 +19278,27 @@ msgstr ""
 msgid "Result"
 msgstr ""
 
+#, fuzzy
+msgid "no related documents found"
+msgstr " %s dokument\n"
+
+msgid "No document types declared to contain lab results."
+msgstr ""
+
+msgid "Document types declared to contain lab results:"
+msgstr ""
+
+#, fuzzy, python-format
+msgid "Related documents: %s"
+msgstr "Dokument: %s"
+
+msgid "Documents possibly related to this episode"
+msgstr ""
+
+#, fuzzy
+msgid "Select the document types which are expected to contain lab results."
+msgstr "Välj förinställda typ på nya undersökningar.\n"
+
 msgid "Perform on selected results:"
 msgstr ""
 
@@ -19152,10 +19311,11 @@ msgstr ""
 msgid "Export to &clipboard"
 msgstr ""
 
-msgid "Panels"
-msgstr ""
+#, fuzzy
+msgid "Problems"
+msgstr "Problem"
 
-msgid "List"
+msgid "Panels"
 msgstr ""
 
 msgid ""
@@ -19383,9 +19543,6 @@ msgid "No LOINC codes selected."
 msgstr ""
 
 msgid "no LOINC details found"
-msgstr ""
-
-msgid "Cannot export EMR. No active patient."
 msgstr ""
 
 msgid "emr-export"
@@ -20611,8 +20768,16 @@ msgid "Abort and do NOT connect to GNUmed."
 msgstr "Avbryt och anslut EJ till GNUmed."
 
 #, fuzzy
-#~ msgid "%s%s%s (%s ago)"
-#~ msgstr "Enhet: %s (%s)"
+#~ msgid "Error retrieving encounters for this health issue."
+#~ msgstr "Fel vid mottagande av episoder för detta vårdärende"
+
+#, fuzzy
+#~ msgid "Save the EMR of the active patient into a text file"
+#~ msgstr "Kan ej införliva vald patients akt med annan patients akt."
+
+#, fuzzy
+#~ msgid "timeline image (scalable)"
+#~ msgstr "Tidslinjefiler"
 
 #, fuzzy
 #~ msgid ""
@@ -20820,10 +20985,6 @@ msgstr "Avbryt och anslut EJ till GNUmed."
 #~ "separerade med \";\"."
 
 #, fuzzy
-#~ msgid "Test types"
-#~ msgstr "Provtagnings-resultat"
-
-#, fuzzy
 #~ msgid "Saving export area documents"
 #~ msgstr " %s dokument\n"
 
@@ -20915,10 +21076,6 @@ msgstr "Avbryt och anslut EJ till GNUmed."
 
 #~ msgid "empty list of vaccinations"
 #~ msgstr "listan av vaccineringar är tom"
-
-#, fuzzy
-#~ msgid "Care issue"
-#~ msgstr "Vårdbeteckning"
 
 #, fuzzy
 #~ msgid "Unable to export selected studies."
@@ -21163,9 +21320,6 @@ msgstr "Avbryt och anslut EJ till GNUmed."
 
 #~ msgid "   unreviewed"
 #~ msgstr "   ej granskat"
-
-#~ msgid "Error retrieving encounters for this episode."
-#~ msgstr "Fel vid inhämtning av undersökningar för denna episod."
 
 #~ msgid "Happened"
 #~ msgstr "Inträffat"
