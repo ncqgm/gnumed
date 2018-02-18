@@ -43,6 +43,7 @@ from Gnumed.business import gmDocuments
 from Gnumed.business import gmEMRStructItems
 from Gnumed.business import gmPraxis
 from Gnumed.business import gmDICOM
+from Gnumed.business import gmProviderInbox
 
 from Gnumed.wxpython import gmGuiHelpers
 from Gnumed.wxpython import gmRegetMixin
@@ -2917,6 +2918,7 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
 		self.__pacs = None
 		self.__patient = gmPerson.gmCurrentPatient()
+		self.__orthanc_patient = None
 		self.__image_data = None
 
 		self.__init_ui()
@@ -2941,13 +2943,13 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 
 	#--------------------------------------------------------
 	def __set_button_states(self):
-
 		# disable all buttons
 		# server
 		self._BTN_browse_pacs.Disable()
 		self._BTN_upload.Disable()
 		self._BTN_modify_orthanc_content.Disable()
 		# patient (= all studies of patient)
+		self._BTN_verify_patient_data.Disable()
 		self._BTN_browse_patient.Disable()
 		self._BTN_save_patient_as_dicom_dir.Disable()
 		self._BTN_save_patient_as_zip.Disable()
@@ -2977,6 +2979,7 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 			return
 
 		# patient buttons (= all studies of patient)
+		self._BTN_verify_patient_data.Enable()
 		self._BTN_browse_patient.Enable()
 		self._BTN_save_patient_as_dicom_dir.Enable()
 		self._BTN_save_patient_as_zip.Enable()
@@ -3028,6 +3031,7 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 	def __connect(self):
 
 		self.__pacs = None
+		self.__orthanc_patient = None
 		self.__set_button_states()
 		self.__reset_server_identification()
 
@@ -3066,6 +3070,8 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 
 	#--------------------------------------------------------
 	def __refresh_patient_data(self):
+
+		self.__orthanc_patient = None
 
 		if not self.__patient.connected:
 			self.__reset_patient_data()
@@ -3118,6 +3124,7 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 		study_list_items = []
 		study_list_data = []
 		if len(matching_pats) > 0:
+			# we don't at this point really expect more than one patient matching
 			self.__orthanc_patient = matching_pats[0]
 			for pat in self.__pacs.get_studies_list_by_orthanc_patient_list(orthanc_patients = matching_pats):
 				for study in pat['studies']:
@@ -3651,7 +3658,51 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 	#--------------------------------------------------------
 	# - patient buttons (= all studies)
 	#--------------------------------------------------------
-	def _on_save_patient_as_dicom_dir_button_pressed(self, event):  # wxGlade: wxgPACSPluginPnl.<event_handler>
+	def _on_verify_patient_data_button_pressed(self, event):
+		if self.__pacs is None:
+			return None
+
+		if self.__orthanc_patient is None:
+			return None
+
+		patient_id = self.__orthanc_patient['ID']
+		bad_data = self.__pacs.verify_patient_data(patient_id)
+		if len(bad_data) == 0:
+			return
+
+		gmGuiHelpers.gm_show_error (
+			title = _(u'DICOM data error'),
+			error = _(
+				u'There seems to be a data error in the DICOM files\n'
+				u'stored in the Orthanc server.\n'
+				u'\n'
+				u'Please check the inbox.'
+			)
+		)
+
+		msg = _(u'Checksum error in DICOM data of this patient.\n\n')
+		msg += _(u'DICOM server: %s\n\n') % bad_data[0]['orthanc']
+		for bd in bad_data:
+			msg += _(u'Orthanc patient ID [%s]\n %s: [%s]\n') % (
+				bd['patient'],
+				bd['type'],
+				bd['instance']
+			)
+		prov = self.__patient.primary_provider
+		if prov is None:
+			prov = gmStaff.gmCurrentProvider()
+		report = gmProviderInbox.create_inbox_message (
+			message_type = _(u'error report'),
+			message_category = u'clinical',
+			patient = self.__patient.ID,
+			staff = prov['pk_staff'],
+			subject = _(u'DICOM data corruption')
+		)
+		report['data'] = msg
+		report.save()
+
+	#--------------------------------------------------------
+	def _on_save_patient_as_dicom_dir_button_pressed(self, event):
 		if self.__pacs is None:
 			return
 

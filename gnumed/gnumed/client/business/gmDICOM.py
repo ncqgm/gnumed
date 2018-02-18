@@ -21,6 +21,8 @@ import httplib2
 import json
 import zipfile
 import shutil
+import time
+import datetime as pydt
 from urllib import urlencode
 import distutils.version as version
 
@@ -103,6 +105,30 @@ class cOrthancServer:
 			return False
 		_log.debug('server: %s', system_data)
 		self.__server_identification = system_data
+
+		# check time skew
+		tolerance = 60 # seconds
+		client_now_as_utc = pydt.datetime.utcnow()
+		start = time.time()
+		orthanc_now_str = self.__run_GET(url = '%s/tools/now' % self.__server_url)		# 20180208T165832
+		end = time.time()
+		query_duration = end - start
+		orthanc_now_unknown_tz = pydt.datetime.strptime(orthanc_now_str, '%Y%m%dT%H%M%S')
+		_log.info('GNUmed "now" (UTC): %s', client_now_as_utc)
+		_log.info('Orthanc "now" (UTC): %s', orthanc_now_unknown_tz)
+		_log.debug('wire roundtrip (seconds): %s', query_duration)
+		_log.debug('maximum skew tolerance (seconds): %s', tolerance)
+		if query_duration > tolerance:
+			_log.error('useless to check GNUmed/Orthanc time skew, wire roundtrip > tolerance (%s)', tolerance)
+		else:
+			if orthanc_now_unknown_tz > client_now_as_utc:
+				real_skew = orthanc_now_unknown_tz - client_now_as_utc
+			else:
+				real_skew = client_now_as_utc - orthanc_now_unknown_tz
+			_log.debug('GNUmed/Orthanc time skew: %s', real_skew)
+			if real_skew > pydt.timedelta(seconds = tolerance):
+				_log.error('GNUmed/Orthanc time skew > tolerance (may be due to timezone differences)')
+
 		return self.__server_identification
 
 	server_identification = property(_get_server_identification, lambda x:x)
@@ -535,6 +561,28 @@ class cOrthancServer:
 		return (self.__run_GET(url) == 1)
 
 	#--------------------------------------------------------
+	def verify_patient_data(self, orthanc_id):
+		_log.info('verifying DICOM data of patient [%s]', orthanc_id)
+		bad_data = []
+		instances_url = '%s/patients/%s/instances' % (self.__server_url, orthanc_id)
+		instances = self.__run_GET(instances_url)
+		for instance in instances:
+			instance_id = instance['ID']
+			attachments_url = '%s/instances/%s/attachments' % (self.__server_url, instance_id)
+			attachments = self.__run_GET(attachments_url)
+			for attachment in attachments:
+				verify_url = '%s/%s/verify-md5' % (attachments_url, attachment)
+				# False, success = "{}"
+				#2018-02-08 19:11:27  ERROR     gm.dicom      [-1211701504 MainThread]  (gmDICOM.py::__run_POST() #986): cannot POST: http://localhost:8042/instances/5a8206f4-24619e76-6650d9cd-792cdf25-039e96e6/attachments/dicom-as-json/verify-md5
+				#2018-02-08 19:11:27  ERROR     gm.dicom      [-1211701504 MainThread]  (gmDICOM.py::__run_POST() #987): response: {'status': '400', 'content-length': '0'}
+				if self.__run_POST(verify_url) is not False:
+					continue
+				_log.error(u'bad MD5 of DICOM file at url [%s]: patient=%s, attachment_type=%s', verify_url, orthanc_id, attachment)
+				bad_data.append({'patient': orthanc_id, 'instance': instance_id, 'type': attachment, 'orthanc': u'%s [%s]' % (self.server_identification, self.__server_url)})
+
+		return bad_data
+
+	#--------------------------------------------------------
 	def modify_patient_id(self, old_patient_id, new_patient_id):
 
 		if old_patient_id == new_patient_id:
@@ -947,6 +995,7 @@ class cOrthancServer:
 			_log.error(u'cannot POST: %s', url)
 			_log.error(u'response: %s', response)
 			return False
+		#_log.debug(u'response: %s', response)
 		try:
 			content = json.loads(content)
 #			return json.loads(content)
@@ -1067,7 +1116,12 @@ if __name__ == "__main__":
 			pats = orthanc.get_patients_by_name(name_parts = entered_name.split(), fuzzy = True)
 			for pat in pats:
 				print(pat)
+				bad_data = orthanc.verify_patient_data(pat['ID'])
+				for bad in bad_data:
+					print(bad)
 				continue
+
+			continue
 
 			pats = orthanc.get_studies_list_by_patient_name(name_parts = entered_name.split(), fuzzy = True)
 			for pat in pats:
@@ -1092,11 +1146,15 @@ if __name__ == "__main__":
 	def run_console():
 		try:
 			host = sys.argv[2]
-			port = sys.argv[3]
 		except IndexError:
 			host = None
+		try:
+			port = sys.argv[3]
+		except IndexError:
 			port = '8042'
+
 		orthanc_console(host, port)
+
 	#--------------------------------------------------------
 	def test_modify_patient_id():
 		try:

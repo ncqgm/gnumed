@@ -23,6 +23,7 @@ NEW: add a database sanity check tool
 NEW: add a EMR structure export tool
 NEW: more options for putting formatted EMR into export area
 NEW: measurements sorted by problem
+NEW: verify DICOM data integrity in Orthanc server
 
 IMPROVED: EMR journal layout/retrieval speed
 IMPROVED: patient overview usability

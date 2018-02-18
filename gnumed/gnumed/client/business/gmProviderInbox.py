@@ -254,6 +254,7 @@ def get_inbox_messages(pk_staff=None, pk_patient=None, include_without_provider=
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 
 	return [ cInboxMessage(row = {'data': r, 'idx': idx, 'pk_field': 'pk_inbox_message'}) for r in rows ]
+
 #------------------------------------------------------------
 def create_inbox_message(message_type=None, subject=None, patient=None, staff=None, message_category=u'clinical'):
 
@@ -284,12 +285,14 @@ def create_inbox_message(message_type=None, subject=None, patient=None, staff=No
 	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True, get_col_idx = False)
 
 	return cInboxMessage(aPK_obj = rows[0]['pk'])
+
 #------------------------------------------------------------
 def delete_inbox_message(inbox_message=None):
 	args = {'pk': inbox_message}
 	cmd = u"DELETE FROM dem.message_inbox WHERE pk = %(pk)s"
 	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 	return True
+
 #------------------------------------------------------------
 def create_inbox_item_type(message_type=None, category=u'clinical'):
 
