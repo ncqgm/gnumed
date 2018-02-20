@@ -121,6 +121,7 @@ class c2ButtonQuestionDlg(wxg2ButtonQuestionDlg.wxg2ButtonQuestionDlg):
 			self.EndModal(wx.ID_NO)
 		else:
 			self.Close()
+
 # ========================================================================
 from Gnumed.wxGladeWidgets import wxg3ButtonQuestionDlg
 
@@ -195,6 +196,7 @@ class c3ButtonQuestionDlg(wxg3ButtonQuestionDlg.wxg3ButtonQuestionDlg):
 			self.EndModal(wx.ID_NO)
 		else:
 			self.Close()
+
 # ========================================================================
 from Gnumed.wxGladeWidgets import wxgMultilineTextEntryDlg
 

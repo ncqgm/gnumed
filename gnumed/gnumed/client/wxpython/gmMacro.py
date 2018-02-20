@@ -16,6 +16,7 @@ import io
 import datetime
 import urllib
 import codecs
+import re as regex
 
 
 import wx
@@ -379,6 +380,7 @@ __known_variant_placeholders = {
 	u'allergies': u"args: line template, one allergy per line",
 	u'allergy_list': u"args holds: template per allergy, all allergies on one line",
 	u'problems': u"args holds: line template, one problem per line",
+	u'diagnoses': u'args: line template, one diagnosis per line',
 	u'PHX': u"Past medical HiXtory; args: line template//separator//strftime date format",
 	u'encounter_list': u"args: per-encounter template, each ends up on one line",
 
@@ -493,6 +495,7 @@ third_pass_placeholder_regex = r'|'.join ([
 
 default_placeholder_start = u'$<'
 default_placeholder_end = u'>$'
+
 #=====================================================================
 def show_placeholders():
 
@@ -2216,15 +2219,48 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 				bool_strings = (self._escape(_('yes')), self._escape(_('no')))
 			) for phx in phxs
 		])
+
 	#--------------------------------------------------------
 	def _get_variant_problems(self, data=None):
 
 		if data is None:
 			return self._escape(_('template is missing'))
-
 		probs = self.pat.emr.get_problems()
-
 		return u'\n'.join([ data % p.fields_as_dict(date_format = '%Y %b %d', escape_style = self.__esc_style) for p in probs ])
+
+	#--------------------------------------------------------
+	def _get_variant_diagnoses(self, data=None):
+
+		if data is None:
+			return self._escape(_('template is missing'))
+		template = data
+		dxs = self.pat.emr.candidate_diagnoses
+		if len(dxs) == 0:
+			_log.debug(u'no diagnoses available')
+			return u''
+		selected = gmListWidgets.get_choices_from_list (
+			msg = _(u'Select the relevant diagnoses:'),
+			caption = _(u'Diagnosis selection'),
+			columns = [ _(u'Diagnosis'), _(u'Marked confidential'), _(u'Certainty'), _(u'Source') ],
+			choices = [[
+				dx['diagnosis'],
+				gmTools.bool2subst(dx['explicitely_confidential'], _(u'yes'), _(u'no'), _(u'unknown')),
+				gmTools.coalesce(dx['diagnostic_certainty_classification'], u''),
+				dx['source']
+				] for dx in dxs
+			],
+			data = dxs,
+			single_selection = False,
+			can_return_empty = True
+		)
+		if selected is None:
+			_log.debug(u'user did not select any diagnoses')
+			return u''
+		if len(selected) == 0:
+			_log.debug(u'user did not select any diagnoses')
+			return u''
+			#return template % {'diagnosis': u'', 'diagnostic_certainty_classification': u''}
+		return u'\n'.join(template % self._escape_dict(dx, none_string = u'?', bool_strings = [_(u'yes'), _(u'no')]) for dx in selected)
 
 	#--------------------------------------------------------
 	def _get_variant_today(self, data='%Y %b %d'):
@@ -2495,10 +2531,11 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		if self.__esc_func is None:
 			return text
 		return self.__esc_func(text)
+
 	#--------------------------------------------------------
 	def _escape_dict(self, the_dict=None, date_format='%Y %b %d  %H:%M', none_string=u'', bool_strings=None):
 		if bool_strings is None:
-			bools = {True: u'true', False: u'false'}
+			bools = {True: _(u'true'), False: _(u'false')}
 		else:
 			bools = {True: bool_strings[0], False: bool_strings[1]}
 		data = {}
@@ -2534,6 +2571,52 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			elif self.__esc_style in [u'xetex', u'xelatex']:
 				data[field] = gmTools.xetex_escape_string(data[field])
 		return data
+
+#---------------------------------------------------------------------
+def test_placeholders():
+
+	_log.debug('testing for placeholders with pattern: %s', first_pass_placeholder_regex)
+
+	data_source = gmPlaceholderHandler()
+	original_line = u''
+
+	while True:
+		# get input from user
+		line = wx.GetTextFromUser (
+			_(u'Enter some text containing a placeholder:'),
+			_(u'Testing placeholders'),
+			centre = True,
+			default_value = original_line
+		)
+		if line.strip() == u'':
+			break
+		original_line = line
+		# replace
+		placeholders_in_line = regex.findall(first_pass_placeholder_regex, line, regex.IGNORECASE)
+		if len(placeholders_in_line) == 0:
+			continue
+		for placeholder in placeholders_in_line:
+			try:
+				val = data_source[placeholder]
+			except:
+				val = _('error with placeholder [%s]') % placeholder
+			if val is None:
+				val = _('error with placeholder [%s]') % placeholder
+			line = line.replace(placeholder, val)
+		# show
+		msg = _(
+			u'Input: %s\n'
+			u'\n'
+			u'Output:\n'
+			u'%s'
+		) % (
+			original_line,
+			line
+		)
+		gmGuiHelpers.gm_show_info (
+			title = _(u'Testing placeholders'),
+			info = msg
+		)
 
 #=====================================================================
 class cMacroPrimitives:
@@ -3168,7 +3251,8 @@ if __name__ == '__main__':
 			#u'bill_adr_subunit::subunit: %s::1234',
 			#u'bill_adr_suburb::-> %s::1234',
 			#u'bill_adr_street::::1234',
-			u'bill_adr_number::%s::1234'
+			#u'bill_adr_number::%s::1234',
+			u'$<diagnoses::\listitem %s::>$'
 		]
 
 		handler = gmPlaceholderHandler()
@@ -3188,6 +3272,7 @@ if __name__ == '__main__':
 			print " result:"
 			print '  %s' % handler[ph]
 		#handler.unset_placeholder('form_name_long')
+
 	#--------------------------------------------------------
 	def test():
 		pat = gmPersonSearch.ask_for_patient()
@@ -3196,9 +3281,11 @@ if __name__ == '__main__':
 		gmPerson.set_active_patient(patient = pat)
 		from Gnumed.wxpython import gmMedicationWidgets
 		gmMedicationWidgets.manage_substance_intakes()
+
 	#--------------------------------------------------------
 	def test_show_phs():
 		show_placeholders()
+
 	#--------------------------------------------------------
 
 	app = wx.App()

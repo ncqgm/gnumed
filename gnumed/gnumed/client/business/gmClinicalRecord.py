@@ -1727,15 +1727,30 @@ WHERE
 			problems = filter(lambda epi: epi['pk_episode'] in episodes, problems)
 
 		return problems
+
 	#--------------------------------------------------------
 	def problem2episode(self, problem=None):
 		return gmEMRStructItems.problem2episode(problem = problem)
+
 	#--------------------------------------------------------
 	def problem2issue(self, problem=None):
 		return gmEMRStructItems.problem2issue(problem = problem)
+
 	#--------------------------------------------------------
 	def reclass_problem(self, problem):
 		return gmEMRStructItems.reclass_problem(problem = problem)
+
+	#--------------------------------------------------------
+	def get_candidate_diagnoses(self):
+		cmd = u"SELECT * FROM clin.v_candidate_diagnoses WHERE pk_patient = %(pat)s"
+		rows, idx = gmPG2.run_ro_queries (
+			queries = [{'cmd': cmd, 'args': {'pat': self.pk_patient}}],
+			get_col_idx = False
+		)
+		return rows
+
+	candidate_diagnoses = property(get_candidate_diagnoses)
+
 	#--------------------------------------------------------
 	# API: health issues
 	#--------------------------------------------------------
@@ -3170,6 +3185,7 @@ if __name__ == "__main__":
 
 		print "setting state to 'abc'"
 		emr.allergy_state = 'abc'
+
 	#-----------------------------------------
 	def test_get_test_names():
 		emr = cClinicalRecord(aPKey = 6)
@@ -3177,6 +3193,7 @@ if __name__ == "__main__":
 		print "test result names:", len(rows)
 #		for row in rows:
 #			print row
+
 	#-----------------------------------------
 	def test_get_dates_for_results():
 		emr = cClinicalRecord(aPKey=12)
@@ -3184,6 +3201,7 @@ if __name__ == "__main__":
 		print "test result dates:"
 		for row in rows:
 			print row
+
 	#-----------------------------------------
 	def test_get_measurements():
 		emr = cClinicalRecord(aPKey=12)
@@ -3191,6 +3209,7 @@ if __name__ == "__main__":
 		print "test results:"
 		for row in rows:
 			print row
+
 	#-----------------------------------------
 	def test_get_test_results_by_date():
 		emr = cClinicalRecord(aPKey=12)
@@ -3198,11 +3217,13 @@ if __name__ == "__main__":
 		print "test results:"
 		for test in tests:
 			print test
+
 	#-----------------------------------------
 	def test_get_statistics():
 		emr = cClinicalRecord(aPKey=12)
 		for key, item in emr.get_statistics().iteritems():
 			print key, ":", item
+
 	#-----------------------------------------
 	def test_get_problems():
 		emr = cClinicalRecord(aPKey=12)
@@ -3226,6 +3247,7 @@ if __name__ == "__main__":
 		print "probs + issues + epis (%s):" % len(probs)
 		for p in probs:
 			print u'%s (%s)' % (p['problem'], p['type'])
+
 	#-----------------------------------------
 	def test_add_test_result():
 		emr = cClinicalRecord(aPKey=12)
@@ -3238,10 +3260,12 @@ if __name__ == "__main__":
 			unit = u'kg'
 		)
 		print tr
+
 	#-----------------------------------------
 	def test_get_most_recent_episode():
 		emr = cClinicalRecord(aPKey=12)
 		print emr.get_most_recent_episode(issue = 2)
+
 	#-----------------------------------------
 	def test_get_almost_recent_encounter():
 		emr = cClinicalRecord(aPKey=12)
@@ -3261,19 +3285,28 @@ if __name__ == "__main__":
 			print issue['description']
 
 	#-----------------------------------------
+	def test_get_dx():
+		emr = cClinicalRecord(aPKey = 12)
+		for dx in emr.candidate_diagnoses:
+			print dx
+
+	#-----------------------------------------
 	def test_get_meds():
 		emr = cClinicalRecord(aPKey=12)
 		for med in emr.get_current_medications():
 			print med
+
 	#-----------------------------------------
 	def test_get_abuses():
 		emr = cClinicalRecord(aPKey=12)
 		for med in emr.abused_substances:
 			print med.format(single_line = True)
+
 	#-----------------------------------------
 	def test_is_allergic_to():
 		emr = cClinicalRecord(aPKey = 12)
 		print emr.is_allergic_to(atcs = tuple(sys.argv[2:]), inns = tuple(sys.argv[2:]), product_name = sys.argv[2])
+
 	#-----------------------------------------
 	def test_get_as_journal():
 		emr = cClinicalRecord(aPKey = 12)
@@ -3281,10 +3314,12 @@ if __name__ == "__main__":
 			#print journal_line.keys()
 			print u'%(date)s  %(modified_by)s  %(soap_cat)s  %(narrative)s' % journal_line
 			print ""
+
 	#-----------------------------------------
 	def test_get_most_recent():
 		emr = cClinicalRecord(aPKey=12)
 		print emr.get_most_recent_results()
+
 	#-----------------------------------------
 	def test_episodes():
 		emr = cClinicalRecord(aPKey=12)
@@ -3297,6 +3332,7 @@ if __name__ == "__main__":
 		from Gnumed.business.gmPerson import cPatient
 		pat = cPatient(aPK_obj = 12)
 		print emr.format_as_journal(left_margin = 1, patient = pat)
+
 	#-----------------------------------------
 	def test_smoking():
 		emr = cClinicalRecord(aPKey=12)
@@ -3332,7 +3368,8 @@ if __name__ == "__main__":
 	#test_smoking()
 	#test_get_abuses()
 	#test_get_encounters()
-	test_get_issues()
+	#test_get_issues()
+	test_get_dx()
 
 #	emr = cClinicalRecord(aPKey = 12)
 

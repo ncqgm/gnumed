@@ -3221,7 +3221,6 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 			self.__image_data = {'idx': idx, 'uuid': uuid}
 			self._BMP_preview.SetBitmap(wx_bmp)
 			self._LBL_image.Label = _(u'Image %s/%s') % (idx+1, len(series['instances']))
-			#self.Layout()
 
 		if idx == 0:
 			self._BTN_previous_image.Disable()

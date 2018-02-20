@@ -192,6 +192,7 @@ class cFormTemplate(gmBusinessDBObject.cBusinessDBObject):
 		return rows[0][0]
 
 	template_data = property(_get_template_data, lambda x:x)
+
 	#--------------------------------------------------------
 	def save_to_file(self, filename=None, chunksize=0):
 		"""Export form template from database into file."""
@@ -229,6 +230,7 @@ class cFormTemplate(gmBusinessDBObject.cBusinessDBObject):
 			return None
 
 		return filename
+
 	#--------------------------------------------------------
 	def update_template_from_file(self, filename=None):
 		gmPG2.file2bytea (
@@ -238,6 +240,7 @@ class cFormTemplate(gmBusinessDBObject.cBusinessDBObject):
 		)
 		# adjust for xmin change
 		self.refetch_payload()
+
 	#--------------------------------------------------------
 	def instantiate(self):
 		fname = self.save_to_file()
@@ -554,6 +557,7 @@ class gmOOoConnector(gmBorg.cBorg):
 		return self.__desktop
 
 	desktop = property(_get_desktop, lambda x:x)
+
 #------------------------------------------------------------
 class cOOoLetter(object):
 

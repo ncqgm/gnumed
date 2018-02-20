@@ -103,6 +103,7 @@ def get_choices_from_list (
 	dlg.delete_callback = delete_callback
 	dlg.list_tooltip_callback = list_tooltip_callback
 
+	dlg.can_return_empty = can_return_empty
 	dlg.ignore_OK_button = ignore_OK_button
 	dlg.left_extra_button = left_extra_button
 	dlg.middle_extra_button = middle_extra_button
@@ -119,7 +120,6 @@ def get_choices_from_list (
 
 	if selections is not None:
 		dlg.set_selections(selections = selections)
-	dlg.can_return_empty = can_return_empty
 
 	btn_pressed = dlg.ShowModal()
 	sels = dlg.get_selected_item_data(only_one = single_selection)

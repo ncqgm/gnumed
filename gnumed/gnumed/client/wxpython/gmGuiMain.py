@@ -1028,6 +1028,9 @@ class gmTopLevelFrame(wx.Frame):
 			except ImportError:
 				pass
 
+			item = menu_debugging.Append(-1, _('Test placeholder'), _('Manually test placeholders'))
+			self.Bind(wx.EVT_MENU, self.__on_test_placeholders, item)
+
 		help_menu.AppendMenu(wx.NewId(), _('Debugging ...'), menu_debugging)
 
 		help_menu.AppendSeparator()
@@ -2618,6 +2621,12 @@ class gmTopLevelFrame(wx.Frame):
 		import faulthandler
 		_log.debug('testing faulthandler via SIGSEGV')
 		faulthandler._sigsegv()
+
+	#----------------------------------------------
+	def __on_test_placeholders(self, evt):
+		from Gnumed.wxpython.gmMacro import test_placeholders
+		test_placeholders()
+
 	#----------------------------------------------
 	def __on_test_access_violation(self, evt):
 		raise gmExceptions.AccessDenied (
