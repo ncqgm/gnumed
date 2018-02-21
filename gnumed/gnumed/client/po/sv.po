@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-18 19:11+0100\n"
+"POT-Creation-Date: 2018-02-21 17:12+0100\n"
 "PO-Revision-Date: 2012-04-07 10:15+0000\n"
 "Last-Translator: Rikard Edgren <Unknown>\n"
 "Language-Team: Swedish <kde-i18n-doc@kde.org>\n"
@@ -1088,6 +1088,9 @@ msgid "Uncheck time checkbox for new events"
 msgstr "Avmarkera checkboxen 'Visa tid'  för nya händelser"
 
 msgid "Balloon text below icon"
+msgstr ""
+
+msgid "Filter items in listbox export, on categories"
 msgstr ""
 
 msgid "Select Event Editor Tab Order"
@@ -4318,9 +4321,6 @@ msgid ""
 msgstr ""
 
 msgid "Add a new message."
-msgstr ""
-
-msgid "This shows the entirety of the selected message in your Inbox."
 msgstr ""
 
 msgid "Messages:"
@@ -12015,6 +12015,22 @@ msgstr ""
 msgid "no PHX for this patient (available or selected)"
 msgstr ""
 
+#, fuzzy
+msgid "Select the relevant diagnoses:"
+msgstr ""
+"\n"
+"Välj den undersökningstyp du vill redigera!\n"
+
+#, fuzzy
+msgid "Diagnosis selection"
+msgstr "Den för närvarande valda patienten är:"
+
+msgid "Diagnosis"
+msgstr ""
+
+msgid "Marked confidential"
+msgstr ""
+
 #, python-format
 msgid "no textual expansion found for keyword <%s>"
 msgstr ""
@@ -12063,6 +12079,27 @@ msgstr ""
 
 #, python-format
 msgid "[%s] bill has no address"
+msgstr ""
+
+msgid "true"
+msgstr ""
+
+msgid "false"
+msgstr ""
+
+msgid "Enter some text containing a placeholder:"
+msgstr ""
+
+#, fuzzy
+msgid "Testing placeholders"
+msgstr "Fel för platshållare [%s]"
+
+#, python-format
+msgid ""
+"Input: %s\n"
+"\n"
+"Output:\n"
+"%s"
 msgstr ""
 
 msgid "attach rejected, already serving a client"
@@ -17402,6 +17439,14 @@ msgstr ""
 
 msgid "Simulate a catastrophic fault (SIGSEGV)."
 msgstr ""
+
+#, fuzzy
+msgid "Test placeholder"
+msgstr "Fel för platshållare [%s]"
+
+#, fuzzy
+msgid "Manually test placeholders"
+msgstr "Fel för platshållare [%s]"
 
 msgid "Debugging ..."
 msgstr ""

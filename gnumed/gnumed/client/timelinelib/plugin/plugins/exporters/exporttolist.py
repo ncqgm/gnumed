@@ -34,23 +34,33 @@ class ListExporter(PluginBase):
         return _("Export to Listbox...")
 
     def run(self, main_frame):
+        self.db = main_frame.timeline
         dlg = ListboxDialog(self.display_name()[:-3])
-        dlg.populate(self._get_events(main_frame.timeline))
+        dlg.populate(self._get_events(main_frame))
         dlg.ShowModal()
         dlg.Destroy()
 
-    def _get_events(self, db):
+    def _get_events(self, main_frame):
+        visible_categories = self._get_visible_categories(main_frame)
         return [
             (
-                db.get_time_type().format_period(event.get_time_period()),
+                self.db.get_time_type().format_period(event.get_time_period()),
                 event.get_text()
             )
             for event
             in sorted(
-                db.get_all_events(),
+                self.db.get_all_events(),
                 key=lambda event: event.get_start_time()
             )
+            if event.get_category() in visible_categories
         ]
+
+    def _get_visible_categories(self, main_frame):
+        if main_frame.config.filtered_listbox_export:
+            vp = main_frame.get_view_properties()
+            return [cat for cat in self.db.get_categories() if vp.is_category_visible(cat)]
+        else:
+            return [cat for cat in self.db.get_categories()]
 
 
 class ListboxDialog(wx.Dialog):

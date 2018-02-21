@@ -71,6 +71,11 @@ class PreferencesDialog(Dialog):
                             event_EVT_CHECKBOX="on_text_below_icon"
                             label="$(text_below_icon_text)"
                         />
+                        <CheckBox
+                            name="filtered_listbox_export"
+                            event_EVT_CHECKBOX="on_filtered_listbox_export"
+                            label="$(text_filtered_listbox_export)"
+                        />
                         <Button
                             name="select_tab_order"
                             event_EVT_BUTTON="on_tab_order_click"
@@ -321,6 +326,7 @@ class PreferencesDialog(Dialog):
             "center_text_text": _("Center Event texts"),
             "uncheck_time_for_new_events_text": _("Uncheck time checkbox for new events"),
             "text_below_icon_text": _("Balloon text below icon"),
+            "text_filtered_listbox_export": _("Filter items in listbox export, on categories"),
             "tab_order_text": _("Select Event Editor Tab Order"),
             "date_formatter_text": _("Select Date format"),
             "date_time_text": _("Date && Time"),
@@ -399,6 +405,9 @@ class PreferencesDialog(Dialog):
 
     def SetTextBelowIconCheckboxValue(self, value):
         self.text_below_icon.SetValue(value)
+
+    def SetFilteredListboxExport(self, value):
+        self.filtered_listbox_export.SetValue(value)
 
     def SetCenterTextCheckboxValue(self, value):
         self.center_text_checkbox.SetValue(value)

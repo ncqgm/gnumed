@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-18 19:10+0100\n"
+"POT-Creation-Date: 2018-02-21 17:11+0100\n"
 "PO-Revision-Date: 2010-07-17 11:08+0000\n"
 "Last-Translator: Luis Mendonça <Unknown>\n"
 "Language-Team: Portuguese <pt@li.org>\n"
@@ -1116,6 +1116,9 @@ msgid "Uncheck time checkbox for new events"
 msgstr ""
 
 msgid "Balloon text below icon"
+msgstr ""
+
+msgid "Filter items in listbox export, on categories"
 msgstr ""
 
 msgid "Select Event Editor Tab Order"
@@ -4361,9 +4364,6 @@ msgstr ""
 #, fuzzy
 msgid "Add a new message."
 msgstr "Adicionando novo problema de saúde"
-
-msgid "This shows the entirety of the selected message in your Inbox."
-msgstr "Isso mostra todas as mensagens de sua caixa de entrada."
 
 msgid "Messages:"
 msgstr ""
@@ -12399,6 +12399,21 @@ msgstr ""
 msgid "no PHX for this patient (available or selected)"
 msgstr "Mover descrição para outro episódio"
 
+#, fuzzy
+msgid "Select the relevant diagnoses:"
+msgstr "Selecionar problema de saúde"
+
+#, fuzzy
+msgid "Diagnosis selection"
+msgstr "Cancelar seleção de pessoa."
+
+msgid "Diagnosis"
+msgstr ""
+
+#, fuzzy
+msgid "Marked confidential"
+msgstr "confidencial"
+
 #, python-format
 msgid "no textual expansion found for keyword <%s>"
 msgstr ""
@@ -12451,6 +12466,27 @@ msgstr "Invocar Inspetor"
 
 #, python-format
 msgid "[%s] bill has no address"
+msgstr ""
+
+msgid "true"
+msgstr ""
+
+msgid "false"
+msgstr ""
+
+msgid "Enter some text containing a placeholder:"
+msgstr ""
+
+#, fuzzy
+msgid "Testing placeholders"
+msgstr "erro com o marcador [%s]"
+
+#, python-format
+msgid ""
+"Input: %s\n"
+"\n"
+"Output:\n"
+"%s"
 msgstr ""
 
 msgid "attach rejected, already serving a client"
@@ -18060,6 +18096,14 @@ msgstr ""
 msgid "Simulate a catastrophic fault (SIGSEGV)."
 msgstr ""
 
+#, fuzzy
+msgid "Test placeholder"
+msgstr "erro com o marcador [%s]"
+
+#, fuzzy
+msgid "Manually test placeholders"
+msgstr "Administrar as descrições."
+
 msgid "Debugging ..."
 msgstr "Console de Erros ..."
 
@@ -21634,6 +21678,9 @@ msgstr "Interromper"
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Imterromper e NÃO ligar ao GNUmed"
+
+#~ msgid "This shows the entirety of the selected message in your Inbox."
+#~ msgstr "Isso mostra todas as mensagens de sua caixa de entrada."
 
 #, fuzzy
 #~ msgid "Save (Z)"

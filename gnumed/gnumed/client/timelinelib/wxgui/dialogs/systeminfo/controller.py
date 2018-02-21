@@ -45,7 +45,10 @@ class SystemInfoDialogController(Controller):
         return wx.version()
 
     def _get_locale_setting(self):
-        return " ".join(locale.getlocale(locale.LC_TIME))
+        try:
+            return " ".join(locale.getlocale(locale.LC_TIME))
+        except TypeError:
+            return " "
 
     def _get_config_file(self, parent):
         return parent.config.path if parent is not None else '?'

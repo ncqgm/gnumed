@@ -5,8 +5,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-18 19:10+0100\n"
-"PO-Revision-Date: 2018-02-18 19:35+0100\n"
+"POT-Creation-Date: 2018-02-21 17:11+0100\n"
+"PO-Revision-Date: 2018-02-21 17:19+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "Language: de_DE\n"
@@ -1092,6 +1092,9 @@ msgid "Uncheck time checkbox for new events"
 msgstr "Zeitfeld Checkbox neuer Ereignisse nicht auswählen"
 
 msgid "Balloon text below icon"
+msgstr ""
+
+msgid "Filter items in listbox export, on categories"
 msgstr ""
 
 msgid "Select Event Editor Tab Order"
@@ -4457,9 +4460,6 @@ msgstr ""
 
 msgid "Add a new message."
 msgstr "Eine neue Nachricht erzeugen."
-
-msgid "This shows the entirety of the selected message in your Inbox."
-msgstr "Zeigt die eingegangene Nachricht komplett."
 
 msgid "Messages:"
 msgstr "Nachrichten:"
@@ -12675,6 +12675,18 @@ msgstr "PHX: ungültige Platzhalteroptionen."
 msgid "no PHX for this patient (available or selected)"
 msgstr "keine PHX für den Patienten (verfügbar oder ausgewählt)"
 
+msgid "Select the relevant diagnoses:"
+msgstr "Wählen Sie die gewünschten Diagnosen:"
+
+msgid "Diagnosis selection"
+msgstr "Diagnosenwahl"
+
+msgid "Diagnosis"
+msgstr "Diagnose"
+
+msgid "Marked confidential"
+msgstr "explizit vertraulich"
+
 #, python-format
 msgid "no textual expansion found for keyword <%s>"
 msgstr "kein Text zum Schlüsselwort <%s> gefunden"
@@ -12727,6 +12739,30 @@ msgstr "keine Rechnung gewählt"
 #, python-format
 msgid "[%s] bill has no address"
 msgstr "[%s] Rechnung hat keine Adresse"
+
+msgid "true"
+msgstr "wahr"
+
+msgid "false"
+msgstr "falsch"
+
+msgid "Enter some text containing a placeholder:"
+msgstr "Geben Sie Text mit einem Platzhalter ein:"
+
+msgid "Testing placeholders"
+msgstr "Platzhalter testen"
+
+#, python-format
+msgid ""
+"Input: %s\n"
+"\n"
+"Output:\n"
+"%s"
+msgstr ""
+"Eingabe: %s\n"
+"\n"
+"Ergebnis:\n"
+"%s"
 
 msgid "attach rejected, already serving a client"
 msgstr "Verbindung abgewiesen, es besteht bereits eine andere"
@@ -18678,6 +18714,12 @@ msgstr "faulthandler testen"
 msgid "Simulate a catastrophic fault (SIGSEGV)."
 msgstr "Einen katastrophalen Fehler simulieren (SIGSEGV)."
 
+msgid "Test placeholder"
+msgstr "Platzhalter testen"
+
+msgid "Manually test placeholders"
+msgstr "Manuell Platzhalter testen"
+
 msgid "Debugging ..."
 msgstr "Fehlersuche ..."
 
@@ -22550,6 +22592,9 @@ msgstr "Abbrechen"
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
 
+#~ msgid "This shows the entirety of the selected message in your Inbox."
+#~ msgstr "Zeigt die eingegangene Nachricht komplett."
+
 #~ msgid "Save (Z)"
 #~ msgstr "Speichern (Z)"
 
@@ -22922,9 +22967,6 @@ msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
 
 #~ msgid "ATCs: multi-condition vaccines"
 #~ msgstr "ATCs: Kombinationsimpfstoffe"
-
-#~ msgid "Pick the relevant indications."
-#~ msgstr "Wählen Sie die relevanten Indikationen."
 
 #~ msgid "Known indications"
 #~ msgstr "Bekannte Indikationen"
@@ -26438,9 +26480,6 @@ msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
 
 #~ msgid "Progress note"
 #~ msgstr "Verlaufsnotiz"
-
-#~ msgid "Diagnosed"
-#~ msgstr "Erkannt"
 
 #~ msgid ""
 #~ "Cannot rename health issue from\n"

@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed 0.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-18 19:10+0100\n"
+"POT-Creation-Date: 2018-02-21 17:11+0100\n"
 "PO-Revision-Date: 2012-06-01 01:16+0000\n"
 "Last-Translator: ncq <Unknown>\n"
 "Language-Team: FR <LL@li.org>\n"
@@ -1122,6 +1122,9 @@ msgid "Uncheck time checkbox for new events"
 msgstr ""
 
 msgid "Balloon text below icon"
+msgstr ""
+
+msgid "Filter items in listbox export, on categories"
 msgstr ""
 
 msgid "Select Event Editor Tab Order"
@@ -4511,9 +4514,6 @@ msgstr ""
 
 msgid "Add a new message."
 msgstr "Ajouter un message."
-
-msgid "This shows the entirety of the selected message in your Inbox."
-msgstr "Affiche tous les messages sélectionnés dans votre boîte de réception."
 
 #, fuzzy
 msgid "Messages:"
@@ -12742,6 +12742,21 @@ msgstr "remplissage invalide [%s]"
 msgid "no PHX for this patient (available or selected)"
 msgstr ""
 
+#, fuzzy
+msgid "Select the relevant diagnoses:"
+msgstr "Imprimer la liste des médicaments."
+
+#, fuzzy
+msgid "Diagnosis selection"
+msgstr "Enregistrer le patient actuel"
+
+msgid "Diagnosis"
+msgstr ""
+
+#, fuzzy
+msgid "Marked confidential"
+msgstr "Confidentiel"
+
 #, python-format
 msgid "no textual expansion found for keyword <%s>"
 msgstr ""
@@ -12795,6 +12810,27 @@ msgstr "Modifier la vaccination"
 
 #, python-format
 msgid "[%s] bill has no address"
+msgstr ""
+
+msgid "true"
+msgstr ""
+
+msgid "false"
+msgstr ""
+
+msgid "Enter some text containing a placeholder:"
+msgstr ""
+
+#, fuzzy
+msgid "Testing placeholders"
+msgstr "erreur avec le remplissage [%s]"
+
+#, python-format
+msgid ""
+"Input: %s\n"
+"\n"
+"Output:\n"
+"%s"
 msgstr ""
 
 msgid "attach rejected, already serving a client"
@@ -18342,6 +18378,14 @@ msgstr ""
 msgid "Simulate a catastrophic fault (SIGSEGV)."
 msgstr ""
 
+#, fuzzy
+msgid "Test placeholder"
+msgstr "erreur avec le remplissage [%s]"
+
+#, fuzzy
+msgid "Manually test placeholders"
+msgstr "erreur avec le remplissage [%s]"
+
 msgid "Debugging ..."
 msgstr ""
 
@@ -21814,6 +21858,10 @@ msgstr "Abandonner"
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Annuler et ne PAS se connecter a GNUmed."
 
+#~ msgid "This shows the entirety of the selected message in your Inbox."
+#~ msgstr ""
+#~ "Affiche tous les messages sélectionnés dans votre boîte de réception."
+
 #, fuzzy
 #~ msgid "Save (Z)"
 #~ msgstr " Sauvegarder "
@@ -22168,10 +22216,6 @@ msgstr "Annuler et ne PAS se connecter a GNUmed."
 #~ "\n"
 #~ "Maladies pouvant être prévenues par la vaccination actuellement connues "
 #~ "par GNUmed.\n"
-
-#, fuzzy
-#~ msgid "Pick the relevant indications."
-#~ msgstr "Imprimer la liste des médicaments."
 
 #, fuzzy
 #~ msgid "Known indications"

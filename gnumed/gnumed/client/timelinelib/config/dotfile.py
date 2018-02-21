@@ -271,6 +271,7 @@ BOOLEAN_CONFIGS = (
     {'name': 'center_event_texts', 'default': 'False'},
     {'name': 'uncheck_time_for_new_events', 'default': 'False'},
     {'name': 'text_below_icon', 'default': 'False'},
+    {'name': 'filtered_listbox_export', 'default': 'False'},
     {'name': 'colorize_weekends', 'default': 'False'},
     {'name': 'skip_s_in_decade_text', 'default': 'False'},
     {'name': 'display_checkmark_on_events_done', 'default': 'False'},

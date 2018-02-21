@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-18 19:10+0100\n"
+"POT-Creation-Date: 2018-02-21 17:11+0100\n"
 "PO-Revision-Date: 2010-02-09 16:17+0000\n"
 "Last-Translator: Brett Alton <brett.jr.alton@gmail.com>\n"
 "Language-Team: English (Canada) <en_CA@li.org>\n"
@@ -1087,6 +1087,9 @@ msgid "Uncheck time checkbox for new events"
 msgstr ""
 
 msgid "Balloon text below icon"
+msgstr ""
+
+msgid "Filter items in listbox export, on categories"
 msgstr ""
 
 msgid "Select Event Editor Tab Order"
@@ -4148,9 +4151,6 @@ msgid ""
 msgstr ""
 
 msgid "Add a new message."
-msgstr ""
-
-msgid "This shows the entirety of the selected message in your Inbox."
 msgstr ""
 
 msgid "Messages:"
@@ -11651,6 +11651,20 @@ msgstr ""
 msgid "no PHX for this patient (available or selected)"
 msgstr ""
 
+#, fuzzy
+msgid "Select the relevant diagnoses:"
+msgstr "health issue: %s"
+
+#, fuzzy
+msgid "Diagnosis selection"
+msgstr "The currently selected patient is:"
+
+msgid "Diagnosis"
+msgstr ""
+
+msgid "Marked confidential"
+msgstr ""
+
 #, python-format
 msgid "no textual expansion found for keyword <%s>"
 msgstr ""
@@ -11699,6 +11713,26 @@ msgstr ""
 
 #, python-format
 msgid "[%s] bill has no address"
+msgstr ""
+
+msgid "true"
+msgstr ""
+
+msgid "false"
+msgstr ""
+
+msgid "Enter some text containing a placeholder:"
+msgstr ""
+
+msgid "Testing placeholders"
+msgstr ""
+
+#, python-format
+msgid ""
+"Input: %s\n"
+"\n"
+"Output:\n"
+"%s"
 msgstr ""
 
 msgid "attach rejected, already serving a client"
@@ -16977,6 +17011,12 @@ msgid "Test fault handler"
 msgstr ""
 
 msgid "Simulate a catastrophic fault (SIGSEGV)."
+msgstr ""
+
+msgid "Test placeholder"
+msgstr ""
+
+msgid "Manually test placeholders"
 msgstr ""
 
 msgid "Debugging ..."

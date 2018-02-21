@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-18 19:10+0100\n"
+"POT-Creation-Date: 2018-02-21 17:11+0100\n"
 "PO-Revision-Date: 2012-06-01 01:22+0000\n"
 "Last-Translator: ncq <Unknown>\n"
 "Language-Team: GNUmed\n"
@@ -1115,6 +1115,9 @@ msgid "Uncheck time checkbox for new events"
 msgstr ""
 
 msgid "Balloon text below icon"
+msgstr ""
+
+msgid "Filter items in listbox export, on categories"
 msgstr ""
 
 msgid "Select Event Editor Tab Order"
@@ -4364,9 +4367,6 @@ msgstr ""
 #, fuzzy
 msgid "Add a new message."
 msgstr "Aggiungi un nuovo membro dello staff"
-
-msgid "This shows the entirety of the selected message in your Inbox."
-msgstr ""
 
 msgid "Messages:"
 msgstr ""
@@ -12270,6 +12270,21 @@ msgstr ""
 msgid "no PHX for this patient (available or selected)"
 msgstr "Sposta il resoconto in un altro episodio"
 
+#, fuzzy
+msgid "Select the relevant diagnoses:"
+msgstr "Stampa la lista di farmaci."
+
+#, fuzzy
+msgid "Diagnosis selection"
+msgstr "Elimina la persona selezionata."
+
+msgid "Diagnosis"
+msgstr ""
+
+#, fuzzy
+msgid "Marked confidential"
+msgstr "confidenziale"
+
 #, python-format
 msgid "no textual expansion found for keyword <%s>"
 msgstr ""
@@ -12321,6 +12336,27 @@ msgstr "Selezione del dispositivo"
 
 #, python-format
 msgid "[%s] bill has no address"
+msgstr ""
+
+msgid "true"
+msgstr ""
+
+msgid "false"
+msgstr ""
+
+msgid "Enter some text containing a placeholder:"
+msgstr ""
+
+#, fuzzy
+msgid "Testing placeholders"
+msgstr "erro com o placeholder [%s]"
+
+#, python-format
+msgid ""
+"Input: %s\n"
+"\n"
+"Output:\n"
+"%s"
 msgstr ""
 
 msgid "attach rejected, already serving a client"
@@ -17884,6 +17920,14 @@ msgstr ""
 msgid "Simulate a catastrophic fault (SIGSEGV)."
 msgstr ""
 
+#, fuzzy
+msgid "Test placeholder"
+msgstr "erro com o placeholder [%s]"
+
+#, fuzzy
+msgid "Manually test placeholders"
+msgstr "Gestisci le descrizioni"
+
 msgid "Debugging ..."
 msgstr "Debugging ..."
 
@@ -21565,10 +21609,6 @@ msgstr "Annulla e NON connetti a GNUmed"
 
 #~ msgid "vacc -> ind error: %s"
 #~ msgstr "vacc -> ind error: %s"
-
-#, fuzzy
-#~ msgid "Pick the relevant indications."
-#~ msgstr "Stampa la lista di farmaci."
 
 #, fuzzy
 #~ msgid "Known indications"

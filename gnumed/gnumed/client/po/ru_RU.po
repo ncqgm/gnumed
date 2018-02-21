@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-18 19:10+0100\n"
+"POT-Creation-Date: 2018-02-21 17:12+0100\n"
 "PO-Revision-Date: 2012-05-30 18:43+0000\n"
 "Last-Translator: YvLy <Unknown>\n"
 "Language-Team: Russian <ru@li.org>\n"
@@ -1211,6 +1211,9 @@ msgid "Uncheck time checkbox for new events"
 msgstr ""
 
 msgid "Balloon text below icon"
+msgstr ""
+
+msgid "Filter items in listbox export, on categories"
 msgstr ""
 
 msgid "Select Event Editor Tab Order"
@@ -4694,9 +4697,6 @@ msgstr ""
 
 msgid "Add a new message."
 msgstr "Добавить новое сообщение."
-
-msgid "This shows the entirety of the selected message in your Inbox."
-msgstr "Показывает все выбранные в вашем почтовом ящике сообщения."
 
 #, fuzzy
 msgid "Messages:"
@@ -13147,6 +13147,21 @@ msgstr "PHX: недопустимые параметры поля подстан
 msgid "no PHX for this patient (available or selected)"
 msgstr "для этого пациента нет PHX (включеного или выбранного)"
 
+#, fuzzy
+msgid "Select the relevant diagnoses:"
+msgstr "Выберите подходящие показания."
+
+#, fuzzy
+msgid "Diagnosis selection"
+msgstr "Выбор неверного адреса."
+
+msgid "Diagnosis"
+msgstr ""
+
+#, fuzzy
+msgid "Marked confidential"
+msgstr "конфиденциальный"
+
 #, fuzzy, python-format
 msgid "no textual expansion found for keyword <%s>"
 msgstr "Не удалось сохранить текстовое расширение без ключевого слова."
@@ -13199,6 +13214,27 @@ msgstr "не выбран счет"
 
 #, python-format
 msgid "[%s] bill has no address"
+msgstr ""
+
+msgid "true"
+msgstr ""
+
+msgid "false"
+msgstr ""
+
+msgid "Enter some text containing a placeholder:"
+msgstr ""
+
+#, fuzzy
+msgid "Testing placeholders"
+msgstr "ошибка с полем заполнения [%s]"
+
+#, python-format
+msgid ""
+"Input: %s\n"
+"\n"
+"Output:\n"
+"%s"
 msgstr ""
 
 msgid "attach rejected, already serving a client"
@@ -19240,6 +19276,14 @@ msgstr "Введите ниже"
 msgid "Simulate a catastrophic fault (SIGSEGV)."
 msgstr ""
 
+#, fuzzy
+msgid "Test placeholder"
+msgstr "ошибка с полем заполнения [%s]"
+
+#, fuzzy
+msgid "Manually test placeholders"
+msgstr "Списки по управлению"
+
 msgid "Debugging ..."
 msgstr "Отладка ..."
 
@@ -23225,6 +23269,9 @@ msgstr "Отменить"
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Отменить и НЕ подключаться к GNUmed."
 
+#~ msgid "This shows the entirety of the selected message in your Inbox."
+#~ msgstr "Показывает все выбранные в вашем почтовом ящике сообщения."
+
 #, fuzzy
 #~ msgid "Save (Z)"
 #~ msgstr " Сохранить "
@@ -23622,9 +23669,6 @@ msgstr "Отменить и НЕ подключаться к GNUmed."
 
 #~ msgid "ATCs: multi-condition vaccines"
 #~ msgstr "ATC: многокомпонентные вакцины"
-
-#~ msgid "Pick the relevant indications."
-#~ msgstr "Выберите подходящие показания."
 
 #~ msgid "Known indications"
 #~ msgstr "Известные показания"

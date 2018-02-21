@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-18 19:10+0100\n"
+"POT-Creation-Date: 2018-02-21 17:11+0100\n"
 "PO-Revision-Date: 2016-02-24 18:28+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: colombiano <es@li.org>\n"
@@ -1070,6 +1070,9 @@ msgid "Uncheck time checkbox for new events"
 msgstr ""
 
 msgid "Balloon text below icon"
+msgstr ""
+
+msgid "Filter items in listbox export, on categories"
 msgstr ""
 
 msgid "Select Event Editor Tab Order"
@@ -4479,10 +4482,6 @@ msgstr ""
 
 msgid "Add a new message."
 msgstr "Agregue un nuevo mensaje."
-
-msgid "This shows the entirety of the selected message in your Inbox."
-msgstr ""
-"Muestra el total de los mensajes seleccionados en tu Bandeja de Entrada."
 
 msgid "Messages:"
 msgstr "MEnsajes"
@@ -12920,6 +12919,21 @@ msgstr "HPX: opciones inválidas de marcador de posición."
 msgid "no PHX for this patient (available or selected)"
 msgstr "No existe HPX par este paciente (disponible o seleccionado)"
 
+#, fuzzy
+msgid "Select the relevant diagnoses:"
+msgstr "Elija las indicaciones relevantes."
+
+#, fuzzy
+msgid "Diagnosis selection"
+msgstr "Selección de dirección"
+
+msgid "Diagnosis"
+msgstr ""
+
+#, fuzzy
+msgid "Marked confidential"
+msgstr "confidencial"
+
 #, python-format
 msgid "no textual expansion found for keyword <%s>"
 msgstr "no se encontró expansión textual para la palabra clave <%s>"
@@ -12972,6 +12986,28 @@ msgstr "no seleccionó cuenta"
 #, python-format
 msgid "[%s] bill has no address"
 msgstr "[%s] cuenta no posee dirección"
+
+msgid "true"
+msgstr ""
+
+#, fuzzy
+msgid "false"
+msgstr "Falso"
+
+msgid "Enter some text containing a placeholder:"
+msgstr ""
+
+#, fuzzy
+msgid "Testing placeholders"
+msgstr "Listo  Marcador de Posición"
+
+#, python-format
+msgid ""
+"Input: %s\n"
+"\n"
+"Output:\n"
+"%s"
+msgstr ""
 
 msgid "attach rejected, already serving a client"
 msgstr "conexión rechazada, ya existe una"
@@ -19010,6 +19046,14 @@ msgstr "Verifico administrador de fallas"
 msgid "Simulate a catastrophic fault (SIGSEGV)."
 msgstr "Simulo una falla catastrófica (SIGSEGV)."
 
+#, fuzzy
+msgid "Test placeholder"
+msgstr "Listo  Marcador de Posición"
+
+#, fuzzy
+msgid "Manually test placeholders"
+msgstr "Administro paneles de test."
+
 msgid "Debugging ..."
 msgstr "Depurando ..."
 
@@ -22977,6 +23021,10 @@ msgstr "Aborto"
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Aborto y NO conecto a GNUMed."
 
+#~ msgid "This shows the entirety of the selected message in your Inbox."
+#~ msgstr ""
+#~ "Muestra el total de los mensajes seleccionados en tu Bandeja de Entrada."
+
 #, fuzzy
 #~ msgid "Save (Z)"
 #~ msgstr " Guardar "
@@ -23631,9 +23679,6 @@ msgstr "Aborto y NO conecto a GNUMed."
 
 #~ msgid "ATCs: multi-condition vaccines"
 #~ msgstr "ATQs: vacunas multicondiciones"
-
-#~ msgid "Pick the relevant indications."
-#~ msgstr "Elija las indicaciones relevantes."
 
 #~ msgid "Known indications"
 #~ msgstr "Indicaciones conocidas"

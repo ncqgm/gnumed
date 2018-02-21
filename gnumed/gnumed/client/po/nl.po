@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-18 19:10+0100\n"
+"POT-Creation-Date: 2018-02-21 17:11+0100\n"
 "PO-Revision-Date: 2012-06-01 01:19+0000\n"
 "Last-Translator: Anik ten Have <anik@itchi-go.nl>\n"
 "Language-Team: Dutch <nl@li.org>\n"
@@ -1140,6 +1140,9 @@ msgid "Uncheck time checkbox for new events"
 msgstr ""
 
 msgid "Balloon text below icon"
+msgstr ""
+
+msgid "Filter items in listbox export, on categories"
 msgstr ""
 
 msgid "Select Event Editor Tab Order"
@@ -4452,10 +4455,6 @@ msgstr ""
 #, fuzzy
 msgid "Add a new message."
 msgstr "Voeg een nieuwe  gebruiker toe aan het GNUmed systeem."
-
-msgid "This shows the entirety of the selected message in your Inbox."
-msgstr ""
-"Toon de volledige tekst van de geselectreerde berichten in uw Postvak In."
 
 #, fuzzy
 msgid "Messages:"
@@ -12819,6 +12818,21 @@ msgstr "onbekende plaatsvuller: <%s>"
 msgid "no PHX for this patient (available or selected)"
 msgstr "Geen verhaal beschikbaar voor de geselecteerde episodes."
 
+#, fuzzy
+msgid "Select the relevant diagnoses:"
+msgstr "Huidige medicatie"
+
+#, fuzzy
+msgid "Diagnosis selection"
+msgstr "Annuleer selectie van persoon."
+
+msgid "Diagnosis"
+msgstr ""
+
+#, fuzzy
+msgid "Marked confidential"
+msgstr "vertrouwelijk"
+
 #, fuzzy, python-format
 msgid "no textual expansion found for keyword <%s>"
 msgstr "Kan tekstuitbreiding niet opslaan zonder sleutelwoord."
@@ -12871,6 +12885,27 @@ msgstr "apparaat selectie"
 
 #, python-format
 msgid "[%s] bill has no address"
+msgstr ""
+
+msgid "true"
+msgstr ""
+
+msgid "false"
+msgstr ""
+
+msgid "Enter some text containing a placeholder:"
+msgstr ""
+
+#, fuzzy
+msgid "Testing placeholders"
+msgstr "onbekende plaatsvuller: <%s>"
+
+#, python-format
+msgid ""
+"Input: %s\n"
+"\n"
+"Output:\n"
+"%s"
 msgstr ""
 
 msgid "attach rejected, already serving a client"
@@ -18859,6 +18894,14 @@ msgstr "Geslacht"
 msgid "Simulate a catastrophic fault (SIGSEGV)."
 msgstr ""
 
+#, fuzzy
+msgid "Test placeholder"
+msgstr "onbekende plaatsvuller: <%s>"
+
+#, fuzzy
+msgid "Manually test placeholders"
+msgstr "Allergieën bewerken"
+
 msgid "Debugging ..."
 msgstr "Debuggen..."
 
@@ -22768,6 +22811,10 @@ msgstr "Afbreken"
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Afbreken en GEEN verbinding maken met GNUmed."
 
+#~ msgid "This shows the entirety of the selected message in your Inbox."
+#~ msgstr ""
+#~ "Toon de volledige tekst van de geselectreerde berichten in uw Postvak In."
+
 #, fuzzy
 #~ msgid "Save (Z)"
 #~ msgstr " Bewaren "
@@ -23037,10 +23084,6 @@ msgstr "Afbreken en GEEN verbinding maken met GNUmed."
 
 #~ msgid "vacc -> ind error: %s"
 #~ msgstr "vacc -> ind fout: %s"
-
-#, fuzzy
-#~ msgid "Pick the relevant indications."
-#~ msgstr "Huidige medicatie"
 
 #, fuzzy
 #~ msgid "Known indications"

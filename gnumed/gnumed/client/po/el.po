@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-18 19:10+0100\n"
+"POT-Creation-Date: 2018-02-21 17:11+0100\n"
 "PO-Revision-Date: 2012-06-01 01:24+0000\n"
 "Last-Translator: ncq <Unknown>\n"
 "Language-Team: Ελληνικά, Σύγχρονα <opensuse-translation-el@opensuse.org>\n"
@@ -1188,6 +1188,9 @@ msgstr "Αποεπιλογή ώρας στο παράθυρο διαλόγου �
 
 msgid "Balloon text below icon"
 msgstr "Μπαλόνι κειμένου κάτω από το εικονίδιο"
+
+msgid "Filter items in listbox export, on categories"
+msgstr ""
 
 msgid "Select Event Editor Tab Order"
 msgstr "Επιλογή επεξεργαστή σειράς Tab"
@@ -4748,9 +4751,6 @@ msgstr ""
 #, fuzzy
 msgid "Add a new message."
 msgstr "Προσθήκη ενός νέου αντικειμένου στην παρακάτω λίστα."
-
-msgid "This shows the entirety of the selected message in your Inbox."
-msgstr ""
 
 #, fuzzy
 msgid "Messages:"
@@ -12618,6 +12618,21 @@ msgstr ""
 msgid "no PHX for this patient (available or selected)"
 msgstr ""
 
+#, fuzzy
+msgid "Select the relevant diagnoses:"
+msgstr "Εκτύπωση λίστας της φαρμακευτικής αγωγής."
+
+#, fuzzy
+msgid "Diagnosis selection"
+msgstr "Τρέχουσα φαρμακευτική αγωγή"
+
+msgid "Diagnosis"
+msgstr ""
+
+#, fuzzy
+msgid "Marked confidential"
+msgstr "εμπιστευτικό"
+
 #, python-format
 msgid "no textual expansion found for keyword <%s>"
 msgstr ""
@@ -12668,6 +12683,27 @@ msgstr "Επεξεργασία φαρμακευτικής αγωγής"
 
 #, python-format
 msgid "[%s] bill has no address"
+msgstr ""
+
+msgid "true"
+msgstr ""
+
+msgid "false"
+msgstr ""
+
+msgid "Enter some text containing a placeholder:"
+msgstr ""
+
+#, fuzzy
+msgid "Testing placeholders"
+msgstr "σφάλμα στην κράτηση θέσης [%s]"
+
+#, python-format
+msgid ""
+"Input: %s\n"
+"\n"
+"Output:\n"
+"%s"
 msgstr ""
 
 msgid "attach rejected, already serving a client"
@@ -18130,6 +18166,14 @@ msgstr ""
 msgid "Simulate a catastrophic fault (SIGSEGV)."
 msgstr ""
 
+#, fuzzy
+msgid "Test placeholder"
+msgstr "σφάλμα στην κράτηση θέσης [%s]"
+
+#, fuzzy
+msgid "Manually test placeholders"
+msgstr "σφάλμα στην κράτηση θέσης [%s]"
+
 msgid "Debugging ..."
 msgstr ""
 
@@ -21793,10 +21837,6 @@ msgstr "Ματαίωση και ΔΕΝ θα συνδεθείτε με το GNUme
 
 #~ msgid "empty list of vaccinations"
 #~ msgstr "κενή λίστα εμβολιασμών"
-
-#, fuzzy
-#~ msgid "Pick the relevant indications."
-#~ msgstr "Εκτύπωση λίστας της φαρμακευτικής αγωγής."
 
 #, fuzzy
 #~ msgid "Known indications"

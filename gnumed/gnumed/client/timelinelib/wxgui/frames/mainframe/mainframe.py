@@ -118,6 +118,9 @@ class MainFrame(wx.Frame, guic.GuiCreator, MainFrameApiUsedByController):
     def edit_ends(self):
         self.controller.edit_ends()
 
+    def get_view_properties(self, ):
+        return self.main_panel.get_view_properties()
+
     def _on_cats_view_changed(self, evt):
         self.main_panel.get_view_properties().change_view_cats_individually(evt.GetClientData())
 

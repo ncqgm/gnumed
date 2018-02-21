@@ -69,7 +69,7 @@ class UnitTestCase(unittest.TestCase):
         self.assertFalse(modified == one, fail_message_modified_one)
 
     def show_dialog(self, dialog_class, *args, **kwargs):
-        app = wx.App(False)
+        app = self.get_wxapp()
         try:
             dialog = dialog_class(*args, **kwargs)
             try:
@@ -83,6 +83,14 @@ class UnitTestCase(unittest.TestCase):
             if app.GetTopWindow():
                 app.GetTopWindow().Destroy()
             app.Destroy()
+
+    def get_wxapp(self):
+        app = wx.App(False)
+        import locale
+        locale.setlocale(locale.LC_ALL, 'C')
+        self.locale = wx.Locale()
+        self.locale.Init(wx.LANGUAGE_DEFAULT)
+        return app
 
 
 def get_random_modifier(modifiers):
