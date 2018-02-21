@@ -59,7 +59,7 @@ class cEMRTimelinePnl(TimelineCanvas):
 	def __init_ui(self):
 		appearance = self.GetAppearance()
 		appearance.set_balloons_visible(True)
-		appearance.set_hide_events_done(True)
+		appearance.set_hide_events_done(False)
 		appearance.set_colorize_weekends(True)
 		appearance.set_display_checkmark_on_events_done(True)
 
@@ -139,7 +139,7 @@ class cEMRTimelinePnl(TimelineCanvas):
 	#--------------------------------------------------------
 	def _on_right_up(self, evt):
 		# right down-up sequence w/o mouse motion leads to
-		# cannot zoom in deeper than 1 minute
+		# "cannot zoom in deeper than 1 minute"
 		try:
 			self.StopDragZoom()
 		except ValueError:

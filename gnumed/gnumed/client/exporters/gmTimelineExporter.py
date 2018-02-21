@@ -29,7 +29,7 @@ ERA_NAME_CARE_PERIOD = _(u'Care Period')
 
 #============================================================
 
-# <icon>base-64 encode PNG image</icon>
+# <icon>base-64 encoded PNG image data</icon>
 
 #============================================================
 xml_start = u"""<?xml version="1.0" encoding="utf-8"?>
@@ -536,21 +536,21 @@ def create_timeline_file(patient=None, filename=None):
 	#for enc in emr.get_encounters(skip_empty = True):
 	#	timeline.write(__format_encounter_as_timeline_xml(enc, patient))
 
-#	timeline.write(u'\n<!--\n========================================\n Hospital stays\n======================================== -->')
-#	for stay in emr.hospital_stays:
-#		timeline.write(__format_hospital_stay_as_timeline_xml(stay))
+	timeline.write(u'\n<!--\n========================================\n Hospital stays\n======================================== -->')
+	for stay in emr.hospital_stays:
+		timeline.write(__format_hospital_stay_as_timeline_xml(stay))
 
-#	timeline.write(u'\n<!--\n========================================\n Procedures\n======================================== -->')
-#	for proc in emr.performed_procedures:
-#		timeline.write(__format_procedure_as_timeline_xml(proc))
+	timeline.write(u'\n<!--\n========================================\n Procedures\n======================================== -->')
+	for proc in emr.performed_procedures:
+		timeline.write(__format_procedure_as_timeline_xml(proc))
 
 #	timeline.write(u'\n<!--\n========================================\n Vaccinations\n======================================== -->')
 #	for vacc in emr.vaccinations:
 #		timeline.write(__format_vaccination_as_timeline_xml(vacc))
 
-#	timeline.write(u'\n<!--\n========================================\n Substance intakes\n======================================== -->')
-#	for intake in emr.get_current_medications(include_inactive = True, include_unapproved = False):
-#		timeline.write(__format_intake_as_timeline_xml(intake))
+	timeline.write(u'\n<!--\n========================================\n Substance intakes\n======================================== -->')
+	for intake in emr.get_current_medications(include_inactive = True, include_unapproved = False):
+		timeline.write(__format_intake_as_timeline_xml(intake))
 
 #	timeline.write(u'\n<!--\n========================================\n Documents\n======================================== -->')
 #	for doc in patient.document_folder.documents:
