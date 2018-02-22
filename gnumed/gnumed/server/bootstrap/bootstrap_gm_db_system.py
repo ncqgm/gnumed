@@ -1803,8 +1803,6 @@ finally:
 			_log.warning(u'%s', conn)
 			_log.warning(u'closing connection')
 			conn.close()
-		del conn
-	del conn_ref_count
 
 _log.info(u'after main, before sys.exit(0)')
 
