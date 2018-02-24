@@ -2085,8 +2085,11 @@ class cConnectionPool(psycopg2.pool.PersistentConnectionPool):
 	#--------------------------------------------------
 	def shutdown(self):
 		for conn_key in self._used.keys():
+			conn = self._used[conn_key]
+			if conn.closed != 0:
+				continue
 			_log.debug('closing pooled database connection, pool key: %s, backend PID: %s', conn_key, self._used[conn_key].get_backend_pid())
-			self._used[conn_key].original_close()
+			conn.original_close()
 
 # -----------------------------------------------------------------------
 def get_raw_connection(dsn=None, verbose=False, readonly=True, connection_name=None, autocommit=False):

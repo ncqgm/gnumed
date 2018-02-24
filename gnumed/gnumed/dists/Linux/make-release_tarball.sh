@@ -651,14 +651,14 @@ mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v21-v22/static
 mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v21-v22/data
 mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v21-v22/python
 mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v21-v22/superuser
-#mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v21-v22/fixups
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v21-v22/fixups
 
 cp ../../server/sql/v21-v22/gm_db-gnumed_v*-fingerprint.txt ./gnumed-client.$CLIENTREV/server/sql/v21-v22
 cp -R ../../server/sql/v21-v22/dynamic/*.sql ./gnumed-client.$CLIENTREV/server/sql/v21-v22/dynamic
 cp -R ../../server/sql/v21-v22/static/*.sql ./gnumed-client.$CLIENTREV/server/sql/v21-v22/static
 cp -R ../../server/sql/v21-v22/data/* ./gnumed-client.$CLIENTREV/server/sql/v21-v22/data
 cp -R ../../server/sql/v21-v22/python/*.py ./gnumed-client.$CLIENTREV/server/sql/v21-v22/python
-cp -R ../../server/sql/v21-v22/superuser/*.sql ./gnumed-client.$CLIENTREV/server/sql/v21-v22/superuser
+#cp -R ../../server/sql/v21-v22/superuser/*.sql ./gnumed-client.$CLIENTREV/server/sql/v21-v22/superuser
 #cp -R ../../server/sql/v21-v22/fixups/*.sql ./gnumed-client.$CLIENTREV/server/sql/v21-v22/fixups
 
 

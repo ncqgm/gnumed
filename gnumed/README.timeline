@@ -1,5 +1,9 @@
-The Timeline code under .../client/timelinelib/ and
-.../client/icons/ was downloaded from:
+The Timeline code under
+
+	.../client/timelinelib/
+	.../client/tlicons/
+
+was downloaded from:
 
 	http://hg.code.sf.net/p/thetimelineproj/stable
 
