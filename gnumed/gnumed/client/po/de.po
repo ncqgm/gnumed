@@ -20905,7 +20905,7 @@ msgid "Export to &clipboard"
 msgstr "In die &Zwischenablage kopieren"
 
 msgid "Problems"
-msgstr "Problem"
+msgstr "Probleme"
 
 msgid "Panels"
 msgstr "Profile"

@@ -786,11 +786,15 @@ class cMeasurementsByDayPnl(wxgMeasurementsByDayPnl.wxgMeasurementsByDayPnl, gmR
 		gmDispatcher.connect(signal = u'gm_table_mod', receiver = self._on_database_signal)
 
 	#------------------------------------------------------------
+	def __clear(self):
+		self._LCTRL_days.set_string_items()
+		self._LCTRL_results.set_string_items()
+		self._TCTRL_measurements.SetValue(u'')
+
+	#------------------------------------------------------------
 	def __repopulate_ui(self):
 		if self.__patient is None:
-			self._LCTRL_days.set_string_items()
-			self._LCTRL_results.set_string_items()
-			self._TCTRL_measurements.SetValue(u'')
+			self.__clear()
 			return
 
 		dates = self.__patient.emr.get_dates_for_results(reverse_chronological = True)
@@ -971,7 +975,11 @@ class cMeasurementsByDayPnl(wxgMeasurementsByDayPnl.wxgMeasurementsByDayPnl, gmR
 	def _set_patient(self, patient):
 		if (self.__patient is None) and (patient is None):
 			return
-		if (self.__patient is None) or (patient is None):
+		if patient is None:
+			self.__patient = None
+			self.__clear()
+			return
+		if self.__patient is None:
 			self.__patient = patient
 			self._schedule_data_reget()
 			return
@@ -996,7 +1004,6 @@ class cMeasurementsByIssuePnl(wxgMeasurementsByIssuePnl.wxgMeasurementsByIssuePn
 		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
 
 		self.__patient = None
-		self.__date_format = str('%Y %b %d')
 
 		self.__init_ui()
 		self.__register_events()
@@ -1016,11 +1023,15 @@ class cMeasurementsByIssuePnl(wxgMeasurementsByIssuePnl.wxgMeasurementsByIssuePn
 		gmDispatcher.connect(signal = u'gm_table_mod', receiver = self._on_database_signal)
 
 	#------------------------------------------------------------
+	def __clear(self):
+		self._LCTRL_issues.set_string_items()
+		self._LCTRL_results.set_string_items()
+		self._TCTRL_measurements.SetValue(u'')
+
+	#------------------------------------------------------------
 	def __repopulate_ui(self):
 		if self.__patient is None:
-			self._LCTRL_issues.set_string_items()
-			self._LCTRL_results.set_string_items()
-			self._TCTRL_measurements.SetValue(u'')
+			self.__clear()
 			return
 
 		probs = self.__patient.emr.get_issues_or_episodes_for_results()
@@ -1123,7 +1134,11 @@ class cMeasurementsByIssuePnl(wxgMeasurementsByIssuePnl.wxgMeasurementsByIssuePn
 	def _set_patient(self, patient):
 		if (self.__patient is None) and (patient is None):
 			return
-		if (self.__patient is None) or (patient is None):
+		if patient is None:
+			self.__patient = None
+			self.__clear()
+			return
+		if self.__patient is None:
 			self.__patient = patient
 			self._schedule_data_reget()
 			return
