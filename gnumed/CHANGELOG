@@ -25,6 +25,7 @@ NEW: add a EMR structure export tool
 NEW: more options for putting formatted EMR into export area
 NEW: measurements sorted by problem
 NEW: verify DICOM data integrity in Orthanc server
+NEW: clinical hint about missing LOINCs
 
 IMPROVED: EMR journal layout/retrieval speed
 IMPROVED: patient overview usability
