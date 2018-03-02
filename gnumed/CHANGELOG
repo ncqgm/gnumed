@@ -1943,6 +1943,7 @@ IMPROVED: rework vaccine/vaccination tables/views
 IMPROVED: turn unique identity assertion into deferred constraint trigger
 IMPROVED: allow empty and comment lines in schema change file list definitions
 IMPROVED: bootstrapper error logging
+IMPROVED: revive pg_upgrade helper
 
 FIX: constrain clin.clin_root_item.soap_cat CHECK to lower case
 
