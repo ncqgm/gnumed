@@ -83,4 +83,30 @@ WHERE pk_patient = ID_ACTIVE_PATIENT;'
 WHERE title = 'Outdated smoking status documentation';
 
 -- --------------------------------------------------------------
+DELETE FROM ref.auto_hint WHERE title = 'test results w/o LOINC';
+
+INSERT INTO ref.auto_hint(title, hint, source, lang, popup_type, highlight_as_priority, query, recommendation_query) VALUES (
+	'test results w/o LOINC',
+	'There are test results w/o attached LOINC for this patient. Such results cannot be used in clinical decision support.',
+	'GNUmed team',
+	'en',
+	0,
+	FALSE,
+	'SELECT count(1) > 0 FROM clin.v_test_results
+	WHERE
+		pk_patient = ID_ACTIVE_PATIENT
+			AND
+		unified_loinc IS NULL;',
+	'SELECT string_agg (
+			DISTINCT ''#'' || pk_test_type::text || '': '' || name_tt || '' ('' || abbrev_tt || '')'',
+			E''\n''
+	) AS recommendation
+	FROM clin.v_test_results
+	WHERE
+		pk_patient = ID_ACTIVE_PATIENT
+			AND
+		unified_loinc IS NULL;'
+);
+
+-- --------------------------------------------------------------
 select gm.log_script_insertion('v22-ref-v_auto_hints.sql', '22.0');

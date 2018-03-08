@@ -786,11 +786,15 @@ class cMeasurementsByDayPnl(wxgMeasurementsByDayPnl.wxgMeasurementsByDayPnl, gmR
 		gmDispatcher.connect(signal = u'gm_table_mod', receiver = self._on_database_signal)
 
 	#------------------------------------------------------------
+	def __clear(self):
+		self._LCTRL_days.set_string_items()
+		self._LCTRL_results.set_string_items()
+		self._TCTRL_measurements.SetValue(u'')
+
+	#------------------------------------------------------------
 	def __repopulate_ui(self):
 		if self.__patient is None:
-			self._LCTRL_days.set_string_items()
-			self._LCTRL_results.set_string_items()
-			self._TCTRL_measurements.SetValue(u'')
+			self.__clear()
 			return
 
 		dates = self.__patient.emr.get_dates_for_results(reverse_chronological = True)
@@ -971,7 +975,11 @@ class cMeasurementsByDayPnl(wxgMeasurementsByDayPnl.wxgMeasurementsByDayPnl, gmR
 	def _set_patient(self, patient):
 		if (self.__patient is None) and (patient is None):
 			return
-		if (self.__patient is None) or (patient is None):
+		if patient is None:
+			self.__patient = None
+			self.__clear()
+			return
+		if self.__patient is None:
 			self.__patient = patient
 			self._schedule_data_reget()
 			return
@@ -996,7 +1004,6 @@ class cMeasurementsByIssuePnl(wxgMeasurementsByIssuePnl.wxgMeasurementsByIssuePn
 		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
 
 		self.__patient = None
-		self.__date_format = str('%Y %b %d')
 
 		self.__init_ui()
 		self.__register_events()
@@ -1016,11 +1023,15 @@ class cMeasurementsByIssuePnl(wxgMeasurementsByIssuePnl.wxgMeasurementsByIssuePn
 		gmDispatcher.connect(signal = u'gm_table_mod', receiver = self._on_database_signal)
 
 	#------------------------------------------------------------
+	def __clear(self):
+		self._LCTRL_issues.set_string_items()
+		self._LCTRL_results.set_string_items()
+		self._TCTRL_measurements.SetValue(u'')
+
+	#------------------------------------------------------------
 	def __repopulate_ui(self):
 		if self.__patient is None:
-			self._LCTRL_issues.set_string_items()
-			self._LCTRL_results.set_string_items()
-			self._TCTRL_measurements.SetValue(u'')
+			self.__clear()
 			return
 
 		probs = self.__patient.emr.get_issues_or_episodes_for_results()
@@ -1123,7 +1134,11 @@ class cMeasurementsByIssuePnl(wxgMeasurementsByIssuePnl.wxgMeasurementsByIssuePn
 	def _set_patient(self, patient):
 		if (self.__patient is None) and (patient is None):
 			return
-		if (self.__patient is None) or (patient is None):
+		if patient is None:
+			self.__patient = None
+			self.__clear()
+			return
+		if self.__patient is None:
 			self.__patient = patient
 			self._schedule_data_reget()
 			return
@@ -1711,7 +1726,10 @@ class cMeasurementsGrid(wx.grid.Grid):
 				order_by = u'unified_abbrev',
 				unique_meta_types = True
 			)
-			self.__repopulate_grid(tests4rows = tests, test_pks2show = self.__panel_to_show['pk_test_types'])
+			self.__repopulate_grid (
+				tests4rows = tests,
+				test_pks2show = [ tt['pk_test_type'] for tt in self.__panel_to_show['test_types'] ]
+			)
 			return
 
 		emr = self.__patient.emr
@@ -1801,6 +1819,8 @@ class cMeasurementsGrid(wx.grid.Grid):
 					if sub_result['you_are_responsible'] and not sub_result['review_by_you']:
 						missing_review = True
 
+				needs_superscript = False
+
 				# can we display the full sub_result length ?
 				if sub_result.is_long_text:
 					lines = gmTools.strip_empty_lines (
@@ -1808,7 +1828,9 @@ class cMeasurementsGrid(wx.grid.Grid):
 						eol = u'\n',
 						return_list = True
 					)
-					tmp = u'%.7s%s' % (lines[0][:7], gmTools.u_ellipsis)
+					#tmp = u'%.7s%s' % (lines[0][:7], gmTools.u_ellipsis)
+					needs_superscript = True
+					tmp = lines[0][:7]
 				else:
 					val = gmTools.strip_empty_lines (
 						text = sub_result['unified_val'],
@@ -1816,7 +1838,9 @@ class cMeasurementsGrid(wx.grid.Grid):
 						return_list = False
 					).replace(u'\n', u'//')
 					if len(val) > 8:
-						tmp = u'%.7s%s' % (val[:7], gmTools.u_ellipsis)
+						#tmp = u'%.7s%s' % (val[:7], gmTools.u_ellipsis)
+						needs_superscript = True
+						tmp = val[:7]
 					else:
 						tmp = u'%.8s' % val[:8]
 
@@ -1829,7 +1853,11 @@ class cMeasurementsGrid(wx.grid.Grid):
 					u''
 				).strip() != u''
 				if has_sub_result_comment:
-					tmp = u'%s %s' % (tmp, gmTools.u_ellipsis)
+					#tmp = u'%s %s' % (tmp, gmTools.u_superscript_one)
+					needs_superscript = True
+
+				if needs_superscript:
+					tmp = u'%s%s' % (tmp, gmTools.u_superscript_one)
 
 				# lacking a review ?
 				if missing_review:

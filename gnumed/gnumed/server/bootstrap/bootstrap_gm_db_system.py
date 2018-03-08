@@ -652,6 +652,10 @@ class database:
 			_log.error(u'cannot REINDEX cloned target database')
 			return False
 
+		if not self.revalidate_constraints():
+			_log.error(u'cannot VALIDATE CONSTRAINTs in cloned target database')
+			return False
+
 		tmp = cfg_get(self.section, 'superuser schema')
 		if tmp is not None:
 			if not _import_schema(group=self.section, schema_opt='superuser schema', conn=self.conn):
@@ -800,6 +804,7 @@ class database:
 
 		_log.info(u"Database [%s] does not exist." % self.name)
 		return None
+
 	#--------------------------------------------------------------
 	def __create_db(self):
 
@@ -1177,6 +1182,52 @@ class database:
 			curs_outer.close()
 			self.conn.set_session(readonly = False, autocommit = False)
 
+		return True
+
+	#--------------------------------------------------------------
+	def revalidate_constraints(self):
+
+		print_msg("==> revalidating constraints in target database (can take a while) ...")
+
+		do_revalidate = cfg_get(self.section, 'revalidate')
+		if do_revalidate is None:
+			do_revalidate = True		# default: do it
+		else:
+			do_revalidate = (int(do_revalidate) == 1)
+		if not do_revalidate:
+			_log.warning('skipping VALIDATE CONSTRAINT')
+			print_msg("    ... skipped")
+			return True
+
+		_log.info(u'reVALIDATing CONSTRAINTs in cloned target database so upgrade does not fail due to broken data')
+		_log.info(u'this may potentially take "quite a long time" depending on how much data there is in the database')
+		_log.info(u'you may want to monitor the PostgreSQL log for signs of progress')
+
+		curs = self.conn.cursor()
+		cmd = u"""do $$
+			DECLARE
+				r record;
+			BEGIN
+				FOR r IN (
+					select con.connamespace, nsp.nspname, con.conname, con.conrelid, rel.relname
+					from pg_constraint con
+						join pg_namespace nsp on nsp.oid = con.connamespace
+						join pg_class rel on rel.oid = con.conrelid
+					where contype in ('c','f')
+				) LOOP
+					RAISE NOTICE 'validating [%] on [%.%]', r.conname, r.nspname, r.relname;
+					EXECUTE 'UPDATE pg_constraint SET convalidated=false WHERE conname=$1 AND connamespace=$2 AND conrelid=$3' USING r.conname, r.connamespace, r.conrelid;
+					EXECUTE 'ALTER TABLE ' || r.nspname || '.' || r.relname || ' VALIDATE CONSTRAINT "' || r.conname || '"';
+				END LOOP;
+			END
+		$$;"""
+		try:
+			curs.execute(cmd)
+		except:
+			_log.exception(u">>>[VALIDATE CONSTRAINT]<<< failed")
+			return False
+		finally:
+			curs.close()
 		return True
 
 	#--------------------------------------------------------------

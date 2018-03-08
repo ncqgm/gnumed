@@ -1076,6 +1076,7 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 		'pk_test_type',
 		'pk_request'
 	]
+
 	#--------------------------------------------------------
 	def format_concisely(self, date_format='%Y %b %d', with_notes=True):
 		range_info = gmTools.coalesce (
@@ -1109,6 +1110,7 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 				txt += u' ' + _(u'Praxis comment: %s\n') % _(u'\n Praxis comment: ').join(self._payload[self._idx['comment']].split(u'\n'))
 
 		return txt.strip(u'\n')
+
 	#--------------------------------------------------------
 	def format(self, with_review=True, with_evaluation=True, with_ranges=True, with_episode=True, with_type_details=True, with_source_data=False, date_format='%Y %b %d %H:%M'):
 
@@ -1126,12 +1128,18 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 			'abbr': self._payload[self._idx['abbrev_tt']],
 			'pk_type': self._payload[self._idx['pk_test_type']]
 		})
-		tt += u' ' + _(u'Result: %(val)s%(unit)s%(ind)s  [#%(pk_result)s]\n') % ({
+		if self.is_long_text:
+			sso = gmTools.u_superscript_one
+		else:
+			sso = u''
+		tt += u' ' + _(u'%(sso)sResult: %(val)s%(unit)s%(ind)s  [#%(pk_result)s]\n') % ({
+			'sso': sso,
 			'val': self._payload[self._idx['unified_val']],
 			'unit': gmTools.coalesce(self._payload[self._idx['val_unit']], u'', u' %s'),
 			'ind': gmTools.coalesce(self._payload[self._idx['abnormality_indicator']], u'', u' (%s)'),
 			'pk_result': self._payload[self._idx['pk_test_result']]
 		})
+
 		if self._payload[self._idx['status']] is not None:
 			try:
 				stat = HL7_RESULT_STATI[self._payload[self._idx['status']]]
@@ -1253,9 +1261,9 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 			tt += u' ' + _(u'Source: %s\n') % tmp
 		tt += u'\n'
 		if self._payload[self._idx['note_test_org']] is not None:
-			tt += u' ' + _(u'Lab comment: %s\n') % _(u'\n Lab comment: ').join(self._payload[self._idx['note_test_org']].split(u'\n'))
+			tt += u' ' + gmTools.u_superscript_one + _(u'Lab comment: %s\n') % _(u'\n Lab comment: ').join(self._payload[self._idx['note_test_org']].split(u'\n'))
 		if self._payload[self._idx['comment']] is not None:
-			tt += u' ' + _(u'Praxis comment: %s\n') % _(u'\n Praxis comment: ').join(self._payload[self._idx['comment']].split(u'\n'))
+			tt += u' ' + gmTools.u_superscript_one + _(u'Praxis comment: %s\n') % _(u'\n Praxis comment: ').join(self._payload[self._idx['comment']].split(u'\n'))
 
 		if with_ranges:
 			tt += gmTools.coalesce(self.formatted_normal_range, u'', u' ' + _('Standard normal range: %s\n'))
@@ -2981,6 +2989,7 @@ def get_unreviewed_results(limit=50):
 		except gmExceptions.ConstructorError:
 			_log.exception('skipping unreviewed lab result [%s]' % row[0], sys.exc_info(), verbose=0)
 	return (more_avail, results)
+
 #------------------------------------------------------------
 def get_pending_requests(limit=250):
 	lim = limit + 1
@@ -3006,6 +3015,7 @@ def get_pending_requests(limit=250):
 		except gmExceptions.ConstructorError:
 			_log.exception('skipping pending lab request [%s]' % row[0], sys.exc_info(), verbose=0)
 	return (too_many, requests)
+
 #------------------------------------------------------------
 def get_next_request_ID(lab=None, incrementor_func=None):
 	"""Get logically next request ID for given lab.

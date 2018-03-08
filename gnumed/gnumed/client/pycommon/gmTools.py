@@ -58,6 +58,7 @@ u_currency_yen = u'\u00A5'					# Yen sign
 u_right_double_angle_quote = u'\u00AB'		# <<
 u_registered_trademark = u'\u00AE'
 u_plus_minus = u'\u00B1'
+u_superscript_one = u'\u00B9'				# ^1
 u_left_double_angle_quote = u'\u00BB'		# >>
 u_one_quarter = u'\u00BC'
 u_one_half = u'\u00BD'

@@ -25,6 +25,7 @@ NEW: add a EMR structure export tool
 NEW: more options for putting formatted EMR into export area
 NEW: measurements sorted by problem
 NEW: verify DICOM data integrity in Orthanc server
+NEW: clinical hint about missing LOINCs
 
 IMPROVED: EMR journal layout/retrieval speed
 IMPROVED: patient overview usability
@@ -1932,6 +1933,8 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 # gnumed_v22
 ------------------------------------------------
 
+NEW: revalidate constraints during database upgrade
+
 IMPROVED: staging._journal_without_suppressed_hints -> clin._v_emr_journal_without_suppressed_hints
 IMPROVED: safer backup scripts
 IMPROVED: don't fail clin.remove_old_empty_encounters() but return FALSE on <2 encounters
@@ -1940,6 +1943,7 @@ IMPROVED: rework vaccine/vaccination tables/views
 IMPROVED: turn unique identity assertion into deferred constraint trigger
 IMPROVED: allow empty and comment lines in schema change file list definitions
 IMPROVED: bootstrapper error logging
+IMPROVED: revive pg_upgrade helper
 
 FIX: constrain clin.clin_root_item.soap_cat CHECK to lower case
 

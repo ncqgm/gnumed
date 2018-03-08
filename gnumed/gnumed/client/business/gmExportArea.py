@@ -673,17 +673,10 @@ class cExportArea(object):
 			_log.exception('cannot copy %s to %s', idx_fname, start_fname)
 
 		# autorun.inf
-		# - compute label
 		autorun_dict = {}
-		name = pat.active_name
-		last = name['lastnames'][:14]
-		first = name['firstnames'][:min(14, 18 - len(last))]
-		autorun_dict['label'] = ((u'%s%s%s' % (
-			u'%s,%s' % (last, first),
-			gmTools.coalesce(pat['gender'], u'', u' (%s)'),
-			pat.get_formatted_dob(format = ' %Y%m%d', none_string = u'', honor_estimation = False)
-		)).strip())[:32]		# max 32 chars, supposedly ASCII, but CP1252 likely works pretty well
-		# - compute icon
+		autorun_dict['label'] = self._compute_autorun_inf_label(pat)
+		autorun_dict['action'] = _('Browse patient data')
+		autorun_dict['icon'] = u''
 		media_icon_kwd = u'$$gnumed_patient_media_export_icon'
 		media_icon_kwd_exp = gmKeywordExpansion.get_expansion (
 			keyword = media_icon_kwd,
@@ -695,7 +688,6 @@ class cExportArea(object):
 			target_extension = u'.ico',
 			ignore_conversion_problems = True
 		)
-		autorun_dict['icon'] = u''
 		if icon_tmp_file is None:
 			_log.debug(u'cannot retrieve <%s>', media_icon_kwd)
 		else:
@@ -705,9 +697,6 @@ class cExportArea(object):
 				autorun_dict['icon'] = u'icon=gnumed.ico'
 			except Exception:
 				_log.exception('cannot move %s to %s', icon_tmp_file, media_icon_fname)
-		# - compute action
-		autorun_dict['action'] = _('Browse patient data')
-		# - create file
 		autorun_fname = os.path.join(media_base_dir, u'autorun.inf')
 		autorun_file = io.open(autorun_fname, mode = 'wt', encoding = 'cp1252', errors = 'replace')
 		autorun_file.write(_autorun_inf % autorun_dict)
@@ -745,6 +734,36 @@ class cExportArea(object):
 		shutil.move(prax.vcf, os.path.join(media_base_dir, u'praxis.vcf'))
 
 		return media_base_dir
+
+	#--------------------------------------------------------
+	def _compute_autorun_inf_label(self, patient):
+		LABEL_MAX_LEN = 32
+		dob = patient.get_formatted_dob(format = ' %Y%m%d', none_string = u'', honor_estimation = False)
+		if dob == u'':
+			gender_template = u' (%s)'
+		else:
+			gender_template = u' %s'
+		gender = gmTools.coalesce(patient['gender'], u'', gender_template)
+		name_max_len = LABEL_MAX_LEN - len(gender) - len(dob)			# they already include appropriate padding
+		name = patient.active_name
+		last = name['lastnames'].strip()
+		first = name['firstnames'].strip()
+		len_last = len(last)
+		len_first = len(first)
+		while (len_last + len_first + 1) > name_max_len:
+			if len_first > 6:
+				len_first -= 1
+				if first[len_first - 1] == u' ':
+					len_first -= 1
+				continue
+			len_last -= 1
+			if last[len_last - 1] == u' ':
+				len_last -= 1
+		last = last[:len_last].strip().upper()
+		first = first[:len_first].strip()
+		# max 32 chars, supposedly ASCII, but CP1252 likely works pretty well
+		label = ((u'%s %s%s%s' % (last, first, dob,	gender)).strip())[:32]
+		return label
 
 	#--------------------------------------------------------
 	# properties
@@ -787,6 +806,7 @@ if __name__ == '__main__':
 		item['pk_doc_obj'] = 1
 		item.save()
 		print item
+
 	#---------------------------------------
 	def test_export_area():
 		exp = cExportArea(12)
@@ -797,9 +817,40 @@ if __name__ == '__main__':
 		print prax
 		print prax.branch
 		print exp.export()
+
+	#---------------------------------------
+	def test_label():
+
+		from Gnumed.business.gmPerson import cPatient
+		from Gnumed.business.gmPersonSearch import ask_for_patient
+
+		#while ask_for_patient() is not None:
+		pat_min = 1
+		pat_max = 100
+		try:
+			pat_min = int(sys.argv[2])
+			pat_max = int(sys.argv[3])
+		except:
+			pass
+		cPatient(aPK_obj = pat_min)
+		f = io.open('x-auto_inf_labels.txt', mode = 'w', encoding = 'utf8')
+		f.write(u'--------------------------------\n')
+		f.write(u'12345678901234567890123456789012\n')
+		f.write(u'--------------------------------\n')
+		for pat_id in range(pat_min, pat_max):
+			try:
+				exp_area = cExportArea(pat_id)
+				pat = cPatient(aPK_obj = pat_id)
+			except:
+				continue
+			f.write(exp_area._compute_autorun_inf_label(pat) + u'\n')
+		f.close()
+		return
+
 	#---------------------------------------
 	#test_export_items()
-	test_export_area()
+	#test_export_area()
+	test_label()
 
 	sys.exit(0)
 
