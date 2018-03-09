@@ -1,5 +1,9 @@
 #!/bin/bash
 
+echo "Using <$0> is discouraged. Please switch to <gm-restore(.sh)>."
+
+exit 1
+
 #==============================================================
 # This script tries to restore a GNUmed database from a
 # data-only backup. It tries to be very conservative. It is
@@ -144,5 +148,3 @@ cd -
 
 
 exit 0
-
-#==============================================================

@@ -2,6 +2,8 @@
 
 echo "Using <$0> is discouraged. Please switch to <gm-backup(.sh)>."
 
+exit 1
+
 #==============================================================
 #
 # This script creates an uncompressed, plain text (SQL) backup
