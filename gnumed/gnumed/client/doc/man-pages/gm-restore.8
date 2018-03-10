@@ -1,11 +1,11 @@
-.TH GM-RESTORE_DATABASE_FROM_ARCHIVE 8 "2016 March 13th" "GNUmed server database restore"
+.TH GM-RESTORE 8 "2016 March 13th" "GNUmed server database restore"
 
 .SH NAME
-.B gm-restore_database_from_archive
+.B gm-restore
 - restoring a GNUmed database
 
 .SH SYNOPSIS
-.B gm-restore_database_from_archive
+.B gm-restore
 .I <backup>
 
 .I <backup>:
@@ -13,11 +13,12 @@ a database backup file ("backup-gnumed_vX-*.tar.bz2") created by gm-backup
 
 .SH DESCRIPTION
 The
-.B gm-restore_database_from_archive
+.B gm-restore
 script attempts to recreate from scratch the backed up GNUmed
-database. It tries to be very conservative. It is intended
-for interactive use by root and may have to be adjusted to
-your needs.
+database. It tries to be very conservative.
+
+It is intended for interactive use by root and may have to be
+adjusted to your needs.
 
 .SH KNOWN PROBLEMS
 
