@@ -68,6 +68,8 @@ IMPROVED: provider inbox layout
 	22.0
 
 NEW: revalidate constraints during database upgrade
+NEW: deprecate gm-backup_* in favor of gm-backup
+NEW: deprecate gm-restore_* in favor of gm-restore
 
 IMPROVED: staging._journal_without_suppressed_hints -> clin._v_emr_journal_without_suppressed_hints
 IMPROVED: safer backup scripts
