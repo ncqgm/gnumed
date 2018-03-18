@@ -54,11 +54,11 @@ echo "options: ${DEV_OPTS}"
 #python -Q warn -3 gnumed.py ${CONF} ${DEV_OPTS} $@
 #python -Q warn -3 gnumed.py ${CONF} ${DEV_OPTS} $@ 2> >(grep -v wx > gm-vcs-py2to3_warnings.log) # 1>&2)
 #python -Q warn -3 gnumed.py ${CONF} ${DEV_OPTS} $@ |& tee gm-vcs-console_output.log
-python -Q warn -3 gnumed.py ${CONF} ${DEV_OPTS} $@
+#python -Q warn -3 gnumed.py ${CONF} ${DEV_OPTS} $@
 
 
 # - *released* tarball version:
-#python gnumed.py ${CONF} ${TARBALL_OPTS} $@
+python gnumed.py ${CONF} ${TARBALL_OPTS} $@
 
 # - production version (does not use tarball files !):
 #python gnumed.py $@
