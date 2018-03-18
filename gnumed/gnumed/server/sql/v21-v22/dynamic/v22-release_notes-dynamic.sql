@@ -17,10 +17,10 @@ INSERT INTO dem.message_inbox (
 ) VALUES (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
-	'Release Notes for GNUmed 1.7.rc2 (database v22.rc2)',
-	'GNUmed 1.7.rc2 Release Notes:
+	'Release Notes for GNUmed 1.7.0 (database v22.0)',
+	'GNUmed 1.7.0 Release Notes:
 
-	1.7.rc2
+	1.7.0
 
 NEW: link document to procedure
 NEW: link document to hospital stay
@@ -65,7 +65,7 @@ IMPROVED: measurements: access related docs from list-by-day
 IMPROVED: patient studies download from PACS
 IMPROVED: provider inbox layout
 
-	22.rc2
+	22.0
 
 NEW: revalidate constraints during database upgrade
 
@@ -83,4 +83,4 @@ FIX: constrain clin.clin_root_item.soap_cat CHECK to lower case
 ');
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('v22-release_notes-dynamic.sql', '22.rc2');
+select gm.log_script_insertion('v22-release_notes-dynamic.sql', '22.0');
