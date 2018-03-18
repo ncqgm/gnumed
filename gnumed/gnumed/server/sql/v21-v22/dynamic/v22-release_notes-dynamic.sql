@@ -17,10 +17,10 @@ INSERT INTO dem.message_inbox (
 ) VALUES (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
-	'Release Notes for GNUmed 1.7.rc1 (database v22.rc1)',
-	'GNUmed 1.7.rc1 Release Notes:
+	'Release Notes for GNUmed 1.7.0 (database v22.0)',
+	'GNUmed 1.7.0 Release Notes:
 
-	1.7.rc1
+	1.7.0
 
 NEW: link document to procedure
 NEW: link document to hospital stay
@@ -39,6 +39,7 @@ NEW: add a EMR structure export tool
 NEW: more options for putting formatted EMR into export area
 NEW: measurements sorted by problem
 NEW: verify DICOM data integrity in Orthanc server
+NEW: clinical hint about missing LOINCs
 
 IMPROVED: EMR journal layout/retrieval speed
 IMPROVED: patient overview usability
@@ -64,7 +65,11 @@ IMPROVED: measurements: access related docs from list-by-day
 IMPROVED: patient studies download from PACS
 IMPROVED: provider inbox layout
 
-	22.rc1
+	22.0
+
+NEW: revalidate constraints during database upgrade
+NEW: deprecate gm-backup_* in favor of gm-backup
+NEW: deprecate gm-restore_* in favor of gm-restore
 
 IMPROVED: staging._journal_without_suppressed_hints -> clin._v_emr_journal_without_suppressed_hints
 IMPROVED: safer backup scripts
@@ -74,9 +79,10 @@ IMPROVED: rework vaccine/vaccination tables/views
 IMPROVED: turn unique identity assertion into deferred constraint trigger
 IMPROVED: allow empty and comment lines in schema change file list definitions
 IMPROVED: bootstrapper error logging
+IMPROVED: revive pg_upgrade helper
 
 FIX: constrain clin.clin_root_item.soap_cat CHECK to lower case
 ');
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('v22-release_notes-dynamic.sql', '22.rc1');
+select gm.log_script_insertion('v22-release_notes-dynamic.sql', '22.0');
