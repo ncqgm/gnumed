@@ -6,6 +6,12 @@
 # rel-1-7-patches
 ------------------------------------------------
 
+	1.7.1
+
+NEW: add bash completion script
+
+IMPROVED: make DWV optional
+
 	1.7.0
 
 NEW: link document to procedure

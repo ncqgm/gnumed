@@ -604,16 +604,17 @@ class cExportArea(object):
 		if u'DICOMDIR' in os.listdir(media_base_dir):
 			_html_start_data[u'browse_dicomdir'] = u'<li><a href="./DICOMDIR">%s</a></li>' % _(u'show DICOMDIR file')
 			# copy DWV into target dir
-			dwv_target_dir = os.path.join(media_base_dir, u'dwv')
-			gmTools.rmdir(dwv_target_dir)
 			dwv_src_dir = os.path.join(gmTools.gmPaths().local_base_dir, u'dwv4export')
 			if not os.path.isdir(dwv_src_dir):
 				dwv_src_dir = os.path.join(gmTools.gmPaths().system_app_data_dir, u'dwv4export')
-			try:
-				shutil.copytree(dwv_src_dir, dwv_target_dir)
-				_html_start_data[u'run_dicom_viewer'] = u'<li><a href="./dwv/viewers/mobile-local/index.html">%s</a></li>' % _(u'run Radiology Images (DICOM) Viewer')
-			except shutil.Error, OSError:
-				_log.exception('cannot include DWV, skipping')
+			if os.path.isdir(dwv_src_dir):
+				dwv_target_dir = os.path.join(media_base_dir, u'dwv')
+				gmTools.rmdir(dwv_target_dir)
+				try:
+					shutil.copytree(dwv_src_dir, dwv_target_dir)
+					_html_start_data[u'run_dicom_viewer'] = u'<li><a href="./dwv/viewers/mobile-local/index.html">%s</a></li>' % _(u'run Radiology Images (DICOM) Viewer')
+				except shutil.Error, OSError:
+					_log.exception('cannot include DWV, skipping')
 
 		# index.html
 		# - header
