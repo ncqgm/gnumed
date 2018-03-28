@@ -11,6 +11,7 @@
 NEW: add bash completion script
 
 IMPROVED: make DWV optional
+IMPROVED: prerequisites check tool
 
 	1.7.0
 
@@ -1938,6 +1939,12 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 ------------------------------------------------
 # gnumed_v22
 ------------------------------------------------
+
+	22.1
+
+IMPROVED: concurrency robustness of backup/restore scripts
+
+	22.0
 
 NEW: revalidate constraints during database upgrade
 NEW: deprecate gm-backup_* in favor of gm-backup

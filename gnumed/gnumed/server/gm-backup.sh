@@ -40,6 +40,11 @@ CONF="/etc/gnumed/gnumed-backup.conf"
 #==============================================================
 set -o pipefail
 
+
+# do not run twice
+[ "${FLOCKER}" != "$0" ] && exec env FLOCKER="$0" flock --exclusive --nonblock "$0" "$0" "$@" || :
+
+
 # load config file
 if [ -r ${CONF} ] ; then
 	. ${CONF}

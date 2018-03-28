@@ -50,7 +50,7 @@ else:
 		import wxversion
 		print "found"
 		print "  selecting unicode enabled version >= 2.8...",
-		wxversion.select(versions='2.8-unicode', optionsRequired=True)
+		wxversion.select(versions = ['3.0', '2.8-unicode'], optionsRequired = True)
 		print "success"
 	except ImportError:
 		missing = True
@@ -86,18 +86,18 @@ except ImportError:
 	print "  INFO : wxPython is available from http://www.wxpython.org"
 	print "  INFO : on Mac OSX Panther you may have to use 'export DISPLAY=:0'"
 
-print " uno...",
-try:
-	import uno
-	print "found"
-except ImportError:
-	missing = True
-	print ""
-	print "  ERROR: uno not installed"
-	print "  INFO : this is needed for form and letter handling"
-	print "  INFO : GNUmed will work but you will be unable"
-	print "  INFO : to use OpenOffice to write letters and"
-	print "  INFO : fill in forms"
+#print " uno...",
+#try:
+#	import uno
+#	print "found"
+#except ImportError:
+#	missing = True
+#	print ""
+#	print "  ERROR: uno not installed"
+#	print "  INFO : this is needed for form and letter handling"
+#	print "  INFO : GNUmed will work but you will be unable"
+#	print "  INFO : to use OpenOffice to write letters and"
+#	print "  INFO : fill in forms"
 
 print " Gnuplot...",
 try:

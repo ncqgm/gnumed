@@ -132,6 +132,7 @@ cp -R ../../external-tools/gm-describe_file ./gnumed-client.$CLIENTREV/external-
 cp -R ../../external-tools/gm-create_datamatrix ./gnumed-client.$CLIENTREV/external-tools/
 cp -R ../../external-tools/gm-create_dicomdir ./gnumed-client.$CLIENTREV/external-tools/
 cp -R ../../external-tools/gm-import_incoming ./gnumed-client.$CLIENTREV/external-tools/
+cp -R ../../external-tools/gnumed-completion.bash ./gnumed-client.$CLIENTREV/external-tools/
 
 
 # client
