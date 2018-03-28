@@ -64,6 +64,7 @@ echo "make working with GNUmed more productive but"
 echo "are not strictly required for standard operation."
 read -p "Press <RETURN> key to continue."
 echo    "-------------------------------"
+echo "Client tools:"
 
 echo -n " 'file' command... "
 BIN=`which file`
@@ -170,7 +171,7 @@ echo -n " 'kprinter4' command... "
 BIN=`which kprinter4`
 if [ "x${BIN}x" == "xx" ]; then
 	echo ""
-	echo "  INFO : You don't seem to have the 'kprinter' command installed."
+	echo "  INFO : You don't seem to have the 'kprinter4' command installed."
 	echo "  INFO : It is used to print files from KDE."
 	echo "  INFO : On Windows it is not needed."
 else
@@ -259,7 +260,7 @@ BIN=`which iec16022`
 if [ "x${BIN}x" == "xx" ]; then
 	echo ""
 	echo "  INFO : You don't seem to have the 'iec16022' command installed."
-	echo "  INFO : It can be used by GNUmed to create the datamatrix QR code"
+	echo "  INFO : It can be used by GNUmed to create the datamatrix BMP code"
 	echo "  INFO : of a text file from within GNUmed."
 else
 	echo "found"
@@ -344,6 +345,43 @@ if [ "x${BIN}x" == "xx" ]; then
 else
 	echo "found"
 fi
+
+
+echo ""
+read -p "Press <RETURN> key to continue."
+echo    "-------------------------------"
+echo "Server tools:"
+
+echo -n " 'tar' command... "
+BIN=`which tar`
+if [ "x${BIN}x" == "xx" ]; then
+	echo ""
+	echo "  INFO : You don't seem to have the 'tar' command installed."
+	echo "  INFO : It is used by GNUmed to backup databases."
+else
+	echo "found"
+fi
+
+echo -n " 'bzip2' command... "
+BIN=`which bzip2`
+if [ "x${BIN}x" == "xx" ]; then
+	echo ""
+	echo "  INFO : You don't seem to have the 'bzip2' command installed."
+	echo "  INFO : It is used by GNUmed to backup databases."
+else
+	echo "found"
+fi
+
+echo -n " 'flock' command... "
+BIN=`which flock`
+if [ "x${BIN}x" == "xx" ]; then
+	echo ""
+	echo "  INFO : You don't seem to have the 'flock' command installed."
+	echo "  INFO : It is used by GNUmed when backing up databases."
+else
+	echo "found"
+fi
+
 
 #=================================================================
 # obsolete

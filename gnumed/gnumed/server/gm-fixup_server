@@ -17,6 +17,8 @@ GM_LOG_BASE="/var/log/gnumed/server"
 GM_SERVER_DIR="/var/lib/gnumed/server/bootstrap"
 
 #==============================================================
+# do not run twice
+[ "${FLOCKER}" != "$0" ] && exec env FLOCKER="$0" flock --exclusive --nonblock "$0" "$0" "$@" || :
 
 cd ${GM_SERVER_DIR} || ( echo "=> Cannot change into ${GM_SERVER_DIR}. Aborting." ; exit 1 )
 mkdir -p ${GM_LOG_BASE}
