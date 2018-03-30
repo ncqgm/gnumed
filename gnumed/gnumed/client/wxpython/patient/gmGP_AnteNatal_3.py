@@ -1,10 +1,6 @@
 # -*- coding: utf-8 -*-
-try:
-	import wxversion
+
 	import wx
-except ImportError:
-	from wxPython import wx
-	from wxPython import grid
 
 import string
 

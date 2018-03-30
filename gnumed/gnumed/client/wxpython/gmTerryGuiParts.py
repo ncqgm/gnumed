@@ -14,11 +14,7 @@ __version__ = "$Revision: 1.6 $"
 __author__  = 'Dr. Richard Terry'
 __license__ = 'GPL v2 or later (details at http://www.gnu.org)'
 
-try:
-	import wxversion
-	import wx
-except ImportError:
-	from wxPython import wx
+import wx
 
 #===========================================================================
 class cAlertCaption(wx.Panel):

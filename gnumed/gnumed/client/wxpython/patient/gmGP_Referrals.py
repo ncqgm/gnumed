@@ -8,11 +8,8 @@
 ############################################################################
 __author__ = "R.Terry, I.Haywood"
 
-try:
-	import wxversion
-	import wx
-except ImportError:
-	from wxPython import wx
+
+import wx
 
 from Gnumed.wxpython import gmGuiElement_HeadingCaptionPanel, gmGuiElement_DividerCaptionPanel, gmGuiElement_AlertCaptionPanel, gmEditArea, gmPlugin_Patient
 from Gnumed.wxpython.gmPatientHolder import PatientHolder

@@ -24,11 +24,7 @@ __license__ = "GPL v2 or later (details at http://www.gnu.org)"
 
 import os.path
 
-try:
-	import wxversion
-	import wx
-except ImportError:
-	from wxPython import wx
+import wx
 
 from Gnumed.pycommon import gmI18N
 

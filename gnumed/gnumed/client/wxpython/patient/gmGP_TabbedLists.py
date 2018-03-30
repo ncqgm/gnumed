@@ -31,13 +31,7 @@
 # $Id: gmGP_TabbedLists.py,v 1.21 2008-04-13 14:39:49 ncq Exp $
 __version__ = "$Revision: 1.21 $"
 
-try:
-	import wxversion
-	import wx
-except ImportError:
-	from wxPython import wx
-	#from wxPython.gizmos import *
-	#from wxPython.stc import *
+import wx
 
 import keyword
 import time

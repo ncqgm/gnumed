@@ -20,11 +20,8 @@
 ############################################################################
 __author__  = "R.Terry <rterry@gnumed.net>, H.Herb <hherb@gnumed.net>, S.Tan"
 
-try:
-	import wxversion
-	import wx
-except ImportError:
-	from wxPython import wx
+
+import wx
 
 import gmEditArea, gmPlugin_Patient
 import gmGuiElement_HeadingCaptionPanel		#panel class to display top headings

@@ -7,11 +7,8 @@
 # $Id: gmGP_ScratchPadRecalls.py,v 1.19 2008-04-13 14:39:49 ncq Exp $
 __version__ = "$Revision: 1.19 $"
 
-try:
-	import wxversion
-	import wx
-except ImportError:
-	from wxPython import wx
+
+import wx
 
 import gmPlugin, gmShadow, gmDispatcher, gmPG2
 from  gmPatientHolder import PatientHolder

@@ -1,9 +1,4 @@
-try:
-	import wxversion
-	import wx
-except ImportError:
-	from wxPython import wx
-	from wxPython import grid
+import wx
 
 EXTRA_ROW_SPACE = 40
 

@@ -8,12 +8,7 @@
 # You should rename your image file eg to images_myproject.py
 # before you add the images 
 #------------------------------------------------------------
-try:
-	import wxversion
-	import wx
-except ImportError:
-	from wxPython import wx
-	#from wxPython.wx import wx.BitmapFromXPMData, wxImageFromBitmap
+import wx
 
 import cPickle, zlib
 #----------------------------------------------------------------------

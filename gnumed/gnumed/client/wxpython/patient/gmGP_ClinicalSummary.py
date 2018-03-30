@@ -1,9 +1,6 @@
 # -*- coding: utf-8 -*-
-try:
-	import wxversion
-	import wx
-except ImportError:
-	from wxPython import wx
+
+import wx
 
 try:
 	import cDividerCaption        #panel class to display sub-headings or divider headings

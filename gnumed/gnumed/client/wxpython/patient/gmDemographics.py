@@ -21,11 +21,7 @@ __version__ = "$Revision: 1.40 $"
 __author__ = "R.Terry, SJ Tan"
 
 
-try:
-	import wxversion
-	import wx
-except ImportError:
-	from wxPython import wx
+import wx
 
 from mx import DateTime
 

@@ -1,8 +1,4 @@
-try:
-	import wxversion
-	import wx
-except ImportError:
-	from wxPython import wx
+import wx
 
 #--------------------------------------------------------------------
 # A class for displaying social history

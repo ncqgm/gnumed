@@ -40,42 +40,37 @@ _cfg = gmCfg2.gmCfgData()
 
 # 3rd party libs: wxPython
 
-# for testing: explicitely select wxp4
-testing_wx4 = False
-if testing_wx4:
-	sys.path.insert(0, '/usr/lib/python2.7/dist-packages/wxp4custom')
-else:
-	# wxpython version cannot be enforced inside py2exe and friends
-	if not hasattr(sys, 'frozen'):
-		# maybe show HTML page if wxversion/wx cannot be imported (and thus needs to be installed) ?
-		import wxversion
-		_log.debug(u'wxPython versions available on this machine: %s', wxversion.getInstalled())
-		desired_wxp = _cfg.get(option = '--wxp', source_order = [('cli', 'return')])
-		if desired_wxp is None:
-			desired_wxp = None
-		# let GNUmed work out the best wxPython available
-		if desired_wxp is None:
-			_log.debug('no wxPython version requested explicitely, trying wxp3, then wxp2')
-			# we'll check options further down because we want to
-			# support 3.0 as well and while that supports unicode
-			# builds only anyway it don't respond well to requiring
-			# a "-unicode" option indicator, ... :-/
-			# try to select wxPython 3 but fall back to 2.8 on failure
-			try:
-				wxversion.select(versions = '3.0')
-			except wxversion.VersionError:
-				_log.exception('cannot select wxPython 3.0')
-				wxversion.select(versions = '2.8-unicode', optionsRequired = True)
-		elif desired_wxp == u'2':
-			_log.debug('wxPython 2 requested explicitely')
-			wxversion.select(versions = '2.8-unicode', optionsRequired = True)
-		elif desired_wxp == u'3':
-			_log.debug('wxPython 3 requested explicitely')
-			wxversion.select(versions = '3.0')
-		else:
-			_log.error('invalid wxPython version requested: %s', desired_wxp)
-			print('CRITICAL ERROR: Invalid wxPython version requested. Halted.')
-			raise ValueError('invalid wxPython version requested: %s' % desired_wxp)
+# wxpython version cannot be enforced inside py2exe and friends
+#if not hasattr(sys, 'frozen'):
+#	# maybe show HTML page if wxversion/wx cannot be imported (and thus needs to be installed) ?
+#	import wxversion
+#	_log.debug(u'wxPython versions available on this machine: %s', wxversion.getInstalled())
+#	desired_wxp = _cfg.get(option = '--wxp', source_order = [('cli', 'return')])
+#	if desired_wxp is None:
+#		desired_wxp = None
+#	# let GNUmed work out the best wxPython available
+#	if desired_wxp is None:
+#		_log.debug('no wxPython version requested explicitely, trying wxp3, then wxp2')
+#		# we'll check options further down because we want to
+#		# support 3.0 as well and while that supports unicode
+#		# builds only anyway it don't respond well to requiring
+#		# a "-unicode" option indicator, ... :-/
+#		# try to select wxPython 3 but fall back to 2.8 on failure
+#		try:
+#			wxversion.select(versions = '3.0')
+#		except wxversion.VersionError:
+#			_log.exception('cannot select wxPython 3.0')
+#			wxversion.select(versions = '2.8-unicode', optionsRequired = True)
+#	elif desired_wxp == u'2':
+#		_log.debug('wxPython 2 requested explicitely')
+#		wxversion.select(versions = '2.8-unicode', optionsRequired = True)
+#	elif desired_wxp == u'3':
+#		_log.debug('wxPython 3 requested explicitely')
+#		wxversion.select(versions = '3.0')
+#	else:
+#		_log.error('invalid wxPython version requested: %s', desired_wxp)
+#		print('CRITICAL ERROR: Invalid wxPython version requested. Halted.')
+#		raise ValueError('invalid wxPython version requested: %s' % desired_wxp)
 
 try:
 	import wx

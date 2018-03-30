@@ -18,11 +18,8 @@
 # @TODO:
 #      
 ###############################################################
-try:
-	import wxversion
-	import wx
-except ImportError:
-	from wxPython import wx
+
+import wx
 
 import gmGuiElement_HeadingCaptionPanel		#panel class to display top headings
 import gmGuiElement_DividerCaptionPanel		#panel class to display sub-headings or divider headings 

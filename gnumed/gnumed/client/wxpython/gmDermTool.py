@@ -6,12 +6,8 @@
 import os.path
 
 # 3rd party
-try:
-	import wxversion
-	import wx
-	import wx.html
-except ImportError:
-	from wxPython import wx
+import wx
+import wx.html
 
 # GNUmed modules
 from Gnumed.pycommon import gmI18N

@@ -7,11 +7,7 @@ A module to add shadowing to an arbitrary widget.
 __version__ = "$Revision: 1.13 $"
 __author__  = "H.Berger <Hilmar.Berger@gmx.de>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, R.Terry <rterry@gnumed.net>"
 
-try:
-	import wxversion
-	import wx
-except ImportError:
-	from wxPython import wx
+import wx
 
 from Gnumed.pycommon import gmGuiBroker
 #=========================================================

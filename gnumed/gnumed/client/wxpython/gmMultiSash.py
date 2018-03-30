@@ -17,12 +17,8 @@ __version__ = "$Revision: 1.7 $"
 __author__ = "Gerrit van Dyk, Carlos, Karsten"
 #__license__ = "GPL"
 
-try:
-	import wxversion
-	import wx
-except ImportError:
-	from wxPython import wx
-	   
+import wx
+
 MV_HOR = 0
 MV_VER = not MV_HOR
 
