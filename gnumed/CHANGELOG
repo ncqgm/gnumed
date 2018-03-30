@@ -12,6 +12,7 @@ NEW: add bash completion script
 
 IMPROVED: make DWV optional
 IMPROVED: prerequisites check tool
+IMPROVED: update timeline code to 1.17.0 release
 
 	1.7.0
 

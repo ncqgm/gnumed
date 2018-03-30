@@ -292,9 +292,10 @@ class TimelinePanelGuiCreator(wx.Panel):
                     menuid += 1
                 menu_definitions.append((_("Goto URL"), self._context_menu_on_goto_hyperlink_event, imp))
         menu = wx.Menu()
+        mid = 0
         for menu_definition in menu_definitions:
             text, method, imp = menu_definition
-            menu_item = wx.MenuItem(menu, wx.NewId(), text)
+            menu_item = wx.MenuItem(menu, mid, text)
             if imp is not None:
                 for menu_item in imp.GetMenuItems():
                     self.Bind(wx.EVT_MENU, method, id=menu_item.GetId())
@@ -302,6 +303,7 @@ class TimelinePanelGuiCreator(wx.Panel):
             else:
                 self.Bind(wx.EVT_MENU, method, id=menu_item.GetId())
                 menu.AppendItem(menu_item)
+            mid += 1
         self.PopupMenu(menu)
         menu.Destroy()
 
