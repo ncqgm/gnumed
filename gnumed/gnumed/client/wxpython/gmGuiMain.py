@@ -174,14 +174,14 @@ _scripting_listener = None
 _original_wxEndBusyCursor = None
 
 #==============================================================================
-class cLog_wx2gm(wx.PyLog):
+class cLog_wx2gm(wx.Log):
 	# redirect wx.LogXXX() calls to python logging log
 	def DoLogTextAtLevel(self, level, msg):
 		_log.log(level, msg)
 
 __wxlog = cLog_wx2gm()
 _log.info('redirecting wx.Log to [%s]', __wxlog)
-wx.Log_SetActiveTarget(__wxlog)
+wx.Log.SetActiveTarget(__wxlog)
 #wx.LogDebug('test message')
 
 #==============================================================================
@@ -3508,9 +3508,9 @@ class gmApp(wx.App):
 	def OnInit(self):
 
 		if _cfg.get(option = 'debug'):
-			self.SetAssertMode(wx.PYAPP_ASSERT_EXCEPTION | wx.PYAPP_ASSERT_LOG)
+			self.SetAssertMode(wx.APP_ASSERT_EXCEPTION | wx.APP_ASSERT_LOG)
 		else:
-			self.SetAssertMode(wx.PYAPP_ASSERT_SUPPRESS)
+			self.SetAssertMode(wx.APP_ASSERT_SUPPRESS)
 
 		self.__starting_up = True
 

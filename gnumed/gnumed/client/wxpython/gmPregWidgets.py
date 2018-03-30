@@ -185,7 +185,6 @@ import math, zlib, cPickle, random, string, os.path
 
 
 import wx.lib.rcsizer
-import wx.calendar
 
 """
 Calculates from LMP:
