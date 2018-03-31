@@ -54,18 +54,18 @@ class wxgProcedureEAPnl(wx.ScrolledWindow):
 	def __set_properties(self):
 		# begin wxGlade: wxgProcedureEAPnl.__set_properties
 		self.SetScrollRate(10, 10)
-		self._PRW_procedure.SetToolTipString(_("The actual procedure performed on the patient."))
-		self._DPRW_date.SetToolTipString(_("When did this procedure take place ?"))
-		self._DPRW_end.SetToolTipString(_("When did this procedure end ?\n\nLeave empty for ongoing or \"one-off\" procedures without a significant duration."))
-		self._CHBOX_ongoing.SetToolTipString(_("Select if procedure is ongoing (say, desensibilization)."))
-		self._PRW_location.SetToolTipString(_("The location (praxis, clinic, ...) this procedure was performed at.\n\nMutually exclusive with \"Hospitalization\". Requires \"Episode\"."))
-		self._BTN_add_location.SetToolTipString(_("Manage organizations and units."))
-		self._PRW_episode.SetToolTipString(_("Select, or enter for creation, the episode to which this procedure will relate.\n\nMutually exclusive with \"Hospitalization\". Requires \"Location\"."))
-		self._PRW_hospital_stay.SetToolTipString(_("During which hospitalization was this procedure performed."))
-		self._BTN_add_stay.SetToolTipString(_("Add a hospitalization."))
-		self._TCTRL_comment.SetToolTipString(_("A comment on the procedure (say, the relevant outcome)."))
-		self._PRW_document.SetToolTipString(_("The document most relevant to this procedure (say, the most recent one)."))
-		self._PRW_codes.SetToolTipString(_("Codes relevant to this procedure."))
+		self._PRW_procedure.SetToolTip(_("The actual procedure performed on the patient."))
+		self._DPRW_date.SetToolTip(_("When did this procedure take place ?"))
+		self._DPRW_end.SetToolTip(_("When did this procedure end ?\n\nLeave empty for ongoing or \"one-off\" procedures without a significant duration."))
+		self._CHBOX_ongoing.SetToolTip(_("Select if procedure is ongoing (say, desensibilization)."))
+		self._PRW_location.SetToolTip(_("The location (praxis, clinic, ...) this procedure was performed at.\n\nMutually exclusive with \"Hospitalization\". Requires \"Episode\"."))
+		self._BTN_add_location.SetToolTip(_("Manage organizations and units."))
+		self._PRW_episode.SetToolTip(_("Select, or enter for creation, the episode to which this procedure will relate.\n\nMutually exclusive with \"Hospitalization\". Requires \"Location\"."))
+		self._PRW_hospital_stay.SetToolTip(_("During which hospitalization was this procedure performed."))
+		self._BTN_add_stay.SetToolTip(_("Add a hospitalization."))
+		self._TCTRL_comment.SetToolTip(_("A comment on the procedure (say, the relevant outcome)."))
+		self._PRW_document.SetToolTip(_("The document most relevant to this procedure (say, the most recent one)."))
+		self._PRW_codes.SetToolTip(_("Codes relevant to this procedure."))
 		# end wxGlade
 
 	def __do_layout(self):

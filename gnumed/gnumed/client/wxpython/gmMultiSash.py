@@ -230,7 +230,7 @@ class cMultiSashSplitter(wx.Window):
 #			print "caller: %s [%s]" % (caller.__class__.__name__, id(caller))
 #			print "hence caller must have been leaf 1 hence adding leaf 2 ..."	  
 			self.direction = direction
-			w,h = self.GetSizeTuple()
+			w,h = self.GetSize()
 			if direction == MV_HOR:
 #				print "... next to leaf 1"
 				x,y = (pos,0)
@@ -285,7 +285,7 @@ class cMultiSashSplitter(wx.Window):
 #			print "Removing caller"
 			# Gnumed: remove content from displayed leafs
 			self.top_parent.displayed_leafs.remove(caller)
-			w,h = self.GetSizeTuple()
+			w,h = self.GetSize()
 			x,y = self.GetPositionTuple()
 			if caller == self.leaf1:
 				if self == parent.leaf1:
@@ -350,7 +350,7 @@ class cMultiSashSplitter(wx.Window):
 		if not (self.leaf1 and self.leaf2):
 			return
 		if pos < 10: return
-		w,h = self.GetSizeTuple()
+		w,h = self.GetSize()
 		if side == MV_HOR:
 			if pos > w - 10: return
 		else:
@@ -367,11 +367,11 @@ class cMultiSashSplitter(wx.Window):
 			self.leaf1.SetSize(self.GetSize())
 			self.leaf1.OnSize(None)
 			return
-		v1w,v1h = self.leaf1.GetSizeTuple()
-		v2w,v2h = self.leaf2.GetSizeTuple()
+		v1w,v1h = self.leaf1.GetSize()
+		v2w,v2h = self.leaf2.GetSize()
 		v1x,v1y = self.leaf1.GetPositionTuple()
 		v2x,v2y = self.leaf2.GetPositionTuple()
-		w,h = self.GetSizeTuple()
+		w,h = self.GetSize()
 
 		if v1x != v2x:
 			ratio = float(w) / float((v1w + v2w))
@@ -460,7 +460,7 @@ class cMultiSashLeaf(wx.Window):
 #		print '%s[%s].AddLeaf()' % (self.__class__.__name__, id(self))
 		if pos < 10:
 			pos = 10
-		w,h = self.GetSizeTuple()
+		w,h = self.GetSize()
 		if direction == MV_VER:
 			if pos > h - 10:
 #				print "pos", pos
@@ -573,7 +573,7 @@ class cMultiSashLeafContent(wx.Window):
 		self.Refresh()
 
 	def CalcSize(self,parent):
-		w,h = parent.GetSizeTuple()
+		w,h = parent.GetSize()
 		w -= SH_SIZE
 		h -= SH_SIZE
 		return (w,h)
@@ -609,7 +609,7 @@ class cMultiSizer(wx.Window):
 		wx.EVT_LEFT_UP(self,self.OnRelease)
 
 	def CalcSizePos(self,parent):
-		pw,ph = parent.GetSizeTuple()
+		pw,ph = parent.GetSize()
 		if self.side == MV_HOR:
 			x = CR_SIZE + 2
 			y = ph - SH_SIZE
@@ -697,7 +697,7 @@ class cMultiCreator(wx.Window):
 		wx.EVT_PAINT(self,self.OnPaint)
 
 	def CalcSizePos(self,parent):
-		pw,ph = parent.GetSizeTuple()
+		pw,ph = parent.GetSize()
 		if self.side == MV_HOR:
 			x = 2
 			y = ph - SH_SIZE
@@ -765,7 +765,7 @@ class cMultiCreator(wx.Window):
 		shadow = wxPen(wx.SystemSettings_GetSystemColour(
 			wx.SYS_COLOUR_BTNSHADOW),1,wx.SOLID)
 		black = wxPen(wx.BLACK,1,wx.SOLID)
-		w,h = self.GetSizeTuple()
+		w,h = self.GetSize()
 		w -= 1
 		h -= 1
 
@@ -825,7 +825,7 @@ class cMultiCloser(wx.Window):
 		dc.Clear()
 
 	def CalcSizePos(self,parent):
-		pw,ph = parent.GetSizeTuple()
+		pw,ph = parent.GetSize()
 		x = pw - SH_SIZE
 		w = SH_SIZE
 		h = SH_SIZE + 2
@@ -851,7 +851,7 @@ class cEmptyChild(wx.Window):
 def DrawSash(win,x,y,direction):
 	dc = wx.ScreenDC()
 	dc.StartDrawingOnTopWin(win)
-	bmp = wx.EmptyBitmap(8,8)
+	bmp = wx.Bitmap(8,8)
 	bdc = wx.MemoryDC()
 	bdc.SelectObject(bmp)
 	bdc.DrawRectangle(-1,-1,10,10)

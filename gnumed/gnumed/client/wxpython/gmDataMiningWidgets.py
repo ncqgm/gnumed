@@ -569,7 +569,7 @@ class cDataMiningPnl(wxgDataMiningPnl.wxgDataMiningPnl):
 				label = _('not unicode()able')
 			if len(label) > 150:
 				label = label[:150] + gmTools.u_ellipsis
-			row_num = self._LCTRL_result.InsertStringItem(sys.maxint, label = label)
+			row_num = self._LCTRL_result.InsertItem(sys.maxint, label = label)
 			for col_idx in range(1, len(row)):
 				try:
 					label = unicode(gmTools.coalesce(row[col_idx], u'')).replace('\n', '<LF>').replace('\r', '<CR>')[:250]

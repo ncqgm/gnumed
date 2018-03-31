@@ -28,11 +28,11 @@ class wxgWaitingListEntryEditAreaPnl(wx.ScrolledWindow):
 
     def __set_properties(self):
         # begin wxGlade: wxgWaitingListEntryEditAreaPnl.__set_properties
-        self._PRW_patient.SetToolTipString(_("Waiting list details for this patient."))
-        self._TCTRL_comment.SetToolTipString(_("What is the patient here for. Could be the Reason for Encounter."))
+        self._PRW_patient.SetToolTip(_("Waiting list details for this patient."))
+        self._TCTRL_comment.SetToolTip(_("What is the patient here for. Could be the Reason for Encounter."))
         self._TCTRL_comment.SetFocus()
-        self._PRW_zone.SetToolTipString(_("Select or enter the zone the patient is waiting in."))
-        self._SPCTRL_urgency.SetToolTipString(_("Select the urgency for this patient.\n\nDefault is 0. Range is 0-10.\nHigher values mean higher urgency."))
+        self._PRW_zone.SetToolTip(_("Select or enter the zone the patient is waiting in."))
+        self._SPCTRL_urgency.SetToolTip(_("Select the urgency for this patient.\n\nDefault is 0. Range is 0-10.\nHigher values mean higher urgency."))
         # end wxGlade
 
     def __do_layout(self):

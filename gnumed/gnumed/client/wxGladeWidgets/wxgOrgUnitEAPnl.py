@@ -30,9 +30,9 @@ class wxgOrgUnitEAPnl(wx.ScrolledWindow):
     def __set_properties(self):
         # begin wxGlade: wxgOrgUnitEAPnl.__set_properties
         self.SetScrollRate(10, 10)
-        self._PRW_org.SetToolTipString(_("The organization this unit belongs to."))
-        self._PRW_unit.SetToolTipString(_("The name of the organizational unit."))
-        self._PRW_category.SetToolTipString(_("The category of the organizational unit."))
+        self._PRW_org.SetToolTip(_("The organization this unit belongs to."))
+        self._PRW_unit.SetToolTip(_("The name of the organizational unit."))
+        self._PRW_category.SetToolTip(_("The category of the organizational unit."))
         # end wxGlade
 
     def __do_layout(self):

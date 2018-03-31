@@ -24,8 +24,8 @@ class wxgEncounterTypeEditAreaPnl(wx.ScrolledWindow):
     def __set_properties(self):
         # begin wxGlade: wxgEncounterTypeEditAreaPnl.__set_properties
         self.SetScrollRate(10, 10)
-        self._TCTRL_l10n_name.SetToolTipString(_("Required: A name for this encounter type in your local language."))
-        self._TCTRL_name.SetToolTipString(_("Optional: A system-wide description for this encounter type. If you leave this empty the local name will be used.\n\nIt is useful to choose an English term but that is not mandatory. One advantage to using a system-wide type description is that different people can have the system description translated into their language and still use the same encounter type."))
+        self._TCTRL_l10n_name.SetToolTip(_("Required: A name for this encounter type in your local language."))
+        self._TCTRL_name.SetToolTip(_("Optional: A system-wide description for this encounter type. If you leave this empty the local name will be used.\n\nIt is useful to choose an English term but that is not mandatory. One advantage to using a system-wide type description is that different people can have the system description translated into their language and still use the same encounter type."))
         self._TCTRL_name.Enable(False)
         # end wxGlade
 

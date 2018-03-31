@@ -35,15 +35,15 @@ class wxgAddPatientAsStaffDlg(wx.Dialog):
         self.SetTitle(_("Enlist person as GNUmed user"))
         self._TXT_person.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_GRAYTEXT))
         self._TXT_person.Enable(False)
-        self._TXT_short_alias.SetToolTipString(_("A short alias identifying the GNUmed user. It is used in the clinical record among other places."))
-        self._TXT_account.SetToolTipString(_("The database account for this user.\n\nThe account will be created in the database with proper access rights. Privacy restrictions are currently hardcoded to membership in the PostgreSQL group \"gm-doctors\".\n\nYou can use the name of an existing account but it must not be used by any other GNUmed user yet."))
-        self._TXT_password.SetToolTipString(_("The password for the new database account. Input will not be shown."))
+        self._TXT_short_alias.SetToolTip(_("A short alias identifying the GNUmed user. It is used in the clinical record among other places."))
+        self._TXT_account.SetToolTip(_("The database account for this user.\n\nThe account will be created in the database with proper access rights. Privacy restrictions are currently hardcoded to membership in the PostgreSQL group \"gm-doctors\".\n\nYou can use the name of an existing account but it must not be used by any other GNUmed user yet."))
+        self._TXT_password.SetToolTip(_("The password for the new database account. Input will not be shown."))
         self._TXT_password.SetFocus()
-        self._TXT_password_again.SetToolTipString(_("The database password must be typed again to enable double-checking to protect against typos."))
-        self._TXT_dbo_password.SetToolTipString(_("Enlisting GNUmed users is a priviledged operation.\nYou must enter the password for the database administrator \"gm-dbo\" here."))
-        self._BTN_enlist.SetToolTipString(_("Enlist this person as a GNUmed user and associate it with the given database account."))
+        self._TXT_password_again.SetToolTip(_("The database password must be typed again to enable double-checking to protect against typos."))
+        self._TXT_dbo_password.SetToolTip(_("Enlisting GNUmed users is a priviledged operation.\nYou must enter the password for the database administrator \"gm-dbo\" here."))
+        self._BTN_enlist.SetToolTip(_("Enlist this person as a GNUmed user and associate it with the given database account."))
         self._BTN_enlist.SetDefault()
-        self._BTN_cancel.SetToolTipString(_("Cancel this dialog, do not enlist new GNUmed user."))
+        self._BTN_cancel.SetToolTip(_("Cancel this dialog, do not enlist new GNUmed user."))
         # end wxGlade
 
     def __do_layout(self):

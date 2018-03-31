@@ -16,11 +16,7 @@ import os.path
 
 import wx
 import wx.grid
-try:
-	import wx.lib.hyperlink as wxh
-except ImportError:
-	# Phoenix
-	import wx.adv as wxh
+import wx.adv as wxh
 
 
 if __name__ == '__main__':
@@ -1993,11 +1989,11 @@ class cMeasurementsGrid(wx.grid.Grid):
 
 		self.__WIN_corner = self.GetGridCornerLabelWindow()		# a wx.Window instance
 
-		LNK_lab = wxh.HyperLinkCtrl (
+		LNK_lab = wxh.HyperlinkCtrl (
 			self.__WIN_corner,
 			-1,
 			label = _('Tests'),
-			style = wx.HL_DEFAULT_STYLE			# wx.TE_READONLY|wx.TE_CENTRE| wx.NO_BORDER |
+			style = wxh.HL_DEFAULT_STYLE			# wx.TE_READONLY|wx.TE_CENTRE| wx.NO_BORDER |
 		)
 		LNK_lab.SetURL(url)
 		LNK_lab.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_BACKGROUND))
@@ -2015,14 +2011,16 @@ class cMeasurementsGrid(wx.grid.Grid):
 
 		SZR_corner = wx.BoxSizer(wx.VERTICAL)
 		SZR_corner.Add((20, 20), 1, wx.EXPAND, 0)		# spacer
-		SZR_corner.AddWindow(SZR_inner, 0, wx.EXPAND)	# inner sizer with centered hyperlink
+		SZR_corner.Add(SZR_inner, 0, wx.EXPAND)			# inner sizer with centered hyperlink
 		SZR_corner.Add((20, 20), 1, wx.EXPAND, 0)		# spacer
 
 		self.__WIN_corner.SetSizer(SZR_corner)
 		SZR_corner.Fit(self.__WIN_corner)
+
 	#------------------------------------------------------------
 	def __resize_corner_window(self, evt):
 		self.__WIN_corner.Layout()
+
 	#------------------------------------------------------------
 	def __cells_to_data(self, cells=None, exclude_multi_cells=False, auto_include_multi_cells=False):
 		"""List of <cells> must be in row / col order."""
@@ -2052,6 +2050,7 @@ class cMeasurementsGrid(wx.grid.Grid):
 			data.extend(data_to_include)
 
 		return data
+
 	#------------------------------------------------------------
 	def __get_choices_from_multi_cell(self, cell_data=None, single_selection=False):
 		data = gmListWidgets.get_choices_from_list (
@@ -2068,6 +2067,7 @@ class cMeasurementsGrid(wx.grid.Grid):
 			single_selection = single_selection
 		)
 		return data
+
 	#------------------------------------------------------------
 	# event handling
 	#------------------------------------------------------------

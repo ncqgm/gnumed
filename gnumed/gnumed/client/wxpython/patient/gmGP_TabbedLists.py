@@ -274,7 +274,7 @@ uHl\xa1\x11\xa9dD\xb3q\x9d\x11\xe5\xa7\xf2\xea\x0f\xea\xd3\x90\x86\xf4\xb7tD\
 	#-------------------------------------------------------------
 	#loop through the scriptdata array and add to the list control
 	#note the different syntax for the first coloum of each row
-	#i.e. here > self.List_Script.InsertStringItem(x, data[0])!!
+	#i.e. here > self.List_Script.InsertItem(x, data[0])!!
 	#-------------------------------------------------------------
 	items = scriptdata.items()
 	for x in range(len(items)):
@@ -283,7 +283,7 @@ uHl\xa1\x11\xa9dD\xb3q\x9d\x11\xe5\xa7\xf2\xea\x0f\xea\xd3\x90\x86\xf4\xb7tD\
             gmLog.gmDefLog.Log (gmLog.lData, items[x])
             #</DEBUG>
 	    #print x, data[0],data[1],data[2]
-	    self.List_Script.InsertStringItem(x, data[0])
+	    self.List_Script.InsertItem(x, data[0])
             self.List_Script.SetItem(x, 1, data[1])
             self.List_Script.SetItem(x, 2, data[2])
 	    self.List_Script.SetItem(x, 3, data[3])

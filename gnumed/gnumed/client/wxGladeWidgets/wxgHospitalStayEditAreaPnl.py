@@ -31,11 +31,11 @@ class wxgHospitalStayEditAreaPnl(wx.Panel):
 
     def __set_properties(self):
         # begin wxGlade: wxgHospitalStayEditAreaPnl.__set_properties
-        self._PRW_hospital.SetToolTipString(_("Mandatory: Which hospital the patient was admitted to."))
-        self._PRW_episode.SetToolTipString(_("Mandatory: Select, or enter for creation, the episode (reason, condition) of this hospitalization."))
-        self._PRW_admission.SetToolTipString(_("Mandatory: When was the patient admitted ?"))
-        self._PRW_discharge.SetToolTipString(_("Optional: When was the Patient discharged ?"))
-        self._TCTRL_comment.SetToolTipString(_("Optional: An arbitrary comment on this hospital stay."))
+        self._PRW_hospital.SetToolTip(_("Mandatory: Which hospital the patient was admitted to."))
+        self._PRW_episode.SetToolTip(_("Mandatory: Select, or enter for creation, the episode (reason, condition) of this hospitalization."))
+        self._PRW_admission.SetToolTip(_("Mandatory: When was the patient admitted ?"))
+        self._PRW_discharge.SetToolTip(_("Optional: When was the Patient discharged ?"))
+        self._TCTRL_comment.SetToolTip(_("Optional: An arbitrary comment on this hospital stay."))
         # end wxGlade
 
     def __do_layout(self):

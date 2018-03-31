@@ -122,14 +122,14 @@ class cContactsPanel(wx.wx.Panel):
 		#-------------------------------------------------------------
 		#loop through the scriptdata array and add to the list control
 		#note the different syntax for the first coloum of each row
-		#i.e. here > self.list_organisations.InsertStringItem(x, data[0])!!
+		#i.e. here > self.list_organisations.InsertItem(x, data[0])!!
 		#-------------------------------------------------------------
 		items = organisationsdata.items()
 		for x in range(len(items)):
 			key, data = items[x]
 			#print items[x]
 			#print x, data[0],data[1],data[2]
-			self.list_organisations.InsertStringItem(x, data[0])
+			self.list_organisations.InsertItem(x, data[0])
 			self.list_organisations.SetItem(x, 1, data[1])
 			self.list_organisations.SetItem(x, 2, data[2])
 			self.list_organisations.SetItem(x, 3, data[3])
@@ -640,7 +640,7 @@ class cContactsPanel(wx.wx.Panel):
 	
 	
 	def _insert_org_data(self, n, key, data): 	  
-		self.list_organisations.InsertStringItem(n, data[0])
+		self.list_organisations.InsertItem(n, data[0])
 		self.list_organisations.SetItem(n, 1, data[1])
 		self.list_organisations.SetItem(n, 2, data[2])
 		self.list_organisations.SetItem(n, 3, data[3])

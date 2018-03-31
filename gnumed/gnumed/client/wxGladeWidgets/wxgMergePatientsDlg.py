@@ -36,10 +36,10 @@ class wxgMergePatientsDlg(wx.Dialog):
         # begin wxGlade: wxgMergePatientsDlg.__set_properties
         self.SetTitle(_("Merging patients"))
         self._TCTRL_patient1_details.Enable(False)
-        self._RBTN_patient1.SetToolTipString(_("Select this if you want to keep this patient."))
+        self._RBTN_patient1.SetToolTip(_("Select this if you want to keep this patient."))
         self._RBTN_patient1.SetValue(1)
         self._TCTRL_patient2_details.Enable(False)
-        self._RBTN_patient2.SetToolTipString(_("Select this if you want to keep this patient."))
+        self._RBTN_patient2.SetToolTip(_("Select this if you want to keep this patient."))
         self._BTN_cancel.SetFocus()
         self._BTN_cancel.SetDefault()
         # end wxGlade

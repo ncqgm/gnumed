@@ -56,19 +56,19 @@ class wxgExportAreaPluginPnl(wx.Panel):
 
 	def __set_properties(self):
 		# begin wxGlade: wxgExportAreaPluginPnl.__set_properties
-		self._BTN_show_item.SetToolTipString(_("Show the topmost selected document."))
-		self._BTN_add_items.SetToolTipString(_("Add document(s) from file(s)."))
-		self._BTN_add_from_archive.SetToolTipString(_("Add document(s) from archive."))
-		self._BTN_scan_items.SetToolTipString(_("Acquire images from image source (scanner, ...)."))
-		self._BTN_clipboard_items.SetToolTipString(_("Acquire file or text from the clipboard."))
-		self._BTN_remove_items.SetToolTipString(_("Remove the selected documents."))
-		self._BTN_print_items.SetToolTipString(_("Print selected/all documents."))
-		self._BTN_remote_print.SetToolTipString(_("Put selected/all documents into remote print manager."))
-		self._BTN_burn_items.SetToolTipString(_("Burn selected/all documents onto CD/DVD."))
-		self._BTN_save_items.SetToolTipString(_("Save selected/all items to disk."))
-		self._BTN_mail_items.SetToolTipString(_("E-mail selected/all documents."))
-		self._BTN_fax_items.SetToolTipString(_("Fax selected/all documents."))
-		self._BTN_archive_items.SetToolTipString(_("Store selected/all documents in document archive."))
+		self._BTN_show_item.SetToolTip(_("Show the topmost selected document."))
+		self._BTN_add_items.SetToolTip(_("Add document(s) from file(s)."))
+		self._BTN_add_from_archive.SetToolTip(_("Add document(s) from archive."))
+		self._BTN_scan_items.SetToolTip(_("Acquire images from image source (scanner, ...)."))
+		self._BTN_clipboard_items.SetToolTip(_("Acquire file or text from the clipboard."))
+		self._BTN_remove_items.SetToolTip(_("Remove the selected documents."))
+		self._BTN_print_items.SetToolTip(_("Print selected/all documents."))
+		self._BTN_remote_print.SetToolTip(_("Put selected/all documents into remote print manager."))
+		self._BTN_burn_items.SetToolTip(_("Burn selected/all documents onto CD/DVD."))
+		self._BTN_save_items.SetToolTip(_("Save selected/all items to disk."))
+		self._BTN_mail_items.SetToolTip(_("E-mail selected/all documents."))
+		self._BTN_fax_items.SetToolTip(_("Fax selected/all documents."))
+		self._BTN_archive_items.SetToolTip(_("Store selected/all documents in document archive."))
 		# end wxGlade
 
 	def __do_layout(self):

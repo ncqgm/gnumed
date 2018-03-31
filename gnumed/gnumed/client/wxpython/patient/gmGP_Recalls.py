@@ -94,12 +94,12 @@ class RecallsPanel(wxPanel , PatientHolder):
 		#-------------------------------------------------------------
 		#loop through the scriptdata array and add to the list control
 		#note the different syntax for the first coloum of each row
-		#i.e. here > self.list_recalls.InsertStringItem(x, data[0])!!
+		#i.e. here > self.list_recalls.InsertItem(x, data[0])!!
 		#-------------------------------------------------------------
 		items = recalldata.items()
 		for x in range(len(items)):
 			key, data = items[x]
-			self.list_recalls.InsertStringItem(x, data[0])
+			self.list_recalls.InsertItem(x, data[0])
 			self.list_recalls.SetItem(x, 1, data[1])
 			self.list_recalls.SetItemData(x, key)
 		self.list_recalls.SetColumnWidth(0, wxLIST_AUTOSIZE)

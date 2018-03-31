@@ -34,13 +34,13 @@ class wxgBillItemEAPnl(wx.ScrolledWindow):
     def __set_properties(self):
         # begin wxGlade: wxgBillItemEAPnl.__set_properties
         self.SetScrollRate(10, 10)
-        self._PRW_billable.SetToolTipString(_("The billable from which to create the bill item."))
-        self._PRW_encounter.SetToolTipString(_("The encounter this item belongs to (or was created under)."))
-        self._PRW_date.SetToolTipString(_("Optional: Pick the date at which to bill this item. If this is left blank the bill will show the date of the corresponding encounter."))
-        self._TCTRL_count.SetToolTipString(_("How many units of the item are to be charged."))
-        self._TCTRL_amount.SetToolTipString(_("Base amount w/o VAT."))
-        self._TCTRL_factor.SetToolTipString(_("The factor by which to multiply the base amount. Normally 1.\n\n 0: complimentary items\n >1: increases\n <1: rebates\n <0:  credit notes"))
-        self._TCTRL_comment.SetToolTipString(_("Optional: An item-specific comment to be put on the bill."))
+        self._PRW_billable.SetToolTip(_("The billable from which to create the bill item."))
+        self._PRW_encounter.SetToolTip(_("The encounter this item belongs to (or was created under)."))
+        self._PRW_date.SetToolTip(_("Optional: Pick the date at which to bill this item. If this is left blank the bill will show the date of the corresponding encounter."))
+        self._TCTRL_count.SetToolTip(_("How many units of the item are to be charged."))
+        self._TCTRL_amount.SetToolTip(_("Base amount w/o VAT."))
+        self._TCTRL_factor.SetToolTip(_("The factor by which to multiply the base amount. Normally 1.\n\n 0: complimentary items\n >1: increases\n <1: rebates\n <0:  credit notes"))
+        self._TCTRL_comment.SetToolTip(_("Optional: An item-specific comment to be put on the bill."))
         # end wxGlade
 
     def __do_layout(self):

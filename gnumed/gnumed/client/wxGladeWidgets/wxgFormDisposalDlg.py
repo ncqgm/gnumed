@@ -51,16 +51,16 @@ class wxgFormDisposalDlg(wx.Dialog):
 		# begin wxGlade: wxgFormDisposalDlg.__set_properties
 		self.SetTitle(_("Form handling"))
 		self.SetSize((609, 500))
-		self._BTN_show_forms.SetToolTipString(_("Show the selected form(s)."))
-		self._BTN_delete_forms.SetToolTipString(_("Delete the selected forms from the list."))
-		self._CHBOX_export.SetToolTipString(_("Check here to put a copy into the export area."))
-		self._PRW_episode.SetToolTipString(_("Select episode under which to archive a copy of the document(s)."))
-		self._TCTRL_soap.SetToolTipString(_("Enter a SOAP note to be put into the chart."))
-		self._BTN_print.SetToolTipString(_("Print document(s)\n(optionally copy to archive and export area)"))
-		self._BTN_remote_print.SetToolTipString(_("Remotely print document(s).\n(optionally copy to archive and export area)"))
-		self._BTN_export.SetToolTipString(_("Put into export area only.\n(no printing, no archiving)"))
-		self._BTN_archive.SetToolTipString(_("Put copy into archive only.\n(no printing, no export area)"))
-		self._BTN_cancel.SetToolTipString(_("Cancel any actions and close dialog."))
+		self._BTN_show_forms.SetToolTip(_("Show the selected form(s)."))
+		self._BTN_delete_forms.SetToolTip(_("Delete the selected forms from the list."))
+		self._CHBOX_export.SetToolTip(_("Check here to put a copy into the export area."))
+		self._PRW_episode.SetToolTip(_("Select episode under which to archive a copy of the document(s)."))
+		self._TCTRL_soap.SetToolTip(_("Enter a SOAP note to be put into the chart."))
+		self._BTN_print.SetToolTip(_("Print document(s)\n(optionally copy to archive and export area)"))
+		self._BTN_remote_print.SetToolTip(_("Remotely print document(s).\n(optionally copy to archive and export area)"))
+		self._BTN_export.SetToolTip(_("Put into export area only.\n(no printing, no archiving)"))
+		self._BTN_archive.SetToolTip(_("Put copy into archive only.\n(no printing, no export area)"))
+		self._BTN_cancel.SetToolTip(_("Cancel any actions and close dialog."))
 		# end wxGlade
 
 	def __do_layout(self):

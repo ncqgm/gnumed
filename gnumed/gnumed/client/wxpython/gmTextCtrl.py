@@ -359,7 +359,8 @@ class cExpandoTextCtrlHandling_PanelMixin():
 	"""
 	#--------------------------------------------------------
 	def bind_expando_layout_event(self, expando):
-		wx.lib.expando.EVT_ETC_LAYOUT_NEEDED(expando, expando.GetId(), self._on_expando_needs_layout)
+		self.Bind(wx.lib.expando.EVT_ETC_LAYOUT_NEEDED, self._on_expando_needs_layout)
+		#wx.lib.expando.EVT_ETC_LAYOUT_NEEDED(expando, expando.GetId(), self._on_expando_needs_layout)
 
 	#--------------------------------------------------------
 	def _on_expando_needs_layout(self, evt):
@@ -373,7 +374,7 @@ class cExpandoTextCtrlHandling_PanelMixin():
 			# scroll panel to show cursor
 			expando = self.FindWindowById(evt.GetId())
 			y_expando = expando.GetPositionTuple()[1]
-			h_expando = expando.GetSizeTuple()[1]
+			h_expando = expando.GetSize()[1]
 			line_cursor = expando.PositionToXY(expando.GetInsertionPoint())[1] + 1
 			if expando.NumberOfLines == 0:
 				no_of_lines = 1
@@ -425,7 +426,7 @@ class cExpandoTextCtrl(gmKeywordExpansionWidgets.cKeywordExpansion_TextCtrlMixin
 	# event handling
 	#------------------------------------------------
 	def __register_interests(self):
-		wx.EVT_SET_FOCUS(self, self.__cExpandoTextCtrl_on_focus)
+		self.Bind(wx.EVT_SET_FOCUS, self.__cExpandoTextCtrl_on_focus)
 
 	#--------------------------------------------------------
 	def __cExpandoTextCtrl_on_focus(self, evt):

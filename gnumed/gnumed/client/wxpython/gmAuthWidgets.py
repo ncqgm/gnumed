@@ -596,7 +596,7 @@ class cLoginPanel(wx.Panel):
 		#----------------------------------------------------------------------
 		self.button_gridsizer = wx.GridSizer(1,3,0,0)
 		#---------------------
-		#3:create login ok button
+		#1:create login ok button
 		#---------------------
 		ID_BUTTON_LOGIN = wx.NewId()
 		button_login_ok = wx.Button(self, ID_BUTTON_LOGIN, _("&Ok"), wx.DefaultPosition, wx.DefaultSize, 0 )
@@ -604,13 +604,13 @@ class cLoginPanel(wx.Panel):
 		button_login_ok.SetDefault()
 
 		#---------------------
-		#3:create cancel button
+		#2:create cancel button
 		#---------------------
 		ID_BUTTON_CANCEL = wx.NewId()
 		button_cancel = wx.Button(self, ID_BUTTON_CANCEL, _("&Cancel"), wx.DefaultPosition, wx.DefaultSize, 0 )
 		button_cancel.SetToolTip(wx.ToolTip(_("Cancel Login.")) )
 		#---------------------
-		#2:create Help button
+		#3:create Help button
 		#---------------------
 		ID_BUTTON_HELP = wx.NewId()
 		button_help = wx.Button(self, ID_BUTTON_HELP, _("&Help"), wx.DefaultPosition, wx.DefaultSize, 0 )
@@ -634,9 +634,12 @@ class cLoginPanel(wx.Panel):
 		if self.isDialog:
 			self.topsizer.SetSizeHints(parent)
 
-		wx.EVT_BUTTON(self, ID_BUTTON_HELP, self.OnHelp)
-		wx.EVT_BUTTON(self, ID_BUTTON_LOGIN, self.__on_login_button_pressed)
-		wx.EVT_BUTTON(self, ID_BUTTON_CANCEL, self.OnCancel)
+		button_help.Bind(wx.EVT_BUTTON, self.OnHelp)
+		button_login_ok.Bind(wx.EVT_BUTTON, self.__on_login_button_pressed)
+		button_cancel.Bind(wx.EVT_BUTTON, self.OnCancel)
+		#wx.EVT_BUTTON(self, ID_BUTTON_HELP, self.OnHelp)
+		#wx.EVT_BUTTON(self, ID_BUTTON_LOGIN, self.__on_login_button_pressed)
+		#wx.EVT_BUTTON(self, ID_BUTTON_CANCEL, self.OnCancel)
 
 	#----------------------------------------------------------
 	# internal helper methods

@@ -30,8 +30,8 @@ class wxgPersonIdentityManagerPnl(wx.ScrolledWindow):
         # begin wxGlade: wxgPersonIdentityManagerPnl.__set_properties
         self.SetFocus()
         self.SetScrollRate(10, 10)
-        self._BTN_save_identity.SetToolTipString(_("Save the identity details."))
-        self._BTN_reload_identity.SetToolTipString(_("Reload identity from the database."))
+        self._BTN_save_identity.SetToolTip(_("Save the identity details."))
+        self._BTN_reload_identity.SetToolTip(_("Reload identity from the database."))
         # end wxGlade
 
     def __do_layout(self):

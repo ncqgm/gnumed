@@ -33,11 +33,11 @@ class wxgTextExpansionFillInDlg(wx.Dialog):
     def __set_properties(self):
         # begin wxGlade: wxgTextExpansionFillInDlg.__set_properties
         self.SetTitle(_("Filling in text expansion"))
-        self._BTN_OK.SetToolTipString(_("Finish filling in text macro."))
+        self._BTN_OK.SetToolTip(_("Finish filling in text macro."))
         self._BTN_OK.Enable(False)
-        self._BTN_forward.SetToolTipString(_("Go to the next fill-in position."))
+        self._BTN_forward.SetToolTip(_("Go to the next fill-in position."))
         self._BTN_forward.SetDefault()
-        self._BTN_cancel.SetToolTipString(_("Cancel filling in the text expansion."))
+        self._BTN_cancel.SetToolTip(_("Cancel filling in the text expansion."))
         # end wxGlade
 
     def __do_layout(self):

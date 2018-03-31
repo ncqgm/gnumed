@@ -35,10 +35,10 @@ class wxgAddressSelectionDlg(wx.Dialog):
 	def __set_properties(self):
 		# begin wxGlade: wxgAddressSelectionDlg.__set_properties
 		self.SetTitle(_("Address selection"))
-		self._BTN_manage_addresses.SetToolTipString(_("Manage addresses."))
-		self._BTN_OK.SetToolTipString(_("Use the selected address."))
+		self._BTN_manage_addresses.SetToolTip(_("Manage addresses."))
+		self._BTN_OK.SetToolTip(_("Use the selected address."))
 		self._BTN_OK.SetDefault()
-		self._BTN_cancel.SetToolTipString(_("Abort address selection."))
+		self._BTN_cancel.SetToolTip(_("Abort address selection."))
 		# end wxGlade
 
 	def __do_layout(self):

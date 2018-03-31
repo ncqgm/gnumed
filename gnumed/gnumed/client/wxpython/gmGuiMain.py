@@ -373,7 +373,7 @@ class gmTopLevelFrame(wx.Frame):
 		# GNUmed / Preferences / Database
 		menu_cfg_db = wx.Menu()
 
-		item = menu_*.Append(-1, _('Language'), _('Configure the database language'))
+		item = menu_cfg_db.Append(-1, _('Language'), _('Configure the database language'))
 		self.Bind(wx.EVT_MENU, self.__on_configure_db_lang, item)
 
 		ID = wx.NewId()
@@ -3444,7 +3444,7 @@ class gmTopLevelFrame(wx.Frame):
 
 		scr_dc = wx.ScreenDC()
 		mem_dc = wx.MemoryDC()
-		img = wx.EmptyBitmap(rect.width, rect.height)
+		img = wx.Bitmap(rect.width, rect.height)
 		mem_dc.SelectObject(img)
 		mem_dc.Blit (					# copy ...
 			0, 0,						# ... to here in the target ...
@@ -3693,6 +3693,7 @@ class gmApp(wx.App):
 			delay = 2000			# hence a minimum of 2 and max of 3.999... seconds after which inactivity is detected
 		)
 		self.user_activity_timer.Start(oneShot=True)
+
 	#----------------------------------------------
 	def __shutdown_user_activity_timer(self):
 		try:
@@ -3700,10 +3701,11 @@ class gmApp(wx.App):
 			del self.user_activity_timer
 		except:
 			pass
+
 	#----------------------------------------------
 	def __register_events(self):
-		wx.EVT_QUERY_END_SESSION(self, self._on_query_end_session)
-		wx.EVT_END_SESSION(self, self._on_end_session)
+		self.Bind(wx.EVT_QUERY_END_SESSION, self._on_query_end_session)
+		self.Bind(wx.EVT_END_SESSION, self._on_end_session)
 
 		# You can bind your app to wx.EVT_ACTIVATE_APP which will fire when your
 		# app gets/looses focus, or you can wx.EVT_ACTIVATE with any of your

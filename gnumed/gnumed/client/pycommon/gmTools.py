@@ -1517,7 +1517,7 @@ def get_icon(wx=None):
 		icon.CopyFromBitmap(icon_bmp_data)
 	else:
 		_log.debug('icon found in [%s]', found_as)
-		icon = wx.EmptyIcon()
+		icon = wx.Icon()
 		try:
 			icon.LoadFile(found_as, wx.BITMAP_TYPE_ANY)		#_PNG
 		except AttributeError:

@@ -38,15 +38,15 @@ class wxgGenericAddressEditAreaPnl(wx.ScrolledWindow):
 
     def __set_properties(self):
         # begin wxGlade: wxgGenericAddressEditAreaPnl.__set_properties
-        self.SetToolTipString(_("Select the type of address here."))
+        self.SetToolTip(_("Select the type of address here."))
         self.SetScrollRate(10, 10)
         self._LBL_type.SetForegroundColour(wx.Colour(255, 0, 0))
-        self._PRW_type.SetToolTipString(_("The category under which to store this address."))
-        self._PRW_address_searcher.SetToolTipString(_("Here you can enter a postal code or street name fragment to search for an existing address.\n\nThe fields below will be filled with the details of that address which you can edit to create a new address.\n\nYou can also just enter the relevant information into the corresponding fields without searching for an existing address."))
-        self._TCTRL_notes_street.SetToolTipString(_("Enter any additional street level instructions and notes, such as postal box or driving directions."))
-        self._TCTRL_number.SetToolTipString(_("Enter the house number for this address."))
-        self._TCTRL_subunit.SetToolTipString(_("Enter the subunit / apartment / room / level / entrance for this address."))
-        self._TCTRL_notes_subunit.SetToolTipString(_("Enter any additional notes and comments on this address which didn't fit anywhere else."))
+        self._PRW_type.SetToolTip(_("The category under which to store this address."))
+        self._PRW_address_searcher.SetToolTip(_("Here you can enter a postal code or street name fragment to search for an existing address.\n\nThe fields below will be filled with the details of that address which you can edit to create a new address.\n\nYou can also just enter the relevant information into the corresponding fields without searching for an existing address."))
+        self._TCTRL_notes_street.SetToolTip(_("Enter any additional street level instructions and notes, such as postal box or driving directions."))
+        self._TCTRL_number.SetToolTip(_("Enter the house number for this address."))
+        self._TCTRL_subunit.SetToolTip(_("Enter the subunit / apartment / room / level / entrance for this address."))
+        self._TCTRL_notes_subunit.SetToolTip(_("Enter any additional notes and comments on this address which didn't fit anywhere else."))
         # end wxGlade
 
     def __do_layout(self):

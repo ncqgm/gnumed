@@ -42,12 +42,12 @@ class wxgItemPickerDlg(wx.Dialog):
         # begin wxGlade: wxgItemPickerDlg.__set_properties
         self.SetSize((735, 350))
         self._BTN_left2right.SetFont(wx.Font(16, wx.DEFAULT, wx.NORMAL, wx.BOLD, 0, ""))
-        self._BTN_left2right.SetToolTipString(_("Move selected items from left to right."))
+        self._BTN_left2right.SetToolTip(_("Move selected items from left to right."))
         self._BTN_left2right.Enable(False)
         self._BTN_right2left.SetFont(wx.Font(16, wx.DEFAULT, wx.NORMAL, wx.BOLD, 0, ""))
-        self._BTN_right2left.SetToolTipString(_("Move selected items from right to left."))
+        self._BTN_right2left.SetToolTip(_("Move selected items from right to left."))
         self._BTN_right2left.Enable(False)
-        self._BTN_cancel.SetToolTipString(_("Cancel picking items."))
+        self._BTN_cancel.SetToolTip(_("Cancel picking items."))
         self._BTN_extra.Enable(False)
         self._BTN_extra.Hide()
         # end wxGlade

@@ -134,7 +134,7 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 	def _set_soap_display(self, soap_display=None):
 		self.__soap_display = soap_display
 		self.__soap_display_prop_font = soap_display.GetFont()
-		self.__soap_display_mono_font = wx.FontFromNativeInfo(self.__soap_display_prop_font.NativeFontInfo)
+		self.__soap_display_mono_font = wx.Font(self.__soap_display_prop_font.GetNativeFontInfo())
 		self.__soap_display_mono_font.SetFamily(wx.FONTFAMILY_TELETYPE)
 		self.__soap_display_mono_font.SetPointSize(self.__soap_display_prop_font.GetPointSize() - 2)
 
@@ -1443,7 +1443,7 @@ class cSplittedEMRTreeBrowserPnl(wxgSplittedEMRTreeBrowserPnl.wxgSplittedEMRTree
 		pat = gmPerson.gmCurrentPatient()
 		self._pnl_emr_tree._emr_tree.patient = pat
 		self._PNL_edit.patient = pat
-		self._splitter_browser.SetSashPosition(self._splitter_browser.GetSizeTuple()[0] // 3, True)
+		self._splitter_browser.SetSashPosition(self._splitter_browser.GetSize()[0] // 3, True)
 
 		return True
 

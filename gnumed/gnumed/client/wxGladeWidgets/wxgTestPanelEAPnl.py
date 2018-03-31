@@ -39,10 +39,10 @@ class wxgTestPanelEAPnl(wx.ScrolledWindow):
 	def __set_properties(self):
 		# begin wxGlade: wxgTestPanelEAPnl.__set_properties
 		self.SetScrollRate(10, 10)
-		self._TCTRL_description.SetToolTipString(_("A short description for this test panel."))
-		self._TCTRL_comment.SetToolTipString(_("A comment on, or long-form description of, this test panel."))
-		self._BTN_add_loinc.SetToolTipString(_("Add the selected LOINC to the test panel."))
-		self._BTN_remove_loinc.SetToolTipString(_("Remove selected LOINC from test panel."))
+		self._TCTRL_description.SetToolTip(_("A short description for this test panel."))
+		self._TCTRL_comment.SetToolTip(_("A comment on, or long-form description of, this test panel."))
+		self._BTN_add_loinc.SetToolTip(_("Add the selected LOINC to the test panel."))
+		self._BTN_remove_loinc.SetToolTip(_("Remove selected LOINC from test panel."))
 		# end wxGlade
 
 	def __do_layout(self):

@@ -235,7 +235,7 @@ class cTagImageEAPnl(wxgTagImageEAPnl.wxgTagImageEAPnl, gmEditArea.cGenericEditA
 	def _refresh_as_new(self):
 		self._TCTRL_description.SetValue(u'')
 		self._TCTRL_filename.SetValue(u'')
-		self._BMP_image.SetBitmap(bitmap = wx.EmptyBitmap(100, 100))
+		self._BMP_image.SetBitmap(bitmap = wx.Bitmap(100, 100))
 
 		self.__selected_image_file = None
 
@@ -249,7 +249,7 @@ class cTagImageEAPnl(wxgTagImageEAPnl.wxgTagImageEAPnl, gmEditArea.cGenericEditA
 		self._TCTRL_filename.SetValue(gmTools.coalesce(self.data['filename'], u''))
 		fname = self.data.export_image2file()
 		if fname is None:
-			self._BMP_image.SetBitmap(bitmap = wx.EmptyBitmap(100, 100))
+			self._BMP_image.SetBitmap(bitmap = wx.Bitmap(100, 100))
 		else:
 			self._BMP_image.SetBitmap(bitmap = gmGuiHelpers.file2scaled_image(filename = fname, height = 100))
 

@@ -491,7 +491,7 @@ class cAU_VaccV01Panel(wx.Panel):
 	for v, i  in zip( vv, range(len(vv))):
 		for f, j in zip(fields,range(len(fields)) ):	
 			if j == 0:
-				l.InsertStringItem( i,  str(v[f])) 
+				l.InsertItem( i,  str(v[f])) 
 			else:
 				l.SetItem(i, j, str(v[f]) )
 	

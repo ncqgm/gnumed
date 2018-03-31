@@ -25,9 +25,9 @@ class wxgDatabaseTranslationEAPnl(wx.ScrolledWindow):
     def __set_properties(self):
         # begin wxGlade: wxgDatabaseTranslationEAPnl.__set_properties
         self.SetScrollRate(10, 10)
-        self._TCTRL_original.SetToolTipString(_("Original string as found in the database. Usually in English."))
-        self._TCTRL_translation.SetToolTipString(_("Enter your translation here."))
-        self._TCTRL_language.SetToolTipString(_("Enter the language code here. You need either the two letter or the four letter ISO code. When entering four letter codes use the format xx_XX, such as de_DE."))
+        self._TCTRL_original.SetToolTip(_("Original string as found in the database. Usually in English."))
+        self._TCTRL_translation.SetToolTip(_("Enter your translation here."))
+        self._TCTRL_language.SetToolTip(_("Enter the language code here. You need either the two letter or the four letter ISO code. When entering four letter codes use the format xx_XX, such as de_DE."))
         # end wxGlade
 
     def __do_layout(self):

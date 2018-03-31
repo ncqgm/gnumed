@@ -25,7 +25,7 @@ class wxgXdtListPnl(wx.ScrolledWindow):
         # begin wxGlade: wxgXdtListPnl.__set_properties
         self.SetScrollRate(10, 10)
         self._LCTRL_xdt.SetFocus()
-        self._BTN_load.SetToolTipString(_("Load an xDT file."))
+        self._BTN_load.SetToolTip(_("Load an xDT file."))
         self._BTN_load.SetDefault()
         # end wxGlade
 

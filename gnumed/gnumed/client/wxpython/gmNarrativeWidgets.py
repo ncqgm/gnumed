@@ -160,10 +160,10 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 		self._splitter_main.SetSashGravity(0.5)
 		self._splitter_left.SetSashGravity(0.5)
 
-		splitter_size = self._splitter_main.GetSizeTuple()[0]
+		splitter_size = self._splitter_main.GetSize()[0]
 		self._splitter_main.SetSashPosition(splitter_size * 3 // 10, True)
 
-		splitter_size = self._splitter_left.GetSizeTuple()[1]
+		splitter_size = self._splitter_left.GetSize()[1]
 		self._splitter_left.SetSashPosition(splitter_size * 6 // 20, True)
 
 	#--------------------------------------------------------
@@ -186,7 +186,7 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 		self._LCTRL_active_problems.set_string_items()
 
 		self._TCTRL_recent_notes.SetValue(u'')
-		self._SZR_recent_notes_staticbox.SetLabel(_('Most recent notes on selected problem'))
+		self._SZR_recent_notes.StaticBox.SetLabel(_('Most recent notes on selected problem'))
 
 		self._PNL_editors.patient = None
 	#--------------------------------------------------------
@@ -244,9 +244,9 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 			self._CHBOX_irrelevant_issues.IsChecked()
 		)
 		if showing_potential_problems:
-			self._SZR_problem_list_staticbox.SetLabel(_('%s (active+potential) problems') % len(list_items))
+			self._SZR_problem_list.SetLabel(_('%s (active+potential) problems') % len(list_items))
 		else:
-			self._SZR_problem_list_staticbox.SetLabel(_('%s active problems') % len(list_items))
+			self._SZR_problem_list.SetLabel(_('%s active problems') % len(list_items))
 
 		return True
 	#--------------------------------------------------------
@@ -351,7 +351,7 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 
 		self._TCTRL_recent_notes.SetValue(txt)
 		self._TCTRL_recent_notes.ShowPosition(self._TCTRL_recent_notes.GetLastPosition())
-		self._SZR_recent_notes_staticbox.SetLabel(_('Most recent info on %s%s%s') % (
+		self._SZR_recent_notes.StaticBox.SetLabel(_('Most recent info on %s%s%s') % (
 			gmTools.u_left_double_angle_quote,
 			caption,
 			gmTools.u_right_double_angle_quote
@@ -853,7 +853,7 @@ class cSoapNoteInputNotebook(wx.Notebook):
 				continue
 
 		# - or add new editor
-		new_page = gmProgressNotesEAWidgets.cProgressNotesEAPnl(parent = self, id = -1, problem = problem_to_add)
+		new_page = gmProgressNotesEAWidgets.cProgressNotesEAPnl(parent = self, problem = problem_to_add)
 		result = self.AddPage (
 			page = new_page,
 			text = label,
@@ -996,7 +996,7 @@ class cSimpleSoapPluginPnl(wxgSimpleSoapPluginPnl.wxgSimpleSoapPluginPnl, gmRege
 		self._LCTRL_problems.item_tooltip_callback = self._on_get_problem_tooltip
 
 		self._splitter_main.SetSashGravity(0.5)
-		splitter_width = self._splitter_main.GetSizeTuple()[0]
+		splitter_width = self._splitter_main.GetSize()[0]
 		self._splitter_main.SetSashPosition(splitter_width // 2, True)
 
 		self._TCTRL_soap.Disable()

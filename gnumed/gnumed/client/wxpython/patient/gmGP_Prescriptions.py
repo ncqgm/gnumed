@@ -155,12 +155,12 @@ class PrescriptionPanel (wxPanel, PatientHolder):
 		#-------------------------------------------------------------
 		#loop through the scriptdata array and add to the list control
 		#note the different syntax for the first coloum of each row
-		#i.e. here > self.list_script.InsertStringItem(x, data[0])!!
+		#i.e. here > self.list_script.InsertItem(x, data[0])!!
 		#-------------------------------------------------------------
 		items = scriptdata.items()
 		for x in range(len(items)):
 			key, data = items[x]
-			self.list_script.InsertStringItem(x, data[0])
+			self.list_script.InsertItem(x, data[0])
 			self.list_script.SetItem(x, 1, data[1])
 			self.list_script.SetItem(x, 2, data[2])
 			self.list_script.SetItem(x, 3, data[3])

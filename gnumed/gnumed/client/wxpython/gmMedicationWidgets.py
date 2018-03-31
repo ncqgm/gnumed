@@ -1969,13 +1969,13 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 			self._CHCE_grouping.Append(option['label'], option['data'])
 		self._CHCE_grouping.SetSelection(0)
 
-		tt = self._BTN_heart.GetToolTipString()
+		tt = self._BTN_heart.GetToolTipText()
 		try:
 			self._BTN_heart.SetToolTip(tt % gmMedication.URL_long_qt)
 		except TypeError:
 			_log.exception(u'translation error: %s', tt)
 
-		tt = self._BTN_kidneys.GetToolTipString()
+		tt = self._BTN_kidneys.GetToolTipText()
 		try:
 			self._BTN_kidneys.SetToolTip(tt % gmMedication.URL_renal_insufficiency)
 		except TypeError:

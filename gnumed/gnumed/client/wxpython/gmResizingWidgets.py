@@ -312,7 +312,7 @@ class cResizingWindow(wx.ScrolledWindow):
 #		# retire previous pick list
 #		if self.__list and self.__list.alive:
 #			self.__list.Destroy()
-		our_width, our_height = self.GetSizeTuple()
+		our_width, our_height = self.GetSize()
 		char_height = self.GetCharHeight()
 		# make list 9 lines of height char_height high
 		list_height = char_height * 9
@@ -547,7 +547,7 @@ class cResizingSTC(wx.stc.StyledTextCtrl):
 		# do we need to resize ?
 		line_height = self.TextHeight(0)
 		true_txt_height = (self.PointFromPosition(last_char_pos).y - self.PointFromPosition(0).y) + line_height
-		x, visible_height = self.GetSizeTuple()
+		x, visible_height = self.GetSize()
 		if visible_height < true_txt_height:
 #			print "line:", line_height
 #			print "before resize: too small"
@@ -558,7 +558,7 @@ class cResizingSTC(wx.stc.StyledTextCtrl):
 			target_height = visible_height + (n * line_height)
 			self.__parent.ReSize(self, target_height)
 #			print "after resize"
-			x, y = self.GetSizeTuple()
+			x, y = self.GetSize()
 #			print "visible height", y
 
 		if ((visible_height - line_height) > true_txt_height):
@@ -571,7 +571,7 @@ class cResizingSTC(wx.stc.StyledTextCtrl):
 			target_height = visible_height - line_height
 			self.__parent.ReSize(self, target_height)
 #			print "after resize"
-			x, y = self.GetSizeTuple()
+			x, y = self.GetSize()
 #			print "visible height", y
 
 		# is currently relevant term a keyword for popping up an edit area or something ?
@@ -764,7 +764,7 @@ class cResizingSTC(wx.stc.StyledTextCtrl):
 	#------------------------------------------------
 	def __get_best_popup_geom(self):
 #		print "calculating optimal popup geometry"
-		parent_width, parent_height = self.__parent.GetSizeTuple()
+		parent_width, parent_height = self.__parent.GetSize()
 #		print "parent size is %sx%s pixel" % (parent_width, parent_height)
 		# FIXME: this should be gotten from ourselves, not the parent, but how ?
 		parent_char_height = self.__parent.GetCharHeight()

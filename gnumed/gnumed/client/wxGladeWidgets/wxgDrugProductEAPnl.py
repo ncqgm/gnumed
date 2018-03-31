@@ -40,14 +40,14 @@ class wxgDrugProductEAPnl(wx.ScrolledWindow):
         # begin wxGlade: wxgDrugProductEAPnl.__set_properties
         self.SetScrollRate(10, 10)
         self._CHBOX_is_fake.SetForegroundColour(wx.Colour(255, 127, 0))
-        self._CHBOX_is_fake.SetToolTipString(_("Mark as a fake: use if product does not commercially exist and you want to create a \"generic\" product."))
+        self._CHBOX_is_fake.SetToolTip(_("Mark as a fake: use if product does not commercially exist and you want to create a \"generic\" product."))
         self._TCTRL_components.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_BACKGROUND))
-        self._BTN_manage_components.SetToolTipString(_("Manage the components of this drug."))
-        self._HL_atc_list.SetToolTipString(_("Browse ATC list."))
+        self._BTN_manage_components.SetToolTip(_("Manage the components of this drug."))
+        self._HL_atc_list.SetToolTip(_("Browse ATC list."))
         self._TCTRL_external_code.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_BACKGROUND))
-        self._TCTRL_external_code.SetToolTipString(_("An external code for this drug.\n\nIn most cases either a national drug identifier or the ID of this drug in an external database.\n\nIn any case, GNUmed will never actively do anything with this code apart from display and making it available when passing this drug to external applications."))
+        self._TCTRL_external_code.SetToolTip(_("An external code for this drug.\n\nIn most cases either a national drug identifier or the ID of this drug in an external database.\n\nIn any case, GNUmed will never actively do anything with this code apart from display and making it available when passing this drug to external applications."))
         self._PRW_external_code_type.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_BACKGROUND))
-        self._PRW_external_code_type.SetToolTipString(_("The type of the external code of this drug, if any."))
+        self._PRW_external_code_type.SetToolTip(_("The type of the external code of this drug, if any."))
         # end wxGlade
 
     def __do_layout(self):

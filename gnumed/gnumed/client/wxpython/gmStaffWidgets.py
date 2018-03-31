@@ -84,7 +84,7 @@ class cEditStaffListDlg(wxgEditStaffListDlg.wxgEditStaffListDlg):
 		staff_list = gmStaff.get_staff_list()
 		pos = len(staff_list) + 1
 		for staff in staff_list:
-			row_num = self._LCTRL_staff.InsertStringItem(pos, label=staff['short_alias'])
+			row_num = self._LCTRL_staff.InsertItem(pos, label=staff['short_alias'])
 			self._LCTRL_staff.SetItem(index = row_num, column = 1, label = staff['db_user'])
 			self._LCTRL_staff.SetItem(index = row_num, column = 2, label = staff['l10n_role'])
 			title = gmTools.coalesce(staff['title'], '')

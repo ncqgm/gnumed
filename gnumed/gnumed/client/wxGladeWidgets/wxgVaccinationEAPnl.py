@@ -44,19 +44,19 @@ class wxgVaccinationEAPnl(wx.ScrolledWindow):
     def __set_properties(self):
         # begin wxGlade: wxgVaccinationEAPnl.__set_properties
         self.SetScrollRate(10, 10)
-        self._PRW_date_given.SetToolTipString(_("Mandatory: When was the vaccination given to the patient ?"))
-        self._CHBOX_anamnestic.SetToolTipString(_("Check this if - within the SOAP classification - you want to mark the entry as Subjective rather than Plan."))
-        self._PRW_vaccine.SetToolTipString(_("The vaccine used, if known.\n\nIf unknown check off the indications which were vaccinated against."))
-        self._BTN_add_vaccine.SetToolTipString(_("Add a vaccine to GNUmed."))
+        self._PRW_date_given.SetToolTip(_("Mandatory: When was the vaccination given to the patient ?"))
+        self._CHBOX_anamnestic.SetToolTip(_("Check this if - within the SOAP classification - you want to mark the entry as Subjective rather than Plan."))
+        self._PRW_vaccine.SetToolTip(_("The vaccine used, if known.\n\nIf unknown check off the indications which were vaccinated against."))
+        self._BTN_add_vaccine.SetToolTip(_("Add a vaccine to GNUmed."))
         self._TCTRL_indications.Enable(False)
-        self._PRW_batch.SetToolTipString(_("The batch number of the vaccine."))
-        self._PRW_episode.SetToolTipString(_("Select an episode to file this vaccination under.\n\nIf you do not select one it will be filed under \"prevention\".\n\nAlternatively, type the name for a new episode."))
-        self._PRW_site.SetToolTipString(_("The injection site, if known."))
-        self._PRW_provider.SetToolTipString(_("The provider who administered the vaccine, if known."))
-        self._PRW_reaction.SetToolTipString(_("Record any adverse reactions to this vaccine."))
-        self._BTN_report.SetToolTipString(_("Report this event as an adverse drug reaction."))
+        self._PRW_batch.SetToolTip(_("The batch number of the vaccine."))
+        self._PRW_episode.SetToolTip(_("Select an episode to file this vaccination under.\n\nIf you do not select one it will be filed under \"prevention\".\n\nAlternatively, type the name for a new episode."))
+        self._PRW_site.SetToolTip(_("The injection site, if known."))
+        self._PRW_provider.SetToolTip(_("The provider who administered the vaccine, if known."))
+        self._PRW_reaction.SetToolTip(_("Record any adverse reactions to this vaccine."))
+        self._BTN_report.SetToolTip(_("Report this event as an adverse drug reaction."))
         self._BTN_report.Enable(False)
-        self._TCTRL_comment.SetToolTipString(_("Any comment you may wish to relate to this vaccination."))
+        self._TCTRL_comment.SetToolTip(_("Any comment you may wish to relate to this vaccination."))
         # end wxGlade
 
     def __do_layout(self):

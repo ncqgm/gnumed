@@ -215,7 +215,7 @@ class cSelectPersonFromListDlg(wxgSelectPersonFromListDlg.wxgSelectPersonFromLis
 			return False
 
 		for person in persons:
-			row_num = self._LCTRL_persons.InsertStringItem(pos, label = gmTools.coalesce(person['title'], person['lastnames'], u'%s, %%s' % person['lastnames']))
+			row_num = self._LCTRL_persons.InsertItem(pos, label = gmTools.coalesce(person['title'], person['lastnames'], u'%s, %%s' % person['lastnames']))
 			self._LCTRL_persons.SetItem(index = row_num, column = 1, label = person['firstnames'])
 			self._LCTRL_persons.SetItem(index = row_num, column = 2, label = person.get_formatted_dob(format = '%Y %b %d', encoding = 'utf8'))
 			self._LCTRL_persons.SetItem(index = row_num, column = 3, label = gmTools.coalesce(person['l10n_gender'], u'?'))
@@ -307,7 +307,7 @@ class cSelectPersonDTOFromListDlg(wxgSelectPersonDTOFromListDlg.wxgSelectPersonD
 			return False
 
 		for rec in dtos:
-			row_num = self._LCTRL_persons.InsertStringItem(pos, label = rec['source'])
+			row_num = self._LCTRL_persons.InsertItem(pos, label = rec['source'])
 			dto = rec['dto']
 			self._LCTRL_persons.SetItem(index = row_num, column = 1, label = dto.lastnames)
 			self._LCTRL_persons.SetItem(index = row_num, column = 2, label = dto.firstnames)

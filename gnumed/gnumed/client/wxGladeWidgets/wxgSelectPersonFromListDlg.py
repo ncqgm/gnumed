@@ -37,13 +37,13 @@ class wxgSelectPersonFromListDlg(wx.Dialog):
 		# begin wxGlade: wxgSelectPersonFromListDlg.__set_properties
 		self.SetTitle(_("Select person from list"))
 		self.SetSize((600, 400))
-		self._LCTRL_persons.SetToolTipString(_("Displays the list of persons to select from."))
+		self._LCTRL_persons.SetToolTip(_("Displays the list of persons to select from."))
 		self._LCTRL_persons.SetFocus()
-		self._BTN_new_patient.SetToolTipString(_("Create a new patient."))
-		self._BTN_select.SetToolTipString(_("Select the person highlighted in the list above."))
+		self._BTN_new_patient.SetToolTip(_("Create a new patient."))
+		self._BTN_select.SetToolTip(_("Select the person highlighted in the list above."))
 		self._BTN_select.Enable(False)
 		self._BTN_select.SetDefault()
-		self._BTN_cancel.SetToolTipString(_("Cancel person selection."))
+		self._BTN_cancel.SetToolTip(_("Cancel person selection."))
 		# end wxGlade
 
 	def __do_layout(self):

@@ -25,9 +25,9 @@ class wxgCommChannelEditAreaPnl(wx.ScrolledWindow):
     def __set_properties(self):
         # begin wxGlade: wxgCommChannelEditAreaPnl.__set_properties
         self.SetScrollRate(10, 10)
-        self._TCTRL_url.SetToolTipString(_("Enter the address or number for this communications channel here."))
-        self._TCTRL_comment.SetToolTipString(_("A comment on this communications channel."))
-        self._CHBOX_confidential.SetToolTipString(_("Check this if the communications channel is to be treated confidentially."))
+        self._TCTRL_url.SetToolTip(_("Enter the address or number for this communications channel here."))
+        self._TCTRL_comment.SetToolTip(_("A comment on this communications channel."))
+        self._CHBOX_confidential.SetToolTip(_("Check this if the communications channel is to be treated confidentially."))
         # end wxGlade
 
     def __do_layout(self):

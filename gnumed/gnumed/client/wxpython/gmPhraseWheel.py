@@ -84,7 +84,7 @@ class cPhraseWheelListCtrl(wx.ListCtrl, listmixins.ListCtrlAutoWidthMixin):
 		self.__data = items
 		pos = len(items) + 1
 		for item in items:
-			row_num = self.InsertStringItem(pos, label=item['list_label'])
+			row_num = self.InsertItem(pos, label=item['list_label'])
 	#--------------------------------------------------------
 	def GetSelectedItemData(self):
 		sel_idx = self.GetFirstSelected()
@@ -715,7 +715,7 @@ class cPhraseWheelBase(wx.TextCtrl):
 
 		#self.__non_edit_font = self.GetFont()
 		#edit_font = self.GetFont()
-		edit_font = wx.FontFromNativeInfo(self.__non_edit_font.NativeFontInfo)
+		edit_font = wx.Font(self.__non_edit_font.GetNativeFontInfo())
 		edit_font.SetPointSize(pointSize = edit_font.GetPointSize() + 1)
 		self.SetFont(edit_font)
 		self.Refresh()

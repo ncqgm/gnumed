@@ -105,12 +105,12 @@ class RequestsPanel (wxPanel, PatientHolder):
 		#-------------------------------------------------------------
 		#loop through the requestdata array and add to the list control
 		#note the different syntax for the first coloum of each row
-		#i.e. here > self.list_requests.InsertStringItem(x, data[0])!!
+		#i.e. here > self.list_requests.InsertItem(x, data[0])!!
 		#-------------------------------------------------------------
 		items = requestdata.items()
 		for x in range(len(items)):
 			key, data = items[x]
-			self.list_requests.InsertStringItem(x, data[0])
+			self.list_requests.InsertItem(x, data[0])
 			self.list_requests.SetItem(x, 1, data[1])
 			self.list_requests.SetItemData(x, key)
 		self.list_requests.SetColumnWidth(0, wxLIST_AUTOSIZE)

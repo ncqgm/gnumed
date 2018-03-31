@@ -50,13 +50,13 @@ class wxgDynamicHintListDlg(wx.Dialog):
 		self._TCTRL_hint.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_BACKGROUND))
 		self._TCTRL_source.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_BACKGROUND))
 		self._URL_info.Enable(False)
-		self._TCTRL_rationale.SetToolTipString(_("Enter a rationale for suppressing this hint."))
+		self._TCTRL_rationale.SetToolTip(_("Enter a rationale for suppressing this hint."))
 		self._TCTRL_previous_rationale.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_BACKGROUND))
-		self._BTN_OK.SetToolTipString(_("Dismiss this hint for now."))
+		self._BTN_OK.SetToolTip(_("Dismiss this hint for now."))
 		self._BTN_OK.SetFocus()
-		self._BTN_suppress.SetToolTipString(_("Suppress this hint in this patient (needs a rationale)."))
+		self._BTN_suppress.SetToolTip(_("Suppress this hint in this patient (needs a rationale)."))
 		self._BTN_suppress.Enable(False)
-		self._BTN_manage_hints.SetToolTipString(_("Manage dynamic hints."))
+		self._BTN_manage_hints.SetToolTip(_("Manage dynamic hints."))
 		# end wxGlade
 
 	def __do_layout(self):

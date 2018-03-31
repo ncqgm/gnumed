@@ -36,16 +36,16 @@ class wxgVaccineEAPnl(wx.ScrolledWindow):
     def __set_properties(self):
         # begin wxGlade: wxgVaccineEAPnl.__set_properties
         self.SetScrollRate(10, 10)
-        self._CHBOX_fake.SetToolTipString(_("Whether this is an actual product or a generic, fake vaccine."))
-        self._PRW_route.SetToolTipString(_("The route by which this vaccine is to be administered.\n\nTypically one of i.m., s.c., or orally."))
+        self._CHBOX_fake.SetToolTip(_("Whether this is an actual product or a generic, fake vaccine."))
+        self._PRW_route.SetToolTip(_("The route by which this vaccine is to be administered.\n\nTypically one of i.m., s.c., or orally."))
         self._PRW_route.Enable(False)
         self._PRW_route.Hide()
-        self._CHBOX_live.SetToolTipString(_("Check if this is a live attenuated vaccine."))
+        self._CHBOX_live.SetToolTip(_("Check if this is a live attenuated vaccine."))
         self._TCTRL_indications.Enable(False)
-        self._PRW_atc.SetToolTipString(_("The ATC for this vaccine."))
-        self._PRW_age_min.SetToolTipString(_("The minimum age at which this vaccine should be given."))
-        self._PRW_age_max.SetToolTipString(_("The maximum age at which this vaccine should be given."))
-        self._TCTRL_comment.SetToolTipString(_("Any comment you may wish to relate to this vaccine."))
+        self._PRW_atc.SetToolTip(_("The ATC for this vaccine."))
+        self._PRW_age_min.SetToolTip(_("The minimum age at which this vaccine should be given."))
+        self._PRW_age_max.SetToolTip(_("The maximum age at which this vaccine should be given."))
+        self._TCTRL_comment.SetToolTip(_("Any comment you may wish to relate to this vaccine."))
         # end wxGlade
 
     def __do_layout(self):

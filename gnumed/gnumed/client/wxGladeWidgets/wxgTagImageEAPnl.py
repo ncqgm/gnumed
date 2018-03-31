@@ -28,11 +28,11 @@ class wxgTagImageEAPnl(wx.ScrolledWindow):
     def __set_properties(self):
         # begin wxGlade: wxgTagImageEAPnl.__set_properties
         self.SetScrollRate(10, 10)
-        self._TCTRL_description.SetToolTipString(_("A name for the tag.\n\nNote that there cannot be two tags with the same name."))
-        self._TCTRL_filename.SetToolTipString(_("An example file name for this image. Mainly used for deriving a suitable file extension."))
+        self._TCTRL_description.SetToolTip(_("A name for the tag.\n\nNote that there cannot be two tags with the same name."))
+        self._TCTRL_filename.SetToolTip(_("An example file name for this image. Mainly used for deriving a suitable file extension."))
         self._BMP_image.SetMinSize((100, 100))
-        self._BMP_image.SetToolTipString(_("The image to use for the tag.\n\nDo not use a big image because the tag will be downscaled anyway."))
-        self._BTN_pick_image.SetToolTipString(_("Pick the file from which to load the tag image."))
+        self._BMP_image.SetToolTip(_("The image to use for the tag.\n\nDo not use a big image because the tag will be downscaled anyway."))
+        self._BTN_pick_image.SetToolTip(_("Pick the file from which to load the tag image."))
         # end wxGlade
 
     def __do_layout(self):

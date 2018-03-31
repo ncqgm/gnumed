@@ -318,7 +318,7 @@ class cAllergyManagerDlg(wxgAllergyManagerDlg.wxgAllergyManagerDlg):
 			emr.allergy_state = 1
 
 			for allergy in allergies:
-				row_idx = self._LCTRL_allergies.InsertStringItem(no_of_allergies, label = allergy['l10n_type'])
+				row_idx = self._LCTRL_allergies.InsertItem(no_of_allergies, label = allergy['l10n_type'])
 				if allergy['definite']:
 					label = _('definite')
 				else:
@@ -528,7 +528,7 @@ class cAllergyPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 			return False
 		for list_line in range(len(allergies)):
 			allg = allergies[list_line]
-			list_line = self.LCTRL_allergies.InsertStringItem(list_line, allg['l10n_type'])
+			list_line = self.LCTRL_allergies.InsertItem(list_line, allg['l10n_type'])
 			# FIXME: check with Richard design specs
 			if allg['definite']:
 				self.LCTRL_allergies.SetItem(list_line, 1, _('definite'))

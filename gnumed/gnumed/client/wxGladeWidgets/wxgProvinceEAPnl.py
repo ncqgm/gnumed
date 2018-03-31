@@ -28,7 +28,7 @@ class wxgProvinceEAPnl(wx.ScrolledWindow):
     def __set_properties(self):
         # begin wxGlade: wxgProvinceEAPnl.__set_properties
         self.SetScrollRate(10, 10)
-        self._TCTRL_code.SetToolTipString(_("A code for this region."))
+        self._TCTRL_code.SetToolTip(_("A code for this region."))
         # end wxGlade
 
     def __do_layout(self):

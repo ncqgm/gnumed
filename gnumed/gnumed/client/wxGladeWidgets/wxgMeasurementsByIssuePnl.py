@@ -29,7 +29,7 @@ class wxgMeasurementsByIssuePnl(wx.Panel):
 
 	def __set_properties(self):
 		# begin wxGlade: wxgMeasurementsByIssuePnl.__set_properties
-		self._TCTRL_measurements.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_BACKGROUND))
+		self._TCTRL_measurements.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_BACKGROUND))
 		# end wxGlade
 
 	def __do_layout(self):

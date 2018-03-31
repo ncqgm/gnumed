@@ -24,8 +24,8 @@ class wxgExternalIDEditAreaPnl(wx.ScrolledWindow):
     def __set_properties(self):
         # begin wxGlade: wxgExternalIDEditAreaPnl.__set_properties
         self.SetScrollRate(10, 10)
-        self._TCTRL_value.SetToolTipString(_("Enter the actual ID (number, identifier, ...) here."))
-        self._TCTRL_comment.SetToolTipString(_("Enter a comment on this external ID."))
+        self._TCTRL_value.SetToolTip(_("Enter the actual ID (number, identifier, ...) here."))
+        self._TCTRL_comment.SetToolTip(_("Enter a comment on this external ID."))
         # end wxGlade
 
     def __do_layout(self):

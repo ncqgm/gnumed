@@ -203,8 +203,8 @@ class cSoapSTC(cUnicodeInsertion_TextCtrlMixin, gmKeywordExpansionWidgets.cKeywo
 		#self.SetWhitespaceForeground(1, a_color)					# 1 = override lexer
 
 		# caret handling
-		#self.SetCaretLineBack('light goldenrod yellow')
-		self.SetCaretLineBack('khaki')
+		#self.SetCaretLineBackground('light goldenrod yellow')
+		self.SetCaretLineBackground('khaki')
 		self.SetCaretLineVisible(1)
 
 		# margins

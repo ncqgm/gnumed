@@ -1210,8 +1210,6 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 	# the latter are ordered in initial row number order
 	# at set_data() time
 
-	map_item_idx2data_idx = wx.ListCtrl.GetItemData
-
 	sort_order_tags = {
 		True: u' [\u03b1\u0391 \u2192 \u03c9\u03A9]',
 		False: u' [\u03c9\u03A9 \u2192 \u03b1\u0391]'
@@ -1220,6 +1218,7 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 	def __init__(self, *args, **kwargs):
 
 		self.debug = None
+		self.map_item_idx2data_idx = self.GetItemData
 
 		try:
 			kwargs['style'] = kwargs['style'] | wx.LC_REPORT
@@ -1503,13 +1502,6 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 		return res
 
 	#------------------------------------------------------------
-	def GetSizeTuple(self, *args, **kwargs):
-		res = super(cReportListCtrl, self).GetSizeTuple(*args, **kwargs)
-		kwargs['sizing_function_result'] = res
-		self.__log_sizing(sys._getframe().f_code.co_name, *args, **kwargs)
-		return res
-
-	#------------------------------------------------------------
 	def GetVirtualSize(self, *args, **kwargs):
 		res = super(cReportListCtrl, self).GetVirtualSize(*args, **kwargs)
 		kwargs['sizing_function_result'] = res
@@ -1646,14 +1638,14 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 				# cannot use errors='replace' since then
 				# None/ints/unicode strings fail to get encoded
 				col_val = unicode(item[0])
-				row_num = self.InsertStringItem(index = sys.maxint, label = col_val)
+				row_num = self.InsertItem(index = sys.maxint, label = col_val)
 				for col_num in range(1, min(self.GetColumnCount(), len(item))):
 					col_val = unicode(item[col_num])
 					self.SetItem(index = row_num, column = col_num, label = col_val)
 			else:
 				# cannot use errors='replace' since then None/ints/unicode strings fails to get encoded
 				col_val = unicode(item)
-				row_num = self.InsertStringItem(index = sys.maxint, label = col_val)
+				row_num = self.InsertItem(index = sys.maxint, label = col_val)
 
 		if reshow:
 			if self.ItemCount > 0:

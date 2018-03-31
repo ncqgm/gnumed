@@ -42,16 +42,16 @@ class wxgFamilyHistoryEAPnl(wx.ScrolledWindow):
     def __set_properties(self):
         # begin wxGlade: wxgFamilyHistoryEAPnl.__set_properties
         self.SetScrollRate(10, 10)
-        self._PRW_relationship.SetToolTipString(_("Required: Enter or select the type of relationship between the patient and this relative."))
-        self._PRW_condition.SetToolTipString(_("Required: Enter or select the name of the condition the relative suffered from."))
-        self._PRW_codes.SetToolTipString(_("Select codes relevant to this family history items."))
-        self._TCTRL_age_of_onset.SetToolTipString(_("Optional: Age of onset of the condition in the relative."))
-        self._PRW_died_of_this.SetToolTipString(_("Optional: Whether this condition contributed to the death of the patient."))
-        self._PRW_age_of_death.SetToolTipString(_("Optional: Enter the age of death of the relative."))
-        self._PRW_episode.SetToolTipString(_("Optional: The episode under which this family history item became known or to which it is relevant.\n\nIf blank: Will be added to an unattributed episode \"Family History\"."))
-        self._TCTRL_name.SetToolTipString(_("Optional: Enter the name of the relative."))
-        self._PRW_dob.SetToolTipString(_("Optional: Enter the date of birth of the relative."))
-        self._TCTRL_comment.SetToolTipString(_("Optional: A comment on this family history item."))
+        self._PRW_relationship.SetToolTip(_("Required: Enter or select the type of relationship between the patient and this relative."))
+        self._PRW_condition.SetToolTip(_("Required: Enter or select the name of the condition the relative suffered from."))
+        self._PRW_codes.SetToolTip(_("Select codes relevant to this family history items."))
+        self._TCTRL_age_of_onset.SetToolTip(_("Optional: Age of onset of the condition in the relative."))
+        self._PRW_died_of_this.SetToolTip(_("Optional: Whether this condition contributed to the death of the patient."))
+        self._PRW_age_of_death.SetToolTip(_("Optional: Enter the age of death of the relative."))
+        self._PRW_episode.SetToolTip(_("Optional: The episode under which this family history item became known or to which it is relevant.\n\nIf blank: Will be added to an unattributed episode \"Family History\"."))
+        self._TCTRL_name.SetToolTip(_("Optional: Enter the name of the relative."))
+        self._PRW_dob.SetToolTip(_("Optional: Enter the date of birth of the relative."))
+        self._TCTRL_comment.SetToolTip(_("Optional: A comment on this family history item."))
         # end wxGlade
 
     def __do_layout(self):

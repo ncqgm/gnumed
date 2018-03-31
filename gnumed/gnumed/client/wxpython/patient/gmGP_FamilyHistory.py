@@ -91,13 +91,13 @@ class FamilyHistoryPanel(wxPanel, PatientHolder):
 		#-------------------------------------------------------------
 		#loop through the familymemberdata array and add to the list control
 		#note the different syntax for the first coloum of each row
-		#i.e. here > self.family_members_list.InsertStringItem(x, data[0])!!
+		#i.e. here > self.family_members_list.InsertItem(x, data[0])!!
 		#-------------------------------------------------------------
 		items = familymemberdata.items()
 		for x in range(len(items)):
 			key, data = items[x]
 			#gmLog.gmDefLog.Log (gmLog.lData, items[x])
-			self.family_members_list.InsertStringItem(x, data[0])
+			self.family_members_list.InsertItem(x, data[0])
 			self.family_members_list.SetItem(x, 1, data[1])
 			self.family_members_list.SetItemData(x, key)
 		self.family_members_list.SetColumnWidth(0, wxLIST_AUTOSIZE)
@@ -109,13 +109,13 @@ class FamilyHistoryPanel(wxPanel, PatientHolder):
 		#-------------------------------------------------------------
 		#loop through the familymemberdata array and add to the list control
 		#note the different syntax for the first coloum of each row
-		#i.e. here > self.family_members_list.InsertStringItem(x, data[0])!!
+		#i.e. here > self.family_members_list.InsertItem(x, data[0])!!
 		#-------------------------------------------------------------
 		items = membersconditionsdata.items()
 		for x in range(len(items)):
 			key, data = items[x]
 			#gmLog.gmDefLog.Log (gmLog.lData, items[x])
-			self.member_conditions_list.InsertStringItem(x, data[0])
+			self.member_conditions_list.InsertItem(x, data[0])
 			self.member_conditions_list.SetItem(x, 1, data[1])
 			self.member_conditions_list.SetItemData(x, key)
 

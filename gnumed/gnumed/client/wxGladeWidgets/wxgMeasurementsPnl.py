@@ -58,16 +58,16 @@ class wxgMeasurementsPnl(wx.Panel):
 		# begin wxGlade: wxgMeasurementsPnl.__set_properties
 		self._TCTRL_panel_comment.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_BACKGROUND))
 		self._TCTRL_panel_comment.Enable(False)
-		self._BTN_manage_panels.SetToolTipString(_("Manage test panels."))
-		self._BTN_display_mode.SetToolTipString(_("Switch between modes of the full results display."))
+		self._BTN_manage_panels.SetToolTip(_("Manage test panels."))
+		self._BTN_display_mode.SetToolTip(_("Switch between modes of the full results display."))
 		self._PNL_results_all_listed.Hide()
-		self._BTN_manage_types.SetToolTipString(_("Manage test types."))
-		self._BTN_add.SetToolTipString(_("Add measurments."))
-		self._BTN_list.SetToolTipString(_("Show all measurements in a chronological list."))
-		self._BTN_select.SetToolTipString(_("Select results according to your choice on the right.\n\nThis will override any previous selection.\n\nNote that you can also select cells, rows, or columns manually within the table."))
-		self._RBTN_my_unsigned.SetToolTipString(_("Apply selection to those unsigned results for which you are to take responsibility."))
-		self._RBTN_all_unsigned.SetToolTipString(_("Apply selection to all unsigned results."))
-		self._BTN_review.SetToolTipString(_("Invoke actions on the selected measurements."))
+		self._BTN_manage_types.SetToolTip(_("Manage test types."))
+		self._BTN_add.SetToolTip(_("Add measurments."))
+		self._BTN_list.SetToolTip(_("Show all measurements in a chronological list."))
+		self._BTN_select.SetToolTip(_("Select results according to your choice on the right.\n\nThis will override any previous selection.\n\nNote that you can also select cells, rows, or columns manually within the table."))
+		self._RBTN_my_unsigned.SetToolTip(_("Apply selection to those unsigned results for which you are to take responsibility."))
+		self._RBTN_all_unsigned.SetToolTip(_("Apply selection to all unsigned results."))
+		self._BTN_review.SetToolTip(_("Invoke actions on the selected measurements."))
 		# end wxGlade
 
 	def __do_layout(self):

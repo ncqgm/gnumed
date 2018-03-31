@@ -34,12 +34,12 @@ class wxgIdentityEAPnl(wx.ScrolledWindow):
     def __set_properties(self):
         # begin wxGlade: wxgIdentityEAPnl.__set_properties
         self.SetScrollRate(10, 10)
-        self._PRW_dob.SetToolTipString(_("The date of birth for this person."))
-        self._CHBOX_estimated_dob.SetToolTipString(_("Check this if the date of birth is estimated rather than known precisely."))
-        self._TCTRL_tob.SetToolTipString(_("The time of birth if known."))
-        self._PRW_dod.SetToolTipString(_("The date of death."))
+        self._PRW_dob.SetToolTip(_("The date of birth for this person."))
+        self._CHBOX_estimated_dob.SetToolTip(_("Check this if the date of birth is estimated rather than known precisely."))
+        self._TCTRL_tob.SetToolTip(_("The time of birth if known."))
+        self._PRW_dod.SetToolTip(_("The date of death."))
         self._PRW_ethnicity.Enable(False)
-        self._TCTRL_comment.SetToolTipString(_("A free-text comment on this person."))
+        self._TCTRL_comment.SetToolTip(_("A free-text comment on this person."))
         # end wxGlade
 
     def __do_layout(self):

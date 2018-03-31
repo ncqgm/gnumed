@@ -35,12 +35,12 @@ class wxgBillingPluginPnl(wx.ScrolledWindow):
         # begin wxGlade: wxgBillingPluginPnl.__set_properties
         self.SetScrollRate(10, 10)
         self._CHBOX_show_non_invoiced_only.SetValue(1)
-        self._PRW_billable.SetToolTipString(_("Select - by code or part of the description - a billable item to add to the patient."))
-        self._TCTRL_factor.SetToolTipString(_("Modify the factor to apply to the item price."))
+        self._PRW_billable.SetToolTip(_("Select - by code or part of the description - a billable item to add to the patient."))
+        self._TCTRL_factor.SetToolTip(_("Modify the factor to apply to the item price."))
         self._TCTRL_factor.Enable(False)
-        self._TCTRL_details.SetToolTipString(_("Optional: Add a short patient specific comment on this item. Will be shown on the bill."))
+        self._TCTRL_details.SetToolTip(_("Optional: Add a short patient specific comment on this item. Will be shown on the bill."))
         self._TCTRL_details.Enable(False)
-        self._BTN_insert_item.SetToolTipString(_("Add the selected billing item to the patient."))
+        self._BTN_insert_item.SetToolTip(_("Add the selected billing item to the patient."))
         self._BTN_insert_item.Enable(False)
         # end wxGlade
 

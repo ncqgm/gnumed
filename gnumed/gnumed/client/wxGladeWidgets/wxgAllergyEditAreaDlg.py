@@ -28,9 +28,9 @@ class wxgAllergyEditAreaDlg(wx.Dialog):
         # begin wxGlade: wxgAllergyEditAreaDlg.__set_properties
         self.SetTitle(_("Edit Allergy/Intolerance"))
         self.SetSize((400, 190))
-        self._BTN_save.SetToolTipString(_("Save the allergy/intolerance in the database."))
-        self._BTN_clear.SetToolTipString(_("Clear all fields or reset to database values."))
-        self._BTN_cancel.SetToolTipString(_("Cancel editing the allergy/intolerance."))
+        self._BTN_save.SetToolTip(_("Save the allergy/intolerance in the database."))
+        self._BTN_clear.SetToolTip(_("Clear all fields or reset to database values."))
+        self._BTN_cancel.SetToolTip(_("Cancel editing the allergy/intolerance."))
         self._BTN_cancel.SetDefault()
         # end wxGlade
 

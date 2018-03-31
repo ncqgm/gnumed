@@ -48,18 +48,18 @@ class wxgFancySoapEditorPnl(wx.Panel):
 
     def __set_properties(self):
         # begin wxGlade: wxgFancySoapEditorPnl.__set_properties
-        self._TCTRL_rfe.SetToolTipString(_("Also known as the Reason For Encounter/Visit (RFE).\n\nOptionally captures why the consultation takes place.\n\nIt may be due to a patient request or it may be prompted by other reasons. Often initially collected at the front desk and put into a waiting list comment. May turn out to just be a proxy request for why the patient really is here."))
-        self._PRW_rfe_codes.SetToolTipString(_("Codes relevant to the Reason for Encounter\nseparated by \";\"."))
-        self._TCTRL_aoe.SetToolTipString(_("Also known as the Assessment of Encounter/Visit (AOE)\n\nOptionally summarizes the outcome/assessment of the consultation from the doctors point of view.\n\nNote that this summary spans all the problems discussed during this encounter."))
-        self._PRW_aoe_codes.SetToolTipString(_("Codes relevant to the Assessment of Encounter\nseparated by \";\"."))
-        self._BTN_new_editor.SetToolTipString(_("Open a new progress note editor.\n\nThere is a configuration item on whether to allow several new-episode editors at once."))
-        self._BTN_clear_editor.SetToolTipString(_("Clear the editor for the displayed progress note."))
-        self._BTN_discard_editor.SetToolTipString(_("Discard the editor for the displayed progress note."))
-        self._BTN_save_note.SetToolTipString(_("Save the currently displayed progress note under the current encounter."))
-        self._BTN_save_note_under.SetToolTipString(_("Save the currently displayed note into an encounter selected from a list of encounters."))
-        self._BTN_image.SetToolTipString(_("Add a visual progress note for this episode."))
-        self._BTN_save_encounter.SetToolTipString(_("Save the encounter details."))
-        self._BTN_save_all.SetToolTipString(_("Save encounter details and all progress notes."))
+        self._TCTRL_rfe.SetToolTip(_("Also known as the Reason For Encounter/Visit (RFE).\n\nOptionally captures why the consultation takes place.\n\nIt may be due to a patient request or it may be prompted by other reasons. Often initially collected at the front desk and put into a waiting list comment. May turn out to just be a proxy request for why the patient really is here."))
+        self._PRW_rfe_codes.SetToolTip(_("Codes relevant to the Reason for Encounter\nseparated by \";\"."))
+        self._TCTRL_aoe.SetToolTip(_("Also known as the Assessment of Encounter/Visit (AOE)\n\nOptionally summarizes the outcome/assessment of the consultation from the doctors point of view.\n\nNote that this summary spans all the problems discussed during this encounter."))
+        self._PRW_aoe_codes.SetToolTip(_("Codes relevant to the Assessment of Encounter\nseparated by \";\"."))
+        self._BTN_new_editor.SetToolTip(_("Open a new progress note editor.\n\nThere is a configuration item on whether to allow several new-episode editors at once."))
+        self._BTN_clear_editor.SetToolTip(_("Clear the editor for the displayed progress note."))
+        self._BTN_discard_editor.SetToolTip(_("Discard the editor for the displayed progress note."))
+        self._BTN_save_note.SetToolTip(_("Save the currently displayed progress note under the current encounter."))
+        self._BTN_save_note_under.SetToolTip(_("Save the currently displayed note into an encounter selected from a list of encounters."))
+        self._BTN_image.SetToolTip(_("Add a visual progress note for this episode."))
+        self._BTN_save_encounter.SetToolTip(_("Save the encounter details."))
+        self._BTN_save_all.SetToolTip(_("Save encounter details and all progress notes."))
         # end wxGlade
 
     def __do_layout(self):

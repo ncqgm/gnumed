@@ -35,11 +35,11 @@ class wxgOrgUnitAddressPnl(wx.ScrolledWindow):
         # begin wxGlade: wxgOrgUnitAddressPnl.__set_properties
         self.SetScrollRate(10, 10)
         self._LBL_message.Hide()
-        self._PRW_address_searcher.SetToolTipString(_("Search for matches among existing addresses and [Link] a selection, or [Link (a) new] address."))
-        self._BTN_save_picked_address.SetToolTipString(_("Link the selected address with the organizational unit."))
+        self._PRW_address_searcher.SetToolTip(_("Search for matches among existing addresses and [Link] a selection, or [Link (a) new] address."))
+        self._BTN_save_picked_address.SetToolTip(_("Link the selected address with the organizational unit."))
         self._BTN_save_picked_address.Enable(False)
-        self._BTN_add_new_address.SetToolTipString(_("Enter a new address and link it to the organizational unit."))
-        self._BTN_manage_addresses.SetToolTipString(_("Browse all known addresses (loading can be slow)."))
+        self._BTN_add_new_address.SetToolTip(_("Enter a new address and link it to the organizational unit."))
+        self._BTN_manage_addresses.SetToolTip(_("Browse all known addresses (loading can be slow)."))
         # end wxGlade
 
     def __do_layout(self):

@@ -47,11 +47,11 @@ class wxgGenericListManagerPnl(wx.Panel):
 
 	def __set_properties(self):
 		# begin wxGlade: wxgGenericListManagerPnl.__set_properties
-		self._BTN_add.SetToolTipString(_("Add a new item to the list."))
+		self._BTN_add.SetToolTip(_("Add a new item to the list."))
 		self._BTN_add.Enable(False)
-		self._BTN_edit.SetToolTipString(_("Edit the selected item."))
+		self._BTN_edit.SetToolTip(_("Edit the selected item."))
 		self._BTN_edit.Enable(False)
-		self._BTN_remove.SetToolTipString(_("Remove the selected item(s) from the list."))
+		self._BTN_remove.SetToolTip(_("Remove the selected item(s) from the list."))
 		self._BTN_remove.Enable(False)
 		self._BTN_extra_left.Enable(False)
 		self._BTN_extra_left.Hide()

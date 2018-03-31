@@ -55,21 +55,21 @@ class wxgDataMiningPnl(wx.ScrolledWindow):
 	def __set_properties(self):
 		# begin wxGlade: wxgDataMiningPnl.__set_properties
 		self.SetScrollRate(10, 10)
-		self._PRW_report_name.SetToolTipString(_("If you want to save this query into the database for later use you must provide a descriptive label for it here."))
-		self._TCTRL_query.SetToolTipString(_("Enter the SQL commands to run here.\n\nIt doesn't matter whether or not you enter a trailing \";\".\n\nNote that:\n- the query is run in a read-only transaction\n- the result list will be artificially limited to the first 1000 rows\n- you can include a column named \"pk_patient\" to make the result rows activate the corresponding patient on double-clicking\n- by inserting $<ID_ACTIVE_PATIENT>$ you can access the patient ID of the patient active at the time of running the query"))
-		self._BTN_run.SetToolTipString(_("Run the query and present the results below."))
+		self._PRW_report_name.SetToolTip(_("If you want to save this query into the database for later use you must provide a descriptive label for it here."))
+		self._TCTRL_query.SetToolTip(_("Enter the SQL commands to run here.\n\nIt doesn't matter whether or not you enter a trailing \";\".\n\nNote that:\n- the query is run in a read-only transaction\n- the result list will be artificially limited to the first 1000 rows\n- you can include a column named \"pk_patient\" to make the result rows activate the corresponding patient on double-clicking\n- by inserting $<ID_ACTIVE_PATIENT>$ you can access the patient ID of the patient active at the time of running the query"))
+		self._BTN_run.SetToolTip(_("Run the query and present the results below."))
 		self._BTN_run.SetDefault()
-		self._BTN_clear.SetToolTipString(_("Clear all fields."))
-		self._BTN_save.SetToolTipString(_("Save the report definition."))
-		self._BTN_delete.SetToolTipString(_("Delete this report definition."))
-		self._BTN_contribute.SetToolTipString(_("Contribute this report definition to the GNUmed community. The report name and SQL command will be sent to the mailing list.\n\nPatient data will NOT be put AT RISK.\n\nYou may want to be careful about the SQL itself as it just might contain bits of sensitive data in, say, the WHERE conditions."))
-		self._BTN_visualize.SetToolTipString(_("Visualize (plot) data from two numeric columns of the result list below."))
+		self._BTN_clear.SetToolTip(_("Clear all fields."))
+		self._BTN_save.SetToolTip(_("Save the report definition."))
+		self._BTN_delete.SetToolTip(_("Delete this report definition."))
+		self._BTN_contribute.SetToolTip(_("Contribute this report definition to the GNUmed community. The report name and SQL command will be sent to the mailing list.\n\nPatient data will NOT be put AT RISK.\n\nYou may want to be careful about the SQL itself as it just might contain bits of sensitive data in, say, the WHERE conditions."))
+		self._BTN_visualize.SetToolTip(_("Visualize (plot) data from two numeric columns of the result list below."))
 		self._BTN_visualize.Enable(False)
-		self._BTN_waiting_list.SetToolTipString(_("Put all or selected results onto a waiting list."))
+		self._BTN_waiting_list.SetToolTip(_("Put all or selected results onto a waiting list."))
 		self._BTN_waiting_list.Enable(False)
-		self._BTN_save_results.SetToolTipString(_("Save query results as a CSV file."))
+		self._BTN_save_results.SetToolTip(_("Save query results as a CSV file."))
 		self._BTN_save_results.Enable(False)
-		self._BTN_schema.SetToolTipString(_("Show the database schema definition in your web browser."))
+		self._BTN_schema.SetToolTip(_("Show the database schema definition in your web browser."))
 		# end wxGlade
 
 	def __do_layout(self):

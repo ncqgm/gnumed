@@ -68,7 +68,7 @@ class cTopPnl(wxgTopPnl.wxgTopPnl):
 			_log.debug('adjusting font size on Mac for top panel parts')
 			for ctrl in [self._TCTRL_patient_selector, self._LBL_age, self._LBL_allergies, self._TCTRL_allergies]:
 				curr_font = ctrl.GetFont()
-				mac_font = wx.FontFromNativeInfo(curr_font.NativeFontInfo)
+				mac_font = wx.Font(curr_font.GetNativeFontInfo())
 				mac_font.SetPointSize(pointSize = int(curr_font.GetPointSize() / 0.8))
 				ctrl.SetFont(mac_font)
 

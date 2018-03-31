@@ -107,6 +107,7 @@ class cHorstSpaceLayoutMgr(wx.Panel):
 		_log.debug('plugin load order: %s', plugin_list)
 
 		nr_plugins = len(plugin_list)
+		failed_plugins = []
 
 		#  set up a progress bar
 		progress_bar = gmPlugin.cLoadProgressBar(nr_plugins)
@@ -126,15 +127,18 @@ class cHorstSpaceLayoutMgr(wx.Panel):
 					result = 1
 				else:
 					_log.error("plugin [%s] not loaded, see errors above", curr_plugin)
+					failed_plugins.append(curr_plugin)
 					result = 1
 			except:
 				_log.exception('failed to load plugin %s', curr_plugin)
+				failed_plugins.append(curr_plugin)
 				result = 0
 
 			if first_plugin is None:
 				first_plugin = plugin
 			prev_plugin = curr_plugin
 
+		_log.debug('failed plugins: %s', failed_plugins)
 		progress_bar.Destroy()
 		wx.EndBusyCursor()
 

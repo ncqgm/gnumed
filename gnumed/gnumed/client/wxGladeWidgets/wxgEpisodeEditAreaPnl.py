@@ -30,12 +30,12 @@ class wxgEpisodeEditAreaPnl(wx.ScrolledWindow):
         # begin wxGlade: wxgEpisodeEditAreaPnl.__set_properties
         self.SetScrollRate(10, 10)
         self._TCTRL_patient.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_BACKGROUND))
-        self._PRW_issue.SetToolTipString(_("Select the health issue this episode belongs to.\n\nEpisode remains unassociated if this field is left blank."))
-        self._PRW_description.SetToolTipString(_("Type or select the description for this episode. It should be a summary for the episode of illness."))
-        self._PRW_certainty.SetToolTipString(_("The diagnostic classification or grading of this episode.\n\nThis documents how certain one is about this episode being a true diagnosis."))
-        self._CHBOX_closed.SetToolTipString(_("If this box is checked the episode is over. If not it is currently ongoing."))
-        self._TCTRL_status.SetToolTipString(_("A summary of the state of this episode."))
-        self._PRW_codes.SetToolTipString(_("Codes relevant to this episode\nseparated by \";\"."))
+        self._PRW_issue.SetToolTip(_("Select the health issue this episode belongs to.\n\nEpisode remains unassociated if this field is left blank."))
+        self._PRW_description.SetToolTip(_("Type or select the description for this episode. It should be a summary for the episode of illness."))
+        self._PRW_certainty.SetToolTip(_("The diagnostic classification or grading of this episode.\n\nThis documents how certain one is about this episode being a true diagnosis."))
+        self._CHBOX_closed.SetToolTip(_("If this box is checked the episode is over. If not it is currently ongoing."))
+        self._TCTRL_status.SetToolTip(_("A summary of the state of this episode."))
+        self._PRW_codes.SetToolTip(_("Codes relevant to this episode\nseparated by \";\"."))
         # end wxGlade
 
     def __do_layout(self):

@@ -473,7 +473,7 @@ class DrugDisplay(wx.Panel):
 				# if first column, insert new column and
 				# and store pointer to item data (type,id)
 				if col_no == 0:
-					item=self.listctrl_drugchoice.InsertStringItem (row,item_text)
+					item=self.listctrl_drugchoice.InsertItem (row,item_text)
 					self.listctrl_drugchoice.SetItemData(item,item)
 					id = aDataDict['id'][row]
 			    	# set data as type and database ID

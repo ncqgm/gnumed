@@ -25,9 +25,9 @@ class wxgEncounterEditAreaDlg(wx.Dialog):
     def __set_properties(self):
         # begin wxGlade: wxgEncounterEditAreaDlg.__set_properties
         self.SetTitle(_("edit encounter details"))
-        self._BTN_save.SetToolTipString(_("Save the encounter details."))
+        self._BTN_save.SetToolTip(_("Save the encounter details."))
         self._BTN_save.SetDefault()
-        self._BTN_close.SetToolTipString(_("Close this dialog."))
+        self._BTN_close.SetToolTip(_("Close this dialog."))
         # end wxGlade
 
     def __do_layout(self):

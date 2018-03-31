@@ -158,7 +158,7 @@ class DermToolDialog(wx.Dialog):
     def bind_image (self, event = None):
         jpg_width = self.jpeg.GetWidth ()
         jpg_height = self.jpeg.GetHeight ()
-        pnl_width,pnl_height = self.image.GetSizeTuple ()
+        pnl_width,pnl_height = self.image.GetSize()
         self.image.DestroyChildren ()
         jpg_aspect = jpg_width/float (jpg_height)
         pnl_aspect = pnl_width/float (pnl_height)

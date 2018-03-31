@@ -37,17 +37,17 @@ class wxgBillEAPnl(wx.ScrolledWindow):
         # begin wxGlade: wxgBillEAPnl.__set_properties
         self.SetScrollRate(10, 10)
         self._TCTRL_invoice_id.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_BACKGROUND))
-        self._TCTRL_invoice_id.SetToolTipString(_("The invoice ID.\n\nNote that in most jurisdictions this must be a unique entity.\n\nGNUmed will create one for you."))
-        self._PRW_close_date.SetToolTipString(_("The close date of the bill.\n\nWhen a bill is closed items shall not be added to it anymore."))
+        self._TCTRL_invoice_id.SetToolTip(_("The invoice ID.\n\nNote that in most jurisdictions this must be a unique entity.\n\nGNUmed will create one for you."))
+        self._PRW_close_date.SetToolTip(_("The close date of the bill.\n\nWhen a bill is closed items shall not be added to it anymore."))
         self._TCTRL_address.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_BACKGROUND))
-        self._TCTRL_address.SetToolTipString(_("Where to send the bill."))
-        self._BTN_select_address.SetToolTipString(_("Select the address where to send the bill."))
+        self._TCTRL_address.SetToolTip(_("Where to send the bill."))
+        self._BTN_select_address.SetToolTip(_("Select the address where to send the bill."))
         self._TCTRL_value.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_BACKGROUND))
-        self._TCTRL_value.SetToolTipString(_("The total value of this bill without VAT applied."))
-        self._CHBOX_vat_applies.SetToolTipString(_("Select here whether or not to apply VAT when creating an invoice for this bill."))
+        self._TCTRL_value.SetToolTip(_("The total value of this bill without VAT applied."))
+        self._CHBOX_vat_applies.SetToolTip(_("Select here whether or not to apply VAT when creating an invoice for this bill."))
         self._TCTRL_value_with_vat.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_BACKGROUND))
-        self._TCTRL_value_with_vat.SetToolTipString(_("The total value of this bill after VAT has been applied."))
-        self._TCTRL_comment.SetToolTipString(_("Add an arbitrary comment on this bill."))
+        self._TCTRL_value_with_vat.SetToolTip(_("The total value of this bill after VAT has been applied."))
+        self._TCTRL_comment.SetToolTip(_("Add an arbitrary comment on this bill."))
         # end wxGlade
 
     def __do_layout(self):

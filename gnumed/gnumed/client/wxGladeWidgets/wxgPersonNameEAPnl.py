@@ -25,8 +25,8 @@ class wxgPersonNameEAPnl(wx.ScrolledWindow):
     def __set_properties(self):
         # begin wxGlade: wxgPersonNameEAPnl.__set_properties
         self.SetScrollRate(10, 10)
-        self._TCTRL_comment.SetToolTipString(_("Enter a comment relevant to this name (such as \"before marriage\")."))
-        self._CHBOX_active.SetToolTipString(_("Check this to make this the currently active name."))
+        self._TCTRL_comment.SetToolTip(_("Enter a comment relevant to this name (such as \"before marriage\")."))
+        self._CHBOX_active.SetToolTip(_("Check this to make this the currently active name."))
         # end wxGlade
 
     def __do_layout(self):

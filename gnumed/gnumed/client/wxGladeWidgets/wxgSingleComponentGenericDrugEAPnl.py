@@ -39,10 +39,10 @@ class wxgSingleComponentGenericDrugEAPnl(wx.ScrolledWindow):
 	def __set_properties(self):
 		# begin wxGlade: wxgSingleComponentGenericDrugEAPnl.__set_properties
 		self.SetScrollRate(10, 10)
-		self._PRW_substance.SetToolTipString(_("The active component of this generic drug."))
-		self._TCTRL_amount.SetToolTipString(_("Enter the amount of substance (such as the \"5\" in \"5mg/ml\")."))
-		self._PRW_unit.SetToolTipString(_("The unit of the amount of substance (such as the \"mg\" in \"5mg/ml\")."))
-		self._PRW_dose_unit.SetToolTipString(_("The unit of the reference amount (such as the \"ml\" in \"5mg/ml\"). If left empty it means \"per delivery unit\" (such as tablet, sachet, capsule, suppository)."))
+		self._PRW_substance.SetToolTip(_("The active component of this generic drug."))
+		self._TCTRL_amount.SetToolTip(_("Enter the amount of substance (such as the \"5\" in \"5mg/ml\")."))
+		self._PRW_unit.SetToolTip(_("The unit of the amount of substance (such as the \"mg\" in \"5mg/ml\")."))
+		self._PRW_dose_unit.SetToolTip(_("The unit of the reference amount (such as the \"ml\" in \"5mg/ml\"). If left empty it means \"per delivery unit\" (such as tablet, sachet, capsule, suppository)."))
 		# end wxGlade
 
 	def __do_layout(self):

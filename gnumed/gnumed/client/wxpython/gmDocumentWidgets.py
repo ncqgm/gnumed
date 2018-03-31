@@ -456,7 +456,7 @@ class cEditDocumentTypesPnl(wxgEditDocumentTypesPnl.wxgEditDocumentTypesPnl):
 		pos = len(doc_types) + 1
 
 		for doc_type in doc_types:
-			row_num = self._LCTRL_doc_type.InsertStringItem(pos, label = doc_type['type'])
+			row_num = self._LCTRL_doc_type.InsertItem(pos, label = doc_type['type'])
 			self._LCTRL_doc_type.SetItem(index = row_num, column = 1, label = doc_type['l10n_type'])
 			if doc_type['is_user_defined']:
 				self._LCTRL_doc_type.SetItem(index = row_num, column = 2, label = ' X ')
@@ -780,7 +780,7 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 				reviews_by_others.append(rev)
 		# display them
 		if review_by_responsible_doc is not None:
-			row_num = self._LCTRL_existing_reviews.InsertStringItem(sys.maxint, label=review_by_responsible_doc[0])
+			row_num = self._LCTRL_existing_reviews.InsertItem(sys.maxint, label=review_by_responsible_doc[0])
 			self._LCTRL_existing_reviews.SetItemTextColour(row_num, column=wx.BLUE)
 			self._LCTRL_existing_reviews.SetItem(index = row_num, column=0, label=review_by_responsible_doc[0])
 			self._LCTRL_existing_reviews.SetItem(index = row_num, column=1, label=review_by_responsible_doc[1].strftime('%x %H:%M'))
@@ -791,7 +791,7 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 			self._LCTRL_existing_reviews.SetItem(index = row_num, column=4, label=review_by_responsible_doc[6])
 			row_num += 1
 		for rev in reviews_by_others:
-			row_num = self._LCTRL_existing_reviews.InsertStringItem(sys.maxint, label=rev[0])
+			row_num = self._LCTRL_existing_reviews.InsertItem(sys.maxint, label=rev[0])
 			self._LCTRL_existing_reviews.SetItem(index = row_num, column=0, label=rev[0])
 			self._LCTRL_existing_reviews.SetItem(index = row_num, column=1, label=rev[1].strftime('%x %H:%M'))
 			if rev['is_technically_abnormal']:
@@ -2913,7 +2913,6 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 	def __init__(self, *args, **kwargs):
 		# would need to be here but can not because _BMP_preview
 		# does not yet exist
-		#self._BMP_preview.SetBitmap(wx.EmptyBitmap(1,1))
 		wxgPACSPluginPnl.__init__(self, *args, **kwargs)
 		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
 		self.__pacs = None
@@ -2939,7 +2938,7 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 		self._LCTRL_details.set_columns(columns = [_(u'DICOM field'), _(u'Value')])
 		self._LCTRL_details.set_column_widths()
 
-		self._BMP_preview.SetBitmap(wx.EmptyBitmap(1,1))
+		self._BMP_preview.SetBitmap(wx.Bitmap(1,1))
 
 	#--------------------------------------------------------
 	def __set_button_states(self):
@@ -3197,7 +3196,7 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 
 		self.__image_data = None
 		self._LBL_image.Label = _(u'Image')
-		self._BMP_preview.SetBitmap(wx.EmptyBitmap(1,1))
+		self._BMP_preview.SetBitmap(wx.Bitmap(1,1))
 
 		if idx is None:
 			return

@@ -37,7 +37,7 @@ class wxgMeasurementsByDayPnl(wx.Panel):
 
 	def __set_properties(self):
 		# begin wxGlade: wxgMeasurementsByDayPnl.__set_properties
-		self._TCTRL_measurements.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_BACKGROUND))
+		self._TCTRL_measurements.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_BACKGROUND))
 		self._BTN_list_docs.SetToolTip(_("List lab documents within the episode of the selected measurement."))
 		self._BTN_list_docs.Enable(False)
 		self._BTN_select_lab_doc_types.SetToolTip(_("Select the document types expected to contain lab results."))

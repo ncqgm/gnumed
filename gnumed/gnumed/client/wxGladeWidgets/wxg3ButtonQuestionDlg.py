@@ -29,7 +29,7 @@ class wxg3ButtonQuestionDlg(wx.Dialog):
     def __set_properties(self):
         # begin wxGlade: wxg3ButtonQuestionDlg.__set_properties
         self.SetTitle(_("Put caption here."))
-        self._CHBOX_dont_ask_again.SetToolTipString(_("Check this if you want GNUmed to remember your decision and not ask you again."))
+        self._CHBOX_dont_ask_again.SetToolTip(_("Check this if you want GNUmed to remember your decision and not ask you again."))
         self._BTN_1.SetDefault()
         # end wxGlade
 

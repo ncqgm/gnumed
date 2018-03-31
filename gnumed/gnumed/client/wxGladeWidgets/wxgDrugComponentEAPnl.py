@@ -34,7 +34,7 @@ class wxgDrugComponentEAPnl(wx.ScrolledWindow):
         self._TCTRL_product_name.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_BACKGROUND))
         self._TCTRL_components.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_BACKGROUND))
         self._TCTRL_codes.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_BACKGROUND))
-        self._TCTRL_amount.SetToolTipString(_("The numeric amount of substance per dose in the product.\n\nExamples:\n- 100mg per tablet: amount = 100, unit = mg(/tablet)\n- 10mg/ampulla: amount = 10, unit = mg(/ampulla)\n- 5mg/ml solution: amount = 5, unit = mg/ml"))
+        self._TCTRL_amount.SetToolTip(_("The numeric amount of substance per dose in the product.\n\nExamples:\n- 100mg per tablet: amount = 100, unit = mg(/tablet)\n- 10mg/ampulla: amount = 10, unit = mg(/ampulla)\n- 5mg/ml solution: amount = 5, unit = mg/ml"))
         # end wxGlade
 
     def __do_layout(self):

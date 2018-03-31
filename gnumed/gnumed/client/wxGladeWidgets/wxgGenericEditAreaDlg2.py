@@ -42,16 +42,16 @@ class wxgGenericEditAreaDlg2(wx.Dialog):
         self._PNL_ea.SetScrollRate(10, 10)
         self._TCTRL_status.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_BACKGROUND))
         self._TCTRL_status.SetForegroundColour(wx.Colour(255, 127, 0))
-        self._BTN_save.SetToolTipString(_("Save the entered data into the database and close the dialog."))
-        self._BTN_extra_left.SetToolTipString(_("Programmer forgot tooltip for left extra button."))
+        self._BTN_save.SetToolTip(_("Save the entered data into the database and close the dialog."))
+        self._BTN_extra_left.SetToolTip(_("Programmer forgot tooltip for left extra button."))
         self._BTN_extra_left.Hide()
-        self._BTN_forward.SetToolTipString(_("Save data into database and clear fields for another value."))
-        self._BTN_revert.SetToolTipString(_("Reset all fields to their previous values."))
+        self._BTN_forward.SetToolTip(_("Save data into database and clear fields for another value."))
+        self._BTN_revert.SetToolTip(_("Reset all fields to their previous values."))
         self._BTN_revert.Enable(False)
         self._BTN_revert.Hide()
-        self._BTN_clear.SetToolTipString(_("Clear all fields."))
-        self._BTN_cancel.SetToolTipString(_("Cancel editing the data and discard changes."))
-        self._BTN_lucky.SetToolTipString(_("Press me !\n\n(This will NOT endanger any data.)"))
+        self._BTN_clear.SetToolTip(_("Clear all fields."))
+        self._BTN_cancel.SetToolTip(_("Cancel editing the data and discard changes."))
+        self._BTN_lucky.SetToolTip(_("Press me !\n\n(This will NOT endanger any data.)"))
         # end wxGlade
 
     def __do_layout(self):

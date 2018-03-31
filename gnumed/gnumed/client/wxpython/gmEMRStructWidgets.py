@@ -797,10 +797,10 @@ class cIssueListSelectorDlg(gmListWidgets.cGenericListSelectorDlg):
 
 		for issue in issues:
 			if issue['is_confidential']:
-				row_num = self._LCTRL_items.InsertStringItem(sys.maxint, label = _('confidential'))
+				row_num = self._LCTRL_items.InsertItem(sys.maxint, label = _('confidential'))
 				self._LCTRL_items.SetItemTextColour(row_num, col=wx.NamedColour('RED'))
 			else:
-				row_num = self._LCTRL_items.InsertStringItem(sys.maxint, label = u'')
+				row_num = self._LCTRL_items.InsertItem(sys.maxint, label = u'')
 
 			self._LCTRL_items.SetItem(index = row_num, column = 1, label = issue['description'])
 			if issue['clinically_relevant']:

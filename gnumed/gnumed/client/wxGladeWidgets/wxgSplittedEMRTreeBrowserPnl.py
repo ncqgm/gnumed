@@ -40,11 +40,11 @@ class wxgSplittedEMRTreeBrowserPnl(wx.Panel):
     def __set_properties(self):
         # begin wxGlade: wxgSplittedEMRTreeBrowserPnl.__set_properties
         self._pnl_emr_tree.SetScrollRate(10, 10)
-        self._RBTN_details.SetToolTipString(_("Show succinct item synopsis."))
+        self._RBTN_details.SetToolTip(_("Show succinct item synopsis."))
         self._RBTN_details.SetValue(1)
-        self._RBTN_journal.SetToolTipString(_("Show item journal."))
-        self._RBTN_revisions.SetToolTipString(_("Show item revisions."))
-        self._BTN_switch_browse_edit.SetToolTipString(_("Press this button to switch back and forth between browsing and entering SOAP notes."))
+        self._RBTN_journal.SetToolTip(_("Show item journal."))
+        self._RBTN_revisions.SetToolTip(_("Show item revisions."))
+        self._BTN_switch_browse_edit.SetToolTip(_("Press this button to switch back and forth between browsing and entering SOAP notes."))
         self._PNL_edit.Hide()
         # end wxGlade
 

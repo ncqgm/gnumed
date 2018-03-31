@@ -39,7 +39,7 @@ class wxgMultilineTextEntryDlg(wx.Dialog):
         self.SetTitle(_("Generic multi line text entry dialog"))
         self.SetSize((600, 641))
         self._TCTRL_data.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_BACKGROUND))
-        self._CHBOX_is_already_formatted.SetToolTipString(_("Leave this unchecked so that GNUmed can check for characters that need escaping or transforming.\n\nUse this option when you have put in raw formatting, like HTML or LaTeX, that you are confident should be left untouched."))
+        self._CHBOX_is_already_formatted.SetToolTip(_("Leave this unchecked so that GNUmed can check for characters that need escaping or transforming.\n\nUse this option when you have put in raw formatting, like HTML or LaTeX, that you are confident should be left untouched."))
         self._CHBOX_is_already_formatted.Enable(False)
         self._BTN_restore.Enable(False)
         # end wxGlade
