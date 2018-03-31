@@ -132,7 +132,7 @@ class PastHistoryPanel(wxPanel, PatientHolder):
 		#	key, data = items[x]
 		#	gmLog.gmDefLog.Log (gmLog.lData, items[x])
 		#	self.significant_problem_list.InsertStringItem(x, data[0])
-		#	self.significant_problem_list.SetStringItem(x, 1, data[1])
+		#	self.significant_problem_list.SetItem(x, 1, data[1])
 		#	self.significant_problem_list.SetItemData(x, key)
 		#	self.significant_problem_list.SetColumnWidth(0, wxLIST_AUTOSIZE)
 		#self.significant_problem_list.SetColumnWidth(1, wxLIST_AUTOSIZE)
@@ -156,7 +156,7 @@ class PastHistoryPanel(wxPanel, PatientHolder):
 		#	key, data = items[x]
 		#	gmLog.gmDefLog.Log (gmLog.lData, items[x])
 		#	self.active_problem_list.InsertStringItem(x, data[0])
-		#	self.active_problem_list.SetStringItem(x, 1, data[1])
+		#	self.active_problem_list.SetItem(x, 1, data[1])
 		#	self.active_problem_list.SetItemData(x, key)
 		#self.active_problem_list.SetColumnWidth(0, wxLIST_AUTOSIZE)
 		#self.active_problem_list.SetColumnWidth(1, wxLIST_AUTOSIZE)

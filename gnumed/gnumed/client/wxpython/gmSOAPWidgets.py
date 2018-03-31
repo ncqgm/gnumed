@@ -445,16 +445,16 @@ class cNotebookedProgressNoteInputPanel(wx.Panel):
 			'There is a configuration option whether or not to\n'
 			'allow several new unassociated progress notes at once.'
 		)
-		self.__BTN_add_unassociated.SetToolTipString(tt)
+		self.__BTN_add_unassociated.SetToolTip(tt)
 
 		self.__BTN_save = wx.Button(PNL_soap_editors, -1, _('&Save'))
-		self.__BTN_save.SetToolTipString(_('Save progress note into medical record and close this editor.'))
+		self.__BTN_save.SetToolTip(_('Save progress note into medical record and close this editor.'))
 
 		self.__BTN_clear = wx.Button(PNL_soap_editors, -1, _('&Clear'))
-		self.__BTN_clear.SetToolTipString(_('Clear this progress note editor.'))
+		self.__BTN_clear.SetToolTip(_('Clear this progress note editor.'))
 
 		self.__BTN_discard = wx.Button(PNL_soap_editors, -1, _('&Discard'))
-		self.__BTN_discard.SetToolTipString(_('Discard progress note and close this editor. You will loose any data already typed into this editor !'))
+		self.__BTN_discard.SetToolTip(_('Discard progress note and close this editor. You will loose any data already typed into this editor !'))
 
 		# - arrange
 		szr_btns_right = wx.BoxSizer(wx.HORIZONTAL)
@@ -1013,9 +1013,9 @@ class cSingleBoxSOAPPanel(wx.Panel):
 		)
 		# buttons below that
 		self.__BTN_save = wx.Button(self, wx.NewId(), _("save"))
-		self.__BTN_save.SetToolTipString(_('save clinical note in EMR'))
+		self.__BTN_save.SetToolTip(_('save clinical note in EMR'))
 		self.__BTN_discard = wx.Button(self, wx.NewId(), _("discard"))
-		self.__BTN_discard.SetToolTipString(_('discard clinical note'))
+		self.__BTN_discard.SetToolTip(_('discard clinical note'))
 		szr_btns = wx.BoxSizer(wx.HORIZONTAL)
 		szr_btns.Add(self.__BTN_save, 1, wx.ALIGN_CENTER_HORIZONTAL, 0)
 		szr_btns.Add(self.__BTN_discard, 1, wx.ALIGN_CENTER_HORIZONTAL, 0)

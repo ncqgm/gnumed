@@ -452,7 +452,7 @@ class cSubstancePhraseWheel(gmPhraseWheel.cPhraseWheel):
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries = query)
 		mp.setThresholds(1, 2, 4)
 #		mp.word_separators = '[ \t=+&:@]+'
-		self.SetToolTipString(_('The substance name.'))
+		self.SetToolTip(_('The substance name.'))
 		self.matcher = mp
 		self.selection_only = False
 		self.phrase_separators = None
@@ -888,7 +888,7 @@ class cDrugComponentPhraseWheel(gmPhraseWheel.cPhraseWheel):
 		mp = gmMedication.cDrugComponentMatchProvider()
 		mp.setThresholds(2, 3, 4)
 		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
-		self.SetToolTipString(_('A drug component with optional strength.'))
+		self.SetToolTip(_('A drug component with optional strength.'))
 		self.matcher = mp
 		self.selection_only = False
 	#--------------------------------------------------------
@@ -1176,7 +1176,7 @@ class cDrugProductEAPnl(wxgDrugProductEAPnl.wxgDrugProductEAPnl, gmEditArea.cGen
 					)
 			else:
 				# lacking components ?
-				self._TCTRL_components.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_BACKGROUND))
+				self._TCTRL_components.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_BACKGROUND))
 				if len(self.__component_doses) == 0:
 					wants_empty = gmGuiHelpers.gm_show_question (
 						title = _('Checking product data'),
@@ -1322,7 +1322,7 @@ class cDrugProductPhraseWheel(gmPhraseWheel.cPhraseWheel):
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries = query)
 		mp.setThresholds(2, 3, 4)
 		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
-		self.SetToolTipString(_(
+		self.SetToolTip(_(
 			'The product name of the drug.\n'
 			'\n'
 			'Note: a product name will need to be linked to\n'

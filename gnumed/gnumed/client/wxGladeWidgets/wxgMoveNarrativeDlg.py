@@ -37,10 +37,10 @@ class wxgMoveNarrativeDlg(wx.Dialog):
 		# begin wxGlade: wxgMoveNarrativeDlg.__set_properties
 		self.SetTitle(_("Moving narrative to another episode"))
 		self.SetSize((500, 650))
-		self._PRW_episode_selector.SetToolTipString(_("Select the episode you want to move the narrative to."))
+		self._PRW_episode_selector.SetToolTip(_("Select the episode you want to move the narrative to."))
 		self._PRW_episode_selector.SetFocus()
-		self.__BTN_move.SetToolTipString(_("Move the narrative from the source to the target episode."))
-		self.__BTN_cancel.SetToolTipString(_("Cancel moving the narrative entries and leave them where they are."))
+		self.__BTN_move.SetToolTip(_("Move the narrative from the source to the target episode."))
+		self.__BTN_cancel.SetToolTip(_("Cancel moving the narrative entries and leave them where they are."))
 		self.__BTN_cancel.SetDefault()
 		# end wxGlade
 
@@ -53,11 +53,11 @@ class wxgMoveNarrativeDlg(wx.Dialog):
 		__gszr_details.Add(__lbl_encounter, 0, wx.ALIGN_CENTER_VERTICAL, 0)
 		__gszr_details.Add(self.LBL_encounter, 1, wx.EXPAND | wx.ALIGN_CENTER_VERTICAL, 0)
 		__lbl_source_episode = wx.StaticText(self, wx.ID_ANY, _("Source episode"))
-		__lbl_source_episode.SetToolTipString(_("The episode the displayed narrative currently belongs to."))
+		__lbl_source_episode.SetToolTip(_("The episode the displayed narrative currently belongs to."))
 		__gszr_details.Add(__lbl_source_episode, 0, wx.ALIGN_CENTER_VERTICAL, 0)
 		__gszr_details.Add(self.LBL_source_episode, 1, wx.EXPAND | wx.ALIGN_CENTER_VERTICAL, 0)
 		__lbl_target_episode = wx.StaticText(self, wx.ID_ANY, _("Target episode"))
-		__lbl_target_episode.SetToolTipString(_("The episode you want to move the displayed narrative to."))
+		__lbl_target_episode.SetToolTip(_("The episode you want to move the displayed narrative to."))
 		__gszr_details.Add(__lbl_target_episode, 0, wx.ALIGN_CENTER_VERTICAL, 0)
 		__gszr_details.Add(self._PRW_episode_selector, 1, wx.EXPAND | wx.ALIGN_CENTER_VERTICAL, 0)
 		__lbl_narrative = wx.StaticText(self, wx.ID_ANY, _("Narrative"))

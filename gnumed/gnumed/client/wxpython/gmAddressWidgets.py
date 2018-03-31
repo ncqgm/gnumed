@@ -145,7 +145,7 @@ LIMIT 25"""
 		self.matcher = mp
 
 		self.unset_context(context = u'zip')
-		self.SetToolTipString(_('Type or select a country.'))
+		self.SetToolTip(_('Type or select a country.'))
 		self.capitalisation_mode = gmTools.CAPS_FIRST
 		self.selection_only = True
 
@@ -352,7 +352,7 @@ LIMIT 50"""
 
 		self.unset_context(context = u'zip')
 		self.unset_context(context = u'country_name')
-		self.SetToolTipString(_('Type or select a region (state/province/county/territory/arrondissement/prefecture/department/kanton/...).'))
+		self.SetToolTip(_('Type or select a region (state/province/county/territory/arrondissement/prefecture/department/kanton/...).'))
 		self.capitalisation_mode = gmTools.CAPS_FIRST
 		self.selection_only = True
 #====================================================================
@@ -492,7 +492,7 @@ class cZipcodePhraseWheel(gmPhraseWheel.cPhraseWheel):
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query)
 		mp.setThresholds(2, 3, 15)
 		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
-		self.SetToolTipString(_("Type or select a zip code (postcode).\n\nUse e.g. '?' if unknown."))
+		self.SetToolTip(_("Type or select a zip code (postcode).\n\nUse e.g. '?' if unknown."))
 		self.matcher = mp
 #============================================================
 class cStreetPhraseWheel(gmPhraseWheel.cPhraseWheel):
@@ -540,7 +540,7 @@ class cStreetPhraseWheel(gmPhraseWheel.cPhraseWheel):
 		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
 		self.unset_context(context = u'zip')
 
-		self.SetToolTipString(_('Type or select a street.'))
+		self.SetToolTip(_('Type or select a street.'))
 		self.capitalisation_mode = gmTools.CAPS_FIRST
 		self.matcher = mp
 #============================================================
@@ -563,7 +563,7 @@ LIMIT 50
 			**kwargs
 		)
 
-		self.SetToolTipString(_('Type or select the suburb.'))
+		self.SetToolTip(_('Type or select the suburb.'))
 		self.capitalisation_mode = gmTools.CAPS_FIRST
 		self.matcher = mp
 #============================================================
@@ -616,7 +616,7 @@ class cUrbPhraseWheel(gmPhraseWheel.cPhraseWheel):
 		)
 		self.unset_context(context = u'zip')
 
-		self.SetToolTipString(_('Type or select a city/town/village/dwelling.'))
+		self.SetToolTip(_('Type or select a city/town/village/dwelling.'))
 		self.capitalisation_mode = gmTools.CAPS_FIRST
 		self.matcher = mp
 #============================================================
@@ -648,7 +648,7 @@ order by
 			**kwargs
 		)
 		self.matcher = mp
-		self.SetToolTipString(_('Select the type of address.'))
+		self.SetToolTip(_('Select the type of address.'))
 #		self.capitalisation_mode = gmTools.CAPS_FIRST
 		self.selection_only = True
 	#--------------------------------------------------------
@@ -1106,7 +1106,7 @@ class cAddressPhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
 		self.matcher = cAddressMatchProvider()
-		self.SetToolTipString(_('Select an address by postcode or street name.'))
+		self.SetToolTip(_('Select an address by postcode or street name.'))
 		self.selection_only = True
 		self.__address = None
 		self.__old_pk = None

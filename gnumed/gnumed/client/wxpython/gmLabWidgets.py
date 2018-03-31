@@ -132,7 +132,7 @@ class cLabWheel(gmPhraseWheel.cPhraseWheel):
 			size = wx.DefaultSize,
 			pos = wx.DefaultPosition
 		)
-		self.SetToolTipString(_('choose which lab will process the probe with the specified ID'))
+		self.SetToolTip(_('choose which lab will process the probe with the specified ID'))
 		self.matcher = mp
 #=========================================================
 # FIXME: is this really lab specific ?
@@ -229,7 +229,7 @@ class cLabJournalNB(wx.Notebook):
 			id = wx.ID_BTN_save_request_ID,
 			label = _("save lab request")
 		)
-		self.BTN_save_request_ID.SetToolTipString(_('associate chosen lab and ID with current patient'))
+		self.BTN_save_request_ID.SetToolTip(_('associate chosen lab and ID with current patient'))
 
 		hbszr.Add(lab_label, 0, wx.ALIGN_CENTER | wx.ALL, 5)
 		hbszr.Add(self.lab_wheel, 0, wx.ALIGN_CENTER | wx.ALL, 5)
@@ -335,7 +335,7 @@ class cLabJournalNB(wx.Notebook):
 			id = wx.ID_BTN_select_all,
 			label = _("select all requests")
 		)
-		self.BTN_select_all.SetToolTipString(_('select all requests'))
+		self.BTN_select_all.SetToolTip(_('select all requests'))
 		# "mark selected as reviewed"
 		self.BTN_mark_reviewed = wx.Button(
 			name = 'BTN_mark_reviewed',
@@ -343,7 +343,7 @@ class cLabJournalNB(wx.Notebook):
 			id = wx.ID_BTN_mark_reviewed,
 			label = _("mark selected requests as reviewed")
 		)
-		self.BTN_mark_reviewed.SetToolTipString(_('mark selected requests as reviewed'))
+		self.BTN_mark_reviewed.SetToolTip(_('mark selected requests as reviewed'))
 
 		szr_buttons = wx.BoxSizer(wx.HORIZONTAL)
 		szr_buttons.Add(self.BTN_select_all, 0, wx.ALIGN_CENTER_VERTICAL, 1)
@@ -397,16 +397,16 @@ class cLabJournalNB(wx.Notebook):
 		for request in pending_requests:
 			item_idx = self.lbox_pending.InsertItem(info=wx.ListItem())
 			# request date
-			self.lbox_pending.SetStringItem(index = item_idx, col=0, label=request['sampled_when'].date)
+			self.lbox_pending.SetItem(index = item_idx, column=0, label=request['sampled_when'].date)
 			# request lab
 			lab = self.__get_labname(request['pk_test_org'])
-			self.lbox_pending.SetStringItem(index = item_idx, col=1, label=lab[0][0])
+			self.lbox_pending.SetItem(index = item_idx, column=1, label=lab[0][0])
 			# request id
-			self.lbox_pending.SetStringItem(index = item_idx, col=2, label=request['request_id'])
+			self.lbox_pending.SetItem(index = item_idx, column=2, label=request['request_id'])
 			# patient
 			pat = request.get_patient()
-			self.lbox_pending.SetStringItem(index = item_idx, col=3, label="%s %s (%s)" % (pat[2], pat[3], pat[4].date))
-			self.lbox_pending.SetStringItem(index = item_idx, col=4, label=_('pending'))
+			self.lbox_pending.SetItem(index = item_idx, column=3, label="%s %s (%s)" % (pat[2], pat[3], pat[4].date))
+			self.lbox_pending.SetItem(index = item_idx, column=4, label=_('pending'))
 			# FIXME: make use of rest data in patient via mouse over context
 			
 		#----- import errors PNL -----------------------
@@ -417,13 +417,13 @@ class cLabJournalNB(wx.Notebook):
 		for lab_error in lab_errors:
 			item_idx = self.lbox_errors.InsertItem(info=wx.ListItem())
 			# when was error reported
-			self.lbox_errors.SetStringItem(index = item_idx, col=0, label=lab_error[1].date)
+			self.lbox_errors.SetItem(index = item_idx, column=0, label=lab_error[1].date)
 			# error
-			self.lbox_errors.SetStringItem(index = item_idx, col=1, label=lab_error[4])
+			self.lbox_errors.SetItem(index = item_idx, column=1, label=lab_error[4])
 			# solution
-			self.lbox_errors.SetStringItem(index = item_idx, col=2, label=lab_error[5])
+			self.lbox_errors.SetItem(index = item_idx, column=2, label=lab_error[5])
 			# context
-			self.lbox_errors.SetStringItem(index = item_idx, col=3, label=lab_error[6])
+			self.lbox_errors.SetItem(index = item_idx, column=3, label=lab_error[6])
 		
 		#------ unreviewed lab results PNL ------------------------------------
 		# FIXME: make configurable, make use of count visible lines func of wxlistctrl

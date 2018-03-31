@@ -37,12 +37,12 @@ class wxgExternalCareEAPnl(wx.ScrolledWindow):
 	def __set_properties(self):
 		# begin wxGlade: wxgExternalCareEAPnl.__set_properties
 		self.SetScrollRate(10, 10)
-		self._PRW_issue.SetToolTipString(_("Mandatory: Select a health issue or enter a new reason for which care is rendered."))
-		self._PRW_care_location.SetToolTipString(_("Mandatory: The location care is rendered at."))
-		self._BTN_manage_orgs.SetToolTipString(_("Manage organizations and units thereof."))
-		self._TCTRL_provider.SetToolTipString(_("Optional: A specific, named provider rendering care at the care location."))
-		self._TCTRL_comment.SetToolTipString(_("Optional: A comment on this external care relationship."))
-		self._CHBOX_inactive.SetToolTipString(_("Check this if the external care entry is inactive (IOW, historic)."))
+		self._PRW_issue.SetToolTip(_("Mandatory: Select a health issue or enter a new reason for which care is rendered."))
+		self._PRW_care_location.SetToolTip(_("Mandatory: The location care is rendered at."))
+		self._BTN_manage_orgs.SetToolTip(_("Manage organizations and units thereof."))
+		self._TCTRL_provider.SetToolTip(_("Optional: A specific, named provider rendering care at the care location."))
+		self._TCTRL_comment.SetToolTip(_("Optional: A comment on this external care relationship."))
+		self._CHBOX_inactive.SetToolTip(_("Check this if the external care entry is inactive (IOW, historic)."))
 		# end wxGlade
 
 	def __do_layout(self):

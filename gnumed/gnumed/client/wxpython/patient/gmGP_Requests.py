@@ -111,7 +111,7 @@ class RequestsPanel (wxPanel, PatientHolder):
 		for x in range(len(items)):
 			key, data = items[x]
 			self.list_requests.InsertStringItem(x, data[0])
-			self.list_requests.SetStringItem(x, 1, data[1])
+			self.list_requests.SetItem(x, 1, data[1])
 			self.list_requests.SetItemData(x, key)
 		self.list_requests.SetColumnWidth(0, wxLIST_AUTOSIZE)
 		self.list_requests.SetColumnWidth(1, wxLIST_AUTOSIZE)

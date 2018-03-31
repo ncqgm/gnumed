@@ -115,7 +115,7 @@ class cHeadingCaption(wx.Panel):
         self.redraw (wxPaintDC (self))
 
     def OnSize (self, event):
-        self.w, self.h = self.GetClientSizeTuple ()
+        self.w, self.h = self.GetClientSize()
 
     def redraw (self, dc):
         dc.SetBrush (wx.Brush (self.bgC, wx.SOLID))

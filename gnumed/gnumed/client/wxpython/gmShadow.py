@@ -28,12 +28,12 @@ class Shadow (wx.Panel):
 		self.contents = widget
 	#-----------------------------------------------------
 	def OnSize (self, event):
-		w, h = self.GetClientSizeTuple ()
+		w, h = self.GetClientSize ()
 		self.contents.SetClientSizeWH (w-self.sh_width, h-self.sh_width)
 	#-----------------------------------------------------
 	def OnPaint (self, event):
 		dc = wxPaintDC (self)
-		w, h = self.GetClientSizeTuple ()
+		w, h = self.GetClientSize ()
 		dc.SetPen (wx.TRANSPARENT_PEN)
 		#dc.SetBrush (wxWHITE_BRUSH)
 		dc.SetBrush (wx.Brush (wx.Colour (240, 240, 240), wx.SOLID))

@@ -303,7 +303,7 @@ class cHorstSpaceLayoutMgr(wx.Panel):
 #		ID_LOAD = wx.NewId()
 #		ID_DROP = wx.NewId()
 #		if any_loadable:
-#			menu.AppendMenu(ID_LOAD, _('add plugin ...'), load_menu)
+#			menu.Append(ID_LOAD, _('add plugin ...'), load_menu)
 #		plugins = self.guibroker['horstspace.notebook.gui']
 #		raised_plugin = plugins[self.nb.GetSelection()].name()
 #		menu.AppendItem(wx.MenuItem(menu, ID_DROP, "drop [%s]" % raised_plugin))

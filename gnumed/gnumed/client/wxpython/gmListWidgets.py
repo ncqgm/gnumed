@@ -436,7 +436,7 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 		self.__left_extra_button_callback = callback
 		self.__left_extra_button_wants_list = wants_list
 		self._BTN_extra_left.SetLabel(label)
-		self._BTN_extra_left.SetToolTipString(tooltip)
+		self._BTN_extra_left.SetToolTip(tooltip)
 		self._BTN_extra_left.Enable(True)
 		self._BTN_extra_left.Show()
 
@@ -462,7 +462,7 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 		self.__middle_extra_button_callback = callback
 		self.__middle_extra_button_wants_list = wants_list
 		self._BTN_extra_middle.SetLabel(label)
-		self._BTN_extra_middle.SetToolTipString(tooltip)
+		self._BTN_extra_middle.SetToolTip(tooltip)
 		self._BTN_extra_middle.Enable(True)
 		self._BTN_extra_middle.Show()
 
@@ -488,7 +488,7 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 		self.__right_extra_button_callback = callback
 		self.__right_extra_button_wants_list = wants_list
 		self._BTN_extra_right.SetLabel(label)
-		self._BTN_extra_right.SetToolTipString(tooltip)
+		self._BTN_extra_right.SetToolTip(tooltip)
 		self._BTN_extra_right.Enable(True)
 		self._BTN_extra_right.Show()
 
@@ -977,7 +977,7 @@ class cGenericListManagerPnl(wxgGenericListManagerPnl.wxgGenericListManagerPnl):
 			raise ValueError('<left extra button> callback is not a callable: %s' % callback)
 		self.__left_extra_button_callback = callback
 		self._BTN_extra_left.SetLabel(label)
-		self._BTN_extra_left.SetToolTipString(tooltip)
+		self._BTN_extra_left.SetToolTip(tooltip)
 		self._BTN_extra_left.Enable(True)
 		self._BTN_extra_left.Show()
 
@@ -996,7 +996,7 @@ class cGenericListManagerPnl(wxgGenericListManagerPnl.wxgGenericListManagerPnl):
 			raise ValueError('<middle extra button> callback is not a callable: %s' % callback)
 		self.__middle_extra_button_callback = callback
 		self._BTN_extra_middle.SetLabel(label)
-		self._BTN_extra_middle.SetToolTipString(tooltip)
+		self._BTN_extra_middle.SetToolTip(tooltip)
 		self._BTN_extra_middle.Enable(True)
 		self._BTN_extra_middle.Show()
 
@@ -1015,7 +1015,7 @@ class cGenericListManagerPnl(wxgGenericListManagerPnl.wxgGenericListManagerPnl):
 			raise ValueError('<right extra button> callback is not a callable: %s' % callback)
 		self.__right_extra_button_callback = callback
 		self._BTN_extra_right.SetLabel(label)
-		self._BTN_extra_right.SetToolTipString(tooltip)
+		self._BTN_extra_right.SetToolTip(tooltip)
 		self._BTN_extra_right.Enable(True)
 		self._BTN_extra_right.Show()
 
@@ -1109,7 +1109,7 @@ class cItemPickerDlg(wxgItemPickerDlg.wxgItemPickerDlg):
 			raise ValueError('<extra button> callback is not a callable: %s' % callback)
 		self.__extra_button_callback = callback
 		self._BTN_extra.SetLabel(label)
-		self._BTN_extra.SetToolTipString(tooltip)
+		self._BTN_extra.SetToolTip(tooltip)
 		self._BTN_extra.Enable(True)
 		self._BTN_extra.Show()
 
@@ -1433,8 +1433,8 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 		return res
 
 	#------------------------------------------------------------
-	def GetClientSizeTuple(self, *args, **kwargs):
-		res = super(cReportListCtrl, self).GetClientSizeTuple(*args, **kwargs)
+	def GetClientSize(self, *args, **kwargs):
+		res = super(cReportListCtrl, self).GetClientSize(*args, **kwargs)
 		kwargs['sizing_function_result'] = res
 		self.__log_sizing(sys._getframe().f_code.co_name, *args, **kwargs)
 		return res
@@ -1649,7 +1649,7 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 				row_num = self.InsertStringItem(index = sys.maxint, label = col_val)
 				for col_num in range(1, min(self.GetColumnCount(), len(item))):
 					col_val = unicode(item[col_num])
-					self.SetStringItem(index = row_num, col = col_num, label = col_val)
+					self.SetItem(index = row_num, column = col_num, label = col_val)
 			else:
 				# cannot use errors='replace' since then None/ints/unicode strings fails to get encoded
 				col_val = unicode(item)
@@ -1956,7 +1956,7 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 		self._rclicked_row_cells_w_hdr = []
 		for col_idx in range(self.ColumnCount):
 			cell_content = self.GetItem(self._rclicked_row_idx, col_idx).Text.strip()
-			col_header = self.GetColumn(col_idx).m_text.strip()
+			col_header = self.GetColumn(col_idx).Text.strip()
 			col_headers.append(col_header)
 			self._rclicked_row_cells.append(cell_content)
 			self._rclicked_row_cells_w_hdr.append(u'%s: %s' % (col_header, cell_content))
@@ -2038,7 +2038,7 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 				# without column header
 				menu_item = col_menu.Append(-1, u'"%s" [#%s]' % (shorten_text(col_content, 35), col_idx))
 				self.Bind(wx.EVT_MENU, self._col2clipboard, menu_item)
-				clip_menu.AppendMenu(-1, _(u'Column &%s (current row): %s') % (col_idx+1, col_header), col_menu)
+				clip_menu.Append(-1, _(u'Column &%s (current row): %s') % (col_idx+1, col_header), col_menu)
 
 		# 2) append item to current clipboard item
 		clip_add_menu = wx.Menu()
@@ -2090,7 +2090,7 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 				# without column header
 				menu_item = col_add_menu.Append(-1, u'"%s" [#%s]' % (shorten_text(col_content, 35), col_idx))
 				self.Bind(wx.EVT_MENU, self._add_col2clipboard, menu_item)
-				clip_add_menu.AppendMenu(-1, _(u'Column &%s (current row): %s') % (col_idx+1, col_header), col_add_menu)
+				clip_add_menu.Append(-1, _(u'Column &%s (current row): %s') % (col_idx+1, col_header), col_add_menu)
 
 		# 3) copy item to export area
 		# put into file
@@ -2107,10 +2107,10 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 		# send signal
 
 		# show menu
-		#self._context_menu.AppendMenu(-1, _('Copy to e&xport area...'), exp_menu)
-		self._context_menu.AppendMenu(-1, _('&Save to file...'), save_menu)
-		self._context_menu.AppendMenu(-1, _('&Copy to clipboard...'), clip_menu)
-		self._context_menu.AppendMenu(-1, _('Append (&+) to clipboard...'), clip_add_menu)
+		#self._context_menu.Append(-1, _('Copy to e&xport area...'), exp_menu)
+		self._context_menu.Append(-1, _('&Save to file...'), save_menu)
+		self._context_menu.Append(-1, _('&Copy to clipboard...'), clip_menu)
+		self._context_menu.Append(-1, _('Append (&+) to clipboard...'), clip_add_menu)
 
 		if self.__extend_popup_menu_callback is not None:
 			self._context_menu.AppendSeparator()
@@ -2289,7 +2289,7 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 			wx.LIST_HITTEST_ONITEM
 		]:
 			self.__tt_last_item = None						# not on any item
-			self.SetToolTipString(self.__tt_static_part)
+			self.SetToolTip(self.__tt_static_part)
 			return
 
 		# same item as last time around ?
@@ -2302,12 +2302,12 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 		# HitTest() can return -1 if it so pleases, meaning that no item
 		# was hit or else that maybe there aren't any items (empty list)
 		if item_idx == wx.NOT_FOUND:
-			self.SetToolTipString(self.__tt_static_part)
+			self.SetToolTip(self.__tt_static_part)
 			return
 
 		# do we *have* item data ?
 		if self.__data is None:
-			self.SetToolTipString(self.__tt_static_part)
+			self.SetToolTip(self.__tt_static_part)
 			return
 
 		# under some circumstances the item_idx returned
@@ -2319,7 +2319,7 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 				or
 			(item_idx < -1)
 		):
-			self.SetToolTipString(self.__tt_static_part)
+			self.SetToolTip(self.__tt_static_part)
 			print "*************************************************************"
 			print "GNUmed has detected an inconsistency with list item tooltips."
 			print ""
@@ -2338,10 +2338,10 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 			dyna_tt = self.__item_tooltip_callback(self.__data[self.map_item_idx2data_idx(item_idx)])
 
 		if dyna_tt is None:
-			self.SetToolTipString(self.__tt_static_part)
+			self.SetToolTip(self.__tt_static_part)
 			return
 
-		self.SetToolTipString(dyna_tt)
+		self.SetToolTip(dyna_tt)
 
 	#------------------------------------------------------------
 	# context menu event hendlers
@@ -3147,7 +3147,7 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 			return
 		self._remove_sorting_indicators_from_column_headers()
 		col_state = self.GetColumn(col_idx)
-		col_state.m_text += self.sort_order_tags[is_ascending]
+		col_state.Text += self.sort_order_tags[is_ascending]
 		self.SetColumn(col_idx, col_state)
 
 	#------------------------------------------------------------
@@ -3242,12 +3242,12 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 	def _remove_sorting_indicators_from_column_headers(self):
 		for col_idx in range(self.ColumnCount):
 			col_state = self.GetColumn(col_idx)
-			initial_header = col_state.m_text
-			if col_state.m_text.endswith(self.sort_order_tags[True]):
-				col_state.m_text = col_state.m_text[:-len(self.sort_order_tags[True])]
-			if col_state.m_text.endswith(self.sort_order_tags[False]):
-				col_state.m_text = col_state.m_text[:-len(self.sort_order_tags[False])]
-			if col_state.m_text == initial_header:
+			initial_header = col_state.Text
+			if col_state.Text.endswith(self.sort_order_tags[True]):
+				col_state.Text = col_state.Text[:-len(self.sort_order_tags[True])]
+			if col_state.Text.endswith(self.sort_order_tags[False]):
+				col_state.Text = col_state.Text[:-len(self.sort_order_tags[False])]
+			if col_state.Text == initial_header:
 				continue
 			self.SetColumn(col_idx, col_state)
 

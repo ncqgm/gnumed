@@ -58,13 +58,14 @@ def set_is_public_database(value):
 #-------------------------------------------------------------------------
 def __ignore_dead_objects_from_async(t, v, tb):
 
-	if t != wx._core.PyDeadObjectError:
+	if t != RuntimeError:
 		return False
 
 	wx.EndBusyCursor()
 
 	# try to ignore those, they come about from doing
 	# async work in wx as Robin tells us
+	_log.error('RuntimeError = dead object: %s', v)
 	_log.warning('continuing and hoping for the best')
 	return True
 
@@ -75,7 +76,7 @@ def __handle_exceptions_on_shutdown(t, v, tb):
 		return False
 
 	# dead object error ?
-	if t == wx._core.PyDeadObjectError:
+	if t == RuntimeError:
 		return True
 
 	gmLog2.log_stack_trace('exception on shutdown', t, v, tb)

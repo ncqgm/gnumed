@@ -342,8 +342,8 @@ class gmTopLevelFrame(wx.Frame):
 
 		menu item template:
 
-		item = menu_emr_edit.Append(-1, _(''), _(''))
-		self.Bind(wx.EVT_MENU, self__on_, item)
+		item = menu_*.Append(-1)
+		self.Bind(wx.EVT_MENU, self.__on_*, item)
 		"""
 		global wx
 		self.mainmenu = wx.MenuBar()
@@ -353,11 +353,10 @@ class gmTopLevelFrame(wx.Frame):
 		menu_gnumed = wx.Menu()
 
 		self.menu_plugins = wx.Menu()
-		menu_gnumed.AppendMenu(wx.NewId(), _('&Go to plugin ...'), self.menu_plugins)
+		menu_gnumed.Append(wx.NewId(), _('&Go to plugin ...'), self.menu_plugins)
 
-		ID = wx.NewId()
-		menu_gnumed.Append(ID, _('Check for updates'), _('Check for new releases of the GNUmed client.'))
-		wx.EVT_MENU(self, ID, self.__on_check_for_updates)
+		item = menu_gnumed.Append(-1, _('Check for updates'), _('Check for new releases of the GNUmed client.'))
+		self.Bind(wx.EVT_MENU, self.__on_check_for_updates, item)
 
 		item = menu_gnumed.Append(-1, _('Announce downtime'), _('Announce database maintenance downtime to all connected clients.'))
 		self.Bind(wx.EVT_MENU, self.__on_announce_maintenance, item)
@@ -374,15 +373,14 @@ class gmTopLevelFrame(wx.Frame):
 		# GNUmed / Preferences / Database
 		menu_cfg_db = wx.Menu()
 
-		ID = wx.NewId()
-		menu_cfg_db.Append(ID, _('Language'), _('Configure the database language'))
-		wx.EVT_MENU(self, ID, self.__on_configure_db_lang)
+		item = menu_*.Append(-1, _('Language'), _('Configure the database language'))
+		self.Bind(wx.EVT_MENU, self.__on_configure_db_lang, item)
 
 		ID = wx.NewId()
 		menu_cfg_db.Append(ID, _('Welcome message'), _('Configure the database welcome message (all users).'))
 		wx.EVT_MENU(self, ID, self.__on_configure_db_welcome)
 
-		menu_config.AppendMenu(wx.NewId(), _('Database ...'), menu_cfg_db)
+		menu_config.Append(wx.NewId(), _('Database ...'), menu_cfg_db)
 
 		# GNUmed / Preferences / Client
 		menu_cfg_client = wx.Menu()
@@ -394,7 +392,7 @@ class gmTopLevelFrame(wx.Frame):
 		item = menu_cfg_client.Append(-1, _('Email address'), _('The email address of the user for sending bug reports, etc.'))
 		self.Bind(wx.EVT_MENU, self.__on_configure_user_email, item)
 
-		menu_config.AppendMenu(wx.NewId(), _('Client parameters ...'), menu_cfg_client)
+		menu_config.Append(wx.NewId(), _('Client parameters ...'), menu_cfg_client)
 
 		# GNUmed / Preferences / User Interface
 		menu_cfg_ui = wx.Menu()
@@ -423,7 +421,7 @@ class gmTopLevelFrame(wx.Frame):
 		item = menu_cfg_doc.Append(-1, _('Generate UUID'), _('Whether to generate UUIDs for new documents.'))
 		self.Bind(wx.EVT_MENU, self.__on_configure_generate_doc_uuid, item)
 
-		menu_cfg_ui.AppendMenu(wx.NewId(), _('Document handling ...'), menu_cfg_doc)
+		menu_cfg_ui.Append(wx.NewId(), _('Document handling ...'), menu_cfg_doc)
 
 		# -- submenu gnumed / config / ui / updates
 		menu_cfg_update = wx.Menu()
@@ -440,7 +438,7 @@ class gmTopLevelFrame(wx.Frame):
 		menu_cfg_update.Append(ID, _('URL'), _('The URL to retrieve version information from.'))
 		wx.EVT_MENU(self, ID, self.__on_configure_update_url)
 
-		menu_cfg_ui.AppendMenu(wx.NewId(), _('Update handling ...'), menu_cfg_update)
+		menu_cfg_ui.Append(wx.NewId(), _('Update handling ...'), menu_cfg_update)
 
 		# -- submenu gnumed / config / ui / patient
 		menu_cfg_pat_search = wx.Menu()
@@ -463,7 +461,7 @@ class gmTopLevelFrame(wx.Frame):
 		item = menu_cfg_pat_search.Append(-1, _('Default country'), _('Configure the default country for person creation.'))
 		self.Bind(wx.EVT_MENU, self.__on_cfg_default_country, item)
 
-		menu_cfg_ui.AppendMenu(wx.NewId(), _('Person ...'), menu_cfg_pat_search)
+		menu_cfg_ui.Append(wx.NewId(), _('Person ...'), menu_cfg_pat_search)
 
 		# -- submenu gnumed / config / ui / soap handling
 		menu_cfg_soap_editing = wx.Menu()
@@ -478,9 +476,9 @@ class gmTopLevelFrame(wx.Frame):
 		item = menu_cfg_soap_editing.Append(-1, _('SOAP fields'), _('Configure SOAP editor - individual SOAP fields vs text editor like'))
 		self.Bind(wx.EVT_MENU, self.__on_use_fields_in_soap_editor, item)
 
-		menu_cfg_ui.AppendMenu(wx.NewId(), _('Progress notes handling ...'), menu_cfg_soap_editing)
+		menu_cfg_ui.Append(wx.NewId(), _('Progress notes handling ...'), menu_cfg_soap_editing)
 
-		menu_config.AppendMenu(wx.NewId(), _('User interface ...'), menu_cfg_ui)
+		menu_config.Append(wx.NewId(), _('User interface ...'), menu_cfg_ui)
 
 		# GNUmed / Preferences / External tools
 		menu_cfg_ext_tools = wx.Menu()
@@ -517,7 +515,7 @@ class gmTopLevelFrame(wx.Frame):
 		item = menu_cfg_ext_tools.Append(-1, _('Visual SOAP editor'), _('Set the command for calling the visual progress note editor.'))
 		self.Bind(wx.EVT_MENU, self.__on_configure_visual_soap_cmd, item)
 
-		menu_config.AppendMenu(wx.NewId(), _('External tools ...'), menu_cfg_ext_tools)
+		menu_config.Append(wx.NewId(), _('External tools ...'), menu_cfg_ext_tools)
 
 		# -- submenu gnumed / config / billing
 		menu_cfg_bill = wx.Menu()
@@ -572,7 +570,7 @@ class gmTopLevelFrame(wx.Frame):
 		menu_cfg_encounter.Append(ID, _('Default type'), _('Default type for new encounters.'))
 		wx.EVT_MENU(self, ID, self.__on_cfg_enc_default_type)
 
-		menu_cfg_emr.AppendMenu(wx.NewId(), _('Encounter ...'), menu_cfg_encounter)
+		menu_cfg_emr.Append(wx.NewId(), _('Encounter ...'), menu_cfg_encounter)
 
 		# -- submenu gnumed / config / emr / episode
 		menu_cfg_episode = wx.Menu()
@@ -581,11 +579,11 @@ class gmTopLevelFrame(wx.Frame):
 		menu_cfg_episode.Append(ID, _('Dormancy'), _('Maximum length of dormancy after which an episode will be considered closed.'))
 		wx.EVT_MENU(self, ID, self.__on_cfg_epi_ttl)
 
-		menu_cfg_emr.AppendMenu(wx.NewId(), _('Episode ...'), menu_cfg_episode)
+		menu_cfg_emr.Append(wx.NewId(), _('Episode ...'), menu_cfg_episode)
 
-		menu_config.AppendMenu(wx.NewId(), _('EMR ...'), menu_cfg_emr)
-		menu_config.AppendMenu(wx.NewId(), _('Billing ...'), menu_cfg_bill)
-		menu_gnumed.AppendMenu(wx.NewId(), _('Preferences ...'), menu_config)
+		menu_config.Append(wx.NewId(), _('EMR ...'), menu_cfg_emr)
+		menu_config.Append(wx.NewId(), _('Billing ...'), menu_cfg_bill)
+		menu_gnumed.Append(wx.NewId(), _('Preferences ...'), menu_config)
 
 		# -- submenu gnumed / master data
 		menu_master_data = wx.Menu()
@@ -608,7 +606,7 @@ class gmTopLevelFrame(wx.Frame):
 		item = menu_master_data.Append(-1, _('Create fake vaccines'), _('Re-create fake generic vaccines.'))
 		self.Bind(wx.EVT_MENU, self.__on_generate_vaccines, item)
 
-		menu_gnumed.AppendMenu(wx.NewId(), _('&Master data ...'), menu_master_data)
+		menu_gnumed.Append(wx.NewId(), _('&Master data ...'), menu_master_data)
 
 		# -- submenu gnumed / users
 		menu_users = wx.Menu()
@@ -622,7 +620,7 @@ class gmTopLevelFrame(wx.Frame):
 		item = menu_users.Append(-1, _('&Change DB owner PWD'), _('Change the password of the GNUmed database owner'))
 		self.Bind(wx.EVT_MENU, self.__on_edit_gmdbowner_password, item)
 
-		menu_gnumed.AppendMenu(wx.NewId(), _('&Users ...'), menu_users)
+		menu_gnumed.Append(wx.NewId(), _('&Users ...'), menu_users)
 
 		# --
 		menu_gnumed.AppendSeparator()
@@ -669,11 +667,11 @@ class gmTopLevelFrame(wx.Frame):
 		self.Bind(wx.EVT_MENU, self.__on_export_as_vcard, item)
 
 		menu_person_export = wx.Menu()
-		menu_person_export.AppendMenu(wx.NewId(), _(u'\u2192 &Clipboard as\u2026'), menu_person_export_clipboard)
-		menu_person_export.AppendMenu(wx.NewId(), _(u'\u2192 &File as\u2026'), menu_person_export_file)
+		menu_person_export.Append(wx.NewId(), _(u'\u2192 &Clipboard as\u2026'), menu_person_export_clipboard)
+		menu_person_export.Append(wx.NewId(), _(u'\u2192 &File as\u2026'), menu_person_export_file)
 
-		menu_person.AppendMenu(wx.NewId(), u'&Import\u2026', menu_person_import)
-		menu_person.AppendMenu(wx.NewId(), u'E&xport\u2026', menu_person_export)
+		menu_person.Append(wx.NewId(), u'&Import\u2026', menu_person_import)
+		menu_person.Append(wx.NewId(), u'E&xport\u2026', menu_person_export)
 
 		item = menu_person.Append(-1, _('&Merge persons'), _('Merge two persons into one.'))
 		self.Bind(wx.EVT_MENU, self.__on_merge_patients, item)
@@ -753,7 +751,7 @@ class gmTopLevelFrame(wx.Frame):
 		item = menu_emr_edit.Append(-1, _('Substance abuse'), _('Manage substance abuse documentation of this patient.'))
 		self.Bind(wx.EVT_MENU, self.__on_manage_substance_abuse, item)
 
-		menu_emr.AppendMenu(wx.NewId(), _('&Add / Edit ...'), menu_emr_edit)
+		menu_emr.Append(wx.NewId(), _('&Add / Edit ...'), menu_emr_edit)
 
 		# - EMR /
 		item = menu_emr.Append(-1, _('Search this EMR'), _('Search for data in the EMR of the active patient'))
@@ -768,7 +766,7 @@ class gmTopLevelFrame(wx.Frame):
 		item = menu_emr.Append(-1, _('Statistics'), _('Show a high-level statistic summary of the EMR.'))
 		self.Bind(wx.EVT_MENU, self.__on_show_emr_summary, item)
 
-#		menu_emr.AppendMenu(wx.NewId(), _('Show as ...'), menu_emr_show)
+#		menu_emr.Append(wx.NewId(), _('Show as ...'), menu_emr_show)
 #		self.__gb['main.emr_showmenu'] = menu_emr_show
 
 		menu_emr.AppendSeparator()
@@ -796,7 +794,7 @@ class gmTopLevelFrame(wx.Frame):
 		item = menu_emr_export.Append(-1, _('MEDISTAR import format (as file)'), _("GNUmed -> MEDISTAR. Save progress notes of active patient's active encounter into a text file."))
 		self.Bind(wx.EVT_MENU, self.__on_export_for_medistar, item)
 
-		menu_emr.AppendMenu(wx.NewId(), _('Put into export area as ...'), menu_emr_export)
+		menu_emr.Append(wx.NewId(), _('Put into export area as ...'), menu_emr_export)
 
 		menu_emr.AppendSeparator()
 
@@ -883,7 +881,7 @@ class gmTopLevelFrame(wx.Frame):
 		item = menu_lab.Append(-1, _('Browse pending'), _('Browse pending (staged) incoming data'))
 		self.Bind(wx.EVT_MENU, self.__on_incoming, item)
 
-		self.menu_tools.AppendMenu(wx.NewId(), _('Lab results ...'), menu_lab)
+		self.menu_tools.Append(wx.NewId(), _('Lab results ...'), menu_lab)
 
 		self.menu_tools.AppendSeparator()
 
@@ -904,7 +902,7 @@ class gmTopLevelFrame(wx.Frame):
 #		menu_drug_dbs.Append(ID_IFAP, u'ifap', _('Start "ifap index PRAXIS" %s drug browser (Windows/Wine, Germany)') % gmTools.u_registered_trademark)
 #		wx.EVT_MENU(self, ID_IFAP, self.__on_ifap)
 
-		menu_knowledge.AppendMenu(wx.NewId(), _('&Drug Resources'), menu_drug_dbs)
+		menu_knowledge.Append(wx.NewId(), _('&Drug Resources'), menu_drug_dbs)
 
 		menu_id = wx.NewId()
 		menu_drug_dbs.Append(menu_id, u'kompendium.ch', _('Show "kompendium.ch" drug database (online, Switzerland)'))
@@ -1026,7 +1024,7 @@ class gmTopLevelFrame(wx.Frame):
 			item = menu_debugging.Append(-1, _('Test placeholder'), _('Manually test placeholders'))
 			self.Bind(wx.EVT_MENU, self.__on_test_placeholders, item)
 
-		help_menu.AppendMenu(wx.NewId(), _('Debugging ...'), menu_debugging)
+		help_menu.Append(wx.NewId(), _('Debugging ...'), menu_debugging)
 
 		help_menu.AppendSeparator()
 
@@ -1047,6 +1045,7 @@ class gmTopLevelFrame(wx.Frame):
 
 		# and activate menu structure
 		self.SetMenuBar(self.mainmenu)
+
 	#----------------------------------------------
 	def __load_plugins(self):
 		pass
@@ -3334,22 +3333,23 @@ class gmTopLevelFrame(wx.Frame):
 		gmDispatcher.disconnect(self._on_set_statustext, 'statustext')
 
 		# remember GUI size
-		curr_width, curr_height = self.GetClientSizeTuple()
+		curr_width, curr_height = self.GetClientSize()
 		_log.info('GUI size at shutdown: [%s:%s]' % (curr_width, curr_height))
-		dbcfg = gmCfg.cCfgSQL()
-		try:
-			dbcfg.set (
-				option = 'main.window.width',
-				value = curr_width,
-				workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace
-			)
-			dbcfg.set (
-				option = 'main.window.height',
-				value = curr_height,
-				workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace
-			)
-		except:
-			_log.exception('cannot save current client window size')
+		if 0 not in [curr_width, curr_height]:
+			dbcfg = gmCfg.cCfgSQL()
+			try:
+				dbcfg.set (
+					option = 'main.window.width',
+					value = curr_width,
+					workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace
+				)
+				dbcfg.set (
+					option = 'main.window.height',
+					value = curr_height,
+					workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace
+				)
+			except:
+				_log.exception('cannot save current client window size')
 
 		if _cfg.get(option = 'debug'):
 			print('---=== GNUmed shutdown ===---')
@@ -3423,6 +3423,7 @@ class gmTopLevelFrame(wx.Frame):
 		args['prax'] = praxis['praxis']
 
 		self.SetTitle(self.__title_template % args)
+
 	#----------------------------------------------
 	def __save_screenshot_to_file(self, filename=None):
 
@@ -3463,21 +3464,24 @@ class gmTopLevelFrame(wx.Frame):
 		gmDispatcher.send(signal = 'statustext', msg = _('Saved screenshot to file [%s].') % filename)
 
 		return filename
+
 	#----------------------------------------------
 	def setup_statusbar(self):
-		sb = self.CreateStatusBar(2, wx.ST_SIZEGRIP)
+		sb = self.CreateStatusBar(2, wx.STB_SIZEGRIP | wx.STB_SHOW_TIPS)
 		sb.SetStatusWidths([-1, 225])
 		# add time and date display to the right corner of the status bar
 		self.clock_update_timer = wx.PyTimer(self._cb_update_clock)
 		self._cb_update_clock()
 		# update every second
 		self.clock_update_timer.Start(milliseconds = 1000)
+
 	#----------------------------------------------
 	def _cb_update_clock(self):
 		"""Displays date and local time in the second slot of the status bar"""
 		t = time.localtime(time.time())
 		st = time.strftime('%Y %b %d  %H:%M:%S', t).decode(gmI18N.get_encoding(), 'replace')
 		self.SetStatusText(st, 1)
+
 	#------------------------------------------------
 	def Lock(self):
 		"""Lock GNUmed client against unauthorized access"""
@@ -3485,6 +3489,7 @@ class gmTopLevelFrame(wx.Frame):
 #		for i in range(1, self.nb.GetPageCount()):
 #			self.nb.GetPage(i).Enable(False)
 		return
+
 	#----------------------------------------------
 	def Unlock(self):
 		"""Unlock the main notebook widgets
@@ -3621,6 +3626,8 @@ class gmApp(wx.App):
 				win.Destroy()
 
 		_log.debug('gmApp.OnExit() end')
+		return 0
+
 	#----------------------------------------------
 	def _on_query_end_session(self, *args, **kwargs):
 		wx.Bell()

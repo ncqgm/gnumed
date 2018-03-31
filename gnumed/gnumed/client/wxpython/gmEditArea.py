@@ -162,7 +162,7 @@ class cXxxEAPnl(wxgXxxEAPnl.wxgXxxEAPnl, gmEditArea.cGenericEditAreaMixin):
 		self.__data = None
 		self.successful_save_msg = None
 		self.__tctrl_validity_colors = {
-			True: wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW),
+			True: wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOW),
 			False: 'pink'
 		}
 		self._refresh_as_new()
@@ -429,7 +429,7 @@ class cGenericEditAreaDlg2(wxgGenericEditAreaDlg2.wxgGenericEditAreaDlg2):
 			raise ValueError('<left extra button> callback is not a callable: %s' % callback)
 		self.__left_extra_button_callback = callback
 		self._BTN_extra_left.SetLabel(label)
-		self._BTN_extra_left.SetToolTipString(tooltip)
+		self._BTN_extra_left.SetToolTip(tooltip)
 		self._BTN_extra_left.Enable(True)
 		self._BTN_extra_left.Show()
 
@@ -501,11 +501,11 @@ class cEditAreaPopup(wx.Dialog):
 		self.__editarea.Reparent(self)
 
 		self.__btn_SAVE = wx.Button(self, self.__wxID_BTN_SAVE, _("Save"))
-		self.__btn_SAVE.SetToolTipString(_('save entry into medical record'))
+		self.__btn_SAVE.SetToolTip(_('save entry into medical record'))
 		self.__btn_RESET = wx.Button(self, self.__wxID_BTN_RESET, _("Reset"))
-		self.__btn_RESET.SetToolTipString(_('reset entry'))
+		self.__btn_RESET.SetToolTip(_('reset entry'))
 		self.__btn_CANCEL = wx.Button(self, wx.ID_CANCEL, _("Cancel"))
-		self.__btn_CANCEL.SetToolTipString(_('discard entry and cancel'))
+		self.__btn_CANCEL.SetToolTip(_('discard entry and cancel'))
 
 		szr_buttons = wx.BoxSizer(wx.HORIZONTAL)
 		szr_buttons.Add(self.__btn_SAVE, 1, wx.EXPAND | wx.ALL, 1)
@@ -788,9 +788,9 @@ class cEditArea2(wx.Panel):
 	def _make_standard_buttons(self, parent):
 		"""Generates OK/CLEAR buttons for edit area."""
 		self.btn_OK = wx.Button(parent, self.__wxID_BTN_OK, _("OK"))
-		self.btn_OK.SetToolTipString(_('save entry into medical record'))
+		self.btn_OK.SetToolTip(_('save entry into medical record'))
 		self.btn_Clear = wx.Button(parent, self.__wxID_BTN_CLEAR, _("Clear"))
-		self.btn_Clear.SetToolTipString(_('initialize input fields for new entry'))
+		self.btn_Clear.SetToolTip(_('initialize input fields for new entry'))
 
 		szr_buttons = wx.BoxSizer(wx.HORIZONTAL)
 		szr_buttons.Add(self.btn_OK, 1, wx.EXPAND | wx.ALL, 1)
@@ -1005,9 +1005,9 @@ class cEditArea(wx.Panel):
 	def _make_standard_buttons(self, parent):
 		"""Generates OK/CLEAR buttons for edit area."""
 		self.btn_OK = wx.Button(parent, ID_BTN_OK, _("OK"))
-		self.btn_OK.SetToolTipString(_('save entry into medical record'))
+		self.btn_OK.SetToolTip(_('save entry into medical record'))
 		self.btn_Clear = wx.Button(parent, ID_BTN_CLEAR, _("Clear"))
-		self.btn_Clear.SetToolTipString(_('initialize input fields for new entry'))
+		self.btn_Clear.SetToolTip(_('initialize input fields for new entry'))
 
 		szr_buttons = wx.BoxSizer(wx.HORIZONTAL)
 		szr_buttons.Add(self.btn_OK, 1, wx.EXPAND | wx.ALL, 1)

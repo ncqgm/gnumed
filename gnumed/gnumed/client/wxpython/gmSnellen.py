@@ -261,7 +261,7 @@ class cSnellenChart(wx.Frame):
 	def OnPaint (self, event):
 		self.dc = wx.PaintDC(self)
 		if self.screen_width_pixel == 0:
-			self.screen_width_pixel, self.screen_height_pixel = self.GetClientSizeTuple()
+			self.screen_width_pixel, self.screen_height_pixel = self.GetClientSize()
 			self.set_distance(2)
 #			_log.info('I think the screen size is %d x %d' % (self.screen_width_pixel, self.screen_height_pixel))
 

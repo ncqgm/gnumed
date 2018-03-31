@@ -479,7 +479,7 @@ class DrugDisplay(wx.Panel):
 			    	# set data as type and database ID
 					self.__mListCtrlItems[item]=(dtype,id)
 				else:
-					self.listctrl_drugchoice.SetStringItem(row,col_no,item_text)
+					self.listctrl_drugchoice.SetItem(row,col_no,item_text)
 				col_no += 1
 		# finally set column widths to AUTOSIZE
 		for i in range(0,len(columns)):

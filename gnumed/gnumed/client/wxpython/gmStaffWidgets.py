@@ -34,7 +34,7 @@ class cProviderPhraseWheel(gmPhraseWheel.cPhraseWheel):
 			**kwargs
 		)
 		self.matcher = gmPerson.cMatchProvider_Provider()
-		self.SetToolTipString(_('Select a healthcare provider.'))
+		self.SetToolTip(_('Select a healthcare provider.'))
 		self.selection_only = True
 
 #==========================================================================
@@ -53,7 +53,7 @@ class cUserRolePRW(gmPhraseWheel.cPhraseWheel):
 		mp.setThresholds(1, 2, 3)
 		mp.word_separators = None
 		#mp.ignored_chars = r"[.'\\(){}\[\]<>~#*$%^_=&@\t0123456789]+" + r'"'
-		#self.SetToolTipString(_('The preparation (form) of the substance or drug.'))
+		#self.SetToolTip(_('The preparation (form) of the substance or drug.'))
 		self.matcher = mp
 		self.selection_only = True
 
@@ -85,12 +85,12 @@ class cEditStaffListDlg(wxgEditStaffListDlg.wxgEditStaffListDlg):
 		pos = len(staff_list) + 1
 		for staff in staff_list:
 			row_num = self._LCTRL_staff.InsertStringItem(pos, label=staff['short_alias'])
-			self._LCTRL_staff.SetStringItem(index = row_num, col = 1, label = staff['db_user'])
-			self._LCTRL_staff.SetStringItem(index = row_num, col = 2, label = staff['l10n_role'])
+			self._LCTRL_staff.SetItem(index = row_num, column = 1, label = staff['db_user'])
+			self._LCTRL_staff.SetItem(index = row_num, column = 2, label = staff['l10n_role'])
 			title = gmTools.coalesce(staff['title'], '')
-			self._LCTRL_staff.SetStringItem(index = row_num, col = 3, label = '%s %s, %s' % (title, staff['lastnames'], staff['firstnames']))
-			self._LCTRL_staff.SetStringItem(index = row_num, col = 4, label = gmTools.coalesce(staff['comment'], ''))
-			self._LCTRL_staff.SetStringItem(index = row_num, col = 5, label = '%s / %s' % (lbl_active[bool(staff['is_active'])], lbl_login[bool(staff['can_login'])]))
+			self._LCTRL_staff.SetItem(index = row_num, column = 3, label = '%s %s, %s' % (title, staff['lastnames'], staff['firstnames']))
+			self._LCTRL_staff.SetItem(index = row_num, column = 4, label = gmTools.coalesce(staff['comment'], ''))
+			self._LCTRL_staff.SetItem(index = row_num, column = 5, label = '%s / %s' % (lbl_active[bool(staff['is_active'])], lbl_login[bool(staff['can_login'])]))
 			# color
 			if staff['is_active'] and staff['can_login']:
 				#self._LCTRL_staff.SetItemTextColour(row_num, col=wx.NamedColour('BLUE'))

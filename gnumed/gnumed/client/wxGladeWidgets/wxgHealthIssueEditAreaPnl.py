@@ -42,18 +42,18 @@ class wxgHealthIssueEditAreaPnl(wx.ScrolledWindow):
     def __set_properties(self):
         # begin wxGlade: wxgHealthIssueEditAreaPnl.__set_properties
         self.SetScrollRate(10, 10)
-        self._PRW_condition.SetToolTipString(_("Enter the condition (health issue/past history item) here. Keep it short but precise."))
-        self._PRW_grouping.SetToolTipString(_("Here you can add arbitrary text which will be used for sorting health issues in the tree."))
-        self._PRW_age_noted.SetToolTipString(_("Enter the age in years when this condition was diagnosed. Setting this will adjust the \"in the year\" field accordingly."))
-        self._PRW_year_noted.SetToolTipString(_("Enter the year when this condition was diagnosed. Setting this will adjust the \"at age\" field accordingly."))
-        self._TCTRL_status.SetToolTipString(_("A summary of the state of this issue."))
-        self._ChBOX_active.SetToolTipString(_("Check if this is an active, ongoing problem."))
+        self._PRW_condition.SetToolTip(_("Enter the condition (health issue/past history item) here. Keep it short but precise."))
+        self._PRW_grouping.SetToolTip(_("Here you can add arbitrary text which will be used for sorting health issues in the tree."))
+        self._PRW_age_noted.SetToolTip(_("Enter the age in years when this condition was diagnosed. Setting this will adjust the \"in the year\" field accordingly."))
+        self._PRW_year_noted.SetToolTip(_("Enter the year when this condition was diagnosed. Setting this will adjust the \"at age\" field accordingly."))
+        self._TCTRL_status.SetToolTip(_("A summary of the state of this issue."))
+        self._ChBOX_active.SetToolTip(_("Check if this is an active, ongoing problem."))
         self._ChBOX_active.SetValue(1)
-        self._ChBOX_relevant.SetToolTipString(_("Check if this is a clinically relevant problem."))
+        self._ChBOX_relevant.SetToolTip(_("Check if this is a clinically relevant problem."))
         self._ChBOX_relevant.SetValue(1)
-        self._ChBOX_confidential.SetToolTipString(_("Check if this condition is to be kept confidential and not disclosed to anyone else."))
-        self._ChBOX_caused_death.SetToolTipString(_("Check if this condition contributed to causing death of the patient."))
-        self._PRW_codes.SetToolTipString(_("Codes relevant to this health issue\nseparated by \";\"."))
+        self._ChBOX_confidential.SetToolTip(_("Check if this condition is to be kept confidential and not disclosed to anyone else."))
+        self._ChBOX_caused_death.SetToolTip(_("Check if this condition contributed to causing death of the patient."))
+        self._PRW_codes.SetToolTip(_("Codes relevant to this health issue\nseparated by \";\"."))
         self._TCTRL_code_details.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_BACKGROUND))
         # end wxGlade
 

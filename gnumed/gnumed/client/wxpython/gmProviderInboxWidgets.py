@@ -72,7 +72,7 @@ class cMessageTypePhraseWheel(gmPhraseWheel.cPhraseWheel):
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries = query)
 		mp.setThresholds(1, 2, 4)
 		self.matcher = mp
-		self.SetToolTipString(_('Select a message type.'))
+		self.SetToolTip(_('Select a message type.'))
 	#----------------------------------------------------------------
 	def _create_data(self):
 		if self.GetData() is not None:

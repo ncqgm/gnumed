@@ -802,16 +802,17 @@ class cIssueListSelectorDlg(gmListWidgets.cGenericListSelectorDlg):
 			else:
 				row_num = self._LCTRL_items.InsertStringItem(sys.maxint, label = u'')
 
-			self._LCTRL_items.SetStringItem(index = row_num, col = 1, label = issue['description'])
+			self._LCTRL_items.SetItem(index = row_num, column = 1, label = issue['description'])
 			if issue['clinically_relevant']:
-				self._LCTRL_items.SetStringItem(index = row_num, col = 2, label = _('relevant'))
+				self._LCTRL_items.SetItem(index = row_num, column = 2, label = _('relevant'))
 			if issue['is_active']:
-				self._LCTRL_items.SetStringItem(index = row_num, col = 3, label = _('active'))
+				self._LCTRL_items.SetItem(index = row_num, column = 3, label = _('active'))
 			if issue['is_cause_of_death']:
-				self._LCTRL_items.SetStringItem(index = row_num, col = 4, label = _('fatal'))
+				self._LCTRL_items.SetItem(index = row_num, column = 4, label = _('fatal'))
 
 		self._LCTRL_items.set_column_widths()
 		self._LCTRL_items.set_data(data = issues)
+
 #----------------------------------------------------------------
 class cIssueSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
 	"""Let the user select a health issue.
@@ -1319,7 +1320,7 @@ class cDiagnosticCertaintyClassificationPhraseWheel(gmPhraseWheel.cPhraseWheel):
 		mp.setThresholds(1, 2, 4)
 		self.matcher = mp
 
-		self.SetToolTipString(_(
+		self.SetToolTip(_(
 			"The diagnostic classification or grading of this assessment.\n"
 			"\n"
 			"This documents how certain one is about this being a true diagnosis."

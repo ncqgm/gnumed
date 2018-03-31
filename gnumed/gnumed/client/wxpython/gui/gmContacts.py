@@ -130,10 +130,10 @@ class cContactsPanel(wx.wx.Panel):
 			#print items[x]
 			#print x, data[0],data[1],data[2]
 			self.list_organisations.InsertStringItem(x, data[0])
-			self.list_organisations.SetStringItem(x, 1, data[1])
-			self.list_organisations.SetStringItem(x, 2, data[2])
-			self.list_organisations.SetStringItem(x, 3, data[3])
-			self.list_organisations.SetStringItem(x, 4, data[4])
+			self.list_organisations.SetItem(x, 1, data[1])
+			self.list_organisations.SetItem(x, 2, data[2])
+			self.list_organisations.SetItem(x, 3, data[3])
+			self.list_organisations.SetItem(x, 4, data[4])
 		self.list_organisations.SetItemData(x, key)
 		self.list_organisations.SetColumnWidth(0, wx.wx.LIST_AUTOSIZE)
 		self.list_organisations.SetColumnWidth(1, wx.wx.LIST_AUTOSIZE)
@@ -641,17 +641,17 @@ class cContactsPanel(wx.wx.Panel):
 	
 	def _insert_org_data(self, n, key, data): 	  
 		self.list_organisations.InsertStringItem(n, data[0])
-		self.list_organisations.SetStringItem(n, 1, data[1])
-		self.list_organisations.SetStringItem(n, 2, data[2])
-		self.list_organisations.SetStringItem(n, 3, data[3])
-		self.list_organisations.SetStringItem(n, 4, data[4])
+		self.list_organisations.SetItem(n, 1, data[1])
+		self.list_organisations.SetItem(n, 2, data[2])
+		self.list_organisations.SetItem(n, 3, data[3])
+		self.list_organisations.SetItem(n, 4, data[4])
 		self.list_organisations.SetItemData(n, key)
 	
 	
 	def _update_org_data( self, n, key, data):
 		l = self.list_organisations
 		for i in range(0, 4):
-			l.SetStringItem(i, data[i])
+			l.SetItem(i, data[i])
 		l.SetItemData(n, key)
 	
 

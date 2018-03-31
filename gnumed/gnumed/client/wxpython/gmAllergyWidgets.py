@@ -142,7 +142,7 @@ where narrative %(fragment_condition)s
 			self._PRW_trigger.display_as_valid(False)
 			self._PRW_trigger.SetFocus()
 			return False
-		#self._PRW_trigger.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
+		#self._PRW_trigger.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOW))
 		self._PRW_trigger.display_as_valid(True)
 		self._PRW_trigger.Refresh()
 
@@ -323,9 +323,9 @@ class cAllergyManagerDlg(wxgAllergyManagerDlg.wxgAllergyManagerDlg):
 					label = _('definite')
 				else:
 					label = u''
-				self._LCTRL_allergies.SetStringItem(index = row_idx, col = 1, label = label)
-				self._LCTRL_allergies.SetStringItem(index = row_idx, col = 2, label = allergy['descriptor'])
-				self._LCTRL_allergies.SetStringItem(index = row_idx, col = 3, label = gmTools.coalesce(allergy['reaction'], u''))
+				self._LCTRL_allergies.SetItem(index = row_idx, column = 1, label = label)
+				self._LCTRL_allergies.SetItem(index = row_idx, column = 2, label = allergy['descriptor'])
+				self._LCTRL_allergies.SetItem(index = row_idx, column = 3, label = gmTools.coalesce(allergy['reaction'], u''))
 			self._LCTRL_allergies.set_data(data=allergies)
 
 			self._LCTRL_allergies.Enable(True)
@@ -531,15 +531,15 @@ class cAllergyPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 			list_line = self.LCTRL_allergies.InsertStringItem(list_line, allg['l10n_type'])
 			# FIXME: check with Richard design specs
 			if allg['definite']:
-				self.LCTRL_allergies.SetStringItem(list_line, 1, _('definite'))
+				self.LCTRL_allergies.SetItem(list_line, 1, _('definite'))
 			else:
-				self.LCTRL_allergies.SetStringItem(list_line, 1, _('likely'))
+				self.LCTRL_allergies.SetItem(list_line, 1, _('likely'))
 			if allg['atc_code'] is not None:
-				self.LCTRL_allergies.SetStringItem(list_line, 2, allg['atc_code'])
-			self.LCTRL_allergies.SetStringItem(list_line, 3, allg['substance'])
+				self.LCTRL_allergies.SetItem(list_line, 2, allg['atc_code'])
+			self.LCTRL_allergies.SetItem(list_line, 3, allg['substance'])
 			if allg['generics'] is not None:
-				self.LCTRL_allergies.SetStringItem(list_line, 4, allg['generics'])
-			self.LCTRL_allergies.SetStringItem(list_line, 5, allg['reaction'])
+				self.LCTRL_allergies.SetItem(list_line, 4, allg['generics'])
+			self.LCTRL_allergies.SetItem(list_line, 5, allg['reaction'])
 			self.LCTRL_allergies.SetItemData(list_line, allg['pk_allergy'])
 		for col in range(5):
 			self.LCTRL_allergies.SetColumnWidth(col, wx.LIST_AUTOSIZE)

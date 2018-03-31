@@ -151,7 +151,7 @@ class cOrgUnitPhraseWheel(gmPhraseWheel.cPhraseWheel):
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query)
 		mp.setThresholds(1, 3, 5)
 		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
-		self.SetToolTipString(_("Select an organizational unit."))
+		self.SetToolTip(_("Select an organizational unit."))
 		self.matcher = mp
 		self.picklist_delay = 300
 	#--------------------------------------------------------
@@ -214,7 +214,7 @@ class cOrgUnitsManagerPnl(gmListWidgets.cGenericListManagerPnl):
 	#--------------------------------------------------------
 	def __init_ui(self):
 		self._LCTRL_items.set_columns(columns = [ _('Organizational Unit'), _('Unit Category'), u'#' ])
-		self._LCTRL_items.SetToolTipString(_('Units (sites, parts, departments, branches, ...) of organizations registered in GNUmed.'))
+		self._LCTRL_items.SetToolTip(_('Units (sites, parts, departments, branches, ...) of organizations registered in GNUmed.'))
 		self._LCTRL_items.item_tooltip_callback = self.get_tooltip
 		#self._LCTRL_items.set_column_widths(widths = [wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE])
 	#--------------------------------------------------------
@@ -674,7 +674,7 @@ class cOrganizationPhraseWheel(gmPhraseWheel.cPhraseWheel):
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query)
 		mp.setThresholds(1, 3, 5)
 		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
-		self.SetToolTipString(_("Select an organization."))
+		self.SetToolTip(_("Select an organization."))
 		self.matcher = mp
 		self.picklist_delay = 300
 		self.selection_only = True
@@ -806,7 +806,7 @@ class cOrgCategoryPhraseWheel(gmPhraseWheel.cPhraseWheel):
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query)
 		mp.setThresholds(1, 3, 5)
 		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
-		self.SetToolTipString(_("Select an organizational category."))
+		self.SetToolTip(_("Select an organizational category."))
 		self.matcher = mp
 		self.selection_only = True
 
@@ -859,7 +859,7 @@ class cOrganizationsManagerPnl(gmListWidgets.cGenericListManagerPnl):
 	#--------------------------------------------------------
 	def __init_ui(self):
 		self._LCTRL_items.set_columns(columns = [_('Organization'), _('Category'), u'#'])
-		self._LCTRL_items.SetToolTipString(_('Organizations registered in GNUmed.'))
+		self._LCTRL_items.SetToolTip(_('Organizations registered in GNUmed.'))
 		self._LCTRL_items.item_tooltip_callback = self.get_tooltip
 		#self._LCTRL_items.set_column_widths(widths = [wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE])
 	#--------------------------------------------------------

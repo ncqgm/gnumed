@@ -334,7 +334,7 @@ LIMIT 25"""],
 		self.picklist_delay = 50
 		self.selection_only = True
 
-		self.SetToolTipString(_('Select a document.'))
+		self.SetToolTip(_('Select a document.'))
 
 	#--------------------------------------------------------
 	def _data2instance(self):
@@ -404,7 +404,7 @@ LIMIT 25"""],
 		self.matcher = mp
 		self.picklist_delay = 50
 
-		self.SetToolTipString(_('Enter a comment on the document.'))
+		self.SetToolTip(_('Enter a comment on the document.'))
 
 #============================================================
 # document type widgets
@@ -457,18 +457,18 @@ class cEditDocumentTypesPnl(wxgEditDocumentTypesPnl.wxgEditDocumentTypesPnl):
 
 		for doc_type in doc_types:
 			row_num = self._LCTRL_doc_type.InsertStringItem(pos, label = doc_type['type'])
-			self._LCTRL_doc_type.SetStringItem(index = row_num, col = 1, label = doc_type['l10n_type'])
+			self._LCTRL_doc_type.SetItem(index = row_num, column = 1, label = doc_type['l10n_type'])
 			if doc_type['is_user_defined']:
-				self._LCTRL_doc_type.SetStringItem(index = row_num, col = 2, label = ' X ')
+				self._LCTRL_doc_type.SetItem(index = row_num, column = 2, label = ' X ')
 			if doc_type['is_in_use']:
-				self._LCTRL_doc_type.SetStringItem(index = row_num, col = 3, label = ' X ')
+				self._LCTRL_doc_type.SetItem(index = row_num, column = 3, label = ' X ')
 
 		if len(doc_types) > 0:
 			self._LCTRL_doc_type.set_data(data = doc_types)
-			self._LCTRL_doc_type.SetColumnWidth(col=0, width=wx.LIST_AUTOSIZE)
-			self._LCTRL_doc_type.SetColumnWidth(col=1, width=wx.LIST_AUTOSIZE)
-			self._LCTRL_doc_type.SetColumnWidth(col=2, width=wx.LIST_AUTOSIZE_USEHEADER)
-			self._LCTRL_doc_type.SetColumnWidth(col=3, width=wx.LIST_AUTOSIZE_USEHEADER)
+			self._LCTRL_doc_type.SetColumnWidth(column=0, width=wx.LIST_AUTOSIZE)
+			self._LCTRL_doc_type.SetColumnWidth(column=1, width=wx.LIST_AUTOSIZE)
+			self._LCTRL_doc_type.SetColumnWidth(column=2, width=wx.LIST_AUTOSIZE_USEHEADER)
+			self._LCTRL_doc_type.SetColumnWidth(column=3, width=wx.LIST_AUTOSIZE_USEHEADER)
 
 		self._TCTRL_type.SetValue('')
 		self._TCTRL_l10n_type.SetValue('')
@@ -613,7 +613,7 @@ ORDER BY q1.rank, q1.list_label"""]
 		self.matcher = mp
 		self.picklist_delay = 50
 
-		self.SetToolTipString(_('Select the document type.'))
+		self.SetToolTip(_('Select the document type.'))
 	#--------------------------------------------------------
 	def _create_data(self):
 
@@ -729,11 +729,11 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 		self.__reload_existing_reviews()
 
 		if self._LCTRL_existing_reviews.GetItemCount() > 0:
-			self._LCTRL_existing_reviews.SetColumnWidth(col=0, width=wx.LIST_AUTOSIZE)
-			self._LCTRL_existing_reviews.SetColumnWidth(col=1, width=wx.LIST_AUTOSIZE)
-			self._LCTRL_existing_reviews.SetColumnWidth(col=2, width=wx.LIST_AUTOSIZE_USEHEADER)
-			self._LCTRL_existing_reviews.SetColumnWidth(col=3, width=wx.LIST_AUTOSIZE_USEHEADER)
-			self._LCTRL_existing_reviews.SetColumnWidth(col=4, width=wx.LIST_AUTOSIZE)
+			self._LCTRL_existing_reviews.SetColumnWidth(column=0, width=wx.LIST_AUTOSIZE)
+			self._LCTRL_existing_reviews.SetColumnWidth(column=1, width=wx.LIST_AUTOSIZE)
+			self._LCTRL_existing_reviews.SetColumnWidth(column=2, width=wx.LIST_AUTOSIZE_USEHEADER)
+			self._LCTRL_existing_reviews.SetColumnWidth(column=3, width=wx.LIST_AUTOSIZE_USEHEADER)
+			self._LCTRL_existing_reviews.SetColumnWidth(column=4, width=wx.LIST_AUTOSIZE)
 
 		if self.__part is None:
 			self._ChBOX_review.SetValue(False)
@@ -781,24 +781,24 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 		# display them
 		if review_by_responsible_doc is not None:
 			row_num = self._LCTRL_existing_reviews.InsertStringItem(sys.maxint, label=review_by_responsible_doc[0])
-			self._LCTRL_existing_reviews.SetItemTextColour(row_num, col=wx.BLUE)
-			self._LCTRL_existing_reviews.SetStringItem(index = row_num, col=0, label=review_by_responsible_doc[0])
-			self._LCTRL_existing_reviews.SetStringItem(index = row_num, col=1, label=review_by_responsible_doc[1].strftime('%x %H:%M'))
+			self._LCTRL_existing_reviews.SetItemTextColour(row_num, column=wx.BLUE)
+			self._LCTRL_existing_reviews.SetItem(index = row_num, column=0, label=review_by_responsible_doc[0])
+			self._LCTRL_existing_reviews.SetItem(index = row_num, column=1, label=review_by_responsible_doc[1].strftime('%x %H:%M'))
 			if review_by_responsible_doc['is_technically_abnormal']:
-				self._LCTRL_existing_reviews.SetStringItem(index = row_num, col=2, label=u'X')
+				self._LCTRL_existing_reviews.SetItem(index = row_num, column=2, label=u'X')
 			if review_by_responsible_doc['clinically_relevant']:
-				self._LCTRL_existing_reviews.SetStringItem(index = row_num, col=3, label=u'X')
-			self._LCTRL_existing_reviews.SetStringItem(index = row_num, col=4, label=review_by_responsible_doc[6])
+				self._LCTRL_existing_reviews.SetItem(index = row_num, column=3, label=u'X')
+			self._LCTRL_existing_reviews.SetItem(index = row_num, column=4, label=review_by_responsible_doc[6])
 			row_num += 1
 		for rev in reviews_by_others:
 			row_num = self._LCTRL_existing_reviews.InsertStringItem(sys.maxint, label=rev[0])
-			self._LCTRL_existing_reviews.SetStringItem(index = row_num, col=0, label=rev[0])
-			self._LCTRL_existing_reviews.SetStringItem(index = row_num, col=1, label=rev[1].strftime('%x %H:%M'))
+			self._LCTRL_existing_reviews.SetItem(index = row_num, column=0, label=rev[0])
+			self._LCTRL_existing_reviews.SetItem(index = row_num, column=1, label=rev[1].strftime('%x %H:%M'))
 			if rev['is_technically_abnormal']:
-				self._LCTRL_existing_reviews.SetStringItem(index = row_num, col=2, label=u'X')
+				self._LCTRL_existing_reviews.SetItem(index = row_num, column=2, label=u'X')
 			if rev['clinically_relevant']:
-				self._LCTRL_existing_reviews.SetStringItem(index = row_num, col=3, label=u'X')
-			self._LCTRL_existing_reviews.SetStringItem(index = row_num, col=4, label=rev[6])
+				self._LCTRL_existing_reviews.SetItem(index = row_num, column=3, label=u'X')
+			self._LCTRL_existing_reviews.SetItem(index = row_num, column=4, label=rev[6])
 		return True
 
 	#--------------------------------------------------------
@@ -1878,7 +1878,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 		# document / description
 #		self.__desc_menu = wx.Menu()
 #		ID = wx.NewId()
-#		self.__doc_context_menu.AppendMenu(ID, _('Descriptions ...'), self.__desc_menu)
+#		self.__doc_context_menu.Append(ID, _('Descriptions ...'), self.__desc_menu)
 
 #		ID = wx.NewId()
 #		self.__desc_menu.Append(ID, _('Add new description'))
@@ -3118,7 +3118,7 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 		self._LBL_patient_identification.SetLabel(u'\n'.join(info_lines))
 		tt_lines.append(u'')
 		tt_lines.append(_(u'Studies found: %s') % no_of_studies)
-		self._LBL_patient_identification.SetToolTipString(u'\n'.join(tt_lines))
+		self._LBL_patient_identification.SetToolTip(u'\n'.join(tt_lines))
 
 		# get studies
 		study_list_items = []
@@ -3148,7 +3148,7 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 
 		self._LCTRL_studies.set_string_items(items = study_list_items)
 		self._LCTRL_studies.set_data(data = study_list_data)
-		self._LCTRL_studies.SortListItems(col = 0, ascending = 0)
+		self._LCTRL_studies.SortListItems(column = 0, ascending = 0)
 
 		self.__refresh_image()
 		self.__refresh_details()
@@ -3373,7 +3373,7 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 
 		self._LCTRL_series.set_string_items(items = series_list_items)
 		self._LCTRL_series.set_data(data = series_list_data)
-		self._LCTRL_series.SortListItems(col = 0)
+		self._LCTRL_series.SortListItems(column = 0)
 
 		self.__refresh_image()
 		self.__refresh_details()

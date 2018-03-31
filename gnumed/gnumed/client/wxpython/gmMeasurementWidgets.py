@@ -779,7 +779,7 @@ class cMeasurementsByDayPnl(wxgMeasurementsByDayPnl.wxgMeasurementsByDayPnl, gmR
 			txt = _(u'Document types declared to contain lab results:')
 			txt += u'\n '
 			txt += u'\n '.join(lab_doc_types)
-		self._LBL_no_of_docs.SetToolTipString(txt)
+		self._LBL_no_of_docs.SetToolTip(txt)
 
 	#------------------------------------------------------------
 	def __register_events(self):
@@ -957,7 +957,7 @@ class cMeasurementsByDayPnl(wxgMeasurementsByDayPnl.wxgMeasurementsByDayPnl, gmR
 			txt = _(u'Document types declared to contain lab results:')
 			txt += u'\n '
 			txt += u'\n '.join(lab_doc_types)
-		self._LBL_no_of_docs.SetToolTipString(txt)
+		self._LBL_no_of_docs.SetToolTip(txt)
 
 	#------------------------------------------------------------
 	# reget mixin API
@@ -2000,8 +2000,8 @@ class cMeasurementsGrid(wx.grid.Grid):
 			style = wx.HL_DEFAULT_STYLE			# wx.TE_READONLY|wx.TE_CENTRE| wx.NO_BORDER |
 		)
 		LNK_lab.SetURL(url)
-		LNK_lab.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_BACKGROUND))
-		LNK_lab.SetToolTipString(_(
+		LNK_lab.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_BACKGROUND))
+		LNK_lab.SetToolTip(_(
 			'Navigate to an encyclopedia of measurements\n'
 			'and test methods on the web.\n'
 			'\n'
@@ -2137,7 +2137,7 @@ class cMeasurementsGrid(wx.grid.Grid):
 #         x, y = self.CalcUnscrolledPosition(evt.GetPosition())
 #         row = self.YToRow(y)
 #         label = self.table().GetRowHelpValue(row)
-#         self.GetGridRowLabelWindow().SetToolTipString(label or "")
+#         self.GetGridRowLabelWindow().SetToolTip(label or "")
 #         evt.Skip()
 	def __on_mouse_over_row_labels(self, evt):
 
@@ -2152,13 +2152,13 @@ class cMeasurementsGrid(wx.grid.Grid):
 
 		self.__prev_label_row == row
 
-		evt.GetEventObject().SetToolTipString(self.get_row_tooltip(row = row))
+		evt.GetEventObject().SetToolTip(self.get_row_tooltip(row = row))
 	#------------------------------------------------------------
 #     def OnMouseMotionColLabel(self, evt):
 #         x, y = self.CalcUnscrolledPosition(evt.GetPosition())
 #         col = self.XToCol(x)
 #         label = self.table().GetColHelpValue(col)
-#         self.GetGridColLabelWindow().SetToolTipString(label or "")
+#         self.GetGridColLabelWindow().SetToolTip(label or "")
 #         evt.Skip()
 	#------------------------------------------------------------
 	def __on_mouse_over_cells(self, evt):
@@ -2188,7 +2188,7 @@ class cMeasurementsGrid(wx.grid.Grid):
 		self.__prev_row = row
 		self.__prev_col = col
 
-		evt.GetEventObject().SetToolTipString(self.get_cell_tooltip(col=col, row=row))
+		evt.GetEventObject().SetToolTip(self.get_cell_tooltip(col=col, row=row))
 
 	#------------------------------------------------------------
 	# properties
@@ -3073,7 +3073,7 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 			most_recent['abbrev_tt'],
 			gmTools.coalesce(most_recent.formatted_range, u'', u' [%s]')
 		))
-		self._TCTRL_previous_value.SetToolTipString(most_recent.format (
+		self._TCTRL_previous_value.SetToolTip(most_recent.format (
 			with_review = True,
 			with_evaluation = False,
 			with_ranges = True,
@@ -3254,7 +3254,7 @@ LIMIT 50""" % {'in_house': _('generic / in house lab')}
 		mp.word_separators = '[ \t:@]+'
 		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
 		self.matcher = mp
-		self.SetToolTipString(_('Select the type of measurement.'))
+		self.SetToolTip(_('Select the type of measurement.'))
 		self.selection_only = False
 
 	#------------------------------------------------------------
@@ -3661,7 +3661,7 @@ LIMIT 50""" % (
 		#mp.print_queries = True
 		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
 		self.matcher = mp
-		self.SetToolTipString(_('Select the desired unit for the amount or measurement.'))
+		self.SetToolTip(_('Select the desired unit for the amount or measurement.'))
 		self.selection_only = False
 		self.phrase_separators = u'[;|]+'
 
@@ -3691,7 +3691,7 @@ limit 25"""
 			**kwargs
 		)
 		self.matcher = mp
-		self.SetToolTipString(_('Select an indicator for the level of abnormality.'))
+		self.SetToolTip(_('Select an indicator for the level of abnormality.'))
 		self.selection_only = False
 
 #================================================================
@@ -3855,7 +3855,7 @@ LIMIT 50"""
 		#mp.word_separators = '[ \t:@]+'
 		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
 		self.matcher = mp
-		self.SetToolTipString(_('The name of the path lab/diagnostic organisation.'))
+		self.SetToolTip(_('The name of the path lab/diagnostic organisation.'))
 		self.selection_only = False
 	#------------------------------------------------------------
 	def _create_data(self):
@@ -3988,7 +3988,7 @@ LIMIT 50"""
 		mp.word_separators = '[ \t:@]+'
 		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
 		self.matcher = mp
-		self.SetToolTipString(_('Select the meta test type.'))
+		self.SetToolTip(_('Select the meta test type.'))
 		self.selection_only = True
 	#------------------------------------------------------------
 	def _data2instance(self):
@@ -4235,7 +4235,7 @@ LIMIT 30"""
 		#mp.word_separators = '[ \t:@]+'
 		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
 		self.matcher = mp
-		self.SetToolTipString(_('Select a test panel.'))
+		self.SetToolTip(_('Select a test panel.'))
 		self.selection_only = True
 	#------------------------------------------------------------
 	def _data2instance(self):

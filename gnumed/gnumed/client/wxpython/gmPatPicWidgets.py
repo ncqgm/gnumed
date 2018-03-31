@@ -167,7 +167,7 @@ class cPatientPicture(wx.StaticBitmap):
 
 		if photo is None:
 			fname = None
-			self.SetToolTipString (_(
+			self.SetToolTip (_(
 				'Patient picture.\n'
 				'\n'
 				'Right-click for context menu.'
@@ -175,7 +175,7 @@ class cPatientPicture(wx.StaticBitmap):
 #			gmDispatcher.send(signal='statustext', msg=_('Cannot get most recent patient photo from database.'))
 		else:
 			fname = photo.save_to_file()
-			self.SetToolTipString (_(
+			self.SetToolTip (_(
 				'Patient picture (%s).\n'
 				'\n'
 				'Right-click for context menu.'

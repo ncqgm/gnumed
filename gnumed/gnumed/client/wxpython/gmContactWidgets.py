@@ -94,7 +94,7 @@ ORDER BY
 		mp.word_separators = u'[ \t]+'
 		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
 		self.matcher = mp
-		self.SetToolTipString(_('Select the type of communications channel.'))
+		self.SetToolTip(_('Select the type of communications channel.'))
 		self.selection_only = True
 
 #================================================================
@@ -254,7 +254,7 @@ class cCommChannelsManagerPnl(gmListWidgets.cGenericListManagerPnl):
 	# internal helpers
 	#--------------------------------------------------------
 	def __init_ui(self):
-		self._LCTRL_items.SetToolTipString(_('List of known communication channels.'))
+		self._LCTRL_items.SetToolTip(_('List of known communication channels.'))
 		self._LCTRL_items.set_columns(columns = [
 			_('confidential'),
 			_('Type'),

@@ -581,8 +581,9 @@ class cMultiSashLeafContent(wx.Window):
 	def OnSize(self,evt):
 		w,h = self.CalcSize(self.GetParent())
 		self.SetDimensions(0,0,w,h)
-		w,h = self.GetClientSizeTuple()
+		w,h = self.GetClientSize()
 		self.child.SetSize(wx.Size(w-4,h-4))
+
 #----------------------------------------------------------------------
 class cMultiSizer(wx.Window):
 	"""
@@ -865,7 +866,7 @@ def DrawSash(win,x,y,direction):
 	dc.SetBrush(brush)
 	dc.SetLogicalFunction(wx.XOR)
 
-	body_w,body_h = win.GetClientSizeTuple()
+	body_w,body_h = win.GetClientSize()
 
 	if y < 0:
 		y = 0

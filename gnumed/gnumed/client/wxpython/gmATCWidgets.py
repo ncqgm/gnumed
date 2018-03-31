@@ -153,7 +153,7 @@ class cATCPhraseWheel(gmPhraseWheel.cPhraseWheel):
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries = query)
 		mp.setThresholds(1, 2, 4)
 #		mp.word_separators = '[ \t=+&:@]+'
-		self.SetToolTipString(_('Select an ATC (Anatomical-Therapeutic-Chemical) code.'))
+		self.SetToolTip(_('Select an ATC (Anatomical-Therapeutic-Chemical) code.'))
 		self.matcher = mp
 		self.selection_only = True
 

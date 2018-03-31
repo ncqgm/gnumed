@@ -87,7 +87,7 @@ class cLOINCPhraseWheel(gmPhraseWheel.cPhraseWheel):
 		self.matcher = mp
 		self.selection_only = False
 		self.final_regex = r'\d{1,5}-\d{1}$'
-		self.SetToolTipString(_('Select a LOINC (Logical Observation Identifiers Names and Codes).'))
+		self.SetToolTip(_('Select a LOINC (Logical Observation Identifiers Names and Codes).'))
 
 #================================================================
 # main

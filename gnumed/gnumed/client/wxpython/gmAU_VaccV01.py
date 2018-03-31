@@ -493,7 +493,7 @@ class cAU_VaccV01Panel(wx.Panel):
 			if j == 0:
 				l.InsertStringItem( i,  str(v[f])) 
 			else:
-				l.SetStringItem(i, j, str(v[f]) )
+				l.SetItem(i, j, str(v[f]) )
 	
 	for i in range(len(cols)):
 		l.SetColumnWidth( i, wx.LIST_AUTOSIZE)

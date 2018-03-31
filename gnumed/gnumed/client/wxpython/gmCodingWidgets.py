@@ -92,7 +92,7 @@ class cDataSourcePhraseWheel(gmPhraseWheel.cPhraseWheel):
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries = query)
 		mp.setThresholds(1, 2, 4)
 #		mp.word_separators = '[ \t=+&:@]+'
-		self.SetToolTipString(_('Select a data source / coding system.'))
+		self.SetToolTip(_('Select a data source / coding system.'))
 		self.matcher = mp
 		self.selection_only = True
 
@@ -190,7 +190,7 @@ class cGenericCodesPhraseWheel(gmPhraseWheel.cMultiPhraseWheel):
 
 		self.phrase_separators = ';'
 		self.selection_only = False			# not sure yet how this fares with multi-phrase input
-		self.SetToolTipString(_('Select one or more codes that apply.'))
+		self.SetToolTip(_('Select one or more codes that apply.'))
 		self.matcher = mp
 
 		self.add_callback_on_lose_focus(callback = self.__on_losing_focus)

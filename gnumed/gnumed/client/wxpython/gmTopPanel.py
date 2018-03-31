@@ -227,7 +227,7 @@ class cTopPnl(wxgTopPnl.wxgTopPnl):
 		# no patient
 		if not self.curr_pat.connected:
 			self._LBL_age.SetLabel(_('<Age>'))
-			self._LBL_age.SetToolTipString(_('no patient selected'))
+			self._LBL_age.SetToolTip(_('no patient selected'))
 			return
 
 		# gender is always known
@@ -244,7 +244,7 @@ class cTopPnl(wxgTopPnl.wxgTopPnl):
 				self.curr_pat.get_formatted_dob()
 			)
 			self._LBL_age.SetLabel(age)
-			self._LBL_age.SetToolTipString(tt)
+			self._LBL_age.SetToolTip(tt)
 			return
 
 		tt += _('Born: %s\n') % self.curr_pat.get_formatted_dob(format = '%d %b %Y', encoding = gmI18N.get_encoding())
@@ -262,7 +262,7 @@ class cTopPnl(wxgTopPnl.wxgTopPnl):
 			if self.curr_pat['dob_is_estimated']:
 				tt += _(' (date of birth and age are estimated)\n')
 			self._LBL_age.SetLabel(age)
-			self._LBL_age.SetToolTipString(tt)
+			self._LBL_age.SetToolTip(tt)
 			return
 
 		# patient alive
@@ -314,16 +314,16 @@ class cTopPnl(wxgTopPnl.wxgTopPnl):
 			tt += _(' (date of birth and age are estimated)\n')
 
 		self._LBL_age.SetLabel(age)
-		self._LBL_age.SetToolTipString(tt)
+		self._LBL_age.SetToolTip(tt)
 
 	#-------------------------------------------------------
 	def __update_allergies(self, **kwargs):
 
 		if not self.curr_pat.connected:
-			self._LBL_allergies.SetForegroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOWTEXT))
-			self._TCTRL_allergies.SetForegroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOWTEXT))
+			self._LBL_allergies.SetForegroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOWTEXT))
+			self._TCTRL_allergies.SetForegroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOWTEXT))
 			self._TCTRL_allergies.SetValue(u'')
-			self._TCTRL_allergies.SetToolTipString(u'')
+			self._TCTRL_allergies.SetToolTip(u'')
 			return
 
 		show_red = True
@@ -376,11 +376,11 @@ class cTopPnl(wxgTopPnl.wxgTopPnl):
 			self._LBL_allergies.SetForegroundColour('red')
 			self._TCTRL_allergies.SetForegroundColour('red')
 		else:
-			self._LBL_allergies.SetForegroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOWTEXT))
-			self._TCTRL_allergies.SetForegroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOWTEXT))
+			self._LBL_allergies.SetForegroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOWTEXT))
+			self._TCTRL_allergies.SetForegroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOWTEXT))
 
 		self._TCTRL_allergies.SetValue(display)
-		self._TCTRL_allergies.SetToolTipString(tt)
+		self._TCTRL_allergies.SetToolTip(tt)
 
 #===========================================================	
 if __name__ == "__main__":

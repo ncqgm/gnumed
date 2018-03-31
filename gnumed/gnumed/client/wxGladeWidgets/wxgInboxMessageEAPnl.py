@@ -43,21 +43,21 @@ class wxgInboxMessageEAPnl(wx.ScrolledWindow):
     def __set_properties(self):
         # begin wxGlade: wxgInboxMessageEAPnl.__set_properties
         self.SetScrollRate(10, 10)
-        self._TCTRL_subject.SetToolTipString(_("What this message is about."))
-        self._PRW_type.SetToolTipString(_("The message type."))
-        self._CHBOX_send_to_me.SetToolTipString(_("Check if this message should (also) be sent to yourself."))
+        self._TCTRL_subject.SetToolTip(_("What this message is about."))
+        self._PRW_type.SetToolTip(_("The message type."))
+        self._CHBOX_send_to_me.SetToolTip(_("Check if this message should (also) be sent to yourself."))
         self._CHBOX_send_to_me.SetValue(1)
-        self._PRW_receiver.SetToolTipString(_("Whom to (also) send this message to."))
-        self._CHBOX_active_patient.SetToolTipString(_("Check this if this is about the active patient."))
+        self._PRW_receiver.SetToolTip(_("Whom to (also) send this message to."))
+        self._CHBOX_active_patient.SetToolTip(_("Check this if this is about the active patient."))
         self._CHBOX_active_patient.SetValue(1)
         self._PRW_patient.Enable(False)
-        self._TCTRL_message.SetToolTipString(_("A longer text detailing the message, if needed."))
-        self._PRW_due.SetToolTipString(_("Optional: Pick a date when this message is due to be acted on."))
-        self._PRW_expiry.SetToolTipString(_("Optional: Pick a date when this message will no longer be relevant."))
-        self._RBTN_normal.SetToolTipString(_("Normal (standard) urgency of message."))
+        self._TCTRL_message.SetToolTip(_("A longer text detailing the message, if needed."))
+        self._PRW_due.SetToolTip(_("Optional: Pick a date when this message is due to be acted on."))
+        self._PRW_expiry.SetToolTip(_("Optional: Pick a date when this message will no longer be relevant."))
+        self._RBTN_normal.SetToolTip(_("Normal (standard) urgency of message."))
         self._RBTN_normal.SetValue(1)
-        self._RBTN_high.SetToolTipString(_("Higher than normal (standard) urgency of message."))
-        self._RBTN_low.SetToolTipString(_("Lower than normal (standard) urgency of message."))
+        self._RBTN_high.SetToolTip(_("Higher than normal (standard) urgency of message."))
+        self._RBTN_low.SetToolTip(_("Lower than normal (standard) urgency of message."))
         # end wxGlade
 
     def __do_layout(self):

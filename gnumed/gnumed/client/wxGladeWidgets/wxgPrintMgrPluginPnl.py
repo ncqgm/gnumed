@@ -42,14 +42,14 @@ class wxgPrintMgrPluginPnl(wx.Panel):
 
 	def __set_properties(self):
 		# begin wxGlade: wxgPrintMgrPluginPnl.__set_properties
-		self._RBTN_all_patients.SetToolTipString(_("Select here to show documents for all patients."))
+		self._RBTN_all_patients.SetToolTip(_("Select here to show documents for all patients."))
 		self._RBTN_all_patients.SetValue(1)
-		self._RBTN_active_patient_only.SetToolTipString(_("Select here to filter to the active patient (if any)."))
+		self._RBTN_active_patient_only.SetToolTip(_("Select here to filter to the active patient (if any)."))
 		self._RBTN_active_patient_only.Enable(False)
-		self._BTN_view_printout.SetToolTipString(_("Show the topmost selected printout."))
-		self._BTN_print_printouts.SetToolTipString(_("Print selected/all printouts."))
-		self._BTN_export_printouts.SetToolTipString(_("Store selected printouts in patient export area (if applicable)."))
-		self._BTN_delete_printouts.SetToolTipString(_("Delete the selected printouts"))
+		self._BTN_view_printout.SetToolTip(_("Show the topmost selected printout."))
+		self._BTN_print_printouts.SetToolTip(_("Print selected/all printouts."))
+		self._BTN_export_printouts.SetToolTip(_("Store selected printouts in patient export area (if applicable)."))
+		self._BTN_delete_printouts.SetToolTip(_("Delete the selected printouts"))
 		# end wxGlade
 
 	def __do_layout(self):

@@ -32,9 +32,9 @@ class wxgMeasurementOrgEAPnl(wx.ScrolledWindow):
     def __set_properties(self):
         # begin wxGlade: wxgMeasurementOrgEAPnl.__set_properties
         self.SetScrollRate(10, 10)
-        self._BTN_manage_orgs.SetToolTipString(_("Manage all organizations."))
-        self._TCTRL_contact.SetToolTipString(_("A way of contacting this lab, ideally a direct clinical contact.\n\nThis will be shown in the tooltip of test results originating from this lab."))
-        self._TCTRL_comment.SetToolTipString(_("A comment on this lab."))
+        self._BTN_manage_orgs.SetToolTip(_("Manage all organizations."))
+        self._TCTRL_contact.SetToolTip(_("A way of contacting this lab, ideally a direct clinical contact.\n\nThis will be shown in the tooltip of test results originating from this lab."))
+        self._TCTRL_comment.SetToolTip(_("A comment on this lab."))
         # end wxGlade
 
     def __do_layout(self):

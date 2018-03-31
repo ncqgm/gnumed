@@ -44,12 +44,12 @@ class wxgEncounterEditAreaPnl(wx.ScrolledWindow):
 		# begin wxGlade: wxgEncounterEditAreaPnl.__set_properties
 		self.SetScrollRate(10, 10)
 		self._LBL_patient.SetFont(wx.Font(12, wx.DEFAULT, wx.NORMAL, wx.BOLD, 0, ""))
-		self._PRW_encounter_type.SetToolTipString(_("Select the type of encounter."))
-		self._PRW_location.SetToolTipString(_("Select the praxis branch where this encounter took place."))
-		self._TCTRL_rfe.SetToolTipString(_("Enter the Reason For Encounter here. This is the patient's initial request or purpose of visit which led to the encounter."))
-		self._PRW_rfe_codes.SetToolTipString(_("Codes relevant to the Reason for Encounter\nseparated by \";\"."))
-		self._TCTRL_aoe.SetToolTipString(_("Enter the Encounter Summary here. This is your final assessment of the total encounter across all relevant episodes."))
-		self._PRW_aoe_codes.SetToolTipString(_("Codes relevant to the Assessment of Encounter\nseparated by \";\"."))
+		self._PRW_encounter_type.SetToolTip(_("Select the type of encounter."))
+		self._PRW_location.SetToolTip(_("Select the praxis branch where this encounter took place."))
+		self._TCTRL_rfe.SetToolTip(_("Enter the Reason For Encounter here. This is the patient's initial request or purpose of visit which led to the encounter."))
+		self._PRW_rfe_codes.SetToolTip(_("Codes relevant to the Reason for Encounter\nseparated by \";\"."))
+		self._TCTRL_aoe.SetToolTip(_("Enter the Encounter Summary here. This is your final assessment of the total encounter across all relevant episodes."))
+		self._PRW_aoe_codes.SetToolTip(_("Codes relevant to the Assessment of Encounter\nseparated by \";\"."))
 		# end wxGlade
 
 	def __do_layout(self):

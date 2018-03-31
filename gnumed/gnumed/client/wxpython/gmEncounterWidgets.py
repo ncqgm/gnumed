@@ -477,7 +477,7 @@ class cEncounterEditAreaPnl(wxgEncounterEditAreaPnl.wxgEncounterEditAreaPnl):
 		curr_pat = gmPerson.gmCurrentPatient()
 		if curr_pat.connected:
 			if curr_pat.ID == self.__encounter['pk_patient']:
-				self._LBL_patient.SetForegroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOWTEXT))
+				self._LBL_patient.SetForegroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOWTEXT))
 			else:
 				self._LBL_patient.SetForegroundColour('red')
 
@@ -531,7 +531,7 @@ class cEncounterEditAreaPnl(wxgEncounterEditAreaPnl.wxgEncounterEditAreaPnl):
 			self._PRW_encounter_type.Refresh()
 			self._PRW_encounter_type.SetFocus()
 			return False
-		self._PRW_encounter_type.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
+		self._PRW_encounter_type.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOW))
 		self._PRW_encounter_type.Refresh()
 
 		# start
@@ -545,7 +545,7 @@ class cEncounterEditAreaPnl(wxgEncounterEditAreaPnl.wxgEncounterEditAreaPnl):
 			self._PRW_start.Refresh()
 			self._PRW_start.SetFocus()
 			return False
-		self._PRW_start.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
+		self._PRW_start.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOW))
 		self._PRW_start.Refresh()
 
 		# last_affirmed
@@ -559,7 +559,7 @@ class cEncounterEditAreaPnl(wxgEncounterEditAreaPnl.wxgEncounterEditAreaPnl):
 			self._PRW_end.Refresh()
 			self._PRW_end.SetFocus()
 			return False
-		self._PRW_end.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
+		self._PRW_end.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOW))
 		self._PRW_end.Refresh()
 
 		return True
@@ -608,9 +608,9 @@ class cEncounterEditAreaDlg(wxgEncounterEditAreaDlg.wxgEncounterEditAreaDlg):
 
 		if button_defs is not None:
 			self._BTN_save.SetLabel(button_defs[0][0])
-			self._BTN_save.SetToolTipString(button_defs[0][1])
+			self._BTN_save.SetToolTip(button_defs[0][1])
 			self._BTN_close.SetLabel(button_defs[1][0])
-			self._BTN_close.SetToolTipString(button_defs[1][1])
+			self._BTN_close.SetToolTip(button_defs[1][1])
 			self.Refresh()
 
 		self._PNL_edit_area.refresh(encounter = encounter, msg = msg)
@@ -682,7 +682,7 @@ class cActiveEncounterPnl(wxgActiveEncounterPnl.wxgActiveEncounterPnl):
 	#------------------------------------------------------------
 	def clear(self):
 		self._TCTRL_encounter.SetValue(u'')
-		self._TCTRL_encounter.SetToolTipString(u'')
+		self._TCTRL_encounter.SetToolTip(u'')
 		self._BTN_new.Enable(False)
 		self._BTN_list.Enable(False)
 
@@ -706,7 +706,7 @@ class cActiveEncounterPnl(wxgActiveEncounterPnl.wxgActiveEncounterPnl):
 			with_vaccinations = False,
 			with_family_history = False).strip('\n')
 		)
-		self._TCTRL_encounter.SetToolTipString (
+		self._TCTRL_encounter.SetToolTip (
 			_('The active encounter of the current patient:\n\n%s') % enc.format(
 				with_docs = False,
 				with_tests = False,

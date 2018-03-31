@@ -34,11 +34,11 @@ class wxgMetaTestTypeEAPnl(wx.ScrolledWindow):
 	def __set_properties(self):
 		# begin wxGlade: wxgMetaTestTypeEAPnl.__set_properties
 		self.SetScrollRate(10, 10)
-		self._PRW_name.SetToolTipString(_("Mandatory: A descriptive name for this meta test type."))
-		self._PRW_abbreviation.SetToolTipString(_("Mandatory: An abbreviation for this meta test type."))
-		self._PRW_loinc.SetToolTipString(_("Optional: The LOINC for the meta test type."))
+		self._PRW_name.SetToolTip(_("Mandatory: A descriptive name for this meta test type."))
+		self._PRW_abbreviation.SetToolTip(_("Mandatory: An abbreviation for this meta test type."))
+		self._PRW_loinc.SetToolTip(_("Optional: The LOINC for the meta test type."))
 		self._TCTRL_loinc_info.Enable(False)
-		self._TCTRL_comment.SetToolTipString(_("Optional: A comment on this meta test type."))
+		self._TCTRL_comment.SetToolTip(_("Optional: A comment on this meta test type."))
 		# end wxGlade
 
 	def __do_layout(self):

@@ -191,7 +191,7 @@ class cPhraseWheelBase(wx.TextCtrl):
 		self.__non_edit_font = self.GetFont()
 		global color_prw_valid
 		if color_prw_valid is None:
-			color_prw_valid = wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW)
+			color_prw_valid = wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOW)
 
 		self.__init_dropdown(parent = parent)
 		self.__register_events()
@@ -288,7 +288,7 @@ class cPhraseWheelBase(wx.TextCtrl):
 			#self.SetBackgroundColour(color_prw_valid)
 			self.SetBackgroundColour(self.__previous_enabled_bg_color)
 		elif enable is False:
-			self.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_BACKGROUND))
+			self.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_BACKGROUND))
 		else:
 			raise ValueError(u'<enable> must be True or False')
 
@@ -634,7 +634,7 @@ class cPhraseWheelBase(wx.TextCtrl):
 
 		dynamic_part = self._get_data_tooltip()
 		if dynamic_part is None:
-			self.SetToolTipString(static_part)
+			self.SetToolTip(static_part)
 			return
 
 		if static_part == u'':
@@ -649,7 +649,8 @@ class cPhraseWheelBase(wx.TextCtrl):
 					static_part
 				)
 
-		self.SetToolTipString(tt)
+		self.SetToolTip(tt)
+
 	#--------------------------------------------------------
 	def _get_static_tt_extra(self):
 		return self.__static_tt_extra
@@ -658,6 +659,7 @@ class cPhraseWheelBase(wx.TextCtrl):
 		self.__static_tt_extra = tt
 
 	static_tooltip_extra = property(_get_static_tt_extra, _set_static_tt_extra)
+
 	#--------------------------------------------------------
 	# event handling
 	#--------------------------------------------------------

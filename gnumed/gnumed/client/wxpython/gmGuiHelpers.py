@@ -90,12 +90,12 @@ class c2ButtonQuestionDlg(wxg2ButtonQuestionDlg.wxg2ButtonQuestionDlg):
 			if checkbox_msg is not None:
 				self._CHBOX_dont_ask_again.SetLabel(checkbox_msg)
 			if checkbox_tooltip is not None:
-				self._CHBOX_dont_ask_again.SetToolTipString(checkbox_tooltip)
+				self._CHBOX_dont_ask_again.SetToolTip(checkbox_tooltip)
 
 		buttons = [self._BTN_1, self._BTN_2]
 		for idx in range(len(button_defs)):
 			buttons[idx].SetLabel(label = button_defs[idx]['label'])
-			buttons[idx].SetToolTipString(button_defs[idx]['tooltip'])
+			buttons[idx].SetToolTip(button_defs[idx]['tooltip'])
 			try:
 				if button_defs[idx]['default'] is True:
 					buttons[idx].SetDefault()
@@ -165,12 +165,12 @@ class c3ButtonQuestionDlg(wxg3ButtonQuestionDlg.wxg3ButtonQuestionDlg):
 			if checkbox_msg is not None:
 				self._CHBOX_dont_ask_again.SetLabel(checkbox_msg)
 			if checkbox_tooltip is not None:
-				self._CHBOX_dont_ask_again.SetToolTipString(checkbox_tooltip)
+				self._CHBOX_dont_ask_again.SetToolTip(checkbox_tooltip)
 
 		buttons = [self._BTN_1, self._BTN_2, self._BTN_3]
 		for idx in range(len(button_defs)):
 			buttons[idx].SetLabel(label = button_defs[idx]['label'])
-			buttons[idx].SetToolTipString(button_defs[idx]['tooltip'])
+			buttons[idx].SetToolTip(button_defs[idx]['tooltip'])
 			try:
 				if button_defs[idx]['default'] is True:
 					buttons[idx].SetDefault()

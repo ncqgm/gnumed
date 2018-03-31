@@ -182,7 +182,7 @@ class cPatientListingPnl(wxgPatientListingPnl.wxgPatientListingPnl):
 			if button_def['label'].strip() == u'':
 				continue
 			buttons[idx].SetLabel(button_def['label'])
-			buttons[idx].SetToolTipString(button_def['tooltip'])
+			buttons[idx].SetToolTip(button_def['tooltip'])
 			buttons[idx].Enable(True)
 
 		self.Fit()
@@ -577,9 +577,9 @@ class cDataMiningPnl(wxgDataMiningPnl.wxgDataMiningPnl):
 					label = _('not unicode()able')
 				if len(label) > 150:
 					label = label[:150] + gmTools.u_ellipsis
-				self._LCTRL_result.SetStringItem (
+				self._LCTRL_result.SetItem (
 					index = row_num,
-					col = col_idx,
+					column = col_idx,
 					label = label
 				)
 		# must be called explicitely, because string items are set above without calling set_string_items

@@ -36,14 +36,14 @@ class wxgBillableEAPnl(wx.ScrolledWindow):
 	def __set_properties(self):
 		# begin wxGlade: wxgBillableEAPnl.__set_properties
 		self.SetScrollRate(10, 10)
-		self._TCTRL_code.SetToolTipString(_("Mandatory: A code for this billable."))
-		self._PRW_coding_system.SetToolTipString(_("Mandatory: The system of billing codes this billable comes from."))
-		self._TCTRL_description.SetToolTipString(_("Mandatory: A description of this billable."))
-		self._TCTRL_amount.SetToolTipString(_("The payable amount associated with this billable.\nDefaults to 0."))
-		self._TCTRL_currency.SetToolTipString(_(u"The currency to apply to this billable.\nDefaults to \u20ac."))
-		self._TCTRL_vat.SetToolTipString(_("Value Added Tax (VAT) in percent to apply to this billable.\nDefaults to 0 meaning \"no VAT\"."))
-		self._TCTRL_comment.SetToolTipString(_("Optional: A comment on this billable."))
-		self._CHBOX_active.SetToolTipString(_("Check here if this billable is active."))
+		self._TCTRL_code.SetToolTip(_("Mandatory: A code for this billable."))
+		self._PRW_coding_system.SetToolTip(_("Mandatory: The system of billing codes this billable comes from."))
+		self._TCTRL_description.SetToolTip(_("Mandatory: A description of this billable."))
+		self._TCTRL_amount.SetToolTip(_("The payable amount associated with this billable.\nDefaults to 0."))
+		self._TCTRL_currency.SetToolTip(_(u"The currency to apply to this billable.\nDefaults to \u20ac."))
+		self._TCTRL_vat.SetToolTip(_("Value Added Tax (VAT) in percent to apply to this billable.\nDefaults to 0 meaning \"no VAT\"."))
+		self._TCTRL_comment.SetToolTip(_("Optional: A comment on this billable."))
+		self._CHBOX_active.SetToolTip(_("Check here if this billable is active."))
 		self._CHBOX_active.SetValue(1)
 		# end wxGlade
 

@@ -111,7 +111,7 @@ class cXdtListPnl(wxgXdtListPnl.wxgXdtListPnl):
 		self._LCTRL_xdt.DeleteAllItems()
 
 		self._LCTRL_xdt.InsertStringItem(index=0, label=_('name of xDT file'))
-		self._LCTRL_xdt.SetStringItem(index=0, col=1, label=filename)
+		self._LCTRL_xdt.SetItem(index=0, column=1, label=filename)
 
 		idx = 1
 		for line in xdt_file:
@@ -130,9 +130,9 @@ class cXdtListPnl(wxgXdtListPnl.wxgXdtListPnl):
 				right = content
 
 			self._LCTRL_xdt.InsertStringItem(index=idx, label=left)
-			self._LCTRL_xdt.SetStringItem(index=idx, col=1, label=right)
-			self._LCTRL_xdt.SetStringItem(index=idx, col=2, label=field)
-			self._LCTRL_xdt.SetStringItem(index=idx, col=3, label=content)
+			self._LCTRL_xdt.SetItem(index=idx, column=1, label=right)
+			self._LCTRL_xdt.SetItem(index=idx, column=2, label=field)
+			self._LCTRL_xdt.SetItem(index=idx, column=3, label=content)
 			idx += 1
 
 		xdt_file.close()
@@ -208,8 +208,8 @@ class gmXdtViewerPanel(wx.Panel):
 		for item_idx in range(len(items),0,-1):
 			data = items[item_idx]
 			idx = self.list.InsertItem(info=wx.ListItem())
-			self.list.SetStringItem(index=idx, col=0, label=data[0])
-			self.list.SetStringItem(index=idx, col=1, label=data[1])
+			self.list.SetItem(index=idx, column=0, label=data[0])
+			self.list.SetItem(index=idx, column=1, label=data[1])
 			#self.list.SetItemData(item_idx, item_idx)
 
 		# reaspect
@@ -350,10 +350,10 @@ class gmXdtViewerPanel(wx.Panel):
 	#-------------------------------------------------------------------------
 	def OnPopupFive(self, event):
 		item = self.list.GetItem(self.currentItem)
-		print item.m_text, item.m_itemId, self.list.GetItemData(self.currentItem)
+		print item.Text, item.m_itemId, self.list.GetItemData(self.currentItem)
 	#-------------------------------------------------------------------------
 	def OnSize(self, event):
-		w,h = self.GetClientSizeTuple()
+		w,h = self.GetClientSize()
 		self.list.SetDimensions(0, 0, w, h)
 #======================================================
 class gmXdtViewer(gmPlugin.cNotebookPlugin):

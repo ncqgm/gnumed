@@ -50,14 +50,14 @@ class wxgEMRTimelinePluginPnl(wx.ScrolledWindow):
 	def __set_properties(self):
 		# begin wxGlade: wxgEMRTimelinePluginPnl.__set_properties
 		self.SetScrollRate(10, 10)
-		self._BTN_refresh.SetToolTipString(_("Refresh display from the patient's chart."))
-		self._BTN_save.SetToolTipString(_("Save timeline as images."))
-		self._BTN_export_area.SetToolTipString(_("Put timeline into export area."))
-		self._BTN_print.SetToolTipString(_("Print timeline."))
-		self._BTN_fit_care_period.SetToolTipString(_("Fit timeline to the Care Period."))
-		self._BTN_fit_last_year.SetToolTipString(_("Fit timeline to the the last 12 months."))
-		self._BTN_go2day.SetToolTipString(_("Center timeline on today."))
-		self._BTN_fit_all.SetToolTipString(_("Zoom to fit all events."))
+		self._BTN_refresh.SetToolTip(_("Refresh display from the patient's chart."))
+		self._BTN_save.SetToolTip(_("Save timeline as images."))
+		self._BTN_export_area.SetToolTip(_("Put timeline into export area."))
+		self._BTN_print.SetToolTip(_("Print timeline."))
+		self._BTN_fit_care_period.SetToolTip(_("Fit timeline to the Care Period."))
+		self._BTN_fit_last_year.SetToolTip(_("Fit timeline to the the last 12 months."))
+		self._BTN_go2day.SetToolTip(_("Center timeline on today."))
+		self._BTN_fit_all.SetToolTip(_("Zoom to fit all events."))
 		# end wxGlade
 
 	def __do_layout(self):

@@ -238,7 +238,7 @@ LIMIT 25
 		self.matcher = mp
 
 		self.unset_context(context = u'pk_vaccine')
-		self.SetToolTipString(_('Enter or select the batch/lot number of the vaccine used.'))
+		self.SetToolTip(_('Enter or select the batch/lot number of the vaccine used.'))
 		self.selection_only = False
 
 #----------------------------------------------------------------------

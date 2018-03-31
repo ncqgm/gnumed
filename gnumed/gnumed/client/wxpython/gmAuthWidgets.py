@@ -571,7 +571,7 @@ class cLoginPanel(wx.Panel):
 		label.SetForegroundColour(wx.Colour(35, 35, 142))
 		self.pboxgrid.Add(label, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5)
 		self._CHBOX_debug = wx.CheckBox(self, -1, _('&Debug mode'))
-		self._CHBOX_debug.SetToolTipString(_('Check this to run GNUmed client in debugging mode.'))
+		self._CHBOX_debug.SetToolTip(_('Check this to run GNUmed client in debugging mode.'))
 		self.pboxgrid.Add(self._CHBOX_debug, 0, wx.GROW | wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
 
 		# --slave checkbox
@@ -579,7 +579,7 @@ class cLoginPanel(wx.Panel):
 		label.SetForegroundColour(wx.Colour(35, 35, 142))
 		self.pboxgrid.Add(label, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5)
 		self._CHBOX_slave = wx.CheckBox(self, -1, _('Enable &remote control'))
-		self._CHBOX_slave.SetToolTipString(_('Check this to run GNUmed client in slave mode for remote control.'))
+		self._CHBOX_slave.SetToolTip(_('Check this to run GNUmed client in slave mode for remote control.'))
 		self.pboxgrid.Add(self._CHBOX_slave, 0, wx.GROW | wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
 
 		#----------------------------------------------------------------------

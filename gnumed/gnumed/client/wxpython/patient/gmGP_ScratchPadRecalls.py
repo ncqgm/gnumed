@@ -96,7 +96,7 @@ class ScratchPadRecalls(wxPanel, PatientHolder):
 			date=str(row[1])[:10]
 			text=row[2]
 			self.list_recalls.InsertStringItem(index, date )
-			self.list_recalls.SetStringItem(index, 1, text)
+			self.list_recalls.SetItem(index, 1, text)
 			self.list_recalls.SetItemData(index, id)
 		self.list_recalls.SetColumnWidth(0, wxLIST_AUTOSIZE)
 		self.list_recalls.SetColumnWidth(1, 200)
@@ -118,7 +118,7 @@ class ScratchPadRecalls(wxPanel, PatientHolder):
 			date=str(row[1])[:10]
 			reason=row[2]
 			self.list_scratchpad.InsertStringItem(index, date)
-			self.list_scratchpad.SetStringItem(index, 1, reason)
+			self.list_scratchpad.SetItem(index, 1, reason)
 			self.list_scratchpad.SetItemData(index, id)
 		self.list_scratchpad.SetColumnWidth(0, wxLIST_AUTOSIZE)
 		self.list_scratchpad.SetColumnWidth(1, 200)

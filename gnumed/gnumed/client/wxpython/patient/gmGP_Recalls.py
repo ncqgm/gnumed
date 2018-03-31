@@ -100,7 +100,7 @@ class RecallsPanel(wxPanel , PatientHolder):
 		for x in range(len(items)):
 			key, data = items[x]
 			self.list_recalls.InsertStringItem(x, data[0])
-			self.list_recalls.SetStringItem(x, 1, data[1])
+			self.list_recalls.SetItem(x, 1, data[1])
 			self.list_recalls.SetItemData(x, key)
 		self.list_recalls.SetColumnWidth(0, wxLIST_AUTOSIZE)
 		self.list_recalls.SetColumnWidth(1, wxLIST_AUTOSIZE)

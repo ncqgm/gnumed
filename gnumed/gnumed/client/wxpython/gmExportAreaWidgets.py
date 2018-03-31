@@ -650,7 +650,7 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 				tt = self._BTN_mail_items.GetToolTipString() + u'\n\n' + _('<gm-mail_doc(.bat) not found>')
 			except AttributeError:
 				tt = _('<gm-mail_doc(.bat) not found>')
-			self._BTN_mail_items.SetToolTipString(tt)
+			self._BTN_mail_items.SetToolTip(tt)
 
 		self.__fax_script_exists, path = gmShellAPI.detect_external_binary(binary = r'gm-fax_doc')
 		if not self.__fax_script_exists:
@@ -659,7 +659,7 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 				tt = self._BTN_fax_items.GetToolTipString() + u'\n\n' + _('<gm-fax_doc(.bat) not found>')
 			except AttributeError:
 				tt = _('<gm-fax_doc(.bat) not found>')
-			self._BTN_fax_items.SetToolTipString(tt)
+			self._BTN_fax_items.SetToolTip(tt)
 
 		self.__burn_script_exists, path = gmShellAPI.detect_external_binary(binary = r'gm-burn_doc')
 		if not self.__burn_script_exists:
@@ -668,7 +668,7 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 				tt = self._BTN_burn_items.GetToolTipString() + u'\n\n' + _('<gm-burn_doc(.bat) not found>')
 			except AttributeError:
 				tt = _('<gm-burn_doc(.bat) not found>')
-			self._BTN_burn_items.SetToolTipString(tt)
+			self._BTN_burn_items.SetToolTip(tt)
 
 		# make me and listctrl file drop targets
 		dt = gmGuiHelpers.cFileDropTarget(target = self)

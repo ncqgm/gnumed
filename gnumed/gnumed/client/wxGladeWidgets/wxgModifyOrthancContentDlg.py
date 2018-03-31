@@ -39,8 +39,8 @@ class wxgModifyOrthancContentDlg(wx.Dialog):
 	def __set_properties(self):
 		# begin wxGlade: wxgModifyOrthancContentDlg.__set_properties
 		self.SetTitle(_("dialog_1"))
-		self._BTN_search_patients.SetToolTipString(_("Search patients in Orthanc DICOM store."))
-		self._BTN_suggest_patient_id.SetToolTipString(_("Suggest a patient ID based on the active patient."))
+		self._BTN_search_patients.SetToolTip(_("Search patients in Orthanc DICOM store."))
+		self._BTN_suggest_patient_id.SetToolTip(_("Suggest a patient ID based on the active patient."))
 		# end wxGlade
 
 	def __do_layout(self):

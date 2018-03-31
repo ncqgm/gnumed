@@ -34,15 +34,15 @@ class wxgMeasurementTypeEAPnl(wx.ScrolledWindow):
     def __set_properties(self):
         # begin wxGlade: wxgMeasurementTypeEAPnl.__set_properties
         self.SetScrollRate(10, 10)
-        self._PRW_name.SetToolTipString(_("A descriptive name for this test type."))
+        self._PRW_name.SetToolTip(_("A descriptive name for this test type."))
         self._PRW_name.SetFocus()
-        self._PRW_abbrev.SetToolTipString(_("An abbreviation for the name of this test type."))
-        self._PRW_reference_unit.SetToolTipString(_("The base unit to convert results from different labs into when comparing time series."))
-        self._PRW_loinc.SetToolTipString(_("The LOINC code corresponding to this test type."))
+        self._PRW_abbrev.SetToolTip(_("An abbreviation for the name of this test type."))
+        self._PRW_reference_unit.SetToolTip(_("The base unit to convert results from different labs into when comparing time series."))
+        self._PRW_loinc.SetToolTip(_("The LOINC code corresponding to this test type."))
         self._TCTRL_loinc_info.Enable(False)
-        self._TCTRL_comment_type.SetToolTipString(_("A comment on this test type, e.g. pertaining to typical context information."))
-        self._PRW_test_org.SetToolTipString(_("The path lab/diagnostic organisation reporting on this test."))
-        self._PRW_meta_type.SetToolTipString(_("Select the meta type as which to aggregate for display results with this test type."))
+        self._TCTRL_comment_type.SetToolTip(_("A comment on this test type, e.g. pertaining to typical context information."))
+        self._PRW_test_org.SetToolTip(_("The path lab/diagnostic organisation reporting on this test."))
+        self._PRW_meta_type.SetToolTip(_("Select the meta type as which to aggregate for display results with this test type."))
         # end wxGlade
 
     def __do_layout(self):

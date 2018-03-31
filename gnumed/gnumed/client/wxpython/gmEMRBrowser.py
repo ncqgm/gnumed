@@ -520,7 +520,7 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 
 		# expand tree
 		expand_menu = wx.Menu()
-		self.__root_context_popup.AppendMenu(wx.NewId(), _('Open EMR to ...'), expand_menu)
+		self.__root_context_popup.Append(wx.NewId(), _('Open EMR to ...'), expand_menu)
 
 		menu_id = wx.NewId()
 		expand_menu.AppendItem(wx.MenuItem(expand_menu, menu_id, _('... issue level')))
@@ -1044,7 +1044,7 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 #
 #		cursor_pos = (event.GetX(), event.GetY())
 #
-#		self.SetToolTipString(u'')
+#		self.SetToolTip(u'')
 #
 #		if cursor_pos != self._old_cursor_pos:
 #			self._old_cursor_pos = cursor_pos

@@ -75,7 +75,7 @@ LIMIT 30"""
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries = query)
 		mp.setThresholds(1, 2, 4)
 		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
-		self.SetToolTipString(_('The preparation (form) of the substance or product.'))
+		self.SetToolTip(_('The preparation (form) of the substance or product.'))
 		self.matcher = mp
 		self.selection_only = False
 
@@ -88,7 +88,7 @@ class cSubstanceIntakeObjectPhraseWheel(gmPhraseWheel.cPhraseWheel):
 		mp = gmMedication.cSubstanceIntakeObjectMatchProvider()
 		mp.setThresholds(1, 2, 4)
 		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
-		self.SetToolTipString(_('A drug product.'))
+		self.SetToolTip(_('A drug product.'))
 		self.matcher = mp
 		self.selection_only = True
 		self.phrase_separators = None
@@ -108,7 +108,7 @@ class cProductOrSubstancePhraseWheel(gmPhraseWheel.cPhraseWheel):
 		mp = gmMedication.cProductOrSubstanceMatchProvider()
 		mp.setThresholds(1, 2, 4)
 		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
-		self.SetToolTipString(_('A substance with optional strength or a drug product.'))
+		self.SetToolTip(_('A substance with optional strength or a drug product.'))
 		self.matcher = mp
 		self.selection_only = False
 		self.phrase_separators = None
@@ -145,7 +145,7 @@ class cSubstanceSchedulePhraseWheel(gmPhraseWheel.cPhraseWheel):
 		mp.setThresholds(1, 2, 4)
 		mp.word_separators = '[ \t=+&:@]+'
 		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
-		self.SetToolTipString(_('The schedule for taking this substance.'))
+		self.SetToolTip(_('The schedule for taking this substance.'))
 		self.matcher = mp
 		self.selection_only = False
 
@@ -191,7 +191,7 @@ LIMIT 30"""
 		mp.setThresholds(1, 2, 4)
 		#mp.word_separators = '[ \t=+&:@]+'
 		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
-		self.SetToolTipString(_('The medical aim for consuming this substance.'))
+		self.SetToolTip(_('The medical aim for consuming this substance.'))
 		self.matcher = mp
 		self.selection_only = False
 
@@ -455,7 +455,7 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 				msg += _(u'EDC: %s') % gmDateTime.pydt_strftime(edc, format = '%Y %b %d')
 
 		self._LBL_allergies.SetLabel(msg)
-		self._LBL_allergies.SetToolTipString(tooltip)
+		self._LBL_allergies.SetToolTip(tooltip)
 
 	#----------------------------------------------------------------
 	def __refresh_drug_details(self):
@@ -463,7 +463,7 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 		drug = self._PRW_drug.GetData(as_instance = True)
 		if drug is None:
 			self._LBL_drug_details.SetLabel(u'')
-			self._LBL_drug_details.SetToolTipString(u'')
+			self._LBL_drug_details.SetToolTip(u'')
 			self.Layout()
 			return
 
@@ -480,7 +480,7 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 				for c in drug['components']
 			])
 		self._LBL_drug_details.SetLabel(u'%s\n%s' % (drug['product'], comps))
-		self._LBL_drug_details.SetToolTipString(drug.format())
+		self._LBL_drug_details.SetToolTip(drug.format())
 		self.Layout()
 		return
 
@@ -1910,7 +1910,7 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 		self.__prev_tooltip_row = row
 
 		try:
-			evt.GetEventObject().SetToolTipString(self.get_row_tooltip(row = row))
+			evt.GetEventObject().SetToolTip(self.get_row_tooltip(row = row))
 		except KeyError:
 			pass
 	#------------------------------------------------------------
@@ -1971,13 +1971,13 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 
 		tt = self._BTN_heart.GetToolTipString()
 		try:
-			self._BTN_heart.SetToolTipString(tt % gmMedication.URL_long_qt)
+			self._BTN_heart.SetToolTip(tt % gmMedication.URL_long_qt)
 		except TypeError:
 			_log.exception(u'translation error: %s', tt)
 
 		tt = self._BTN_kidneys.GetToolTipString()
 		try:
-			self._BTN_kidneys.SetToolTipString(tt % gmMedication.URL_renal_insufficiency)
+			self._BTN_kidneys.SetToolTip(tt % gmMedication.URL_renal_insufficiency)
 		except TypeError:
 			_log.exception(u'translation error: %s', tt)
 
@@ -2119,7 +2119,7 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 					with_sub_results = False,
 					return_list = False
 				))
-			val.SetToolTipString(u'\n'.join(tts))
+			val.SetToolTip(u'\n'.join(tts))
 			szr = wx.BoxSizer(wx.HORIZONTAL)
 			szr.Add(lbl, 0, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL, 3)
 			szr.Add(val, 1, wx.ALIGN_CENTER_VERTICAL)
@@ -2196,7 +2196,7 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 				gmTools.coalesce(result['val_unit'], u'', u' %s'),
 				gmTools.bool2subst(indicate_attention, gmTools.u_frowning_face, u'', u'')
 			))
-			val.SetToolTipString(tt)
+			val.SetToolTip(tt)
 			if result.is_considered_abnormal:
 				val.SetForegroundColour('red')
 			szr = wx.BoxSizer(wx.HORIZONTAL)
@@ -2223,7 +2223,7 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 				tt.append(u' %s' % loincs2monitor_data[loinc]['comment'])
 			except KeyError:
 				pass
-			val.SetToolTipString(u'\n'.join(tt))
+			val.SetToolTip(u'\n'.join(tt))
 			val.SetForegroundColour('orange')
 			szr = wx.BoxSizer(wx.HORIZONTAL)
 			szr.Add(val, 1, wx.ALIGN_CENTER_VERTICAL)
@@ -2279,7 +2279,7 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 			tt = _('GFR reported by path lab')
 
 		self._LBL_gfr.SetLabel(msg)
-		self._LBL_gfr.SetToolTipString(tt)
+		self._LBL_gfr.SetToolTip(tt)
 		self._LBL_gfr.Refresh()
 		self.Layout()
 

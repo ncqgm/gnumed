@@ -43,12 +43,12 @@ class wxgSubstanceEAPnl(wx.ScrolledWindow):
 	def __set_properties(self):
 		# begin wxGlade: wxgSubstanceEAPnl.__set_properties
 		self.SetScrollRate(10, 10)
-		self._TCTRL_substance.SetToolTipString(_("Enter the name of the substance.\n\nExamples:\n- metoprolol\n- tobacco\n- alcohol\n- marihuana\n- aloe vera\n- ibuprofen"))
-		self._HL_atc_list.SetToolTipString(_("Browse ATC list."))
-		self._TCTRL_instructions.SetToolTipString(_("Generic intake instructions for this substance."))
-		self._HL_loinc_list.SetToolTipString(_("Browse LOINC list."))
-		self._BTN_add_loinc.SetToolTipString(_("Add LOINC code to list of LOINC codes to monitor."))
-		self._BTN_remove_loincs.SetToolTipString(_("Remove selected LOINC codes from the list of codes to monitor."))
+		self._TCTRL_substance.SetToolTip(_("Enter the name of the substance.\n\nExamples:\n- metoprolol\n- tobacco\n- alcohol\n- marihuana\n- aloe vera\n- ibuprofen"))
+		self._HL_atc_list.SetToolTip(_("Browse ATC list."))
+		self._TCTRL_instructions.SetToolTip(_("Generic intake instructions for this substance."))
+		self._HL_loinc_list.SetToolTip(_("Browse LOINC list."))
+		self._BTN_add_loinc.SetToolTip(_("Add LOINC code to list of LOINC codes to monitor."))
+		self._BTN_remove_loincs.SetToolTip(_("Remove selected LOINC codes from the list of codes to monitor."))
 		# end wxGlade
 
 	def __do_layout(self):

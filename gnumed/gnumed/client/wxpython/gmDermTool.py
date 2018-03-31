@@ -85,7 +85,7 @@ class DermToolDialog(wx.Dialog):
         self.surface.SetSelection(0)
         self.sensation.SetSelection(0)
         self.time_course.SetSelection(0)
-        self.disease_name.SetToolTipString(_("Type name of disease"))
+        self.disease_name.SetToolTip(_("Type name of disease"))
         self.btn_save.SetDefault()
         # end wxGlade
 

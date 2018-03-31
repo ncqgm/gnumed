@@ -66,7 +66,7 @@ class cColoredStatus_TextCtrlMixin():
 
 		if disabled is True:
 			self.__previous_enabled_bg_color = self.GetBackgroundColour()
-			color2show = wx.SystemSettings_GetColour(wx.SYS_COLOUR_BACKGROUND)
+			color2show = wx.SystemSettings.GetColour(wx.SYS_COLOUR_BACKGROUND)
 		elif disabled is False:
 			color2show = self.__previous_enabled_bg_color
 		else:
@@ -91,7 +91,7 @@ class cColoredStatus_TextCtrlMixin():
 			self.SetBackgroundColour(self.__previous_enabled_bg_color)
 		elif enable is False:
 			self.__previous_enabled_bg_color = self.GetBackgroundColour()
-			self.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_BACKGROUND))
+			self.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_BACKGROUND))
 		else:
 			raise ValueError(u'<enable> must be True or False')
 
@@ -383,7 +383,7 @@ class cExpandoTextCtrlHandling_PanelMixin():
 			y_desired_visible = y_expando + y_cursor
 
 			y_view = self.ViewStart[1]
-			h_view = self.GetClientSizeTuple()[1]
+			h_view = self.GetClientSize()[1]
 
 #			print "expando:", y_expando, "->", h_expando, ", lines:", expando.NumberOfLines
 #			print "cursor :", y_cursor, "at line", line_cursor, ", insertion point:", expando.GetInsertionPoint()
@@ -434,10 +434,10 @@ class cExpandoTextCtrl(gmKeywordExpansionWidgets.cKeywordExpansion_TextCtrlMixin
 
 	#--------------------------------------------------------
 	def _cExpandoTextCtrl_after_on_focus(self):
-		# robustify against PyDeadObjectError - since we are called
-		# from wx's CallAfter this SoapCtrl may be gone by the time
-		# we get to handling this layout request, say, on patient
-		# change or some such
+		# robustify against PyDeadObjectError (RuntimeError) - since
+		# we are called from wx's CallAfter this SoapCtrl may be gone
+		# by the time we get around to handling this layout request,
+		# say, on patient change or some such
 		if not self:
 			return
 

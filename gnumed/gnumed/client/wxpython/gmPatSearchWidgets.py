@@ -216,32 +216,32 @@ class cSelectPersonFromListDlg(wxgSelectPersonFromListDlg.wxgSelectPersonFromLis
 
 		for person in persons:
 			row_num = self._LCTRL_persons.InsertStringItem(pos, label = gmTools.coalesce(person['title'], person['lastnames'], u'%s, %%s' % person['lastnames']))
-			self._LCTRL_persons.SetStringItem(index = row_num, col = 1, label = person['firstnames'])
-			self._LCTRL_persons.SetStringItem(index = row_num, col = 2, label = person.get_formatted_dob(format = '%Y %b %d', encoding = 'utf8'))
-			self._LCTRL_persons.SetStringItem(index = row_num, col = 3, label = gmTools.coalesce(person['l10n_gender'], u'?'))
+			self._LCTRL_persons.SetItem(index = row_num, column = 1, label = person['firstnames'])
+			self._LCTRL_persons.SetItem(index = row_num, column = 2, label = person.get_formatted_dob(format = '%Y %b %d', encoding = 'utf8'))
+			self._LCTRL_persons.SetItem(index = row_num, column = 3, label = gmTools.coalesce(person['l10n_gender'], u'?'))
 
 			label = u''
 			if person.is_patient:
 				enc = person.get_last_encounter()
 				if enc is not None:
 					label = u'%s (%s)' % (gmDateTime.pydt_strftime(enc['started'], '%Y %b %d'), enc['l10n_type'])
-			self._LCTRL_persons.SetStringItem(index = row_num, col = 4, label = label)
+			self._LCTRL_persons.SetItem(index = row_num, column = 4, label = label)
 
 			parts = []
 			if person['preferred'] is not None:
 				parts.append(person['preferred'])
 			if person['comment'] is not None:
 				parts.append(person['comment'])
-			self._LCTRL_persons.SetStringItem(index = row_num, col = 5, label = u' / '.join(parts))
+			self._LCTRL_persons.SetItem(index = row_num, column = 5, label = u' / '.join(parts))
 
 			try:
-				self._LCTRL_persons.SetStringItem(index = row_num, col = 6, label = person['match_type'])
+				self._LCTRL_persons.SetItem(index = row_num, column = 6, label = person['match_type'])
 			except KeyError:
 				_log.warning('cannot set match_type field')
-				self._LCTRL_persons.SetStringItem(index = row_num, col = 6, label = u'??')
+				self._LCTRL_persons.SetItem(index = row_num, column = 6, label = u'??')
 
 		for col in range(len(self.__cols)):
-			self._LCTRL_persons.SetColumnWidth(col = col, width = wx.LIST_AUTOSIZE)
+			self._LCTRL_persons.SetColumnWidth(column = col, width = wx.LIST_AUTOSIZE)
 
 		self._BTN_select.Enable(False)
 		self._LCTRL_persons.SetFocus()
@@ -309,16 +309,16 @@ class cSelectPersonDTOFromListDlg(wxgSelectPersonDTOFromListDlg.wxgSelectPersonD
 		for rec in dtos:
 			row_num = self._LCTRL_persons.InsertStringItem(pos, label = rec['source'])
 			dto = rec['dto']
-			self._LCTRL_persons.SetStringItem(index = row_num, col = 1, label = dto.lastnames)
-			self._LCTRL_persons.SetStringItem(index = row_num, col = 2, label = dto.firstnames)
+			self._LCTRL_persons.SetItem(index = row_num, column = 1, label = dto.lastnames)
+			self._LCTRL_persons.SetItem(index = row_num, column = 2, label = dto.firstnames)
 			if dto.dob is None:
-				self._LCTRL_persons.SetStringItem(index = row_num, col = 3, label = u'')
+				self._LCTRL_persons.SetItem(index = row_num, column = 3, label = u'')
 			else:
 				if dto.dob_is_estimated:
-					self._LCTRL_persons.SetStringItem(index = row_num, col = 3, label = gmTools.u_almost_equal_to + gmDateTime.pydt_strftime(dto.dob, '%Y %b %d'))
+					self._LCTRL_persons.SetItem(index = row_num, column = 3, label = gmTools.u_almost_equal_to + gmDateTime.pydt_strftime(dto.dob, '%Y %b %d'))
 				else:
-					self._LCTRL_persons.SetStringItem(index = row_num, col = 3, label = gmDateTime.pydt_strftime(dto.dob, '%Y %b %d'))
-			self._LCTRL_persons.SetStringItem(index = row_num, col = 4, label = gmTools.coalesce(dto.gender, ''))
+					self._LCTRL_persons.SetItem(index = row_num, column = 3, label = gmDateTime.pydt_strftime(dto.dob, '%Y %b %d'))
+			self._LCTRL_persons.SetItem(index = row_num, column = 4, label = gmTools.coalesce(dto.gender, ''))
 
 		for col in range(len(self.__cols)):
 			self._LCTRL_persons.SetColumnWidth(col=col, width=wx.LIST_AUTOSIZE)
@@ -879,7 +879,7 @@ class cPersonSearchCtrl(wx.TextCtrl):
 			' <CURSOR-DOWN>\n'
 			'  - list 10 most recently found persons\n'
 		)
-		self.SetToolTipString(self._tt_search_hints)
+		self.SetToolTip(self._tt_search_hints)
 
 		# FIXME: set query generator
 		self.__person_searcher = gmPersonSearch.cPatientSearcher_SQL()
@@ -1329,7 +1329,7 @@ class cActivePatientSelector(cPersonSearchCtrl):
 
 		# adjust tooltip
 		if self.person is None:
-			self.SetToolTipString(self._tt_search_hints)
+			self.SetToolTip(self._tt_search_hints)
 			return
 
 		if (self.person['emergency_contact'] is None) and (self.person['comment'] is None):
@@ -1343,7 +1343,7 @@ class cActivePatientSelector(cPersonSearchCtrl):
 			separator,
 			self._tt_search_hints
 		)
-		self.SetToolTipString(tt)
+		self.SetToolTip(tt)
 	#--------------------------------------------------------
 	def _set_person_as_active_patient(self, pat):
 		if not set_active_patient(patient=pat, forced_reload = self.__always_reload_after_search):

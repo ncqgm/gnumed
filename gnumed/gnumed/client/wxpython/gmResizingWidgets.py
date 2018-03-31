@@ -934,9 +934,9 @@ if __name__ == '__main__':
 			text = wx.StaticText (self, -1, msg)
 			# buttons
 			self.btn_OK = wx.Button(self, self._wx.ID_BTN_OK, _("OK"))
-			self.btn_OK.SetToolTipString(_('dismiss popup and embed data'))
+			self.btn_OK.SetToolTip(_('dismiss popup and embed data'))
 			self.btn_Cancel = wx.Button(self, self._wx.ID_BTN_Cancel, _("Cancel"))
-			self.btn_Cancel.SetToolTipString(_('dismiss popup and throw away data'))
+			self.btn_Cancel.SetToolTip(_('dismiss popup and throw away data'))
 			szr_buttons = wx.BoxSizer(wx.HORIZONTAL)
 			szr_buttons.Add(self.btn_OK, 1, wx.EXPAND | wx.ALL, 1)
 			szr_buttons.Add(5, 0, 0)

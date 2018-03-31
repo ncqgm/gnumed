@@ -651,7 +651,7 @@ class cPraxisBranchPhraseWheel(gmPhraseWheel.cPhraseWheel):
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query)
 		mp.setThresholds(1, 2, 4)
 		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
-		self.SetToolTipString(_("Select a praxis branch."))
+		self.SetToolTip(_("Select a praxis branch."))
 		self.matcher = mp
 		self.selection_only = True
 		self.picklist_delay = 300

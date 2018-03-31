@@ -161,9 +161,9 @@ class PrescriptionPanel (wxPanel, PatientHolder):
 		for x in range(len(items)):
 			key, data = items[x]
 			self.list_script.InsertStringItem(x, data[0])
-			self.list_script.SetStringItem(x, 1, data[1])
-			self.list_script.SetStringItem(x, 2, data[2])
-			self.list_script.SetStringItem(x, 3, data[3])
+			self.list_script.SetItem(x, 1, data[1])
+			self.list_script.SetItem(x, 2, data[2])
+			self.list_script.SetItem(x, 3, data[3])
 			self.list_script.SetItemData(x, key)
 
 		self.list_script.SetColumnWidth(0, wxLIST_AUTOSIZE)

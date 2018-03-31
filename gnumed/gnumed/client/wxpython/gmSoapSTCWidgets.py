@@ -473,9 +473,9 @@ class cSoapSTC(cUnicodeInsertion_TextCtrlMixin, gmKeywordExpansionWidgets.cKeywo
 		item = self.__menu_selection.Append(-1, _(u'\u2192 +Clipboard+'), _('Add selection to clipboard'))
 		self.Bind(wx.EVT_MENU, self.__on_add_region2clipboard, item)
 
-		self.__popup_menu.AppendMenu(wx.NewId(), _('&Line ...'), menu_line)
-		self.__popup_menu.AppendMenu(wx.NewId(), _('&Text ...'), menu_all)
-		self.__popup_menu.AppendMenu(wx.NewId(), _('&Region ...'), self.__menu_selection)
+		self.__popup_menu.Append(wx.NewId(), _('&Line ...'), menu_line)
+		self.__popup_menu.Append(wx.NewId(), _('&Text ...'), menu_all)
+		self.__popup_menu.Append(wx.NewId(), _('&Region ...'), self.__menu_selection)
 
 	#-------------------------------------------------------
 	def __show_context_menu(self, position):

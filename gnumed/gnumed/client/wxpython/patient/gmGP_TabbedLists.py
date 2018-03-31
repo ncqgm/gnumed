@@ -239,37 +239,37 @@ uHl\xa1\x11\xa9dD\xb3q\x9d\x11\xe5\xa7\xf2\xea\x0f\xea\xd3\x90\x86\xf4\xb7tD\
 	# since we want images on the column header we have to do it the hard way
 	#------------------------------------------------------------------------
 	info = wxListItem()
-	info.m_mask = wxLIST_MASK_TEXT | wxLIST_MASK_IMAGE | wxLIST_MASK_FORMAT
-	info.m_image = -1
-	info.m_format = 0
-	info.m_text = _("Drug")
+	info.Mask = wxLIST_MASK_TEXT | wxLIST_MASK_IMAGE | wxLIST_MASK_FORMAT
+	info.Image = -1
+	info.Align = 0
+	info.Text = _("Drug")
 	self.List_Script.InsertColumnInfo(0, info)
 
 
-	info.m_format = wxLIST_FORMAT_LEFT
-	info.m_text = _("Dose")
+	info.Align = wxLIST_FORMAT_LEFT
+	info.Text = _("Dose")
 	self.List_Script.InsertColumnInfo(1, info)
 
-	info.m_format = wxLIST_FORMAT_RIGHT
-	info.m_text = _("Instructions")
+	info.Align = wxLIST_FORMAT_RIGHT
+	info.Text = _("Instructions")
 	self.List_Script.InsertColumnInfo(2, info)
 
-	info.m_format = wxLIST_FORMAT_RIGHT
-	info.m_text = _("Last Date")
+	info.Align = wxLIST_FORMAT_RIGHT
+	info.Text = _("Last Date")
 	self.List_Script.InsertColumnInfo(3, info)
 
-	info.m_format = wxLIST_FORMAT_RIGHT
-	info.m_text = _("Prescribed For")
+	info.Align = wxLIST_FORMAT_RIGHT
+	info.Text = _("Prescribed For")
 	self.List_Script.InsertColumnInfo(4, info)
 
 
-	info.m_format = wxLIST_FORMAT_RIGHT
-	info.m_text = _("Quantity")
+	info.Align = wxLIST_FORMAT_RIGHT
+	info.Text = _("Quantity")
 	self.List_Script.InsertColumnInfo(5, info)
 
 
-	info.m_format = 0
-	info.m_text = _("First Date")
+	info.Align = 0
+	info.Text = _("First Date")
 	self.List_Script.InsertColumnInfo(6, info)
 	#-------------------------------------------------------------
 	#loop through the scriptdata array and add to the list control
@@ -284,12 +284,12 @@ uHl\xa1\x11\xa9dD\xb3q\x9d\x11\xe5\xa7\xf2\xea\x0f\xea\xd3\x90\x86\xf4\xb7tD\
             #</DEBUG>
 	    #print x, data[0],data[1],data[2]
 	    self.List_Script.InsertStringItem(x, data[0])
-            self.List_Script.SetStringItem(x, 1, data[1])
-            self.List_Script.SetStringItem(x, 2, data[2])
-	    self.List_Script.SetStringItem(x, 3, data[3])
-	    self.List_Script.SetStringItem(x, 4, data[4])
-	    self.List_Script.SetStringItem(x, 5, data[5])
-	    self.List_Script.SetStringItem(x, 6, data[6])
+            self.List_Script.SetItem(x, 1, data[1])
+            self.List_Script.SetItem(x, 2, data[2])
+	    self.List_Script.SetItem(x, 3, data[3])
+	    self.List_Script.SetItem(x, 4, data[4])
+	    self.List_Script.SetItem(x, 5, data[5])
+	    self.List_Script.SetItem(x, 6, data[6])
 	    self.List_Script.SetItemData(x, key)
 	#--------------------------------------------------------
 	#note the number pased to the wxColumnSorterMixin must be

@@ -14,9 +14,6 @@ import traceback
 import logging
 
 
-wx_core_PyDeadObjectError = None
-
-
 known_signals = [
 	u'current_encounter_modified',	# the current encounter was modified externally
 	u'current_encounter_switched',	# *another* encounter became the current one
@@ -252,21 +249,22 @@ class BoundMethodWeakref:
 	def __call__(self):
 		"""Return a strong reference to the bound method."""
 
-		global wx_core_PyDeadObjectError
-		if wx_core_PyDeadObjectError is None:
-			from wx._core import PyDeadObjectError as wx_core_PyDeadObjectError
-
 		if self.isDead:
 			return None
 
-		object = self.weakSelf()
+		obj = self.weakSelf()
 		method = self.weakFunc().__name__
-		try:
-			return getattr(object, method)
-		except wx_core_PyDeadObjectError:
+		if not obj:
 			self.isDead = 1
 			_removeReceiver(receiver=self)
 			return None
+		try:
+			return getattr(obj, method)
+		except RuntimeError:
+			self.isDead = 1
+			_removeReceiver(receiver=self)
+			return None
+
 #=====================================================================
 # internal API
 #---------------------------------------------------------------------

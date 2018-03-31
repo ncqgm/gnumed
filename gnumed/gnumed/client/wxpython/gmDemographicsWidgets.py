@@ -344,7 +344,7 @@ class cImageTagPresenterPnl(wxgVisualSoapPresenterPnl.wxgVisualSoapPresenterPnl)
 				continue
 			img = gmGuiHelpers.file2scaled_image(filename = fname, height = 20)
 			bmp = wx_genstatbmp.GenStaticBitmap(self, -1, img, style = wx.NO_BORDER)
-			bmp.SetToolTipString(u'%s%s' % (
+			bmp.SetToolTip(u'%s%s' % (
 				tag['l10n_description'],
 				gmTools.coalesce(tag['comment'], u'', u'\n\n%s')
 			))
@@ -530,7 +530,7 @@ class cOccupationPhraseWheel(gmPhraseWheel.cPhraseWheel):
 			*args,
 			**kwargs
 		)
-		self.SetToolTipString(_("Type or select an occupation."))
+		self.SetToolTip(_("Type or select an occupation."))
 		self.capitalisation_mode = gmTools.CAPS_FIRST
 		self.matcher = mp
 
@@ -616,7 +616,7 @@ class cLastnamePhraseWheel(gmPhraseWheel.cPhraseWheel):
 			*args,
 			**kwargs
 		)
-		self.SetToolTipString(_("Type or select a last name (family name/surname)."))
+		self.SetToolTip(_("Type or select a last name (family name/surname)."))
 		self.capitalisation_mode = gmTools.CAPS_NAMES
 		self.matcher = mp
 #------------------------------------------------------------
@@ -634,7 +634,7 @@ class cFirstnamePhraseWheel(gmPhraseWheel.cPhraseWheel):
 			*args,
 			**kwargs
 		)
-		self.SetToolTipString(_("Type or select a first name (forename/Christian name/given name)."))
+		self.SetToolTip(_("Type or select a first name (forename/Christian name/given name)."))
 		self.capitalisation_mode = gmTools.CAPS_NAMES
 		self.matcher = mp
 #------------------------------------------------------------
@@ -654,7 +654,7 @@ class cNicknamePhraseWheel(gmPhraseWheel.cPhraseWheel):
 			*args,
 			**kwargs
 		)
-		self.SetToolTipString(_("Type or select an alias (nick name, preferred name, call name, warrior name, artist name)."))
+		self.SetToolTip(_("Type or select an alias (nick name, preferred name, call name, warrior name, artist name)."))
 		# nicknames CAN start with lower case !
 		#self.capitalisation_mode = gmTools.CAPS_NAMES
 		self.matcher = mp
@@ -670,7 +670,7 @@ class cTitlePhraseWheel(gmPhraseWheel.cPhraseWheel):
 			*args,
 			**kwargs
 		)
-		self.SetToolTipString(_("Type or select a title. Note that the title applies to the person, not to a particular name !"))
+		self.SetToolTip(_("Type or select a title. Note that the title applies to the person, not to a particular name !"))
 		self.matcher = mp
 #------------------------------------------------------------
 class cGenderSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
@@ -719,7 +719,7 @@ class cExternalIDTypePhraseWheel(gmPhraseWheel.cPhraseWheel):
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query)
 		mp.setThresholds(1, 3, 5)
 		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
-		self.SetToolTipString(_("Enter or select a type for the external ID."))
+		self.SetToolTip(_("Enter or select a type for the external ID."))
 		self.matcher = mp
 	#--------------------------------------------------------
 	def _get_data_tooltip(self):
@@ -738,7 +738,7 @@ order by issuer limit 25"""
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query)
 		mp.setThresholds(1, 3, 5)
 		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
-		self.SetToolTipString(_("Type or select an ID issuer."))
+		self.SetToolTip(_("Type or select an ID issuer."))
 		self.capitalisation_mode = gmTools.CAPS_FIRST
 		self.matcher = mp
 #------------------------------------------------------------
@@ -1511,7 +1511,7 @@ class cPersonSocialNetworkManagerPnl(wxgPersonSocialNetworkManagerPnl.wxgPersonS
 		if self.__identity is None:
 			self._TCTRL_er_contact.SetValue(u'')
 			self._TCTRL_person.person = None
-			self._TCTRL_person.SetToolTipString(tt)
+			self._TCTRL_person.SetToolTip(tt)
 
 			self._PRW_provider.SetText(value = u'', data = None)
 			return
@@ -1535,7 +1535,7 @@ class cPersonSocialNetworkManagerPnl(wxgPersonSocialNetworkManagerPnl.wxgPersonS
 		else:
 			self._TCTRL_person.person = None
 
-		self._TCTRL_person.SetToolTipString(tt)
+		self._TCTRL_person.SetToolTip(tt)
 
 		if self.__identity['pk_primary_provider'] is None:
 			self._PRW_provider.SetText(value = u'', data = None)
@@ -1700,7 +1700,7 @@ class cPatOccupationsPanel(wx.Panel):
 		# occupation
 		STT_occupation = wx.StaticText(PNL_form, -1, _('Occupation'))
 		self.PRW_occupation = cOccupationPhraseWheel(parent = PNL_form,	id = -1)
-		self.PRW_occupation.SetToolTipString(_("primary occupation of the patient"))
+		self.PRW_occupation.SetToolTip(_("primary occupation of the patient"))
 		# known since
 		STT_occupation_updated = wx.StaticText(PNL_form, -1, _('Last updated'))
 		self.TTC_occupation_updated = wx.TextCtrl(PNL_form, -1, style = wx.TE_READONLY)
