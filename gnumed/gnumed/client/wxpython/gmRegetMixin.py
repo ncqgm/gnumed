@@ -57,7 +57,7 @@ class cRegetOnPaintMixin:
 	def __init__(self):
 		self._data_stale = True
 		try:
-			wx.EVT_PAINT(self, self.__on_paint_event)
+			self.Bind(wx.EVT_PAINT, self.__on_paint_event)
 		except:
 			print 'you likely need to call "cRegetOnPaintMixin.__init__(self)" later in %s__init__()' % self.__class__.__name__
 			raise

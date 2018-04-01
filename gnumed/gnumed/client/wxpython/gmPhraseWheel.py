@@ -488,7 +488,7 @@ class cPhraseWheelBase(wx.TextCtrl):
 		))
 
 		# recalculate position
-		(pw_x_abs, pw_y_abs) = self.ClientToScreenXY(0,0)
+		(pw_x_abs, pw_y_abs) = self.ClientToScreen(0,0)
 		self.__mac_log('phrasewheel position (on screen): x:%s-%s, y:%s-%s' % (pw_x_abs, (pw_x_abs+pw_size.width), pw_y_abs, (pw_y_abs+pw_size.height)))
 		dropdown_new_x = pw_x_abs
 		dropdown_new_y = pw_y_abs + pw_size.height
@@ -519,9 +519,9 @@ class cPhraseWheelBase(wx.TextCtrl):
 		# and show it
 		self._picklist_dropdown.Show(True)
 
-#		dropdown_top_left = self._picklist_dropdown.ClientToScreenXY(0,0)
+#		dropdown_top_left = self._picklist_dropdown.ClientToScreen(0,0)
 #		dropdown_size = self._picklist_dropdown.GetSize()
-#		dropdown_bottom_right = self._picklist_dropdown.ClientToScreenXY(dropdown_size.width, dropdown_size.height)
+#		dropdown_bottom_right = self._picklist_dropdown.ClientToScreen(dropdown_size.width, dropdown_size.height)
 #		self.__mac_log('dropdown placement now (on screen): x:%s-%s, y:%s-%s' % (
 #			dropdown_top_left[0],
 #			dropdown_bottom_right[0],
@@ -664,11 +664,12 @@ class cPhraseWheelBase(wx.TextCtrl):
 	# event handling
 	#--------------------------------------------------------
 	def __register_events(self):
-		wx.EVT_KEY_DOWN (self, self._on_key_down)
-		wx.EVT_SET_FOCUS(self, self._on_set_focus)
-		wx.EVT_KILL_FOCUS(self, self._on_lose_focus)
-		wx.EVT_TEXT(self, self.GetId(), self._on_text_update)
+		self.Bind(wx.EVT_KEY_DOWN, self._on_key_down)
+		self.Bind(wx.EVT_SET_FOCUS, self._on_set_focus)
+		self.Bind(wx.EVT_KILL_FOCUS, self._on_lose_focus)
+		self.Bind(wx.EVT_TEXT, self._on_text_update)
 		self._picklist.Bind(wx.EVT_LEFT_DCLICK, self._on_list_item_selected)
+
 	#--------------------------------------------------------
 	def _on_key_down(self, event):
 		"""Is called when a key is pressed."""

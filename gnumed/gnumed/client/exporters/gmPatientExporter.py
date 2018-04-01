@@ -516,7 +516,7 @@ class cEmrExport:
             emr = self.__patient.emr
             root_node = emr_tree.GetRootItem()
             issue_node =  emr_tree.AppendItem(root_node, a_health_issue['description'])
-            emr_tree.SetItemPyData(issue_node, a_health_issue)
+            emr_tree.SetItemData(issue_node, a_health_issue)
             episodes = emr.get_episodes(id_list=self.__constraints['episodes'], issues = [a_health_issue['pk_health_issue']])
             if len(episodes) == 0:
                 emr_tree.SetItemHasChildren(issue_node, False)
@@ -528,7 +528,7 @@ class cEmrExport:
     #--------------------------------------------------------
     def _add_episode_to_tree( self, emr , emr_tree, issue_node, a_health_issue, an_episode):
         episode_node =  emr_tree.AppendItem(issue_node, an_episode['description'])
-        emr_tree.SetItemPyData(episode_node, an_episode)
+        emr_tree.SetItemData(episode_node, an_episode)
         if an_episode['episode_open']:
             emr_tree.SetItemBold(issue_node, True)
 
@@ -552,7 +552,7 @@ class cEmrExport:
                     	    gmTools.coalesce (
                     	        an_encounter.get_latest_soap (						# soAp
                     	            soap_cat = 'a',
-                    	            episode = emr_tree.GetPyData(episode_node)['pk_episode']
+                    	            episode = emr_tree.GetItemData(episode_node)['pk_episode']
                     	        ),
                     	        an_encounter['assessment_of_encounter']				# or AOE
                     	    ),
@@ -564,7 +564,7 @@ class cEmrExport:
                 )
             )
             encounter_node_id = emr_tree.AppendItem(episode_node, label)
-            emr_tree.SetItemPyData(encounter_node_id, an_encounter)
+            emr_tree.SetItemData(encounter_node_id, an_encounter)
             emr_tree.SetItemHasChildren(encounter_node_id, False)
     #--------------------------------------------------------
     def _get_encounters ( self, an_episode, emr ):
@@ -594,7 +594,7 @@ class cEmrExport:
 		tree_episodes = {} 
 		id_episode, cookie = emr_tree.GetFirstChild(issue_node)
 		while id_episode.IsOk():
-			tree_episodes[ emr_tree.GetPyData(id_episode)['pk_episode'] ]= id_episode
+			tree_episodes[ emr_tree.GetItemData(id_episode)['pk_episode'] ]= id_episode
 			id_episode,cookie = emr_tree.GetNextChild( issue_node, cookie)
 
 		existing_episode_pk = [ e['pk_episode'] for e in episodes]
@@ -622,7 +622,7 @@ class cEmrExport:
 			tree_enc = {}
 			id_encounter, cookie = emr_tree.GetFirstChild(id_episode)
 			while id_encounter.IsOk():
-				tree_enc[ emr_tree.GetPyData(id_encounter)['pk_encounter'] ] = id_encounter
+				tree_enc[ emr_tree.GetItemData(id_encounter)['pk_encounter'] ] = id_encounter
 				id_encounter,cookie = emr_tree.GetNextChild(id_episode, cookie)
 
 			# remove encounters in tree not in existing encounters in episode

@@ -269,10 +269,10 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		self._LCTRL_results.set_data(data = list_data)
 
 		if most_recent_needs_red:
-			self._LCTRL_results.SetItemTextColour(0, wx.NamedColour('RED'))
+			self._LCTRL_results.SetItemTextColour(0, wx.Colour('RED'))
 		if no_of_reds > 0:
 			for idx in range(1, no_of_reds + 1):
-				self._LCTRL_results.SetItemTextColour(idx, wx.NamedColour('RED'))
+				self._LCTRL_results.SetItemTextColour(idx, wx.Colour('RED'))
 
 	#-----------------------------------------------------
 	def _calc_results_list_item_tooltip(self, data):
@@ -347,7 +347,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		self._LCTRL_inbox.set_data(data = list_data)
 
 		for idx in highlight_list:
-			self._LCTRL_inbox.SetItemTextColour(idx, wx.NamedColour('RED'))
+			self._LCTRL_inbox.SetItemTextColour(idx, wx.Colour('RED'))
 
 	#-----------------------------------------------------
 	def _calc_inbox_item_tooltip(self, data):
@@ -461,7 +461,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 				start_idx = 1
 			end_idx = no_of_unsigned + start_idx
 			for idx in range(start_idx, end_idx):
-				self._LCTRL_documents.SetItemTextColour(idx, wx.NamedColour('RED'))
+				self._LCTRL_documents.SetItemTextColour(idx, wx.Colour('RED'))
 	#-----------------------------------------------------
 	def _calc_documents_list_item_tooltip(self, data):
 		emr = gmPerson.gmCurrentPatient().emr
@@ -560,7 +560,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		self._LCTRL_encounters.set_string_items(items = list_items)
 		self._LCTRL_encounters.set_data(data = list_data)
 		if is_waiting:
-			self._LCTRL_encounters.SetItemTextColour(0, wx.NamedColour('RED'))
+			self._LCTRL_encounters.SetItemTextColour(0, wx.Colour('RED'))
 
 	#-----------------------------------------------------
 	def _calc_encounters_list_item_tooltip(self, data):
@@ -878,7 +878,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		self._LCTRL_meds.set_data(data = data_items)
 
 		if first_red:
-			self._LCTRL_meds.SetItemTextColour(0, wx.NamedColour('RED'))
+			self._LCTRL_meds.SetItemTextColour(0, wx.Colour('RED'))
 
 	#-----------------------------------------------------
 	def _calc_meds_list_item_tooltip(self, data):
@@ -968,7 +968,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		self._LCTRL_contacts.set_string_items(items = list_items)
 		self._LCTRL_contacts.set_data(data = list_data)
 		if is_in_hospital:
-			self._LCTRL_contacts.SetItemTextColour(0, wx.NamedColour('RED'))
+			self._LCTRL_contacts.SetItemTextColour(0, wx.Colour('RED'))
 
 	#-----------------------------------------------------
 	def _calc_contacts_list_item_tooltip(self, data):

@@ -71,7 +71,7 @@ def update_atc_reference_data():
 		defaultDir = os.path.expanduser(os.path.join('~', 'gnumed')),
 		defaultFile = '',
 		wildcard = "%s (*.conf)|*.conf|%s (*)|*" % (_('config files'), _('all files')),
-		style = wx.OPEN | wx.FILE_MUST_EXIST
+		style = wx.FD_OPEN | wx.FD_FILE_MUST_EXIST
 	)
 
 	result = dlg.ShowModal()

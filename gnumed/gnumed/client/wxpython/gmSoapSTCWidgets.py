@@ -86,8 +86,9 @@ class cWxTextCtrlCompatibility_StcMixin():
 			#return wx.TextAreaBase.PositionToXY(position)					# does not work
 			return super(wx.TextAreaBase, self).PositionToXY(position)
 		except AttributeError:
-			# reimplement for wxPython 2.8
-			return (self.GetColumn(position), self.LineFromPosition(position))
+			# reimplement for wxPython 2.8,
+			# this is moot now, hwoever, since 2.8 returned an (x, y) tuple
+			return (True, self.GetColumn(position), self.LineFromPosition(position))
 
 	#--------------------------------------------------
 	def Replace(self, start, end, replacement):

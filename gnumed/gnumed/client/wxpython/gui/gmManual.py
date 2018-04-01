@@ -103,7 +103,7 @@ class ManualHtmlPanel(wx.Panel):
 			self.html.LoadPage('http://wiki.gnumed.de/bin/view/Gnumed/GnumedManual?template=viewprint')
 	#--------------------------------------------------------
 	def OnLoadFile(self, event):
-		dlg = wx.FileDialog(self, wildcard = '*.htm*', style=wx.OPEN)
+		dlg = wx.FileDialog(self, wildcard = '*.htm*', style=wx.FD_OPEN)
 		if dlg.ShowModal():
 			path = dlg.GetPath()
 			self.html.LoadPage(path)

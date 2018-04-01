@@ -594,7 +594,7 @@ def load_person_from_vcard_file():
 		message = _('Choose a vCard file:'),
 		defaultDir = os.path.join(gmTools.gmPaths().home_dir, 'gnumed'),
 		wildcard = wildcards,
-		style = wx.OPEN | wx.FILE_MUST_EXIST
+		style = wx.FD_OPEN | wx.FD_FILE_MUST_EXIST
 	)
 	result = dlg.ShowModal()
 	fname = dlg.GetPath()
@@ -932,10 +932,11 @@ class cPersonSearchCtrl(wx.TextCtrl):
 	# event handling
 	#--------------------------------------------------------
 	def __register_events(self):
-		wx.EVT_CHAR(self, self.__on_char)
-		wx.EVT_SET_FOCUS(self, self._on_get_focus)
-		wx.EVT_KILL_FOCUS (self, self._on_loose_focus)
-		wx.EVT_TEXT_ENTER (self, self.GetId(), self.__on_enter)
+		self.Bind(wx.EVT_CHAR, self.__on_char)
+		self.Bind(wx.EVT_SET_FOCUS, self._on_get_focus)
+		self.Bind(wx.EVT_KILL_FOCUS, self._on_loose_focus)
+		self.Bind(wx.EVT_TEXT_ENTER, self.__on_enter)
+
 	#--------------------------------------------------------
 	def _on_get_focus(self, evt):
 		"""upon tabbing in
@@ -945,6 +946,7 @@ class cPersonSearchCtrl(wx.TextCtrl):
 		"""
 		wx.CallAfter(self.SetSelection, -1, -1)
 		evt.Skip()
+
 	#--------------------------------------------------------
 	def _on_loose_focus(self, evt):
 		# - redraw the currently active name upon losing focus

@@ -87,7 +87,7 @@ class cTopPnl(wxgTopPnl.wxgTopPnl):
 	#-------------------------------------------------------
 	def __register_interests(self):
 		# events
-		wx.EVT_LEFT_DCLICK(self._TCTRL_allergies, self._on_allergies_dclicked)
+		self._TCTRL_allergies.Bind(wx.EVT_LEFT_DCLICK, self._on_allergies_dclicked)
 
 		# client internal signals
 		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._on_post_patient_selection)

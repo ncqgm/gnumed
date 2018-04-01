@@ -47,7 +47,7 @@ class cKeywordExpansion_TextCtrlMixin():
 	#--------------------------------------------------------
 	def attempt_expansion(self, show_list_if_needed=False):
 
-		caret_pos_in_line, line_no = self.PositionToXY(self.InsertionPoint)
+		visible, caret_pos_in_line, line_no = self.PositionToXY(self.InsertionPoint)
 		line = self.GetLineText(line_no)
 		keyword_candidate = self.__keyword_separators.split(line[:caret_pos_in_line])[-1]
 
@@ -373,7 +373,7 @@ class cTextExpansionEditAreaPnl(wxgTextExpansionEditAreaPnl.wxgTextExpansionEdit
 			parent = self,
 			message = _('Choose the file containing the data snippet'),
 			wildcard = '|'.join(wildcards),
-			style = wx.OPEN | wx.FILE_MUST_EXIST
+			style = wx.FD_OPEN | wx.FD_FILE_MUST_EXIST
 		)
 		result = dlg.ShowModal()
 		if result != wx.ID_CANCEL:

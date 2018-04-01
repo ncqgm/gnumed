@@ -692,7 +692,7 @@ class cFormTemplateEAPnl(wxgFormTemplateEditAreaPnl.wxgFormTemplateEditAreaPnl, 
 			defaultDir = os.path.expanduser(os.path.join('~', 'gnumed')),
 			defaultFile = '',
 			wildcard = '|'.join(wildcards),
-			style = wx.OPEN | wx.FILE_MUST_EXIST
+			style = wx.FD_OPEN | wx.FD_FILE_MUST_EXIST
 		)
 		result = dlg.ShowModal()
 		if result != wx.ID_CANCEL:

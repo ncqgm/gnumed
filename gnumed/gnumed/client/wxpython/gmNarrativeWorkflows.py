@@ -396,7 +396,7 @@ def export_narrative_for_medistar_import(parent=None, soap_cats=u'soapu', encoun
 		defaultDir = aDefDir,
 		defaultFile = fname,
 		wildcard = aWildcard,
-		style = wx.SAVE
+		style = wx.FD_SAVE
 	)
 	choice = dlg.ShowModal()
 	fname = dlg.GetPath()

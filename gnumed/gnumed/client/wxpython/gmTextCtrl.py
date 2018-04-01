@@ -375,19 +375,19 @@ class cExpandoTextCtrlHandling_PanelMixin():
 			expando = self.FindWindowById(evt.GetId())
 			y_expando = expando.GetPositionTuple()[1]
 			h_expando = expando.GetSize()[1]
-			line_cursor = expando.PositionToXY(expando.GetInsertionPoint())[1] + 1
+			line_of_cursor = expando.PositionToXY(expando.GetInsertionPoint())[2] + 1
 			if expando.NumberOfLines == 0:
 				no_of_lines = 1
 			else:
 				no_of_lines = expando.NumberOfLines
-			y_cursor = int(round((float(line_cursor) / no_of_lines) * h_expando))
+			y_cursor = int(round((float(line_of_cursor) / no_of_lines) * h_expando))
 			y_desired_visible = y_expando + y_cursor
 
 			y_view = self.ViewStart[1]
 			h_view = self.GetClientSize()[1]
 
 #			print "expando:", y_expando, "->", h_expando, ", lines:", expando.NumberOfLines
-#			print "cursor :", y_cursor, "at line", line_cursor, ", insertion point:", expando.GetInsertionPoint()
+#			print "cursor :", y_cursor, "at line", line_of_cursor, ", insertion point:", expando.GetInsertionPoint()
 #			print "wanted :", y_desired_visible
 #			print "view-y :", y_view
 #			print "scroll2:", h_view

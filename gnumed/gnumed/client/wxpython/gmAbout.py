@@ -62,7 +62,8 @@ class ScrollTxtWin (wx.Window):
 		self.moving_txt.SetFont(wx.Font(10, wx.SWISS, wx.NORMAL, wx.NORMAL))
 		self.moving_txt.SetLabel(self.name_list[0])
 
-		wx.EVT_TIMER(self, -1, self.OnTimer)
+		#wx.EVT_TIMER(self, -1, self.OnTimer)
+		self.Bind(wx.EVT_TIMER, self.OnTimer)
 		self.timer = wx.Timer(self, -1)
 		#self.timer.Start(self.__scroll_speed)
 		self.timer.Start(milliseconds = 1./self.__scroll_speed)

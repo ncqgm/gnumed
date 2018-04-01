@@ -74,7 +74,7 @@ def show_hl7_file(parent=None):
 		# make configurable:
 		defaultDir = os.path.join(paths.home_dir, 'gnumed'),
 		wildcard = "hl7 files|*.hl7|HL7 files|*.HL7|all files|*",
-		style = wx.OPEN | wx.FILE_MUST_EXIST
+		style = wx.FD_OPEN | wx.FD_FILE_MUST_EXIST
 	)
 	choice = dlg.ShowModal()
 	hl7_name = dlg.GetPath()
@@ -105,7 +105,7 @@ def unwrap_HL7_from_XML(parent=None):
 		# make configurable:
 		defaultDir = os.path.join(paths.home_dir, 'gnumed'),
 		wildcard = "xml files|*.xml|XML files|*.XML|all files|*",
-		style = wx.OPEN | wx.FILE_MUST_EXIST
+		style = wx.FD_OPEN | wx.FD_FILE_MUST_EXIST
 	)
 	choice = dlg.ShowModal()
 	xml_name = dlg.GetPath()
@@ -148,7 +148,7 @@ def stage_hl7_file(parent=None):
 		# make configurable:
 		defaultDir = os.path.join(paths.home_dir, 'gnumed'),
 		wildcard = ".hl7 files|*.hl7|.HL7 files|*.HL7|all files|*",
-		style = wx.OPEN | wx.FILE_MUST_EXIST
+		style = wx.FD_OPEN | wx.FD_FILE_MUST_EXIST
 	)
 	choice = dlg.ShowModal()
 	hl7_name = dlg.GetPath()
@@ -1282,27 +1282,22 @@ class cMeasurementsAsTablePnl(wxgMeasurementsAsTablePnl.wxgMeasurementsAsTablePn
 	def __init_ui(self):
 		self.__action_button_popup = wx.Menu(title = _('Perform on selected results:'))
 
-		menu_id = wx.NewId()
-		self.__action_button_popup.AppendItem(wx.MenuItem(self.__action_button_popup, menu_id, _('Review and &sign')))
-		wx.EVT_MENU(self.__action_button_popup, menu_id, self.__on_sign_current_selection)
+		item = self.__action_button_popup.Append(-1, _('Review and &sign'))
+		self.Bind(wx.EVT_MENU, self.__on_sign_current_selection, item)
 
-		menu_id = wx.NewId()
-		self.__action_button_popup.AppendItem(wx.MenuItem(self.__action_button_popup, menu_id, _('Plot')))
-		wx.EVT_MENU(self.__action_button_popup, menu_id, self.__on_plot_current_selection)
+		item = self.__action_button_popup.Append(-1, _('Plot'))
+		self.Bind(wx.EVT_MENU, self.__on_plot_current_selection, item)
 
-		menu_id = wx.NewId()
-		self.__action_button_popup.AppendItem(wx.MenuItem(self.__action_button_popup, menu_id, _('Export to &file')))
-		#wx.EVT_MENU(self.__action_button_popup, menu_id, self._GRID_results_all.current_selection_to_file)
-		self.__action_button_popup.Enable(id = menu_id, enable = False)
+		#item = self.__action_button_popup.Append(-1, _('Export to &file'))
+		#self.Bind(wx.EVT_MENU, self._GRID_results_all.current_selection_to_file, item)
+		#self.__action_button_popup.Enable(id = item.Id, enable = False)
 
-		menu_id = wx.NewId()
-		self.__action_button_popup.AppendItem(wx.MenuItem(self.__action_button_popup, menu_id, _('Export to &clipboard')))
-		#wx.EVT_MENU(self.__action_button_popup, menu_id, self._GRID_results_all.current_selection_to_clipboard)
-		self.__action_button_popup.Enable(id = menu_id, enable = False)
+		#item = self.__action_button_popup.Append(-1, _('Export to &clipboard'))
+		#self.Bind(wx.EVT_MENU, self._GRID_results_all.current_selection_to_clipboard, item)
+		#self.__action_button_popup.Enable(id = item.Id, enable = False)
 
-		menu_id = wx.NewId()
-		self.__action_button_popup.AppendItem(wx.MenuItem(self.__action_button_popup, menu_id, _('&Delete')))
-		wx.EVT_MENU(self.__action_button_popup, menu_id, self.__on_delete_current_selection)
+		item = self.__action_button_popup.Append(-1, _('&Delete'))
+		self.Bind(wx.EVT_MENU, self.__on_delete_current_selection, item)
 
 		# FIXME: create inbox message to staff to phone patient to come in
 		# FIXME: generate and let edit a SOAP narrative and include the values
@@ -2337,27 +2332,22 @@ class cMeasurementsPnl(wxgMeasurementsPnl.wxgMeasurementsPnl, gmRegetMixin.cRege
 
 		self.__action_button_popup = wx.Menu(title = _('Perform on selected results:'))
 
-		menu_id = wx.NewId()
-		self.__action_button_popup.AppendItem(wx.MenuItem(self.__action_button_popup, menu_id, _('Review and &sign')))
-		wx.EVT_MENU(self.__action_button_popup, menu_id, self.__on_sign_current_selection)
+		item = self.__action_button_popup.Append(-1, _('Review and &sign'))
+		self.Bind(wx.EVT_MENU, self.__on_sign_current_selection, item)
 
-		menu_id = wx.NewId()
-		self.__action_button_popup.AppendItem(wx.MenuItem(self.__action_button_popup, menu_id, _('Plot')))
-		wx.EVT_MENU(self.__action_button_popup, menu_id, self.__on_plot_current_selection)
+		item = self.__action_button_popup.Append(-1, _('Plot'))
+		self.Bind(wx.EVT_MENU, self.__on_plot_current_selection, item)
 
-		menu_id = wx.NewId()
-		self.__action_button_popup.AppendItem(wx.MenuItem(self.__action_button_popup, menu_id, _('Export to &file')))
-		#wx.EVT_MENU(self.__action_button_popup, menu_id, self._GRID_results_all.current_selection_to_file)
+		item = self.__action_button_popup.Append(-1, _('Export to &file'))
+		self.Bind(wx.EVT_MENU, self._GRID_results_all.current_selection_to_file, item)
 		self.__action_button_popup.Enable(id = menu_id, enable = False)
 
-		menu_id = wx.NewId()
-		self.__action_button_popup.AppendItem(wx.MenuItem(self.__action_button_popup, menu_id, _('Export to &clipboard')))
-		#wx.EVT_MENU(self.__action_button_popup, menu_id, self._GRID_results_all.current_selection_to_clipboard)
+		item = self.__action_button_popup.Append(-1, _('Export to &clipboard'))
+		self.Bind(wx.EVT_MENU, self._GRID_results_all.current_selection_to_clipboard, item)
 		self.__action_button_popup.Enable(id = menu_id, enable = False)
 
-		menu_id = wx.NewId()
-		self.__action_button_popup.AppendItem(wx.MenuItem(self.__action_button_popup, menu_id, _('&Delete')))
-		wx.EVT_MENU(self.__action_button_popup, menu_id, self.__on_delete_current_selection)
+		item = self.__action_button_popup.Append(-1, _('&Delete'))
+		self.Bind(wx.EVT_MENU, self.__on_delete_current_selection, item)
 
 		# FIXME: create inbox message to staff to phone patient to come in
 		# FIXME: generate and let edit a SOAP narrative and include the values

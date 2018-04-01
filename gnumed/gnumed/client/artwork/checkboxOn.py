@@ -24,7 +24,7 @@ dY\xc6\xf9|\xde4['\x95e\xc9\xfd~\x07~\x8eR\xd75\xb6m\x13E\xd1\x8b\x83\x15\
 \x8b&]\x902\x00\x00\x00\x00IEND\xaeB`\x82\xd6/\x8b\x02" )
 
 def getCheckboxOnBitmap():
-    return wxBitmapFromImage(getImage())
+    return wxBitmap(getImage())
 
 def getImage():
     stream = cStringIO.StringIO(getCheckboxOn())

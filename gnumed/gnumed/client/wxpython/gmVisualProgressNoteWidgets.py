@@ -114,7 +114,7 @@ def select_file_as_visual_progress_note_template(parent=None):
 		defaultDir = os.path.expanduser('~'),
 		defaultFile = '',
 		#wildcard = "%s (*)|*|%s (*.*)|*.*" % (_('all files'), _('all files (Win)')),
-		style = wx.OPEN | wx.FILE_MUST_EXIST
+		style = wx.FD_OPEN | wx.FD_FILE_MUST_EXIST
 	)
 	result = dlg.ShowModal()
 

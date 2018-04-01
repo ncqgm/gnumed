@@ -259,7 +259,7 @@ class cOrgUnitsManagerPnl(gmListWidgets.cGenericListManagerPnl):
 		for idx in range(len(units)):
 			unit = units[idx]
 			if unit['is_praxis_branch']:
-				self._LCTRL_items.SetItemTextColour(idx, col=wx.NamedColour('RED'))
+				self._LCTRL_items.SetItemTextColour(idx, col=wx.Colour('RED'))
 	#--------------------------------------------------------
 	# properties
 	#--------------------------------------------------------
@@ -838,7 +838,7 @@ class cOrganizationsManagerPnl(gmListWidgets.cGenericListManagerPnl):
 		for idx in range(len(orgs)):
 			org = orgs[idx]
 			if org['is_praxis']:
-				self._LCTRL_items.SetItemTextColour(idx, col=wx.NamedColour('RED'))
+				self._LCTRL_items.SetItemTextColour(idx, col=wx.Colour('RED'))
 				break
 	#--------------------------------------------------------
 	# event handlers

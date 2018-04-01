@@ -266,7 +266,7 @@ class cConfTree(wx.TreeCtrl):
 	#------------------------------------------------------------------------
 	def OnActivate (self, event):
 		item = event.GetItem()
-		data = self.GetPyData(item)
+		data = self.GetItemData(item)
 
 		self.paramDescription.Clear()
 		self.paramTextCtrl.SetEditable(0)

@@ -57,10 +57,7 @@ class cPatientPicture(wx.StaticBitmap):
 	#-----------------------------------------------------------------
 	def __register_events(self):
 		# wxPython events
-		wx.EVT_RIGHT_UP(self, self._on_RightClick_photo)
-		wx.EVT_MENU(self, ID_AcquirePhoto, self._on_AcquirePhoto)
-		wx.EVT_MENU(self, ID_ImportPhoto, self._on_ImportPhoto)
-		wx.EVT_MENU(self, ID_Refresh, self._on_refresh_from_backend)
+		self.Bind(wx.EVT_RIGHT_UP, self._on_RightClick_photo)
 
 		# dispatcher signals
 		gmDispatcher.connect(receiver=self._on_post_patient_selection, signal = u'post_patient_selection')
@@ -131,12 +128,18 @@ class cPatientPicture(wx.StaticBitmap):
 	def __init_ui(self):
 		# pre-make context menu
 		self.__photo_menu = wx.Menu()
-		self.__photo_menu.Append(ID_Refresh, _('Refresh from database'))
+		item = self.__photo_menu.Append(-1, _('Refresh from database'))
+		self.Bind(wx.EVT_MENU, self._on_refresh_from_backend, item)
+
 		self.__photo_menu.AppendSeparator()
-		self.__photo_menu.Append(ID_AcquirePhoto, _("Acquire from imaging device"))
-		self.__photo_menu.Append(ID_ImportPhoto, _("Import from file"))
+
+		item = self.__photo_menu.Append(-1, _("Acquire from imaging device"))
+		self.Bind(wx.EVT_MENU, self._on_AcquirePhoto, item)
+		item = self.__photo_menu.Append(-1, _("Import from file"))
+		self.Bind(wx.EVT_MENU, self._on_ImportPhoto, item)
 
 		self.__set_pic_from_file()
+
 	#-----------------------------------------------------------------
 	def __import_pic_into_db(self, fname=None):
 
@@ -189,7 +192,7 @@ class cPatientPicture(wx.StaticBitmap):
 		try:
 			img_data = wx.Image(fname, wx.BITMAP_TYPE_ANY)
 			img_data.Rescale(self.__desired_width, self.__desired_height)
-			bmp_data = wx.BitmapFromImage(img_data)
+			bmp_data = wx.Bitmap(img_data)
 		except:
 			_log.exception('cannot set patient picture from [%s]', fname)
 			gmDispatcher.send(signal='statustext', msg=_('Cannot set patient picture from [%s].') % fname)

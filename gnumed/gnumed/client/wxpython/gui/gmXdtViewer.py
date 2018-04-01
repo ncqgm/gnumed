@@ -63,7 +63,7 @@ class cXdtListPnl(wxgXdtListPnl.wxgXdtListPnl):
 			defaultDir = root_dir,
 			defaultFile = '',
 			wildcard = '%s (*.xDT)|*.?DT;*.?dt|%s (*)|*|%s (*.*)|*.*' % (_('xDT files'), _('all files'), _('all files (Win)')),
-			style = wx.OPEN | wx.FILE_MUST_EXIST
+			style = wx.FD_OPEN | wx.FD_FILE_MUST_EXIST
 		)
 		choice = dlg.ShowModal()
 		fname = None

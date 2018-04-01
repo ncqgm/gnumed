@@ -362,7 +362,7 @@ class cDynamicHintListDlg(wxgDynamicHintListDlg.wxgDynamicHintListDlg):
 		self._LCTRL_hints.set_string_items([ [h['title'], h['source']] for h in ordered_hints ])
 		self._LCTRL_hints.set_data(ordered_hints)
 		for idx in range(len(priority_hints)):
-			self._LCTRL_hints.SetItemTextColour(idx, wx.NamedColour('YELLOW'))
+			self._LCTRL_hints.SetItemTextColour(idx, wx.Colour('YELLOW'))
 		self._LCTRL_hints.Select(0)
 
 	#------------------------------------------------------------

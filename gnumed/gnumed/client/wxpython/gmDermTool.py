@@ -173,7 +173,7 @@ class DermToolDialog(wx.Dialog):
             x = (pnl_width-desired_width)/2
             y = 0
         njpeg = self.jpeg.Scale (desired_width, desired_height)
-        bmp = wx.BitmapFromImage (njpeg)
+        bmp = wx.Bitmap(njpeg)
         sbmp = wx.StaticBitmap (self.image, -1, bmp, pos=wx.Point (x, y))
         sbmp.Show ()
 

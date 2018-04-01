@@ -640,7 +640,7 @@ class cMultiSizer(wx.Window):
 	def OnMouseMove(self,evt):
 		if self.isDrag:
 			DrawSash(self.dragTarget,self.px,self.py,self.side)
-			self.px,self.py = self.ClientToScreenXY(evt.m_x,evt.m_y)
+			self.px,self.py = self.ClientToScreen(evt.m_x,evt.m_y)
 			self.px,self.py = self.dragTarget.ScreenToClientXY(self.px,self.py)
 			DrawSash(self.dragTarget,self.px,self.py,self.side)
 		else:
@@ -650,7 +650,7 @@ class cMultiSizer(wx.Window):
 		self.dragTarget = self.GetParent().SizeTarget(not self.side)
 		if self.dragTarget:
 			self.isDrag = True
-			self.px,self.py = self.ClientToScreenXY(evt.m_x,evt.m_y)
+			self.px,self.py = self.ClientToScreen(evt.m_x,evt.m_y)
 			self.px,self.py = self.dragTarget.ScreenToClientXY(self.px,self.py)
 			DrawSash(self.dragTarget,self.px,self.py,self.side)
 			self.CaptureMouse()
@@ -727,7 +727,7 @@ class cMultiCreator(wx.Window):
 		if self.isDrag:
 			parent = self.GetParent()
 			DrawSash(parent,self.px,self.py,self.side)
-			self.px,self.py = self.ClientToScreenXY(evt.m_x,evt.m_y)
+			self.px,self.py = self.ClientToScreen(evt.m_x,evt.m_y)
 			self.px,self.py = parent.ScreenToClientXY(self.px,self.py)
 			DrawSash(parent,self.px,self.py,self.side)
 		else:
@@ -736,7 +736,7 @@ class cMultiCreator(wx.Window):
 	def OnPress(self,evt):
 		self.isDrag = True
 		parent = self.GetParent()
-		self.px,self.py = self.ClientToScreenXY(evt.m_x,evt.m_y)
+		self.px,self.py = self.ClientToScreen(evt.m_x,evt.m_y)
 		self.px,self.py = parent.ScreenToClientXY(self.px,self.py)
 		DrawSash(parent,self.px,self.py,self.side)
 		self.CaptureMouse()
@@ -882,7 +882,7 @@ def DrawSash(win,x,y,direction):
 	else:
 		y = 0
 
-	x,y = win.ClientToScreenXY(x,y)
+	x,y = win.ClientToScreen(x,y)
 
 	w = body_w
 	h = body_h

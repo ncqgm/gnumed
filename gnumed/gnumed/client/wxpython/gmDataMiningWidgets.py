@@ -483,7 +483,7 @@ class cDataMiningPnl(wxgDataMiningPnl.wxgDataMiningPnl):
 			defaultDir = os.path.abspath(os.path.expanduser(os.path.join('~', 'gnumed'))),
 			defaultFile = u'gm-query_results.csv',
 			wildcard = u'%s (*.csv)|*.csv|%s (*)|*' % (_("CSV files"), _("all files")),
-			style = wx.SAVE
+			style = wx.FD_SAVE
 		)
 		choice = dlg.ShowModal()
 		csv_name = dlg.GetPath()

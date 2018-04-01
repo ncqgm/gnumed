@@ -79,7 +79,7 @@ def export_emr_to_ascii(parent=None):
 		defaultDir = defdir,
 		defaultFile = fname,
 		wildcard = wc,
-		style = wx.SAVE
+		style = wx.FD_SAVE
 	)
 	choice = dlg.ShowModal()
 	fname = dlg.GetPath()
@@ -186,9 +186,9 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 			return u'invalid item'
 
 		try:
-			node_data = self.GetPyData(item)
+			node_data = self.GetItemData(item)
 		except wx.PyAssertionError:
-			_log.exception('unfathomable self.GetPyData() problem occurred, faking root node')
+			_log.exception('unfathomable self.GetItemData() problem occurred, faking root node')
 			_log.error('real node: %s', item)
 			_log.error('node.IsOk(): %s', item.IsOk())		# already survived this further up
 			_log.error('is root node: %s', item == self.GetRootItem())
@@ -214,13 +214,13 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 	#--------------------------------------------------------
 	def __register_events(self):
 		"""Configures enabled event signals."""
-		wx.EVT_TREE_SEL_CHANGED (self, self.GetId(), self._on_tree_item_selected)
-		wx.EVT_TREE_ITEM_RIGHT_CLICK (self, self.GetId(), self._on_tree_item_right_clicked)
+		self.Bind(wx.EVT_TREE_SEL_CHANGED, self._on_tree_item_selected)
+		self.Bind(wx.EVT_TREE_ITEM_RIGHT_CLICK, self._on_tree_item_right_clicked)
 		self.Bind(wx.EVT_TREE_ITEM_EXPANDING, self._on_tree_item_expanding)
 
 		# handle tooltips
-#		wx.EVT_MOTION(self, self._on_mouse_motion)
-		wx.EVT_TREE_ITEM_GETTOOLTIP(self, -1, self._on_tree_item_gettooltip)
+#		self.Bind(wx.EVT_MOTION, self._on_mouse_motion)
+		self.Bind(wx.EVT_TREE_ITEM_GETTOOLTIP, self._on_tree_item_gettooltip)
 
 		# FIXME: xxxxx signal
 		gmDispatcher.connect(signal = 'narrative_mod_db', receiver = self._on_narrative_mod_db)
@@ -238,6 +238,8 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 		"""Updates EMR browser data."""
 		# FIXME: auto select the previously self.__curr_node if not None
 		# FIXME: error handling
+
+		_log.debug(u'populating EMR tree')
 
 		wx.BeginBusyCursor()
 
@@ -265,7 +267,7 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 		self.DeleteAllItems()
 
 		root_item = self.AddRoot(_('EMR of %(lastnames)s, %(firstnames)s') % self.__pat.get_active_name())
-		self.SetItemPyData(root_item, None)
+		self.SetItemData(root_item, None)
 		self.SetItemHasChildren(root_item, True)
 
 		self.__root_tooltip = self.__pat['description_gender'] + u'\n'
@@ -327,10 +329,10 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 			return
 
 		try:
-			node_data = self.GetPyData(self.__curr_node)
+			node_data = self.GetItemData(self.__curr_node)
 		except wx.PyAssertionError:
 			node_data = None		# fake a root node
-			_log.exception('unfathomable self.GetPyData() problem occurred, faking root node')
+			_log.exception('unfathomable self.GetItemData() problem occurred, faking root node')
 			_log.error('real node: %s', self.__curr_node)
 			_log.error('node.IsOk(): %s', self.__curr_node.IsOk())		# already survived this further up
 			_log.error('is root node: %s', self.__curr_node == self.GetRootItem())
@@ -439,7 +441,7 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 
 		if isinstance(node_data, gmEMRStructItems.cEncounter):
 			self.__cb__enable_display_mode_selection(True)
-			epi = self.GetPyData(self.GetItemParent(self.__curr_node))
+			epi = self.GetItemData(self.GetItemParent(self.__curr_node))
 			if self.__soap_display_mode == u'revisions':
 				txt = node_data.formatted_revision_history
 				font = self.__soap_display_mono_font
@@ -478,127 +480,79 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 
 		# - root node
 		self.__root_context_popup = wx.Menu(title = _('EMR Actions:'))
-
 		item = self.__root_context_popup.Append(-1, _('Print EMR'))
 		self.Bind(wx.EVT_MENU, self.__print_emr, item)
-
-		menu_id = wx.NewId()
-		self.__root_context_popup.AppendItem(wx.MenuItem(self.__root_context_popup, menu_id, _('Create health issue')))
-		wx.EVT_MENU(self.__root_context_popup, menu_id, self.__create_issue)
-
+		item = self.__root_context_popup.Append(-1, _('Create health issue'))
+		self.Bind(wx.EVT_MENU, self.__create_issue, item)
 		item = self.__root_context_popup.Append(-1, _('Create episode'))
 		self.Bind(wx.EVT_MENU, self.__create_episode, item)
-
 		item = self.__root_context_popup.Append(-1, _('Create progress note'))
 		self.Bind(wx.EVT_MENU, self.__create_soap_editor, item)
-
-		menu_id = wx.NewId()
-		self.__root_context_popup.AppendItem(wx.MenuItem(self.__root_context_popup, menu_id, _('Manage allergies')))
-		wx.EVT_MENU(self.__root_context_popup, menu_id, self.__document_allergy)
-
-		menu_id = wx.NewId()
-		self.__root_context_popup.AppendItem(wx.MenuItem(self.__root_context_popup, menu_id, _('Manage family history')))
-		wx.EVT_MENU(self.__root_context_popup, menu_id, self.__manage_family_history)
-
-		menu_id = wx.NewId()
-		self.__root_context_popup.AppendItem(wx.MenuItem(self.__root_context_popup, menu_id, _('Manage hospitalizations')))
-		wx.EVT_MENU(self.__root_context_popup, menu_id, self.__manage_hospital_stays)
-
-		menu_id = wx.NewId()
-		self.__root_context_popup.AppendItem(wx.MenuItem(self.__root_context_popup, menu_id, _('Manage occupation')))
-		wx.EVT_MENU(self.__root_context_popup, menu_id, self.__manage_occupation)
-
-		menu_id = wx.NewId()
-		self.__root_context_popup.AppendItem(wx.MenuItem(self.__root_context_popup, menu_id, _('Manage procedures')))
-		wx.EVT_MENU(self.__root_context_popup, menu_id, self.__manage_procedures)
-
-		menu_id = wx.NewId()
-		self.__root_context_popup.AppendItem(wx.MenuItem(self.__root_context_popup, menu_id, _('Manage vaccinations')))
-		wx.EVT_MENU(self.__root_context_popup, menu_id, self.__manage_vaccinations)
+		item = self.__root_context_popup.Append(-1, _('Manage allergies'))
+		self.Bind(wx.EVT_MENU, self.__document_allergy, item)
+		item = self.__root_context_popup.Append(-1, _('Manage family history'))
+		self.Bind(wx.EVT_MENU, self.__manage_family_history, item)
+		item = self.__root_context_popup.Append(-1, _('Manage hospitalizations'))
+		self.Bind(wx.EVT_MENU, self.__manage_hospital_stays, item)
+		item = self.__root_context_popup.Append(-1, _('Manage occupation'))
+		self.Bind(wx.EVT_MENU, self.__manage_occupation, item)
+		item = self.__root_context_popup.Append(-1, _('Manage procedures'))
+		self.Bind(wx.EVT_MENU, self.__manage_procedures, item)
+		item = self.__root_context_popup.Append(-1, _('Manage vaccinations'))
+		self.Bind(wx.EVT_MENU, self.__manage_vaccinations, item)
 
 		self.__root_context_popup.AppendSeparator()
 
 		# expand tree
 		expand_menu = wx.Menu()
 		self.__root_context_popup.Append(wx.NewId(), _('Open EMR to ...'), expand_menu)
-
-		menu_id = wx.NewId()
-		expand_menu.AppendItem(wx.MenuItem(expand_menu, menu_id, _('... issue level')))
-		wx.EVT_MENU(expand_menu, menu_id, self.__expand_to_issue_level)
-
-		menu_id = wx.NewId()
-		expand_menu.AppendItem(wx.MenuItem(expand_menu, menu_id, _('... episode level')))
-		wx.EVT_MENU(expand_menu, menu_id, self.__expand_to_episode_level)
-
-		menu_id = wx.NewId()
-		expand_menu.AppendItem(wx.MenuItem(expand_menu, menu_id, _('... encounter level')))
-		wx.EVT_MENU(expand_menu, menu_id, self.__expand_to_encounter_level)
+		item = expand_menu.Append(-1, _('... issue level'))
+		self.Bind(wx.EVT_MENU, self.__expand_to_issue_level, item)
+		item = expand_menu.Append(-1, _('... episode level'))
+		self.Bind(wx.EVT_MENU, self.__expand_to_episode_level, item)
+		item = expand_menu.Append(-1, _('... encounter level'))
+		self.Bind(wx.EVT_MENU, self.__expand_to_encounter_level, item)
 
 		# - health issues
 		self.__issue_context_popup = wx.Menu(title = _('Health Issue Actions:'))
-
-		menu_id = wx.NewId()
-		self.__issue_context_popup.AppendItem(wx.MenuItem(self.__issue_context_popup, menu_id, _('Edit details')))
-		wx.EVT_MENU(self.__issue_context_popup, menu_id, self.__edit_issue)
-
-		menu_id = wx.NewId()
-		self.__issue_context_popup.AppendItem(wx.MenuItem(self.__issue_context_popup, menu_id, _('Delete')))
-		wx.EVT_MENU(self.__issue_context_popup, menu_id, self.__delete_issue)
-
+		item = self.__issue_context_popup.Append(-1, _('Edit details'))
+		self.Bind(wx.EVT_MENU, self.__edit_issue, item)
+		item = self.__issue_context_popup.Append(-1, _('Delete'))
+		self.Bind(wx.EVT_MENU, self.__delete_issue, item)
 		self.__issue_context_popup.AppendSeparator()
-
-		menu_id = wx.NewId()
-		self.__issue_context_popup.AppendItem(wx.MenuItem(self.__issue_context_popup, menu_id, _('Open to encounter level')))
-		wx.EVT_MENU(self.__issue_context_popup, menu_id, self.__expand_issue_to_encounter_level)
+		item = self.__issue_context_popup.Append(-1, _('Open to encounter level'))
+		self.Bind(wx.EVT_MENU, self.__expand_issue_to_encounter_level, item)
 		# print " attach issue to another patient"
 		# print " move all episodes to another issue"
-
 		item = self.__issue_context_popup.Append(-1, _('Create progress note'))
 		self.Bind(wx.EVT_MENU, self.__create_soap_editor, item)
 
 		# - episodes
 		self.__epi_context_popup = wx.Menu(title = _('Episode Actions:'))
-
-		menu_id = wx.NewId()
-		self.__epi_context_popup.AppendItem(wx.MenuItem(self.__epi_context_popup, menu_id, _('Edit details')))
-		wx.EVT_MENU(self.__epi_context_popup, menu_id, self.__edit_episode)
-
-		menu_id = wx.NewId()
-		self.__epi_context_popup.AppendItem(wx.MenuItem(self.__epi_context_popup, menu_id, _('Delete')))
-		wx.EVT_MENU(self.__epi_context_popup, menu_id, self.__delete_episode)
-
-		menu_id = wx.NewId()
-		self.__epi_context_popup.AppendItem(wx.MenuItem(self.__epi_context_popup, menu_id, _('Promote')))
-		wx.EVT_MENU(self.__epi_context_popup, menu_id, self.__promote_episode_to_issue)
-
+		item = self.__epi_context_popup.Append(-1, _('Edit details'))
+		self.Bind(wx.EVT_MENU, self.__edit_episode, item)
+		item = self.__epi_context_popup.Append(-1, _('Delete'))
+		self.Bind(wx.EVT_MENU, self.__delete_episode, item)
+		item = self.__epi_context_popup.Append(-1, _('Promote'))
+		self.Bind(wx.EVT_MENU, self.__promote_episode_to_issue, item)
 		item = self.__epi_context_popup.Append(-1, _('Create progress note'))
 		self.Bind(wx.EVT_MENU, self.__create_soap_editor, item)
-
-		menu_id = wx.NewId()
-		self.__epi_context_popup.AppendItem(wx.MenuItem(self.__epi_context_popup, menu_id, _('Move encounters')))
-		wx.EVT_MENU(self.__epi_context_popup, menu_id, self.__move_encounters)
+		item = self.__epi_context_popup.Append(-1, _('Move encounters'))
+		self.Bind(wx.EVT_MENU, self.__move_encounters, item)
 
 		# - encounters
 		self.__enc_context_popup = wx.Menu(title = _('Encounter Actions:'))
-		# - move data
-		menu_id = wx.NewId()
-		self.__enc_context_popup.AppendItem(wx.MenuItem(self.__enc_context_popup, menu_id, _('Move data to another episode')))
-		wx.EVT_MENU(self.__enc_context_popup, menu_id, self.__relink_encounter_data2episode)
-		# - edit encounter details
-		menu_id = wx.NewId()
-		self.__enc_context_popup.AppendItem(wx.MenuItem(self.__enc_context_popup, menu_id, _('Edit details')))
-		wx.EVT_MENU(self.__enc_context_popup, menu_id, self.__edit_encounter_details)
-
+		item = self.__enc_context_popup.Append(-1, _('Move data to another episode'))
+		self.Bind(wx.EVT_MENU, self.__relink_encounter_data2episode, item)
+		item = self.__enc_context_popup.Append(-1, _('Edit details'))
+		self.Bind(wx.EVT_MENU, self.__edit_encounter_details, item)
 		# would require pre-configurable save-under which we don't have
 		#item = self.__enc_context_popup.Append(-1, _('Create progress note'))
 		#self.Bind(wx.EVT_MENU, self.__create_soap_editor, item)
-
 		item = self.__enc_context_popup.Append(-1, _('Edit progress notes'))
 		self.Bind(wx.EVT_MENU, self.__edit_progress_notes, item)
-
 		item = self.__enc_context_popup.Append(-1, _('Move progress notes'))
 		self.Bind(wx.EVT_MENU, self.__move_progress_notes, item)
-
 		item = self.__enc_context_popup.Append(-1, _('Export for Medistar'))
 		self.Bind(wx.EVT_MENU, self.__export_encounter_for_medistar, item)
 
@@ -622,7 +576,7 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 	# episode level
 	#--------------------------------------------------------
 	def __move_encounters(self, event):
-		episode = self.GetPyData(self.__curr_node)
+		episode = self.GetItemData(self.__curr_node)
 
 		gmNarrativeWorkflows.move_progress_notes_to_another_encounter (
 			parent = self,
@@ -666,7 +620,7 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 		self.DeleteChildren(episode_node)
 
 		emr = self.__pat.emr
-		epi = self.GetPyData(episode_node)
+		epi = self.GetItemData(episode_node)
 		encounters = emr.get_encounters(episodes = [epi['pk_episode']], skip_empty = True)
 		if len(encounters) == 0:
 			self.SetItemHasChildren(episode_node, False)
@@ -695,7 +649,7 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 				)
 			)
 			encounter_node = self.AppendItem(episode_node, label)
-			self.SetItemPyData(encounter_node, enc)
+			self.SetItemData(encounter_node, enc)
 			# we don't expand encounter nodes (what for ?)
 			self.SetItemHasChildren(encounter_node, False)
 
@@ -705,9 +659,9 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 	# encounter level
 	#--------------------------------------------------------
 	def __move_progress_notes(self, evt):
-		encounter = self.GetPyData(self.__curr_node)
+		encounter = self.GetItemData(self.__curr_node)
 		node_parent = self.GetItemParent(self.__curr_node)
-		episode = self.GetPyData(node_parent)
+		episode = self.GetItemData(node_parent)
 
 		gmNarrativeWorkflows.move_progress_notes_to_another_encounter (
 			parent = self,
@@ -717,9 +671,9 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 
 	#--------------------------------------------------------
 	def __edit_progress_notes(self, event):
-		encounter = self.GetPyData(self.__curr_node)
+		encounter = self.GetItemData(self.__curr_node)
 		node_parent = self.GetItemParent(self.__curr_node)
-		episode = self.GetPyData(node_parent)
+		episode = self.GetItemData(node_parent)
 
 		gmNarrativeWorkflows.manage_progress_notes (
 			parent = self,
@@ -729,7 +683,7 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 
 	#--------------------------------------------------------
 	def __edit_encounter_details(self, event):
-		node_data = self.GetPyData(self.__curr_node)
+		node_data = self.GetItemData(self.__curr_node)
 		gmEncounterWidgets.edit_encounter(parent = self, encounter = node_data)
 		self.__populate_tree()
 
@@ -737,7 +691,7 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 	def __relink_encounter_data2episode(self, event):
 
 		node_parent = self.GetItemParent(self.__curr_node)
-		owning_episode = self.GetPyData(node_parent)
+		owning_episode = self.GetItemData(node_parent)
 
 		episode_selector = gmNarrativeWidgets.cMoveNarrativeDlg (
 			self,
@@ -801,7 +755,7 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 	def __expand_issue_node(self, issue_node=None):
 		self.DeleteChildren(issue_node)
 
-		issue = self.GetPyData(issue_node)
+		issue = self.GetItemData(issue_node)
 		episodes = self.__pat.emr.get_episodes(issues = [issue['pk_health_issue']])
 		if len(episodes) == 0:
 			self.SetItemHasChildren(issue_node, False)
@@ -815,7 +769,7 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 				episode['description'],
 				range_str
 			))
-			self.SetItemPyData(episode_node, episode)
+			self.SetItemData(episode_node, episode)
 			# assume children so we can try to expand it
 			self.SetItemHasChildren(episode_node, True)
 
@@ -838,7 +792,7 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 				episode['description'],
 				range_str
 			))
-			self.SetItemPyData(episode_node, episode)
+			self.SetItemData(episode_node, episode)
 			if episode['episode_open']:
 				self.SetItemBold(fake_issue_node, True)
 			# assume children so we can try to expand it
@@ -982,7 +936,7 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 				gmTools.coalesce(issue['diagnostic_certainty_classification'], u'', u' [%s]')
 			))
 			self.SetItemBold(issue_node, issue['has_open_episode'])
-			self.SetItemPyData(issue_node, issue)
+			self.SetItemData(issue_node, issue)
 			# fake it so we can expand it
 			self.SetItemHasChildren(issue_node, True)
 
@@ -1014,7 +968,7 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 			self.__expand_root_node()
 			return
 
-		node_data = self.GetPyData(node)
+		node_data = self.GetItemData(node)
 
 		if isinstance(node_data, gmEMRStructItems.cHealthIssue):
 			self.__expand_issue_node(issue_node = node)
@@ -1051,7 +1005,7 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 #			(item, flags) = self.HitTest(cursor_pos)
 #			#if flags != wx.TREE_HITTEST_NOWHERE:
 #			if flags == wx.TREE_HITTEST_ONITEMLABEL:
-#				data = self.GetPyData(item)
+#				data = self.GetItemData(item)
 #
 #				if not isinstance(data, gmEMRStructItems.cEncounter):
 #					return
@@ -1073,7 +1027,7 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 			event.SetToolTip(u' ')
 			return
 
-		data = self.GetPyData(item)
+		data = self.GetItemData(item)
 
 		if isinstance(data, gmEMRStructItems.cEncounter):
 			tt = u'%s  %s  %s - %s\n' % (
@@ -1195,7 +1149,7 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 
 		node = event.GetItem()
 		self.SelectItem(node)
-		self.__curr_node_data = self.GetPyData(node)
+		self.__curr_node_data = self.GetItemData(node)
 		self.__curr_node = node
 
 		pos = wx.DefaultPosition
@@ -1238,8 +1192,8 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 			_log.debug('invalid node 2')
 			return 0
 
-		item1 = self.GetPyData(node1)
-		item2 = self.GetPyData(node2)
+		item1 = self.GetItemData(node1)
+		item2 = self.GetItemData(node2)
 
 		# dummy health issue always on top
 		if isinstance(item1, type({})):

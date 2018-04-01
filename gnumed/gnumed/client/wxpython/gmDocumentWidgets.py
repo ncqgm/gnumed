@@ -1226,7 +1226,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 			defaultDir = os.path.expanduser(os.path.join('~', 'gnumed')),
 			defaultFile = '',
 			wildcard = "%s (*)|*|TIFFs (*.tif)|*.tif|JPEGs (*.jpg)|*.jpg|%s (*.*)|*.*" % (_('all files'), _('all files (Win)')),
-			style = wx.OPEN | wx.FILE_MUST_EXIST | wx.MULTIPLE
+			style = wx.FD_OPEN | wx.FD_FILE_MUST_EXIST | wx.FD_MULTIPLE
 		)
 		result = dlg.ShowModal()
 		files = dlg.GetPaths()
@@ -1701,7 +1701,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 	def display_selected_part(self, *args, **kwargs):
 
 		node = self.GetSelection()
-		node_data = self.GetPyData(node)
+		node_data = self.GetItemData(node)
 
 		if not isinstance(node_data, gmDocuments.cDocumentPart):
 			return True
@@ -1764,10 +1764,14 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 	#--------------------------------------------------------
 	def __register_interests(self):
 		# connect handlers
-		wx.EVT_TREE_SEL_CHANGED (self, self.GetId(), self._on_tree_item_selected)
-		wx.EVT_TREE_ITEM_ACTIVATED (self, self.GetId(), self._on_activate)
-		wx.EVT_TREE_ITEM_RIGHT_CLICK (self, self.GetId(), self.__on_right_click)
-		wx.EVT_TREE_ITEM_GETTOOLTIP(self, -1, self._on_tree_item_gettooltip)
+		self.Bind(wx.EVT_TREE_SEL_CHANGED, self._on_tree_item_selected)
+		self.Bind(wx.EVT_TREE_ITEM_ACTIVATED, self._on_activate)
+		self.Bind(wx.EVT_TREE_ITEM_RIGHT_CLICK, self.__on_right_click)
+		self.Bind(wx.EVT_TREE_ITEM_GETTOOLTIP, self._on_tree_item_gettooltip)
+		#wx.EVT_TREE_SEL_CHANGED (self, self.GetId(), self._on_tree_item_selected)
+		#wx.EVT_TREE_ITEM_ACTIVATED (self, self.GetId(), self._on_activate)
+		#wx.EVT_TREE_ITEM_RIGHT_CLICK (self, self.GetId(), self.__on_right_click)
+		#wx.EVT_TREE_ITEM_GETTOOLTIP(self, -1, self._on_tree_item_gettooltip)
 
 #		 wx.EVT_LEFT_DCLICK(self.tree, self.OnLeftDClick)
 
@@ -1782,112 +1786,71 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 		# --- part context menu ---
 		self.__part_context_menu = wx.Menu(title = _('Part Actions:'))
 
-		ID = wx.NewId()
-		self.__part_context_menu.Append(ID, _('Display part'))
-		wx.EVT_MENU(self.__part_context_menu, ID, self.__display_curr_part)
-
-		ID = wx.NewId()
-		self.__part_context_menu.Append(ID, _('%s Sign/Edit properties') % u'\u270D')
-		wx.EVT_MENU(self.__part_context_menu, ID, self.__review_curr_part)
+		item = self.__part_context_menu.Append(-1, _('Display part'))
+		self.Bind(wx.EVT_MENU, self.__display_curr_part, item)
+		item = self.__part_context_menu.Append(-1, _('%s Sign/Edit properties') % u'\u270D')
+		self.Bind(wx.EVT_MENU, self.__review_curr_part, item)
 
 		self.__part_context_menu.AppendSeparator()
 
 		item = self.__part_context_menu.Append(-1, _('Delete part'))
-		self.Bind(wx.EVT_MENU, self.__delete_part, item)
-
+		self.Bind(wx.EVT_MENU, self.__delete_part, item, item)
 		item = self.__part_context_menu.Append(-1, _('Move part'))
 		self.Bind(wx.EVT_MENU, self.__move_part, item)
+		item = self.__part_context_menu.Append(-1, _('Print part'))
+		self.Bind(wx.EVT_MENU, self.__print_part, item)
+		item = self.__part_context_menu.Append(-1, _('Fax part'))
+		self.Bind(wx.EVT_MENU, self.__fax_part, item)
+		item = self.__part_context_menu.Append(-1, _('Mail part'))
+		self.Bind(wx.EVT_MENU, self.__mail_part, item)
+		item = self.__part_context_menu.Append(-1, _('Save part to disk'))
+		self.Bind(wx.EVT_MENU, self.__save_part_to_disk, item)
 
-		ID = wx.NewId()
-		self.__part_context_menu.Append(ID, _('Print part'))
-		wx.EVT_MENU(self.__part_context_menu, ID, self.__print_part)
-
-		ID = wx.NewId()
-		self.__part_context_menu.Append(ID, _('Fax part'))
-		wx.EVT_MENU(self.__part_context_menu, ID, self.__fax_part)
-
-		ID = wx.NewId()
-		self.__part_context_menu.Append(ID, _('Mail part'))
-		wx.EVT_MENU(self.__part_context_menu, ID, self.__mail_part)
-
-		ID = wx.NewId()
-		self.__part_context_menu.Append(ID, _('Save part to disk'))
-		wx.EVT_MENU(self.__part_context_menu, ID, self.__save_part_to_disk)
-
-
-		self.__part_context_menu.AppendSeparator()			# so we can append some items
+		self.__part_context_menu.AppendSeparator()			# so we can append more items
 
 		# --- doc context menu ---
 		self.__doc_context_menu = wx.Menu(title = _('Document Actions:'))
 
-		ID = wx.NewId()
-		self.__doc_context_menu.Append(ID, _('%s Sign/Edit properties') % u'\u270D')
-		wx.EVT_MENU(self.__doc_context_menu, ID, self.__review_curr_part)
-
-		ID = wx.NewId()
-		self.__doc_context_menu.Append(ID, _('Delete document'))
-		wx.EVT_MENU(self.__doc_context_menu, ID, self.__delete_document)
+		item = self.__doc_context_menu.Append(-1, _('%s Sign/Edit properties') % u'\u270D')
+		self.Bind(wx.EVT_MENU, self.__review_curr_part, item)
+		item = self.__doc_context_menu.Append(-1, _('Delete document'))
+		self.Bind(wx.EVT_MENU, self.__delete_document, item)
 
 		self.__doc_context_menu.AppendSeparator()
 
 		item = self.__doc_context_menu.Append(-1, _('Add parts'))
 		self.Bind(wx.EVT_MENU, self.__add_part, item)
-
 		item = self.__doc_context_menu.Append(-1, _('Add part from clipboard'))
-		self.Bind(wx.EVT_MENU, self.__add_part_from_clipboard, item)
-
-		ID = wx.NewId()
-		self.__doc_context_menu.Append(ID, _('Print all parts'))
-		wx.EVT_MENU(self.__doc_context_menu, ID, self.__print_doc)
-
-		ID = wx.NewId()
-		self.__doc_context_menu.Append(ID, _('Fax all parts'))
-		wx.EVT_MENU(self.__doc_context_menu, ID, self.__fax_doc)
-
-		ID = wx.NewId()
-		self.__doc_context_menu.Append(ID, _('Mail all parts'))
-		wx.EVT_MENU(self.__doc_context_menu, ID, self.__mail_doc)
-
-		ID = wx.NewId()
-		self.__doc_context_menu.Append(ID, _('Save all parts to disk'))
-		wx.EVT_MENU(self.__doc_context_menu, ID, self.__save_doc_to_disk)
-
+		self.Bind(wx.EVT_MENU, self.__add_part_from_clipboard, item, item)
+		item = self.__doc_context_menu.Append(-1, _('Print all parts'))
+		self.Bind(wx.EVT_MENU, self.__print_doc, item)
+		item = self.__doc_context_menu.Append(-1, _('Fax all parts'))
+		self.Bind(wx.EVT_MENU, self.__fax_doc, item)
+		item = self.__doc_context_menu.Append(-1, _('Mail all parts'))
+		self.Bind(wx.EVT_MENU, self.__mail_doc, item)
+		item = self.__doc_context_menu.Append(-1, _('Save all parts to disk'))
+		self.Bind(wx.EVT_MENU, self.__save_doc_to_disk, item)
 		item = self.__doc_context_menu.Append(-1, _('Copy all parts to export area'))
 		self.Bind(wx.EVT_MENU, self.__copy_doc_to_export_area, item)
 
 		self.__doc_context_menu.AppendSeparator()
 
-		ID = wx.NewId()
-		self.__doc_context_menu.Append(ID, _('Access external original'))
-		wx.EVT_MENU(self.__doc_context_menu, ID, self.__access_external_original)
-
-		ID = wx.NewId()
-		self.__doc_context_menu.Append(ID, _('Edit corresponding encounter'))
-		wx.EVT_MENU(self.__doc_context_menu, ID, self.__edit_encounter_details)
-
-		ID = wx.NewId()
-		self.__doc_context_menu.Append(ID, _('Select corresponding encounter'))
-		wx.EVT_MENU(self.__doc_context_menu, ID, self.__select_encounter)
-
-#		self.__doc_context_menu.AppendSeparator()
-
-		ID = wx.NewId()
-		self.__doc_context_menu.Append(ID, _('Manage descriptions'))
-		wx.EVT_MENU(self.__doc_context_menu, ID, self.__manage_document_descriptions)
+		item = self.__doc_context_menu.Append(-1, _('Access external original'))
+		self.Bind(wx.EVT_MENU, self.__access_external_original, item)
+		item = self.__doc_context_menu.Append(-1, _('Edit corresponding encounter'))
+		self.Bind(wx.EVT_MENU, self.__edit_encounter_details, item)
+		item = self.__doc_context_menu.Append(-1, _('Select corresponding encounter'))
+		self.Bind(wx.EVT_MENU, self.__select_encounter, item)
+		item = self.__doc_context_menu.Append(-1, _('Manage descriptions'))
+		self.Bind(wx.EVT_MENU, self.__manage_document_descriptions, item)
 
 		# document / description
 #		self.__desc_menu = wx.Menu()
-#		ID = wx.NewId()
-#		self.__doc_context_menu.Append(ID, _('Descriptions ...'), self.__desc_menu)
-
-#		ID = wx.NewId()
-#		self.__desc_menu.Append(ID, _('Add new description'))
-#		wx.EVT_MENU(self.__desc_menu, ID, self.__add_doc_desc)
-
-#		ID = wx.NewId()
-#		self.__desc_menu.Append(ID, _('Delete description'))
-#		wx.EVT_MENU(self.__desc_menu, ID, self.__del_doc_desc)
-
+#		item = self.__doc_context_menu.Append(-1, _('Descriptions ...'), self.__desc_menu)
+#		item = self.__desc_menu.Append(-1, _('Add new description'))
+#		self.Bind(wx.EVT_MENU, self.__desc_menu, self.__add_doc_desc, item)
+#		item = self.__desc_menu.Append(-1, _('Delete description'))
+#		self.Bind(wx.EVT_MENU, self.__desc_menu, self.__del_doc_desc, item)
 #		self.__desc_menu.AppendSeparator()
 
 	#--------------------------------------------------------
@@ -1901,7 +1864,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 
 		# init new tree
 		self.root = self.AddRoot(cDocTree._root_node_labels[self.__sort_mode], -1, -1)
-		self.SetItemPyData(self.root, None)
+		self.SetItemData(self.root, None)
 		self.SetItemHasChildren(self.root, False)
 
 		# read documents from database
@@ -1951,7 +1914,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 				if intermediate_label not in intermediate_nodes:
 					intermediate_nodes[intermediate_label] = self.AppendItem(parent = self.root, text = intermediate_label)
 					self.SetItemBold(intermediate_nodes[intermediate_label], bold = True)
-					self.SetItemPyData(intermediate_nodes[intermediate_label], None)
+					self.SetItemData(intermediate_nodes[intermediate_label], None)
 					self.SetItemHasChildren(intermediate_nodes[intermediate_label], True)
 				parent = intermediate_nodes[intermediate_label]
 
@@ -1966,7 +1929,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 				if intermediate_label not in intermediate_nodes:
 					intermediate_nodes[intermediate_label] = self.AppendItem(parent = self.root, text = intermediate_label)
 					self.SetItemBold(intermediate_nodes[intermediate_label], bold = True)
-					self.SetItemPyData(intermediate_nodes[intermediate_label], None)
+					self.SetItemData(intermediate_nodes[intermediate_label], None)
 					self.SetItemHasChildren(intermediate_nodes[intermediate_label], True)
 				parent = intermediate_nodes[intermediate_label]
 
@@ -1985,7 +1948,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 				if intermediate_label not in intermediate_nodes:
 					intermediate_nodes[intermediate_label] = self.AppendItem(parent = self.root, text = intermediate_label)
 					self.SetItemBold(intermediate_nodes[intermediate_label], bold = True)
-					self.SetItemPyData(intermediate_nodes[intermediate_label], None)
+					self.SetItemData(intermediate_nodes[intermediate_label], None)
 					self.SetItemHasChildren(intermediate_nodes[intermediate_label], True)
 				parent = intermediate_nodes[intermediate_label]
 
@@ -2016,8 +1979,8 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 				if intermediate_label not in intermediate_nodes:
 					intermediate_nodes[intermediate_label] = self.AppendItem(parent = self.root, text = intermediate_label)
 					self.SetItemBold(intermediate_nodes[intermediate_label], bold = True)
-					#self.SetItemPyData(intermediate_nodes[intermediate_label], None)
-					self.SetItemPyData(intermediate_nodes[intermediate_label], tt)
+					#self.SetItemData(intermediate_nodes[intermediate_label], None)
+					self.SetItemData(intermediate_nodes[intermediate_label], tt)
 					self.SetItemHasChildren(intermediate_nodes[intermediate_label], True)
 				parent = intermediate_nodes[intermediate_label]
 
@@ -2033,7 +1996,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 
 			doc_node = self.AppendItem(parent = parent, text = doc_label)
 			#self.SetItemBold(doc_node, bold = True)
-			self.SetItemPyData(doc_node, doc)
+			self.SetItemData(doc_node, doc)
 			if len(parts) == 0:
 				self.SetItemHasChildren(doc_node, False)
 			else:
@@ -2063,7 +2026,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 				)
 
 				part_node = self.AppendItem(parent = doc_node, text = label)
-				self.SetItemPyData(part_node, part)
+				self.SetItemData(part_node, part)
 				self.SetItemHasChildren(part_node, False)
 
 		self.__sort_nodes()
@@ -2108,8 +2071,8 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 			_log.debug('no data on node 2')
 			return 0
 
-		data1 = self.GetPyData(node1)
-		data2 = self.GetPyData(node2)
+		data1 = self.GetItemData(node1)
+		data2 = self.GetItemData(node2)
 
 		# doc node
 		if isinstance(data1, gmDocuments.cDocument):
@@ -2253,7 +2216,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 	#--------------------------------------------------------
 	def _on_tree_item_selected(self, event):
 		node = event.GetItem()
-		node_data = self.GetPyData(node)
+		node_data = self.GetItemData(node)
 
 		# pseudo root node
 		if node_data is None:
@@ -2271,7 +2234,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 			return
 
 		if isinstance(node_data, gmDocuments.cDocumentPart):
-			doc = self.GetPyData(self.GetItemParent(node))
+			doc = self.GetItemData(self.GetItemParent(node))
 			self.__show_details_callback(document = doc, part = node_data)
 			return
 
@@ -2280,7 +2243,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 	#------------------------------------------------------------------------
 	def _on_activate(self, event):
 		node = event.GetItem()
-		node_data = self.GetPyData(node)
+		node_data = self.GetItemData(node)
 
 		# exclude pseudo root node
 		if node_data is None:
@@ -2306,7 +2269,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 	def __on_right_click(self, evt):
 
 		node = evt.GetItem()
-		self.__curr_node_data = self.GetPyData(node)
+		self.__curr_node_data = self.GetItemData(node)
 
 		# exclude pseudo root node
 		if self.__curr_node_data is None:
@@ -2344,7 +2307,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 			event.SetToolTip(u' ')
 			return
 
-		data = self.GetPyData(item)
+		data = self.GetItemData(item)
 
 		# documents
 		if isinstance(data, gmDocuments.cDocument):
@@ -2384,20 +2347,21 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 	#--------------------------------------------------------
 	def __handle_doc_context(self):
 		self.PopupMenu(self.__doc_context_menu, wx.DefaultPosition)
+
 	#--------------------------------------------------------
 	def __handle_part_context(self):
+		ID = None
 		# make active patient photograph
 		if self.__curr_node_data['type'] == 'patient photograph':
-			ID = wx.NewId()
-			self.__part_context_menu.Append(ID, _('Activate as current photo'))
-			wx.EVT_MENU(self.__part_context_menu, ID, self.__activate_as_current_photo)
-		else:
-			ID = None
+			item = self.__part_context_menu.Append(-1, _('Activate as current photo'))
+			self.Bind(wx.EVT_MENU, self.__activate_as_current_photo, item)
+			ID = item.Id
 
 		self.PopupMenu(self.__part_context_menu, wx.DefaultPosition)
 
 		if ID is not None:
 			self.__part_context_menu.Delete(ID)
+
 	#--------------------------------------------------------
 	# part level context menu handlers
 	#--------------------------------------------------------
@@ -2769,7 +2733,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 			defaultDir = os.path.expanduser(os.path.join('~', 'gnumed')),
 			defaultFile = '',
 			wildcard = "%s (*)|*|PNGs (*.png)|*.png|PDFs (*.pdf)|*.pdf|TIFFs (*.tif)|*.tif|JPEGs (*.jpg)|*.jpg|%s (*.*)|*.*" % (_('all files'), _('all files (Win)')),
-			style = wx.OPEN | wx.FILE_MUST_EXIST | wx.MULTIPLE
+			style = wx.FD_OPEN | wx.FD_FILE_MUST_EXIST | wx.FD_MULTIPLE
 		)
 		result = dlg.ShowModal()
 		if result != wx.ID_CANCEL:
@@ -2911,8 +2875,6 @@ from Gnumed.wxGladeWidgets.wxgPACSPluginPnl import wxgPACSPluginPnl
 class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 
 	def __init__(self, *args, **kwargs):
-		# would need to be here but can not because _BMP_preview
-		# does not yet exist
 		wxgPACSPluginPnl.__init__(self, *args, **kwargs)
 		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
 		self.__pacs = None
@@ -2938,7 +2900,7 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 		self._LCTRL_details.set_columns(columns = [_(u'DICOM field'), _(u'Value')])
 		self._LCTRL_details.set_column_widths()
 
-		self._BMP_preview.SetBitmap(wx.Bitmap(1,1))
+		self._BMP_preview.SetBitmap(wx.Bitmap.FromRGBA(50,50, red=0, green=0, blue=0, alpha = wx.ALPHA_TRANSPARENT))
 
 	#--------------------------------------------------------
 	def __set_button_states(self):
@@ -3147,7 +3109,7 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 
 		self._LCTRL_studies.set_string_items(items = study_list_items)
 		self._LCTRL_studies.set_data(data = study_list_data)
-		self._LCTRL_studies.SortListItems(column = 0, ascending = 0)
+		self._LCTRL_studies.SortListItems(0, 0)
 
 		self.__refresh_image()
 		self.__refresh_details()
@@ -3194,9 +3156,13 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 	#--------------------------------------------------------
 	def __refresh_image(self, idx=None):
 
+		print("refresh image")
+
 		self.__image_data = None
 		self._LBL_image.Label = _(u'Image')
-		self._BMP_preview.SetBitmap(wx.Bitmap(1,1))
+		self._BMP_preview.SetBitmap(wx.Bitmap.FromRGBA(50,50, red=0, green=0, blue=0, alpha = wx.ALPHA_TRANSPARENT))
+
+		print("bitmap set to 1,1")
 
 		if idx is None:
 			return
@@ -3372,7 +3338,7 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 
 		self._LCTRL_series.set_string_items(items = series_list_items)
 		self._LCTRL_series.set_data(data = series_list_data)
-		self._LCTRL_series.SortListItems(column = 0)
+		self._LCTRL_series.SortListItems(0)
 
 		self.__refresh_image()
 		self.__refresh_details()

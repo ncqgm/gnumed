@@ -25,6 +25,154 @@ from Gnumed.business import gmPerson, gmPraxis
 _log = logging.getLogger('gm.ui')
 
 #==============================================================================
+class cHorstSpaceNotebook(wx.Notebook):			# wx.BestBook ?
+
+	def __init__(self, *args, **kwargs):
+
+		kwargs['style'] = wx.NB_BOTTOM
+		kwargs['id'] = -1
+		wx.Notebook.__init__(self, *args, **kwargs)
+
+		_log.debug('created wx.Notebook: %s with ID %s', self.__class__.__name__, self.Id)
+
+		#self.__register_events()
+
+	#----------------------------------------------
+	# internal API
+	#----------------------------------------------
+	def __register_events(self):
+		# because of
+		#	https://www.wiki.wxpython.org/self.Bind%20vs.%20self.button.Bind
+		# do self.Bind() rather than self.nb.Bind()
+		# - notebook page is about to change
+		#self.nb.Bind(wx.EVT_NOTEBOOK_PAGE_CHANGING, self._on_notebook_page_changing)
+		#self.Bind(wx.EVT_NOTEBOOK_PAGE_CHANGING, self._on_notebook_page_changing, self)
+		self.Bind(wx.EVT_NOTEBOOK_PAGE_CHANGING, self._on_notebook_page_changing)
+		# - notebook page has been changed
+		#self.nb.Bind(wx.EVT_NOTEBOOK_PAGE_CHANGED, self._on_notebook_page_changed)
+		#self.Bind(wx.EVT_NOTEBOOK_PAGE_CHANGED, self._on_notebook_page_changed, self)
+		self.Bind(wx.EVT_NOTEBOOK_PAGE_CHANGED, self._on_notebook_page_changed)
+		# - popup menu on right click in notebook
+		#wx.EVT_RIGHT_UP(self.nb, self._on_right_click)
+
+	#----------------------------------------------
+	# event handlers
+	#----------------------------------------------
+	def _on_notebook_page_changing(self, event):
+		"""Called before notebook page change is processed."""
+
+		_log.debug('just before switching notebook tabs')
+
+		_log.debug('id: %s', event.Id)
+		_log.debug('event object (= source notebook): %s = %s', event.EventObject.Id, event.EventObject)
+		_log.debug('this notebook (= event receiver): %s = %s', self.Id, self)
+		if event.EventObject.Id != self.Id:
+			_log.error('this event came from another notebook')
+
+		self.__target_page_already_checked = False
+
+		self.__id_nb_page_before_switch = self.GetSelection()
+		self.__id_evt_page_before_switch = event.GetOldSelection()
+		__id_evt_page_after_switch = event.GetSelection()
+
+		_log.debug(u'source/target page state in EVT_NOTEBOOK_PAGE_CHANGING:')
+		_log.debug(u' #1 - notebook current page: %s (= notebook.GetSelection())', self.__id_nb_page_before_switch)
+		_log.debug(u' #2 - event source page: %s (= page event says it is coming from, event.GetOldSelection())', self.__id_evt_page_before_switch)
+		_log.debug(u' #3 - event target page: %s (= page event wants to go to, event.GetSelection())', __id_evt_page_after_switch)
+		if self.__id_evt_page_before_switch != self.__id_nb_page_before_switch:
+			_log.warning(' problem: #1 and #2 really should match but do not')
+
+		# can we check the target page ?
+		if __id_evt_page_after_switch == self.__id_evt_page_before_switch:
+			# no, so complain
+			# (the docs say that on Windows GetSelection() returns the
+			#  old page ID, eg. the same value GetOldSelection() returns)
+			_log.debug('this system is: sys: [%s] wx: [%s]', sys.platform, wx.Platform)
+			_log.debug('it seems to be one of those platforms that have no clue which notebook page they are switching to')
+			_log.debug('(Windows is documented to return the old page from both evt.GetOldSelection() and evt.GetSelection())')
+			_log.debug('current notebook page : %s', self.__id_nb_page_before_switch)
+			_log.debug('source page from event: %s', self.__id_evt_page_before_switch)
+			_log.debug('target page from event: %s', __id_evt_page_after_switch)
+			_log.warning('cannot check whether notebook page change needs to be vetoed')
+			# but let's do a basic check anyways
+			pat = gmPerson.gmCurrentPatient()
+			if not pat.connected:
+				gmDispatcher.send(signal = 'statustext', msg =_('Cannot change notebook tabs. No active patient.'))
+				event.Veto()
+				return
+			# that test passed, so let's hope things are fine
+			event.Allow()		# redundant ?
+			event.Skip()
+			return
+
+		# check target page
+		target_page = self.__gb['horstspace.notebook.pages'][__id_evt_page_after_switch]
+		_log.debug('checking event target page for focussability: %s', target_page)
+		if not target_page.can_receive_focus():
+			_log.warning('veto()ing page change')
+			event.Veto()
+			return
+
+		# everything seems fine so switch
+		_log.debug('event target page seems focussable')
+		self.__target_page_already_checked = True
+		event.Allow()		# redundant ?
+		event.Skip()
+		return
+
+	#----------------------------------------------
+	def _on_notebook_page_changed(self, event):
+		"""Called when notebook page changes."""
+
+		_log.debug('just after switching notebook tabs')
+
+		_log.debug('id: %s', event.Id)
+		_log.debug('event object (= source notebook): %s = %s', event.EventObject.Id, event.EventObject)
+		_log.debug('this notebook (= event receiver): %s = %s', self.Id, self)
+		if event.EventObject.Id != self.Id:
+			_log.error('this event came from another notebook')
+
+		event.Skip()
+
+		id_nb_page_after_switch = self.GetSelection()
+		id_evt_page_before_switch = event.GetOldSelection()
+		id_evt_page_after_switch = event.GetSelection()
+
+		_log.debug(u'source/target page state in EVT_NOTEBOOK_PAGE_CHANGED:')
+		_log.debug(u' #1 - current notebook page: %s (notebook.GetSelection())', id_nb_page_after_switch)
+		_log.debug(u' #2 - event source page: %s (= page event says it is coming from, event.GetOldSelection())', id_evt_page_before_switch)
+		_log.debug(u' #3 - event target page: %s (= page event wants to go to, event.GetSelection())', id_evt_page_after_switch)
+
+		if self.__id_nb_page_before_switch != id_evt_page_before_switch:
+			_log.warning('those two really *should* match:')
+			_log.warning(' wx.Notebook.GetSelection(): %s (notebook current page before switch) ', self.__id_nb_page_before_switch)
+			_log.warning(' EVT_NOTEBOOK_PAGE_CHANGED.GetOldSelection(): %s (event source page)' % id_evt_page_before_switch)
+
+		target_page = self.__gb['horstspace.notebook.pages'][id_evt_page_after_switch]
+
+		# well-behaving wxPython port ?
+		if self.__target_page_already_checked:
+			_log.debug('target page (evt=%s, nb=%s) claims to have been checked for focussability already: %s', id_evt_page_after_switch, id_nb_page_after_switch, target_page)
+			target_page.receive_focus()
+			self.__target_page_already_checked = False
+			return
+
+		# no, complain
+		_log.debug('target page not checked for focussability yet: %s', target_page)
+		_log.debug('EVT_NOTEBOOK_PAGE_CHANGED.GetOldSelection(): %s' % id_evt_page_before_switch)
+		_log.debug('EVT_NOTEBOOK_PAGE_CHANGED.GetSelection()   : %s' % id_evt_page_after_switch)
+		_log.debug('wx.Notebook.GetSelection() (after switch)  : %s' % id_nb_page_after_switch)
+
+		# check the new page just for good measure
+		if target_page.can_receive_focus():
+			_log.debug('we are lucky: target page *can* receive focus anyway')
+			target_page.receive_focus()
+			return
+
+		_log.error('target page cannot receive focus but too late for veto')
+		return
+
+#==============================================================================
 # finding the visible page from a notebook page: self.GetParent.GetCurrentPage == self
 class cHorstSpaceLayoutMgr(wx.Panel):
 	"""GNUmed inner-frame layout manager.
@@ -43,25 +191,17 @@ class cHorstSpaceLayoutMgr(wx.Panel):
 			style = wx.NO_BORDER,
 			name = 'HorstSpace.LayoutMgrPnl'
 		)
+
+		# top "row": important patient data is displayed there continually
+		self.top_panel = gmTopPanel.cTopPnl(self, -1)
+
 		# notebook
-		self.nb = wx.Notebook (
-			parent=self,
-			id = -1,
-			size = wx.Size(320,240),
-			style = wx.NB_BOTTOM
-		)
-		_log.debug('created wx.Notebook: %s with ID %s', self.__class__.__name__, self.nb.Id)
+		self.nb = cHorstSpaceNotebook(parent = self)
+
 		# plugins
 		self.__gb = gmGuiBroker.GuiBroker()
-		self.__gb['horstspace.notebook'] = self.nb # FIXME: remove per Ian's API suggestion
-
-		# top panel
-		#---------------------
-		# create the "top row"
-		#---------------------
-		# important patient data is always displayed there
-		self.top_panel = gmTopPanel.cTopPnl(self, -1)
 		self.__gb['horstspace.top_panel'] = self.top_panel
+		self.__gb['horstspace.notebook'] = self.nb # FIXME: remove per Ian's API suggestion
 		self.__load_plugins()
 
 		# layout handling
@@ -74,21 +214,22 @@ class cHorstSpaceLayoutMgr(wx.Panel):
 #		self.Show(True)
 
 		self.__register_events()
+
 	#----------------------------------------------
 	# internal API
 	#----------------------------------------------
 	def __register_events(self):
-		# because of
-		#	https://www.wiki.wxpython.org/self.Bind%20vs.%20self.button.Bind
-		# do self.Bind() rather than self.nb.Bind()
-		# - notebook page is about to change
-		#self.nb.Bind(wx.EVT_NOTEBOOK_PAGE_CHANGING, self._on_notebook_page_changing)
+#		# because of
+#		#	https://www.wiki.wxpython.org/self.Bind%20vs.%20self.button.Bind
+#		# do self.Bind() rather than self.nb.Bind()
+#		# - notebook page is about to change
+#		#self.nb.Bind(wx.EVT_NOTEBOOK_PAGE_CHANGING, self._on_notebook_page_changing)
 		self.Bind(wx.EVT_NOTEBOOK_PAGE_CHANGING, self._on_notebook_page_changing, self.nb)
-		# - notebook page has been changed
-		#self.nb.Bind(wx.EVT_NOTEBOOK_PAGE_CHANGED, self._on_notebook_page_changed)
+#		# - notebook page has been changed
+#		#self.nb.Bind(wx.EVT_NOTEBOOK_PAGE_CHANGED, self._on_notebook_page_changed)
 		self.Bind(wx.EVT_NOTEBOOK_PAGE_CHANGED, self._on_notebook_page_changed, self.nb)
-		# - popup menu on right click in notebook
-		#wx.EVT_RIGHT_UP(self.nb, self._on_right_click)
+#		# - popup menu on right click in notebook
+#		#wx.EVT_RIGHT_UP(self.nb, self._on_right_click)
 
 		gmDispatcher.connect(self._on_post_patient_selection, u'post_patient_selection')
 
@@ -98,15 +239,15 @@ class cHorstSpaceLayoutMgr(wx.Panel):
 		wx.BeginBusyCursor()
 
 		# get plugin list
-		plugin_list = gmPlugin.GetPluginLoadList (
+		plugins2load_by_name = gmPlugin.GetPluginLoadList (
 			option = 'horstspace.notebook.plugin_load_order',
 			plugin_dir = 'gui',
 			defaults = ['gmProviderInboxPlugin']
 		)
 
-		_log.debug('plugin load order: %s', plugin_list)
+		_log.debug('plugin load order: %s', plugins2load_by_name)
 
-		nr_plugins = len(plugin_list)
+		nr_plugins = len(plugins2load_by_name)
 		failed_plugins = []
 
 		#  set up a progress bar
@@ -118,7 +259,7 @@ class cHorstSpaceLayoutMgr(wx.Panel):
 		plugin = None
 		result = -1
 		for idx in range(nr_plugins):
-			curr_plugin = plugin_list[idx]
+			curr_plugin = plugins2load_by_name[idx]
 			progress_bar.Update(result, curr_plugin)
 			try:
 				plugin = gmPlugin.instantiate_plugin('gui', curr_plugin)
@@ -147,6 +288,7 @@ class cHorstSpaceLayoutMgr(wx.Panel):
 		page.Refresh()
 
 		return True
+
 	#----------------------------------------------
 	# external callbacks
 	#----------------------------------------------
@@ -282,9 +424,9 @@ class cHorstSpaceLayoutMgr(wx.Panel):
 #
 #		load_menu = wx.Menu()
 #		any_loadable = 0
-#		plugin_list = gmPlugin.GetPluginLoadList('gui')
+#		plugins2load_by_name = gmPlugin.GetPluginLoadList('gui')
 #		plugin = None
-#		for plugin_name in plugin_list:
+#		for plugin_name in plugins2load_by_name:
 #			try:
 #				plugin = gmPlugin.instantiate_plugin('gui', plugin_name)
 #			except Exception:
@@ -298,9 +440,8 @@ class cHorstSpaceLayoutMgr(wx.Panel):
 #				plugin = None
 #				continue
 #			# add to load menu
-#			nid = wx.NewId()
-#			load_menu.AppendItem(wx.MenuItem(load_menu, nid, plugin.name()))
-#			wx.EVT_MENU(load_menu, nid, plugin.on_load)
+#			item = load_menu.AppendItem(wx.MenuItem(load_menu, plugin.name()))
+#			self.Bind(wx.EVT_MENU, plugin.on_load, load_menu_OR_item)
 #			any_loadable = 1
 #		# make menus
 #		menu = wx.Menu()
@@ -310,8 +451,8 @@ class cHorstSpaceLayoutMgr(wx.Panel):
 #			menu.Append(ID_LOAD, _('add plugin ...'), load_menu)
 #		plugins = self.guibroker['horstspace.notebook.gui']
 #		raised_plugin = plugins[self.nb.GetSelection()].name()
-#		menu.AppendItem(wx.MenuItem(menu, ID_DROP, "drop [%s]" % raised_plugin))
-#		wx.EVT_MENU (menu, ID_DROP, self._on_drop_plugin)
+#		item = menu.AppendItem(wx.MenuItem(-1, "drop [%s]" % raised_plugin))
+#		self.Bind(wx.EVT_MENU, self._on_drop_plugin, item)
 #		self.PopupMenu(menu, evt.GetPosition())
 #		menu.Destroy()
 #		evt.Skip()

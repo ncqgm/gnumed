@@ -355,6 +355,7 @@ class cImageTagPresenterPnl(wxgVisualSoapPresenterPnl.wxgVisualSoapPresenterPnl)
 			self.__bitmaps.append(bmp)
 
 		self.GetParent().Layout()
+
 	#--------------------------------------------------------
 	def clear(self):
 		while len(self._SZR_bitmaps.GetChildren()) > 0:

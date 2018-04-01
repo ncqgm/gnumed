@@ -798,7 +798,7 @@ class cIssueListSelectorDlg(gmListWidgets.cGenericListSelectorDlg):
 		for issue in issues:
 			if issue['is_confidential']:
 				row_num = self._LCTRL_items.InsertItem(sys.maxint, label = _('confidential'))
-				self._LCTRL_items.SetItemTextColour(row_num, col=wx.NamedColour('RED'))
+				self._LCTRL_items.SetItemTextColour(row_num, col=wx.Colour('RED'))
 			else:
 				row_num = self._LCTRL_items.InsertItem(sys.maxint, label = u'')
 
@@ -1357,11 +1357,12 @@ if __name__ == '__main__':
 							size=wx.Size(600, 400),
 							style=wx.DEFAULT_FRAME_STYLE | wx.NO_FULL_REPAINT_ON_RESIZE
 						)
-				filemenu= wx.Menu()
+				filemenu = wx.Menu()
 				filemenu.AppendSeparator()
-				filemenu.Append(ID_EXIT,"E&xit"," Terminate test application")
+				item = filemenu.Append(ID_EXIT, "E&xit"," Terminate test application")
+				self.Bind(wx.EVT_MENU, self.OnCloseWindow, item)
 
-				# Creating the menubar.	
+				# Creating the menubar.
 				menuBar = wx.MenuBar()
 				menuBar.Append(filemenu,"&File")
 
@@ -1369,9 +1370,6 @@ if __name__ == '__main__':
 
 				txt = wx.StaticText( frame, -1, _("Select desired test option from the 'File' menu"),
 				wx.DefaultPosition, wx.DefaultSize, 0 )
-
-				# event handlers
-				wx.EVT_MENU(frame, ID_EXIT, self.OnCloseWindow)
 
 				# patient EMR
 				self.__pat = gmPerson.gmCurrentPatient()

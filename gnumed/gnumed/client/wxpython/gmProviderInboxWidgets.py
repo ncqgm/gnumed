@@ -728,9 +728,8 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 
 #		if self.__focussed_msg['pk_staff'] is not None:
 #			# - distribute to other providers
-#			ID = wx.NewId()
-#			menu.AppendItem(wx.MenuItem(menu, ID, _('Distribute')))
-#			wx.EVT_MENU(menu, ID, self._on_distribute_focussed_msg)
+#			item = menu.AppendItem(wx.MenuItem(menu, ID, _('Distribute')))
+#			self.Bind(wx.EVT_MENU(menu, self._on_distribute_focussed_msg, item)
 
 	#--------------------------------------------------------
 	def _on_message_range_radiobutton_selected(self, event):
