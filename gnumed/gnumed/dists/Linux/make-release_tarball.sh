@@ -3,10 +3,10 @@
 #====================================================
 # license: GPL v2 or later
 #====================================================
-CLIENTREV="1.7.0"
+CLIENTREV="1.7.1"
 CLIENTARCH="gnumed-client.$CLIENTREV.tgz"
 
-SRVREV="22.0"
+SRVREV="22.1"
 SRVARCH="gnumed-server.$SRVREV.tgz"
 
 LANG_LIST="ar bg ca cs da de el en_AU en_CA es fr id it ka nb nl pl pt pt_BR ro ru ru_RU sq sr sv tr uk zh_TW"
@@ -660,7 +660,7 @@ cp -R ../../server/sql/v21-v22/static/*.sql ./gnumed-client.$CLIENTREV/server/sq
 cp -R ../../server/sql/v21-v22/data/* ./gnumed-client.$CLIENTREV/server/sql/v21-v22/data
 cp -R ../../server/sql/v21-v22/python/*.py ./gnumed-client.$CLIENTREV/server/sql/v21-v22/python
 #cp -R ../../server/sql/v21-v22/superuser/*.sql ./gnumed-client.$CLIENTREV/server/sql/v21-v22/superuser
-#cp -R ../../server/sql/v21-v22/fixups/*.sql ./gnumed-client.$CLIENTREV/server/sql/v21-v22/fixups
+cp -R ../../server/sql/v21-v22/fixups/*.sql ./gnumed-client.$CLIENTREV/server/sql/v21-v22/fixups
 
 
 #----------------------------------
