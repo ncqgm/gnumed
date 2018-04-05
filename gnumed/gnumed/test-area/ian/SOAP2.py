@@ -383,7 +383,7 @@ class ResizingSTC (wxStyledTextCtrl):
             self.list = None #someone else has destroyed our list!
         pos = self.GetCurrentPos ()
         if event.KeyCode () == WXK_TAB:
-            if event.m_shiftDown:
+            if event.ShiftDown:
                 if self.prev:
                     self.prev.SetFocus ()
             else:
@@ -410,7 +410,7 @@ class ResizingSTC (wxStyledTextCtrl):
                 self.DelPhrase (pos and pos-1)
             else:
                 event.Skip ()
-        elif event.KeyCode () == WXK_RETURN and not event.m_shiftDown:
+        elif event.KeyCode () == WXK_RETURN and not event.ShiftDown:
             if self.list and self.list.alive:
                 self.list.Enter ()
             elif pos == self.GetLength ():

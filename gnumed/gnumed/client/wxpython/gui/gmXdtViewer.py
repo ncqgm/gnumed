@@ -272,17 +272,17 @@ class gmXdtViewerPanel(wx.Panel):
 		return item.GetText()
 	#-------------------------------------------------------------------------
 	def OnItemSelected(self, event):
-		self.currentItem = event.m_itemIndex
+		self.currentItem = event.ItemIndex
 	#-------------------------------------------------------------------------
 	def OnItemDeselected(self, evt):
 		item = evt.GetItem()
 
 		# Show how to reselect something we don't want deselected
-#		if evt.m_itemIndex == 11:
+#		if evt.ItemIndex == 11:
 #			wxCallAfter(self.list.SetItemState, 11, wx.LIST_STATE_SELECTED, wx.LIST_STATE_SELECTED)
 	#-------------------------------------------------------------------------
 	def OnItemActivated(self, event):
-		self.currentItem = event.m_itemIndex
+		self.currentItem = event.ItemIndex
 	#-------------------------------------------------------------------------
 	def OnItemDelete(self, event):
 		pass
@@ -350,7 +350,7 @@ class gmXdtViewerPanel(wx.Panel):
 	#-------------------------------------------------------------------------
 	def OnPopupFive(self, event):
 		item = self.list.GetItem(self.currentItem)
-		print item.Text, item.m_itemId, self.list.GetItemData(self.currentItem)
+		print item.Text, item.Id, self.list.GetItemData(self.currentItem)
 	#-------------------------------------------------------------------------
 	def OnSize(self, event):
 		w,h = self.GetClientSize()

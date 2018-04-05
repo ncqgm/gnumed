@@ -187,12 +187,11 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 
 		try:
 			node_data = self.GetItemData(item)
-		except wx.PyAssertionError:
+		except wx.wxAssertionError:
 			_log.exception('unfathomable self.GetItemData() problem occurred, faking root node')
 			_log.error('real node: %s', item)
 			_log.error('node.IsOk(): %s', item.IsOk())		# already survived this further up
 			_log.error('is root node: %s', item == self.GetRootItem())
-			_log.error('node.m_pItem: %s', getattr(item, 'm_pItem', '<NO SUCH ATTRIBUTE>'))
 			_log.error('node attributes: %s', dir(item))
 			gmLog2.log_stack_trace()
 			return u'invalid item'
@@ -330,13 +329,12 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 
 		try:
 			node_data = self.GetItemData(self.__curr_node)
-		except wx.PyAssertionError:
+		except wx.wxAssertionError:
 			node_data = None		# fake a root node
 			_log.exception('unfathomable self.GetItemData() problem occurred, faking root node')
 			_log.error('real node: %s', self.__curr_node)
 			_log.error('node.IsOk(): %s', self.__curr_node.IsOk())		# already survived this further up
 			_log.error('is root node: %s', self.__curr_node == self.GetRootItem())
-			_log.error('node.m_pItem: %s', getattr(self.__curr_node, 'm_pItem', '<NO SUCH ATTRIBUTE>'))
 			_log.error('node attributes: %s', dir(self.__curr_node))
 			gmLog2.log_stack_trace()
 

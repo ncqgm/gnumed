@@ -96,11 +96,11 @@ class QuickSelectionDlg(wxDialog):
 			return None
 
 	def OnItemCursor(self, event):
-		self.selection = event.m_itemIndex
+		self.selection = event.ItemIndex
 
 	def OnItemSelected(self, event):
-		self.selection = event.m_itemIndex
-		self.EndModal(event.m_itemIndex)
+		self.selection = event.ItemIndex
+		self.EndModal(event.ItemIndex)
 
 	def OnOk(self, event):
 		self.EndModal(self.selection)

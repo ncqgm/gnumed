@@ -214,7 +214,7 @@ def __handle_lost_db_connection(t, v, tb):
 
 #-------------------------------------------------------------------------
 def __handle_wxgtk_assertion(t, v, tb):
-	if t != wx.PyAssertionError:
+	if t != wx.wxAssertionError:
 		return False
 	_log.exception('a wxGTK assertion failed:')
 	_log.warning('continuing and hoping for the best')

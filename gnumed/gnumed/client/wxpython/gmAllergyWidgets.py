@@ -238,7 +238,7 @@ class cAllergyManagerDlg(wxgAllergyManagerDlg.wxgAllergyManagerDlg):
 
 		self.__set_columns()
 		# MacOSX crashes on this with:
-		#  exception type : wx._core.PyAssertionError
+		#  exception type : wx._core.wxAssertionError
 		#  exception value: C++ assertion "i" failed at /BUILD/wxPython-src-2.8.3.0/src/common/wincmn.cpp(2634) in DoMoveInTabOrder(): MoveBefore/AfterInTabOrder(): win is not a sibling
 		# while Win/Linux work just fine
 		#self._PNL_edit_area._ChBOX_definite.MoveAfterInTabOrder(self._BTN_save)

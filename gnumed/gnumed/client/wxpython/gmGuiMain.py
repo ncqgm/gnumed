@@ -3856,7 +3856,7 @@ def _signal_debugging_monitor(*args, **kwargs):
 #==============================================================================
 def _safe_wxEndBusyCursor():
 	try: _original_wxEndBusyCursor()
-	except wx.PyAssertionError: pass
+	except wx.wxAssertionError: pass
 
 #------------------------------------------------------------------------------
 def setup_safe_wxEndBusyCursor():

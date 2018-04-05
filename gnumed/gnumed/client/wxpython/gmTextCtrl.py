@@ -435,7 +435,7 @@ class cExpandoTextCtrl(gmKeywordExpansionWidgets.cKeywordExpansion_TextCtrlMixin
 
 	#--------------------------------------------------------
 	def _cExpandoTextCtrl_after_on_focus(self):
-		# robustify against PyDeadObjectError (RuntimeError) - since
+		# robustify against Py__DeadObjectError (RuntimeError) - since
 		# we are called from wx's CallAfter this SoapCtrl may be gone
 		# by the time we get around to handling this layout request,
 		# say, on patient change or some such
