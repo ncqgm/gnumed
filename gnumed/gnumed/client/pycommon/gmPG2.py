@@ -46,7 +46,7 @@ try:
 	import psycopg2 as dbapi
 except ImportError:
 	_log.exception("Python database adapter psycopg2 not found.")
-	print "CRITICAL ERROR: Cannot find module psycopg2 for connecting to the database server."
+	print("CRITICAL ERROR: Cannot find module psycopg2 for connecting to the database server.")
 	raise
 
 
@@ -478,7 +478,7 @@ def __request_login_params_tui():
 	import getpass
 	login = gmLoginInfo.LoginInfo()
 
-	print "\nPlease enter the required login parameters:"
+	print("\nPlease enter the required login parameters:")
 	try:
 		login.host = prompted_input(prompt = "host ('' = non-TCP/IP)", default = '')
 		login.database = prompted_input(prompt = "database", default = default_database)
@@ -489,7 +489,7 @@ def __request_login_params_tui():
 		login.port = prompted_input(prompt = "port", default = 5432)
 	except KeyboardInterrupt:
 		_log.warning("user cancelled text mode login dialog")
-		print "user cancelled text mode login dialog"
+		print("user cancelled text mode login dialog")
 		raise gmExceptions.ConnectionError(_("Cannot connect to database without login information!"))
 
 	return login
@@ -1654,7 +1654,7 @@ def capture_cursor_state(cursor=None):
 	if cursor.query is None:
 		query = u'<no query>'
 	else:
-		query = unicode(cursor.query, 'utf8', 'replace')
+		query = str(cursor.query, 'utf8', 'replace')
 
 	txt = u"""Link state:
 Cursor
@@ -1742,8 +1742,8 @@ def run_ro_queries(link_obj=None, queries=None, verbose=False, return_data=True,
 
 	for query in queries:
 		if type(query['cmd']) is not types.UnicodeType:
-			print "run_ro_queries(): non-unicode query"
-			print query['cmd']
+			print("run_ro_queries(): non-unicode query")
+			print(query['cmd'])
 		try:
 			args = query['args']
 		except KeyError:
@@ -1895,8 +1895,8 @@ def run_rw_queries(link_obj=None, queries=None, end_tx=False, return_data=None, 
 
 	for query in queries:
 		if type(query['cmd']) is not types.UnicodeType:
-			print "gmPG2.run_rw_queries(): non-unicode query"
-			print query['cmd']
+			print("gmPG2.run_rw_queries(): non-unicode query")
+			print(query['cmd'])
 		try:
 			args = query['args']
 		except KeyError:
@@ -1906,7 +1906,7 @@ def run_rw_queries(link_obj=None, queries=None, end_tx=False, return_data=None, 
 			if verbose:
 				_log.debug(capture_cursor_state(curs))
 			for notice in notices_accessor.notices:
-				_log.debug(unicode(notice, 'utf8', 'replace').strip(u'\n').strip(u'\r'))
+				_log.debug(str(notice, 'utf8', 'replace').strip(u'\n').strip(u'\r'))
 			del notices_accessor.notices[:]
 		# DB related exceptions
 		except dbapi.Error as pg_exc:
@@ -1921,7 +1921,7 @@ def run_rw_queries(link_obj=None, queries=None, end_tx=False, return_data=None, 
 						continue
 					_log.error(u'PG diags %s: %s', prop, val)
 			for notice in notices_accessor.notices:
-				_log.error(unicode(notice, 'utf8', 'replace').strip(u'\n').strip(u'\r'))
+				_log.error(str(notice, 'utf8', 'replace').strip(u'\n').strip(u'\r'))
 			del notices_accessor.notices[:]
 			pg_exc = make_pg_exception_fields_unicode(pg_exc)
 			_log.error(u'PG error code: %s', pg_exc.pgcode)
@@ -1965,7 +1965,7 @@ def run_rw_queries(link_obj=None, queries=None, end_tx=False, return_data=None, 
 			_log.exception('error running query in RW connection')
 			_log.error(capture_cursor_state(curs))
 			for notice in notices_accessor.notices:
-				_log.debug(unicode(notice, 'utf8', 'replace').strip(u'\n').strip(u'\r'))
+				_log.debug(str(notice, 'utf8', 'replace').strip(u'\n').strip(u'\r'))
 			del notices_accessor.notices[:]
 			gmLog2.log_stack_trace()
 			try:
@@ -2122,25 +2122,24 @@ def get_raw_connection(dsn=None, verbose=False, readonly=True, connection_name=N
 	try:
 		# DictConnection now _is_ a real dictionary
 		conn = dbapi.connect(dsn=dsn, connection_factory=psycopg2.extras.DictConnection)
-	except dbapi.OperationalError, e:
-
+	except dbapi.OperationalError as e:
 		t, v, tb = sys.exc_info()
 		try:
 			msg = e.args[0]
 		except (AttributeError, IndexError, TypeError):
 			raise
 
-		#msg = unicode(msg, gmI18N.get_encoding(), 'replace')
-		msg = unicode(msg, u'utf8', 'replace')
+		#msg = str(msg, gmI18N.get_encoding(), 'replace')
+		msg = str(msg, u'utf8', 'replace')
 
 		if u'fe_sendauth' in msg:
-			raise cAuthenticationError, (dsn, msg), tb
+			raise cAuthenticationError(dsn, msg).with_traceback(tb)
 
 		if regex.search('user ".*" does not exist', msg) is not None:
-			raise cAuthenticationError, (dsn, msg), tb
+			raise cAuthenticationError(dsn, msg).with_traceback(tb)
 
 		if u'uthenti' in msg:
-			raise cAuthenticationError, (dsn, msg), tb
+			raise cAuthenticationError(dsn, msg).with_traceback(tb)
 
 		raise
 
@@ -2241,7 +2240,7 @@ def get_connection(dsn=None, readonly=True, encoding=None, verbose=False, pooled
 	except dbapi.OperationalError:
 		t, v, tb = sys.exc_info()
 		if str(v).find("can't set encoding to") != -1:
-			raise cEncodingError, (encoding, v), tb
+			raise cEncodingError(encoding, v).with_traceback(tb)
 		raise
 
 	# - transaction isolation level
@@ -2503,11 +2502,11 @@ def make_pg_exception_fields_unicode(exc):
 		except (AttributeError, IndexError, TypeError):
 			return exc
 		# assumption
-		exc.u_pgerror = unicode(msg, gmI18N.get_encoding(), 'replace')
+		exc.u_pgerror = str(msg, gmI18N.get_encoding(), 'replace')
 		return exc
 
 	# assumption
-	exc.u_pgerror = unicode(exc.pgerror, gmI18N.get_encoding(), 'replace').strip().strip(u'\n').strip().strip(u'\n')
+	exc.u_pgerror = str(exc.pgerror, gmI18N.get_encoding(), 'replace').strip().strip(u'\n').strip().strip(u'\n')
 
 	return exc
 
@@ -2520,7 +2519,7 @@ def extract_msg_from_pg_exception(exc=None):
 		return u'cannot extract message from exception'
 
 	# assumption
-	return unicode(msg, gmI18N.get_encoding(), 'replace')
+	return str(msg, gmI18N.get_encoding(), 'replace')
 
 # =======================================================================
 class cAuthenticationError(dbapi.OperationalError):
@@ -2529,14 +2528,17 @@ class cAuthenticationError(dbapi.OperationalError):
 		self.dsn = dsn
 		self.prev_val = prev_val
 
+#	def __str__(self):
+#		_log.warning('%s.__str__() called', self.__class__.__name__)
+#		tmp = u'PostgreSQL: %sDSN: %s' % (self.prev_val, self.dsn)
+#		_log.error(tmp)
+#		return tmp.encode(gmI18N.get_encoding(), 'replace')
+
 	def __str__(self):
-		_log.warning('%s.__str__() called', self.__class__.__name__)
-		tmp = u'PostgreSQL: %sDSN: %s' % (self.prev_val, self.dsn)
-		_log.error(tmp)
-		return tmp.encode(gmI18N.get_encoding(), 'replace')
+		return 'PostgreSQL: %sDSN: %s' % (self.prev_val, self.dsn)
 
 	def __unicode__(self):
-		return u'PostgreSQL: %sDSN: %s' % (self.prev_val, self.dsn)
+		return 'PostgreSQL: %sDSN: %s' % (self.prev_val, self.dsn)
 
 # =======================================================================
 # custom psycopg2 extensions
@@ -2621,7 +2623,7 @@ if __name__ == "__main__":
 			filename = sys.argv[2]
 			#, file_md5 = file2md5(sys.argv[2], True)
 		)
-		print lo_oid
+		print(lo_oid)
 #		if lo_oid != -1:
 #			run_rw_queries(queries = [
 #				{'cmd': u'select lo_unlink(%(loid)s::oid)', 'args': {'loid': lo_oid}}
@@ -2690,52 +2692,52 @@ if __name__ == "__main__":
 
 	#--------------------------------------------------------------------
 	def test_get_connection():
-		print "testing get_connection()"
+		print("testing get_connection()")
 
 		dsn = 'foo'
 		try:
 			conn = get_connection(dsn=dsn)
-		except dbapi.OperationalError, e:
-			print "SUCCESS: get_connection(%s) failed as expected" % dsn
+		except dbapi.OperationalError as e:
+			print("SUCCESS: get_connection(%s) failed as expected" % dsn)
 			t, v = sys.exc_info()[:2]
-			print ' ', t
-			print ' ', v
+			print (' ', t)
+			print (' ', v)
 
 		dsn = 'dbname=gnumed_v9'
 		try:
 			conn = get_connection(dsn=dsn)
 		except cAuthenticationError:
-			print "SUCCESS: get_connection(%s) failed as expected" % dsn
+			print("SUCCESS: get_connection(%s) failed as expected" % dsn)
 			t, v = sys.exc_info()[:2]
-			print ' ', t
-			print ' ', v
+			print(' ', t)
+			print(' ', v)
 
 		dsn = 'dbname=gnumed_v9 user=abc'
 		try:
 			conn = get_connection(dsn=dsn)
 		except cAuthenticationError:
-			print "SUCCESS: get_connection(%s) failed as expected" % dsn
+			print("SUCCESS: get_connection(%s) failed as expected" % dsn)
 			t, v = sys.exc_info()[:2]
-			print ' ', t
-			print ' ', v
+			print(' ', t)
+			print(' ', v)
 
 		dsn = 'dbname=gnumed_v9 user=any-doc'
 		try:
 			conn = get_connection(dsn=dsn)
 		except cAuthenticationError:
-			print "SUCCESS: get_connection(%s) failed as expected" % dsn
+			print("SUCCESS: get_connection(%s) failed as expected" % dsn)
 			t, v = sys.exc_info()[:2]
-			print ' ', t
-			print ' ', v
+			print(' ', t)
+			print(' ', v)
 
 		dsn = 'dbname=gnumed_v9 user=any-doc password=abc'
 		try:
 			conn = get_connection(dsn=dsn)
 		except cAuthenticationError:
-			print "SUCCESS: get_connection(%s) failed as expected" % dsn
+			print("SUCCESS: get_connection(%s) failed as expected" % dsn)
 			t, v = sys.exc_info()[:2]
-			print ' ', t
-			print ' ', v
+			print(' ', t)
+			print(' ', v)
 
 		dsn = 'dbname=gnumed_v9 user=any-doc password=any-doc'
 		conn = get_connection(dsn=dsn, readonly=True)
@@ -2748,141 +2750,141 @@ if __name__ == "__main__":
 		try:
 			conn = get_connection(dsn=dsn, encoding=encoding)
 		except cEncodingError:
-			print "SUCCESS: get_connection(%s, %s) failed as expected" % (dsn, encoding)
+			print("SUCCESS: get_connection(%s, %s) failed as expected" % (dsn, encoding))
 			t, v = sys.exc_info()[:2]
-			print ' ', t
-			print ' ', v
+			print(' ', t)
+			print(' ', v)
 	#--------------------------------------------------------------------
 	def test_exceptions():
-		print "testing exceptions"
+		print("testing exceptions")
 
 		try:
 			raise cAuthenticationError('no dsn', 'no previous exception')
 		except cAuthenticationError:
 			t, v, tb = sys.exc_info()
-			print t
-			print v
-			print tb
+			print(t)
+			print(v)
+			print(tb)
 
 		try:
 			raise cEncodingError('no dsn', 'no previous exception')
 		except cEncodingError:
 			t, v, tb = sys.exc_info()
-			print t
-			print v
-			print tb
+			print(t)
+			print(v)
+			print(tb)
 	#--------------------------------------------------------------------
 	def test_ro_queries():
-		print "testing run_ro_queries()"
+		print("testing run_ro_queries()")
 
 		dsn = 'dbname=gnumed_v9 user=any-doc password=any-doc'
 		conn = get_connection(dsn, readonly=True)
 
 		data, idx = run_ro_queries(link_obj=conn, queries=[{'cmd': u'SELECT version()'}], return_data=True, get_col_idx=True, verbose=True)
-		print data
-		print idx
+		print(data)
+		print(idx)
 		data, idx = run_ro_queries(link_obj=conn, queries=[{'cmd': u'SELECT 1'}], return_data=True, get_col_idx=True)
-		print data
-		print idx
+		print(data)
+		print(idx)
 
 		curs = conn.cursor()
 
 		data, idx = run_ro_queries(link_obj=curs, queries=[{'cmd': u'SELECT version()'}], return_data=True, get_col_idx=True, verbose=True)
-		print data
-		print idx
+		print(data)
+		print(idx)
 
 		data, idx = run_ro_queries(link_obj=curs, queries=[{'cmd': u'SELECT 1'}], return_data=True, get_col_idx=True, verbose=True)
-		print data
-		print idx
+		print(data)
+		print(idx)
 
 		try:
 			data, idx = run_ro_queries(link_obj=curs, queries=[{'cmd': u'selec 1'}], return_data=True, get_col_idx=True, verbose=True)
-			print data
-			print idx
+			print(data)
+			print(idx)
 		except psycopg2.ProgrammingError:
-			print 'SUCCESS: run_ro_queries("selec 1") failed as expected'
+			print('SUCCESS: run_ro_queries("selec 1") failed as expected')
 			t, v = sys.exc_info()[:2]
-			print ' ', t
-			print ' ', v
+			print(' ', t)
+			print(' ', v)
 
 		curs.close()
 	#--------------------------------------------------------------------
 	def test_request_dsn():
 		conn = get_connection()
-		print conn
+		print(conn)
 		conn.close()
 	#--------------------------------------------------------------------
 	def test_set_encoding():
-		print "testing set_default_client_encoding()"
+		print("testing set_default_client_encoding()")
 
 		enc = 'foo'
 		try:
 			set_default_client_encoding(enc)
-			print "SUCCESS: encoding [%s] worked" % enc
+			print("SUCCESS: encoding [%s] worked" % enc)
 		except ValueError:
-			print "SUCCESS: set_default_client_encoding(%s) failed as expected" % enc
+			print("SUCCESS: set_default_client_encoding(%s) failed as expected" % enc)
 			t, v = sys.exc_info()[:2]
-			print ' ', t
-			print ' ', v
+			print(' ', t)
+			print(' ', v)
 
 		enc = ''
 		try:
 			set_default_client_encoding(enc)
-			print "SUCCESS: encoding [%s] worked" % enc
+			print("SUCCESS: encoding [%s] worked" % enc)
 		except ValueError:
-			print "SUCCESS: set_default_client_encoding(%s) failed as expected" % enc
+			print("SUCCESS: set_default_client_encoding(%s) failed as expected" % enc)
 			t, v = sys.exc_info()[:2]
-			print ' ', t
-			print ' ', v
+			print(' ', t)
+			print(' ', v)
 
 		enc = 'latin1'
 		try:
 			set_default_client_encoding(enc)
-			print "SUCCESS: encoding [%s] worked" % enc
+			print("SUCCESS: encoding [%s] worked" % enc)
 		except ValueError:
-			print "SUCCESS: set_default_client_encoding(%s) failed as expected" % enc
+			print("SUCCESS: set_default_client_encoding(%s) failed as expected" % enc)
 			t, v = sys.exc_info()[:2]
-			print ' ', t
-			print ' ', v
+			print(' ', t)
+			print(' ', v)
 
 		enc = 'utf8'
 		try:
 			set_default_client_encoding(enc)
-			print "SUCCESS: encoding [%s] worked" % enc
+			print("SUCCESS: encoding [%s] worked" % enc)
 		except ValueError:
-			print "SUCCESS: set_default_client_encoding(%s) failed as expected" % enc
+			print("SUCCESS: set_default_client_encoding(%s) failed as expected" % enc)
 			t, v = sys.exc_info()[:2]
-			print ' ', t
-			print ' ', v
+			print(' ', t)
+			print(' ', v)
 
 		enc = 'unicode'
 		try:
 			set_default_client_encoding(enc)
-			print "SUCCESS: encoding [%s] worked" % enc
+			print("SUCCESS: encoding [%s] worked" % enc)
 		except ValueError:
-			print "SUCCESS: set_default_client_encoding(%s) failed as expected" % enc
+			print("SUCCESS: set_default_client_encoding(%s) failed as expected" % enc)
 			t, v = sys.exc_info()[:2]
-			print ' ', t
-			print ' ', v
+			print(' ', t)
+			print(' ', v)
 
 		enc = 'UNICODE'
 		try:
 			set_default_client_encoding(enc)
-			print "SUCCESS: encoding [%s] worked" % enc
+			print("SUCCESS: encoding [%s] worked" % enc)
 		except ValueError:
-			print "SUCCESS: set_default_client_encoding(%s) failed as expected" % enc
+			print("SUCCESS: set_default_client_encoding(%s) failed as expected" % enc)
 			t, v = sys.exc_info()[:2]
-			print ' ', t
-			print ' ', v
+			print(' ', t)
+			print(' ', v)
 	#--------------------------------------------------------------------
 	def test_connection_pool():
 		dsn = get_default_dsn()
 		pool = cConnectionPool(minconn=1, maxconn=2, dsn=None, verbose=False)
-		print pool
-		print pool.getconn()
-		print pool.getconn()
-		print pool.getconn()
-		print type(pool.getconn())
+		print(pool)
+		print(pool.getconn())
+		print(pool.getconn())
+		print(pool.getconn())
+		print(type(pool.getconn()))
 	#--------------------------------------------------------------------
 	def test_list_args():
 		dsn = get_default_dsn()
@@ -2899,7 +2901,7 @@ if __name__ == "__main__":
 		for test in tests:
 			result = sanitize_pg_regex(test[0])
 			if result != test[1]:
-				print 'ERROR: sanitize_pg_regex(%s) returned "%s", expected "%s"' % (test[0], result, test[1])
+				print('ERROR: sanitize_pg_regex(%s) returned "%s", expected "%s"' % (test[0], result, test[1]))
 	#--------------------------------------------------------------------
 	def test_is_pg_interval():
 		status = True
@@ -2911,13 +2913,13 @@ if __name__ == "__main__":
 		]
 
 		if not is_pg_interval():
-			print 'ERROR: is_pg_interval() returned "False", expected "True"'
+			print('ERROR: is_pg_interval() returned "False", expected "True"')
 			status = False
 
 		for test in tests:
 			result = is_pg_interval(test[0])
 			if result != test[1]:
-				print 'ERROR: is_pg_interval(%s) returned "%s", expected "%s"' % (test[0], result, test[1])
+				print('ERROR: is_pg_interval(%s) returned "%s", expected "%s"' % (test[0], result, test[1]))
 				status = False
 
 		return status
@@ -2927,30 +2929,30 @@ if __name__ == "__main__":
 
 	#--------------------------------------------------------------------
 	def test_get_foreign_key_names():
-		print get_foreign_key_names (
+		print(get_foreign_key_names (
 			src_schema = u'clin',
 			src_table = u'vaccination',
 			src_column = u'fk_episode',
 			target_schema = u'clin',
 			target_table = u'episode',
 			target_column = u'pk'
-		)
+		))
 
 	#--------------------------------------------------------------------
 	def test_get_foreign_key_details():
 		schema = u'clin'
 		table = u'episode'
 		col = u'pk'
-		print 'column %s.%s.%s is referenced by:' % (schema, table, col)
+		print('column %s.%s.%s is referenced by:' % (schema, table, col))
 		for row in get_foreign_keys2column (
 			schema = schema,
 			table = table,
 			column = col
 		):
-			print ' <- %s.%s' % (
+			print(' <- %s.%s' % (
 				row['referencing_table'],
 				row['referencing_column']
-			)
+			))
 
 	#--------------------------------------------------------------------
 	def test_set_user_language():
@@ -2973,19 +2975,19 @@ if __name__ == "__main__":
 			try:
 				result = set_user_language(user = test[0], language = test[1])
 				if result != test[2]:
-					print "test:", test
-					print "result:", result, "expected:", test[2]
-			except psycopg2.IntegrityError, e:
+					print("test:", test)
+					print("result:", result, "expected:", test[2])
+			except psycopg2.IntegrityError as e:
 				if test[2] is None:
 					continue
-				print "test:", test
-				print "expected exception"
-				print "result:", e
+				print("test:", test)
+				print("expected exception")
+				print("result:", e)
 
 	#--------------------------------------------------------------------
 	def test_get_schema_revision_history():
 		for line in get_schema_revision_history():
-			print u' - '.join(line)
+			print(u' - '.join(line))
 
 	#--------------------------------------------------------------------
 	def test_run_query():
@@ -3004,65 +3006,65 @@ SELECT to_timestamp (foofoo,'YYMMDD.HH24MI') FROM (
 	) AS foofoo
 ) AS foo"""
 		rows, idx = run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
-		print rows
-		print rows[0]
-		print rows[0][0]
+		print(rows)
+		print(rows[0])
+		print(rows[0][0])
 	#--------------------------------------------------------------------
 	def test_schema_exists():
-		print schema_exists()
+		print(schema_exists())
 	#--------------------------------------------------------------------
 	def test_row_locks():
 		row_is_locked(table = 'dem.identity', pk = 12)
 
-		print "1st connection:"
-		print " locked:", row_is_locked(table = 'dem.identity', pk = 12)
-		print " 1st shared lock succeeded:", lock_row(table = 'dem.identity', pk = 12, exclusive = False)
-		print " locked:", row_is_locked(table = 'dem.identity', pk = 12)
+		print("1st connection:")
+		print(" locked:", row_is_locked(table = 'dem.identity', pk = 12))
+		print(" 1st shared lock succeeded:", lock_row(table = 'dem.identity', pk = 12, exclusive = False))
+		print(" locked:", row_is_locked(table = 'dem.identity', pk = 12))
 
-		print "   2nd shared lock should succeed:", lock_row(table = 'dem.identity', pk = 12, exclusive = False)
-		print "   `-> unlock succeeded:", unlock_row(table = 'dem.identity', pk = 12, exclusive = False)
-		print " locked:", row_is_locked(table = 'dem.identity', pk = 12)
-		print "   exclusive lock should succeed:", lock_row(table = 'dem.identity', pk = 12, exclusive = True)
-		print "   `-> unlock succeeded:", unlock_row(table = 'dem.identity', pk = 12, exclusive = True)
-		print " locked:", row_is_locked(table = 'dem.identity', pk = 12)
+		print("   2nd shared lock should succeed:", lock_row(table = 'dem.identity', pk = 12, exclusive = False))
+		print("   `-> unlock succeeded:", unlock_row(table = 'dem.identity', pk = 12, exclusive = False))
+		print(" locked:", row_is_locked(table = 'dem.identity', pk = 12))
+		print("   exclusive lock should succeed:", lock_row(table = 'dem.identity', pk = 12, exclusive = True))
+		print("   `-> unlock succeeded:", unlock_row(table = 'dem.identity', pk = 12, exclusive = True))
+		print(" locked:", row_is_locked(table = 'dem.identity', pk = 12))
 
-		print "2nd connection:"
+		print("2nd connection:")
 		conn = get_raw_connection(readonly=True)
-		print " shared lock should succeed:", lock_row(link_obj = conn, table = 'dem.identity', pk = 12, exclusive = False)
-		print " `-> unlock succeeded:", unlock_row(link_obj = conn, table = 'dem.identity', pk = 12, exclusive = False)
-		print " locked:", row_is_locked(table = 'dem.identity', pk = 12)
-		print " exclusive lock succeeded ?", lock_row(link_obj = conn, table = 'dem.identity', pk = 12, exclusive = True), "(should fail)"
-		print " locked:", row_is_locked(table = 'dem.identity', pk = 12)
+		print(" shared lock should succeed:", lock_row(link_obj = conn, table = 'dem.identity', pk = 12, exclusive = False))
+		print(" `-> unlock succeeded:", unlock_row(link_obj = conn, table = 'dem.identity', pk = 12, exclusive = False))
+		print(" locked:", row_is_locked(table = 'dem.identity', pk = 12))
+		print(" exclusive lock succeeded ?", lock_row(link_obj = conn, table = 'dem.identity', pk = 12, exclusive = True), "(should fail)")
+		print(" locked:", row_is_locked(table = 'dem.identity', pk = 12))
 
-		print "1st connection:"
-		print " unlock succeeded:", unlock_row(table = 'dem.identity', pk = 12, exclusive = False)
-		print " locked:", row_is_locked(table = 'dem.identity', pk = 12)
+		print("1st connection:")
+		print(" unlock succeeded:", unlock_row(table = 'dem.identity', pk = 12, exclusive = False))
+		print(" locked:", row_is_locked(table = 'dem.identity', pk = 12))
 
-		print "2nd connection:"
-		print " exclusive lock should succeed", lock_row(link_obj = conn, table = 'dem.identity', pk = 12, exclusive = True)
-		print " locked:", row_is_locked(table = 'dem.identity', pk = 12)
-		print "  shared lock should succeed:", lock_row(link_obj = conn, table = 'dem.identity', pk = 12, exclusive = False)
-		print "  `-> unlock succeeded:", unlock_row(link_obj = conn, table = 'dem.identity', pk = 12, exclusive = False)
-		print " locked:", row_is_locked(table = 'dem.identity', pk = 12)
-		print " unlock succeeded:", unlock_row(link_obj = conn, table = 'dem.identity', pk = 12, exclusive = False)
-		print " locked:", row_is_locked(table = 'dem.identity', pk = 12)
+		print("2nd connection:")
+		print(" exclusive lock should succeed", lock_row(link_obj = conn, table = 'dem.identity', pk = 12, exclusive = True))
+		print(" locked:", row_is_locked(table = 'dem.identity', pk = 12))
+		print("  shared lock should succeed:", lock_row(link_obj = conn, table = 'dem.identity', pk = 12, exclusive = False))
+		print("  `-> unlock succeeded:", unlock_row(link_obj = conn, table = 'dem.identity', pk = 12, exclusive = False))
+		print(" locked:", row_is_locked(table = 'dem.identity', pk = 12))
+		print(" unlock succeeded:", unlock_row(link_obj = conn, table = 'dem.identity', pk = 12, exclusive = False))
+		print(" locked:", row_is_locked(table = 'dem.identity', pk = 12))
 
 		conn.close()
 
 	#--------------------------------------------------------------------
 	def test_get_foreign_key_names():
-		print get_foreign_key_names (
+		print(get_foreign_key_names (
 			src_schema = 'dem',
 			src_table = 'names',
 			src_column = 'id_identity',
 			target_schema = 'dem',
 			target_table = 'identity',
 			target_column = 'pk'
-		)
+		))
 
 	#--------------------------------------------------------------------
 	def test_get_index_name():
-		print get_index_name(indexed_table = 'clin.vaccination', indexed_column = 'fk_episode')
+		print(get_index_name(indexed_table = 'clin.vaccination', indexed_column = 'fk_episode'))
 
 	#--------------------------------------------------------------------
 	def test_faulty_SQL():

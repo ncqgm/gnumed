@@ -346,7 +346,7 @@ def delete_xxx(pk_XXX=None):
 			return True
 
 		if result is False:
-			raise gmExceptions.ConstructorError, "[%s:%s]: error loading instance" % (self.__class__.__name__, self.pk_obj)
+			raise gmExceptions.ConstructorError("[%s:%s]: error loading instance" % (self.__class__.__name__, self.pk_obj))
 
 	#--------------------------------------------------------
 	def _init_from_row_data(self, row=None):
@@ -369,12 +369,12 @@ def delete_xxx(pk_XXX=None):
 			self.pk_obj = self._payload[self._idx[row['pk_field']]]
 		except:
 			_log.exception('faulty <row> argument structure: %s' % row)
-			raise gmExceptions.ConstructorError, "[%s:??]: error loading instance from row data" % self.__class__.__name__
+			raise gmExceptions.ConstructorError("[%s:??]: error loading instance from row data" % self.__class__.__name__)
 
 		if len(self._idx.keys()) != len(self._payload):
 			_log.critical('field index vs. payload length mismatch: %s field names vs. %s fields' % (len(self._idx.keys()), len(self._payload)))
 			_log.critical('faulty <row> argument structure: %s' % row)
-			raise gmExceptions.ConstructorError, "[%s:??]: error loading instance from row data" % self.__class__.__name__
+			raise gmExceptions.ConstructorError("[%s:??]: error loading instance from row data" % self.__class__.__name__)
 
 		self.payload_most_recently_fetched = {}
 		for field in self._idx.keys():
@@ -533,10 +533,10 @@ def delete_xxx(pk_XXX=None):
 				continue
 
 			try:
-				data[field] = unicode(val, encoding = 'utf8', errors = 'replace')
+				data[field] = str(val, encoding = 'utf8', errors = 'replace')
 			except TypeError:
 				try:
-					data[field] = unicode(val)
+					data[field] = str(val)
 				except (UnicodeDecodeError, TypeError):
 					val = '%s' % str(val)
 					data[field] = val.decode('utf8', 'replace')

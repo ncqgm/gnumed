@@ -917,6 +917,6 @@ if __name__ == "__main__":
 		#result = calc.get_EDC(lmp = gmDateTime.pydt_now_here())
 		#result = calc.body_mass_index
 		#result = calc.eGFRs
-		print u'%s' % result.format(with_formula = True, with_warnings = True, with_variables = True, with_sub_results = True)
+		print(u'%s' % result.format(with_formula = True, with_warnings = True, with_variables = True, with_sub_results = True))
 	#-----------------------------------------
 	test_clin_calc()

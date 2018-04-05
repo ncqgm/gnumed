@@ -1,8 +1,5 @@
 # -*- coding: utf-8 -*-
 #============================================================
-
-from __future__ import print_function
-
 __doc__ = """GNUmed DICOM handling middleware"""
 
 __license__ = "GPL v2 or later"
@@ -15,15 +12,16 @@ import os
 import sys
 import re as regex
 import logging
-import httplib			# needed for exception names thrown by httplib2, duh |-(
+import http.client
+#import httplib			# needed for exception names thrown by httplib2, duh |-(
 import socket			# needed for exception names thrown by httplib2, duh |-(
-import httplib2
+#import httplib2
 import json
 import zipfile
 import shutil
 import time
 import datetime as pydt
-from urllib import urlencode
+from urllib.parse import urlencode
 import distutils.version as version
 
 
@@ -69,7 +67,7 @@ class cOrthancServer:
 		self.__user = user
 		self.__password = password
 		_log.info('connecting as [%s] to Orthanc server at [%s]', self.__user, self.__server_url)
-		self.__conn = httplib2.Http()
+		self.__conn = http.client.HTTPConnection()
 		self.__conn.add_credentials(self.__user, self.__password)
 		_log.debug('connected to server: %s', self.server_identification)
 		self.connect_error = u''

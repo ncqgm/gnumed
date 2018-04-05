@@ -528,14 +528,14 @@ if __name__ == '__main__':
 
 	#-----------------------------------------
 	def test_narrative():
-		print "\nnarrative test"
-		print	"--------------"
+		print("\nnarrative test")
+		print("--------------")
 		narrative = cNarrative(aPK_obj=7)
 		fields = narrative.get_fields()
 		for field in fields:
-			print field, ':', narrative[field]
-		print "updatable:", narrative.get_updatable_fields()
-		print "codes:", narrative.generic_codes
+			print(field, ':', narrative[field])
+		print("updatable:", narrative.get_updatable_fields())
+		print("codes:", narrative.generic_codes)
 		#print "adding code..."
 		#narrative.add_code('Test code', 'Test coding system')
 		#print "codes:", diagnose.get_codes()
@@ -548,7 +548,7 @@ if __name__ == '__main__':
 	def test_search_text_across_emrs():
 		results = search_text_across_emrs('cut')
 		for r in results:
-			print r
+			print(r)
 	#-----------------------------------------
 
 	#test_search_text_across_emrs()

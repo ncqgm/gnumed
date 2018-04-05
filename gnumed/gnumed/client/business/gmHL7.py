@@ -1058,9 +1058,9 @@ def __import_single_PID_hl7_file(filename, emr=None):
 			current_result['val_grouping'] = seg[OBX_field__subid][0].strip()
 			current_result['source_data'] = u''
 			if last_obr is not None:
-				current_result['source_data'] += unicode(last_obr)
+				current_result['source_data'] += str(last_obr)
 				current_result['source_data'] += u'\n'
-			current_result['source_data'] += unicode(seg)
+			current_result['source_data'] += str(seg)
 			clin_when = seg[OBX_field__timestamp][0].strip()
 			if clin_when == u'':
 				_log.warning('no <Observation timestamp> in OBX, trying OBR timestamp')
@@ -1108,7 +1108,7 @@ def __import_single_PID_hl7_file(filename, emr=None):
 					val_alpha = note
 				)
 				#nte_result['val_grouping'] = seg[OBX_field__subid][0].strip()
-				nte_result['source_data'] = unicode(seg)
+				nte_result['source_data'] = str(seg)
 				try:
 					nte_result['clin_when'] = __hl7dt2pydt(obr['clin_when'])
 				except ValueError:
@@ -1118,7 +1118,7 @@ def __import_single_PID_hl7_file(filename, emr=None):
 
 			if (previous_segment == u'OBX') and (current_result is not None):
 				current_result['source_data'] += u'\n'
-				current_result['source_data'] += unicode(seg)
+				current_result['source_data'] += str(seg)
 				current_result['note_test_org'] = gmTools.coalesce (
 					current_result['note_test_org'],
 					note,
@@ -1281,11 +1281,11 @@ if __name__ == "__main__":
 		from Gnumed.business import gmPraxis
 		gmPraxis.gmCurrentPraxisBranch(branch = gmPraxis.get_praxis_branches()[0])
 		if not import_hl7_file(filename):
-			print "error with", filename
+			print("error with", filename)
 	#-------------------------------------------------------
 	def test_xml_extract():
 		hl7 = extract_HL7_from_XML_CDATA(sys.argv[2], u'.//Message')
-		print "HL7:", hl7
+		print("HL7:", hl7)
 		#result, PID_fnames = split_hl7_file(hl7)
 		#print "result:", result
 		#print "per-PID MSH files:"
@@ -1294,28 +1294,28 @@ if __name__ == "__main__":
 	#-------------------------------------------------------
 	def test_stage_hl7_from_xml():
 		hl7 = extract_HL7_from_XML_CDATA(sys.argv[2], u'.//Message')
-		print "HL7:", hl7
+		print("HL7:", hl7)
 		result, PID_fnames = split_hl7_file(hl7)
-		print "result:", result
-		print "staging per-PID HL7 files:"
+		print("result:", result)
+		print("staging per-PID HL7 files:")
 		for name in PID_fnames:
-			print " file:", name
+			print(" file:", name)
 			__stage_MSH_as_incoming_data(name, source = u'Excelleris')
 	#-------------------------------------------------------
 	def test_split_hl7_file():
 		result, PID_fnames = split_hl7_file(sys.argv[2])
-		print "result:", result
-		print "per-PID HL7 files:"
+		print("result:", result)
+		print("per-PID HL7 files:")
 		for name in PID_fnames:
-			print " file:", name
+			print(" file:", name)
 	#-------------------------------------------------------
 	def test_stage_hl7():
 		fixed = __fix_malformed_hl7_file(sys.argv[2])
-		print "fixed HL7:", fixed
+		print("fixed HL7:", fixed)
 		PID_fnames = split_HL7_by_PID(fixed, encoding='utf8')
-		print "staging per-PID HL7 files:"
+		print("staging per-PID HL7 files:")
 		for name in PID_fnames:
-			print " file:", name
+			print(" file:", name)
 			#print "", __stage_MSH_as_incoming_data(name, source = u'?')
 	#-------------------------------------------------------
 	def test_format_hl7_message():
@@ -1324,38 +1324,38 @@ if __name__ == "__main__":
 			"OBX|2|NM|22748-8^LDL Cholesterol||4.0|mmol/L|1.5 - 3.4|H|||F|||20031004073300"
 		]
 		for test in tests:
-			print format_hl7_message (
+			print(format_hl7_message (
 #				skip_empty_fields = True,
 				message = test
-			)
+			))
 	#-------------------------------------------------------
 	def test_format_hl7_file(filename):
-		print format_hl7_file (
+		print(format_hl7_file (
 			filename,
 #			skip_empty_fields = True
 			return_filename = True
-		)
+		))
 	#-------------------------------------------------------
 	def test___fix_malformed_hl7():
-		print "fixed HL7:", __fix_malformed_hl7_file(sys.argv[2])
+		print("fixed HL7:", __fix_malformed_hl7_file(sys.argv[2]))
 	#-------------------------------------------------------
 	def test_parse_hl7():
 		MSH_file = io.open(sys.argv[2], mode = 'rt', encoding = 'utf8', newline = '')
 		raw_hl7 = MSH_file.read(1024 * 1024 * 5)	# 5 MB max
 		MSH_file.close()
-		print format_hl7_message (
+		print(format_hl7_message (
 			message = raw_hl7,
 			skip_empty_fields = True,
 			eol = u'\n'
-		)
+		))
 		HL7 = pyhl7.parse(raw_hl7)
 		del raw_hl7
 		for seg in HL7.segments('MSH'):
-			print seg
-		print "PID:"
-		print HL7.extract_field(u'PID')
-		print HL7.extract_field('PID', segment_num = 1, field_num = PID_field__name, component_num = PID_component__lastname)
-		print HL7.extract_field('PID', segment_num = 1, field_num = PID_field__name, component_num = PID_component__lastname)
+			print(seg)
+		print("PID:")
+		print(HL7.extract_field(u'PID'))
+		print(HL7.extract_field('PID', segment_num = 1, field_num = PID_field__name, component_num = PID_component__lastname))
+		print(HL7.extract_field('PID', segment_num = 1, field_num = PID_field__name, component_num = PID_component__lastname))
 
 #			incoming['firstnames'] = HL7.extract_field('PID', segment_num = 1, field_num = PID_field__name, component_num = PID_component__firstname)
 #			val = HL7.extract_field('PID', segment_num = 1, field_num = PID_field__name, component_num = PID_component__middlename)

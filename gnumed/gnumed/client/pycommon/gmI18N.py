@@ -1,6 +1,3 @@
-
-from __future__ import print_function
-
 __doc__ = """GNUmed client internationalization/localization.
 
 All i18n/l10n issues should be handled through this modules.
@@ -82,14 +79,6 @@ _substitutes_regex = regex.compile(r'%\(.+?\)s')
 __orig_tag__ = u'Translate this or i18n into <en_EN> will not work properly !'
 # **********************************************************
 # **********************************************************
-
-# Q: I can't use non-ascii characters in labels and menus.
-# A: This can happen if your Python's system encoding is ASCII and
-#    wxPython is non-unicode. Edit/create the file sitecustomize.py
-#    (should be somewhere in your PYTHONPATH), and put these magic lines:
-#
-#	import sys
-#	sys.setdefaultencoding('iso8859-1') # replace with encoding you want to be the default one
 
 #===========================================================================
 def __split_locale_into_levels():
@@ -184,9 +173,9 @@ def __log_locale_settings(message=None):
 			_log.debug(u'locale.localeconv(%s): %s', key, data[key])
 		else:
 			try:
-				_log.debug(u'locale.localeconv(%s): %s', key, unicode(data[key]))
+				_log.debug(u'locale.localeconv(%s): %s', key, str(data[key]))
 			except UnicodeDecodeError:
-				_log.debug(u'locale.localeconv(%s): %s', key, unicode(data[key], loc_enc))
+				_log.debug(u'locale.localeconv(%s): %s', key, str(data[key], loc_enc))
 	_nl_langinfo_categories = {}
 	for category in 'CODESET D_T_FMT D_FMT T_FMT T_FMT_AMPM RADIXCHAR THOUSEP YESEXPR NOEXPR CRNCYSTR ERA ERA_D_T_FMT ERA_D_FMT ALT_DIGITS'.split():
 		try:
@@ -199,9 +188,9 @@ def __log_locale_settings(message=None):
 				_log.debug('locale.nl_langinfo(%s): %s' % (category, locale.nl_langinfo(_nl_langinfo_categories[category])))
 			else:
 				try:
-					_log.debug(u'locale.nl_langinfo(%s): %s', category, unicode(locale.nl_langinfo(_nl_langinfo_categories[category])))
+					_log.debug(u'locale.nl_langinfo(%s): %s', category, str(locale.nl_langinfo(_nl_langinfo_categories[category])))
 				except UnicodeDecodeError:
-					_log.debug(u'locale.nl_langinfo(%s): %s', category, unicode(locale.nl_langinfo(_nl_langinfo_categories[category]), loc_enc))
+					_log.debug(u'locale.nl_langinfo(%s): %s', category, str(locale.nl_langinfo(_nl_langinfo_categories[category]), loc_enc))
 	except:
 		_log.exception('this OS does not support nl_langinfo')
 

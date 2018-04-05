@@ -197,7 +197,7 @@ if __name__ == "__main__":
 	#-------------------------------------------------------
 	def test_incoming_data():
 		for d in get_incoming_data():
-			print d
+			print(d)
 
 	#-------------------------------------------------------
 	test_incoming_data()

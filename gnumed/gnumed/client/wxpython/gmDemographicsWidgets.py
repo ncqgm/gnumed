@@ -1843,7 +1843,7 @@ if __name__ == "__main__":
 	def activate_patient():
 		patient = gmPersonSearch.ask_for_patient()
 		if patient is None:
-			print "No patient. Exiting gracefully..."
+			print("No patient. Exiting gracefully...")
 			sys.exit(0)
 		from Gnumed.wxpython.gmPatSearchWidgets import set_active_patient
 		set_active_patient(patient = patient)

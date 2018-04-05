@@ -32,8 +32,9 @@ fi
 CONF="--conf-file=gm-from-vcs.conf"
 
 # options useful for development and debugging:
-TS=`date +%m_%d-%H%M%S`
-DEV_OPTS="--log-file=gm-vcs-${TS}-$$.log --override-schema-check --skip-update-check --local-import --debug"
+TS=`date +%m_%d-%H_%M_%S`
+DEV_OPTS="--log-file=gm-vcs-${TS}-$$.log --override-schema-check --local-import --debug"
+# --tool=check_enc_epi_xref
 # --profile=gm-from-vcs.prof
 
 # options for running from released tarballs:
@@ -48,17 +49,22 @@ TARBALL_OPTS="--local-import --debug"
 echo "-------------------------------------------------"
 echo "Running from Git branch: "`git branch | grep \*`
 echo "-------------------------------------------------"
+echo "config file: ${CONF}"
+echo "options: ${DEV_OPTS}"
+#python3 gnumed.py ${CONF} ${DEV_OPTS} $@
+#python3 gnumed.py ${CONF} ${DEV_OPTS} $@ 2> >(grep -v wx > gm-vcs-py2to3_warnings.log) # 1>&2)
+#python3 gnumed.py ${CONF} ${DEV_OPTS} $@ |& tee gm-vcs-console_output.log
 python3 gnumed.py ${CONF} ${DEV_OPTS} $@
 
 
 # - *released* tarball version:
 #python3 gnumed.py ${CONF} ${TARBALL_OPTS} $@
 
-# - production version:
-#python3 gnumed.py ${CONF} $@
+# - production version (does not use tarball files !):
+#python3 gnumed.py $@
 
-# - production version with HIPAA support:
-#python3 gnumed.py ${CONF} --hipaa $@
+# - production version with HIPAA support (does not use tarball files !):
+#python3 gnumed.py --hipaa $@
 
 
 # source systemwide shutdown extension shell script if it exists

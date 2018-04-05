@@ -377,7 +377,7 @@ class cHospitalStayEditAreaPnl(wxgHospitalStayEditAreaPnl.wxgHospitalStayEditAre
 		self._PRW_hospital.SetFocus()
 	#----------------------------------------------------------------
 	def _refresh_as_new_from_existing(self):
-		print "this was not expected to be used in this edit area"
+		print("this was not expected to be used in this edit area")
 
 #================================================================
 # main
@@ -397,7 +397,7 @@ if __name__ == '__main__':
 	# obtain patient
 	pat = gmPersonSearch.ask_for_patient()
 	if pat is None:
-		print "No patient. Exiting gracefully..."
+		print("No patient. Exiting gracefully...")
 		sys.exit(0)
 	gmPatSearchWidgets.set_active_patient(patient=pat)
 

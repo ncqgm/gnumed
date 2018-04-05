@@ -180,5 +180,5 @@ if __name__ == "__main__":
 	gmPerson.set_active_patient(patient = gmPerson.cPerson(aPK_obj = 12))
 
 	arriba = cArriba()
-	print arriba
+	print(arriba)
 	arriba.run(patient = gmPerson.gmCurrentPatient(), debug = True)

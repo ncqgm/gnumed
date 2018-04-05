@@ -529,9 +529,9 @@ if __name__ == '__main__':
 	def test_scale_img():
 		app = wx.App()
 		img = file2scaled_image(filename = sys.argv[2])
-		print img
-		print img.Height
-		print img.Width
+		print(img)
+		print(img.Height)
+		print(img.Width)
 	#------------------------------------------------------------------
 	def test_sql_logic_prw():
 		app = wx.PyWidgetTester(size = (200, 50))
@@ -545,12 +545,12 @@ if __name__ == '__main__':
 		app = wx.PyWidgetTester(size = (200, 50))
 		result = clipboard2file()
 		if result is False:
-			print "problem opening clipboard"
+			print("problem opening clipboard")
 			return
 		if result is None:
-			print "no data in clipboard"
+			print("no data in clipboard")
 			return
-		print "file:", result
+		print("file:", result)
 	#------------------------------------------------------------------
 	#test_scale_img()
 	#test_sql_logic_prw()

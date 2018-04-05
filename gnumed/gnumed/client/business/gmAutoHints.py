@@ -346,6 +346,6 @@ if __name__ == '__main__':
 #		for row in get_dynamic_hints():
 #			print row
 		for row in get_hints_for_patient(pk_identity = 12):
-			print row
+			print(row)
 	#---------------------------------------
 	test_auto_hints()

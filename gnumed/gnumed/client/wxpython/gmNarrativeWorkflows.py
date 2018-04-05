@@ -867,18 +867,18 @@ if __name__ == '__main__':
 		set_active_patient(patient = pat)
 		app = wx.PyWidgetTester(size = (200, 200))
 		sels = select_narrative_from_episodes_new()
-		print "selected:"
+		print("selected:")
 		for sel in sels:
-			print sel
+			print(sel)
 	#----------------------------------------
 	def test_select_narrative():
 		pat = gmPersonSearch.ask_for_patient()
 		set_active_patient(patient = pat)
 		app = wx.PyWidgetTester(size = (200, 200))
 		sels = select_narrative(parent=None, soap_cats = None)
-		print "selected:"
+		print("selected:")
 		for sel in sels:
-			print sel
+			print(sel)
 	#----------------------------------------
 	#test_select_narrative_from_episodes()
 	test_select_narrative()

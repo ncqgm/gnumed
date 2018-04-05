@@ -178,19 +178,19 @@ if __name__ == "__main__":
 	gmDateTime.init()
 
 	patfile = sys.argv[1]
-	print "reading patient data from MSVA file [%s]" % patfile
+	print("reading patient data from MSVA file [%s]" % patfile)
 
 	dtos = read_persons_from_msva_file(patfile)
 	for dto in dtos:
-		print "DTO:", dto
-		print "dto.dob:", dto.dob, type(dto.dob)
-		print "dto.dob.tz:", dto.dob.tzinfo
-		print "dto.zip / urb / region: %s / %s / %s" % (dto.zip, dto.urb, dto.region)
-		print "dto.street:", dto.street
+		print("DTO:", dto)
+		print("dto.dob:", dto.dob, type(dto.dob))
+		print("dto.dob.tz:", dto.dob.tzinfo)
+		print("dto.zip / urb / region: %s / %s / %s" % (dto.zip, dto.urb, dto.region))
+		print("dto.street:", dto.street)
 		for ext_id in dto.external_ids:
-			print ext_id
+			print(ext_id)
 		for comm in dto.comms:
-			print comm
+			print(comm)
 #		searcher = gmPersonSearch.cPatientSearcher_SQL()
 #		ident = searcher.get_identities(dto=dto)[0]
 #		print ident

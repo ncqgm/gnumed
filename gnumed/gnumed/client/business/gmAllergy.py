@@ -393,11 +393,11 @@ def create_allergy(allergene=None, allg_type=None, episode_id=None, encounter_id
 if __name__ == '__main__':
 
 	allg = cAllergy(aPK_obj=1)
-	print allg
+	print(allg)
 	fields = allg.get_fields()
 	for field in fields:
-		print field, ':', allg[field]
-	print "updatable:", allg.get_updatable_fields()
+		print(field, ':', allg[field])
+	print("updatable:", allg.get_updatable_fields())
 	enc_id = allg['pk_encounter']
 	epi_id = allg['pk_episode']
 	status, allg = create_allergy (
@@ -406,9 +406,9 @@ if __name__ == '__main__':
 		episode_id = epi_id,
 		encounter_id = enc_id
 	)
-	print allg
+	print(allg)
 	allg['reaction'] = 'hehehe'
 	status, data = allg.save_payload()
-	print 'status:', status
-	print 'data:', data
-	print allg
+	print('status:', status)
+	print('data:', data)
+	print(allg)

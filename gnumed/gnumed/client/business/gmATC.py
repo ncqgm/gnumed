@@ -295,14 +295,14 @@ if __name__ == "__main__":
 		atc_import(cfg_fname = sys.argv[2], conn = gmPG2.get_connection(readonly = False))
 	#--------------------------------------------------------
 	def test_text2atc():
-		print 'searching ATC code for:', sys.argv[2]
-		print ' ', text2atc(sys.argv[2])
-		print ' ', text2atc(sys.argv[2], True)
+		print('searching ATC code for:', sys.argv[2])
+		print(' ', text2atc(sys.argv[2]))
+		print(' ', text2atc(sys.argv[2], True))
 	#--------------------------------------------------------
 	def test_get_reference_atcs():
-		print "reference_of_atc_codes:"
+		print("reference_of_atc_codes:")
 		for atc in get_reference_atcs():
-			print atc
+			print(atc)
 	#--------------------------------------------------------
 	#test_atc_import()
 	#test_text2atc()

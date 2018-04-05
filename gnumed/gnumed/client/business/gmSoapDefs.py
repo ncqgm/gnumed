@@ -129,7 +129,7 @@ if __name__ == '__main__':
 	#--------------------------------------------------------
 	def test_translation():
 		for c in KNOWN_SOAP_CATS:
-			print c, soap_cat2l10n[c], soap_cat2l10n_str[c]
+			print(c, soap_cat2l10n[c], soap_cat2l10n_str[c])
 
 	#--------------------------------------------------------
 	def test_are_valid_cats():
@@ -146,9 +146,9 @@ if __name__ == '__main__':
 			['s', None, 'X'],
 		]
 		for cat_list in cats:
-			print cat_list
-			print '  valid (plain):', are_valid_soap_cats(cat_list, False)
-			print '  valid (w/ upper):', are_valid_soap_cats(cat_list, True)
+			print(cat_list)
+			print('  valid (plain):', are_valid_soap_cats(cat_list, False))
+			print('  valid (w/ upper):', are_valid_soap_cats(cat_list, True))
 
 	#--------------------------------------------------------
 	test_translation()

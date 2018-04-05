@@ -420,7 +420,7 @@ class cFormDisposalDlg(wxgFormDisposalDlg.wxgFormDisposalDlg):
 				gmMimeLib.call_viewer_on_file(filename, block = True)
 	#--------------------------------------------------------
 	def _on_delete_forms_button_pressed(self, event):
-		print "Event handler '_on_delete_forms_button_pressed' not implemented!"
+		print("Event handler '_on_delete_forms_button_pressed' not implemented!")
 		event.Skip()
 
 #============================================================

@@ -65,7 +65,7 @@ class cMatchProvider(object):
 		"""
 		# sanity check
 		if aFragment is None:
-			raise ValueError, 'Cannot find matches without a fragment.'
+			raise ValueError('Cannot find matches without a fragment.')
 
 		# user explicitly wants all matches
 		if aFragment == u'*':
@@ -504,8 +504,8 @@ class cMatchProvider_SQL2(cMatchProvider):
 	#--------------------------------------------------------
 	def _find_matches(self, fragment_condition):
 		if self.print_queries:
-			print "----------------------"
-			print pydt.datetime.now()
+			print("----------------------")
+			print(pydt.datetime.now())
 		matches = []
 		for query in self._queries:
 			where_fragments = {'fragment_condition': fragment_condition}
@@ -518,22 +518,22 @@ class cMatchProvider_SQL2(cMatchProvider):
 					# we do have a context value for this key, so add the where condition
 					where_fragments[context_key] = where_part
 					if self.print_queries:
-						print "ctxt ph:", placeholder
-						print "ctxt where:", where_part
-						print "ctxt val:", self._context_vals[placeholder]
+						print("ctxt ph:", placeholder)
+						print("ctxt where:", where_part)
+						print("ctxt val:", self._context_vals[placeholder])
 				except KeyError:
 					# we don't have a context value for this key, so skip the where condition
 					where_fragments[context_key] = u''
 					if self.print_queries:
-						print "invalid ctxt key:", context_key
+						print("invalid ctxt key:", context_key)
 
 			cmd = query % where_fragments
 
 			if self.print_queries:
-				print "class:", self.__class__.__name__
-				print "ctxt:", self._context_vals
-				print "args:", self._args
-				print "query:", cmd
+				print("class:", self.__class__.__name__)
+				print("ctxt:", self._context_vals)
+				print("args:", self._args)
+				print("query:", cmd)
 
 			try:
 				rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': self._args}], get_col_idx = False)

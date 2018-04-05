@@ -14,7 +14,7 @@ import sys
 import os
 import os.path
 import logging
-import urllib
+import urllib.parse
 
 
 # GNUmed
@@ -597,10 +597,10 @@ class cAddress(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	def _get_as_map_url(self):
 		url = u'http://nominatim.openstreetmap.org/search/%s/%s/%s/%s?limit=3' % (
-			urllib.quote(self['country'].encode('utf8')),
-			urllib.quote(self['urb'].encode('utf8')),
-			urllib.quote(self['street'].encode('utf8')),
-			urllib.quote(self['number'].encode('utf8'))
+			urllib.parse.quote(self['country'].encode('utf8')),
+			urllib.parse.quote(self['urb'].encode('utf8')),
+			urllib.parse.quote(self['street'].encode('utf8')),
+			urllib.parse.quote(self['number'].encode('utf8'))
 		)
 		return url
 
@@ -1125,8 +1125,8 @@ where
 # callbacks
 #------------------------------------------------------------
 def _post_patient_selection(**kwargs):
-	print "received post_patient_selection notification"
-	print kwargs['kwds']
+	print("received post_patient_selection notification")
+	print(kwargs['kwds'])
 #============================================================
 
 #============================================================
@@ -1192,12 +1192,12 @@ if __name__ == "__main__":
 		]
 
 		for adr in addresses:
-			print adr
+			print(adr)
 			exists = address_exists(**adr)
 			if exists is None:
-				print "address does not exist"
+				print("address does not exist")
 			else:
-				print "address exists, primary key:", exists
+				print("address exists, primary key:", exists)
 
 	#--------------------------------------------------------
 	def test_create_address():
@@ -1211,8 +1211,8 @@ if __name__ == "__main__":
 			number = '11'
 #			,notes_subunit = '2.Stock oben'
 		)
-		print "created existing address"
-		print address.format()
+		print("created existing address")
+		print(address.format())
 
 		su = str(random.random())
 
@@ -1227,51 +1227,51 @@ if __name__ == "__main__":
 #			notes_subunit = '2.Stock oben',
 			subunit = su
 		)
-		print "created new address with subunit", su
-		print address
-		print address.format()
-		print address.as_map_url
-		print "deleted address:", delete_address(pk_address = address['pk_address'])
+		print("created new address with subunit", su)
+		print(address)
+		print(address.format())
+		print(address.as_map_url)
+		print("deleted address:", delete_address(pk_address = address['pk_address']))
 	#--------------------------------------------------------
 	def test_get_countries():
 		for c in get_countries():
-			print c
+			print(c)
 	#--------------------------------------------------------
 	def test_get_country_for_region():
 		region = raw_input("Please enter a region: ")
-		print "country for region [%s] is: %s" % (region, get_country_for_region(region = region))
+		print("country for region [%s] is: %s" % (region, get_country_for_region(region = region)))
 	#--------------------------------------------------------
 	def test_delete_tag():
 		if delete_tag_image(tag_image = 9999):
-			print "deleted tag 9999"
+			print("deleted tag 9999")
 		else:
-			print "did not delete tag 9999"
+			print("did not delete tag 9999")
 		if delete_tag_image(tag_image = 1):
-			print "deleted tag 1"
+			print("deleted tag 1")
 		else:
-			print "did not delete tag 1"
+			print("did not delete tag 1")
 	#--------------------------------------------------------
 	def test_tag_images():
 		tag = cTagImage(aPK_obj = 1)
-		print tag
+		print(tag)
 		#print get_tag_images()
 	#--------------------------------------------------------
 	def test_get_billing_address():
-		print get_patient_address_by_type(pk_patient = 12, adr_type = u'billing')
+		print(get_patient_address_by_type(pk_patient = 12, adr_type = u'billing'))
 	#--------------------------------------------------------
 	def test_map_urb_zip_region2country():
-		print map_urb_zip_region2country(urb = 'Kassel', zip = '34119', region = 'Hessen')
-		print map_urb_zip_region2country(urb = 'Kassel', zip = None, region = 'Hessen')
-		print map_urb_zip_region2country(urb = None, zip = '34119', region = 'Hessen')
-		print map_urb_zip_region2country(urb = 'Kassel', zip = '34119', region = None)
+		print(map_urb_zip_region2country(urb = 'Kassel', zip = '34119', region = 'Hessen'))
+		print(map_urb_zip_region2country(urb = 'Kassel', zip = None, region = 'Hessen'))
+		print(map_urb_zip_region2country(urb = None, zip = '34119', region = 'Hessen'))
+		print(map_urb_zip_region2country(urb = 'Kassel', zip = '34119', region = None))
 	#--------------------------------------------------------
 	def test_map_urb_zip_country2region():
-		print map_urb_zip_country2region(urb = 'Kassel', zip = '34119', country = u'Germany', country_code = 'DE')
-		print map_urb_zip_country2region(urb = 'Kassel', zip = '34119', country = u'Germany', country_code = None)
-		print map_urb_zip_country2region(urb = 'Kassel', zip = '34119', country = u'Deutschland', country_code = 'DE')
-		print map_urb_zip_country2region(urb = 'Kassel', zip = '34119', country = u'Deutschland', country_code = None)
-		print map_urb_zip_country2region(urb = 'Kassel', zip = '34119', country = None, country_code = 'DE')
-		print map_urb_zip_country2region(urb = 'Kassel', zip = '34119', country = None, country_code = None)
+		print(map_urb_zip_country2region(urb = 'Kassel', zip = '34119', country = u'Germany', country_code = 'DE'))
+		print(map_urb_zip_country2region(urb = 'Kassel', zip = '34119', country = u'Germany', country_code = None))
+		print(map_urb_zip_country2region(urb = 'Kassel', zip = '34119', country = u'Deutschland', country_code = 'DE'))
+		print(map_urb_zip_country2region(urb = 'Kassel', zip = '34119', country = u'Deutschland', country_code = None))
+		print(map_urb_zip_country2region(urb = 'Kassel', zip = '34119', country = None, country_code = 'DE'))
+		print(map_urb_zip_country2region(urb = 'Kassel', zip = '34119', country = None, country_code = None))
 
 #		print map_urb_zip_country2region(urb = 'Kassel', zip = '34119', country = u'Deutschland', country_code = 'DE')
 #		print map_urb_zip_country2region(urb = 'Kassel', zip = '34119', country = u'Deutschland', country_code = 'DE')

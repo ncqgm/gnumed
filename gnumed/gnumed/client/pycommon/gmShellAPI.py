@@ -28,7 +28,7 @@ def is_cmd_in_path(cmd=None):
 		_log.info('command with full or relative path, not searching in PATH for binary')
 		return (None, None)
 
-	env_paths = unicode(os.environ['PATH'], encoding = sys.getfilesystemencoding(), errors = 'replace')
+	env_paths = str(os.environ['PATH'], encoding = sys.getfilesystemencoding(), errors = 'replace')
 	_log.debug(u'${PATH}: %s', env_paths)
 	for path in env_paths.split(os.pathsep):
 		candidate = os.path.join(path, cmd)

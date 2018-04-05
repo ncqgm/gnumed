@@ -3,7 +3,7 @@
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL v2 or later (details at http://www.gnu.org)"
 
-import logging, exceptions, traceback, re as regex, sys, os, shutil, datetime as pyDT
+import logging, traceback, re as regex, sys, os, shutil, datetime as pyDT
 
 
 import wx
@@ -119,7 +119,7 @@ def __handle_ctrl_c(t, v, tb):
 	if t != KeyboardInterrupt:
 		return False
 
-	print "<Ctrl-C>: Shutting down ..."
+	print("<Ctrl-C>: Shutting down ...")
 	top_win = wx.GetApp().GetTopWindow()
 	wx.CallAfter(top_win.Close)
 	return True
@@ -164,8 +164,8 @@ def __handle_lost_db_connection(t, v, tb):
 		msg = gmPG2.extract_msg_from_pg_exception(exc = v)
 	except:
 		msg = u'cannot extract message from PostgreSQL exception'
-		print msg
-		print v
+		print(msg)
+		print(v)
 		return False
 
 	conn_lost = False

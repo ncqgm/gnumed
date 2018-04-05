@@ -1227,7 +1227,7 @@ if __name__ == '__main__':
 	def test_cSoapPluginPnl():
 		patient = gmPersonSearch.ask_for_patient()
 		if patient is None:
-			print "No patient. Exiting gracefully..."
+			print("No patient. Exiting gracefully...")
 			return
 		set_active_patient(patient=patient)
 

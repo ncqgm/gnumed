@@ -14,7 +14,6 @@ import re, string, sys, time, datetime as pyDT, logging
 
 
 # 3rd party
-import mx.DateTime as mxDT
 import wx
 try:
 	import wx.calendar as wxcal
@@ -669,14 +668,14 @@ if __name__ == '__main__':
 		mp.setThresholds(aWord = 998, aSubstring = 999)
 		val = None
 		while val != 'exit':
-			print "************************************"
+			print("************************************")
 			val = raw_input('Enter date fragment ("exit" to quit): ')
 			found, matches = mp.getMatches(aFragment=val)
 			for match in matches:
 				#print match
-				print match['label']
-				print match['data']
-				print "---------------"
+				print(match['label'])
+				print(match['data'])
+				print("---------------")
 	#--------------------------------------------------------
 	def test_fuzzy_picker():
 		app = wx.PyWidgetTester(size = (300, 40))

@@ -798,7 +798,7 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 		if self.__focussed_msg['pk_staff'] is None:
 			gmDispatcher.send(signal = 'statustext', msg = _('This message is already visible to all providers.'))
 			return False
-		print "now distributing"
+		print("now distributing")
 		return True
 	#--------------------------------------------------------
 	def _goto_patient(self, pk_context=None, pk_patient=None):

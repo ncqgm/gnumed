@@ -1,12 +1,8 @@
-
-from __future__ import print_function
-
 __doc__ = """GNUmed client internal signal handling.
 
 # this code has been written by Patrick O'Brien <pobrien@orbtech.com>
 # downloaded from http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/87056
 """
-import exceptions
 import types
 import sys
 import weakref
@@ -47,7 +43,7 @@ Any = _Any()
 
 known_signals.append(Any)
 #=====================================================================
-class DispatcherError(exceptions.Exception):
+class DispatcherError(Exception):
 	def __init__(self, args=None):
 		self.args = args
 
@@ -304,8 +300,10 @@ def _removeReceiver(receiver):
 	for senderkey in connections.keys():
 		for signal in connections[senderkey].keys():
 			receivers = connections[senderkey][signal]
-			try: receivers.remove(receiver)
-			except: pass
+			try:
+				receivers.remove(receiver)
+			except:
+				pass
 			_cleanupConnections(senderkey, signal)
 #---------------------------------------------------------------------
 def _cleanupConnections(senderkey, signal):

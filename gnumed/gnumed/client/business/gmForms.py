@@ -1743,7 +1743,7 @@ class cIanLaTeXForm(cFormEngine):
 			stdin.close ()
 			if not gmShellAPI.run_command_in_shell("dvips texput.dvi -o texput.ps", blocking=True):
 				raise FormError ('DVIPS returned error')
-		except EnvironmentError, e:
+		except EnvironmentError as e:
 			_log.error(e.strerror)
 			raise FormError (e.strerror)
 		return file ("texput.ps")
@@ -1764,7 +1764,7 @@ class cIanLaTeXForm(cFormEngine):
 			if not gmShellAPI.run_command_in_shell(command, blocking=True):
 				_log.error("external command %s returned non-zero" % command)
 				raise FormError ('external command %s returned error' % command)
-		except EnvironmentError, e:
+		except EnvironmentError as e:
 			_log.error(e.strerror)
 			raise FormError (e.strerror)
 		return True
@@ -1807,9 +1807,9 @@ class cXSLTFormEngine(cFormEngine):
 
 		# here we know/can assume that the template was stored as a utf-8
 		# encoded string so use that conversion to create unicode:
-		#self._XSLTData = unicode(str(template.template_data), 'UTF-8')
-		# but in fact, unicode() knows how to handle buffers, so simply:
-		self._XSLTData = unicode(self.template.template_data, 'UTF-8', 'strict')
+		#self._XSLTData = str(str(template.template_data), 'UTF-8')
+		# but in fact, str() knows how to handle buffers, so simply:
+		self._XSLTData = str(self.template.template_data, 'UTF-8', 'strict')
 
 		# we must still devise a method of extracting the SQL query:
 		# - either by retrieving it from a particular tag in the XSLT or
@@ -1849,7 +1849,7 @@ class cXSLTFormEngine(cFormEngine):
 	#--------------------------------------------------------
 	def preview(self):
 		if self._FormData is None:
-			raise ValueError, u'Preview request for empty form. Make sure the form is properly initialized and process() was performed'
+			raise ValueError(u'Preview request for empty form. Make sure the form is properly initialized and process() was performed')
 
 		fname = gmTools.get_unique_filename(prefix = u'gm_XSLT_form-', suffix = u'.html')
 		#html_file = os.open(fname, 'wb')
@@ -1896,13 +1896,14 @@ class LaTeXFilter:
 			# FIXME: cover all of ISO-Latin-1 which can be expressed in TeX
 			if type (item) is types.UnicodeType:
 				item = item.encode ('latin-1', 'replace')
-				trans = {'ß':'\\ss{}', 'ä': '\\"{a}', 'Ä' :'\\"{A}', 'ö': '\\"{o}', 'Ö': '\\"{O}',	'ü': '\\"{u}', 'Ü': '\\"{U}',
-					 '\x8a':'\\v{S}', '\x8a':'\\OE{}', '\x9a':'\\v{s}', '\x9c': '\\oe{}', '\a9f':'\\"{Y}', #Microsloth extensions
-					 '\x86': '{\\dag}', '\x87': '{\\ddag}', '\xa7':'{\\S}', '\xb6': '{\\P}', '\xa9': '{\\copyright}', '\xbf': '?`',
-					 '\xc0':'\\`{A}', '\xa1': "\\'{A}", '\xa2': '\\^{A}', '\xa3':'\\~{A}', '\\xc5': '{\AA}',
-					 '\xc7':'\\c{C}', '\xc8':'\\`{E}',	
-					 '\xa1': '!`',
-				 '\xb5':'$\mu$', '\xa3': '\pounds{}', '\xa2':'cent'}
+				trans = {'ÃŸ':'\\ss{}', 'Ã¤': '\\"{a}', 'Ã„' :'\\"{A}', 'Ã¶': '\\"{o}', 'Ã–': '\\"{O}',	'Ã¼': '\\"{u}', 'Ãœ': '\\"{U}',
+					'\x8a':'\\v{S}', '\x8a':'\\OE{}', '\x9a':'\\v{s}', '\x9c': '\\oe{}', '\a9f':'\\"{Y}', #Microsloth extensions
+					'\x86': '{\\dag}', '\x87': '{\\ddag}', '\xa7':'{\\S}', '\xb6': '{\\P}', '\xa9': '{\\copyright}', '\xbf': '?`',
+					'\xc0':'\\`{A}', '\xa1': "\\'{A}", '\xa2': '\\^{A}', '\xa3':'\\~{A}', '\\xc5': '{\AA}',
+					'\xc7':'\\c{C}', '\xc8':'\\`{E}',
+					'\xa1': '!`',
+					'\xb5':'$\mu$', '\xa3': '\pounds{}', '\xa2':'cent'
+				}
 				for k, i in trans.items ():
 					item = item.replace (k, i)
 		elif type (item) is types.ListType or type (item) is types.TupleType:
@@ -2042,7 +2043,7 @@ def test_au2 ():
 		  'CLOSING':'Yours sincerely,'
 		  }
 	form.process (params)
-	print os.getcwd ()
+	print(os.getcwd ())
 	form.xdvi ()
 	form.cleanup ()
 #------------------------------------------------------------
@@ -2082,18 +2083,18 @@ if __name__ == '__main__':
 	#--------------------------------------------------------
 	def test_ooo_connect():
 		srv = gmOOoConnector()
-		print srv
-		print srv.desktop
+		print(srv)
+		print(srv.desktop)
 	#--------------------------------------------------------
 	def test_open_ooo_doc_from_srv():
 		srv = gmOOoConnector()
 		doc = srv.open_document(filename = sys.argv[2])
-		print "document:", doc
+		print("document:", doc)
 	#--------------------------------------------------------
 	def test_open_ooo_doc_from_letter():
 		doc = cOOoLetter(template_file = sys.argv[2])
 		doc.open_in_ooo()
-		print "document:", doc
+		print("document:", doc)
 		raw_input('press <ENTER> to continue')
 		doc.show()
 		#doc.replace_placeholders()
@@ -2111,24 +2112,24 @@ if __name__ == '__main__':
 
 		class myCloseListener(unohelper.Base, oooXCloseListener):
 			def disposing(self, evt):
-				print "disposing:"
+				print("disposing:")
 			def notifyClosing(self, evt):
-				print "notifyClosing:"
+				print("notifyClosing:")
 			def queryClosing(self, evt, owner):
 				# owner is True/False whether I am the owner of the doc
-				print "queryClosing:"
+				print("queryClosing:")
 
 		l = myCloseListener()
 		doc.addCloseListener(l)
 
 		tfs = doc.getTextFields().createEnumeration()
-		print tfs
-		print dir(tfs)
+		print(tfs)
+		print(dir(tfs))
 		while tfs.hasMoreElements():
 			tf = tfs.nextElement()
 			if tf.supportsService('com.sun.star.text.TextField.JumpEdit'):
-				print tf.getPropertyValue('PlaceHolder')
-				print "  ", tf.getPropertyValue('Hint')
+				print(tf.getPropertyValue('PlaceHolder'))
+				print("  ", tf.getPropertyValue('Hint'))
 
 #		doc.close(True)		# closes but leaves open the dedicated OOo window
 		doc.dispose()		# closes and disposes of the OOo window
@@ -2141,7 +2142,7 @@ if __name__ == '__main__':
 
 		doc = cOOoLetter(template_file = sys.argv[2])
 		doc.open_in_ooo()
-		print doc
+		print(doc)
 		doc.show()
 		#doc.replace_placeholders()
 		#doc.save_in_ooo('~/test_cOOoLetter.odt')
@@ -2153,8 +2154,8 @@ if __name__ == '__main__':
 	#--------------------------------------------------------
 	def test_cFormTemplate():
 		template = cFormTemplate(aPK_obj = sys.argv[2])
-		print template
-		print template.save_to_file()
+		print(template)
+		print(template.save_to_file())
 	#--------------------------------------------------------
 	def set_template_from_file():
 		template = cFormTemplate(aPK_obj = sys.argv[2])
@@ -2176,7 +2177,7 @@ if __name__ == '__main__':
 		ph.debug = True
 		instance_file = form.substitute_placeholders(data_source = ph)
 		pdf_name = form.generate_output(instance_file = instance_file)
-		print "final PDF file is:", pdf_name
+		print("final PDF file is:", pdf_name)
 	#--------------------------------------------------------
 	def test_pdf_form():
 		pat = gmPersonSearch.ask_for_patient()
@@ -2194,7 +2195,7 @@ if __name__ == '__main__':
 		ph.debug = True
 		instance_file = form.substitute_placeholders(data_source = ph)
 		pdf_name = form.generate_output(instance_file = instance_file)
-		print "final PDF file is:", pdf_name
+		print("final PDF file is:", pdf_name)
 	#--------------------------------------------------------
 	def test_abiword_form():
 		pat = gmPersonSearch.ask_for_patient()
@@ -2213,7 +2214,7 @@ if __name__ == '__main__':
 		instance_file = form.substitute_placeholders(data_source = ph)
 		form.edit()
 		final_name = form.generate_output(instance_file = instance_file)
-		print "final file is:", final_name
+		print("final file is:", final_name)
 	#--------------------------------------------------------
 	def test_text_form():
 
@@ -2221,7 +2222,7 @@ if __name__ == '__main__':
 
 		branches = gmPraxis.get_praxis_branches()
 		praxis = gmPraxis.gmCurrentPraxisBranch(branches[0])
-		print praxis
+		print(praxis)
 
 		pat = gmPersonSearch.ask_for_patient()
 		if pat is None:
@@ -2236,8 +2237,8 @@ if __name__ == '__main__':
 		from Gnumed.wxpython import gmMacro
 		ph = gmMacro.gmPlaceholderHandler()
 		ph.debug = True
-		print "placeholder substitution worked:", form.substitute_placeholders(data_source = ph)
-		print form.re_editable_filenames
+		print("placeholder substitution worked:", form.substitute_placeholders(data_source = ph))
+		print(form.re_editable_filenames)
 		form.edit()
 		form.generate_output()
 	#--------------------------------------------------------

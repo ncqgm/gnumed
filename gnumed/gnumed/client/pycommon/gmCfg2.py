@@ -448,7 +448,7 @@ class gmCfgData(gmBorg.cBorg):
 
 		_log.info('file source "%s": %s (%s)', source, file, encoding)
 
-		for existing_source, existing_file in self.source_files.iteritems():
+		for existing_source, existing_file in self.source_files.items():
 			if existing_file == file:
 				if source != existing_source:
 					_log.warning('file [%s] already known as source [%s]', file, existing_source)
@@ -491,7 +491,7 @@ class gmCfgData(gmBorg.cBorg):
 		if file not in self.source_files.values():
 			return
 
-		for src, fname in self.source_files.iteritems():
+		for src, fname in self.source_files.items():
 			if fname == file:
 				self.add_file_source(source = src, file = fname, encoding = encoding)
 				# don't break the loop because there could be other sources

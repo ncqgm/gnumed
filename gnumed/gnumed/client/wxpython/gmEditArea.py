@@ -814,7 +814,7 @@ class cEditAreaField(wx.TextCtrl):
 class cEditArea(wx.Panel):
 	def __init__(self, parent, id, pos, size, style):
 
-		print "class [%s] is deprecated, use cEditArea2 instead" % self.__class__.__name__
+		print("class [%s] is deprecated, use cEditArea2 instead" % self.__class__.__name__)
 
 		# init main background panel
 		wx.Panel.__init__(self, parent, id, pos=pos, size=size, style=wx.NO_BORDER | wx.TAB_TRAVERSAL)
@@ -1098,12 +1098,12 @@ class cEditArea(wx.Panel):
 class gmEditArea(cEditArea):
 	def __init__(self, parent, id, aType = None):
 
-		print "class [%s] is deprecated, use cEditArea2 instead" % self.__class__.__name__
+		print("class [%s] is deprecated, use cEditArea2 instead" % self.__class__.__name__)
 
 		# sanity checks
 		if aType not in _known_edit_area_types:
 			_log.error('unknown edit area type: [%s]' % aType)
-			raise gmExceptions.ConstructorError, 'unknown edit area type: [%s]' % aType
+			raise gmExceptions.ConstructorError('unknown edit area type: [%s]' % aType)
 		self._type = aType
 
 		# init main background panel

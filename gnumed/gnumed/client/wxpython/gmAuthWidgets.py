@@ -150,7 +150,7 @@ def connect_to_database(max_attempts=3, expected_version=None, require_version=T
 			conn = gmPG2.get_raw_connection(dsn = dsn, verbose = True, readonly = True)
 			connected = True
 
-		except gmPG2.cAuthenticationError, e:
+		except gmPG2.cAuthenticationError as e:
 			attempt += 1
 			_log.error(u"login attempt failed: %s", e)
 			if attempt < max_attempts:
@@ -196,7 +196,7 @@ def connect_to_database(max_attempts=3, expected_version=None, require_version=T
 			del e
 			continue
 
-		except gmPG2.dbapi.OperationalError, exc:
+		except gmPG2.dbapi.OperationalError as exc:
 			exc = gmPG2.make_pg_exception_fields_unicode(exc)
 			_log.error(u"login attempt failed: %s", exc)
 			msg = _(
@@ -533,10 +533,10 @@ class cLoginPanel(wx.Panel):
 		self._CBOX_profile = wx.ComboBox (
 			self,
 			-1,
-			self.__backend_profiles.keys()[0],
+			list(self.__backend_profiles.keys())[0],
 			wx.DefaultPosition,
 			size = wx.Size(550,-1),
-			choices = self.__backend_profiles.keys(),
+			choices = list(self.__backend_profiles.keys()),
 			style = wx.CB_READONLY
 		)
 		self.pboxgrid.Add (self._CBOX_profile, 0, wx.GROW|wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5)

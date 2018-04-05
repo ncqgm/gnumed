@@ -22,10 +22,10 @@ import io
 # GNUmed
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-import gmShellAPI
-import gmTools
-import gmCfg2
-import gmWorkerThread
+from Gnumed.pycommon import gmShellAPI
+from Gnumed.pycommon import gmTools
+from Gnumed.pycommon import gmCfg2
+from Gnumed.pycommon import gmWorkerThread
 
 
 _log = logging.getLogger('gm.docs')

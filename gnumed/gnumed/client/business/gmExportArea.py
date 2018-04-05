@@ -613,7 +613,7 @@ class cExportArea(object):
 				try:
 					shutil.copytree(dwv_src_dir, dwv_target_dir)
 					_html_start_data[u'run_dicom_viewer'] = u'<li><a href="./dwv/viewers/mobile-local/index.html">%s</a></li>' % _(u'run Radiology Images (DICOM) Viewer')
-				except shutil.Error, OSError:
+				except (shutil.Error, OSError):
 					_log.exception('cannot include DWV, skipping')
 
 		# index.html
@@ -803,10 +803,10 @@ if __name__ == '__main__':
 		create_export_item(description = 'description %s' % random.random(), pk_identity = 12, pk_doc_obj = None, filename = u'dummy.dat')
 		items = get_export_items()
 		for item in items:
-			print item.format()
+			print(item.format())
 		item['pk_doc_obj'] = 1
 		item.save()
-		print item
+		print(item)
 
 	#---------------------------------------
 	def test_export_area():
@@ -815,9 +815,9 @@ if __name__ == '__main__':
 		#print exp.items
 		exp.add_file(sys.argv[2])
 		prax = gmPraxis.gmCurrentPraxisBranch(branch = gmPraxis.cPraxisBranch(1))
-		print prax
-		print prax.branch
-		print exp.export()
+		print(prax)
+		print(prax.branch)
+		print(exp.export())
 
 	#---------------------------------------
 	def test_label():

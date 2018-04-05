@@ -742,11 +742,11 @@ if __name__ == '__main__':
 	#--------------------------------------------------------
 	def test_vacc():
 		vacc = cVaccination(aPK_obj=1)
-		print vacc
+		print(vacc)
 		fields = vacc.get_fields()
 		for field in fields:
-			print field, ':', vacc[field]
-		print "updatable:", vacc.get_updatable_fields()
+			print(field, ':', vacc[field])
+		print("updatable:", vacc.get_updatable_fields())
 
 	#--------------------------------------------------------
 	def test_due_vacc():
@@ -758,10 +758,10 @@ if __name__ == '__main__':
 		}
 		missing_vacc = cMissingVaccination(aPK_obj=pk_args)
 		fields = missing_vacc.get_fields()
-		print "\nDue vaccination:"
-		print missing_vacc
+		print("\nDue vaccination:")
+		print(missing_vacc)
 		for field in fields:
-			print field, ':', missing_vacc[field]
+			print(field, ':', missing_vacc[field])
 		# Test for an overdue vaccination
 		pk_args = {
 			'pat_id': 12,
@@ -770,10 +770,10 @@ if __name__ == '__main__':
 		}
 		missing_vacc = cMissingVaccination(aPK_obj=pk_args)
 		fields = missing_vacc.get_fields()
-		print "\nOverdue vaccination (?):"
-		print missing_vacc
+		print("\nOverdue vaccination (?):")
+		print(missing_vacc)
 		for field in fields:
-			print field, ':', missing_vacc[field]
+			print(field, ':', missing_vacc[field])
 
 	#--------------------------------------------------------
 	def test_due_booster():
@@ -783,59 +783,59 @@ if __name__ == '__main__':
 		}
 		missing_booster = cMissingBooster(aPK_obj=pk_args)
 		fields = missing_booster.get_fields()
-		print "\nDue booster:"
-		print missing_booster
+		print("\nDue booster:")
+		print(missing_booster)
 		for field in fields:
-			print field, ':', missing_booster[field]
+			print(field, ':', missing_booster[field])
 
 	#--------------------------------------------------------
 	def test_scheduled_vacc():
 		scheduled_vacc = cScheduledVaccination(aPK_obj=20)
-		print "\nScheduled vaccination:"
-		print scheduled_vacc
+		print("\nScheduled vaccination:")
+		print(scheduled_vacc)
 		fields = scheduled_vacc.get_fields()
 		for field in fields:
-			print field, ':', scheduled_vacc[field]
-		print "updatable:", scheduled_vacc.get_updatable_fields()
+			print(field, ':', scheduled_vacc[field])
+		print("updatable:", scheduled_vacc.get_updatable_fields())
 
 	#--------------------------------------------------------
 	def test_vaccination_course():
 		vaccination_course = cVaccinationCourse(aPK_obj=7)
-		print "\nVaccination course:"		
-		print vaccination_course
+		print("\nVaccination course:")		
+		print(vaccination_course)
 		fields = vaccination_course.get_fields()
 		for field in fields:
-			print field, ':', vaccination_course[field]
-		print "updatable:", vaccination_course.get_updatable_fields()
+			print(field, ':', vaccination_course[field])
+		print("updatable:", vaccination_course.get_updatable_fields())
 
 	#--------------------------------------------------------
 	def test_put_patient_on_schedule():
 		result, msg = put_patient_on_schedule(patient_id=12, course_id=1)
-		print '\nPutting patient id 12 on schedule id 1... %s (%s)' % (result, msg)
+		print('\nPutting patient id 12 on schedule id 1... %s (%s)' % (result, msg))
 
 	#--------------------------------------------------------
 	def test_get_vaccines():
 		for vaccine in get_vaccines():
-			print u'--------------------------------'
+			print(u'--------------------------------')
 			#print u'%s' % vaccine
-			print u'\n'.join(vaccine.format())
+			print(u'\n'.join(vaccine.format()))
 
 	#--------------------------------------------------------
 	def test_get_vaccinations():
 		for v in get_vaccinations():
-			print v
+			print(v)
 
 	#--------------------------------------------------------
 	def test_create_generic_vaccine_sql():
-		print create_generic_vaccine_sql(u'22.0')
+		print(create_generic_vaccine_sql(u'22.0'))
 
 	#--------------------------------------------------------
 	def test_write_generic_vaccine_sql(version, filename):
-		print write_generic_vaccine_sql (
+		print(write_generic_vaccine_sql (
 			version,
 			include_indications_mapping = True,
 			filename = filename
-		)
+		))
 
 	#--------------------------------------------------------
 	#test_vaccination_course()

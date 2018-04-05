@@ -2623,11 +2623,11 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 		self._CHBOX_abnormal.Enable(False)
 		self._CHBOX_relevant.Enable(False)
 		self._TCTRL_review_comment.SetValue(gmTools.coalesce(self.data['review_comment'], u''))
-		self._TCTRL_normal_min.SetValue(unicode(gmTools.coalesce(self.data['val_normal_min'], u'')))
-		self._TCTRL_normal_max.SetValue(unicode(gmTools.coalesce(self.data['val_normal_max'], u'')))
+		self._TCTRL_normal_min.SetValue(str(gmTools.coalesce(self.data['val_normal_min'], u'')))
+		self._TCTRL_normal_max.SetValue(str(gmTools.coalesce(self.data['val_normal_max'], u'')))
 		self._TCTRL_normal_range.SetValue(gmTools.coalesce(self.data['val_normal_range'], u''))
-		self._TCTRL_target_min.SetValue(unicode(gmTools.coalesce(self.data['val_target_min'], u'')))
-		self._TCTRL_target_max.SetValue(unicode(gmTools.coalesce(self.data['val_target_max'], u'')))
+		self._TCTRL_target_min.SetValue(str(gmTools.coalesce(self.data['val_target_min'], u'')))
+		self._TCTRL_target_max.SetValue(str(gmTools.coalesce(self.data['val_target_max'], u'')))
 		self._TCTRL_target_range.SetValue(gmTools.coalesce(self.data['val_target_range'], u''))
 		self._TCTRL_norm_ref_group.SetValue(gmTools.coalesce(self.data['norm_ref_group'], u''))
 
@@ -2993,8 +2993,8 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 		)
 		if test_w_range is None:
 			return
-		self._TCTRL_normal_min.SetValue(unicode(gmTools.coalesce(test_w_range['val_normal_min'], u'')))
-		self._TCTRL_normal_max.SetValue(unicode(gmTools.coalesce(test_w_range['val_normal_max'], u'')))
+		self._TCTRL_normal_min.SetValue(str(gmTools.coalesce(test_w_range['val_normal_min'], u'')))
+		self._TCTRL_normal_max.SetValue(str(gmTools.coalesce(test_w_range['val_normal_max'], u'')))
 		self._TCTRL_normal_range.SetValue(gmTools.coalesce(test_w_range['val_normal_range'], u''))
 		self._TCTRL_norm_ref_group.SetValue(gmTools.coalesce(test_w_range['norm_ref_group'], u''))
 
@@ -3016,8 +3016,8 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 		)
 		if test_w_range is None:
 			return
-		self._TCTRL_target_min.SetValue(unicode(gmTools.coalesce(test_w_range['val_target_min'], u'')))
-		self._TCTRL_target_max.SetValue(unicode(gmTools.coalesce(test_w_range['val_target_max'], u'')))
+		self._TCTRL_target_min.SetValue(str(gmTools.coalesce(test_w_range['val_target_min'], u'')))
+		self._TCTRL_target_max.SetValue(str(gmTools.coalesce(test_w_range['val_target_max'], u'')))
 		self._TCTRL_target_range.SetValue(gmTools.coalesce(test_w_range['val_target_range'], u''))
 
 	#--------------------------------------------------------

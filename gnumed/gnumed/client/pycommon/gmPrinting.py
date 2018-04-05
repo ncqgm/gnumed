@@ -277,7 +277,7 @@ def _print_files_by_os_startfile(filenames=None):
 		try:
 			try:
 				os.startfile(fname, 'print')
-			except WindowsError, e:
+			except WindowsError as e:
 				_log.exception('no <print> action defined for this type of file')
 				if e.winerror == 1155:	# try <view> action
 					os.startfile(fname)

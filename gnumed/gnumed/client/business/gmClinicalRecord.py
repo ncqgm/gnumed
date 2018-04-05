@@ -191,7 +191,7 @@ class cClinicalRecord(object):
 		# (keep this last so we won't hang on threads when
 		#  failing this constructor for other reasons ...)
 		if not self._register_interests():
-			raise gmExceptions.ConstructorError, "cannot register signal interests"
+			raise gmExceptions.ConstructorError("cannot register signal interests")
 
 		gmAllergy.ensure_has_allergy_state(encounter = self.current_encounter['pk_encounter'])
 		#_delayed_execute(gmAllergy.ensure_has_allergy_state, encounter = self.current_encounter['pk_encounter'])
@@ -222,7 +222,7 @@ class cClinicalRecord(object):
 #
 #		self.__encounter = None
 #		if not self.__initiate_active_encounter(allow_user_interaction = allow_user_interaction):
-#			raise gmExceptions.ConstructorError, "cannot activate an encounter for patient [%s]" % self.pk_patient
+#			raise gmExceptions.ConstructorError("cannot activate an encounter for patient [%s]" % self.pk_patient)
 #
 ##		# FIXME: delegate to worker thread
 #		gmAllergy.ensure_has_allergy_state(encounter = self.current_encounter['pk_encounter'])
@@ -3165,8 +3165,8 @@ if __name__ == "__main__":
 	praxis = gmPraxis.gmCurrentPraxisBranch(branches[0])
 
 	def _do_delayed(*args, **kwargs):
-		print args
-		print kwargs
+		print(args)
+		print(kwargs)
 		args[0](*args[1:], **kwargs)
 
 	set_delayed_executor(_do_delayed)
@@ -3175,22 +3175,22 @@ if __name__ == "__main__":
 	def test_allergy_state():
 		emr = cClinicalRecord(aPKey=1)
 		state = emr.allergy_state
-		print "allergy state is:", state
+		print("allergy state is:", state)
 
-		print "setting state to 0"
+		print("setting state to 0")
 		emr.allergy_state = 0
 
-		print "setting state to None"
+		print("setting state to None")
 		emr.allergy_state = None
 
-		print "setting state to 'abc'"
+		print("setting state to 'abc'")
 		emr.allergy_state = 'abc'
 
 	#-----------------------------------------
 	def test_get_test_names():
 		emr = cClinicalRecord(aPKey = 6)
 		rows = emr.get_test_types_for_results(unique_meta_types = True)
-		print "test result names:", len(rows)
+		print("test result names:", len(rows))
 #		for row in rows:
 #			print row
 
@@ -3198,55 +3198,55 @@ if __name__ == "__main__":
 	def test_get_dates_for_results():
 		emr = cClinicalRecord(aPKey=12)
 		rows = emr.get_dates_for_results()
-		print "test result dates:"
+		print("test result dates:")
 		for row in rows:
-			print row
+			print(row)
 
 	#-----------------------------------------
 	def test_get_measurements():
 		emr = cClinicalRecord(aPKey=12)
 		rows, idx = emr.get_measurements_by_date()
-		print "test results:"
+		print("test results:")
 		for row in rows:
-			print row
+			print(row)
 
 	#-----------------------------------------
 	def test_get_test_results_by_date():
 		emr = cClinicalRecord(aPKey=12)
 		tests = emr.get_test_results_by_date()
-		print "test results:"
+		print("test results:")
 		for test in tests:
-			print test
+			print(test)
 
 	#-----------------------------------------
 	def test_get_statistics():
 		emr = cClinicalRecord(aPKey=12)
-		for key, item in emr.get_statistics().iteritems():
-			print key, ":", item
+		for key, item in emr.get_statistics().items():
+			print(key, ":", item)
 
 	#-----------------------------------------
 	def test_get_problems():
 		emr = cClinicalRecord(aPKey=12)
 
 		probs = emr.get_problems()
-		print "normal probs (%s):" % len(probs)
+		print("normal probs (%s):" % len(probs))
 		for p in probs:
-			print u'%s (%s)' % (p['problem'], p['type'])
+			print(u'%s (%s)' % (p['problem'], p['type']))
 
 		probs = emr.get_problems(include_closed_episodes=True)
-		print "probs + closed episodes (%s):" % len(probs)
+		print("probs + closed episodes (%s):" % len(probs))
 		for p in probs:
-			print u'%s (%s)' % (p['problem'], p['type'])
+			print(u'%s (%s)' % (p['problem'], p['type']))
 
 		probs = emr.get_problems(include_irrelevant_issues=True)
-		print "probs + issues (%s):" % len(probs)
+		print("probs + issues (%s):" % len(probs))
 		for p in probs:
-			print u'%s (%s)' % (p['problem'], p['type'])
+			print(u'%s (%s)' % (p['problem'], p['type']))
 
 		probs = emr.get_problems(include_closed_episodes=True, include_irrelevant_issues=True)
-		print "probs + issues + epis (%s):" % len(probs)
+		print("probs + issues + epis (%s):" % len(probs))
 		for p in probs:
-			print u'%s (%s)' % (p['problem'], p['type'])
+			print(u'%s (%s)' % (p['problem'], p['type']))
 
 	#-----------------------------------------
 	def test_add_test_result():
@@ -3259,92 +3259,92 @@ if __name__ == "__main__":
 			val_alpha = u'somewhat obese',
 			unit = u'kg'
 		)
-		print tr
+		print(tr)
 
 	#-----------------------------------------
 	def test_get_most_recent_episode():
 		emr = cClinicalRecord(aPKey=12)
-		print emr.get_most_recent_episode(issue = 2)
+		print(emr.get_most_recent_episode(issue = 2))
 
 	#-----------------------------------------
 	def test_get_almost_recent_encounter():
 		emr = cClinicalRecord(aPKey=12)
-		print emr.get_last_encounter(issue_id=2)
-		print emr.get_last_but_one_encounter(issue_id=2)
+		print(emr.get_last_encounter(issue_id=2))
+		print(emr.get_last_but_one_encounter(issue_id=2))
 
 	#-----------------------------------------
 	def test_get_encounters():
 		emr = cClinicalRecord(aPKey = 5)
-		print emr.get_first_encounter(episode_id = 1638)
-		print emr.get_last_encounter(episode_id = 1638)
+		print(emr.get_first_encounter(episode_id = 1638))
+		print(emr.get_last_encounter(episode_id = 1638))
 
 	#-----------------------------------------
 	def test_get_issues():
 		emr = cClinicalRecord(aPKey = 12)
 		for issue in emr.health_issues:
-			print issue['description']
+			print(issue['description'])
 
 	#-----------------------------------------
 	def test_get_dx():
 		emr = cClinicalRecord(aPKey = 12)
 		for dx in emr.candidate_diagnoses:
-			print dx
+			print(dx)
 
 	#-----------------------------------------
 	def test_get_meds():
 		emr = cClinicalRecord(aPKey=12)
 		for med in emr.get_current_medications():
-			print med
+			print(med)
 
 	#-----------------------------------------
 	def test_get_abuses():
 		emr = cClinicalRecord(aPKey=12)
 		for med in emr.abused_substances:
-			print med.format(single_line = True)
+			print(med.format(single_line = True))
 
 	#-----------------------------------------
 	def test_is_allergic_to():
 		emr = cClinicalRecord(aPKey = 12)
-		print emr.is_allergic_to(atcs = tuple(sys.argv[2:]), inns = tuple(sys.argv[2:]), product_name = sys.argv[2])
+		print(emr.is_allergic_to(atcs = tuple(sys.argv[2:]), inns = tuple(sys.argv[2:]), product_name = sys.argv[2]))
 
 	#-----------------------------------------
 	def test_get_as_journal():
 		emr = cClinicalRecord(aPKey = 12)
 		for journal_line in emr.get_as_journal():
 			#print journal_line.keys()
-			print u'%(date)s  %(modified_by)s  %(soap_cat)s  %(narrative)s' % journal_line
-			print ""
+			print(u'%(date)s  %(modified_by)s  %(soap_cat)s  %(narrative)s' % journal_line)
+			print("")
 
 	#-----------------------------------------
 	def test_get_most_recent():
 		emr = cClinicalRecord(aPKey=12)
-		print emr.get_most_recent_results()
+		print(emr.get_most_recent_results())
 
 	#-----------------------------------------
 	def test_episodes():
 		emr = cClinicalRecord(aPKey=12)
-		print "episodes:", emr.episodes
-		print "unlinked:", emr.unlinked_episodes
+		print("episodes:", emr.episodes)
+		print("unlinked:", emr.unlinked_episodes)
 
 	#-----------------------------------------
 	def test_format_as_journal():
 		emr = cClinicalRecord(aPKey=12)
 		from Gnumed.business.gmPerson import cPatient
 		pat = cPatient(aPK_obj = 12)
-		print emr.format_as_journal(left_margin = 1, patient = pat)
+		print(emr.format_as_journal(left_margin = 1, patient = pat))
 
 	#-----------------------------------------
 	def test_smoking():
 		emr = cClinicalRecord(aPKey=12)
 		#print emr.is_or_was_smoker
 		smoking, details = emr.smoking_status
-		print 'status:', smoking
-		print 'details:'
-		print details
+		print('status:', smoking)
+		print('details:')
+		print(details)
 		emr.smoking_status = (True, {'comment': '2', 'last_confirmed': gmDateTime.pydt_now_here()})
-		print emr.smoking_status
-		print emr.alcohol_status
-		print emr.drugs_status
+		print(emr.smoking_status)
+		print(emr.alcohol_status)
+		print(emr.drugs_status)
 
 	#-----------------------------------------
 

@@ -61,7 +61,7 @@ class cPatientSearcher_SQL:
 		if parse_search_term:
 			# temporary change of locale for selecting query generator
 			if a_locale is not None:
-				print "temporary change of locale on patient search not implemented"
+				print("temporary change of locale on patient search not implemented")
 				_log.warning("temporary change of locale on patient search not implemented")
 			# generate queries
 			if search_term is None:
@@ -750,23 +750,23 @@ def ask_for_patient():
 		search_fragment = gmTools.prompted_input(prompt = "\nEnter person search term or leave blank to exit")
 
 		if search_fragment in ['exit', 'quit', 'bye', None]:
-			print "user cancelled patient search"
+			print("user cancelled patient search")
 			return None
 
 		pats = person_searcher.get_patients(search_term = search_fragment)
 
 		if (pats is None) or (len(pats) == 0):
-			print "No patient matches the search term."
-			print ""
+			print("No patient matches the search term.")
+			print("")
 			continue
 
 		if len(pats) > 1:
-			print "Several patients match the search term:"
-			print ""
+			print("Several patients match the search term:")
+			print("")
 			for pat in pats:
-				print pat
-				print ""
-			print "Please refine the search term so it matches one patient only."
+				print(pat)
+				print("")
+			print("Please refine the search term so it matches one patient only.")
 			continue
 
 		return pats[0]
@@ -798,92 +798,92 @@ if __name__ == '__main__':
 		dto.gender = 'female'
 #		dto.dob = pyDT.datetime.now(tz=gmDateTime.gmCurrentLocalTimezone)
 		dto.dob = datetime.datetime(1939,6,24,23,0,0,0,gmDateTime.gmCurrentLocalTimezone)
-		print dto
+		print(dto)
 
 		searcher = cPatientSearcher_SQL()
 		pats = searcher.get_patients(dto = dto)
-		print pats
+		print(pats)
 	#--------------------------------------------------------
 	def test_patient_search_queries():
 		searcher = cPatientSearcher_SQL()
 
-		print "testing _normalize_soundalikes()"
-		print "--------------------------------"
+		print("testing _normalize_soundalikes()")
+		print("--------------------------------")
 		# FIXME: support Ähler -> Äler and Dähler -> Däler
 		data = [u'Krüger', u'Krueger', u'Kruger', u'Überle', u'Böger', u'Boger', u'Öder', u'Ähler', u'Däler', u'Großer', u'müller', u'Özdemir', u'özdemir']
 		for name in data:
-			print '%s: %s' % (name, searcher._normalize_soundalikes(name))
+			print('%s: %s' % (name, searcher._normalize_soundalikes(name)))
 
 		raw_input('press [ENTER] to continue')
-		print "============"
+		print("============")
 
-		print "testing _generate_simple_query()"
-		print "----------------------------"
+		print("testing _generate_simple_query()")
+		print("----------------------------")
 		data = ['51234', '1 134 153', '#13 41 34', '#3-AFY322.4', '22-04-1906', '1235/32/3525', ' , johnny']
 		for fragment in data:
-			print "fragment:", fragment
+			print("fragment:", fragment)
 			qs = searcher._generate_simple_query(fragment)
 			for q in qs:
-				print " match on:", q['args'][0]
-				print " query   :", q['cmd']
+				print(" match on:", q['args'][0])
+				print(" query   :", q['cmd'])
 			raw_input('press [ENTER] to continue')
-			print "============"
+			print("============")
 
-		print "testing _generate_queries_from_dto()"
-		print "------------------------------------"
+		print("testing _generate_queries_from_dto()")
+		print("------------------------------------")
 		dto = cDTO_person()
 		dto.gender = 'm'
 		dto.lastnames = 'Kirk'
 		dto.firstnames = 'James'
 		dto.dob = pyDT.datetime.now(tz=gmDateTime.gmCurrentLocalTimezone)
 		q = searcher._generate_queries_from_dto(dto)[0]
-		print "dto:", dto
-		print " match on:", q['args'][0]
-		print " query:", q['cmd']
+		print("dto:", dto)
+		print(" match on:", q['args'][0])
+		print(" query:", q['cmd'])
 
 		raw_input('press [ENTER] to continue')
-		print "============"
+		print("============")
 
-		print "testing _generate_queries_de()"
-		print "------------------------------"
+		print("testing _generate_queries_de()")
+		print("------------------------------")
 		qs = searcher._generate_queries_de('Kirk, James')
 		for q in qs:
-			print " match on:", q['args'][0]
-			print " query   :", q['cmd']
-			print " args    :", q['args']
+			print(" match on:", q['args'][0])
+			print(" query   :", q['cmd'])
+			print(" args    :", q['args'])
 		raw_input('press [ENTER] to continue')
-		print "============"
+		print("============")
 
 		qs = searcher._generate_queries_de(u'müller')
 		for q in qs:
-			print " match on:", q['args'][0]
-			print " query   :", q['cmd']
-			print " args    :", q['args']
+			print(" match on:", q['args'][0])
+			print(" query   :", q['cmd'])
+			print(" args    :", q['args'])
 		raw_input('press [ENTER] to continue')
-		print "============"
+		print("============")
 
 		qs = searcher._generate_queries_de(u'özdemir')
 		for q in qs:
-			print " match on:", q['args'][0]
-			print " query   :", q['cmd']
-			print " args    :", q['args']
+			print(" match on:", q['args'][0])
+			print(" query   :", q['cmd'])
+			print(" args    :", q['args'])
 		raw_input('press [ENTER] to continue')
-		print "============"
+		print("============")
 
 		qs = searcher._generate_queries_de(u'Özdemir')
 		for q in qs:
-			print " match on:", q['args'][0]
-			print " query   :", q['cmd']
-			print " args    :", q['args']
+			print(" match on:", q['args'][0])
+			print(" query   :", q['cmd'])
+			print(" args    :", q['args'])
 		raw_input('press [ENTER] to continue')
-		print "============"
+		print("============")
 
-		print "testing _generate_dumb_brute_query()"
-		print "------------------------------------"
+		print("testing _generate_dumb_brute_query()")
+		print("------------------------------------")
 		q = searcher._generate_dumb_brute_query('Kirk, James Tiberius')
-		print " match on:", q['args'][0]
-		print " query:", q['cmd']
-		print " args:", q['args']
+		print(" match on:", q['args'][0])
+		print(" query:", q['cmd'])
+		print(" args:", q['args'])
 
 		raw_input('press [ENTER] to continue')
 	#--------------------------------------------------------
@@ -892,10 +892,10 @@ if __name__ == '__main__':
 			myPatient = ask_for_patient()
 			if myPatient is None:
 				break
-			print "ID       ", myPatient.ID
-			print "names     ", myPatient.get_names()
-			print "addresses:", myPatient.get_addresses(address_type='home')
-			print "recent birthday:", myPatient.dob_in_range()
+			print("ID       ", myPatient.ID)
+			print("names     ", myPatient.get_names())
+			print("addresses:", myPatient.get_addresses(address_type='home'))
+			print("recent birthday:", myPatient.dob_in_range())
 			myPatient.export_as_gdt(filename='apw.gdt', encoding = 'cp850')
 #		docs = myPatient.get_document_folder()
 #		print "docs     ", docs

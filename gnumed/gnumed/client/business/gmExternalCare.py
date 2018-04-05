@@ -195,7 +195,7 @@ if __name__ == "__main__":
 	#-----------------------------------------
 	def test_get_care_items():
 		for item in get_external_care_items(pk_identity = 12, order_by = 'provider'):
-			print item.format()
+			print(item.format())
 
 	#-----------------------------------------
 	test_get_care_items()

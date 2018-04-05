@@ -209,10 +209,10 @@ def log_stack_trace(message=None, t=None, v=None, tb=None):
 				continue
 
 			try:
-				value = unicode(value, encoding = _string_encoding, errors = 'replace')
+				value = str(value, encoding = _string_encoding, errors = 'replace')
 			except TypeError:
 				try:
-					value = unicode(value)
+					value = str(value)
 				except (UnicodeDecodeError, TypeError):
 					value = '%s' % str(value)
 					value = value.decode(_string_encoding, 'replace')

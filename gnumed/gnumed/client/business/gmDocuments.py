@@ -35,7 +35,7 @@ class cDocumentFolder:
 		"""
 		self.pk_patient = aPKey			# == identity.pk == primary key
 		if not self._pkey_exists():
-			raise gmExceptions.ConstructorError, "No patient with PK [%s] in database." % aPKey
+			raise gmExceptions.ConstructorError("No patient with PK [%s] in database." % aPKey)
 
 		# register backend notification interests
 		# (keep this last so we won't hang on threads when
@@ -1155,45 +1155,45 @@ if __name__ == '__main__':
 	#--------------------------------------------------------
 	def test_doc_types():
 
-		print "----------------------"
-		print "listing document types"
-		print "----------------------"
+		print("----------------------")
+		print("listing document types")
+		print("----------------------")
 
 		for dt in get_document_types():
-			print dt
+			print(dt)
 
-		print "------------------------------"
-		print "testing document type handling"
-		print "------------------------------"
+		print("------------------------------")
+		print("testing document type handling")
+		print("------------------------------")
 
 		dt = create_document_type(document_type = 'dummy doc type for unit test 1')
-		print "created:", dt
+		print("created:", dt)
 
 		dt['type'] = 'dummy doc type for unit test 2'
 		dt.save_payload()
-		print "changed base name:", dt
+		print("changed base name:", dt)
 
 		dt.set_translation(translation = 'Dummy-Dokumenten-Typ fuer Unit-Test')
-		print "translated:", dt
+		print("translated:", dt)
 
-		print "deleted:", delete_document_type(document_type = dt)
+		print("deleted:", delete_document_type(document_type = dt))
 
 		return
 	#--------------------------------------------------------
 	def test_adding_doc_part():
 
-		print "-----------------------"
-		print "testing document import"
-		print "-----------------------"
+		print("-----------------------")
+		print("testing document import")
+		print("-----------------------")
 
 		docs = search_for_documents(patient_id=12)
 		doc = docs[0]
-		print "adding to doc:", doc
+		print("adding to doc:", doc)
 
 		fname = sys.argv[1]
-		print "adding from file:", fname
+		print("adding from file:", fname)
 		part = doc.add_part(file=fname)
-		print "new part:", part
+		print("new part:", part)
 
 		return
 	#--------------------------------------------------------
@@ -1209,9 +1209,9 @@ if __name__ == '__main__':
 			#print type(doc), doc
 			#print doc.parts
 			#print doc.format_single_line()
-			print u'--------------------------'
-			print doc.format(single_line = True)
-			print doc.format()
+			print(u'--------------------------')
+			print(doc.format(single_line = True))
+			print(doc.format())
 		#pprint(gmBusinessDBObject.jsonclasshintify(docs))
 	#--------------------------------------------------------
 	def test_get_useful_filename():
@@ -1221,14 +1221,14 @@ if __name__ == '__main__':
 		doc_folder = cDocumentFolder(aPKey = pk)
 		for doc in doc_folder.documents:
 			for part in doc.parts:
-				print part.get_useful_filename (
+				print(part.get_useful_filename (
 					patient = pat,
 					make_unique = True,
 					directory = None,
 					include_gnumed_tag = False,
 					date_before_type = True,
 					name_first = False
-				)
+				))
 
 	#--------------------------------------------------------
 	from Gnumed.pycommon import gmI18N

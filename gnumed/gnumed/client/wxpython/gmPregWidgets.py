@@ -181,7 +181,7 @@ class cEdcCalculatorDlg(wxgEdcCalculatorDlg.wxgEdcCalculatorDlg):
 #====================================================================
 #====================================================================
 #====================================================================
-import math, zlib, cPickle, random, string, os.path
+import math, zlib, random, string, os.path
 
 
 import wx.lib.rcsizer
@@ -310,7 +310,7 @@ class cPregCalcFrame (wx.Frame):
 		label.SetFont(wx.Font(12,wx.SWISS,wx.NORMAL,wx.NORMAL,False,''))
 		label.SetForegroundColour(wx.Colour(0,0,0))
 
-  		self.txtedc = wx.TextCtrl(self,-1,"",size=(100,20))
+		self.txtedc = wx.TextCtrl(self,-1,"",size=(100,20))
 		self.txtedc.Enable(False)
 		self.txtedc.SetFont(wx.Font(12,wx.SWISS,wx.NORMAL,wx.NORMAL,False,''))
 		szr_txtedc = wx.BoxSizer(wx.HORIZONTAL)
@@ -338,7 +338,7 @@ class cPregCalcFrame (wx.Frame):
 		label.SetFont(wx.Font(12,wx.SWISS,wx.NORMAL,wx.NORMAL,False,''))
 		label.SetForegroundColour(wx.Colour(0,0,0))
 
-  		self.txtdue = wx.TextCtrl(self,-1,"",size=(100,20))
+		self.txtdue = wx.TextCtrl(self,-1,"",size=(100,20))
 		self.txtdue.Enable(False)
 		self.txtdue.SetFont(wx.Font(12,wx.SWISS,wx.NORMAL,wx.NORMAL,False,''))
 		self.szr_txtdue  = wx.BoxSizer(wx.HORIZONTAL)
@@ -366,7 +366,7 @@ class cPregCalcFrame (wx.Frame):
 		label1 = wx.StaticText(self,-1,_("Scan Date"),size = (25,20))
 		label1.SetFont(wx.Font(12,wx.SWISS,wx.NORMAL,wx.NORMAL,False,''))
 		label1.SetForegroundColour(wx.Colour(0,0,0))
-  		self.txtdate = wx.TextCtrl(self,-1,"",size=(25,20))
+		self.txtdate = wx.TextCtrl(self,-1,"",size=(25,20))
 		self.txtdate.SetFont(wx.Font(12,wx.SWISS,wx.NORMAL,wx.NORMAL,False,''))
 		self.txtdate.SetToolTip(wx.ToolTip(_("Click on this field and then the ultrasound scan date on the calendar")))
 		tipdue=self.txtdate.GetToolTip()
@@ -420,7 +420,7 @@ class cPregCalcFrame (wx.Frame):
 		label.SetFont(wx.Font(12,wx.SWISS,wx.NORMAL,wx.NORMAL,False,''))
 		label.SetForegroundColour(wx.Colour(0,0,0))
 
-  		self.txtnewedc = wx.TextCtrl(self,-1,"",size=(100,20))
+		self.txtnewedc = wx.TextCtrl(self,-1,"",size=(100,20))
 		self.txtnewedc.Enable(False)
 		self.txtnewedc.SetFont(wx.Font(12,wx.SWISS,wx.NORMAL,wx.NORMAL,False,''))
 		self.szr_txtnewedc  = wx.BoxSizer(wx.HORIZONTAL)

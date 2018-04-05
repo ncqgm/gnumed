@@ -564,17 +564,17 @@ class cDataMiningPnl(wxgDataMiningPnl.wxgDataMiningPnl):
 		self._LCTRL_result.set_columns(cols)
 		for row in rows:
 			try:
-				label = unicode(gmTools.coalesce(row[0], u'')).replace('\n', '<LF>').replace('\r', '<CR>')
+				label = str(gmTools.coalesce(row[0], u'')).replace('\n', '<LF>').replace('\r', '<CR>')
 			except UnicodeDecodeError:
-				label = _('not unicode()able')
+				label = _('not str()able')
 			if len(label) > 150:
 				label = label[:150] + gmTools.u_ellipsis
 			row_num = self._LCTRL_result.InsertItem(sys.maxint, label = label)
 			for col_idx in range(1, len(row)):
 				try:
-					label = unicode(gmTools.coalesce(row[col_idx], u'')).replace('\n', '<LF>').replace('\r', '<CR>')[:250]
+					label = str(gmTools.coalesce(row[col_idx], u'')).replace('\n', '<LF>').replace('\r', '<CR>')[:250]
 				except UnicodeDecodeError:
-					label = _('not unicode()able')
+					label = _('not str()able')
 				if len(label) > 150:
 					label = label[:150] + gmTools.u_ellipsis
 				self._LCTRL_result.SetItem (

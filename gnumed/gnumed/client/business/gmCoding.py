@@ -154,19 +154,19 @@ if __name__ == "__main__":
 
 	#----------------------------------------------------
 	def test_get_generic_codes():
-		print "generic codes:"
+		print("generic codes:")
 		for code in get_generic_codes():
-			print code
+			print(code)
 	#----------------------------------------------------
 	def test_get_coded_terms():
-		print "known codes:"
+		print("known codes:")
 		for term in get_coded_terms():
-			print term
+			print(term)
 	#----------------------------------------------------
 	def test_get_generic_linked_codes():
-		print "generically linked generic codes:"
+		print("generically linked generic codes:")
 		for code in get_generic_linked_codes():
-			print code
+			print(code)
 	#----------------------------------------------------
 	#test_get_coded_terms()
 	#test_get_generic_codes()

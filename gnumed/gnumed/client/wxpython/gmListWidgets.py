@@ -21,7 +21,7 @@ __license__ = "GPL v2 or later"
 import sys
 import types
 import logging
-import thread
+import threading
 import time
 import locale
 import os
@@ -1286,7 +1286,7 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 			return False
 		if not self.debug.endswith(u'_sizing'):
 			return False
-		_log.debug(u'[%s.%s]: *args = (%s), **kwargs = (%s)', self.debug, caller_name, unicode(args), unicode(kwargs))
+		_log.debug(u'[%s.%s]: *args = (%s), **kwargs = (%s)', self.debug, caller_name, str(args), str(kwargs))
 		return True
 
 	#------------------------------------------------------------
@@ -1583,7 +1583,7 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 		while tries < max_tries:
 			if self.debug is not None:
 				if self.debug.endswith(u'_deleting'):
-					_log.debug('[round %s] <%s>.GetItemCount() before DeleteAllItems(): %s (thread [%s])', tries, self.debug, self.GetItemCount(), thread.get_ident())
+					_log.debug('[round %s] <%s>.GetItemCount() before DeleteAllItems(): %s (thread [%s])', tries, self.debug, self.GetItemCount(), threading.get_ident())
 			if not self.DeleteAllItems():
 				_log.error('<%s>.DeleteAllItems() failed', self.debug)
 			item_count = self.GetItemCount()
@@ -1600,7 +1600,7 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 
 	#------------------------------------------------------------
 	def set_string_items(self, items=None, reshow=True):
-		"""All item members must be unicode()able or None."""
+		"""All item members must be str()able or None."""
 
 		wx.BeginBusyCursor()
 		self._invalidate_sorting_metadata()
@@ -1637,14 +1637,14 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 			if is_numerically_iterable:
 				# cannot use errors='replace' since then
 				# None/ints/unicode strings fail to get encoded
-				col_val = unicode(item[0])
+				col_val = str(item[0])
 				row_num = self.InsertItem(index = sys.maxint, label = col_val)
 				for col_num in range(1, min(self.GetColumnCount(), len(item))):
-					col_val = unicode(item[col_num])
+					col_val = str(item[col_num])
 					self.SetItem(index = row_num, column = col_num, label = col_val)
 			else:
 				# cannot use errors='replace' since then None/ints/unicode strings fails to get encoded
-				col_val = unicode(item)
+				col_val = str(item)
 				row_num = self.InsertItem(index = sys.maxint, label = col_val)
 
 		if reshow:
@@ -1719,7 +1719,7 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 		if data is not None:
 			item_count = self.GetItemCount()
 			if len(data) != item_count:
-				_log.debug('<data> length (%s) must be equal to number of list items (%s)  (%s, thread [%s])', len(data), item_count, self.debug, thread.get_ident())
+				_log.debug('<data> length (%s) must be equal to number of list items (%s)  (%s, thread [%s])', len(data), item_count, self.debug, threading.get_ident())
 			for item_idx in range(len(data)):
 				self.SetItemData(item_idx, item_idx)
 		self.__data = data
@@ -2312,17 +2312,17 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 			(item_idx < -1)
 		):
 			self.SetToolTip(self.__tt_static_part)
-			print "*************************************************************"
-			print "GNUmed has detected an inconsistency with list item tooltips."
-			print ""
-			print "This is not a big problem and you can keep working."
-			print ""
-			print "However, please send us the following so we can fix GNUmed:"
-			print ""
-			print "item idx: %s" % item_idx
-			print 'where flag: %s' % where_flag
-			print 'data list length: %s' % len(self.__data)
-			print "*************************************************************"
+			print("*************************************************************")
+			print("GNUmed has detected an inconsistency with list item tooltips.")
+			print("")
+			print("This is not a big problem and you can keep working.")
+			print("")
+			print("However, please send us the following so we can fix GNUmed:")
+			print("")
+			print("item idx: %s" % item_idx)
+			print('where flag: %s' % where_flag)
+			print('data list length: %s' % len(self.__data))
+			print("*************************************************************")
 			return
 
 		dyna_tt = None
@@ -3317,15 +3317,15 @@ if __name__ == '__main__':
 		)
 		dlg.ShowModal()
 		sels = dlg.GetSelections()
-		print "selected:"
+		print("selected:")
 		for sel in sels:
-			print sel
+			print(sel)
 	#------------------------------------------------------------
 	def test_get_choices_from_list():
 
 		def edit(argument):
-			print "editor called with:"
-			print argument
+			print("editor called with:")
+			print(argument)
 
 		def refresh(lctrl):
 			choices = ['a', 'b', 'c']
@@ -3341,8 +3341,8 @@ if __name__ == '__main__':
 			refresh_callback = refresh
 			#, edit_callback = edit
 		)
-		print "chosen:"
-		print chosen
+		print("chosen:")
+		print(chosen)
 	#------------------------------------------------------------
 	def test_item_picker_dlg():
 		app = wx.PyWidgetTester(size = (200, 50))
@@ -3351,8 +3351,8 @@ if __name__ == '__main__':
 		#dlg.set_columns(['Plugins'], [])
 		dlg.set_string_items(['patient', 'emr', 'docs'])
 		result = dlg.ShowModal()
-		print result
-		print dlg.get_picks()
+		print(result)
+		print(dlg.get_picks())
 	#------------------------------------------------------------
 	#test_get_choices_from_list()
 	#test_wxMultiChoiceDialog()

@@ -2721,9 +2721,9 @@ class cLabResult(gmBusinessDBObject.cBusinessDBObject):
 		if type(aPK_obj) == types.DictType:
 			# sanity checks
 			if None in [aPK_obj['patient_id'], aPK_obj['when'], aPK_obj['when_field'], aPK_obj['test_type'], aPK_obj['unit']]:
-				raise gmExceptions.ConstructorError, 'parameter error: %s' % aPK_obj
+				raise gmExceptions.ConstructorError('parameter error: %s' % aPK_obj)
 			if (aPK_obj['val_num'] is None) and (aPK_obj['val_alpha'] is None):
-				raise gmExceptions.ConstructorError, 'parameter error: val_num and val_alpha cannot both be None'
+				raise gmExceptions.ConstructorError('parameter error: val_num and val_alpha cannot both be None')
 			# get PK
 			where_snippets = [
 				'pk_patient=%(patient_id)s',
@@ -2740,9 +2740,9 @@ class cLabResult(gmBusinessDBObject.cBusinessDBObject):
 			cmd = "select pk_result from v_results4lab_req where %s" % where_clause
 			data = gmPG.run_ro_query('historica', cmd, None, aPK_obj)
 			if data is None:
-				raise gmExceptions.ConstructorError, 'error getting lab result for: %s' % aPK_obj
+				raise gmExceptions.ConstructorError('error getting lab result for: %s' % aPK_obj)
 			if len(data) == 0:
-				raise gmExceptions.NoSuchClinItemError, 'no lab result for: %s' % aPK_obj
+				raise gmExceptions.NoSuchClinItemError('no lab result for: %s' % aPK_obj)
 			pk = data[0][0]
 		# instantiate class
 		gmBusinessDBObject.cBusinessDBObject.__init__(self, aPK_obj=pk)
@@ -2813,7 +2813,7 @@ class cLabRequest(gmBusinessDBObject.cBusinessDBObject):
 				aPK_obj['lab']
 			except:
 				_log.exception('[%s:??]: faulty <aPK_obj> structure: [%s]' % (self.__class__.__name__, aPK_obj), sys.exc_info())
-				raise gmExceptions.ConstructorError, '[%s:??]: cannot derive PK from [%s]' % (self.__class__.__name__, aPK_obj)
+				raise gmExceptions.ConstructorError('[%s:??]: cannot derive PK from [%s]' % (self.__class__.__name__, aPK_obj))
 			# generate query
 			where_snippets = []
 			vals = {}
@@ -2827,9 +2827,9 @@ class cLabRequest(gmBusinessDBObject.cBusinessDBObject):
 			# get pk
 			data = gmPG.run_ro_query('historica', cmd, None, aPK_obj)
 			if data is None:
-				raise gmExceptions.ConstructorError, '[%s:??]: error getting lab request for [%s]' % (self.__class__.__name__, aPK_obj)
+				raise gmExceptions.ConstructorError('[%s:??]: error getting lab request for [%s]' % (self.__class__.__name__, aPK_obj))
 			if len(data) == 0:
-				raise gmExceptions.NoSuchClinItemError, '[%s:??]: no lab request for [%s]' % (self.__class__.__name__, aPK_obj)
+				raise gmExceptions.NoSuchClinItemError('[%s:??]: no lab request for [%s]' % (self.__class__.__name__, aPK_obj))
 			pk = data[0][0]
 		# instantiate class
 		gmBusinessDBObject.cBusinessDBObject.__init__(self, aPK_obj=pk)
@@ -2869,9 +2869,9 @@ def create_lab_request(lab=None, req_id=None, pat_id=None, encounter_id=None, ep
 	}
 	try:
 		req = cLabRequest (aPK_obj)
-	except gmExceptions.NoSuchClinItemError, msg:
+	except gmExceptions.NoSuchClinItemError as msg:
 		_log.info('%s: will try to create lab request' % str(msg))
-	except gmExceptions.ConstructorError, msg:
+	except gmExceptions.ConstructorError as msg:
 		_log.exception(str(msg), sys.exc_info(), verbose=0)
 		return (False, msg)
 	# found
@@ -2907,7 +2907,7 @@ def create_lab_request(lab=None, req_id=None, pat_id=None, encounter_id=None, ep
 		return (False, err)
 	try:
 		req = cLabRequest(aPK_obj=result[0][0])
-	except gmExceptions.ConstructorError, msg:
+	except gmExceptions.ConstructorError as msg:
 		_log.exception(str(msg), sys.exc_info(), verbose=0)
 		return (False, msg)
 	return (True, req)
@@ -2931,7 +2931,7 @@ def create_lab_result(patient_id=None, when_field=None, when=None, test_type=Non
 		return (None, tres)
 	except gmExceptions.NoSuchClinItemError:
 		_log.debug('test result not found - as expected, will create it')
-	except gmExceptions.ConstructorError, msg:
+	except gmExceptions.ConstructorError as msg:
 		_log.exception(str(msg), sys.exc_info(), verbose=0)
 		return (False, msg)
 	if request is None:
@@ -2952,7 +2952,7 @@ def create_lab_result(patient_id=None, when_field=None, when=None, test_type=Non
 		return (False, err)
 	try:
 		tres = cLabResult(aPK_obj=result[0][0])
-	except gmExceptions.ConstructorError, msg:
+	except gmExceptions.ConstructorError as msg:
 		_log.exception(str(msg), sys.exc_info(), verbose=0)
 		return (False, msg)
 	return (True, tres)
@@ -3087,7 +3087,7 @@ def calculate_bmi(mass=None, height=None, age=None):
 	approx_surface = (height / decimal.Decimal(100))**2
 	bmi = mass / approx_surface
 
-	print mass, height, '->', approx_surface, '->', bmi
+	print(mass, height, '->', approx_surface, '->', bmi)
 
 	lower_normal_mass = 20.0 * approx_surface
 	upper_normal_mass = 25.0 * approx_surface
@@ -3121,7 +3121,7 @@ if __name__ == '__main__':
 			val_alpha=None,
 			unit = 'mg/dl'
 		)
-		print tr
+		print(tr)
 		return tr
 	#------------------------------------------
 	def test_delete_test_result():
@@ -3134,10 +3134,10 @@ if __name__ == '__main__':
 		#print r.reference_ranges
 		#print r.formatted_range
 		#print r.temporally_closest_normal_range
-		print r.estimate_numeric_value_from_alpha
+		print(r.estimate_numeric_value_from_alpha)
 	#------------------------------------------
 	def test_lab_result():
-		print "test_result()"
+		print("test_result()")
 #		lab_result = cLabResult(aPK_obj=4)
 		data = {
 			'patient_id': 12,
@@ -3149,17 +3149,17 @@ if __name__ == '__main__':
 			'unit': 'mg/l'
 		}
 		lab_result = cLabResult(aPK_obj=data)
-		print lab_result
+		print(lab_result)
 		fields = lab_result.get_fields()
 		for field in fields:
-			print field, ':', lab_result[field]
-		print "updatable:", lab_result.get_updatable_fields()
-		print time.time()
-		print lab_result.get_patient()
-		print time.time()
+			print(field, ':', lab_result[field])
+		print("updatable:", lab_result.get_updatable_fields())
+		print(time.time())
+		print(lab_result.get_patient())
+		print(time.time())
 	#------------------------------------------
 	def test_request():
-		print "test_request()"
+		print("test_request()")
 		try:
 #			lab_req = cLabRequest(aPK_obj=1)
 #			lab_req = cLabRequest(req_id='EML#SC937-0176-CEC#11', lab=2)
@@ -3168,45 +3168,45 @@ if __name__ == '__main__':
 				'lab': 'Enterprise Main Lab'
 			}
 			lab_req = cLabRequest(aPK_obj=data)
-		except gmExceptions.ConstructorError, msg:
-			print "no such lab request:", msg
+		except gmExceptions.ConstructorError as msg:
+			print("no such lab request:", msg)
 			return
-		print lab_req
+		print(lab_req)
 		fields = lab_req.get_fields()
 		for field in fields:
-			print field, ':', lab_req[field]
-		print "updatable:", lab_req.get_updatable_fields()
-		print time.time()
-		print lab_req.get_patient()
-		print time.time()
+			print(field, ':', lab_req[field])
+		print("updatable:", lab_req.get_updatable_fields())
+		print(time.time())
+		print(lab_req.get_patient())
+		print(time.time())
 	#--------------------------------------------------------
 	def test_unreviewed():
 		data = get_unreviewed_results()
 		for result in data:
-			print result
+			print(result)
 	#--------------------------------------------------------
 	def test_pending():
 		data = get_pending_requests()
 		for result in data:
-			print result
+			print(result)
 	#--------------------------------------------------------
 	def test_create_measurement_type():
-		print create_measurement_type (
+		print(create_measurement_type (
 			lab = None,
 			abbrev = u'tBZ2',
 			unit = u'mg%',
 			name = 'BZ (test 2)'
-		)
+		))
 	#--------------------------------------------------------
 	def test_meta_test_type():
 		mtt = cMetaTestType(aPK_obj = 1)
-		print mtt
-		print get_meta_test_types()
+		print(mtt)
+		print(get_meta_test_types())
 	#--------------------------------------------------------
 	def test_test_type():
 		tt = cMeasurementType(aPK_obj = 1)
-		print tt
-		print get_measurement_types()
+		print(tt)
+		print(get_measurement_types())
 	#--------------------------------------------------------
 	def test_format_test_results():
 		results = [
@@ -3215,42 +3215,42 @@ if __name__ == '__main__':
 			cTestResult(aPK_obj=3)
 #			cTestResult(aPK_obj=4)
 		]
-		print format_test_results(results = results)
+		print(format_test_results(results = results))
 	#--------------------------------------------------------
 	def test_calculate_bmi():
 		done, data = calculate_bmi(mass = sys.argv[2], height = sys.argv[3])
 		bmi, low, high = data
-		print "BMI:", bmi
-		print "low:", low, "kg"
-		print "hi :", high, "kg"
+		print("BMI:", bmi)
+		print("low:", low, "kg")
+		print("hi :", high, "kg")
 
 	#--------------------------------------------------------
 	def test_test_panel():
 		tp = cTestPanel(aPK_obj = 1)
-		print tp
-		print tp.test_types
-		print tp.format()
+		print(tp)
+		print(tp.test_types)
+		print(tp.format())
 
 	#--------------------------------------------------------
 	def test_get_most_recent_results_for_panel():
 		tp = cTestPanel(aPK_obj = 1)
 		#print tp.included_loincs
 		#tp = cTestPanel(aPK_obj = 3)
-		print tp.format()
+		print(tp.format())
 		#most_recent = tp.get_most_recent_results(pk_patient = 12, group_by_meta_type = False)
 		#most_recent = tp.get_most_recent_results(pk_patient = 138, group_by_meta_type = False)
 		#print len(most_recent)
 		most_recent = tp.get_most_recent_results(pk_patient = 12, group_by_meta_type = True)
 		#most_recent = tp.get_most_recent_results(pk_patient = 138, group_by_meta_type = True)
-		print 'found:', len(most_recent)
+		print('found:', len(most_recent))
 
 		for t in most_recent:
-			print '--------------'
+			print('--------------')
 			if t['pk_meta_test_type'] is None:
-				print "standalone"
+				print("standalone")
 			else:
-				print "meta"
-			print t.format()
+				print("meta")
+			print(t.format())
 
 	#--------------------------------------------------------
 	def test_get_most_recent_results_by_loinc():
@@ -3264,10 +3264,10 @@ if __name__ == '__main__':
 		)
 		for t in most_recent:
 			if t['pk_meta_test_type'] is None:
-				print "---- standalone ----"
+				print("---- standalone ----")
 			else:
-				print "---- meta ----"
-			print t.format()
+				print("---- meta ----")
+			print(t.format())
 
 	#--------------------------------------------------------
 

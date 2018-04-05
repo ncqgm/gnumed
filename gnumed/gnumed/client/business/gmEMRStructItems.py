@@ -136,7 +136,7 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 		rows, idx = gmPG2.run_ro_queries(queries = queries,	get_col_idx = True)
 
 		if len(rows) == 0:
-			raise gmExceptions.NoSuchBusinessObjectError, 'no health issue for [enc:%s::desc:%s::pat:%s]' % (encounter, name, patient)
+			raise gmExceptions.NoSuchBusinessObjectError('no health issue for [enc:%s::desc:%s::pat:%s]' % (encounter, name, patient))
 
 		pk = rows[0][0]
 		r = {'idx': idx, 'data': rows[0], 'pk_field': 'pk_health_issue'}
@@ -1133,7 +1133,7 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 			)
 
 			if len(rows) == 0:
-				raise gmExceptions.NoSuchBusinessObjectError, 'no episode for [%s:%s:%s:%s]' % (id_patient, name, health_issue, encounter)
+				raise gmExceptions.NoSuchBusinessObjectError('no episode for [%s:%s:%s:%s]' % (id_patient, name, health_issue, encounter))
 
 			r = {'idx': idx, 'data': rows[0], 'pk_field': 'pk_episode'}
 			gmBusinessDBObject.cBusinessDBObject.__init__(self, row=r)
@@ -3081,7 +3081,7 @@ def delete_encounter_type(description=None):
 	args = {'desc': description}
 	try:
 		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
-	except gmPG2.dbapi.IntegrityError, e:
+	except gmPG2.dbapi.IntegrityError as e:
 		if e.pgcode == gmPG2.sql_error_codes.FOREIGN_KEY_VIOLATION:
 			return False
 		raise
@@ -3110,7 +3110,7 @@ class cProblem(gmBusinessDBObject.cBusinessDBObject):
 			pk_health_issue
 		"""
 		if aPK_obj is None:
-			raise gmExceptions.ConstructorError, 'cannot instatiate cProblem for PK: [%s]' % (aPK_obj)
+			raise gmExceptions.ConstructorError('cannot instatiate cProblem for PK: [%s]' % (aPK_obj))
 
 		# As problems are rows from a view of different emr struct items,
 		# the PK can't be a single field and, as some of the values of the
@@ -3748,8 +3748,8 @@ def check_fk_encounter_fk_episode_x_ref():
 		args = {'table': t}
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': gmPG2.SQL_get_pk_col_def, 'args': args}])
 		pk_col = rows[0][0]
-		print "checking table:", t, '- pk col:', pk_col
-		print ' =>', table_file_name
+		print("checking table:", t, '- pk col:', pk_col)
+		print(' =>', table_file_name)
 		table_file.write(u'table: %s\n' % t)
 		table_file.write(u'PK col: %s\n' % pk_col)
 
@@ -3768,7 +3768,7 @@ def check_fk_encounter_fk_episode_x_ref():
 			args['pat_enc'] = enc_pat
 			args['pat_epi'] = epi_pat
 			if epi_pat != enc_pat:
-				print ' mismatch: row pk=%s, enc pat=%s, epi pat=%s' % (pk, enc_pat, epi_pat)
+				print(' mismatch: row pk=%s, enc pat=%s, epi pat=%s' % (pk, enc_pat, epi_pat))
 				aggregate_result = -2
 
 				table_file.write(u'--------------------------------------------------------------------------------\n')
@@ -3823,9 +3823,9 @@ def export_patient_emr_structure():
 	praxis = gmPraxis.gmCurrentPraxisBranch(branch = gmPraxis.get_praxis_branches()[0])
 	pat = gmPersonSearch.ask_for_patient()
 	while pat is not None:
-		print 'patient:', pat['description_gender']
+		print('patient:', pat['description_gender'])
 		fname = os.path.expanduser(u'~/gnumed/gm-emr_structure-%s.txt' % pat.dirname)
-		print 'exported into:', export_emr_structure(patient = pat, filename = fname)
+		print('exported into:', export_emr_structure(patient = pat, filename = fname))
 		pat = gmPersonSearch.ask_for_patient()
 
 	return 0
@@ -3845,28 +3845,28 @@ if __name__ == '__main__':
 	# define tests
 	#--------------------------------------------------------
 	def test_problem():
-		print "\nProblem test"
-		print "------------"
+		print("\nProblem test")
+		print("------------")
 		prob = cProblem(aPK_obj={'pk_patient': 12, 'pk_health_issue': 1, 'pk_episode': None})
-		print prob
+		print(prob)
 		fields = prob.get_fields()
 		for field in fields:
-			print field, ':', prob[field]
-		print '\nupdatable:', prob.get_updatable_fields()
+			print(field, ':', prob[field])
+		print('\nupdatable:', prob.get_updatable_fields())
 		epi = prob.get_as_episode()
-		print '\nas episode:'
+		print('\nas episode:')
 		if epi is not None:
 			for field in epi.get_fields():
-				print '   .%s : %s' % (field, epi[field])
+				print('   .%s : %s' % (field, epi[field]))
 
 	#--------------------------------------------------------
 	def test_health_issue():
-		print "\nhealth issue test"
-		print "-----------------"
+		print("\nhealth issue test")
+		print("-----------------")
 		h_issue = cHealthIssue(aPK_obj=2)
-		print h_issue
-		print h_issue.latest_access_date
-		print h_issue.clinical_end_date
+		print(h_issue)
+		print(h_issue.latest_access_date)
+		print(h_issue.clinical_end_date)
 #		fields = h_issue.get_fields()
 #		for field in fields:
 #			print field, ':', h_issue[field]
@@ -3877,77 +3877,77 @@ if __name__ == '__main__':
 #		h_issue = cHealthIssue(encounter = 1, name = u'post appendectomy/peritonitis')
 #		print h_issue
 #		print h_issue.format_as_journal()
-		print h_issue.formatted_revision_history
+		print(h_issue.formatted_revision_history)
 
 	#--------------------------------------------------------	
 	def test_episode():
-		print "episode test"
-		print "------------"
+		print("episode test")
+		print("------------")
 		episode = cEpisode(aPK_obj = 1322) #1674) #1354) #1461) #1299)
 
-		print episode['description']
-		print 'start:', episode.best_guess_clinical_start_date
-		print 'end  :', episode.best_guess_clinical_end_date
+		print(episode['description'])
+		print('start:', episode.best_guess_clinical_start_date)
+		print('end  :', episode.best_guess_clinical_end_date)
 		return
 
-		print episode
+		print(episode)
 		fields = episode.get_fields()
 		for field in fields:
-			print field, ':', episode[field]
-		print "updatable:", episode.get_updatable_fields()
+			print(field, ':', episode[field])
+		print("updatable:", episode.get_updatable_fields())
 		raw_input('ENTER to continue')
 
 		old_description = episode['description']
 		old_enc = cEncounter(aPK_obj = 1)
 
 		desc = '1-%s' % episode['description']
-		print "==> renaming to", desc
+		print("==> renaming to", desc)
 		successful = episode.rename (
 			description = desc
 		)
 		if not successful:
-			print "error"
+			print("error")
 		else:
-			print "success"
+			print("success")
 			for field in fields:
-				print field, ':', episode[field]
+				print(field, ':', episode[field])
 
-		print episode.formatted_revision_history
+		print(episode.formatted_revision_history)
 
 		raw_input('ENTER to continue')
 
 	#--------------------------------------------------------
 	def test_encounter():
-		print "\nencounter test"
-		print "--------------"
+		print("\nencounter test")
+		print("--------------")
 		encounter = cEncounter(aPK_obj=1)
-		print encounter
+		print(encounter)
 		fields = encounter.get_fields()
 		for field in fields:
-			print field, ':', encounter[field]
-		print "updatable:", encounter.get_updatable_fields()
+			print(field, ':', encounter[field])
+		print("updatable:", encounter.get_updatable_fields())
 		#print encounter.formatted_revision_history
-		print encounter.transfer_all_data_to_another_encounter(pk_target_encounter = 2)
+		print(encounter.transfer_all_data_to_another_encounter(pk_target_encounter = 2))
 
 	#--------------------------------------------------------
 	def test_encounter2latex():
 		encounter = cEncounter(aPK_obj=1)
-		print encounter
-		print ""
-		print encounter.format_latex()
+		print(encounter)
+		print("")
+		print(encounter.format_latex())
 	#--------------------------------------------------------
 	def test_performed_procedure():
 		procs = get_performed_procedures(patient = 12)
 		for proc in procs:
-			print proc.format(left_margin=2)
+			print(proc.format(left_margin=2))
 	#--------------------------------------------------------
 	def test_hospital_stay():
 		stay = create_hospital_stay(encounter = 1, episode = 2, fk_org_unit = 1)
 #		stay['hospital'] = u'Starfleet Galaxy General Hospital'
 #		stay.save_payload()
-		print stay
+		print(stay)
 		for s in get_patient_hospital_stays(12):
-			print s
+			print(s)
 		delete_hospital_stay(stay['pk_hospital_stay'])
 		stay = create_hospital_stay(encounter = 1, episode = 4, fk_org_unit = 1)
 	#--------------------------------------------------------
@@ -3955,17 +3955,17 @@ if __name__ == '__main__':
 		tests = [None, 'A', 'B', 'C', 'D', 'E']
 
 		for t in tests:
-			print type(t), t
-			print type(diagnostic_certainty_classification2str(t)), diagnostic_certainty_classification2str(t)
+			print(type(t), t)
+			print(type(diagnostic_certainty_classification2str(t)), diagnostic_certainty_classification2str(t))
 	#--------------------------------------------------------
 	def test_episode_codes():
 		epi = cEpisode(aPK_obj = 2)
-		print epi
-		print epi.generic_codes
+		print(epi)
+		print(epi.generic_codes)
 	#--------------------------------------------------------
 	def test_episode_encounters():
 		epi = cEpisode(aPK_obj = 1638)
-		print epi.format()
+		print(epi.format())
 
 	#--------------------------------------------------------
 	def test_export_emr_structure():

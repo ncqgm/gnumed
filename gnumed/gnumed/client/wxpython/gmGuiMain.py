@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import print_function
-
 __doc__ = """GNUmed GUI client.
 
 This contains the GUI application framework and main window
@@ -25,7 +23,7 @@ import os.path
 import datetime as pyDT
 import shutil
 import logging
-import urllib2
+import urllib.request
 import subprocess
 import glob
 import io
@@ -300,7 +298,8 @@ class gmTopLevelFrame(wx.Frame):
 
 		_log.info('setting GUI to size [%s:%s]', width, height)
 
- 		self.SetClientSize(wx.Size(width, height))
+		self.SetClientSize(wx.Size(width, height))
+
 	#----------------------------------------------
 	def __setup_main_menu(self):
 		"""Create the main menu entries.
@@ -1314,7 +1313,7 @@ class gmTopLevelFrame(wx.Frame):
 			if value == u'':
 				return True, german_default
 			try:
-				urllib2.urlopen(value)
+				urllib.request.urlopen(value)
 				return True, value
 			except:
 				return True, value
@@ -1342,7 +1341,7 @@ class gmTopLevelFrame(wx.Frame):
 			if value == u'':
 				return True, german_default
 			try:
-				urllib2.urlopen(value)
+				urllib.request.urlopen(value)
 				return True, value
 			except:
 				return True, value
@@ -1372,7 +1371,7 @@ class gmTopLevelFrame(wx.Frame):
 			if value == u'':
 				return True, german_default
 			try:
-				urllib2.urlopen(value)
+				urllib.request.urlopen(value)
 				return True, value
 			except:
 				return True, value
@@ -1401,7 +1400,7 @@ class gmTopLevelFrame(wx.Frame):
 			if value == u'':
 				return True, german_default
 			try:
-				urllib2.urlopen(value)
+				urllib.request.urlopen(value)
 				return True, value
 			except:
 				return True, value
@@ -1723,7 +1722,7 @@ class gmTopLevelFrame(wx.Frame):
 			if value == u'':
 				return True, german_default
 			try:
-				urllib2.urlopen(value)
+				urllib.request.urlopen(value)
 				return True, value
 			except:
 				return True, value
@@ -1977,11 +1976,9 @@ class gmTopLevelFrame(wx.Frame):
 	#----------------------------------------------
 	def __on_configure_update_url(self, evt):
 
-		import urllib2 as url
-
 		def is_valid(value):
 			try:
-				url.urlopen(value)
+				urllib.request.urlopen(value)
 			except:
 				return False, value
 
@@ -3696,7 +3693,7 @@ class gmApp(wx.App):
 		global _scripting_listener
 		try:
 			_scripting_listener = gmScriptingListener.cScriptingListener(port = port, macro_executor = macro_executor)
-		except SocketError, e:
+		except SocketError as e:
 			_log.exception('cannot start GNUmed XML-RPC server')
 			gmGuiHelpers.gm_show_error (
 				aMessage = (

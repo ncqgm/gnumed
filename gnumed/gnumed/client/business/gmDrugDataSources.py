@@ -781,7 +781,7 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 			except KeyError:
 				intakes_pooled_by_product[prod] = [intake]
 
-		for product, comps in intakes_pooled_by_product.iteritems():
+		for product, comps in intakes_pooled_by_product.items():
 			drug_name = u'%s\n' % product
 			for comp in comps:
 				drug_name += u'  %s %s%s\n' % (
@@ -1258,10 +1258,10 @@ class cIfapInterface(cDrugDataSourceInterface):
 		)
 
 		for line in csv_lines:
-			print "--------------------------------------------------------------------"[:31]
+			print("--------------------------------------------------------------------"[:31])
 			for key in field_names:
 				tmp = ('%s                                                ' % key)[:30]
-				print '%s: %s' % (tmp, line[key])
+				print('%s: %s' % (tmp, line[key]))
 
 		csv_file.close()
 
@@ -1299,22 +1299,22 @@ if __name__ == "__main__":
 	#--------------------------------------------------------
 	def test_MMI_interface():
 		mmi = cGelbeListeWineInterface()
-		print mmi
-		print "interface definition:", mmi.version
-		print "database versions:   ", mmi.get_data_source_version()
+		print(mmi)
+		print("interface definition:", mmi.version)
+		print("database versions:   ", mmi.get_data_source_version())
 	#--------------------------------------------------------
 	def test_MMI_file():
 		mmi_file = cGelbeListeCSVFile(filename = sys.argv[2])
 		for drug in mmi_file:
-			print "-------------"
-			print '"%s" (ATC: %s / PZN: %s)' % (drug['name'], drug['atc'], drug['pzn'])
+			print("-------------")
+			print('"%s" (ATC: %s / PZN: %s)' % (drug['name'], drug['atc'], drug['pzn']))
 			for stoff in drug['wirkstoffe']:
-				print " Wirkstoff:", stoff
+				print(" Wirkstoff:", stoff)
 			raw_input()
 			if mmi_file.has_unknown_fields is not None:
-				print "has extra data under [%s]" % gmTools.default_csv_reader_rest_key
+				print("has extra data under [%s]" % gmTools.default_csv_reader_rest_key)
 			for key in mmi_file.csv_fieldnames:
-				print key, '->', drug[key]
+				print(key, '->', drug[key])
 			raw_input()
 		mmi_file.close()
 	#--------------------------------------------------------
@@ -1326,11 +1326,11 @@ if __name__ == "__main__":
 		mmi = cGelbeListeWineInterface()
 		mmi_file = mmi.__let_user_select_drugs()
 		for drug in mmi_file:
-			print "-------------"
-			print '"%s" (ATC: %s / PZN: %s)' % (drug['name'], drug['atc'], drug['pzn'])
+			print("-------------")
+			print('"%s" (ATC: %s / PZN: %s)' % (drug['name'], drug['atc'], drug['pzn']))
 			for stoff in drug['wirkstoffe']:
-				print " Wirkstoff:", stoff
-			print drug
+				print(" Wirkstoff:", stoff)
+			print(drug)
 		mmi_file.close()
 	#--------------------------------------------------------
 	def test_mmi_import_drugs():
@@ -1339,8 +1339,8 @@ if __name__ == "__main__":
 	#--------------------------------------------------------
 	def test_mmi_interaction_check():
 		mmi = cGelbeListeInterface()
-		print mmi
-		print "interface definition:", mmi.version
+		print(mmi)
+		print("interface definition:", mmi.version)
 		# Metoprolol + Hct vs Citalopram
 		diclofenac = '7587712'
 		phenprocoumon = '4421744'

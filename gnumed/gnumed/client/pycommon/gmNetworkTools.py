@@ -12,8 +12,8 @@ __license__ = "GPL v2 or later (details at http://www.gnu.org)"
 import sys
 import os.path
 import logging
-import urllib2 as wget
-import urllib
+import urllib.request
+import urllib.error
 import zipfile
 import webbrowser
 import io
@@ -51,7 +51,7 @@ def download_file(url, filename=None, suffix=None):
 	_log.debug('downloading [%s] into [%s]', url, filename)
 
 	try:
-		dl_name, headers = urllib.urlretrieve(url, filename)
+		dl_name, headers = urllib.request.urlretrieve(url, filename)
 	except (ValueError, OSError, IOError):
 		_log.exception('cannot download from [%s]', url)
 		gmLog2.log_stack_trace()
@@ -126,7 +126,7 @@ def download_data_pack_old(url, target_dir=None):
 
 	gmTools.mkdir(directory = target_dir)
 
-	# FIXME: rewrite to use urllib.urlretrieve() and 
+	# FIXME: rewrite to use urllib.request.urlretrieve() and 
 
 	paths = gmTools.gmPaths()
 	local_script = os.path.join(paths.local_base_dir, '..', 'external-tools', 'gm-download_data')
@@ -199,8 +199,8 @@ def check_for_update(url=None, current_branch=None, current_version=None, consid
 		return (False, None)
 
 	try:
-		remote_file = wget.urlopen(url)
-	except (wget.URLError, ValueError, OSError, IOError):
+		remote_file = urllib.request.urlopen(url)
+	except (urllib.error.URLError, ValueError, OSError, IOError):
 		# IOError: socket.error
 		_log.exception("cannot retrieve version file from [%s]", url)
 		return (None, _('Cannot retrieve version information from:\n\n%s') % url)

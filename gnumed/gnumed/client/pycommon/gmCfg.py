@@ -133,9 +133,9 @@ class cCfgSQL:
 			want to make sure that sql_return_type and type(default) are compatible
 		"""
 		if None in [option, workplace]:
-			raise ValueError, 'neither <option> (%s) nor <workplace> (%s) may be [None]' % (option, workplace)
+			raise ValueError('neither <option> (%s) nor <workplace> (%s) may be [None]' % (option, workplace))
 		if bias not in ['user', 'workplace']:
-			raise ValueError, '<bias> must be "user" or "workplace"'
+			raise ValueError('<bias> must be "user" or "workplace"')
 
 		# does this option exist ?
 		cmd = u"select type from cfg.cfg_template where name=%(opt)s"
@@ -538,44 +538,44 @@ if __name__ == "__main__":
 	#---------------------------------------------------------
 	def test_get_all_options():
 		for opt in get_all_options():
-			print u'%s (%s): %s (%s@%s)' % (opt['option'], opt['type'], opt['value'], opt['owner'], opt['workplace'])
-#			print u' %s' % opt['description']
-#			print u' %s on %s' % (opt['owner'], opt['workplace'])
+			print(u'%s (%s): %s (%s@%s)' % (opt['option'], opt['type'], opt['value'], opt['owner'], opt['workplace']))
+#			print(u' %s' % opt['description'])
+#			print(u' %s on %s' % (opt['owner'], opt['workplace']))
 	#---------------------------------------------------------
 	def test_db_cfg():
-		print "testing database config"
-		print "======================="
+		print("testing database config")
+		print("=======================")
 
 		myDBCfg = cCfgSQL()
 
-		print "delete() works:", myDBCfg.delete(option='font name', workplace = 'test workplace')
-		print "font is initially:", myDBCfg.get2(option = 'font name', workplace = 'test workplace', bias = 'user')
-		print "set() works:", myDBCfg.set(option='font name', value="Times New Roman", workplace = 'test workplace')
-		print "font after set():", myDBCfg.get2(option = 'font name', workplace = 'test workplace', bias = 'user')
-		print "delete() works:", myDBCfg.delete(option='font name', workplace = 'test workplace')
-		print "font after delete():", myDBCfg.get2(option = 'font name', workplace = 'test workplace', bias = 'user')
-		print "font after get() with default:", myDBCfg.get2(option = 'font name', workplace = 'test workplace', bias = 'user', default = 'WingDings')
-		print "font right after get() with another default:", myDBCfg.get2(option = 'font name', workplace = 'test workplace', bias = 'user', default = 'default: Courier')
-		print "set() works:", myDBCfg.set(option='font name', value="Times New Roman", workplace = 'test workplace')
-		print "font after set() on existing option:", myDBCfg.get2(option = 'font name', workplace = 'test workplace', bias = 'user')
+		print("delete() works:", myDBCfg.delete(option='font name', workplace = 'test workplace'))
+		print("font is initially:", myDBCfg.get2(option = 'font name', workplace = 'test workplace', bias = 'user'))
+		print("set() works:", myDBCfg.set(option='font name', value="Times New Roman", workplace = 'test workplace'))
+		print("font after set():", myDBCfg.get2(option = 'font name', workplace = 'test workplace', bias = 'user'))
+		print("delete() works:", myDBCfg.delete(option='font name', workplace = 'test workplace'))
+		print("font after delete():", myDBCfg.get2(option = 'font name', workplace = 'test workplace', bias = 'user'))
+		print("font after get() with default:", myDBCfg.get2(option = 'font name', workplace = 'test workplace', bias = 'user', default = 'WingDings'))
+		print("font right after get() with another default:", myDBCfg.get2(option = 'font name', workplace = 'test workplace', bias = 'user', default = 'default: Courier'))
+		print("set() works:", myDBCfg.set(option='font name', value="Times New Roman", workplace = 'test workplace'))
+		print("font after set() on existing option:", myDBCfg.get2(option = 'font name', workplace = 'test workplace', bias = 'user'))
 
-		print "setting array option"
-		print "array now:", myDBCfg.get2(option = 'test array', workplace = 'test workplace', bias = 'user')
+		print("setting array option")
+		print("array now:", myDBCfg.get2(option = 'test array', workplace = 'test workplace', bias = 'user'))
 		aList = ['val 1', 'val 2']
-		print "set():", myDBCfg.set(option='test array', value = aList, workplace = 'test workplace')
-		print "array now:", myDBCfg.get2(option = 'test array', workplace = 'test workplace', bias = 'user')
+		print("set():", myDBCfg.set(option='test array', value = aList, workplace = 'test workplace'))
+		print("array now:", myDBCfg.get2(option = 'test array', workplace = 'test workplace', bias = 'user'))
 		aList = ['val 11', 'val 12']
-		print "set():", myDBCfg.set(option='test array', value = aList, workplace = 'test workplace')
-		print "array now:", myDBCfg.get2(option = 'test array', workplace = 'test workplace', bias = 'user')
-		print "delete() works:", myDBCfg.delete(option='test array', workplace='test workplace')
-		print "array now:", myDBCfg.get2(option = 'test array', workplace = 'test workplace', bias = 'user')
+		print("set():", myDBCfg.set(option='test array', value = aList, workplace = 'test workplace'))
+		print("array now:", myDBCfg.get2(option = 'test array', workplace = 'test workplace', bias = 'user'))
+		print("delete() works:", myDBCfg.delete(option='test array', workplace='test workplace'))
+		print("array now:", myDBCfg.get2(option = 'test array', workplace = 'test workplace', bias = 'user'))
 
-		print "setting complex option"
+		print("setting complex option")
 		data = {1: 'line 1', 2: 'line2', 3: {1: 'line3.1', 2: 'line3.2'}, 4: 1234}
-		print "set():", myDBCfg.set(option = "complex option test", value = data, workplace = 'test workplace')
-		print "complex option now:", myDBCfg.get2(workplace = 'test workplace', option = "complex option test", bias = 'user')
-		print "delete() works:", myDBCfg.delete(option = "complex option test", workplace = 'test workplace')
-		print "complex option now:", myDBCfg.get2(workplace = 'test workplace', option = "complex option test", bias = 'user')
+		print("set():", myDBCfg.set(option = "complex option test", value = data, workplace = 'test workplace'))
+		print("complex option now:", myDBCfg.get2(workplace = 'test workplace', option = "complex option test", bias = 'user'))
+		print("delete() works:", myDBCfg.delete(option = "complex option test", workplace = 'test workplace'))
+		print("complex option now:", myDBCfg.get2(workplace = 'test workplace', option = "complex option test", bias = 'user'))
 
 	#---------------------------------------------------------
 	test_get_all_options()

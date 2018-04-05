@@ -1074,7 +1074,7 @@ class cSubstanceIntakeObjectMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
 	_REGEX_name_and_strength = regex.compile(r'^\D+\s*\d+$', regex.UNICODE)
 
 	#--------------------------------------------------------
- 	def getMatchesByPhrase(self, aFragment):
+	def getMatchesByPhrase(self, aFragment):
 		"""Return matches for aFragment at start of phrases."""
 
 		if cSubstanceIntakeObjectMatchProvider._REGEX_name_and_strength.match(aFragment):
@@ -2501,7 +2501,7 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 		]
 		pattern = "^(\d\d|/\d|\d/\d|\d)[\s-]{1,5}\d{0,2}[\s-]{1,5}\d{0,2}[\s-]{1,5}\d{0,2}$"
 		for test in tests:
-			print test.strip(), ":", regex.match(pattern, test.strip())
+			print(test.strip(), ":", regex.match(pattern, test.strip()))
 
 #------------------------------------------------------------
 def get_substance_intakes(pk_patient=None):
@@ -2618,7 +2618,7 @@ def create_substance_intake(pk_component=None, pk_encounter=None, pk_episode=Non
 
 	try:
 		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True)
-	except gmPG2.dbapi.InternalError, exc:
+	except gmPG2.dbapi.InternalError as exc:
 		if exc.pgerror is None:
 			raise
 		exc = make_pg_exception_fields_unicode(exc)
@@ -3274,16 +3274,16 @@ if __name__ == "__main__":
 			pk_encounter = 1,
 			pk_episode = 1
 		)
-		print drug
+		print(drug)
 
 	#--------------------------------------------------------
 	def test_get_substances():
 		for s in get_substances():
 			##print s
-			print "--------------------------"
-			print s.format()
-			print 'in use:', s.is_in_use_by_patients
-			print 'is component:', s.is_drug_component
+			print("--------------------------")
+			print(s.format())
+			print('in use:', s.is_in_use_by_patients)
+			print('is component:', s.is_drug_component)
 
 #		s = cSubstance(1)
 #		print s
@@ -3296,45 +3296,45 @@ if __name__ == "__main__":
 	def test_get_doses():
 		for d in get_substance_doses():
 			#print d
-			print "--------------------------"
-			print d.format(left_margin = 1, include_loincs = True)
-			print 'in use:', d.is_in_use_by_patients
-			print 'is component:', d.is_drug_component
+			print("--------------------------")
+			print(d.format(left_margin = 1, include_loincs = True))
+			print('in use:', d.is_in_use_by_patients)
+			print('is component:', d.is_drug_component)
 
 	#--------------------------------------------------------
 	def test_get_components():
 		for c in get_drug_components():
 			#print c
-			print '--------------------------------------'
-			print c.format()
-			print 'dose:', c.substance_dose.format()
-			print 'substance:', c.substance.format()
+			print('--------------------------------------')
+			print(c.format())
+			print('dose:', c.substance_dose.format())
+			print('substance:', c.substance.format())
 
 	#--------------------------------------------------------
 	def test_get_drugs():
 		for d in get_drug_products():
 			if d['is_fake_product'] or d.is_vaccine:
 				continue
-			print '--------------------------------------'
-			print d.format()
+			print('--------------------------------------')
+			print(d.format())
 			for c in d.components:
-				print '-------'
-				print c.format()
-				print c.substance_dose.format()
-				print c.substance.format()
+				print('-------')
+				print(c.format())
+				print(c.substance_dose.format())
+				print(c.substance.format())
 
 	#--------------------------------------------------------
 	def test_get_intakes():
 		for i in get_substance_intakes():
 			#print i
-			print '------------------------------------------------'
-			print u'\n'.join(i.format_maximum_information())
+			print('------------------------------------------------')
+			print(u'\n'.join(i.format_maximum_information()))
 
 	#--------------------------------------------------------
 	def test_get_habit_drugs():
-		print get_tobacco().format()
-		print get_alcohol().format()
-		print get_other_drug(name = u'LSD').format()
+		print(get_tobacco().format())
+		print(get_alcohol().format())
+		print(get_other_drug(name = u'LSD').format())
 
 	#--------------------------------------------------------
 	def test_drug2renal_insufficiency_url():
@@ -3345,20 +3345,20 @@ if __name__ == "__main__":
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
 		for row in rows:
 			entry = cSubstanceIntakeEntry(row['pk_substance_intake'])
-			print u'==============================================================='
-			print entry.format(left_margin = 1, single_line = False, show_all_product_components = True)
-			print u'--------------------------------'
-			print entry.medically_formatted_start_end
+			print(u'===============================================================')
+			print(entry.format(left_margin = 1, single_line = False, show_all_product_components = True))
+			print(u'--------------------------------')
+			print(entry.medically_formatted_start_end)
 			gmTools.prompted_input()
 
 	#--------------------------------------------------------
 	def test_generate_amts_data_template_definition_file(work_dir=None, strict=True):
-		print 'file:', generate_amts_data_template_definition_file(strict = True)
+		print('file:', generate_amts_data_template_definition_file(strict = True))
 
 	#--------------------------------------------------------
 	def test_format_substance_intake_as_amts_data():
 		#print format_substance_intake_as_amts_data(cSubstanceIntakeEntry(1))
-		print cSubstanceIntakeEntry(1).as_amts_data
+		print(cSubstanceIntakeEntry(1).as_amts_data)
 
 	#--------------------------------------------------------
 	def test_delete_intake():

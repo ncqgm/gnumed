@@ -1200,7 +1200,7 @@ class cImmunisationsPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 			self.LBOX_vaccinated_indications.Append(indication[1], indication[0])
 #		self.LBOX_vaccinated_indications.Set(lines)
 #		self.LBOX_vaccinated_indications.SetClientData(data)
-		print "vaccinated indications took", time.time()-t1, "seconds"
+		print("vaccinated indications took", time.time()-t1, "seconds")
 
 		t1 = time.time()
 		# populate active schedules list
@@ -1215,12 +1215,12 @@ class cImmunisationsPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 			for sched in scheds:
 				label = _('%s for %s (%s shots): %s') % (sched['regime'], sched['l10n_indication'], sched['shots'], sched['comment'])
 				self.LBOX_active_schedules.Append(label)
-		print "active schedules took", time.time()-t1, "seconds"
+		print("active schedules took", time.time()-t1, "seconds")
 
 		t1 = time.time()
 		# populate missing-shots list
 		missing_shots = emr.get_missing_vaccinations()
-		print "getting missing shots took", time.time()-t1, "seconds"
+		print("getting missing shots took", time.time()-t1, "seconds")
 		if missing_shots is None:
 			label = _('ERROR: cannot retrieve due/overdue vaccinations')
 			self.LBOX_missing_shots.Append(label, None)
@@ -1263,7 +1263,7 @@ class cImmunisationsPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 				shot['vacc_comment']
 			)
 			self.LBOX_missing_shots.Append(label, shot)
-		print "displaying missing shots took", time.time()-t1, "seconds"
+		print("displaying missing shots took", time.time()-t1, "seconds")
 
 		return True
 	#----------------------------------------------------

@@ -8,7 +8,7 @@ __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 import sys
 import logging
 import io
-import urllib
+import urllib.parse
 
 
 if __name__ == '__main__':
@@ -108,16 +108,16 @@ class cPraxisBranch(gmBusinessDBObject.cBusinessDBObject):
 	def get_distance2address_url(self, address):
 		self_adr = self.address
 		url = u'https://www.luftlinie.org/%s-%s-%s-%s-%s/%s-%s-%s-%s-%s' % (
-			urllib.quote(self_adr['street'].encode('utf8')),
-			urllib.quote(self_adr['number'].encode('utf8')),
-			urllib.quote(self_adr['urb'].encode('utf8')),
-			urllib.quote(self_adr['postcode'].encode('utf8')),
-			urllib.quote(self_adr['country'].encode('utf8')),
-			urllib.quote(address['street'].encode('utf8')),
-			urllib.quote(address['number'].encode('utf8')),
-			urllib.quote(address['urb'].encode('utf8')),
-			urllib.quote(address['postcode'].encode('utf8')),
-			urllib.quote(address['country'].encode('utf8'))
+			urllib.parse.quote(self_adr['street'].encode('utf8')),
+			urllib.parse.quote(self_adr['number'].encode('utf8')),
+			urllib.parse.quote(self_adr['urb'].encode('utf8')),
+			urllib.parse.quote(self_adr['postcode'].encode('utf8')),
+			urllib.parse.quote(self_adr['country'].encode('utf8')),
+			urllib.parse.quote(address['street'].encode('utf8')),
+			urllib.parse.quote(address['number'].encode('utf8')),
+			urllib.parse.quote(address['urb'].encode('utf8')),
+			urllib.parse.quote(address['postcode'].encode('utf8')),
+			urllib.parse.quote(address['country'].encode('utf8'))
 		)
 		return url
 
@@ -311,7 +311,7 @@ class gmCurrentPraxisBranch(gmBorg.cBorg):
 		# must be cPraxisBranch instance, then
 		if not isinstance(branch, cPraxisBranch):
 			_log.error('cannot set current praxis branch to [%s], must be a cPraxisBranch instance' % str(branch))
-			raise TypeError, 'gmPraxis.gmCurrentPraxisBranch.__init__(): <branch> must be a cPraxisBranch instance but is: %s' % str(branch)
+			raise TypeError('gmPraxis.gmCurrentPraxisBranch.__init__(): <branch> must be a cPraxisBranch instance but is: %s' % str(branch))
 
 		if self.branch is not None:
 			self.branch.unlock()
@@ -538,11 +538,11 @@ if __name__ == '__main__':
 		test_banner = u'a test banner'
 		prac.db_logon_banner = test_banner
 		if prac.db_logon_banner != test_banner:
-			print 'Cannot set logon banner to', test_banner
+			print(('Cannot set logon banner to', test_banner))
 			return False
 		prac.db_logon_banner = u''
 		if prac.db_logon_banner != u'':
-			print 'Cannot set logon banner to ""'
+			print('Cannot set logon banner to ""')
 			return False
 		prac.db_logon_banner = old_banner
 
@@ -553,6 +553,6 @@ if __name__ == '__main__':
 #	print "regression tests succeeded"
 
 	for b in get_praxis_branches():
-		print b.format()
+		print((b.format()))
 
 #============================================================

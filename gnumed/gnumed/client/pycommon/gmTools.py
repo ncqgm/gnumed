@@ -626,16 +626,16 @@ def unicode_csv_reader(unicode_csv_data, dialect=csv.excel, encoding='utf-8', **
 					old_data = row[key]
 					new_data = []
 					for val in old_data:
-						new_data.append(unicode(val, encoding))
+						new_data.append(str(val, encoding))
 					row[key] = new_data
 					if default_csv_reader_rest_key not in csv_reader.fieldnames:
 						csv_reader.fieldnames.append(default_csv_reader_rest_key)
 				else:
-					row[key] = unicode(row[key], encoding)
+					row[key] = str(row[key], encoding)
 			yield row
 		else:
-			yield [ unicode(cell, encoding) for cell in row ]
-			#yield [unicode(cell, 'utf-8') for cell in row]
+			yield [ str(cell, encoding) for cell in row ]
+			#yield [str(cell, 'utf-8') for cell in row]
 
 #---------------------------------------------------------------------------
 def fname_sanitize(filename):

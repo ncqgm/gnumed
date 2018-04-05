@@ -15,7 +15,6 @@ import time
 import re as regex
 import datetime as pyDT
 import io
-import thread
 import threading
 import logging
 import io
@@ -500,7 +499,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 					if value.tzinfo is None:
 						raise ValueError('datetime.datetime instance is lacking a time zone: [%s]' % dt.isoformat())
 				else:
-					raise TypeError, '[%s]: type [%s] (%s) invalid for attribute [dob], must be datetime.datetime or None' % (self.__class__.__name__, type(value), value)
+					raise TypeError('[%s]: type [%s] (%s) invalid for attribute [dob], must be datetime.datetime or None' % (self.__class__.__name__, type(value), value))
 
 				# compare DOB at seconds level
 				if self._payload[self._idx['dob']] is not None:
@@ -1930,7 +1929,7 @@ class cPatient(cPerson):
 
 	#----------------------------------------------------------
 	def get_emr(self):
-		_log.debug('accessing EMR for identity [%s], thread [%s]', self._payload[self._idx['pk_identity']], thread.get_ident())
+		_log.debug('accessing EMR for identity [%s], thread [%s]', self._payload[self._idx['pk_identity']], threading.get_ident())
 
 		# fast path: already set, just return it
 		if self.__emr is not None:
@@ -1956,11 +1955,11 @@ class cPatient(cPerson):
 				if got_lock:
 					break
 			if not got_lock:
-				_log.error('still failed to acquire EMR access lock, aborting (thread [%s])', thread.get_ident())
+				_log.error('still failed to acquire EMR access lock, aborting (thread [%s])', threading.get_ident())
 				self.__emr_access_lock.release()
 				raise AttributeError('cannot lock access to EMR for identity [%s]' % self._payload[self._idx['pk_identity']])
 
-		_log.debug('pulling chart for identity [%s], thread [%s]', self._payload[self._idx['pk_identity']], thread.get_ident())
+		_log.debug('pulling chart for identity [%s], thread [%s]', self._payload[self._idx['pk_identity']], threading.get_ident())
 		if not stack_logged:
 			# do some logging as we are pulling the chart for the first time
 			call_stack = inspect.stack()
@@ -1975,7 +1974,7 @@ class cPatient(cPerson):
 		from Gnumed.business import gmClinicalRecord
 		emr = gmClinicalRecord.cClinicalRecord(aPKey = self._payload[self._idx['pk_identity']])
 
-		_log.debug('returning EMR for identity [%s], thread [%s]', self._payload[self._idx['pk_identity']], thread.get_ident())
+		_log.debug('returning EMR for identity [%s], thread [%s]', self._payload[self._idx['pk_identity']], threading.get_ident())
 		self.__emr = emr
 		self.__emr_access_lock.release()
 		return self.__emr
@@ -2082,7 +2081,7 @@ class gmCurrentPatient(gmBorg.cBorg):
 		# must be cPatient instance, then
 		if not isinstance(patient, cPatient):
 			_log.error('cannot set active patient to [%s], must be either None, -1 or cPatient instance' % str(patient))
-			raise TypeError, 'gmPerson.gmCurrentPatient.__init__(): <patient> must be None, -1 or cPatient instance but is: %s' % str(patient)
+			raise TypeError('gmPerson.gmCurrentPatient.__init__(): <patient> must be None, -1 or cPatient instance but is: %s' % str(patient))
 
 		# same ID, no change needed
 		if (self.patient['pk_identity'] == patient['pk_identity']) and not forced_reload:
@@ -2196,9 +2195,9 @@ class gmCurrentPatient(gmBorg.cBorg):
 				successful = call_back()
 			except:
 				_log.exception('callback [%s] failed', call_back)
-				print "*** pre-change callback failed ***"
-				print type(call_back)
-				print call_back
+				print("*** pre-change callback failed ***")
+				print(type(call_back))
+				print(call_back)
 				return False
 
 			if not successful:
@@ -2542,22 +2541,22 @@ if __name__ == '__main__':
 	def test_set_active_pat():
 
 		ident = cPerson(1)
-		print "setting active patient with", ident
+		print("setting active patient with", ident)
 		set_active_patient(patient=ident)
 
 		patient = cPatient(12)
-		print "setting active patient with", patient
+		print("setting active patient with", patient)
 		set_active_patient(patient=patient)
 
 		pat = gmCurrentPatient()
-		print pat['dob']
+		print(pat['dob'])
 		#pat['dob'] = 'test'
 
 #		staff = cStaff()
 #		print "setting active patient with", staff
 #		set_active_patient(patient=staff)
 
-		print "setting active patient with -1"
+		print("setting active patient with -1")
 		set_active_patient(patient=-1)
 	#--------------------------------------------------------
 	def test_dto_person():
@@ -2566,46 +2565,46 @@ if __name__ == '__main__':
 		dto.lastnames = 'Herberger'
 		dto.gender = 'male'
 		dto.dob = pyDT.datetime.now(tz=gmDateTime.gmCurrentLocalTimezone)
-		print dto
+		print(dto)
 
-		print dto['firstnames']
-		print dto['lastnames']
-		print dto['gender']
-		print dto['dob']
+		print(dto['firstnames'])
+		print(dto['lastnames'])
+		print(dto['gender'])
+		print(dto['dob'])
 
 		for key in dto.keys():
-			print key
+			print(key)
 	#--------------------------------------------------------
 	def test_identity():
 		# create patient
-		print '\n\nCreating identity...'
+		print('\n\nCreating identity...')
 		new_identity = create_identity(gender='m', dob='2005-01-01', lastnames='test lastnames', firstnames='test firstnames')
-		print 'Identity created: %s' % new_identity
+		print('Identity created: %s' % new_identity)
 
-		print '\nSetting title and gender...'
+		print('\nSetting title and gender...')
 		new_identity['title'] = 'test title';
 		new_identity['gender'] = 'f';
 		new_identity.save_payload()
-		print 'Refetching identity from db: %s' % cPerson(aPK_obj=new_identity['pk_identity'])
+		print('Refetching identity from db: %s' % cPerson(aPK_obj=new_identity['pk_identity']))
 
-		print '\nGetting all names...'
+		print('\nGetting all names...')
 		for a_name in new_identity.get_names():
-			print a_name
-		print 'Active name: %s' % (new_identity.get_active_name())
-		print 'Setting nickname...'
+			print(a_name)
+		print('Active name: %s' % (new_identity.get_active_name()))
+		print('Setting nickname...')
 		new_identity.set_nickname(nickname='test nickname')
-		print 'Refetching all names...'
+		print('Refetching all names...')
 		for a_name in new_identity.get_names():
-			print a_name
-		print 'Active name: %s' % (new_identity.get_active_name())		
+			print(a_name)
+		print('Active name: %s' % (new_identity.get_active_name()))		
 
-		print '\nIdentity occupations: %s' % new_identity['occupations']
-		print 'Creating identity occupation...'
+		print('\nIdentity occupations: %s' % new_identity['occupations'])
+		print('Creating identity occupation...')
 		new_identity.link_occupation('test occupation')
-		print 'Identity occupations: %s' % new_identity['occupations']
+		print('Identity occupations: %s' % new_identity['occupations'])
 
-		print '\nIdentity addresses: %s' % new_identity.get_addresses()
-		print 'Creating identity address...'
+		print('\nIdentity addresses: %s' % new_identity.get_addresses())
+		print('Creating identity address...')
 		# make sure the state exists in the backend
 		new_identity.link_address (
 			number = 'test 1234',
@@ -2615,49 +2614,49 @@ if __name__ == '__main__':
 			region_code = u'SN',
 			country_code = u'DE'
 		)
-		print 'Identity addresses: %s' % new_identity.get_addresses()
+		print('Identity addresses: %s' % new_identity.get_addresses())
 
-		print '\nIdentity communications: %s' % new_identity.get_comm_channels()
-		print 'Creating identity communication...'
+		print('\nIdentity communications: %s' % new_identity.get_comm_channels())
+		print('Creating identity communication...')
 		new_identity.link_comm_channel('homephone', '1234566')
-		print 'Identity communications: %s' % new_identity.get_comm_channels()
+		print('Identity communications: %s' % new_identity.get_comm_channels())
 	#--------------------------------------------------------
 	def test_name():
 		for pk in range(1,16):
 			name = cPersonName(aPK_obj=pk)
-			print name.description
-			print '  ', name
+			print(name.description)
+			print('  ', name)
 	#--------------------------------------------------------
 	def test_gender_list():
 		genders, idx = get_gender_list()
-		print "\n\nRetrieving gender enum (tag, label, weight):"
+		print("\n\nRetrieving gender enum (tag, label, weight):")
 		for gender in genders:
-			print "%s, %s, %s" % (gender[idx['tag']], gender[idx['l10n_label']], gender[idx['sort_weight']])
+			print("%s, %s, %s" % (gender[idx['tag']], gender[idx['l10n_label']], gender[idx['sort_weight']]))
 	#--------------------------------------------------------
 	def test_export_area():
 		person = cPerson(aPK_obj = 12)
-		print person
-		print person.export_area
-		print person.export_area.items
+		print(person)
+		print(person.export_area)
+		print(person.export_area.items)
 	#--------------------------------------------------------
 	def test_ext_id():
 		person = cPerson(aPK_obj = 9)
-		print person.get_external_ids(id_type=u'Fachgebiet', issuer=u'Ärztekammer')
+		print(person.get_external_ids(id_type=u'Fachgebiet', issuer=u'Ärztekammer'))
 		#print person.get_external_ids()
 	#--------------------------------------------------------
 	def test_vcf():
 		person = cPerson(aPK_obj = 12)
-		print person.export_as_vcard()
+		print(person.export_as_vcard())
 
 	#--------------------------------------------------------
 	def test_current_patient():
 		pat = gmCurrentPatient()
-		print "pat.emr", pat.emr
+		print("pat.emr", pat.emr)
 
 	#--------------------------------------------------------
 	def test_ext_id():
 		person = cPerson(aPK_obj = 12)
-		print person.suggest_external_id(target = u'Orthanc')
+		print(person.suggest_external_id(target = u'Orthanc'))
 	#--------------------------------------------------------
 	#test_dto_person()
 	#test_identity()

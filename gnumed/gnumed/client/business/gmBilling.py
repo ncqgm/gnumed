@@ -570,15 +570,15 @@ if __name__ == "__main__":
 	def test_default_address():
 		bills = get_bills(pk_patient = 12)
 		first_bill = bills[0]
-		print first_bill.default_address
+		print(first_bill.default_address)
 
 	def test_me():
-		print "--------------"
+		print("--------------")
 		me = cBillable(aPK_obj=1)
 		fields = me.get_fields()
 		for field in fields:
-			print field, ':', me[field]
-		print "updatable:", me.get_updatable_fields()
+			print(field, ':', me[field])
+		print("updatable:", me.get_updatable_fields())
 		#me['vat']=4; me.store_payload()
 	#--------------------------------------------------
 	#test_me()

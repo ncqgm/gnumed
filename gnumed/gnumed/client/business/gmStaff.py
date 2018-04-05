@@ -185,7 +185,7 @@ def create_staff(conn=None, db_account=None, password=None, identity=None, short
 
 	try:
 		rows, idx = gmPG2.run_rw_queries(link_obj = conn, queries = queries, end_tx = True)
-	except gmPG2.dbapi.IntegrityError, e:
+	except gmPG2.dbapi.IntegrityError as e:
 		if e.pgcode == gmPG2.sql_error_codes.UNIQUE_VIOLATION:
 			msg = _(
 				'Cannot add GNUmed user.\n'
@@ -204,7 +204,7 @@ def delete_staff(conn=None, pk_staff=None):
 	queries = [{'cmd': u'DELETE FROM dem.staff WHERE pk = %(pk)s', 'args': {'pk': pk_staff}}]
 	try:
 		rows, idx = gmPG2.run_rw_queries(link_obj = conn, queries = queries, end_tx = True)
-	except gmPG2.dbapi.IntegrityError, e:
+	except gmPG2.dbapi.IntegrityError as e:
 		if e.pgcode == gmPG2.sql_error_codes.FOREIGN_KEY_VIOLATION:		# 23503  foreign_key_violation
 			msg = _(
 				'Cannot delete GNUmed staff member because the\n'
@@ -281,7 +281,7 @@ class gmCurrentProvider(gmBorg.cBorg):
 
 		# must be cStaff instance, then
 		if not isinstance(provider, cStaff):
-			raise ValueError, 'cannot set logged on provider to [%s], must be either None or cStaff instance' % str(provider)
+			raise ValueError('cannot set logged on provider to [%s], must be either None or cStaff instance' % str(provider))
 
 		# first invocation
 		if isinstance(self.provider, gmNull.cNull):
@@ -293,7 +293,7 @@ class gmCurrentProvider(gmBorg.cBorg):
 			return None
 
 		# user wants different provider
-		raise ValueError, 'provider change [%s] -> [%s] not yet supported' % (self.provider['pk_staff'], provider['pk_staff'])
+		raise ValueError('provider change [%s] -> [%s] not yet supported' % (self.provider['pk_staff'], provider['pk_staff']))
 
 	#--------------------------------------------------------
 	def get_staff(self):
@@ -339,22 +339,22 @@ if __name__ == '__main__':
 	#--------------------------------------------------------
 	def test_staff():
 		staff = cStaff()
-		print staff
-		print staff.inbox
-		print staff.inbox.messages
+		print(staff)
+		print(staff.inbox)
+		print(staff.inbox.messages)
 	#--------------------------------------------------------
 	def test_current_provider():
 		staff = cStaff()
 		provider = gmCurrentProvider(provider = staff)
-		print provider
-		print provider.inbox
-		print provider.inbox.messages
-		print provider.database_language
+		print(provider)
+		print(provider.inbox)
+		print(provider.inbox.messages)
+		print(provider.database_language)
 		tmp = provider.database_language
 		provider.database_language = None
-		print provider.database_language
+		print(provider.database_language)
 		provider.database_language = tmp
-		print provider.database_language
+		print(provider.database_language)
 	#--------------------------------------------------------
 	test_staff()
 	#test_current_provider()

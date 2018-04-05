@@ -322,18 +322,18 @@ if __name__ == "__main__":
 
 	#--------------------------------------------------------------------
 	def test_textual_expansion():
-		print "keywords, from database:"
-		print get_textual_expansion_keywords()
-		print "keywords, cached:"
-		print get_textual_expansion_keywords()
-		print "'$keyword' expands to:"
-		print expand_keyword(keyword = u'$dvt')
+		print("keywords, from database:")
+		print(get_textual_expansion_keywords())
+		print("keywords, cached:")
+		print(get_textual_expansion_keywords())
+		print("'$keyword' expands to:")
+		print(expand_keyword(keyword = u'$dvt'))
 
 	#--------------------------------------------------------------------
 	def test_kwd_expansions():
 		for k in get_keyword_expansions():
-			print k.format()
-			print ""
+			print(k.format())
+			print("")
 	#--------------------------------------------------------------------
 	#test_textual_expansion()
 	test_kwd_expansions()

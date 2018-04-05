@@ -311,9 +311,9 @@ if __name__ == "__main__":
 
 	#----------------------------------------------------
 	def test_get_fhx():
-		print "family history:"
+		print("family history:")
 		for fhx in get_family_history():
-			print fhx
+			print(fhx)
 	#----------------------------------------------------
 	test_get_fhx()
 

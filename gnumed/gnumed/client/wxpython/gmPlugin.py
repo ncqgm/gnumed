@@ -247,8 +247,8 @@ class cPatientChange_PluginMixin:
 
 	# -----------------------------------------------------
 	def _post_patient_selection(self, **kwds):
-		print "%s._post_patient_selection() not implemented" % self.__class__.__name__
-		print "should usually be used to schedule reloading the UI"
+		print("%s._post_patient_selection() not implemented" % self.__class__.__name__)
+		print("should usually be used to schedule reloading the UI")
 
 #==================================================================
 # some convenience functions
@@ -429,4 +429,4 @@ def UnloadPlugin (set, name):
 if __name__ == '__main__':
 
 	if len(sys.argv) > 1 and sys.argv[1] == 'test':
-		print get_installed_plugins('gui')
+		print(get_installed_plugins('gui'))

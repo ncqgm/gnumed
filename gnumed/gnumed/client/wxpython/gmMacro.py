@@ -14,7 +14,7 @@ import logging
 import os
 import io
 import datetime
-import urllib
+import urllib.parse
 import codecs
 import re as regex
 
@@ -461,7 +461,7 @@ __known_variant_placeholders = {
 }
 
 known_variant_placeholders = __known_variant_placeholders.keys()
-known_variant_placeholders.sort()
+#known_variant_placeholders.sort()
 
 
 # http://help.libreoffice.org/Common/List_of_Regular_Expressions
@@ -2272,7 +2272,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 
 	#--------------------------------------------------------
 	def _get_variant_url_escape(self, data=None):
-		return self._escape(urllib.quote(data.encode('utf8')))
+		return self._escape(urllib.parse.quote(data.encode('utf8')))
 
 	#--------------------------------------------------------
 	def _get_variant_text_snippet(self, data=None):
@@ -2559,10 +2559,10 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 					data[field] = gmTools.xetex_escape_string(data[field])
 				continue
 			try:
-				data[field] = unicode(val, encoding = 'utf8', errors = 'replace')
+				data[field] = str(val, encoding = 'utf8', errors = 'replace')
 			except TypeError:
 				try:
-					data[field] = unicode(val)
+					data[field] = str(val)
 				except (UnicodeDecodeError, TypeError):
 					val = '%s' % str(val)
 					data[field] = val.decode('utf8', 'replace')
@@ -2630,7 +2630,7 @@ class cMacroPrimitives:
 	#-----------------------------------------------------------------
 	def __init__(self, personality = None):
 		if personality is None:
-			raise gmExceptions.ConstructorError, 'must specify personality'
+			raise gmExceptions.ConstructorError('must specify personality')
 		self.__personality = personality
 		self.__attached = 0
 		self._get_source_personality = None
@@ -2868,7 +2868,7 @@ if __name__ == '__main__':
 		handler.debug = True
 
 		for placeholder in ['a', 'b']:
-			print handler[placeholder]
+			print(handler[placeholder])
 
 		pat = gmPersonSearch.ask_for_patient()
 		if pat is None:
@@ -2876,12 +2876,12 @@ if __name__ == '__main__':
 
 		gmPatSearchWidgets.set_active_patient(patient = pat)
 
-		print 'DOB (YYYY-MM-DD):', handler['date_of_birth::%Y-%m-%d']
+		print('DOB (YYYY-MM-DD):', handler['date_of_birth::%Y-%m-%d'])
 
 		app = wx.PyWidgetTester(size = (200, 50))
 
 		ph = 'progress_notes::ap'
-		print '%s: %s' % (ph, handler[ph])
+		print('%s: %s' % (ph, handler[ph]))
 	#--------------------------------------------------------
 	def test_new_variant_placeholders():
 
@@ -2943,8 +2943,8 @@ if __name__ == '__main__':
 		handler.debug = True
 
 		for placeholder in tests:
-			print placeholder, "=>", handler[placeholder]
-			print "--------------"
+			print(placeholder, "=>", handler[placeholder])
+			print("--------------")
 			raw_input()
 
 #		print 'DOB (YYYY-MM-DD):', handler['date_of_birth::%Y-%m-%d']
@@ -2961,27 +2961,27 @@ if __name__ == '__main__':
 		listener = gmScriptingListener.cScriptingListener(macro_executor = cMacroPrimitives(personality='unit test'), port=9999)
 
 		s = xmlrpclib.ServerProxy('http://localhost:9999')
-		print "should fail:", s.attach()
-		print "should fail:", s.attach('wrong cookie')
-		print "should work:", s.version()
-		print "should fail:", s.raise_gnumed()
-		print "should fail:", s.raise_notebook_plugin('test plugin')
-		print "should fail:", s.lock_into_patient('kirk, james')
-		print "should fail:", s.unlock_patient()
+		print("should fail:", s.attach())
+		print("should fail:", s.attach('wrong cookie'))
+		print("should work:", s.version())
+		print("should fail:", s.raise_gnumed())
+		print("should fail:", s.raise_notebook_plugin('test plugin'))
+		print("should fail:", s.lock_into_patient('kirk, james'))
+		print("should fail:", s.unlock_patient())
 		status, conn_auth = s.attach('unit test')
-		print "should work:", status, conn_auth
-		print "should work:", s.version()
-		print "should work:", s.raise_gnumed(conn_auth)
+		print("should work:", status, conn_auth)
+		print("should work:", s.version())
+		print("should work:", s.raise_gnumed(conn_auth))
 		status, pat_auth = s.lock_into_patient(conn_auth, 'kirk, james')
-		print "should work:", status, pat_auth
-		print "should fail:", s.unlock_patient(conn_auth, 'bogus patient unlock cookie')
-		print "should work", s.unlock_patient(conn_auth, pat_auth)
+		print("should work:", status, pat_auth)
+		print("should fail:", s.unlock_patient(conn_auth, 'bogus patient unlock cookie'))
+		print("should work", s.unlock_patient(conn_auth, pat_auth))
 		data = {'firstname': 'jame', 'lastnames': 'Kirk', 'gender': 'm'}
 		status, pat_auth = s.lock_into_patient(conn_auth, data)
-		print "should work:", status, pat_auth
-		print "should work", s.unlock_patient(conn_auth, pat_auth)
-		print s.detach('bogus detach cookie')
-		print s.detach(conn_auth)
+		print("should work:", status, pat_auth)
+		print("should work", s.unlock_patient(conn_auth, pat_auth))
+		print(s.detach('bogus detach cookie'))
+		print(s.detach(conn_auth))
 		del s
 
 		listener.shutdown()
@@ -3152,9 +3152,9 @@ if __name__ == '__main__':
 		}
 
 		for pattern in [first_pass_placeholder_regex, second_pass_placeholder_regex, third_pass_placeholder_regex]:
-			print ""
-			print "-----------------------------"
-			print "regex:", pattern
+			print("")
+			print("-----------------------------")
+			print("regex:", pattern)
 			tests = all_tests[pattern]
 			for t in tests:
 				line, expected_results = t
@@ -3163,25 +3163,25 @@ if __name__ == '__main__':
 					if phs == expected_results:
 						continue
 
-				print ""
-				print "failed"
-				print "line:", line
+				print("")
+				print("failed")
+				print("line:", line)
 
 				if len(phs) == 0:
-					print "no match"
+					print("no match")
 					continue
 
 				if len(phs) > 1:
-					print "several matches"
+					print("several matches")
 					for r in expected_results:
-						print "expected:", r
+						print("expected:", r)
 					for p in phs:
-						print "found:", p
+						print("found:", p)
 					continue
 
-				print "unexpected match"
-				print "expected:", expected_results
-				print "found:   ", phs
+				print("unexpected match")
+				print("expected:", expected_results)
+				print("found:   ", phs)
 
 	#--------------------------------------------------------
 	def test_placeholder():
@@ -3268,9 +3268,9 @@ if __name__ == '__main__':
 		app = wx.PyWidgetTester(size = (200, 50))
 		#handler.set_placeholder('form_name_long', 'ein Testformular')
 		for ph in phs:
-			print ph
-			print " result:"
-			print '  %s' % handler[ph]
+			print(ph)
+			print(" result:")
+			print('  %s' % handler[ph])
 		#handler.unset_placeholder('form_name_long')
 
 	#--------------------------------------------------------

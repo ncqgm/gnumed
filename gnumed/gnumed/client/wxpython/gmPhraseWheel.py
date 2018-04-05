@@ -1360,27 +1360,27 @@ if __name__ == '__main__':
 	prw = None				# used for access from display_values_*
 	#--------------------------------------------------------
 	def display_values_set_focus(*args, **kwargs):
-		print "got focus:"
-		print "value:", prw.GetValue()
-		print "data :", prw.GetData()
+		print("got focus:")
+		print("value:", prw.GetValue())
+		print("data :", prw.GetData())
 		return True
 	#--------------------------------------------------------
 	def display_values_lose_focus(*args, **kwargs):
-		print "lost focus:"
-		print "value:", prw.GetValue()
-		print "data :", prw.GetData()
+		print("lost focus:")
+		print("value:", prw.GetValue())
+		print("data :", prw.GetData())
 		return True
 	#--------------------------------------------------------
 	def display_values_modified(*args, **kwargs):
-		print "modified:"
-		print "value:", prw.GetValue()
-		print "data :", prw.GetData()
+		print("modified:")
+		print("value:", prw.GetValue())
+		print("data :", prw.GetData())
 		return True
 	#--------------------------------------------------------
 	def display_values_selected(*args, **kwargs):
-		print "selected:"
-		print "value:", prw.GetValue()
-		print "data :", prw.GetData()
+		print("selected:")
+		print("value:", prw.GetValue())
+		print("data :", prw.GetData())
 		return True
 	#--------------------------------------------------------
 	#--------------------------------------------------------
@@ -1413,7 +1413,7 @@ if __name__ == '__main__':
 		return True
 	#--------------------------------------------------------
 	def test_prw_sql2():
-		print "Do you want to test the database connected phrase wheel ?"
+		print("Do you want to test the database connected phrase wheel ?")
 		yes_no = raw_input('y/n: ')
 		if yes_no != 'y':
 			return True

@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-from __future__ import print_function
 from __future__ import absolute_import
 
 __doc__ = """GNUmed client launcher.
@@ -66,6 +65,7 @@ __license__ = "GPL v2 or later (details at http://www.gnu.org)"
 import sys
 import os
 import platform
+import faulthandler
 import random
 import logging
 import signal
@@ -297,17 +297,11 @@ def setup_local_repo_path():
 
 #==========================================================
 def setup_fault_handler(target=None):
-	try:
-		import faulthandler
-	except ImportError:
-		print("Faulthandler not available ...")
-		_pre_log_buffer.append('<faulthandler> not available')
-		return
 	if target is None:
 		faulthandler.enable()
-		_pre_log_buffer.append('<faulthandler> enabled, target = [console]: %s (%s)' % (faulthandler, faulthandler.__version__))
+		_pre_log_buffer.append('<faulthandler> enabled, target = [console]: %s' % faulthandler)
 		return
-	_pre_log_buffer.append('<faulthandler> enabled, target = [%s]: %s (%s)' % (target, faulthandler, faulthandler.__version__))
+	_pre_log_buffer.append('<faulthandler> enabled, target = [%s]: %s' % (target, faulthandler))
 	faulthandler.enable(file = target)
 
 #==========================================================
@@ -346,11 +340,7 @@ def log_startup_info():
 	_log.info('os.getcwd(): [%s]', os.getcwd())
 	_log.info('process environment:')
 	for key, val in os.environ.items():
-		_log.info(u' %s: %s' % (
-			(u'${%s}' % key).rjust(30),
-			# this won't work in Python3 because that'll be a byte sequence, not a string and thus will need .ENcode
-			val.decode(encoding = sys.getfilesystemencoding(), errors = 'replace')
-		))
+		_log.info(u' %s: %s' % ((u'${%s}' % key).rjust(30),	val))
 
 #==========================================================
 def setup_console_exception_handler():

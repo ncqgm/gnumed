@@ -397,18 +397,18 @@ if __name__ == '__main__':
 		gmStaff.gmCurrentProvider(provider = gmStaff.cStaff())
 		inbox = cProviderInbox()
 		for msg in inbox.messages:
-			print msg
+			print(msg)
 	#---------------------------------------
 	def test_msg():
 		msg = cInboxMessage(aPK_obj = 1)
-		print msg
+		print(msg)
 	#---------------------------------------
 	def test_create_type():
-		print create_inbox_item_type(message_type = 'test')
+		print(create_inbox_item_type(message_type = 'test'))
 	#---------------------------------------
 	def test_due():
 		for msg in get_overdue_messages(pk_patient = 12):
-			print msg.format()
+			print(msg.format())
 	#---------------------------------------
 	#test_inbox()
 	#test_msg()

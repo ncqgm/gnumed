@@ -492,7 +492,7 @@ if __name__ == "__main__":
 		sys.exit()
 
 
-	print cOrgUnit(aPK_obj = 21825)
+	print(cOrgUnit(aPK_obj = 21825))
 
 
 #	for unit in get_org_units():
@@ -563,7 +563,7 @@ def get_org_data_for_org_ids(idList):
 	cmd = """select id, description, id_category  from dem.org 
 			where id in ( select id from dem.org where id in( %s) )""" % ids 
 	#<DEBUG>
-	print cmd
+	print(cmd)
 	#</DEBUG>
 	result = gmPG.run_ro_query("personalia", cmd, )
 	if result is None:
@@ -580,23 +580,23 @@ def get_org_data_for_org_ids(idList):
 #
 
 if __name__ == '__main__':
-	print "Please enter a write-enabled user e.g. _test-doc "
+	print("Please enter a write-enabled user e.g. _test-doc ")
 
 	def testListOrgs():
-		print "running test listOrg"
+		print("running test listOrg")
 		for (f,a) in get_test_data():
 			h = cOrgImpl1()
 			h.set(*f)
 			h.setAddress(*a)
 			if not h.save():
-				print "did not save ", f
+				print("did not save ", f)
 
 		orgs = cOrgHelperImpl1().findAllOrganizations()
 
 		for org in orgs:
-			print "Found org ", org.get(), org.getAddress()
+			print("Found org ", org.get(), org.getAddress())
 			if not org.shallow_del():
-				print "Unable to delete above org"
+				print("Unable to delete above org")
 
 
 
@@ -638,22 +638,22 @@ if __name__ == '__main__':
 		m = org.getPersonMap()
 
 		if m== []:
-			print "NO persons were found unfortunately"
+			print("NO persons were found unfortunately")
 
-		print """ TestOrgPersonRun got back for """
+		print(""" TestOrgPersonRun got back for """)
 		a = org.getAddress()
-		print org["name"], a["number"], a["street"], a["urb"], a["postcode"] , " phone=", org['phone']
+		print(org["name"], a["number"], a["street"], a["urb"], a["postcode"] , " phone=", org['phone'])
 
 		for id, r in m.items():
-			print "\t",", ".join( [ " ".join(r.get_names().values()),
+			print("\t",", ".join( [ " ".join(r.get_names().values()),
 						"work no=", r.getCommChannel(gmDemographicRecord.WORK_PHONE),
 						"mobile no=", r.getCommChannel(gmDemographicRecord.MOBILE)
-						] )
+						] ))
 		
 
 	def _testOrgPersonRun(f1, a1, personList):
-		print "Using test data :f1 = ", f1, "and a1 = ", a1 , " and lp = ", personList
-		print "-" * 50
+		print("Using test data :f1 = ", f1, "and a1 = ", a1 , " and lp = ", personList)
+		print("-" * 50)
 		_testOrgClassPersonRun( f1, a1, personList, cOrgImpl1)
 		_testOrgClassPersonRun( f1, a1, personList, cCompositeOrgImpl1)
 		_testOrgClassPersonRun( f1, a1, personList, cOrgHelperImpl1().create)
@@ -684,30 +684,30 @@ if __name__ == '__main__':
 
 
 	def _testOrgClassPersonRun(f1, a1, personList, orgCreate, identityCreator = getTestIdentityUsingDirectDemographicRecord):
-		print "-" * 50
-		print "Testing org creator ", orgCreate
-		print " and identity creator ", identityCreator
-		print "-" * 50
+		print("-" * 50)
+		print("Testing org creator ", orgCreate)
+		print(" and identity creator ", identityCreator)
+		print("-" * 50)
 		h = orgCreate()
 		h.set(*f1)
 		h.setAddress(*a1)
 		if not h.save():
-			print "Unable to save org for person test"
+			print("Unable to save org for person test")
 			h.shallow_del()
 			return False
 		# use gmDemographicRecord to convert person list
 		for lp in personList:
 			identity = identityCreator(lp, h)
 			result , msg = h.linkPerson(identity)
-			print msg
+			print(msg)
 
 		_outputPersons(h)
 		deletePersons(h)
 
 		if h.shallow_del():
-			print "Managed to dispose of org"
+			print("Managed to dispose of org")
 		else:
-			print "unable to dispose of org"
+			print("unable to dispose of org")
 
 		return True
 
@@ -744,7 +744,7 @@ if __name__ == '__main__':
 
 	def _testOrgRun( f1, a1):
 
-		print """testing single level orgs"""
+		print("""testing single level orgs""")
 		f = [ "name", "office", "subtype",  "memo", "category", "phone", "fax", "email","mobile"]
 		a = ["number", "street", "urb", "postcode", 'region', "country"]
 		h = cOrgImpl1()
@@ -752,63 +752,63 @@ if __name__ == '__main__':
 		h.set(*f1)
 		h.setAddress(*a1)
 
-		print "testing get, getAddress"
-		print h.get()
-		print h.getAddressDict()
+		print("testing get, getAddress")
+		print(h.get())
+		print(h.getAddressDict())
 
 		import sys
 		if not	h.save():
-			print "failed to save first time. Is an old test org needing manual removal?"
+			print("failed to save first time. Is an old test org needing manual removal?")
 			return False, h
-		print "saved pk =", h.getId()
+		print("saved pk =", h.getId())
 
 
 		pk = h.getId()
 		if h.shallow_del():
-			print "shallow deleted ", h['name']
+			print("shallow deleted ", h['name'])
 		else:
-			print "failed shallow delete of ", h['name']
+			print("failed shallow delete of ", h['name'])
 
 
 
 		h2 = cOrgImpl1()
 
-		print "testing load"
+		print("testing load")
 
-		print "should fail"
+		print("should fail")
 		if not h2.load(pk):
-			print "Failed as expected"
+			print("Failed as expected")
 
 		if h.save():
-			print "saved ", h['name'] , "again"
+			print("saved ", h['name'] , "again")
 		else:
-			print "failed re-save"
+			print("failed re-save")
 			return False, h
 
 		h['fax'] = '222-1111'
-		print "using update save"
+		print("using update save")
 
 		if h.save():
-			print "saved updated passed"
-			print "Test reload next"
+			print("saved updated passed")
+			print("Test reload next")
 		else:
-			print "failed save of updated data"
-			print "continuing to reload"
+			print("failed save of updated data")
+			print("continuing to reload")
 
 
 		if not h2.load(h.getId()):
-			print "failed load"
+			print("failed load")
 			return False, h
-		print "reloaded values"
-		print h2.get()
-		print h2.getAddressDict()
+		print("reloaded values")
+		print(h2.get())
+		print(h2.getAddressDict())
 
-		print "** End of Test org"
+		print("** End of Test org")
 
 		if h2.shallow_del():
-			print "cleaned up"
+			print("cleaned up")
 		else:
-			print "Test org needs to be manually removed"
+			print("Test org needs to be manually removed")
 
 		return True, h2
 
@@ -880,7 +880,7 @@ if __name__ == '__main__':
 		result = logintest(conn)
 
 		if result is False:
-			print msg
+			print(msg)
 
 		p.ReleaseConnection(service)
 		return result, login2
@@ -937,14 +937,14 @@ if __name__ == '__main__':
 
 
 	def create_temp_categories( categories = ['hospital']):
-		print "NEED TO CREATE TEMPORARY ORG_CATEGORY.\n\n ** PLEASE ENTER administrator login  : e.g  user 'gm-dbo' and  his password"
+		print("NEED TO CREATE TEMPORARY ORG_CATEGORY.\n\n ** PLEASE ENTER administrator login  : e.g  user 'gm-dbo' and  his password")
 		#get a admin login
 		for i in range(0, 4):
 			result ,tmplogin = login_admin_user()
 			if result:
 				break
 		if i == 4:
-			print "Failed to login"
+			print("Failed to login")
 			return categories
 
 		# and save it , for later removal of test categories.
@@ -970,7 +970,7 @@ if __name__ == '__main__':
 			result =  cursor.fetchone()
 			if result == None or len(result) == 0:
 				failed_categories.append(cat)
-				print "Failed insert of category", cat
+				print("Failed insert of category", cat)
 				conn.rollback()
 			else:
 				conn.commit()
@@ -982,20 +982,20 @@ if __name__ == '__main__':
 
 	def clean_org_categories(adminlogin = None, categories = ['hospital'], service='personalia'):
 
-		print"""
+		print("""
 
 		The temporary category(s) will now
 		need to be removed under an administrator login
 		e.g. gm-dbo
 		Please enter login for administrator:
-		"""
+		""")
 		if adminlogin is None:
 			for i in range(0, 4):
 				result, adminlogin = login_admin_user()
 				if  result:
 					break
 			if i == 4:
-				print "FAILED TO LOGIN"
+				print("FAILED TO LOGIN")
 				return categories
 
 		p = gmPG.ConnectionPool(adminlogin)
@@ -1008,13 +1008,13 @@ if __name__ == '__main__':
 				conn.commit()
 				cursor.execute("select id from dem.org_category where description in ('%s')"%cat)
 				if cursor.fetchone() == None:
-					print "Succeeded in removing temporary org_category"
+					print("Succeeded in removing temporary org_category")
 				else:
-					print "*** Unable to remove temporary org_category"
+					print("*** Unable to remove temporary org_category")
 					failed_remove .append(cat)
 			except:
 				import sys
-				print sys.exc_info()[0], sys.exc_info()[1]
+				print(sys.exc_info()[0], sys.exc_info()[1])
 				import traceback
 				traceback.print_tb(sys.exc_info()[2])
 
@@ -1023,34 +1023,34 @@ if __name__ == '__main__':
 		conn = None
 		p.ReleaseConnection(service)
 		if failed_remove != []:
-			print "FAILED TO REMOVE ", failed_remove
+			print("FAILED TO REMOVE ", failed_remove)
 		return failed_remove
 
 	def test_CatFinder():
-		print "TESTING cCatFinder"
+		print("TESTING cCatFinder")
 
-		print """c = cCatFinder("org_category")"""
+		print("""c = cCatFinder("org_category")""")
 		c = cCatFinder("org_category")
 
-		print c.getCategories("org_category")
+		print(c.getCategories("org_category"))
 
-		print """c = cCatFinder("enum_comm_types")"""
+		print("""c = cCatFinder("enum_comm_types")""")
 		c = cCatFinder("enum_comm_types")
 
 		l = c.getCategories("enum_comm_types")
-		print "testing getId()"
+		print("testing getId()")
 		l2 = []
 		for x in l:
 			l2.append((x, c.getId("enum_comm_types", x)))
-		print l2
+		print(l2)
 
-		print """testing borg behaviour of cCatFinder"""
+		print("""testing borg behaviour of cCatFinder""")
 
-		print c.getCategories("org_category")
+		print(c.getCategories("org_category"))
 
 
 	def help():
-		print """\nNB If imports not found , try:
+		print("""\nNB If imports not found , try:
 
 		change to gnumed/client directory , then
 
@@ -1080,18 +1080,18 @@ if __name__ == '__main__':
 			
 			No test yet for dirtied edit data, to query whether to
 			save or discard. (30/5/2004)
-		"""
-		print
-		print "In the connection query, please enter"
-		print "a WRITE-ENABLED user e.g. _test-doc (not test-doc), and the right password"
-		print
-		print "Run the unit test with cmdline argument '--clean'  if trying to clean out test data"
-		print
+		""")
+		print()
+		print("In the connection query, please enter")
+		print("a WRITE-ENABLED user e.g. _test-doc (not test-doc), and the right password")
+		print()
+		print("Run the unit test with cmdline argument '--clean'  if trying to clean out test data")
+		print()
 
-		print """You can get a sermon by running
+		print("""You can get a sermon by running
 		export PYTHONPATH=$PYTHONPATH:../;python business/gmOrganization.py --sermon
-		"""
-		print """
+		""")
+		print("""
 		Pre-requisite data in database is :
 		gnumed=# select * from org_category ;
 		id | description
@@ -1110,10 +1110,10 @@ if __name__ == '__main__':
 		6 | web
 		7 | jabber
 		(7 rows)
-		"""
+		""")
 
 	def sermon():
-				print"""
+				print("""
 		This test case shows how many things can go wrong , even with just a test case.
 		Problem areas include:
 		- postgres administration :  pg_ctl state, pg_hba.conf, postgres.conf  config files .
@@ -1167,7 +1167,7 @@ if __name__ == '__main__':
 			Soln: run with --clean option,
 
 
-		"""
+		""")
 
 
 #============================================================
@@ -1180,8 +1180,8 @@ if __name__ == '__main__':
 			p = gmPG.ConnectionPool()
 			p.ReleaseConnection('personalia')
 			if result:
-				print "probably succeeded in cleaning orgs"
-			else: 	print "failed to clean orgs"
+				print("probably succeeded in cleaning orgs")
+			else: 	print("failed to clean orgs")
 
 			clean_org_categories()
 			sys.exit(1)
@@ -1195,8 +1195,8 @@ if __name__ == '__main__':
 		if sys.argv[1] =="--gui":
 			testgui = True
 
-	print "*" * 50
-	print "RUNNING UNIT TEST of gmOrganization "
+	print("*" * 50)
+	print("RUNNING UNIT TEST of gmOrganization ")
 
 
 	test_CatFinder()
@@ -1205,36 +1205,36 @@ if __name__ == '__main__':
 
 	c = cCatFinder()
 	if not "hospital" in c.getCategories("org_category") :
-		print "FAILED in prerequisite for org_category : test categories are not present."
+		print("FAILED in prerequisite for org_category : test categories are not present.")
 
 		tmp_category = True
 
 	if tmp_category:
 		# test data in a categorical table (restricted access) is needed
 
-		print """You will need to switch login identity to database administrator in order
+		print("""You will need to switch login identity to database administrator in order
 			to have permission to write to the org_category table,
 			and then switch back to the ordinary write-enabled user in order
 			to run the test cases.
 			Finally you will need to switch back to administrator login to
 			remove the temporary org_categories.
-			"""
+			""")
 		categories = ['hospital']
 		result, adminlogin = create_temp_categories(categories)
 		if result == categories:
-			print "Unable to create temporary org_category. Test aborted"
+			print("Unable to create temporary org_category. Test aborted")
 			sys.exit(-1)
 		if result != []:
-			print "UNABLE TO CREATE THESE CATEGORIES"
+			print("UNABLE TO CREATE THESE CATEGORIES")
 			if not raw_input("Continue ?") in ['y', 'Y'] :
 				sys.exit(-1)
 
 	try:
 		results = []
 		if tmp_category:
-				print "succeeded in creating temporary org_category"
-				print
-				print "** Now ** RESUME LOGIN **  of write-enabled user (e.g. _test-doc) "
+				print("succeeded in creating temporary org_category")
+				print()
+				print("** Now ** RESUME LOGIN **  of write-enabled user (e.g. _test-doc) ")
 				while (1):
 					# get the RW user for org tables (again)
 					if login_rw_user():
@@ -1242,11 +1242,11 @@ if __name__ == '__main__':
 
 		if testgui:
 			if cCatFinder().getId('org_category','hospital') == None:
-				print "Needed to set up temporary org_category 'hospital"
+				print("Needed to set up temporary org_category 'hospital")
 				sys.exit(-1)
 			import os
-			print os.environ['PWD']
-		 	os.spawnl(os.P_WAIT, "/usr/bin/python", "/usr/bin/python","wxpython/gnumed.py", "--debug")
+			print(os.environ['PWD'])
+			os.spawnl(os.P_WAIT, "/usr/bin/python", "/usr/bin/python","wxpython/gnumed.py", "--debug")
 
 			#os.popen2('python client/wxpython/gnumed.py --debug')
 
@@ -1256,10 +1256,10 @@ if __name__ == '__main__':
 			# cleanup after the test case
 		for (result , org) in results:
 			if not result and org.getId() is not None:
-				print "trying cleanup"
-				if  org.shallow_del(): print " 	may have succeeded"
+				print("trying cleanup")
+				if  org.shallow_del(): print(" 	may have succeeded")
 				else:
-					print "May need manual removal of org id =", org.getId()
+					print("May need manual removal of org id =", org.getId())
 
 		testOrgPersons()
 
@@ -1267,7 +1267,7 @@ if __name__ == '__main__':
 
 	except:
 		import  sys
-		print sys.exc_info()[0], sys.exc_info()[1]
+		print(sys.exc_info()[0], sys.exc_info()[1])
 		_log.exception( "Fatal exception")
 
 		# clean-up any temporary categories.

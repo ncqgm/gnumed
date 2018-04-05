@@ -474,7 +474,7 @@ if __name__ == '__main__':
 	# obtain patient
 	pat = gmPersonSearch.ask_for_patient()
 	if pat is None:
-		print "No patient. Exiting gracefully..."
+		print("No patient. Exiting gracefully...")
 		sys.exit(0)
 	gmPatSearchWidgets.set_active_patient(patient=pat)
 

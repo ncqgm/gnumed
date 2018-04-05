@@ -8,7 +8,8 @@
 
 	1.8.0
 
-NEW: port to wxPhoenix
+NEW: port to wxPhoenix (wxPython 4)
+NEW: port to Python 3
 
 ------------------------------------------------
 # rel-1-7-patches

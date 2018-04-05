@@ -47,7 +47,7 @@ class Psql:
 			tmp = tmp.replace(u'\n', u'')
 		except UnicodeDecodeError:
 			global unformattable_error_id
-			tmp = u"%s:%d: <cannot unicode(msg), printing on console with ID [#%d]>" % (self.filename, self.lineno-1, unformattable_error_id)
+			tmp = u"%s:%d: <cannot str(msg), printing on console with ID [#%d]>" % (self.filename, self.lineno-1, unformattable_error_id)
 			try:
 				print('ERROR: GNUmed bootstrap #%d:' % unformattable_error_id)
 				print(aMsg)

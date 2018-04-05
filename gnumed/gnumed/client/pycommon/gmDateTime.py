@@ -49,7 +49,7 @@ import sys, datetime as pyDT, time, os, re as regex, locale, logging
 
 
 # 3rd party
-import mx.DateTime as mxDT
+#import mx.DateTime as mxDT
 import psycopg2						# this will go once datetime has timezone classes
 
 
@@ -59,7 +59,7 @@ from Gnumed.pycommon import gmI18N
 
 
 _log = logging.getLogger('gm.datetime')
-_log.info(u'mx.DateTime version: %s', mxDT.__version__)
+#_log.info(u'mx.DateTime version: %s', mxDT.__version__)
 
 dst_locally_in_use = None
 dst_currently_in_effect = None
@@ -122,7 +122,7 @@ days_per_week = 7
 #---------------------------------------------------------------------------
 def init():
 
-	_log.debug('mx.DateTime.now(): [%s]' % mxDT.now())
+#	_log.debug('mx.DateTime.now(): [%s]' % mxDT.now())
 	_log.debug('datetime.now()   : [%s]' % pyDT.datetime.now())
 	_log.debug('time.localtime() : [%s]' % str(time.localtime()))
 	_log.debug('time.gmtime()    : [%s]' % str(time.gmtime()))
@@ -136,13 +136,13 @@ def init():
 	_log.debug('time.timezone: [%s] seconds' % time.timezone)
 	_log.debug('time.altzone : [%s] seconds' % time.altzone)
 	_log.debug('time.tzname  : [%s / %s] (non-DST / DST)' % time.tzname)
-	_log.debug('mx.DateTime.now().gmtoffset(): [%s]' % mxDT.now().gmtoffset())
+#	_log.debug('mx.DateTime.now().gmtoffset(): [%s]' % mxDT.now().gmtoffset())
 
 	global py_timezone_name
-	py_timezone_name = time.tzname[0].decode(gmI18N.get_encoding(), 'replace')
+	py_timezone_name = time.tzname[0]
 
 	global py_dst_timezone_name
-	py_dst_timezone_name = time.tzname[1].decode(gmI18N.get_encoding(), 'replace')
+	py_dst_timezone_name = time.tzname[1]
 
 	global dst_locally_in_use
 	dst_locally_in_use = (time.daylight != 0)
@@ -171,7 +171,7 @@ def init():
 		_log.debug('UTC offset is ZERO, assuming Greenwich Time')
 
 	global current_local_timezone_interval
-	current_local_timezone_interval = mxDT.now().gmtoffset()
+#	current_local_timezone_interval = mxDT.now().gmtoffset()
 	_log.debug('ISO timezone: [%s] (taken from mx.DateTime.now().gmtoffset())' % current_local_timezone_interval)
 
 	global current_local_iso_numeric_timezone_string
@@ -182,9 +182,9 @@ def init():
 		current_local_timezone_name = os.environ['TZ'].decode(gmI18N.get_encoding(), 'replace')
 	except KeyError:
 		if dst_currently_in_effect:
-			current_local_timezone_name = time.tzname[1].decode(gmI18N.get_encoding(), 'replace')
+			current_local_timezone_name = time.tzname[1]
 		else:
-			current_local_timezone_name = time.tzname[0].decode(gmI18N.get_encoding(), 'replace')
+			current_local_timezone_name = time.tzname[0]
 
 	# do some magic to convert Python's timezone to a valid ISO timezone
 	# is this safe or will it return things like 13.5 hours ?
@@ -2157,28 +2157,28 @@ class cFuzzyTimestamp:
 			accuracy = self.accuracy
 
 		if accuracy == acc_years:
-			return unicode(self.timestamp.year)
+			return str(self.timestamp.year)
 
 		if accuracy == acc_months:
-			return unicode(self.timestamp.strftime('%m/%Y'))	# FIXME: use 3-letter month ?
+			return str(self.timestamp.strftime('%m/%Y'))	# FIXME: use 3-letter month ?
 
 		if accuracy == acc_weeks:
-			return unicode(self.timestamp.strftime('%m/%Y'))	# FIXME: use 3-letter month ?
+			return str(self.timestamp.strftime('%m/%Y'))	# FIXME: use 3-letter month ?
 
 		if accuracy == acc_days:
-			return unicode(self.timestamp.strftime('%Y-%m-%d'))
+			return str(self.timestamp.strftime('%Y-%m-%d'))
 
 		if accuracy == acc_hours:
-			return unicode(self.timestamp.strftime("%Y-%m-%d %I%p"))
+			return str(self.timestamp.strftime("%Y-%m-%d %I%p"))
 
 		if accuracy == acc_minutes:
-			return unicode(self.timestamp.strftime("%Y-%m-%d %H:%M"))
+			return str(self.timestamp.strftime("%Y-%m-%d %H:%M"))
 
 		if accuracy == acc_seconds:
-			return unicode(self.timestamp.strftime("%Y-%m-%d %H:%M:%S"))
+			return str(self.timestamp.strftime("%Y-%m-%d %H:%M:%S"))
 
 		if accuracy == acc_subseconds:
-			return unicode(self.timestamp)
+			return str(self.timestamp)
 
 		raise ValueError('%s.format_accurately(): <accuracy> (%s) must be between 1 and 7' % (
 			self.__class__.__name__,

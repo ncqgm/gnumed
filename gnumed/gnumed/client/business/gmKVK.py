@@ -697,34 +697,34 @@ if __name__ == "__main__":
 	def test_vks():
 		dtos = get_available_CCRdr_files_as_dtos(spool_dir = sys.argv[2])
 		for dto in dtos:
-			print dto
+			print(dto)
 
 	def test_egk_dto():
 		# test cKVKd_file object
 		kvkd_file = sys.argv[2]
-		print "reading eGK data from KVKd file", kvkd_file
+		print("reading eGK data from KVKd file", kvkd_file)
 		dto = cDTO_eGK(filename = kvkd_file, strict = False)
-		print dto
+		print(dto)
 		for attr in true_egk_fields:
-			print getattr(dto, attr)
+			print(getattr(dto, attr))
 
 	def test_kvk_dto():
 		# test cKVKd_file object
 		kvkd_file = sys.argv[2]
-		print "reading KVK data from KVKd file", kvkd_file
+		print("reading KVK data from KVKd file", kvkd_file)
 		dto = cDTO_KVK(filename = kvkd_file, strict = False)
-		print dto
+		print(dto)
 		for attr in true_kvk_fields:
-			print getattr(dto, attr)
+			print(getattr(dto, attr))
 
 	def test_get_available_kvks_as_dto():
 		dtos = get_available_kvks_as_dtos(spool_dir = sys.argv[2])
 		for dto in dtos:
-			print dto
+			print(dto)
 
 	if (len(sys.argv)) > 1 and (sys.argv[1] == 'test'):
 		if len(sys.argv) < 3:
-			print "give name of KVKd file as first argument"
+			print("give name of KVKd file as first argument")
 			sys.exit(-1)
 		test_vks()
 		#test_egk_dto()

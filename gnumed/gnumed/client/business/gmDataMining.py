@@ -103,7 +103,7 @@ def run_report_query(query=None, limit=None, pk_identity=None):
 		rows = [
 			[_('The query failed.')],
 			[u''],
-			[unicode(t)]
+			[str(t)]
 		]
 		for line in str(v).decode(gmI18N.get_encoding()).split('\n'):
 			rows.append([line])
@@ -127,11 +127,11 @@ if __name__ == '__main__':
 		test_report = u'test suite report'
 		test_query = u'select 1 as test_suite_report_result'
 
-		print "delete (should work):", delete_report_definition(name = test_report)
-		print "check (should return False):", report_exists(name = test_report)
-		print "save (should work):", save_report_definition(name = test_report, query = test_query)
-		print "save (should fail):", save_report_definition(name = test_report, query = test_query, overwrite = False)
-		print "save (should work):", save_report_definition(name = test_report, query = test_query, overwrite = True)
-		print "delete (should work):", delete_report_definition(name = test_report)
-		print "check (should return False):", report_exists(name = test_report)
+		print("delete (should work):", delete_report_definition(name = test_report))
+		print("check (should return False):", report_exists(name = test_report))
+		print("save (should work):", save_report_definition(name = test_report, query = test_query))
+		print("save (should fail):", save_report_definition(name = test_report, query = test_query, overwrite = False))
+		print("save (should work):", save_report_definition(name = test_report, query = test_query, overwrite = True))
+		print("delete (should work):", delete_report_definition(name = test_report))
+		print("check (should return False):", report_exists(name = test_report))
 #============================================================

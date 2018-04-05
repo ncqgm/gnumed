@@ -759,7 +759,7 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 		self._PRW_drug.Disable()
 
 		if self.data['is_long_term']:
-	 		self._CHBOX_long_term.SetValue(True)
+			self._CHBOX_long_term.SetValue(True)
 			self._PRW_duration.Enable(False)
 			self._PRW_duration.SetText(gmTools.u_infinity, None)
 			self._BTN_discontinued_as_planned.Enable(False)
