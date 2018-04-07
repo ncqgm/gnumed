@@ -49,7 +49,7 @@ except ImportError:
 
 # do this check just in case, so we can make sure
 # py2exe and friends include the proper version, too
-version = int(u'%s%s' % (wx.MAJOR_VERSION, wx.MINOR_VERSION))
+version = int('%s%s' % (wx.MAJOR_VERSION, wx.MINOR_VERSION))
 if (version < 28) or ('unicode' not in wx.PlatformInfo):
 	print('GNUmed startup: Unsupported wxPython version (%s: %s).' % (wx.VERSION_STRING, wx.PlatformInfo))
 	print('GNUmed startup: wxPython 2.8+ with unicode support is required.')
@@ -212,8 +212,8 @@ class gmTopLevelFrame(wx.Frame):
 		_log.debug('system default font is [%s] (%s)', font.GetNativeFontInfoUserDesc(), font.GetNativeFontInfoDesc())
 
 		desired_font_face = _cfg.get (
-			group = u'workplace',
-			option = u'client font',
+			group = 'workplace',
+			option = 'client font',
 			source_order = [
 				('explicit', 'return'),
 				('workbase', 'return'),
@@ -229,10 +229,10 @@ class gmTopLevelFrame(wx.Frame):
 			fonts2try.append(desired_font_face)
 
 		if wx.Platform == '__WXMSW__':
-			sane_font_face = u'Noto Sans'
+			sane_font_face = 'Noto Sans'
 			_log.info('MS Windows: appending fallback font candidate [%s]', sane_font_face)
 			fonts2try.append(sane_font_face)
-			sane_font_face = u'DejaVu Sans'
+			sane_font_face = 'DejaVu Sans'
 			_log.info('MS Windows: appending fallback font candidate [%s]', sane_font_face)
 			fonts2try.append(sane_font_face)
 
@@ -517,32 +517,32 @@ class gmTopLevelFrame(wx.Frame):
 		menu_person_import = wx.Menu()
 		item = menu_person_import.Append(-1, _('From &External sources'), _('Load and possibly create person from available external sources.'))
 		self.Bind(wx.EVT_MENU, self.__on_load_external_patient, item)
-		item = menu_person_import.Append(-1, _(u'&vCard file \u2192 patient'), _('Import demographics from .vcf vCard file as patient'))
+		item = menu_person_import.Append(-1, _('&vCard file \u2192 patient'), _('Import demographics from .vcf vCard file as patient'))
 		self.Bind(wx.EVT_MENU, self.__on_import_vcard_from_file, item)
-		item = menu_person_import.Append(-1, _(u'Clipboard (&XML) \u2192 patient'), _('Import demographics from clipboard (LinuxMedNews XML) as patient'))
+		item = menu_person_import.Append(-1, _('Clipboard (&XML) \u2192 patient'), _('Import demographics from clipboard (LinuxMedNews XML) as patient'))
 		self.Bind(wx.EVT_MENU, self.__on_import_xml_linuxmednews, item)
-		item = menu_person_import.Append(-1, _(u'Clipboard (&vCard) \u2192 patient'), _('Import demographics from clipboard (vCard) as patient'))
+		item = menu_person_import.Append(-1, _('Clipboard (&vCard) \u2192 patient'), _('Import demographics from clipboard (vCard) as patient'))
 		self.Bind(wx.EVT_MENU, self.__on_import_vcard_from_clipboard, item)
-		menu_person.Append(wx.NewId(), u'&Import\u2026', menu_person_import)
+		menu_person.Append(wx.NewId(), '&Import\u2026', menu_person_import)
 
 		menu_person_export = wx.Menu()
 		menu_person_export_clipboard = wx.Menu()
-		item = menu_person_export_clipboard.Append(-1, u'&GDT', _('Export demographics of currently active person as GDT into clipboard.'))
+		item = menu_person_export_clipboard.Append(-1, '&GDT', _('Export demographics of currently active person as GDT into clipboard.'))
 		self.Bind(wx.EVT_MENU, self.__on_export_gdt2clipboard, item)
-		item = menu_person_export_clipboard.Append(-1, u'&XML (LinuxMedNews)', _('Export demographics of currently active person as XML (LinuxMedNews) into clipboard'))
+		item = menu_person_export_clipboard.Append(-1, '&XML (LinuxMedNews)', _('Export demographics of currently active person as XML (LinuxMedNews) into clipboard'))
 		self.Bind(wx.EVT_MENU, self.__on_export_linuxmednews_xml2clipboard, item)
-		item = menu_person_export_clipboard.Append(-1, u'&vCard', _('Export demographics of currently active person as vCard into clipboard'))
+		item = menu_person_export_clipboard.Append(-1, '&vCard', _('Export demographics of currently active person as vCard into clipboard'))
 		self.Bind(wx.EVT_MENU, self.__on_export_vcard2clipboard, item)
-		menu_person_export.Append(wx.NewId(), _(u'\u2192 &Clipboard as\u2026'), menu_person_export_clipboard)
+		menu_person_export.Append(wx.NewId(), _('\u2192 &Clipboard as\u2026'), menu_person_export_clipboard)
 
 		menu_person_export_file = wx.Menu()
-		item = menu_person_export_file.Append(-1, u'&GDT', _('Export demographics of currently active person into GDT file.'))
+		item = menu_person_export_file.Append(-1, '&GDT', _('Export demographics of currently active person into GDT file.'))
 		self.Bind(wx.EVT_MENU, self.__on_export_as_gdt, item)
-		item = menu_person_export_file.Append(-1, u'&vCard', _('Export demographics of currently active person into vCard file.'))
+		item = menu_person_export_file.Append(-1, '&vCard', _('Export demographics of currently active person into vCard file.'))
 		self.Bind(wx.EVT_MENU, self.__on_export_as_vcard, item)
-		menu_person_export.Append(wx.NewId(), _(u'\u2192 &File as\u2026'), menu_person_export_file)
+		menu_person_export.Append(wx.NewId(), _('\u2192 &File as\u2026'), menu_person_export_file)
 
-		menu_person.Append(wx.NewId(), u'E&xport\u2026', menu_person_export)
+		menu_person.Append(wx.NewId(), 'E&xport\u2026', menu_person_export)
 
 		item = menu_person.Append(-1, _('&Merge persons'), _('Merge two persons into one.'))
 		self.Bind(wx.EVT_MENU, self.__on_merge_patients, item)
@@ -658,18 +658,18 @@ class gmTopLevelFrame(wx.Frame):
 		item = self.menu_tools.Append(-1, _('Search all EMRs'), _('Search for data across the EMRs of all patients'))
 		self.Bind(wx.EVT_MENU, self.__on_search_across_emrs, item)
 		viewer = _('no viewer installed')
-		if gmShellAPI.detect_external_binary(binary = u'ginkgocadx')[0]:
-			viewer = u'Ginkgo CADx'
-		elif os.access(u'/Applications/OsiriX.app/Contents/MacOS/OsiriX', os.X_OK):
-			viewer = u'OsiriX'
-		elif gmShellAPI.detect_external_binary(binary = u'aeskulap')[0]:
-			viewer = u'Aeskulap'
-		elif gmShellAPI.detect_external_binary(binary = u'amide')[0]:
-			viewer = u'AMIDE'
-		elif gmShellAPI.detect_external_binary(binary = u'dicomscope')[0]:
-			viewer = u'DicomScope'
-		elif gmShellAPI.detect_external_binary(binary = u'xmedcon')[0]:
-			viewer = u'(x)medcon'
+		if gmShellAPI.detect_external_binary(binary = 'ginkgocadx')[0]:
+			viewer = 'Ginkgo CADx'
+		elif os.access('/Applications/OsiriX.app/Contents/MacOS/OsiriX', os.X_OK):
+			viewer = 'OsiriX'
+		elif gmShellAPI.detect_external_binary(binary = 'aeskulap')[0]:
+			viewer = 'Aeskulap'
+		elif gmShellAPI.detect_external_binary(binary = 'amide')[0]:
+			viewer = 'AMIDE'
+		elif gmShellAPI.detect_external_binary(binary = 'dicomscope')[0]:
+			viewer = 'DicomScope'
+		elif gmShellAPI.detect_external_binary(binary = 'xmedcon')[0]:
+			viewer = '(x)medcon'
 		item = self.menu_tools.Append(-1, _('DICOM viewer'), _('Start DICOM viewer (%s) for CD-ROM (X-Ray, CT, MR, etc). On Windows just insert CD.') % viewer)
 		self.Bind(wx.EVT_MENU, self.__on_dicom_viewer, item)
 		if viewer == _('no viewer installed'):
@@ -681,9 +681,9 @@ class gmTopLevelFrame(wx.Frame):
 		self.Bind(wx.EVT_MENU, self.__on_snellen, item)
 		item = self.menu_tools.Append(-1, _('MI/stroke risk'), _('Acute coronary syndrome/stroke risk assessment.'))
 		self.Bind(wx.EVT_MENU, self.__on_acs_risk_assessment, item)
-		item = self.menu_tools.Append(-1, u'arriba', _('arriba: cardiovascular risk assessment (%s).') % u'www.arriba-hausarzt.de')
+		item = self.menu_tools.Append(-1, 'arriba', _('arriba: cardiovascular risk assessment (%s).') % 'www.arriba-hausarzt.de')
 		self.Bind(wx.EVT_MENU, self.__on_arriba, item)
-		if not gmShellAPI.detect_external_binary(binary = u'arriba')[0]:
+		if not gmShellAPI.detect_external_binary(binary = 'arriba')[0]:
 			_log.info('<arriba> not found, disabling "arriba" menu item')
 			self.menu_tools.Enable(id = item.Id, enable = False)
 
@@ -714,7 +714,7 @@ class gmTopLevelFrame(wx.Frame):
 #		# - IFAP drug DB
 #		item = menu_drug_dbs.Append(-1, u'ifap', _('Start "ifap index PRAXIS" %s drug browser (Windows/Wine, Germany)') % gmTools.u_registered_trademark)
 #		self.Bind(wx.EVT_MENU, self.__on_ifap, item)
-		item = menu_drug_dbs.Append(-1, u'kompendium.ch', _('Show "kompendium.ch" drug database (online, Switzerland)'))
+		item = menu_drug_dbs.Append(-1, 'kompendium.ch', _('Show "kompendium.ch" drug database (online, Switzerland)'))
 		self.Bind(wx.EVT_MENU, self.__on_kompendium_ch, item)
 		menu_knowledge.Append(wx.NewId(), _('&Drug Resources'), menu_drug_dbs)
 
@@ -753,7 +753,7 @@ class gmTopLevelFrame(wx.Frame):
 		self.Bind(wx.EVT_MENU, self.__on_menu_reference, item)
 		item = help_menu.Append(-1, _('&Clear status line'), _('Clear out the status line.'))
 		self.Bind(wx.EVT_MENU, self.__on_clear_status_line, item)
-		item = help_menu.Append(-1, _('Browse work dir'), _('Browse user working directory [%s].') % os.path.join(gmTools.gmPaths().home_dir, u'gnumed'))
+		item = help_menu.Append(-1, _('Browse work dir'), _('Browse user working directory [%s].') % os.path.join(gmTools.gmPaths().home_dir, 'gnumed'))
 		self.Bind(wx.EVT_MENU, self.__on_browse_work_dir, item)
 
 		menu_debugging = wx.Menu()
@@ -767,7 +767,7 @@ class gmTopLevelFrame(wx.Frame):
 		self.Bind(wx.EVT_MENU, self.__on_email_log_file, item)
 		item = menu_debugging.Append(-1, _('Browse tmp dir'), _('Browse temporary directory [%s].') % gmTools.gmPaths().tmp_dir)
 		self.Bind(wx.EVT_MENU, self.__on_browse_tmp_dir, item)
-		item = menu_debugging.Append(-1, _('Browse internal work dir'), _('Browse internal working directory [%s].') % os.path.join(gmTools.gmPaths().home_dir, u'.gnumed'))
+		item = menu_debugging.Append(-1, _('Browse internal work dir'), _('Browse internal working directory [%s].') % os.path.join(gmTools.gmPaths().home_dir, '.gnumed'))
 		self.Bind(wx.EVT_MENU, self.__on_browse_internal_work_dir, item)
 		item = menu_debugging.Append(-1, _('Bug tracker'), _('Go to the GNUmed bug tracker on the web.'))
 		self.Bind(wx.EVT_MENU, self.__on_display_bugtracker, item)
@@ -832,14 +832,14 @@ class gmTopLevelFrame(wx.Frame):
 		self.Bind(wx.EVT_QUERY_END_SESSION, self._on_query_end_session)
 		self.Bind(wx.EVT_END_SESSION, self._on_end_session)
 
-		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._on_post_patient_selection)
-		gmDispatcher.connect(signal = u'statustext', receiver = self._on_set_statustext)
-		gmDispatcher.connect(signal = u'request_user_attention', receiver = self._on_request_user_attention)
-		gmDispatcher.connect(signal = u'register_pre_exit_callback', receiver = self._register_pre_exit_callback)
-		gmDispatcher.connect(signal = u'plugin_loaded', receiver = self._on_plugin_loaded)
+		gmDispatcher.connect(signal = 'post_patient_selection', receiver = self._on_post_patient_selection)
+		gmDispatcher.connect(signal = 'statustext', receiver = self._on_set_statustext)
+		gmDispatcher.connect(signal = 'request_user_attention', receiver = self._on_request_user_attention)
+		gmDispatcher.connect(signal = 'register_pre_exit_callback', receiver = self._register_pre_exit_callback)
+		gmDispatcher.connect(signal = 'plugin_loaded', receiver = self._on_plugin_loaded)
 
-		gmDispatcher.connect(signal = u'db_maintenance_warning', receiver = self._on_db_maintenance_warning)
-		gmDispatcher.connect(signal = u'gm_table_mod', receiver = self._on_database_signal)
+		gmDispatcher.connect(signal = 'db_maintenance_warning', receiver = self._on_db_maintenance_warning)
+		gmDispatcher.connect(signal = 'gm_table_mod', receiver = self._on_database_signal)
 
 		# FIXME: xxxxxxx signal
 
@@ -848,8 +848,8 @@ class gmTopLevelFrame(wx.Frame):
 	#----------------------------------------------
 	def _on_database_signal(self, **kwds):
 
-		if kwds['table'] == u'dem.praxis_branch':
-			if kwds['operation'] != u'UPDATE':
+		if kwds['table'] == 'dem.praxis_branch':
+			if kwds['operation'] != 'UPDATE':
 				return True
 			branch = gmPraxis.gmCurrentPraxisBranch()
 			if branch['pk_praxis_branch'] != kwds['pk_row']:
@@ -857,7 +857,7 @@ class gmTopLevelFrame(wx.Frame):
 			self.__update_window_title()
 			return True
 
-		if kwds['table'] == u'dem.names':
+		if kwds['table'] == 'dem.names':
 			pat = gmPerson.gmCurrentPatient()
 			if pat.connected:
 				if pat.ID != kwds['pk_identity']:
@@ -865,8 +865,8 @@ class gmTopLevelFrame(wx.Frame):
 			self.__update_window_title()
 			return True
 
-		if kwds['table'] == u'dem.identity':
-			if kwds['operation'] != u'UPDATE':
+		if kwds['table'] == 'dem.identity':
+			if kwds['operation'] != 'UPDATE':
 				return True
 			pat = gmPerson.gmCurrentPatient()
 			if pat.connected:
@@ -902,7 +902,7 @@ class gmTopLevelFrame(wx.Frame):
 	#----------------------------------------------
 	def __on_raise_a_plugin(self, evt):
 		gmDispatcher.send (
-			signal = u'display_widget',
+			signal = 'display_widget',
 			name = self.menu_id2plugin[evt.Id]
 		)
 	#----------------------------------------------
@@ -925,12 +925,12 @@ class gmTopLevelFrame(wx.Frame):
 	#-----------------------------------------------
 	def _register_pre_exit_callback(self, callback=None):
 		if not callable(callback):
-			raise TypeError(u'callback [%s] not callable' % callback)
+			raise TypeError('callback [%s] not callable' % callback)
 
 		self.__pre_exit_callbacks.append(callback)
 	#-----------------------------------------------
 	def _on_set_statustext_pubsub(self, context=None):
-		msg = u'%s %s' % (gmDateTime.pydt_now_here().strftime('%H:%M'), context.data['msg'])
+		msg = '%s %s' % (gmDateTime.pydt_now_here().strftime('%H:%M'), context.data['msg'])
 		wx.CallAfter(self.SetStatusText, msg)
 
 		try:
@@ -947,7 +947,7 @@ class gmTopLevelFrame(wx.Frame):
 		if loglevel is not None:
 			_log.log(loglevel, msg.replace('\015', ' ').replace('\012', ' '))
 
-		msg = u'%s %s' % (gmDateTime.pydt_now_here().strftime('%H:%M'), msg)
+		msg = '%s %s' % (gmDateTime.pydt_now_here().strftime('%H:%M'), msg)
 		wx.CallAfter(self.SetStatusText, msg)
 
 		if beep:
@@ -960,7 +960,7 @@ class gmTopLevelFrame(wx.Frame):
 		if not wx.GetApp().IsActive():
 			self.RequestUserAttention(flags = wx.USER_ATTENTION_ERROR)
 
-		gmHooks.run_hook_script(hook = u'db_maintenance_warning')
+		gmHooks.run_hook_script(hook = 'db_maintenance_warning')
 
 		dlg = gmGuiHelpers.c2ButtonQuestionDlg (
 			None,
@@ -976,14 +976,14 @@ class gmTopLevelFrame(wx.Frame):
 			),
 			button_defs = [
 				{
-					u'label': _('Close now'),
-					u'tooltip': _('Close this GNUmed client immediately.'),
-					u'default': False
+					'label': _('Close now'),
+					'tooltip': _('Close this GNUmed client immediately.'),
+					'default': False
 				},
 				{
-					u'label': _('Finish work'),
-					u'tooltip': _('Finish and save current work first, then manually close this GNUmed client.'),
-					u'default': True
+					'label': _('Finish work'),
+					'tooltip': _('Finish and save current work first, then manually close this GNUmed client.'),
+					'default': True
 				}
 			]
 		)
@@ -1006,21 +1006,21 @@ class gmTopLevelFrame(wx.Frame):
 		if urgent:
 			wx.Bell()
 
-		gmHooks.run_hook_script(hook = u'request_user_attention')
+		gmHooks.run_hook_script(hook = 'request_user_attention')
 	#-----------------------------------------------
 	def _on_post_patient_selection(self, **kwargs):
 		self.__update_window_title()
-		gmDispatcher.send(signal = 'statustext', msg = u'')
+		gmDispatcher.send(signal = 'statustext', msg = '')
 		try:
-			gmHooks.run_hook_script(hook = u'post_patient_activation')
+			gmHooks.run_hook_script(hook = 'post_patient_activation')
 		except:
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot run script after patient activation.'))
 			raise
 	#----------------------------------------------
 	def _before_switching_from_patient_callback(self):
 		msg = _(
-			u'Before activation of another patient review the\n'
-			u'encounter details of the patient you just worked on:\n'
+			'Before activation of another patient review the\n'
+			'encounter details of the patient you just worked on:\n'
 		)
 		gmEncounterWidgets.sanity_check_encounter_of_active_patient(parent = self, msg = msg)
 		return True
@@ -1050,7 +1050,7 @@ class gmTopLevelFrame(wx.Frame):
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot put screenshot into export area. No active patient.'), beep = True)
 			return True
 		screenshot_file = self.__save_screenshot_to_file()
-		pat.export_area.add_file(filename = screenshot_file, hint = _(u'GMd screenshot'))
+		pat.export_area.add_file(filename = screenshot_file, hint = _('GMd screenshot'))
 
 	#----------------------------------------------
 	def __on_test_receiver_selection(self, evt):
@@ -1114,7 +1114,7 @@ class gmTopLevelFrame(wx.Frame):
 			login.user,
 			_provider['role'],
 			login.database,
-			gmTools.coalesce(login.host, u'<localhost>'),
+			gmTools.coalesce(login.host, '<localhost>'),
 			gmPG2.postgresql_version_string
 		)
 
@@ -1306,11 +1306,11 @@ class gmTopLevelFrame(wx.Frame):
 	def __on_configure_adr_url(self, evt):
 
 		# http://www.akdae.de/Arzneimittelsicherheit/UAW-Meldung/UAW-Meldung-online.html
-		german_default = u'https://dcgma.org/uaw/meldung.php'
+		german_default = 'https://dcgma.org/uaw/meldung.php'
 
 		def is_valid(value):
 			value = value.strip()
-			if value == u'':
+			if value == '':
 				return True, german_default
 			try:
 				urllib.request.urlopen(value)
@@ -1334,11 +1334,11 @@ class gmTopLevelFrame(wx.Frame):
 	#----------------------------------------------
 	def __on_configure_vaccine_adr_url(self, evt):
 
-		german_default = u'http://www.pei.de/cln_042/SharedDocs/Downloads/fachkreise/uaw/meldeboegen/b-ifsg-meldebogen,templateId=raw,property=publicationFile.pdf/b-ifsg-meldebogen.pdf'
+		german_default = 'http://www.pei.de/cln_042/SharedDocs/Downloads/fachkreise/uaw/meldeboegen/b-ifsg-meldebogen,templateId=raw,property=publicationFile.pdf/b-ifsg-meldebogen.pdf'
 
 		def is_valid(value):
 			value = value.strip()
-			if value == u'':
+			if value == '':
 				return True, german_default
 			try:
 				urllib.request.urlopen(value)
@@ -1368,7 +1368,7 @@ class gmTopLevelFrame(wx.Frame):
 
 		def is_valid(value):
 			value = value.strip()
-			if value == u'':
+			if value == '':
 				return True, german_default
 			try:
 				urllib.request.urlopen(value)
@@ -1397,7 +1397,7 @@ class gmTopLevelFrame(wx.Frame):
 
 		def is_valid(value):
 			value = value.strip()
-			if value == u'':
+			if value == '':
 				return True, german_default
 			try:
 				urllib.request.urlopen(value)
@@ -1514,17 +1514,17 @@ class gmTopLevelFrame(wx.Frame):
 		dbcfg = gmCfg.cCfgSQL()
 		# get list of possible plugins
 		plugin_list = gmTools.coalesce(dbcfg.get2 (
-			option = u'horstspace.notebook.plugin_load_order',
+			option = 'horstspace.notebook.plugin_load_order',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			bias = 'user'
 		), [])
 
 		# get current setting
 		initial_plugin = gmTools.coalesce(dbcfg.get2 (
-			option = u'horstspace.plugin_to_raise_after_startup',
+			option = 'horstspace.plugin_to_raise_after_startup',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			bias = 'user'
-		), u'gmEMRBrowserPlugin')
+		), 'gmEMRBrowserPlugin')
 		try:
 			selections = [plugin_list.index(initial_plugin)]
 		except ValueError:
@@ -1553,7 +1553,7 @@ class gmTopLevelFrame(wx.Frame):
 			return
 
 		dbcfg.set (
-			option = u'horstspace.plugin_to_raise_after_startup',
+			option = 'horstspace.plugin_to_raise_after_startup',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			value = plugin
 		)
@@ -1597,8 +1597,8 @@ class gmTopLevelFrame(wx.Frame):
 				' "today %s <the interval you set here>"\n'
 				'GNUmed will remind you of the recent or\n'
 				'imminent anniversary.'
-			) % u'\u2213',
-			option = u'patient_search.dob_warn_interval',
+			) % '\u2213',
+			option = 'patient_search.dob_warn_interval',
 			bias = 'user',
 			default_value = '1 week',
 			validator = is_valid
@@ -1617,7 +1617,7 @@ class gmTopLevelFrame(wx.Frame):
 				'progress notes on entirely new patients presenting\n'
 				'with a multitude of problems on their first visit.'
 			),
-			option = u'horstspace.soap_editor.allow_same_episode_multiple_times',
+			option = 'horstspace.soap_editor.allow_same_episode_multiple_times',
 			button_tooltips = [
 				_('Yes, allow for multiple new episodes concurrently.'),
 				_('No, only allow editing one new episode at a time.')
@@ -1634,7 +1634,7 @@ class gmTopLevelFrame(wx.Frame):
 				'touched upon during the current and the most recent\n'
 				'encounter ?'
 			),
-			option = u'horstspace.soap_editor.auto_open_latest_episodes',
+			option = 'horstspace.soap_editor.auto_open_latest_episodes',
 			button_tooltips = [
 				_('Yes, auto-open editors for all problems of the most recent encounter.'),
 				_('No, only auto-open one editor for a new, unassociated problem.')
@@ -1652,7 +1652,7 @@ class gmTopLevelFrame(wx.Frame):
 				'all SOAP categories which can then be set per line\n'
 				'of input ?'
 			),
-			option = u'horstspace.soap_editor.use_one_field_per_soap_category',
+			option = 'horstspace.soap_editor.use_one_field_per_soap_category',
 			button_tooltips = [
 				_('Yes, show a dedicated field per SOAP category.'),
 				_('No, use one field for all SOAP categories.')
@@ -1665,17 +1665,17 @@ class gmTopLevelFrame(wx.Frame):
 		dbcfg = gmCfg.cCfgSQL()
 		# get list of possible plugins
 		plugin_list = gmTools.coalesce(dbcfg.get2 (
-			option = u'horstspace.notebook.plugin_load_order',
+			option = 'horstspace.notebook.plugin_load_order',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			bias = 'user'
 		), [])
 
 		# get current setting
 		initial_plugin = gmTools.coalesce(dbcfg.get2 (
-			option = u'patient_search.plugin_to_raise_after_search',
+			option = 'patient_search.plugin_to_raise_after_search',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			bias = 'user'
-		), u'gmPatientOverviewPlugin')
+		), 'gmPatientOverviewPlugin')
 		try:
 			selections = [plugin_list.index(initial_plugin)]
 		except ValueError:
@@ -1701,7 +1701,7 @@ class gmTopLevelFrame(wx.Frame):
 			return
 
 		dbcfg.set (
-			option = u'patient_search.plugin_to_raise_after_search',
+			option = 'patient_search.plugin_to_raise_after_search',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			value = plugin
 		)
@@ -1715,11 +1715,11 @@ class gmTopLevelFrame(wx.Frame):
 		gmBillingWidgets.configure_invoice_template(parent = self, with_vat = True)
 	#----------------------------------------------
 	def __on_configure_billing_catalogs_url(self, evt):
-		german_default = u'http://www.e-bis.de/goae/defaultFrame.htm'
+		german_default = 'http://www.e-bis.de/goae/defaultFrame.htm'
 
 		def is_valid(value):
 			value = value.strip()
-			if value == u'':
+			if value == '':
 				return True, german_default
 			try:
 				urllib.request.urlopen(value)
@@ -1755,10 +1755,10 @@ class gmTopLevelFrame(wx.Frame):
 			message = _('Select the default prescription mode.\n'),
 			option = 'horst_space.default_prescription_mode',
 			bias = 'user',
-			default_value = u'form',
+			default_value = 'form',
 			choices = [ _('Formular'), _('Datenbank') ],
 			columns = [_('Prescription mode')],
-			data = [ u'form', u'database' ]
+			data = [ 'form', 'database' ]
 		)
 	#----------------------------------------------
 	def __on_cfg_default_gnuplot_template(self, evt):
@@ -1921,7 +1921,7 @@ class gmTopLevelFrame(wx.Frame):
 				'Leave this blank if you wish to stay anonymous.\n'
 			),
 			caption = _('Please enter your email address.'),
-			defaultValue = gmTools.coalesce(email, u''),
+			defaultValue = gmTools.coalesce(email, ''),
 			style = wx.OK | wx.CANCEL | wx.CENTRE
 		)
 		decision = dlg.ShowModal()
@@ -1942,7 +1942,7 @@ class gmTopLevelFrame(wx.Frame):
 				'You will still need your system administrator to\n'
 				'actually install any updates for you.\n'
 			),
-			option = u'horstspace.update.autocheck_at_startup',
+			option = 'horstspace.update.autocheck_at_startup',
 			button_tooltips = [
 				_('Yes, check for updates at startup.'),
 				_('No, do not check for updates at startup.')
@@ -1967,7 +1967,7 @@ class gmTopLevelFrame(wx.Frame):
 				'You will still need your system administrator to\n'
 				'actually install any updates for you.\n'
 			),
-			option = u'horstspace.update.consider_latest_branch',
+			option = 'horstspace.update.consider_latest_branch',
 			button_tooltips = [
 				_('Yes, check for feature updates, too.'),
 				_('No, check for bug-fix updates only.')
@@ -1998,9 +1998,9 @@ class gmTopLevelFrame(wx.Frame):
 				'Depending on the URL the client will need online\n'
 				'access when checking for updates.'
 			),
-			option = u'horstspace.update.url',
-			bias = u'workplace',
-			default_value = u'http://www.gnumed.de/downloads/gnumed-versions.txt',
+			option = 'horstspace.update.url',
+			bias = 'workplace',
+			default_value = 'http://www.gnumed.de/downloads/gnumed-versions.txt',
 			validator = is_valid
 		)
 	#----------------------------------------------
@@ -2015,7 +2015,7 @@ class gmTopLevelFrame(wx.Frame):
 				'up an index of, say, archived documents but do not\n'
 				'want to scan in all the pages contained therein.'
 			),
-			option = u'horstspace.scan_index.allow_partless_documents',
+			option = 'horstspace.scan_index.allow_partless_documents',
 			button_tooltips = [
 				_('Yes, allow saving documents without any parts.'),
 				_('No, require documents to have at least one part.')
@@ -2032,7 +2032,7 @@ class gmTopLevelFrame(wx.Frame):
 				'This can be useful if you want to label the\n'
 				'originals with that ID for later identification.'
 			),
-			option = u'horstspace.scan_index.show_doc_id',
+			option = 'horstspace.scan_index.show_doc_id',
 			button_tooltips = [
 				_('Yes, display the ID generated for the new document after importing.'),
 				_('No, do not display the ID generated for the new document after importing.')
@@ -2049,7 +2049,7 @@ class gmTopLevelFrame(wx.Frame):
 				'This can be useful if you want to label the\n'
 				'originals with that ID for later identification.'
 			),
-			option = u'horstspace.scan_index.generate_doc_uuid',
+			option = 'horstspace.scan_index.generate_doc_uuid',
 			button_tooltips = [
 				_('Yes, generate a UUID for the new document after importing.'),
 				_('No, do not generate a UUID for the new document after importing.')
@@ -2085,8 +2085,8 @@ class gmTopLevelFrame(wx.Frame):
 				'GNUmed during document display the review dialog\n'
 				'will actually appear in parallel to the viewer.'
 			),
-			option = u'horstspace.document_viewer.review_after_display',
-			bias = u'user',
+			option = 'horstspace.document_viewer.review_after_display',
+			bias = 'user',
 			default_value = 3,
 			validator = is_valid
 		)
@@ -2198,16 +2198,16 @@ class gmTopLevelFrame(wx.Frame):
 	#----------------------------------------------
 	def __on_dicom_viewer(self, evt):
 
-		found, cmd = gmShellAPI.detect_external_binary(binary = u'ginkgocadx')
+		found, cmd = gmShellAPI.detect_external_binary(binary = 'ginkgocadx')
 		if found:
 			gmShellAPI.run_command_in_shell(cmd, blocking=False)
 			return
 
-		if os.access(u'/Applications/OsiriX.app/Contents/MacOS/OsiriX', os.X_OK):
+		if os.access('/Applications/OsiriX.app/Contents/MacOS/OsiriX', os.X_OK):
 			gmShellAPI.run_command_in_shell('/Applications/OsiriX.app/Contents/MacOS/OsiriX', blocking = False)
 			return
 
-		for viewer in [u'aeskulap', u'amide', u'dicomscope', u'xmedcon']:
+		for viewer in ['aeskulap', 'amide', 'dicomscope', 'xmedcon']:
 			found, cmd = gmShellAPI.detect_external_binary(binary = viewer)
 			if found:
 				gmShellAPI.run_command_in_shell(cmd, blocking = False)
@@ -2244,7 +2244,7 @@ class gmTopLevelFrame(wx.Frame):
 		if doc is None:
 			return
 
-		doc['comment'] = u'arriba: %s' % _('cardiovascular risk assessment')
+		doc['comment'] = 'arriba: %s' % _('cardiovascular risk assessment')
 		doc.save()
 
 		try:
@@ -2252,26 +2252,26 @@ class gmTopLevelFrame(wx.Frame):
 			part = doc.add_part(file = arriba.xml_result)
 		except Exception:
 			_log.exception('error accessing [%s]', arriba.xml_result)
-			gmDispatcher.send(signal = u'statustext', msg = _('[arriba] XML result not found in [%s]') % arriba.xml_result, beep = False)
+			gmDispatcher.send(signal = 'statustext', msg = _('[arriba] XML result not found in [%s]') % arriba.xml_result, beep = False)
 
 		if part is None:
 			return
 
-		part['obj_comment'] = u'XML-Daten'
-		part['filename'] = u'arriba-result.xml'
+		part['obj_comment'] = 'XML-Daten'
+		part['filename'] = 'arriba-result.xml'
 		part.save()
 	#----------------------------------------------
 	def __on_acs_risk_assessment(self, evt):
 
 		dbcfg = gmCfg.cCfgSQL()
 		cmd = dbcfg.get2 (
-			option = u'external.tools.acs_risk_calculator_cmd',
+			option = 'external.tools.acs_risk_calculator_cmd',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			bias = 'user'
 		)
 
 		if cmd is None:
-			gmDispatcher.send(signal = u'statustext', msg = _('ACS risk assessment calculator not configured.'), beep = True)
+			gmDispatcher.send(signal = 'statustext', msg = _('ACS risk assessment calculator not configured.'), beep = True)
 			return
 
 		cwd = os.path.expanduser(os.path.join('~', '.gnumed'))
@@ -2283,7 +2283,7 @@ class gmTopLevelFrame(wx.Frame):
 			)
 		except (OSError, ValueError, subprocess.CalledProcessError):
 			_log.exception('there was a problem executing [%s]', cmd)
-			gmDispatcher.send(signal = u'statustext', msg = _('Cannot run [%s] !') % cmd, beep = True)
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot run [%s] !') % cmd, beep = True)
 			return
 
 		pdfs = glob.glob(os.path.join(cwd, 'arriba-%s-*.pdf' % gmDateTime.pydt_now_here().strftime('%Y-%m-%d')))
@@ -2292,13 +2292,13 @@ class gmTopLevelFrame(wx.Frame):
 				open(pdf).close()
 			except:
 				_log.exception('error accessing [%s]', pdf)
-				gmDispatcher.send(signal = u'statustext', msg = _('There was a problem accessing the [arriba] result in [%s] !') % pdf, beep = True)
+				gmDispatcher.send(signal = 'statustext', msg = _('There was a problem accessing the [arriba] result in [%s] !') % pdf, beep = True)
 				continue
 
 			doc = gmDocumentWidgets.save_file_as_new_document (
 				parent = self,
 				filename = pdf,
-				document_type = u'risk assessment',
+				document_type = 'risk assessment',
 				pk_org_unit = gmPraxis.gmCurrentPraxisBranch()['pk_org_unit']
 			)
 
@@ -2309,7 +2309,7 @@ class gmTopLevelFrame(wx.Frame):
 
 			if doc is None:
 				continue
-			doc['comment'] = u'arriba: %s' % _('cardiovascular risk assessment')
+			doc['comment'] = 'arriba: %s' % _('cardiovascular risk assessment')
 			doc.save()
 
 		return
@@ -2362,7 +2362,7 @@ class gmTopLevelFrame(wx.Frame):
 
 	#----------------------------------------------
 	def __on_kompendium_ch(self, evt):
-		gmNetworkTools.open_url_in_browser(url = u'http://www.kompendium.ch')
+		gmNetworkTools.open_url_in_browser(url = 'http://www.kompendium.ch')
 
 	#----------------------------------------------
 	# Office
@@ -2404,7 +2404,7 @@ class gmTopLevelFrame(wx.Frame):
 	def __on_test_access_violation(self, evt):
 		raise gmExceptions.AccessDenied (
 			_('[-9999]: <access violation test error>'),
-			source = u'GNUmed code',
+			source = 'GNUmed code',
 			code = -9999,
 			details = _('This is a deliberate AccessDenied exception thrown to test the handling of access violations by means of a decorator.')
 		)
@@ -2413,7 +2413,7 @@ class gmTopLevelFrame(wx.Frame):
 	def __on_test_access_checking(self, evt):
 		raise gmExceptions.AccessDenied (
 			_('[-9999]: <access violation test error>'),
-			source = u'GNUmed code',
+			source = 'GNUmed code',
 			code = -9999,
 			details = _('This is a deliberate AccessDenied exception. You should not see this message because the role is checked in a decorator.')
 		)
@@ -2435,7 +2435,7 @@ class gmTopLevelFrame(wx.Frame):
 		gmNetworkTools.open_url_in_browser(url = 'http://wiki.gnumed.de/bin/view/Gnumed/MenuReference')
 	#----------------------------------------------
 	def __on_pgadmin3(self, evt):
-		found, cmd = gmShellAPI.detect_external_binary(binary = u'pgadmin3')
+		found, cmd = gmShellAPI.detect_external_binary(binary = 'pgadmin3')
 		if found:
 			gmShellAPI.run_command_in_shell(cmd, blocking = False)
 			return
@@ -2449,7 +2449,7 @@ class gmTopLevelFrame(wx.Frame):
 		wx.EndBusyCursor()
 	#----------------------------------------------
 	def __on_clear_status_line(self, evt):
-		gmDispatcher.send(signal = 'statustext', msg = u'')
+		gmDispatcher.send(signal = 'statustext', msg = '')
 	#----------------------------------------------
 	def __on_toggle_patient_lock(self, evt):
 		curr_pat = gmPerson.gmCurrentPatient()
@@ -2496,11 +2496,11 @@ class gmTopLevelFrame(wx.Frame):
 
 	#----------------------------------------------
 	def __on_browse_work_dir(self, evt):
-		gmMimeLib.call_viewer_on_file(os.path.join(gmTools.gmPaths().home_dir, u'gnumed'), block = False)
+		gmMimeLib.call_viewer_on_file(os.path.join(gmTools.gmPaths().home_dir, 'gnumed'), block = False)
 
 	#----------------------------------------------
 	def __on_browse_internal_work_dir(self, evt):
-		gmMimeLib.call_viewer_on_file(os.path.join(gmTools.gmPaths().home_dir, u'.gnumed'), block = False)
+		gmMimeLib.call_viewer_on_file(os.path.join(gmTools.gmPaths().home_dir, '.gnumed'), block = False)
 
 	#----------------------------------------------
 	# GNUmed /
@@ -2708,7 +2708,7 @@ class gmTopLevelFrame(wx.Frame):
 			return False
 		from Gnumed.exporters import gmPatientExporter
 		exporter = gmPatientExporter.cEmrExport(patient = pat)
-		fname = gmTools.get_unique_filename(prefix = u'gm-exp-', suffix = u'.txt')
+		fname = gmTools.get_unique_filename(prefix = 'gm-exp-', suffix = '.txt')
 		output_file = io.open(fname, mode = 'wt', encoding = 'utf8', errors = 'replace')
 		exporter.set_output_file(output_file)
 		exporter.dump_constraints()
@@ -2716,7 +2716,7 @@ class gmTopLevelFrame(wx.Frame):
 		exporter.dump_clinical_record()
 		exporter.dump_med_docs()
 		output_file.close()
-		pat.export_area.add_file(filename = fname, hint = _(u'EMR as text document'))
+		pat.export_area.add_file(filename = fname, hint = _('EMR as text document'))
 
 	#----------------------------------------------
 	def __export_emr_as_timeline_xml(self, event):
@@ -2728,7 +2728,7 @@ class gmTopLevelFrame(wx.Frame):
 		try:
 			from Gnumed.exporters import gmTimelineExporter
 			fname = gmTimelineExporter.create_timeline_file(patient = pat)
-			pat.export_area.add_file(filename = fname, hint = _(u'EMR as timeline file (XML)'))
+			pat.export_area.add_file(filename = fname, hint = _('EMR as timeline file (XML)'))
 		except StandardError:
 			raise
 		finally:
@@ -2743,7 +2743,7 @@ class gmTopLevelFrame(wx.Frame):
 		wx.BeginBusyCursor()
 		try:
 			fname = gmEMRStructItems.export_emr_structure(patient = pat)
-			pat.export_area.add_file(filename = fname, hint = _(u'EMR as care structure file'))
+			pat.export_area.add_file(filename = fname, hint = _('EMR as care structure file'))
 		except StandardError:
 			raise
 		finally:
@@ -2864,7 +2864,7 @@ class gmTopLevelFrame(wx.Frame):
 			return
 		wx.EndBusyCursor()
 
-		pat.export_area.add_file(filename = fname, hint = _(u'EMR journal by last modification time'))
+		pat.export_area.add_file(filename = fname, hint = _('EMR journal by last modification time'))
 
 		return True
 
@@ -2890,7 +2890,7 @@ class gmTopLevelFrame(wx.Frame):
 			return
 		wx.EndBusyCursor()
 
-		pat.export_area.add_file(filename = fname, hint = _(u'EMR journal by encounter'))
+		pat.export_area.add_file(filename = fname, hint = _('EMR journal by encounter'))
 
 		return True
 
@@ -2898,7 +2898,7 @@ class gmTopLevelFrame(wx.Frame):
 	def __on_export_for_medistar(self, event):
 		gmNarrativeWorkflows.export_narrative_for_medistar_import (
 			parent = self,
-			soap_cats = u'soapu',
+			soap_cats = 'soapu',
 			encounter = None			# IOW, the current one
 		)
 
@@ -2918,17 +2918,17 @@ class gmTopLevelFrame(wx.Frame):
 		comment = wx.GetTextFromUser (
 			message = msg,
 			caption = _('Editing tag comment'),
-			default_value = gmTools.coalesce(tag['comment'], u''),
+			default_value = gmTools.coalesce(tag['comment'], ''),
 			parent = self
 		)
 
-		if comment == u'':
+		if comment == '':
 			return
 
 		if comment.strip() == tag['comment']:
 			return
 
-		if comment == u' ':
+		if comment == ' ':
 			tag['comment'] = None
 		else:
 			tag['comment'] = comment.strip()
@@ -3012,7 +3012,7 @@ class gmTopLevelFrame(wx.Frame):
 
 	#----------------------------------------------
 	def __on_search_person(self, evt):
-		gmDispatcher.send(signal = u'focus_patient_search')
+		gmDispatcher.send(signal = 'focus_patient_search')
 	#----------------------------------------------
 	def __on_create_new_patient(self, evt):
 		gmPersonCreationWidgets.create_new_person(parent = self, activate = True)
@@ -3106,7 +3106,7 @@ class gmTopLevelFrame(wx.Frame):
 				_log.exception('callback [%s] failed', call_back)
 
 		# signal imminent demise to plugins
-		gmDispatcher.send(u'application_closing')
+		gmDispatcher.send('application_closing')
 
 		# do not show status line messages anymore
 		gmDispatcher.disconnect(self._on_set_statustext, 'statustext')
@@ -3148,7 +3148,7 @@ class gmTopLevelFrame(wx.Frame):
 		_log.debug("%s active threads", threading.activeCount())
 		for t in threading.enumerate():
 			_log.debug('thread %s', t)
-			if t.name == u'MainThread':
+			if t.name == 'MainThread':
 				continue
 			print('GNUmed: waiting for thread [%s] to finish' % t.name)
 
@@ -3160,12 +3160,12 @@ class gmTopLevelFrame(wx.Frame):
 	def __set_window_title_template(self):
 
 		if _cfg.get(option = 'slave'):
-			self.__title_template = u'GMdS: %%(pat)s [%%(prov)s@%%(wp)s in %%(site)s of %%(prax)s] (%s:%s)' % (
+			self.__title_template = 'GMdS: %%(pat)s [%%(prov)s@%%(wp)s in %%(site)s of %%(prax)s] (%s:%s)' % (
 				_cfg.get(option = 'slave personality'),
 				_cfg.get(option = 'xml-rpc port')
 			)
 		else:
-			self.__title_template = u'GMd: %(pat)s [%(prov)s@%(wp)s in %(site)s of %(prax)s]'
+			self.__title_template = 'GMd: %(pat)s [%(prov)s@%(wp)s in %(site)s of %(prax)s]'
 	#----------------------------------------------
 	def __update_window_title(self):
 		"""Update title of main window based on template.
@@ -3180,8 +3180,8 @@ class gmTopLevelFrame(wx.Frame):
 
 		pat = gmPerson.gmCurrentPatient()
 		if pat.connected:
-			args['pat'] = u'%s %s %s (%s) #%d' % (
-				gmTools.coalesce(pat['title'], u'', u'%.4s'),
+			args['pat'] = '%s %s %s (%s) #%d' % (
+				gmTools.coalesce(pat['title'], '', '%.4s'),
 				pat['firstnames'],
 				pat['lastnames'],
 				pat.get_formatted_dob(format = '%Y %b %d', encoding = gmI18N.get_encoding()),
@@ -3190,8 +3190,8 @@ class gmTopLevelFrame(wx.Frame):
 		else:
 			args['pat'] = _('no patient')
 
-		args['prov'] = u'%s%s.%s' % (
-			gmTools.coalesce(_provider['title'], u'', u'%s '),
+		args['prov'] = '%s%s.%s' % (
+			gmTools.coalesce(_provider['title'], '', '%s '),
 			_provider['firstnames'][:1],
 			_provider['lastnames']
 		)
@@ -3235,8 +3235,8 @@ class gmTopLevelFrame(wx.Frame):
 		# FIXME: improve filename with patient/workplace/provider, allow user to select/change
 		if filename is None:
 			filename = gmTools.get_unique_filename (
-				prefix = u'gm-screenshot-%s-' % pyDT.datetime.now().strftime('%Y-%m-%d_%H-%M-%S'),
-				suffix = u'.png'
+				prefix = 'gm-screenshot-%s-' % pyDT.datetime.now().strftime('%Y-%m-%d_%H-%M-%S'),
+				suffix = '.png'
 			)
 
 		img.SaveFile(filename, wx.BITMAP_TYPE_PNG)
@@ -3301,18 +3301,18 @@ class gmApp(wx.App):
 		gmExceptionHandlingWidgets.install_wx_exception_handler()
 		gmExceptionHandlingWidgets.set_client_version(_cfg.get(option = 'client_version'))
 
-		self.SetAppName(u'gnumed')				# set this so things like "wx.StandardPaths.GetDataDir()" work as expected
-		self.SetVendorName(u'gnumed_community')
+		self.SetAppName('gnumed')				# set this so things like "wx.StandardPaths.GetDataDir()" work as expected
+		self.SetVendorName('gnumed_community')
 		try:
-			self.SetAppDisplayName(u'GNUmed %s' % _cfg.get(option = 'client_version'))
+			self.SetAppDisplayName('GNUmed %s' % _cfg.get(option = 'client_version'))
 		except AttributeError:
 			_log.info('SetAppDisplayName() not supported')
 		try:
-			self.SetVendorDisplayName(u'The GNUmed Development Community.')
+			self.SetVendorDisplayName('The GNUmed Development Community.')
 		except AttributeError:
 			_log.info('SetVendorDisplayName() not supported')
-		paths = gmTools.gmPaths(app_name = u'gnumed', wx = wx)
-		paths.init_paths(wx = wx, app_name = u'gnumed')
+		paths = gmTools.gmPaths(app_name = 'gnumed', wx = wx)
+		paths.init_paths(wx = wx, app_name = 'gnumed')
 
 		# warn users running on Python < 2.7
 		# for transitioning to Python 3
@@ -3428,11 +3428,11 @@ class gmApp(wx.App):
 	def _on_app_activated(self, evt):
 		if evt.GetActive():
 			if self.__starting_up:
-				gmHooks.run_hook_script(hook = u'app_activated_startup')
+				gmHooks.run_hook_script(hook = 'app_activated_startup')
 			else:
-				gmHooks.run_hook_script(hook = u'app_activated')
+				gmHooks.run_hook_script(hook = 'app_activated')
 		else:
-			gmHooks.run_hook_script(hook = u'app_deactivated')
+			gmHooks.run_hook_script(hook = 'app_deactivated')
 
 		evt.Skip()
 	#----------------------------------------------
@@ -3459,7 +3459,7 @@ class gmApp(wx.App):
 		self.__starting_up = False
 		#gmClinicalRecord.set_func_ask_user(a_func = gmEncounterWidgets.ask_for_encounter_continuation)
 		self.__guibroker['horstspace.top_panel']._TCTRL_patient_selector.SetFocus()
-		gmHooks.run_hook_script(hook = u'startup-after-GUI-init')
+		gmHooks.run_hook_script(hook = 'startup-after-GUI-init')
 
 	#----------------------------------------------
 	def __setup_user_activity_timer(self):
@@ -3500,7 +3500,7 @@ class gmApp(wx.App):
 
 		dbcfg = gmCfg.cCfgSQL()
 		do_check = bool(dbcfg.get2 (
-			option = u'horstspace.update.autocheck_at_startup',
+			option = 'horstspace.update.autocheck_at_startup',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			bias = 'workplace',
 			default = True
@@ -3559,31 +3559,31 @@ class gmApp(wx.App):
 			return False
 
 		login = gmPG2.get_default_login()
-		msg = u'\n'
+		msg = '\n'
 		msg += _('Database <%s> on <%s>') % (
 			login.database,
-			gmTools.coalesce(login.host, u'localhost')
+			gmTools.coalesce(login.host, 'localhost')
 		)
-		msg += u'\n\n'
+		msg += '\n\n'
 
 		praxis = gmPraxis.gmCurrentPraxisBranch()
 		msg += _('Branch "%s" of praxis "%s"\n') % (
 			praxis['branch'],
 			praxis['praxis']
 		)
-		msg += u'\n\n'
+		msg += '\n\n'
 
 		banner = praxis.db_logon_banner
-		if banner.strip() == u'':
+		if banner.strip() == '':
 			return True
 		msg += banner
-		msg += u'\n\n'
+		msg += '\n\n'
 
 		dlg = gmGuiHelpers.c2ButtonQuestionDlg (
 			None,		#self.GetTopWindow(),				# freezes
 			-1,
 			caption = _('Verifying database'),
-			question = gmTools.wrap(msg, 60, initial_indent = u'    ', subsequent_indent = u'    '),
+			question = gmTools.wrap(msg, 60, initial_indent = '    ', subsequent_indent = '    '),
 			button_defs = [
 				{'label': _('Connect'), 'tooltip': _('Yes, connect to this database.'), 'default': True},
 				{'label': _('Disconnect'), 'tooltip': _('No, do not connect to this database.'), 'default': False}
@@ -3604,8 +3604,8 @@ class gmApp(wx.App):
 		prefs_file = _cfg.get(option = 'user_preferences_file')
 		gmCfg2.set_option_in_INI_file (
 			filename = prefs_file,
-			group = u'profile %s' % login.backend_profile,
-			option = u'last known workplaces',
+			group = 'profile %s' % login.backend_profile,
+			option = 'last known workplaces',
 			value = wps
 		)
 		_cfg.reload_file_source(file = prefs_file)
@@ -3613,7 +3613,7 @@ class gmApp(wx.App):
 	def __setup_prefs_file(self):
 		"""Setup access to a config file for storing preferences."""
 
-		paths = gmTools.gmPaths(app_name = u'gnumed', wx = wx)
+		paths = gmTools.gmPaths(app_name = 'gnumed', wx = wx)
 
 		candidates = []
 		explicit_file = _cfg.get(option = '--conf-file', source_order = [('cli', 'return')])
@@ -3645,7 +3645,7 @@ class gmApp(wx.App):
 			gmGuiHelpers.gm_show_error(msg, _('Checking configuration files'))
 			return False
 
-		_cfg.set_option(option = u'user_preferences_file', value = prefs_file)
+		_cfg.set_option(option = 'user_preferences_file', value = prefs_file)
 		_log.info('user preferences file: %s', prefs_file)
 
 		return True
@@ -3658,8 +3658,8 @@ class gmApp(wx.App):
 
 		slave_personality = gmTools.coalesce (
 			_cfg.get (
-				group = u'workplace',
-				option = u'slave personality',
+				group = 'workplace',
+				option = 'slave personality',
 				source_order = [
 					('explicit', 'return'),
 					('workbase', 'return'),
@@ -3667,7 +3667,7 @@ class gmApp(wx.App):
 					('system', 'return')
 				]
 		 	),
-			u'gnumed-client'
+			'gnumed-client'
 		)
 		_cfg.set_option(option = 'slave personality', value = slave_personality)
 
@@ -3675,8 +3675,8 @@ class gmApp(wx.App):
 		port = int (
 			gmTools.coalesce (
 				_cfg.get (
-					group = u'workplace',
-					option = u'xml-rpc port',
+					group = 'workplace',
+					option = 'xml-rpc port',
 					source_order = [
 						('explicit', 'return'),
 						('workbase', 'return'),
@@ -3733,13 +3733,13 @@ class gmApp(wx.App):
 			_log.warning("system locale is undefined (probably meaning 'C')")
 			return True
 
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': u"select i18n.get_curr_lang() as lang"}])
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': "select i18n.get_curr_lang() as lang"}])
 		curr_db_lang = rows[0]['lang']
 		_log.debug("current database locale: [%s]" % curr_db_lang)
 
 		if curr_db_lang is None:
 			# try setting (only possible if translation exists)
-			cmd = u'select i18n.set_curr_lang(%s)'
+			cmd = 'select i18n.set_curr_lang(%s)'
 			for lang in [gmI18N.system_locale_level['full'], gmI18N.system_locale_level['country'], gmI18N.system_locale_level['language']]:
 				if len(lang) == 0:
 					continue
@@ -3764,8 +3764,8 @@ class gmApp(wx.App):
 		_log.warning('database locale [%s] does not match system locale [%s]' % (curr_db_lang, gmI18N.system_locale))
 
 		sys_lang2ignore = _cfg.get (
-			group = u'backend',
-			option = u'ignored mismatching system locale',
+			group = 'backend',
+			option = 'ignored mismatching system locale',
 			source_order = [('explicit', 'return'), ('local', 'return'), ('user', 'return'), ('system', 'return')]
 		)
 		if gmI18N.system_locale == sys_lang2ignore:
@@ -3817,7 +3817,7 @@ class gmApp(wx.App):
 			return True
 
 		# try setting database language (only possible if translation exists)
-		cmd = u'select i18n.set_curr_lang(%s)'
+		cmd = 'select i18n.set_curr_lang(%s)'
 		for lang in [gmI18N.system_locale_level['full'], gmI18N.system_locale_level['country'], gmI18N.system_locale_level['language']]:
 			if len(lang) == 0:
 				continue
@@ -3830,7 +3830,7 @@ class gmApp(wx.App):
 		# no match found but user wanted to set language anyways, so force it
 		_log.info('forcing database language to [%s]', gmI18N.system_locale_level['country'])
 		gmPG2.run_rw_queries(queries = [{
-			'cmd': u'select i18n.force_curr_lang(%s)',
+			'cmd': 'select i18n.force_curr_lang(%s)',
 			'args': [gmI18N.system_locale_level['country']]
 		}])
 

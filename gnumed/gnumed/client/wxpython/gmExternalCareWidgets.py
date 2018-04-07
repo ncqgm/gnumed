@@ -48,7 +48,7 @@ def manage_external_care(parent=None):
 			return True
 
 		gmDispatcher.send (
-			signal = u'statustext',
+			signal = 'statustext',
 			msg = _('Cannot delete external care item.'),
 			beep = True
 		)
@@ -58,20 +58,20 @@ def manage_external_care(parent=None):
 	def get_tooltip(data):
 		if data is None:
 			return None
-		return u'\n'.join(data.format(with_health_issue = True, with_address = True, with_comms = True))
+		return '\n'.join(data.format(with_health_issue = True, with_address = True, with_comms = True))
 
 	#------------------------------------------------------------
 	def refresh(lctrl):
-		care = emr.get_external_care_items(order_by = u'inactive, issue, provider, unit, organization')
+		care = emr.get_external_care_items(order_by = 'inactive, issue, provider, unit, organization')
 		items = [ [
-			u'%s @ %s' % (
+			'%s @ %s' % (
 				c['unit'],
 				c['organization']
 			),
-			gmTools.coalesce(c['provider'], u''),
+			gmTools.coalesce(c['provider'], ''),
 			c['issue'],
-			gmTools.bool2subst(c['inactive'], _(u'inactive'), u'', u'<ERROR: .inactive IS NULL>'),
-			gmTools.coalesce(c['comment'], u'')
+			gmTools.bool2subst(c['inactive'], _('inactive'), '', '<ERROR: .inactive IS NULL>'),
+			gmTools.coalesce(c['comment'], '')
 		] for c in care ]
 		lctrl.set_string_items(items)
 		lctrl.set_data(care)
@@ -81,7 +81,7 @@ def manage_external_care(parent=None):
 		parent = parent,
 		msg = _('External care of this patient.'),
 		caption = _('Showing external care network.'),
-		columns = [ _('Location'), _('Provider'), _('Reason for care'), _(u'Status'), _('Comment') ],
+		columns = [ _('Location'), _('Provider'), _('Reason for care'), _('Status'), _('Comment') ],
 		single_selection = False,
 		can_return_empty = True,
 		ignore_OK_button = False,
@@ -150,7 +150,7 @@ class cExternalCareEAPnl(wxgExternalCareEAPnl.wxgExternalCareEAPnl, gmEditArea.c
 		if self._PRW_issue.GetData() is not None:
 			self._PRW_issue.display_as_valid(True)
 		else:
-			if self._PRW_issue.GetValue().strip() != u'':
+			if self._PRW_issue.GetValue().strip() != '':
 				self._PRW_issue.display_as_valid(True)
 			else:
 				validity = False
@@ -189,10 +189,10 @@ class cExternalCareEAPnl(wxgExternalCareEAPnl.wxgExternalCareEAPnl, gmEditArea.c
 
 	#----------------------------------------------------------------
 	def _refresh_as_new(self):
-		self._PRW_issue.SetText(u'', None)
-		self._PRW_care_location.SetText(u'', None)
-		self._TCTRL_provider.SetValue(u'')
-		self._TCTRL_comment.SetValue(u'')
+		self._PRW_issue.SetText('', None)
+		self._PRW_care_location.SetText('', None)
+		self._TCTRL_provider.SetValue('')
+		self._TCTRL_comment.SetValue('')
 		self._CHBOX_inactive.Value = False
 
 		self._PRW_issue.SetFocus()
@@ -204,9 +204,9 @@ class cExternalCareEAPnl(wxgExternalCareEAPnl.wxgExternalCareEAPnl, gmEditArea.c
 	#----------------------------------------------------------------
 	def _refresh_from_existing(self):
 		self._PRW_issue.SetText(value = self.data['issue'], data = self.data['pk_health_issue'], suppress_smarts = True)
-		self._PRW_care_location.SetText(value = u'%s @ %s' % (self.data['unit'], self.data['organization']), data = self.data['pk_org_unit'])
-		self._TCTRL_provider.SetValue(gmTools.coalesce(self.data['provider'], u''))
-		self._TCTRL_comment.SetValue(gmTools.coalesce(self.data['comment'], u''))
+		self._PRW_care_location.SetText(value = '%s @ %s' % (self.data['unit'], self.data['organization']), data = self.data['pk_org_unit'])
+		self._TCTRL_provider.SetValue(gmTools.coalesce(self.data['provider'], ''))
+		self._TCTRL_comment.SetValue(gmTools.coalesce(self.data['comment'], ''))
 		self._CHBOX_inactive.Value = self.data['inactive']
 
 		self._TCTRL_comment.SetFocus()
@@ -243,16 +243,16 @@ class cExternalCareMgrPnl(gmListWidgets.cGenericListManagerPnl):
 			return
 
 		emr = self.__identity.emr
-		care = emr.get_external_care_items(order_by = u'inactive, issue, provider, unit, organization')
+		care = emr.get_external_care_items(order_by = 'inactive, issue, provider, unit, organization')
 		items = [ [
-			u'%s @ %s' % (
+			'%s @ %s' % (
 				c['unit'],
 				c['organization']
 			),
-			gmTools.coalesce(c['provider'], u''),
+			gmTools.coalesce(c['provider'], ''),
 			c['issue'],
-			gmTools.bool2subst(c['inactive'], _(u'inactive'), u'', u'<ERROR: .inactive IS NULL>'),
-			gmTools.coalesce(c['comment'], u'')
+			gmTools.bool2subst(c['inactive'], _('inactive'), '', '<ERROR: .inactive IS NULL>'),
+			gmTools.coalesce(c['comment'], '')
 		] for c in care ]
 		self._LCTRL_items.set_string_items(items)
 		self._LCTRL_items.set_column_widths()
@@ -266,7 +266,7 @@ class cExternalCareMgrPnl(gmListWidgets.cGenericListManagerPnl):
 			_('Care location'),
 			_('Provider'),
 			_('Reason for care'),
-			_(u'Status'),
+			_('Status'),
 			_('Comment')
 		])
 
@@ -290,7 +290,7 @@ class cExternalCareMgrPnl(gmListWidgets.cGenericListManagerPnl):
 		if gmExternalCare.delete_external_care_item(pk_external_care = external_care_item['pk_external_care']):
 			return True
 		gmDispatcher.send (
-			signal = u'statustext',
+			signal = 'statustext',
 			msg = _('Cannot delete external care item.'),
 			beep = True
 		)

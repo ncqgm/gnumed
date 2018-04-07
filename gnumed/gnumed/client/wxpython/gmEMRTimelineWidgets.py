@@ -167,14 +167,14 @@ class cEMRTimelinePnl(TimelineCanvas):
 	#--------------------------------------------------------
 	def export_as_svg(self, filename=None):
 		if filename is None:
-			filename = gmTools.get_unique_filename(suffix = u'.svg')
+			filename = gmTools.get_unique_filename(suffix = '.svg')
 		self.SaveAsSvg(filename)
 		return filename
 
 	#--------------------------------------------------------
 	def export_as_png(self, filename=None):
 		if filename is None:
-			filename = gmTools.get_unique_filename(suffix = u'.png')
+			filename = gmTools.get_unique_filename(suffix = '.png')
 		self.SaveAsPng(filename)
 		return filename
 
@@ -238,7 +238,7 @@ class cEMRTimelinePluginPnl(wxgEMRTimelinePluginPnl.wxgEMRTimelinePluginPnl, gmR
 	# event handling
 	#--------------------------------------------------------
 	def __register_interests(self):
-		gmDispatcher.connect(signal = u'pre_patient_unselection', receiver = self._on_pre_patient_unselection)
+		gmDispatcher.connect(signal = 'pre_patient_unselection', receiver = self._on_pre_patient_unselection)
 #		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._schedule_data_reget)
 
 	#--------------------------------------------------------
@@ -257,8 +257,8 @@ class cEMRTimelinePluginPnl(wxgEMRTimelinePluginPnl.wxgEMRTimelinePluginPnl, gmR
 			parent = self,
 			message = _("Save timeline as images (SVG, PNG) under..."),
 			defaultDir = os.path.expanduser(os.path.join('~', 'gnumed')),
-			defaultFile = u'timeline.svg',
-			wildcard = u'%s (*.svg)|*.svg' % _('SVG files'),
+			defaultFile = 'timeline.svg',
+			wildcard = '%s (*.svg)|*.svg' % _('SVG files'),
 			style = wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT
 		)
 		choice = dlg.ShowModal()
@@ -267,7 +267,7 @@ class cEMRTimelinePluginPnl(wxgEMRTimelinePluginPnl.wxgEMRTimelinePluginPnl, gmR
 		if choice != wx.ID_OK:
 			return False
 		self._PNL_timeline.export_as_svg(filename = fname)
-		self._PNL_timeline.export_as_png(filename = gmTools.fname_stem_with_path(fname) + u'.png')
+		self._PNL_timeline.export_as_png(filename = gmTools.fname_stem_with_path(fname) + '.png')
 
 	#--------------------------------------------------------
 	def _on_print_button_pressed(self, event):
@@ -283,8 +283,8 @@ class cEMRTimelinePluginPnl(wxgEMRTimelinePluginPnl.wxgEMRTimelinePluginPnl, gmR
 		pat = gmPerson.gmCurrentPatient()
 		if not pat.connected:
 			return
-		pat.export_area.add_file(filename = self._PNL_timeline.export_as_png(), hint = _(u'timeline image (png)'))
-		pat.export_area.add_file(filename = self._PNL_timeline.export_as_svg(), hint = _(u'timeline image (svg)'))
+		pat.export_area.add_file(filename = self._PNL_timeline.export_as_png(), hint = _('timeline image (png)'))
+		pat.export_area.add_file(filename = self._PNL_timeline.export_as_svg(), hint = _('timeline image (svg)'))
 		pat.export_area.add_file(filename = self.__tl_file, hint = _('timeline data (xml)'))
 
 	#--------------------------------------------------------

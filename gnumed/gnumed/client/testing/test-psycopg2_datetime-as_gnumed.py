@@ -32,7 +32,7 @@ gmPG2.set_default_client_timezone(timezone = 'Asia/Calcutta')
 
 conn = gmPG2.get_connection()
 
-cmd = u"""select * from dem.v_staff where db_user = CURRENT_USER"""
+cmd = """select * from dem.v_staff where db_user = CURRENT_USER"""
 
 try:
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], verbose = True)

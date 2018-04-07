@@ -75,9 +75,9 @@ class cProgressNotesEAPnl(gmTextCtrl.cExpandoTextCtrlHandling_PanelMixin, wxgPro
 
 		dbcfg = gmCfg.cCfgSQL()
 		self.__use_soap_fields = bool(dbcfg.get2 (
-			option = u'horstspace.soap_editor.use_one_field_per_soap_category',
+			option = 'horstspace.soap_editor.use_one_field_per_soap_category',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
-			bias = u'user',
+			bias = 'user',
 			default = True
 		))
 
@@ -111,7 +111,7 @@ class cProgressNotesEAPnl(gmTextCtrl.cExpandoTextCtrlHandling_PanelMixin, wxgPro
 		self.refresh_summary()
 		if self.problem is not None:
 			if self.problem['summary'] is None:
-				self._TCTRL_episode_summary.SetValue(u'')
+				self._TCTRL_episode_summary.SetValue('')
 		self.refresh_visual_soap()
 
 	#--------------------------------------------------------
@@ -121,8 +121,8 @@ class cProgressNotesEAPnl(gmTextCtrl.cExpandoTextCtrlHandling_PanelMixin, wxgPro
 
 	#--------------------------------------------------------
 	def refresh_summary(self):
-		self._TCTRL_episode_summary.SetValue(u'')
-		self._PRW_episode_codes.SetText(u'', self._PRW_episode_codes.list2data_dict([]))
+		self._TCTRL_episode_summary.SetValue('')
+		self._PRW_episode_codes.SetText('', self._PRW_episode_codes.list2data_dict([]))
 		self._LBL_summary.SetLabel(_('Episode synopsis'))
 
 		# new problem ?
@@ -130,11 +130,11 @@ class cProgressNotesEAPnl(gmTextCtrl.cExpandoTextCtrlHandling_PanelMixin, wxgPro
 			return
 
 		# issue-level problem ?
-		if self.problem['type'] == u'issue':
+		if self.problem['type'] == 'issue':
 			return
 
 		# episode-level problem
-		caption = _(u'Synopsis (%s)') % (
+		caption = _('Synopsis (%s)') % (
 			gmDateTime.pydt_strftime (
 				self.problem['modified_when'],
 				format = '%B %Y',
@@ -155,11 +155,11 @@ class cProgressNotesEAPnl(gmTextCtrl.cExpandoTextCtrlHandling_PanelMixin, wxgPro
 			self._PNL_visual_soap.refresh(document_folder = None)
 			return
 
-		if self.problem['type'] == u'issue':
+		if self.problem['type'] == 'issue':
 			self._PNL_visual_soap.refresh(document_folder = None)
 			return
 
-		if self.problem['type'] == u'episode':
+		if self.problem['type'] == 'episode':
 			pat = gmPerson.gmCurrentPatient()
 			doc_folder = pat.get_document_folder()
 			emr = pat.emr
@@ -172,14 +172,14 @@ class cProgressNotesEAPnl(gmTextCtrl.cExpandoTextCtrlHandling_PanelMixin, wxgPro
 
 	#--------------------------------------------------------
 	def clear(self):
-		self._TCTRL_episode_summary.SetValue(u'')
+		self._TCTRL_episode_summary.SetValue('')
 		self._LBL_summary.SetLabel(_('Episode synopsis'))
-		self._PRW_episode_codes.SetText(u'', self._PRW_episode_codes.list2data_dict([]))
+		self._PRW_episode_codes.SetText('', self._PRW_episode_codes.list2data_dict([]))
 		self._PNL_visual_soap.clear()
 
 		if self.__use_soap_fields:
 			for field in self.__soap_fields:
-				field.SetValue(u'')
+				field.SetValue('')
 		else:
 			self._STC_soap.SetText_from_SOAP()
 
@@ -259,16 +259,16 @@ class cProgressNotesEAPnl(gmTextCtrl.cExpandoTextCtrlHandling_PanelMixin, wxgPro
 
 		if self.problem is None:
 			msg = _(
-				u'Enter a short working name for this new problem\n'
-				u'(which will become a new, unassociated episode):\n'
+				'Enter a short working name for this new problem\n'
+				'(which will become a new, unassociated episode):\n'
 			)
 		else:
 			issue = emr.problem2issue(self.problem)
 			msg = _(
-				u'Enter a short working name for this new\n'
-				u'episode under the existing health issue\n'
-				u'\n'
-				u'"%s":\n'
+				'Enter a short working name for this new\n'
+				'episode under the existing health issue\n'
+				'\n'
+				'"%s":\n'
 			) % issue['description']
 
 		dlg = wx.TextEntryDialog (
@@ -283,7 +283,7 @@ class cProgressNotesEAPnl(gmTextCtrl.cExpandoTextCtrlHandling_PanelMixin, wxgPro
 			return None
 
 		epi_name = dlg.GetValue().strip()
-		if epi_name == u'':
+		if epi_name == '':
 			gmGuiHelpers.gm_show_error(_('Cannot save a new problem without a name.'), _('saving progress note'))
 			return None
 
@@ -327,7 +327,7 @@ class cProgressNotesEAPnl(gmTextCtrl.cExpandoTextCtrlHandling_PanelMixin, wxgPro
 			for field in self.__soap_fields:
 				self.bind_expando_layout_event(field)
 		self.bind_expando_layout_event(self._TCTRL_episode_summary)
-		gmDispatcher.connect(signal = u'blobs.doc_obj_mod_db', receiver = self.refresh_visual_soap)
+		gmDispatcher.connect(signal = 'blobs.doc_obj_mod_db', receiver = self.refresh_visual_soap)
 
 	#--------------------------------------------------------
 	# properties
@@ -338,16 +338,16 @@ class cProgressNotesEAPnl(gmTextCtrl.cExpandoTextCtrlHandling_PanelMixin, wxgPro
 
 		soap = {}
 		tmp = self._TCTRL_Soap.GetValue().strip()
-		if tmp != u'':
+		if tmp != '':
 			soap['s'] = [tmp]
 		tmp = self._TCTRL_sOap.GetValue().strip()
-		if tmp != u'':
+		if tmp != '':
 			soap['o'] = [tmp]
 		tmp = self._TCTRL_soAp.GetValue().strip()
-		if tmp != u'':
+		if tmp != '':
 			soap['a'] = [tmp]
 		tmp = self._TCTRL_soaP.GetValue().strip()
-		if tmp != u'':
+		if tmp != '':
 			soap['p'] = [tmp]
 		return soap
 
@@ -356,7 +356,7 @@ class cProgressNotesEAPnl(gmTextCtrl.cExpandoTextCtrlHandling_PanelMixin, wxgPro
 	def _get_empty(self):
 		if self.__use_soap_fields:
 			for field in self.__soap_fields:
-				if field.GetValue().strip() != u'':
+				if field.GetValue().strip() != '':
 					return False
 		else:
 			if not self._STC_soap.empty:
@@ -365,14 +365,14 @@ class cProgressNotesEAPnl(gmTextCtrl.cExpandoTextCtrlHandling_PanelMixin, wxgPro
 		# summary
 		summary = self._TCTRL_episode_summary.GetValue().strip()
 		if self.problem is None:
-			if summary != u'':
+			if summary != '':
 				return False
-		elif self.problem['type'] == u'issue':
-			if summary != u'':
+		elif self.problem['type'] == 'issue':
+			if summary != '':
 				return False
 		else:
 			if self.problem['summary'] is None:
-				if summary != u'':
+				if summary != '':
 					return False
 			else:
 				if summary != self.problem['summary'].strip():
@@ -383,7 +383,7 @@ class cProgressNotesEAPnl(gmTextCtrl.cExpandoTextCtrlHandling_PanelMixin, wxgPro
 		if self.problem is None:
 			if len(new_codes) > 0:
 				return False
-		elif self.problem['type'] == u'issue':
+		elif self.problem['type'] == 'issue':
 			if len(new_codes) > 0:
 				return False
 		else:
@@ -406,7 +406,7 @@ if __name__ == '__main__':
 	if len(sys.argv) < 2:
 		sys.exit()
 
-	if sys.argv[1] != u'test':
+	if sys.argv[1] != 'test':
 		sys.exit()
 
 	#----------------------------------------

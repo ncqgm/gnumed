@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #============================================================
-from __future__ import print_function
+
 
 __doc__ = """GNUmed medical document handling widgets."""
 
@@ -109,7 +109,7 @@ def manage_document_descriptions(parent=None, document=None):
 		descriptions = document.get_descriptions()
 
 		lctrl.set_string_items(items = [
-			u'%s%s' % ( (u' '.join(regex.split('\r\n+|\r+|\n+|\t+', desc[1])))[:30], gmTools.u_ellipsis )
+			'%s%s' % ( (' '.join(regex.split('\r\n+|\r+|\n+|\t+', desc[1])))[:30], gmTools.u_ellipsis )
 			for desc in descriptions
 		])
 		lctrl.set_data(data = descriptions)
@@ -214,7 +214,7 @@ def save_files_as_new_document(parent=None, filenames=None, document_type=None, 
 	if date_generated is not None:
 		doc['clin_when'] = date_generated
 	if comment is not None:
-		if comment != u'':
+		if comment != '':
 			doc['comment'] = comment
 	doc.save()
 
@@ -253,15 +253,15 @@ def save_files_as_new_document(parent=None, filenames=None, document_type=None, 
 		if reference is None:
 			msg = _('Successfully saved the new document.')
 		else:
-			msg = _(u'The reference ID for the new document is:\n'
-					u'\n'
-					u' <%s>\n'
-					u'\n'
-					u'You probably want to write it down on the\n'
-					u'original documents.\n'
-					u'\n'
-					u"If you don't care about the ID you can switch\n"
-					u'off this message in the GNUmed configuration.\n'
+			msg = _('The reference ID for the new document is:\n'
+					'\n'
+					' <%s>\n'
+					'\n'
+					'You probably want to write it down on the\n'
+					'original documents.\n'
+					'\n'
+					"If you don't care about the ID you can switch\n"
+					'off this message in the GNUmed configuration.\n'
 			) % reference
 		gmGuiHelpers.gm_show_info (
 			aMessage = msg,
@@ -273,12 +273,12 @@ def save_files_as_new_document(parent=None, filenames=None, document_type=None, 
 	files2remove = [ f for f in filenames if not f.startswith(tmp_dir) ]
 	if len(files2remove) > 0:
 		do_delete = gmGuiHelpers.gm_show_question (
-			_(	u'Successfully imported files as document.\n'
-				u'\n'
-				u'Do you want to delete imported files from the filesystem ?\n'
-				u'\n'
-				u' %s'
-			) % u'\n '.join(files2remove),
+			_(	'Successfully imported files as document.\n'
+				'\n'
+				'Do you want to delete imported files from the filesystem ?\n'
+				'\n'
+				' %s'
+			) % '\n '.join(files2remove),
 			_('Removing files')
 		)
 		if do_delete:
@@ -288,8 +288,8 @@ def save_files_as_new_document(parent=None, filenames=None, document_type=None, 
 	return doc
 
 #----------------------
-gmDispatcher.connect(signal = u'import_document_from_file', receiver = _save_file_as_new_document)
-gmDispatcher.connect(signal = u'import_document_from_files', receiver = _save_files_as_new_document)
+gmDispatcher.connect(signal = 'import_document_from_file', receiver = _save_file_as_new_document)
+gmDispatcher.connect(signal = 'import_document_from_files', receiver = _save_files_as_new_document)
 
 #============================================================
 class cDocumentPhraseWheel(gmPhraseWheel.cPhraseWheel):
@@ -299,12 +299,12 @@ class cDocumentPhraseWheel(gmPhraseWheel.cPhraseWheel):
 		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
 
 		ctxt = {'ctxt_pat': {
-			'where_part': u'(pk_patient = %(pat)s) AND',
-			'placeholder': u'pat'
+			'where_part': '(pk_patient = %(pat)s) AND',
+			'placeholder': 'pat'
 		}}
 
 		mp = gmMatchProvider.cMatchProvider_SQL2 (
-			queries = [u"""
+			queries = ["""
 SELECT DISTINCT ON (list_label)
 	pk_doc AS data,
 	l10n_type || ' (' || to_char(clin_when, 'YYYY Mon DD') || ')' || coalesce(': ' || unit || '@' || organization, '') || ' - ' || episode || coalesce(' (' || health_issue || ')', '') AS list_label,
@@ -328,7 +328,7 @@ LIMIT 25"""],
 			context = ctxt
 		)
 		mp.setThresholds(1, 3, 5)
-		mp.unset_context(u'pat')
+		mp.unset_context('pat')
 
 		self.matcher = mp
 		self.picklist_delay = 50
@@ -345,7 +345,7 @@ LIMIT 25"""],
 	#--------------------------------------------------------
 	def _get_data_tooltip(self):
 		if len(self._data) == 0:
-			return u''
+			return ''
 		return gmDocuments.cDocument(aPK_obj = self.GetData()).format(single_line = False)
 
 #============================================================
@@ -356,14 +356,14 @@ class cDocumentCommentPhraseWheel(gmPhraseWheel.cPhraseWheel):
 		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
 
 		context = {
-			u'ctxt_doc_type': {
-				u'where_part': u'and fk_type = %(pk_doc_type)s',
-				u'placeholder': u'pk_doc_type'
+			'ctxt_doc_type': {
+				'where_part': 'and fk_type = %(pk_doc_type)s',
+				'placeholder': 'pk_doc_type'
 			}
 		}
 
 		mp = gmMatchProvider.cMatchProvider_SQL2 (
-			queries = [u"""
+			queries = ["""
 SELECT
 	data,
 	field_label,
@@ -399,7 +399,7 @@ LIMIT 25"""],
 			context = context
 		)
 		mp.setThresholds(3, 5, 7)
-		mp.unset_context(u'pk_doc_type')
+		mp.unset_context('pk_doc_type')
 
 		self.matcher = mp
 		self.picklist_delay = 50
@@ -443,7 +443,7 @@ class cEditDocumentTypesPnl(wxgEditDocumentTypesPnl.wxgEditDocumentTypesPnl):
 		self._LCTRL_doc_type.set_column_widths()
 	#--------------------------------------------------------
 	def __register_interests(self):
-		gmDispatcher.connect(signal = u'blobs.doc_type_mod_db', receiver = self._on_doc_type_mod_db)
+		gmDispatcher.connect(signal = 'blobs.doc_type_mod_db', receiver = self._on_doc_type_mod_db)
 	#--------------------------------------------------------
 	def _on_doc_type_mod_db(self):
 		self.repopulate_ui()
@@ -555,7 +555,7 @@ class cEditDocumentTypesPnl(wxgEditDocumentTypesPnl.wxgEditDocumentTypesPnl):
 				'Make sure this is what you want to happen !\n'
 			) % orig_type['l10n_type'],
 			caption = _('Reassigning document type'),
-			choices = [ [gmTools.bool2subst(dt['is_user_defined'], u'X', u''), dt['type'], dt['l10n_type']] for dt in doc_types ],
+			choices = [ [gmTools.bool2subst(dt['is_user_defined'], 'X', ''), dt['type'], dt['l10n_type']] for dt in doc_types ],
 			columns = [_('User defined'), _('Type'), _('Translation')],
 			data = doc_types,
 			single_selection = True
@@ -579,7 +579,7 @@ class cDocumentTypeSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 		mp = gmMatchProvider.cMatchProvider_SQL2 (
 			queries = [
-u"""SELECT
+"""SELECT
 	data,
 	field_label,
 	list_label
@@ -618,8 +618,8 @@ ORDER BY q1.rank, q1.list_label"""]
 	def _create_data(self):
 
 		doc_type = self.GetValue().strip()
-		if doc_type == u'':
-			gmDispatcher.send(signal = u'statustext', msg = _('Cannot create document type without name.'), beep = True)
+		if doc_type == '':
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot create document type without name.'), beep = True)
 			_log.debug('cannot create document type without name')
 			return
 
@@ -695,7 +695,7 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 			self._PRW_doc_comment.SetText(gmTools.coalesce(self.__part['obj_comment'], ''))
 
 		if self.__doc['pk_org_unit'] is not None:
-			self._PRW_org.SetText(value = u'%s @ %s' % (self.__doc['unit'], self.__doc['organization']), data = self.__doc['pk_org_unit'])
+			self._PRW_org.SetText(value = '%s @ %s' % (self.__doc['unit'], self.__doc['organization']), data = self.__doc['pk_org_unit'])
 
 		if self.__doc['unit_is_receiver']:
 			self._RBTN_org_is_receiver.Value = True
@@ -780,24 +780,24 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 				reviews_by_others.append(rev)
 		# display them
 		if review_by_responsible_doc is not None:
-			row_num = self._LCTRL_existing_reviews.InsertItem(sys.maxint, label=review_by_responsible_doc[0])
+			row_num = self._LCTRL_existing_reviews.InsertItem(sys.maxsize, label=review_by_responsible_doc[0])
 			self._LCTRL_existing_reviews.SetItemTextColour(row_num, column=wx.BLUE)
 			self._LCTRL_existing_reviews.SetItem(index = row_num, column=0, label=review_by_responsible_doc[0])
 			self._LCTRL_existing_reviews.SetItem(index = row_num, column=1, label=review_by_responsible_doc[1].strftime('%x %H:%M'))
 			if review_by_responsible_doc['is_technically_abnormal']:
-				self._LCTRL_existing_reviews.SetItem(index = row_num, column=2, label=u'X')
+				self._LCTRL_existing_reviews.SetItem(index = row_num, column=2, label='X')
 			if review_by_responsible_doc['clinically_relevant']:
-				self._LCTRL_existing_reviews.SetItem(index = row_num, column=3, label=u'X')
+				self._LCTRL_existing_reviews.SetItem(index = row_num, column=3, label='X')
 			self._LCTRL_existing_reviews.SetItem(index = row_num, column=4, label=review_by_responsible_doc[6])
 			row_num += 1
 		for rev in reviews_by_others:
-			row_num = self._LCTRL_existing_reviews.InsertItem(sys.maxint, label=rev[0])
+			row_num = self._LCTRL_existing_reviews.InsertItem(sys.maxsize, label=rev[0])
 			self._LCTRL_existing_reviews.SetItem(index = row_num, column=0, label=rev[0])
 			self._LCTRL_existing_reviews.SetItem(index = row_num, column=1, label=rev[1].strftime('%x %H:%M'))
 			if rev['is_technically_abnormal']:
-				self._LCTRL_existing_reviews.SetItem(index = row_num, column=2, label=u'X')
+				self._LCTRL_existing_reviews.SetItem(index = row_num, column=2, label='X')
 			if rev['clinically_relevant']:
-				self._LCTRL_existing_reviews.SetItem(index = row_num, column=3, label=u'X')
+				self._LCTRL_existing_reviews.SetItem(index = row_num, column=3, label='X')
 			self._LCTRL_existing_reviews.SetItem(index = row_num, column=4, label=rev[6])
 		return True
 
@@ -872,7 +872,7 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 
 		# 3) handle "page" specific parts
 		if not self.__reviewing_doc:
-			self.__part['filename'] = gmTools.none_if(self._TCTRL_filename.GetValue().strip(), u'')
+			self.__part['filename'] = gmTools.none_if(self._TCTRL_filename.GetValue().strip(), '')
 			new_idx = gmTools.none_if(self._SPINCTRL_seq_idx.GetValue(), 0)
 			if self.__part['seq_idx'] != new_idx:
 				if new_idx in self.__doc['seq_idx_list']:
@@ -1035,13 +1035,13 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 		fts = gmDateTime.cFuzzyTimestamp()
 		self._PhWheel_doc_date.SetText(fts.strftime('%Y-%m-%d'), fts)
 		self._PRW_doc_comment.SetText('')
-		self._PhWheel_source.SetText(u'', None)
+		self._PhWheel_source.SetText('', None)
 		self._RBTN_org_is_source.SetValue(1)
 		# FIXME: should be set to patient's primary doc
 		self._PhWheel_reviewer.selection_only = True
 		me = gmStaff.gmCurrentProvider()
 		self._PhWheel_reviewer.SetText (
-			value = u'%s (%s%s %s)' % (me['short_alias'], gmTools.coalesce(me['title'], u''), me['firstnames'], me['lastnames']),
+			value = '%s (%s%s %s)' % (me['short_alias'], gmTools.coalesce(me['title'], ''), me['firstnames'], me['lastnames']),
 			data = me['pk_staff']
 		)
 		# -----------------------------
@@ -1059,12 +1059,12 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 		self._LCTRL_doc_pages.set_columns([_('file'), _('path')])
 		self._LCTRL_doc_pages.set_column_widths()
 
-		self._TCTRL_metadata.SetValue(u'')
+		self._TCTRL_metadata.SetValue('')
 
 		self._PhWheel_doc_type.SetFocus()
 
 	#--------------------------------------------------------
-	def add_parts_from_files(self, filenames, source=u''):
+	def add_parts_from_files(self, filenames, source=''):
 		rows = gmTools.coalesce(self._LCTRL_doc_pages.string_items, [])
 		data = gmTools.coalesce(self._LCTRL_doc_pages.data, [])
 		rows.extend([ [gmTools.fname_from_path(f), gmTools.fname_dir(f)] for f in filenames ])
@@ -1080,7 +1080,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 		if self._LCTRL_doc_pages.ItemCount == 0:
 			dbcfg = gmCfg.cCfgSQL()
 			allow_empty = bool(dbcfg.get2 (
-				option =  u'horstspace.scan_index.allow_partless_documents',
+				option =  'horstspace.scan_index.allow_partless_documents',
 				workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 				bias = 'user',
 				default = False
@@ -1142,7 +1142,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 				bias = 'workplace',
 				default = ''
 			)
-			if device.strip() == u'':
+			if device.strip() == '':
 				device = None
 			if device is not None:
 				return device
@@ -1286,7 +1286,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 		self._LCTRL_doc_pages.string_items = rows
 		self._LCTRL_doc_pages.data = data
 		self._LCTRL_doc_pages.set_column_widths()
-		self._TCTRL_metadata.SetValue(u'')
+		self._TCTRL_metadata.SetValue('')
 
 	#--------------------------------------------------------
 	def _save_btn_pressed(self, evt):
@@ -1333,7 +1333,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 
 		# - long description
 		description = self._TBOX_description.GetValue().strip()
-		if description != u'':
+		if description != '':
 			if not new_doc.add_description(description):
 				wx.EndBusyCursor()
 				gmGuiHelpers.gm_show_error (
@@ -1352,7 +1352,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 
 		self.__init_ui_data()
 
-		gmHooks.run_hook_script(hook = u'after_new_doc_created')
+		gmHooks.run_hook_script(hook = 'after_new_doc_created')
 
 		return True
 
@@ -1379,10 +1379,10 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 		status, description = result
 		fname, source = self._LCTRL_doc_pages.get_selected_item_data(only_one = True)
 		txt = _(
-			u'Source: %s\n'
-			u'File: %s\n'
-			u'\n'
-			u'%s'
+			'Source: %s\n'
+			'File: %s\n'
+			'\n'
+			'%s'
 		) % (
 			source,
 			fname,
@@ -1394,7 +1394,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 	def _on_part_selected(self, event):
 		event.Skip()
 		fname, source = self._LCTRL_doc_pages.get_item_data(item_idx = event.Index)
-		self._TCTRL_metadata.SetValue(u'Retrieving details from [%s] ...' % fname)
+		self._TCTRL_metadata.SetValue('Retrieving details from [%s] ...' % fname)
 		gmMimeLib.describe_file(fname, callback = self._on_update_file_description)
 
 #============================================================
@@ -1500,10 +1500,10 @@ def manage_documents(parent=None, msg=None, single_selection=True, pk_types=None
 	def refresh(lctrl):
 		docs = pat.document_folder.get_documents(pk_types = pk_types, pk_episodes = pk_episodes)
 		items = [ [
-			gmDateTime.pydt_strftime(d['clin_when'], u'%Y %b %d', accuracy = gmDateTime.acc_days),
+			gmDateTime.pydt_strftime(d['clin_when'], '%Y %b %d', accuracy = gmDateTime.acc_days),
 			d['l10n_type'],
-			gmTools.coalesce(d['comment'], u''),
-			gmTools.coalesce(d['ext_ref'], u''),
+			gmTools.coalesce(d['comment'], ''),
+			gmTools.coalesce(d['ext_ref'], ''),
 			d['pk_doc']
 		] for d in docs ]
 		lctrl.set_string_items(items)
@@ -1520,7 +1520,7 @@ def manage_documents(parent=None, msg=None, single_selection=True, pk_types=None
 	return gmListWidgets.get_choices_from_list (
 		parent = parent,
 		caption = _('Patient document list'),
-		columns = [_('Generated'), _('Type'), _('Comment'), _('Ref #'), u'#'],
+		columns = [_('Generated'), _('Type'), _('Comment'), _('Ref #'), '#'],
 		single_selection = single_selection,
 		#new_callback = edit,
 		#edit_callback = edit,
@@ -1538,7 +1538,7 @@ class cSelectablySortedDocTreePnl(wxgSelectablySortedDocTreePnl.wxgSelectablySor
 	def __init__(self, parent, id, *args, **kwds):
 		wxgSelectablySortedDocTreePnl.wxgSelectablySortedDocTreePnl.__init__(self, parent, id, *args, **kwds)
 
-		self._LCTRL_details.set_columns([u'', u''])
+		self._LCTRL_details.set_columns(['', ''])
 
 		self._doc_tree.show_details_callback = self._update_details
 
@@ -1589,26 +1589,26 @@ class cSelectablySortedDocTreePnl(wxgSelectablySortedDocTreePnl.wxgSelectablySor
 
 		items = []
 		if document is not None:
-			items.append([_(u'Document'), u'%s [#%s]' % (document['l10n_type'], document['pk_doc'])])
-			items.append([_(u'Generated'), gmDateTime.pydt_strftime(document['clin_when'], '%Y %b %d')])
-			items.append([_(u'Health issue'), gmTools.coalesce(document['health_issue'], u'', u'%%s [#%s]' % document['pk_health_issue'])])
-			items.append([_(u'Episode'), u'%s (%s) [#%s]' % (
+			items.append([_('Document'), '%s [#%s]' % (document['l10n_type'], document['pk_doc'])])
+			items.append([_('Generated'), gmDateTime.pydt_strftime(document['clin_when'], '%Y %b %d')])
+			items.append([_('Health issue'), gmTools.coalesce(document['health_issue'], '', '%%s [#%s]' % document['pk_health_issue'])])
+			items.append([_('Episode'), '%s (%s) [#%s]' % (
 				document['episode'],
-				gmTools.bool2subst(document['episode_open'], _(u'open'), _(u'closed')),
+				gmTools.bool2subst(document['episode_open'], _('open'), _('closed')),
 				document['pk_episode']
 			)])
 			if document['pk_org_unit'] is not None:
 				if document['unit_is_receiver']:
-					header = _(u'Receiver')
+					header = _('Receiver')
 				else:
-					header = _(u'Sender')
-				items.append([header, u'%s @ %s' % (document['unit'], document['organization'])])
+					header = _('Sender')
+				items.append([header, '%s @ %s' % (document['unit'], document['organization'])])
 			if document['ext_ref'] is not None:
-				items.append([_(u'Reference'), document['ext_ref']])
+				items.append([_('Reference'), document['ext_ref']])
 			if document['comment'] is not None:
-				items.append([_(u'Comment'), u' / '.join(document['comment'].split(u'\n'))])
+				items.append([_('Comment'), ' / '.join(document['comment'].split('\n'))])
 			for proc in document.procedures:
-				items.append([_(u'Procedure'), proc.format (
+				items.append([_('Procedure'), proc.format (
 					left_margin = 0,
 					include_episode = False,
 					include_codes = False,
@@ -1620,34 +1620,34 @@ class cSelectablySortedDocTreePnl(wxgSelectablySortedDocTreePnl.wxgSelectablySor
 			if stay is not None:
 				items.append([_('Hospital stay'), stay.format(include_episode = False)])
 			for bill in document.bills:
-				items.append([_(u'Bill'), bill.format (
+				items.append([_('Bill'), bill.format (
 					include_receiver = False,
 					include_doc = False
 				)])
-			items.append([_(u'Modified'), gmDateTime.pydt_strftime(document['modified_when'], '%Y %b %d')])
-			items.append([_(u'... by'), document['modified_by']])
-			items.append([_(u'# encounter'), document['pk_encounter']])
+			items.append([_('Modified'), gmDateTime.pydt_strftime(document['modified_when'], '%Y %b %d')])
+			items.append([_('... by'), document['modified_by']])
+			items.append([_('# encounter'), document['pk_encounter']])
 
 		if part is not None:
-			items.append([u'', u''])
+			items.append(['', ''])
 			if part['seq_idx'] is None:
-				items.append([_(u'Part'), u'#%s' % part['pk_obj']])
+				items.append([_('Part'), '#%s' % part['pk_obj']])
 			else:
-				items.append([_(u'Part'), u'%s [#%s]' % (part['seq_idx'], part['pk_obj'])])
+				items.append([_('Part'), '%s [#%s]' % (part['seq_idx'], part['pk_obj'])])
 			if part['obj_comment'] is not None:
-				items.append([_(u'Comment'), part['obj_comment']])
+				items.append([_('Comment'), part['obj_comment']])
 			if part['filename'] is not None:
-				items.append([_(u'Filename'), part['filename']])
-			items.append([_(u'Data size'), gmTools.size2str(part['size'])])
+				items.append([_('Filename'), part['filename']])
+			items.append([_('Data size'), gmTools.size2str(part['size'])])
 			review_parts = []
 			if part['reviewed_by_you']:
-				review_parts.append(_(u'by you'))
+				review_parts.append(_('by you'))
 			if part['reviewed_by_intended_reviewer']:
-				review_parts.append(_(u'by intended reviewer'))
-			review = u', '.join(review_parts)
-			if review == u'':
+				review_parts.append(_('by intended reviewer'))
+			review = ', '.join(review_parts)
+			if review == '':
 				review = gmTools.u_diameter
-			items.append([_(u'Reviewed'), review])
+			items.append([_('Reviewed'), review])
 			#items.append([_(u'Reviewed'), gmTools.bool2subst(part['reviewed'], review, u'', u'?')])
 
 		self._LCTRL_details.set_string_items(items)
@@ -1675,7 +1675,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
 
 		tmp = _('available documents (%s)')
-		unsigned = _('unsigned (%s) on top') % u'\u270D'
+		unsigned = _('unsigned (%s) on top') % '\u270D'
 		cDocTree._root_node_labels = {
 			'age': tmp % _('most recent on top'),
 			'review': tmp % unsigned,
@@ -1775,10 +1775,10 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 
 #		 wx.EVT_LEFT_DCLICK(self.tree, self.OnLeftDClick)
 
-		gmDispatcher.connect(signal = u'pre_patient_unselection', receiver = self._on_pre_patient_unselection)
-		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._on_post_patient_selection)
-		gmDispatcher.connect(signal = u'blobs.doc_med_mod_db', receiver = self._on_doc_mod_db)
-		gmDispatcher.connect(signal = u'blobs.doc_obj_mod_db', receiver = self._on_doc_page_mod_db)
+		gmDispatcher.connect(signal = 'pre_patient_unselection', receiver = self._on_pre_patient_unselection)
+		gmDispatcher.connect(signal = 'post_patient_selection', receiver = self._on_post_patient_selection)
+		gmDispatcher.connect(signal = 'blobs.doc_med_mod_db', receiver = self._on_doc_mod_db)
+		gmDispatcher.connect(signal = 'blobs.doc_obj_mod_db', receiver = self._on_doc_page_mod_db)
 
 	#--------------------------------------------------------
 	def __build_context_menus(self):
@@ -1788,7 +1788,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 
 		item = self.__part_context_menu.Append(-1, _('Display part'))
 		self.Bind(wx.EVT_MENU, self.__display_curr_part, item)
-		item = self.__part_context_menu.Append(-1, _('%s Sign/Edit properties') % u'\u270D')
+		item = self.__part_context_menu.Append(-1, _('%s Sign/Edit properties') % '\u270D')
 		self.Bind(wx.EVT_MENU, self.__review_curr_part, item)
 
 		self.__part_context_menu.AppendSeparator()
@@ -1811,7 +1811,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 		# --- doc context menu ---
 		self.__doc_context_menu = wx.Menu(title = _('Document Actions:'))
 
-		item = self.__doc_context_menu.Append(-1, _('%s Sign/Edit properties') % u'\u270D')
+		item = self.__doc_context_menu.Append(-1, _('%s Sign/Edit properties') % '\u270D')
 		self.Bind(wx.EVT_MENU, self.__review_curr_part, item)
 		item = self.__doc_context_menu.Append(-1, _('Delete document'))
 		self.Bind(wx.EVT_MENU, self.__delete_document, item)
@@ -1903,12 +1903,12 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 
 			# need intermediate branch level ?
 			if self.__sort_mode == 'episode':
-				intermediate_label = u'%s%s' % (doc['episode'], gmTools.coalesce(doc['health_issue'], u'', u' (%s)'))
+				intermediate_label = '%s%s' % (doc['episode'], gmTools.coalesce(doc['health_issue'], '', ' (%s)'))
 				doc_label = _('%s%7s %s:%s (%s)') % (
-					gmTools.bool2subst(doc.has_unreviewed_parts, gmTools.u_writing_hand, u'', u'?'),
+					gmTools.bool2subst(doc.has_unreviewed_parts, gmTools.u_writing_hand, '', '?'),
 					doc['clin_when'].strftime('%m/%Y'),
 					doc['l10n_type'][:26],
-					gmTools.coalesce(initial = doc['comment'], instead = u'', template_initial = u' %s'),
+					gmTools.coalesce(initial = doc['comment'], instead = '', template_initial = ' %s'),
 					no_parts
 				)
 				if intermediate_label not in intermediate_nodes:
@@ -1921,10 +1921,10 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 			elif self.__sort_mode == 'type':
 				intermediate_label = doc['l10n_type']
 				doc_label = _('%s%7s (%s):%s') % (
-					gmTools.bool2subst(doc.has_unreviewed_parts, gmTools.u_writing_hand, u'', u'?'),
+					gmTools.bool2subst(doc.has_unreviewed_parts, gmTools.u_writing_hand, '', '?'),
 					doc['clin_when'].strftime('%m/%Y'),
 					no_parts,
-					gmTools.coalesce(initial = doc['comment'], instead = u'', template_initial = u' %s')
+					gmTools.coalesce(initial = doc['comment'], instead = '', template_initial = ' %s')
 				)
 				if intermediate_label not in intermediate_nodes:
 					intermediate_nodes[intermediate_label] = self.AppendItem(parent = self.root, text = intermediate_label)
@@ -1939,10 +1939,10 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 				else:
 					intermediate_label = doc['health_issue']
 				doc_label = _('%s%7s %s:%s (%s)') % (
-					gmTools.bool2subst(doc.has_unreviewed_parts, gmTools.u_writing_hand, u'', u'?'),
+					gmTools.bool2subst(doc.has_unreviewed_parts, gmTools.u_writing_hand, '', '?'),
 					doc['clin_when'].strftime('%m/%Y'),
 					doc['l10n_type'][:26],
-					gmTools.coalesce(initial = doc['comment'], instead = u'', template_initial = u' %s'),
+					gmTools.coalesce(initial = doc['comment'], instead = '', template_initial = ' %s'),
 					no_parts
 				)
 				if intermediate_label not in intermediate_nodes:
@@ -1955,25 +1955,25 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 			elif self.__sort_mode == 'org':
 				if doc['pk_org'] is None:
 					intermediate_label = _('unknown organization')
-					tt = u''
+					tt = ''
 				else:
 					if doc['unit_is_receiver']:
-						direction = _(u'to: %s')
+						direction = _('to: %s')
 					else:
-						direction = _(u'from: %s')
+						direction = _('from: %s')
 					# this praxis ?
 					if doc['pk_org'] == gmPraxis.gmCurrentPraxisBranch()['pk_org']:
-						org_str = _(u'this praxis')
+						org_str = _('this praxis')
 					else:
 						 org_str = doc['organization']
 					intermediate_label = direction % org_str
 					# not quite right: always shows data of the _first_ document of _any_ org unit of this org
-					tt = u'\n'.join(doc.org_unit.format(with_address = True, with_org = True, with_comms = True))
+					tt = '\n'.join(doc.org_unit.format(with_address = True, with_org = True, with_comms = True))
 				doc_label = _('%s%7s %s:%s (%s)') % (
-					gmTools.bool2subst(doc.has_unreviewed_parts, gmTools.u_writing_hand, u'', u'?'),
+					gmTools.bool2subst(doc.has_unreviewed_parts, gmTools.u_writing_hand, '', '?'),
 					doc['clin_when'].strftime('%m/%Y'),
 					doc['l10n_type'][:26],
-					gmTools.coalesce(initial = doc['comment'], instead = u'', template_initial = u' %s'),
+					gmTools.coalesce(initial = doc['comment'], instead = '', template_initial = ' %s'),
 					no_parts
 				)
 				if intermediate_label not in intermediate_nodes:
@@ -1986,10 +1986,10 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 
 			else:
 				doc_label = _('%s%7s %s:%s (%s)') % (
-					gmTools.bool2subst(doc.has_unreviewed_parts, gmTools.u_writing_hand, u'', u'?'),
+					gmTools.bool2subst(doc.has_unreviewed_parts, gmTools.u_writing_hand, '', '?'),
 					doc['clin_when'].strftime('%Y-%m'),
 					doc['l10n_type'][:26],
-					gmTools.coalesce(initial = doc['comment'], instead = u'', template_initial = u' %s'),
+					gmTools.coalesce(initial = doc['comment'], instead = '', template_initial = ' %s'),
 					no_parts
 				)
 				parent = self.root
@@ -2004,15 +2004,15 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 
 			# now add parts as child nodes
 			for part in parts:
-				f_ext = u''
+				f_ext = ''
 				if part['filename'] is not None:
 					f_ext = os.path.splitext(part['filename'])[1].strip('.').strip()
-				if f_ext != u'':
-					f_ext = u' .' + f_ext.upper()
+				if f_ext != '':
+					f_ext = ' .' + f_ext.upper()
 				label = '%s%s (%s%s)%s' % (
 					gmTools.bool2str (
 						boolean = part['reviewed'] or part['reviewed_by_you'] or part['reviewed_by_intended_reviewer'],
-						true_str = u'',
+						true_str = '',
 						false_str = gmTools.u_writing_hand
 					),
 					_('part %2s') % part['seq_idx'],
@@ -2020,8 +2020,8 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 					f_ext,
 					gmTools.coalesce (
 						part['obj_comment'],
-						u'',
-						u': %s%%s%s' % (gmTools.u_left_double_angle_quote, gmTools.u_right_double_angle_quote)
+						'',
+						': %s%%s%s' % (gmTools.u_left_double_angle_quote, gmTools.u_right_double_angle_quote)
 					)
 				)
 
@@ -2144,8 +2144,8 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 					return 1
 				if (data1['organization'] is not None) and (data2['organization'] is None):
 					return -1
-				txt1 = u'%s %s' % (data1['organization'], data1['unit'])
-				txt2 = u'%s %s' % (data2['organization'], data2['unit'])
+				txt1 = '%s %s' % (data1['organization'], data1['unit'])
+				txt2 = '%s %s' % (data2['organization'], data2['unit'])
 				if txt1 < txt2:
 					return -1
 				if txt1 == txt2:
@@ -2229,7 +2229,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 			return
 
 		# string nodes are labels such as episodes which may or may not have children
-		if isinstance(node_data, basestring):
+		if isinstance(node_data, str):
 			self.__show_details_callback(document = None, part = None)
 			return
 
@@ -2255,7 +2255,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 			return True
 
 		# string nodes are labels such as episodes which may or may not have children
-		if isinstance(node_data, basestring):
+		if isinstance(node_data, str):
 			self.Toggle(node)
 			return True
 
@@ -2304,7 +2304,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 		item = event.GetItem()
 
 		if not item.IsOk():
-			event.SetToolTip(u' ')
+			event.SetToolTip(' ')
 			return
 
 		data = self.GetItemData(item)
@@ -2316,11 +2316,11 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 		elif isinstance(data, gmDocuments.cDocumentPart):
 			tt = data.format()
 		# explicit tooltip strings
-		elif isinstance(data, basestring):
+		elif isinstance(data, str):
 			tt = data
 		# other (root, intermediate nodes)
 		else:
-			tt = u''
+			tt = ''
 
 		event.SetToolTip(tt)
 	#--------------------------------------------------------
@@ -2482,10 +2482,10 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 			) % (
 				gmTools.size2str(self.__curr_node_data['size']),
 				self.__curr_node_data['seq_idx'],
-				gmTools.coalesce(self.__curr_node_data['obj_comment'], u'', u' "%s"\n\n'),
+				gmTools.coalesce(self.__curr_node_data['obj_comment'], '', ' "%s"\n\n'),
 				self.__curr_node_data['l10n_type'],
 				gmDateTime.pydt_strftime(self.__curr_node_data['date_generated'], format = '%Y-%m-%d', accuracy = gmDateTime.acc_days),
-				gmTools.coalesce(self.__curr_node_data['doc_comment'], u'', u' "%s"\n')
+				gmTools.coalesce(self.__curr_node_data['doc_comment'], '', ' "%s"\n')
 			)
 		)
 		if not delete_it:
@@ -2498,14 +2498,14 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 	#--------------------------------------------------------
 	def __process_part(self, action=None, l10n_action=None):
 
-		gmHooks.run_hook_script(hook = u'before_%s_doc_part' % action)
+		gmHooks.run_hook_script(hook = 'before_%s_doc_part' % action)
 
 		wx.BeginBusyCursor()
 
 		# detect wrapper
-		found, external_cmd = gmShellAPI.detect_external_binary(u'gm-%s_doc' % action)
+		found, external_cmd = gmShellAPI.detect_external_binary('gm-%s_doc' % action)
 		if not found:
-			found, external_cmd = gmShellAPI.detect_external_binary(u'gm-%s_doc.bat' % action)
+			found, external_cmd = gmShellAPI.detect_external_binary('gm-%s_doc.bat' % action)
 		if not found:
 			_log.error('neither of gm-%s_doc or gm-%s_doc.bat found', action, action)
 			wx.EndBusyCursor()
@@ -2533,9 +2533,9 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 		part_file = self.__curr_node_data.save_to_file(aChunkSize = chunksize)
 
 		if action == 'print':
-			cmd = u'%s generic_document %s' % (external_cmd, part_file)
+			cmd = '%s generic_document %s' % (external_cmd, part_file)
 		else:
-			cmd = u'%s %s' % (external_cmd, part_file)
+			cmd = '%s %s' % (external_cmd, part_file)
 		if os.name == 'nt':
 			blocking = True
 		else:
@@ -2571,13 +2571,13 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 				)
 	#--------------------------------------------------------
 	def __print_part(self, evt):
-		self.__process_part(action = u'print', l10n_action = _('print'))
+		self.__process_part(action = 'print', l10n_action = _('print'))
 	#--------------------------------------------------------
 	def __fax_part(self, evt):
-		self.__process_part(action = u'fax', l10n_action = _('fax'))
+		self.__process_part(action = 'fax', l10n_action = _('fax'))
 	#--------------------------------------------------------
 	def __mail_part(self, evt):
-		self.__process_part(action = u'mail', l10n_action = _('mail'))
+		self.__process_part(action = 'mail', l10n_action = _('mail'))
 	#--------------------------------------------------------
 	def __save_part_to_disk(self, evt):
 		"""Save document part into directory."""
@@ -2645,14 +2645,14 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 	#--------------------------------------------------------
 	def __process_doc(self, action=None, l10n_action=None):
 
-		gmHooks.run_hook_script(hook = u'before_%s_doc' % action)
+		gmHooks.run_hook_script(hook = 'before_%s_doc' % action)
 
 		wx.BeginBusyCursor()
 
 		# detect wrapper
-		found, external_cmd = gmShellAPI.detect_external_binary(u'gm-%s_doc' % action)
+		found, external_cmd = gmShellAPI.detect_external_binary('gm-%s_doc' % action)
 		if not found:
-			found, external_cmd = gmShellAPI.detect_external_binary(u'gm-%s_doc.bat' % action)
+			found, external_cmd = gmShellAPI.detect_external_binary('gm-%s_doc.bat' % action)
 		if not found:
 			_log.error('neither of gm-%s_doc or gm-%s_doc.bat found', action, action)
 			wx.EndBusyCursor()
@@ -2685,13 +2685,13 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 			blocking = False
 
 		if action == 'print':
-			cmd = u'%s %s %s' % (
+			cmd = '%s %s %s' % (
 				external_cmd,
-				u'generic_document',
-				u' '.join(part_files)
+				'generic_document',
+				' '.join(part_files)
 			)
 		else:
-			cmd = external_cmd + u' ' + u' '.join(part_files)
+			cmd = external_cmd + ' ' + ' '.join(part_files)
 		success = gmShellAPI.run_command_in_shell (
 			command = cmd,
 			blocking = blocking
@@ -2715,15 +2715,15 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 
 	#--------------------------------------------------------
 	def __print_doc(self, evt):
-		self.__process_doc(action = u'print', l10n_action = _('print'))
+		self.__process_doc(action = 'print', l10n_action = _('print'))
 
 	#--------------------------------------------------------
 	def __fax_doc(self, evt):
-		self.__process_doc(action = u'fax', l10n_action = _('fax'))
+		self.__process_doc(action = 'fax', l10n_action = _('fax'))
 
 	#--------------------------------------------------------
 	def __mail_doc(self, evt):
-		self.__process_doc(action = u'mail', l10n_action = _('mail'))
+		self.__process_doc(action = 'mail', l10n_action = _('mail'))
 
 	#--------------------------------------------------------
 	def __add_part(self, evt):
@@ -2758,14 +2758,14 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 	#--------------------------------------------------------
 	def __access_external_original(self, evt):
 
-		gmHooks.run_hook_script(hook = u'before_external_doc_access')
+		gmHooks.run_hook_script(hook = 'before_external_doc_access')
 
 		wx.BeginBusyCursor()
 
 		# detect wrapper
-		found, external_cmd = gmShellAPI.detect_external_binary(u'gm_access_external_doc.sh')
+		found, external_cmd = gmShellAPI.detect_external_binary('gm_access_external_doc.sh')
 		if not found:
-			found, external_cmd = gmShellAPI.detect_external_binary(u'gm_access_external_doc.bat')
+			found, external_cmd = gmShellAPI.detect_external_binary('gm_access_external_doc.bat')
 		if not found:
 			_log.error('neither of gm_access_external_doc.sh or .bat found')
 			wx.EndBusyCursor()
@@ -2780,7 +2780,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 			)
 			return
 
-		cmd = u'%s "%s" "%s"' % (external_cmd, self.__curr_node_data['type'], self.__curr_node_data['ext_ref'])
+		cmd = '%s "%s" "%s"' % (external_cmd, self.__curr_node_data['type'], self.__curr_node_data['ext_ref'])
 		if os.name == 'nt':
 			blocking = True
 		else:
@@ -2893,11 +2893,11 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 		self._LCTRL_studies.select_callback = self._on_studies_list_item_selected
 		self._LCTRL_studies.deselect_callback = self._on_studies_list_item_deselected
 
-		self._LCTRL_series.set_columns(columns = [_(u'Time'), _(u'Method'), _(u'Body part'), _(u'Description')])
+		self._LCTRL_series.set_columns(columns = [_('Time'), _('Method'), _('Body part'), _('Description')])
 		self._LCTRL_series.select_callback = self._on_series_list_item_selected
 		self._LCTRL_series.deselect_callback = self._on_series_list_item_deselected
 
-		self._LCTRL_details.set_columns(columns = [_(u'DICOM field'), _(u'Value')])
+		self._LCTRL_details.set_columns(columns = [_('DICOM field'), _('Value')])
 		self._LCTRL_details.set_column_widths()
 
 		self._BMP_preview.SetBitmap(wx.Bitmap.FromRGBA(50,50, red=0, green=0, blue=0, alpha = wx.ALPHA_TRANSPARENT))
@@ -2972,7 +2972,7 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 
 	#--------------------------------------------------------
 	def __reset_patient_data(self):
-		self._LBL_patient_identification.SetLabel(u'')
+		self._LBL_patient_identification.SetLabel('')
 		self._LCTRL_studies.set_string_items(items = [])
 		self._LCTRL_series.set_string_items(items = [])
 		self.__refresh_image()
@@ -2998,18 +2998,18 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 
 		host = self._TCTRL_host.Value.strip()
 		port = self._TCTRL_port.Value.strip()[:6]
-		if port == u'':
+		if port == '':
 			self._LBL_PACS_identification.SetLabel(_('Cannot connect without port (try 8042).'))
 			return False
 		if len(port) < 4:
 			return False
 
 		user = self._TCTRL_user.Value
-		if user == u'':
+		if user == '':
 			user = None
 		self._LBL_PACS_identification.SetLabel(_('Connect to [%s] @ port %s as "%s".') % (host, port, user))
 		password = self._TCTRL_password.Value
-		if password == u'':
+		if password == '':
 			password = None
 
 		pacs = gmDICOM.cOrthancServer()
@@ -3042,12 +3042,12 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 		if not self.__connect():
 			return False
 
-		tt_lines = [_(u'Known PACS IDs:')]
-		for pacs_id in self.__patient.suggest_external_ids(target = u'PACS'):
-			tt_lines.append(u' ' + _(u'generic: %s') % pacs_id)
-		for pacs_id in self.__patient.get_external_ids(id_type = u'PACS', issuer = self.__pacs.as_external_id_issuer):
-			tt_lines.append(u' ' + _(u'stored: "%(value)s" @ [%(issuer)s]') % pacs_id)
-		tt_lines.append(u'')
+		tt_lines = [_('Known PACS IDs:')]
+		for pacs_id in self.__patient.suggest_external_ids(target = 'PACS'):
+			tt_lines.append(' ' + _('generic: %s') % pacs_id)
+		for pacs_id in self.__patient.get_external_ids(id_type = 'PACS', issuer = self.__pacs.as_external_id_issuer):
+			tt_lines.append(' ' + _('stored: "%(value)s" @ [%(issuer)s]') % pacs_id)
+		tt_lines.append('')
 		tt_lines.append(_('Patients found in PACS:'))
 
 		info_lines = []
@@ -3057,29 +3057,29 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 			info_lines.append(_('PACS: no patients with matching IDs found'))
 		no_of_studies = 0
 		for pat in matching_pats:
-			info_lines.append(u'"%s" %s "%s (%s) %s"' % (
+			info_lines.append('"%s" %s "%s (%s) %s"' % (
 				pat['MainDicomTags']['PatientID'],
 				gmTools.u_arrow2right,
-				gmTools.coalesce(pat['MainDicomTags']['PatientName'], u'?'),
-				gmTools.coalesce(pat['MainDicomTags']['PatientSex'], u'?'),
-				gmTools.coalesce(pat['MainDicomTags']['PatientBirthDate'], u'?')
+				gmTools.coalesce(pat['MainDicomTags']['PatientName'], '?'),
+				gmTools.coalesce(pat['MainDicomTags']['PatientSex'], '?'),
+				gmTools.coalesce(pat['MainDicomTags']['PatientBirthDate'], '?')
 			))
 			no_of_studies += len(pat['Studies'])
-			tt_lines.append(u'%s [#%s]' % (
+			tt_lines.append('%s [#%s]' % (
 				gmTools.format_dict_like (
 					pat['MainDicomTags'],
-					relevant_keys = [u'PatientName', u'PatientSex', u'PatientBirthDate', u'PatientID'],
-					template = u' %(PatientID)s = %(PatientName)s (%(PatientSex)s) %(PatientBirthDate)s',
-					missing_key_template = u'?'
+					relevant_keys = ['PatientName', 'PatientSex', 'PatientBirthDate', 'PatientID'],
+					template = ' %(PatientID)s = %(PatientName)s (%(PatientSex)s) %(PatientBirthDate)s',
+					missing_key_template = '?'
 				),
 				pat['ID']
 			))
 		if len(matching_pats) > 1:
 			info_lines.append(_('PACS: more than one patient with matching IDs found, carefully check studies'))
-		self._LBL_patient_identification.SetLabel(u'\n'.join(info_lines))
-		tt_lines.append(u'')
-		tt_lines.append(_(u'Studies found: %s') % no_of_studies)
-		self._LBL_patient_identification.SetToolTip(u'\n'.join(tt_lines))
+		self._LBL_patient_identification.SetLabel('\n'.join(info_lines))
+		tt_lines.append('')
+		tt_lines.append(_('Studies found: %s') % no_of_studies)
+		self._LBL_patient_identification.SetToolTip('\n'.join(tt_lines))
 
 		# get studies
 		study_list_items = []
@@ -3090,19 +3090,19 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 			for pat in self.__pacs.get_studies_list_by_orthanc_patient_list(orthanc_patients = matching_pats):
 				for study in pat['studies']:
 					study_list_items.append( [
-						u'%s-%s-%s' % (
+						'%s-%s-%s' % (
 							study['date'][:4],
 							study['date'][4:6],
 							study['date'][6:8]
 						),
-						_(u'%s series%s') % (
+						_('%s series%s') % (
 							len(study['series']),
-							gmTools.coalesce(study['description'], u'', u': %s')
+							gmTools.coalesce(study['description'], '', ': %s')
 						),
-						gmTools.coalesce(study['radiology_org'], u''),
+						gmTools.coalesce(study['radiology_org'], ''),
 						gmTools.coalesce (
 							study['referring_doc'],
-							gmTools.coalesce(study['requesting_doc'], u'')
+							gmTools.coalesce(study['requesting_doc'], '')
 						)
 					] )
 					study_list_data.append(study)
@@ -3130,7 +3130,7 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 		if study_data is None:
 			return
 		items = []
-		items = [ [key, study_data['all_tags'][key]] for key in study_data['all_tags'] if (u'%s' % study_data['all_tags'][key]).strip() != u'' ]
+		items = [ [key, study_data['all_tags'][key]] for key in study_data['all_tags'] if ('%s' % study_data['all_tags'][key]).strip() != '' ]
 
 		# series available ?
 		series = self._LCTRL_series.get_selected_item_data(only_one = True)
@@ -3138,8 +3138,8 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 			self._LCTRL_details.set_string_items(items = items)
 			self._LCTRL_details.set_column_widths()
 			return
-		items.append([u' ----- ', u'--- %s ----------' % _(u'Series')])
-		items.extend([ [key, series['all_tags'][key]] for key in series['all_tags'] if (u'%s' % series['all_tags'][key]).strip() != u'' ])
+		items.append([' ----- ', '--- %s ----------' % _('Series')])
+		items.extend([ [key, series['all_tags'][key]] for key in series['all_tags'] if ('%s' % series['all_tags'][key]).strip() != '' ])
 
 		# image available ?
 		if self.__image_data is None:
@@ -3147,8 +3147,8 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 			self._LCTRL_details.set_column_widths()
 			return
 		tags = self.__pacs.get_instance_dicom_tags(instance_id = self.__image_data['uuid'])
-		items.append([u' ----- ', u'--- %s ----------' % _(u'Image')])
-		items.extend([ [key, tags[key]] for key in tags if (u'%s' % tags[key]).strip() != u'' ])
+		items.append([' ----- ', '--- %s ----------' % _('Image')])
+		items.extend([ [key, tags[key]] for key in tags if ('%s' % tags[key]).strip() != '' ])
 
 		self._LCTRL_details.set_string_items(items = items)
 		self._LCTRL_details.set_column_widths()
@@ -3159,7 +3159,7 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 		print("refresh image")
 
 		self.__image_data = None
-		self._LBL_image.Label = _(u'Image')
+		self._LBL_image.Label = _('Image')
 		self._BMP_preview.SetBitmap(wx.Bitmap.FromRGBA(50,50, red=0, green=0, blue=0, alpha = wx.ALPHA_TRANSPARENT))
 
 		print("bitmap set to 1,1")
@@ -3185,7 +3185,7 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 		else:
 			self.__image_data = {'idx': idx, 'uuid': uuid}
 			self._BMP_preview.SetBitmap(wx_bmp)
-			self._LBL_image.Label = _(u'Image %s/%s') % (idx+1, len(series['instances']))
+			self._LBL_image.Label = _('Image %s/%s') % (idx+1, len(series['instances']))
 
 		if idx == 0:
 			self._BTN_previous_image.Disable()
@@ -3214,11 +3214,11 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 	#--------------------------------------------------------
 	def __register_interests(self):
 		# client internal signals
-		gmDispatcher.connect(signal = u'pre_patient_unselection', receiver = self._on_pre_patient_unselection)
-		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._on_post_patient_selection)
+		gmDispatcher.connect(signal = 'pre_patient_unselection', receiver = self._on_pre_patient_unselection)
+		gmDispatcher.connect(signal = 'post_patient_selection', receiver = self._on_post_patient_selection)
 
 		# generic database change signal
-		gmDispatcher.connect(signal = u'gm_table_mod', receiver = self._on_database_signal)
+		gmDispatcher.connect(signal = 'gm_table_mod', receiver = self._on_database_signal)
 
 	#--------------------------------------------------------
 	def _on_pre_patient_unselection(self):
@@ -3242,7 +3242,7 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 		if kwds['pk_identity'] != self.__patient.ID:
 			return True
 
-		if kwds['table'] == u'dem.lnk_identity2ext_id':
+		if kwds['table'] == 'dem.lnk_identity2ext_id':
 			self._schedule_data_reget()
 			return True
 
@@ -3303,10 +3303,10 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 		series_list_data = []
 		for series in study_data['series']:
 
-			series_time = u''
+			series_time = ''
 			if series['time'] is None:
 				series['time'] = study_data['time']
-			series_time = u'%s:%s:%s' % (
+			series_time = '%s:%s:%s' % (
 				series['time'][:2],
 				series['time'][2:4],
 				series['time'][4:6]
@@ -3320,18 +3320,18 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 					if series['description'].strip() not in series['protocol'].strip():
 						series_desc_parts.append(series['description'].strip())
 			if series['protocol'] is not None:
-				series_desc_parts.append(u'[%s]' % series['protocol'].strip())
+				series_desc_parts.append('[%s]' % series['protocol'].strip())
 			if series['performed_procedure_step_description'] is not None:
 				series_desc_parts.append(series['performed_procedure_step_description'].strip())
-			series_desc = u' / '.join(series_desc_parts)
+			series_desc = ' / '.join(series_desc_parts)
 			if len(series_desc) > 0:
-				series_desc = u': ' + series_desc
-			series_desc = _(u'%s image(s)%s') % (len(series['instances']), series_desc)
+				series_desc = ': ' + series_desc
+			series_desc = _('%s image(s)%s') % (len(series['instances']), series_desc)
 
 			series_list_items.append ([
 				series_time,
-				gmTools.coalesce(series['modality'], u''),
-				gmTools.coalesce(series['body_part'], u''),
+				gmTools.coalesce(series['modality'], ''),
+				gmTools.coalesce(series['body_part'], ''),
 				series_desc
 			])
 			series_list_data.append(series)
@@ -3425,7 +3425,7 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 			q = _('Delete the uploaded DICOM files now ?')
 		else:
 			q = _('Some files have not been uploaded.\n\nDo you want to delete those DICOM files which have been sent to the PACS successfully ?')
-			_log.error(u'not uploaded:')
+			_log.error('not uploaded:')
 			for f in not_uploaded:
 				_log.error(f)
 
@@ -3511,9 +3511,9 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 
 		uuid = self.__image_data['uuid']
 		fname = gmTools.get_unique_filename (
-			prefix = u'%s-orthanc_%s' % (self.__patient.dirname, uuid),
-			suffix = u'.png',
-			tmp_dir = os.path.join(gmTools.gmPaths().home_dir, u'gnumed')
+			prefix = '%s-orthanc_%s' % (self.__patient.dirname, uuid),
+			suffix = '.png',
+			tmp_dir = os.path.join(gmTools.gmPaths().home_dir, 'gnumed')
 		)
 		img_file = self.__pacs.get_instance_preview(filename = fname, instance_id = uuid)
 		gmDispatcher.send(signal = 'statustext', msg = _('Successfully saved as [%s].') % fname)
@@ -3525,9 +3525,9 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 
 		uuid = self.__image_data['uuid']
 		fname = gmTools.get_unique_filename (
-			prefix = u'%s-orthanc_%s' % (self.__patient.dirname, uuid),
-			suffix = u'.dcm',
-			tmp_dir = os.path.join(gmTools.gmPaths().home_dir, u'gnumed')
+			prefix = '%s-orthanc_%s' % (self.__patient.dirname, uuid),
+			suffix = '.dcm',
+			tmp_dir = os.path.join(gmTools.gmPaths().home_dir, 'gnumed')
 		)
 		img_file = self.__pacs.get_instance(filename = fname, instance_id = uuid)
 		gmDispatcher.send(signal = 'statustext', msg = _('Successfully saved as [%s].') % fname)
@@ -3635,19 +3635,19 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 			return
 
 		gmGuiHelpers.gm_show_error (
-			title = _(u'DICOM data error'),
+			title = _('DICOM data error'),
 			error = _(
-				u'There seems to be a data error in the DICOM files\n'
-				u'stored in the Orthanc server.\n'
-				u'\n'
-				u'Please check the inbox.'
+				'There seems to be a data error in the DICOM files\n'
+				'stored in the Orthanc server.\n'
+				'\n'
+				'Please check the inbox.'
 			)
 		)
 
-		msg = _(u'Checksum error in DICOM data of this patient.\n\n')
-		msg += _(u'DICOM server: %s\n\n') % bad_data[0]['orthanc']
+		msg = _('Checksum error in DICOM data of this patient.\n\n')
+		msg += _('DICOM server: %s\n\n') % bad_data[0]['orthanc']
 		for bd in bad_data:
-			msg += _(u'Orthanc patient ID [%s]\n %s: [%s]\n') % (
+			msg += _('Orthanc patient ID [%s]\n %s: [%s]\n') % (
 				bd['patient'],
 				bd['type'],
 				bd['instance']
@@ -3656,11 +3656,11 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 		if prov is None:
 			prov = gmStaff.gmCurrentProvider()
 		report = gmProviderInbox.create_inbox_message (
-			message_type = _(u'error report'),
-			message_category = u'clinical',
+			message_type = _('error report'),
+			message_category = 'clinical',
 			patient = self.__patient.ID,
 			staff = prov['pk_staff'],
-			subject = _(u'DICOM data corruption')
+			subject = _('DICOM data corruption')
 		)
 		report['data'] = msg
 		report.save()
@@ -3816,7 +3816,7 @@ class cModifyOrthancContentDlg(wxgModifyOrthancContentDlg):
 	def __refresh_patient_list(self):
 		self._LCTRL_patients.set_string_items()
 		search_term = self._TCTRL_search_term.Value.strip()
-		if search_term == u'':
+		if search_term == '':
 			return
 		pats = self.__srv.get_patients_by_name(name_parts = search_term.split(), fuzzy = True)
 		if len(pats) == 0:
@@ -3828,11 +3828,11 @@ class cModifyOrthancContentDlg(wxgModifyOrthancContentDlg):
 			try:
 				gender = mt['PatientSex']
 			except KeyError:
-				gender = u''
+				gender = ''
 			try:
 				dob = mt['PatientBirthDate']
 			except KeyError:
-				dob = u''
+				dob = ''
 			list_items.append([mt['PatientID'], mt['PatientName'], dob, gender, pat['ID']])
 			list_data.append(mt['PatientID'])
 		self._LCTRL_patients.set_string_items(list_items)
@@ -3850,13 +3850,13 @@ class cModifyOrthancContentDlg(wxgModifyOrthancContentDlg):
 		pat = gmPerson.gmCurrentPatient()
 		if not pat.connected:
 			return
-		self._TCTRL_new_patient_id.Value = pat.suggest_external_id(target = u'PACS')
+		self._TCTRL_new_patient_id.Value = pat.suggest_external_id(target = 'PACS')
 
 	#--------------------------------------------------------
 	def _on_set_patient_id_button_pressed(self, event):
 		event.Skip()
 		new_id = self._TCTRL_new_patient_id.Value.strip()
-		if new_id == u'':
+		if new_id == '':
 			return
 		pats = self._LCTRL_patients.get_selected_item_data(only_one = False)
 		if len(pats) == 0:
@@ -3884,11 +3884,11 @@ class cModifyOrthancContentDlg(wxgModifyOrthancContentDlg):
 
 		if not all_modified:
 			gmGuiHelpers.gm_show_warning (
-				aTitle = _(u'Modifying patient ID'),
+				aTitle = _('Modifying patient ID'),
 				aMessage = _(
-					u'I was unable to modify all DICOM patients.\n'
-					u'\n'
-					u'Please refer to the log file.'
+					'I was unable to modify all DICOM patients.\n'
+					'\n'
+					'Please refer to the log file.'
 				)
 			)
 		return all_modified
@@ -3921,7 +3921,7 @@ def upload_files():
 		q = _('Delete the uploaded DICOM files now ?')
 	else:
 		q = _('Some files have not been uploaded.\n\nDo you want to delete those DICOM files which have been sent to the PACS successfully ?')
-		_log.error(u'not uploaded:')
+		_log.error('not uploaded:')
 		for f in not_uploaded:
 			_log.error(f)
 		delete_uploaded = gmGuiHelpers.gm_show_question (

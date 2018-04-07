@@ -50,28 +50,28 @@ def diagnostic_certainty_classification2str(classification):
 
 	if __diagnostic_certainty_classification_map is None:
 		__diagnostic_certainty_classification_map = {
-			None: u'',
-			u'A': _(u'A: Sign'),
-			u'B': _(u'B: Cluster of signs'),
-			u'C': _(u'C: Syndromic diagnosis'),
-			u'D': _(u'D: Scientific diagnosis')
+			None: '',
+			'A': _('A: Sign'),
+			'B': _('B: Cluster of signs'),
+			'C': _('C: Syndromic diagnosis'),
+			'D': _('D: Scientific diagnosis')
 		}
 
 	try:
 		return __diagnostic_certainty_classification_map[classification]
 	except KeyError:
-		return _(u'<%s>: unknown diagnostic certainty classification') % classification
+		return _('<%s>: unknown diagnostic certainty classification') % classification
 
 #============================================================
 # Health Issues API
 #============================================================
 laterality2str = {
-	None: u'?',
-	u'na': u'',
-	u'sd': _('bilateral'),
-	u'ds': _('bilateral'),
-	u's': _('left'),
-	u'd': _('right')
+	None: '?',
+	'na': '',
+	'sd': _('bilateral'),
+	'ds': _('bilateral'),
+	's': _('left'),
+	'd': _('right')
 }
 
 #============================================================
@@ -79,9 +79,9 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one health issue."""
 
 	#_cmd_fetch_payload = u"select *, xmin_health_issue from clin.v_health_issues where pk_health_issue=%s"
-	_cmd_fetch_payload = u"select * from clin.v_health_issues where pk_health_issue = %s"
+	_cmd_fetch_payload = "select * from clin.v_health_issues where pk_health_issue = %s"
 	_cmds_store_payload = [
-		u"""update clin.health_issue set
+		"""update clin.health_issue set
 				description = %(description)s,
 				summary = gm.nullify_empty_string(%(summary)s),
 				age_noted = %(age_noted)s,
@@ -96,7 +96,7 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 				pk = %(pk_health_issue)s
 					AND
 				xmin = %(xmin_health_issue)s""",
-		u"select xmin as xmin_health_issue from clin.health_issue where pk = %(pk_health_issue)s"
+		"select xmin as xmin_health_issue from clin.health_issue where pk = %(pk_health_issue)s"
 	]
 	_updatable_fields = [
 		'description',
@@ -120,13 +120,13 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 			return
 
 		if patient is None:
-			cmd = u"""select *, xmin_health_issue from clin.v_health_issues
+			cmd = """select *, xmin_health_issue from clin.v_health_issues
 					where
 						description = %(desc)s
 							and
 						pk_patient = (select fk_patient from clin.encounter where pk = %(enc)s)"""
 		else:
-			cmd = u"""select *, xmin_health_issue from clin.v_health_issues
+			cmd = """select *, xmin_health_issue from clin.v_health_issues
 					where
 						description = %(desc)s
 							and
@@ -155,7 +155,7 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 			- a string instance
 		"""
 		# sanity check
-		if not type(description) in [str, unicode] or description.strip() == '':
+		if not type(description) in [str, str] or description.strip() == '':
 			_log.error('<description> must be a non-empty string')
 			return False
 		# update the issue description
@@ -171,7 +171,7 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 
 	#--------------------------------------------------------
 	def get_episodes(self):
-		cmd = u"SELECT * FROM clin.v_pat_episodes WHERE pk_health_issue = %(pk)s"
+		cmd = "SELECT * FROM clin.v_pat_episodes WHERE pk_health_issue = %(pk)s"
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': {'pk': self.pk_obj}}], get_col_idx = True)
 		return [ cEpisode(row = {'data': r, 'idx': idx, 'pk_field': 'pk_episode'})  for r in rows ]
 
@@ -207,7 +207,7 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 
 	#--------------------------------------------------------
 	def get_open_episode(self):
-		cmd = u"select pk from clin.episode where fk_health_issue = %s and is_open IS True LIMIT 1"
+		cmd = "select pk from clin.episode where fk_health_issue = %s and is_open IS True LIMIT 1"
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_obj]}])
 		if len(rows) == 0:
 			return None
@@ -216,7 +216,7 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	def age_noted_human_readable(self):
 		if self._payload[self._idx['age_noted']] is None:
-			return u'<???>'
+			return '<???>'
 
 		# since we've already got an interval we are bound to use it,
 		# further transformation will only introduce more errors,
@@ -226,7 +226,7 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	def add_code(self, pk_code=None):
 		"""<pk_code> must be a value from ref.coding_system_root.pk_coding_system (clin.lnk_code2item_root.fk_generic_code)"""
-		cmd = u"INSERT INTO clin.lnk_code2h_issue (fk_item, fk_generic_code) values (%(item)s, %(code)s)"
+		cmd = "INSERT INTO clin.lnk_code2h_issue (fk_item, fk_generic_code) values (%(item)s, %(code)s)"
 		args = {
 			'item': self._payload[self._idx['pk_health_issue']],
 			'code': pk_code
@@ -237,7 +237,7 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	def remove_code(self, pk_code=None):
 		"""<pk_code> must be a value from ref.coding_system_root.pk_coding_system (clin.lnk_code2item_root.fk_generic_code)"""
-		cmd = u"DELETE FROM clin.lnk_code2h_issue WHERE fk_item = %(item)s AND fk_generic_code = %(code)s"
+		cmd = "DELETE FROM clin.lnk_code2h_issue WHERE fk_item = %(item)s AND fk_generic_code = %(code)s"
 		args = {
 			'item': self._payload[self._idx['pk_health_issue']],
 			'code': pk_code
@@ -249,13 +249,13 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 	def format_as_journal(self, left_margin=0, date_format='%Y %b %d, %a'):
 		rows = gmClinNarrative.get_as_journal (
 			issues = (self.pk_obj,),
-			order_by = u'pk_episode, pk_encounter, clin_when, scr, src_table'
+			order_by = 'pk_episode, pk_encounter, clin_when, scr, src_table'
 		)
 
 		if len(rows) == 0:
-			return u''
+			return ''
 
-		left_margin = u' ' * left_margin
+		left_margin = ' ' * left_margin
 
 		lines = []
 		lines.append(_('Clinical data generated during encounters under this health issue:'))
@@ -263,11 +263,11 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 		prev_epi = None
 		for row in rows:
 			if row['pk_episode'] != prev_epi:
-				lines.append(u'')
+				lines.append('')
 				prev_epi = row['pk_episode']
 
 			when = gmDateTime.pydt_strftime(row['clin_when'], date_format, encoding = gmI18N.get_encoding())
-			top_row = u'%s%s %s (%s) %s' % (
+			top_row = '%s%s %s (%s) %s' % (
 				gmTools.u_box_top_left_arc,
 				gmTools.u_box_horiz_single,
 				gmSoapDefs.soap_cat2l10n_str[row['real_soap_cat']],
@@ -277,14 +277,14 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 			soap = gmTools.wrap (
 				text = row['narrative'],
 				width = 60,
-				initial_indent = u'  ',
-				subsequent_indent = u'  ' + left_margin
+				initial_indent = '  ',
+				subsequent_indent = '  ' + left_margin
 			)
-			row_ver = u''
+			row_ver = ''
 			if row['row_version'] > 0:
-				row_ver = u'v%s: ' % row['row_version']
-			bottom_row = u'%s%s %s, %s%s %s' % (
-				u' ' * 40,
+				row_ver = 'v%s: ' % row['row_version']
+			bottom_row = '%s%s %s, %s%s %s' % (
+				' ' * 40,
 				gmTools.u_box_horiz_light_heavy,
 				row['modified_by'],
 				row_ver,
@@ -296,8 +296,8 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 			lines.append(soap)
 			lines.append(bottom_row)
 
-		eol_w_margin = u'\n%s' % left_margin
-		return left_margin + eol_w_margin.join(lines) + u'\n'
+		eol_w_margin = '\n%s' % left_margin
+		return left_margin + eol_w_margin.join(lines) + '\n'
 
 	#--------------------------------------------------------
 	def format (self, left_margin=0, patient=None,
@@ -318,14 +318,14 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 		lines = []
 
 		lines.append(_('Health Issue %s%s%s%s   [#%s]') % (
-			u'\u00BB',
+			'\u00BB',
 			self._payload[self._idx['description']],
-			u'\u00AB',
+			'\u00AB',
 			gmTools.coalesce (
 				initial = self.laterality_description,
-				instead = u'',
-				template_initial = u' (%s)',
-				none_equivalents = [None, u'', u'?']
+				instead = '',
+				template_initial = ' (%s)',
+				none_equivalents = [None, '', '?']
 			),
 			self._payload[self._idx['pk_health_issue']]
 		))
@@ -351,34 +351,34 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 		if self._payload[self._idx['age_noted']] is not None:
 			lines.append(_(' Noted at age: %s') % self.age_noted_human_readable())
 
-		lines.append(u' ' + _('Status') + u': %s, %s%s' % (
+		lines.append(' ' + _('Status') + ': %s, %s%s' % (
 			gmTools.bool2subst(self._payload[self._idx['is_active']], _('active'), _('inactive')),
 			gmTools.bool2subst(self._payload[self._idx['clinically_relevant']], _('clinically relevant'), _('not clinically relevant')),
 			gmTools.coalesce (
 				initial = diagnostic_certainty_classification2str(self._payload[self._idx['diagnostic_certainty_classification']]),
-				instead = u'',
-				template_initial = u', %s',
-				none_equivalents = [None, u'']
+				instead = '',
+				template_initial = ', %s',
+				none_equivalents = [None, '']
 			)
 		))
 
 		if with_summary:
 			if self._payload[self._idx['summary']] is not None:
-				lines.append(u' %s:' % _('Synopsis'))
+				lines.append(' %s:' % _('Synopsis'))
 				lines.append(gmTools.wrap (
 					text = self._payload[self._idx['summary']],
 					width = 60,
-					initial_indent = u'  ',
-					subsequent_indent = u'  '
+					initial_indent = '  ',
+					subsequent_indent = '  '
 				))
 
 		# codes ?
 		if with_codes:
 			codes = self.generic_codes
 			if len(codes) > 0:
-				lines.append(u'')
+				lines.append('')
 			for c in codes:
-				lines.append(u' %s: %s (%s - %s)' % (
+				lines.append(' %s: %s (%s - %s)' % (
 					c['code'],
 					c['term'],
 					c['name_short'],
@@ -386,7 +386,7 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 				))
 			del codes
 
-		lines.append(u'')
+		lines.append('')
 
 		# patient/emr dependant
 		if patient is not None:
@@ -416,7 +416,7 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 						)
 					)
 					for epi in epis:
-						lines.append(u' \u00BB%s\u00AB (%s)' % (
+						lines.append(' \u00BB%s\u00AB (%s)' % (
 							epi['description'],
 							gmTools.bool2subst(epi['episode_open'], _('ongoing'), _('closed'))
 						))
@@ -445,10 +445,10 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 			if with_medications:
 				meds = emr.get_current_medications (
 					issues = [ self._payload[self._idx['pk_health_issue']] ],
-					order_by = u'is_currently_active DESC, started, substance'
+					order_by = 'is_currently_active DESC, started, substance'
 				)
 				if len(meds) > 0:
-					lines.append(u'')
+					lines.append('')
 					lines.append(_('Medications and Substances'))
 				for m in meds:
 					lines.append(m.format(left_margin = (left_margin + 1)))
@@ -460,7 +460,7 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 					issues = [ self._payload[self._idx['pk_health_issue']] ]
 				)
 				if len(stays) > 0:
-					lines.append(u'')
+					lines.append('')
 					lines.append(_('Hospitalizations: %s') % len(stays))
 				for s in stays:
 					lines.append(s.format(left_margin = (left_margin + 1)))
@@ -472,7 +472,7 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 					issues = [ self._payload[self._idx['pk_health_issue']] ]
 				)
 				if len(procs) > 0:
-					lines.append(u'')
+					lines.append('')
 					lines.append(_('Procedures performed: %s') % len(procs))
 				for p in procs:
 					lines.append(p.format(left_margin = (left_margin + 1)))
@@ -482,7 +482,7 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 			if with_family_history:
 				fhx = emr.get_family_history(issues = [ self._payload[self._idx['pk_health_issue']] ])
 				if len(fhx) > 0:
-					lines.append(u'')
+					lines.append('')
 					lines.append(_('Family History: %s') % len(fhx))
 				for f in fhx:
 					lines.append(f.format (
@@ -502,7 +502,7 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 					doc_folder = patient.get_document_folder()
 					docs = doc_folder.get_documents(pk_episodes = epi_pks)
 					if len(docs) > 0:
-						lines.append(u'')
+						lines.append('')
 						lines.append(_('Documents: %s') % len(docs))
 					del docs
 
@@ -510,15 +510,15 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 				if with_tests:
 					tests = emr.get_test_results_by_date(episodes = epi_pks)
 					if len(tests) > 0:
-						lines.append(u'')
+						lines.append('')
 						lines.append(_('Measurements and Results: %s') % len(tests))
 					del tests
 
 				# vaccinations
 				if with_vaccinations:
-					vaccs = emr.get_vaccinations(episodes = epi_pks, order_by = u'date_given, vaccine')
+					vaccs = emr.get_vaccinations(episodes = epi_pks, order_by = 'date_given, vaccine')
 					if len(vaccs) > 0:
-						lines.append(u'')
+						lines.append('')
 						lines.append(_('Vaccinations:'))
 					for vacc in vaccs:
 						lines.extend(vacc.format(with_reaction = True))
@@ -527,22 +527,22 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 			del epis
 
 		if with_external_care:
-			care = self._get_external_care(order_by = u'organization, unit, provider')
+			care = self._get_external_care(order_by = 'organization, unit, provider')
 			if len(care) > 0:
-				lines.append(u'')
+				lines.append('')
 				lines.append(_('External care:'))
 			for item in care:
-				lines.append(u' %s%s@%s%s' % (
-					gmTools.coalesce(item['provider'], u'', u'%s: '),
+				lines.append(' %s%s@%s%s' % (
+					gmTools.coalesce(item['provider'], '', '%s: '),
 					item['unit'],
 					item['organization'],
-					gmTools.coalesce(item['comment'], u'', u' (%s)')
+					gmTools.coalesce(item['comment'], '', ' (%s)')
 				))
 
-		left_margin = u' ' * left_margin
-		eol_w_margin = u'\n%s' % left_margin
-		lines = gmTools.strip_trailing_empty_lines(lines = lines, eol = u'\n')
-		return left_margin + eol_w_margin.join(lines) + u'\n'
+		left_margin = ' ' * left_margin
+		eol_w_margin = '\n%s' % left_margin
+		lines = gmTools.strip_trailing_empty_lines(lines = lines, eol = '\n')
+		return left_margin + eol_w_margin.join(lines) + '\n'
 	#--------------------------------------------------------
 	# properties
 	#--------------------------------------------------------
@@ -563,7 +563,7 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 
 		args = {'pk_issue': self.pk_obj}
 
-		cmd = u"""SELECT
+		cmd = """SELECT
 			earliest, pk_episode
 		FROM (
 				-- .modified_when of all episodes of this issue,
@@ -674,12 +674,12 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 		args = {'pk_issue': self.pk_obj}
 
 		# cheap query first: any episodes at all ?
-		cmd = u"SELECT 1 FROM clin.episode WHERE fk_health_issue = %(pk_issue)s"
+		cmd = "SELECT 1 FROM clin.episode WHERE fk_health_issue = %(pk_issue)s"
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
 		if len(rows) == 0:
 			return None
 
-		cmd = u"""SELECT
+		cmd = """SELECT
 			latest, pk_episode
 		FROM (
 				-- .clin_when of clinical items linked to episodes of this issue,
@@ -749,7 +749,7 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 			'enc': self._payload[self._idx['pk_encounter']],
 			'pk': self._payload[self._idx['pk_health_issue']]
 		}
-		cmd = u"""SELECT COALESCE (
+		cmd = """SELECT COALESCE (
 			-- this one must override all:
 			-- .age_noted if not null and DOB is known
 			(CASE
@@ -783,7 +783,7 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	def _get_possible_start_date(self):
 		args = {'pk': self._payload[self._idx['pk_health_issue']]}
-		cmd = u"""
+		cmd = """
 SELECT MIN(earliest) FROM (
 	-- last modification, earliest = when created in/changed to the current state
 	(SELECT modified_when AS earliest FROM clin.health_issue WHERE pk = %(pk)s)
@@ -842,7 +842,7 @@ UNION ALL
 			'enc': self._payload[self._idx['pk_encounter']],
 			'pk': self._payload[self._idx['pk_health_issue']]
 		}
-		cmd = u"""
+		cmd = """
 SELECT
 	MAX(latest)
 FROM (
@@ -902,7 +902,7 @@ FROM (
 		try:
 			return laterality2str[self._payload[self._idx['laterality']]]
 		except KeyError:
-			return u'<???>'
+			return '<???>'
 
 	laterality_description = property(_get_laterality_description, lambda x:x)
 	#--------------------------------------------------------
@@ -913,7 +913,7 @@ FROM (
 
 	#--------------------------------------------------------
 	def _get_formatted_revision_history(self):
-		cmd = u"""SELECT
+		cmd = """SELECT
 				'NONE (live row)'::text as audit__action_applied,
 				NULL AS audit__action_when,
 				NULL AS audit__action_by,
@@ -967,7 +967,7 @@ FROM (
 			self._payload[self._idx['description']],
 			gmTools.u_right_double_angle_quote
 		)
-		return u'\n'.join(self._get_revision_history(cmd, args, title))
+		return '\n'.join(self._get_revision_history(cmd, args, title))
 
 	formatted_revision_history = property(_get_formatted_revision_history, lambda x:x)
 	#--------------------------------------------------------
@@ -975,7 +975,7 @@ FROM (
 		if len(self._payload[self._idx['pk_generic_codes']]) == 0:
 			return []
 
-		cmd = gmCoding._SQL_get_generic_linked_codes % u'pk_generic_code IN %(pks)s'
+		cmd = gmCoding._SQL_get_generic_linked_codes % 'pk_generic_code IN %(pks)s'
 		args = {'pks': tuple(self._payload[self._idx['pk_generic_codes']])}
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 		return [ gmCoding.cGenericLinkedCode(row = {'data': r, 'idx': idx, 'pk_field': 'pk_lnk_code2item'}) for r in rows ]
@@ -985,7 +985,7 @@ FROM (
 		# remove all codes
 		if len(self._payload[self._idx['pk_generic_codes']]) > 0:
 			queries.append ({
-				'cmd': u'DELETE FROM clin.lnk_code2h_issue WHERE fk_item = %(issue)s AND fk_generic_code IN %(codes)s',
+				'cmd': 'DELETE FROM clin.lnk_code2h_issue WHERE fk_item = %(issue)s AND fk_generic_code IN %(codes)s',
 				'args': {
 					'issue': self._payload[self._idx['pk_health_issue']],
 					'codes': tuple(self._payload[self._idx['pk_generic_codes']])
@@ -994,7 +994,7 @@ FROM (
 		# add new codes
 		for pk_code in pk_codes:
 			queries.append ({
-				'cmd': u'INSERT INTO clin.lnk_code2h_issue (fk_item, fk_generic_code) VALUES (%(issue)s, %(pk_code)s)',
+				'cmd': 'INSERT INTO clin.lnk_code2h_issue (fk_item, fk_generic_code) VALUES (%(issue)s, %(pk_code)s)',
 				'args': {
 					'issue': self._payload[self._idx['pk_health_issue']],
 					'pk_code': pk_code
@@ -1021,10 +1021,10 @@ def create_health_issue(description=None, encounter=None, patient=None):
 		pass
 
 	queries = []
-	cmd = u"insert into clin.health_issue (description, fk_encounter) values (%(desc)s, %(enc)s)"
+	cmd = "insert into clin.health_issue (description, fk_encounter) values (%(desc)s, %(enc)s)"
 	queries.append({'cmd': cmd, 'args': {'desc': description, 'enc': encounter}})
 
-	cmd = u"select currval('clin.health_issue_pk_seq')"
+	cmd = "select currval('clin.health_issue_pk_seq')"
 	queries.append({'cmd': cmd})
 
 	rows, idx = gmPG2.run_rw_queries(queries = queries, return_data = True)
@@ -1039,7 +1039,7 @@ def delete_health_issue(health_issue=None):
 	else:
 		args = {'pk': int(health_issue)}
 	try:
-		gmPG2.run_rw_queries(queries = [{'cmd': u'DELETE FROM clin.health_issue WHERE pk = %(pk)s', 'args': args}])
+		gmPG2.run_rw_queries(queries = [{'cmd': 'DELETE FROM clin.health_issue WHERE pk = %(pk)s', 'args': args}])
 	except gmPG2.dbapi.IntegrityError:
 		# should be parsing pgcode/and or error message
 		_log.exception('cannot delete health issue')
@@ -1054,7 +1054,7 @@ def get_dummy_health_issue():
 		'pk_health_issue': None,
 		'description': _('Unattributed episodes'),
 		'age_noted': None,
-		'laterality': u'na',
+		'laterality': 'na',
 		'is_active': True,
 		'clinically_relevant': True,
 		'is_confidential': None,
@@ -1081,9 +1081,9 @@ def health_issue2problem(health_issue=None, allow_irrelevant=False):
 class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one clinical episode.
 	"""
-	_cmd_fetch_payload = u"select * from clin.v_pat_episodes where pk_episode=%s"
+	_cmd_fetch_payload = "select * from clin.v_pat_episodes where pk_episode=%s"
 	_cmds_store_payload = [
-		u"""update clin.episode set
+		"""update clin.episode set
 				fk_health_issue = %(pk_health_issue)s,
 				is_open = %(episode_open)s::boolean,
 				description = %(description)s,
@@ -1092,7 +1092,7 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 			where
 				pk = %(pk_episode)s and
 				xmin = %(xmin_episode)s""",
-		u"""select xmin_episode from clin.v_pat_episodes where pk_episode = %(pk_episode)s"""
+		"""select xmin_episode from clin.v_pat_episodes where pk_episode = %(pk_episode)s"""
 	]
 	_updatable_fields = [
 		'pk_health_issue',
@@ -1106,16 +1106,16 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 		pk = aPK_obj
 		if pk is None and row is None:
 
-			where_parts = [u'description = %(desc)s']
+			where_parts = ['description = %(desc)s']
 
 			if id_patient is not None:
-				where_parts.append(u'pk_patient = %(pat)s')
+				where_parts.append('pk_patient = %(pat)s')
 
 			if health_issue is not None:
-				where_parts.append(u'pk_health_issue = %(issue)s')
+				where_parts.append('pk_health_issue = %(issue)s')
 
 			if encounter is not None:
-				where_parts.append(u'pk_patient = (SELECT fk_patient FROM clin.encounter WHERE pk = %(enc)s)')
+				where_parts.append('pk_patient = (SELECT fk_patient FROM clin.encounter WHERE pk = %(enc)s)')
 
 			args = {
 				'pat': id_patient,
@@ -1124,7 +1124,7 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 				'desc': name
 			}
 
-			cmd = u'SELECT * FROM clin.v_pat_episodes WHERE %s' % u' AND '.join(where_parts)
+			cmd = 'SELECT * FROM clin.v_pat_episodes WHERE %s' % ' AND '.join(where_parts)
 
 			rows, idx = gmPG2.run_ro_queries (
 				link_obj = link_obj,
@@ -1186,7 +1186,7 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 		if pk_code in self._payload[self._idx['pk_generic_codes']]:
 			return
 
-		cmd = u"""
+		cmd = """
 			INSERT INTO clin.lnk_code2episode
 				(fk_item, fk_generic_code)
 			SELECT
@@ -1209,7 +1209,7 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	def remove_code(self, pk_code=None):
 		"""<pk_code> must be a value from ref.coding_system_root.pk_coding_system (clin.lnk_code2item_root.fk_generic_code)"""
-		cmd = u"DELETE FROM clin.lnk_code2episode WHERE fk_item = %(item)s AND fk_generic_code = %(code)s"
+		cmd = "DELETE FROM clin.lnk_code2episode WHERE fk_item = %(item)s AND fk_generic_code = %(code)s"
 		args = {
 			'item': self._payload[self._idx['pk_episode']],
 			'code': pk_code
@@ -1221,27 +1221,27 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 	def format_as_journal(self, left_margin=0, date_format='%Y %b %d, %a'):
 		rows = gmClinNarrative.get_as_journal (
 			episodes = (self.pk_obj,),
-			order_by = u'pk_encounter, clin_when, scr, src_table'
+			order_by = 'pk_encounter, clin_when, scr, src_table'
 			#order_by = u'pk_encounter, scr, clin_when, src_table'
 		)
 
 		if len(rows) == 0:
-			return u''
+			return ''
 
 		lines = []
 
 		lines.append(_('Clinical data generated during encounters within this episode:'))
 
-		left_margin = u' ' * left_margin
+		left_margin = ' ' * left_margin
 
 		prev_enc = None
 		for row in rows:
 			if row['pk_encounter'] != prev_enc:
-				lines.append(u'')
+				lines.append('')
 				prev_enc = row['pk_encounter']
 
 			when = row['clin_when'].strftime(date_format).decode(gmI18N.get_encoding())
-			top_row = u'%s%s %s (%s) %s' % (
+			top_row = '%s%s %s (%s) %s' % (
 				gmTools.u_box_top_left_arc,
 				gmTools.u_box_horiz_single,
 				gmSoapDefs.soap_cat2l10n_str[row['real_soap_cat']],
@@ -1251,14 +1251,14 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 			soap = gmTools.wrap (
 				text = row['narrative'],
 				width = 60,
-				initial_indent = u'  ',
-				subsequent_indent = u'  ' + left_margin
+				initial_indent = '  ',
+				subsequent_indent = '  ' + left_margin
 			)
-			row_ver = u''
+			row_ver = ''
 			if row['row_version'] > 0:
-				row_ver = u'v%s: ' % row['row_version']
-			bottom_row = u'%s%s %s, %s%s %s' % (
-				u' ' * 40,
+				row_ver = 'v%s: ' % row['row_version']
+			bottom_row = '%s%s %s, %s%s %s' % (
+				' ' * 40,
 				gmTools.u_box_horiz_light_heavy,
 				row['modified_by'],
 				row_ver,
@@ -1270,8 +1270,8 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 			lines.append(soap)
 			lines.append(bottom_row)
 
-		eol_w_margin = u'\n%s' % left_margin
-		return left_margin + eol_w_margin.join(lines) + u'\n'
+		eol_w_margin = '\n%s' % left_margin
+		return left_margin + eol_w_margin.join(lines) + '\n'
 
 	#--------------------------------------------------------
 	def format_maximum_information(self, patient=None):
@@ -1341,7 +1341,7 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 		))
 
 		enc = cEncounter(aPK_obj = self._payload[self._idx['pk_encounter']])
-		lines.append (u' ' + _('Created during encounter: %s (%s - %s)   [#%s]') % (
+		lines.append (' ' + _('Created during encounter: %s (%s - %s)   [#%s]') % (
 			enc['l10n_type'],
 			enc['started_original_tz'].strftime('%Y-%m-%d %H:%M'),
 			enc['last_affirmed_original_tz'].strftime('%H:%M'),
@@ -1352,30 +1352,30 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 			range_str, range_str_verb, duration_str = self.formatted_clinical_duration
 			lines.append(_(' Duration: %s (%s)') % (duration_str, range_str_verb))
 
-		lines.append(u' ' + _('Status') + u': %s%s' % (
+		lines.append(' ' + _('Status') + ': %s%s' % (
 			gmTools.bool2subst(self._payload[self._idx['episode_open']], _('active'), _('finished')),
 			gmTools.coalesce (
 				initial = diagnostic_certainty_classification2str(self._payload[self._idx['diagnostic_certainty_classification']]),
-				instead = u'',
-				template_initial = u', %s',
-				none_equivalents = [None, u'']
+				instead = '',
+				template_initial = ', %s',
+				none_equivalents = [None, '']
 			)
 		))
 
 		if with_health_issue:
-			lines.append(u' ' + _('Health issue') + u': %s' % gmTools.coalesce (
+			lines.append(' ' + _('Health issue') + ': %s' % gmTools.coalesce (
 				self._payload[self._idx['health_issue']],
 				_('none associated')
 			))
 
 		if with_summary:
 			if self._payload[self._idx['summary']] is not None:
-				lines.append(u' %s:' % _('Synopsis'))
+				lines.append(' %s:' % _('Synopsis'))
 				lines.append(gmTools.wrap (
 						text = self._payload[self._idx['summary']],
 						width = 60,
-						initial_indent = u'  ',
-						subsequent_indent = u'  '
+						initial_indent = '  ',
+						subsequent_indent = '  '
 					)
 				)
 
@@ -1383,9 +1383,9 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 		if with_codes:
 			codes = self.generic_codes
 			if len(codes) > 0:
-				lines.append(u'')
+				lines.append('')
 			for c in codes:
-				lines.append(u' %s: %s (%s - %s)' % (
+				lines.append(' %s: %s (%s - %s)' % (
 					c['code'],
 					c['term'],
 					c['name_short'],
@@ -1393,7 +1393,7 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 				))
 			del codes
 
-		lines.append(u'')
+		lines.append('')
 
 		# encounters
 		if with_encounters:
@@ -1416,7 +1416,7 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 					first_encounter['started'].strftime('%m/%Y'),
 					last_encounter['last_affirmed'].strftime('%m/%Y')
 				))
-				lines.append(u' %s - %s (%s):%s' % (
+				lines.append(' %s - %s (%s):%s' % (
 					first_encounter['started_original_tz'].strftime('%Y-%m-%d %H:%M'),
 					first_encounter['last_affirmed_original_tz'].strftime('%H:%M'),
 					first_encounter['l10n_type'],
@@ -1424,10 +1424,10 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 						first_encounter['assessment_of_encounter'],
 						gmTools.coalesce (
 							first_encounter['reason_for_encounter'],
-							u'',
-							u' \u00BB%s\u00AB' + (u' (%s)' % _('RFE'))
+							'',
+							' \u00BB%s\u00AB' + (' (%s)' % _('RFE'))
 						),
-						u' \u00BB%s\u00AB' + (u' (%s)' % _('AOE'))
+						' \u00BB%s\u00AB' + (' (%s)' % _('AOE'))
 					)
 				))
 				if len(encs) > 4:
@@ -1437,7 +1437,7 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 						gmTools.u_ellipsis
 					))
 				for enc in encs[1:][-3:]:
-					lines.append(u' %s - %s (%s):%s' % (
+					lines.append(' %s - %s (%s):%s' % (
 						enc['started_original_tz'].strftime('%Y-%m-%d %H:%M'),
 						enc['last_affirmed_original_tz'].strftime('%H:%M'),
 						enc['l10n_type'],
@@ -1445,10 +1445,10 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 							enc['assessment_of_encounter'],
 							gmTools.coalesce (
 								enc['reason_for_encounter'],
-								u'',
-								u' \u00BB%s\u00AB' + (u' (%s)' % _('RFE'))
+								'',
+								' \u00BB%s\u00AB' + (' (%s)' % _('RFE'))
 							),
-							u' \u00BB%s\u00AB' + (u' (%s)' % _('AOE'))
+							' \u00BB%s\u00AB' + (' (%s)' % _('AOE'))
 						)
 					))
 				del encs
@@ -1473,7 +1473,7 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 				lines.append('')
 				lines.append(_('Documents: %s') % len(docs))
 			for d in docs:
-				lines.append(u' ' + d.format(single_line = True))
+				lines.append(' ' + d.format(single_line = True))
 			del docs
 
 		# hospitalizations
@@ -1490,7 +1490,7 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 		if with_procedures:
 			procs = emr.get_performed_procedures(episodes = [ self._payload[self._idx['pk_episode']] ])
 			if len(procs) > 0:
-				lines.append(u'')
+				lines.append('')
 				lines.append(_('Procedures performed: %s') % len(procs))
 			for p in procs:
 				lines.append(p.format (
@@ -1504,7 +1504,7 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 		if with_family_history:
 			fhx = emr.get_family_history(episodes = [ self._payload[self._idx['pk_episode']] ])
 			if len(fhx) > 0:
-				lines.append(u'')
+				lines.append('')
 				lines.append(_('Family History: %s') % len(fhx))
 			for f in fhx:
 				lines.append(f.format (
@@ -1522,17 +1522,17 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 				lines.append('')
 				lines.append(_('Measurements and Results:'))
 			for t in tests:
-				lines.append(u' ' + t.format_concisely(date_format = '%Y %b %d', with_notes = True))
+				lines.append(' ' + t.format_concisely(date_format = '%Y %b %d', with_notes = True))
 			del tests
 
 		# vaccinations
 		if with_vaccinations:
 			vaccs = emr.get_vaccinations (
 				episodes = [ self._payload[self._idx['pk_episode']] ],
-				order_by = u'date_given DESC, vaccine'
+				order_by = 'date_given DESC, vaccine'
 			)
 			if len(vaccs) > 0:
-				lines.append(u'')
+				lines.append('')
 				lines.append(_('Vaccinations:'))
 			for vacc in vaccs:
 				lines.extend(vacc.format (
@@ -1543,19 +1543,19 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 				))
 			del vaccs
 
-		lines = gmTools.strip_trailing_empty_lines(lines = lines, eol = u'\n')
+		lines = gmTools.strip_trailing_empty_lines(lines = lines, eol = '\n')
 		if return_list:
 			return lines
 
-		left_margin = u' ' * left_margin
-		eol_w_margin = u'\n%s' % left_margin
-		return left_margin + eol_w_margin.join(lines) + u'\n'
+		left_margin = ' ' * left_margin
+		eol_w_margin = '\n%s' % left_margin
+		return left_margin + eol_w_margin.join(lines) + '\n'
 
 	#--------------------------------------------------------
 	# properties
 	#--------------------------------------------------------
 	def _get_best_guess_clinical_start_date(self):
-		cmd = u"""SELECT MIN(earliest) FROM
+		cmd = """SELECT MIN(earliest) FROM
 		(
 			-- last modification of episode,
 			-- earliest-possible thereof = when created,
@@ -1611,7 +1611,7 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 		if self._payload[self._idx['episode_open']]:
 			return None
 
-		cmd = u"""SELECT COALESCE (
+		cmd = """SELECT COALESCE (
 			(SELECT
 				latest --, source_type
 			 FROM (
@@ -1650,25 +1650,25 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 		start = self.best_guess_clinical_start_date
 		end = self.best_guess_clinical_end_date
 		if end is None:
-			range_str = u'%s-%s' % (
+			range_str = '%s-%s' % (
 				gmDateTime.pydt_strftime(start, '%b %y', encoding = 'utf8'),
 				gmTools.u_ellipsis
 			)
-			range_str_verb = u'%s - %s' % (
+			range_str_verb = '%s - %s' % (
 				gmDateTime.pydt_strftime(start, '%b %d %Y', encoding = 'utf8'),
 				gmTools.u_ellipsis
 			)
-			duration_str = _(u'%s so far') % gmDateTime.format_interval_medically(gmDateTime.pydt_now_here() - start)
+			duration_str = _('%s so far') % gmDateTime.format_interval_medically(gmDateTime.pydt_now_here() - start)
 			return (range_str, range_str_verb, duration_str)
 
 		duration_str = gmDateTime.format_interval_medically(end - start)
 		# year different:
 		if end.year != start.year:
-			range_str = u'%s-%s' % (
+			range_str = '%s-%s' % (
 				gmDateTime.pydt_strftime(start, '%b %y', encoding = 'utf8'),
 				gmDateTime.pydt_strftime(end, '%b %y', encoding = 'utf8')
 			)
-			range_str_verb = u'%s - %s' % (
+			range_str_verb = '%s - %s' % (
 				gmDateTime.pydt_strftime(start, '%b %d %y', encoding = 'utf8'),
 				gmDateTime.pydt_strftime(end, '%b %d %Y', encoding = 'utf8')
 			)
@@ -1676,11 +1676,11 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 
 		# same year:
 		if end.month != start.month:
-			range_str = u'%s-%s' % (
+			range_str = '%s-%s' % (
 				gmDateTime.pydt_strftime(start, '%b', encoding = 'utf8'),
 				gmDateTime.pydt_strftime(end, '%b %y', encoding = 'utf8')
 			)
-			range_str_verb = u'%s - %s' % (
+			range_str_verb = '%s - %s' % (
 				gmDateTime.pydt_strftime(start, '%b %d', encoding = 'utf8'),
 				gmDateTime.pydt_strftime(end, '%b %d %Y', encoding = 'utf8')
 			)
@@ -1695,7 +1695,7 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 
 	#--------------------------------------------------------
 	def _get_latest_access_date(self):
-		cmd = u"""SELECT MAX(latest) FROM (
+		cmd = """SELECT MAX(latest) FROM (
 			-- last modification, latest = when last changed to the current state
 			(SELECT c_epi.modified_when AS latest, 'clin.episode.modified_when'::text AS candidate FROM clin.episode c_epi WHERE c_epi.pk = %(pk)s)
 
@@ -1755,7 +1755,7 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 
 	#--------------------------------------------------------
 	def _get_formatted_revision_history(self):
-		cmd = u"""SELECT
+		cmd = """SELECT
 				'NONE (live row)'::text as audit__action_applied,
 				NULL AS audit__action_when,
 				NULL AS audit__action_by,
@@ -1791,7 +1791,7 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 			self._payload[self._idx['description']],
 			gmTools.u_right_double_angle_quote
 		)
-		return u'\n'.join(self._get_revision_history(cmd, args, title))
+		return '\n'.join(self._get_revision_history(cmd, args, title))
 
 	formatted_revision_history = property(_get_formatted_revision_history, lambda x:x)
 	#--------------------------------------------------------
@@ -1799,7 +1799,7 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 		if len(self._payload[self._idx['pk_generic_codes']]) == 0:
 			return []
 
-		cmd = gmCoding._SQL_get_generic_linked_codes % u'pk_generic_code IN %(pks)s'
+		cmd = gmCoding._SQL_get_generic_linked_codes % 'pk_generic_code IN %(pks)s'
 		args = {'pks': tuple(self._payload[self._idx['pk_generic_codes']])}
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 		return [ gmCoding.cGenericLinkedCode(row = {'data': r, 'idx': idx, 'pk_field': 'pk_lnk_code2item'}) for r in rows ]
@@ -1809,7 +1809,7 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 		# remove all codes
 		if len(self._payload[self._idx['pk_generic_codes']]) > 0:
 			queries.append ({
-				'cmd': u'DELETE FROM clin.lnk_code2episode WHERE fk_item = %(epi)s AND fk_generic_code IN %(codes)s',
+				'cmd': 'DELETE FROM clin.lnk_code2episode WHERE fk_item = %(epi)s AND fk_generic_code IN %(codes)s',
 				'args': {
 					'epi': self._payload[self._idx['pk_episode']],
 					'codes': tuple(self._payload[self._idx['pk_generic_codes']])
@@ -1818,7 +1818,7 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 		# add new codes
 		for pk_code in pk_codes:
 			queries.append ({
-				'cmd': u'INSERT INTO clin.lnk_code2episode (fk_item, fk_generic_code) VALUES (%(epi)s, %(pk_code)s)',
+				'cmd': 'INSERT INTO clin.lnk_code2episode (fk_item, fk_generic_code) VALUES (%(epi)s, %(pk_code)s)',
 				'args': {
 					'epi': self._payload[self._idx['pk_episode']],
 					'pk_code': pk_code
@@ -1833,7 +1833,7 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 	generic_codes = property(_get_generic_codes, _set_generic_codes)
 	#--------------------------------------------------------
 	def _get_has_narrative(self):
-		cmd = u"""SELECT EXISTS (
+		cmd = """SELECT EXISTS (
 			SELECT 1 FROM clin.clin_narrative
 			WHERE
 				fk_episode = %(epi)s
@@ -1843,8 +1843,8 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 				)
 		)"""
 		args = {
-			u'pat': self._payload[self._idx['pk_patient']],
-			u'epi': self._payload[self._idx['pk_episode']]
+			'pat': self._payload[self._idx['pk_patient']],
+			'epi': self._payload[self._idx['pk_episode']]
 		}
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
 		return rows[0][0]
@@ -1869,9 +1869,9 @@ def create_episode(pk_health_issue=None, episode_name=None, is_open=False, allow
 			pass
 
 	queries = []
-	cmd = u"INSERT INTO clin.episode (fk_health_issue, description, is_open, fk_encounter) VALUES (%s, %s, %s::boolean, %s)"
+	cmd = "INSERT INTO clin.episode (fk_health_issue, description, is_open, fk_encounter) VALUES (%s, %s, %s::boolean, %s)"
 	queries.append({'cmd': cmd, 'args': [pk_health_issue, episode_name, is_open, encounter]})
-	queries.append({'cmd': cEpisode._cmd_fetch_payload % u"currval('clin.episode_pk_seq')"})
+	queries.append({'cmd': cEpisode._cmd_fetch_payload % "currval('clin.episode_pk_seq')"})
 	rows, idx = gmPG2.run_rw_queries(link_obj = link_obj, queries = queries, return_data=True, get_col_idx=True)
 
 	episode = cEpisode(row = {'data': rows[0], 'idx': idx, 'pk_field': 'pk_episode'})
@@ -1884,7 +1884,7 @@ def delete_episode(episode=None):
 	else:
 		pk = int(episode)
 
-	cmd = u'DELETE FROM clin.episode WHERE pk = %(pk)s'
+	cmd = 'DELETE FROM clin.episode WHERE pk = %(pk)s'
 
 	try:
 		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': {'pk': pk}}])
@@ -1908,14 +1908,14 @@ def episode2problem(episode=None, allow_closed=False):
 #============================================================
 # encounter API
 #============================================================
-SQL_get_encounters = u"SELECT * FROM clin.v_pat_encounters WHERE %s"
+SQL_get_encounters = "SELECT * FROM clin.v_pat_encounters WHERE %s"
 
 class cEncounter(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one encounter."""
 
-	_cmd_fetch_payload = SQL_get_encounters % u'pk_encounter = %s'
+	_cmd_fetch_payload = SQL_get_encounters % 'pk_encounter = %s'
 	_cmds_store_payload = [
-		u"""UPDATE clin.encounter SET
+		"""UPDATE clin.encounter SET
 				started = %(started)s,
 				last_affirmed = %(last_affirmed)s,
 				fk_location = %(pk_org_unit)s,
@@ -1927,7 +1927,7 @@ class cEncounter(gmBusinessDBObject.cBusinessDBObject):
 				xmin = %(xmin_encounter)s
 			""",
 		# need to return all fields so we can survive in-place upgrades
-		u"SELECT * FROM clin.v_pat_encounters WHERE pk_encounter = %(pk_encounter)s"
+		"SELECT * FROM clin.v_pat_encounters WHERE pk_encounter = %(pk_encounter)s"
 	]
 	_updatable_fields = [
 		'started',
@@ -1968,7 +1968,7 @@ class cEncounter(gmBusinessDBObject.cBusinessDBObject):
 			return True
 
 		queries = []
-		cmd = u"""
+		cmd = """
 			UPDATE clin.clin_root_item
 			SET fk_episode = %(trg)s
  			WHERE
@@ -1990,7 +1990,7 @@ class cEncounter(gmBusinessDBObject.cBusinessDBObject):
 	def transfer_all_data_to_another_encounter(self, pk_target_encounter=None):
 		if pk_target_encounter == self.pk_obj:
 			return True
-		cmd = u"SELECT clin.transfer_all_encounter_data(%(src)s, %(trg)s)"
+		cmd = "SELECT clin.transfer_all_encounter_data(%(src)s, %(trg)s)"
 		args = {
 			'src': self.pk_obj,
 			'trg': pk_target_encounter
@@ -2073,7 +2073,7 @@ class cEncounter(gmBusinessDBObject.cBusinessDBObject):
 		return True
 	#--------------------------------------------------------
 	def has_clinical_data(self):
-		cmd = u"""
+		cmd = """
 select exists (
 	select 1 from clin.v_pat_items where pk_patient = %(pat)s and pk_encounter = %(enc)s
 		union all
@@ -2093,7 +2093,7 @@ select exists (
 
 	#--------------------------------------------------------
 	def has_narrative(self):
-		cmd = u"""
+		cmd = """
 select exists (
 	select 1 from clin.v_pat_items where pk_patient=%(pat)s and pk_encounter=%(enc)s
 )"""
@@ -2113,19 +2113,19 @@ select exists (
 		"""soap_cats: <space> = admin category"""
 
 		if soap_cats is None:
-			soap_cats = u'soap '
+			soap_cats = 'soap '
 		else:
 			soap_cats = soap_cats.lower()
 
 		cats = []
 		for cat in soap_cats:
-			if cat in u'soapu':
+			if cat in 'soapu':
 				cats.append(cat)
 				continue
-			if cat == u' ':
+			if cat == ' ':
 				cats.append(None)
 
-		cmd = u"""
+		cmd = """
 			SELECT EXISTS (
 				SELECT 1 FROM clin.clin_narrative
 				WHERE
@@ -2140,7 +2140,7 @@ select exists (
 		return rows[0][0]
 	#--------------------------------------------------------
 	def has_documents(self):
-		cmd = u"""
+		cmd = """
 select exists (
 	select 1 from blobs.v_doc_med where pk_patient = %(pat)s and pk_encounter = %(enc)s
 )"""
@@ -2162,11 +2162,11 @@ select exists (
 			soap_cat = soap_cat.lower()
 
 		if episode is None:
-			epi_part = u'fk_episode is null'
+			epi_part = 'fk_episode is null'
 		else:
-			epi_part = u'fk_episode = %(epi)s'
+			epi_part = 'fk_episode = %(epi)s'
 
-		cmd = u"""
+		cmd = """
 select narrative
 from clin.clin_narrative
 where
@@ -2193,7 +2193,7 @@ limit 1
 		return rows[0][0]
 	#--------------------------------------------------------
 	def get_episodes(self, exclude=None):
-		cmd = u"""
+		cmd = """
 			SELECT * FROM clin.v_pat_episodes
 			WHERE pk_episode IN (
 					SELECT DISTINCT fk_episode
@@ -2208,10 +2208,10 @@ limit 1
 			) %s"""
 		args = {'enc': self.pk_obj}
 		if exclude is not None:
-			cmd = cmd % u'AND pk_episode NOT IN %(excluded)s'
+			cmd = cmd % 'AND pk_episode NOT IN %(excluded)s'
 			args['excluded'] = tuple(exclude)
 		else:
-			cmd = cmd % u''
+			cmd = cmd % ''
 
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 
@@ -2221,10 +2221,10 @@ limit 1
 	#--------------------------------------------------------
 	def add_code(self, pk_code=None, field=None):
 		"""<pk_code> must be a value from ref.coding_system_root.pk_coding_system (clin.lnk_code2item_root.fk_generic_code)"""
-		if field == u'rfe':
-			cmd = u"INSERT INTO clin.lnk_code2rfe (fk_item, fk_generic_code) values (%(item)s, %(code)s)"
-		elif field == u'aoe':
-			cmd = u"INSERT INTO clin.lnk_code2aoe (fk_item, fk_generic_code) values (%(item)s, %(code)s)"
+		if field == 'rfe':
+			cmd = "INSERT INTO clin.lnk_code2rfe (fk_item, fk_generic_code) values (%(item)s, %(code)s)"
+		elif field == 'aoe':
+			cmd = "INSERT INTO clin.lnk_code2aoe (fk_item, fk_generic_code) values (%(item)s, %(code)s)"
 		else:
 			raise ValueError('<field> must be one of "rfe" or "aoe", not "%s"', field)
 		args = {
@@ -2236,10 +2236,10 @@ limit 1
 	#--------------------------------------------------------
 	def remove_code(self, pk_code=None, field=None):
 		"""<pk_code> must be a value from ref.coding_system_root.pk_coding_system (clin.lnk_code2item_root.fk_generic_code)"""
-		if field == u'rfe':
-			cmd = u"DELETE FROM clin.lnk_code2rfe WHERE fk_item = %(item)s AND fk_generic_code = %(code)s"
-		elif field == u'aoe':
-			cmd = u"DELETE FROM clin.lnk_code2aoe WHERE fk_item = %(item)s AND fk_generic_code = %(code)s"
+		if field == 'rfe':
+			cmd = "DELETE FROM clin.lnk_code2rfe WHERE fk_item = %(item)s AND fk_generic_code = %(code)s"
+		elif field == 'aoe':
+			cmd = "DELETE FROM clin.lnk_code2aoe WHERE fk_item = %(item)s AND fk_generic_code = %(code)s"
 		else:
 			raise ValueError('<field> must be one of "rfe" or "aoe", not "%s"', field)
 		args = {
@@ -2267,7 +2267,7 @@ limit 1
 			if len(soap_cat_narratives) == 0:
 				continue
 
-			lines.append(u'%s%s %s %s' % (
+			lines.append('%s%s %s %s' % (
 				gmTools.u_box_top_left_arc,
 				gmTools.u_box_horiz_single,
 				gmSoapDefs.soap_cat2l10n_str[soap_cat],
@@ -2277,8 +2277,8 @@ limit 1
 				txt = gmTools.wrap (
 					text = soap_entry['narrative'],
 					width = 75,
-					initial_indent = u'',
-					subsequent_indent = (u' ' * left_margin)
+					initial_indent = '',
+					subsequent_indent = (' ' * left_margin)
 				)
 				lines.append(txt)
 				when = gmDateTime.pydt_strftime (
@@ -2286,8 +2286,8 @@ limit 1
 					format = '%Y-%m-%d %H:%M',
 					accuracy = gmDateTime.acc_minutes
 				)
-				txt = u'%s%s %.8s, %s %s' % (
-					u' ' * 40,
+				txt = '%s%s %.8s, %s %s' % (
+					' ' * 40,
 					gmTools.u_box_horiz_light_heavy,
 					soap_entry['modified_by'],
 					when,
@@ -2306,21 +2306,21 @@ limit 1
 				and
 			(self._payload[self._idx['assessment_of_encounter']] is None)
 				and
-			(self.has_soap_narrative(soap_cats = u'soapu') is False)
+			(self.has_soap_narrative(soap_cats = 'soapu') is False)
 		)
 		if nothing2format:
-			return u''
+			return ''
 
 		if date_format is None:
 			date_format = '%A, %b %d %Y'
 
-		tex =  u'% -------------------------------------------------------------\n'
-		tex += u'% much recommended: \\usepackage(tabu)\n'
-		tex += u'% much recommended: \\usepackage(longtable)\n'
-		tex += u'% best wrapped in: "\\begin{longtabu} to \\textwidth {lX[,L]}"\n'
-		tex += u'% -------------------------------------------------------------\n'
-		tex += u'\\hline \n'
-		tex += u'\\multicolumn{2}{l}{%s: %s ({\\footnotesize %s - %s})} \\tabularnewline \n' % (
+		tex =  '% -------------------------------------------------------------\n'
+		tex += '% much recommended: \\usepackage(tabu)\n'
+		tex += '% much recommended: \\usepackage(longtable)\n'
+		tex += '% best wrapped in: "\\begin{longtabu} to \\textwidth {lX[,L]}"\n'
+		tex += '% -------------------------------------------------------------\n'
+		tex += '\\hline \n'
+		tex += '\\multicolumn{2}{l}{%s: %s ({\\footnotesize %s - %s})} \\tabularnewline \n' % (
 			gmTools.tex_escape_string(self._payload[self._idx['l10n_type']]),
 			gmTools.tex_escape_string (
 				gmDateTime.pydt_strftime (
@@ -2344,15 +2344,15 @@ limit 1
 				)
 			)
 		)
-		tex += u'\\hline \n'
+		tex += '\\hline \n'
 
 		if self._payload[self._idx['reason_for_encounter']] is not None:
-			tex += u'%s & %s \\tabularnewline \n' % (
+			tex += '%s & %s \\tabularnewline \n' % (
 				gmTools.tex_escape_string(_('RFE')),
 				gmTools.tex_escape_string(self._payload[self._idx['reason_for_encounter']])
 			)
 		if self._payload[self._idx['assessment_of_encounter']] is not None:
-			tex += u'%s & %s \\tabularnewline \n' % (
+			tex += '%s & %s \\tabularnewline \n' % (
 				gmTools.tex_escape_string(_('AOE')),
 				gmTools.tex_escape_string(self._payload[self._idx['assessment_of_encounter']])
 			)
@@ -2361,37 +2361,37 @@ limit 1
 			soaps = epi.get_narrative(soap_cats = soap_cats, encounters = [self.pk_obj], order_by = soap_order)
 			if len(soaps) == 0:
 				continue
-			tex += u'\\multicolumn{2}{l}{\\emph{%s: %s%s}} \\tabularnewline \n' % (
+			tex += '\\multicolumn{2}{l}{\\emph{%s: %s%s}} \\tabularnewline \n' % (
 				gmTools.tex_escape_string(_('Problem')),
 				gmTools.tex_escape_string(epi['description']),
 				gmTools.tex_escape_string (
 					gmTools.coalesce (
 						initial = diagnostic_certainty_classification2str(epi['diagnostic_certainty_classification']),
-						instead = u'',
-						template_initial = u' {\\footnotesize [%s]}',
-						none_equivalents = [None, u'']
+						instead = '',
+						template_initial = ' {\\footnotesize [%s]}',
+						none_equivalents = [None, '']
 					)
 				)
 			)
 			if epi['pk_health_issue'] is not None:
-				tex += u'\\multicolumn{2}{l}{\\emph{%s: %s%s}} \\tabularnewline \n' % (
+				tex += '\\multicolumn{2}{l}{\\emph{%s: %s%s}} \\tabularnewline \n' % (
 					gmTools.tex_escape_string(_('Health issue')),
 					gmTools.tex_escape_string(epi['health_issue']),
 					gmTools.tex_escape_string (
 						gmTools.coalesce (
 							initial = diagnostic_certainty_classification2str(epi['diagnostic_certainty_classification_issue']),
-							instead = u'',
-							template_initial = u' {\\footnotesize [%s]}',
-							none_equivalents = [None, u'']
+							instead = '',
+							template_initial = ' {\\footnotesize [%s]}',
+							none_equivalents = [None, '']
 						)
 					)
 				)
 			for soap in soaps:
-				tex += u'{\\small %s} & {\\small %s} \\tabularnewline \n' % (
+				tex += '{\\small %s} & {\\small %s} \\tabularnewline \n' % (
 					gmTools.tex_escape_string(gmSoapDefs.soap_cat2l10n[soap['soap_cat']]),
 					gmTools.tex_escape_string(soap['narrative'], replace_eol = True)
 				)
-			tex += u' & \\tabularnewline \n'
+			tex += ' & \\tabularnewline \n'
 
 		return tex
 
@@ -2399,16 +2399,16 @@ limit 1
 	def __format_header_fancy(self, left_margin=0):
 		lines = []
 
-		lines.append(u'%s%s: %s - %s (@%s)%s [#%s]' % (
-			u' ' * left_margin,
+		lines.append('%s%s: %s - %s (@%s)%s [#%s]' % (
+			' ' * left_margin,
 			self._payload[self._idx['l10n_type']],
 			self._payload[self._idx['started_original_tz']].strftime('%Y-%m-%d %H:%M'),
 			self._payload[self._idx['last_affirmed_original_tz']].strftime('%H:%M'),
 			self._payload[self._idx['source_time_zone']],
 			gmTools.coalesce (
 				self._payload[self._idx['assessment_of_encounter']],
-				u'',
-				u' %s%%s%s' % (gmTools.u_left_double_angle_quote, gmTools.u_right_double_angle_quote)
+				'',
+				' %s%%s%s' % (gmTools.u_left_double_angle_quote, gmTools.u_right_double_angle_quote)
 			),
 			self._payload[self._idx['pk_encounter']]
 		))
@@ -2422,37 +2422,37 @@ limit 1
 				gmDateTime.py_dst_timezone_name,
 				gmDateTime.py_timezone_name
 			),
-			gmTools.bool2subst(gmDateTime.dst_currently_in_effect, u' - ' + _('daylight savings time in effect'), u'')
+			gmTools.bool2subst(gmDateTime.dst_currently_in_effect, ' - ' + _('daylight savings time in effect'), '')
 		))
 
 		if self._payload[self._idx['praxis_branch']] is not None:
 			lines.append(_('Location: %s (%s)') % (self._payload[self._idx['praxis_branch']], self._payload[self._idx['praxis']]))
 
 		if self._payload[self._idx['reason_for_encounter']] is not None:
-			lines.append(u'%s: %s' % (_('RFE'), self._payload[self._idx['reason_for_encounter']]))
+			lines.append('%s: %s' % (_('RFE'), self._payload[self._idx['reason_for_encounter']]))
 			codes = self.generic_codes_rfe
 			for c in codes:
-				lines.append(u' %s: %s (%s - %s)' % (
+				lines.append(' %s: %s (%s - %s)' % (
 					c['code'],
 					c['term'],
 					c['name_short'],
 					c['version']
 				))
 			if len(codes) > 0:
-				lines.append(u'')
+				lines.append('')
 
 		if self._payload[self._idx['assessment_of_encounter']] is not None:
-			lines.append(u'%s: %s' % (_('AOE'), self._payload[self._idx['assessment_of_encounter']]))
+			lines.append('%s: %s' % (_('AOE'), self._payload[self._idx['assessment_of_encounter']]))
 			codes = self.generic_codes_aoe
 			for c in codes:
-				lines.append(u' %s: %s (%s - %s)' % (
+				lines.append(' %s: %s (%s - %s)' % (
 					c['code'],
 					c['term'],
 					c['name_short'],
 					c['version']
 				))
 			if len(codes) > 0:
-				lines.append(u'')
+				lines.append('')
 			del codes
 		return lines
 
@@ -2465,47 +2465,47 @@ limit 1
 
 		now = gmDateTime.pydt_now_here()
 		if now.strftime('%Y-%m-%d') == self._payload[self._idx['started_original_tz']].strftime('%Y-%m-%d'):
-			start = u'%s %s' % (
+			start = '%s %s' % (
 				_('today'),
 				self._payload[self._idx['started_original_tz']].strftime('%H:%M')
 			)
 		else:
 			start = self._payload[self._idx['started_original_tz']].strftime('%Y-%m-%d %H:%M')
-		lines.append(u'%s%s: %s - %s%s%s' % (
-			u' ' * left_margin,
+		lines.append('%s%s: %s - %s%s%s' % (
+			' ' * left_margin,
 			self._payload[self._idx['l10n_type']],
 			start,
 			self._payload[self._idx['last_affirmed_original_tz']].strftime('%H:%M'),
-			gmTools.coalesce(self._payload[self._idx['assessment_of_encounter']], u'', u' \u00BB%s\u00AB'),
-			gmTools.coalesce(self._payload[self._idx['praxis_branch']], u'', u' @%s')
+			gmTools.coalesce(self._payload[self._idx['assessment_of_encounter']], '', ' \u00BB%s\u00AB'),
+			gmTools.coalesce(self._payload[self._idx['praxis_branch']], '', ' @%s')
 		))
 		if with_rfe_aoe:
 			if self._payload[self._idx['reason_for_encounter']] is not None:
-				lines.append(u'%s: %s' % (_('RFE'), self._payload[self._idx['reason_for_encounter']]))
+				lines.append('%s: %s' % (_('RFE'), self._payload[self._idx['reason_for_encounter']]))
 			codes = self.generic_codes_rfe
 			for c in codes:
-				lines.append(u' %s: %s (%s - %s)' % (
+				lines.append(' %s: %s (%s - %s)' % (
 					c['code'],
 					c['term'],
 					c['name_short'],
 					c['version']
 				))
 			if len(codes) > 0:
-				lines.append(u'')
+				lines.append('')
 			if self._payload[self._idx['assessment_of_encounter']] is not None:
-				lines.append(u'%s: %s' % (_('AOE'), self._payload[self._idx['assessment_of_encounter']]))
+				lines.append('%s: %s' % (_('AOE'), self._payload[self._idx['assessment_of_encounter']]))
 			codes = self.generic_codes_aoe
 			if len(codes) > 0:
-				lines.append(u'')
+				lines.append('')
 			for c in codes:
-				lines.append(u' %s: %s (%s - %s)' % (
+				lines.append(' %s: %s (%s - %s)' % (
 					c['code'],
 					c['term'],
 					c['name_short'],
 					c['version']
 				))
 			if len(codes) > 0:
-				lines.append(u'')
+				lines.append('')
 			del codes
 
 		return lines
@@ -2526,7 +2526,7 @@ limit 1
 				gmTools.u_left_double_angle_quote,
 				epi['description'],
 				gmTools.u_right_double_angle_quote,
-				gmTools.coalesce(epi['health_issue'], u'', u' (%s)')
+				gmTools.coalesce(epi['health_issue'], '', ' (%s)')
 			))
 
 			# soap
@@ -2566,10 +2566,10 @@ limit 1
 				vaccs = emr.get_vaccinations (
 					episodes = [pk],
 					encounters = [ self._payload[self._idx['pk_encounter']] ],
-					order_by = u'date_given DESC, vaccine'
+					order_by = 'date_given DESC, vaccine'
 				)
 				if len(vaccs) > 0:
-					lines.append(u'')
+					lines.append('')
 					lines.append(_('Vaccinations:'))
 				for vacc in vaccs:
 					lines.extend(vacc.format (
@@ -2584,7 +2584,7 @@ limit 1
 			if with_family_history:
 				fhx = emr.get_family_history(episodes = [pk])
 				if len(fhx) > 0:
-					lines.append(u'')
+					lines.append('')
 					lines.append(_('Family History: %s') % len(fhx))
 				for f in fhx:
 					lines.append(f.format (
@@ -2602,10 +2602,10 @@ limit 1
 					encounter = self._payload[self._idx['pk_encounter']]
 				)
 				if len(docs) > 0:
-					lines.append(u'')
+					lines.append('')
 					lines.append(_('Documents:'))
 				for d in docs:
-					lines.append(u' ' + d.format(single_line = True))
+					lines.append(' ' + d.format(single_line = True))
 				del docs
 
 		return lines
@@ -2668,7 +2668,7 @@ limit 1
 			))
 		else:
 			if with_soap:
-				lines.append(u'')
+				lines.append('')
 				if patient.ID != self._payload[self._idx['pk_patient']]:
 					msg = '<patient>.ID = %s but encounter %s belongs to patient %s' % (
 						patient.ID,
@@ -2720,10 +2720,10 @@ limit 1
 				vaccs = emr.get_vaccinations (
 					episodes = episodes,
 					encounters = [ self._payload[self._idx['pk_encounter']] ],
-					order_by = u'date_given DESC, vaccine'
+					order_by = 'date_given DESC, vaccine'
 				)
 				if len(vaccs) > 0:
-					lines.append(u'')
+					lines.append('')
 					lines.append(_('Vaccinations:'))
 				for vacc in vaccs:
 					lines.extend(vacc.format (
@@ -2742,10 +2742,10 @@ limit 1
 					encounter = self._payload[self._idx['pk_encounter']]
 				)
 				if len(docs) > 0:
-					lines.append(u'')
+					lines.append('')
 					lines.append(_('Documents:'))
 				for d in docs:
-					lines.append(u' ' + d.format(single_line = True))
+					lines.append(' ' + d.format(single_line = True))
 				del docs
 
 			# co-encountlets
@@ -2753,21 +2753,21 @@ limit 1
 				if episodes is not None:
 					other_epis = self.get_episodes(exclude = episodes)
 					if len(other_epis) > 0:
-						lines.append(u'')
+						lines.append('')
 						lines.append(_('%s other episodes touched upon during this encounter:') % len(other_epis))
 					for epi in other_epis:
-						lines.append(u' %s%s%s%s' % (
+						lines.append(' %s%s%s%s' % (
 							gmTools.u_left_double_angle_quote,
 							epi['description'],
 							gmTools.u_right_double_angle_quote,
-							gmTools.coalesce(epi['health_issue'], u'', u' (%s)')
+							gmTools.coalesce(epi['health_issue'], '', ' (%s)')
 						))
 
 		if return_list:
 			return lines
 
-		eol_w_margin = u'\n%s' % (u' ' * left_margin)
-		return u'%s\n' % eol_w_margin.join(lines)
+		eol_w_margin = '\n%s' % (' ' * left_margin)
+		return '%s\n' % eol_w_margin.join(lines)
 
 	#--------------------------------------------------------
 	# properties
@@ -2776,7 +2776,7 @@ limit 1
 		if len(self._payload[self._idx['pk_generic_codes_rfe']]) == 0:
 			return []
 
-		cmd = gmCoding._SQL_get_generic_linked_codes % u'pk_generic_code IN %(pks)s'
+		cmd = gmCoding._SQL_get_generic_linked_codes % 'pk_generic_code IN %(pks)s'
 		args = {'pks': tuple(self._payload[self._idx['pk_generic_codes_rfe']])}
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 		return [ gmCoding.cGenericLinkedCode(row = {'data': r, 'idx': idx, 'pk_field': 'pk_lnk_code2item'}) for r in rows ]
@@ -2786,7 +2786,7 @@ limit 1
 		# remove all codes
 		if len(self._payload[self._idx['pk_generic_codes_rfe']]) > 0:
 			queries.append ({
-				'cmd': u'DELETE FROM clin.lnk_code2rfe WHERE fk_item = %(enc)s AND fk_generic_code IN %(codes)s',
+				'cmd': 'DELETE FROM clin.lnk_code2rfe WHERE fk_item = %(enc)s AND fk_generic_code IN %(codes)s',
 				'args': {
 					'enc': self._payload[self._idx['pk_encounter']],
 					'codes': tuple(self._payload[self._idx['pk_generic_codes_rfe']])
@@ -2795,7 +2795,7 @@ limit 1
 		# add new codes
 		for pk_code in pk_codes:
 			queries.append ({
-				'cmd': u'INSERT INTO clin.lnk_code2rfe (fk_item, fk_generic_code) VALUES (%(enc)s, %(pk_code)s)',
+				'cmd': 'INSERT INTO clin.lnk_code2rfe (fk_item, fk_generic_code) VALUES (%(enc)s, %(pk_code)s)',
 				'args': {
 					'enc': self._payload[self._idx['pk_encounter']],
 					'pk_code': pk_code
@@ -2814,7 +2814,7 @@ limit 1
 		if len(self._payload[self._idx['pk_generic_codes_aoe']]) == 0:
 			return []
 
-		cmd = gmCoding._SQL_get_generic_linked_codes % u'pk_generic_code IN %(pks)s'
+		cmd = gmCoding._SQL_get_generic_linked_codes % 'pk_generic_code IN %(pks)s'
 		args = {'pks': tuple(self._payload[self._idx['pk_generic_codes_aoe']])}
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 		return [ gmCoding.cGenericLinkedCode(row = {'data': r, 'idx': idx, 'pk_field': 'pk_lnk_code2item'}) for r in rows ]
@@ -2824,7 +2824,7 @@ limit 1
 		# remove all codes
 		if len(self._payload[self._idx['pk_generic_codes_aoe']]) > 0:
 			queries.append ({
-				'cmd': u'DELETE FROM clin.lnk_code2aoe WHERE fk_item = %(enc)s AND fk_generic_code IN %(codes)s',
+				'cmd': 'DELETE FROM clin.lnk_code2aoe WHERE fk_item = %(enc)s AND fk_generic_code IN %(codes)s',
 				'args': {
 					'enc': self._payload[self._idx['pk_encounter']],
 					'codes': tuple(self._payload[self._idx['pk_generic_codes_aoe']])
@@ -2833,7 +2833,7 @@ limit 1
 		# add new codes
 		for pk_code in pk_codes:
 			queries.append ({
-				'cmd': u'INSERT INTO clin.lnk_code2aoe (fk_item, fk_generic_code) VALUES (%(enc)s, %(pk_code)s)',
+				'cmd': 'INSERT INTO clin.lnk_code2aoe (fk_item, fk_generic_code) VALUES (%(enc)s, %(pk_code)s)',
 				'args': {
 					'enc': self._payload[self._idx['pk_encounter']],
 					'pk_code': pk_code
@@ -2863,7 +2863,7 @@ limit 1
 	org_unit = property(_get_org_unit, lambda x:x)
 	#--------------------------------------------------------
 	def _get_formatted_revision_history(self):
-		cmd = u"""SELECT
+		cmd = """SELECT
 				'NONE (live row)'::text as audit__action_applied,
 				NULL AS audit__action_when,
 				NULL AS audit__action_by,
@@ -2895,7 +2895,7 @@ limit 1
 			self._payload[self._idx['l10n_type']],
 			gmTools.u_right_double_angle_quote
 		)
-		return u'\n'.join(self._get_revision_history(cmd, args, title))
+		return '\n'.join(self._get_revision_history(cmd, args, title))
 
 	formatted_revision_history = property(_get_formatted_revision_history, lambda x:x)
 
@@ -2907,17 +2907,17 @@ def create_encounter(fk_patient=None, enc_type=None):
 	enc_type - type of encounter
 	"""
 	if enc_type is None:
-		enc_type = u'in surgery'
+		enc_type = 'in surgery'
 	# insert new encounter
 	queries = []
 	try:
 		enc_type = int(enc_type)
-		cmd = u"""
+		cmd = """
 			INSERT INTO clin.encounter (fk_patient, fk_type, fk_location)
 			VALUES (%(pat)s, %(typ)s, %(prax)s) RETURNING pk"""
 	except ValueError:
 		enc_type = enc_type
-		cmd = u"""
+		cmd = """
 			INSERT INTO clin.encounter (fk_patient, fk_location, fk_type)
 			VALUES (
 				%(pat)s,
@@ -2939,11 +2939,11 @@ def create_encounter(fk_patient=None, enc_type=None):
 #------------------------------------------------------------
 def lock_encounter(pk_encounter, exclusive=False, link_obj=None):
 	"""Used to protect against deletion of active encounter from another client."""
-	return gmPG2.lock_row(link_obj = link_obj, table = u'clin.encounter', pk = pk_encounter, exclusive = exclusive)
+	return gmPG2.lock_row(link_obj = link_obj, table = 'clin.encounter', pk = pk_encounter, exclusive = exclusive)
 
 #------------------------------------------------------------
 def unlock_encounter(pk_encounter, exclusive=False, link_obj=None):
-	return gmPG2.unlock_row(link_obj = link_obj, table = u'clin.encounter', pk = pk_encounter, exclusive = exclusive)
+	return gmPG2.unlock_row(link_obj = link_obj, table = 'clin.encounter', pk = pk_encounter, exclusive = exclusive)
 
 #-----------------------------------------------------------
 def delete_encounter(pk_encounter):
@@ -2960,7 +2960,7 @@ def delete_encounter(pk_encounter):
 	if not lock_encounter(pk_encounter, exclusive = True, link_obj = conn):
 		_log.debug('cannot lock encounter [%s] for deletion, it seems in use', pk_encounter)
 		return False
-	cmd = u"""DELETE FROM clin.encounter WHERE pk = %(enc)s"""
+	cmd = """DELETE FROM clin.encounter WHERE pk = %(enc)s"""
 	args = {'enc': pk_encounter}
 	try:
 		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
@@ -2978,7 +2978,7 @@ def update_encounter_type(description=None, l10n_description=None):
 
 	rows, idx = gmPG2.run_rw_queries(
 		queries = [{
-		'cmd': u"select i18n.upd_tx(%(desc)s, %(l10n_desc)s)",
+		'cmd': "select i18n.upd_tx(%(desc)s, %(l10n_desc)s)",
 		'args': {'desc': description, 'l10n_desc': l10n_description}
 		}],
 		return_data = True
@@ -3005,7 +3005,7 @@ def create_encounter_type(description=None, l10n_description=None):
 	_log.debug('creating encounter type: %s, %s', description, l10n_description)
 
 	# does it exist already ?
-	cmd = u"select description, _(description) from clin.encounter_type where description = %(desc)s"
+	cmd = "select description, _(description) from clin.encounter_type where description = %(desc)s"
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 
 	# yes
@@ -3017,7 +3017,7 @@ def create_encounter_type(description=None, l10n_description=None):
 
 		# or maybe there just wasn't a translation to
 		# the current language for this type yet ?
-		cmd = u"select exists (select 1 from i18n.translations where orig = %(desc)s and lang = i18n.get_curr_lang())"
+		cmd = "select exists (select 1 from i18n.translations where orig = %(desc)s and lang = i18n.get_curr_lang())"
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 
 		# there was, so fail
@@ -3026,14 +3026,14 @@ def create_encounter_type(description=None, l10n_description=None):
 			return None
 
 		# else set it
-		cmd = u"select i18n.upd_tx(%(desc)s, %(l10n_desc)s)"
+		cmd = "select i18n.upd_tx(%(desc)s, %(l10n_desc)s)"
 		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 		return {'description': description, 'l10n_description': l10n_description}
 
 	# no
 	queries = [
-		{'cmd': u"insert into clin.encounter_type (description) values (%(desc)s)", 'args': args},
-		{'cmd': u"select i18n.upd_tx(%(desc)s, %(l10n_desc)s)", 'args': args}
+		{'cmd': "insert into clin.encounter_type (description) values (%(desc)s)", 'args': args},
+		{'cmd': "select i18n.upd_tx(%(desc)s, %(l10n_desc)s)", 'args': args}
 	]
 	rows, idx = gmPG2.run_rw_queries(queries = queries)
 
@@ -3041,7 +3041,7 @@ def create_encounter_type(description=None, l10n_description=None):
 
 #-----------------------------------------------------------
 def get_most_commonly_used_encounter_type():
-	cmd = u"""
+	cmd = """
 		SELECT
 			COUNT(1) AS type_count,
 			fk_type
@@ -3057,7 +3057,7 @@ def get_most_commonly_used_encounter_type():
 
 #-----------------------------------------------------------
 def get_encounter_types():
-	cmd = u"""
+	cmd = """
 		SELECT
 			_(description) AS l10n_description,
 			description
@@ -3071,13 +3071,13 @@ def get_encounter_types():
 
 #-----------------------------------------------------------
 def get_encounter_type(description=None):
-	cmd = u"SELECT * from clin.encounter_type where description = %s"
+	cmd = "SELECT * from clin.encounter_type where description = %s"
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [description]}])
 	return rows
 
 #-----------------------------------------------------------
 def delete_encounter_type(description=None):
-	cmd = u"delete from clin.encounter_type where description = %(desc)s"
+	cmd = "delete from clin.encounter_type where description = %(desc)s"
 	args = {'desc': description}
 	try:
 		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
@@ -3096,8 +3096,8 @@ class cProblem(gmBusinessDBObject.cBusinessDBObject):
 		.clinically_relevant=True issues and
 		.is_open=True episodes
 	"""
-	_cmd_fetch_payload = u''					# will get programmatically defined in __init__
-	_cmds_store_payload = [u"select 1"]
+	_cmd_fetch_payload = ''					# will get programmatically defined in __init__
+	_cmds_store_payload = ["select 1"]
 	_updatable_fields = []
 
 	#--------------------------------------------------------
@@ -3127,10 +3127,10 @@ class cProblem(gmBusinessDBObject.cBusinessDBObject):
 				pk[col_name] = val
 
 		# try to instantiate from true problem view
-		cProblem._cmd_fetch_payload = u"""
+		cProblem._cmd_fetch_payload = """
 			SELECT *, False as is_potential_problem
 			FROM clin.v_problem_list
-			WHERE %s""" % u' AND '.join(where_parts)
+			WHERE %s""" % ' AND '.join(where_parts)
 
 		try:
 			gmBusinessDBObject.cBusinessDBObject.__init__(self, aPK_obj=pk)
@@ -3141,10 +3141,10 @@ class cProblem(gmBusinessDBObject.cBusinessDBObject):
 				raise
 
 		# try to instantiate from potential-problems view
-		cProblem._cmd_fetch_payload = u"""
+		cProblem._cmd_fetch_payload = """
 			SELECT *, True as is_potential_problem
 			FROM clin.v_potential_problem_list
-			WHERE %s""" % u' AND '.join(where_parts)
+			WHERE %s""" % ' AND '.join(where_parts)
 		gmBusinessDBObject.cBusinessDBObject.__init__(self, aPK_obj=pk)
 	#--------------------------------------------------------
 	def get_as_episode(self):
@@ -3169,7 +3169,7 @@ class cProblem(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	def get_visual_progress_notes(self, encounter_id=None):
 
-		if self._payload[self._idx['type']] == u'issue':
+		if self._payload[self._idx['type']] == 'issue':
 			latest = cHealthIssue(aPK_obj = self._payload[self._idx['pk_health_issue']]).latest_episode
 			if latest is None:
 				return []
@@ -3193,8 +3193,8 @@ class cProblem(gmBusinessDBObject.cBusinessDBObject):
 	diagnostic_certainty_description = property(get_diagnostic_certainty_description, lambda x:x)
 	#--------------------------------------------------------
 	def _get_generic_codes(self):
-		if self._payload[self._idx['type']] == u'issue':
-			cmd = u"""
+		if self._payload[self._idx['type']] == 'issue':
+			cmd = """
 				SELECT * FROM clin.v_linked_codes WHERE
 					item_table = 'clin.lnk_code2h_issue'::regclass
 						AND
@@ -3202,7 +3202,7 @@ class cProblem(gmBusinessDBObject.cBusinessDBObject):
 			"""
 			args = {'item': self._payload[self._idx['pk_health_issue']]}
 		else:
-			cmd = u"""
+			cmd = """
 				SELECT * FROM clin.v_linked_codes WHERE
 					item_table = 'clin.lnk_code2episode'::regclass
 						AND
@@ -3266,7 +3266,7 @@ def reclass_problem(self, problem=None):
 	exc = TypeError('cannot reclass [%s] instance to either episode or health issue' % type(problem))
 
 	if not isinstance(problem, cProblem):
-		_log.debug(u'%s' % problem)
+		_log.debug('%s' % problem)
 		raise exc
 
 	if problem['type'] == 'episode':
@@ -3278,13 +3278,13 @@ def reclass_problem(self, problem=None):
 	raise exc
 
 #============================================================
-_SQL_get_hospital_stays = u"select * from clin.v_hospital_stays where %s"
+_SQL_get_hospital_stays = "select * from clin.v_hospital_stays where %s"
 
 class cHospitalStay(gmBusinessDBObject.cBusinessDBObject):
 
-	_cmd_fetch_payload = _SQL_get_hospital_stays % u"pk_hospital_stay = %s"
+	_cmd_fetch_payload = _SQL_get_hospital_stays % "pk_hospital_stay = %s"
 	_cmds_store_payload = [
-		u"""UPDATE clin.hospital_stay SET
+		"""UPDATE clin.hospital_stay SET
 				clin_when = %(admission)s,
 				discharge = %(discharge)s,
 				fk_org_unit = %(pk_org_unit)s,
@@ -3313,26 +3313,26 @@ class cHospitalStay(gmBusinessDBObject.cBusinessDBObject):
 		return self.format (
 			include_procedures = True,
 			include_docs = True
-		).split(u'\n')
+		).split('\n')
 
 	#-------------------------------------------------------
 	def format(self, left_margin=0, include_procedures=False, include_docs=False, include_episode=True):
 
 		if self._payload[self._idx['discharge']] is not None:
-			discharge = u' - %s' % gmDateTime.pydt_strftime(self._payload[self._idx['discharge']], '%Y %b %d')
+			discharge = ' - %s' % gmDateTime.pydt_strftime(self._payload[self._idx['discharge']], '%Y %b %d')
 		else:
-			discharge = u''
+			discharge = ''
 
-		episode = u''
+		episode = ''
 		if include_episode:
-			episode = u': %s%s%s' % (
+			episode = ': %s%s%s' % (
 				gmTools.u_left_double_angle_quote,
 				self._payload[self._idx['episode']],
 				gmTools.u_right_double_angle_quote
 			)
 
-		lines = [u'%s%s%s (%s@%s)%s' % (
-			u' ' * left_margin,
+		lines = ['%s%s%s (%s@%s)%s' % (
+			' ' * left_margin,
 			gmDateTime.pydt_strftime(self._payload[self._idx['admission']], '%Y %b %d'),
 			discharge,
 			self._payload[self._idx['ward']],
@@ -3342,13 +3342,13 @@ class cHospitalStay(gmBusinessDBObject.cBusinessDBObject):
 
 		if include_docs:
 			for doc in self.documents:
-				lines.append(u'%s%s: %s\n' % (
-					u' ' * left_margin,
+				lines.append('%s%s: %s\n' % (
+					' ' * left_margin,
 					_('Document'),
 					doc.format(single_line = True)
 				))
 
-		return u'\n'.join(lines)
+		return '\n'.join(lines)
 
 	#--------------------------------------------------------
 	def _get_documents(self):
@@ -3358,7 +3358,7 @@ class cHospitalStay(gmBusinessDBObject.cBusinessDBObject):
 
 #-----------------------------------------------------------
 def get_latest_patient_hospital_stay(patient=None):
-	cmd = _SQL_get_hospital_stays % u"pk_patient = %(pat)s ORDER BY admission DESC LIMIT 1"
+	cmd = _SQL_get_hospital_stays % "pk_patient = %(pat)s ORDER BY admission DESC LIMIT 1"
 	queries = [{
 		# this assumes non-overarching stays
 		#'cmd': u'SELECT * FROM clin.v_hospital_stays WHERE pk_patient = %(pat)s ORDER BY admission DESC LIMIT 1',
@@ -3374,9 +3374,9 @@ def get_latest_patient_hospital_stay(patient=None):
 def get_patient_hospital_stays(patient=None, ongoing_only=False):
 	args = {'pat': patient}
 	if ongoing_only:
-		cmd = _SQL_get_hospital_stays % u"pk_patient = %(pat)s AND discharge is NULL ORDER BY admission"
+		cmd = _SQL_get_hospital_stays % "pk_patient = %(pat)s AND discharge is NULL ORDER BY admission"
 	else:
-		cmd = _SQL_get_hospital_stays % u"pk_patient = %(pat)s ORDER BY admission"
+		cmd = _SQL_get_hospital_stays % "pk_patient = %(pat)s ORDER BY admission"
 
 	queries = [{'cmd': cmd, 'args': args}]
 	rows, idx = gmPG2.run_ro_queries(queries = queries, get_col_idx = True)
@@ -3387,7 +3387,7 @@ def get_patient_hospital_stays(patient=None, ongoing_only=False):
 def create_hospital_stay(encounter=None, episode=None, fk_org_unit=None):
 
 	queries = [{
-		 'cmd': u'INSERT INTO clin.hospital_stay (fk_encounter, fk_episode, fk_org_unit) VALUES (%(enc)s, %(epi)s, %(fk_org_unit)s) RETURNING pk',
+		 'cmd': 'INSERT INTO clin.hospital_stay (fk_encounter, fk_episode, fk_org_unit) VALUES (%(enc)s, %(epi)s, %(fk_org_unit)s) RETURNING pk',
 		 'args': {'enc': encounter, 'epi': episode, 'fk_org_unit': fk_org_unit}
 	}]
 	rows, idx = gmPG2.run_rw_queries(queries = queries, return_data = True)
@@ -3396,19 +3396,19 @@ def create_hospital_stay(encounter=None, episode=None, fk_org_unit=None):
 
 #-----------------------------------------------------------
 def delete_hospital_stay(stay=None):
-	cmd = u'DELETE FROM clin.hospital_stay WHERE pk = %(pk)s'
+	cmd = 'DELETE FROM clin.hospital_stay WHERE pk = %(pk)s'
 	args = {'pk': stay}
 	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 	return True
 
 #============================================================
-_SQL_get_procedures = u"select * from clin.v_procedures where %s"
+_SQL_get_procedures = "select * from clin.v_procedures where %s"
 
 class cPerformedProcedure(gmBusinessDBObject.cBusinessDBObject):
 
-	_cmd_fetch_payload = _SQL_get_procedures % u"pk_procedure = %s"
+	_cmd_fetch_payload = _SQL_get_procedures % "pk_procedure = %s"
 	_cmds_store_payload = [
-		u"""UPDATE clin.procedure SET
+		"""UPDATE clin.procedure SET
 				soap_cat = 'p',
 				clin_when = %(clin_when)s,
 				clin_end = %(clin_end)s,
@@ -3460,7 +3460,7 @@ class cPerformedProcedure(gmBusinessDBObject.cBusinessDBObject):
 			include_address = True,
 			include_comm = True,
 			include_doc = True
-		).split(u'\n')
+		).split('\n')
 
 	#-------------------------------------------------------
 	def format(self, left_margin=0, include_episode=True, include_codes=False, include_address=False, include_comm=False, include_doc=False):
@@ -3470,47 +3470,47 @@ class cPerformedProcedure(gmBusinessDBObject.cBusinessDBObject):
 		else:
 			end = self._payload[self._idx['clin_end']]
 			if end is None:
-				end = u''
+				end = ''
 			else:
-				end = u' - %s' % gmDateTime.pydt_strftime(end, '%Y %b %d')
+				end = ' - %s' % gmDateTime.pydt_strftime(end, '%Y %b %d')
 
-		line = u'%s%s%s: %s%s [%s @ %s]' % (
-			(u' ' * left_margin),
+		line = '%s%s%s: %s%s [%s @ %s]' % (
+			(' ' * left_margin),
 			gmDateTime.pydt_strftime(self._payload[self._idx['clin_when']], '%Y %b %d'),
 			end,
 			self._payload[self._idx['performed_procedure']],
-			gmTools.bool2str(include_episode, u' (%s)' % self._payload[self._idx['episode']], u''),
+			gmTools.bool2str(include_episode, ' (%s)' % self._payload[self._idx['episode']], ''),
 			self._payload[self._idx['unit']],
 			self._payload[self._idx['organization']]
 		)
 
-		line += gmTools.coalesce(self._payload[self._idx['comment']], u'', u'\n' + (u' ' * left_margin) + _(u'Comment: ') + u'%s')
+		line += gmTools.coalesce(self._payload[self._idx['comment']], '', '\n' + (' ' * left_margin) + _('Comment: ') + '%s')
 
 		if include_comm:
 			for channel in self.org_unit.comm_channels:
-				line += (u'\n%(comm_type)s: %(url)s' % channel)
+				line += ('\n%(comm_type)s: %(url)s' % channel)
 
 		if include_address:
 			adr = self.org_unit.address
 			if adr is not None:
-				line += u'\n'
-				line += u'\n'.join(adr.format(single_line = False, show_type = False))
-				line += u'\n'
+				line += '\n'
+				line += '\n'.join(adr.format(single_line = False, show_type = False))
+				line += '\n'
 
 		if include_doc:
 			doc = self.doc
 			if doc is not None:
-				line += u'\n'
-				line += _(u'Document') + u': ' + doc.format(single_line = True)
-				line += u'\n'
+				line += '\n'
+				line += _('Document') + ': ' + doc.format(single_line = True)
+				line += '\n'
 
 		if include_codes:
 			codes = self.generic_codes
 			if len(codes) > 0:
-				line += u'\n'
+				line += '\n'
 			for c in codes:
-				line += u'%s  %s: %s (%s - %s)\n' % (
-					(u' ' * left_margin),
+				line += '%s  %s: %s (%s - %s)\n' % (
+					(' ' * left_margin),
 					c['code'],
 					c['term'],
 					c['name_short'],
@@ -3523,7 +3523,7 @@ class cPerformedProcedure(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	def add_code(self, pk_code=None):
 		"""<pk_code> must be a value from ref.coding_system_root.pk_coding_system (clin.lnk_code2item_root.fk_generic_code)"""
-		cmd = u"INSERT INTO clin.lnk_code2procedure (fk_item, fk_generic_code) values (%(issue)s, %(code)s)"
+		cmd = "INSERT INTO clin.lnk_code2procedure (fk_item, fk_generic_code) values (%(issue)s, %(code)s)"
 		args = {
 			'issue': self._payload[self._idx['pk_procedure']],
 			'code': pk_code
@@ -3534,7 +3534,7 @@ class cPerformedProcedure(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	def remove_code(self, pk_code=None):
 		"""<pk_code> must be a value from ref.coding_system_root.pk_coding_system (clin.lnk_code2item_root.fk_generic_code)"""
-		cmd = u"DELETE FROM clin.lnk_code2procedure WHERE fk_item = %(issue)s AND fk_generic_code = %(code)s"
+		cmd = "DELETE FROM clin.lnk_code2procedure WHERE fk_item = %(issue)s AND fk_generic_code = %(code)s"
 		args = {
 			'issue': self._payload[self._idx['pk_procedure']],
 			'code': pk_code
@@ -3571,7 +3571,7 @@ class cPerformedProcedure(gmBusinessDBObject.cBusinessDBObject):
 		if len(self._payload[self._idx['pk_generic_codes']]) == 0:
 			return []
 
-		cmd = gmCoding._SQL_get_generic_linked_codes % u'pk_generic_code IN %(pks)s'
+		cmd = gmCoding._SQL_get_generic_linked_codes % 'pk_generic_code IN %(pks)s'
 		args = {'pks': tuple(self._payload[self._idx['pk_generic_codes']])}
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 		return [ gmCoding.cGenericLinkedCode(row = {'data': r, 'idx': idx, 'pk_field': 'pk_lnk_code2item'}) for r in rows ]
@@ -3581,7 +3581,7 @@ class cPerformedProcedure(gmBusinessDBObject.cBusinessDBObject):
 		# remove all codes
 		if len(self._payload[self._idx['pk_generic_codes']]) > 0:
 			queries.append ({
-				'cmd': u'DELETE FROM clin.lnk_code2procedure WHERE fk_item = %(proc)s AND fk_generic_code IN %(codes)s',
+				'cmd': 'DELETE FROM clin.lnk_code2procedure WHERE fk_item = %(proc)s AND fk_generic_code IN %(codes)s',
 				'args': {
 					'proc': self._payload[self._idx['pk_procedure']],
 					'codes': tuple(self._payload[self._idx['pk_generic_codes']])
@@ -3590,7 +3590,7 @@ class cPerformedProcedure(gmBusinessDBObject.cBusinessDBObject):
 		# add new codes
 		for pk_code in pk_codes:
 			queries.append ({
-				'cmd': u'INSERT INTO clin.lnk_code2procedure (fk_item, fk_generic_code) VALUES (%(proc)s, %(pk_code)s)',
+				'cmd': 'INSERT INTO clin.lnk_code2procedure (fk_item, fk_generic_code) VALUES (%(proc)s, %(pk_code)s)',
 				'args': {
 					'proc': self._payload[self._idx['pk_procedure']],
 					'pk_code': pk_code
@@ -3608,7 +3608,7 @@ class cPerformedProcedure(gmBusinessDBObject.cBusinessDBObject):
 def get_performed_procedures(patient=None):
 
 	queries = [{
-		'cmd': u'SELECT * FROM clin.v_procedures WHERE pk_patient = %(pat)s ORDER BY clin_when',
+		'cmd': 'SELECT * FROM clin.v_procedures WHERE pk_patient = %(pat)s ORDER BY clin_when',
 		'args': {'pat': patient}
 	}]
 	rows, idx = gmPG2.run_ro_queries(queries = queries, get_col_idx = True)
@@ -3617,14 +3617,14 @@ def get_performed_procedures(patient=None):
 #-----------------------------------------------------------
 def get_procedures4document(pk_document=None):
 	args = {'pk_doc': pk_document}
-	cmd = _SQL_get_procedures % u'pk_doc = %(pk_doc)s'
+	cmd = _SQL_get_procedures % 'pk_doc = %(pk_doc)s'
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 	return [ cPerformedProcedure(row = {'idx': idx, 'data': r, 'pk_field': 'pk_procedure'})  for r in rows ]
 
 #-----------------------------------------------------------
 def get_latest_performed_procedure(patient=None):
 	queries = [{
-		'cmd': u'select * FROM clin.v_procedures WHERE pk_patient = %(pat)s ORDER BY clin_when DESC LIMIT 1',
+		'cmd': 'select * FROM clin.v_procedures WHERE pk_patient = %(pat)s ORDER BY clin_when DESC LIMIT 1',
 		'args': {'pat': patient}
 	}]
 	rows, idx = gmPG2.run_ro_queries(queries = queries, get_col_idx = True)
@@ -3636,7 +3636,7 @@ def get_latest_performed_procedure(patient=None):
 def create_performed_procedure(encounter=None, episode=None, location=None, hospital_stay=None, procedure=None):
 
 	queries = [{
-		'cmd': u"""
+		'cmd': """
 			INSERT INTO clin.procedure (
 				fk_encounter,
 				fk_episode,
@@ -3662,7 +3662,7 @@ def create_performed_procedure(encounter=None, episode=None, location=None, hosp
 
 #-----------------------------------------------------------
 def delete_performed_procedure(procedure=None):
-	cmd = u'delete from clin.procedure where pk = %(pk)s'
+	cmd = 'delete from clin.procedure where pk = %(pk)s'
 	args = {'pk': procedure}
 	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 	return True
@@ -3671,45 +3671,45 @@ def delete_performed_procedure(procedure=None):
 def export_emr_structure(patient=None, filename=None):
 
 	if filename is None:
-		filename = gmTools.get_unique_filename(prefix = u'gm-emr_struct-%s-' % patient.dirname, suffix = u'.txt')
+		filename = gmTools.get_unique_filename(prefix = 'gm-emr_struct-%s-' % patient.dirname, suffix = '.txt')
 
 	f = io.open(filename, 'w+', encoding = 'utf8')
 
-	f.write(u'patient [%s]\n' % patient['description_gender'])
+	f.write('patient [%s]\n' % patient['description_gender'])
 	emr = patient.emr
 	for issue in emr.health_issues:
-		f.write(u'\n')
-		f.write(u'\n')
-		f.write(u'issue [%s] #%s\n' % (issue['description'], issue['pk_health_issue']))
-		f.write(u' is active     : %s\n' % issue['is_active'])
-		f.write(u' has open epi  : %s\n' % issue['has_open_episode'])
-		f.write(u' possible start: %s\n' % issue.possible_start_date)
-		f.write(u' safe start    : %s\n' % issue.safe_start_date)
+		f.write('\n')
+		f.write('\n')
+		f.write('issue [%s] #%s\n' % (issue['description'], issue['pk_health_issue']))
+		f.write(' is active     : %s\n' % issue['is_active'])
+		f.write(' has open epi  : %s\n' % issue['has_open_episode'])
+		f.write(' possible start: %s\n' % issue.possible_start_date)
+		f.write(' safe start    : %s\n' % issue.safe_start_date)
 		end = issue.clinical_end_date
 		if end is None:
-			f.write(u' end           : active and/or open episode\n')
+			f.write(' end           : active and/or open episode\n')
 		else:
-			f.write(u' end           : %s\n' % end)
-		f.write(u' latest access : %s\n' % issue.latest_access_date)
+			f.write(' end           : %s\n' % end)
+		f.write(' latest access : %s\n' % issue.latest_access_date)
 		first = issue.first_episode
 		if first is not None:
 			first = first['description']
-		f.write(u' 1st episode   : %s\n' % first)
+		f.write(' 1st episode   : %s\n' % first)
 		last = issue.latest_episode
 		if last is not None:
 			last = last['description']
-		f.write(u' latest episode: %s\n' % last)
+		f.write(' latest episode: %s\n' % last)
 		epis = sorted(issue.get_episodes(), key = lambda e: e.best_guess_clinical_start_date)
 		for epi in epis:
-			f.write(u'\n')
-			f.write(u' episode [%s] #%s\n' % (epi['description'], epi['pk_episode']))
-			f.write(u'  is open         : %s\n' % epi['episode_open'])
-			f.write(u'  best guess start: %s\n' % epi.best_guess_clinical_start_date)
-			f.write(u'  best guess end  : %s\n' % epi.best_guess_clinical_end_date)
-			f.write(u'  latest access   : %s\n' % epi.latest_access_date)
-			f.write(u'  start 1st enc   : %s\n' % epi['started_first'])
-			f.write(u'  start last enc  : %s\n' % epi['started_last'])
-			f.write(u'  end last enc    : %s\n' % epi['last_affirmed'])
+			f.write('\n')
+			f.write(' episode [%s] #%s\n' % (epi['description'], epi['pk_episode']))
+			f.write('  is open         : %s\n' % epi['episode_open'])
+			f.write('  best guess start: %s\n' % epi.best_guess_clinical_start_date)
+			f.write('  best guess end  : %s\n' % epi.best_guess_clinical_end_date)
+			f.write('  latest access   : %s\n' % epi.latest_access_date)
+			f.write('  start 1st enc   : %s\n' % epi['started_first'])
+			f.write('  start last enc  : %s\n' % epi['started_last'])
+			f.write('  end last enc    : %s\n' % epi['last_affirmed'])
 
 	f.close()
 	return filename
@@ -3741,7 +3741,7 @@ def check_fk_encounter_fk_episode_x_ref():
 
 	for t in tables_linking2both:
 
-		table_file_name = u'x-check_enc_epi_xref-%s.log' % t
+		table_file_name = 'x-check_enc_epi_xref-%s.log' % t
 		table_file = io.open(table_file_name, 'w+', encoding = 'utf8')
 
 		# get PK column
@@ -3750,17 +3750,17 @@ def check_fk_encounter_fk_episode_x_ref():
 		pk_col = rows[0][0]
 		print("checking table:", t, '- pk col:', pk_col)
 		print(' =>', table_file_name)
-		table_file.write(u'table: %s\n' % t)
-		table_file.write(u'PK col: %s\n' % pk_col)
+		table_file.write('table: %s\n' % t)
+		table_file.write('PK col: %s\n' % pk_col)
 
 		# get PKs
-		cmd = u'select %s from %s' % (pk_col, t)
+		cmd = 'select %s from %s' % (pk_col, t)
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
 		pks = [ r[0] for r in rows ]
 		for pk in pks:
 			args = {'pk': pk, 'tbl': t}
-			enc_cmd = u"select fk_patient from clin.encounter where pk = (select fk_encounter from %s where %s = %%(pk)s)" % (t, pk_col)
-			epi_cmd = u"select fk_patient from clin.encounter where pk = (select fk_encounter from clin.episode where pk = (select fk_episode from %s where %s = %%(pk)s))" % (t, pk_col)
+			enc_cmd = "select fk_patient from clin.encounter where pk = (select fk_encounter from %s where %s = %%(pk)s)" % (t, pk_col)
+			epi_cmd = "select fk_patient from clin.encounter where pk = (select fk_encounter from clin.episode where pk = (select fk_episode from %s where %s = %%(pk)s))" % (t, pk_col)
 			enc_rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': enc_cmd, 'args': args}])
 			epi_rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': epi_cmd, 'args': args}])
 			enc_pat = enc_rows[0][0]
@@ -3771,48 +3771,48 @@ def check_fk_encounter_fk_episode_x_ref():
 				print(' mismatch: row pk=%s, enc pat=%s, epi pat=%s' % (pk, enc_pat, epi_pat))
 				aggregate_result = -2
 
-				table_file.write(u'--------------------------------------------------------------------------------\n')
-				table_file.write(u'mismatch on row with pk: %s\n' % pk)
-				table_file.write(u'\n')
+				table_file.write('--------------------------------------------------------------------------------\n')
+				table_file.write('mismatch on row with pk: %s\n' % pk)
+				table_file.write('\n')
 
-				table_file.write(u'journal entry:\n')
-				cmd = u'SELECT * from clin.v_emr_journal where src_table = %(tbl)s AND src_pk = %(pk)s'
+				table_file.write('journal entry:\n')
+				cmd = 'SELECT * from clin.v_emr_journal where src_table = %(tbl)s AND src_pk = %(pk)s'
 				rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 				if len(rows) > 0:
 					table_file.write(gmTools.format_dict_like(rows[0], left_margin = 1, tabular = False, value_delimiters = None))
-				table_file.write(u'\n\n')
+				table_file.write('\n\n')
 
-				table_file.write(u'row data:\n')
-				cmd = u'SELECT * from %s where %s = %%(pk)s' % (t, pk_col)
+				table_file.write('row data:\n')
+				cmd = 'SELECT * from %s where %s = %%(pk)s' % (t, pk_col)
 				rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 				table_file.write(gmTools.format_dict_like(rows[0], left_margin = 1, tabular = False, value_delimiters = None))
-				table_file.write(u'\n\n')
+				table_file.write('\n\n')
 
-				table_file.write(u'episode:\n')
-				cmd = u'SELECT * from clin.v_pat_episodes WHERE pk_episode = (select fk_episode from %s where %s = %%(pk)s)' % (t, pk_col)
+				table_file.write('episode:\n')
+				cmd = 'SELECT * from clin.v_pat_episodes WHERE pk_episode = (select fk_episode from %s where %s = %%(pk)s)' % (t, pk_col)
 				rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 				table_file.write(gmTools.format_dict_like(rows[0], left_margin = 1, tabular = False, value_delimiters = None))
-				table_file.write(u'\n\n')
+				table_file.write('\n\n')
 
-				table_file.write(u'patient of episode:\n')
-				cmd = u'SELECT * FROM dem.v_persons WHERE pk_identity = %(pat_epi)s'
+				table_file.write('patient of episode:\n')
+				cmd = 'SELECT * FROM dem.v_persons WHERE pk_identity = %(pat_epi)s'
 				rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 				table_file.write(gmTools.format_dict_like(rows[0], left_margin = 1, tabular = False, value_delimiters = None))
-				table_file.write(u'\n\n')
+				table_file.write('\n\n')
 
-				table_file.write(u'encounter:\n')
-				cmd = u'SELECT * from clin.v_pat_encounters WHERE pk_encounter = (select fk_encounter from %s where %s = %%(pk)s)' % (t, pk_col)
+				table_file.write('encounter:\n')
+				cmd = 'SELECT * from clin.v_pat_encounters WHERE pk_encounter = (select fk_encounter from %s where %s = %%(pk)s)' % (t, pk_col)
 				rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 				table_file.write(gmTools.format_dict_like(rows[0], left_margin = 1, tabular = False, value_delimiters = None))
-				table_file.write(u'\n\n')
+				table_file.write('\n\n')
 
-				table_file.write(u'patient of encounter:\n')
-				cmd = u'SELECT * FROM dem.v_persons WHERE pk_identity = %(pat_enc)s'
+				table_file.write('patient of encounter:\n')
+				cmd = 'SELECT * FROM dem.v_persons WHERE pk_identity = %(pat_enc)s'
 				rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 				table_file.write(gmTools.format_dict_like(rows[0], left_margin = 1, tabular = False, value_delimiters = None))
-				table_file.write(u'\n')
+				table_file.write('\n')
 
-		table_file.write(u'done\n')
+		table_file.write('done\n')
 		table_file.close()
 
 	return aggregate_result
@@ -3824,7 +3824,7 @@ def export_patient_emr_structure():
 	pat = gmPersonSearch.ask_for_patient()
 	while pat is not None:
 		print('patient:', pat['description_gender'])
-		fname = os.path.expanduser(u'~/gnumed/gm-emr_structure-%s.txt' % pat.dirname)
+		fname = os.path.expanduser('~/gnumed/gm-emr_structure-%s.txt' % pat.dirname)
 		print('exported into:', export_emr_structure(patient = pat, filename = fname))
 		pat = gmPersonSearch.ask_for_patient()
 
@@ -3895,7 +3895,7 @@ if __name__ == '__main__':
 		for field in fields:
 			print(field, ':', episode[field])
 		print("updatable:", episode.get_updatable_fields())
-		raw_input('ENTER to continue')
+		input('ENTER to continue')
 
 		old_description = episode['description']
 		old_enc = cEncounter(aPK_obj = 1)
@@ -3914,7 +3914,7 @@ if __name__ == '__main__':
 
 		print(episode.formatted_revision_history)
 
-		raw_input('ENTER to continue')
+		input('ENTER to continue')
 
 	#--------------------------------------------------------
 	def test_encounter():

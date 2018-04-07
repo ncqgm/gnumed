@@ -63,7 +63,7 @@ class cSubstancePreparationPhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 	def __init__(self, *args, **kwargs):
 
-		query = u"""
+		query = """
 SELECT DISTINCT ON (list_label)
 	preparation AS data,
 	preparation AS list_label,
@@ -132,7 +132,7 @@ class cSubstanceSchedulePhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 	def __init__(self, *args, **kwargs):
 
-		query = u"""
+		query = """
 			SELECT DISTINCT ON (sched)
 				schedule as sched,
 				schedule
@@ -154,7 +154,7 @@ class cSubstanceAimPhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 	def __init__(self, *args, **kwargs):
 
-		query = u"""
+		query = """
 (
 	SELECT DISTINCT ON (field_label)
 		aim
@@ -183,8 +183,8 @@ ORDER BY list_label
 LIMIT 30"""
 
 		context = {'ctxt_substance': {
-			'where_part': u'AND substance = %(substance)s',
-			'placeholder': u'substance'
+			'where_part': 'AND substance = %(substance)s',
+			'placeholder': 'substance'
 		}}
 
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries = query, context = context)
@@ -201,10 +201,10 @@ def turn_substance_intake_into_allergy(parent=None, intake=None, emr=None):
 	if intake['is_currently_active']:
 		intake['discontinued'] = gmDateTime.pydt_now_here()
 	if intake['discontinue_reason'] is None:
-		intake['discontinue_reason'] = u'%s %s' % (_('not tolerated:'), _('discontinued due to allergy or intolerance'))
+		intake['discontinue_reason'] = '%s %s' % (_('not tolerated:'), _('discontinued due to allergy or intolerance'))
 	else:
 		if not intake['discontinue_reason'].startswith(_('not tolerated:')):
-			intake['discontinue_reason'] = u'%s %s' % (_('not tolerated:'), intake['discontinue_reason'])
+			intake['discontinue_reason'] = '%s %s' % (_('not tolerated:'), intake['discontinue_reason'])
 	if not intake.save():
 		return False
 
@@ -214,21 +214,21 @@ def turn_substance_intake_into_allergy(parent=None, intake=None, emr=None):
 	comps = [ c['substance'] for c in drug.components ]
 	if len(comps) > 1:
 		gmGuiHelpers.gm_show_info (
-			aTitle = _(u'Documented an allergy'),
+			aTitle = _('Documented an allergy'),
 			aMessage = _(
-				u'An allergy was documented against the substance:\n'
-				u'\n'
-				u'  [%s]\n'
-				u'\n'
-				u'This substance was taken with the multi-component drug product:\n'
-				u'\n'
-				u'  [%s (%s)]\n'
-				u'\n'
-				u'Note that ALL components of this product were discontinued.'
+				'An allergy was documented against the substance:\n'
+				'\n'
+				'  [%s]\n'
+				'\n'
+				'This substance was taken with the multi-component drug product:\n'
+				'\n'
+				'  [%s (%s)]\n'
+				'\n'
+				'Note that ALL components of this product were discontinued.'
 			) % (
 				intake['substance'],
 				intake['product'],
-				u' & '.join(comps)
+				' & '.join(comps)
 			)
 		)
 
@@ -274,29 +274,29 @@ def manage_substance_intakes(parent=None, emr=None):
 		intakes = emr.get_current_medications (
 			include_inactive = False,
 			include_unapproved = True,
-			order_by = u'substance, product, started'
+			order_by = 'substance, product, started'
 		)
 		items = []
 		for i in intakes:
 			started = i.medically_formatted_start
 			items.append ([
-				u'%s%s %s %s %s%s' % (
+				'%s%s %s %s %s%s' % (
 					i['substance'],
-					gmTools.coalesce(i['product'], u'', u' (%s)'),
+					gmTools.coalesce(i['product'], '', ' (%s)'),
 					i['amount'],
 					i['unit'],
 					i['l10n_preparation'],
-					gmTools.coalesce(i['external_code_product'], u'', u' [%s::%s]' % (i['external_code_type_product'], i['external_code_product']))
+					gmTools.coalesce(i['external_code_product'], '', ' [%s::%s]' % (i['external_code_type_product'], i['external_code_product']))
 				),
-				u'%s%s%s' % (
+				'%s%s%s' % (
 					started,
-					gmTools.coalesce(i['schedule'], u'', u' %%s %s' % gmTools.u_arrow2right),
-					gmTools.coalesce(i['duration'], u'', u' %s')
+					gmTools.coalesce(i['schedule'], '', ' %%s %s' % gmTools.u_arrow2right),
+					gmTools.coalesce(i['duration'], '', ' %s')
 				),
-				u'%s' % (
+				'%s' % (
 					gmTools.bool2subst (
 						i['intake_is_approved_of'],
-						u'',
+						'',
 						_('disapproved')
 					)
 				)
@@ -368,39 +368,39 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 			confirmed = _('never')
 		else:
 			confirmed = gmDateTime.pydt_strftime(state['last_confirmed'], '%Y %b %d')
-		msg = _(u'%s, last confirmed %s\n') % (state.state_string, confirmed)
-		msg += gmTools.coalesce(state['comment'], u'', _('Comment (%s): %%s\n') % state['modified_by'])
-		tooltip = u''
+		msg = _('%s, last confirmed %s\n') % (state.state_string, confirmed)
+		msg += gmTools.coalesce(state['comment'], '', _('Comment (%s): %%s\n') % state['modified_by'])
+		tooltip = ''
 		allgs = emr.get_allergies()
 		if len(allgs) > 0:
-			msg += u'\n'
+			msg += '\n'
 		for allergy in allgs:
-			msg += u'%s: %s (%s)\n' % (
+			msg += '%s: %s (%s)\n' % (
 				allergy['descriptor'],
 				allergy['l10n_type'],
-				gmTools.bool2subst(allergy['definite'], _('definite'), _('suspected'), u'?')
+				gmTools.bool2subst(allergy['definite'], _('definite'), _('suspected'), '?')
 			)
-			tooltip += u'%s: %s\n' % (
+			tooltip += '%s: %s\n' % (
 				allergy['descriptor'],
 				gmTools.coalesce(allergy['reaction'], _('reaction not recorded'))
 			)
 		if len(allgs) > 0:
-			msg += u'\n'
-			tooltip += u'\n'
+			msg += '\n'
+			tooltip += '\n'
 		del allgs
 
 		# history of substance abuse
 		abuses = emr.abused_substances
 		for abuse in abuses:
 			tooltip += abuse.format(single_line = False, include_metadata = False)
-			tooltip += u'\n'
+			tooltip += '\n'
 			if abuse['harmful_use_type'] in [None, 0]:
 				continue
 			msg += abuse.format(single_line = True)
-			msg += u'\n'
+			msg += '\n'
 		if len(abuses) > 0:
-			msg += u'\n'
-			tooltip += u'\n'
+			msg += '\n'
+			tooltip += '\n'
 		del abuses
 
 		# kidney function
@@ -420,19 +420,19 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 					tts.append(egfr.format (
 						left_margin = 0,
 						width = 50,
-						eol = u'\n',
+						eol = '\n',
 						with_formula = False,
 						with_warnings = True,
 						with_variables = False,
 						with_sub_results = False,
 						return_list = False
 					))
-				tooltip += u'\n'.join(tts)
+				tooltip += '\n'.join(tts)
 		else:
-			msg += u'%s: %s %s (%s)\n' % (
+			msg += '%s: %s %s (%s)\n' % (
 				gfr['unified_abbrev'],
 				gfr['unified_val'],
-				gmTools.coalesce(gfr['abnormality_indicator'], u'', u' (%s)'),
+				gmTools.coalesce(gfr['abnormality_indicator'], '', ' (%s)'),
 				gmDateTime.pydt_strftime (
 					gfr['clin_when'],
 					format = '%Y %b %d'
@@ -443,16 +443,16 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 		# pregnancy
 		edc = emr.EDC
 		if edc is not None:
-			msg += u'\n\n'
+			msg += '\n\n'
 			if emr.EDC_is_fishy:
-				msg += _(u'EDC (!?!): %s') % gmDateTime.pydt_strftime(edc, format = '%Y %b %d')
+				msg += _('EDC (!?!): %s') % gmDateTime.pydt_strftime(edc, format = '%Y %b %d')
 				tooltip += _(
-					u'The Expected Date of Confinement is rather questionable.\n'
-					u'\n'
-					u'Please check patient age, patient gender, time until/since EDC.'
+					'The Expected Date of Confinement is rather questionable.\n'
+					'\n'
+					'Please check patient age, patient gender, time until/since EDC.'
 				)
 			else:
-				msg += _(u'EDC: %s') % gmDateTime.pydt_strftime(edc, format = '%Y %b %d')
+				msg += _('EDC: %s') % gmDateTime.pydt_strftime(edc, format = '%Y %b %d')
 
 		self._LBL_allergies.SetLabel(msg)
 		self._LBL_allergies.SetToolTip(tooltip)
@@ -462,24 +462,24 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 
 		drug = self._PRW_drug.GetData(as_instance = True)
 		if drug is None:
-			self._LBL_drug_details.SetLabel(u'')
-			self._LBL_drug_details.SetToolTip(u'')
+			self._LBL_drug_details.SetLabel('')
+			self._LBL_drug_details.SetToolTip('')
 			self.Layout()
 			return
 
 		if len(drug['components']) == 0:
-			comps = _(u'<no components>')
+			comps = _('<no components>')
 		else:
-			comps = u'\n'.join ([
-				u' %s %s%s%s' % (
+			comps = '\n'.join ([
+				' %s %s%s%s' % (
 					c['substance'],
 					c['amount'],
 					c['unit'],
-					gmTools.coalesce(c['dose_unit'], u'', u'/%s')
+					gmTools.coalesce(c['dose_unit'], '', '/%s')
 				)
 				for c in drug['components']
 			])
-		self._LBL_drug_details.SetLabel(u'%s\n%s' % (drug['product'], comps))
+		self._LBL_drug_details.SetLabel('%s\n%s' % (drug['product'], comps))
 		self._LBL_drug_details.SetToolTip(drug.format())
 		self.Layout()
 		return
@@ -500,7 +500,7 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 		# no drug selected
 		if selected_drug is None:
 			val = self._PRW_drug.GetValue().strip()
-			if val == u'':
+			if val == '':
 				self._PRW_drug.display_as_valid(False)
 				self._PRW_drug.SetFocus()
 				return False
@@ -509,7 +509,7 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 				parent = self,
 				drug = None,
 				single_entry = True,
-				fields = {u'substance': {u'value': val, 'data': None}},
+				fields = {'substance': {'value': val, 'data': None}},
 				return_drug = True
 			)
 			if drug is None:
@@ -518,11 +518,11 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 				return False
 			comp = drug.components[0]
 			self._PRW_drug.SetText (
-				_(u'%s w/ %s%s%s of %s') % (
+				_('%s w/ %s%s%s of %s') % (
 					comp['product'],
 					comp['amount'],
 					comp['unit'],
-					gmTools.coalesce(comp['dose_unit'], u'', u'/%s'),
+					gmTools.coalesce(comp['dose_unit'], '', '/%s'),
 					comp['substance']
 				),
 				drug['pk_drug_product']
@@ -562,13 +562,13 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 
 		# episode must be set if intake is to be approved of
 		if self._CHBOX_approved.IsChecked():
-			if self._PRW_episode.GetValue().strip() == u'':
+			if self._PRW_episode.GetValue().strip() == '':
 				self._PRW_episode.display_as_valid(False)
 				validity = False
 			else:
 				self._PRW_episode.display_as_valid(True)
 
-		if self._PRW_duration.GetValue().strip() in [u'', gmTools.u_infinity]:
+		if self._PRW_duration.GetValue().strip() in ['', gmTools.u_infinity]:
 			self._PRW_duration.display_as_valid(True)
 		else:
 			if self._PRW_duration.GetData() is None:
@@ -651,7 +651,7 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 
 		intake['started'] = self._DP_started.GetData()
 		if self._CHBOX_start_unknown.IsChecked():
-			intake['comment_on_start'] = u'?'
+			intake['comment_on_start'] = '?'
 		else:
 			intake['comment_on_start'] = self._PRW_start_certainty.GetValue().strip()
 		intake['discontinued'] = self._DP_discontinued.GetData()
@@ -664,7 +664,7 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 		intake['notes'] = self._PRW_notes.GetValue().strip()
 		intake['is_long_term'] = self._CHBOX_long_term.IsChecked()
 		intake['intake_is_approved_of'] = self._CHBOX_approved.IsChecked()
-		if self._PRW_duration.GetValue().strip() in [u'', gmTools.u_infinity]:
+		if self._PRW_duration.GetValue().strip() in ['', gmTools.u_infinity]:
 			intake['duration'] = None
 		else:
 			if self._PRW_duration.GetData() is None:
@@ -683,7 +683,7 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 		# auto-applies to all components of a multi-component drug if any:
 		self.data['started'] = self._DP_started.GetData()
 		if self._CHBOX_start_unknown.IsChecked():
-			self.data['comment_on_start'] = u'?'
+			self.data['comment_on_start'] = '?'
 		else:
 			self.data['comment_on_start'] = self._PRW_start_certainty.GetValue().strip()
 		self.data['discontinued'] = self._DP_discontinued.GetData()
@@ -694,7 +694,7 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 		self.data['schedule'] = self._PRW_schedule.GetValue()
 		self.data['is_long_term'] = self._CHBOX_long_term.IsChecked()
 		self.data['intake_is_approved_of'] = self._CHBOX_approved.IsChecked()
-		if self._PRW_duration.GetValue().strip() in [u'', gmTools.u_infinity]:
+		if self._PRW_duration.GetValue().strip() in ['', gmTools.u_infinity]:
 			self.data['duration'] = None
 		else:
 			if self._PRW_duration.GetData() is None:
@@ -717,13 +717,13 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 
 	#----------------------------------------------------------------
 	def _refresh_as_new(self):
-		self._PRW_drug.SetText(u'', None)
+		self._PRW_drug.SetText('', None)
 
-		self._PRW_schedule.SetText(u'', None)
-		self._PRW_duration.SetText(u'', None)
-		self._PRW_aim.SetText(u'', None)
-		self._PRW_notes.SetText(u'', None)
-		self._PRW_episode.SetText(u'', None)
+		self._PRW_schedule.SetText('', None)
+		self._PRW_duration.SetText('', None)
+		self._PRW_aim.SetText('', None)
+		self._PRW_notes.SetText('', None)
+		self._PRW_episode.SetText('', None)
 
 		self._CHBOX_long_term.SetValue(False)
 		self._CHBOX_approved.SetValue(True)
@@ -731,10 +731,10 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 		self._CHBOX_start_unknown.SetValue(False)
 		self._DP_started.SetData(gmDateTime.pydt_now_here())
 		self._DP_started.Enable(True)
-		self._PRW_start_certainty.SetText(u'', None)
+		self._PRW_start_certainty.SetText('', None)
 		self._PRW_start_certainty.Enable(True)
 		self._DP_discontinued.SetData(None)
-		self._PRW_discontinue_reason.SetValue(u'')
+		self._PRW_discontinue_reason.SetValue('')
 		self._PRW_discontinue_reason.Enable(False)
 
 		self.__refresh_drug_details()
@@ -746,11 +746,11 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 	def _refresh_from_existing(self):
 
 		self._PRW_drug.SetText (
-			_(u'%s w/ %s%s%s of %s') % (
+			_('%s w/ %s%s%s of %s') % (
 				self.data['product'],
 				self.data['amount'],
 				self.data['unit'],
-				gmTools.coalesce(self.data['dose_unit'], u'', u'/%s'),
+				gmTools.coalesce(self.data['dose_unit'], '', '/%s'),
 				self.data['substance']
 			),
 			self.data['pk_drug_product']
@@ -768,10 +768,10 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 			self._PRW_duration.Enable(True)
 			self._BTN_discontinued_as_planned.Enable(True)
 			self._PRW_duration.SetData(self.data['duration'])
-		self._PRW_aim.SetText(gmTools.coalesce(self.data['aim'], u''), self.data['aim'])
-		self._PRW_notes.SetText(gmTools.coalesce(self.data['notes'], u''), self.data['notes'])
+		self._PRW_aim.SetText(gmTools.coalesce(self.data['aim'], ''), self.data['aim'])
+		self._PRW_notes.SetText(gmTools.coalesce(self.data['notes'], ''), self.data['notes'])
 		self._PRW_episode.SetData(self.data['pk_episode'])
-		self._PRW_schedule.SetText(gmTools.coalesce(self.data['schedule'], u''), self.data['schedule'])
+		self._PRW_schedule.SetText(gmTools.coalesce(self.data['schedule'], ''), self.data['schedule'])
 
 		self._CHBOX_approved.SetValue(self.data['intake_is_approved_of'])
 
@@ -787,7 +787,7 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 			self._PRW_start_certainty.Enable(True)
 
 		self._DP_discontinued.SetData(self.data['discontinued'])
-		self._PRW_discontinue_reason.SetValue(gmTools.coalesce(self.data['discontinue_reason'], u''))
+		self._PRW_discontinue_reason.SetValue(gmTools.coalesce(self.data['discontinue_reason'], ''))
 		if self.data['discontinued'] is not None:
 			self._PRW_discontinue_reason.Enable()
 
@@ -815,7 +815,7 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 	def _on_enter_aim(self):
 		drug = self._PRW_drug.GetData(as_instance = True)
 		if drug is None:
-			self._PRW_aim.unset_context(context = u'substance')
+			self._PRW_aim.unset_context(context = 'substance')
 			return
 		# do not set to self._PRW_drug.GetValue() as that will contain all
 		# sorts of additional info, rather set to the canonical drug['substance']
@@ -875,7 +875,7 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 				return
 			self._DP_discontinued.SetData(planned_end)
 			self._PRW_discontinue_reason.Enable(True)
-			self._PRW_discontinue_reason.SetValue(u'')
+			self._PRW_discontinue_reason.SetValue('')
 			return
 
 		# we know started but not duration: apparently the plan is to stop today
@@ -886,7 +886,7 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 
 		self._DP_discontinued.SetData(now)
 		self._PRW_discontinue_reason.Enable(True)
-		self._PRW_discontinue_reason.SetValue(u'')
+		self._PRW_discontinue_reason.SetValue('')
 
 	#----------------------------------------------------------------
 	def _on_chbox_long_term_checked(self, event):
@@ -930,13 +930,13 @@ def delete_substance_intake(parent=None, intake=None):
 	comps = intake.containing_drug.components
 	if len(comps) > 1:
 		msg = _(
-			u'This intake is part of a multi-component drug product:\n'
-			u'\n'
-			u' %s\n'
-			u'\n'
-			u'Really delete all intakes related to this drug product ?'
-		) % u'\n '.join (
-			[ u'%s %s%s' % (c['substance'], c['amount'], c.formatted_units) for c in comps ]
+			'This intake is part of a multi-component drug product:\n'
+			'\n'
+			' %s\n'
+			'\n'
+			'Really delete all intakes related to this drug product ?'
+		) % '\n '.join (
+			[ '%s %s%s' % (c['substance'], c['amount'], c.formatted_units) for c in comps ]
 		)
 		delete_all = gmGuiHelpers.gm_show_question (
 			title = _('Deleting medication / substance intake'),
@@ -1015,13 +1015,13 @@ def configure_medication_list_template(parent=None):
 		parent = parent,
 		template_types = ['current medication list']
 	)
-	option = u'form_templates.medication_list'
+	option = 'form_templates.medication_list'
 
 	if template is None:
 		gmDispatcher.send(signal = 'statustext', msg = _('No medication list template configured.'), beep = True)
 		return None
 
-	if template['engine'] not in [u'L', u'X', u'T']:
+	if template['engine'] not in ['L', 'X', 'T']:
 		gmDispatcher.send(signal = 'statustext', msg = _('No medication list template configured.'), beep = True)
 		return None
 
@@ -1029,7 +1029,7 @@ def configure_medication_list_template(parent=None):
 	dbcfg.set (
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 		option = option,
-		value = u'%s - %s' % (template['name_long'], template['external_version'])
+		value = '%s - %s' % (template['name_long'], template['external_version'])
 	)
 
 	return template
@@ -1042,7 +1042,7 @@ def print_medication_list(parent=None):
 
 	# 1) get template
 	dbcfg = gmCfg.cCfgSQL()
-	option = u'form_templates.medication_list'
+	option = 'form_templates.medication_list'
 
 	template = dbcfg.get2 (
 		option = option,
@@ -1060,7 +1060,7 @@ def print_medication_list(parent=None):
 			return False
 	else:
 		try:
-			name, ver = template.split(u' - ')
+			name, ver = template.split(' - ')
 		except:
 			_log.exception('problem splitting medication list template name [%s]', template)
 			gmDispatcher.send(signal = 'statustext', msg = _('Problem loading medication list template.'), beep = True)
@@ -1109,16 +1109,16 @@ def configure_prescription_template(parent=None):
 		gmDispatcher.send(signal = 'statustext', msg = _('No prescription template configured.'), beep = True)
 		return None
 
-	if template['engine'] not in [u'L', u'X', u'T']:
+	if template['engine'] not in ['L', 'X', 'T']:
 		gmDispatcher.send(signal = 'statustext', msg = _('No prescription template configured.'), beep = True)
 		return None
 
-	option = u'form_templates.prescription'
+	option = 'form_templates.prescription'
 	dbcfg = gmCfg.cCfgSQL()
 	dbcfg.set (
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 		option = option,
-		value = u'%s - %s' % (template['name_long'], template['external_version'])
+		value = '%s - %s' % (template['name_long'], template['external_version'])
 	)
 
 	return template
@@ -1130,7 +1130,7 @@ def get_prescription_template(parent=None):
 		parent = wx.GetApp().GetTopWindow()
 
 	dbcfg = gmCfg.cCfgSQL()
-	option = u'form_templates.prescription'
+	option = 'form_templates.prescription'
 	template_name = dbcfg.get2 (
 		option = option,
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
@@ -1148,7 +1148,7 @@ def get_prescription_template(parent=None):
 		return template
 
 	try:
-		name, ver = template_name.split(u' - ')
+		name, ver = template_name.split(' - ')
 	except:
 		_log.exception('problem splitting prescription template name [%s]', template_name)
 		gmDispatcher.send(signal = 'statustext', msg = _('Problem loading prescription template.'), beep = True)
@@ -1183,7 +1183,7 @@ def print_prescription(parent=None, emr=None):
 	return gmFormWidgets.act_on_generated_forms (
 		parent = parent,
 		forms = [rx],
-		jobtype = u'prescription',
+		jobtype = 'prescription',
 		#episode_name = u'administrative',
 		episode_name = gmMedication.DEFAULT_MEDICATION_HISTORY_EPISODE,
 		progress_note = _('generated prescription'),
@@ -1195,10 +1195,10 @@ def prescribe_drugs(parent=None, emr=None):
 
 	dbcfg = gmCfg.cCfgSQL()
 	rx_mode = dbcfg.get2 (
-		option = u'horst_space.default_prescription_mode',
+		option = 'horst_space.default_prescription_mode',
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
-		bias = u'user',
-		default = u'form'			# set to 'database' to access database
+		bias = 'user',
+		default = 'form'			# set to 'database' to access database
 	)
 
 	if parent is None:
@@ -1251,7 +1251,7 @@ def update_substance_intake_list_from_prescription(parent=None, prescribed_drugs
 		columns = [_('Newly prescribed drugs')],
 		columns_right = [_('Add to medication list')]
 	)
-	choices = [ (u'%s %s (%s)' % (d['product'], d['l10n_preparation'], u'; '.join(d['components']))) for d in new_drugs ]
+	choices = [ ('%s %s (%s)' % (d['product'], d['l10n_preparation'], '; '.join(d['components']))) for d in new_drugs ]
 	picker.set_choices (
 		choices = choices,
 		data = new_drugs
@@ -1292,12 +1292,12 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 		self.__prev_row = None
 		self.__prev_tooltip_row = None
 		self.__prev_cell_0 = None
-		self.__grouping_mode = u'issue'
+		self.__grouping_mode = 'issue'
 		self.__filter_show_unapproved = True
 		self.__filter_show_inactive = True
 
 		self.__grouping2col_labels = {
-			u'issue': [
+			'issue': [
 				_('Health issue'),
 				_('Substance'),
 				_('Strength'),
@@ -1306,7 +1306,7 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 				_('Product'),
 				_('Advice')
 			],
-			u'product': [
+			'product': [
 				_('Product'),
 				_('Schedule'),
 				_('Substance'),
@@ -1315,7 +1315,7 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 				_('Health issue'),
 				_('Advice')
 			],
-			u'episode': [
+			'episode': [
 				_('Episode'),
 				_('Substance'),
 				_('Strength'),
@@ -1324,7 +1324,7 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 				_('Product'),
 				_('Advice')
 			],
-			u'start': [
+			'start': [
 				_('Episode'),
 				_('Substance'),
 				_('Strength'),
@@ -1336,10 +1336,10 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 		}
 
 		self.__grouping2order_by_clauses = {
-			u'issue': u'pk_health_issue NULLS FIRST, substance, started',
-			u'episode': u'pk_health_issue NULLS FIRST, episode, substance, started',
-			u'product': u'product NULLS LAST, substance, started',
-			u'start': u'started DESC, substance, episode'
+			'issue': 'pk_health_issue NULLS FIRST, substance, started',
+			'episode': 'pk_health_issue NULLS FIRST, episode, substance, started',
+			'product': 'product NULLS LAST, substance, started',
+			'start': 'started DESC, substance, episode'
 		}
 
 		self.__init_ui()
@@ -1430,7 +1430,7 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 			self.SetColLabelValue(col_idx, labels[col_idx])
 		if self.__filter_show_unapproved:
 			#self.SetColLabelValue(len(labels), u'OK?')
-			self.SetColLabelValue(len(labels), u'')
+			self.SetColLabelValue(len(labels), '')
 			self.SetColSize(len(labels), 40)
 
 		self.AppendRows(numRows = len(meds))
@@ -1447,7 +1447,7 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 				allg = emr.is_allergic_to(atcs = tuple(atcs), inns = (med['substance'],))
 				if allg not in [None, False]:
 					attr = self.GetOrCreateCellAttr(row_idx, 0)
-					if allg['type'] == u'allergy':
+					if allg['type'] == 'allergy':
 						attr.SetTextColour('red')
 					else:
 						#attr.SetTextColour('yellow')		# too light
@@ -1460,110 +1460,110 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 				attr.SetTextColour('grey')
 				self.SetRowAttr(row_idx, attr)
 
-			if self.__grouping_mode in [u'episode', u'start']:
+			if self.__grouping_mode in ['episode', 'start']:
 				if med['pk_episode'] is None:
 					self.__prev_cell_0 = None
 					epi = gmTools.u_diameter
 				else:
 					if self.__prev_cell_0 == med['episode']:
-						epi = u''
+						epi = ''
 					else:
 						self.__prev_cell_0 = med['episode']
-						epi = gmTools.coalesce(med['episode'], u'')
+						epi = gmTools.coalesce(med['episode'], '')
 				self.SetCellValue(row_idx, 0, gmTools.wrap(text = epi, width = 40))
 
 				self.SetCellValue(row_idx, 1, med['substance'])
-				self.SetCellValue(row_idx, 2, u'%s %s' % (med['amount'], med['unit']))
-				self.SetCellValue(row_idx, 3, gmTools.coalesce(med['schedule'], u''))
+				self.SetCellValue(row_idx, 2, '%s %s' % (med['amount'], med['unit']))
+				self.SetCellValue(row_idx, 3, gmTools.coalesce(med['schedule'], ''))
 				self.SetCellValue(row_idx, 4, med.medically_formatted_start_end)
 
 				if med['pk_drug_product'] is None:
-					product = u'%s (%s)' % (gmTools.u_diameter, med['l10n_preparation'])
+					product = '%s (%s)' % (gmTools.u_diameter, med['l10n_preparation'])
 				else:
 					if med['is_fake_product']:
-						product = u'%s (%s)' % (
-							gmTools.coalesce(med['product'], u'', _('%s <fake>')),
+						product = '%s (%s)' % (
+							gmTools.coalesce(med['product'], '', _('%s <fake>')),
 							med['l10n_preparation']
 						)
 					else:
-						product = u'%s (%s)' % (
-							gmTools.coalesce(med['product'], u''),
+						product = '%s (%s)' % (
+							gmTools.coalesce(med['product'], ''),
 							med['l10n_preparation']
 						)
 				self.SetCellValue(row_idx, 5, gmTools.wrap(text = product, width = 35))
 
-			elif self.__grouping_mode == u'issue':
+			elif self.__grouping_mode == 'issue':
 				if med['pk_health_issue'] is None:
 					self.__prev_cell_0 = None
-					issue = u'%s%s' % (
+					issue = '%s%s' % (
 						gmTools.u_diameter,
-						gmTools.coalesce(med['episode'], u'', u' (%s)')
+						gmTools.coalesce(med['episode'], '', ' (%s)')
 					)
 				else:
 					if self.__prev_cell_0 == med['health_issue']:
-						issue = u''
+						issue = ''
 					else:
 						self.__prev_cell_0 = med['health_issue']
 						issue = med['health_issue']
 				self.SetCellValue(row_idx, 0, gmTools.wrap(text = issue, width = 40))
 
 				self.SetCellValue(row_idx, 1, med['substance'])
-				self.SetCellValue(row_idx, 2, u'%s %s' % (med['amount'], med['unit']))
-				self.SetCellValue(row_idx, 3, gmTools.coalesce(med['schedule'], u''))
+				self.SetCellValue(row_idx, 2, '%s %s' % (med['amount'], med['unit']))
+				self.SetCellValue(row_idx, 3, gmTools.coalesce(med['schedule'], ''))
 				self.SetCellValue(row_idx, 4, med.medically_formatted_start_end)
 
 				if med['pk_drug_product'] is None:
-					product = u'%s (%s)' % (gmTools.u_diameter, med['l10n_preparation'])
+					product = '%s (%s)' % (gmTools.u_diameter, med['l10n_preparation'])
 				else:
 					if med['is_fake_product']:
-						product = u'%s (%s)' % (
-							gmTools.coalesce(med['product'], u'', _('%s <fake>')),
+						product = '%s (%s)' % (
+							gmTools.coalesce(med['product'], '', _('%s <fake>')),
 							med['l10n_preparation']
 						)
 					else:
-						product = u'%s (%s)' % (
-							gmTools.coalesce(med['product'], u''),
+						product = '%s (%s)' % (
+							gmTools.coalesce(med['product'], ''),
 							med['l10n_preparation']
 						)
 				self.SetCellValue(row_idx, 5, gmTools.wrap(text = product, width = 35))
 
-			elif self.__grouping_mode == u'product':
+			elif self.__grouping_mode == 'product':
 
 				if med['pk_drug_product'] is None:
 					self.__prev_cell_0 = None
-					product =  u'%s (%s)' % (
+					product =  '%s (%s)' % (
 						gmTools.u_diameter,
 						med['l10n_preparation']
 					)
 				else:
 					if self.__prev_cell_0 == med['product']:
-						product = u''
+						product = ''
 					else:
 						self.__prev_cell_0 = med['product']
 						if med['is_fake_product']:
-							product = u'%s (%s)' % (
-								gmTools.coalesce(med['product'], u'', _('%s <fake>')),
+							product = '%s (%s)' % (
+								gmTools.coalesce(med['product'], '', _('%s <fake>')),
 								med['l10n_preparation']
 							)
 						else:
-							product = u'%s (%s)' % (
-								gmTools.coalesce(med['product'], u''),
+							product = '%s (%s)' % (
+								gmTools.coalesce(med['product'], ''),
 								med['l10n_preparation']
 							)
 				self.SetCellValue(row_idx, 0, gmTools.wrap(text = product, width = 35))
 
-				self.SetCellValue(row_idx, 1, gmTools.coalesce(med['schedule'], u''))
+				self.SetCellValue(row_idx, 1, gmTools.coalesce(med['schedule'], ''))
 				self.SetCellValue(row_idx, 2, med['substance'])
-				self.SetCellValue(row_idx, 3, u'%s %s' % (med['amount'], med['unit']))
+				self.SetCellValue(row_idx, 3, '%s %s' % (med['amount'], med['unit']))
 				self.SetCellValue(row_idx, 4, med.medically_formatted_start_end)
 
 				if med['pk_health_issue'] is None:
-					issue = u'%s%s' % (
+					issue = '%s%s' % (
 						gmTools.u_diameter,
-						gmTools.coalesce(med['episode'], u'', u' (%s)')
+						gmTools.coalesce(med['episode'], '', ' (%s)')
 					)
 				else:
-					issue = gmTools.coalesce(med['health_issue'], u'')
+					issue = gmTools.coalesce(med['health_issue'], '')
 				self.SetCellValue(row_idx, 5, gmTools.wrap(text = issue, width = 40))
 
 			else:
@@ -1576,7 +1576,7 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 				self.SetCellValue (
 					row_idx,
 					len(labels),
-					gmTools.bool2subst(med['intake_is_approved_of'], gmTools.u_checkmark_thin, gmTools.u_frowning_face, u'?')
+					gmTools.bool2subst(med['intake_is_approved_of'], gmTools.u_checkmark_thin, gmTools.u_frowning_face, '?')
 				)
 				font = self.GetCellFont(row_idx, len(labels))
 				font.SetPointSize(font.GetPointSize() + 2)
@@ -1637,10 +1637,10 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 	def report_ADR(self):
 		dbcfg = gmCfg.cCfgSQL()
 		url = dbcfg.get2 (
-			option = u'external.urls.report_ADR',
+			option = 'external.urls.report_ADR',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
-			bias = u'user',
-			default = u'https://dcgma.org/uaw/meldung.php'		# http://www.akdae.de/Arzneimittelsicherheit/UAW-Meldung/UAW-Meldung-online.html
+			bias = 'user',
+			default = 'https://dcgma.org/uaw/meldung.php'		# http://www.akdae.de/Arzneimittelsicherheit/UAW-Meldung/UAW-Meldung-online.html
 		)
 		gmNetworkTools.open_url_in_browser(url = url)
 
@@ -1723,7 +1723,7 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 		try:
 			entry = self.__row_data[row]
 		except KeyError:
-			return u' '
+			return ' '
 
 		emr = self.__patient.emr
 		atcs = []
@@ -1755,63 +1755,63 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 
 		if allg not in [None, False]:
 			certainty = gmTools.bool2subst(allg['definite'], _('definite'), _('suspected'))
-			tt += u'\n'
-			tt += u' !! ---- Cave ---- !!\n'
-			tt += u' %s (%s): %s (%s)\n' % (
+			tt += '\n'
+			tt += ' !! ---- Cave ---- !!\n'
+			tt += ' %s (%s): %s (%s)\n' % (
 				allg['l10n_type'],
 				certainty,
 				allg['descriptor'],
-				gmTools.coalesce(allg['reaction'], u'')[:40]
+				gmTools.coalesce(allg['reaction'], '')[:40]
 			)
-			tt += u'\n'
+			tt += '\n'
 
-		tt += u' ' + _('Substance: %s   [#%s]\n') % (entry['substance'], entry['pk_substance'])
-		tt += u' ' + _('Preparation: %s\n') % entry['l10n_preparation']
-		tt += u' ' + _('Amount per dose: %s %s') % (entry['amount'], entry['unit'])
-		tt += u'\n'
-		tt += gmTools.coalesce(entry['atc_substance'], u'', _(' ATC (substance): %s\n'))
+		tt += ' ' + _('Substance: %s   [#%s]\n') % (entry['substance'], entry['pk_substance'])
+		tt += ' ' + _('Preparation: %s\n') % entry['l10n_preparation']
+		tt += ' ' + _('Amount per dose: %s %s') % (entry['amount'], entry['unit'])
+		tt += '\n'
+		tt += gmTools.coalesce(entry['atc_substance'], '', _(' ATC (substance): %s\n'))
 
-		tt += u'\n'
+		tt += '\n'
 
 		tt += gmTools.coalesce (
 			entry['product'],
-			u'',
+			'',
 			_(' Product name: %%s   [#%s]\n') % entry['pk_drug_product']
 		)
-		tt += gmTools.coalesce(entry['atc_drug'], u'', _(' ATC (drug): %s\n'))
+		tt += gmTools.coalesce(entry['atc_drug'], '', _(' ATC (drug): %s\n'))
 
-		tt += u'\n'
+		tt += '\n'
 
-		tt += gmTools.coalesce(entry['schedule'], u'', _(' Regimen: %s\n'))
+		tt += gmTools.coalesce(entry['schedule'], '', _(' Regimen: %s\n'))
 
 		if entry['is_long_term']:
-			duration = u' %s %s' % (gmTools.u_arrow2right, gmTools.u_infinity)
+			duration = ' %s %s' % (gmTools.u_arrow2right, gmTools.u_infinity)
 		else:
 			if entry['duration'] is None:
-				duration = u''
+				duration = ''
 			else:
-				duration = u' %s %s' % (gmTools.u_arrow2right, gmDateTime.format_interval(entry['duration'], gmDateTime.acc_days))
+				duration = ' %s %s' % (gmTools.u_arrow2right, gmDateTime.format_interval(entry['duration'], gmDateTime.acc_days))
 
 		tt += _(' Started %s%s%s\n') % (
 			entry.medically_formatted_start,
 			duration,
-			gmTools.bool2subst(entry['is_long_term'], _(' (long-term)'), _(' (short-term)'), u'')
+			gmTools.bool2subst(entry['is_long_term'], _(' (long-term)'), _(' (short-term)'), '')
 		)
 
 		if entry['discontinued'] is not None:
 			tt += _(' Discontinued %s\n') % gmDateTime.pydt_strftime(entry['discontinued'], '%Y %b %d')
-			tt += gmTools.coalesce(entry['discontinue_reason'], u'', _(' Reason: %s\n'))
+			tt += gmTools.coalesce(entry['discontinue_reason'], '', _(' Reason: %s\n'))
 
-		tt += u'\n'
+		tt += '\n'
 
-		tt += gmTools.coalesce(entry['aim'], u'', _(' Aim: %s\n'))
-		tt += gmTools.coalesce(entry['episode'], u'', _(' Episode: %s\n'))
-		tt += gmTools.coalesce(entry['health_issue'], u'', _(' Health issue: %s\n'))
-		tt += gmTools.coalesce(entry['notes'], u'', _(' Advice: %s\n'))
+		tt += gmTools.coalesce(entry['aim'], '', _(' Aim: %s\n'))
+		tt += gmTools.coalesce(entry['episode'], '', _(' Episode: %s\n'))
+		tt += gmTools.coalesce(entry['health_issue'], '', _(' Health issue: %s\n'))
+		tt += gmTools.coalesce(entry['notes'], '', _(' Advice: %s\n'))
 
-		tt += u'\n'
+		tt += '\n'
 
-		tt += _(u'Revision: #%(row_ver)s, %(mod_when)s by %(mod_by)s.') % ({
+		tt += _('Revision: #%(row_ver)s, %(mod_when)s by %(mod_by)s.') % ({
 			'row_ver': entry['row_version'],
 			'mod_when': gmDateTime.pydt_strftime(entry['modified_when'], '%Y %b %d  %H:%M:%S'),
 			'mod_by': entry['modified_by']
@@ -1922,7 +1922,7 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 #============================================================
 def configure_default_medications_lab_panel(parent=None):
 
-	panels = gmPathLab.get_test_panels(order_by = u'description')
+	panels = gmPathLab.get_test_panels(order_by = 'description')
 	gmCfgWidgets.configure_string_from_list_option (
 		parent = parent,
 		message = _(
@@ -1930,10 +1930,10 @@ def configure_default_medications_lab_panel(parent=None):
 			'Select the measurements panel to show in the medications plugin.'
 			'\n'
 		),
-		option = u'horstspace.medications_plugin.lab_panel',
+		option = 'horstspace.medications_plugin.lab_panel',
 		bias = 'user',
 		default_value = None,
-		choices = [ u'%s%s' % (p['description'], gmTools.coalesce(p['comment'], u'', u' (%s)')) for p in panels ],
+		choices = [ '%s%s' % (p['description'], gmTools.coalesce(p['comment'], '', ' (%s)')) for p in panels ],
 		columns = [_('Measurements panel')],
 		data = [ p['pk_test_panel'] for p in panels ],
 		caption = _('Configuring medications plugin measurements panel')
@@ -1952,10 +1952,10 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
 
 		self.__grouping_choice_labels = [
-			{u'label': _('Health issue'), u'data': u'issue'} ,
-			{u'label': _('Drug product'), u'data': u'product'},
-			{u'label': _('Episode'), u'data': u'episode'},
-			{u'label': _('Started'), u'data': u'start'}
+			{'label': _('Health issue'), 'data': 'issue'} ,
+			{'label': _('Drug product'), 'data': 'product'},
+			{'label': _('Episode'), 'data': 'episode'},
+			{'label': _('Started'), 'data': 'start'}
 		]
 		self.__lab_panel = None
 
@@ -1973,13 +1973,13 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 		try:
 			self._BTN_heart.SetToolTip(tt % gmMedication.URL_long_qt)
 		except TypeError:
-			_log.exception(u'translation error: %s', tt)
+			_log.exception('translation error: %s', tt)
 
 		tt = self._BTN_kidneys.GetToolTipText()
 		try:
 			self._BTN_kidneys.SetToolTip(tt % gmMedication.URL_renal_insufficiency)
 		except TypeError:
-			_log.exception(u'translation error: %s', tt)
+			_log.exception('translation error: %s', tt)
 
 	#-----------------------------------------------------
 	# reget-on-paint mixin API
@@ -2047,7 +2047,7 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 		if self.__lab_panel is not None:
 			for result in self.__lab_panel.get_most_recent_results (
 				pk_patient = patient.ID,
-				order_by = u'unified_abbrev',
+				order_by = 'unified_abbrev',
 				group_by_meta_type = True
 			):
 				try: loincs2monitor_missing.remove(result['loinc_tt'])
@@ -2065,10 +2065,10 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 		# display EDC
 		if edc is not None:
 			if emr.EDC_is_fishy:
-				lbl = wx.StaticText(self, -1, _(u'EDC (!?!):'))
+				lbl = wx.StaticText(self, -1, _('EDC (!?!):'))
 				val = wx.StaticText(self, -1, gmDateTime.pydt_strftime(edc, format = '%Y %b %d'))
 			else:
-				lbl = wx.StaticText(self, -1, _(u'EDC:'))
+				lbl = wx.StaticText(self, -1, _('EDC:'))
 				val = wx.StaticText(self, -1, gmDateTime.pydt_strftime(edc, format = '%Y %b %d'))
 			lbl.SetForegroundColour('blue')
 			szr = wx.BoxSizer(wx.HORIZONTAL)
@@ -2096,9 +2096,9 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 			calc.patient = patient
 			gfr = calc.eGFR
 			if gfr.numeric_value is None:
-				gfr_msg = u'?'
+				gfr_msg = '?'
 			else:
-				gfr_msg = _(u'%.1f (%s ago)') % (
+				gfr_msg = _('%.1f (%s ago)') % (
 					gfr.numeric_value,
 					gmDateTime.format_interval_medically(now - gfr.date_valid)
 				)
@@ -2112,14 +2112,14 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 				tts.append(egfr.format (
 					left_margin = 0,
 					width = 50,
-					eol = u'\n',
+					eol = '\n',
 					with_formula = False,
 					with_warnings = True,
 					with_variables = False,
 					with_sub_results = False,
 					return_list = False
 				))
-			val.SetToolTip(u'\n'.join(tts))
+			val.SetToolTip('\n'.join(tts))
 			szr = wx.BoxSizer(wx.HORIZONTAL)
 			szr.Add(lbl, 0, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL, 3)
 			szr.Add(val, 1, wx.ALIGN_CENTER_VERTICAL)
@@ -2129,7 +2129,7 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 		for pk_result in most_recent_results:
 			result = most_recent_results[pk_result]
 			# test type
-			lbl = wx.StaticText(self, -1, u'%s:' % result['unified_abbrev'])
+			lbl = wx.StaticText(self, -1, '%s:' % result['unified_abbrev'])
 			lbl.SetForegroundColour('blue')
 			# calculate test result
 			indicate_attention = False
@@ -2166,35 +2166,35 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 			unhappy_reasons = []
 			if result.is_considered_abnormal:
 				indicator = result.formatted_abnormality_indicator
-				if indicator == u'':
-					unhappy_reasons.append(_(u' - abnormal'))
+				if indicator == '':
+					unhappy_reasons.append(_(' - abnormal'))
 				else:
-					unhappy_reasons.append(_(u' - abnormal: %s') % indicator)
+					unhappy_reasons.append(_(' - abnormal: %s') % indicator)
 			if max_age is not None:
 				if result_age.total_seconds() > max_age:
-					unhappy_reasons.append(_(u' - too old: %s ago (max: %s)') % (
+					unhappy_reasons.append(_(' - too old: %s ago (max: %s)') % (
 						gmDateTime.format_interval_medically(result_age),
 						max_age_str
 					))
 			# generate tooltip
-			tt = [_(u'Most recent: %s ago') % gmDateTime.format_interval_medically(result_age)]
+			tt = [_('Most recent: %s ago') % gmDateTime.format_interval_medically(result_age)]
 			if subst2monitor is not None:
-				tt.append(_(u'Why monitor: %s') % subst2monitor)
+				tt.append(_('Why monitor: %s') % subst2monitor)
 			if monitor_comment is not None:
-				tt.append(u' %s' % monitor_comment)
+				tt.append(' %s' % monitor_comment)
 			if len(unhappy_reasons) > 0:
 				indicate_attention = True
-				tt.append(_(u'Problems:'))
+				tt.append(_('Problems:'))
 				tt.extend(unhappy_reasons)
-			tt = u'%s\n\n%s' % (
-				u'\n'.join(tt),
+			tt = '%s\n\n%s' % (
+				'\n'.join(tt),
 				result.format()
 			)
 			# set test result and tooltip
-			val = wx.StaticText(self, -1, u'%s%s%s' % (
+			val = wx.StaticText(self, -1, '%s%s%s' % (
 				result['unified_val'],
-				gmTools.coalesce(result['val_unit'], u'', u' %s'),
-				gmTools.bool2subst(indicate_attention, gmTools.u_frowning_face, u'', u'')
+				gmTools.coalesce(result['val_unit'], '', ' %s'),
+				gmTools.bool2subst(indicate_attention, gmTools.u_frowning_face, '', '')
 			))
 			val.SetToolTip(tt)
 			if result.is_considered_abnormal:
@@ -2213,17 +2213,17 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 				loinc_str = loinc
 			else:
 				loinc_str = loinc_data['term']
-			val = wx.StaticText(self, -1, u'%s!' % loinc_str)
+			val = wx.StaticText(self, -1, '%s!' % loinc_str)
 			tt = [
-				_(u'No test result for: %s (%s)') % (loinc_str, loinc),
-				u'',
-				_(u'Why monitor: %s' % loincs2monitor_data[loinc]['substance'])
+				_('No test result for: %s (%s)') % (loinc_str, loinc),
+				'',
+				_('Why monitor: %s' % loincs2monitor_data[loinc]['substance'])
 			]
 			try:
-				tt.append(u' %s' % loincs2monitor_data[loinc]['comment'])
+				tt.append(' %s' % loincs2monitor_data[loinc]['comment'])
 			except KeyError:
 				pass
-			val.SetToolTip(u'\n'.join(tt))
+			val.SetToolTip('\n'.join(tt))
 			val.SetForegroundColour('orange')
 			szr = wx.BoxSizer(wx.HORIZONTAL)
 			szr.Add(val, 1, wx.ALIGN_CENTER_VERTICAL)
@@ -2258,19 +2258,19 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 					tts.append(egfr.format (
 						left_margin = 0,
 						width = 50,
-						eol = u'\n',
+						eol = '\n',
 						with_formula = False,
 						with_warnings = True,
 						with_variables = False,
 						with_sub_results = False,
 						return_list = False
 					))
-				tt = u'\n'.join(tts)
+				tt = '\n'.join(tts)
 		else:
-			msg = u'%s: %s %s (%s)\n' % (
+			msg = '%s: %s %s (%s)\n' % (
 				gfr['unified_abbrev'],
 				gfr['unified_val'],
-				gmTools.coalesce(gfr['abnormality_indicator'], u'', u' (%s)'),
+				gmTools.coalesce(gfr['abnormality_indicator'], '', ' (%s)'),
 				gmDateTime.pydt_strftime (
 					gfr['clin_when'],
 					format = '%b %Y'
@@ -2293,10 +2293,10 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 	# event handling
 	#--------------------------------------------------------
 	def __register_interests(self):
-		gmDispatcher.connect(signal = u'pre_patient_unselection', receiver = self._on_pre_patient_unselection)
-		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._on_post_patient_selection)
-		gmDispatcher.connect(signal = u'clin.substance_intake_mod_db', receiver = self._schedule_data_reget)
-		gmDispatcher.connect(signal = u'clin.test_result_mod_db', receiver = self._on_test_result_mod)
+		gmDispatcher.connect(signal = 'pre_patient_unselection', receiver = self._on_pre_patient_unselection)
+		gmDispatcher.connect(signal = 'post_patient_selection', receiver = self._on_post_patient_selection)
+		gmDispatcher.connect(signal = 'clin.substance_intake_mod_db', receiver = self._schedule_data_reget)
+		gmDispatcher.connect(signal = 'clin.test_result_mod_db', receiver = self._on_test_result_mod)
 
 	#--------------------------------------------------------
 	def _on_test_result_mod(self):
@@ -2306,7 +2306,7 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 	def _on_pre_patient_unselection(self):
 		dbcfg = gmCfg.cCfgSQL()
 		pk_panel = dbcfg.get2 (
-			option = u'horstspace.medications_plugin.lab_panel',
+			option = 'horstspace.medications_plugin.lab_panel',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			bias = 'user'
 		)

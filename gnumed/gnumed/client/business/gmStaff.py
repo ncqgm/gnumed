@@ -21,18 +21,18 @@ from Gnumed.pycommon import gmLog2
 _log = logging.getLogger('gm.staff')
 
 _map_gm_role2pg_group = {
-	u'public access': 'gm-public',
-	u'non-clinical access': u'gm-staff',
-	u'full clinical access': u'gm-doctors'
+	'public access': 'gm-public',
+	'non-clinical access': 'gm-staff',
+	'full clinical access': 'gm-doctors'
 }
 
 #============================================================
-_SQL_fetch_staff_fields = u'SELECT *, _(role) AS l10n_role FROM dem.v_staff WHERE %s'
+_SQL_fetch_staff_fields = 'SELECT *, _(role) AS l10n_role FROM dem.v_staff WHERE %s'
 
 class cStaff(gmBusinessDBObject.cBusinessDBObject):
-	_cmd_fetch_payload = _SQL_fetch_staff_fields % u"pk_staff = %s"
+	_cmd_fetch_payload = _SQL_fetch_staff_fields % "pk_staff = %s"
 	_cmds_store_payload = [
-		u"""UPDATE dem.staff SET
+		"""UPDATE dem.staff SET
 				short_alias = %(short_alias)s,
 				comment = gm.nullify_empty_string(%(comment)s),
 				is_active = %(is_active)s,
@@ -50,7 +50,7 @@ class cStaff(gmBusinessDBObject.cBusinessDBObject):
 	def __init__(self, aPK_obj=None, row=None):
 		# by default get staff corresponding to CURRENT_USER
 		if (aPK_obj is None) and (row is None):
-			cmd = _SQL_fetch_staff_fields % u"db_user = CURRENT_USER"
+			cmd = _SQL_fetch_staff_fields % "db_user = CURRENT_USER"
 			try:
 				rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx=True)
 			except:
@@ -85,7 +85,7 @@ class cStaff(gmBusinessDBObject.cBusinessDBObject):
 	def _get_db_lang(self):
 		rows, idx = gmPG2.run_ro_queries (
 			queries = [{
-				'cmd': u'select i18n.get_curr_lang(%(usr)s)',
+				'cmd': 'select i18n.get_curr_lang(%(usr)s)',
 				'args': {'usr': self._payload[self._idx['db_user']]}
 			}]
 		)
@@ -94,7 +94,7 @@ class cStaff(gmBusinessDBObject.cBusinessDBObject):
 	def _set_db_lang(self, language):
 		if not gmPG2.set_user_language(language = language):
 			raise ValueError (
-				u'Cannot set database language to [%s] for user [%s].' % (language, self._payload[self._idx['db_user']])
+				'Cannot set database language to [%s] for user [%s].' % (language, self._payload[self._idx['db_user']])
 			)
 		return
 
@@ -124,7 +124,7 @@ class cStaff(gmBusinessDBObject.cBusinessDBObject):
 		if role.strip() == self._payload[self._idx['role']]:
 			return True
 
-		cmd = u'SELECT gm.add_user_to_permission_group(%(usr)s::name, %(grp)s::name)'
+		cmd = 'SELECT gm.add_user_to_permission_group(%(usr)s::name, %(grp)s::name)'
 		args = {
 			'usr': self._payload[self._idx['db_user']],
 			'grp': _map_gm_role2pg_group[role.strip()]
@@ -146,9 +146,9 @@ class cStaff(gmBusinessDBObject.cBusinessDBObject):
 #============================================================
 def get_staff_list(active_only=False):
 	if active_only:
-		cmd = _SQL_fetch_staff_fields % u'is_active ORDER BY can_login DESC, short_alias ASC'
+		cmd = _SQL_fetch_staff_fields % 'is_active ORDER BY can_login DESC, short_alias ASC'
 	else:
-		cmd = _SQL_fetch_staff_fields % u'TRUE ORDER BY can_login DESC, is_active DESC, short_alias ASC'
+		cmd = _SQL_fetch_staff_fields % 'TRUE ORDER BY can_login DESC, is_active DESC, short_alias ASC'
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx=True)
 	staff_list = []
 	for row in rows:
@@ -170,8 +170,8 @@ def create_staff(conn=None, db_account=None, password=None, identity=None, short
 	}
 
 	queries = [
-		{'cmd': u'SELECT gm.create_user(%(pg_usr)s, %(pwd)s)', 'args': args},
-		{'cmd': u"""
+		{'cmd': 'SELECT gm.create_user(%(pg_usr)s, %(pwd)s)', 'args': args},
+		{'cmd': """
 			INSERT INTO dem.staff
 				(fk_identity, db_user, short_alias)
 			VALUES (
@@ -201,7 +201,7 @@ def create_staff(conn=None, db_account=None, password=None, identity=None, short
 
 #------------------------------------------------------------
 def delete_staff(conn=None, pk_staff=None):
-	queries = [{'cmd': u'DELETE FROM dem.staff WHERE pk = %(pk)s', 'args': {'pk': pk_staff}}]
+	queries = [{'cmd': 'DELETE FROM dem.staff WHERE pk = %(pk)s', 'args': {'pk': pk_staff}}]
 	try:
 		rows, idx = gmPG2.run_rw_queries(link_obj = conn, queries = queries, end_tx = True)
 	except gmPG2.dbapi.IntegrityError as e:
@@ -229,7 +229,7 @@ def activate_staff(conn=None, pk_staff=None):
 	rowx, idx = gmPG2.run_rw_queries (
 		link_obj = conn,
 		# password does not matter because PG account must already exist
-		queries = [{'cmd': u'select gm.create_user(%s, %s)', 'args': [staff['db_user'], 'flying wombat']}],
+		queries = [{'cmd': 'select gm.create_user(%s, %s)', 'args': [staff['db_user'], 'flying wombat']}],
 		end_tx = True
 	)
 
@@ -246,7 +246,7 @@ def deactivate_staff(conn=None, pk_staff=None):
 	# 2) disable database account login
 	rows, idx = gmPG2.run_rw_queries (
 		link_obj = conn,
-		queries = [{'cmd': u'select gm.disable_user(%s)', 'args': [staff['db_user']]}],
+		queries = [{'cmd': 'select gm.disable_user(%s)', 'args': [staff['db_user']]}],
 		end_tx = True
 	)
 

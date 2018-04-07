@@ -32,8 +32,8 @@ _log = logging.getLogger('gm.ui')
 _cfg = gmCfg2.gmCfgData()
 
 
-default_dpl_url = u'http://www.gnumed.de/downloads/data/data-packs.conf'
-dpl_url_option = u'horstspace.data_packs.url'
+default_dpl_url = 'http://www.gnumed.de/downloads/data/data-packs.conf'
+dpl_url_option = 'horstspace.data_packs.url'
 #================================================================
 def install_data_pack(data_pack=None):
 
@@ -215,11 +215,11 @@ def load_data_packs_list():
 
 	for pack in packs:
 		_log.debug('reading pack [%s] metadata', pack)
-		pack_group = u'pack %s' % pack
-		name = _cfg.get(pack_group, u'name', source_order = [('data-packs', 'return')])
-		pack_url = _cfg.get(pack_group, u'URL', source_order = [('data-packs', 'return')])
-		md5_url = pack_url + u'.md5'
-		db_min = _cfg.get(pack_group, u'minimum database version', source_order = [('data-packs', 'return')])
+		pack_group = 'pack %s' % pack
+		name = _cfg.get(pack_group, 'name', source_order = [('data-packs', 'return')])
+		pack_url = _cfg.get(pack_group, 'URL', source_order = [('data-packs', 'return')])
+		md5_url = pack_url + '.md5'
+		db_min = _cfg.get(pack_group, 'minimum database version', source_order = [('data-packs', 'return')])
 		converted, db_min = gmTools.input2int (
 			db_min,
 			# here we introduced data packs:
@@ -232,9 +232,9 @@ def load_data_packs_list():
 			_log.error('cannot convert minimum database version [%s]', db_min)
 			continue
 
-		db_max = _cfg.get(pack_group, u'maximum database version', source_order = [('data-packs', 'return')])
+		db_max = _cfg.get(pack_group, 'maximum database version', source_order = [('data-packs', 'return')])
 		if db_max is None:
-			db_max = sys.maxint
+			db_max = sys.maxsize
 		converted, db_max = gmTools.input2int (
 			db_max,
 			db_min		# max version must be at least db_min
@@ -251,7 +251,7 @@ def load_data_packs_list():
 			_log.error('ignoring data pack: current database version (%s) > maximum allowable database version (%s)', _cfg.get(option = 'database_version'), db_max)
 			continue
 
-		items.append([name, u'v%s' % db_min, u'v%s' % db_max, pack_url])
+		items.append([name, 'v%s' % db_min, 'v%s' % db_max, pack_url])
 		data.append ({
 			'name': name,
 			'pack_url': pack_url,
@@ -284,7 +284,7 @@ def manage_data_packs(parent=None):
 				' [%s]\n'
 			) % default_dpl_url,
 			option = dpl_url_option,
-			bias = u'workplace',
+			bias = 'workplace',
 			default_value = default_dpl_url,
 			validator = validate_url
 		)

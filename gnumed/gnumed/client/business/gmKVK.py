@@ -109,13 +109,13 @@ map_CCRdr_gender2gm = {
 
 
 map_CCRdr_region_code2country = {
-	u'D': 'DE'
+	'D': 'DE'
 }
 
 
-EXTERNAL_ID_ISSUER_TEMPLATE = u'%s (%s)'
-EXTERNAL_ID_TYPE_VK_INSUREE_NUMBER = u'Versichertennummer'
-EXTERNAL_ID_TYPE_VK_INSUREE_NUMBER_EGK = u'Versichertennummer (eGK)'
+EXTERNAL_ID_ISSUER_TEMPLATE = '%s (%s)'
+EXTERNAL_ID_TYPE_VK_INSUREE_NUMBER = 'Versichertennummer'
+EXTERNAL_ID_TYPE_VK_INSUREE_NUMBER_EGK = 'Versichertennummer (eGK)'
 
 #============================================================
 class cDTO_CCRdr(gmPerson.cDTO_person):
@@ -145,7 +145,7 @@ class cDTO_CCRdr(gmPerson.cDTO_person):
 
 		# look for candidates based on their Insuree Number
 		if not self.card_is_rejected:
-			cmd = u"""
+			cmd = """
 				SELECT pk_identity FROM dem.v_external_ids4identity WHERE
 					value = %(val)s AND
 					name = %(name)s AND
@@ -153,7 +153,7 @@ class cDTO_CCRdr(gmPerson.cDTO_person):
 				"""
 			args = {
 				'val': self.insuree_number,
-				'name': u'%s (%s)' % (
+				'name': '%s (%s)' % (
 					EXTERNAL_ID_TYPE_VK_INSUREE_NUMBER,
 					self.raw_data['Karte']
 				),
@@ -187,7 +187,7 @@ class cDTO_CCRdr(gmPerson.cDTO_person):
 				'valid_until': self.valid_until,
 				'data': self.raw_data
 			}
-			cmd = u"""
+			cmd = """
 				INSERT INTO de_de.insurance_card (
 					fk_identity,
 					formatted_dob,
@@ -211,12 +211,12 @@ class cDTO_CCRdr(gmPerson.cDTO_person):
 		self.raw_data = json.load(vk_file)
 		vk_file.close()
 
-		if self.raw_data['Fehlerbericht']['FehlerNr'] != u'0x9000':
+		if self.raw_data['Fehlerbericht']['FehlerNr'] != '0x9000':
 			_log.error('error [%s] reading VK: %s', self.raw_data['Fehlerbericht']['FehlerNr'], self.raw_data['Fehlerbericht']['Fehlermeldung'])
 			raise ValueError('error [%s] reading VK: %s' % (self.raw_data['Fehlerbericht']['FehlerNr'], self.raw_data['Fehlerbericht']['Fehlermeldung']))
 
 		# rejection
-		if self.raw_data['Ablehnen'] == u'ja':
+		if self.raw_data['Ablehnen'] == 'ja':
 			self.card_is_rejected = True
 			_log.info('eGK may contain insurance information but KBV says it must be rejected because it is of generation 0')
 
@@ -237,10 +237,10 @@ class cDTO_CCRdr(gmPerson.cDTO_person):
 		if self.card_is_rejected:
 			_log.info('eGK contains insurance information but KBV says it must be rejected because it is of generation 0')
 			src_attrs.append(_('rejected'))
-		src_attrs.append(u'CCReader')
-		self.source = u'%s (%s)' % (
+		src_attrs.append('CCReader')
+		self.source = '%s (%s)' % (
 			self.raw_data['Karte'],
-			u', '.join(src_attrs)
+			', '.join(src_attrs)
 		)
 
 		# name / gender
@@ -252,27 +252,27 @@ class cDTO_CCRdr(gmPerson.cDTO_person):
 		title_parts = []
 		for part in ['Titel', 'Namenszusatz', 'Vorsatzwort']:
 			tmp = self.raw_data[part].strip()
-			if tmp == u'':
+			if tmp == '':
 				continue
 			title_parts.append(tmp)
 		if len(title_parts) > 0:
-			self.title = u' '.join(title_parts)
+			self.title = ' '.join(title_parts)
 
 		# dob
 		dob_str = self.raw_data['Geburtsdatum']
 		year_str = dob_str[:4]
 		month_str = dob_str[4:6]
 		day_str = dob_str[6:8]
-		self.preformatted_dob = u'%s.%s.%s' % (day_str, month_str, year_str)	# pre-format for printing including "0"-parts
-		if year_str == u'0000':
+		self.preformatted_dob = '%s.%s.%s' % (day_str, month_str, year_str)	# pre-format for printing including "0"-parts
+		if year_str == '0000':
 			self.dob = None			# redundant but explicit is good
 		else:
-			if day_str == u'00':
+			if day_str == '00':
 				self.dob_is_estimated = True
-				day_str = u'01'
-			if month_str == u'00':
+				day_str = '01'
+			if month_str == '00':
 				self.dob_is_estimated = True
-				month_str = u'01'
+				month_str = '01'
 			dob_str = year_str + month_str + day_str
 			tmp = time.strptime(dob_str, self.date_format)
 			self.dob = pyDT.datetime(tmp.tm_year, tmp.tm_mon, tmp.tm_mday, 11, 11, 11, 111, tzinfo = gmDateTime.gmCurrentLocalTimezone)
@@ -283,12 +283,12 @@ class cDTO_CCRdr(gmPerson.cDTO_person):
 			adr = self.raw_data['StrassenAdresse']
 			try:
 				self.remember_address (
-					adr_type = u'eGK (Wohnadresse)',
+					adr_type = 'eGK (Wohnadresse)',
 					number = adr['Hausnummer'],
 					subunit = adr['Anschriftenzusatz'],
 					street = adr['Strasse'],
 					urb = adr['Ort'],
-					region_code = u'',
+					region_code = '',
 					zip = adr['Postleitzahl'],
 					country_code = map_CCRdr_region_code2country[adr['Wohnsitzlaendercode']]
 				)
@@ -303,12 +303,12 @@ class cDTO_CCRdr(gmPerson.cDTO_person):
 			adr = self.raw_data['PostfachAdresse']
 			try:
 				self.remember_address (
-					adr_type = u'eGK (Postfach)',
+					adr_type = 'eGK (Postfach)',
 					number = adr['Postfach'],
 					#subunit = adr['Anschriftenzusatz'],
 					street = _('PO Box'),
 					urb = adr['PostfachOrt'],
-					region_code = u'',
+					region_code = '',
 					zip = adr['PostfachPLZ'],
 					country_code = map_CCRdr_region_code2country[adr['PostfachWohnsitzlaendercode']]
 				)
@@ -336,13 +336,13 @@ class cDTO_CCRdr(gmPerson.cDTO_person):
 			if self.insuree_number is not None:
 				try:
 					self.remember_external_id (
-						name = u'%s (%s)' % (
+						name = '%s (%s)' % (
 							EXTERNAL_ID_TYPE_VK_INSUREE_NUMBER,
 							self.raw_data['Karte']
 						),
 						value = self.insuree_number,
 						issuer = EXTERNAL_ID_ISSUER_TEMPLATE % (self.raw_data['KostentraegerName'], self.raw_data['Kostentraegerkennung']),
-						comment = u'Nummer (eGK) des Versicherten bei der Krankenkasse, gültig: %s - %s' % (
+						comment = 'Nummer (eGK) des Versicherten bei der Krankenkasse, gültig: %s - %s' % (
 							gmDateTime.pydt_strftime(self.valid_since, '%Y %b %d'),
 							gmDateTime.pydt_strftime(self.valid_until, '%Y %b %d')
 						)
@@ -353,7 +353,7 @@ class cDTO_CCRdr(gmPerson.cDTO_person):
 #============================================================
 class cDTO_eGK(gmPerson.cDTO_person):
 
-	kvkd_card_id_string = u'Elektronische Gesundheitskarte'
+	kvkd_card_id_string = 'Elektronische Gesundheitskarte'
 
 	def __init__(self, filename=None, strict=True):
 		self.card_type = 'eGK'
@@ -374,7 +374,7 @@ class cDTO_eGK(gmPerson.cDTO_person):
 	def get_candidate_identities(self, can_create = False):
 		old_idents = gmPerson.cDTO_person.get_candidate_identities(self, can_create = can_create)
 
-		cmd = u"""
+		cmd = """
 select pk_identity from dem.v_external_ids4identity where
 	value = %(val)s and
 	name = %(name)s and
@@ -407,7 +407,7 @@ select pk_identity from dem.v_external_ids4identity where
 			type_name = EXTERNAL_ID_TYPE_VK_INSUREE_NUMBER_EGK,
 			value = self.insuree_number,
 			issuer = EXTERNAL_ID_ISSUER_TEMPLATE % (self.insurance_company, self.insurance_number),
-			comment = u'Nummer (eGK) des Versicherten bei der Krankenkasse'
+			comment = 'Nummer (eGK) des Versicherten bei der Krankenkasse'
 		)
 		# address
 		street = self.street
@@ -422,8 +422,8 @@ select pk_identity from dem.v_external_ids4identity where
 			street = street,
 			postcode = self.zip,
 			urb = self.urb,
-			region_code = u'',			# actually: map urb2region ?
-			country_code = u'DE'		# actually: map urb+region2country_code
+			region_code = '',			# actually: map urb2region ?
+			country_code = 'DE'		# actually: map urb+region2country_code
 		)
 		# FIXME: eGK itself
 	#--------------------------------------------------------
@@ -490,10 +490,10 @@ select pk_identity from dem.v_external_ids4identity where
 #============================================================
 class cDTO_KVK(gmPerson.cDTO_person):
 
-	kvkd_card_id_string = u'Krankenversichertenkarte'
+	kvkd_card_id_string = 'Krankenversichertenkarte'
 
 	def __init__(self, filename=None, strict=True):
-		self.card_type = u'KVK'
+		self.card_type = 'KVK'
 		self.dob_format = '%d%m%Y'
 		self.valid_until_format = '%d%m%Y'
 		self.last_read_time_format = '%H:%M:%S'
@@ -511,7 +511,7 @@ class cDTO_KVK(gmPerson.cDTO_person):
 	def get_candidate_identities(self, can_create = False):
 		old_idents = gmPerson.cDTO_person.get_candidate_identities(self, can_create = can_create)
 
-		cmd = u"""
+		cmd = """
 select pk_identity from dem.v_external_ids4identity where
 	value = %(val)s and
 	name = %(name)s and
@@ -542,7 +542,7 @@ select pk_identity from dem.v_external_ids4identity where
 			type_name = EXTERNAL_ID_TYPE_VK_INSUREE_NUMBER,
 			value = self.insuree_number,
 			issuer = EXTERNAL_ID_ISSUER_TEMPLATE % (self.insurance_company, self.insurance_number),
-			comment = u'Nummer des Versicherten bei der Krankenkasse'
+			comment = 'Nummer des Versicherten bei der Krankenkasse'
 		)
 		# address
 		street = self.street
@@ -557,8 +557,8 @@ select pk_identity from dem.v_external_ids4identity where
 			street = street,
 			postcode = self.zip,
 			urb = self.urb,
-			region_code = u'',
-			country_code = u'DE'		# actually: map urb_region_code
+			region_code = '',
+			country_code = 'DE'		# actually: map urb_region_code
 		)
 		# FIXME: kvk itself
 	#--------------------------------------------------------

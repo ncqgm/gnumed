@@ -37,7 +37,7 @@ except NameError:
 # occupation handling
 #------------------------------------------------------------
 def get_occupations(pk_identity=None):
-	cmd = u"""
+	cmd = """
 		SELECT *
 		FROM dem.v_person_jobs
 		WHERE pk_identity = %(pk)s
@@ -48,13 +48,13 @@ def get_occupations(pk_identity=None):
 #============================================================
 # text+image tags
 #------------------------------------------------------------
-_SQL_get_tag_image = u"SELECT * FROM ref.v_tag_images_no_data WHERE %s"
+_SQL_get_tag_image = "SELECT * FROM ref.v_tag_images_no_data WHERE %s"
 
 class cTagImage(gmBusinessDBObject.cBusinessDBObject):
 
-	_cmd_fetch_payload = _SQL_get_tag_image % u"pk_tag_image = %s"
+	_cmd_fetch_payload = _SQL_get_tag_image % "pk_tag_image = %s"
 	_cmds_store_payload = [
-		u"""
+		"""
 			UPDATE ref.tag_image SET
 				description = gm.nullify_empty_string(%(description)s),
 				filename = gm.nullify_empty_string(%(filename)s)
@@ -67,7 +67,7 @@ class cTagImage(gmBusinessDBObject.cBusinessDBObject):
 				xmin as xmin_tag_image
 		"""
 	]
-	_updatable_fields = [u'description', u'filename']
+	_updatable_fields = ['description', 'filename']
 	#--------------------------------------------------------
 	def export_image2file(self, aChunkSize=0, filename=None):
 
@@ -80,7 +80,7 @@ class cTagImage(gmBusinessDBObject.cBusinessDBObject):
 			if self._payload[self._idx['filename']] is not None:
 				name, suffix = os.path.splitext(self._payload[self._idx['filename']])
 				suffix = suffix.strip()
-				if suffix == u'':
+				if suffix == '':
 					suffix = None
 			# get unique filename
 			filename = gmTools.get_unique_filename (
@@ -90,7 +90,7 @@ class cTagImage(gmBusinessDBObject.cBusinessDBObject):
 
 		success = gmPG2.bytea2file (
 			data_query = {
-				'cmd': u'SELECT substring(image from %(start)s for %(size)s) FROM ref.tag_image WHERE pk = %(pk)s',
+				'cmd': 'SELECT substring(image from %(start)s for %(size)s) FROM ref.tag_image WHERE pk = %(pk)s',
 				'args': {'pk': self.pk_obj}
 			},
 			filename = filename,
@@ -110,7 +110,7 @@ class cTagImage(gmBusinessDBObject.cBusinessDBObject):
 			return False
 
 		gmPG2.file2bytea (
-			query = u"UPDATE ref.tag_image SET image = %(data)s::bytea WHERE pk = %(pk)s",
+			query = "UPDATE ref.tag_image SET image = %(data)s::bytea WHERE pk = %(pk)s",
 			filename = filename,
 			args = {'pk': self.pk_obj}
 		)
@@ -121,7 +121,7 @@ class cTagImage(gmBusinessDBObject.cBusinessDBObject):
 #------------------------------------------------------------
 def get_tag_images(order_by=None):
 	if order_by is None:
-		order_by = u'true'
+		order_by = 'true'
 	else:
 		order_by = 'true ORDER BY %s' % order_by
 
@@ -131,8 +131,8 @@ def get_tag_images(order_by=None):
 #------------------------------------------------------------
 def create_tag_image(description=None, link_obj=None):
 
-	args = {u'desc': description, u'img': u''}
-	cmd = u"""
+	args = {'desc': description, 'img': ''}
+	cmd = """
 		INSERT INTO ref.tag_image (
 			description,
 			image
@@ -154,7 +154,7 @@ def create_tag_image(description=None, link_obj=None):
 #------------------------------------------------------------
 def delete_tag_image(tag_image=None):
 	args = {'pk': tag_image}
-	cmd = u"""
+	cmd = """
 		DELETE FROM ref.tag_image
 		WHERE
 			pk = %(pk)s
@@ -173,13 +173,13 @@ def delete_tag_image(tag_image=None):
 	return True
 
 #============================================================
-_SQL_get_person_tags = u"""SELECT * FROM dem.v_identity_tags WHERE %s"""
+_SQL_get_person_tags = """SELECT * FROM dem.v_identity_tags WHERE %s"""
 
 class cPersonTag(gmBusinessDBObject.cBusinessDBObject):
 
-	_cmd_fetch_payload = _SQL_get_person_tags % u"pk_identity_tag = %s"
+	_cmd_fetch_payload = _SQL_get_person_tags % "pk_identity_tag = %s"
 	_cmds_store_payload = [
-		u"""
+		"""
 			UPDATE dem.identity_tag SET
 				fk_tag = %(pk_tag_image)s,
 				comment = gm.nullify_empty_string(%(comment)s)
@@ -192,7 +192,7 @@ class cPersonTag(gmBusinessDBObject.cBusinessDBObject):
 				xmin as xmin_identity_tag
 		"""
 	]
-	_updatable_fields = [u'fk_tag',	u'comment']
+	_updatable_fields = ['fk_tag',	'comment']
 	#--------------------------------------------------------
 	def export_image2file(self, aChunkSize=0, filename=None):
 
@@ -205,7 +205,7 @@ class cPersonTag(gmBusinessDBObject.cBusinessDBObject):
 			if self._payload[self._idx['filename']] is not None:
 				name, suffix = os.path.splitext(self._payload[self._idx['filename']])
 				suffix = suffix.strip()
-				if suffix == u'':
+				if suffix == '':
 					suffix = None
 			# get unique filename
 			filename = gmTools.get_unique_filename (
@@ -215,7 +215,7 @@ class cPersonTag(gmBusinessDBObject.cBusinessDBObject):
 
 		exported = gmPG2.bytea2file (
 			data_query = {
-				'cmd': u'SELECT substring(image from %(start)s for %(size)s) FROM ref.tag_image WHERE pk = %(pk)s',
+				'cmd': 'SELECT substring(image from %(start)s for %(size)s) FROM ref.tag_image WHERE pk = %(pk)s',
 				'args': {'pk': self._payload[self._idx['pk_tag_image']]}
 			},
 			filename = filename,
@@ -231,7 +231,7 @@ class cPersonTag(gmBusinessDBObject.cBusinessDBObject):
 # country/region related
 #============================================================
 def get_countries():
-	cmd = u"""
+	cmd = """
 		SELECT
 			_(name) AS l10n_country, name, code, deprecated
 		FROM dem.country
@@ -241,7 +241,7 @@ def get_countries():
 
 #------------------------------------------------------------
 def get_country_for_region(region=None):
-	cmd = u"""
+	cmd = """
 SELECT code_country, l10n_country FROM dem.v_region WHERE lower(l10n_region) = lower(%(region)s)
 	union
 SELECT code_country, l10n_country FROM dem.v_region WHERE lower(region) = lower(%(region)s)
@@ -251,7 +251,7 @@ SELECT code_country, l10n_country FROM dem.v_region WHERE lower(region) = lower(
 
 #------------------------------------------------------------
 def map_country2code(country=None):
-	cmd = u"""
+	cmd = """
 		SELECT code FROM dem.country WHERE lower(_(name)) = lower(%(country)s)
 			UNION
 		SELECT code FROM dem.country WHERE lower(name) = lower(%(country)s)
@@ -264,8 +264,8 @@ def map_country2code(country=None):
 #------------------------------------------------------------
 def map_urb_zip_region2country(urb=None, zip=None, region=None):
 
-	args = {u'urb': urb, u'zip': zip, u'region': region}
-	cmd = u"""(
+	args = {'urb': urb, 'zip': zip, 'region': region}
+	cmd = """(
 		-- find by using all known details
 		SELECT
 			1 AS rank,
@@ -357,8 +357,8 @@ def map_urb_zip_region2country(urb=None, zip=None, region=None):
 #------------------------------------------------------------
 def map_urb_zip_country2region(urb=None, zip=None, country=None, country_code=None):
 
-	args = {u'urb': urb, u'zip': zip, u'country': country, u'country_code': country_code}
-	cmd = u"""(
+	args = {'urb': urb, 'zip': zip, 'country': country, 'country_code': country_code}
+	cmd = """(
 		-- find by using all known details
 		SELECT
 			1 AS rank,
@@ -434,7 +434,7 @@ def map_urb_zip_country2region(urb=None, zip=None, country=None, country_code=No
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
 
 	if len(rows) == 0:
-		cmd = u"""
+		cmd = """
 		-- find by country (some countries will only have one region)
 		SELECT
 			1 AS rank,		-- dummy to conform with function result structure at Python level
@@ -467,13 +467,13 @@ def map_urb_zip_country2region(urb=None, zip=None, country=None, country_code=No
 #------------------------------------------------------------
 def map_region2code(region=None, country_code=None):
 	if country_code is None:
-		cmd = u"""
+		cmd = """
 			SELECT code FROM dem.region WHERE lower(_(name)) = lower(%(region)s)
 				UNION
 			SELECT code FROM dem.region WHERE lower(name) = lower(%(region)s)
 		"""
 	else:
-		cmd = u"""
+		cmd = """
 			SELECT code FROM dem.region WHERE lower(_(name)) = lower(%(region)s) AND lower(country) = lower(%(country_code)s)
 				UNION
 			SELECT code FROM dem.region WHERE lower(name) = %(region)s AND lower(country) = lower(%(country_code)s)
@@ -495,7 +495,7 @@ def delete_region(region=None, delete_urbs=False):
 	queries = []
 	if delete_urbs:
 		queries.append ({
-			'cmd': u"""
+			'cmd': """
 				delete from dem.urb du
 				where
 					du.fk_region = %(region)s
@@ -505,7 +505,7 @@ def delete_region(region=None, delete_urbs=False):
 		})
 
 	queries.append ({
-		'cmd': u"""
+		'cmd': """
 			DELETE FROM dem.region d_r
 			WHERE
 				d_r.pk = %(region)s
@@ -523,13 +523,13 @@ def create_region(name=None, code=None, country=None):
 
 	args = {'code': code, 'country': country, 'name': name}
 
-	cmd = u"""SELECT EXISTS (SELECT 1 FROM dem.region WHERE name = %(name)s)"""
+	cmd = """SELECT EXISTS (SELECT 1 FROM dem.region WHERE name = %(name)s)"""
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
 
 	if rows[0][0]:
 		return
 
-	cmd = u"""
+	cmd = """
 		INSERT INTO dem.region (
 			code, country, name
 		) VALUES (
@@ -538,7 +538,7 @@ def create_region(name=None, code=None, country=None):
 	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 #------------------------------------------------------------
 def get_regions():
-	cmd = u"""
+	cmd = """
 		select
 			l10n_region, l10n_country, region, code_region, code_country, pk_region, country_deprecated
 		from dem.v_region
@@ -568,9 +568,9 @@ class cAddress(gmBusinessDBObject.cBusinessDBObject):
 	whom it is attached. In many cases you will want to create a *new*
 	address and link it to a person instead of the old address.
 	"""
-	_cmd_fetch_payload = u"SELECT * FROM dem.v_address WHERE pk_address = %s"
+	_cmd_fetch_payload = "SELECT * FROM dem.v_address WHERE pk_address = %s"
 	_cmds_store_payload = [
-		u"""UPDATE dem.address SET
+		"""UPDATE dem.address SET
 				aux_street = %(notes_street)s,
 				subunit = %(subunit)s,
 				addendum = %(notes_subunit)s,
@@ -596,7 +596,7 @@ class cAddress(gmBusinessDBObject.cBusinessDBObject):
 
 	#--------------------------------------------------------
 	def _get_as_map_url(self):
-		url = u'http://nominatim.openstreetmap.org/search/%s/%s/%s/%s?limit=3' % (
+		url = 'http://nominatim.openstreetmap.org/search/%s/%s/%s/%s?limit=3' % (
 			urllib.parse.quote(self['country'].encode('utf8')),
 			urllib.parse.quote(self['urb'].encode('utf8')),
 			urllib.parse.quote(self['street'].encode('utf8')),
@@ -609,7 +609,7 @@ class cAddress(gmBusinessDBObject.cBusinessDBObject):
 #------------------------------------------------------------
 def address_exists(country_code=None, region_code=None, urb=None, postcode=None, street=None, number=None, subunit=None):
 
-	cmd = u"""SELECT dem.address_exists(%(country_code)s, %(region_code)s, %(urb)s, %(postcode)s, %(street)s, %(number)s, %(subunit)s)"""
+	cmd = """SELECT dem.address_exists(%(country_code)s, %(region_code)s, %(urb)s, %(postcode)s, %(street)s, %(number)s, %(subunit)s)"""
 	args = {
 		'country_code': country_code,
 		'region_code': region_code,
@@ -633,7 +633,7 @@ def address_exists(country_code=None, region_code=None, urb=None, postcode=None,
 def create_address(country_code=None, region_code=None, urb=None, suburb=None, postcode=None, street=None, number=None, subunit=None):
 
 	if suburb is not None:
-		suburb = gmTools.none_if(suburb.strip(), u'')
+		suburb = gmTools.none_if(suburb.strip(), '')
 
 	pk_address = address_exists (
 		country_code = country_code,
@@ -648,7 +648,7 @@ def create_address(country_code=None, region_code=None, urb=None, suburb=None, p
 	if pk_address is not None:
 		return cAddress(aPK_obj = pk_address)
 
-	cmd = u"""
+	cmd = """
 SELECT dem.create_address (
 	%(number)s,
 	%(street)s,
@@ -675,7 +675,7 @@ SELECT dem.create_address (
 	if suburb is not None:
 		queries = [{
 			# CAVE: suburb will be ignored if there already is one
-			'cmd': u"UPDATE dem.street SET suburb = %(suburb)s WHERE id = %(pk_street)s AND suburb IS NULL",
+			'cmd': "UPDATE dem.street SET suburb = %(suburb)s WHERE id = %(pk_street)s AND suburb IS NULL",
 			'args': {'suburb': suburb, 'pk_street': adr['pk_street']}
 		}]
 		rows, idx = gmPG2.run_rw_queries(queries = queries)
@@ -683,7 +683,7 @@ SELECT dem.create_address (
 	return adr
 #------------------------------------------------------------
 def delete_address(pk_address=None):
-	cmd = u"""
+	cmd = """
 		DELETE FROM dem.address
 		WHERE
 			id = %(pk)s
@@ -704,13 +704,13 @@ def format_address_single_line(address=None, verbose=False, show_type=False):
 	data = {
 		'pk_adr': address['pk_address'],
 		'street': address['street'],
-		'notes_street': gmTools.coalesce(address['notes_street'], u'', u' (%s)'),
+		'notes_street': gmTools.coalesce(address['notes_street'], '', ' (%s)'),
 		'number': address['number'],
-		'subunit': gmTools.coalesce(address['subunit'], u'', u'/%s'),
-		'notes_subunit': gmTools.coalesce(address['notes_subunit'], u'', u' (%s)'),
+		'subunit': gmTools.coalesce(address['subunit'], '', '/%s'),
+		'notes_subunit': gmTools.coalesce(address['notes_subunit'], '', ' (%s)'),
 		'zip': address['postcode'],
 		'urb': address['urb'],
-		'suburb': gmTools.coalesce(address['suburb'], u'', u' (%s)'),
+		'suburb': gmTools.coalesce(address['suburb'], '', ' (%s)'),
 		'l10n_region': address['l10n_region'],
 		'code_region': address['code_region'],
 		'l10n_country': address['l10n_country'],
@@ -737,13 +737,13 @@ def format_address(address=None, show_type=False):
 	data = {
 		'pk_adr': address['pk_address'],
 		'street': address['street'],
-		'notes_street': gmTools.coalesce(address['notes_street'], u'', u' (%s)'),
+		'notes_street': gmTools.coalesce(address['notes_street'], '', ' (%s)'),
 		'number': address['number'],
-		'subunit': gmTools.coalesce(address['subunit'], u'', u'/%s'),
-		'notes_subunit': gmTools.coalesce(address['notes_subunit'], u'', u' (%s)'),
+		'subunit': gmTools.coalesce(address['subunit'], '', '/%s'),
+		'notes_subunit': gmTools.coalesce(address['notes_subunit'], '', ' (%s)'),
 		'zip': address['postcode'],
 		'urb': address['urb'],
-		'suburb': gmTools.coalesce(address['suburb'], u'', u' (%s)'),
+		'suburb': gmTools.coalesce(address['suburb'], '', ' (%s)'),
 		'l10n_region': address['l10n_region'],
 		'code_region': address['code_region'],
 		'l10n_country': address['l10n_country'],
@@ -774,31 +774,31 @@ def format_address(address=None, show_type=False):
 #------------------------------------------------------------
 def create_address_type(address_type=None):
 	args = {'typ': address_type}
-	cmd = u'INSERT INTO dem.address_type (name) SELECT %(typ)s WHERE NOT EXISTS (SELECT 1 FROM dem.address_type WHERE name = %(typ)s OR _(name) = %(typ)s)'
+	cmd = 'INSERT INTO dem.address_type (name) SELECT %(typ)s WHERE NOT EXISTS (SELECT 1 FROM dem.address_type WHERE name = %(typ)s OR _(name) = %(typ)s)'
 	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
-	cmd = u'SELECT id FROM dem.address_type WHERE name = %(typ)s OR _(name) = %(typ)s'
+	cmd = 'SELECT id FROM dem.address_type WHERE name = %(typ)s OR _(name) = %(typ)s'
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
 	return rows[0][0]
 
 #------------------------------------------------------------
 def get_address_types(identity=None):
-	cmd = u'select id as pk, name, _(name) as l10n_name from dem.address_type'
+	cmd = 'select id as pk, name, _(name) as l10n_name from dem.address_type'
 	rows, idx = gmPG2.run_rw_queries(queries=[{'cmd': cmd}])
 	return rows
 #------------------------------------------------------------
 def get_addresses(order_by=None):
 
 	if order_by is None:
-		order_by = u''
+		order_by = ''
 	else:
-		order_by = u'ORDER BY %s' % order_by
+		order_by = 'ORDER BY %s' % order_by
 
-	cmd = u"SELECT * FROM dem.v_address %s" % order_by
+	cmd = "SELECT * FROM dem.v_address %s" % order_by
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
-	return [ cAddress(row = {'data': r, 'idx': idx, 'pk_field': u'pk_address'}) for r in rows ]
+	return [ cAddress(row = {'data': r, 'idx': idx, 'pk_field': 'pk_address'}) for r in rows ]
 #------------------------------------------------------------
 def get_address_from_patient_address_pk(pk_patient_address=None):
-	cmd = u"""
+	cmd = """
 		SELECT * FROM dem.v_address WHERE
 			pk_address = (
 				SELECT id_address
@@ -810,32 +810,32 @@ def get_address_from_patient_address_pk(pk_patient_address=None):
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 	if len(rows) == 0:
 		return None
-	return cAddress(row = {'data': rows[0], 'idx': idx, 'pk_field': u'pk_address'})
+	return cAddress(row = {'data': rows[0], 'idx': idx, 'pk_field': 'pk_address'})
 
 #===================================================================
 def get_patient_address(pk_patient_address=None):
-	cmd = u'SELECT * FROM dem.v_pat_addresses WHERE pk_lnk_person_org_address = %(pk)s'
+	cmd = 'SELECT * FROM dem.v_pat_addresses WHERE pk_lnk_person_org_address = %(pk)s'
 	args = {'pk': pk_patient_address}
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 	if len(rows) == 0:
 		return None
-	return cPatientAddress(row = {'data': rows[0], 'idx': idx, 'pk_field': u'pk_address'})
+	return cPatientAddress(row = {'data': rows[0], 'idx': idx, 'pk_field': 'pk_address'})
 
 #-------------------------------------------------------------------
 def get_patient_address_by_type(pk_patient=None, adr_type=None):
-	cmd = u'SELECT * FROM dem.v_pat_addresses WHERE pk_identity = %(pat)s AND (address_type = %(typ)s OR l10n_address_type = %(typ)s)'
+	cmd = 'SELECT * FROM dem.v_pat_addresses WHERE pk_identity = %(pat)s AND (address_type = %(typ)s OR l10n_address_type = %(typ)s)'
 	args = {'pat': pk_patient, 'typ': adr_type}
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 	if len(rows) == 0:
 		return None
-	return cPatientAddress(row = {'data': rows[0], 'idx': idx, 'pk_field': u'pk_address'})
+	return cPatientAddress(row = {'data': rows[0], 'idx': idx, 'pk_field': 'pk_address'})
 
 #-------------------------------------------------------------------
 class cPatientAddress(gmBusinessDBObject.cBusinessDBObject):
 
-	_cmd_fetch_payload = u"SELECT * FROM dem.v_pat_addresses WHERE pk_address = %s"
+	_cmd_fetch_payload = "SELECT * FROM dem.v_pat_addresses WHERE pk_address = %s"
 	_cmds_store_payload = [
-		u"""UPDATE dem.lnk_person_org_address SET
+		"""UPDATE dem.lnk_person_org_address SET
 				id_type = %(pk_address_type)s
 			WHERE
 				id = %(pk_lnk_person_org_address)s
@@ -872,9 +872,9 @@ class cPatientAddress(gmBusinessDBObject.cBusinessDBObject):
 #-------------------------------------------------------------------
 class cCommChannel(gmBusinessDBObject.cBusinessDBObject):
 
-	_cmd_fetch_payload = u"SELECT * FROM dem.v_person_comms WHERE pk_lnk_identity2comm = %s"
+	_cmd_fetch_payload = "SELECT * FROM dem.v_person_comms WHERE pk_lnk_identity2comm = %s"
 	_cmds_store_payload = [
-		u"""UPDATE dem.lnk_identity2comm SET
+		"""UPDATE dem.lnk_identity2comm SET
 				--fk_address = %(pk_address)s,
 				fk_type = dem.create_comm_type(%(comm_type)s),
 				url = %(url)s,
@@ -898,9 +898,9 @@ class cCommChannel(gmBusinessDBObject.cBusinessDBObject):
 #-------------------------------------------------------------------
 class cOrgCommChannel(gmBusinessDBObject.cBusinessDBObject):
 
-	_cmd_fetch_payload = u"SELECT * FROM dem.v_org_unit_comms WHERE pk_lnk_org_unit2comm = %s"
+	_cmd_fetch_payload = "SELECT * FROM dem.v_org_unit_comms WHERE pk_lnk_org_unit2comm = %s"
 	_cmds_store_payload = [
-		u"""UPDATE dem.lnk_org_unit2comm SET
+		"""UPDATE dem.lnk_org_unit2comm SET
 				fk_type = dem.create_comm_type(%(comm_type)s),
 				url = %(url)s,
 				is_confidential = %(is_confidential)s,
@@ -936,21 +936,21 @@ def create_comm_channel(comm_medium=None, url=None, is_confidential=False, pk_ch
 
 	if pk_identity is not None:
 		args['pk_owner'] = pk_identity
-		tbl = u'dem.lnk_identity2comm'
-		col = u'fk_identity'
-		view = u'dem.v_person_comms'
-		view_pk = u'pk_lnk_identity2comm'
+		tbl = 'dem.lnk_identity2comm'
+		col = 'fk_identity'
+		view = 'dem.v_person_comms'
+		view_pk = 'pk_lnk_identity2comm'
 		channel_class = cCommChannel
 	if pk_org_unit is not None:
 		args['pk_owner'] = pk_org_unit
-		tbl = u'dem.lnk_org_unit2comm'
-		col = u'fk_org_unit'
-		view = u'dem.v_org_unit_comms'
-		view_pk = u'pk_lnk_org_unit2comm'
+		tbl = 'dem.lnk_org_unit2comm'
+		col = 'fk_org_unit'
+		view = 'dem.v_org_unit_comms'
+		view_pk = 'pk_lnk_org_unit2comm'
 		channel_class = cOrgCommChannel
 
 	if pk_channel_type is None:
-		cmd = u"""INSERT INTO %s (
+		cmd = """INSERT INTO %s (
 			%s,
 			url,
 			fk_type,
@@ -962,7 +962,7 @@ def create_comm_channel(comm_medium=None, url=None, is_confidential=False, pk_ch
 			%%(secret)s
 		)""" % (tbl, col)
 	else:
-		cmd = u"""INSERT INTO %s (
+		cmd = """INSERT INTO %s (
 			%s,
 			url,
 			fk_type,
@@ -975,7 +975,7 @@ def create_comm_channel(comm_medium=None, url=None, is_confidential=False, pk_ch
 		)""" % (tbl, col)
 
 	queries = [{'cmd': cmd, 'args': args}]
-	cmd = u"SELECT * FROM %s WHERE %s = currval(pg_get_serial_sequence('%s', 'pk'))" % (view, view_pk, tbl)
+	cmd = "SELECT * FROM %s WHERE %s = currval(pg_get_serial_sequence('%s', 'pk'))" % (view, view_pk, tbl)
 	queries.append({'cmd': cmd})
 
 	rows, idx = gmPG2.run_rw_queries(queries = queries, return_data = True, get_col_idx = True)
@@ -988,23 +988,23 @@ def create_comm_channel(comm_medium=None, url=None, is_confidential=False, pk_ch
 def delete_comm_channel(pk=None, pk_patient=None, pk_org_unit=None):
 	if pk_patient is not None:
 		query = {
-			'cmd': u"DELETE FROM dem.lnk_identity2comm WHERE pk = %(pk)s AND fk_identity = %(pat)s",
+			'cmd': "DELETE FROM dem.lnk_identity2comm WHERE pk = %(pk)s AND fk_identity = %(pat)s",
 			'args': {'pk': pk, 'pat': pk_patient}
 		}
 	if pk_org_unit is not None:
 		query = {
-			'cmd': u"DELETE FROM dem.lnk_org_unit2comm WHERE pk = %(pk)s AND fk_org_unit = %(unit)s",
+			'cmd': "DELETE FROM dem.lnk_org_unit2comm WHERE pk = %(pk)s AND fk_org_unit = %(unit)s",
 			'args': {'pk': pk, 'unit': pk_org_unit}
 		}
 	gmPG2.run_rw_queries(queries = [query])
 #-------------------------------------------------------------------
 def get_comm_channel_types():
-	cmd = u"SELECT pk, _(description) AS l10n_description, description FROM dem.enum_comm_types"
+	cmd = "SELECT pk, _(description) AS l10n_description, description FROM dem.enum_comm_types"
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = False)
 	return rows
 #-------------------------------------------------------------------
 def delete_comm_channel_type(pk_channel_type=None):
-	cmd = u"""
+	cmd = """
 		DELETE FROM dem.enum_comm_types
 		WHERE
 			pk = %(pk)s
@@ -1150,7 +1150,7 @@ if __name__ == "__main__":
 			'region_code': 'Sachsen',
 			'urb': 'Hannover',
 			'postcode': '06672',
-			'street': u'Rommelsberger Strasse',
+			'street': 'Rommelsberger Strasse',
 			'number': '11'
 			},
 			{
@@ -1158,7 +1158,7 @@ if __name__ == "__main__":
 			'region_code': 'SN',
 			'urb': 'Hannover',
 			'postcode': '06671',
-			'street': u'Tonnenstraße',
+			'street': 'Tonnenstraße',
 			'number': '65',
 			'subunit': 'Parterre'
 			},
@@ -1167,7 +1167,7 @@ if __name__ == "__main__":
 			'region_code': 'SN',
 			'urb': 'Hannover',
 			'postcode': '06671',
-			'street': u'Tonnenstraße',
+			'street': 'Tonnenstraße',
 			'number': '65',
 			'subunit': '1. Stock'
 			},
@@ -1176,7 +1176,7 @@ if __name__ == "__main__":
 			'region_code': 'SN',
 			'urb': 'Hannover',
 			'postcode': '06671',
-			'street': u'Tonnenstraße',
+			'street': 'Tonnenstraße',
 			'number': '65',
 			'subunit': '1. Stock'
 			},
@@ -1185,7 +1185,7 @@ if __name__ == "__main__":
 #			'region_code': 'HV',
 			'urb': 'Hannover',
 			'postcode': '06671',
-			'street': u'Tonnenstraße',
+			'street': 'Tonnenstraße',
 			'number': '65',
 			'subunit': '1. Stock'
 			},
@@ -1202,12 +1202,12 @@ if __name__ == "__main__":
 	#--------------------------------------------------------
 	def test_create_address():
 		address = create_address (
-			country_code = u'DE',
-			region_code = u'SN',
+			country_code = 'DE',
+			region_code = 'SN',
 			urb ='Hannover',
 			suburb ='Grabenthal',
 			postcode ='06672',
-			street = u'Rommelsberger Strasse',
+			street = 'Rommelsberger Strasse',
 			number = '11'
 #			,notes_subunit = '2.Stock oben'
 		)
@@ -1217,12 +1217,12 @@ if __name__ == "__main__":
 		su = str(random.random())
 
 		address = create_address (
-			country_code = u'DE',
-			region_code = u'SN',
+			country_code = 'DE',
+			region_code = 'SN',
 			urb ='Hannover',
 			suburb ='Grabenthal',
 			postcode ='06672',
-			street = u'Rommelsberger Strasse',
+			street = 'Rommelsberger Strasse',
 			number = '11',
 #			notes_subunit = '2.Stock oben',
 			subunit = su
@@ -1238,7 +1238,7 @@ if __name__ == "__main__":
 			print(c)
 	#--------------------------------------------------------
 	def test_get_country_for_region():
-		region = raw_input("Please enter a region: ")
+		region = input("Please enter a region: ")
 		print("country for region [%s] is: %s" % (region, get_country_for_region(region = region)))
 	#--------------------------------------------------------
 	def test_delete_tag():
@@ -1257,7 +1257,7 @@ if __name__ == "__main__":
 		#print get_tag_images()
 	#--------------------------------------------------------
 	def test_get_billing_address():
-		print(get_patient_address_by_type(pk_patient = 12, adr_type = u'billing'))
+		print(get_patient_address_by_type(pk_patient = 12, adr_type = 'billing'))
 	#--------------------------------------------------------
 	def test_map_urb_zip_region2country():
 		print(map_urb_zip_region2country(urb = 'Kassel', zip = '34119', region = 'Hessen'))
@@ -1266,10 +1266,10 @@ if __name__ == "__main__":
 		print(map_urb_zip_region2country(urb = 'Kassel', zip = '34119', region = None))
 	#--------------------------------------------------------
 	def test_map_urb_zip_country2region():
-		print(map_urb_zip_country2region(urb = 'Kassel', zip = '34119', country = u'Germany', country_code = 'DE'))
-		print(map_urb_zip_country2region(urb = 'Kassel', zip = '34119', country = u'Germany', country_code = None))
-		print(map_urb_zip_country2region(urb = 'Kassel', zip = '34119', country = u'Deutschland', country_code = 'DE'))
-		print(map_urb_zip_country2region(urb = 'Kassel', zip = '34119', country = u'Deutschland', country_code = None))
+		print(map_urb_zip_country2region(urb = 'Kassel', zip = '34119', country = 'Germany', country_code = 'DE'))
+		print(map_urb_zip_country2region(urb = 'Kassel', zip = '34119', country = 'Germany', country_code = None))
+		print(map_urb_zip_country2region(urb = 'Kassel', zip = '34119', country = 'Deutschland', country_code = 'DE'))
+		print(map_urb_zip_country2region(urb = 'Kassel', zip = '34119', country = 'Deutschland', country_code = None))
 		print(map_urb_zip_country2region(urb = 'Kassel', zip = '34119', country = None, country_code = 'DE'))
 		print(map_urb_zip_country2region(urb = 'Kassel', zip = '34119', country = None, country_code = None))
 

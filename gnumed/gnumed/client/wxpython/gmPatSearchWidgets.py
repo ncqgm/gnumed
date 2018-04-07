@@ -93,7 +93,7 @@ class cMergePatientsDlg(wxgMergePatientsDlg.wxgMergePatientsDlg):
 			patient2keep = self._TCTRL_patient2.person
 			patient2merge = self._TCTRL_patient1.person
 
-		if patient2merge['lastnames'] == u'Kirk':
+		if patient2merge['lastnames'] == 'Kirk':
 			if _cfg.get(option = 'debug'):
 				gmNetworkTools.open_url_in_browser(url = 'http://en.wikipedia.org/wiki/File:Picard_as_Locutus.jpg')
 				gmGuiHelpers.gm_show_info(_('\n\nYou will be assimilated.\n\n'), _('The Borg'))
@@ -194,7 +194,7 @@ class cSelectPersonFromListDlg(wxgSelectPersonFromListDlg.wxgSelectPersonFromLis
 			_('Lastname'),
 			_('Firstname'),
 			_('DOB'),
-			u'%s%s' % (gmTools.u_female, gmTools.u_male),
+			'%s%s' % (gmTools.u_female, gmTools.u_male),
 			_('last visit'),
 			_('Nickname / Comment'),
 			_('found via')
@@ -215,16 +215,16 @@ class cSelectPersonFromListDlg(wxgSelectPersonFromListDlg.wxgSelectPersonFromLis
 			return False
 
 		for person in persons:
-			row_num = self._LCTRL_persons.InsertItem(pos, label = gmTools.coalesce(person['title'], person['lastnames'], u'%s, %%s' % person['lastnames']))
+			row_num = self._LCTRL_persons.InsertItem(pos, label = gmTools.coalesce(person['title'], person['lastnames'], '%s, %%s' % person['lastnames']))
 			self._LCTRL_persons.SetItem(index = row_num, column = 1, label = person['firstnames'])
 			self._LCTRL_persons.SetItem(index = row_num, column = 2, label = person.get_formatted_dob(format = '%Y %b %d', encoding = 'utf8'))
-			self._LCTRL_persons.SetItem(index = row_num, column = 3, label = gmTools.coalesce(person['l10n_gender'], u'?'))
+			self._LCTRL_persons.SetItem(index = row_num, column = 3, label = gmTools.coalesce(person['l10n_gender'], '?'))
 
-			label = u''
+			label = ''
 			if person.is_patient:
 				enc = person.get_last_encounter()
 				if enc is not None:
-					label = u'%s (%s)' % (gmDateTime.pydt_strftime(enc['started'], '%Y %b %d'), enc['l10n_type'])
+					label = '%s (%s)' % (gmDateTime.pydt_strftime(enc['started'], '%Y %b %d'), enc['l10n_type'])
 			self._LCTRL_persons.SetItem(index = row_num, column = 4, label = label)
 
 			parts = []
@@ -232,13 +232,13 @@ class cSelectPersonFromListDlg(wxgSelectPersonFromListDlg.wxgSelectPersonFromLis
 				parts.append(person['preferred'])
 			if person['comment'] is not None:
 				parts.append(person['comment'])
-			self._LCTRL_persons.SetItem(index = row_num, column = 5, label = u' / '.join(parts))
+			self._LCTRL_persons.SetItem(index = row_num, column = 5, label = ' / '.join(parts))
 
 			try:
 				self._LCTRL_persons.SetItem(index = row_num, column = 6, label = person['match_type'])
 			except KeyError:
 				_log.warning('cannot set match_type field')
-				self._LCTRL_persons.SetItem(index = row_num, column = 6, label = u'??')
+				self._LCTRL_persons.SetItem(index = row_num, column = 6, label = '??')
 
 		for col in range(len(self.__cols)):
 			self._LCTRL_persons.SetColumnWidth(column = col, width = wx.LIST_AUTOSIZE)
@@ -312,7 +312,7 @@ class cSelectPersonDTOFromListDlg(wxgSelectPersonDTOFromListDlg.wxgSelectPersonD
 			self._LCTRL_persons.SetItem(index = row_num, column = 1, label = dto.lastnames)
 			self._LCTRL_persons.SetItem(index = row_num, column = 2, label = dto.firstnames)
 			if dto.dob is None:
-				self._LCTRL_persons.SetItem(index = row_num, column = 3, label = u'')
+				self._LCTRL_persons.SetItem(index = row_num, column = 3, label = '')
 			else:
 				if dto.dob_is_estimated:
 					self._LCTRL_persons.SetItem(index = row_num, column = 3, label = gmTools.u_almost_equal_to + gmDateTime.pydt_strftime(dto.dob, '%Y %b %d'))
@@ -348,7 +348,7 @@ class cSelectPersonDTOFromListDlg(wxgSelectPersonDTOFromListDlg.wxgSelectPersonD
 #============================================================
 def load_persons_from_ca_msva():
 
-	group = u'CA Medical Manager MSVA'
+	group = 'CA Medical Manager MSVA'
 
 	src_order = [
 		('explicit', 'append'),
@@ -568,7 +568,7 @@ def load_persons_from_kvks():
 		option = 'DE.KVK.spool_dir',
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 		bias = 'workplace',
-		default = u'/var/spool/kvkd/'
+		default = '/var/spool/kvkd/'
 		#default = u'/home/ncq/gnumed/'
 	)))
 	dtos = []
@@ -582,11 +582,11 @@ def load_persons_from_kvks():
 #============================================================
 def load_person_from_vcard_file():
 
-	wildcards = u'|'.join ([
-		u'%s (*.vcf)|*.vcf' % _('vcf files'),
-		u'%s (*.VCF)|*.VCF' % _('VCF files'),
-		u'%s (*)|*' % _('all files'),
-		u'%s (*.*)|*.*' % _('all files (Windows)')
+	wildcards = '|'.join ([
+		'%s (*.vcf)|*.vcf' % _('vcf files'),
+		'%s (*.VCF)|*.VCF' % _('VCF files'),
+		'%s (*)|*' % _('all files'),
+		'%s (*.*)|*.*' % _('all files (Windows)')
 	])
 
 	dlg = wx.FileDialog (
@@ -904,7 +904,7 @@ class cPersonSearchCtrl(wx.TextCtrl):
 	# utility methods
 	#--------------------------------------------------------
 	def _display_name(self):
-		name = u''
+		name = ''
 
 		if self.person is not None:
 			name = self.person['description']
@@ -1151,20 +1151,20 @@ def _verify_staff_chart_access(patient=None):
 		) % (
 			patient.get_description_gender(),
 			patient.get_formatted_dob(),
-			gmTools.coalesce(patient['title'], u'', u'%s '),
+			gmTools.coalesce(patient['title'], '', '%s '),
 			patient['lastnames']
 		)
 	)
 
 	if proceed:
-		prov = u'%s (%s%s %s)' % (
+		prov = '%s (%s%s %s)' % (
 			curr_prov['short_alias'],
-			gmTools.coalesce(curr_prov['title'], u'', u'%s '),
+			gmTools.coalesce(curr_prov['title'], '', '%s '),
 			curr_prov['firstnames'],
 			curr_prov['lastnames']
 		)
-		pat = u'%s%s %s' % (
-			gmTools.coalesce(patient['title'], u'', u'%s '),
+		pat = '%s%s %s' % (
+			gmTools.coalesce(patient['title'], '', '%s '),
 			patient['firstnames'],
 			patient['lastnames']
 		)
@@ -1172,7 +1172,7 @@ def _verify_staff_chart_access(patient=None):
 		gmProviderInbox.create_inbox_message (
 			staff = patient.staff_id,
 			message_type = _('Privacy notice'),
-			message_category = u'administrative',
+			message_category = 'administrative',
 			subject = _('%s: Your chart has been accessed by %s.') % (pat, prov),
 			patient = patient.ID
 		)
@@ -1180,7 +1180,7 @@ def _verify_staff_chart_access(patient=None):
 		gmProviderInbox.create_inbox_message (
 			staff = curr_prov['pk_staff'],
 			message_type = _('Privacy notice'),
-			message_category = u'administrative',
+			message_category = 'administrative',
 			subject = _('%s: Staff member %s has been notified of your chart access.') % (prov, pat)
 		)
 
@@ -1215,10 +1215,10 @@ def _check_birthday(patient=None):
 
 	dbcfg = gmCfg.cCfgSQL()
 	dob_distance = dbcfg.get2 (
-		option = u'patient_search.dob_warn_interval',
+		option = 'patient_search.dob_warn_interval',
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
-		bias = u'user',
-		default = u'1 week'
+		bias = 'user',
+		default = '1 week'
 	)
 
 	if not patient.dob_in_range(dob_distance, dob_distance):
@@ -1335,13 +1335,13 @@ class cActivePatientSelector(cPersonSearchCtrl):
 			return
 
 		if (self.person['emergency_contact'] is None) and (self.person['comment'] is None):
-			separator = u''
+			separator = ''
 		else:
-			separator = u'%s\n' % (gmTools.u_box_horiz_single * 40)
+			separator = '%s\n' % (gmTools.u_box_horiz_single * 40)
 
-		tt = u'%s%s%s%s' % (
-			gmTools.coalesce(self.person['emergency_contact'], u'', u'%s\n %%s\n' % _('In case of emergency contact:')),
-			gmTools.coalesce(self.person['comment'], u'', u'\n%s\n'),
+		tt = '%s%s%s%s' % (
+			gmTools.coalesce(self.person['emergency_contact'], '', '%s\n %%s\n' % _('In case of emergency contact:')),
+			gmTools.coalesce(self.person['comment'], '', '\n%s\n'),
 			separator,
 			self._tt_search_hints
 		)
@@ -1360,9 +1360,9 @@ class cActivePatientSelector(cPersonSearchCtrl):
 	#--------------------------------------------------------
 	def __register_events(self):
 		# client internal signals
-		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._on_post_patient_selection)
-		gmDispatcher.connect(signal = u'dem.names_mod_db', receiver = self._on_name_identity_change)
-		gmDispatcher.connect(signal = u'dem.identity_mod_db', receiver = self._on_name_identity_change)
+		gmDispatcher.connect(signal = 'post_patient_selection', receiver = self._on_post_patient_selection)
+		gmDispatcher.connect(signal = 'dem.names_mod_db', receiver = self._on_name_identity_change)
+		gmDispatcher.connect(signal = 'dem.identity_mod_db', receiver = self._on_name_identity_change)
 
 		gmDispatcher.connect(signal = 'patient_locked', receiver = self._on_post_patient_selection)
 		gmDispatcher.connect(signal = 'patient_unlocked', receiver = self._on_post_patient_selection)

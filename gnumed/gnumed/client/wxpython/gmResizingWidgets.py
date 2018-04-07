@@ -497,15 +497,15 @@ class cResizingSTC(wx.stc.StyledTextCtrl):
 	#------------------------------------------------
 	def replace_keyword_with_expansion(self, keyword=None, position=None):
 
-		if keyword == u'$$steffi':			# Easter Egg ;-)
-			expansion = u'Hai, play! Versucht das!  (Keks dazu?)  :-)'
+		if keyword == '$$steffi':			# Easter Egg ;-)
+			expansion = 'Hai, play! Versucht das!  (Keks dazu?)  :-)'
 		else:
 			expansion = gmKeywordExpansion.expand_keyword(keyword = keyword)
 
 		if expansion is None:
 			return
 
-		if expansion == u'':
+		if expansion == '':
 			return
 
 		self.replace_text (
@@ -672,7 +672,7 @@ class cResizingSTC(wx.stc.StyledTextCtrl):
 	#------------------------------------------------
 	def __on_char(self, evt):
 
-		char = unichr(evt.GetUnicodeKey())
+		char = chr(evt.GetUnicodeKey())
 
 		if self.__keyword_separators.match(char) is not None:
 			if self.GetLength() == 1:
@@ -681,7 +681,7 @@ class cResizingSTC(wx.stc.StyledTextCtrl):
 
 			line, caret_pos = self.GetCurLine()
 			word = self.__keyword_separators.split(line[:caret_pos])[-1]
-			if (word not in [ r[0] for r in gmKeywordExpansion.get_textual_expansion_keywords() ]) and (word != u'$$steffi'):		# Easter Egg ;-)
+			if (word not in [ r[0] for r in gmKeywordExpansion.get_textual_expansion_keywords() ]) and (word != '$$steffi'):		# Easter Egg ;-)
 				evt.Skip()
 				return
 

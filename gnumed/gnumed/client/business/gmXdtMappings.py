@@ -159,11 +159,11 @@ xdt_id_map = {
 	'3210': 'Geschlecht des Hauptversicherten',	# nur bei header 0191
 
 	# scheinbar alter BDT ? (Quelle: mediSYS GmbH)
-	'3301': u'Name des Patienten',
-	'3302': u'Vorname des Patienten',
-	'3303': u'Geburtsdatum des Patienten (TTMMJJ)',
-	'3306': u'PLZ/Wohnort des Patienten',
-	'3307': u'Straße/Hausnummer des Patienten',
+	'3301': 'Name des Patienten',
+	'3302': 'Vorname des Patienten',
+	'3303': 'Geburtsdatum des Patienten (TTMMJJ)',
+	'3306': 'PLZ/Wohnort des Patienten',
+	'3307': 'Straße/Hausnummer des Patienten',
 	'3308': '?? Status Patient',
 
 	'3600': 'Patientennummer (alter BDT ?, beobachtet bei Medistar)',
@@ -173,7 +173,7 @@ xdt_id_map = {
 	'3610': 'Datum Patient seit',							# nur bei header 6100
 	'3612': 'Datum Versichertenbeginn bei Kassenwechsel',	# nur bei header 6100
 	'3620': 'Beruf des Patienten',							# nur bei header 6100
-	'3621': u'Geschlecht des Patienten (Hilfsfeld, gestrichen)',
+	'3621': 'Geschlecht des Patienten (Hilfsfeld, gestrichen)',
 	'3622': 'Grösse des Patienten',							# nur bei header 6100
 	'3623': 'Gewicht des Patienten',						# nur bei header 6100
 	'3625': 'Arbeitgeber des Patienten',					# nur bei header 6100
@@ -558,9 +558,9 @@ xdt_packet_type_map = {
 	'6310': "========<< GDT: Untersuchung übermitteln >>========",
 	'6311': "========<< GDT: Untersuchung anzeigen >>========",
 
-	'8202': u'========<< LDT: LG-Bericht >>========',
-	'8220': u'========<< LDT: L-Datenpaket-Header >>========',
-	'8221': u'========<< LDT: L-Datenpaket-Abschluß >>========',
+	'8202': '========<< LDT: LG-Bericht >>========',
+	'8220': '========<< LDT: L-Datenpaket-Header >>========',
+	'8221': '========<< LDT: L-Datenpaket-Abschluß >>========',
 
 	'adt0': "========<< ADT-Datenpaket-Header >>========",
 	'adt9': "========<< ADT-Datenpaket-Abschluss >>========",

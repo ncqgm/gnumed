@@ -179,17 +179,17 @@ def jump_to_ifap_deprecated(import_drugs=False, emr=None):
 			import csv
 			csv_lines = csv.DictReader (
 				csv_file,
-				fieldnames = u'PZN Handelsname Form Abpackungsmenge Einheit Preis1 Hersteller Preis2 rezeptpflichtig Festbetrag Packungszahl Packungsgr\xf6\xdfe'.split(),
+				fieldnames = 'PZN Handelsname Form Abpackungsmenge Einheit Preis1 Hersteller Preis2 rezeptpflichtig Festbetrag Packungszahl Packungsgr\xf6\xdfe'.split(),
 				delimiter = ';'
 			)
 			# dummy episode for now
 			epi = emr.add_episode(episode_name = _('Current medication'))
 			for line in csv_lines:
-				narr = u'%sx %s %s %s (\u2258 %s %s) von %s (%s)' % (
+				narr = '%sx %s %s %s (\u2258 %s %s) von %s (%s)' % (
 					line['Packungszahl'].strip(),
 					line['Handelsname'].strip(),
 					line['Form'].strip(),
-					line[u'Packungsgr\xf6\xdfe'].strip(),
+					line['Packungsgr\xf6\xdfe'].strip(),
 					line['Abpackungsmenge'].strip(),
 					line['Einheit'].strip(),
 					line['Hersteller'].strip(),
@@ -257,8 +257,8 @@ def manage_substances(parent=None):
 		substs = gmMedication.get_substances(order_by = 'substance')
 		items = [ [
 			s['substance'],
-			gmTools.coalesce(s['atc'], u''),
-			gmTools.coalesce(s['intake_instructions'], u''),
+			gmTools.coalesce(s['atc'], ''),
+			gmTools.coalesce(s['intake_instructions'], ''),
 			s['pk_substance']
 		] for s in substs ]
 		lctrl.set_string_items(items)
@@ -268,7 +268,7 @@ def manage_substances(parent=None):
 	gmListWidgets.get_choices_from_list (
 		parent = parent,
 		caption = _('Substances registered with GNUmed.'),
-		columns = [_('Substance'), 'ATC', _('Instructions'), u'#'],
+		columns = [_('Substance'), 'ATC', _('Instructions'), '#'],
 		single_selection = True,
 		new_callback = edit,
 		edit_callback = edit,
@@ -305,7 +305,7 @@ class cSubstanceEAPnl(wxgSubstanceEAPnl.wxgSubstanceEAPnl, gmEditArea.cGenericEd
 
 	#----------------------------------------------------------------
 	def __init_ui(self):
-		self._LCTRL_loincs.set_columns([_(u'LOINC'), _(u'Interval'), _(u'Comment')])
+		self._LCTRL_loincs.set_columns([_('LOINC'), _('Interval'), _('Comment')])
 
 	#----------------------------------------------------------------
 	# generic Edit Area mixin API
@@ -314,7 +314,7 @@ class cSubstanceEAPnl(wxgSubstanceEAPnl.wxgSubstanceEAPnl, gmEditArea.cGenericEd
 
 		validity = True
 
-		if self._TCTRL_substance.GetValue().strip() == u'':
+		if self._TCTRL_substance.GetValue().strip() == '':
 			validity = False
 			self.display_tctrl_as_valid(tctrl = self._TCTRL_substance, valid = False)
 			self._TCTRL_substance.SetFocus()
@@ -338,7 +338,7 @@ class cSubstanceEAPnl(wxgSubstanceEAPnl.wxgSubstanceEAPnl, gmEditArea.cGenericEd
 			err, msg = data
 			_log.error(err)
 			_log.error(msg)
-			self.status_message = _(u'Error saving substance. %s') % msg
+			self.status_message = _('Error saving substance. %s') % msg
 			return False
 
 		loincs = self._LCTRL_loincs.item_data
@@ -358,7 +358,7 @@ class cSubstanceEAPnl(wxgSubstanceEAPnl.wxgSubstanceEAPnl, gmEditArea.cGenericEd
 			err, msg = data
 			_log.error(err)
 			_log.error(msg)
-			self.status_message = _(u'Error saving substance. %s') % msg
+			self.status_message = _('Error saving substance. %s') % msg
 			return False
 
 		loincs = self._LCTRL_loincs.item_data
@@ -369,10 +369,10 @@ class cSubstanceEAPnl(wxgSubstanceEAPnl.wxgSubstanceEAPnl, gmEditArea.cGenericEd
 
 	#----------------------------------------------------------------
 	def _refresh_as_new(self):
-		self._TCTRL_substance.SetValue(u'')
-		self._PRW_atc.SetText(u'', None)
-		self._TCTRL_instructions.SetValue(u'')
-		self._PRW_loinc.SetText(u'', None)
+		self._TCTRL_substance.SetValue('')
+		self._PRW_atc.SetText('', None)
+		self._TCTRL_instructions.SetValue('')
+		self._PRW_loinc.SetText('', None)
 		self._LCTRL_loincs.set_string_items()
 
 		self._TCTRL_substance.SetFocus()
@@ -380,13 +380,13 @@ class cSubstanceEAPnl(wxgSubstanceEAPnl.wxgSubstanceEAPnl, gmEditArea.cGenericEd
 	#----------------------------------------------------------------
 	def _refresh_from_existing(self):
 		self._TCTRL_substance.SetValue(self.data['substance'])
-		self._PRW_atc.SetText(gmTools.coalesce(self.data['atc'], u''), self.data['atc'])
-		self._TCTRL_instructions.SetValue(gmTools.coalesce(self.data['intake_instructions'], u''))
-		self._PRW_loinc.SetText(u'', None)
+		self._PRW_atc.SetText(gmTools.coalesce(self.data['atc'], ''), self.data['atc'])
+		self._TCTRL_instructions.SetValue(gmTools.coalesce(self.data['intake_instructions'], ''))
+		self._PRW_loinc.SetText('', None)
 		if len(self.data['loincs']) == 0:
 			self._LCTRL_loincs.set_string_items()
 		else:
-			self._LCTRL_loincs.set_string_items([ [l['loinc'], gmTools.coalesce(l['max_age_str'], u''), gmTools.coalesce(l['comment'], u'')] for l in self.data['loincs' ]])
+			self._LCTRL_loincs.set_string_items([ [l['loinc'], gmTools.coalesce(l['max_age_str'], ''), gmTools.coalesce(l['comment'], '')] for l in self.data['loincs' ]])
 			self._LCTRL_loincs.set_data([ l['loinc'] for l in self.data['loincs'] ])
 
 		self._TCTRL_substance.SetFocus()
@@ -400,15 +400,15 @@ class cSubstanceEAPnl(wxgSubstanceEAPnl.wxgSubstanceEAPnl, gmEditArea.cGenericEd
 	#----------------------------------------------------------------
 	def _on_add_loinc_button_pressed(self, event):
 		event.Skip()
-		if (self._PRW_loinc.GetData() is None) and (self._PRW_loinc.GetValue().strip() == u''):
+		if (self._PRW_loinc.GetData() is None) and (self._PRW_loinc.GetValue().strip() == ''):
 			return
 
 		if self._PRW_loinc.GetData() is None:
-			data = self._PRW_loinc.GetValue().strip().split(u':')[0]
-			item = [data, u'', u'']
+			data = self._PRW_loinc.GetValue().strip().split(':')[0]
+			item = [data, '', '']
 		else:
 			data = self._PRW_loinc.GetData()
-			item = [data, u'', u'']
+			item = [data, '', '']
 		self._LCTRL_loincs.append_string_items_and_data([item], new_data = [data], allow_dupes = False)
 
 	#----------------------------------------------------------------
@@ -421,7 +421,7 @@ class cSubstancePhraseWheel(gmPhraseWheel.cPhraseWheel):
 	def __init__(self, *args, **kwargs):
 
 		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
-		query = u"""
+		query = """
 			SELECT DISTINCT ON (list_label)
 				list_label,
 				field_label,
@@ -510,15 +510,15 @@ def manage_substance_doses(parent=None, vaccine_indications_only=False):
 	#------------------------------------------------------------
 	def refresh(lctrl):
 		if vaccine_indications_only:
-			substs = [ s for s in gmMedication.get_substance_doses(order_by = 'substance') if gmTools.coalesce(s['atc_substance'], u'').startswith(u'J07') ]
+			substs = [ s for s in gmMedication.get_substance_doses(order_by = 'substance') if gmTools.coalesce(s['atc_substance'], '').startswith('J07') ]
 		else:
 			substs = gmMedication.get_substance_doses(order_by = 'substance')
 		items = [ [
 			s['substance'],
 			s['amount'],
 			s.formatted_units,
-			gmTools.coalesce(s['atc_substance'], u''),
-			gmTools.coalesce(s['intake_instructions'], u''),
+			gmTools.coalesce(s['atc_substance'], ''),
+			gmTools.coalesce(s['intake_instructions'], ''),
 			s['pk_dose']
 		] for s in substs ]
 		lctrl.set_string_items(items)
@@ -534,7 +534,7 @@ def manage_substance_doses(parent=None, vaccine_indications_only=False):
 	return gmListWidgets.get_choices_from_list (
 		parent = parent,
 		caption = _('Substance doses registered with GNUmed.'),
-		columns = [_('Substance'), _(u'Amount'), _(u'Unit'), 'ATC', _('Instructions'), u'#'],
+		columns = [_('Substance'), _('Amount'), _('Unit'), 'ATC', _('Instructions'), '#'],
 		single_selection = False,
 		can_return_empty = False,
 		new_callback = edit,
@@ -583,18 +583,18 @@ class cSubstanceDoseEAPnl(wxgSubstanceDoseEAPnl.wxgSubstanceDoseEAPnl, gmEditAre
 	#----------------------------------------------------------------
 	def __refresh_info(self, change='dummy'):
 		subst = self._PRW_substance.GetValue().strip()
-		if subst == u'':
-			subst = u'?'
+		if subst == '':
+			subst = '?'
 		amount = self._TCTRL_amount.GetValue().strip()
-		if amount == u'':
-			amount = u'?'
+		if amount == '':
+			amount = '?'
 		unit = self._PRW_unit.GetValue().strip()
-		if unit == u'':
-			unit = u'?'
+		if unit == '':
+			unit = '?'
 		dose_unit = self._PRW_dose_unit.GetValue().strip()
-		if dose_unit == u'':
-			dose_unit = _(u'<delivery unit>')
-		self._LBL_info.SetLabel(u'%s %s %s / %s' % (subst, amount, unit, dose_unit))
+		if dose_unit == '':
+			dose_unit = _('<delivery unit>')
+		self._LBL_info.SetLabel('%s %s %s / %s' % (subst, amount, unit, dose_unit))
 		self.Refresh()
 
 	#----------------------------------------------------------------
@@ -604,7 +604,7 @@ class cSubstanceDoseEAPnl(wxgSubstanceDoseEAPnl.wxgSubstanceDoseEAPnl, gmEditAre
 
 		validity = True
 
-		if self._PRW_substance.GetValue().strip() == u'':
+		if self._PRW_substance.GetValue().strip() == '':
 			validity = False
 			self._PRW_substance.display_as_valid(valid = False)
 			self._PRW_substance.SetFocus()
@@ -619,7 +619,7 @@ class cSubstanceDoseEAPnl(wxgSubstanceDoseEAPnl.wxgSubstanceDoseEAPnl, gmEditAre
 			self.display_tctrl_as_valid(tctrl = self._TCTRL_amount, valid = False)
 			self._TCTRL_amount.SetFocus()
 
-		if self._PRW_unit.GetValue().strip() == u'':
+		if self._PRW_unit.GetValue().strip() == '':
 			validity = False
 			self._PRW_unit.display_as_valid(valid = False)
 			self._PRW_unit.SetFocus()
@@ -670,11 +670,11 @@ class cSubstanceDoseEAPnl(wxgSubstanceDoseEAPnl.wxgSubstanceDoseEAPnl, gmEditAre
 
 	#----------------------------------------------------------------
 	def _refresh_as_new(self):
-		self._PRW_substance.SetText(u'', None)
-		self._TCTRL_amount.SetValue(u'')
-		self._PRW_unit.SetText(u'', None)
-		self._PRW_dose_unit.SetText(u'', None)
-		self._LBL_info.SetLabel(u'')
+		self._PRW_substance.SetText('', None)
+		self._TCTRL_amount.SetValue('')
+		self._PRW_unit.SetText('', None)
+		self._PRW_dose_unit.SetText('', None)
+		self._LBL_info.SetLabel('')
 
 		self._PRW_substance.SetFocus()
 
@@ -682,9 +682,9 @@ class cSubstanceDoseEAPnl(wxgSubstanceDoseEAPnl.wxgSubstanceDoseEAPnl, gmEditAre
 	def _refresh_from_existing(self):
 		self._PRW_substance.SetText(self.data['substance'], self.data['pk_substance'])
 		self._PRW_substance.Disable()
-		self._TCTRL_amount.SetValue(u'%s' % self.data['amount'])
+		self._TCTRL_amount.SetValue('%s' % self.data['amount'])
 		self._PRW_unit.SetText(self.data['unit'], self.data['unit'])
-		self._PRW_dose_unit.SetText(gmTools.coalesce(self.data['dose_unit'], u''), self.data['dose_unit'])
+		self._PRW_dose_unit.SetText(gmTools.coalesce(self.data['dose_unit'], ''), self.data['dose_unit'])
 
 		self._PRW_substance.SetFocus()
 
@@ -716,11 +716,11 @@ def manage_drug_components(parent=None):
 	def refresh(lctrl):
 		comps = gmMedication.get_drug_components()
 		items = [ [
-			u'%s%s' % (c['substance'], gmTools.coalesce(c['atc_substance'], u'', u' [%s]')),
-			u'%s %s' % (c['amount'], c.formatted_units),
-			u'%s%s' % (c['product'], gmTools.coalesce(c['atc_drug'], u'', u' [%s]')),
+			'%s%s' % (c['substance'], gmTools.coalesce(c['atc_substance'], '', ' [%s]')),
+			'%s %s' % (c['amount'], c.formatted_units),
+			'%s%s' % (c['product'], gmTools.coalesce(c['atc_drug'], '', ' [%s]')),
 			c['l10n_preparation'],
-			gmTools.coalesce(c['external_code'], u'', u'%%s [%s]' % c['external_code_type']),
+			gmTools.coalesce(c['external_code'], '', '%%s [%s]' % c['external_code_type']),
 			c['pk_component']
 		] for c in comps ]
 		lctrl.set_string_items(items)
@@ -736,7 +736,7 @@ def manage_drug_components(parent=None):
 	gmListWidgets.get_choices_from_list (
 		parent = parent,
 		caption = _('Drug components currently known to GNUmed'),
-		columns = [_('Component'), _('Strength'), _('Product name'), _('Preparation'), _('Code'), u'#'],
+		columns = [_('Component'), _('Strength'), _('Product name'), _('Preparation'), _('Code'), '#'],
 		single_selection = True,
 		#new_callback = edit,
 		edit_callback = edit,
@@ -802,7 +802,7 @@ class cDrugComponentEAPnl(wxgDrugComponentEAPnl.wxgDrugComponentEAPnl, gmEditAre
 		else:
 			self._PRW_substance.display_as_valid(True)
 
-		val = self._TCTRL_amount.GetValue().strip().replace(',', u'.', 1)
+		val = self._TCTRL_amount.GetValue().strip().replace(',', '.', 1)
 		try:
 			decimal.Decimal(val)
 			self.display_tctrl_as_valid(tctrl = self._TCTRL_amount, valid = True)
@@ -810,7 +810,7 @@ class cDrugComponentEAPnl(wxgDrugComponentEAPnl.wxgDrugComponentEAPnl, gmEditAre
 			validity = False
 			self.display_tctrl_as_valid(tctrl = self._TCTRL_amount, valid = False)
 
-		if self._PRW_unit.GetValue().strip() == u'':
+		if self._PRW_unit.GetValue().strip() == '':
 			validity = False
 			self._PRW_unit.display_as_valid(False)
 		else:
@@ -837,34 +837,34 @@ class cDrugComponentEAPnl(wxgDrugComponentEAPnl.wxgDrugComponentEAPnl, gmEditAre
 	#----------------------------------------------------------------
 	def _save_as_update(self):
 		self.data['pk_dose'] = self._PRW_substance.GetData()
-		self.data['amount'] = decimal.Decimal(self._TCTRL_amount.GetValue().strip().replace(',', u'.', 1))
+		self.data['amount'] = decimal.Decimal(self._TCTRL_amount.GetValue().strip().replace(',', '.', 1))
 		self.data['unit'] = self._PRW_unit.GetValue().strip()
 		return self.data.save()
 
 	#----------------------------------------------------------------
 	def _refresh_as_new(self):
-		self._TCTRL_product_name.SetValue(u'')
-		self._TCTRL_components.SetValue(u'')
-		self._TCTRL_codes.SetValue(u'')
-		self._PRW_substance.SetText(u'', None)
-		self._TCTRL_amount.SetValue(u'')
-		self._PRW_unit.SetText(u'', None)
+		self._TCTRL_product_name.SetValue('')
+		self._TCTRL_components.SetValue('')
+		self._TCTRL_codes.SetValue('')
+		self._PRW_substance.SetText('', None)
+		self._TCTRL_amount.SetValue('')
+		self._PRW_unit.SetText('', None)
 
 		self._PRW_substance.SetFocus()
 
 	#----------------------------------------------------------------
 	def _refresh_from_existing(self):
-		self._TCTRL_product_name.SetValue(u'%s (%s)' % (self.data['product'], self.data['l10n_preparation']))
-		self._TCTRL_components.SetValue(u' / '.join(self.data.containing_drug['components']))
+		self._TCTRL_product_name.SetValue('%s (%s)' % (self.data['product'], self.data['l10n_preparation']))
+		self._TCTRL_components.SetValue(' / '.join(self.data.containing_drug['components']))
 		details = []
 		if self.data['atc_drug'] is not None:
-			details.append(u'ATC: %s' % self.data['atc_drug'])
+			details.append('ATC: %s' % self.data['atc_drug'])
 		if self.data['external_code_product'] is not None:
-			details.append(u'%s: %s' % (self.data['external_code_type_product'], self.data['external_code_product']))
-		self._TCTRL_codes.SetValue(u'; '.join(details))
+			details.append('%s: %s' % (self.data['external_code_type_product'], self.data['external_code_product']))
+		self._TCTRL_codes.SetValue('; '.join(details))
 
 		self._PRW_substance.SetText(self.data['substance'], self.data['pk_dose'])
-		self._TCTRL_amount.SetValue(u'%s' % self.data['amount'])
+		self._TCTRL_amount.SetValue('%s' % self.data['amount'])
 		self._PRW_unit.SetText(self.data['unit'], self.data['unit'])
 
 		self._PRW_substance.SetFocus()
@@ -874,9 +874,9 @@ class cDrugComponentEAPnl(wxgDrugComponentEAPnl.wxgDrugComponentEAPnl, gmEditAre
 		#self._PRW_drug_product.SetText(u'', None)
 		#self._TCTRL_prep.SetValue(u'')
 		#self._TCTRL_product_name_details.SetValue(u'')
-		self._PRW_substance.SetText(u'', None)
-		self._TCTRL_amount.SetValue(u'')
-		self._PRW_unit.SetText(u'', None)
+		self._PRW_substance.SetText('', None)
+		self._TCTRL_amount.SetValue('')
+		self._PRW_unit.SetText('', None)
 
 		self._PRW_substance.SetFocus()
 
@@ -1000,18 +1000,18 @@ def manage_drug_products(parent=None, ignore_OK_button=False):
 	def refresh(lctrl):
 		drugs = gmMedication.get_drug_products()
 		items = [ [
-			u'%s%s' % (
+			'%s%s' % (
 				d['product'],
-				gmTools.bool2subst(d['is_fake_product'], ' (%s)' % _('fake'), u'')
+				gmTools.bool2subst(d['is_fake_product'], ' (%s)' % _('fake'), '')
 			),
 			d['l10n_preparation'],
-			gmTools.coalesce(d['atc'], u''),
-			u'; '.join([ u'%s %s%s' % (
+			gmTools.coalesce(d['atc'], ''),
+			'; '.join([ '%s %s%s' % (
 				c['substance'],
 				c['amount'],
 				gmMedication.format_units(c['unit'], c['dose_unit'])
 			) for c in d['components']]),
-			gmTools.coalesce(d['external_code'], u'', u'%%s [%s]' % d['external_code_type']),
+			gmTools.coalesce(d['external_code'], '', '%%s [%s]' % d['external_code_type']),
 			d['pk_drug_product']
 		] for d in drugs ]
 		lctrl.set_string_items(items)
@@ -1021,7 +1021,7 @@ def manage_drug_products(parent=None, ignore_OK_button=False):
 	gmListWidgets.get_choices_from_list (
 		parent = parent,
 		caption = _('Drug products currently known to GNUmed.'),
-		columns = [_('Name'), _('Preparation'), _('ATC'), _('Components'), _('Code'), u'#'],
+		columns = [_('Name'), _('Preparation'), _('ATC'), _('Components'), _('Code'), '#'],
 		single_selection = True,
 		ignore_OK_button = ignore_OK_button,
 		refresh_callback = refresh,
@@ -1065,7 +1065,7 @@ def manage_components_of_drug_product(parent=None, product=None):
 		right_col = _('Components of drug')
 		comp_doses = []
 	else:
-		right_col = u'%s (%s)' % (product['product'], product['l10n_preparation'])
+		right_col = '%s (%s)' % (product['product'], product['l10n_preparation'])
 		msg = _(
 			'Adjust the components of "%s"\n'
 			'\n'
@@ -1075,8 +1075,8 @@ def manage_components_of_drug_product(parent=None, product=None):
 		comp_doses = [ comp.substance_dose for comp in product.components ]
 
 	doses = gmMedication.get_substance_doses(order_by = 'substance')
-	choices = [ u'%s %s %s' % (d['substance'], d['amount'], d.formatted_units) for d in doses ]
-	picks = [ u'%s %s %s' % (d['substance'], d['amount'], d.formatted_units) for d in comp_doses ]
+	choices = [ '%s %s %s' % (d['substance'], d['amount'], d.formatted_units) for d in doses ]
+	picks = [ '%s %s %s' % (d['substance'], d['amount'], d.formatted_units) for d in comp_doses ]
 
 	picker = gmListWidgets.cItemPickerDlg (
 		parent,
@@ -1143,14 +1143,14 @@ class cDrugProductEAPnl(wxgDrugProductEAPnl.wxgDrugProductEAPnl, gmEditArea.cGen
 		validity = True
 
 		product_name = self._PRW_product_name.GetValue().strip()
-		if product_name == u'':
+		if product_name == '':
 			validity = False
 			self._PRW_product_name.display_as_valid(False)
 		else:
 			self._PRW_product_name.display_as_valid(True)
 
 		preparation = self._PRW_preparation.GetValue().strip()
-		if preparation == u'':
+		if preparation == '':
 			validity = False
 			self._PRW_preparation.display_as_valid(False)
 		else:
@@ -1214,7 +1214,7 @@ class cDrugProductEAPnl(wxgDrugProductEAPnl.wxgDrugProductEAPnl, gmEditArea.cGen
 		drug['is_fake_product'] = self._CHBOX_is_fake.GetValue()
 		drug['atc'] = self._PRW_atc.GetData()
 		code = self._TCTRL_external_code.GetValue().strip()
-		if code != u'':
+		if code != '':
 			drug['external_code'] = code
 			drug['external_code_type'] = self._PRW_external_code_type.GetData().strip()
 
@@ -1237,7 +1237,7 @@ class cDrugProductEAPnl(wxgDrugProductEAPnl.wxgDrugProductEAPnl, gmEditArea.cGen
 		self.data['is_fake_product'] = self._CHBOX_is_fake.GetValue()
 		self.data['atc'] = self._PRW_atc.GetData()
 		code = self._TCTRL_external_code.GetValue().strip()
-		if code != u'':
+		if code != '':
 			self.data['external_code'] = code
 			self.data['external_code_type'] = self._PRW_external_code_type.GetData().strip()
 		success, data = self.data.save()
@@ -1250,13 +1250,13 @@ class cDrugProductEAPnl(wxgDrugProductEAPnl.wxgDrugProductEAPnl, gmEditArea.cGen
 
 	#----------------------------------------------------------------
 	def _refresh_as_new(self):
-		self._PRW_product_name.SetText(u'', None)
-		self._PRW_preparation.SetText(u'', None)
+		self._PRW_product_name.SetText('', None)
+		self._PRW_preparation.SetText('', None)
 		self._CHBOX_is_fake.SetValue(False)
-		self._TCTRL_components.SetValue(u'')
-		self._PRW_atc.SetText(u'', None)
-		self._TCTRL_external_code.SetValue(u'')
-		self._PRW_external_code_type.SetText(u'', None)
+		self._TCTRL_components.SetValue('')
+		self._PRW_atc.SetText('', None)
+		self._TCTRL_external_code.SetValue('')
+		self._PRW_external_code_type.SetText('', None)
 
 		self._PRW_product_name.SetFocus()
 
@@ -1271,13 +1271,13 @@ class cDrugProductEAPnl(wxgDrugProductEAPnl.wxgDrugProductEAPnl, gmEditArea.cGen
 		self._PRW_product_name.SetText(self.data['product'], self.data['pk_drug_product'])
 		self._PRW_preparation.SetText(self.data['preparation'], self.data['preparation'])
 		self._CHBOX_is_fake.SetValue(self.data['is_fake_product'])
-		comp_str = u''
+		comp_str = ''
 		if len(self.data['components']) > 0:
-			comp_str = u'- %s' % u'\n- '.join([ u'%s %s%s' % (c['substance'], c['amount'], gmMedication.format_units(c['unit'], c['dose_unit'])) for c in self.data['components'] ])
+			comp_str = '- %s' % '\n- '.join([ '%s %s%s' % (c['substance'], c['amount'], gmMedication.format_units(c['unit'], c['dose_unit'])) for c in self.data['components'] ])
 		self._TCTRL_components.SetValue(comp_str)
-		self._PRW_atc.SetText(gmTools.coalesce(self.data['atc'], u''), self.data['atc'])
-		self._TCTRL_external_code.SetValue(gmTools.coalesce(self.data['external_code'], u''))
-		t = gmTools.coalesce(self.data['external_code_type'], u'')
+		self._PRW_atc.SetText(gmTools.coalesce(self.data['atc'], ''), self.data['atc'])
+		self._TCTRL_external_code.SetValue(gmTools.coalesce(self.data['external_code'], ''))
+		t = gmTools.coalesce(self.data['external_code_type'], '')
 		self._PRW_external_code_type.SetText(t, t)
 
 		self._PRW_product_name.SetFocus()
@@ -1296,9 +1296,9 @@ class cDrugProductEAPnl(wxgDrugProductEAPnl.wxgDrugProductEAPnl, gmEditArea.cGen
 		OKed, doses = manage_components_of_drug_product(parent = self, product = product)
 		if OKed is True:
 			self.__component_doses = doses
-			comp_str = u''
+			comp_str = ''
 			if len(doses) > 0:
-				comp_str = u'- %s' % u'\n- '.join([ u'%s %s%s' % (d['substance'], d['amount'], gmMedication.format_units(d['unit'], d['dose_unit'])) for d in doses ])
+				comp_str = '- %s' % '\n- '.join([ '%s %s%s' % (d['substance'], d['amount'], gmMedication.format_units(d['unit'], d['dose_unit'])) for d in doses ])
 			self._TCTRL_components.SetValue(comp_str)
 
 #------------------------------------------------------------
@@ -1306,7 +1306,7 @@ class cDrugProductPhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 	def __init__(self, *args, **kwargs):
 
-		query = u"""
+		query = """
 			SELECT
 				pk
 					AS data,
@@ -1446,18 +1446,18 @@ def manage_single_component_generic_drugs(parent=None, ignore_OK_button=False):
 	def refresh(lctrl):
 		drugs = gmMedication.get_drug_products()
 		items = [ [
-			u'%s%s' % (
+			'%s%s' % (
 				d['product'],
-				gmTools.bool2subst(d['is_fake_product'], ' (%s)' % _('fake'), u'')
+				gmTools.bool2subst(d['is_fake_product'], ' (%s)' % _('fake'), '')
 			),
 			d['l10n_preparation'],
-			gmTools.coalesce(d['atc'], u''),
-			u'; '.join([ u'%s %s%s' % (
+			gmTools.coalesce(d['atc'], ''),
+			'; '.join([ '%s %s%s' % (
 				c['substance'],
 				c['amount'],
 				gmMedication.format_units(c['unit'], c['dose_unit'])
 			) for c in d['components']]),
-			gmTools.coalesce(d['external_code'], u'', u'%%s [%s]' % d['external_code_type']),
+			gmTools.coalesce(d['external_code'], '', '%%s [%s]' % d['external_code_type']),
 			d['pk_drug_product']
 		] for d in drugs ]
 		lctrl.set_string_items(items)
@@ -1467,7 +1467,7 @@ def manage_single_component_generic_drugs(parent=None, ignore_OK_button=False):
 	gmListWidgets.get_choices_from_list (
 		parent = parent,
 		caption = _('Drug products currently known to GNUmed.'),
-		columns = [_('Name'), _('Preparation'), _('ATC'), _('Components'), _('Code'), u'#'],
+		columns = [_('Name'), _('Preparation'), _('ATC'), _('Components'), _('Code'), '#'],
 		single_selection = True,
 		ignore_OK_button = ignore_OK_button,
 		refresh_callback = refresh,
@@ -1520,7 +1520,7 @@ class cSingleComponentGenericDrugEAPnl(wxgSingleComponentGenericDrugEAPnl.wxgSin
 
 		validity = True
 
-		if self._PRW_preparation.Value.strip() == u'':
+		if self._PRW_preparation.Value.strip() == '':
 			validity = False
 			self._PRW_preparation.display_as_valid(False)
 			self.status_message = _('Drug form is missing.')
@@ -1536,7 +1536,7 @@ class cSingleComponentGenericDrugEAPnl(wxgSingleComponentGenericDrugEAPnl.wxgSin
 		else:
 			self._PRW_unit.display_as_valid(True)
 
-		if self._TCTRL_amount.GetValue().strip() == u'':
+		if self._TCTRL_amount.GetValue().strip() == '':
 			validity = False
 			self.display_tctrl_as_valid(tctrl = self._TCTRL_amount, valid = False)
 			self.status_message = _('Amount is missing.')
@@ -1546,7 +1546,7 @@ class cSingleComponentGenericDrugEAPnl(wxgSingleComponentGenericDrugEAPnl.wxgSin
 
 		if self._PRW_substance.GetData() is None:
 			val = self._PRW_substance.Value.strip()
-			if val != u'' and gmATC.exists_as_atc(val):
+			if val != '' and gmATC.exists_as_atc(val):
 				subst = gmMedication.create_substance(substance = val)
 				self._PRW_substance.SetText(subst['substance'], subst['pk_substance'])
 				self._PRW_substance.display_as_valid(True)
@@ -1570,9 +1570,9 @@ class cSingleComponentGenericDrugEAPnl(wxgSingleComponentGenericDrugEAPnl.wxgSin
 			dose_unit = self._PRW_dose_unit.GetData()
 		)
 		dose_unit = self._PRW_dose_unit.GetValue().strip()
-		if dose_unit != u'':
-			dose_unit = u'/' + dose_unit
-		name = u'%s %s%s%s' % (
+		if dose_unit != '':
+			dose_unit = '/' + dose_unit
+		name = '%s %s%s%s' % (
 			self._PRW_substance.GetValue().strip(),
 			self._TCTRL_amount.Value.strip(),
 			self._PRW_unit.GetValue().strip(),
@@ -1598,12 +1598,12 @@ class cSingleComponentGenericDrugEAPnl(wxgSingleComponentGenericDrugEAPnl.wxgSin
 
 	#----------------------------------------------------------------
 	def _refresh_as_new(self):
-		self._LBL_drug_name.SetLabel(u'')
-		self._PRW_substance.SetText(u'', None)
-		self._TCTRL_amount.SetValue(u'')
-		self._PRW_unit.SetText(u'', None)
-		self._PRW_dose_unit.SetText(u'', None)
-		self._PRW_preparation.SetText(u'', None)
+		self._LBL_drug_name.SetLabel('')
+		self._PRW_substance.SetText('', None)
+		self._TCTRL_amount.SetValue('')
+		self._PRW_unit.SetText('', None)
+		self._PRW_dose_unit.SetText('', None)
+		self._PRW_preparation.SetText('', None)
 
 	#----------------------------------------------------------------
 	def _refresh_as_new_from_existing(self):
@@ -1623,15 +1623,15 @@ class cSingleComponentGenericDrugEAPnl(wxgSingleComponentGenericDrugEAPnl.wxgSin
 	#----------------------------------------------------------------
 	def _on_name_field_modified(self, data=None):
 		dose_unit = self._PRW_dose_unit.GetValue().strip()
-		if dose_unit != u'':
-			dose_unit = u'/' + dose_unit
-		name = u'%s %s%s%s' % (
+		if dose_unit != '':
+			dose_unit = '/' + dose_unit
+		name = '%s %s%s%s' % (
 			self._PRW_substance.GetValue().strip(),
 			self._TCTRL_amount.Value.strip(),
 			self._PRW_unit.GetValue().strip(),
 			dose_unit
 		)
-		self._LBL_drug_name.SetLabel(u'"%s"' % name.strip())
+		self._LBL_drug_name.SetLabel('"%s"' % name.strip())
 
 #============================================================
 # main
@@ -1658,6 +1658,6 @@ if __name__ == '__main__':
 	#manage_substance_intakes()
 	edit_single_component_generic_drug (
 		single_entry = True,
-		fields = {u'substance': {u'value': val, 'data': None}},
+		fields = {'substance': {'value': val, 'data': None}},
 		return_drug = True
 	)

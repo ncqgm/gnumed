@@ -26,13 +26,13 @@ _log = logging.getLogger('gm.inbox')
 #============================================================
 # provider message inbox
 #------------------------------------------------------------
-_SQL_get_inbox_messages = u"""SELECT * FROM dem.v_message_inbox d_vi WHERE %s"""
+_SQL_get_inbox_messages = """SELECT * FROM dem.v_message_inbox d_vi WHERE %s"""
 
 class cInboxMessage(gmBusinessDBObject.cBusinessDBObject):
 
-	_cmd_fetch_payload = _SQL_get_inbox_messages % u"pk_inbox_message = %s"
+	_cmd_fetch_payload = _SQL_get_inbox_messages % "pk_inbox_message = %s"
 	_cmds_store_payload = [
-		u"""
+		"""
 			UPDATE dem.message_inbox SET
 				fk_staff = %(pk_staff)s,
 				fk_inbox_item_type = %(pk_type)s,
@@ -53,51 +53,51 @@ class cInboxMessage(gmBusinessDBObject.cBusinessDBObject):
 		"""
 	]
 	_updatable_fields = [
-		u'pk_staff',
-		u'pk_type',
-		u'comment',
-		u'data',
-		u'importance',
-		u'pk_patient',
-		u'pk_context',
-		u'due_date',
-		u'expiry_date'
+		'pk_staff',
+		'pk_type',
+		'comment',
+		'data',
+		'importance',
+		'pk_patient',
+		'pk_context',
+		'due_date',
+		'expiry_date'
 	]
 	#------------------------------------------------------------
 	def format(self, with_patient=True):
-		tt = u'%s: %s%s\n' % (
+		tt = '%s: %s%s\n' % (
 			gmDateTime.pydt_strftime (
 				self._payload[self._idx['received_when']],
 				format = '%A, %Y %b %d, %H:%M',
 				accuracy = gmDateTime.acc_minutes
 			),
 			gmTools.bool2subst(self._payload[self._idx['is_virtual']], _('virtual message'), _('message')),
-			gmTools.coalesce(self._payload[self._idx['pk_inbox_message']], u'', u' #%s ')
+			gmTools.coalesce(self._payload[self._idx['pk_inbox_message']], '', ' #%s ')
 		)
 
-		tt += u'%s: %s\n' % (
+		tt += '%s: %s\n' % (
 			self._payload[self._idx['l10n_category']],
 			self._payload[self._idx['l10n_type']]
 		)
 
-		tt += u'%s %s %s\n' % (
+		tt += '%s %s %s\n' % (
 			self._payload[self._idx['modified_by']],
 			gmTools.u_arrow2right,
 			gmTools.coalesce(self._payload[self._idx['provider']], _('everyone'))
 		)
 
-		tt += u'\n%s%s%s\n\n' % (
+		tt += '\n%s%s%s\n\n' % (
 			gmTools.u_left_double_angle_quote,
 			self._payload[self._idx['comment']],
 			gmTools.u_right_double_angle_quote
 		)
 
 		if with_patient and (self._payload[self._idx['pk_patient']] is not None):
-			tt += _(u'Patient: %s, %s%s %s   #%s\n' % (
+			tt += _('Patient: %s, %s%s %s   #%s\n' % (
 				self._payload[self._idx['lastnames']],
 				self._payload[self._idx['firstnames']],
-				gmTools.coalesce(self._payload[self._idx['l10n_gender']], u'', u' (%s)'),
-				gmDateTime.pydt_strftime(self._payload[self._idx['dob']], u'%Y %b %d', none_str = u''),
+				gmTools.coalesce(self._payload[self._idx['l10n_gender']], '', ' (%s)'),
+				gmDateTime.pydt_strftime(self._payload[self._idx['dob']], '%Y %b %d', none_str = ''),
 				self._payload[self._idx['pk_patient']]
 			))
 
@@ -128,18 +128,18 @@ class cInboxMessage(gmBusinessDBObject.cBusinessDBObject):
 def get_reminders(pk_patient=None, order_by=None):
 
 	if order_by is None:
-		order_by = u'%s ORDER BY due_date, importance DESC, received_when DESC'
+		order_by = '%s ORDER BY due_date, importance DESC, received_when DESC'
 	else:
-		order_by = u'%%s ORDER BY %s' % order_by
+		order_by = '%%s ORDER BY %s' % order_by
 
 	args = {'pat': pk_patient}
 	where_parts = [
-		u'pk_patient = %(pat)s',
-		u'due_date IS NOT NULL'
+		'pk_patient = %(pat)s',
+		'due_date IS NOT NULL'
 	]
 
-	cmd = u"SELECT * FROM dem.v_message_inbox WHERE %s" % (
-		order_by % u' AND '.join(where_parts)
+	cmd = "SELECT * FROM dem.v_message_inbox WHERE %s" % (
+		order_by % ' AND '.join(where_parts)
 	)
 	_log.debug('SQL: %s', cmd)
 	_log.debug('args: %s', args)
@@ -151,18 +151,18 @@ def get_reminders(pk_patient=None, order_by=None):
 def get_overdue_messages(pk_patient=None, order_by=None):
 
 	if order_by is None:
-		order_by = u'%s ORDER BY due_date, importance DESC, received_when DESC'
+		order_by = '%s ORDER BY due_date, importance DESC, received_when DESC'
 	else:
-		order_by = u'%%s ORDER BY %s' % order_by
+		order_by = '%%s ORDER BY %s' % order_by
 
 	args = {'pat': pk_patient}
 	where_parts = [
-		u'pk_patient = %(pat)s',
-		u'is_overdue IS TRUE'
+		'pk_patient = %(pat)s',
+		'is_overdue IS TRUE'
 	]
 
-	cmd = u"SELECT * FROM dem.v_message_inbox WHERE %s" % (
-		order_by % u' AND '.join(where_parts)
+	cmd = "SELECT * FROM dem.v_message_inbox WHERE %s" % (
+		order_by % ' AND '.join(where_parts)
 	)
 	_log.debug('SQL: %s', cmd)
 	_log.debug('args: %s', args)
@@ -174,25 +174,25 @@ def get_overdue_messages(pk_patient=None, order_by=None):
 def get_relevant_messages(pk_staff=None, pk_patient=None, include_without_provider=False, order_by=None):
 
 	if order_by is None:
-		order_by = u'%s ORDER BY importance desc, received_when desc'
+		order_by = '%s ORDER BY importance desc, received_when desc'
 	else:
-		order_by = u'%%s ORDER BY %s' % order_by
+		order_by = '%%s ORDER BY %s' % order_by
 
 	args = {}
 	where_parts = []
 
 	if pk_staff is not None:
 		if include_without_provider:
-			where_parts.append(u'((pk_staff IN (%(staff)s, NULL)) OR (modified_by = (SELECT short_alias FROM dem.staff WHERE pk = %(staff)s)))')
+			where_parts.append('((pk_staff IN (%(staff)s, NULL)) OR (modified_by = (SELECT short_alias FROM dem.staff WHERE pk = %(staff)s)))')
 		else:
-			where_parts.append(u'((pk_staff = %(staff)s) OR (modified_by = (SELECT short_alias FROM dem.staff WHERE pk = %(staff)s)))')
+			where_parts.append('((pk_staff = %(staff)s) OR (modified_by = (SELECT short_alias FROM dem.staff WHERE pk = %(staff)s)))')
 		args['staff'] = pk_staff
 
 	if pk_patient is not None:
-		where_parts.append(u'pk_patient = %(pat)s')
+		where_parts.append('pk_patient = %(pat)s')
 		args['pat'] = pk_patient
 
-	where_parts.append(u"""
+	where_parts.append("""
 		-- messages which have no due date and are not expired
 		((due_date IS NULL) AND ((expiry_date IS NULL) OR (expiry_date > now())))
 			OR
@@ -201,7 +201,7 @@ def get_relevant_messages(pk_staff=None, pk_patient=None, include_without_provid
 	""")
 
 	cmd = _SQL_get_inbox_messages % (
-		order_by % u' AND '.join(where_parts)
+		order_by % ' AND '.join(where_parts)
 	)
 	_log.debug('SQL: %s', cmd)
 	_log.debug('args: %s', args)
@@ -213,41 +213,41 @@ def get_relevant_messages(pk_staff=None, pk_patient=None, include_without_provid
 def get_inbox_messages(pk_staff=None, pk_patient=None, include_without_provider=False, exclude_expired=False, expired_only=False, overdue_only=False, unscheduled_only=False, exclude_unscheduled=False, order_by=None):
 
 	if order_by is None:
-		order_by = u'%s ORDER BY importance desc, received_when desc'
+		order_by = '%s ORDER BY importance desc, received_when desc'
 	else:
-		order_by = u'%%s ORDER BY %s' % order_by
+		order_by = '%%s ORDER BY %s' % order_by
 
 	args = {}
 	where_parts = []
 
 	if pk_staff is not None:
 		if include_without_provider:
-			where_parts.append(u'((pk_staff IN (%(staff)s, NULL)) OR (modified_by = (SELECT short_alias FROM dem.staff WHERE pk = %(staff)s)))')
+			where_parts.append('((pk_staff IN (%(staff)s, NULL)) OR (modified_by = (SELECT short_alias FROM dem.staff WHERE pk = %(staff)s)))')
 		else:
-			where_parts.append(u'((pk_staff = %(staff)s) OR (modified_by = (SELECT short_alias FROM dem.staff WHERE pk = %(staff)s)))')
+			where_parts.append('((pk_staff = %(staff)s) OR (modified_by = (SELECT short_alias FROM dem.staff WHERE pk = %(staff)s)))')
 		args['staff'] = pk_staff
 
 	if pk_patient is not None:
-		where_parts.append(u'pk_patient = %(pat)s')
+		where_parts.append('pk_patient = %(pat)s')
 		args['pat'] = pk_patient
 
 	if exclude_expired:
-		where_parts.append(u'is_expired IS FALSE')
+		where_parts.append('is_expired IS FALSE')
 
 	if expired_only:
-		where_parts.append(u'is_expired IS TRUE')
+		where_parts.append('is_expired IS TRUE')
 
 	if overdue_only:
-		where_parts.append(u'is_overdue IS TRUE')
+		where_parts.append('is_overdue IS TRUE')
 
 	if unscheduled_only:
-		where_parts.append(u'due_date IS NULL')
+		where_parts.append('due_date IS NULL')
 
 	if exclude_unscheduled:
-		where_parts.append(u'due_date IS NOT NULL')
+		where_parts.append('due_date IS NOT NULL')
 
 	cmd = _SQL_get_inbox_messages % (
-		order_by % u' AND '.join(where_parts)
+		order_by % ' AND '.join(where_parts)
 	)
 	_log.debug('SQL: %s', cmd)
 	_log.debug('args: %s', args)
@@ -256,13 +256,13 @@ def get_inbox_messages(pk_staff=None, pk_patient=None, include_without_provider=
 	return [ cInboxMessage(row = {'data': r, 'idx': idx, 'pk_field': 'pk_inbox_message'}) for r in rows ]
 
 #------------------------------------------------------------
-def create_inbox_message(message_type=None, subject=None, patient=None, staff=None, message_category=u'clinical'):
+def create_inbox_message(message_type=None, subject=None, patient=None, staff=None, message_category='clinical'):
 
 	success, pk_type = gmTools.input2int(initial = message_type)
 	if not success:
 		pk_type = create_inbox_item_type(message_type = message_type, category = message_category)
 
-	cmd = u"""
+	cmd = """
 		INSERT INTO dem.message_inbox (
 			fk_staff,
 			fk_patient,
@@ -277,10 +277,10 @@ def create_inbox_message(message_type=None, subject=None, patient=None, staff=No
 		RETURNING pk
 	"""
 	args = {
-		u'staff': staff,
-		u'pat': patient,
-		u'type': pk_type,
-		u'subject': subject
+		'staff': staff,
+		'pat': patient,
+		'type': pk_type,
+		'subject': subject
 	}
 	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True, get_col_idx = False)
 
@@ -289,38 +289,38 @@ def create_inbox_message(message_type=None, subject=None, patient=None, staff=No
 #------------------------------------------------------------
 def delete_inbox_message(inbox_message=None):
 	args = {'pk': inbox_message}
-	cmd = u"DELETE FROM dem.message_inbox WHERE pk = %(pk)s"
+	cmd = "DELETE FROM dem.message_inbox WHERE pk = %(pk)s"
 	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 	return True
 
 #------------------------------------------------------------
-def create_inbox_item_type(message_type=None, category=u'clinical'):
+def create_inbox_item_type(message_type=None, category='clinical'):
 
 	# determine category PK
 	success, pk_cat = gmTools.input2int(initial = category)
 	if not success:
-		args = {u'cat': category}
-		cmd = u"""SELECT COALESCE (
+		args = {'cat': category}
+		cmd = """SELECT COALESCE (
 			(SELECT pk FROM dem.inbox_item_category WHERE _(description) = %(cat)s),
 			(SELECT pk FROM dem.inbox_item_category WHERE description = %(cat)s)
 		) AS pk"""
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 		if rows[0]['pk'] is None:
-			cmd = u"INSERT INTO dem.inbox_item_category (description) VALUES (%(cat)s) RETURNING pk"
+			cmd = "INSERT INTO dem.inbox_item_category (description) VALUES (%(cat)s) RETURNING pk"
 			rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True)
 			pk_cat = rows[0]['pk']
 		else:
 			pk_cat = rows[0]['pk']
 
 	# find type PK or create type
-	args = {u'pk_cat': pk_cat, u'type': message_type}
-	cmd = u"""SELECT COALESCE (
+	args = {'pk_cat': pk_cat, 'type': message_type}
+	cmd = """SELECT COALESCE (
 		(SELECT pk FROM dem.inbox_item_type where fk_inbox_item_category = %(pk_cat)s AND _(description) = %(type)s),
 		(SELECT pk FROM dem.inbox_item_type where fk_inbox_item_category = %(pk_cat)s AND description = %(type)s)
 	) AS pk"""
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 	if rows[0]['pk'] is None:
-		cmd = u"""
+		cmd = """
 			INSERT INTO dem.inbox_item_type (
 				fk_inbox_item_category,
 				description,

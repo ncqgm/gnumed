@@ -114,17 +114,17 @@ def unwrap_HL7_from_XML(parent=None):
 		return False
 
 	target_dir = os.path.split(xml_name)[0]
-	xml_path = u'.//Message'
+	xml_path = './/Message'
 	hl7_name = gmHL7.extract_HL7_from_XML_CDATA(xml_name, xml_path, target_dir = target_dir)
 	if hl7_name is None:
 		gmGuiHelpers.gm_show_error (
 			title = _('Extracting HL7 from XML file'),
 			error = (
-			u'Cannot unwrap HL7 data from XML file\n'
-			u'\n'
-			u' [%s]\n'
-			u'\n'
-			u'(CDATA of [%s] nodes)'
+			'Cannot unwrap HL7 data from XML file\n'
+			'\n'
+			' [%s]\n'
+			'\n'
+			'(CDATA of [%s] nodes)'
 			) % (
 				xml_name,
 				xml_path
@@ -180,7 +180,7 @@ def stage_hl7_file(parent=None):
 				'There was a problem with staging the following files\n'
 				'\n'
 				' %s'
-			) % u'\n '.join(failed_files)
+			) % '\n '.join(failed_files)
 		)
 		return False
 
@@ -196,16 +196,16 @@ def browse_incoming_unmatched(parent=None):
 	def show_hl7(staged_item):
 		if staged_item is None:
 			return False
-		if u'HL7' not in staged_item['data_type']:
+		if 'HL7' not in staged_item['data_type']:
 			return False
 		filename = staged_item.save_to_file()
 		if filename is None:
 			filename = gmTools.get_unique_filename()
 		tmp_file = io.open(filename, mode = 'at', encoding = 'utf8')
-		tmp_file.write(u'\n')
-		tmp_file.write(u'-' * 80)
-		tmp_file.write(u'\n')
-		tmp_file.write(gmTools.coalesce(staged_item['comment'], u''))
+		tmp_file.write('\n')
+		tmp_file.write('-' * 80)
+		tmp_file.write('\n')
+		tmp_file.write(gmTools.coalesce(staged_item['comment'], ''))
 		tmp_file.close()
 		gmMimeLib.call_viewer_on_file(aFile = filename, block = False)
 		return False
@@ -213,7 +213,7 @@ def browse_incoming_unmatched(parent=None):
 	def import_hl7(staged_item):
 		if staged_item is None:
 			return False
-		if u'HL7' not in staged_item['data_type']:
+		if 'HL7' not in staged_item['data_type']:
 			return False
 		unset_identity_on_error = False
 		if staged_item['pk_identity_disambiguated'] is None:
@@ -222,17 +222,17 @@ def browse_incoming_unmatched(parent=None):
 				answer = gmGuiHelpers.gm_show_question (
 					title = _('Importing HL7 data'),
 					question = _(
-						u'There has not been a patient explicitely associated\n'
-						u'with this chunk of HL7 data. However, the data file\n'
-						u'contains the following patient identification information:\n'
-						u'\n'
-						u' %s\n'
-						u'\n'
-						u'Do you want to import the HL7 under the current patient ?\n'
-						u'\n'
-						u' %s\n'
-						u'\n'
-						u'Selecting [NO] makes GNUmed try to find a patient matching the HL7 data.\n'
+						'There has not been a patient explicitely associated\n'
+						'with this chunk of HL7 data. However, the data file\n'
+						'contains the following patient identification information:\n'
+						'\n'
+						' %s\n'
+						'\n'
+						'Do you want to import the HL7 under the current patient ?\n'
+						'\n'
+						' %s\n'
+						'\n'
+						'Selecting [NO] makes GNUmed try to find a patient matching the HL7 data.\n'
 					) % (
 						staged_item.patient_identification,
 						pat['description_gender']
@@ -278,14 +278,14 @@ def browse_incoming_unmatched(parent=None):
 	def refresh(lctrl):
 		incoming = gmIncomingData.get_incoming_data()
 		items = [ [
-			gmTools.coalesce(i['data_type'], u''),
-			u'%s, %s (%s) %s' % (
-				gmTools.coalesce(i['lastnames'], u''),
-				gmTools.coalesce(i['firstnames'], u''),
+			gmTools.coalesce(i['data_type'], ''),
+			'%s, %s (%s) %s' % (
+				gmTools.coalesce(i['lastnames'], ''),
+				gmTools.coalesce(i['firstnames'], ''),
 				gmDateTime.pydt_strftime(dt = i['dob'], format = '%Y %b %d', accuracy = gmDateTime.acc_days, none_str = _('unknown DOB')),
-				gmTools.coalesce(i['gender'], u'')
+				gmTools.coalesce(i['gender'], '')
 			),
-			gmTools.coalesce(i['external_data_id'], u''),
+			gmTools.coalesce(i['external_data_id'], ''),
 			i['pk_incoming_data_unmatched']
 		] for i in incoming ]
 		lctrl.set_string_items(items)
@@ -316,14 +316,14 @@ def call_browser_on_measurement_type(measurement_type=None):
 	dbcfg = gmCfg.cCfgSQL()
 
 	url = dbcfg.get2 (
-		option = u'external.urls.measurements_search',
+		option = 'external.urls.measurements_search',
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 		bias = 'user',
 		default = gmPathLab.URL_test_result_information_search
 	)
 
 	base_url = dbcfg.get2 (
-		option = u'external.urls.measurements_encyclopedia',
+		option = 'external.urls.measurements_encyclopedia',
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 		bias = 'user',
 		default = gmPathLab.URL_test_result_information
@@ -334,7 +334,7 @@ def call_browser_on_measurement_type(measurement_type=None):
 
 	measurement_type = measurement_type.strip()
 
-	if measurement_type == u'':
+	if measurement_type == '':
 		url = base_url
 
 	url = url % {'search_term': measurement_type}
@@ -397,15 +397,15 @@ def manage_measurements(parent=None, single_selection=False, emr=None):
 				accuracy = gmDateTime.acc_minutes
 			),
 			r['unified_abbrev'],
-			u'%s%s%s%s' % (
+			'%s%s%s%s' % (
 				gmTools.bool2subst (
 					boolean = (not r['reviewed'] or (not r['review_by_you'] and r['you_are_responsible'])),
-					true_return = u'u' + gmTools.u_writing_hand,
-					false_return = u''
+					true_return = 'u' + gmTools.u_writing_hand,
+					false_return = ''
 				),
 				r['unified_val'],
-				gmTools.coalesce(r['val_unit'], u'', u' %s'),
-				gmTools.coalesce(r['abnormality_indicator'], u'', u' %s')
+				gmTools.coalesce(r['val_unit'], '', ' %s'),
+				gmTools.coalesce(r['abnormality_indicator'], '', ' %s')
 			),
 			r['unified_name'],
 #			u'%s%s' % (
@@ -420,7 +420,7 @@ def manage_measurements(parent=None, single_selection=False, emr=None):
 #				),
 #				gmTools.coalesce(r['comment'], u'', u' / %s')
 #			),
-			gmTools.coalesce(r['comment'], u''),
+			gmTools.coalesce(r['comment'], ''),
 			r['pk_test_result']
 		] for r in results ]
 		lctrl.set_string_items(items)
@@ -433,7 +433,7 @@ def manage_measurements(parent=None, single_selection=False, emr=None):
 		parent = parent,
 		msg = msg,
 		caption = _('Showing test results.'),
-		columns = [ _('When'), _('Abbrev'), _('Value'), _('Name'), _('Comment'), u'#' ],
+		columns = [ _('When'), _('Abbrev'), _('Value'), _('Name'), _('Comment'), '#' ],
 		single_selection = single_selection,
 		can_return_empty = False,
 		refresh_callback = refresh,
@@ -451,14 +451,14 @@ def configure_default_top_lab_panel(parent=None):
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
 
-	panels = gmPathLab.get_test_panels(order_by = u'description')
+	panels = gmPathLab.get_test_panels(order_by = 'description')
 	gmCfgWidgets.configure_string_from_list_option (
 		parent = parent,
 		message = _('Select the measurements panel to show in the top pane for continuous monitoring.'),
-		option = u'horstspace.top_panel.lab_panel',
+		option = 'horstspace.top_panel.lab_panel',
 		bias = 'user',
 		default_value = None,
-		choices = [ u'%s%s' % (p['description'], gmTools.coalesce(p['comment'], u'', u' (%s)')) for p in panels ],
+		choices = [ '%s%s' % (p['description'], gmTools.coalesce(p['comment'], '', ' (%s)')) for p in panels ],
 		columns = [_('Lab panel')],
 		data = [ p['pk_test_panel'] for p in panels ],
 		caption = _('Configuring continuous monitoring measurements panel')
@@ -475,16 +475,16 @@ def configure_default_gnuplot_template(parent=None):
 	template = gmFormWidgets.manage_form_templates (
 		parent = parent,
 		active_only = True,
-		template_types = [u'gnuplot script']
+		template_types = ['gnuplot script']
 	)
 
-	option = u'form_templates.default_gnuplot_template'
+	option = 'form_templates.default_gnuplot_template'
 
 	if template is None:
 		gmDispatcher.send(signal = 'statustext', msg = _('No default Gnuplot script template selected.'), beep = True)
 		return None
 
-	if template['engine'] != u'G':
+	if template['engine'] != 'G':
 		gmDispatcher.send(signal = 'statustext', msg = _('No default Gnuplot script template selected.'), beep = True)
 		return None
 
@@ -492,14 +492,14 @@ def configure_default_gnuplot_template(parent=None):
 	dbcfg.set (
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 		option = option,
-		value = u'%s - %s' % (template['name_long'], template['external_version'])
+		value = '%s - %s' % (template['name_long'], template['external_version'])
 	)
 	return template
 
 #============================================================
 def get_default_gnuplot_template(parent = None):
 
-	option = u'form_templates.default_gnuplot_template'
+	option = 'form_templates.default_gnuplot_template'
 
 	dbcfg = gmCfg.cCfgSQL()
 
@@ -526,7 +526,7 @@ def get_default_gnuplot_template(parent = None):
 	# now it MUST be configured (either newly or previously)
 	# but also *validly* ?
 	try:
-		name, ver = default_template_name.split(u' - ')
+		name, ver = default_template_name.split(' - ')
 	except:
 		# not valid
 		_log.exception('problem splitting Gnuplot script template name [%s]', default_template_name)
@@ -558,7 +558,7 @@ def plot_measurements(parent=None, tests=None, format=None, show_year = True, us
 		template = gmFormWidgets.manage_form_templates (
 			parent = parent,
 			active_only = True,
-			template_types = [u'gnuplot script']
+			template_types = ['gnuplot script']
 		)
 
 	if template is None:
@@ -631,12 +631,12 @@ class cMeasurementsAsListPnl(wxgMeasurementsAsListPnl.wxgMeasurementsAsListPnl, 
 
 	#------------------------------------------------------------
 	def __register_events(self):
-		gmDispatcher.connect(signal = u'gm_table_mod', receiver = self._on_database_signal)
+		gmDispatcher.connect(signal = 'gm_table_mod', receiver = self._on_database_signal)
 
 	#------------------------------------------------------------
 	def __repopulate_ui(self):
 		if self.__patient is None:
-			self._TCTRL_measurements.SetValue(u'')
+			self._TCTRL_measurements.SetValue('')
 			return
 
 		results = self.__patient.emr.get_test_results(order_by = 'clin_when DESC, unified_abbrev, unified_name')
@@ -649,20 +649,20 @@ class cMeasurementsAsListPnl(wxgMeasurementsAsListPnl.wxgMeasurementsAsListPnl, 
 			)
 			review = gmTools.bool2subst (
 				r['reviewed'],
-				u'',
-				u' ' + gmTools.u_writing_hand,
-				u' ' + gmTools.u_writing_hand
+				'',
+				' ' + gmTools.u_writing_hand,
+				' ' + gmTools.u_writing_hand
 			)
 			items.append ([
 				gmDateTime.pydt_strftime(r['clin_when'], '%Y %b %d  %H:%M', accuracy = gmDateTime.acc_minutes),
 				r['abbrev_tt'],
-				u'%s%s%s%s' % (
+				'%s%s%s%s' % (
 					gmTools.strip_empty_lines(text = r['unified_val'])[0],
-					gmTools.coalesce(r['val_unit'], u'', u' %s'),
-					gmTools.coalesce(r['abnormality_indicator'], u'', u' %s'),
+					gmTools.coalesce(r['val_unit'], '', ' %s'),
+					gmTools.coalesce(r['abnormality_indicator'], '', ' %s'),
 					review
 				),
-				gmTools.coalesce(range_info, u'')
+				gmTools.coalesce(range_info, '')
 			])
 			data.append({'data': r, 'formatted': r.format(with_source_data = True)})
 
@@ -694,7 +694,7 @@ class cMeasurementsAsListPnl(wxgMeasurementsAsListPnl.wxgMeasurementsAsListPnl, 
 			if kwds['pk_identity'] != self.__patient.ID:
 				return True
 
-		if kwds['table'] not in [u'clin.test_result', u'clin.reviewed_test_results']:
+		if kwds['table'] not in ['clin.test_result', 'clin.reviewed_test_results']:
 			return True
 
 		self._schedule_data_reget()
@@ -760,32 +760,32 @@ class cMeasurementsByDayPnl(wxgMeasurementsByDayPnl.wxgMeasurementsByDayPnl, gmR
 		self._LCTRL_days.set_columns([_('Day')])
 		self._LCTRL_results.set_columns([_('Time'), _('Test'), _('Result'), _('Reference')])
 		self._LCTRL_results.edit_callback = self._on_edit
-		self._LBL_no_of_docs.SetLabel(_(u'no related documents found'))
+		self._LBL_no_of_docs.SetLabel(_('no related documents found'))
 		dbcfg = gmCfg.cCfgSQL()
 		lab_doc_types = dbcfg.get2 (
-			option = u'horstspace.lab_doc_types',
+			option = 'horstspace.lab_doc_types',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			bias = 'user'
 		)
 		if lab_doc_types is None:
-			txt = _(u'No document types declared to contain lab results.')
+			txt = _('No document types declared to contain lab results.')
 		elif len(lab_doc_types) == 0:
-			txt = _(u'No document types declared to contain lab results.')
+			txt = _('No document types declared to contain lab results.')
 		else:
-			txt = _(u'Document types declared to contain lab results:')
-			txt += u'\n '
-			txt += u'\n '.join(lab_doc_types)
+			txt = _('Document types declared to contain lab results:')
+			txt += '\n '
+			txt += '\n '.join(lab_doc_types)
 		self._LBL_no_of_docs.SetToolTip(txt)
 
 	#------------------------------------------------------------
 	def __register_events(self):
-		gmDispatcher.connect(signal = u'gm_table_mod', receiver = self._on_database_signal)
+		gmDispatcher.connect(signal = 'gm_table_mod', receiver = self._on_database_signal)
 
 	#------------------------------------------------------------
 	def __clear(self):
 		self._LCTRL_days.set_string_items()
 		self._LCTRL_results.set_string_items()
-		self._TCTRL_measurements.SetValue(u'')
+		self._TCTRL_measurements.SetValue('')
 
 	#------------------------------------------------------------
 	def __repopulate_ui(self):
@@ -794,9 +794,9 @@ class cMeasurementsByDayPnl(wxgMeasurementsByDayPnl.wxgMeasurementsByDayPnl, gmR
 			return
 
 		dates = self.__patient.emr.get_dates_for_results(reverse_chronological = True)
-		items = [ [u'%s%s' % (
+		items = [ ['%s%s' % (
 					gmDateTime.pydt_strftime(d['clin_when_day'], self.__date_format),
-					gmTools.bool2subst(d['is_reviewed'], u'', gmTools.u_writing_hand, gmTools.u_writing_hand)
+					gmTools.bool2subst(d['is_reviewed'], '', gmTools.u_writing_hand, gmTools.u_writing_hand)
 				)]
 			for d in dates
 		]
@@ -828,7 +828,7 @@ class cMeasurementsByDayPnl(wxgMeasurementsByDayPnl.wxgMeasurementsByDayPnl, gmR
 			if kwds['pk_identity'] != self.__patient.ID:
 				return True
 
-		if kwds['table'] not in [u'clin.test_result', u'clin.reviewed_test_results']:
+		if kwds['table'] not in ['clin.test_result', 'clin.reviewed_test_results']:
 			return True
 
 		self._schedule_data_reget()
@@ -849,20 +849,20 @@ class cMeasurementsByDayPnl(wxgMeasurementsByDayPnl.wxgMeasurementsByDayPnl, gmR
 			)
 			review = gmTools.bool2subst (
 				r['reviewed'],
-				u'',
-				u' ' + gmTools.u_writing_hand,
-				u' ' + gmTools.u_writing_hand
+				'',
+				' ' + gmTools.u_writing_hand,
+				' ' + gmTools.u_writing_hand
 			)
 			items.append ([
 				gmDateTime.pydt_strftime(r['clin_when'], '%H:%M'),
 				r['abbrev_tt'],
-				u'%s%s%s%s' % (
+				'%s%s%s%s' % (
 					gmTools.strip_empty_lines(text = r['unified_val'])[0],
-					gmTools.coalesce(r['val_unit'], u'', u' %s'),
-					gmTools.coalesce(r['abnormality_indicator'], u'', u' %s'),
+					gmTools.coalesce(r['val_unit'], '', ' %s'),
+					gmTools.coalesce(r['abnormality_indicator'], '', ' %s'),
 					review
 				),
-				gmTools.coalesce(range_info, u'')
+				gmTools.coalesce(range_info, '')
 			])
 			data.append({'data': r, 'formatted': r.format(with_source_data = True)})
 
@@ -880,11 +880,11 @@ class cMeasurementsByDayPnl(wxgMeasurementsByDayPnl.wxgMeasurementsByDayPnl, gmR
 		if pk_episode == self.__pk_curr_episode:
 			return
 		self.__pk_curr_episode = pk_episode
-		self._LBL_no_of_docs.SetLabel(_(u'no related documents found'))
+		self._LBL_no_of_docs.SetLabel(_('no related documents found'))
 		self._BTN_list_docs.Disable()
 		dbcfg = gmCfg.cCfgSQL()
 		lab_doc_types = dbcfg.get2 (
-			option = u'horstspace.lab_doc_types',
+			option = 'horstspace.lab_doc_types',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			bias = 'user'
 		)
@@ -908,7 +908,7 @@ class cMeasurementsByDayPnl(wxgMeasurementsByDayPnl.wxgMeasurementsByDayPnl, gmR
 		event.Skip()
 		dbcfg = gmCfg.cCfgSQL()
 		lab_doc_types = dbcfg.get2 (
-			option = u'horstspace.lab_doc_types',
+			option = 'horstspace.lab_doc_types',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			bias = 'user'
 		)
@@ -919,7 +919,7 @@ class cMeasurementsByDayPnl(wxgMeasurementsByDayPnl.wxgMeasurementsByDayPnl, gmR
 			return
 		gmDocumentWidgets.manage_documents (
 			parent = self,
-			msg = _(u'Documents possibly related to this episode'),
+			msg = _('Documents possibly related to this episode'),
 			pk_types = [ dt['pk_doc_type'] for dt in d_types ],
 			pk_episodes = [ self.__pk_curr_episode ]
 		)
@@ -930,29 +930,29 @@ class cMeasurementsByDayPnl(wxgMeasurementsByDayPnl.wxgMeasurementsByDayPnl, gmR
 		doc_types = gmDocuments.get_document_types()
 		gmCfgWidgets.configure_list_from_list_option (
 			parent = self,
-			message = _(u'Select the document types which are expected to contain lab results.'),
-			option = u'horstspace.lab_doc_types',
+			message = _('Select the document types which are expected to contain lab results.'),
+			option = 'horstspace.lab_doc_types',
 			bias = 'user',
 			choices = [ dt['l10n_type'] for dt in doc_types ],
-			columns = [_(u'Document types')]#,
+			columns = [_('Document types')]#,
 			#data = None,
 			#caption = None,
 			#picks = None
 		)
 		dbcfg = gmCfg.cCfgSQL()
 		lab_doc_types = dbcfg.get2 (
-			option = u'horstspace.lab_doc_types',
+			option = 'horstspace.lab_doc_types',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			bias = 'user'
 		)
 		if lab_doc_types is None:
-			txt = _(u'No document types declared to contain lab results.')
+			txt = _('No document types declared to contain lab results.')
 		elif len(lab_doc_types) == 0:
-			txt = _(u'No document types declared to contain lab results.')
+			txt = _('No document types declared to contain lab results.')
 		else:
-			txt = _(u'Document types declared to contain lab results:')
-			txt += u'\n '
-			txt += u'\n '.join(lab_doc_types)
+			txt = _('Document types declared to contain lab results:')
+			txt += '\n '
+			txt += '\n '.join(lab_doc_types)
 		self._LBL_no_of_docs.SetToolTip(txt)
 
 	#------------------------------------------------------------
@@ -1008,7 +1008,7 @@ class cMeasurementsByIssuePnl(wxgMeasurementsByIssuePnl.wxgMeasurementsByIssuePn
 	# internal helpers
 	#------------------------------------------------------------
 	def __init_ui(self):
-		self._LCTRL_issues.set_columns([_(u'Problem')])
+		self._LCTRL_issues.set_columns([_('Problem')])
 		self._LCTRL_issues.select_callback = self._on_problem_selected
 		self._LCTRL_results.set_columns([_('When'), _('Test'), _('Result'), _('Reference')])
 		self._LCTRL_results.edit_callback = self._on_edit
@@ -1016,13 +1016,13 @@ class cMeasurementsByIssuePnl(wxgMeasurementsByIssuePnl.wxgMeasurementsByIssuePn
 
 	#------------------------------------------------------------
 	def __register_events(self):
-		gmDispatcher.connect(signal = u'gm_table_mod', receiver = self._on_database_signal)
+		gmDispatcher.connect(signal = 'gm_table_mod', receiver = self._on_database_signal)
 
 	#------------------------------------------------------------
 	def __clear(self):
 		self._LCTRL_issues.set_string_items()
 		self._LCTRL_results.set_string_items()
-		self._TCTRL_measurements.SetValue(u'')
+		self._TCTRL_measurements.SetValue('')
 
 	#------------------------------------------------------------
 	def __repopulate_ui(self):
@@ -1031,8 +1031,8 @@ class cMeasurementsByIssuePnl(wxgMeasurementsByIssuePnl.wxgMeasurementsByIssuePn
 			return
 
 		probs = self.__patient.emr.get_issues_or_episodes_for_results()
-		items = [ [u'%s%s' % (
-			gmTools.coalesce(p['pk_health_issue'], gmTools.u_diameter + u':', u''),
+		items = [ ['%s%s' % (
+			gmTools.coalesce(p['pk_health_issue'], gmTools.u_diameter + ':', ''),
 			gmTools.shorten_words_in_line(text = p['problem'], min_word_length = 5, max_length = 30)
 		)] for p in probs ]
 		self._LCTRL_issues.set_string_items(items)
@@ -1060,7 +1060,7 @@ class cMeasurementsByIssuePnl(wxgMeasurementsByIssuePnl.wxgMeasurementsByIssuePn
 			if kwds['pk_identity'] != self.__patient.ID:
 				return True
 
-		if kwds['table'] not in [u'clin.test_result', u'clin.reviewed_test_results']:
+		if kwds['table'] not in ['clin.test_result', 'clin.reviewed_test_results']:
 			return True
 
 		self._schedule_data_reget()
@@ -1085,20 +1085,20 @@ class cMeasurementsByIssuePnl(wxgMeasurementsByIssuePnl.wxgMeasurementsByIssuePn
 			)
 			review = gmTools.bool2subst (
 				r['reviewed'],
-				u'',
-				u' ' + gmTools.u_writing_hand,
-				u' ' + gmTools.u_writing_hand
+				'',
+				' ' + gmTools.u_writing_hand,
+				' ' + gmTools.u_writing_hand
 			)
 			items.append ([
 				gmDateTime.pydt_strftime(r['clin_when'], '%Y %b %d  %H:%M'),
 				r['abbrev_tt'],
-				u'%s%s%s%s' % (
+				'%s%s%s%s' % (
 					gmTools.strip_empty_lines(text = r['unified_val'])[0],
-					gmTools.coalesce(r['val_unit'], u'', u' %s'),
-					gmTools.coalesce(r['abnormality_indicator'], u'', u' %s'),
+					gmTools.coalesce(r['val_unit'], '', ' %s'),
+					gmTools.coalesce(r['abnormality_indicator'], '', ' %s'),
 					review
 				),
-				gmTools.coalesce(range_info, u'')
+				gmTools.coalesce(range_info, '')
 			])
 			data.append({'data': r, 'formatted': r.format(with_source_data = True)})
 
@@ -1171,7 +1171,7 @@ class cMeasurementsByBatteryPnl(wxgMeasurementsByBatteryPnl.wxgMeasurementsByBat
 
 	#------------------------------------------------------------
 	def __register_events(self):
-		gmDispatcher.connect(signal = u'gm_table_mod', receiver = self._on_database_signal)
+		gmDispatcher.connect(signal = 'gm_table_mod', receiver = self._on_database_signal)
 
 		self._PRW_panel.add_callback_on_selection(callback = self._on_panel_selected)
 		self._PRW_panel.add_callback_on_modified(callback = self._on_panel_selection_modified)
@@ -1184,21 +1184,21 @@ class cMeasurementsByBatteryPnl(wxgMeasurementsByBatteryPnl.wxgMeasurementsByBat
 	#--------------------------------------------------------
 	def __on_panel_selected(self, panel):
 		if panel is None:
-			self._TCTRL_panel_comment.SetValue(u'')
+			self._TCTRL_panel_comment.SetValue('')
 			self._GRID_results_battery.panel_to_show = None
 		else:
 			pnl = self._PRW_panel.GetData(as_instance = True)
 			self._TCTRL_panel_comment.SetValue(gmTools.coalesce (
 				pnl['comment'],
-				u''
+				''
 			))
 			self._GRID_results_battery.panel_to_show = pnl
 #		self.Layout()
 
 	#--------------------------------------------------------
 	def __on_panel_selection_modified(self):
-		self._TCTRL_panel_comment.SetValue(u'')
-		if self._PRW_panel.GetValue().strip() == u'':
+		self._TCTRL_panel_comment.SetValue('')
+		if self._PRW_panel.GetValue().strip() == '':
 			self._GRID_results_battery.panel_to_show = None
 #			self.Layout()
 
@@ -1213,7 +1213,7 @@ class cMeasurementsByBatteryPnl(wxgMeasurementsByBatteryPnl.wxgMeasurementsByBat
 			if kwds['pk_identity'] != self.__patient.ID:
 				return True
 
-		if kwds['table'] not in [u'clin.test_result', u'clin.reviewed_test_results']:
+		if kwds['table'] not in ['clin.test_result', 'clin.reviewed_test_results']:
 			return True
 
 		self._schedule_data_reget()
@@ -1306,7 +1306,7 @@ class cMeasurementsAsTablePnl(wxgMeasurementsAsTablePnl.wxgMeasurementsAsTablePn
 
 	#------------------------------------------------------------
 	def __register_events(self):
-		gmDispatcher.connect(signal = u'gm_table_mod', receiver = self._on_database_signal)
+		gmDispatcher.connect(signal = 'gm_table_mod', receiver = self._on_database_signal)
 
 	#------------------------------------------------------------
 	def __repopulate_ui(self):
@@ -1338,7 +1338,7 @@ class cMeasurementsAsTablePnl(wxgMeasurementsAsTablePnl.wxgMeasurementsAsTablePn
 			if kwds['pk_identity'] != self.__patient.ID:
 				return True
 
-		if kwds['table'] not in [u'clin.test_result', u'clin.reviewed_test_results']:
+		if kwds['table'] not in ['clin.test_result', 'clin.reviewed_test_results']:
 			return True
 
 		self._schedule_data_reget()
@@ -1556,7 +1556,7 @@ class cMeasurementsGrid(wx.grid.Grid):
 	#------------------------------------------------------------
 	def delete_current_selection(self):
 		if not self.IsSelection():
-			gmDispatcher.send(signal = u'statustext', msg = _('No results selected for deletion.'))
+			gmDispatcher.send(signal = 'statustext', msg = _('No results selected for deletion.'))
 			return True
 
 		selected_cells = self.get_selected_cells()
@@ -1569,13 +1569,13 @@ class cMeasurementsGrid(wx.grid.Grid):
 			) % len(selected_cells)
 		else:
 			results = self.__cells_to_data(cells = selected_cells, exclude_multi_cells = False)
-			txt = u'\n'.join([ u'%s %s (%s): %s %s%s' % (
+			txt = '\n'.join([ '%s %s (%s): %s %s%s' % (
 					r['clin_when'].strftime('%x %H:%M').decode(gmI18N.get_encoding()),
 					r['unified_abbrev'],
 					r['unified_name'],
 					r['unified_val'],
 					r['val_unit'],
-					gmTools.coalesce(r['abnormality_indicator'], u'', u' (%s)')
+					gmTools.coalesce(r['abnormality_indicator'], '', ' (%s)')
 				) for r in results
 			])
 			msg = _(
@@ -1607,7 +1607,7 @@ class cMeasurementsGrid(wx.grid.Grid):
 	#------------------------------------------------------------
 	def sign_current_selection(self):
 		if not self.IsSelection():
-			gmDispatcher.send(signal = u'statustext', msg = _('Cannot sign results. No results selected.'))
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot sign results. No results selected.'))
 			return True
 
 		selected_cells = self.get_selected_cells()
@@ -1619,7 +1619,7 @@ class cMeasurementsGrid(wx.grid.Grid):
 	def plot_current_selection(self):
 
 		if not self.IsSelection():
-			gmDispatcher.send(signal = u'statustext', msg = _('Cannot plot results. No results selected.'))
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot plot results. No results selected.'))
 			return True
 
 		tests = self.__cells_to_data (
@@ -1714,7 +1714,7 @@ class cMeasurementsGrid(wx.grid.Grid):
 				return
 			tests = self.__panel_to_show.get_test_types_for_results (
 				self.__patient.ID,
-				order_by = u'unified_abbrev',
+				order_by = 'unified_abbrev',
 				unique_meta_types = True
 			)
 			self.__repopulate_grid (
@@ -1724,7 +1724,7 @@ class cMeasurementsGrid(wx.grid.Grid):
 			return
 
 		emr = self.__patient.emr
-		tests = emr.get_test_types_for_results(order_by = u'unified_abbrev', unique_meta_types = True)
+		tests = emr.get_test_types_for_results(order_by = 'unified_abbrev', unique_meta_types = True)
 		self.__repopulate_grid(tests4rows = tests)
 
 	#------------------------------------------------------------
@@ -1736,8 +1736,8 @@ class cMeasurementsGrid(wx.grid.Grid):
 		emr = self.__patient.emr
 
 		self.__row_label_data = tests4rows
-		row_labels = [ u'%s%s' % (
-				gmTools.bool2subst(test_type['is_fake_meta_type'], u'', gmTools.u_sum, u''),
+		row_labels = [ '%s%s' % (
+				gmTools.bool2subst(test_type['is_fake_meta_type'], '', gmTools.u_sum, ''),
 				test_type['unified_abbrev']
 			) for test_type in self.__row_label_data
 		]
@@ -1767,8 +1767,8 @@ class cMeasurementsGrid(wx.grid.Grid):
 
 		# cell values (list of test results)
 		for result in results:
-			row_idx = row_labels.index(u'%s%s' % (
-				gmTools.bool2subst(result['is_fake_meta_type'], u'', gmTools.u_sum, u''),
+			row_idx = row_labels.index('%s%s' % (
+				gmTools.bool2subst(result['is_fake_meta_type'], '', gmTools.u_sum, ''),
 				result['unified_abbrev']
 			))
 			col_idx = col_labels.index(gmDateTime.pydt_strftime(result['clin_when'], self.__date_format, accuracy = gmDateTime.acc_days))
@@ -1795,9 +1795,9 @@ class cMeasurementsGrid(wx.grid.Grid):
 
 				abnormality_indicator = sub_result.formatted_abnormality_indicator
 				if abnormality_indicator is None:
-					abnormality_indicator = u''
-				if abnormality_indicator != u'':
-					abnormality_indicator = u' (%s)' % abnormality_indicator[:3]
+					abnormality_indicator = ''
+				if abnormality_indicator != '':
+					abnormality_indicator = ' (%s)' % abnormality_indicator[:3]
 
 				missing_review = False
 				# warn on missing review if
@@ -1816,7 +1816,7 @@ class cMeasurementsGrid(wx.grid.Grid):
 				if sub_result.is_long_text:
 					lines = gmTools.strip_empty_lines (
 						text = sub_result['unified_val'],
-						eol = u'\n',
+						eol = '\n',
 						return_list = True
 					)
 					#tmp = u'%.7s%s' % (lines[0][:7], gmTools.u_ellipsis)
@@ -1825,45 +1825,45 @@ class cMeasurementsGrid(wx.grid.Grid):
 				else:
 					val = gmTools.strip_empty_lines (
 						text = sub_result['unified_val'],
-						eol = u'\n',
+						eol = '\n',
 						return_list = False
-					).replace(u'\n', u'//')
+					).replace('\n', '//')
 					if len(val) > 8:
 						#tmp = u'%.7s%s' % (val[:7], gmTools.u_ellipsis)
 						needs_superscript = True
 						tmp = val[:7]
 					else:
-						tmp = u'%.8s' % val[:8]
+						tmp = '%.8s' % val[:8]
 
 				# abnormal ?
-				tmp = u'%s%.6s' % (tmp, abnormality_indicator)
+				tmp = '%s%.6s' % (tmp, abnormality_indicator)
 
 				# is there a comment ?
 				has_sub_result_comment = gmTools.coalesce (
 					gmTools.coalesce(sub_result['note_test_org'], sub_result['comment']),
-					u''
-				).strip() != u''
+					''
+				).strip() != ''
 				if has_sub_result_comment:
 					#tmp = u'%s %s' % (tmp, gmTools.u_superscript_one)
 					needs_superscript = True
 
 				if needs_superscript:
-					tmp = u'%s%s' % (tmp, gmTools.u_superscript_one)
+					tmp = '%s%s' % (tmp, gmTools.u_superscript_one)
 
 				# lacking a review ?
 				if missing_review:
-					tmp = u'%s %s' % (tmp, gmTools.u_writing_hand)
+					tmp = '%s %s' % (tmp, gmTools.u_writing_hand)
 				else:
 					if sub_result['is_clinically_relevant']:
-						tmp += u' !'
+						tmp += ' !'
 
 				# part of a multi-result cell ?
 				if len(self.__cell_data[col_idx][row_idx]) > 1:
-					tmp = u'%s %s' % (sub_result['clin_when'].strftime('%H:%M'), tmp)
+					tmp = '%s %s' % (sub_result['clin_when'].strftime('%H:%M'), tmp)
 
 				vals2display.append(tmp)
 
-			self.SetCellValue(row_idx, col_idx, u'\n'.join(vals2display))
+			self.SetCellValue(row_idx, col_idx, '\n'.join(vals2display))
 			self.SetCellAlignment(row_idx, col_idx, horiz = wx.ALIGN_RIGHT, vert = wx.ALIGN_CENTRE)
 			# We used to color text in cells holding abnormals
 			# in firebrick red but that would color ALL text (including
@@ -1913,7 +1913,7 @@ class cMeasurementsGrid(wx.grid.Grid):
 		try:
 			tt = self.__row_label_data[row]
 		except IndexError:
-			return u' '
+			return ' '
 
 		if tt['is_fake_meta_type']:
 			return tt.format(patient = self.__patient.ID)
@@ -1932,19 +1932,19 @@ class cMeasurementsGrid(wx.grid.Grid):
 			cell_results = None
 
 		if cell_results is None:
-			return u' '
+			return ' '
 
 		is_multi_cell = False
 		if len(cell_results) > 1:
 			is_multi_cell = True
 		result = cell_results[0]
 
-		tt = u''
+		tt = ''
 		# header
 		if is_multi_cell:
-			tt += _(u'Details of most recent (topmost) result !               \n')
+			tt += _('Details of most recent (topmost) result !               \n')
 		if result.is_long_text:
-			tt += gmTools.strip_empty_lines(text = result['val_alpha'], eol = u'\n', return_list = False)
+			tt += gmTools.strip_empty_lines(text = result['val_alpha'], eol = '\n', return_list = False)
 			return tt
 
 		tt += result.format(with_review = True, with_evaluation = True, with_ranges = True)
@@ -1976,7 +1976,7 @@ class cMeasurementsGrid(wx.grid.Grid):
 		# add link to left upper corner
 		dbcfg = gmCfg.cCfgSQL()
 		url = dbcfg.get2 (
-			option = u'external.urls.measurements_encyclopedia',
+			option = 'external.urls.measurements_encyclopedia',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			bias = 'user',
 			default = gmPathLab.URL_test_result_information
@@ -2032,7 +2032,7 @@ class cMeasurementsGrid(wx.grid.Grid):
 				continue
 
 			if exclude_multi_cells:
-				gmDispatcher.send(signal = u'statustext', msg = _('Excluding multi-result field from further processing.'))
+				gmDispatcher.send(signal = 'statustext', msg = _('Excluding multi-result field from further processing.'))
 				continue
 
 			if auto_include_multi_cells:
@@ -2056,7 +2056,7 @@ class cMeasurementsGrid(wx.grid.Grid):
 				'Please select the individual results you want to work on:'
 			),
 			caption = _('Selecting test results'),
-			choices = [ [d['clin_when'], u'%s: %s' % (d['abbrev_tt'], d['name_tt']), d['unified_val']] for d in cell_data ],
+			choices = [ [d['clin_when'], '%s: %s' % (d['abbrev_tt'], d['name_tt']), d['unified_val']] for d in cell_data ],
 			columns = [ _('Date / Time'), _('Test'), _('Result') ],
 			data = cell_data,
 			single_selection = single_selection
@@ -2088,18 +2088,18 @@ class cMeasurementsGrid(wx.grid.Grid):
 		except KeyError:		# empty cell
 			fields = {}
 			col_date = self.__col_label_data[col]
-			fields[u'clin_when'] = {'data': col_date}
+			fields['clin_when'] = {'data': col_date}
 			test_type = self.__row_label_data[row]
 			temporally_closest_result_of_row_type = test_type.meta_test_type.get_temporally_closest_result(col_date, self.__patient.ID)
 			if temporally_closest_result_of_row_type is not None:
-				fields[u'pk_test_type'] = {'data': temporally_closest_result_of_row_type['pk_test_type']}
+				fields['pk_test_type'] = {'data': temporally_closest_result_of_row_type['pk_test_type']}
 			same_day_results = gmPathLab.get_results_for_day (
 				timestamp = col_date,
 				patient = self.__patient.ID,
 				order_by = None
 			)
 			if len(same_day_results) > 0:
-				fields[u'pk_episode'] = {'data': same_day_results[0]['pk_episode']}
+				fields['pk_episode'] = {'data': same_day_results[0]['pk_episode']}
 				# maybe ['comment'] as in "medical context" ? - not thought through yet
 			# no need to set because because setting pk_test_type will do so:
 			#	fields['val_unit']
@@ -2221,17 +2221,17 @@ class cMeasurementsPnl(wxgMeasurementsPnl.wxgMeasurementsPnl, gmRegetMixin.cRege
 
 		wxgMeasurementsPnl.wxgMeasurementsPnl.__init__(self, *args, **kwargs)
 		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
-		self.__display_mode = u'grid'
+		self.__display_mode = 'grid'
 		self.__init_ui()
 		self.__register_interests()
 	#--------------------------------------------------------
 	# event handling
 	#--------------------------------------------------------
 	def __register_interests(self):
-		gmDispatcher.connect(signal = u'pre_patient_unselection', receiver = self._on_pre_patient_unselection)
-		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._on_post_patient_selection)
-		gmDispatcher.connect(signal = u'clin.test_result_mod_db', receiver = self._schedule_data_reget)
-		gmDispatcher.connect(signal = u'clin.reviewed_test_results_mod_db', receiver = self._schedule_data_reget)
+		gmDispatcher.connect(signal = 'pre_patient_unselection', receiver = self._on_pre_patient_unselection)
+		gmDispatcher.connect(signal = 'post_patient_selection', receiver = self._on_post_patient_selection)
+		gmDispatcher.connect(signal = 'clin.test_result_mod_db', receiver = self._schedule_data_reget)
+		gmDispatcher.connect(signal = 'clin.reviewed_test_results_mod_db', receiver = self._schedule_data_reget)
 	#--------------------------------------------------------
 	def _on_post_patient_selection(self):
 		self._schedule_data_reget()
@@ -2265,9 +2265,9 @@ class cMeasurementsPnl(wxgMeasurementsPnl.wxgMeasurementsPnl, gmRegetMixin.cRege
 	#--------------------------------------------------------
 	def _on_display_mode_button_pressed(self, event):
 		event.Skip()
-		if self.__display_mode == u'grid':
+		if self.__display_mode == 'grid':
 			self._BTN_display_mode.SetLabel(_('All: as &Grid'))
-			self.__display_mode = u'day'
+			self.__display_mode = 'day'
 			#self._GRID_results_all.Hide()
 			self._PNL_results_all_grid.Hide()
 			if self._PNL_results_all_listed.patient is None:
@@ -2275,7 +2275,7 @@ class cMeasurementsPnl(wxgMeasurementsPnl.wxgMeasurementsPnl, gmRegetMixin.cRege
 			self._PNL_results_all_listed.Show()
 		else:
 			self._BTN_display_mode.SetLabel(_('All: by &Day'))
-			self.__display_mode = u'grid'
+			self.__display_mode = 'grid'
 			self._PNL_results_all_listed.Hide()
 			if self._GRID_results_all.patient is None:
 				self._GRID_results_all.patient = self._PNL_results_all_listed.patient
@@ -2297,7 +2297,7 @@ class cMeasurementsPnl(wxgMeasurementsPnl.wxgMeasurementsPnl, gmRegetMixin.cRege
 	#--------------------------------------------------------
 	def __on_panel_selected(self, panel):
 		if panel is None:
-			self._TCTRL_panel_comment.SetValue(u'')
+			self._TCTRL_panel_comment.SetValue('')
 			self._GRID_results_battery.panel_to_show = None
 			#self._GRID_results_battery.Hide()
 			self._PNL_results_battery_grid.Hide()
@@ -2305,7 +2305,7 @@ class cMeasurementsPnl(wxgMeasurementsPnl.wxgMeasurementsPnl, gmRegetMixin.cRege
 			pnl = self._PRW_panel.GetData(as_instance = True)
 			self._TCTRL_panel_comment.SetValue(gmTools.coalesce (
 				pnl['comment'],
-				u''
+				''
 			))
 			self._GRID_results_battery.panel_to_show = pnl
 			#self._GRID_results_battery.Show()
@@ -2318,8 +2318,8 @@ class cMeasurementsPnl(wxgMeasurementsPnl.wxgMeasurementsPnl, gmRegetMixin.cRege
 		wx.CallAfter(self.__on_panel_selection_modified)
 	#--------------------------------------------------------
 	def __on_panel_selection_modified(self):
-		self._TCTRL_panel_comment.SetValue(u'')
-		if self._PRW_panel.GetValue().strip() == u'':
+		self._TCTRL_panel_comment.SetValue('')
+		if self._PRW_panel.GetValue().strip() == '':
 			self._GRID_results_battery.panel_to_show = None
 			#self._GRID_results_battery.Hide()
 			self._PNL_results_battery_grid.Hide()
@@ -2373,7 +2373,7 @@ class cMeasurementsPnl(wxgMeasurementsPnl.wxgMeasurementsPnl, gmRegetMixin.cRege
 		pat = gmPerson.gmCurrentPatient()
 		if pat.connected:
 			self._GRID_results_battery.patient = pat
-			if self.__display_mode == u'grid':
+			if self.__display_mode == 'grid':
 				self._GRID_results_all.patient = pat
 				self._PNL_results_all_listed.patient = None
 			else:
@@ -2470,7 +2470,7 @@ class cMeasurementsReviewDlg(wxgMeasurementsReviewDlg.wxgMeasurementsReviewDlg):
 			msg = _('%s results selected. Too many to list individually.') % test_count
 		else:
 			msg = '\n'.join (
-				[	u'%s: %s %s (%s)' % (
+				[	'%s: %s %s (%s)' % (
 						t['unified_abbrev'],
 						t['unified_val'],
 						t['val_unit'],
@@ -2483,7 +2483,7 @@ class cMeasurementsReviewDlg(wxgMeasurementsReviewDlg.wxgMeasurementsReviewDlg):
 
 		if test_count == 1:
 			self._TCTRL_comment.Enable(True)
-			self._TCTRL_comment.SetValue(gmTools.coalesce(tests[0]['review_comment'], u''))
+			self._TCTRL_comment.SetValue(gmTools.coalesce(tests[0]['review_comment'], ''))
 			if tests[0]['you_are_responsible']:
 				self._CHBOX_responsible.Enable(False)
 
@@ -2569,34 +2569,34 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 
 	#--------------------------------------------------------
 	def _refresh_as_new(self):
-		self._PRW_test.SetText(u'', None, True)
+		self._PRW_test.SetText('', None, True)
 		self.__refresh_loinc_info()
 		self.__refresh_previous_value()
 		self.__update_units_context()
-		self._TCTRL_result.SetValue(u'')
-		self._PRW_units.SetText(u'', None, True)
-		self._PRW_abnormality_indicator.SetText(u'', None, True)
+		self._TCTRL_result.SetValue('')
+		self._PRW_units.SetText('', None, True)
+		self._PRW_abnormality_indicator.SetText('', None, True)
 		if self.__default_date is None:
 			self._DPRW_evaluated.SetData(data = pyDT.datetime.now(tz = gmDateTime.gmCurrentLocalTimezone))
 		else:
 			self._DPRW_evaluated.SetData(data =	None)
-		self._TCTRL_note_test_org.SetValue(u'')
+		self._TCTRL_note_test_org.SetValue('')
 		self._PRW_intended_reviewer.SetData(gmStaff.gmCurrentProvider()['pk_staff'])
 		self._PRW_problem.SetData()
-		self._TCTRL_narrative.SetValue(u'')
+		self._TCTRL_narrative.SetValue('')
 		self._CHBOX_review.SetValue(False)
 		self._CHBOX_abnormal.SetValue(False)
 		self._CHBOX_relevant.SetValue(False)
 		self._CHBOX_abnormal.Enable(False)
 		self._CHBOX_relevant.Enable(False)
-		self._TCTRL_review_comment.SetValue(u'')
-		self._TCTRL_normal_min.SetValue(u'')
-		self._TCTRL_normal_max.SetValue(u'')
-		self._TCTRL_normal_range.SetValue(u'')
-		self._TCTRL_target_min.SetValue(u'')
-		self._TCTRL_target_max.SetValue(u'')
-		self._TCTRL_target_range.SetValue(u'')
-		self._TCTRL_norm_ref_group.SetValue(u'')
+		self._TCTRL_review_comment.SetValue('')
+		self._TCTRL_normal_min.SetValue('')
+		self._TCTRL_normal_max.SetValue('')
+		self._TCTRL_normal_range.SetValue('')
+		self._TCTRL_target_min.SetValue('')
+		self._TCTRL_target_max.SetValue('')
+		self._TCTRL_target_range.SetValue('')
+		self._TCTRL_norm_ref_group.SetValue('')
 
 		self._PRW_test.SetFocus()
 	#--------------------------------------------------------
@@ -2608,57 +2608,57 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 		self._TCTRL_result.SetValue(self.data['unified_val'])
 		self._PRW_units.SetText(self.data['val_unit'], self.data['val_unit'], True)
 		self._PRW_abnormality_indicator.SetText (
-			gmTools.coalesce(self.data['abnormality_indicator'], u''),
-			gmTools.coalesce(self.data['abnormality_indicator'], u''),
+			gmTools.coalesce(self.data['abnormality_indicator'], ''),
+			gmTools.coalesce(self.data['abnormality_indicator'], ''),
 			True
 		)
 		self._DPRW_evaluated.SetData(data = self.data['clin_when'])
-		self._TCTRL_note_test_org.SetValue(gmTools.coalesce(self.data['note_test_org'], u''))
+		self._TCTRL_note_test_org.SetValue(gmTools.coalesce(self.data['note_test_org'], ''))
 		self._PRW_intended_reviewer.SetData(self.data['pk_intended_reviewer'])
 		self._PRW_problem.SetData(self.data['pk_episode'])
-		self._TCTRL_narrative.SetValue(gmTools.coalesce(self.data['comment'], u''))
+		self._TCTRL_narrative.SetValue(gmTools.coalesce(self.data['comment'], ''))
 		self._CHBOX_review.SetValue(False)
 		self._CHBOX_abnormal.SetValue(gmTools.coalesce(self.data['is_technically_abnormal'], False))
 		self._CHBOX_relevant.SetValue(gmTools.coalesce(self.data['is_clinically_relevant'], False))
 		self._CHBOX_abnormal.Enable(False)
 		self._CHBOX_relevant.Enable(False)
-		self._TCTRL_review_comment.SetValue(gmTools.coalesce(self.data['review_comment'], u''))
-		self._TCTRL_normal_min.SetValue(str(gmTools.coalesce(self.data['val_normal_min'], u'')))
-		self._TCTRL_normal_max.SetValue(str(gmTools.coalesce(self.data['val_normal_max'], u'')))
-		self._TCTRL_normal_range.SetValue(gmTools.coalesce(self.data['val_normal_range'], u''))
-		self._TCTRL_target_min.SetValue(str(gmTools.coalesce(self.data['val_target_min'], u'')))
-		self._TCTRL_target_max.SetValue(str(gmTools.coalesce(self.data['val_target_max'], u'')))
-		self._TCTRL_target_range.SetValue(gmTools.coalesce(self.data['val_target_range'], u''))
-		self._TCTRL_norm_ref_group.SetValue(gmTools.coalesce(self.data['norm_ref_group'], u''))
+		self._TCTRL_review_comment.SetValue(gmTools.coalesce(self.data['review_comment'], ''))
+		self._TCTRL_normal_min.SetValue(str(gmTools.coalesce(self.data['val_normal_min'], '')))
+		self._TCTRL_normal_max.SetValue(str(gmTools.coalesce(self.data['val_normal_max'], '')))
+		self._TCTRL_normal_range.SetValue(gmTools.coalesce(self.data['val_normal_range'], ''))
+		self._TCTRL_target_min.SetValue(str(gmTools.coalesce(self.data['val_target_min'], '')))
+		self._TCTRL_target_max.SetValue(str(gmTools.coalesce(self.data['val_target_max'], '')))
+		self._TCTRL_target_range.SetValue(gmTools.coalesce(self.data['val_target_range'], ''))
+		self._TCTRL_norm_ref_group.SetValue(gmTools.coalesce(self.data['norm_ref_group'], ''))
 
 		self._TCTRL_result.SetFocus()
 	#--------------------------------------------------------
 	def _refresh_as_new_from_existing(self):
-		self._PRW_test.SetText(u'', None, True)
+		self._PRW_test.SetText('', None, True)
 		self.__refresh_loinc_info()
 		self.__refresh_previous_value()
 		self.__update_units_context()
-		self._TCTRL_result.SetValue(u'')
-		self._PRW_units.SetText(u'', None, True)
-		self._PRW_abnormality_indicator.SetText(u'', None, True)
+		self._TCTRL_result.SetValue('')
+		self._PRW_units.SetText('', None, True)
+		self._PRW_abnormality_indicator.SetText('', None, True)
 		self._DPRW_evaluated.SetData(data = self.data['clin_when'])
-		self._TCTRL_note_test_org.SetValue(u'')
+		self._TCTRL_note_test_org.SetValue('')
 		self._PRW_intended_reviewer.SetData(self.data['pk_intended_reviewer'])
 		self._PRW_problem.SetData(self.data['pk_episode'])
-		self._TCTRL_narrative.SetValue(u'')
+		self._TCTRL_narrative.SetValue('')
 		self._CHBOX_review.SetValue(False)
 		self._CHBOX_abnormal.SetValue(False)
 		self._CHBOX_relevant.SetValue(False)
 		self._CHBOX_abnormal.Enable(False)
 		self._CHBOX_relevant.Enable(False)
-		self._TCTRL_review_comment.SetValue(u'')
-		self._TCTRL_normal_min.SetValue(u'')
-		self._TCTRL_normal_max.SetValue(u'')
-		self._TCTRL_normal_range.SetValue(u'')
-		self._TCTRL_target_min.SetValue(u'')
-		self._TCTRL_target_max.SetValue(u'')
-		self._TCTRL_target_range.SetValue(u'')
-		self._TCTRL_norm_ref_group.SetValue(u'')
+		self._TCTRL_review_comment.SetValue('')
+		self._TCTRL_normal_min.SetValue('')
+		self._TCTRL_normal_max.SetValue('')
+		self._TCTRL_normal_range.SetValue('')
+		self._TCTRL_target_min.SetValue('')
+		self._TCTRL_target_max.SetValue('')
+		self._TCTRL_target_range.SetValue('')
+		self._TCTRL_norm_ref_group.SetValue('')
 
 		self._PRW_test.SetFocus()
 	#--------------------------------------------------------
@@ -2673,14 +2673,14 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 			self._DPRW_evaluated.display_as_valid(True)
 
 		val = self._TCTRL_result.GetValue().strip()
-		if val == u'':
+		if val == '':
 			validity = False
 			self.display_ctrl_as_valid(self._TCTRL_result, False)
 		else:
 			self.display_ctrl_as_valid(self._TCTRL_result, True)
 			numeric, val = gmTools.input2decimal(val)
 			if numeric:
-				if self._PRW_units.GetValue().strip() == u'':
+				if self._PRW_units.GetValue().strip() == '':
 					self._PRW_units.display_as_valid(False)
 					validity = False
 				else:
@@ -2688,13 +2688,13 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 			else:
 				self._PRW_units.display_as_valid(True)
 
-		if self._PRW_problem.GetValue().strip() == u'':
+		if self._PRW_problem.GetValue().strip() == '':
 			self._PRW_problem.display_as_valid(False)
 			validity = False
 		else:
 			self._PRW_problem.display_as_valid(True)
 
-		if self._PRW_test.GetValue().strip() == u'':
+		if self._PRW_test.GetValue().strip() == '':
 			self._PRW_test.display_as_valid(False)
 			validity = False
 		else:
@@ -2709,10 +2709,10 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 		ctrls = [self._TCTRL_normal_min, self._TCTRL_normal_max, self._TCTRL_target_min, self._TCTRL_target_max]
 		for widget in ctrls:
 			val = widget.GetValue().strip()
-			if val == u'':
+			if val == '':
 				continue
 			try:
-				decimal.Decimal(val.replace(',', u'.', 1))
+				decimal.Decimal(val.replace(',', '.', 1))
 				self.display_ctrl_as_valid(widget, True)
 			except:
 				validity = False
@@ -2784,10 +2784,10 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 		]
 		for field, widget in ctrls:
 			val = widget.GetValue().strip()
-			if val == u'':
+			if val == '':
 				tr[field] = None
 			else:
-				tr[field] = decimal.Decimal(val.replace(',', u'.', 1))
+				tr[field] = decimal.Decimal(val.replace(',', '.', 1))
 
 		tr.save_payload()
 
@@ -2795,7 +2795,7 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 			tr.set_review (
 				technically_abnormal = self._CHBOX_abnormal.GetValue(),
 				clinically_relevant = self._CHBOX_relevant.GetValue(),
-				comment = gmTools.none_if(self._TCTRL_review_comment.GetValue().strip(), u''),
+				comment = gmTools.none_if(self._TCTRL_review_comment.GetValue().strip(), ''),
 				make_me_responsible = False
 			)
 
@@ -2868,10 +2868,10 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 		]
 		for field, widget in ctrls:
 			val = widget.GetValue().strip()
-			if val == u'':
+			if val == '':
 				tr[field] = None
 			else:
-				tr[field] = decimal.Decimal(val.replace(',', u'.', 1))
+				tr[field] = decimal.Decimal(val.replace(',', '.', 1))
 
 		tr.save_payload()
 
@@ -2879,7 +2879,7 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 			tr.set_review (
 				technically_abnormal = self._CHBOX_abnormal.GetValue(),
 				clinically_relevant = self._CHBOX_relevant.GetValue(),
-				comment = gmTools.none_if(self._TCTRL_review_comment.GetValue().strip(), u''),
+				comment = gmTools.none_if(self._TCTRL_review_comment.GetValue().strip(), ''),
 				make_me_responsible = False
 			)
 
@@ -2915,7 +2915,7 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 	def _on_leave_indicator_prw(self):
 		# if the user hasn't explicitly enabled reviewing
 		if not self._CHBOX_review.GetValue():
-			self._CHBOX_abnormal.SetValue(self._PRW_abnormality_indicator.GetValue().strip() != u'')
+			self._CHBOX_abnormal.SetValue(self._PRW_abnormality_indicator.GetValue().strip() != '')
 	#--------------------------------------------------------
 	def _on_review_box_checked(self, evt):
 		self._CHBOX_abnormal.Enable(self._CHBOX_review.GetValue())
@@ -2926,15 +2926,15 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 		pk = self._PRW_test.GetData()
 		if pk is not None:
 			tt = gmPathLab.cMeasurementType(aPK_obj = pk)
-			search_term = u'%s %s %s' % (
+			search_term = '%s %s %s' % (
 				tt['name'],
 				tt['abbrev'],
-				gmTools.coalesce(tt['loinc'], u'')
+				gmTools.coalesce(tt['loinc'], '')
 			)
 		else:
 			search_term = self._PRW_test.GetValue()
 
-		search_term = search_term.replace(' ', u'+')
+		search_term = search_term.replace(' ', '+')
 
 		call_browser_on_measurement_type(measurement_type = search_term)
 	#--------------------------------------------------------
@@ -2947,24 +2947,24 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 	def __update_units_context(self):
 
 		if self._PRW_test.GetData() is None:
-			self._PRW_units.unset_context(context = u'pk_type')
-			self._PRW_units.unset_context(context = u'loinc')
-			if self._PRW_test.GetValue().strip() == u'':
-				self._PRW_units.unset_context(context = u'test_name')
+			self._PRW_units.unset_context(context = 'pk_type')
+			self._PRW_units.unset_context(context = 'loinc')
+			if self._PRW_test.GetValue().strip() == '':
+				self._PRW_units.unset_context(context = 'test_name')
 			else:
-				self._PRW_units.set_context(context = u'test_name', val = self._PRW_test.GetValue().strip())
+				self._PRW_units.set_context(context = 'test_name', val = self._PRW_test.GetValue().strip())
 			return
 
 		tt = self._PRW_test.GetData(as_instance = True)
 
-		self._PRW_units.set_context(context = u'pk_type', val = tt['pk_test_type'])
-		self._PRW_units.set_context(context = u'test_name', val = tt['name'])
+		self._PRW_units.set_context(context = 'pk_type', val = tt['pk_test_type'])
+		self._PRW_units.set_context(context = 'test_name', val = tt['name'])
 
 		if tt['loinc'] is not None:
-			self._PRW_units.set_context(context = u'loinc', val = tt['loinc'])
+			self._PRW_units.set_context(context = 'loinc', val = tt['loinc'])
 
 		# closest unit
-		if self._PRW_units.GetValue().strip() == u'':
+		if self._PRW_units.GetValue().strip() == '':
 			clin_when = self._DPRW_evaluated.GetData()
 			if clin_when is None:
 				unit = tt.temporally_closest_unit
@@ -2972,19 +2972,19 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 				clin_when = clin_when.get_pydt()
 				unit = tt.get_temporally_closest_unit(timestamp = clin_when)
 			if unit is None:
-				self._PRW_units.SetText(u'', unit, True)
+				self._PRW_units.SetText('', unit, True)
 			else:
 				self._PRW_units.SetText(unit, unit, True)
 
 	#--------------------------------------------------------
 	def __update_normal_range(self):
 		unit = self._PRW_units.GetValue().strip()
-		if unit == u'':
+		if unit == '':
 			return
 		if self._PRW_test.GetData() is None:
 			return
 		for ctrl in [self._TCTRL_normal_min, self._TCTRL_normal_max, self._TCTRL_normal_range, self._TCTRL_norm_ref_group]:
-			if ctrl.GetValue().strip() != u'':
+			if ctrl.GetValue().strip() != '':
 				return
 		tt = self._PRW_test.GetData(as_instance = True)
 		test_w_range = tt.get_temporally_closest_normal_range (
@@ -2993,20 +2993,20 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 		)
 		if test_w_range is None:
 			return
-		self._TCTRL_normal_min.SetValue(str(gmTools.coalesce(test_w_range['val_normal_min'], u'')))
-		self._TCTRL_normal_max.SetValue(str(gmTools.coalesce(test_w_range['val_normal_max'], u'')))
-		self._TCTRL_normal_range.SetValue(gmTools.coalesce(test_w_range['val_normal_range'], u''))
-		self._TCTRL_norm_ref_group.SetValue(gmTools.coalesce(test_w_range['norm_ref_group'], u''))
+		self._TCTRL_normal_min.SetValue(str(gmTools.coalesce(test_w_range['val_normal_min'], '')))
+		self._TCTRL_normal_max.SetValue(str(gmTools.coalesce(test_w_range['val_normal_max'], '')))
+		self._TCTRL_normal_range.SetValue(gmTools.coalesce(test_w_range['val_normal_range'], ''))
+		self._TCTRL_norm_ref_group.SetValue(gmTools.coalesce(test_w_range['norm_ref_group'], ''))
 
 	#--------------------------------------------------------
 	def __update_clinical_range(self):
 		unit = self._PRW_units.GetValue().strip()
-		if unit == u'':
+		if unit == '':
 			return
 		if self._PRW_test.GetData() is None:
 			return
 		for ctrl in [self._TCTRL_target_min, self._TCTRL_target_max, self._TCTRL_target_range]:
-			if ctrl.GetValue().strip() != u'':
+			if ctrl.GetValue().strip() != '':
 				return
 		tt = self._PRW_test.GetData(as_instance = True)
 		test_w_range = tt.get_temporally_closest_target_range (
@@ -3016,14 +3016,14 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 		)
 		if test_w_range is None:
 			return
-		self._TCTRL_target_min.SetValue(str(gmTools.coalesce(test_w_range['val_target_min'], u'')))
-		self._TCTRL_target_max.SetValue(str(gmTools.coalesce(test_w_range['val_target_max'], u'')))
-		self._TCTRL_target_range.SetValue(gmTools.coalesce(test_w_range['val_target_range'], u''))
+		self._TCTRL_target_min.SetValue(str(gmTools.coalesce(test_w_range['val_target_min'], '')))
+		self._TCTRL_target_max.SetValue(str(gmTools.coalesce(test_w_range['val_target_max'], '')))
+		self._TCTRL_target_range.SetValue(gmTools.coalesce(test_w_range['val_target_range'], ''))
 
 	#--------------------------------------------------------
 	def __refresh_loinc_info(self):
 
-		self._TCTRL_loinc.SetValue(u'')
+		self._TCTRL_loinc.SetValue('')
 
 		if self._PRW_test.GetData() is None:
 			return
@@ -3035,13 +3035,13 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 
 		info = gmLOINC.loinc2term(loinc = tt['loinc'])
 		if len(info) == 0:
-			self._TCTRL_loinc.SetValue(u'')
+			self._TCTRL_loinc.SetValue('')
 			return
 
-		self._TCTRL_loinc.SetValue(u'%s: %s' % (tt['loinc'], info[0]))
+		self._TCTRL_loinc.SetValue('%s: %s' % (tt['loinc'], info[0]))
 	#--------------------------------------------------------
 	def __refresh_previous_value(self):
-		self._TCTRL_previous_value.SetValue(u'')
+		self._TCTRL_previous_value.SetValue('')
 		# it doesn't make much sense to show the most
 		# recent value when editing an existing one
 		if self.data is not None:
@@ -3059,9 +3059,9 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 			gmDateTime.format_interval_medically(gmDateTime.pydt_now_here() - most_recent['clin_when']),
 			most_recent['unified_val'],
 			most_recent['val_unit'],
-			gmTools.coalesce(most_recent['abnormality_indicator'], u'', u' (%s)'),
+			gmTools.coalesce(most_recent['abnormality_indicator'], '', ' (%s)'),
 			most_recent['abbrev_tt'],
-			gmTools.coalesce(most_recent.formatted_range, u'', u' [%s]')
+			gmTools.coalesce(most_recent.formatted_range, '', ' [%s]')
 		))
 		self._TCTRL_previous_value.SetToolTip(most_recent.format (
 			with_review = True,
@@ -3092,10 +3092,10 @@ def pick_measurement_types(parent=None, msg=None, right_column=None, picks=None)
 	types = gmPathLab.get_measurement_types(order_by = 'unified_abbrev')
 	picker.set_choices (
 		choices = [
-			u'%s: %s%s' % (
+			'%s: %s%s' % (
 				t['unified_abbrev'],
 				t['unified_name'],
-				gmTools.coalesce(t['name_org'], u'', u' (%s)')
+				gmTools.coalesce(t['name_org'], '', ' (%s)')
 			)
 			for t in types
 		],
@@ -3104,10 +3104,10 @@ def pick_measurement_types(parent=None, msg=None, right_column=None, picks=None)
 	if picks is not None:
 		picker.set_picks (
 			picks = [
-				u'%s: %s%s' % (
+				'%s: %s%s' % (
 					p['unified_abbrev'],
 					p['unified_name'],
-					gmTools.coalesce(p['name_org'], u'', u' (%s)')
+					gmTools.coalesce(p['name_org'], '', ' (%s)')
 				)
 				for p in picks
 			],
@@ -3170,11 +3170,11 @@ def manage_measurement_types(parent=None):
 		items = [ [
 			m['abbrev'],
 			m['name'],
-			gmTools.coalesce(m['reference_unit'], u''),
-			gmTools.coalesce(m['loinc'], u''),
-			gmTools.coalesce(m['comment_type'], u''),
-			gmTools.coalesce(m['name_org'], u'?'),
-			gmTools.coalesce(m['comment_org'], u''),
+			gmTools.coalesce(m['reference_unit'], ''),
+			gmTools.coalesce(m['loinc'], ''),
+			gmTools.coalesce(m['comment_type'], ''),
+			gmTools.coalesce(m['name_org'], '?'),
+			gmTools.coalesce(m['comment_org'], ''),
 			m['pk_test_type']
 		] for m in mtypes ]
 		lctrl.set_string_items(items)
@@ -3190,7 +3190,7 @@ def manage_measurement_types(parent=None):
 		parent = parent,
 		msg = msg,
 		caption = _('Showing measurement types.'),
-		columns = [ _('Abbrev'), _('Name'), _('Unit'), _('LOINC'), _('Comment'), _('Org'), _('Comment'), u'#' ],
+		columns = [ _('Abbrev'), _('Name'), _('Unit'), _('LOINC'), _('Comment'), _('Org'), _('Comment'), '#' ],
 		single_selection = True,
 		refresh_callback = refresh,
 		edit_callback = edit,
@@ -3205,7 +3205,7 @@ class cMeasurementTypePhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 	def __init__(self, *args, **kwargs):
 
-		query = u"""
+		query = """
 SELECT DISTINCT ON (field_label)
 	pk_test_type AS data,
 	name
@@ -3280,7 +3280,7 @@ class cMeasurementTypeEAPnl(wxgMeasurementTypeEAPnl.wxgMeasurementTypeEAPnl, gmE
 	def __init_ui(self):
 
 		# name phraseweel
-		query = u"""
+		query = """
 select distinct on (name)
 	pk,
 	name
@@ -3296,7 +3296,7 @@ limit 50"""
 		self._PRW_name.add_callback_on_lose_focus(callback = self._on_name_lost_focus)
 
 		# abbreviation
-		query = u"""
+		query = """
 select distinct on (abbrev)
 	pk,
 	abbrev
@@ -3327,25 +3327,25 @@ limit 50"""
 
 		test = self._PRW_name.GetValue().strip()
 
-		if test == u'':
-			self._PRW_reference_unit.unset_context(context = u'test_name')
+		if test == '':
+			self._PRW_reference_unit.unset_context(context = 'test_name')
 			return
 
-		self._PRW_reference_unit.set_context(context = u'test_name', val = test)
+		self._PRW_reference_unit.set_context(context = 'test_name', val = test)
 	#----------------------------------------------------------------
 	def _on_loinc_lost_focus(self):
 		loinc = self._PRW_loinc.GetData()
 
 		if loinc is None:
-			self._TCTRL_loinc_info.SetValue(u'')
-			self._PRW_reference_unit.unset_context(context = u'loinc')
+			self._TCTRL_loinc_info.SetValue('')
+			self._PRW_reference_unit.unset_context(context = 'loinc')
 			return
 
-		self._PRW_reference_unit.set_context(context = u'loinc', val = loinc)
+		self._PRW_reference_unit.set_context(context = 'loinc', val = loinc)
 
 		info = gmLOINC.loinc2term(loinc = loinc)
 		if len(info) == 0:
-			self._TCTRL_loinc_info.SetValue(u'')
+			self._TCTRL_loinc_info.SetValue('')
 			return
 
 		self._TCTRL_loinc_info.SetValue(info[0])
@@ -3356,7 +3356,7 @@ limit 50"""
 
 		has_errors = False
 		for field in [self._PRW_name, self._PRW_abbrev, self._PRW_reference_unit]:
-			if field.GetValue().strip() in [u'', None]:
+			if field.GetValue().strip() in ['', None]:
 				has_errors = True
 				field.display_as_valid(valid = False)
 			else:
@@ -3370,7 +3370,7 @@ limit 50"""
 		pk_org = self._PRW_test_org.GetData()
 		if pk_org is None:
 			pk_org = gmPathLab.create_test_org (
-				name = gmTools.none_if(self._PRW_test_org.GetValue().strip(), u'')
+				name = gmTools.none_if(self._PRW_test_org.GetValue().strip(), '')
 			)['pk_test_org']
 
 		tt = gmPathLab.create_measurement_type (
@@ -3383,10 +3383,10 @@ limit 50"""
 			).strip()
 		)
 		if self._PRW_loinc.GetData() is not None:
-			tt['loinc'] = gmTools.none_if(self._PRW_loinc.GetData().strip(), u'')
+			tt['loinc'] = gmTools.none_if(self._PRW_loinc.GetData().strip(), '')
 		else:
-			tt['loinc'] = gmTools.none_if(self._PRW_loinc.GetValue().strip(), u'')
-		tt['comment_type'] = gmTools.none_if(self._TCTRL_comment_type.GetValue().strip(), u'')
+			tt['loinc'] = gmTools.none_if(self._PRW_loinc.GetValue().strip(), '')
+		tt['comment_type'] = gmTools.none_if(self._TCTRL_comment_type.GetValue().strip(), '')
 		tt['pk_meta_test_type'] = self._PRW_meta_type.GetData()
 
 		tt.save()
@@ -3400,7 +3400,7 @@ limit 50"""
 		pk_org = self._PRW_test_org.GetData()
 		if pk_org is None:
 			pk_org = gmPathLab.create_test_org (
-				name = gmTools.none_if(self._PRW_test_org.GetValue().strip(), u'')
+				name = gmTools.none_if(self._PRW_test_org.GetValue().strip(), '')
 			)['pk_test_org']
 
 		self.data['pk_test_org'] = pk_org
@@ -3411,27 +3411,27 @@ limit 50"""
 			self._PRW_reference_unit.GetValue()
 		).strip()
 		if self._PRW_loinc.GetData() is not None:
-			self.data['loinc'] = gmTools.none_if(self._PRW_loinc.GetData().strip(), u'')
+			self.data['loinc'] = gmTools.none_if(self._PRW_loinc.GetData().strip(), '')
 		if self._PRW_loinc.GetData() is not None:
-			self.data['loinc'] = gmTools.none_if(self._PRW_loinc.GetData().strip(), u'')
+			self.data['loinc'] = gmTools.none_if(self._PRW_loinc.GetData().strip(), '')
 		else:
-			self.data['loinc'] = gmTools.none_if(self._PRW_loinc.GetValue().strip(), u'')
-		self.data['comment_type'] = gmTools.none_if(self._TCTRL_comment_type.GetValue().strip(), u'')
+			self.data['loinc'] = gmTools.none_if(self._PRW_loinc.GetValue().strip(), '')
+		self.data['comment_type'] = gmTools.none_if(self._TCTRL_comment_type.GetValue().strip(), '')
 		self.data['pk_meta_test_type'] = self._PRW_meta_type.GetData()
 		self.data.save()
 
 		return True
 	#----------------------------------------------------------------
 	def _refresh_as_new(self):
-		self._PRW_name.SetText(u'', None, True)
+		self._PRW_name.SetText('', None, True)
 		self._on_name_lost_focus()
-		self._PRW_abbrev.SetText(u'', None, True)
-		self._PRW_reference_unit.SetText(u'', None, True)
-		self._PRW_loinc.SetText(u'', None, True)
+		self._PRW_abbrev.SetText('', None, True)
+		self._PRW_reference_unit.SetText('', None, True)
+		self._PRW_loinc.SetText('', None, True)
 		self._on_loinc_lost_focus()
-		self._TCTRL_comment_type.SetValue(u'')
-		self._PRW_test_org.SetText(u'', None, True)
-		self._PRW_meta_type.SetText(u'', None, True)
+		self._TCTRL_comment_type.SetValue('')
+		self._PRW_test_org.SetText('', None, True)
+		self._PRW_meta_type.SetText('', None, True)
 
 		self._PRW_name.SetFocus()
 	#----------------------------------------------------------------
@@ -3440,40 +3440,40 @@ limit 50"""
 		self._on_name_lost_focus()
 		self._PRW_abbrev.SetText(self.data['abbrev'], self.data['abbrev'], True)
 		self._PRW_reference_unit.SetText (
-			gmTools.coalesce(self.data['reference_unit'], u''),
+			gmTools.coalesce(self.data['reference_unit'], ''),
 			self.data['reference_unit'],
 			True
 		)
 		self._PRW_loinc.SetText (
-			gmTools.coalesce(self.data['loinc'], u''),
+			gmTools.coalesce(self.data['loinc'], ''),
 			self.data['loinc'],
 			True
 		)
 		self._on_loinc_lost_focus()
-		self._TCTRL_comment_type.SetValue(gmTools.coalesce(self.data['comment_type'], u''))
+		self._TCTRL_comment_type.SetValue(gmTools.coalesce(self.data['comment_type'], ''))
 		self._PRW_test_org.SetText (
-			gmTools.coalesce(self.data['pk_test_org'], u'', self.data['name_org']),
+			gmTools.coalesce(self.data['pk_test_org'], '', self.data['name_org']),
 			self.data['pk_test_org'],
 			True
 		)
 		if self.data['pk_meta_test_type'] is None:
-			self._PRW_meta_type.SetText(u'', None, True)
+			self._PRW_meta_type.SetText('', None, True)
 		else:
-			self._PRW_meta_type.SetText(u'%s: %s' % (self.data['abbrev_meta'], self.data['name_meta']), self.data['pk_meta_test_type'], True)
+			self._PRW_meta_type.SetText('%s: %s' % (self.data['abbrev_meta'], self.data['name_meta']), self.data['pk_meta_test_type'], True)
 
 		self._PRW_name.SetFocus()
 	#----------------------------------------------------------------
 	def _refresh_as_new_from_existing(self):
 		self._refresh_as_new()
 		self._PRW_test_org.SetText (
-			gmTools.coalesce(self.data['pk_test_org'], u'', self.data['name_org']),
+			gmTools.coalesce(self.data['pk_test_org'], '', self.data['name_org']),
 			self.data['pk_test_org'],
 			True
 		)
 		self._PRW_name.SetFocus()
 
 #================================================================
-_SQL_units_from_test_results = u"""
+_SQL_units_from_test_results = """
 	-- via clin.v_test_results.pk_type (for types already used in results)
 	SELECT
 		val_unit AS data,
@@ -3492,7 +3492,7 @@ _SQL_units_from_test_results = u"""
 		%(ctxt_test_name)s
 """
 
-_SQL_units_from_test_types = u"""
+_SQL_units_from_test_types = """
 	-- via clin.test_type (for types not yet used in results)
 	SELECT
 		reference_unit AS data,
@@ -3506,7 +3506,7 @@ _SQL_units_from_test_types = u"""
 		%(ctxt_ctt)s
 """
 
-_SQL_units_from_loinc_ipcc = u"""
+_SQL_units_from_loinc_ipcc = """
 	-- via ref.loinc.ipcc_units
 	SELECT
 		ipcc_units AS data,
@@ -3521,7 +3521,7 @@ _SQL_units_from_loinc_ipcc = u"""
 		%(ctxt_loinc_term)s
 """
 
-_SQL_units_from_loinc_submitted = u"""
+_SQL_units_from_loinc_submitted = """
 	-- via ref.loinc.submitted_units
 	SELECT
 		submitted_units AS data,
@@ -3536,7 +3536,7 @@ _SQL_units_from_loinc_submitted = u"""
 		%(ctxt_loinc_term)s
 """
 
-_SQL_units_from_loinc_example = u"""
+_SQL_units_from_loinc_example = """
 	-- via ref.loinc.example_units
 	SELECT
 		example_units AS data,
@@ -3551,7 +3551,7 @@ _SQL_units_from_loinc_example = u"""
 		%(ctxt_loinc_term)s
 """
 
-_SQL_units_from_substance_doses = u"""
+_SQL_units_from_substance_doses = """
 	-- via ref.v_substance_doses.unit
 	SELECT
 		unit AS data,
@@ -3565,7 +3565,7 @@ _SQL_units_from_substance_doses = u"""
 		%(ctxt_substance)s
 """
 
-_SQL_units_from_substance_doses2 = u"""
+_SQL_units_from_substance_doses2 = """
 	-- via ref.v_substance_doses.dose_unit
 	SELECT
 		dose_unit AS data,
@@ -3584,7 +3584,7 @@ class cUnitPhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 	def __init__(self, *args, **kwargs):
 
-		query = u"""
+		query = """
 SELECT DISTINCT ON (data)
 	data,
 	field_label,
@@ -3621,28 +3621,28 @@ LIMIT 50""" % (
 
 		ctxt = {
 			'ctxt_type_pk': {
-				'where_part': u'AND pk_test_type = %(pk_type)s',
-				'placeholder': u'pk_type'
+				'where_part': 'AND pk_test_type = %(pk_type)s',
+				'placeholder': 'pk_type'
 			},
 			'ctxt_test_name': {
-				'where_part': u'AND %(test_name)s IN (name_tt, name_meta, abbrev_meta)',
-				'placeholder': u'test_name'
+				'where_part': 'AND %(test_name)s IN (name_tt, name_meta, abbrev_meta)',
+				'placeholder': 'test_name'
 			},
 			'ctxt_ctt': {
-				'where_part': u'AND %(test_name)s IN (name, abbrev)',
-				'placeholder': u'test_name'
+				'where_part': 'AND %(test_name)s IN (name, abbrev)',
+				'placeholder': 'test_name'
 			},
 			'ctxt_loinc': {
-				'where_part': u'AND code = %(loinc)s',
-				'placeholder': u'loinc'
+				'where_part': 'AND code = %(loinc)s',
+				'placeholder': 'loinc'
 			},
 			'ctxt_loinc_term': {
-				'where_part': u'AND term ~* %(test_name)s',
-				'placeholder': u'test_name'
+				'where_part': 'AND term ~* %(test_name)s',
+				'placeholder': 'test_name'
 			},
 			'ctxt_substance': {
-				'where_part': u'AND description ~* %(substance)s',
-				'placeholder': u'substance'
+				'where_part': 'AND description ~* %(substance)s',
+				'placeholder': 'substance'
 			}
 		}
 
@@ -3653,7 +3653,7 @@ LIMIT 50""" % (
 		self.matcher = mp
 		self.SetToolTip(_('Select the desired unit for the amount or measurement.'))
 		self.selection_only = False
-		self.phrase_separators = u'[;|]+'
+		self.phrase_separators = '[;|]+'
 
 #================================================================
 
@@ -3662,7 +3662,7 @@ class cTestResultIndicatorPhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 	def __init__(self, *args, **kwargs):
 
-		query = u"""
+		query = """
 select distinct abnormality_indicator,
 	abnormality_indicator, abnormality_indicator
 from clin.v_test_results
@@ -3711,7 +3711,7 @@ def manage_measurement_orgs(parent=None, msg=None):
 	def refresh(lctrl):
 		orgs = gmPathLab.get_test_orgs()
 		lctrl.set_string_items ([
-			(o['unit'], o['organization'], gmTools.coalesce(o['test_org_contact'], u''), gmTools.coalesce(o['comment'], u''), o['pk_test_org'])
+			(o['unit'], o['organization'], gmTools.coalesce(o['test_org_contact'], ''), gmTools.coalesce(o['comment'], ''), o['pk_test_org'])
 			for o in orgs
 		])
 		lctrl.set_data(orgs)
@@ -3727,7 +3727,7 @@ def manage_measurement_orgs(parent=None, msg=None):
 		parent = parent,
 		msg = msg,
 		caption = _('Showing diagnostic orgs.'),
-		columns = [_('Name'), _('Organization'), _('Contact'), _('Comment'), u'#'],
+		columns = [_('Name'), _('Organization'), _('Contact'), _('Comment'), '#'],
 		single_selection = True,
 		refresh_callback = refresh,
 		edit_callback = edit,
@@ -3766,7 +3766,7 @@ class cMeasurementOrgEAPnl(wxgMeasurementOrgEAPnl.wxgMeasurementOrgEAPnl, gmEdit
 	def _valid_for_save(self):
 		has_errors = False
 		if self._PRW_org_unit.GetData() is None:
-			if self._PRW_org_unit.GetValue().strip() == u'':
+			if self._PRW_org_unit.GetValue().strip() == '':
 				has_errors = True
 				self._PRW_org_unit.display_as_valid(valid = False)
 			else:
@@ -3794,7 +3794,7 @@ class cMeasurementOrgEAPnl(wxgMeasurementOrgEAPnl.wxgMeasurementOrgEAPnl, gmEdit
 		if org is None:
 			org = gmOrganization.create_org (
 				organization = name,
-				category = u'Laboratory'
+				category = 'Laboratory'
 			)
 		org_unit = gmOrganization.create_org_unit (
 			pk_organization = org['pk_org'],
@@ -3808,14 +3808,14 @@ class cMeasurementOrgEAPnl(wxgMeasurementOrgEAPnl.wxgMeasurementOrgEAPnl, gmEdit
 		return True
 	#----------------------------------------------------------------
 	def _refresh_as_new(self):
-		self._PRW_org_unit.SetText(value = u'', data = None)
-		self._TCTRL_contact.SetValue(u'')
-		self._TCTRL_comment.SetValue(u'')
+		self._PRW_org_unit.SetText(value = '', data = None)
+		self._TCTRL_contact.SetValue('')
+		self._TCTRL_comment.SetValue('')
 	#----------------------------------------------------------------
 	def _refresh_from_existing(self):
 		self._PRW_org_unit.SetText(value = self.data['unit'], data = self.data['pk_org_unit'])
-		self._TCTRL_contact.SetValue(gmTools.coalesce(self.data['test_org_contact'], u''))
-		self._TCTRL_comment.SetValue(gmTools.coalesce(self.data['comment'], u''))
+		self._TCTRL_contact.SetValue(gmTools.coalesce(self.data['test_org_contact'], ''))
+		self._TCTRL_comment.SetValue(gmTools.coalesce(self.data['comment'], ''))
 	#----------------------------------------------------------------
 	def _refresh_as_new_from_existing(self):
 		self._refresh_as_new()
@@ -3828,7 +3828,7 @@ class cMeasurementOrgPhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 	def __init__(self, *args, **kwargs):
 
-		query = u"""
+		query = """
 SELECT DISTINCT ON (list_label)
 	pk_test_org AS data,
 	unit || ' (' || organization || ')' AS field_label,
@@ -3853,7 +3853,7 @@ LIMIT 50"""
 			_log.debug('data already set, not creating')
 			return
 
-		if self.GetValue().strip() == u'':
+		if self.GetValue().strip() == '':
 			_log.debug('cannot create new lab, missing name')
 			return
 
@@ -3908,8 +3908,8 @@ def manage_meta_test_types(parent=None):
 		items = [ [
 			m['abbrev'],
 			m['name'],
-			gmTools.coalesce(m['loinc'], u''),
-			gmTools.coalesce(m['comment'], u''),
+			gmTools.coalesce(m['loinc'], ''),
+			gmTools.coalesce(m['comment'], ''),
 			m['pk']
 		] for m in mtts ]
 		lctrl.set_string_items(items)
@@ -3932,7 +3932,7 @@ def manage_meta_test_types(parent=None):
 		parent = parent,
 		msg = msg,
 		caption = _('Showing meta test types.'),
-		columns = [_('Abbrev'), _('Name'), _('LOINC'), _('Comment'), u'#'],
+		columns = [_('Abbrev'), _('Name'), _('LOINC'), _('Comment'), '#'],
 		single_selection = True,
 		list_tooltip_callback = get_tooltip,
 		edit_callback = edit,
@@ -3946,7 +3946,7 @@ class cMetaTestTypePRW(gmPhraseWheel.cPhraseWheel):
 
 	def __init__(self, *args, **kwargs):
 
-		query = u"""
+		query = """
 SELECT DISTINCT ON (field_label)
 	c_mtt.pk
 		AS data,
@@ -4029,7 +4029,7 @@ class cMetaTestTypeEAPnl(wxgMetaTestTypeEAPnl.wxgMetaTestTypeEAPnl, gmEditArea.c
 
 		validity = True
 
-		if self._PRW_abbreviation.GetValue().strip() == u'':
+		if self._PRW_abbreviation.GetValue().strip() == '':
 			validity = False
 			self._PRW_abbreviation.display_as_valid(False)
 			self.status_message = _('Missing abbreviation for meta test type.')
@@ -4037,7 +4037,7 @@ class cMetaTestTypeEAPnl(wxgMetaTestTypeEAPnl.wxgMetaTestTypeEAPnl, gmEditArea.c
 		else:
 			self._PRW_abbreviation.display_as_valid(True)
 
-		if self._PRW_name.GetValue().strip() == u'':
+		if self._PRW_name.GetValue().strip() == '':
 			validity = False
 			self._PRW_name.display_as_valid(False)
 			self.status_message = _('Missing name for meta test type.')
@@ -4073,12 +4073,12 @@ class cMetaTestTypeEAPnl(wxgMetaTestTypeEAPnl.wxgMetaTestTypeEAPnl, gmEditArea.c
 		return True
 	#----------------------------------------------------------------
 	def _refresh_as_new(self):
-		self._PRW_name.SetText(u'', None)
-		self._PRW_abbreviation.SetText(u'', None)
-		self._PRW_loinc.SetText(u'', None)
-		self._TCTRL_loinc_info.SetValue(u'')
-		self._TCTRL_comment.SetValue(u'')
-		self._LBL_member_detail.SetLabel(u'')
+		self._PRW_name.SetText('', None)
+		self._PRW_abbreviation.SetText('', None)
+		self._PRW_loinc.SetText('', None)
+		self._TCTRL_loinc_info.SetValue('')
+		self._TCTRL_comment.SetValue('')
+		self._LBL_member_detail.SetLabel('')
 
 		self._PRW_name.SetFocus()
 	#----------------------------------------------------------------
@@ -4088,9 +4088,9 @@ class cMetaTestTypeEAPnl(wxgMetaTestTypeEAPnl.wxgMetaTestTypeEAPnl, gmEditArea.c
 	def _refresh_from_existing(self):
 		self._PRW_name.SetText(self.data['name'], self.data['pk'])
 		self._PRW_abbreviation.SetText(self.data['abbrev'], self.data['abbrev'])
-		self._PRW_loinc.SetText(gmTools.coalesce(self.data['loinc'], u''), self.data['loinc'])
+		self._PRW_loinc.SetText(gmTools.coalesce(self.data['loinc'], ''), self.data['loinc'])
 		self.__refresh_loinc_info()
-		self._TCTRL_comment.SetValue(gmTools.coalesce(self.data['comment'], u''))
+		self._TCTRL_comment.SetValue(gmTools.coalesce(self.data['comment'], ''))
 		self.__refresh_members()
 
 		self._PRW_name.SetFocus()
@@ -4106,36 +4106,36 @@ class cMetaTestTypeEAPnl(wxgMetaTestTypeEAPnl.wxgMetaTestTypeEAPnl, gmEditArea.c
 		loinc = self._PRW_loinc.GetData()
 
 		if loinc is None:
-			self._TCTRL_loinc_info.SetValue(u'')
+			self._TCTRL_loinc_info.SetValue('')
 			return
 
 		info = gmLOINC.loinc2term(loinc = loinc)
 		if len(info) == 0:
-			self._TCTRL_loinc_info.SetValue(u'')
+			self._TCTRL_loinc_info.SetValue('')
 			return
 
 		self._TCTRL_loinc_info.SetValue(info[0])
 	#----------------------------------------------------------------
 	def __refresh_members(self):
 		if self.data is None:
-			self._LBL_member_detail.SetLabel(u'')
+			self._LBL_member_detail.SetLabel('')
 			return
 
 		types = self.data.included_test_types
 		if len(types) == 0:
-			self._LBL_member_detail.SetLabel(u'')
+			self._LBL_member_detail.SetLabel('')
 			return
 
 		lines = []
 		for tt in types:
-			lines.append(u'%s (%s%s) [#%s] @ %s' % (
+			lines.append('%s (%s%s) [#%s] @ %s' % (
 				tt['name'],
 				tt['abbrev'],
-				gmTools.coalesce(tt['loinc'], u'', u', LOINC: %s'),
+				gmTools.coalesce(tt['loinc'], '', ', LOINC: %s'),
 				tt['pk_test_type'],
 				tt['name_org']
 			))
-		self._LBL_member_detail.SetLabel(u'\n'.join(lines))
+		self._LBL_member_detail.SetLabel('\n'.join(lines))
 
 #================================================================
 # test panel handling
@@ -4178,7 +4178,7 @@ def manage_test_panels(parent=None):
 		panels = gmPathLab.get_test_panels(order_by = 'description')
 		items = [ [
 			p['description'],
-			gmTools.coalesce(p['comment'], u''),
+			gmTools.coalesce(p['comment'], ''),
 			p['pk_test_panel']
 		] for p in panels ]
 		lctrl.set_string_items(items)
@@ -4193,7 +4193,7 @@ def manage_test_panels(parent=None):
 		parent = parent,
 		msg = msg,
 		caption = _('Showing test panels.'),
-		columns = [ _('Name'), _('Comment'), u'#' ],
+		columns = [ _('Name'), _('Comment'), '#' ],
 		single_selection = True,
 		refresh_callback = refresh,
 		edit_callback = edit,
@@ -4206,7 +4206,7 @@ def manage_test_panels(parent=None):
 class cTestPanelPRW(gmPhraseWheel.cPhraseWheel):
 
 	def __init__(self, *args, **kwargs):
-		query = u"""
+		query = """
 SELECT
 	pk_test_panel
 		AS data,
@@ -4265,7 +4265,7 @@ class cTestPanelEAPnl(wxgTestPanelEAPnl.wxgTestPanelEAPnl, gmEditArea.cGenericEd
 
 	#----------------------------------------------------------------
 	def __init_ui(self):
-		self._LCTRL_loincs.set_columns([_(u'LOINC'), _(u'Term'), _(u'Units')])
+		self._LCTRL_loincs.set_columns([_('LOINC'), _('Term'), _('Units')])
 		self._LCTRL_loincs.set_column_widths(widths = [wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE])
 		#self._LCTRL_loincs.set_resize_column(column = 2)
 		self._LCTRL_loincs.delete_callback = self._remove_loincs_from_list
@@ -4286,12 +4286,12 @@ class cTestPanelEAPnl(wxgTestPanelEAPnl.wxgTestPanelEAPnl, gmEditArea.cGenericEd
 		for loinc in self.__loincs:
 			loinc_detail = gmLOINC.loinc2data(loinc = loinc)
 			if len(loinc_detail) == 0:
-				items.append([loinc, _(u'code not found'), u''])
+				items.append([loinc, _('code not found'), ''])
 				continue
 			items.append ([
 				loinc,
 				loinc_detail['term'],
-				gmTools.coalesce(loinc_detail['example_units'], u'', u'%s')
+				gmTools.coalesce(loinc_detail['example_units'], '', '%s')
 			])
 
 		self._LCTRL_loincs.set_string_items(items)
@@ -4312,7 +4312,7 @@ class cTestPanelEAPnl(wxgTestPanelEAPnl.wxgTestPanelEAPnl, gmEditArea.cGenericEd
 			self.status_message = _('No LOINC codes selected.')
 			self._PRW_loinc.SetFocus()
 
-		if self._TCTRL_description.GetValue().strip() == u'':
+		if self._TCTRL_description.GetValue().strip() == '':
 			validity = False
 			self.display_tctrl_as_valid(tctrl = self._TCTRL_description, valid = False)
 			self._TCTRL_description.SetFocus()
@@ -4342,10 +4342,10 @@ class cTestPanelEAPnl(wxgTestPanelEAPnl.wxgTestPanelEAPnl, gmEditArea.cGenericEd
 
 	#----------------------------------------------------------------
 	def _refresh_as_new(self):
-		self._TCTRL_description.SetValue(u'')
-		self._TCTRL_comment.SetValue(u'')
-		self._PRW_loinc.SetText(u'', None)
-		self._LBL_loinc.SetLabel(u'')
+		self._TCTRL_description.SetValue('')
+		self._TCTRL_comment.SetValue('')
+		self._PRW_loinc.SetText('', None)
+		self._LBL_loinc.SetLabel('')
 		self.__loincs = None
 		self.__refresh_loinc_list()
 
@@ -4358,9 +4358,9 @@ class cTestPanelEAPnl(wxgTestPanelEAPnl.wxgTestPanelEAPnl, gmEditArea.cGenericEd
 	#----------------------------------------------------------------
 	def _refresh_from_existing(self):
 		self._TCTRL_description.SetValue(self.data['description'])
-		self._TCTRL_comment.SetValue(gmTools.coalesce(self.data['comment'], u''))
-		self._PRW_loinc.SetText(u'', None)
-		self._LBL_loinc.SetLabel(u'')
+		self._TCTRL_comment.SetValue(gmTools.coalesce(self.data['comment'], ''))
+		self._PRW_loinc.SetText('', None)
+		self._LBL_loinc.SetLabel('')
 		self.__loincs = self.data['loincs']
 		self.__refresh_loinc_list()
 
@@ -4372,16 +4372,16 @@ class cTestPanelEAPnl(wxgTestPanelEAPnl.wxgTestPanelEAPnl, gmEditArea.cGenericEd
 	def _on_loinc_selected(self, loinc):
 		loinc = self._PRW_loinc.GetData()
 		if loinc is None:
-			self._LBL_loinc.SetLabel(u'')
+			self._LBL_loinc.SetLabel('')
 			return
 		loinc_detail = gmLOINC.loinc2data(loinc = loinc)
 		if len(loinc_detail) == 0:
 			loinc_str = _('no LOINC details found')
 		else:
-			loinc_str = u'%s: %s%s' % (
+			loinc_str = '%s: %s%s' % (
 				loinc,
 				loinc_detail['term'],
-				gmTools.coalesce(loinc_detail['example_units'], u'', u' (%s)')
+				gmTools.coalesce(loinc_detail['example_units'], '', ' (%s)')
 			)
 		self._LBL_loinc.SetLabel(loinc_str)
 
@@ -4392,7 +4392,7 @@ class cTestPanelEAPnl(wxgTestPanelEAPnl.wxgTestPanelEAPnl, gmEditArea.cGenericEd
 		loinc = self._PRW_loinc.GetData()
 		if loinc is None:
 			loinc = self._PRW_loinc.GetValue().strip()
-		if loinc.strip() == u'':
+		if loinc.strip() == '':
 			return
 
 		if self.__loincs is None:
@@ -4403,8 +4403,8 @@ class cTestPanelEAPnl(wxgTestPanelEAPnl.wxgTestPanelEAPnl, gmEditArea.cGenericEd
 			self.__loincs.append(loinc)
 
 		self.__refresh_loinc_list()
-		self._PRW_loinc.SetText(u'', None)
-		self._LBL_loinc.SetLabel(u'')
+		self._PRW_loinc.SetText('', None)
+		self._LBL_loinc.SetLabel('')
 
 	#----------------------------------------------------------------
 	def _on_remove_loinc_button_pressed(self, event):

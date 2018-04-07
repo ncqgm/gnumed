@@ -499,7 +499,7 @@ if __name__ == '__main__':
 	from Gnumed.wx.python import gmPlugin
 	_log.Log (gmLog.lInfo, "starting config browser")
 	
-	workplace = raw_input("Please enter a workplace name: ")
+	workplace = input("Please enter a workplace name: ")
 	# catch all remaining exceptions
 	try:
 		application = wx.PyWidgetTester(size=(640,480))

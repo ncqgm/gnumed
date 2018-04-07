@@ -47,7 +47,7 @@ class cColoredStatus_TextCtrlMixin():
 		elif valid is None:
 			color2show = color_tctrl_partially_invalid
 		else:
-			raise ValueError(u'<valid> must be True or False or None')
+			raise ValueError('<valid> must be True or False or None')
 
 		if self.IsEnabled():
 			self.SetBackgroundColour(color2show)
@@ -70,7 +70,7 @@ class cColoredStatus_TextCtrlMixin():
 		elif disabled is False:
 			color2show = self.__previous_enabled_bg_color
 		else:
-			raise ValueError(u'<disabled> must be True or False')
+			raise ValueError('<disabled> must be True or False')
 
 		self.SetBackgroundColour(color2show)
 		self.Refresh()
@@ -93,7 +93,7 @@ class cColoredStatus_TextCtrlMixin():
 			self.__previous_enabled_bg_color = self.GetBackgroundColour()
 			self.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_BACKGROUND))
 		else:
-			raise ValueError(u'<enable> must be True or False')
+			raise ValueError('<enable> must be True or False')
 
 		self.Refresh()
 
@@ -495,7 +495,7 @@ if __name__ == '__main__':
 	if len(sys.argv) < 2:
 		sys.exit()
 
-	if sys.argv[1] != u'test':
+	if sys.argv[1] != 'test':
 		sys.exit()
 
 	from Gnumed.pycommon import gmI18N

@@ -105,45 +105,45 @@ class cPatientSearcher_SQL:
 	#--------------------------------------------------------
 	def _normalize_soundalikes(self, aString = None, aggressive = False):
 		"""Transform some characters into a regex."""
-		if aString.strip() == u'':
+		if aString.strip() == '':
 			return aString
 
 		# umlauts
-		normalized =    aString.replace(u'Ä', u'(Ä|AE|Ae|A|E)')
-		normalized = normalized.replace(u'Ö', u'(Ö|OE|Oe|O)')
-		normalized = normalized.replace(u'Ü', u'(Ü|UE|Ue|U)')
-		normalized = normalized.replace(u'ä', u'(ä|ae|e|a)')
-		normalized = normalized.replace(u'ö', u'(ö|oe|o)')
-		normalized = normalized.replace(u'ü', u'(ü|ue|u|y)')
-		normalized = normalized.replace(u'ß', u'(ß|sz|ss|s)')
+		normalized =    aString.replace('Ä', '(Ä|AE|Ae|A|E)')
+		normalized = normalized.replace('Ö', '(Ö|OE|Oe|O)')
+		normalized = normalized.replace('Ü', '(Ü|UE|Ue|U)')
+		normalized = normalized.replace('ä', '(ä|ae|e|a)')
+		normalized = normalized.replace('ö', '(ö|oe|o)')
+		normalized = normalized.replace('ü', '(ü|ue|u|y)')
+		normalized = normalized.replace('ß', '(ß|sz|ss|s)')
 
 		# common soundalikes
 		# - René, Desiré, Inés ...
-		normalized = normalized.replace(u'é', u'***DUMMY***')
-		normalized = normalized.replace(u'è', u'***DUMMY***')
-		normalized = normalized.replace(u'***DUMMY***', u'(é|e|è|ä|ae)')
+		normalized = normalized.replace('é', '***DUMMY***')
+		normalized = normalized.replace('è', '***DUMMY***')
+		normalized = normalized.replace('***DUMMY***', '(é|e|è|ä|ae)')
 
 		# FIXME: missing i/a/o - but uncommon in German
-		normalized = normalized.replace(u'v', u'***DUMMY***')
-		normalized = normalized.replace(u'f', u'***DUMMY***')
-		normalized = normalized.replace(u'ph', u'***DUMMY***')	# now, this is *really* specific for German
-		normalized = normalized.replace(u'***DUMMY***', u'(v|f|ph)')
+		normalized = normalized.replace('v', '***DUMMY***')
+		normalized = normalized.replace('f', '***DUMMY***')
+		normalized = normalized.replace('ph', '***DUMMY***')	# now, this is *really* specific for German
+		normalized = normalized.replace('***DUMMY***', '(v|f|ph)')
 
 		# silent characters (Thomas vs Tomas)
-		normalized = normalized.replace(u'Th',u'***DUMMY***')
-		normalized = normalized.replace(u'T', u'***DUMMY***')
-		normalized = normalized.replace(u'***DUMMY***', u'(Th|T)')
-		normalized = normalized.replace(u'th', u'***DUMMY***')
-		normalized = normalized.replace(u't', u'***DUMMY***')
-		normalized = normalized.replace(u'***DUMMY***', u'(th|t)')
+		normalized = normalized.replace('Th','***DUMMY***')
+		normalized = normalized.replace('T', '***DUMMY***')
+		normalized = normalized.replace('***DUMMY***', '(Th|T)')
+		normalized = normalized.replace('th', '***DUMMY***')
+		normalized = normalized.replace('t', '***DUMMY***')
+		normalized = normalized.replace('***DUMMY***', '(th|t)')
 
 		# apostrophes, hyphens et al
-		normalized = normalized.replace(u'"', u'***DUMMY***')
-		normalized = normalized.replace(u"'", u'***DUMMY***')
-		normalized = normalized.replace(u'`', u'***DUMMY***')
-		normalized = normalized.replace(u'***DUMMY***', u"""("|'|`|***DUMMY***|\s)*""")
-		normalized = normalized.replace(u'-', u"""(-|\s)*""")
-		normalized = normalized.replace(u'|***DUMMY***|', u'|-|')
+		normalized = normalized.replace('"', '***DUMMY***')
+		normalized = normalized.replace("'", '***DUMMY***')
+		normalized = normalized.replace('`', '***DUMMY***')
+		normalized = normalized.replace('***DUMMY***', """("|'|`|***DUMMY***|\s)*""")
+		normalized = normalized.replace('-', """(-|\s)*""")
+		normalized = normalized.replace('|***DUMMY***|', '|-|')
 
 		if aggressive:
 			pass
@@ -163,23 +163,23 @@ class cPatientSearcher_SQL:
 		"""Compose queries if search term seems unambigous."""
 		queries = []
 
-		raw = raw.strip().rstrip(u',').rstrip(u';').strip()
+		raw = raw.strip().rstrip(',').rstrip(';').strip()
 
 		# "<digits>" - GNUmed patient PK or DOB
-		if regex.match(u"^(\s|\t)*\d+(\s|\t)*$", raw, flags = regex.UNICODE):
+		if regex.match("^(\s|\t)*\d+(\s|\t)*$", raw, flags = regex.UNICODE):
 			_log.debug("[%s]: a PK or DOB" % raw)
 			tmp = raw.strip()
 			queries.append ({
-				'cmd': u"SELECT *, %s::text AS match_type FROM dem.v_active_persons WHERE pk_identity = %s ORDER BY lastnames, firstnames, dob",
+				'cmd': "SELECT *, %s::text AS match_type FROM dem.v_active_persons WHERE pk_identity = %s ORDER BY lastnames, firstnames, dob",
 				'args': [_('internal patient ID'), tmp]
 			})
 			if len(tmp) > 7:	# DOB needs at least 8 digits
 				queries.append ({
-					'cmd': u"SELECT *, %s::text AS match_type FROM dem.v_active_persons WHERE dem.date_trunc_utc('day'::text, dob) = dem.date_trunc_utc('day'::text, %s::timestamp with time zone) ORDER BY lastnames, firstnames, dob",
+					'cmd': "SELECT *, %s::text AS match_type FROM dem.v_active_persons WHERE dem.date_trunc_utc('day'::text, dob) = dem.date_trunc_utc('day'::text, %s::timestamp with time zone) ORDER BY lastnames, firstnames, dob",
 					'args': [_('date of birth'), tmp.replace(',', '.')]
 				})
 			queries.append ({
-				'cmd': u"""
+				'cmd': """
 					SELECT vba.*, %s::text AS match_type
 					FROM
 						dem.lnk_identity2ext_id li2ext_id,
@@ -194,40 +194,40 @@ class cPatientSearcher_SQL:
 			return queries
 
 		# "<d igi ts>" - DOB or patient PK
-		if regex.match(u"^(\d|\s|\t)+$", raw, flags = regex.UNICODE):
+		if regex.match("^(\d|\s|\t)+$", raw, flags = regex.UNICODE):
 			_log.debug("[%s]: a DOB or PK" % raw)
 			queries.append ({
-				'cmd': u"SELECT *, %s::text AS match_type FROM dem.v_active_persons WHERE dem.date_trunc_utc('day'::text, dob) = dem.date_trunc_utc('day'::text, %s::timestamp with time zone) ORDER BY lastnames, firstnames, dob",
+				'cmd': "SELECT *, %s::text AS match_type FROM dem.v_active_persons WHERE dem.date_trunc_utc('day'::text, dob) = dem.date_trunc_utc('day'::text, %s::timestamp with time zone) ORDER BY lastnames, firstnames, dob",
 				'args': [_('date of birth'), raw.replace(',', '.')]
 			})
-			tmp = raw.replace(u' ', u'')
-			tmp = tmp.replace(u'\t', u'')
+			tmp = raw.replace(' ', '')
+			tmp = tmp.replace('\t', '')
 			queries.append ({
-				'cmd': u"SELECT *, %s::text AS match_type FROM dem.v_active_persons WHERE pk_identity LIKE %s%%",
+				'cmd': "SELECT *, %s::text AS match_type FROM dem.v_active_persons WHERE pk_identity LIKE %s%%",
 				'args': [_('internal patient ID'), tmp]
 			})
 			return queries
 
 		# "#<di git  s>" - GNUmed patient PK
-		if regex.match(u"^(\s|\t)*#(\d|\s|\t)+$", raw, flags = regex.UNICODE):
+		if regex.match("^(\s|\t)*#(\d|\s|\t)+$", raw, flags = regex.UNICODE):
 			_log.debug("[%s]: a PK or external ID" % raw)
-			tmp = raw.replace(u'#', u'')
+			tmp = raw.replace('#', '')
 			tmp = tmp.strip()
-			tmp = tmp.replace(u' ', u'')
-			tmp = tmp.replace(u'\t', u'')
+			tmp = tmp.replace(' ', '')
+			tmp = tmp.replace('\t', '')
 			# this seemingly stupid query ensures the PK actually exists
 			queries.append ({
-				'cmd': u"SELECT *, %s::text AS match_type FROM dem.v_active_persons WHERE pk_identity = %s ORDER BY lastnames, firstnames, dob",
+				'cmd': "SELECT *, %s::text AS match_type FROM dem.v_active_persons WHERE pk_identity = %s ORDER BY lastnames, firstnames, dob",
 				'args': [_('internal patient ID'), tmp]
 			})
 			# but might also be an external ID
-			tmp = raw.replace(u'#', u'')
+			tmp = raw.replace('#', '')
 			tmp = tmp.strip()
-			tmp = tmp.replace(u' ',  u'***DUMMY***')
-			tmp = tmp.replace(u'\t', u'***DUMMY***')
-			tmp = tmp.replace(u'***DUMMY***', u'(\s|\t|-|/)*')
+			tmp = tmp.replace(' ',  '***DUMMY***')
+			tmp = tmp.replace('\t', '***DUMMY***')
+			tmp = tmp.replace('***DUMMY***', '(\s|\t|-|/)*')
 			queries.append ({
-				'cmd': u"""
+				'cmd': """
 					SELECT vba.*, %s::text AS match_type FROM dem.lnk_identity2ext_id li2ext_id, dem.v_active_persons vba
 					WHERE vba.pk_identity = li2ext_id.id_identity and lower(li2ext_id.external_id) ~* lower(%s)
 					ORDER BY lastnames, firstnames, dob""",
@@ -236,17 +236,17 @@ class cPatientSearcher_SQL:
 			return queries
 
 		# "#<di/git s or c-hars>" - external ID
-		if regex.match(u"^(\s|\t)*#.+$", raw, flags = regex.UNICODE):
+		if regex.match("^(\s|\t)*#.+$", raw, flags = regex.UNICODE):
 			_log.debug("[%s]: an external ID" % raw)
-			tmp = raw.replace(u'#', u'')
+			tmp = raw.replace('#', '')
 			tmp = tmp.strip()
-			tmp = tmp.replace(u' ',  u'***DUMMY***')
-			tmp = tmp.replace(u'\t', u'***DUMMY***')
-			tmp = tmp.replace(u'-',  u'***DUMMY***')
-			tmp = tmp.replace(u'/',  u'***DUMMY***')
-			tmp = tmp.replace(u'***DUMMY***', u'(\s|\t|-|/)*')
+			tmp = tmp.replace(' ',  '***DUMMY***')
+			tmp = tmp.replace('\t', '***DUMMY***')
+			tmp = tmp.replace('-',  '***DUMMY***')
+			tmp = tmp.replace('/',  '***DUMMY***')
+			tmp = tmp.replace('***DUMMY***', '(\s|\t|-|/)*')
 			queries.append ({
-				'cmd': u"""
+				'cmd': """
 					SELECT
 						vba.*,
 						%s::text AS match_type
@@ -264,25 +264,25 @@ class cPatientSearcher_SQL:
 			return queries
 
 		# digits interspersed with "./-" or blank space - DOB
-		if regex.match(u"^(\s|\t)*\d+(\s|\t|\.|\-|/)*\d+(\s|\t|\.|\-|/)*\d+(\s|\t|\.)*$", raw, flags = regex.UNICODE):
+		if regex.match("^(\s|\t)*\d+(\s|\t|\.|\-|/)*\d+(\s|\t|\.|\-|/)*\d+(\s|\t|\.)*$", raw, flags = regex.UNICODE):
 			_log.debug("[%s]: a DOB" % raw)
 			tmp = raw.strip()
-			while u'\t\t' in tmp: tmp = tmp.replace(u'\t\t', u' ')
-			while u'  ' in tmp: tmp = tmp.replace(u'  ', u' ')
+			while '\t\t' in tmp: tmp = tmp.replace('\t\t', ' ')
+			while '  ' in tmp: tmp = tmp.replace('  ', ' ')
 			# apparently not needed due to PostgreSQL smarts...
 			#tmp = tmp.replace('-', '.')
 			#tmp = tmp.replace('/', '.')
 			queries.append ({
-				'cmd': u"SELECT *, %s AS match_type FROM dem.v_active_persons WHERE dem.date_trunc_utc('day'::text, dob) = dem.date_trunc_utc('day'::text, %s::timestamp with time zone) ORDER BY lastnames, firstnames, dob",
+				'cmd': "SELECT *, %s AS match_type FROM dem.v_active_persons WHERE dem.date_trunc_utc('day'::text, dob) = dem.date_trunc_utc('day'::text, %s::timestamp with time zone) ORDER BY lastnames, firstnames, dob",
 				'args': [_('date of birth'), tmp.replace(',', '.')]
 			})
 			return queries
 
 		# " , <alpha>" - first name
-		if regex.match(u"^(\s|\t)*,(\s|\t)*([^0-9])+(\s|\t)*$", raw, flags = regex.UNICODE):
+		if regex.match("^(\s|\t)*,(\s|\t)*([^0-9])+(\s|\t)*$", raw, flags = regex.UNICODE):
 			_log.debug("[%s]: a firstname" % raw)
 			tmp = self._normalize_soundalikes(raw[1:].strip())
-			cmd = u"""
+			cmd = """
 SELECT DISTINCT ON (pk_identity) * FROM (
 	SELECT *, %s AS match_type FROM ((
 		SELECT d_vap.*
@@ -301,13 +301,13 @@ SELECT DISTINCT ON (pk_identity) * FROM (
 			return queries
 
 		# "*|$<...>" - DOB
-		if regex.match(u"^(\s|\t)*(\*|\$).+$", raw, flags = regex.UNICODE):
+		if regex.match("^(\s|\t)*(\*|\$).+$", raw, flags = regex.UNICODE):
 			_log.debug("[%s]: a DOB" % raw)
-			tmp = raw.replace(u'*', u'')
-			tmp = tmp.replace(u'$', u'')
+			tmp = raw.replace('*', '')
+			tmp = tmp.replace('$', '')
 			queries.append ({
-				'cmd': u"SELECT *, %s AS match_type FROM dem.v_active_persons WHERE dem.date_trunc_utc('day'::text, dob) = dem.date_trunc_utc('day'::text, %s::timestamp with time zone) ORDER BY lastnames, firstnames, dob",
-				'args': [_('date of birth'), tmp.replace(u',', u'.')]
+				'cmd': "SELECT *, %s AS match_type FROM dem.v_active_persons WHERE dem.date_trunc_utc('day'::text, dob) = dem.date_trunc_utc('day'::text, %s::timestamp with time zone) ORDER BY lastnames, firstnames, dob",
+				'args': [_('date of birth'), tmp.replace(',', '.')]
 			})
 			return queries
 
@@ -321,7 +321,7 @@ SELECT DISTINCT ON (pk_identity) * FROM (
 		- not locale dependant
 		- data -> firstnames, lastnames, dob, gender
 		"""
-		_log.debug(u'_generate_queries_from_dto("%s")' % dto)
+		_log.debug('_generate_queries_from_dto("%s")' % dto)
 
 		if not isinstance(dto, gmPerson.cDTO_person):
 			return None
@@ -330,14 +330,14 @@ SELECT DISTINCT ON (pk_identity) * FROM (
 		where_snippets = []
 
 		vals.append(dto.firstnames)
-		where_snippets.append(u'firstnames=%s')
+		where_snippets.append('firstnames=%s')
 		vals.append(dto.lastnames)
-		where_snippets.append(u'lastnames=%s')
+		where_snippets.append('lastnames=%s')
 
 		if dto.dob is not None:
 			vals.append(dto.dob)
 			#where_snippets.append(u"dem.date_trunc_utc('day'::text, dob) = dem.date_trunc_utc('day'::text, %s::timestamp with time zone)")
-			where_snippets.append(u"dem.date_trunc_utc('day'::text, dob) = dem.date_trunc_utc('day'::text, %s)")
+			where_snippets.append("dem.date_trunc_utc('day'::text, dob) = dem.date_trunc_utc('day'::text, %s)")
 
 		if dto.gender is not None:
 			vals.append(dto.gender)
@@ -349,7 +349,7 @@ SELECT DISTINCT ON (pk_identity) * FROM (
 			_log.debug(data)
 			return None
 
-		cmd = u"""
+		cmd = """
 			SELECT *, %%s AS match_type FROM dem.v_active_persons
 			WHERE pk_identity in (
 				SELECT id_identity FROM dem.names WHERE %s
@@ -379,17 +379,17 @@ SELECT DISTINCT ON (pk_identity) * FROM (
 		# no we don't
 		_log.debug('[%s]: not a search term with a simple, unambigous structure' % search_term)
 
-		search_term = search_term.strip().strip(u',').strip(u';').strip()
+		search_term = search_term.strip().strip(',').strip(';').strip()
 		normalized = self._normalize_soundalikes(search_term)
 
 		queries = []
 
 		# "<CHARS>" - single name part
 		# yes, I know, this is culture specific (did you read the docs ?)
-		if regex.match(u"^(\s|\t)*[a-zäöüßéáúóçøA-ZÄÖÜÇØ]+(\s|\t)*$", search_term, flags = regex.UNICODE):
+		if regex.match("^(\s|\t)*[a-zäöüßéáúóçøA-ZÄÖÜÇØ]+(\s|\t)*$", search_term, flags = regex.UNICODE):
 			_log.debug("[%s]: a single name part", search_term)
 			# there's no intermediate whitespace due to the regex
-			cmd = u"""
+			cmd = """
 				SELECT DISTINCT ON (pk_identity) * FROM (
 					SELECT * FROM ((
 						-- lastname
@@ -436,28 +436,28 @@ SELECT DISTINCT ON (pk_identity) * FROM (
 			return queries
 
 		# try to split on (major) part separators
-		parts_list = regex.split(u",|;", normalized)
+		parts_list = regex.split(",|;", normalized)
 
 		# ignore empty parts
-		parts_list = [ p.strip() for p in parts_list if p.strip() != u'' ]
+		parts_list = [ p.strip() for p in parts_list if p.strip() != '' ]
 
 		# only one "major" part ? (i.e. no ",;" ?)
 		if len(parts_list) == 1:
 			# re-split on whitespace
-			sub_parts_list = regex.split(u"\s*|\t*", normalized)
+			sub_parts_list = regex.split("\s*|\t*", normalized)
 			# ignore empty parts
-			sub_parts_list = [ p.strip() for p in sub_parts_list if p.strip() != u'' ]
+			sub_parts_list = [ p.strip() for p in sub_parts_list if p.strip() != '' ]
 
 			# parse into name/date parts
 			date_count = 0
 			name_parts = []
 			for part in sub_parts_list:
 				# skip empty parts
-				if part.strip() == u'':
+				if part.strip() == '':
 					continue
 				# any digit signifies a date
 				# FIXME: what about "<40" ?
-				if regex.search(u"\d", part, flags = regex.UNICODE):
+				if regex.search("\d", part, flags = regex.UNICODE):
 					date_count = date_count + 1
 					date_part = part
 				else:
@@ -469,34 +469,34 @@ SELECT DISTINCT ON (pk_identity) * FROM (
 				if date_count == 0:
 					# assumption: first last
 					queries.append ({
-						'cmd': u"SELECT DISTINCT ON (id_identity) d_vap.*, %s::text AS match_type FROM dem.v_active_persons d_vap, dem.names n WHERE d_vap.pk_identity = n.id_identity and n.firstnames ~ %s AND n.lastnames ~ %s",
+						'cmd': "SELECT DISTINCT ON (id_identity) d_vap.*, %s::text AS match_type FROM dem.v_active_persons d_vap, dem.names n WHERE d_vap.pk_identity = n.id_identity and n.firstnames ~ %s AND n.lastnames ~ %s",
 						'args': [_('name: first-last'), '^' + gmTools.capitalize(name_parts[0], mode=gmTools.CAPS_NAMES), '^' + gmTools.capitalize(name_parts[1], mode=gmTools.CAPS_NAMES)]
 					})
 					queries.append ({
-						'cmd': u"SELECT DISTINCT ON (id_identity) d_vap.*, %s::text AS match_type FROM dem.v_active_persons d_vap, dem.names n WHERE d_vap.pk_identity = n.id_identity and lower(n.firstnames) ~* lower(%s) AND lower(n.lastnames) ~* lower(%s)",
+						'cmd': "SELECT DISTINCT ON (id_identity) d_vap.*, %s::text AS match_type FROM dem.v_active_persons d_vap, dem.names n WHERE d_vap.pk_identity = n.id_identity and lower(n.firstnames) ~* lower(%s) AND lower(n.lastnames) ~* lower(%s)",
 						'args': [_('name: first-last'), '^' + name_parts[0], '^' + name_parts[1]]
 					})
 					# assumption: last first
 					queries.append ({
-						'cmd': u"SELECT DISTINCT ON (id_identity) d_vap.*, %s::text AS match_type FROM dem.v_active_persons d_vap, dem.names n WHERE d_vap.pk_identity = n.id_identity and n.firstnames ~ %s AND n.lastnames ~ %s",
+						'cmd': "SELECT DISTINCT ON (id_identity) d_vap.*, %s::text AS match_type FROM dem.v_active_persons d_vap, dem.names n WHERE d_vap.pk_identity = n.id_identity and n.firstnames ~ %s AND n.lastnames ~ %s",
 						'args': [_('name: last-first'), '^' + gmTools.capitalize(name_parts[1], mode=gmTools.CAPS_NAMES), '^' + gmTools.capitalize(name_parts[0], mode=gmTools.CAPS_NAMES)]
 					})
 					queries.append ({
-						'cmd': u"SELECT DISTINCT ON (id_identity) d_vap.*, %s::text AS match_type FROM dem.v_active_persons d_vap, dem.names n WHERE d_vap.pk_identity = n.id_identity and lower(n.firstnames) ~* lower(%s) AND lower(n.lastnames) ~* lower(%s)",
+						'cmd': "SELECT DISTINCT ON (id_identity) d_vap.*, %s::text AS match_type FROM dem.v_active_persons d_vap, dem.names n WHERE d_vap.pk_identity = n.id_identity and lower(n.firstnames) ~* lower(%s) AND lower(n.lastnames) ~* lower(%s)",
 						'args': [_('name: last-first'), '^' + name_parts[1], '^' + name_parts[0]]
 					})
 					# assumption: last nick
 					queries.append ({
-						'cmd': u"SELECT DISTINCT ON (id_identity) d_vap.*, %s::text AS match_type FROM dem.v_active_persons d_vap, dem.names n WHERE d_vap.pk_identity = n.id_identity and n.preferred ~ %s AND n.lastnames ~ %s",
+						'cmd': "SELECT DISTINCT ON (id_identity) d_vap.*, %s::text AS match_type FROM dem.v_active_persons d_vap, dem.names n WHERE d_vap.pk_identity = n.id_identity and n.preferred ~ %s AND n.lastnames ~ %s",
 						'args': [_('name: last-nick'), '^' + gmTools.capitalize(name_parts[1], mode=gmTools.CAPS_NAMES), '^' + gmTools.capitalize(name_parts[0], mode=gmTools.CAPS_NAMES)]
 					})
 					queries.append ({
-						'cmd': u"SELECT DISTINCT ON (id_identity) d_vap.*, %s::text AS match_type FROM dem.v_active_persons d_vap, dem.names n WHERE d_vap.pk_identity = n.id_identity and lower(n.preferred) ~* lower(%s) AND lower(n.lastnames) ~* lower(%s)",
+						'cmd': "SELECT DISTINCT ON (id_identity) d_vap.*, %s::text AS match_type FROM dem.v_active_persons d_vap, dem.names n WHERE d_vap.pk_identity = n.id_identity and lower(n.preferred) ~* lower(%s) AND lower(n.lastnames) ~* lower(%s)",
 						'args': [_('name: last-nick'), '^' + name_parts[1], '^' + name_parts[0]]
 					})
 					# name parts anywhere inside name - third order query ...
 					queries.append ({
-						'cmd': u"""SELECT DISTINCT ON (id_identity)
+						'cmd': """SELECT DISTINCT ON (id_identity)
 									d_vap.*,
 									%s::text AS match_type
 								FROM
@@ -523,25 +523,25 @@ SELECT DISTINCT ON (pk_identity) * FROM (
 				if date_count == 1:
 					# assumption: first, last, dob - first order
 					queries.append ({
-						'cmd': u"SELECT DISTINCT ON (id_identity) d_vap.*, %s::text AS match_type FROM dem.v_active_persons d_vap, dem.names n WHERE d_vap.pk_identity = n.id_identity and n.firstnames ~ %s AND n.lastnames ~ %s AND dem.date_trunc_utc('day'::text, dob) = dem.date_trunc_utc('day'::text, %s::timestamp with time zone)",
-						'args': [_('names: first-last, date of birth'), '^' + gmTools.capitalize(name_parts[0], mode=gmTools.CAPS_NAMES), '^' + gmTools.capitalize(name_parts[1], mode=gmTools.CAPS_NAMES), date_part.replace(u',', u'.')]
+						'cmd': "SELECT DISTINCT ON (id_identity) d_vap.*, %s::text AS match_type FROM dem.v_active_persons d_vap, dem.names n WHERE d_vap.pk_identity = n.id_identity and n.firstnames ~ %s AND n.lastnames ~ %s AND dem.date_trunc_utc('day'::text, dob) = dem.date_trunc_utc('day'::text, %s::timestamp with time zone)",
+						'args': [_('names: first-last, date of birth'), '^' + gmTools.capitalize(name_parts[0], mode=gmTools.CAPS_NAMES), '^' + gmTools.capitalize(name_parts[1], mode=gmTools.CAPS_NAMES), date_part.replace(',', '.')]
 					})
 					queries.append ({
-						'cmd': u"SELECT DISTINCT ON (id_identity) d_vap.*, %s::text AS match_type FROM dem.v_active_persons d_vap, dem.names n WHERE d_vap.pk_identity = n.id_identity and lower(n.firstnames) ~* lower(%s) AND lower(n.lastnames) ~* lower(%s) AND dem.date_trunc_utc('day'::text, dob) = dem.date_trunc_utc('day'::text, %s::timestamp with time zone)",
-						'args': [_('names: first-last, date of birth'), '^' + name_parts[0], '^' + name_parts[1], date_part.replace(u',', u'.')]
+						'cmd': "SELECT DISTINCT ON (id_identity) d_vap.*, %s::text AS match_type FROM dem.v_active_persons d_vap, dem.names n WHERE d_vap.pk_identity = n.id_identity and lower(n.firstnames) ~* lower(%s) AND lower(n.lastnames) ~* lower(%s) AND dem.date_trunc_utc('day'::text, dob) = dem.date_trunc_utc('day'::text, %s::timestamp with time zone)",
+						'args': [_('names: first-last, date of birth'), '^' + name_parts[0], '^' + name_parts[1], date_part.replace(',', '.')]
 					})
 					# assumption: last, first, dob - second order query
 					queries.append ({
-						'cmd': u"SELECT DISTINCT ON (id_identity) d_vap.*, %s::text AS match_type FROM dem.v_active_persons d_vap, dem.names n WHERE d_vap.pk_identity = n.id_identity and n.firstnames ~ %s AND n.lastnames ~ %s AND dem.date_trunc_utc('day'::text, dob) = dem.date_trunc_utc('day'::text, %s::timestamp with time zone)",
-						'args': [_('names: last-first, date of birth'), '^' + gmTools.capitalize(name_parts[1], mode=gmTools.CAPS_NAMES), '^' + gmTools.capitalize(name_parts[0], mode=gmTools.CAPS_NAMES), date_part.replace(u',', u'.')]
+						'cmd': "SELECT DISTINCT ON (id_identity) d_vap.*, %s::text AS match_type FROM dem.v_active_persons d_vap, dem.names n WHERE d_vap.pk_identity = n.id_identity and n.firstnames ~ %s AND n.lastnames ~ %s AND dem.date_trunc_utc('day'::text, dob) = dem.date_trunc_utc('day'::text, %s::timestamp with time zone)",
+						'args': [_('names: last-first, date of birth'), '^' + gmTools.capitalize(name_parts[1], mode=gmTools.CAPS_NAMES), '^' + gmTools.capitalize(name_parts[0], mode=gmTools.CAPS_NAMES), date_part.replace(',', '.')]
 					})
 					queries.append ({
-						'cmd': u"SELECT DISTINCT ON (id_identity) d_vap.*, %s::text AS match_type FROM dem.v_active_persons d_vap, dem.names n WHERE d_vap.pk_identity = n.id_identity and lower(n.firstnames) ~* lower(%s) AND lower(n.lastnames) ~* lower(%s) AND dem.date_trunc_utc('day'::text, dob) = dem.date_trunc_utc('day'::text, %s::timestamp with time zone)",
-						'args': [_('names: last-first, dob'), '^' + name_parts[1], '^' + name_parts[0], date_part.replace(u',', u'.')]
+						'cmd': "SELECT DISTINCT ON (id_identity) d_vap.*, %s::text AS match_type FROM dem.v_active_persons d_vap, dem.names n WHERE d_vap.pk_identity = n.id_identity and lower(n.firstnames) ~* lower(%s) AND lower(n.lastnames) ~* lower(%s) AND dem.date_trunc_utc('day'::text, dob) = dem.date_trunc_utc('day'::text, %s::timestamp with time zone)",
+						'args': [_('names: last-first, dob'), '^' + name_parts[1], '^' + name_parts[0], date_part.replace(',', '.')]
 					})
 					# name parts anywhere in name - third order query ...
 					queries.append ({
-						'cmd': u"""SELECT DISTINCT ON (id_identity)
+						'cmd': """SELECT DISTINCT ON (id_identity)
 									d_vap.*,
 									%s::text AS match_type
 								FROM
@@ -556,7 +556,7 @@ SELECT DISTINCT ON (pk_identity) * FROM (
 										AND
 									dem.date_trunc_utc('day'::text, dob) = dem.date_trunc_utc('day'::text, %s::timestamp with time zone)
 						""",
-						'args': [_('name, date of birth'), name_parts[0], name_parts[1], date_part.replace(u',', u'.')]
+						'args': [_('name, date of birth'), name_parts[0], name_parts[1], date_part.replace(',', '.')]
 					})
 					return queries
 				# FIXME: "name name name" or "name date date"
@@ -574,15 +574,15 @@ SELECT DISTINCT ON (pk_identity) * FROM (
 			name_parts = []
 			name_count = 0
 			for part in parts_list:
-				if part.strip() == u'':
+				if part.strip() == '':
 					continue
 				# any digits ?
-				if regex.search(u"\d+", part, flags = regex.UNICODE):
+				if regex.search("\d+", part, flags = regex.UNICODE):
 					# FIXME: parse out whitespace *not* adjacent to a *word*
 					date_parts.append(part)
 				else:
 					tmp = part.strip()
-					tmp = regex.split(u"\s*|\t*", tmp)
+					tmp = regex.split("\s*|\t*", tmp)
 					name_count = name_count + len(tmp)
 					name_parts.append(tmp)
 
@@ -592,25 +592,25 @@ SELECT DISTINCT ON (pk_identity) * FROM (
 			if (len(name_parts) == 1) and (name_count == 2):
 				# usually "first last"
 				where_parts.append ({
-					'conditions': u"firstnames ~ %s and lastnames ~ %s",
+					'conditions': "firstnames ~ %s and lastnames ~ %s",
 					'args': [_('names: first last'), '^' + gmTools.capitalize(name_parts[0][0], mode=gmTools.CAPS_NAMES), '^' + gmTools.capitalize(name_parts[0][1], mode=gmTools.CAPS_NAMES)]
 				})
 				where_parts.append ({
-					'conditions': u"lower(firstnames) ~* lower(%s) and lower(lastnames) ~* lower(%s)",
+					'conditions': "lower(firstnames) ~* lower(%s) and lower(lastnames) ~* lower(%s)",
 					'args': [_('names: first last'), '^' + name_parts[0][0], '^' + name_parts[0][1]]
 				})
 				# but sometimes "last first""
 				where_parts.append ({
-					'conditions': u"firstnames ~ %s and lastnames ~ %s",
+					'conditions': "firstnames ~ %s and lastnames ~ %s",
 					'args': [_('names: last, first'), '^' + gmTools.capitalize(name_parts[0][1], mode=gmTools.CAPS_NAMES), '^' + gmTools.capitalize(name_parts[0][0], mode=gmTools.CAPS_NAMES)]
 				})
 				where_parts.append ({
-					'conditions': u"lower(firstnames) ~* lower(%s) and lower(lastnames) ~* lower(%s)",
+					'conditions': "lower(firstnames) ~* lower(%s) and lower(lastnames) ~* lower(%s)",
 					'args': [_('names: last, first'), '^' + name_parts[0][1], '^' + name_parts[0][0]]
 				})
 				# or even substrings anywhere in name
 				where_parts.append ({
-					'conditions': u"lower(firstnames || ' ' || lastnames) ~* lower(%s) OR lower(firstnames || ' ' || lastnames) ~* lower(%s)",
+					'conditions': "lower(firstnames || ' ' || lastnames) ~* lower(%s) OR lower(firstnames || ' ' || lastnames) ~* lower(%s)",
 					'args': [_('name'), name_parts[0][0], name_parts[0][1]]
 				})
 
@@ -618,35 +618,35 @@ SELECT DISTINCT ON (pk_identity) * FROM (
 			elif len(name_parts) == 2:
 				# usually "last, first"
 				where_parts.append ({
-					'conditions': u"firstnames ~ %s AND lastnames ~ %s",
+					'conditions': "firstnames ~ %s AND lastnames ~ %s",
 					'args': [_('name: last, first'), '^' + ' '.join(map(gmTools.capitalize, name_parts[1])), '^' + ' '.join(map(gmTools.capitalize, name_parts[0]))]
 				})
 				where_parts.append ({
-					'conditions': u"lower(firstnames) ~* lower(%s) AND lower(lastnames) ~* lower(%s)",
+					'conditions': "lower(firstnames) ~* lower(%s) AND lower(lastnames) ~* lower(%s)",
 					'args': [_('name: last, first'), '^' + ' '.join(name_parts[1]), '^' + ' '.join(name_parts[0])]
 				})
 				# but sometimes "first, last"
 				where_parts.append ({
-					'conditions': u"firstnames ~ %s AND lastnames ~ %s",
+					'conditions': "firstnames ~ %s AND lastnames ~ %s",
 					'args': [_('name: last, first'), '^' + ' '.join(map(gmTools.capitalize, name_parts[0])), '^' + ' '.join(map(gmTools.capitalize, name_parts[1]))]
 				})
 				where_parts.append ({
-					'conditions': u"lower(firstnames) ~* lower(%s) AND lower(lastnames) ~* lower(%s)",
+					'conditions': "lower(firstnames) ~* lower(%s) AND lower(lastnames) ~* lower(%s)",
 					'args': [_('name: last, first'), '^' + ' '.join(name_parts[0]), '^' + ' '.join(name_parts[1])]
 				})
 				# and sometimes "last, nick"
 				where_parts.append ({
-					'conditions': u"preferred ~ %s AND lastnames ~ %s",
+					'conditions': "preferred ~ %s AND lastnames ~ %s",
 					'args': [_('name: last, first'), '^' + ' '.join(map(gmTools.capitalize, name_parts[1])), '^' + ' '.join(map(gmTools.capitalize, name_parts[0]))]
 				})
 				where_parts.append ({
-					'conditions': u"lower(preferred) ~* lower(%s) AND lower(lastnames) ~* lower(%s)",
+					'conditions': "lower(preferred) ~* lower(%s) AND lower(lastnames) ~* lower(%s)",
 					'args': [_('name: last, first'), '^' + ' '.join(name_parts[1]), '^' + ' '.join(name_parts[0])]
 				})
 
 				# or even substrings anywhere in name
 				where_parts.append ({
-					'conditions': u"lower(firstnames || ' ' || lastnames) ~* lower(%s) AND lower(firstnames || ' ' || lastnames) ~* lower(%s)",
+					'conditions': "lower(firstnames || ' ' || lastnames) ~* lower(%s) AND lower(firstnames || ' ' || lastnames) ~* lower(%s)",
 					'args': [_('name'), ' '.join(name_parts[0]), ' '.join(name_parts[1])]
 				})
 
@@ -656,7 +656,7 @@ SELECT DISTINCT ON (pk_identity) * FROM (
 				if len(name_parts) == 1:
 					for part in name_parts[0]:
 						where_parts.append ({
-							'conditions': u"lower(firstnames || ' ' || lastnames) ~* lower(%s)",
+							'conditions': "lower(firstnames || ' ' || lastnames) ~* lower(%s)",
 							'args': [_('name'), part]
 						})
 				else:
@@ -665,7 +665,7 @@ SELECT DISTINCT ON (pk_identity) * FROM (
 						tmp.append(' '.join(part))
 					for part in tmp:
 						where_parts.append ({
-							'conditions': u"lower(firstnames || ' ' || lastnames) ~* lower(%s)",
+							'conditions': "lower(firstnames || ' ' || lastnames) ~* lower(%s)",
 							'args': [_('name'), part]
 						})
 
@@ -674,36 +674,36 @@ SELECT DISTINCT ON (pk_identity) * FROM (
 			if len(date_parts) == 1:
 				if len(where_parts) == 0:
 					where_parts.append ({
-						'conditions': u"dem.date_trunc_utc('day'::text, dob) = dem.date_trunc_utc('day'::text, %s::timestamp with time zone)",
-						'args': [_('date of birth'), date_parts[0].replace(u',', u'.')]
+						'conditions': "dem.date_trunc_utc('day'::text, dob) = dem.date_trunc_utc('day'::text, %s::timestamp with time zone)",
+						'args': [_('date of birth'), date_parts[0].replace(',', '.')]
 					})
 				if len(where_parts) > 0:
-					where_parts[0]['conditions'] += u" AND dem.date_trunc_utc('day'::text, dob) = dem.date_trunc_utc('day'::text, %s::timestamp with time zone)"
-					where_parts[0]['args'].append(date_parts[0].replace(u',', u'.'))
-					where_parts[0]['args'][0] += u', ' + _('date of birth')
+					where_parts[0]['conditions'] += " AND dem.date_trunc_utc('day'::text, dob) = dem.date_trunc_utc('day'::text, %s::timestamp with time zone)"
+					where_parts[0]['args'].append(date_parts[0].replace(',', '.'))
+					where_parts[0]['args'][0] += ', ' + _('date of birth')
 				if len(where_parts) > 1:
-					where_parts[1]['conditions'] += u" AND dem.date_trunc_utc('day'::text, dob) = dem.date_trunc_utc('day'::text, %s::timestamp with time zone)"
-					where_parts[1]['args'].append(date_parts[0].replace(u',', u'.'))
-					where_parts[1]['args'][0] += u', ' + _('date of birth')
+					where_parts[1]['conditions'] += " AND dem.date_trunc_utc('day'::text, dob) = dem.date_trunc_utc('day'::text, %s::timestamp with time zone)"
+					where_parts[1]['args'].append(date_parts[0].replace(',', '.'))
+					where_parts[1]['args'][0] += ', ' + _('date of birth')
 			elif len(date_parts) > 1:
 				if len(where_parts) == 0:
 					where_parts.append ({
-						'conditions': u"dem.date_trunc_utc('day'::text, dob) = dem.date_trunc_utc('day'::text, %s::timestamp with time zone) AND dem.date_trunc_utc('day'::text, dem.identity.deceased) = dem.date_trunc_utc('day'::text, %s::timestamp with time zone)",
-						'args': [_('date of birth/death'), date_parts[0].replace(u',', u'.'), date_parts[1].replace(u',', u'.')]
+						'conditions': "dem.date_trunc_utc('day'::text, dob) = dem.date_trunc_utc('day'::text, %s::timestamp with time zone) AND dem.date_trunc_utc('day'::text, dem.identity.deceased) = dem.date_trunc_utc('day'::text, %s::timestamp with time zone)",
+						'args': [_('date of birth/death'), date_parts[0].replace(',', '.'), date_parts[1].replace(',', '.')]
 					})
 				if len(where_parts) > 0:
-					where_parts[0]['conditions'] += u" AND dem.date_trunc_utc('day'::text, dob) = dem.date_trunc_utc('day'::text, %s::timestamp with time zone) AND dem.date_trunc_utc('day'::text, dem.identity.deceased) = dem.date_trunc_utc('day'::text, %s::timestamp with time zone)",
-					where_parts[0]['args'].append(date_parts[0].replace(u',', u'.'), date_parts[1].replace(u',', u'.'))
-					where_parts[0]['args'][0] += u', ' + _('date of birth/death')
+					where_parts[0]['conditions'] += " AND dem.date_trunc_utc('day'::text, dob) = dem.date_trunc_utc('day'::text, %s::timestamp with time zone) AND dem.date_trunc_utc('day'::text, dem.identity.deceased) = dem.date_trunc_utc('day'::text, %s::timestamp with time zone)",
+					where_parts[0]['args'].append(date_parts[0].replace(',', '.'), date_parts[1].replace(',', '.'))
+					where_parts[0]['args'][0] += ', ' + _('date of birth/death')
 				if len(where_parts) > 1:
-					where_parts[1]['conditions'] += u" AND dem.date_trunc_utc('day'::text, dob) = dem.date_trunc_utc('day'::text, %s::timestamp with time zone) AND dem.date_trunc_utc('day'::text, dem.identity.deceased) = dem.date_trunc_utc('day'::text, %s::timestamp with time zone)",
-					where_parts[1]['args'].append(date_parts[0].replace(u',', u'.'), date_parts[1].replace(u',', u'.'))
-					where_parts[1]['args'][0] += u', ' + _('date of birth/death')
+					where_parts[1]['conditions'] += " AND dem.date_trunc_utc('day'::text, dob) = dem.date_trunc_utc('day'::text, %s::timestamp with time zone) AND dem.date_trunc_utc('day'::text, dem.identity.deceased) = dem.date_trunc_utc('day'::text, %s::timestamp with time zone)",
+					where_parts[1]['args'].append(date_parts[0].replace(',', '.'), date_parts[1].replace(',', '.'))
+					where_parts[1]['args'][0] += ', ' + _('date of birth/death')
 
 			# and finally generate the queries ...
 			for where_part in where_parts:
 				queries.append ({
-					'cmd': u"SELECT *, %%s::text AS match_type FROM dem.v_active_persons WHERE %s" % where_part['conditions'],
+					'cmd': "SELECT *, %%s::text AS match_type FROM dem.v_active_persons WHERE %s" % where_part['conditions'],
 					'args': where_part['args']
 				})
 			return queries
@@ -718,10 +718,10 @@ SELECT DISTINCT ON (pk_identity) * FROM (
 		args = []
 		# FIXME: split on more than just ' '
 		for arg in search_term.strip().split():
-			where_clause += u" AND lower(coalesce(d_vap.title, '') || ' ' || d_vap.firstnames || ' ' || d_vap.lastnames) ~* lower(%s)"
+			where_clause += " AND lower(coalesce(d_vap.title, '') || ' ' || d_vap.firstnames || ' ' || d_vap.lastnames) ~* lower(%s)"
 			args.append(arg)
 
-		query = u"""
+		query = """
 SELECT DISTINCT ON (pk_identity) * FROM (
 	SELECT
 		d_vap.*,
@@ -810,11 +810,11 @@ if __name__ == '__main__':
 		print("testing _normalize_soundalikes()")
 		print("--------------------------------")
 		# FIXME: support Ähler -> Äler and Dähler -> Däler
-		data = [u'Krüger', u'Krueger', u'Kruger', u'Überle', u'Böger', u'Boger', u'Öder', u'Ähler', u'Däler', u'Großer', u'müller', u'Özdemir', u'özdemir']
+		data = ['Krüger', 'Krueger', 'Kruger', 'Überle', 'Böger', 'Boger', 'Öder', 'Ähler', 'Däler', 'Großer', 'müller', 'Özdemir', 'özdemir']
 		for name in data:
 			print('%s: %s' % (name, searcher._normalize_soundalikes(name)))
 
-		raw_input('press [ENTER] to continue')
+		input('press [ENTER] to continue')
 		print("============")
 
 		print("testing _generate_simple_query()")
@@ -826,7 +826,7 @@ if __name__ == '__main__':
 			for q in qs:
 				print(" match on:", q['args'][0])
 				print(" query   :", q['cmd'])
-			raw_input('press [ENTER] to continue')
+			input('press [ENTER] to continue')
 			print("============")
 
 		print("testing _generate_queries_from_dto()")
@@ -841,7 +841,7 @@ if __name__ == '__main__':
 		print(" match on:", q['args'][0])
 		print(" query:", q['cmd'])
 
-		raw_input('press [ENTER] to continue')
+		input('press [ENTER] to continue')
 		print("============")
 
 		print("testing _generate_queries_de()")
@@ -851,31 +851,31 @@ if __name__ == '__main__':
 			print(" match on:", q['args'][0])
 			print(" query   :", q['cmd'])
 			print(" args    :", q['args'])
-		raw_input('press [ENTER] to continue')
+		input('press [ENTER] to continue')
 		print("============")
 
-		qs = searcher._generate_queries_de(u'müller')
+		qs = searcher._generate_queries_de('müller')
 		for q in qs:
 			print(" match on:", q['args'][0])
 			print(" query   :", q['cmd'])
 			print(" args    :", q['args'])
-		raw_input('press [ENTER] to continue')
+		input('press [ENTER] to continue')
 		print("============")
 
-		qs = searcher._generate_queries_de(u'özdemir')
+		qs = searcher._generate_queries_de('özdemir')
 		for q in qs:
 			print(" match on:", q['args'][0])
 			print(" query   :", q['cmd'])
 			print(" args    :", q['args'])
-		raw_input('press [ENTER] to continue')
+		input('press [ENTER] to continue')
 		print("============")
 
-		qs = searcher._generate_queries_de(u'Özdemir')
+		qs = searcher._generate_queries_de('Özdemir')
 		for q in qs:
 			print(" match on:", q['args'][0])
 			print(" query   :", q['cmd'])
 			print(" args    :", q['args'])
-		raw_input('press [ENTER] to continue')
+		input('press [ENTER] to continue')
 		print("============")
 
 		print("testing _generate_dumb_brute_query()")
@@ -885,7 +885,7 @@ if __name__ == '__main__':
 		print(" query:", q['cmd'])
 		print(" args:", q['args'])
 
-		raw_input('press [ENTER] to continue')
+		input('press [ENTER] to continue')
 	#--------------------------------------------------------
 	def test_ask_for_patient():
 		while 1:

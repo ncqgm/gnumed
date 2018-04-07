@@ -211,12 +211,12 @@ class cPhraseWheelBase(wx.TextCtrl):
 		return self._data
 
 	#---------------------------------------------------------
-	def SetText(self, value=u'', data=None, suppress_smarts=False):
+	def SetText(self, value='', data=None, suppress_smarts=False):
 
 		if value is None:
-			value = u''
+			value = ''
 
-		if (value == u'') and (data is None):
+		if (value == '') and (data is None):
 			self._data = {}
 			super(cPhraseWheelBase, self).SetValue(value)
 			return
@@ -234,7 +234,7 @@ class cPhraseWheelBase(wx.TextCtrl):
 			return True
 
 		# empty text value ?
-		if value == u'':
+		if value == '':
 			# valid value not required ?
 			if not self.selection_only:
 				return True
@@ -263,7 +263,7 @@ class cPhraseWheelBase(wx.TextCtrl):
 			else:
 				color2show = color_prw_invalid
 		else:
-			raise ValueError(u'<valid> must be True or False')
+			raise ValueError('<valid> must be True or False')
 
 		if self.IsEnabled():
 			self.SetBackgroundColour(color2show)
@@ -290,7 +290,7 @@ class cPhraseWheelBase(wx.TextCtrl):
 		elif enable is False:
 			self.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_BACKGROUND))
 		else:
-			raise ValueError(u'<enable> must be True or False')
+			raise ValueError('<enable> must be True or False')
 
 		self.Refresh()
 
@@ -369,7 +369,7 @@ class cPhraseWheelBase(wx.TextCtrl):
 
 		# get the last word
 		last_word = self.__speller_word_separators.split(val)[-1]
-		if last_word.strip() == u'':
+		if last_word.strip() == '':
 			return None
 
 		try:
@@ -438,7 +438,7 @@ class cPhraseWheelBase(wx.TextCtrl):
 			list_parent,
 			style = wx.LC_NO_HEADER
 		)
-		self._picklist.InsertColumn(0, u'')
+		self._picklist.InsertColumn(0, '')
 
 		if szr_dropdown is not None:
 			szr_dropdown.Add(self._picklist, 1, wx.EXPAND)
@@ -555,7 +555,7 @@ class cPhraseWheelBase(wx.TextCtrl):
 		try:
 			return item['label']
 		except KeyError:
-			return u'<no field_*/list_*/label in item>'
+			return '<no field_*/list_*/label in item>'
 			#return self._picklist.GetItemText(self._picklist.GetFirstSelected())
 	#--------------------------------------------------------
 	def _update_display_from_picked_item(self, item):
@@ -617,7 +617,7 @@ class cPhraseWheelBase(wx.TextCtrl):
 		"""
 		if self.__static_tt is None:
 			if self.ToolTip is None:
-				self.__static_tt = u''
+				self.__static_tt = ''
 			else:
 				self.__static_tt = self.ToolTip.Tip
 
@@ -626,8 +626,8 @@ class cPhraseWheelBase(wx.TextCtrl):
 		# in which case we want to be able to re-set the
 		# tooltip to the static part
 		static_part = self.__static_tt
-		if (self.__static_tt_extra) is not None and (self.__static_tt_extra.strip() != u''):
-			static_part = u'%s\n\n%s' % (
+		if (self.__static_tt_extra) is not None and (self.__static_tt_extra.strip() != ''):
+			static_part = '%s\n\n%s' % (
 				static_part,
 				self.__static_tt_extra
 			)
@@ -637,13 +637,13 @@ class cPhraseWheelBase(wx.TextCtrl):
 			self.SetToolTip(static_part)
 			return
 
-		if static_part == u'':
+		if static_part == '':
 			tt = dynamic_part
 		else:
-			if dynamic_part.strip() == u'':
+			if dynamic_part.strip() == '':
 				tt = static_part
 			else:
-				tt = u'%s\n\n%s\n\n%s' % (
+				tt = '%s\n\n%s\n\n%s' % (
 					dynamic_part,
 					gmTools.u_box_horiz_single * 32,
 					static_part
@@ -701,7 +701,7 @@ class cPhraseWheelBase(wx.TextCtrl):
 			pass
 
 		# need to handle all non-character key presses *before* this check
-		elif not self.__char_is_allowed(char = unichr(event.GetUnicodeKey())):
+		elif not self.__char_is_allowed(char = chr(event.GetUnicodeKey())):
 			wx.Bell()
 			# Richard doesn't show any error message here
 			return
@@ -805,7 +805,7 @@ class cPhraseWheelBase(wx.TextCtrl):
 
 		# if empty string then hide list dropdown window
 		# we also don't need a timer event then
-		if val == u'':
+		if val == '':
 			self._hide_picklist()
 			self.__timer.Stop()
 		else:
@@ -851,8 +851,8 @@ class cPhraseWheelBase(wx.TextCtrl):
 		# with the top-weighted contextual item but want to
 		# select another contextual item)
 		self.__timer.Stop()
-		if self.GetValue().strip() == u'':
-			val = u'*'
+		if self.GetValue().strip() == '':
+			val = '*'
 		else:
 			val = self._extract_fragment_to_match_on()
 		self._update_candidates_in_picklist(val = val)
@@ -1095,7 +1095,7 @@ class cPhraseWheel(cPhraseWheelBase):
 			return True
 
 		# try getting match candidates
-		self._update_candidates_in_picklist(u'*')
+		self._update_candidates_in_picklist('*')
 
 		# do we require a match ?
 		if self.selection_only:
@@ -1144,7 +1144,7 @@ class cPhraseWheel(cPhraseWheelBase):
 
 		# needed ?
 		val = self.GetValue().strip()
-		if val == u'':
+		if val == '':
 			return True
 
 		# so try
@@ -1178,7 +1178,7 @@ class cPhraseWheel(cPhraseWheelBase):
 	def _dictify_data(self, data=None, value=None):
 		# assume data to always be old style
 		if value is None:
-			value = u'%s' % data
+			value = '%s' % data
 		return {value: {'data': data, 'list_label': value, 'field_label': value}}
 
 #============================================================
@@ -1189,8 +1189,8 @@ class cMultiPhraseWheel(cPhraseWheelBase):
 		super(cMultiPhraseWheel, self).__init__(*args, **kwargs)
 
 		self.phrase_separators = default_phrase_separators
-		self.left_part = u''
-		self.right_part = u''
+		self.left_part = ''
+		self.right_part = ''
 		self.speller = None
 	#---------------------------------------------------------
 	def GetData(self, can_create=False, as_instance=False):
@@ -1250,8 +1250,8 @@ class cMultiPhraseWheel(cPhraseWheelBase):
 
 		entire_input = self.GetValue()
 		if self.__phrase_separators.search(entire_input) is None:
-			self.left_part = u''
-			self.right_part = u''
+			self.left_part = ''
+			self.right_part = ''
 			return self.GetValue().strip()
 
 		string_left_of_cursor = entire_input[:cursor_pos]
@@ -1259,24 +1259,24 @@ class cMultiPhraseWheel(cPhraseWheelBase):
 
 		left_parts = [ lp.strip() for lp in self.__phrase_separators.split(string_left_of_cursor) ]
 		if len(left_parts) == 0:
-			self.left_part = u''
+			self.left_part = ''
 		else:
-			self.left_part = u'%s%s ' % (
-				(u'%s ' % self.__phrase_separators.pattern[0]).join(left_parts[:-1]),
+			self.left_part = '%s%s ' % (
+				('%s ' % self.__phrase_separators.pattern[0]).join(left_parts[:-1]),
 				self.__phrase_separators.pattern[0]
 			)
 
 		right_parts = [ rp.strip() for rp in self.__phrase_separators.split(string_right_of_cursor) ]
-		self.right_part = u'%s %s' % (
+		self.right_part = '%s %s' % (
 			self.__phrase_separators.pattern[0],
-			(u'%s ' % self.__phrase_separators.pattern[0]).join(right_parts[1:])
+			('%s ' % self.__phrase_separators.pattern[0]).join(right_parts[1:])
 		)
 
 		val = (left_parts[-1] + right_parts[0]).strip()
 		return val
 	#--------------------------------------------------------
 	def _update_display_from_picked_item(self, item):
-		val = (u'%s%s%s' % (
+		val = ('%s%s%s' % (
 			self.left_part,
 			self._picklist_item2display_string(item = item),
 			self.right_part
@@ -1337,7 +1337,7 @@ class cMultiPhraseWheel(cPhraseWheelBase):
 	phrase_separators = property(_get_phrase_separators, _set_phrase_separators)
 	#--------------------------------------------------------
 	def _get_displayed_strings(self):
-		return [ p.strip() for p in self.__phrase_separators.split(self.GetValue().strip()) if p.strip() != u'' ]
+		return [ p.strip() for p in self.__phrase_separators.split(self.GetValue().strip()) if p.strip() != '' ]
 
 	displayed_strings = property(_get_displayed_strings, lambda x:x)
 #============================================================
@@ -1348,7 +1348,7 @@ if __name__ == '__main__':
 	if len(sys.argv) < 2:
 		sys.exit()
 
-	if sys.argv[1] != u'test':
+	if sys.argv[1] != 'test':
 		sys.exit()
 
 	from Gnumed.pycommon import gmI18N
@@ -1414,12 +1414,12 @@ if __name__ == '__main__':
 	#--------------------------------------------------------
 	def test_prw_sql2():
 		print("Do you want to test the database connected phrase wheel ?")
-		yes_no = raw_input('y/n: ')
+		yes_no = input('y/n: ')
 		if yes_no != 'y':
 			return True
 
 		gmPG2.get_connection()
-		query = u"""SELECT code, code || ': ' || _(name), _(name) FROM dem.country WHERE _(name) %(fragment_condition)s"""
+		query = """SELECT code, code || ': ' || _(name), _(name) FROM dem.country WHERE _(name) %(fragment_condition)s"""
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries = [query])
 		app = wx.PyWidgetTester(size = (400, 50))
 		global prw
@@ -1434,7 +1434,7 @@ if __name__ == '__main__':
 	#--------------------------------------------------------
 	def test_prw_patients():
 		gmPG2.get_connection()
-		query = u"""
+		query = """
 			select
 				pk_identity,
 				firstnames || ' ' || lastnames || ', ' || to_char(dob, 'YYYY-MM-DD'),

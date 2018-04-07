@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-from __future__ import print_function
+
 
 __doc__ = """Incoming data importer."""
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
@@ -15,7 +15,7 @@ import os
 
 # do not run as root
 if os.name in ['posix'] and os.geteuid() == 0:
-	print(u"""
+	print("""
 %s should not be run as root.
 
 Running as <root> can potentially put all your
@@ -44,19 +44,19 @@ from Gnumed.business import gmIncomingData
 _log = logging.getLogger('importer')
 
 # update man page and help text when changing options
-_known_short_options = u'h?'
+_known_short_options = 'h?'
 _known_long_options = [
-	u'help',
-	u'local-import',
-	u'data-type=',
-	u'file2import=',
-	u'user=',
-	u'host=',
-	u'port='
+	'help',
+	'local-import',
+	'data-type=',
+	'file2import=',
+	'user=',
+	'host=',
+	'port='
 ]
 
 # update man page when changing options
-_help_text = u"""
+_help_text = """
 --------------------------------------------------------------------------------------
 Command line:
  %s
@@ -88,7 +88,7 @@ def import_file(data_type, filename):
 		_log.error('import failed')
 	else:
 		_log.info('success')
-		target_filename = filename + u'.imported'
+		target_filename = filename + '.imported'
 		_log.debug('[%s] -> [%s]', filename, target_filename)
 		try:
 			os.rename(filename, target_filename)
@@ -138,7 +138,7 @@ def process_options():
 		exit_with_message('ERROR: option --data-type missing')
 	if datatype is True:
 		exit_with_message('ERROR: data type missing in option --data-type=')
-	if datatype.strip() == u'':
+	if datatype.strip() == '':
 		exit_with_message('ERROR: invalid data type in option --data-type=>>>%s<<<' % datatype)
 
 	db_user = _cfg.get(option = '--user', source_order = [('cli', 'return')])
@@ -146,7 +146,7 @@ def process_options():
 		exit_with_message('ERROR: option --user missing')
 	if db_user is True:
 		exit_with_message('ERROR: user name missing in option --user=')
-	if db_user.strip() == u'':
+	if db_user.strip() == '':
 		exit_with_message('ERROR: invalid user name in option --user=>>>%s<<<' % db_user)
 
 	db_host = _cfg.get(option = '--host', source_order = [('cli', 'return')])
@@ -154,7 +154,7 @@ def process_options():
 		_log.debug('option --host not set, using <UNIX domain socket> on <localhost>')
 	elif db_host is True:
 		exit_with_message('ERROR: host name missing in option --host=')
-	elif db_host.strip() == u'':
+	elif db_host.strip() == '':
 		_log.debug('option --host set to "", using <UNIX domain socket> on <localhost>')
 		db_host = None
 
@@ -163,7 +163,7 @@ def process_options():
 		_log.debug('option --port not set, using <UNIX domain socket> on <localhost>')
 	elif db_port is True:
 		exit_with_message('ERROR: port value missing in option --port=')
-	elif db_port.strip() == u'':
+	elif db_port.strip() == '':
 		_log.debug('option --port set to "", using <UNIX domain socket> on <localhost>')
 		db_port = None
 	else:
@@ -202,7 +202,7 @@ def exit_with_message(message=None):
 def show_usage():
 	from Gnumed.pycommon import gmLog2
 	print(_help_text % (
-		u' '.join(sys.argv),
+		' '.join(sys.argv),
 		sys.argv[0],
 		gmPG2.default_database,
 		gmLog2._logfile_name

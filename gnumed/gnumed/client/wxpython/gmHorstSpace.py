@@ -75,10 +75,10 @@ class cHorstSpaceNotebook(wx.Notebook):			# wx.BestBook ?
 		self.__id_evt_page_before_switch = event.GetOldSelection()
 		__id_evt_page_after_switch = event.GetSelection()
 
-		_log.debug(u'source/target page state in EVT_NOTEBOOK_PAGE_CHANGING:')
-		_log.debug(u' #1 - notebook current page: %s (= notebook.GetSelection())', self.__id_nb_page_before_switch)
-		_log.debug(u' #2 - event source page: %s (= page event says it is coming from, event.GetOldSelection())', self.__id_evt_page_before_switch)
-		_log.debug(u' #3 - event target page: %s (= page event wants to go to, event.GetSelection())', __id_evt_page_after_switch)
+		_log.debug('source/target page state in EVT_NOTEBOOK_PAGE_CHANGING:')
+		_log.debug(' #1 - notebook current page: %s (= notebook.GetSelection())', self.__id_nb_page_before_switch)
+		_log.debug(' #2 - event source page: %s (= page event says it is coming from, event.GetOldSelection())', self.__id_evt_page_before_switch)
+		_log.debug(' #3 - event target page: %s (= page event wants to go to, event.GetSelection())', __id_evt_page_after_switch)
 		if self.__id_evt_page_before_switch != self.__id_nb_page_before_switch:
 			_log.warning(' problem: #1 and #2 really should match but do not')
 
@@ -138,10 +138,10 @@ class cHorstSpaceNotebook(wx.Notebook):			# wx.BestBook ?
 		id_evt_page_before_switch = event.GetOldSelection()
 		id_evt_page_after_switch = event.GetSelection()
 
-		_log.debug(u'source/target page state in EVT_NOTEBOOK_PAGE_CHANGED:')
-		_log.debug(u' #1 - current notebook page: %s (notebook.GetSelection())', id_nb_page_after_switch)
-		_log.debug(u' #2 - event source page: %s (= page event says it is coming from, event.GetOldSelection())', id_evt_page_before_switch)
-		_log.debug(u' #3 - event target page: %s (= page event wants to go to, event.GetSelection())', id_evt_page_after_switch)
+		_log.debug('source/target page state in EVT_NOTEBOOK_PAGE_CHANGED:')
+		_log.debug(' #1 - current notebook page: %s (notebook.GetSelection())', id_nb_page_after_switch)
+		_log.debug(' #2 - event source page: %s (= page event says it is coming from, event.GetOldSelection())', id_evt_page_before_switch)
+		_log.debug(' #3 - event target page: %s (= page event wants to go to, event.GetSelection())', id_evt_page_after_switch)
 
 		if self.__id_nb_page_before_switch != id_evt_page_before_switch:
 			_log.warning('those two really *should* match:')
@@ -231,7 +231,7 @@ class cHorstSpaceLayoutMgr(wx.Panel):
 #		# - popup menu on right click in notebook
 #		#wx.EVT_RIGHT_UP(self.nb, self._on_right_click)
 
-		gmDispatcher.connect(self._on_post_patient_selection, u'post_patient_selection')
+		gmDispatcher.connect(self._on_post_patient_selection, 'post_patient_selection')
 
 	#----------------------------------------------
 	def __load_plugins(self):
@@ -295,10 +295,10 @@ class cHorstSpaceLayoutMgr(wx.Panel):
 	def _on_post_patient_selection(self, **kwargs):
 		db_cfg = gmCfg.cCfgSQL()
 		default_plugin = db_cfg.get2 (
-			option = u'patient_search.plugin_to_raise_after_search',
+			option = 'patient_search.plugin_to_raise_after_search',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
-			bias = u'user',
-			default = u'gmPatientOverviewPlugin'
+			bias = 'user',
+			default = 'gmPatientOverviewPlugin'
 		)
 		gmDispatcher.send(signal = 'display_widget', name = default_plugin)
 
@@ -320,10 +320,10 @@ class cHorstSpaceLayoutMgr(wx.Panel):
 		self.__id_evt_page_before_switch = event.GetOldSelection()
 		__id_evt_page_after_switch = event.GetSelection()
 
-		_log.debug(u'source/target page state in EVT_NOTEBOOK_PAGE_CHANGING:')
-		_log.debug(u' #1 - notebook current page: %s (= notebook.GetSelection())', self.__id_nb_page_before_switch)
-		_log.debug(u' #2 - event source page: %s (= page event says it is coming from, event.GetOldSelection())', self.__id_evt_page_before_switch)
-		_log.debug(u' #3 - event target page: %s (= page event wants to go to, event.GetSelection())', __id_evt_page_after_switch)
+		_log.debug('source/target page state in EVT_NOTEBOOK_PAGE_CHANGING:')
+		_log.debug(' #1 - notebook current page: %s (= notebook.GetSelection())', self.__id_nb_page_before_switch)
+		_log.debug(' #2 - event source page: %s (= page event says it is coming from, event.GetOldSelection())', self.__id_evt_page_before_switch)
+		_log.debug(' #3 - event target page: %s (= page event wants to go to, event.GetSelection())', __id_evt_page_after_switch)
 		if self.__id_evt_page_before_switch != self.__id_nb_page_before_switch:
 			_log.warning(' problem: #1 and #2 really should match but do not')
 
@@ -383,10 +383,10 @@ class cHorstSpaceLayoutMgr(wx.Panel):
 		id_evt_page_before_switch = event.GetOldSelection()
 		id_evt_page_after_switch = event.GetSelection()
 
-		_log.debug(u'source/target page state in EVT_NOTEBOOK_PAGE_CHANGED:')
-		_log.debug(u' #1 - current notebook page: %s (notebook.GetSelection())', id_nb_page_after_switch)
-		_log.debug(u' #2 - event source page: %s (= page event says it is coming from, event.GetOldSelection())', id_evt_page_before_switch)
-		_log.debug(u' #3 - event target page: %s (= page event wants to go to, event.GetSelection())', id_evt_page_after_switch)
+		_log.debug('source/target page state in EVT_NOTEBOOK_PAGE_CHANGED:')
+		_log.debug(' #1 - current notebook page: %s (notebook.GetSelection())', id_nb_page_after_switch)
+		_log.debug(' #2 - event source page: %s (= page event says it is coming from, event.GetOldSelection())', id_evt_page_before_switch)
+		_log.debug(' #3 - event target page: %s (= page event wants to go to, event.GetSelection())', id_evt_page_after_switch)
 
 		if self.__id_nb_page_before_switch != id_evt_page_before_switch:
 			_log.warning('those two really *should* match:')

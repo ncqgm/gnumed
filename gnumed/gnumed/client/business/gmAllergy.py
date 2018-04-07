@@ -31,7 +31,7 @@ def ensure_has_allergy_state(encounter=None):
 	_log.debug('checking allergy state for identity of encounter [%s]', encounter)
 
 	args = {'enc': encounter}
-	cmd_create = u"""
+	cmd_create = """
 		INSERT INTO clin.allergy_state (
 			fk_encounter,
 			has_allergy
@@ -45,7 +45,7 @@ def ensure_has_allergy_state(encounter=None):
 				)
 			)
 	"""
-	cmd_search = u"""
+	cmd_search = """
 		SELECT pk_allergy_state FROM clin.v_pat_allergy_state
 		WHERE pk_patient = (
 			SELECT fk_patient FROM clin.encounter WHERE pk = %(enc)s
@@ -65,16 +65,16 @@ def ensure_has_allergy_state(encounter=None):
 class cAllergyState(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents the allergy state of one patient."""
 
-	_cmd_fetch_payload = u"select * from clin.v_pat_allergy_state where pk_allergy_state = %s"
+	_cmd_fetch_payload = "select * from clin.v_pat_allergy_state where pk_allergy_state = %s"
 	_cmds_store_payload = [
-		u"""update clin.allergy_state set
+		"""update clin.allergy_state set
 				last_confirmed = %(last_confirmed)s,
 				has_allergy = %(has_allergy)s,
 				comment = gm.nullify_empty_string(%(comment)s)
 			where
 				pk = %(pk_allergy_state)s and
 				xmin = %(xmin_allergy_state)s""",
-		u"""select xmin_allergy_state from clin.v_pat_allergy_state where pk_allergy_state = %(pk_allergy_state)s"""
+		"""select xmin_allergy_state from clin.v_pat_allergy_state where pk_allergy_state = %(pk_allergy_state)s"""
 	]
 	_updatable_fields = [
 		'last_confirmed',		# special value u'now' will set to datetime.datetime.now() in the local time zone
@@ -85,12 +85,12 @@ class cAllergyState(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	def format_maximum_information(self, patient=None):
 		lines = []
-		lines.append(u'%s (%s)' % (
+		lines.append('%s (%s)' % (
 			self.state_string,
-			gmDateTime.pydt_strftime(self['last_confirmed'], '%Y %b %d', none_str = u'?')
+			gmDateTime.pydt_strftime(self['last_confirmed'], '%Y %b %d', none_str = '?')
 		))
 		if self._payload[self._idx['comment']] is not None:
-			lines.append(u' %s' % self._payload[self._idx['comment']])
+			lines.append(' %s' % self._payload[self._idx['comment']])
 		return lines
 
 	#--------------------------------------------------------
@@ -115,14 +115,14 @@ class cAllergyState(gmBusinessDBObject.cBusinessDBObject):
 	def _get_as_symbol(self):
 		if self._payload[self._idx['has_allergy']] is None:
 			if self._payload[self._idx['comment']] is None:
-				return u'?'
+				return '?'
 			else:
-				return u'?!'
+				return '?!'
 		if self._payload[self._idx['has_allergy']] == 0:
 			if self._payload[self._idx['comment']] is None:
-				return u'\u2300'
+				return '\u2300'
 			else:
-				return u'\u2300!'
+				return '\u2300!'
 		if self._payload[self._idx['has_allergy']] == 1:
 			return '!'
 		_log.error('unknown allergy state [%s]', self._payload[self._idx['has_allergy']])
@@ -134,22 +134,22 @@ class cAllergyState(gmBusinessDBObject.cBusinessDBObject):
 	def _get_as_amts_latex(self, strict=True):
 		table_rows = []
 		# Trennzeile als leere Zeile für bessere Lesbarkeit
-		table_rows.append(u'\\multicolumn{11}{l}{}\\tabularnewline')
+		table_rows.append('\\multicolumn{11}{l}{}\\tabularnewline')
 		# Zwischenüberschrift: 31 Zeichen, $..., 14pt, no frame, \textwidth
-		state = u'%s (%s)' % (
+		state = '%s (%s)' % (
 			self.state_string,
-			gmDateTime.pydt_strftime(self['last_confirmed'], '%b %Y', none_str = u'?')
+			gmDateTime.pydt_strftime(self['last_confirmed'], '%b %Y', none_str = '?')
 		)
 		if strict:
 			state = state[:31]
-		table_rows.append(u'\\multicolumn{11}{>{\\RaggedRight}p{27.9cm}}{\\rule{0pt}{4.5mm} \\fontsize{14pt}{16pt}\selectfont %s\label{AnchorAllergieDetails}}\\tabularnewline' % gmTools.tex_escape_string(state))
+		table_rows.append('\\multicolumn{11}{>{\\RaggedRight}p{27.9cm}}{\\rule{0pt}{4.5mm} \\fontsize{14pt}{16pt}\selectfont %s\label{AnchorAllergieDetails}}\\tabularnewline' % gmTools.tex_escape_string(state))
 		# Freitextzeile: 200 Zeichen, @..., \textwidth
 		if self['comment'] is not None:
 			if strict:
 				cmt = self['comment'].strip()[:200]
 			else:
 				cmt = self['comment'].strip()
-			table_rows.append(u'\\multicolumn{11}{>{\\RaggedRight}p{27.9cm}}{%s}\\tabularnewline') % gmTools.tex_escape_string(cmt)
+			table_rows.append('\\multicolumn{11}{>{\\RaggedRight}p{27.9cm}}{%s}\\tabularnewline') % gmTools.tex_escape_string(cmt)
 		return table_rows
 
 	as_amts_latex = property(_get_as_amts_latex, lambda x:x)
@@ -158,11 +158,11 @@ class cAllergyState(gmBusinessDBObject.cBusinessDBObject):
 	def _get_as_amts_data_v_2_0(self, strict=True):
 		lines = []
 		# Trennzeile für bessere Lesbarkeit als leere Zwischenüberschrift
-		lines.append(u'$ ')
+		lines.append('$ ')
 		# Zwischenüberschrift: 31 Zeichen, $..., \textwidth
-		txt = u'$%s (%s)' % (
+		txt = '$%s (%s)' % (
 			self.state_string,
-			gmDateTime.pydt_strftime(self['last_confirmed'], '%b %Y', none_str = u'?')
+			gmDateTime.pydt_strftime(self['last_confirmed'], '%b %Y', none_str = '?')
 		)
 		if strict:
 			lines.append(txt[:32])
@@ -171,40 +171,40 @@ class cAllergyState(gmBusinessDBObject.cBusinessDBObject):
 		# Freitextzeile: 200 Zeichen, @..., \textwidth
 		if self['comment'] is not None:
 			if strict:
-				lines.append(u'@%s' % self['comment'][:200])
+				lines.append('@%s' % self['comment'][:200])
 			else:
-				lines.append(u'@%s' % self['comment'])
+				lines.append('@%s' % self['comment'])
 		return lines
 
 	#--------------------------------------------------------
 	def _get_as_amts_data(self, strict=True):
 		# Zwischenüberschrift
-		state = u'%s (%s)' % (self.state_string, gmDateTime.pydt_strftime(self['last_confirmed'], '%b %Y', none_str = u'?'))
+		state = '%s (%s)' % (self.state_string, gmDateTime.pydt_strftime(self['last_confirmed'], '%b %Y', none_str = '?'))
 		if strict:
 			state = state[:32]
 		# Freitextzeile
 		if self['comment'] is None:
-			comment = u''
+			comment = ''
 		else:
-			comment = u'<X t="%s"/>' % self['comment']
+			comment = '<X t="%s"/>' % self['comment']
 			if strict:
-				comment = u'<X t="%s"/>' % self['comment'][:200]
-		return u'<S t="%s">%s%%s</S>' % (state, comment)
+				comment = '<X t="%s"/>' % self['comment'][:200]
+		return '<S t="%s">%s%%s</S>' % (state, comment)
 
 	as_amts_data = property(_get_as_amts_data, lambda x:x)
 
 	#--------------------------------------------------------
 	def __setitem__(self, attribute, value):
-		if attribute == u'comment':
+		if attribute == 'comment':
 			if value is not None:
-				if value.strip() == u'':
+				if value.strip() == '':
 					value = None
 
-		elif attribute == u'last_confirmed':
-			if value == u'now':
+		elif attribute == 'last_confirmed':
+			if value == 'now':
 				value = pyDT.datetime.now(tz = gmDateTime.gmCurrentLocalTimezone)
 
-		elif attribute == u'has_allergy':
+		elif attribute == 'has_allergy':
 			if value not in allergy_states:
 				raise ValueError('invalid allergy state [%s]' % value)
 
@@ -220,9 +220,9 @@ class cAllergy(gmBusinessDBObject.cBusinessDBObject):
 
 	Another word might be Therapeutic Precautions.
 	"""
-	_cmd_fetch_payload = u"SELECT * FROM clin.v_pat_allergies WHERE pk_allergy = %s"
+	_cmd_fetch_payload = "SELECT * FROM clin.v_pat_allergies WHERE pk_allergy = %s"
 	_cmds_store_payload = [
-		u"""UPDATE clin.allergy SET
+		"""UPDATE clin.allergy SET
 				clin_when = %(date)s,
 				substance = %(substance)s,
 				substance_code = %(substance_code)s,
@@ -236,7 +236,7 @@ class cAllergy(gmBusinessDBObject.cBusinessDBObject):
 			WHERE
 				pk = %(pk_allergy)s AND
 				xmin = %(xmin_allergy)s""",
-		u"""SELECT xmin_allergy FROM clin.v_pat_allergies WHERE pk_allergy=%(pk_allergy)s"""
+		"""SELECT xmin_allergy FROM clin.v_pat_allergies WHERE pk_allergy=%(pk_allergy)s"""
 	]
 	_updatable_fields = [
 		'date',
@@ -253,37 +253,37 @@ class cAllergy(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	def format_maximum_information(self, patient=None):
 		lines = []
-		lines.append(u'%s%s: %s     [#%s]' % (
+		lines.append('%s%s: %s     [#%s]' % (
 			self._payload[self._idx['l10n_type']],
 			gmTools.bool2subst (
 				self._payload[self._idx['definite']],
-				u' (%s)' % _('definite'),
-				u' (%s)' % _('indefinite'),
-				u''
+				' (%s)' % _('definite'),
+				' (%s)' % _('indefinite'),
+				''
 			),
 			self._payload[self._idx['descriptor']],
 			self._payload[self._idx['pk_allergy']]
 		))
 		if self._payload[self._idx['reaction']] is not None:
-			lines.append(u' ' + _('Reaction:') + u' ' + self._payload[self._idx['reaction']])
+			lines.append(' ' + _('Reaction:') + ' ' + self._payload[self._idx['reaction']])
 		if self._payload[self._idx['date']] is not None:
-			lines.append(u' ' + _('Noted:') + u' ' + gmDateTime.pydt_strftime(self._payload[self._idx['date']], '%Y %b %d'))
+			lines.append(' ' + _('Noted:') + ' ' + gmDateTime.pydt_strftime(self._payload[self._idx['date']], '%Y %b %d'))
 		if self._payload[self._idx['allergene']] is not None:
-			lines.append(u' ' + _('Allergene:') + u' ' + self._payload[self._idx['allergene']])
+			lines.append(' ' + _('Allergene:') + ' ' + self._payload[self._idx['allergene']])
 		if self._payload[self._idx['substance']] is not None:
-			lines.append(u' ' + _('Substance:') + u' ' + self._payload[self._idx['substance']])
+			lines.append(' ' + _('Substance:') + ' ' + self._payload[self._idx['substance']])
 		if self._payload[self._idx['substance_code']] is not None:
-			lines.append(u' ' + _('Code:') + u' ' + self._payload[self._idx['substance_code']])
+			lines.append(' ' + _('Code:') + ' ' + self._payload[self._idx['substance_code']])
 		if self._payload[self._idx['atc_code']] is not None:
-			lines.append(u' ' + _('ATC:') + u' ' + self._payload[self._idx['atc_code']])
-		lines.append(u' ' + _('Specific to:') + u' ' + gmTools.bool2subst (
+			lines.append(' ' + _('ATC:') + ' ' + self._payload[self._idx['atc_code']])
+		lines.append(' ' + _('Specific to:') + ' ' + gmTools.bool2subst (
 			self._payload[self._idx['generic_specific']],
 			_('this substance only'),
 			_('drug class'),
 			_('unknown')
 		))
 		if self._payload[self._idx['generics']] is not None:
-			lines.append(u' ' + _('Generics:') + u' ' + self._payload[self._idx['generics']])
+			lines.append(' ' + _('Generics:') + ' ' + self._payload[self._idx['generics']])
 
 		return lines
 
@@ -291,7 +291,7 @@ class cAllergy(gmBusinessDBObject.cBusinessDBObject):
 	def __setitem__(self, attribute, value):
 		if attribute == 'pk_type':
 			if value in ['allergy', 'sensitivity']:
-				cmd = u'select pk from clin._enum_allergy_type where value=%s'
+				cmd = 'select pk from clin._enum_allergy_type where value=%s'
 				rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [value]}])
 				value = rows[0][0]
 
@@ -300,16 +300,16 @@ class cAllergy(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	def _get_as_amts_latex(self, strict=True):
 		# Freitextzeile: 200 Zeichen, @...
-		cells = [u'\\multicolumn{1}{>{\\RaggedRight}p{4cm}}{%s}' % gmTools.tex_escape_string(self['descriptor'])]
-		txt = u'%s%s' % (
+		cells = ['\\multicolumn{1}{>{\\RaggedRight}p{4cm}}{%s}' % gmTools.tex_escape_string(self['descriptor'])]
+		txt = '%s%s' % (
 			self['l10n_type'],
-			gmTools.coalesce(self['reaction'], u'', u': %s')
+			gmTools.coalesce(self['reaction'], '', ': %s')
 		)
 		if strict:
 			txt = txt[:(200-len(self['descriptor']))]
-		cells.append(u'\\multicolumn{10}{>{\\RaggedRight}p{23.9cm}}{%s}' % gmTools.tex_escape_string(txt))
-		table_row = u' & '.join(cells)
-		table_row += u'\\tabularnewline'
+		cells.append('\\multicolumn{10}{>{\\RaggedRight}p{23.9cm}}{%s}' % gmTools.tex_escape_string(txt))
+		table_row = ' & '.join(cells)
+		table_row += '\\tabularnewline'
 		return table_row
 
 	as_amts_latex = property(_get_as_amts_latex, lambda x:x)
@@ -317,10 +317,10 @@ class cAllergy(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	def _get_as_amts_data_v_2_0(self, strict=True):
 		# Freitextzeile: 200 Zeichen, @..., \textwidth
-		txt = u'@%s %s%s' % (
+		txt = '@%s %s%s' % (
 			self['descriptor'],
 			self['l10n_type'],
-			gmTools.coalesce(self['reaction'], u'', u': %s')
+			gmTools.coalesce(self['reaction'], '', ': %s')
 		)
 		if strict:
 			return txt[:200]
@@ -328,15 +328,15 @@ class cAllergy(gmBusinessDBObject.cBusinessDBObject):
 
 	#--------------------------------------------------------
 	def _get_as_amts_data(self, strict=True):
-		txt = u'%s %s%s' % (
+		txt = '%s %s%s' % (
 			self['descriptor'],
 			self['l10n_type'],
-			gmTools.coalesce(self['reaction'], u'', u': %s')
+			gmTools.coalesce(self['reaction'], '', ': %s')
 		)
 		if strict:
 			txt = txt[:200]
 		# Freitextzeile: 200 Zeichen
-		return u'<X t="%s"/>' % txt
+		return '<X t="%s"/>' % txt
 
 	as_amts_data = property(_get_as_amts_data, lambda x:x)
 
@@ -351,7 +351,7 @@ def create_allergy(allergene=None, allg_type=None, episode_id=None, encounter_id
 	encounter_id - encounter's primary key
 	episode_id - episode's primary key
 	"""
-	cmd = u"""
+	cmd = """
 		SELECT pk_allergy
 		FROM clin.v_pat_allergies
 		WHERE
@@ -369,17 +369,17 @@ def create_allergy(allergene=None, allg_type=None, episode_id=None, encounter_id
 	# insert new allergy
 	queries = []
 
-	if type(allg_type) == types.IntType:
-		cmd = u"""
+	if type(allg_type) == int:
+		cmd = """
 			insert into clin.allergy (fk_type, fk_encounter, fk_episode, allergene, substance)
 			values (%s, %s, %s, %s, %s)"""
 	else:
-		cmd = u"""
+		cmd = """
 			insert into clin.allergy (fk_type, fk_encounter, fk_episode,  allergene, substance)
 			values ((select pk from clin._enum_allergy_type where value = %s), %s, %s, %s, %s)"""
 	queries.append({'cmd': cmd, 'args': [allg_type, encounter_id, episode_id, allergene, allergene]})
 
-	cmd = u"select currval('clin.allergy_id_seq')"
+	cmd = "select currval('clin.allergy_id_seq')"
 	queries.append({'cmd': cmd})
 
 	rows, idx = gmPG2.run_rw_queries(queries=queries, return_data=True)

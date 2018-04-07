@@ -1,5 +1,5 @@
 
-from __future__ import print_function
+
 
 __doc__ = """GNUmed database object business class.
 
@@ -382,7 +382,7 @@ def delete_xxx(pk_XXX=None):
 
 	#--------------------------------------------------------
 	def __del__(self):
-		if u'_is_modified' in self.__dict__:
+		if '_is_modified' in self.__dict__:
 			if self._is_modified:
 				_log.critical('[%s:%s]: loosing payload changes' % (self.__class__.__name__, self.pk_obj))
 				_log.debug('most recently fetched: %s' % self.payload_most_recently_fetched)
@@ -408,16 +408,16 @@ def delete_xxx(pk_XXX=None):
 		try:
 			for attr in self._idx.keys():
 				if self._payload[self._idx[attr]] is None:
-					lines.append(u'%s: NULL' % attr)
+					lines.append('%s: NULL' % attr)
 				else:
-					lines.append(u'%s: %s [%s]' % (
+					lines.append('%s: %s [%s]' % (
 						attr,
 						self._payload[self._idx[attr]],
 						type(self._payload[self._idx[attr]])
 					))
-			return u'[%s:%s]:\n%s' % (self.__class__.__name__, self.pk_obj, u'\n'.join(lines))
+			return '[%s:%s]:\n%s' % (self.__class__.__name__, self.pk_obj, '\n'.join(lines))
 		except:
-			return u'likely nascent [%s @ %s], error adding payload and primary key' % (self.__class__.__name__, id(self))
+			return 'likely nascent [%s @ %s], error adding payload and primary key' % (self.__class__.__name__, id(self))
 
 	#--------------------------------------------------------
 	def __getitem__(self, attribute):
@@ -465,7 +465,7 @@ def delete_xxx(pk_XXX=None):
 				del self._ext_cache[attribute]
 			except KeyError:
 				pass
-			if type(value) is types.TupleType:
+			if type(value) == tuple:
 				if setter(*value):
 					self._is_modified = True
 					return
@@ -502,9 +502,9 @@ def delete_xxx(pk_XXX=None):
 		return self.__class__._updatable_fields
 
 	#--------------------------------------------------------
-	def fields_as_dict(self, date_format='%Y %b %d  %H:%M', none_string=u'', escape_style=None, bool_strings=None):
+	def fields_as_dict(self, date_format='%Y %b %d  %H:%M', none_string='', escape_style=None, bool_strings=None):
 		if bool_strings is None:
-			bools = {True: u'True', False: u'False'}
+			bools = {True: 'True', False: 'False'}
 		else:
 			bools = {True: bool_strings[0], False: bool_strings[1]}
 		data = {}
@@ -526,9 +526,9 @@ def delete_xxx(pk_XXX=None):
 					data[field] = val
 					continue
 				data[field] = pydt_strftime(val, format = date_format, encoding = 'utf8')
-				if escape_style in [u'latex', u'tex']:
+				if escape_style in ['latex', 'tex']:
 					data[field] = tex_escape_string(data[field])
-				elif escape_style in [u'xetex', u'xelatex']:
+				elif escape_style in ['xetex', 'xelatex']:
 					data[field] = xetex_escape_string(data[field])
 				continue
 
@@ -540,9 +540,9 @@ def delete_xxx(pk_XXX=None):
 				except (UnicodeDecodeError, TypeError):
 					val = '%s' % str(val)
 					data[field] = val.decode('utf8', 'replace')
-			if escape_style in [u'latex', u'tex']:
+			if escape_style in ['latex', 'tex']:
 				data[field] = tex_escape_string(data[field])
-			elif escape_style in [u'xetex', u'xelatex']:
+			elif escape_style in ['xetex', 'xelatex']:
 				data[field] = xetex_escape_string(data[field])
 
 		return data
@@ -554,18 +554,18 @@ def delete_xxx(pk_XXX=None):
 	#--------------------------------------------------------
 	def format(self, *args, **kwargs):
 		return format_dict_like (
-			self.fields_as_dict(none_string = u'<?>'),
+			self.fields_as_dict(none_string = '<?>'),
 			tabular = True,
 			value_delimiters = None
-		).split(u'\n')
+		).split('\n')
 
 	#--------------------------------------------------------
 	def _get_revision_history(self, query, args, title):
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': query, 'args': args}], get_col_idx = True)
 		lines = []
-		lines.append(u'%s (%s versions)' % (title, rows[0]['row_version'] + 1))
+		lines.append('%s (%s versions)' % (title, rows[0]['row_version'] + 1))
 		if len(rows) == 1:
-			lines.append(u'')
+			lines.append('')
 			lines.extend(format_dict_like (
 					rows[0],
 					left_margin = 1,
@@ -576,7 +576,7 @@ def delete_xxx(pk_XXX=None):
 			return lines
 
 		for row_idx in range(len(rows)-1):
-			lines.append(u'')
+			lines.append('')
 			row_older = rows[row_idx + 1]
 			row_newer = rows[row_idx]
 			lines.extend(format_dict_likes_comparison (
@@ -585,9 +585,9 @@ def delete_xxx(pk_XXX=None):
 				title_left = _('Revision #%s') % row_older['row_version'],
 				title_right = _('Revision #%s') % row_newer['row_version'],
 				left_margin = 0,
-				key_delim = u' | ',
-				data_delim = u' | ',
-				missing_string = u'',
+				key_delim = ' | ',
+				data_delim = ' | ',
+				missing_string = '',
 				ignore_diff_in_keys = ['audit__action_applied', 'audit__action_when', 'audit__action_by', 'pk_audit', 'row_version', 'modified_when', 'modified_by']
 			))
 		return lines
@@ -597,7 +597,7 @@ def delete_xxx(pk_XXX=None):
 		"""Fetch field values from backend.
 		"""
 		if self._is_modified:
-			compare_dict_likes(self.original_payload, self.fields_as_dict(date_format = None, none_string = None), u'original payload', u'modified payload')
+			compare_dict_likes(self.original_payload, self.fields_as_dict(date_format = None, none_string = None), 'original payload', 'modified payload')
 			if ignore_changes:
 				_log.critical('[%s:%s]: loosing payload changes' % (self.__class__.__name__, self.pk_obj))
 				#_log.debug('most recently fetched: %s' % self.payload_most_recently_fetched)
@@ -606,7 +606,7 @@ def delete_xxx(pk_XXX=None):
 				_log.critical('[%s:%s]: cannot reload, payload changed' % (self.__class__.__name__, self.pk_obj))
 				return False
 
-		if type(self.pk_obj) == types.DictType:
+		if type(self.pk_obj) == dict:
 			arg = self.pk_obj
 		else:
 			arg = [self.pk_obj]
@@ -670,7 +670,7 @@ def delete_xxx(pk_XXX=None):
 			# - the PK went away (rows were deleted from under us)
 			# - another WHERE condition of the UPDATE did not produce any rows to update
 			# - savepoints are used since subtransactions may relevantly change the xmin/xmax ...
-			return (False, (u'cannot update row', _('[%s:%s]: row not updated (nothing returned), row in use ?') % (self.__class__.__name__, self.pk_obj)))
+			return (False, ('cannot update row', _('[%s:%s]: row not updated (nothing returned), row in use ?') % (self.__class__.__name__, self.pk_obj)))
 
 		# update cached values from should-be-first-and-only
 		# result row of last query,
@@ -779,7 +779,7 @@ if __name__ == '__main__':
 	if len(sys.argv) < 2:
 		sys.exit()
 
-	if sys.argv[1] != u'test':
+	if sys.argv[1] != 'test':
 		sys.exit()
 
 	#--------------------------------------------------------

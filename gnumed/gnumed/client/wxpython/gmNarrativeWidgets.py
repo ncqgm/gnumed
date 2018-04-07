@@ -82,7 +82,7 @@ class cMoveNarrativeDlg(wxgMoveNarrativeDlg.wxgMoveNarrativeDlg):
 
 		wxgMoveNarrativeDlg.wxgMoveNarrativeDlg.__init__(self, *args, **kwargs)
 
-		self.LBL_source_episode.SetLabel(u'%s%s' % (self.source_episode['description'], gmTools.coalesce(self.source_episode['health_issue'], u'', u' (%s)')))
+		self.LBL_source_episode.SetLabel('%s%s' % (self.source_episode['description'], gmTools.coalesce(self.source_episode['health_issue'], '', ' (%s)')))
 		self.LBL_encounter.SetLabel('%s: %s %s - %s' % (
 			gmDateTime.pydt_strftime(self.encounter['started'], '%Y %b %d'),
 			self.encounter['l10n_type'],
@@ -94,7 +94,7 @@ class cMoveNarrativeDlg(wxgMoveNarrativeDlg.wxgMoveNarrativeDlg):
 		narr = emr.get_clin_narrative(episodes=[self.source_episode['pk_episode']], encounters=[self.encounter['pk_encounter']])
 		if len(narr) == 0:
 			narr = [{'narrative': _('There is no narrative for this episode in this encounter.')}]
-		self.LBL_narrative.SetLabel(u'\n'.join([n['narrative'] for n in narr]))
+		self.LBL_narrative.SetLabel('\n'.join([n['narrative'] for n in narr]))
 
 	#------------------------------------------------------------
 	def _on_move_button_pressed(self, event):
@@ -174,9 +174,9 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 		self.__focussed_problem = problem
 
 		menu_item = menu.Append(-1, _('Edit'))
-		if self.__focussed_problem['type'] == u'issue':
+		if self.__focussed_problem['type'] == 'issue':
 			self.Bind(wx.EVT_MENU, self._on_edit_issue, menu_item)
-		if self.__focussed_problem['type'] == u'episode':
+		if self.__focussed_problem['type'] == 'episode':
 			self.Bind(wx.EVT_MENU, self._on_edit_episode, menu_item)
 
 	#--------------------------------------------------------
@@ -185,7 +185,7 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 
 		self._LCTRL_active_problems.set_string_items()
 
-		self._TCTRL_recent_notes.SetValue(u'')
+		self._TCTRL_recent_notes.SetValue('')
 		self._SZR_recent_notes.StaticBox.SetLabel(_('Most recent notes on selected problem'))
 
 		self._PNL_editors.patient = None
@@ -231,7 +231,7 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 				list_items.append ([
 					last,
 					problem['problem'],
-					gmTools.coalesce(initial = epi['health_issue'], instead = u'?')		#gmTools.u_diameter
+					gmTools.coalesce(initial = epi['health_issue'], instead = '?')		#gmTools.u_diameter
 				])
 
 		self._LCTRL_active_problems.set_string_items(items = list_items)
@@ -251,7 +251,7 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 		return True
 	#--------------------------------------------------------
 	def __get_info_for_issue_problem(self, problem=None, fancy=False):
-		soap = u''
+		soap = ''
 		emr = self.__pat.emr
 		prev_enc = emr.get_last_but_one_encounter(issue_id = problem['pk_health_issue'])
 		if prev_enc is not None:
@@ -271,24 +271,24 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 			issues = [ problem['pk_health_issue'] ],
 		)
 		if len(tmp) > 0:
-			soap += _('Current encounter:') + u'\n'
-			soap += u'\n'.join(tmp) + u'\n'
+			soap += _('Current encounter:') + '\n'
+			soap += '\n'.join(tmp) + '\n'
 
 		if problem['summary'] is not None:
-			soap += u'\n-- %s ----------\n%s' % (
+			soap += '\n-- %s ----------\n%s' % (
 				_('Cumulative summary'),
 				gmTools.wrap (
 					text = problem['summary'],
 					width = 45,
-					initial_indent = u' ',
-					subsequent_indent = u' '
+					initial_indent = ' ',
+					subsequent_indent = ' '
 				).strip('\n')
 			)
 
 		return soap
 	#--------------------------------------------------------
 	def __get_info_for_episode_problem(self, problem=None, fancy=False):
-		soap = u''
+		soap = ''
 		emr = self.__pat.emr
 		prev_enc = emr.get_last_but_one_encounter(episode_id = problem['pk_episode'])
 		if prev_enc is not None:
@@ -320,17 +320,17 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 		else:
 			tmp = emr.active_encounter.format_soap(soap_cats = 'soapu', emr = emr, issues = [problem['pk_health_issue']])
 		if len(tmp) > 0:
-			soap += _('Current encounter:') + u'\n'
-			soap += u'\n'.join(tmp) + u'\n'
+			soap += _('Current encounter:') + '\n'
+			soap += '\n'.join(tmp) + '\n'
 
 		if problem['summary'] is not None:
-			soap += u'\n-- %s ----------\n%s' % (
+			soap += '\n-- %s ----------\n%s' % (
 				_('Cumulative summary'),
 				gmTools.wrap (
 					text = problem['summary'],
 					width = 45,
-					initial_indent = u' ',
-					subsequent_indent = u' '
+					initial_indent = ' ',
+					subsequent_indent = ' '
 				).strip('\n')
 			)
 
@@ -340,12 +340,12 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 		"""This refreshes the recent-notes part."""
 
 		if problem is None:
-			caption = u'<?>'
-			txt = u''
-		elif problem['type'] == u'issue':
+			caption = '<?>'
+			txt = ''
+		elif problem['type'] == 'issue':
 			caption = problem['problem'][:35]
 			txt = self.__get_info_for_issue_problem(problem = problem, fancy = not self._RBTN_notes_only.GetValue())
-		elif problem['type'] == u'episode':
+		elif problem['type'] == 'episode':
 			caption = problem['problem'][:35]
 			txt = self.__get_info_for_episode_problem(problem = problem, fancy = not self._RBTN_notes_only.GetValue())
 
@@ -366,11 +366,11 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 	def __register_interests(self):
 		"""Configure enabled event signals."""
 		# client internal signals
-		gmDispatcher.connect(signal = u'pre_patient_unselection', receiver = self._on_pre_patient_unselection)
-		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._on_post_patient_selection)
-		gmDispatcher.connect(signal = u'clin.episode_mod_db', receiver = self._on_episode_issue_mod_db)
-		gmDispatcher.connect(signal = u'clin.health_issue_mod_db', receiver = self._on_episode_issue_mod_db)
-		gmDispatcher.connect(signal = u'clin.episode_code_mod_db', receiver = self._on_episode_issue_mod_db)
+		gmDispatcher.connect(signal = 'pre_patient_unselection', receiver = self._on_pre_patient_unselection)
+		gmDispatcher.connect(signal = 'post_patient_selection', receiver = self._on_post_patient_selection)
+		gmDispatcher.connect(signal = 'clin.episode_mod_db', receiver = self._on_episode_issue_mod_db)
+		gmDispatcher.connect(signal = 'clin.health_issue_mod_db', receiver = self._on_episode_issue_mod_db)
+		gmDispatcher.connect(signal = 'clin.episode_code_mod_db', receiver = self._on_episode_issue_mod_db)
 	#--------------------------------------------------------
 	def _on_pre_patient_unselection(self):
 		self.__reset_ui_content()
@@ -411,9 +411,9 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 
 		dbcfg = gmCfg.cCfgSQL()
 		allow_duplicate_editors = bool(dbcfg.get2 (
-			option = u'horstspace.soap_editor.allow_same_episode_multiple_times',
+			option = 'horstspace.soap_editor.allow_same_episode_multiple_times',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
-			bias = u'user',
+			bias = 'user',
 			default = False
 		))
 		if self._PNL_editors.add_editor(problem = problem, allow_same_problem = allow_duplicate_editors):
@@ -539,9 +539,9 @@ class cFancySoapEditorPnl(wxgFancySoapEditorPnl.wxgFancySoapEditorPnl):
 
 		dbcfg = gmCfg.cCfgSQL()
 		auto_open_recent_problems = bool(dbcfg.get2 (
-			option = u'horstspace.soap_editor.auto_open_latest_episodes',
+			option = 'horstspace.soap_editor.auto_open_latest_episodes',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
-			bias = u'user',
+			bias = 'user',
 			default = True
 		))
 
@@ -558,9 +558,9 @@ class cFancySoapEditorPnl(wxgFancySoapEditorPnl.wxgFancySoapEditorPnl):
 
 	#--------------------------------------------------------
 	def __reset_encounter_fields(self):
-		self._TCTRL_rfe.SetValue(u'')
+		self._TCTRL_rfe.SetValue('')
 		self._PRW_rfe_codes.SetText(suppress_smarts = True)
-		self._TCTRL_aoe.SetValue(u'')
+		self._TCTRL_aoe.SetValue('')
 		self._PRW_aoe_codes.SetText(suppress_smarts = True)
 
 	#--------------------------------------------------------
@@ -574,11 +574,11 @@ class cFancySoapEditorPnl(wxgFancySoapEditorPnl.wxgFancySoapEditorPnl):
 
 		enc = self.__pat.emr.active_encounter
 
-		self._TCTRL_rfe.SetValue(gmTools.coalesce(enc['reason_for_encounter'], u''))
+		self._TCTRL_rfe.SetValue(gmTools.coalesce(enc['reason_for_encounter'], ''))
 		val, data = self._PRW_rfe_codes.generic_linked_codes2item_dict(enc.generic_codes_rfe)
 		self._PRW_rfe_codes.SetText(val, data)
 
-		self._TCTRL_aoe.SetValue(gmTools.coalesce(enc['assessment_of_encounter'], u''))
+		self._TCTRL_aoe.SetValue(gmTools.coalesce(enc['assessment_of_encounter'], ''))
 		val, data = self._PRW_aoe_codes.generic_linked_codes2item_dict(enc.generic_codes_aoe)
 		self._PRW_aoe_codes.SetText(val, data)
 
@@ -620,14 +620,14 @@ class cFancySoapEditorPnl(wxgFancySoapEditorPnl.wxgFancySoapEditorPnl):
 	def __register_interests(self):
 		"""Configure enabled event signals."""
 		# synchronous signals
-		gmDispatcher.send(signal = u'register_pre_exit_callback', callback = self._pre_exit_callback)
+		gmDispatcher.send(signal = 'register_pre_exit_callback', callback = self._pre_exit_callback)
 
 		# client internal signals
-		gmDispatcher.connect(signal = u'blobs.doc_med_mod_db', receiver = self._on_doc_mod_db)			# visual progress notes
-		gmDispatcher.connect(signal = u'current_encounter_modified', receiver = self._on_current_encounter_modified)
-		gmDispatcher.connect(signal = u'current_encounter_switched', receiver = self._on_current_encounter_switched)
-		gmDispatcher.connect(signal = u'clin.rfe_code_mod_db', receiver = self._on_encounter_code_modified)
-		gmDispatcher.connect(signal = u'clin.aoe_code_mod_db', receiver = self._on_encounter_code_modified)
+		gmDispatcher.connect(signal = 'blobs.doc_med_mod_db', receiver = self._on_doc_mod_db)			# visual progress notes
+		gmDispatcher.connect(signal = 'current_encounter_modified', receiver = self._on_current_encounter_modified)
+		gmDispatcher.connect(signal = 'current_encounter_switched', receiver = self._on_current_encounter_switched)
+		gmDispatcher.connect(signal = 'clin.rfe_code_mod_db', receiver = self._on_encounter_code_modified)
+		gmDispatcher.connect(signal = 'clin.aoe_code_mod_db', receiver = self._on_encounter_code_modified)
 	#--------------------------------------------------------
 	def _before_switching_from_patient_callback(self):
 		"""Another patient is about to be activated.
@@ -665,8 +665,8 @@ class cFancySoapEditorPnl(wxgFancySoapEditorPnl.wxgFancySoapEditorPnl):
 		saved = self._NB_soap_editors.save_all_editors (
 			emr = self.__pat.emr,
 			episode_name_candidates = [
-				gmTools.none_if(self._TCTRL_aoe.GetValue().strip(), u''),
-				gmTools.none_if(self._TCTRL_rfe.GetValue().strip(), u'')
+				gmTools.none_if(self._TCTRL_aoe.GetValue().strip(), ''),
+				gmTools.none_if(self._TCTRL_rfe.GetValue().strip(), '')
 			]
 		)
 		if not saved:
@@ -704,8 +704,8 @@ class cFancySoapEditorPnl(wxgFancySoapEditorPnl.wxgFancySoapEditorPnl):
 		self._NB_soap_editors.save_current_editor (
 			emr = self.__pat.emr,
 			episode_name_candidates = [
-				gmTools.none_if(self._TCTRL_aoe.GetValue().strip(), u''),
-				gmTools.none_if(self._TCTRL_rfe.GetValue().strip(), u'')
+				gmTools.none_if(self._TCTRL_aoe.GetValue().strip(), ''),
+				gmTools.none_if(self._TCTRL_rfe.GetValue().strip(), '')
 			]
 		)
 		event.Skip()
@@ -724,8 +724,8 @@ class cFancySoapEditorPnl(wxgFancySoapEditorPnl.wxgFancySoapEditorPnl):
 			emr = self.__pat.emr,
 			encounter = encounter['pk_encounter'],
 			episode_name_candidates = [
-				gmTools.none_if(self._TCTRL_aoe.GetValue().strip(), u''),
-				gmTools.none_if(self._TCTRL_rfe.GetValue().strip(), u'')
+				gmTools.none_if(self._TCTRL_aoe.GetValue().strip(), ''),
+				gmTools.none_if(self._TCTRL_rfe.GetValue().strip(), '')
 			]
 		)
 		event.Skip()
@@ -756,8 +756,8 @@ class cFancySoapEditorPnl(wxgFancySoapEditorPnl.wxgFancySoapEditorPnl):
 		saved = self._NB_soap_editors.save_all_editors (
 			emr = emr,
 			episode_name_candidates = [
-				gmTools.none_if(self._TCTRL_aoe.GetValue().strip(), u''),
-				gmTools.none_if(self._TCTRL_rfe.GetValue().strip(), u'')
+				gmTools.none_if(self._TCTRL_aoe.GetValue().strip(), ''),
+				gmTools.none_if(self._TCTRL_rfe.GetValue().strip(), '')
 			]
 		)
 		if not saved:
@@ -828,7 +828,7 @@ class cSoapNoteInputNotebook(wx.Notebook):
 			if problem_to_add is None:
 				if page.problem is None:
 					self.SetSelection(page_idx)
-					gmDispatcher.send(signal = u'statustext', msg = u'Raising existing editor.', beep = True)
+					gmDispatcher.send(signal = 'statustext', msg = 'Raising existing editor.', beep = True)
 					return True
 				continue
 
@@ -840,7 +840,7 @@ class cSoapNoteInputNotebook(wx.Notebook):
 			if page.problem['type'] == 'episode':
 				if page.problem['pk_episode'] == problem_to_add['pk_episode']:
 					self.SetSelection(page_idx)
-					gmDispatcher.send(signal = u'statustext', msg = u'Raising existing editor.', beep = True)
+					gmDispatcher.send(signal = 'statustext', msg = 'Raising existing editor.', beep = True)
 					return True
 				continue
 
@@ -848,7 +848,7 @@ class cSoapNoteInputNotebook(wx.Notebook):
 			if page.problem['type'] == 'issue':
 				if page.problem['pk_health_issue'] == problem_to_add['pk_health_issue']:
 					self.SetSelection(page_idx)
-					gmDispatcher.send(signal = u'statustext', msg = u'Raising existing editor.', beep = True)
+					gmDispatcher.send(signal = 'statustext', msg = 'Raising existing editor.', beep = True)
 					return True
 				continue
 
@@ -1006,9 +1006,9 @@ class cSimpleSoapPluginPnl(wxgSimpleSoapPluginPnl.wxgSimpleSoapPluginPnl, gmRege
 	def __reset_ui(self):
 		self._LCTRL_problems.set_string_items()
 		self._TCTRL_soap_problem.SetValue(_('<above, double-click problem to start entering SOAP note>'))
-		self._TCTRL_soap.SetValue(u'')
+		self._TCTRL_soap.SetValue('')
 		self._CHBOX_filter_by_problem.SetLabel(_('&Filter by problem'))
-		self._TCTRL_journal.SetValue(u'')
+		self._TCTRL_journal.SetValue('')
 
 		self._TCTRL_soap.Disable()
 		self._BTN_save_soap.Disable()
@@ -1023,23 +1023,23 @@ class cSimpleSoapPluginPnl(wxgSimpleSoapPluginPnl.wxgSimpleSoapPluginPnl, gmRege
 
 		saved = self.__curr_pat.emr.add_clin_narrative (
 			note = self._TCTRL_soap.GetValue().strip(),
-			soap_cat = u'u',
+			soap_cat = 'u',
 			episode = self.__problem
 		)
 
 		if saved is None:
 			return False
 
-		self._TCTRL_soap.SetValue(u'')
+		self._TCTRL_soap.SetValue('')
 		self.__refresh_journal()
 		return True
 	#-----------------------------------------------------
 	def __perhaps_save_soap(self):
-		if self._TCTRL_soap.GetValue().strip() == u'':
+		if self._TCTRL_soap.GetValue().strip() == '':
 			return True
 		if self.__problem is None:
 			# FIXME: this could potentially lose input
-			self._TCTRL_soap.SetValue(u'')
+			self._TCTRL_soap.SetValue('')
 			return None
 		save_it = gmGuiHelpers.gm_show_question (
 			title = _('Saving SOAP note'),
@@ -1054,14 +1054,14 @@ class cSimpleSoapPluginPnl(wxgSimpleSoapPluginPnl.wxgSimpleSoapPluginPnl, gmRege
 		emr = self.__curr_pat.emr
 		epis = emr.get_episodes(open_status = True)
 		if len(epis) > 0:
-			self._LCTRL_problems.set_string_items(items = [ u'%s%s' % (
+			self._LCTRL_problems.set_string_items(items = [ '%s%s' % (
 				e['description'],
-				gmTools.coalesce(e['health_issue'], u'', u' (%s)')
+				gmTools.coalesce(e['health_issue'], '', ' (%s)')
 			) for e in epis ])
 			self._LCTRL_problems.set_data(epis)
 	#-----------------------------------------------------
 	def __refresh_journal(self):
-		self._TCTRL_journal.SetValue(u'')
+		self._TCTRL_journal.SetValue('')
 		epi = self._LCTRL_problems.get_selected_item_data(only_one = True)
 
 		if epi is not None:
@@ -1086,14 +1086,14 @@ class cSimpleSoapPluginPnl(wxgSimpleSoapPluginPnl.wxgSimpleSoapPluginPnl, gmRege
 	def __register_interests(self):
 		"""Configure enabled event signals."""
 		# client internal signals
-		gmDispatcher.connect(signal = u'pre_patient_unselection', receiver = self._on_pre_patient_unselection)
-		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._on_post_patient_selection)
-		gmDispatcher.connect(signal = u'clin.episode_mod_db', receiver = self._on_episode_issue_mod_db)
-		gmDispatcher.connect(signal = u'clin.health_issue_mod_db', receiver = self._on_episode_issue_mod_db)
+		gmDispatcher.connect(signal = 'pre_patient_unselection', receiver = self._on_pre_patient_unselection)
+		gmDispatcher.connect(signal = 'post_patient_selection', receiver = self._on_post_patient_selection)
+		gmDispatcher.connect(signal = 'clin.episode_mod_db', receiver = self._on_episode_issue_mod_db)
+		gmDispatcher.connect(signal = 'clin.health_issue_mod_db', receiver = self._on_episode_issue_mod_db)
 
 		# synchronous signals
 		self.__curr_pat.register_before_switching_from_patient_callback(callback = self._before_switching_from_patient_callback)
-		gmDispatcher.send(signal = u'register_pre_exit_callback', callback = self._pre_exit_callback)
+		gmDispatcher.send(signal = 'register_pre_exit_callback', callback = self._pre_exit_callback)
 	#-----------------------------------------------------
 	def _before_switching_from_patient_callback(self):
 		"""Another patient is about to be activated.
@@ -1131,10 +1131,10 @@ class cSimpleSoapPluginPnl(wxgSimpleSoapPluginPnl.wxgSimpleSoapPluginPnl, gmRege
 		epi = self._LCTRL_problems.get_selected_item_data(only_one = True)
 		self._TCTRL_soap_problem.SetValue(_('Progress note: %s%s') % (
 			epi['description'],
-			gmTools.coalesce(epi['health_issue'], u'', u' (%s)')
+			gmTools.coalesce(epi['health_issue'], '', ' (%s)')
 		))
 		self.__problem = epi
-		self._TCTRL_soap.SetValue(u'')
+		self._TCTRL_soap.SetValue('')
 
 		self._TCTRL_soap.Enable()
 		self._BTN_save_soap.Enable()
@@ -1170,7 +1170,7 @@ class cSimpleSoapPluginPnl(wxgSimpleSoapPluginPnl.wxgSimpleSoapPluginPnl, gmRege
 			caption = _('Adding a problem'),
 			parent = self
 		).strip()
-		if epi_name == u'':
+		if epi_name == '':
 			return
 		self.__curr_pat.emr.add_episode (
 			episode_name = epi_name,
@@ -1199,14 +1199,14 @@ class cSimpleSoapPluginPnl(wxgSimpleSoapPluginPnl.wxgSimpleSoapPluginPnl, gmRege
 	#-----------------------------------------------------
 	def _on_clear_soap_button_pressed(self, event):
 		event.Skip()
-		self._TCTRL_soap.SetValue(u'')
+		self._TCTRL_soap.SetValue('')
 	#-----------------------------------------------------
 	# reget-on-paint mixin API
 	#-----------------------------------------------------
 	def _populate_with_data(self):
 		self.__refresh_problem_list()
 		self.__refresh_journal()
-		self._TCTRL_soap.SetValue(u'')
+		self._TCTRL_soap.SetValue('')
 		return True
 
 #============================================================

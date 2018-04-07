@@ -66,7 +66,7 @@ def configure_visual_progress_note_editor():
 			)
 			return False, value
 
-		if value.strip() == u'':
+		if value.strip() == '':
 			gmDispatcher.send (
 				signal = 'statustext',
 				msg = _('You need to actually set an editor.'),
@@ -95,7 +95,7 @@ def configure_visual_progress_note_editor():
 			'will be replaced by the file name of the\n'
 			'note template.'
 		),
-		option = u'external.tools.visual_soap_editor_cmd',
+		option = 'external.tools.visual_soap_editor_cmd',
 		bias = 'user',
 		default_value = None,
 		validator = is_valid
@@ -160,7 +160,7 @@ def select_visual_progress_note_template(parent=None):
 			return (None, None)
 		filename = template.save_to_file()
 		if filename is None:
-			gmDispatcher.send(signal = u'statustext', msg = _('Cannot export visual progress note template for [%s].') % template['name_long'])
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot export visual progress note template for [%s].') % template['name_long'])
 			return (None, None)
 		return (filename, True)
 
@@ -197,19 +197,19 @@ def edit_visual_progress_note(filename=None, episode=None, discard_unmodified=Fa
 	if doc_part is not None:
 		filename = doc_part.save_to_file()
 		if filename is None:
-			gmDispatcher.send(signal = u'statustext', msg = _('Cannot export visual progress note to file.'))
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot export visual progress note to file.'))
 			return None
 
 	dbcfg = gmCfg.cCfgSQL()
 	editor = dbcfg.get2 (
-		option = u'external.tools.visual_soap_editor_cmd',
+		option = 'external.tools.visual_soap_editor_cmd',
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 		bias = 'user'
 	)
 
 	if editor is None:
-		_log.error(u'no editor for visual progress notes configured, trying mimetype editor')
-		gmDispatcher.send(signal = u'statustext', msg = _('Editor for visual progress note not configured.'), beep = False)
+		_log.error('no editor for visual progress notes configured, trying mimetype editor')
+		gmDispatcher.send(signal = 'statustext', msg = _('Editor for visual progress note not configured.'), beep = False)
 		mimetype = gmMimeLib.guess_mimetype(filename = filename)
 		editor = gmMimeLib.get_editor_cmd(mimetype = mimetype, filename = filename)
 		if editor is None:
@@ -218,27 +218,27 @@ def edit_visual_progress_note(filename=None, episode=None, discard_unmodified=Fa
 			if not success:
 				_log.debug('problem running mimetype <%s> viewer', mimetype)
 				gmGuiHelpers.gm_show_error (
-					_(	u'There is no editor for visual progress notes defined.\n'
-						u'Also, there is no editor command defined for the file type\n'
-						u'\n'
-						u' [%s].\n'
-						u'\n'
-						u'Therefor GNUmed attempted to at least *show* this\n'
-						u'visual progress note. That failed as well, however:\n'
-						u'\n'
-						u'%s'
+					_(	'There is no editor for visual progress notes defined.\n'
+						'Also, there is no editor command defined for the file type\n'
+						'\n'
+						' [%s].\n'
+						'\n'
+						'Therefor GNUmed attempted to at least *show* this\n'
+						'visual progress note. That failed as well, however:\n'
+						'\n'
+						'%s'
 					) % (mimetype, msg),
 					_('Editing visual progress note')
 				)
 				editor = configure_visual_progress_note_editor()
 				if editor is None:
-					gmDispatcher.send(signal = u'statustext', msg = _('Editor for visual progress note not configured.'), beep = True)
+					gmDispatcher.send(signal = 'statustext', msg = _('Editor for visual progress note not configured.'), beep = True)
 					return None
 
-	if u'%(img)s' in editor:
-		editor = editor % {u'img': filename}
+	if '%(img)s' in editor:
+		editor = editor % {'img': filename}
 	else:
-		editor = u'%s %s' % (editor, filename)
+		editor = '%s %s' % (editor, filename)
 
 	if discard_unmodified:
 		original_stat = os.stat(filename)
@@ -250,22 +250,22 @@ def edit_visual_progress_note(filename=None, episode=None, discard_unmodified=Fa
 		if not success:
 			_log.debug('problem running mimetype <%s> viewer', mimetype)
 			gmGuiHelpers.gm_show_error (
-				_(	u'There was a problem running the editor\n'
-					u'\n'
-					u' [%s] (%s)\n'
-					u'\n'
-					u'on the visual progress note.\n'
-					u'\n'
-					u'Therefor GNUmed attempted to at least *show* it.\n'
-					u'That failed as well, however:\n'
-					u'\n'
-					u'%s'
+				_(	'There was a problem running the editor\n'
+					'\n'
+					' [%s] (%s)\n'
+					'\n'
+					'on the visual progress note.\n'
+					'\n'
+					'Therefor GNUmed attempted to at least *show* it.\n'
+					'That failed as well, however:\n'
+					'\n'
+					'%s'
 				) % (editor, mimetype, msg),
 				_('Editing visual progress note')
 			)
 			editor = configure_visual_progress_note_editor()
 			if editor is None:
-				gmDispatcher.send(signal = u'statustext', msg = _('Editor for visual progress note not configured.'), beep = True)
+				gmDispatcher.send(signal = 'statustext', msg = _('Editor for visual progress note not configured.'), beep = True)
 		return None
 
 	try:
@@ -293,14 +293,14 @@ def edit_visual_progress_note(filename=None, episode=None, discard_unmodified=Fa
 				_log.debug('visual progress note (template) not modified')
 				# ask user to decide
 				msg = _(
-					u'You either created a visual progress note from a template\n'
-					u'in the database (rather than from a file on disk) or you\n'
-					u'edited an existing visual progress note.\n'
-					u'\n'
-					u'The template/original was not modified at all, however.\n'
-					u'\n'
-					u'Do you still want to save the unmodified image as a\n'
-					u'visual progress note into the EMR of the patient ?\n'
+					'You either created a visual progress note from a template\n'
+					'in the database (rather than from a file on disk) or you\n'
+					'edited an existing visual progress note.\n'
+					'\n'
+					'The template/original was not modified at all, however.\n'
+					'\n'
+					'Do you still want to save the unmodified image as a\n'
+					'visual progress note into the EMR of the patient ?\n'
 				)
 				save_unmodified = gmGuiHelpers.gm_show_question (
 					msg,
@@ -342,7 +342,7 @@ class cVisualSoapTemplatePhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 		gmPhraseWheel.cPhraseWheel.__init__ (self, *args, **kwargs)
 
-		query = u"""
+		query = """
 SELECT
 	pk AS data,
 	name_short AS list_label,
@@ -403,7 +403,7 @@ class cVisualSoapPresenterPnl(wxgVisualSoapPresenterPnl.wxgVisualSoapPresenterPn
 			self.__show_exported_parts(parts_list = parts_list)
 			return
 
-		self.__worker_cookie = u'%sCookie-%s' % (self.__class__.__name__, random.random())
+		self.__worker_cookie = '%sCookie-%s' % (self.__class__.__name__, random.random())
 		_log.debug('starting worker thread, cookie: %s', self.__worker_cookie)
 		gmWorkerThread.execute_in_worker_thread (
 			payload_function = self._worker__export_doc_parts,
@@ -443,15 +443,15 @@ class cVisualSoapPresenterPnl(wxgVisualSoapPresenterPnl.wxgVisualSoapPresenterPn
 			parts = soap_doc.parts
 			if len(parts) == 0:
 				continue
-			parts_counter = u''
+			parts_counter = ''
 			if len(parts) > 1:
-				parts_counter = _(u' [part 1 of %s]') % len(parts)
+				parts_counter = _(' [part 1 of %s]') % len(parts)
 			part = parts[0]
 			fname = part.save_to_file(conn = conn)
 			if fname is None:
 				continue
-			tt_header = _(u'Created: %s%s') % (gmDateTime.pydt_strftime(part['date_generated'], '%Y %b %d'), parts_counter)
-			tt_footer = gmTools.coalesce(part['doc_comment'], u'').strip()
+			tt_header = _('Created: %s%s') % (gmDateTime.pydt_strftime(part['date_generated'], '%Y %b %d'), parts_counter)
+			tt_footer = gmTools.coalesce(part['doc_comment'], '').strip()
 			parts_list.append([fname, part, tt_header, tt_footer])
 		conn.close()
 		_log.debug('worker finished')
@@ -488,7 +488,7 @@ class cVisualSoapPresenterPnl(wxgVisualSoapPresenterPnl.wxgVisualSoapPresenterPn
 				height = 150
 			)
 			tip = agw_stt.SuperToolTip (
-				u'',
+				'',
 				bodyImage = img,
 				header = tt_header,
 				footer = tt_footer

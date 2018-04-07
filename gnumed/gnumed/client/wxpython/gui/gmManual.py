@@ -46,7 +46,7 @@ class ManualHtmlWindow(wx.html.HtmlWindow):
 		wx.html.HtmlWindow.__init__(self, parent, id)
 		self.parent = parent
 
-	def OnSetTitle(self, title=u''):
+	def OnSetTitle(self, title=''):
 		self.parent.ShowTitle(title)
 #===========================================================
 class ManualHtmlPanel(wx.Panel):
@@ -55,7 +55,7 @@ class ManualHtmlPanel(wx.Panel):
 		self.frame = frame
 
 		# get base directory for manuals from broker
-		paths = gmTools.gmPaths(app_name = u'gnumed', wx = wx)
+		paths = gmTools.gmPaths(app_name = 'gnumed', wx = wx)
 		candidates = [
 			os.path.join(paths.local_base_dir, 'doc', 'user-manual'),
 			'/usr/share/doc/gnumed/user-manual/',
@@ -90,7 +90,7 @@ class ManualHtmlPanel(wx.Panel):
 			self.already_loaded = 1
 			self.OnShowDefault(None)
 	#--------------------------------------------------------
-	def ShowTitle(self, title=u''):
+	def ShowTitle(self, title=''):
 		self.infoline.Clear()
 		self.infoline.WriteText(title)
 	#--------------------------------------------------------

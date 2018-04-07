@@ -102,11 +102,11 @@ class cNotebookPlugin:
 		menu_info = self.MenuInfo()
 		if menu_info is None:
 			# register with direct access menu only
-			gmDispatcher.send(signal = u'plugin_loaded', plugin_name = self.name(), class_name = self.__class__.__name__)
+			gmDispatcher.send(signal = 'plugin_loaded', plugin_name = self.name(), class_name = self.__class__.__name__)
 		else:
 			name_of_menu, menu_item_name = menu_info
 			gmDispatcher.send (
-				signal = u'plugin_loaded',
+				signal = 'plugin_loaded',
 				plugin_name = menu_item_name,
 				class_name = self.__class__.__name__,
 				menu_name = name_of_menu,
@@ -229,9 +229,9 @@ class cNotebookPlugin:
 class cPatientChange_PluginMixin:
 	"""This mixin adds listening to patient change signals."""
 	def __init__(self):
-		gmDispatcher.connect(self._pre_patient_unselection, u'pre_patient_unselection')
-		gmDispatcher.connect(self._on_current_patient_unset, u'current_patient_unset')
-		gmDispatcher.connect(self._post_patient_selection, u'post_patient_selection')
+		gmDispatcher.connect(self._pre_patient_unselection, 'pre_patient_unselection')
+		gmDispatcher.connect(self._on_current_patient_unset, 'current_patient_unset')
+		gmDispatcher.connect(self._post_patient_selection, 'post_patient_selection')
 
 	# -----------------------------------------------------
 	def _pre_patient_unselection(self, **kwds):
@@ -338,8 +338,8 @@ def get_installed_plugins(plugin_dir=''):
 		# read from config file
 		_log.info('trying to read list of installed plugins from config files')
 		plugins = _cfg.get (
-			group = u'client',
-			option = u'installed plugins',
+			group = 'client',
+			option = 'installed plugins',
 			source_order = [
 				('system', 'extend'),
 				('user', 'extend'),
@@ -376,8 +376,8 @@ def GetPluginLoadList(option, plugin_dir = '', defaults = None, workplace=None):
 
 	FIXME: NOT from files in directories (important for py2exe)
 	"""
-	if workplace == u'System Fallback':
-		return [u'gmProviderInboxPlugin', u'gmDataMiningPlugin']
+	if workplace == 'System Fallback':
+		return ['gmProviderInboxPlugin', 'gmDataMiningPlugin']
 
 	if workplace is None:
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace

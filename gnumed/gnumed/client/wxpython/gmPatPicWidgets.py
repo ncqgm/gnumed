@@ -44,7 +44,7 @@ class cPatientPicture(wx.StaticBitmap):
 
 		wx.StaticBitmap.__init__(self, *args, **kwargs)
 
-		paths = gmTools.gmPaths(app_name = u'gnumed', wx = wx)
+		paths = gmTools.gmPaths(app_name = 'gnumed', wx = wx)
 		self.__fallback_pic_name = os.path.join(paths.system_app_data_dir, 'bitmaps', 'empty-face-in-bust.png')
 		self.__desired_width = 50
 		self.__desired_height = 54
@@ -60,7 +60,7 @@ class cPatientPicture(wx.StaticBitmap):
 		self.Bind(wx.EVT_RIGHT_UP, self._on_RightClick_photo)
 
 		# dispatcher signals
-		gmDispatcher.connect(receiver=self._on_post_patient_selection, signal = u'post_patient_selection')
+		gmDispatcher.connect(receiver=self._on_post_patient_selection, signal = 'post_patient_selection')
 	#-----------------------------------------------------------------
 	def _on_post_patient_selection(self):
 		self.__reload_photo()
@@ -146,7 +146,7 @@ class cPatientPicture(wx.StaticBitmap):
 		docs = gmDocuments.search_for_documents(patient_id = self.__pat.ID, type_id = gmDocuments.MUGSHOT)
 		if len(docs) == 0:
 			emr = self.__pat.emr
-			epi = emr.add_episode(episode_name = u'administrative')
+			epi = emr.add_episode(episode_name = 'administrative')
 			enc = emr.active_encounter
 			doc = gmDocuments.create_document (
 				document_type = gmDocuments.MUGSHOT,

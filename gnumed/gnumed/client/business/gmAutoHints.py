@@ -26,14 +26,14 @@ _log = logging.getLogger('gm.hints')
 #============================================================
 # dynamic hints API
 #------------------------------------------------------------
-_SQL_get_dynamic_hints = u"SELECT * FROM ref.v_auto_hints WHERE %s"
+_SQL_get_dynamic_hints = "SELECT * FROM ref.v_auto_hints WHERE %s"
 
 class cDynamicHint(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents dynamic hints to be run against the database."""
 
-	_cmd_fetch_payload = _SQL_get_dynamic_hints % u"pk_auto_hint = %s"
+	_cmd_fetch_payload = _SQL_get_dynamic_hints % "pk_auto_hint = %s"
 	_cmds_store_payload = [
-		u"""UPDATE ref.auto_hint SET
+		"""UPDATE ref.auto_hint SET
 				query = gm.nullify_empty_string(%(query)s),
 				recommendation_query = gm.nullify_empty_string(%(recommendation_query)s),
 				title = gm.nullify_empty_string(%(title)s),
@@ -52,61 +52,61 @@ class cDynamicHint(gmBusinessDBObject.cBusinessDBObject):
 		"""
 	]
 	_updatable_fields = [
-		u'query',
-		u'recommendation_query',
-		u'title',
-		u'hint',
-		u'url',
-		u'source',
-		u'is_active',
-		u'popup_type',
-		u'highlight_as_priority'
+		'query',
+		'recommendation_query',
+		'title',
+		'hint',
+		'url',
+		'source',
+		'is_active',
+		'popup_type',
+		'highlight_as_priority'
 	]
 	#--------------------------------------------------------
 	def format_maximum_information(self, patient):
-		return self.format(include_sql = True).split(u'\n')
+		return self.format(include_sql = True).split('\n')
 
 	#--------------------------------------------------------
 	def format(self, include_sql=False):
-		txt = u'%s               [#%s]\n' % (
+		txt = '%s               [#%s]\n' % (
 			gmTools.bool2subst(self._payload[self._idx['is_active']], _('Active clinical hint'), _('Inactive clinical hint')),
 			self._payload[self._idx['pk_auto_hint']]
 		)
-		txt += u'\n'
+		txt += '\n'
 		txt += self._payload[self._idx['title']]
-		txt += u'\n'
-		txt += u'\n'
+		txt += '\n'
+		txt += '\n'
 		txt += _('Source: %s\n') % self._payload[self._idx['source']]
 		txt += _('Language: %s\n') % self._payload[self._idx['lang']]
-		txt += u'\n'
-		txt += gmTools.wrap(self._payload[self._idx['hint']], width = 50, initial_indent = u' ', subsequent_indent = u' ')
-		txt += u'\n'
-		txt += u'\n'
+		txt += '\n'
+		txt += gmTools.wrap(self._payload[self._idx['hint']], width = 50, initial_indent = ' ', subsequent_indent = ' ')
+		txt += '\n'
+		txt += '\n'
 		if self._payload[self._idx['recommendation']] is not None:
-			txt += gmTools.wrap(self._payload[self._idx['recommendation']], width = 50, initial_indent = u' ', subsequent_indent = u' ')
-			txt += u'\n'
-			txt += u'\n'
+			txt += gmTools.wrap(self._payload[self._idx['recommendation']], width = 50, initial_indent = ' ', subsequent_indent = ' ')
+			txt += '\n'
+			txt += '\n'
 		txt += gmTools.wrap (
-			gmTools.coalesce(self._payload[self._idx['url']], u''),
+			gmTools.coalesce(self._payload[self._idx['url']], ''),
 			width = 50,
-			initial_indent = u' ',
-			subsequent_indent = u' '
+			initial_indent = ' ',
+			subsequent_indent = ' '
 		)
-		txt += u'\n'
+		txt += '\n'
 		if include_sql:
-			txt += u'\n'
-			txt += gmTools.wrap(self._payload[self._idx['query']], width = 50, initial_indent = u' ', subsequent_indent = u' ')
-			txt += u'\n'
+			txt += '\n'
+			txt += gmTools.wrap(self._payload[self._idx['query']], width = 50, initial_indent = ' ', subsequent_indent = ' ')
+			txt += '\n'
 			if self._payload[self._idx['recommendation_query']] is not None:
-				txt += u'\n'
-				txt += gmTools.wrap(self._payload[self._idx['recommendation_query']], width = 50, initial_indent = u' ', subsequent_indent = u' ')
-				txt += u'\n'
+				txt += '\n'
+				txt += gmTools.wrap(self._payload[self._idx['recommendation_query']], width = 50, initial_indent = ' ', subsequent_indent = ' ')
+				txt += '\n'
 		if self._payload[self._idx['rationale4suppression']] is not None:
-			txt += u'\n'
+			txt += '\n'
 			txt += _('Rationale for suppression:')
-			txt += u'\n'
-			txt += gmTools.wrap(self._payload[self._idx['rationale4suppression']], width = 50, initial_indent = u' ', subsequent_indent = u' ')
-			txt += u'\n'
+			txt += '\n'
+			txt += gmTools.wrap(self._payload[self._idx['rationale4suppression']], width = 50, initial_indent = ' ', subsequent_indent = ' ')
+			txt += '\n'
 		return txt
 
 	#--------------------------------------------------------
@@ -126,9 +126,9 @@ class cDynamicHint(gmBusinessDBObject.cBusinessDBObject):
 #------------------------------------------------------------
 def get_dynamic_hints(order_by=None, link_obj=None):
 	if order_by is None:
-		order_by = u'TRUE'
+		order_by = 'TRUE'
 	else:
-		order_by = u'TRUE ORDER BY %s' % order_by
+		order_by = 'TRUE ORDER BY %s' % order_by
 	cmd = _SQL_get_dynamic_hints % order_by
 	rows, idx = gmPG2.run_ro_queries(link_obj = link_obj, queries = [{'cmd': cmd}], get_col_idx = True)
 	return [ cDynamicHint(row = {'data': r, 'idx': idx, 'pk_field': 'pk_auto_hint'}) for r in rows ]
@@ -136,13 +136,13 @@ def get_dynamic_hints(order_by=None, link_obj=None):
 #------------------------------------------------------------
 def create_dynamic_hint(link_obj=None, query=None, title=None, hint=None, source=None):
 	args = {
-		u'query': query,
-		u'title': title,
-		u'hint': hint,
-		u'source': source,
-		u'usr': gmStaff.gmCurrentProvider()['db_user']
+		'query': query,
+		'title': title,
+		'hint': hint,
+		'source': source,
+		'usr': gmStaff.gmCurrentProvider()['db_user']
 	}
-	cmd = u"""
+	cmd = """
 		INSERT INTO ref.auto_hint (
 			query,
 			title,
@@ -164,7 +164,7 @@ def create_dynamic_hint(link_obj=None, query=None, title=None, hint=None, source
 #------------------------------------------------------------
 def delete_dynamic_hint(link_obj=None, pk_hint=None):
 	args = {'pk': pk_hint}
-	cmd = u"DELETE FROM ref.auto_hint WHERE pk = %(pk)s"
+	cmd = "DELETE FROM ref.auto_hint WHERE pk = %(pk)s"
 	gmPG2.run_rw_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': args}])
 	return True
 
@@ -183,13 +183,13 @@ def get_hints_for_patient(pk_identity=None, pk_encounter=None):
 		if row['rationale4suppression'] is None:
 			applying_rows.append(row)
 			continue
-		if row['rationale4suppression'].startswith(u'magic_tag::'):
+		if row['rationale4suppression'].startswith('magic_tag::'):
 			_log.debug('hint with magic tag: %s', row['rationale4suppression'])
-			if u'suppression_needs_invalidation' in row['rationale4suppression']:
+			if 'suppression_needs_invalidation' in row['rationale4suppression']:
 				_log.debug('database asks for invalidation of suppression of hint [%s]', row)
 				if pk_encounter is not None:
 					invalidate_hint_suppression(pk_hint = row['pk_auto_hint'], pk_encounter = pk_encounter)
-			if u'does_not_apply' in row['rationale4suppression']:
+			if 'does_not_apply' in row['rationale4suppression']:
 				continue
 			# we would need to reload the relevant hint at this time,
 			# however currently, only hints which do not apply ask
@@ -205,7 +205,7 @@ def suppress_dynamic_hint(pk_hint=None, rationale=None, pk_encounter=None):
 		'rationale': rationale,
 		'enc': pk_encounter
 	}
-	cmd = u"""
+	cmd = """
 		DELETE FROM clin.suppressed_hint
 		WHERE
 			fk_hint = %(hint)s
@@ -217,7 +217,7 @@ def suppress_dynamic_hint(pk_hint=None, rationale=None, pk_encounter=None):
 			)
 	"""
 	queries = [{'cmd': cmd, 'args': args}]
-	cmd = u"""
+	cmd = """
 		INSERT INTO clin.suppressed_hint (
 			fk_encounter,
 			fk_hint,
@@ -237,22 +237,22 @@ def suppress_dynamic_hint(pk_hint=None, rationale=None, pk_encounter=None):
 #------------------------------------------------------------
 # suppressed dynamic hints
 #------------------------------------------------------------
-_SQL_get_suppressed_hints = u"SELECT * FROM clin.v_suppressed_hints WHERE %s"
+_SQL_get_suppressed_hints = "SELECT * FROM clin.v_suppressed_hints WHERE %s"
 
 class cSuppressedHint(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents suppressed dynamic hints per patient."""
 
-	_cmd_fetch_payload = _SQL_get_suppressed_hints % u"pk_suppressed_hint = %s"
+	_cmd_fetch_payload = _SQL_get_suppressed_hints % "pk_suppressed_hint = %s"
 	_cmds_store_payload = []
 	_updatable_fields = []
 	#--------------------------------------------------------
 	def format(self):
-		txt = u'%s               [#%s]\n' % (
+		txt = '%s               [#%s]\n' % (
 			gmTools.bool2subst(self._payload[self._idx['is_active']], _('Suppressed active dynamic hint'), _('Suppressed inactive dynamic hint')),
 			self._payload[self._idx['pk_suppressed_hint']]
 		)
-		txt += u'\n'
-		txt += u'%s\n\n' % self._payload[self._idx['title']]
+		txt += '\n'
+		txt += '%s\n\n' % self._payload[self._idx['title']]
 		txt += _('Suppressed by: %s\n') % self._payload[self._idx['suppressed_by']]
 		txt += _('Suppressed at: %s\n') % gmDateTime.pydt_strftime(self._payload[self._idx['suppressed_when']], '%Y %b %d')
 		txt += _('Hint #: %s\n') % self._payload[self._idx['pk_hint']]
@@ -261,34 +261,34 @@ class cSuppressedHint(gmBusinessDBObject.cBusinessDBObject):
 		txt += _('MD5 (at suppression): %s\n') % self._payload[self._idx['md5_suppressed']]
 		txt += _('Source: %s\n') % self._payload[self._idx['source']]
 		txt += _('Language: %s\n') % self._payload[self._idx['lang']]
-		txt += u'\n'
-		txt += u'%s\n' % gmTools.wrap(self._payload[self._idx['hint']], width = 50, initial_indent = u' ', subsequent_indent = u' ')
-		txt += u'\n'
+		txt += '\n'
+		txt += '%s\n' % gmTools.wrap(self._payload[self._idx['hint']], width = 50, initial_indent = ' ', subsequent_indent = ' ')
+		txt += '\n'
 		if self._payload[self._idx['recommendation']] is not None:
-			txt += u'\n'
-			txt += u'%s\n' % gmTools.wrap(self._payload[self._idx['recommendation']], width = 50, initial_indent = u' ', subsequent_indent = u' ')
-			txt += u'\n'
-		txt += u'%s\n' % gmTools.wrap (
-			gmTools.coalesce(self._payload[self._idx['url']], u''),
+			txt += '\n'
+			txt += '%s\n' % gmTools.wrap(self._payload[self._idx['recommendation']], width = 50, initial_indent = ' ', subsequent_indent = ' ')
+			txt += '\n'
+		txt += '%s\n' % gmTools.wrap (
+			gmTools.coalesce(self._payload[self._idx['url']], ''),
 			width = 50,
-			initial_indent = u' ',
-			subsequent_indent = u' '
+			initial_indent = ' ',
+			subsequent_indent = ' '
 		)
-		txt += u'\n'
-		txt += u'%s\n' % gmTools.wrap(self._payload[self._idx['query']], width = 50, initial_indent = u' ', subsequent_indent = u' ')
+		txt += '\n'
+		txt += '%s\n' % gmTools.wrap(self._payload[self._idx['query']], width = 50, initial_indent = ' ', subsequent_indent = ' ')
 		return txt
 
 #------------------------------------------------------------
 def get_suppressed_hints(pk_identity=None, order_by=None):
 	args = {'pat': pk_identity}
 	if pk_identity is None:
-		where = u'true'
+		where = 'true'
 	else:
-		where = u"pk_identity = %(pat)s"
+		where = "pk_identity = %(pat)s"
 	if order_by is None:
-		order_by = u''
+		order_by = ''
 	else:
-		order_by = u' ORDER BY %s' % order_by
+		order_by = ' ORDER BY %s' % order_by
 	cmd = (_SQL_get_suppressed_hints % where) + order_by
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 	return [ cSuppressedHint(row = {'data': r, 'idx': idx, 'pk_field': 'pk_suppressed_hint'}) for r in rows ]
@@ -296,7 +296,7 @@ def get_suppressed_hints(pk_identity=None, order_by=None):
 #------------------------------------------------------------
 def delete_suppressed_hint(pk_suppressed_hint=None):
 	args = {'pk': pk_suppressed_hint}
-	cmd = u"DELETE FROM clin.suppressed_hint WHERE pk = %(pk)s"
+	cmd = "DELETE FROM clin.suppressed_hint WHERE pk = %(pk)s"
 	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 	return True
 
@@ -308,7 +308,7 @@ def invalidate_hint_suppression(pk_hint=None, pk_encounter=None):
 		'enc': pk_encounter,
 		'fake_md5': '***INVALIDATED***'			# only needs to NOT match ANY md5 sum
 	}
-	cmd = u"""
+	cmd = """
 		UPDATE clin.suppressed_hint SET
 			fk_encounter = %(enc)s,
 			md5_sum = %(fake_md5)s

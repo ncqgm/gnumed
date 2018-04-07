@@ -119,7 +119,7 @@ class cEditStaffListDlg(wxgEditStaffListDlg.wxgEditStaffListDlg):
 		self._TCTRL_name.SetValue('')
 		self._TCTRL_alias.SetValue('')
 		self._TCTRL_account.SetValue('')
-		self._PRW_user_role.SetText(value = u'', data = None)
+		self._PRW_user_role.SetText(value = '', data = None)
 		self._TCTRL_comment.SetValue('')
 	#--------------------------------------------------------
 	# event handlers
@@ -147,7 +147,7 @@ class cEditStaffListDlg(wxgEditStaffListDlg.wxgEditStaffListDlg):
 		self._TCTRL_name.SetValue('')
 		self._TCTRL_alias.SetValue('')
 		self._TCTRL_account.SetValue('')
-		self._PRW_user_role.SetText(value = u'', data = None)
+		self._PRW_user_role.SetText(value = '', data = None)
 		self._TCTRL_comment.SetValue('')
 	#--------------------------------------------------------
 	def _on_activate_button_pressed(self, evt):
@@ -252,7 +252,7 @@ class cAddPatientAsStaffDlg(wxgAddPatientAsStaffDlg.wxgAddPatientAsStaffDlg):
 			self._TXT_password_again.SetValue('')
 			return False
 
-		if self._TXT_password.GetValue().strip() == u'':
+		if self._TXT_password.GetValue().strip() == '':
 			really_wants_empty_password = gmGuiHelpers.gm_show_question (
 				aMessage = _(
 					'Are you positively sure you want to create\n'
@@ -268,7 +268,7 @@ class cAddPatientAsStaffDlg(wxgAddPatientAsStaffDlg.wxgAddPatientAsStaffDlg):
 		# connect as "gm-dbo"
 		conn = gmAuthWidgets.get_dbowner_connection (
 			procedure = _('Enlisting person as user.'),
-			dbo_password = gmTools.none_if(self._TXT_dbo_password.GetValue(), u'')
+			dbo_password = gmTools.none_if(self._TXT_dbo_password.GetValue(), '')
 		)
 		if conn is None:
 			return False

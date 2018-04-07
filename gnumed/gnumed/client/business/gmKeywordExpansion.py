@@ -23,13 +23,13 @@ from Gnumed.pycommon import gmMimeLib
 _log = logging.getLogger('gm.kwd_exp')
 
 #============================================================
-_SQL_get_keyword_expansions = u"SELECT * FROM ref.v_your_keyword_expansions WHERE %s"
+_SQL_get_keyword_expansions = "SELECT * FROM ref.v_your_keyword_expansions WHERE %s"
 
 class cKeywordExpansion(gmBusinessDBObject.cBusinessDBObject):
 	"""Keyword indexed text snippets or chunks of data. Used as text macros or to put into documents."""
-	_cmd_fetch_payload = _SQL_get_keyword_expansions % u"pk_expansion = %s"
+	_cmd_fetch_payload = _SQL_get_keyword_expansions % "pk_expansion = %s"
 	_cmds_store_payload = [
-		u"""
+		"""
 			UPDATE ref.keyword_expansion SET
 				keyword = gm.nullify_empty_string(%(keyword)s),
 				textual_data = CASE
@@ -54,9 +54,9 @@ class cKeywordExpansion(gmBusinessDBObject.cBusinessDBObject):
 		"""
 	]
 	_updatable_fields = [
-		u'keyword',
-		u'expansion',
-		u'is_encrypted'
+		'keyword',
+		'expansion',
+		'is_encrypted'
 	]
 
 	#--------------------------------------------------------
@@ -71,7 +71,7 @@ class cKeywordExpansion(gmBusinessDBObject.cBusinessDBObject):
 		filename = gmTools.get_unique_filename(prefix = 'gm-data_snippet-')
 		success = gmPG2.bytea2file (
 			data_query = {
-				'cmd': u'SELECT substring(binary_data from %(start)s for %(size)s) FROM ref.keyword_expansion WHERE pk = %(pk)s',
+				'cmd': 'SELECT substring(binary_data from %(start)s for %(size)s) FROM ref.keyword_expansion WHERE pk = %(pk)s',
 				'args': {'pk': self.pk_obj}
 			},
 			filename = filename,
@@ -114,7 +114,7 @@ class cKeywordExpansion(gmBusinessDBObject.cBusinessDBObject):
 			return False
 
 		gmPG2.file2bytea (
-			query = u"UPDATE ref.keyword_expansion SET binary_data = %(data)s::bytea, textual_data = NULL WHERE pk = %(pk)s",
+			query = "UPDATE ref.keyword_expansion SET binary_data = %(data)s::bytea, textual_data = NULL WHERE pk = %(pk)s",
 			filename = filename,
 			args = {'pk': self.pk_obj}
 		)
@@ -131,7 +131,7 @@ class cKeywordExpansion(gmBusinessDBObject.cBusinessDBObject):
 
 	#--------------------------------------------------------
 	def format(self):
-		txt = u'%s            #%s\n' % (
+		txt = '%s            #%s\n' % (
 			gmTools.bool2subst (
 				self._payload[self._idx['is_textual']],
 				_('Textual keyword expansion'),
@@ -139,7 +139,7 @@ class cKeywordExpansion(gmBusinessDBObject.cBusinessDBObject):
 			),
 			self._payload[self._idx['pk_expansion']]
 		)
-		txt += u' %s%s\n' % (
+		txt += ' %s%s\n' % (
 			gmTools.bool2subst (
 				self._payload[self._idx['private_expansion']],
 				_('private'),
@@ -147,16 +147,16 @@ class cKeywordExpansion(gmBusinessDBObject.cBusinessDBObject):
 			),
 			gmTools.bool2subst (
 				self._payload[self._idx['is_encrypted']],
-				u', %s' % _('encrypted'),
-				u''
+				', %s' % _('encrypted'),
+				''
 			)
 		)
 		txt += _(' Keyword: %s\n') % self._payload[self._idx['keyword']]
 		txt += _(' Owner: %s\n') % self._payload[self._idx['owner']]
 		if self._payload[self._idx['is_textual']]:
-			txt += u'\n%s' % self._payload[self._idx['expansion']]
+			txt += '\n%s' % self._payload[self._idx['expansion']]
 		else:
-			txt += u' Data: %s (%s Bytes)' % (gmTools.size2str(self._payload[self._idx['data_size']]), self._payload[self._idx['data_size']])
+			txt += ' Data: %s (%s Bytes)' % (gmTools.size2str(self._payload[self._idx['data_size']]), self._payload[self._idx['data_size']])
 
 		return txt
 
@@ -170,9 +170,9 @@ def get_keyword_expansions(order_by=None, force_reload=False):
 			return __keyword_expansions
 
 	if order_by is None:
-		order_by = u'true'
+		order_by = 'true'
 	else:
-		order_by = u'true ORDER BY %s' % order_by
+		order_by = 'true ORDER BY %s' % order_by
 
 	cmd = _SQL_get_keyword_expansions % order_by
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
@@ -186,13 +186,13 @@ def get_expansion(keyword=None, textual_only=True, binary_only=False):
 	if False not in [textual_only, binary_only]:
 		raise ValueError('one of <textual_only> and <binary_only> must be False')
 
-	where_parts = [u'keyword = %(kwd)s']
+	where_parts = ['keyword = %(kwd)s']
 	args = {'kwd': keyword}
 
 	if textual_only:
-		where_parts.append(u'is_textual IS TRUE')
+		where_parts.append('is_textual IS TRUE')
 
-	cmd = _SQL_get_keyword_expansions % u' AND '.join(where_parts)
+	cmd = _SQL_get_keyword_expansions % ' AND '.join(where_parts)
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 
 	if len(rows) == 0:
@@ -204,14 +204,14 @@ def get_expansion(keyword=None, textual_only=True, binary_only=False):
 def create_keyword_expansion(keyword=None, text=None, data_file=None, public=True):
 
 	if text is not None:
-		if text.strip() == u'':
+		if text.strip() == '':
 			text = None
 
 	if None not in [text, data_file]:
 		raise ValueError('either <text> or <data_file> must be non-NULL')
 
 	# already exists ?
-	cmd = u"SELECT 1 FROM ref.v_your_keyword_expansions WHERE public_expansion IS %(public)s AND keyword = %(kwd)s"
+	cmd = "SELECT 1 FROM ref.v_your_keyword_expansions WHERE public_expansion IS %(public)s AND keyword = %(kwd)s"
 	args = {'kwd': keyword, 'public': public}
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 	if len(rows) != 0:
@@ -219,10 +219,10 @@ def create_keyword_expansion(keyword=None, text=None, data_file=None, public=Tru
 		return False
 
 	if data_file is not None:
-		text = u'fake data'
-	args = {u'kwd': keyword, u'txt': text}
+		text = 'fake data'
+	args = {'kwd': keyword, 'txt': text}
 	if public:
-		cmd = u"""
+		cmd = """
 			INSERT INTO ref.keyword_expansion (keyword, textual_data, fk_staff)
 			VALUES (
 				gm.nullify_empty_string(%(kwd)s),
@@ -232,7 +232,7 @@ def create_keyword_expansion(keyword=None, text=None, data_file=None, public=Tru
 			RETURNING pk
 		"""
 	else:
-		cmd = u"""
+		cmd = """
 			INSERT INTO ref.keyword_expansion (keyword, textual_data, fk_staff)
 			VALUES (
 				gm.nullify_empty_string(%(kwd)s),
@@ -255,7 +255,7 @@ def create_keyword_expansion(keyword=None, text=None, data_file=None, public=Tru
 #------------------------------------------------------------
 def delete_keyword_expansion(pk=None):
 	args = {'pk': pk}
-	cmd = u"DELETE FROM ref.keyword_expansion WHERE pk = %(pk)s"
+	cmd = "DELETE FROM ref.keyword_expansion WHERE pk = %(pk)s"
 	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 
 	global __textual_expansion_keywords
@@ -276,7 +276,7 @@ def get_textual_expansion_keywords():
 	if __textual_expansion_keywords is not None:
 		return __textual_expansion_keywords
 
-	cmd = u"""SELECT keyword, public_expansion, private_expansion, owner FROM ref.v_keyword_expansions WHERE is_textual IS TRUE"""
+	cmd = """SELECT keyword, public_expansion, private_expansion, owner FROM ref.v_keyword_expansions WHERE is_textual IS TRUE"""
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
 	__textual_expansion_keywords = rows
 
@@ -295,10 +295,10 @@ def get_matching_textual_keywords(fragment=None):
 def expand_keyword(keyword = None):
 
 	# Easter Egg ;-)
-	if keyword == u'$$steffi':
-		return u'Hai, play !  Versucht das ! (Keks dazu ?)  :-)'
+	if keyword == '$$steffi':
+		return 'Hai, play !  Versucht das ! (Keks dazu ?)  :-)'
 
-	cmd = u"""SELECT expansion FROM ref.v_your_keyword_expansions WHERE keyword = %(kwd)s"""
+	cmd = """SELECT expansion FROM ref.v_your_keyword_expansions WHERE keyword = %(kwd)s"""
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': {'kwd': keyword}}])
 
 	if len(rows) == 0:
@@ -327,7 +327,7 @@ if __name__ == "__main__":
 		print("keywords, cached:")
 		print(get_textual_expansion_keywords())
 		print("'$keyword' expands to:")
-		print(expand_keyword(keyword = u'$dvt'))
+		print(expand_keyword(keyword = '$dvt'))
 
 	#--------------------------------------------------------------------
 	def test_kwd_expansions():

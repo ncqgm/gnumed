@@ -116,7 +116,7 @@ class cIntervalPhraseWheel(gmPhraseWheel.cPhraseWheel):
 	def _get_data_tooltip(self):
 		intv = self.GetData()
 		if intv is None:
-			return u''
+			return ''
 		return gmDateTime.format_interval (
 			interval = intv,
 			accuracy_wanted = self.display_accuracy
@@ -131,14 +131,14 @@ class cIntervalPhraseWheel(gmPhraseWheel.cPhraseWheel):
 			return
 
 		if value is None:
-			value = u''
+			value = ''
 
 		super(cIntervalPhraseWheel, self).SetValue(value)
 	#--------------------------------------------------------
-	def SetText(self, value=u'', data=None, suppress_smarts=False):
+	def SetText(self, value='', data=None, suppress_smarts=False):
 
 		if data is not None:
-			if value.strip() == u'':
+			if value.strip() == '':
 				value = gmDateTime.format_interval (
 					interval = data,
 					accuracy_wanted = self.display_accuracy
@@ -148,7 +148,7 @@ class cIntervalPhraseWheel(gmPhraseWheel.cPhraseWheel):
 	#--------------------------------------------------------
 	def SetData(self, data=None):
 		if data is None:
-			super(cIntervalPhraseWheel, self).SetText(u'', None)
+			super(cIntervalPhraseWheel, self).SetText('', None)
 			return
 
 		value = gmDateTime.format_interval (
@@ -384,8 +384,8 @@ class cDateInputPhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 		# <ALT-C> / <ALT-K> -> calendar
 		if event.AltDown() is True:
-			char = unichr(event.GetUnicodeKey())
-			if char in u'ckCK':
+			char = chr(event.GetUnicodeKey())
+			if char in 'ckCK':
 				self.__pick_from_calendar()
 				return
 
@@ -394,13 +394,13 @@ class cDateInputPhraseWheel(gmPhraseWheel.cPhraseWheel):
 	#--------------------------------------------------------
 	def _get_data_tooltip(self):
 		if len(self._data) == 0:
-			return u''
+			return ''
 
 		date = self.GetData()
 		# if match provider only provided completions
 		# but not a full date with it
 		if date is None:
-			return u''
+			return ''
 
 		return gmDateTime.pydt_strftime (
 			date,
@@ -424,12 +424,12 @@ class cDateInputPhraseWheel(gmPhraseWheel.cPhraseWheel):
 			return
 
 		if value is None:
-			value = u''
+			value = ''
 
 		super(self.__class__, self).SetValue(value)
 
 	#--------------------------------------------------------
-	def SetText(self, value=u'', data=None, suppress_smarts=False):
+	def SetText(self, value='', data=None, suppress_smarts=False):
 
 		if data is not None:
 			if isinstance(data, gmDateTime.cFuzzyTimestamp):
@@ -439,7 +439,7 @@ class cDateInputPhraseWheel(gmPhraseWheel.cPhraseWheel):
 					second = 11,
 					microsecond = 111111
 				)
-			if value.strip() == u'':
+			if value.strip() == '':
 				value = gmDateTime.pydt_strftime(data, format = '%Y-%m-%d', accuracy = gmDateTime.acc_days)
 
 		super(self.__class__, self).SetText(value = value, data = data, suppress_smarts = suppress_smarts)
@@ -447,7 +447,7 @@ class cDateInputPhraseWheel(gmPhraseWheel.cPhraseWheel):
 	#--------------------------------------------------------
 	def SetData(self, data=None):
 		if data is None:
-			gmPhraseWheel.cPhraseWheel.SetText(self, u'', None)
+			gmPhraseWheel.cPhraseWheel.SetText(self, '', None)
 			return
 		self.SetText(data = data)
 
@@ -464,7 +464,7 @@ class cDateInputPhraseWheel(gmPhraseWheel.cPhraseWheel):
 			self.display_as_valid(True)
 			return True
 
-		if self.GetValue().strip() == u'':
+		if self.GetValue().strip() == '':
 			if allow_empty:
 				self.display_as_valid(True)
 				return True
@@ -473,7 +473,7 @@ class cDateInputPhraseWheel(gmPhraseWheel.cPhraseWheel):
 				return False
 
 		# skip showing calendar on '*' from here
-		if self.GetValue().strip() == u'*':
+		if self.GetValue().strip() == '*':
 			self.display_as_valid(False)
 			return False
 
@@ -578,7 +578,7 @@ class cFuzzyTimestampInput(gmPhraseWheel.cPhraseWheel):
 		if val is None:
 			val = self.GetValue()
 		val = val.strip()
-		if val == u'':
+		if val == '':
 			return None
 		success, matches = self.matcher.getMatchesByPhrase(val)
 		if len(matches) == 1:
@@ -607,19 +607,19 @@ class cFuzzyTimestampInput(gmPhraseWheel.cPhraseWheel):
 	#--------------------------------------------------------
 	# external API
 	#--------------------------------------------------------
-	def SetText(self, value=u'', data=None, suppress_smarts=False):
+	def SetText(self, value='', data=None, suppress_smarts=False):
 
 		if data is not None:
 			if isinstance(data, pyDT.datetime):
 				data = gmDateTime.cFuzzyTimestamp(timestamp=data)
-			if value.strip() == u'':
+			if value.strip() == '':
 				value = data.format_accurately(accuracy = self.display_accuracy)
 
 		gmPhraseWheel.cPhraseWheel.SetText(self, value = value, data = data, suppress_smarts = suppress_smarts)
 	#--------------------------------------------------------
 	def SetData(self, data=None):
 		if data is None:
-			gmPhraseWheel.cPhraseWheel.SetText(self, u'', None)
+			gmPhraseWheel.cPhraseWheel.SetText(self, '', None)
 		else:
 			if isinstance(data, pyDT.datetime):
 				data = gmDateTime.cFuzzyTimestamp(timestamp=data)
@@ -630,7 +630,7 @@ class cFuzzyTimestampInput(gmPhraseWheel.cPhraseWheel):
 			return True
 
 		# skip empty value
-		if self.GetValue().strip() == u'':
+		if self.GetValue().strip() == '':
 			if empty_is_valid:
 				return True
 			return False
@@ -669,7 +669,7 @@ if __name__ == '__main__':
 		val = None
 		while val != 'exit':
 			print("************************************")
-			val = raw_input('Enter date fragment ("exit" to quit): ')
+			val = input('Enter date fragment ("exit" to quit): ')
 			found, matches = mp.getMatches(aFragment=val)
 			for match in matches:
 				#print match

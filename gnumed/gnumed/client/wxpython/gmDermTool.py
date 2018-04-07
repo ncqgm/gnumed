@@ -52,7 +52,7 @@ class DermToolDialog(wx.Dialog):
         self.Bind(wx.EVT_SIZE, self.bind_image, self.image)
         self.diseases = []
         self.path = os.path.join (self.gb['resource dir'], 'data', 'derm')
-        for l in file (os.path.join (self.path, 'INDEX')).readlines ():
+        for l in open(os.path.join (self.path, 'INDEX')):
             row = l.split ()
             d = {}
             lang = gmI18N.system_locale_level['language']

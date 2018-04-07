@@ -33,7 +33,7 @@ def parse_vcard2dto(vc_text=None, filename=None):
 		_log.info('trying to parse vCard from [%s]', filename)
 		for encoding in ['utf8', 'Windows-1252']:
 			try:
-				vcf = io.open(filename, mode = u'rt', encoding = encoding)
+				vcf = io.open(filename, mode = 'rt', encoding = encoding)
 				vc_text = vcf.read()
 				vcf.close()
 				break
@@ -43,16 +43,16 @@ def parse_vcard2dto(vc_text=None, filename=None):
 			return None
 		vcf_lines = []
 		found_first = False
-		for line in vc_text.split(u'\n'):
+		for line in vc_text.split('\n'):
 			if not found_first:
-				if line.strip() == u'BEGIN:VCARD':
+				if line.strip() == 'BEGIN:VCARD':
 					found_first = True
 					vcf_lines.append(line)
 				continue
 			vcf_lines.append(line)
-			if line.strip() == u'END:VCARD':
+			if line.strip() == 'END:VCARD':
 				break
-		vc_text = u'\n'.join(vcf_lines)
+		vc_text = '\n'.join(vcf_lines)
 
 	dob_format = '%Y%m%d'
 
@@ -63,7 +63,7 @@ def parse_vcard2dto(vc_text=None, filename=None):
 		return None
 
 	try:
-		if vc.kind.value.strip() != u'individual':
+		if vc.kind.value.strip() != 'individual':
 			_log.warning('not a vCard for a single person (vCard.KIND=%s)', vc.kind.value)
 			return None
 	except AttributeError:
@@ -78,7 +78,7 @@ def parse_vcard2dto(vc_text=None, filename=None):
 		_log.debug('vCard.TITLE attribute not available')
 	try:
 		gender = vc.gender.value.strip().lower()
-		if gender != u'':
+		if gender != '':
 			dto.gender = gender
 	except AttributeError:
 		_log.debug('vCard.GENDER attribute not available')
@@ -88,7 +88,7 @@ def parse_vcard2dto(vc_text=None, filename=None):
 		dto.dob_is_estimated = False
 	except AttributeError:
 		_log.debug('vCard.BDAY attribute not available')
-	dto.source = u'vCard %s' % vc.version.value.strip()
+	dto.source = 'vCard %s' % vc.version.value.strip()
 
 	adr = None
 	try:
@@ -98,12 +98,12 @@ def parse_vcard2dto(vc_text=None, filename=None):
 	if adr is not None:
 		region_code = None
 		region = adr.region.strip()
-		if region == u'':
+		if region == '':
 			region = None
 		# deduce country
 		country_code = None
 		country = adr.country.strip()
-		if country == u'':
+		if country == '':
 			country = None
 		if country is None:
 			country_row = gmDemographicRecord.map_urb_zip_region2country(urb = adr.city, zip = adr.code, region = region)
@@ -126,7 +126,7 @@ def parse_vcard2dto(vc_text=None, filename=None):
 			if region_code is None:
 				_log.warning('unknown vCard.ADR.region (%s), using default region', adr.region)
 			dto.remember_address (
-				number = u'?',
+				number = '?',
 				street = adr.street,
 				urb = adr.city,
 				region_code = region_code,
@@ -142,12 +142,12 @@ def parse_vcard2dto(vc_text=None, filename=None):
 	except AttributeError:
 		_log.debug('vCard.TEL attribute not available')
 	if tel is not None:
-		if u'TYPE' in vc.tel.params:
-			channel = (vc.tel.params[u'TYPE'][0]).lower()
+		if 'TYPE' in vc.tel.params:
+			channel = (vc.tel.params['TYPE'][0]).lower()
 			if not channel.endswith('phone'):
 				channel += 'phone'
 		else:
-			channel = u'homephone'
+			channel = 'homephone'
 		dto.remember_comm_channel(channel = channel, url = tel)
 
 	email = None

@@ -52,7 +52,7 @@ def manage_performed_procedures(parent=None):
 	def get_tooltip(procedure=None):
 		if procedure is None:
 			return None
-		return u'\n'.join(procedure.format_maximum_information(left_margin = 1))
+		return '\n'.join(procedure.format_maximum_information(left_margin = 1))
 
 	#-----------------------------------------
 	def edit(procedure=None):
@@ -64,7 +64,7 @@ def manage_performed_procedures(parent=None):
 			return True
 
 		gmDispatcher.send (
-			signal = u'statustext',
+			signal = 'statustext',
 			msg = _('Cannot delete performed procedure.'),
 			beep = True
 		)
@@ -75,21 +75,21 @@ def manage_performed_procedures(parent=None):
 		procs = emr.get_performed_procedures()
 		items = [
 			[
-				u'%s%s' % (
+				'%s%s' % (
 					p['clin_when'].strftime('%Y-%m-%d'),
 					gmTools.bool2subst (
 						p['is_ongoing'],
 						_(' (ongoing)'),
 						gmTools.coalesce (
 							initial = p['clin_end'],
-							instead = u'',
-							template_initial = u' - %s',
-							function_initial = ('strftime', u'%Y-%m-%d')
+							instead = '',
+							template_initial = ' - %s',
+							function_initial = ('strftime', '%Y-%m-%d')
 						)
 					)
 				),
 				p['performed_procedure'],
-				u'%s @ %s' % (p['unit'], p['organization']),
+				'%s @ %s' % (p['unit'], p['organization']),
 				p['episode']
 			] for p in procs
 		]
@@ -147,7 +147,7 @@ class cProcedureEAPnl(wxgProcedureEAPnl.wxgProcedureEAPnl, gmEditArea.cGenericEd
 		# procedure
 		mp = gmMatchProvider.cMatchProvider_SQL2 (
 			queries = [
-u"""
+"""
 select distinct on (narrative) narrative, narrative
 from clin.procedure
 where narrative %(fragment_condition)s
@@ -165,7 +165,7 @@ limit 25
 			self._PRW_hospital_stay.SetText()
 			self._PRW_location.Enable(True)
 			self._PRW_episode.Enable(True)
-			self._LBL_hospital_details.SetLabel(u'')
+			self._LBL_hospital_details.SetLabel('')
 		else:
 			self._PRW_location.SetText()
 			self._PRW_location.Enable(False)
@@ -251,7 +251,7 @@ limit 25
 					self._DPRW_end.display_as_valid(False)
 
 		if self._PRW_hospital_stay.GetData() is None:
-			if self._PRW_episode.GetValue().strip() == u'':
+			if self._PRW_episode.GetValue().strip() == '':
 				self._PRW_episode.display_as_valid(False)
 				has_errors = True
 			else:
@@ -259,7 +259,7 @@ limit 25
 		else:
 			self._PRW_episode.display_as_valid(True)
 
-		if (self._PRW_procedure.GetValue() is None) or (self._PRW_procedure.GetValue().strip() == u''):
+		if (self._PRW_procedure.GetValue() is None) or (self._PRW_procedure.GetValue().strip() == ''):
 			self._PRW_procedure.display_as_valid(False)
 			has_errors = True
 		else:
@@ -347,13 +347,13 @@ limit 25
 		self._CHBOX_ongoing.SetValue(False)
 		self._CHBOX_ongoing.Enable(True)
 		self._PRW_hospital_stay.SetText()
-		self._LBL_hospital_details.SetLabel(u'')
+		self._LBL_hospital_details.SetLabel('')
 		self._PRW_location.SetText()
 		self._PRW_episode.SetText()
 		self._PRW_procedure.SetText()
 		self._PRW_codes.SetText()
 		self._PRW_document.SetText()
-		self._TCTRL_comment.SetValue(u'')
+		self._TCTRL_comment.SetValue('')
 
 		self._PRW_procedure.SetFocus()
 
@@ -375,17 +375,17 @@ limit 25
 		self._PRW_episode.SetText(value = self.data['episode'], data = self.data['pk_episode'])
 		self._PRW_procedure.SetText(value = self.data['performed_procedure'], data = self.data['performed_procedure'])
 		self._PRW_document.SetData(self.data['pk_doc'])
-		self._TCTRL_comment.SetValue(gmTools.coalesce(self.data['comment'], u''))
+		self._TCTRL_comment.SetValue(gmTools.coalesce(self.data['comment'], ''))
 
 		if self.data['pk_hospital_stay'] is None:
 			self._PRW_hospital_stay.SetText()
 			self._PRW_hospital_stay.Enable(False)
-			self._LBL_hospital_details.SetLabel(u'')
-			self._PRW_location.SetText(value = u'%s @ %s' % (self.data['unit'], self.data['organization']), data = self.data['pk_org_unit'])
+			self._LBL_hospital_details.SetLabel('')
+			self._PRW_location.SetText(value = '%s @ %s' % (self.data['unit'], self.data['organization']), data = self.data['pk_org_unit'])
 			self._PRW_location.Enable(True)
 			self._PRW_episode.Enable(True)
 		else:
-			self._PRW_hospital_stay.SetText(value = u'%s @ %s' % (self.data['unit'], self.data['organization']), data = self.data['pk_hospital_stay'])
+			self._PRW_hospital_stay.SetText(value = '%s @ %s' % (self.data['unit'], self.data['organization']), data = self.data['pk_hospital_stay'])
 			self._PRW_hospital_stay.Enable(True)
 			self._LBL_hospital_details.SetLabel(gmEMRStructItems.cHospitalStay(aPK_obj = self.data['pk_hospital_stay']).format())
 			self._PRW_location.SetText()
@@ -406,12 +406,12 @@ limit 25
 		if self.data['pk_hospital_stay'] is None:
 			self._PRW_hospital_stay.SetText()
 			self._PRW_hospital_stay.Enable(False)
-			self._LBL_hospital_details.SetLabel(u'')
-			self._PRW_location.SetText(value = u'%s @ %s' % (self.data['unit'], self.data['organization']), data = self.data['pk_org_unit'])
+			self._LBL_hospital_details.SetLabel('')
+			self._PRW_location.SetText(value = '%s @ %s' % (self.data['unit'], self.data['organization']), data = self.data['pk_org_unit'])
 			self._PRW_location.Enable(True)
 			self._PRW_episode.Enable(True)
 		else:
-			self._PRW_hospital_stay.SetText(value = u'%s @ %s' % (self.data['unit'], self.data['organization']), data = self.data['pk_hospital_stay'])
+			self._PRW_hospital_stay.SetText(value = '%s @ %s' % (self.data['unit'], self.data['organization']), data = self.data['pk_hospital_stay'])
 			self._PRW_hospital_stay.Enable(True)
 			self._LBL_hospital_details.SetLabel(gmEMRStructItems.cHospitalStay(aPK_obj = self.data['pk_hospital_stay']).format())
 			self._PRW_location.SetText()

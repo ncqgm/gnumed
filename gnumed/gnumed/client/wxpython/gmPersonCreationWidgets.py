@@ -43,8 +43,8 @@ def create_new_person(parent=None, activate=False):
 
 	if activate:			# meaning we will switch away from the current patient if any
 		msg = _(
-			u'Before creating a new person review the encounter details\n'
-			u'of the patient you just worked on:\n'
+			'Before creating a new person review the encounter details\n'
+			'of the patient you just worked on:\n'
 		)
 		gmEncounterWidgets.sanity_check_encounter_of_active_patient(parent = parent, msg = msg)
 
@@ -53,17 +53,17 @@ def create_new_person(parent=None, activate=False):
 	dbcfg = gmCfg.cCfgSQL()
 
 	def_region = dbcfg.get2 (
-		option = u'person.create.default_region',
+		option = 'person.create.default_region',
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
-		bias = u'user'
+		bias = 'user'
 	)
 	def_country = None
 
 	if def_region is None:
 		def_country = dbcfg.get2 (
-			option = u'person.create.default_country',
+			option = 'person.create.default_country',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
-			bias = u'user'
+			bias = 'user'
 		)
 	else:
 		countries = gmDemographicRecord.get_country_for_region(region = def_region)
@@ -138,7 +138,7 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 		if self.default_region is not None:
 			self._PRW_region.SetText(value = self.default_region)
 
-		self._PRW_type.SetText(value = u'home')
+		self._PRW_type.SetText(value = 'home')
 		# FIXME: only use this if member of gm-doctors,
 		# FIXME: other than that check fallback_primary_provider
 		self._PRW_primary_provider.SetData(data = gmStaff.gmCurrentProvider()['pk_staff'])
@@ -148,44 +148,44 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 	def _refresh_ext_id_warning(self):
 		id_type = self._PRW_external_id_type.GetData()
 		if id_type is None:
-			self._LBL_id_exists.SetLabel(u'')
+			self._LBL_id_exists.SetLabel('')
 			return
 		val = self._TCTRL_external_id_value.GetValue().strip()
-		if val == u'':
-			self._LBL_id_exists.SetLabel(u'')
+		if val == '':
+			self._LBL_id_exists.SetLabel('')
 			return
 		if gmPerson.external_id_exists(pk_issuer = id_type, value = val) > 0:
 			self._LBL_id_exists.SetLabel(_('ID exists !'))
 		else:
-			self._LBL_id_exists.SetLabel(u'')
+			self._LBL_id_exists.SetLabel('')
 	#----------------------------------------------------------------
 	def _refresh_dupe_warning(self):
 		lname = self._PRW_lastname.GetValue().strip()
-		if lname == u'':
-			self._LBL_person_exists.SetLabel(u'')
+		if lname == '':
+			self._LBL_person_exists.SetLabel('')
 			return
 
 		dob = self._PRW_dob.GetData()
 		if dob is None:
-			self._LBL_person_exists.SetLabel(u'')
+			self._LBL_person_exists.SetLabel('')
 			return
 
-		fname = gmTools.none_if(self._PRW_firstnames.GetValue().strip()[:1], u'')
+		fname = gmTools.none_if(self._PRW_firstnames.GetValue().strip()[:1], '')
 
 		no_of_dupes = gmPerson.person_exists(lastnames = lname, firstnames = fname, dob = dob)
 		if no_of_dupes == 0:
-			lbl = u''
+			lbl = ''
 		elif no_of_dupes == 1:
 			lbl = _('One "%s, %s (%s)" already exists !') % (
 				lname,
-				gmTools.coalesce(fname, u'?', u'%s %%s. %s' % (gmTools.u_ellipsis, gmTools.u_ellipsis)),
+				gmTools.coalesce(fname, '?', '%s %%s. %s' % (gmTools.u_ellipsis, gmTools.u_ellipsis)),
 				gmDateTime.pydt_strftime(dob, '%Y %b %d', 'utf8')
 			)
 		else:
 			lbl = _('%s "%s, %s (%s)" already exist !') % (
 				no_of_dupes,
 				lname,
-				gmTools.coalesce(fname, u'?', u'%s %%s. %s' % (gmTools.u_ellipsis, gmTools.u_ellipsis)),
+				gmTools.coalesce(fname, '?', '%s %%s. %s' % (gmTools.u_ellipsis, gmTools.u_ellipsis)),
 				gmDateTime.pydt_strftime(dob, '%Y %b %d', 'utf8')
 			)
 
@@ -198,7 +198,7 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 			return True
 
 		if ctrl.GetValue().strip() != adr[field]:
-			wx.CallAfter(self._PRW_address_searcher.SetText, value = u'', data = None)
+			wx.CallAfter(self._PRW_address_searcher.SetText, value = '', data = None)
 			return True
 
 		return False
@@ -211,22 +211,22 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 		self._PRW_zip.SetText(value = adr['postcode'], data = adr['postcode'])
 
 		self._PRW_street.SetText(value = adr['street'], data = adr['street'])
-		self._PRW_street.set_context(context = u'zip', val = adr['postcode'])
+		self._PRW_street.set_context(context = 'zip', val = adr['postcode'])
 
 		self._PRW_urb.SetText(value = adr['urb'], data = adr['urb'])
-		self._PRW_urb.set_context(context = u'zip', val = adr['postcode'])
+		self._PRW_urb.set_context(context = 'zip', val = adr['postcode'])
 
 		self._PRW_region.SetText(value = adr['l10n_region'], data = adr['code_region'])
-		self._PRW_region.set_context(context = u'zip', val = adr['postcode'])
+		self._PRW_region.set_context(context = 'zip', val = adr['postcode'])
 
 		self._PRW_country.SetText(value = adr['l10n_country'], data = adr['code_country'])
-		self._PRW_country.set_context(context = u'zip', val = adr['postcode'])
+		self._PRW_country.set_context(context = 'zip', val = adr['postcode'])
 	#----------------------------------------------------------------
 	def __identity_valid_for_save(self):
 		error = False
 
 		# name fields
-		if self._PRW_lastname.GetValue().strip() == u'':
+		if self._PRW_lastname.GetValue().strip() == '':
 			error = True
 			gmDispatcher.send(signal = 'statustext', msg = _('Must enter lastname.'))
 			self._PRW_lastname.display_as_valid(False)
@@ -279,7 +279,7 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 		no_of_filled_fields = 0
 
 		for field in fields_to_fill:
-			if field.GetValue().strip() != u'':
+			if field.GetValue().strip() != '':
 				no_of_filled_fields += 1
 				field.display_as_valid(True)
 
@@ -293,7 +293,7 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 		# incompletely filled address ?
 		if no_of_filled_fields != len(fields_to_fill):
 			for field in fields_to_fill:
-				if field.GetValue().strip() == u'':
+				if field.GetValue().strip() == '':
 					field.display_as_valid(False)
 					field.SetFocus()
 			msg = _('To properly create an address, all the related fields must be filled in.')
@@ -372,7 +372,7 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 			return True
 
 		firstname = self._PRW_firstnames.GetValue().strip()
-		if firstname == u'':
+		if firstname == '':
 			return True
 
 		gender = gmPerson.map_firstnames2gender(firstnames = firstname)
@@ -389,24 +389,24 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 	def _on_leaving_zip(self):
 		self.__perhaps_invalidate_address_searcher(self._PRW_zip, 'postcode')
 
-		zip_code = gmTools.none_if(self._PRW_zip.GetValue().strip(), u'')
-		self._PRW_street.set_context(context = u'zip', val = zip_code)
-		self._PRW_urb.set_context(context = u'zip', val = zip_code)
-		self._PRW_region.set_context(context = u'zip', val = zip_code)
-		self._PRW_country.set_context(context = u'zip', val = zip_code)
+		zip_code = gmTools.none_if(self._PRW_zip.GetValue().strip(), '')
+		self._PRW_street.set_context(context = 'zip', val = zip_code)
+		self._PRW_urb.set_context(context = 'zip', val = zip_code)
+		self._PRW_region.set_context(context = 'zip', val = zip_code)
+		self._PRW_country.set_context(context = 'zip', val = zip_code)
 
 		return True
 	#----------------------------------------------------------------
 	def _on_leaving_country(self):
 		self.__perhaps_invalidate_address_searcher(self._PRW_country, 'l10n_country')
 
-		country = gmTools.none_if(self._PRW_country.GetValue().strip(), u'')
-		self._PRW_region.set_context(context = u'country', val = country)
+		country = gmTools.none_if(self._PRW_country.GetValue().strip(), '')
+		self._PRW_region.set_context(context = 'country', val = country)
 
 		return True
 	#----------------------------------------------------------------
 	def _on_leaving_number(self, evt):
-		if self._TCTRL_number.GetValue().strip() == u'':
+		if self._TCTRL_number.GetValue().strip() == '':
 			adr = self._PRW_address_searcher.address
 			if adr is None:
 				return True
@@ -417,11 +417,11 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 		return True
 	#----------------------------------------------------------------
 	def _on_leaving_unit(self, evt):
-		if self._TCTRL_unit.GetValue().strip() == u'':
+		if self._TCTRL_unit.GetValue().strip() == '':
 			adr = self._PRW_address_searcher.address
 			if adr is None:
 				return True
-			self._TCTRL_unit.SetValue(gmTools.coalesce(adr['subunit'], u''))
+			self._TCTRL_unit.SetValue(gmTools.coalesce(adr['subunit'], ''))
 			return True
 
 		self.__perhaps_invalidate_address_searcher(self._TCTRL_unit, 'subunit')
@@ -450,7 +450,7 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 	# generic Edit Area mixin API
 	#----------------------------------------------------------------
 	def _valid_for_save(self):
-		if self._PRW_primary_provider.GetValue().strip() == u'':
+		if self._PRW_primary_provider.GetValue().strip() == '':
 			self._PRW_primary_provider.display_as_valid(True)
 		else:
 			if self._PRW_primary_provider.GetData() is None:
@@ -461,7 +461,7 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 	#----------------------------------------------------------------
 	def _save_as_new(self):
 
-		if self._PRW_dob.GetValue().strip() == u'':
+		if self._PRW_dob.GetValue().strip() == '':
 			if not _empty_dob_allowed():
 				self._PRW_dob.display_as_valid(False)
 				self._PRW_dob.SetFocus()
@@ -478,18 +478,18 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 
 		new_identity['dob_is_estimated'] = self._CHBOX_estimated_dob.GetValue()
 		val = self._TCTRL_tob.GetValue().strip()
-		if val != u'':
+		if val != '':
 			new_identity['tob'] = pydt.time(int(val[:2]), int(val[3:5]))
 		new_identity['title'] = gmTools.none_if(self._PRW_title.GetValue().strip())
 
 		prov = self._PRW_primary_provider.GetData()
 		if prov is not None:
 			new_identity['pk_primary_provider'] = prov
-		new_identity['comment'] = gmTools.none_if(self._TCTRL_comment.GetValue().strip(), u'')
+		new_identity['comment'] = gmTools.none_if(self._TCTRL_comment.GetValue().strip(), '')
 		new_identity.save()
 		_log.info('new identity updated: %s' % new_identity)
 
-		new_identity.set_nickname(nickname = gmTools.none_if(self._PRW_nickname.GetValue().strip(), u''))
+		new_identity.set_nickname(nickname = gmTools.none_if(self._PRW_nickname.GetValue().strip(), ''))
 		_log.info('nickname set on new identity: %s' % new_identity)
 
 		# address
@@ -506,7 +506,7 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 					urb = self._PRW_urb.GetValue().strip(),
 					region_code = self._PRW_region.GetData(),
 					country_code = self._PRW_country.GetData(),
-					subunit = gmTools.none_if(self._TCTRL_unit.GetValue().strip(), u''),
+					subunit = gmTools.none_if(self._TCTRL_unit.GetValue().strip(), ''),
 					id_type = self._PRW_type.GetData()
 				)
 			except gmPG2.dbapi.InternalError:
@@ -541,24 +541,24 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 		channel_name = self._PRW_channel_type.GetValue().strip()
 		pk_channel_type = self._PRW_channel_type.GetData()
 		if pk_channel_type is None:
-			if channel_name == u'':
-				channel_name = u'homephone'
+			if channel_name == '':
+				channel_name = 'homephone'
 		new_identity.link_comm_channel (
 			comm_medium = channel_name,
 			pk_channel_type = pk_channel_type,
-			url = gmTools.none_if(self._TCTRL_phone.GetValue().strip(), u''),
+			url = gmTools.none_if(self._TCTRL_phone.GetValue().strip(), ''),
 			is_confidential = False
 		)
 
 		# external ID
 		pk_type = self._PRW_external_id_type.GetData()
 		id_value = self._TCTRL_external_id_value.GetValue().strip()
-		if (pk_type is not None) and (id_value != u''):
+		if (pk_type is not None) and (id_value != ''):
 			new_identity.add_external_id(value = id_value, pk_type = pk_type)
 
 		# occupation
 		new_identity.link_occupation (
-			occupation = gmTools.none_if(self._PRW_occupation.GetValue().strip(), u'')
+			occupation = gmTools.none_if(self._PRW_occupation.GetValue().strip(), '')
 		)
 
 		self.data = new_identity
@@ -585,7 +585,7 @@ if __name__ == "__main__":
 	if len(sys.argv) < 2:
 		sys.exit()
 
-	if sys.argv[1] != u'test':
+	if sys.argv[1] != 'test':
 		sys.exit()
 
 #	from Gnumed.pycommon import gmPG2

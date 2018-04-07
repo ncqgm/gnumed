@@ -114,9 +114,9 @@ def read_persons_from_msva_file(filename=None, encoding=None):
 			continue			# perhaps raise Exception ?
 
 		dto = gmPerson.cDTO_person()
-		dto.source = u'Med.Manager/CA'
+		dto.source = 'Med.Manager/CA'
 
-		dto.firstnames = u'%s %s' % (
+		dto.firstnames = '%s %s' % (
 			gmTools.capitalize(line[:20].strip(), gmTools.CAPS_FIRST_ONLY),		# should be _NAMES
 			gmTools.capitalize(line[20:22].strip(), gmTools.CAPS_FIRST_ONLY)	# should be _NAMES
 		)
@@ -124,9 +124,9 @@ def read_persons_from_msva_file(filename=None, encoding=None):
 
 		region = line[59:61]
 		dto.remember_external_id (
-			name = u'PHN (%s.CA)' % region,
+			name = 'PHN (%s.CA)' % region,
 			value = line[47:57],
-			issuer = u'MOH (%s.CA)' % region
+			issuer = 'MOH (%s.CA)' % region
 		)
 
 		dob = time.strptime(line[65:73].strip(), MSVA_dob_format)
@@ -134,13 +134,13 @@ def read_persons_from_msva_file(filename=None, encoding=None):
 		dto.gender = line[83].lower()
 
 		dto.remember_external_id (
-			name = u'MM (CA) Chart #',
+			name = 'MM (CA) Chart #',
 			value = line[84:92],
-			issuer = u'Medical Manager (CA) application'
+			issuer = 'Medical Manager (CA) application'
 		)
 
 		# this is the home address
-		street = u'%s // %s' % (
+		street = '%s // %s' % (
 			gmTools.capitalize(line[92:117].strip(), gmTools.CAPS_FIRST),
 			gmTools.capitalize(line[117:142].strip(), gmTools.CAPS_FIRST)
 		)
@@ -150,17 +150,17 @@ def read_persons_from_msva_file(filename=None, encoding=None):
 			urb = line[142:167],
 			region_code = line[167:169],
 			zip = line[169:178],
-			country_code = u'CA'
+			country_code = 'CA'
 		)
 
 		# channel types must correspond to GNUmed database comm type
-		dto.remember_comm_channel(channel = u'homephone', url = line[178:188])
-		dto.remember_comm_channel(channel = u'workphone', url = line[188:198])
+		dto.remember_comm_channel(channel = 'homephone', url = line[178:188])
+		dto.remember_comm_channel(channel = 'workphone', url = line[188:198])
 
 		dto.remember_external_id (
-			name = u'Social Insurance Number',
+			name = 'Social Insurance Number',
 			value = line[198:207],
-			issuer = u'Canada'
+			issuer = 'Canada'
 		)
 
 		dtos.append(dto)

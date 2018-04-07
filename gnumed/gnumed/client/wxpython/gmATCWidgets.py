@@ -44,9 +44,9 @@ def browse_atc_reference_deprecated(parent=None):
 		items = [ [
 			a['atc'],
 			a['term'],
-			gmTools.coalesce(a['unit'], u''),
-			gmTools.coalesce(a['administrative_route'], u''),
-			gmTools.coalesce(a['comment'], u''),
+			gmTools.coalesce(a['unit'], ''),
+			gmTools.coalesce(a['administrative_route'], ''),
+			gmTools.coalesce(a['comment'], ''),
 			a['version'],
 			a['lang']
 		] for a in atcs ]
@@ -57,7 +57,7 @@ def browse_atc_reference_deprecated(parent=None):
 		parent = parent,
 		msg = _('\nThe ATC codes as known to GNUmed.\n'),
 		caption = _('Showing ATC codes.'),
-		columns = [ u'ATC', _('Term'), _('Unit'), _(u'Route'), _('Comment'), _('Version'), _('Language') ],
+		columns = [ 'ATC', _('Term'), _('Unit'), _('Route'), _('Comment'), _('Version'), _('Language') ],
 		single_selection = True,
 		refresh_callback = refresh
 	)
@@ -101,7 +101,7 @@ class cATCPhraseWheel(gmPhraseWheel.cPhraseWheel):
 	def __init__(self, *args, **kwargs):
 
 		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
-		query = u"""
+		query = """
 			SELECT DISTINCT ON (data)
 				data,
 				field_label,

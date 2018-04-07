@@ -49,11 +49,11 @@ def guess_mimetype(filename=None):
 			if (prop == 'mimetype') and (val != worst_case):
 				return val
 	except ImportError:
-		_log.debug(u'module <extractor> (python wrapper for libextractor) not installed')
+		_log.debug('module <extractor> (python wrapper for libextractor) not installed')
 	except OSError as exc:
 		# winerror 126, errno 22
 		if exc.errno == 22:
-			_log.exception(u'module <extractor> (python wrapper for libextractor) not installed')
+			_log.exception('module <extractor> (python wrapper for libextractor) not installed')
 		else:
 			raise
 	ret_code = -1
@@ -61,7 +61,7 @@ def guess_mimetype(filename=None):
 	# 2) use "file" system command
 	#    -i get mime type
 	#    -b don't display a header
-	mime_guesser_cmd = u'file -i -b "%s"' % filename
+	mime_guesser_cmd = 'file -i -b "%s"' % filename
 	# this only works on POSIX with 'file' installed (which is standard, however)
 	# it might work on Cygwin installations
 	aPipe = os.popen(mime_guesser_cmd.encode(sys.getfilesystemencoding()), 'r')
@@ -72,8 +72,8 @@ def guess_mimetype(filename=None):
 		ret_code = aPipe.close()
 		if ret_code is None:
 			_log.debug('[%s]: <%s>' % (mime_guesser_cmd, pipe_output))
-			if pipe_output not in [u'', worst_case]:
-				return pipe_output.split(u';')[0].strip()
+			if pipe_output not in ['', worst_case]:
+				return pipe_output.split(';')[0].strip()
 		else:
 			_log.error('[%s] on %s (%s): failed with exit(%s)' % (mime_guesser_cmd, os.name, sys.platform, ret_code))
 
@@ -87,7 +87,7 @@ def guess_mimetype(filename=None):
 		ret_code = aPipe.close()
 		if ret_code is None:
 			_log.debug('[%s]: <%s>' % (mime_guesser_cmd, pipe_output))
-			if pipe_output not in [u'', worst_case]:
+			if pipe_output not in ['', worst_case]:
 				return pipe_output
 		else:
 			_log.error('[%s] on %s (%s): failed with exit(%s)' % (mime_guesser_cmd, os.name, sys.platform, ret_code))
@@ -99,7 +99,7 @@ def guess_mimetype(filename=None):
 	_log.info("OS level mime detection failed, falling back to built-in magic")
 
 	import gmMimeMagic
-	mime_type = gmTools.coalesce(gmMimeMagic.file(filename), worst_case)
+	mime_type = gmTools.coalesce(gmMimeMagic.filedesc(filename), worst_case)
 	del gmMimeMagic
 
 	_log.debug('"%s" -> <%s>' % (filename, mime_type))
@@ -156,7 +156,7 @@ def guess_ext_by_mimetype(mimetype=''):
 	# try to help the OS a bit
 	cfg = gmCfg2.gmCfgData()
 	ext = cfg.get (
-		group = u'extensions',
+		group = 'extensions',
 		option = mimetype,
 		source_order = [('user-mime', 'return'), ('system-mime', 'return')]
 	)
@@ -194,17 +194,17 @@ def adjust_extension_by_mimetype(filename):
 	if mime_suffix is None:
 		return filename
 	old_name, old_ext = os.path.splitext(filename)
-	if old_ext == u'':
+	if old_ext == '':
 		new_filename = filename + mime_suffix
 	elif old_ext.lower() == mime_suffix.lower():
 		return filename
 	new_filename = old_name + mime_suffix
-	_log.debug(u'[%s] -> [%s]', filename, new_filename)
+	_log.debug('[%s] -> [%s]', filename, new_filename)
 	try:
 		os.rename(filename, new_filename)
 		return new_filename
 	except OSError:
-		_log.exception(u'cannot rename, returning original filename')
+		_log.exception('cannot rename, returning original filename')
 	return filename
 
 #-----------------------------------------------------------------------------------
@@ -226,7 +226,7 @@ def _get_system_startfile_cmd(filename):
 
 	global _system_startfile_cmd
 
-	if _system_startfile_cmd == u'':
+	if _system_startfile_cmd == '':
 		return False, None
 
 	if _system_startfile_cmd is not None:
@@ -242,7 +242,7 @@ def _get_system_startfile_cmd(filename):
 		_log.info('detected local startfile cmd: [%s]', _system_startfile_cmd)
 		return True, _system_startfile_cmd % filename
 
-	_system_startfile_cmd = u''
+	_system_startfile_cmd = ''
 	return False, None
 
 #-----------------------------------------------------------------------------------
@@ -253,14 +253,14 @@ def convert_file(filename=None, target_mime=None, target_filename=None, target_e
 	"""
 	source_mime = guess_mimetype(filename = filename)
 	if source_mime.lower() == target_mime.lower():
-		_log.debug(u'source file [%s] already target mime type [%s]', filename, target_mime)
+		_log.debug('source file [%s] already target mime type [%s]', filename, target_mime)
 		shutil.copyfile(filename, target_filename)
 		return True
 
 	if target_extension is None:
 		tmp, target_extension = os.path.splitext(target_filename)
 
-	base_name = u'gm-convert_file'
+	base_name = 'gm-convert_file'
 
 	paths = gmTools.gmPaths()
 	local_script = os.path.join(paths.local_base_dir, '..', 'external-tools', base_name)
@@ -293,7 +293,7 @@ def convert_file(filename=None, target_mime=None, target_filename=None, target_e
 #-----------------------------------------------------------------------------------
 def __run_file_describer(filename=None):
 
-	base_name = u'gm-describe_file'
+	base_name = 'gm-describe_file'
 
 	paths = gmTools.gmPaths()
 	local_script = os.path.join(paths.local_base_dir, '..', 'external-tools', base_name)
@@ -302,8 +302,8 @@ def __run_file_describer(filename=None):
 	found, binary = gmShellAPI.find_first_binary(binaries = candidates)
 	if not found:
 		#binary = base_name# + r'.bat'
-		_log.debug(u'cannot find <%s(.bat)>', base_name)
-		return (False, _(u'<%s(.bat)> not found') % base_name)
+		_log.debug('cannot find <%s(.bat)>', base_name)
+		return (False, _('<%s(.bat)> not found') % base_name)
 
 	desc_fname = gmTools.get_unique_filename()
 
@@ -317,20 +317,20 @@ def __run_file_describer(filename=None):
 		gm_describe = subprocess.Popen(cmd_line)
 	except OSError:
 		_log.debug('cannot run <%s>', binary)
-		return (False, _(u'problem with <%s>') % binary)
+		return (False, _('problem with <%s>') % binary)
 
 	gm_describe.communicate()
 	if gm_describe.returncode != 0:
 		_log.error('<%s> returned [%s], failed to convert', binary, gm_describe.returncode)
-		return (False, _(u'problem with <%s>') % binary)
+		return (False, _('problem with <%s>') % binary)
 
 	try:
 		desc_file = io.open(desc_fname, mode = 'rt', encoding = 'utf8', errors = 'replace')
 	except IOError:
 		_log.exception('cannot open [%s]', desc_fname)
-		return (False, _(u'problem with <%s>') % binary)
+		return (False, _('problem with <%s>') % binary)
 
-	desc = u''.join(desc_file.readlines())
+	desc = ''.join(desc_file)
 	desc_file.close()
 	return (True, desc)
 

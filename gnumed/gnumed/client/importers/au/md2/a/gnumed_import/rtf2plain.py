@@ -133,7 +133,7 @@ def rtf2plain(input_s, out =None , write_all = True):
 				continue
 
 		out.write( x)
-		out.write(u'\n')
+		out.write('\n')
 
 		
 	

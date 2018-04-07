@@ -26,26 +26,26 @@ class ScrollTxtWin (wx.Window):
 	__scroll_speed=.3 	# pixels/milliseconds (?)
 	__delay=500		# milliseconds
 	name_list = [
-		u'Dr Horst Herb',
-		u'Karsten Hilbert',
-		u'Dr Gerardo Arnaez',
-		u'Dr Hilmar Berger',
-		u'Michael Bonert',
-		u'Dr Elizabeth Dodd',
-		u'Dr David Guest',
-		u'Ian Haywood',
-		u'Dr Tony Lembke',
-		u'Dr Richard Terry',
-		u'Syan J Tan',
-		u'Andreas Tille',
-		u'Dr Carlos Moro',
-		u'Dr James Busser',
-		u'Dr Rogerio Luz',
-		u'Dr Sebastian Hilbert',
-		u'Dr John Jaarsveld',
-		u'Uwe Koch Kronberg',
-		u'Dr Jerzy Luszawski',
-		u'et alii'
+		'Dr Horst Herb',
+		'Karsten Hilbert',
+		'Dr Gerardo Arnaez',
+		'Dr Hilmar Berger',
+		'Michael Bonert',
+		'Dr Elizabeth Dodd',
+		'Dr David Guest',
+		'Ian Haywood',
+		'Dr Tony Lembke',
+		'Dr Richard Terry',
+		'Syan J Tan',
+		'Andreas Tille',
+		'Dr Carlos Moro',
+		'Dr James Busser',
+		'Dr Rogerio Luz',
+		'Dr Sebastian Hilbert',
+		'Dr John Jaarsveld',
+		'Uwe Koch Kronberg',
+		'Dr Jerzy Luszawski',
+		'et alii'
 	]
 
 	# initializations
@@ -123,7 +123,7 @@ class AboutFrame (wx.Frame):
 			-1,
 			_('Version %s%s brought to you by') % (
 				version,
-				gmTools.bool2subst(debug, u' (%s)' % _('debug'), u'')
+				gmTools.bool2subst(debug, ' (%s)' % _('debug'), '')
 			)
 		)
 		ver_txt.SetFont(wx.Font(10, wx.SWISS, wx.NORMAL, wx.NORMAL))
@@ -175,7 +175,7 @@ class cContributorsDlg(wx.Dialog):
 'address it is sorted under the first character of\n'
 'the user name.\n'
 '%s'
-) % u"""
+) % """
 == A ===========================================
 
 Marc ANGERMANN, MD
@@ -317,7 +317,7 @@ if __name__ == '__main__':
 	# set up dummy app
 	class TestApp (wx.App):
 		def OnInit (self):
-			frame = AboutFrame(None, -1, u"About GNUmed", size=wx.Size(300, 250))
+			frame = AboutFrame(None, -1, "About GNUmed", size=wx.Size(300, 250))
 			frame.Show(1)
 			return 1
 	#---------------------

@@ -68,7 +68,7 @@ class cMatchProvider(object):
 			raise ValueError('Cannot find matches without a fragment.')
 
 		# user explicitly wants all matches
-		if aFragment == u'*':
+		if aFragment == '*':
 			return self.getAllMatches()
 
 		# case insensitivity
@@ -78,7 +78,7 @@ class cMatchProvider(object):
 			tmpFragment = self.__ignored_chars.sub('', tmpFragment)
 		# normalize word separators
 		if self.__word_separators is not None:
-			tmpFragment = u' '.join(self.__word_separators.split(tmpFragment))
+			tmpFragment = ' '.join(self.__word_separators.split(tmpFragment))
 		# length in number of significant characters only
 		lngFragment = len(tmpFragment)
 
@@ -234,7 +234,7 @@ class cMatchProvider_FixedList(cMatchProvider):
 			# found as a true substring
 			elif fragment_pos > 0:
 				# but use only if substring is at start of a word
-				if item_label[fragment_pos-1] == u' ':
+				if item_label[fragment_pos-1] == ' ':
 					matches.append(item)
 		# no matches found
 		if len(matches) == 0:
@@ -337,7 +337,7 @@ class cMatchProvider_Func(cMatchProvider):
 			# found as a true substring
 			# but use only if substring is at start of a word
 			# FIXME: use word seps
-			if (pos == 0) or (candidate['list_label'][pos-1] == u' '):
+			if (pos == 0) or (candidate['list_label'][pos-1] == ' '):
 				matches.append(candidate)
 		# no matches found
 		if len(matches) == 0:
@@ -457,31 +457,31 @@ class cMatchProvider_SQL2(cMatchProvider):
 	def getMatchesByPhrase(self, aFragment):
 		"""Return matches for aFragment at start of phrases."""
 
-		fragment_condition = u"ILIKE %(fragment)s"
-		self._args['fragment'] = u"%s%%" % aFragment
+		fragment_condition = "ILIKE %(fragment)s"
+		self._args['fragment'] = "%s%%" % aFragment
 
 		return self._find_matches(fragment_condition)
 	#--------------------------------------------------------
 	def getMatchesByWord(self, aFragment):
 		"""Return matches for aFragment at start of words inside phrases."""
 
-		fragment_condition = u"~* %(fragment)s"
+		fragment_condition = "~* %(fragment)s"
 		aFragment = gmPG2.sanitize_pg_regex(expression = aFragment, escape_all = False)
-		self._args['fragment'] = u"( %s)|(^%s)" % (aFragment, aFragment)
+		self._args['fragment'] = "( %s)|(^%s)" % (aFragment, aFragment)
 
 		return self._find_matches(fragment_condition)
 	#--------------------------------------------------------
 	def getMatchesBySubstr(self, aFragment):
 		"""Return matches for aFragment as a true substring."""
 
-		fragment_condition = u"ILIKE %(fragment)s"
-		self._args['fragment'] = u"%%%s%%" % aFragment
+		fragment_condition = "ILIKE %(fragment)s"
+		self._args['fragment'] = "%%%s%%" % aFragment
 
 		return self._find_matches(fragment_condition)
 	#--------------------------------------------------------
 	def getAllMatches(self):
 		"""Return all items."""
-		return self.getMatchesBySubstr(u'')
+		return self.getMatchesBySubstr('')
 	#--------------------------------------------------------
 	def get_match_by_data(self, data=None):
 		if self._SQL_data2match is None:
@@ -523,7 +523,7 @@ class cMatchProvider_SQL2(cMatchProvider):
 						print("ctxt val:", self._context_vals[placeholder])
 				except KeyError:
 					# we don't have a context value for this key, so skip the where condition
-					where_fragments[context_key] = u''
+					where_fragments[context_key] = ''
 					if self.print_queries:
 						print("invalid ctxt key:", context_key)
 

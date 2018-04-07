@@ -75,9 +75,9 @@ class cEdcCalculatorDlg(wxgEdcCalculatorDlg.wxgEdcCalculatorDlg):
 	def __init_ui(self):
 		edc = self.__calc.get_EDC(lmp = None, nullipara = self._CHBOX_first_pregnancy.GetValue())
 		txt = _(
-			u'Algorithm: %s\n'
-			u'\n'
-			u'Source: %s'
+			'Algorithm: %s\n'
+			'\n'
+			'Source: %s'
 		) % (
 			edc.formula_name,
 			edc.formula_source
@@ -93,7 +93,7 @@ class cEdcCalculatorDlg(wxgEdcCalculatorDlg.wxgEdcCalculatorDlg):
 	#----------------------------------------------------------------
 	def _on_edc_modified(self):
 		self._PRW_lmp.SetData(None)
-		self._TCTRL_details.SetValue(u'')
+		self._TCTRL_details.SetValue('')
 	#----------------------------------------------------------------
 	def _on_first_pregnancy_toggled(self, event):
 		event.Skip()
@@ -117,13 +117,13 @@ class cEdcCalculatorDlg(wxgEdcCalculatorDlg.wxgEdcCalculatorDlg):
 		lmp = self._PRW_lmp.date
 		if lmp is None:
 			self._PRW_edc.SetData(None)
-			self._TCTRL_details.SetValue(u'')
+			self._TCTRL_details.SetValue('')
 			return
 
 		edc = self.__calc.get_EDC(lmp = lmp, nullipara = self._CHBOX_first_pregnancy.GetValue())
 
 		self._PRW_edc.SetData(edc.numeric_value)
-		details = u''
+		details = ''
 		now = gmDateTime.pydt_now_here()
 		# Beulah Hunter, 375 days (http://www.reference.com/motif/health/longest-human-pregnancy-on-record)
 		if (lmp < now) and (edc.numeric_value > (now + pydt.timedelta(days = 380))):
@@ -136,8 +136,8 @@ class cEdcCalculatorDlg(wxgEdcCalculatorDlg.wxgEdcCalculatorDlg):
 			if days > 0:
 				month += 1
 			details += _(
-				u'Current age of pregnancy (%s):\n'
-				u' day %s = %s weeks %s days = week %s = month %s\n\n'
+				'Current age of pregnancy (%s):\n'
+				' day %s = %s weeks %s days = week %s = month %s\n\n'
 			) % (
 				gmDateTime.pydt_strftime(now, '%Y %b %d'),
 				age.days,
@@ -166,7 +166,7 @@ class cEdcCalculatorDlg(wxgEdcCalculatorDlg.wxgEdcCalculatorDlg):
 	def _set_EDC(self, edc):
 		self._PRW_edc.SetData(edc)
 		self._PRW_lmp.SetData(None)
-		self._TCTRL_details.SetValue(u'')
+		self._TCTRL_details.SetValue('')
 
 	EDC = property(_get_EDC, _set_EDC)
 	#----------------------------------------------------------------

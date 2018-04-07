@@ -1,5 +1,5 @@
 
-from __future__ import print_function
+
 
 __doc__ = """GNUmed printing."""
 
@@ -25,18 +25,18 @@ _log = logging.getLogger('gm.printing')
 
 
 known_printjob_types = [
-	u'medication_list',
-	u'generic_document'
+	'medication_list',
+	'generic_document'
 ]
 
 external_print_APIs = [
-	u'gm-print_doc',
-	u'os_startfile',		# win, mostly
-	u'gsprint',				# win
-	u'acrobat_reader',		# win
-	u'gtklp',				# Linux
-	u'Internet_Explorer',	# win
-	u'Mac_Preview'			# MacOSX
+	'gm-print_doc',
+	'os_startfile',		# win, mostly
+	'gsprint',				# win
+	'acrobat_reader',		# win
+	'gtklp',				# Linux
+	'Internet_Explorer',	# win
+	'Mac_Preview'			# MacOSX
 ]
 
 #=======================================================================
@@ -60,19 +60,19 @@ def print_files(filenames=None, jobtype=None, print_api=None):
 	if print_api not in external_print_APIs:
 		_log.warning('print API "%s" unknown, trying all', print_api)
 
-	if print_api == u'os_startfile':
+	if print_api == 'os_startfile':
 		return _print_files_by_os_startfile(filenames = filenames)
-	elif print_api == u'gm-print_doc':
+	elif print_api == 'gm-print_doc':
 		return _print_files_by_shellscript(filenames = filenames, jobtype = jobtype)
-	elif print_api == u'gsprint':
+	elif print_api == 'gsprint':
 		return _print_files_by_gsprint_exe(filenames = filenames)
-	elif print_api == u'acrobat_reader':
+	elif print_api == 'acrobat_reader':
 		return _print_files_by_acroread_exe(filenames = filenames)
-	elif print_api == u'gtklp':
+	elif print_api == 'gtklp':
 		return _print_files_by_gtklp(filenames = filenames)
-	elif print_api == u'Internet_Explorer':
+	elif print_api == 'Internet_Explorer':
 		return _print_files_by_IE(filenames = filenames)
-	elif print_api == u'Mac_Preview':
+	elif print_api == 'Mac_Preview':
 		return _print_files_by_mac_preview(filenames = filenames)
 
 	# else try all
@@ -199,11 +199,11 @@ def _print_files_by_gsprint_exe(filenames=None):
 
 	for filename in filenames:
 		conf_file = io.open(conf_filename, mode = 'wt', encoding = 'utf8')
-		conf_file.write(u'-color\n')
-		conf_file.write(u'-query\n')			# printer setup dialog
-		conf_file.write(u'-all\n')				# all pages
-		conf_file.write(u'-copies 1\n')
-		conf_file.write(u'%s\n' % os.path.normpath(filename))
+		conf_file.write('-color\n')
+		conf_file.write('-query\n')			# printer setup dialog
+		conf_file.write('-all\n')				# all pages
+		conf_file.write('-copies 1\n')
+		conf_file.write('%s\n' % os.path.normpath(filename))
 		conf_file.close()
 
 		cmd_line = [
@@ -294,7 +294,7 @@ def _print_files_by_shellscript(filenames=None, jobtype=None):
 	local_script = os.path.join(paths.local_base_dir, '..', 'external-tools', 'gm-print_doc')
 
 	#candidates = [u'gm-print_doc', u'gm-print_doc.bat', local_script, u'gm-print_doc.bat']
-	candidates = [u'gm-print_doc', local_script, u'gm-print_doc.bat']
+	candidates = ['gm-print_doc', local_script, 'gm-print_doc.bat']
 	found, binary = gmShellAPI.find_first_binary(binaries = candidates)
 	if not found:
 		binary = r'gm-print_doc.bat'
@@ -351,10 +351,10 @@ if __name__ == '__main__':
 		return print_files(filenames = [sys.argv[2]], jobtype = sys.argv[3])
 	#--------------------------------------------------------------------
 	def test_print_files_by_shellscript():
-		print_files(filenames = [sys.argv[2], sys.argv[2]], jobtype = u'generic_document', print_api = 'gm-print_doc')
+		print_files(filenames = [sys.argv[2], sys.argv[2]], jobtype = 'generic_document', print_api = 'gm-print_doc')
 	#--------------------------------------------------------------------
 	def test_print_files_by_gtklp():
-		print_files(filenames = [sys.argv[2], sys.argv[2]], jobtype = u'generic_document', print_api = u'gtklp')
+		print_files(filenames = [sys.argv[2], sys.argv[2]], jobtype = 'generic_document', print_api = 'gtklp')
 	#--------------------------------------------------------------------
 	def test_print_files_by_mac_preview():
 		print("testing printing via Mac Preview")

@@ -39,7 +39,7 @@ def select_address(missing=None, person=None):
 
 	#--------------------------
 	def calculate_tooltip(adr):
-		return u'\n'.join(adr.format())
+		return '\n'.join(adr.format())
 	#--------------------------
 	addresses = person.get_addresses()
 	if len(addresses) == 0:
@@ -52,10 +52,10 @@ def select_address(missing=None, person=None):
 	choices = [
 		[
 			a['l10n_address_type'],
-			u'%s %s%s, %s %s, %s' % (
+			'%s %s%s, %s %s, %s' % (
 				a['street'],
 				a['number'],
-				gmTools.coalesce(a['subunit'], u'', u'/%s'),
+				gmTools.coalesce(a['subunit'], '', '/%s'),
 				a['postcode'],
 				a['urb'],
 				a['l10n_country']
@@ -109,15 +109,15 @@ class cPersonAddressesManagerPnl(gmListWidgets.cGenericListManagerPnl):
 			items = [ [
 					a['l10n_address_type'],
 					a['street'],
-					gmTools.coalesce(a['notes_street'], u''),
+					gmTools.coalesce(a['notes_street'], ''),
 					a['number'],
-					gmTools.coalesce(a['subunit'], u''),
+					gmTools.coalesce(a['subunit'], ''),
 					a['postcode'],
 					a['urb'],
-					gmTools.coalesce(a['suburb'], u''),
+					gmTools.coalesce(a['suburb'], ''),
 					a['l10n_region'],
 					a['l10n_country'],
-					gmTools.coalesce(a['notes_subunit'], u'')
+					gmTools.coalesce(a['notes_subunit'], '')
 				] for a in adrs
 			]
 		)
@@ -207,9 +207,9 @@ class cPersonAddressesManagerPnl(gmListWidgets.cGenericListManagerPnl):
 
 	#--------------------------------------------------------
 	def _calculate_tooltip(self, address):
-		tt = u'\n'.join(address.format())
-		tt += u'\n'
-		tt += u'%s\n' % (gmTools.u_box_horiz_single * 40)
+		tt = '\n'.join(address.format())
+		tt += '\n'
+		tt += '%s\n' % (gmTools.u_box_horiz_single * 40)
 		tt += self.__static_tooltip_part
 		return tt
 

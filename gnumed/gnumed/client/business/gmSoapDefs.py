@@ -9,44 +9,44 @@ except NameError:
 	_ = lambda x:x
 
 #============================================================
-_U_ELLIPSIS = u'\u2026'
+_U_ELLIPSIS = '\u2026'
 
-KNOWN_SOAP_CATS = list(u'soapu')
+KNOWN_SOAP_CATS = list('soapu')
 KNOWN_SOAP_CATS.append(None)
 
 
 soap_cat2l10n = {
-	u's': _('SOAP_char_S=S').replace(u'SOAP_char_S=', u''),
-	u'o': _('SOAP_char_O=O').replace(u'SOAP_char_O=', u''),
-	u'a': _('SOAP_char_A=A').replace(u'SOAP_char_A=', u''),
-	u'p': _('SOAP_char_P=P').replace(u'SOAP_char_P=', u''),
-	u'u': _('SOAP_char_U=U').replace(u'SOAP_char_U=', u''),
-	u'': _U_ELLIPSIS,
+	's': _('SOAP_char_S=S').replace('SOAP_char_S=', ''),
+	'o': _('SOAP_char_O=O').replace('SOAP_char_O=', ''),
+	'a': _('SOAP_char_A=A').replace('SOAP_char_A=', ''),
+	'p': _('SOAP_char_P=P').replace('SOAP_char_P=', ''),
+	'u': _('SOAP_char_U=U').replace('SOAP_char_U=', ''),
+	'': _U_ELLIPSIS,
 	None: _U_ELLIPSIS
 }
 
 
 soap_cat2l10n_str = {
-	u's': _('SOAP_string_Subjective=Subjective').replace(u'SOAP_string_Subjective=', u''),
-	u'o': _('SOAP_string_Objective=Objective').replace(u'SOAP_string_Objective=', u''),
-	u'a': _('SOAP_string_Assessment=Assessment').replace(u'SOAP_string_Assessment=', u''),
-	u'p': _('SOAP_string_Plan=Plan').replace(u'SOAP_string_Plan=', u''),
-	u'u': _('SOAP_string_Unspecified=Unspecified').replace(u'SOAP_string_Unspecified=', u''),
-	u'':  _('SOAP_string_Administrative=Administrative').replace(u'SOAP_string_Administrative=', u''),
-	None: _('SOAP_string_Administrative=Administrative').replace(u'SOAP_string_Administrative=', u'')
+	's': _('SOAP_string_Subjective=Subjective').replace('SOAP_string_Subjective=', ''),
+	'o': _('SOAP_string_Objective=Objective').replace('SOAP_string_Objective=', ''),
+	'a': _('SOAP_string_Assessment=Assessment').replace('SOAP_string_Assessment=', ''),
+	'p': _('SOAP_string_Plan=Plan').replace('SOAP_string_Plan=', ''),
+	'u': _('SOAP_string_Unspecified=Unspecified').replace('SOAP_string_Unspecified=', ''),
+	'':  _('SOAP_string_Administrative=Administrative').replace('SOAP_string_Administrative=', ''),
+	None: _('SOAP_string_Administrative=Administrative').replace('SOAP_string_Administrative=', '')
 }
 
 
 l10n2soap_cat = {
-	_('SOAP_char_S=S').replace(u'SOAP_char_S=', u''): u's',
-	_('SOAP_char_O=O').replace(u'SOAP_char_O=', u''): u'o',
-	_('SOAP_char_A=A').replace(u'SOAP_char_A=', u''): u'a',
-	_('SOAP_char_P=P').replace(u'SOAP_char_P=', u''): u'p',
-	_('SOAP_char_U=U').replace(u'SOAP_char_U=', u''): u'u',
+	_('SOAP_char_S=S').replace('SOAP_char_S=', ''): 's',
+	_('SOAP_char_O=O').replace('SOAP_char_O=', ''): 'o',
+	_('SOAP_char_A=A').replace('SOAP_char_A=', ''): 'a',
+	_('SOAP_char_P=P').replace('SOAP_char_P=', ''): 'p',
+	_('SOAP_char_U=U').replace('SOAP_char_U=', ''): 'u',
 	_U_ELLIPSIS: None,
-	u'.': None,
-	u' ': None,
-	u'': None
+	'.': None,
+	' ': None,
+	'': None
 }
 
 #============================================================
@@ -63,7 +63,7 @@ def soap_cats2list(soap_cats):
 
 	normalized_cats = []
 	for cat in soap_cats:
-		if cat in [u' ', None]:
+		if cat in [' ', None]:
 			if None in normalized_cats:
 				continue
 			normalized_cats.append(None)
@@ -134,11 +134,11 @@ if __name__ == '__main__':
 	#--------------------------------------------------------
 	def test_are_valid_cats():
 		cats = [
-			list(u'soap'),
-			list(u'soapSOAP'),
-			list(u'soapx'),
-			list(u'soapX'),
-			list(u'soapSOAPx'),
+			list('soap'),
+			list('soapSOAP'),
+			list('soapx'),
+			list('soapX'),
+			list('soapSOAPx'),
 			[None],
 			['s', None],
 			['s', None, 'O'],

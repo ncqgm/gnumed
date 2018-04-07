@@ -281,7 +281,7 @@ class cMultilineTextEntryDlg(wxgMultilineTextEntryDlg.wxgMultilineTextEntryDlg):
 			self.Close()
 	#--------------------------------------------------------
 	def _on_clear_button_pressed(self, evt):
-		self._TCTRL_text.SetValue(u'')
+		self._TCTRL_text.SetValue('')
 	#--------------------------------------------------------
 	def _on_restore_button_pressed(self, evt):
 		if self.original_text is not None:
@@ -326,8 +326,8 @@ def clipboard2file(check_for_filename=False):
 				return clipboard_text_content
 			except IOError:
 				_log.exception('clipboard does not seem to hold filename: %s', clipboard_text_content)
-		fname = gmTools.get_unique_filename(prefix = u'gm-clipboard-', suffix = u'.txt')
-		target_file = io.open(fname, mode = u'wt', encoding = u'utf8')
+		fname = gmTools.get_unique_filename(prefix = 'gm-clipboard-', suffix = '.txt')
+		target_file = io.open(fname, mode = 'wt', encoding = 'utf8')
 		target_file.write(clipboard_text_content)
 		target_file.close()
 		return fname
@@ -335,7 +335,7 @@ def clipboard2file(check_for_filename=False):
 	data_obj = wx.BitmapDataObject()
 	got_it = wx.TheClipboard.GetData(data_obj)
 	if got_it:
-		fname = gmTools.get_unique_filename(prefix = u'gm-clipboard-', suffix = u'.png')
+		fname = gmTools.get_unique_filename(prefix = 'gm-clipboard-', suffix = '.png')
 		bmp = data_obj.Bitmap.SaveFile(fname, wx.BITMAP_TYPE_PNG)
 		wx.TheClipboard.Close()
 		return fname
@@ -359,7 +359,7 @@ def text2clipboard(text=None, announce_result=False):
 
 #-------------------------------------------------------------------------
 def file2clipboard(filename=None, announce_result=False):
-	f = io.open(filename, mode = u'rt', encoding = u'utf8')
+	f = io.open(filename, mode = 'rt', encoding = 'utf8')
 	result = text2clipboard(text = f.read(), announce_result = False)
 	f.close()
 	if announce_result:

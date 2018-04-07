@@ -69,41 +69,41 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		#self._LCTRL_history.debug = u'LCTRL_history_sizing'
 
 		# left
-		self._LCTRL_identity.set_columns(columns = [u''])
+		self._LCTRL_identity.set_columns(columns = [''])
 		self._LCTRL_identity.item_tooltip_callback = self._calc_identity_item_tooltip
 		self._LCTRL_identity.activate_callback = self._on_identity_item_activated
 
-		self._LCTRL_contacts.set_columns(columns = [u''])
+		self._LCTRL_contacts.set_columns(columns = [''])
 		self._LCTRL_contacts.item_tooltip_callback = self._calc_contacts_list_item_tooltip
 		self._LCTRL_contacts.activate_callback = self._on_contacts_item_activated
 
-		self._LCTRL_encounters.set_columns(columns = [u''])
+		self._LCTRL_encounters.set_columns(columns = [''])
 		self._LCTRL_encounters.item_tooltip_callback = self._calc_encounters_list_item_tooltip
 		self._LCTRL_encounters.activate_callback = self._on_encounter_activated
 
 		# middle
-		self._LCTRL_meds.set_columns(columns = [u''])
+		self._LCTRL_meds.set_columns(columns = [''])
 		self._LCTRL_meds.item_tooltip_callback = self._calc_meds_list_item_tooltip
 		self._LCTRL_meds.activate_callback = self._on_meds_item_activated
 
-		self._LCTRL_problems.set_columns(columns = [u''])
+		self._LCTRL_problems.set_columns(columns = [''])
 		self._LCTRL_problems.item_tooltip_callback = self._calc_problem_list_item_tooltip
 		self._LCTRL_problems.activate_callback = self._on_problem_activated
 
-		self._LCTRL_history.set_columns(columns = [u''])
+		self._LCTRL_history.set_columns(columns = [''])
 		self._LCTRL_history.item_tooltip_callback = self._calc_history_list_item_tooltip
 		self._LCTRL_history.activate_callback = self._on_history_item_activated
 
 		# right hand side
-		self._LCTRL_inbox.set_columns(columns = [u''])
+		self._LCTRL_inbox.set_columns(columns = [''])
 		self._LCTRL_inbox.item_tooltip_callback = self._calc_inbox_item_tooltip
 		self._LCTRL_inbox.activate_callback = self._on_inbox_item_activated
 
-		self._LCTRL_results.set_columns(columns = [u''])
+		self._LCTRL_results.set_columns(columns = [''])
 		self._LCTRL_results.item_tooltip_callback = self._calc_results_list_item_tooltip
 		self._LCTRL_results.activate_callback = self._on_result_activated
 
-		self._LCTRL_documents.set_columns(columns = [u''])
+		self._LCTRL_documents.set_columns(columns = [''])
 		self._LCTRL_documents.item_tooltip_callback = self._calc_documents_list_item_tooltip
 		self._LCTRL_documents.activate_callback = self._on_document_activated
 
@@ -126,11 +126,11 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 	#-----------------------------------------------------
 	def __register_interests(self):
 		# client internal signals
-		gmDispatcher.connect(signal = u'pre_patient_unselection', receiver = self._on_pre_patient_unselection)
-		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._on_post_patient_selection)
+		gmDispatcher.connect(signal = 'pre_patient_unselection', receiver = self._on_pre_patient_unselection)
+		gmDispatcher.connect(signal = 'post_patient_selection', receiver = self._on_post_patient_selection)
 
 		# generic database change signal
-		gmDispatcher.connect(signal = u'gm_table_mod', receiver = self._on_database_signal)
+		gmDispatcher.connect(signal = 'gm_table_mod', receiver = self._on_database_signal)
 
 		# database change signals
 		# no signal for external IDs yet
@@ -139,7 +139,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		##gmDispatcher.connect(signal = u'current_encounter_switched', receiver = self._on_current_encounter_switched)
 
 		# doesn't have pk_identity:
-		gmDispatcher.connect(signal = u'clin.reviewed_test_results_mod_db', receiver = self._on_post_patient_selection)
+		gmDispatcher.connect(signal = 'clin.reviewed_test_results_mod_db', receiver = self._on_post_patient_selection)
 
 		# synchronous signals
 #		self.__pat.register_before_switching_from_patient_callback(callback = self._before_switching_from_patient_callback)
@@ -166,29 +166,29 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		if kwds['pk_identity'] != pat.ID:
 			return True
 
-		if kwds['table'] == u'dem.identity':
-			if kwds['operation'] != u'UPDATE':
+		if kwds['table'] == 'dem.identity':
+			if kwds['operation'] != 'UPDATE':
 				return True
 
 		if kwds['table'] in [
-			u'blobs.doc_med',
-			u'clin.episode',
-			u'clin.health_issue',
-			u'clin.suppressed_hint',
-			u'clin.substance_intake',
-			u'clin.hospital_stay',
-			u'clin.procedure',
-			u'clin.vaccination',
-			u'clin.family_history',
-			u'clin.test_result',
-			u'clin.export_item',
-			u'clin.external_care',
-			u'dem.identity',
-			u'dem.names',
-			u'dem.lnk_identity2comm',
-			u'dem.lnk_job2person',
-			u'dem.message_inbox',
-			u'ref.auto_hint'
+			'blobs.doc_med',
+			'clin.episode',
+			'clin.health_issue',
+			'clin.suppressed_hint',
+			'clin.substance_intake',
+			'clin.hospital_stay',
+			'clin.procedure',
+			'clin.vaccination',
+			'clin.family_history',
+			'clin.test_result',
+			'clin.export_item',
+			'clin.external_care',
+			'dem.identity',
+			'dem.names',
+			'dem.lnk_identity2comm',
+			'dem.lnk_job2person',
+			'dem.message_inbox',
+			'ref.auto_hint'
 		]:
 			self._schedule_data_reget()
 			return True
@@ -237,9 +237,9 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 			gmDateTime.format_interval_medically(now - most_recent['clin_when']),
 			most_recent['unified_abbrev'],
 			most_recent['unified_val'],
-			gmTools.coalesce(most_recent['val_unit'], u'', u' %s'),
-			gmTools.coalesce(most_recent['abnormality_indicator'], u'', u' %s'),
-			gmTools.bool2subst(most_recent['reviewed'], u'', (u' %s' % gmTools.u_writing_hand))
+			gmTools.coalesce(most_recent['val_unit'], '', ' %s'),
+			gmTools.coalesce(most_recent['abnormality_indicator'], '', ' %s'),
+			gmTools.bool2subst(most_recent['reviewed'], '', (' %s' % gmTools.u_writing_hand))
 		))
 		list_data.append(most_recent)
 		most_recent_needs_red = False
@@ -247,19 +247,19 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 			if most_recent['is_clinically_relevant']:
 				most_recent_needs_red = True
 
-		unsigned = emr.get_unsigned_results(order_by = u"(trim(coalesce(abnormality_indicator), '') <> '') DESC NULLS LAST, unified_abbrev")
+		unsigned = emr.get_unsigned_results(order_by = "(trim(coalesce(abnormality_indicator), '') <> '') DESC NULLS LAST, unified_abbrev")
 		no_of_reds = 0
 		for result in unsigned:
 			if result['pk_test_result'] == most_recent['pk_test_result']:
 				continue
 			if result['abnormality_indicator'] is not None:
-				if result['abnormality_indicator'].strip() != u'':
+				if result['abnormality_indicator'].strip() != '':
 					no_of_reds += 1
 			list_items.append(_('%s %s%s%s (%s ago, %s)') % (
 				result['unified_abbrev'],
 				result['unified_val'],
-				gmTools.coalesce(result['val_unit'], u'', u' %s'),
-				gmTools.coalesce(result['abnormality_indicator'], u'', u' %s'),
+				gmTools.coalesce(result['val_unit'], '', ' %s'),
+				gmTools.coalesce(result['abnormality_indicator'], '', ' %s'),
 				gmDateTime.format_interval_medically(gmDateTime.pydt_now_here() - result['clin_when']),
 				gmTools.u_writing_hand
 			))
@@ -305,11 +305,11 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 			line_idx += 1
 			list_items.append(_('overdue %s: %s') % (
 				gmDateTime.format_interval_medically(msg['interval_due']),
-				gmTools.coalesce(msg['comment'], u'?')
+				gmTools.coalesce(msg['comment'], '?')
 			))
 			list_data.append(msg)
 
-		for msg in patient.get_messages(order_by = u'due_date NULLS LAST, importance DESC, received_when DESC'):
+		for msg in patient.get_messages(order_by = 'due_date NULLS LAST, importance DESC, received_when DESC'):
 			# already displayed above ?
 			if msg['is_overdue']:
 				continue
@@ -318,14 +318,14 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 				continue
 			line_idx += 1
 			if msg['due_date'] is None:
-				label = u'%s%s' % (
+				label = '%s%s' % (
 					msg['l10n_type'],
-					gmTools.coalesce(msg['comment'], u'', u': %s')
+					gmTools.coalesce(msg['comment'], '', ': %s')
 				)
 			else:
 				label = _('due in %s%s') % (
 					gmDateTime.format_interval_medically(msg['interval_due']),
-					gmTools.coalesce(msg['comment'], u'', u': %s')
+					gmTools.coalesce(msg['comment'], '', ': %s')
 				)
 			list_items.append(label)
 			list_data.append(msg)
@@ -340,8 +340,8 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 
 		hints = patient.suppressed_hints
 		if len(hints) > 0:
-			list_items.append((_("suppr'd (%s):") % len(hints)) + u' ' + u','.join([h['title'][:7] + gmTools.u_ellipsis for h in hints]))
-			list_data.append(_('Suppressed hints:\n') + u'\n'.join([u'%s: %s' % (hints.index(h) + 1, h['title']) for h in hints]))
+			list_items.append((_("suppr'd (%s):") % len(hints)) + ' ' + ','.join([h['title'][:7] + gmTools.u_ellipsis for h in hints]))
+			list_data.append(_('Suppressed hints:\n') + '\n'.join(['%s: %s' % (hints.index(h) + 1, h['title']) for h in hints]))
 
 		self._LCTRL_inbox.set_string_items(items = list_items)
 		self._LCTRL_inbox.set_data(data = list_data)
@@ -355,15 +355,15 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 			return data.format()
 
 		if isinstance(data, gmAutoHints.cDynamicHint):
-			return u'%s\n\n%s%s\n\n%s          %s' % (
+			return '%s\n\n%s%s\n\n%s          %s' % (
 				data['title'],
 				gmTools.wrap(data['hint'], width = 50),
-				gmTools.wrap(gmTools.coalesce(data['recommendation'], u'', u'\n\n%s'), width =  50),
-				gmTools.wrap(gmTools.coalesce(data['url'], u'', u'%s\n\n'), width = 50),
+				gmTools.wrap(gmTools.coalesce(data['recommendation'], '', '\n\n%s'), width =  50),
+				gmTools.wrap(gmTools.coalesce(data['url'], '', '%s\n\n'), width = 50),
 				data['source']
 			)
 
-		if isinstance(data, type(u'')):
+		if isinstance(data, type('')):
 			return data
 
 		return None
@@ -417,11 +417,11 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		# export area items
 		item_count = len(patient.export_area.items)
 		if item_count == 1:
-			list_items.append(_(u'Export area: 1 item'))
-			list_data.append(u'')
+			list_items.append(_('Export area: 1 item'))
+			list_data.append('')
 		if item_count > 1:
-			list_items.append(_(u'Export area: %s items') % item_count)
-			list_data.append(u'')
+			list_items.append(_('Export area: %s items') % item_count)
+			list_data.append('')
 
 		doc_folder = patient.get_document_folder()
 
@@ -429,7 +429,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		docs = doc_folder.get_unsigned_documents()
 		no_of_unsigned = len(docs)
 		for doc in docs:
-			list_items.append(u'%s %s (%s)' % (
+			list_items.append('%s %s (%s)' % (
 				gmDateTime.pydt_strftime(doc['clin_when'], format = '%m/%Y', accuracy = gmDateTime.acc_months),
 				doc['l10n_type'],
 				gmTools.u_writing_hand
@@ -437,9 +437,9 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 			list_data.append(doc)
 
 		# other, signed docs second
-		docs = doc_folder.get_documents(order_by = u'ORDER BY clin_when DESC', exclude_unsigned = True)
+		docs = doc_folder.get_documents(order_by = 'ORDER BY clin_when DESC', exclude_unsigned = True)
 		for doc in docs[:5]:
-			list_items.append(u'%s %s' % (
+			list_items.append('%s %s' % (
 				gmDateTime.pydt_strftime(doc['clin_when'], format = '%m/%Y', accuracy = gmDateTime.acc_months),
 				doc['l10n_type']
 			))
@@ -450,7 +450,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 				len(docs) - 5,
 				gmTools.u_ellipsis
 			))
-			list_data.append(u'')
+			list_data.append('')
 
 		self._LCTRL_documents.set_string_items(items = list_items)
 		self._LCTRL_documents.set_data(data = list_data)
@@ -502,14 +502,14 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 			list_items.append(_('Currently %s entries in waiting list') % len(wlist))
 			tt = []
 			for w in wlist:
-				tt.append(u'%s %s%s%s' % (
+				tt.append('%s %s%s%s' % (
 					gmTools.u_triangular_bullet,
 					gmDateTime.format_interval_medically(w['waiting_time']),
-					gmTools.coalesce(w['waiting_zone'], u'', u' in "%s"'),
-					gmTools.coalesce(w['comment'], u'', u': %s')
+					gmTools.coalesce(w['waiting_zone'], '', ' in "%s"'),
+					gmTools.coalesce(w['comment'], '', ': %s')
 				))
 			if len(tt) > 0:
-				tt = u'\n'.join(tt)
+				tt = '\n'.join(tt)
 			else:
 				tt = None
 			list_data.append({'wlist': tt})
@@ -544,13 +544,13 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 
 		encs = emr.get_encounter_stats_by_type()
 		for enc in encs:
-			item = u' %s x %s' % (enc['frequency'], enc['l10n_type'])
+			item = ' %s x %s' % (enc['frequency'], enc['l10n_type'])
 			list_items.append(item)
 			list_data.append(item)
 
 		stays = emr.get_hospital_stay_stats_by_hospital()
 		for stay in stays:
-			item = u' %s x %s' % (
+			item = ' %s x %s' % (
 				stay['frequency'],
 				stay['hospital']
 			)
@@ -618,27 +618,27 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		# pregnancy
 		edc = emr.EDC
 		if edc is not None:
-			sort_key = u'99999 edc'
+			sort_key = '99999 edc'
 			if emr.EDC_is_fishy:
-				label = _(u'EDC (!?!): %s') % gmDateTime.pydt_strftime(edc, format = '%Y %b %d')
+				label = _('EDC (!?!): %s') % gmDateTime.pydt_strftime(edc, format = '%Y %b %d')
 				tt = _(
-					u'The Expected Date of Confinement is rather questionable.\n'
-					u'\n'
-					u'Please check patient age, patient gender, time until/since EDC.'
+					'The Expected Date of Confinement is rather questionable.\n'
+					'\n'
+					'Please check patient age, patient gender, time until/since EDC.'
 				)
 			else:
-				label = _(u'EDC: %s') % gmDateTime.pydt_strftime(edc, format = '%Y %b %d')
-				tt = u''
+				label = _('EDC: %s') % gmDateTime.pydt_strftime(edc, format = '%Y %b %d')
+				tt = ''
 			sort_key_list.append(sort_key)
 			data[sort_key] = [label, tt]
 
 		# family history
 		fhxs = emr.get_family_history()
 		for fhx in fhxs:
-			sort_key = u'99998 %s::%s' % (fhx['l10n_relation'], fhx['pk_family_history'])
+			sort_key = '99998 %s::%s' % (fhx['l10n_relation'], fhx['pk_family_history'])
 			sort_key_list.append(sort_key)
 			#gmDateTime.pydt_strftime(fhx['when_known_to_patient'], format = '%Y %m %d %H %M %S')
-			label = u'%s%s: %s' % (fhx['l10n_relation'], gmTools.coalesce(fhx['age_noted'], u'', u' (@ %s)'), fhx['condition'])
+			label = '%s%s: %s' % (fhx['l10n_relation'], gmTools.coalesce(fhx['age_noted'], '', ' (@ %s)'), fhx['condition'])
 			data[sort_key] = [label, fhx]
 		del fhxs
 
@@ -675,25 +675,25 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 					relevant_date = patient['dob'] + issue['age_noted']
 				else:
 					relevant_date = min(when_candidates)
-			sort_key = u'%s::%s' % (gmDateTime.pydt_strftime(relevant_date, format = date_format4sorting), issue['pk_health_issue'])
+			sort_key = '%s::%s' % (gmDateTime.pydt_strftime(relevant_date, format = date_format4sorting), issue['pk_health_issue'])
 			relevant_date_str = gmDateTime.pydt_strftime(relevant_date, format = '%Y %b')
 			if issue['age_noted'] is None:
 				encounter = gmEMRStructItems.cEncounter(issue['pk_encounter'])
-				age = _(u' (entered %s ago)') % gmDateTime.format_interval_medically(now - encounter['started'])
+				age = _(' (entered %s ago)') % gmDateTime.format_interval_medically(now - encounter['started'])
 			else:
-				age = u' (@ %s)' % gmDateTime.format_interval_medically(issue['age_noted'])
+				age = ' (@ %s)' % gmDateTime.format_interval_medically(issue['age_noted'])
 			sort_key_list.append(sort_key)
-			data[sort_key] = [u'%s %s%s' % (relevant_date_str, issue['description'], age), issue]
+			data[sort_key] = ['%s %s%s' % (relevant_date_str, issue['description'], age), issue]
 		del issues
 
 		stays = emr.get_hospital_stays()
 		for stay in stays:
-			sort_key = u'%s::%s' % (gmDateTime.pydt_strftime(stay['admission'], format = date_format4sorting), stay['pk_hospital_stay'])
-			label = u'%s %s: %s (%s)' % (
+			sort_key = '%s::%s' % (gmDateTime.pydt_strftime(stay['admission'], format = date_format4sorting), stay['pk_hospital_stay'])
+			label = '%s %s: %s (%s)' % (
 				gmDateTime.pydt_strftime(stay['admission'], format = '%Y %b'),
 				stay['hospital'],
 				stay['episode'],
-				_(u'%s ago') % gmDateTime.format_interval_medically(now - stay['admission'])
+				_('%s ago') % gmDateTime.format_interval_medically(now - stay['admission'])
 			)
 			sort_key_list.append(sort_key)
 			data[sort_key] = [label, stay]
@@ -701,12 +701,12 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 
 		procs = emr.get_performed_procedures()
 		for proc in procs:
-			sort_key = u'%s::%s' % (gmDateTime.pydt_strftime(proc['clin_when'], format = date_format4sorting), proc['pk_procedure'])
-			label = u'%s%s %s (%s @ %s)' % (
+			sort_key = '%s::%s' % (gmDateTime.pydt_strftime(proc['clin_when'], format = date_format4sorting), proc['pk_procedure'])
+			label = '%s%s %s (%s @ %s)' % (
 				gmDateTime.pydt_strftime(proc['clin_when'], format = '%Y %b'),
-				gmTools.bool2subst(proc['is_ongoing'], gmTools.u_ellipsis, u'', u''),
+				gmTools.bool2subst(proc['is_ongoing'], gmTools.u_ellipsis, '', ''),
 				proc['performed_procedure'],
-				_(u'%s ago') % gmDateTime.format_interval_medically(now - proc['clin_when']),
+				_('%s ago') % gmDateTime.format_interval_medically(now - proc['clin_when']),
 				gmDateTime.format_interval_medically(proc['clin_when'] - patient['dob'])
 			)
 			sort_key_list.append(sort_key)
@@ -716,7 +716,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		vaccs = emr.get_latest_vaccinations()
 		for ind, tmp in vaccs.items():
 			no_of_shots, vacc = tmp
-			sort_key = u'%s::%s::%s' % (gmDateTime.pydt_strftime(vacc['date_given'], format = date_format4sorting), vacc['pk_vaccination'], ind)
+			sort_key = '%s::%s::%s' % (gmDateTime.pydt_strftime(vacc['date_given'], format = date_format4sorting), vacc['pk_vaccination'], ind)
 			label = _('%s Vacc: %s (latest of %s: %s ago)') % (
 				gmDateTime.pydt_strftime(vacc['date_given'], format = '%Y %b'),
 				ind,
@@ -728,7 +728,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		del vaccs
 
 		for abuse in [ a for a in emr.abused_substances if a['harmful_use_type'] == 3 ]:
-			sort_key = u'%s::%s' % (gmDateTime.pydt_strftime(abuse['last_checked_when'], format = date_format4sorting), abuse['substance'])
+			sort_key = '%s::%s' % (gmDateTime.pydt_strftime(abuse['last_checked_when'], format = date_format4sorting), abuse['substance'])
 			label = _('Hx of addiction: %s') % abuse['substance']
 			sort_key_list.append(sort_key)
 			data[sort_key] = [label, abuse]
@@ -758,7 +758,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 				with_documents = False,
 				with_tests = False,
 				with_vaccinations = False
-			).strip(u'\n')
+			).strip('\n')
 
 		if isinstance(data, gmMedication.cSubstanceIntakeEntry):
 			return data.format(single_line = False)
@@ -773,7 +773,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 			return data.format(include_episode = True, include_codes = False, include_address = True, include_comm = True)
 
 		if isinstance(data, gmVaccination.cVaccination):
-			return u'\n'.join(data.format (
+			return '\n'.join(data.format (
 				with_indications = True,
 				with_comment = True,
 				with_reaction = True,
@@ -781,8 +781,8 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 			))
 
 		# EDC
-		if isinstance(data, basestring):
-			if data == u'':
+		if isinstance(data, str):
+			if data == '':
 				return None
 			return data
 
@@ -794,7 +794,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		if data is None:
 			return
 
-		if isinstance(data, basestring):
+		if isinstance(data, str):
 			gmPregWidgets.calculate_edc(parent = self, patient = gmPerson.gmCurrentPatient())
 			return
 
@@ -848,10 +848,10 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		abuses = emr.abused_substances
 		if len([ a for a in abuses if a['harmful_use_type'] in [1, 2] ]) > 0:
 			list_items.append(_('active substance abuse'))
-			data_items.append(u'\n'.join([ a.format(left_margin=0, date_format='%Y %b %d', single_line=True) for a in abuses ]))
+			data_items.append('\n'.join([ a.format(left_margin=0, date_format='%Y %b %d', single_line=True) for a in abuses ]))
 
 		# list by product or substance:
-		intakes = emr.get_current_medications(include_inactive = False, include_unapproved = True, order_by = u'substance')
+		intakes = emr.get_current_medications(include_inactive = False, include_unapproved = True, order_by = 'substance')
 		multi_products_already_seen = []
 		for intake in intakes:
 			drug = intake.containing_drug
@@ -860,7 +860,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 					intake['substance'],
 					intake['amount'],
 					intake.formatted_units,
-					gmTools.coalesce(intake['schedule'], u'', u': %s')
+					gmTools.coalesce(intake['schedule'], '', ': %s')
 				))
 				data_items.append(intake)
 			else:
@@ -870,7 +870,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 				list_items.append(_('%s %s%s') % (
 					intake['product'],
 					drug['l10n_preparation'],
-					gmTools.coalesce(intake['schedule'], u'', u': %s')
+					gmTools.coalesce(intake['schedule'], '', ': %s')
 				))
 				data_items.append(intake)
 
@@ -882,7 +882,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 
 	#-----------------------------------------------------
 	def _calc_meds_list_item_tooltip(self, data):
-		if isinstance(data, basestring):
+		if isinstance(data, str):
 			return data
 		emr = gmPerson.gmCurrentPatient().emr
 		atcs = []
@@ -903,7 +903,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		if data is None:
 			return
 
-#		if isinstance(data, basestring):
+#		if isinstance(data, str):
 #			gmHabitWidgets.manage_substance_abuse(parent = self, patient = gmPerson.gmCurrentPatient())
 #			return
 
@@ -936,10 +936,10 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 
 		comms = patient.get_comm_channels()
 		for comm in comms:
-			list_items.append(u'%s: %s%s' % (
+			list_items.append('%s: %s%s' % (
 				comm['l10n_comm_type'],
 				comm['url'],
-				gmTools.coalesce(comm['comment'], u'', u' (%s)')
+				gmTools.coalesce(comm['comment'], '', ' (%s)')
 			))
 			list_data.append(comm)
 
@@ -949,7 +949,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 			list_data.append(ident)
 
 		if patient['emergency_contact'] is not None:
-			list_items.append(_('emergency: %s') % patient['emergency_contact'].split(u'\n')[0])
+			list_items.append(_('emergency: %s') % patient['emergency_contact'].split('\n')[0])
 			list_data.append(patient['emergency_contact'])
 
 		provider = patient.primary_provider
@@ -959,7 +959,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 
 		for item in emr.external_care_items:
 			list_items.append(_('care: %s%s@%s') % (
-				gmTools.coalesce(item['provider'], u'', u'%s, '),
+				gmTools.coalesce(item['provider'], '', '%s, '),
 				item['unit'],
 				item['organization']
 			))
@@ -977,14 +977,14 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 			return data.format()
 
 		if isinstance(data, gmExternalCare.cExternalCareItem):
-			return u'\n'.join(data.format (
+			return '\n'.join(data.format (
 				with_health_issue = True,
 				with_address = True,
 				with_comms = True
 			))
 
 		if isinstance(data, gmDemographicRecord.cPatientAddress):
-			return u'\n'.join(data.format())
+			return '\n'.join(data.format())
 
 		if isinstance(data, gmDemographicRecord.cCommChannel):
 			parts = []
@@ -992,38 +992,38 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 				parts.append(_('*** CONFIDENTIAL ***'))
 			if data['comment'] is not None:
 				parts.append(data['comment'])
-			return u'\n'.join(parts)
+			return '\n'.join(parts)
 
 		if isinstance(data, gmPerson.cPerson):
-			return u'%s\n\n%s' % (
+			return '%s\n\n%s' % (
 				data['description_gender'],
-				u'\n'.join([
-					u'%s: %s%s' % (
+				'\n'.join([
+					'%s: %s%s' % (
 						c['l10n_comm_type'],
 						c['url'],
-						gmTools.bool2subst(c['is_confidential'], _(' (confidential !)'), u'', u'')
+						gmTools.bool2subst(c['is_confidential'], _(' (confidential !)'), '', '')
 					)
 					for c in data.get_comm_channels()
 				])
 			)
 
-		if isinstance(data, basestring):
+		if isinstance(data, str):
 			return data
 
 		if isinstance(data, gmStaff.cStaff):
 			ident = data.identity
-			return u'%s: %s\n\n%s%s' % (
+			return '%s: %s\n\n%s%s' % (
 				data['short_alias'],
 				ident['description_gender'],
-				u'\n'.join([
-					u'%s: %s%s' % (
+				'\n'.join([
+					'%s: %s%s' % (
 						c['l10n_comm_type'],
 						c['url'],
-						gmTools.bool2subst(c['is_confidential'], _(' (confidential !)'), u'', u'')
+						gmTools.bool2subst(c['is_confidential'], _(' (confidential !)'), '', '')
 					)
 					for c in ident.get_comm_channels()
 				]),
-				gmTools.coalesce(data['comment'], u'', u'\n\n%s')
+				gmTools.coalesce(data['comment'], '', '\n\n%s')
 			)
 
 		return None
@@ -1069,7 +1069,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 					last = issue['modified_when'].strftime('%m/%Y')
 				else:
 					last = last_encounter['last_affirmed'].strftime('%m/%Y')
-				list_items.append(u'%s: %s' % (problem['problem'], last))
+				list_items.append('%s: %s' % (problem['problem'], last))
 			elif problem['type'] == 'episode':
 				epi = emr.problem2episode(problem)
 				last_encounter = emr.get_last_encounter(episode_id = epi['pk_episode'])
@@ -1077,7 +1077,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 					last = epi['episode_modified_when'].strftime('%m/%Y')
 				else:
 					last = last_encounter['last_affirmed'].strftime('%m/%Y')
-				list_items.append(u'%s: %s' % (problem['problem'], last))
+				list_items.append('%s: %s' % (problem['problem'], last))
 			list_data.append(problem)
 
 		care = emr.get_external_care_items(exclude_inactive = True)
@@ -1099,7 +1099,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 	def _calc_problem_list_item_tooltip(self, data):
 
 		if isinstance(data, gmExternalCare.cExternalCareItem):
-			return u'\n'.join(data.format (
+			return '\n'.join(data.format (
 				with_health_issue = True,
 				with_address = True,
 				with_comms = True
@@ -1118,7 +1118,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 				with_documents = False,
 				with_tests = False,
 				with_vaccinations = False
-			).strip(u'\n')
+			).strip('\n')
 			return tt
 
 		if data['type'] == 'episode':
@@ -1133,7 +1133,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 				with_tests = False,
 				with_vaccinations = False,
 				with_health_issue = True
-			).strip(u'\n')
+			).strip('\n')
 			return tt
 
 		return None
@@ -1163,7 +1163,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 			_('aka: %(last)s, %(first)s%(nick)s') % {
 				'last': n['lastnames'],
 				'first': n['firstnames'],
-				'nick': gmTools.coalesce(n['preferred'], u'', u" '%s'")
+				'nick': gmTools.coalesce(n['preferred'], '', " '%s'")
 			} for n in names
 		]
 		data = names
@@ -1171,7 +1171,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		# IDs (.issuer & .comment -> tooltip)
 		ids = patient.external_ids
 		for i in ids:
-			items.append(u'%s: %s' % (i['name'], i['value']))
+			items.append('%s: %s' % (i['name'], i['value']))
 			data.append({'id': i})
 
 		# occupation
@@ -1196,13 +1196,13 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 			if key == 'id':
 				return _('issued by: %s%s') % (
 					val['issuer'],
-					gmTools.coalesce(val['comment'], u'', u'\n\n%s')
+					gmTools.coalesce(val['comment'], '', '\n\n%s')
 				)
 			if key == 'job':
 				tt = _('Last modified: %s') % val['modified_when'].strftime('%m/%Y')
 				if val['activities'] is None:
 					return tt
-				return tt + (u'\n\n' + _('Activities:\n\n%s') % val['activities'])
+				return tt + ('\n\n' + _('Activities:\n\n%s') % val['activities'])
 
 		return None
 
@@ -1246,7 +1246,7 @@ if __name__ == "__main__":
 	if len(sys.argv) < 2:
 		sys.exit()
 
-	if sys.argv[1] != u'test':
+	if sys.argv[1] != 'test':
 		sys.exit()
 
 #	from Gnumed.pycommon import gmPG2

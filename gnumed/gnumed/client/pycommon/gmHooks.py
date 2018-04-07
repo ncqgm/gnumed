@@ -38,33 +38,33 @@ from Gnumed.pycommon import gmTools
 _log = logging.getLogger('gm.hook')
 # ========================================================================
 known_hooks = [
-	u'post_patient_activation',
-	u'post_person_creation',
+	'post_patient_activation',
+	'post_person_creation',
 
-	u'shutdown-post-GUI',
-	u'startup-after-GUI-init',
-	u'startup-before-GUI',
+	'shutdown-post-GUI',
+	'startup-after-GUI-init',
+	'startup-before-GUI',
 
-	u'request_user_attention',
-	u'app_activated_startup',
-	u'app_activated',
-	u'app_deactivated',
+	'request_user_attention',
+	'app_activated_startup',
+	'app_activated',
+	'app_deactivated',
 
-	u'after_substance_intake_modified',
-	u'after_test_result_modified',
-	u'after_soap_modified',
-	u'after_code_link_modified',
+	'after_substance_intake_modified',
+	'after_test_result_modified',
+	'after_soap_modified',
+	'after_code_link_modified',
 
-	u'after_new_doc_created',
-	u'before_print_doc',
-	u'before_fax_doc',
-	u'before_mail_doc',
-	u'before_print_doc_part',
-	u'before_fax_doc_part',
-	u'before_mail_doc_part',
-	u'before_external_doc_access',
+	'after_new_doc_created',
+	'before_print_doc',
+	'before_fax_doc',
+	'before_mail_doc',
+	'before_print_doc_part',
+	'before_fax_doc_part',
+	'before_mail_doc_part',
+	'before_external_doc_access',
 
-	u'db_maintenance_warning'
+	'db_maintenance_warning'
 ]
 
 _log.debug('known hooks:')
@@ -90,8 +90,8 @@ def import_hook_module(reimport=False):
 
 	if not os.access(full_script, os.F_OK):
 		_log.warning('creating default hook script')
-		f = io.open(full_script, mode = u'wt', encoding = u'utf8')
-		f.write(u"""
+		f = io.open(full_script, mode = 'wt', encoding = 'utf8')
+		f.write("""
 # known hooks:
 #  %s
 
@@ -137,7 +137,7 @@ def run_script(hook=None):
 
 	hook_module = tmp
 #	if reimport:
-#		reload(tmp)			# this has well-known shortcomings !
+#		imp.reload(tmp)			# this has well-known shortcomings !
 
 	_log.info('hook script: %s', full_script)
 	return True
@@ -168,7 +168,7 @@ def run_hook_script(hook=None):
 	except Exception:
 		_log.exception('error running hook script for [%s]', hook)
 		gmDispatcher.send (
-			signal = u'statustext',
+			signal = 'statustext',
 			msg = _('Error running hook [%s] script.') % hook,
 			beep = True
 		)
@@ -194,7 +194,7 @@ if __name__ == '__main__':
 	if len(sys.argv) < 2:
 		sys.exit()
 
-	if sys.argv[1] != u'test':
+	if sys.argv[1] != 'test':
 		sys.exit()
 
 	run_hook_script(hook = 'shutdown-post-GUI')

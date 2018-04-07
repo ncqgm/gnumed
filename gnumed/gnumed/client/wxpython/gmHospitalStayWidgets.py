@@ -66,7 +66,7 @@ def manage_hospital_stays(parent=None):
 		if gmEMRStructItems.delete_hospital_stay(stay = stay['pk_hospital_stay']):
 			return True
 		gmDispatcher.send (
-			signal = u'statustext',
+			signal = 'statustext',
 			msg = _('Cannot delete hospitalization.'),
 			beep = True
 		)
@@ -78,9 +78,9 @@ def manage_hospital_stays(parent=None):
 		items = [
 			[
 				s['admission'].strftime('%Y-%m-%d'),
-				gmTools.coalesce(s['discharge'], u'', function_initial = ('strftime', '%Y-%m-%d')),
+				gmTools.coalesce(s['discharge'], '', function_initial = ('strftime', '%Y-%m-%d')),
 				s['episode'],
-				u'%s @ %s' % (s['ward'], s['hospital'])
+				'%s @ %s' % (s['ward'], s['hospital'])
 			] for s in stays
 		]
 		lctrl.set_string_items(items = items)
@@ -119,7 +119,7 @@ class cHospitalWardPhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 		gmPhraseWheel.cPhraseWheel.__init__ (self, *args, **kwargs)
 
-		query = u"""
+		query = """
 		SELECT data, list_label, field_label FROM (
 			SELECT DISTINCT ON (data) * FROM ((
 
@@ -228,11 +228,11 @@ class cHospitalStayPhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 		gmPhraseWheel.cPhraseWheel.__init__ (self, *args, **kwargs)
 
-		ctxt = {'ctxt_pat': {'where_part': u'(pk_patient = %(pat)s) AND', 'placeholder': u'pat'}}
+		ctxt = {'ctxt_pat': {'where_part': '(pk_patient = %(pat)s) AND', 'placeholder': 'pat'}}
 
 		mp = gmMatchProvider.cMatchProvider_SQL2 (
 			queries = [
-u"""
+"""
 SELECT
 	pk_hospital_stay,
 	descr
@@ -290,7 +290,7 @@ class cHospitalStayEditAreaPnl(wxgHospitalStayEditAreaPnl.wxgHospitalStayEditAre
 
 		valid = True
 
-		if self._PRW_episode.GetValue().strip() == u'':
+		if self._PRW_episode.GetValue().strip() == '':
 			valid = False
 			self._PRW_episode.display_as_valid(False)
 			gmDispatcher.send(signal = 'statustext', msg = _('Must select an episode or enter a name for a new one. Cannot save hospitalization.'), beep = True)
@@ -357,22 +357,22 @@ class cHospitalStayEditAreaPnl(wxgHospitalStayEditAreaPnl.wxgHospitalStayEditAre
 		return True
 	#----------------------------------------------------------------
 	def _refresh_as_new(self):
-		self._PRW_hospital.SetText(value = u'', data = None)
-		self._PRW_episode.SetText(value = u'')
+		self._PRW_hospital.SetText(value = '', data = None)
+		self._PRW_episode.SetText(value = '')
 		self._PRW_admission.SetText(data = gmDateTime.pydt_now_here())
 		self._PRW_discharge.SetText()
-		self._TCTRL_comment.SetValue(u'')
+		self._TCTRL_comment.SetValue('')
 		self._PRW_hospital.SetFocus()
 	#----------------------------------------------------------------
 	def _refresh_from_existing(self):
-		self._PRW_hospital.SetText(value = u'%s @ %s' % (self.data['ward'], self.data['hospital']), data = self.data['pk_org_unit'])
+		self._PRW_hospital.SetText(value = '%s @ %s' % (self.data['ward'], self.data['hospital']), data = self.data['pk_org_unit'])
 
 		if self.data['pk_episode'] is not None:
 			self._PRW_episode.SetText(value = self.data['episode'], data = self.data['pk_episode'])
 
 		self._PRW_admission.SetText(data = self.data['admission'])
 		self._PRW_discharge.SetText(data = self.data['discharge'])
-		self._TCTRL_comment.SetValue(gmTools.coalesce(self.data['comment'], u''))
+		self._TCTRL_comment.SetValue(gmTools.coalesce(self.data['comment'], ''))
 
 		self._PRW_hospital.SetFocus()
 	#----------------------------------------------------------------

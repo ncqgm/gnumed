@@ -187,7 +187,7 @@ class PastHistoryPanel(wxPanel, PatientHolder):
 		self.SetAutoLayout(True)
 		self.Show(True)
 
-		gmDispatcher.connect(self._updateUI,  u'clin_history_updated')
+		gmDispatcher.connect(self._updateUI,  'clin_history_updated')
 	
 		self.significant_problem_list.addItemListener( self._significantPastItemSelected)	
 

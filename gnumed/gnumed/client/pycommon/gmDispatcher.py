@@ -11,22 +11,22 @@ import logging
 
 
 known_signals = [
-	u'current_encounter_modified',	# the current encounter was modified externally
-	u'current_encounter_switched',	# *another* encounter became the current one
-	u'pre_patient_unselection',
-	u'post_patient_selection',
-	u'patient_locked',
-	u'patient_unlocked',
-	u'import_document_from_file',
-	u'import_document_from_files',
-	u'statustext',					# args: msg=message, beep=whether to beep or not
-	u'display_widget',				# args: name=name of widget, other=widget specific (see receivers)
-	u'plugin_loaded',				# args: name=name of plugin
-	u'application_closing',
-	u'request_user_attention',
-	u'clin_item_updated',			# sent by SOAP importer
-	u'register_pre_exit_callback',	# args: callback = function to call
-	u'focus_patient_search',		# set focus to patient search box
+	'current_encounter_modified',	# the current encounter was modified externally
+	'current_encounter_switched',	# *another* encounter became the current one
+	'pre_patient_unselection',
+	'post_patient_selection',
+	'patient_locked',
+	'patient_unlocked',
+	'import_document_from_file',
+	'import_document_from_files',
+	'statustext',					# args: msg=message, beep=whether to beep or not
+	'display_widget',				# args: name=name of widget, other=widget specific (see receivers)
+	'plugin_loaded',				# args: name=name of plugin
+	'application_closing',
+	'request_user_attention',
+	'clin_item_updated',			# sent by SOAP importer
+	'register_pre_exit_callback',	# args: callback = function to call
+	'focus_patient_search',		# set focus to patient search box
 ]
 
 _log = logging.getLogger('gm.messaging')
@@ -211,12 +211,12 @@ def send(signal=None, sender=None, **kwds):
 #---------------------------------------------------------------------
 def safeRef(object):
 	"""Return a *safe* weak reference to a callable object."""
-	if hasattr(object, 'im_self'):
-		if object.im_self is not None:
+	if hasattr(object, '__self__'):
+		if object.__self__ is not None:
 			# Turn a bound method into a BoundMethodWeakref instance.
 			# Keep track of these instances for lookup by disconnect().
-			selfkey = object.im_self
-			funckey = object.im_func
+			selfkey = object.__self__
+			funckey = object.__func__
 			if selfkey not in _boundMethods:
 				_boundMethods[selfkey] = weakref.WeakKeyDictionary()
 			if funckey not in _boundMethods[selfkey]:
@@ -235,8 +235,8 @@ class BoundMethodWeakref:
 			"""Set self.isDead to true when method or instance is destroyed."""
 			self.isDead = 1
 			_removeReceiver(receiver=self)
-		self.weakSelf = weakref.ref(boundMethod.im_self, remove)
-		self.weakFunc = weakref.ref(boundMethod.im_func, remove)
+		self.weakSelf = weakref.ref(boundMethod.__self__, remove)
+		self.weakFunc = weakref.ref(boundMethod.__func__, remove)
 	#------------------------------------------------------------------
 	def __repr__(self):
 		"""Return the closest representation."""
@@ -270,13 +270,13 @@ def _call(receiver, **kwds):
 		# receiver is a class instance; assume it is callable.
 		# Reassign receiver to the actual method that will be called.
 		receiver = receiver.__call__
-	if hasattr(receiver, 'im_func'):
+	if hasattr(receiver, '__func__'):
 		# receiver is a method. Drop the first argument, usually 'self'.
-		fc = receiver.im_func.func_code
+		fc = receiver.__func__.__code__
 		acceptable_args = fc.co_varnames[1:fc.co_argcount]
-	elif hasattr(receiver, 'func_code'):
+	elif hasattr(receiver, '__code__'):
 		# receiver is a function.
-		fc = receiver.func_code
+		fc = receiver.__code__
 		acceptable_args = fc.co_varnames[0:fc.co_argcount]
 	else:
 		_log.error('<%(rx)s> must be instance, method or function', {'rx': str(receiver)})

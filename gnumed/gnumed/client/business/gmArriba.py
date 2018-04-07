@@ -97,7 +97,7 @@ class cArriba(object):
 </konsultation>
 """
 		if patient is None:
-			pat_xml = u''
+			pat_xml = ''
 		else:
 			active_name = patient.get_active_name()
 			pat_xml = """<vorname>%s%s</vorname>
@@ -105,10 +105,10 @@ class cArriba(object):
 		<geschlecht>%s</geschlecht>
 		<geburtsdatum>%s</geburtsdatum>""" % (
 			active_name['firstnames'],
-			gmTools.coalesce(active_name['preferred'], u'', u' (%s)'),
+			gmTools.coalesce(active_name['preferred'], '', ' (%s)'),
 			active_name['lastnames'],
 			gmXdtMappings.map_gender_gm2xdt[patient['gender']],
-			patient.get_formatted_dob(format = cArriba._date_format, encoding = u'utf8', none_string = u'00009999')
+			patient.get_formatted_dob(format = cArriba._date_format, encoding = 'utf8', none_string = '00009999')
 		)
 
 		fname_cfg = gmTools.get_unique_filename(prefix = 'gm2arriba-', suffix = '.xml')
@@ -147,14 +147,14 @@ class cArriba(object):
 			subprocess.check_call(args = args, close_fds = True)
 		except (OSError, ValueError, subprocess.CalledProcessError):
 			_log.exception('there was a problem executing [%s]', self.path_to_binary)
-			gmDispatcher.send(signal = u'statustext', msg = _('Cannot run [arriba] !'), beep = True)
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot run [arriba] !'), beep = True)
 			return False
 
 		try:
 			open(self.pdf_result).close()
 		except:
 			_log.exception('error accessing [%s]', self.pdf_result)
-			gmDispatcher.send(signal = u'statustext', msg = _('No [arriba] result found in [%s].') % self.pdf_result, beep = False)
+			gmDispatcher.send(signal = 'statustext', msg = _('No [arriba] result found in [%s].') % self.pdf_result, beep = False)
 			return False
 
 		return True

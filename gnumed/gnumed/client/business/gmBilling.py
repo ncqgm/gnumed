@@ -22,18 +22,18 @@ from Gnumed.business import gmDocuments
 
 _log = logging.getLogger('gm.bill')
 
-INVOICE_DOCUMENT_TYPE = u'invoice'
+INVOICE_DOCUMENT_TYPE = 'invoice'
 #============================================================
 # billables
 #------------------------------------------------------------
-_SQL_get_billable_fields = u"SELECT * FROM ref.v_billables WHERE %s"
+_SQL_get_billable_fields = "SELECT * FROM ref.v_billables WHERE %s"
 
 class cBillable(gmBusinessDBObject.cBusinessDBObject):
 	"""Items which can be billed to patients."""
 
-	_cmd_fetch_payload = _SQL_get_billable_fields % u"pk_billable = %s"
+	_cmd_fetch_payload = _SQL_get_billable_fields % "pk_billable = %s"
 	_cmds_store_payload = [
-		u"""UPDATE ref.billable SET
+		"""UPDATE ref.billable SET
 				fk_data_source = %(pk_data_source)s,
 				code = %(billable_code)s,
 				term = %(billable_description)s,
@@ -63,7 +63,7 @@ class cBillable(gmBusinessDBObject.cBusinessDBObject):
 	]
 	#--------------------------------------------------------
 	def format(self):
-		txt = u'%s                                    [#%s]\n\n' % (
+		txt = '%s                                    [#%s]\n\n' % (
 			gmTools.bool2subst (
 				self._payload[self._idx['active']],
 				_('Active billable item'),
@@ -71,7 +71,7 @@ class cBillable(gmBusinessDBObject.cBusinessDBObject):
 			),
 			self._payload[self._idx['pk_billable']]
 		)
-		txt += u' %s: %s\n' % (
+		txt += ' %s: %s\n' % (
 			self._payload[self._idx['billable_code']],
 			self._payload[self._idx['billable_description']]
 		)
@@ -81,18 +81,18 @@ class cBillable(gmBusinessDBObject.cBusinessDBObject):
 			'perc_vat': self._payload[self._idx['vat_multiplier']] * 100,
 			'val_w_vat': self._payload[self._idx['amount_with_vat']]
 		}
-		txt += u' %s %s%s (%s)' % (
+		txt += ' %s %s%s (%s)' % (
 			self._payload[self._idx['catalog_short']],
 			self._payload[self._idx['catalog_version']],
-			gmTools.coalesce(self._payload[self._idx['catalog_language']], u'', ' - %s'),
+			gmTools.coalesce(self._payload[self._idx['catalog_language']], '', ' - %s'),
 			self._payload[self._idx['catalog_long']]
 		)
-		txt += gmTools.coalesce(self._payload[self._idx['comment']], u'', u'\n %s')
+		txt += gmTools.coalesce(self._payload[self._idx['comment']], '', '\n %s')
 
 		return txt
 	#--------------------------------------------------------
 	def _get_is_in_use(self):
-		cmd = u'SELECT EXISTS(SELECT 1 FROM bill.bill_item WHERE fk_billable = %(pk)s LIMIT 1)'
+		cmd = 'SELECT EXISTS(SELECT 1 FROM bill.bill_item WHERE fk_billable = %(pk)s LIMIT 1)'
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': {'pk': self._payload[self._idx['pk_billable']]}}])
 		return rows[0][0]
 
@@ -102,14 +102,14 @@ class cBillable(gmBusinessDBObject.cBusinessDBObject):
 def get_billables(active_only=True, order_by=None):
 
 	if order_by is None:
-		order_by = u' ORDER BY catalog_long, catalog_version, billable_code'
+		order_by = ' ORDER BY catalog_long, catalog_version, billable_code'
 	else:
-		order_by = u' ORDER BY %s' % order_by
+		order_by = ' ORDER BY %s' % order_by
 
 	if active_only:
-		where = u'active IS true'
+		where = 'active IS true'
 	else:
-		where = u'true'
+		where = 'true'
 
 	cmd = (_SQL_get_billable_fields % where) + order_by
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
@@ -122,7 +122,7 @@ def create_billable(code=None, term=None, data_source=None, return_existing=Fals
 		'term': term.strip(),
 		'data_src': data_source
 	}
-	cmd = u"""
+	cmd = """
 		INSERT INTO ref.billable (code, term, fk_data_source)
 		SELECT
 			%(code)s,
@@ -145,7 +145,7 @@ def create_billable(code=None, term=None, data_source=None, return_existing=Fals
 	if not return_existing:
 		return None
 
-	cmd = u"""
+	cmd = """
 		SELECT * FROM ref.v_billables
 		WHERE
 			code = %(code)s
@@ -159,7 +159,7 @@ def create_billable(code=None, term=None, data_source=None, return_existing=Fals
 
 #------------------------------------------------------------
 def delete_billable(pk_billable=None):
-	cmd = u"""
+	cmd = """
 		DELETE FROM ref.billable
 		WHERE
 			pk = %(pk)s
@@ -174,13 +174,13 @@ def delete_billable(pk_billable=None):
 #============================================================
 # bill items
 #------------------------------------------------------------
-_SQL_fetch_bill_item_fields = u"SELECT * FROM bill.v_bill_items WHERE %s"
+_SQL_fetch_bill_item_fields = "SELECT * FROM bill.v_bill_items WHERE %s"
 
 class cBillItem(gmBusinessDBObject.cBusinessDBObject):
 
-	_cmd_fetch_payload = _SQL_fetch_bill_item_fields % u"pk_bill_item = %s"
+	_cmd_fetch_payload = _SQL_fetch_bill_item_fields % "pk_bill_item = %s"
 	_cmds_store_payload = [
-		u"""UPDATE bill.bill_item SET
+		"""UPDATE bill.bill_item SET
 				fk_provider = %(pk_provider)s,
 				fk_encounter = %(pk_encounter_to_bill)s,
 				date_to_bill = %(raw_date_to_bill)s,
@@ -211,7 +211,7 @@ class cBillItem(gmBusinessDBObject.cBusinessDBObject):
 	]
 	#--------------------------------------------------------
 	def format(self):
-		txt = u'%s (%s %s%s)         [#%s]\n' % (
+		txt = '%s (%s %s%s)         [#%s]\n' % (
 			gmTools.bool2subst(
 				self._payload[self._idx['pk_bill']] is None,
 				_('Open item'),
@@ -219,25 +219,25 @@ class cBillItem(gmBusinessDBObject.cBusinessDBObject):
 			),
 			self._payload[self._idx['catalog_short']],
 			self._payload[self._idx['catalog_version']],
-			gmTools.coalesce(self._payload[self._idx['catalog_language']], u'', ' - %s'),
+			gmTools.coalesce(self._payload[self._idx['catalog_language']], '', ' - %s'),
 			self._payload[self._idx['pk_bill_item']]
 		)
-		txt += u' %s: %s\n' % (
+		txt += ' %s: %s\n' % (
 			self._payload[self._idx['billable_code']],
 			self._payload[self._idx['billable_description']]
 		)
 		txt += gmTools.coalesce (
 			self._payload[self._idx['billable_comment']],
-			u'',
-			u'  (%s)\n',
+			'',
+			'  (%s)\n',
 		)
 		txt += gmTools.coalesce (
 			self._payload[self._idx['item_detail']],
-			u'',
+			'',
 			_(' Details: %s\n'),
 		)
 
-		txt += u'\n'
+		txt += '\n'
 		txt += _(' %s of units: %s\n') % (
 			gmTools.u_numero,
 			self._payload[self._idx['unit_count']]
@@ -256,7 +256,7 @@ class cBillItem(gmBusinessDBObject.cBusinessDBObject):
 			'vat': self._payload[self._idx['vat']]
 		}
 
-		txt += u'\n'
+		txt += '\n'
 		txt += _(' Charge date: %s') % gmDateTime.pydt_strftime (
 			self._payload[self._idx['date_to_bill']],
 			'%Y %b %d',
@@ -287,9 +287,9 @@ class cBillItem(gmBusinessDBObject.cBusinessDBObject):
 #------------------------------------------------------------
 def get_bill_items(pk_patient=None, non_invoiced_only=False):
 	if non_invoiced_only:
-		cmd = _SQL_fetch_bill_item_fields % u"pk_patient = %(pat)s AND pk_bill IS NULL"
+		cmd = _SQL_fetch_bill_item_fields % "pk_patient = %(pat)s AND pk_bill IS NULL"
 	else:
-		cmd = _SQL_fetch_bill_item_fields % u"pk_patient = %(pat)s"
+		cmd = _SQL_fetch_bill_item_fields % "pk_patient = %(pat)s"
 	args = {'pat': pk_patient}
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 	return [ cBillItem(row = {'data': r, 'idx': idx, 'pk_field': 'pk_bill_item'}) for r in rows ]
@@ -298,7 +298,7 @@ def get_bill_items(pk_patient=None, non_invoiced_only=False):
 def create_bill_item(pk_encounter=None, pk_billable=None, pk_staff=None):
 
 	billable = cBillable(aPK_obj = pk_billable)
-	cmd = u"""
+	cmd = """
 		INSERT INTO bill.bill_item (
 			fk_provider,
 			fk_encounter,
@@ -325,21 +325,21 @@ def create_bill_item(pk_encounter=None, pk_billable=None, pk_staff=None):
 
 #------------------------------------------------------------
 def delete_bill_item(link_obj=None, pk_bill_item=None):
-	cmd = u'DELETE FROM bill.bill_item WHERE pk = %(pk)s AND fk_bill IS NULL'
+	cmd = 'DELETE FROM bill.bill_item WHERE pk = %(pk)s AND fk_bill IS NULL'
 	args = {'pk': pk_bill_item}
 	gmPG2.run_rw_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': args}])
 
 #============================================================
 # bills
 #------------------------------------------------------------
-_SQL_get_bill_fields = u"""SELECT * FROM bill.v_bills WHERE %s"""
+_SQL_get_bill_fields = """SELECT * FROM bill.v_bills WHERE %s"""
 
 class cBill(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents a bill"""
 
-	_cmd_fetch_payload = _SQL_get_bill_fields % u"pk_bill = %s"
+	_cmd_fetch_payload = _SQL_get_bill_fields % "pk_bill = %s"
 	_cmds_store_payload = [
-		u"""UPDATE bill.bill SET
+		"""UPDATE bill.bill SET
 				invoice_id = gm.nullify_empty_string(%(invoice_id)s),
 				close_date = %(close_date)s,
 				apply_vat = %(apply_vat)s,
@@ -357,17 +357,17 @@ class cBill(gmBusinessDBObject.cBusinessDBObject):
 		"""
 	]
 	_updatable_fields = [
-		u'invoice_id',
-		u'pk_receiver_identity',
-		u'close_date',
-		u'apply_vat',
-		u'comment',
-		u'pk_receiver_address',
-		u'pk_doc'
+		'invoice_id',
+		'pk_receiver_identity',
+		'close_date',
+		'apply_vat',
+		'comment',
+		'pk_receiver_address',
+		'pk_doc'
 	]
 	#--------------------------------------------------------
 	def format(self, include_receiver=True, include_doc=True):
-		txt = u'%s                       [#%s]\n' % (
+		txt = '%s                       [#%s]\n' % (
 			gmTools.bool2subst (
 				(self._payload[self._idx['close_date']] is None),
 				_('Open bill'),
@@ -417,18 +417,18 @@ class cBill(gmBusinessDBObject.cBusinessDBObject):
 				gmTools.bool2subst (
 					self._payload[self._idx['pk_doc']] is None,
 					_('not available'),
-					u'#%s' % self._payload[self._idx['pk_doc']]
+					'#%s' % self._payload[self._idx['pk_doc']]
 				)
 			)
 		txt += _(' Patient: #%s\n') % self._payload[self._idx['pk_patient']]
 		if include_receiver:
 			txt += gmTools.coalesce (
 				self._payload[self._idx['pk_receiver_identity']],
-				u'',
+				'',
 				_(' Receiver: #%s\n')
 			)
 			if self._payload[self._idx['pk_receiver_address']] is not None:
-				txt += u'\n '.join(gmDemographicRecord.get_patient_address(pk_patient_address = self._payload[self._idx['pk_receiver_address']]).format())
+				txt += '\n '.join(gmDemographicRecord.get_patient_address(pk_patient_address = self._payload[self._idx['pk_receiver_address']]).format())
 
 		return txt
 	#--------------------------------------------------------
@@ -466,7 +466,7 @@ class cBill(gmBusinessDBObject.cBusinessDBObject):
 	def _get_default_address(self):
 		return gmDemographicRecord.get_patient_address_by_type (
 			pk_patient = self._payload[self._idx['pk_patient']],
-			adr_type = u'billing'
+			adr_type = 'billing'
 		)
 
 	default_address = property(_get_default_address, lambda x:x)
@@ -474,7 +474,7 @@ class cBill(gmBusinessDBObject.cBusinessDBObject):
 	def _get_home_address(self):
 		return gmDemographicRecord.get_patient_address_by_type (
 			pk_patient = self._payload[self._idx['pk_patient']],
-			adr_type = u'home'
+			adr_type = 'home'
 		)
 
 	home_address = property(_get_home_address, lambda x:x)
@@ -494,32 +494,32 @@ class cBill(gmBusinessDBObject.cBusinessDBObject):
 def get_bills(order_by=None, pk_patient=None):
 
 	args = {'pat': pk_patient}
-	where_parts = [u'true']
+	where_parts = ['true']
 
 	if pk_patient is not None:
-		where_parts.append(u'pk_patient = %(pat)s')
+		where_parts.append('pk_patient = %(pat)s')
 
 	if order_by is None:
-		order_by = u''
+		order_by = ''
 	else:
-		order_by = u' ORDER BY %s' % order_by
+		order_by = ' ORDER BY %s' % order_by
 
-	cmd = (_SQL_get_bill_fields % u' AND '.join(where_parts)) + order_by
+	cmd = (_SQL_get_bill_fields % ' AND '.join(where_parts)) + order_by
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 	return [ cBill(row = {'data': r, 'idx': idx, 'pk_field': 'pk_bill'}) for r in rows ]
 
 #------------------------------------------------------------
 def get_bills4document(pk_document=None):
 	args = {'pk_doc': pk_document}
-	cmd = _SQL_get_bill_fields % u'pk_doc = %(pk_doc)s'
+	cmd = _SQL_get_bill_fields % 'pk_doc = %(pk_doc)s'
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 	return [ cBill(row = {'data': r, 'idx': idx, 'pk_field': 'pk_bill'}) for r in rows ]
 
 #------------------------------------------------------------
 def create_bill(conn=None, invoice_id=None):
 
-	args = {u'inv_id': invoice_id}
-	cmd = u"""
+	args = {'inv_id': invoice_id}
+	cmd = """
 		INSERT INTO bill.bill (invoice_id)
 		VALUES (gm.nullify_empty_string(%(inv_id)s))
 		RETURNING pk
@@ -531,7 +531,7 @@ def create_bill(conn=None, invoice_id=None):
 #------------------------------------------------------------
 def delete_bill(link_obj=None, pk_bill=None):
 	args = {'pk': pk_bill}
-	cmd = u"DELETE FROM bill.bill WHERE pk = %(pk)s"
+	cmd = "DELETE FROM bill.bill WHERE pk = %(pk)s"
 	gmPG2.run_rw_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': args}])
 	return True
 
@@ -541,7 +541,7 @@ def get_bill_receiver(pk_patient=None):
 
 #------------------------------------------------------------
 def get_invoice_id(pk_patient=None):
-	return u'GM%s / %s' % (
+	return 'GM%s / %s' % (
 		pk_patient,
 		gmDateTime.pydt_strftime (
 			gmDateTime.pydt_now_here(),

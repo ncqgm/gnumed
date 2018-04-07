@@ -24,8 +24,6 @@ copyright: authors
 FIXME: check status on save_payload()s
 """
 #===============================================================
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/importers/gmLDTimporter.py,v $
-# $Id: gmLDTimporter.py,v 1.34 2009-07-23 16:31:41 ncq Exp $
 __version__ = "$Revision: 1.34 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL, details at http://www.gnu.org"
@@ -133,7 +131,7 @@ class cLDTImporter:
 		if not status[0][0]:
 			_log.Log(gmLog.lErr, 'Unbekanntes Labor [%s]' % field_data)
 			prob = 'Labor unbekannt. Import abgebrochen.' % field_data
-			sol = 'Labor ergänzen oder vorhandenes Labor anpassen (test_org.internal_name).'
+			sol = 'Labor ergÃ¤nzen oder vorhandenes Labor anpassen (test_org.internal_name).'
 			ctxt = 'LDT-Datei [%s], Labor [%s]' % (self.ldt_filename, field_data)
 			add_todo(problem=prob, solution=sol, context=txt)
 			return False
@@ -183,7 +181,7 @@ class cLDTImporter:
 			try:
 				verify_line = cLDTImporter._map_field2verifier[line_type]
 			except KeyError:
-				_log.Log(gmLog.lData, 'kein Handler für Zeilentyp [%s] in LDT-Datei-Header' % line_type)
+				_log.Log(gmLog.lData, 'kein Handler fÃ¼r Zeilentyp [%s] in LDT-Datei-Header' % line_type)
 				continue
 			if verify_line(self, line, line_data):
 				verified_lines += 1
@@ -316,8 +314,8 @@ class cLDTImporter:
 			req_stat = 'preliminary'
 		# sanity check
 		if (not self.__request['is_pending']) and (req_stat != 'final'):
-			prob = 'kein Befund für [%s] mehr erwartet, aber Befund mit Status [%s] erhalten)' % (self.__request['request_id'], req_stat)
-			sol = 'Befund wird trotzdem importiert. Bitte Befunde auf Duplikate überprüfen.'
+			prob = 'kein Befund fÃ¼r [%s] mehr erwartet, aber Befund mit Status [%s] erhalten)' % (self.__request['request_id'], req_stat)
+			sol = 'Befund wird trotzdem importiert. Bitte Befunde auf Duplikate Ã¼berprÃ¼fen.'
 			ctxt = 'Patient: %s, Labor [%s], LDT-Datei [%s], Probe [%s], (Feld 8401, Regel 135)' % (self.__request.get_patient(), self.__lab_name, self.ldt_filename, self.__request['request_id'])
 			add_todo(problem=prob, solution=sol, context=ctxt)
 			_log.Log(gmLog.lWarn, prob)
@@ -375,7 +373,7 @@ class cLDTImporter:
 			else:
 					# Kind
 				if (((tmp in [3,4,5]) and (not is_child)) or
-					# männlich
+					# mÃ¤nnlich
 					((tmp in [1,4]) and (gender != 'm')) or
 					# weiblich
 					((tmp in [2,5]) and (gender != 'f'))):
@@ -399,10 +397,10 @@ class cLDTImporter:
 		'3103': __xform_3103,
 		'3104': None,
 		'8401': __xform_8401,
-		'8403': None,			# Gebührenordnung
+		'8403': None,			# GebÃ¼hrenordnung
 		'8405': __xform_8405,
 		'8407': __xform_8407,
-		'8609': None			# Gebührenordnung
+		'8609': None			# GebÃ¼hrenordnung
 	}
 	#-----------------------------------------------------------
 	def __handle_8202(self, request_data):
@@ -411,14 +409,14 @@ class cLDTImporter:
 			reqid = request_data['8310'][0]
 		except KeyError, IndexError:
 			# FIXME: todo item
-			_log.Log(gmLog.lErr, 'Satz vom Typ [8000:%s] enthält keine Probennummer' % request_data['8000'][0])
+			_log.Log(gmLog.lErr, 'Satz vom Typ [8000:%s] enthÃ¤lt keine Probennummer' % request_data['8000'][0])
 			return False
 		# get lab request
 		try:
 			self.__request = gmPathLab.cLabRequest(req_id=reqid, lab=self.__lab_name)
 		except gmExceptions.ConstructorError:
 			prob = 'Kann keine Patientenzuordnung der Probe finden.'
-			sol = 'Zuordnung der Probe zu einem Patienten prüfen. Falls doch vorhanden, Systembetreuer verständigen.'
+			sol = 'Zuordnung der Probe zu einem Patienten prÃ¼fen. Falls doch vorhanden, Systembetreuer verstÃ¤ndigen.'
 			ctxt = 'Labor [%s], Probe [%s], LDT-Datei [%s]' % (self.__lab_name, reqid, self.ldt_filename)
 			add_todo(problem=prob, solution=sol, context=ctxt)
 			_log.LogException('cannot get lab request', sys.exc_info(), verbose=0)
@@ -464,7 +462,7 @@ class cLDTImporter:
 		except KeyError, IndexError:
 			pat_ldt = None
 		# either get lab request from request id
-		if request_data.has_key('8310'):
+		if '8310' in request_data:
 			reqid = request_data['8310'][0]
 			try:
 				request = gmPathLab.cLabRequest(req_id=reqid, lab=self.__lab_name)
@@ -487,7 +485,7 @@ class cLDTImporter:
 		if request is None:
 			# check essential fields
 			if pat_ldt is None:
-				_log.Log(gmLog.lErr, 'Satz vom Typ [8000:%s] enthält nicht alle Felder [3101, 3102, 3103]' % request_data['8000'][0])
+				_log.Log(gmLog.lErr, 'Satz vom Typ [8000:%s] enthaelt nicht alle Felder [3101, 3102, 3103]' % request_data['8000'][0])
 				_log.Log(gmLog.lErr, 'Kann lab_request nicht automatisch erzeugen.')
 				return None
 			# find patient
@@ -495,10 +493,10 @@ class cLDTImporter:
 			pat_ids = searcher.get_patient_ids(search_dict=pat_ldt)
 			print "must use dto, not search_dict"
 			if len(pat_ids) == 0:
-				_log.Log(gmLog.lErr, 'Kann in der Datenbank keinen Patienten für %s finden.' % str(pat_ldt))
+				_log.Log(gmLog.lErr, 'Kann in der Datenbank keinen Patienten fuer %s finden.' % str(pat_ldt))
 				return None
 			if len(pat_ids) > 1:
-				_log.Log(gmLog.lErr, 'Mehrere Patienten für %s gefunden: %s' % (str(pat_ldt), str(pat_ids)))
+				_log.Log(gmLog.lErr, 'Mehrere Patienten fuer %s gefunden: %s' % (str(pat_ldt), str(pat_ids)))
 				return None
 			# create lab request
 			try:
@@ -507,12 +505,12 @@ class cLDTImporter:
 				_log.LogException('patient error', sys.exc_info())
 				return None
 			emr = pat.emr
-			if request_data.has_key('8310'):
+			if '8310' in request_data:
 				reqid = request_data['8310'][0]
-			elif request_data.has_key('8311'):
+			elif '8311' in request_data:
 				reqid = request_data['8311'][0]
 			else:
-				reqid = str(random.randrange(sys.maxint))
+				reqid = str(random.randrange(sys.maxsize))
 			request = emr.add_lab_request(lab=self.__lab_name, req_id=reqid)
 			pat.cleanup()
 			if request is None:
@@ -525,7 +523,7 @@ class cLDTImporter:
 		self.__request = self.__get_request_from_8201(request_data)
 		if self.__request is None:
 			prob = 'Kann Labordaten keiner Anforderung zuordnen.'
-			sol = 'Zuordnungen überprüfen. Systembetreuer verständigen. Details im Log.'
+			sol = 'Zuordnungen ueberpruefen. Systembetreuer verstaendigen. Details im Log.'
 			ctxt = 'Labor [%s], LDT-Datei [%s]' % (self.__lab_name, self.ldt_filename)
 			add_todo(problem=prob, solution=sol, context=ctxt)
 			_log.Log(gmLog.lErr, 'cannot find lab request matching data derived from 8201 record')
@@ -572,7 +570,7 @@ class cLDTImporter:
 		try:
 			handler = cLDTImporter.__chunk8000_handler[chunk['8000'][0]]
 		except KeyError:
-			_log.Log(gmLog.lErr, 'kein Handler für Satztyp [8000:%s]' % chunk['8000'][0])
+			_log.Log(gmLog.lErr, 'kein Handler fuer Satztyp [8000:%s]' % chunk['8000'][0])
 			return False
 		if handler is None:
 			return True
@@ -728,9 +726,9 @@ class cLDTImporter:
 			return False
 		# skip pseudo results
 		if len(result_data) == 3:
-			if (result_data.has_key('8410') and			# code
-				result_data.has_key('8411') and			# name
-				result_data.has_key('8412')):			# Abrechnungskennung
+			if ('8410' in result_data and			# code
+				'8411' in result_data and			# name
+				'8412' in result_data):			# Abrechnungskennung
 				_log.Log(gmLog.lInfo, 'skipping billing-only record')
 				return True
 		# verify essential fields
@@ -836,7 +834,8 @@ class cLDTImporter:
 	}
 	#-----------------------------------------------------------
 	def __import_request_file(self, filename):
-		random.jumpahead(int(time.strftime('%S%M%H')))
+		# throw away up to 4 bits (plus the randint() cost)
+		random.getrandbits(random.randint(1,4))
 		self.__ref_group_str = ''
 		self.__request = None
 		chunk = {}
@@ -857,7 +856,7 @@ class cLDTImporter:
 							self.__request['request_status'] = 'partial'
 							self.__request['is_pending'] = 'true'
 							self.__request.save_payload()
-						_log.Log(gmLog.lErr, 'kein Handler für Satztyp [%s] verfügbar' % chunk_type)
+						_log.Log(gmLog.lErr, 'kein Handler fuer Satztyp [%s] verfuegbar' % chunk_type)
 						return False
 					# handle chunk
 					if not handle_chunk(self, chunk):
@@ -872,7 +871,7 @@ class cLDTImporter:
 				chunk = {}
 				chunk_type = line_type
 			# FIXME: max line count
-			if not chunk.has_key(line_type):
+			if line_type not in chunk:
 				chunk[line_type] = []
 			chunk[line_type].append(line_data)
 		fileinput.close()

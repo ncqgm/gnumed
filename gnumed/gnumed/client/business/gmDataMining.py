@@ -19,7 +19,7 @@ _log = logging.getLogger('gm.reports')
 #============================================================
 def report_exists(name=None):
 	rows, idx = gmPG2.run_ro_queries(queries = [{
-		'cmd': u'SELECT EXISTS(SELECT 1 FROM cfg.report_query WHERE label = %(name)s)',
+		'cmd': 'SELECT EXISTS(SELECT 1 FROM cfg.report_query WHERE label = %(name)s)',
 		'args': {'name': name}
 	}])
 	return rows[0][0]
@@ -32,8 +32,8 @@ def save_report_definition(name=None, query=None, overwrite=False):
 
 	args = {'name': name, 'query': query}
 	queries = [
-		{'cmd': u'DELETE FROM cfg.report_query WHERE label = %(name)s', 'args': args},
-		{'cmd': u'INSERT INTO cfg.report_query (label, cmd) VALUES (%(name)s, %(query)s)', 'args': args}
+		{'cmd': 'DELETE FROM cfg.report_query WHERE label = %(name)s', 'args': args},
+		{'cmd': 'INSERT INTO cfg.report_query (label, cmd) VALUES (%(name)s, %(query)s)', 'args': args}
 	]
 	rows, idx = gmPG2.run_rw_queries(queries = queries)
 	return True
@@ -41,7 +41,7 @@ def save_report_definition(name=None, query=None, overwrite=False):
 #--------------------------------------------------------
 def delete_report_definition(name=None):
 	queries = [{
-		'cmd': u'DELETE FROM cfg.report_query WHERE label = %(name)s',
+		'cmd': 'DELETE FROM cfg.report_query WHERE label = %(name)s',
 		'args': {'name': name}
 	}]
 	rows, idx = gmPG2.run_rw_queries(queries=queries)
@@ -51,15 +51,15 @@ def delete_report_definition(name=None):
 def run_report_query(query=None, limit=None, pk_identity=None):
 	"""Returns (status, hint, cols, rows)"""
 
-	PATIENT_ID_TOKEN = u'$<ID_ACTIVE_PATIENT>$'
+	PATIENT_ID_TOKEN = '$<ID_ACTIVE_PATIENT>$'
 	if limit is None:
-		limit = u''
+		limit = ''
 	else:
-		limit = u'LIMIT %s' % limit
+		limit = 'LIMIT %s' % limit
 
 	# does user want to insert current patient ID ?
 	if query.find(PATIENT_ID_TOKEN) == -1:
-		wrapper_query = u"""
+		wrapper_query = """
 			SELECT * FROM (
 				%%s
 			) AS user_query
@@ -72,16 +72,16 @@ def run_report_query(query=None, limit=None, pk_identity=None):
 			cols = [_('Error')]
 			rows = [
 				[_('Active patient query')],
-				[u''],
+				[''],
 				[_('This query requires a patient to be active in the client.')],
-				[u''],
+				[''],
 				[_('Please activate the patient you are interested')],
 				[_('in and re-run the query.')]
 			]
-			return (False, u'pk_identity', cols, rows)
+			return (False, 'pk_identity', cols, rows)
 
 		query = query.replace(PATIENT_ID_TOKEN, str(pk_identity))
-		wrapper_query = u"""
+		wrapper_query = """
 			SELECT %s AS pk_patient, * FROM (
 				%%s
 			) AS user_query
@@ -102,15 +102,15 @@ def run_report_query(query=None, limit=None, pk_identity=None):
 		t, v = sys.exc_info()[:2]
 		rows = [
 			[_('The query failed.')],
-			[u''],
+			[''],
 			[str(t)]
 		]
 		for line in str(v).decode(gmI18N.get_encoding()).split('\n'):
 			rows.append([line])
-		rows.append([u''])
+		rows.append([''])
 		for line in query.split('\n'):
 			rows.append([line])
-		return (False, u'query failed', cols, rows)
+		return (False, 'query failed', cols, rows)
 
 	# swap (col_name, col_idx) to (col_idx, col_name)
 	# and sort them according to position-in-query
@@ -124,8 +124,8 @@ def run_report_query(query=None, limit=None, pk_identity=None):
 if __name__ == '__main__':
 
 	if len(sys.argv) > 1 and sys.argv[1] == 'test':
-		test_report = u'test suite report'
-		test_query = u'select 1 as test_suite_report_result'
+		test_report = 'test suite report'
+		test_query = 'select 1 as test_suite_report_result'
 
 		print("delete (should work):", delete_report_definition(name = test_report))
 		print("check (should return False):", report_exists(name = test_report))

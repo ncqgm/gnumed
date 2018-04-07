@@ -224,7 +224,7 @@ class cXxxEAPnl(wxgXxxEAPnl.wxgXxxEAPnl, gmEditArea.cGenericEditAreaMixin):
 			return False
 
 		# remove messages about previous invalid save attempts
-		gmDispatcher.send(signal = 'statustext', msg = u'')
+		gmDispatcher.send(signal = 'statustext', msg = '')
 
 		if self.__mode in ['new', 'new_from_existing']:
 			if self._save_as_new():
@@ -333,7 +333,7 @@ class cGenericEditAreaDlg2(wxgGenericEditAreaDlg2.wxgGenericEditAreaDlg2):
 
 		# attach listener
 		self._TCTRL_status.SetValue('')
-		gmDispatcher.connect(signal = u'statustext', receiver = self._on_set_statustext)
+		gmDispatcher.connect(signal = 'statustext', receiver = self._on_set_statustext)
 
 		# redraw layout
 		#self.Layout()
@@ -348,7 +348,7 @@ class cGenericEditAreaDlg2(wxgGenericEditAreaDlg2.wxgGenericEditAreaDlg2):
 		if msg is None:
 			self._TCTRL_status.SetValue('')
 			return
-		if msg.strip() == u'':
+		if msg.strip() == '':
 			self._TCTRL_status.SetValue('')
 			return
 		self._TCTRL_status.SetValue(msg)
@@ -368,7 +368,7 @@ class cGenericEditAreaDlg2(wxgGenericEditAreaDlg2.wxgGenericEditAreaDlg2):
 	#--------------------------------------------------------
 	def _on_save_button_pressed(self, evt):
 		if self._PNL_ea.save():
-			gmDispatcher.disconnect(signal = u'statustext', receiver = self._on_set_statustext)
+			gmDispatcher.disconnect(signal = 'statustext', receiver = self._on_set_statustext)
 			if self.IsModal():
 				self.EndModal(wx.ID_OK)
 			else:
@@ -633,9 +633,9 @@ class cEditArea2(wx.Panel):
 		return 1
 	#--------------------------------------------------------
 	def __deregister_events(self):
-		gmDispatcher.disconnect(signal = u'pre_patient_unselection', receiver = self._on_pre_patient_unselection)
-		gmDispatcher.disconnect(signal = u'post_patient_selection', receiver = self.on_post_patient_selection)
-		gmDispatcher.disconnect(signal = u'application_closing', receiver = self._on_application_closing)
+		gmDispatcher.disconnect(signal = 'pre_patient_unselection', receiver = self._on_pre_patient_unselection)
+		gmDispatcher.disconnect(signal = 'post_patient_selection', receiver = self.on_post_patient_selection)
+		gmDispatcher.disconnect(signal = 'application_closing', receiver = self._on_application_closing)
 	#--------------------------------------------------------
 	# handlers
 	#--------------------------------------------------------
@@ -1034,9 +1034,9 @@ class cEditArea(wx.Panel):
 		wx.EVT_SIZE (self.fields_pnl, self._on_resize_fields)
 
 		# client internal signals
-		gmDispatcher.connect(signal = u'pre_patient_unselection', receiver = self._on_pre_patient_unselection)
-		gmDispatcher.connect(signal = u'application_closing', receiver = self._on_application_closing)
-		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self.on_post_patient_selection)
+		gmDispatcher.connect(signal = 'pre_patient_unselection', receiver = self._on_pre_patient_unselection)
+		gmDispatcher.connect(signal = 'application_closing', receiver = self._on_application_closing)
+		gmDispatcher.connect(signal = 'post_patient_selection', receiver = self.on_post_patient_selection)
 
 		return 1
 	#--------------------------------------------------------
@@ -1264,7 +1264,7 @@ class gmEditArea(cEditArea):
 	def _makeExtraColumns(self , parent, lines, weightMap = {} ):
 		"""this is a utlity method to add extra columns"""
 		#add an extra column if the class has attribute "extraColumns"
-		if u"extraColumns" in self.__class__.__dict__:
+		if "extraColumns" in self.__class__.__dict__:
 			for x in self.__class__.extraColumns:
 				lines = self._addColumn(parent, lines, x, weightMap)
 		return lines
@@ -1781,7 +1781,7 @@ class gmPnlEditAreaPrompts(wx.Panel):
 		self.SetAutoLayout(True)
 #====================================================================
 #Class central to gnumed data input
-#allows data entry of multiple different types.e.g scripts,
+#allows data entry of multiple different types, e.g scripts,
 #referrals, measurements, recalls etc
 #@TODO : just about everything
 #section = calling section eg allergies, script

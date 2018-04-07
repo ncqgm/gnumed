@@ -183,8 +183,8 @@ class cLDTFile(object):
 		for line in ldt_file:
 			length, field, content = line[:3], line[3:7], line[7:].replace('\015','').replace('\012','')
 			# loop until found first LG-Bericht
-			if field == u'8000':
-				if content in [u'8202']:
+			if field == '8000':
+				if content in ['8202']:
 					break
 			self.__header.append(line)
 
@@ -209,8 +209,8 @@ class cLDTFile(object):
 			length, field, content = line[:3], line[3:7], line[7:].replace('\015','').replace('\012','')
 
 			# loop until found tail
-			if field == u'8000':
-				if content not in [u'8221']:
+			if field == '8000':
+				if content not in ['8221']:
 					continue
 				in_tail = True
 				self.__tail.append(line)
@@ -235,24 +235,24 @@ class cLDTFile(object):
 			length, field, content = line[:3], line[3:7], line[7:].replace('\015','').replace('\012','')
 
 			# start of record
-			if field == u'8000':
+			if field == '8000':
 				# start of LG-Bericht
-				if content == u'8202':
+				if content == '8202':
 					in_patient = True
 					if out_file is not None:
-						out_file.write(u''.join(self.tail))
+						out_file.write(''.join(self.tail))
 						out_file.close()
 					#out_file = io.open(filename=filename_xxxx, mode=xxxx_'rU', encoding=self.encoding)
-					out_file.write(u''.join(self.header))
+					out_file.write(''.join(self.header))
 				else:
 					in_patient = False
 					if out_file is not None:
-						out_file.write(u''.join(self.tail))
+						out_file.write(''.join(self.tail))
 						out_file.close()
 
 		if out_file is not None:
 			if not out_file.closed:
-				out_file.write(u''.join(self.tail))
+				out_file.write(''.join(self.tail))
 				out_file.close()
 
 		ldt_file.close()

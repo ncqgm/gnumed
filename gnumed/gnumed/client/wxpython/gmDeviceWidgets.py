@@ -6,7 +6,7 @@ __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 __license__ = "GPL"
 
 
-import sys, logging, datetime as pyDT, decimal, StringIO
+import sys, logging, datetime as pyDT, decimal
 from lxml import etree
 
 import wx	#, wx.grid
@@ -30,7 +30,7 @@ class cCardiacDevicePluginPnl(wxgCardiacDevicePluginPnl.wxgCardiacDevicePluginPn
 		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
 
 		# check if report types exist in db, if not create them
-		self.__checkup_doc_type = u'cardiac device checkup report'
+		self.__checkup_doc_type = 'cardiac device checkup report'
 		dtype = gmDocuments.create_document_type(self.__checkup_doc_type)
 		# cannot reuse self.__checkup_doc_type here or else it wouldn't get translated
 		dtype.set_translation(_('cardiac device checkup report'))
@@ -41,8 +41,8 @@ class cCardiacDevicePluginPnl(wxgCardiacDevicePluginPnl.wxgCardiacDevicePluginPn
 	# event handling
 	#--------------------------------------------------------
 	def __register_interests(self):
-		gmDispatcher.connect(signal = u'pre_patient_unselection', receiver = self._on_pre_patient_unselection)
-		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._schedule_data_reget)
+		gmDispatcher.connect(signal = 'pre_patient_unselection', receiver = self._on_pre_patient_unselection)
+		gmDispatcher.connect(signal = 'post_patient_selection', receiver = self._schedule_data_reget)
 	#--------------------------------------------------------
 	def _on_pre_patient_unselection(self):
 		#self.data_grid.patient = None
@@ -110,7 +110,7 @@ class cCardiacDevicePluginPnl(wxgCardiacDevicePluginPnl.wxgCardiacDevicePluginPn
 			xml_fname = checkups[-1].parts[0].save_to_file()
 			tree = etree.parse(xml_fname)
 			DevicesDisplayed = gmDevices.device_status_as_text(tree)
-			text = u''.join(DevicesDisplayed)
+			text = ''.join(DevicesDisplayed)
 
 		self._TCTRL_current_status.SetValue(text)
 

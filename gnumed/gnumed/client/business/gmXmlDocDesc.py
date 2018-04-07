@@ -167,7 +167,7 @@ class xmlDocDesc:
     #--------------------------------------------------------
     def __get_from_xml(self, aTag = None):
         # sanity
-        if not type(aTag) is type(u''):
+        if not type(aTag) is type(''):
             _log.error("Argument aTag (" + str(aTag) + ") is not a string.")
             return None
 

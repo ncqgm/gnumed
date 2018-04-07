@@ -177,7 +177,7 @@ def manage_progress_notes(parent=None, encounters=None, episodes=None, patient=N
 			-1,
 			title = _('Editing progress note'),
 			msg = _('This is the original progress note:'),
-			data = item.format(left_margin = u' ', fancy = True),
+			data = item.format(left_margin = ' ', fancy = True),
 			text = item['narrative']
 		)
 		decision = dlg.ShowModal()
@@ -187,7 +187,7 @@ def manage_progress_notes(parent=None, encounters=None, episodes=None, patient=N
 
 		val = dlg.value
 		dlg.Destroy()
-		if val.strip() == u'':
+		if val.strip() == '':
 			return False
 
 		item['narrative'] = val
@@ -323,24 +323,24 @@ def search_narrative_in_emr(parent=None, patient=None):
 		)
 		return True
 
-	txt = u''
+	txt = ''
 	for row in rows:
-		txt += u'%s: %s\n' % (
+		txt += '%s: %s\n' % (
 			row['soap_cat'],
 			row['narrative']
 		)
 
-		txt += u' %s: %s - %s %s\n' % (
+		txt += ' %s: %s - %s %s\n' % (
 			_('Encounter'),
 			row['encounter_started'].strftime('%x %H:%M'),
 			row['encounter_ended'].strftime('%H:%M'),
 			row['encounter_type']
 		)
-		txt += u' %s: %s\n' % (
+		txt += ' %s: %s\n' % (
 			_('Episode'),
 			row['episode']
 		)
-		txt += u' %s: %s\n\n' % (
+		txt += ' %s: %s\n\n' % (
 			_('Health issue'),
 			row['health_issue']
 		)
@@ -364,7 +364,7 @@ def search_narrative_in_emr(parent=None, patient=None):
 	return True
 
 #------------------------------------------------------------
-def export_narrative_for_medistar_import(parent=None, soap_cats=u'soapu', encounter=None):
+def export_narrative_for_medistar_import(parent=None, soap_cats='soapu', encounter=None):
 
 	# sanity checks
 	pat = gmPerson.gmCurrentPatient()
@@ -410,7 +410,7 @@ def export_narrative_for_medistar_import(parent=None, soap_cats=u'soapu', encoun
 	successful, fname = exporter.save_to_file (
 		filename = fname,
 		encounter = encounter,
-		soap_cats = u'soapu',
+		soap_cats = 'soapu',
 		export_to_import_file = True
 	)
 	if not successful:
@@ -436,12 +436,12 @@ def select_narrative(parent=None, soap_cats=None, msg=None):
 		parent = wx.GetApp().GetTopWindow()
 
 	if soap_cats is None:
-		soap_cats = u'soapu'
+		soap_cats = 'soapu'
 	soap_cats = list(soap_cats)
 	i18n_soap_cats = [ gmSoapDefs.soap_cat2l10n[cat].upper() for cat in soap_cats ]
 
 	if msg is None:
-		msg = _('Pick the [%s] narrative you want to use.') % u'/'.join(i18n_soap_cats)
+		msg = _('Pick the [%s] narrative you want to use.') % '/'.join(i18n_soap_cats)
 
 	#-----------------------------------------------
 	def get_tooltip(soap):
@@ -463,7 +463,7 @@ def select_narrative(parent=None, soap_cats=None, msg=None):
 	return gmListWidgets.get_choices_from_list (
 		parent = parent,
 		msg = msg,
-		caption = _('Picking [%s] narrative') % (u'/'.join(i18n_soap_cats)),
+		caption = _('Picking [%s] narrative') % ('/'.join(i18n_soap_cats)),
 		columns = [_('When'), _('Who'), _('Type'), _('Entry'), _('Episode'), _('Issue')],
 		single_selection = False,
 		can_return_empty = False,
@@ -487,7 +487,7 @@ def select_narrative_by_issue(parent=None, soap_cats=None):
 		parent = wx.GetApp().GetTopWindow()
 
 	if soap_cats is None:
-		soap_cats = u'soapu'
+		soap_cats = 'soapu'
 	soap_cats = list(soap_cats)
 	i18n_soap_cats = [ gmSoapDefs.soap_cat2l10n[cat].upper() for cat in soap_cats ]
 
@@ -511,9 +511,9 @@ def select_narrative_by_issue(parent=None, soap_cats=None):
 
 		selected_narr = gmListWidgets.get_choices_from_list (
 			parent = parent,
-			msg = _('Pick the [%s] narrative you want to include in the report.') % u'/'.join(i18n_soap_cats),
+			msg = _('Pick the [%s] narrative you want to include in the report.') % '/'.join(i18n_soap_cats),
 			caption = _('Picking [%s] from %s%s%s') % (
-				u'/'.join(i18n_soap_cats),
+				'/'.join(i18n_soap_cats),
 				gmTools.u_left_double_angle_quote,
 				issue['description'],
 				gmTools.u_right_double_angle_quote
@@ -548,7 +548,7 @@ def select_narrative_by_issue(parent=None, soap_cats=None):
 		#issues = [ i for i in emr.health_issues ]
 		issues = emr.health_issues
 		lctrl.set_string_items ([ [
-				gmTools.bool2subst(i['is_confidential'], _('!! CONFIDENTIAL !!'), u''),
+				gmTools.bool2subst(i['is_confidential'], _('!! CONFIDENTIAL !!'), ''),
 				i['description'],
 				gmTools.bool2subst(i['is_active'], _('active'), _('inactive'))
 			] for i in issues
@@ -573,7 +573,7 @@ def select_narrative_by_issue(parent=None, soap_cats=None):
 	issues_picked_from = gmListWidgets.get_choices_from_list (
 		parent = parent,
 		msg = _('\n Select the issue you want to report on.'),
-		caption = _('Picking [%s] from health issues') % u'/'.join(i18n_soap_cats),
+		caption = _('Picking [%s] from health issues') % '/'.join(i18n_soap_cats),
 		columns = [_('Privacy'), _('Issue'), _('Status')],
 		edit_callback = edit_issue,
 		refresh_callback = refresh_issues,
@@ -582,7 +582,7 @@ def select_narrative_by_issue(parent=None, soap_cats=None):
 		ignore_OK_button = False,
 		left_extra_button = (
 			_('&Pick notes'),
-			_('Pick [%s] entries from selected health issue') % u'/'.join(i18n_soap_cats),
+			_('Pick [%s] entries from selected health issue') % '/'.join(i18n_soap_cats),
 			pick_soap_from_issue
 		),
 		list_tooltip_callback = get_issue_tooltip
@@ -606,7 +606,7 @@ def select_narrative_by_episode(parent=None, soap_cats=None):
 	pat = gmPerson.gmCurrentPatient()
 	emr = pat.emr
 
-	all_epis = [ epi for epi in emr.get_episodes(order_by = u'description') if epi.has_narrative ]
+	all_epis = [ epi for epi in emr.get_episodes(order_by = 'description') if epi.has_narrative ]
 	if len(all_epis) == 0:
 		gmDispatcher.send(signal = 'statustext', msg = _('No episodes with progress notes found.'))
 		return []
@@ -615,7 +615,7 @@ def select_narrative_by_episode(parent=None, soap_cats=None):
 		parent = wx.GetApp().GetTopWindow()
 
 	if soap_cats is None:
-		soap_cats = u'soapu'
+		soap_cats = 'soapu'
 	soap_cats = list(soap_cats)
 	i18n_soap_cats = [ gmSoapDefs.soap_cat2l10n[cat].upper() for cat in soap_cats ]
 
@@ -639,9 +639,9 @@ def select_narrative_by_episode(parent=None, soap_cats=None):
 
 		selected_narr = gmListWidgets.get_choices_from_list (
 			parent = parent,
-			msg = _('Pick the [%s] narrative you want to include in the report.') % u'/'.join(i18n_soap_cats),
+			msg = _('Pick the [%s] narrative you want to include in the report.') % '/'.join(i18n_soap_cats),
 			caption = _('Picking [%s] from %s%s%s') % (
-				u'/'.join(i18n_soap_cats),
+				'/'.join(i18n_soap_cats),
 				gmTools.u_left_double_angle_quote,
 				episode['description'],
 				gmTools.u_right_double_angle_quote
@@ -688,9 +688,9 @@ def select_narrative_by_episode(parent=None, soap_cats=None):
 		return gmEMRStructWidgets.edit_episode(parent = parent, episode = episode)
 	#-----------------------------------------------
 	def refresh_episodes(lctrl):
-		all_epis = [ epi for epi in emr.get_episodes(order_by = u'description') if epi.has_narrative ]
+		all_epis = [ epi for epi in emr.get_episodes(order_by = 'description') if epi.has_narrative ]
 		lctrl.set_string_items ([ [
-				u'%s%s' % (e['description'], gmTools.coalesce(e['health_issue'], u'', u' (%s)')),
+				'%s%s' % (e['description'], gmTools.coalesce(e['health_issue'], '', ' (%s)')),
 				gmTools.bool2subst(e['episode_open'], _('open'), _('closed'))
 			] for e in all_epis
 		])
@@ -713,7 +713,7 @@ def select_narrative_by_episode(parent=None, soap_cats=None):
 	epis_picked_from = gmListWidgets.get_choices_from_list (
 		parent = parent,
 		msg = _('\n Select the episode you want to report on.'),
-		caption = _('Picking [%s] from episodes') % u'/'.join(i18n_soap_cats),
+		caption = _('Picking [%s] from episodes') % '/'.join(i18n_soap_cats),
 		columns = [_('Episode'), _('Status')],
 		edit_callback = edit_episode,
 		refresh_callback = refresh_episodes,
@@ -722,7 +722,7 @@ def select_narrative_by_episode(parent=None, soap_cats=None):
 		ignore_OK_button = False,
 		left_extra_button = (
 			_('&Pick notes'),
-			_('Pick [%s] entries from selected episode') % u'/'.join(i18n_soap_cats),
+			_('Pick [%s] entries from selected episode') % '/'.join(i18n_soap_cats),
 			pick_soap_from_episode
 		),
 		list_tooltip_callback = get_episode_tooltip
@@ -826,7 +826,7 @@ def select_narrative_from_episodes(parent=None, soap_cats=None):
 				msg = _(
 					'\n This is the narrative (type %s) for the chosen episodes.\n\n'
 					' Now, mark the entries you want to include in your report.\n'
-				) % u'/'.join([ gmSoapDefs.soap_cat2l10n[cat] for cat in gmTools.coalesce(soap_cats, list(u'soapu')) ])
+				) % '/'.join([ gmSoapDefs.soap_cat2l10n[cat] for cat in gmTools.coalesce(soap_cats, list('soapu')) ])
 			)
 			selection_idxs = []
 			for idx in range(len(all_narr)):

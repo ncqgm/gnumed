@@ -25,14 +25,14 @@ from Gnumed.pycommon import gmMatchProvider
 _log = logging.getLogger('gm.loinc')
 
 
-origin_url = u'http://loinc.org'
+origin_url = 'http://loinc.org'
 file_encoding = 'latin1'			# encoding is empirical
-license_delimiter = u'Clip Here for Data'
-version_tag = u'LOINC(R) Database Version'
-name_long = u'LOINC® (Logical Observation Identifiers Names and Codes)'
-name_short = u'LOINC'
+license_delimiter = 'Clip Here for Data'
+version_tag = 'LOINC(R) Database Version'
+name_long = 'LOINC® (Logical Observation Identifiers Names and Codes)'
+name_short = 'LOINC'
 
-loinc_fields = u"LOINC_NUM COMPONENT PROPERTY TIME_ASPCT SYSTEM SCALE_TYP METHOD_TYP RELAT_NMS CLASS SOURCE DT_LAST_CH CHNG_TYPE COMMENTS ANSWERLIST STATUS MAP_TO SCOPE NORM_RANGE IPCC_UNITS REFERENCE EXACT_CMP_SY MOLAR_MASS CLASSTYPE FORMULA SPECIES EXMPL_ANSWERS ACSSYM BASE_NAME FINAL NAACCR_ID CODE_TABLE SETROOT PANELELEMENTS SURVEY_QUEST_TEXT SURVEY_QUEST_SRC UNITSREQUIRED SUBMITTED_UNITS RELATEDNAMES2 SHORTNAME ORDER_OBS CDISC_COMMON_TESTS HL7_FIELD_SUBFIELD_ID EXTERNAL_COPYRIGHT_NOTICE EXAMPLE_UNITS INPC_PERCENTAGE LONG_COMMON_NAME".split()
+loinc_fields = "LOINC_NUM COMPONENT PROPERTY TIME_ASPCT SYSTEM SCALE_TYP METHOD_TYP RELAT_NMS CLASS SOURCE DT_LAST_CH CHNG_TYPE COMMENTS ANSWERLIST STATUS MAP_TO SCOPE NORM_RANGE IPCC_UNITS REFERENCE EXACT_CMP_SY MOLAR_MASS CLASSTYPE FORMULA SPECIES EXMPL_ANSWERS ACSSYM BASE_NAME FINAL NAACCR_ID CODE_TABLE SETROOT PANELELEMENTS SURVEY_QUEST_TEXT SURVEY_QUEST_SRC UNITSREQUIRED SUBMITTED_UNITS RELATEDNAMES2 SHORTNAME ORDER_OBS CDISC_COMMON_TESTS HL7_FIELD_SUBFIELD_ID EXTERNAL_COPYRIGHT_NOTICE EXAMPLE_UNITS INPC_PERCENTAGE LONG_COMMON_NAME".split()
 
 #============================================================
 
@@ -46,7 +46,7 @@ LOINC_inr_quantity = ['34714-6', '46418-0', '6301-6', '38875-1']
 
 #============================================================
 def loinc2data(loinc):
-	cmd = u'SELECT * FROM ref.loinc WHERE code = %(loinc)s'
+	cmd = 'SELECT * FROM ref.loinc WHERE code = %(loinc)s'
 	args = {'loinc': loinc}
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
 	if len(rows) == 0:
@@ -57,7 +57,7 @@ def loinc2data(loinc):
 def loinc2term(loinc=None):
 
 	# NOTE: will return [NULL] on no-match due to the coalesce()
-	cmd = u"""
+	cmd = """
 SELECT coalesce (
 	(SELECT term
 	FROM ref.v_coded_terms
@@ -159,7 +159,7 @@ def loinc_import(data_fname=None, license_fname=None, version=None, conn=None, l
 
 	# clean out staging area
 	curs = conn.cursor()
-	cmd = u"""DELETE FROM staging.loinc_staging"""
+	cmd = """DELETE FROM staging.loinc_staging"""
 	gmPG2.run_rw_queries(link_obj = curs, queries = [{'cmd': cmd}])
 	curs.close()
 	conn.commit()
@@ -169,7 +169,7 @@ def loinc_import(data_fname=None, license_fname=None, version=None, conn=None, l
 	csv_file = io.open(data_fname, mode = 'rt', encoding = 'utf8', errors = 'replace')
 	loinc_reader = gmTools.unicode_csv_reader(csv_file, delimiter = "\t", quotechar = '"')
 	curs = conn.cursor()
-	cmd = u"""INSERT INTO staging.loinc_staging values (%s%%s)""" % (u'%s, ' * (len(loinc_fields) - 1))
+	cmd = """INSERT INTO staging.loinc_staging values (%s%%s)""" % ('%s, ' * (len(loinc_fields) - 1))
 	first = False
 	for loinc_line in loinc_reader:
 		if not first:
@@ -188,7 +188,7 @@ def loinc_import(data_fname=None, license_fname=None, version=None, conn=None, l
 	args = {'ver': version, 'desc': desc, 'url': origin_url, 'name_long': name_long, 'name_short': name_short, 'lang': lang}
 	queries = [
 		# insert if not existing
-		{'args': args, 'cmd': u"""
+		{'args': args, 'cmd': """
 			INSERT INTO ref.data_source (name_long, name_short, version) SELECT
 				%(name_long)s,
 				%(name_short)s,
@@ -203,7 +203,7 @@ def loinc_import(data_fname=None, license_fname=None, version=None, conn=None, l
 			)"""
 		},
 		# update non-unique fields
-		{'args': args, 'cmd': u"""
+		{'args': args, 'cmd': """
 			UPDATE ref.data_source SET
 				description = %(desc)s,
 				source = %(url)s,
@@ -217,7 +217,7 @@ def loinc_import(data_fname=None, license_fname=None, version=None, conn=None, l
 			"""
 		},
 		# retrieve PK of data source
-		{'args': args, 'cmd': u"""SELECT pk FROM ref.data_source WHERE name_short = %(name_short)s AND version = %(ver)s"""}
+		{'args': args, 'cmd': """SELECT pk FROM ref.data_source WHERE name_short = %(name_short)s AND version = %(ver)s"""}
 	]
 	curs = conn.cursor()
 	rows, idx = gmPG2.run_rw_queries(link_obj = curs, queries = queries, return_data = True)
@@ -230,7 +230,7 @@ def loinc_import(data_fname=None, license_fname=None, version=None, conn=None, l
 	queries = []
 	queries.append ({
 		'args': args,
-		'cmd': u"""
+		'cmd': """
 			INSERT INTO ref.loinc (
 				fk_data_source, term, code
 			)
@@ -271,7 +271,7 @@ def loinc_import(data_fname=None, license_fname=None, version=None, conn=None, l
 	})
 	queries.append ({
 		'args': args,
-		'cmd': u"""
+		'cmd': """
 			UPDATE ref.loinc SET
 				comment = nullif(st_ls.comments, ''),
 				component = nullif(st_ls.component, ''),
@@ -346,7 +346,7 @@ def loinc_import(data_fname=None, license_fname=None, version=None, conn=None, l
 
 	# clean out staging area
 	curs = conn.cursor()
-	cmd = u"""DELETE FROM staging.loinc_staging"""
+	cmd = """DELETE FROM staging.loinc_staging"""
 	gmPG2.run_rw_queries(link_obj = curs, queries = [{'cmd': cmd}])
 	curs.close()
 	conn.commit()
@@ -355,7 +355,7 @@ def loinc_import(data_fname=None, license_fname=None, version=None, conn=None, l
 	return True
 
 #============================================================
-_SQL_LOINC_from_test_type = u"""
+_SQL_LOINC_from_test_type = """
 	-- from test type
 	SELECT
 		loinc AS data,
@@ -365,7 +365,7 @@ _SQL_LOINC_from_test_type = u"""
 	WHERE loinc %(fragment_condition)s
 """
 
-_SQL_LOINC_from_i18n_coded_term = u"""
+_SQL_LOINC_from_i18n_coded_term = """
 	-- from coded term, in user language
 	SELECT
 		code AS data,
@@ -382,7 +382,7 @@ _SQL_LOINC_from_i18n_coded_term = u"""
 		term %(fragment_condition)s)
 """
 
-_SQL_LOINC_from_en_EN_coded_term = u"""
+_SQL_LOINC_from_en_EN_coded_term = """
 	-- from coded term, in English
 	SELECT
 		code AS data,
@@ -399,7 +399,7 @@ _SQL_LOINC_from_en_EN_coded_term = u"""
 		term %(fragment_condition)s)
 """
 
-_SQL_LOINC_from_any_coded_term = u"""
+_SQL_LOINC_from_any_coded_term = """
 	-- from coded term, in any language
 	SELECT
 		code AS data,
@@ -419,7 +419,7 @@ class cLOINCMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
 
 	_pattern = regex.compile(r'^\D+\s+\D+$', regex.UNICODE)
 
-	_normal_query = u"""
+	_normal_query = """
 		SELECT DISTINCT ON (list_label)
 			data,
 			field_label,
@@ -441,7 +441,7 @@ class cLOINCMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
 	def getMatchesByPhrase(self, aFragment):
 		"""Return matches for aFragment at start of phrases."""
 
-		self._queries = [cLOINCMatchProvider._normal_query + u'\nORDER BY list_label\nLIMIT 75']
+		self._queries = [cLOINCMatchProvider._normal_query + '\nORDER BY list_label\nLIMIT 75']
 		return gmMatchProvider.cMatchProvider_SQL2.getMatchesByPhrase(self, aFragment)
 
 	#--------------------------------------------------------
@@ -449,15 +449,15 @@ class cLOINCMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
 		"""Return matches for aFragment at start of words inside phrases."""
 
 		if cLOINCMatchProvider._pattern.match(aFragment):
-			fragmentA, fragmentB = aFragment.split(u' ', 1)
-			query1 = cLOINCMatchProvider._normal_query % {'fragment_condition': u'~* %%(fragmentA)s'}
-			self._args['fragmentA'] = u"( %s)|(^%s)" % (fragmentA, fragmentA)
-			query2 = cLOINCMatchProvider._normal_query % {'fragment_condition': u'~* %%(fragmentB)s'}
-			self._args['fragmentB'] = u"( %s)|(^%s)" % (fragmentB, fragmentB)
-			self._queries = [u"SELECT * FROM (\n(%s\n) INTERSECT (%s)\n) AS intersected_matches\nORDER BY list_label\nLIMIT 75" % (query1, query2)]
-			return self._find_matches(u'dummy')
+			fragmentA, fragmentB = aFragment.split(' ', 1)
+			query1 = cLOINCMatchProvider._normal_query % {'fragment_condition': '~* %%(fragmentA)s'}
+			self._args['fragmentA'] = "( %s)|(^%s)" % (fragmentA, fragmentA)
+			query2 = cLOINCMatchProvider._normal_query % {'fragment_condition': '~* %%(fragmentB)s'}
+			self._args['fragmentB'] = "( %s)|(^%s)" % (fragmentB, fragmentB)
+			self._queries = ["SELECT * FROM (\n(%s\n) INTERSECT (%s)\n) AS intersected_matches\nORDER BY list_label\nLIMIT 75" % (query1, query2)]
+			return self._find_matches('dummy')
 
-		self._queries = [cLOINCMatchProvider._normal_query + u'\nORDER BY list_label\nLIMIT 75']
+		self._queries = [cLOINCMatchProvider._normal_query + '\nORDER BY list_label\nLIMIT 75']
 		return gmMatchProvider.cMatchProvider_SQL2.getMatchesByWord(self, aFragment)
 
 	#--------------------------------------------------------
@@ -465,15 +465,15 @@ class cLOINCMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
 		"""Return matches for aFragment as a true substring."""
 
 		if cLOINCMatchProvider._pattern.match(aFragment):
-			fragmentA, fragmentB = aFragment.split(u' ', 1)
-			query1 = cLOINCMatchProvider._normal_query % {'fragment_condition': u"ILIKE %%(fragmentA)s"}
-			self._args['fragmentA'] = u'%%%s%%' % fragmentA
-			query2 = cLOINCMatchProvider._normal_query % {'fragment_condition': u"ILIKE %%(fragmentB)s"}
-			self._args['fragmentB'] = u'%%%s%%' % fragmentB
-			self._queries = [u"SELECT * FROM (\n(%s\n) INTERSECT (%s)\n) AS intersected_matches\nORDER BY list_label\nLIMIT 75" % (query1, query2)]
-			return self._find_matches(u'dummy')
+			fragmentA, fragmentB = aFragment.split(' ', 1)
+			query1 = cLOINCMatchProvider._normal_query % {'fragment_condition': "ILIKE %%(fragmentA)s"}
+			self._args['fragmentA'] = '%%%s%%' % fragmentA
+			query2 = cLOINCMatchProvider._normal_query % {'fragment_condition': "ILIKE %%(fragmentB)s"}
+			self._args['fragmentB'] = '%%%s%%' % fragmentB
+			self._queries = ["SELECT * FROM (\n(%s\n) INTERSECT (%s)\n) AS intersected_matches\nORDER BY list_label\nLIMIT 75" % (query1, query2)]
+			return self._find_matches('dummy')
 
-		self._queries = [cLOINCMatchProvider._normal_query + u'\nORDER BY list_label\nLIMIT 75']
+		self._queries = [cLOINCMatchProvider._normal_query + '\nORDER BY list_label\nLIMIT 75']
 		return gmMatchProvider.cMatchProvider_SQL2.getMatchesBySubstr(self, aFragment)
 
 #============================================================

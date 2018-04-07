@@ -72,7 +72,7 @@ def select_org_unit(parent=None, msg=None, no_parent=False):
 		items = [ [
 			u['organization'],
 			u['unit'],
-			gmTools.coalesce(u['l10n_unit_category'], u''),
+			gmTools.coalesce(u['l10n_unit_category'], ''),
 			u['pk_org_unit']
 		] for u in units ]
 
@@ -97,7 +97,7 @@ def select_org_unit(parent=None, msg=None, no_parent=False):
 class cOrgUnitPhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 	def __init__(self, *args, **kwargs):
-		query = u"""
+		query = """
 	SELECT DISTINCT ON (data) * FROM (
 		SELECT * FROM ((
 
@@ -161,7 +161,7 @@ class cOrgUnitPhraseWheel(gmPhraseWheel.cPhraseWheel):
 		unit = self._data2instance()
 		if unit is None:
 			return None
-		return u'\n'.join(unit.format(with_address = True))
+		return '\n'.join(unit.format(with_address = True))
 	#--------------------------------------------------------
 	def _data2instance(self):
 		if self.GetData() is None:
@@ -213,7 +213,7 @@ class cOrgUnitsManagerPnl(gmListWidgets.cGenericListManagerPnl):
 	# internal helpers
 	#--------------------------------------------------------
 	def __init_ui(self):
-		self._LCTRL_items.set_columns(columns = [ _('Organizational Unit'), _('Unit Category'), u'#' ])
+		self._LCTRL_items.set_columns(columns = [ _('Organizational Unit'), _('Unit Category'), '#' ])
 		self._LCTRL_items.SetToolTip(_('Units (sites, parts, departments, branches, ...) of organizations registered in GNUmed.'))
 		self._LCTRL_items.item_tooltip_callback = self.get_tooltip
 		#self._LCTRL_items.set_column_widths(widths = [wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE])
@@ -221,7 +221,7 @@ class cOrgUnitsManagerPnl(gmListWidgets.cGenericListManagerPnl):
 	def get_tooltip(self, unit):
 		if unit is None:
 			return _('Units (sites, parts, departments, branches, ...) of organizations registered in GNUmed.')
-		return u'\n'.join(unit.format(with_address = True, with_org = True, with_comms = True))
+		return '\n'.join(unit.format(with_address = True, with_org = True, with_comms = True))
 	#--------------------------------------------------------
 	def __refresh(self):
 
@@ -239,7 +239,7 @@ class cOrgUnitsManagerPnl(gmListWidgets.cGenericListManagerPnl):
 		else:
 			self._BTN_add.Enable(True)
 			pk = self.__org['pk_org']
-			org_str = u'%s (%s)' % (
+			org_str = '%s (%s)' % (
 				self.__org['organization'],
 				self.__org['l10n_category']
 			)
@@ -248,7 +248,7 @@ class cOrgUnitsManagerPnl(gmListWidgets.cGenericListManagerPnl):
 		units = gmOrganization.get_org_units(order_by = 'unit, l10n_unit_category', org = pk)
 		items = [ [
 			u['unit'],
-			gmTools.coalesce(u['l10n_unit_category'], u''),
+			gmTools.coalesce(u['l10n_unit_category'], ''),
 			u['pk_org_unit']
 		] for u in units ]
 
@@ -321,7 +321,7 @@ class cOrgUnitEAPnl(wxgOrgUnitEAPnl.wxgOrgUnitEAPnl, gmEditArea.cGenericEditArea
 		if self._PRW_category.GetData() is not None:
 			self._PRW_category.display_as_valid(True)
 		else:
-			if self._PRW_category.GetValue().strip() == u'':
+			if self._PRW_category.GetValue().strip() == '':
 				self._PRW_category.display_as_valid(True)
 			else:
 				validity = False
@@ -331,7 +331,7 @@ class cOrgUnitEAPnl(wxgOrgUnitEAPnl.wxgOrgUnitEAPnl, gmEditArea.cGenericEditArea
 		if self._PRW_unit.GetData() is not None:
 			self._PRW_unit.display_as_valid(True)
 		else:
-			if self._PRW_unit.GetValue().strip() != u'':
+			if self._PRW_unit.GetValue().strip() != '':
 				self._PRW_unit.display_as_valid(True)
 			else:
 				validity = False
@@ -366,15 +366,15 @@ class cOrgUnitEAPnl(wxgOrgUnitEAPnl.wxgOrgUnitEAPnl, gmEditArea.cGenericEditArea
 		return True
 	#----------------------------------------------------------------
 	def _refresh_as_new(self):
-		self._PRW_org.SetText(value = u'', data = None)
-		self._PRW_unit.SetText(value = u'', data = None)
-		self._PRW_category.SetText(value = u'', data = None)
+		self._PRW_org.SetText(value = '', data = None)
+		self._PRW_unit.SetText(value = '', data = None)
+		self._PRW_category.SetText(value = '', data = None)
 
 		self._PRW_unit.SetFocus()
 	#----------------------------------------------------------------
 	def _refresh_as_new_from_existing(self):
 		self._PRW_org.SetText(value = self.data['organization'], data = self.data['pk_org'])
-		self._PRW_unit.SetText(value = u'', data = None)
+		self._PRW_unit.SetText(value = '', data = None)
 		self._PRW_category.SetText(value = self.data['unit_category'], data = self.data['pk_category_unit'])
 
 		self._PRW_unit.SetFocus()
@@ -407,20 +407,20 @@ class cOrgUnitAddressPnl(wxgOrgUnitAddressPnl.wxgOrgUnitAddressPnl):
 	def __refresh(self):
 		if self.__unit is None:
 			self.message = _('<no unit selected>')
-			self._PRW_address_searcher.SetText(u'', None)
+			self._PRW_address_searcher.SetText('', None)
 			self._PRW_address_searcher.Enable(False)
 			self._BTN_save_picked_address.Enable(False)
 			self._BTN_add_new_address.Enable(False)
 		else:
 			if self.__unit['l10n_unit_category'] is None:
-				cat = u''
-				left_delim = u''
-				right_delim = u''
+				cat = ''
+				left_delim = ''
+				right_delim = ''
 			else:
-				cat = u'%s ' % self.__unit['l10n_unit_category']
+				cat = '%s ' % self.__unit['l10n_unit_category']
 				left_delim = gmTools.u_left_double_angle_quote
 				right_delim = gmTools.u_right_double_angle_quote
-			self.message = u'%s%s%s%s' % (
+			self.message = '%s%s%s%s' % (
 				cat,
 				left_delim,
 				self.__unit['unit'],
@@ -436,7 +436,7 @@ class cOrgUnitAddressPnl(wxgOrgUnitAddressPnl.wxgOrgUnitAddressPnl):
 	#--------------------------------------------------------
 	def _on_save_picked_address_button_pressed(self, event):
 		if self._PRW_address_searcher.GetData() is None:
-			if self._PRW_address_searcher.GetValue().strip() != u'':
+			if self._PRW_address_searcher.GetValue().strip() != '':
 				gmDispatcher.send(signal = 'statustext', msg = _('Invalid address selection.'))
 				self._PRW_address_searcher.display_as_valid(False)
 				self._PRW_address_searcher.SetFocus()
@@ -464,9 +464,9 @@ class cOrgUnitAddressPnl(wxgOrgUnitAddressPnl.wxgOrgUnitAddressPnl):
 		if picked_address is None:
 			return
 
-		question = u'%s\n\n  %s\n' % (
+		question = '%s\n\n  %s\n' % (
 			_('Link the following address to the organizational unit ?'),
-			u'\n  '.join(picked_address.format())
+			'\n  '.join(picked_address.format())
 		)
 
 		link_it = gmGuiHelpers.gm_show_question (
@@ -498,7 +498,7 @@ class cOrgUnitAddressPnl(wxgOrgUnitAddressPnl.wxgOrgUnitAddressPnl):
 	def _set_message(self, msg):
 		if msg is None:
 			self._LBL_message.Hide()
-			self._LBL_message.SetLabel(u'')
+			self._LBL_message.SetLabel('')
 		else:
 			self._LBL_message.SetLabel(msg)
 			self._LBL_message.Show()
@@ -542,8 +542,8 @@ class cOrgUnitIDsMgrPnl(gmListWidgets.cGenericListManagerPnl):
 			items = [ [
 					i['name'],
 					i['value'],
-					gmTools.coalesce(i['issuer'], u''),
-					gmTools.coalesce(i['comment'], u'')
+					gmTools.coalesce(i['issuer'], ''),
+					gmTools.coalesce(i['comment'], '')
 				] for i in ids
 			]
 		)
@@ -634,7 +634,7 @@ def edit_org(parent=None, org=None, single_entry=False):
 class cOrganizationPhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 	def __init__(self, *args, **kwargs):
-		query = u"""
+		query = """
 	SELECT DISTINCT ON (data) * FROM (
 		SELECT * FROM ((
 
@@ -717,7 +717,7 @@ class cOrganizationEAPnl(wxgOrganizationEAPnl.wxgOrganizationEAPnl, gmEditArea.c
 		else:
 			self._PRW_category.display_as_valid(True)
 
-		if self._PRW_org.GetValue().strip() == u'':
+		if self._PRW_org.GetValue().strip() == '':
 			validity = False
 			self._PRW_org.display_as_valid(False)
 			self._PRW_org.SetFocus()
@@ -761,13 +761,13 @@ class cOrganizationEAPnl(wxgOrganizationEAPnl.wxgOrganizationEAPnl, gmEditArea.c
 		return True
 	#----------------------------------------------------------------
 	def _refresh_as_new(self):
-		self._PRW_org.SetText(value = u'', data = None)
-		self._PRW_category.SetText(value = u'', data = None)
+		self._PRW_org.SetText(value = '', data = None)
+		self._PRW_category.SetText(value = '', data = None)
 
 		self._PRW_org.SetFocus()
 	#----------------------------------------------------------------
 	def _refresh_as_new_from_existing(self):
-		self._PRW_org.SetText(value = u'', data = None)
+		self._PRW_org.SetText(value = '', data = None)
 		self._PRW_category.SetText(value = self.data['l10n_category'], data = self.data['pk_category_org'])
 
 		self._PRW_org.SetFocus()
@@ -782,7 +782,7 @@ class cOrganizationEAPnl(wxgOrganizationEAPnl.wxgOrganizationEAPnl, gmEditArea.c
 class cOrgCategoryPhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 	def __init__(self, *args, **kwargs):
-		query = u"""
+		query = """
 	SELECT DISTINCT ON (data)
 		*
 	FROM (
@@ -858,7 +858,7 @@ class cOrganizationsManagerPnl(gmListWidgets.cGenericListManagerPnl):
 	# internal helpers
 	#--------------------------------------------------------
 	def __init_ui(self):
-		self._LCTRL_items.set_columns(columns = [_('Organization'), _('Category'), u'#'])
+		self._LCTRL_items.set_columns(columns = [_('Organization'), _('Category'), '#'])
 		self._LCTRL_items.SetToolTip(_('Organizations registered in GNUmed.'))
 		self._LCTRL_items.item_tooltip_callback = self.get_tooltip
 		#self._LCTRL_items.set_column_widths(widths = [wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE])
@@ -915,7 +915,7 @@ if __name__ == "__main__":
 	if len(sys.argv) < 2:
 		sys.exit()
 
-	if sys.argv[1] != u'test':
+	if sys.argv[1] != 'test':
 		sys.exit()
 
 	from Gnumed.pycommon import gmPG2

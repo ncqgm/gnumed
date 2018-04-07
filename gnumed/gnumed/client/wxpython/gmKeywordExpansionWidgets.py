@@ -54,7 +54,7 @@ class cKeywordExpansion_TextCtrlMixin():
 		if (
 			(show_list_if_needed is False)
 				and
-			(keyword_candidate != u'$$steffi')			# Easter Egg ;-)
+			(keyword_candidate != '$$steffi')			# Easter Egg ;-)
 				and
 			(keyword_candidate not in [ r[0] for r in gmKeywordExpansion.get_textual_expansion_keywords() ])
 		):
@@ -78,7 +78,7 @@ class cKeywordExpansion_TextCtrlMixin():
 		if self.LastPosition == 1:
 			return
 
-		char = unichr(evt.GetUnicodeKey())
+		char = chr(evt.GetUnicodeKey())
 
 		user_wants_expansion_attempt = False
 		if evt.GetModifiers() == (wx.MOD_CMD | wx.MOD_ALT):	# portable CTRL-ALT-...
@@ -106,7 +106,7 @@ class cKeywordExpansion_TextCtrlMixin():
 		expansion = expand_keyword(parent = self, keyword = keyword, show_list_if_needed = show_list_if_needed)
 		if expansion is None:
 			return
-		if expansion == u'':
+		if expansion == '':
 			return
 
 		if not self.IsMultiLine():
@@ -190,7 +190,7 @@ class cTextExpansionEditAreaPnl(wxgTextExpansionEditAreaPnl.wxgTextExpansionEdit
 		validity = True
 
 		has_expansion = (
-			(self._TCTRL_expansion.GetValue().strip() != u'')
+			(self._TCTRL_expansion.GetValue().strip() != '')
 				or
 			(self.__data_filename is not None)
 				or
@@ -213,7 +213,7 @@ class cTextExpansionEditAreaPnl(wxgTextExpansionEditAreaPnl.wxgTextExpansionEdit
 				else:
 					self._BTN_select_data_file.SetFocus()
 
-		if self._TCTRL_keyword.GetValue().strip() == u'':
+		if self._TCTRL_keyword.GetValue().strip() == '':
 			validity = False
 			self.display_tctrl_as_valid(tctrl = self._TCTRL_keyword, valid = False)
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot save keyword expansion without keyword.'), beep = True)
@@ -257,17 +257,17 @@ class cTextExpansionEditAreaPnl(wxgTextExpansionEditAreaPnl.wxgTextExpansionEdit
 	def _refresh_as_new(self):
 		self.__data_filename = None
 
-		self._TCTRL_keyword.SetValue(u'')
+		self._TCTRL_keyword.SetValue('')
 		self._TCTRL_keyword.Enable(True)
 
 		self._LBL_data.Enable(False)
 		self._BTN_select_data_file.Enable(False)
-		self._TCTRL_data_file.SetValue(u'')
+		self._TCTRL_data_file.SetValue('')
 		self._CHBOX_is_encrypted.SetValue(False)
 		self._CHBOX_is_encrypted.Enable(False)
 
 		self._LBL_text.Enable(False)
-		self._TCTRL_expansion.SetValue(u'')
+		self._TCTRL_expansion.SetValue('')
 		self._TCTRL_expansion.Enable(False)
 
 		self._RBTN_public.Enable(False)
@@ -279,7 +279,7 @@ class cTextExpansionEditAreaPnl(wxgTextExpansionEditAreaPnl.wxgTextExpansionEdit
 	def _refresh_as_new_from_existing(self):
 		self._refresh_from_existing()
 
-		self._TCTRL_keyword.SetValue(u'%s%s' % (self.data, _(u'___copy')))
+		self._TCTRL_keyword.SetValue('%s%s' % (self.data, _('___copy')))
 		self._TCTRL_keyword.Enable(True)
 
 		self._RBTN_public.Enable(True)
@@ -295,16 +295,16 @@ class cTextExpansionEditAreaPnl(wxgTextExpansionEditAreaPnl.wxgTextExpansionEdit
 
 		if self.data['is_textual']:
 			self._LBL_text.Enable(True)
-			self._TCTRL_expansion.SetValue(gmTools.coalesce(self.data['expansion'], u''))
+			self._TCTRL_expansion.SetValue(gmTools.coalesce(self.data['expansion'], ''))
 
 			self._LBL_data.Enable(False)
 			self._BTN_select_data_file.Enable(False)
-			self._TCTRL_data_file.SetValue(u'')
+			self._TCTRL_data_file.SetValue('')
 			self._CHBOX_is_encrypted.SetValue(False)
 			self._CHBOX_is_encrypted.Enable(False)
 		else:
 			self._LBL_text.Enable(False)
-			self._TCTRL_expansion.SetValue(u'')
+			self._TCTRL_expansion.SetValue('')
 
 			self._LBL_data.Enable(True)
 			self._BTN_select_data_file.Enable(True)
@@ -331,7 +331,7 @@ class cTextExpansionEditAreaPnl(wxgTextExpansionEditAreaPnl.wxgTextExpansionEdit
 		self._TCTRL_expansion.Bind(wx.EVT_TEXT, self._on_expansion_modified)
 	#----------------------------------------------------------------
 	def _on_keyword_modified(self, evt):
-		if self._TCTRL_keyword.GetValue().strip() == u'':
+		if self._TCTRL_keyword.GetValue().strip() == '':
 			self._LBL_text.Enable(False)
 			self._TCTRL_expansion.Enable(False)
 			self._LBL_data.Enable(False)
@@ -352,7 +352,7 @@ class cTextExpansionEditAreaPnl(wxgTextExpansionEditAreaPnl.wxgTextExpansionEdit
 		self._RBTN_private.Enable(True)
 	#----------------------------------------------------------------
 	def _on_expansion_modified(self, evt):
-		if self._TCTRL_expansion.GetValue().strip() == u'':
+		if self._TCTRL_expansion.GetValue().strip() == '':
 			self._LBL_data.Enable(True)
 			self._BTN_select_data_file.Enable(True)
 			return
@@ -360,13 +360,13 @@ class cTextExpansionEditAreaPnl(wxgTextExpansionEditAreaPnl.wxgTextExpansionEdit
 		self.__data_filename = None
 		self._LBL_data.Enable(False)
 		self._BTN_select_data_file.Enable(False)
-		self._TCTRL_data_file.SetValue(u'')
+		self._TCTRL_data_file.SetValue('')
 		self._CHBOX_is_encrypted.Enable(False)
 	#----------------------------------------------------------------
 	def _on_select_data_file_button_pressed(self, event):
 		wildcards = [
-			u"%s (*)|*" % _('all files'),
-			u"%s (*.*)|*.*" % _('all files (Windows)')
+			"%s (*)|*" % _('all files'),
+			"%s (*.*)|*.*" % _('all files (Windows)')
 		]
 
 		dlg = wx.FileDialog (
@@ -412,7 +412,7 @@ def configure_keyword_text_expansion(parent=None):
 		return expansion.format()
 	#----------------------
 	def refresh(lctrl=None):
-		expansions = gmKeywordExpansion.get_keyword_expansions(order_by = u'is_textual DESC, keyword, public_expansion', force_reload = True)
+		expansions = gmKeywordExpansion.get_keyword_expansions(order_by = 'is_textual DESC, keyword, public_expansion', force_reload = True)
 		items = [[
 				e['keyword'],
 				gmTools.bool2subst(e['is_textual'], _('text'), _('data')),
@@ -448,29 +448,29 @@ class cTextExpansionFillInDlg(wxgTextExpansionFillInDlg.wxgTextExpansionFillInDl
 		self.__init_ui()
 	#---------------------------------------------
 	def __init_ui(self):
-		self._LBL_top_part.SetLabel(u'')
+		self._LBL_top_part.SetLabel('')
 		font = self._LBL_left_part.GetFont()
 		font.SetPointSize(pointSize = font.GetPointSize() + 1)
 		self._LBL_left_part.SetFont(font)
-		self._LBL_left_part.SetLabel(u'')
+		self._LBL_left_part.SetLabel('')
 		self._LBL_left_part.Hide()
 		font = self._TCTRL_fillin.GetFont()
 		font.SetPointSize(pointSize = font.GetPointSize() + 1)
 		self._TCTRL_fillin.SetFont(font)
-		self._TCTRL_fillin.SetValue(u'')
+		self._TCTRL_fillin.SetValue('')
 		self._TCTRL_fillin.SetBackgroundColour('yellow')
 		self._TCTRL_fillin.Disable()
 		self._TCTRL_fillin.Hide()
 		font = self._LBL_right_part.GetFont()
 		font.SetPointSize(pointSize = font.GetPointSize() + 1)
 		self._LBL_right_part.SetFont(font)
-		self._LBL_right_part.SetLabel(u'')
+		self._LBL_right_part.SetLabel('')
 		self._LBL_right_part.Hide()
-		self._LBL_bottom_part.SetLabel(u'')
+		self._LBL_bottom_part.SetLabel('')
 		self._BTN_OK.Disable()
 		self._BTN_forward.Disable()
 		self._BTN_cancel.SetFocus()
-		self._LBL_hint.SetLabel(u'')
+		self._LBL_hint.SetLabel('')
 	#---------------------------------------------
 	def __goto_next_fillin(self):
 		if self.__expansion is None:
@@ -494,14 +494,14 @@ class cTextExpansionFillInDlg(wxgTextExpansionFillInDlg.wxgTextExpansionFillInDl
 		if regex.search(_text_expansion_fillin_regex, self.__filled_in) is None:
 			# no
 			self._LBL_top_part.SetLabel(self.__filled_in)
-			self._LBL_left_part.SetLabel(u'')
+			self._LBL_left_part.SetLabel('')
 			self._LBL_left_part.Hide()
-			self._TCTRL_fillin.SetValue(u'')
+			self._TCTRL_fillin.SetValue('')
 			self._TCTRL_fillin.Disable()
 			self._TCTRL_fillin.Hide()
-			self._LBL_right_part.SetLabel(u'')
+			self._LBL_right_part.SetLabel('')
 			self._LBL_right_part.Hide()
-			self._LBL_bottom_part.SetLabel(u'')
+			self._LBL_bottom_part.SetLabel('')
 			self._BTN_OK.Enable()
 			self._BTN_forward.Disable()
 			self._BTN_OK.SetDefault()
@@ -509,26 +509,26 @@ class cTextExpansionFillInDlg(wxgTextExpansionFillInDlg.wxgTextExpansionFillInDl
 
 		# yes
 		top, fillin, bottom = regex.split(r'(' + _text_expansion_fillin_regex + r')', self.__filled_in, maxsplit = 1)
-		top_parts = top.rsplit(u'\n', 1)
+		top_parts = top.rsplit('\n', 1)
 		top_part = top_parts[0]
 		if len(top_parts) == 1:
-			self.__left_splitter = u''
-			left_part = u''
+			self.__left_splitter = ''
+			left_part = ''
 		else:
-			self.__left_splitter = u'\n'
+			self.__left_splitter = '\n'
 			left_part = top_parts[1]
-		bottom_parts = bottom.split(u'\n', 1)
+		bottom_parts = bottom.split('\n', 1)
 		if len(bottom_parts) == 1:
-			parts = bottom_parts[0].split(u' ', 1)
+			parts = bottom_parts[0].split(' ', 1)
 			right_part = parts[0]
 			if len(parts) == 1:
-				self.__right_splitter = u''
-				bottom_part = u''
+				self.__right_splitter = ''
+				bottom_part = ''
 			else:
-				self.__right_splitter = u' '
+				self.__right_splitter = ' '
 				bottom_part = parts[1]
 		else:
-			self.__right_splitter = u'\n'
+			self.__right_splitter = '\n'
 			right_part = bottom_parts[0]
 			bottom_part =  bottom_parts[1]
 		hint = fillin.strip('$').strip('[').strip(']').strip()
@@ -536,7 +536,7 @@ class cTextExpansionFillInDlg(wxgTextExpansionFillInDlg.wxgTextExpansionFillInDl
 		self._LBL_left_part.SetLabel(left_part)
 		self._LBL_left_part.Show()
 		self._TCTRL_fillin.Enable()
-		self._TCTRL_fillin.SetValue(u'')
+		self._TCTRL_fillin.SetValue('')
 		self._TCTRL_fillin.Show()
 		self._LBL_right_part.SetLabel(right_part)
 		self._LBL_right_part.Show()
@@ -622,7 +622,7 @@ def expand_keyword(parent=None, keyword=None, show_list_if_needed=False):
 		return None
 
 	# no replacement necessary:
-	if expansion.strip() == u'':
+	if expansion.strip() == '':
 		return expansion
 
 	if regex.search(_text_expansion_fillin_regex, expansion) is not None:
@@ -653,7 +653,7 @@ if __name__ == '__main__':
 
 	#----------------------------------------
 	def test_fillin():
-		expansion = u"""HEMORR²HAGES: Blutungsrisiko unter OAK
+		expansion = """HEMORR²HAGES: Blutungsrisiko unter OAK
 --------------------------------------
 Am Heart J. 2006 Mar;151(3):713-9.
 

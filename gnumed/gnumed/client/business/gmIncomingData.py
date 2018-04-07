@@ -28,14 +28,14 @@ _log = logging.getLogger('gm.import')
 #============================================================
 # class to handle unmatched incoming clinical data
 #------------------------------------------------------------
-_SQL_get_incoming_data = u"""SELECT * FROM clin.v_incoming_data_unmatched WHERE %s"""
+_SQL_get_incoming_data = """SELECT * FROM clin.v_incoming_data_unmatched WHERE %s"""
 
 class cIncomingData(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents items of incoming data, say, HL7 snippets."""
 
-	_cmd_fetch_payload = _SQL_get_incoming_data % u"pk_incoming_data_unmatched = %s"
+	_cmd_fetch_payload = _SQL_get_incoming_data % "pk_incoming_data_unmatched = %s"
 	_cmds_store_payload = [
-		u"""UPDATE clin.incoming_data_unmatched SET
+		"""UPDATE clin.incoming_data_unmatched SET
 				fk_patient_candidates = %(pk_patient_candidates)s,
 				fk_identity_disambiguated = %(pk_identity_disambiguated)s,
 				fk_provider_disambiguated = %(pk_provider_disambiguated)s,
@@ -61,33 +61,33 @@ class cIncomingData(gmBusinessDBObject.cBusinessDBObject):
 	]
 	# view columns that can be updated:
 	_updatable_fields = [
-		u'pk_patient_candidates',
-		u'request_id',						# request ID as found in <data>
-		u'firstnames',
-		u'lastnames',
-		u'dob',
-		u'postcode',
-		u'other_info',						# other identifying info in .data
-		u'data_type',
-		u'gender',
-		u'requestor',						# Requestor of data (e.g. who ordered test results) if available in source data.
-		u'external_data_id',				# ID of content of .data in external system (e.g. importer) where appropriate
-		u'comment',							# a free text comment on this row, eg. why is it here, error logs etc
-		u'pk_identity_disambiguated',
-		u'pk_provider_disambiguated'		# The provider the data is relevant to.
+		'pk_patient_candidates',
+		'request_id',						# request ID as found in <data>
+		'firstnames',
+		'lastnames',
+		'dob',
+		'postcode',
+		'other_info',						# other identifying info in .data
+		'data_type',
+		'gender',
+		'requestor',						# Requestor of data (e.g. who ordered test results) if available in source data.
+		'external_data_id',				# ID of content of .data in external system (e.g. importer) where appropriate
+		'comment',							# a free text comment on this row, eg. why is it here, error logs etc
+		'pk_identity_disambiguated',
+		'pk_provider_disambiguated'		# The provider the data is relevant to.
 	]
 	#--------------------------------------------------------
 	def format(self):
-		return u'%s' % self
+		return '%s' % self
 	#--------------------------------------------------------
 	def _format_patient_identification(self):
-		tmp = u'%s %s %s' % (
-			gmTools.coalesce(self._payload[self._idx['lastnames']], u'', u'last=%s'),
-			gmTools.coalesce(self._payload[self._idx['firstnames']], u'', u'first=%s'),
-			gmTools.coalesce(self._payload[self._idx['gender']], u'', u'gender=%s')
+		tmp = '%s %s %s' % (
+			gmTools.coalesce(self._payload[self._idx['lastnames']], '', 'last=%s'),
+			gmTools.coalesce(self._payload[self._idx['firstnames']], '', 'first=%s'),
+			gmTools.coalesce(self._payload[self._idx['gender']], '', 'gender=%s')
 		)
 		if self._payload[self._idx['dob']] is not None:
-			tmp += u' dob=%s' % gmDateTime.pydt_strftime(self._payload[self._idx['dob']], '%Y %b %d')
+			tmp += ' dob=%s' % gmDateTime.pydt_strftime(self._payload[self._idx['dob']], '%Y %b %d')
 		return tmp
 
 	patient_identification = property(_format_patient_identification, lambda x:x)
@@ -101,7 +101,7 @@ class cIncomingData(gmBusinessDBObject.cBusinessDBObject):
 
 		_log.debug('updating [pk=%s] from [%s]', self.pk_obj, fname)
 		gmPG2.file2bytea (
-			query = u"UPDATE clin.incoming_data_unmatched SET data = %(data)s::bytea WHERE pk = %(pk)s",
+			query = "UPDATE clin.incoming_data_unmatched SET data = %(data)s::bytea WHERE pk = %(pk)s",
 			filename = fname,
 			args = {'pk': self.pk_obj}
 		)
@@ -124,7 +124,7 @@ class cIncomingData(gmBusinessDBObject.cBusinessDBObject):
 
 		success = gmPG2.bytea2file (
 			data_query = {
-				'cmd': u'SELECT substring(data from %(start)s for %(size)s) FROM clin.incoming_data_unmatched WHERE pk = %(pk)s',
+				'cmd': 'SELECT substring(data from %(start)s for %(size)s) FROM clin.incoming_data_unmatched WHERE pk = %(pk)s',
 				'args': {'pk': self.pk_obj}
 			},
 			filename = filename,
@@ -139,18 +139,18 @@ class cIncomingData(gmBusinessDBObject.cBusinessDBObject):
 
 	#--------------------------------------------------------
 	def lock(self, exclusive=False):
-		return gmPG2.lock_row(table = u'clin.incoming_data_unmatched', pk = self.pk_obj, exclusive = exclusive)
+		return gmPG2.lock_row(table = 'clin.incoming_data_unmatched', pk = self.pk_obj, exclusive = exclusive)
 
 	#--------------------------------------------------------
 	def unlock(self, exclusive=False):
-		return gmPG2.unlock_row(table = u'clin.incoming_data_unmatched', pk = self.pk_obj, exclusive = exclusive)
+		return gmPG2.unlock_row(table = 'clin.incoming_data_unmatched', pk = self.pk_obj, exclusive = exclusive)
 
 #------------------------------------------------------------
 def get_incoming_data(order_by=None):
 	if order_by is None:
-		order_by = u'true'
+		order_by = 'true'
 	else:
-		order_by = u'true ORDER BY %s' % order_by
+		order_by = 'true ORDER BY %s' % order_by
 	cmd = _SQL_get_incoming_data % order_by
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
 	return [ cIncomingData(row = {'data': r, 'idx': idx, 'pk_field': 'pk_incoming_data_unmatched'}) for r in rows ]
@@ -158,7 +158,7 @@ def get_incoming_data(order_by=None):
 #------------------------------------------------------------
 def create_incoming_data(data_type, filename):
 	args = {'typ': data_type}
-	cmd = u"""
+	cmd = """
 		INSERT INTO clin.incoming_data_unmatched (type, data)
 		VALUES (%(typ)s, 'new data'::bytea)
 		RETURNING pk"""
@@ -174,7 +174,7 @@ def create_incoming_data(data_type, filename):
 #------------------------------------------------------------
 def delete_incoming_data(pk_incoming_data=None):
 	args = {'pk': pk_incoming_data}
-	cmd = u"DELETE FROM clin.incoming_data_unmatched WHERE pk = %(pk)s"
+	cmd = "DELETE FROM clin.incoming_data_unmatched WHERE pk = %(pk)s"
 	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 	return True
 

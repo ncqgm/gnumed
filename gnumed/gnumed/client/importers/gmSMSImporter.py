@@ -9,12 +9,12 @@ from Gnumed.business import gmPerson
 
 
 # define some defaults
-external_id_type = u'SMS-Waage'
+external_id_type = 'SMS-Waage'
 idx_date = 1
 idx_gsm = 2
 idx_sms = 3
-soap_cat = u'o'
-weight_template = u'aktuelles Gewicht (%s)::%s'
+soap_cat = 'o'
+weight_template = 'aktuelles Gewicht (%s)::%s'
 #==============================================
 class cLogin:
 	pass
@@ -73,7 +73,7 @@ def run_importer():
 	# ensure structure of EMR
 	curr_pat = gmPerson.gmCurrentPatient()
 	emr = curr_pat.emr
-	epi = emr.add_episode(episode_name = u'Gewichtsmonitoring', is_open = False)
+	epi = emr.add_episode(episode_name = 'Gewichtsmonitoring', is_open = False)
 
 	# and import our stuff
 	narr = emr.add_clin_narrative (
@@ -91,11 +91,11 @@ if __name__ == '__main__':
 	gmDateTime.init()
 
 	login = cLogin()
-	login.database = u'gnumed_v9'
-	login.host = u'publicdb.gnumed.de'
+	login.database = 'gnumed_v9'
+	login.host = 'publicdb.gnumed.de'
 	login.port = 5432
-	login.user = u'any-doc'
-	login.password = u'any-doc'
+	login.user = 'any-doc'
+	login.password = 'any-doc'
 	gmPG2.set_default_login(login = login)
 
 	if not run_importer():

@@ -92,10 +92,10 @@ def manage_tag_images(parent=None):
 
 	#------------------------------------------------------------
 	def go_to_openclipart_org(tag_image):
-		gmNetworkTools.open_url_in_browser(url = u'http://www.openclipart.org')
-		gmNetworkTools.open_url_in_browser(url = u'http://commons.wikimedia.org/wiki/Category:Symbols_of_disabilities')
-		gmNetworkTools.open_url_in_browser(url = u'http://www.duckduckgo.com')
-		gmNetworkTools.open_url_in_browser(url = u'http://images.google.com')
+		gmNetworkTools.open_url_in_browser(url = 'http://www.openclipart.org')
+		gmNetworkTools.open_url_in_browser(url = 'http://commons.wikimedia.org/wiki/Category:Symbols_of_disabilities')
+		gmNetworkTools.open_url_in_browser(url = 'http://www.duckduckgo.com')
+		gmNetworkTools.open_url_in_browser(url = 'http://images.google.com')
 		return True
 
 	#------------------------------------------------------------
@@ -112,11 +112,11 @@ def manage_tag_images(parent=None):
 
 	#------------------------------------------------------------
 	def refresh(lctrl):
-		tags = gmDemographicRecord.get_tag_images(order_by = u'l10n_description')
+		tags = gmDemographicRecord.get_tag_images(order_by = 'l10n_description')
 		items = [ [
 			t['l10n_description'],
-			gmTools.bool2subst(t['is_in_use'], u'X', u''),
-			u'%s' % t['size'],
+			gmTools.bool2subst(t['is_in_use'], 'X', ''),
+			'%s' % t['size'],
 			t['pk_tag_image']
 		] for t in tags ]
 		lctrl.set_string_items(items)
@@ -130,7 +130,7 @@ def manage_tag_images(parent=None):
 		parent = parent,
 		msg = msg,
 		caption = _('Showing tags with images.'),
-		columns = [_('Tag name'), _('In use'), _('Image size'), u'#'],
+		columns = [_('Tag name'), _('In use'), _('Image size'), '#'],
 		single_selection = True,
 		new_callback = edit,
 		edit_callback = edit,
@@ -169,7 +169,7 @@ class cTagImageEAPnl(wxgTagImageEAPnl.wxgTagImageEAPnl, gmEditArea.cGenericEditA
 
 		valid = True
 
-		if self.mode == u'new':
+		if self.mode == 'new':
 			if self.__selected_image_file is None:
 				valid = False
 				gmDispatcher.send(signal = 'statustext', msg = _('Must pick an image file for a new tag.'), beep = True)
@@ -184,7 +184,7 @@ class cTagImageEAPnl(wxgTagImageEAPnl.wxgTagImageEAPnl, gmEditArea.cGenericEditA
 				gmDispatcher.send(signal = 'statustext', msg = _('Cannot open the image file [%s].') % self.__selected_image_file, beep = True)
 				self._BTN_pick_image.SetFocus()
 
-		if self._TCTRL_description.GetValue().strip() == u'':
+		if self._TCTRL_description.GetValue().strip() == '':
 			valid = False
 			self.display_tctrl_as_valid(self._TCTRL_description, False)
 			self._TCTRL_description.SetFocus()
@@ -233,8 +233,8 @@ class cTagImageEAPnl(wxgTagImageEAPnl.wxgTagImageEAPnl, gmEditArea.cGenericEditA
 		return True
 	#----------------------------------------------------------------
 	def _refresh_as_new(self):
-		self._TCTRL_description.SetValue(u'')
-		self._TCTRL_filename.SetValue(u'')
+		self._TCTRL_description.SetValue('')
+		self._TCTRL_filename.SetValue('')
 		self._BMP_image.SetBitmap(bitmap = wx.Bitmap(100, 100))
 
 		self.__selected_image_file = None
@@ -246,7 +246,7 @@ class cTagImageEAPnl(wxgTagImageEAPnl.wxgTagImageEAPnl, gmEditArea.cGenericEditA
 	#----------------------------------------------------------------
 	def _refresh_from_existing(self):
 		self._TCTRL_description.SetValue(self.data['l10n_description'])
-		self._TCTRL_filename.SetValue(gmTools.coalesce(self.data['filename'], u''))
+		self._TCTRL_filename.SetValue(gmTools.coalesce(self.data['filename'], ''))
 		fname = self.data.export_image2file()
 		if fname is None:
 			self._BMP_image.SetBitmap(bitmap = wx.Bitmap(100, 100))
@@ -281,7 +281,7 @@ def select_patient_tags(parent=None, patient=None):
 		tags = patient.tags
 		items = [ [
 			t['l10n_description'],
-			gmTools.coalesce(t['comment'], u'')
+			gmTools.coalesce(t['comment'], '')
 		] for t in tags ]
 		lctrl.set_string_items(items)
 		#lctrl.set_column_widths(widths = [wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE])
@@ -337,16 +337,16 @@ class cImageTagPresenterPnl(wxgVisualSoapPresenterPnl.wxgVisualSoapPresenterPnl)
 
 		self.clear()
 
-		for tag in patient.get_tags(order_by = u'l10n_description'):
+		for tag in patient.get_tags(order_by = 'l10n_description'):
 			fname = tag.export_image2file()
 			if fname is None:
 				_log.warning('cannot export image data of tag [%s]', tag['l10n_description'])
 				continue
 			img = gmGuiHelpers.file2scaled_image(filename = fname, height = 20)
 			bmp = wx_genstatbmp.GenStaticBitmap(self, -1, img, style = wx.NO_BORDER)
-			bmp.SetToolTip(u'%s%s' % (
+			bmp.SetToolTip('%s%s' % (
 				tag['l10n_description'],
-				gmTools.coalesce(tag['comment'], u'', u'\n\n%s')
+				gmTools.coalesce(tag['comment'], '', '\n\n%s')
 			))
 			bmp.tag = tag
 			bmp.Bind(wx.EVT_RIGHT_UP, self._on_bitmap_rightclicked)
@@ -384,17 +384,17 @@ class cImageTagPresenterPnl(wxgVisualSoapPresenterPnl.wxgVisualSoapPresenterPnl)
 		comment = wx.GetTextFromUser (
 			message = msg,
 			caption = _('Editing tag comment'),
-			default_value = gmTools.coalesce(self.__current_tag['comment'], u''),
+			default_value = gmTools.coalesce(self.__current_tag['comment'], ''),
 			parent = self
 		)
 
-		if comment == u'':
+		if comment == '':
 			return
 
 		if comment.strip() == self.__current_tag['comment']:
 			return
 
-		if comment == u' ':
+		if comment == ' ':
 			self.__current_tag['comment'] = None
 		else:
 			self.__current_tag['comment'] = comment.strip()
@@ -417,10 +417,10 @@ class cKOrganizerSchedulePnl(gmDataMiningWidgets.cPatientListingPnl):
 		kwargs['message'] = _("Today's KOrganizer appointments ...")
 		kwargs['button_defs'] = [
 			{'label': _('Reload'), 'tooltip': _('Reload appointments from KOrganizer')},
-			{'label': u''},
-			{'label': u''},
-			{'label': u''},
-			{'label': u'KOrganizer', 'tooltip': _('Launch KOrganizer')}
+			{'label': ''},
+			{'label': ''},
+			{'label': ''},
+			{'label': 'KOrganizer', 'tooltip': _('Launch KOrganizer')}
 		]
 		gmDataMiningWidgets.cPatientListingPnl.__init__(self, *args, **kwargs)
 
@@ -449,7 +449,7 @@ class cKOrganizerSchedulePnl(gmDataMiningWidgets.cPatientListingPnl):
 		try:
 			csv_file = io.open(self.fname , mode = 'rt', encoding = 'utf8', errors = 'replace')
 		except IOError:
-			gmDispatcher.send(signal = u'statustext', msg = _('Cannot access KOrganizer transfer file [%s]') % self.fname, beep = True)
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot access KOrganizer transfer file [%s]') % self.fname, beep = True)
 			return
 
 		csv_lines = gmTools.unicode_csv_reader (
@@ -460,8 +460,8 @@ class cKOrganizerSchedulePnl(gmDataMiningWidgets.cPatientListingPnl):
 		self._LCTRL_items.set_columns ([
 			_('Place'),
 			_('Start'),
-			u'',
-			u'',
+			'',
+			'',
 			_('Patient'),
 			_('Comment')
 		])
@@ -492,8 +492,8 @@ def edit_occupation():
 		old_job = curr_jobs[0]['l10n_occupation']
 		update = curr_jobs[0]['modified_when'].strftime('%m/%Y')
 	else:
-		old_job = u''
-		update = u''
+		old_job = ''
+		update = ''
 
 	msg = _(
 		'Please enter the primary occupation of the patient.\n'
@@ -509,7 +509,7 @@ def edit_occupation():
 		default_value = old_job,
 		parent = None
 	)
-	if new_job.strip() == u'':
+	if new_job.strip() == '':
 		return
 
 	for job in curr_jobs:
@@ -523,7 +523,7 @@ def edit_occupation():
 class cOccupationPhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 	def __init__(self, *args, **kwargs):
-		query = u"SELECT distinct name, _(name) from dem.occupation where _(name) %(fragment_condition)s"
+		query = "SELECT distinct name, _(name) from dem.occupation where _(name) %(fragment_condition)s"
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query)
 		mp.setThresholds(1, 3, 5)
 		gmPhraseWheel.cPhraseWheel.__init__ (
@@ -609,7 +609,7 @@ def disable_identity(identity=None):
 class cLastnamePhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 	def __init__(self, *args, **kwargs):
-		query = u"SELECT distinct lastnames, lastnames from dem.names where lastnames %(fragment_condition)s order by lastnames limit 25"
+		query = "SELECT distinct lastnames, lastnames from dem.names where lastnames %(fragment_condition)s order by lastnames limit 25"
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query)
 		mp.setThresholds(3, 5, 9)
 		gmPhraseWheel.cPhraseWheel.__init__ (
@@ -624,7 +624,7 @@ class cLastnamePhraseWheel(gmPhraseWheel.cPhraseWheel):
 class cFirstnamePhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 	def __init__(self, *args, **kwargs):
-		query = u"""
+		query = """
 			(SELECT distinct firstnames, firstnames from dem.names where firstnames %(fragment_condition)s order by firstnames limit 20)
 				union
 			(SELECT distinct name, name from dem.name_gender_map where name %(fragment_condition)s order by name limit 20)"""
@@ -642,7 +642,7 @@ class cFirstnamePhraseWheel(gmPhraseWheel.cPhraseWheel):
 class cNicknamePhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 	def __init__(self, *args, **kwargs):
-		query = u"""
+		query = """
 			(SELECT distinct preferred, preferred from dem.names where preferred %(fragment_condition)s order by preferred limit 20)
 				union
 			(SELECT distinct firstnames, firstnames from dem.names where firstnames %(fragment_condition)s order by firstnames limit 20)
@@ -663,7 +663,7 @@ class cNicknamePhraseWheel(gmPhraseWheel.cPhraseWheel):
 class cTitlePhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 	def __init__(self, *args, **kwargs):
-		query = u"SELECT distinct title, title from dem.identity where title %(fragment_condition)s"
+		query = "SELECT distinct title, title from dem.identity where title %(fragment_condition)s"
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query)
 		mp.setThresholds(1, 3, 9)
 		gmPhraseWheel.cPhraseWheel.__init__ (
@@ -682,7 +682,7 @@ class cGenderSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
 	def __init__(self, *args, **kwargs):
 
 		if cGenderSelectionPhraseWheel._gender_map is None:
-			cmd = u"""
+			cmd = """
 				SELECT tag, l10n_label, sort_weight
 				from dem.v_gender_labels
 				order by sort_weight desc"""
@@ -707,7 +707,7 @@ class cGenderSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
 class cExternalIDTypePhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 	def __init__(self, *args, **kwargs):
-		query = u"""
+		query = """
 			SELECT DISTINCT ON (list_label)
 				pk AS data,
 				name AS field_label,
@@ -731,7 +731,7 @@ class cExternalIDTypePhraseWheel(gmPhraseWheel.cPhraseWheel):
 class cExternalIDIssuerPhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 	def __init__(self, *args, **kwargs):
-		query = u"""
+		query = """
 SELECT distinct issuer, issuer
 from dem.enum_ext_id_types
 where issuer %(fragment_condition)s
@@ -783,14 +783,14 @@ class cExternalIDEditAreaPnl(wxgExternalIDEditAreaPnl.wxgExternalIDEditAreaPnl, 
 		# do not test .GetData() because adding external
 		# IDs will create types as necessary
 		#if self._PRW_type.GetData() is None:
-		if self._PRW_type.GetValue().strip() == u'':
+		if self._PRW_type.GetValue().strip() == '':
 			validity = False
 			self._PRW_type.display_as_valid(False)
 			self._PRW_type.SetFocus()
 		else:
 			self._PRW_type.display_as_valid(True)
 
-		if self._TCTRL_value.GetValue().strip() == u'':
+		if self._TCTRL_value.GetValue().strip() == '':
 			validity = False
 			self.display_tctrl_as_valid(tctrl = self._TCTRL_value, valid = False)
 		else:
@@ -803,8 +803,8 @@ class cExternalIDEditAreaPnl(wxgExternalIDEditAreaPnl.wxgExternalIDEditAreaPnl, 
 		data['pk_type'] = None
 		data['name'] = self._PRW_type.GetValue().strip()
 		data['value'] = self._TCTRL_value.GetValue().strip()
-		data['issuer'] = gmTools.none_if(self._PRW_issuer.GetValue().strip(), u'')
-		data['comment'] = gmTools.none_if(self._TCTRL_comment.GetValue().strip(), u'')
+		data['issuer'] = gmTools.none_if(self._PRW_issuer.GetValue().strip(), '')
+		data['comment'] = gmTools.none_if(self._TCTRL_comment.GetValue().strip(), '')
 
 		self.id_holder.add_external_id (
 			type_name = data['name'],
@@ -819,8 +819,8 @@ class cExternalIDEditAreaPnl(wxgExternalIDEditAreaPnl.wxgExternalIDEditAreaPnl, 
 	def _save_as_update(self):
 		self.data['name'] = self._PRW_type.GetValue().strip()
 		self.data['value'] = self._TCTRL_value.GetValue().strip()
-		self.data['issuer'] = gmTools.none_if(self._PRW_issuer.GetValue().strip(), u'')
-		self.data['comment'] = gmTools.none_if(self._TCTRL_comment.GetValue().strip(), u'')
+		self.data['issuer'] = gmTools.none_if(self._PRW_issuer.GetValue().strip(), '')
+		self.data['comment'] = gmTools.none_if(self._TCTRL_comment.GetValue().strip(), '')
 
 		self.id_holder.update_external_id (
 			pk_id = self.data['pk_id'],
@@ -833,10 +833,10 @@ class cExternalIDEditAreaPnl(wxgExternalIDEditAreaPnl.wxgExternalIDEditAreaPnl, 
 		return True
 	#----------------------------------------------------------------
 	def _refresh_as_new(self):
-		self._PRW_type.SetText(value = u'', data = None)
-		self._TCTRL_value.SetValue(u'')
-		self._PRW_issuer.SetText(value = u'', data = None)
-		self._TCTRL_comment.SetValue(u'')
+		self._PRW_type.SetText(value = '', data = None)
+		self._TCTRL_value.SetValue('')
+		self._PRW_issuer.SetText(value = '', data = None)
+		self._TCTRL_comment.SetValue('')
 	#----------------------------------------------------------------
 	def _refresh_as_new_from_existing(self):
 		self._refresh_as_new()
@@ -846,7 +846,7 @@ class cExternalIDEditAreaPnl(wxgExternalIDEditAreaPnl.wxgExternalIDEditAreaPnl, 
 		self._PRW_type.SetText(value = self.data['name'], data = self.data['pk_type'])
 		self._TCTRL_value.SetValue(self.data['value'])
 		self._PRW_issuer.SetText(self.data['issuer'])
-		self._TCTRL_comment.SetValue(gmTools.coalesce(self.data['comment'], u''))
+		self._TCTRL_comment.SetValue(gmTools.coalesce(self.data['comment'], ''))
 	#----------------------------------------------------------------
 	# internal helpers
 	#----------------------------------------------------------------
@@ -859,7 +859,7 @@ class cExternalIDEditAreaPnl(wxgExternalIDEditAreaPnl.wxgExternalIDEditAreaPnl, 
 		if pk_curr_type is None:
 			return True
 		rows, idx = gmPG2.run_ro_queries(queries = [{
-			'cmd': u"SELECT issuer FROM dem.enum_ext_id_types WHERE pk = %s",
+			'cmd': "SELECT issuer FROM dem.enum_ext_id_types WHERE pk = %s",
 			'args': [pk_curr_type]
 		}])
 		if len(rows) == 0:
@@ -920,9 +920,9 @@ def _validate_dob_field(dob_prw):
 		return False
 
 	# invalid timestamp but not empty
-	if dob_prw.GetValue().strip() != u'':
+	if dob_prw.GetValue().strip() != '':
 		dob_prw.display_as_valid(False)
-		gmDispatcher.send(signal = u'statustext', msg = _('Invalid date of birth.'))
+		gmDispatcher.send(signal = 'statustext', msg = _('Invalid date of birth.'))
 		dob_prw.SetFocus()
 		return False
 
@@ -935,7 +935,7 @@ def _validate_tob_field(ctrl):
 
 	val = ctrl.GetValue().strip()
 
-	if val == u'':
+	if val == '':
 		return True
 
 	converted, hours = gmTools.input2int(val[:2], 0, 23)
@@ -997,7 +997,7 @@ class cIdentityEAPnl(wxgIdentityEAPnl.wxgIdentityEAPnl, gmEditArea.cGenericEditA
 			self.display_ctrl_as_valid(ctrl = self._TCTRL_tob, valid = False)
 
 		if not self._PRW_dod.is_valid_timestamp(allow_empty = True):
-			gmDispatcher.send(signal = u'statustext', msg = _('Invalid date of death.'))
+			gmDispatcher.send(signal = 'statustext', msg = _('Invalid date of death.'))
 			self._PRW_dod.SetFocus()
 			has_error = True
 
@@ -1009,7 +1009,7 @@ class cIdentityEAPnl(wxgIdentityEAPnl.wxgIdentityEAPnl, gmEditArea.cGenericEditA
 	#----------------------------------------------------------------
 	def _save_as_update(self):
 
-		if self._PRW_dob.GetValue().strip() == u'':
+		if self._PRW_dob.GetValue().strip() == '':
 			if not _empty_dob_allowed():
 				return False
 			self.data['dob'] = None
@@ -1017,14 +1017,14 @@ class cIdentityEAPnl(wxgIdentityEAPnl.wxgIdentityEAPnl, gmEditArea.cGenericEditA
 			self.data['dob'] = self._PRW_dob.GetData()
 		self.data['dob_is_estimated'] = self._CHBOX_estimated_dob.GetValue()
 		val = self._TCTRL_tob.GetValue().strip()
-		if val == u'':
+		if val == '':
 			self.data['tob'] = None
 		else:
 			self.data['tob'] = pydt.time(int(val[:2]), int(val[3:5]))
 		self.data['gender'] = self._PRW_gender.GetData()
-		self.data['title'] = gmTools.none_if(self._PRW_title.GetValue().strip(), u'')
+		self.data['title'] = gmTools.none_if(self._PRW_title.GetValue().strip(), '')
 		self.data['deceased'] = self._PRW_dod.GetData()
-		self.data['comment'] = gmTools.none_if(self._TCTRL_comment.GetValue().strip(), u'')
+		self.data['comment'] = gmTools.none_if(self._TCTRL_comment.GetValue().strip(), '')
 
 		self.data.save()
 		return True
@@ -1034,12 +1034,12 @@ class cIdentityEAPnl(wxgIdentityEAPnl.wxgIdentityEAPnl, gmEditArea.cGenericEditA
 	#----------------------------------------------------------------
 	def _refresh_from_existing(self):
 
-		self._LBL_info.SetLabel(u'ID: #%s' % (
+		self._LBL_info.SetLabel('ID: #%s' % (
 			self.data.ID
 			# FIXME: add 'deleted' status
 		))
 		if self.data['dob'] is None:
-			val = u''
+			val = ''
 		else:
 			val = gmDateTime.pydt_strftime (
 				self.data['dob'],
@@ -1049,11 +1049,11 @@ class cIdentityEAPnl(wxgIdentityEAPnl.wxgIdentityEAPnl, gmEditArea.cGenericEditA
 		self._PRW_dob.SetText(value = val, data = self.data['dob'])
 		self._CHBOX_estimated_dob.SetValue(self.data['dob_is_estimated'])
 		if self.data['tob'] is None:
-			self._TCTRL_tob.SetValue(u'')
+			self._TCTRL_tob.SetValue('')
 		else:
 			self._TCTRL_tob.SetValue(self.data['tob'].strftime('%H:%M'))
 		if self.data['deceased'] is None:
-			val = u''
+			val = ''
 		else:
 			val = gmDateTime.pydt_strftime (
 				self.data['deceased'],
@@ -1063,8 +1063,8 @@ class cIdentityEAPnl(wxgIdentityEAPnl.wxgIdentityEAPnl, gmEditArea.cGenericEditA
 		self._PRW_dod.SetText(value = val, data = self.data['deceased'])
 		self._PRW_gender.SetData(self.data['gender'])
 		#self._PRW_ethnicity.SetValue()
-		self._PRW_title.SetText(gmTools.coalesce(self.data['title'], u''))
-		self._TCTRL_comment.SetValue(gmTools.coalesce(self.data['comment'], u''))
+		self._PRW_title.SetText(gmTools.coalesce(self.data['title'], ''))
+		self._TCTRL_comment.SetValue(gmTools.coalesce(self.data['comment'], ''))
 	#----------------------------------------------------------------
 	def _refresh_as_new_from_existing(self):
 		pass
@@ -1107,14 +1107,14 @@ class cPersonNameEAPnl(wxgPersonNameEAPnl.wxgPersonNameEAPnl, gmEditArea.cGeneri
 	def _valid_for_save(self):
 		validity = True
 
-		if self._PRW_lastname.GetValue().strip() == u'':
+		if self._PRW_lastname.GetValue().strip() == '':
 			validity = False
 			self._PRW_lastname.display_as_valid(False)
 			self._PRW_lastname.SetFocus()
 		else:
 			self._PRW_lastname.display_as_valid(True)
 
-		if self._PRW_firstname.GetValue().strip() == u'':
+		if self._PRW_firstname.GetValue().strip() == '':
 			validity = False
 			self._PRW_firstname.display_as_valid(False)
 			self._PRW_firstname.SetFocus()
@@ -1145,12 +1145,12 @@ class cPersonNameEAPnl(wxgPersonNameEAPnl.wxgPersonNameEAPnl, gmEditArea.cGeneri
 			return False
 
 		old_nick = self.__identity['active_name']['preferred']
-		new_nick = gmTools.none_if(self._PRW_nick.GetValue().strip(), u'')
+		new_nick = gmTools.none_if(self._PRW_nick.GetValue().strip(), '')
 		if active:
 			data['preferred'] = gmTools.coalesce(new_nick, old_nick)
 		else:
 			data['preferred'] = new_nick
-		data['comment'] = gmTools.none_if(self._TCTRL_comment.GetValue().strip(), u'')
+		data['comment'] = gmTools.none_if(self._TCTRL_comment.GetValue().strip(), '')
 		data.save()
 
 		self.data = data
@@ -1171,8 +1171,8 @@ class cPersonNameEAPnl(wxgPersonNameEAPnl.wxgPersonNameEAPnl, gmEditArea.cGeneri
 		# editable fields only ?
 		if new_name == current_name:
 			self.data['active_name'] = self._CHBOX_active.GetValue()
-			self.data['preferred'] = gmTools.none_if(self._PRW_nick.GetValue().strip(), u'')
-			self.data['comment'] = gmTools.none_if(self._TCTRL_comment.GetValue().strip(), u'')
+			self.data['preferred'] = gmTools.none_if(self._PRW_nick.GetValue().strip(), '')
+			self.data['comment'] = gmTools.none_if(self._TCTRL_comment.GetValue().strip(), '')
 			self.data.save()
 		# else clone name and update that
 		else:
@@ -1191,34 +1191,34 @@ class cPersonNameEAPnl(wxgPersonNameEAPnl.wxgPersonNameEAPnl, gmEditArea.cGeneri
 #					) % str(exc)
 				)
 				return False
-			name['preferred'] = gmTools.none_if(self._PRW_nick.GetValue().strip(), u'')
-			name['comment'] = gmTools.none_if(self._TCTRL_comment.GetValue().strip(), u'')
+			name['preferred'] = gmTools.none_if(self._PRW_nick.GetValue().strip(), '')
+			name['comment'] = gmTools.none_if(self._TCTRL_comment.GetValue().strip(), '')
 			name.save()
 			self.data = name
 
 		return True
 	#----------------------------------------------------------------
 	def _refresh_as_new(self):
-		self._PRW_firstname.SetText(value = u'', data = None)
-		self._PRW_lastname.SetText(value = u'', data = None)
-		self._PRW_nick.SetText(value = u'', data = None)
-		self._TCTRL_comment.SetValue(u'')
+		self._PRW_firstname.SetText(value = '', data = None)
+		self._PRW_lastname.SetText(value = '', data = None)
+		self._PRW_nick.SetText(value = '', data = None)
+		self._TCTRL_comment.SetValue('')
 		self._CHBOX_active.SetValue(False)
 
 		self._PRW_firstname.SetFocus()
 	#----------------------------------------------------------------
 	def _refresh_as_new_from_existing(self):
 		self._refresh_as_new()
-		self._PRW_firstname.SetText(value = u'', data = None)
-		self._PRW_nick.SetText(gmTools.coalesce(self.data['preferred'], u''))
+		self._PRW_firstname.SetText(value = '', data = None)
+		self._PRW_nick.SetText(gmTools.coalesce(self.data['preferred'], ''))
 
 		self._PRW_lastname.SetFocus()
 	#----------------------------------------------------------------
 	def _refresh_from_existing(self):
 		self._PRW_firstname.SetText(self.data['firstnames'])
 		self._PRW_lastname.SetText(self.data['lastnames'])
-		self._PRW_nick.SetText(gmTools.coalesce(self.data['preferred'], u''))
-		self._TCTRL_comment.SetValue(gmTools.coalesce(self.data['comment'], u''))
+		self._PRW_nick.SetText(gmTools.coalesce(self.data['preferred'], ''))
+		self._TCTRL_comment.SetValue(gmTools.coalesce(self.data['comment'], ''))
 		self._CHBOX_active.SetValue(self.data['active_name'])
 
 		self._TCTRL_comment.SetFocus()
@@ -1261,8 +1261,8 @@ class cPersonNamesManagerPnl(gmListWidgets.cGenericListManagerPnl):
 					gmTools.bool2str(n['active_name'], 'X', ''),
 					n['lastnames'],
 					n['firstnames'],
-					gmTools.coalesce(n['preferred'], u''),
-					gmTools.coalesce(n['comment'], u'')
+					gmTools.coalesce(n['preferred'], ''),
+					gmTools.coalesce(n['comment'], '')
 				] for n in names ]
 		)
 		self._LCTRL_items.set_column_widths()
@@ -1303,11 +1303,11 @@ class cPersonNamesManagerPnl(gmListWidgets.cGenericListManagerPnl):
 	def _del_name(self, name):
 
 		if len(self.__identity.get_names()) == 1:
-			gmDispatcher.send(signal = u'statustext', msg = _('Cannot delete the only name of a person.'), beep = True)
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot delete the only name of a person.'), beep = True)
 			return False
 
 		if name['active_name']:
-			gmDispatcher.send(signal = u'statustext', msg = _('Cannot delete the active name of a person.'), beep = True)
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot delete the active name of a person.'), beep = True)
 			return False
 
 		go_ahead = gmGuiHelpers.gm_show_question (
@@ -1375,8 +1375,8 @@ class cPersonIDsManagerPnl(gmListWidgets.cGenericListManagerPnl):
 			items = [ [
 					i['name'],
 					i['value'],
-					gmTools.coalesce(i['issuer'], u''),
-					gmTools.coalesce(i['comment'], u'')
+					gmTools.coalesce(i['issuer'], ''),
+					gmTools.coalesce(i['comment'], '')
 				] for i in ids
 			]
 		)
@@ -1510,25 +1510,25 @@ class cPersonSocialNetworkManagerPnl(wxgPersonSocialNetworkManagerPnl.wxgPersonS
 		tt = _('Link another person in this database as the emergency contact:\n\nEnter person name part or identifier and hit <enter>.')
 
 		if self.__identity is None:
-			self._TCTRL_er_contact.SetValue(u'')
+			self._TCTRL_er_contact.SetValue('')
 			self._TCTRL_person.person = None
 			self._TCTRL_person.SetToolTip(tt)
 
-			self._PRW_provider.SetText(value = u'', data = None)
+			self._PRW_provider.SetText(value = '', data = None)
 			return
 
-		self._TCTRL_er_contact.SetValue(gmTools.coalesce(self.__identity['emergency_contact'], u''))
+		self._TCTRL_er_contact.SetValue(gmTools.coalesce(self.__identity['emergency_contact'], ''))
 		if self.__identity['pk_emergency_contact'] is not None:
 			ident = gmPerson.cPerson(aPK_obj = self.__identity['pk_emergency_contact'])
 			self._TCTRL_person.person = ident
-			tt = u'%s\n\n%s\n\n%s' % (
+			tt = '%s\n\n%s\n\n%s' % (
 				tt,
 				ident['description_gender'],
-				u'\n'.join([
-					u'%s: %s%s' % (
+				'\n'.join([
+					'%s: %s%s' % (
 						c['l10n_comm_type'],
 						c['url'],
-						gmTools.bool2subst(c['is_confidential'], _(' (confidential !)'), u'', u'')
+						gmTools.bool2subst(c['is_confidential'], _(' (confidential !)'), '', '')
 					)
 					for c in ident.get_comm_channels()
 				])
@@ -1539,7 +1539,7 @@ class cPersonSocialNetworkManagerPnl(wxgPersonSocialNetworkManagerPnl.wxgPersonS
 		self._TCTRL_person.SetToolTip(tt)
 
 		if self.__identity['pk_primary_provider'] is None:
-			self._PRW_provider.SetText(value = u'', data = None)
+			self._PRW_provider.SetText(value = '', data = None)
 		else:
 			self._PRW_provider.SetData(data = self.__identity['pk_primary_provider'])
 
@@ -1563,7 +1563,7 @@ class cPersonSocialNetworkManagerPnl(wxgPersonSocialNetworkManagerPnl.wxgPersonS
 			self.__identity['emergency_contact'] = self._TCTRL_er_contact.GetValue().strip()
 			if self._TCTRL_person.person is not None:
 				self.__identity['pk_emergency_contact'] = self._TCTRL_person.person.ID
-			if self._PRW_provider.GetValue().strip == u'':
+			if self._PRW_provider.GetValue().strip == '':
 				self.__identity['pk_primary_provider'] = None
 			else:
 				self.__identity['pk_primary_provider'] = self._PRW_provider.GetData()
@@ -1774,8 +1774,8 @@ class cNotebookedPatEditionPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 	# event handling
 	#--------------------------------------------------------
 	def __register_interests(self):
-		gmDispatcher.connect(signal = u'pre_patient_unselection', receiver = self._on_pre_patient_unselection)
-		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._on_post_patient_selection)
+		gmDispatcher.connect(signal = 'pre_patient_unselection', receiver = self._on_pre_patient_unselection)
+		gmDispatcher.connect(signal = 'post_patient_selection', receiver = self._on_post_patient_selection)
 	#--------------------------------------------------------
 	def _on_pre_patient_unselection(self):
 		self.__patient_notebook.identity = None

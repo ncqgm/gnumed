@@ -1,5 +1,5 @@
 
-from __future__ import print_function
+
 
 __doc__ = """GNUmed GUI element brokerage
 
@@ -107,7 +107,7 @@ if __name__ == "__main__":
 	if len(sys.argv) < 2:
 		sys.exit()
 
-	if sys.argv[1] != u'test':
+	if sys.argv[1] != 'test':
 		sys.exit()
 
 	# you can test this module by invoking it as main program

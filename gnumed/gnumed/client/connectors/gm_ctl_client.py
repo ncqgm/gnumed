@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python3
 """
 A connector framework showing how to online drive a
 slave GNUmed client via the XML-RPC interface.
@@ -15,7 +15,8 @@ __author__ = 'Karsten Hilbert <Karsten.Hilbert@gmx.net>'
 __license__ = 'GPL'
 
 
-import sys, time, xmlrpclib, socket, time, os, logging
+import sys, time, socket, time, os, logging
+import xmlrpc.client
 
 
 if __name__ == '__main__':
@@ -35,7 +36,7 @@ class cBaseConnector:
 	def connect(self):
 		# connect to GNUmed instance
 		port = _cfg.get(group = 'GNUmed instance', option = 'port', source_order = [('explicit', 'return')])
-		self.__gm_server = xmlrpclib.ServerProxy('http://localhost:%s' % int(port))
+		self.__gm_server = xmlrpc.client.ServerProxy('http://localhost:%s' % int(port))
 
 		try:
 			_log.info('GNUmed slave XML-RPC server version: %s' % self.__gm_server.version())

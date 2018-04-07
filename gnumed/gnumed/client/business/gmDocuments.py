@@ -21,8 +21,8 @@ from Gnumed.business import gmOrganization
 _log = logging.getLogger('gm.docs')
 
 MUGSHOT=26
-DOCUMENT_TYPE_VISUAL_PROGRESS_NOTE = u'visual progress note'
-DOCUMENT_TYPE_PRESCRIPTION = u'prescription'
+DOCUMENT_TYPE_VISUAL_PROGRESS_NOTE = 'visual progress note'
+DOCUMENT_TYPE_PRESCRIPTION = 'prescription'
 
 #============================================================
 class cDocumentFolder:
@@ -57,7 +57,7 @@ class cDocumentFolder:
 		"""
 		# patient in demographic database ?
 		rows, idx = gmPG2.run_ro_queries(queries = [
-			{'cmd': u"select exists(select pk from dem.identity where pk = %s)", 'args': [self.pk_patient]}
+			{'cmd': "select exists(select pk from dem.identity where pk = %s)", 'args': [self.pk_patient]}
 		])
 		if not rows[0][0]:
 			_log.error("patient [%s] not in demographic database" % self.pk_patient)
@@ -67,7 +67,7 @@ class cDocumentFolder:
 	# API
 	#--------------------------------------------------------
 	def get_latest_freediams_prescription(self):
-		cmd = u"""
+		cmd = """
 			SELECT pk_doc
 			FROM blobs.v_doc_med
 			WHERE
@@ -83,7 +83,7 @@ class cDocumentFolder:
 		args = {
 			'pat': self.pk_patient,
 			'typ': DOCUMENT_TYPE_PRESCRIPTION,
-			'ref': u'FreeDiams'
+			'ref': 'FreeDiams'
 		}
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 		if len(rows) == 0:
@@ -94,7 +94,7 @@ class cDocumentFolder:
 
 	#--------------------------------------------------------
 	def get_latest_mugshot(self):
-		cmd = u"SELECT pk_obj FROM blobs.v_latest_mugshot WHERE pk_patient = %s"
+		cmd = "SELECT pk_obj FROM blobs.v_latest_mugshot WHERE pk_patient = %s"
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_patient]}])
 		if len(rows) == 0:
 			_log.info('no mugshots available for patient [%s]' % self.pk_patient)
@@ -106,9 +106,9 @@ class cDocumentFolder:
 	#--------------------------------------------------------
 	def get_mugshot_list(self, latest_only=True):
 		if latest_only:
-			cmd = u"select pk_doc, pk_obj from blobs.v_latest_mugshot where pk_patient=%s"
+			cmd = "select pk_doc, pk_obj from blobs.v_latest_mugshot where pk_patient=%s"
 		else:
-			cmd = u"""
+			cmd = """
 				select
 					vdm.pk_doc as pk_doc,
 					dobj.pk as pk_obj
@@ -132,7 +132,7 @@ class cDocumentFolder:
 			'TYP': doc_type
 		}
 
-		cmd = u"""
+		cmd = """
 			select vdm.pk_doc
 			from blobs.v_doc_med vdm
 			where
@@ -141,13 +141,13 @@ class cDocumentFolder:
 			order by vdm.clin_when"""
 
 		if doc_type is None:
-			cmd = cmd % u''
+			cmd = cmd % ''
 		else:
 			try:
 				int(doc_type)
-				cmd = cmd % u'and vdm.pk_type = %(TYP)s'
+				cmd = cmd % 'and vdm.pk_type = %(TYP)s'
 			except (TypeError, ValueError):
-				cmd = cmd % u'and vdm.pk_type = (select pk from blobs.doc_type where name = %(TYP)s)'
+				cmd = cmd % 'and vdm.pk_type = (select pk from blobs.doc_type where name = %(TYP)s)'
 
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 		doc_ids = []
@@ -166,7 +166,7 @@ class cDocumentFolder:
 	#--------------------------------------------------------
 	def get_unsigned_documents(self):
 		args = {'pat': self.pk_patient}
-		cmd = _sql_fetch_document_fields % u"""
+		cmd = _sql_fetch_document_fields % """
 			pk_doc IN (
 				SELECT DISTINCT ON (b_vo.pk_doc) b_vo.pk_doc
 				FROM blobs.v_obj4doc_no_data b_vo
@@ -188,33 +188,33 @@ class cDocumentFolder:
 			'type': doc_type,
 			'enc': encounter
 		}
-		where_parts = [u'pk_patient = %(pat)s']
+		where_parts = ['pk_patient = %(pat)s']
 
 		if doc_type is not None:
 			try:
 				int(doc_type)
-				where_parts.append(u'pk_type = %(type)s')
+				where_parts.append('pk_type = %(type)s')
 			except (TypeError, ValueError):
-				where_parts.append(u'pk_type = (SELECT pk FROM blobs.doc_type WHERE name = %(type)s)')
+				where_parts.append('pk_type = (SELECT pk FROM blobs.doc_type WHERE name = %(type)s)')
 
 		if pk_types is not None:
-			where_parts.append(u'pk_type IN %(pk_types)s')
+			where_parts.append('pk_type IN %(pk_types)s')
 			args['pk_types'] = tuple(pk_types)
 
 		if (pk_episodes is not None) and (len(pk_episodes) > 0):
-			where_parts.append(u'pk_episode IN %(epis)s')
+			where_parts.append('pk_episode IN %(epis)s')
 			args['epis'] = tuple(pk_episodes)
 
 		if encounter is not None:
-			where_parts.append(u'pk_encounter = %(enc)s')
+			where_parts.append('pk_encounter = %(enc)s')
 
 		if exclude_unsigned:
-			where_parts.append(u'pk_doc IN (SELECT b_vo.pk_doc FROM blobs.v_obj4doc_no_data b_vo WHERE b_vo.pk_patient = %(pat)s AND b_vo.reviewed IS TRUE)')
+			where_parts.append('pk_doc IN (SELECT b_vo.pk_doc FROM blobs.v_obj4doc_no_data b_vo WHERE b_vo.pk_patient = %(pat)s AND b_vo.reviewed IS TRUE)')
 
 		if order_by is None:
-			order_by = u'ORDER BY clin_when'
+			order_by = 'ORDER BY clin_when'
 
-		cmd = u"%s\n%s" % (_sql_fetch_document_fields % u' AND '.join(where_parts), order_by)
+		cmd = "%s\n%s" % (_sql_fetch_document_fields % ' AND '.join(where_parts), order_by)
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 
 		return [ cDocument(row = {'pk_field': 'pk_doc', 'idx': idx, 'data': r}) for r in rows ]
@@ -239,23 +239,23 @@ class cDocumentFolder:
 	#--------------------------------------------------------
 	def _get_all_document_org_units(self):
 		cmd = gmOrganization._SQL_get_org_unit % (
-			u'pk_org_unit IN (SELECT DISTINCT ON (pk_org_unit) pk_org_unit FROM blobs.v_doc_med WHERE pk_patient = %(pat)s)'
+			'pk_org_unit IN (SELECT DISTINCT ON (pk_org_unit) pk_org_unit FROM blobs.v_doc_med WHERE pk_patient = %(pat)s)'
 		)
 		args = {'pat': self.pk_patient}
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
-		return [ gmOrganization.cOrgUnit(row = {'data': r, 'idx': idx, 'pk_field': u'pk_org_unit'}) for r in rows ]
+		return [ gmOrganization.cOrgUnit(row = {'data': r, 'idx': idx, 'pk_field': 'pk_org_unit'}) for r in rows ]
 
 	all_document_org_units = property(_get_all_document_org_units, lambda x:x)
 
 #============================================================
-_sql_fetch_document_part_fields = u"select * from blobs.v_obj4doc_no_data where %s"
+_sql_fetch_document_part_fields = "select * from blobs.v_obj4doc_no_data where %s"
 
 class cDocumentPart(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one part of a medical document."""
 
-	_cmd_fetch_payload = _sql_fetch_document_part_fields % u"pk_obj = %s"
+	_cmd_fetch_payload = _sql_fetch_document_part_fields % "pk_obj = %s"
 	_cmds_store_payload = [
-		u"""UPDATE blobs.doc_obj SET
+		"""UPDATE blobs.doc_obj SET
 				seq_idx = %(seq_idx)s,
 				comment = gm.nullify_empty_string(%(obj_comment)s),
 				filename = gm.nullify_empty_string(%(filename)s),
@@ -286,7 +286,7 @@ class cDocumentPart(gmBusinessDBObject.cBusinessDBObject):
 
 		success = gmPG2.bytea2file (
 			data_query = {
-				'cmd': u'SELECT substring(data from %(start)s for %(size)s) FROM blobs.doc_obj WHERE pk=%(pk)s',
+				'cmd': 'SELECT substring(data from %(start)s for %(size)s) FROM blobs.doc_obj WHERE pk=%(pk)s',
 				'args': {'pk': self.pk_obj}
 			},
 			filename = filename,
@@ -298,7 +298,7 @@ class cDocumentPart(gmBusinessDBObject.cBusinessDBObject):
 			return None
 
 		if target_mime is None:
-			if filename.endswith(u'.dat'):
+			if filename.endswith('.dat'):
 				if adjust_extension:
 					return gmMimeLib.adjust_extension_by_mimetype(filename)
 			return filename
@@ -324,7 +324,7 @@ class cDocumentPart(gmBusinessDBObject.cBusinessDBObject):
 		if not ignore_conversion_problems:
 			return None
 
-		if filename.endswith(u'.dat'):
+		if filename.endswith('.dat'):
 			if adjust_extension:
 				filename = gmMimeLib.adjust_extension_by_mimetype(filename)
 		_log.warning('programmed to ignore conversion problems, hoping receiver can handle [%s]', filename)
@@ -332,7 +332,7 @@ class cDocumentPart(gmBusinessDBObject.cBusinessDBObject):
 
 	#--------------------------------------------------------
 	def get_reviews(self):
-		cmd = u"""
+		cmd = """
 SELECT
 	reviewer,
 	reviewed_when,
@@ -366,7 +366,7 @@ ORDER BY
 
 		if not gmPG2.file2bytea (
 			conn = link_obj,
-			query = u"UPDATE blobs.doc_obj SET data = %(data)s::bytea WHERE pk = %(pk)s RETURNING md5(data) AS md5",
+			query = "UPDATE blobs.doc_obj SET data = %(data)s::bytea WHERE pk = %(pk)s RETURNING md5(data) AS md5",
 			filename = fname,
 			args = {'pk': self.pk_obj},
 			file_md5 = gmTools.file2md5(filename = fname, return_hex = True)
@@ -380,7 +380,7 @@ ORDER BY
 	#--------------------------------------------------------
 	def set_reviewed(self, technically_abnormal=None, clinically_relevant=None):
 		# row already there ?
-		cmd = u"""
+		cmd = """
 select pk
 from blobs.reviewed_doc_objs
 where
@@ -391,22 +391,22 @@ where
 		# INSERT needed
 		if len(rows) == 0:
 			cols = [
-				u"fk_reviewer",
-				u"fk_reviewed_row",
-				u"is_technically_abnormal",
-				u"clinically_relevant"
+				"fk_reviewer",
+				"fk_reviewed_row",
+				"is_technically_abnormal",
+				"clinically_relevant"
 			]
 			vals = [
-				u'%(fk_row)s',
-				u'%(abnormal)s',
-				u'%(relevant)s'
+				'%(fk_row)s',
+				'%(abnormal)s',
+				'%(relevant)s'
 			]
 			args = {
 				'fk_row': self.pk_obj,
 				'abnormal': technically_abnormal,
 				'relevant': clinically_relevant
 			}
-			cmd = u"""
+			cmd = """
 insert into blobs.reviewed_doc_objs (
 	%s
 ) values (
@@ -422,7 +422,7 @@ insert into blobs.reviewed_doc_objs (
 				'relevant': clinically_relevant,
 				'pk_row': pk_row
 			}
-			cmd = u"""
+			cmd = """
 				UPDATE blobs.reviewed_doc_objs SET
 					is_technically_abnormal = %(abnormal)s,
 					clinically_relevant = %(relevant)s
@@ -435,10 +435,10 @@ insert into blobs.reviewed_doc_objs (
 
 	#--------------------------------------------------------
 	def set_as_active_photograph(self):
-		if self._payload[self._idx['type']] != u'patient photograph':
+		if self._payload[self._idx['type']] != 'patient photograph':
 			return False
 		# set seq_idx to current max + 1
-		cmd = u'SELECT coalesce(max(seq_idx)+1, 1) FROM blobs.doc_obj WHERE fk_doc = %(doc_id)s'
+		cmd = 'SELECT coalesce(max(seq_idx)+1, 1) FROM blobs.doc_obj WHERE fk_doc = %(doc_id)s'
 		rows, idx = gmPG2.run_ro_queries (
 			queries = [{
 				'cmd': cmd,
@@ -454,7 +454,7 @@ insert into blobs.reviewed_doc_objs (
 		if pk_doc == self._payload[self._idx['pk_doc']]:
 			return True
 
-		cmd = u"""
+		cmd = """
 			UPDATE blobs.doc_obj SET
 				fk_doc = %(pk_doc_target)s,
 				-- coalesce needed for no-parts target docs
@@ -501,19 +501,19 @@ insert into blobs.reviewed_doc_objs (
 
 	#--------------------------------------------------------
 	def format_single_line(self):
-		f_ext = u''
+		f_ext = ''
 		if self._payload[self._idx['filename']] is not None:
 			f_ext = os.path.splitext(self._payload[self._idx['filename']])[1].strip('.').strip()
-		if f_ext != u'':
-			f_ext = u' .' + f_ext.upper()
+		if f_ext != '':
+			f_ext = ' .' + f_ext.upper()
 		txt = _('part %s, %s%s%s of document %s from %s%s') % (
 			self._payload[self._idx['seq_idx']],
 			gmTools.size2str(self._payload[self._idx['size']]),
 			f_ext,
-			gmTools.coalesce(self._payload[self._idx['obj_comment']], u'', u' ("%s")'),
+			gmTools.coalesce(self._payload[self._idx['obj_comment']], '', ' ("%s")'),
 			self._payload[self._idx['l10n_type']],
 			gmDateTime.pydt_strftime(self._payload[self._idx['date_generated']], '%Y %b %d'),
-			gmTools.coalesce(self._payload[self._idx['doc_comment']], u'', u' ("%s")')
+			gmTools.coalesce(self._payload[self._idx['doc_comment']], '', ' ("%s")')
 		)
 		return txt
 
@@ -531,11 +531,11 @@ insert into blobs.reviewed_doc_objs (
 			self._payload[self._idx['pk_obj']]
 		)
 
-		f_ext = u''
+		f_ext = ''
 		if self._payload[self._idx['filename']] is not None:
 			f_ext = os.path.splitext(self._payload[self._idx['filename']])[1].strip('.').strip()
-		if f_ext != u'':
-			f_ext = u'.' + f_ext.upper() + u' '
+		if f_ext != '':
+			f_ext = '.' + f_ext.upper() + ' '
 		txt += _(' Part %s: %s %s(%s Bytes)\n') % (
 			self._payload[self._idx['seq_idx']],
 			gmTools.size2str(self._payload[self._idx['size']]),
@@ -546,25 +546,25 @@ insert into blobs.reviewed_doc_objs (
 		if self._payload[self._idx['filename']] is not None:
 			path, fname = os.path.split(self._payload[self._idx['filename']])
 			if not path.endswith(os.path.sep):
-				if path != u'':
+				if path != '':
 					path += os.path.sep
-			if path != u'':
-				path = u' (%s)' % path
+			if path != '':
+				path = ' (%s)' % path
 			txt += _(' Filename: %s%s\n') % (fname, path)
 
 		if self._payload[self._idx['obj_comment']] is not None:
-			txt += u'\n%s\n' % self._payload[self._idx['obj_comment']]
+			txt += '\n%s\n' % self._payload[self._idx['obj_comment']]
 
 		return txt
 
 	#--------------------------------------------------------
 	def get_useful_filename(self, patient=None, make_unique=False, directory=None, include_gnumed_tag=True, date_before_type=False, name_first=True):
-		patient_part = u''
+		patient_part = ''
 		if patient is not None:
 			if name_first:
-				patient_part = u'%s-' % patient['dirname']
+				patient_part = '%s-' % patient['dirname']
 			else:
-				patient_part = u'-%s' % patient['dirname']
+				patient_part = '-%s' % patient['dirname']
 
 		# preserve original filename extension if available
 		suffix = '.dat'
@@ -572,22 +572,22 @@ insert into blobs.reviewed_doc_objs (
 			tmp, suffix = os.path.splitext (
 				gmTools.fname_sanitize(self._payload[self._idx['filename']]).lower()
 			)
-			if suffix == u'':
+			if suffix == '':
 				suffix = '.dat'
 
 		if include_gnumed_tag:
-			fname_template = u'gm_doc-part_%s-%%s' % self._payload[self._idx['seq_idx']]
+			fname_template = 'gm_doc-part_%s-%%s' % self._payload[self._idx['seq_idx']]
 		else:
-			fname_template = u'%%s-part_%s' % self._payload[self._idx['seq_idx']]
+			fname_template = '%%s-part_%s' % self._payload[self._idx['seq_idx']]
 
 		if date_before_type:
-			date_type_part = u'%s-%s' % (
+			date_type_part = '%s-%s' % (
 				gmDateTime.pydt_strftime(self._payload[self._idx['date_generated']], '%Y-%m-%d', 'utf-8', gmDateTime.acc_days),
-				self._payload[self._idx['l10n_type']].replace(u' ', u'_').replace(u'-', u'_'),
+				self._payload[self._idx['l10n_type']].replace(' ', '_').replace('-', '_'),
 			)
 		else:
-			date_type_part = u'%s-%s' % (
-				self._payload[self._idx['l10n_type']].replace(u' ', u'_').replace(u'-', u'_'),
+			date_type_part = '%s-%s' % (
+				self._payload[self._idx['l10n_type']].replace(' ', '_').replace('-', '_'),
 				gmDateTime.pydt_strftime(self._payload[self._idx['date_generated']], '%Y-%m-%d', 'utf-8', gmDateTime.acc_days)
 			)
 
@@ -605,13 +605,13 @@ insert into blobs.reviewed_doc_objs (
 				tmp_dir = directory
 			)
 		else:
-			fname = gmTools.fname_sanitize(os.path.join(gmTools.coalesce(directory, u''), fname + suffix))
+			fname = gmTools.fname_sanitize(os.path.join(gmTools.coalesce(directory, ''), fname + suffix))
 
 		return fname
 
 #------------------------------------------------------------
 def delete_document_part(part_pk=None, encounter_pk=None):
-	cmd = u"""
+	cmd = """
 		SELECT blobs.delete_document_part(%(pk)s, %(enc)s)
 		WHERE NOT EXISTS
 			(SELECT 1 FROM clin.export_item where fk_doc_obj = %(pk)s)
@@ -621,14 +621,14 @@ def delete_document_part(part_pk=None, encounter_pk=None):
 	return
 
 #============================================================
-_sql_fetch_document_fields = u"SELECT * FROM blobs.v_doc_med b_vdm WHERE %s"
+_sql_fetch_document_fields = "SELECT * FROM blobs.v_doc_med b_vdm WHERE %s"
 
 class cDocument(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one medical document."""
 
-	_cmd_fetch_payload = _sql_fetch_document_fields % u"pk_doc = %s"
+	_cmd_fetch_payload = _sql_fetch_document_fields % "pk_doc = %s"
 	_cmds_store_payload = [
-		u"""UPDATE blobs.doc_med SET
+		"""UPDATE blobs.doc_med SET
 				fk_type = %(pk_type)s,
 				fk_episode = %(pk_episode)s,
 				fk_encounter = %(pk_encounter)s,
@@ -670,21 +670,21 @@ class cDocument(gmBusinessDBObject.cBusinessDBObject):
 		- will return a list of rows
 		"""
 		if max_lng is None:
-			cmd = u"SELECT pk, text FROM blobs.doc_desc WHERE fk_doc = %s"
+			cmd = "SELECT pk, text FROM blobs.doc_desc WHERE fk_doc = %s"
 		else:
-			cmd = u"SELECT pk, substring(text from 1 for %s) FROM blobs.doc_desc WHERE fk_doc=%%s" % max_lng
+			cmd = "SELECT pk, substring(text from 1 for %s) FROM blobs.doc_desc WHERE fk_doc=%%s" % max_lng
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_obj]}])
 		return rows
 
 	#--------------------------------------------------------
 	def add_description(self, description=None):
-		cmd = u"insert into blobs.doc_desc (fk_doc, text) values (%s, %s)"
+		cmd = "insert into blobs.doc_desc (fk_doc, text) values (%s, %s)"
 		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': [self.pk_obj, description]}])
 		return True
 
 	#--------------------------------------------------------
 	def update_description(self, pk=None, description=None):
-		cmd = u"update blobs.doc_desc set text = %(desc)s where fk_doc = %(doc)s and pk = %(pk_desc)s"
+		cmd = "update blobs.doc_desc set text = %(desc)s where fk_doc = %(doc)s and pk = %(pk_desc)s"
 		gmPG2.run_rw_queries(queries = [
 			{'cmd': cmd, 'args': {'doc': self.pk_obj, 'pk_desc': pk, 'desc': description}}
 		])
@@ -692,13 +692,13 @@ class cDocument(gmBusinessDBObject.cBusinessDBObject):
 
 	#--------------------------------------------------------
 	def delete_description(self, pk=None):
-		cmd = u"delete from blobs.doc_desc where fk_doc = %(doc)s and pk = %(desc)s"
+		cmd = "delete from blobs.doc_desc where fk_doc = %(doc)s and pk = %(desc)s"
 		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': {'doc': self.pk_obj, 'desc': pk}}])
 		return True
 
 	#--------------------------------------------------------
 	def _get_parts(self):
-		cmd = _sql_fetch_document_part_fields % u"pk_doc = %s ORDER BY seq_idx"
+		cmd = _sql_fetch_document_part_fields % "pk_doc = %s ORDER BY seq_idx"
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_obj]}], get_col_idx = True)
 		return [ cDocumentPart(row = {'pk_field': 'pk_obj', 'idx': idx, 'data': r}) for r in rows ]
 
@@ -708,7 +708,7 @@ class cDocument(gmBusinessDBObject.cBusinessDBObject):
 	def add_part(self, file=None, link_obj=None):
 		"""Add a part to the document."""
 		# create dummy part
-		cmd = u"""
+		cmd = """
 			INSERT INTO blobs.doc_obj (
 				fk_doc, data, seq_idx
 			) VALUES (
@@ -725,10 +725,10 @@ class cDocument(gmBusinessDBObject.cBusinessDBObject):
 		pk_part = rows[0][0]
 		new_part = cDocumentPart(aPK_obj = pk_part, link_obj = link_obj)
 		if not new_part.update_data_from_file(link_obj = link_obj, fname = file):
-			_log.error(u'cannot import binary data from [%s] into document part' % file)
+			_log.error('cannot import binary data from [%s] into document part' % file)
 			gmPG2.run_rw_queries (
 				link_obj = link_obj,
-				queries = [{'cmd': u"DELETE FROM blobs.doc_obj WHERE pk = %s", 'args': [pk_part]}]
+				queries = [{'cmd': "DELETE FROM blobs.doc_obj WHERE pk = %s", 'args': [pk_part]}]
 			)
 			return None
 		new_part['filename'] = file
@@ -744,7 +744,7 @@ class cDocument(gmBusinessDBObject.cBusinessDBObject):
 		for filename in files:
 			new_part = self.add_part(file = filename)
 			if new_part is None:
-				msg = u'cannot instantiate document part object from [%s]' % filename
+				msg = 'cannot instantiate document part object from [%s]' % filename
 				_log.error(msg)
 				return (False, msg, filename)
 			new_parts.append(new_part)
@@ -753,7 +753,7 @@ class cDocument(gmBusinessDBObject.cBusinessDBObject):
 				new_part['pk_intended_reviewer'] = reviewer			# None == Null
 				success, data = new_part.save_payload()
 				if not success:
-					msg = u'cannot set reviewer to [%s] on [%s]' % (reviewer, filename)
+					msg = 'cannot set reviewer to [%s] on [%s]' % (reviewer, filename)
 					_log.error(msg)
 					_log.error(str(data))
 					return (False, msg, filename)
@@ -769,7 +769,7 @@ class cDocument(gmBusinessDBObject.cBusinessDBObject):
 #				shutil.move(fname, export_dir)
 #				fname = os.path.join(export_dir, os.path.split(fname)[1])
 			if fname is None:
-				_log.error(u'cannot export document part [%s]', part)
+				_log.error('cannot export document part [%s]', part)
 				continue
 			fnames.append(fname)
 		return fnames
@@ -781,7 +781,7 @@ class cDocument(gmBusinessDBObject.cBusinessDBObject):
 		except AttributeError:
 			pass
 
-		cmd = u"SELECT EXISTS(SELECT 1 FROM blobs.v_obj4doc_no_data WHERE pk_doc = %(pk)s AND reviewed IS FALSE)"
+		cmd = "SELECT EXISTS(SELECT 1 FROM blobs.v_obj4doc_no_data WHERE pk_doc = %(pk)s AND reviewed IS FALSE)"
 		args = {'pk': self.pk_obj}
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 		self.__has_unreviewed_parts = rows[0][0]
@@ -820,29 +820,29 @@ class cDocument(gmBusinessDBObject.cBusinessDBObject):
 		else:
 			parts = _('%s parts') % part_count
 
-		detail = u''
+		detail = ''
 		if self._payload[self._idx['ext_ref']] is not None:
 			detail = self._payload[self._idx['ext_ref']]
 		if self._payload[self._idx['unit']] is not None:
-			template = _(u'%s of %s')
-			if detail == u'':
-				detail = _(u'%s of %s') % (
+			template = _('%s of %s')
+			if detail == '':
+				detail = _('%s of %s') % (
 					self._payload[self._idx['unit']],
 					self._payload[self._idx['organization']]
 				)
 			else:
-				detail += (u' @ ' + template % (
+				detail += (' @ ' + template % (
 					self._payload[self._idx['unit']],
 					self._payload[self._idx['organization']]
 				))
-		if detail != u'':
-			detail = u' (%s)' % detail
+		if detail != '':
+			detail = ' (%s)' % detail
 
-		return u'%s %s (%s):%s%s' % (
+		return '%s %s (%s):%s%s' % (
 			gmDateTime.pydt_strftime(self._payload[self._idx['clin_when']], '%Y %b %d', accuracy = gmDateTime.acc_days),
 			self._payload[self._idx['l10n_type']],
 			parts,
-			gmTools.coalesce(self._payload[self._idx['comment']], u'', u' "%s"'),
+			gmTools.coalesce(self._payload[self._idx['comment']], '', ' "%s"'),
 			detail
 		)
 
@@ -858,7 +858,7 @@ class cDocument(gmBusinessDBObject.cBusinessDBObject):
 			parts = _('1 part')
 		else:
 			parts = _('%s parts') % part_count
-		org = u''
+		org = ''
 		if self._payload[self._idx['unit']] is not None:
 			if self._payload[self._idx['unit_is_receiver']]:
 				org = _(' Receiver: %s @ %s\n') % (
@@ -870,9 +870,9 @@ class cDocument(gmBusinessDBObject.cBusinessDBObject):
 					self._payload[self._idx['unit']],
 					self._payload[self._idx['organization']]
 				)
-		stay = u''
+		stay = ''
 		if self._payload[self._idx['pk_hospital_stay']] is not None:
-			stay = _(u'Hospital stay') + u': %s\n' % self.hospital_stay.format (
+			stay = _('Hospital stay') + ': %s\n' % self.hospital_stay.format (
 				left_margin = 0,
 				include_procedures = False,
 				include_docs = False,
@@ -894,11 +894,11 @@ class cDocument(gmBusinessDBObject.cBusinessDBObject):
 			self._payload[self._idx['pk_doc']],
 			gmDateTime.pydt_strftime(self._payload[self._idx['clin_when']], format = '%Y %b %d', accuracy = gmDateTime.acc_days),
 			self._payload[self._idx['episode']],
-			gmTools.coalesce(self._payload[self._idx['health_issue']], u'', _(' Health issue: %s\n')),
-			gmTools.coalesce(self._payload[self._idx['ext_ref']], u'', _(' External reference: %s\n')),
+			gmTools.coalesce(self._payload[self._idx['health_issue']], '', _(' Health issue: %s\n')),
+			gmTools.coalesce(self._payload[self._idx['ext_ref']], '', _(' External reference: %s\n')),
 			org,
 			stay,
-			gmTools.coalesce(self._payload[self._idx['comment']], u'', u' %s')
+			gmTools.coalesce(self._payload[self._idx['comment']], '', ' %s')
 		)
 
 		return txt
@@ -939,10 +939,10 @@ def create_document(document_type=None, encounter=None, episode=None, link_obj=N
 	"""Returns new document instance or raises an exception."""
 	try:
 		int(document_type)
-		cmd = u"""INSERT INTO blobs.doc_med (fk_type, fk_encounter, fk_episode) VALUES (%(type)s, %(enc)s, %(epi)s) RETURNING pk"""
+		cmd = """INSERT INTO blobs.doc_med (fk_type, fk_encounter, fk_episode) VALUES (%(type)s, %(enc)s, %(epi)s) RETURNING pk"""
 	except ValueError:
 		create_document_type(document_type = document_type)
-		cmd = u"""
+		cmd = """
 			INSERT INTO blobs.doc_med (
 				fk_type,
 				fk_encounter,
@@ -976,29 +976,29 @@ def search_for_documents(patient_id=None, type_id=None, external_reference=None,
 	}
 
 	if patient_id is not None:
-		where_parts.append(u'pk_patient = %(pat_id)s')
+		where_parts.append('pk_patient = %(pat_id)s')
 
 	if type_id is not None:
-		where_parts.append(u'pk_type = %(type_id)s')
+		where_parts.append('pk_type = %(type_id)s')
 
 	if external_reference is not None:
-		where_parts.append(u'ext_ref = %(ref)s')
+		where_parts.append('ext_ref = %(ref)s')
 
 	if pk_episode is not None:
-		where_parts.append(u'pk_episode = %(pk_epi)s')
+		where_parts.append('pk_episode = %(pk_epi)s')
 
 	if pk_types is not None:
-		where_parts.append(u'pk_type IN %(pk_types)s')
+		where_parts.append('pk_type IN %(pk_types)s')
 		args['pk_types'] = tuple(pk_types)
 
-	cmd = _sql_fetch_document_fields % u' AND '.join(where_parts)
+	cmd = _sql_fetch_document_fields % ' AND '.join(where_parts)
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 	return [ cDocument(row = {'data': r, 'idx': idx, 'pk_field': 'pk_doc'}) for r in rows ]
 
 #------------------------------------------------------------
 def delete_document(document_id=None, encounter_id=None):
 	# cascades to doc_obj and doc_desc but not bill.bill
-	cmd = u"SELECT blobs.delete_document(%(pk)s, %(enc)s)"
+	cmd = "SELECT blobs.delete_document(%(pk)s, %(enc)s)"
 	args = {'pk': document_id, 'enc': encounter_id}
 	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True)
 	if not rows[0][0]:
@@ -1016,13 +1016,13 @@ def reclassify_documents_by_type(original_type=None, target_type=None):
 	if target_type['pk_doc_type'] == original_type['pk_doc_type']:
 		return True
 
-	cmd = u"""
+	cmd = """
 update blobs.doc_med set
 	fk_type = %(new_type)s
 where
 	fk_type = %(old_type)s
 """
-	args = {u'new_type': target_type['pk_doc_type'], u'old_type': original_type['pk_doc_type']}
+	args = {'new_type': target_type['pk_doc_type'], 'old_type': original_type['pk_doc_type']}
 
 	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 
@@ -1031,14 +1031,14 @@ where
 #============================================================
 class cDocumentType(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents a document type."""
-	_cmd_fetch_payload = u"""select * from blobs.v_doc_type where pk_doc_type=%s"""
+	_cmd_fetch_payload = """select * from blobs.v_doc_type where pk_doc_type=%s"""
 	_cmds_store_payload = [
-		u"""update blobs.doc_type set
+		"""update blobs.doc_type set
 				name = %(type)s
 			where
 				pk=%(pk_obj)s and
 				xmin=%(xmin_doc_type)s""",
-		u"""select xmin_doc_type from blobs.v_doc_type where pk_doc_type = %(pk_obj)s"""
+		"""select xmin_doc_type from blobs.v_doc_type where pk_doc_type = %(pk_obj)s"""
 	]
 	_updatable_fields = ['type']
 	#--------------------------------------------------------
@@ -1052,8 +1052,8 @@ class cDocumentType(gmBusinessDBObject.cBusinessDBObject):
 
 		rows, idx = gmPG2.run_rw_queries (
 			queries = [
-				{'cmd': u'select i18n.i18n(%s)', 'args': [self._payload[self._idx['type']]]},
-				{'cmd': u'select i18n.upd_tx((select i18n.get_curr_lang()), %(orig)s, %(tx)s)',
+				{'cmd': 'select i18n.i18n(%s)', 'args': [self._payload[self._idx['type']]]},
+				{'cmd': 'select i18n.upd_tx((select i18n.get_curr_lang()), %(orig)s, %(tx)s)',
 				 'args': {
 				 	'orig': self._payload[self._idx['type']],
 					'tx': translation
@@ -1071,7 +1071,7 @@ class cDocumentType(gmBusinessDBObject.cBusinessDBObject):
 #------------------------------------------------------------
 def get_document_types():
 	rows, idx = gmPG2.run_ro_queries (
-		queries = [{'cmd': u"SELECT * FROM blobs.v_doc_type"}],
+		queries = [{'cmd': "SELECT * FROM blobs.v_doc_type"}],
 		get_col_idx = True
 	)
 	doc_types = []
@@ -1084,10 +1084,10 @@ def get_document_types():
 def get_document_type_pk(document_type=None):
 	args = {'typ': document_type.strip()}
 
-	cmd = u'SELECT pk FROM blobs.doc_type WHERE name = %(typ)s'
+	cmd = 'SELECT pk FROM blobs.doc_type WHERE name = %(typ)s'
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
 	if len(rows) == 0:
-		cmd = u'SELECT pk FROM blobs.doc_type WHERE _(name) = %(typ)s'
+		cmd = 'SELECT pk FROM blobs.doc_type WHERE _(name) = %(typ)s'
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
 
 	if len(rows) == 0:
@@ -1098,20 +1098,20 @@ def get_document_type_pk(document_type=None):
 #------------------------------------------------------------
 def map_types2pk(document_types=None):
 	args = {'types': tuple(document_types)}
-	cmd = u'SELECT pk_doc_type, coalesce(l10n_type, type) as desc FROM blobs.v_doc_type WHERE l10n_type IN %(types)s OR type IN %(types)s'
+	cmd = 'SELECT pk_doc_type, coalesce(l10n_type, type) as desc FROM blobs.v_doc_type WHERE l10n_type IN %(types)s OR type IN %(types)s'
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
 	return rows
 
 #------------------------------------------------------------
 def create_document_type(document_type=None):
 	# check for potential dupes:
-	cmd = u'SELECT pk FROM blobs.doc_type WHERE name = %s'
+	cmd = 'SELECT pk FROM blobs.doc_type WHERE name = %s'
 	rows, idx = gmPG2.run_ro_queries (
 		queries = [{'cmd': cmd, 'args': [document_type]}]
 	)
 	if len(rows) == 0:
 		_log.debug('creating document type [%s]', document_type)
-		cmd1 = u"INSERT INTO blobs.doc_type (name) VALUES (%s) RETURNING pk"
+		cmd1 = "INSERT INTO blobs.doc_type (name) VALUES (%s) RETURNING pk"
 		rows, idx = gmPG2.run_rw_queries (
 			queries = [{'cmd': cmd1, 'args': [document_type]}],
 			return_data = True
@@ -1124,7 +1124,7 @@ def delete_document_type(document_type=None):
 		return False
 	gmPG2.run_rw_queries (
 		queries = [{
-			'cmd': u'delete from blobs.doc_type where pk=%s',
+			'cmd': 'delete from blobs.doc_type where pk=%s',
 			'args': [document_type['pk_doc_type']]
 		}]
 	)
@@ -1149,7 +1149,7 @@ if __name__ == '__main__':
 	if len(sys.argv) < 2:
 		sys.exit()
 
-	if sys.argv[1] != u'test':
+	if sys.argv[1] != 'test':
 		sys.exit()
 
 	#--------------------------------------------------------
@@ -1209,7 +1209,7 @@ if __name__ == '__main__':
 			#print type(doc), doc
 			#print doc.parts
 			#print doc.format_single_line()
-			print(u'--------------------------')
+			print('--------------------------')
 			print(doc.format(single_line = True))
 			print(doc.format())
 		#pprint(gmBusinessDBObject.jsonclasshintify(docs))

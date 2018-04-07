@@ -85,13 +85,13 @@ def __handle_exceptions_on_shutdown(t, v, tb):
 #-------------------------------------------------------------------------
 def __handle_import_error(t, v, tb):
 
-	if t == exceptions.OSError:
+	if t == OSError:
 		if not hasattr(t, 'winerror'):
 			return False
 		if getattr(t, 'winerror') != 126:
 			return False
 	else:
-		if t != exceptions.ImportError:
+		if t != ImportError:
 			return False
 
 	wx.EndBusyCursor()
@@ -133,7 +133,7 @@ def __handle_access_violation(t, v, tb):
 	_log.error('access permissions violation detected')
 	wx.EndBusyCursor()
 	gmLog2.flush()
-	txt = u' ' + v.errmsg
+	txt = ' ' + v.errmsg
 	if v.source is not None:
 		txt += _('\n Source: %s') % v.source
 	if v.code is not None:
@@ -163,7 +163,7 @@ def __handle_lost_db_connection(t, v, tb):
 	try:
 		msg = gmPG2.extract_msg_from_pg_exception(exc = v)
 	except:
-		msg = u'cannot extract message from PostgreSQL exception'
+		msg = 'cannot extract message from PostgreSQL exception'
 		print(msg)
 		print(v)
 		return False
@@ -275,8 +275,8 @@ def handle_uncaught_exception_wx(t, v, tb):
 	dlg.ShowModal()
 	comment = dlg._TCTRL_comment.GetValue()
 	dlg.Destroy()
-	if (comment is not None) and (comment.strip() != u''):
-		_log.error(u'user comment: %s', comment.strip())
+	if (comment is not None) and (comment.strip() != ''):
+		_log.error('user comment: %s', comment.strip())
 
 	_log.warning('syncing log file for backup to [%s]', new_name)
 	gmLog2.flush()
@@ -324,7 +324,7 @@ def _on_application_closing():
 # ========================================================================
 def mail_log(parent=None, comment=None, helpdesk=None, sender=None):
 
-		if (comment is None) or (comment.strip() == u''):
+		if (comment is None) or (comment.strip() == ''):
 			comment = wx.GetTextFromUser (
 				message = _(
 					'Please enter a short note on what you\n'
@@ -333,8 +333,8 @@ def mail_log(parent=None, comment=None, helpdesk=None, sender=None):
 				caption = _('Sending bug report'),
 				parent = parent
 			)
-			if comment.strip() == u'':
-				comment = u'<user did not comment on bug report>'
+			if comment.strip() == '':
+				comment = '<user did not comment on bug report>'
 
 		receivers = []
 		if helpdesk is not None:
@@ -345,7 +345,7 @@ def mail_log(parent=None, comment=None, helpdesk=None, sender=None):
 			)
 		if len(receivers) == 0:
 			if _is_public_database:
-				receivers = [u'gnumed-bugs@gnu.org']
+				receivers = ['gnumed-bugs@gnu.org']
 
 		receiver_string = wx.GetTextFromUser (
 			message = _(
@@ -359,7 +359,7 @@ def mail_log(parent=None, comment=None, helpdesk=None, sender=None):
 			default_value = ','.join(receivers),
 			parent = parent
 		)
-		if receiver_string.strip() == u'':
+		if receiver_string.strip() == '':
 			return
 
 		receivers = regex.findall (
@@ -382,7 +382,7 @@ def mail_log(parent=None, comment=None, helpdesk=None, sender=None):
 				'\n'
 				'Note that emailing the report may take a while depending\n'
 				'on the speed of your internet connection.\n'
-			) % u'\n'.join(receivers),
+			) % '\n'.join(receivers),
 			button_defs = [
 				{'label': _('Send report'), 'tooltip': _('Yes, send the bug report.')},
 				{'label': _('Cancel'), 'tooltip': _('No, do not send the bug report.')}
@@ -419,10 +419,10 @@ def mail_log(parent=None, comment=None, helpdesk=None, sender=None):
 		if sender is None:
 			sender = _('<not supplied>')
 		else:
-			if sender.strip() == u'':
+			if sender.strip() == '':
 				sender = _('<not supplied>')
 
-		msg = u"""\
+		msg = """\
 Report sent via GNUmed's handler for unexpected exceptions.
 
 user comment  : %s
@@ -455,10 +455,10 @@ sender email  : %s
 			gmNetworkTools.compose_and_send_email (
 				sender = '%s <%s>' % (_staff_name, gmNetworkTools.default_mail_sender),
 				receiver = receivers,
-				subject = u'<bug>: %s' % comment,
+				subject = '<bug>: %s' % comment,
 				message = msg,
 				server = gmNetworkTools.default_mail_server,
-				auth = {'user': gmNetworkTools.default_mail_sender, 'password': u'gnumed-at-gmx-net'},
+				auth = {'user': gmNetworkTools.default_mail_sender, 'password': 'gnumed-at-gmx-net'},
 				debug = _cfg.get(option = 'debug'),
 				attachments = attachments
 			)
@@ -495,8 +495,8 @@ class cUnhandledExceptionDlg(wxgUnhandledExceptionDlg.wxgUnhandledExceptionDlg):
 	#------------------------------------------
 	def _on_close_gnumed_button_pressed(self, evt):
 		comment = self._TCTRL_comment.GetValue()
-		if (comment is not None) and (comment.strip() != u''):
-			_log.error(u'user comment: %s', comment.strip())
+		if (comment is not None) and (comment.strip() != ''):
+			_log.error('user comment: %s', comment.strip())
 		_log.warning('syncing log file for backup to [%s]', self.logfile)
 		gmLog2.flush()
 		try:

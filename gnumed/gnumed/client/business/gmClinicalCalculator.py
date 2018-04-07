@@ -50,14 +50,14 @@ class cClinicalResult(object):
 
 	#--------------------------------------------------------
 	def __unicode__(self):
-		txt = u'[cClinicalResult]: %s %s (%s)\n\n%s' % (
+		txt = '[cClinicalResult]: %s %s (%s)\n\n%s' % (
 			self.numeric_value,
 			self.unit,
 			self.date_valid,
 			self.format (
 				left_margin = 0,
 				width = 80,
-				eol = u'\n',
+				eol = '\n',
 				with_formula = True,
 				with_warnings = True,
 				with_variables = True,
@@ -68,53 +68,53 @@ class cClinicalResult(object):
 		return txt
 
 	#--------------------------------------------------------
-	def format(self, left_margin=0, eol=u'\n', width=None, with_formula=False, with_warnings=True, with_variables=False, with_sub_results=False, with_hints=True, return_list=False):
+	def format(self, left_margin=0, eol='\n', width=None, with_formula=False, with_warnings=True, with_variables=False, with_sub_results=False, with_hints=True, return_list=False):
 		lines = []
 		lines.append(self.message)
 
 		if with_formula:
 			txt = gmTools.wrap (
-				text = u'%s %s' % (
+				text = '%s %s' % (
 					_('Algorithm:'),
 					self.formula_name
 				),
 				width = width,
-				initial_indent = u' ',
-				subsequent_indent = u' ' * 2,
+				initial_indent = ' ',
+				subsequent_indent = ' ' * 2,
 				eol = eol
 			)
 			lines.append(txt)
 			txt = gmTools.wrap (
-				text = u'%s %s' % (
+				text = '%s %s' % (
 					_('Source:'),
 					self.formula_source
 				),
 				width = width,
-				initial_indent = u' ',
-				subsequent_indent = u' ' * 2,
+				initial_indent = ' ',
+				subsequent_indent = ' ' * 2,
 				eol = eol
 			)
 			lines.append(txt)
 
 		if with_warnings:
 			if len(self.warnings) > 0:
-				lines.append(u' Caveat:')
+				lines.append(' Caveat:')
 			for w in self.warnings:
-				txt = gmTools.wrap(text = w, width = width, initial_indent = u'  %s ' % gmTools.u_arrow2right, subsequent_indent = u'    ', eol = eol)
+				txt = gmTools.wrap(text = w, width = width, initial_indent = '  %s ' % gmTools.u_arrow2right, subsequent_indent = '    ', eol = eol)
 				lines.append(txt)
 
 		if with_hints:
 			if len(self.hints) > 0:
-				lines.append(u' Hints:')
+				lines.append(' Hints:')
 			for h in self.hints:
-				txt = gmTools.wrap(text = h, width = width, initial_indent = u'  %s ' % gmTools.u_arrow2right, subsequent_indent = u'    ', eol = eol)
+				txt = gmTools.wrap(text = h, width = width, initial_indent = '  %s ' % gmTools.u_arrow2right, subsequent_indent = '    ', eol = eol)
 				lines.append(txt)
 
 		if with_variables:
 			if len(self.variables) > 0:
-				lines.append(u' %s' % _('Variables:'))
+				lines.append(' %s' % _('Variables:'))
 			for key in self.variables.keys():
-				txt = u'  %s %s: %s' % (
+				txt = '  %s %s: %s' % (
 					gmTools.u_arrow2right,
 					key,
 					self.variables[key]
@@ -123,7 +123,7 @@ class cClinicalResult(object):
 
 		if with_sub_results:
 			if len(self.sub_results) > 0:
-				lines.append(u' %s' % _('Intermediate results:'))
+				lines.append(' %s' % _('Intermediate results:'))
 			for r in self.sub_results:
 				lines.extend(r.format (
 					left_margin = left_margin + 1,
@@ -140,7 +140,7 @@ class cClinicalResult(object):
 		if return_list:
 			return lines
 
-		left_margin = u' ' * left_margin
+		left_margin = ' ' * left_margin
 		return left_margin + (eol + left_margin).join(lines) + eol
 
 #============================================================
@@ -180,8 +180,8 @@ class cClinicalCalculator(object):
 	def get_EDC(self, lmp=None, nullipara=True):
 
 		result = cClinicalResult(_('unknown EDC'))
-		result.formula_name = u'EDC (Mittendorf 1990)'
-		result.formula_source = u'Mittendorf, R. et al., "The length of uncomplicated human gestation," OB/GYN, Vol. 75, No., 6 June, 1990, pp. 907-932.'
+		result.formula_name = 'EDC (Mittendorf 1990)'
+		result.formula_source = 'Mittendorf, R. et al., "The length of uncomplicated human gestation," OB/GYN, Vol. 75, No., 6 June, 1990, pp. 907-932.'
 
 		if lmp is None:
 			result.message = _('EDC: unknown LMP')
@@ -196,23 +196,23 @@ class cClinicalCalculator(object):
 
 		now = gmDateTime.pydt_now_here()
 		if lmp > now:
-			result.warnings.append(_(u'LMP in the future'))
+			result.warnings.append(_('LMP in the future'))
 
 		if self.__patient is None:
-			result.warnings.append(_(u'cannot run sanity checks, no patient'))
+			result.warnings.append(_('cannot run sanity checks, no patient'))
 		else:
 			if self.__patient['dob'] is None:
-				result.warnings.append(_(u'cannot run sanity checks, no DOB'))
+				result.warnings.append(_('cannot run sanity checks, no DOB'))
 			else:
 				years, months, days, hours, minutes, seconds = gmDateTime.calculate_apparent_age(start = self.__patient['dob'])
 				# 5 years -- Myth ?
 				# http://www.mirror.co.uk/news/uk-news/top-10-crazy-amazing-and-world-789842
 				if years < 10:
-					result.warnings.append(_(u'patient less than 10 years old'))
-			if self.__patient['gender'] in [None, u'm']:
-				result.warnings.append(_(u'atypical gender for pregnancy: %s') % self.__patient.gender_string)
+					result.warnings.append(_('patient less than 10 years old'))
+			if self.__patient['gender'] in [None, 'm']:
+				result.warnings.append(_('atypical gender for pregnancy: %s') % self.__patient.gender_string)
 			if self.__patient['deceased'] is not None:
-				result.warnings.append(_(u'patient already passed away'))
+				result.warnings.append(_('patient already passed away'))
 
 		if lmp.month > 3:
 			edc_month = lmp.month - 3
@@ -229,7 +229,7 @@ class cClinicalCalculator(object):
 		)
 		result.date_valid = now
 
-		_log.debug(u'%s' % result)
+		_log.debug('%s' % result)
 
 		return result
 
@@ -313,8 +313,8 @@ class cClinicalCalculator(object):
 			pass
 
 		result = cClinicalResult(_('unknown MDRD (4 vars/IDMS)'))
-		result.formula_name = u'eGFR from 4-variables IDMS-MDRD'
-		result.formula_source = u'1/2013: http://en.wikipedia.org/Renal_function / http://www.ganfyd.org/index.php?title=Estimated_glomerular_filtration_rate (NHS)'
+		result.formula_name = 'eGFR from 4-variables IDMS-MDRD'
+		result.formula_source = '1/2013: http://en.wikipedia.org/Renal_function / http://www.ganfyd.org/index.php?title=Estimated_glomerular_filtration_rate (NHS)'
 		result.hints.append(_('best @ 30 < GFR < 60 ml/min'))
 
 		if self.__patient is None:
@@ -346,9 +346,9 @@ class cClinicalCalculator(object):
 			result.message = _('MDRD (4 vars/IDMS): creatinine value not numeric')
 			return result
 		result.variables['serum_crea_val'] = self.d(result.variables['serum_crea']['val_num'])
-		if result.variables['serum_crea']['val_unit'] in [u'mg/dl', u'mg/dL']:
+		if result.variables['serum_crea']['val_unit'] in ['mg/dl', 'mg/dL']:
 			result.variables['unit_multiplier'] = self.d(175)						# older: 186
-		elif result.variables['serum_crea']['val_unit'] in [u'µmol/L', u'µmol/l']:
+		elif result.variables['serum_crea']['val_unit'] in ['µmol/L', 'µmol/l']:
 			result.variables['unit_multiplier'] = self.d(30849)					# older: 32788
 		else:
 			result.message = _('MDRD (4 vars/IDMS): unknown serum creatinine unit (%s)') % result.variables['serum_crea']['val_unit']
@@ -376,12 +376,12 @@ class cClinicalCalculator(object):
 			pow(result.variables['age@crea'], self.d('-0.203')) * \
 			result.variables['ethnicity_multiplier'] * \
 			result.variables['gender_multiplier']
-		result.unit = u'ml/min/1.73m²'
+		result.unit = 'ml/min/1.73m²'
 
 		BSA = self.body_surface_area
 		result.sub_results.append(BSA)
 		if BSA.numeric_value is None:
-			result.warnings.append(_(u'NOT corrected for non-average body surface (average = 1.73m²)'))
+			result.warnings.append(_('NOT corrected for non-average body surface (average = 1.73m²)'))
 		else:
 			result.variables['BSA'] = BSA.numeric_value
 			result_numeric_value = result.numeric_value / BSA.numeric_value
@@ -397,7 +397,7 @@ class cClinicalCalculator(object):
 		result.date_valid = result.variables['serum_crea']['clin_when']
 
 		self.__cache['MDRD_short'] = result
-		_log.debug(u'%s' % result)
+		_log.debug('%s' % result)
 
 		return result
 
@@ -412,8 +412,8 @@ class cClinicalCalculator(object):
 			pass
 
 		result = cClinicalResult(_('unknown CKD-EPI'))
-		result.formula_name = u'eGFR from CKD-EPI'
-		result.formula_source = u'8/2014: http://en.wikipedia.org/Renal_function'
+		result.formula_name = 'eGFR from CKD-EPI'
+		result.formula_source = '8/2014: http://en.wikipedia.org/Renal_function'
 		result.hints.append(_('best @ GFR > 60 ml/min'))
 
 		if self.__patient is None:
@@ -449,9 +449,9 @@ class cClinicalCalculator(object):
 			result.message = _('CKD-EPI: creatinine value not numeric')
 			return result
 		result.variables['serum_crea_val'] = self.d(result.variables['serum_crea']['val_num'])
-		if result.variables['serum_crea']['val_unit'] in [u'mg/dl', u'mg/dL']:
+		if result.variables['serum_crea']['val_unit'] in ['mg/dl', 'mg/dL']:
 			result.variables['serum_crea_val'] = self.d(result.variables['serum_crea']['val_num'])
-		elif result.variables['serum_crea']['val_unit'] in [u'µmol/L', u'µmol/l']:
+		elif result.variables['serum_crea']['val_unit'] in ['µmol/L', 'µmol/l']:
 			result.variables['serum_crea_val'] = self.d(result.variables['serum_crea']['val_num']) / self.d('88.4')
 		else:
 			result.message = _('CKD-EPI: unknown serum creatinine unit (%s)') % result.variables['serum_crea']['val_unit']
@@ -482,7 +482,7 @@ class cClinicalCalculator(object):
 			result.variables['gender_multiplier'] * \
 			result.variables['ethnicity_multiplier']
 		)
-		result.unit = u'ml/min/1.73m²'
+		result.unit = 'ml/min/1.73m²'
 
 		result.message = _('eGFR(CKD-EPI): %.1f %s (%s)') % (
 			result.numeric_value,
@@ -495,7 +495,7 @@ class cClinicalCalculator(object):
 		result.date_valid = result.variables['serum_crea']['clin_when']
 
 		self.__cache['CKD-EPI'] = result
-		_log.debug(u'%s' % result)
+		_log.debug('%s' % result)
 
 		return result
 
@@ -510,8 +510,8 @@ class cClinicalCalculator(object):
 			pass
 
 		result = cClinicalResult(_('unknown Cockcroft-Gault'))
-		result.formula_name = u'eGFR from Cockcroft-Gault'
-		result.formula_source = u'8/2014: http://en.wikipedia.org/Renal_function'
+		result.formula_name = 'eGFR from Cockcroft-Gault'
+		result.formula_source = '8/2014: http://en.wikipedia.org/Renal_function'
 		result.hints.append(_('best @ age >65'))
 
 		if self.__patient is None:
@@ -539,13 +539,13 @@ class cClinicalCalculator(object):
 			result.message = _('Cockcroft-Gault: creatinine value not numeric')
 			return result
 		result.variables['serum_crea_val'] = self.d(result.variables['serum_crea']['val_num'])
-		if result.variables['serum_crea']['val_unit'] in [u'mg/dl', u'mg/dL']:
+		if result.variables['serum_crea']['val_unit'] in ['mg/dl', 'mg/dL']:
 			result.variables['unit_multiplier'] = self.d(72)
 			if result.variables['gender_mf'] == 'm':
 				result.variables['gender_multiplier'] = self.d('1')
 			else: #result.variables['gender_mf'] == 'f'
 				result.variables['gender_multiplier'] = self.d('0.85')
-		elif result.variables['serum_crea']['val_unit'] in [u'µmol/L', u'µmol/l']:
+		elif result.variables['serum_crea']['val_unit'] in ['µmol/L', 'µmol/l']:
 			result.variables['unit_multiplier'] = self.d(1)
 			if result.variables['gender_mf'] == 'm':
 				result.variables['gender_multiplier'] = self.d('1.23')
@@ -574,9 +574,9 @@ class cClinicalCalculator(object):
 		if result.variables['weight']['val_num'] is None:
 			result.message = _('Cockcroft-Gault: weight not numeric')
 			return result
-		if result.variables['weight']['val_unit'] == u'kg':
+		if result.variables['weight']['val_unit'] == 'kg':
 			result.variables['weight_kg'] = self.d(result.variables['weight']['val_num'])
-		elif result.variables['weight']['val_unit'] == u'g':
+		elif result.variables['weight']['val_unit'] == 'g':
 			result.variables['weight_kg'] = self.d(result.variables['weight']['val_num'] / self.d(1000))
 		else:
 			result.message = _('Cockcroft-Gault: weight not in kg or g')
@@ -588,7 +588,7 @@ class cClinicalCalculator(object):
 					/								\
 			(result.variables['unit_multiplier'] * result.variables['serum_crea_val'])
 		)
-		result.unit = u'ml/min'		#/1.73m²
+		result.unit = 'ml/min'		#/1.73m²
 
 		result.message = _('eGFR(CG): %.1f %s (%s)') % (
 			result.numeric_value,
@@ -601,7 +601,7 @@ class cClinicalCalculator(object):
 		result.date_valid = result.variables['serum_crea']['clin_when']
 
 		self.__cache['cockroft_gault'] = result
-		_log.debug(u'%s' % result)
+		_log.debug('%s' % result)
 
 		return result
 
@@ -616,8 +616,8 @@ class cClinicalCalculator(object):
 			pass
 
 		result = cClinicalResult(_('unknown eGFR (Schwartz)'))
-		result.formula_name = u'eGFR from updated Schwartz "bedside" formula (age < 19yrs)'
-		result.formula_source = u'1/2013: http://en.wikipedia.org/Renal_function / http://www.ganfyd.org/index.php?title=Estimated_glomerular_filtration_rate (NHS) / doi 10.1681/ASN.2008030287 / doi: 10.2215/CJN.01640309'
+		result.formula_name = 'eGFR from updated Schwartz "bedside" formula (age < 19yrs)'
+		result.formula_source = '1/2013: http://en.wikipedia.org/Renal_function / http://www.ganfyd.org/index.php?title=Estimated_glomerular_filtration_rate (NHS) / doi 10.1681/ASN.2008030287 / doi: 10.2215/CJN.01640309'
 		result.hints.append(_('only applies @ age <18'))
 
 		if self.__patient is None:
@@ -639,9 +639,9 @@ class cClinicalCalculator(object):
 			result.message = _('eGFR (Schwartz): creatinine value not numeric')
 			return result
 		result.variables['serum_crea_val'] = self.d(result.variables['serum_crea']['val_num'])
-		if result.variables['serum_crea']['val_unit'] in [u'mg/dl', u'mg/dL']:
+		if result.variables['serum_crea']['val_unit'] in ['mg/dl', 'mg/dL']:
 			result.variables['unit_multiplier'] = self.d(1)
-		elif result.variables['serum_crea']['val_unit'] in [u'µmol/L', u'µmol/l']:
+		elif result.variables['serum_crea']['val_unit'] in ['µmol/L', 'µmol/l']:
 			result.variables['unit_multiplier'] = self.d('0.00113')
 		else:
 			result.message = _('eGFR (Schwartz): unknown serum creatinine unit (%s)') % result.variables['serum_crea']['val_unit']
@@ -679,11 +679,11 @@ class cClinicalCalculator(object):
 		if result.variables['height']['val_num'] is None:
 			result.message = _('eGFR (Schwartz): height not numeric')
 			return result
-		if result.variables['height']['val_unit'] == u'cm':
+		if result.variables['height']['val_unit'] == 'cm':
 			result.variables['height_cm'] = self.d(result.variables['height']['val_num'])
-		elif result.variables['height']['val_unit'] == u'mm':
+		elif result.variables['height']['val_unit'] == 'mm':
 			result.variables['height_cm'] = self.d(result.variables['height']['val_num'] / self.d(10))
-		elif result.variables['height']['val_unit'] == u'm':
+		elif result.variables['height']['val_unit'] == 'm':
 			result.variables['height_cm'] = self.d(result.variables['height']['val_num'] * 100)
 		else:
 			result.message = _('eGFR (Schwartz): height not in m, cm, or mm')
@@ -695,7 +695,7 @@ class cClinicalCalculator(object):
 		) / (
 			result.variables['unit_multiplier'] * result.variables['serum_crea_val']
 		)
-		result.unit = u'ml/min/1.73m²'
+		result.unit = 'ml/min/1.73m²'
 
 		result.message = _('eGFR (Schwartz): %.1f %s (%s)') % (
 			result.numeric_value,
@@ -708,7 +708,7 @@ class cClinicalCalculator(object):
 		result.date_valid = result.variables['serum_crea']['clin_when']
 
 		self.__cache['gfr_schwartz'] = result
-		_log.debug(u'%s' % result)
+		_log.debug('%s' % result)
 
 		return result
 
@@ -723,8 +723,8 @@ class cClinicalCalculator(object):
 			pass
 
 		result = cClinicalResult(_('unknown body surface area'))
-		result.formula_name = u'Du Bois Body Surface Area'
-		result.formula_source = u'12/2012: http://en.wikipedia.org/wiki/Body_surface_area'
+		result.formula_name = 'Du Bois Body Surface Area'
+		result.formula_source = '12/2012: http://en.wikipedia.org/wiki/Body_surface_area'
 
 		if self.__patient is None:
 			result.message = _('Body Surface Area: no patient')
@@ -737,11 +737,11 @@ class cClinicalCalculator(object):
 		if result.variables['height']['val_num'] is None:
 			result.message = _('Body Surface Area: height not numeric')
 			return result
-		if result.variables['height']['val_unit'] == u'cm':
+		if result.variables['height']['val_unit'] == 'cm':
 			result.variables['height_cm'] = self.d(result.variables['height']['val_num'])
-		elif result.variables['height']['val_unit'] == u'mm':
+		elif result.variables['height']['val_unit'] == 'mm':
 			result.variables['height_cm'] = self.d(result.variables['height']['val_num'] / self.d(10))
-		elif result.variables['height']['val_unit'] == u'm':
+		elif result.variables['height']['val_unit'] == 'm':
 			result.variables['height_cm'] = self.d(result.variables['height']['val_num'] * 100)
 		else:
 			result.message = _('Body Surface Area: height not in m, cm, or mm')
@@ -758,9 +758,9 @@ class cClinicalCalculator(object):
 		if result.variables['weight']['val_num'] is None:
 			result.message = _('Body Surface Area: weight not numeric')
 			return result
-		if result.variables['weight']['val_unit'] == u'kg':
+		if result.variables['weight']['val_unit'] == 'kg':
 			result.variables['weight_kg'] = self.d(result.variables['weight']['val_num'])
-		elif result.variables['weight']['val_unit'] == u'g':
+		elif result.variables['weight']['val_unit'] == 'g':
 			result.variables['weight_kg'] = self.d(result.variables['weight']['val_num'] / self.d(1000))
 		else:
 			result.message = _('Body Surface Area: weight not in kg or g')
@@ -769,7 +769,7 @@ class cClinicalCalculator(object):
 		result.numeric_value = self.d('0.007184') * \
 			pow(result.variables['weight_kg'], self.d('0.425')) * \
 			pow(result.variables['height_cm'], self.d('0.725'))
-		result.unit = u'm²'
+		result.unit = 'm²'
 
 		result.message = _('BSA (DuBois): %.2f %s') % (
 			result.numeric_value,
@@ -778,7 +778,7 @@ class cClinicalCalculator(object):
 		result.date_valid = gmDateTime.pydt_now_here()
 
 		self.__cache['body_surface_area'] = result
-		_log.debug(u'%s' % result)
+		_log.debug('%s' % result)
 
 		return result
 
@@ -793,8 +793,8 @@ class cClinicalCalculator(object):
 			pass
 
 		result = cClinicalResult(_('unknown BMI'))
-		result.formula_name = u'BMI/Quetelet Index'
-		result.formula_source = u'08/2014: https://en.wikipedia.org/wiki/Body_mass_index'
+		result.formula_name = 'BMI/Quetelet Index'
+		result.formula_source = '08/2014: https://en.wikipedia.org/wiki/Body_mass_index'
 
 		if self.__patient is None:
 			result.message = _('BMI: no patient')
@@ -807,11 +807,11 @@ class cClinicalCalculator(object):
 		if result.variables['height']['val_num'] is None:
 			result.message = _('BMI: height not numeric')
 			return result
-		if result.variables['height']['val_unit'] == u'cm':
+		if result.variables['height']['val_unit'] == 'cm':
 			result.variables['height_m'] = self.d(result.variables['height']['val_num'] / self.d(100))
-		elif result.variables['height']['val_unit'] == u'mm':
+		elif result.variables['height']['val_unit'] == 'mm':
 			result.variables['height_m'] = self.d(result.variables['height']['val_num'] / self.d(1000))
-		elif result.variables['height']['val_unit'] == u'm':
+		elif result.variables['height']['val_unit'] == 'm':
 			result.variables['height_m'] = self.d(result.variables['height']['val_num'])
 		else:
 			result.message = _('BMI: height not in m, cm, or mm')
@@ -828,9 +828,9 @@ class cClinicalCalculator(object):
 		if result.variables['weight']['val_num'] is None:
 			result.message = _('BMI: weight not numeric')
 			return result
-		if result.variables['weight']['val_unit'] == u'kg':
+		if result.variables['weight']['val_unit'] == 'kg':
 			result.variables['weight_kg'] = self.d(result.variables['weight']['val_num'])
-		elif result.variables['weight']['val_unit'] == u'g':
+		elif result.variables['weight']['val_unit'] == 'g':
 			result.variables['weight_kg'] = self.d(result.variables['weight']['val_num'] / self.d(1000))
 		else:
 			result.message = _('BMI: weight not in kg or g')
@@ -851,7 +851,7 @@ class cClinicalCalculator(object):
 
 		# bmi = mass kg / height m2
 		result.numeric_value = result.variables['weight_kg'] / (result.variables['height_m'] * result.variables['height_m'])
-		result.unit = u'kg/m²'
+		result.unit = 'kg/m²'
 
 		result.message = _('BMI (Quetelet): %.2f %s') % (
 			result.numeric_value,
@@ -860,7 +860,7 @@ class cClinicalCalculator(object):
 		result.date_valid = gmDateTime.pydt_now_here()
 
 		self.__cache['body_mass_index'] = result
-		_log.debug(u'%s' % result)
+		_log.debug('%s' % result)
 
 		return result
 
@@ -881,7 +881,7 @@ class cClinicalCalculator(object):
 			val = str(val)
 
 		# string ? -> "," to "."
-		if isinstance(val, basestring):
+		if isinstance(val, str):
 			val = val.replace(',', '.', 1)
 			val = val.strip()
 
@@ -917,6 +917,6 @@ if __name__ == "__main__":
 		#result = calc.get_EDC(lmp = gmDateTime.pydt_now_here())
 		#result = calc.body_mass_index
 		#result = calc.eGFRs
-		print(u'%s' % result.format(with_formula = True, with_warnings = True, with_variables = True, with_sub_results = True))
+		print('%s' % result.format(with_formula = True, with_warnings = True, with_variables = True, with_sub_results = True))
 	#-----------------------------------------
 	test_clin_calc()

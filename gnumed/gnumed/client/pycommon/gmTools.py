@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import print_function
+
 
 __doc__ = """GNUmed general tools."""
 
@@ -52,82 +52,82 @@ _log = logging.getLogger('gm.tools')
 ) = range(6)
 
 
-u_currency_pound = u'\u00A3'				# Pound sign
-u_currency_sign = u'\u00A4'					# generic currency sign
-u_currency_yen = u'\u00A5'					# Yen sign
-u_right_double_angle_quote = u'\u00AB'		# <<
-u_registered_trademark = u'\u00AE'
-u_plus_minus = u'\u00B1'
-u_superscript_one = u'\u00B9'				# ^1
-u_left_double_angle_quote = u'\u00BB'		# >>
-u_one_quarter = u'\u00BC'
-u_one_half = u'\u00BD'
-u_three_quarters = u'\u00BE'
-u_multiply = u'\u00D7'						# x
-u_greek_ALPHA = u'\u0391'
-u_greek_alpha = u'\u03b1'
-u_greek_OMEGA = u'\u03A9'
-u_greek_omega = u'\u03c9'
-u_dagger = u'\u2020'
-u_triangular_bullet = u'\u2023'					# triangular bullet  (>)
-u_ellipsis = u'\u2026'							# ...
-u_euro = u'\u20AC'								# EURO sign
-u_numero = u'\u2116'							# No. / # sign
-u_down_left_arrow = u'\u21B5'					# <-'
-u_left_arrow = u'\u2190'						# <--
-u_up_arrow = u'\u2191'
-u_arrow2right = u'\u2192'						# -->
-u_down_arrow = u'\u2193'
-u_left_arrow_with_tail = u'\u21a2'				# <--<
-u_arrow2right_from_bar = u'\u21a6'				# |->
-u_arrow2right_until_vertical_bar = u'\u21e5'	# -->|
-u_sum = u'\u2211'								# sigma
-u_almost_equal_to = u'\u2248'					# approximately / nearly / roughly
-u_corresponds_to = u'\u2258'
-u_infinity = u'\u221E'
-u_arrow2right_until_vertical_bar2 = u'\u2b72'	# -->|
-u_diameter = u'\u2300'
-u_checkmark_crossed_out = u'\u237B'
-u_box_vert_left = u'\u23b8'
-u_box_vert_right = u'\u23b9'
-u_box_horiz_single = u'\u2500'				# -
-u_box_vert_light = u'\u2502'
-u_box_horiz_light_3dashes = u'\u2504'		# ...
-u_box_vert_light_4dashes = u'\u2506'
-u_box_horiz_4dashes = u'\u2508'				# ....
-u_box_T_right = u'\u251c'
-u_box_T_down = u'\u252c'
-u_box_T_up = u'\u2534'
-u_box_plus = u'\u253c'
-u_box_top_double = u'\u2550'
-u_box_top_left_double_single = u'\u2552'
-u_box_top_right_double_single = u'\u2555'
-u_box_top_left_arc = u'\u256d'
-u_box_bottom_right_arc = u'\u256f'
-u_box_bottom_left_arc = u'\u2570'
-u_box_horiz_light_heavy = u'\u257c'
-u_box_horiz_heavy_light = u'\u257e'
-u_skull_and_crossbones = u'\u2620'
-u_caduceus = u'\u2624'
-u_frowning_face = u'\u2639'
-u_smiling_face = u'\u263a'
-u_black_heart = u'\u2665'
-u_female = u'\u2640'
-u_male = u'\u2642'
-u_male_female = u'\u26a5'
-u_checkmark_thin = u'\u2713'
-u_checkmark_thick = u'\u2714'
-u_heavy_greek_cross = u'\u271a'
-u_arrow2right_thick = u'\u2794'
-u_writing_hand = u'\u270d'
-u_pencil_1 = u'\u270e'
-u_pencil_2 = u'\u270f'
-u_pencil_3 = u'\u2710'
-u_latin_cross = u'\u271d'
-u_arrow2right_until_black_diamond = u'\u291e'	# ->*
-u_kanji_yen = u'\u5186'							# Yen kanji
-u_replacement_character = u'\ufffd'
-u_link_symbol = u'\u1f517'
+u_currency_pound = '\u00A3'				# Pound sign
+u_currency_sign = '\u00A4'					# generic currency sign
+u_currency_yen = '\u00A5'					# Yen sign
+u_right_double_angle_quote = '\u00AB'		# <<
+u_registered_trademark = '\u00AE'
+u_plus_minus = '\u00B1'
+u_superscript_one = '\u00B9'				# ^1
+u_left_double_angle_quote = '\u00BB'		# >>
+u_one_quarter = '\u00BC'
+u_one_half = '\u00BD'
+u_three_quarters = '\u00BE'
+u_multiply = '\u00D7'						# x
+u_greek_ALPHA = '\u0391'
+u_greek_alpha = '\u03b1'
+u_greek_OMEGA = '\u03A9'
+u_greek_omega = '\u03c9'
+u_dagger = '\u2020'
+u_triangular_bullet = '\u2023'					# triangular bullet  (>)
+u_ellipsis = '\u2026'							# ...
+u_euro = '\u20AC'								# EURO sign
+u_numero = '\u2116'							# No. / # sign
+u_down_left_arrow = '\u21B5'					# <-'
+u_left_arrow = '\u2190'						# <--
+u_up_arrow = '\u2191'
+u_arrow2right = '\u2192'						# -->
+u_down_arrow = '\u2193'
+u_left_arrow_with_tail = '\u21a2'				# <--<
+u_arrow2right_from_bar = '\u21a6'				# |->
+u_arrow2right_until_vertical_bar = '\u21e5'	# -->|
+u_sum = '\u2211'								# sigma
+u_almost_equal_to = '\u2248'					# approximately / nearly / roughly
+u_corresponds_to = '\u2258'
+u_infinity = '\u221E'
+u_arrow2right_until_vertical_bar2 = '\u2b72'	# -->|
+u_diameter = '\u2300'
+u_checkmark_crossed_out = '\u237B'
+u_box_vert_left = '\u23b8'
+u_box_vert_right = '\u23b9'
+u_box_horiz_single = '\u2500'				# -
+u_box_vert_light = '\u2502'
+u_box_horiz_light_3dashes = '\u2504'		# ...
+u_box_vert_light_4dashes = '\u2506'
+u_box_horiz_4dashes = '\u2508'				# ....
+u_box_T_right = '\u251c'
+u_box_T_down = '\u252c'
+u_box_T_up = '\u2534'
+u_box_plus = '\u253c'
+u_box_top_double = '\u2550'
+u_box_top_left_double_single = '\u2552'
+u_box_top_right_double_single = '\u2555'
+u_box_top_left_arc = '\u256d'
+u_box_bottom_right_arc = '\u256f'
+u_box_bottom_left_arc = '\u2570'
+u_box_horiz_light_heavy = '\u257c'
+u_box_horiz_heavy_light = '\u257e'
+u_skull_and_crossbones = '\u2620'
+u_caduceus = '\u2624'
+u_frowning_face = '\u2639'
+u_smiling_face = '\u263a'
+u_black_heart = '\u2665'
+u_female = '\u2640'
+u_male = '\u2642'
+u_male_female = '\u26a5'
+u_checkmark_thin = '\u2713'
+u_checkmark_thick = '\u2714'
+u_heavy_greek_cross = '\u271a'
+u_arrow2right_thick = '\u2794'
+u_writing_hand = '\u270d'
+u_pencil_1 = '\u270e'
+u_pencil_2 = '\u270f'
+u_pencil_3 = '\u2710'
+u_latin_cross = '\u271d'
+u_arrow2right_until_black_diamond = '\u291e'	# ->*
+u_kanji_yen = '\u5186'							# Yen kanji
+u_replacement_character = '\ufffd'
+u_link_symbol = '\u1f517'
 
 _kB = 1024
 _MB = 1024 * _kB
@@ -166,7 +166,7 @@ def mkdir(directory=None, mode=None):
 def rmdir(directory):
 	#-------------------------------
 	def _on_rm_error(func, path, exc):
-		_log.error(u'error while shutil.rmtree(%s)', path, exc_info=exc)
+		_log.error('error while shutil.rmtree(%s)', path, exc_info=exc)
 		return True
 	#-------------------------------
 	error_count = 0
@@ -204,12 +204,12 @@ def rm_dir_content(directory):
 def mk_sandbox_dir(prefix=None, base_dir=None):
 	if prefix is None:
 		if base_dir is None:
-			prefix = u'sandbox-'
+			prefix = 'sandbox-'
 		else:
-			prefix = u'gm_sandbox-'
+			prefix = 'gm_sandbox-'
 	return tempfile.mkdtemp (
 		prefix = prefix,
-		suffix = u'',
+		suffix = '',
 		dir = base_dir
 	)
 
@@ -314,17 +314,17 @@ class gmPaths(gmBorg.cBorg):
 		# temporary directory
 		try:
 			self.__tmp_dir_already_set
-			_log.debug(u'temp dir already set')
+			_log.debug('temp dir already set')
 		except AttributeError:
-			_log.info(u'initial (user level) temp dir: %s', tempfile.gettempdir())
+			_log.info('initial (user level) temp dir: %s', tempfile.gettempdir())
 			# $TMP/gnumed-$USER/
 			tmp_base = os.path.join(tempfile.gettempdir(), app_name + r'-' + getpass.getuser())
 			mkdir(tmp_base, 0o700)
 			tempfile.tempdir = tmp_base
-			_log.info(u'intermediate (app level) temp dir: %s', tempfile.gettempdir())
+			_log.info('intermediate (app level) temp dir: %s', tempfile.gettempdir())
 			# $TMP/gnumed-$USER/g$UNIQUE/
 			self.tmp_dir = tempfile.mkdtemp(prefix = r'g')
-			_log.info(u'final (app instance level) temp dir: %s', tempfile.gettempdir())
+			_log.info('final (app instance level) temp dir: %s', tempfile.gettempdir())
 
 		self.__log_paths()
 		if wx is None:
@@ -466,15 +466,15 @@ class gmPaths(gmBorg.cBorg):
 #===========================================================================
 # file related tools
 #---------------------------------------------------------------------------
-def recode_file(source_file=None, target_file=None, source_encoding=u'utf8', target_encoding=None, base_dir=None, error_mode='replace'):
+def recode_file(source_file=None, target_file=None, source_encoding='utf8', target_encoding=None, base_dir=None, error_mode='replace'):
 	if target_encoding is None:
 		return source_file
 	if target_encoding == source_encoding:
 		return source_file
 	if target_file is None:
 		target_file = get_unique_filename (
-			prefix = u'%s-%s_%s-' % (fname_stem(source_file), source_encoding, target_encoding),
-			suffix = fname_extension(source_file, u'.txt'),
+			prefix = '%s-%s_%s-' % (fname_stem(source_file), source_encoding, target_encoding),
+			suffix = fname_extension(source_file, '.txt'),
 			tmp_dir = base_dir
 		)
 
@@ -541,7 +541,7 @@ def gpg_decrypt_file(filename=None, passphrase=None):
 		)
 	except (OSError, ValueError, subprocess.CalledProcessError):
 		_log.exception('there was a problem executing gpg')
-		gmDispatcher.send(signal = u'statustext', msg = _('Error running GnuPG. Cannot decrypt data.'), beep = True)
+		gmDispatcher.send(signal = 'statustext', msg = _('Error running GnuPG. Cannot decrypt data.'), beep = True)
 		return
 
 	out, error = gpg.communicate(passphrase)
@@ -577,7 +577,7 @@ def file2md5(filename=None, return_hex=True):
 #---------------------------------------------------------------------------
 def file2chunked_md5(filename=None, chunk_size=500*_MB):
 	_log.debug('chunked_md5(%s, chunk_size=%s bytes)', filename, chunk_size)
-	md5_concat = u''
+	md5_concat = ''
 	f = open(filename, 'rb')
 	while True:
 		md5 = hashlib.md5()
@@ -602,7 +602,7 @@ def unicode2charset_encoder(unicode_csv_data, encoding='utf-8'):
 #	for line in unicode_csv_data:
 #		yield line.encode('utf-8')
 
-default_csv_reader_rest_key = u'list_of_values_of_unknown_fields'
+default_csv_reader_rest_key = 'list_of_values_of_unknown_fields'
 
 def unicode_csv_reader(unicode_csv_data, dialect=csv.excel, encoding='utf-8', **kwargs):
 
@@ -642,7 +642,7 @@ def fname_sanitize(filename):
 	"""Normalizes unicode, removes non-alpha characters, converts spaces to underscores."""
 
 	dir_part, name_part = os.path.split(filename)
-	if name_part == u'':
+	if name_part == '':
 		return filename
 
 	import unicodedata
@@ -650,14 +650,14 @@ def fname_sanitize(filename):
 	# remove everything not in group []
 	name_part = regex.sub (
 		'[^.\w\s[\]()%§+-]',
-		u'',
+		'',
 		name_part,
 		flags = regex.UNICODE
 	).strip()
 	# translate whitespace to underscore
 	name_part = regex.sub (
 		'\s+',
-		u'_',
+		'_',
 		name_part,
 		flags = regex.UNICODE
 	)
@@ -679,10 +679,10 @@ def fname_extension(filename=None, fallback=None):
 		'' or '.' -> fallback if any else ''
 	"""
 	ext = os.path.splitext(filename)[1]
-	if ext.strip() not in [u'.', u'']:
+	if ext.strip() not in ['.', '']:
 		return ext
 	if fallback is None:
-		return u''
+		return ''
 	return fallback
 
 #---------------------------------------------------------------------------
@@ -714,7 +714,7 @@ def get_unique_filename(prefix=None, suffix=None, tmp_dir=None, include_timestam
 	if include_timestamp:
 		ts = pydt.datetime.now().strftime('%m%d-%H%M%S-')
 	else:
-		ts = u''
+		ts = ''
 
 	kwargs = {
 		'dir': tmp_dir,
@@ -728,7 +728,7 @@ def get_unique_filename(prefix=None, suffix=None, tmp_dir=None, include_timestam
 	else:
 		kwargs['prefix'] = prefix + ts
 
-	if suffix in [None, u'']:
+	if suffix in [None, '']:
 		kwargs['suffix'] = '.tmp'
 	else:
 		if not suffix.startswith('.'):
@@ -813,20 +813,20 @@ def import_module_from_directory(module_path=None, module_name=None, always_remo
 #===========================================================================
 # text related tools
 #---------------------------------------------------------------------------
-def size2str(size=0, template=u'%s'):
+def size2str(size=0, template='%s'):
 	if size == 1:
 		return template % _('1 Byte')
 	if size < 10 * _kB:
 		return template % _('%s Bytes') % size
 	if size < _MB:
-		return template % u'%.1f kB' % (float(size) / _kB)
+		return template % '%.1f kB' % (float(size) / _kB)
 	if size < _GB:
-		return template % u'%.1f MB' % (float(size) / _MB)
+		return template % '%.1f MB' % (float(size) / _MB)
 	if size < _TB:
-		return template % u'%.1f GB' % (float(size) / _GB)
+		return template % '%.1f GB' % (float(size) / _GB)
 	if size < _PB:
-		return template % u'%.1f TB' % (float(size) / _TB)
-	return template % u'%.1f PB' % (float(size) / _PB)
+		return template % '%.1f TB' % (float(size) / _TB)
+	return template % '%.1f PB' % (float(size) / _PB)
 
 #---------------------------------------------------------------------------
 def bool2subst(boolean=None, true_return=True, false_return=False, none_return=None):
@@ -971,7 +971,7 @@ def input2decimal(initial=None):
 		val = str(val)
 
 	# string ? -> "," to "."
-	if isinstance(val, basestring):
+	if isinstance(val, str):
 		val = val.replace(',', '.', 1)
 		val = val.strip()
 
@@ -987,7 +987,7 @@ def input2int(initial=None, minval=None, maxval=None):
 	val = initial
 
 	# string ? -> "," to "."
-	if isinstance(val, basestring):
+	if isinstance(val, str):
 		val = val.replace(',', '.', 1)
 		val = val.strip()
 
@@ -1013,14 +1013,14 @@ def strip_prefix(text, prefix, remove_repeats=False, remove_whitespace=False):
 	if remove_repeats:
 		if remove_whitespace:
 			while text.lstrip().startswith(prefix):
-				text = text.lstrip().replace(prefix, u'', 1).lstrip()
+				text = text.lstrip().replace(prefix, '', 1).lstrip()
 			return text
 		while text.startswith(prefix):
-			text = text.replace(prefix, u'', 1)
+			text = text.replace(prefix, '', 1)
 		return text
 	if remove_whitespace:
-		return text.lstrip().replace(prefix, u'', 1).lstrip()
-	return text.replace(prefix, u'', 1)
+		return text.lstrip().replace(prefix, '', 1).lstrip()
+	return text.replace(prefix, '', 1)
 
 #---------------------------------------------------------------------------
 def strip_suffix(text, suffix, remove_repeats=False, remove_whitespace=False):
@@ -1038,12 +1038,12 @@ def strip_suffix(text, suffix, remove_repeats=False, remove_whitespace=False):
 	return text[:-suffix_len]
 
 #---------------------------------------------------------------------------
-def strip_leading_empty_lines(lines=None, text=None, eol=u'\n', return_list=True):
+def strip_leading_empty_lines(lines=None, text=None, eol='\n', return_list=True):
 	if lines is None:
 		lines = text.split(eol)
 
 	while True:
-		if lines[0].strip(eol).strip() != u'':
+		if lines[0].strip(eol).strip() != '':
 			break
 		lines = lines[1:]
 
@@ -1053,12 +1053,12 @@ def strip_leading_empty_lines(lines=None, text=None, eol=u'\n', return_list=True
 	return eol.join(lines)
 
 #---------------------------------------------------------------------------
-def strip_trailing_empty_lines(lines=None, text=None, eol=u'\n', return_list=True):
+def strip_trailing_empty_lines(lines=None, text=None, eol='\n', return_list=True):
 	if lines is None:
 		lines = text.split(eol)
 
 	while True:
-		if lines[-1].strip(eol).strip() != u'':
+		if lines[-1].strip(eol).strip() != '':
 			break
 		lines = lines[:-1]
 
@@ -1068,7 +1068,7 @@ def strip_trailing_empty_lines(lines=None, text=None, eol=u'\n', return_list=Tru
 	return eol.join(lines)
 
 #---------------------------------------------------------------------------
-def strip_empty_lines(lines=None, text=None, eol=u'\n', return_list=True):
+def strip_empty_lines(lines=None, text=None, eol='\n', return_list=True):
 	return strip_trailing_empty_lines (
 		lines = strip_leading_empty_lines(lines = lines, text = text, eol = eol, return_list = True),
 		text = None,
@@ -1077,10 +1077,10 @@ def strip_empty_lines(lines=None, text=None, eol=u'\n', return_list=True):
 	)
 
 #---------------------------------------------------------------------------
-def list2text(lines, initial_indent=u'', subsequent_indent=u'', eol=u'\n', strip_leading_empty_lines=True, strip_trailing_empty_lines=True, strip_trailing_whitespace=True):
+def list2text(lines, initial_indent='', subsequent_indent='', eol='\n', strip_leading_empty_lines=True, strip_trailing_empty_lines=True, strip_trailing_whitespace=True):
 
 	if len(lines) == 0:
-		return u''
+		return ''
 
 	if strip_leading_empty_lines:
 		lines = strip_leading_empty_lines(lines = lines, eol = eol, return_list = True)
@@ -1097,7 +1097,7 @@ def list2text(lines, initial_indent=u'', subsequent_indent=u'', eol=u'\n', strip
 	return eol.join(indented_lines)
 
 #---------------------------------------------------------------------------
-def wrap(text=None, width=None, initial_indent=u'', subsequent_indent=u'', eol=u'\n'):
+def wrap(text=None, width=None, initial_indent='', subsequent_indent='', eol='\n'):
 	"""A word-wrap function that preserves existing line breaks
 	and most spaces in the text. Expects that existing line
 	breaks are posix newlines (\n).
@@ -1113,30 +1113,30 @@ def wrap(text=None, width=None, initial_indent=u'', subsequent_indent=u'', eol=u
 		text.split(' ')
 	)
 
-	if subsequent_indent != u'':
-		wrapped = (u'\n%s' % subsequent_indent).join(wrapped.split('\n'))
+	if subsequent_indent != '':
+		wrapped = ('\n%s' % subsequent_indent).join(wrapped.split('\n'))
 
-	if eol != u'\n':
+	if eol != '\n':
 		wrapped = wrapped.replace('\n', eol)
 
 	return wrapped
 
 #---------------------------------------------------------------------------
-def unwrap(text=None, max_length=None, strip_whitespace=True, remove_empty_lines=True, line_separator = u' // '):
+def unwrap(text=None, max_length=None, strip_whitespace=True, remove_empty_lines=True, line_separator = ' // '):
 
-	text = text.replace(u'\r', u'')
-	lines = text.split(u'\n')
-	text = u''
+	text = text.replace('\r', '')
+	lines = text.split('\n')
+	text = ''
 	for line in lines:
 
 		if strip_whitespace:
-			line = line.strip().strip(u'\t').strip()
+			line = line.strip().strip('\t').strip()
 
 		if remove_empty_lines:
-			if line == u'':
+			if line == '':
 				continue
 
-		text += (u'%s%s' % (line, line_separator))
+		text += ('%s%s' % (line, line_separator))
 
 	text = text.rstrip(line_separator)
 
@@ -1173,12 +1173,12 @@ def shorten_words_in_line(text=None, max_length=None, min_word_length=None, igno
 			words.append(word)
 			continue
 		if ignore_numbers:
-			tmp = word.replace(u'-', u'').replace(u'+', u'').replace(u'.', u'').replace(u',', u'').replace(u'/', u'').replace(u'&', u'').replace(u'*', u'')
+			tmp = word.replace('-', '').replace('+', '').replace('.', '').replace(',', '').replace('/', '').replace('&', '').replace('*', '')
 			if tmp.isdigit():
 				words.append(word)
 				continue
 		words.append(word[:max_word_length] + ellipsis)
-	return u' '.join(words)
+	return ' '.join(words)
 
 #---------------------------------------------------------------------------
 def xml_escape_string(text=None):
@@ -1198,26 +1198,26 @@ def tex_escape_string(text=None, replace_known_unicode=True, replace_eol=False, 
 			is preserved in the LaTeX source (think multi-
 			row table cells)
 	"""
-	text = text.replace(u'\\', u'\\textbackslash')			# requires \usepackage{textcomp} in LaTeX source
-	text = text.replace(u'^', u'\\textasciicircum')			# requires \usepackage{textcomp} in LaTeX source
-	text = text.replace(u'~', u'\\textasciitilde')			# requires \usepackage{textcomp} in LaTeX source
+	text = text.replace('\\', '\\textbackslash')			# requires \usepackage{textcomp} in LaTeX source
+	text = text.replace('^', '\\textasciicircum')			# requires \usepackage{textcomp} in LaTeX source
+	text = text.replace('~', '\\textasciitilde')			# requires \usepackage{textcomp} in LaTeX source
 
-	text = text.replace(u'{', u'\\{')
-	text = text.replace(u'}', u'\\}')
-	text = text.replace(u'%', u'\\%')
-	text = text.replace(u'&', u'\\&')
-	text = text.replace(u'#', u'\\#')
-	text = text.replace(u'$', u'\\$')
-	text = text.replace(u'_', u'\\_')
+	text = text.replace('{', '\\{')
+	text = text.replace('}', '\\}')
+	text = text.replace('%', '\\%')
+	text = text.replace('&', '\\&')
+	text = text.replace('#', '\\#')
+	text = text.replace('$', '\\$')
+	text = text.replace('_', '\\_')
 	if replace_eol:
 		if keep_visual_eol:
-			text = text.replace(u'\n', u'\\newline \n')
+			text = text.replace('\n', '\\newline \n')
 		else:
-			text = text.replace(u'\n', u'\\newline ')
+			text = text.replace('\n', '\\newline ')
 
 	if replace_known_unicode:
 		# this should NOT be replaced for Xe(La)Tex
-		text = text.replace(u_euro, u'\\EUR')
+		text = text.replace(u_euro, '\\EUR')
 
 	return text
 
@@ -1229,20 +1229,20 @@ def xetex_escape_string(text=None):
 
 #---------------------------------------------------------------------------
 __html_escape_table = {
-	u"&": u"&amp;",
-	u'"': u"&quot;",
-	u"'": u"&apos;",
-	u">": u"&gt;",
-	u"<": u"&lt;",
+	"&": "&amp;",
+	'"': "&quot;",
+	"'": "&apos;",
+	">": "&gt;",
+	"<": "&lt;",
 }
 
 def html_escape_string(text=None, replace_eol=False, keep_visual_eol=False):
-	text = u''.join(__html_escape_table.get(char, char) for char in text)
+	text = ''.join(__html_escape_table.get(char, char) for char in text)
 	if replace_eol:
 		if keep_visual_eol:
-			text = text.replace(u'\n', u'<br>\n')
+			text = text.replace('\n', '<br>\n')
 		else:
-			text = text.replace(u'\n', u'<br>')
+			text = text.replace('\n', '<br>')
 	return text
 
 #---------------------------------------------------------------------------
@@ -1258,7 +1258,7 @@ def json_serialize(obj):
 #---------------------------------------------------------------------------
 #---------------------------------------------------------------------------
 def compare_dict_likes(d1, d2, title1=None, title2=None):
-	_log.info('comparing dict-likes: %s[%s] vs %s[%s]', coalesce(title1, u'', u'"%s" '), type(d1), coalesce(title2, u'', u'"%s" '), type(d2))
+	_log.info('comparing dict-likes: %s[%s] vs %s[%s]', coalesce(title1, '', '"%s" '), type(d1), coalesce(title2, '', '"%s" '), type(d2))
 	try:
 		d1 = dict(d1)
 	except TypeError:
@@ -1276,23 +1276,23 @@ def compare_dict_likes(d1, d2, title1=None, title2=None):
 	for key in keys_d1:
 		if key in keys_d2:
 			if type(d1[key]) != type(d2[key]):
-				_log.info(u'%25.25s: type(dict1) = %s = >>>%s<<<' % (key, type(d1[key]), d1[key]))
-				_log.info(u'%25.25s  type(dict2) = %s = >>>%s<<<' % (u'', type(d2[key]), d2[key]))
+				_log.info('%25.25s: type(dict1) = %s = >>>%s<<<' % (key, type(d1[key]), d1[key]))
+				_log.info('%25.25s  type(dict2) = %s = >>>%s<<<' % ('', type(d2[key]), d2[key]))
 				different = True
 				continue
 			if d1[key] == d2[key]:
-				_log.info(u'%25.25s:  both = >>>%s<<<' % (key, d1[key]))
+				_log.info('%25.25s:  both = >>>%s<<<' % (key, d1[key]))
 			else:
-				_log.info(u'%25.25s: dict1 = >>>%s<<<' % (key, d1[key]))
-				_log.info(u'%25.25s  dict2 = >>>%s<<<' % (u'', d2[key]))
+				_log.info('%25.25s: dict1 = >>>%s<<<' % (key, d1[key]))
+				_log.info('%25.25s  dict2 = >>>%s<<<' % ('', d2[key]))
 				different = True
 		else:
-			_log.info(u'%25.25s: %50.50s | <MISSING>' % (key, u'>>>%s<<<' % d1[key]))
+			_log.info('%25.25s: %50.50s | <MISSING>' % (key, '>>>%s<<<' % d1[key]))
 			different = True
 	for key in keys_d2:
 		if key in keys_d1:
 			continue
-		_log.info(u'%25.25s: %50.50s | %.50s' % (key, u'<MISSING>', u'>>>%s<<<' % d2[key]))
+		_log.info('%25.25s: %50.50s | %.50s' % (key, '<MISSING>', '>>>%s<<<' % d2[key]))
 		different = True
 	if different:
 		_log.info('dict-likes appear to be different from each other')
@@ -1301,18 +1301,18 @@ def compare_dict_likes(d1, d2, title1=None, title2=None):
 	return True
 
 #---------------------------------------------------------------------------
-def format_dict_likes_comparison(d1, d2, title_left=None, title_right=None, left_margin=0, key_delim=u' || ', data_delim=u' | ', missing_string=u'=/=', difference_indicator=u'! ', ignore_diff_in_keys=None):
+def format_dict_likes_comparison(d1, d2, title_left=None, title_right=None, left_margin=0, key_delim=' || ', data_delim=' | ', missing_string='=/=', difference_indicator='! ', ignore_diff_in_keys=None):
 
-	_log.info('comparing dict-likes: %s[%s] vs %s[%s]', coalesce(title_left, u'', u'"%s" '), type(d1), coalesce(title_right, u'', u'"%s" '), type(d2))
+	_log.info('comparing dict-likes: %s[%s] vs %s[%s]', coalesce(title_left, '', '"%s" '), type(d1), coalesce(title_right, '', '"%s" '), type(d2))
 	append_type = False
 	if None not in [title_left, title_right]:
 		append_type = True
 		type_left = type(d1)
 		type_right = type(d2)
 	if title_left is None:
-		title_left = u'%s' % type_left
+		title_left = '%s' % type_left
 	if title_right is None:
-		title_right = u'%s' % type_right
+		title_right = '%s' % type_right
 
 	try: d1 = dict(d1)
 	except TypeError: pass
@@ -1322,23 +1322,23 @@ def format_dict_likes_comparison(d1, d2, title_left=None, title_right=None, left
 	keys_d2 = d2.keys()
 	data = {}
 	for key in keys_d1:
-		data[key] = [d1[key], u' ']
+		data[key] = [d1[key], ' ']
 		if key in d2:
 			data[key][1] = d2[key]
 	for key in keys_d2:
 		if key in keys_d1:
 			continue
-		data[key] = [u' ', d2[key]]
-	max1 = max([ len(u'%s' % k) for k in keys_d1 ])
-	max2 = max([ len(u'%s' % k) for k in keys_d2 ])
+		data[key] = [' ', d2[key]]
+	max1 = max([ len('%s' % k) for k in keys_d1 ])
+	max2 = max([ len('%s' % k) for k in keys_d2 ])
 	max_len = max(max1, max2, len(_('<type>')))
-	max_key_len_str = u'%' + u'%s.%s' % (max_len, max_len) + u's'
-	max1 = max([ len(u'%s' % d1[k]) for k in keys_d1 ])
-	max2 = max([ len(u'%s' % d2[k]) for k in keys_d2 ])
+	max_key_len_str = '%' + '%s.%s' % (max_len, max_len) + 's'
+	max1 = max([ len('%s' % d1[k]) for k in keys_d1 ])
+	max2 = max([ len('%s' % d2[k]) for k in keys_d2 ])
 	max_data_len = min(max(max1, max2), 100)
-	max_data_len_str = u'%' + u'%s.%s' % (max_data_len, max_data_len) + u's'
-	diff_indicator_len_str = u'%' + u'%s.%s' % (len(difference_indicator), len(difference_indicator)) + u's'
-	line_template = (u' ' * left_margin) + diff_indicator_len_str + max_key_len_str + key_delim + max_data_len_str + data_delim + u'%s'
+	max_data_len_str = '%' + '%s.%s' % (max_data_len, max_data_len) + 's'
+	diff_indicator_len_str = '%' + '%s.%s' % (len(difference_indicator), len(difference_indicator)) + 's'
+	line_template = (' ' * left_margin) + diff_indicator_len_str + max_key_len_str + key_delim + max_data_len_str + data_delim + '%s'
 
 	lines = []
 	# debugging:
@@ -1348,18 +1348,18 @@ def format_dict_likes_comparison(d1, d2, title_left=None, title_right=None, left
 	#lines.append((u'%40.40s' % u' ') + u"(u'%40.40s' % u' ')")
 	#lines.append((u'%40.40s' % u'.') + u"(u'%40.40s' % u'.')")
 	#lines.append(line_template)
-	lines.append(line_template % (u'', u'', title_left, title_right))
+	lines.append(line_template % ('', '', title_left, title_right))
 	if append_type:
-		lines.append(line_template % (u'', _('<type>'), type_left, type_right))
+		lines.append(line_template % ('', _('<type>'), type_left, type_right))
 
 	if ignore_diff_in_keys is None:
 		ignore_diff_in_keys = []
 
 	for key in keys_d1:
 		append_type = False
-		txt_left_col = u'%s' % d1[key]
+		txt_left_col = '%s' % d1[key]
 		try:
-			txt_right_col = u'%s' % d2[key]
+			txt_right_col = '%s' % d2[key]
 			if type(d1[key]) != type(d2[key]):
 				append_type = True
 		except KeyError:
@@ -1367,7 +1367,7 @@ def format_dict_likes_comparison(d1, d2, title_left=None, title_right=None, left
 		lines.append(line_template % (
 			bool2subst (
 				((txt_left_col == txt_right_col) or (key in ignore_diff_in_keys)),
-				u'',
+				'',
 				difference_indicator
 			),
 			key,
@@ -1376,26 +1376,26 @@ def format_dict_likes_comparison(d1, d2, title_left=None, title_right=None, left
 		))
 		if append_type:
 			lines.append(line_template % (
-				u'',
+				'',
 				_('<type>'),
-				shorten_text(u'%s' % type(d1[key]), max_data_len),
-				shorten_text(u'%s' % type(d2[key]), max_data_len)
+				shorten_text('%s' % type(d1[key]), max_data_len),
+				shorten_text('%s' % type(d2[key]), max_data_len)
 			))
 
 	for key in keys_d2:
 		if key in keys_d1:
 			continue
 		lines.append(line_template % (
-			bool2subst((key in ignore_diff_in_keys), u'', difference_indicator),
+			bool2subst((key in ignore_diff_in_keys), '', difference_indicator),
 			key,
 			shorten_text(missing_string, max_data_len),
-			shorten_text(u'%s' % d2[key], max_data_len)
+			shorten_text('%s' % d2[key], max_data_len)
 		))
 
 	return lines
 
 #---------------------------------------------------------------------------
-def format_dict_like(d, relevant_keys=None, template=None, missing_key_template=u'<[%(key)s] MISSING>', left_margin=0, tabular=False, value_delimiters=(u'>>>', u'<<<'), eol=u'\n'):
+def format_dict_like(d, relevant_keys=None, template=None, missing_key_template='<[%(key)s] MISSING>', left_margin=0, tabular=False, value_delimiters=('>>>', '<<<'), eol='\n'):
 	if template is not None:
 		# all keys in template better exist in d
 		try:
@@ -1411,23 +1411,23 @@ def format_dict_like(d, relevant_keys=None, template=None, missing_key_template=
 				try:
 					d[key]
 				except KeyError:
-					d[key] = missing_key_template % {u'key': key}
+					d[key] = missing_key_template % {'key': key}
 			return template % d
 
 	if relevant_keys is None:
 		relevant_keys = d.keys()
 	lines = []
 	if value_delimiters is None:
-		delim_left = u''
-		delim_right = u''
+		delim_left = ''
+		delim_right = ''
 	else:
 		delim_left, delim_right = value_delimiters
 	if tabular:
-		max_len = max([ len(u'%s' % k) for k in relevant_keys ])
-		max_len_str = u'%s.%s' % (max_len, max_len)
-		line_template = (u' ' * left_margin) + u'%' + max_len_str + ('s: %s%%s%s' % (delim_left, delim_right))
+		max_len = max([ len('%s' % k) for k in relevant_keys ])
+		max_len_str = '%s.%s' % (max_len, max_len)
+		line_template = (' ' * left_margin) + '%' + max_len_str + ('s: %s%%s%s' % (delim_left, delim_right))
 	else:
-		line_template = (u' ' * left_margin) + u'%%s: %s%%s%s' % (delim_left, delim_right)
+		line_template = (' ' * left_margin) + '%%s: %s%%s%s' % (delim_left, delim_right)
 	for key in relevant_keys:
 		try:
 			lines.append(line_template % (key, d[key]))
@@ -1438,7 +1438,7 @@ def format_dict_like(d, relevant_keys=None, template=None, missing_key_template=
 	return eol.join(lines)
 
 #---------------------------------------------------------------------------
-def normalize_dict_like(d, required_keys, missing_key_template=u'<[%(key)s] MISSING>'):
+def normalize_dict_like(d, required_keys, missing_key_template='<[%(key)s] MISSING>'):
 	for key in required_keys:
 		try:
 			d[key]
@@ -1459,17 +1459,17 @@ def prompted_input(prompt=None, default=None):
 	CTRL-C: aborts and returns None
 	"""
 	if prompt is None:
-		msg = u'(CTRL-C aborts)'
+		msg = '(CTRL-C aborts)'
 	else:
-		msg = u'%s (CTRL-C aborts)' % prompt
+		msg = '%s (CTRL-C aborts)' % prompt
 
 	if default is None:
-		msg = msg + u': '
+		msg = msg + ': '
 	else:
-		msg = u'%s [%s]: ' % (msg, default)
+		msg = '%s [%s]: ' % (msg, default)
 
 	try:
-		usr_input = raw_input(msg)
+		usr_input = input(msg)
 	except KeyboardInterrupt:
 		return None
 
@@ -1493,7 +1493,7 @@ __icon_serpent = \
 
 def get_icon(wx=None):
 
-	paths = gmPaths(app_name = u'gnumed', wx = wx)
+	paths = gmPaths(app_name = 'gnumed', wx = wx)
 
 	candidates = [
 		os.path.join(paths.system_app_data_dir, 'bitmaps', 'gm_icon-serpent_and_gnu.png'),
@@ -1521,7 +1521,7 @@ def get_icon(wx=None):
 		try:
 			icon.LoadFile(found_as, wx.BITMAP_TYPE_ANY)		#_PNG
 		except AttributeError:
-			_log.exception(u"this platform doesn't support wx.Icon().LoadFile()")
+			_log.exception("this platform doesn't support wx.Icon().LoadFile()")
 
 	return icon
 
@@ -1604,18 +1604,18 @@ if __name__ == '__main__':
 	def test_input2int():
 		print(input2int(0))
 		print(input2int('0'))
-		print(input2int(u'0', 0, 0))
+		print(input2int('0', 0, 0))
 	#-----------------------------------------------------------------------
 	def test_coalesce():
 
 		val = None
-		print(val, coalesce(val, u'is None', u'is not None'))
+		print(val, coalesce(val, 'is None', 'is not None'))
 		val = 1
-		print(val, coalesce(val, u'is None', u'is not None'))
+		print(val, coalesce(val, 'is None', 'is not None'))
 		return
 
 		import datetime as dt
-		print(coalesce(initial = dt.datetime.now(), template_initial = u'-- %s --', function_initial = ('strftime', u'%Y-%m-%d')))
+		print(coalesce(initial = dt.datetime.now(), template_initial = '-- %s --', function_initial = ('strftime', '%Y-%m-%d')))
 
 		print('testing coalesce()')
 		print("------------------")
@@ -1653,21 +1653,21 @@ if __name__ == '__main__':
 		success = True
 		pairs = [
 			# [original, expected result, CAPS mode]
-			[u'Boot', u'Boot', CAPS_FIRST_ONLY],
-			[u'boot', u'Boot', CAPS_FIRST_ONLY],
-			[u'booT', u'Boot', CAPS_FIRST_ONLY],
-			[u'BoOt', u'Boot', CAPS_FIRST_ONLY],
-			[u'boots-Schau', u'Boots-Schau', CAPS_WORDS],
-			[u'boots-sChau', u'Boots-Schau', CAPS_WORDS],
-			[u'boot camp', u'Boot Camp', CAPS_WORDS],
-			[u'fahrner-Kampe', u'Fahrner-Kampe', CAPS_NAMES],
-			[u'häkkönen', u'Häkkönen', CAPS_NAMES],
-			[u'McBurney', u'McBurney', CAPS_NAMES],
-			[u'mcBurney', u'McBurney', CAPS_NAMES],
-			[u'blumberg', u'Blumberg', CAPS_NAMES],
-			[u'roVsing', u'RoVsing', CAPS_NAMES],
-			[u'Özdemir', u'Özdemir', CAPS_NAMES],
-			[u'özdemir', u'Özdemir', CAPS_NAMES],
+			['Boot', 'Boot', CAPS_FIRST_ONLY],
+			['boot', 'Boot', CAPS_FIRST_ONLY],
+			['booT', 'Boot', CAPS_FIRST_ONLY],
+			['BoOt', 'Boot', CAPS_FIRST_ONLY],
+			['boots-Schau', 'Boots-Schau', CAPS_WORDS],
+			['boots-sChau', 'Boots-Schau', CAPS_WORDS],
+			['boot camp', 'Boot Camp', CAPS_WORDS],
+			['fahrner-Kampe', 'Fahrner-Kampe', CAPS_NAMES],
+			['häkkönen', 'Häkkönen', CAPS_NAMES],
+			['McBurney', 'McBurney', CAPS_NAMES],
+			['mcBurney', 'McBurney', CAPS_NAMES],
+			['blumberg', 'Blumberg', CAPS_NAMES],
+			['roVsing', 'RoVsing', CAPS_NAMES],
+			['Özdemir', 'Özdemir', CAPS_NAMES],
+			['özdemir', 'Özdemir', CAPS_NAMES],
 		]
 		for pair in pairs:
 			result = capitalize(pair[0], pair[2])
@@ -1783,29 +1783,29 @@ second line\n
 		print()
 		print(wrap(test, 7))
 		print("-------")
-		raw_input()
+		input()
 		print("wrap 5 initial 1-1-3, subsequent 1-3-1")
-		print(wrap(test, 5, u' ', u' '))
+		print(wrap(test, 5, ' ', ' '))
 		print()
-		print(wrap(test, 5, u' ', u'   '))
+		print(wrap(test, 5, ' ', '   '))
 		print()
-		print(wrap(test, 5, u'   ', u' '))
+		print(wrap(test, 5, '   ', ' '))
 		print("-------")
-		raw_input()
+		input()
 		print("wrap 6 initial 1-1-3, subsequent 1-3-1")
-		print(wrap(test, 6, u' ', u' '))
+		print(wrap(test, 6, ' ', ' '))
 		print()
-		print(wrap(test, 6, u' ', u'   '))
+		print(wrap(test, 6, ' ', '   '))
 		print()
-		print(wrap(test, 6, u'   ', u' '))
+		print(wrap(test, 6, '   ', ' '))
 		print("-------")
-		raw_input()
+		input()
 		print("wrap 7 initial 1-1-3, subsequent 1-3-1")
-		print(wrap(test, 7, u' ', u' '))
+		print(wrap(test, 7, ' ', ' '))
 		print()
-		print(wrap(test, 7, u' ', u'   '))
+		print(wrap(test, 7, ' ', '   '))
 		print()
-		print(wrap(test, 7, u'   ', u' '))
+		print(wrap(test, 7, '   ', ' '))
 	#-----------------------------------------------------------------------
 	def test_md5():
 		print('md5 %s: %s' % (sys.argv[2], file2md5(sys.argv[2])))
@@ -1815,15 +1815,15 @@ second line\n
 		print(u_link_symbol * 10)
 	#-----------------------------------------------------------------------
 	def test_xml_escape():
-		print(xml_escape_string(u'<'))
-		print(xml_escape_string(u'>'))
-		print(xml_escape_string(u'&'))
+		print(xml_escape_string('<'))
+		print(xml_escape_string('>'))
+		print(xml_escape_string('&'))
 	#-----------------------------------------------------------------------
 	def test_tex_escape():
-		tests = [u'\\', u'^', u'~', u'{', u'}', u'%',  u'&', u'#', u'$', u'_', u_euro, u'abc\ndef\n\n1234']
-		tests.append(u'  '.join(tests))
+		tests = ['\\', '^', '~', '{', '}', '%',  '&', '#', '$', '_', u_euro, 'abc\ndef\n\n1234']
+		tests.append('  '.join(tests))
 		for test in tests:
-			print(u'%s:' % test, tex_escape_string(test))
+			print('%s:' % test, tex_escape_string(test))
 	#-----------------------------------------------------------------------
 	def test_gpg_decrypt():
 		fname = gpg_decrypt_file(filename = sys.argv[2], passphrase = sys.argv[3])
@@ -1832,23 +1832,23 @@ second line\n
 	#-----------------------------------------------------------------------
 	def test_strip_trailing_empty_lines():
 		tests = [
-			u'one line, no embedded line breaks  ',
-			u'one line\nwith embedded\nline\nbreaks\n   '
+			'one line, no embedded line breaks  ',
+			'one line\nwith embedded\nline\nbreaks\n   '
 		]
 		for test in tests:
 			print('as list:')
-			print(strip_trailing_empty_lines(text = test, eol=u'\n', return_list = True))
+			print(strip_trailing_empty_lines(text = test, eol='\n', return_list = True))
 			print('as string:')
-			print(u'>>>%s<<<' % strip_trailing_empty_lines(text = test, eol=u'\n', return_list = False))
+			print('>>>%s<<<' % strip_trailing_empty_lines(text = test, eol='\n', return_list = False))
 		tests = [
 			['list', 'without', 'empty', 'trailing', 'lines'],
 			['list', 'with', 'empty', 'trailing', 'lines', '', '  ', '']
 		]
 		for test in tests:
 			print('as list:')
-			print(strip_trailing_empty_lines(lines = test, eol = u'\n', return_list = True))
+			print(strip_trailing_empty_lines(lines = test, eol = '\n', return_list = True))
 			print('as string:')
-			print(strip_trailing_empty_lines(lines = test, eol = u'\n', return_list = False))
+			print(strip_trailing_empty_lines(lines = test, eol = '\n', return_list = False))
 	#-----------------------------------------------------------------------
 	def test_fname_stem():
 		tests = [
@@ -1908,12 +1908,12 @@ second line\n
 		# 3
 		d2[4] = 4
 
-		print(u'\n'.join(format_dict_likes_comparison(d1, d2, u'd1', u'd2')))
+		print('\n'.join(format_dict_likes_comparison(d1, d2, 'd1', 'd2')))
 
 		d1 = {1: 1, 2: 2}
 		d2 = {1: 1, 2: 2}
 
-		print(u'\n'.join(format_dict_likes_comparison(d1, d2, u'd1', u'd2')))
+		print('\n'.join(format_dict_likes_comparison(d1, d2, 'd1', 'd2')))
 
 	#-----------------------------------------------------------------------
 	def test_rm_dir():
@@ -1927,9 +1927,9 @@ second line\n
 	#-----------------------------------------------------------------------
 	def test_strip_prefix():
 		tests = [
-			(u'', u'', u''),
-			(u'a', u'a', u''),
-			(u'\.br\MICROCYTES+1\.br\SPHEROCYTES       present\.br\POLYCHROMASIAmoderate\.br\\', u'\.br\\', u'MICROCYTES+1\.br\SPHEROCYTES       present\.br\POLYCHROMASIAmoderate\.br\\')
+			('', '', ''),
+			('a', 'a', ''),
+			('\.br\MICROCYTES+1\.br\SPHEROCYTES       present\.br\POLYCHROMASIAmoderate\.br\\', '\.br\\', 'MICROCYTES+1\.br\SPHEROCYTES       present\.br\POLYCHROMASIAmoderate\.br\\')
 		]
 		for test in tests:
 			text, prefix, expect = test
@@ -1954,14 +1954,14 @@ second line\n
 			('123', 2)
 		]
 		for txt, lng in tst:
-			print(u'max', lng, 'of', txt, '=', shorten_text(txt, lng))
+			print('max', lng, 'of', txt, '=', shorten_text(txt, lng))
 	#-----------------------------------------------------------------------
 	def test_fname_sanitize():
 		tests = [
-			u'/tmp/test.txt',
-			u'/tmp/ test.txt',
-			u'/tmp/ tes\\t.txt',
-			u'test'
+			'/tmp/test.txt',
+			'/tmp/ test.txt',
+			'/tmp/ tes\\t.txt',
+			'test'
 		]
 		for test in tests:
 			print (test, fname_sanitize(test))

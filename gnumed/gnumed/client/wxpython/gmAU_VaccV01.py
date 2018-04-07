@@ -145,7 +145,7 @@ class cAU_VaccV01Panel(wx.Panel):
         # end wxGlade
 
 	# gnumed events
-	gmDispatcher.connect(signal = u'post_patient_selection', receiver=self._on_post_patient_selection)
+	gmDispatcher.connect(signal = 'post_patient_selection', receiver=self._on_post_patient_selection)
 
 
     def __set_properties(self):
@@ -300,59 +300,59 @@ class cAU_VaccV01Panel(wx.Panel):
         # end wxGlade
 
     def delete_vacc_history_item(self, event): # wxGlade: cAU_VaccV01Panel.<event_handler>
-        print "Event handler `delete_vacc_history_item' not implemented"
+        print "Event handler 'delete_vacc_history_item' not implemented"
         event.Skip()
 
     def vacc_history_item_activated(self, event): # wxGlade: cAU_VaccV01Panel.<event_handler>
-        print "Event handler `vacc_history_item_activated' not implemented"
+        print "Event handler 'vacc_history_item_activated' not implemented"
         event.Skip()
 
     def recommended_vacc_given(self, event): # wxGlade: cAU_VaccV01Panel.<event_handler>
-        print "Event handler `recommended_vacc_given' not implemented"
+        print "Event handler 'recommended_vacc_given' not implemented"
         event.Skip()
 
     def recommended_vacc_selected(self, event): # wxGlade: cAU_VaccV01Panel.<event_handler>
-        print "Event handler `recommended_vacc_selected' not implemented"
+        print "Event handler 'recommended_vacc_selected' not implemented"
         event.Skip()
 
     def double_clicked_vaccination_given(self, event): # wxGlade: cAU_VaccV01Panel.<event_handler>
-        print "Event handler `double_clicked_vaccination_given' not implemented"
+        print "Event handler 'double_clicked_vaccination_given' not implemented"
         event.Skip()
 
     def date_being_entered(self, event): # wxGlade: cAU_VaccV01Panel.<event_handler>
-        print "Event handler `date_being_entered' not implemented"
+        print "Event handler 'date_being_entered' not implemented"
         event.Skip()
 
     def select_combo_date(self, event): # wxGlade: cAU_VaccV01Panel.<event_handler>
-        print "Event handler `select_combo_date' not implemented"
+        print "Event handler 'select_combo_date' not implemented"
         event.Skip()
 
     def combo_with_hep_b_selected(self, event): # wxGlade: cAU_VaccV01Panel.<event_handler>
-        print "Event handler `combo_with_hep_b_selected' not implemented"
+        print "Event handler 'combo_with_hep_b_selected' not implemented"
         event.Skip()
 
     def unlisted_text_changed(self, event): # wxGlade: cAU_VaccV01Panel.<event_handler>
-        print "Event handler `unlisted_text_changed' not implemented"
+        print "Event handler 'unlisted_text_changed' not implemented"
         event.Skip()
 
     def unlisted_combo_selected(self, event): # wxGlade: cAU_VaccV01Panel.<event_handler>
-        print "Event handler `unlisted_combo_selected' not implemented"
+        print "Event handler 'unlisted_combo_selected' not implemented"
         event.Skip()
 
     def check_for_similiar_batchno(self, event): # wxGlade: cAU_VaccV01Panel.<event_handler>
-        print "Event handler `check_for_similiar_batchno' not implemented"
+        print "Event handler 'check_for_similiar_batchno' not implemented"
         event.Skip()
 
     def get_batchno_for_vacc(self, event): # wxGlade: cAU_VaccV01Panel.<event_handler>
-        print "Event handler `get_batchno_for_vacc' not implemented"
+        print "Event handler 'get_batchno_for_vacc' not implemented"
         event.Skip()
 
     def delete_this_batchno(self, event): # wxGlade: cAU_VaccV01Panel.<event_handler>
-        print "Event handler `delete_this_batchno' not implemented"
+        print "Event handler 'delete_this_batchno' not implemented"
         event.Skip()
 	
     def add_vaccination(self, event): # wxGlade: cAU_VaccV01Panel.<event_handler>
-        print "Event handler `add_vaccination' not implemented"
+        print "Event handler 'add_vaccination' not implemented"
         event.Skip() 
 	l = [	self.checkbox_dtpa.GetValue(),
 		self.checkbox_2_ipv .GetValue(),      
@@ -586,15 +586,15 @@ class cAU_VaccV01Panel(wx.Panel):
 	#pbd.set_trace()
 	
     def narrative_text(self, event): # wxGlade: cAU_VaccV01Panel.<event_handler>
-        print "Event handler `narrative_text' not implemented"
+        print "Event handler 'narrative_text' not implemented"
         event.Skip()
 
     def deleting_node(self, event): # wxGlade: cAU_VaccV01Panel.<event_handler>
-        print "Event handler `deleting_node' not implemented"
+        print "Event handler 'deleting_node' not implemented"
         event.Skip()
 
     def activating_node(self, event): # wxGlade: cAU_VaccV01Panel.<event_handler>
-        print "Event handler `activating_node' not implemented"
+        print "Event handler 'activating_node' not implemented"
 	n = event.GetItem()
 
         event.Skip(1)

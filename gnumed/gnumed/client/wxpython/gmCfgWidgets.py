@@ -36,13 +36,13 @@ def _get_update_status():
 
 	dbcfg = gmCfg.cCfgSQL()
 	url = dbcfg.get2 (
-		option = u'horstspace.update.url',
+		option = 'horstspace.update.url',
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 		bias = 'workplace',
-		default = u'http://www.gnumed.de/downloads/gnumed-versions.txt'
+		default = 'http://www.gnumed.de/downloads/gnumed-versions.txt'
 	)
 	consider_latest_branch = bool(dbcfg.get2 (
-		option = u'horstspace.update.consider_latest_branch',
+		option = 'horstspace.update.consider_latest_branch',
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 		bias = 'workplace',
 		default = True
@@ -85,7 +85,7 @@ def check_for_updates(async=False):
 			payload_function = _get_update_status,
 			payload_kwargs = None,
 			completion_callback = _async_signal_update_status,
-			worker_name = u'UpdChk'
+			worker_name = 'UpdChk'
 		)
 		return
 
@@ -99,7 +99,7 @@ def list_configuration(parent=None):
 
 	#---------------
 	def refresh(lctrl):
-		opts = gmCfg.get_all_options(order_by = u'owner, workplace, option')
+		opts = gmCfg.get_all_options(order_by = 'owner, workplace, option')
 
 		items = [ [
 			o['owner'],
@@ -107,19 +107,19 @@ def list_configuration(parent=None):
 			o['option'],
 			o['value'],
 			o['type'],
-			gmTools.coalesce(o['description'], u'')
+			gmTools.coalesce(o['description'], '')
 		] for o in opts ]
 		lctrl.set_string_items(items)
 		lctrl.set_data(opts)
 	#---------------
 	def tooltip(item):
 		return (
-			u'%s %s (#%s) %s\n'
-			u'\n'
-			u' %s @ %s\n'
-			u'\n'
-			u' %s: %s\n'
-			u'%s'
+			'%s %s (#%s) %s\n'
+			'\n'
+			' %s @ %s\n'
+			'\n'
+			' %s: %s\n'
+			'%s'
 		) % (
 			gmTools.u_box_horiz_single * 3,
 			item['option'],
@@ -131,20 +131,20 @@ def list_configuration(parent=None):
 			gmTools.wrap(
 				text = item['value'],
 				width = 40,
-				subsequent_indent = u' ' * 8
+				subsequent_indent = ' ' * 8
 			),
 			gmTools.wrap (
-				text = gmTools.coalesce(item['description'], u'', u'\n%s'),
+				text = gmTools.coalesce(item['description'], '', '\n%s'),
 				width = 40,
-				initial_indent = u' ',
-				subsequent_indent = u' '
+				initial_indent = ' ',
+				subsequent_indent = ' '
 			)
 		)
 	#---------------
 	def delete(item):
 		delete_it = gmGuiHelpers.gm_show_question (
 			aTitle = _('Deleting option'),
-			aMessage = u'%s\n\n%s %s (#%s) %s\n\n%s\n\n%s' % (
+			aMessage = '%s\n\n%s %s (#%s) %s\n\n%s\n\n%s' % (
 				tooltip(item),
 				gmTools.u_box_horiz_single * 3,
 				item['option'],
@@ -179,7 +179,7 @@ def list_configuration(parent=None):
 	)
 
 #================================================================
-def configure_string_from_list_option(parent=None, message=None, option=None, bias='user', default_value=u'', choices=None, columns=None, data=None, caption=None):
+def configure_string_from_list_option(parent=None, message=None, option=None, bias='user', default_value='', choices=None, columns=None, data=None, caption=None):
 
 	dbcfg = gmCfg.cCfgSQL()
 
@@ -275,7 +275,7 @@ def configure_list_from_list_option(parent=None, message=None, option=None, bias
 	return
 
 #================================================================
-def configure_string_option(parent=None, message=None, option=None, bias=u'user', default_value=u'', validator=None):
+def configure_string_option(parent=None, message=None, option=None, bias='user', default_value='', validator=None):
 
 	dbcfg = gmCfg.cCfgSQL()
 
@@ -287,7 +287,7 @@ def configure_string_option(parent=None, message=None, option=None, bias=u'user'
 	)
 
 	if current_value is not None:
-		current_value = u'%s' % current_value
+		current_value = '%s' % current_value
 
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
@@ -297,7 +297,7 @@ def configure_string_option(parent=None, message=None, option=None, bias=u'user'
 			parent = parent,
 			message = message,
 			caption = _('Configuration'),
-			defaultValue = gmTools.coalesce(current_value, u''),
+			defaultValue = gmTools.coalesce(current_value, ''),
 			style = wx.OK | wx.CANCEL | wx.CENTRE
 		)
 		result = dlg.ShowModal()
@@ -316,7 +316,7 @@ def configure_string_option(parent=None, message=None, option=None, bias=u'user'
 			break
 
 		gmDispatcher.send (
-			signal = u'statustext',
+			signal = 'statustext',
 			msg = _('Value [%s] not valid for option <%s>.') % (user_val, option),
 			beep = True
 		)

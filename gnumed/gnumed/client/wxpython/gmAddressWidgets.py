@@ -54,12 +54,12 @@ class cCountryPhraseWheel(gmPhraseWheel.cPhraseWheel):
 		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
 
 		context = {
-			u'ctxt_zip': {
-				u'where_part': u'and zip ilike %(zip)s',
-				u'placeholder': u'zip'
+			'ctxt_zip': {
+				'where_part': 'and zip ilike %(zip)s',
+				'placeholder': 'zip'
 			}
 		}
-		query = u"""
+		query = """
 SELECT
 	data,
 	field_label,
@@ -131,7 +131,7 @@ FROM (
 ORDER BY rank, list_label
 LIMIT 25"""
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query, context=context)
-		mp._SQL_data2match = u"""
+		mp._SQL_data2match = """
 			SELECT
 				code AS data,
 				_(name) AS field_label,
@@ -144,7 +144,7 @@ LIMIT 25"""
 		mp.setThresholds(2, 5, 9)
 		self.matcher = mp
 
-		self.unset_context(context = u'zip')
+		self.unset_context(context = 'zip')
 		self.SetToolTip(_('Type or select a country.'))
 		self.capitalisation_mode = gmTools.CAPS_FIRST
 		self.selection_only = True
@@ -262,21 +262,21 @@ class cStateSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
 		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
 
 		context = {
-			u'ctxt_country_name': {
-				u'where_part': u'AND l10n_country ILIKE %(country_name)s OR country ILIKE %(country_name)s',
-				u'placeholder': u'country_name'
+			'ctxt_country_name': {
+				'where_part': 'AND l10n_country ILIKE %(country_name)s OR country ILIKE %(country_name)s',
+				'placeholder': 'country_name'
 			},
-			u'ctxt_zip': {
-				u'where_part': u'AND zip ilike %(zip)s',
-				u'placeholder': u'zip'
+			'ctxt_zip': {
+				'where_part': 'AND zip ilike %(zip)s',
+				'placeholder': 'zip'
 			},
-			u'ctxt_country_code': {
-				u'where_part': u'AND country IN (SELECT code FROM dem.country WHERE _(name) ILIKE %(country_name)s OR name ILIKE %(country_name)s)',
-				u'placeholder': u'country_name'
+			'ctxt_country_code': {
+				'where_part': 'AND country IN (SELECT code FROM dem.country WHERE _(name) ILIKE %(country_name)s OR name ILIKE %(country_name)s)',
+				'placeholder': 'country_name'
 			}
 		}
 
-		query = u"""
+		query = """
 SELECT
 	data,
 	field_label,
@@ -347,11 +347,11 @@ LIMIT 50"""
 
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query, context=context)
 		mp.setThresholds(2, 5, 6)
-		mp.word_separators = u'[ \t]+'
+		mp.word_separators = '[ \t]+'
 		self.matcher = mp
 
-		self.unset_context(context = u'zip')
-		self.unset_context(context = u'country_name')
+		self.unset_context(context = 'zip')
+		self.unset_context(context = 'country_name')
 		self.SetToolTip(_('Type or select a region (state/province/county/territory/arrondissement/prefecture/department/kanton/...).'))
 		self.capitalisation_mode = gmTools.CAPS_FIRST
 		self.selection_only = True
@@ -388,7 +388,7 @@ class cProvinceEAPnl(wxgProvinceEAPnl.wxgProvinceEAPnl, gmEditArea.cGenericEditA
 		validity = True
 
 		if self._PRW_region.GetData() is None:
-			if self._PRW_region.GetValue().strip() == u'':
+			if self._PRW_region.GetValue().strip() == '':
 				validity = False
 				self._PRW_region.display_as_valid(False)
 			else:
@@ -397,7 +397,7 @@ class cProvinceEAPnl(wxgProvinceEAPnl.wxgProvinceEAPnl, gmEditArea.cGenericEditA
 			self._PRW_region.display_as_valid(True)
 
 		if self._PRW_region.GetData() is None:
-			if self._TCTRL_code.GetValue().strip() == u'':
+			if self._TCTRL_code.GetValue().strip() == '':
 				validity = False
 				self._TCTRL_code.SetBackgroundColour(gmPhraseWheel.color_prw_invalid)
 			else:
@@ -440,7 +440,7 @@ class cProvinceEAPnl(wxgProvinceEAPnl.wxgProvinceEAPnl, gmEditArea.cGenericEditA
 	#----------------------------------------------------------------
 	def _refresh_as_new(self):
 		self._PRW_region.SetText()
-		self._TCTRL_code.SetValue(u'')
+		self._TCTRL_code.SetValue('')
 		self._PRW_country.SetText()
 
 		self._PRW_region.SetFocus()
@@ -454,7 +454,7 @@ class cProvinceEAPnl(wxgProvinceEAPnl.wxgProvinceEAPnl, gmEditArea.cGenericEditA
 	#----------------------------------------------------------------
 	def _refresh_as_new_from_existing(self):
 		self._PRW_region.SetText()
-		self._TCTRL_code.SetValue(u'')
+		self._TCTRL_code.SetValue('')
 		self._PRW_country.SetText(self.data['l10n_country'], self.data['code_country'])
 
 		self._PRW_region.SetFocus()
@@ -466,7 +466,7 @@ class cZipcodePhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 	def __init__(self, *args, **kwargs):
 		# FIXME: add possible context
-		query = u"""(
+		query = """(
 			SELECT DISTINCT ON (list_label)
 				postcode AS data,
 				postcode || ' (' || name || ')' AS list_label,
@@ -499,12 +499,12 @@ class cStreetPhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 	def __init__(self, *args, **kwargs):
 		context = {
-			u'ctxt_zip': {
-				u'where_part': u'AND zip ILIKE %(zip)s',
-				u'placeholder': u'zip'
+			'ctxt_zip': {
+				'where_part': 'AND zip ILIKE %(zip)s',
+				'placeholder': 'zip'
 			}
 		}
-		query = u"""
+		query = """
 	SELECT
 		data,
 		field_label,
@@ -538,7 +538,7 @@ class cStreetPhraseWheel(gmPhraseWheel.cPhraseWheel):
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query, context=context)
 		mp.setThresholds(3, 5, 8)
 		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
-		self.unset_context(context = u'zip')
+		self.unset_context(context = 'zip')
 
 		self.SetToolTip(_('Type or select a street.'))
 		self.capitalisation_mode = gmTools.CAPS_FIRST
@@ -571,12 +571,12 @@ class cUrbPhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 	def __init__(self, *args, **kwargs):
 		context = {
-			u'ctxt_zip': {
-				u'where_part': u'and zip ilike %(zip)s',
-				u'placeholder': u'zip'
+			'ctxt_zip': {
+				'where_part': 'and zip ilike %(zip)s',
+				'placeholder': 'zip'
 			}
 		}
-		query = u"""
+		query = """
 	SELECT DISTINCT ON (rank, data)
 		data,
 		field_label,
@@ -614,7 +614,7 @@ class cUrbPhraseWheel(gmPhraseWheel.cPhraseWheel):
 			*args,
 			**kwargs
 		)
-		self.unset_context(context = u'zip')
+		self.unset_context(context = 'zip')
 
 		self.SetToolTip(_('Type or select a city/town/village/dwelling.'))
 		self.capitalisation_mode = gmTools.CAPS_FIRST
@@ -626,7 +626,7 @@ class cAddressTypePhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 	def __init__(self, *args, **kwargs):
 
-		query = u"""
+		query = """
 SELECT id, type FROM ((
 	SELECT id, _(name) AS type, 1 AS rank
 	FROM dem.address_type
@@ -641,7 +641,7 @@ order by
 """
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query)
 		mp.setThresholds(1, 2, 4)
-		mp.word_separators = u'[ \t]+'
+		mp.word_separators = '[ \t]+'
 		gmPhraseWheel.cPhraseWheel.__init__ (
 			self,
 			*args,
@@ -668,24 +668,24 @@ def manage_addresses(parent=None):
 
 	#------------------------------------------------------------
 	def calculate_tooltip(address):
-		return u'\n'.join(address.format())
+		return '\n'.join(address.format())
 	#------------------------------------------------------------
 	def delete(address):
 		return gmDemographicRecord.delete_address(pk_address = address['pk_address'])
 	#------------------------------------------------------------
 	def refresh(lctrl):
-		adrs = gmDemographicRecord.get_addresses(order_by = u'l10n_country, urb, street, number, subunit')
+		adrs = gmDemographicRecord.get_addresses(order_by = 'l10n_country, urb, street, number, subunit')
 		items = [ [
 				a['street'],
-				gmTools.coalesce(a['notes_street'], u''),
+				gmTools.coalesce(a['notes_street'], ''),
 				a['number'],
-				gmTools.coalesce(a['subunit'], u''),
+				gmTools.coalesce(a['subunit'], ''),
 				a['postcode'],
 				a['urb'],
-				gmTools.coalesce(a['suburb'], u''),
+				gmTools.coalesce(a['suburb'], ''),
 				a['l10n_region'],
 				a['l10n_country'],
-				gmTools.coalesce(a['notes_subunit'], u'')
+				gmTools.coalesce(a['notes_subunit'], '')
 			] for a in adrs
 		]
 		lctrl.set_string_items(items)
@@ -810,11 +810,11 @@ class cAddressEAPnl(wxgGenericAddressEditAreaPnl.wxgGenericAddressEditAreaPnl, g
 				country_code = self._PRW_country.GetData(),
 				region_code = self._PRW_state.GetData(),
 				urb = self._PRW_urb.GetValue().strip(),
-				suburb = gmTools.none_if(self._PRW_suburb.GetValue().strip(), u''),
+				suburb = gmTools.none_if(self._PRW_suburb.GetValue().strip(), ''),
 				postcode = self._PRW_zip.GetValue().strip(),
 				street = self._PRW_street.GetValue().strip(),
 				number = self._TCTRL_number.GetValue().strip(),
-				subunit = gmTools.none_if(self._TCTRL_subunit.GetValue().strip(), u'')
+				subunit = gmTools.none_if(self._TCTRL_subunit.GetValue().strip(), '')
 			)
 		except:
 			_log.exception('cannot save address')
@@ -835,8 +835,8 @@ class cAddressEAPnl(wxgGenericAddressEditAreaPnl.wxgGenericAddressEditAreaPnl, g
 		if linked_address['pk_address'] != address['pk_address']:
 			raise ValueError('problem linking address to person or org')
 
-		address['notes_street'] = gmTools.none_if(self._TCTRL_notes_street.GetValue().strip(), u'')
-		address['notes_subunit'] = gmTools.none_if(self._TCTRL_notes_subunit.GetValue().strip(), u'')
+		address['notes_street'] = gmTools.none_if(self._TCTRL_notes_street.GetValue().strip(), '')
+		address['notes_subunit'] = gmTools.none_if(self._TCTRL_notes_subunit.GetValue().strip(), '')
 		address.save()
 
 		linked_address.refetch_payload()
@@ -853,11 +853,11 @@ class cAddressEAPnl(wxgGenericAddressEditAreaPnl.wxgGenericAddressEditAreaPnl, g
 				country_code = self._PRW_country.GetData(),
 				region_code = self._PRW_state.GetData(),
 				urb = self._PRW_urb.GetValue().strip(),
-				suburb = gmTools.none_if(self._PRW_suburb.GetValue().strip(), u''),
+				suburb = gmTools.none_if(self._PRW_suburb.GetValue().strip(), ''),
 				postcode = self._PRW_zip.GetValue().strip(),
 				street = self._PRW_street.GetValue().strip(),
 				number = self._TCTRL_number.GetValue().strip(),
-				subunit = gmTools.none_if(self._TCTRL_subunit.GetValue().strip(), u'')
+				subunit = gmTools.none_if(self._TCTRL_subunit.GetValue().strip(), '')
 			)
 		except:
 			_log.exception('cannot save address')
@@ -878,8 +878,8 @@ class cAddressEAPnl(wxgGenericAddressEditAreaPnl.wxgGenericAddressEditAreaPnl, g
 		if linked_address['pk_address'] != created_or_loaded_address['pk_address']:
 			raise ValueError('problem linking address to person or org')
 
-		created_or_loaded_address['notes_street'] = gmTools.none_if(self._TCTRL_notes_street.GetValue().strip(), u'')
-		created_or_loaded_address['notes_subunit'] = gmTools.none_if(self._TCTRL_notes_subunit.GetValue().strip(), u'')
+		created_or_loaded_address['notes_street'] = gmTools.none_if(self._TCTRL_notes_street.GetValue().strip(), '')
+		created_or_loaded_address['notes_subunit'] = gmTools.none_if(self._TCTRL_notes_subunit.GetValue().strip(), '')
 		created_or_loaded_address.save_payload()
 		linked_address.refetch_payload()
 		self.data = linked_address
@@ -887,17 +887,17 @@ class cAddressEAPnl(wxgGenericAddressEditAreaPnl.wxgGenericAddressEditAreaPnl, g
 		return True
 	#----------------------------------------------------------------
 	def _refresh_as_new(self):
-		self._PRW_type.SetText(u'', None)
-		self._PRW_zip.SetText(u'', None)
-		self._PRW_street.SetText(u'', None)
-		self._TCTRL_notes_street.SetValue(u'')
-		self._TCTRL_number.SetValue(u'')
-		self._TCTRL_subunit.SetValue(u'')
-		self._PRW_suburb.SetText(u'', None)
-		self._PRW_urb.SetText(u'', None)
-		self._PRW_state.SetText(u'', None)
-		self._PRW_country.SetText(u'', None)
-		self._TCTRL_notes_subunit.SetValue(u'')
+		self._PRW_type.SetText('', None)
+		self._PRW_zip.SetText('', None)
+		self._PRW_street.SetText('', None)
+		self._TCTRL_notes_street.SetValue('')
+		self._TCTRL_number.SetValue('')
+		self._TCTRL_subunit.SetValue('')
+		self._PRW_suburb.SetText('', None)
+		self._PRW_urb.SetText('', None)
+		self._PRW_state.SetText('', None)
+		self._PRW_country.SetText('', None)
+		self._TCTRL_notes_subunit.SetValue('')
 
 		if self.__type_is_editable:
 			self._PRW_type.SetFocus()
@@ -923,7 +923,7 @@ class cAddressEAPnl(wxgGenericAddressEditAreaPnl.wxgGenericAddressEditAreaPnl, g
 		if self.__type_is_editable:
 			self._PRW_type.SetText(self.data['l10n_address_type'])
 		else:
-			self._PRW_type.SetText(u'', None)
+			self._PRW_type.SetText('', None)
 		self._PRW_zip.SetText(self.data['postcode'])
 		self._PRW_street.SetText(self.data['street'], data = self.data['street'])
 		self._TCTRL_notes_street.SetValue(gmTools.coalesce(self.data['notes_street'], ''))
@@ -945,16 +945,16 @@ class cAddressEAPnl(wxgGenericAddressEditAreaPnl.wxgGenericAddressEditAreaPnl, g
 	def _on_zip_set(self):
 		"""Set the street, town, region and country according to entered zip code."""
 		zip_code = self._PRW_zip.GetValue()
-		if zip_code.strip() == u'':
-			self._PRW_street.unset_context(context = u'zip')
-			self._PRW_urb.unset_context(context = u'zip')
-			self._PRW_state.unset_context(context = u'zip')
-			self._PRW_country.unset_context(context = u'zip')
+		if zip_code.strip() == '':
+			self._PRW_street.unset_context(context = 'zip')
+			self._PRW_urb.unset_context(context = 'zip')
+			self._PRW_state.unset_context(context = 'zip')
+			self._PRW_country.unset_context(context = 'zip')
 		else:
-			self._PRW_street.set_context(context = u'zip', val = zip_code)
-			self._PRW_urb.set_context(context = u'zip', val = zip_code)
-			self._PRW_state.set_context(context = u'zip', val = zip_code)
-			self._PRW_country.set_context(context = u'zip', val = zip_code)
+			self._PRW_street.set_context(context = 'zip', val = zip_code)
+			self._PRW_urb.set_context(context = 'zip', val = zip_code)
+			self._PRW_state.set_context(context = 'zip', val = zip_code)
+			self._PRW_country.set_context(context = 'zip', val = zip_code)
 	#----------------------------------------------------------------
 	def _on_country_set(self):
 		"""Set the regions according to entered country."""
@@ -1002,7 +1002,7 @@ class cAddressMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
 
 	def __init__(self):
 
-		query = u"""
+		query = """
 SELECT * FROM (
 	(SELECT
 		pk_address AS data,
@@ -1077,7 +1077,7 @@ LIMIT 50"""
 		self.setThresholds(2, 4, 6)
 #		self.word_separators = u'[ \t]+'
 
-		self._SQL_data2match = u"""
+		self._SQL_data2match = """
 	SELECT
 		pk_address AS data,
 		(street || ' ' || number || coalesce(' (' || subunit || ')', '') || ', '
@@ -1115,7 +1115,7 @@ class cAddressPhraseWheel(gmPhraseWheel.cPhraseWheel):
 		adr = self.address
 		if adr is None:
 			return None
-		return u'\n'.join(adr.format())
+		return '\n'.join(adr.format())
 	#--------------------------------------------------------
 	def _data2instance(self):
 		return gmDemographicRecord.cAddress(aPK_obj = self.GetData())
@@ -1140,7 +1140,7 @@ class cAddressPhraseWheel(gmPhraseWheel.cPhraseWheel):
 		if address is None:
 			self.__old_pk = None
 			self.__address = None
-			self.SetText(u'', None)
+			self.SetText('', None)
 			return
 		if isinstance(address, gmDemographicRecord.cAddress):
 			self.__old_pk = address['pk_address']
@@ -1152,7 +1152,7 @@ class cAddressPhraseWheel(gmPhraseWheel.cPhraseWheel):
 			pk = address
 		match = self.matcher.get_match_by_data(data = pk)
 		if match is None:
-			raise ValueError(u'[%s]: cannot match address [#%s]' % (self.__class__.__name__, pk))
+			raise ValueError('[%s]: cannot match address [#%s]' % (self.__class__.__name__, pk))
 		self.SetText(match['field_label'], pk)
 
 	address = property(__get_address, __set_address)
@@ -1222,8 +1222,8 @@ if __name__ == '__main__':
 	def test_region_prw():
 		app = wx.PyWidgetTester(size = (200, 50))
 		pw = cStateSelectionPhraseWheel(app.frame, -1)
-		pw.set_context(context = u'zip', val = u'04318')
-		pw.set_context(context = u'country', val = u'Deutschland')
+		pw.set_context(context = 'zip', val = '04318')
+		pw.set_context(context = 'country', val = 'Deutschland')
 		app.frame.Show(True)
 		app.MainLoop()
 	#--------------------------------------------------------
@@ -1250,7 +1250,7 @@ if __name__ == '__main__':
 		app = wx.PyWidgetTester(size = (200, 50))
 		pw = cUrbPhraseWheel(app.frame, -1)
 		app.frame.Show(True)
-		pw.set_context(context = u'zip', val = u'04317')
+		pw.set_context(context = 'zip', val = '04317')
 		app.MainLoop()
 	#--------------------------------------------------------
 	def test_address_type_prw():

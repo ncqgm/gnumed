@@ -8,15 +8,15 @@ print "testing psycopg2 date/time parsing"
 import psycopg2
 print "psycopg2:", psycopg2.__version__
 
-dsn = u'dbname=template1 user=xxx password=xxx'
-dsn = u'you need to adjust this'
+dsn = 'dbname=template1 user=xxx password=xxx'
+dsn = 'you need to adjust this'
 #dsn = u'dbname=gnumed_v21 user=any-doc password=any-doc'
 print "DSN:", dsn
 
 conn = psycopg2.connect(dsn=dsn)
 
 curs = conn.cursor()
-cmd = u"""
+cmd = """
 select
 	name,
 	abbrev,
@@ -36,7 +36,7 @@ for row in rows:
 	curs = conn.cursor()
 
 	tz = row[0]
-	cmd = u"set timezone to '%s'" % tz
+	cmd = "set timezone to '%s'" % tz
 	try:
 		curs.execute(cmd)
 	except Exception, e:
@@ -45,7 +45,7 @@ for row in rows:
 		conn.rollback()
 		continue
 
-	cmd = u"""select '1920-01-19 23:00:00+01'::timestamp with time zone"""
+	cmd = """select '1920-01-19 23:00:00+01'::timestamp with time zone"""
 	try:
 		curs.execute(cmd)
 		curs.fetchone()

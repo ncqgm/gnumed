@@ -64,46 +64,46 @@ class cNull(object):
 	# object constructing
 	def __init__(self, *args, **kwargs):
 		"Ignore parameters."
-		_log.debug(u'args: %s', args)
-		_log.debug(u'kwargs: %s', kwargs)
+		_log.debug('args: %s', args)
+		_log.debug('kwargs: %s', kwargs)
 
 	# object calling
 	def __call__(self, *args, **kwargs):
 		"Ignore method calls."
-		_log.debug(u'args: %s', args)
-		_log.debug(u'kwargs: %s', kwargs)
+		_log.debug('args: %s', args)
+		_log.debug('kwargs: %s', kwargs)
 		return self
 
 	# attribute handling
 	def __getattr__(self, attribute):
 		"Ignore attribute requests."
-		_log.debug(u'%s.%s', self, attribute)
+		_log.debug('%s.%s', self, attribute)
 		return self
 
 	def __setattr__(self, attribute, value):
 		"Ignore attribute setting."
-		_log.debug(u'%s.%s = %s', self, attribute, value)
+		_log.debug('%s.%s = %s', self, attribute, value)
 		return self
 
 	def __delattr__(self, attribute):
 		"Ignore deleting attributes."
-		_log.debug(u'%s.%s', self, attribute)
+		_log.debug('%s.%s', self, attribute)
 		return self
 
 	# item handling
 	def __getitem__(self, item):
 		"Ignore item requests."
-		_log.debug(u'%s[%s]', self, item)
+		_log.debug('%s[%s]', self, item)
 		return self
 
 	def __setitem__(self, item, value):
 		"Ignore item setting."
-		_log.debug(u'%s[%s] = %s', self, item, value)
+		_log.debug('%s[%s] = %s', self, item, value)
 		return self
 
 	def __delitem__(self, item):
 		"Ignore deleting items."
-		_log.debug(u'%s[%s]', self, item)
+		_log.debug('%s[%s]', self, item)
 		return self
 
 	# misc.
@@ -116,11 +116,11 @@ class cNull(object):
 		return '<cNull instance>'
 
 	def __nonzero__(self):
-		_log.debug(u'returns 0')
+		_log.debug('returns 0')
 		return 0
 
 	def __len__(self):
-		_log.debug(u'0')
+		_log.debug('0')
 		return 0
 
 #==============================================================

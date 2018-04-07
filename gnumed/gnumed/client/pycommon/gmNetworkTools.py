@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import print_function
+
 
 __doc__ = """GNUmed internetworking tools."""
 
@@ -57,7 +57,7 @@ def download_file(url, filename=None, suffix=None):
 		gmLog2.log_stack_trace()
 		return None
 
-	_log.debug(u'%s' % headers)
+	_log.debug('%s' % headers)
 	return dl_name
 #===========================================================================
 # data pack handling
@@ -70,7 +70,7 @@ def download_data_pack(pack_url, filename=None, md5_url=None):
 	_log.debug('downloading data pack from: %s', pack_url)
 	dp_fname = download_file(pack_url, filename = filename, suffix = 'zip')
 	_log.debug('downloading MD5 from: %s', md5_url)
-	md5_fname = download_file(md5_url, filename = dp_fname + u'.md5')
+	md5_fname = download_file(md5_url, filename = dp_fname + '.md5')
 
 	md5_file = io.open(md5_fname, mode = 'rt', encoding = 'utf8')
 	md5_expected = md5_file.readline().strip('\n')
@@ -108,7 +108,7 @@ def install_data_pack(data_pack=None, conn=None):
 	sql_script = os.path.join(data_pack['unzip_dir'], 'install-data-pack.sql')
 	if psql.run(sql_script) == 0:
 		curs = conn.cursor()
-		curs.execute(u'select gm.log_script_insertion(%(name)s, %(ver)s)', {'name': data_pack['pack_url'], 'ver': u'current'})
+		curs.execute('select gm.log_script_insertion(%(name)s, %(ver)s)', {'name': data_pack['pack_url'], 'ver': 'current'})
 		curs.close()
 		conn.commit()
 		return True
@@ -131,8 +131,8 @@ def download_data_pack_old(url, target_dir=None):
 	paths = gmTools.gmPaths()
 	local_script = os.path.join(paths.local_base_dir, '..', 'external-tools', 'gm-download_data')
 
-	candidates = [u'gm-download_data', u'gm-download_data.bat', local_script, u'gm-download_data.bat']
-	args = u' %s %s' % (url, target_dir)
+	candidates = ['gm-download_data', 'gm-download_data.bat', local_script, 'gm-download_data.bat']
+	args = ' %s %s' % (url, target_dir)
 
 	success = gmShellAPI.run_first_available_in_shell (
 		binaries = candidates,
@@ -162,8 +162,8 @@ def compare_versions(left_version, right_version):
 	left_parts = left_version.split('.')
 	right_parts = right_version.split('.')
 
-	tmp, left_major = gmTools.input2decimal(u'%s.%s' % (left_parts[0], left_parts[1]))
-	tmp, right_major = gmTools.input2decimal(u'%s.%s' % (right_parts[0], right_parts[1]))
+	tmp, left_major = gmTools.input2decimal('%s.%s' % (left_parts[0], left_parts[1]))
+	tmp, right_major = gmTools.input2decimal('%s.%s' % (right_parts[0], right_parts[1]))
 
 	if left_major < right_major:
 		_log.debug('left version [%s] < right version [%s]: major part', left_version, right_version)
@@ -194,7 +194,7 @@ def check_for_update(url=None, current_branch=None, current_version=None, consid
 	False: up to date
 	None: don't know
 	"""
-	if current_version == u'GIT HEAD':
+	if current_version == 'GIT HEAD':
 		_log.debug('GIT HEAD always up to date')
 		return (False, None)
 
@@ -288,34 +288,34 @@ def check_for_update(url=None, current_branch=None, current_version=None, consid
 	msg += _(' Your current version: "%s"\n') % current_version
 	if consider_latest_branch:
 		if new_release_on_current_branch_available:
-			msg += u'\n'
+			msg += '\n'
 			msg += _(' New version: "%s"') % latest_release_on_current_branch
-			msg += u'\n'
+			msg += '\n'
 			msg += _(' - bug fixes only\n')
 			msg += _(' - database fixups may be needed\n')
 		if new_release_on_latest_branch_available:
 			if current_branch != latest_branch:
-				msg += u'\n'
+				msg += '\n'
 				msg += _(' New version: "%s"') % latest_release_on_latest_branch
-				msg += u'\n'
+				msg += '\n'
 				msg += _(' - bug fixes and new features\n')
 				msg += _(' - database upgrade required\n')
 	else:
-		msg += u'\n'
+		msg += '\n'
 		msg += _(' New version: "%s"') % latest_release_on_current_branch
-		msg += u'\n'
+		msg += '\n'
 		msg += _(' - bug fixes only\n')
 		msg += _(' - database fixups may be needed\n')
 
-	msg += u'\n\n'
+	msg += '\n\n'
 	msg += _(
 		'Note, however, that this version may not yet\n'
 		'be available *pre-packaged* for your system.'
 	)
 
-	msg += u'\n\n'
+	msg += '\n\n'
 	msg += _('Details are found on <http://wiki.gnumed.de>.\n')
-	msg += u'\n'
+	msg += '\n'
 	msg += _('Version information loaded from:\n\n %s') % url
 
 	return (True, msg)
@@ -323,9 +323,9 @@ def check_for_update(url=None, current_branch=None, current_version=None, consid
 #===========================================================================
 # mail handling
 #---------------------------------------------------------------------------
-default_mail_sender = u'gnumed@gmx.net'
-default_mail_receiver = u'gnumed-devel@gnu.org'
-default_mail_server = u'mail.gmx.net'
+default_mail_sender = 'gnumed@gmx.net'
+default_mail_receiver = 'gnumed-devel@gnu.org'
+default_mail_server = 'mail.gmx.net'
 
 
 #---------------------------------------------------------------------------
@@ -343,7 +343,7 @@ def compose_email(sender=None, receiver=None, message=None, subject=None, files2
 	if message is None:
 		raise ValueError('<message> is None, cannot compose email')
 
-	message = message.lstrip().lstrip(u'\r\n').lstrip()
+	message = message.lstrip().lstrip('\r\n').lstrip()
 
 	if sender is None:
 		sender = default_mail_sender
@@ -352,16 +352,16 @@ def compose_email(sender=None, receiver=None, message=None, subject=None, files2
 		receiver = [default_mail_receiver]
 
 	if subject is None:
-		subject = u'compose_email() test'
+		subject = 'compose_email() test'
 
 	if files2attach is None:
 		email = MIMEText(message, 'plain', 'utf8')
 	else:
 		email = MIMEMultipart()
-		email.attach(MIMEText(message, u'plain', u'utf8'))
+		email.attach(MIMEText(message, 'plain', 'utf8'))
 
 	email['From'] = sender
-	email['To'] = u', '.join(receiver)
+	email['To'] = ', '.join(receiver)
 	email['Subject'] = subject
 
 	if files2attach is None:
@@ -376,7 +376,7 @@ def compose_email(sender=None, receiver=None, message=None, subject=None, files2
 		# text/*
 		if mimetype.startswith('text/'):
 			txt = io.open(filename, mode = 'rt', encoding = 'utf8')
-			attachment = MIMEText(txt.read(), u'plain', u'utf8')
+			attachment = MIMEText(txt.read(), 'plain', 'utf8')
 			txt.close()
 		# image/*
 		elif mimetype.startswith('image/'):
@@ -390,16 +390,16 @@ def compose_email(sender=None, receiver=None, message=None, subject=None, files2
 			song.close()
 		# catch-all application/*
 		else:
-			_log.debug(u'attaching [%s] with type [%s]', filename, mimetype)
-			mime_subtype = mimetype.split(u'/', 1)[1]
+			_log.debug('attaching [%s] with type [%s]', filename, mimetype)
+			mime_subtype = mimetype.split('/', 1)[1]
 			data = io.open(filename, mode = 'rb')
 			attachment = MIMEApplication(data.read(), mime_subtype)
 			data.close()
 
 		try:
-			attachment.replace_header(u'Content-Disposition', 'attachment; filename="%s"' % gmTools.fname_from_path(filename))
+			attachment.replace_header('Content-Disposition', 'attachment; filename="%s"' % gmTools.fname_from_path(filename))
 		except KeyError:
-			attachment.add_header(u'Content-Disposition', 'attachment; filename="%s"' % gmTools.fname_from_path(filename))
+			attachment.add_header('Content-Disposition', 'attachment; filename="%s"' % gmTools.fname_from_path(filename))
 		email.attach(attachment)
 
 	return email
@@ -479,7 +479,7 @@ if __name__ == '__main__':
 	#-----------------------------------------------------------------------
 	def test_compose_email():
 		email = compose_email (
-			message = u'compose_email() test: üü ßß',
+			message = 'compose_email() test: üü ßß',
 			files2attach = [[sys.argv[2]]]
 		)
 		print(email.as_string())
@@ -488,14 +488,14 @@ if __name__ == '__main__':
 	#-----------------------------------------------------------------------
 	def test_send_email():
 		email = compose_email (
-			message = u'compose_email() test: üü ßß',
+			message = 'compose_email() test: üü ßß',
 			files2attach = [[sys.argv[2]]]
 		)
 		print(send_email (
 #			receiver = u'ncq@localhost',
 			email = email,
 #			server = 'localhost',
-			auth = {'user': default_mail_sender, 'password': u'gnumed-at-gmx-net'},
+			auth = {'user': default_mail_sender, 'password': 'gnumed-at-gmx-net'},
 			debug = True
 		))
 

@@ -1,12 +1,11 @@
 """GNUmed SOAP related widgets.
 """
 #============================================================
-__version__ = "$Revision: 1.114 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
 # std library
-import types, logging
+import logging
 
 
 # 3rd party
@@ -19,7 +18,6 @@ from Gnumed.wxpython import gmResizingWidgets, gmPhraseWheel, gmEMRStructWidgets
 from Gnumed.business import gmPerson, gmEMRStructItems, gmSOAPimporter, gmPraxis, gmPersonSearch, gmStaff
 
 _log = logging.getLogger('gm.ui')
-_log.info(__version__)
 
 #============================================================
 def create_issue_popup(parent, pos, size, style, data_sink):
@@ -313,12 +311,12 @@ class cProgressNoteInputNotebook(wx.Notebook, gmRegetMixin.cRegetOnPaintMixin):
 		# wxPython events
 
 		# client internal signals
-		gmDispatcher.connect(signal = u'post_patient_selection', receiver=self._on_post_patient_selection)
+		gmDispatcher.connect(signal = 'post_patient_selection', receiver=self._on_post_patient_selection)
 #		gmDispatcher.connect(signal = u'application_closing', receiver=self._on_application_closing)
 
 		self.__pat.register_before_switching_from_patient_callback(callback = self._before_switching_from_patient_callback)
 
-		gmDispatcher.send(signal = u'register_pre_exit_callback', callback = self._pre_exit_callback)
+		gmDispatcher.send(signal = 'register_pre_exit_callback', callback = self._pre_exit_callback)
 	#--------------------------------------------------------
 	def _before_switching_from_patient_callback(self):
 		"""Another patient is about to be activated.
@@ -492,7 +490,7 @@ class cNotebookedProgressNoteInputPanel(wx.Panel):
 					last = issue['modified_when'].strftime('%m/%Y')
 				else:
 					last = last_encounter['last_affirmed'].strftime('%m/%Y')
-				label = u'%s: %s "%s"' % (last, problem['l10n_type'], problem['problem'])
+				label = '%s: %s "%s"' % (last, problem['l10n_type'], problem['problem'])
 			elif problem['type'] == 'episode':
 				epi = emr.problem2episode(problem)
 				last_encounter = emr.get_last_encounter(episode_id = epi['pk_episode'])
@@ -500,7 +498,7 @@ class cNotebookedProgressNoteInputPanel(wx.Panel):
 					last = epi['episode_modified_when'].strftime('%m/%Y')
 				else:
 					last = last_encounter['last_affirmed'].strftime('%m/%Y')
-				label = u'%s: %s "%s"%s' % (
+				label = '%s: %s "%s"%s' % (
 					last,
 					problem['l10n_type'],
 					problem['problem'],
@@ -571,9 +569,9 @@ class cNotebookedProgressNoteInputPanel(wx.Panel):
 		else:
 			dbcfg = gmCfg.cCfgSQL()
 			value = bool(dbcfg.get2 (
-				option = u'horstspace.soap_editor.allow_same_episode_multiple_times',
+				option = 'horstspace.soap_editor.allow_same_episode_multiple_times',
 				workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
-				bias = u'user',
+				bias = 'user',
 				default = False
 			))
 
@@ -760,12 +758,12 @@ class cResizingSoapWin(gmResizingWidgets.cResizingWindow):
 
 		# fill progress_note for import
 		progress_note = []
-		aoe = u''
-		rfe = u''
+		aoe = ''
+		rfe = ''
 		has_rfe = False
 		soap_lines_contents = self.GetValue()
 		for line_content in soap_lines_contents.values():
-			if line_content.text.strip() == u'':
+			if line_content.text.strip() == '':
 				continue
 			progress_note.append ({
 				gmSOAPimporter.soap_bundle_SOAP_CAT_KEY: line_content.data.soap_cat,
@@ -775,7 +773,7 @@ class cResizingSoapWin(gmResizingWidgets.cResizingWindow):
 			if line_content.data.is_rfe:
 				has_rfe = True
 				rfe += line_content.text.rstrip()
-			if line_content.data.soap_cat == u'a':
+			if line_content.data.soap_cat == 'a':
 				aoe += line_content.text.rstrip()
 
 		emr = self.__pat.emr
@@ -783,7 +781,7 @@ class cResizingSoapWin(gmResizingWidgets.cResizingWindow):
 		# - new episode, must get name from narrative (or user)
 		if (self.__problem is None) or (self.__problem['type'] == 'issue'):
 			# work out episode name
-			epi_name = u''
+			epi_name = ''
 			if len(aoe) != 0:
 				epi_name = aoe
 			else:
@@ -801,7 +799,7 @@ class cResizingSoapWin(gmResizingWidgets.cResizingWindow):
 				return False
 
 			epi_name = dlg.GetValue().strip()
-			if epi_name == u'':
+			if epi_name == '':
 				gmGuiHelpers.gm_show_error(_('Cannot save a new problem without a name.'), _('saving progress note'))
 				return False
 
@@ -852,7 +850,7 @@ class cResizingSoapWin(gmResizingWidgets.cResizingWindow):
 		editor_content = self.GetValue()
 
 		for field_content in editor_content.values():
-			if field_content.text.strip() != u'':
+			if field_content.text.strip() != '':
 				return False
 
 		return True
@@ -887,7 +885,7 @@ class cResizingSoapPanel(wx.Panel):
 		@param input_defs: the display and associated data for each displayed narrative
 		@type input_defs: a list of cSOAPLineDef instances
 		"""
-		if not isinstance(problem, (gmEMRStructItems.cHealthIssue, gmEMRStructItems.cEpisode, gmEMRStructItems.cProblem, types.NoneType)):
+		if not isinstance(problem, (gmEMRStructItems.cHealthIssue, gmEMRStructItems.cEpisode, gmEMRStructItems.cProblem, type(None))):
 			raise gmExceptions.ConstructorError, 'problem [%s] is of type %s, must be issue, episode, problem or None' % (str(problem), type(problem))
 
 		self.__is_saved = False

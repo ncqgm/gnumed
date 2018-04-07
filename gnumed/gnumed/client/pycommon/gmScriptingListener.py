@@ -3,15 +3,15 @@
 This module implements threaded listening for scripting.
 """
 #=====================================================================
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmScriptingListener.py,v $
 __version__ = "$Revision: 1.7 $"
 __author__ = "K.Hilbert <karsten.hilbert@gmx.net>"
 
-import sys, time, threading, SimpleXMLRPCServer, select, logging
+import sys, time, threading, select, logging
+import xmlrpc.server
 
 
 _log = logging.getLogger('gm.scripting')
-_log.info(__version__)
+
 #=====================================================================
 class cScriptingListener:
 
@@ -41,7 +41,7 @@ class cScriptingListener:
 		self._port = int(port)
 		self._macro_executor = macro_executor
 
-		self._server = SimpleXMLRPCServer.SimpleXMLRPCServer(addr=(self._listener_address, self._port), logRequests=False)
+		self._server = xmlrpc.server.SimpleXMLRPCServer(addr=(self._listener_address, self._port), logRequests=False)
 		self._server.register_instance(self._macro_executor)
 		self._server.allow_reuse_address = True
 
@@ -127,12 +127,14 @@ class cScriptingListener:
 #=====================================================================
 if __name__ == "__main__":
 
+	import xmlrpc.client
+
 	#-------------------------------
 	class runner:
 		def tell_time(self):
 			return time.asctime()
 	#-------------------------------
-	if (len(sys.argv) > 1) and (sys.argv[1] == u'test'):
+	if (len(sys.argv) > 1) and (sys.argv[1] == 'test'):
 		import xmlrpclib
 
 		try:
@@ -141,7 +143,7 @@ if __name__ == "__main__":
 			_log.exception('cannot instantiate scripting listener')
 			sys.exit(1)
 
-		s = xmlrpclib.ServerProxy('http://localhost:9999')
+		s = xmlrpclib.client.ServerProxy('http://localhost:9999')
 		try:
 			t = s.tell_time()
 			print t
@@ -149,38 +151,3 @@ if __name__ == "__main__":
 			_log.exception('cannot interact with server')
 
 		listener.shutdown()
-#=====================================================================
-# $Log: gmScriptingListener.py,v $
-# Revision 1.7  2009-01-15 11:34:17  ncq
-# - improved logging
-#
-# Revision 1.6  2008/06/23 21:49:58  ncq
-# - clean up thread handling
-#
-# Revision 1.5  2007/12/12 16:17:16  ncq
-# - better logger names
-#
-# Revision 1.4  2007/12/11 15:39:01  ncq
-# - use std lib logging
-#
-# Revision 1.3  2007/12/03 20:43:53  ncq
-# - lots of cleanup
-# - fix/enhance test suite
-#
-# Revision 1.2  2004/09/13 08:51:03  ncq
-# - make sure port is an integer
-# - start XML RPC server with logRequests=False
-# - socket allow_reuse_address
-#
-# Revision 1.1  2004/02/25 09:30:13  ncq
-# - moved here from python-common
-#
-# Revision 1.3  2004/02/05 23:46:21  ncq
-# - use serverproxy() instead of server() as is recommended
-#
-# Revision 1.2  2004/02/05 18:40:01  ncq
-# - quit thread if we can't handle_request()
-#
-# Revision 1.1  2004/02/02 21:58:20  ncq
-# - first cut
-#

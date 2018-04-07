@@ -121,7 +121,7 @@ AsciiName = ['<#0-0x00-nul>',
 #===============================================================
 def flush():
 	logger = logging.getLogger('gm.logging')
-	logger.critical(u'-------- synced log file -------------------------------')
+	logger.critical('-------- synced log file -------------------------------')
 	root_logger = logging.getLogger()
 	for handler in root_logger.handlers:
 		handler.flush()
@@ -160,19 +160,19 @@ def log_stack_trace(message=None, t=None, v=None, tb=None):
 	if tb is None:
 		tb = sys.exc_info()[2]
 	if tb is None:
-		logger.debug(u'sys.exc_info() did not return a traceback object, trying sys.last_traceback')
+		logger.debug('sys.exc_info() did not return a traceback object, trying sys.last_traceback')
 		try:
 			tb = sys.last_traceback
 		except AttributeError:
-			logger.debug(u'no stack to trace (no exception information available)')
+			logger.debug('no stack to trace (no exception information available)')
 			return
 
 	# log exception details
-	logger.debug(u'exception: %s', v)
-	logger.debug(u'type: %s', t)
-	logger.debug(u'list of attributes:')
-	for attr in [ a for a in dir(v) if not a.startswith(u'__') ]:
-		logger.debug(u'  %s: %s', attr, getattr(v, attr))
+	logger.debug('exception: %s', v)
+	logger.debug('type: %s', t)
+	logger.debug('list of attributes:')
+	for attr in [ a for a in dir(v) if not a.startswith('__') ]:
+		logger.debug('  %s: %s', attr, getattr(v, attr))
 
 	# make sure we don't leave behind a bind
 	# to the traceback as warned against in
@@ -195,17 +195,17 @@ def log_stack_trace(message=None, t=None, v=None, tb=None):
 
 	if message is not None:
 		logger.debug(message)
-	logger.debug(u'stack trace follows:')
-	logger.debug(u'(locals by frame, outmost frame first)')
+	logger.debug('stack trace follows:')
+	logger.debug('(locals by frame, outmost frame first)')
 	for frame in stack_of_frames:
 		logger.debug (
-			u'>>> execution frame [%s] in [%s] at line %s <<<',
+			'>>> execution frame [%s] in [%s] at line %s <<<',
 			frame.f_code.co_name,
 			frame.f_code.co_filename,
 			frame.f_lineno
 		)
 		for varname, value in frame.f_locals.items():
-			if varname == u'__doc__':
+			if varname == '__doc__':
 				continue
 
 			try:
@@ -217,7 +217,7 @@ def log_stack_trace(message=None, t=None, v=None, tb=None):
 					value = '%s' % str(value)
 					value = value.decode(_string_encoding, 'replace')
 
-			logger.debug(u'%20s = %s', varname, value)
+			logger.debug('%20s = %s', varname, value)
 
 #===============================================================
 def set_string_encoding(encoding=None):
@@ -229,24 +229,24 @@ def set_string_encoding(encoding=None):
 	if encoding is not None:
 		codecs.lookup(encoding)
 		_string_encoding = encoding
-		logger.info(u'setting python.str -> python.unicode encoding to <%s> (explicit)', _string_encoding)
+		logger.info('setting python.str -> python.unicode encoding to <%s> (explicit)', _string_encoding)
 		return True
 
 	enc = sys.getdefaultencoding()
 	if enc != 'ascii':
 		_string_encoding = enc
-		logger.info(u'setting python.str -> python.unicode encoding to <%s> (sys.getdefaultencoding)', _string_encoding)
+		logger.info('setting python.str -> python.unicode encoding to <%s> (sys.getdefaultencoding)', _string_encoding)
 		return True
 
 	enc = locale.getlocale()[1]
 	if enc is not None:
 		_string_encoding = enc
-		logger.info(u'setting python.str -> python.unicode encoding to <%s> (locale.getlocale)', _string_encoding)
+		logger.info('setting python.str -> python.unicode encoding to <%s> (locale.getlocale)', _string_encoding)
 		return True
 
 	# FIXME: or rather use utf8 ?
 	_string_encoding = locale.getpreferredencoding(do_setlocale=False)
-	logger.info(u'setting python.str -> python.unicode encoding to <%s> (locale.getpreferredencoding)', _string_encoding)
+	logger.info('setting python.str -> python.unicode encoding to <%s> (locale.getpreferredencoding)', _string_encoding)
 	return True
 
 #===============================================================
@@ -263,16 +263,15 @@ __original_logger_write_func = None
 
 def __safe_logger_write_func(s):
 	for word in __words2hide:
-		# random is seeded from system time at import,
-		# jump ahead, scrambled by whatever is "now"
-		random.jumpahead(calendar.timegm(time.gmtime()))
-		# from that generate a replacement string valid for
+		# throw away up to 4 bits (plus the randint() cost)
+		random.getrandbits(random.randint(1, 4))
+		# from there generate a replacement string valid for
 		# *this* round of replacements of *this* word,
 		# this approach won't mitigate guessing trivial passwords
 		# from replacements of known data (a known-plaintext attack)
 		# but will make automated searching for replaced strings
 		# in the log more difficult
-		bummer = hex(random.randint(0, sys.maxint)).lstrip(u'0x')
+		bummer = hex(random.randint(0, sys.maxsize)).lstrip('0x')
 		s = s.replace(word, bummer)
 	__original_logger_write_func(s)
 
@@ -289,9 +288,9 @@ def __setup_logging():
 		return False
 
 	if sys.version[:3] < '2.5':
-		fmt = u'%(asctime)s  %(levelname)-8s  %(name)-12s  (%(pathname)s @ #%(lineno)d): %(message)s'
+		fmt = '%(asctime)s  %(levelname)-8s  %(name)-12s  (%(pathname)s @ #%(lineno)d): %(message)s'
 	else:
-		fmt = u'%(asctime)s  %(levelname)-8s  %(name)-12s  [%(thread)d %(threadName)-10s]  (%(pathname)s::%(funcName)s() #%(lineno)d): %(message)s'
+		fmt = '%(asctime)s  %(levelname)-8s  %(name)-12s  [%(thread)d %(threadName)-10s]  (%(pathname)s::%(funcName)s() #%(lineno)d): %(message)s'
 
 	_logfile = io.open(_logfile_name, mode = 'wt', encoding = 'utf8', errors = 'replace')
 
@@ -309,12 +308,12 @@ def __setup_logging():
 	logging.captureWarnings(True)
 
 	logger = logging.getLogger('gm.logging')
-	logger.critical(u'-------- start of logging ------------------------------')
-	logger.info(u'log file is <%s>', _logfile_name)
-	logger.info(u'log level is [%s]', logging.getLevelName(logger.getEffectiveLevel()))
-	logger.info(u'log file encoding is <utf8>')
-	logger.info(u'initial python.str -> python.unicode encoding is <%s>', _string_encoding)
-	logger.debug(u'log file .write() patched from original %s to patched %s', __original_logger_write_func, __safe_logger_write_func)
+	logger.critical('-------- start of logging ------------------------------')
+	logger.info('log file is <%s>', _logfile_name)
+	logger.info('log level is [%s]', logging.getLevelName(logger.getEffectiveLevel()))
+	logger.info('log file encoding is <utf8>')
+	logger.info('initial python.str -> python.unicode encoding is <%s>', _string_encoding)
+	logger.debug('log file .write() patched from original %s to patched %s', __original_logger_write_func, __safe_logger_write_func)
 
 #---------------------------------------------------------------
 def __get_logfile_name():
@@ -332,11 +331,11 @@ def __get_logfile_name():
 
 	# given on command line ?
 	for option in sys.argv[1:]:
-		if option.startswith(u'--log-file='):
-			(opt_name, value) = option.split(u'=')
+		if option.startswith('--log-file='):
+			(opt_name, value) = option.split('=')
 			(dir_name, file_name) = os.path.split(value)
-			if dir_name == u'':
-				dir_name = u'.'
+			if dir_name == '':
+				dir_name = '.'
 			if file_name == '':
 				file_name = default_logfile_name
 			_logfile_name = os.path.abspath(os.path.expanduser(os.path.join(dir_name, file_name)))
@@ -364,20 +363,20 @@ if __name__ == '__main__':
 	if len(sys.argv) < 2:
 		sys.exit()
 
-	if sys.argv[1] != u'test':
+	if sys.argv[1] != 'test':
 		sys.exit()
 
 	#-----------------------------------------------------------
 	def test():
 		logger = logging.getLogger('gmLog2.test')
 		logger.error("I expected to see %s::test()" % __file__)
-		add_word2hide(u'super secret passphrase')
+		add_word2hide('super secret passphrase')
 		logger.debug('credentials: super secret passphrase')
 
 		try:
 			int(None)
 		except:
-			logger.exception(u'unhandled exception')
+			logger.exception('unhandled exception')
 			log_stack_trace()
 		flush()
 	#-----------------------------------------------------------

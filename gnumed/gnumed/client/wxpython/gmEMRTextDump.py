@@ -43,7 +43,7 @@ class gmEMRDumpPanel(wx.Panel):
 	#--------------------------------------------------------
 	def __register_events(self):
 		# client internal signals
-		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._on_post_patient_selection)
+		gmDispatcher.connect(signal = 'post_patient_selection', receiver = self._on_post_patient_selection)
 		return 1
 	#--------------------------------------------------------
 	def _on_post_patient_selection(self):

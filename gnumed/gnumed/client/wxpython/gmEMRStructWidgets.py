@@ -99,7 +99,7 @@ def manage_episodes(parent=None):
 		if gmEMRStructItems.delete_episode(episode = episode):
 			return True
 		gmDispatcher.send (
-			signal = u'statustext',
+			signal = 'statustext',
 			msg = _('Cannot delete episode.'),
 			beep = True
 		)
@@ -126,12 +126,12 @@ def manage_episodes(parent=None):
 		)
 	#-----------------------------------------
 	def refresh(lctrl):
-		epis = emr.get_episodes(order_by = u'description')
+		epis = emr.get_episodes(order_by = 'description')
 		items = [
 			[	e['description'],
-				gmTools.bool2subst(e['episode_open'], _(u'ongoing'), _(u'closed'), u'<unknown>'),
+				gmTools.bool2subst(e['episode_open'], _('ongoing'), _('closed'), '<unknown>'),
 				gmDateTime.pydt_strftime(e.best_guess_clinical_start_date, '%Y %b %d'),
-				gmTools.coalesce(e['health_issue'], u'')
+				gmTools.coalesce(e['health_issue'], '')
 			] for e in epis
 		]
 		lctrl.set_string_items(items = items)
@@ -141,7 +141,7 @@ def manage_episodes(parent=None):
 		parent = parent,
 		msg = _('\nSelect the episode you want to edit !\n'),
 		caption = _('Editing episodes ...'),
-		columns = [_(u'Episode'), _('Status'), _('Started'), _(u'Health issue')],
+		columns = [_('Episode'), _('Status'), _('Started'), _('Health issue')],
 		single_selection = True,
 		edit_callback = edit,
 		new_callback = edit,
@@ -206,7 +206,7 @@ def promote_episode_to_issue(parent=None, episode=None, emr=None):
 					return
 				issue_name = dlg.GetValue().strip()
 				dlg.Destroy()
-				if issue_name == u'':
+				if issue_name == '':
 					issue_name = episode['description']
 
 			issue = emr.add_health_issue(issue_name = issue_name)
@@ -248,7 +248,7 @@ def move_episode_to_issue(episode=None, target_issue=None, save_to_backend=False
 	# try closing possibly expired episode on target issue if any
 	db_cfg = gmCfg.cCfgSQL()
 	epi_ttl = int(db_cfg.get2 (
-		option = u'episode.ttl',
+		option = 'episode.ttl',
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 		bias = 'user',
 		default = 60				# 2 months
@@ -274,12 +274,12 @@ def move_episode_to_issue(episode=None, target_issue=None, save_to_backend=False
 	# we got two open episodes at once, ask user
 	move_range = (episode.best_guess_clinical_start_date, episode.best_guess_clinical_end_date)
 	if move_range[1] is None:
-		move_range_end = u'?'
+		move_range_end = '?'
 	else:
 		move_range_end = move_range[1].strftime('%m/%y')
 	exist_range = (existing_epi.best_guess_clinical_start_date, existing_epi.best_guess_clinical_end_date)
 	if exist_range[1] is None:
-		exist_range_end = u'?'
+		exist_range_end = '?'
 	else:
 		exist_range_end = exist_range[1].strftime('%m/%y')
 	question = _(
@@ -352,8 +352,8 @@ class cEpisodeListSelectorDlg(gmListWidgets.cGenericListSelectorDlg):
 		self._LCTRL_items.set_string_items (
 			items = [ 
 				[	epi['description'], 
-					gmTools.bool2str(epi['episode_open'], _('ongoing'), u''), 
-					gmTools.coalesce(epi['health_issue'], u'')
+					gmTools.bool2str(epi['episode_open'], _('ongoing'), ''), 
+					gmTools.coalesce(epi['health_issue'], '')
 				]
 				for epi in episodes ]
 		)
@@ -378,7 +378,7 @@ class cEpisodeDescriptionPhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 		mp = gmMatchProvider.cMatchProvider_SQL2 (
 			queries = [
-u"""
+"""
 SELECT DISTINCT ON (description)
 	description
 		AS data,
@@ -421,11 +421,11 @@ class cEpisodeSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
 	"""
 	def __init__(self, *args, **kwargs):
 
-		ctxt = {'ctxt_pat': {'where_part': u'and pk_patient = %(pat)s', 'placeholder': u'pat'}}
+		ctxt = {'ctxt_pat': {'where_part': 'and pk_patient = %(pat)s', 'placeholder': 'pat'}}
 
 		mp = gmMatchProvider.cMatchProvider_SQL2 (
 			queries = [
-u"""(
+"""(
 
 SELECT
 	pk_episode
@@ -512,8 +512,8 @@ limit 30"""
 	def _create_data(self):
 
 		epi_name = self.GetValue().strip()
-		if epi_name == u'':
-			gmDispatcher.send(signal = u'statustext', msg = _('Cannot create episode without name.'), beep = True)
+		if epi_name == '':
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot create episode without name.'), beep = True)
 			_log.debug('cannot create episode without name')
 			return
 
@@ -538,8 +538,8 @@ limit 30"""
 	# internal API
 	#--------------------------------------------------------
 	def __register_patient_change_signals(self):
-		gmDispatcher.connect(self._pre_patient_unselection, u'pre_patient_unselection')
-		gmDispatcher.connect(self._post_patient_selection, u'post_patient_selection')
+		gmDispatcher.connect(self._pre_patient_unselection, 'pre_patient_unselection')
+		gmDispatcher.connect(self._post_patient_selection, 'post_patient_selection')
 	#--------------------------------------------------------
 	def _pre_patient_unselection(self):
 		self.__patient_id = None
@@ -661,7 +661,7 @@ class cEpisodeEditAreaPnl(gmEditArea.cGenericEditAreaMixin, wxgEpisodeEditAreaPn
 		self._TCTRL_patient.SetValue(ident.get_description_gender())
 		self._PRW_issue.SetText()
 		self._PRW_description.SetText()
-		self._TCTRL_status.SetValue(u'')
+		self._TCTRL_status.SetValue('')
 		self._PRW_certainty.SetText()
 		self._CHBOX_closed.SetValue(False)
 		self._PRW_codes.SetText()
@@ -684,7 +684,7 @@ class cEpisodeEditAreaPnl(gmEditArea.cGenericEditAreaMixin, wxgEpisodeEditAreaPn
 			data = self.data['description']
 		)
 
-		self._TCTRL_status.SetValue(gmTools.coalesce(self.data['summary'], u''))
+		self._TCTRL_status.SetValue(gmTools.coalesce(self.data['summary'], ''))
 
 		if self.data['diagnostic_certainty_classification'] is not None:
 			self._PRW_certainty.SetData(data = self.data['diagnostic_certainty_classification'])
@@ -730,7 +730,7 @@ def select_health_issues(parent=None, emr=None):
 		if gmEMRStructItems.delete_health_issue(health_issue = issue):
 			return True
 		gmDispatcher.send (
-			signal = u'statustext',
+			signal = 'statustext',
 			msg = _('Cannot delete health issue.'),
 			beep = True
 		)
@@ -759,11 +759,11 @@ def select_health_issues(parent=None, emr=None):
 		issues = emr.get_health_issues()
 		items = [
 			[
-				gmTools.bool2subst(i['is_confidential'], _('CONFIDENTIAL'), u'', u''),
+				gmTools.bool2subst(i['is_confidential'], _('CONFIDENTIAL'), '', ''),
 				i['description'],
-				gmTools.bool2subst(i['clinically_relevant'], _('relevant'), u'', u''),
-				gmTools.bool2subst(i['is_active'], _('active'), u'', u''),
-				gmTools.bool2subst(i['is_cause_of_death'], _('fatal'), u'', u'')
+				gmTools.bool2subst(i['clinically_relevant'], _('relevant'), '', ''),
+				gmTools.bool2subst(i['is_active'], _('active'), '', ''),
+				gmTools.bool2subst(i['is_cause_of_death'], _('fatal'), '', '')
 			] for i in issues
 		]
 		lctrl.set_string_items(items = items)
@@ -773,7 +773,7 @@ def select_health_issues(parent=None, emr=None):
 		parent = parent,
 		msg = _('\nSelect the health issues !\n'),
 		caption = _('Showing health issues ...'),
-		columns = [u'', _('Health issue'), u'', u'', u''],
+		columns = ['', _('Health issue'), '', '', ''],
 		single_selection = False,
 		edit_callback = edit,
 		new_callback = edit,
@@ -793,14 +793,14 @@ class cIssueListSelectorDlg(gmListWidgets.cGenericListSelectorDlg):
 		gmListWidgets.cGenericListSelectorDlg.__init__(self, *args, **kwargs)
 
 		self.SetTitle(_('Select the health issues you are interested in ...'))
-		self._LCTRL_items.set_columns([u'', _('Health Issue'), u'', u'', u''])
+		self._LCTRL_items.set_columns(['', _('Health Issue'), '', '', ''])
 
 		for issue in issues:
 			if issue['is_confidential']:
-				row_num = self._LCTRL_items.InsertItem(sys.maxint, label = _('confidential'))
+				row_num = self._LCTRL_items.InsertItem(sys.maxsize, label = _('confidential'))
 				self._LCTRL_items.SetItemTextColour(row_num, col=wx.Colour('RED'))
 			else:
-				row_num = self._LCTRL_items.InsertItem(sys.maxint, label = u'')
+				row_num = self._LCTRL_items.InsertItem(sys.maxsize, label = '')
 
 			self._LCTRL_items.SetItem(index = row_num, column = 1, label = issue['description'])
 			if issue['clinically_relevant']:
@@ -831,11 +831,11 @@ class cIssueSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
 	"""
 	def __init__(self, *args, **kwargs):
 
-		ctxt = {'ctxt_pat': {'where_part': u'pk_patient=%(pat)s', 'placeholder': u'pat'}}
+		ctxt = {'ctxt_pat': {'where_part': 'pk_patient=%(pat)s', 'placeholder': 'pat'}}
 
 		mp = gmMatchProvider.cMatchProvider_SQL2 (
 			# FIXME: consider clin.health_issue.clinically_relevant
-			queries = [u"""
+			queries = ["""
 				SELECT
 					data,
 					field_label,
@@ -906,8 +906,8 @@ class cIssueSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
 	#--------------------------------------------------------
 	def _create_data(self):
 		issue_name = self.GetValue().strip()
-		if issue_name == u'':
-			gmDispatcher.send(signal = u'statustext', msg = _('Cannot create health issue without name.'), beep = True)
+		if issue_name == '':
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot create health issue without name.'), beep = True)
 			_log.debug('cannot create health issue without name')
 			return
 
@@ -955,8 +955,8 @@ class cIssueSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
 	# internal API
 	#--------------------------------------------------------
 	def __register_patient_change_signals(self):
-		gmDispatcher.connect(self._pre_patient_unselection, u'pre_patient_unselection')
-		gmDispatcher.connect(self._post_patient_selection, u'post_patient_selection')
+		gmDispatcher.connect(self._pre_patient_unselection, 'pre_patient_unselection')
+		gmDispatcher.connect(self._post_patient_selection, 'post_patient_selection')
 	#--------------------------------------------------------
 	def _pre_patient_unselection(self):
 		return True
@@ -1019,13 +1019,13 @@ class cHealthIssueEditAreaPnl(gmEditArea.cGenericEditAreaMixin, wxgHealthIssueEd
 
 		# FIXME: include more sources: coding systems/other database columns
 		mp = gmMatchProvider.cMatchProvider_SQL2 (
-			queries = [u"SELECT DISTINCT ON (description) description, description FROM clin.health_issue WHERE description %(fragment_condition)s LIMIT 50"]
+			queries = ["SELECT DISTINCT ON (description) description, description FROM clin.health_issue WHERE description %(fragment_condition)s LIMIT 50"]
 		)
 		mp.setThresholds(1, 3, 5)
 		self._PRW_condition.matcher = mp
 
 		mp = gmMatchProvider.cMatchProvider_SQL2 (
-			queries = [u"""
+			queries = ["""
 SELECT DISTINCT ON (grouping) grouping, grouping from (
 
 	SELECT rank, grouping from ((
@@ -1086,7 +1086,7 @@ limit 50""" % gmPerson.gmCurrentPatient().ID
 
 		# FIXME: sanity check age/year diagnosed
 		age_noted = self._PRW_age_noted.GetValue().strip()
-		if age_noted != u'':
+		if age_noted != '':
 			if gmDateTime.str2interval(str_interval = age_noted) is None:
 				self._PRW_age_noted.display_as_valid(False)
 				self._PRW_age_noted.SetFocus()
@@ -1100,11 +1100,11 @@ limit 50""" % gmPerson.gmCurrentPatient().ID
 
 		issue = emr.add_health_issue(issue_name = self._PRW_condition.GetValue().strip())
 
-		side = u''
+		side = ''
 		if self._ChBOX_left.GetValue():
-			side += u's'
+			side += 's'
 		if self._ChBOX_right.GetValue():
-			side += u'd'
+			side += 'd'
 		issue['laterality'] = side
 
 		issue['summary'] = self._TCTRL_status.GetValue().strip()
@@ -1130,11 +1130,11 @@ limit 50""" % gmPerson.gmCurrentPatient().ID
 
 		self.data['description'] = self._PRW_condition.GetValue().strip()
 
-		side = u''
+		side = ''
 		if self._ChBOX_left.GetValue():
-			side += u's'
+			side += 's'
 		if self._ChBOX_right.GetValue():
-			side += u'd'
+			side += 'd'
 		self.data['laterality'] = side
 
 		self.data['summary'] = self._TCTRL_status.GetValue().strip()
@@ -1162,7 +1162,7 @@ limit 50""" % gmPerson.gmCurrentPatient().ID
 		self._on_leave_codes()
 		self._PRW_certainty.SetText()
 		self._PRW_grouping.SetText()
-		self._TCTRL_status.SetValue(u'')
+		self._TCTRL_status.SetValue('')
 		self._PRW_age_noted.SetText()
 		self._PRW_year_noted.SetText()
 		self._ChBOX_active.SetValue(1)
@@ -1192,8 +1192,8 @@ limit 50""" % gmPerson.gmCurrentPatient().ID
 
 		if self.data['diagnostic_certainty_classification'] is not None:
 			self._PRW_certainty.SetData(data = self.data['diagnostic_certainty_classification'])
-		self._PRW_grouping.SetText(gmTools.coalesce(self.data['grouping'], u''))
-		self._TCTRL_status.SetValue(gmTools.coalesce(self.data['summary'], u''))
+		self._PRW_grouping.SetText(gmTools.coalesce(self.data['grouping'], ''))
+		self._TCTRL_status.SetValue(gmTools.coalesce(self.data['summary'], ''))
 
 		if self.data['age_noted'] is None:
 			self._PRW_age_noted.SetText()
@@ -1221,7 +1221,7 @@ limit 50""" % gmPerson.gmCurrentPatient().ID
 		if not self._PRW_codes.IsModified():
 			return True
 
-		self._TCTRL_code_details.SetValue(u'- ' + u'\n- '.join([ c['list_label'] for c in self._PRW_codes.GetData() ]))
+		self._TCTRL_code_details.SetValue('- ' + '\n- '.join([ c['list_label'] for c in self._PRW_codes.GetData() ]))
 	#--------------------------------------------------------
 	def _on_leave_age_noted(self, *args, **kwargs):
 
@@ -1230,7 +1230,7 @@ limit 50""" % gmPerson.gmCurrentPatient().ID
 
 		age_str = self._PRW_age_noted.GetValue().strip()
 
-		if age_str == u'':
+		if age_str == '':
 			return True
 
 		issue_age = gmDateTime.str2interval(str_interval = age_str)
@@ -1268,7 +1268,7 @@ limit 50""" % gmPerson.gmCurrentPatient().ID
 		year_noted = self._PRW_year_noted.GetData()
 
 		if year_noted is None:
-			if self._PRW_year_noted.GetValue().strip() == u'':
+			if self._PRW_year_noted.GetValue().strip() == '':
 				self._PRW_year_noted.display_as_valid(True)
 				return True
 			self._PRW_year_noted.display_as_valid(False)
@@ -1292,11 +1292,11 @@ limit 50""" % gmPerson.gmCurrentPatient().ID
 		return True
 	#--------------------------------------------------------
 	def _on_modified_age_noted(self, *args, **kwargs):
-		wx.CallAfter(self._PRW_year_noted.SetText, u'', None, True)
+		wx.CallAfter(self._PRW_year_noted.SetText, '', None, True)
 		return True
 	#--------------------------------------------------------
 	def _on_modified_year_noted(self, *args, **kwargs):
-		wx.CallAfter(self._PRW_age_noted.SetText, u'', None, True)
+		wx.CallAfter(self._PRW_age_noted.SetText, '', None, True)
 		return True
 #================================================================
 # diagnostic certainty related widgets/functions
@@ -1311,10 +1311,10 @@ class cDiagnosticCertaintyClassificationPhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 		mp = gmMatchProvider.cMatchProvider_FixedList (
 			aSeq = [
-				{'data': u'A', 'list_label': gmEMRStructItems.diagnostic_certainty_classification2str(u'A'), 'field_label': gmEMRStructItems.diagnostic_certainty_classification2str(u'A'), 'weight': 1},
-				{'data': u'B', 'list_label': gmEMRStructItems.diagnostic_certainty_classification2str(u'B'), 'field_label': gmEMRStructItems.diagnostic_certainty_classification2str(u'B'), 'weight': 1},
-				{'data': u'C', 'list_label': gmEMRStructItems.diagnostic_certainty_classification2str(u'C'), 'field_label': gmEMRStructItems.diagnostic_certainty_classification2str(u'C'), 'weight': 1},
-				{'data': u'D', 'list_label': gmEMRStructItems.diagnostic_certainty_classification2str(u'D'), 'field_label': gmEMRStructItems.diagnostic_certainty_classification2str(u'D'), 'weight': 1}
+				{'data': 'A', 'list_label': gmEMRStructItems.diagnostic_certainty_classification2str('A'), 'field_label': gmEMRStructItems.diagnostic_certainty_classification2str('A'), 'weight': 1},
+				{'data': 'B', 'list_label': gmEMRStructItems.diagnostic_certainty_classification2str('B'), 'field_label': gmEMRStructItems.diagnostic_certainty_classification2str('B'), 'weight': 1},
+				{'data': 'C', 'list_label': gmEMRStructItems.diagnostic_certainty_classification2str('C'), 'field_label': gmEMRStructItems.diagnostic_certainty_classification2str('C'), 'weight': 1},
+				{'data': 'D', 'list_label': gmEMRStructItems.diagnostic_certainty_classification2str('D'), 'field_label': gmEMRStructItems.diagnostic_certainty_classification2str('D'), 'weight': 1}
 			]
 		)
 		mp.setThresholds(1, 2, 4)

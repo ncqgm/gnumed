@@ -23,11 +23,11 @@ _log = logging.getLogger('gm.org')
 #============================================================
 def create_org_category(category=None, link_obj=None):
 	args = {'cat': category}
-	cmd1 = u"""INSERT INTO dem.org_category (description) SELECT %(cat)s
+	cmd1 = """INSERT INTO dem.org_category (description) SELECT %(cat)s
 WHERE NOT EXISTS (
 	SELECT 1 FROM dem.org_category WHERE description = %(cat)s or _(description) = %(cat)s
 )"""
-	cmd2 = u"""SELECT pk FROM dem.org_category WHERE description = %(cat)s or _(description) = %(cat)s LIMIT 1"""
+	cmd2 = """SELECT pk FROM dem.org_category WHERE description = %(cat)s or _(description) = %(cat)s LIMIT 1"""
 	queries = [
 		{'cmd': cmd1, 'args': args},
 		{'cmd': cmd2, 'args': args}
@@ -38,13 +38,13 @@ WHERE NOT EXISTS (
 #============================================================
 # organization API
 #------------------------------------------------------------
-_SQL_get_org = u'SELECT * FROM dem.v_orgs WHERE %s'
+_SQL_get_org = 'SELECT * FROM dem.v_orgs WHERE %s'
 
 class cOrg(gmBusinessDBObject.cBusinessDBObject):
 
-	_cmd_fetch_payload = _SQL_get_org % u'pk_org = %s'
+	_cmd_fetch_payload = _SQL_get_org % 'pk_org = %s'
 	_cmds_store_payload = [
-		u"""UPDATE dem.org SET
+		"""UPDATE dem.org SET
 				description = %(organization)s,
 				fk_category = %(pk_category_org)s
 			WHERE
@@ -55,8 +55,8 @@ class cOrg(gmBusinessDBObject.cBusinessDBObject):
 				xmin AS xmin_org"""
 	]
 	_updatable_fields = [
-		u'organization',
-		u'pk_category_org'
+		'organization',
+		'pk_category_org'
 	]
 	#--------------------------------------------------------
 	def add_unit(self, unit=None):
@@ -65,20 +65,20 @@ class cOrg(gmBusinessDBObject.cBusinessDBObject):
 	def format(self):
 		lines = []
 		lines.append(_('Organization #%s') % self._payload[self._idx['pk_org']])
-		lines.append(u'')
-		lines.append(u' %s "%s"' % (
+		lines.append('')
+		lines.append(' %s "%s"' % (
 			self._payload[self._idx['l10n_category']],
 			self._payload[self._idx['organization']]
 		))
 		if self._payload[self._idx['is_praxis']]:
-			lines.append(u'')
-			lines.append(u' ' + _('This is your praxis !'))
-		return u'\n'.join(lines)
+			lines.append('')
+			lines.append(' ' + _('This is your praxis !'))
+		return '\n'.join(lines)
 	#--------------------------------------------------------
 	# properties
 	#--------------------------------------------------------
 	def _get_units(self):
-		return get_org_units(order_by = u'unit', org = self._payload[self._idx['pk_org']])
+		return get_org_units(order_by = 'unit', org = self._payload[self._idx['pk_org']])
 
 	units = property(_get_units, lambda x:x)
 
@@ -86,14 +86,14 @@ class cOrg(gmBusinessDBObject.cBusinessDBObject):
 def org_exists(organization=None, category=None, link_obj=None):
 	args = {'desc': organization, 'cat': category}
 
-	if isinstance(category, basestring):
-		cat_part = u'fk_category = (SELECT pk FROM dem.org_category WHERE description = %(cat)s)'
+	if isinstance(category, str):
+		cat_part = 'fk_category = (SELECT pk FROM dem.org_category WHERE description = %(cat)s)'
 	elif category is None:
-		cat_part = u'True'
+		cat_part = 'True'
 	else:
-		cat_part = u'fk_category = %(cat)s'
+		cat_part = 'fk_category = %(cat)s'
 
-	cmd = u'SELECT pk FROM dem.org WHERE description = %%(desc)s AND %s' % cat_part
+	cmd = 'SELECT pk FROM dem.org WHERE description = %%(desc)s AND %s' % cat_part
 	rows, idx = gmPG2.run_ro_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
 	if len(rows) > 0:
 		return cOrg(aPK_obj = rows[0][0])
@@ -108,19 +108,19 @@ def create_org(organization=None, category=None, link_obj=None):
 
 	args = {'desc': organization, 'cat': category}
 
-	if isinstance(category, basestring):
-		cat_part = u'(SELECT pk FROM dem.org_category WHERE description = %(cat)s)'
+	if isinstance(category, str):
+		cat_part = '(SELECT pk FROM dem.org_category WHERE description = %(cat)s)'
 	else:
-		cat_part = u'%(cat)s'
+		cat_part = '%(cat)s'
 
-	cmd = u'INSERT INTO dem.org (description, fk_category) VALUES (%%(desc)s, %s) RETURNING pk' % cat_part
+	cmd = 'INSERT INTO dem.org (description, fk_category) VALUES (%%(desc)s, %s) RETURNING pk' % cat_part
 	rows, idx = gmPG2.run_rw_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': args}], get_col_idx = False, return_data = True)
 
 	return cOrg(aPK_obj = rows[0][0], link_obj = link_obj)
 #------------------------------------------------------------
 def delete_org(organization=None):
 	args = {'pk': organization}
-	cmd = u"""
+	cmd = """
 		DELETE FROM dem.org
 		WHERE
 			pk = %(pk)s
@@ -134,25 +134,25 @@ def delete_org(organization=None):
 def get_orgs(order_by=None):
 
 	if order_by is None:
-		order_by = u''
+		order_by = ''
 	else:
-		order_by = u'ORDER BY %s' % order_by
+		order_by = 'ORDER BY %s' % order_by
 
-	cmd = _SQL_get_org % (u'TRUE %s' % order_by)
+	cmd = _SQL_get_org % ('TRUE %s' % order_by)
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
 
-	return [ cOrg(row = {'data': r, 'idx': idx, 'pk_field': u'pk_org'}) for r in rows ]
+	return [ cOrg(row = {'data': r, 'idx': idx, 'pk_field': 'pk_org'}) for r in rows ]
 
 #============================================================
 # organizational units API
 #------------------------------------------------------------
-_SQL_get_org_unit = u'SELECT * FROM dem.v_org_units WHERE %s'
+_SQL_get_org_unit = 'SELECT * FROM dem.v_org_units WHERE %s'
 
 class cOrgUnit(gmBusinessDBObject.cBusinessDBObject):
 
-	_cmd_fetch_payload = _SQL_get_org_unit % u'pk_org_unit = %s'
+	_cmd_fetch_payload = _SQL_get_org_unit % 'pk_org_unit = %s'
 	_cmds_store_payload = [
-		u"""UPDATE dem.org_unit SET
+		"""UPDATE dem.org_unit SET
 				description = %(unit)s,
 				fk_org = %(pk_org)s,
 				fk_category = %(pk_category_unit)s,
@@ -165,10 +165,10 @@ class cOrgUnit(gmBusinessDBObject.cBusinessDBObject):
 				xmin AS xmin_org_unit"""
 	]
 	_updatable_fields = [
-		u'unit',
-		u'pk_org',
-		u'pk_category_unit',
-		u'pk_address'
+		'unit',
+		'pk_org',
+		'pk_category_unit',
+		'pk_address'
 	]
 	#--------------------------------------------------------
 	# comms API
@@ -178,14 +178,14 @@ class cOrgUnit(gmBusinessDBObject.cBusinessDBObject):
 		args = {'pk': self.pk_obj, 'medium': comm_medium}
 
 		if comm_medium is None:
-			cmd = u"""
+			cmd = """
 				SELECT *
 				FROM dem.v_org_unit_comms
 				WHERE
 					pk_org_unit = %(pk)s
 			"""
 		else:
-			cmd = u"""
+			cmd = """
 				SELECT *
 				FROM dem.v_org_unit_comms
 				WHERE
@@ -210,9 +210,9 @@ class cOrgUnit(gmBusinessDBObject.cBusinessDBObject):
 
 		@param comm_medium The name of the communication medium.
 		@param url The communication resource locator.
-		@type url A types.StringType instance.
+		@type url A str instance.
 		@param is_confidential Wether the data must be treated as confidential.
-		@type is_confidential A types.BooleanType instance.
+		@type is_confidential A bool instance.
 		"""
 		return gmDemographicRecord.create_comm_channel (
 			comm_medium = comm_medium,
@@ -235,14 +235,14 @@ class cOrgUnit(gmBusinessDBObject.cBusinessDBObject):
 		args = {'unit': self.pk_obj}
 
 		if id_type is not None:
-			where_parts.append(u'name = %(name)s')
+			where_parts.append('name = %(name)s')
 			args['name'] = id_type.strip()
 
 		if issuer is not None:
-			where_parts.append(u'issuer = %(issuer)s')
+			where_parts.append('issuer = %(issuer)s')
 			args['issuer'] = issuer.strip()
 
-		cmd = u"SELECT * FROM dem.v_external_ids4org_unit WHERE %s" % ' AND '.join(where_parts)
+		cmd = "SELECT * FROM dem.v_external_ids4org_unit WHERE %s" % ' AND '.join(where_parts)
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 
 		return rows
@@ -264,7 +264,7 @@ class cOrgUnit(gmBusinessDBObject.cBusinessDBObject):
 		}
 		# check for existing ID
 		if pk_type is not None:
-			cmd = u"""
+			cmd = """
 				SELECT * FROM dem.v_external_ids4org_unit WHERE
 				pk_org_unit = %(unit)s
 					AND
@@ -274,7 +274,7 @@ class cOrgUnit(gmBusinessDBObject.cBusinessDBObject):
 		else:
 			# by type/value/issuer
 			if issuer is None:
-				cmd = u"""
+				cmd = """
 					SELECT * FROM dem.v_external_ids4org_unit WHERE
 					pk_org_unit = %(unit)s
 						AND
@@ -282,7 +282,7 @@ class cOrgUnit(gmBusinessDBObject.cBusinessDBObject):
 						AND
 					value = %(val)s"""
 			else:
-				cmd = u"""
+				cmd = """
 					SELECT * FROM dem.v_external_ids4org_unit WHERE
 					pk_org_unit = %(unit)s
 						AND
@@ -296,14 +296,14 @@ class cOrgUnit(gmBusinessDBObject.cBusinessDBObject):
 		# create new ID if not found
 		if len(rows) == 0:
 			if pk_type is None:
-				cmd = u"""INSERT INTO dem.lnk_org_unit2ext_id (external_id, fk_type, comment, fk_org_unit) VALUES (
+				cmd = """INSERT INTO dem.lnk_org_unit2ext_id (external_id, fk_type, comment, fk_org_unit) VALUES (
 					%(val)s,
 					(SELECT dem.add_external_id_type(%(type_name)s, %(issuer)s)),
 					%(comment)s,
 					%(unit)s
 				)"""
 			else:
-				cmd = u"""INSERT INTO dem.lnk_org_unit2ext_id (external_id, fk_type, comment, fk_org_unit) VALUES (
+				cmd = """INSERT INTO dem.lnk_org_unit2ext_id (external_id, fk_type, comment, fk_org_unit) VALUES (
 					%(val)s,
 					%(pk_type)s,
 					%(comment)s,
@@ -318,7 +318,7 @@ class cOrgUnit(gmBusinessDBObject.cBusinessDBObject):
 				# comment not already there ?
 				if gmTools.coalesce(row['comment'], '').find(comment.strip()) == -1:
 					comment = '%s%s' % (gmTools.coalesce(row['comment'], '', '%s // '), comment.strip)
-					cmd = u"UPDATE dem.lnk_org_unit2ext_id SET comment = %(comment)s WHERE pk = %(pk)s"
+					cmd = "UPDATE dem.lnk_org_unit2ext_id SET comment = %(comment)s WHERE pk = %(pk)s"
 					args = {'comment': comment, 'pk': row['pk_id']}
 					rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 
@@ -328,7 +328,7 @@ class cOrgUnit(gmBusinessDBObject.cBusinessDBObject):
 
 		Creates ID type if necessary.
 		"""
-		cmd = u"""
+		cmd = """
 			UPDATE dem.lnk_org_unit2ext_id SET
 				fk_type = (SELECT dem.add_external_id_type(%(type)s, %(issuer)s)),
 				external_id = %(value)s,
@@ -341,7 +341,7 @@ class cOrgUnit(gmBusinessDBObject.cBusinessDBObject):
 
 	#--------------------------------------------------------
 	def delete_external_id(self, pk_ext_id=None):
-		cmd = u"""
+		cmd = """
 			DELETE FROM dem.lnk_org_unit2ext_id
 			WHERE fk_org_unit = %(unit)s AND pk = %(pk)s
 		"""
@@ -369,10 +369,10 @@ class cOrgUnit(gmBusinessDBObject.cBusinessDBObject):
 			gmTools.bool2subst (
 				self._payload[self._idx['is_praxis_branch']],
 				_(' (of your praxis)'),
-				u''
+				''
 			),
 			self._payload[self._idx['unit']],
-			gmTools.coalesce(self._payload[self._idx['l10n_unit_category']], u'', u' (%s)')
+			gmTools.coalesce(self._payload[self._idx['l10n_unit_category']], '', ' (%s)')
 		))
 		if with_org:
 			lines.append(_('Organization: %s (%s)') % (
@@ -385,10 +385,10 @@ class cOrgUnit(gmBusinessDBObject.cBusinessDBObject):
 				lines.extend(adr.format())
 		if with_comms:
 			for comm in self.comm_channels:
-				lines.append(u'%s: %s%s' % (
+				lines.append('%s: %s%s' % (
 					comm['l10n_comm_type'],
 					comm['url'],
-					gmTools.bool2subst(comm['is_confidential'], _(' (confidential)'), u'', u'')
+					gmTools.bool2subst(comm['is_confidential'], _(' (confidential)'), '', '')
 				))
 		return lines
 
@@ -417,27 +417,27 @@ class cOrgUnit(gmBusinessDBObject.cBusinessDBObject):
 
 #------------------------------------------------------------
 def create_org_unit(pk_organization=None, unit=None, link_obj=None):
-	_log.debug(u'creating org unit [%s:%s]', unit, pk_organization)
+	_log.debug('creating org unit [%s:%s]', unit, pk_organization)
 	args = {'desc': unit, 'pk_org': pk_organization}
-	cmd1 = u"""
+	cmd1 = """
 		INSERT INTO dem.org_unit (description, fk_org) SELECT
 			%(desc)s,
 			%(pk_org)s
 		WHERE NOT EXISTS (
 			SELECT 1 FROM dem.org_unit WHERE description = %(desc)s AND fk_org = %(pk_org)s
 		)"""
-	cmd2 = _SQL_get_org_unit % u'unit = %(desc)s AND pk_org = %(pk_org)s'
+	cmd2 = _SQL_get_org_unit % 'unit = %(desc)s AND pk_org = %(pk_org)s'
 	queries = [
 		{'cmd': cmd1, 'args': args},
 		{'cmd': cmd2, 'args': args}
 	]
 	rows, idx = gmPG2.run_rw_queries(link_obj = link_obj, queries = queries, get_col_idx = True, return_data = True)
-	return cOrgUnit(row = {'data': rows[0], 'idx': idx, 'pk_field': u'pk_org_unit'})
+	return cOrgUnit(row = {'data': rows[0], 'idx': idx, 'pk_field': 'pk_org_unit'})
 
 #------------------------------------------------------------
 def delete_org_unit(unit=None):
 	args = {'pk': unit}
-	cmd = u"""DELETE FROM dem.org_unit WHERE
+	cmd = """DELETE FROM dem.org_unit WHERE
 		pk = %(pk)s
 			AND
 		NOT EXISTS (
@@ -465,20 +465,20 @@ def delete_org_unit(unit=None):
 def get_org_units(order_by=None, org=None):
 
 	if order_by is None:
-		order_by = u''
+		order_by = ''
 	else:
-		order_by = u' ORDER BY %s' % order_by
+		order_by = ' ORDER BY %s' % order_by
 
 	if org is None:
-		where_part = u'TRUE'
+		where_part = 'TRUE'
 	else:
-		where_part = u'pk_org = %(org)s'
+		where_part = 'pk_org = %(org)s'
 
 	args = {'org': org}
 	cmd = (_SQL_get_org_unit % where_part) + order_by
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 
-	return [ cOrgUnit(row = {'data': r, 'idx': idx, 'pk_field': u'pk_org_unit'}) for r in rows ]
+	return [ cOrgUnit(row = {'data': r, 'idx': idx, 'pk_field': 'pk_org_unit'}) for r in rows ]
 
 #======================================================================
 # main
@@ -488,7 +488,7 @@ if __name__ == "__main__":
 	if len(sys.argv) < 2:
 		sys.exit()
 
-	if sys.argv[1] != u'test':
+	if sys.argv[1] != 'test':
 		sys.exit()
 
 
@@ -1226,7 +1226,7 @@ if __name__ == '__main__':
 			sys.exit(-1)
 		if result != []:
 			print("UNABLE TO CREATE THESE CATEGORIES")
-			if not raw_input("Continue ?") in ['y', 'Y'] :
+			if not input("Continue ?") in ['y', 'Y'] :
 				sys.exit(-1)
 
 	try:
