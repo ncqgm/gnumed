@@ -18,6 +18,7 @@ class wxgSimpleSoapPluginPnl(wx.ScrolledWindow):
 		# begin wxGlade: wxgSimpleSoapPluginPnl.__init__
 		kwds["style"] = kwds.get("style", 0) | wx.BORDER_NONE | wx.TAB_TRAVERSAL
 		wx.ScrolledWindow.__init__(self, *args, **kwds)
+		self.SetSize(wx.DLG_UNIT(self, wx.Size(400, 216)))
 		self._splitter_main = wx.SplitterWindow(self, wx.ID_ANY, style=wx.SP_3D | wx.SP_BORDER)
 		self.__pnl_left = wx.Panel(self._splitter_main, wx.ID_ANY, style=wx.BORDER_NONE | wx.TAB_TRAVERSAL)
 		from Gnumed.wxpython.gmListWidgets import cReportListCtrl
@@ -48,6 +49,7 @@ class wxgSimpleSoapPluginPnl(wx.ScrolledWindow):
 
 	def __set_properties(self):
 		# begin wxGlade: wxgSimpleSoapPluginPnl.__set_properties
+		self.SetSize(wx.DLG_UNIT(self, wx.Size(400, 216)))
 		self.SetScrollRate(10, 10)
 		self._BTN_add_problem.SetToolTip(_("Add a problem to the problem list."))
 		self._BTN_edit_problem.SetToolTip(_("Edit the selected problem."))
@@ -65,7 +67,7 @@ class wxgSimpleSoapPluginPnl(wx.ScrolledWindow):
 
 	def __do_layout(self):
 		# begin wxGlade: wxgSimpleSoapPluginPnl.__do_layout
-		__szr_main = wx.BoxSizer(wx.VERTICAL)
+		__szr_main = wx.BoxSizer(wx.HORIZONTAL)
 		__szr_right = wx.BoxSizer(wx.VERTICAL)
 		__szr_right_top = wx.BoxSizer(wx.HORIZONTAL)
 		__szr_left = wx.BoxSizer(wx.VERTICAL)
@@ -93,7 +95,6 @@ class wxgSimpleSoapPluginPnl(wx.ScrolledWindow):
 		self._splitter_main.SplitVertically(self.__pnl_left, self.__pnl_right)
 		__szr_main.Add(self._splitter_main, 1, wx.ALL | wx.EXPAND, 2)
 		self.SetSizer(__szr_main)
-		__szr_main.Fit(self)
 		self.Layout()
 		# end wxGlade
 

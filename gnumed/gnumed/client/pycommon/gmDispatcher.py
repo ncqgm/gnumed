@@ -42,6 +42,7 @@ class _Any:
 Any = _Any()
 
 known_signals.append(Any)
+
 #=====================================================================
 class DispatcherError(Exception):
 	def __init__(self, args=None):
@@ -59,7 +60,8 @@ def set_main_thread_caller(caller):
 	__execute_in_main_thread = caller
 
 #=====================================================================
-def connect(receiver=None, signal=Any, sender=Any, weak=1):
+def connect(receiver=None, signal=Any, sender=Any, weak=0):
+#def connect(receiver=None, signal=None, sender=Any, weak=0):
 	"""Connect receiver to sender for signal.
 
 	If sender is Any, receiver will receive signal from any sender.
@@ -73,7 +75,10 @@ def connect(receiver=None, signal=Any, sender=Any, weak=1):
 
 	this dispatcher is not designed with a gui single threaded event loop in mind.
 
-	when connecting to a receiver that may eventually make calls to gui objects such as wxWindows objects, it is highly recommended that any such calls be wrapped in wxCallAfter() e.g.
+	when connecting to a receiver that may eventually make
+	calls to gui objects such as wxWindows objects, it is
+	highly recommended that any such calls be wrapped in
+	wxCallAfter() e.g.
 
 	def receiveSignal(self, **args):
 		self._callsThatDoNotTriggerGuiUpdates()
@@ -89,34 +94,44 @@ def connect(receiver=None, signal=Any, sender=Any, weak=1):
 		# your code that reads data
 
 	Especially if the widget can get a reference to updated data through
-	a global reference, such as via gmCurrentPatient.
-"""
+	a global reference, such as via gmCurrentPatient."""
+
 	if receiver is None:
 		raise ValueError('gmDispatcher.connect(): must define <receiver>')
 
-	if signal not in known_signals:
-		_log.warning('unknown signal [%(sig)s]', {'sig': signal})
+#	if signal is None:
+#		raise ValueError('gmDispatcher.connect(): must define <signal>')
+
+#	# not really useful
+#	if signal not in known_signals:
+#		_log.warning('unknown signal [%(sig)s]', {'sig': signal})
 
 	if signal is not Any:
 		signal = str(signal)
 
 	if weak:
 		receiver = safeRef(receiver)
-	senderkey = id(sender)
-	signals = {}
-	if senderkey in connections:
-		signals = connections[senderkey]
+
+	if sender is Any:
+		_log.debug('connecting (weak=%s): <any sender> ==%s==> %s', weak, signal, receiver)
 	else:
-		connections[senderkey] = signals
+		_log.debug('connecting (weak=%s): %s ==%s==> %s', weak, sender, signal, receiver)
+
+	sender_identity = id(sender)
+	signals = {}
+	if sender_identity in connections:
+		signals = connections[sender_identity]
+	else:
+		connections[sender_identity] = signals
 		# Keep track of senders for cleanup.
 		if sender not in (None, Any):
-			def remove(object, senderkey=senderkey):
-				_removeSender(senderkey=senderkey)
+			def _remove4weakref(object, sender_identity=sender_identity):
+				_removeSender(sender_identity=sender_identity)
 			# Skip objects that can not be weakly referenced, which means
 			# they won't be automatically cleaned up, but that's too bad.
 			try:
-				weakSender = weakref.ref(sender, remove)
-				senders[senderkey] = weakSender
+				weakSender = weakref.ref(sender, _remove4weakref)
+				senders[sender_identity] = weakSender
 			except:
 				pass
 	receivers = []
@@ -124,9 +139,12 @@ def connect(receiver=None, signal=Any, sender=Any, weak=1):
 		receivers = signals[signal]
 	else:
 		signals[signal] = receivers
-	try: receivers.remove(receiver)
-	except ValueError: pass
+	try:
+		receivers.remove(receiver)
+	except ValueError:
+		pass
 	receivers.append(receiver)
+
 #---------------------------------------------------------------------
 def disconnect(receiver, signal=Any, sender=Any, weak=1):
 	"""Disconnect receiver from sender for signal.
@@ -139,9 +157,9 @@ def disconnect(receiver, signal=Any, sender=Any, weak=1):
 	if signal is not Any:
 		signal = str(signal)
 	if weak: receiver = safeRef(receiver)
-	senderkey = id(sender)
+	sender_identity = id(sender)
 	try:
-		receivers = connections[senderkey][signal]
+		receivers = connections[sender_identity][signal]
 	except KeyError:
 		_log.warning('no receivers for signal %(sig)s from sender %(sender)s', {'sig': repr(signal), 'sender': sender})
 		print('DISPATCHER ERROR: no receivers for signal %s from sender %s' % (repr(signal), sender))
@@ -151,7 +169,8 @@ def disconnect(receiver, signal=Any, sender=Any, weak=1):
 	except ValueError:
 		_log.warning('receiver [%(rx)s] not connected to signal [%(sig)s] from [%(sender)s]', {'rx': receiver, 'sig': repr(signal), 'sender': sender})
 		print("DISPATCHER ERROR: receiver [%s] not connected to signal [%s] from [%s]" % (receiver, repr(signal), sender))
-	_cleanupConnections(senderkey, signal)
+	_cleanupConnections(sender_identity, signal)
+
 #---------------------------------------------------------------------
 def send(signal=None, sender=None, **kwds):
 	"""Send signal from sender to all connected receivers.
@@ -160,54 +179,68 @@ def send(signal=None, sender=None, **kwds):
 	If sender is None, signal is sent anonymously.
 	"""
 	signal = str(signal)
-	senderkey = id(sender)
-	anykey = id(Any)
+	sender_identity = id(sender)
+	identity_of_Any = id(Any)
+
 	# Get receivers that receive *this* signal from *this* sender.
 	receivers = []
-	try: receivers.extend(connections[senderkey][signal])
-	except KeyError: pass
+	try:
+		receivers.extend(connections[sender_identity][signal])
+	except KeyError:
+		pass
+
 	# Add receivers that receive *any* signal from *this* sender.
 	anyreceivers = []
-	try: anyreceivers = connections[senderkey][Any]
-	except KeyError: pass
+	try:
+		anyreceivers = connections[sender_identity][Any]
+	except KeyError:
+		pass
 	for receiver in anyreceivers:
 		if receivers.count(receiver) == 0:
 			receivers.append(receiver)
+
 	# Add receivers that receive *this* signal from *any* sender.
 	anyreceivers = []
-	try: anyreceivers = connections[anykey][signal]
-	except KeyError: pass
+	try:
+		anyreceivers = connections[identity_of_Any][signal]
+	except KeyError:
+		pass
 	for receiver in anyreceivers:
 		if receivers.count(receiver) == 0:
 			receivers.append(receiver)
+
 	# Add receivers that receive *any* signal from *any* sender.
 	anyreceivers = []
-	try: anyreceivers = connections[anykey][Any]
-	except KeyError: pass
+	try:
+		anyreceivers = connections[identity_of_Any][Any]
+	except KeyError:
+		pass
 	for receiver in anyreceivers:
 		if receivers.count(receiver) == 0:
 			receivers.append(receiver)
+
 	# Call each receiver with whatever arguments it can accept.
 	# Return a list of tuple pairs [(receiver, response), ... ].
 	responses = []
 	for receiver in receivers:
 		if (type(receiver) is weakref.ReferenceType) or (isinstance(receiver, BoundMethodWeakref)):
+			_log.debug('dereferencing weak ref receiver [%s]', receiver)
 			# Dereference the weak reference.
 			receiver = receiver()
+			_log.debug('dereferenced receiver is [%s]', receiver)
 			if receiver is None:
 				# This receiver is dead, so skip it.
 				continue
 		try:
 			response = _call(receiver, signal=signal, sender=sender, **kwds)
 			responses += [(receiver, response)]
-		except:
-			# this seems such a fundamental error that it appears
-			# reasonable to print directly to the console
-			typ, val, tb = sys.exc_info()
-			_log.critical('%(t)s, <%(v)s>', {'t': typ, 'v': val})
-			_log.critical('calling <%(rx)s> failed', {'rx': str(receiver)})
-			traceback.print_tb(tb)
+		except Exception:
+			_log.exception('exception calling [%s]: (signal=%s, sender=%a, **kwds=%s)', receiver, signal, sender, str(kwds))
+
 	return responses
+
+#---------------------------------------------------------------------
+#
 #---------------------------------------------------------------------
 def safeRef(object):
 	"""Return a *safe* weak reference to a callable object."""
@@ -220,10 +253,10 @@ def safeRef(object):
 			if selfkey not in _boundMethods:
 				_boundMethods[selfkey] = weakref.WeakKeyDictionary()
 			if funckey not in _boundMethods[selfkey]:
-				_boundMethods[selfkey][funckey] = \
-				BoundMethodWeakref(boundMethod=object)
+				_boundMethods[selfkey][funckey] = BoundMethodWeakref(boundMethod=object)
 			return _boundMethods[selfkey][funckey]
 	return weakref.ref(object, _removeReceiver)
+
 #=====================================================================
 class BoundMethodWeakref:
 	"""BoundMethodWeakref class."""
@@ -266,25 +299,33 @@ class BoundMethodWeakref:
 #---------------------------------------------------------------------
 def _call(receiver, **kwds):
 	"""Call receiver with only arguments it can accept."""
-	if type(receiver) is types.InstanceType:
-		# receiver is a class instance; assume it is callable.
-		# Reassign receiver to the actual method that will be called.
-		receiver = receiver.__call__
+#	# not used in GNUmed
+#	#if type(receiver) is types.InstanceType:
+#	#if isinstance(receiver, object):
+#	# if receiver is an instance -> get the "call" interface = the __init__() function
+#	if type(receiver) is object:
+#		# receiver is a class instance; assume it is callable.
+#		# Reassign receiver to the actual method that will be called.
+#		receiver = receiver.__call__
+
 	if hasattr(receiver, '__func__'):
 		# receiver is a method. Drop the first argument, usually 'self'.
-		fc = receiver.__func__.__code__
-		acceptable_args = fc.co_varnames[1:fc.co_argcount]
+		func_code_def = receiver.__func__.__code__
+		acceptable_args = func_code_def.co_varnames[1:func_code_def.co_argcount]
 	elif hasattr(receiver, '__code__'):
 		# receiver is a function.
-		fc = receiver.__code__
-		acceptable_args = fc.co_varnames[0:fc.co_argcount]
+		func_code_def = receiver.__code__
+		acceptable_args = func_code_def.co_varnames[0:func_code_def.co_argcount]
 	else:
-		_log.error('<%(rx)s> must be instance, method or function', {'rx': str(receiver)})
-		print('DISPATCHER ERROR: _call(): <%s> must be instance, method or function' % str(receiver))
-	if not (fc.co_flags & 8):
-		# fc does not have a **kwds type parameter, therefore 
-		# remove unacceptable arguments.
-		for arg in kwds.keys():
+		_log.error('<%s> must be instance, method or function, but is [%s]', str(receiver), type(receiver))
+		raise TypeError('DISPATCHER ERROR: _call(): <%s> must be instance, method or function, but is []' % (str(receiver), type(receiver)))
+
+	# 0x08: bit for whether func uses **kwds syntax
+	if not (func_code_def.co_flags & 0x08):
+		# func_code_def does not have a **kwds type parameter,
+		# therefore remove unacceptable arguments.
+		keys = list(kwds.keys())
+		for arg in keys:
 			if arg not in acceptable_args:
 				del kwds[arg]
 
@@ -294,35 +335,37 @@ def _call(receiver, **kwds):
 
 	# if a cross-thread executor is set
 	return __execute_in_main_thread(receiver, **kwds)
+
 #---------------------------------------------------------------------
 def _removeReceiver(receiver):
 	"""Remove receiver from connections."""
-	for senderkey in connections.keys():
-		for signal in connections[senderkey].keys():
-			receivers = connections[senderkey][signal]
+	for sender_identity in connections.keys():
+		for signal in connections[sender_identity].keys():
+			receivers = connections[sender_identity][signal]
 			try:
 				receivers.remove(receiver)
 			except:
 				pass
-			_cleanupConnections(senderkey, signal)
+			_cleanupConnections(sender_identity, signal)
+
 #---------------------------------------------------------------------
-def _cleanupConnections(senderkey, signal):
-	"""Delete any empty signals for senderkey. Delete senderkey if empty."""
-	receivers = connections[senderkey][signal]
+def _cleanupConnections(sender_identity, signal):
+	"""Delete any empty signals for sender_identity. Delete sender_identity if empty."""
+	receivers = connections[sender_identity][signal]
 	if not receivers:
 		# No more connected receivers. Therefore, remove the signal.
-		signals = connections[senderkey]
+		signals = connections[sender_identity]
 		del signals[signal]
 		if not signals:
 			# No more signal connections. Therefore, remove the sender.
-			_removeSender(senderkey)
+			_removeSender(sender_identity)
 #---------------------------------------------------------------------
-def _removeSender(senderkey):
-	"""Remove senderkey from connections."""
-	del connections[senderkey]
-	# Senderkey will only be in senders dictionary if sender 
+def _removeSender(sender_identity):
+	"""Remove sender_identity from connections."""
+	del connections[sender_identity]
+	# sender_identity will only be in senders dictionary if sender 
 	# could be weakly referenced.
-	try: del senders[senderkey]
+	try: del senders[sender_identity]
 	except: pass
 
 #=====================================================================

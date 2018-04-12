@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 
-
-
 __doc__ = """GNUmed client launcher.
 
 This is the launcher for the GNUmed GUI client. It takes

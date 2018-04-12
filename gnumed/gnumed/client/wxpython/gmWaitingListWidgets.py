@@ -221,14 +221,9 @@ class cWaitingListPnl(wxgWaitingListPnl.wxgWaitingListPnl, gmRegetMixin.cRegetOn
 	def _on_get_list_tooltip(self, entry):
 
 		dob = gmTools.coalesce (
-				gmTools.coalesce (
-					entry['dob'],
-					'',
-					function_initial = ('strftime', '%d %b %Y')
-				),
-				'',
-				' (%s)',
-				function_initial = ('decode', gmI18N.get_encoding())
+			gmTools.coalesce(entry['dob'], '', function_initial = ('strftime', '%d %b %Y')),
+			'',
+			' (%s)'
 		)
 
 		tt = _(
@@ -295,13 +290,8 @@ class cWaitingListPnl(wxgWaitingListPnl.wxgWaitingListPnl, gmRegetMixin.cRegetOn
 				gmDateTime.format_interval_medically(p['waiting_time']),
 				'%s, %s (%s)' % (p['lastnames'], p['firstnames'], p['l10n_gender']),
 				gmTools.coalesce (
-					gmTools.coalesce (
-						p['dob'],
-						'',
-						function_initial = ('strftime', '%d %b %Y')
-					),
-					'',
-					function_initial = ('decode', gmI18N.get_encoding())
+					gmTools.coalesce (p['dob'], '', function_initial = ('strftime', '%d %b %Y')),
+					''
 				),
 				gmTools.coalesce(p['comment'], '').split('\n')[0]
 			] for p in pats ]

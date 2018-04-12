@@ -8,5 +8,5 @@ CONF="gm-from-vcs.conf"
 
 # start GNUmed
 cp -vf ${CONF} tmp-${CONF}
-python gnumed.py --log-file=${LOG} --conf-file=tmp-${CONF} --debug --slave --local-import
+python3 gnumed.py --log-file=${LOG} --conf-file=tmp-${CONF} --debug --slave --local-import
 rm -vf tmp-${CONF}

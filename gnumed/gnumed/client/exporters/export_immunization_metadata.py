@@ -10,7 +10,7 @@ pool = gmPG.ConnectionPool()
 
 filename = 'immunization-data.txt'
 print "Writing immunization metadata to:", filename
-f = file(filename, 'w')
+f = open(filename, 'w')
 
 vaccine_template = """
 Vaccine "%s" (%s)

@@ -40,7 +40,7 @@ def execute_in_worker_thread(payload_function=None, payload_kwargs=None, complet
 			else:
 				payload_result = payload_function(**__payload_kwargs)
 			_log.debug('finished running payload function')
-		except StandardError:
+		except Exception:
 			_log.exception('error running payload function: %s', payload_function)
 			return
 		if completion_callback is None:
@@ -48,7 +48,7 @@ def execute_in_worker_thread(payload_function=None, payload_kwargs=None, complet
 		try:
 			completion_callback(payload_result)
 			_log.debug('finished running completion callback')
-		except StandardError:
+		except Exception:
 			_log.exception('error running completion callback: %s', completion_callback)
 		_log.info('worker thread [name=%s, PID=%s] shuts down', worker_thread.name, worker_thread.ident)
 		return

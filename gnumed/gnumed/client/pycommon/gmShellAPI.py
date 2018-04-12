@@ -28,7 +28,8 @@ def is_cmd_in_path(cmd=None):
 		_log.info('command with full or relative path, not searching in PATH for binary')
 		return (None, None)
 
-	env_paths = str(os.environ['PATH'], encoding = sys.getfilesystemencoding(), errors = 'replace')
+	#env_paths = str(os.environ['PATH'], encoding = sys.getfilesystemencoding(), errors = 'replace')
+	env_paths = os.environ['PATH']
 	_log.debug('${PATH}: %s', env_paths)
 	for path in env_paths.split(os.pathsep):
 		candidate = os.path.join(path, cmd)
@@ -294,9 +295,9 @@ if __name__ == '__main__':
 	def test_is_executable_by_wine():
 		print(is_executable_by_wine(cmd = sys.argv[2]))
 	#---------------------------------------------------------
-	test_run_command_in_shell()
+	#test_run_command_in_shell()
 	#test_detect_external_binary()
-	#test_is_cmd_in_path()
+	test_is_cmd_in_path()
 	#test_is_executable_by_wine()
 
 #===========================================================================

@@ -435,7 +435,7 @@ def delete_xxx(pk_XXX=None):
 			_log.warning('[%s]: no attribute [%s]' % (self.__class__.__name__, attribute))
 			_log.warning('[%s]: valid attributes: %s' % (self.__class__.__name__, str(self._idx.keys())))
 			_log.warning('[%s]: no getter method [get_%s]' % (self.__class__.__name__, attribute))
-			methods = filter(lambda x: x[0].startswith('get_'), inspect.getmembers(self, inspect.ismethod))
+			methods = [ m for m in inspect.getmembers(self, inspect.ismethod) if m[0].startswith('get_') ]
 			_log.warning('[%s]: valid getter methods: %s' % (self.__class__.__name__, str(methods)))
 			raise KeyError('[%s]: cannot read from key [%s]' % (self.__class__.__name__, attribute))
 
@@ -477,7 +477,7 @@ def delete_xxx(pk_XXX=None):
 		# 3) don't know what to do with <attribute>
 		_log.error('[%s]: cannot find attribute <%s> or setter method [set_%s]' % (self.__class__.__name__, attribute, attribute))
 		_log.warning('[%s]: settable attributes: %s' % (self.__class__.__name__, str(self.__class__._updatable_fields)))
-		methods = filter(lambda x: x[0].startswith('set_'), inspect.getmembers(self, inspect.ismethod))
+		methods = [ m for m in inspect.getmembers(self, inspect.ismethod) if m[0].startswith('set_') ]
 		_log.warning('[%s]: valid setter methods: %s' % (self.__class__.__name__, str(methods)))
 		raise AttributeError('[%s]: cannot set [%s]' % (self.__class__.__name__, attribute))
 

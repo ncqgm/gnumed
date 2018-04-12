@@ -598,7 +598,7 @@ class cVaccination(gmBusinessDBObject.cBusinessDBObject):
 		lines = []
 
 		lines.append (' %s: %s [%s]%s' % (
-			self._payload[self._idx['date_given']].strftime(date_format).decode(gmI18N.get_encoding()),
+			self._payload[self._idx['date_given']].strftime(date_format),
 			self._payload[self._idx['vaccine']],
 			self._payload[self._idx['batch_no']],
 			gmTools.coalesce(self._payload[self._idx['site']], '', ' (%s)')

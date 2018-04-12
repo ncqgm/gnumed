@@ -2729,7 +2729,7 @@ class gmTopLevelFrame(wx.Frame):
 			from Gnumed.exporters import gmTimelineExporter
 			fname = gmTimelineExporter.create_timeline_file(patient = pat)
 			pat.export_area.add_file(filename = fname, hint = _('EMR as timeline file (XML)'))
-		except StandardError:
+		except Exception:
 			raise
 		finally:
 			wx.EndBusyCursor()
@@ -2744,7 +2744,7 @@ class gmTopLevelFrame(wx.Frame):
 		try:
 			fname = gmEMRStructItems.export_emr_structure(patient = pat)
 			pat.export_area.add_file(filename = fname, hint = _('EMR as care structure file'))
-		except StandardError:
+		except Exception:
 			raise
 		finally:
 			wx.EndBusyCursor()
@@ -3258,7 +3258,7 @@ class gmTopLevelFrame(wx.Frame):
 	def _cb_update_clock(self):
 		"""Displays date and local time in the second slot of the status bar"""
 		t = time.localtime(time.time())
-		st = time.strftime('%Y %b %d  %H:%M:%S', t).decode(gmI18N.get_encoding(), 'replace')
+		st = time.strftime('%Y %b %d  %H:%M:%S', t)
 		self.SetStatusText(st, 1)
 
 	#------------------------------------------------

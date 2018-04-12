@@ -1877,7 +1877,7 @@ class cXSLTFormEngine(cFormEngine):
 #=====================================================
 #class LaTeXFilter(Cheetah.Filters.Filter):
 class LaTeXFilter:
-	def filter (self, item, table_sep= " \\\\\n", **kwds):
+	def conv_enc(self, item, table_sep= " \\\\\n", **kwds):
 		"""
 		Convience function to escape ISO-Latin-1 strings for TeX output
 		WARNING: not all ISO-Latin-1 characters are expressible in TeX
@@ -1906,7 +1906,7 @@ class LaTeXFilter:
 			for k, i in trans.items ():
 				item = item.replace (k, i)
 		elif type(item) is list or type(item) is tuple:
-			item = string.join ([self.filter (i, ' & ') for i in item], table_sep)
+			item = string.join ([self.conv_enc(i, ' & ') for i in item], table_sep)
 		elif item is None:
 			item = '\\relax % Python None\n'
 		elif type(item) is int or type(item) is float:

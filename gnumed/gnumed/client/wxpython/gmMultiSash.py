@@ -185,7 +185,7 @@ class cMultiSashSplitter(wx.Window):
 		if leaf1:
 			self.leaf1 = leaf1
 			self.leaf1.Reparent(self)
-			self.leaf1.MoveXY(0,0)
+			self.leaf1.Move(0,0)
 		else:
 			self.leaf1 = cMultiSashLeaf (
 				self.top_parent,
@@ -515,7 +515,7 @@ class cMultiSashLeafContent(wx.Window):
 			style = wx.CLIP_CHILDREN | wx.SUNKEN_BORDER
 		)
 		self.child = cEmptyChild(self)
-		self.child.MoveXY(2,2)
+		self.child.Move(2,2)
 		self.__normal_colour = self.GetBackgroundColour()
 		self.selected = False
 
@@ -535,7 +535,7 @@ class cMultiSashLeafContent(wx.Window):
 			self.child.Destroy()
 		content.Reparent(self)
 		self.child = content
-		self.child.MoveXY(2,2)
+		self.child.Move(2,2)
 		# Gnumed: required to a proper layout of the child and parent widgets
 		self.Select()
 		self.OnSize(None)

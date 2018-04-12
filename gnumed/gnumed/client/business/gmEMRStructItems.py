@@ -1240,7 +1240,7 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 				lines.append('')
 				prev_enc = row['pk_encounter']
 
-			when = row['clin_when'].strftime(date_format).decode(gmI18N.get_encoding())
+			when = row['clin_when'].strftime(date_format)
 			top_row = '%s%s %s (%s) %s' % (
 				gmTools.u_box_top_left_arc,
 				gmTools.u_box_horiz_single,

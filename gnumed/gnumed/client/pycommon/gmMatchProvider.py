@@ -189,7 +189,7 @@ class cMatchProvider_FixedList(cMatchProvider):
 	def __init__(self, aSeq = None):
 		"""aSeq must be a list of dicts. Each dict must have the keys (data, label, weight)
 		"""
-		if not type(aSeq) in [type(None), type([]), type(())]:
+		if not type(aSeq) in [type(None), list, tuple]:
 			_log.error('fixed list match provider argument must be a list/tuple of dicts/None')
 			raise TypeError('fixed list match provider argument must be a list/tuple of dicts/None')
 

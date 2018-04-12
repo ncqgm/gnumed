@@ -465,10 +465,10 @@ class cEditDocumentTypesPnl(wxgEditDocumentTypesPnl.wxgEditDocumentTypesPnl):
 
 		if len(doc_types) > 0:
 			self._LCTRL_doc_type.set_data(data = doc_types)
-			self._LCTRL_doc_type.SetColumnWidth(column=0, width=wx.LIST_AUTOSIZE)
-			self._LCTRL_doc_type.SetColumnWidth(column=1, width=wx.LIST_AUTOSIZE)
-			self._LCTRL_doc_type.SetColumnWidth(column=2, width=wx.LIST_AUTOSIZE_USEHEADER)
-			self._LCTRL_doc_type.SetColumnWidth(column=3, width=wx.LIST_AUTOSIZE_USEHEADER)
+			self._LCTRL_doc_type.SetColumnWidth(0, wx.LIST_AUTOSIZE)
+			self._LCTRL_doc_type.SetColumnWidth(1, wx.LIST_AUTOSIZE)
+			self._LCTRL_doc_type.SetColumnWidth(2, wx.LIST_AUTOSIZE_USEHEADER)
+			self._LCTRL_doc_type.SetColumnWidth(3, wx.LIST_AUTOSIZE_USEHEADER)
 
 		self._TCTRL_type.SetValue('')
 		self._TCTRL_l10n_type.SetValue('')
@@ -729,11 +729,11 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 		self.__reload_existing_reviews()
 
 		if self._LCTRL_existing_reviews.GetItemCount() > 0:
-			self._LCTRL_existing_reviews.SetColumnWidth(column=0, width=wx.LIST_AUTOSIZE)
-			self._LCTRL_existing_reviews.SetColumnWidth(column=1, width=wx.LIST_AUTOSIZE)
-			self._LCTRL_existing_reviews.SetColumnWidth(column=2, width=wx.LIST_AUTOSIZE_USEHEADER)
-			self._LCTRL_existing_reviews.SetColumnWidth(column=3, width=wx.LIST_AUTOSIZE_USEHEADER)
-			self._LCTRL_existing_reviews.SetColumnWidth(column=4, width=wx.LIST_AUTOSIZE)
+			self._LCTRL_existing_reviews.SetColumnWidth(0, wx.LIST_AUTOSIZE)
+			self._LCTRL_existing_reviews.SetColumnWidth(1, wx.LIST_AUTOSIZE)
+			self._LCTRL_existing_reviews.SetColumnWidth(2, wx.LIST_AUTOSIZE_USEHEADER)
+			self._LCTRL_existing_reviews.SetColumnWidth(3, wx.LIST_AUTOSIZE_USEHEADER)
+			self._LCTRL_existing_reviews.SetColumnWidth(4, wx.LIST_AUTOSIZE)
 
 		if self.__part is None:
 			self._ChBOX_review.SetValue(False)
@@ -1461,14 +1461,14 @@ def display_document_part(parent=None, part=None):
 	if review_after_display == 1:			# always review
 		review_document_part(parent = parent, part = part)
 	elif review_after_display == 2:			# review if no review by me exists
-		review_by_me = filter(lambda rev: rev['is_your_review'], part.get_reviews())
+		review_by_me = [ rev for rev in part.get_reviews() if rev['is_your_review'] ]
 		if len(review_by_me) == 0:
 			review_document_part(parent = parent, part = part)
 	elif review_after_display == 3:
 		if len(part.get_reviews()) == 0:
 			review_document_part(parent = parent, part = part)
 	elif review_after_display == 4:
-		reviewed_by_responsible = filter(lambda rev: rev['is_review_by_responsible_reviewer'], part.get_reviews())
+		reviewed_by_responsible = [ rev for rev in part.get_reviews() if rev['is_review_by_responsible_reviewer'] ]
 		if len(reviewed_by_responsible) == 0:
 			review_document_part(parent = parent, part = part)
 
@@ -2428,14 +2428,14 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 		if review_after_display == 1:			# always review
 			self.__review_part(part=part)
 		elif review_after_display == 2:			# review if no review by me exists
-			review_by_me = filter(lambda rev: rev['is_your_review'], part.get_reviews())
+			review_by_me = [ rev for rev in part.get_reviews() if rev['is_your_review'] ]
 			if len(review_by_me) == 0:
 				self.__review_part(part = part)
 		elif review_after_display == 3:
 			if len(part.get_reviews()) == 0:
 				self.__review_part(part = part)
 		elif review_after_display == 4:
-			reviewed_by_responsible = filter(lambda rev: rev['is_review_by_responsible_reviewer'], part.get_reviews())
+			reviewed_by_responsible = [ rev for rev in part.get_reviews() if rev['is_review_by_responsible_reviewer'] ]
 			if len(reviewed_by_responsible) == 0:
 				self.__review_part(part = part)
 
@@ -3156,13 +3156,9 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 	#--------------------------------------------------------
 	def __refresh_image(self, idx=None):
 
-		print("refresh image")
-
 		self.__image_data = None
 		self._LBL_image.Label = _('Image')
 		self._BMP_preview.SetBitmap(wx.Bitmap.FromRGBA(50,50, red=0, green=0, blue=0, alpha = wx.ALPHA_TRANSPARENT))
-
-		print("bitmap set to 1,1")
 
 		if idx is None:
 			return

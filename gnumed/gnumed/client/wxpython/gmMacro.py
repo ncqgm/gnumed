@@ -2264,7 +2264,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 
 	#--------------------------------------------------------
 	def _get_variant_today(self, data='%Y %b %d'):
-		return self._escape(gmDateTime.pydt_now_here().strftime(str(data)).decode(gmI18N.get_encoding()))
+		return self._escape(gmDateTime.pydt_now_here().strftime(data))
 
 	#--------------------------------------------------------
 	def _get_variant_tex_escape(self, data=None):

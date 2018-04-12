@@ -256,8 +256,9 @@ class cClinicalCalculator(object):
 		# this logic is based on "KVH aktuell 2/2014 Seite 10-15"
 		# expect normal GFR
 		CKD = self.eGFR_CKD_EPI
-		if CKD.numeric_value > self.d(60):
-			return CKD
+		if CKD.numeric_value is not None:
+			if CKD.numeric_value > self.d(60):
+				return CKD
 
 		# CKD at or below 60
 		if self.__patient['dob'] is None:

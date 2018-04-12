@@ -104,21 +104,21 @@ class cCreatePatientMediaDlg(wxgCreatePatientMediaDlg.wxgCreatePatientMediaDlg):
 	def _on_save_button_pressed(self, event):
 		event.Skip()
 
-		print "Is modal ? ->", self.IsModal()
+		print("Is modal ? ->", self.IsModal())
 
 		if self.__burn2cd:
-			print "EndModal on burn2cd=True"
+			print("EndModal on burn2cd=True")
 			self.EndModal(wx.ID_SAVE)
 
 		if self._CHBOX_use_subdirectory.IsChecked() is True:
-			print "EndModal on use_subdir=True"
+			print("EndModal on use_subdir=True")
 			self.EndModal(wx.ID_SAVE)
-			print "after EndModal !!"
+			print("after EndModal !!")
 
 		path = self._LBL_directory.Label
 
 		if gmTools.dir_is_empty(path) is True:
-			print "EndModal on dir_is_empty=True"
+			print("EndModal on dir_is_empty=True")
 			self.EndModal(wx.ID_SAVE)
 
 		if self._RBTN_remove_data.Value is True:
@@ -137,8 +137,8 @@ class cCreatePatientMediaDlg(wxgCreatePatientMediaDlg.wxgCreatePatientMediaDlg):
 			if really_remove_existing_data is False:
 				return
 
-		print "Is modal ? ->", self.IsModal()
-		print "now calling EndModal(wx.ID_SAVE)"
+		print("Is modal ? ->", self.IsModal())
+		print("now calling EndModal(wx.ID_SAVE)")
 		self.EndModal(wx.ID_SAVE)
 
 	#--------------------------------------------------------
@@ -425,9 +425,9 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 
 		pat = gmPerson.gmCurrentPatient()
 		dlg = cCreatePatientMediaDlg (self, -1, burn2cd = False, patient = pat, item_count = len(items))
-		print "calling dlg.ShowModal()"
+		print("calling dlg.ShowModal()")
 		choice = dlg.ShowModal()
-		print "after returning from dlg.ShowModal()"
+		print("after returning from dlg.ShowModal()")
 		if choice != wx.ID_SAVE:
 			dlg.Destroy()
 			return
@@ -545,7 +545,7 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 
 	#--------------------------------------------------------
 	def _on_archive_items_button_pressed(self, event):
-		print "Event handler '_on_archive_items_button_pressed' not implemented!"
+		print("Event handler '_on_archive_items_button_pressed' not implemented!")
 		event.Skip()
 
 	#--------------------------------------------------------

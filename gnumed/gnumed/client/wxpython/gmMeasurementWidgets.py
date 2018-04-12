@@ -1570,7 +1570,7 @@ class cMeasurementsGrid(wx.grid.Grid):
 		else:
 			results = self.__cells_to_data(cells = selected_cells, exclude_multi_cells = False)
 			txt = '\n'.join([ '%s %s (%s): %s %s%s' % (
-					r['clin_when'].strftime('%x %H:%M').decode(gmI18N.get_encoding()),
+					r['clin_when'].strftime('%x %H:%M'),
 					r['unified_abbrev'],
 					r['unified_name'],
 					r['unified_val'],

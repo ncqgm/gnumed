@@ -381,13 +381,13 @@ class cClinicalRecord(object):
 		)
 
 		if episodes is not None:
-			fhx = filter(lambda f: f['pk_episode'] in episodes, fhx)
+			fhx = [ f for f in fhx if f['pk_episode'] in episodes ]
 
 		if issues is not None:
-			fhx = filter(lambda f: f['pk_health_issue'] in issues, fhx)
+			fhx = [ f for f in fhx if f['pk_health_issue'] in issues ]
 
 		if encounters is not None:
-			fhx = filter(lambda f: f['pk_encounter'] in encounters, fhx)
+			fhx = [ f for f in fhx if f['pk_encounter'] in encounters ]
 
 		return fhx
 
@@ -751,10 +751,10 @@ class cClinicalRecord(object):
 		procs = gmEMRStructItems.get_performed_procedures(patient = self.pk_patient)
 
 		if episodes is not None:
-			procs = filter(lambda p: p['pk_episode'] in episodes, procs)
+			procs = [ p for p in procs if p['pk_episode'] in episodes ]
 
 		if issues is not None:
-			procs = filter(lambda p: p['pk_health_issue'] in issues, procs)
+			procs = [ p for p in procs if p['pk_health_issue'] in issues ]
 
 		return procs
 
@@ -785,9 +785,9 @@ class cClinicalRecord(object):
 	def get_hospital_stays(self, episodes=None, issues=None, ongoing_only=False):
 		stays = gmEMRStructItems.get_patient_hospital_stays(patient = self.pk_patient, ongoing_only = ongoing_only)
 		if episodes is not None:
-			stays = filter(lambda s: s['pk_episode'] in episodes, stays)
+			stays = [ s for s in stays if s['pk_episode'] in episodes ]
 		if issues is not None:
-			stays = filter(lambda s: s['pk_health_issue'] in issues, stays)
+			stays = [ s for s in stays if s['pk_health_issue'] in issues ]
 		return stays
 
 	hospital_stays = property(get_hospital_stays, lambda x:x)
@@ -1386,16 +1386,13 @@ class cClinicalRecord(object):
         """
 		cmd = "SELECT * FROM clin.v_pat_allergies WHERE pk_patient=%s order by descriptor"
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_patient]}], get_col_idx = True)
-		allergies = []
+		filtered_allergies = []
 		for r in rows:
-			allergies.append(gmAllergy.cAllergy(row = {'data': r, 'idx': idx, 'pk_field': 'pk_allergy'}))
+			filtered_allergies.append(gmAllergy.cAllergy(row = {'data': r, 'idx': idx, 'pk_field': 'pk_allergy'}))
 
 		# ok, let's constrain our list
-		filtered_allergies = []
-		filtered_allergies.extend(allergies)
-
 		if ID_list is not None:
-			filtered_allergies = filter(lambda allg: allg['pk_allergy'] in ID_list, filtered_allergies)
+			filtered_allergies = [ allg for allg in filtered_allergies if allg['pk_allergy'] in ID_list ]
 			if len(filtered_allergies) == 0:
 				_log.error('no allergies of list [%s] found for patient [%s]' % (str(ID_list), self.pk_patient))
 				# better fail here contrary to what we do elsewhere
@@ -1404,17 +1401,17 @@ class cClinicalRecord(object):
 				return filtered_allergies
 
 		if remove_sensitivities:
-			filtered_allergies = filter(lambda allg: allg['type'] == 'allergy', filtered_allergies)
+			filtered_allergies = [ allg for allg in filtered_allergies if allg['type'] == 'allergy' ]
 		if since is not None:
-			filtered_allergies = filter(lambda allg: allg['date'] >= since, filtered_allergies)
+			filtered_allergies = [ allg for allg in filtered_allergies if allg['date'] >= since ]
 		if until is not None:
-			filtered_allergies = filter(lambda allg: allg['date'] < until, filtered_allergies)
+			filtered_allergies = [ allg for allg in filtered_allergies if allg['date'] < until ]
 		if issues is not None:
-			filtered_allergies = filter(lambda allg: allg['pk_health_issue'] in issues, filtered_allergies)
+			filtered_allergies = [ allg for allg in filtered_allergies if allg['pk_health_issue'] in issues ]
 		if episodes is not None:
-			filtered_allergies = filter(lambda allg: allg['pk_episode'] in episodes, filtered_allergies)
+			filtered_allergies = [ allg for allg in filtered_allergies if allg['pk_episode'] in episodes ]
 		if encounters is not None:
-			filtered_allergies = filter(lambda allg: allg['pk_encounter'] in encounters, filtered_allergies)
+			filtered_allergies = [ allg for allg in filtered_allergies if allg['pk_encounter'] in encounters ]
 
 		return filtered_allergies
 	#--------------------------------------------------------
@@ -1716,15 +1713,11 @@ WHERE
 				}
 				problems.append(gmEMRStructItems.cProblem(aPK_obj = pk_args, try_potential_problems = True))
 
-		# filter ?
-		if (episodes is None) and (issues is None):
-			return problems
-
 		# filter
 		if issues is not None:
-			problems = filter(lambda epi: epi['pk_health_issue'] in issues, problems)
+			problems = [ p for p in problems if p['pk_health_issue'] in issues ]
 		if episodes is not None:
-			problems = filter(lambda epi: epi['pk_episode'] in episodes, problems)
+			problems = [ p for p in problems if p['pk_episode'] in episodes ]
 
 		return problems
 
@@ -1845,10 +1838,10 @@ WHERE
 		intakes = [ gmMedication.cSubstanceIntakeEntry(row = {'idx': idx, 'data': r, 'pk_field': 'pk_substance_intake'})  for r in rows ]
 
 		if episodes is not None:
-			intakes = filter(lambda s: s['pk_episode'] in episodes, intakes)
+			intakes = [ i for i in intakes if i['pk_episode'] in episodes  ]
 
 		if issues is not None:
-			intakes = filter(lambda s: s['pk_health_issue'] in issues, intakes)
+			intakes = [ i for i in intakes if i ['pk_health_issue'] in issues ]
 
 		return intakes
 
@@ -2000,14 +1993,14 @@ WHERE
 		filtered_regimes = []
 		filtered_regimes.extend(self.__db_cache['vaccinations']['scheduled regimes'])
 		if ID is not None:
-			filtered_regimes = filter(lambda regime: regime['pk_course'] == ID, filtered_regimes)
+			filtered_regimes = [ r for r in filtered_regimes if r['pk_course'] == ID ]
 			if len(filtered_regimes) == 0:
 				_log.error('no vaccination course [%s] found for patient [%s]' % (ID, self.pk_patient))
 				return []
 			else:
 				return filtered_regimes[0]
 		if indications is not None:
-			filtered_regimes = filter(lambda regime: regime['indication'] in indications, filtered_regimes)
+			filtered_regimes = [ r for r in filtered_regimes if r['indication'] in indications ]
 
 		return filtered_regimes
 	#--------------------------------------------------------

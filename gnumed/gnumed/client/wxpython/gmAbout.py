@@ -74,7 +74,7 @@ class ScrollTxtWin (wx.Window):
 			self.__delay_ctr=self.__delay_ctr+1
 		else:
 			self.__scroll_ctr=self.__scroll_ctr-1
-			self.moving_txt.MoveXY(self.__scroll_ctr, 0)
+			self.moving_txt.Move(self.__scroll_ctr, 0)
 		if(self.__scroll_ctr<-230):
 			# reset counters
 			self.__scroll_ctr=+230

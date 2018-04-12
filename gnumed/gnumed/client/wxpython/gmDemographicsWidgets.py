@@ -696,7 +696,7 @@ class cGenderSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
 					'weight': gender[idx['sort_weight']]
 				}
 
-		mp = gmMatchProvider.cMatchProvider_FixedList(aSeq = cGenderSelectionPhraseWheel._gender_map.values())
+		mp = gmMatchProvider.cMatchProvider_FixedList(aSeq = list(cGenderSelectionPhraseWheel._gender_map.values()))
 		mp.setThresholds(1, 1, 3)
 
 		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)

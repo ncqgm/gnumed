@@ -300,7 +300,7 @@ class cProgressNoteInputNotebook(wx.Notebook, gmRegetMixin.cRegetOnPaintMixin):
 	# reget mixin API
 	#--------------------------------------------------------
 	def _populate_with_data(self):
-		print '[%s._populate_with_data] nothing to do, really...' % self.__class__.__name__
+		print('[%s._populate_with_data] nothing to do, really...' % self.__class__.__name__)
 		return True
 	#--------------------------------------------------------
 	# event handling
@@ -641,9 +641,9 @@ class cPopupDataHolder:
 	def store_data(self, popup_type=None, desc=None, data=None, old_desc=None):
 		# FIXME: do fancy validations
 
-		print "storing popup data:", desc
-		print "type", popup_type
-		print "data", data
+		print("storing popup data:", desc)
+		print("type", popup_type)
+		print("data", data)
 
 		# verify structure
 		try:
@@ -699,7 +699,7 @@ class cResizingSoapWin(gmResizingWidgets.cResizingWindow):
 		@type input_defs: list of cSOAPLineDef instances
 		"""
 		if input_defs is None or len(input_defs) == 0:
-			raise gmExceptions.ConstructorError, 'cannot generate note with field defs [%s]' % input_defs
+			raise gmExceptions.ConstructorError('cannot generate note with field defs [%s]' % input_defs)
 
 		# FIXME: *actually* this should be a session-local
 		# FIXME: holding store at the c_ClinicalRecord level
@@ -809,7 +809,7 @@ class cResizingSoapWin(gmResizingWidgets.cResizingWindow):
 			if self.__problem is not None:
 				issue = emr.problem2issue(self.__problem)
 				if not gmEMRStructWidgets.move_episode_to_issue(episode = new_episode, target_issue = issue, save_to_backend = True):
-					print "error moving episode to issue"
+					print("error moving episode to issue")
 
 			epi_id = new_episode['pk_episode']
 		else:
@@ -886,7 +886,7 @@ class cResizingSoapPanel(wx.Panel):
 		@type input_defs: a list of cSOAPLineDef instances
 		"""
 		if not isinstance(problem, (gmEMRStructItems.cHealthIssue, gmEMRStructItems.cEpisode, gmEMRStructItems.cProblem, type(None))):
-			raise gmExceptions.ConstructorError, 'problem [%s] is of type %s, must be issue, episode, problem or None' % (str(problem), type(problem))
+			raise gmExceptions.ConstructorError('problem [%s] is of type %s, must be issue, episode, problem or None' % (str(problem), type(problem)))
 
 		self.__is_saved = False
 		# do layout
@@ -999,7 +999,7 @@ class cSingleBoxSOAPPanel(wx.Panel):
 		self.__do_layout()
 		self.__pat = gmPerson.gmCurrentPatient()
 		if not self.__register_events():
-			raise gmExceptions.ConstructorError, 'cannot register interests'
+			raise gmExceptions.ConstructorError('cannot register interests')
 	#--------------------------------------------------------
 	def __do_layout(self):
 		# large box for free-text clinical notes
@@ -1140,12 +1140,12 @@ if __name__ == "__main__":
 		return soap_lines
 	#--------------------------------------------------------
 	def create_widget_on_test_kwd1(*args, **kwargs):
-		print "test keyword must have been typed..."
-		print "actually this would have to return a suitable wx.Window subclass instance"
-		print "args:", args
-		print "kwd args:"
+		print("test keyword must have been typed...")
+		print("actually this would have to return a suitable wx.Window subclass instance")
+		print("args:", args)
+		print("kwd args:")
 		for key in kwargs.keys():
-			print key, "->", kwargs[key]
+			print(key, "->", kwargs[key])
 	#--------------------------------------------------------
 	def create_widget_on_test_kwd2(*args, **kwargs):
 		msg = (
@@ -1162,14 +1162,14 @@ if __name__ == "__main__":
 		)
 	#--------------------------------------------------------
 	def test_soap_notebook():
-		print 'testing notebooked soap input...'
+		print('testing notebooked soap input...')
 		application = wx.PyWidgetTester(size=(800,500))
 		soap_input = cProgressNoteInputNotebook(application.frame, -1)
 		application.frame.Show(True)
 		application.MainLoop()
 	#--------------------------------------------------------
 	def test_soap_notebook_panel():
-		print 'testing notebooked soap panel...'
+		print('testing notebooked soap panel...')
 		application = wx.PyWidgetTester(size=(800,500))
 		soap_input = cNotebookedProgressNoteInputPanel(application.frame, -1)
 		application.frame.Show(True)
@@ -1180,7 +1180,7 @@ if __name__ == "__main__":
 		# obtain patient
 		patient = gmPersonSearch.ask_for_patient()
 		if patient is None:
-			print "No patient. Exiting gracefully..."
+			print("No patient. Exiting gracefully...")
 			sys.exit(0)
 		gmPatSearchWidgets.set_active_patient(patient=patient)
 

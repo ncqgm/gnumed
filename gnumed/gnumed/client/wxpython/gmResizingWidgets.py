@@ -357,7 +357,7 @@ class cResizingSTC(wx.stc.StyledTextCtrl):
 	"""
 	def __init__ (self, parent, id, pos=wx.DefaultPosition, size=wx.DefaultSize, style=0, data=None):
 		if not isinstance(parent, cResizingWindow):
-			 raise ValueError, 'parent of %s MUST be a ResizingWindow' % self.__class__.__name__
+			 raise ValueError('parent of %s MUST be a ResizingWindow' % self.__class__.__name__)
 
 		wx.stc.StyledTextCtrl.__init__ (self, parent, id, pos, size, style)
 
@@ -890,12 +890,12 @@ if __name__ == '__main__':
 #	from Gnumed.pycommon import gmI18N
 
 	def create_widget_on_test_kwd1(*args, **kwargs):
-		print "test keyword must have been typed..."
-		print "actually this would have to return a suitable wx.Window subclass instance"
-		print "args:", args
-		print "kwd args:"
+		print("test keyword must have been typed...")
+		print("actually this would have to return a suitable wx.Window subclass instance")
+		print("args:", args)
+		print("kwd args:")
 		for key in kwargs.keys():
-			print key, "->", kwargs[key]
+			print(key, "->", kwargs[key])
 	#================================================================
 	def create_widget_on_test_kwd2(*args, **kwargs):
 		msg = (

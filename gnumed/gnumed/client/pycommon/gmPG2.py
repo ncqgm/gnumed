@@ -437,7 +437,7 @@ def __detect_client_timezone(conn=None):
 
 	tz_candidates = []
 	try:
-		tz = os.environ['TZ'].decode(gmI18N.get_encoding(), 'replace')
+		tz = os.environ['TZ']
 		tz_candidates.append(tz)
 		expanded = __expand_timezone(conn = conn, timezone = tz)
 		if expanded != tz:
@@ -1250,7 +1250,7 @@ def bytea2file_object(data_query=None, file_obj=None, chunk_size=0, data_size=No
 			conn.rollback()
 			raise
 		# it would be a fatal error to see more than one result as ids are supposed to be unique
-		file_obj.write(str(rows[0][0]))
+		file_obj.write(rows[0][0])
 
 	# retrieve remainder
 	if remainder > 0:
@@ -1264,7 +1264,7 @@ def bytea2file_object(data_query=None, file_obj=None, chunk_size=0, data_size=No
 			conn.rollback()
 			raise
 		# it would be a fatal error to see more than one result as ids are supposed to be unique
-		file_obj.write(str(rows[0][0]))
+		file_obj.write(rows[0][0])
 
 	conn.rollback()
 	return True
@@ -1285,7 +1285,7 @@ def file2bytea(query=None, filename=None, args=None, conn=None, file_md5=None):
 	of the file.
 	"""
 	# read data from file
-	infile = file(filename, "rb")
+	infile = open(filename, "rb")
 	data_as_byte_string = infile.read()
 	infile.close()
 	if args is None:
@@ -1416,7 +1416,7 @@ def file2bytea_copy_from(table=None, columns=None, filename=None, conn=None, md5
 		close_conn = False
 	curs = conn.cursor()
 	# write
-	infile = file(filename, "rb")
+	infile = open(filename, "rb")
 	curs.copy_from(infile, table, size = chunk_size, columns = columns)
 	infile.close()
 	curs.close()
@@ -1482,7 +1482,7 @@ def file2bytea_overlay(query=None, args=None, filename=None, conn=None, md5_quer
 	else:
 		close_conn = __noop
 
-	infile = file(filename, "rb")
+	infile = open(filename, "rb")
 	# write chunks
 	for chunk_id in range(needed_chunks):
 		chunk_start = (chunk_id * chunk_size) + 1
@@ -1494,7 +1494,7 @@ def file2bytea_overlay(query=None, args=None, filename=None, conn=None, md5_quer
 		del(data_as_byte_string)
 		try:
 			rows, idx = run_rw_queries(link_obj = conn, queries = [{'cmd': query, 'args': args}], end_tx = False, return_data = False)
-		except StandardError:
+		except Exception:
 			_log.exception('cannot write chunk [%s/%s] of size [%s], try decreasing chunk size', chunk_id+1, needed_chunks, chunk_size)
 			conn.rollback()
 			close_conn()
@@ -1511,7 +1511,7 @@ def file2bytea_overlay(query=None, args=None, filename=None, conn=None, md5_quer
 		del(data_as_byte_string)
 		try:
 			rows, idx = run_rw_queries(link_obj = conn, queries = [{'cmd': query, 'args': args}], end_tx = False, return_data = False)
-		except StandardError:
+		except Exception:
 			_log.error('cannot retrieve remaining [%s] bytes' % remainder)
 			conn.rollback()
 			close_conn()

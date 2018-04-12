@@ -1552,13 +1552,13 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 		if widths is not None:
 			self.__widths = widths
 			for idx in range(len(self.__widths)):
-				self.SetColumnWidth(col = idx, width = self.__widths[idx])
+				self.SetColumnWidth(idx, self.__widths[idx])
 			return
 
 		# previous policy ?
 		if self.__widths is not None:
 			for idx in range(len(self.__widths)):
-				self.SetColumnWidth(col = idx, width = self.__widths[idx])
+				self.SetColumnWidth(idx, self.__widths[idx])
 			return
 
 		# default policy !
@@ -1567,7 +1567,7 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 		else:
 			width_type = wx.LIST_AUTOSIZE
 		for idx in range(self.GetColumnCount()):
-			self.SetColumnWidth(col = idx, width = width_type)
+			self.SetColumnWidth(idx, width_type)
 
 	#------------------------------------------------------------
 	def set_resize_column(self, column='LAST'):

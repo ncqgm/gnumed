@@ -12,10 +12,9 @@ import os
 import sys
 import re as regex
 import logging
-import http.client
-#import httplib			# needed for exception names thrown by httplib2, duh |-(
+import http.client		# exception names used by httplib2
 import socket			# needed for exception names thrown by httplib2, duh |-(
-#import httplib2
+import httplib2
 import json
 import zipfile
 import shutil
@@ -67,7 +66,7 @@ class cOrthancServer:
 		self.__user = user
 		self.__password = password
 		_log.info('connecting as [%s] to Orthanc server at [%s]', self.__user, self.__server_url)
-		self.__conn = http.client.HTTPConnection()
+		self.__conn = httplib2.Http()
 		self.__conn.add_credentials(self.__user, self.__password)
 		_log.debug('connected to server: %s', self.server_identification)
 		self.connect_error = ''
@@ -109,6 +108,7 @@ class cOrthancServer:
 		client_now_as_utc = pydt.datetime.utcnow()
 		start = time.time()
 		orthanc_now_str = self.__run_GET(url = '%s/tools/now' % self.__server_url)		# 20180208T165832
+		orthanc_now_str = orthanc_now_str.decode('utf8')
 		end = time.time()
 		query_duration = end - start
 		orthanc_now_unknown_tz = pydt.datetime.strptime(orthanc_now_str, '%Y%m%dT%H%M%S')
@@ -149,12 +149,12 @@ class cOrthancServer:
 	#--------------------------------------------------------
 	def get_url_browse_patient(self, patient_id):
 		# http://localhost:8042/#patient?uuid=0da01e38-cf792452-65c1e6af-b77faf5a-b637a05b
-		return str('%s/#patient?uuid=%s' % (self.url_browse_patients, patient_id))
+		return '%s/#patient?uuid=%s' % (self.url_browse_patients, patient_id)
 
 	#--------------------------------------------------------
 	def get_url_browse_study(self, study_id):
 		# http://localhost:8042/#study?uuid=0da01e38-cf792452-65c1e6af-b77faf5a-b637a05b
-		return str('%s/#study?uuid=%s' % (self.url_browse_patients, study_id))
+		return '%s/#study?uuid=%s' % (self.url_browse_patients, study_id)
 
 	#--------------------------------------------------------
 	# download API
@@ -407,7 +407,7 @@ class cOrthancServer:
 		# paranoia
 		try:
 			io.open(target_dicomdir_name)
-		except StandardError:
+		except Exception:
 			_log.error('[%s] not generated, aborting', target_dicomdir_name)
 			return False
 
@@ -640,7 +640,7 @@ class cOrthancServer:
 				return False
 		try:
 			f = io.open(filename, 'rb')
-		except StandardError:
+		except Exception:
 			_log.exception('cannot open [%s]', filename)
 			return False
 		dcm_data = f.read()
@@ -929,10 +929,10 @@ class cOrthancServer:
 		full_url = url + params
 		try:
 			response, content = self.__conn.request(full_url, 'GET')
-		except httplib.ResponseNotReady:
+		except http.client.ResponseNotReady:
 			_log.exception('cannot GET: %s', full_url)
 			return False
-		except httplib.InvalidURL:
+		except http.client.InvalidURL:
 			_log.exception('cannot GET: %s', full_url)
 			return False
 		except httplib2.ServerNotFoundError:
@@ -951,7 +951,7 @@ class cOrthancServer:
 			return False
 		try:
 			return json.loads(content)
-		except StandardError:
+		except Exception:
 			return content
 
 	#--------------------------------------------------------
@@ -977,7 +977,7 @@ class cOrthancServer:
 		except socket.error:
 			_log.exception('cannot POST: %s', url)
 			return False
-		except httplib.ResponseNotReady:
+		except http.client.ResponseNotReady:
 			_log.exception('cannot POST: %s', url)
 			return False
 		except OverflowError:
@@ -997,7 +997,7 @@ class cOrthancServer:
 		try:
 			content = json.loads(content)
 #			return json.loads(content)
-		except StandardError:
+		except Exception:
 			pass
 #			return content
 		if output_file is None:
@@ -1018,7 +1018,7 @@ class cOrthancServer:
 			headers = { 'content-type' : 'application/json' }
 		try:
 			response, content = self.__conn.request(url, 'PUT', body = body, headers = headers)
-		except httplib.ResponseNotReady:
+		except http.client.ResponseNotReady:
 			_log.exception('cannot PUT: %s', url)
 			return False
 		except socket.error:
@@ -1037,14 +1037,14 @@ class cOrthancServer:
 			return False
 		try:
 			return json.loads(content)
-		except StandardError:
+		except Exception:
 			return content
 
 	#--------------------------------------------------------
 	def __run_DELETE(self, url=None):
 		try:
 			response, content = self.__conn.request(url, 'DELETE')
-		except httplib.ResponseNotReady:
+		except http.client.ResponseNotReady:
 			_log.exception('cannot DELETE: %s', url)
 			return False
 		except socket.error:
@@ -1060,7 +1060,7 @@ class cOrthancServer:
 			return False
 		try:
 			return json.loads(content)
-		except StandardError:
+		except Exception:
 			return content
 
 #------------------------------------------------------------

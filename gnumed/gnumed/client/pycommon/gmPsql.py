@@ -138,7 +138,7 @@ class Psql:
 							try:
 								data = curs.fetchall()
 								_log.debug('cursor data: %s', data)
-							except StandardError:	# actually: psycopg2.ProgrammingError but no handle
+							except Exception:	# actually: psycopg2.ProgrammingError but no handle
 								pass
 						except Exception as error:
 							_log.exception(curr_cmd)

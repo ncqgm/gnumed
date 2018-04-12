@@ -61,9 +61,9 @@ class DermToolDialog(wx.Dialog):
                 d[i] = row[n]
                 n += 1
             try:
-                txt = file (os.path.join (self.gb['resource dir'], 'data', 'derm', '%s.%s.txt' % (row[0], lang)))
+                txt = open(os.path.join (self.gb['resource dir'], 'data', 'derm', '%s.%s.txt' % (row[0], lang)))
             except IOError:
-                txt = file (os.path.join (self.gb['resource dir'], 'data', 'derm', '%s.en.txt' % row[0]))
+                txt = open(os.path.join (self.gb['resource dir'], 'data', 'derm', '%s.en.txt' % row[0]))
 			# FIXME: should not this be done by Cheetah ?
             d['title'] =  txt.readline ()
             d['source'], d['text'] = tuple (txt.read ().split ('\n\n', 1))

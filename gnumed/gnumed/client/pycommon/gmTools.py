@@ -172,7 +172,7 @@ def rmdir(directory):
 	error_count = 0
 	try:
 		shutil.rmtree(directory, False, _on_rm_error)
-	except StandardError:
+	except Exception:
 		_log.exception('cannot shutil.rmtree(%s)', directory)
 		error_count += 1
 	return error_count
@@ -194,7 +194,7 @@ def rm_dir_content(directory):
 			errors = rmdir(full_item)
 			if errors > 0:
 				return False
-		except StandardError:
+		except Exception:
 			_log.exception('cannot os.remove(%s) [a file or a link]', full_item)
 			return False
 
@@ -497,7 +497,7 @@ def unzip_archive(archive_name, target_dir=None, remove_archive=False):
 		with zipfile.ZipFile(archive_name) as archive:
 			archive.extractall(target_dir)
 		success = True
-	except StandardError:
+	except Exception:
 		_log.exception('cannot unzip')
 		return False
 	if remove_archive:
@@ -509,7 +509,7 @@ def remove_file(filename, log_error=True):
 	# attempt file remove and ignore (but log) errors
 	try:
 		os.remove(filename)
-	except StandardError:
+	except Exception:
 		if log_error:
 			_log.exception('cannot os.remove(%s)', filename)
 		return False
@@ -708,7 +708,7 @@ def get_unique_filename(prefix=None, suffix=None, tmp_dir=None, include_timestam
 				or
 			not os.access(tmp_dir, os.X_OK | os.W_OK)
 		):
-			_log.warning('cannot find temporary dir [%s], using system default', tmp_dir)
+			_log.warning('cannot os.access() temporary dir [%s], using system default', tmp_dir)
 			tmp_dir = None
 
 	if include_timestamp:
@@ -719,7 +719,7 @@ def get_unique_filename(prefix=None, suffix=None, tmp_dir=None, include_timestam
 	kwargs = {
 		'dir': tmp_dir,
 		#  make sure file gets deleted as soon as
-		# .close()d so we can safely open it again
+		# .close()d so we can "safely" open it again
 		'delete': True
 	}
 

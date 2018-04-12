@@ -353,28 +353,28 @@ def get_narrative(since=None, until=None, encounters=None, episodes=None, issues
 	filtered_narrative = [ cNarrative(row = {'pk_field': 'pk_narrative', 'idx': idx, 'data': row}) for row in rows ]
 
 	if since is not None:
-		filtered_narrative = filter(lambda narr: narr['date'] >= since, filtered_narrative)
+		filtered_narrative = [ narr for narr in filtered_narrative if narr['date'] >= since ]
 
 	if until is not None:
-		filtered_narrative = filter(lambda narr: narr['date'] < until, filtered_narrative)
+		filtered_narrative = [ narr for narr in filtered_narrative if narr['date'] < until ]
 
 	if providers is not None:
-		filtered_narrative = filter(lambda narr: narr['modified_by'] in providers, filtered_narrative)
+		filtered_narrative = [ narr for narr in filtered_narrative if narr['modified_by'] in providers ]
 
 	return filtered_narrative
 
 #	if issues is not None:
-#		filtered_narrative = filter(lambda narr: narr['pk_health_issue'] in issues, filtered_narrative)
+#		filtered_narrative = (lambda narr: narr['pk_health_issue'] in issues, filtered_narrative)
 #
 #	if episodes is not None:
-#		filtered_narrative = filter(lambda narr: narr['pk_episode'] in episodes, filtered_narrative)
+#		filtered_narrative = (lambda narr: narr['pk_episode'] in episodes, filtered_narrative)
 #
 #	if encounters is not None:
-#		filtered_narrative = filter(lambda narr: narr['pk_encounter'] in encounters, filtered_narrative)
+#		filtered_narrative = (lambda narr: narr['pk_encounter'] in encounters, filtered_narrative)
 
 #	if soap_cats is not None:
 #		soap_cats = map(lambda c: c.lower(), soap_cats)
-#		filtered_narrative = filter(lambda narr: narr['soap_cat'] in soap_cats, filtered_narrative)
+#		filtered_narrative = (lambda narr: narr['soap_cat'] in soap_cats, filtered_narrative)
 
 #------------------------------------------------------------
 def get_as_journal(since=None, until=None, encounters=None, episodes=None, issues=None, soap_cats=None, providers=None, order_by=None, time_range=None, patient=None, active_encounter=None):

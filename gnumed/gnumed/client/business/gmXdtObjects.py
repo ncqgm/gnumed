@@ -405,12 +405,12 @@ if __name__ == "__main__":
 	gmDateTime.init()
 
 	ldt = cLDTFile(filename = sys.argv[1])
-	print "header:"
+	print("header:")
 	for line in ldt.header:
-		print line.encode('utf8', 'replace')
-	print "tail:"
+		print(line.encode('utf8', 'replace'))
+	print("tail:")
 	for line in ldt.tail:
-		print line.encode('utf8', 'replace')
+		print(line.encode('utf8', 'replace'))
 
 #	# test framework if run by itself
 #	patfile = sys.argv[1]

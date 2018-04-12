@@ -103,12 +103,12 @@ class cEditStaffListDlg(wxgEditStaffListDlg.wxgEditStaffListDlg):
 			self._LCTRL_staff.SetItemData(item = row_num, data = staff['pk_staff'])
 
 		if len(staff_list) > 0:
-			self._LCTRL_staff.SetColumnWidth(col=0, width=wx.LIST_AUTOSIZE)
-			self._LCTRL_staff.SetColumnWidth(col=1, width=wx.LIST_AUTOSIZE_USEHEADER)
-			self._LCTRL_staff.SetColumnWidth(col=2, width=wx.LIST_AUTOSIZE)
-			self._LCTRL_staff.SetColumnWidth(col=3, width=wx.LIST_AUTOSIZE)
-			self._LCTRL_staff.SetColumnWidth(col=4, width=wx.LIST_AUTOSIZE)
-			self._LCTRL_staff.SetColumnWidth(col=5, width=wx.LIST_AUTOSIZE)
+			self._LCTRL_staff.SetColumnWidth(0, wx.LIST_AUTOSIZE)
+			self._LCTRL_staff.SetColumnWidth(1, wx.LIST_AUTOSIZE_USEHEADER)
+			self._LCTRL_staff.SetColumnWidth(2, wx.LIST_AUTOSIZE)
+			self._LCTRL_staff.SetColumnWidth(3, wx.LIST_AUTOSIZE)
+			self._LCTRL_staff.SetColumnWidth(4, wx.LIST_AUTOSIZE)
+			self._LCTRL_staff.SetColumnWidth(5, wx.LIST_AUTOSIZE)
 
 		# disable buttons
 		self._btn_save.Enable(False)

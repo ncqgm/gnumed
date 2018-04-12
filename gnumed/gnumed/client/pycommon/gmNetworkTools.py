@@ -209,7 +209,8 @@ def check_for_update(url=None, current_branch=None, current_version=None, consid
 
 	cfg = gmCfg2.gmCfgData()
 	try:
-		cfg.add_stream_source(source = 'gm-versions', stream = remote_file)
+		#remote_file.read().decode(resource.headers.get_content_charset())
+		cfg.add_stream_source(source = 'gm-versions', stream = remote_file, encoding = u'utf8')
 	except (UnicodeDecodeError):
 		remote_file.close()
 		_log.exception("cannot read version file from [%s]", url)

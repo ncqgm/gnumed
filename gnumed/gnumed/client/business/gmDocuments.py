@@ -922,14 +922,14 @@ class cDocument(gmBusinessDBObject.cBusinessDBObject):
 
 	#--------------------------------------------------------
 	def _get_procedures(self):
-		from gmEMRStructItems import get_procedures4document
+		from Gnumed.business.gmEMRStructItems import get_procedures4document
 		return get_procedures4document(pk_document = self.pk_obj)
 
 	procedures = property(_get_procedures, lambda x:x)
 
 	#--------------------------------------------------------
 	def _get_bills(self):
-		from gmBilling import get_bills4document
+		from Gnumed.business.gmBilling import get_bills4document
 		return get_bills4document(pk_document = self.pk_obj)
 
 	bills = property(_get_bills, lambda x:x)

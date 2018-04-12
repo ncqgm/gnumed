@@ -718,4 +718,4 @@ if __name__ == '__main__':
 	pat = gmPerson.gmCurrentPatient(gmPerson.cPatient(aPK_obj = 14))
 	fname = '~/gnumed/gm2tl-%s.timeline' % pat.get_dirname()
 
-	print create_timeline_file(patient = pat, filename = os.path.expanduser(fname))
+	print(create_timeline_file(patient = pat, filename = os.path.expanduser(fname)))

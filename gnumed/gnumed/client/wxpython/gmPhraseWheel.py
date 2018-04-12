@@ -511,7 +511,7 @@ class cPhraseWheelBase(wx.TextCtrl):
 		self.__mac_log('pick list size set to: %s' % self._picklist_dropdown.GetSize())
 		if self.__dropdown_needs_relative_position:
 			dropdown_new_x, dropdown_new_y = self._picklist_dropdown.GetParent().ScreenToClientXY(dropdown_new_x, dropdown_new_y)
-		self._picklist_dropdown.MoveXY(dropdown_new_x, dropdown_new_y)
+		self._picklist_dropdown.Move(dropdown_new_x, dropdown_new_y)
 
 		# select first value
 		self._picklist.Select(0)
@@ -1078,7 +1078,7 @@ class cPhraseWheel(cPhraseWheelBase):
 		if len(self._data) == 0:
 			return None
 
-		return self._data.values()[0]['data']
+		return list(self._data.values())[0]['data']
 
 	#---------------------------------------------------------
 	def SetData(self, data=None):
@@ -1201,7 +1201,7 @@ class cMultiPhraseWheel(cPhraseWheelBase):
 			if as_instance:
 				return self._data2instance()
 
-		return self._data.values()
+		return list(self._data.values())
 	#---------------------------------------------------------
 	def enable_default_spellchecker(self):
 		self.speller = None

@@ -244,9 +244,9 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 			self._CHBOX_irrelevant_issues.IsChecked()
 		)
 		if showing_potential_problems:
-			self._SZR_problem_list.SetLabel(_('%s (active+potential) problems') % len(list_items))
+			self._SZR_problem_list.StaticBox.SetLabel(_('%s (active+potential) problems') % len(list_items))
 		else:
-			self._SZR_problem_list.SetLabel(_('%s active problems') % len(list_items))
+			self._SZR_problem_list.StaticBox.SetLabel(_('%s active problems') % len(list_items))
 
 		return True
 	#--------------------------------------------------------

@@ -268,12 +268,15 @@ def set_option_in_INI_file(filename=None, group=None, option=None, value=None, e
 	shutil.copy2(sink_name, filename)
 
 #==================================================================
-def parse_INI_stream(stream=None):
+def parse_INI_stream(stream=None, encoding=None):
 	"""Parse an iterable for INI-style data.
 
 	Returns a dict by sections containing a dict of values per section.
 	"""
-	_log.debug('parsing INI-style data stream [%s]' % stream)
+	_log.debug('parsing INI-style data stream [%s] using [%s]', stream, encoding)
+
+	if encoding is None:
+		encoding = 'utf8'
 
 	data = {}
 	current_group = None
@@ -283,6 +286,8 @@ def parse_INI_stream(stream=None):
 	line_idx = 0
 
 	for line in stream:
+		if type(line) is bytes:
+			line = line.decode(encoding)
 		line = line.replace('\015', '').replace('\012', '').strip()
 		line_idx += 1
 
@@ -430,10 +435,9 @@ class gmCfgData(gmBorg.cBorg):
 	#--------------------------------------------------
 	# API: source related
 	#--------------------------------------------------
-	def add_stream_source(self, source=None, stream=None):
-
+	def add_stream_source(self, source=None, stream=None, encoding=None):
 		try:
-			data = parse_INI_stream(stream = stream)
+			data = parse_INI_stream(stream = stream, encoding = encoding)
 		except ValueError:
 			_log.exception('error parsing source <%s> from [%s]', source, stream)
 			raise

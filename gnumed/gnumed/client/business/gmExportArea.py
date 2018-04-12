@@ -201,7 +201,7 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 			tmp_dir = directory
 		)
 
-		return os.path.join(directory, fname)
+		return fname
 
 	#--------------------------------------------------------
 	# properties

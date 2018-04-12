@@ -1122,7 +1122,7 @@ for m in magic:
 if __name__ == '__main__':
 	import sys
 	for arg in sys.argv[1:]:
-		msg = file(arg)
+		msg = open(arg)
 		if msg:
 			print arg + ': ' + msg
 		else:

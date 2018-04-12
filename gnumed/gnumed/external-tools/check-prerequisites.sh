@@ -33,14 +33,14 @@ echo "-------------------------------------------------------------------------"
 echo ""
 
 echo "=> checking for Python interpreter ..."
-PYBIN=`which python`
+PYBIN=`which python3`
 if [ "x${PYBIN}x" == "xx" ]; then
 	echo "ERROR: You don't have Python installed."
 	echo "ERROR: Python is available with your OS or from www.python.org"
 else
 	echo "=> found"
 	echo -n "   ${PYBIN}: "
-	python --version
+	python3 --version
 fi
 
 # make sure we can locally find the Python modules

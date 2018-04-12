@@ -338,7 +338,7 @@ limit 1""" % where_clause
 			sql_type_cast = '::text'
 		elif isinstance(value, bool):
 			opt_value = int(opt_value)
-		elif isinstance(value, (float, ing, decimal.Decimal, bool)):
+		elif isinstance(value, (float, int, decimal.Decimal, bool)):
 			sql_type_cast = '::numeric'
 		elif isinstance(value, list):
 			# there can be different syntaxes for list types so don't try to cast them

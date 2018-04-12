@@ -81,7 +81,7 @@ class cXdtListPnl(wxgXdtListPnl.wxgXdtListPnl):
 		self.filename = None
 
 		try:
-			f = file(filename, 'r')
+			f = open(filename, 'r')
 		except IOError:
 			gmGuiHelpers.gm_show_error (
 				_('Cannot access xDT file\n\n'
@@ -333,8 +333,8 @@ class gmXdtViewerPanel(wx.Panel):
 		event.Skip()
 	#-------------------------------------------------------------------------
 	def OnPopupOne(self, event):
-		print "FindItem:", self.list.FindItem(-1, "Roxette")
-		print "FindItemData:", self.list.FindItemData(-1, 11)
+		print("FindItem:", self.list.FindItem(-1, "Roxette"))
+		print("FindItemData:", self.list.FindItemData(-1, 11))
 	#-------------------------------------------------------------------------
 	def OnPopupTwo(self, event):
 		pass
@@ -350,7 +350,7 @@ class gmXdtViewerPanel(wx.Panel):
 	#-------------------------------------------------------------------------
 	def OnPopupFive(self, event):
 		item = self.list.GetItem(self.currentItem)
-		print item.Text, item.Id, self.list.GetItemData(self.currentItem)
+		print(item.Text, item.Id, self.list.GetItemData(self.currentItem))
 	#-------------------------------------------------------------------------
 	def OnSize(self, event):
 		w,h = self.GetClientSize()
