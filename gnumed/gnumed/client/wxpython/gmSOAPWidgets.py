@@ -517,11 +517,16 @@ class cNotebookedProgressNoteInputPanel(wx.Panel):
 		"""Configure enabled event signals
 		"""
 		# wxPython events
-		wx.EVT_LISTBOX_DCLICK(self.__LST_problems, self.__LST_problems.GetId(), self.__on_problem_activated)
-		wx.EVT_BUTTON(self.__BTN_save, self.__BTN_save.GetId(), self.__on_save)
-		wx.EVT_BUTTON(self.__BTN_clear, self.__BTN_clear.GetId(), self.__on_clear)
-		wx.EVT_BUTTON(self.__BTN_discard, self.__BTN_discard.GetId(), self.__on_discard)
-		wx.EVT_BUTTON(self.__BTN_add_unassociated, self.__BTN_add_unassociated.GetId(), self.__on_add_unassociated)
+		self.__LST_problems.Bind(wx.EVT_LISTBOX_DCLICK, self.__on_problem_activated)
+		self.__BTN_save.Bind(wx.EVT_BUTTON, self.__on_save)
+		self.__BTN_clear.Bind(wx.EVT_BUTTON, self.__on_clear)
+		self.__BTN_discard.Bind(wx.EVT_BUTTON, self.__on_discard)
+		self.__BTN_add_unassociated.Bind(wx.EVT_BUTTON, self.__on_add_unassociated)
+		#wx.EVT_LISTBOX_DCLICK(self.__LST_problems, self.__LST_problems.GetId(), self.__on_problem_activated)
+		#wx.EVT_BUTTON(self.__BTN_save, self.__BTN_save.GetId(), self.__on_save)
+		#wx.EVT_BUTTON(self.__BTN_clear, self.__BTN_clear.GetId(), self.__on_clear)
+		#wx.EVT_BUTTON(self.__BTN_discard, self.__BTN_discard.GetId(), self.__on_discard)
+		#wx.EVT_BUTTON(self.__BTN_add_unassociated, self.__BTN_add_unassociated.GetId(), self.__on_add_unassociated)
 
 		# client internal signals
 		gmDispatcher.connect(signal='post_patient_selection', receiver=self._on_post_patient_selection)
@@ -1030,8 +1035,8 @@ class cSingleBoxSOAPPanel(wx.Panel):
 	#--------------------------------------------------------
 	def __register_events(self):
 		# wxPython events
-		wx.EVT_BUTTON(self.__BTN_save, self.__BTN_save.GetId(), self._on_save_note)
-		wx.EVT_BUTTON(self.__BTN_discard, self.__BTN_discard.GetId(), self._on_discard_note)
+		self.__BTN_save.Bind(wx.EVT_BUTTON, self._on_save_note)
+		self.__BTN_discard.Bind(wx.EVT_BUTTON, self._on_discard_note)
 
 		# client internal signals
 		gmDispatcher.connect(signal = 'application_closing', receiver = self._save_note)

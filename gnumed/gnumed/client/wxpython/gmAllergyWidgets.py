@@ -506,7 +506,8 @@ class cAllergyPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 		self.mainsizer.Fit(self)
 	#-----------------------------------------------
 	def __register_interests(self):
-		wx.EVT_LIST_ITEM_ACTIVATED(self, ID_ALLERGY_LIST, self._on_allergy_activated)
+		self.Bind(wx.EVT_LIST_ITEM_ACTIVATED, self._on_allergy_activated)
+		#wx.EVT_LIST_ITEM_ACTIVATED(self, ID_ALLERGY_LIST, self._on_allergy_activated)
 
 		# client internal signals
 		gmDispatcher.connect(signal = 'post_patient_selection', receiver=self._schedule_data_reget)

@@ -336,8 +336,8 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 
 		# invalidate address searcher when any field edited
 		self._PRW_street.add_callback_on_lose_focus(self._invalidate_address_searcher)
-		wx.EVT_KILL_FOCUS(self._TCTRL_number, self._on_leaving_number)
-		wx.EVT_KILL_FOCUS(self._TCTRL_unit, self._on_leaving_unit)
+		self._TCTRL_number.Bind(wx.EVT_KILL_FOCUS, self._on_leaving_number)
+		self._TCTRL_unit.Bind(wx.EVT_KILL_FOCUS, self._on_leaving_unit)
 		self._PRW_urb.add_callback_on_lose_focus(self._invalidate_address_searcher)
 		self._PRW_region.add_callback_on_lose_focus(self._invalidate_address_searcher)
 
