@@ -6,6 +6,10 @@
 # rel-1-7-patches
 ------------------------------------------------
 
+	1.7.2
+
+FIX: wxGtk3 related size adjustments for PatientOverview/SimpleSoap plugins
+
 	1.7.1
 
 NEW: add bash completion script
