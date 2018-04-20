@@ -744,15 +744,17 @@ def get_unique_filename(prefix=None, suffix=None, tmp_dir=None, include_timestam
 #---------------------------------------------------------------------------
 def __make_symlink_on_windows(physical_name, link_name):
 	import ctypes
-	csl = ctypes.windll.kernel32.CreateSymbolicLinkW
-	csl.argtypes = (ctypes.c_wchar_p, ctypes.c_wchar_p, ctypes.c_uint32)
-	csl.restype = ctypes.c_ubyte
+	#windows_create_symlink = ctypes.windll.kernel32.CreateSymbolicLinkW
+	kernel32 = ctype.WinDLL('kernel32', use_last_error = True)
+	windows_create_symlink = kernel32.CreateSymbolicLinkW
+	windows_create_symlink.argtypes = (ctypes.c_wchar_p, ctypes.c_wchar_p, ctypes.c_uint32)
+	windows_create_symlink.restype = ctypes.c_ubyte
 	if os.path.isdir(physical_name):
 		flags = 1
 	else:
 		flags = 0
-	ret_code = csl(link_name, physical_name.replace('/', '\\'), flags)
-	_log.debug('ctypes.windll.kernel32.CreateSymbolicLinkW() exit code: %s', ret_code)
+	ret_code = windows_create_symlink(link_name, physical_name.replace('/', '\\'), flags)
+	_log.debug('ctypes.windll.kernel32.CreateSymbolicLinkW() [%s] exit code: %s', windows_create_symlink, ret_code)
 	if ret_code == 0:
 		raise ctypes.WinError()
 	return ret_code
@@ -772,9 +774,11 @@ def mklink(physical_name, link_name, overwrite=False):
 
 	try:
 		os.symlink(physical_name, link_name)
-	except AttributeError:
-		_log.debug('Windows does not have os.symlink(), resorting to ctypes')
+	except (AttributeError, NotImplementedError):
+		_log.debug('this Python does not have os.symlink(), resorting to ctypes')
 		__make_symlink_on_windows(physical_name, link_name)
+	#except OSError:
+	#	unpriviledged on Windows
 
 	return True
 

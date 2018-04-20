@@ -11,6 +11,8 @@
 NEW: port to wxPhoenix (wxPython 4)
 NEW: port to Python 3
 
+IMPROVED: symbolic link creation on Windows
+
 ------------------------------------------------
 # rel-1-7-patches
 ------------------------------------------------
@@ -1949,6 +1951,10 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 ------------------------------------------------
 # gnumed_v22
 ------------------------------------------------
+
+	22.2
+
+FIX: dem.staff plausibility check [thanks Marc]
 
 	22.1
 
