@@ -8,7 +8,8 @@
 
 	1.7.2
 
-FIX: wxGtk3 related size adjustments for PatientOverview/SimpleSoap plugins
+FIX: GTK3 related size adjustments for PatientOverview/SimpleSoap plugins
+FIX: GTK3 related bitmap adjustments
 
 	1.7.1
 
@@ -1944,6 +1945,10 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 ------------------------------------------------
 # gnumed_v22
 ------------------------------------------------
+
+	22.2
+
+FIX: staff/v_staff plausibility check [thanks Marc]
 
 	22.1
 

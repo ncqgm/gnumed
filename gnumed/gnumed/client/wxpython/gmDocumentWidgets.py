@@ -2913,7 +2913,7 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 	def __init__(self, *args, **kwargs):
 		# would need to be here but can not because _BMP_preview
 		# does not yet exist
-		#self._BMP_preview.SetBitmap(wx.EmptyBitmap(1,1))
+		#self._BMP_preview.SetBitmap(wx.EmptyBitmapRGBA(50, 50, red=0, green=0, blue=0, alpha=0))
 		wxgPACSPluginPnl.__init__(self, *args, **kwargs)
 		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
 		self.__pacs = None
@@ -2939,7 +2939,7 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 		self._LCTRL_details.set_columns(columns = [_(u'DICOM field'), _(u'Value')])
 		self._LCTRL_details.set_column_widths()
 
-		self._BMP_preview.SetBitmap(wx.EmptyBitmap(1,1))
+		self._BMP_preview.SetBitmap(wx.EmptyBitmapRGBA(50, 50, red=0, green=0, blue=0, alpha=0))
 
 	#--------------------------------------------------------
 	def __set_button_states(self):
@@ -3197,7 +3197,7 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 
 		self.__image_data = None
 		self._LBL_image.Label = _(u'Image')
-		self._BMP_preview.SetBitmap(wx.EmptyBitmap(1,1))
+		self._BMP_preview.SetBitmap(wx.EmptyBitmapRGBA(50, 50, red=0, green=0, blue=0, alpha=0))
 
 		if idx is None:
 			return
