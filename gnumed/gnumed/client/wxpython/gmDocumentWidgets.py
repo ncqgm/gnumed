@@ -2814,7 +2814,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 		- into subdirectory named after patient
 		"""
 		pat = gmPerson.gmCurrentPatient()
-		def_dir = os.path.expanduser(os.path.join('~', 'gnumed', pat['dirname']))
+		def_dir = os.path.expanduser(os.path.join('~', 'gnumed', pat.subdir_name))
 		gmTools.mkdir(def_dir)
 
 		dlg = wx.DirDialog (
@@ -3507,7 +3507,7 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 
 		uuid = self.__image_data['uuid']
 		fname = gmTools.get_unique_filename (
-			prefix = '%s-orthanc_%s' % (self.__patient.dirname, uuid),
+			prefix = '%s-orthanc_%s' % (self.__patient.subdir_name, uuid),
 			suffix = '.png',
 			tmp_dir = os.path.join(gmTools.gmPaths().home_dir, 'gnumed')
 		)
@@ -3521,7 +3521,7 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 
 		uuid = self.__image_data['uuid']
 		fname = gmTools.get_unique_filename (
-			prefix = '%s-orthanc_%s' % (self.__patient.dirname, uuid),
+			prefix = '%s-orthanc_%s' % (self.__patient.subdir_name, uuid),
 			suffix = '.dcm',
 			tmp_dir = os.path.join(gmTools.gmPaths().home_dir, 'gnumed')
 		)
@@ -3563,7 +3563,7 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 			return
 
 		# get target dir
-		default_path = os.path.join(gmTools.gmPaths().home_dir, 'gnumed', self.__patient.dirname)
+		default_path = os.path.join(gmTools.gmPaths().home_dir, 'gnumed', self.__patient.subdir_name)
 		gmTools.mkdir(default_path)
 		dlg = wx.DirDialog (
 			self,
@@ -3598,7 +3598,7 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 			return
 
 		wx.BeginBusyCursor()
-		target_dir = os.path.join(gmTools.gmPaths().home_dir, 'gnumed', self.__patient.dirname)
+		target_dir = os.path.join(gmTools.gmPaths().home_dir, 'gnumed', self.__patient.subdir_name)
 		filename = self.__pacs.get_studies_with_dicomdir (
 			study_ids = [ s['orthanc_id'] for s in study_data ],
 			create_zip = True,
@@ -3666,7 +3666,7 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 		if self.__pacs is None:
 			return
 
-		default_path = os.path.join(gmTools.gmPaths().home_dir, 'gnumed', self.__patient.dirname)
+		default_path = os.path.join(gmTools.gmPaths().home_dir, 'gnumed', self.__patient.subdir_name)
 		gmTools.mkdir(default_path)
 		dlg = wx.DirDialog (
 			self,
@@ -3701,7 +3701,7 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 			return
 
 		wx.BeginBusyCursor()
-		target_dir = os.path.join(gmTools.gmPaths().home_dir, 'gnumed', self.__patient.dirname)
+		target_dir = os.path.join(gmTools.gmPaths().home_dir, 'gnumed', self.__patient.subdir_name)
 		gmTools.mkdir(target_dir)
 		filename = self.__pacs.get_studies_with_dicomdir (
 			patient_id = self.__orthanc_patient['ID'],

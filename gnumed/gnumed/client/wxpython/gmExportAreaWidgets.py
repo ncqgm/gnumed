@@ -94,7 +94,7 @@ class cCreatePatientMediaDlg(wxgCreatePatientMediaDlg.wxgCreatePatientMediaDlg):
 		if self._CHBOX_use_subdirectory.IsChecked():
 			self._LBL_subdirectory.Label = '%s/%s-###' % (
 				self._LBL_directory.Label,
-				self.__patient.dirname
+				self.__patient.subdir_name
 			)
 			return
 
@@ -439,7 +439,7 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 		dlg.Destroy()
 		if use_subdir:
 			path = gmTools.mk_sandbox_dir (
-				prefix = '%s-' % pat.dirname,
+				prefix = '%s-' % pat.subdir_name,
 				base_dir = path
 			)
 		else:

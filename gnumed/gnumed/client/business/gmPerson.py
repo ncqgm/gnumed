@@ -1830,7 +1830,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 	#----------------------------------------------------------------------
 	# convenience
 	#----------------------------------------------------------------------
-	def get_dirname(self):
+	def get_subdir_name(self):
 		"""Format patient demographics into patient specific path name fragment."""
 
 		return gmTools.fname_sanitize('%s-%s-%s' % (
@@ -1861,7 +1861,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 #		)
 
 
-	dirname = property(get_dirname, lambda x:x)
+	subdir_name = property(get_subdir_name, lambda x:x)
 
 #============================================================
 def identity_is_patient(pk_identity):

@@ -562,9 +562,9 @@ insert into blobs.reviewed_doc_objs (
 		patient_part = ''
 		if patient is not None:
 			if name_first:
-				patient_part = '%s-' % patient['dirname']
+				patient_part = '%s-' % patient.subdir_name
 			else:
-				patient_part = '-%s' % patient['dirname']
+				patient_part = '-%s' % patient.subdir_name
 
 		# preserve original filename extension if available
 		suffix = '.dat'

@@ -3671,7 +3671,7 @@ def delete_performed_procedure(procedure=None):
 def export_emr_structure(patient=None, filename=None):
 
 	if filename is None:
-		filename = gmTools.get_unique_filename(prefix = 'gm-emr_struct-%s-' % patient.dirname, suffix = '.txt')
+		filename = gmTools.get_unique_filename(prefix = 'gm-emr_struct-%s-' % patient.subdir_name, suffix = '.txt')
 
 	f = io.open(filename, 'w+', encoding = 'utf8')
 
@@ -3824,7 +3824,7 @@ def export_patient_emr_structure():
 	pat = gmPersonSearch.ask_for_patient()
 	while pat is not None:
 		print('patient:', pat['description_gender'])
-		fname = os.path.expanduser('~/gnumed/gm-emr_structure-%s.txt' % pat.dirname)
+		fname = os.path.expanduser('~/gnumed/gm-emr_structure-%s.txt' % pat.subdir_name)
 		print('exported into:', export_emr_structure(patient = pat, filename = fname))
 		pat = gmPersonSearch.ask_for_patient()
 
@@ -3974,7 +3974,7 @@ if __name__ == '__main__':
 		#from Gnumed.business import gmPerson
 		## 12 / 20 / 138 / 58 / 20 / 5 / 14
 		#pat = gmPerson.gmCurrentPatient(gmPerson.cPatient(aPK_obj = 138))
-		#fname = os.path.expanduser(u'~/gnumed/emr_structure-%s.txt' % pat.dirname)
+		#fname = os.path.expanduser(u'~/gnumed/emr_structure-%s.txt' % pat.subdir_name)
 		#print export_emr_structure(patient = pat, filename = fname)
 
 	#--------------------------------------------------------

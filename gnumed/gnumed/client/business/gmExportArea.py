@@ -184,7 +184,7 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 	def get_useful_filename(self, patient=None, directory=None):
 		patient_part = ''
 		if patient is not None:
-			patient_part = '-%s' % patient['dirname']
+			patient_part = '-%s' % patient.subdir_name
 
 		# preserve original filename extension if available
 		suffix = '.dat'
@@ -547,7 +547,7 @@ class cExportArea(object):
 		if base_dir is None:
 			from Gnumed.business.gmPerson import cPatient
 			pat = cPatient(aPK_obj = self.__pk_identity)
-			base_dir = gmTools.mk_sandbox_dir(prefix = 'exp-%s-' % pat.dirname)
+			base_dir = gmTools.mk_sandbox_dir(prefix = 'exp-%s-' % pat.subdir_name)
 		_log.debug('dumping export items to: %s', base_dir)
 
 		gmTools.mkdir(base_dir)
@@ -569,7 +569,7 @@ class cExportArea(object):
 		from Gnumed.business.gmPerson import cPatient
 		pat = cPatient(aPK_obj = self.__pk_identity)
 		if media_base_dir is None:
-			media_base_dir = gmTools.mk_sandbox_dir(prefix = 'exp-%s-' % pat.dirname)
+			media_base_dir = gmTools.mk_sandbox_dir(prefix = 'exp-%s-' % pat.subdir_name)
 		_log.debug('patient media base dir: %s', media_base_dir)
 
 		doc_dir = os.path.join(media_base_dir, r'documents')

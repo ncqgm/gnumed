@@ -716,6 +716,6 @@ if __name__ == '__main__':
 	from Gnumed.business import gmPerson
 	# 14 / 20 / 138 / 58 / 20 / 5
 	pat = gmPerson.gmCurrentPatient(gmPerson.cPatient(aPK_obj = 14))
-	fname = '~/gnumed/gm2tl-%s.timeline' % pat.get_dirname()
+	fname = '~/gnumed/gm2tl-%s.timeline' % pat.subdir_name
 
 	print(create_timeline_file(patient = pat, filename = os.path.expanduser(fname)))
