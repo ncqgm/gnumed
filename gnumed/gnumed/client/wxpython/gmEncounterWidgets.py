@@ -759,10 +759,10 @@ class cActiveEncounterPnl(wxgActiveEncounterPnl.wxgActiveEncounterPnl):
 # encounter TYPE related widgets
 #----------------------------------------------------------------
 def edit_encounter_type(parent=None, encounter_type=None):
-	ea = cEncounterTypeEditAreaPnl(parent = parent, id = -1)
+	ea = cEncounterTypeEditAreaPnl(parent, -1)
 	ea.data = encounter_type
 	ea.mode = gmTools.coalesce(encounter_type, 'new', 'edit')
-	dlg = gmEditArea.cGenericEditAreaDlg2(parent = parent, id = -1, edit_area = ea)
+	dlg = gmEditArea.cGenericEditAreaDlg2(parent, -1, edit_area = ea)
 	dlg.SetTitle(gmTools.coalesce(encounter_type, _('Adding new encounter type'), _('Editing local encounter type name')))
 	if dlg.ShowModal() == wx.ID_OK:
 		return True

@@ -623,7 +623,7 @@ def load_person_from_vcard_file():
 			)
 		return
 
-	dlg = cSelectPersonFromListDlg(parent = wx.GetApp().GetTopWindow(), id = -1)
+	dlg = cSelectPersonFromListDlg(wx.GetApp().GetTopWindow(), -1)
 	dlg.set_persons(persons = idents)
 	result = dlg.ShowModal()
 	ident = dlg.get_selected_person()
@@ -673,7 +673,7 @@ def load_person_from_vcard_via_clipboard():
 			)
 		return
 
-	dlg = cSelectPersonFromListDlg(parent = wx.GetApp().GetTopWindow(), id = -1)
+	dlg = cSelectPersonFromListDlg(wx.GetApp().GetTopWindow(), -1)
 	dlg.set_persons(persons = idents)
 	result = dlg.ShowModal()
 	ident = dlg.get_selected_person()
@@ -723,7 +723,7 @@ def load_person_from_xml_linuxmednews_via_clipboard():
 			)
 		return
 
-	dlg = cSelectPersonFromListDlg(parent = wx.GetApp().GetTopWindow(), id = -1)
+	dlg = cSelectPersonFromListDlg(wx.GetApp().GetTopWindow(), -1)
 	dlg.set_persons(persons = idents)
 	result = dlg.ShowModal()
 	ident = dlg.get_selected_person()
@@ -980,7 +980,7 @@ class cPersonSearchCtrl(wx.TextCtrl):
 			if len(self.__prev_idents) == 0:
 				return False
 
-			dlg = cSelectPersonFromListDlg(parent = wx.GetTopLevelParent(self), id = -1)
+			dlg = cSelectPersonFromListDlg(wx.GetTopLevelParent(self), -1)
 			dlg.set_persons(persons = self.__prev_idents)
 			result = dlg.ShowModal()
 			if result == wx.ID_OK:

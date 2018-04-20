@@ -130,7 +130,7 @@ if __name__ == '__main__':
 	def test_grid():
 		pat = gmPersonSearch.ask_for_patient()
 		app = wx.PyWidgetTester(size = (500, 300))
-		lab_grid = cMeasurementsGrid(parent = app.frame, id = -1)
+		lab_grid = cMeasurementsGrid(app.frame, -1)
 		lab_grid.patient = pat
 		app.frame.Show()
 		app.MainLoop()
@@ -139,7 +139,7 @@ if __name__ == '__main__':
 		pat = gmPersonSearch.ask_for_patient()
 		gmPatSearchWidgets.set_active_patient(patient=pat)
 		app = wx.PyWidgetTester(size = (500, 300))
-		ea = cMeasurementEditAreaPnl(parent = app.frame, id = -1)
+		ea = cMeasurementEditAreaPnl(app.frame, -1)
 		app.frame.Show()
 		app.MainLoop()
 	#------------------------------------------------------------

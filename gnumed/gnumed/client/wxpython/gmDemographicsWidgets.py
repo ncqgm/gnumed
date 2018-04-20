@@ -74,10 +74,10 @@ def edit_tag_image(parent=None, tag_image=None, single_entry=False):
 			)
 			return False
 
-	ea = cTagImageEAPnl(parent = parent, id = -1)
+	ea = cTagImageEAPnl(parent, -1)
 	ea.data = tag_image
 	ea.mode = gmTools.coalesce(tag_image, 'new', 'edit')
-	dlg = gmEditArea.cGenericEditAreaDlg2(parent = parent, id = -1, edit_area = ea, single_entry = single_entry)
+	dlg = gmEditArea.cGenericEditAreaDlg2(parent, -1, edit_area = ea, single_entry = single_entry)
 	dlg.SetTitle(gmTools.coalesce(tag_image, _('Adding new tag'), _('Editing tag')))
 	if dlg.ShowModal() == wx.ID_OK:
 		dlg.Destroy()
@@ -1700,7 +1700,7 @@ class cPatOccupationsPanel(wx.Panel):
 		PNL_form = wx.Panel(self, -1)
 		# occupation
 		STT_occupation = wx.StaticText(PNL_form, -1, _('Occupation'))
-		self.PRW_occupation = cOccupationPhraseWheel(parent = PNL_form,	id = -1)
+		self.PRW_occupation = cOccupationPhraseWheel(PNL_form, -1)
 		self.PRW_occupation.SetToolTip(_("primary occupation of the patient"))
 		# known since
 		STT_occupation_updated = wx.StaticText(PNL_form, -1, _('Last updated'))

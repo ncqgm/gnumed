@@ -1215,7 +1215,7 @@ if __name__ == '__main__':
 		return True
 
 #		app = wx.PyWidgetTester(size = (200, 50))
-#		tc = cTextCtrl(parent = app.frame, id = -1)
+#		tc = cTextCtrl(app.frame, -1)
 #		#tc.enable_keyword_expansions()
 #		app.frame.Show(True)
 #		app.MainLoop()

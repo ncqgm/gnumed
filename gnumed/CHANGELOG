@@ -8,7 +8,7 @@
 
 	1.8.0
 
-NEW: port to wxPhoenix (wxPython 4)
+NEW: port to wxPython 4 (wxPhoenix)
 NEW: port to Python 3
 
 IMPROVED: symbolic link creation on Windows

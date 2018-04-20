@@ -427,10 +427,10 @@ class cFormDisposalDlg(wxgFormDisposalDlg.wxgFormDisposalDlg):
 # form template management
 #------------------------------------------------------------
 def edit_template(parent=None, template=None, single_entry=False):
-	ea = cFormTemplateEAPnl(parent = parent, id = -1)
+	ea = cFormTemplateEAPnl(parent, -1)
 	ea.data = template
 	ea.mode = gmTools.coalesce(template, 'new', 'edit')
-	dlg = gmEditArea.cGenericEditAreaDlg2(parent = parent, id = -1, edit_area = ea, single_entry = single_entry)
+	dlg = gmEditArea.cGenericEditAreaDlg2(parent, -1, edit_area = ea, single_entry = single_entry)
 	dlg.SetTitle(gmTools.coalesce(template, _('Adding new form template'), _('Editing form template')))
 	if dlg.ShowModal() == wx.ID_OK:
 		dlg.Destroy()

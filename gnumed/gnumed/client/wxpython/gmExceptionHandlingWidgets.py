@@ -271,7 +271,7 @@ def handle_uncaught_exception_wx(t, v, tb):
 		'%s_%s%s' % (name, pyDT.datetime.now().strftime('%Y-%m-%d_%H-%M-%S'), ext)
 	))
 
-	dlg = cUnhandledExceptionDlg(parent = None, id = -1, exception = (t, v, tb), logfile = new_name)
+	dlg = cUnhandledExceptionDlg(None, -1, exception = (t, v, tb), logfile = new_name)
 	dlg.ShowModal()
 	comment = dlg._TCTRL_comment.GetValue()
 	dlg.Destroy()

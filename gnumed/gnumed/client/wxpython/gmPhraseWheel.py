@@ -1399,7 +1399,7 @@ if __name__ == '__main__':
 		# do NOT treat "-" as a word separator here as there are names like "asa-sismussen"
 		mp.word_separators = '[ \t=+&:@]+'
 		global prw
-		prw = cPhraseWheel(parent = app.frame, id = -1)
+		prw = cPhraseWheel(app.frame, -1)
 		prw.matcher = mp
 		prw.capitalisation_mode = gmTools.CAPS_NAMES
 		prw.add_callback_on_set_focus(callback=display_values_set_focus)
@@ -1423,8 +1423,8 @@ if __name__ == '__main__':
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries = [query])
 		app = wx.PyWidgetTester(size = (400, 50))
 		global prw
-		#prw = cPhraseWheel(parent = app.frame, id = -1)
-		prw = cMultiPhraseWheel(parent = app.frame, id = -1)
+		#prw = cPhraseWheel(app.frame, -1)
+		prw = cMultiPhraseWheel(app.frame, -1)
 		prw.matcher = mp
 
 		app.frame.Show(True)
@@ -1447,7 +1447,7 @@ if __name__ == '__main__':
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries = [query])
 		app = wx.PyWidgetTester(size = (500, 50))
 		global prw
-		prw = cPhraseWheel(parent = app.frame, id = -1)
+		prw = cPhraseWheel(app.frame, -1)
 		prw.matcher = mp
 		prw.selection_only = True
 
@@ -1460,7 +1460,7 @@ if __name__ == '__main__':
 		app = wx.PyWidgetTester(size = (200, 50))
 
 		global prw
-		prw = cPhraseWheel(parent = app.frame, id = -1)
+		prw = cPhraseWheel(app.frame, -1)
 
 		prw.add_callback_on_set_focus(callback=display_values_set_focus)
 		prw.add_callback_on_modified(callback=display_values_modified)

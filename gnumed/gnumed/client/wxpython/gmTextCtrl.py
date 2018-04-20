@@ -505,7 +505,7 @@ if __name__ == '__main__':
 	#-----------------------------------------------
 	def test_gm_textctrl():
 		app = wx.PyWidgetTester(size = (200, 50))
-		tc = cTextCtrl(parent = app.frame, id = -1)
+		tc = cTextCtrl(app.frame, -1)
 		#tc.enable_keyword_expansions()
 		#tc.Enable(False)
 		app.frame.Show(True)

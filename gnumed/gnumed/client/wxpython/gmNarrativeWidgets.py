@@ -812,7 +812,7 @@ class cSoapNoteInputNotebook(wx.Notebook):
 
 		# new unassociated problem or dupes allowed
 		if allow_same_problem:
-			new_page = gmProgressNotesEAWidgets.cProgressNotesEAPnl(parent = self, id = -1, problem = problem_to_add)
+			new_page = gmProgressNotesEAWidgets.cProgressNotesEAPnl(self, -1, problem = problem_to_add)
 			result = self.AddPage (
 				page = new_page,
 				text = label,

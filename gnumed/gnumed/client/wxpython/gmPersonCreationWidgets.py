@@ -70,8 +70,8 @@ def create_new_person(parent=None, activate=False):
 		if len(countries) == 1:
 			def_country = countries[0]['code_country']
 
-	ea = cNewPatientEAPnl(parent = parent, id = -1, country = def_country, region = def_region)
-	dlg = gmEditArea.cGenericEditAreaDlg2(parent = parent, id = -1, edit_area = ea, single_entry = True)
+	ea = cNewPatientEAPnl(parent, -1, country = def_country, region = def_region)
+	dlg = gmEditArea.cGenericEditAreaDlg2(parent, -1, edit_area = ea, single_entry = True)
 	dlg.SetTitle(_('Adding new person'))
 	ea._PRW_lastname.SetFocus()
 	result = dlg.ShowModal()

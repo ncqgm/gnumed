@@ -343,10 +343,10 @@ def call_browser_on_measurement_type(measurement_type=None):
 
 #----------------------------------------------------------------
 def edit_measurement(parent=None, measurement=None, single_entry=False, fields=None):
-	ea = cMeasurementEditAreaPnl(parent = parent, id = -1)
+	ea = cMeasurementEditAreaPnl(parent, -1)
 	ea.data = measurement
 	ea.mode = gmTools.coalesce(measurement, 'new', 'edit')
-	dlg = gmEditArea.cGenericEditAreaDlg2(parent = parent, id = -1, edit_area = ea, single_entry = single_entry)
+	dlg = gmEditArea.cGenericEditAreaDlg2(parent, -1, edit_area = ea, single_entry = single_entry)
 	dlg.SetTitle(gmTools.coalesce(measurement, _('Adding new measurement'), _('Editing measurement')))
 	if fields is not None:
 		ea.set_fields(fields)
@@ -3131,7 +3131,7 @@ def manage_measurement_types(parent=None):
 
 	#------------------------------------------------------------
 	def edit(test_type=None):
-		ea = cMeasurementTypeEAPnl(parent = parent, id = -1, type = test_type)
+		ea = cMeasurementTypeEAPnl(parent, -1, type = test_type)
 		dlg = gmEditArea.cGenericEditAreaDlg2 (
 			parent = parent,
 			id = -1,
@@ -3688,10 +3688,10 @@ limit 25"""
 # measurement org widgets / functions
 #----------------------------------------------------------------
 def edit_measurement_org(parent=None, org=None):
-	ea = cMeasurementOrgEAPnl(parent = parent, id = -1)
+	ea = cMeasurementOrgEAPnl(parent, -1)
 	ea.data = org
 	ea.mode = gmTools.coalesce(org, 'new', 'edit')
-	dlg = gmEditArea.cGenericEditAreaDlg2(parent = parent, id = -1, edit_area = ea)
+	dlg = gmEditArea.cGenericEditAreaDlg2(parent, -1, edit_area = ea)
 	dlg.SetTitle(gmTools.coalesce(org, _('Adding new diagnostic org'), _('Editing diagnostic org')))
 	if dlg.ShowModal() == wx.ID_OK:
 		dlg.Destroy()
@@ -3868,7 +3868,7 @@ LIMIT 50"""
 # Meta test type widgets
 #----------------------------------------------------------------
 def edit_meta_test_type(parent=None, meta_test_type=None):
-	ea = cMetaTestTypeEAPnl(parent = parent, id = -1)
+	ea = cMetaTestTypeEAPnl(parent, -1)
 	ea.data = meta_test_type
 	ea.mode = gmTools.coalesce(meta_test_type, 'new', 'edit')
 	dlg = gmEditArea.cGenericEditAreaDlg2 (
@@ -4141,7 +4141,7 @@ class cMetaTestTypeEAPnl(wxgMetaTestTypeEAPnl.wxgMetaTestTypeEAPnl, gmEditArea.c
 # test panel handling
 #================================================================
 def edit_test_panel(parent=None, test_panel=None):
-	ea = cTestPanelEAPnl(parent = parent, id = -1)
+	ea = cTestPanelEAPnl(parent, -1)
 	ea.data = test_panel
 	ea.mode = gmTools.coalesce(test_panel, 'new', 'edit')
 	dlg = gmEditArea.cGenericEditAreaDlg2 (
@@ -4440,7 +4440,7 @@ if __name__ == '__main__':
 	def test_grid():
 		pat = gmPersonSearch.ask_for_patient()
 		app = wx.PyWidgetTester(size = (500, 300))
-		lab_grid = cMeasurementsGrid(parent = app.frame, id = -1)
+		lab_grid = cMeasurementsGrid(app.frame, -1)
 		lab_grid.patient = pat
 		app.frame.Show()
 		app.MainLoop()
@@ -4449,13 +4449,13 @@ if __name__ == '__main__':
 		pat = gmPersonSearch.ask_for_patient()
 		gmPatSearchWidgets.set_active_patient(patient=pat)
 		app = wx.PyWidgetTester(size = (500, 300))
-		ea = cMeasurementEditAreaPnl(parent = app.frame, id = -1)
+		ea = cMeasurementEditAreaPnl(app.frame, -1)
 		app.frame.Show()
 		app.MainLoop()
 	#------------------------------------------------------------
 #	def test_primary_care_vitals_pnl():
 #		app = wx.PyWidgetTester(size = (500, 300))
-#		pnl = wxgPrimaryCareVitalsInputPnl.wxgPrimaryCareVitalsInputPnl(parent = app.frame, id = -1)
+#		pnl = wxgPrimaryCareVitalsInputPnl.wxgPrimaryCareVitalsInputPnl(app.frame, -1)
 #		app.frame.Show()
 #		app.MainLoop()
 	#------------------------------------------------------------

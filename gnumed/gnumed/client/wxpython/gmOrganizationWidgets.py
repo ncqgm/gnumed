@@ -40,10 +40,10 @@ _log = logging.getLogger('gm.organization')
 # organizational units API
 #------------------------------------------------------------
 def edit_org_unit(parent=None, org_unit=None, single_entry=False, org=None):
-	ea = cOrgUnitEAPnl(parent = parent, id = -1)
+	ea = cOrgUnitEAPnl(parent, -1)
 	ea.data = org_unit
 	ea.mode = gmTools.coalesce(org_unit, 'new', 'edit')
-	dlg = gmEditArea.cGenericEditAreaDlg2(parent = parent, id = -1, edit_area = ea, single_entry = single_entry)
+	dlg = gmEditArea.cGenericEditAreaDlg2(parent, -1, edit_area = ea, single_entry = single_entry)
 	if org is not None:
 		ea.organization = org
 	dlg.SetTitle(gmTools.coalesce(org_unit, _('Adding new organizational unit'), _('Editing organizational unit')))
@@ -620,10 +620,10 @@ def manage_orgs(parent=None, no_parent=False):
 	dlg.Destroy()
 #============================================================
 def edit_org(parent=None, org=None, single_entry=False):
-	ea = cOrganizationEAPnl(parent = parent, id = -1)
+	ea = cOrganizationEAPnl(parent, -1)
 	ea.data = org
 	ea.mode = gmTools.coalesce(org, 'new', 'edit')
-	dlg = gmEditArea.cGenericEditAreaDlg2(parent = parent, id = -1, edit_area = ea, single_entry = single_entry)
+	dlg = gmEditArea.cGenericEditAreaDlg2(parent, -1, edit_area = ea, single_entry = single_entry)
 	dlg.SetTitle(gmTools.coalesce(org, _('Adding new organization'), _('Editing organization')))
 	if dlg.ShowModal() == wx.ID_OK:
 		dlg.Destroy()

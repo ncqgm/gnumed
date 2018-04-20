@@ -30,8 +30,8 @@ def edit_substance_abuse(parent=None, intake=None, patient=None):
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
 
-	ea = cSubstanceAbuseEAPnl(parent = parent, id = -1, intake = intake, patient = patient)
-	dlg = gmEditArea.cGenericEditAreaDlg2(parent = parent, id = -1, edit_area = ea, single_entry = (intake is not None))
+	ea = cSubstanceAbuseEAPnl(parent, -1, intake = intake, patient = patient)
+	dlg = gmEditArea.cGenericEditAreaDlg2(parent, -1, edit_area = ea, single_entry = (intake is not None))
 	dlg.SetTitle(gmTools.coalesce(intake, _('Adding substance abuse'), _('Editing substance abuse')))
 	if dlg.ShowModal() == wx.ID_OK:
 		dlg.Destroy()

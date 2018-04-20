@@ -55,10 +55,10 @@ class cWaitingZonePhraseWheel(gmPhraseWheel.cPhraseWheel):
 def edit_waiting_list_entry(parent=None, entry=None, patient=None):
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
-	ea = cWaitingListEntryEditAreaPnl(parent = parent, id = -1, patient = gmTools.bool2subst((entry is None), patient, None))
+	ea = cWaitingListEntryEditAreaPnl(parent, -1, patient = gmTools.bool2subst((entry is None), patient, None))
 	ea.data = entry
 	ea.mode = gmTools.coalesce(entry, 'new', 'edit')
-	dlg = gmEditArea.cGenericEditAreaDlg2(parent = parent, id = -1, edit_area = ea, single_entry = True)
+	dlg = gmEditArea.cGenericEditAreaDlg2(parent, -1, edit_area = ea, single_entry = True)
 	dlg.SetTitle(gmTools.coalesce(entry, _('Adding new waiting list entry'), _('Editing waiting list entry')))
 	if dlg.ShowModal() == wx.ID_OK:
 		dlg.Destroy()

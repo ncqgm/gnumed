@@ -190,7 +190,7 @@ class cContactsPanel(wx.wx.Panel):
 		self.txt_org_user1 = TextBox_BlackNormal(self,-1)
 		self.txt_org_user2 = TextBox_BlackNormal(self,-1)
 		self.txt_org_user3 = TextBox_BlackNormal(self,-1)
-#		self.txt_org_category = cPhraseWheel(parent = self, id = -1, aMatchProvider = OrgCategoryMP(), selection_only = 1, pos = wx.wxDefaultPosition, size= wx.wxDefaultSize)
+#		self.txt_org_category = cPhraseWheel(self, -1, aMatchProvider = OrgCategoryMP(), selection_only = 1, pos = wx.wxDefaultPosition, size= wx.wxDefaultSize)
 		#self.txt_pers_occupation = TextBox_BlackNormal(self,-1)
 		self.txt_org_phone = TextBox_BlackNormal(self,-1)
 		self.txt_org_fax = TextBox_BlackNormal(self,-1)

@@ -210,10 +210,10 @@ def edit_substance(parent=None, substance=None, single_entry=False):
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot edit this substance. It is in use.'), beep = True)
 			return False
 
-	ea = cSubstanceEAPnl(parent = parent, id = -1)
+	ea = cSubstanceEAPnl(parent, -1)
 	ea.data = substance
 	ea.mode = gmTools.coalesce(substance, 'new', 'edit')
-	dlg = gmEditArea.cGenericEditAreaDlg2(parent = parent, id = -1, edit_area = ea, single_entry = single_entry)
+	dlg = gmEditArea.cGenericEditAreaDlg2(parent, -1, edit_area = ea, single_entry = single_entry)
 	dlg.SetTitle(gmTools.coalesce(substance, _('Adding new substance'), _('Editing substance')))
 	if dlg.ShowModal() == wx.ID_OK:
 		dlg.Destroy()
@@ -471,10 +471,10 @@ def edit_substance_dose(parent=None, substance_dose=None, single_entry=False):
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot edit this substance. It is in use.'), beep = True)
 			return False
 
-	ea = cSubstanceDoseEAPnl(parent = parent, id = -1)
+	ea = cSubstanceDoseEAPnl(parent, -1)
 	ea.data = substance_dose
 	ea.mode = gmTools.coalesce(substance_dose, 'new', 'edit')
-	dlg = gmEditArea.cGenericEditAreaDlg2(parent = parent, id = -1, edit_area = ea, single_entry = single_entry)
+	dlg = gmEditArea.cGenericEditAreaDlg2(parent, -1, edit_area = ea, single_entry = single_entry)
 	dlg.SetTitle(gmTools.coalesce(substance_dose, _('Adding new substance dose'), _('Editing substance dose')))
 	if dlg.ShowModal() == wx.ID_OK:
 		dlg.Destroy()
@@ -747,10 +747,10 @@ def manage_drug_components(parent=None):
 
 #------------------------------------------------------------
 def edit_drug_component(parent=None, drug_component=None, single_entry=False):
-	ea = cDrugComponentEAPnl(parent = parent, id = -1)
+	ea = cDrugComponentEAPnl(parent, -1)
 	ea.data = drug_component
 	ea.mode = gmTools.coalesce(drug_component, 'new', 'edit')
-	dlg = gmEditArea.cGenericEditAreaDlg2(parent = parent, id = -1, edit_area = ea, single_entry = single_entry)
+	dlg = gmEditArea.cGenericEditAreaDlg2(parent, -1, edit_area = ea, single_entry = single_entry)
 	dlg.SetTitle(gmTools.coalesce(drug_component, _('Adding new drug component'), _('Editing drug component')))
 	if dlg.ShowModal() == wx.ID_OK:
 		dlg.Destroy()
@@ -922,10 +922,10 @@ def edit_drug_product(parent=None, drug_product=None, single_entry=False):
 		manage_substance_doses(parent = parent)
 
 	#--------------------------------------------
-	ea = cDrugProductEAPnl(parent = parent, id = -1)
+	ea = cDrugProductEAPnl(parent, -1)
 	ea.data = drug_product
 	ea.mode = gmTools.coalesce(drug_product, 'new', 'edit')
-	dlg = gmEditArea.cGenericEditAreaDlg2(parent = parent, id = -1, edit_area = ea, single_entry = single_entry)
+	dlg = gmEditArea.cGenericEditAreaDlg2(parent, -1, edit_area = ea, single_entry = single_entry)
 	dlg.SetTitle(gmTools.coalesce(drug_product, _('Adding new drug product'), _('Editing drug product')))
 	dlg.left_extra_button = (
 		_('Substances'),
@@ -1360,10 +1360,10 @@ def edit_single_component_generic_drug(parent=None, drug=None, single_entry=Fals
 #		manage_substance_doses(parent = parent)
 
 	#--------------------------------------------
-	ea = cSingleComponentGenericDrugEAPnl(parent = parent, id = -1)
+	ea = cSingleComponentGenericDrugEAPnl(parent, -1)
 	ea.data = drug
 	ea.mode = gmTools.coalesce(drug, 'new', 'edit')
-	dlg = gmEditArea.cGenericEditAreaDlg2(parent = parent, id = -1, edit_area = ea, single_entry = single_entry)
+	dlg = gmEditArea.cGenericEditAreaDlg2(parent, -1, edit_area = ea, single_entry = single_entry)
 	if fields is not None:
 		ea.set_fields(fields)
 	dlg.SetTitle(gmTools.coalesce(drug, _('Adding new single-component generic drug'), _('Editing single-component generic drug')))

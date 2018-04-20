@@ -535,7 +535,7 @@ if __name__ == '__main__':
 	#------------------------------------------------------------------
 	def test_sql_logic_prw():
 		app = wx.PyWidgetTester(size = (200, 50))
-		prw = cThreeValuedLogicPhraseWheel(parent = app.frame, id = -1)
+		prw = cThreeValuedLogicPhraseWheel(app.frame, -1)
 		app.frame.Show(True)
 		app.MainLoop()
 

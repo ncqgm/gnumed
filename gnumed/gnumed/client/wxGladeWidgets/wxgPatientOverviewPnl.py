@@ -20,6 +20,7 @@ class wxgPatientOverviewPnl(wx.ScrolledWindow):
 		# begin wxGlade: wxgPatientOverviewPnl.__init__
 		kwds["style"] = kwds.get("style", 0) | wx.TAB_TRAVERSAL
 		wx.ScrolledWindow.__init__(self, *args, **kwds)
+		self.SetSize((400, 300))
 		self._LCTRL_identity = cReportListCtrl(self, wx.ID_ANY, style=wx.BORDER_SIMPLE | wx.LC_NO_HEADER | wx.LC_REPORT)
 		self._LCTRL_contacts = cReportListCtrl(self, wx.ID_ANY, style=wx.BORDER_SIMPLE | wx.LC_NO_HEADER | wx.LC_REPORT)
 		self._LCTRL_encounters = cReportListCtrl(self, wx.ID_ANY, style=wx.BORDER_SIMPLE | wx.LC_NO_HEADER | wx.LC_REPORT)
@@ -36,6 +37,7 @@ class wxgPatientOverviewPnl(wx.ScrolledWindow):
 
 	def __set_properties(self):
 		# begin wxGlade: wxgPatientOverviewPnl.__set_properties
+		self.SetSize((400, 300))
 		self.SetScrollRate(10, 10)
 		self._LCTRL_problems.SetBackgroundColour(wx.Colour(255, 238, 180))
 		# end wxGlade
@@ -77,7 +79,6 @@ class wxgPatientOverviewPnl(wx.ScrolledWindow):
 		__szr_right.Add(self._LCTRL_documents, 2, wx.EXPAND, 5)
 		self._SZR_main.Add(__szr_right, 1, wx.EXPAND, 0)
 		self.SetSizer(self._SZR_main)
-		self._SZR_main.Fit(self)
 		self.Layout()
 		# end wxGlade
 

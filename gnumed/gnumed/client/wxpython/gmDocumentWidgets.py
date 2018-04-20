@@ -177,7 +177,7 @@ def save_files_as_new_document(parent=None, filenames=None, document_type=None, 
 			episode = emr.add_episode(episode_name = _('Documents'), is_open = False)
 		else:
 			from Gnumed.wxpython.gmEMRStructWidgets import cEpisodeListSelectorDlg
-			dlg = cEpisodeListSelectorDlg(parent = parent, id = -1, episodes = all_epis)
+			dlg = cEpisodeListSelectorDlg(parent, -1, episodes = all_epis)
 			dlg.SetTitle(_('Select the episode under which to file the document ...'))
 			btn_pressed = dlg.ShowModal()
 			episode = dlg.get_selected_item_data(only_one = True)

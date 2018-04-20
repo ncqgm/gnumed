@@ -88,10 +88,10 @@ def manage_family_history(parent=None):
 	)
 #----------------------------------------------------------------
 def edit_family_history(parent=None, family_history=None):
-	ea = cFamilyHistoryEAPnl(parent = parent, id = -1)
+	ea = cFamilyHistoryEAPnl(parent, -1)
 	ea.data = family_history
 	ea.mode = gmTools.coalesce(family_history, 'new', 'edit')
-	dlg = gmEditArea.cGenericEditAreaDlg2(parent = parent, id = -1, edit_area = ea, single_entry = True)
+	dlg = gmEditArea.cGenericEditAreaDlg2(parent, -1, edit_area = ea, single_entry = True)
 	dlg.SetTitle(gmTools.coalesce(family_history, _('Adding family history'), _('Editing family history')))
 	if dlg.ShowModal() == wx.ID_OK:
 		dlg.Destroy()

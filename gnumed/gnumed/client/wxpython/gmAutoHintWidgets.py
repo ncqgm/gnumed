@@ -104,10 +104,10 @@ def edit_dynamic_hint(parent=None, hint=None, single_entry=True):
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
 
-	ea = cAutoHintEAPnl(parent = parent, id = -1)
+	ea = cAutoHintEAPnl(parent, -1)
 	ea.data = hint
 	ea.mode = gmTools.coalesce(hint, 'new', 'edit')
-	dlg = gmEditArea.cGenericEditAreaDlg2(parent = parent, id = -1, edit_area = ea, single_entry = single_entry)
+	dlg = gmEditArea.cGenericEditAreaDlg2(parent, -1, edit_area = ea, single_entry = single_entry)
 	dlg.SetTitle(gmTools.coalesce(hint, _('Adding automatic dynamic hint'), _('Editing automatic dynamic hint')))
 	if dlg.ShowModal() == wx.ID_OK:
 		dlg.Destroy()

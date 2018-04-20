@@ -74,10 +74,10 @@ def emr_access_spinner(time2spin=0):
 # episode related widgets/functions
 #----------------------------------------------------------------
 def edit_episode(parent=None, episode=None):
-	ea = cEpisodeEditAreaPnl(parent = parent, id = -1)
+	ea = cEpisodeEditAreaPnl(parent, -1)
 	ea.data = episode
 	ea.mode = gmTools.coalesce(episode, 'new', 'edit')
-	dlg = gmEditArea.cGenericEditAreaDlg2(parent = parent, id = -1, edit_area = ea, single_entry = True)
+	dlg = gmEditArea.cGenericEditAreaDlg2(parent, -1, edit_area = ea, single_entry = True)
 	dlg.SetTitle(gmTools.coalesce(episode, _('Adding a new episode'), _('Editing an episode')))
 	if dlg.ShowModal() == wx.ID_OK:
 		return True
@@ -707,10 +707,10 @@ class cEpisodeEditAreaPnl(gmEditArea.cGenericEditAreaMixin, wxgEpisodeEditAreaPn
 # health issue related widgets/functions
 #----------------------------------------------------------------
 def edit_health_issue(parent=None, issue=None):
-	ea = cHealthIssueEditAreaPnl(parent = parent, id = -1)
+	ea = cHealthIssueEditAreaPnl(parent, -1)
 	ea.data = issue
 	ea.mode = gmTools.coalesce(issue, 'new', 'edit')
-	dlg = gmEditArea.cGenericEditAreaDlg2(parent = parent, id = -1, edit_area = ea, single_entry = (issue is not None))
+	dlg = gmEditArea.cGenericEditAreaDlg2(parent, -1, edit_area = ea, single_entry = (issue is not None))
 	dlg.SetTitle(gmTools.coalesce(issue, _('Adding a new health issue'), _('Editing a health issue')))
 	if dlg.ShowModal() == wx.ID_OK:
 		dlg.Destroy()
