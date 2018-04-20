@@ -168,12 +168,12 @@ class cBillablePhraseWheel(gmPhraseWheel.cPhraseWheel):
 		self.matcher = mp
 	#------------------------------------------------------------
 	def _data2instance(self):
-		return gmBilling.cBillable(aPK_obj = self._data.values()[0]['data'])
+		return gmBilling.cBillable(aPK_obj = list(self._data.values())[0]['data'])
 	#------------------------------------------------------------
 	def _get_data_tooltip(self):
 		if self.GetData() is None:
 			return None
-		billable = gmBilling.cBillable(aPK_obj = self._data.values()[0]['data'])
+		billable = gmBilling.cBillable(aPK_obj = list(self._data.values())[0]['data'])
 		return billable.format()
 	#------------------------------------------------------------
 	def set_from_instance(self, instance):

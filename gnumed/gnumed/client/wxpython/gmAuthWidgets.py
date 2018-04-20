@@ -764,7 +764,7 @@ class cLoginPanel(wx.Panel):
 		if last_used_profile_label in self.__backend_profiles.keys():
 			self._CBOX_profile.SetValue(last_used_profile_label)
 		else:
-			self._CBOX_profile.SetValue(self.__backend_profiles.keys()[0])
+			self._CBOX_profile.SetValue(list(self.__backend_profiles.keys())[0])
 
 		self._CHBOX_debug.SetValue(_cfg.get(option = 'debug'))
 		self._CHBOX_slave.SetValue(_cfg.get(option = 'slave'))

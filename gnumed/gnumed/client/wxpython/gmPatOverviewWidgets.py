@@ -575,8 +575,8 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 				with_rfe_aoe = True
 			)
 
-		if type(data) == type({}):
-			key, val = data.items()[0]
+		if type(data) is dict:
+			key, val = list(data.items())[0]
 			if key == 'wlist':
 				return val
 			if key == 'stay':
@@ -593,8 +593,8 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 					gmEncounterWidgets.edit_encounter(parent = self, encounter = data)
 					return
 
-		if type(data) == type({}):
-			key, val = data.items()[0]
+		if type(data) is dict:
+			key, val = list(data.items())[0]
 			if key == 'wlist':
 				gmDispatcher.send(signal = 'display_widget', name = 'gmWaitingListPlugin')
 				return
@@ -1190,8 +1190,8 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 	def _calc_identity_item_tooltip(self, data):
 		if isinstance(data, gmPerson.cPersonName):
 			return data['comment']
-		if isinstance(data, type({})):
-			key = data.keys()[0]
+		if isinstance(data, dict):
+			key = list(data.keys())[0]
 			val = data[key]
 			if key == 'id':
 				return _('issued by: %s%s') % (
@@ -1224,8 +1224,8 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 			dlg.ShowModal()
 			return
 
-		if isinstance(data, type({})):
-			key = data.keys()[0]
+		if isinstance(data, dict):
+			key = list(data.keys())[0]
 			val = data[key]
 			if key == 'id':
 				ea = gmDemographicsWidgets.cExternalIDEditAreaPnl(self, -1, external_id = val)

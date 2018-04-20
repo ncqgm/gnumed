@@ -726,7 +726,7 @@ class cExternalIDTypePhraseWheel(gmPhraseWheel.cPhraseWheel):
 	def _get_data_tooltip(self):
 		if self.GetData() is None:
 			return None
-		return self._data.values()[0]['list_label']
+		return list(self._data.values())[0]['list_label']
 #------------------------------------------------------------
 class cExternalIDIssuerPhraseWheel(gmPhraseWheel.cPhraseWheel):
 

@@ -427,7 +427,7 @@ class cEncounterPhraseWheel(gmPhraseWheel.cPhraseWheel):
 	def _get_data_tooltip(self):
 		if self.GetData() is None:
 			return None
-		enc = gmEMRStructItems.cEncounter(aPK_obj = self._data.values()[0]['data'])
+		enc = gmEMRStructItems.cEncounter(aPK_obj = list(self._data.values())[0]['data'])
 		return enc.format (
 			with_docs = False,
 			with_tests = False,
