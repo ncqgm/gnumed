@@ -1,5 +1,5 @@
 
-from __future__ import print_function
+
 
 __doc__ = """GNUmed general tools."""
 
@@ -24,21 +24,22 @@ def is_cmd_in_path(cmd=None):
 	_log.debug('cmd: [%s]', cmd)
 	dirname = os.path.dirname(cmd)
 	_log.debug('dir: [%s]', dirname)
-	if dirname != u'':
+	if dirname != '':
 		_log.info('command with full or relative path, not searching in PATH for binary')
 		return (None, None)
 
-	env_paths = unicode(os.environ['PATH'], encoding = sys.getfilesystemencoding(), errors = 'replace')
-	_log.debug(u'${PATH}: %s', env_paths)
+	#env_paths = str(os.environ['PATH'], encoding = sys.getfilesystemencoding(), errors = 'replace')
+	env_paths = os.environ['PATH']
+	_log.debug('${PATH}: %s', env_paths)
 	for path in env_paths.split(os.pathsep):
 		candidate = os.path.join(path, cmd)
 		if os.access(candidate, os.X_OK):
-			_log.debug(u'found [%s]', candidate)
+			_log.debug('found [%s]', candidate)
 			return (True, candidate)
 		else:
-			_log.debug(u'not found: %s', candidate)
+			_log.debug('not found: %s', candidate)
 
-	_log.debug(u'command not found in PATH')
+	_log.debug('command not found in PATH')
 
 	return (False, None)
 #===========================================================================
@@ -266,7 +267,7 @@ if __name__ == '__main__':
 	if len(sys.argv) < 2:
 		sys.exit()
 
-	if sys.argv[1] != u'test':
+	if sys.argv[1] != 'test':
 		sys.exit()
 
 	logging.basicConfig(level = logging.DEBUG)
@@ -294,9 +295,9 @@ if __name__ == '__main__':
 	def test_is_executable_by_wine():
 		print(is_executable_by_wine(cmd = sys.argv[2]))
 	#---------------------------------------------------------
-	test_run_command_in_shell()
+	#test_run_command_in_shell()
 	#test_detect_external_binary()
-	#test_is_cmd_in_path()
+	test_is_cmd_in_path()
 	#test_is_executable_by_wine()
 
 #===========================================================================

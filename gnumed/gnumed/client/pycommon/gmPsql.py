@@ -42,12 +42,12 @@ class Psql:
 	#---------------------------------------------------------------
 	def fmt_msg(self, aMsg):
 		try:
-			tmp = u"%s:%d: %s" % (self.filename, self.lineno-1, aMsg)
-			tmp = tmp.replace(u'\r', u'')
-			tmp = tmp.replace(u'\n', u'')
+			tmp = "%s:%d: %s" % (self.filename, self.lineno-1, aMsg)
+			tmp = tmp.replace('\r', '')
+			tmp = tmp.replace('\n', '')
 		except UnicodeDecodeError:
 			global unformattable_error_id
-			tmp = u"%s:%d: <cannot unicode(msg), printing on console with ID [#%d]>" % (self.filename, self.lineno-1, unformattable_error_id)
+			tmp = "%s:%d: <cannot str(msg), printing on console with ID [#%d]>" % (self.filename, self.lineno-1, unformattable_error_id)
 			try:
 				print('ERROR: GNUmed bootstrap #%d:' % unformattable_error_id)
 				print(aMsg)
@@ -62,15 +62,15 @@ class Psql:
 		"""
 		_log.debug('processing [%s]', filename)
 		curs = self.conn.cursor()
-		curs.execute(u'show session authorization')
+		curs.execute('show session authorization')
 		start_auth = curs.fetchall()[0][0]
 		curs.close()
-		_log.debug(u'session auth: %s', start_auth)
+		_log.debug('session auth: %s', start_auth)
 
 		if os.access (filename, os.R_OK):
 			sql_file = io.open(filename, mode = 'rt', encoding = 'utf8')
 		else:
-			_log.error(u"cannot open file [%s]", filename)
+			_log.error("cannot open file [%s]", filename)
 			return 1
 
 		self.lineno = 0
@@ -80,14 +80,14 @@ class Psql:
 		curr_cmd = ''
 		curs = self.conn.cursor()
 
-		for self.line in sql_file.readlines():
+		for self.line in sql_file:
 			self.lineno += 1
 			if len(self.line.strip()) == 0:
 				continue
 
 			# \set
 			if self.match(r"^\\set (\S+) (\S+)"):
-				_log.debug(u'"\set" found: %s', self.groups)
+				_log.debug('"\set" found: %s', self.groups)
 				self.vars[self.groups[0]] = self.groups[1]
 				if self.groups[0] == 'ON_ERROR_STOP':
 					# adjusting from string to int so that "1" -> 1 -> True
@@ -103,7 +103,7 @@ class Psql:
 			if self.match (r"^\\(.*)") and not in_string:
 				# most other \ commands are for controlling output formats, don't make
 				# much sense in an installation script, so we gently ignore them
-				_log.warning(self.fmt_msg(u"psql command \"\\%s\" being ignored " % self.groups[0]))
+				_log.warning(self.fmt_msg("psql command \"\\%s\" being ignored " % self.groups[0]))
 				continue
 
 			# non-'\' commands
@@ -137,8 +137,8 @@ class Psql:
 							curs.execute(curr_cmd)
 							try:
 								data = curs.fetchall()
-								_log.debug(u'cursor data: %s', data)
-							except StandardError:	# actually: psycopg2.ProgrammingError but no handle
+								_log.debug('cursor data: %s', data)
+							except Exception:	# actually: psycopg2.ProgrammingError but no handle
 								pass
 						except Exception as error:
 							_log.exception(curr_cmd)
@@ -148,12 +148,12 @@ class Psql:
 								_log.error(self.fmt_msg(error))
 								if hasattr(error, 'diag'):
 									for prop in dir(error.diag):
-										if prop.startswith(u'__'):
+										if prop.startswith('__'):
 											continue
 										val = getattr(error.diag, prop)
 										if val is None:
 											continue
-										_log.error(u'PG diags %s: %s', prop, val)
+										_log.error('PG diags %s: %s', prop, val)
 								if self.vars['ON_ERROR_STOP']:
 									self.conn.commit()
 									curs.close()
@@ -169,10 +169,10 @@ class Psql:
 
 		# end of loop over lines
 		self.conn.commit()
-		curs.execute(u'show session authorization')
+		curs.execute('show session authorization')
 		end_auth = curs.fetchall()[0][0]
 		curs.close()
-		_log.debug(u'session auth after sql file processing: %s', end_auth)
+		_log.debug('session auth after sql file processing: %s', end_auth)
 		if start_auth != end_auth:
 			_log.error('session auth changed before/after processing sql file')
 

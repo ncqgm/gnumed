@@ -29,8 +29,8 @@ _log = logging.getLogger('gm.atc')
 _cfg = gmCfg2.gmCfgData()
 
 
-ATC_NICOTINE = u'N07BA01'
-ATC_ETHANOL  = u'V03AB16'
+ATC_NICOTINE = 'N07BA01'
+ATC_ETHANOL  = 'V03AB16'
 
 #============================================================
 def propagate_atc(substance=None, atc=None, link_obj=None):
@@ -38,24 +38,24 @@ def propagate_atc(substance=None, atc=None, link_obj=None):
 	_log.debug('substance <%s>, ATC <%s>', substance, atc)
 
 	if atc is not None:
-		if atc.strip() == u'':
+		if atc.strip() == '':
 			atc = None
 
 	if atc is None:
 		atcs = text2atc(text = substance, fuzzy = False, link_obj = link_obj)
 		if len(atcs) == 0:
-			_log.debug(u'no ATC found, aborting')
+			_log.debug('no ATC found, aborting')
 			return atc
 		if len(atcs) > 1:
-			_log.debug(u'non-unique ATC mapping, aborting')
+			_log.debug('non-unique ATC mapping, aborting')
 			return atc
 		atc = atcs[0][0].strip()
 
 	args = {'atc': atc, 'term': substance.strip()}
 	queries = [
-		{'cmd': u"UPDATE ref.substance SET atc = %(atc)s WHERE lower(description) = lower(%(term)s) AND atc IS NULL",
+		{'cmd': "UPDATE ref.substance SET atc = %(atc)s WHERE lower(description) = lower(%(term)s) AND atc IS NULL",
 		 'args': args},
-		{'cmd': u"UPDATE ref.drug_product SET atc_code = %(atc)s WHERE lower(description) = lower(%(term)s) AND atc_code IS NULL",
+		{'cmd': "UPDATE ref.drug_product SET atc_code = %(atc)s WHERE lower(description) = lower(%(term)s) AND atc_code IS NULL",
 		 'args': args}
 	]
 	gmPG2.run_rw_queries(link_obj = link_obj, queries = queries)
@@ -68,8 +68,8 @@ def text2atc(text=None, fuzzy=False, link_obj=None):
 	text = text.strip()
 
 	if fuzzy:
-		args = {'term': u'%%%s%%' % text}
-		cmd = u"""
+		args = {'term': '%%%s%%' % text}
+		cmd = """
 			SELECT DISTINCT ON (atc_code) *
 			FROM (
 				SELECT atc as atc_code, is_group_code, pk_data_source
@@ -88,7 +88,7 @@ def text2atc(text=None, fuzzy=False, link_obj=None):
 		"""
 	else:
 		args = {'term': text.lower()}
-		cmd = u"""
+		cmd = """
 			SELECT DISTINCT ON (atc_code) *
 			FROM (
 				SELECT atc as atc_code, is_group_code, pk_data_source
@@ -108,20 +108,20 @@ def text2atc(text=None, fuzzy=False, link_obj=None):
 
 	rows, idx = gmPG2.run_ro_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
 
-	_log.debug(u'term: %s => ATCs: %s (fuzzy: %s)', text, rows, fuzzy)
+	_log.debug('term: %s => ATCs: %s (fuzzy: %s)', text, rows, fuzzy)
 
 	return rows
 
 #============================================================
 def exists_as_atc(substance):
 	args = {'term': substance}
-	cmd = u'SELECT EXISTS (SELECT 1 FROM ref.atc WHERE lower(term) = lower(%(term)s))'
+	cmd = 'SELECT EXISTS (SELECT 1 FROM ref.atc WHERE lower(term) = lower(%(term)s))'
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
 	return rows[0][0]
 
 #============================================================
-def get_reference_atcs(order_by=u'atc, term, lang'):
-	cmd = u'SELECT * FROM ref.v_atc ORDER BY %s' % order_by
+def get_reference_atcs(order_by='atc, term, lang'):
+	cmd = 'SELECT * FROM ref.v_atc ORDER BY %s' % order_by
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = False)
 	return rows
 
@@ -151,10 +151,10 @@ def atc_import(cfg_fname=None, conn=None):
 	# create data source record
 	queries = [
 		{
-		'cmd': u"""delete from ref.data_source where name_short = %(name_short)s and version = %(ver)s""",
+		'cmd': """delete from ref.data_source where name_short = %(name_short)s and version = %(ver)s""",
 		'args': args
 		}, {
-		'cmd': u"""
+		'cmd': """
 insert into ref.data_source (name_long, name_short, version, description, lang, source) values (
 	%(name_long)s,
 	%(name_short)s,
@@ -165,7 +165,7 @@ insert into ref.data_source (name_long, name_short, version, description, lang, 
 )""",
 		'args': args
 		}, {
-		'cmd': u"""select pk from ref.data_source where name_short = %(name_short)s and version = %(ver)s""",
+		'cmd': """select pk from ref.data_source where name_short = %(name_short)s and version = %(ver)s""",
 		'args': args
 		}
 	]
@@ -179,7 +179,7 @@ insert into ref.data_source (name_long, name_short, version, description, lang, 
 
 	# clean out staging area
 	curs = conn.cursor()
-	cmd = u"""delete from ref.atc_staging"""
+	cmd = """delete from ref.atc_staging"""
 	gmPG2.run_rw_queries(link_obj = curs, queries = [{'cmd': cmd}])
 	curs.close()
 	conn.commit()
@@ -187,7 +187,7 @@ insert into ref.data_source (name_long, name_short, version, description, lang, 
 
 	# from file into staging table
 	curs = conn.cursor()
-	cmd = u"""insert into ref.atc_staging values (%s, %s, %s, %s, %s)"""
+	cmd = """insert into ref.atc_staging values (%s, %s, %s, %s, %s)"""
 	first = False
 	for atc_line in atc_reader:
 		# skip first
@@ -196,12 +196,12 @@ insert into ref.data_source (name_long, name_short, version, description, lang, 
 			continue
 
 		# skip blanks
-		if atc_line[0] + atc_line[1] + atc_line[2] + atc_line[3] + atc_line[4] == u'':
+		if atc_line[0] + atc_line[1] + atc_line[2] + atc_line[3] + atc_line[4] == '':
 			continue
 
-		comment = u''
-		unit = u''
-		adro = u''
+		comment = ''
+		unit = ''
+		adro = ''
 
 		# "1,1 mg O,P,R,..."
 		if regex.match('\d{,3},\d{,3}\s.{1,2}\s.(,.)*$', atc_line[4]):
@@ -237,7 +237,7 @@ insert into ref.data_source (name_long, name_short, version, description, lang, 
 	# from staging table to real table
 	curs = conn.cursor()
 	args = {'src_pk': data_src_pk}
-	cmd = u"""
+	cmd = """
 insert into ref.atc (
 	fk_data_source,
 	code,
@@ -265,7 +265,7 @@ from
 
 	# clean out staging area
 	curs = conn.cursor()
-	cmd = u"""delete from ref.atc_staging"""
+	cmd = """delete from ref.atc_staging"""
 	gmPG2.run_rw_queries(link_obj = curs, queries = [{'cmd': cmd}])
 	curs.close()
 	conn.commit()
@@ -295,14 +295,14 @@ if __name__ == "__main__":
 		atc_import(cfg_fname = sys.argv[2], conn = gmPG2.get_connection(readonly = False))
 	#--------------------------------------------------------
 	def test_text2atc():
-		print 'searching ATC code for:', sys.argv[2]
-		print ' ', text2atc(sys.argv[2])
-		print ' ', text2atc(sys.argv[2], True)
+		print('searching ATC code for:', sys.argv[2])
+		print(' ', text2atc(sys.argv[2]))
+		print(' ', text2atc(sys.argv[2], True))
 	#--------------------------------------------------------
 	def test_get_reference_atcs():
-		print "reference_of_atc_codes:"
+		print("reference_of_atc_codes:")
 		for atc in get_reference_atcs():
-			print atc
+			print(atc)
 	#--------------------------------------------------------
 	#test_atc_import()
 	#test_text2atc()

@@ -75,9 +75,9 @@ class cEdcCalculatorDlg(wxgEdcCalculatorDlg.wxgEdcCalculatorDlg):
 	def __init_ui(self):
 		edc = self.__calc.get_EDC(lmp = None, nullipara = self._CHBOX_first_pregnancy.GetValue())
 		txt = _(
-			u'Algorithm: %s\n'
-			u'\n'
-			u'Source: %s'
+			'Algorithm: %s\n'
+			'\n'
+			'Source: %s'
 		) % (
 			edc.formula_name,
 			edc.formula_source
@@ -93,7 +93,7 @@ class cEdcCalculatorDlg(wxgEdcCalculatorDlg.wxgEdcCalculatorDlg):
 	#----------------------------------------------------------------
 	def _on_edc_modified(self):
 		self._PRW_lmp.SetData(None)
-		self._TCTRL_details.SetValue(u'')
+		self._TCTRL_details.SetValue('')
 	#----------------------------------------------------------------
 	def _on_first_pregnancy_toggled(self, event):
 		event.Skip()
@@ -117,13 +117,13 @@ class cEdcCalculatorDlg(wxgEdcCalculatorDlg.wxgEdcCalculatorDlg):
 		lmp = self._PRW_lmp.date
 		if lmp is None:
 			self._PRW_edc.SetData(None)
-			self._TCTRL_details.SetValue(u'')
+			self._TCTRL_details.SetValue('')
 			return
 
 		edc = self.__calc.get_EDC(lmp = lmp, nullipara = self._CHBOX_first_pregnancy.GetValue())
 
 		self._PRW_edc.SetData(edc.numeric_value)
-		details = u''
+		details = ''
 		now = gmDateTime.pydt_now_here()
 		# Beulah Hunter, 375 days (http://www.reference.com/motif/health/longest-human-pregnancy-on-record)
 		if (lmp < now) and (edc.numeric_value > (now + pydt.timedelta(days = 380))):
@@ -136,8 +136,8 @@ class cEdcCalculatorDlg(wxgEdcCalculatorDlg.wxgEdcCalculatorDlg):
 			if days > 0:
 				month += 1
 			details += _(
-				u'Current age of pregnancy (%s):\n'
-				u' day %s = %s weeks %s days = week %s = month %s\n\n'
+				'Current age of pregnancy (%s):\n'
+				' day %s = %s weeks %s days = week %s = month %s\n\n'
 			) % (
 				gmDateTime.pydt_strftime(now, '%Y %b %d'),
 				age.days,
@@ -166,7 +166,7 @@ class cEdcCalculatorDlg(wxgEdcCalculatorDlg.wxgEdcCalculatorDlg):
 	def _set_EDC(self, edc):
 		self._PRW_edc.SetData(edc)
 		self._PRW_lmp.SetData(None)
-		self._TCTRL_details.SetValue(u'')
+		self._TCTRL_details.SetValue('')
 
 	EDC = property(_get_EDC, _set_EDC)
 	#----------------------------------------------------------------
@@ -181,11 +181,10 @@ class cEdcCalculatorDlg(wxgEdcCalculatorDlg.wxgEdcCalculatorDlg):
 #====================================================================
 #====================================================================
 #====================================================================
-import math, zlib, cPickle, random, string, os.path
+import math, zlib, random, string, os.path
 
 
 import wx.lib.rcsizer
-import wx.calendar
 
 """
 Calculates from LMP:
@@ -258,7 +257,7 @@ class cPregCalcFrame (wx.Frame):
 			from Gnumed.pycommon import gmGuiBroker
 			gb = gmGuiBroker.GuiBroker()
 			png_fname = os.path.join(gb['gnumed_dir'], 'bitmaps', 'preg_calculator.png')
-		icon = wx.EmptyIcon()
+		icon = wx.Icon()
 		icon.LoadFile(png_fname, wx.BITMAP_TYPE_PNG)
 		self.SetIcon(icon)
 
@@ -311,7 +310,7 @@ class cPregCalcFrame (wx.Frame):
 		label.SetFont(wx.Font(12,wx.SWISS,wx.NORMAL,wx.NORMAL,False,''))
 		label.SetForegroundColour(wx.Colour(0,0,0))
 
-  		self.txtedc = wx.TextCtrl(self,-1,"",size=(100,20))
+		self.txtedc = wx.TextCtrl(self,-1,"",size=(100,20))
 		self.txtedc.Enable(False)
 		self.txtedc.SetFont(wx.Font(12,wx.SWISS,wx.NORMAL,wx.NORMAL,False,''))
 		szr_txtedc = wx.BoxSizer(wx.HORIZONTAL)
@@ -339,7 +338,7 @@ class cPregCalcFrame (wx.Frame):
 		label.SetFont(wx.Font(12,wx.SWISS,wx.NORMAL,wx.NORMAL,False,''))
 		label.SetForegroundColour(wx.Colour(0,0,0))
 
-  		self.txtdue = wx.TextCtrl(self,-1,"",size=(100,20))
+		self.txtdue = wx.TextCtrl(self,-1,"",size=(100,20))
 		self.txtdue.Enable(False)
 		self.txtdue.SetFont(wx.Font(12,wx.SWISS,wx.NORMAL,wx.NORMAL,False,''))
 		self.szr_txtdue  = wx.BoxSizer(wx.HORIZONTAL)
@@ -367,7 +366,7 @@ class cPregCalcFrame (wx.Frame):
 		label1 = wx.StaticText(self,-1,_("Scan Date"),size = (25,20))
 		label1.SetFont(wx.Font(12,wx.SWISS,wx.NORMAL,wx.NORMAL,False,''))
 		label1.SetForegroundColour(wx.Colour(0,0,0))
-  		self.txtdate = wx.TextCtrl(self,-1,"",size=(25,20))
+		self.txtdate = wx.TextCtrl(self,-1,"",size=(25,20))
 		self.txtdate.SetFont(wx.Font(12,wx.SWISS,wx.NORMAL,wx.NORMAL,False,''))
 		self.txtdate.SetToolTip(wx.ToolTip(_("Click on this field and then the ultrasound scan date on the calendar")))
 		tipdue=self.txtdate.GetToolTip()
@@ -421,7 +420,7 @@ class cPregCalcFrame (wx.Frame):
 		label.SetFont(wx.Font(12,wx.SWISS,wx.NORMAL,wx.NORMAL,False,''))
 		label.SetForegroundColour(wx.Colour(0,0,0))
 
-  		self.txtnewedc = wx.TextCtrl(self,-1,"",size=(100,20))
+		self.txtnewedc = wx.TextCtrl(self,-1,"",size=(100,20))
 		self.txtnewedc.Enable(False)
 		self.txtnewedc.SetFont(wx.Font(12,wx.SWISS,wx.NORMAL,wx.NORMAL,False,''))
 		self.szr_txtnewedc  = wx.BoxSizer(wx.HORIZONTAL)

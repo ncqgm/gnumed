@@ -11,7 +11,7 @@ sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmPG2
 #============================================================
 
-cmd = u"""
+cmd = """
 SELECT
 	soap_cat,
 	narrative,
@@ -36,7 +36,7 @@ rows, idx = gmPG2.run_ro_queries(link_obj=conn, queries=[{'cmd': cmd, 'args': {'
 f = io.open('emr-%s-narrative-dump.txt' % sys.argv[1], mode = 'wt', encoding = 'utf8', errors = 'strict')
 
 for row in rows:
-	f.write(u'%s: %s (%s)\n'.encode('utf8') % (row['soap_cat'], row['narrative'], row['src_table']))
+	f.write('%s: %s (%s)\n'.encode('utf8') % (row['soap_cat'], row['narrative'], row['src_table']))
 
 f.close()
 

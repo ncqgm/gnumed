@@ -42,7 +42,7 @@ class cAllergyEditAreaPnl(wxgAllergyEditAreaPnl.wxgAllergyEditAreaPnl):
 			self.__allergy = None
 
 		mp = gmMatchProvider.cMatchProvider_SQL2 (
-			queries = [u"""
+			queries = ["""
 select substance, substance
 from clin.allergy
 where substance %(fragment_condition)s
@@ -71,7 +71,7 @@ where atc_code %(fragment_condition)s
 		self._PRW_trigger.matcher = mp
 
 		mp = gmMatchProvider.cMatchProvider_SQL2 (
-			queries = [u"""
+			queries = ["""
 select narrative, narrative
 from clin.allergy
 where narrative %(fragment_condition)s
@@ -142,7 +142,7 @@ where narrative %(fragment_condition)s
 			self._PRW_trigger.display_as_valid(False)
 			self._PRW_trigger.SetFocus()
 			return False
-		#self._PRW_trigger.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
+		#self._PRW_trigger.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOW))
 		self._PRW_trigger.display_as_valid(True)
 		self._PRW_trigger.Refresh()
 
@@ -238,7 +238,7 @@ class cAllergyManagerDlg(wxgAllergyManagerDlg.wxgAllergyManagerDlg):
 
 		self.__set_columns()
 		# MacOSX crashes on this with:
-		#  exception type : wx._core.PyAssertionError
+		#  exception type : wx._core.wxAssertionError
 		#  exception value: C++ assertion "i" failed at /BUILD/wxPython-src-2.8.3.0/src/common/wincmn.cpp(2634) in DoMoveInTabOrder(): MoveBefore/AfterInTabOrder(): win is not a sibling
 		# while Win/Linux work just fine
 		#self._PNL_edit_area._ChBOX_definite.MoveAfterInTabOrder(self._BTN_save)
@@ -300,7 +300,7 @@ class cAllergyManagerDlg(wxgAllergyManagerDlg.wxgAllergyManagerDlg):
 			self._RBTN_unknown.Enable(True)
 			self._RBTN_none.Enable(True)
 
-			gmDispatcher.send(signal=u'statustext', msg=_('invalid allergy state [%s]') % state, beep=True)
+			gmDispatcher.send(signal='statustext', msg=_('invalid allergy state [%s]') % state, beep=True)
 
 		if state['comment'] is not None:
 			self._TCTRL_state_comment.SetValue(state['comment'])
@@ -318,14 +318,14 @@ class cAllergyManagerDlg(wxgAllergyManagerDlg.wxgAllergyManagerDlg):
 			emr.allergy_state = 1
 
 			for allergy in allergies:
-				row_idx = self._LCTRL_allergies.InsertStringItem(no_of_allergies, label = allergy['l10n_type'])
+				row_idx = self._LCTRL_allergies.InsertItem(no_of_allergies, label = allergy['l10n_type'])
 				if allergy['definite']:
 					label = _('definite')
 				else:
-					label = u''
-				self._LCTRL_allergies.SetStringItem(index = row_idx, col = 1, label = label)
-				self._LCTRL_allergies.SetStringItem(index = row_idx, col = 2, label = allergy['descriptor'])
-				self._LCTRL_allergies.SetStringItem(index = row_idx, col = 3, label = gmTools.coalesce(allergy['reaction'], u''))
+					label = ''
+				self._LCTRL_allergies.SetItem(index = row_idx, column = 1, label = label)
+				self._LCTRL_allergies.SetItem(index = row_idx, column = 2, label = allergy['descriptor'])
+				self._LCTRL_allergies.SetItem(index = row_idx, column = 3, label = gmTools.coalesce(allergy['reaction'], ''))
 			self._LCTRL_allergies.set_data(data=allergies)
 
 			self._LCTRL_allergies.Enable(True)
@@ -371,7 +371,7 @@ class cAllergyManagerDlg(wxgAllergyManagerDlg.wxgAllergyManagerDlg):
 		emr.delete_allergy(pk_allergy = allergy['pk_allergy'])
 
 		state = emr.allergy_state
-		state['last_confirmed'] = u'now'
+		state['last_confirmed'] = 'now'
 		state.save_payload()
 
 		self.__refresh_state_ui()
@@ -395,7 +395,7 @@ class cAllergyManagerDlg(wxgAllergyManagerDlg.wxgAllergyManagerDlg):
 
 		if self._RBTN_unknown.GetValue():
 			if len(allergies) > 0:
-				gmDispatcher.send(signal = u'statustext', msg = _('Cannot set allergy state to <unknown> because there are allergies stored for this patient.'), beep = True)
+				gmDispatcher.send(signal = 'statustext', msg = _('Cannot set allergy state to <unknown> because there are allergies stored for this patient.'), beep = True)
 				self._RBTN_some.SetValue(True)
 				state['has_allergy'] = 1
 				return False
@@ -404,7 +404,7 @@ class cAllergyManagerDlg(wxgAllergyManagerDlg.wxgAllergyManagerDlg):
 
 		elif self._RBTN_none.GetValue():
 			if len(allergies) > 0:
-				gmDispatcher.send(signal = u'statustext', msg = _('Cannot set allergy state to <None> because there are allergies stored for this patient.'), beep = True)
+				gmDispatcher.send(signal = 'statustext', msg = _('Cannot set allergy state to <None> because there are allergies stored for this patient.'), beep = True)
 				self._RBTN_some.SetValue(True)
 				state['has_allergy'] = 1
 				return False
@@ -412,14 +412,14 @@ class cAllergyManagerDlg(wxgAllergyManagerDlg.wxgAllergyManagerDlg):
 				state['has_allergy'] = 0
 
 		elif self._RBTN_some.GetValue():
-			if (len(allergies) == 0) and (cmt == u''):
-				gmDispatcher.send(signal = u'statustext', msg = _('Cannot set allergy state to <some> because there are neither allergies nor a comment available for this patient.'), beep = True)
+			if (len(allergies) == 0) and (cmt == ''):
+				gmDispatcher.send(signal = 'statustext', msg = _('Cannot set allergy state to <some> because there are neither allergies nor a comment available for this patient.'), beep = True)
 				return False
 			else:
 				state['has_allergy'] = 1
 
 		state['comment'] = cmt
-		state['last_confirmed'] = u'now'
+		state['last_confirmed'] = 'now'
 
 		state.save_payload()
 		self.__refresh_state_ui()
@@ -432,7 +432,7 @@ class cAllergyManagerDlg(wxgAllergyManagerDlg.wxgAllergyManagerDlg):
 		pat = gmPerson.gmCurrentPatient()
 		emr = pat.emr
 		state = emr.allergy_state
-		state['last_confirmed'] = u'now'
+		state['last_confirmed'] = 'now'
 		state.save_payload()
 
 		self.__refresh_state_ui()
@@ -506,10 +506,11 @@ class cAllergyPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 		self.mainsizer.Fit(self)
 	#-----------------------------------------------
 	def __register_interests(self):
-		wx.EVT_LIST_ITEM_ACTIVATED(self, ID_ALLERGY_LIST, self._on_allergy_activated)
+		self.Bind(wx.EVT_LIST_ITEM_ACTIVATED, self._on_allergy_activated)
+		#wx.EVT_LIST_ITEM_ACTIVATED(self, ID_ALLERGY_LIST, self._on_allergy_activated)
 
 		# client internal signals
-		gmDispatcher.connect(signal = u'post_patient_selection', receiver=self._schedule_data_reget)
+		gmDispatcher.connect(signal = 'post_patient_selection', receiver=self._schedule_data_reget)
 #		gmDispatcher.connect(signal = u'vaccinations_updated', receiver=self._schedule_data_reget)
 	#-----------------------------------------------
 	def __reset_ui_content(self):
@@ -528,18 +529,18 @@ class cAllergyPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 			return False
 		for list_line in range(len(allergies)):
 			allg = allergies[list_line]
-			list_line = self.LCTRL_allergies.InsertStringItem(list_line, allg['l10n_type'])
+			list_line = self.LCTRL_allergies.InsertItem(list_line, allg['l10n_type'])
 			# FIXME: check with Richard design specs
 			if allg['definite']:
-				self.LCTRL_allergies.SetStringItem(list_line, 1, _('definite'))
+				self.LCTRL_allergies.SetItem(list_line, 1, _('definite'))
 			else:
-				self.LCTRL_allergies.SetStringItem(list_line, 1, _('likely'))
+				self.LCTRL_allergies.SetItem(list_line, 1, _('likely'))
 			if allg['atc_code'] is not None:
-				self.LCTRL_allergies.SetStringItem(list_line, 2, allg['atc_code'])
-			self.LCTRL_allergies.SetStringItem(list_line, 3, allg['substance'])
+				self.LCTRL_allergies.SetItem(list_line, 2, allg['atc_code'])
+			self.LCTRL_allergies.SetItem(list_line, 3, allg['substance'])
 			if allg['generics'] is not None:
-				self.LCTRL_allergies.SetStringItem(list_line, 4, allg['generics'])
-			self.LCTRL_allergies.SetStringItem(list_line, 5, allg['reaction'])
+				self.LCTRL_allergies.SetItem(list_line, 4, allg['generics'])
+			self.LCTRL_allergies.SetItem(list_line, 5, allg['reaction'])
 			self.LCTRL_allergies.SetItemData(list_line, allg['pk_allergy'])
 		for col in range(5):
 			self.LCTRL_allergies.SetColumnWidth(col, wx.LIST_AUTOSIZE)

@@ -52,7 +52,7 @@ class DermToolDialog(wx.Dialog):
         self.Bind(wx.EVT_SIZE, self.bind_image, self.image)
         self.diseases = []
         self.path = os.path.join (self.gb['resource dir'], 'data', 'derm')
-        for l in file (os.path.join (self.path, 'INDEX')).readlines ():
+        for l in open(os.path.join (self.path, 'INDEX')):
             row = l.split ()
             d = {}
             lang = gmI18N.system_locale_level['language']
@@ -61,9 +61,9 @@ class DermToolDialog(wx.Dialog):
                 d[i] = row[n]
                 n += 1
             try:
-                txt = file (os.path.join (self.gb['resource dir'], 'data', 'derm', '%s.%s.txt' % (row[0], lang)))
+                txt = open(os.path.join (self.gb['resource dir'], 'data', 'derm', '%s.%s.txt' % (row[0], lang)))
             except IOError:
-                txt = file (os.path.join (self.gb['resource dir'], 'data', 'derm', '%s.en.txt' % row[0]))
+                txt = open(os.path.join (self.gb['resource dir'], 'data', 'derm', '%s.en.txt' % row[0]))
 			# FIXME: should not this be done by Cheetah ?
             d['title'] =  txt.readline ()
             d['source'], d['text'] = tuple (txt.read ().split ('\n\n', 1))
@@ -85,7 +85,7 @@ class DermToolDialog(wx.Dialog):
         self.surface.SetSelection(0)
         self.sensation.SetSelection(0)
         self.time_course.SetSelection(0)
-        self.disease_name.SetToolTipString(_("Type name of disease"))
+        self.disease_name.SetToolTip(_("Type name of disease"))
         self.btn_save.SetDefault()
         # end wxGlade
 
@@ -158,7 +158,7 @@ class DermToolDialog(wx.Dialog):
     def bind_image (self, event = None):
         jpg_width = self.jpeg.GetWidth ()
         jpg_height = self.jpeg.GetHeight ()
-        pnl_width,pnl_height = self.image.GetSizeTuple ()
+        pnl_width,pnl_height = self.image.GetSize()
         self.image.DestroyChildren ()
         jpg_aspect = jpg_width/float (jpg_height)
         pnl_aspect = pnl_width/float (pnl_height)
@@ -173,7 +173,7 @@ class DermToolDialog(wx.Dialog):
             x = (pnl_width-desired_width)/2
             y = 0
         njpeg = self.jpeg.Scale (desired_width, desired_height)
-        bmp = wx.BitmapFromImage (njpeg)
+        bmp = wx.Bitmap(njpeg)
         sbmp = wx.StaticBitmap (self.image, -1, bmp, pos=wx.Point (x, y))
         sbmp.Show ()
 

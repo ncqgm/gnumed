@@ -50,9 +50,9 @@ class cCreatePatientMediaDlg(wxgCreatePatientMediaDlg.wxgCreatePatientMediaDlg):
 		except KeyError:
 			pass
 		if self.__burn2cd:
-			_log.debug(u'planning to burn export area items to CD/DVD')
+			_log.debug('planning to burn export area items to CD/DVD')
 		else:
-			_log.debug(u'planning to save export area items to disk')
+			_log.debug('planning to save export area items to disk')
 		self.__patient = kwargs['patient']
 		del kwargs['patient']
 		self.__item_count = kwargs['item_count']
@@ -67,9 +67,9 @@ class cCreatePatientMediaDlg(wxgCreatePatientMediaDlg.wxgCreatePatientMediaDlg):
 	def _on_select_directory_button_pressed(self, event):
 		event.Skip()
 		if self.__burn2cd:
-			msg = _(u'Select a directory for inclusion into the patient CD / DVD.')
+			msg = _('Select a directory for inclusion into the patient CD / DVD.')
 		else:
-			msg = _(u'Select a directory in which to create the patient media.')
+			msg = _('Select a directory in which to create the patient media.')
 		def_path = self._LBL_directory.Label
 		dlg = wx.DirDialog (
 			self,
@@ -92,60 +92,60 @@ class cCreatePatientMediaDlg(wxgCreatePatientMediaDlg.wxgCreatePatientMediaDlg):
 		self.__refresh_include_or_remove_existing_data()
 
 		if self._CHBOX_use_subdirectory.IsChecked():
-			self._LBL_subdirectory.Label = u'%s/%s-###' % (
+			self._LBL_subdirectory.Label = '%s/%s-###' % (
 				self._LBL_directory.Label,
 				self.__patient.dirname
 			)
 			return
 
-		self._LBL_subdirectory.Label = u''
+		self._LBL_subdirectory.Label = ''
 
 	#--------------------------------------------------------
 	def _on_save_button_pressed(self, event):
 		event.Skip()
 
-		print "Is modal ? ->", self.IsModal()
+		print("Is modal ? ->", self.IsModal())
 
 		if self.__burn2cd:
-			print "EndModal on burn2cd=True"
+			print("EndModal on burn2cd=True")
 			self.EndModal(wx.ID_SAVE)
 
 		if self._CHBOX_use_subdirectory.IsChecked() is True:
-			print "EndModal on use_subdir=True"
+			print("EndModal on use_subdir=True")
 			self.EndModal(wx.ID_SAVE)
-			print "after EndModal !!"
+			print("after EndModal !!")
 
 		path = self._LBL_directory.Label
 
 		if gmTools.dir_is_empty(path) is True:
-			print "EndModal on dir_is_empty=True"
+			print("EndModal on dir_is_empty=True")
 			self.EndModal(wx.ID_SAVE)
 
 		if self._RBTN_remove_data.Value is True:
 			really_remove_existing_data = gmGuiHelpers.gm_show_question (
-				title = _(u'Creating patient media'),
+				title = _('Creating patient media'),
 				question = _(
-					u'Really delete any existing data under\n'
-					u'\n'
-					u' [%s]\n'
-					u'\n'
-					u'from disk ?\n'
-					u'\n'
-					u'(this operation is generally not reversible)'
+					'Really delete any existing data under\n'
+					'\n'
+					' [%s]\n'
+					'\n'
+					'from disk ?\n'
+					'\n'
+					'(this operation is generally not reversible)'
 				) % path
 			)
 			if really_remove_existing_data is False:
 				return
 
-		print "Is modal ? ->", self.IsModal()
-		print "now calling EndModal(wx.ID_SAVE)"
+		print("Is modal ? ->", self.IsModal())
+		print("now calling EndModal(wx.ID_SAVE)")
 		self.EndModal(wx.ID_SAVE)
 
 	#--------------------------------------------------------
 	def _on_browse_directory_button_pressed(self, event):
 		event.Skip()
 		path = self._LBL_directory.Label.strip()
-		if path == u'':
+		if path == '':
 			return
 		gmMimeLib.call_viewer_on_file(path, block = False)
 
@@ -154,8 +154,8 @@ class cCreatePatientMediaDlg(wxgCreatePatientMediaDlg.wxgCreatePatientMediaDlg):
 	#--------------------------------------------------------
 	def __init_ui(self):
 
-		self._LBL_dir_is_empty.Label = u''
-		self._LBL_subdirectory.Label = u''
+		self._LBL_dir_is_empty.Label = ''
+		self._LBL_subdirectory.Label = ''
 
 		if self.__burn2cd:
 			self._LBL_existing_data.Hide()
@@ -167,63 +167,63 @@ class cCreatePatientMediaDlg(wxgCreatePatientMediaDlg.wxgCreatePatientMediaDlg):
 			self._LBL_subdirectory.Hide()
 			self._CHBOX_generate_metadata.Hide()
 			lines = [
-				_(u'Preparing patient media for burning onto CD / DVD'),
-				u''
+				_('Preparing patient media for burning onto CD / DVD'),
+				''
 			]
 			found, external_cmd = gmShellAPI.detect_external_binary('gm-burn_doc')
 			if not found:
-				lines.append(_(u'Script <gm-burn_doc(.bat)> not found.'))
-				lines.append(u'')
-				lines.append(_(u'Cannot attempt to burn patient media onto CD/DVD.'))
+				lines.append(_('Script <gm-burn_doc(.bat)> not found.'))
+				lines.append('')
+				lines.append(_('Cannot attempt to burn patient media onto CD/DVD.'))
 				self._BTN_save.Disable()
 			else:
-				lines.append(_(u'Patient: %s') % self.__patient['description_gender'])
-				lines.append(u'')
-				lines.append(_(u'Number of items to export onto CD/DVD: %s\n') % self.__item_count)
-			self._LBL_header.Label = u'\n'.join(lines)
+				lines.append(_('Patient: %s') % self.__patient['description_gender'])
+				lines.append('')
+				lines.append(_('Number of items to export onto CD/DVD: %s\n') % self.__item_count)
+			self._LBL_header.Label = '\n'.join(lines)
 			return
 
 		lines = [
-			_(u'Preparing patient media for saving to disk (USB, harddrive).'),
-			u'',
-			_(u'Patient: %s') % self.__patient['description_gender'],
-			u'',
-			_(u'Number of items to export to disk: %s\n') % self.__item_count
+			_('Preparing patient media for saving to disk (USB, harddrive).'),
+			'',
+			_('Patient: %s') % self.__patient['description_gender'],
+			'',
+			_('Number of items to export to disk: %s\n') % self.__item_count
 		]
-		self._LBL_header.Label = u'\n'.join(lines)
+		self._LBL_header.Label = '\n'.join(lines)
 		self._LBL_directory.Label = os.path.join(gmTools.gmPaths().home_dir, 'gnumed')
 		self.__refresh_dir_is_empty()
 
 	#--------------------------------------------------------
 	def __refresh_dir_is_empty(self):
 		path = self._LBL_directory.Label.strip()
-		if path == u'':
-			self._LBL_dir_is_empty.Label = u''
+		if path == '':
+			self._LBL_dir_is_empty.Label = ''
 			self._BTN_browse_directory.Disable()
 			self._CHBOX_include_directory.Disable()
 			return
 		is_empty = gmTools.dir_is_empty(directory = path)
 		if is_empty is None:
-			self._LBL_dir_is_empty.Label = _(u'(cannot check directory)')
+			self._LBL_dir_is_empty.Label = _('(cannot check directory)')
 			self._BTN_browse_directory.Disable()
 			self._CHBOX_include_directory.Disable()
 			return
 		if is_empty is True:
-			self._LBL_dir_is_empty.Label = _(u'(directory appears empty)')
+			self._LBL_dir_is_empty.Label = _('(directory appears empty)')
 			self._BTN_browse_directory.Disable()
 			self._CHBOX_include_directory.Disable()
 			return
 
-		msg = _(u'directory already contains data')
+		msg = _('directory already contains data')
 		self._BTN_browse_directory.Enable()
 		self._CHBOX_include_directory.Enable()
 
 		if os.path.isfile(os.path.join(path, 'DICOMDIR')):
-			msg = _(u'%s\n- DICOM data') % msg
+			msg = _('%s\n- DICOM data') % msg
 
 		if os.path.isdir(os.path.join(path, 'documents')):
 			if len(os.listdir(os.path.join(path, 'documents'))) > 0:
-				msg = _(u'%s\n- additional documents') % msg
+				msg = _('%s\n- additional documents') % msg
 
 		self._LBL_dir_is_empty.Label = msg
 		self.Layout()
@@ -236,7 +236,7 @@ class cCreatePatientMediaDlg(wxgCreatePatientMediaDlg.wxgCreatePatientMediaDlg):
 			return
 
 		path = self._LBL_directory.Label.strip()
-		if path == u'':
+		if path == '':
 			self._RBTN_include_data.Disable()
 			self._RBTN_remove_data.Disable()
 			return
@@ -274,9 +274,9 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 	# event handling
 	#--------------------------------------------------------
 	def __register_interests(self):
-		gmDispatcher.connect(signal = u'pre_patient_unselection', receiver = self._on_pre_patient_unselection)
+		gmDispatcher.connect(signal = 'pre_patient_unselection', receiver = self._on_pre_patient_unselection)
 #		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._schedule_data_reget)
-		gmDispatcher.connect(signal = u'gm_table_mod', receiver = self._on_table_mod)
+		gmDispatcher.connect(signal = 'gm_table_mod', receiver = self._on_table_mod)
 
 	#--------------------------------------------------------
 	def _on_pre_patient_unselection(self):
@@ -321,8 +321,8 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 			return
 		if not gmPerson.gmCurrentPatient().export_area.add_files(fnames):
 			gmGuiHelpers.gm_show_error (
-				title = _(u'Adding files to export area'),
-				error = _(u'Cannot add (some of) the following files to the export area:\n%s ') % u'\n '.join(fnames)
+				title = _('Adding files to export area'),
+				error = _('Cannot add (some of) the following files to the export area:\n%s ') % '\n '.join(fnames)
 			)
 
 	#--------------------------------------------------------
@@ -347,8 +347,8 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 			return
 		if not gmPerson.gmCurrentPatient().export_area.add_file(filename = clip, hint = _('clipboard')):
 			gmGuiHelpers.gm_show_error (
-				title = _(u'Loading clipboard item (saved to file) into export area'),
-				error = _(u'Cannot add the following clip to the export area:\n%s ') % clip
+				title = _('Loading clipboard item (saved to file) into export area'),
+				error = _('Cannot add the following clip to the export area:\n%s ') % clip
 			)
 
 	#--------------------------------------------------------
@@ -360,8 +360,8 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 
 		if not gmPerson.gmCurrentPatient().export_area.add_files(scans, _('scan')):
 			gmGuiHelpers.gm_show_error (
-				title = _(u'Scanning files into export area'),
-				error = _(u'Cannot add (some of) the following scans to the export area:\n%s ') % u'\n '.join(fnames)
+				title = _('Scanning files into export area'),
+				error = _('Cannot add (some of) the following scans to the export area:\n%s ') % '\n '.join(fnames)
 			)
 
 	#--------------------------------------------------------
@@ -393,7 +393,7 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 		if len(files2print) == 0:
 			return
 
-		jobtype = u'export_area'
+		jobtype = 'export_area'
 		printed = gmPrinting.print_files(filenames = files2print, jobtype = jobtype)
 		if not printed:
 			gmGuiHelpers.gm_show_error (
@@ -402,7 +402,7 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 			)
 			return False
 
-		self.save_soap_note(soap = _('Printed:\n - %s') % u'\n - '.join([ i['description'] for i in items ]))
+		self.save_soap_note(soap = _('Printed:\n - %s') % '\n - '.join([ i['description'] for i in items ]))
 		return True
 
 	#--------------------------------------------------------
@@ -425,9 +425,9 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 
 		pat = gmPerson.gmCurrentPatient()
 		dlg = cCreatePatientMediaDlg (self, -1, burn2cd = False, patient = pat, item_count = len(items))
-		print "calling dlg.ShowModal()"
+		print("calling dlg.ShowModal()")
 		choice = dlg.ShowModal()
-		print "after returning from dlg.ShowModal()"
+		print("after returning from dlg.ShowModal()")
 		if choice != wx.ID_SAVE:
 			dlg.Destroy()
 			return
@@ -439,15 +439,15 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 		dlg.Destroy()
 		if use_subdir:
 			path = gmTools.mk_sandbox_dir (
-				prefix = u'%s-' % pat.dirname,
+				prefix = '%s-' % pat.dirname,
 				base_dir = path
 			)
 		else:
 			if remove_existing_data is True:
 				if gmTools.rm_dir_content(path) is False:
 					gmGuiHelpers.gm_show_error (
-						title = _(u'Creating patient media'),
-						error = _(u'Cannot remove content from\n [%s]') % path
+						title = _('Creating patient media'),
+						error = _('Cannot remove content from\n [%s]') % path
 					)
 					return False
 
@@ -459,18 +459,18 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 
 		self.save_soap_note(soap = _('Saved to [%s]:\n - %s') % (
 			export_dir,
-			u'\n - '.join([ i['description'] for i in items ])
+			'\n - '.join([ i['description'] for i in items ])
 		))
 
 		msg = _('Saved documents into directory:\n\n %s') % export_dir
 		browse_index = gmGuiHelpers.gm_show_question (
-			title = _(u'Creating patient media'),
-			question = msg + u'\n\n' + _('Browse patient data pack ?'),
+			title = _('Creating patient media'),
+			question = msg + '\n\n' + _('Browse patient data pack ?'),
 			cancel_button = False
 		)
 		if browse_index:
 			if generate_metadata:
-				gmNetworkTools.open_url_in_browser(url = u'file://%s' % os.path.join(export_dir, u'index.html'))
+				gmNetworkTools.open_url_in_browser(url = 'file://%s' % os.path.join(export_dir, 'index.html'))
 			else:
 				gmMimeLib.call_viewer_on_file(export_dir, block = False)
 
@@ -503,11 +503,11 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 		base_dir = None
 		if include_selected_dir:
 			if gmTools.dir_is_empty(path2include) is False:
-				base_dir = gmTools.get_unique_filename(suffix = u'.iso')
+				base_dir = gmTools.get_unique_filename(suffix = '.iso')
 				try:
 					shutil.copytree(path2include, base_dir)
 				except shutil.Error:
-					_log.exception(u'cannot copy include directory [%s] -> [%s]', path2include, base_dir)
+					_log.exception('cannot copy include directory [%s] -> [%s]', path2include, base_dir)
 					return
 
 		export_dir = gmPerson.gmCurrentPatient().export_area.export(base_dir = base_dir, items = items, with_metadata = True)
@@ -515,7 +515,7 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 			return
 
 		# burn onto media
-		cmd = u'%s %s' % (external_cmd, export_dir)
+		cmd = '%s %s' % (external_cmd, export_dir)
 		if os.name == 'nt':
 			blocking = True
 		else:
@@ -531,21 +531,21 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 			)
 			return
 
-		self.save_soap_note(soap = _('Burned onto CD/DVD:\n - %s') % u'\n - '.join([ i['description'] for i in items ]))
+		self.save_soap_note(soap = _('Burned onto CD/DVD:\n - %s') % '\n - '.join([ i['description'] for i in items ]))
 
 		browse_index = gmGuiHelpers.gm_show_question (
-			title = _(u'Creating patient media'),
+			title = _('Creating patient media'),
 			question = _('Browse patient data pack ?'),
 			cancel_button = False
 		)
 		if browse_index:
-			gmNetworkTools.open_url_in_browser(url = u'file://%s' % os.path.join(export_dir, u'index.html'))
+			gmNetworkTools.open_url_in_browser(url = 'file://%s' % os.path.join(export_dir, 'index.html'))
 
 		return True
 
 	#--------------------------------------------------------
 	def _on_archive_items_button_pressed(self, event):
-		print "Event handler '_on_archive_items_button_pressed' not implemented!"
+		print("Event handler '_on_archive_items_button_pressed' not implemented!")
 		event.Skip()
 
 	#--------------------------------------------------------
@@ -564,7 +564,7 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 		for item in items:
 			files2mail.append(item.save_to_file())
 
-		cmd = u'%s %s' % (external_cmd, u' '.join(files2mail))
+		cmd = '%s %s' % (external_cmd, ' '.join(files2mail))
 		if os.name == 'nt':
 			blocking = True
 		else:
@@ -580,7 +580,7 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 			)
 			return False
 
-		self.save_soap_note(soap = _('Mailed:\n - %s') % u'\n - '.join([ i['description'] for i in items ]))
+		self.save_soap_note(soap = _('Mailed:\n - %s') % '\n - '.join([ i['description'] for i in items ]))
 		return True
 
 	#--------------------------------------------------------
@@ -608,7 +608,7 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 			centre = True
 		)
 
-		cmd = u'%s "%s" %s' % (external_cmd, fax_number, u' '.join(files2fax))
+		cmd = '%s "%s" %s' % (external_cmd, fax_number, ' '.join(files2fax))
 		if os.name == 'nt':
 			blocking = True
 		else:
@@ -626,7 +626,7 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 
 		self.save_soap_note(soap = _('Faxed to [%s]:\n - %s') % (
 			fax_number,
-			u'\n - '.join([ i['description'] for i in items ])
+			'\n - '.join([ i['description'] for i in items ])
 		))
 		return True
 
@@ -642,33 +642,24 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 
 		self._BTN_archive_items.Disable()
 
-		# there's no GetToolTipString() in wx2.8
+		# there's no GetToolTipText() in wx2.8
 		self.__mail_script_exists, path = gmShellAPI.detect_external_binary(binary = r'gm-mail_doc')
 		if not self.__mail_script_exists:
 			self._BTN_mail_items.Disable()
-			try:
-				tt = self._BTN_mail_items.GetToolTipString() + u'\n\n' + _('<gm-mail_doc(.bat) not found>')
-			except AttributeError:
-				tt = _('<gm-mail_doc(.bat) not found>')
-			self._BTN_mail_items.SetToolTipString(tt)
+			tt = self._BTN_mail_items.GetToolTipText() + '\n\n' + _('<gm-mail_doc(.bat) not found>')
+			self._BTN_mail_items.SetToolTip(tt)
 
 		self.__fax_script_exists, path = gmShellAPI.detect_external_binary(binary = r'gm-fax_doc')
 		if not self.__fax_script_exists:
 			self._BTN_fax_items.Disable()
-			try:
-				tt = self._BTN_fax_items.GetToolTipString() + u'\n\n' + _('<gm-fax_doc(.bat) not found>')
-			except AttributeError:
-				tt = _('<gm-fax_doc(.bat) not found>')
-			self._BTN_fax_items.SetToolTipString(tt)
+			tt = self._BTN_fax_items.GetToolTipText() + '\n\n' + _('<gm-fax_doc(.bat) not found>')
+			self._BTN_fax_items.SetToolTip(tt)
 
 		self.__burn_script_exists, path = gmShellAPI.detect_external_binary(binary = r'gm-burn_doc')
 		if not self.__burn_script_exists:
 			self._BTN_burn_items.Disable()
-			try:
-				tt = self._BTN_burn_items.GetToolTipString() + u'\n\n' + _('<gm-burn_doc(.bat) not found>')
-			except AttributeError:
-				tt = _('<gm-burn_doc(.bat) not found>')
-			self._BTN_burn_items.SetToolTipString(tt)
+			tt = self._BTN_burn_items.GetToolTipText() + '\n\n' + _('<gm-burn_doc(.bat) not found>')
+			self._BTN_burn_items.SetToolTip(tt)
 
 		# make me and listctrl file drop targets
 		dt = gmGuiHelpers.cFileDropTarget(target = self)
@@ -678,10 +669,10 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 
 	#--------------------------------------------------------
 	def save_soap_note(self, soap=None):
-		if soap.strip() == u'':
+		if soap.strip() == '':
 			return
 		emr = gmPerson.gmCurrentPatient().emr
-		epi = emr.add_episode(episode_name = u'administrative', is_open = False)
+		epi = emr.add_episode(episode_name = 'administrative', is_open = False)
 		emr.add_clin_narrative (
 			soap_cat = None,
 			note = soap,
@@ -711,10 +702,10 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 			except OSError:
 				real_filenames.append(pathname)
 
-		if not pat.export_area.add_files(real_filenames, hint = _(u'Drag&Drop')):
+		if not pat.export_area.add_files(real_filenames, hint = _('Drag&Drop')):
 			gmGuiHelpers.gm_show_error (
-				title = _(u'Adding files to export area'),
-				error = _(u'Cannot add (some of) the following files to the export area:\n%s ') % u'\n '.join(real_filenames)
+				title = _('Adding files to export area'),
+				error = _('Cannot add (some of) the following files to the export area:\n%s ') % '\n '.join(real_filenames)
 			)
 	#--------------------------------------------------------
 	# reget mixin API
@@ -760,9 +751,9 @@ class cPrintMgrPluginPnl(wxgPrintMgrPluginPnl.wxgPrintMgrPluginPnl, gmRegetMixin
 	# event handling
 	#--------------------------------------------------------
 	def __register_interests(self):
-		gmDispatcher.connect(signal = u'pre_patient_unselection', receiver = self._on_pre_patient_unselection)
-		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._on_post_patient_selection)
-		gmDispatcher.connect(signal = u'gm_table_mod', receiver = self._on_table_mod)
+		gmDispatcher.connect(signal = 'pre_patient_unselection', receiver = self._on_pre_patient_unselection)
+		gmDispatcher.connect(signal = 'post_patient_selection', receiver = self._on_post_patient_selection)
+		gmDispatcher.connect(signal = 'gm_table_mod', receiver = self._on_table_mod)
 	#--------------------------------------------------------
 	def _on_pre_patient_unselection(self):
 		self._RBTN_active_patient_only.Enable(False)
@@ -814,7 +805,7 @@ class cPrintMgrPluginPnl(wxgPrintMgrPluginPnl.wxgPrintMgrPluginPnl, gmRegetMixin
 		if len(files2print) == 0:
 			return
 
-		jobtype = u'print_manager'
+		jobtype = 'print_manager'
 		printed = gmPrinting.print_files(filenames = files2print, jobtype = jobtype)
 		if not printed:
 			gmGuiHelpers.gm_show_error (
@@ -859,9 +850,9 @@ class cPrintMgrPluginPnl(wxgPrintMgrPluginPnl.wxgPrintMgrPluginPnl, gmRegetMixin
 	def _populate_with_data(self):
 		if self._RBTN_all_patients.Value is True:
 			columns = [_('Patient'), _('Provider'), _('Description')]
-			printouts = gmExportArea.get_print_jobs(order_by = u'pk_identity, description')
+			printouts = gmExportArea.get_print_jobs(order_by = 'pk_identity, description')
 			items = [[
-				u'%s, %s (%s)' % (
+				'%s, %s (%s)' % (
 					p['lastnames'],
 					p['firstnames'],
 					p['gender']
@@ -873,7 +864,7 @@ class cPrintMgrPluginPnl(wxgPrintMgrPluginPnl.wxgPrintMgrPluginPnl, gmRegetMixin
 			pat = gmPerson.gmCurrentPatient()
 			if pat.connected:
 				columns = [_('Provider'), _('Created'), _('Description')]
-				printouts = pat.export_area.get_printouts(order_by = u'created_when, description')
+				printouts = pat.export_area.get_printouts(order_by = 'created_when, description')
 				items = [[
 					p['created_by'],
 					gmDateTime.pydt_strftime(p['created_when'], '%Y %b %d %H:%M'),
@@ -881,9 +872,9 @@ class cPrintMgrPluginPnl(wxgPrintMgrPluginPnl.wxgPrintMgrPluginPnl, gmRegetMixin
 				] for p in printouts ]
 			else:
 				columns = [_('Patient'), _('Provider'), _('Description')]
-				printouts = gmExportArea.get_print_jobs(order_by = u'pk_identity, description')
+				printouts = gmExportArea.get_print_jobs(order_by = 'pk_identity, description')
 				items = [[
-					u'%s, %s (%s)' % (
+					'%s, %s (%s)' % (
 						p['lastnames'],
 						p['firstnames'],
 						p['gender']

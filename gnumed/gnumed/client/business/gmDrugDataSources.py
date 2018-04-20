@@ -77,73 +77,73 @@ class cDrugDataSourceInterface(object):
 class cGelbeListeCSVFile(object):
 	"""Iterator over a Gelbe Liste/MMI v8.2 CSV file."""
 
-	version = u'Gelbe Liste/MMI v8.2 CSV file interface'
+	version = 'Gelbe Liste/MMI v8.2 CSV file interface'
 	default_transfer_file_windows = r"c:\rezept.txt"
 	#default_encoding = 'cp1252'
 	default_encoding = 'cp1250'
 	csv_fieldnames = [
-		u'name',
-		u'packungsgroesse',					# obsolete, use "packungsmenge"
-		u'darreichungsform',
-		u'packungstyp',
-		u'festbetrag',
-		u'avp',
-		u'hersteller',
-		u'rezepttext',
-		u'pzn',
-		u'status_vertrieb',
-		u'status_rezeptpflicht',
-		u'status_fachinfo',
-		u'btm',
-		u'atc',
-		u'anzahl_packungen',
-		u'zuzahlung_pro_packung',
-		u'einheit',
-		u'schedule_morgens',
-		u'schedule_mittags',
-		u'schedule_abends',
-		u'schedule_nachts',
-		u'status_dauermedikament',
-		u'status_hausliste',
-		u'status_negativliste',
-		u'ik_nummer',
-		u'status_rabattvertrag',
-		u'wirkstoffe',
-		u'wirkstoffmenge',
-		u'wirkstoffeinheit',
-		u'wirkstoffmenge_bezug',
-		u'wirkstoffmenge_bezugseinheit',
-		u'status_import',
-		u'status_lifestyle',
-		u'status_ausnahmeliste',
-		u'packungsmenge',
-		u'apothekenpflicht',
-		u'status_billigere_packung',
-		u'rezepttyp',
-		u'besonderes_arzneimittel',			# Abstimmungsverfahren SGB-V
-		u't_rezept_pflicht',				# Thalidomid-Rezept
-		u'erstattbares_medizinprodukt',
-		u'hilfsmittel',
-		u'hzv_rabattkennung',
-		u'hzv_preis'
+		'name',
+		'packungsgroesse',					# obsolete, use "packungsmenge"
+		'darreichungsform',
+		'packungstyp',
+		'festbetrag',
+		'avp',
+		'hersteller',
+		'rezepttext',
+		'pzn',
+		'status_vertrieb',
+		'status_rezeptpflicht',
+		'status_fachinfo',
+		'btm',
+		'atc',
+		'anzahl_packungen',
+		'zuzahlung_pro_packung',
+		'einheit',
+		'schedule_morgens',
+		'schedule_mittags',
+		'schedule_abends',
+		'schedule_nachts',
+		'status_dauermedikament',
+		'status_hausliste',
+		'status_negativliste',
+		'ik_nummer',
+		'status_rabattvertrag',
+		'wirkstoffe',
+		'wirkstoffmenge',
+		'wirkstoffeinheit',
+		'wirkstoffmenge_bezug',
+		'wirkstoffmenge_bezugseinheit',
+		'status_import',
+		'status_lifestyle',
+		'status_ausnahmeliste',
+		'packungsmenge',
+		'apothekenpflicht',
+		'status_billigere_packung',
+		'rezepttyp',
+		'besonderes_arzneimittel',			# Abstimmungsverfahren SGB-V
+		't_rezept_pflicht',				# Thalidomid-Rezept
+		'erstattbares_medizinprodukt',
+		'hilfsmittel',
+		'hzv_rabattkennung',
+		'hzv_preis'
 	]
 	boolean_fields = [
-		u'status_rezeptpflicht',
-		u'status_fachinfo',
-		u'btm',
-		u'status_dauermedikament',
-		u'status_hausliste',
-		u'status_negativliste',
-		u'status_rabattvertrag',
-		u'status_import',
-		u'status_lifestyle',
-		u'status_ausnahmeliste',
-		u'apothekenpflicht',
-		u'status_billigere_packung',
-		u'besonderes_arzneimittel',			# Abstimmungsverfahren SGB-V
-		u't_rezept_pflicht',
-		u'erstattbares_medizinprodukt',
-		u'hilfsmittel'
+		'status_rezeptpflicht',
+		'status_fachinfo',
+		'btm',
+		'status_dauermedikament',
+		'status_hausliste',
+		'status_negativliste',
+		'status_rabattvertrag',
+		'status_import',
+		'status_lifestyle',
+		'status_ausnahmeliste',
+		'apothekenpflicht',
+		'status_billigere_packung',
+		'besonderes_arzneimittel',			# Abstimmungsverfahren SGB-V
+		't_rezept_pflicht',
+		'erstattbares_medizinprodukt',
+		'hilfsmittel'
 	]
 	#--------------------------------------------------------
 	def __init__(self, filename=None):
@@ -173,13 +173,13 @@ class cGelbeListeCSVFile(object):
 		line = self.csv_lines.next()
 
 		for field in cGelbeListeCSVFile.boolean_fields:
-			line[field] = (line[field].strip() == u'T')
+			line[field] = (line[field].strip() == 'T')
 
 		# split field "Wirkstoff" by ";"
-		if line['wirkstoffe'].strip() == u'':
+		if line['wirkstoffe'].strip() == '':
 			line['wirkstoffe'] = []
 		else:
-			line['wirkstoffe'] = [ wirkstoff.strip() for wirkstoff in line['wirkstoffe'].split(u';') ]
+			line['wirkstoffe'] = [ wirkstoff.strip() for wirkstoff in line['wirkstoffe'].split(';') ]
 
 		return line
 	#--------------------------------------------------------
@@ -200,16 +200,16 @@ class cGelbeListeCSVFile(object):
 class cGelbeListeWindowsInterface(cDrugDataSourceInterface):
 	"""Support v8.2 CSV file interface only."""
 
-	version = u'Gelbe Liste/MMI v8.2 interface'
+	version = 'Gelbe Liste/MMI v8.2 interface'
 	default_encoding = 'cp1250'
-	bdt_line_template = u'%03d6210#%s\r\n'		# Medikament verordnet auf Kassenrezept
+	bdt_line_template = '%03d6210#%s\r\n'		# Medikament verordnet auf Kassenrezept
 	bdt_line_base_length = 8
 	#--------------------------------------------------------
 	def __init__(self):
 
 		cDrugDataSourceInterface.__init__(self)
 
-		_log.info(u'%s (native Windows)', cGelbeListeWindowsInterface.version)
+		_log.info('%s (native Windows)', cGelbeListeWindowsInterface.version)
 
 		self.path_to_binary = r'C:\Programme\MMI PHARMINDEX\glwin.exe'
 		self.args = r'-KEEPBACKGROUND -PRESCRIPTIONFILE %s -CLOSETOTRAY'
@@ -242,18 +242,18 @@ class cGelbeListeWindowsInterface(cDrugDataSourceInterface):
 			self.__data_date = None
 			self.__online_update_date = None
 			return {
-				'data': u'?',
-				'online_update': u'?'
+				'data': '?',
+				'online_update': '?'
 			}
 
-		cmd = u'%s -DATADATE' % self.path_to_binary
+		cmd = '%s -DATADATE' % self.path_to_binary
 		if not gmShellAPI.run_command_in_shell(command = cmd, blocking = True):
 			_log.error('problem querying the MMI drug database for version information')
 			self.__data_date = None
 			self.__online_update_date = None
 			return {
-				'data': u'?',
-				'online_update': u'?'
+				'data': '?',
+				'online_update': '?'
 			}
 
 		try:
@@ -264,8 +264,8 @@ class cGelbeListeWindowsInterface(cDrugDataSourceInterface):
 			self.__data_date = None
 			self.__online_update_date = None
 			return {
-				'data': u'?',
-				'online_update': u'?'
+				'data': '?',
+				'online_update': '?'
 			}
 
 		self.__data_date = version_file.readline()[:10]
@@ -281,11 +281,11 @@ class cGelbeListeWindowsInterface(cDrugDataSourceInterface):
 		versions = self.get_data_source_version()
 
 		return gmCoding.create_data_source (
-			long_name = u'Medikamentendatenbank "mmi PHARMINDEX" (Gelbe Liste)',
-			short_name = u'GL/MMI',
-			version = u'Daten: %s, Preise (Onlineupdate): %s' % (versions['data'], versions['online_update']),
-			source = u'Medizinische Medien Informations GmbH, Am Forsthaus Gravenbruch 7, 63263 Neu-Isenburg',
-			language = u'de'
+			long_name = 'Medikamentendatenbank "mmi PHARMINDEX" (Gelbe Liste)',
+			short_name = 'GL/MMI',
+			version = 'Daten: %s, Preise (Onlineupdate): %s' % (versions['data'], versions['online_update']),
+			source = 'Medizinische Medien Informations GmbH, Am Forsthaus Gravenbruch 7, 63263 Neu-Isenburg',
+			language = 'de'
 		)
 	#--------------------------------------------------------
 	def switch_to_frontend(self, blocking=False, cmd=None):
@@ -298,7 +298,7 @@ class cGelbeListeWindowsInterface(cDrugDataSourceInterface):
 			return False
 
 		if cmd is None:
-			cmd = (u'%s %s' % (self.path_to_binary, self.args)) % self.default_csv_filename_arg
+			cmd = ('%s %s' % (self.path_to_binary, self.args)) % self.default_csv_filename_arg
 
 		if os.name == 'nt':
 			blocking = True
@@ -354,11 +354,11 @@ class cGelbeListeWindowsInterface(cDrugDataSourceInterface):
 
 			_log.debug('importing drug: %s %s', entry['name'], entry['darreichungsform'])
 
-			if entry[u'hilfsmittel']:
+			if entry['hilfsmittel']:
 				_log.debug('skipping Hilfsmittel')
 				continue
 
-			if entry[u'erstattbares_medizinprodukt']:
+			if entry['erstattbares_medizinprodukt']:
 				_log.debug('skipping sonstiges Medizinprodukt')
 				continue
 
@@ -371,7 +371,7 @@ class cGelbeListeWindowsInterface(cDrugDataSourceInterface):
 			# update fields
 			drug['is_fake_product'] = False
 			drug['atc'] = entry['atc']
-			drug['external_code_type'] = u'DE-PZN'
+			drug['external_code_type'] = 'DE-PZN'
 			drug['external_code'] = entry['pzn']
 			drug['fk_data_source'] = data_src_pk
 			drug.save()
@@ -401,7 +401,7 @@ class cGelbeListeWindowsInterface(cDrugDataSourceInterface):
 			if len(substances) < 2:
 				return
 			drug_ids_list = [ (s.external_code_type, s.external_code) for s in substances ]
-			drug_ids_list = [ code_value for code_type, code_value in drug_ids_list if (code_value is not None) and (code_type == u'DE-PZN')]
+			drug_ids_list = [ code_value for code_type, code_value in drug_ids_list if (code_value is not None) and (code_type == 'DE-PZN')]
 
 		else:
 			if len(drug_ids_list) < 2:
@@ -428,15 +428,15 @@ class cGelbeListeWindowsInterface(cDrugDataSourceInterface):
 
 		cmd = None
 
-		if substance.external_code_type == u'DE-PZN':
-			cmd = u'%s -PZN %s' % (self.path_to_binary, substance.external_code)
+		if substance.external_code_type == 'DE-PZN':
+			cmd = '%s -PZN %s' % (self.path_to_binary, substance.external_code)
 
 		if cmd is None:
 			name = gmTools.coalesce (
 				substance['product'],
 				substance['substance']
 			)
-			cmd = u'%s -NAME %s' % (self.path_to_binary, name)
+			cmd = '%s -NAME %s' % (self.path_to_binary, name)
 
 		# better to clean up interactions file
 		open(self.interactions_filename, 'wb').close()
@@ -449,7 +449,7 @@ class cGelbeListeWineInterface(cGelbeListeWindowsInterface):
 	def __init__(self):
 		cGelbeListeWindowsInterface.__init__(self)
 
-		_log.info(u'%s (WINE extension)', cGelbeListeWindowsInterface.version)
+		_log.info('%s (WINE extension)', cGelbeListeWindowsInterface.version)
 
 		# FIXME: if -CLOSETOTRAY is used GNUmed cannot detect the end of MMI
 		self.path_to_binary = r'wine "C:\Programme\MMI PHARMINDEX\glwin.exe"'
@@ -467,16 +467,16 @@ class cGelbeListeWineInterface(cGelbeListeWindowsInterface):
 #------------------------------------------------------------
 class cFreeDiamsInterface(cDrugDataSourceInterface):
 
-	version = u'FreeDiams interface'
+	version = 'FreeDiams interface'
 	default_encoding = 'utf8'
 	default_dob_format = '%Y/%m/%d'
 
 	map_gender2mf = {
-		'm': u'M',
-		'f': u'F',
-		'tf': u'H',
-		'tm': u'H',
-		'h': u'H'
+		'm': 'M',
+		'f': 'F',
+		'tf': 'H',
+		'tm': 'H',
+		'h': 'H'
 	}
 	#--------------------------------------------------------
 	def __init__(self):
@@ -504,7 +504,7 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 			return False
 
 		freediams = subprocess.Popen (
-			args = u'--version',				# --version or -version or -v
+			args = '--version',				# --version or -version or -v
 			executable = self.path_to_binary,
 			stdout = subprocess.PIPE,
 			stderr = subprocess.PIPE,
@@ -519,11 +519,11 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 	#--------------------------------------------------------
 	def create_data_source_entry(self):
 		return gmCoding.create_data_source (
-			long_name = u'"FreeDiams" Drug Database Frontend',
-			short_name = u'FreeDiams',
+			long_name = '"FreeDiams" Drug Database Frontend',
+			short_name = 'FreeDiams',
 			version = self.get_data_source_version(),
-			source = u'http://ericmaeker.fr/FreeMedForms/di-manual/index.html',
-			language = u'fr'			# actually to be multi-locale
+			source = 'http://ericmaeker.fr/FreeMedForms/di-manual/index.html',
+			language = 'fr'			# actually to be multi-locale
 		)
 	#--------------------------------------------------------
 	def switch_to_frontend(self, blocking=False, mode='interactions'):
@@ -538,7 +538,7 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 
 		self.__create_gm2fd_file(mode = mode)
 
-		args = u'--exchange-in="%s"' % (self.__gm2fd_filename)
+		args = '--exchange-in="%s"' % (self.__gm2fd_filename)
 		cmd = r'%s %s' % (self.path_to_binary, args)
 		if os.name == 'nt':
 			blocking = True
@@ -637,7 +637,7 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 			return False
 
 		for part in prescription.parts:
-			if part['filename'] == u'freediams-prescription.xml':
+			if part['filename'] == 'freediams-prescription.xml':
 				if part.save_to_file(filename = self.__fd2gm_filename) is not None:
 					return True
 
@@ -710,7 +710,7 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 				and
 			(i['external_code_type_product'] is not None)
 				and
-			(i['external_code_type_product'].startswith(u'FreeDiams::'))
+			(i['external_code_type_product'].startswith('FreeDiams::'))
 		)]
 
 		intakes_pooled_by_product = {}
@@ -720,15 +720,15 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 			intakes_pooled_by_product[intake['product']] = intake
 		del fd_intakes
 
-		drug_snippet = u"""<Prescription>
+		drug_snippet = """<Prescription>
 			<Drug u1="%s" u2="" old="%s" u3="" db="%s">		<!-- "old" needs to be the same as "u1" if not known -->
 				<DrugName>%s</DrugName>						<!-- just for identification when reading XML files -->
 			</Drug>
 		</Prescription>"""
 
-		last_db_id = u'CA_HCDPD'
+		last_db_id = 'CA_HCDPD'
 		for intake in intakes_pooled_by_product.values():
-			last_db_id = gmTools.xml_escape_string(text = intake['external_code_type_product'].replace(u'FreeDiams::', u'').split(u'::')[0])
+			last_db_id = gmTools.xml_escape_string(text = intake['external_code_type_product'].replace('FreeDiams::', '').split('::')[0])
 			drug_snippets.append(drug_snippet % (
 				gmTools.xml_escape_string(text = intake['external_code_product'].strip()),
 				gmTools.xml_escape_string(text = intake['external_code_product'].strip()),
@@ -742,7 +742,7 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 			and (
 				(i['external_code_type_product'] is None)
 					or
-				(not i['external_code_type_product'].startswith(u'FreeDiams::'))
+				(not i['external_code_type_product'].startswith('FreeDiams::'))
 			)
 		)]
 
@@ -750,7 +750,7 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 		non_fd_substance_intakes = [ i for i in non_fd_intakes if i['product'] is None ]
 		del non_fd_intakes
 
-		drug_snippet = u"""<Prescription>
+		drug_snippet = """<Prescription>
 			<Drug u1="-1" u2="" old="" u3="" db="">
 				<DrugName>%s</DrugName>
 			</Drug>
@@ -762,7 +762,7 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 #				<DrugStrength/>
 
 		for intake in non_fd_substance_intakes:
-			drug_name = u'%s %s%s (%s)' % (
+			drug_name = '%s %s%s (%s)' % (
 				intake['substance'],
 				intake['amount'],
 				intake['unit'],
@@ -770,32 +770,32 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 			)
 			drug_snippets.append(drug_snippet % (
 				gmTools.xml_escape_string(text = drug_name.strip()),
-				gmTools.xml_escape_string(text = gmTools.coalesce(intake['schedule'], u''))
+				gmTools.xml_escape_string(text = gmTools.coalesce(intake['schedule'], ''))
 			))
 
 		intakes_pooled_by_product = {}
 		for intake in non_fd_product_intakes:
-			prod = u'%s %s' % (intake['product'], intake['l10n_preparation'])
+			prod = '%s %s' % (intake['product'], intake['l10n_preparation'])
 			try:
 				intakes_pooled_by_product[prod].append(intake)
 			except KeyError:
 				intakes_pooled_by_product[prod] = [intake]
 
-		for product, comps in intakes_pooled_by_product.iteritems():
-			drug_name = u'%s\n' % product
+		for product, comps in intakes_pooled_by_product.items():
+			drug_name = '%s\n' % product
 			for comp in comps:
-				drug_name += u'  %s %s%s\n' % (
+				drug_name += '  %s %s%s\n' % (
 					comp['substance'],
 					comp['amount'],
 					comp['unit']
 			)
 			drug_snippets.append(drug_snippet % (
 				gmTools.xml_escape_string(text = drug_name.strip()),
-				gmTools.xml_escape_string(text = gmTools.coalesce(comps[0]['schedule'], u''))
+				gmTools.xml_escape_string(text = gmTools.coalesce(comps[0]['schedule'], ''))
 			))
 
 		# assemble XML file
-		xml = u"""<?xml version = "1.0" encoding = "UTF-8"?>
+		xml = """<?xml version = "1.0" encoding = "UTF-8"?>
 <!DOCTYPE FreeMedForms>
 <FreeDiams>
 	<FullPrescription version="0.7.2">
@@ -805,7 +805,7 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 """
 
 		xml_file = io.open(self.__fd2gm_filename, mode = 'wt', encoding = 'utf8')
-		xml_file.write(xml % u'\n\t\t'.join(drug_snippets))
+		xml_file.write(xml % '\n\t\t'.join(drug_snippets))
 		xml_file.close()
 
 		return True
@@ -813,15 +813,15 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 	def __create_gm2fd_file(self, mode='interactions'):
 
 		if mode == 'interactions':
-			mode = u'select-only'
+			mode = 'select-only'
 		elif mode == 'prescription':
-			mode = u'prescriber'
+			mode = 'prescriber'
 		else:
-			mode = u'select-only'
+			mode = 'select-only'
 
 		xml_file = io.open(self.__gm2fd_filename, mode = 'wt', encoding = 'utf8')
 
-		xml = u"""<?xml version="1.0" encoding="UTF-8"?>
+		xml = """<?xml version="1.0" encoding="UTF-8"?>
 
 <FreeDiams_In version="0.5.0">
 	<EMR name="GNUmed" uid="unused"/>
@@ -838,41 +838,41 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 		)
 
 		if self.patient is None:
-			xml_file.write(xml % u'')
+			xml_file.write(xml % '')
 			xml_file.close()
 			return
 
 		name = self.patient.get_active_name()
 		if self.patient['dob'] is None:
-			dob = u''
+			dob = ''
 		else:
 			dob = self.patient['dob'].strftime(cFreeDiamsInterface.default_dob_format)
 
 		emr = self.patient.emr
 		allgs = emr.get_allergies()
 		atc_allgs = [
-			a['atc_code'] for a in allgs if ((a['atc_code'] is not None) and (a['type'] == u'allergy'))
+			a['atc_code'] for a in allgs if ((a['atc_code'] is not None) and (a['type'] == 'allergy'))
 		]
 		atc_sens = [
-			a['atc_code'] for a in allgs if ((a['atc_code'] is not None) and (a['type'] == u'sensitivity'))
+			a['atc_code'] for a in allgs if ((a['atc_code'] is not None) and (a['type'] == 'sensitivity'))
 		]
 		inn_allgs = [
-			a['allergene'] for a in allgs if ((a['allergene'] is not None) and (a['type'] == u'allergy'))
+			a['allergene'] for a in allgs if ((a['allergene'] is not None) and (a['type'] == 'allergy'))
 		]
 		inn_sens = [
-			a['allergene'] for a in allgs if ((a['allergene'] is not None) and (a['type'] == u'sensitivity'))
+			a['allergene'] for a in allgs if ((a['allergene'] is not None) and (a['type'] == 'sensitivity'))
 		]
 		# this is rather fragile: FreeDiams won't know what type of UID this is
 		# (but it will assume it is of the type of the drug database in use)
 		# but eventually FreeDiams puts all drugs into one database :-)
 		uid_allgs = [
-			a['substance_code'] for a in allgs if ((a['substance_code'] is not None) and (a['type'] == u'allergy'))
+			a['substance_code'] for a in allgs if ((a['substance_code'] is not None) and (a['type'] == 'allergy'))
 		]
 		uid_sens = [
-			a['substance_code'] for a in allgs if ((a['substance_code'] is not None) and (a['type'] == u'sensitivity'))
+			a['substance_code'] for a in allgs if ((a['substance_code'] is not None) and (a['type'] == 'sensitivity'))
 		]
 
-		patient_xml = u"""<Patient>
+		patient_xml = """<Patient>
 		<Identity
 			  lastnames="%s"
 			  firstnames="%s"
@@ -907,12 +907,12 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 			self.patient.ID,
 			dob,
 			cFreeDiamsInterface.map_gender2mf[self.patient['gender']],
-			gmTools.xml_escape_string(text = u';'.join(atc_allgs)),
-			gmTools.xml_escape_string(text = u';'.join(atc_sens)),
-			gmTools.xml_escape_string(text = u';'.join(inn_allgs)),
-			gmTools.xml_escape_string(text = u';'.join(inn_sens)),
-			gmTools.xml_escape_string(text = u';'.join(uid_allgs)),
-			gmTools.xml_escape_string(text = u';'.join(uid_sens))
+			gmTools.xml_escape_string(text = ';'.join(atc_allgs)),
+			gmTools.xml_escape_string(text = ';'.join(atc_sens)),
+			gmTools.xml_escape_string(text = ';'.join(inn_allgs)),
+			gmTools.xml_escape_string(text = ';'.join(inn_sens)),
+			gmTools.xml_escape_string(text = ';'.join(uid_allgs)),
+			gmTools.xml_escape_string(text = ';'.join(uid_sens))
 		)
 
 		xml_file.write(xml % patient_xml)
@@ -949,7 +949,7 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 				is_open = False
 			)['pk_episode']
 		)
-		prescription['ext_ref'] = u'FreeDiams'
+		prescription['ext_ref'] = 'FreeDiams'
 		prescription.save()
 		fd_filenames.append(filename)
 		success, msg, parts = prescription.add_parts_from_files(files = fd_filenames)
@@ -962,7 +962,7 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 			part.save()
 
 		xml_part = parts[-1]
-		xml_part['filename'] = u'freediams-prescription.xml'
+		xml_part['filename'] = 'freediams-prescription.xml'
 		xml_part['obj_comment'] = _('prescription data')
 		xml_part.save()
 
@@ -1004,7 +1004,7 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 		self.__imported_drugs = []
 		for fd_xml_prescription in fd_xml_prescriptions:
 			drug_uid = fd_xml_prescription.find('Drug').attrib['u1'].strip()
-			if drug_uid == u'-1':
+			if drug_uid == '-1':
 				_log.debug('skipping textual drug')
 				continue
 			drug_db =  fd_xml_prescription.find('Drug').attrib['db'].strip()
@@ -1026,7 +1026,7 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 			self.__imported_drugs.append(new_drug)
 			new_drug['is_fake_product'] = False
 #			new_drug['atc'] = drug_atc
-			new_drug['external_code_type'] = u'FreeDiams::%s::%s' % (drug_db, drug_uid_name)
+			new_drug['external_code_type'] = 'FreeDiams::%s::%s' % (drug_db, drug_uid_name)
 			new_drug['external_code'] = drug_uid
 			new_drug['pk_data_source'] = pk_data_source
 			new_drug.save()
@@ -1048,8 +1048,8 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 
 				#unit = regex.sub(r'\d+[.,]{0,1}\d*', u'', xml_strength).strip()
 				unit = (xml_strength[len(amount):]).strip()
-				if unit == u'':
-					unit = u'*?*'
+				if unit == '':
+					unit = '*?*'
 				data['unit'] = unit
 
 				# hopefully, FreeDiams gets their act together, eventually:
@@ -1061,17 +1061,17 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 				data['atc'] = atc
 
 				molecule_name = fd_xml_comp.attrib['molecularName'].strip()
-				if molecule_name != u'':
+				if molecule_name != '':
 					gmMedication.create_substance_dose(substance = molecule_name, atc = atc, amount = amount, unit = unit)
 				data['molecule_name'] = molecule_name
 
 				inn_name = fd_xml_comp.attrib['inn'].strip()
-				if inn_name != u'':
+				if inn_name != '':
 					gmMedication.create_substance_dose(substance = inn_name, atc = atc, amount = amount, unit = unit)
 				#data['inn_name'] = molecule_name
 				data['inn_name'] = inn_name
 
-				if molecule_name == u'':
+				if molecule_name == '':
 					data['substance'] = inn_name
 					_log.info('linking INN [%s] rather than molecularName as component', inn_name)
 				else:
@@ -1084,19 +1084,19 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 				try:
 					old_data = comp_data[data['nature_ID']]
 					# normalize INN
-					if old_data['inn_name'] == u'':
+					if old_data['inn_name'] == '':
 						old_data['inn_name'] = data['inn_name']
-					if data['inn_name'] == u'':
+					if data['inn_name'] == '':
 						data['inn_name'] = old_data['inn_name']
 					# normalize molecule
-					if old_data['molecule_name'] == u'':
+					if old_data['molecule_name'] == '':
 						old_data['molecule_name'] = data['molecule_name']
-					if data['molecule_name'] == u'':
+					if data['molecule_name'] == '':
 						data['molecule_name'] = old_data['molecule_name']
 					# normalize ATC
-					if old_data['atc'] == u'':
+					if old_data['atc'] == '':
 						old_data['atc'] = data['atc']
-					if data['atc'] == u'':
+					if data['atc'] == '':
 						data['atc'] = old_data['atc']
 					# FT: transformed form
 					# SA: active substance
@@ -1104,7 +1104,7 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 					# contained in the drug, however FreeDiams does not list the amount thereof
 					# (rather that of the INN)
 					# FT and SA records of the same component carry the same nature_ID
-					if data['nature'] == u'FT':
+					if data['nature'] == 'FT':
 						comp_data[data['nature_ID']] = data
 					else:
 						comp_data[data['nature_ID']] = old_data
@@ -1132,17 +1132,17 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 		self.__imported_drugs = []
 		for fd_xml_drug in fd_xml_drug_entries:
 			drug_uid = fd_xml_drug.find('Drug_UID').text.strip()
-			if drug_uid == u'-1':
+			if drug_uid == '-1':
 				_log.debug('skipping textual drug')
 				continue		# it's a TextualDrug, skip it
 			drug_name = fd_xml_drug.find('DrugName').text.replace(', )', ')').strip()
 			drug_form = fd_xml_drug.find('DrugForm').text.strip()
 			drug_atc = fd_xml_drug.find('DrugATC')
 			if drug_atc is None:
-				drug_atc = u''
+				drug_atc = ''
 			else:
 				if drug_atc.text is None:
-					drug_atc = u''
+					drug_atc = ''
 				else:
 					drug_atc = drug_atc.text.strip()
 
@@ -1151,7 +1151,7 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 			self.__imported_drugs.append(new_drug)
 			new_drug['is_fake_product'] = False
 			new_drug['atc'] = drug_atc
-			new_drug['external_code_type'] = u'FreeDiams::%s::%s' % (db_id, drug_id_name)
+			new_drug['external_code_type'] = 'FreeDiams::%s::%s' % (db_id, drug_id_name)
 			new_drug['external_code'] = drug_uid
 			new_drug['pk_data_source'] = pk_data_source
 			new_drug.save()
@@ -1170,22 +1170,22 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 					amount = amount.group()
 				data['amount'] = amount
 
-				unit = regex.sub(r'\d+[.,]{0,1}\d*', u'', fd_xml_comp.attrib['strenght'].strip()).strip()	# sic, typo
-				if unit == u'':
-					unit = u'*?*'
+				unit = regex.sub(r'\d+[.,]{0,1}\d*', '', fd_xml_comp.attrib['strenght'].strip()).strip()	# sic, typo
+				if unit == '':
+					unit = '*?*'
 				data['unit'] = unit
 
 				molecule_name = fd_xml_comp.attrib['molecularName'].strip()
-				if molecule_name != u'':
+				if molecule_name != '':
 					gmMedication.create_substance_dose(substance = molecule_name, atc = None, amount = amount, unit = unit)
 				data['molecule_name'] = molecule_name
 
 				inn_name = fd_xml_comp.attrib['inn'].strip()
-				if inn_name != u'':
+				if inn_name != '':
 					gmMedication.create_substance_dose(substance = inn_name, atc = None, amount = amount, unit = unit)
 				data['inn_name'] = molecule_name
 
-				if molecule_name == u'':
+				if molecule_name == '':
 					data['substance'] = inn_name
 					_log.info('linking INN [%s] rather than molecularName as component', inn_name)
 				else:
@@ -1198,21 +1198,21 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 				try:
 					old_data = comp_data[data['nature_ID']]
 					# normalize INN
-					if old_data['inn_name'] == u'':
+					if old_data['inn_name'] == '':
 						old_data['inn_name'] = data['inn_name']
-					if data['inn_name'] == u'':
+					if data['inn_name'] == '':
 						data['inn_name'] = old_data['inn_name']
 					# normalize molecule
-					if old_data['molecule_name'] == u'':
+					if old_data['molecule_name'] == '':
 						old_data['molecule_name'] = data['molecule_name']
-					if data['molecule_name'] == u'':
+					if data['molecule_name'] == '':
 						data['molecule_name'] = old_data['molecule_name']
 					# FT: transformed form
 					# SA: active substance
 					# it would be preferable to use the SA record because that's what's *actually*
 					# contained in the drug, however FreeDiams does not list the amount thereof
 					# (rather that of the INN)
-					if data['nature'] == u'FT':
+					if data['nature'] == 'FT':
 						comp_data[data['nature_ID']] = data
 					else:
 						comp_data[data['nature_ID']] = old_data
@@ -1246,7 +1246,7 @@ class cIfapInterface(cDrugDataSourceInterface):
 			_log.exception('cannot access [%s]', filename)
 			csv_file = None
 
-		field_names = u'PZN Handelsname Form Abpackungsmenge Einheit Preis1 Hersteller Preis2 rezeptpflichtig Festbetrag Packungszahl Packungsgr\xf6\xdfe'.split()
+		field_names = 'PZN Handelsname Form Abpackungsmenge Einheit Preis1 Hersteller Preis2 rezeptpflichtig Festbetrag Packungszahl Packungsgr\xf6\xdfe'.split()
 
 		if csv_file is None:
 			return False
@@ -1258,10 +1258,10 @@ class cIfapInterface(cDrugDataSourceInterface):
 		)
 
 		for line in csv_lines:
-			print "--------------------------------------------------------------------"[:31]
+			print("--------------------------------------------------------------------"[:31])
 			for key in field_names:
 				tmp = ('%s                                                ' % key)[:30]
-				print '%s: %s' % (tmp, line[key])
+				print('%s: %s' % (tmp, line[key]))
 
 		csv_file.close()
 
@@ -1299,23 +1299,23 @@ if __name__ == "__main__":
 	#--------------------------------------------------------
 	def test_MMI_interface():
 		mmi = cGelbeListeWineInterface()
-		print mmi
-		print "interface definition:", mmi.version
-		print "database versions:   ", mmi.get_data_source_version()
+		print(mmi)
+		print("interface definition:", mmi.version)
+		print("database versions:   ", mmi.get_data_source_version())
 	#--------------------------------------------------------
 	def test_MMI_file():
 		mmi_file = cGelbeListeCSVFile(filename = sys.argv[2])
 		for drug in mmi_file:
-			print "-------------"
-			print '"%s" (ATC: %s / PZN: %s)' % (drug['name'], drug['atc'], drug['pzn'])
+			print("-------------")
+			print('"%s" (ATC: %s / PZN: %s)' % (drug['name'], drug['atc'], drug['pzn']))
 			for stoff in drug['wirkstoffe']:
-				print " Wirkstoff:", stoff
-			raw_input()
+				print(" Wirkstoff:", stoff)
+			input()
 			if mmi_file.has_unknown_fields is not None:
-				print "has extra data under [%s]" % gmTools.default_csv_reader_rest_key
+				print("has extra data under [%s]" % gmTools.default_csv_reader_rest_key)
 			for key in mmi_file.csv_fieldnames:
-				print key, '->', drug[key]
-			raw_input()
+				print(key, '->', drug[key])
+			input()
 		mmi_file.close()
 	#--------------------------------------------------------
 	def test_mmi_switch_to():
@@ -1326,11 +1326,11 @@ if __name__ == "__main__":
 		mmi = cGelbeListeWineInterface()
 		mmi_file = mmi.__let_user_select_drugs()
 		for drug in mmi_file:
-			print "-------------"
-			print '"%s" (ATC: %s / PZN: %s)' % (drug['name'], drug['atc'], drug['pzn'])
+			print("-------------")
+			print('"%s" (ATC: %s / PZN: %s)' % (drug['name'], drug['atc'], drug['pzn']))
 			for stoff in drug['wirkstoffe']:
-				print " Wirkstoff:", stoff
-			print drug
+				print(" Wirkstoff:", stoff)
+			print(drug)
 		mmi_file.close()
 	#--------------------------------------------------------
 	def test_mmi_import_drugs():
@@ -1339,8 +1339,8 @@ if __name__ == "__main__":
 	#--------------------------------------------------------
 	def test_mmi_interaction_check():
 		mmi = cGelbeListeInterface()
-		print mmi
-		print "interface definition:", mmi.version
+		print(mmi)
+		print("interface definition:", mmi.version)
 		# Metoprolol + Hct vs Citalopram
 		diclofenac = '7587712'
 		phenprocoumon = '4421744'

@@ -1,12 +1,11 @@
 """GNUmed SOAP related widgets.
 """
 #============================================================
-__version__ = "$Revision: 1.114 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
 # std library
-import types, logging
+import logging
 
 
 # 3rd party
@@ -19,7 +18,6 @@ from Gnumed.wxpython import gmResizingWidgets, gmPhraseWheel, gmEMRStructWidgets
 from Gnumed.business import gmPerson, gmEMRStructItems, gmSOAPimporter, gmPraxis, gmPersonSearch, gmStaff
 
 _log = logging.getLogger('gm.ui')
-_log.info(__version__)
 
 #============================================================
 def create_issue_popup(parent, pos, size, style, data_sink):
@@ -302,7 +300,7 @@ class cProgressNoteInputNotebook(wx.Notebook, gmRegetMixin.cRegetOnPaintMixin):
 	# reget mixin API
 	#--------------------------------------------------------
 	def _populate_with_data(self):
-		print '[%s._populate_with_data] nothing to do, really...' % self.__class__.__name__
+		print('[%s._populate_with_data] nothing to do, really...' % self.__class__.__name__)
 		return True
 	#--------------------------------------------------------
 	# event handling
@@ -313,12 +311,12 @@ class cProgressNoteInputNotebook(wx.Notebook, gmRegetMixin.cRegetOnPaintMixin):
 		# wxPython events
 
 		# client internal signals
-		gmDispatcher.connect(signal = u'post_patient_selection', receiver=self._on_post_patient_selection)
+		gmDispatcher.connect(signal = 'post_patient_selection', receiver=self._on_post_patient_selection)
 #		gmDispatcher.connect(signal = u'application_closing', receiver=self._on_application_closing)
 
 		self.__pat.register_before_switching_from_patient_callback(callback = self._before_switching_from_patient_callback)
 
-		gmDispatcher.send(signal = u'register_pre_exit_callback', callback = self._pre_exit_callback)
+		gmDispatcher.send(signal = 'register_pre_exit_callback', callback = self._pre_exit_callback)
 	#--------------------------------------------------------
 	def _before_switching_from_patient_callback(self):
 		"""Another patient is about to be activated.
@@ -445,16 +443,16 @@ class cNotebookedProgressNoteInputPanel(wx.Panel):
 			'There is a configuration option whether or not to\n'
 			'allow several new unassociated progress notes at once.'
 		)
-		self.__BTN_add_unassociated.SetToolTipString(tt)
+		self.__BTN_add_unassociated.SetToolTip(tt)
 
 		self.__BTN_save = wx.Button(PNL_soap_editors, -1, _('&Save'))
-		self.__BTN_save.SetToolTipString(_('Save progress note into medical record and close this editor.'))
+		self.__BTN_save.SetToolTip(_('Save progress note into medical record and close this editor.'))
 
 		self.__BTN_clear = wx.Button(PNL_soap_editors, -1, _('&Clear'))
-		self.__BTN_clear.SetToolTipString(_('Clear this progress note editor.'))
+		self.__BTN_clear.SetToolTip(_('Clear this progress note editor.'))
 
 		self.__BTN_discard = wx.Button(PNL_soap_editors, -1, _('&Discard'))
-		self.__BTN_discard.SetToolTipString(_('Discard progress note and close this editor. You will loose any data already typed into this editor !'))
+		self.__BTN_discard.SetToolTip(_('Discard progress note and close this editor. You will loose any data already typed into this editor !'))
 
 		# - arrange
 		szr_btns_right = wx.BoxSizer(wx.HORIZONTAL)
@@ -492,7 +490,7 @@ class cNotebookedProgressNoteInputPanel(wx.Panel):
 					last = issue['modified_when'].strftime('%m/%Y')
 				else:
 					last = last_encounter['last_affirmed'].strftime('%m/%Y')
-				label = u'%s: %s "%s"' % (last, problem['l10n_type'], problem['problem'])
+				label = '%s: %s "%s"' % (last, problem['l10n_type'], problem['problem'])
 			elif problem['type'] == 'episode':
 				epi = emr.problem2episode(problem)
 				last_encounter = emr.get_last_encounter(episode_id = epi['pk_episode'])
@@ -500,14 +498,14 @@ class cNotebookedProgressNoteInputPanel(wx.Panel):
 					last = epi['episode_modified_when'].strftime('%m/%Y')
 				else:
 					last = last_encounter['last_affirmed'].strftime('%m/%Y')
-				label = u'%s: %s "%s"%s' % (
+				label = '%s: %s "%s"%s' % (
 					last,
 					problem['l10n_type'],
 					problem['problem'],
 					gmTools.coalesce(initial = epi['health_issue'], instead = '', template_initial = ' (%s)')
 				)
 			self.__LST_problems.Append(label, problem)
-		splitter_width = self.__splitter.GetSizeTuple()[0]
+		splitter_width = self.__splitter.GetSize()[0]
 		self.__splitter.SetSashPosition((splitter_width / 2), True)
 		self.Refresh()
 		#self.Update()
@@ -519,11 +517,16 @@ class cNotebookedProgressNoteInputPanel(wx.Panel):
 		"""Configure enabled event signals
 		"""
 		# wxPython events
-		wx.EVT_LISTBOX_DCLICK(self.__LST_problems, self.__LST_problems.GetId(), self.__on_problem_activated)
-		wx.EVT_BUTTON(self.__BTN_save, self.__BTN_save.GetId(), self.__on_save)
-		wx.EVT_BUTTON(self.__BTN_clear, self.__BTN_clear.GetId(), self.__on_clear)
-		wx.EVT_BUTTON(self.__BTN_discard, self.__BTN_discard.GetId(), self.__on_discard)
-		wx.EVT_BUTTON(self.__BTN_add_unassociated, self.__BTN_add_unassociated.GetId(), self.__on_add_unassociated)
+		self.__LST_problems.Bind(wx.EVT_LISTBOX_DCLICK, self.__on_problem_activated)
+		self.__BTN_save.Bind(wx.EVT_BUTTON, self.__on_save)
+		self.__BTN_clear.Bind(wx.EVT_BUTTON, self.__on_clear)
+		self.__BTN_discard.Bind(wx.EVT_BUTTON, self.__on_discard)
+		self.__BTN_add_unassociated.Bind(wx.EVT_BUTTON, self.__on_add_unassociated)
+		#wx.EVT_LISTBOX_DCLICK(self.__LST_problems, self.__LST_problems.GetId(), self.__on_problem_activated)
+		#wx.EVT_BUTTON(self.__BTN_save, self.__BTN_save.GetId(), self.__on_save)
+		#wx.EVT_BUTTON(self.__BTN_clear, self.__BTN_clear.GetId(), self.__on_clear)
+		#wx.EVT_BUTTON(self.__BTN_discard, self.__BTN_discard.GetId(), self.__on_discard)
+		#wx.EVT_BUTTON(self.__BTN_add_unassociated, self.__BTN_add_unassociated.GetId(), self.__on_add_unassociated)
 
 		# client internal signals
 		gmDispatcher.connect(signal='post_patient_selection', receiver=self._on_post_patient_selection)
@@ -571,9 +574,9 @@ class cNotebookedProgressNoteInputPanel(wx.Panel):
 		else:
 			dbcfg = gmCfg.cCfgSQL()
 			value = bool(dbcfg.get2 (
-				option = u'horstspace.soap_editor.allow_same_episode_multiple_times',
+				option = 'horstspace.soap_editor.allow_same_episode_multiple_times',
 				workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
-				bias = u'user',
+				bias = 'user',
 				default = False
 			))
 
@@ -643,9 +646,9 @@ class cPopupDataHolder:
 	def store_data(self, popup_type=None, desc=None, data=None, old_desc=None):
 		# FIXME: do fancy validations
 
-		print "storing popup data:", desc
-		print "type", popup_type
-		print "data", data
+		print("storing popup data:", desc)
+		print("type", popup_type)
+		print("data", data)
 
 		# verify structure
 		try:
@@ -701,7 +704,7 @@ class cResizingSoapWin(gmResizingWidgets.cResizingWindow):
 		@type input_defs: list of cSOAPLineDef instances
 		"""
 		if input_defs is None or len(input_defs) == 0:
-			raise gmExceptions.ConstructorError, 'cannot generate note with field defs [%s]' % input_defs
+			raise gmExceptions.ConstructorError('cannot generate note with field defs [%s]' % input_defs)
 
 		# FIXME: *actually* this should be a session-local
 		# FIXME: holding store at the c_ClinicalRecord level
@@ -760,12 +763,12 @@ class cResizingSoapWin(gmResizingWidgets.cResizingWindow):
 
 		# fill progress_note for import
 		progress_note = []
-		aoe = u''
-		rfe = u''
+		aoe = ''
+		rfe = ''
 		has_rfe = False
 		soap_lines_contents = self.GetValue()
 		for line_content in soap_lines_contents.values():
-			if line_content.text.strip() == u'':
+			if line_content.text.strip() == '':
 				continue
 			progress_note.append ({
 				gmSOAPimporter.soap_bundle_SOAP_CAT_KEY: line_content.data.soap_cat,
@@ -775,7 +778,7 @@ class cResizingSoapWin(gmResizingWidgets.cResizingWindow):
 			if line_content.data.is_rfe:
 				has_rfe = True
 				rfe += line_content.text.rstrip()
-			if line_content.data.soap_cat == u'a':
+			if line_content.data.soap_cat == 'a':
 				aoe += line_content.text.rstrip()
 
 		emr = self.__pat.emr
@@ -783,7 +786,7 @@ class cResizingSoapWin(gmResizingWidgets.cResizingWindow):
 		# - new episode, must get name from narrative (or user)
 		if (self.__problem is None) or (self.__problem['type'] == 'issue'):
 			# work out episode name
-			epi_name = u''
+			epi_name = ''
 			if len(aoe) != 0:
 				epi_name = aoe
 			else:
@@ -801,7 +804,7 @@ class cResizingSoapWin(gmResizingWidgets.cResizingWindow):
 				return False
 
 			epi_name = dlg.GetValue().strip()
-			if epi_name == u'':
+			if epi_name == '':
 				gmGuiHelpers.gm_show_error(_('Cannot save a new problem without a name.'), _('saving progress note'))
 				return False
 
@@ -811,7 +814,7 @@ class cResizingSoapWin(gmResizingWidgets.cResizingWindow):
 			if self.__problem is not None:
 				issue = emr.problem2issue(self.__problem)
 				if not gmEMRStructWidgets.move_episode_to_issue(episode = new_episode, target_issue = issue, save_to_backend = True):
-					print "error moving episode to issue"
+					print("error moving episode to issue")
 
 			epi_id = new_episode['pk_episode']
 		else:
@@ -852,7 +855,7 @@ class cResizingSoapWin(gmResizingWidgets.cResizingWindow):
 		editor_content = self.GetValue()
 
 		for field_content in editor_content.values():
-			if field_content.text.strip() != u'':
+			if field_content.text.strip() != '':
 				return False
 
 		return True
@@ -887,8 +890,8 @@ class cResizingSoapPanel(wx.Panel):
 		@param input_defs: the display and associated data for each displayed narrative
 		@type input_defs: a list of cSOAPLineDef instances
 		"""
-		if not isinstance(problem, (gmEMRStructItems.cHealthIssue, gmEMRStructItems.cEpisode, gmEMRStructItems.cProblem, types.NoneType)):
-			raise gmExceptions.ConstructorError, 'problem [%s] is of type %s, must be issue, episode, problem or None' % (str(problem), type(problem))
+		if not isinstance(problem, (gmEMRStructItems.cHealthIssue, gmEMRStructItems.cEpisode, gmEMRStructItems.cProblem, type(None))):
+			raise gmExceptions.ConstructorError('problem [%s] is of type %s, must be issue, episode, problem or None' % (str(problem), type(problem)))
 
 		self.__is_saved = False
 		# do layout
@@ -1001,7 +1004,7 @@ class cSingleBoxSOAPPanel(wx.Panel):
 		self.__do_layout()
 		self.__pat = gmPerson.gmCurrentPatient()
 		if not self.__register_events():
-			raise gmExceptions.ConstructorError, 'cannot register interests'
+			raise gmExceptions.ConstructorError('cannot register interests')
 	#--------------------------------------------------------
 	def __do_layout(self):
 		# large box for free-text clinical notes
@@ -1013,9 +1016,9 @@ class cSingleBoxSOAPPanel(wx.Panel):
 		)
 		# buttons below that
 		self.__BTN_save = wx.Button(self, wx.NewId(), _("save"))
-		self.__BTN_save.SetToolTipString(_('save clinical note in EMR'))
+		self.__BTN_save.SetToolTip(_('save clinical note in EMR'))
 		self.__BTN_discard = wx.Button(self, wx.NewId(), _("discard"))
-		self.__BTN_discard.SetToolTipString(_('discard clinical note'))
+		self.__BTN_discard.SetToolTip(_('discard clinical note'))
 		szr_btns = wx.BoxSizer(wx.HORIZONTAL)
 		szr_btns.Add(self.__BTN_save, 1, wx.ALIGN_CENTER_HORIZONTAL, 0)
 		szr_btns.Add(self.__BTN_discard, 1, wx.ALIGN_CENTER_HORIZONTAL, 0)
@@ -1032,8 +1035,8 @@ class cSingleBoxSOAPPanel(wx.Panel):
 	#--------------------------------------------------------
 	def __register_events(self):
 		# wxPython events
-		wx.EVT_BUTTON(self.__BTN_save, self.__BTN_save.GetId(), self._on_save_note)
-		wx.EVT_BUTTON(self.__BTN_discard, self.__BTN_discard.GetId(), self._on_discard_note)
+		self.__BTN_save.Bind(wx.EVT_BUTTON, self._on_save_note)
+		self.__BTN_discard.Bind(wx.EVT_BUTTON, self._on_discard_note)
 
 		# client internal signals
 		gmDispatcher.connect(signal = 'application_closing', receiver = self._save_note)
@@ -1142,12 +1145,12 @@ if __name__ == "__main__":
 		return soap_lines
 	#--------------------------------------------------------
 	def create_widget_on_test_kwd1(*args, **kwargs):
-		print "test keyword must have been typed..."
-		print "actually this would have to return a suitable wx.Window subclass instance"
-		print "args:", args
-		print "kwd args:"
+		print("test keyword must have been typed...")
+		print("actually this would have to return a suitable wx.Window subclass instance")
+		print("args:", args)
+		print("kwd args:")
 		for key in kwargs.keys():
-			print key, "->", kwargs[key]
+			print(key, "->", kwargs[key])
 	#--------------------------------------------------------
 	def create_widget_on_test_kwd2(*args, **kwargs):
 		msg = (
@@ -1164,14 +1167,14 @@ if __name__ == "__main__":
 		)
 	#--------------------------------------------------------
 	def test_soap_notebook():
-		print 'testing notebooked soap input...'
+		print('testing notebooked soap input...')
 		application = wx.PyWidgetTester(size=(800,500))
 		soap_input = cProgressNoteInputNotebook(application.frame, -1)
 		application.frame.Show(True)
 		application.MainLoop()
 	#--------------------------------------------------------
 	def test_soap_notebook_panel():
-		print 'testing notebooked soap panel...'
+		print('testing notebooked soap panel...')
 		application = wx.PyWidgetTester(size=(800,500))
 		soap_input = cNotebookedProgressNoteInputPanel(application.frame, -1)
 		application.frame.Show(True)
@@ -1182,7 +1185,7 @@ if __name__ == "__main__":
 		# obtain patient
 		patient = gmPersonSearch.ask_for_patient()
 		if patient is None:
-			print "No patient. Exiting gracefully..."
+			print("No patient. Exiting gracefully...")
 			sys.exit(0)
 		gmPatSearchWidgets.set_active_patient(patient=patient)
 

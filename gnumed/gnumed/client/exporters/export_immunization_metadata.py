@@ -10,7 +10,7 @@ pool = gmPG.ConnectionPool()
 
 filename = 'immunization-data.txt'
 print "Writing immunization metadata to:", filename
-f = file(filename, 'w')
+f = open(filename, 'w')
 
 vaccine_template = """
 Vaccine "%s" (%s)
@@ -43,8 +43,8 @@ if vaccine_rows is None:
 	print "error retrieving vaccine data"
 # display vaccine data
 else:
-	f.write(u'Vaccines in the GNUmed database\n')
-	f.write(u'-------------------------------\n')
+	f.write('Vaccines in the GNUmed database\n')
+	f.write('-------------------------------\n')
 	for vacc in vaccine_rows:
 		f.write(vaccine_template % (
 			vacc[idx['trade_name']],
@@ -57,11 +57,11 @@ else:
 			vacc[idx['max_age']].day
 		))
 		if vacc[idx['is_live']] is None:
-			f.write(u"  type of vaccine not known\n")
+			f.write("  type of vaccine not known\n")
 		elif vacc[idx['is_live']]:
-			f.write(u"  Cave: live vaccine\n")
+			f.write("  Cave: live vaccine\n")
 		else:
-			f.write(u"  non-live vaccine\n")
+			f.write("  non-live vaccine\n")
 		# get indications for this vaccine
 		cmd = """select * from clin.v_inds4vaccine where pk_vaccine = %s"""
 		indication_rows, ind_idx = gmPG.run_ro_query (
@@ -75,9 +75,9 @@ else:
 			print "error retrieving vaccine indication data"
 		# display them
 		else:
-			f.write(u'  Indications:\n')
+			f.write('  Indications:\n')
 			for ind in indication_rows:
-				f.write(u'  - %s (%s)\n' % (ind[ind_idx['l10n_indication']], ind[ind_idx['indication']]))
+				f.write('  - %s (%s)\n' % (ind[ind_idx['l10n_indication']], ind[ind_idx['indication']]))
 
 #=============================
 # export vaccination schedules
@@ -93,7 +93,7 @@ schedule_rows, idx = gmPG.run_ro_query (
 if schedule_rows is None:
 	print "error retrieving vaccination schedules"
 else:
-	f.write(u'\n\nVaccination schedules in the GNUmed database\n')
+	f.write('\n\nVaccination schedules in the GNUmed database\n')
 	f.write(    '--------------------------------------------\n')
 	for sched in schedule_rows:
 		if sched[idx['is_active']]:
@@ -120,24 +120,24 @@ else:
 		if shot_rows is None:
 			print "error retrieving shots for regime"
 		else:
-			f.write(u'  Shots defined for this schedule:\n')
+			f.write('  Shots defined for this schedule:\n')
 			for shot in shot_rows:
 				if shot[shots_idx['is_booster']]:
-					f.write(u'  booster) start %s - %s days of age, refresh after %s (%s)\n' % (
+					f.write('  booster) start %s - %s days of age, refresh after %s (%s)\n' % (
 						shot[shots_idx['age_due_min']].day,
 						shot[shots_idx['age_due_max']].day,
 						shot[shots_idx['min_interval']].day,
 						shot[shots_idx['vacc_comment']]
 					))
 				elif shot[shots_idx['vacc_seq_no']] == 1:
-					f.write(u'  shot #%s) due between day %s and %s (%s)\n' % (
+					f.write('  shot #%s) due between day %s and %s (%s)\n' % (
 						shot[shots_idx['vacc_seq_no']],
 						shot[shots_idx['age_due_min']].day,
 						shot[shots_idx['age_due_max']].day,
 						shot[shots_idx['vacc_comment']]
 					))
 				else:
-					f.write(u'  shot #%s) due between day %s and %s, minimum %s day after previous (%s)\n' % (
+					f.write('  shot #%s) due between day %s and %s, minimum %s day after previous (%s)\n' % (
 						shot[shots_idx['vacc_seq_no']],
 						shot[shots_idx['age_due_min']].day,
 						shot[shots_idx['age_due_max']].day,

@@ -46,7 +46,7 @@ def manage_family_history(parent=None):
 			return True
 
 		gmDispatcher.send (
-			signal = u'statustext',
+			signal = 'statustext',
 			msg = _('Cannot delete family history item.'),
 			beep = True
 		)
@@ -57,15 +57,15 @@ def manage_family_history(parent=None):
 		items = [ [
 			f['l10n_relation'],
 			f['condition'],
-			gmTools.bool2subst(f['contributed_to_death'], _('yes'), _('no'), u'?'),
-			gmTools.coalesce(f['age_noted'], u''),
+			gmTools.bool2subst(f['contributed_to_death'], _('yes'), _('no'), '?'),
+			gmTools.coalesce(f['age_noted'], ''),
 			gmDateTime.format_interval (
 				interval = f['age_of_death'],
 				accuracy_wanted = gmDateTime.acc_years,
-				none_string = u''
+				none_string = ''
 			),
-			gmTools.coalesce(f['name_relative'], u''),
-			gmTools.coalesce(f['dob_relative'], u'', function_initial = ('strftime', '%Y-%m-%d'))
+			gmTools.coalesce(f['name_relative'], ''),
+			gmTools.coalesce(f['dob_relative'], '', function_initial = ('strftime', '%Y-%m-%d'))
 		] for f in fhx ]
 		lctrl.set_string_items(items)
 		lctrl.set_data(fhx)
@@ -88,10 +88,10 @@ def manage_family_history(parent=None):
 	)
 #----------------------------------------------------------------
 def edit_family_history(parent=None, family_history=None):
-	ea = cFamilyHistoryEAPnl(parent = parent, id = -1)
+	ea = cFamilyHistoryEAPnl(parent, -1)
 	ea.data = family_history
 	ea.mode = gmTools.coalesce(family_history, 'new', 'edit')
-	dlg = gmEditArea.cGenericEditAreaDlg2(parent = parent, id = -1, edit_area = ea, single_entry = True)
+	dlg = gmEditArea.cGenericEditAreaDlg2(parent, -1, edit_area = ea, single_entry = True)
 	dlg.SetTitle(gmTools.coalesce(family_history, _('Adding family history'), _('Editing family history')))
 	if dlg.ShowModal() == wx.ID_OK:
 		dlg.Destroy()
@@ -130,21 +130,21 @@ class cFamilyHistoryEAPnl(wxgFamilyHistoryEAPnl.wxgFamilyHistoryEAPnl, gmEditAre
 
 		validity = True
 
-		if self._PRW_condition.GetValue().strip() == u'':
+		if self._PRW_condition.GetValue().strip() == '':
 			validity = False
 			self._PRW_condition.display_as_valid(False)
 		else:
 			self._PRW_condition.display_as_valid(True)
 
 		# make sure there's a relationship string
-		if self._PRW_relationship.GetValue().strip() == u'':
+		if self._PRW_relationship.GetValue().strip() == '':
 			validity = False
 			self._PRW_relationship.display_as_valid(False)
 		else:
 			self._PRW_relationship.display_as_valid(True)
 
 		# make sure there's an episode name
-		if self._PRW_episode.GetValue().strip() == u'':
+		if self._PRW_episode.GetValue().strip() == '':
 			self._PRW_episode.SetText(_('Family History'), None)
 			self._PRW_episode.display_as_valid(True)
 
@@ -193,16 +193,16 @@ class cFamilyHistoryEAPnl(wxgFamilyHistoryEAPnl.wxgFamilyHistoryEAPnl, gmEditAre
 		return True
 	#----------------------------------------------------------------
 	def _refresh_as_new(self):
-		self._PRW_relationship.SetText(u'', None)
-		self._PRW_condition.SetText(u'', None)
+		self._PRW_relationship.SetText('', None)
+		self._PRW_condition.SetText('', None)
 		self._PRW_codes.SetText()
-		self._TCTRL_age_of_onset.SetValue(u'')
-		self._PRW_age_of_death.SetText(u'', None)
+		self._TCTRL_age_of_onset.SetValue('')
+		self._PRW_age_of_death.SetText('', None)
 		self._PRW_died_of_this.SetData(None)
-		self._PRW_episode.SetText(u'', None)
-		self._TCTRL_name.SetValue(u'')
-		self._PRW_dob.SetText(u'', None)
-		self._TCTRL_comment.SetValue(u'')
+		self._PRW_episode.SetText('', None)
+		self._TCTRL_name.SetValue('')
+		self._PRW_dob.SetText('', None)
+		self._TCTRL_comment.SetValue('')
 
 		self._PRW_relationship.SetFocus()
 	#----------------------------------------------------------------
@@ -217,13 +217,13 @@ class cFamilyHistoryEAPnl(wxgFamilyHistoryEAPnl.wxgFamilyHistoryEAPnl, gmEditAre
 		self._PRW_condition.SetText(self.data['condition'], None)
 		val, data = self._PRW_codes.generic_linked_codes2item_dict(self.data.generic_codes)
 		self._PRW_codes.SetText(val, data)
-		self._TCTRL_age_of_onset.SetValue(gmTools.coalesce(self.data['age_noted'], u''))
+		self._TCTRL_age_of_onset.SetValue(gmTools.coalesce(self.data['age_noted'], ''))
 		self._PRW_age_of_death.SetData(self.data['age_of_death'])
 		self._PRW_died_of_this.SetData(self.data['contributed_to_death'])
 		self._PRW_episode.SetText(self.data['episode'], self.data['pk_episode'])
-		self._TCTRL_name.SetValue(gmTools.coalesce(self.data['name_relative'], u''))
+		self._TCTRL_name.SetValue(gmTools.coalesce(self.data['name_relative'], ''))
 		self._PRW_dob.SetData(self.data['dob_relative'])
-		self._TCTRL_comment.SetValue(gmTools.coalesce(self.data['comment'], u''))
+		self._TCTRL_comment.SetValue(gmTools.coalesce(self.data['comment'], ''))
 
 		self._PRW_relationship.SetFocus()
 #================================================================
@@ -233,7 +233,7 @@ class cRelationshipTypePhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 		super(cRelationshipTypePhraseWheel, self).__init__(*args, **kwargs)
 
-		query = u"""
+		query = """
 			SELECT DISTINCT ON (list_label)
 				pk as data,
 				_(description) as field_label,
@@ -256,7 +256,7 @@ class cRelationshipTypePhraseWheel(gmPhraseWheel.cPhraseWheel):
 			return
 
 		val = self.GetValue().strip()
-		if val == u'':
+		if val == '':
 			return
 
 		self.SetText (

@@ -12,15 +12,16 @@ with --slave and
 in the config file.
 """
 #=====================================================================
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/test-slave.py,v $
 __version__ = "$Revision: 1.5 $"
 __author__ = "K.Hilbert <karsten.hilbert@gmx.net>"
 
-import sys, time
-import xmlrpclib, socket
+import sys,
+import time
+import xmlrpclib.client
+import socket
 
 print "=> setting up connection to GNUmed client on localhost:9999"
-srv = xmlrpclib.ServerProxy('http://localhost:9999')
+srv = xmlrpc.client.ServerProxy('http://localhost:9999')
 
 print "=> showing macro processor version"
 try:
@@ -98,26 +99,3 @@ print "=> oh well, but now for real"
 print srv.detach(conn_auth)
 del srv
 
-#=====================================================================
-# $Log: test-slave.py,v $
-# Revision 1.5  2007-09-04 23:27:12  ncq
-# - improve docs
-#
-# Revision 1.4  2005/11/29 18:56:05  ncq
-# - general polishing
-#
-# Revision 1.3  2004/06/25 13:28:00  ncq
-# - logically separate notebook and clinical window plugins completely
-#
-# Revision 1.2  2004/03/15 22:40:17  ncq
-# - added docs on how to use this
-#
-# Revision 1.1  2004/03/15 15:29:30  ncq
-# - moved here from wxpython/
-#
-# Revision 1.2  2004/02/17 10:47:22  ncq
-# - adapt to creds passing on every RPC
-#
-# Revision 1.1  2004/02/13 16:15:29  ncq
-# - test drive GNUmed test slave
-#

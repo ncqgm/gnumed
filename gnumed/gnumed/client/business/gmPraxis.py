@@ -8,7 +8,7 @@ __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 import sys
 import logging
 import io
-import urllib
+import urllib.parse
 
 
 if __name__ == '__main__':
@@ -32,7 +32,7 @@ def delete_workplace(workplace=None, delete_config=False, conn=None):
 
 	# delete workplace itself (plugin load list, that is)
 	queries = [
-		{'cmd': u"""
+		{'cmd': """
 delete from cfg.cfg_item
 where
 	fk_template = (
@@ -49,7 +49,7 @@ where
 	# delete other config items associated with this workplace
 	if delete_config:
 		queries.append ({
-			'cmd': u"""
+			'cmd': """
 delete from cfg.cfg_item
 where
 	workplace = %(wp)s""",
@@ -61,14 +61,14 @@ where
 #============================================================
 # short description
 #------------------------------------------------------------
-_SQL_get_praxis_branches = u"SELECT * FROM dem.v_praxis_branches WHERE %s"
+_SQL_get_praxis_branches = "SELECT * FROM dem.v_praxis_branches WHERE %s"
 
 class cPraxisBranch(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents a praxis branch"""
 
-	_cmd_fetch_payload = _SQL_get_praxis_branches % u"pk_praxis_branch = %s"
+	_cmd_fetch_payload = _SQL_get_praxis_branches % "pk_praxis_branch = %s"
 	_cmds_store_payload = [
-		u"""UPDATE dem.praxis_branch SET
+		"""UPDATE dem.praxis_branch SET
 				fk_org_unit = %(pk_org_unit)s
 			WHERE
 				pk = %(pk_praxis_branch)s
@@ -79,13 +79,13 @@ class cPraxisBranch(gmBusinessDBObject.cBusinessDBObject):
 		"""
 	]
 	_updatable_fields = [
-		u'pk_org_unit'
+		'pk_org_unit'
 	]
 	#--------------------------------------------------------
 	def format(self):
 		txt = _('Praxis branch                   #%s\n') % self._payload[self._idx['pk_praxis_branch']]
-		txt += u' '
-		txt += u'\n '.join(self.org_unit.format(with_address = True, with_org = True, with_comms = True))
+		txt += ' '
+		txt += '\n '.join(self.org_unit.format(with_address = True, with_org = True, with_comms = True))
 		return txt
 
 	#--------------------------------------------------------
@@ -107,17 +107,17 @@ class cPraxisBranch(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	def get_distance2address_url(self, address):
 		self_adr = self.address
-		url = u'https://www.luftlinie.org/%s-%s-%s-%s-%s/%s-%s-%s-%s-%s' % (
-			urllib.quote(self_adr['street'].encode('utf8')),
-			urllib.quote(self_adr['number'].encode('utf8')),
-			urllib.quote(self_adr['urb'].encode('utf8')),
-			urllib.quote(self_adr['postcode'].encode('utf8')),
-			urllib.quote(self_adr['country'].encode('utf8')),
-			urllib.quote(address['street'].encode('utf8')),
-			urllib.quote(address['number'].encode('utf8')),
-			urllib.quote(address['urb'].encode('utf8')),
-			urllib.quote(address['postcode'].encode('utf8')),
-			urllib.quote(address['country'].encode('utf8'))
+		url = 'https://www.luftlinie.org/%s-%s-%s-%s-%s/%s-%s-%s-%s-%s' % (
+			urllib.parse.quote(self_adr['street'].encode('utf8')),
+			urllib.parse.quote(self_adr['number'].encode('utf8')),
+			urllib.parse.quote(self_adr['urb'].encode('utf8')),
+			urllib.parse.quote(self_adr['postcode'].encode('utf8')),
+			urllib.parse.quote(self_adr['country'].encode('utf8')),
+			urllib.parse.quote(address['street'].encode('utf8')),
+			urllib.parse.quote(address['number'].encode('utf8')),
+			urllib.parse.quote(address['urb'].encode('utf8')),
+			urllib.parse.quote(address['postcode'].encode('utf8')),
+			urllib.parse.quote(address['country'].encode('utf8'))
 		)
 		return url
 
@@ -149,29 +149,29 @@ class cPraxisBranch(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	def _get_vcf(self):
 		vcf_fields = [
-			u'BEGIN:VCARD',
-			u'VERSION:4.0',
-			u'KIND:org',
-			_(u'FN:%(l10n_unit_category)s %(branch)s of %(l10n_organization_category)s %(praxis)s') % self,
-			u'N:%(praxis)s;%(branch)s' % self
+			'BEGIN:VCARD',
+			'VERSION:4.0',
+			'KIND:org',
+			_('FN:%(l10n_unit_category)s %(branch)s of %(l10n_organization_category)s %(praxis)s') % self,
+			'N:%(praxis)s;%(branch)s' % self
 		]
 		adr = self.address
 		if adr is not None:
-			vcf_fields.append(u'ADR:;%(subunit)s;%(street)s %(number)s;%(urb)s;%(l10n_region)s;%(postcode)s;%(l10n_country)s' % adr)
-		comms = self.get_comm_channels(comm_medium = u'workphone')
+			vcf_fields.append('ADR:;%(subunit)s;%(street)s %(number)s;%(urb)s;%(l10n_region)s;%(postcode)s;%(l10n_country)s' % adr)
+		comms = self.get_comm_channels(comm_medium = 'workphone')
 		if len(comms) > 0:
-			vcf_fields.append(u'TEL;VALUE=uri;TYPE=work:tel:%(url)s' % comms[0])
-		comms = self.get_comm_channels(comm_medium = u'email')
+			vcf_fields.append('TEL;VALUE=uri;TYPE=work:tel:%(url)s' % comms[0])
+		comms = self.get_comm_channels(comm_medium = 'email')
 		if len(comms) > 0:
-			vcf_fields.append(u'EMAIL:%(url)s' % comms[0])
-		vcf_fields.append(u'END:VCARD')
+			vcf_fields.append('EMAIL:%(url)s' % comms[0])
+		vcf_fields.append('END:VCARD')
 		vcf_fname = gmTools.get_unique_filename (
 			prefix = 'gm-praxis-',
 			suffix = '.vcf'
 		)
 		vcf_file = io.open(vcf_fname, mode = 'wt', encoding = 'utf8')
-		vcf_file.write(u'\n'.join(vcf_fields))
-		vcf_file.write(u'\n')
+		vcf_file.write('\n'.join(vcf_fields))
+		vcf_file.write('\n')
 		vcf_file.close()
 		return vcf_fname
 
@@ -179,18 +179,18 @@ class cPraxisBranch(gmBusinessDBObject.cBusinessDBObject):
 
 #------------------------------------------------------------
 def lock_praxis_branch(pk_praxis_branch=None, exclusive=False):
-	return gmPG2.lock_row(table = u'dem.praxis_branch', pk = pk_praxis_branch, exclusive = exclusive)
+	return gmPG2.lock_row(table = 'dem.praxis_branch', pk = pk_praxis_branch, exclusive = exclusive)
 
 #------------------------------------------------------------
 def unlock_praxis_branch(pk_praxis_branch=None, exclusive=False):
-	return gmPG2.unlock_row(table = u'dem.praxis_branch', pk = pk_praxis_branch, exclusive = exclusive)
+	return gmPG2.unlock_row(table = 'dem.praxis_branch', pk = pk_praxis_branch, exclusive = exclusive)
 
 #------------------------------------------------------------
 def get_praxis_branches(order_by=None):
 	if order_by is None:
-		order_by = u'true'
+		order_by = 'true'
 	else:
-		order_by = u'true ORDER BY %s' % order_by
+		order_by = 'true ORDER BY %s' % order_by
 
 	cmd = _SQL_get_praxis_branches % order_by
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
@@ -198,7 +198,7 @@ def get_praxis_branches(order_by=None):
 
 #------------------------------------------------------------
 def get_praxis_branch_by_org_unit(pk_org_unit=None):
-	cmd = _SQL_get_praxis_branches % u'pk_org_unit = %(pk_ou)s'
+	cmd = _SQL_get_praxis_branches % 'pk_org_unit = %(pk_ou)s'
 	args = {'pk_ou': pk_org_unit}
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 	if len(rows) == 0:
@@ -208,14 +208,14 @@ def get_praxis_branch_by_org_unit(pk_org_unit=None):
 #------------------------------------------------------------
 def create_praxis_branch(pk_org_unit=None):
 
-	args = {u'fk_unit': pk_org_unit}
-	cmd1 = u"""
+	args = {'fk_unit': pk_org_unit}
+	cmd1 = """
 		INSERT INTO dem.praxis_branch (fk_org_unit)
 		SELECT %(fk_unit)s WHERE NOT EXISTS (
 			SELECT 1 FROM dem.praxis_branch WHERE fk_org_unit = %(fk_unit)s
 		)
 	"""
-	cmd2 = u"""SELECT * from dem.v_praxis_branches WHERE pk_org_unit = %(fk_unit)s"""
+	cmd2 = """SELECT * from dem.v_praxis_branches WHERE pk_org_unit = %(fk_unit)s"""
 	queries = [
 		{'cmd': cmd1, 'args': args},
 		{'cmd': cmd2, 'args': args}
@@ -227,8 +227,8 @@ def create_praxis_branch(pk_org_unit=None):
 def create_praxis_branches(pk_org_units=None):
 	queries = []
 	for pk in pk_org_units:
-		args = {u'fk_unit': pk}
-		cmd = u"""
+		args = {'fk_unit': pk}
+		cmd = """
 			INSERT INTO dem.praxis_branch (fk_org_unit)
 			SELECT %(fk_unit)s WHERE NOT EXISTS (
 				SELECT 1 FROM dem.praxis_branch WHERE fk_org_unit = %(fk_unit)s
@@ -237,7 +237,7 @@ def create_praxis_branches(pk_org_units=None):
 		queries.append({'cmd': cmd, 'args': args})
 
 	args = {'fk_units': tuple(pk_org_units)}
-	cmd = u"""SELECT * from dem.v_praxis_branches WHERE pk_org_unit IN %(fk_units)s"""
+	cmd = """SELECT * from dem.v_praxis_branches WHERE pk_org_unit IN %(fk_units)s"""
 	queries.append({'cmd': cmd, 'args': args})
 	rows, idx = gmPG2.run_rw_queries(queries = queries, return_data = True, get_col_idx = True)
 	return [ cPraxisBranch(row = {'data': r, 'idx': idx, 'pk_field': 'pk_praxis_branch'}) for r in rows ]
@@ -247,7 +247,7 @@ def delete_praxis_branch(pk_praxis_branch=None):
 	if not lock_praxis_branch(pk_praxis_branch = pk_praxis_branch, exclusive = True):
 		return False
 	args = {'pk': pk_praxis_branch}
-	cmd = u"DELETE FROM dem.praxis_branch WHERE pk = %(pk)s"
+	cmd = "DELETE FROM dem.praxis_branch WHERE pk = %(pk)s"
 	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 	unlock_praxis_branch(pk_praxis_branch = pk_praxis_branch, exclusive = True)
 	return True
@@ -256,7 +256,7 @@ def delete_praxis_branch(pk_praxis_branch=None):
 def delete_praxis_branches(pk_praxis_branches=None, except_pk_praxis_branches=None):
 
 	if pk_praxis_branches is None:
-		cmd = u'SELECT pk from dem.praxis_branch'
+		cmd = 'SELECT pk from dem.praxis_branch'
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = False)
 		pks_to_lock = [ r[0] for r in rows ]
 	else:
@@ -276,16 +276,16 @@ def delete_praxis_branches(pk_praxis_branches=None, except_pk_praxis_branches=No
 
 	if pk_praxis_branches is not None:
 		args['pks'] = tuple(pk_praxis_branches)
-		where_parts.append(u'pk IN %(pks)s')
+		where_parts.append('pk IN %(pks)s')
 
 	if except_pk_praxis_branches is not None:
 		args['except'] = tuple(except_pk_praxis_branches)
-		where_parts.append(u'pk NOT IN %(except)s')
+		where_parts.append('pk NOT IN %(except)s')
 
 	if len(where_parts) == 0:
-		cmd = u"DELETE FROM dem.praxis_branch"
+		cmd = "DELETE FROM dem.praxis_branch"
 	else:
-		cmd = u"DELETE FROM dem.praxis_branch WHERE %s" % u' AND '.join(where_parts)
+		cmd = "DELETE FROM dem.praxis_branch WHERE %s" % ' AND '.join(where_parts)
 
 	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 	for pk in pks_to_lock:
@@ -311,7 +311,7 @@ class gmCurrentPraxisBranch(gmBorg.cBorg):
 		# must be cPraxisBranch instance, then
 		if not isinstance(branch, cPraxisBranch):
 			_log.error('cannot set current praxis branch to [%s], must be a cPraxisBranch instance' % str(branch))
-			raise TypeError, 'gmPraxis.gmCurrentPraxisBranch.__init__(): <branch> must be a cPraxisBranch instance but is: %s' % str(branch)
+			raise TypeError('gmPraxis.gmCurrentPraxisBranch.__init__(): <branch> must be a cPraxisBranch instance but is: %s' % str(branch))
 
 		if self.branch is not None:
 			self.branch.unlock()
@@ -347,12 +347,12 @@ class gmCurrentPraxisBranch(gmBorg.cBorg):
 	# waiting list handling
 	#--------------------------------------------------------
 	def remove_from_waiting_list(self, pk=None):
-		cmd = u'delete from clin.waiting_list where pk = %(pk)s'
+		cmd = 'delete from clin.waiting_list where pk = %(pk)s'
 		args = {'pk': pk}
 		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 	#--------------------------------------------------------
 	def update_in_waiting_list(self, pk = None, urgency = 0, comment = None, zone = None):
-		cmd = u"""
+		cmd = """
 update clin.waiting_list
 set
 	urgency = %(urg)s,
@@ -363,8 +363,8 @@ where
 		args = {
 			'pk': pk,
 			'urg': urgency,
-			'cmt': gmTools.none_if(comment, u''),
-			'zone': gmTools.none_if(zone, u'')
+			'cmt': gmTools.none_if(comment, ''),
+			'zone': gmTools.none_if(zone, '')
 		}
 
 		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
@@ -373,13 +373,13 @@ where
 		if current_position == 1:
 			return
 
-		cmd = u'select clin.move_waiting_list_entry(%(pos)s, (%(pos)s - 1))'
+		cmd = 'select clin.move_waiting_list_entry(%(pos)s, (%(pos)s - 1))'
 		args = {'pos': current_position}
 
 		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 	#--------------------------------------------------------
 	def lower_in_waiting_list(self, current_position=None):
-		cmd = u'select clin.move_waiting_list_entry(%(pos)s, (%(pos)s+1))'
+		cmd = 'select clin.move_waiting_list_entry(%(pos)s, (%(pos)s+1))'
 		args = {'pos': current_position}
 
 		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
@@ -387,7 +387,7 @@ where
 	# properties
 	#--------------------------------------------------------
 	def _get_waiting_list_patients(self):
-		cmd = u"""
+		cmd = """
 			SELECT * FROM clin.v_waiting_list
 			ORDER BY
 				list_position
@@ -411,8 +411,8 @@ where
 
 		self.__helpdesk = gmTools.coalesce (
 			_cfg.get (
-				group = u'workplace',
-				option = u'help desk',
+				group = 'workplace',
+				option = 'help desk',
 				source_order = [
 					('explicit', 'return'),
 					('workbase', 'return'),
@@ -421,7 +421,7 @@ where
 					('system', 'return')
 				]
 			),
-			u'http://wiki.gnumed.de'
+			'http://wiki.gnumed.de'
 		)
 
 		return self.__helpdesk
@@ -430,18 +430,18 @@ where
 
 	#--------------------------------------------------------
 	def _get_db_logon_banner(self):
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': u'select _(message) from cfg.db_logon_banner'}])
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': 'select _(message) from cfg.db_logon_banner'}])
 		if len(rows) == 0:
-			return u''
-		return gmTools.coalesce(rows[0][0], u'').strip()
+			return ''
+		return gmTools.coalesce(rows[0][0], '').strip()
 
 	def _set_db_logon_banner(self, banner):
 		queries = [
-			{'cmd': u'delete from cfg.db_logon_banner'}
+			{'cmd': 'delete from cfg.db_logon_banner'}
 		]
-		if banner.strip() != u'':
+		if banner.strip() != '':
 			queries.append ({
-				'cmd': u'insert into cfg.db_logon_banner (message) values (%(msg)s)',
+				'cmd': 'insert into cfg.db_logon_banner (message) values (%(msg)s)',
 				'args': {'msg': banner.strip()}
 			})
 		rows, idx = gmPG2.run_rw_queries(queries = queries, end_tx = True)
@@ -463,8 +463,8 @@ where
 
 		self.__active_workplace = gmTools.coalesce (
 			_cfg.get (
-				group = u'workplace',
-				option = u'name',
+				group = 'workplace',
+				option = 'name',
 				source_order = [
 					('explicit', 'return'),
 					('workbase', 'return'),
@@ -473,7 +473,7 @@ where
 					('system', 'return'),
 				]
 			),
-			u'Local Default'
+			'Local Default'
 		)
 
 		return self.__active_workplace
@@ -485,7 +485,7 @@ where
 		pass
 
 	def _get_workplaces(self):
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': u'SELECT DISTINCT workplace FROM cfg.cfg_item ORDER BY workplace'}])
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': 'SELECT DISTINCT workplace FROM cfg.cfg_item ORDER BY workplace'}])
 		return [ r[0] for r in rows ]
 
 	workplaces = property(_get_workplaces, _set_workplaces)
@@ -494,8 +494,8 @@ where
 	def _get_user_email(self):
 		# FIXME: get this from the current users staff record in the database
 		return _cfg.get (
-			group = u'preferences',
-			option = u'user email',
+			group = 'preferences',
+			option = 'user email',
 			source_order = [
 				('explicit', 'return'),
 				('user', 'return'),
@@ -509,8 +509,8 @@ where
 		prefs_file = _cfg.get(option = 'user_preferences_file')
 		gmCfg2.set_option_in_INI_file (
 			filename = prefs_file,
-			group = u'preferences',
-			option = u'user email',
+			group = 'preferences',
+			option = 'user email',
 			value = val
 		)
 		_cfg.reload_file_source(file = prefs_file)
@@ -535,14 +535,14 @@ if __name__ == '__main__':
 #		print "active workplace:", prac.active_workplace
 
 		old_banner = prac.db_logon_banner
-		test_banner = u'a test banner'
+		test_banner = 'a test banner'
 		prac.db_logon_banner = test_banner
 		if prac.db_logon_banner != test_banner:
-			print 'Cannot set logon banner to', test_banner
+			print(('Cannot set logon banner to', test_banner))
 			return False
-		prac.db_logon_banner = u''
-		if prac.db_logon_banner != u'':
-			print 'Cannot set logon banner to ""'
+		prac.db_logon_banner = ''
+		if prac.db_logon_banner != '':
+			print('Cannot set logon banner to ""')
 			return False
 		prac.db_logon_banner = old_banner
 
@@ -553,6 +553,6 @@ if __name__ == '__main__':
 #	print "regression tests succeeded"
 
 	for b in get_praxis_branches():
-		print b.format()
+		print((b.format()))
 
 #============================================================

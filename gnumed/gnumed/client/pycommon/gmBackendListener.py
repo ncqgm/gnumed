@@ -1,6 +1,3 @@
-
-from __future__ import print_function
-
 __doc__ = """GNUmed database backend listener.
 
 This module implements threaded listening for asynchronuous
@@ -27,9 +24,9 @@ _log = logging.getLogger('gm.db')
 
 
 signals2listen4 = [
-	u'db_maintenance_warning',		# warns of impending maintenance and asks for disconnect
-	u'db_maintenance_disconnect',	# announces a forced disconnect and disconnects
-	u'gm_table_mod'					# sent for any (registered) table modification, payload contains details
+	'db_maintenance_warning',		# warns of impending maintenance and asks for disconnect
+	'db_maintenance_disconnect',	# announces a forced disconnect and disconnects
+	'gm_table_mod'					# sent for any (registered) table modification, payload contains details
 ]
 
 #=====================================================================
@@ -228,26 +225,26 @@ class gmBackendListener(gmBorg.cBorg):
 					print(notification)
 				_log.debug('#%s: %s (first param is PID of sending backend)', self.__notifications_received, notification)
 				# decode payload
-				payload = notification.payload.split(u'::')
+				payload = notification.payload.split('::')
 				operation = None
 				table = None
 				pk_column = None
 				pk_row = None
 				pk_identity = None
 				for item in payload:
-					if item.startswith(u'operation='):
-						operation = item.split(u'=')[1]
-					if item.startswith(u'table='):
-						table = item.split(u'=')[1]
-					if item.startswith(u'PK name='):
-						pk_column = item.split(u'=')[1]
-					if item.startswith(u'row PK='):
-						pk_row = int(item.split(u'=')[1])
-					if item.startswith(u'person PK='):
+					if item.startswith('operation='):
+						operation = item.split('=')[1]
+					if item.startswith('table='):
+						table = item.split('=')[1]
+					if item.startswith('PK name='):
+						pk_column = item.split('=')[1]
+					if item.startswith('row PK='):
+						pk_row = int(item.split('=')[1])
+					if item.startswith('person PK='):
 						try:
-							pk_identity = int(item.split(u'=')[1])
+							pk_identity = int(item.split('=')[1])
 						except ValueError:
-							_log.exception(u'error in change notification trigger')
+							_log.exception('error in change notification trigger')
 							pk_identity = -1
 				# try sending intra-client signals:
 				# 1) generic signal
@@ -272,7 +269,7 @@ class gmBackendListener(gmBorg.cBorg):
 				# 2) dynamically emulated old style table specific signals
 				if table is not None:
 					self.__messages_sent += 1
-					signal = u'%s_mod_db' % table
+					signal = '%s_mod_db' % table
 					_log.debug('emulating old-style table specific signal [%s]', signal)
 					try:
 						results = gmDispatcher.send (
@@ -355,7 +352,7 @@ if __name__ == "__main__":
 		print("Now in a new shell connect psql to the")
 		print("database <gnumed_v9> on localhost, return")
 		print("here and hit <enter> to continue.")
-		raw_input('hit <enter> when done starting psql')
+		input('hit <enter> when done starting psql')
 		print("You now have about 30 seconds to go")
 		print("to the psql shell and type")
 		print(" notify patient_changed<enter>")
@@ -371,7 +368,7 @@ if __name__ == "__main__":
 				counter += 1
 				time.sleep(1)
 				sys.stdout.flush()
-				print('.', end=' ')
+				print('.')
 			print("Looping",n,"times through dummy function")
 			i = 0
 			t1 = time.time()
@@ -417,7 +414,7 @@ if __name__ == "__main__":
 			print("found patient", pat)
 			gmPerson.set_active_patient(patient=pat)
 			print("now waiting for notifications, hit <ENTER> to select another patient")
-			raw_input()
+			input()
 
 		print("cleanup")
 		listener.shutdown()

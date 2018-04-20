@@ -63,7 +63,7 @@ class cXdtListPnl(wxgXdtListPnl.wxgXdtListPnl):
 			defaultDir = root_dir,
 			defaultFile = '',
 			wildcard = '%s (*.xDT)|*.?DT;*.?dt|%s (*)|*|%s (*.*)|*.*' % (_('xDT files'), _('all files'), _('all files (Win)')),
-			style = wx.OPEN | wx.FILE_MUST_EXIST
+			style = wx.FD_OPEN | wx.FD_FILE_MUST_EXIST
 		)
 		choice = dlg.ShowModal()
 		fname = None
@@ -81,7 +81,7 @@ class cXdtListPnl(wxgXdtListPnl.wxgXdtListPnl):
 		self.filename = None
 
 		try:
-			f = file(filename, 'r')
+			f = open(filename, 'r')
 		except IOError:
 			gmGuiHelpers.gm_show_error (
 				_('Cannot access xDT file\n\n'
@@ -110,8 +110,8 @@ class cXdtListPnl(wxgXdtListPnl.wxgXdtListPnl):
 		# parse and display file
 		self._LCTRL_xdt.DeleteAllItems()
 
-		self._LCTRL_xdt.InsertStringItem(index=0, label=_('name of xDT file'))
-		self._LCTRL_xdt.SetStringItem(index=0, col=1, label=filename)
+		self._LCTRL_xdt.InsertItem(index=0, label=_('name of xDT file'))
+		self._LCTRL_xdt.SetItem(index=0, column=1, label=filename)
 
 		idx = 1
 		for line in xdt_file:
@@ -129,10 +129,10 @@ class cXdtListPnl(wxgXdtListPnl.wxgXdtListPnl):
 			except KeyError:
 				right = content
 
-			self._LCTRL_xdt.InsertStringItem(index=idx, label=left)
-			self._LCTRL_xdt.SetStringItem(index=idx, col=1, label=right)
-			self._LCTRL_xdt.SetStringItem(index=idx, col=2, label=field)
-			self._LCTRL_xdt.SetStringItem(index=idx, col=3, label=content)
+			self._LCTRL_xdt.InsertItem(index=idx, label=left)
+			self._LCTRL_xdt.SetItem(index=idx, column=1, label=right)
+			self._LCTRL_xdt.SetItem(index=idx, column=2, label=field)
+			self._LCTRL_xdt.SetItem(index=idx, column=3, label=content)
 			idx += 1
 
 		xdt_file.close()
@@ -208,8 +208,8 @@ class gmXdtViewerPanel(wx.Panel):
 		for item_idx in range(len(items),0,-1):
 			data = items[item_idx]
 			idx = self.list.InsertItem(info=wx.ListItem())
-			self.list.SetStringItem(index=idx, col=0, label=data[0])
-			self.list.SetStringItem(index=idx, col=1, label=data[1])
+			self.list.SetItem(index=idx, column=0, label=data[0])
+			self.list.SetItem(index=idx, column=1, label=data[1])
 			#self.list.SetItemData(item_idx, item_idx)
 
 		# reaspect
@@ -272,17 +272,17 @@ class gmXdtViewerPanel(wx.Panel):
 		return item.GetText()
 	#-------------------------------------------------------------------------
 	def OnItemSelected(self, event):
-		self.currentItem = event.m_itemIndex
+		self.currentItem = event.ItemIndex
 	#-------------------------------------------------------------------------
 	def OnItemDeselected(self, evt):
 		item = evt.GetItem()
 
 		# Show how to reselect something we don't want deselected
-#		if evt.m_itemIndex == 11:
+#		if evt.ItemIndex == 11:
 #			wxCallAfter(self.list.SetItemState, 11, wx.LIST_STATE_SELECTED, wx.LIST_STATE_SELECTED)
 	#-------------------------------------------------------------------------
 	def OnItemActivated(self, event):
-		self.currentItem = event.m_itemIndex
+		self.currentItem = event.ItemIndex
 	#-------------------------------------------------------------------------
 	def OnItemDelete(self, event):
 		pass
@@ -333,8 +333,8 @@ class gmXdtViewerPanel(wx.Panel):
 		event.Skip()
 	#-------------------------------------------------------------------------
 	def OnPopupOne(self, event):
-		print "FindItem:", self.list.FindItem(-1, "Roxette")
-		print "FindItemData:", self.list.FindItemData(-1, 11)
+		print("FindItem:", self.list.FindItem(-1, "Roxette"))
+		print("FindItemData:", self.list.FindItemData(-1, 11))
 	#-------------------------------------------------------------------------
 	def OnPopupTwo(self, event):
 		pass
@@ -350,10 +350,10 @@ class gmXdtViewerPanel(wx.Panel):
 	#-------------------------------------------------------------------------
 	def OnPopupFive(self, event):
 		item = self.list.GetItem(self.currentItem)
-		print item.m_text, item.m_itemId, self.list.GetItemData(self.currentItem)
+		print(item.Text, item.Id, self.list.GetItemData(self.currentItem))
 	#-------------------------------------------------------------------------
 	def OnSize(self, event):
-		w,h = self.GetClientSizeTuple()
+		w,h = self.GetClientSize()
 		self.list.SetDimensions(0, 0, w, h)
 #======================================================
 class gmXdtViewer(gmPlugin.cNotebookPlugin):

@@ -49,7 +49,7 @@ def parse_xml_linuxmednews(xml_text=None, filename=None):
 	dob = pyDT.datetime.strptime(pat.find('DOB').text, dob_format)
 	dto.dob = dob.replace(tzinfo = gmDateTime.pydt_now_here().tzinfo)
 	dto.dob_is_estimated = False
-	dto.source = u'LinuxMedNews XML'
+	dto.source = 'LinuxMedNews XML'
 
 	#dto.remember_comm_channel(channel=None, url=None):
 	#dto.remember_address(number=None, street=None, urb=None, region_code=None, zip=None, country_code=None, adr_type=None, subunit=None)

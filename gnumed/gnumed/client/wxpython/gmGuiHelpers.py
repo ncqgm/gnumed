@@ -90,12 +90,12 @@ class c2ButtonQuestionDlg(wxg2ButtonQuestionDlg.wxg2ButtonQuestionDlg):
 			if checkbox_msg is not None:
 				self._CHBOX_dont_ask_again.SetLabel(checkbox_msg)
 			if checkbox_tooltip is not None:
-				self._CHBOX_dont_ask_again.SetToolTipString(checkbox_tooltip)
+				self._CHBOX_dont_ask_again.SetToolTip(checkbox_tooltip)
 
 		buttons = [self._BTN_1, self._BTN_2]
 		for idx in range(len(button_defs)):
 			buttons[idx].SetLabel(label = button_defs[idx]['label'])
-			buttons[idx].SetToolTipString(button_defs[idx]['tooltip'])
+			buttons[idx].SetToolTip(button_defs[idx]['tooltip'])
 			try:
 				if button_defs[idx]['default'] is True:
 					buttons[idx].SetDefault()
@@ -165,12 +165,12 @@ class c3ButtonQuestionDlg(wxg3ButtonQuestionDlg.wxg3ButtonQuestionDlg):
 			if checkbox_msg is not None:
 				self._CHBOX_dont_ask_again.SetLabel(checkbox_msg)
 			if checkbox_tooltip is not None:
-				self._CHBOX_dont_ask_again.SetToolTipString(checkbox_tooltip)
+				self._CHBOX_dont_ask_again.SetToolTip(checkbox_tooltip)
 
 		buttons = [self._BTN_1, self._BTN_2, self._BTN_3]
 		for idx in range(len(button_defs)):
 			buttons[idx].SetLabel(label = button_defs[idx]['label'])
-			buttons[idx].SetToolTipString(button_defs[idx]['tooltip'])
+			buttons[idx].SetToolTip(button_defs[idx]['tooltip'])
 			try:
 				if button_defs[idx]['default'] is True:
 					buttons[idx].SetDefault()
@@ -281,7 +281,7 @@ class cMultilineTextEntryDlg(wxgMultilineTextEntryDlg.wxgMultilineTextEntryDlg):
 			self.Close()
 	#--------------------------------------------------------
 	def _on_clear_button_pressed(self, evt):
-		self._TCTRL_text.SetValue(u'')
+		self._TCTRL_text.SetValue('')
 	#--------------------------------------------------------
 	def _on_restore_button_pressed(self, evt):
 		if self.original_text is not None:
@@ -326,8 +326,8 @@ def clipboard2file(check_for_filename=False):
 				return clipboard_text_content
 			except IOError:
 				_log.exception('clipboard does not seem to hold filename: %s', clipboard_text_content)
-		fname = gmTools.get_unique_filename(prefix = u'gm-clipboard-', suffix = u'.txt')
-		target_file = io.open(fname, mode = u'wt', encoding = u'utf8')
+		fname = gmTools.get_unique_filename(prefix = 'gm-clipboard-', suffix = '.txt')
+		target_file = io.open(fname, mode = 'wt', encoding = 'utf8')
 		target_file.write(clipboard_text_content)
 		target_file.close()
 		return fname
@@ -335,7 +335,7 @@ def clipboard2file(check_for_filename=False):
 	data_obj = wx.BitmapDataObject()
 	got_it = wx.TheClipboard.GetData(data_obj)
 	if got_it:
-		fname = gmTools.get_unique_filename(prefix = u'gm-clipboard-', suffix = u'.png')
+		fname = gmTools.get_unique_filename(prefix = 'gm-clipboard-', suffix = '.png')
 		bmp = data_obj.Bitmap.SaveFile(fname, wx.BITMAP_TYPE_PNG)
 		wx.TheClipboard.Close()
 		return fname
@@ -359,7 +359,7 @@ def text2clipboard(text=None, announce_result=False):
 
 #-------------------------------------------------------------------------
 def file2clipboard(filename=None, announce_result=False):
-	f = io.open(filename, mode = u'rt', encoding = u'utf8')
+	f = io.open(filename, mode = 'rt', encoding = 'utf8')
 	result = text2clipboard(text = f.read(), announce_result = False)
 	f.close()
 	if announce_result:
@@ -415,7 +415,7 @@ def file2scaled_image(filename=None, height=100):
 #			current_height = 1
 		rescaled_width = (float(current_width) / current_height) * rescaled_height
 		img_data.Rescale(rescaled_width, rescaled_height, quality = wx.IMAGE_QUALITY_HIGH)		# w, h
-		bitmap = wx.BitmapFromImage(img_data)
+		bitmap = wx.Bitmap(img_data)
 		del img_data
 	except Exception:
 		_log.exception('cannot load image from [%s]', filename)
@@ -529,13 +529,13 @@ if __name__ == '__main__':
 	def test_scale_img():
 		app = wx.App()
 		img = file2scaled_image(filename = sys.argv[2])
-		print img
-		print img.Height
-		print img.Width
+		print(img)
+		print(img.Height)
+		print(img.Width)
 	#------------------------------------------------------------------
 	def test_sql_logic_prw():
 		app = wx.PyWidgetTester(size = (200, 50))
-		prw = cThreeValuedLogicPhraseWheel(parent = app.frame, id = -1)
+		prw = cThreeValuedLogicPhraseWheel(app.frame, -1)
 		app.frame.Show(True)
 		app.MainLoop()
 
@@ -545,12 +545,12 @@ if __name__ == '__main__':
 		app = wx.PyWidgetTester(size = (200, 50))
 		result = clipboard2file()
 		if result is False:
-			print "problem opening clipboard"
+			print("problem opening clipboard")
 			return
 		if result is None:
-			print "no data in clipboard"
+			print("no data in clipboard")
 			return
-		print "file:", result
+		print("file:", result)
 	#------------------------------------------------------------------
 	#test_scale_img()
 	#test_sql_logic_prw()

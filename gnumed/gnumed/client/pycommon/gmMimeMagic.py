@@ -13,7 +13,7 @@
 												 binary or text data, a description of
 												 what the data is will be returned.
 
-		 magic.file(filename): returns a description of what the file
+		 magic.filedesc(filename): returns a description of what the file
 													 'filename' contains.
 
 Acknowledgements: This module has been pulled from the web. Thanks to
@@ -890,7 +890,7 @@ magicNumbers = []
 
 def strToNum(n):
 	val = 0
-	col = long(1)
+	col = int(1)
 	if n[:1] == 'x': n = '0' + n
 	if n[:2] == '0x':
 		# hex
@@ -1011,7 +1011,7 @@ class magicTest:
 
 def load(file):
 	global magicNumbers
-	lines = io.open(file, mode = u'rt', encoding = 'utf8').readlines()
+	lines = io.open(file, mode = 'rt', encoding = 'utf8')
 	last = { 0: None }
 	for line in lines:
 		if re.match(r'\s*#', line):
@@ -1078,6 +1078,8 @@ def load(file):
 				last[level] = new
 				l.append(new)
 
+
+
 def whatis(data):
 	for test in magicNumbers:
 		 m = test.compare(data)
@@ -1092,9 +1094,11 @@ def whatis(data):
 	if string.find('def', data, 0, 8192) > -1:
 		return 'Python Source'
 	return 'ASCII text'
-			
-		
-def file(file):
+
+
+
+
+def filedesc(file):
 	try:
 		return whatis(open(file, 'r').read(8192))
 	except Exception, e:
@@ -1102,7 +1106,6 @@ def file(file):
 			return 'directory'
 		else:
 			raise e
-	
 
 #### BUILD DATA ####
 #load('mime-magic')
@@ -1119,7 +1122,7 @@ for m in magic:
 if __name__ == '__main__':
 	import sys
 	for arg in sys.argv[1:]:
-		msg = file(arg)
+		msg = open(arg)
 		if msg:
 			print arg + ': ' + msg
 		else:

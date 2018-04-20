@@ -45,12 +45,12 @@ class cAlertCaption(wx.Panel):
 		#SetCaptionForegroundColor()                                               #set caption text colour rgb TODO
 		caption.SetFont(wx.Font(10,wx.SWISS,wx.NORMAL, wx.BOLD,False,''))
 		sizer.Add(captionpanel,1,wx.EXPAND|wx.ALL,2)
-                sizer.Add(0,9,6)
+		sizer.Add(0,9,6)
 		self.SetSizer(sizer)                                               #set the sizer 
 		sizer.Fit(self)                                                    #set to minimum size as calculated by sizer
 		self.SetAutoLayout(True)                                           #tell frame to use the sizer
 		#self.Show(True) #showing done by manager!                                                    #show the panel   
-		
+
 	def SetCaptionBackgroundColor(self, bg_red, bg_blue, bg_green):
 		self.SetBackgroundColour(wx.Colour(bg_red,bg_blue,bg_green))
 		return		  
@@ -93,47 +93,47 @@ class cDividerCaption(wx.Panel):
 
 #===========================================================================
 class cHeadingCaption(wx.Panel):
-    """This panel consists constructs a simple heading to be used at the top
+	"""This panel consists constructs a simple heading to be used at the top
 
-        of a panel, in the form of capitalised word on user defined foreground
-        and background colours. The heading is left justified curently. The
-        default colours are purple panel, orange label with yellow capitalised
-        words (sounds yuk doesn't it - but I like it and it works well!!!!!
-    """
-    def __init__ (self, parent, id, text, bgC = wx.Colour (197,194,255), hdrC = wx.Colour (255, 129, 131), txtC = wx.Colour (255, 255, 0)):
-        self.text = text
-        self.bgC = bgC
-        self.hdrC = hdrC
-        self.txtC = txtC
-        wx.Panel.__init__(self, parent, id)
-        wx.EVT_PAINT (self, self.OnPaint)
-        wx.EVT_SIZE (self, self.OnSize)
-        self.w = 0
-        self.h = 0
+		of a panel, in the form of capitalised word on user defined foreground
+		and background colours. The heading is left justified curently. The
+		default colours are purple panel, orange label with yellow capitalised
+		words (sounds yuk doesn't it - but I like it and it works well!!!!!
+	"""
+	def __init__ (self, parent, id, text, bgC = wx.Colour (197,194,255), hdrC = wx.Colour (255, 129, 131), txtC = wx.Colour (255, 255, 0)):
+		self.text = text
+		self.bgC = bgC
+		self.hdrC = hdrC
+		self.txtC = txtC
+		wx.Panel.__init__(self, parent, id)
+		wx.EVT_PAINT (self, self.OnPaint)
+		wx.EVT_SIZE (self, self.OnSize)
+		self.w = 0
+		self.h = 0
 
-    def OnPaint (self, event):
-        self.redraw (wxPaintDC (self))
+	def OnPaint (self, event):
+		self.redraw (wxPaintDC (self))
 
-    def OnSize (self, event):
-        self.w, self.h = self.GetClientSizeTuple ()
+	def OnSize (self, event):
+		self.w, self.h = self.GetClientSize()
 
-    def redraw (self, dc):
-        dc.SetBrush (wx.Brush (self.bgC, wx.SOLID))
-        dc.SetPen (wx.TRANSPARENT_PEN)
-        dc.DrawRectangle (0, 0, self.w, self.h)
-        dc.SetTextBackground (self.hdrC)
-        dc.SetFont (wx.Font (12, wx.SWISS, wx.NORMAL, wx.BOLD))
-        dc.SetTextForeground (self.txtC)
-        txtw, txth = dc.GetTextExtent (self.text)
-        bufx = txtw / 10 # buffer to left of text
-        if bufx + txtw > self.w:
-            bufx = 0
-        bufy = (self.h - txth)/2
-        if bufy < 0:
-            bufy = 0
-        dc.SetBrush (wx.Brush (self.hdrC, wx.SOLID))
-        dc.DrawRectangle (bufx, bufy, txtw, txth)
-        dc.DrawText (self.text, bufx, bufy) 
+	def redraw (self, dc):
+		dc.SetBrush (wx.Brush (self.bgC, wx.SOLID))
+		dc.SetPen (wx.TRANSPARENT_PEN)
+		dc.DrawRectangle (0, 0, self.w, self.h)
+		dc.SetTextBackground (self.hdrC)
+		dc.SetFont (wx.Font (12, wx.SWISS, wx.NORMAL, wx.BOLD))
+		dc.SetTextForeground (self.txtC)
+		txtw, txth = dc.GetTextExtent (self.text)
+		bufx = txtw / 10 # buffer to left of text
+		if bufx + txtw > self.w:
+			bufx = 0
+		bufy = (self.h - txth)/2
+		if bufy < 0:
+			bufy = 0
+		dc.SetBrush (wx.Brush (self.hdrC, wx.SOLID))
+		dc.DrawRectangle (bufx, bufy, txtw, txth)
+		dc.DrawText (self.text, bufx, bufy) 
 
 	def SetCaptionBackgroundColor(self, bgC):
 		self.bgC = bgC

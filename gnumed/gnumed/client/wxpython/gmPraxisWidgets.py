@@ -68,13 +68,13 @@ def show_audit_trail(parent=None):
 
 	#-----------------------------------
 	def refresh(lctrl):
-		cmd = u'SELECT * FROM audit.v_audit_trail ORDER BY audit_when_ts'
+		cmd = 'SELECT * FROM audit.v_audit_trail ORDER BY audit_when_ts'
 		rows, idx = gmPG2.run_ro_queries(link_obj = conn, queries = [{'cmd': cmd}], get_col_idx = False)
 		lctrl.set_string_items (
 			[ [
 				r['event_when'],
 				r['event_by'],
-				u'%s %s %s' % (
+				'%s %s %s' % (
 					gmTools.coalesce(r['row_version_before'], gmTools.u_diameter),
 					gmTools.u_arrow2right,
 					gmTools.coalesce(r['row_version_after'], gmTools.u_diameter)
@@ -87,7 +87,7 @@ def show_audit_trail(parent=None):
 	#-----------------------------------
 	gmListWidgets.get_choices_from_list (
 		parent = parent,
-		msg = u'',
+		msg = '',
 		caption = _('GNUmed database audit log ...'),
 		columns = [ _('When'), _('Who'), _('Revisions'), _('Table'), _('Event'), '#' ],
 		single_selection = True,
@@ -102,14 +102,14 @@ def configure_fallback_primary_provider(parent=None):
 
 	staff = gmStaff.get_staff_list()
 	choices = [ [
-			s[u'short_alias'],
-			u'%s%s %s' % (
-				gmTools.coalesce(s['title'], u'', u'%s '),
+			s['short_alias'],
+			'%s%s %s' % (
+				gmTools.coalesce(s['title'], '', '%s '),
 				s['firstnames'],
 				s['lastnames']
 			),
 			s['l10n_role'],
-			gmTools.coalesce(s['comment'], u'')
+			gmTools.coalesce(s['comment'], '')
 		]
 		for s in staff
 		if s['is_active'] is True
@@ -189,18 +189,18 @@ def configure_workplace_plugins(parent=None):
 				parent = parent,
 				message = _('Enter a descriptive name for the new workplace:'),
 				caption = _('Configuring GNUmed workplaces ...'),
-				defaultValue = u'',
+				defaultValue = '',
 				style = wx.OK | wx.CENTRE
 			)
 			dlg.ShowModal()
 			workplace = dlg.GetValue().strip()
-			if workplace == u'':
+			if workplace == '':
 				gmGuiHelpers.gm_show_error(_('Cannot save a new workplace without a name.'), _('Configuring GNUmed workplaces ...'))
 				return False
 			curr_plugins = []
 		else:
 			curr_plugins = gmTools.coalesce(dbcfg.get2 (
-				option = u'horstspace.notebook.plugin_load_order',
+				option = 'horstspace.notebook.plugin_load_order',
 				workplace = workplace,
 				bias = 'workplace'
 				), []
@@ -236,7 +236,7 @@ def configure_workplace_plugins(parent=None):
 			return True
 
 		dbcfg.set (
-			option = u'horstspace.notebook.plugin_load_order',
+			option = 'horstspace.notebook.plugin_load_order',
 			value = new_plugins,
 			workplace = workplace
 		)
@@ -254,19 +254,19 @@ def configure_workplace_plugins(parent=None):
 				parent = parent,
 				message = _('Enter a descriptive name for the new workplace:'),
 				caption = _('Configuring GNUmed workplaces ...'),
-				defaultValue = u'',
+				defaultValue = '',
 				style = wx.OK | wx.CENTRE
 			)
 			dlg.ShowModal()
 			workplace = dlg.GetValue().strip()
-			if workplace == u'':
+			if workplace == '':
 				gmGuiHelpers.gm_show_error(_('Cannot save a new workplace without a name.'), _('Configuring GNUmed workplaces ...'))
 				return False
 			curr_plugins = []
 			choices = available_plugins
 		else:
 			curr_plugins = gmTools.coalesce(dbcfg.get2 (
-				option = u'horstspace.notebook.plugin_load_order',
+				option = 'horstspace.notebook.plugin_load_order',
 				workplace = workplace,
 				bias = 'workplace'
 				), []
@@ -301,7 +301,7 @@ def configure_workplace_plugins(parent=None):
 			return True
 
 		dbcfg.set (
-			option = u'horstspace.notebook.plugin_load_order',
+			option = 'horstspace.notebook.plugin_load_order',
 			value = new_plugins,
 			workplace = workplace
 		)
@@ -315,15 +315,15 @@ def configure_workplace_plugins(parent=None):
 		new_name = wx.GetTextFromUser (
 			message = _('Enter a name for the new workplace !'),
 			caption = _('Cloning workplace'),
-			default_value = u'%s-2' % workplace,
+			default_value = '%s-2' % workplace,
 			parent = parent
 		).strip()
 
-		if new_name == u'':
+		if new_name == '':
 			return False
 
 		dbcfg = gmCfg.cCfgSQL()
-		opt = u'horstspace.notebook.plugin_load_order'
+		opt = 'horstspace.notebook.plugin_load_order'
 
 		plugins = dbcfg.get2 (
 			option = opt,
@@ -419,7 +419,7 @@ def set_active_praxis_branch(parent=None, no_parent=False):
 	if len(branches) == 0:
 		orgs = gmOrganization.get_orgs()
 		if len(orgs) == 0:
-			pk_cat = gmOrganization.create_org_category(category = u'Praxis')
+			pk_cat = gmOrganization.create_org_category(category = 'Praxis')
 			org = gmOrganization.create_org(_('Your praxis'), pk_cat)
 			unit = org.add_unit(_('Your branch'))
 			branch = gmPraxis.create_praxis_branch(pk_org_unit = unit['pk_org_unit'])
@@ -477,7 +477,7 @@ def set_active_praxis_branch(parent=None, no_parent=False):
 		branches = gmPraxis.get_praxis_branches()
 		items = [
 			[	b['branch'],
-				gmTools.coalesce(b['l10n_unit_category'], u'')
+				gmTools.coalesce(b['l10n_unit_category'], '')
 			] for b in branches
 		]
 		lctrl.set_string_items(items = items)
@@ -508,7 +508,7 @@ def manage_praxis_branches(parent=None):
 	def get_unit_tooltip(unit):
 		if unit is None:
 			return None
-		return u'\n'.join(unit.format(with_address = True, with_org = True, with_comms = True))
+		return '\n'.join(unit.format(with_address = True, with_org = True, with_comms = True))
 	#---------------------------
 	def manage_orgs():
 		gmOrganizationWidgets.manage_orgs(parent = parent)
@@ -542,9 +542,9 @@ def manage_praxis_branches(parent=None):
 	for unit in units:
 		if unit['pk_org_unit'] in branch_unit_pks:
 			branch_units.append(unit)
-	items = [ u'%s%s' % (u['unit'], gmTools.coalesce(u['l10n_unit_category'], u'', u' (%s)')) for u in units ]
+	items = [ '%s%s' % (u['unit'], gmTools.coalesce(u['l10n_unit_category'], '', ' (%s)')) for u in units ]
 	picker.set_choices(choices = items, data = units)
-	items = [ u'%s%s' % (u['unit'], gmTools.coalesce(u['l10n_unit_category'], u'', u' (%s)')) for u in branch_units ]
+	items = [ '%s%s' % (u['unit'], gmTools.coalesce(u['l10n_unit_category'], '', ' (%s)')) for u in branch_units ]
 	picker.set_picks(picks = items, data = branch_units)
 	del units
 	del branch_unit_pks
@@ -651,7 +651,7 @@ class cPraxisBranchPhraseWheel(gmPhraseWheel.cPhraseWheel):
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query)
 		mp.setThresholds(1, 2, 4)
 		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
-		self.SetToolTipString(_("Select a praxis branch."))
+		self.SetToolTip(_("Select a praxis branch."))
 		self.matcher = mp
 		self.selection_only = True
 		self.picklist_delay = 300
@@ -677,7 +677,7 @@ if __name__ == "__main__":
 	if len(sys.argv) < 2:
 		sys.exit()
 
-	if sys.argv[1] != u'test':
+	if sys.argv[1] != 'test':
 		sys.exit()
 
 #	from Gnumed.pycommon import gmPG2

@@ -69,7 +69,7 @@ class cDatabaseTranslationEAPnl(wxgDatabaseTranslationEAPnl.wxgDatabaseTranslati
 
 		has_errors = False
 		for field in fields:
-			if field.GetValue().strip() == u'':
+			if field.GetValue().strip() == '':
 				has_errors = True
 				field.SetBackgroundColour(gmPhraseWheel.color_prw_invalid)
 				field.SetFocus()
@@ -90,10 +90,10 @@ class cDatabaseTranslationEAPnl(wxgDatabaseTranslationEAPnl.wxgDatabaseTranslati
 		return self._save_as_new()
 	#----------------------------------------------------------------
 	def _refresh_as_new(self):
-		self._TCTRL_original.SetValue(u'')
+		self._TCTRL_original.SetValue('')
 		self._TCTRL_original.SetEditable(True)
-		self._TCTRL_translation.SetValue(u'')
-		self._TCTRL_language.SetValue(u'')
+		self._TCTRL_translation.SetValue('')
+		self._TCTRL_language.SetValue('')
 		self._TCTRL_original.SetFocus()
 	#----------------------------------------------------------------
 	def _refresh_from_existing(self):
@@ -106,17 +106,17 @@ class cDatabaseTranslationEAPnl(wxgDatabaseTranslationEAPnl.wxgDatabaseTranslati
 	def _refresh_as_new_from_existing(self):
 		self._TCTRL_original.SetValue(self.data['orig'])
 		self._TCTRL_original.SetEditable(False)
-		self._TCTRL_translation.SetValue(u'')
-		self._TCTRL_language.SetValue(u'')
+		self._TCTRL_translation.SetValue('')
+		self._TCTRL_language.SetValue('')
 		self._TCTRL_translation.SetFocus()
 	#----------------------------------------------------------------
 
 #------------------------------------------------------------------------------
 def edit_translation(parent=None, translation=None, single_entry=False):
-	ea = cDatabaseTranslationEAPnl(parent = parent, id = -1)
+	ea = cDatabaseTranslationEAPnl(parent, -1)
 	ea.data = translation
 	ea.mode = gmTools.coalesce(translation, 'new', 'edit')
-	dlg = gmEditArea.cGenericEditAreaDlg2(parent = parent, id = -1, edit_area = ea, single_entry = single_entry)
+	dlg = gmEditArea.cGenericEditAreaDlg2(parent, -1, edit_area = ea, single_entry = single_entry)
 	dlg.SetTitle(gmTools.coalesce(translation, _('Adding new translation'), _('Editing translation')))
 	if dlg.ShowModal() == wx.ID_OK:
 		dlg.Destroy()
@@ -154,11 +154,11 @@ def manage_translations(parent=None, language=None):
 		)
 	#---------------------------------------------------------------------
 	def refresh(lctrl):
-		txs = gmPG2.get_database_translations(language = language, order_by = u'orig, lang')
+		txs = gmPG2.get_database_translations(language = language, order_by = 'orig, lang')
 		items = [ [
 			tx['orig'],
-			gmTools.coalesce(tx['lang'], u''),
-			gmTools.coalesce(tx['trans'], u'')
+			gmTools.coalesce(tx['lang'], ''),
+			gmTools.coalesce(tx['trans'], '')
 		] for tx in txs ]
 		lctrl.set_string_items(items)
 		lctrl.set_data(txs)
@@ -181,15 +181,15 @@ def manage_translations(parent=None, language=None):
 			gmTools.wrap (
 				text = translation['orig'],
 				width = 60,
-				initial_indent = u'  ',
-				subsequent_indent = u'  '
+				initial_indent = '  ',
+				subsequent_indent = '  '
 			),
 			translation['lang'],
 			gmTools.wrap (
 				text = translation['trans'],
 				width = 60,
-				initial_indent = u'  ',
-				subsequent_indent = u'  '
+				initial_indent = '  ',
+				subsequent_indent = '  '
 			)
 		)
 		delete_it = gmGuiHelpers.gm_show_question (
@@ -218,18 +218,18 @@ def manage_translations(parent=None, language=None):
 		gmPG2.export_translations_from_database(filename = fname)
 
 		msg = (
-			u'These are database string translations contributed by a GNUmed user.\n'
+			'These are database string translations contributed by a GNUmed user.\n'
 			'\n'
 			'\tThe GNUmed "%s" Client'
 		) % gmI18N.system_locale
 
 		if not gmNetworkTools.compose_and_send_email (
-			auth = {'user': gmNetworkTools.default_mail_sender, 'password': u'gnumed-at-gmx-net'},
-			sender = u'GNUmed Client <gnumed@gmx.net>',
-			receiver = [u'gnumed-bugs@gnu.org'],
-			subject = u'<contribution>: database translation',
+			auth = {'user': gmNetworkTools.default_mail_sender, 'password': 'gnumed-at-gmx-net'},
+			sender = 'GNUmed Client <gnumed@gmx.net>',
+			receiver = ['gnumed-bugs@gnu.org'],
+			subject = '<contribution>: database translation',
 			message = msg,
-			attachments = [[fname, u'text/plain', u'quoted-printable']]
+			attachments = [[fname, 'text/plain', 'quoted-printable']]
 		):
 			gmDispatcher.send(signal = 'statustext', msg = _('Unable to send mail. Cannot contribute translations to GNUmed community.') % report, beep = True)
 			return False

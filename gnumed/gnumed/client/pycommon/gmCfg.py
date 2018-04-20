@@ -25,7 +25,7 @@ The database config objects auto-sync with the backend.
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
-import sys, types, pickle, decimal, logging, re as regex
+import sys, pickle, decimal, logging, re as regex
 
 
 # gnumed modules
@@ -43,11 +43,11 @@ cfg_DEFAULT = "xxxDEFAULTxxx"
 def get_all_options(order_by=None):
 
 	if order_by is None:
-		order_by = u''
+		order_by = ''
 	else:
-		order_by = u'ORDER BY %s' % order_by
+		order_by = 'ORDER BY %s' % order_by
 
-	cmd = u"""
+	cmd = """
 SELECT * FROM (
 
 SELECT
@@ -133,12 +133,12 @@ class cCfgSQL:
 			want to make sure that sql_return_type and type(default) are compatible
 		"""
 		if None in [option, workplace]:
-			raise ValueError, 'neither <option> (%s) nor <workplace> (%s) may be [None]' % (option, workplace)
+			raise ValueError('neither <option> (%s) nor <workplace> (%s) may be [None]' % (option, workplace))
 		if bias not in ['user', 'workplace']:
-			raise ValueError, '<bias> must be "user" or "workplace"'
+			raise ValueError('<bias> must be "user" or "workplace"')
 
 		# does this option exist ?
-		cmd = u"select type from cfg.cfg_template where name=%(opt)s"
+		cmd = "select type from cfg.cfg_template where name=%(opt)s"
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': {'opt': option}}])
 		if len(rows) == 0:
 			# not found ...
@@ -160,34 +160,34 @@ class cCfgSQL:
 			'def': cfg_DEFAULT
 		}
 
-		if cfg_table_type_suffix == u'data':
-			sql_return_type = u''
+		if cfg_table_type_suffix == 'data':
+			sql_return_type = ''
 		else:
 			sql_return_type = gmTools.coalesce (
 				initial = sql_return_type,
-				instead = u'',
-				template_initial = u'::%s'
+				instead = '',
+				template_initial = '::%s'
 			)
 
 		# 1) search value with explicit workplace and current user
 		where_parts = [
-			u'vco.owner = CURRENT_USER',
-			u'vco.workplace = %(wp)s',
-			u'vco.option = %(opt)s'
+			'vco.owner = CURRENT_USER',
+			'vco.workplace = %(wp)s',
+			'vco.option = %(opt)s'
 		]
 		where_parts.append(gmTools.coalesce (
 			initial = cookie,
-			instead = u'vco.cookie is null',
-			template_initial = u'vco.cookie = %(cookie)s'
+			instead = 'vco.cookie is null',
+			template_initial = 'vco.cookie = %(cookie)s'
 		))
-		cmd = u"select vco.value%s from cfg.v_cfg_opts_%s vco where %s limit 1" % (
+		cmd = "select vco.value%s from cfg.v_cfg_opts_%s vco where %s limit 1" % (
 			sql_return_type,
 			cfg_table_type_suffix,
-			u' and '.join(where_parts)
+			' and '.join(where_parts)
 		)
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 		if len(rows) > 0:
-			if cfg_table_type_suffix == u'data':
+			if cfg_table_type_suffix == 'data':
 				return pickle.loads(str(rows[0][0]))
 			return rows[0][0]
 
@@ -197,24 +197,24 @@ class cCfgSQL:
 		if bias == 'user':
 			# did *I* set this option on *any* workplace ?
 			where_parts = [
-				u'vco.option = %(opt)s',
-				u'vco.owner = CURRENT_USER',
+				'vco.option = %(opt)s',
+				'vco.owner = CURRENT_USER',
 			]
 		else:
 			# did *anyone* set this option on *this* workplace ?
 			where_parts = [
-				u'vco.option = %(opt)s',
-				u'vco.workplace = %(wp)s'
+				'vco.option = %(opt)s',
+				'vco.workplace = %(wp)s'
 			]
 		where_parts.append(gmTools.coalesce (
 			initial = cookie,
-			instead = u'vco.cookie is null',
-			template_initial = u'vco.cookie = %(cookie)s'
+			instead = 'vco.cookie is null',
+			template_initial = 'vco.cookie = %(cookie)s'
 		))
-		cmd = u"select vco.value%s from cfg.v_cfg_opts_%s vco where %s" % (
+		cmd = "select vco.value%s from cfg.v_cfg_opts_%s vco where %s" % (
 			sql_return_type,
 			cfg_table_type_suffix,
-			u' and '.join(where_parts)
+			' and '.join(where_parts)
 		)
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 		if len(rows) > 0:
@@ -225,7 +225,7 @@ class cCfgSQL:
 				option = option,
 				value = rows[0][0]
 			)
-			if cfg_table_type_suffix == u'data':
+			if cfg_table_type_suffix == 'data':
 				return pickle.loads(str(rows[0][0]))
 			return rows[0][0]
 
@@ -233,14 +233,14 @@ class cCfgSQL:
 
 		# 3) search value within default site policy
 		where_parts = [
-			u'vco.owner = %(def)s',
-			u'vco.workplace = %(def)s',
-			u'vco.option = %(opt)s'
+			'vco.owner = %(def)s',
+			'vco.workplace = %(def)s',
+			'vco.option = %(opt)s'
 		]
-		cmd = u"select vco.value%s from cfg.v_cfg_opts_%s vco where %s" % (
+		cmd = "select vco.value%s from cfg.v_cfg_opts_%s vco where %s" % (
 			sql_return_type,
 			cfg_table_type_suffix,
-			u' and '.join(where_parts)
+			' and '.join(where_parts)
 		)
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 		if len(rows) > 0:
@@ -251,7 +251,7 @@ class cCfgSQL:
 				option = option,
 				value = rows[0]['value']
 			)
-			if cfg_table_type_suffix == u'data':
+			if cfg_table_type_suffix == 'data':
 				return pickle.loads(str(rows[0]['value']))
 			return rows[0]['value']
 
@@ -303,7 +303,7 @@ class cCfgSQL:
 			where_parts.append('vco.cookie=%(cookie)s')
 			where_args['cookie'] = cookie
 		where_clause = ' and '.join(where_parts)
-		cmd = u"""
+		cmd = """
 select vco.pk_cfg_item
 from cfg.v_cfg_options vco
 where %s
@@ -333,17 +333,17 @@ limit 1""" % where_clause
 		alias = self.__make_alias(workplace, 'CURRENT_USER', cookie, option)
 
 		opt_value = value
-		sql_type_cast = u''
-		if isinstance(value, basestring):
-			sql_type_cast = u'::text'
-		elif isinstance(value, types.BooleanType):
+		sql_type_cast = ''
+		if isinstance(value, str):
+			sql_type_cast = '::text'
+		elif isinstance(value, bool):
 			opt_value = int(opt_value)
-		elif isinstance(value, (types.FloatType, types.IntType, types.LongType, decimal.Decimal, types.BooleanType)):
-			sql_type_cast = u'::numeric'
-		elif isinstance(value, types.ListType):
+		elif isinstance(value, (float, int, decimal.Decimal, bool)):
+			sql_type_cast = '::numeric'
+		elif isinstance(value, list):
 			# there can be different syntaxes for list types so don't try to cast them
 			pass
-		elif isinstance(value, types.BufferType):
+		elif isinstance(value, buffer):
 			# can go directly into bytea
 			pass
 		else:
@@ -357,7 +357,7 @@ limit 1""" % where_clause
 				_log.error("don't know how to store option of type [%s] (key: %s, value: %s)", type(value), alias, str(value))
 				raise
 
-		cmd = u'select cfg.set_option(%%(opt)s, %%(val)s%s, %%(wp)s, %%(cookie)s, NULL)' % sql_type_cast
+		cmd = 'select cfg.set_option(%%(opt)s, %%(val)s%s, %%(wp)s, %%(cookie)s, NULL)' % sql_type_cast
 		args = {
 			'opt': option,
 			'val': opt_value,
@@ -383,21 +383,21 @@ limit 1""" % where_clause
 		"""
 		# if no workplace given: any workplace (= cfg_DEFAULT)
 		where_snippets = [
-			u'cfg_template.pk=cfg_item.fk_template',
-			u'cfg_item.workplace=%(wplace)s'
+			'cfg_template.pk=cfg_item.fk_template',
+			'cfg_item.workplace=%(wplace)s'
 		]
 		where_args = {'wplace': workplace}
 
 		# if no user given: current db user
 		if user is None:
-			where_snippets.append(u'cfg_item.owner=CURRENT_USER')
+			where_snippets.append('cfg_item.owner=CURRENT_USER')
 		else:
-			where_snippets.append(u'cfg_item.owner=%(usr)s')
+			where_snippets.append('cfg_item.owner=%(usr)s')
 			where_args['usr'] = user
 
-		where_clause = u' and '.join(where_snippets)
+		where_clause = ' and '.join(where_snippets)
 
-		cmd = u"""
+		cmd = """
 select name, cookie, owner, type, description
 from cfg.cfg_template, cfg.cfg_item
 where %s""" % where_clause
@@ -410,9 +410,9 @@ where %s""" % where_clause
 	def delete(self, conn=None, pk_option=None):
 		if conn is None:
 			# without a gm-dbo connection you can only delete your own options :-)
-			cmd = u"DELETE FROM cfg.cfg_item WHERE pk = %(pk)s AND owner = CURRENT_USER"
+			cmd = "DELETE FROM cfg.cfg_item WHERE pk = %(pk)s AND owner = CURRENT_USER"
 		else:
-			cmd = u"DELETE FROM cfg.cfg_item WHERE pk = %(pk)s"
+			cmd = "DELETE FROM cfg.cfg_item WHERE pk = %(pk)s"
 		args = {'pk': pk_option}
 		gmPG2.run_rw_queries(link_obj = conn, queries = [{'cmd': cmd, 'args': args}], end_tx = True)
 	#----------------------------
@@ -426,7 +426,7 @@ where %s""" % where_clause
 			raise ValueError('<option> cannot be None')
 
 		if cookie is None:
-			cmd = u"""
+			cmd = """
 delete from cfg.cfg_item where
 	fk_template=(select pk from cfg.cfg_template where name = %(opt)s) and
 	owner = CURRENT_USER and
@@ -434,7 +434,7 @@ delete from cfg.cfg_item where
 	cookie is Null
 """
 		else:
-			cmd = u"""
+			cmd = """
 delete from cfg.cfg_item where
 	fk_template=(select pk from cfg.cfg_template where name = %(opt)s) and
 	owner = CURRENT_USER and
@@ -538,44 +538,44 @@ if __name__ == "__main__":
 	#---------------------------------------------------------
 	def test_get_all_options():
 		for opt in get_all_options():
-			print u'%s (%s): %s (%s@%s)' % (opt['option'], opt['type'], opt['value'], opt['owner'], opt['workplace'])
-#			print u' %s' % opt['description']
-#			print u' %s on %s' % (opt['owner'], opt['workplace'])
+			print('%s (%s): %s (%s@%s)' % (opt['option'], opt['type'], opt['value'], opt['owner'], opt['workplace']))
+#			print(u' %s' % opt['description'])
+#			print(u' %s on %s' % (opt['owner'], opt['workplace']))
 	#---------------------------------------------------------
 	def test_db_cfg():
-		print "testing database config"
-		print "======================="
+		print("testing database config")
+		print("=======================")
 
 		myDBCfg = cCfgSQL()
 
-		print "delete() works:", myDBCfg.delete(option='font name', workplace = 'test workplace')
-		print "font is initially:", myDBCfg.get2(option = 'font name', workplace = 'test workplace', bias = 'user')
-		print "set() works:", myDBCfg.set(option='font name', value="Times New Roman", workplace = 'test workplace')
-		print "font after set():", myDBCfg.get2(option = 'font name', workplace = 'test workplace', bias = 'user')
-		print "delete() works:", myDBCfg.delete(option='font name', workplace = 'test workplace')
-		print "font after delete():", myDBCfg.get2(option = 'font name', workplace = 'test workplace', bias = 'user')
-		print "font after get() with default:", myDBCfg.get2(option = 'font name', workplace = 'test workplace', bias = 'user', default = 'WingDings')
-		print "font right after get() with another default:", myDBCfg.get2(option = 'font name', workplace = 'test workplace', bias = 'user', default = 'default: Courier')
-		print "set() works:", myDBCfg.set(option='font name', value="Times New Roman", workplace = 'test workplace')
-		print "font after set() on existing option:", myDBCfg.get2(option = 'font name', workplace = 'test workplace', bias = 'user')
+		print("delete() works:", myDBCfg.delete(option='font name', workplace = 'test workplace'))
+		print("font is initially:", myDBCfg.get2(option = 'font name', workplace = 'test workplace', bias = 'user'))
+		print("set() works:", myDBCfg.set(option='font name', value="Times New Roman", workplace = 'test workplace'))
+		print("font after set():", myDBCfg.get2(option = 'font name', workplace = 'test workplace', bias = 'user'))
+		print("delete() works:", myDBCfg.delete(option='font name', workplace = 'test workplace'))
+		print("font after delete():", myDBCfg.get2(option = 'font name', workplace = 'test workplace', bias = 'user'))
+		print("font after get() with default:", myDBCfg.get2(option = 'font name', workplace = 'test workplace', bias = 'user', default = 'WingDings'))
+		print("font right after get() with another default:", myDBCfg.get2(option = 'font name', workplace = 'test workplace', bias = 'user', default = 'default: Courier'))
+		print("set() works:", myDBCfg.set(option='font name', value="Times New Roman", workplace = 'test workplace'))
+		print("font after set() on existing option:", myDBCfg.get2(option = 'font name', workplace = 'test workplace', bias = 'user'))
 
-		print "setting array option"
-		print "array now:", myDBCfg.get2(option = 'test array', workplace = 'test workplace', bias = 'user')
+		print("setting array option")
+		print("array now:", myDBCfg.get2(option = 'test array', workplace = 'test workplace', bias = 'user'))
 		aList = ['val 1', 'val 2']
-		print "set():", myDBCfg.set(option='test array', value = aList, workplace = 'test workplace')
-		print "array now:", myDBCfg.get2(option = 'test array', workplace = 'test workplace', bias = 'user')
+		print("set():", myDBCfg.set(option='test array', value = aList, workplace = 'test workplace'))
+		print("array now:", myDBCfg.get2(option = 'test array', workplace = 'test workplace', bias = 'user'))
 		aList = ['val 11', 'val 12']
-		print "set():", myDBCfg.set(option='test array', value = aList, workplace = 'test workplace')
-		print "array now:", myDBCfg.get2(option = 'test array', workplace = 'test workplace', bias = 'user')
-		print "delete() works:", myDBCfg.delete(option='test array', workplace='test workplace')
-		print "array now:", myDBCfg.get2(option = 'test array', workplace = 'test workplace', bias = 'user')
+		print("set():", myDBCfg.set(option='test array', value = aList, workplace = 'test workplace'))
+		print("array now:", myDBCfg.get2(option = 'test array', workplace = 'test workplace', bias = 'user'))
+		print("delete() works:", myDBCfg.delete(option='test array', workplace='test workplace'))
+		print("array now:", myDBCfg.get2(option = 'test array', workplace = 'test workplace', bias = 'user'))
 
-		print "setting complex option"
+		print("setting complex option")
 		data = {1: 'line 1', 2: 'line2', 3: {1: 'line3.1', 2: 'line3.2'}, 4: 1234}
-		print "set():", myDBCfg.set(option = "complex option test", value = data, workplace = 'test workplace')
-		print "complex option now:", myDBCfg.get2(workplace = 'test workplace', option = "complex option test", bias = 'user')
-		print "delete() works:", myDBCfg.delete(option = "complex option test", workplace = 'test workplace')
-		print "complex option now:", myDBCfg.get2(workplace = 'test workplace', option = "complex option test", bias = 'user')
+		print("set():", myDBCfg.set(option = "complex option test", value = data, workplace = 'test workplace'))
+		print("complex option now:", myDBCfg.get2(workplace = 'test workplace', option = "complex option test", bias = 'user'))
+		print("delete() works:", myDBCfg.delete(option = "complex option test", workplace = 'test workplace'))
+		print("complex option now:", myDBCfg.get2(workplace = 'test workplace', option = "complex option test", bias = 'user'))
 
 	#---------------------------------------------------------
 	test_get_all_options()

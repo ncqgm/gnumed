@@ -503,7 +503,7 @@ class BMI_Frame(wx.Frame):#, BMICalc_Panel):
 			from Gnumed.pycommon import gmGuiBroker
 			gb = gmGuiBroker.GuiBroker()
 			png_fname = os.path.join(gb['gnumed_dir'], 'bitmaps', 'bmi_calculator.png')
-		icon = wx.EmptyIcon()
+		icon = wx.Icon()
 		icon.LoadFile(png_fname, wx.BITMAP_TYPE_PNG)
 		self.SetIcon(icon)
 	#-----------------------------------------

@@ -57,9 +57,9 @@ class cRegetOnPaintMixin:
 	def __init__(self):
 		self._data_stale = True
 		try:
-			wx.EVT_PAINT(self, self.__on_paint_event)
+			self.Bind(wx.EVT_PAINT, self.__on_paint_event)
 		except:
-			print 'you likely need to call "cRegetOnPaintMixin.__init__(self)" later in %s__init__()' % self.__class__.__name__
+			print('you likely need to call "cRegetOnPaintMixin.__init__(self)" later in %s__init__()' % self.__class__.__name__)
 			raise
 	#-----------------------------------------------------
 	def __on_paint_event(self, event):
@@ -91,7 +91,7 @@ class cRegetOnPaintMixin:
 
 		Must return True/False.
 		"""
-		raise NotImplementedError, "[%s] _populate_with_data() not implemented" % self.__class__.__name__
+		raise NotImplementedError("[%s] _populate_with_data() not implemented" % self.__class__.__name__)
 	#-----------------------------------------------------
 	def _schedule_data_reget(self):
 		"""Flag data as stale and schedule refetch/redisplay.
@@ -146,4 +146,4 @@ class cRegetOnPaintMixin:
 # main
 #---------------------------------------------------------------------------
 if __name__ == '__main__':
-	print "no unit test available"
+	print("no unit test available")

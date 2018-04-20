@@ -48,7 +48,7 @@ _log = logging.getLogger('gm.ui')
 
 #================================================================
 def edit_billable(parent=None, billable=None):
-	ea = cBillableEAPnl(parent = parent, id = -1)
+	ea = cBillableEAPnl(parent, -1)
 	ea.data = billable
 	ea.mode = gmTools.coalesce(billable, 'new', 'edit')
 	dlg = gmEditArea.cGenericEditAreaDlg2 (
@@ -90,9 +90,9 @@ def manage_billables(parent=None):
 		items = [ [
 			b['billable_code'],
 			b['billable_description'],
-			u'%(currency)s%(raw_amount)s' % b,
-			u'%s (%s)' % (b['catalog_short'], b['catalog_version']),
-			gmTools.coalesce(b['comment'], u''),
+			'%(currency)s%(raw_amount)s' % b,
+			'%s (%s)' % (b['catalog_short'], b['catalog_version']),
+			gmTools.coalesce(b['comment'], ''),
 			b['pk_billable']
 		] for b in billables ]
 		lctrl.set_string_items(items)
@@ -108,7 +108,7 @@ def manage_billables(parent=None):
 			option = 'external.urls.schedules_of_fees',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			bias = 'user',
-			default = u'http://www.e-bis.de/goae/defaultFrame.htm'
+			default = 'http://www.e-bis.de/goae/defaultFrame.htm'
 		)
 		gmNetworkTools.open_url_in_browser(url = url)
 		return False
@@ -119,7 +119,7 @@ def manage_billables(parent=None):
 		parent = parent,
 		msg = msg,
 		caption = _('Showing billable items.'),
-		columns = [_('Code'), _('Description'), _('Value'), _('Catalog'), _('Comment'), u'#'],
+		columns = [_('Code'), _('Description'), _('Value'), _('Catalog'), _('Comment'), '#'],
 		single_selection = True,
 		new_callback = edit,
 		edit_callback = edit,
@@ -143,7 +143,7 @@ class cBillablePhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 	def __init__(self, *args, **kwargs):
 		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
-		query = u"""
+		query = """
 			SELECT -- DISTINCT ON (label)
 				r_vb.pk_billable
 					AS data,
@@ -168,16 +168,16 @@ class cBillablePhraseWheel(gmPhraseWheel.cPhraseWheel):
 		self.matcher = mp
 	#------------------------------------------------------------
 	def _data2instance(self):
-		return gmBilling.cBillable(aPK_obj = self._data.values()[0]['data'])
+		return gmBilling.cBillable(aPK_obj = list(self._data.values())[0]['data'])
 	#------------------------------------------------------------
 	def _get_data_tooltip(self):
 		if self.GetData() is None:
 			return None
-		billable = gmBilling.cBillable(aPK_obj = self._data.values()[0]['data'])
+		billable = gmBilling.cBillable(aPK_obj = list(self._data.values())[0]['data'])
 		return billable.format()
 	#------------------------------------------------------------
 	def set_from_instance(self, instance):
-		val = u'%s (%s - %s)' % (
+		val = '%s (%s - %s)' % (
 			instance['billable_code'],
 			instance['catalog_short'],
 			instance['catalog_version']
@@ -220,7 +220,7 @@ class cBillableEAPnl(wxgBillableEAPnl.wxgBillableEAPnl, gmEditArea.cGenericEditA
 		validity = True
 
 		vat = self._TCTRL_vat.GetValue().strip()
-		if vat == u'':
+		if vat == '':
 			self.display_tctrl_as_valid(tctrl = self._TCTRL_vat, valid = True)
 		else:
 			success, vat = gmTools.input2decimal(initial = vat)
@@ -233,7 +233,7 @@ class cBillableEAPnl(wxgBillableEAPnl.wxgBillableEAPnl, gmEditArea.cGenericEditA
 				self._TCTRL_vat.SetFocus()
 
 		currency = self._TCTRL_currency.GetValue().strip()
-		if currency == u'':
+		if currency == '':
 			validity = False
 			self.display_tctrl_as_valid(tctrl = self._TCTRL_currency, valid = False)
 			self.status_message = _('Currency is missing.')
@@ -250,7 +250,7 @@ class cBillableEAPnl(wxgBillableEAPnl.wxgBillableEAPnl, gmEditArea.cGenericEditA
 			self.status_message = _('Value is missing.')
 			self._TCTRL_amount.SetFocus()
 
-		if self._TCTRL_description.GetValue().strip() == u'':
+		if self._TCTRL_description.GetValue().strip() == '':
 			validity = False
 			self.display_tctrl_as_valid(tctrl = self._TCTRL_description, valid = False)
 			self.status_message = _('Description is missing.')
@@ -266,7 +266,7 @@ class cBillableEAPnl(wxgBillableEAPnl.wxgBillableEAPnl, gmEditArea.cGenericEditA
 		else:
 			self._PRW_coding_system.display_as_valid(True)
 
-		if self._TCTRL_code.GetValue().strip() == u'':
+		if self._TCTRL_code.GetValue().strip() == '':
 			validity = False
 			self.display_tctrl_as_valid(tctrl = self._TCTRL_code, valid = False)
 			self.status_message = _('Code is missing.')
@@ -288,14 +288,14 @@ class cBillableEAPnl(wxgBillableEAPnl.wxgBillableEAPnl, gmEditArea.cGenericEditA
 			return False
 
 		val = self._TCTRL_amount.GetValue().strip()
-		if val != u'':
+		if val != '':
 			tmp, val = gmTools.input2decimal(val)
 			data['raw_amount'] = val
 		val = self._TCTRL_currency.GetValue().strip()
-		if val != u'':
+		if val != '':
 			data['currency'] = val
 		vat = self._TCTRL_vat.GetValue().strip()
-		if vat != u'':
+		if vat != '':
 			tmp, vat = gmTools.input2decimal(vat)
 			data['vat_multiplier'] = vat / 100
 		data['comment'] = self._TCTRL_comment.GetValue().strip()
@@ -312,7 +312,7 @@ class cBillableEAPnl(wxgBillableEAPnl.wxgBillableEAPnl, gmEditArea.cGenericEditA
 		tmp, self.data['raw_amount'] = gmTools.input2decimal(self._TCTRL_amount.GetValue())
 		self.data['currency'] = self._TCTRL_currency.GetValue().strip()
 		vat = self._TCTRL_vat.GetValue().strip()
-		if vat == u'':
+		if vat == '':
 			vat = 0
 		else:
 			tmp, vat = gmTools.input2decimal(vat)
@@ -323,13 +323,13 @@ class cBillableEAPnl(wxgBillableEAPnl.wxgBillableEAPnl, gmEditArea.cGenericEditA
 		return True
 	#----------------------------------------------------------------
 	def _refresh_as_new(self):
-		self._TCTRL_code.SetValue(u'')
-		self._PRW_coding_system.SetText(u'', None)
-		self._TCTRL_description.SetValue(u'')
-		self._TCTRL_amount.SetValue(u'')
-		self._TCTRL_currency.SetValue(u'')
-		self._TCTRL_vat.SetValue(u'')
-		self._TCTRL_comment.SetValue(u'')
+		self._TCTRL_code.SetValue('')
+		self._PRW_coding_system.SetText('', None)
+		self._TCTRL_description.SetValue('')
+		self._TCTRL_amount.SetValue('')
+		self._TCTRL_currency.SetValue('')
+		self._TCTRL_vat.SetValue('')
+		self._TCTRL_comment.SetValue('')
 		self._CHBOX_active.SetValue(True)
 
 		self._TCTRL_code.SetFocus()
@@ -340,13 +340,13 @@ class cBillableEAPnl(wxgBillableEAPnl.wxgBillableEAPnl, gmEditArea.cGenericEditA
 	def _refresh_from_existing(self):
 		self._TCTRL_code.SetValue(self.data['billable_code'])
 		self._TCTRL_code.Enable(False)
-		self._PRW_coding_system.SetText(u'%s (%s)' % (self.data['catalog_short'], self.data['catalog_version']), self.data['pk_data_source'])
+		self._PRW_coding_system.SetText('%s (%s)' % (self.data['catalog_short'], self.data['catalog_version']), self.data['pk_data_source'])
 		self._PRW_coding_system.Enable(False)
 		self._TCTRL_description.SetValue(self.data['billable_description'])
-		self._TCTRL_amount.SetValue(u'%s' % self.data['raw_amount'])
+		self._TCTRL_amount.SetValue('%s' % self.data['raw_amount'])
 		self._TCTRL_currency.SetValue(self.data['currency'])
-		self._TCTRL_vat.SetValue(u'%s' % (self.data['vat_multiplier'] * 100))
-		self._TCTRL_comment.SetValue(gmTools.coalesce(self.data['comment'], u''))
+		self._TCTRL_vat.SetValue('%s' % (self.data['vat_multiplier'] * 100))
+		self._TCTRL_comment.SetValue(gmTools.coalesce(self.data['comment'], ''))
 		self._CHBOX_active.SetValue(self.data['active'])
 
 		self._TCTRL_description.SetFocus()
@@ -369,20 +369,20 @@ def configure_invoice_template(parent=None, with_vat=True):
 		gmDispatcher.send(signal = 'statustext', msg = _('No invoice template configured.'), beep = True)
 		return None
 
-	if template['engine'] not in [u'L', u'X']:
+	if template['engine'] not in ['L', 'X']:
 		gmDispatcher.send(signal = 'statustext', msg = _('No invoice template configured.'), beep = True)
 		return None
 
 	if with_vat:
-		option = u'form_templates.invoice_with_vat'
+		option = 'form_templates.invoice_with_vat'
 	else:
-		option = u'form_templates.invoice_no_vat'
+		option = 'form_templates.invoice_no_vat'
 
 	dbcfg = gmCfg.cCfgSQL()
 	dbcfg.set (
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 		option = option,
-		value = u'%s - %s' % (template['name_long'], template['external_version'])
+		value = '%s - %s' % (template['name_long'], template['external_version'])
 	)
 
 	return template
@@ -391,9 +391,9 @@ def get_invoice_template(parent=None, with_vat=True):
 
 	dbcfg = gmCfg.cCfgSQL()
 	if with_vat:
-		option = u'form_templates.invoice_with_vat'
+		option = 'form_templates.invoice_with_vat'
 	else:
-		option = u'form_templates.invoice_no_vat'
+		option = 'form_templates.invoice_no_vat'
 
 	template = dbcfg.get2 (
 		option = option,
@@ -411,7 +411,7 @@ def get_invoice_template(parent=None, with_vat=True):
 			return None
 	else:
 		try:
-			name, ver = template.split(u' - ')
+			name, ver = template.split(' - ')
 		except:
 			_log.exception('problem splitting invoice template name [%s]', template)
 			gmDispatcher.send(signal = 'statustext', msg = _('Problem loading invoice template.'), beep = True)
@@ -435,10 +435,10 @@ def edit_bill(parent=None, bill=None, single_entry=False):
 		# manually creating bills is not yet supported
 		return
 
-	ea = cBillEAPnl(parent = parent, id = -1)
+	ea = cBillEAPnl(parent, -1)
 	ea.data = bill
 	ea.mode = gmTools.coalesce(bill, 'new', 'edit')
-	dlg = gmEditArea.cGenericEditAreaDlg2(parent = parent, id = -1, edit_area = ea, single_entry = single_entry)
+	dlg = gmEditArea.cGenericEditAreaDlg2(parent, -1, edit_area = ea, single_entry = single_entry)
 	dlg.SetTitle(gmTools.coalesce(bill, _('Adding new bill'), _('Editing bill')))
 	if dlg.ShowModal() == wx.ID_OK:
 		dlg.Destroy()
@@ -523,7 +523,7 @@ def create_invoice_from_bill(parent = None, bill=None, print_it=False, keep_a_co
 				'\n'
 				'Activate patient on bill so invoice PDF can be created ?'
 			) % (
-				gmTools.coalesce(curr_pat.ID, u'', u'#%s'),
+				gmTools.coalesce(curr_pat.ID, '', '#%s'),
 				bill['pk_patient']
 			)
 		)
@@ -703,8 +703,8 @@ def remove_items_from_bill(parent=None, bill=None):
 	list_items = [ [
 		gmDateTime.pydt_strftime(b['date_to_bill'], '%Y %b %d', accuracy = gmDateTime.acc_days),
 		b['unit_count'],
-		u'%s: %s%s' % (b['billable_code'], b['billable_description'], gmTools.coalesce(b['item_detail'], u'', u' - %s')),
-		u'%(curr)s %(total_val)s (%(count)s %(x)s %(unit_val)s%(x)s%(val_multiplier)s)' % {
+		'%s: %s%s' % (b['billable_code'], b['billable_description'], gmTools.coalesce(b['item_detail'], '', ' - %s')),
+		'%(curr)s %(total_val)s (%(count)s %(x)s %(unit_val)s%(x)s%(val_multiplier)s)' % {
 			'curr': b['currency'],
 			'total_val': b['total_amount'],
 			'count': b['unit_count'],
@@ -712,12 +712,12 @@ def remove_items_from_bill(parent=None, bill=None):
 			'unit_val': b['net_amount_per_unit'],
 			'val_multiplier': b['amount_multiplier']
 		},
-		u'%(curr)s%(vat)s (%(perc_vat)s%%)' % {
+		'%(curr)s%(vat)s (%(perc_vat)s%%)' % {
 			'vat': b['vat'],
 			'curr': b['currency'],
 			'perc_vat': b['vat_multiplier'] * 100
 		},
-		u'%s (%s)' % (b['catalog_short'], b['catalog_version']),
+		'%s (%s)' % (b['catalog_short'], b['catalog_version']),
 		b['pk_bill_item']
 	] for b in list_data ]
 
@@ -726,7 +726,7 @@ def remove_items_from_bill(parent=None, bill=None):
 		parent = parent,
 		msg = msg,
 		caption = _('Removing items from bill'),
-		columns = [_('Date'), _('Count'), _('Description'), _('Value'), _('VAT'), _('Catalog'), u'#'],
+		columns = [_('Date'), _('Count'), _('Description'), _('Value'), _('VAT'), _('Catalog'), '#'],
 		single_selection = False,
 		choices = list_items,
 		data = list_data
@@ -884,14 +884,14 @@ def manage_bills(parent=None, patient=None):
 				amount = gmTools.bool2subst (
 					b['apply_vat'],
 					_('%(currency)s%(total_amount_with_vat)s (with %(percent_vat)s%% VAT)') % b,
-					u'%(currency)s%(total_amount)s' % b,
+					'%(currency)s%(total_amount)s' % b,
 					_('without VAT: %(currency)s%(total_amount)s / with %(percent_vat)s%% VAT: %(currency)s%(total_amount_with_vat)s') % b
 				)
 			items.append ([
 				close_date,
 				b['invoice_id'],
 				amount,
-				gmTools.coalesce(b['comment'], u'')
+				gmTools.coalesce(b['comment'], '')
 			])
 		lctrl.set_string_items(items)
 		lctrl.set_data(bills)
@@ -905,7 +905,7 @@ def manage_bills(parent=None, patient=None):
 		delete_callback = delete,
 		refresh_callback = refresh,
 		middle_extra_button = (
-			u'PDF',
+			'PDF',
 			_('Create if necessary, and show the corresponding invoice PDF'),
 			show_pdf
 		),
@@ -992,27 +992,27 @@ class cBillEAPnl(wxgBillEAPnl.wxgBillEAPnl, gmEditArea.cGenericEditAreaMixin):
 
 		self.data.set_missing_address_from_default()
 		if self.data['pk_receiver_address'] is None:
-			self._TCTRL_address.SetValue(u'')
+			self._TCTRL_address.SetValue('')
 		else:
 			adr = self.data.address
 			self._TCTRL_address.SetValue(adr.format(single_line = True, show_type = False))
 
-		self._TCTRL_value.SetValue(u'%(currency)s%(total_amount)s' % self.data)
+		self._TCTRL_value.SetValue('%(currency)s%(total_amount)s' % self.data)
 		self._CHBOX_vat_applies.ThreeStateValue = self.bool_to_3state[self.data['apply_vat']]
 		self._CHBOX_vat_applies.SetLabel(_('&VAT applies (%s%%)') % self.data['percent_vat'])
 		if self.data['apply_vat'] is True:
-			tmp = u'%s %%(currency)s%%(total_vat)s %s %s %%(currency)s%%(total_amount_with_vat)s' % (
+			tmp = '%s %%(currency)s%%(total_vat)s %s %s %%(currency)s%%(total_amount_with_vat)s' % (
 				gmTools.u_corresponds_to,
 				gmTools.u_arrow2right,
 				gmTools.u_sum,
 			)
 			self._TCTRL_value_with_vat.SetValue(tmp % self.data)
 		elif self.data['apply_vat'] is None:
-			self._TCTRL_value_with_vat.SetValue(u'?')
+			self._TCTRL_value_with_vat.SetValue('?')
 		else:
-			self._TCTRL_value_with_vat.SetValue(u'')
+			self._TCTRL_value_with_vat.SetValue('')
 
-		self._TCTRL_comment.SetValue(gmTools.coalesce(self.data['comment'], u''))
+		self._TCTRL_comment.SetValue(gmTools.coalesce(self.data['comment'], ''))
 
 		self._PRW_close_date.SetFocus()
 	#----------------------------------------------------------------
@@ -1020,7 +1020,7 @@ class cBillEAPnl(wxgBillEAPnl.wxgBillEAPnl, gmEditArea.cGenericEditAreaMixin):
 	#----------------------------------------------------------------
 	def _on_vat_applies_box_checked(self, event):
 		if self._CHBOX_vat_applies.ThreeStateValue == wx.CHK_CHECKED:
-			tmp = u'%s %%(currency)s%%(total_vat)s %s %s %%(currency)s%%(total_amount_with_vat)s' % (
+			tmp = '%s %%(currency)s%%(total_vat)s %s %s %%(currency)s%%(total_amount_with_vat)s' % (
 				gmTools.u_corresponds_to,
 				gmTools.u_arrow2right,
 				gmTools.u_sum,
@@ -1028,9 +1028,9 @@ class cBillEAPnl(wxgBillEAPnl.wxgBillEAPnl, gmEditArea.cGenericEditAreaMixin):
 			self._TCTRL_value_with_vat.SetValue(tmp % self.data)
 			return
 		if self._CHBOX_vat_applies.ThreeStateValue == wx.CHK_UNDETERMINED:
-			self._TCTRL_value_with_vat.SetValue(u'?')
+			self._TCTRL_value_with_vat.SetValue('?')
 			return
-		self._TCTRL_value_with_vat.SetValue(u'')
+		self._TCTRL_value_with_vat.SetValue('')
 	#----------------------------------------------------------------
 	def _on_select_address_button_pressed(self, event):
 		adr = gmPersonContactWidgets.select_address (
@@ -1057,10 +1057,10 @@ def edit_bill_item(parent=None, bill_item=None, single_entry=False):
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot edit already invoiced bill item.'), beep = True)
 			return False
 
-	ea = cBillItemEAPnl(parent = parent, id = -1)
+	ea = cBillItemEAPnl(parent, -1)
 	ea.data = bill_item
 	ea.mode = gmTools.coalesce(bill_item, 'new', 'edit')
-	dlg = gmEditArea.cGenericEditAreaDlg2(parent = parent, id = -1, edit_area = ea, single_entry = single_entry)
+	dlg = gmEditArea.cGenericEditAreaDlg2(parent, -1, edit_area = ea, single_entry = single_entry)
 	dlg.SetTitle(gmTools.coalesce(bill_item, _('Adding new bill item'), _('Editing bill item')))
 	if dlg.ShowModal() == wx.ID_OK:
 		dlg.Destroy()
@@ -1093,9 +1093,9 @@ def manage_bill_items(parent=None, pk_patient=None):
 		items = [ [
 			gmDateTime.pydt_strftime(b['date_to_bill'], '%Y %b %d', accuracy = gmDateTime.acc_days),
 			b['unit_count'],
-			u'%s: %s%s' % (b['billable_code'], b['billable_description'], gmTools.coalesce(b['item_detail'], u'', u' - %s')),
+			'%s: %s%s' % (b['billable_code'], b['billable_description'], gmTools.coalesce(b['item_detail'], '', ' - %s')),
 			b['currency'],
-			u'%s (%s %s %s%s%s)' % (
+			'%s (%s %s %s%s%s)' % (
 				b['total_amount'],
 				b['unit_count'],
 				gmTools.u_multiply,
@@ -1103,11 +1103,11 @@ def manage_bill_items(parent=None, pk_patient=None):
 				gmTools.u_multiply,
 				b['amount_multiplier']
 			),
-			u'%s (%s%%)' % (
+			'%s (%s%%)' % (
 				b['vat'],
 				b['vat_multiplier'] * 100
 			),
-			u'%s (%s)' % (b['catalog_short'], b['catalog_version']),
+			'%s (%s)' % (b['catalog_short'], b['catalog_version']),
 			b['pk_bill_item']
 		] for b in b_items ]
 		lctrl.set_string_items(items)
@@ -1117,7 +1117,7 @@ def manage_bill_items(parent=None, pk_patient=None):
 		parent = parent,
 		#msg = msg,
 		caption = _('Showing bill items.'),
-		columns = [_('Date'), _('Count'), _('Description'), _('$__replace_by_your_currency_symbol')[:-len('__replace_by_your_currency_symbol')], _('Value'), _('VAT'), _('Catalog'), u'#'],
+		columns = [_('Date'), _('Count'), _('Description'), _('$__replace_by_your_currency_symbol')[:-len('__replace_by_your_currency_symbol')], _('Value'), _('VAT'), _('Catalog'), '#'],
 		single_selection = True,
 		new_callback = edit,
 		edit_callback = edit,
@@ -1163,15 +1163,15 @@ class cPersonBillItemsManagerPnl(gmListWidgets.cGenericListManagerPnl):
 		items = [ [
 			gmDateTime.pydt_strftime(b['date_to_bill'], '%Y %b %d', accuracy = gmDateTime.acc_days),
 			b['unit_count'],
-			u'%s: %s%s' % (b['billable_code'], b['billable_description'], gmTools.coalesce(b['item_detail'], u'', u' - %s')),
+			'%s: %s%s' % (b['billable_code'], b['billable_description'], gmTools.coalesce(b['item_detail'], '', ' - %s')),
 			b['currency'],
 			b['total_amount'],
-			u'%s (%s%%)' % (
+			'%s (%s%%)' % (
 				b['vat'],
 				b['vat_multiplier'] * 100
 			),
-			u'%s (%s)' % (b['catalog_short'], b['catalog_version']),
-			u'%s %s %s %s %s' % (
+			'%s (%s)' % (b['catalog_short'], b['catalog_version']),
+			'%s %s %s %s %s' % (
 				b['unit_count'],
 				gmTools.u_multiply,
 				b['net_amount_per_unit'],
@@ -1201,7 +1201,7 @@ class cPersonBillItemsManagerPnl(gmListWidgets.cGenericListManagerPnl):
 			_('Count %s Value %s Factor') % (gmTools.u_multiply, gmTools.u_multiply),
 			_('Invoice'),
 			_('Encounter'),
-			u'#'
+			'#'
 		])
 		self._LCTRL_items.item_tooltip_callback = self._get_item_tooltip
 #		self.left_extra_button = (
@@ -1334,7 +1334,7 @@ class cBillItemEAPnl(wxgBillItemEAPnl.wxgBillItemEAPnl, gmEditArea.cGenericEditA
 
 		validity = True
 
-		if self._TCTRL_factor.GetValue().strip() == u'':
+		if self._TCTRL_factor.GetValue().strip() == '':
 			validity = False
 			self.display_tctrl_as_valid(tctrl = self._TCTRL_factor, valid = False)
 			self._TCTRL_factor.SetFocus()
@@ -1347,7 +1347,7 @@ class cBillItemEAPnl(wxgBillItemEAPnl.wxgBillItemEAPnl, gmEditArea.cGenericEditA
 			else:
 				self.display_tctrl_as_valid(tctrl = self._TCTRL_factor, valid = True)
 
-		if self._TCTRL_amount.GetValue().strip() == u'':
+		if self._TCTRL_amount.GetValue().strip() == '':
 			validity = False
 			self.display_tctrl_as_valid(tctrl = self._TCTRL_amount, valid = False)
 			self._TCTRL_amount.SetFocus()
@@ -1360,7 +1360,7 @@ class cBillItemEAPnl(wxgBillItemEAPnl.wxgBillItemEAPnl, gmEditArea.cGenericEditA
 			else:
 				self.display_tctrl_as_valid(tctrl = self._TCTRL_amount, valid = True)
 
-		if self._TCTRL_count.GetValue().strip() == u'':
+		if self._TCTRL_count.GetValue().strip() == '':
 			validity = False
 			self.display_tctrl_as_valid(tctrl = self._TCTRL_count, valid = False)
 			self._TCTRL_count.SetFocus()
@@ -1425,20 +1425,20 @@ class cBillItemEAPnl(wxgBillItemEAPnl.wxgBillItemEAPnl, gmEditArea.cGenericEditA
 		self._PRW_billable.SetText()
 		self._PRW_encounter.set_from_instance(gmPerson.gmCurrentPatient().emr.active_encounter)
 		self._PRW_date.SetData()
-		self._TCTRL_count.SetValue(u'1')
-		self._TCTRL_amount.SetValue(u'')
+		self._TCTRL_count.SetValue('1')
+		self._TCTRL_amount.SetValue('')
 		self._LBL_currency.SetLabel(gmTools.u_euro)
-		self._TCTRL_factor.SetValue(u'1')
-		self._TCTRL_comment.SetValue(u'')
+		self._TCTRL_factor.SetValue('1')
+		self._TCTRL_comment.SetValue('')
 
 		self._PRW_billable.Enable()
 		self._PRW_billable.SetFocus()
 	#----------------------------------------------------------------
 	def _refresh_as_new_from_existing(self):
 		self._PRW_billable.SetText()
-		self._TCTRL_count.SetValue(u'1')
-		self._TCTRL_amount.SetValue(u'')
-		self._TCTRL_comment.SetValue(u'')
+		self._TCTRL_count.SetValue('1')
+		self._TCTRL_amount.SetValue('')
+		self._TCTRL_comment.SetValue('')
 
 		self._PRW_billable.Enable()
 		self._PRW_billable.SetFocus()
@@ -1447,11 +1447,11 @@ class cBillItemEAPnl(wxgBillItemEAPnl.wxgBillItemEAPnl, gmEditArea.cGenericEditA
 		self._PRW_billable.set_from_pk(self.data['pk_billable'])
 		self._PRW_encounter.SetData(self.data['pk_encounter_to_bill'])
 		self._PRW_date.SetData(data = self.data['raw_date_to_bill'])
-		self._TCTRL_count.SetValue(u'%s' % self.data['unit_count'])
-		self._TCTRL_amount.SetValue(u'%s' % self.data['net_amount_per_unit'])
+		self._TCTRL_count.SetValue('%s' % self.data['unit_count'])
+		self._TCTRL_amount.SetValue('%s' % self.data['net_amount_per_unit'])
 		self._LBL_currency.SetLabel(self.data['currency'])
-		self._TCTRL_factor.SetValue(u'%s' % self.data['amount_multiplier'])
-		self._TCTRL_comment.SetValue(gmTools.coalesce(self.data['item_detail'], u''))
+		self._TCTRL_factor.SetValue('%s' % self.data['amount_multiplier'])
+		self._TCTRL_comment.SetValue(gmTools.coalesce(self.data['item_detail'], ''))
 
 		self._PRW_billable.Disable()
 		self._PRW_date.SetFocus()
@@ -1459,14 +1459,14 @@ class cBillItemEAPnl(wxgBillItemEAPnl.wxgBillItemEAPnl, gmEditArea.cGenericEditA
 	def _on_billable_selected(self, item):
 		if item is None:
 			return
-		if self._TCTRL_amount.GetValue().strip() != u'':
+		if self._TCTRL_amount.GetValue().strip() != '':
 			return
-		val = u'%s' % self._PRW_billable.GetData(as_instance = True)['raw_amount']
+		val = '%s' % self._PRW_billable.GetData(as_instance = True)['raw_amount']
 		wx.CallAfter(self._TCTRL_amount.SetValue, val)
 	#----------------------------------------------------------------
 	def _on_billable_modified(self):
 		if self._PRW_billable.GetData() is None:
-			wx.CallAfter(self._TCTRL_amount.SetValue, u'')
+			wx.CallAfter(self._TCTRL_amount.SetValue, '')
 
 #============================================================
 # a plugin for billing
@@ -1483,19 +1483,19 @@ class cBillingPluginPnl(wxgBillingPluginPnl.wxgBillingPluginPnl, gmRegetMixin.cR
 	def __reset_ui(self):
 		self._PNL_bill_items.identity = None
 		self._CHBOX_show_non_invoiced_only.SetValue(1)
-		self._PRW_billable.SetText(u'', None)
-		self._TCTRL_factor.SetValue(u'1.0')
+		self._PRW_billable.SetText('', None)
+		self._TCTRL_factor.SetValue('1.0')
 		self._TCTRL_factor.Disable()
-		self._TCTRL_details.SetValue(u'')
+		self._TCTRL_details.SetValue('')
 		self._TCTRL_details.Disable()
 	#-----------------------------------------------------
 	# event handling
 	#-----------------------------------------------------
 	def __register_interests(self):
-		gmDispatcher.connect(signal = u'pre_patient_unselection', receiver = self._on_pre_patient_unselection)
-		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._on_post_patient_selection)
+		gmDispatcher.connect(signal = 'pre_patient_unselection', receiver = self._on_pre_patient_unselection)
+		gmDispatcher.connect(signal = 'post_patient_selection', receiver = self._on_post_patient_selection)
 
-		gmDispatcher.connect(signal = u'bill.bill_item_mod_db', receiver = self._on_bill_item_modified)
+		gmDispatcher.connect(signal = 'bill.bill_item_mod_db', receiver = self._on_bill_item_modified)
 
 		self._PRW_billable.add_callback_on_selection(self._on_billable_selected_in_prw)
 	#-----------------------------------------------------
@@ -1519,7 +1519,7 @@ class cBillingPluginPnl(wxgBillingPluginPnl.wxgBillingPluginPnl, gmRegetMixin.cR
 			)
 			return False
 		val = self._TCTRL_factor.GetValue().strip()
-		if val == u'':
+		if val == '':
 			factor = 1.0
 		else:
 			converted, factor = gmTools.input2decimal(val)
@@ -1538,7 +1538,7 @@ class cBillingPluginPnl(wxgBillingPluginPnl.wxgBillingPluginPnl, gmRegetMixin.cR
 		bill_item['item_detail'] = self._TCTRL_details.GetValue()
 		bill_item.save()
 
-		self._TCTRL_details.SetValue(u'')
+		self._TCTRL_details.SetValue('')
 
 		return True
 	#--------------------------------------------------------

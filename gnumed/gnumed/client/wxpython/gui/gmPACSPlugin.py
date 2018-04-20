@@ -51,4 +51,4 @@ class gmPACSPlugin(gmPlugin.cNotebookPlugin):
 # main
 #----------------------------------------------------------------------
 if __name__ == "__main__":
-	print "no test code"
+	print("no test code")

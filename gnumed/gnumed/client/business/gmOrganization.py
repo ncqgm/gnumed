@@ -23,11 +23,11 @@ _log = logging.getLogger('gm.org')
 #============================================================
 def create_org_category(category=None, link_obj=None):
 	args = {'cat': category}
-	cmd1 = u"""INSERT INTO dem.org_category (description) SELECT %(cat)s
+	cmd1 = """INSERT INTO dem.org_category (description) SELECT %(cat)s
 WHERE NOT EXISTS (
 	SELECT 1 FROM dem.org_category WHERE description = %(cat)s or _(description) = %(cat)s
 )"""
-	cmd2 = u"""SELECT pk FROM dem.org_category WHERE description = %(cat)s or _(description) = %(cat)s LIMIT 1"""
+	cmd2 = """SELECT pk FROM dem.org_category WHERE description = %(cat)s or _(description) = %(cat)s LIMIT 1"""
 	queries = [
 		{'cmd': cmd1, 'args': args},
 		{'cmd': cmd2, 'args': args}
@@ -38,13 +38,13 @@ WHERE NOT EXISTS (
 #============================================================
 # organization API
 #------------------------------------------------------------
-_SQL_get_org = u'SELECT * FROM dem.v_orgs WHERE %s'
+_SQL_get_org = 'SELECT * FROM dem.v_orgs WHERE %s'
 
 class cOrg(gmBusinessDBObject.cBusinessDBObject):
 
-	_cmd_fetch_payload = _SQL_get_org % u'pk_org = %s'
+	_cmd_fetch_payload = _SQL_get_org % 'pk_org = %s'
 	_cmds_store_payload = [
-		u"""UPDATE dem.org SET
+		"""UPDATE dem.org SET
 				description = %(organization)s,
 				fk_category = %(pk_category_org)s
 			WHERE
@@ -55,8 +55,8 @@ class cOrg(gmBusinessDBObject.cBusinessDBObject):
 				xmin AS xmin_org"""
 	]
 	_updatable_fields = [
-		u'organization',
-		u'pk_category_org'
+		'organization',
+		'pk_category_org'
 	]
 	#--------------------------------------------------------
 	def add_unit(self, unit=None):
@@ -65,20 +65,20 @@ class cOrg(gmBusinessDBObject.cBusinessDBObject):
 	def format(self):
 		lines = []
 		lines.append(_('Organization #%s') % self._payload[self._idx['pk_org']])
-		lines.append(u'')
-		lines.append(u' %s "%s"' % (
+		lines.append('')
+		lines.append(' %s "%s"' % (
 			self._payload[self._idx['l10n_category']],
 			self._payload[self._idx['organization']]
 		))
 		if self._payload[self._idx['is_praxis']]:
-			lines.append(u'')
-			lines.append(u' ' + _('This is your praxis !'))
-		return u'\n'.join(lines)
+			lines.append('')
+			lines.append(' ' + _('This is your praxis !'))
+		return '\n'.join(lines)
 	#--------------------------------------------------------
 	# properties
 	#--------------------------------------------------------
 	def _get_units(self):
-		return get_org_units(order_by = u'unit', org = self._payload[self._idx['pk_org']])
+		return get_org_units(order_by = 'unit', org = self._payload[self._idx['pk_org']])
 
 	units = property(_get_units, lambda x:x)
 
@@ -86,14 +86,14 @@ class cOrg(gmBusinessDBObject.cBusinessDBObject):
 def org_exists(organization=None, category=None, link_obj=None):
 	args = {'desc': organization, 'cat': category}
 
-	if isinstance(category, basestring):
-		cat_part = u'fk_category = (SELECT pk FROM dem.org_category WHERE description = %(cat)s)'
+	if isinstance(category, str):
+		cat_part = 'fk_category = (SELECT pk FROM dem.org_category WHERE description = %(cat)s)'
 	elif category is None:
-		cat_part = u'True'
+		cat_part = 'True'
 	else:
-		cat_part = u'fk_category = %(cat)s'
+		cat_part = 'fk_category = %(cat)s'
 
-	cmd = u'SELECT pk FROM dem.org WHERE description = %%(desc)s AND %s' % cat_part
+	cmd = 'SELECT pk FROM dem.org WHERE description = %%(desc)s AND %s' % cat_part
 	rows, idx = gmPG2.run_ro_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
 	if len(rows) > 0:
 		return cOrg(aPK_obj = rows[0][0])
@@ -108,19 +108,19 @@ def create_org(organization=None, category=None, link_obj=None):
 
 	args = {'desc': organization, 'cat': category}
 
-	if isinstance(category, basestring):
-		cat_part = u'(SELECT pk FROM dem.org_category WHERE description = %(cat)s)'
+	if isinstance(category, str):
+		cat_part = '(SELECT pk FROM dem.org_category WHERE description = %(cat)s)'
 	else:
-		cat_part = u'%(cat)s'
+		cat_part = '%(cat)s'
 
-	cmd = u'INSERT INTO dem.org (description, fk_category) VALUES (%%(desc)s, %s) RETURNING pk' % cat_part
+	cmd = 'INSERT INTO dem.org (description, fk_category) VALUES (%%(desc)s, %s) RETURNING pk' % cat_part
 	rows, idx = gmPG2.run_rw_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': args}], get_col_idx = False, return_data = True)
 
 	return cOrg(aPK_obj = rows[0][0], link_obj = link_obj)
 #------------------------------------------------------------
 def delete_org(organization=None):
 	args = {'pk': organization}
-	cmd = u"""
+	cmd = """
 		DELETE FROM dem.org
 		WHERE
 			pk = %(pk)s
@@ -134,25 +134,25 @@ def delete_org(organization=None):
 def get_orgs(order_by=None):
 
 	if order_by is None:
-		order_by = u''
+		order_by = ''
 	else:
-		order_by = u'ORDER BY %s' % order_by
+		order_by = 'ORDER BY %s' % order_by
 
-	cmd = _SQL_get_org % (u'TRUE %s' % order_by)
+	cmd = _SQL_get_org % ('TRUE %s' % order_by)
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
 
-	return [ cOrg(row = {'data': r, 'idx': idx, 'pk_field': u'pk_org'}) for r in rows ]
+	return [ cOrg(row = {'data': r, 'idx': idx, 'pk_field': 'pk_org'}) for r in rows ]
 
 #============================================================
 # organizational units API
 #------------------------------------------------------------
-_SQL_get_org_unit = u'SELECT * FROM dem.v_org_units WHERE %s'
+_SQL_get_org_unit = 'SELECT * FROM dem.v_org_units WHERE %s'
 
 class cOrgUnit(gmBusinessDBObject.cBusinessDBObject):
 
-	_cmd_fetch_payload = _SQL_get_org_unit % u'pk_org_unit = %s'
+	_cmd_fetch_payload = _SQL_get_org_unit % 'pk_org_unit = %s'
 	_cmds_store_payload = [
-		u"""UPDATE dem.org_unit SET
+		"""UPDATE dem.org_unit SET
 				description = %(unit)s,
 				fk_org = %(pk_org)s,
 				fk_category = %(pk_category_unit)s,
@@ -165,10 +165,10 @@ class cOrgUnit(gmBusinessDBObject.cBusinessDBObject):
 				xmin AS xmin_org_unit"""
 	]
 	_updatable_fields = [
-		u'unit',
-		u'pk_org',
-		u'pk_category_unit',
-		u'pk_address'
+		'unit',
+		'pk_org',
+		'pk_category_unit',
+		'pk_address'
 	]
 	#--------------------------------------------------------
 	# comms API
@@ -178,14 +178,14 @@ class cOrgUnit(gmBusinessDBObject.cBusinessDBObject):
 		args = {'pk': self.pk_obj, 'medium': comm_medium}
 
 		if comm_medium is None:
-			cmd = u"""
+			cmd = """
 				SELECT *
 				FROM dem.v_org_unit_comms
 				WHERE
 					pk_org_unit = %(pk)s
 			"""
 		else:
-			cmd = u"""
+			cmd = """
 				SELECT *
 				FROM dem.v_org_unit_comms
 				WHERE
@@ -210,9 +210,9 @@ class cOrgUnit(gmBusinessDBObject.cBusinessDBObject):
 
 		@param comm_medium The name of the communication medium.
 		@param url The communication resource locator.
-		@type url A types.StringType instance.
+		@type url A str instance.
 		@param is_confidential Wether the data must be treated as confidential.
-		@type is_confidential A types.BooleanType instance.
+		@type is_confidential A bool instance.
 		"""
 		return gmDemographicRecord.create_comm_channel (
 			comm_medium = comm_medium,
@@ -235,14 +235,14 @@ class cOrgUnit(gmBusinessDBObject.cBusinessDBObject):
 		args = {'unit': self.pk_obj}
 
 		if id_type is not None:
-			where_parts.append(u'name = %(name)s')
+			where_parts.append('name = %(name)s')
 			args['name'] = id_type.strip()
 
 		if issuer is not None:
-			where_parts.append(u'issuer = %(issuer)s')
+			where_parts.append('issuer = %(issuer)s')
 			args['issuer'] = issuer.strip()
 
-		cmd = u"SELECT * FROM dem.v_external_ids4org_unit WHERE %s" % ' AND '.join(where_parts)
+		cmd = "SELECT * FROM dem.v_external_ids4org_unit WHERE %s" % ' AND '.join(where_parts)
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 
 		return rows
@@ -264,7 +264,7 @@ class cOrgUnit(gmBusinessDBObject.cBusinessDBObject):
 		}
 		# check for existing ID
 		if pk_type is not None:
-			cmd = u"""
+			cmd = """
 				SELECT * FROM dem.v_external_ids4org_unit WHERE
 				pk_org_unit = %(unit)s
 					AND
@@ -274,7 +274,7 @@ class cOrgUnit(gmBusinessDBObject.cBusinessDBObject):
 		else:
 			# by type/value/issuer
 			if issuer is None:
-				cmd = u"""
+				cmd = """
 					SELECT * FROM dem.v_external_ids4org_unit WHERE
 					pk_org_unit = %(unit)s
 						AND
@@ -282,7 +282,7 @@ class cOrgUnit(gmBusinessDBObject.cBusinessDBObject):
 						AND
 					value = %(val)s"""
 			else:
-				cmd = u"""
+				cmd = """
 					SELECT * FROM dem.v_external_ids4org_unit WHERE
 					pk_org_unit = %(unit)s
 						AND
@@ -296,14 +296,14 @@ class cOrgUnit(gmBusinessDBObject.cBusinessDBObject):
 		# create new ID if not found
 		if len(rows) == 0:
 			if pk_type is None:
-				cmd = u"""INSERT INTO dem.lnk_org_unit2ext_id (external_id, fk_type, comment, fk_org_unit) VALUES (
+				cmd = """INSERT INTO dem.lnk_org_unit2ext_id (external_id, fk_type, comment, fk_org_unit) VALUES (
 					%(val)s,
 					(SELECT dem.add_external_id_type(%(type_name)s, %(issuer)s)),
 					%(comment)s,
 					%(unit)s
 				)"""
 			else:
-				cmd = u"""INSERT INTO dem.lnk_org_unit2ext_id (external_id, fk_type, comment, fk_org_unit) VALUES (
+				cmd = """INSERT INTO dem.lnk_org_unit2ext_id (external_id, fk_type, comment, fk_org_unit) VALUES (
 					%(val)s,
 					%(pk_type)s,
 					%(comment)s,
@@ -318,7 +318,7 @@ class cOrgUnit(gmBusinessDBObject.cBusinessDBObject):
 				# comment not already there ?
 				if gmTools.coalesce(row['comment'], '').find(comment.strip()) == -1:
 					comment = '%s%s' % (gmTools.coalesce(row['comment'], '', '%s // '), comment.strip)
-					cmd = u"UPDATE dem.lnk_org_unit2ext_id SET comment = %(comment)s WHERE pk = %(pk)s"
+					cmd = "UPDATE dem.lnk_org_unit2ext_id SET comment = %(comment)s WHERE pk = %(pk)s"
 					args = {'comment': comment, 'pk': row['pk_id']}
 					rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 
@@ -328,7 +328,7 @@ class cOrgUnit(gmBusinessDBObject.cBusinessDBObject):
 
 		Creates ID type if necessary.
 		"""
-		cmd = u"""
+		cmd = """
 			UPDATE dem.lnk_org_unit2ext_id SET
 				fk_type = (SELECT dem.add_external_id_type(%(type)s, %(issuer)s)),
 				external_id = %(value)s,
@@ -341,7 +341,7 @@ class cOrgUnit(gmBusinessDBObject.cBusinessDBObject):
 
 	#--------------------------------------------------------
 	def delete_external_id(self, pk_ext_id=None):
-		cmd = u"""
+		cmd = """
 			DELETE FROM dem.lnk_org_unit2ext_id
 			WHERE fk_org_unit = %(unit)s AND pk = %(pk)s
 		"""
@@ -369,10 +369,10 @@ class cOrgUnit(gmBusinessDBObject.cBusinessDBObject):
 			gmTools.bool2subst (
 				self._payload[self._idx['is_praxis_branch']],
 				_(' (of your praxis)'),
-				u''
+				''
 			),
 			self._payload[self._idx['unit']],
-			gmTools.coalesce(self._payload[self._idx['l10n_unit_category']], u'', u' (%s)')
+			gmTools.coalesce(self._payload[self._idx['l10n_unit_category']], '', ' (%s)')
 		))
 		if with_org:
 			lines.append(_('Organization: %s (%s)') % (
@@ -385,10 +385,10 @@ class cOrgUnit(gmBusinessDBObject.cBusinessDBObject):
 				lines.extend(adr.format())
 		if with_comms:
 			for comm in self.comm_channels:
-				lines.append(u'%s: %s%s' % (
+				lines.append('%s: %s%s' % (
 					comm['l10n_comm_type'],
 					comm['url'],
-					gmTools.bool2subst(comm['is_confidential'], _(' (confidential)'), u'', u'')
+					gmTools.bool2subst(comm['is_confidential'], _(' (confidential)'), '', '')
 				))
 		return lines
 
@@ -417,27 +417,27 @@ class cOrgUnit(gmBusinessDBObject.cBusinessDBObject):
 
 #------------------------------------------------------------
 def create_org_unit(pk_organization=None, unit=None, link_obj=None):
-	_log.debug(u'creating org unit [%s:%s]', unit, pk_organization)
+	_log.debug('creating org unit [%s:%s]', unit, pk_organization)
 	args = {'desc': unit, 'pk_org': pk_organization}
-	cmd1 = u"""
+	cmd1 = """
 		INSERT INTO dem.org_unit (description, fk_org) SELECT
 			%(desc)s,
 			%(pk_org)s
 		WHERE NOT EXISTS (
 			SELECT 1 FROM dem.org_unit WHERE description = %(desc)s AND fk_org = %(pk_org)s
 		)"""
-	cmd2 = _SQL_get_org_unit % u'unit = %(desc)s AND pk_org = %(pk_org)s'
+	cmd2 = _SQL_get_org_unit % 'unit = %(desc)s AND pk_org = %(pk_org)s'
 	queries = [
 		{'cmd': cmd1, 'args': args},
 		{'cmd': cmd2, 'args': args}
 	]
 	rows, idx = gmPG2.run_rw_queries(link_obj = link_obj, queries = queries, get_col_idx = True, return_data = True)
-	return cOrgUnit(row = {'data': rows[0], 'idx': idx, 'pk_field': u'pk_org_unit'})
+	return cOrgUnit(row = {'data': rows[0], 'idx': idx, 'pk_field': 'pk_org_unit'})
 
 #------------------------------------------------------------
 def delete_org_unit(unit=None):
 	args = {'pk': unit}
-	cmd = u"""DELETE FROM dem.org_unit WHERE
+	cmd = """DELETE FROM dem.org_unit WHERE
 		pk = %(pk)s
 			AND
 		NOT EXISTS (
@@ -465,20 +465,20 @@ def delete_org_unit(unit=None):
 def get_org_units(order_by=None, org=None):
 
 	if order_by is None:
-		order_by = u''
+		order_by = ''
 	else:
-		order_by = u' ORDER BY %s' % order_by
+		order_by = ' ORDER BY %s' % order_by
 
 	if org is None:
-		where_part = u'TRUE'
+		where_part = 'TRUE'
 	else:
-		where_part = u'pk_org = %(org)s'
+		where_part = 'pk_org = %(org)s'
 
 	args = {'org': org}
 	cmd = (_SQL_get_org_unit % where_part) + order_by
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 
-	return [ cOrgUnit(row = {'data': r, 'idx': idx, 'pk_field': u'pk_org_unit'}) for r in rows ]
+	return [ cOrgUnit(row = {'data': r, 'idx': idx, 'pk_field': 'pk_org_unit'}) for r in rows ]
 
 #======================================================================
 # main
@@ -488,11 +488,11 @@ if __name__ == "__main__":
 	if len(sys.argv) < 2:
 		sys.exit()
 
-	if sys.argv[1] != u'test':
+	if sys.argv[1] != 'test':
 		sys.exit()
 
 
-	print cOrgUnit(aPK_obj = 21825)
+	print(cOrgUnit(aPK_obj = 21825))
 
 
 #	for unit in get_org_units():
@@ -563,7 +563,7 @@ def get_org_data_for_org_ids(idList):
 	cmd = """select id, description, id_category  from dem.org 
 			where id in ( select id from dem.org where id in( %s) )""" % ids 
 	#<DEBUG>
-	print cmd
+	print(cmd)
 	#</DEBUG>
 	result = gmPG.run_ro_query("personalia", cmd, )
 	if result is None:
@@ -580,23 +580,23 @@ def get_org_data_for_org_ids(idList):
 #
 
 if __name__ == '__main__':
-	print "Please enter a write-enabled user e.g. _test-doc "
+	print("Please enter a write-enabled user e.g. _test-doc ")
 
 	def testListOrgs():
-		print "running test listOrg"
+		print("running test listOrg")
 		for (f,a) in get_test_data():
 			h = cOrgImpl1()
 			h.set(*f)
 			h.setAddress(*a)
 			if not h.save():
-				print "did not save ", f
+				print("did not save ", f)
 
 		orgs = cOrgHelperImpl1().findAllOrganizations()
 
 		for org in orgs:
-			print "Found org ", org.get(), org.getAddress()
+			print("Found org ", org.get(), org.getAddress())
 			if not org.shallow_del():
-				print "Unable to delete above org"
+				print("Unable to delete above org")
 
 
 
@@ -638,22 +638,22 @@ if __name__ == '__main__':
 		m = org.getPersonMap()
 
 		if m== []:
-			print "NO persons were found unfortunately"
+			print("NO persons were found unfortunately")
 
-		print """ TestOrgPersonRun got back for """
+		print(""" TestOrgPersonRun got back for """)
 		a = org.getAddress()
-		print org["name"], a["number"], a["street"], a["urb"], a["postcode"] , " phone=", org['phone']
+		print(org["name"], a["number"], a["street"], a["urb"], a["postcode"] , " phone=", org['phone'])
 
 		for id, r in m.items():
-			print "\t",", ".join( [ " ".join(r.get_names().values()),
+			print("\t",", ".join( [ " ".join(r.get_names().values()),
 						"work no=", r.getCommChannel(gmDemographicRecord.WORK_PHONE),
 						"mobile no=", r.getCommChannel(gmDemographicRecord.MOBILE)
-						] )
+						] ))
 		
 
 	def _testOrgPersonRun(f1, a1, personList):
-		print "Using test data :f1 = ", f1, "and a1 = ", a1 , " and lp = ", personList
-		print "-" * 50
+		print("Using test data :f1 = ", f1, "and a1 = ", a1 , " and lp = ", personList)
+		print("-" * 50)
 		_testOrgClassPersonRun( f1, a1, personList, cOrgImpl1)
 		_testOrgClassPersonRun( f1, a1, personList, cCompositeOrgImpl1)
 		_testOrgClassPersonRun( f1, a1, personList, cOrgHelperImpl1().create)
@@ -684,30 +684,30 @@ if __name__ == '__main__':
 
 
 	def _testOrgClassPersonRun(f1, a1, personList, orgCreate, identityCreator = getTestIdentityUsingDirectDemographicRecord):
-		print "-" * 50
-		print "Testing org creator ", orgCreate
-		print " and identity creator ", identityCreator
-		print "-" * 50
+		print("-" * 50)
+		print("Testing org creator ", orgCreate)
+		print(" and identity creator ", identityCreator)
+		print("-" * 50)
 		h = orgCreate()
 		h.set(*f1)
 		h.setAddress(*a1)
 		if not h.save():
-			print "Unable to save org for person test"
+			print("Unable to save org for person test")
 			h.shallow_del()
 			return False
 		# use gmDemographicRecord to convert person list
 		for lp in personList:
 			identity = identityCreator(lp, h)
 			result , msg = h.linkPerson(identity)
-			print msg
+			print(msg)
 
 		_outputPersons(h)
 		deletePersons(h)
 
 		if h.shallow_del():
-			print "Managed to dispose of org"
+			print("Managed to dispose of org")
 		else:
-			print "unable to dispose of org"
+			print("unable to dispose of org")
 
 		return True
 
@@ -744,7 +744,7 @@ if __name__ == '__main__':
 
 	def _testOrgRun( f1, a1):
 
-		print """testing single level orgs"""
+		print("""testing single level orgs""")
 		f = [ "name", "office", "subtype",  "memo", "category", "phone", "fax", "email","mobile"]
 		a = ["number", "street", "urb", "postcode", 'region', "country"]
 		h = cOrgImpl1()
@@ -752,63 +752,63 @@ if __name__ == '__main__':
 		h.set(*f1)
 		h.setAddress(*a1)
 
-		print "testing get, getAddress"
-		print h.get()
-		print h.getAddressDict()
+		print("testing get, getAddress")
+		print(h.get())
+		print(h.getAddressDict())
 
 		import sys
 		if not	h.save():
-			print "failed to save first time. Is an old test org needing manual removal?"
+			print("failed to save first time. Is an old test org needing manual removal?")
 			return False, h
-		print "saved pk =", h.getId()
+		print("saved pk =", h.getId())
 
 
 		pk = h.getId()
 		if h.shallow_del():
-			print "shallow deleted ", h['name']
+			print("shallow deleted ", h['name'])
 		else:
-			print "failed shallow delete of ", h['name']
+			print("failed shallow delete of ", h['name'])
 
 
 
 		h2 = cOrgImpl1()
 
-		print "testing load"
+		print("testing load")
 
-		print "should fail"
+		print("should fail")
 		if not h2.load(pk):
-			print "Failed as expected"
+			print("Failed as expected")
 
 		if h.save():
-			print "saved ", h['name'] , "again"
+			print("saved ", h['name'] , "again")
 		else:
-			print "failed re-save"
+			print("failed re-save")
 			return False, h
 
 		h['fax'] = '222-1111'
-		print "using update save"
+		print("using update save")
 
 		if h.save():
-			print "saved updated passed"
-			print "Test reload next"
+			print("saved updated passed")
+			print("Test reload next")
 		else:
-			print "failed save of updated data"
-			print "continuing to reload"
+			print("failed save of updated data")
+			print("continuing to reload")
 
 
 		if not h2.load(h.getId()):
-			print "failed load"
+			print("failed load")
 			return False, h
-		print "reloaded values"
-		print h2.get()
-		print h2.getAddressDict()
+		print("reloaded values")
+		print(h2.get())
+		print(h2.getAddressDict())
 
-		print "** End of Test org"
+		print("** End of Test org")
 
 		if h2.shallow_del():
-			print "cleaned up"
+			print("cleaned up")
 		else:
-			print "Test org needs to be manually removed"
+			print("Test org needs to be manually removed")
 
 		return True, h2
 
@@ -880,7 +880,7 @@ if __name__ == '__main__':
 		result = logintest(conn)
 
 		if result is False:
-			print msg
+			print(msg)
 
 		p.ReleaseConnection(service)
 		return result, login2
@@ -937,14 +937,14 @@ if __name__ == '__main__':
 
 
 	def create_temp_categories( categories = ['hospital']):
-		print "NEED TO CREATE TEMPORARY ORG_CATEGORY.\n\n ** PLEASE ENTER administrator login  : e.g  user 'gm-dbo' and  his password"
+		print("NEED TO CREATE TEMPORARY ORG_CATEGORY.\n\n ** PLEASE ENTER administrator login  : e.g  user 'gm-dbo' and  his password")
 		#get a admin login
 		for i in range(0, 4):
 			result ,tmplogin = login_admin_user()
 			if result:
 				break
 		if i == 4:
-			print "Failed to login"
+			print("Failed to login")
 			return categories
 
 		# and save it , for later removal of test categories.
@@ -970,7 +970,7 @@ if __name__ == '__main__':
 			result =  cursor.fetchone()
 			if result == None or len(result) == 0:
 				failed_categories.append(cat)
-				print "Failed insert of category", cat
+				print("Failed insert of category", cat)
 				conn.rollback()
 			else:
 				conn.commit()
@@ -982,20 +982,20 @@ if __name__ == '__main__':
 
 	def clean_org_categories(adminlogin = None, categories = ['hospital'], service='personalia'):
 
-		print"""
+		print("""
 
 		The temporary category(s) will now
 		need to be removed under an administrator login
 		e.g. gm-dbo
 		Please enter login for administrator:
-		"""
+		""")
 		if adminlogin is None:
 			for i in range(0, 4):
 				result, adminlogin = login_admin_user()
 				if  result:
 					break
 			if i == 4:
-				print "FAILED TO LOGIN"
+				print("FAILED TO LOGIN")
 				return categories
 
 		p = gmPG.ConnectionPool(adminlogin)
@@ -1008,13 +1008,13 @@ if __name__ == '__main__':
 				conn.commit()
 				cursor.execute("select id from dem.org_category where description in ('%s')"%cat)
 				if cursor.fetchone() == None:
-					print "Succeeded in removing temporary org_category"
+					print("Succeeded in removing temporary org_category")
 				else:
-					print "*** Unable to remove temporary org_category"
+					print("*** Unable to remove temporary org_category")
 					failed_remove .append(cat)
 			except:
 				import sys
-				print sys.exc_info()[0], sys.exc_info()[1]
+				print(sys.exc_info()[0], sys.exc_info()[1])
 				import traceback
 				traceback.print_tb(sys.exc_info()[2])
 
@@ -1023,34 +1023,34 @@ if __name__ == '__main__':
 		conn = None
 		p.ReleaseConnection(service)
 		if failed_remove != []:
-			print "FAILED TO REMOVE ", failed_remove
+			print("FAILED TO REMOVE ", failed_remove)
 		return failed_remove
 
 	def test_CatFinder():
-		print "TESTING cCatFinder"
+		print("TESTING cCatFinder")
 
-		print """c = cCatFinder("org_category")"""
+		print("""c = cCatFinder("org_category")""")
 		c = cCatFinder("org_category")
 
-		print c.getCategories("org_category")
+		print(c.getCategories("org_category"))
 
-		print """c = cCatFinder("enum_comm_types")"""
+		print("""c = cCatFinder("enum_comm_types")""")
 		c = cCatFinder("enum_comm_types")
 
 		l = c.getCategories("enum_comm_types")
-		print "testing getId()"
+		print("testing getId()")
 		l2 = []
 		for x in l:
 			l2.append((x, c.getId("enum_comm_types", x)))
-		print l2
+		print(l2)
 
-		print """testing borg behaviour of cCatFinder"""
+		print("""testing borg behaviour of cCatFinder""")
 
-		print c.getCategories("org_category")
+		print(c.getCategories("org_category"))
 
 
 	def help():
-		print """\nNB If imports not found , try:
+		print("""\nNB If imports not found , try:
 
 		change to gnumed/client directory , then
 
@@ -1080,18 +1080,18 @@ if __name__ == '__main__':
 			
 			No test yet for dirtied edit data, to query whether to
 			save or discard. (30/5/2004)
-		"""
-		print
-		print "In the connection query, please enter"
-		print "a WRITE-ENABLED user e.g. _test-doc (not test-doc), and the right password"
-		print
-		print "Run the unit test with cmdline argument '--clean'  if trying to clean out test data"
-		print
+		""")
+		print()
+		print("In the connection query, please enter")
+		print("a WRITE-ENABLED user e.g. _test-doc (not test-doc), and the right password")
+		print()
+		print("Run the unit test with cmdline argument '--clean'  if trying to clean out test data")
+		print()
 
-		print """You can get a sermon by running
+		print("""You can get a sermon by running
 		export PYTHONPATH=$PYTHONPATH:../;python business/gmOrganization.py --sermon
-		"""
-		print """
+		""")
+		print("""
 		Pre-requisite data in database is :
 		gnumed=# select * from org_category ;
 		id | description
@@ -1110,10 +1110,10 @@ if __name__ == '__main__':
 		6 | web
 		7 | jabber
 		(7 rows)
-		"""
+		""")
 
 	def sermon():
-				print"""
+				print("""
 		This test case shows how many things can go wrong , even with just a test case.
 		Problem areas include:
 		- postgres administration :  pg_ctl state, pg_hba.conf, postgres.conf  config files .
@@ -1167,7 +1167,7 @@ if __name__ == '__main__':
 			Soln: run with --clean option,
 
 
-		"""
+		""")
 
 
 #============================================================
@@ -1180,8 +1180,8 @@ if __name__ == '__main__':
 			p = gmPG.ConnectionPool()
 			p.ReleaseConnection('personalia')
 			if result:
-				print "probably succeeded in cleaning orgs"
-			else: 	print "failed to clean orgs"
+				print("probably succeeded in cleaning orgs")
+			else: 	print("failed to clean orgs")
 
 			clean_org_categories()
 			sys.exit(1)
@@ -1195,8 +1195,8 @@ if __name__ == '__main__':
 		if sys.argv[1] =="--gui":
 			testgui = True
 
-	print "*" * 50
-	print "RUNNING UNIT TEST of gmOrganization "
+	print("*" * 50)
+	print("RUNNING UNIT TEST of gmOrganization ")
 
 
 	test_CatFinder()
@@ -1205,36 +1205,36 @@ if __name__ == '__main__':
 
 	c = cCatFinder()
 	if not "hospital" in c.getCategories("org_category") :
-		print "FAILED in prerequisite for org_category : test categories are not present."
+		print("FAILED in prerequisite for org_category : test categories are not present.")
 
 		tmp_category = True
 
 	if tmp_category:
 		# test data in a categorical table (restricted access) is needed
 
-		print """You will need to switch login identity to database administrator in order
+		print("""You will need to switch login identity to database administrator in order
 			to have permission to write to the org_category table,
 			and then switch back to the ordinary write-enabled user in order
 			to run the test cases.
 			Finally you will need to switch back to administrator login to
 			remove the temporary org_categories.
-			"""
+			""")
 		categories = ['hospital']
 		result, adminlogin = create_temp_categories(categories)
 		if result == categories:
-			print "Unable to create temporary org_category. Test aborted"
+			print("Unable to create temporary org_category. Test aborted")
 			sys.exit(-1)
 		if result != []:
-			print "UNABLE TO CREATE THESE CATEGORIES"
-			if not raw_input("Continue ?") in ['y', 'Y'] :
+			print("UNABLE TO CREATE THESE CATEGORIES")
+			if not input("Continue ?") in ['y', 'Y'] :
 				sys.exit(-1)
 
 	try:
 		results = []
 		if tmp_category:
-				print "succeeded in creating temporary org_category"
-				print
-				print "** Now ** RESUME LOGIN **  of write-enabled user (e.g. _test-doc) "
+				print("succeeded in creating temporary org_category")
+				print()
+				print("** Now ** RESUME LOGIN **  of write-enabled user (e.g. _test-doc) ")
 				while (1):
 					# get the RW user for org tables (again)
 					if login_rw_user():
@@ -1242,11 +1242,11 @@ if __name__ == '__main__':
 
 		if testgui:
 			if cCatFinder().getId('org_category','hospital') == None:
-				print "Needed to set up temporary org_category 'hospital"
+				print("Needed to set up temporary org_category 'hospital")
 				sys.exit(-1)
 			import os
-			print os.environ['PWD']
-		 	os.spawnl(os.P_WAIT, "/usr/bin/python", "/usr/bin/python","wxpython/gnumed.py", "--debug")
+			print(os.environ['PWD'])
+			os.spawnl(os.P_WAIT, "/usr/bin/python", "/usr/bin/python","wxpython/gnumed.py", "--debug")
 
 			#os.popen2('python client/wxpython/gnumed.py --debug')
 
@@ -1256,10 +1256,10 @@ if __name__ == '__main__':
 			# cleanup after the test case
 		for (result , org) in results:
 			if not result and org.getId() is not None:
-				print "trying cleanup"
-				if  org.shallow_del(): print " 	may have succeeded"
+				print("trying cleanup")
+				if  org.shallow_del(): print(" 	may have succeeded")
 				else:
-					print "May need manual removal of org id =", org.getId()
+					print("May need manual removal of org id =", org.getId())
 
 		testOrgPersons()
 
@@ -1267,7 +1267,7 @@ if __name__ == '__main__':
 
 	except:
 		import  sys
-		print sys.exc_info()[0], sys.exc_info()[1]
+		print(sys.exc_info()[0], sys.exc_info()[1])
 		_log.exception( "Fatal exception")
 
 		# clean-up any temporary categories.

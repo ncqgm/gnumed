@@ -93,7 +93,7 @@ class cMergePatientsDlg(wxgMergePatientsDlg.wxgMergePatientsDlg):
 			patient2keep = self._TCTRL_patient2.person
 			patient2merge = self._TCTRL_patient1.person
 
-		if patient2merge['lastnames'] == u'Kirk':
+		if patient2merge['lastnames'] == 'Kirk':
 			if _cfg.get(option = 'debug'):
 				gmNetworkTools.open_url_in_browser(url = 'http://en.wikipedia.org/wiki/File:Picard_as_Locutus.jpg')
 				gmGuiHelpers.gm_show_info(_('\n\nYou will be assimilated.\n\n'), _('The Borg'))
@@ -194,7 +194,7 @@ class cSelectPersonFromListDlg(wxgSelectPersonFromListDlg.wxgSelectPersonFromLis
 			_('Lastname'),
 			_('Firstname'),
 			_('DOB'),
-			u'%s%s' % (gmTools.u_female, gmTools.u_male),
+			'%s%s' % (gmTools.u_female, gmTools.u_male),
 			_('last visit'),
 			_('Nickname / Comment'),
 			_('found via')
@@ -215,33 +215,33 @@ class cSelectPersonFromListDlg(wxgSelectPersonFromListDlg.wxgSelectPersonFromLis
 			return False
 
 		for person in persons:
-			row_num = self._LCTRL_persons.InsertStringItem(pos, label = gmTools.coalesce(person['title'], person['lastnames'], u'%s, %%s' % person['lastnames']))
-			self._LCTRL_persons.SetStringItem(index = row_num, col = 1, label = person['firstnames'])
-			self._LCTRL_persons.SetStringItem(index = row_num, col = 2, label = person.get_formatted_dob(format = '%Y %b %d', encoding = 'utf8'))
-			self._LCTRL_persons.SetStringItem(index = row_num, col = 3, label = gmTools.coalesce(person['l10n_gender'], u'?'))
+			row_num = self._LCTRL_persons.InsertItem(pos, label = gmTools.coalesce(person['title'], person['lastnames'], '%s, %%s' % person['lastnames']))
+			self._LCTRL_persons.SetItem(index = row_num, column = 1, label = person['firstnames'])
+			self._LCTRL_persons.SetItem(index = row_num, column = 2, label = person.get_formatted_dob(format = '%Y %b %d', encoding = 'utf8'))
+			self._LCTRL_persons.SetItem(index = row_num, column = 3, label = gmTools.coalesce(person['l10n_gender'], '?'))
 
-			label = u''
+			label = ''
 			if person.is_patient:
 				enc = person.get_last_encounter()
 				if enc is not None:
-					label = u'%s (%s)' % (gmDateTime.pydt_strftime(enc['started'], '%Y %b %d'), enc['l10n_type'])
-			self._LCTRL_persons.SetStringItem(index = row_num, col = 4, label = label)
+					label = '%s (%s)' % (gmDateTime.pydt_strftime(enc['started'], '%Y %b %d'), enc['l10n_type'])
+			self._LCTRL_persons.SetItem(index = row_num, column = 4, label = label)
 
 			parts = []
 			if person['preferred'] is not None:
 				parts.append(person['preferred'])
 			if person['comment'] is not None:
 				parts.append(person['comment'])
-			self._LCTRL_persons.SetStringItem(index = row_num, col = 5, label = u' / '.join(parts))
+			self._LCTRL_persons.SetItem(index = row_num, column = 5, label = ' / '.join(parts))
 
 			try:
-				self._LCTRL_persons.SetStringItem(index = row_num, col = 6, label = person['match_type'])
+				self._LCTRL_persons.SetItem(index = row_num, column = 6, label = person['match_type'])
 			except KeyError:
 				_log.warning('cannot set match_type field')
-				self._LCTRL_persons.SetStringItem(index = row_num, col = 6, label = u'??')
+				self._LCTRL_persons.SetItem(index = row_num, column = 6, label = '??')
 
 		for col in range(len(self.__cols)):
-			self._LCTRL_persons.SetColumnWidth(col = col, width = wx.LIST_AUTOSIZE)
+			self._LCTRL_persons.SetColumnWidth(col, wx.LIST_AUTOSIZE)
 
 		self._BTN_select.Enable(False)
 		self._LCTRL_persons.SetFocus()
@@ -307,21 +307,21 @@ class cSelectPersonDTOFromListDlg(wxgSelectPersonDTOFromListDlg.wxgSelectPersonD
 			return False
 
 		for rec in dtos:
-			row_num = self._LCTRL_persons.InsertStringItem(pos, label = rec['source'])
+			row_num = self._LCTRL_persons.InsertItem(pos, label = rec['source'])
 			dto = rec['dto']
-			self._LCTRL_persons.SetStringItem(index = row_num, col = 1, label = dto.lastnames)
-			self._LCTRL_persons.SetStringItem(index = row_num, col = 2, label = dto.firstnames)
+			self._LCTRL_persons.SetItem(index = row_num, column = 1, label = dto.lastnames)
+			self._LCTRL_persons.SetItem(index = row_num, column = 2, label = dto.firstnames)
 			if dto.dob is None:
-				self._LCTRL_persons.SetStringItem(index = row_num, col = 3, label = u'')
+				self._LCTRL_persons.SetItem(index = row_num, column = 3, label = '')
 			else:
 				if dto.dob_is_estimated:
-					self._LCTRL_persons.SetStringItem(index = row_num, col = 3, label = gmTools.u_almost_equal_to + gmDateTime.pydt_strftime(dto.dob, '%Y %b %d'))
+					self._LCTRL_persons.SetItem(index = row_num, column = 3, label = gmTools.u_almost_equal_to + gmDateTime.pydt_strftime(dto.dob, '%Y %b %d'))
 				else:
-					self._LCTRL_persons.SetStringItem(index = row_num, col = 3, label = gmDateTime.pydt_strftime(dto.dob, '%Y %b %d'))
-			self._LCTRL_persons.SetStringItem(index = row_num, col = 4, label = gmTools.coalesce(dto.gender, ''))
+					self._LCTRL_persons.SetItem(index = row_num, column = 3, label = gmDateTime.pydt_strftime(dto.dob, '%Y %b %d'))
+			self._LCTRL_persons.SetItem(index = row_num, column = 4, label = gmTools.coalesce(dto.gender, ''))
 
 		for col in range(len(self.__cols)):
-			self._LCTRL_persons.SetColumnWidth(col=col, width=wx.LIST_AUTOSIZE)
+			self._LCTRL_persons.SetColumnWidth(col, wx.LIST_AUTOSIZE)
 
 		self._BTN_select.Enable(False)
 		self._LCTRL_persons.SetFocus()
@@ -348,7 +348,7 @@ class cSelectPersonDTOFromListDlg(wxgSelectPersonDTOFromListDlg.wxgSelectPersonD
 #============================================================
 def load_persons_from_ca_msva():
 
-	group = u'CA Medical Manager MSVA'
+	group = 'CA Medical Manager MSVA'
 
 	src_order = [
 		('explicit', 'append'),
@@ -568,7 +568,7 @@ def load_persons_from_kvks():
 		option = 'DE.KVK.spool_dir',
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 		bias = 'workplace',
-		default = u'/var/spool/kvkd/'
+		default = '/var/spool/kvkd/'
 		#default = u'/home/ncq/gnumed/'
 	)))
 	dtos = []
@@ -582,11 +582,11 @@ def load_persons_from_kvks():
 #============================================================
 def load_person_from_vcard_file():
 
-	wildcards = u'|'.join ([
-		u'%s (*.vcf)|*.vcf' % _('vcf files'),
-		u'%s (*.VCF)|*.VCF' % _('VCF files'),
-		u'%s (*)|*' % _('all files'),
-		u'%s (*.*)|*.*' % _('all files (Windows)')
+	wildcards = '|'.join ([
+		'%s (*.vcf)|*.vcf' % _('vcf files'),
+		'%s (*.VCF)|*.VCF' % _('VCF files'),
+		'%s (*)|*' % _('all files'),
+		'%s (*.*)|*.*' % _('all files (Windows)')
 	])
 
 	dlg = wx.FileDialog (
@@ -594,7 +594,7 @@ def load_person_from_vcard_file():
 		message = _('Choose a vCard file:'),
 		defaultDir = os.path.join(gmTools.gmPaths().home_dir, 'gnumed'),
 		wildcard = wildcards,
-		style = wx.OPEN | wx.FILE_MUST_EXIST
+		style = wx.FD_OPEN | wx.FD_FILE_MUST_EXIST
 	)
 	result = dlg.ShowModal()
 	fname = dlg.GetPath()
@@ -623,7 +623,7 @@ def load_person_from_vcard_file():
 			)
 		return
 
-	dlg = cSelectPersonFromListDlg(parent = wx.GetApp().GetTopWindow(), id = -1)
+	dlg = cSelectPersonFromListDlg(wx.GetApp().GetTopWindow(), -1)
 	dlg.set_persons(persons = idents)
 	result = dlg.ShowModal()
 	ident = dlg.get_selected_person()
@@ -673,7 +673,7 @@ def load_person_from_vcard_via_clipboard():
 			)
 		return
 
-	dlg = cSelectPersonFromListDlg(parent = wx.GetApp().GetTopWindow(), id = -1)
+	dlg = cSelectPersonFromListDlg(wx.GetApp().GetTopWindow(), -1)
 	dlg.set_persons(persons = idents)
 	result = dlg.ShowModal()
 	ident = dlg.get_selected_person()
@@ -723,7 +723,7 @@ def load_person_from_xml_linuxmednews_via_clipboard():
 			)
 		return
 
-	dlg = cSelectPersonFromListDlg(parent = wx.GetApp().GetTopWindow(), id = -1)
+	dlg = cSelectPersonFromListDlg(wx.GetApp().GetTopWindow(), -1)
 	dlg.set_persons(persons = idents)
 	result = dlg.ShowModal()
 	ident = dlg.get_selected_person()
@@ -879,7 +879,7 @@ class cPersonSearchCtrl(wx.TextCtrl):
 			' <CURSOR-DOWN>\n'
 			'  - list 10 most recently found persons\n'
 		)
-		self.SetToolTipString(self._tt_search_hints)
+		self.SetToolTip(self._tt_search_hints)
 
 		# FIXME: set query generator
 		self.__person_searcher = gmPersonSearch.cPatientSearcher_SQL()
@@ -904,7 +904,7 @@ class cPersonSearchCtrl(wx.TextCtrl):
 	# utility methods
 	#--------------------------------------------------------
 	def _display_name(self):
-		name = u''
+		name = ''
 
 		if self.person is not None:
 			name = self.person['description']
@@ -932,10 +932,11 @@ class cPersonSearchCtrl(wx.TextCtrl):
 	# event handling
 	#--------------------------------------------------------
 	def __register_events(self):
-		wx.EVT_CHAR(self, self.__on_char)
-		wx.EVT_SET_FOCUS(self, self._on_get_focus)
-		wx.EVT_KILL_FOCUS (self, self._on_loose_focus)
-		wx.EVT_TEXT_ENTER (self, self.GetId(), self.__on_enter)
+		self.Bind(wx.EVT_CHAR, self.__on_char)
+		self.Bind(wx.EVT_SET_FOCUS, self._on_get_focus)
+		self.Bind(wx.EVT_KILL_FOCUS, self._on_loose_focus)
+		self.Bind(wx.EVT_TEXT_ENTER, self.__on_enter)
+
 	#--------------------------------------------------------
 	def _on_get_focus(self, evt):
 		"""upon tabbing in
@@ -945,6 +946,7 @@ class cPersonSearchCtrl(wx.TextCtrl):
 		"""
 		wx.CallAfter(self.SetSelection, -1, -1)
 		evt.Skip()
+
 	#--------------------------------------------------------
 	def _on_loose_focus(self, evt):
 		# - redraw the currently active name upon losing focus
@@ -978,7 +980,7 @@ class cPersonSearchCtrl(wx.TextCtrl):
 			if len(self.__prev_idents) == 0:
 				return False
 
-			dlg = cSelectPersonFromListDlg(parent = wx.GetTopLevelParent(self), id = -1)
+			dlg = cSelectPersonFromListDlg(wx.GetTopLevelParent(self), -1)
 			dlg.set_persons(persons = self.__prev_idents)
 			result = dlg.ShowModal()
 			if result == wx.ID_OK:
@@ -1149,20 +1151,20 @@ def _verify_staff_chart_access(patient=None):
 		) % (
 			patient.get_description_gender(),
 			patient.get_formatted_dob(),
-			gmTools.coalesce(patient['title'], u'', u'%s '),
+			gmTools.coalesce(patient['title'], '', '%s '),
 			patient['lastnames']
 		)
 	)
 
 	if proceed:
-		prov = u'%s (%s%s %s)' % (
+		prov = '%s (%s%s %s)' % (
 			curr_prov['short_alias'],
-			gmTools.coalesce(curr_prov['title'], u'', u'%s '),
+			gmTools.coalesce(curr_prov['title'], '', '%s '),
 			curr_prov['firstnames'],
 			curr_prov['lastnames']
 		)
-		pat = u'%s%s %s' % (
-			gmTools.coalesce(patient['title'], u'', u'%s '),
+		pat = '%s%s %s' % (
+			gmTools.coalesce(patient['title'], '', '%s '),
 			patient['firstnames'],
 			patient['lastnames']
 		)
@@ -1170,7 +1172,7 @@ def _verify_staff_chart_access(patient=None):
 		gmProviderInbox.create_inbox_message (
 			staff = patient.staff_id,
 			message_type = _('Privacy notice'),
-			message_category = u'administrative',
+			message_category = 'administrative',
 			subject = _('%s: Your chart has been accessed by %s.') % (pat, prov),
 			patient = patient.ID
 		)
@@ -1178,7 +1180,7 @@ def _verify_staff_chart_access(patient=None):
 		gmProviderInbox.create_inbox_message (
 			staff = curr_prov['pk_staff'],
 			message_type = _('Privacy notice'),
-			message_category = u'administrative',
+			message_category = 'administrative',
 			subject = _('%s: Staff member %s has been notified of your chart access.') % (prov, pat)
 		)
 
@@ -1213,10 +1215,10 @@ def _check_birthday(patient=None):
 
 	dbcfg = gmCfg.cCfgSQL()
 	dob_distance = dbcfg.get2 (
-		option = u'patient_search.dob_warn_interval',
+		option = 'patient_search.dob_warn_interval',
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
-		bias = u'user',
-		default = u'1 week'
+		bias = 'user',
+		default = '1 week'
 	)
 
 	if not patient.dob_in_range(dob_distance, dob_distance):
@@ -1329,21 +1331,21 @@ class cActivePatientSelector(cPersonSearchCtrl):
 
 		# adjust tooltip
 		if self.person is None:
-			self.SetToolTipString(self._tt_search_hints)
+			self.SetToolTip(self._tt_search_hints)
 			return
 
 		if (self.person['emergency_contact'] is None) and (self.person['comment'] is None):
-			separator = u''
+			separator = ''
 		else:
-			separator = u'%s\n' % (gmTools.u_box_horiz_single * 40)
+			separator = '%s\n' % (gmTools.u_box_horiz_single * 40)
 
-		tt = u'%s%s%s%s' % (
-			gmTools.coalesce(self.person['emergency_contact'], u'', u'%s\n %%s\n' % _('In case of emergency contact:')),
-			gmTools.coalesce(self.person['comment'], u'', u'\n%s\n'),
+		tt = '%s%s%s%s' % (
+			gmTools.coalesce(self.person['emergency_contact'], '', '%s\n %%s\n' % _('In case of emergency contact:')),
+			gmTools.coalesce(self.person['comment'], '', '\n%s\n'),
 			separator,
 			self._tt_search_hints
 		)
-		self.SetToolTipString(tt)
+		self.SetToolTip(tt)
 	#--------------------------------------------------------
 	def _set_person_as_active_patient(self, pat):
 		if not set_active_patient(patient=pat, forced_reload = self.__always_reload_after_search):
@@ -1358,9 +1360,9 @@ class cActivePatientSelector(cPersonSearchCtrl):
 	#--------------------------------------------------------
 	def __register_events(self):
 		# client internal signals
-		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._on_post_patient_selection)
-		gmDispatcher.connect(signal = u'dem.names_mod_db', receiver = self._on_name_identity_change)
-		gmDispatcher.connect(signal = u'dem.identity_mod_db', receiver = self._on_name_identity_change)
+		gmDispatcher.connect(signal = 'post_patient_selection', receiver = self._on_post_patient_selection)
+		gmDispatcher.connect(signal = 'dem.names_mod_db', receiver = self._on_name_identity_change)
+		gmDispatcher.connect(signal = 'dem.identity_mod_db', receiver = self._on_name_identity_change)
 
 		gmDispatcher.connect(signal = 'patient_locked', receiver = self._on_post_patient_selection)
 		gmDispatcher.connect(signal = 'patient_unlocked', receiver = self._on_post_patient_selection)

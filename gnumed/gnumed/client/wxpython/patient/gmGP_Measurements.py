@@ -137,7 +137,7 @@ class MeasurementPanel (wxPanel, gmPatientHolder.PatientHolder):
 		#-------------------------------------------------------------
 		#loop through the measurementtypesdata array and add to the list control
 		#note the different syntax for the first coloum of each row
-		#i.e. here > self.measurement_types_list.InsertStringItem(x, data[0])!!
+		#i.e. here > self.measurement_types_list.InsertItem(x, data[0])!!
 		#-------------------------------------------------------------
 		m = gmListCtrlMapper(self.measurement_types_list)
 		m.SetData(measurementtypesdata)
@@ -145,8 +145,8 @@ class MeasurementPanel (wxPanel, gmPatientHolder.PatientHolder):
 		#items = measurementtypesdata.items()
 		#for x in range(len(items)):
 		#	key, data = items[x]
-		#	self.measurement_types_list.InsertStringItem(x, data[0])
-		#	self.measurement_types_list.SetStringItem(x, 1, data[1])
+		#	self.measurement_types_list.InsertItem(x, data[0])
+		#	self.measurement_types_list.SetItem(x, 1, data[1])
 		#	self.measurement_types_list.SetItemData(x, key)
 		self.measurement_types_list.SetColumnWidth(0, wxLIST_AUTOSIZE)
 		self.measurement_types_list.SetColumnWidth(1, wxLIST_AUTOSIZE)
@@ -158,7 +158,7 @@ class MeasurementPanel (wxPanel, gmPatientHolder.PatientHolder):
 		#-------------------------------------------------------------
 		#loop through the measurementtypesdata array and add to the list control
 		#note the different syntax for the first coloum of each row
-		#i.e. here > self.measurement_types_list.InsertStringItem(x, data[0])!!
+		#i.e. here > self.measurement_types_list.InsertItem(x, data[0])!!
 		#-------------------------------------------------------------
 		m = gmListCtrlMapper(self.measurements_values_list)
 		m.SetData(values_BP_data)
@@ -166,8 +166,8 @@ class MeasurementPanel (wxPanel, gmPatientHolder.PatientHolder):
 		#items = values_BP_data.items()
 		#for x in range(len(items)):
 		#	key, data = items[x]
-		#	self.measurements_values_list.InsertStringItem(x, data[0])
-		#	self.measurements_values_list.SetStringItem(x, 1, data[1])
+		#	self.measurements_values_list.InsertItem(x, data[0])
+		#	self.measurements_values_list.SetItem(x, 1, data[1])
 		#	self.measurements_values_list.SetItemData(x, key)
 		self.measurements_values_list.SetColumnWidth(0, wxLIST_AUTOSIZE)
 		self.measurements_values_list.SetColumnWidth(1, wxLIST_AUTOSIZE)

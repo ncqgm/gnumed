@@ -80,19 +80,19 @@ if __name__ == '__main__':
 
 	#-----------------------------------------------------------------------
 	def cb_timer(cookie):
-		print "timer <%s> fired" % cookie
+		print("timer <%s> fired" % cookie)
 	#-----------------------------------------------------------------------
 	class cApp(wx.App):
 		def OnInit(self):
-			print "setting up timer"
+			print("setting up timer")
 			timer = cTimer(callback = cb_timer)
-			print "starting timer"
+			print("starting timer")
 			timer.Start()
 			return True
 	#-----------------------------------------------------------------------
 	app = cApp(0)
 	# and enter the main event loop
 	app.MainLoop()
-	print "waiting 10 seconds for timer to trigger"
+	print("waiting 10 seconds for timer to trigger")
 	time.sleep(10)
 #===========================================================================

@@ -34,12 +34,12 @@ class cWxTextCtrlCompatibility_StcMixin():
 	# wx.TextCtrl compatibility
 	#--------------------------------------------------
 	def GetValue(self):
-		_log.debug(u'%s.GetValue() - %s', cWxTextCtrlCompatibility_StcMixin, self.__class__.__name__)
+		_log.debug('%s.GetValue() - %s', cWxTextCtrlCompatibility_StcMixin, self.__class__.__name__)
 		return self.GetText()
 
 	#--------------------------------------------------
 	def SetValue(self, value):
-		_log.debug(u'%s.SetValue() - %s', cWxTextCtrlCompatibility_StcMixin, self.__class__.__name__)
+		_log.debug('%s.SetValue() - %s', cWxTextCtrlCompatibility_StcMixin, self.__class__.__name__)
 		return self.SetText(value)
 
 	#--------------------------------------------------
@@ -86,8 +86,9 @@ class cWxTextCtrlCompatibility_StcMixin():
 			#return wx.TextAreaBase.PositionToXY(position)					# does not work
 			return super(wx.TextAreaBase, self).PositionToXY(position)
 		except AttributeError:
-			# reimplement for wxPython 2.8
-			return (self.GetColumn(position), self.LineFromPosition(position))
+			# reimplement for wxPython 2.8,
+			# this is moot now, hwoever, since 2.8 returned an (x, y) tuple
+			return (True, self.GetColumn(position), self.LineFromPosition(position))
 
 	#--------------------------------------------------
 	def Replace(self, start, end, replacement):
@@ -141,26 +142,26 @@ class cSoapSTC(cUnicodeInsertion_TextCtrlMixin, gmKeywordExpansionWidgets.cKeywo
 	]
 	_SOAP2MARKER = {
 		None: _MARKER_ADM,
-		u' ': _MARKER_ADM,
-		u'.': _MARKER_ADM,
-		u's': _MARKER_S,
-		u'o': _MARKER_O,
-		u'a': _MARKER_A,
-		u'p': _MARKER_P,
-		u'u': _MARKER_U,
-		u'S': _MARKER_S,
-		u'O': _MARKER_O,
-		u'A': _MARKER_A,
-		u'P': _MARKER_P,
-		u'U': _MARKER_U
+		' ': _MARKER_ADM,
+		'.': _MARKER_ADM,
+		's': _MARKER_S,
+		'o': _MARKER_O,
+		'a': _MARKER_A,
+		'p': _MARKER_P,
+		'u': _MARKER_U,
+		'S': _MARKER_S,
+		'O': _MARKER_O,
+		'A': _MARKER_A,
+		'P': _MARKER_P,
+		'U': _MARKER_U
 	}
 	_MARKER2SOAP = {
 		_MARKER_ADM: None,
-		_MARKER_S: u's',
-		_MARKER_O: u'o',
-		_MARKER_A: u'a',
-		_MARKER_P: u'p',
-		_MARKER_U: u'u'
+		_MARKER_S: 's',
+		_MARKER_O: 'o',
+		_MARKER_A: 'a',
+		_MARKER_P: 'p',
+		_MARKER_U: 'u'
 	}
 	_SOAPMARKER2BACKGROUND = {
 		_MARKER_ADM: False,
@@ -174,7 +175,7 @@ class cSoapSTC(cUnicodeInsertion_TextCtrlMixin, gmKeywordExpansionWidgets.cKeywo
 	def __init__(self, *args, **kwargs):
 
 		# normalize wxGlade output
-		if args[2] == u'':
+		if args[2] == '':
 			l_args = list(args)
 			l_args[2] = wx.DefaultPosition
 			args = tuple(l_args)
@@ -203,8 +204,8 @@ class cSoapSTC(cUnicodeInsertion_TextCtrlMixin, gmKeywordExpansionWidgets.cKeywo
 		#self.SetWhitespaceForeground(1, a_color)					# 1 = override lexer
 
 		# caret handling
-		#self.SetCaretLineBack('light goldenrod yellow')
-		self.SetCaretLineBack('khaki')
+		#self.SetCaretLineBackground('light goldenrod yellow')
+		self.SetCaretLineBackground('khaki')
 		self.SetCaretLineVisible(1)
 
 		# margins
@@ -224,7 +225,7 @@ class cSoapSTC(cUnicodeInsertion_TextCtrlMixin, gmKeywordExpansionWidgets.cKeywo
 
 		# markers
 		# can only use ASCII so far, so must make sure translations are ASCII:
-		self.MarkerDefine(cSoapSTC._MARKER_ADM, wx.stc.STC_MARK_CHARACTER + ord(u'.'), 'blue', 'white')
+		self.MarkerDefine(cSoapSTC._MARKER_ADM, wx.stc.STC_MARK_CHARACTER + ord('.'), 'blue', 'white')
 		self.MarkerDefine(cSoapSTC._MARKER_S, wx.stc.STC_MARK_CHARACTER + ord(gmSoapDefs.soap_cat2l10n['s']), 'blue', 'grey96')
 		self.MarkerDefine(cSoapSTC._MARKER_O, wx.stc.STC_MARK_CHARACTER + ord(gmSoapDefs.soap_cat2l10n['o']), 'blue', 'white')
 		self.MarkerDefine(cSoapSTC._MARKER_A, wx.stc.STC_MARK_CHARACTER + ord(gmSoapDefs.soap_cat2l10n['a']), 'blue', 'grey96')
@@ -254,26 +255,26 @@ class cSoapSTC(cUnicodeInsertion_TextCtrlMixin, gmKeywordExpansionWidgets.cKeywo
 	# SOAP-enhanced text setting
 	#-------------------------------------------------------
 	def SetText(self, *args, **kwargs):
-		_log.debug(u'%s.SetText()', self.__class__.__name__)
+		_log.debug('%s.SetText()', self.__class__.__name__)
 		wx.stc.StyledTextCtrl.SetText(self, *args, **kwargs)
 
 	def AddText(self, *args, **kwargs):
-		_log.debug(u'%s.AddText()', self.__class__.__name__)
+		_log.debug('%s.AddText()', self.__class__.__name__)
 		wx.stc.StyledTextCtrl.AddText(self, *args, **kwargs)
 
 	def AddStyledText(self, *args, **kwargs):
-		_log.debug(u'%s.AddStyledText()', self.__class__.__name__)
+		_log.debug('%s.AddStyledText()', self.__class__.__name__)
 		wx.stc.StyledTextCtrl.AddStyledText(self, *args, **kwargs)
 
 	def InsertText(self, *args, **kwargs):
-		_log.debug(u'%s.InsertText()', self.__class__.__name__)
+		_log.debug('%s.InsertText()', self.__class__.__name__)
 		wx.stc.StyledTextCtrl.InsertText(self, *args, **kwargs)
 
 	#-------------------------------------------------------
 	def ReplaceSelection(self, text):
 		sel_start, sel_end = self.GetSelection()
 		start_line = self.LineFromPosition(sel_start)
-		end_line = start_line + text.count(u'\n')
+		end_line = start_line + text.count('\n')
 		start_line_soap_cat = self.MarkerGet(start_line)
 		#_log.debug(u'replacing @ pos %s-%s with %s lines (line %s to line %s)', sel_start, sel_end, text.count(u'\n'), start_line, end_line)
 		wx.stc.StyledTextCtrl.ReplaceSelection(self, text)
@@ -284,11 +285,11 @@ class cSoapSTC(cUnicodeInsertion_TextCtrlMixin, gmKeywordExpansionWidgets.cKeywo
 
 	#-------------------------------------------------------
 	def ReplaceTarget(self, *args, **kwargs):
-		_log.debug(u'%s.ReplaceTarget()', self.__class__.__name__)
+		_log.debug('%s.ReplaceTarget()', self.__class__.__name__)
 		wx.stc.StyledTextCtrl.ReplaceTarget(self, *args, **kwargs)
 
 	def ReplaceTargetRE(self, *args, **kwargs):
-		_log.debug(u'%s.ReplaceTargetRE()', self.__class__.__name__)
+		_log.debug('%s.ReplaceTargetRE()', self.__class__.__name__)
 		wx.stc.StyledTextCtrl.ReplaceTargetRE(self, *args, **kwargs)
 
 	#-------------------------------------------------------
@@ -300,31 +301,31 @@ class cSoapSTC(cUnicodeInsertion_TextCtrlMixin, gmKeywordExpansionWidgets.cKeywo
 			#soap = {None: [u'']} # 'soap' will be added below by normalization
 			soap = {}
 		if sort_order is None:
-			sort_order = [u's', u'o', u'a', u'p', None, u'u']
+			sort_order = ['s', 'o', 'a', 'p', None, 'u']
 
 		# normalize input
-		for cat in u'soap':
+		for cat in 'soap':
 			try:
 				soap[cat]
 			except KeyError:
-				soap[cat] = [u'']
+				soap[cat] = ['']
 		try:
-			soap[u'u']
+			soap['u']
 		except KeyError:
-			soap[u'u'] = []
+			soap['u'] = []
 		try:
 			soap[None]
 		except KeyError:
 			soap[None] = []
-		if u'.' in soap:
-			soap[None].extend(soap[u'.'])
-			del soap[u'.']
-		if u' ' in soap:
-			soap[None].extend(soap[u' '])
-			del soap[u' ']
+		if '.' in soap:
+			soap[None].extend(soap['.'])
+			del soap['.']
+		if ' ' in soap:
+			soap[None].extend(soap[' '])
+			del soap[' ']
 
 		# normalize sort order
-		for cat in u'soapu':
+		for cat in 'soapu':
 			if cat not in sort_order:
 				sort_order.append(cat)
 		if None not in sort_order:
@@ -341,8 +342,8 @@ class cSoapSTC(cUnicodeInsertion_TextCtrlMixin, gmKeywordExpansionWidgets.cKeywo
 				soap_lines.append(line.strip())
 				line_categories.append(cat)
 
-		_log.debug(u'%s.SetText_from_SOAP(): 1 controlled use of .SetText() follows', self.__class__.__name__)
-		self.SetText(u'\n'.join(soap_lines))
+		_log.debug('%s.SetText_from_SOAP(): 1 controlled use of .SetText() follows', self.__class__.__name__)
+		self.SetText('\n'.join(soap_lines))
 
 		for idx in range(len(line_categories)):
 			#self.set_soap_cat_of_line(idx, line_categories[idx], unconditionally = True)
@@ -350,7 +351,7 @@ class cSoapSTC(cUnicodeInsertion_TextCtrlMixin, gmKeywordExpansionWidgets.cKeywo
 
 	#-------------------------------------------------------
 	def GetText_as_SOAP(self):
-		lines = self.GetText().split(u'\n')
+		lines = self.GetText().split('\n')
 		soap = {}
 		for line_idx in range(len(lines)):
 			cat = self.get_soap_cat_of_line(line_idx)
@@ -367,7 +368,7 @@ class cSoapSTC(cUnicodeInsertion_TextCtrlMixin, gmKeywordExpansionWidgets.cKeywo
 	def _get_empty(self):
 		soap = self.GetText_as_SOAP()
 		for cat in soap:
-			if u''.join([ l.strip() for l in soap[cat] ]) != u'':
+			if ''.join([ l.strip() for l in soap[cat] ]) != '':
 				return False
 		return True
 
@@ -381,7 +382,7 @@ class cSoapSTC(cUnicodeInsertion_TextCtrlMixin, gmKeywordExpansionWidgets.cKeywo
 	def append_soap_line(self, soap_cat):
 		caret_pos = self.CurrentPos
 		self.GotoPos(self.Length)
-		self.AddText(u'\n')
+		self.AddText('\n')
 		#self.set_soap_cat_of_line(self.LineCount, soap_cat, True)
 		self.set_soap_cat_of_line(self.LineCount, soap_cat)
 
@@ -432,31 +433,31 @@ class cSoapSTC(cUnicodeInsertion_TextCtrlMixin, gmKeywordExpansionWidgets.cKeywo
 		# submenu "line"
 		menu_line = wx.Menu()
 
-		item = menu_line.Append(-1, _(u'as &Subjective'), _('Set line to category "Subjective"'))
+		item = menu_line.Append(-1, _('as &Subjective'), _('Set line to category "Subjective"'))
 		self.Bind(wx.EVT_MENU, self.__on_make_line_Soap, item)
-		item = menu_line.Append(-1, _(u'as &Objective'), _('Set line to category "Objective"'))
+		item = menu_line.Append(-1, _('as &Objective'), _('Set line to category "Objective"'))
 		self.Bind(wx.EVT_MENU, self.__on_make_line_sOap, item)
-		item = menu_line.Append(-1, _(u'as &Assessment'), _('Set line to category "Assessment"'))
+		item = menu_line.Append(-1, _('as &Assessment'), _('Set line to category "Assessment"'))
 		self.Bind(wx.EVT_MENU, self.__on_make_line_soAp, item)
-		item = menu_line.Append(-1, _(u'as &Plan'), _('Set line to category "Plan"'))
+		item = menu_line.Append(-1, _('as &Plan'), _('Set line to category "Plan"'))
 		self.Bind(wx.EVT_MENU, self.__on_make_line_soaP, item)
-		item = menu_line.Append(-1, _(u'as &Unspecified'), _('Set line to category "unspecified"'))
+		item = menu_line.Append(-1, _('as &Unspecified'), _('Set line to category "unspecified"'))
 		self.Bind(wx.EVT_MENU, self.__on_make_line_soapU, item)
-		item = menu_line.Append(-1, _(u'as ad&Ministrative'), _('Set line to category "administrative"'))
+		item = menu_line.Append(-1, _('as ad&Ministrative'), _('Set line to category "administrative"'))
 		self.Bind(wx.EVT_MENU, self.__on_make_line_soapADM, item)
 		menu_line.AppendSeparator()
-		item = menu_line.Append(-1, _(u'\u2192 &Clipboard'), _('Copy line to clipboard'))
+		item = menu_line.Append(-1, _('\u2192 &Clipboard'), _('Copy line to clipboard'))
 		self.Bind(wx.EVT_MENU, self.__on_line2clipboard, item)
-		item = menu_line.Append(-1, _(u'\u2192 +Clipboard+'), _('Add line to clipboard'))
+		item = menu_line.Append(-1, _('\u2192 +Clipboard+'), _('Add line to clipboard'))
 		self.Bind(wx.EVT_MENU, self.__on_add_line2clipboard, item)
 		# encrypt
 
 		# submenu "text"
 		menu_all = wx.Menu()
 
-		item = menu_all.Append(-1, _(u'\u2192 &Clipboard'), _('Copy content to clipboard'))
+		item = menu_all.Append(-1, _('\u2192 &Clipboard'), _('Copy content to clipboard'))
 		self.Bind(wx.EVT_MENU, self.__on_content2clipboard, item)
-		item = menu_all.Append(-1, _(u'\u2192 +Clipboard+'), _('Add content to clipboard'))
+		item = menu_all.Append(-1, _('\u2192 +Clipboard+'), _('Add content to clipboard'))
 		self.Bind(wx.EVT_MENU, self.__on_add_content2clipboard, item)
 		# ------
 		# cut
@@ -468,14 +469,14 @@ class cSoapSTC(cUnicodeInsertion_TextCtrlMixin, gmKeywordExpansionWidgets.cKeywo
 		# selected region
 		self.__menu_selection = wx.Menu()
 
-		item = self.__menu_selection.Append(-1, _(u'\u2192 &Clipboard'), _('Copy selection to clipboard'))
+		item = self.__menu_selection.Append(-1, _('\u2192 &Clipboard'), _('Copy selection to clipboard'))
 		self.Bind(wx.EVT_MENU, self.__on_region2clipboard, item)
-		item = self.__menu_selection.Append(-1, _(u'\u2192 +Clipboard+'), _('Add selection to clipboard'))
+		item = self.__menu_selection.Append(-1, _('\u2192 +Clipboard+'), _('Add selection to clipboard'))
 		self.Bind(wx.EVT_MENU, self.__on_add_region2clipboard, item)
 
-		self.__popup_menu.AppendMenu(wx.NewId(), _('&Line ...'), menu_line)
-		self.__popup_menu.AppendMenu(wx.NewId(), _('&Text ...'), menu_all)
-		self.__popup_menu.AppendMenu(wx.NewId(), _('&Region ...'), self.__menu_selection)
+		self.__popup_menu.Append(wx.NewId(), _('&Line ...'), menu_line)
+		self.__popup_menu.Append(wx.NewId(), _('&Text ...'), menu_all)
+		self.__popup_menu.Append(wx.NewId(), _('&Region ...'), self.__menu_selection)
 
 	#-------------------------------------------------------
 	def __show_context_menu(self, position):
@@ -492,14 +493,14 @@ class cSoapSTC(cUnicodeInsertion_TextCtrlMixin, gmKeywordExpansionWidgets.cKeywo
 	def __get_clipboard_text(self):
 		if wx.TheClipboard.IsOpened():
 			_log.debug('clipboard already open')
-			return u''
+			return ''
 		if not wx.TheClipboard.Open():
 			_log.debug('cannot open clipboard')
-			return u''
+			return ''
 		data_obj = wx.TextDataObject()
 		got_it = wx.TheClipboard.GetData(data_obj)
 		if not got_it:
-			return u''
+			return ''
 		return data_obj.Text
 
 	#-------------------------------------------------------
@@ -515,16 +516,16 @@ class cSoapSTC(cUnicodeInsertion_TextCtrlMixin, gmKeywordExpansionWidgets.cKeywo
 	#-------------------------------------------------------
 	def __on_content2clipboard(self, evt):
 		txt = self.GetText().strip()
-		if txt == u'':
+		if txt == '':
 			return
 		self.CopyText(len(txt), txt)
 
 	#-------------------------------------------------------
 	def __on_add_content2clipboard(self, evt):
 		txt = self.GetText().strip()
-		if txt == u'':
+		if txt == '':
 			return
-		txt = self.__get_clipboard_text() + u'\n' + txt
+		txt = self.__get_clipboard_text() + '\n' + txt
 		self.CopyText(len(txt), txt)
 
 	#-------------------------------------------------------
@@ -534,54 +535,54 @@ class cSoapSTC(cUnicodeInsertion_TextCtrlMixin, gmKeywordExpansionWidgets.cKeywo
 	#-------------------------------------------------------
 	def __on_add_region2clipboard(self, evt):
 		region = self.GetTextRange(self.SelectionStart, self.SelectionEnd)
-		if region.strip() == u'':
+		if region.strip() == '':
 			return
-		txt = self.__get_clipboard_text() + u'\n' + region
+		txt = self.__get_clipboard_text() + '\n' + region
 		self.CopyText(len(txt), txt)
 
 	#-------------------------------------------------------
 	def __on_line2clipboard(self, evt):
 		txt = self.GetLine(self.CurrentLine).strip()
-		if txt == u'':
+		if txt == '':
 			return
 		self.CopyText(len(txt), txt)
 
 	#-------------------------------------------------------
 	def __on_add_line2clipboard(self, evt):
 		txt = self.GetLine(self.CurrentLine).strip()
-		if txt == u'':
+		if txt == '':
 			return
-		txt = self.__get_clipboard_text() + u'\n' + txt
+		txt = self.__get_clipboard_text() + '\n' + txt
 		self.CopyText(len(txt), txt)
 
 	#-------------------------------------------------------
 	def __on_make_line_Soap(self, evt):
-		self.set_soap_cat_of_line(self.CurrentLine, u's')
+		self.set_soap_cat_of_line(self.CurrentLine, 's')
 		wx.CallAfter(self.sort_by_SOAP)
 
 	#-------------------------------------------------------
 	def __on_make_line_sOap(self, evt):
-		self.set_soap_cat_of_line(self.CurrentLine, u'o')
+		self.set_soap_cat_of_line(self.CurrentLine, 'o')
 		wx.CallAfter(self.sort_by_SOAP)
 
 	#-------------------------------------------------------
 	def __on_make_line_soAp(self, evt):
-		self.set_soap_cat_of_line(self.CurrentLine, u'a')
+		self.set_soap_cat_of_line(self.CurrentLine, 'a')
 		wx.CallAfter(self.sort_by_SOAP)
 
 	#-------------------------------------------------------
 	def __on_make_line_soaP(self, evt):
-		self.set_soap_cat_of_line(self.CurrentLine, u'p')
+		self.set_soap_cat_of_line(self.CurrentLine, 'p')
 		wx.CallAfter(self.sort_by_SOAP)
 
 	#-------------------------------------------------------
 	def __on_make_line_soapU(self, evt):
-		self.set_soap_cat_of_line(self.CurrentLine, u'u')
+		self.set_soap_cat_of_line(self.CurrentLine, 'u')
 		wx.CallAfter(self.sort_by_SOAP)
 
 	#-------------------------------------------------------
 	def __on_make_line_soapADM(self, evt):
-		self.set_soap_cat_of_line(self.CurrentLine, u'.')
+		self.set_soap_cat_of_line(self.CurrentLine, '.')
 		wx.CallAfter(self.sort_by_SOAP)
 
 	#-------------------------------------------------------
@@ -624,7 +625,7 @@ class cSoapSTC(cUnicodeInsertion_TextCtrlMixin, gmKeywordExpansionWidgets.cKeywo
 	def set_soap_cat_of_line(self, line, soap_category):
 
 		readd_soap_line = False
-		prev_soap_cat = u'-'
+		prev_soap_cat = '-'
 #		if not unconditionally:
 		if True:
 			# need to keep at least one of previous SOAP
@@ -873,7 +874,7 @@ class cSoapSTC(cUnicodeInsertion_TextCtrlMixin, gmKeywordExpansionWidgets.cKeywo
 
 		# CTRL-T has been pressed last, now another character has been pressed
 		if self.__changing_SOAP_cat:
-			self.__handle_soap_category_key_down(unichr(evt.GetUniChar()).lower(), self.CurrentLine)
+			self.__handle_soap_category_key_down(chr(evt.GetUniChar()).lower(), self.CurrentLine)
 			# somehow put cursor into the changed (and possibly moved) line
 			return
 
@@ -1151,27 +1152,27 @@ def runTest(frame, nb):
 
 	# some test stuff...
 	if debug:
-		print "GetTextLength(): ", ed.GetTextLength(), len(ed.GetText())
-		print "GetText(): ", repr(ed.GetText())
-		print
-		print "GetStyledText(98, 104): ", repr(ed.GetStyledText(98, 104)), len(ed.GetStyledText(98, 104))
-		print
-		print "GetCurLine(): ", repr(ed.GetCurLine())
+		print("GetTextLength(): ", ed.GetTextLength(), len(ed.GetText()))
+		print("GetText(): ", repr(ed.GetText()))
+		print()
+		print("GetStyledText(98, 104): ", repr(ed.GetStyledText(98, 104)), len(ed.GetStyledText(98, 104)))
+		print()
+		print("GetCurLine(): ", repr(ed.GetCurLine()))
 		ed.GotoPos(5)
-		print "GetCurLine(): ", repr(ed.GetCurLine())
-		print
-		print "GetLine(1): ", repr(ed.GetLine(1))
-		print
+		print("GetCurLine(): ", repr(ed.GetCurLine()))
+		print()
+		print("GetLine(1): ", repr(ed.GetLine(1)))
+		print()
 		ed.SetSelection(25, 35)
-		print "GetSelectedText(): ", repr(ed.GetSelectedText())
-		print "GetTextRange(25, 35): ", repr(ed.GetTextRange(25, 35))
-		print "FindText(0, max, 'indicators'): ",
-		print ed.FindText(0, ed.GetTextLength(), "indicators")
+		print("GetSelectedText(): ", repr(ed.GetSelectedText()))
+		print("GetTextRange(25, 35): ", repr(ed.GetTextRange(25, 35)))
+		print("FindText(0, max, 'indicators'): ", end=' ')
+		print(ed.FindText(0, ed.GetTextLength(), "indicators"))
 		if wx.USE_UNICODE:
 			end = ed.GetLength()
 			start = ed.PositionFromLine(uniline)
-			print "GetTextRange(%d, %d): " % (start, end),
-			print repr(ed.GetTextRange(start, end))
+			print("GetTextRange(%d, %d): " % (start, end), end=' ')
+			print(repr(ed.GetTextRange(start, end)))
 
 
 	wx.CallAfter(ed.GotoPos, 0)
@@ -1195,7 +1196,7 @@ if __name__ == '__main__':
 	if len(sys.argv) < 2:
 		sys.exit()
 
-	if sys.argv[1] != u'test':
+	if sys.argv[1] != 'test':
 		sys.exit()
 
 	import wx.lib.colourdb
@@ -1214,7 +1215,7 @@ if __name__ == '__main__':
 		return True
 
 #		app = wx.PyWidgetTester(size = (200, 50))
-#		tc = cTextCtrl(parent = app.frame, id = -1)
+#		tc = cTextCtrl(app.frame, -1)
 #		#tc.enable_keyword_expansions()
 #		app.frame.Show(True)
 #		app.MainLoop()

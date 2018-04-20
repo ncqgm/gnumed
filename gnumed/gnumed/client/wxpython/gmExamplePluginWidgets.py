@@ -5,7 +5,7 @@ __version__ = "$Revision: 0.1 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 __license__ = "GPL"
 
-import sys, logging, datetime as pyDT, decimal, StringIO
+import sys, logging, datetime as pyDT, decimal
 
 import wx	#, wx.grid
 
@@ -36,8 +36,8 @@ class cExamplePluginPnl(wxgExamplePluginPnl.wxgExamplePluginPnl, gmRegetMixin.cR
 	# event handling
 	#--------------------------------------------------------
 	def __register_interests(self):
-		gmDispatcher.connect(signal = u'pre_patient_unselection', receiver = self._on_pre_patient_unselection)
-		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._schedule_data_reget)
+		gmDispatcher.connect(signal = 'pre_patient_unselection', receiver = self._on_pre_patient_unselection)
+		gmDispatcher.connect(signal = 'post_patient_selection', receiver = self._schedule_data_reget)
 	#--------------------------------------------------------
 	def _on_pre_patient_unselection(self):
 		pass

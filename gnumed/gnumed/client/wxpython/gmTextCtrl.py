@@ -47,7 +47,7 @@ class cColoredStatus_TextCtrlMixin():
 		elif valid is None:
 			color2show = color_tctrl_partially_invalid
 		else:
-			raise ValueError(u'<valid> must be True or False or None')
+			raise ValueError('<valid> must be True or False or None')
 
 		if self.IsEnabled():
 			self.SetBackgroundColour(color2show)
@@ -66,11 +66,11 @@ class cColoredStatus_TextCtrlMixin():
 
 		if disabled is True:
 			self.__previous_enabled_bg_color = self.GetBackgroundColour()
-			color2show = wx.SystemSettings_GetColour(wx.SYS_COLOUR_BACKGROUND)
+			color2show = wx.SystemSettings.GetColour(wx.SYS_COLOUR_BACKGROUND)
 		elif disabled is False:
 			color2show = self.__previous_enabled_bg_color
 		else:
-			raise ValueError(u'<disabled> must be True or False')
+			raise ValueError('<disabled> must be True or False')
 
 		self.SetBackgroundColour(color2show)
 		self.Refresh()
@@ -91,9 +91,9 @@ class cColoredStatus_TextCtrlMixin():
 			self.SetBackgroundColour(self.__previous_enabled_bg_color)
 		elif enable is False:
 			self.__previous_enabled_bg_color = self.GetBackgroundColour()
-			self.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_BACKGROUND))
+			self.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_BACKGROUND))
 		else:
-			raise ValueError(u'<enable> must be True or False')
+			raise ValueError('<enable> must be True or False')
 
 		self.Refresh()
 
@@ -359,7 +359,8 @@ class cExpandoTextCtrlHandling_PanelMixin():
 	"""
 	#--------------------------------------------------------
 	def bind_expando_layout_event(self, expando):
-		wx.lib.expando.EVT_ETC_LAYOUT_NEEDED(expando, expando.GetId(), self._on_expando_needs_layout)
+		self.Bind(wx.lib.expando.EVT_ETC_LAYOUT_NEEDED, self._on_expando_needs_layout)
+		#wx.lib.expando.EVT_ETC_LAYOUT_NEEDED(expando, expando.GetId(), self._on_expando_needs_layout)
 
 	#--------------------------------------------------------
 	def _on_expando_needs_layout(self, evt):
@@ -373,20 +374,20 @@ class cExpandoTextCtrlHandling_PanelMixin():
 			# scroll panel to show cursor
 			expando = self.FindWindowById(evt.GetId())
 			y_expando = expando.GetPositionTuple()[1]
-			h_expando = expando.GetSizeTuple()[1]
-			line_cursor = expando.PositionToXY(expando.GetInsertionPoint())[1] + 1
+			h_expando = expando.GetSize()[1]
+			line_of_cursor = expando.PositionToXY(expando.GetInsertionPoint())[2] + 1
 			if expando.NumberOfLines == 0:
 				no_of_lines = 1
 			else:
 				no_of_lines = expando.NumberOfLines
-			y_cursor = int(round((float(line_cursor) / no_of_lines) * h_expando))
+			y_cursor = int(round((float(line_of_cursor) / no_of_lines) * h_expando))
 			y_desired_visible = y_expando + y_cursor
 
 			y_view = self.ViewStart[1]
-			h_view = self.GetClientSizeTuple()[1]
+			h_view = self.GetClientSize()[1]
 
 #			print "expando:", y_expando, "->", h_expando, ", lines:", expando.NumberOfLines
-#			print "cursor :", y_cursor, "at line", line_cursor, ", insertion point:", expando.GetInsertionPoint()
+#			print "cursor :", y_cursor, "at line", line_of_cursor, ", insertion point:", expando.GetInsertionPoint()
 #			print "wanted :", y_desired_visible
 #			print "view-y :", y_view
 #			print "scroll2:", h_view
@@ -425,7 +426,7 @@ class cExpandoTextCtrl(gmKeywordExpansionWidgets.cKeywordExpansion_TextCtrlMixin
 	# event handling
 	#------------------------------------------------
 	def __register_interests(self):
-		wx.EVT_SET_FOCUS(self, self.__cExpandoTextCtrl_on_focus)
+		self.Bind(wx.EVT_SET_FOCUS, self.__cExpandoTextCtrl_on_focus)
 
 	#--------------------------------------------------------
 	def __cExpandoTextCtrl_on_focus(self, evt):
@@ -434,10 +435,10 @@ class cExpandoTextCtrl(gmKeywordExpansionWidgets.cKeywordExpansion_TextCtrlMixin
 
 	#--------------------------------------------------------
 	def _cExpandoTextCtrl_after_on_focus(self):
-		# robustify against PyDeadObjectError - since we are called
-		# from wx's CallAfter this SoapCtrl may be gone by the time
-		# we get to handling this layout request, say, on patient
-		# change or some such
+		# robustify against Py__DeadObjectError (RuntimeError) - since
+		# we are called from wx's CallAfter this SoapCtrl may be gone
+		# by the time we get around to handling this layout request,
+		# say, on patient change or some such
 		if not self:
 			return
 
@@ -494,7 +495,7 @@ if __name__ == '__main__':
 	if len(sys.argv) < 2:
 		sys.exit()
 
-	if sys.argv[1] != u'test':
+	if sys.argv[1] != 'test':
 		sys.exit()
 
 	from Gnumed.pycommon import gmI18N
@@ -504,7 +505,7 @@ if __name__ == '__main__':
 	#-----------------------------------------------
 	def test_gm_textctrl():
 		app = wx.PyWidgetTester(size = (200, 50))
-		tc = cTextCtrl(parent = app.frame, id = -1)
+		tc = cTextCtrl(app.frame, -1)
 		#tc.enable_keyword_expansions()
 		#tc.Enable(False)
 		app.frame.Show(True)

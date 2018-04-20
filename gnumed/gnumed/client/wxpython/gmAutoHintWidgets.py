@@ -40,7 +40,7 @@ def _display_clinical_reminders():
 	# reminders
 	for msg in pat.overdue_messages:
 		if msg['expiry_date'] is None:
-			exp = u''
+			exp = ''
 		else:
 			exp = _(' - expires %s') % gmDateTime.pydt_strftime (
 				msg['expiry_date'],
@@ -58,8 +58,8 @@ def _display_clinical_reminders():
 			gmDateTime.format_interval_medically(msg['interval_due']),
 			gmDateTime.pydt_strftime(msg['due_date'], '%Y %b %d', accuracy = gmDateTime.acc_days),
 			exp,
-			gmTools.coalesce(msg['comment'], u'', u'\n%s\n'),
-			gmTools.coalesce(msg['data'], u'', u'\n%s\n'),
+			gmTools.coalesce(msg['comment'], '', '\n%s\n'),
+			gmTools.coalesce(msg['data'], '', '\n%s\n'),
 			pat['description_gender'],
 			msg['modified_by']
 		)
@@ -96,7 +96,7 @@ def _display_clinical_reminders():
 
 	return
 
-gmDispatcher.connect(signal = u'post_patient_selection', receiver = _display_clinical_reminders)
+gmDispatcher.connect(signal = 'post_patient_selection', receiver = _display_clinical_reminders)
 
 #================================================================
 def edit_dynamic_hint(parent=None, hint=None, single_entry=True):
@@ -104,10 +104,10 @@ def edit_dynamic_hint(parent=None, hint=None, single_entry=True):
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
 
-	ea = cAutoHintEAPnl(parent = parent, id = -1)
+	ea = cAutoHintEAPnl(parent, -1)
 	ea.data = hint
 	ea.mode = gmTools.coalesce(hint, 'new', 'edit')
-	dlg = gmEditArea.cGenericEditAreaDlg2(parent = parent, id = -1, edit_area = ea, single_entry = single_entry)
+	dlg = gmEditArea.cGenericEditAreaDlg2(parent, -1, edit_area = ea, single_entry = single_entry)
 	dlg.SetTitle(gmTools.coalesce(hint, _('Adding automatic dynamic hint'), _('Editing automatic dynamic hint')))
 	if dlg.ShowModal() == wx.ID_OK:
 		dlg.Destroy()
@@ -152,13 +152,13 @@ def manage_dynamic_hints(parent=None):
 		return True
 	#------------------------------------------------------------
 	def refresh(lctrl):
-		hints = gmAutoHints.get_dynamic_hints(order_by = u'is_active DESC, source, hint')
+		hints = gmAutoHints.get_dynamic_hints(order_by = 'is_active DESC, source, hint')
 		items = [ [
-			gmTools.bool2subst(h['is_active'], gmTools.u_checkmark_thin, u''),
+			gmTools.bool2subst(h['is_active'], gmTools.u_checkmark_thin, ''),
 			h['title'],
 			h['source'][:30],
 			h['hint'][:60],
-			gmTools.coalesce(h['url'], u'')[:60],
+			gmTools.coalesce(h['url'], '')[:60],
 			h['lang'],
 			h['pk_auto_hint']
 		] for h in hints ]
@@ -170,7 +170,7 @@ def manage_dynamic_hints(parent=None):
 		parent = parent,
 		msg = _('\nDynamic hints registered with GNUmed.\n'),
 		caption = _('Showing dynamic hints.'),
-		columns = [ _('Active'), _('Title'), _('Source'), _('Hint'), u'URL', _('Language'), u'#' ],
+		columns = [ _('Active'), _('Title'), _('Source'), _('Hint'), 'URL', _('Language'), '#' ],
 		single_selection = True,
 		refresh_callback = refresh,
 		edit_callback = edit_hint,
@@ -228,21 +228,21 @@ class cDynamicHintDlg(wxgDynamicHintDlg.wxgDynamicHintDlg):
 	#------------------------------------------------------------
 	def __refresh(self):
 		if self.__hint is None:
-			self._TCTRL_title.SetValue(u'')
-			self._TCTRL_hint.SetValue(u'')
-			self._URL_info.SetURL(u'')
+			self._TCTRL_title.SetValue('')
+			self._TCTRL_hint.SetValue('')
+			self._URL_info.SetURL('')
 			self._URL_info.Disable()
-			self._TCTRL_source.SetValue(u'')
+			self._TCTRL_source.SetValue('')
 			self._LBL_previous_rationale.Hide()
 			self._TCTRL_previous_rationale.Hide()
 		else:
 			self._TCTRL_title.SetValue(self.__hint['title'])
-			self._TCTRL_hint.SetValue(u'%s%s' % (
+			self._TCTRL_hint.SetValue('%s%s' % (
 				self.__hint['hint'],
-				gmTools.coalesce(self.__hint['recommendation'], u'', u'\n\n%s')
+				gmTools.coalesce(self.__hint['recommendation'], '', '\n\n%s')
 			))
 			if self.__hint['url'] is None:
-				self._URL_info.SetURL(u'')
+				self._URL_info.SetURL('')
 				self._URL_info.Disable()
 			else:
 				self._URL_info.SetURL(self.__hint['url'])
@@ -256,7 +256,7 @@ class cDynamicHintDlg(wxgDynamicHintDlg.wxgDynamicHintDlg):
 				self._TCTRL_previous_rationale.Show()
 				self._TCTRL_previous_rationale.SetValue(self.__hint['rationale4suppression'])
 
-		self._TCTRL_rationale.SetValue(u'')
+		self._TCTRL_rationale.SetValue('')
 		self._BTN_suppress.Disable()
 		self._TCTRL_rationale.SetFocus()
 
@@ -264,7 +264,7 @@ class cDynamicHintDlg(wxgDynamicHintDlg.wxgDynamicHintDlg):
 	# event handlers
 	#------------------------------------------------------------
 	def _on_rationale_modified(self):
-		if self._TCTRL_rationale.GetValue().strip() == u'':
+		if self._TCTRL_rationale.GetValue().strip() == '':
 			self._BTN_suppress.Disable()
 		else:
 			self._BTN_suppress.Enable()
@@ -275,7 +275,7 @@ class cDynamicHintDlg(wxgDynamicHintDlg.wxgDynamicHintDlg):
 		if self.__hint is None:
 			return
 		val = self._TCTRL_rationale.GetValue().strip()
-		if val == u'':
+		if val == '':
 			return
 		if self.IsModal():
 			self.EndModal(wx.ID_APPLY)
@@ -325,7 +325,7 @@ class cDynamicHintListDlg(wxgDynamicHintListDlg.wxgDynamicHintListDlg):
 	# internal helpers
 	#------------------------------------------------------------
 	def __init_ui(self):
-		self._LCTRL_hints.set_columns([_(u'Hint'), _('Source')])
+		self._LCTRL_hints.set_columns([_('Hint'), _('Source')])
 		self._LCTRL_hints.set_column_widths([wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE])
 		self._LCTRL_hints.set_resize_column(column = 0)
 		self._LCTRL_hints.select_callback = self._on_hint_selected
@@ -336,11 +336,11 @@ class cDynamicHintListDlg(wxgDynamicHintListDlg.wxgDynamicHintListDlg):
 	def __refresh(self):
 		if self.__hints is None:
 			self._LCTRL_hints.set_string_items()
-			self._TCTRL_hint.SetValue(u'')
-			self._URL_info.SetURL(u'')
+			self._TCTRL_hint.SetValue('')
+			self._URL_info.SetURL('')
 			self._URL_info.Disable()
-			self._TCTRL_source.SetValue(u'')
-			self._TCTRL_rationale.SetValue(u'')
+			self._TCTRL_source.SetValue('')
+			self._TCTRL_rationale.SetValue('')
 			self._BTN_suppress.Disable()
 			self._LBL_previous_rationale.Hide()
 			self._TCTRL_previous_rationale.Hide()
@@ -362,31 +362,31 @@ class cDynamicHintListDlg(wxgDynamicHintListDlg.wxgDynamicHintListDlg):
 		self._LCTRL_hints.set_string_items([ [h['title'], h['source']] for h in ordered_hints ])
 		self._LCTRL_hints.set_data(ordered_hints)
 		for idx in range(len(priority_hints)):
-			self._LCTRL_hints.SetItemTextColour(idx, wx.NamedColour('YELLOW'))
+			self._LCTRL_hints.SetItemTextColour(idx, wx.Colour('YELLOW'))
 		self._LCTRL_hints.Select(0)
 
 	#------------------------------------------------------------
 	def _on_hint_selected(self, evt):
 		hint = self._LCTRL_hints.get_selected_item_data(only_one = True)
 
-		self._TCTRL_hint.SetValue(u'%s%s' % (
+		self._TCTRL_hint.SetValue('%s%s' % (
 			hint['hint'],
-			gmTools.coalesce(hint['recommendation'], u'', u'\n\n%s')
+			gmTools.coalesce(hint['recommendation'], '', '\n\n%s')
 		))
 		if hint['url'] is None:
-			self._URL_info.SetURL(u'')
+			self._URL_info.SetURL('')
 			self._URL_info.Disable()
 		else:
 			self._URL_info.SetURL(hint['url'])
 			self._URL_info.Enable()
 		self._TCTRL_source.SetValue(_('By: %s') % hint['source'])
-		self._TCTRL_rationale.SetValue(u'')
+		self._TCTRL_rationale.SetValue('')
 		self._BTN_suppress.Disable()
 
 		if hint['rationale4suppression'] is None:
 			self._LBL_previous_rationale.Hide()
 			self._TCTRL_previous_rationale.Hide()
-			self._TCTRL_previous_rationale.SetValue(u'')
+			self._TCTRL_previous_rationale.SetValue('')
 		else:
 			self._LBL_previous_rationale.Show()
 			self._TCTRL_previous_rationale.SetValue(hint['rationale4suppression'])
@@ -396,21 +396,21 @@ class cDynamicHintListDlg(wxgDynamicHintListDlg.wxgDynamicHintListDlg):
 
 	#------------------------------------------------------------
 	def _on_hint_deselected(self, evt):
-		self._TCTRL_hint.SetValue(u'')
-		self._URL_info.SetURL(u'')
+		self._TCTRL_hint.SetValue('')
+		self._URL_info.SetURL('')
 		self._URL_info.Disable()
-		self._TCTRL_source.SetValue(u'')
-		self._TCTRL_rationale.SetValue(u'')
+		self._TCTRL_source.SetValue('')
+		self._TCTRL_rationale.SetValue('')
 		self._LBL_previous_rationale.Hide()
 		self._TCTRL_previous_rationale.Hide()
-		self._TCTRL_previous_rationale.SetValue(u'')
+		self._TCTRL_previous_rationale.SetValue('')
 		self._BTN_suppress.Disable()
 
 	#------------------------------------------------------------
 	# event handlers
 	#------------------------------------------------------------
 	def _on_rationale_modified(self):
-		if self._TCTRL_rationale.GetValue().strip() == u'':
+		if self._TCTRL_rationale.GetValue().strip() == '':
 			self._BTN_suppress.Disable()
 		else:
 			self._BTN_suppress.Enable()
@@ -419,7 +419,7 @@ class cDynamicHintListDlg(wxgDynamicHintListDlg.wxgDynamicHintListDlg):
 	def _on_suppress_button_pressed(self, event):
 		event.Skip()
 		val = self._TCTRL_rationale.GetValue().strip()
-		if val == u'':
+		if val == '':
 			return
 		hint = self._LCTRL_hints.get_selected_item_data(only_one = True)
 		suppressed = hint.suppress (
@@ -427,7 +427,7 @@ class cDynamicHintListDlg(wxgDynamicHintListDlg.wxgDynamicHintListDlg):
 			pk_encounter = self.__pk_encounter
 		)
 		if not suppressed:
-			self.status_message = _(u'Cannot suppress hint.')
+			self.status_message = _('Cannot suppress hint.')
 			return False
 		if len(self.__hints) == 1:
 			# singular hint now suppressed -> close
@@ -435,7 +435,7 @@ class cDynamicHintListDlg(wxgDynamicHintListDlg.wxgDynamicHintListDlg):
 				self.EndModal(wx.ID_APPLY)
 			else:
 				self.Close()
-		self.status_message = _(u'Hint now suppressed in this patient.')
+		self.status_message = _('Hint now suppressed in this patient.')
 		pk_of_suppressed_hint = hint['pk_auto_hint']
 		remaining_hints = [ h for h in self.__hints if h['pk_auto_hint'] != pk_of_suppressed_hint ]
 		self.hints = remaining_hints
@@ -479,7 +479,7 @@ class cAutoHintEAPnl(wxgAutoHintEAPnl.wxgAutoHintEAPnl, gmEditArea.cGenericEditA
 
 		validity = True
 
-		if self._TCTRL_source.GetValue().strip() == u'':
+		if self._TCTRL_source.GetValue().strip() == '':
 			validity = False
 			self.display_tctrl_as_valid(tctrl = self._TCTRL_source, valid = False)
 			self.status_message = _('No entry in field <Source>.')
@@ -487,7 +487,7 @@ class cAutoHintEAPnl(wxgAutoHintEAPnl.wxgAutoHintEAPnl, gmEditArea.cGenericEditA
 		else:
 			self.display_tctrl_as_valid(tctrl = self._TCTRL_source, valid = True)
 
-		if self._TCTRL_query.GetValue().strip() == u'':
+		if self._TCTRL_query.GetValue().strip() == '':
 			validity = False
 			self.display_tctrl_as_valid(tctrl = self._TCTRL_query, valid = False)
 			self.status_message = _('No entry in field <Conditions>.')
@@ -496,7 +496,7 @@ class cAutoHintEAPnl(wxgAutoHintEAPnl.wxgAutoHintEAPnl, gmEditArea.cGenericEditA
 			# FIXME: run SQL
 			self.display_tctrl_as_valid(tctrl = self._TCTRL_query, valid = True)
 
-		if self._TCTRL_hint.GetValue().strip() == u'':
+		if self._TCTRL_hint.GetValue().strip() == '':
 			validity = False
 			self.display_tctrl_as_valid(tctrl = self._TCTRL_hint, valid = False)
 			self.status_message = _('No entry in field <Description>.')
@@ -504,7 +504,7 @@ class cAutoHintEAPnl(wxgAutoHintEAPnl.wxgAutoHintEAPnl, gmEditArea.cGenericEditA
 		else:
 			self.display_tctrl_as_valid(tctrl = self._TCTRL_hint, valid = True)
 
-		if self._TCTRL_title.GetValue().strip() == u'':
+		if self._TCTRL_title.GetValue().strip() == '':
 			validity = False
 			self.display_tctrl_as_valid(tctrl = self._TCTRL_title, valid = False)
 			self.status_message = _('No entry in field <Title>.')
@@ -579,12 +579,12 @@ class cAutoHintEAPnl(wxgAutoHintEAPnl.wxgAutoHintEAPnl, gmEditArea.cGenericEditA
 
 	#----------------------------------------------------------------
 	def _refresh_as_new(self):
-		self._TCTRL_title.SetValue(u'')
-		self._TCTRL_hint.SetValue(u'')
-		self._TCTRL_query.SetValue(u'')
-		self._TCTRL_recommendation_query.SetValue(u'')
-		self._TCTRL_source.SetValue(u'')
-		self._TCTRL_url.SetValue(u'')
+		self._TCTRL_title.SetValue('')
+		self._TCTRL_hint.SetValue('')
+		self._TCTRL_query.SetValue('')
+		self._TCTRL_recommendation_query.SetValue('')
+		self._TCTRL_source.SetValue('')
+		self._TCTRL_url.SetValue('')
 		self._CHBOX_is_active.SetValue(True)
 		self._CHBOX_highlight.SetValue(True)
 		self._RBTN_popup_single.SetValue(True)
@@ -603,9 +603,9 @@ class cAutoHintEAPnl(wxgAutoHintEAPnl.wxgAutoHintEAPnl, gmEditArea.cGenericEditA
 		self._TCTRL_title.SetValue(self.data['title'])
 		self._TCTRL_hint.SetValue(self.data['hint'])
 		self._TCTRL_query.SetValue(self.data['query'])
-		self._TCTRL_recommendation_query.SetValue(gmTools.coalesce(self.data['recommendation_query'], u''))
+		self._TCTRL_recommendation_query.SetValue(gmTools.coalesce(self.data['recommendation_query'], ''))
 		self._TCTRL_source.SetValue(self.data['source'])
-		self._TCTRL_url.SetValue(gmTools.coalesce(self.data['url'], u''))
+		self._TCTRL_url.SetValue(gmTools.coalesce(self.data['url'], ''))
 		self._CHBOX_is_active.SetValue(self.data['is_active'])
 		self._CHBOX_highlight.SetValue(self.data['highlight_as_priority'])
 		if self.data['popup_type'] == 0:
@@ -624,7 +624,7 @@ class cAutoHintEAPnl(wxgAutoHintEAPnl.wxgAutoHintEAPnl, gmEditArea.cGenericEditA
 	#----------------------------------------------------------------
 	def _on_check_url_button_pressed(self, event):
 		url = self._TCTRL_url.GetValue().strip()
-		if url == u'':
+		if url == '':
 			return
 		if not gmNetworkTools.open_url_in_browser(url, new = 2, autoraise = True):
 			self.display_tctrl_as_valid(tctrl = self._TCTRL_url, valid = False)
@@ -659,15 +659,15 @@ def manage_suppressed_hints(parent=None, pk_identity=None):
 		return True
 	#------------------------------------------------------------
 	def refresh(lctrl):
-		hints = gmAutoHints.get_suppressed_hints(pk_identity = pk_identity, order_by = u'title')
+		hints = gmAutoHints.get_suppressed_hints(pk_identity = pk_identity, order_by = 'title')
 		items = [ [
 			h['title'],
 			gmDateTime.pydt_strftime(h['suppressed_when'], '%Y %b %d'),
 			h['suppressed_by'],
 			h['rationale'],
-			gmTools.bool2subst(h['is_active'], gmTools.u_checkmark_thin, u''),
+			gmTools.bool2subst(h['is_active'], gmTools.u_checkmark_thin, ''),
 			h['source'][:30],
-			gmTools.coalesce(h['url'], u'')[:60],
+			gmTools.coalesce(h['url'], '')[:60],
 			h['pk_hint']
 		] for h in hints ]
 		lctrl.set_string_items(items)
@@ -677,7 +677,7 @@ def manage_suppressed_hints(parent=None, pk_identity=None):
 		parent = parent,
 		msg = _('\nDynamic hints suppressed in this patient.\n'),
 		caption = _('Showing suppressed dynamic hints.'),
-		columns = [ _('Title'), _('When'), _('By'), _('Rationale'), _('Active'), _('Source'), u'URL', u'Hint #' ],
+		columns = [ _('Title'), _('When'), _('By'), _('Rationale'), _('Active'), _('Source'), 'URL', 'Hint #' ],
 		single_selection = True,
 		ignore_OK_button = True,
 		refresh_callback = refresh,

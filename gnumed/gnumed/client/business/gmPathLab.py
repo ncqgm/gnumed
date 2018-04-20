@@ -6,7 +6,6 @@ __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
 
-import types
 import sys
 import logging
 import io
@@ -38,38 +37,38 @@ _log = logging.getLogger('gm.lab')
 
 #============================================================
 HL7_RESULT_STATI = {
-	None: _(u'unknown'),
-	u'': _(u'empty status'),
-	u'C': _(u'C (HL7: Correction, replaces previous final)'),
-	u'D': _(u'D (HL7: Deletion)'),
-	u'F': _(u'F (HL7: Final)'),
-	u'I': _(u'I (HL7: pending, specimen In lab)'),
-	u'P': _(u'P (HL7: Preliminary)'),
-	u'R': _(u'R (HL7: result entered, not yet verified)'),
-	u'S': _(u'S (HL7: partial)'),
-	u'X': _(u'X (HL7: cannot obtain results for this observation)'),
-	u'U': _(u'U (HL7: mark as final (I/P/R/S -> F, value Unchanged)'),
-	u'W': _(u'W (HL7: original Wrong (say, wrong patient))')
+	None: _('unknown'),
+	'': _('empty status'),
+	'C': _('C (HL7: Correction, replaces previous final)'),
+	'D': _('D (HL7: Deletion)'),
+	'F': _('F (HL7: Final)'),
+	'I': _('I (HL7: pending, specimen In lab)'),
+	'P': _('P (HL7: Preliminary)'),
+	'R': _('R (HL7: result entered, not yet verified)'),
+	'S': _('S (HL7: partial)'),
+	'X': _('X (HL7: cannot obtain results for this observation)'),
+	'U': _('U (HL7: mark as final (I/P/R/S -> F, value Unchanged)'),
+	'W': _('W (HL7: original Wrong (say, wrong patient))')
 }
 
-URL_test_result_information = u'http://www.laborlexikon.de'
-URL_test_result_information_search = u"http://www.google.de/search?as_oq=%(search_term)s&num=10&as_sitesearch=laborlexikon.de"
+URL_test_result_information = 'http://www.laborlexikon.de'
+URL_test_result_information_search = "http://www.google.de/search?as_oq=%(search_term)s&num=10&as_sitesearch=laborlexikon.de"
 
 #============================================================
 def _on_test_result_modified():
 	"""Always relates to the active patient."""
-	gmHooks.run_hook_script(hook = u'after_test_result_modified')
+	gmHooks.run_hook_script(hook = 'after_test_result_modified')
 
-gmDispatcher.connect(_on_test_result_modified, u'clin.test_result_mod_db')
+gmDispatcher.connect(_on_test_result_modified, 'clin.test_result_mod_db')
 
 #============================================================
-_SQL_get_test_orgs = u"SELECT * FROM clin.v_test_orgs WHERE %s"
+_SQL_get_test_orgs = "SELECT * FROM clin.v_test_orgs WHERE %s"
 
 class cTestOrg(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one test org/lab."""
-	_cmd_fetch_payload = _SQL_get_test_orgs % u'pk_test_org = %s'
+	_cmd_fetch_payload = _SQL_get_test_orgs % 'pk_test_org = %s'
 	_cmds_store_payload = [
-		u"""UPDATE clin.test_org SET
+		"""UPDATE clin.test_org SET
 				fk_org_unit = %(pk_org_unit)s,
 				contact = gm.nullify_empty_string(%(test_org_contact)s),
 				comment = gm.nullify_empty_string(%(comment)s)
@@ -82,24 +81,24 @@ class cTestOrg(gmBusinessDBObject.cBusinessDBObject):
 		"""
 	]
 	_updatable_fields = [
-		u'pk_org_unit',
-		u'test_org_contact',
-		u'comment'
+		'pk_org_unit',
+		'test_org_contact',
+		'comment'
 	]
 #------------------------------------------------------------
 def create_test_org(name=None, comment=None, pk_org_unit=None, link_obj=None):
 
-	_log.debug(u'creating test org [%s:%s:%s]', name, comment, pk_org_unit)
+	_log.debug('creating test org [%s:%s:%s]', name, comment, pk_org_unit)
 
 	if name is None:
-		name = u'unassigned lab'
+		name = 'unassigned lab'
 
 	# get org unit
 	if pk_org_unit is None:
 		org = gmOrganization.create_org (
 			link_obj = link_obj,
 			organization = name,
-			category = u'Laboratory'
+			category = 'Laboratory'
 		)
 		org_unit = gmOrganization.create_org_unit (
 			link_obj = link_obj,
@@ -110,11 +109,11 @@ def create_test_org(name=None, comment=None, pk_org_unit=None, link_obj=None):
 
 	# test org exists ?
 	args = {'pk_unit': pk_org_unit}
-	cmd = u'SELECT pk_test_org FROM clin.v_test_orgs WHERE pk_org_unit = %(pk_unit)s'
+	cmd = 'SELECT pk_test_org FROM clin.v_test_orgs WHERE pk_org_unit = %(pk_unit)s'
 	rows, idx = gmPG2.run_ro_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': args}])
 
 	if len(rows) == 0:
-		cmd = u'INSERT INTO clin.test_org (fk_org_unit) VALUES (%(pk_unit)s) RETURNING pk'
+		cmd = 'INSERT INTO clin.test_org (fk_org_unit) VALUES (%(pk_unit)s) RETURNING pk'
 		rows, idx = gmPG2.run_rw_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': args}], return_data = True)
 
 	test_org = cTestOrg(link_obj = link_obj, aPK_obj = rows[0][0])
@@ -127,7 +126,7 @@ def create_test_org(name=None, comment=None, pk_org_unit=None, link_obj=None):
 #------------------------------------------------------------
 def delete_test_org(test_org=None):
 	args = {'pk': test_org}
-	cmd = u"""
+	cmd = """
 		DELETE FROM clin.test_org
 		WHERE
 			pk = %(pk)s
@@ -138,22 +137,22 @@ def delete_test_org(test_org=None):
 	"""
 	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 #------------------------------------------------------------
-def get_test_orgs(order_by=u'unit'):
-	cmd = u'SELECT * FROM clin.v_test_orgs ORDER BY %s' % order_by
+def get_test_orgs(order_by='unit'):
+	cmd = 'SELECT * FROM clin.v_test_orgs ORDER BY %s' % order_by
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
 	return [ cTestOrg(row = {'pk_field': 'pk_test_org', 'data': r, 'idx': idx}) for r in rows ]
 
 #============================================================
 # test panels / profiles
 #------------------------------------------------------------
-_SQL_get_test_panels = u"SELECT * FROM clin.v_test_panels WHERE %s"
+_SQL_get_test_panels = "SELECT * FROM clin.v_test_panels WHERE %s"
 
 class cTestPanel(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents a grouping/listing of tests into a panel."""
 
-	_cmd_fetch_payload = _SQL_get_test_panels % u"pk_test_panel = %s"
+	_cmd_fetch_payload = _SQL_get_test_panels % "pk_test_panel = %s"
 	_cmds_store_payload = [
-		u"""
+		"""
 			UPDATE clin.test_panel SET
 				description = gm.nullify_empty_string(%(description)s),
 				comment = gm.nullify_empty_string(%(comment)s)
@@ -166,8 +165,8 @@ class cTestPanel(gmBusinessDBObject.cBusinessDBObject):
 		"""
 	]
 	_updatable_fields = [
-		u'description',
-		u'comment'
+		'description',
+		'comment'
 	]
 	#--------------------------------------------------------
 	def format(self):
@@ -177,21 +176,21 @@ class cTestPanel(gmBusinessDBObject.cBusinessDBObject):
 		)
 
 		if self._payload[self._idx['comment']] is not None:
-			txt += u'\n'
+			txt += '\n'
 			txt += gmTools.wrap (
 				text = self._payload[self._idx['comment']],
 				width = 50,
-				initial_indent = u' ',
-				subsequent_indent = u' '
+				initial_indent = ' ',
+				subsequent_indent = ' '
 			)
-			txt += u'\n'
+			txt += '\n'
 
 		tts = self.test_types
 		if tts is not None:
-			txt += u'\n'
+			txt += '\n'
 			txt += _('Included test types:\n')
 			for tt in tts:
-				txt += u' [%s] %s: %s\n' % (
+				txt += ' [%s] %s: %s\n' % (
 					tt['loinc'],
 					tt['abbrev'],
 					tt['name']
@@ -199,10 +198,10 @@ class cTestPanel(gmBusinessDBObject.cBusinessDBObject):
 
 		codes = self.generic_codes
 		if len(codes) > 0:
-			txt += u'\n'
+			txt += '\n'
 			for c in codes:
-				txt += u'%s  %s: %s (%s - %s)\n' % (
-					(u' ' * left_margin),
+				txt += '%s  %s: %s (%s - %s)\n' % (
+					(' ' * left_margin),
 					c['code'],
 					c['term'],
 					c['name_short'],
@@ -214,7 +213,7 @@ class cTestPanel(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	def add_code(self, pk_code=None):
 		"""<pk_code> must be a value from ref.coding_system_root.pk_coding_system (clin.lnk_code2item_root.fk_generic_code)"""
-		cmd = u"INSERT INTO clin.lnk_code2tst_pnl (fk_item, fk_generic_code) values (%(tp)s, %(code)s)"
+		cmd = "INSERT INTO clin.lnk_code2tst_pnl (fk_item, fk_generic_code) values (%(tp)s, %(code)s)"
 		args = {
 			'tp': self._payload[self._idx['pk_test_panel']],
 			'code': pk_code
@@ -225,7 +224,7 @@ class cTestPanel(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	def remove_code(self, pk_code=None):
 		"""<pk_code> must be a value from ref.coding_system_root.pk_coding_system (clin.lnk_code2item_root.fk_generic_code)"""
-		cmd = u"DELETE FROM clin.lnk_code2tst_pnl WHERE fk_item = %(tp)s AND fk_generic_code = %(code)s"
+		cmd = "DELETE FROM clin.lnk_code2tst_pnl WHERE fk_item = %(tp)s AND fk_generic_code = %(code)s"
 		args = {
 			'tp': self._payload[self._idx['pk_test_panel']],
 			'code': pk_code
@@ -238,12 +237,12 @@ class cTestPanel(gmBusinessDBObject.cBusinessDBObject):
 		"""Retrieve data about test types on this panel (for which this patient has results)."""
 
 		if order_by is None:
-			order_by = u''
+			order_by = ''
 		else:
-			order_by = u'ORDER BY %s' % order_by
+			order_by = 'ORDER BY %s' % order_by
 
 		if unique_meta_types:
-			cmd = u"""
+			cmd = """
 				SELECT * FROM clin.v_test_types c_vtt
 				WHERE c_vtt.pk_test_type IN (
 						SELECT DISTINCT ON (c_vtr1.pk_meta_test_type) c_vtr1.pk_test_type
@@ -266,7 +265,7 @@ class cTestPanel(gmBusinessDBObject.cBusinessDBObject):
 				)
 				%s""" % order_by
 		else:
-			cmd = u"""
+			cmd = """
 				SELECT * FROM clin.v_test_types c_vtt
 				WHERE c_vtt.pk_test_type IN (
 					SELECT DISTINCT ON (c_vtr.pk_test_type) c_vtr.pk_test_type
@@ -293,14 +292,14 @@ class cTestPanel(gmBusinessDBObject.cBusinessDBObject):
 		queries = []
 		# remove those which don't belong
 		if len(loincs) == 0:
-			cmd = u'DELETE FROM clin.lnk_loinc2test_panel WHERE fk_test_panel = %(pk_pnl)s'
+			cmd = 'DELETE FROM clin.lnk_loinc2test_panel WHERE fk_test_panel = %(pk_pnl)s'
 		else:
-			cmd = u'DELETE FROM clin.lnk_loinc2test_panel WHERE fk_test_panel = %(pk_pnl)s AND loinc NOT IN %(loincs)s'
+			cmd = 'DELETE FROM clin.lnk_loinc2test_panel WHERE fk_test_panel = %(pk_pnl)s AND loinc NOT IN %(loincs)s'
 		queries.append({'cmd': cmd, 'args': {'loincs': tuple(loincs), 'pk_pnl': self._payload[self._idx['pk_test_panel']]}})
 		# add those not there yet
 		if len(loincs) > 0:
 			for loinc in loincs:
-				cmd = u"""INSERT INTO clin.lnk_loinc2test_panel (fk_test_panel, loinc)
+				cmd = """INSERT INTO clin.lnk_loinc2test_panel (fk_test_panel, loinc)
 				SELECT %(pk_pnl)s, %(loinc)s WHERE NOT EXISTS (
 					SELECT 1 FROM clin.lnk_loinc2test_panel WHERE
 						fk_test_panel = %(pk_pnl)s
@@ -323,7 +322,7 @@ class cTestPanel(gmBusinessDBObject.cBusinessDBObject):
 			queries = [{
 				#'cmd': _SQL_get_test_types % u'loinc IN %(loincs)s ORDER BY unified_abbrev',
 				#'args': {'loincs': tuple(self._payload[self._idx['loincs']])}
-				'cmd': _SQL_get_test_types % u'pk_test_type IN %(pks)s ORDER BY unified_abbrev',
+				'cmd': _SQL_get_test_types % 'pk_test_type IN %(pks)s ORDER BY unified_abbrev',
 				'args': {'pks': tuple([ tt['pk_test_type'] for tt in self._payload[self._idx['test_types']] ])}
 			}],
 			get_col_idx = True
@@ -337,7 +336,7 @@ class cTestPanel(gmBusinessDBObject.cBusinessDBObject):
 		if len(self._payload[self._idx['pk_generic_codes']]) == 0:
 			return []
 
-		cmd = gmCoding._SQL_get_generic_linked_codes % u'pk_generic_code IN %(pks)s'
+		cmd = gmCoding._SQL_get_generic_linked_codes % 'pk_generic_code IN %(pks)s'
 		args = {'pks': tuple(self._payload[self._idx['pk_generic_codes']])}
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 		return [ gmCoding.cGenericLinkedCode(row = {'data': r, 'idx': idx, 'pk_field': 'pk_lnk_code2item'}) for r in rows ]
@@ -347,7 +346,7 @@ class cTestPanel(gmBusinessDBObject.cBusinessDBObject):
 		# remove all codes
 		if len(self._payload[self._idx['pk_generic_codes']]) > 0:
 			queries.append ({
-				'cmd': u'DELETE FROM clin.lnk_code2tst_pnl WHERE fk_item = %(tp)s AND fk_generic_code IN %(codes)s',
+				'cmd': 'DELETE FROM clin.lnk_code2tst_pnl WHERE fk_item = %(tp)s AND fk_generic_code IN %(codes)s',
 				'args': {
 					'tp': self._payload[self._idx['pk_test_panel']],
 					'codes': tuple(self._payload[self._idx['pk_generic_codes']])
@@ -356,7 +355,7 @@ class cTestPanel(gmBusinessDBObject.cBusinessDBObject):
 		# add new codes
 		for pk_code in pk_codes:
 			queries.append ({
-				'cmd': u'INSERT INTO clin.lnk_code2test_panel (fk_item, fk_generic_code) VALUES (%(tp)s, %(pk_code)s)',
+				'cmd': 'INSERT INTO clin.lnk_code2test_panel (fk_item, fk_generic_code) VALUES (%(tp)s, %(pk_code)s)',
 				'args': {
 					'tp': self._payload[self._idx['pk_test_panel']],
 					'pk_code': pk_code
@@ -382,9 +381,9 @@ class cTestPanel(gmBusinessDBObject.cBusinessDBObject):
 #------------------------------------------------------------
 def get_test_panels(order_by=None):
 	if order_by is None:
-		order_by = u'true'
+		order_by = 'true'
 	else:
-		order_by = u'true ORDER BY %s' % order_by
+		order_by = 'true ORDER BY %s' % order_by
 
 	cmd = _SQL_get_test_panels % order_by
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
@@ -393,8 +392,8 @@ def get_test_panels(order_by=None):
 #------------------------------------------------------------
 def create_test_panel(description=None):
 
-	args = {u'desc': description.strip()}
-	cmd = u"""
+	args = {'desc': description.strip()}
+	cmd = """
 		INSERT INTO clin.test_panel (description)
 		VALUES (gm.nullify_empty_string(%(desc)s))
 		RETURNING pk
@@ -406,7 +405,7 @@ def create_test_panel(description=None):
 #------------------------------------------------------------
 def delete_test_panel(pk=None):
 	args = {'pk': pk}
-	cmd = u"DELETE FROM clin.test_panel WHERE pk = %(pk)s"
+	cmd = "DELETE FROM clin.test_panel WHERE pk = %(pk)s"
 	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 	return True
 
@@ -414,8 +413,8 @@ def delete_test_panel(pk=None):
 class cMetaTestType(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one meta test type under which actual test types can be aggregated."""
 
-	_cmd_fetch_payload = u"SELECT *, xmin FROM clin.meta_test_type WHERE pk = %s"
-	_cmds_store_payload = [u"""
+	_cmd_fetch_payload = "SELECT *, xmin FROM clin.meta_test_type WHERE pk = %s"
+	_cmds_store_payload = ["""
 		UPDATE clin.meta_test_type SET
 			abbrev = %(abbrev)s,
 			name = %(name)s,
@@ -429,10 +428,10 @@ class cMetaTestType(gmBusinessDBObject.cBusinessDBObject):
 			xmin
 	"""]
 	_updatable_fields = [
-		u'abbrev',
-		u'name',
-		u'loinc',
-		u'comment'
+		'abbrev',
+		'name',
+		'loinc',
+		'comment'
 	]
 	#--------------------------------------------------------
 	def format(self, with_tests=False, patient=None):
@@ -442,7 +441,7 @@ class cMetaTestType(gmBusinessDBObject.cBusinessDBObject):
 			self._payload[self._idx['name']]
 		)
 		if self._payload[self._idx['loinc']] is not None:
-			txt += u' LOINC: %s\n' % self._payload[self._idx['loinc']]
+			txt += ' LOINC: %s\n' % self._payload[self._idx['loinc']]
 		if self._payload[self._idx['comment']] is not None:
 			txt += _(' Comment: %s\n') % self._payload[self._idx['comment']]
 		if with_tests:
@@ -450,32 +449,32 @@ class cMetaTestType(gmBusinessDBObject.cBusinessDBObject):
 			if len(ttypes) > 0:
 				txt += _(' Aggregates the following test types:\n')
 			for ttype in ttypes:
-				txt += u'  - %s (%s)%s%s%s      [#%s]\n' % (
+				txt += '  - %s (%s)%s%s%s      [#%s]\n' % (
 					ttype['name'],
 					ttype['abbrev'],
-					gmTools.coalesce(ttype['reference_unit'], u'', ', %s'),
-					gmTools.coalesce(ttype['name_org'], u'', u' (%s)'),
-					gmTools.coalesce(ttype['loinc'], u'', u', LOINC: %s'),
+					gmTools.coalesce(ttype['reference_unit'], '', ', %s'),
+					gmTools.coalesce(ttype['name_org'], '', ' (%s)'),
+					gmTools.coalesce(ttype['loinc'], '', ', LOINC: %s'),
 					ttype['pk_test_type']
 				)
 		if patient is not None:
-			txt += u'\n'
+			txt += '\n'
 			most_recent = self.get_most_recent_result(patient = patient)
 			if most_recent is not None:
 				txt += _(' Most recent (%s): %s%s%s') % (
 					gmDateTime.pydt_strftime(most_recent['clin_when'], '%Y %b %d'),
 					most_recent['unified_val'],
-					gmTools.coalesce(most_recent['val_unit'], u'', u' %s'),
-					gmTools.coalesce(most_recent['abnormality_indicator'], u'', u' (%s)')
+					gmTools.coalesce(most_recent['val_unit'], '', ' %s'),
+					gmTools.coalesce(most_recent['abnormality_indicator'], '', ' (%s)')
 				)
 			oldest = self.get_oldest_result(patient = patient)
 			if oldest is not None:
-				txt += u'\n'
+				txt += '\n'
 				txt += _(' Oldest (%s): %s%s%s') % (
 					gmDateTime.pydt_strftime(oldest['clin_when'], '%Y %b %d'),
 					oldest['unified_val'],
-					gmTools.coalesce(oldest['val_unit'], u'', u' %s'),
-					gmTools.coalesce(oldest['abnormality_indicator'], u'', u' (%s)')
+					gmTools.coalesce(oldest['val_unit'], '', ' %s'),
+					gmTools.coalesce(oldest['abnormality_indicator'], '', ' (%s)')
 				)
 		return txt
 
@@ -485,7 +484,7 @@ class cMetaTestType(gmBusinessDBObject.cBusinessDBObject):
 			'pat': patient,
 			'mttyp': self._payload[self._idx['pk']]
 		}
-		cmd = u"""
+		cmd = """
 			SELECT * FROM clin.v_test_results
 			WHERE
 				pk_patient = %(pat)s
@@ -505,7 +504,7 @@ class cMetaTestType(gmBusinessDBObject.cBusinessDBObject):
 			'pat': patient,
 			'mttyp': self._payload[self._idx['pk']]
 		}
-		cmd = u"""
+		cmd = """
 			SELECT * FROM clin.v_test_results
 			WHERE
 				pk_patient = %(pat)s
@@ -528,9 +527,9 @@ class cMetaTestType(gmBusinessDBObject.cBusinessDBObject):
 			'mloinc': self._payload[self._idx['loinc']],
 			'when': date
 		}
-		WHERE_meta = u''
+		WHERE_meta = ''
 
-		SQL = u"""
+		SQL = """
 			SELECT * FROM clin.v_test_results
 			WHERE
 				pk_patient = %%(pat)s
@@ -543,14 +542,14 @@ class cMetaTestType(gmBusinessDBObject.cBusinessDBObject):
 
 		# get earlier results by meta type
 		earlier_result = None
-		cmd = SQL % u'<'
+		cmd = SQL % '<'
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 		if len(rows) > 0:
 			earlier_result = cTestResult(row = {'pk_field': 'pk_test_result', 'idx': idx, 'data': rows[0]})
 
 		# get later results by meta type ?
 		later_result = None
-		cmd = SQL % u'>'
+		cmd = SQL % '>'
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 		if len(rows) > 0:
 			later_result = cTestResult(row = {'pk_field': 'pk_test_result', 'idx': idx, 'data': rows[0]})
@@ -570,8 +569,8 @@ class cMetaTestType(gmBusinessDBObject.cBusinessDBObject):
 	# properties
 	#--------------------------------------------------------
 	def _get_included_test_types(self):
-		cmd = _SQL_get_test_types % u'pk_meta_test_type = %(pk_meta)s'
-		args = {u'pk_meta': self._payload[self._idx['pk']]}
+		cmd = _SQL_get_test_types % 'pk_meta_test_type = %(pk_meta)s'
+		args = {'pk_meta': self._payload[self._idx['pk']]}
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 		return [ cMeasurementType(row = {'pk_field': 'pk_test_type', 'data': r, 'idx': idx}) for r in rows ]
 
@@ -579,7 +578,7 @@ class cMetaTestType(gmBusinessDBObject.cBusinessDBObject):
 
 #------------------------------------------------------------
 def create_meta_type(name=None, abbreviation=None, return_existing=False):
-	cmd = u"""
+	cmd = """
 		INSERT INTO clin.meta_test_type (name, abbrev)
 		SELECT
 			%(name)s,
@@ -601,14 +600,14 @@ def create_meta_type(name=None, abbreviation=None, return_existing=False):
 	if len(rows) == 0:
 		if not return_existing:
 			return None
-		cmd = u"SELECT *, xmin FROM clin.meta_test_type WHERE name = %(name)s and %(abbr)s"
+		cmd = "SELECT *, xmin FROM clin.meta_test_type WHERE name = %(name)s and %(abbr)s"
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 
 	return cMetaTestType(row = {'pk_field': 'pk', 'idx': idx, 'data': rows[0]})
 
 #------------------------------------------------------------
 def delete_meta_type(meta_type=None):
-	cmd = u"""
+	cmd = """
 		DELETE FROM clin.meta_test_type
 		WHERE
 			pk = %(pk)s
@@ -622,20 +621,20 @@ def delete_meta_type(meta_type=None):
 
 #------------------------------------------------------------
 def get_meta_test_types():
-	cmd = u'SELECT *, xmin FROM clin.meta_test_type'
+	cmd = 'SELECT *, xmin FROM clin.meta_test_type'
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
 	return [ cMetaTestType(row = {'pk_field': 'pk', 'data': r, 'idx': idx}) for r in rows ]
 
 #============================================================
-_SQL_get_test_types = u"SELECT * FROM clin.v_test_types WHERE %s"
+_SQL_get_test_types = "SELECT * FROM clin.v_test_types WHERE %s"
 
 class cMeasurementType(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one test result type."""
 
-	_cmd_fetch_payload = _SQL_get_test_types % u"pk_test_type = %s"
+	_cmd_fetch_payload = _SQL_get_test_types % "pk_test_type = %s"
 
 	_cmds_store_payload = [
-		u"""UPDATE clin.test_type SET
+		"""UPDATE clin.test_type SET
 				abbrev = gm.nullify_empty_string(%(abbrev)s),
 				name = gm.nullify_empty_string(%(name)s),
 				loinc = gm.nullify_empty_string(%(loinc)s),
@@ -664,7 +663,7 @@ class cMeasurementType(gmBusinessDBObject.cBusinessDBObject):
 	# properties
 	#--------------------------------------------------------
 	def _get_in_use(self):
-		cmd = u'SELECT EXISTS(SELECT 1 FROM clin.test_result WHERE fk_type = %(pk_type)s)'
+		cmd = 'SELECT EXISTS(SELECT 1 FROM clin.test_result WHERE fk_type = %(pk_type)s)'
 		args = {'pk_type': self._payload[self._idx['pk_test_type']]}
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 		return rows[0][0]
@@ -733,7 +732,7 @@ class cMeasurementType(gmBusinessDBObject.cBusinessDBObject):
 		"""
 		if timestamp is None:
 			timestamp = gmDateTime.pydt_now_here()
-		cmd = u"""
+		cmd = """
 SELECT * FROM clin.v_test_results
 WHERE
 	pk_test_type = %(pk_type)s
@@ -754,9 +753,9 @@ ORDER BY
 	END
 LIMIT 1"""
 		args = {
-			u'pk_type': self._payload[self._idx['pk_test_type']],
-			u'unit': unit,
-			u'clin_when': timestamp
+			'pk_type': self._payload[self._idx['pk_test_type']],
+			'unit': unit,
+			'clin_when': timestamp
 		}
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 		if len(rows) == 0:
@@ -774,7 +773,7 @@ LIMIT 1"""
 		"""
 		if timestamp is None:
 			timestamp = gmDateTime.pydt_now_here()
-		cmd = u"""
+		cmd = """
 SELECT * FROM clin.v_test_results
 WHERE
 	pk_test_type = %(pk_type)s
@@ -797,10 +796,10 @@ ORDER BY
 	END
 LIMIT 1"""
 		args = {
-			u'pk_type': self._payload[self._idx['pk_test_type']],
-			u'unit': unit,
-			u'pat': patient,
-			u'clin_when': timestamp
+			'pk_type': self._payload[self._idx['pk_test_type']],
+			'unit': unit,
+			'pat': patient,
+			'clin_when': timestamp
 		}
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 		if len(rows) == 0:
@@ -816,7 +815,7 @@ LIMIT 1"""
 		"""
 		if timestamp is None:
 			timestamp = gmDateTime.pydt_now_here()
-		cmd = u"""
+		cmd = """
 SELECT val_unit FROM clin.v_test_results
 WHERE
 	pk_test_type = %(pk_type)s
@@ -829,8 +828,8 @@ ORDER BY
 	END
 LIMIT 1"""
 		args = {
-			u'pk_type': self._payload[self._idx['pk_test_type']],
-			u'clin_when': timestamp
+			'pk_type': self._payload[self._idx['pk_test_type']],
+			'clin_when': timestamp
 		}
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 		if len(rows) == 0:
@@ -841,37 +840,37 @@ LIMIT 1"""
 
 	#--------------------------------------------------------
 	def format(self, patient=None):
-		tt = u''
+		tt = ''
 		tt += _('Test type "%s" (%s)          [#%s]\n') % (
 			self._payload[self._idx['name']],
 			self._payload[self._idx['abbrev']],
 			self._payload[self._idx['pk_test_type']]
 		)
-		tt += u'\n'
-		tt += gmTools.coalesce(self._payload[self._idx['loinc']], u'', u' LOINC: %s\n')
-		tt += gmTools.coalesce(self._payload[self._idx['reference_unit']], u'', _(' Reference unit: %s\n'))
-		tt += gmTools.coalesce(self._payload[self._idx['comment_type']], u'', _(' Comment: %s\n'))
+		tt += '\n'
+		tt += gmTools.coalesce(self._payload[self._idx['loinc']], '', ' LOINC: %s\n')
+		tt += gmTools.coalesce(self._payload[self._idx['reference_unit']], '', _(' Reference unit: %s\n'))
+		tt += gmTools.coalesce(self._payload[self._idx['comment_type']], '', _(' Comment: %s\n'))
 
-		tt += u'\n'
+		tt += '\n'
 		tt += _('Lab details:\n')
-		tt += _(' Name: %s\n') % gmTools.coalesce(self._payload[self._idx['name_org']], u'')
-		tt += gmTools.coalesce(self._payload[self._idx['contact_org']], u'', _(' Contact: %s\n'))
-		tt += gmTools.coalesce(self._payload[self._idx['comment_org']], u'', _(' Comment: %s\n'))
+		tt += _(' Name: %s\n') % gmTools.coalesce(self._payload[self._idx['name_org']], '')
+		tt += gmTools.coalesce(self._payload[self._idx['contact_org']], '', _(' Contact: %s\n'))
+		tt += gmTools.coalesce(self._payload[self._idx['comment_org']], '', _(' Comment: %s\n'))
 
 		if self._payload[self._idx['is_fake_meta_type']] is False:
-			tt += u'\n'
+			tt += '\n'
 			tt += _('Aggregated under meta type:\n')
 			tt += _(' Name: %s - %s             [#%s]\n') % (
 				self._payload[self._idx['abbrev_meta']],
 				self._payload[self._idx['name_meta']],
 				self._payload[self._idx['pk_meta_test_type']]
 			)
-			tt += gmTools.coalesce(self._payload[self._idx['loinc_meta']], u'', u' LOINC: %s\n')
-			tt += gmTools.coalesce(self._payload[self._idx['comment_meta']], u'', _(' Comment: %s\n'))
+			tt += gmTools.coalesce(self._payload[self._idx['loinc_meta']], '', ' LOINC: %s\n')
+			tt += gmTools.coalesce(self._payload[self._idx['comment_meta']], '', _(' Comment: %s\n'))
 
 		panels = self.test_panels
 		if panels is not None:
-			tt += u'\n'
+			tt += '\n'
 			tt += _('Listed in test panels:\n')
 			for panel in panels:
 				tt += _(' Panel "%s"             [#%s]\n') % (
@@ -880,30 +879,30 @@ LIMIT 1"""
 				)
 
 		if patient is not None:
-			tt += u'\n'
+			tt += '\n'
 			result = self.get_most_recent_results(patient = patient, no_of_results = 1)
 			if result is not None:
 				tt += _(' Most recent (%s): %s%s%s') % (
 					gmDateTime.pydt_strftime(result['clin_when'], '%Y %b %d'),
 					result['unified_val'],
-					gmTools.coalesce(result['val_unit'], u'', u' %s'),
-					gmTools.coalesce(result['abnormality_indicator'], u'', u' (%s)')
+					gmTools.coalesce(result['val_unit'], '', ' %s'),
+					gmTools.coalesce(result['abnormality_indicator'], '', ' (%s)')
 				)
 			result = self.get_oldest_result(patient = patient)
 			if result is not None:
-				tt += u'\n'
+				tt += '\n'
 				tt += _(' Oldest (%s): %s%s%s') % (
 					gmDateTime.pydt_strftime(result['clin_when'], '%Y %b %d'),
 					result['unified_val'],
-					gmTools.coalesce(result['val_unit'], u'', u' %s'),
-					gmTools.coalesce(result['abnormality_indicator'], u'', u' (%s)')
+					gmTools.coalesce(result['val_unit'], '', ' %s'),
+					gmTools.coalesce(result['abnormality_indicator'], '', ' (%s)')
 				)
 
 		return tt
 
 #------------------------------------------------------------
 def get_measurement_types(order_by=None):
-	cmd = u'select * from clin.v_test_types %s' % gmTools.coalesce(order_by, u'', u'order by %s')
+	cmd = 'select * from clin.v_test_types %s' % gmTools.coalesce(order_by, '', 'order by %s')
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
 	return [ cMeasurementType(row = {'pk_field': 'pk_test_type', 'data': r, 'idx': idx}) for r in rows ]
 
@@ -930,8 +929,8 @@ def find_measurement_type(lab=None, abbrev=None, name=None, link_obj=None):
 		if name is not None:
 			where_snippets.append('name = %(name)s')
 
-		where_clause = u' and '.join(where_snippets)
-		cmd = u"select * from clin.v_test_types where %s" % where_clause
+		where_clause = ' and '.join(where_snippets)
+		cmd = "select * from clin.v_test_types where %s" % where_clause
 		args = {'lab': lab, 'abbrev': abbrev, 'name': name}
 
 		rows, idx = gmPG2.run_ro_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
@@ -944,7 +943,7 @@ def find_measurement_type(lab=None, abbrev=None, name=None, link_obj=None):
 
 #------------------------------------------------------------
 def delete_measurement_type(measurement_type=None):
-	cmd = u'delete from clin.test_type where pk = %(pk)s'
+	cmd = 'delete from clin.test_type where pk = %(pk)s'
 	args = {'pk': measurement_type}
 	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 
@@ -998,11 +997,11 @@ def create_measurement_type(lab=None, abbrev=None, unit=None, name=None, link_ob
 		val_snippets.append('%(name)s')
 		vals['name'] = name
 
-	col_clause = u', '.join(cols)
-	val_clause = u', '.join(val_snippets)
+	col_clause = ', '.join(cols)
+	val_clause = ', '.join(val_snippets)
 	queries = [
-		{'cmd': u'insert into clin.test_type (%s) values (%s)' % (col_clause, val_clause), 'args': vals},
-		{'cmd': u"select * from clin.v_test_types where pk_test_type = currval(pg_get_serial_sequence('clin.test_type', 'pk'))"}
+		{'cmd': 'insert into clin.test_type (%s) values (%s)' % (col_clause, val_clause), 'args': vals},
+		{'cmd': "select * from clin.v_test_types where pk_test_type = currval(pg_get_serial_sequence('clin.test_type', 'pk'))"}
 	]
 	rows, idx = gmPG2.run_rw_queries(link_obj = link_obj, queries = queries, get_col_idx = True, return_data = True)
 	ttype = cMeasurementType(row = {'pk_field': 'pk_test_type', 'data': rows[0], 'idx': idx})
@@ -1013,10 +1012,10 @@ def create_measurement_type(lab=None, abbrev=None, unit=None, name=None, link_ob
 class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one test result."""
 
-	_cmd_fetch_payload = u"select * from clin.v_test_results where pk_test_result = %s"
+	_cmd_fetch_payload = "select * from clin.v_test_results where pk_test_result = %s"
 
 	_cmds_store_payload = [
-		u"""UPDATE clin.test_result SET
+		"""UPDATE clin.test_result SET
 				clin_when = %(clin_when)s,
 				narrative = nullif(trim(%(comment)s), ''),
 				val_num = %(val_num)s,
@@ -1085,31 +1084,31 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 		)
 		review = gmTools.bool2subst (
 			self._payload[self._idx['reviewed']],
-			u'',
-			u' ' + gmTools.u_writing_hand,
-			u' ' + gmTools.u_writing_hand
+			'',
+			' ' + gmTools.u_writing_hand,
+			' ' + gmTools.u_writing_hand
 		)
-		txt = u'%s %s: %s%s%s%s%s%s' % (
+		txt = '%s %s: %s%s%s%s%s%s' % (
 			gmDateTime.pydt_strftime (
 				self._payload[self._idx['clin_when']],
 				date_format
 			),
 			self._payload[self._idx['name_tt']],
 			self._payload[self._idx['unified_val']],
-			gmTools.coalesce(self._payload[self._idx['val_unit']], u'', u' %s'),
-			gmTools.coalesce(self._payload[self._idx['abnormality_indicator']], u'', u' %s'),
-			gmTools.coalesce(range_info, u'', u' (%s)'),
-			gmTools.coalesce(self._payload[self._idx['status']], u'', u' [%s]')[:2],
+			gmTools.coalesce(self._payload[self._idx['val_unit']], '', ' %s'),
+			gmTools.coalesce(self._payload[self._idx['abnormality_indicator']], '', ' %s'),
+			gmTools.coalesce(range_info, '', ' (%s)'),
+			gmTools.coalesce(self._payload[self._idx['status']], '', ' [%s]')[:2],
 			review
 		)
 		if with_notes:
-			txt += u'\n'
+			txt += '\n'
 			if self._payload[self._idx['note_test_org']] is not None:
-				txt += u' ' + _(u'Lab comment: %s\n') % _(u'\n Lab comment: ').join(self._payload[self._idx['note_test_org']].split(u'\n'))
+				txt += ' ' + _('Lab comment: %s\n') % _('\n Lab comment: ').join(self._payload[self._idx['note_test_org']].split('\n'))
 			if self._payload[self._idx['comment']] is not None:
-				txt += u' ' + _(u'Praxis comment: %s\n') % _(u'\n Praxis comment: ').join(self._payload[self._idx['comment']].split(u'\n'))
+				txt += ' ' + _('Praxis comment: %s\n') % _('\n Praxis comment: ').join(self._payload[self._idx['comment']].split('\n'))
 
-		return txt.strip(u'\n')
+		return txt.strip('\n')
 
 	#--------------------------------------------------------
 	def format(self, with_review=True, with_evaluation=True, with_ranges=True, with_episode=True, with_type_details=True, with_source_data=False, date_format='%Y %b %d %H:%M'):
@@ -1117,13 +1116,13 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 		# FIXME: add battery, request details
 
 		# header
-		tt = _(u'Result from %s             \n') % gmDateTime.pydt_strftime (
+		tt = _('Result from %s             \n') % gmDateTime.pydt_strftime (
 			self._payload[self._idx['clin_when']],
 			date_format
 		)
 
 		# basics
-		tt += u' ' + _(u'Type: "%(name)s" (%(abbr)s)  [#%(pk_type)s]\n') % ({
+		tt += ' ' + _('Type: "%(name)s" (%(abbr)s)  [#%(pk_type)s]\n') % ({
 			'name': self._payload[self._idx['name_tt']],
 			'abbr': self._payload[self._idx['abbrev_tt']],
 			'pk_type': self._payload[self._idx['pk_test_type']]
@@ -1131,12 +1130,12 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 		if self.is_long_text:
 			sso = gmTools.u_superscript_one
 		else:
-			sso = u''
-		tt += u' ' + _(u'%(sso)sResult: %(val)s%(unit)s%(ind)s  [#%(pk_result)s]\n') % ({
+			sso = ''
+		tt += ' ' + _('%(sso)sResult: %(val)s%(unit)s%(ind)s  [#%(pk_result)s]\n') % ({
 			'sso': sso,
 			'val': self._payload[self._idx['unified_val']],
-			'unit': gmTools.coalesce(self._payload[self._idx['val_unit']], u'', u' %s'),
-			'ind': gmTools.coalesce(self._payload[self._idx['abnormality_indicator']], u'', u' (%s)'),
+			'unit': gmTools.coalesce(self._payload[self._idx['val_unit']], '', ' %s'),
+			'ind': gmTools.coalesce(self._payload[self._idx['abnormality_indicator']], '', ' (%s)'),
 			'pk_result': self._payload[self._idx['pk_test_result']]
 		})
 
@@ -1145,9 +1144,9 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 				stat = HL7_RESULT_STATI[self._payload[self._idx['status']]]
 			except KeyError:
 				stat = self._payload[self._idx['status']]
-			tt += u' ' + _(u'Status: %s\n') % stat
+			tt += ' ' + _('Status: %s\n') % stat
 		if self._payload[self._idx['val_grouping']] is not None:
-			tt += u' ' + _(u'Grouping: %s\n') % self._payload[self._idx['val_grouping']]
+			tt += ' ' + _('Grouping: %s\n') % self._payload[self._idx['val_grouping']]
 
 		if with_evaluation:
 			norm_eval = None
@@ -1161,9 +1160,9 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 						percent = None
 					if percent is not None:
 						if percent < 6:
-							norm_eval = _(u'%.1f %% of the normal lower limit') % percent
+							norm_eval = _('%.1f %% of the normal lower limit') % percent
 						else:
-							norm_eval = _(u'%.0f %% of the normal lower limit') % percent
+							norm_eval = _('%.0f %% of the normal lower limit') % percent
 				# raised ?
 				if (self._payload[self._idx['val_normal_max']] is not None) and (self._payload[self._idx['val_num']] > self._payload[self._idx['val_normal_max']]):
 					try:
@@ -1172,11 +1171,11 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 						x_times = None
 					if x_times is not None:
 						if x_times < 10:
-							norm_eval = _(u'%.1f times the normal upper limit') % x_times
+							norm_eval = _('%.1f times the normal upper limit') % x_times
 						else:
-							norm_eval = _(u'%.0f times the normal upper limit') % x_times
+							norm_eval = _('%.0f times the normal upper limit') % x_times
 				if norm_eval is not None:
-					tt += u'  = %s\n' % norm_eval
+					tt += '  = %s\n' % norm_eval
 	#			#-------------------------------------
 	#			# this idea was shot down on the list
 	#			#-------------------------------------
@@ -1212,9 +1211,9 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 						percent = None
 					if percent is not None:
 						if percent < 6:
-							norm_eval = _(u'%.1f %% of the target lower limit') % percent
+							norm_eval = _('%.1f %% of the target lower limit') % percent
 						else:
-							norm_eval = _(u'%.0f %% of the target lower limit') % percent
+							norm_eval = _('%.0f %% of the target lower limit') % percent
 				# raised ?
 				if (self._payload[self._idx['val_target_max']] is not None) and (self._payload[self._idx['val_num']] > self._payload[self._idx['val_target_max']]):
 					try:
@@ -1223,11 +1222,11 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 						x_times = None
 					if x_times is not None:
 						if x_times < 10:
-							norm_eval = _(u'%.1f times the target upper limit') % x_times
+							norm_eval = _('%.1f times the target upper limit') % x_times
 						else:
-							norm_eval = _(u'%.0f times the target upper limit') % x_times
+							norm_eval = _('%.0f times the target upper limit') % x_times
 				if norm_eval is not None:
-					tt += u' = %s\n' % norm_eval
+					tt += ' = %s\n' % norm_eval
 	#			#-------------------------------------
 	#			# this idea was shot down on the list
 	#			#-------------------------------------
@@ -1253,33 +1252,33 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 	#						tt += u'  (%s)\n' % _(u'deviates by %.0f times of the target range') % times_deviation
 	#			#-------------------------------------
 
-		tmp = (u'%s%s' % (
-			gmTools.coalesce(self._payload[self._idx['name_test_org']], u''),
-			gmTools.coalesce(self._payload[self._idx['contact_test_org']], u'', u' (%s)'),
+		tmp = ('%s%s' % (
+			gmTools.coalesce(self._payload[self._idx['name_test_org']], ''),
+			gmTools.coalesce(self._payload[self._idx['contact_test_org']], '', ' (%s)'),
 		)).strip()
-		if tmp != u'':
-			tt += u' ' + _(u'Source: %s\n') % tmp
-		tt += u'\n'
+		if tmp != '':
+			tt += ' ' + _('Source: %s\n') % tmp
+		tt += '\n'
 		if self._payload[self._idx['note_test_org']] is not None:
-			tt += u' ' + gmTools.u_superscript_one + _(u'Lab comment: %s\n') % _(u'\n Lab comment: ').join(self._payload[self._idx['note_test_org']].split(u'\n'))
+			tt += ' ' + gmTools.u_superscript_one + _('Lab comment: %s\n') % _('\n Lab comment: ').join(self._payload[self._idx['note_test_org']].split('\n'))
 		if self._payload[self._idx['comment']] is not None:
-			tt += u' ' + gmTools.u_superscript_one + _(u'Praxis comment: %s\n') % _(u'\n Praxis comment: ').join(self._payload[self._idx['comment']].split(u'\n'))
+			tt += ' ' + gmTools.u_superscript_one + _('Praxis comment: %s\n') % _('\n Praxis comment: ').join(self._payload[self._idx['comment']].split('\n'))
 
 		if with_ranges:
-			tt += gmTools.coalesce(self.formatted_normal_range, u'', u' ' + _('Standard normal range: %s\n'))
-			tt += gmTools.coalesce(self.formatted_clinical_range, u'', u' ' + _('Clinical target range: %s\n'))
-			tt += gmTools.coalesce(self._payload[self._idx['norm_ref_group']], u'', u' ' + _('Reference group: %s\n'))
+			tt += gmTools.coalesce(self.formatted_normal_range, '', ' ' + _('Standard normal range: %s\n'))
+			tt += gmTools.coalesce(self.formatted_clinical_range, '', ' ' + _('Clinical target range: %s\n'))
+			tt += gmTools.coalesce(self._payload[self._idx['norm_ref_group']], '', ' ' + _('Reference group: %s\n'))
 
 		# metadata
 		if with_episode:
-			tt += u' ' + _(u'Episode: %s\n') % self._payload[self._idx['episode']]
+			tt += ' ' + _('Episode: %s\n') % self._payload[self._idx['episode']]
 			if self._payload[self._idx['health_issue']] is not None:
-				tt += u' ' + _(u'Issue: %s\n') % self._payload[self._idx['health_issue']]
+				tt += ' ' + _('Issue: %s\n') % self._payload[self._idx['health_issue']]
 		if self._payload[self._idx['material']] is not None:
-			tt += u' ' + _(u'Material: %s\n') % self._payload[self._idx['material']]
+			tt += ' ' + _('Material: %s\n') % self._payload[self._idx['material']]
 		if self._payload[self._idx['material_detail']] is not None:
-			tt += u' ' + _(u'Details: %s\n') % self._payload[self._idx['material_detail']]
-		tt += u'\n'
+			tt += ' ' + _('Details: %s\n') % self._payload[self._idx['material_detail']]
+		tt += '\n'
 
 		if with_review:
 			if self._payload[self._idx['reviewed']]:
@@ -1289,70 +1288,70 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 				)
 			else:
 				review = _('not yet')
-			tt += _(u'Signed (%(sig_hand)s): %(reviewed)s\n') % ({
+			tt += _('Signed (%(sig_hand)s): %(reviewed)s\n') % ({
 				'sig_hand': gmTools.u_writing_hand,
 				'reviewed': review
 			})
-			tt += u' ' + _(u'Responsible clinician: %s\n') % gmTools.bool2subst (
+			tt += ' ' + _('Responsible clinician: %s\n') % gmTools.bool2subst (
 				self._payload[self._idx['you_are_responsible']],
 				_('you'),
 				self._payload[self._idx['responsible_reviewer']]
 			)
 			if self._payload[self._idx['reviewed']]:
-				tt += u' ' + _(u'Last reviewer: %(reviewer)s\n') % ({
+				tt += ' ' + _('Last reviewer: %(reviewer)s\n') % ({
 					'reviewer': gmTools.bool2subst (
 						self._payload[self._idx['review_by_you']],
 						_('you'),
-						gmTools.coalesce(self._payload[self._idx['last_reviewer']], u'?')
+						gmTools.coalesce(self._payload[self._idx['last_reviewer']], '?')
 					)
 				})
-				tt += u' ' + _(u' Technically abnormal: %(abnormal)s\n') % ({
+				tt += ' ' + _(' Technically abnormal: %(abnormal)s\n') % ({
 					'abnormal': gmTools.bool2subst (
 						self._payload[self._idx['is_technically_abnormal']],
 						_('yes'),
 						_('no'),
-						u'?'
+						'?'
 					)
 				})
-				tt += u' ' + _(u' Clinically relevant: %(relevant)s\n') % ({
+				tt += ' ' + _(' Clinically relevant: %(relevant)s\n') % ({
 					'relevant': gmTools.bool2subst (
 						self._payload[self._idx['is_clinically_relevant']],
 						_('yes'),
 						_('no'),
-						u'?'
+						'?'
 					)
 				})
 			if self._payload[self._idx['review_comment']] is not None:
-				tt += u' ' + _(u' Comment: %s\n') % self._payload[self._idx['review_comment']].strip()
-			tt += u'\n'
+				tt += ' ' + _(' Comment: %s\n') % self._payload[self._idx['review_comment']].strip()
+			tt += '\n'
 
 		# type
 		if with_type_details:
 			has_details = None not in [self._payload[self._idx['comment_tt']], self._payload[self._idx['pk_meta_test_type']], self._payload[self._idx['comment_meta']]]
 			if has_details:
-				tt += _(u'Test type details:\n')
+				tt += _('Test type details:\n')
 			if self._payload[self._idx['comment_tt']] is not None:
-				tt += u' ' + _(u'Type comment: %s\n') % _(u'\n Type comment:').join(self._payload[self._idx['comment_tt']].split(u'\n'))
+				tt += ' ' + _('Type comment: %s\n') % _('\n Type comment:').join(self._payload[self._idx['comment_tt']].split('\n'))
 			if self._payload[self._idx['pk_meta_test_type']] is not None:
-				tt += u' ' + _(u'Aggregated (%s) under: %s (%s)  [#%s]\n') % (
+				tt += ' ' + _('Aggregated (%s) under: %s (%s)  [#%s]\n') % (
 					gmTools.u_sum,
 					self._payload[self._idx['name_meta']],
 					self._payload[self._idx['abbrev_meta']],
 					self._payload[self._idx['pk_meta_test_type']]
 				)
 			if self._payload[self._idx['comment_meta']] is not None:
-				tt += u' ' + _(u'Group comment: %s\n') % _(u'\n Group comment: ').join(self._payload[self._idx['comment_meta']].split(u'\n'))
+				tt += ' ' + _('Group comment: %s\n') % _('\n Group comment: ').join(self._payload[self._idx['comment_meta']].split('\n'))
 			if has_details:
-				tt += u'\n'
+				tt += '\n'
 
 		if with_source_data:
 			if self._payload[self._idx['source_data']] is not None:
-				tt += _(u'Source data:\n')
-				tt += u' ' + self._payload[self._idx['source_data']]
-				tt += u'\n\n'
+				tt += _('Source data:\n')
+				tt += ' ' + self._payload[self._idx['source_data']]
+				tt += '\n\n'
 
 		if with_review:
-			tt += _(u'Revisions: %(row_ver)s, last %(mod_when)s by %(mod_by)s.') % ({
+			tt += _('Revisions: %(row_ver)s, last %(mod_when)s by %(mod_by)s.') % ({
 				'row_ver': self._payload[self._idx['row_version']],
 				'mod_when': gmDateTime.pydt_strftime(self._payload[self._idx['modified_when']],date_format),
 				'mod_by': self._payload[self._idx['modified_by']]
@@ -1380,9 +1379,9 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 		if has_range_info is False:
 			return None
 
-		return u'%s - %s' % (
-			gmTools.coalesce(self._payload[self._idx['val_normal_min']], u'?'),
-			gmTools.coalesce(self._payload[self._idx['val_normal_max']], u'?')
+		return '%s - %s' % (
+			gmTools.coalesce(self._payload[self._idx['val_normal_min']], '?'),
+			gmTools.coalesce(self._payload[self._idx['val_normal_max']], '?')
 		)
 
 	normal_min_max = property(_get_normal_min_max, lambda x:x)
@@ -1395,23 +1394,23 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 			self._payload[self._idx['val_normal_max']] is not None
 		)
 		if has_numerical_range:
-			numerical_range = u'%s - %s' % (
-				gmTools.coalesce(self._payload[self._idx['val_normal_min']], u'?'),
-				gmTools.coalesce(self._payload[self._idx['val_normal_max']], u'?')
+			numerical_range = '%s - %s' % (
+				gmTools.coalesce(self._payload[self._idx['val_normal_min']], '?'),
+				gmTools.coalesce(self._payload[self._idx['val_normal_max']], '?')
 			)
 		else:
-			numerical_range = u''
+			numerical_range = ''
 		textual_range = gmTools.coalesce (
 			self._payload[self._idx['val_normal_range']],
-			u'',
+			'',
 			gmTools.bool2subst (
 				has_numerical_range,
-				u' / %s',
-				u'%s'
+				' / %s',
+				'%s'
 			)
 		)
-		range_info = u'%s%s' % (numerical_range, textual_range)
-		if range_info == u'':
+		range_info = '%s%s' % (numerical_range, textual_range)
+		if range_info == '':
 			return None
 		return range_info
 
@@ -1437,9 +1436,9 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 		if has_range_info is False:
 			return None
 
-		return u'%s - %s' % (
-			gmTools.coalesce(self._payload[self._idx['val_target_min']], u'?'),
-			gmTools.coalesce(self._payload[self._idx['val_target_max']], u'?')
+		return '%s - %s' % (
+			gmTools.coalesce(self._payload[self._idx['val_target_min']], '?'),
+			gmTools.coalesce(self._payload[self._idx['val_target_max']], '?')
 		)
 
 	clinical_min_max = property(_get_clinical_min_max, lambda x:x)
@@ -1452,23 +1451,23 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 			self._payload[self._idx['val_target_max']] is not None
 		)
 		if has_numerical_range:
-			numerical_range = u'%s - %s' % (
-				gmTools.coalesce(self._payload[self._idx['val_target_min']], u'?'),
-				gmTools.coalesce(self._payload[self._idx['val_target_max']], u'?')
+			numerical_range = '%s - %s' % (
+				gmTools.coalesce(self._payload[self._idx['val_target_min']], '?'),
+				gmTools.coalesce(self._payload[self._idx['val_target_max']], '?')
 			)
 		else:
-			numerical_range = u''
+			numerical_range = ''
 		textual_range = gmTools.coalesce (
 			self._payload[self._idx['val_target_range']],
-			u'',
+			'',
 			gmTools.bool2subst (
 				has_numerical_range,
-				u' / %s',
-				u'%s'
+				' / %s',
+				'%s'
 			)
 		)
-		range_info = u'%s%s' % (numerical_range, textual_range)
-		if range_info == u'':
+		range_info = '%s%s' % (numerical_range, textual_range)
+		if range_info == '':
 			return None
 		return range_info
 
@@ -1483,7 +1482,7 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 			return self
 		if self._payload[self._idx['val_normal_range']] is not None:
 			return self
-		cmd = u"""
+		cmd = """
 			SELECT * from clin.v_test_results
 			WHERE
 				pk_type = %(pk_type)s
@@ -1504,9 +1503,9 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 				END
 			LIMIT 1"""
 		args = {
-			u'pk_type': self._payload[self._idx['pk_test_type']],
-			u'unit': self._payload[self._idx['val_unit']],
-			u'clin_when': self._payload[self._idx['clin_when']]
+			'pk_type': self._payload[self._idx['pk_test_type']],
+			'unit': self._payload[self._idx['val_unit']],
+			'clin_when': self._payload[self._idx['clin_when']]
 		}
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 		if len(rows) == 0:
@@ -1524,9 +1523,9 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 			self._payload[self._idx['val_normal_max']] is not None
 		)
 		if has_normal_min_or_max:
-			normal_min_max = u'%s - %s' % (
-				gmTools.coalesce(self._payload[self._idx['val_normal_min']], u'?'),
-				gmTools.coalesce(self._payload[self._idx['val_normal_max']], u'?')
+			normal_min_max = '%s - %s' % (
+				gmTools.coalesce(self._payload[self._idx['val_normal_min']], '?'),
+				gmTools.coalesce(self._payload[self._idx['val_normal_max']], '?')
 			)
 
 		has_clinical_min_or_max = (
@@ -1535,9 +1534,9 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 			self._payload[self._idx['val_target_max']] is not None
 		)
 		if has_clinical_min_or_max:
-			clinical_min_max = u'%s - %s' % (
-				gmTools.coalesce(self._payload[self._idx['val_target_min']], u'?'),
-				gmTools.coalesce(self._payload[self._idx['val_target_max']], u'?')
+			clinical_min_max = '%s - %s' % (
+				gmTools.coalesce(self._payload[self._idx['val_target_min']], '?'),
+				gmTools.coalesce(self._payload[self._idx['val_target_max']], '?')
 			)
 
 		if has_clinical_min_or_max:
@@ -1545,11 +1544,11 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 				'clin_min_max': clinical_min_max,
 				'clin_range': gmTools.coalesce (
 					self._payload[self._idx['val_target_range']],
-					u'',
+					'',
 					gmTools.bool2subst (
 						has_clinical_min_or_max,
-						u' / %s',
-						u'%s'
+						' / %s',
+						'%s'
 					)
 				)
 			})
@@ -1559,11 +1558,11 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 				'norm_min_max': normal_min_max,
 				'norm_range': gmTools.coalesce (
 					self._payload[self._idx['val_normal_range']],
-					u'',
+					'',
 					gmTools.bool2subst (
 						has_normal_min_or_max,
-						u' / %s',
-						u'%s'
+						' / %s',
+						'%s'
 					)
 				)
 			})
@@ -1593,10 +1592,10 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 		indicator = self._payload[self._idx['abnormality_indicator']]
 		if indicator is not None:
 			indicator = indicator.strip()
-			if indicator != u'':
-				if indicator.strip(u'+') == u'':
+			if indicator != '':
+				if indicator.strip('+') == '':
 					return True
-				if indicator.strip(u'-') == u'':
+				if indicator.strip('-') == '':
 					return False
 		# 3) non-numerical value ?
 		if self._payload[self._idx['val_num']] is None:
@@ -1624,10 +1623,10 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 		indicator = self._payload[self._idx['abnormality_indicator']]
 		if indicator is not None:
 			indicator = indicator.strip()
-			if indicator != u'':
-				if indicator.strip(u'+') == u'':
+			if indicator != '':
+				if indicator.strip('+') == '':
 					return False
-				if indicator.strip(u'-') == u'':
+				if indicator.strip('-') == '':
 					return True
 		# 3) non-numerical value ?
 		if self._payload[self._idx['val_num']] is None:
@@ -1664,11 +1663,11 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 
 			Note: does NOT save the result.
 		"""
-		ref_range = ref_range.strip().replace(u' ', u'')
+		ref_range = ref_range.strip().replace(' ', '')
 
 		is_range = regex.match('-{0,1}\d+[.,]{0,1}\d*--{0,1}\d+[.,]{0,1}\d*$', ref_range, regex.UNICODE)
 		if is_range is not None:
-			min_val = regex.match('-{0,1}\d+[.,]{0,1}\d*-', ref_range, regex.UNICODE).group(0).rstrip(u'-')
+			min_val = regex.match('-{0,1}\d+[.,]{0,1}\d*-', ref_range, regex.UNICODE).group(0).rstrip('-')
 			success, min_val = gmTools.input2decimal(min_val)
 			max_val = (regex.search('--{0,1}\d+[.,]{0,1}\d*$', ref_range, regex.UNICODE).group(0))[1:]
 			success, max_val = gmTools.input2decimal(max_val)
@@ -1676,7 +1675,7 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 			self['val_normal_max'] = max_val
 			return
 
-		if ref_range.startswith(u'<'):
+		if ref_range.startswith('<'):
 			is_range = regex.match('<\d+[.,]{0,1}\d*$', ref_range, regex.UNICODE)
 			if is_range is not None:
 				max_val = ref_range[1:]
@@ -1685,7 +1684,7 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 				self['val_normal_max'] = max_val
 				return
 
-		if ref_range.startswith(u'<-'):
+		if ref_range.startswith('<-'):
 			is_range = regex.match('<-\d+[.,]{0,1}\d*$', ref_range, regex.UNICODE)
 			if is_range is not None:
 				max_val = ref_range[1:]
@@ -1694,7 +1693,7 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 				self['val_normal_max'] = max_val
 				return
 
-		if ref_range.startswith(u'>'):
+		if ref_range.startswith('>'):
 			is_range = regex.match('>\d+[.,]{0,1}\d*$', ref_range, regex.UNICODE)
 			if is_range is not None:
 				min_val = ref_range[1:]
@@ -1703,7 +1702,7 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 				self['val_normal_max'] = None
 				return
 
-		if ref_range.startswith(u'>-'):
+		if ref_range.startswith('>-'):
 			is_range = regex.match('>-\d+[.,]{0,1}\d*$', ref_range, regex.UNICODE)
 			if is_range is not None:
 				min_val = ref_range[1:]
@@ -1721,12 +1720,12 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 	def _get_formatted_abnormality_indicator(self):
 		# 1) the user is right
 		if self._payload[self._idx['is_technically_abnormal']] is False:
-			return u''
+			return ''
 		# 2) the lab is right (result.abnormality_indicator)
 		indicator = self._payload[self._idx['abnormality_indicator']]
 		if indicator is not None:
 			indicator = indicator.strip()
-			if indicator != u'':
+			if indicator != '':
 				return indicator
 		# 3) non-numerical value ? then we can't know more
 		if self._payload[self._idx['val_num']] is None:
@@ -1735,20 +1734,20 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 		target_min = self._payload[self._idx['val_target_min']]
 		if target_min is not None:
 			if target_min > self._payload[self._idx['val_num']]:
-				return u'-'
+				return '-'
 		target_max = self._payload[self._idx['val_target_max']]
 		if target_max is not None:
 			if target_max < self._payload[self._idx['val_num']]:
-				return u'+'
+				return '+'
 		# 4) the normal range is right
 		normal_min = self._payload[self._idx['val_normal_min']]
 		if normal_min is not None:
 			if normal_min > self._payload[self._idx['val_num']]:
-				return u'-'
+				return '-'
 		normal_max = self._payload[self._idx['val_normal_max']]
 		if normal_max is not None:
 			if normal_max < self._payload[self._idx['val_num']]:
-				return u'+'
+				return '+'
 		# reviewed, abnormal, but no indicator available
 		if self._payload[self._idx['is_technically_abnormal']] is True:
 			return gmTools.u_plus_minus
@@ -1761,7 +1760,7 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 	def _get_is_long_text(self):
 		if self._payload[self._idx['val_alpha']] is None:
 			return False
-		lines = gmTools.strip_empty_lines(text = self._payload[self._idx['val_alpha']], eol = u'\n', return_list = True)
+		lines = gmTools.strip_empty_lines(text = self._payload[self._idx['val_alpha']], eol = '\n', return_list = True)
 		if len(lines) > 4:
 			return True
 		return False
@@ -1773,10 +1772,10 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 		if self._payload[self._idx['val_alpha']] is None:
 			return None
 		val = self._payload[self._idx['val_alpha']].lstrip()
-		if val[0] == u'<':
+		if val[0] == '<':
 			factor = decimal.Decimal(0.5)
 			val = val[1:]
-		elif val[0] == u'>':
+		elif val[0] == '>':
 			factor = 2
 			val = val[1:]
 		else:
@@ -1803,7 +1802,7 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 			# NOTHING AT ALL is known about them
 			if technically_abnormal is None:
 				if clinically_relevant is None:
-					comment = gmTools.none_if(comment, u'', strip_string = True)
+					comment = gmTools.none_if(comment, '', strip_string = True)
 					if comment is None:
 						if make_me_responsible is False:
 							return True
@@ -1814,7 +1813,7 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 			)
 
 		if make_me_responsible is True:
-			cmd = u"SELECT pk FROM dem.staff WHERE db_user = current_user"
+			cmd = "SELECT pk FROM dem.staff WHERE db_user = current_user"
 			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
 			self['pk_intended_reviewer'] = rows[0][0]
 			self.save_payload()
@@ -1840,13 +1839,13 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 			'when': self._payload[self._idx['clin_when']],
 			'offset': max_offset
 		}
-		WHERE = u'((pk_test_type = %(ttyp)s) OR (loinc_tt = %(tloinc)s))'
-		WHERE_meta = u'((pk_meta_test_type = %(mtyp)s) OR (loinc_meta = %(mloinc)s))'
+		WHERE = '((pk_test_type = %(ttyp)s) OR (loinc_tt = %(tloinc)s))'
+		WHERE_meta = '((pk_meta_test_type = %(mtyp)s) OR (loinc_meta = %(mloinc)s))'
 		if max_offset is not None:
-			WHERE = WHERE + u' AND (clin_when BETWEEN (%(when)s - %(offset)s) AND (%(when)s + %(offset)s))'
-			WHERE_meta = WHERE_meta + u' AND (clin_when BETWEEN (%(when)s - %(offset)s) AND (%(when)s + %(offset)s))'
+			WHERE = WHERE + ' AND (clin_when BETWEEN (%(when)s - %(offset)s) AND (%(when)s + %(offset)s))'
+			WHERE_meta = WHERE_meta + ' AND (clin_when BETWEEN (%(when)s - %(offset)s) AND (%(when)s + %(offset)s))'
 
-		SQL = u"""
+		SQL = """
 			SELECT * FROM clin.v_test_results
 			WHERE
 				pk_patient = %%(pat)s
@@ -1860,14 +1859,14 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 		# get earlier results
 		earlier_results = []
 		# by type
-		cmd = SQL % (u'<', WHERE, desired_earlier_results)
+		cmd = SQL % ('<', WHERE, desired_earlier_results)
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 		if len(rows) > 0:
 			earlier_results.extend([ cTestResult(row = {'pk_field': 'pk_test_result', 'idx': idx, 'data': r}) for r in rows ])
 		# by meta type ?
 		missing_results = desired_earlier_results - len(earlier_results)
 		if  missing_results > 0:
-			cmd = SQL % (u'<', WHERE_meta, missing_results)
+			cmd = SQL % ('<', WHERE_meta, missing_results)
 			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 			if len(rows) > 0:
 				earlier_results.extend([ cTestResult(row = {'pk_field': 'pk_test_result', 'idx': idx, 'data': r}) for r in rows ])
@@ -1875,14 +1874,14 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 		# get later results
 		later_results = []
 		# by type
-		cmd = SQL % (u'>', WHERE, desired_later_results)
+		cmd = SQL % ('>', WHERE, desired_later_results)
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 		if len(rows) > 0:
 			later_results.extend([ cTestResult(row = {'pk_field': 'pk_test_result', 'idx': idx, 'data': r}) for r in rows ])
 		# by meta type ?
 		missing_results = desired_later_results - len(later_results)
 		if  missing_results > 0:
-			cmd = SQL % (u'>', WHERE_meta, missing_results)
+			cmd = SQL % ('>', WHERE_meta, missing_results)
 			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 			if len(rows) > 0:
 				later_results.extend([ cTestResult(row = {'pk_field': 'pk_test_result', 'idx': idx, 'data': r}) for r in rows ])
@@ -1903,13 +1902,13 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 		if technically_abnormal is None:
 			technically_abnormal = False
 			if self._payload[self._idx['abnormality_indicator']] is not None:
-				if self._payload[self._idx['abnormality_indicator']].strip() != u'':
+				if self._payload[self._idx['abnormality_indicator']].strip() != '':
 					technically_abnormal = True
 
 		if clinically_relevant is None:
 			clinically_relevant = technically_abnormal
 
-		cmd = u"""
+		cmd = """
 INSERT INTO clin.reviewed_test_results (
 	fk_reviewed_row,
 	is_technically_abnormal,
@@ -1945,22 +1944,22 @@ INSERT INTO clin.reviewed_test_results (
 		}
 
 		set_parts = [
-			u'fk_reviewer = (SELECT pk FROM dem.staff WHERE db_user = current_user)',
-			u'comment = gm.nullify_empty_string(%(cmt)s)'
+			'fk_reviewer = (SELECT pk FROM dem.staff WHERE db_user = current_user)',
+			'comment = gm.nullify_empty_string(%(cmt)s)'
 		]
 
 		if technically_abnormal is not None:
-			set_parts.append(u'is_technically_abnormal = %(abnormal)s')
+			set_parts.append('is_technically_abnormal = %(abnormal)s')
 
 		if clinically_relevant is not None:
-			set_parts.append(u'clinically_relevant = %(relevant)s')
+			set_parts.append('clinically_relevant = %(relevant)s')
 
-		cmd = u"""
+		cmd = """
 UPDATE clin.reviewed_test_results SET
 	%s
 WHERE
 	fk_reviewed_row = %%(pk_row)s
-""" % u',\n	'.join(set_parts)
+""" % ',\n	'.join(set_parts)
 
 		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 
@@ -1970,7 +1969,7 @@ def get_test_results(pk_patient=None, encounters=None, episodes=None, order_by=N
 	where_parts = []
 
 	if pk_patient is not None:
-		where_parts.append(u'pk_patient = %(pat)s')
+		where_parts.append('pk_patient = %(pat)s')
 		args = {'pat': pk_patient}
 
 #	if tests is not None:
@@ -1978,24 +1977,24 @@ def get_test_results(pk_patient=None, encounters=None, episodes=None, order_by=N
 #		args['tests'] = tuple(tests)
 
 	if encounters is not None:
-		where_parts.append(u'pk_encounter IN %(encs)s')
+		where_parts.append('pk_encounter IN %(encs)s')
 		args['encs'] = tuple(encounters)
 
 	if episodes is not None:
-		where_parts.append(u'pk_episode IN %(epis)s')
+		where_parts.append('pk_episode IN %(epis)s')
 		args['epis'] = tuple(episodes)
 
 	if order_by is None:
-		order_by = u''
+		order_by = ''
 	else:
-		order_by = u'ORDER BY %s' % order_by
+		order_by = 'ORDER BY %s' % order_by
 
-	cmd = u"""
+	cmd = """
 		SELECT * FROM clin.v_test_results
 		WHERE %s
 		%s
 	""" % (
-		u' AND '.join(where_parts),
+		' AND '.join(where_parts),
 		order_by
 	)
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
@@ -2007,9 +2006,9 @@ def get_test_results(pk_patient=None, encounters=None, episodes=None, order_by=N
 def get_most_recent_results_for_panel(pk_patient=None, pk_panel=None, order_by=None, group_by_meta_type=False):
 
 	if order_by is None:
-		order_by = u''
+		order_by = ''
 	else:
-		order_by = u'ORDER BY %s' % order_by
+		order_by = 'ORDER BY %s' % order_by
 
 	args = {
 		'pat': pk_patient,
@@ -2020,7 +2019,7 @@ def get_most_recent_results_for_panel(pk_patient=None, pk_panel=None, order_by=N
 		# return most recent results in panel grouped by
 		# meta test type if any, non-grouped results are
 		# returned ungrouped :-)
-		cmd = u"""
+		cmd = """
 			SELECT c_vtr.*
 			FROM (
 				-- max(clin_when) per test_type-in-panel for patient
@@ -2071,7 +2070,7 @@ def get_most_recent_results_for_panel(pk_patient=None, pk_panel=None, order_by=N
 		# return most recent results in panel regardless of whether
 		# distinct test types in this panel are grouped under the
 		# same meta test type
-		cmd = u"""
+		cmd = """
 			SELECT c_vtr.*
 			FROM (
 				-- max(clin_when) per test_type-in-panel for patient
@@ -2114,25 +2113,25 @@ def get_result_at_timestamp(timestamp=None, test_type=None, loinc=None, toleranc
 		'intv': tolerance_interval
 	}
 
-	where_parts = [u'pk_patient = %(pat)s']
+	where_parts = ['pk_patient = %(pat)s']
 	if test_type is not None:
-		where_parts.append(u'pk_test_type = %(ttyp)s')		# consider: pk_meta_test_type = %(pkmtt)s / self._payload[self._idx['pk_meta_test_type']]
+		where_parts.append('pk_test_type = %(ttyp)s')		# consider: pk_meta_test_type = %(pkmtt)s / self._payload[self._idx['pk_meta_test_type']]
 	elif loinc is not None:
-		where_parts.append(u'((loinc_tt IN %(loinc)s) OR (loinc_meta IN %(loinc)s))')
+		where_parts.append('((loinc_tt IN %(loinc)s) OR (loinc_meta IN %(loinc)s))')
 		args['loinc'] = tuple(loinc)
 
 	if tolerance_interval is None:
-		where_parts.append(u'clin_when = %(ts)s')
+		where_parts.append('clin_when = %(ts)s')
 	else:
-		where_parts.append(u'clin_when between (%(ts)s - %(intv)s::interval) AND (%(ts)s + %(intv)s::interval)')
+		where_parts.append('clin_when between (%(ts)s - %(intv)s::interval) AND (%(ts)s + %(intv)s::interval)')
 
-	cmd = u"""
+	cmd = """
 		SELECT * FROM clin.v_test_results
 		WHERE
 			%s
 		ORDER BY
 			abs(extract(epoch from age(clin_when, %%(ts)s)))
-		LIMIT 1""" % u' AND '.join(where_parts)
+		LIMIT 1""" % ' AND '.join(where_parts)
 
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 	if len(rows) == 0:
@@ -2149,11 +2148,11 @@ def get_results_for_day(timestamp=None, patient=None, order_by=None):
 	}
 
 	where_parts = [
-		u'pk_patient = %(pat)s',
-		u"date_trunc('day'::text, clin_when) = date_trunc('day'::text, %(ts)s)"
+		'pk_patient = %(pat)s',
+		"date_trunc('day'::text, clin_when) = date_trunc('day'::text, %(ts)s)"
 	]
 
-	cmd = u"""
+	cmd = """
 		SELECT * FROM clin.v_test_results
 		WHERE
 			%s
@@ -2161,37 +2160,37 @@ def get_results_for_day(timestamp=None, patient=None, order_by=None):
 			val_grouping,
 			abbrev_tt,
 			clin_when DESC
-	""" % u' AND '.join(where_parts)
+	""" % ' AND '.join(where_parts)
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 	return [ cTestResult(row = {'pk_field': 'pk_test_result', 'idx': idx, 'data': r}) for r in rows ]
 
 #------------------------------------------------------------
 def get_results_for_issue(pk_health_issue=None, order_by=None):
 	args = {'pk_issue': pk_health_issue}
-	where_parts = [u'pk_health_issue = %(pk_issue)s']
-	cmd = u"""
+	where_parts = ['pk_health_issue = %(pk_issue)s']
+	cmd = """
 		SELECT * FROM clin.v_test_results
 		WHERE %s
 		ORDER BY
 			val_grouping,
 			abbrev_tt,
 			clin_when DESC
-	""" % u' AND '.join(where_parts)
+	""" % ' AND '.join(where_parts)
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 	return [ cTestResult(row = {'pk_field': 'pk_test_result', 'idx': idx, 'data': r}) for r in rows ]
 
 #------------------------------------------------------------
 def get_results_for_episode(pk_episode=None):
 	args = {'pk_epi': pk_episode}
-	where_parts = [u'pk_episode = %(pk_epi)s']
-	cmd = u"""
+	where_parts = ['pk_episode = %(pk_epi)s']
+	cmd = """
 		SELECT * FROM clin.v_test_results
 		WHERE %s
 		ORDER BY
 			val_grouping,
 			abbrev_tt,
 			clin_when DESC
-	""" % u' AND '.join(where_parts)
+	""" % ' AND '.join(where_parts)
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 	return [ cTestResult(row = {'pk_field': 'pk_test_result', 'idx': idx, 'data': r}) for r in rows ]
 
@@ -2212,17 +2211,17 @@ def get_most_recent_results_by_loinc(loinc=None, no_of_results=1, patient=None, 
 
 	args = {'pat': patient, 'loinc': tuple(loinc)}
 	if max_age is None:
-		max_age_cond = u''
+		max_age_cond = ''
 	else:
-		max_age_cond = u'AND clin_when > (now() - %(max_age)s::interval)'
+		max_age_cond = 'AND clin_when > (now() - %(max_age)s::interval)'
 		args['max_age'] = max_age
 
 	if consider_meta_type:
-		rank_order = u'_rank ASC'
+		rank_order = '_rank ASC'
 	else:
-		rank_order = u'_rank DESC'
+		rank_order = '_rank DESC'
 
-	cmd = u"""
+	cmd = """
 	SELECT DISTINCT ON (pk_test_type) * FROM (
 		(	-- get results for meta type loinc
 			SELECT *, 1 AS _rank
@@ -2278,19 +2277,19 @@ def get_most_recent_results(test_type=None, loinc=None, no_of_results=1, patient
 		'ttyp': test_type,
 		'loinc': loinc
 	}
-	where_parts = [u'pk_patient = %(pat)s']
+	where_parts = ['pk_patient = %(pat)s']
 	if test_type is not None:
-		where_parts.append(u'pk_test_type = %(ttyp)s')		# consider: pk_meta_test_type = %(pkmtt)s / self._payload[self._idx['pk_meta_test_type']]
+		where_parts.append('pk_test_type = %(ttyp)s')		# consider: pk_meta_test_type = %(pkmtt)s / self._payload[self._idx['pk_meta_test_type']]
 	elif loinc is not None:
-		where_parts.append(u'((loinc_tt IN %(loinc)s) OR (loinc_meta IN %(loinc)s))')
+		where_parts.append('((loinc_tt IN %(loinc)s) OR (loinc_meta IN %(loinc)s))')
 		args['loinc'] = tuple(loinc)
-	cmd = u"""
+	cmd = """
 		SELECT * FROM clin.v_test_results
 		WHERE
 			%s
 		ORDER BY clin_when DESC
 		LIMIT %s""" % (
-			u' AND '.join(where_parts),
+			' AND '.join(where_parts),
 			no_of_results
 		)
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
@@ -2312,19 +2311,19 @@ def get_oldest_result(test_type=None, loinc=None, patient=None):
 		'loinc': loinc
 	}
 
-	where_parts = [u'pk_patient = %(pat)s']
+	where_parts = ['pk_patient = %(pat)s']
 	if test_type is not None:
-		where_parts.append(u'pk_test_type = %(ttyp)s')		# consider: pk_meta_test_type = %(pkmtt)s / self._payload[self._idx['pk_meta_test_type']]
+		where_parts.append('pk_test_type = %(ttyp)s')		# consider: pk_meta_test_type = %(pkmtt)s / self._payload[self._idx['pk_meta_test_type']]
 	elif loinc is not None:
-		where_parts.append(u'((loinc_tt IN %(loinc)s) OR (loinc_meta IN %(loinc)s))')
+		where_parts.append('((loinc_tt IN %(loinc)s) OR (loinc_meta IN %(loinc)s))')
 		args['loinc'] = tuple(loinc)
 
-	cmd = u"""
+	cmd = """
 		SELECT * FROM clin.v_test_results
 		WHERE
 			%s
 		ORDER BY clin_when
-		LIMIT 1""" % u' AND '.join(where_parts)
+		LIMIT 1""" % ' AND '.join(where_parts)
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 	if len(rows) == 0:
 		return None
@@ -2338,13 +2337,13 @@ def delete_test_result(result=None):
 	except (TypeError, AttributeError):
 		pk = result['pk_test_result']
 
-	cmd = u'DELETE FROM clin.test_result WHERE pk = %(pk)s'
+	cmd = 'DELETE FROM clin.test_result WHERE pk = %(pk)s'
 	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': {'pk': pk}}])
 
 #------------------------------------------------------------
 def create_test_result(encounter=None, episode=None, type=None, intended_reviewer=None, val_num=None, val_alpha=None, unit=None, link_obj=None):
 
-	cmd1 = u"""
+	cmd1 = """
 		INSERT INTO clin.test_result (
 			fk_encounter,
 			fk_episode,
@@ -2363,15 +2362,15 @@ def create_test_result(encounter=None, episode=None, type=None, intended_reviewe
 			%(unit)s
 		)
 	"""
-	cmd2 = u"SELECT * from clin.v_test_results WHERE pk_test_result = currval(pg_get_serial_sequence('clin.test_result', 'pk'))"
+	cmd2 = "SELECT * from clin.v_test_results WHERE pk_test_result = currval(pg_get_serial_sequence('clin.test_result', 'pk'))"
 	args = {
-		u'enc': encounter,
-		u'epi': episode,
-		u'type': type,
-		u'rev': intended_reviewer,
-		u'v_num': val_num,
-		u'v_alpha': val_alpha,
-		u'unit': unit
+		'enc': encounter,
+		'epi': episode,
+		'type': type,
+		'rev': intended_reviewer,
+		'v_num': val_num,
+		'v_alpha': val_alpha,
+		'unit': unit
 	}
 	rows, idx = gmPG2.run_rw_queries (
 		link_obj = link_obj,
@@ -2390,11 +2389,11 @@ def create_test_result(encounter=None, episode=None, type=None, intended_reviewe
 	return tr
 
 #------------------------------------------------------------
-def format_test_results(results=None, output_format=u'latex'):
+def format_test_results(results=None, output_format='latex'):
 
-	_log.debug(u'formatting test results into [%s]', output_format)
+	_log.debug('formatting test results into [%s]', output_format)
 
-	if output_format == u'latex':
+	if output_format == 'latex':
 		return __format_test_results_latex(results = results)
 
 	msg = _('unknown test results output format [%s]') % output_format
@@ -2402,23 +2401,23 @@ def format_test_results(results=None, output_format=u'latex'):
 	return msg
 
 #------------------------------------------------------------
-def __tests2latex_minipage(results=None, width=u'1.5cm', show_time=False, show_range=True):
+def __tests2latex_minipage(results=None, width='1.5cm', show_time=False, show_range=True):
 
 	if len(results) == 0:
-		return u'\\begin{minipage}{%s} \\end{minipage}' % width
+		return '\\begin{minipage}{%s} \\end{minipage}' % width
 
 	lines = []
 	for t in results:
 
-		tmp = u''
+		tmp = ''
 
 		if show_time:
-			tmp += u'{\\tiny (%s)} ' % t['clin_when'].strftime('%H:%M')
+			tmp += '{\\tiny (%s)} ' % t['clin_when'].strftime('%H:%M')
 
-		tmp += u'%.8s' % t['unified_val']
+		tmp += '%.8s' % t['unified_val']
 
 		lines.append(tmp)
-		tmp = u''
+		tmp = ''
 
 		if show_range:
 			has_range = (
@@ -2430,34 +2429,34 @@ def __tests2latex_minipage(results=None, width=u'1.5cm', show_time=False, show_r
 			)
 			if has_range:
 				if t['unified_target_range'] is not None:
-					tmp += u'{\\tiny %s}' % t['unified_target_range']
+					tmp += '{\\tiny %s}' % t['unified_target_range']
 				else:
-					tmp += u'{\\tiny %s}' % (
-						gmTools.coalesce(t['unified_target_min'], u'- ', u'%s - '),
-						gmTools.coalesce(t['unified_target_max'], u'', u'%s')
+					tmp += '{\\tiny %s}' % (
+						gmTools.coalesce(t['unified_target_min'], '- ', '%s - '),
+						gmTools.coalesce(t['unified_target_max'], '', '%s')
 					)
 				lines.append(tmp)
 
-	return u'\\begin{minipage}{%s} \\begin{flushright} %s \\end{flushright} \\end{minipage}' % (width, u' \\\\ '.join(lines))
+	return '\\begin{minipage}{%s} \\begin{flushright} %s \\end{flushright} \\end{minipage}' % (width, ' \\\\ '.join(lines))
 
 #------------------------------------------------------------
 def __tests2latex_cell(results=None, show_time=False, show_range=True):
 
 	if len(results) == 0:
-		return u''
+		return ''
 
 	lines = []
 	for t in results:
 
-		tmp = u''
+		tmp = ''
 
 		if show_time:
-			tmp += u'\\tiny %s ' % t['clin_when'].strftime('%H:%M')
+			tmp += '\\tiny %s ' % t['clin_when'].strftime('%H:%M')
 
-		tmp += u'\\normalsize %.8s' % t['unified_val']
+		tmp += '\\normalsize %.8s' % t['unified_val']
 
 		lines.append(tmp)
-		tmp = u'\\tiny %s' % gmTools.coalesce(t['val_unit'], u'', u'%s ')
+		tmp = '\\tiny %s' % gmTools.coalesce(t['val_unit'], '', '%s ')
 
 		if not show_range:
 			lines.append(tmp)
@@ -2476,21 +2475,21 @@ def __tests2latex_cell(results=None, show_time=False, show_range=True):
 			continue
 
 		if t['unified_target_range'] is not None:
-			tmp += u'[%s]' % t['unified_target_range']
+			tmp += '[%s]' % t['unified_target_range']
 		else:
-			tmp += u'[%s%s]' % (
-				gmTools.coalesce(t['unified_target_min'], u'--', u'%s--'),
-				gmTools.coalesce(t['unified_target_max'], u'', u'%s')
+			tmp += '[%s%s]' % (
+				gmTools.coalesce(t['unified_target_min'], '--', '%s--'),
+				gmTools.coalesce(t['unified_target_max'], '', '%s')
 			)
 		lines.append(tmp)
 
-	return u' \\\\ '.join(lines)
+	return ' \\\\ '.join(lines)
 
 #------------------------------------------------------------
 def __format_test_results_latex(results=None):
 
 	if len(results) == 0:
-		return u'\\noindent %s' % _('No test results to format.')
+		return '\\noindent %s' % _('No test results to format.')
 
 	# discover the columns and rows
 	dates = {}
@@ -2500,7 +2499,7 @@ def __format_test_results_latex(results=None):
 #		row_label = u'%s \\ \\tiny (%s)}' % (result['unified_abbrev'], result['unified_name'])
 		row_label = result['unified_abbrev']
 		tests[row_label] = None
-		col_label = u'{\\scriptsize %s}' % result['clin_when'].strftime('%Y-%m-%d')
+		col_label = '{\\scriptsize %s}' % result['clin_when'].strftime('%Y-%m-%d')
 		dates[col_label] = None
 		try:
 			grid[row_label]
@@ -2516,10 +2515,10 @@ def __format_test_results_latex(results=None):
 	row_labels = sorted(tests.keys())
 	del tests
 
-	col_def = len(col_labels) * u'>{\\raggedleft}p{1.7cm}|'
+	col_def = len(col_labels) * '>{\\raggedleft}p{1.7cm}|'
 
 	# format them
-	tex = u"""\\noindent %s
+	tex = """\\noindent %s
 
 \\noindent \\begin{tabular}{|l|%s}
 \\hline
@@ -2533,7 +2532,7 @@ def __format_test_results_latex(results=None):
 \\end{tabular}""" % (
 		_('Test results'),
 		col_def,
-		u' & '.join(col_labels)
+		' & '.join(col_labels)
 	)
 
 	rows = []
@@ -2548,7 +2547,7 @@ def __format_test_results_latex(results=None):
 				tests = grid[rl][cl]
 			except KeyError:
 				# none there, so insert empty cell
-				cells.append(u' ')
+				cells.append(' ')
 				continue
 
 			cells.append (
@@ -2559,15 +2558,15 @@ def __format_test_results_latex(results=None):
 				)
 			)
 
-		rows.append(u' & '.join(cells))
+		rows.append(' & '.join(cells))
 
-	return tex % u' \\tabularnewline\n \\hline\n'.join(rows)
+	return tex % ' \\tabularnewline\n \\hline\n'.join(rows)
 
 #============================================================
 def export_results_for_gnuplot(results=None, filename=None, show_year=True):
 
 	if filename is None:
-		filename = gmTools.get_unique_filename(prefix = u'gm2gpl-', suffix = '.dat')
+		filename = gmTools.get_unique_filename(prefix = 'gm2gpl-', suffix = '.dat')
 
 	# sort results into series by test type
 	series = {}
@@ -2579,39 +2578,39 @@ def export_results_for_gnuplot(results=None, filename=None, show_year=True):
 
 	gp_data = io.open(filename, mode = 'wt', encoding = 'utf8')
 
-	gp_data.write(u'# %s\n' % _('GNUmed test results export for Gnuplot plotting'))
-	gp_data.write(u'# -------------------------------------------------------------\n')
-	gp_data.write(u'# first line of index: test type abbreviation & name\n')
-	gp_data.write(u'#\n')
-	gp_data.write(u'# clin_when at full precision\n')
-	gp_data.write(u'# value\n')
-	gp_data.write(u'# unit\n')
-	gp_data.write(u'# unified (target or normal) range: lower bound\n')
-	gp_data.write(u'# unified (target or normal) range: upper bound\n')
-	gp_data.write(u'# normal range: lower bound\n')
-	gp_data.write(u'# normal range: upper bound\n')
-	gp_data.write(u'# target range: lower bound\n')
-	gp_data.write(u'# target range: upper bound\n')
-	gp_data.write(u'# clin_when formatted into string as x-axis tic label\n')
-	gp_data.write(u'# -------------------------------------------------------------\n')
+	gp_data.write('# %s\n' % _('GNUmed test results export for Gnuplot plotting'))
+	gp_data.write('# -------------------------------------------------------------\n')
+	gp_data.write('# first line of index: test type abbreviation & name\n')
+	gp_data.write('#\n')
+	gp_data.write('# clin_when at full precision\n')
+	gp_data.write('# value\n')
+	gp_data.write('# unit\n')
+	gp_data.write('# unified (target or normal) range: lower bound\n')
+	gp_data.write('# unified (target or normal) range: upper bound\n')
+	gp_data.write('# normal range: lower bound\n')
+	gp_data.write('# normal range: upper bound\n')
+	gp_data.write('# target range: lower bound\n')
+	gp_data.write('# target range: upper bound\n')
+	gp_data.write('# clin_when formatted into string as x-axis tic label\n')
+	gp_data.write('# -------------------------------------------------------------\n')
 
 	for test_type in series.keys():
 		if len(series[test_type]) == 0:
 			continue
 
 		r = series[test_type][0]
-		title = u'%s (%s)' % (
+		title = '%s (%s)' % (
 			r['unified_abbrev'],
 			r['unified_name']
 		)
-		gp_data.write(u'\n\n"%s" "%s"\n' % (title, title))
+		gp_data.write('\n\n"%s" "%s"\n' % (title, title))
 
 		prev_date = None
 		prev_year = None
 		for r in series[test_type]:
 			curr_date = gmDateTime.pydt_strftime(r['clin_when'], '%Y-%m-%d', 'utf8', gmDateTime.acc_days)
 			if curr_date == prev_date:
-				gp_data.write(u'\n# %s\n' % _('blank line inserted to allow for discontinued line drawing of same-day values'))
+				gp_data.write('\n# %s\n' % _('blank line inserted to allow for discontinued line drawing of same-day values'))
 			if show_year:
 				if r['clin_when'].year == prev_year:
 					when_template = '%b %d %H:%M'
@@ -2625,17 +2624,17 @@ def export_results_for_gnuplot(results=None, filename=None, show_year=True):
 				val = r.estimate_numeric_value_from_alpha
 			if val is None:
 				continue		# skip distinctly non-numericable values
-			gp_data.write (u'%s %s "%s" %s %s %s %s %s %s "%s"\n' % (
+			gp_data.write ('%s %s "%s" %s %s %s %s %s %s "%s"\n' % (
 				#r['clin_when'].strftime('%Y-%m-%d_%H:%M'),
 				gmDateTime.pydt_strftime(r['clin_when'], '%Y-%m-%d_%H:%M', 'utf8', gmDateTime.acc_minutes),
 				val,
-				gmTools.coalesce(r['val_unit'], u'"<?>"'),
-				gmTools.coalesce(r['unified_target_min'], u'"<?>"'),
-				gmTools.coalesce(r['unified_target_max'], u'"<?>"'),
-				gmTools.coalesce(r['val_normal_min'], u'"<?>"'),
-				gmTools.coalesce(r['val_normal_max'], u'"<?>"'),
-				gmTools.coalesce(r['val_target_min'], u'"<?>"'),
-				gmTools.coalesce(r['val_target_max'], u'"<?>"'),
+				gmTools.coalesce(r['val_unit'], '"<?>"'),
+				gmTools.coalesce(r['unified_target_min'], '"<?>"'),
+				gmTools.coalesce(r['unified_target_max'], '"<?>"'),
+				gmTools.coalesce(r['val_normal_min'], '"<?>"'),
+				gmTools.coalesce(r['val_normal_max'], '"<?>"'),
+				gmTools.coalesce(r['val_target_min'], '"<?>"'),
+				gmTools.coalesce(r['val_target_max'], '"<?>"'),
 				gmDateTime.pydt_strftime (
 					r['clin_when'],
 					format = when_template,
@@ -2718,12 +2717,12 @@ class cLabResult(gmBusinessDBObject.cBusinessDBObject):
 			return
 		pk = aPK_obj
 		# find PK from row data ?
-		if type(aPK_obj) == types.DictType:
+		if type(aPK_obj) == dict:
 			# sanity checks
 			if None in [aPK_obj['patient_id'], aPK_obj['when'], aPK_obj['when_field'], aPK_obj['test_type'], aPK_obj['unit']]:
-				raise gmExceptions.ConstructorError, 'parameter error: %s' % aPK_obj
+				raise gmExceptions.ConstructorError('parameter error: %s' % aPK_obj)
 			if (aPK_obj['val_num'] is None) and (aPK_obj['val_alpha'] is None):
-				raise gmExceptions.ConstructorError, 'parameter error: val_num and val_alpha cannot both be None'
+				raise gmExceptions.ConstructorError('parameter error: val_num and val_alpha cannot both be None')
 			# get PK
 			where_snippets = [
 				'pk_patient=%(patient_id)s',
@@ -2740,9 +2739,9 @@ class cLabResult(gmBusinessDBObject.cBusinessDBObject):
 			cmd = "select pk_result from v_results4lab_req where %s" % where_clause
 			data = gmPG.run_ro_query('historica', cmd, None, aPK_obj)
 			if data is None:
-				raise gmExceptions.ConstructorError, 'error getting lab result for: %s' % aPK_obj
+				raise gmExceptions.ConstructorError('error getting lab result for: %s' % aPK_obj)
 			if len(data) == 0:
-				raise gmExceptions.NoSuchClinItemError, 'no lab result for: %s' % aPK_obj
+				raise gmExceptions.NoSuchClinItemError('no lab result for: %s' % aPK_obj)
 			pk = data[0][0]
 		# instantiate class
 		gmBusinessDBObject.cBusinessDBObject.__init__(self, aPK_obj=pk)
@@ -2806,19 +2805,19 @@ class cLabRequest(gmBusinessDBObject.cBusinessDBObject):
 			return
 		pk = aPK_obj
 		# instantiate from "req_id" and "lab" ?
-		if type(aPK_obj) == types.DictType:
+		if type(aPK_obj) == dict:
 			# sanity check
 			try:
 				aPK_obj['req_id']
 				aPK_obj['lab']
 			except:
 				_log.exception('[%s:??]: faulty <aPK_obj> structure: [%s]' % (self.__class__.__name__, aPK_obj), sys.exc_info())
-				raise gmExceptions.ConstructorError, '[%s:??]: cannot derive PK from [%s]' % (self.__class__.__name__, aPK_obj)
+				raise gmExceptions.ConstructorError('[%s:??]: cannot derive PK from [%s]' % (self.__class__.__name__, aPK_obj))
 			# generate query
 			where_snippets = []
 			vals = {}
 			where_snippets.append('request_id=%(req_id)s')
-			if type(aPK_obj['lab']) == types.IntType:
+			if type(aPK_obj['lab']) == int:
 				where_snippets.append('pk_test_org=%(lab)s')
 			else:
 				where_snippets.append('lab_name=%(lab)s')
@@ -2827,9 +2826,9 @@ class cLabRequest(gmBusinessDBObject.cBusinessDBObject):
 			# get pk
 			data = gmPG.run_ro_query('historica', cmd, None, aPK_obj)
 			if data is None:
-				raise gmExceptions.ConstructorError, '[%s:??]: error getting lab request for [%s]' % (self.__class__.__name__, aPK_obj)
+				raise gmExceptions.ConstructorError('[%s:??]: error getting lab request for [%s]' % (self.__class__.__name__, aPK_obj))
 			if len(data) == 0:
-				raise gmExceptions.NoSuchClinItemError, '[%s:??]: no lab request for [%s]' % (self.__class__.__name__, aPK_obj)
+				raise gmExceptions.NoSuchClinItemError('[%s:??]: no lab request for [%s]' % (self.__class__.__name__, aPK_obj))
 			pk = data[0][0]
 		# instantiate class
 		gmBusinessDBObject.cBusinessDBObject.__init__(self, aPK_obj=pk)
@@ -2869,9 +2868,9 @@ def create_lab_request(lab=None, req_id=None, pat_id=None, encounter_id=None, ep
 	}
 	try:
 		req = cLabRequest (aPK_obj)
-	except gmExceptions.NoSuchClinItemError, msg:
+	except gmExceptions.NoSuchClinItemError as msg:
 		_log.info('%s: will try to create lab request' % str(msg))
-	except gmExceptions.ConstructorError, msg:
+	except gmExceptions.ConstructorError as msg:
 		_log.exception(str(msg), sys.exc_info(), verbose=0)
 		return (False, msg)
 	# found
@@ -2894,7 +2893,7 @@ def create_lab_request(lab=None, req_id=None, pat_id=None, encounter_id=None, ep
 		return (True, req)
 	# not found
 	queries = []
-	if type(lab) is types.IntType:
+	if type(lab) is int:
 		cmd = "insert into lab_request (fk_encounter, fk_episode, fk_test_org, request_id) values (%s, %s, %s, %s)"
 	else:
 		cmd = "insert into lab_request (fk_encounter, fk_episode, fk_test_org, request_id) values (%s, %s, (select pk from test_org where internal_OBSOLETE_name=%s), %s)"
@@ -2907,7 +2906,7 @@ def create_lab_request(lab=None, req_id=None, pat_id=None, encounter_id=None, ep
 		return (False, err)
 	try:
 		req = cLabRequest(aPK_obj=result[0][0])
-	except gmExceptions.ConstructorError, msg:
+	except gmExceptions.ConstructorError as msg:
 		_log.exception(str(msg), sys.exc_info(), verbose=0)
 		return (False, msg)
 	return (True, req)
@@ -2931,7 +2930,7 @@ def create_lab_result(patient_id=None, when_field=None, when=None, test_type=Non
 		return (None, tres)
 	except gmExceptions.NoSuchClinItemError:
 		_log.debug('test result not found - as expected, will create it')
-	except gmExceptions.ConstructorError, msg:
+	except gmExceptions.ConstructorError as msg:
 		_log.exception(str(msg), sys.exc_info(), verbose=0)
 		return (False, msg)
 	if request is None:
@@ -2952,7 +2951,7 @@ def create_lab_result(patient_id=None, when_field=None, when=None, test_type=Non
 		return (False, err)
 	try:
 		tres = cLabResult(aPK_obj=result[0][0])
-	except gmExceptions.ConstructorError, msg:
+	except gmExceptions.ConstructorError as msg:
 		_log.exception(str(msg), sys.exc_info(), verbose=0)
 		return (False, msg)
 	return (True, tres)
@@ -3024,7 +3023,7 @@ def get_next_request_ID(lab=None, incrementor_func=None):
 	  - if not supplied the next ID is guessed
 	  - if supplied it is applied to the most recently used ID
 	"""
-	if type(lab) == types.IntType:
+	if type(lab) == int:
 		lab_snippet = 'vlr.fk_test_org=%s'
 	else:
 		lab_snippet = 'vlr.lab_name=%s'
@@ -3078,16 +3077,16 @@ def calculate_bmi(mass=None, height=None, age=None):
 	"""
 	converted, mass = gmTools.input2decimal(mass)
 	if not converted:
-		return False, u'mass: cannot convert <%s> to Decimal' % mass
+		return False, 'mass: cannot convert <%s> to Decimal' % mass
 
 	converted, height = gmTools.input2decimal(height)
 	if not converted:
-		return False, u'height: cannot convert <%s> to Decimal' % height
+		return False, 'height: cannot convert <%s> to Decimal' % height
 
 	approx_surface = (height / decimal.Decimal(100))**2
 	bmi = mass / approx_surface
 
-	print mass, height, '->', approx_surface, '->', bmi
+	print(mass, height, '->', approx_surface, '->', bmi)
 
 	lower_normal_mass = 20.0 * approx_surface
 	upper_normal_mass = 25.0 * approx_surface
@@ -3121,7 +3120,7 @@ if __name__ == '__main__':
 			val_alpha=None,
 			unit = 'mg/dl'
 		)
-		print tr
+		print(tr)
 		return tr
 	#------------------------------------------
 	def test_delete_test_result():
@@ -3134,10 +3133,10 @@ if __name__ == '__main__':
 		#print r.reference_ranges
 		#print r.formatted_range
 		#print r.temporally_closest_normal_range
-		print r.estimate_numeric_value_from_alpha
+		print(r.estimate_numeric_value_from_alpha)
 	#------------------------------------------
 	def test_lab_result():
-		print "test_result()"
+		print("test_result()")
 #		lab_result = cLabResult(aPK_obj=4)
 		data = {
 			'patient_id': 12,
@@ -3149,17 +3148,17 @@ if __name__ == '__main__':
 			'unit': 'mg/l'
 		}
 		lab_result = cLabResult(aPK_obj=data)
-		print lab_result
+		print(lab_result)
 		fields = lab_result.get_fields()
 		for field in fields:
-			print field, ':', lab_result[field]
-		print "updatable:", lab_result.get_updatable_fields()
-		print time.time()
-		print lab_result.get_patient()
-		print time.time()
+			print(field, ':', lab_result[field])
+		print("updatable:", lab_result.get_updatable_fields())
+		print(time.time())
+		print(lab_result.get_patient())
+		print(time.time())
 	#------------------------------------------
 	def test_request():
-		print "test_request()"
+		print("test_request()")
 		try:
 #			lab_req = cLabRequest(aPK_obj=1)
 #			lab_req = cLabRequest(req_id='EML#SC937-0176-CEC#11', lab=2)
@@ -3168,45 +3167,45 @@ if __name__ == '__main__':
 				'lab': 'Enterprise Main Lab'
 			}
 			lab_req = cLabRequest(aPK_obj=data)
-		except gmExceptions.ConstructorError, msg:
-			print "no such lab request:", msg
+		except gmExceptions.ConstructorError as msg:
+			print("no such lab request:", msg)
 			return
-		print lab_req
+		print(lab_req)
 		fields = lab_req.get_fields()
 		for field in fields:
-			print field, ':', lab_req[field]
-		print "updatable:", lab_req.get_updatable_fields()
-		print time.time()
-		print lab_req.get_patient()
-		print time.time()
+			print(field, ':', lab_req[field])
+		print("updatable:", lab_req.get_updatable_fields())
+		print(time.time())
+		print(lab_req.get_patient())
+		print(time.time())
 	#--------------------------------------------------------
 	def test_unreviewed():
 		data = get_unreviewed_results()
 		for result in data:
-			print result
+			print(result)
 	#--------------------------------------------------------
 	def test_pending():
 		data = get_pending_requests()
 		for result in data:
-			print result
+			print(result)
 	#--------------------------------------------------------
 	def test_create_measurement_type():
-		print create_measurement_type (
+		print(create_measurement_type (
 			lab = None,
-			abbrev = u'tBZ2',
-			unit = u'mg%',
+			abbrev = 'tBZ2',
+			unit = 'mg%',
 			name = 'BZ (test 2)'
-		)
+		))
 	#--------------------------------------------------------
 	def test_meta_test_type():
 		mtt = cMetaTestType(aPK_obj = 1)
-		print mtt
-		print get_meta_test_types()
+		print(mtt)
+		print(get_meta_test_types())
 	#--------------------------------------------------------
 	def test_test_type():
 		tt = cMeasurementType(aPK_obj = 1)
-		print tt
-		print get_measurement_types()
+		print(tt)
+		print(get_measurement_types())
 	#--------------------------------------------------------
 	def test_format_test_results():
 		results = [
@@ -3215,48 +3214,48 @@ if __name__ == '__main__':
 			cTestResult(aPK_obj=3)
 #			cTestResult(aPK_obj=4)
 		]
-		print format_test_results(results = results)
+		print(format_test_results(results = results))
 	#--------------------------------------------------------
 	def test_calculate_bmi():
 		done, data = calculate_bmi(mass = sys.argv[2], height = sys.argv[3])
 		bmi, low, high = data
-		print "BMI:", bmi
-		print "low:", low, "kg"
-		print "hi :", high, "kg"
+		print("BMI:", bmi)
+		print("low:", low, "kg")
+		print("hi :", high, "kg")
 
 	#--------------------------------------------------------
 	def test_test_panel():
 		tp = cTestPanel(aPK_obj = 1)
-		print tp
-		print tp.test_types
-		print tp.format()
+		print(tp)
+		print(tp.test_types)
+		print(tp.format())
 
 	#--------------------------------------------------------
 	def test_get_most_recent_results_for_panel():
 		tp = cTestPanel(aPK_obj = 1)
 		#print tp.included_loincs
 		#tp = cTestPanel(aPK_obj = 3)
-		print tp.format()
+		print(tp.format())
 		#most_recent = tp.get_most_recent_results(pk_patient = 12, group_by_meta_type = False)
 		#most_recent = tp.get_most_recent_results(pk_patient = 138, group_by_meta_type = False)
 		#print len(most_recent)
 		most_recent = tp.get_most_recent_results(pk_patient = 12, group_by_meta_type = True)
 		#most_recent = tp.get_most_recent_results(pk_patient = 138, group_by_meta_type = True)
-		print 'found:', len(most_recent)
+		print('found:', len(most_recent))
 
 		for t in most_recent:
-			print '--------------'
+			print('--------------')
 			if t['pk_meta_test_type'] is None:
-				print "standalone"
+				print("standalone")
 			else:
-				print "meta"
-			print t.format()
+				print("meta")
+			print(t.format())
 
 	#--------------------------------------------------------
 	def test_get_most_recent_results_by_loinc():
 		most_recent = get_most_recent_results_by_loinc (
 			#loinc = [u'pseudo LOINC [C-reactive protein (EML)::9] (v21->v22 test panel conversion)'],
-			loinc = [u'8867-4'],
+			loinc = ['8867-4'],
 			no_of_results = 2,
 			patient = 12,
 			consider_meta_type = True
@@ -3264,10 +3263,10 @@ if __name__ == '__main__':
 		)
 		for t in most_recent:
 			if t['pk_meta_test_type'] is None:
-				print "---- standalone ----"
+				print("---- standalone ----")
 			else:
-				print "---- meta ----"
-			print t.format()
+				print("---- meta ----")
+			print(t.format())
 
 	#--------------------------------------------------------
 

@@ -44,7 +44,7 @@ class cPatientPicture(wx.StaticBitmap):
 
 		wx.StaticBitmap.__init__(self, *args, **kwargs)
 
-		paths = gmTools.gmPaths(app_name = u'gnumed', wx = wx)
+		paths = gmTools.gmPaths(app_name = 'gnumed', wx = wx)
 		self.__fallback_pic_name = os.path.join(paths.system_app_data_dir, 'bitmaps', 'empty-face-in-bust.png')
 		self.__desired_width = 50
 		self.__desired_height = 54
@@ -57,13 +57,10 @@ class cPatientPicture(wx.StaticBitmap):
 	#-----------------------------------------------------------------
 	def __register_events(self):
 		# wxPython events
-		wx.EVT_RIGHT_UP(self, self._on_RightClick_photo)
-		wx.EVT_MENU(self, ID_AcquirePhoto, self._on_AcquirePhoto)
-		wx.EVT_MENU(self, ID_ImportPhoto, self._on_ImportPhoto)
-		wx.EVT_MENU(self, ID_Refresh, self._on_refresh_from_backend)
+		self.Bind(wx.EVT_RIGHT_UP, self._on_RightClick_photo)
 
 		# dispatcher signals
-		gmDispatcher.connect(receiver=self._on_post_patient_selection, signal = u'post_patient_selection')
+		gmDispatcher.connect(receiver=self._on_post_patient_selection, signal = 'post_patient_selection')
 	#-----------------------------------------------------------------
 	def _on_post_patient_selection(self):
 		self.__reload_photo()
@@ -131,19 +128,25 @@ class cPatientPicture(wx.StaticBitmap):
 	def __init_ui(self):
 		# pre-make context menu
 		self.__photo_menu = wx.Menu()
-		self.__photo_menu.Append(ID_Refresh, _('Refresh from database'))
+		item = self.__photo_menu.Append(-1, _('Refresh from database'))
+		self.Bind(wx.EVT_MENU, self._on_refresh_from_backend, item)
+
 		self.__photo_menu.AppendSeparator()
-		self.__photo_menu.Append(ID_AcquirePhoto, _("Acquire from imaging device"))
-		self.__photo_menu.Append(ID_ImportPhoto, _("Import from file"))
+
+		item = self.__photo_menu.Append(-1, _("Acquire from imaging device"))
+		self.Bind(wx.EVT_MENU, self._on_AcquirePhoto, item)
+		item = self.__photo_menu.Append(-1, _("Import from file"))
+		self.Bind(wx.EVT_MENU, self._on_ImportPhoto, item)
 
 		self.__set_pic_from_file()
+
 	#-----------------------------------------------------------------
 	def __import_pic_into_db(self, fname=None):
 
 		docs = gmDocuments.search_for_documents(patient_id = self.__pat.ID, type_id = gmDocuments.MUGSHOT)
 		if len(docs) == 0:
 			emr = self.__pat.emr
-			epi = emr.add_episode(episode_name = u'administrative')
+			epi = emr.add_episode(episode_name = 'administrative')
 			enc = emr.active_encounter
 			doc = gmDocuments.create_document (
 				document_type = gmDocuments.MUGSHOT,
@@ -167,7 +170,7 @@ class cPatientPicture(wx.StaticBitmap):
 
 		if photo is None:
 			fname = None
-			self.SetToolTipString (_(
+			self.SetToolTip (_(
 				'Patient picture.\n'
 				'\n'
 				'Right-click for context menu.'
@@ -175,7 +178,7 @@ class cPatientPicture(wx.StaticBitmap):
 #			gmDispatcher.send(signal='statustext', msg=_('Cannot get most recent patient photo from database.'))
 		else:
 			fname = photo.save_to_file()
-			self.SetToolTipString (_(
+			self.SetToolTip (_(
 				'Patient picture (%s).\n'
 				'\n'
 				'Right-click for context menu.'
@@ -189,7 +192,7 @@ class cPatientPicture(wx.StaticBitmap):
 		try:
 			img_data = wx.Image(fname, wx.BITMAP_TYPE_ANY)
 			img_data.Rescale(self.__desired_width, self.__desired_height)
-			bmp_data = wx.BitmapFromImage(img_data)
+			bmp_data = wx.Bitmap(img_data)
 		except:
 			_log.exception('cannot set patient picture from [%s]', fname)
 			gmDispatcher.send(signal='statustext', msg=_('Cannot set patient picture from [%s].') % fname)

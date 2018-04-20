@@ -20,21 +20,21 @@ class AccessDenied(Exception):
 	def __str__(self):
 		txt = self.errmsg
 		if self.source is not None:
-			txt += u'\nSource: %s' % self.source
+			txt += '\nSource: %s' % self.source
 		if self.code is not None:
-			txt += u'\nCode: %s' % self.code
+			txt += '\nCode: %s' % self.code
 		if self.details is not None:
-			txt += u'\n%s' % self.details
+			txt += '\n%s' % self.details
 		return txt
 	#----------------------------------
 	def __repr__(self):
 		txt = self.errmsg
 		if self.source is not None:
-			txt += u'\nSource: %s' % source
+			txt += '\nSource: %s' % source
 		if self.code is not None:
-			txt += u'\nCode: %s' % self.code
+			txt += '\nCode: %s' % self.code
 		if self.details is not None:
-			txt += u'\n%s' % self.details
+			txt += '\n%s' % self.details
 		return txt
 
 #------------------------------------------------------------

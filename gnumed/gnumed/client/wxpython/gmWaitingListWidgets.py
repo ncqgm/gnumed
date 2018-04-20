@@ -55,10 +55,10 @@ class cWaitingZonePhraseWheel(gmPhraseWheel.cPhraseWheel):
 def edit_waiting_list_entry(parent=None, entry=None, patient=None):
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
-	ea = cWaitingListEntryEditAreaPnl(parent = parent, id = -1, patient = gmTools.bool2subst((entry is None), patient, None))
+	ea = cWaitingListEntryEditAreaPnl(parent, -1, patient = gmTools.bool2subst((entry is None), patient, None))
 	ea.data = entry
 	ea.mode = gmTools.coalesce(entry, 'new', 'edit')
-	dlg = gmEditArea.cGenericEditAreaDlg2(parent = parent, id = -1, edit_area = ea, single_entry = True)
+	dlg = gmEditArea.cGenericEditAreaDlg2(parent, -1, edit_area = ea, single_entry = True)
 	dlg.SetTitle(gmTools.coalesce(entry, _('Adding new waiting list entry'), _('Editing waiting list entry')))
 	if dlg.ShowModal() == wx.ID_OK:
 		dlg.Destroy()
@@ -113,8 +113,8 @@ class cWaitingListEntryEditAreaPnl(wxgWaitingListEntryEditAreaPnl.wxgWaitingList
 			self._TCTRL_comment.SetFocus()
 		self._PRW_patient._display_name()
 
-		self._TCTRL_comment.SetValue(u'')
-		self._PRW_zone.SetValue(u'')
+		self._TCTRL_comment.SetValue('')
+		self._PRW_zone.SetValue('')
 		self._SPCTRL_urgency.SetValue(0)
 	#--------------------------------------------------------
 	def _refresh_from_existing(self):
@@ -122,8 +122,8 @@ class cWaitingListEntryEditAreaPnl(wxgWaitingListEntryEditAreaPnl.wxgWaitingList
 		self._PRW_patient.Enable(False)
 		self._PRW_patient._display_name()
 
-		self._TCTRL_comment.SetValue(gmTools.coalesce(self.data['comment'], u''))
-		self._PRW_zone.SetValue(gmTools.coalesce(self.data['waiting_zone'], u''))
+		self._TCTRL_comment.SetValue(gmTools.coalesce(self.data['comment'], ''))
+		self._PRW_zone.SetValue(gmTools.coalesce(self.data['waiting_zone'], ''))
 		self._SPCTRL_urgency.SetValue(self.data['urgency'])
 
 		self._TCTRL_comment.SetFocus()
@@ -143,8 +143,8 @@ class cWaitingListEntryEditAreaPnl(wxgWaitingListEntryEditAreaPnl.wxgWaitingList
 		# FIXME: filter out dupes ?
 		self._PRW_patient.person.put_on_waiting_list (
 			urgency = self._SPCTRL_urgency.GetValue(),
-			comment = gmTools.none_if(self._TCTRL_comment.GetValue().strip(), u''),
-			zone = gmTools.none_if(self._PRW_zone.GetValue().strip(), u'')
+			comment = gmTools.none_if(self._TCTRL_comment.GetValue().strip(), ''),
+			zone = gmTools.none_if(self._PRW_zone.GetValue().strip(), '')
 		)
 		# dummy:
 		self.data = {'pk_identity': self._PRW_patient.person.ID, 'comment': None, 'waiting_zone': None, 'urgency': 0}
@@ -200,7 +200,7 @@ class cWaitingListPnl(wxgWaitingListPnl.wxgWaitingListPnl, gmRegetMixin.cRegetOn
 		"""
 		pat = gmPerson.gmCurrentPatient()
 		enc = pat.emr.active_encounter
-		if gmTools.coalesce(enc['reason_for_encounter'], u'').strip() != u'':
+		if gmTools.coalesce(enc['reason_for_encounter'], '').strip() != '':
 			return
 		entries = pat.waiting_list_entries
 		if len(entries) == 0:
@@ -211,7 +211,7 @@ class cWaitingListPnl(wxgWaitingListPnl.wxgWaitingListPnl, gmRegetMixin.cRegetOn
 			rfe = self.__comment_most_recently_activated_patient
 		else:
 			entry = entries[0]
-			if gmTools.coalesce(entry['comment'], u'').strip() == u'':
+			if gmTools.coalesce(entry['comment'], '').strip() == '':
 				return
 			rfe = entry['comment'].strip()
 		enc['reason_for_encounter'] = rfe
@@ -221,14 +221,9 @@ class cWaitingListPnl(wxgWaitingListPnl.wxgWaitingListPnl, gmRegetMixin.cRegetOn
 	def _on_get_list_tooltip(self, entry):
 
 		dob = gmTools.coalesce (
-				gmTools.coalesce (
-					entry['dob'],
-					u'',
-					function_initial = ('strftime', '%d %b %Y')
-				),
-				u'',
-				u' (%s)',
-				function_initial = ('decode', gmI18N.get_encoding())
+			gmTools.coalesce(entry['dob'], '', function_initial = ('strftime', '%d %b %Y')),
+			'',
+			' (%s)'
 		)
 
 		tt = _(
@@ -247,19 +242,19 @@ class cWaitingListPnl(wxgWaitingListPnl.wxgWaitingListPnl, gmRegetMixin.cRegetOn
 			'%s'
 		) % (
 			gmTools.u_box_horiz_single * 50,
-			u'%s, %s (%s)' % (entry['lastnames'], entry['firstnames'], entry['l10n_gender']),
+			'%s, %s (%s)' % (entry['lastnames'], entry['firstnames'], entry['l10n_gender']),
 			dob,
-			gmTools.coalesce(entry['waiting_zone'], u'', _('Zone: %s\n')),
+			gmTools.coalesce(entry['waiting_zone'], '', _('Zone: %s\n')),
 			entry['urgency'],
 			gmDateTime.format_interval_medically(entry['waiting_time']),
-			gmTools.coalesce(entry['comment'], u'', u'\n%s')
+			gmTools.coalesce(entry['comment'], '', '\n%s')
 		)
 
 		return tt
 	#--------------------------------------------------------
 	def __register_events(self):
-		gmDispatcher.connect(signal = u'clin.waiting_list_mod_db', receiver = self._on_waiting_list_modified)
-		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._on_post_patient_selection)
+		gmDispatcher.connect(signal = 'clin.waiting_list_mod_db', receiver = self._on_waiting_list_modified)
+		gmDispatcher.connect(signal = 'post_patient_selection', receiver = self._on_post_patient_selection)
 	#--------------------------------------------------------
 	def __refresh_waiting_list(self):
 		self.__id_most_recently_activated_patient = None
@@ -275,7 +270,7 @@ class cWaitingListPnl(wxgWaitingListPnl.wxgWaitingListPnl, gmRegetMixin.cRegetOn
 
 		# filter patient list by zone and set waiting list
 		self.__current_zone = self._PRW_zone.GetValue().strip()
-		if self.__current_zone == u'':
+		if self.__current_zone == '':
 			pats = [ p for p in pats ]
 		else:
 			pats = [ p for p in pats if p['waiting_zone'] == self.__current_zone ]
@@ -289,21 +284,16 @@ class cWaitingListPnl(wxgWaitingListPnl.wxgWaitingListPnl, gmRegetMixin.cRegetOn
 		old_pks = [ d['pk_waiting_list'] for d in self._LCTRL_patients.get_selected_item_data() ]
 		self._LCTRL_patients.set_string_items (
 			[ [
-				gmTools.coalesce(p['waiting_zone'], u''),
+				gmTools.coalesce(p['waiting_zone'], ''),
 				p['urgency'],
 				gmDateTime.pydt_strftime(p['registered'], format='%Y %b %d %H:%M'),
 				gmDateTime.format_interval_medically(p['waiting_time']),
-				u'%s, %s (%s)' % (p['lastnames'], p['firstnames'], p['l10n_gender']),
+				'%s, %s (%s)' % (p['lastnames'], p['firstnames'], p['l10n_gender']),
 				gmTools.coalesce (
-					gmTools.coalesce (
-						p['dob'],
-						u'',
-						function_initial = ('strftime', '%d %b %Y')
-					),
-					u'',
-					function_initial = ('decode', gmI18N.get_encoding())
+					gmTools.coalesce (p['dob'], '', function_initial = ('strftime', '%d %b %Y')),
+					''
 				),
-				gmTools.coalesce(p['comment'], u'').split('\n')[0]
+				gmTools.coalesce(p['comment'], '').split('\n')[0]
 			] for p in pats ]
 		)
 		self._LCTRL_patients.set_column_widths()
@@ -405,7 +395,7 @@ class cWaitingListPnl(wxgWaitingListPnl.wxgWaitingListPnl, gmRegetMixin.cRegetOn
 			)
 			return
 		self.__id_most_recently_activated_patient = item['pk_identity']
-		self.__comment_most_recently_activated_patient = gmTools.coalesce(item['comment'], u'').strip()
+		self.__comment_most_recently_activated_patient = gmTools.coalesce(item['comment'], '').strip()
 		gmPraxis.gmCurrentPraxisBranch().remove_from_waiting_list(pk = item['pk_waiting_list'])
 		curr_pat = gmPerson.gmCurrentPatient()
 		if curr_pat.connected:
@@ -433,9 +423,9 @@ class cWaitingListPnl(wxgWaitingListPnl.wxgWaitingListPnl, gmRegetMixin.cRegetOn
 		item = self._LCTRL_patients.get_selected_item_data(only_one = True)
 		if item is None:
 			return
-		cmt = gmTools.coalesce(item['comment'], u'').split('\n')[0].strip()[:40]
-		if cmt != u'':
-			cmt += u'\n'
+		cmt = gmTools.coalesce(item['comment'], '').split('\n')[0].strip()[:40]
+		if cmt != '':
+			cmt += '\n'
 		question = _(
 			'Are you sure you want to remove\n'
 			'\n'
@@ -451,10 +441,10 @@ class cWaitingListPnl(wxgWaitingListPnl.wxgWaitingListPnl, gmRegetMixin.cRegetOn
 			gmTools.coalesce (
 				gmTools.coalesce (
 					item['dob'],
-					u'',
+					'',
 					function_initial = ('strftime', '%d %b %Y')
 				),
-				u'',
+				'',
 				function_initial = ('decode', gmI18N.get_encoding())
 			),
 			cmt

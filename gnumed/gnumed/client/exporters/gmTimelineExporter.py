@@ -25,14 +25,14 @@ _log = logging.getLogger('gm.tl')
 if __name__ == '__main__':
 	_ = lambda x:x
 
-ERA_NAME_CARE_PERIOD = _(u'Care Period')
+ERA_NAME_CARE_PERIOD = _('Care Period')
 
 #============================================================
 
 # <icon>base-64 encoded PNG image data</icon>
 
 #============================================================
-xml_start = u"""<?xml version="1.0" encoding="utf-8"?>
+xml_start = """<?xml version="1.0" encoding="utf-8"?>
 <timeline>
 	<version>1.16.0</version>
 	<!-- ======================================== Eras ======================================== -->
@@ -112,7 +112,7 @@ xml_start = u"""<?xml version="1.0" encoding="utf-8"?>
 	<!-- ======================================== Events ======================================== -->
 	<events>"""
 
-xml_end = u"""
+xml_end = """
 	</events>
 	<view>
 		<displayed_period>
@@ -131,7 +131,7 @@ def format_pydt(pydt, format = '%Y-%m-%d %H:%M:%S'):
 #------------------------------------------------------------
 # health issues
 #------------------------------------------------------------
-__xml_issue_template = u"""
+__xml_issue_template = """
 		<event>
 			<start>%(start)s</start>
 			<end>%(end)s</end>
@@ -150,10 +150,10 @@ def __format_health_issue_as_timeline_xml(issue, patient, emr):
 	possible_start = issue.possible_start_date
 	safe_start = issue.safe_start_date
 	end = issue.clinical_end_date
-	ends_today = u'False'
+	ends_today = 'False'
 	if end is None:
 		# open episode or active
-		ends_today = u'True'
+		ends_today = 'True'
 		end = now
 	data['desc'] = gmTools.xml_escape_string(issue.format (
 		patient = patient,
@@ -168,22 +168,22 @@ def __format_health_issue_as_timeline_xml(issue, patient, emr):
 		with_documents = False,
 		with_tests = False,
 		with_vaccinations = False
-	).strip().strip(u'\n').strip())
+	).strip().strip('\n').strip())
 	txt = gmTools.shorten_words_in_line(text = issue['description'], max_length = 25, min_word_length = 5)
-	xml = u''
+	xml = ''
 	if possible_start < safe_start:
 		data['start'] = format_pydt(possible_start)
 		data['end'] = format_pydt(safe_start)
-		data['ends2day'] = u'False'
-		data['fuzzy'] = u'True'
-		data['container_id'] = u''
-		data['label'] = u'?%s?' % gmTools.xml_escape_string(txt)
+		data['ends2day'] = 'False'
+		data['fuzzy'] = 'True'
+		data['container_id'] = ''
+		data['label'] = '?%s?' % gmTools.xml_escape_string(txt)
 		xml += __xml_issue_template % data
 	data['start'] = format_pydt(safe_start)
 	data['end'] = format_pydt(end)
 	data['ends2day'] = ends_today
-	data['fuzzy'] = u'False'
-	data['container_id'] = u'[%s]' % issue['pk_health_issue']
+	data['fuzzy'] = 'False'
+	data['container_id'] = '[%s]' % issue['pk_health_issue']
 	data['label'] = gmTools.xml_escape_string(txt)
 	xml += __xml_issue_template % data
 	return xml
@@ -191,7 +191,7 @@ def __format_health_issue_as_timeline_xml(issue, patient, emr):
 #------------------------------------------------------------
 # episodes
 #------------------------------------------------------------
-__xml_episode_template = u"""
+__xml_episode_template = """
 		<event>
 			<start>%(start)s</start>
 			<end>%(end)s</end>
@@ -208,12 +208,12 @@ def __format_episode_as_timeline_xml(episode, patient):
 	data = {
 		'category': _('Episodes'),
 		'start': format_pydt(episode.best_guess_clinical_start_date),
-		'container_id': gmTools.coalesce(episode['pk_health_issue'], u'', u'(%s)'),
+		'container_id': gmTools.coalesce(episode['pk_health_issue'], '', '(%s)'),
 		'label': gmTools.xml_escape_string (
 			gmTools.shorten_words_in_line(text = episode['description'], max_length = 20, min_word_length = 5)
 		),
-		'ends2day': gmTools.bool2subst(episode['episode_open'], u'True', u'False'),
-		'progress': gmTools.bool2subst(episode['episode_open'], u'0', u'100'),
+		'ends2day': gmTools.bool2subst(episode['episode_open'], 'True', 'False'),
+		'progress': gmTools.bool2subst(episode['episode_open'], '0', '100'),
 		'desc': gmTools.xml_escape_string(episode.format (
 			patient = patient,
 			with_summary = True,
@@ -226,7 +226,7 @@ def __format_episode_as_timeline_xml(episode, patient):
 			with_tests = False,
 			with_vaccinations = False,
 			with_health_issue = True
-		).strip().strip(u'\n').strip())
+		).strip().strip('\n').strip())
 	}
 	end = episode.best_guess_clinical_end_date
 	if end is None:
@@ -238,7 +238,7 @@ def __format_episode_as_timeline_xml(episode, patient):
 #------------------------------------------------------------
 # encounters
 #------------------------------------------------------------
-__xml_encounter_template = u"""
+__xml_encounter_template = """
 		<event>
 			<start>%s</start>
 			<end>%s</end>
@@ -269,14 +269,14 @@ def __format_encounter_as_timeline_xml(encounter, patient):
 			with_co_encountlet_hints = False,
 			with_rfe_aoe = True,
 			with_family_history = False
-		).strip().strip(u'\n').strip()),
-		u'False'
+		).strip().strip('\n').strip()),
+		'False'
 	)
 
 #------------------------------------------------------------
 # hospital stays
 #------------------------------------------------------------
-__xml_hospital_stay_template = u"""
+__xml_hospital_stay_template = """
 		<event>
 			<start>%s</start>
 			<end>%s</end>
@@ -297,13 +297,13 @@ def __format_hospital_stay_as_timeline_xml(stay):
 		format_pydt(end),
 		gmTools.xml_escape_string(stay['hospital']),
 		_('Hospital stays'),												# category
-		gmTools.xml_escape_string(stay.format().strip().strip(u'\n').strip())
+		gmTools.xml_escape_string(stay.format().strip().strip('\n').strip())
 	)
 
 #------------------------------------------------------------
 # procedures
 #------------------------------------------------------------
-__xml_procedure_template = u"""
+__xml_procedure_template = """
 		<event>
 			<start>%s</start>
 			<end>%s</end>
@@ -332,13 +332,13 @@ def __format_procedure_as_timeline_xml(proc):
 		gmTools.xml_escape_string(proc.format (
 			include_episode = True,
 			include_codes = True
-		).strip().strip(u'\n').strip())
+		).strip().strip('\n').strip())
 	)
 
 #------------------------------------------------------------
 # documents
 #------------------------------------------------------------
-__xml_document_template = u"""
+__xml_document_template = """
 		<event>
 			<start>%s</start>
 			<end>%s</end>
@@ -357,13 +357,13 @@ def __format_document_as_timeline_xml(doc):
 		format_pydt(doc['clin_when']),
 		gmTools.xml_escape_string(desc),
 		_('Documents'),
-		gmTools.xml_escape_string(doc.format().strip().strip(u'\n').strip())
+		gmTools.xml_escape_string(doc.format().strip().strip('\n').strip())
 	)
 
 #------------------------------------------------------------
 # vaccinations
 #------------------------------------------------------------
-__xml_vaccination_template = u"""
+__xml_vaccination_template = """
 		<event>
 			<start>%s</start>
 			<end>%s</end>
@@ -381,18 +381,18 @@ def __format_vaccination_as_timeline_xml(vacc):
 		format_pydt(vacc['date_given']),
 		gmTools.xml_escape_string(vacc['vaccine']),
 		_('Vaccinations'),
-		gmTools.xml_escape_string(u'\n'.join(vacc.format (
+		gmTools.xml_escape_string('\n'.join(vacc.format (
 			with_indications = True,
 			with_comment = True,
 			with_reaction = True,
 			date_format = '%Y %b %d'
-		)).strip().strip(u'\n').strip())
+		)).strip().strip('\n').strip())
 	)
 
 #------------------------------------------------------------
 # substance intake
 #------------------------------------------------------------
-__xml_intake_template = u"""
+__xml_intake_template = """
 		<event>
 			<start>%s</start>
 			<end>%s</end>
@@ -424,7 +424,7 @@ def __format_intake_as_timeline_xml(intake):
 		gmTools.xml_escape_string(intake.format (
 			single_line = False,
 			show_all_product_components = False
-		).strip().strip(u'\n').strip())
+		).strip().strip('\n').strip())
 	)
 
 #------------------------------------------------------------
@@ -437,7 +437,7 @@ def create_timeline_file(patient=None, filename=None):
 	now = gmDateTime.pydt_now_here()
 
 	if filename is None:
-		timeline_fname = gmTools.get_unique_filename(prefix = u'gm-', suffix = u'.timeline')	# .timeline required ...
+		timeline_fname = gmTools.get_unique_filename(prefix = 'gm-', suffix = '.timeline')	# .timeline required ...
 	else:
 		timeline_fname = filename
 	_log.debug('exporting EMR as timeline into [%s]', timeline_fname)
@@ -449,10 +449,10 @@ def create_timeline_file(patient=None, filename=None):
 		lifespan_start = format_pydt(patient['dob'])
 
 	if patient['deceased'] is None:
-		life_ends2day = u'True'
+		life_ends2day = 'True'
 		lifespan_end = format_pydt(now)
 	else:
-		life_ends2day = u'False'
+		life_ends2day = 'False'
 		lifespan_end = format_pydt(patient['deceased'])
 
 	earliest_care_date = emr.earliest_care_date
@@ -462,11 +462,11 @@ def create_timeline_file(patient=None, filename=None):
 		care_ends2day = life_ends2day
 	else:
 		most_recent_care_date = format_pydt(most_recent_care_date)
-		care_ends2day = u'False'
+		care_ends2day = 'False'
 
 	timeline.write(xml_start % (
 		# era: life span of patient
-		_(u'Lifespan'),
+		_('Lifespan'),
 		lifespan_start,
 		lifespan_end,
 		life_ends2day,
@@ -491,24 +491,24 @@ def create_timeline_file(patient=None, filename=None):
 		timeline.write(__xml_encounter_template % (
 			format_pydt(start),
 			format_pydt(start),
-			u'?',
+			'?',
 			_('Life events'),
 			_('Date of birth unknown'),
-			u'True'
+			'True'
 		))
 	else:
 		start = patient['dob']
 		timeline.write(__xml_encounter_template % (
 			format_pydt(patient['dob']),
 			format_pydt(patient['dob']),
-			u'*',
+			'*',
 			_('Life events'),
-			u'%s: %s (%s)' % (
-				_(u'Birth'),
+			'%s: %s (%s)' % (
+				_('Birth'),
 				patient.get_formatted_dob(format = '%Y %b %d %H:%M', encoding = 'utf8', honor_estimation = True),
 				patient.get_medical_age()
 			),
-			u'True'
+			'True'
 		))
 
 	# start of care
@@ -518,17 +518,17 @@ def create_timeline_file(patient=None, filename=None):
 		gmTools.u_heavy_greek_cross,
 		_('Life events'),
 		_('Start of Care: %s\n(the earliest recorded event of care in this praxis)') % format_pydt(earliest_care_date, format = '%Y %b %d'),
-		u'True'
+		'True'
 	))
 
 	# containers must be defined before their
 	# subevents, so put health issues first
-	timeline.write(u'\n		<!-- ========================================\n Health issues\n======================================== -->')
+	timeline.write('\n		<!-- ========================================\n Health issues\n======================================== -->')
 	for issue in emr.health_issues:
 		timeline.write(__format_health_issue_as_timeline_xml(issue, patient, emr))
 
-	timeline.write(u'\n		<!-- ========================================\n Episodes\n======================================== -->')
-	for epi in emr.get_episodes(order_by = u'pk_health_issue'):
+	timeline.write('\n		<!-- ========================================\n Episodes\n======================================== -->')
+	for epi in emr.get_episodes(order_by = 'pk_health_issue'):
 		timeline.write(__format_episode_as_timeline_xml(epi, patient))
 
 	# simply too many
@@ -536,11 +536,11 @@ def create_timeline_file(patient=None, filename=None):
 	#for enc in emr.get_encounters(skip_empty = True):
 	#	timeline.write(__format_encounter_as_timeline_xml(enc, patient))
 
-	timeline.write(u'\n<!--\n========================================\n Hospital stays\n======================================== -->')
+	timeline.write('\n<!--\n========================================\n Hospital stays\n======================================== -->')
 	for stay in emr.hospital_stays:
 		timeline.write(__format_hospital_stay_as_timeline_xml(stay))
 
-	timeline.write(u'\n<!--\n========================================\n Procedures\n======================================== -->')
+	timeline.write('\n<!--\n========================================\n Procedures\n======================================== -->')
 	for proc in emr.performed_procedures:
 		timeline.write(__format_procedure_as_timeline_xml(proc))
 
@@ -548,7 +548,7 @@ def create_timeline_file(patient=None, filename=None):
 #	for vacc in emr.vaccinations:
 #		timeline.write(__format_vaccination_as_timeline_xml(vacc))
 
-	timeline.write(u'\n<!--\n========================================\n Substance intakes\n======================================== -->')
+	timeline.write('\n<!--\n========================================\n Substance intakes\n======================================== -->')
 	for intake in emr.get_current_medications(include_inactive = True, include_unapproved = False):
 		timeline.write(__format_intake_as_timeline_xml(intake))
 
@@ -571,7 +571,7 @@ def create_timeline_file(patient=None, filename=None):
 			format_pydt(end),
 			gmTools.u_dagger,
 			_('Life events'),
-			_(u'Death: %s') % format_pydt(end, format = '%Y %b %d %H:%M')
+			_('Death: %s') % format_pydt(end, format = '%Y %b %d %H:%M')
 		))
 
 	# display range
@@ -590,7 +590,7 @@ def create_timeline_file(patient=None, filename=None):
 	return timeline_fname
 
 #------------------------------------------------------------
-__fake_timeline_start = u"""<?xml version="1.0" encoding="utf-8"?>
+__fake_timeline_start = """<?xml version="1.0" encoding="utf-8"?>
 <timeline>
 	<version>0.20.0</version>
 	<categories>
@@ -603,7 +603,7 @@ __fake_timeline_start = u"""<?xml version="1.0" encoding="utf-8"?>
 	</categories>
 	<events>""" % _('Life events')
 
-__fake_timeline_body_template = u"""
+__fake_timeline_body_template = """
 		<event>
 			<start>%s</start>
 			<end>%s</end>
@@ -626,7 +626,7 @@ def create_fake_timeline_file(patient=None, filename=None):
 	now = gmDateTime.pydt_now_here()
 
 	if filename is None:
-		timeline_fname = gmTools.get_unique_filename(prefix = u'gm-', suffix = u'.timeline')
+		timeline_fname = gmTools.get_unique_filename(prefix = 'gm-', suffix = '.timeline')
 	else:
 		timeline_fname = filename
 
@@ -641,20 +641,20 @@ def create_fake_timeline_file(patient=None, filename=None):
 		timeline.write(__xml_encounter_template % (
 			format_pydt(start),
 			format_pydt(start),
-			_('Birth') + u': ?',
+			_('Birth') + ': ?',
 			_('Life events'),
 			_('Date of birth unknown'),
-			u'False'
+			'False'
 		))
 	else:
 		start = patient['dob']
 		timeline.write(__xml_encounter_template % (
 			format_pydt(patient['dob']),
 			format_pydt(patient['dob']),
-			_('Birth') + gmTools.bool2subst(patient['dob_is_estimated'], u' (%s)' % gmTools.u_almost_equal_to, u''),
+			_('Birth') + gmTools.bool2subst(patient['dob_is_estimated'], ' (%s)' % gmTools.u_almost_equal_to, ''),
 			_('Life events'),
-			u'',
-			u'False'
+			'',
+			'False'
 		))
 
 	# death
@@ -668,8 +668,8 @@ def create_fake_timeline_file(patient=None, filename=None):
 			#u'',
 			_('Death'),
 			_('Life events'),
-			u'',
-			u'False'
+			'',
+			'False'
 		))
 
 	# fake issue
@@ -716,6 +716,6 @@ if __name__ == '__main__':
 	from Gnumed.business import gmPerson
 	# 14 / 20 / 138 / 58 / 20 / 5
 	pat = gmPerson.gmCurrentPatient(gmPerson.cPatient(aPK_obj = 14))
-	fname = u'~/gnumed/gm2tl-%s.timeline' % pat.get_dirname()
+	fname = '~/gnumed/gm2tl-%s.timeline' % pat.get_dirname()
 
-	print create_timeline_file(patient = pat, filename = os.path.expanduser(fname))
+	print(create_timeline_file(patient = pat, filename = os.path.expanduser(fname)))

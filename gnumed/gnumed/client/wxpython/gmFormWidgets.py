@@ -51,9 +51,9 @@ def print_doc_from_template(parent=None, jobtype=None, episode=None, edit_form=N
 	form = generate_form_from_template (
 		parent = parent,
 		excluded_template_types = [
-			u'gnuplot script',
-			u'visual progress note',
-			u'invoice'
+			'gnuplot script',
+			'visual progress note',
+			'invoice'
 		],
 		edit = edit_form			# default None = respect template setting
 	)
@@ -64,7 +64,7 @@ def print_doc_from_template(parent=None, jobtype=None, episode=None, edit_form=N
 		return form
 
 	if episode is None:
-		epi_name = u'administrative'
+		epi_name = 'administrative'
 	else:
 		epi_name = episode['description']
 	return act_on_generated_forms (
@@ -148,7 +148,7 @@ def generate_form_from_template(parent=None, template_types=None, edit=None, tem
 			gmDispatcher.send(signal = 'statustext', msg = _('No document template selected.'), beep = False)
 			return None
 
-	if template['engine'] == u'O':
+	if template['engine'] == 'O':
 		return print_doc_from_ooo_template(template = template)
 
 	wx.BeginBusyCursor()
@@ -212,7 +212,7 @@ def act_on_generated_forms(parent=None, forms=None, jobtype=None, episode_name=N
 	def save_soap(soap=None):
 		if episode_name is None:
 			return
-		if soap.strip() == u'':
+		if soap.strip() == '':
 			return
 		pat = gmPerson.gmCurrentPatient()
 		emr = pat.emr
@@ -256,7 +256,7 @@ def act_on_generated_forms(parent=None, forms=None, jobtype=None, episode_name=N
 		form_names = []
 		for form in forms:
 			files2print.extend(form.final_output_filenames)
-			form_names.append(u'%s (%s)' % (form.template['name_long'], form.template['external_version']))
+			form_names.append('%s (%s)' % (form.template['name_long'], form.template['external_version']))
 		if len(files2print) == 0:
 			return True
 		# print
@@ -267,12 +267,12 @@ def act_on_generated_forms(parent=None, forms=None, jobtype=None, episode_name=N
 				aTitle = _('Printing [%s]') % jobtype
 			)
 			return False
-		soap_lines.append(_('Printed: %s') % u', '.join(form_names))
+		soap_lines.append(_('Printed: %s') % ', '.join(form_names))
 		return True
 	#-----------------------------
 	def export_forms(remote_print=False):
 		pat = gmPerson.gmCurrentPatient()
-		return pat.export_area.add_forms(forms = forms, designation = gmTools.bool2subst(remote_print, u'print', None, None))
+		return pat.export_area.add_forms(forms = forms, designation = gmTools.bool2subst(remote_print, 'print', None, None))
 	#-----------------------------
 
 	if parent is None:
@@ -298,7 +298,7 @@ def act_on_generated_forms(parent=None, forms=None, jobtype=None, episode_name=N
 
 	progress_note = dlg.progress_note
 	episode_name = dlg._PRW_episode.GetValue().strip()
-	if episode_name == u'':
+	if episode_name == '':
 		episode_name = None
 	also_export = dlg._CHBOX_export.GetValue()
 	dlg.Destroy()
@@ -325,10 +325,10 @@ def act_on_generated_forms(parent=None, forms=None, jobtype=None, episode_name=N
 	if not success:
 		return False
 
-	if progress_note != u'':
+	if progress_note != '':
 		soap_lines.insert(0, progress_note)
 	if len(soap_lines) > 0:
-		save_soap(soap = u'\n'.join(soap_lines))
+		save_soap(soap = '\n'.join(soap_lines))
 
 	return True
 
@@ -366,7 +366,7 @@ class cFormDisposalDlg(wxgFormDisposalDlg.wxgFormDisposalDlg):
 
 	def _set_note(self, note):
 		if note is None:
-			note = u''
+			note = ''
 		self._TCTRL_soap.SetValue(note)
 
 	progress_note = property(_get_note, _set_note)
@@ -377,7 +377,7 @@ class cFormDisposalDlg(wxgFormDisposalDlg.wxgFormDisposalDlg):
 
 	def _set_episode_name(self, episode_name):
 		if episode_name is None:
-			episode_name = u''
+			episode_name = ''
 		self._PRW_episode.SetValue(episode_name)
 
 	episode_name = property(_get_episode_name, _set_episode_name)
@@ -420,17 +420,17 @@ class cFormDisposalDlg(wxgFormDisposalDlg.wxgFormDisposalDlg):
 				gmMimeLib.call_viewer_on_file(filename, block = True)
 	#--------------------------------------------------------
 	def _on_delete_forms_button_pressed(self, event):
-		print "Event handler '_on_delete_forms_button_pressed' not implemented!"
+		print("Event handler '_on_delete_forms_button_pressed' not implemented!")
 		event.Skip()
 
 #============================================================
 # form template management
 #------------------------------------------------------------
 def edit_template(parent=None, template=None, single_entry=False):
-	ea = cFormTemplateEAPnl(parent = parent, id = -1)
+	ea = cFormTemplateEAPnl(parent, -1)
 	ea.data = template
 	ea.mode = gmTools.coalesce(template, 'new', 'edit')
-	dlg = gmEditArea.cGenericEditAreaDlg2(parent = parent, id = -1, edit_area = ea, single_entry = single_entry)
+	dlg = gmEditArea.cGenericEditAreaDlg2(parent, -1, edit_area = ea, single_entry = single_entry)
 	dlg.SetTitle(gmTools.coalesce(template, _('Adding new form template'), _('Editing form template')))
 	if dlg.ShowModal() == wx.ID_OK:
 		dlg.Destroy()
@@ -539,7 +539,7 @@ class cFormTemplateEAPnl(wxgFormTemplateEditAreaPnl.wxgFormTemplateEditAreaPnl, 
 		# - does exist: reload from filesystem
 
 		# self._PRW_instance_type
-		if self._PRW_instance_type.GetValue().strip() == u'':
+		if self._PRW_instance_type.GetValue().strip() == '':
 			validity = False
 			self._PRW_instance_type.display_as_valid(False)
 			self.status_message = _('You must enter a type for documents created with this template.')
@@ -557,7 +557,7 @@ class cFormTemplateEAPnl(wxgFormTemplateEditAreaPnl.wxgFormTemplateEditAreaPnl, 
 			self._PRW_template_type.display_as_valid(True)
 
 		# self._TCTRL_external_version
-		if self._TCTRL_external_version.GetValue().strip() == u'':
+		if self._TCTRL_external_version.GetValue().strip() == '':
 			validity = False
 			self.display_tctrl_as_valid(tctrl = self._TCTRL_external_version, valid = False)
 			self.status_message = _('You must enter a version for this template.')
@@ -566,7 +566,7 @@ class cFormTemplateEAPnl(wxgFormTemplateEditAreaPnl.wxgFormTemplateEditAreaPnl, 
 			self.display_tctrl_as_valid(tctrl = self._TCTRL_external_version, valid = True)
 
 		# self._PRW_name_short
-		if self._PRW_name_short.GetValue().strip() == u'':
+		if self._PRW_name_short.GetValue().strip() == '':
 			validity = False
 			self._PRW_name_short.display_as_valid(False)
 			self.status_message = _('Missing short name for template.')
@@ -575,7 +575,7 @@ class cFormTemplateEAPnl(wxgFormTemplateEditAreaPnl.wxgFormTemplateEditAreaPnl, 
 			self._PRW_name_short.display_as_valid(True)
 
 		# self._PRW_name_long
-		if self._PRW_name_long.GetValue().strip() == u'':
+		if self._PRW_name_long.GetValue().strip() == '':
 			validity = False
 			self._PRW_name_long.display_as_valid(False)
 			self.status_message = _('Missing long name for template.')
@@ -613,7 +613,7 @@ class cFormTemplateEAPnl(wxgFormTemplateEditAreaPnl.wxgFormTemplateEditAreaPnl, 
 		if tmp not in [self.data['instance_type'], self.data['l10n_instance_type']]:
 			self.data['instance_type'] = tmp
 		tmp = os.path.split(self._TCTRL_filename.GetValue().strip())[1]
-		if tmp != u'':
+		if tmp != '':
 			self.data['filename'] = tmp
 		self.data['in_use'] = self._CHBOX_active.GetValue()
 		self.data['edit_after_substitution'] = self._CHBOX_editable.GetValue()
@@ -630,16 +630,16 @@ class cFormTemplateEAPnl(wxgFormTemplateEditAreaPnl.wxgFormTemplateEditAreaPnl, 
 		return True
 	#----------------------------------------------------------------
 	def _refresh_as_new(self):
-		self._PRW_name_long.SetText(u'')
-		self._PRW_name_short.SetText(u'')
-		self._TCTRL_external_version.SetValue(u'')
-		self._PRW_template_type.SetText(u'')
-		self._PRW_instance_type.SetText(u'')
-		self._TCTRL_filename.SetValue(u'')
+		self._PRW_name_long.SetText('')
+		self._PRW_name_short.SetText('')
+		self._TCTRL_external_version.SetValue('')
+		self._PRW_template_type.SetText('')
+		self._PRW_instance_type.SetText('')
+		self._TCTRL_filename.SetValue('')
 		self._CH_engine.SetSelection(0)
 		self._CHBOX_active.SetValue(True)
 		self._CHBOX_editable.SetValue(True)
-		self._LBL_status.SetLabel(u'')
+		self._LBL_status.SetLabel('')
 		self._BTN_export.Enable(False)
 
 		self._PRW_name_long.SetFocus()
@@ -660,7 +660,7 @@ class cFormTemplateEAPnl(wxgFormTemplateEditAreaPnl.wxgFormTemplateEditAreaPnl, 
 		self._LBL_status.SetLabel(_('last modified %s by %s, internal revision [%s]') % (
 			gmDateTime.pydt_strftime(self.data['last_modified'], '%Y %B %d'),
 			self.data['modified_by'],
-			gmTools.coalesce(self.data['gnumed_revision'], u'?')
+			gmTools.coalesce(self.data['gnumed_revision'], '?')
 		))
 
 		self._TCTRL_filename.Enable(True)
@@ -676,15 +676,15 @@ class cFormTemplateEAPnl(wxgFormTemplateEditAreaPnl.wxgFormTemplateEditAreaPnl, 
 
 		wildcards = []
 		try:
-			wildcards.append(u'%s (%s)|%s' % (
+			wildcards.append('%s (%s)|%s' % (
 				gmForms.form_engine_names[engine_abbrev],
 				gmForms.form_engine_template_wildcards[engine_abbrev],
 				gmForms.form_engine_template_wildcards[engine_abbrev]
 			))
 		except KeyError:
 			pass
-		wildcards.append(u"%s (*)|*" % _('all files'))
-		wildcards.append(u"%s (*.*)|*.*" % _('all files (Windows)'))
+		wildcards.append("%s (*)|*" % _('all files'))
+		wildcards.append("%s (*.*)|*.*" % _('all files (Windows)'))
 
 		dlg = wx.FileDialog (
 			parent = self,
@@ -692,7 +692,7 @@ class cFormTemplateEAPnl(wxgFormTemplateEditAreaPnl.wxgFormTemplateEditAreaPnl, 
 			defaultDir = os.path.expanduser(os.path.join('~', 'gnumed')),
 			defaultFile = '',
 			wildcard = '|'.join(wildcards),
-			style = wx.OPEN | wx.FILE_MUST_EXIST
+			style = wx.FD_OPEN | wx.FD_FILE_MUST_EXIST
 		)
 		result = dlg.ShowModal()
 		if result != wx.ID_CANCEL:
@@ -709,15 +709,15 @@ class cFormTemplateEAPnl(wxgFormTemplateEditAreaPnl.wxgFormTemplateEditAreaPnl, 
 
 		wildcards = []
 		try:
-			wildcards.append(u'%s (%s)|%s' % (
+			wildcards.append('%s (%s)|%s' % (
 				gmForms.form_engine_names[engine_abbrev],
 				gmForms.form_engine_template_wildcards[engine_abbrev],
 				gmForms.form_engine_template_wildcards[engine_abbrev]
 			))
 		except KeyError:
 			pass
-		wildcards.append(u"%s (*)|*" % _('all files'))
-		wildcards.append(u"%s (*.*)|*.*" % _('all files (Windows)'))
+		wildcards.append("%s (*)|*" % _('all files'))
+		wildcards.append("%s (*.*)|*.*" % _('all files (Windows)'))
 
 		dlg = wx.FileDialog (
 			parent = self,
@@ -751,7 +751,7 @@ class cReceiverSelectionDlg(wxgReceiverSelectionDlg.wxgReceiverSelectionDlg):
 		if self.__patient is None:
 			return
 
-		self._LCTRL_candidates.set_columns([_(u'Receiver'), _(u'Details')])
+		self._LCTRL_candidates.set_columns([_('Receiver'), _('Details')])
 		self._LCTRL_candidates.set_resize_column()
 		self._LCTRL_candidates.item_tooltip_callback = self._get_candidate_tooltip
 		self.__populate_candidates_list()
@@ -762,7 +762,7 @@ class cReceiverSelectionDlg(wxgReceiverSelectionDlg.wxgReceiverSelectionDlg):
 		adrs = self.__patient.get_addresses()
 		self.__populate_address_list(addresses = adrs)
 
-		self._TCTRL_final_name.SetValue(self.__patient[u'description'].strip())
+		self._TCTRL_final_name.SetValue(self.__patient['description'].strip())
 
 		self.Layout()
 
@@ -776,48 +776,48 @@ class cReceiverSelectionDlg(wxgReceiverSelectionDlg.wxgReceiverSelectionDlg):
 	#------------------------------------------------------------
 	def __populate_candidates_list(self):
 
-		list_items = [[_('Patient'), self.__patient[u'description_gender'].strip()]]
-		list_data = [(self.__patient[u'description'].strip(), self.__patient.get_addresses(), u'', None)]
+		list_items = [[_('Patient'), self.__patient['description_gender'].strip()]]
+		list_data = [(self.__patient['description'].strip(), self.__patient.get_addresses(), '', None)]
 
 		candidate_type = _('Emergency contact')
-		if self.__patient[u'emergency_contact'] is not None:
-			name = self.__patient[u'emergency_contact'].strip()
+		if self.__patient['emergency_contact'] is not None:
+			name = self.__patient['emergency_contact'].strip()
 			list_items.append([candidate_type, name])
-			list_data.append((name, [], u'', None))
+			list_data.append((name, [], '', None))
 		contact = self.__patient.emergency_contact_in_database
 		if contact is not None:
-			list_items.append([candidate_type, contact[u'description_gender']])
-			list_data.append((contact[u'description'].strip(), contact.get_addresses(), u'', None))
+			list_items.append([candidate_type, contact['description_gender']])
+			list_data.append((contact['description'].strip(), contact.get_addresses(), '', None))
 
 		candidate_type = _('Primary doctor')
 		prov = self.__patient.primary_provider
 		if prov is not None:
 			ident = prov.identity
-			list_items.append([candidate_type, u'%s: %s' % (prov[u'short_alias'], ident['description_gender'])])
-			list_data.append((ident['description'].strip(), ident.get_addresses(), _(u'in-praxis primary provider'), None))
+			list_items.append([candidate_type, '%s: %s' % (prov['short_alias'], ident['description_gender'])])
+			list_data.append((ident['description'].strip(), ident.get_addresses(), _('in-praxis primary provider'), None))
 
-		candidate_type = _(u'This praxis')
-		branches = gmPraxis.get_praxis_branches(order_by = u'branch')
+		candidate_type = _('This praxis')
+		branches = gmPraxis.get_praxis_branches(order_by = 'branch')
 		for branch in branches:
 			adr = branch.address
 			if adr is None:
 				continue
-			list_items.append([candidate_type, u'%s @ %s' % (branch['branch'], branch['praxis'])])
-			list_data.append((u'%s @ %s' % (branch['branch'], branch['praxis']), [adr], branch.format(), None))
+			list_items.append([candidate_type, '%s @ %s' % (branch['branch'], branch['praxis'])])
+			list_data.append(('%s @ %s' % (branch['branch'], branch['praxis']), [adr], branch.format(), None))
 		del branches
 
 		candidate_type = _('External care')
 		cares = gmExternalCare.get_external_care_items(pk_identity = self.__patient.ID)
 		for care in cares:
-			details = u'%s%s@%s (%s)' % (
-				gmTools.coalesce(care['provider'], u'', u'%s: '),
+			details = '%s%s@%s (%s)' % (
+				gmTools.coalesce(care['provider'], '', '%s: '),
 				care['unit'],
 				care['organization'],
 				care['issue']
 			)
-			name = (u'%s%s' % (
-				gmTools.coalesce(care['provider'], u'', u'%s, '),
-				u'%s @ %s' % (care['unit'], care['organization'])
+			name = ('%s%s' % (
+				gmTools.coalesce(care['provider'], '', '%s, '),
+				'%s @ %s' % (care['unit'], care['organization'])
 			)).strip()
 			org_unit = care.org_unit
 			adr = org_unit.address
@@ -826,7 +826,7 @@ class cReceiverSelectionDlg(wxgReceiverSelectionDlg.wxgReceiverSelectionDlg):
 			else:
 				addresses = [adr]
 			list_items.append([candidate_type, details])
-			tt = u'\n'.join(care.format(with_health_issue = True, with_address = True, with_comms = True))
+			tt = '\n'.join(care.format(with_health_issue = True, with_address = True, with_comms = True))
 			list_data.append((name, addresses, tt, org_unit))
 		del cares
 
@@ -838,8 +838,8 @@ class cReceiverSelectionDlg(wxgReceiverSelectionDlg.wxgReceiverSelectionDlg):
 			adr = dept.address
 			if adr is None:
 				continue
-			list_items.append([candidate_type, u'%s @ %s' % (dept['unit'], dept['organization'])])
-			list_data.append((u'%s @ %s' % (dept['unit'], dept['organization']), [adr], u'\n'.join(dept.format(with_comms = True)), dept))
+			list_items.append([candidate_type, '%s @ %s' % (dept['unit'], dept['organization'])])
+			list_data.append(('%s @ %s' % (dept['unit'], dept['organization']), [adr], '\n'.join(dept.format(with_comms = True)), dept))
 		del depts
 
 		candidate_type = _('Procedure')
@@ -848,8 +848,8 @@ class cReceiverSelectionDlg(wxgReceiverSelectionDlg.wxgReceiverSelectionDlg):
 			adr = proc_loc.address
 			if adr is None:
 				continue
-			list_items.append([candidate_type, u'%s @ %s' % (proc_loc['unit'], proc_loc['organization'])])
-			list_data.append((u'%s @ %s' % (proc_loc['unit'], proc_loc['organization']), [adr], u'\n'.join(proc_loc.format(with_comms = True)), proc_loc))
+			list_items.append([candidate_type, '%s @ %s' % (proc_loc['unit'], proc_loc['organization'])])
+			list_data.append(('%s @ %s' % (proc_loc['unit'], proc_loc['organization']), [adr], '\n'.join(proc_loc.format(with_comms = True)), proc_loc))
 		del proc_locs
 
 		candidate_type = _('Lab')
@@ -858,8 +858,8 @@ class cReceiverSelectionDlg(wxgReceiverSelectionDlg.wxgReceiverSelectionDlg):
 			adr = lab.address
 			if adr is None:
 				continue
-			list_items.append([candidate_type, u'%s @ %s' % (lab['unit'], lab['organization'])])
-			list_data.append((u'%s @ %s' % (lab['unit'], lab['organization']), [adr], u'\n'.join(lab.format(with_comms = True)), lab))
+			list_items.append([candidate_type, '%s @ %s' % (lab['unit'], lab['organization'])])
+			list_data.append(('%s @ %s' % (lab['unit'], lab['organization']), [adr], '\n'.join(lab.format(with_comms = True)), lab))
 		del labs
 
 		candidate_type = _('Bill receiver')
@@ -872,9 +872,9 @@ class cReceiverSelectionDlg(wxgReceiverSelectionDlg.wxgReceiverSelectionDlg):
 			if adr is None:
 				continue
 			adrs_seen.append(bill['pk_receiver_address'])
-			details = u'%s%s' % (bill['invoice_id'], gmDateTime.pydt_strftime(dt = bill['close_date'], format = ' (%Y %b %d)', none_str = u''))
+			details = '%s%s' % (bill['invoice_id'], gmDateTime.pydt_strftime(dt = bill['close_date'], format = ' (%Y %b %d)', none_str = ''))
 			list_items.append([candidate_type, details])
-			list_data.append((u'', [adr], u'\n'.join(adr.format()), None))
+			list_data.append(('', [adr], '\n'.join(adr.format()), None))
 
 		candidate_type = _('Document')
 		doc_folder = self.__patient.document_folder
@@ -883,8 +883,8 @@ class cReceiverSelectionDlg(wxgReceiverSelectionDlg.wxgReceiverSelectionDlg):
 			adr = doc_unit.address
 			if adr is None:
 				continue
-			list_items.append([candidate_type, u'%s @ %s' % (doc_unit['unit'], doc_unit['organization'])])
-			list_data.append((u'%s @ %s' % (doc_unit['unit'], doc_unit['organization']), [adr], u'\n'.join(doc_unit.format(with_comms = True)), doc_unit))
+			list_items.append([candidate_type, '%s @ %s' % (doc_unit['unit'], doc_unit['organization'])])
+			list_data.append(('%s @ %s' % (doc_unit['unit'], doc_unit['organization']), [adr], '\n'.join(doc_unit.format(with_comms = True)), doc_unit))
 		del doc_units
 
 		self._LCTRL_candidates.set_string_items(list_items)
@@ -894,29 +894,29 @@ class cReceiverSelectionDlg(wxgReceiverSelectionDlg.wxgReceiverSelectionDlg):
 	#------------------------------------------------------------
 	def _get_candidate_tooltip(self, data):
 		if data is None:
-			return u''
+			return ''
 		name, addresses, tt, unit = data
 		return tt
 
 	#------------------------------------------------------------
 	def __update_address_info(self, adr):
 		if adr is None:
-			self._LBL_address_details.SetLabel(u'')
-			self._LBL_final_country.SetLabel(u'')
-			self._LBL_final_region.SetLabel(u'')
-			self._LBL_final_zip.SetLabel(u'')
-			self._LBL_final_location.SetLabel(u'')
-			self._LBL_final_street.SetLabel(u'')
-			self._LBL_final_number.SetLabel(u'')
+			self._LBL_address_details.SetLabel('')
+			self._LBL_final_country.SetLabel('')
+			self._LBL_final_region.SetLabel('')
+			self._LBL_final_zip.SetLabel('')
+			self._LBL_final_location.SetLabel('')
+			self._LBL_final_street.SetLabel('')
+			self._LBL_final_number.SetLabel('')
 			self.Layout()
 			return
-		self._LBL_address_details.SetLabel(u'\n'.join(adr.format()))
+		self._LBL_address_details.SetLabel('\n'.join(adr.format()))
 		self._LBL_final_country.SetLabel(adr['l10n_country'])
 		self._LBL_final_region.SetLabel(adr['l10n_region'])
 		self._LBL_final_zip.SetLabel(adr['postcode'])
-		self._LBL_final_location.SetLabel(u'%s%s' % (adr['urb'], gmTools.coalesce(adr['suburb'], u'', u' - %s')))
+		self._LBL_final_location.SetLabel('%s%s' % (adr['urb'], gmTools.coalesce(adr['suburb'], '', ' - %s')))
 		self._LBL_final_street.SetLabel(adr['street'])
-		self._LBL_final_number.SetLabel(u'%s%s' % (adr['number'], gmTools.coalesce(adr['subunit'], u'', u' %s')))
+		self._LBL_final_number.SetLabel('%s%s' % (adr['number'], gmTools.coalesce(adr['subunit'], '', ' %s')))
 		self.Layout()
 
 	#------------------------------------------------------------
@@ -925,22 +925,22 @@ class cReceiverSelectionDlg(wxgReceiverSelectionDlg.wxgReceiverSelectionDlg):
 		list_items = []
 		for a in addresses:
 			try:
-				list_items.append([a[u'l10n_address_type'], a.format(single_line = True, verbose = False, show_type = False)])
-				cols = [_(u'Type'), _(u'Address')]
+				list_items.append([a['l10n_address_type'], a.format(single_line = True, verbose = False, show_type = False)])
+				cols = [_('Type'), _('Address')]
 			except KeyError:
 				list_items.append([a.format(single_line = True, verbose = False, show_type = False)])
-				cols = [_(u'Address')]
+				cols = [_('Address')]
 
 		self._LCTRL_addresses.set_columns(cols)
 		self._LCTRL_addresses.set_string_items(list_items)
 		self._LCTRL_candidates.set_column_widths()
 		self._LCTRL_addresses.set_data(addresses)
-		self._PRW_other_address.SetText(value = u'', data = None)
+		self._PRW_other_address.SetText(value = '', data = None)
 		self.__update_address_info(None)
 
 	#------------------------------------------------------------
 	def _get_address_tooltip(self, adr):
-		return u'\n'.join(adr.format(show_type = True))
+		return '\n'.join(adr.format(show_type = True))
 
 	#------------------------------------------------------------
 	#------------------------------------------------------------
@@ -959,25 +959,25 @@ class cReceiverSelectionDlg(wxgReceiverSelectionDlg.wxgReceiverSelectionDlg):
 	def _on_org_unit_selected_in_PRW(self, unit):
 		if unit is None:
 			self._LCTRL_addresses.remove_items_safely(max_tries = 3)
-			self._PRW_other_address.SetText(value = u'', data = None)
+			self._PRW_other_address.SetText(value = '', data = None)
 			self.__update_address_info(None)
-			self._TCTRL_org_unit_details.SetValue(u'')
+			self._TCTRL_org_unit_details.SetValue('')
 			return
 
 		unit = self._PRW_org_unit.GetData(as_instance = True)
 		adr = unit.address
 		if adr is None:
 			self._LCTRL_addresses.remove_items_safely(max_tries = 3)
-			self._PRW_other_address.SetText(value = u'', data = None)
+			self._PRW_other_address.SetText(value = '', data = None)
 			self.__update_address_info(None)
 		else:
 			self.__populate_address_list(addresses = [adr])
-			self._PRW_other_address.SetData(data = adr[u'pk_address'])
+			self._PRW_other_address.SetData(data = adr['pk_address'])
 			self.__update_address_info(adr)
 
-		name = u'%s @ %s' % (unit['unit'], unit['organization'])
+		name = '%s @ %s' % (unit['unit'], unit['organization'])
 		self._TCTRL_final_name.SetValue(name)
-		self._TCTRL_org_unit_details.SetValue(u'\n'.join(unit.format(with_comms = True)))
+		self._TCTRL_org_unit_details.SetValue('\n'.join(unit.format(with_comms = True)))
 		self.Layout()
 
 	#------------------------------------------------------------
@@ -987,11 +987,11 @@ class cReceiverSelectionDlg(wxgReceiverSelectionDlg.wxgReceiverSelectionDlg):
 		name, addresses, tt, unit = self._LCTRL_candidates.get_selected_item_data(only_one = True)
 		self.__populate_address_list(addresses = addresses)
 		if unit is None:
-			self._PRW_org_unit.SetText(value = u'', data = None)
-			self._TCTRL_org_unit_details.SetValue(u'')
+			self._PRW_org_unit.SetText(value = '', data = None)
+			self._TCTRL_org_unit_details.SetValue('')
 		else:
 			self._PRW_org_unit.SetData(data = unit['pk_org_unit'])
-			self._TCTRL_org_unit_details.SetValue(u'\n'.join(unit.format(with_comms = True)))
+			self._TCTRL_org_unit_details.SetValue('\n'.join(unit.format(with_comms = True)))
 		self._TCTRL_final_name.SetValue(name.strip())
 		self._LBL_final_name.SetLabel(name.strip())
 
@@ -1016,7 +1016,7 @@ class cReceiverSelectionDlg(wxgReceiverSelectionDlg.wxgReceiverSelectionDlg):
 
 	#------------------------------------------------------------
 	def _on_ok_button_pressed(self, event):
-		if self._TCTRL_final_name.GetValue().strip() == u'':
+		if self._TCTRL_final_name.GetValue().strip() == '':
 			return False
 		if self._PRW_other_address.address is None:
 			return False

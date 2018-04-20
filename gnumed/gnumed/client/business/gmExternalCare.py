@@ -28,7 +28,7 @@ from Gnumed.pycommon import gmTools
 _log = logging.getLogger('gm.ext_care')
 
 #============================================================
-_SQL_get_external_care_items = u"""SELECT * FROM clin.v_external_care WHERE %s"""
+_SQL_get_external_care_items = """SELECT * FROM clin.v_external_care WHERE %s"""
 
 class cExternalCareItem(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents an external care item.
@@ -38,9 +38,9 @@ class cExternalCareItem(gmBusinessDBObject.cBusinessDBObject):
 	.fk_health_issue to something other than NULL it needs to
 	unset .issue explicitly (to u'' or None)).
 	"""
-	_cmd_fetch_payload = _SQL_get_external_care_items % u"pk_external_care = %s"
+	_cmd_fetch_payload = _SQL_get_external_care_items % "pk_external_care = %s"
 	_cmds_store_payload = [
-		u"""UPDATE clin.external_care SET
+		"""UPDATE clin.external_care SET
 				comment = gm.nullify_empty_string(%(comment)s),
 				fk_encounter = %(pk_encounter)s,
 				issue = gm.nullify_empty_string(%(issue)s),
@@ -60,38 +60,38 @@ class cExternalCareItem(gmBusinessDBObject.cBusinessDBObject):
 			RETURNING
 				xmin AS xmin_external_care
 		""",
-		_SQL_get_external_care_items % u"pk_external_care = %(pk_external_care)s"
+		_SQL_get_external_care_items % "pk_external_care = %(pk_external_care)s"
 	]
 	_updatable_fields = [
-		u'pk_encounter',
-		u'pk_health_issue',
-		u'pk_org_unit',
-		u'issue',
-		u'provider',
-		u'comment',
-		u'inactive'
+		'pk_encounter',
+		'pk_health_issue',
+		'pk_org_unit',
+		'issue',
+		'provider',
+		'comment',
+		'inactive'
 	]
 	#--------------------------------------------------------
 	def format(self, with_health_issue=True, with_address=False, with_comms=False):
 		lines = []
-		lines.append(_(u'External care%s             #%s') % (
+		lines.append(_('External care%s             #%s') % (
 			gmTools.bool2subst (
 				self._payload[self._idx['inactive']],
-				u' (%s)' % _('inactive'),
-				u'',
-				u' [ERROR: .inactive is NULL]'
+				' (%s)' % _('inactive'),
+				'',
+				' [ERROR: .inactive is NULL]'
 			),
 			self._payload[self._idx['pk_external_care']]
 		))
 		if with_health_issue:
 			if self._payload[self._idx['pk_health_issue']] is None:
-				lines.append(u' ' + _(u'Issue: %s') % self._payload[self._idx['issue']])
+				lines.append(' ' + _('Issue: %s') % self._payload[self._idx['issue']])
 			else:
-				lines.append(u' ' + _(u'Health issue: %s') % self._payload[self._idx['issue']])
-				lines.append(u'  (' + _(u'also treated here') + u')')
+				lines.append(' ' + _('Health issue: %s') % self._payload[self._idx['issue']])
+				lines.append('  (' + _('also treated here') + ')')
 		if self._payload[self._idx['provider']] is not None:
-			lines.append(u' ' + _(u'Provider: %s') % self._payload[self._idx['provider']])
-		lines.append(u' ' + _(u'Location: %s@%s') % (self._payload[self._idx['unit']], self._payload[self._idx['organization']]))
+			lines.append(' ' + _('Provider: %s') % self._payload[self._idx['provider']])
+		lines.append(' ' + _('Location: %s@%s') % (self._payload[self._idx['unit']], self._payload[self._idx['organization']]))
 		unit = self.org_unit
 		if with_address:
 			adr = unit.address
@@ -99,14 +99,14 @@ class cExternalCareItem(gmBusinessDBObject.cBusinessDBObject):
 				lines.extend(adr.format())
 		if with_comms:
 			for comm in unit.comm_channels:
-				lines.append(u'  %s: %s%s' % (
+				lines.append('  %s: %s%s' % (
 					comm['l10n_comm_type'],
 					comm['url'],
-					gmTools.bool2subst(comm['is_confidential'], _(' (confidential)'), u'', u'')
+					gmTools.bool2subst(comm['is_confidential'], _(' (confidential)'), '', '')
 				))
 		if self._payload[self._idx['comment']] is not None:
-			lines.append(u'')
-			lines.append(u' ' + self._payload[self._idx['comment']])
+			lines.append('')
+			lines.append(' ' + self._payload[self._idx['comment']])
 
 		return lines
 	#--------------------------------------------------------
@@ -124,19 +124,19 @@ def get_external_care_items(order_by=None, pk_identity=None, pk_health_issue=Non
 	}
 	where_parts = []
 	if pk_identity is not None:
-		where_parts.append(u'pk_identity = %(pk_pat)s')
+		where_parts.append('pk_identity = %(pk_pat)s')
 	if pk_health_issue is not None:
-		where_parts.append(u'pk_health_issue = %(pk_issue)s')
+		where_parts.append('pk_health_issue = %(pk_issue)s')
 	if exclude_inactive is True:
-		where_parts.append(u'inactive IS FALSE')
+		where_parts.append('inactive IS FALSE')
 
 	if len(where_parts) == 0:
-		where = u'TRUE'
+		where = 'TRUE'
 	else:
-		where = u' AND '.join(where_parts)
+		where = ' AND '.join(where_parts)
 
 	if order_by is not None:
-		where = u'%s ORDER BY %s' % (
+		where = '%s ORDER BY %s' % (
 			where,
 			order_by
 		)
@@ -148,12 +148,12 @@ def get_external_care_items(order_by=None, pk_identity=None, pk_health_issue=Non
 #------------------------------------------------------------
 def create_external_care_item(pk_health_issue=None, issue=None, pk_org_unit=None, pk_encounter=None):
 	args = {
-		u'pk_health_issue': pk_health_issue,
-		u'issue': issue,
-		u'pk_org_unit': pk_org_unit,
-		u'enc': pk_encounter
+		'pk_health_issue': pk_health_issue,
+		'issue': issue,
+		'pk_org_unit': pk_org_unit,
+		'enc': pk_encounter
 	}
-	cmd = u"""
+	cmd = """
 		INSERT INTO clin.external_care (
 			issue,
 			fk_health_issue,
@@ -176,7 +176,7 @@ def create_external_care_item(pk_health_issue=None, issue=None, pk_org_unit=None
 #------------------------------------------------------------
 def delete_external_care_item(pk_external_care=None):
 	args = {'pk': pk_external_care}
-	cmd = u"DELETE FROM clin.external_care WHERE pk = %(pk)s"
+	cmd = "DELETE FROM clin.external_care WHERE pk = %(pk)s"
 	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 	return True
 
@@ -195,7 +195,7 @@ if __name__ == "__main__":
 	#-----------------------------------------
 	def test_get_care_items():
 		for item in get_external_care_items(pk_identity = 12, order_by = 'provider'):
-			print item.format()
+			print(item.format())
 
 	#-----------------------------------------
 	test_get_care_items()

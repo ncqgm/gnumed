@@ -29,26 +29,26 @@ _log = logging.getLogger('gm.xdt_exp')
 def export_patients_as_xdt(base_path=None):
 
 	path = gmTools.get_unique_filename (
-		prefix = u'gm-export-',
-		suffix = u'',
+		prefix = 'gm-export-',
+		suffix = '',
 		tmp_dir = base_path
 	)
 	path = os.path.splitext(path)[0]
 	gmTools.mkdir(path)
 
 	for ID in gmPerson.get_person_IDs():
-		_log.info(u'exporting patient #%s', ID)
+		_log.info('exporting patient #%s', ID)
 		identity = gmPerson.cPerson(aPK_obj = ID)
-		_log.info(u'identity: %s', identity)
+		_log.info('identity: %s', identity)
 		filename = gmTools.get_unique_filename (
-			prefix = u'gm_exp-%s-' % identity.dirname,
-			suffix = u'.xdt',
+			prefix = 'gm_exp-%s-' % identity.dirname,
+			suffix = '.xdt',
 			tmp_dir = path
 		)
-		_log.info(u'file: %s', filename)
+		_log.info('file: %s', filename)
 		identity.export_as_gdt (
 			filename = filename,
-			encoding = u'utf8'
+			encoding = 'utf8'
 			#encoding = u'iso-8859-15'
 		)
 
@@ -67,5 +67,5 @@ if __name__ == '__main__':
 	if len(sys.argv) > 2:
 		path = sys.argv[2]
 
-	paths = gmTools.gmPaths(app_name = u'gnumed')
+	paths = gmTools.gmPaths(app_name = 'gnumed')
 	export_patients_as_xdt(base_path = path)

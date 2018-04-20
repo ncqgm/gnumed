@@ -35,14 +35,14 @@ def browse_data_sources(parent=None):
 	def refresh(lctrl):
 		srcs = gmCoding.get_data_sources()
 		items = [ [
-			u'%s (%s): %s' % (
+			'%s (%s): %s' % (
 				s['name_short'],
-				gmTools.coalesce(s['lang'], u'?'),
+				gmTools.coalesce(s['lang'], '?'),
 				s['version']
 			),
-			s['name_long'].split(u'\n')[0].split(u'\r')[0],
-			s['source'].split(u'\n')[0].split(u'\r')[0],
-			gmTools.coalesce(s['description'], u'').split(u'\n')[0].split(u'\r')[0],
+			s['name_long'].split('\n')[0].split('\r')[0],
+			s['source'].split('\n')[0].split('\r')[0],
+			gmTools.coalesce(s['description'], '').split('\n')[0].split('\r')[0],
 			s['pk']
 		] for s in srcs ]
 		lctrl.set_string_items(items)
@@ -72,7 +72,7 @@ class cDataSourcePhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
 
-		query = u"""
+		query = """
 			SELECT DISTINCT ON (list_label)
 				pk
 					AS data,
@@ -92,7 +92,7 @@ class cDataSourcePhraseWheel(gmPhraseWheel.cPhraseWheel):
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries = query)
 		mp.setThresholds(1, 2, 4)
 #		mp.word_separators = '[ \t=+&:@]+'
-		self.SetToolTipString(_('Select a data source / coding system.'))
+		self.SetToolTip(_('Select a data source / coding system.'))
 		self.matcher = mp
 		self.selection_only = True
 
@@ -106,13 +106,13 @@ def browse_coded_terms(parent=None, coding_systems=None, languages=None):
 		coded_terms = gmCoding.get_coded_terms (
 			coding_systems = coding_systems,
 			languages = languages,
-			order_by = u'term, coding_system, code'
+			order_by = 'term, coding_system, code'
 		)
 		items = [ [
 			ct['term'],
 			ct['code'],
 			ct['coding_system'],
-			gmTools.coalesce(ct['lang'], u''),
+			gmTools.coalesce(ct['lang'], ''),
 			ct['version'],
 			ct['coding_system_long']
 		] for ct in coded_terms ]
@@ -123,7 +123,7 @@ def browse_coded_terms(parent=None, coding_systems=None, languages=None):
 		parent = parent,
 		msg = _('Coded terms known to GNUmed (may take a while to load).'),
 		caption = _('Showing coded terms.'),
-		columns = [ _('Term'), _('Code'), _('System'), _('Language'), _('Version'), _(u'Coding system details') ],
+		columns = [ _('Term'), _('Code'), _('System'), _('Language'), _('Version'), _('Coding system details') ],
 		single_selection = True,
 		can_return_empty = True,
 		ignore_OK_button = True,
@@ -144,7 +144,7 @@ class cGenericCodesPhraseWheel(gmPhraseWheel.cMultiPhraseWheel):
 
 		super(cGenericCodesPhraseWheel, self).__init__(*args, **kwargs)
 
-		query = u"""
+		query = """
 			SELECT
 				-- DISTINCT ON (list_label)
 				data,
@@ -174,12 +174,12 @@ class cGenericCodesPhraseWheel(gmPhraseWheel.cMultiPhraseWheel):
 		"""
 		ctxt = {
 			'ctxt_system': {				# must be a TUPLE !
-				'where_part': u'AND coding_system IN %(system)s',
-				'placeholder': u'system'
+				'where_part': 'AND coding_system IN %(system)s',
+				'placeholder': 'system'
 			},
 			'ctxt_lang': {
-				'where_part': u'AND lang = %(lang)s',
-				'placeholder': u'lang'
+				'where_part': 'AND lang = %(lang)s',
+				'placeholder': 'lang'
 			}
 		}
 
@@ -190,14 +190,14 @@ class cGenericCodesPhraseWheel(gmPhraseWheel.cMultiPhraseWheel):
 
 		self.phrase_separators = ';'
 		self.selection_only = False			# not sure yet how this fares with multi-phrase input
-		self.SetToolTipString(_('Select one or more codes that apply.'))
+		self.SetToolTip(_('Select one or more codes that apply.'))
 		self.matcher = mp
 
 		self.add_callback_on_lose_focus(callback = self.__on_losing_focus)
 	#------------------------------------------------------------
 	def __on_losing_focus(self):
 		self._adjust_data_after_text_update()
-		if self.GetValue().strip() == u'':
+		if self.GetValue().strip() == '':
 			return
 
 		if len(self.data) != len(self.displayed_strings):
@@ -208,18 +208,18 @@ class cGenericCodesPhraseWheel(gmPhraseWheel.cMultiPhraseWheel):
 	#------------------------------------------------------------
 	def _get_data_tooltip(self):
 		if len(self.data) == 0:
-			return u''
+			return ''
 
-		return u';\n'.join([ i['list_label'] for i in self.data.values() ]) + u';'
+		return ';\n'.join([ i['list_label'] for i in self.data.values() ]) + ';'
 	#------------------------------------------------------------
 	def generic_linked_codes2item_dict(self, codes):
 		if len(codes) == 0:
-			return u'', {}
+			return '', {}
 
 		code_dict = {}
-		val = u''
+		val = ''
 		for code in codes:
-			list_label = u'%s (%s): %s (%s - %s)' % (
+			list_label = '%s (%s): %s (%s - %s)' % (
 				code['code'],
 				code['name_short'],
 				code['term'],
@@ -228,7 +228,7 @@ class cGenericCodesPhraseWheel(gmPhraseWheel.cMultiPhraseWheel):
 			)
 			field_label = code['code']
 			code_dict[field_label] = {'data': code['pk_generic_code'], 'field_label': field_label, 'list_label': list_label}
-			val += u'%s; ' % field_label
+			val += '%s; ' % field_label
 
 		return val.strip(), code_dict
 #================================================================

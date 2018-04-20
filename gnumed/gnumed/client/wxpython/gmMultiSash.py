@@ -185,7 +185,7 @@ class cMultiSashSplitter(wx.Window):
 		if leaf1:
 			self.leaf1 = leaf1
 			self.leaf1.Reparent(self)
-			self.leaf1.MoveXY(0,0)
+			self.leaf1.Move(0,0)
 		else:
 			self.leaf1 = cMultiSashLeaf (
 				self.top_parent,
@@ -230,7 +230,7 @@ class cMultiSashSplitter(wx.Window):
 #			print "caller: %s [%s]" % (caller.__class__.__name__, id(caller))
 #			print "hence caller must have been leaf 1 hence adding leaf 2 ..."	  
 			self.direction = direction
-			w,h = self.GetSizeTuple()
+			w,h = self.GetSize()
 			if direction == MV_HOR:
 #				print "... next to leaf 1"
 				x,y = (pos,0)
@@ -285,7 +285,7 @@ class cMultiSashSplitter(wx.Window):
 #			print "Removing caller"
 			# Gnumed: remove content from displayed leafs
 			self.top_parent.displayed_leafs.remove(caller)
-			w,h = self.GetSizeTuple()
+			w,h = self.GetSize()
 			x,y = self.GetPositionTuple()
 			if caller == self.leaf1:
 				if self == parent.leaf1:
@@ -350,7 +350,7 @@ class cMultiSashSplitter(wx.Window):
 		if not (self.leaf1 and self.leaf2):
 			return
 		if pos < 10: return
-		w,h = self.GetSizeTuple()
+		w,h = self.GetSize()
 		if side == MV_HOR:
 			if pos > w - 10: return
 		else:
@@ -367,11 +367,11 @@ class cMultiSashSplitter(wx.Window):
 			self.leaf1.SetSize(self.GetSize())
 			self.leaf1.OnSize(None)
 			return
-		v1w,v1h = self.leaf1.GetSizeTuple()
-		v2w,v2h = self.leaf2.GetSizeTuple()
+		v1w,v1h = self.leaf1.GetSize()
+		v2w,v2h = self.leaf2.GetSize()
 		v1x,v1y = self.leaf1.GetPositionTuple()
 		v2x,v2y = self.leaf2.GetPositionTuple()
-		w,h = self.GetSizeTuple()
+		w,h = self.GetSize()
 
 		if v1x != v2x:
 			ratio = float(w) / float((v1w + v2w))
@@ -460,7 +460,7 @@ class cMultiSashLeaf(wx.Window):
 #		print '%s[%s].AddLeaf()' % (self.__class__.__name__, id(self))
 		if pos < 10:
 			pos = 10
-		w,h = self.GetSizeTuple()
+		w,h = self.GetSize()
 		if direction == MV_VER:
 			if pos > h - 10:
 #				print "pos", pos
@@ -515,7 +515,7 @@ class cMultiSashLeafContent(wx.Window):
 			style = wx.CLIP_CHILDREN | wx.SUNKEN_BORDER
 		)
 		self.child = cEmptyChild(self)
-		self.child.MoveXY(2,2)
+		self.child.Move(2,2)
 		self.__normal_colour = self.GetBackgroundColour()
 		self.selected = False
 
@@ -535,7 +535,7 @@ class cMultiSashLeafContent(wx.Window):
 			self.child.Destroy()
 		content.Reparent(self)
 		self.child = content
-		self.child.MoveXY(2,2)
+		self.child.Move(2,2)
 		# Gnumed: required to a proper layout of the child and parent widgets
 		self.Select()
 		self.OnSize(None)
@@ -573,7 +573,7 @@ class cMultiSashLeafContent(wx.Window):
 		self.Refresh()
 
 	def CalcSize(self,parent):
-		w,h = parent.GetSizeTuple()
+		w,h = parent.GetSize()
 		w -= SH_SIZE
 		h -= SH_SIZE
 		return (w,h)
@@ -581,8 +581,9 @@ class cMultiSashLeafContent(wx.Window):
 	def OnSize(self,evt):
 		w,h = self.CalcSize(self.GetParent())
 		self.SetDimensions(0,0,w,h)
-		w,h = self.GetClientSizeTuple()
+		w,h = self.GetClientSize()
 		self.child.SetSize(wx.Size(w-4,h-4))
+
 #----------------------------------------------------------------------
 class cMultiSizer(wx.Window):
 	"""
@@ -608,7 +609,7 @@ class cMultiSizer(wx.Window):
 		wx.EVT_LEFT_UP(self,self.OnRelease)
 
 	def CalcSizePos(self,parent):
-		pw,ph = parent.GetSizeTuple()
+		pw,ph = parent.GetSize()
 		if self.side == MV_HOR:
 			x = CR_SIZE + 2
 			y = ph - SH_SIZE
@@ -639,7 +640,7 @@ class cMultiSizer(wx.Window):
 	def OnMouseMove(self,evt):
 		if self.isDrag:
 			DrawSash(self.dragTarget,self.px,self.py,self.side)
-			self.px,self.py = self.ClientToScreenXY(evt.m_x,evt.m_y)
+			self.px,self.py = self.ClientToScreen(evt.x,evt.y)
 			self.px,self.py = self.dragTarget.ScreenToClientXY(self.px,self.py)
 			DrawSash(self.dragTarget,self.px,self.py,self.side)
 		else:
@@ -649,7 +650,7 @@ class cMultiSizer(wx.Window):
 		self.dragTarget = self.GetParent().SizeTarget(not self.side)
 		if self.dragTarget:
 			self.isDrag = True
-			self.px,self.py = self.ClientToScreenXY(evt.m_x,evt.m_y)
+			self.px,self.py = self.ClientToScreen(evt.x,evt.y)
 			self.px,self.py = self.dragTarget.ScreenToClientXY(self.px,self.py)
 			DrawSash(self.dragTarget,self.px,self.py,self.side)
 			self.CaptureMouse()
@@ -696,7 +697,7 @@ class cMultiCreator(wx.Window):
 		wx.EVT_PAINT(self,self.OnPaint)
 
 	def CalcSizePos(self,parent):
-		pw,ph = parent.GetSizeTuple()
+		pw,ph = parent.GetSize()
 		if self.side == MV_HOR:
 			x = 2
 			y = ph - SH_SIZE
@@ -726,7 +727,7 @@ class cMultiCreator(wx.Window):
 		if self.isDrag:
 			parent = self.GetParent()
 			DrawSash(parent,self.px,self.py,self.side)
-			self.px,self.py = self.ClientToScreenXY(evt.m_x,evt.m_y)
+			self.px,self.py = self.ClientToScreen(evt.x,evt.y)
 			self.px,self.py = parent.ScreenToClientXY(self.px,self.py)
 			DrawSash(parent,self.px,self.py,self.side)
 		else:
@@ -735,7 +736,7 @@ class cMultiCreator(wx.Window):
 	def OnPress(self,evt):
 		self.isDrag = True
 		parent = self.GetParent()
-		self.px,self.py = self.ClientToScreenXY(evt.m_x,evt.m_y)
+		self.px,self.py = self.ClientToScreen(evt.x,evt.y)
 		self.px,self.py = parent.ScreenToClientXY(self.px,self.py)
 		DrawSash(parent,self.px,self.py,self.side)
 		self.CaptureMouse()
@@ -759,12 +760,12 @@ class cMultiCreator(wx.Window):
 		dc.SetBackground(wx.Brush(self.GetBackgroundColour(),wx.SOLID))
 		dc.Clear()
 
-		highlight = wxPen(wx.SystemSettings_GetSystemColour(
+		highlight = wxPen(wx.SystemSettings.GetSystemColour(
 			wx.SYS_COLOUR_BTNHIGHLIGHT),1,wx.SOLID)
-		shadow = wxPen(wx.SystemSettings_GetSystemColour(
+		shadow = wxPen(wx.SystemSettings.GetSystemColour(
 			wx.SYS_COLOUR_BTNSHADOW),1,wx.SOLID)
 		black = wxPen(wx.BLACK,1,wx.SOLID)
-		w,h = self.GetSizeTuple()
+		w,h = self.GetSize()
 		w -= 1
 		h -= 1
 
@@ -824,7 +825,7 @@ class cMultiCloser(wx.Window):
 		dc.Clear()
 
 	def CalcSizePos(self,parent):
-		pw,ph = parent.GetSizeTuple()
+		pw,ph = parent.GetSize()
 		x = pw - SH_SIZE
 		w = SH_SIZE
 		h = SH_SIZE + 2
@@ -850,7 +851,7 @@ class cEmptyChild(wx.Window):
 def DrawSash(win,x,y,direction):
 	dc = wx.ScreenDC()
 	dc.StartDrawingOnTopWin(win)
-	bmp = wx.EmptyBitmap(8,8)
+	bmp = wx.Bitmap(8,8)
 	bdc = wx.MemoryDC()
 	bdc.SelectObject(bmp)
 	bdc.DrawRectangle(-1,-1,10,10)
@@ -865,7 +866,7 @@ def DrawSash(win,x,y,direction):
 	dc.SetBrush(brush)
 	dc.SetLogicalFunction(wx.XOR)
 
-	body_w,body_h = win.GetClientSizeTuple()
+	body_w,body_h = win.GetClientSize()
 
 	if y < 0:
 		y = 0
@@ -881,7 +882,7 @@ def DrawSash(win,x,y,direction):
 	else:
 		y = 0
 
-	x,y = win.ClientToScreenXY(x,y)
+	x,y = win.ClientToScreen(x,y)
 
 	w = body_w
 	h = body_h

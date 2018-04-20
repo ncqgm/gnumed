@@ -49,7 +49,7 @@ def __set_opt_in_INI_file(src=None, sink=None, group=None, option=None, value=No
 			continue
 
 		# our group ?
-		if line.strip() == u'[%s]' % group:
+		if line.strip() == '[%s]' % group:
 			group_seen = True
 			sink.write(line)
 			continue
@@ -58,7 +58,7 @@ def __set_opt_in_INI_file(src=None, sink=None, group=None, option=None, value=No
 		if regex.match('\[.+\].*', line) is not None:
 			# next group but option not seen yet ?
 			if group_seen and not option_seen:
-				sink.write(u'%s = %s\n\n\n' % (option, value))
+				sink.write('%s = %s\n\n\n' % (option, value))
 				option_seen = True
 			sink.write(line)
 			continue
@@ -66,7 +66,7 @@ def __set_opt_in_INI_file(src=None, sink=None, group=None, option=None, value=No
 		# our option ?
 		if regex.match('%s(\s|\t)*=' % option, line) is not None:
 			if group_seen:
-				sink.write(u'%s = %s\n' % (option, value))
+				sink.write('%s = %s\n' % (option, value))
 				option_seen = True
 				continue
 			sink.write(line)
@@ -81,13 +81,13 @@ def __set_opt_in_INI_file(src=None, sink=None, group=None, option=None, value=No
 
 	# need to add group ?
 	if not group_seen:
-		sink.write(u'[%s]\n' % group)
+		sink.write('[%s]\n' % group)
 
 	# We either just added the group or it was the last group
 	# but did not contain the option. It must have been the
 	# last group then or else the following group would have
 	# triggered the option writeout.
-	sink.write(u'%s = %s\n' % (option, value))
+	sink.write('%s = %s\n' % (option, value))
 
 #==================================================================
 def __set_list_in_INI_file(src=None, sink=None, group=None, option=None, value=None):
@@ -113,9 +113,9 @@ def __set_list_in_INI_file(src=None, sink=None, group=None, option=None, value=N
 			# our option ?
 			if regex.match('%s(\s|\t)*=(\s|\t)*\$%s\$' % (option, option), line.strip()) is not None:
 				sink.write(line)										# list header
-				sink.write(u'\n'.join(value))
-				sink.write(u'\n')
-				sink.write(u'$%s$\n' % option)							# list footer
+				sink.write('\n'.join(value))
+				sink.write('\n')
+				sink.write('$%s$\n' % option)							# list footer
 				our_list_seen = True
 				inside_our_list = True
 				continue
@@ -125,10 +125,10 @@ def __set_list_in_INI_file(src=None, sink=None, group=None, option=None, value=N
 				# our list already handled ?  (if so must already be finished)
 				if not our_list_seen:
 					# no, so need to add our list to the group before ...
-					sink.write(u'%s = $%s$\n' % (option, option))		# list header
-					sink.write(u'\n'.join(value))
-					sink.write(u'\n')
-					sink.write(u'$%s$\n' % option)						# list footer
+					sink.write('%s = $%s$\n' % (option, option))		# list header
+					sink.write('\n'.join(value))
+					sink.write('\n')
+					sink.write('$%s$\n' % option)						# list footer
 					our_list_seen = True
 					inside_our_list = False
 				# ... starting the next group
@@ -141,7 +141,7 @@ def __set_list_in_INI_file(src=None, sink=None, group=None, option=None, value=N
 			continue
 
 		# our group ?
-		if line.strip() == u'[%s]' % group:
+		if line.strip() == '[%s]' % group:
 			our_group_seen = True
 			inside_our_group = True
 			sink.write(line)						# group header
@@ -151,17 +151,17 @@ def __set_list_in_INI_file(src=None, sink=None, group=None, option=None, value=N
 
 	# looped over all lines but did not find our group, so add group
 	if not our_group_seen:
-		sink.write(u'[%s]\n' % group)
+		sink.write('[%s]\n' % group)
 
 	if not our_list_seen:
 		# We either just added the group or it was the last group
 		# but did not contain the option. It must have been the
 		# last group then or else the group following it would have
 		# triggered the option writeout.
-		sink.write(u'%s = $%s$\n' % (option, option))
-		sink.write(u'\n'.join(value))
-		sink.write(u'\n')
-		sink.write(u'$%s$\n' % option)
+		sink.write('%s = $%s$\n' % (option, option))
+		sink.write('\n'.join(value))
+		sink.write('\n')
+		sink.write('$%s$\n' % option)
 
 #==================================================================
 def __set_list_in_INI_file_old(src=None, sink=None, group=None, option=None, value=None):
@@ -194,8 +194,8 @@ def __set_list_in_INI_file_old(src=None, sink=None, group=None, option=None, val
 			if our_group_seen and (match.group('list_name') == option):
 				option_seen = True
 				sink.write(line)
-				sink.write(u'\n'.join(value))
-				sink.write(u'\n')
+				sink.write('\n'.join(value))
+				sink.write('\n')
 				continue
 			sink.write(line)
 			continue
@@ -207,7 +207,7 @@ def __set_list_in_INI_file_old(src=None, sink=None, group=None, option=None, val
 			continue
 
 		# our group ?
-		if line.strip() == u'[%s]' % group:
+		if line.strip() == '[%s]' % group:
 			sink.write(line)
 			our_group_seen = True
 			continue
@@ -217,9 +217,9 @@ def __set_list_in_INI_file_old(src=None, sink=None, group=None, option=None, val
 			# next group but option not seen yet ?
 			if our_group_seen and not option_seen:
 				option_seen = True
-				sink.write(u'%s = $%s$\n' % (option, option))
-				sink.write(u'\n'.join(value))
-				sink.write(u'\n')
+				sink.write('%s = $%s$\n' % (option, option))
+				sink.write('\n'.join(value))
+				sink.write('\n')
 				continue
 			sink.write(line)
 			continue
@@ -233,16 +233,16 @@ def __set_list_in_INI_file_old(src=None, sink=None, group=None, option=None, val
 
 	# need to add group ?
 	if not our_group_seen:
-		sink.write(u'[%s]\n' % group)
+		sink.write('[%s]\n' % group)
 
 	# We either just added the group or it was the last group
 	# but did not contain the option. It must have been the
 	# last group then or else the following group would have
 	# triggered the option writeout.
-	sink.write(u'%s = $%s$\n' % (option, option))
-	sink.write(u'\n'.join(value))
-	sink.write(u'\n')
-	sink.write(u'$%s$\n' % option)
+	sink.write('%s = $%s$\n' % (option, option))
+	sink.write('\n'.join(value))
+	sink.write('\n')
+	sink.write('$%s$\n' % option)
 
 #==================================================================
 def set_option_in_INI_file(filename=None, group=None, option=None, value=None, encoding='utf8'):
@@ -268,12 +268,15 @@ def set_option_in_INI_file(filename=None, group=None, option=None, value=None, e
 	shutil.copy2(sink_name, filename)
 
 #==================================================================
-def parse_INI_stream(stream=None):
+def parse_INI_stream(stream=None, encoding=None):
 	"""Parse an iterable for INI-style data.
 
 	Returns a dict by sections containing a dict of values per section.
 	"""
-	_log.debug(u'parsing INI-style data stream [%s]' % stream)
+	_log.debug('parsing INI-style data stream [%s] using [%s]', stream, encoding)
+
+	if encoding is None:
+		encoding = 'utf8'
 
 	data = {}
 	current_group = None
@@ -283,29 +286,31 @@ def parse_INI_stream(stream=None):
 	line_idx = 0
 
 	for line in stream:
-		line = line.replace(u'\015', u'').replace(u'\012', u'').strip()
+		if type(line) is bytes:
+			line = line.decode(encoding)
+		line = line.replace('\015', '').replace('\012', '').strip()
 		line_idx += 1
 
 		if inside_list:
-			if line == u'$%s$' % current_option:		# end of list
+			if line == '$%s$' % current_option:		# end of list
 				inside_list = False
 				continue
 			data[current_option_path].append(line)
 			continue
 
 		# noise
-		if line == u'' or line.startswith(u'#') or line.startswith(u';'):
+		if line == '' or line.startswith('#') or line.startswith(';'):
 			continue
 
 		# group
-		if line.startswith(u'['):
-			if not line.endswith(u']'):
-				_log.error(u'group line does not end in "]", aborting')
+		if line.startswith('['):
+			if not line.endswith(']'):
+				_log.error('group line does not end in "]", aborting')
 				_log.error(line)
 				raise ValueError('INI-stream parsing error')
-			group = line.strip(u'[]').strip()
-			if group == u'':
-				_log.error(u'group name is empty, aborting')
+			group = line.strip('[]').strip()
+			if group == '':
+				_log.error('group name is empty, aborting')
 				_log.error(line)
 				raise ValueError('INI-stream parsing error')
 			current_group = group
@@ -318,13 +323,13 @@ def parse_INI_stream(stream=None):
 			continue
 
 		name, remainder = regex.split('\s*[=:]\s*', line, maxsplit = 1)
-		if name == u'':
+		if name == '':
 			_log.error('option name empty, aborting')
 			_log.error(line)
 			raise ValueError('INI-stream parsing error')
 
-		if remainder.strip() == u'':
-			if (u'=' not in line) and (u':' not in line):
+		if remainder.strip() == '':
+			if ('=' not in line) and (':' not in line):
 				_log.error('missing name/value separator (= or :), aborting')
 				_log.error(line)
 				raise ValueError('INI-stream parsing error')
@@ -332,9 +337,9 @@ def parse_INI_stream(stream=None):
 		current_option = name
 		current_option_path = '%s::%s' % (current_group, current_option)
 		if current_option_path in data:
-			_log.warning(u'duplicate option [%s]', current_option_path)
+			_log.warning('duplicate option [%s]', current_option_path)
 
-		value = remainder.split(u'#', 1)[0].strip()
+		value = remainder.split('#', 1)[0].strip()
 
 		# start of list ?
 		if value == '$%s$' % current_option:
@@ -374,12 +379,12 @@ class gmCfgData(gmBorg.cBorg):
 		returns NONE when there's no value for an option
 		"""
 		if source_order is None:
-			source_order = [(u'internal', u'return')]
+			source_order = [('internal', 'return')]
 		results = []
 		for source, policy in source_order:
 			if group is None:
 				group = source
-			option_path = u'%s::%s' % (group, option)
+			option_path = '%s::%s' % (group, option)
 			try: source_data = self.__cfg_data[source]
 			except KeyError:
 				_log.error('invalid config source [%s]', source)
@@ -391,12 +396,12 @@ class gmCfgData(gmBorg.cBorg):
 			except KeyError:
 				_log.debug('option [%s] not in group [%s] in source [%s]', option, group, source)
 				continue
-			_log.debug(u'option [%s] found in source [%s]', option_path, source)
+			_log.debug('option [%s] found in source [%s]', option_path, source)
 
-			if policy == u'return':
+			if policy == 'return':
 				return value
 
-			if policy == u'extend':
+			if policy == 'extend':
 				if isinstance(value, type([])):
 					results.extend(value)
 				else:
@@ -418,22 +423,21 @@ class gmCfgData(gmBorg.cBorg):
 		if None in [option, value]:
 			raise ValueError('neither <option> nor <value> can be None')
 		if source is None:
-			source = u'internal'
+			source = 'internal'
 			try:
 				self.__cfg_data[source]
 			except KeyError:
 				self.__cfg_data[source] = {}
 		if group is None:
 			group = source
-		option_path = u'%s::%s' % (group, option)
+		option_path = '%s::%s' % (group, option)
 		self.__cfg_data[source][option_path] = value
 	#--------------------------------------------------
 	# API: source related
 	#--------------------------------------------------
-	def add_stream_source(self, source=None, stream=None):
-
+	def add_stream_source(self, source=None, stream=None, encoding=None):
 		try:
-			data = parse_INI_stream(stream = stream)
+			data = parse_INI_stream(stream = stream, encoding = encoding)
 		except ValueError:
 			_log.exception('error parsing source <%s> from [%s]', source, stream)
 			raise
@@ -448,7 +452,7 @@ class gmCfgData(gmBorg.cBorg):
 
 		_log.info('file source "%s": %s (%s)', source, file, encoding)
 
-		for existing_source, existing_file in self.source_files.iteritems():
+		for existing_source, existing_file in self.source_files.items():
 			if existing_file == file:
 				if source != existing_source:
 					_log.warning('file [%s] already known as source [%s]', file, existing_source)
@@ -491,14 +495,14 @@ class gmCfgData(gmBorg.cBorg):
 		if file not in self.source_files.values():
 			return
 
-		for src, fname in self.source_files.iteritems():
+		for src, fname in self.source_files.items():
 			if fname == file:
 				self.add_file_source(source = src, file = fname, encoding = encoding)
 				# don't break the loop because there could be other sources
 				# with the same file (not very reasonable, I know)
 				#break
 	#--------------------------------------------------
-	def add_cli(self, short_options=u'', long_options=None):
+	def add_cli(self, short_options='', long_options=None):
 		"""Add command line parameters to config data.
 
 		short:
@@ -525,12 +529,12 @@ class gmCfgData(gmBorg.cBorg):
 
 		data = {}
 		for opt, val in opts:
-			if val == u'':
-				data[u'%s::%s' % (u'cli', opt)] = True
+			if val == '':
+				data['%s::%s' % ('cli', opt)] = True
 			else:
-				data[u'%s::%s' % (u'cli', opt)] = val
+				data['%s::%s' % ('cli', opt)] = val
 
-		self.__cfg_data[u'cli'] = data
+		self.__cfg_data['cli'] = data
 #==================================================================
 # main
 #==================================================================
@@ -539,14 +543,14 @@ if __name__ == "__main__":
 	if len(sys.argv) < 2:
 		sys.exit()
 
-	if sys.argv[1] != u'test':
+	if sys.argv[1] != 'test':
 		sys.exit()
 
 	logging.basicConfig(level = logging.DEBUG)
 	#-----------------------------------------
 	def test_gmCfgData():
 		cfg = gmCfgData()
-		cfg.add_cli(short_options=u'h?', long_options=[u'help', u'conf-file='])
+		cfg.add_cli(short_options='h?', long_options=['help', 'conf-file='])
 		cfg.set_option('internal option', True)
 		print (cfg.get(option = '--help', source_order = [('cli', 'return')]))
 		print (cfg.get(option = '-?', source_order = [('cli', 'return')]))
@@ -575,8 +579,8 @@ if __name__ == "__main__":
 		__set_list_in_INI_file (
 			src = src,
 			sink = sys.stdout,
-			group = u'test group',
-			option = u'test list',
+			group = 'test group',
+			option = 'test list',
 			value = list('123')
 		)
 	#-----------------------------------------
@@ -604,9 +608,9 @@ if __name__ == "__main__":
 		__set_opt_in_INI_file (
 			src = src,
 			sink = sys.stdout,
-			group = u'test group',
-			option = u'test option',
-			value = u'for real (new)'
+			group = 'test group',
+			option = 'test option',
+			value = 'for real (new)'
 		)
 	#-----------------------------------------
 	#test_gmCfgData()

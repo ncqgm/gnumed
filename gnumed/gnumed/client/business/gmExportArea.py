@@ -35,19 +35,19 @@ from Gnumed.business import gmKeywordExpansion
 
 _log = logging.getLogger('gm.exp_area')
 
-PRINT_JOB_DESIGNATION = u'print'
+PRINT_JOB_DESIGNATION = 'print'
 
 #============================================================
 # export area item handling
 #------------------------------------------------------------
-_SQL_get_export_items = u"SELECT * FROM clin.v_export_items WHERE %s"
+_SQL_get_export_items = "SELECT * FROM clin.v_export_items WHERE %s"
 
 class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents an item in the export area table"""
 
-	_cmd_fetch_payload = _SQL_get_export_items % u"pk_export_item = %s"
+	_cmd_fetch_payload = _SQL_get_export_items % "pk_export_item = %s"
 	_cmds_store_payload = [
-		u"""UPDATE clin.export_item SET
+		"""UPDATE clin.export_item SET
 				fk_identity = %(pk_identity)s,
 				created_by = gm.nullify_empty_string(%(created_by)s),
 				created_when = %(created_when)s,
@@ -67,15 +67,15 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 					AND
 				xmin = %(xmin_export_item)s
 		""",
-		_SQL_get_export_items % u'pk_export_item = %(pk_export_item)s'
+		_SQL_get_export_items % 'pk_export_item = %(pk_export_item)s'
 	]
 	_updatable_fields = [
-		u'pk_identity',
-		u'created_when',
-		u'designation',
-		u'description',
-		u'pk_doc_obj',
-		u'filename'
+		'pk_identity',
+		'created_when',
+		'designation',
+		'description',
+		'pk_doc_obj',
+		'filename'
 	]
 	#--------------------------------------------------------
 	def __init__(self, aPK_obj=None, row=None, link_obj=None):
@@ -83,14 +83,14 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 		# force auto-healing if need be
 		if self._payload[self._idx['pk_identity_raw_needs_update']]:
 			_log.warning (
-				u'auto-healing export item [%s] from identity [%s] to [%s] because of document part [%s] seems necessary',
+				'auto-healing export item [%s] from identity [%s] to [%s] because of document part [%s] seems necessary',
 				self._payload[self._idx['pk_export_item']],
 				self._payload[self._idx['pk_identity_raw']],
 				self._payload[self._idx['pk_identity']],
 				self._payload[self._idx['pk_doc_obj']]
 			)
 			if self._payload[self._idx['pk_doc_obj']] is None:
-				_log.error(u'however, .fk_doc_obj is NULL, which should not happen, leaving things alone for manual inspection')
+				_log.error('however, .fk_doc_obj is NULL, which should not happen, leaving things alone for manual inspection')
 				return
 			# only flag ourselves as modified, do not actually
 			# modify any values, better safe than sorry
@@ -108,7 +108,7 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 			_log.error('[%s] is not a readable file' % filename)
 			return False
 
-		cmd = u"""
+		cmd = """
 			UPDATE clin.export_item SET
 				data = %(data)s::bytea,
 				fk_doc_obj = NULL,
@@ -149,7 +149,7 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 
 		success = gmPG2.bytea2file (
 			data_query = {
-				'cmd': u'SELECT substring(data from %(start)s for %(size)s) FROM clin.export_item WHERE pk = %(pk)s',
+				'cmd': 'SELECT substring(data from %(start)s for %(size)s) FROM clin.export_item WHERE pk = %(pk)s',
 				'args': {'pk': self.pk_obj}
 			},
 			filename = filename,
@@ -159,7 +159,7 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 		if not success:
 			return None
 
-		if filename.endswith(u'.dat'):
+		if filename.endswith('.dat'):
 			return gmMimeLib.adjust_extension_by_mimetype(filename)
 
 		return filename
@@ -192,7 +192,7 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 			tmp, suffix = os.path.splitext (
 				gmTools.fname_sanitize(self._payload[self._idx['filename']]).lower()
 			)
-			if suffix == u'':
+			if suffix == '':
 				suffix = '.dat'
 
 		fname = gmTools.get_unique_filename (
@@ -201,7 +201,7 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 			tmp_dir = directory
 		)
 
-		return os.path.join(directory, fname)
+		return fname
 
 	#--------------------------------------------------------
 	# properties
@@ -235,20 +235,20 @@ def get_export_items(order_by=None, pk_identity=None, designation=None):
 	}
 	where_parts = []
 	if pk_identity is not None:
-		where_parts.append(u'pk_identity = %(pat)s')
+		where_parts.append('pk_identity = %(pat)s')
 		# note that invalidly linked items will be
 		# auto-healed when instantiated
 	if designation is None:
-		where_parts.append(u"designation IS DISTINCT FROM %(desig)s")
+		where_parts.append("designation IS DISTINCT FROM %(desig)s")
 	else:
-		where_parts.append(u'designation = %(desig)s')
+		where_parts.append('designation = %(desig)s')
 
 	if order_by is None:
-		order_by = u''
+		order_by = ''
 	else:
-		order_by = u' ORDER BY %s' % order_by
+		order_by = ' ORDER BY %s' % order_by
 
-	cmd = (_SQL_get_export_items % u' AND '.join(where_parts)) + order_by
+	cmd = (_SQL_get_export_items % ' AND '.join(where_parts)) + order_by
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 
 	return [ cExportItem(row = {'data': r, 'idx': idx, 'pk_field': 'pk_export_item'}) for r in rows ]
@@ -261,12 +261,12 @@ def get_print_jobs(order_by=None, pk_identity=None):
 def create_export_item(description=None, pk_identity=None, pk_doc_obj=None, filename=None):
 
 	args = {
-		u'desc': description,
-		u'pk_obj': pk_doc_obj,
-		u'pk_pat': pk_identity,
-		u'fname': filename
+		'desc': description,
+		'pk_obj': pk_doc_obj,
+		'pk_pat': pk_identity,
+		'fname': filename
 	}
-	cmd = u"""
+	cmd = """
 		INSERT INTO clin.export_item (
 			description,
 			fk_doc_obj,
@@ -295,12 +295,12 @@ def create_export_item(description=None, pk_identity=None, pk_doc_obj=None, file
 #------------------------------------------------------------
 def delete_export_item(pk_export_item=None):
 	args = {'pk': pk_export_item}
-	cmd = u"DELETE FROM clin.export_item WHERE pk = %(pk)s"
+	cmd = "DELETE FROM clin.export_item WHERE pk = %(pk)s"
 	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 	return True
 
 #============================================================
-_html_start = u"""<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+_html_start = """<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
        "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
@@ -333,10 +333,10 @@ _html_start = u"""<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
 
 # <li><a href="documents/filename-1.ext">document 1 description</a></li>
 
-_html_list_item = u"""	<li><a href="documents/%s">%s</a></li>
+_html_list_item = """	<li><a href="documents/%s">%s</a></li>
 """
 
-_html_end = u"""
+_html_end = """
 </ul>
 
 <p>
@@ -353,51 +353,51 @@ _html_end = u"""
 
 
 _autorun_inf = (							# needs \r\n for Windows
-	u'[AutoRun.Amd64]\r\n'					# 64 bit
-	u'label=%(label)s\r\n'					# patient name/DOB
-	u'shellexecute=index.html\r\n'
-	u'action=%(action)s\r\n'				# % _('Browse patient data')
-	u'%(icon)s\r\n'							# "icon=gnumed.ico" or ""
-	u'UseAutoPlay=1\r\n'
-	u'\r\n'
-	u'[AutoRun]\r\n'						# 32 bit
-	u'label=%(label)s\r\n'					# patient name/DOB
-	u'shellexecute=index.html\r\n'
-	u'action=%(action)s\r\n'				# % _('Browse patient data')
-	u'%(icon)s\r\n'							# "icon=gnumed.ico" or ""
-	u'UseAutoPlay=1\r\n'
-	u'\r\n'
-	u'[Content]\r\n'
-	u'PictureFiles=yes\r\n'
-	u'VideoFiles=yes\r\n'
-	u'MusicFiles=no\r\n'
-	u'\r\n'
-	u'[IgnoreContentPaths]\r\n'
-	u'\documents\r\n'
-	u'\r\n'
-	u'[unused]\r\n'
-	u'open=requires explicit executable\r\n'
+	'[AutoRun.Amd64]\r\n'					# 64 bit
+	'label=%(label)s\r\n'					# patient name/DOB
+	'shellexecute=index.html\r\n'
+	'action=%(action)s\r\n'				# % _('Browse patient data')
+	'%(icon)s\r\n'							# "icon=gnumed.ico" or ""
+	'UseAutoPlay=1\r\n'
+	'\r\n'
+	'[AutoRun]\r\n'						# 32 bit
+	'label=%(label)s\r\n'					# patient name/DOB
+	'shellexecute=index.html\r\n'
+	'action=%(action)s\r\n'				# % _('Browse patient data')
+	'%(icon)s\r\n'							# "icon=gnumed.ico" or ""
+	'UseAutoPlay=1\r\n'
+	'\r\n'
+	'[Content]\r\n'
+	'PictureFiles=yes\r\n'
+	'VideoFiles=yes\r\n'
+	'MusicFiles=no\r\n'
+	'\r\n'
+	'[IgnoreContentPaths]\r\n'
+	'\documents\r\n'
+	'\r\n'
+	'[unused]\r\n'
+	'open=requires explicit executable\r\n'
 )
 
 
 _cd_inf = (
-u'[Patient Info]\r\n'					# needs \r\n for Windows
-u'PatientName=%s, %s\r\n'
-u'Gender=%s\r\n'
-u'BirthDate=%s\r\n'
-u'CreationDate=%s\r\n'
-u'PID=%s\r\n'
-u'EMR=GNUmed\r\n'
-u'Version=%s\r\n'
-u'#StudyDate=\r\n'
-u'#VNRInfo=<body part>\r\n'
-u'\r\n'
-u'# name format: lastnames, firstnames\r\n'
-u'# date format: YYYY-MM-DD (ISO 8601)\r\n'
-u'# gender format: %s\r\n'
+'[Patient Info]\r\n'					# needs \r\n for Windows
+'PatientName=%s, %s\r\n'
+'Gender=%s\r\n'
+'BirthDate=%s\r\n'
+'CreationDate=%s\r\n'
+'PID=%s\r\n'
+'EMR=GNUmed\r\n'
+'Version=%s\r\n'
+'#StudyDate=\r\n'
+'#VNRInfo=<body part>\r\n'
+'\r\n'
+'# name format: lastnames, firstnames\r\n'
+'# date format: YYYY-MM-DD (ISO 8601)\r\n'
+'# gender format: %s\r\n'
 )
 
-_README = u"""This is a patient data bundle created by the GNUmed Electronic Medical Record.
+_README = """This is a patient data bundle created by the GNUmed Electronic Medical Record.
 
 Patient: %s
 
@@ -428,7 +428,7 @@ class cExportArea(object):
 					delete_export_item(pk_export_item = prev_item['pk_export_item'])
 				return False
 			items.append(item)
-			item['description'] = _(u'form: %s %s (%s)') % (form.template['name_long'], form.template['external_version'], fname)
+			item['description'] = _('form: %s %s (%s)') % (form.template['name_long'], form.template['external_version'], fname)
 			item['designation'] = designation
 			item.save()
 
@@ -456,8 +456,8 @@ class cExportArea(object):
 
 		path, basename = os.path.split(filename)
 		item = create_export_item (
-			description = u'%s: %s (%s/)' % (
-				gmTools.coalesce(hint, _(u'file'), u'%s'),
+			description = '%s: %s (%s/)' % (
+				gmTools.coalesce(hint, _('file'), '%s'),
 				basename,
 				path
 			),
@@ -482,33 +482,33 @@ class cExportArea(object):
 	#--------------------------------------------------------
 	def add_documents(self, documents=None):
 		for doc in documents:
-			doc_tag = _(u'%s (%s)%s') % (
+			doc_tag = _('%s (%s)%s') % (
 				doc['l10n_type'],
 				gmDateTime.pydt_strftime(doc['clin_when'], '%Y %b %d'),
-				gmTools.coalesce(doc['comment'], u'', u' "%s"')
+				gmTools.coalesce(doc['comment'], '', ' "%s"')
 			)
 			for obj in doc.parts:
 				if self.document_part_item_exists(pk_part = obj['pk_obj']):
 					continue
-				f_ext = u''
+				f_ext = ''
 				if obj['filename'] is not None:
 					f_ext = os.path.splitext(obj['filename'])[1].strip('.').strip()
-				if f_ext != u'':
-					f_ext = u' .' + f_ext.upper()
-				obj_tag = _(u'part %s (%s%s)%s') % (
+				if f_ext != '':
+					f_ext = ' .' + f_ext.upper()
+				obj_tag = _('part %s (%s%s)%s') % (
 					obj['seq_idx'],
 					gmTools.size2str(obj['size']),
 					f_ext,
-					gmTools.coalesce(obj['obj_comment'], u'', u' "%s"')
+					gmTools.coalesce(obj['obj_comment'], '', ' "%s"')
 				)
 				create_export_item (
-					description = u'%s - %s' % (doc_tag, obj_tag),
+					description = '%s - %s' % (doc_tag, obj_tag),
 					pk_doc_obj = obj['pk_obj']
 				)
 
 	#--------------------------------------------------------
 	def document_part_item_exists(self, pk_part=None):
-		cmd = u"SELECT EXISTS (SELECT 1 FROM clin.export_item WHERE fk_doc_obj = %(pk_obj)s)"
+		cmd = "SELECT EXISTS (SELECT 1 FROM clin.export_item WHERE fk_doc_obj = %(pk_obj)s)"
 		args = {'pk_obj': pk_part}
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
 		return rows[0][0]
@@ -516,8 +516,8 @@ class cExportArea(object):
 	#--------------------------------------------------------
 	def md5_exists(self, md5=None, include_document_parts=False):
 		where_parts = [
-			u'pk_identity = %(pat)s',
-			u'md5_sum = %(md5)s'
+			'pk_identity = %(pat)s',
+			'md5_sum = %(md5)s'
 		]
 		args = {
 			'pat': self.__pk_identity,
@@ -525,9 +525,9 @@ class cExportArea(object):
 		}
 
 		if not include_document_parts:
-			where_parts.append(u'pk_doc_obj IS NULL')
+			where_parts.append('pk_doc_obj IS NULL')
 
-		cmd = _SQL_get_export_items % u' AND '.join(where_parts)
+		cmd = _SQL_get_export_items % ' AND '.join(where_parts)
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 
 		if len(rows) == 0:
@@ -547,7 +547,7 @@ class cExportArea(object):
 		if base_dir is None:
 			from Gnumed.business.gmPerson import cPatient
 			pat = cPatient(aPK_obj = self.__pk_identity)
-			base_dir = gmTools.mk_sandbox_dir(prefix = u'exp-%s-' % pat.dirname)
+			base_dir = gmTools.mk_sandbox_dir(prefix = 'exp-%s-' % pat.dirname)
 		_log.debug('dumping export items to: %s', base_dir)
 
 		gmTools.mkdir(base_dir)
@@ -569,7 +569,7 @@ class cExportArea(object):
 		from Gnumed.business.gmPerson import cPatient
 		pat = cPatient(aPK_obj = self.__pk_identity)
 		if media_base_dir is None:
-			media_base_dir = gmTools.mk_sandbox_dir(prefix = u'exp-%s-' % pat.dirname)
+			media_base_dir = gmTools.mk_sandbox_dir(prefix = 'exp-%s-' % pat.dirname)
 		_log.debug('patient media base dir: %s', media_base_dir)
 
 		doc_dir = os.path.join(media_base_dir, r'documents')
@@ -580,19 +580,19 @@ class cExportArea(object):
 			gmTools.mkdir(doc_dir)
 
 		_html_start_data = {
-			u'html_title_header': _('Patient data for'),
-			u'html_title_patient': gmTools.html_escape_string(pat.get_description_gender(with_nickname = False) + u', ' + _(u'born') + u' ' + pat.get_formatted_dob('%Y %B %d')),
-			u'title': _('Patient data export'),
-			u'pat_name': gmTools.html_escape_string(pat.get_description_gender(with_nickname = False)),
-			u'pat_dob': gmTools.html_escape_string(_(u'born') + u' ' + pat.get_formatted_dob('%Y %B %d')),
-			u'mugshot_url': u'documents/no-such-file.png',
-			u'mugshot_alt': _('no patient photograph available'),
-			u'mugshot_title': u'',
-			u'docs_title': _(u'Documents'),
-			u'browse_root': _(u'browse storage medium'),
-			u'browse_docs': _(u'browse documents area'),
-			u'browse_dicomdir': u'',
-			u'run_dicom_viewer': u''
+			'html_title_header': _('Patient data for'),
+			'html_title_patient': gmTools.html_escape_string(pat.get_description_gender(with_nickname = False) + ', ' + _('born') + ' ' + pat.get_formatted_dob('%Y %B %d')),
+			'title': _('Patient data export'),
+			'pat_name': gmTools.html_escape_string(pat.get_description_gender(with_nickname = False)),
+			'pat_dob': gmTools.html_escape_string(_('born') + ' ' + pat.get_formatted_dob('%Y %B %d')),
+			'mugshot_url': 'documents/no-such-file.png',
+			'mugshot_alt': _('no patient photograph available'),
+			'mugshot_title': '',
+			'docs_title': _('Documents'),
+			'browse_root': _('browse storage medium'),
+			'browse_docs': _('browse documents area'),
+			'browse_dicomdir': '',
+			'run_dicom_viewer': ''
 		}
 
 		mugshot = pat.document_folder.latest_mugshot
@@ -601,25 +601,25 @@ class cExportArea(object):
 			_html_start_data['mugshot_alt'] =_('patient photograph from %s') % gmDateTime.pydt_strftime(mugshot['date_generated'], '%B %Y')
 			_html_start_data['mugshot_title'] = gmDateTime.pydt_strftime(mugshot['date_generated'], '%B %Y')
 
-		if u'DICOMDIR' in os.listdir(media_base_dir):
-			_html_start_data[u'browse_dicomdir'] = u'<li><a href="./DICOMDIR">%s</a></li>' % _(u'show DICOMDIR file')
+		if 'DICOMDIR' in os.listdir(media_base_dir):
+			_html_start_data['browse_dicomdir'] = '<li><a href="./DICOMDIR">%s</a></li>' % _('show DICOMDIR file')
 			# copy DWV into target dir
-			dwv_src_dir = os.path.join(gmTools.gmPaths().local_base_dir, u'dwv4export')
+			dwv_src_dir = os.path.join(gmTools.gmPaths().local_base_dir, 'dwv4export')
 			if not os.path.isdir(dwv_src_dir):
-				dwv_src_dir = os.path.join(gmTools.gmPaths().system_app_data_dir, u'dwv4export')
+				dwv_src_dir = os.path.join(gmTools.gmPaths().system_app_data_dir, 'dwv4export')
 			if os.path.isdir(dwv_src_dir):
-				dwv_target_dir = os.path.join(media_base_dir, u'dwv')
+				dwv_target_dir = os.path.join(media_base_dir, 'dwv')
 				gmTools.rmdir(dwv_target_dir)
 				try:
 					shutil.copytree(dwv_src_dir, dwv_target_dir)
-					_html_start_data[u'run_dicom_viewer'] = u'<li><a href="./dwv/viewers/mobile-local/index.html">%s</a></li>' % _(u'run Radiology Images (DICOM) Viewer')
-				except shutil.Error, OSError:
+					_html_start_data['run_dicom_viewer'] = '<li><a href="./dwv/viewers/mobile-local/index.html">%s</a></li>' % _('run Radiology Images (DICOM) Viewer')
+				except (shutil.Error, OSError):
 					_log.exception('cannot include DWV, skipping')
 
 		# index.html
 		# - header
-		idx_fname = os.path.join(media_base_dir, u'index.html')
-		idx_file = io.open(idx_fname, mode = u'wt', encoding = u'utf8')
+		idx_fname = os.path.join(media_base_dir, 'index.html')
+		idx_file = io.open(idx_fname, mode = 'wt', encoding = 'utf8')
 		idx_file.write(_html_start % _html_start_data)
 		# - middle (side effect ! -> exports items into files ...)
 		existing_docs = os.listdir(doc_dir)		# get them now, or else we will include the to-be-exported items
@@ -635,7 +635,7 @@ class cExportArea(object):
 		for doc_fname in existing_docs:
 			idx_file.write(_html_list_item % (
 				doc_fname,
-				gmTools.html_escape_string(_(u'other: %s') % doc_fname)
+				gmTools.html_escape_string(_('other: %s') % doc_fname)
 			))
 		# - footer
 		_cfg = gmCfg2.gmCfgData()
@@ -648,18 +648,18 @@ class cExportArea(object):
 		for comm in prax.branch.org_unit.comm_channels:
 			if comm['is_confidential'] is True:
 				continue
-			lines.append(u'%s: %s' % (
+			lines.append('%s: %s' % (
 				comm['l10n_comm_type'],
 				comm['url']
 			))
-		adr = u''
+		adr = ''
 		if len(lines) > 0:
-			adr = gmTools.html_escape_string(u'\n'.join(lines), replace_eol = True, keep_visual_eol = True)
+			adr = gmTools.html_escape_string('\n'.join(lines), replace_eol = True, keep_visual_eol = True)
 		_html_end_data = {
 			'branch': gmTools.html_escape_string(prax['branch']),
 			'praxis': gmTools.html_escape_string(prax['praxis']),
-			'date' : gmTools.html_escape_string(gmDateTime.pydt_strftime(gmDateTime.pydt_now_here(), format = '%Y %B %d', encoding = u'utf8')),
-			'gm_ver': gmTools.html_escape_string(_cfg.get(option = u'client_version')),
+			'date' : gmTools.html_escape_string(gmDateTime.pydt_strftime(gmDateTime.pydt_now_here(), format = '%Y %B %d', encoding = 'utf8')),
+			'gm_ver': gmTools.html_escape_string(_cfg.get(option = 'client_version')),
 			#'gm_ver': 'git HEAD',				# for testing
 			'adr': adr
 		}
@@ -667,7 +667,7 @@ class cExportArea(object):
 		idx_file.close()
 
 		# start.html (just a copy of index.html, really ;-)
-		start_fname = os.path.join(media_base_dir, u'start.html')
+		start_fname = os.path.join(media_base_dir, 'start.html')
 		try:
 			shutil.copy2(idx_fname, start_fname)
 		except Exception:
@@ -677,74 +677,74 @@ class cExportArea(object):
 		autorun_dict = {}
 		autorun_dict['label'] = self._compute_autorun_inf_label(pat)
 		autorun_dict['action'] = _('Browse patient data')
-		autorun_dict['icon'] = u''
-		media_icon_kwd = u'$$gnumed_patient_media_export_icon'
+		autorun_dict['icon'] = ''
+		media_icon_kwd = '$$gnumed_patient_media_export_icon'
 		media_icon_kwd_exp = gmKeywordExpansion.get_expansion (
 			keyword = media_icon_kwd,
 			textual_only = False,
 			binary_only = True
 		)
 		icon_tmp_file = media_icon_kwd_exp.save_to_file (
-			target_mime = u'image/x-icon',
-			target_extension = u'.ico',
+			target_mime = 'image/x-icon',
+			target_extension = '.ico',
 			ignore_conversion_problems = True
 		)
 		if icon_tmp_file is None:
-			_log.debug(u'cannot retrieve <%s>', media_icon_kwd)
+			_log.debug('cannot retrieve <%s>', media_icon_kwd)
 		else:
-			media_icon_fname = os.path.join(media_base_dir, u'gnumed.ico')
+			media_icon_fname = os.path.join(media_base_dir, 'gnumed.ico')
 			try:
 				shutil.move(icon_tmp_file, media_icon_fname)
-				autorun_dict['icon'] = u'icon=gnumed.ico'
+				autorun_dict['icon'] = 'icon=gnumed.ico'
 			except Exception:
 				_log.exception('cannot move %s to %s', icon_tmp_file, media_icon_fname)
-		autorun_fname = os.path.join(media_base_dir, u'autorun.inf')
+		autorun_fname = os.path.join(media_base_dir, 'autorun.inf')
 		autorun_file = io.open(autorun_fname, mode = 'wt', encoding = 'cp1252', errors = 'replace')
 		autorun_file.write(_autorun_inf % autorun_dict)
 		autorun_file.close()
 
 		# cd.inf
-		cd_inf_fname = os.path.join(media_base_dir, u'cd.inf')
-		cd_inf_file = io.open(cd_inf_fname, mode = u'wt', encoding = u'utf8')
+		cd_inf_fname = os.path.join(media_base_dir, 'cd.inf')
+		cd_inf_file = io.open(cd_inf_fname, mode = 'wt', encoding = 'utf8')
 		cd_inf_file.write(_cd_inf % (
 			pat['lastnames'],
 			pat['firstnames'],
-			gmTools.coalesce(pat['gender'], u'?'),
+			gmTools.coalesce(pat['gender'], '?'),
 			pat.get_formatted_dob('%Y-%m-%d'),
-			gmDateTime.pydt_strftime(gmDateTime.pydt_now_here(), format = '%Y-%m-%d', encoding = u'utf8'),
+			gmDateTime.pydt_strftime(gmDateTime.pydt_now_here(), format = '%Y-%m-%d', encoding = 'utf8'),
 			pat.ID,
-			_cfg.get(option = u'client_version'),
-			u' / '.join([ u'%s = %s (%s)' % (g['tag'], g['label'], g['l10n_label']) for g in pat.gender_list ])
+			_cfg.get(option = 'client_version'),
+			' / '.join([ '%s = %s (%s)' % (g['tag'], g['label'], g['l10n_label']) for g in pat.gender_list ])
 		))
 		cd_inf_file.close()
 
 		# README
-		readme_fname = os.path.join(media_base_dir, u'README')
-		readme_file = io.open(readme_fname, mode = u'wt', encoding = u'utf8')
+		readme_fname = os.path.join(media_base_dir, 'README')
+		readme_file = io.open(readme_fname, mode = 'wt', encoding = 'utf8')
 		readme_file.write(_README % (
-			pat.get_description_gender(with_nickname = False) + u', ' + _(u'born') + u' ' + pat.get_formatted_dob('%Y %B %d')
+			pat.get_description_gender(with_nickname = False) + ', ' + _('born') + ' ' + pat.get_formatted_dob('%Y %B %d')
 		))
 		readme_file.close()
 
 		# patient demographics as GDT/XML/VCF
-		pat.export_as_gdt(filename = os.path.join(media_base_dir, u'patient.gdt'))
-		pat.export_as_xml_linuxmednews(filename = os.path.join(media_base_dir, u'patient.xml'))
-		pat.export_as_vcard(filename = os.path.join(media_base_dir, u'patient.vcf'))
+		pat.export_as_gdt(filename = os.path.join(media_base_dir, 'patient.gdt'))
+		pat.export_as_xml_linuxmednews(filename = os.path.join(media_base_dir, 'patient.xml'))
+		pat.export_as_vcard(filename = os.path.join(media_base_dir, 'patient.vcf'))
 
 		# praxis VCF
-		shutil.move(prax.vcf, os.path.join(media_base_dir, u'praxis.vcf'))
+		shutil.move(prax.vcf, os.path.join(media_base_dir, 'praxis.vcf'))
 
 		return media_base_dir
 
 	#--------------------------------------------------------
 	def _compute_autorun_inf_label(self, patient):
 		LABEL_MAX_LEN = 32
-		dob = patient.get_formatted_dob(format = ' %Y%m%d', none_string = u'', honor_estimation = False)
-		if dob == u'':
-			gender_template = u' (%s)'
+		dob = patient.get_formatted_dob(format = ' %Y%m%d', none_string = '', honor_estimation = False)
+		if dob == '':
+			gender_template = ' (%s)'
 		else:
-			gender_template = u' %s'
-		gender = gmTools.coalesce(patient['gender'], u'', gender_template)
+			gender_template = ' %s'
+		gender = gmTools.coalesce(patient['gender'], '', gender_template)
 		name_max_len = LABEL_MAX_LEN - len(gender) - len(dob)			# they already include appropriate padding
 		name = patient.active_name
 		last = name['lastnames'].strip()
@@ -754,27 +754,27 @@ class cExportArea(object):
 		while (len_last + len_first + 1) > name_max_len:
 			if len_first > 6:
 				len_first -= 1
-				if first[len_first - 1] == u' ':
+				if first[len_first - 1] == ' ':
 					len_first -= 1
 				continue
 			len_last -= 1
-			if last[len_last - 1] == u' ':
+			if last[len_last - 1] == ' ':
 				len_last -= 1
 		last = last[:len_last].strip().upper()
 		first = first[:len_first].strip()
 		# max 32 chars, supposedly ASCII, but CP1252 likely works pretty well
-		label = ((u'%s %s%s%s' % (last, first, dob,	gender)).strip())[:32]
+		label = (('%s %s%s%s' % (last, first, dob,	gender)).strip())[:32]
 		return label
 
 	#--------------------------------------------------------
 	# properties
 	#--------------------------------------------------------
-	def get_items(self, designation=None, order_by=u'designation, description'):
+	def get_items(self, designation=None, order_by='designation, description'):
 		return get_export_items(order_by = order_by, pk_identity = self.__pk_identity, designation = designation)
 
 	items = property(get_items, lambda x:x)
 	#--------------------------------------------------------
-	def get_printouts(self, order_by=u'designation, description'):
+	def get_printouts(self, order_by='designation, description'):
 		return get_print_jobs(order_by = order_by, pk_identity = self.__pk_identity)
 
 	printouts = property(get_printouts, lambda x:x)
@@ -800,13 +800,13 @@ if __name__ == '__main__':
 #		for item in items:
 #			print item.format()
 		import random
-		create_export_item(description = 'description %s' % random.random(), pk_identity = 12, pk_doc_obj = None, filename = u'dummy.dat')
+		create_export_item(description = 'description %s' % random.random(), pk_identity = 12, pk_doc_obj = None, filename = 'dummy.dat')
 		items = get_export_items()
 		for item in items:
-			print item.format()
+			print(item.format())
 		item['pk_doc_obj'] = 1
 		item.save()
-		print item
+		print(item)
 
 	#---------------------------------------
 	def test_export_area():
@@ -815,9 +815,9 @@ if __name__ == '__main__':
 		#print exp.items
 		exp.add_file(sys.argv[2])
 		prax = gmPraxis.gmCurrentPraxisBranch(branch = gmPraxis.cPraxisBranch(1))
-		print prax
-		print prax.branch
-		print exp.export()
+		print(prax)
+		print(prax.branch)
+		print(exp.export())
 
 	#---------------------------------------
 	def test_label():
@@ -835,16 +835,16 @@ if __name__ == '__main__':
 			pass
 		cPatient(aPK_obj = pat_min)
 		f = io.open('x-auto_inf_labels.txt', mode = 'w', encoding = 'utf8')
-		f.write(u'--------------------------------\n')
-		f.write(u'12345678901234567890123456789012\n')
-		f.write(u'--------------------------------\n')
+		f.write('--------------------------------\n')
+		f.write('12345678901234567890123456789012\n')
+		f.write('--------------------------------\n')
 		for pat_id in range(pat_min, pat_max):
 			try:
 				exp_area = cExportArea(pat_id)
 				pat = cPatient(aPK_obj = pat_id)
 			except:
 				continue
-			f.write(exp_area._compute_autorun_inf_label(pat) + u'\n')
+			f.write(exp_area._compute_autorun_inf_label(pat) + '\n')
 		f.close()
 		return
 

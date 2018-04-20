@@ -30,7 +30,7 @@ class gmKOrganizerPlugin(gmPlugin.cNotebookPlugin):
 	#--------------------------------------------------------
 	def __init__(self):
 		# detect KOrganizer
-		found, cmd = gmShellAPI.detect_external_binary(binary = u'konsolekalendar')
+		found, cmd = gmShellAPI.detect_external_binary(binary = 'konsolekalendar')
 		if not found:
 			raise gmExceptions.ConstructorError('cannot detect "konsolekalendar" via [%s]' % cmd)
 

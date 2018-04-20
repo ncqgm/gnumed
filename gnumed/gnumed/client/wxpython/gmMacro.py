@@ -14,7 +14,7 @@ import logging
 import os
 import io
 import datetime
-import urllib
+import urllib.parse
 import codecs
 import re as regex
 
@@ -71,25 +71,25 @@ _cfg = gmCfg2.gmCfgData()
 # as long as they resolve to None they return their respective names so the
 # developers can know which placeholder was not set
 known_injectable_placeholders = [
-	u'form_name_long',
-	u'form_name_short',
-	u'form_version',
-	u'form_version_internal',
-	u'form_last_modified'
+	'form_name_long',
+	'form_name_short',
+	'form_version',
+	'form_version_internal',
+	'form_last_modified'
 ]
 
 # the following must satisfy the pattern "$<name::args::(optional) max string length>$" when used
 __known_variant_placeholders = {
 	# generic:
-	u'free_text': u"""show a dialog for entering some free text:
+	'free_text': """show a dialog for entering some free text:
 		args: <message> shown in input dialog, must not contain either
 		of '::' and whatever the arguments divider is set to (default '//'),
 		will cache input per <message>""",
 
-	u'text_snippet': u"""a text snippet, taken from the keyword expansion mechanism:
+	'text_snippet': """a text snippet, taken from the keyword expansion mechanism:
 		args: <snippet name>//<template>""",
 
-	u'data_snippet': u"""a binary snippet, taken from the keyword expansion mechanism:
+	'data_snippet': """a binary snippet, taken from the keyword expansion mechanism:
 		args: <snippet name>//<template>//<optional target mime type>//<optional target extension>
 		returns full path to an exported copy of the
 		data rather than the data itself,
@@ -99,14 +99,14 @@ __known_variant_placeholders = {
 	""",
 
 	# text manipulation
-	u'range_of': u"""select range of enclosed text (note that this cannot take into account non-length characters such as enclosed LaTeX code
+	'range_of': """select range of enclosed text (note that this cannot take into account non-length characters such as enclosed LaTeX code
 		args: <enclosed text>
 	""",
-	u'if_not_empty': u"""format text based on template if not empty
+	'if_not_empty': """format text based on template if not empty
 		args: <possibly-empty-text>//<template-if-not-empty>//<alternative-text-if-empty>
 	""",
 
-	u'ph_cfg': u"""Set placeholder handler options.
+	'ph_cfg': """Set placeholder handler options.
 		args: option name//option value//macro return string
 		option names:
 			ellipsis: what to use as ellipsis (if anything) when
@@ -134,126 +134,126 @@ __known_variant_placeholders = {
 				replacement will fail if the roundtrip fails
 	""",
 
-	u'tex_escape': u"args: string to escape, mostly obsolete now",
+	'tex_escape': "args: string to escape, mostly obsolete now",
 
-	u'url_escape': u"""Escapes a string suitable for use as _data_ in an URL
+	'url_escape': """Escapes a string suitable for use as _data_ in an URL
 		args: text to escape
 	""",
 
-	u'today': u"args: strftime format",
+	'today': "args: strftime format",
 
-	u'gender_mapper': u"""maps gender of patient to a string:
+	'gender_mapper': """maps gender of patient to a string:
 		args: <value when person is male> // <is female> // <is other>
 		eg. 'male//female//other'
 		or: 'Lieber Patient//Liebe Patientin'""",
-	u'client_version': u"the version of the current client as a string (no 'v' in front)",
+	'client_version': "the version of the current client as a string (no 'v' in front)",
 
-	u'gen_adr_street': u"""part of a generic address, cached, selected from database:
+	'gen_adr_street': """part of a generic address, cached, selected from database:
 		args: optional template//optional selection message//optional cache ID
 		template: %s-style formatting template
 		message: text message shown in address selection list
 		cache ID: used to differentiate separate cached invocations of this placeholder
 	""",
-	u'gen_adr_number': u"""part of a generic address, cached, selected from database:
+	'gen_adr_number': """part of a generic address, cached, selected from database:
 		args: optional template//optional selection message//optional cache ID
 		template: %s-style formatting template
 		message: text message shown in address selection list
 		cache ID: used to differentiate separate cached invocations of this placeholder
 	""",
-	u'gen_adr_subunit': u"""part of a generic address, cached, selected from database:
+	'gen_adr_subunit': """part of a generic address, cached, selected from database:
 		args: optional template//optional selection message//optional cache ID
 		template: %s-style formatting template
 		message: text message shown in address selection list
 		cache ID: used to differentiate separate cached invocations of this placeholder
 	""",
-	u'gen_adr_location': u"""part of a generic address, cached, selected from database:
+	'gen_adr_location': """part of a generic address, cached, selected from database:
 		args: optional template//optional selection message//optional cache ID
 		template: %s-style formatting template
 		message: text message shown in address selection list
 		cache ID: used to differentiate separate cached invocations of this placeholder
 	""",
-	u'gen_adr_suburb': u"""part of a generic address, cached, selected from database:
+	'gen_adr_suburb': """part of a generic address, cached, selected from database:
 		args: optional template//optional selection message//optional cache ID
 		template: %s-style formatting template
 		message: text message shown in address selection list
 		cache ID: used to differentiate separate cached invocations of this placeholder
 	""",
-	u'gen_adr_postcode': u"""part of a generic address, cached, selected from database:
+	'gen_adr_postcode': """part of a generic address, cached, selected from database:
 		args: optional template//optional selection message//optional cache ID
 		template: %s-style formatting template
 		message: text message shown in address selection list
 		cache ID: used to differentiate separate cached invocations of this placeholder
 	""",
-	u'gen_adr_region': u"""part of a generic address, cached, selected from database:
+	'gen_adr_region': """part of a generic address, cached, selected from database:
 		args: optional template//optional selection message//optional cache ID
 		template: %s-style formatting template
 		message: text message shown in address selection list
 		cache ID: used to differentiate separate cached invocations of this placeholder
 	""",
-	u'gen_adr_country': u"""part of a generic address, cached, selected from database:
+	'gen_adr_country': """part of a generic address, cached, selected from database:
 		args: optional template//optional selection message//optional cache ID
 		template: %s-style formatting template
 		message: text message shown in address selection list
 		cache ID: used to differentiate separate cached invocations of this placeholder
 	""",
 
-	u'receiver_name': u"""the receiver name, cached, selected from database:
+	'receiver_name': """the receiver name, cached, selected from database:
 		receivers are presented for selection from people/addresses related
 		to the patient in some way or other,
 		args: optional template//optional cache ID
 		template: %s-style formatting template
 		cache ID: used to differentiate separate cached invocations of this placeholder
 	""",
-	u'receiver_street': u"""part of a receiver address, cached, selected from database:
+	'receiver_street': """part of a receiver address, cached, selected from database:
 		receivers are presented for selection from people/addresses related
 		to the patient in some way or other,
 		args: optional template//optional cache ID
 		template: %s-style formatting template
 		cache ID: used to differentiate separate cached invocations of this placeholder
 	""",
-	u'receiver_number': u"""part of a receiver address, cached, selected from database:
+	'receiver_number': """part of a receiver address, cached, selected from database:
 		receivers are presented for selection from people/addresses related
 		to the patient in some way or other,
 		args: optional template//optional cache ID
 		template: %s-style formatting template
 		cache ID: used to differentiate separate cached invocations of this placeholder
 	""",
-	u'receiver_subunit': u"""part of a receiver address, cached, selected from database:
+	'receiver_subunit': """part of a receiver address, cached, selected from database:
 		receivers are presented for selection from people/addresses related
 		to the patient in some way or other,
 		args: optional template//optional cache ID
 		template: %s-style formatting template
 		cache ID: used to differentiate separate cached invocations of this placeholder
 	""",
-	u'receiver_location': u"""part of a receiver address, cached, selected from database:
+	'receiver_location': """part of a receiver address, cached, selected from database:
 		receivers are presented for selection from people/addresses related
 		to the patient in some way or other,
 		args: optional template//optional cache ID
 		template: %s-style formatting template
 		cache ID: used to differentiate separate cached invocations of this placeholder
 	""",
-	u'receiver_suburb': u"""part of a receiver address, cached, selected from database:
+	'receiver_suburb': """part of a receiver address, cached, selected from database:
 		receivers are presented for selection from people/addresses related
 		to the patient in some way or other,
 		args: optional template//optional cache ID
 		template: %s-style formatting template
 		cache ID: used to differentiate separate cached invocations of this placeholder
 	""",
-	u'receiver_postcode': u"""part of a receiver address, cached, selected from database:
+	'receiver_postcode': """part of a receiver address, cached, selected from database:
 		receivers are presented for selection from people/addresses related
 		to the patient in some way or other,
 		args: optional template//optional cache ID
 		template: %s-style formatting template
 		cache ID: used to differentiate separate cached invocations of this placeholder
 	""",
-	u'receiver_region': u"""part of a receiver address, cached, selected from database:
+	'receiver_region': """part of a receiver address, cached, selected from database:
 		receivers are presented for selection from people/addresses related
 		to the patient in some way or other,
 		args: optional template//optional cache ID
 		template: %s-style formatting template
 		cache ID: used to differentiate separate cached invocations of this placeholder
 	""",
-	u'receiver_country': u"""part of a receiver address, cached, selected from database:
+	'receiver_country': """part of a receiver address, cached, selected from database:
 		receivers are presented for selection from people/addresses related
 		to the patient in some way or other,
 		args: optional template//optional cache ID
@@ -262,33 +262,33 @@ __known_variant_placeholders = {
 	""",
 
 	# patient demographics:
-	u'name': u"args: template for name parts arrangement",
-	u'date_of_birth': u"args: strftime date/time format directive",
+	'name': "args: template for name parts arrangement",
+	'date_of_birth': "args: strftime date/time format directive",
 
-	u'patient_address': u"args: <type of address>//<optional formatting template>",
-	u'adr_street': u"args: <type of address>, cached per type",
-	u'adr_number': u"args: <type of address>, cached per type",
-	u'adr_subunit': u"args: <type of address>, cached per type",
-	u'adr_location': u"args: <type of address>, cached per type",
-	u'adr_suburb': u"args: <type of address>, cached per type",
-	u'adr_postcode': u"args: <type of address>, cached per type",
-	u'adr_region': u"args: <type of address>, cached per type",
-	u'adr_country': u"args: <type of address>, cached per type",
+	'patient_address': "args: <type of address>//<optional formatting template>",
+	'adr_street': "args: <type of address>, cached per type",
+	'adr_number': "args: <type of address>, cached per type",
+	'adr_subunit': "args: <type of address>, cached per type",
+	'adr_location': "args: <type of address>, cached per type",
+	'adr_suburb': "args: <type of address>, cached per type",
+	'adr_postcode': "args: <type of address>, cached per type",
+	'adr_region': "args: <type of address>, cached per type",
+	'adr_country': "args: <type of address>, cached per type",
 
-	u'patient_comm': u"args: <comm channel type as per database>//<%(field)s-template>",
+	'patient_comm': "args: <comm channel type as per database>//<%(field)s-template>",
 
-	u'patient_vcf': u"""returns path to VCF for current patient
+	'patient_vcf': """returns path to VCF for current patient
 		args: <template>
 		template: %s-template for path
 	""",
-	u'patient_gdt': u"""returns path to GDT for current patient
+	'patient_gdt': """returns path to GDT for current patient
 		args: <template>
 		template: %s-template for path
 	""",
 
-	u'patient_tags': u"args: <%(field)s-template>//<separator>",
+	'patient_tags': "args: <%(field)s-template>//<separator>",
 	#u'patient_tags_table': u"no args",
-	u'patient_photo': u"""outputs URL to exported patient photo (cached per mime type and extension):
+	'patient_photo': """outputs URL to exported patient photo (cached per mime type and extension):
 		args: <template>//<optional target mime type>//<optional target extension>,
 		returns full path to an exported copy of the
 		image rather than the image data itself,
@@ -296,56 +296,56 @@ __known_variant_placeholders = {
 		template: string template for outputting the path
 		target mime type: a mime type into which to convert the image, no conversion if not given
 		target extension: target file name extension, derived from target mime type if not given""",
-	u'external_id': u"args: <type of ID>//<issuer of ID>",
+	'external_id': "args: <type of ID>//<issuer of ID>",
 
 
 	# clinical record related:
-	u'soap': u"get all of SOAPU/ADMIN, no template in args needed",
-	u'soap_s': u"get subset of SOAPU/ADMIN, no template in args needed",
-	u'soap_o': u"get subset of SOAPU/ADMIN, no template in args needed",
-	u'soap_a': u"get subset of SOAPU/ADMIN, no template in args needed",
-	u'soap_p': u"get subset of SOAPU/ADMIN, no template in args needed",
-	u'soap_u': u"get subset of SOAPU/ADMIN, no template in args needed",
-	u'soap_admin': u"get subset of SOAPU/ADMIN, no template in args needed",
+	'soap': "get all of SOAPU/ADMIN, no template in args needed",
+	'soap_s': "get subset of SOAPU/ADMIN, no template in args needed",
+	'soap_o': "get subset of SOAPU/ADMIN, no template in args needed",
+	'soap_a': "get subset of SOAPU/ADMIN, no template in args needed",
+	'soap_p': "get subset of SOAPU/ADMIN, no template in args needed",
+	'soap_u': "get subset of SOAPU/ADMIN, no template in args needed",
+	'soap_admin': "get subset of SOAPU/ADMIN, no template in args needed",
 
-	u'progress_notes': u"""get progress notes:
+	'progress_notes': """get progress notes:
 		args: categories//template
 		categories: string with 'soapu '; ' ' == None == admin
 		template:	u'something %s something'		(do not include // in template !)""",
 
-	u'soap_for_encounters': u"""lets the user select a list of encounters for which:
+	'soap_for_encounters': """lets the user select a list of encounters for which:
 		LaTeX formatted progress notes are emitted,
 		args: soap categories // strftime date format""",
 
-	u'soap_by_issue': u"""lets the user select a list of issues and then SOAP entries from those issues:
+	'soap_by_issue': """lets the user select a list of issues and then SOAP entries from those issues:
 		args: soap categories // strftime date format // template""",
 
-	u'soap_by_episode': u"""lets the user select a list of episodes and then SOAP entries from those episodes:
+	'soap_by_episode': """lets the user select a list of episodes and then SOAP entries from those episodes:
 		args: soap categories // strftime date format // template""",
 
-	u'emr_journal': u"""returns EMR journal view entries:
+	'emr_journal': """returns EMR journal view entries:
 		args format:   <categories>//<template>//<line length>//<time range>//<target format>
 		categories:	   string with any of "s", "o", "a", "p", "u", " "; (" " == None == admin category)
 		template:	   something %s something else (Do not include // in the template !)
 		line length:   the maximum length of individual lines, not the total placeholder length
 		time range:		the number of weeks going back in time if given as a single number, or else it must be a valid PostgreSQL interval definition (w/o the ::interval)""",
 
-	u'substance_abuse': u"""returns substance abuse entries:
+	'substance_abuse': """returns substance abuse entries:
 		args: line template
 	""",
 
-	u'current_meds': u"""returns current medications:
+	'current_meds': """returns current medications:
 		args: line template//<select>
 		<select>: if this is present the user will be asked which meds to export""",
 
-	u'current_meds_for_rx': u"""formats substance intakes either by substance (non-product intakes) or by producdt (once per product intake, even if multi-component):
+	'current_meds_for_rx': """formats substance intakes either by substance (non-product intakes) or by producdt (once per product intake, even if multi-component):
 		args: <line template>
 		<line_template>: template into which to insert each intake, keys from
 		clin.v_substance_intakes, special additional keys:
 			%(contains)s -- list of components
 			%(amount2dispense)s -- how much/many to dispense""",
 
-	u'current_meds_AMTS': u"""emit LaTeX longtable lines with appropriate page breaks:
+	'current_meds_AMTS': """emit LaTeX longtable lines with appropriate page breaks:
 		also creates per-page AMTS QR codes and sets the
 		following internal placeholders:
 			amts_png_file_1
@@ -365,26 +365,26 @@ __known_variant_placeholders = {
 		available by first (or second) pass processing of the initial
 		placeholder "current_meds_AMTS"
 	""",
-	u'current_meds_AMTS_enhanced': u"""emit LaTeX longtable lines with appropriate page breaks:
+	'current_meds_AMTS_enhanced': """emit LaTeX longtable lines with appropriate page breaks:
 		this returns the same content as current_meds_AMTS except that
 		it does not truncate output data whenever possible
 	""",
 
-	u'current_meds_table': u"emits a LaTeX table, no arguments",
-	u'current_meds_notes': u"emits a LaTeX table, no arguments",
-	u'lab_table': u"emits a LaTeX table, no arguments",
-	u'test_results': u"args: <%(field)s-template>//<date format>//<line separator (EOL)>",
-	u'latest_vaccs_table': u"emits a LaTeX table, no arguments",
-	u'vaccination_history': u"args: <%(field)s-template//date format> to format one vaccination per line",
-	u'allergy_state': u"no arguments",
-	u'allergies': u"args: line template, one allergy per line",
-	u'allergy_list': u"args holds: template per allergy, all allergies on one line",
-	u'problems': u"args holds: line template, one problem per line",
-	u'diagnoses': u'args: line template, one diagnosis per line',
-	u'PHX': u"Past medical HiXtory; args: line template//separator//strftime date format",
-	u'encounter_list': u"args: per-encounter template, each ends up on one line",
+	'current_meds_table': "emits a LaTeX table, no arguments",
+	'current_meds_notes': "emits a LaTeX table, no arguments",
+	'lab_table': "emits a LaTeX table, no arguments",
+	'test_results': "args: <%(field)s-template>//<date format>//<line separator (EOL)>",
+	'latest_vaccs_table': "emits a LaTeX table, no arguments",
+	'vaccination_history': "args: <%(field)s-template//date format> to format one vaccination per line",
+	'allergy_state': "no arguments",
+	'allergies': "args: line template, one allergy per line",
+	'allergy_list': "args holds: template per allergy, all allergies on one line",
+	'problems': "args holds: line template, one problem per line",
+	'diagnoses': 'args: line template, one diagnosis per line',
+	'PHX': "Past medical HiXtory; args: line template//separator//strftime date format",
+	'encounter_list': "args: per-encounter template, each ends up on one line",
 
-	u'documents': u"""retrieves documents from the archive:
+	'documents': """retrieves documents from the archive:
 		args:	<select>//<description>//<template>//<path template>//<path>
 		select:	let user select which documents to include, optional, if not given: all documents included
 		description:	whether to include descriptions, optional
@@ -395,73 +395,73 @@ __known_variant_placeholders = {
 			is replaced by the appropriate value for each exported file
 		path:	into which path to export copies of the document pages, temp dir if not given""",
 
-	u'reminders': u"""patient reminders:
+	'reminders': """patient reminders:
 		args:	<template>//<date format>
 		template:	something %(field)s something else (do not include '//' or '::' itself in the template)""",
 
-	u'external_care': u"""External care entries:
+	'external_care': """External care entries:
 		args:	<template>
 		template:	something %(field)s something else (do not include '//' or '::' itself in the template)""",
 
 	# provider related:
-	u'current_provider': u"no arguments",
-	u'current_provider_name': u"""formatted name of current provider:
+	'current_provider': "no arguments",
+	'current_provider_name': """formatted name of current provider:
 		args: <template>,
 		template:	something %(field)s something else (do not include '//' or '::' itself in the template)
 	""",
-	u'current_provider_title': u"""formatted name of current provider:
+	'current_provider_title': """formatted name of current provider:
 		args: <optional template>,
 		template:	something %(title)s something else (do not include '//' or '::' itself in the template)
 	""",
-	u'current_provider_firstnames': u"""formatted name of current provider:
+	'current_provider_firstnames': """formatted name of current provider:
 		args: <optional template>,
 		template:	something %(firstnames)s something else (do not include '//' or '::' itself in the template)
 	""",
-	u'current_provider_lastnames': u"""formatted name of current provider:
+	'current_provider_lastnames': """formatted name of current provider:
 		args: <optional template>,
 		template:	something %(lastnames)s something else (do not include '//' or '::' itself in the template)
 	""",
-	u'current_provider_external_id': u"args: <type of ID>//<issuer of ID>",
-	u'primary_praxis_provider': u"primary provider for current patient in this praxis",
-	u'primary_praxis_provider_external_id': u"args: <type of ID>//<issuer of ID>",
+	'current_provider_external_id': "args: <type of ID>//<issuer of ID>",
+	'primary_praxis_provider': "primary provider for current patient in this praxis",
+	'primary_praxis_provider_external_id': "args: <type of ID>//<issuer of ID>",
 
 
 	# praxis related:
-	u'praxis': u"""retrieve current branch of your praxis:
+	'praxis': """retrieve current branch of your praxis:
 		args: <template>//select
 		template:		something %(field)s something else (do not include '//' or '::' itself in the template)
 		select:			if this is present allow selection of the branch rather than using the current branch""",
 
-	u'praxis_address': u"args: <optional formatting template>",
-	u'praxis_comm': u"args: type//<optional formatting template>",
-	u'praxis_id': u"args: <type of ID>//<issuer of ID>//<optional formatting template>",
-	u'praxis_vcf': u"""returns path to VCF for current praxis branch
+	'praxis_address': "args: <optional formatting template>",
+	'praxis_comm': "args: type//<optional formatting template>",
+	'praxis_id': "args: <type of ID>//<issuer of ID>//<optional formatting template>",
+	'praxis_vcf': """returns path to VCF for current praxis branch
 		args: <template>
 		template: %s-template for path
 	""",
 
 	# billing related:
-	u'bill': u"""retrieve a bill
+	'bill': """retrieve a bill
 		args: <template>//<date format>
 		template:		something %(field)s something else (do not include '//' or '::' itself in the template)
 		date format:	strftime date format""",
-	u'bill_item': u"""retrieve the items of a previously retrieved (and therefore cached until the next retrieval) bill
+	'bill_item': """retrieve the items of a previously retrieved (and therefore cached until the next retrieval) bill
 		args: <template>//<date format>
 		template:		something %(field)s something else (do not include '//' or '::' itself in the template)
 		date format:	strftime date format""",
-	u'bill_adr_street': u"args: optional template (%s-style formatting template); cached per bill",
-	u'bill_adr_number': u"args: optional template (%s-style formatting template); cached per bill",
-	u'bill_adr_subunit': u"args: optional template (%s-style formatting template); cached per bill",
-	u'bill_adr_location': u"args: optional template (%s-style formatting template); cached per bill",
-	u'bill_adr_suburb': u"args: optional template (%s-style formatting template); cached per bill",
-	u'bill_adr_postcode': u"args: optional template (%s-style formatting template); cached per bill",
-	u'bill_adr_region': u"args: optional template (%s-style formatting template); cached per bill",
-	u'bill_adr_country': u"args: optional template (%s-style formatting template); cached per bill"
+	'bill_adr_street': "args: optional template (%s-style formatting template); cached per bill",
+	'bill_adr_number': "args: optional template (%s-style formatting template); cached per bill",
+	'bill_adr_subunit': "args: optional template (%s-style formatting template); cached per bill",
+	'bill_adr_location': "args: optional template (%s-style formatting template); cached per bill",
+	'bill_adr_suburb': "args: optional template (%s-style formatting template); cached per bill",
+	'bill_adr_postcode': "args: optional template (%s-style formatting template); cached per bill",
+	'bill_adr_region': "args: optional template (%s-style formatting template); cached per bill",
+	'bill_adr_country': "args: optional template (%s-style formatting template); cached per bill"
 
 }
 
 known_variant_placeholders = __known_variant_placeholders.keys()
-known_variant_placeholders.sort()
+#known_variant_placeholders.sort()
 
 
 # http://help.libreoffice.org/Common/List_of_Regular_Expressions
@@ -493,8 +493,8 @@ third_pass_placeholder_regex = r'|'.join ([
 	r'\$<<<[^<:]+?::.*?(?=::\d+-\d+>>>\$)::\d+-\d+>>>\$'
 ])
 
-default_placeholder_start = u'$<'
-default_placeholder_end = u'>$'
+default_placeholder_start = '$<'
+default_placeholder_end = '>$'
 
 #=====================================================================
 def show_placeholders():
@@ -502,33 +502,33 @@ def show_placeholders():
 	fname = gmTools.get_unique_filename(prefix = 'gm-placeholders-', suffix = '.txt')
 	ph_file = io.open(fname, mode = 'wt', encoding = 'utf8', errors = 'replace')
 
-	ph_file.write(u'Here you can find some more documentation on placeholder use:\n')
-	ph_file.write(u'\n http://wiki.gnumed.de/bin/view/Gnumed/GmManualLettersForms\n\n\n')
+	ph_file.write('Here you can find some more documentation on placeholder use:\n')
+	ph_file.write('\n http://wiki.gnumed.de/bin/view/Gnumed/GmManualLettersForms\n\n\n')
 
-	ph_file.write(u'Variable placeholders:\n')
-	ph_file.write(u'Usage: $<PLACEHOLDER_NAME::ARGUMENTS::REGION_DEFINITION>$)\n')
-	ph_file.write(u' REGION_DEFINITION:\n')
-	ph_file.write(u'* a single number specifying the maximum output length or\n')
-	ph_file.write(u'* a number, a "-", followed by a second number specifying the region of the string to return\n')
-	ph_file.write(u'ARGUMENTS:\n')
-	ph_file.write(u'* depend on the actual placeholder (see there)\n')
-	ph_file.write(u'* if a template is supported it will be used to %-format the output\n')
-	ph_file.write(u'* templates may be either %s-style or %(name)s-style\n')
-	ph_file.write(u'* templates cannot contain "::"\n')
-	ph_file.write(u'* templates cannot contain whatever the arguments divider is set to (default "//")\n')
+	ph_file.write('Variable placeholders:\n')
+	ph_file.write('Usage: $<PLACEHOLDER_NAME::ARGUMENTS::REGION_DEFINITION>$)\n')
+	ph_file.write(' REGION_DEFINITION:\n')
+	ph_file.write('* a single number specifying the maximum output length or\n')
+	ph_file.write('* a number, a "-", followed by a second number specifying the region of the string to return\n')
+	ph_file.write('ARGUMENTS:\n')
+	ph_file.write('* depend on the actual placeholder (see there)\n')
+	ph_file.write('* if a template is supported it will be used to %-format the output\n')
+	ph_file.write('* templates may be either %s-style or %(name)s-style\n')
+	ph_file.write('* templates cannot contain "::"\n')
+	ph_file.write('* templates cannot contain whatever the arguments divider is set to (default "//")\n')
 	for ph in known_variant_placeholders:
 		txt = __known_variant_placeholders[ph]
-		ph_file.write(u'\n')
-		ph_file.write(u'	---=== %s ===---\n' % ph)
-		ph_file.write(u'\n')
+		ph_file.write('\n')
+		ph_file.write('	---=== %s ===---\n' % ph)
+		ph_file.write('\n')
 		ph_file.write(txt)
-		ph_file.write(u'\n\n')
-	ph_file.write(u'\n')
+		ph_file.write('\n\n')
+	ph_file.write('\n')
 
-	ph_file.write(u'Known injectable placeholders (use like: $<PLACEHOLDER_NAME::ARGUMENTS::MAX OUTPUT LENGTH>$):\n')
+	ph_file.write('Known injectable placeholders (use like: $<PLACEHOLDER_NAME::ARGUMENTS::MAX OUTPUT LENGTH>$):\n')
 	for ph in known_injectable_placeholders:
-		ph_file.write(u' %s\n' % ph)
-	ph_file.write(u'\n')
+		ph_file.write(' %s\n' % ph)
+	ph_file.write('\n')
 
 	ph_file.close()
 	gmMimeLib.call_viewer_on_file(aFile = fname, block = False)
@@ -581,7 +581,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		self.__esc_func = lambda x:x
 
 		self.__ellipsis = None
-		self.__args_divider = u'//'
+		self.__args_divider = '//'
 		self.__data_encoding = None
 		self.__data_encoding_strict = False
 
@@ -593,7 +593,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		try:
 			known_injectable_placeholders.index(key)
 		except ValueError:
-			_log.debug(u'injectable placeholder [%s] unknown', key)
+			_log.debug('injectable placeholder [%s] unknown', key)
 			if known_only:
 				raise
 		self.__injected_placeholders[key] = value
@@ -604,7 +604,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		try:
 			del self.__injected_placeholders[key]
 		except KeyError:
-			_log.debug(u'injectable placeholder [%s] unknown', key)
+			_log.debug('injectable placeholder [%s] unknown', key)
 
 	#--------------------------------------------------------
 	def set_cache_value(self, key=None, value=None):
@@ -626,7 +626,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			self.__esc_func = lambda x:x
 			return
 		if not callable(escape_function):
-			raise ValueError(u'[%s._set_escape_function]: <%s> not callable' % (self.__class__.__name__, escape_function))
+			raise ValueError('[%s._set_escape_function]: <%s> not callable' % (self.__class__.__name__, escape_function))
 		self.__esc_func = escape_function
 		return
 
@@ -634,7 +634,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 
 	#--------------------------------------------------------
 	def _set_ellipsis(self, ellipsis):
-		if ellipsis == u'NONE':
+		if ellipsis == 'NONE':
 			ellipsis = None
 		self.__ellipsis = ellipsis
 
@@ -642,20 +642,20 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 
 	#--------------------------------------------------------
 	def _set_arguments_divider(self, divider):
-		if divider == u'DEFAULT':
-			divider = u'//'
+		if divider == 'DEFAULT':
+			divider = '//'
 		self.__args_divider = divider
 
 	arguments_divider = property(lambda x: self.__args_divider, _set_arguments_divider)
 
 	#--------------------------------------------------------
 	def _set_data_encoding(self, encoding):
-		if encoding == u'NONE':
+		if encoding == 'NONE':
 			self.__data_encoding = None
 			self.__data_encoding_strict = False
 
 		self.__data_encoding_strict = False
-		if encoding.endswith(u'-strict'):
+		if encoding.endswith('-strict'):
 			self.__data_encoding_strict = True
 			encoding = encoding[:-7]
 		try:
@@ -677,7 +677,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 	def __parse_region_definition(self, region_str):
 		region_str = region_str.strip()
 
-		if region_str == u'':
+		if region_str == '':
 			return None, None
 
 		try:
@@ -687,7 +687,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			_log.debug('region definition not a simple length')
 
 		# note that we only check for "legality", not for reasonable bounds
-		first_last = region_str.split(u'-')
+		first_last = region_str.split('-')
 		if len(first_last) != 2:
 			_log.error('invalid placeholder region definition: %s', region_str)
 			raise ValueError
@@ -717,7 +717,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			_log.error('cannot strict-encode string into [%s]: %s', self.__data_encoding, data_str)
 
 		if self.__data_encoding_strict:
-			return u'not compatible with encoding [%s]: %s' % (self.__data_encoding, data_str)
+			return 'not compatible with encoding [%s]: %s' % (self.__data_encoding, data_str)
 
 		try:
 			import unidecode
@@ -771,7 +771,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			if is_an_injectable:
 				if val is None:
 					if self.debug:
-						return self._escape(u'injectable placeholder [%s]: no value available' % ph_name)
+						return self._escape('injectable placeholder [%s]: no value available' % ph_name)
 					return placeholder
 				try:
 					pos_first_char, pos_last_char = self.__parse_region_definition(region_str)
@@ -835,24 +835,24 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 	# placeholder handlers
 	#--------------------------------------------------------
 	def _get_variant_ph_cfg(self, data=None):
-		options = data.split(u'//')		# ALWAYS use '//' for splitting, regardless of self.__args_divider
+		options = data.split('//')		# ALWAYS use '//' for splitting, regardless of self.__args_divider
 		name = options[0]
 		val = options[1]
-		if name == u'ellipsis':
+		if name == 'ellipsis':
 			self.ellipsis = val
-		elif name == u'argumentsdivider':
+		elif name == 'argumentsdivider':
 			self.arguments_divider = val
-		elif name == u'encoding':
+		elif name == 'encoding':
 			self.data_encoding = val
 		if len(options) > 2:
 			return options[2] % {'name': name, 'value': val}
-		return u''
+		return ''
 	#--------------------------------------------------------
 	def _get_variant_client_version(self, data=None):
 		return self._escape (
 			gmTools.coalesce (
-				_cfg.get(option = u'client_version'),
-				u'%s' % self.__class__.__name__
+				_cfg.get(option = 'client_version'),
+				'%s' % self.__class__.__name__
 			)
 		)
 	#--------------------------------------------------------
@@ -866,24 +866,24 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		data_parts = data.split(self.__args_divider)
 
 		if len(data_parts) > 0:
-			if data_parts[0].strip() != u'':
+			if data_parts[0].strip() != '':
 				template = data_parts[0]
 
 		if len(data_parts) > 1:
-			if data_parts[1].strip() != u'':
+			if data_parts[1].strip() != '':
 				date_format = data_parts[1]
 
 		reminders = gmProviderInboxWidgets.manage_reminders(patient = self.pat.ID)
 
 		if reminders is None:
-			return u''
+			return ''
 
 		if len(reminders) == 0:
-			return u''
+			return ''
 
 		lines = [ template % r.fields_as_dict(date_format = date_format, escape_style = self.__esc_style) for r in reminders ]
 
-		return u'\n'.join(lines)
+		return '\n'.join(lines)
 	#--------------------------------------------------------
 	def _get_variant_external_care(self, data=None):
 
@@ -891,33 +891,33 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		external_cares = gmExternalCareWidgets.manage_external_care()
 
 		if external_cares is None:
-			return u''
+			return ''
 
 		if len(external_cares) == 0:
-			return u''
+			return ''
 
 		template = data
 		lines = [ template % ext.fields_as_dict(escape_style = self.__esc_style) for ext in external_cares ]
 
-		return u'\n'.join(lines)
+		return '\n'.join(lines)
 	#--------------------------------------------------------
 	def _get_variant_documents(self, data=None):
 
 		select = False
 		include_descriptions = False
-		template = u'%s'
+		template = '%s'
 		path_template = None
 		export_path = None
 
 		data_parts = data.split(self.__args_divider)
 
-		if u'select' in data_parts:
+		if 'select' in data_parts:
 			select = True
-			data_parts.remove(u'select')
+			data_parts.remove('select')
 
-		if u'description' in data_parts:
+		if 'description' in data_parts:
 			include_descriptions = True
-			data_parts.remove(u'description')
+			data_parts.remove('description')
 
 		template = data_parts[0]
 
@@ -939,26 +939,26 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			docs = self.pat.document_folder.documents
 
 		if docs is None:
-			return u''
+			return ''
 
 		lines = []
 		for doc in docs:
 			lines.append(template % doc.fields_as_dict(date_format = '%Y %b %d', escape_style = self.__esc_style))
 			if include_descriptions:
 				for desc in doc.get_descriptions(max_lng = None):
-					lines.append(self._escape(desc['text'] + u'\n'))
+					lines.append(self._escape(desc['text'] + '\n'))
 			if path_template is not None:
 				for part_name in doc.save_parts_to_files(export_dir = export_path):
 					path, name = os.path.split(part_name)
 					lines.append(path_template % {'fullpath': part_name, 'name': name})
 
-		return u'\n'.join(lines)
+		return '\n'.join(lines)
 	#--------------------------------------------------------
 	def _get_variant_encounter_list(self, data=None):
 
 		encounters = gmEncounterWidgets.select_encounters(single_selection = False)
 		if not encounters:
-			return u''
+			return ''
 
 		template = data
 
@@ -967,12 +967,12 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			try:
 				lines.append(template % enc.fields_as_dict(date_format = '%Y %b %d', escape_style = self.__esc_style))
 			except:
-				lines.append(u'error formatting encounter')
+				lines.append('error formatting encounter')
 				_log.exception('problem formatting encounter list')
 				_log.error('template: %s', template)
 				_log.error('encounter: %s', encounter)
 
-		return u'\n'.join(lines)
+		return '\n'.join(lines)
 	#--------------------------------------------------------
 	def _get_variant_soap_for_encounters(self, data=None):
 		"""Select encounters from list and format SOAP thereof.
@@ -989,9 +989,9 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			# part[0]: categories
 			if len(data_parts[0]) > 0:
 				cats = []
-				if u' ' in data_parts[0]:
+				if ' ' in data_parts[0]:
 					cats.append(None)
-					data_parts[0] = data_parts[0].replace(u' ', u'')
+					data_parts[0] = data_parts[0].replace(' ', '')
 				cats.extend(list(data_parts[0]))
 
 			# part[1]: date format
@@ -1001,23 +1001,23 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 
 		encounters = gmEncounterWidgets.select_encounters(single_selection = False)
 		if not encounters:
-			return u''
+			return ''
 
 		chunks = []
 		for enc in encounters:
 			chunks.append(enc.format_latex (
 				date_format = date_format,
 				soap_cats = cats,
-				soap_order = u'soap_rank, date'
+				soap_order = 'soap_rank, date'
 			))
 
-		return u''.join(chunks)
+		return ''.join(chunks)
 	#--------------------------------------------------------
 	def _get_variant_emr_journal(self, data=None):
 		# default: all categories, neutral template
-		cats = list(u'soapu')
+		cats = list('soapu')
 		cats.append(None)
-		template = u'%s'
+		template = '%s'
 		interactive = True
 		line_length = 9999
 		time_range = None
@@ -1029,12 +1029,12 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			cats = []
 			# ' ' -> None == admin
 			for c in list(data_parts[0]):
-				if c == u' ':
+				if c == ' ':
 					c = None
 				cats.append(c)
 			# '' -> SOAP + None
-			if cats == u'':
-				cats = list(u'soapu').append(None)
+			if cats == '':
+				cats = list('soapu').append(None)
 
 			# part[1]: template
 			if len(data_parts) > 1:
@@ -1060,38 +1060,38 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		narr = self.pat.emr.get_as_journal(soap_cats = cats, time_range = time_range)
 
 		if len(narr) == 0:
-			return u''
+			return ''
 
 		keys = narr[0].keys()
 		lines = []
 		line_dict = {}
 		for n in narr:
 			for key in keys:
-				if isinstance(n[key], basestring):
+				if isinstance(n[key], str):
 					line_dict[key] = self._escape(text = n[key])
 					continue
 				line_dict[key] = n[key]
 			try:
 				lines.append((template % line_dict)[:line_length])
 			except KeyError:
-				return u'invalid key in template [%s], valid keys: %s]' % (template, str(keys))
+				return 'invalid key in template [%s], valid keys: %s]' % (template, str(keys))
 
-		return u'\n'.join(lines)
+		return '\n'.join(lines)
 	#--------------------------------------------------------
 	def _get_variant_soap_by_issue(self, data=None):
-		return self.__get_variant_soap_by_issue_or_episode(data = data, mode = u'issue')
+		return self.__get_variant_soap_by_issue_or_episode(data = data, mode = 'issue')
 	#--------------------------------------------------------
 	def _get_variant_soap_by_episode(self, data=None):
-		return self.__get_variant_soap_by_issue_or_episode(data = data, mode = u'episode')
+		return self.__get_variant_soap_by_issue_or_episode(data = data, mode = 'episode')
 	#--------------------------------------------------------
 	def __get_variant_soap_by_issue_or_episode(self, data=None, mode=None):
 
 		# default: all categories, neutral template
-		cats = list(u'soapu')
+		cats = list('soapu')
 		cats.append(None)
 
 		date_format = None
-		template = u'%s'
+		template = '%s'
 
 		if data is not None:
 			data_parts = data.split(self.__args_divider)
@@ -1099,9 +1099,9 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			# part[0]: categories
 			if len(data_parts[0]) > 0:
 				cats = []
-				if u' ' in data_parts[0]:
+				if ' ' in data_parts[0]:
 					cats.append(None)
-				cats.extend(list(data_parts[0].replace(u' ', u'')))
+				cats.extend(list(data_parts[0].replace(' ', '')))
 
 			# part[1]: date format
 			if len(data_parts) > 1:
@@ -1113,51 +1113,51 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 				if len(data_parts[2]) > 0:
 					template = data_parts[2]
 
-		if mode == u'issue':
+		if mode == 'issue':
 			narr = gmNarrativeWorkflows.select_narrative_by_issue(soap_cats = cats)
 		else:
 			narr = gmNarrativeWorkflows.select_narrative_by_episode(soap_cats = cats)
 
 		if narr is None:
-			return u''
+			return ''
 
 		if len(narr) == 0:
-			return u''
+			return ''
 
 		try:
 			narr = [ template % n.fields_as_dict(date_format = date_format, escape_style = self.__esc_style) for n in narr ]
 		except KeyError:
-			return u'invalid key in template [%s], valid keys: %s]' % (template, str(narr[0].keys()))
+			return 'invalid key in template [%s], valid keys: %s]' % (template, str(narr[0].keys()))
 
-		return u'\n'.join(narr)
+		return '\n'.join(narr)
 	#--------------------------------------------------------
 	def _get_variant_progress_notes(self, data=None):
 		return self._get_variant_soap(data = data)
 	#--------------------------------------------------------
 	def _get_variant_soap_s(self, data=None):
-		return self._get_variant_soap(data = u's')
+		return self._get_variant_soap(data = 's')
 	#--------------------------------------------------------
 	def _get_variant_soap_o(self, data=None):
-		return self._get_variant_soap(data = u'o')
+		return self._get_variant_soap(data = 'o')
 	#--------------------------------------------------------
 	def _get_variant_soap_a(self, data=None):
-		return self._get_variant_soap(data = u'a')
+		return self._get_variant_soap(data = 'a')
 	#--------------------------------------------------------
 	def _get_variant_soap_p(self, data=None):
-		return self._get_variant_soap(data = u'p')
+		return self._get_variant_soap(data = 'p')
 	#--------------------------------------------------------
 	def _get_variant_soap_u(self, data=None):
-		return self._get_variant_soap(data = u'u')
+		return self._get_variant_soap(data = 'u')
 	#--------------------------------------------------------
 	def _get_variant_soap_admin(self, data=None):
-		return self._get_variant_soap(data = u' ')
+		return self._get_variant_soap(data = ' ')
 	#--------------------------------------------------------
 	def _get_variant_soap(self, data=None):
 
 		# default: all categories, neutral template
-		cats = list(u'soapu')
+		cats = list('soapu')
 		cats.append(None)
-		template = u'%(narrative)s'
+		template = '%(narrative)s'
 
 		if data is not None:
 			data_parts = data.split(self.__args_divider)
@@ -1166,12 +1166,12 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			cats = []
 			# ' ' -> None == admin
 			for cat in list(data_parts[0]):
-				if cat == u' ':
+				if cat == ' ':
 					cat = None
 				cats.append(cat)
 			# '' -> SOAP + None
-			if cats == u'':
-				cats = list(u'soapu')
+			if cats == '':
+				cats = list('soapu')
 				cats.append(None)
 
 			# part[1]: template
@@ -1182,15 +1182,15 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		narr = gmNarrativeWorkflows.select_narrative(soap_cats = cats)
 
 		if narr is None:
-			return u''
+			return ''
 
 		if len(narr) == 0:
-			return u''
+			return ''
 
 		# if any "%s" is in the template there cannot be any %(field)s
 		# and we also restrict the fields to .narrative (this is the
 		# old placeholder behaviour
-		if u'%s' in template:
+		if '%s' in template:
 			narr = [ self._escape(n['narrative']) for n in narr ]
 		else:
 			narr = [ n.fields_as_dict(escape_style = self.__esc_style) for n in narr ]
@@ -1198,21 +1198,21 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		try:
 			narr = [ template % n for n in narr ]
 		except KeyError:
-			return u'invalid key in template [%s], valid keys: %s]' % (template, str(narr[0].keys()))
+			return 'invalid key in template [%s], valid keys: %s]' % (template, str(narr[0].keys()))
 		except TypeError:
-			return u'cannot mix "%%s" and "%%(field)s" in template [%s]' % template
+			return 'cannot mix "%%s" and "%%(field)s" in template [%s]' % template
 
-		return u'\n'.join(narr)
+		return '\n'.join(narr)
 
 	#--------------------------------------------------------
 	def _get_variant_title(self, data=None):
-		return self._get_variant_name(data = u'%(title)s')
+		return self._get_variant_name(data = '%(title)s')
 	#--------------------------------------------------------
 	def _get_variant_firstname(self, data=None):
-		return self._get_variant_name(data = u'%(firstnames)s')
+		return self._get_variant_name(data = '%(firstnames)s')
 	#--------------------------------------------------------
 	def _get_variant_lastname(self, data=None):
-		return self._get_variant_name(data = u'%(lastnames)s')
+		return self._get_variant_name(data = '%(lastnames)s')
 	#--------------------------------------------------------
 	def _get_variant_name(self, data=None):
 		if data is None:
@@ -1221,13 +1221,13 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		name = self.pat.get_active_name()
 
 		parts = {
-			'title': self._escape(gmTools.coalesce(name['title'], u'')),
+			'title': self._escape(gmTools.coalesce(name['title'], '')),
 			'firstnames': self._escape(name['firstnames']),
 			'lastnames': self._escape(name['lastnames']),
 			'preferred': self._escape(gmTools.coalesce (
 				initial = name['preferred'],
-				instead = u' ',
-				template_initial = u' "%s" '
+				instead = ' ',
+				template_initial = ' "%s" '
 			))
 		}
 
@@ -1245,32 +1245,32 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 
 		if len(values) == 2:
 			male_value, female_value = values
-			other_value = u'<unkown gender>'
+			other_value = '<unkown gender>'
 		elif len(values) == 3:
 			male_value, female_value, other_value = values
 		else:
 			return _('invalid gender mapping layout: [%s]') % data
 
-		if self.pat['gender'] == u'm':
+		if self.pat['gender'] == 'm':
 			return self._escape(male_value)
 
-		if self.pat['gender'] == u'f':
+		if self.pat['gender'] == 'f':
 			return self._escape(female_value)
 
 		return self._escape(other_value)
 	#--------------------------------------------------------
 	# address related placeholders
 	#--------------------------------------------------------
-	def __get_variant_gen_adr_part(self, data=u'?', part=None):
+	def __get_variant_gen_adr_part(self, data='?', part=None):
 
-		template = u'%s'
+		template = '%s'
 		msg = _('Select the address you want to use !')
-		cache_id = u''
+		cache_id = ''
 		options = data.split('//', 4)
 		if len(options) > 0:
 			template = options[0]
-			if template.strip() == u'':
-				template = u'%s'
+			if template.strip() == '':
+				template = '%s'
 		if len(options) > 1:
 			msg = options[1]
 		if len(options) > 2:
@@ -1290,44 +1290,44 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			adr2use = dlg.address
 			dlg.Destroy()
 			if choice == wx.ID_CANCEL:
-				return u''
+				return ''
 			self.__cache[cache_key] = adr2use
 
 		return template % self._escape(adr2use[part])
 	#--------------------------------------------------------
-	def _get_variant_gen_adr_street(self, data=u'?'):
+	def _get_variant_gen_adr_street(self, data='?'):
 		return self.__get_variant_gen_adr_part(data = data, part = 'street')
 	#--------------------------------------------------------
-	def _get_variant_gen_adr_number(self, data=u'?'):
+	def _get_variant_gen_adr_number(self, data='?'):
 		return self.__get_variant_gen_adr_part(data = data, part = 'number')
 	#--------------------------------------------------------
-	def _get_variant_gen_adr_subunit(self, data=u'?'):
+	def _get_variant_gen_adr_subunit(self, data='?'):
 		return self.__get_variant_gen_adr_part(data = data, part = 'subunit')
 	#--------------------------------------------------------
-	def _get_variant_gen_adr_location(self, data=u'?'):
+	def _get_variant_gen_adr_location(self, data='?'):
 		return self.__get_variant_gen_adr_part(data = data, part = 'urb')
 	#--------------------------------------------------------
-	def _get_variant_gen_adr_suburb(self, data=u'?'):
+	def _get_variant_gen_adr_suburb(self, data='?'):
 		return self.__get_variant_gen_adr_part(data = data, part = 'suburb')
 	#--------------------------------------------------------
-	def _get_variant_gen_adr_postcode(self, data=u'?'):
+	def _get_variant_gen_adr_postcode(self, data='?'):
 		return self.__get_variant_gen_adr_part(data = data, part = 'postcode')
 	#--------------------------------------------------------
-	def _get_variant_gen_adr_region(self, data=u'?'):
+	def _get_variant_gen_adr_region(self, data='?'):
 		return self.__get_variant_gen_adr_part(data = data, part = 'l10n_region')
 	#--------------------------------------------------------
-	def _get_variant_gen_adr_country(self, data=u'?'):
+	def _get_variant_gen_adr_country(self, data='?'):
 		return self.__get_variant_gen_adr_part(data = data, part = 'l10n_country')
 	#--------------------------------------------------------
-	def __get_variant_receiver_part(self, data=u'%s', part=None):
+	def __get_variant_receiver_part(self, data='%s', part=None):
 
-		template = u'%s'
-		cache_id = u''
+		template = '%s'
+		cache_id = ''
 		options = data.split('//', 3)
 		if len(options) > 0:
 			template = options[0]
-			if template.strip() == u'':
-				template = u'%s'
+			if template.strip() == '':
+				template = '%s'
 		if len(options) > 1:
 			cache_id = options[1]
 
@@ -1348,67 +1348,67 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			adr = dlg.address
 			dlg.Destroy()
 			if choice == wx.ID_CANCEL:
-				return u''
+				return ''
 			self.__cache[cache_key] = (name, adr)
 
-		if part == u'name':
+		if part == 'name':
 			return template % self._escape(name)
 
-		return template % self._escape(gmTools.coalesce(adr[part], u''))
+		return template % self._escape(gmTools.coalesce(adr[part], ''))
 	#--------------------------------------------------------
-	def _get_variant_receiver_name(self, data=u'%s'):
+	def _get_variant_receiver_name(self, data='%s'):
 		return self.__get_variant_receiver_part(data = data, part = 'name')
 	#--------------------------------------------------------
-	def _get_variant_receiver_street(self, data=u'%s'):
+	def _get_variant_receiver_street(self, data='%s'):
 		return self.__get_variant_receiver_part(data = data, part = 'street')
 	#--------------------------------------------------------
-	def _get_variant_receiver_number(self, data=u'%s'):
+	def _get_variant_receiver_number(self, data='%s'):
 		return self.__get_variant_receiver_part(data = data, part = 'number')
 	#--------------------------------------------------------
-	def _get_variant_receiver_subunit(self, data=u'%s'):
+	def _get_variant_receiver_subunit(self, data='%s'):
 		return self.__get_variant_receiver_part(data = data, part = 'subunit')
 	#--------------------------------------------------------
-	def _get_variant_receiver_location(self, data=u'%s'):
+	def _get_variant_receiver_location(self, data='%s'):
 		return self.__get_variant_receiver_part(data = data, part = 'urb')
 	#--------------------------------------------------------
-	def _get_variant_receiver_suburb(self, data=u'%s'):
+	def _get_variant_receiver_suburb(self, data='%s'):
 		return self.__get_variant_receiver_part(data = data, part = 'suburb')
 	#--------------------------------------------------------
-	def _get_variant_receiver_postcode(self, data=u'%s'):
+	def _get_variant_receiver_postcode(self, data='%s'):
 		return self.__get_variant_receiver_part(data = data, part = 'postcode')
 	#--------------------------------------------------------
-	def _get_variant_receiver_region(self, data=u'%s'):
+	def _get_variant_receiver_region(self, data='%s'):
 		return self.__get_variant_receiver_part(data = data, part = 'l10n_region')
 	#--------------------------------------------------------
-	def _get_variant_receiver_country(self, data=u'%s'):
+	def _get_variant_receiver_country(self, data='%s'):
 		return self.__get_variant_receiver_part(data = data, part = 'l10n_country')
 	#--------------------------------------------------------
-	def _get_variant_patient_address(self, data=u''):
+	def _get_variant_patient_address(self, data=''):
 
 		data_parts = data.split(self.__args_divider)
 
 		# address type
 		adr_type = data_parts[0].strip()
 		orig_type = adr_type
-		if adr_type != u'':
+		if adr_type != '':
 			adrs = self.pat.get_addresses(address_type = adr_type)
 			if len(adrs) == 0:
 				_log.warning('no address for type [%s]', adr_type)
-				adr_type = u''
-		if adr_type == u'':
+				adr_type = ''
+		if adr_type == '':
 			_log.debug('asking user for address type')
 			adr = gmPersonContactWidgets.select_address(missing = orig_type, person = self.pat)
 			if adr is None:
 				if self.debug:
 					return _('no address type replacement selected')
-				return u''
+				return ''
 			adr_type = adr['address_type']
 		adr = self.pat.get_addresses(address_type = adr_type)[0]
 
 		# formatting template
 		template = _('%(street)s %(number)s, %(postcode)s %(urb)s, %(l10n_region)s, %(l10n_country)s')
 		if len(data_parts) > 1:
-			if data_parts[1].strip() != u'':
+			if data_parts[1].strip() != '':
 				template = data_parts[1]
 
 		try:
@@ -1419,7 +1419,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 
 		return None
 	#--------------------------------------------------------
-	def __get_variant_adr_part(self, data=u'?', part=None):
+	def __get_variant_adr_part(self, data='?', part=None):
 		requested_type = data.strip()
 		cache_key = 'adr-type-%s' % requested_type
 		try:
@@ -1427,52 +1427,52 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			_log.debug('cache hit (%s): [%s] -> [%s]', cache_key, requested_type, type2use)
 		except KeyError:
 			type2use = requested_type
-			if type2use != u'':
+			if type2use != '':
 				adrs = self.pat.get_addresses(address_type = type2use)
 				if len(adrs) == 0:
 					_log.warning('no address of type [%s] for <%s> field extraction', requested_type, part)
-					type2use = u''
-			if type2use == u'':
+					type2use = ''
+			if type2use == '':
 				_log.debug('asking user for replacement address type')
 				adr = gmPersonContactWidgets.select_address(missing = requested_type, person = self.pat)
 				if adr is None:
 					_log.debug('no replacement selected')
 					if self.debug:
 						return self._escape(_('no address type replacement selected'))
-					return u''
+					return ''
 				type2use = adr['address_type']
 				self.__cache[cache_key] = type2use
 				_log.debug('caching (%s): [%s] -> [%s]', cache_key, requested_type, type2use)
 
 		return self._escape(self.pat.get_addresses(address_type = type2use)[0][part])
 	#--------------------------------------------------------
-	def _get_variant_adr_street(self, data=u'?'):
+	def _get_variant_adr_street(self, data='?'):
 		return self.__get_variant_adr_part(data = data, part = 'street')
 	#--------------------------------------------------------
-	def _get_variant_adr_number(self, data=u'?'):
+	def _get_variant_adr_number(self, data='?'):
 		return self.__get_variant_adr_part(data = data, part = 'number')
 	#--------------------------------------------------------
-	def _get_variant_adr_subunit(self, data=u'?'):
+	def _get_variant_adr_subunit(self, data='?'):
 		return self.__get_variant_adr_part(data = data, part = 'subunit')
 	#--------------------------------------------------------
-	def _get_variant_adr_location(self, data=u'?'):
+	def _get_variant_adr_location(self, data='?'):
 		return self.__get_variant_adr_part(data = data, part = 'urb')
 	#--------------------------------------------------------
-	def _get_variant_adr_suburb(self, data=u'?'):
+	def _get_variant_adr_suburb(self, data='?'):
 		return self.__get_variant_adr_part(data = data, part = 'suburb')
 	#--------------------------------------------------------
-	def _get_variant_adr_postcode(self, data=u'?'):
+	def _get_variant_adr_postcode(self, data='?'):
 		return self.__get_variant_adr_part(data = data, part = 'postcode')
 	#--------------------------------------------------------
-	def _get_variant_adr_region(self, data=u'?'):
+	def _get_variant_adr_region(self, data='?'):
 		return self.__get_variant_adr_part(data = data, part = 'l10n_region')
 	#--------------------------------------------------------
-	def _get_variant_adr_country(self, data=u'?'):
+	def _get_variant_adr_country(self, data='?'):
 		return self.__get_variant_adr_part(data = data, part = 'l10n_country')
 	#--------------------------------------------------------
 	def _get_variant_patient_comm(self, data=None):
 		comm_type = None
-		template = u'%(url)s'
+		template = '%(url)s'
 		if data is not None:
 			data_parts = data.split(self.__args_divider)
 			if len(data_parts) > 0:
@@ -1483,14 +1483,14 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		comms = self.pat.get_comm_channels(comm_medium = comm_type)
 		if len(comms) == 0:
 			if self.debug:
-				return template + u': ' + self._escape(_('no URL for comm channel [%s]') % data)
-			return u''
+				return template + ': ' + self._escape(_('no URL for comm channel [%s]') % data)
+			return ''
 
 		return template % comms[0].fields_as_dict(escape_style = self.__esc_style)
 	#--------------------------------------------------------
 	def _get_variant_patient_photo(self, data=None):
 
-		template = u'%s'
+		template = '%s'
 		target_mime = None
 		target_ext = None
 		if data is not None:
@@ -1504,7 +1504,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 				if target_mime is not None:
 					target_ext = gmMimeLib.guess_ext_by_mimetype(mimetype = target_mime)
 
-		cache_key = u'patient_photo_path::%s::%s' % (target_mime, target_ext)
+		cache_key = 'patient_photo_path::%s::%s' % (target_mime, target_ext)
 		try:
 			fname = self.__cache[cache_key]
 			_log.debug('cache hit on [%s]: %s', cache_key, fname)
@@ -1513,7 +1513,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			if mugshot is None:
 				if self.debug:
 					return self._escape(_('no mugshot available'))
-				return u''
+				return ''
 			fname = mugshot.save_to_file (
 				target_mime = target_mime,
 				target_extension = target_ext,
@@ -1522,7 +1522,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			if fname is None:
 				if self.debug:
 					return self._escape(_('cannot export or convert latest mugshot'))
-				return u''
+				return ''
 			self.__cache[cache_key] = fname
 
 		return template % fname
@@ -1531,8 +1531,8 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 	def _get_variant_patient_vcf(self, data):
 		options = data.split(self.__args_divider)
 		template = options[0].strip()
-		if template == u'':
-			template = u'%s'
+		if template == '':
+			template = '%s'
 
 		return template % self.pat.export_as_vcard()
 
@@ -1540,24 +1540,24 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 	def _get_variant_patient_gdt(self, data):
 		options = data.split(self.__args_divider)
 		template = options[0].strip()
-		if template == u'':
-			template = u'%s'
+		if template == '':
+			template = '%s'
 
 		return template % self.pat.export_as_gdt()
 
 	#--------------------------------------------------------
-	def _get_variant_patient_tags(self, data=u'%s//\\n'):
+	def _get_variant_patient_tags(self, data='%s//\\n'):
 		if len(self.pat.tags) == 0:
 			if self.debug:
 				return self._escape(_('no tags for this patient'))
-			return u''
+			return ''
 
 		tags = gmDemographicsWidgets.select_patient_tags(patient = self.pat)
 
 		if tags is None:
 			if self.debug:
 				return self._escape(_('no patient tags selected for inclusion') % data)
-			return u''
+			return ''
 
 		template, separator = data.split('//', 2)
 
@@ -1571,17 +1571,17 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 	def _get_variant_praxis(self, data=None):
 		options = data.split(self.__args_divider)
 
-		if u'select' in options:
-			options.remove(u'select')
+		if 'select' in options:
+			options.remove('select')
 			branch = 'select branch'
 		else:
 			branch = gmPraxis.cPraxisBranch(aPK_obj = gmPraxis.gmCurrentPraxisBranch()['pk_praxis_branch'])
 
-		template = u'%s'
+		template = '%s'
 		if len(options) > 0:
 			template = options[0]
-		if template.strip() == u'':
-			template = u'%s'
+		if template.strip() == '':
+			template = '%s'
 
 		return template % branch.fields_as_dict(escape_style = self.__esc_style)
 
@@ -1596,28 +1596,28 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			vcf_name = gmPraxis.gmCurrentPraxisBranch().vcf
 			self.__cache[cache_key] = vcf_name
 
-		template = u'%s'
-		if data.strip() != u'':
+		template = '%s'
+		if data.strip() != '':
 			template = data
 
 		return template % vcf_name
 
 	#--------------------------------------------------------
-	def _get_variant_praxis_address(self, data=u''):
+	def _get_variant_praxis_address(self, data=''):
 
 		options = data.split(self.__args_divider)
 
 		# formatting template
 		template = _('%(street)s %(number)s, %(postcode)s %(urb)s, %(l10n_region)s, %(l10n_country)s')
 		if len(options) > 0:
-			if options[0].strip() != u'':
+			if options[0].strip() != '':
 				template = options[0]
 
 		adr = gmPraxis.gmCurrentPraxisBranch().address
 		if adr is None:
 			if self.debug:
 				return _('no address recorded')
-			return u''
+			return ''
 		try:
 			return template % adr.fields_as_dict(escape_style = self.__esc_style)
 		except Exception:
@@ -1630,15 +1630,15 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 	def _get_variant_praxis_comm(self, data=None):
 		options = data.split(self.__args_divider)
 		comm_type = options[0]
-		template = u'%(url)s'
+		template = '%(url)s'
 		if len(options) > 1:
 			template = options[1]
 
 		comms = gmPraxis.gmCurrentPraxisBranch().get_comm_channels(comm_medium = comm_type)
 		if len(comms) == 0:
 			if self.debug:
-				return template + u': ' + self._escape(_('no URL for comm channel [%s]') % data)
-			return u''
+				return template + ': ' + self._escape(_('no URL for comm channel [%s]') % data)
+			return ''
 
 		return template % comms[0].fields_as_dict(escape_style = self.__esc_style)
 
@@ -1646,12 +1646,12 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 	def _get_variant_praxis_id(self, data=None):
 		options = data.split(self.__args_divider)
 		id_type = options[0].strip()
-		if id_type == u'':
-			return self._escape(u'praxis external ID: type is missing')
+		if id_type == '':
+			return self._escape('praxis external ID: type is missing')
 
 		if len(options) > 1:
 			issuer = options[1].strip()
-			if issuer == u'':
+			if issuer == '':
 				issue = None
 		else:
 			issuer = None
@@ -1659,15 +1659,15 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		if len(options) > 2:
 			template = options[2]
 		else:
-			template = u'%(name)s: %(value)s (%(issuer)s)'
+			template = '%(name)s: %(value)s (%(issuer)s)'
 
 		ids = gmPraxis.gmCurrentPraxisBranch().get_external_ids(id_type = id_type, issuer = issuer)
 		if len(ids) == 0:
 			if self.debug:
-				return template + u': ' + self._escape(_('no external ID [%s] by [%s]') % (id_type, issuer))
-			return u''
+				return template + ': ' + self._escape(_('no external ID [%s] by [%s]') % (id_type, issuer))
+			return ''
 
-		return template % self._escape_dict(the_dict = ids[0], none_string = u'')
+		return template % self._escape_dict(the_dict = ids[0], none_string = '')
 
 	#--------------------------------------------------------
 	# provider related placeholders
@@ -1675,8 +1675,8 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 	def _get_variant_current_provider(self, data=None):
 		prov = gmStaff.gmCurrentProvider()
 
-		tmp = u'%s%s. %s' % (
-			gmTools.coalesce(prov['title'], u'', u'%s '),
+		tmp = '%s%s. %s' % (
+			gmTools.coalesce(prov['title'], '', '%s '),
 			prov['firstnames'][:1],
 			prov['lastnames']
 		)
@@ -1685,52 +1685,52 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 	#--------------------------------------------------------
 	def _get_variant_current_provider_title(self, data=None):
 		if data is None:
-			data = u'%(title)s'
-		elif data.strip() == u'':
-			data = u'%(title)s'
+			data = '%(title)s'
+		elif data.strip() == '':
+			data = '%(title)s'
 		return self._get_variant_name(data = data)
 	#--------------------------------------------------------
 	def _get_variant_current_provider_firstnames(self, data=None):
 		if data is None:
-			data = u'%(firstnames)s'
-		elif data.strip() == u'':
-			data = u'%(firstnames)s'
+			data = '%(firstnames)s'
+		elif data.strip() == '':
+			data = '%(firstnames)s'
 		return self._get_variant_name(data = data)
 	#--------------------------------------------------------
 	def _get_variant_current_provider_lastnames(self, data=None):
 		if data is None:
-			data = u'%(lastnames)s'
-		elif data.strip() == u'':
-			data = u'%(lastnames)s'
+			data = '%(lastnames)s'
+		elif data.strip() == '':
+			data = '%(lastnames)s'
 		return self._get_variant_name(data = data)
 	#--------------------------------------------------------
 	def _get_variant_current_provider_name(self, data=None):
 		if data is None:
 			return [_('template is missing')]
-		if data.strip() == u'':
+		if data.strip() == '':
 			return [_('template is empty')]
 		name = gmStaff.gmCurrentProvider().identity.get_active_name()
 		parts = {
-			'title': self._escape(gmTools.coalesce(name['title'], u'')),
+			'title': self._escape(gmTools.coalesce(name['title'], '')),
 			'firstnames': self._escape(name['firstnames']),
 			'lastnames': self._escape(name['lastnames']),
-			'preferred': self._escape(gmTools.coalesce(name['preferred'], u''))
+			'preferred': self._escape(gmTools.coalesce(name['preferred'], ''))
 		}
 		return data % parts
 
 	#--------------------------------------------------------
-	def _get_variant_current_provider_external_id(self, data=u''):
+	def _get_variant_current_provider_external_id(self, data=''):
 		data_parts = data.split(self.__args_divider)
 		if len(data_parts) < 2:
-			return self._escape(u'current provider external ID: template is missing')
+			return self._escape('current provider external ID: template is missing')
 
 		id_type = data_parts[0].strip()
-		if id_type == u'':
-			return self._escape(u'current provider external ID: type is missing')
+		if id_type == '':
+			return self._escape('current provider external ID: type is missing')
 
 		issuer = data_parts[1].strip()
-		if issuer == u'':
-			return self._escape(u'current provider external ID: issuer is missing')
+		if issuer == '':
+			return self._escape('current provider external ID: issuer is missing')
 
 		prov = gmStaff.gmCurrentProvider()
 		ids = prov.identity.get_external_ids(id_type = id_type, issuer = issuer)
@@ -1738,7 +1738,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		if len(ids) == 0:
 			if self.debug:
 				return self._escape(_('no external ID [%s] by [%s]') % (id_type, issuer))
-			return u''
+			return ''
 
 		return self._escape(ids[0]['value'])
 
@@ -1753,7 +1753,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			gmPerson.map_gender2salutation(prov['gender'])
 		)
 
-		tmp = u'%s %s. %s' % (
+		tmp = '%s %s. %s' % (
 			title,
 			prov['firstnames'][:1],
 			prov['lastnames']
@@ -1761,54 +1761,54 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		return self._escape(tmp)
 
 	#--------------------------------------------------------
-	def _get_variant_primary_praxis_provider_external_id(self, data=u''):
+	def _get_variant_primary_praxis_provider_external_id(self, data=''):
 		data_parts = data.split(self.__args_divider)
 		if len(data_parts) < 2:
-			return self._escape(u'primary in-praxis provider external ID: template is missing')
+			return self._escape('primary in-praxis provider external ID: template is missing')
 
 		id_type = data_parts[0].strip()
-		if id_type == u'':
-			return self._escape(u'primary in-praxis provider external ID: type is missing')
+		if id_type == '':
+			return self._escape('primary in-praxis provider external ID: type is missing')
 
 		issuer = data_parts[1].strip()
-		if issuer == u'':
-			return self._escape(u'primary in-praxis provider external ID: issuer is missing')
+		if issuer == '':
+			return self._escape('primary in-praxis provider external ID: issuer is missing')
 
 		prov = self.pat.primary_provider
 		if prov is None:
 			if self.debug:
 				return self._escape(_('no primary in-praxis provider'))
-			return u''
+			return ''
 
 		ids = prov.identity.get_external_ids(id_type = id_type, issuer = issuer)
 
 		if len(ids) == 0:
 			if self.debug:
 				return self._escape(_('no external ID [%s] by [%s]') % (id_type, issuer))
-			return u''
+			return ''
 
 		return self._escape(ids[0]['value'])
 
 	#--------------------------------------------------------
-	def _get_variant_external_id(self, data=u''):
+	def _get_variant_external_id(self, data=''):
 		data_parts = data.split(self.__args_divider)
 		if len(data_parts) < 2:
-			return self._escape(u'patient external ID: template is missing')
+			return self._escape('patient external ID: template is missing')
 
 		id_type = data_parts[0].strip()
-		if id_type == u'':
-			return self._escape(u'patient external ID: type is missing')
+		if id_type == '':
+			return self._escape('patient external ID: type is missing')
 
 		issuer = data_parts[1].strip()
-		if issuer == u'':
-			return self._escape(u'patient external ID: issuer is missing')
+		if issuer == '':
+			return self._escape('patient external ID: issuer is missing')
 
 		ids = self.pat.get_external_ids(id_type = id_type, issuer = issuer)
 
 		if len(ids) == 0:
 			if self.debug:
 				return self._escape(_('no external ID [%s] by [%s]') % (id_type, issuer))
-			return u''
+			return ''
 
 		return self._escape(ids[0]['value'])
 
@@ -1817,14 +1817,14 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		allg_state = self.pat.emr.allergy_state
 
 		if allg_state['last_confirmed'] is None:
-			date_confirmed = u''
+			date_confirmed = ''
 		else:
-			date_confirmed = u' (%s)' % gmDateTime.pydt_strftime (
+			date_confirmed = ' (%s)' % gmDateTime.pydt_strftime (
 				allg_state['last_confirmed'],
 				format = '%Y %B %d'
 			)
 
-		tmp = u'%s%s' % (
+		tmp = '%s%s' % (
 			allg_state.state_string,
 			date_confirmed
 		)
@@ -1845,7 +1845,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		if data is None:
 			return self._escape(_('template is missing'))
 
-		return u'\n'.join([ data % a.fields_as_dict(date_format = '%Y %b %d', escape_style = self.__esc_style) for a in self.pat.emr.get_allergies() ])
+		return '\n'.join([ data % a.fields_as_dict(date_format = '%Y %b %d', escape_style = self.__esc_style) for a in self.pat.emr.get_allergies() ])
 
 	#--------------------------------------------------------
 	def _get_variant_current_meds_AMTS_enhanced(self, data=None):
@@ -1859,9 +1859,9 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		from Gnumed.wxpython import gmMedicationWidgets
 		intakes2export = gmMedicationWidgets.manage_substance_intakes(emr = emr)
 		if intakes2export is None:
-			return u''
+			return ''
 		if len(intakes2export) == 0:
-			return u''
+			return ''
 
 		# make them unique:
 		unique_intakes = {}
@@ -1892,42 +1892,42 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		# insert \newpage after each group of 15 rows
 		table_rows = intake_as_latex_rows[:15]
 		if len(intake_as_latex_rows) > 15:
-			table_rows.append(u'\\newpage')
+			table_rows.append('\\newpage')
 			table_rows.extend(intake_as_latex_rows[15:30])
 		if len(intake_as_latex_rows) > 30:
-			table_rows.append(u'\\newpage')
+			table_rows.append('\\newpage')
 			table_rows.extend(intake_as_latex_rows[30:45])
 
 		if strict:
-			return u'\n'.join(table_rows)
+			return '\n'.join(table_rows)
 
 		# allow two more pages in enhanced mode
 		if len(intake_as_latex_rows) > 45:
-			table_rows.append(u'\\newpage')
+			table_rows.append('\\newpage')
 			table_rows.extend(intake_as_latex_rows[30:45])
 
 		if len(intake_as_latex_rows) > 60:
-			table_rows.append(u'\\newpage')
+			table_rows.append('\\newpage')
 			table_rows.extend(intake_as_latex_rows[30:45])
 
-		return u'\n'.join(table_rows)
+		return '\n'.join(table_rows)
 
 	#--------------------------------------------------------
 	def __create_amts_datamatrix_files(self, intakes=None):
 
 		# setup dummy files
 		for idx in [1,2,3]:
-			self.set_placeholder(key = u'amts_data_file_%s' % idx, value = './missing-file.txt', known_only = False)
-			self.set_placeholder(key = u'amts_png_file_%s' % idx, value = './missing-file.png', known_only = False)
-		self.set_placeholder(key = u'amts_png_file_current_page', value = './missing-file-current-page.png', known_only = False)
-		self.set_placeholder(key = u'amts_png_file_utf8', value = './missing-file-utf8.png', known_only = False)
-		self.set_placeholder(key = u'amts_data_file_utf8', value = './missing-file-utf8.txt', known_only = False)
+			self.set_placeholder(key = 'amts_data_file_%s' % idx, value = './missing-file.txt', known_only = False)
+			self.set_placeholder(key = 'amts_png_file_%s' % idx, value = './missing-file.png', known_only = False)
+		self.set_placeholder(key = 'amts_png_file_current_page', value = './missing-file-current-page.png', known_only = False)
+		self.set_placeholder(key = 'amts_png_file_utf8', value = './missing-file-utf8.png', known_only = False)
+		self.set_placeholder(key = 'amts_data_file_utf8', value = './missing-file-utf8.txt', known_only = False)
 
 		# find processor
-		found, dmtx_creator = gmShellAPI.detect_external_binary(binary = u'gm-create_datamatrix')
+		found, dmtx_creator = gmShellAPI.detect_external_binary(binary = 'gm-create_datamatrix')
 		_log.debug(dmtx_creator)
 		if not found:
-			_log.error(u'gm-create_datamatrix(.bat/.exe) not found')
+			_log.error('gm-create_datamatrix(.bat/.exe) not found')
 			return
 
 		png_dir = gmTools.mk_sandbox_dir()
@@ -1941,33 +1941,33 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		_log.debug('amts data template definition file: %s', amts_data_template_def_file)
 		form = gmForms.cTextForm(template_file = amts_data_template_def_file)
 		# <S>ection with intakes</S>
-		amts_sections = u'<S>%s</S>' % u''.join ([
+		amts_sections = '<S>%s</S>' % ''.join ([
 			i._get_as_amts_data(strict = False) for i in intakes
 		])
 		# <S>ection with allergy data</S>
 		emr = self.pat.emr
-		amts_sections += emr.allergy_state._get_as_amts_data(strict = False) % u''.join ([
+		amts_sections += emr.allergy_state._get_as_amts_data(strict = False) % ''.join ([
 			a._get_as_amts_data(strict = False) for a in emr.get_allergies()
 		])
-		self.set_placeholder(key = u'amts_intakes_as_data_enhanced', value = amts_sections, known_only = False)
+		self.set_placeholder(key = 'amts_intakes_as_data_enhanced', value = amts_sections, known_only = False)
 #		self.set_placeholder(key = u'amts_check_symbol', value = gmMedication.calculate_amts_data_check_symbol(intakes = intakes), known_only = False)
-		self.set_placeholder(key = u'amts_total_pages', value = u'1', known_only = False)
+		self.set_placeholder(key = 'amts_total_pages', value = '1', known_only = False)
 		success = form.substitute_placeholders(data_source = self)
-		self.unset_placeholder(key = u'amts_intakes_as_data_enhanced')
+		self.unset_placeholder(key = 'amts_intakes_as_data_enhanced')
 #		self.unset_placeholder(key = u'amts_check_symbol')
-		self.unset_placeholder(key = u'amts_total_pages')
+		self.unset_placeholder(key = 'amts_total_pages')
 		if not success:
-			_log.error(u'cannot substitute into amts data file form template')
+			_log.error('cannot substitute into amts data file form template')
 			return
 		data_file = form.re_editable_filenames[0]
 		png_file = os.path.join(png_dir, 'gm4amts-datamatrix-utf8.png')
-		cmd = u'%s %s %s' % (dmtx_creator, data_file, png_file)
+		cmd = '%s %s %s' % (dmtx_creator, data_file, png_file)
 		success = gmShellAPI.run_command_in_shell(command = cmd, blocking = True)
 		if not success:
-			_log.error(u'error running [%s]' % cmd)
+			_log.error('error running [%s]' % cmd)
 			return
-		self.set_placeholder(key = u'amts_data_file_utf8', value = data_file, known_only = False)
-		self.set_placeholder(key = u'amts_png_file_utf8', value = png_file, known_only = False)
+		self.set_placeholder(key = 'amts_data_file_utf8', value = data_file, known_only = False)
+		self.set_placeholder(key = 'amts_png_file_utf8', value = png_file, known_only = False)
 
 		# generate conformant per-page files:
 		total_pages = (len(intakes) / 15.0)
@@ -1983,51 +1983,51 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			_log.debug('amts data template definition file: %s', amts_data_template_def_file)
 			form = gmForms.cTextForm(template_file = amts_data_template_def_file)
 			# <S>ection with intakes</S>
-			amts_sections = u'<S>%s</S>' % u''.join ([
+			amts_sections = '<S>%s</S>' % ''.join ([
 				i._get_as_amts_data(strict = False) for i in intakes_this_page
 			])
 			if this_page == total_pages:
 				# <S>ection with allergy data</S>
 				emr = self.pat.emr
-				amts_sections += emr.allergy_state._get_as_amts_data(strict = False) % u''.join ([
+				amts_sections += emr.allergy_state._get_as_amts_data(strict = False) % ''.join ([
 					a._get_as_amts_data(strict = False) for a in emr.get_allergies()
 				])
-			self.set_placeholder(key = u'amts_intakes_as_data', value = amts_sections, known_only = False)
+			self.set_placeholder(key = 'amts_intakes_as_data', value = amts_sections, known_only = False)
 #			self.set_placeholder(key = u'amts_check_symbol', value = gmMedication.calculate_amts_data_check_symbol(intakes = intakes_this_page), known_only = False)
 			if total_pages == 1:
-				pg_idx = u''
+				pg_idx = ''
 			else:
-				pg_idx = u'%s' % this_page
-			self.set_placeholder(key = u'amts_page_idx', value = pg_idx, known_only = False)
-			self.set_placeholder(key = u'amts_total_pages', value = u'%s' % total_pages, known_only = False)
+				pg_idx = '%s' % this_page
+			self.set_placeholder(key = 'amts_page_idx', value = pg_idx, known_only = False)
+			self.set_placeholder(key = 'amts_total_pages', value = '%s' % total_pages, known_only = False)
 			success = form.substitute_placeholders(data_source = self)
-			self.unset_placeholder(key = u'amts_intakes_as_data')
+			self.unset_placeholder(key = 'amts_intakes_as_data')
 #			self.unset_placeholder(key = u'amts_check_symbol')
-			self.unset_placeholder(key = u'amts_page_idx')
-			self.unset_placeholder(key = u'amts_total_pages')
+			self.unset_placeholder(key = 'amts_page_idx')
+			self.unset_placeholder(key = 'amts_total_pages')
 			if not success:
-				_log.error(u'cannot substitute into amts data file form template')
+				_log.error('cannot substitute into amts data file form template')
 				return
 
 			data_file = form.re_editable_filenames[0]
-			png_file = u'%s%s.png' % (png_file_base, this_page)
+			png_file = '%s%s.png' % (png_file_base, this_page)
 			latin1_data_file = gmTools.recode_file (
 				source_file = data_file,
-				source_encoding = u'utf8',
-				target_encoding = u'latin1',
+				source_encoding = 'utf8',
+				target_encoding = 'latin1',
 				base_dir = os.path.split(data_file)[0]
 			)
-			cmd = u'%s %s %s' % (dmtx_creator, latin1_data_file, png_file)
+			cmd = '%s %s %s' % (dmtx_creator, latin1_data_file, png_file)
 			success = gmShellAPI.run_command_in_shell(command = cmd, blocking = True)
 			if not success:
-				_log.error(u'error running [%s]' % cmd)
+				_log.error('error running [%s]' % cmd)
 				return
 
 			# cache file names for later use in \embedfile
-			self.set_placeholder(key = u'amts_data_file_%s' % this_page, value = latin1_data_file, known_only = False)
-			self.set_placeholder(key = u'amts_png_file_%s' % this_page, value = png_file, known_only = False)
+			self.set_placeholder(key = 'amts_data_file_%s' % this_page, value = latin1_data_file, known_only = False)
+			self.set_placeholder(key = 'amts_png_file_%s' % this_page, value = png_file, known_only = False)
 
-		self.set_placeholder(key = u'amts_png_file_current_page', value = png_file_base + u'\\thepage', known_only = False)
+		self.set_placeholder(key = 'amts_png_file_current_page', value = png_file_base + '\\thepage', known_only = False)
 
 	#--------------------------------------------------------
 	def _get_variant_current_meds_for_rx(self, data=None):
@@ -2038,7 +2038,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		from Gnumed.wxpython import gmMedicationWidgets
 		current_meds = gmMedicationWidgets.manage_substance_intakes(emr = emr)
 		if current_meds is None:
-			return u''
+			return ''
 
 		intakes2show = {}
 		for intake in current_meds:
@@ -2046,23 +2046,23 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			fields_dict['medically_formatted_start'] = self._escape(intake.medically_formatted_start)
 			if intake['pk_drug_product'] is None:
 				fields_dict['product'] = self._escape(_('generic %s') % fields_dict['substance'])
-				fields_dict['contains'] = self._escape(u'%s %s%s' % (fields_dict['substance'], fields_dict['amount'], fields_dict['unit']))
+				fields_dict['contains'] = self._escape('%s %s%s' % (fields_dict['substance'], fields_dict['amount'], fields_dict['unit']))
 				intakes2show[fields_dict['product']] = fields_dict
 			else:
 				comps = [ c.split('::') for c in intake.containing_drug['components'] ]
-				fields_dict['contains'] = self._escape(u'; '.join([ u'%s %s%s' % (c[0], c[1], c[2]) for c in comps ]))
+				fields_dict['contains'] = self._escape('; '.join([ '%s %s%s' % (c[0], c[1], c[2]) for c in comps ]))
 				intakes2show[intake['product']] = fields_dict		# this will make multi-component drugs unique
 
 		intakes2dispense = {}
 		for product, intake in intakes2show.items():
 			msg = _('Dispense how much/many of "%(product)s (%(contains)s)" ?') % intake
 			amount2dispense = wx.GetTextFromUser(msg, _('Amount to dispense ?'))
-			if amount2dispense == u'':
+			if amount2dispense == '':
 				continue
 			intake['amount2dispense'] = amount2dispense
 			intakes2dispense[product] = intake
 
-		return u'\n'.join([ data % intake for intake in intakes2dispense.values() ])
+		return '\n'.join([ data % intake for intake in intakes2dispense.values() ])
 
 	#--------------------------------------------------------
 	def _get_variant_substance_abuse(self, data=None):
@@ -2072,13 +2072,13 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		from Gnumed.wxpython import gmHabitWidgets
 		abuses = gmHabitWidgets.manage_substance_abuse(patient = self.pat)
 		if abuses is None:
-			return u''
+			return ''
 		lines = []
 		for a in abuses:
 			fields = a.fields_as_dict(date_format = '%Y %b %d', escape_style = self.__esc_style)
 			fields['harmful_use_type'] = a.harmful_use_type_string
 			lines.append(template % fields)
-		return u'\n'.join(lines)
+		return '\n'.join(lines)
 
 	#--------------------------------------------------------
 	def _get_variant_current_meds(self, data=None):
@@ -2090,22 +2090,22 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		template = parts[0]
 		ask_user = False
 		if len(parts) > 1:
-			ask_user = (parts[1] == u'select')
+			ask_user = (parts[1] == 'select')
 
 		emr = self.pat.emr
 		if ask_user:
 			from Gnumed.wxpython import gmMedicationWidgets
 			current_meds = gmMedicationWidgets.manage_substance_intakes(emr = emr)
 			if current_meds is None:
-				return u''
+				return ''
 		else:
 			current_meds = emr.get_current_medications (
 				include_inactive = False,
 				include_unapproved = True,
-				order_by = u'product, substance'
+				order_by = 'product, substance'
 			)
 			if len(current_meds) == 0:
-				return u''
+				return ''
 
 		lines = []
 		for m in current_meds:
@@ -2113,20 +2113,20 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			data['medically_formatted_start'] = self._escape(m.medically_formatted_start)
 			lines.append(template % data)
 
-		return u'\n'.join(lines)
+		return '\n'.join(lines)
 	#--------------------------------------------------------
 	def _get_variant_current_meds_table(self, data=None):
 		return gmMedication.format_substance_intake (
 			emr = self.pat.emr,
 			output_format = self.__esc_style,
-			table_type = u'by-product'
+			table_type = 'by-product'
 		)
 	#--------------------------------------------------------
 	def _get_variant_current_meds_notes(self, data=None):
 		return gmMedication.format_substance_intake_notes (
 			emr = self.pat.emr,
 			output_format = self.__esc_style,
-			table_type = u'by-product'
+			table_type = 'by-product'
 		)
 	#--------------------------------------------------------
 	def _get_variant_lab_table(self, data=None):
@@ -2137,9 +2137,9 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 	#--------------------------------------------------------
 	def _get_variant_test_results(self, data=None):
 
-		template = u''
+		template = ''
 		date_format = '%Y %b %d %H:%M'
-		separator = u'\n'
+		separator = '\n'
 
 		options = data.split(self.__args_divider)
 		try:
@@ -2149,10 +2149,10 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		except IndexError:
 			pass
 
-		if date_format.strip() == u'':
+		if date_format.strip() == '':
 			date_format = '%Y %b %d %H:%M'
-		if separator.strip() == u'':
-			separator = u'\n'
+		if separator.strip() == '':
+			separator = '\n'
 
 		#results = gmMeasurementWidgets.manage_measurements(single_selection = False, emr = self.pat.emr)
 		from Gnumed.wxpython.gmMeasurementWidgets import manage_measurements
@@ -2160,9 +2160,9 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		if results is None:
 			if self.debug:
 				return self._escape(_('no results for this patient (available or selected)'))
-			return u''
+			return ''
 
-		if template == u'':
+		if template == '':
 			return (separator + separator).join([ self._escape(r.format(date_format = date_format)) for r in results ])
 
 		return separator.join([ template % r.fields_as_dict(date_format = date_format, escape_style = self.__esc_style) for r in results ])
@@ -2179,11 +2179,11 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		if len(options) > 1:
 			date_format = options[1]
 		else:
-			date_format = u'%Y %b %d'
+			date_format = '%Y %b %d'
 
-		vaccs = self.pat.emr.get_vaccinations(order_by = u'date_given DESC, vaccine')
+		vaccs = self.pat.emr.get_vaccinations(order_by = 'date_given DESC, vaccine')
 
-		return u'\n'.join([ template % v.fields_as_dict(date_format = date_format, escape_style = self.__esc_style) for v in vaccs ])
+		return '\n'.join([ template % v.fields_as_dict(date_format = date_format, escape_style = self.__esc_style) for v in vaccs ])
 	#--------------------------------------------------------
 	def _get_variant_PHX(self, data=None):
 
@@ -2191,13 +2191,13 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			if self.debug:
 				_log.error('PHX: missing placeholder arguments')
 				return self._escape(_('PHX: Invalid placeholder options.'))
-			return u''
+			return ''
 
 		_log.debug('arguments: %s', data)
 
 		data_parts = data.split(self.__args_divider)
-		template = u'%s'
-		separator = u'\n'
+		template = '%s'
+		separator = '\n'
 		date_format = '%Y %b %d'
 		try:
 			template = data_parts[0]
@@ -2210,7 +2210,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		if phxs is None:
 			if self.debug:
 				return self._escape(_('no PHX for this patient (available or selected)'))
-			return u''
+			return ''
 
 		return separator.join ([
 			template % phx.fields_as_dict (
@@ -2226,7 +2226,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		if data is None:
 			return self._escape(_('template is missing'))
 		probs = self.pat.emr.get_problems()
-		return u'\n'.join([ data % p.fields_as_dict(date_format = '%Y %b %d', escape_style = self.__esc_style) for p in probs ])
+		return '\n'.join([ data % p.fields_as_dict(date_format = '%Y %b %d', escape_style = self.__esc_style) for p in probs ])
 
 	#--------------------------------------------------------
 	def _get_variant_diagnoses(self, data=None):
@@ -2236,16 +2236,16 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		template = data
 		dxs = self.pat.emr.candidate_diagnoses
 		if len(dxs) == 0:
-			_log.debug(u'no diagnoses available')
-			return u''
+			_log.debug('no diagnoses available')
+			return ''
 		selected = gmListWidgets.get_choices_from_list (
-			msg = _(u'Select the relevant diagnoses:'),
-			caption = _(u'Diagnosis selection'),
-			columns = [ _(u'Diagnosis'), _(u'Marked confidential'), _(u'Certainty'), _(u'Source') ],
+			msg = _('Select the relevant diagnoses:'),
+			caption = _('Diagnosis selection'),
+			columns = [ _('Diagnosis'), _('Marked confidential'), _('Certainty'), _('Source') ],
 			choices = [[
 				dx['diagnosis'],
-				gmTools.bool2subst(dx['explicitely_confidential'], _(u'yes'), _(u'no'), _(u'unknown')),
-				gmTools.coalesce(dx['diagnostic_certainty_classification'], u''),
+				gmTools.bool2subst(dx['explicitely_confidential'], _('yes'), _('no'), _('unknown')),
+				gmTools.coalesce(dx['diagnostic_certainty_classification'], ''),
 				dx['source']
 				] for dx in dxs
 			],
@@ -2254,17 +2254,17 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			can_return_empty = True
 		)
 		if selected is None:
-			_log.debug(u'user did not select any diagnoses')
-			return u''
+			_log.debug('user did not select any diagnoses')
+			return ''
 		if len(selected) == 0:
-			_log.debug(u'user did not select any diagnoses')
-			return u''
+			_log.debug('user did not select any diagnoses')
+			return ''
 			#return template % {'diagnosis': u'', 'diagnostic_certainty_classification': u''}
-		return u'\n'.join(template % self._escape_dict(dx, none_string = u'?', bool_strings = [_(u'yes'), _(u'no')]) for dx in selected)
+		return '\n'.join(template % self._escape_dict(dx, none_string = '?', bool_strings = [_('yes'), _('no')]) for dx in selected)
 
 	#--------------------------------------------------------
 	def _get_variant_today(self, data='%Y %b %d'):
-		return self._escape(gmDateTime.pydt_now_here().strftime(str(data)).decode(gmI18N.get_encoding()))
+		return self._escape(gmDateTime.pydt_now_here().strftime(data))
 
 	#--------------------------------------------------------
 	def _get_variant_tex_escape(self, data=None):
@@ -2272,13 +2272,13 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 
 	#--------------------------------------------------------
 	def _get_variant_url_escape(self, data=None):
-		return self._escape(urllib.quote(data.encode('utf8')))
+		return self._escape(urllib.parse.quote(data.encode('utf8')))
 
 	#--------------------------------------------------------
 	def _get_variant_text_snippet(self, data=None):
 		data_parts = data.split(self.__args_divider)
 		keyword = data_parts[0]
-		template = u'%s'
+		template = '%s'
 		if len(data_parts) > 1:
 			template = data_parts[1]
 
@@ -2287,7 +2287,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		if expansion is None:
 			if self.debug:
 				return self._escape(_('no textual expansion found for keyword <%s>') % keyword)
-			return u''
+			return ''
 
 		#return template % self._escape(expansion)
 		return template % expansion
@@ -2296,7 +2296,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 	def _get_variant_data_snippet(self, data=None):
 		parts = data.split(self.__args_divider)
 		keyword = parts[0]
-		template = u'%s'
+		template = '%s'
 		target_mime = None
 		target_ext = None
 		if len(parts) > 1:
@@ -2317,25 +2317,25 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		if expansion is None:
 			if self.debug:
 				return self._escape(_('no binary expansion found for keyword <%s>') % keyword)
-			return u''
+			return ''
 
 		filename = expansion.save_to_file()
 		if filename is None:
 			if self.debug:
 				return self._escape(_('cannot export data of binary expansion keyword <%s>') % keyword)
-			return u''
+			return ''
 
 		if expansion['is_encrypted']:
 			pwd = wx.GetPasswordFromUser (
 				message = _('Enter your GnuPG passphrase for decryption of [%s]') % expansion['keyword'],
 				caption = _('GnuPG passphrase prompt'),
-				default_value = u''
+				default_value = ''
 			)
 			filename = gmTools.gpg_decrypt_file(filename = filename, passphrase = pwd)
 			if filename is None:
 				if self.debug:
 					return self._escape(_('cannot decrypt data of binary expansion keyword <%s>') % keyword)
-				return u''
+				return ''
 
 		target_fname = gmTools.get_unique_filename (
 			prefix = '%s-converted-' % os.path.splitext(filename)[0],
@@ -2365,14 +2365,14 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 
 		parts = data.split(self.__args_divider)
 		if len(parts) < 3:
-			return u'IF_NOT_EMPTY lacks <instead> definition'
+			return 'IF_NOT_EMPTY lacks <instead> definition'
 		txt = parts[0]
 		template = parts[1]
 		instead = parts[2]
 
-		if txt.strip() == u'':
+		if txt.strip() == '':
 			return instead
-		if u'%s' in template:
+		if '%s' in template:
 			return template % txt
 		return template
 
@@ -2384,7 +2384,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		else:
 			msg = data
 
-		cache_key = u'free_text::%s' % msg
+		cache_key = 'free_text::%s' % msg
 		try:
 			text = self.__cache[cache_key]
 		except KeyError:
@@ -2404,7 +2404,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 				if self.debug:
 					text = _('Text input cancelled by user.')
 				else:
-					text = u''
+					text = ''
 
 			if not is_user_formatted:
 				text = self._escape(text)
@@ -2423,7 +2423,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			if bill is None:
 				if self.debug:
 					return self._escape(_('no bill selected'))
-				return u''
+				return ''
 			self.__cache['bill'] = bill
 
 		parts = data.split(self.__args_divider)
@@ -2445,7 +2445,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			if bill is None:
 				if self.debug:
 					return self._escape(_('no bill selected'))
-				return u''
+				return ''
 			self.__cache['bill'] = bill
 
 		parts = data.split(self.__args_divider)
@@ -2455,7 +2455,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		else:
 			date_format = '%Y %B %d'
 
-		return u'\n'.join([ template % i.fields_as_dict(date_format = date_format, escape_style = self.__esc_style) for i in bill.bill_items ])
+		return '\n'.join([ template % i.fields_as_dict(date_format = date_format, escape_style = self.__esc_style) for i in bill.bill_items ])
 
 	#--------------------------------------------------------
 	def __get_variant_bill_adr_part(self, data=None, part=None):
@@ -2467,7 +2467,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			if bill is None:
 				if self.debug:
 					return self._escape(_('no bill selected'))
-				return u''
+				return ''
 			self.__cache['bill'] = bill
 			self.__cache['bill-adr'] = bill.address
 
@@ -2480,48 +2480,48 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		if bill_adr is None:
 			if self.debug:
 				return self._escape(_('[%s] bill has no address') % part)
-			return u''
+			return ''
 
 		if bill_adr[part] is None:
-			return self._escape(u'')
+			return self._escape('')
 
 		if data is None:
 			return self._escape(bill_adr[part])
 
-		if data == u'':
+		if data == '':
 			return self._escape(bill_adr[part])
 
 		return data % self._escape(bill_adr[part])
 
 	#--------------------------------------------------------
-	def _get_variant_bill_adr_street(self, data=u'?'):
+	def _get_variant_bill_adr_street(self, data='?'):
 		return self.__get_variant_bill_adr_part(data = data, part = 'street')
 
 	#--------------------------------------------------------
-	def _get_variant_bill_adr_number(self, data=u'?'):
+	def _get_variant_bill_adr_number(self, data='?'):
 		return self.__get_variant_bill_adr_part(data = data, part = 'number')
 
 	#--------------------------------------------------------
-	def _get_variant_bill_adr_subunit(self, data=u'?'):
+	def _get_variant_bill_adr_subunit(self, data='?'):
 		return self.__get_variant_bill_adr_part(data = data, part = 'subunit')
 	#--------------------------------------------------------
-	def _get_variant_bill_adr_location(self, data=u'?'):
+	def _get_variant_bill_adr_location(self, data='?'):
 		return self.__get_variant_bill_adr_part(data = data, part = 'urb')
 
 	#--------------------------------------------------------
-	def _get_variant_bill_adr_suburb(self, data=u'?'):
+	def _get_variant_bill_adr_suburb(self, data='?'):
 		return self.__get_variant_bill_adr_part(data = data, part = 'suburb')
 
 	#--------------------------------------------------------
-	def _get_variant_bill_adr_postcode(self, data=u'?'):
+	def _get_variant_bill_adr_postcode(self, data='?'):
 		return self.__get_variant_bill_adr_part(data = data, part = 'postcode')
 
 	#--------------------------------------------------------
-	def _get_variant_bill_adr_region(self, data=u'?'):
+	def _get_variant_bill_adr_region(self, data='?'):
 		return self.__get_variant_bill_adr_part(data = data, part = 'l10n_region')
 
 	#--------------------------------------------------------
-	def _get_variant_bill_adr_country(self, data=u'?'):
+	def _get_variant_bill_adr_country(self, data='?'):
 		return self.__get_variant_bill_adr_part(data = data, part = 'l10n_country')
 
 	#--------------------------------------------------------
@@ -2533,9 +2533,9 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		return self.__esc_func(text)
 
 	#--------------------------------------------------------
-	def _escape_dict(self, the_dict=None, date_format='%Y %b %d  %H:%M', none_string=u'', bool_strings=None):
+	def _escape_dict(self, the_dict=None, date_format='%Y %b %d  %H:%M', none_string='', bool_strings=None):
 		if bool_strings is None:
-			bools = {True: _(u'true'), False: _(u'false')}
+			bools = {True: _('true'), False: _('false')}
 		else:
 			bools = {True: bool_strings[0], False: bool_strings[1]}
 		data = {}
@@ -2553,22 +2553,22 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 				continue
 			if isinstance(val, datetime.datetime):
 				data[field] = gmDateTime.pydt_strftime(val, format = date_format, encoding = 'utf8')
-				if self.__esc_style in [u'latex', u'tex']:
+				if self.__esc_style in ['latex', 'tex']:
 					data[field] = gmTools.tex_escape_string(data[field])
-				elif self.__esc_style in [u'xetex', u'xelatex']:
+				elif self.__esc_style in ['xetex', 'xelatex']:
 					data[field] = gmTools.xetex_escape_string(data[field])
 				continue
 			try:
-				data[field] = unicode(val, encoding = 'utf8', errors = 'replace')
+				data[field] = str(val, encoding = 'utf8', errors = 'replace')
 			except TypeError:
 				try:
-					data[field] = unicode(val)
+					data[field] = str(val)
 				except (UnicodeDecodeError, TypeError):
 					val = '%s' % str(val)
 					data[field] = val.decode('utf8', 'replace')
-			if self.__esc_style in [u'latex', u'tex']:
+			if self.__esc_style in ['latex', 'tex']:
 				data[field] = gmTools.tex_escape_string(data[field])
-			elif self.__esc_style in [u'xetex', u'xelatex']:
+			elif self.__esc_style in ['xetex', 'xelatex']:
 				data[field] = gmTools.xetex_escape_string(data[field])
 		return data
 
@@ -2578,17 +2578,17 @@ def test_placeholders():
 	_log.debug('testing for placeholders with pattern: %s', first_pass_placeholder_regex)
 
 	data_source = gmPlaceholderHandler()
-	original_line = u''
+	original_line = ''
 
 	while True:
 		# get input from user
 		line = wx.GetTextFromUser (
-			_(u'Enter some text containing a placeholder:'),
-			_(u'Testing placeholders'),
+			_('Enter some text containing a placeholder:'),
+			_('Testing placeholders'),
 			centre = True,
 			default_value = original_line
 		)
-		if line.strip() == u'':
+		if line.strip() == '':
 			break
 		original_line = line
 		# replace
@@ -2605,16 +2605,16 @@ def test_placeholders():
 			line = line.replace(placeholder, val)
 		# show
 		msg = _(
-			u'Input: %s\n'
-			u'\n'
-			u'Output:\n'
-			u'%s'
+			'Input: %s\n'
+			'\n'
+			'Output:\n'
+			'%s'
 		) % (
 			original_line,
 			line
 		)
 		gmGuiHelpers.gm_show_info (
-			title = _(u'Testing placeholders'),
+			title = _('Testing placeholders'),
 			info = msg
 		)
 
@@ -2630,7 +2630,7 @@ class cMacroPrimitives:
 	#-----------------------------------------------------------------
 	def __init__(self, personality = None):
 		if personality is None:
-			raise gmExceptions.ConstructorError, 'must specify personality'
+			raise gmExceptions.ConstructorError('must specify personality')
 		self.__personality = personality
 		self.__attached = 0
 		self._get_source_personality = None
@@ -2675,7 +2675,7 @@ class cMacroPrimitives:
 		return 1
 	#-----------------------------------------------------------------
 	def version(self):
-		ver = _cfg.get(option = u'client_version')
+		ver = _cfg.get(option = 'client_version')
 		return "GNUmed %s, %s $Revision: 1.51 $" % (ver, self.__class__.__name__)
 	#-----------------------------------------------------------------
 	def shutdown_gnumed(self, auth_cookie=None, forced=False):
@@ -2762,7 +2762,7 @@ class cMacroPrimitives:
 			_log.error('patient is already locked')
 			return (0, _('already locked into a patient'))
 		searcher = gmPersonSearch.cPatientSearcher_SQL()
-		if type(search_params) == types.DictType:
+		if type(search_params) == dict:
 			idents = searcher.get_identities(search_dict=search_params)
 			raise Exception("must use dto, not search_dict")
 		else:
@@ -2868,7 +2868,7 @@ if __name__ == '__main__':
 		handler.debug = True
 
 		for placeholder in ['a', 'b']:
-			print handler[placeholder]
+			print(handler[placeholder])
 
 		pat = gmPersonSearch.ask_for_patient()
 		if pat is None:
@@ -2876,12 +2876,12 @@ if __name__ == '__main__':
 
 		gmPatSearchWidgets.set_active_patient(patient = pat)
 
-		print 'DOB (YYYY-MM-DD):', handler['date_of_birth::%Y-%m-%d']
+		print('DOB (YYYY-MM-DD):', handler['date_of_birth::%Y-%m-%d'])
 
 		app = wx.PyWidgetTester(size = (200, 50))
 
 		ph = 'progress_notes::ap'
-		print '%s: %s' % (ph, handler[ph])
+		print('%s: %s' % (ph, handler[ph]))
 	#--------------------------------------------------------
 	def test_new_variant_placeholders():
 
@@ -2943,9 +2943,9 @@ if __name__ == '__main__':
 		handler.debug = True
 
 		for placeholder in tests:
-			print placeholder, "=>", handler[placeholder]
-			print "--------------"
-			raw_input()
+			print(placeholder, "=>", handler[placeholder])
+			print("--------------")
+			input()
 
 #		print 'DOB (YYYY-MM-DD):', handler['date_of_birth::%Y-%m-%d']
 
@@ -2957,31 +2957,32 @@ if __name__ == '__main__':
 	#--------------------------------------------------------
 	def test_scripting():
 		from Gnumed.pycommon import gmScriptingListener
-		import xmlrpclib
+		import xmlrpc.client
+
 		listener = gmScriptingListener.cScriptingListener(macro_executor = cMacroPrimitives(personality='unit test'), port=9999)
 
-		s = xmlrpclib.ServerProxy('http://localhost:9999')
-		print "should fail:", s.attach()
-		print "should fail:", s.attach('wrong cookie')
-		print "should work:", s.version()
-		print "should fail:", s.raise_gnumed()
-		print "should fail:", s.raise_notebook_plugin('test plugin')
-		print "should fail:", s.lock_into_patient('kirk, james')
-		print "should fail:", s.unlock_patient()
+		s = xmlrpc.client.ServerProxy('http://localhost:9999')
+		print("should fail:", s.attach())
+		print("should fail:", s.attach('wrong cookie'))
+		print("should work:", s.version())
+		print("should fail:", s.raise_gnumed())
+		print("should fail:", s.raise_notebook_plugin('test plugin'))
+		print("should fail:", s.lock_into_patient('kirk, james'))
+		print("should fail:", s.unlock_patient())
 		status, conn_auth = s.attach('unit test')
-		print "should work:", status, conn_auth
-		print "should work:", s.version()
-		print "should work:", s.raise_gnumed(conn_auth)
+		print("should work:", status, conn_auth)
+		print("should work:", s.version())
+		print("should work:", s.raise_gnumed(conn_auth))
 		status, pat_auth = s.lock_into_patient(conn_auth, 'kirk, james')
-		print "should work:", status, pat_auth
-		print "should fail:", s.unlock_patient(conn_auth, 'bogus patient unlock cookie')
-		print "should work", s.unlock_patient(conn_auth, pat_auth)
+		print("should work:", status, pat_auth)
+		print("should fail:", s.unlock_patient(conn_auth, 'bogus patient unlock cookie'))
+		print("should work", s.unlock_patient(conn_auth, pat_auth))
 		data = {'firstname': 'jame', 'lastnames': 'Kirk', 'gender': 'm'}
 		status, pat_auth = s.lock_into_patient(conn_auth, data)
-		print "should work:", status, pat_auth
-		print "should work", s.unlock_patient(conn_auth, pat_auth)
-		print s.detach('bogus detach cookie')
-		print s.detach(conn_auth)
+		print("should work:", status, pat_auth)
+		print("should work", s.unlock_patient(conn_auth, pat_auth))
+		print(s.detach('bogus detach cookie'))
+		print(s.detach(conn_auth))
 		del s
 
 		listener.shutdown()
@@ -3029,39 +3030,39 @@ if __name__ == '__main__':
 #			u'junk   $<date_of_birth::%Y %B %d::>$   $<date_of_birth::%Y %B %d::20>$   $<<date_of_birth::%Y %B %d::20>>$',
 #			u'junk   $<date_of_birth::::20>$',
 #			u'junk   $<date_of_birth::::>$',
-			u'junk $<<<current_meds::%(product)s (%(substance)s): Dispense $<free_text::Dispense how many of %(product)s %(preparation)s (%(substance)s) ?::20>$ (%(preparation)s) \\n::>>>$ junk',
-			u'junk $<<<current_meds::%(product)s (%(substance)s): Dispense $<free_text::Dispense how many of %(product)s %(preparation)s (%(substance)s) ?::20>$ (%(preparation)s) \\n::250>>>$ junk',
-			u'junk $<<<current_meds::%(product)s (%(substance)s): Dispense $<free_text::Dispense how many of %(product)s %(preparation)s (%(substance)s) ?::20>$ (%(preparation)s) \\n::3-4>>>$ junk',
+			'junk $<<<current_meds::%(product)s (%(substance)s): Dispense $<free_text::Dispense how many of %(product)s %(preparation)s (%(substance)s) ?::20>$ (%(preparation)s) \\n::>>>$ junk',
+			'junk $<<<current_meds::%(product)s (%(substance)s): Dispense $<free_text::Dispense how many of %(product)s %(preparation)s (%(substance)s) ?::20>$ (%(preparation)s) \\n::250>>>$ junk',
+			'junk $<<<current_meds::%(product)s (%(substance)s): Dispense $<free_text::Dispense how many of %(product)s %(preparation)s (%(substance)s) ?::20>$ (%(preparation)s) \\n::3-4>>>$ junk',
 
-			u'should fail $<<<current_meds::%(product)s (%(substance)s): Dispense $<free_text::Dispense how many of %(product)s %(preparation)s (%(substance)s) ?::20>$ (%(preparation)s) \\n::->>>$ junk',
-			u'should fail $<<<current_meds::%(product)s (%(substance)s): Dispense $<free_text::Dispense how many of %(product)s %(preparation)s (%(substance)s) ?::20>$ (%(preparation)s) \\n::3->>>$ junk',
-			u'should fail $<<<current_meds::%(product)s (%(substance)s): Dispense $<free_text::Dispense how many of %(product)s %(preparation)s (%(substance)s) ?::20>$ (%(preparation)s) \\n::-4>>>$ should fail',
-			u'should fail $<<<current_meds::%(product)s (%(substance)s): Dispense $<free_text::Dispense how many of %(product)s %(preparation)s (%(substance)s) ?::20>$ (%(preparation)s) \\n::should_fail>>>$ junk',
-			u'should fail $<<<current_meds::%(product)s (%(substance)s): Dispense $<free_text::Dispense how many of %(product)s %(preparation)s (%(substance)s) ?::20>$ (%(preparation)s) \\n::should_fail->>>$ junk',
-			u'should fail $<<<current_meds::%(product)s (%(substance)s): Dispense $<free_text::Dispense how many of %(product)s %(preparation)s (%(substance)s) ?::20>$ (%(preparation)s) \\n::-should_fail>>>$ junk',
-			u'should fail $<<<current_meds::%(product)s (%(substance)s): Dispense $<free_text::Dispense how many of %(product)s %(preparation)s (%(substance)s) ?::20>$ (%(preparation)s) \\n::should_fail-4>>>$ junk',
-			u'should fail $<<<current_meds::%(product)s (%(substance)s): Dispense $<free_text::Dispense how many of %(product)s %(preparation)s (%(substance)s) ?::20>$ (%(preparation)s) \\n::3-should_fail>>>$ junk',
-			u'should fail $<<<current_meds::%(product)s (%(substance)s): Dispense $<free_text::Dispense how many of %(product)s %(preparation)s (%(substance)s) ?::20>$ (%(preparation)s) \\n::should_fail-should_fail>>>$ junk',
+			'should fail $<<<current_meds::%(product)s (%(substance)s): Dispense $<free_text::Dispense how many of %(product)s %(preparation)s (%(substance)s) ?::20>$ (%(preparation)s) \\n::->>>$ junk',
+			'should fail $<<<current_meds::%(product)s (%(substance)s): Dispense $<free_text::Dispense how many of %(product)s %(preparation)s (%(substance)s) ?::20>$ (%(preparation)s) \\n::3->>>$ junk',
+			'should fail $<<<current_meds::%(product)s (%(substance)s): Dispense $<free_text::Dispense how many of %(product)s %(preparation)s (%(substance)s) ?::20>$ (%(preparation)s) \\n::-4>>>$ should fail',
+			'should fail $<<<current_meds::%(product)s (%(substance)s): Dispense $<free_text::Dispense how many of %(product)s %(preparation)s (%(substance)s) ?::20>$ (%(preparation)s) \\n::should_fail>>>$ junk',
+			'should fail $<<<current_meds::%(product)s (%(substance)s): Dispense $<free_text::Dispense how many of %(product)s %(preparation)s (%(substance)s) ?::20>$ (%(preparation)s) \\n::should_fail->>>$ junk',
+			'should fail $<<<current_meds::%(product)s (%(substance)s): Dispense $<free_text::Dispense how many of %(product)s %(preparation)s (%(substance)s) ?::20>$ (%(preparation)s) \\n::-should_fail>>>$ junk',
+			'should fail $<<<current_meds::%(product)s (%(substance)s): Dispense $<free_text::Dispense how many of %(product)s %(preparation)s (%(substance)s) ?::20>$ (%(preparation)s) \\n::should_fail-4>>>$ junk',
+			'should fail $<<<current_meds::%(product)s (%(substance)s): Dispense $<free_text::Dispense how many of %(product)s %(preparation)s (%(substance)s) ?::20>$ (%(preparation)s) \\n::3-should_fail>>>$ junk',
+			'should fail $<<<current_meds::%(product)s (%(substance)s): Dispense $<free_text::Dispense how many of %(product)s %(preparation)s (%(substance)s) ?::20>$ (%(preparation)s) \\n::should_fail-should_fail>>>$ junk',
 		]
 
 		tests = [
-			u'junk $<<<should pass::template::>>>$ junk',
-			u'junk $<<<should pass::template::10>>>$ junk',
-			u'junk $<<<should pass::template::10-20>>>$ junk',
-			u'junk $<<<should pass::template $<<dummy::template 2::10>>$::>>>$ junk',
-			u'junk $<<<should pass::template $<dummy::template 2::10>$::>>>$ junk',
+			'junk $<<<should pass::template::>>>$ junk',
+			'junk $<<<should pass::template::10>>>$ junk',
+			'junk $<<<should pass::template::10-20>>>$ junk',
+			'junk $<<<should pass::template $<<dummy::template 2::10>>$::>>>$ junk',
+			'junk $<<<should pass::template $<dummy::template 2::10>$::>>>$ junk',
 
-			u'junk $<<<should pass::template::>>>$ junk $<<<should pass 2::template 2::>>>$ junk',
-			u'junk $<<<should pass::template::>>>$ junk $<<should pass 2::template 2::>>$ junk',
-			u'junk $<<<should pass::template::>>>$ junk $<should pass 2::template 2::>$ junk',
+			'junk $<<<should pass::template::>>>$ junk $<<<should pass 2::template 2::>>>$ junk',
+			'junk $<<<should pass::template::>>>$ junk $<<should pass 2::template 2::>>$ junk',
+			'junk $<<<should pass::template::>>>$ junk $<should pass 2::template 2::>$ junk',
 
-			u'junk $<<<should fail::template $<<<dummy::template 2::10>>>$::>>>$ junk',
+			'junk $<<<should fail::template $<<<dummy::template 2::10>>>$::>>>$ junk',
 
-			u'junk $<<<should fail::template::10->>>$ junk',
-			u'junk $<<<should fail::template::10->>>$ junk',
-			u'junk $<<<should fail::template::10->>>$ junk',
-			u'junk $<<<should fail::template::10->>>$ junk',
-			u'junk $<first_pass::junk $<<<3rd_pass::template::20>>>$ junk::8-10>$ junk'
+			'junk $<<<should fail::template::10->>>$ junk',
+			'junk $<<<should fail::template::10->>>$ junk',
+			'junk $<<<should fail::template::10->>>$ junk',
+			'junk $<<<should fail::template::10->>>$ junk',
+			'junk $<first_pass::junk $<<<3rd_pass::template::20>>>$ junk::8-10>$ junk'
 		]
 
 		#print "testing placeholder regex:", first_pass_placeholder_regex
@@ -3081,80 +3082,80 @@ if __name__ == '__main__':
 		all_tests = {
 			first_pass_placeholder_regex: [
 				# different lengths/regions
-				(u'junk $<first_level::template::>$ junk', [u'$<first_level::template::>$']),
-				(u'junk $<first_level::template::10>$ junk', [u'$<first_level::template::10>$']),
-				(u'junk $<first_level::template::10-12>$ junk', [u'$<first_level::template::10-12>$']),
+				('junk $<first_level::template::>$ junk', ['$<first_level::template::>$']),
+				('junk $<first_level::template::10>$ junk', ['$<first_level::template::10>$']),
+				('junk $<first_level::template::10-12>$ junk', ['$<first_level::template::10-12>$']),
 
 				# inside is other-level:
-				(u'junk $<first_level::$<<insert::insert_template::0>>$::10-12>$ junk', [u'$<first_level::$<<insert::insert_template::0>>$::10-12>$']),
-				(u'junk $<first_level::$<<<insert::insert_template::0>>>$::10-12>$ junk', [u'$<first_level::$<<<insert::insert_template::0>>>$::10-12>$']),
+				('junk $<first_level::$<<insert::insert_template::0>>$::10-12>$ junk', ['$<first_level::$<<insert::insert_template::0>>$::10-12>$']),
+				('junk $<first_level::$<<<insert::insert_template::0>>>$::10-12>$ junk', ['$<first_level::$<<<insert::insert_template::0>>>$::10-12>$']),
 
 				# outside is other-level:
-				(u'junk $<<second_level::$<insert::insert_template::0>$::10-12>>$ junk', [u'$<insert::insert_template::0>$']),
-				(u'junk $<<<third_level::$<insert::insert_template::0>$::10-12>>>$ junk', [u'$<insert::insert_template::0>$']),
+				('junk $<<second_level::$<insert::insert_template::0>$::10-12>>$ junk', ['$<insert::insert_template::0>$']),
+				('junk $<<<third_level::$<insert::insert_template::0>$::10-12>>>$ junk', ['$<insert::insert_template::0>$']),
 
 				# other level on same line
-				(u'junk $<first_level 1::template 1::>$ junk $<<second_level 2::template 2::>>$ junk', [u'$<first_level 1::template 1::>$']),
-				(u'junk $<first_level 1::template 1::>$ junk $<<<third_level 2::template 2::>>>$ junk', [u'$<first_level 1::template 1::>$']),
+				('junk $<first_level 1::template 1::>$ junk $<<second_level 2::template 2::>>$ junk', ['$<first_level 1::template 1::>$']),
+				('junk $<first_level 1::template 1::>$ junk $<<<third_level 2::template 2::>>>$ junk', ['$<first_level 1::template 1::>$']),
 
 				# this should produce 2 matches
-				(u'junk $<first_level 1::template 1::>$ junk $<first_level 2::template 2::>$ junk', [u'$<first_level 1::template 1::>$', u'$<first_level 2::template 2::>$']),
+				('junk $<first_level 1::template 1::>$ junk $<first_level 2::template 2::>$ junk', ['$<first_level 1::template 1::>$', '$<first_level 2::template 2::>$']),
 
 				# this will produce a mismatch, due to illegal nesting of same-level placeholders
-				(u'returns illegal match: junk $<first_level::$<insert::insert_template::0>$::10-12>$ junk', [u'$<first_level::$<insert::insert_template::0>$::10-12>$']),
+				('returns illegal match: junk $<first_level::$<insert::insert_template::0>$::10-12>$ junk', ['$<first_level::$<insert::insert_template::0>$::10-12>$']),
 			],
 			second_pass_placeholder_regex: [
 				# different lengths/regions
-				(u'junk $<<second_level::template::>>$ junk', [u'$<<second_level::template::>>$']),
-				(u'junk $<<second_level::template::10>>$ junk', [u'$<<second_level::template::10>>$']),
-				(u'junk $<<second_level::template::10-12>>$ junk', [u'$<<second_level::template::10-12>>$']),
+				('junk $<<second_level::template::>>$ junk', ['$<<second_level::template::>>$']),
+				('junk $<<second_level::template::10>>$ junk', ['$<<second_level::template::10>>$']),
+				('junk $<<second_level::template::10-12>>$ junk', ['$<<second_level::template::10-12>>$']),
 
 				# inside is other-level:
-				(u'junk $<<second_level::$<insert::insert_template::0>$::10-12>>$ junk', [u'$<<second_level::$<insert::insert_template::0>$::10-12>>$']),
-				(u'junk $<<second_level::$<<<insert::insert_template::0>>>$::10-12>>$ junk', [u'$<<second_level::$<<<insert::insert_template::0>>>$::10-12>>$']),
+				('junk $<<second_level::$<insert::insert_template::0>$::10-12>>$ junk', ['$<<second_level::$<insert::insert_template::0>$::10-12>>$']),
+				('junk $<<second_level::$<<<insert::insert_template::0>>>$::10-12>>$ junk', ['$<<second_level::$<<<insert::insert_template::0>>>$::10-12>>$']),
 
 				# outside is other-level:
-				(u'junk $<first_level::$<<insert::insert_template::0>>$::10-12>$ junk', [u'$<<insert::insert_template::0>>$']),
-				(u'junk $<<<third_level::$<<insert::insert_template::0>>$::10-12>>>$ junk', [u'$<<insert::insert_template::0>>$']),
+				('junk $<first_level::$<<insert::insert_template::0>>$::10-12>$ junk', ['$<<insert::insert_template::0>>$']),
+				('junk $<<<third_level::$<<insert::insert_template::0>>$::10-12>>>$ junk', ['$<<insert::insert_template::0>>$']),
 
 				# other level on same line
-				(u'junk $<first_level 1::template 1::>$ junk $<<second_level 2::template 2::>>$ junk', [u'$<<second_level 2::template 2::>>$']),
-				(u'junk $<<second_level 1::template 1::>>$ junk $<<<third_level 2::template 2::>>>$ junk', [u'$<<second_level 1::template 1::>>$']),
+				('junk $<first_level 1::template 1::>$ junk $<<second_level 2::template 2::>>$ junk', ['$<<second_level 2::template 2::>>$']),
+				('junk $<<second_level 1::template 1::>>$ junk $<<<third_level 2::template 2::>>>$ junk', ['$<<second_level 1::template 1::>>$']),
 
 				# this should produce 2 matches
-				(u'junk $<<second_level 1::template 1::>>$ junk $<<second_level 2::template 2::>>$ junk', [u'$<<second_level 1::template 1::>>$', u'$<<second_level 2::template 2::>>$']),
+				('junk $<<second_level 1::template 1::>>$ junk $<<second_level 2::template 2::>>$ junk', ['$<<second_level 1::template 1::>>$', '$<<second_level 2::template 2::>>$']),
 
 				# this will produce a mismatch, due to illegal nesting of same-level placeholders
-				(u'returns illegal match: junk $<<second_level::$<<insert::insert_template::0>>$::10-12>>$ junk', [u'$<<second_level::$<<insert::insert_template::0>>$::10-12>>$']),
+				('returns illegal match: junk $<<second_level::$<<insert::insert_template::0>>$::10-12>>$ junk', ['$<<second_level::$<<insert::insert_template::0>>$::10-12>>$']),
 
 			],
 			third_pass_placeholder_regex: [
 				# different lengths/regions
-				(u'junk $<<<third_level::template::>>>$ junk', [u'$<<<third_level::template::>>>$']),
-				(u'junk $<<<third_level::template::10>>>$ junk', [u'$<<<third_level::template::10>>>$']),
-				(u'junk $<<<third_level::template::10-12>>>$ junk', [u'$<<<third_level::template::10-12>>>$']),
+				('junk $<<<third_level::template::>>>$ junk', ['$<<<third_level::template::>>>$']),
+				('junk $<<<third_level::template::10>>>$ junk', ['$<<<third_level::template::10>>>$']),
+				('junk $<<<third_level::template::10-12>>>$ junk', ['$<<<third_level::template::10-12>>>$']),
 
 				# inside is other-level:
-				(u'junk $<<<third_level::$<<insert::insert_template::0>>$::10-12>>>$ junk', [u'$<<<third_level::$<<insert::insert_template::0>>$::10-12>>>$']),
-				(u'junk $<<<third_level::$<insert::insert_template::0>$::10-12>>>$ junk', [u'$<<<third_level::$<insert::insert_template::0>$::10-12>>>$']),
+				('junk $<<<third_level::$<<insert::insert_template::0>>$::10-12>>>$ junk', ['$<<<third_level::$<<insert::insert_template::0>>$::10-12>>>$']),
+				('junk $<<<third_level::$<insert::insert_template::0>$::10-12>>>$ junk', ['$<<<third_level::$<insert::insert_template::0>$::10-12>>>$']),
 
 				# outside is other-level:
-				(u'junk $<<second_level::$<<<insert::insert_template::0>>>$::10-12>>$ junk', [u'$<<<insert::insert_template::0>>>$']),
-				(u'junk $<first_level::$<<<insert::insert_template::0>>>$::10-12>$ junk', [u'$<<<insert::insert_template::0>>>$']),
+				('junk $<<second_level::$<<<insert::insert_template::0>>>$::10-12>>$ junk', ['$<<<insert::insert_template::0>>>$']),
+				('junk $<first_level::$<<<insert::insert_template::0>>>$::10-12>$ junk', ['$<<<insert::insert_template::0>>>$']),
 
 				# other level on same line
-				(u'junk $<first_level 1::template 1::>$ junk $<<<third_level 2::template 2::>>>$ junk', [u'$<<<third_level 2::template 2::>>>$']),
-				(u'junk $<<second_level 1::template 1::>>$ junk $<<<third_level 2::template 2::>>>$ junk', [u'$<<<third_level 2::template 2::>>>$']),
+				('junk $<first_level 1::template 1::>$ junk $<<<third_level 2::template 2::>>>$ junk', ['$<<<third_level 2::template 2::>>>$']),
+				('junk $<<second_level 1::template 1::>>$ junk $<<<third_level 2::template 2::>>>$ junk', ['$<<<third_level 2::template 2::>>>$']),
 
 				# this will produce a mismatch, due to illegal nesting of same-level placeholders
-				(u'returns illegal match: junk $<<<third_level::$<<<insert::insert_template::0>>>$::10-12>>>$ junk', [u'$<<<third_level::$<<<insert::insert_template::0>>>$::10-12>>>$']),
+				('returns illegal match: junk $<<<third_level::$<<<insert::insert_template::0>>>$::10-12>>>$ junk', ['$<<<third_level::$<<<insert::insert_template::0>>>$::10-12>>>$']),
 			]
 		}
 
 		for pattern in [first_pass_placeholder_regex, second_pass_placeholder_regex, third_pass_placeholder_regex]:
-			print ""
-			print "-----------------------------"
-			print "regex:", pattern
+			print("")
+			print("-----------------------------")
+			print("regex:", pattern)
 			tests = all_tests[pattern]
 			for t in tests:
 				line, expected_results = t
@@ -3163,25 +3164,25 @@ if __name__ == '__main__':
 					if phs == expected_results:
 						continue
 
-				print ""
-				print "failed"
-				print "line:", line
+				print("")
+				print("failed")
+				print("line:", line)
 
 				if len(phs) == 0:
-					print "no match"
+					print("no match")
 					continue
 
 				if len(phs) > 1:
-					print "several matches"
+					print("several matches")
 					for r in expected_results:
-						print "expected:", r
+						print("expected:", r)
 					for p in phs:
-						print "found:", p
+						print("found:", p)
 					continue
 
-				print "unexpected match"
-				print "expected:", expected_results
-				print "found:   ", phs
+				print("unexpected match")
+				print("expected:", expected_results)
+				print("found:   ", phs)
 
 	#--------------------------------------------------------
 	def test_placeholder():
@@ -3252,7 +3253,7 @@ if __name__ == '__main__':
 			#u'bill_adr_suburb::-> %s::1234',
 			#u'bill_adr_street::::1234',
 			#u'bill_adr_number::%s::1234',
-			u'$<diagnoses::\listitem %s::>$'
+			'$<diagnoses::\listitem %s::>$'
 		]
 
 		handler = gmPlaceholderHandler()
@@ -3268,9 +3269,9 @@ if __name__ == '__main__':
 		app = wx.PyWidgetTester(size = (200, 50))
 		#handler.set_placeholder('form_name_long', 'ein Testformular')
 		for ph in phs:
-			print ph
-			print " result:"
-			print '  %s' % handler[ph]
+			print(ph)
+			print(" result:")
+			print('  %s' % handler[ph])
 		#handler.unset_placeholder('form_name_long')
 
 	#--------------------------------------------------------

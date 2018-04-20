@@ -115,9 +115,9 @@ def connect_to_database(max_attempts=3, expected_version=None, require_version=T
 	"""
 	# force programmer to set a valid expected_version
 	expected_hash = gmPG2.known_schema_hashes[expected_version]
-	client_version = _cfg.get(option = u'client_version')
+	client_version = _cfg.get(option = 'client_version')
 	global current_db_name
-	current_db_name = u'gnumed_v%s' % expected_version
+	current_db_name = 'gnumed_v%s' % expected_version
 
 	attempt = 0
 
@@ -150,11 +150,11 @@ def connect_to_database(max_attempts=3, expected_version=None, require_version=T
 			conn = gmPG2.get_raw_connection(dsn = dsn, verbose = True, readonly = True)
 			connected = True
 
-		except gmPG2.cAuthenticationError, e:
+		except gmPG2.cAuthenticationError as e:
 			attempt += 1
-			_log.error(u"login attempt failed: %s", e)
+			_log.error("login attempt failed: %s", e)
 			if attempt < max_attempts:
-				if (u'host=127.0.0.1' in (u'%s' % e)) or (u'host=' not in (u'%s' % e)):
+				if ('host=127.0.0.1' in ('%s' % e)) or ('host=' not in ('%s' % e)):
 					msg = _(
 						'Unable to connect to database:\n\n'
 						'%s\n\n'
@@ -188,7 +188,7 @@ def connect_to_database(max_attempts=3, expected_version=None, require_version=T
 						'wiki.gnumed.de/bin/view/Gnumed/ConfigurePostgreSQL'
 					)
 				msg = msg % e
-				msg = regex.sub(r'password=[^\s]+', u'password=%s' % gmTools.u_replacement_character, msg)
+				msg = regex.sub(r'password=[^\s]+', 'password=%s' % gmTools.u_replacement_character, msg)
 				gmGuiHelpers.gm_show_error (
 					msg,
 					_('Connecting to backend')
@@ -196,9 +196,9 @@ def connect_to_database(max_attempts=3, expected_version=None, require_version=T
 			del e
 			continue
 
-		except gmPG2.dbapi.OperationalError, exc:
+		except gmPG2.dbapi.OperationalError as exc:
 			exc = gmPG2.make_pg_exception_fields_unicode(exc)
-			_log.error(u"login attempt failed: %s", exc)
+			_log.error("login attempt failed: %s", exc)
 			msg = _(
 				"Unable to connect to database:\n\n"
 				"%s\n\n"
@@ -210,7 +210,7 @@ def connect_to_database(max_attempts=3, expected_version=None, require_version=T
 				"\n"
 			) % exc.u_pgerror
 #			) % gmPG2.extract_msg_from_pg_exception(e)
-			msg = regex.sub(r'password=[^\s]+', u'password=%s' % gmTools.u_replacement_character, msg)
+			msg = regex.sub(r'password=[^\s]+', 'password=%s' % gmTools.u_replacement_character, msg)
 			gmGuiHelpers.gm_show_error (
 				msg,
 				_('Connecting to backend')
@@ -286,7 +286,7 @@ def connect_to_database(max_attempts=3, expected_version=None, require_version=T
 		gmExceptionHandlingWidgets.set_is_public_database(login.public_db)
 		gmExceptionHandlingWidgets.set_helpdesk(login.helpdesk)
 
-		conn = gmPG2.get_connection(verbose = True, connection_name = u'GNUmed-[DbListenerThread]', pooled = False)
+		conn = gmPG2.get_connection(verbose = True, connection_name = 'GNUmed-[DbListenerThread]', pooled = False)
 		listener = gmBackendListener.gmBackendListener(conn = conn)
 		break
 
@@ -295,7 +295,7 @@ def connect_to_database(max_attempts=3, expected_version=None, require_version=T
 	return connected
 
 #================================================================
-def get_dbowner_connection(procedure=None, dbo_password=None, dbo_account=u'gm-dbo'):
+def get_dbowner_connection(procedure=None, dbo_password=None, dbo_account='gm-dbo'):
 	if procedure is None:
 		procedure = _('<restricted procedure>')
 
@@ -341,7 +341,7 @@ Please enter the current password for <%s>:""") % (
 			aMessage = _('Cannot connect as the GNUmed database owner <%s>.') % dbo_account,
 			aTitle = procedure
 		)
-		gmPG2.log_database_access(action = u'failed to connect as database owner for [%s]' % procedure)
+		gmPG2.log_database_access(action = 'failed to connect as database owner for [%s]' % procedure)
 		return None
 
 	return conn
@@ -349,15 +349,15 @@ Please enter the current password for <%s>:""") % (
 #================================================================
 def change_gmdbowner_password():
 
-	title = _(u'Changing GNUmed database owner password')
+	title = _('Changing GNUmed database owner password')
 
 	dbo_account = wx.GetTextFromUser (
-		message = _(u"Enter the account name of the GNUmed database owner:"),
+		message = _("Enter the account name of the GNUmed database owner:"),
 		caption = title,
-		default_value = u''
+		default_value = ''
 	)
 
-	if dbo_account.strip() == u'':
+	if dbo_account.strip() == '':
 		return False
 
 	dbo_conn = get_dbowner_connection (
@@ -368,22 +368,22 @@ def change_gmdbowner_password():
 		return False
 
 	dbo_pwd_new_1 = wx.GetPasswordFromUser (
-		message = _(u"Enter the NEW password for the GNUmed database owner:"),
+		message = _("Enter the NEW password for the GNUmed database owner:"),
 		caption = title
 	)
-	if dbo_pwd_new_1.strip() == u'':
+	if dbo_pwd_new_1.strip() == '':
 		return False
 
 	gmLog2.add_word2hide(dbo_pwd_new_1)
 
 	dbo_pwd_new_2 = wx.GetPasswordFromUser (
-		message = _(u"""Enter the NEW password for the GNUmed database owner, again.
+		message = _("""Enter the NEW password for the GNUmed database owner, again.
 
 (This will protect you from typos.)
 		"""),
 		caption = title
 	)
-	if dbo_pwd_new_2.strip() == u'':
+	if dbo_pwd_new_2.strip() == '':
 		return False
 
 	if dbo_pwd_new_1 != dbo_pwd_new_2:
@@ -432,7 +432,7 @@ def change_gmdbowner_password():
 	"""
 
 	# this REALLY should be prefixed with md5 and the md5sum sent rather than the pwd
-	cmd = u"""ALTER ROLE "%s" ENCRYPTED PASSWORD '%s';""" % (
+	cmd = """ALTER ROLE "%s" ENCRYPTED PASSWORD '%s';""" % (
 		dbo_account,
 		dbo_pwd_new_2
 	)
@@ -448,7 +448,7 @@ class cBackendProfile:
 class cLoginDialog(wx.Dialog):
 	"""cLoginDialog - window holding cLoginPanel"""
 
-	def __init__(self, parent, id, title = _("Welcome to"), client_version = u'*** unknown ***'):
+	def __init__(self, parent, id, title = _("Welcome to"), client_version = '*** unknown ***'):
 		wx.Dialog.__init__(self, parent, id, title)
 		self.panel = cLoginPanel(self, -1, isDialog=1, client_version = client_version)
 		self.Fit() # needed for Windoze.
@@ -465,7 +465,7 @@ class cLoginPanel(wx.Panel):
 	"""
 	def __init__(self, parent, id,
 					pos = wx.DefaultPosition, size = wx.DefaultSize, style = wx.TAB_TRAVERSAL,
-					isDialog = 0, client_version = u'*** unknown ***'):
+					isDialog = 0, client_version = '*** unknown ***'):
 		"""Create login panel.
 
 		isDialog:	if this panel is the main panel of a dialog, the panel will
@@ -485,7 +485,7 @@ class cLoginPanel(wx.Panel):
 		self.topsizer = wx.BoxSizer(wx.VERTICAL)
 
 		# find bitmap
-		paths = gmTools.gmPaths(app_name = u'gnumed', wx = wx)
+		paths = gmTools.gmPaths(app_name = 'gnumed', wx = wx)
 		bitmap = os.path.join(paths.system_app_data_dir, 'bitmaps', 'gnumedlogo.png')
 		try:
 			png = wx.Image(bitmap, wx.BITMAP_TYPE_PNG).ConvertToBitmap()
@@ -533,10 +533,10 @@ class cLoginPanel(wx.Panel):
 		self._CBOX_profile = wx.ComboBox (
 			self,
 			-1,
-			self.__backend_profiles.keys()[0],
+			list(self.__backend_profiles.keys())[0],
 			wx.DefaultPosition,
 			size = wx.Size(550,-1),
-			choices = self.__backend_profiles.keys(),
+			choices = list(self.__backend_profiles.keys()),
 			style = wx.CB_READONLY
 		)
 		self.pboxgrid.Add (self._CBOX_profile, 0, wx.GROW|wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5)
@@ -571,7 +571,7 @@ class cLoginPanel(wx.Panel):
 		label.SetForegroundColour(wx.Colour(35, 35, 142))
 		self.pboxgrid.Add(label, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5)
 		self._CHBOX_debug = wx.CheckBox(self, -1, _('&Debug mode'))
-		self._CHBOX_debug.SetToolTipString(_('Check this to run GNUmed client in debugging mode.'))
+		self._CHBOX_debug.SetToolTip(_('Check this to run GNUmed client in debugging mode.'))
 		self.pboxgrid.Add(self._CHBOX_debug, 0, wx.GROW | wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
 
 		# --slave checkbox
@@ -579,7 +579,7 @@ class cLoginPanel(wx.Panel):
 		label.SetForegroundColour(wx.Colour(35, 35, 142))
 		self.pboxgrid.Add(label, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5)
 		self._CHBOX_slave = wx.CheckBox(self, -1, _('Enable &remote control'))
-		self._CHBOX_slave.SetToolTipString(_('Check this to run GNUmed client in slave mode for remote control.'))
+		self._CHBOX_slave.SetToolTip(_('Check this to run GNUmed client in slave mode for remote control.'))
 		self.pboxgrid.Add(self._CHBOX_slave, 0, wx.GROW | wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
 
 		#----------------------------------------------------------------------
@@ -596,7 +596,7 @@ class cLoginPanel(wx.Panel):
 		#----------------------------------------------------------------------
 		self.button_gridsizer = wx.GridSizer(1,3,0,0)
 		#---------------------
-		#3:create login ok button
+		#1:create login ok button
 		#---------------------
 		ID_BUTTON_LOGIN = wx.NewId()
 		button_login_ok = wx.Button(self, ID_BUTTON_LOGIN, _("&Ok"), wx.DefaultPosition, wx.DefaultSize, 0 )
@@ -604,13 +604,13 @@ class cLoginPanel(wx.Panel):
 		button_login_ok.SetDefault()
 
 		#---------------------
-		#3:create cancel button
+		#2:create cancel button
 		#---------------------
 		ID_BUTTON_CANCEL = wx.NewId()
 		button_cancel = wx.Button(self, ID_BUTTON_CANCEL, _("&Cancel"), wx.DefaultPosition, wx.DefaultSize, 0 )
 		button_cancel.SetToolTip(wx.ToolTip(_("Cancel Login.")) )
 		#---------------------
-		#2:create Help button
+		#3:create Help button
 		#---------------------
 		ID_BUTTON_HELP = wx.NewId()
 		button_help = wx.Button(self, ID_BUTTON_HELP, _("&Help"), wx.DefaultPosition, wx.DefaultSize, 0 )
@@ -634,9 +634,12 @@ class cLoginPanel(wx.Panel):
 		if self.isDialog:
 			self.topsizer.SetSizeHints(parent)
 
-		wx.EVT_BUTTON(self, ID_BUTTON_HELP, self.OnHelp)
-		wx.EVT_BUTTON(self, ID_BUTTON_LOGIN, self.__on_login_button_pressed)
-		wx.EVT_BUTTON(self, ID_BUTTON_CANCEL, self.OnCancel)
+		button_help.Bind(wx.EVT_BUTTON, self.OnHelp)
+		button_login_ok.Bind(wx.EVT_BUTTON, self.__on_login_button_pressed)
+		button_cancel.Bind(wx.EVT_BUTTON, self.OnCancel)
+		#wx.EVT_BUTTON(self, ID_BUTTON_HELP, self.OnHelp)
+		#wx.EVT_BUTTON(self, ID_BUTTON_LOGIN, self.__on_login_button_pressed)
+		#wx.EVT_BUTTON(self, ID_BUTTON_CANCEL, self.OnCancel)
 
 	#----------------------------------------------------------
 	# internal helper methods
@@ -645,12 +648,12 @@ class cLoginPanel(wx.Panel):
 
 		accounts = gmTools.coalesce (
 			_cfg.get (
-				group = u'backend',
-				option = u'logins',
+				group = 'backend',
+				option = 'logins',
 				source_order = [
-					(u'explicit', u'extend'),
-					(u'user', u'extend'),
-					(u'workbase', u'extend')
+					('explicit', 'extend'),
+					('user', 'extend'),
+					('workbase', 'extend')
 				]
 			),
 			['any-doc']
@@ -671,23 +674,23 @@ class cLoginPanel(wx.Panel):
 		"""
 		# find active profiles
 		src_order = [
-			(u'explicit', u'extend'),
-			(u'system', u'extend'),
-			(u'user', u'extend'),
-			(u'workbase', u'extend')
+			('explicit', 'extend'),
+			('system', 'extend'),
+			('user', 'extend'),
+			('workbase', 'extend')
 		]
 
 		profile_names = gmTools.coalesce (
-			_cfg.get(group = u'backend', option = u'profiles', source_order = src_order),
+			_cfg.get(group = 'backend', option = 'profiles', source_order = src_order),
 			[]
 		)
 
 		# find data for active profiles
 		src_order = [
-			(u'explicit', u'return'),
-			(u'workbase', u'return'),
-			(u'user', u'return'),
-			(u'system', u'return')
+			('explicit', 'return'),
+			('workbase', 'return'),
+			('user', 'return'),
+			('system', 'return')
 		]
 
 		profiles = {}
@@ -699,8 +702,8 @@ class cLoginPanel(wx.Panel):
 			profile_section = 'profile %s' % profile_name
 
 			profile.name = profile_name
-			profile.host = gmTools.coalesce(_cfg.get(profile_section, u'host', src_order), u'').strip()
-			port = gmTools.coalesce(_cfg.get(profile_section, u'port', src_order), 5432)
+			profile.host = gmTools.coalesce(_cfg.get(profile_section, 'host', src_order), '').strip()
+			port = gmTools.coalesce(_cfg.get(profile_section, 'port', src_order), 5432)
 			try:
 				profile.port = int(port)
 				if profile.port < 1024:
@@ -708,15 +711,15 @@ class cLoginPanel(wx.Panel):
 			except ValueError:
 				_log.warning('invalid port definition: [%s], skipping profile [%s]', port, profile_name)
 				continue
-			profile.database = gmTools.coalesce(_cfg.get(profile_section, u'database', src_order), u'').strip()
-			if profile.database == u'':
+			profile.database = gmTools.coalesce(_cfg.get(profile_section, 'database', src_order), '').strip()
+			if profile.database == '':
 				_log.warning('database name not specified, skipping profile [%s]', profile_name)
 				continue
-			profile.encoding = gmTools.coalesce(_cfg.get(profile_section, u'encoding', src_order), u'UTF8')
-			profile.public_db = bool(_cfg.get(profile_section, u'public/open access', src_order))
-			profile.helpdesk = _cfg.get(profile_section, u'help desk', src_order)
+			profile.encoding = gmTools.coalesce(_cfg.get(profile_section, 'encoding', src_order), 'UTF8')
+			profile.public_db = bool(_cfg.get(profile_section, 'public/open access', src_order))
+			profile.helpdesk = _cfg.get(profile_section, 'help desk', src_order)
 
-			label = u'%s (%s@%s)' % (profile_name, profile.database, profile.host)
+			label = '%s (%s@%s)' % (profile_name, profile.database, profile.host)
 			profiles[label] = profile
 
 		# sort out profiles with incompatible database versions if not --debug
@@ -730,38 +733,38 @@ class cLoginPanel(wx.Panel):
 				del profiles[label]
 
 		if len(profiles) == 0:
-			host = u'publicdb.gnumed.de'
-			label = u'public GNUmed database (%s@%s)' % (current_db_name, host)
+			host = 'publicdb.gnumed.de'
+			label = 'public GNUmed database (%s@%s)' % (current_db_name, host)
 			profiles[label] = cBackendProfile()
 			profiles[label].name = label
 			profiles[label].host = host
 			profiles[label].port = 5432
 			profiles[label].database = current_db_name
-			profiles[label].encoding = u'UTF8'
+			profiles[label].encoding = 'UTF8'
 			profiles[label].public_db = True
-			profiles[label].helpdesk = u'http://wiki.gnumed.de'
+			profiles[label].helpdesk = 'http://wiki.gnumed.de'
 
 		return profiles
 	#----------------------------------------------------------
 	def __load_state(self):
 
 		src_order = [
-			(u'explicit', u'return'),
-			(u'user', u'return'),
+			('explicit', 'return'),
+			('user', 'return'),
 		]
 
 		self._CBOX_user.SetValue (
 			gmTools.coalesce (
-				_cfg.get(u'preferences', u'login', src_order),
+				_cfg.get('preferences', 'login', src_order),
 				self.__previously_used_accounts[0]
 			)
 		)
 
-		last_used_profile_label = _cfg.get(u'preferences', u'profile', src_order)
+		last_used_profile_label = _cfg.get('preferences', 'profile', src_order)
 		if last_used_profile_label in self.__backend_profiles.keys():
 			self._CBOX_profile.SetValue(last_used_profile_label)
 		else:
-			self._CBOX_profile.SetValue(self.__backend_profiles.keys()[0])
+			self._CBOX_profile.SetValue(list(self.__backend_profiles.keys())[0])
 
 		self._CHBOX_debug.SetValue(_cfg.get(option = 'debug'))
 		self._CHBOX_slave.SetValue(_cfg.get(option = 'slave'))
@@ -769,7 +772,7 @@ class cLoginPanel(wx.Panel):
 	def save_state(self):
 		"""Save parameter settings to standard configuration file"""
 		prefs_name = _cfg.get(option = 'user_preferences_file')
-		_log.debug(u'saving login preferences in [%s]', prefs_name)
+		_log.debug('saving login preferences in [%s]', prefs_name)
 
 		gmCfg2.set_option_in_INI_file (
 			filename = prefs_name,
@@ -793,18 +796,17 @@ class cLoginPanel(wx.Panel):
 			return None
 
 		# FIXME: do not assume conf file is latin1 !
-		#profile = self.__backend_profiles[self._CBOX_profile.GetValue().encode('latin1').strip()]
-		profile = self.__backend_profiles[self._CBOX_profile.GetValue().encode('utf8').strip()]
-		_log.info(u'backend profile "%s" selected', profile.name)
-		_log.info(u' details: <%s> on %s@%s:%s (%s, %s)',
+		profile = self.__backend_profiles[self._CBOX_profile.GetValue().strip()]
+		_log.info('backend profile "%s" selected', profile.name)
+		_log.info(' details: <%s> on %s@%s:%s (%s, %s)',
 			self._CBOX_user.GetValue(),
 			profile.database,
 			profile.host,
 			profile.port,
 			profile.encoding,
-			gmTools.bool2subst(profile.public_db, u'public', u'private')
+			gmTools.bool2subst(profile.public_db, 'public', 'private')
 		)
-		_log.info(u' helpdesk: "%s"', profile.helpdesk)
+		_log.info(' helpdesk: "%s"', profile.helpdesk)
 		login = gmLoginInfo.LoginInfo (
 			user = self._CBOX_user.GetValue(),
 			password = self.pwdentry.GetValue(),
@@ -822,7 +824,7 @@ class cLoginPanel(wx.Panel):
 	def OnHelp(self, event):
 		praxis = gmPraxis.gmCurrentPraxisBranch()
 		wx.MessageBox(_(
-u"""Unable to connect to the database ?
+"""Unable to connect to the database ?
 
  "PostgreSQL: FATAL:  password authentication failed ..."
 
@@ -874,7 +876,7 @@ For local assistance please contact:
 			_log.info('slave mode disabled')
 			_cfg.set_option(option = 'slave', value = False)
 
-		self.backend_profile = self.__backend_profiles[self._CBOX_profile.GetValue().encode('latin1').strip()]
+		self.backend_profile = self.__backend_profiles[self._CBOX_profile.GetValue().strip()]
 #		self.user = self._CBOX_user.GetValue().strip()
 #		self.password = self.GetPassword()
 		self.cancelled = False

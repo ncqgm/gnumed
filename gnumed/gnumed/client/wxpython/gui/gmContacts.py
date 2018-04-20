@@ -122,18 +122,18 @@ class cContactsPanel(wx.wx.Panel):
 		#-------------------------------------------------------------
 		#loop through the scriptdata array and add to the list control
 		#note the different syntax for the first coloum of each row
-		#i.e. here > self.list_organisations.InsertStringItem(x, data[0])!!
+		#i.e. here > self.list_organisations.InsertItem(x, data[0])!!
 		#-------------------------------------------------------------
 		items = organisationsdata.items()
 		for x in range(len(items)):
 			key, data = items[x]
 			#print items[x]
 			#print x, data[0],data[1],data[2]
-			self.list_organisations.InsertStringItem(x, data[0])
-			self.list_organisations.SetStringItem(x, 1, data[1])
-			self.list_organisations.SetStringItem(x, 2, data[2])
-			self.list_organisations.SetStringItem(x, 3, data[3])
-			self.list_organisations.SetStringItem(x, 4, data[4])
+			self.list_organisations.InsertItem(x, data[0])
+			self.list_organisations.SetItem(x, 1, data[1])
+			self.list_organisations.SetItem(x, 2, data[2])
+			self.list_organisations.SetItem(x, 3, data[3])
+			self.list_organisations.SetItem(x, 4, data[4])
 		self.list_organisations.SetItemData(x, key)
 		self.list_organisations.SetColumnWidth(0, wx.wx.LIST_AUTOSIZE)
 		self.list_organisations.SetColumnWidth(1, wx.wx.LIST_AUTOSIZE)
@@ -190,7 +190,7 @@ class cContactsPanel(wx.wx.Panel):
 		self.txt_org_user1 = TextBox_BlackNormal(self,-1)
 		self.txt_org_user2 = TextBox_BlackNormal(self,-1)
 		self.txt_org_user3 = TextBox_BlackNormal(self,-1)
-#		self.txt_org_category = cPhraseWheel(parent = self, id = -1, aMatchProvider = OrgCategoryMP(), selection_only = 1, pos = wx.wxDefaultPosition, size= wx.wxDefaultSize)
+#		self.txt_org_category = cPhraseWheel(self, -1, aMatchProvider = OrgCategoryMP(), selection_only = 1, pos = wx.wxDefaultPosition, size= wx.wxDefaultSize)
 		#self.txt_pers_occupation = TextBox_BlackNormal(self,-1)
 		self.txt_org_phone = TextBox_BlackNormal(self,-1)
 		self.txt_org_fax = TextBox_BlackNormal(self,-1)
@@ -640,18 +640,18 @@ class cContactsPanel(wx.wx.Panel):
 	
 	
 	def _insert_org_data(self, n, key, data): 	  
-		self.list_organisations.InsertStringItem(n, data[0])
-		self.list_organisations.SetStringItem(n, 1, data[1])
-		self.list_organisations.SetStringItem(n, 2, data[2])
-		self.list_organisations.SetStringItem(n, 3, data[3])
-		self.list_organisations.SetStringItem(n, 4, data[4])
+		self.list_organisations.InsertItem(n, data[0])
+		self.list_organisations.SetItem(n, 1, data[1])
+		self.list_organisations.SetItem(n, 2, data[2])
+		self.list_organisations.SetItem(n, 3, data[3])
+		self.list_organisations.SetItem(n, 4, data[4])
 		self.list_organisations.SetItemData(n, key)
 	
 	
 	def _update_org_data( self, n, key, data):
 		l = self.list_organisations
 		for i in range(0, 4):
-			l.SetStringItem(i, data[i])
+			l.SetItem(i, data[i])
 		l.SetItemData(n, key)
 	
 

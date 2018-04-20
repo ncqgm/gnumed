@@ -11,12 +11,12 @@ from Gnumed.pycommon import gmLog2
 from Gnumed.pycommon import gmTools
 
 
-field_names = [u'substance', u'product', u'form', u'company', u'strength_1', u'strength_2', u'strength_3', u'always_empty', u'unit']
-non_empty_fields = [u'substance', u'product', u'form', u'company', u'strength_1', u'unit']
-numeric_fields = [u'strength_1', u'strength_2', u'strength_3']
+field_names = ['substance', 'product', 'form', 'company', 'strength_1', 'strength_2', 'strength_3', 'always_empty', 'unit']
+non_empty_fields = ['substance', 'product', 'form', 'company', 'strength_1', 'unit']
+numeric_fields = ['strength_1', 'strength_2', 'strength_3']
 
 
-SQL_start = u"""-- ---------------------------------------------------------
+SQL_start = """-- ---------------------------------------------------------
 -- data pack install script example
 --
 -- add a description here: Mono-substance drugs as available in India
@@ -53,7 +53,7 @@ CREATE TABLE staging.india_drugs (
 """
 
 
-SQL_stage_drug = u"""INSERT INTO staging.india_drugs (brand_name, substance, form, strength, unit) SELECT
+SQL_stage_drug = """INSERT INTO staging.india_drugs (brand_name, substance, form, strength, unit) SELECT
 	'%(brand_name)s',
 	'%(substance)s',
 	'%(form)s',
@@ -65,7 +65,7 @@ WHERE NOT EXISTS (
 """
 
 
-SQL_end = u"""-- ---------------------------------------------------------
+SQL_end = """-- ---------------------------------------------------------
 -- transfer data to real tables
 
 -- substances
@@ -152,7 +152,7 @@ COMMIT;
 #---------------------------------------------------------------------------------------------------
 def create_sql(filename):
 
-	csv_file = io.open(filename, mode = 'rt', encoding = u'utf8')
+	csv_file = io.open(filename, mode = 'rt', encoding = 'utf8')
 
 	csv_lines = gmTools.unicode_csv_reader (
 		csv_file,
@@ -172,12 +172,12 @@ def create_sql(filename):
 		# normalize field content
 		for field in field_names:
 			try:
-				line[field] = line[field].strip().strip(u';,').strip().replace(u"'", u"''")
+				line[field] = line[field].strip().strip(';,').strip().replace("'", "''")
 			except AttributeError:		# trailing fields are a list
 				pass
 		# verify required fields
 		for field in non_empty_fields:
-			if line[field] == u'':
+			if line[field] == '':
 				print "-- ignoring line: empty field [%s]" % field
 				print "--", line
 				print ""
@@ -188,7 +188,7 @@ def create_sql(filename):
 			continue
 		# verify numeric fields
 		for field in numeric_fields:
-			if line[field] == u'':
+			if line[field] == '':
 				continue
 			success, num_val = gmTools.input2decimal(initial = line[field])
 			if not success:
@@ -205,9 +205,9 @@ def create_sql(filename):
 		# actually create SQL
 		# loop over strengths
 		for field in numeric_fields:
-			if line[field] == u'':
+			if line[field] == '':
 				continue
-			line['brand_name'] = (u'%%(product)s %%(%s)s (%%(company)s)' % field) % line
+			line['brand_name'] = ('%%(product)s %%(%s)s (%%(company)s)' % field) % line
 			line['strength'] = line[field]
 			print SQL_stage_drug % line
 

@@ -51,7 +51,7 @@ class cMessageTypePhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
 
-		query = u"""
+		query = """
 			SELECT DISTINCT ON (label)
 				pk_type,
 				(l10n_type || ' (' || l10n_category || ')')
@@ -72,14 +72,14 @@ class cMessageTypePhraseWheel(gmPhraseWheel.cPhraseWheel):
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries = query)
 		mp.setThresholds(1, 2, 4)
 		self.matcher = mp
-		self.SetToolTipString(_('Select a message type.'))
+		self.SetToolTip(_('Select a message type.'))
 	#----------------------------------------------------------------
 	def _create_data(self):
 		if self.GetData() is not None:
 			return
 
 		val = self.GetValue().strip()
-		if val == u'':
+		if val == '':
 			return
 
 		self.SetText (
@@ -123,13 +123,13 @@ class cInboxMessageEAPnl(wxgInboxMessageEAPnl.wxgInboxMessageEAPnl, gmEditArea.c
 	def _valid_for_save(self):
 		validity = True
 
-		if self._TCTRL_subject.GetValue().strip() == u'':
+		if self._TCTRL_subject.GetValue().strip() == '':
 			validity = False
 			self.display_ctrl_as_valid(ctrl = self._TCTRL_subject, valid = False)
 		else:
 			self.display_ctrl_as_valid(ctrl = self._TCTRL_subject, valid = True)
 
-		if self._PRW_type.GetValue().strip() == u'':
+		if self._PRW_type.GetValue().strip() == '':
 			validity = False
 			self._PRW_type.display_as_valid(False)
 		else:
@@ -264,12 +264,12 @@ class cInboxMessageEAPnl(wxgInboxMessageEAPnl.wxgInboxMessageEAPnl, gmEditArea.c
 		return True
 	#----------------------------------------------------------------
 	def _refresh_as_new(self):
-		self._TCTRL_subject.SetValue(u'')
-		self._PRW_type.SetText(value = u'', data = None)
+		self._TCTRL_subject.SetValue('')
+		self._PRW_type.SetText(value = '', data = None)
 		self._CHBOX_send_to_me.SetValue(True)
 		self._PRW_receiver.Enable(False)
 		self._PRW_receiver.SetData(data = gmStaff.gmCurrentProvider()['pk_staff'])
-		self._TCTRL_message.SetValue(u'')
+		self._TCTRL_message.SetValue('')
 		self._PRW_due.SetText(data = None)
 		self._PRW_expiry.SetText(data = None)
 		self._RBTN_normal.SetValue(True)
@@ -294,7 +294,7 @@ class cInboxMessageEAPnl(wxgInboxMessageEAPnl.wxgInboxMessageEAPnl, gmEditArea.c
 	#----------------------------------------------------------------
 	def _refresh_from_existing(self):
 
-		self._TCTRL_subject.SetValue(gmTools.coalesce(self.data['comment'], u''))
+		self._TCTRL_subject.SetValue(gmTools.coalesce(self.data['comment'], ''))
 		self._PRW_type.SetData(data = self.data['pk_type'])
 
 		curr_prov = gmStaff.gmCurrentProvider()
@@ -309,7 +309,7 @@ class cInboxMessageEAPnl(wxgInboxMessageEAPnl.wxgInboxMessageEAPnl, gmEditArea.c
 			self._PRW_receiver.Enable(True)
 			self._PRW_receiver.SetData(data = self.data['pk_staff'])
 
-		self._TCTRL_message.SetValue(gmTools.coalesce(self.data['data'], u''))
+		self._TCTRL_message.SetValue(gmTools.coalesce(self.data['data'], ''))
 
 		if curr_pat.connected:
 			self._CHBOX_active_patient.Enable(True)
@@ -361,7 +361,7 @@ class cInboxMessageEAPnl(wxgInboxMessageEAPnl.wxgInboxMessageEAPnl, gmEditArea.c
 			self._PRW_receiver.SetData(data = gmStaff.gmCurrentProvider()['pk_staff'])
 		else:
 			self._PRW_receiver.Enable(True)
-			self._PRW_receiver.SetText(value = u'', data = None)
+			self._PRW_receiver.SetText(value = '', data = None)
 
 #============================================================
 def edit_inbox_message(parent=None, message=None, single_entry=True):
@@ -369,10 +369,10 @@ def edit_inbox_message(parent=None, message=None, single_entry=True):
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
 
-	ea = cInboxMessageEAPnl(parent = parent, id = -1)
+	ea = cInboxMessageEAPnl(parent, -1)
 	ea.data = message
 	ea.mode = gmTools.coalesce(message, 'new', 'edit')
-	dlg = gmEditArea.cGenericEditAreaDlg2(parent = parent, id = -1, edit_area = ea, single_entry = single_entry)
+	dlg = gmEditArea.cGenericEditAreaDlg2(parent, -1, edit_area = ea, single_entry = single_entry)
 	dlg.SetTitle(gmTools.coalesce(message, _('Adding new inbox message'), _('Editing inbox message')))
 	if dlg.ShowModal() == wx.ID_OK:
 		dlg.Destroy()
@@ -460,25 +460,25 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 	#--------------------------------------------------------
 	def filter_by_active_patient(self):
 		self._CHBOX_active_patient.SetValue(True)
-		self._TXT_inbox_item_comment.SetValue(u'')
+		self._TXT_inbox_item_comment.SetValue('')
 		self.__populate_inbox()
 	#--------------------------------------------------------
 	# internal helpers
 	#--------------------------------------------------------
 	def __register_interests(self):
-		gmDispatcher.connect(signal = u'dem.message_inbox_mod_db', receiver = self._on_message_inbox_mod_db)
+		gmDispatcher.connect(signal = 'dem.message_inbox_mod_db', receiver = self._on_message_inbox_mod_db)
 		# FIXME: listen for results insertion/deletion
-		gmDispatcher.connect(signal = u'clin.reviewed_test_results_mod_db', receiver = self._on_results_mod_db)
-		gmDispatcher.connect(signal = u'dem.identity_mod_db', receiver = self._on_identity_mod_db)
-		gmDispatcher.connect(signal = u'blobs.doc_med_mod_db', receiver = self._on_doc_mod_db)
-		gmDispatcher.connect(signal = u'blobs.reviewed_doc_objs_mod_db', receiver = self._on_doc_obj_review_mod_db)
-		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._on_post_patient_selection)
+		gmDispatcher.connect(signal = 'clin.reviewed_test_results_mod_db', receiver = self._on_results_mod_db)
+		gmDispatcher.connect(signal = 'dem.identity_mod_db', receiver = self._on_identity_mod_db)
+		gmDispatcher.connect(signal = 'blobs.doc_med_mod_db', receiver = self._on_doc_mod_db)
+		gmDispatcher.connect(signal = 'blobs.reviewed_doc_objs_mod_db', receiver = self._on_doc_obj_review_mod_db)
+		gmDispatcher.connect(signal = 'post_patient_selection', receiver = self._on_post_patient_selection)
 
 	#--------------------------------------------------------
 	def __init_ui(self):
 		self._LCTRL_provider_inbox.debug = 'provider inbox list'
 
-		self._LCTRL_provider_inbox.set_columns([u'', _('Generated'), _('Status'), _('Patient'), _('Message'), _('Category - Type')])
+		self._LCTRL_provider_inbox.set_columns(['', _('Generated'), _('Status'), _('Patient'), _('Message'), _('Category - Type')])
 		self._LCTRL_provider_inbox.searchable_columns = [2, 3, 4, 5]
 		self._LCTRL_provider_inbox.item_tooltip_callback = self._get_msg_tooltip
 		self._LCTRL_provider_inbox.extend_popup_menu_callback = self._extend_popup_menu
@@ -496,7 +496,7 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 				gmPerson.map_gender2salutation(self.provider['gender'])
 			),
 			self.provider['lastnames'],
-			gmTools.coalesce(no_of_messages, u'.', _(': %s message(s)'))
+			gmTools.coalesce(no_of_messages, '.', _(': %s message(s)'))
 		)
 		self._msg_welcome.SetLabel(msg)
 
@@ -545,7 +545,7 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 				overdue_only = True,
 				unscheduled_only = False,
 				exclude_unscheduled = True,
-				order_by = u'due_date, importance DESC, received_when DESC'
+				order_by = 'due_date, importance DESC, received_when DESC'
 			)
 		elif self._RBTN_scheduled_messages.GetValue():
 			_log.debug('loading scheduled messages only')
@@ -557,7 +557,7 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 				overdue_only = False,
 				unscheduled_only = False,
 				exclude_unscheduled = True,
-				order_by = u'due_date, importance DESC, received_when DESC'
+				order_by = 'due_date, importance DESC, received_when DESC'
 			)
 		elif self._RBTN_unscheduled_messages.GetValue():
 			_log.debug('loading unscheduled messages only')
@@ -580,7 +580,7 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 				overdue_only = False,
 				unscheduled_only = False,
 				exclude_unscheduled = True,
-				order_by = u'expiry_date DESC, importance DESC, received_when DESC'
+				order_by = 'expiry_date DESC, importance DESC, received_when DESC'
 			)
 
 		_log.debug('total # of inbox msgs: %s', len(self.__msgs))
@@ -588,14 +588,14 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 		items = []
 		for m in self.__msgs:
 			item = [_indicator[m['importance']]]
-			item.append(u'%s: %s%s%s' % (
+			item.append('%s: %s%s%s' % (
 				gmDateTime.pydt_strftime(m['received_when'], '%Y-%m-%d'),
 				m['modified_by'],
 				gmTools.u_arrow2right,
-				gmTools.coalesce(m['provider'], _(u'all'))
+				gmTools.coalesce(m['provider'], _('all'))
 			))
 			if m['due_date'] is None:
-				item.append(u'')
+				item.append('')
 			else:
 				if m['is_expired'] is True:
 					item.append(_('expired'))
@@ -606,24 +606,24 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 						item.append(_('due in %s') % gmDateTime.format_interval_medically(m['interval_due']))
 			#pat
 			if m['pk_patient'] is None:
-				item.append(u'')
+				item.append('')
 			else:
-				item.append(u'%s, %s%s %s #%s' % (
+				item.append('%s, %s%s %s #%s' % (
 					m['lastnames'],
 					m['firstnames'],
-					gmTools.coalesce(m['l10n_gender'], u'', u' (%s)'),
-					gmDateTime.pydt_strftime(m['dob'], u'%Y %b %d', none_str = u''),
+					gmTools.coalesce(m['l10n_gender'], '', ' (%s)'),
+					gmDateTime.pydt_strftime(m['dob'], '%Y %b %d', none_str = ''),
 					m['pk_patient']
 				))
 			item.append(m['comment'])
-			item.append(u'%s - %s' % (m['l10n_category'], m['l10n_type']))
+			item.append('%s - %s' % (m['l10n_category'], m['l10n_type']))
 			items.append(item)
 
 		_log.debug('# of list items created from msgs: %s', len(items))
 		self._LCTRL_provider_inbox.set_string_items(items = items)
 		self._LCTRL_provider_inbox.set_data(data = self.__msgs)
 		self._LCTRL_provider_inbox.set_column_widths()
-		self._TXT_inbox_item_comment.SetValue(u'')
+		self._TXT_inbox_item_comment.SetValue('')
 		self.__update_greeting(len(items))
 	#--------------------------------------------------------
 	# event handlers
@@ -647,7 +647,7 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 	def _on_message_inbox_mod_db(self, *args, **kwargs):
 		_log.debug('message_inbox_mod_db')
 		self._schedule_data_reget()
-		gmDispatcher.send(signal = u'request_user_attention', msg = _('Please check your GNUmed Inbox !'))
+		gmDispatcher.send(signal = 'request_user_attention', msg = _('Please check your GNUmed Inbox !'))
 	#--------------------------------------------------------
 	def _on_post_patient_selection(self):
 		_log.debug('post_patient_selection')
@@ -728,23 +728,22 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 
 #		if self.__focussed_msg['pk_staff'] is not None:
 #			# - distribute to other providers
-#			ID = wx.NewId()
-#			menu.AppendItem(wx.MenuItem(menu, ID, _('Distribute')))
-#			wx.EVT_MENU(menu, ID, self._on_distribute_focussed_msg)
+#			item = menu.AppendItem(wx.MenuItem(menu, ID, _('Distribute')))
+#			self.Bind(wx.EVT_MENU(menu, self._on_distribute_focussed_msg, item)
 
 	#--------------------------------------------------------
 	def _on_message_range_radiobutton_selected(self, event):
-		self._TXT_inbox_item_comment.SetValue(u'')
+		self._TXT_inbox_item_comment.SetValue('')
 		_log.debug('_on_message_range_radiobutton_selected')
 		self.__populate_inbox()
 	#--------------------------------------------------------
 	def _on_active_patient_checkbox_ticked(self, event):
-		self._TXT_inbox_item_comment.SetValue(u'')
+		self._TXT_inbox_item_comment.SetValue('')
 		_log.debug('_on_active_patient_checkbox_ticked')
 		self.__populate_inbox()
 	#--------------------------------------------------------
 	def _on_active_provider_checkbox_ticked(self, event):
-		self._TXT_inbox_item_comment.SetValue(u'')
+		self._TXT_inbox_item_comment.SetValue('')
 		_log.debug('_on_active_provider_checkbox_ticked')
 		self.__populate_inbox()
 	#--------------------------------------------------------
@@ -774,8 +773,8 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 			emr = gmClinicalRecord.cClinicalRecord(aPKey = pk_patient)
 			epi = emr.add_episode(episode_name = 'administrative', is_open = False)
 			soap_cat = gmTools.bool2subst (
-				(self.__focussed_msg['category'] == u'clinical'),
-				u'u',
+				(self.__focussed_msg['category'] == 'clinical'),
+				'u',
 				None
 			)
 			narr = _('Deleted inbox message:\n%s') % self.__focussed_msg.format(with_patient = False)
@@ -799,7 +798,7 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 		if self.__focussed_msg['pk_staff'] is None:
 			gmDispatcher.send(signal = 'statustext', msg = _('This message is already visible to all providers.'))
 			return False
-		print "now distributing"
+		print("now distributing")
 		return True
 	#--------------------------------------------------------
 	def _goto_patient(self, pk_context=None, pk_patient=None):

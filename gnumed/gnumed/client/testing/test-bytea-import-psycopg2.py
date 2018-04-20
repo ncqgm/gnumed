@@ -16,7 +16,7 @@ encodings = 'win1250 win1252 latin1 iso-8859-15 sql_ascii latin9'.split()
 
 log = io.open('test-bytea-import-psycopg2.log', mode = 'wt', encoding = 'utf8')
 
-log.write(u'running on:\n')
+log.write('running on:\n')
 log.write(sys.version + '\n')
 log.write(sys.platform + '\n')
 conn = dbapi.connect(dsn=dsn + '\n')
@@ -24,35 +24,35 @@ conn = dbapi.connect(dsn=dsn + '\n')
 conn.close()
 del conn
 
-log.write(u'importing: [%s]' % fname + '\n')
+log.write('importing: [%s]' % fname + '\n')
 
 for encoding in encodings:
 
 	print "encoding:", encoding
 
-	log.write(u"----------------------------------------------" + '\n')
-	log.write(u"testing encoding: [%s]" % encoding + '\n')
+	log.write("----------------------------------------------" + '\n')
+	log.write("testing encoding: [%s]" % encoding + '\n')
 
-	log.write(u"Python string encoding [%s]" % sys.getdefaultencoding() + '\n')
+	log.write("Python string encoding [%s]" % sys.getdefaultencoding() + '\n')
 
 	# reading file
-	log.write(u"os.path.getsize(%s): [%s]" % (fname, os.path.getsize(fname)) + '\n')
-	f = file(fname, "rb")
+	log.write("os.path.getsize(%s): [%s]" % (fname, os.path.getsize(fname)) + '\n')
+	f = open(fname, "rb")
 	img_data = f.read()
 	f.close()
-	log.write(u"type(img_data): [%s]" % type(img_data) + '\n')
-	log.write(u"len(img_data) : [%s]" % len(img_data) + '\n')
+	log.write("type(img_data): [%s]" % type(img_data) + '\n')
+	log.write("len(img_data) : [%s]" % len(img_data) + '\n')
 	img_obj = dbapi.Binary(img_data)
 	del(img_data)
-	log.write(u"len(img_obj) : [%s]" % len(str(img_obj)) + '\n')
-	log.write(u"type(img_obj): [%s]" % type(img_obj) + '\n')
+	log.write("len(img_obj) : [%s]" % len(str(img_obj)) + '\n')
+	log.write("type(img_obj): [%s]" % type(img_obj) + '\n')
 
 	conn = dbapi.connect(dsn=dsn)
 	# setting connection level client encoding
 	try:
 		conn.set_client_encoding(encoding)
 	except:
-		log.write(u"cannot set encoding [%s] on connection" % encoding + '\n')
+		log.write("cannot set encoding [%s] on connection" % encoding + '\n')
 
 	curs = conn.cursor()
 
@@ -64,18 +64,18 @@ for encoding in encodings:
 		curs.execute(cmd, (img_obj, ))
 		cmd = "select octet_length(data) from test"
 		curs.execute(cmd)
-		log.write(u"INSERTed octet_length(test.data): [%s]" % curs.fetchall()[0][0] + '\n')
+		log.write("INSERTed octet_length(test.data): [%s]" % curs.fetchall()[0][0] + '\n')
 		cmd = "update test set data=%s"
 		curs.execute(cmd, (img_obj, ))
 		cmd = "select octet_length(data) from test"
 		curs.execute(cmd)
-		log.write(u"UPDATEd octet_length(test.data): [%s]" % curs.fetchall()[0][0] + '\n')
+		log.write("UPDATEd octet_length(test.data): [%s]" % curs.fetchall()[0][0] + '\n')
 		cmd = "select data from test"
 		curs.execute(cmd)
 		rows = curs.fetchone()
-		log.write(u"len(SELECT)  : [%s]" % len(str(rows[0])) + '\n')
+		log.write("len(SELECT)  : [%s]" % len(str(rows[0])) + '\n')
 	except:
-		log.write(u'cannot test encoding [%s]' % encoding + '\n')
+		log.write('cannot test encoding [%s]' % encoding + '\n')
 		t, v, tb = sys.exc_info()
 		log.write(str(t) + '\n')
 		log.write(str(v) + '\n')

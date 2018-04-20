@@ -1534,9 +1534,7 @@ def process_patient_documents(ur_no, pat_id):
 			continue
 
 		elif len(pks) > 1:
-			
 			print "*" * 50, " WARNING: doc object ", page_no, ext_ref, " has  ",len(pks), " copies. ADDITIONAL COPIES DELETED. "
-			
 			stmt  = "delete from blobs.doc_obj where pk in  (%s) " % ",".join([str(x[0]) for x in pks[1:] ] )
 			print stmt
 			cu2.execute(stmt)
@@ -1545,13 +1543,11 @@ def process_patient_documents(ur_no, pat_id):
 
 		elif len(pks) == 0:		
 			text = importer.get_doc_content( file_no, rec_no)
-			
 			if not text:
 				print "*" * 50, " NO document contents found for ", ext_ref, page_no
 				continue
 
 			"""assume text is base64 encoded. check after decoding if not zipped, then unzip."""
-					
 			decoded = base64.decodestring( text) 
 
 			try:
@@ -1559,7 +1555,6 @@ def process_patient_documents(ur_no, pat_id):
 				z = zipfile.ZipFile(s, 'r' )
 				x = z.read( z.namelist()[0])
 				decoded = x
-			
 			except:
 				"""not a zipfile"""
 				pass
@@ -1724,7 +1719,7 @@ def update_patcount(cu):
 
 def transfer_patients(startref = None):
 
-		log_processed = file("processed.txt","w")
+		log_processed = open("processed.txt","w")
 
 		started = startref == None
 		rr = importer.get_next_demographics()
@@ -1864,7 +1859,7 @@ if __name__== "__main__":
 		transfer_drs()
 		
 		#while 1:	
-		#	dr_id = raw_input('press enter to continue, or enter a dr_id')
+		#	dr_id = input('press enter to continue, or enter a dr_id')
 		#	print get_dr_user(dr_id)
 		#	if dr_id == '':
 		#		break
@@ -1881,7 +1876,7 @@ if __name__== "__main__":
 		print
 		print
 		if conto:
-			y = raw_input("COMMIT CHANGES TO TARGET DATABASE ? ")
+			y = input("COMMIT CHANGES TO TARGET DATABASE ? ")
 			y = y.strip().lower()
 			if y == 'y':
 				conto.commit()

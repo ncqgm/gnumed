@@ -66,7 +66,7 @@ def manage_hospital_stays(parent=None):
 		if gmEMRStructItems.delete_hospital_stay(stay = stay['pk_hospital_stay']):
 			return True
 		gmDispatcher.send (
-			signal = u'statustext',
+			signal = 'statustext',
 			msg = _('Cannot delete hospitalization.'),
 			beep = True
 		)
@@ -78,9 +78,9 @@ def manage_hospital_stays(parent=None):
 		items = [
 			[
 				s['admission'].strftime('%Y-%m-%d'),
-				gmTools.coalesce(s['discharge'], u'', function_initial = ('strftime', '%Y-%m-%d')),
+				gmTools.coalesce(s['discharge'], '', function_initial = ('strftime', '%Y-%m-%d')),
 				s['episode'],
-				u'%s @ %s' % (s['ward'], s['hospital'])
+				'%s @ %s' % (s['ward'], s['hospital'])
 			] for s in stays
 		]
 		lctrl.set_string_items(items = items)
@@ -101,10 +101,10 @@ def manage_hospital_stays(parent=None):
 
 #----------------------------------------------------------------
 def edit_hospital_stay(parent=None, hospital_stay=None):
-	ea = cHospitalStayEditAreaPnl(parent = parent, id = -1)
+	ea = cHospitalStayEditAreaPnl(parent, -1)
 	ea.data = hospital_stay
 	ea.mode = gmTools.coalesce(hospital_stay, 'new', 'edit')
-	dlg = gmEditArea.cGenericEditAreaDlg2(parent = parent, id = -1, edit_area = ea, single_entry = True)
+	dlg = gmEditArea.cGenericEditAreaDlg2(parent, -1, edit_area = ea, single_entry = True)
 	dlg.SetTitle(gmTools.coalesce(hospital_stay, _('Adding a hospitalization'), _('Editing a hospitalization')))
 	if dlg.ShowModal() == wx.ID_OK:
 		dlg.Destroy()
@@ -119,7 +119,7 @@ class cHospitalWardPhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 		gmPhraseWheel.cPhraseWheel.__init__ (self, *args, **kwargs)
 
-		query = u"""
+		query = """
 		SELECT data, list_label, field_label FROM (
 			SELECT DISTINCT ON (data) * FROM ((
 
@@ -228,11 +228,11 @@ class cHospitalStayPhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 		gmPhraseWheel.cPhraseWheel.__init__ (self, *args, **kwargs)
 
-		ctxt = {'ctxt_pat': {'where_part': u'(pk_patient = %(pat)s) AND', 'placeholder': u'pat'}}
+		ctxt = {'ctxt_pat': {'where_part': '(pk_patient = %(pat)s) AND', 'placeholder': 'pat'}}
 
 		mp = gmMatchProvider.cMatchProvider_SQL2 (
 			queries = [
-u"""
+"""
 SELECT
 	pk_hospital_stay,
 	descr
@@ -290,7 +290,7 @@ class cHospitalStayEditAreaPnl(wxgHospitalStayEditAreaPnl.wxgHospitalStayEditAre
 
 		valid = True
 
-		if self._PRW_episode.GetValue().strip() == u'':
+		if self._PRW_episode.GetValue().strip() == '':
 			valid = False
 			self._PRW_episode.display_as_valid(False)
 			gmDispatcher.send(signal = 'statustext', msg = _('Must select an episode or enter a name for a new one. Cannot save hospitalization.'), beep = True)
@@ -357,27 +357,27 @@ class cHospitalStayEditAreaPnl(wxgHospitalStayEditAreaPnl.wxgHospitalStayEditAre
 		return True
 	#----------------------------------------------------------------
 	def _refresh_as_new(self):
-		self._PRW_hospital.SetText(value = u'', data = None)
-		self._PRW_episode.SetText(value = u'')
+		self._PRW_hospital.SetText(value = '', data = None)
+		self._PRW_episode.SetText(value = '')
 		self._PRW_admission.SetText(data = gmDateTime.pydt_now_here())
 		self._PRW_discharge.SetText()
-		self._TCTRL_comment.SetValue(u'')
+		self._TCTRL_comment.SetValue('')
 		self._PRW_hospital.SetFocus()
 	#----------------------------------------------------------------
 	def _refresh_from_existing(self):
-		self._PRW_hospital.SetText(value = u'%s @ %s' % (self.data['ward'], self.data['hospital']), data = self.data['pk_org_unit'])
+		self._PRW_hospital.SetText(value = '%s @ %s' % (self.data['ward'], self.data['hospital']), data = self.data['pk_org_unit'])
 
 		if self.data['pk_episode'] is not None:
 			self._PRW_episode.SetText(value = self.data['episode'], data = self.data['pk_episode'])
 
 		self._PRW_admission.SetText(data = self.data['admission'])
 		self._PRW_discharge.SetText(data = self.data['discharge'])
-		self._TCTRL_comment.SetValue(gmTools.coalesce(self.data['comment'], u''))
+		self._TCTRL_comment.SetValue(gmTools.coalesce(self.data['comment'], ''))
 
 		self._PRW_hospital.SetFocus()
 	#----------------------------------------------------------------
 	def _refresh_as_new_from_existing(self):
-		print "this was not expected to be used in this edit area"
+		print("this was not expected to be used in this edit area")
 
 #================================================================
 # main
@@ -397,7 +397,7 @@ if __name__ == '__main__':
 	# obtain patient
 	pat = gmPersonSearch.ask_for_patient()
 	if pat is None:
-		print "No patient. Exiting gracefully..."
+		print("No patient. Exiting gracefully...")
 		sys.exit(0)
 	gmPatSearchWidgets.set_active_patient(patient=pat)
 

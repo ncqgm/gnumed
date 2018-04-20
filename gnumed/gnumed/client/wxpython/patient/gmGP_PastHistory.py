@@ -122,7 +122,7 @@ class PastHistoryPanel(wxPanel, PatientHolder):
 		#-------------------------------------------------------------------------
 		#loop through the significanthistorydata array and add to the list control
 		#note the different syntax for the first coloum of each row
-		#i.e. here > self.significant_problem_list.InsertStringItem(x, data[0])!!
+		#i.e. here > self.significant_problem_list.InsertItem(x, data[0])!!
 		#--------------------------------------------------------------------------
 		#self.significant_mapper = gmListCtrlMapper(self.significant_problem_list)
 		#self.significant_mapper.SetData( significanthistorydata)
@@ -131,8 +131,8 @@ class PastHistoryPanel(wxPanel, PatientHolder):
 		#for x in range(len(items)):
 		#	key, data = items[x]
 		#	gmLog.gmDefLog.Log (gmLog.lData, items[x])
-		#	self.significant_problem_list.InsertStringItem(x, data[0])
-		#	self.significant_problem_list.SetStringItem(x, 1, data[1])
+		#	self.significant_problem_list.InsertItem(x, data[0])
+		#	self.significant_problem_list.SetItem(x, 1, data[1])
 		#	self.significant_problem_list.SetItemData(x, key)
 		#	self.significant_problem_list.SetColumnWidth(0, wxLIST_AUTOSIZE)
 		#self.significant_problem_list.SetColumnWidth(1, wxLIST_AUTOSIZE)
@@ -145,7 +145,7 @@ class PastHistoryPanel(wxPanel, PatientHolder):
 		#-------------------------------------------------------------
 		#loop through the activehistorydata array and add to the list control
 		#note the different syntax for the first coloum of each row
-		#i.e. here > self.significant_problem_list.InsertStringItem(x, data[0])!!
+		#i.e. here > self.significant_problem_list.InsertItem(x, data[0])!!
 		#-------------------------------------------------------------
 		#self.active_mapper = gmListCtrlMapper(self.active_problem_list)
 		#self.active_mapper.SetData( activehistorydata)
@@ -155,8 +155,8 @@ class PastHistoryPanel(wxPanel, PatientHolder):
 		#for x in range(len(items)):
 		#	key, data = items[x]
 		#	gmLog.gmDefLog.Log (gmLog.lData, items[x])
-		#	self.active_problem_list.InsertStringItem(x, data[0])
-		#	self.active_problem_list.SetStringItem(x, 1, data[1])
+		#	self.active_problem_list.InsertItem(x, data[0])
+		#	self.active_problem_list.SetItem(x, 1, data[1])
 		#	self.active_problem_list.SetItemData(x, key)
 		#self.active_problem_list.SetColumnWidth(0, wxLIST_AUTOSIZE)
 		#self.active_problem_list.SetColumnWidth(1, wxLIST_AUTOSIZE)
@@ -187,7 +187,7 @@ class PastHistoryPanel(wxPanel, PatientHolder):
 		self.SetAutoLayout(True)
 		self.Show(True)
 
-		gmDispatcher.connect(self._updateUI,  u'clin_history_updated')
+		gmDispatcher.connect(self._updateUI,  'clin_history_updated')
 	
 		self.significant_problem_list.addItemListener( self._significantPastItemSelected)	
 

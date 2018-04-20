@@ -34,7 +34,7 @@ class cProviderPhraseWheel(gmPhraseWheel.cPhraseWheel):
 			**kwargs
 		)
 		self.matcher = gmPerson.cMatchProvider_Provider()
-		self.SetToolTipString(_('Select a healthcare provider.'))
+		self.SetToolTip(_('Select a healthcare provider.'))
 		self.selection_only = True
 
 #==========================================================================
@@ -53,7 +53,7 @@ class cUserRolePRW(gmPhraseWheel.cPhraseWheel):
 		mp.setThresholds(1, 2, 3)
 		mp.word_separators = None
 		#mp.ignored_chars = r"[.'\\(){}\[\]<>~#*$%^_=&@\t0123456789]+" + r'"'
-		#self.SetToolTipString(_('The preparation (form) of the substance or drug.'))
+		#self.SetToolTip(_('The preparation (form) of the substance or drug.'))
 		self.matcher = mp
 		self.selection_only = True
 
@@ -84,31 +84,31 @@ class cEditStaffListDlg(wxgEditStaffListDlg.wxgEditStaffListDlg):
 		staff_list = gmStaff.get_staff_list()
 		pos = len(staff_list) + 1
 		for staff in staff_list:
-			row_num = self._LCTRL_staff.InsertStringItem(pos, label=staff['short_alias'])
-			self._LCTRL_staff.SetStringItem(index = row_num, col = 1, label = staff['db_user'])
-			self._LCTRL_staff.SetStringItem(index = row_num, col = 2, label = staff['l10n_role'])
+			row_num = self._LCTRL_staff.InsertItem(pos, label=staff['short_alias'])
+			self._LCTRL_staff.SetItem(index = row_num, column = 1, label = staff['db_user'])
+			self._LCTRL_staff.SetItem(index = row_num, column = 2, label = staff['l10n_role'])
 			title = gmTools.coalesce(staff['title'], '')
-			self._LCTRL_staff.SetStringItem(index = row_num, col = 3, label = '%s %s, %s' % (title, staff['lastnames'], staff['firstnames']))
-			self._LCTRL_staff.SetStringItem(index = row_num, col = 4, label = gmTools.coalesce(staff['comment'], ''))
-			self._LCTRL_staff.SetStringItem(index = row_num, col = 5, label = '%s / %s' % (lbl_active[bool(staff['is_active'])], lbl_login[bool(staff['can_login'])]))
+			self._LCTRL_staff.SetItem(index = row_num, column = 3, label = '%s %s, %s' % (title, staff['lastnames'], staff['firstnames']))
+			self._LCTRL_staff.SetItem(index = row_num, column = 4, label = gmTools.coalesce(staff['comment'], ''))
+			self._LCTRL_staff.SetItem(index = row_num, column = 5, label = '%s / %s' % (lbl_active[bool(staff['is_active'])], lbl_login[bool(staff['can_login'])]))
 			# color
 			if staff['is_active'] and staff['can_login']:
-				#self._LCTRL_staff.SetItemTextColour(row_num, col=wx.NamedColour('BLUE'))
+				#self._LCTRL_staff.SetItemTextColour(row_num, col=wx.Colour('BLUE'))
 				pass
 			elif not staff['is_active'] and not staff['can_login']:
 				self._LCTRL_staff.SetItemTextColour(row_num, col=wx.LIGHT_GREY)
 			else:
-				self._LCTRL_staff.SetItemTextColour(row_num, col=wx.NamedColour('RED'))
+				self._LCTRL_staff.SetItemTextColour(row_num, col=wx.Colour('RED'))
 			# data
 			self._LCTRL_staff.SetItemData(item = row_num, data = staff['pk_staff'])
 
 		if len(staff_list) > 0:
-			self._LCTRL_staff.SetColumnWidth(col=0, width=wx.LIST_AUTOSIZE)
-			self._LCTRL_staff.SetColumnWidth(col=1, width=wx.LIST_AUTOSIZE_USEHEADER)
-			self._LCTRL_staff.SetColumnWidth(col=2, width=wx.LIST_AUTOSIZE)
-			self._LCTRL_staff.SetColumnWidth(col=3, width=wx.LIST_AUTOSIZE)
-			self._LCTRL_staff.SetColumnWidth(col=4, width=wx.LIST_AUTOSIZE)
-			self._LCTRL_staff.SetColumnWidth(col=5, width=wx.LIST_AUTOSIZE)
+			self._LCTRL_staff.SetColumnWidth(0, wx.LIST_AUTOSIZE)
+			self._LCTRL_staff.SetColumnWidth(1, wx.LIST_AUTOSIZE_USEHEADER)
+			self._LCTRL_staff.SetColumnWidth(2, wx.LIST_AUTOSIZE)
+			self._LCTRL_staff.SetColumnWidth(3, wx.LIST_AUTOSIZE)
+			self._LCTRL_staff.SetColumnWidth(4, wx.LIST_AUTOSIZE)
+			self._LCTRL_staff.SetColumnWidth(5, wx.LIST_AUTOSIZE)
 
 		# disable buttons
 		self._btn_save.Enable(False)
@@ -119,7 +119,7 @@ class cEditStaffListDlg(wxgEditStaffListDlg.wxgEditStaffListDlg):
 		self._TCTRL_name.SetValue('')
 		self._TCTRL_alias.SetValue('')
 		self._TCTRL_account.SetValue('')
-		self._PRW_user_role.SetText(value = u'', data = None)
+		self._PRW_user_role.SetText(value = '', data = None)
 		self._TCTRL_comment.SetValue('')
 	#--------------------------------------------------------
 	# event handlers
@@ -147,7 +147,7 @@ class cEditStaffListDlg(wxgEditStaffListDlg.wxgEditStaffListDlg):
 		self._TCTRL_name.SetValue('')
 		self._TCTRL_alias.SetValue('')
 		self._TCTRL_account.SetValue('')
-		self._PRW_user_role.SetText(value = u'', data = None)
+		self._PRW_user_role.SetText(value = '', data = None)
 		self._TCTRL_comment.SetValue('')
 	#--------------------------------------------------------
 	def _on_activate_button_pressed(self, evt):
@@ -252,7 +252,7 @@ class cAddPatientAsStaffDlg(wxgAddPatientAsStaffDlg.wxgAddPatientAsStaffDlg):
 			self._TXT_password_again.SetValue('')
 			return False
 
-		if self._TXT_password.GetValue().strip() == u'':
+		if self._TXT_password.GetValue().strip() == '':
 			really_wants_empty_password = gmGuiHelpers.gm_show_question (
 				aMessage = _(
 					'Are you positively sure you want to create\n'
@@ -268,7 +268,7 @@ class cAddPatientAsStaffDlg(wxgAddPatientAsStaffDlg.wxgAddPatientAsStaffDlg):
 		# connect as "gm-dbo"
 		conn = gmAuthWidgets.get_dbowner_connection (
 			procedure = _('Enlisting person as user.'),
-			dbo_password = gmTools.none_if(self._TXT_dbo_password.GetValue(), u'')
+			dbo_password = gmTools.none_if(self._TXT_dbo_password.GetValue(), '')
 		)
 		if conn is None:
 			return False

@@ -21,7 +21,7 @@ __license__ = "GPL v2 or later"
 import sys
 import types
 import logging
-import thread
+import threading
 import time
 import locale
 import os
@@ -436,7 +436,7 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 		self.__left_extra_button_callback = callback
 		self.__left_extra_button_wants_list = wants_list
 		self._BTN_extra_left.SetLabel(label)
-		self._BTN_extra_left.SetToolTipString(tooltip)
+		self._BTN_extra_left.SetToolTip(tooltip)
 		self._BTN_extra_left.Enable(True)
 		self._BTN_extra_left.Show()
 
@@ -462,7 +462,7 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 		self.__middle_extra_button_callback = callback
 		self.__middle_extra_button_wants_list = wants_list
 		self._BTN_extra_middle.SetLabel(label)
-		self._BTN_extra_middle.SetToolTipString(tooltip)
+		self._BTN_extra_middle.SetToolTip(tooltip)
 		self._BTN_extra_middle.Enable(True)
 		self._BTN_extra_middle.Show()
 
@@ -488,7 +488,7 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 		self.__right_extra_button_callback = callback
 		self.__right_extra_button_wants_list = wants_list
 		self._BTN_extra_right.SetLabel(label)
-		self._BTN_extra_right.SetToolTipString(tooltip)
+		self._BTN_extra_right.SetToolTip(tooltip)
 		self._BTN_extra_right.Enable(True)
 		self._BTN_extra_right.Show()
 
@@ -956,7 +956,7 @@ class cGenericListManagerPnl(wxgGenericListManagerPnl.wxgGenericListManagerPnl):
 	def _set_message(self, msg):
 		if msg is None:
 			self._LBL_message.Hide()
-			self._LBL_message.SetLabel(u'')
+			self._LBL_message.SetLabel('')
 		else:
 			self._LBL_message.SetLabel(msg)
 			self._LBL_message.Show()
@@ -977,7 +977,7 @@ class cGenericListManagerPnl(wxgGenericListManagerPnl.wxgGenericListManagerPnl):
 			raise ValueError('<left extra button> callback is not a callable: %s' % callback)
 		self.__left_extra_button_callback = callback
 		self._BTN_extra_left.SetLabel(label)
-		self._BTN_extra_left.SetToolTipString(tooltip)
+		self._BTN_extra_left.SetToolTip(tooltip)
 		self._BTN_extra_left.Enable(True)
 		self._BTN_extra_left.Show()
 
@@ -996,7 +996,7 @@ class cGenericListManagerPnl(wxgGenericListManagerPnl.wxgGenericListManagerPnl):
 			raise ValueError('<middle extra button> callback is not a callable: %s' % callback)
 		self.__middle_extra_button_callback = callback
 		self._BTN_extra_middle.SetLabel(label)
-		self._BTN_extra_middle.SetToolTipString(tooltip)
+		self._BTN_extra_middle.SetToolTip(tooltip)
 		self._BTN_extra_middle.Enable(True)
 		self._BTN_extra_middle.Show()
 
@@ -1015,7 +1015,7 @@ class cGenericListManagerPnl(wxgGenericListManagerPnl.wxgGenericListManagerPnl):
 			raise ValueError('<right extra button> callback is not a callable: %s' % callback)
 		self.__right_extra_button_callback = callback
 		self._BTN_extra_right.SetLabel(label)
-		self._BTN_extra_right.SetToolTipString(tooltip)
+		self._BTN_extra_right.SetToolTip(tooltip)
 		self._BTN_extra_right.Enable(True)
 		self._BTN_extra_right.Show()
 
@@ -1109,7 +1109,7 @@ class cItemPickerDlg(wxgItemPickerDlg.wxgItemPickerDlg):
 			raise ValueError('<extra button> callback is not a callable: %s' % callback)
 		self.__extra_button_callback = callback
 		self._BTN_extra.SetLabel(label)
-		self._BTN_extra.SetToolTipString(tooltip)
+		self._BTN_extra.SetToolTip(tooltip)
 		self._BTN_extra.Enable(True)
 		self._BTN_extra.Show()
 
@@ -1210,16 +1210,15 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 	# the latter are ordered in initial row number order
 	# at set_data() time
 
-	map_item_idx2data_idx = wx.ListCtrl.GetItemData
-
 	sort_order_tags = {
-		True: u' [\u03b1\u0391 \u2192 \u03c9\u03A9]',
-		False: u' [\u03c9\u03A9 \u2192 \u03b1\u0391]'
+		True: ' [\u03b1\u0391 \u2192 \u03c9\u03A9]',
+		False: ' [\u03c9\u03A9 \u2192 \u03b1\u0391]'
 	}
 
 	def __init__(self, *args, **kwargs):
 
 		self.debug = None
+		self.map_item_idx2data_idx = self.GetItemData
 
 		try:
 			kwargs['style'] = kwargs['style'] | wx.LC_REPORT
@@ -1265,7 +1264,7 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 #			u'etc) or key combination (eg. <CTRL-SHIFT> or <CTRL-ALT>) '
 #			u'while clicking.'
 #		)
-		self.__tt_static_part_base = u''
+		self.__tt_static_part_base = ''
 		self.__tt_static_part = self.__tt_static_part_base
 		self.Bind(wx.EVT_MOTION, self._on_mouse_motion)
 
@@ -1285,9 +1284,9 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 	def __log_sizing(self, caller_name, *args, **kwargs):
 		if self.debug is None:
 			return False
-		if not self.debug.endswith(u'_sizing'):
+		if not self.debug.endswith('_sizing'):
 			return False
-		_log.debug(u'[%s.%s]: *args = (%s), **kwargs = (%s)', self.debug, caller_name, unicode(args), unicode(kwargs))
+		_log.debug('[%s.%s]: *args = (%s), **kwargs = (%s)', self.debug, caller_name, str(args), str(kwargs))
 		return True
 
 	#------------------------------------------------------------
@@ -1433,8 +1432,8 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 		return res
 
 	#------------------------------------------------------------
-	def GetClientSizeTuple(self, *args, **kwargs):
-		res = super(cReportListCtrl, self).GetClientSizeTuple(*args, **kwargs)
+	def GetClientSize(self, *args, **kwargs):
+		res = super(cReportListCtrl, self).GetClientSize(*args, **kwargs)
 		kwargs['sizing_function_result'] = res
 		self.__log_sizing(sys._getframe().f_code.co_name, *args, **kwargs)
 		return res
@@ -1503,13 +1502,6 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 		return res
 
 	#------------------------------------------------------------
-	def GetSizeTuple(self, *args, **kwargs):
-		res = super(cReportListCtrl, self).GetSizeTuple(*args, **kwargs)
-		kwargs['sizing_function_result'] = res
-		self.__log_sizing(sys._getframe().f_code.co_name, *args, **kwargs)
-		return res
-
-	#------------------------------------------------------------
 	def GetVirtualSize(self, *args, **kwargs):
 		res = super(cReportListCtrl, self).GetVirtualSize(*args, **kwargs)
 		kwargs['sizing_function_result'] = res
@@ -1560,13 +1552,13 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 		if widths is not None:
 			self.__widths = widths
 			for idx in range(len(self.__widths)):
-				self.SetColumnWidth(col = idx, width = self.__widths[idx])
+				self.SetColumnWidth(idx, self.__widths[idx])
 			return
 
 		# previous policy ?
 		if self.__widths is not None:
 			for idx in range(len(self.__widths)):
-				self.SetColumnWidth(col = idx, width = self.__widths[idx])
+				self.SetColumnWidth(idx, self.__widths[idx])
 			return
 
 		# default policy !
@@ -1575,7 +1567,7 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 		else:
 			width_type = wx.LIST_AUTOSIZE
 		for idx in range(self.GetColumnCount()):
-			self.SetColumnWidth(col = idx, width = width_type)
+			self.SetColumnWidth(idx, width_type)
 
 	#------------------------------------------------------------
 	def set_resize_column(self, column='LAST'):
@@ -1590,8 +1582,8 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 		tries = 0
 		while tries < max_tries:
 			if self.debug is not None:
-				if self.debug.endswith(u'_deleting'):
-					_log.debug('[round %s] <%s>.GetItemCount() before DeleteAllItems(): %s (thread [%s])', tries, self.debug, self.GetItemCount(), thread.get_ident())
+				if self.debug.endswith('_deleting'):
+					_log.debug('[round %s] <%s>.GetItemCount() before DeleteAllItems(): %s (thread [%s])', tries, self.debug, self.GetItemCount(), threading.get_ident())
 			if not self.DeleteAllItems():
 				_log.error('<%s>.DeleteAllItems() failed', self.debug)
 			item_count = self.GetItemCount()
@@ -1608,7 +1600,7 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 
 	#------------------------------------------------------------
 	def set_string_items(self, items=None, reshow=True):
-		"""All item members must be unicode()able or None."""
+		"""All item members must be str()able or None."""
 
 		wx.BeginBusyCursor()
 		self._invalidate_sorting_metadata()
@@ -1634,7 +1626,7 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 		for item in items:
 			try:
 				item[0]
-				if not isinstance(item, basestring):
+				if not isinstance(item, str):
 					is_numerically_iterable = True
 				# do not iterate over individual chars in a string, however
 				else:
@@ -1645,15 +1637,15 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 			if is_numerically_iterable:
 				# cannot use errors='replace' since then
 				# None/ints/unicode strings fail to get encoded
-				col_val = unicode(item[0])
-				row_num = self.InsertStringItem(index = sys.maxint, label = col_val)
+				col_val = str(item[0])
+				row_num = self.InsertItem(index = sys.maxsize, label = col_val)
 				for col_num in range(1, min(self.GetColumnCount(), len(item))):
-					col_val = unicode(item[col_num])
-					self.SetStringItem(index = row_num, col = col_num, label = col_val)
+					col_val = str(item[col_num])
+					self.SetItem(index = row_num, column = col_num, label = col_val)
 			else:
 				# cannot use errors='replace' since then None/ints/unicode strings fails to get encoded
-				col_val = unicode(item)
-				row_num = self.InsertStringItem(index = sys.maxint, label = col_val)
+				col_val = str(item)
+				row_num = self.InsertItem(index = sys.maxsize, label = col_val)
 
 		if reshow:
 			if self.ItemCount > 0:
@@ -1727,7 +1719,7 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 		if data is not None:
 			item_count = self.GetItemCount()
 			if len(data) != item_count:
-				_log.debug('<data> length (%s) must be equal to number of list items (%s)  (%s, thread [%s])', len(data), item_count, self.debug, thread.get_ident())
+				_log.debug('<data> length (%s) must be equal to number of list items (%s)  (%s, thread [%s])', len(data), item_count, self.debug, threading.get_ident())
 			for item_idx in range(len(data)):
 				self.SetItemData(item_idx, item_idx)
 		self.__data = data
@@ -1944,7 +1936,7 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 		menu_item = self._context_menu.Append(-1, _('Find (<CTRL-F>)'))
 		self.Bind(wx.EVT_MENU, self._on_show_search_dialog, menu_item)
 		if self.__search_term is not None:
-			if self.__search_term.strip() != u'':
+			if self.__search_term.strip() != '':
 				menu_item = self._context_menu.Append(-1, _('Find next [%s] (<CTRL-N>)') % self.__search_term)
 				self.Bind(wx.EVT_MENU, self._on_search_match, menu_item)
 		self._context_menu.AppendSeparator()
@@ -1956,10 +1948,10 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 		self._rclicked_row_cells_w_hdr = []
 		for col_idx in range(self.ColumnCount):
 			cell_content = self.GetItem(self._rclicked_row_idx, col_idx).Text.strip()
-			col_header = self.GetColumn(col_idx).m_text.strip()
+			col_header = self.GetColumn(col_idx).Text.strip()
 			col_headers.append(col_header)
 			self._rclicked_row_cells.append(cell_content)
-			self._rclicked_row_cells_w_hdr.append(u'%s: %s' % (col_header, cell_content))
+			self._rclicked_row_cells_w_hdr.append('%s: %s' % (col_header, cell_content))
 
 		# save to file
 		save_menu = wx.Menu()
@@ -2018,27 +2010,27 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 		for col_idx in range(self.ColumnCount):
 			col_content = self._rclicked_row_cells[col_idx].strip()
 			# skip empty field
-			if col_content == u'':
+			if col_content == '':
 				continue
 			col_header = col_headers[col_idx]
-			if col_header == u'':
+			if col_header == '':
 				# skip one-character fields without header,
 				# actually, no, because in ideographic languages
 				# one character may mean a lot
 				#if len(col_content) == 1:
 				#	continue
 				# without column header
-				menu_item = clip_menu.Append(-1, _(u'Column &%s (current row): "%s" [#%s]') % (col_idx+1, shorten_text(col_content, 35), col_idx))
+				menu_item = clip_menu.Append(-1, _('Column &%s (current row): "%s" [#%s]') % (col_idx+1, shorten_text(col_content, 35), col_idx))
 				self.Bind(wx.EVT_MENU, self._col2clipboard, menu_item)
 			else:
 				col_menu = wx.Menu()
 				# with full column header
-				menu_item = col_menu.Append(-1, u'"%s: %s" [#%s]' % (shorten_text(col_header, 8), shorten_text(col_content, 35), col_idx))
+				menu_item = col_menu.Append(-1, '"%s: %s" [#%s]' % (shorten_text(col_header, 8), shorten_text(col_content, 35), col_idx))
 				self.Bind(wx.EVT_MENU, self._col_w_hdr2clipboard, menu_item)
 				# without column header
-				menu_item = col_menu.Append(-1, u'"%s" [#%s]' % (shorten_text(col_content, 35), col_idx))
+				menu_item = col_menu.Append(-1, '"%s" [#%s]' % (shorten_text(col_content, 35), col_idx))
 				self.Bind(wx.EVT_MENU, self._col2clipboard, menu_item)
-				clip_menu.AppendMenu(-1, _(u'Column &%s (current row): %s') % (col_idx+1, col_header), col_menu)
+				clip_menu.Append(-1, _('Column &%s (current row): %s') % (col_idx+1, col_header), col_menu)
 
 		# 2) append item to current clipboard item
 		clip_add_menu = wx.Menu()
@@ -2075,22 +2067,22 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 		for col_idx in range(self.ColumnCount):
 			col_content = self._rclicked_row_cells[col_idx].strip()
 			# skip empty field
-			if col_content == u'':
+			if col_content == '':
 				continue
 			col_header = col_headers[col_idx]
-			if col_header == u'':
+			if col_header == '':
 				# without column header
-				menu_item = clip_add_menu.Append(-1, _(u'Column &%s (current row): "%s" [#%s]') % (col_idx+1, shorten_text(col_content, 35), col_idx))
+				menu_item = clip_add_menu.Append(-1, _('Column &%s (current row): "%s" [#%s]') % (col_idx+1, shorten_text(col_content, 35), col_idx))
 				self.Bind(wx.EVT_MENU, self._add_col2clipboard, menu_item)
 			else:
 				col_add_menu = wx.Menu()
 				# with full column header
-				menu_item = col_add_menu.Append(-1, u'"%s: %s" [#%s]' % (shorten_text(col_header, 8), shorten_text(col_content, 35), col_idx))
+				menu_item = col_add_menu.Append(-1, '"%s: %s" [#%s]' % (shorten_text(col_header, 8), shorten_text(col_content, 35), col_idx))
 				self.Bind(wx.EVT_MENU, self._add_col_w_hdr2clipboard, menu_item)
 				# without column header
-				menu_item = col_add_menu.Append(-1, u'"%s" [#%s]' % (shorten_text(col_content, 35), col_idx))
+				menu_item = col_add_menu.Append(-1, '"%s" [#%s]' % (shorten_text(col_content, 35), col_idx))
 				self.Bind(wx.EVT_MENU, self._add_col2clipboard, menu_item)
-				clip_add_menu.AppendMenu(-1, _(u'Column &%s (current row): %s') % (col_idx+1, col_header), col_add_menu)
+				clip_add_menu.Append(-1, _('Column &%s (current row): %s') % (col_idx+1, col_header), col_add_menu)
 
 		# 3) copy item to export area
 		# put into file
@@ -2107,10 +2099,10 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 		# send signal
 
 		# show menu
-		#self._context_menu.AppendMenu(-1, _('Copy to e&xport area...'), exp_menu)
-		self._context_menu.AppendMenu(-1, _('&Save to file...'), save_menu)
-		self._context_menu.AppendMenu(-1, _('&Copy to clipboard...'), clip_menu)
-		self._context_menu.AppendMenu(-1, _('Append (&+) to clipboard...'), clip_add_menu)
+		#self._context_menu.Append(-1, _('Copy to e&xport area...'), exp_menu)
+		self._context_menu.Append(-1, _('&Save to file...'), save_menu)
+		self._context_menu.Append(-1, _('&Copy to clipboard...'), clip_menu)
+		self._context_menu.Append(-1, _('Append (&+) to clipboard...'), clip_add_menu)
 
 		if self.__extend_popup_menu_callback is not None:
 			self._context_menu.AppendSeparator()
@@ -2168,16 +2160,16 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 		#print "showing search dlg"
 		if self.__search_term is None:
 			#print "no prev search term"
-			default = u''
+			default = ''
 		else:
 			#print "prev search term:", self.__search_term
 			default = self.__search_term
 		search_term = wx.GetTextFromUser (
-			_(u'Enter the search term:'),
-			_(u'List search'),
+			_('Enter the search term:'),
+			_('List search'),
 			default_value = default
 		)
-		if search_term.strip() == u'':
+		if search_term.strip() == '':
 			#print "empty search term"
 			self.__search_term = None
 			self.__tt_static_part = self.__tt_static_part_base
@@ -2186,9 +2178,9 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 		#print "search term:", search_term
 		self.__search_term = search_term
 		self.__tt_static_part = _(
-			u'Current search term: [[%s]]\n'
-			u'\n'
-			u'%s'
+			'Current search term: [[%s]]\n'
+			'\n'
+			'%s'
 		) % (
 			search_term,
 			self.__tt_static_part_base
@@ -2244,13 +2236,13 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 	#------------------------------------------------------------
 	def _on_char(self, evt):
 
-		if unichr(evt.GetRawKeyCode()) == u'f':
+		if chr(evt.GetRawKeyCode()) == 'f':
 			if evt.GetModifiers() == wx.MOD_CMD:
 				#print "search dialog invoked"
 				self.__show_search_dialog()
 				return
 
-		if unichr(evt.GetRawKeyCode()) == u'n':
+		if chr(evt.GetRawKeyCode()) == 'n':
 			if evt.GetModifiers() == wx.MOD_CMD:
 				#print "search-next key invoked"
 				self.__search_match()
@@ -2289,7 +2281,7 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 			wx.LIST_HITTEST_ONITEM
 		]:
 			self.__tt_last_item = None						# not on any item
-			self.SetToolTipString(self.__tt_static_part)
+			self.SetToolTip(self.__tt_static_part)
 			return
 
 		# same item as last time around ?
@@ -2302,12 +2294,12 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 		# HitTest() can return -1 if it so pleases, meaning that no item
 		# was hit or else that maybe there aren't any items (empty list)
 		if item_idx == wx.NOT_FOUND:
-			self.SetToolTipString(self.__tt_static_part)
+			self.SetToolTip(self.__tt_static_part)
 			return
 
 		# do we *have* item data ?
 		if self.__data is None:
-			self.SetToolTipString(self.__tt_static_part)
+			self.SetToolTip(self.__tt_static_part)
 			return
 
 		# under some circumstances the item_idx returned
@@ -2319,18 +2311,18 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 				or
 			(item_idx < -1)
 		):
-			self.SetToolTipString(self.__tt_static_part)
-			print "*************************************************************"
-			print "GNUmed has detected an inconsistency with list item tooltips."
-			print ""
-			print "This is not a big problem and you can keep working."
-			print ""
-			print "However, please send us the following so we can fix GNUmed:"
-			print ""
-			print "item idx: %s" % item_idx
-			print 'where flag: %s' % where_flag
-			print 'data list length: %s' % len(self.__data)
-			print "*************************************************************"
+			self.SetToolTip(self.__tt_static_part)
+			print("*************************************************************")
+			print("GNUmed has detected an inconsistency with list item tooltips.")
+			print("")
+			print("This is not a big problem and you can keep working.")
+			print("")
+			print("However, please send us the following so we can fix GNUmed:")
+			print("")
+			print("item idx: %s" % item_idx)
+			print('where flag: %s' % where_flag)
+			print('data list length: %s' % len(self.__data))
+			print("*************************************************************")
 			return
 
 		dyna_tt = None
@@ -2338,10 +2330,10 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 			dyna_tt = self.__item_tooltip_callback(self.__data[self.map_item_idx2data_idx(item_idx)])
 
 		if dyna_tt is None:
-			self.SetToolTipString(self.__tt_static_part)
+			self.SetToolTip(self.__tt_static_part)
 			return
 
-		self.SetToolTipString(dyna_tt)
+		self.SetToolTip(dyna_tt)
 
 	#------------------------------------------------------------
 	# context menu event hendlers
@@ -2377,15 +2369,15 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 		txt_file = io.open(txt_name, mode = 'wt', encoding = 'utf8')
 
 		col_labels = self.column_labels
-		line = u'%s' % u' || '.join(col_labels)
-		txt_file.write(u'%s\n' % line)
-		txt_file.write((u'=' * len(line)) + u'\n')
+		line = '%s' % ' || '.join(col_labels)
+		txt_file.write('%s\n' % line)
+		txt_file.write(('=' * len(line)) + '\n')
 
 		for item_idx in range(self.ItemCount):
 			fields = []
 			for col_idx in range(self.ColumnCount):
 				fields.append(self.GetItem(item_idx, col_idx).Text)
-			txt_file.write(u'%s\n' % u' || '.join(fields))
+			txt_file.write('%s\n' % ' || '.join(fields))
 
 		txt_file.close()
 		gmDispatcher.send(signal = 'statustext', msg = _('All rows saved to [%s].') % txt_name)
@@ -2420,7 +2412,7 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 			tt = self.__item_tooltip_callback(data)
 			if tt is None:
 				continue
-			txt_file.write(u'%s\n\n' % tt)
+			txt_file.write('%s\n\n' % tt)
 
 		txt_file.close()
 		gmDispatcher.send(signal = 'statustext', msg = _('All tooltips saved to [%s].') % txt_name)
@@ -2438,10 +2430,10 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 			if hasattr(data, 'format'):
 				txt = data.format()
 				if type(txt) is list:
-					txt = u'\n'.join(txt)
+					txt = '\n'.join(txt)
 			else:
-				txt = u'%s' % data
-			txt_file.write(u'%s\n\n' % txt)
+				txt = '%s' % data
+			txt_file.write('%s\n\n' % txt)
 
 		txt_file.close()
 		gmDispatcher.send(signal = 'statustext', msg = _('All data saved to [%s].') % txt_name)
@@ -2453,9 +2445,9 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 		txt_file = io.open(txt_name, mode = 'wt', encoding = 'utf8')
 
 		col_labels = self.column_labels
-		line = u'%s' % u' || '.join(col_labels)
-		txt_file.write(u'%s\n' % line)
-		txt_file.write((u'=' * len(line)) + u'\n')
+		line = '%s' % ' || '.join(col_labels)
+		txt_file.write('%s\n' % line)
+		txt_file.write(('=' * len(line)) + '\n')
 
 		items = self.selected_items
 		if self.__is_single_selection:
@@ -2465,7 +2457,7 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 			fields = []
 			for col_idx in range(self.ColumnCount):
 				fields.append(self.GetItem(item_idx, col_idx).Text)
-			txt_file.write(u'%s\n' % u' || '.join(fields))
+			txt_file.write('%s\n' % ' || '.join(fields))
 
 		txt_file.close()
 		gmDispatcher.send(signal = 'statustext', msg = _('Selected rows saved to [%s].') % txt_name)
@@ -2505,7 +2497,7 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 			tt = self.__item_tooltip_callback(data)
 			if tt is None:
 				continue
-			txt_file.write(u'%s\n\n' % tt)
+			txt_file.write('%s\n\n' % tt)
 
 		txt_file.close()
 		gmDispatcher.send(signal = 'statustext', msg = _('Selected tooltips saved to [%s].') % txt_name)
@@ -2523,10 +2515,10 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 			if hasattr(data, 'format'):
 				txt = data.format()
 				if type(txt) is list:
-					txt = u'\n'.join(txt)
+					txt = '\n'.join(txt)
 			else:
-				txt = u'%s' % data
-			txt_file.write(u'%s\n\n' % txt)
+				txt = '%s' % data
+			txt_file.write('%s\n\n' % txt)
 
 		txt_file.close()
 		gmDispatcher.send(signal = 'statustext', msg = _('Selected data saved to [%s].') % txt_name)
@@ -2575,7 +2567,7 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 			return
 
 		data_obj = wx.TextDataObject()
-		data_obj.SetText(u'\n\n'.join(tts))
+		data_obj.SetText('\n\n'.join(tts))
 		wx.TheClipboard.SetData(data_obj)
 		wx.TheClipboard.Close()
 
@@ -2589,11 +2581,11 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 			return
 		data_obj = wx.TextDataObject()
 
-		txt = u''
+		txt = ''
 		# get previous text
 		got_it = wx.TheClipboard.GetData(data_obj)
 		if got_it:
-			txt = data_obj.Text + u'\n'
+			txt = data_obj.Text + '\n'
 
 		# add text
 		if (self.__data is None) or (self.__item_tooltip_callback is None):
@@ -2633,12 +2625,12 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 			return
 
 		data_obj = wx.TextDataObject()
-		txt = u''
+		txt = ''
 		# get previous text
 		got_it = wx.TheClipboard.GetData(data_obj)
 		if got_it:
-			txt = data_obj.Text + u'\n\n'
-		txt += u'\n\n'.join(tts)
+			txt = data_obj.Text + '\n\n'
+		txt += '\n\n'.join(tts)
 
 		data_obj.SetText(txt)
 		wx.TheClipboard.SetData(data_obj)
@@ -2653,7 +2645,7 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 			_log.debug('cannot open clipboard')
 			return
 		data_obj = wx.TextDataObject()
-		data_obj.SetText(u' // '.join(self._rclicked_row_cells))
+		data_obj.SetText(' // '.join(self._rclicked_row_cells))
 		wx.TheClipboard.SetData(data_obj)
 		wx.TheClipboard.Close()
 
@@ -2668,10 +2660,10 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 
 		rows = []
 		for item_idx in self.selected_items:
-			rows.append(u' // '.join([ self.GetItem(item_idx, col_idx).Text.strip() for col_idx in range(self.ColumnCount) ]))
+			rows.append(' // '.join([ self.GetItem(item_idx, col_idx).Text.strip() for col_idx in range(self.ColumnCount) ]))
 
 		data_obj = wx.TextDataObject()
-		data_obj.SetText(u'\n\n'.join(rows))
+		data_obj.SetText('\n\n'.join(rows))
 		wx.TheClipboard.SetData(data_obj)
 		wx.TheClipboard.Close()
 
@@ -2685,14 +2677,14 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 			return
 		data_obj = wx.TextDataObject()
 
-		txt = u''
+		txt = ''
 		# get previous text
 		got_it = wx.TheClipboard.GetData(data_obj)
 		if got_it:
-			txt = data_obj.Text + u'\n'
+			txt = data_obj.Text + '\n'
 
 		# add text
-		txt += u' // '.join(self._rclicked_row_cells)
+		txt += ' // '.join(self._rclicked_row_cells)
 
 		# set text
 		data_obj.SetText(txt)
@@ -2710,16 +2702,16 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 
 		rows = []
 		for item_idx in self.selected_items:
-			rows.append(u' // '.join([ self.GetItem(item_idx, col_idx).Text.strip() for col_idx in range(self.ColumnCount) ]))
+			rows.append(' // '.join([ self.GetItem(item_idx, col_idx).Text.strip() for col_idx in range(self.ColumnCount) ]))
 
 		data_obj = wx.TextDataObject()
 
-		txt = u''
+		txt = ''
 		# get previous text
 		got_it = wx.TheClipboard.GetData(data_obj)
 		if got_it:
-			txt = data_obj.Text + u'\n'
-		txt += u'\n\n'.join(rows)
+			txt = data_obj.Text + '\n'
+		txt += '\n\n'.join(rows)
 
 		data_obj.SetText(txt)
 		wx.TheClipboard.SetData(data_obj)
@@ -2734,7 +2726,7 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 			_log.debug('cannot open clipboard')
 			return
 		data_obj = wx.TextDataObject()
-		data_obj.SetText(u'\n'.join(self._rclicked_row_cells_w_hdr))
+		data_obj.SetText('\n'.join(self._rclicked_row_cells_w_hdr))
 		wx.TheClipboard.SetData(data_obj)
 		wx.TheClipboard.Close()
 
@@ -2748,14 +2740,14 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 			return
 		data_obj = wx.TextDataObject()
 
-		txt = u''
+		txt = ''
 		# get previous text
 		got_it = wx.TheClipboard.GetData(data_obj)
 		if got_it:
-			txt = data_obj.Text + u'\n'
+			txt = data_obj.Text + '\n'
 
 		# add text
-		txt += u'\n'.join(self._rclicked_row_cells_w_hdr)
+		txt += '\n'.join(self._rclicked_row_cells_w_hdr)
 
 		# set text
 		data_obj.SetText(txt)
@@ -2773,7 +2765,7 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 		data_obj = wx.TextDataObject()
 		txt = self._rclicked_row_data.format()
 		if type(txt) == type([]):
-			txt = u'\n'.join(txt)
+			txt = '\n'.join(txt)
 		data_obj.SetText(txt)
 		wx.TheClipboard.SetData(data_obj)
 		wx.TheClipboard.Close()
@@ -2792,13 +2784,13 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 			if hasattr(data, 'format'):
 				txt = data.format()
 				if type(txt) is list:
-					txt = u'\n'.join(txt)
+					txt = '\n'.join(txt)
 			else:
-				txt = u'%s' % data
+				txt = '%s' % data
 			data_as_txt.append(txt)
 
 		data_obj = wx.TextDataObject()
-		data_obj.SetText(u'\n\n'.join(data_as_txt))
+		data_obj.SetText('\n\n'.join(data_as_txt))
 		wx.TheClipboard.SetData(data_obj)
 		wx.TheClipboard.Close()
 
@@ -2812,16 +2804,16 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 			return
 		data_obj = wx.TextDataObject()
 
-		txt = u''
+		txt = ''
 		# get previous text
 		got_it = wx.TheClipboard.GetData(data_obj)
 		if got_it:
-			txt = data_obj.Text + u'\n'
+			txt = data_obj.Text + '\n'
 
 		# add text
 		tmp = self._rclicked_row_data.format()
 		if type(tmp) == type([]):
-			txt += u'\n'.join(tmp)
+			txt += '\n'.join(tmp)
 		else:
 			txt += tmp
 
@@ -2844,18 +2836,18 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 			if hasattr(data, 'format'):
 				txt = data.format()
 				if type(txt) is list:
-					txt = u'\n'.join(txt)
+					txt = '\n'.join(txt)
 			else:
-				txt = u'%s' % data
+				txt = '%s' % data
 			data_as_txt.append(txt)
 
 		data_obj = wx.TextDataObject()
-		txt = u''
+		txt = ''
 		# get previous text
 		got_it = wx.TheClipboard.GetData(data_obj)
 		if got_it:
-			txt = data_obj.Text + u'\n'
-		txt += u'\n'.join(data_as_txt)
+			txt = data_obj.Text + '\n'
+		txt += '\n'.join(data_as_txt)
 
 		# set text
 		data_obj.SetText(txt)
@@ -2873,7 +2865,7 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 		data_obj = wx.TextDataObject()
 
 		#col_idx = int(self._context_menu.FindItemById(evt.Id).ItemLabel.split(u':', 1)[0].rstrip(u':')) - 1
-		col_idx = int(self._context_menu.FindItemById(evt.Id).ItemLabel.rsplit(u'#', 1)[1].rstrip(u']'))
+		col_idx = int(self._context_menu.FindItemById(evt.Id).ItemLabel.rsplit('#', 1)[1].rstrip(']'))
 		txt = self._rclicked_row_cells[col_idx]
 
 		data_obj.SetText(txt)
@@ -2890,15 +2882,15 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 			return
 		data_obj = wx.TextDataObject()
 
-		txt = u''
+		txt = ''
 		# get previous text
 		got_it = wx.TheClipboard.GetData(data_obj)
 		if got_it:
-			txt = data_obj.Text + u'\n'
+			txt = data_obj.Text + '\n'
 
 		# add text
 		#col_idx = int(self._context_menu.FindItemById(evt.Id).ItemLabel.split(u':', 1)[0].rstrip(u':')) - 1
-		col_idx = int(self._context_menu.FindItemById(evt.Id).ItemLabel.rsplit(u'#', 1)[1].rstrip(u']'))
+		col_idx = int(self._context_menu.FindItemById(evt.Id).ItemLabel.rsplit('#', 1)[1].rstrip(']'))
 		txt += self._rclicked_row_cells[col_idx]
 
 		# set text
@@ -2917,7 +2909,7 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 		data_obj = wx.TextDataObject()
 
 		#col_idx = int(self._context_menu.FindItemById(evt.Id).ItemLabel.split(u':', 1)[0].rstrip(u':')) - 1
-		col_idx = int(self._context_menu.FindItemById(evt.Id).ItemLabel.rsplit(u'#', 1)[1].rstrip(u']'))
+		col_idx = int(self._context_menu.FindItemById(evt.Id).ItemLabel.rsplit('#', 1)[1].rstrip(']'))
 		txt = self._rclicked_row_cells_w_hdr[col_idx]
 
 		data_obj.SetText(txt)
@@ -2934,15 +2926,15 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 			return
 		data_obj = wx.TextDataObject()
 
-		txt = u''
+		txt = ''
 		# get previous text
 		got_it = wx.TheClipboard.GetData(data_obj)
 		if got_it:
-			txt = data_obj.Text + u'\n'
+			txt = data_obj.Text + '\n'
 
 		# add text
 		#col_idx = int(self._context_menu.FindItemById(evt.Id).ItemLabel.split(u':', 1)[0].rstrip(u':')) - 1
-		col_idx = int(self._context_menu.FindItemById(evt.Id).ItemLabel.rsplit(u'#', 1)[1].rstrip(u']'))
+		col_idx = int(self._context_menu.FindItemById(evt.Id).ItemLabel.rsplit('#', 1)[1].rstrip(']'))
 		txt += self._rclicked_row_cells_w_hdr[col_idx]
 
 		# set text
@@ -2967,7 +2959,7 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 		if self.__search_term is None:
 			#print "no search term"
 			return False
-		if self.__search_term.strip() == u'':
+		if self.__search_term.strip() == '':
 			#print "empty search term"
 			return False
 		if self.__searchable_cols is None:
@@ -3143,11 +3135,11 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 	def OnSortOrderChanged(self):
 		col_idx, is_ascending = self.GetSortState()
 		if col_idx == -1:
-			_log.debug(u'outside any column (idx: -1) clicked, ignoring')
+			_log.debug('outside any column (idx: -1) clicked, ignoring')
 			return
 		self._remove_sorting_indicators_from_column_headers()
 		col_state = self.GetColumn(col_idx)
-		col_state.m_text += self.sort_order_tags[is_ascending]
+		col_state.Text += self.sort_order_tags[is_ascending]
 		self.SetColumn(col_idx, col_state)
 
 	#------------------------------------------------------------
@@ -3162,7 +3154,7 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 		secondary_val1 = self.itemDataMap[primary_item1_idx][self.__secondary_sort_col]
 		secondary_val2 = self.itemDataMap[primary_item2_idx][self.__secondary_sort_col]
 
-		if type(secondary_val1) == type(u'') and type(secondary_val2) == type(u''):
+		if type(secondary_val1) == type('') and type(secondary_val2) == type(''):
 			secondary_cmp_result = locale.strcoll(secondary_val1, secondary_val2)
 		elif type(secondary_val1) == type('') or type(secondary_val2) == type(''):
 			secondary_cmp_result = locale.strcoll(str(secondary_val1), str(secondary_val2))
@@ -3188,7 +3180,7 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 		sort_col, is_ascending = self.GetSortState()
 		data1 = self.itemDataMap[item1][sort_col]
 		data2 = self.itemDataMap[item2][sort_col]
-		if type(data1) == type(u'') and type(data2) == type(u''):
+		if type(data1) == type('') and type(data2) == type(''):
 			cmp_result = locale.strcoll(data1, data2)
 		elif type(data1) == type('') or type(data2) == type(''):
 			cmp_result = locale.strcoll(str(data1), str(data2))
@@ -3242,12 +3234,12 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 	def _remove_sorting_indicators_from_column_headers(self):
 		for col_idx in range(self.ColumnCount):
 			col_state = self.GetColumn(col_idx)
-			initial_header = col_state.m_text
-			if col_state.m_text.endswith(self.sort_order_tags[True]):
-				col_state.m_text = col_state.m_text[:-len(self.sort_order_tags[True])]
-			if col_state.m_text.endswith(self.sort_order_tags[False]):
-				col_state.m_text = col_state.m_text[:-len(self.sort_order_tags[False])]
-			if col_state.m_text == initial_header:
+			initial_header = col_state.Text
+			if col_state.Text.endswith(self.sort_order_tags[True]):
+				col_state.Text = col_state.Text[:-len(self.sort_order_tags[True])]
+			if col_state.Text.endswith(self.sort_order_tags[False]):
+				col_state.Text = col_state.Text[:-len(self.sort_order_tags[False])]
+			if col_state.Text == initial_header:
 				continue
 			self.SetColumn(col_idx, col_state)
 
@@ -3294,7 +3286,7 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 def shorten_text(text=None, max_length=None):
 	if len(text) <= max_length:
 		return text
-	return text[:max_length-1] + u'\u2026'
+	return text[:max_length-1] + '\u2026'
 
 
 #================================================================
@@ -3325,15 +3317,15 @@ if __name__ == '__main__':
 		)
 		dlg.ShowModal()
 		sels = dlg.GetSelections()
-		print "selected:"
+		print("selected:")
 		for sel in sels:
-			print sel
+			print(sel)
 	#------------------------------------------------------------
 	def test_get_choices_from_list():
 
 		def edit(argument):
-			print "editor called with:"
-			print argument
+			print("editor called with:")
+			print(argument)
 
 		def refresh(lctrl):
 			choices = ['a', 'b', 'c']
@@ -3349,8 +3341,8 @@ if __name__ == '__main__':
 			refresh_callback = refresh
 			#, edit_callback = edit
 		)
-		print "chosen:"
-		print chosen
+		print("chosen:")
+		print(chosen)
 	#------------------------------------------------------------
 	def test_item_picker_dlg():
 		app = wx.PyWidgetTester(size = (200, 50))
@@ -3359,8 +3351,8 @@ if __name__ == '__main__':
 		#dlg.set_columns(['Plugins'], [])
 		dlg.set_string_items(['patient', 'emr', 'docs'])
 		result = dlg.ShowModal()
-		print result
-		print dlg.get_picks()
+		print(result)
+		print(dlg.get_picks())
 	#------------------------------------------------------------
 	#test_get_choices_from_list()
 	#test_wxMultiChoiceDialog()

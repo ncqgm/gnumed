@@ -119,7 +119,7 @@ class Parser:
 		self._indexes = {}
 		self._parse_fields()
 
-		self._password = file('pass.txt', 'r').read().strip()
+		self._password = open('pass.txt', 'r').read().strip()
 
 	def get_numrecs(self):
 		return self._numrecs
@@ -344,7 +344,7 @@ class Parser:
 			return memo
 
 		try:	
-			memo = self._memogetter.get_base( long(offset_in_blocks))	
+			memo = self._memogetter.get_base(int(offset_in_blocks))
 			#import pdb
 			#pdb.set_trace()
 			if is_base64 and  compressed_base64:
@@ -395,12 +395,12 @@ class Parser:
 		return tablename
 		
 def save_ddl(pp):
-	fn = raw_input('enter filename to save ddl:')
+	fn = input('enter filename to save ddl:')
 	f = file(fn, 'w')
 	for p in pp.values():
 		f.write(p.get_ddl_sql())
-		f.write(u';')
-		f.write(u'\n')
+		f.write(';')
+		f.write('\n')
 	
 	f.close()
 
@@ -438,7 +438,7 @@ if __name__ == "__main__":
 	arguments =[]
 	arguments.extend(sys.argv)
 
-	f = file('config.txt', 'r')
+	f = open('config.txt', 'r')
 	for l in f:
 		if l.strip() > 0 and l.find('=') > 0 and l.strip()[0] != '#':
 			words = l.split('=')
@@ -495,7 +495,7 @@ if __name__ == "__main__":
 			
 		if not dsn:
 			print "ENTER the connection dsn for dbapi e.g. host:port:database:user:pass "
-			dsn = raw_input()
+			dsn = input()
 		
 		dbapi_mods =[ 
 			('pyPgSQL.PgSQL', 'pyPgSQL', None ) , 
@@ -626,7 +626,7 @@ if __name__ == "__main__":
 					break
 				#print "executing ", stmt
 				#sys.stdout.write(str(p._recno)+' ')
-				sys.stdout.write(u'.')
+				sys.stdout.write('.')
 				try:
 					cu.execute(stmt)
 					c.commit()

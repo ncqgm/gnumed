@@ -96,7 +96,7 @@ class ClinicalSummary(wxPanel, PatientHolder):
 		self.sizer.Fit(self)                              #set to minimum size as calculated by sizer
 		self.SetAutoLayout(True)                     #tell frame to use the sizer
 		self.Show(True) 
-		gmDispatcher.connect(self._updateActiveProblemsUI, u'clin_history_updated')
+		gmDispatcher.connect(self._updateActiveProblemsUI, 'clin_history_updated')
 
 	def _updateUI(self):
 		self._updateActiveProblemsUI()

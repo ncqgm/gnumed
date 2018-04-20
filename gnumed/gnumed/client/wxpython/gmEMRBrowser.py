@@ -6,7 +6,6 @@ __license__ = "GPL v2 or later"
 # std lib
 import sys
 import os.path
-import StringIO
 import io
 import logging
 
@@ -79,7 +78,7 @@ def export_emr_to_ascii(parent=None):
 		defaultDir = defdir,
 		defaultFile = fname,
 		wildcard = wc,
-		style = wx.SAVE
+		style = wx.FD_SAVE
 	)
 	choice = dlg.ShowModal()
 	fname = dlg.GetPath()
@@ -113,7 +112,7 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 		wx.TreeCtrl.__init__(self, parent, id, *args, **kwds)
 
 		self.__soap_display = None
-		self.__soap_display_mode = u'details'				# "details" or "journal" or "revisions"
+		self.__soap_display_mode = 'details'				# "details" or "journal" or "revisions"
 		self.__img_display = None
 		self.__cb__enable_display_mode_selection = lambda x:x
 		self.__cb__select_edit_mode = lambda x:x
@@ -134,7 +133,7 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 	def _set_soap_display(self, soap_display=None):
 		self.__soap_display = soap_display
 		self.__soap_display_prop_font = soap_display.GetFont()
-		self.__soap_display_mono_font = wx.FontFromNativeInfo(self.__soap_display_prop_font.NativeFontInfo)
+		self.__soap_display_mono_font = wx.Font(self.__soap_display_prop_font.GetNativeFontInfo())
 		self.__soap_display_mono_font.SetFamily(wx.FONTFAMILY_TELETYPE)
 		self.__soap_display_mono_font.SetPointSize(self.__soap_display_prop_font.GetPointSize() - 2)
 
@@ -180,47 +179,46 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 	#--------------------------------------------------------
 	def GetItemIdentity(self, item):
 		if item is None:
-			return u'invalid item'
+			return 'invalid item'
 
 		if not item.IsOk():
-			return u'invalid item'
+			return 'invalid item'
 
 		try:
-			node_data = self.GetPyData(item)
-		except wx.PyAssertionError:
-			_log.exception('unfathomable self.GetPyData() problem occurred, faking root node')
+			node_data = self.GetItemData(item)
+		except wx.wxAssertionError:
+			_log.exception('unfathomable self.GetItemData() problem occurred, faking root node')
 			_log.error('real node: %s', item)
 			_log.error('node.IsOk(): %s', item.IsOk())		# already survived this further up
 			_log.error('is root node: %s', item == self.GetRootItem())
-			_log.error('node.m_pItem: %s', getattr(item, 'm_pItem', '<NO SUCH ATTRIBUTE>'))
 			_log.error('node attributes: %s', dir(item))
 			gmLog2.log_stack_trace()
-			return u'invalid item'
+			return 'invalid item'
 
 		if isinstance(node_data, gmEMRStructItems.cHealthIssue):
-			return u'issue::%s' % node_data['pk_health_issue']
+			return 'issue::%s' % node_data['pk_health_issue']
 		if isinstance(node_data, gmEMRStructItems.cEpisode):
-			return u'episode::%s' % node_data['pk_episode']
+			return 'episode::%s' % node_data['pk_episode']
 		if isinstance(node_data, gmEMRStructItems.cEncounter):
-			return u'encounter::%s' % node_data['pk_encounter']
+			return 'encounter::%s' % node_data['pk_encounter']
 		# unassociated episodes
 		if isinstance(node_data, type({})):
-			return u'dummy node::%s' % self.__pat.ID
+			return 'dummy node::%s' % self.__pat.ID
 		# root node == EMR level
-		return u'root node::%s' % self.__pat.ID
+		return 'root node::%s' % self.__pat.ID
 
 	#--------------------------------------------------------
 	# internal helpers
 	#--------------------------------------------------------
 	def __register_events(self):
 		"""Configures enabled event signals."""
-		wx.EVT_TREE_SEL_CHANGED (self, self.GetId(), self._on_tree_item_selected)
-		wx.EVT_TREE_ITEM_RIGHT_CLICK (self, self.GetId(), self._on_tree_item_right_clicked)
+		self.Bind(wx.EVT_TREE_SEL_CHANGED, self._on_tree_item_selected)
+		self.Bind(wx.EVT_TREE_ITEM_RIGHT_CLICK, self._on_tree_item_right_clicked)
 		self.Bind(wx.EVT_TREE_ITEM_EXPANDING, self._on_tree_item_expanding)
 
 		# handle tooltips
-#		wx.EVT_MOTION(self, self._on_mouse_motion)
-		wx.EVT_TREE_ITEM_GETTOOLTIP(self, -1, self._on_tree_item_gettooltip)
+#		self.Bind(wx.EVT_MOTION, self._on_mouse_motion)
+		self.Bind(wx.EVT_TREE_ITEM_GETTOOLTIP, self._on_tree_item_gettooltip)
 
 		# FIXME: xxxxx signal
 		gmDispatcher.connect(signal = 'narrative_mod_db', receiver = self._on_narrative_mod_db)
@@ -238,6 +236,8 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 		"""Updates EMR browser data."""
 		# FIXME: auto select the previously self.__curr_node if not None
 		# FIXME: error handling
+
+		_log.debug('populating EMR tree')
 
 		wx.BeginBusyCursor()
 
@@ -265,48 +265,48 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 		self.DeleteAllItems()
 
 		root_item = self.AddRoot(_('EMR of %(lastnames)s, %(firstnames)s') % self.__pat.get_active_name())
-		self.SetItemPyData(root_item, None)
+		self.SetItemData(root_item, None)
 		self.SetItemHasChildren(root_item, True)
 
-		self.__root_tooltip = self.__pat['description_gender'] + u'\n'
+		self.__root_tooltip = self.__pat['description_gender'] + '\n'
 		if self.__pat['deceased'] is None:
-			self.__root_tooltip += u' %s (%s)\n\n' % (
+			self.__root_tooltip += ' %s (%s)\n\n' % (
 				self.__pat.get_formatted_dob(format = '%d %b %Y', encoding = gmI18N.get_encoding()),
 				self.__pat['medical_age']
 			)
 		else:
-			template = u' %s - %s (%s)\n\n'
+			template = ' %s - %s (%s)\n\n'
 			self.__root_tooltip += template % (
 				self.__pat.get_formatted_dob(format = '%d.%b %Y', encoding = gmI18N.get_encoding()),
 				gmDateTime.pydt_strftime(self.__pat['deceased'], '%Y %b %d'),
 				self.__pat['medical_age']
 			)
-		self.__root_tooltip += gmTools.coalesce(self.__pat['comment'], u'', u'%s\n\n')
+		self.__root_tooltip += gmTools.coalesce(self.__pat['comment'], '', '%s\n\n')
 		doc = self.__pat.primary_provider
 		if doc is not None:
-			self.__root_tooltip += u'%s:\n' % _('Primary provider in this praxis')
-			self.__root_tooltip += u' %s %s %s (%s)%s\n\n' % (
+			self.__root_tooltip += '%s:\n' % _('Primary provider in this praxis')
+			self.__root_tooltip += ' %s %s %s (%s)%s\n\n' % (
 				gmTools.coalesce(doc['title'], gmPerson.map_gender2salutation(gender = doc['gender'])),
 				doc['firstnames'],
 				doc['lastnames'],
 				doc['short_alias'],
-				gmTools.bool2subst(doc['is_active'], u'', u' [%s]' % _('inactive'))
+				gmTools.bool2subst(doc['is_active'], '', ' [%s]' % _('inactive'))
 			)
 		if not ((self.__pat['emergency_contact'] is None) and (self.__pat['pk_emergency_contact'] is None)):
-			self.__root_tooltip += _('In case of emergency contact:') + u'\n'
+			self.__root_tooltip += _('In case of emergency contact:') + '\n'
 			if self.__pat['emergency_contact'] is not None:
 				self.__root_tooltip += gmTools.wrap (
-					text = u'%s\n' % self.__pat['emergency_contact'],
+					text = '%s\n' % self.__pat['emergency_contact'],
 					width = 60,
-					initial_indent = u' ',
-					subsequent_indent = u' '
+					initial_indent = ' ',
+					subsequent_indent = ' '
 				)
 			if self.__pat['pk_emergency_contact'] is not None:
 				contact = self.__pat.emergency_contact_in_database
-				self.__root_tooltip += u' %s\n' % contact['description_gender']
+				self.__root_tooltip += ' %s\n' % contact['description_gender']
 		self.__root_tooltip = self.__root_tooltip.strip('\n')
-		if self.__root_tooltip == u'':
-			self.__root_tooltip = u' '
+		if self.__root_tooltip == '':
+			self.__root_tooltip = ' '
 
 		return root_item
 
@@ -327,14 +327,13 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 			return
 
 		try:
-			node_data = self.GetPyData(self.__curr_node)
-		except wx.PyAssertionError:
+			node_data = self.GetItemData(self.__curr_node)
+		except wx.wxAssertionError:
 			node_data = None		# fake a root node
-			_log.exception('unfathomable self.GetPyData() problem occurred, faking root node')
+			_log.exception('unfathomable self.GetItemData() problem occurred, faking root node')
 			_log.error('real node: %s', self.__curr_node)
 			_log.error('node.IsOk(): %s', self.__curr_node.IsOk())		# already survived this further up
 			_log.error('is root node: %s', self.__curr_node == self.GetRootItem())
-			_log.error('node.m_pItem: %s', getattr(self.__curr_node, 'm_pItem', '<NO SUCH ATTRIBUTE>'))
 			_log.error('node attributes: %s', dir(self.__curr_node))
 			gmLog2.log_stack_trace()
 
@@ -342,14 +341,14 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 
 		if isinstance(node_data, gmEMRStructItems.cHealthIssue):
 			self.__cb__enable_display_mode_selection(True)
-			txt = u'invalid SOAP display mode [%s]' % self.__soap_display_mode
-			if self.__soap_display_mode == u'details':
+			txt = 'invalid SOAP display mode [%s]' % self.__soap_display_mode
+			if self.__soap_display_mode == 'details':
 				txt = node_data.format(left_margin = 1, patient = self.__pat)
 				font = self.__soap_display_prop_font
-			if self.__soap_display_mode == u'journal':
+			if self.__soap_display_mode == 'journal':
 				txt = node_data.format_as_journal(left_margin = 1)
 				font = self.__soap_display_prop_font
-			if self.__soap_display_mode == u'revisions':
+			if self.__soap_display_mode == 'revisions':
 				txt = node_data.formatted_revision_history
 				font = self.__soap_display_mono_font
 			epis = node_data.episodes
@@ -367,11 +366,11 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 		# unassociated episodes		# FIXME: turn into real dummy issue
 		if isinstance(node_data, type({})):
 			self.__cb__enable_display_mode_selection(True)
-			if self.__soap_display_mode == u'details':
+			if self.__soap_display_mode == 'details':
 				txt = _('Pool of unassociated episodes "%s":\n') % node_data['description']
-				epis = self.__pat.emr.get_episodes(unlinked_only = True, order_by = u'episode_open DESC, description')
+				epis = self.__pat.emr.get_episodes(unlinked_only = True, order_by = 'episode_open DESC, description')
 				if len(epis) > 0:
-					txt += u'\n'
+					txt += '\n'
 				for epi in epis:
 					txt += epi.format (
 						left_margin = 1,
@@ -387,14 +386,14 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 						with_vaccinations = False,
 						with_health_issue = False
 					)
-					txt += u'\n'
+					txt += '\n'
 			else:
-				epis = self.__pat.emr.get_episodes(unlinked_only = True, order_by = u'episode_open DESC, description')
-				txt = u''
+				epis = self.__pat.emr.get_episodes(unlinked_only = True, order_by = 'episode_open DESC, description')
+				txt = ''
 				if len(epis) > 0:
 					txt += _(' Listing of unassociated episodes\n')
 				for epi in epis:
-					txt += u' %s\n' % (gmTools.u_box_horiz_4dashes * 60)
+					txt += ' %s\n' % (gmTools.u_box_horiz_4dashes * 60)
 					txt += epi.format (
 						left_margin = 1,
 						patient = self.__pat,
@@ -409,7 +408,7 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 						with_vaccinations = False,
 						with_health_issue = False
 					)
-					txt += u'\n'
+					txt += '\n'
 					txt += epi.format_as_journal(left_margin = 2)
 			self.__soap_display.SetFont(self.__soap_display_prop_font)
 			self.__soap_display.WriteText(txt)
@@ -418,14 +417,14 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 
 		if isinstance(node_data, gmEMRStructItems.cEpisode):
 			self.__cb__enable_display_mode_selection(True)
-			txt = u'invalid SOAP display mode [%s]' % self.__soap_display_mode
-			if self.__soap_display_mode == u'details':
+			txt = 'invalid SOAP display mode [%s]' % self.__soap_display_mode
+			if self.__soap_display_mode == 'details':
 				txt = node_data.format(left_margin = 1, patient = self.__pat)
 				font = self.__soap_display_prop_font
-			if self.__soap_display_mode == u'journal':
+			if self.__soap_display_mode == 'journal':
 				txt = node_data.format_as_journal(left_margin = 1)
 				font = self.__soap_display_prop_font
-			if self.__soap_display_mode == u'revisions':
+			if self.__soap_display_mode == 'revisions':
 				txt = node_data.formatted_revision_history
 				font = self.__soap_display_mono_font
 			self.__img_display.refresh (
@@ -439,8 +438,8 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 
 		if isinstance(node_data, gmEMRStructItems.cEncounter):
 			self.__cb__enable_display_mode_selection(True)
-			epi = self.GetPyData(self.GetItemParent(self.__curr_node))
-			if self.__soap_display_mode == u'revisions':
+			epi = self.GetItemData(self.GetItemParent(self.__curr_node))
+			if self.__soap_display_mode == 'revisions':
 				txt = node_data.formatted_revision_history
 				font = self.__soap_display_mono_font
 			else:
@@ -464,7 +463,7 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 
 		# root node == EMR level
 		self.__cb__enable_display_mode_selection(True)
-		if self.__soap_display_mode == u'details':
+		if self.__soap_display_mode == 'details':
 			emr = self.__pat.emr
 			txt = emr.format_summary()
 		else:
@@ -478,127 +477,79 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 
 		# - root node
 		self.__root_context_popup = wx.Menu(title = _('EMR Actions:'))
-
 		item = self.__root_context_popup.Append(-1, _('Print EMR'))
 		self.Bind(wx.EVT_MENU, self.__print_emr, item)
-
-		menu_id = wx.NewId()
-		self.__root_context_popup.AppendItem(wx.MenuItem(self.__root_context_popup, menu_id, _('Create health issue')))
-		wx.EVT_MENU(self.__root_context_popup, menu_id, self.__create_issue)
-
+		item = self.__root_context_popup.Append(-1, _('Create health issue'))
+		self.Bind(wx.EVT_MENU, self.__create_issue, item)
 		item = self.__root_context_popup.Append(-1, _('Create episode'))
 		self.Bind(wx.EVT_MENU, self.__create_episode, item)
-
 		item = self.__root_context_popup.Append(-1, _('Create progress note'))
 		self.Bind(wx.EVT_MENU, self.__create_soap_editor, item)
-
-		menu_id = wx.NewId()
-		self.__root_context_popup.AppendItem(wx.MenuItem(self.__root_context_popup, menu_id, _('Manage allergies')))
-		wx.EVT_MENU(self.__root_context_popup, menu_id, self.__document_allergy)
-
-		menu_id = wx.NewId()
-		self.__root_context_popup.AppendItem(wx.MenuItem(self.__root_context_popup, menu_id, _('Manage family history')))
-		wx.EVT_MENU(self.__root_context_popup, menu_id, self.__manage_family_history)
-
-		menu_id = wx.NewId()
-		self.__root_context_popup.AppendItem(wx.MenuItem(self.__root_context_popup, menu_id, _('Manage hospitalizations')))
-		wx.EVT_MENU(self.__root_context_popup, menu_id, self.__manage_hospital_stays)
-
-		menu_id = wx.NewId()
-		self.__root_context_popup.AppendItem(wx.MenuItem(self.__root_context_popup, menu_id, _('Manage occupation')))
-		wx.EVT_MENU(self.__root_context_popup, menu_id, self.__manage_occupation)
-
-		menu_id = wx.NewId()
-		self.__root_context_popup.AppendItem(wx.MenuItem(self.__root_context_popup, menu_id, _('Manage procedures')))
-		wx.EVT_MENU(self.__root_context_popup, menu_id, self.__manage_procedures)
-
-		menu_id = wx.NewId()
-		self.__root_context_popup.AppendItem(wx.MenuItem(self.__root_context_popup, menu_id, _('Manage vaccinations')))
-		wx.EVT_MENU(self.__root_context_popup, menu_id, self.__manage_vaccinations)
+		item = self.__root_context_popup.Append(-1, _('Manage allergies'))
+		self.Bind(wx.EVT_MENU, self.__document_allergy, item)
+		item = self.__root_context_popup.Append(-1, _('Manage family history'))
+		self.Bind(wx.EVT_MENU, self.__manage_family_history, item)
+		item = self.__root_context_popup.Append(-1, _('Manage hospitalizations'))
+		self.Bind(wx.EVT_MENU, self.__manage_hospital_stays, item)
+		item = self.__root_context_popup.Append(-1, _('Manage occupation'))
+		self.Bind(wx.EVT_MENU, self.__manage_occupation, item)
+		item = self.__root_context_popup.Append(-1, _('Manage procedures'))
+		self.Bind(wx.EVT_MENU, self.__manage_procedures, item)
+		item = self.__root_context_popup.Append(-1, _('Manage vaccinations'))
+		self.Bind(wx.EVT_MENU, self.__manage_vaccinations, item)
 
 		self.__root_context_popup.AppendSeparator()
 
 		# expand tree
 		expand_menu = wx.Menu()
-		self.__root_context_popup.AppendMenu(wx.NewId(), _('Open EMR to ...'), expand_menu)
-
-		menu_id = wx.NewId()
-		expand_menu.AppendItem(wx.MenuItem(expand_menu, menu_id, _('... issue level')))
-		wx.EVT_MENU(expand_menu, menu_id, self.__expand_to_issue_level)
-
-		menu_id = wx.NewId()
-		expand_menu.AppendItem(wx.MenuItem(expand_menu, menu_id, _('... episode level')))
-		wx.EVT_MENU(expand_menu, menu_id, self.__expand_to_episode_level)
-
-		menu_id = wx.NewId()
-		expand_menu.AppendItem(wx.MenuItem(expand_menu, menu_id, _('... encounter level')))
-		wx.EVT_MENU(expand_menu, menu_id, self.__expand_to_encounter_level)
+		self.__root_context_popup.Append(wx.NewId(), _('Open EMR to ...'), expand_menu)
+		item = expand_menu.Append(-1, _('... issue level'))
+		self.Bind(wx.EVT_MENU, self.__expand_to_issue_level, item)
+		item = expand_menu.Append(-1, _('... episode level'))
+		self.Bind(wx.EVT_MENU, self.__expand_to_episode_level, item)
+		item = expand_menu.Append(-1, _('... encounter level'))
+		self.Bind(wx.EVT_MENU, self.__expand_to_encounter_level, item)
 
 		# - health issues
 		self.__issue_context_popup = wx.Menu(title = _('Health Issue Actions:'))
-
-		menu_id = wx.NewId()
-		self.__issue_context_popup.AppendItem(wx.MenuItem(self.__issue_context_popup, menu_id, _('Edit details')))
-		wx.EVT_MENU(self.__issue_context_popup, menu_id, self.__edit_issue)
-
-		menu_id = wx.NewId()
-		self.__issue_context_popup.AppendItem(wx.MenuItem(self.__issue_context_popup, menu_id, _('Delete')))
-		wx.EVT_MENU(self.__issue_context_popup, menu_id, self.__delete_issue)
-
+		item = self.__issue_context_popup.Append(-1, _('Edit details'))
+		self.Bind(wx.EVT_MENU, self.__edit_issue, item)
+		item = self.__issue_context_popup.Append(-1, _('Delete'))
+		self.Bind(wx.EVT_MENU, self.__delete_issue, item)
 		self.__issue_context_popup.AppendSeparator()
-
-		menu_id = wx.NewId()
-		self.__issue_context_popup.AppendItem(wx.MenuItem(self.__issue_context_popup, menu_id, _('Open to encounter level')))
-		wx.EVT_MENU(self.__issue_context_popup, menu_id, self.__expand_issue_to_encounter_level)
+		item = self.__issue_context_popup.Append(-1, _('Open to encounter level'))
+		self.Bind(wx.EVT_MENU, self.__expand_issue_to_encounter_level, item)
 		# print " attach issue to another patient"
 		# print " move all episodes to another issue"
-
 		item = self.__issue_context_popup.Append(-1, _('Create progress note'))
 		self.Bind(wx.EVT_MENU, self.__create_soap_editor, item)
 
 		# - episodes
 		self.__epi_context_popup = wx.Menu(title = _('Episode Actions:'))
-
-		menu_id = wx.NewId()
-		self.__epi_context_popup.AppendItem(wx.MenuItem(self.__epi_context_popup, menu_id, _('Edit details')))
-		wx.EVT_MENU(self.__epi_context_popup, menu_id, self.__edit_episode)
-
-		menu_id = wx.NewId()
-		self.__epi_context_popup.AppendItem(wx.MenuItem(self.__epi_context_popup, menu_id, _('Delete')))
-		wx.EVT_MENU(self.__epi_context_popup, menu_id, self.__delete_episode)
-
-		menu_id = wx.NewId()
-		self.__epi_context_popup.AppendItem(wx.MenuItem(self.__epi_context_popup, menu_id, _('Promote')))
-		wx.EVT_MENU(self.__epi_context_popup, menu_id, self.__promote_episode_to_issue)
-
+		item = self.__epi_context_popup.Append(-1, _('Edit details'))
+		self.Bind(wx.EVT_MENU, self.__edit_episode, item)
+		item = self.__epi_context_popup.Append(-1, _('Delete'))
+		self.Bind(wx.EVT_MENU, self.__delete_episode, item)
+		item = self.__epi_context_popup.Append(-1, _('Promote'))
+		self.Bind(wx.EVT_MENU, self.__promote_episode_to_issue, item)
 		item = self.__epi_context_popup.Append(-1, _('Create progress note'))
 		self.Bind(wx.EVT_MENU, self.__create_soap_editor, item)
-
-		menu_id = wx.NewId()
-		self.__epi_context_popup.AppendItem(wx.MenuItem(self.__epi_context_popup, menu_id, _('Move encounters')))
-		wx.EVT_MENU(self.__epi_context_popup, menu_id, self.__move_encounters)
+		item = self.__epi_context_popup.Append(-1, _('Move encounters'))
+		self.Bind(wx.EVT_MENU, self.__move_encounters, item)
 
 		# - encounters
 		self.__enc_context_popup = wx.Menu(title = _('Encounter Actions:'))
-		# - move data
-		menu_id = wx.NewId()
-		self.__enc_context_popup.AppendItem(wx.MenuItem(self.__enc_context_popup, menu_id, _('Move data to another episode')))
-		wx.EVT_MENU(self.__enc_context_popup, menu_id, self.__relink_encounter_data2episode)
-		# - edit encounter details
-		menu_id = wx.NewId()
-		self.__enc_context_popup.AppendItem(wx.MenuItem(self.__enc_context_popup, menu_id, _('Edit details')))
-		wx.EVT_MENU(self.__enc_context_popup, menu_id, self.__edit_encounter_details)
-
+		item = self.__enc_context_popup.Append(-1, _('Move data to another episode'))
+		self.Bind(wx.EVT_MENU, self.__relink_encounter_data2episode, item)
+		item = self.__enc_context_popup.Append(-1, _('Edit details'))
+		self.Bind(wx.EVT_MENU, self.__edit_encounter_details, item)
 		# would require pre-configurable save-under which we don't have
 		#item = self.__enc_context_popup.Append(-1, _('Create progress note'))
 		#self.Bind(wx.EVT_MENU, self.__create_soap_editor, item)
-
 		item = self.__enc_context_popup.Append(-1, _('Edit progress notes'))
 		self.Bind(wx.EVT_MENU, self.__edit_progress_notes, item)
-
 		item = self.__enc_context_popup.Append(-1, _('Move progress notes'))
 		self.Bind(wx.EVT_MENU, self.__move_progress_notes, item)
-
 		item = self.__enc_context_popup.Append(-1, _('Export for Medistar'))
 		self.Bind(wx.EVT_MENU, self.__export_encounter_for_medistar, item)
 
@@ -622,7 +573,7 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 	# episode level
 	#--------------------------------------------------------
 	def __move_encounters(self, event):
-		episode = self.GetPyData(self.__curr_node)
+		episode = self.GetItemData(self.__curr_node)
 
 		gmNarrativeWorkflows.move_progress_notes_to_another_encounter (
 			parent = self,
@@ -666,7 +617,7 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 		self.DeleteChildren(episode_node)
 
 		emr = self.__pat.emr
-		epi = self.GetPyData(episode_node)
+		epi = self.GetItemData(episode_node)
 		encounters = emr.get_encounters(episodes = [epi['pk_episode']], skip_empty = True)
 		if len(encounters) == 0:
 			self.SetItemHasChildren(episode_node, False)
@@ -675,7 +626,7 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 		self.SetItemHasChildren(episode_node, True)
 
 		for enc in encounters:
-			label = u'%s: %s' % (
+			label = '%s: %s' % (
 				enc['started'].strftime('%Y-%m-%d'),
 				gmTools.unwrap (
 					gmTools.coalesce (
@@ -695,7 +646,7 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 				)
 			)
 			encounter_node = self.AppendItem(episode_node, label)
-			self.SetItemPyData(encounter_node, enc)
+			self.SetItemData(encounter_node, enc)
 			# we don't expand encounter nodes (what for ?)
 			self.SetItemHasChildren(encounter_node, False)
 
@@ -705,9 +656,9 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 	# encounter level
 	#--------------------------------------------------------
 	def __move_progress_notes(self, evt):
-		encounter = self.GetPyData(self.__curr_node)
+		encounter = self.GetItemData(self.__curr_node)
 		node_parent = self.GetItemParent(self.__curr_node)
-		episode = self.GetPyData(node_parent)
+		episode = self.GetItemData(node_parent)
 
 		gmNarrativeWorkflows.move_progress_notes_to_another_encounter (
 			parent = self,
@@ -717,9 +668,9 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 
 	#--------------------------------------------------------
 	def __edit_progress_notes(self, event):
-		encounter = self.GetPyData(self.__curr_node)
+		encounter = self.GetItemData(self.__curr_node)
 		node_parent = self.GetItemParent(self.__curr_node)
-		episode = self.GetPyData(node_parent)
+		episode = self.GetItemData(node_parent)
 
 		gmNarrativeWorkflows.manage_progress_notes (
 			parent = self,
@@ -729,7 +680,7 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 
 	#--------------------------------------------------------
 	def __edit_encounter_details(self, event):
-		node_data = self.GetPyData(self.__curr_node)
+		node_data = self.GetItemData(self.__curr_node)
 		gmEncounterWidgets.edit_encounter(parent = self, encounter = node_data)
 		self.__populate_tree()
 
@@ -737,7 +688,7 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 	def __relink_encounter_data2episode(self, event):
 
 		node_parent = self.GetItemParent(self.__curr_node)
-		owning_episode = self.GetPyData(node_parent)
+		owning_episode = self.GetItemData(node_parent)
 
 		episode_selector = gmNarrativeWidgets.cMoveNarrativeDlg (
 			self,
@@ -801,7 +752,7 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 	def __expand_issue_node(self, issue_node=None):
 		self.DeleteChildren(issue_node)
 
-		issue = self.GetPyData(issue_node)
+		issue = self.GetItemData(issue_node)
 		episodes = self.__pat.emr.get_episodes(issues = [issue['pk_health_issue']])
 		if len(episodes) == 0:
 			self.SetItemHasChildren(issue_node, False)
@@ -811,11 +762,11 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 
 		for episode in episodes:
 			range_str, range_str_verb, duration_str = episode.formatted_clinical_duration
-			episode_node =  self.AppendItem(issue_node, u'%s (%s)' % (
+			episode_node =  self.AppendItem(issue_node, '%s (%s)' % (
 				episode['description'],
 				range_str
 			))
-			self.SetItemPyData(episode_node, episode)
+			self.SetItemData(episode_node, episode)
 			# assume children so we can try to expand it
 			self.SetItemHasChildren(episode_node, True)
 
@@ -834,11 +785,11 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 
 		for episode in episodes:
 			range_str, range_str_verb, duration_str = episode.formatted_clinical_duration
-			episode_node =  self.AppendItem(fake_issue_node, u'%s (%s)' % (
+			episode_node =  self.AppendItem(fake_issue_node, '%s (%s)' % (
 				episode['description'],
 				range_str
 			))
-			self.SetItemPyData(episode_node, episode)
+			self.SetItemData(episode_node, episode)
 			if episode['episode_open']:
 				self.SetItemBold(fake_issue_node, True)
 			# assume children so we can try to expand it
@@ -959,7 +910,7 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 	def __export_encounter_for_medistar(self, evt):
 		gmNarrativeWorkflows.export_narrative_for_medistar_import (
 			parent = self,
-			soap_cats = u'soapu',
+			soap_cats = 'soapu',
 			encounter = self.__curr_node_data
 		)
 	#--------------------------------------------------------
@@ -976,13 +927,13 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 		}]
 		issues.extend(self.__pat.emr.health_issues)
 		for issue in issues:
-			issue_node =  self.AppendItem(root_node, u'%s%s%s' % (
+			issue_node =  self.AppendItem(root_node, '%s%s%s' % (
 				issue['description'],
-				gmTools.coalesce(issue['laterality'], u'', u' [%s]', none_equivalents = [None, u'na']),
-				gmTools.coalesce(issue['diagnostic_certainty_classification'], u'', u' [%s]')
+				gmTools.coalesce(issue['laterality'], '', ' [%s]', none_equivalents = [None, 'na']),
+				gmTools.coalesce(issue['diagnostic_certainty_classification'], '', ' [%s]')
 			))
 			self.SetItemBold(issue_node, issue['has_open_episode'])
-			self.SetItemPyData(issue_node, issue)
+			self.SetItemData(issue_node, issue)
 			# fake it so we can expand it
 			self.SetItemHasChildren(issue_node, True)
 
@@ -1014,7 +965,7 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 			self.__expand_root_node()
 			return
 
-		node_data = self.GetPyData(node)
+		node_data = self.GetItemData(node)
 
 		if isinstance(node_data, gmEMRStructItems.cHealthIssue):
 			self.__expand_issue_node(issue_node = node)
@@ -1044,14 +995,14 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 #
 #		cursor_pos = (event.GetX(), event.GetY())
 #
-#		self.SetToolTipString(u'')
+#		self.SetToolTip(u'')
 #
 #		if cursor_pos != self._old_cursor_pos:
 #			self._old_cursor_pos = cursor_pos
 #			(item, flags) = self.HitTest(cursor_pos)
 #			#if flags != wx.TREE_HITTEST_NOWHERE:
 #			if flags == wx.TREE_HITTEST_ONITEMLABEL:
-#				data = self.GetPyData(item)
+#				data = self.GetItemData(item)
 #
 #				if not isinstance(data, gmEMRStructItems.cEncounter):
 #					return
@@ -1070,24 +1021,24 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 		item = event.GetItem()
 
 		if not item.IsOk():
-			event.SetToolTip(u' ')
+			event.SetToolTip(' ')
 			return
 
-		data = self.GetPyData(item)
+		data = self.GetItemData(item)
 
 		if isinstance(data, gmEMRStructItems.cEncounter):
-			tt = u'%s  %s  %s - %s\n' % (
+			tt = '%s  %s  %s - %s\n' % (
 				gmDateTime.pydt_strftime(data['started'], '%Y %b %d'),
 				data['l10n_type'],
 				data['started'].strftime('%H:%M'),
 				data['last_affirmed'].strftime('%H:%M')
 			)
 			if data['reason_for_encounter'] is not None:
-				tt += u'\n'
+				tt += '\n'
 				tt += _('RFE: %s') % data['reason_for_encounter']
 				if len(data['pk_generic_codes_rfe']) > 0:
 					for code in data.generic_codes_rfe:
-						tt += u'\n %s: %s%s%s\n  (%s %s)' % (
+						tt += '\n %s: %s%s%s\n  (%s %s)' % (
 							code['code'],
 							gmTools.u_left_double_angle_quote,
 							code['term'],
@@ -1096,11 +1047,11 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 							code['version']
 						)
 			if data['assessment_of_encounter'] is not None:
-				tt += u'\n'
+				tt += '\n'
 				tt += _('AOE: %s') % data['assessment_of_encounter']
 				if len(data['pk_generic_codes_aoe']) > 0:
 					for code in data.generic_codes_aoe:
-						tt += u'\n %s: %s%s%s\n  (%s %s)' % (
+						tt += '\n %s: %s%s%s\n  (%s %s)' % (
 							code['code'],
 							gmTools.u_left_double_angle_quote,
 							code['term'],
@@ -1110,23 +1061,23 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 						)
 
 		elif isinstance(data, gmEMRStructItems.cEpisode):
-			tt = u''
+			tt = ''
 			tt += gmTools.bool2subst (
 				(data['diagnostic_certainty_classification'] is not None),
-				data.diagnostic_certainty_description + u'\n\n',
-				u''
+				data.diagnostic_certainty_description + '\n\n',
+				''
 			)
 			tt += gmTools.bool2subst (
 				data['episode_open'],
 				_('ongoing episode'),
 				_('closed episode'),
 				'error: episode state is None'
-			) + u'\n'
-			tt += gmTools.coalesce(data['summary'], u'', u'\n%s')
+			) + '\n'
+			tt += gmTools.coalesce(data['summary'], '', '\n%s')
 			if len(data['pk_generic_codes']) > 0:
-				tt += u'\n'
+				tt += '\n'
 				for code in data.generic_codes:
-					tt += u'%s: %s%s%s\n  (%s %s)\n' % (
+					tt += '%s: %s%s%s\n  (%s %s)\n' % (
 						code['code'],
 						gmTools.u_left_double_angle_quote,
 						code['term'],
@@ -1135,33 +1086,33 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 						code['version']
 					)
 
-			tt = tt.strip(u'\n')
-			if tt == u'':
-				tt = u' '
+			tt = tt.strip('\n')
+			if tt == '':
+				tt = ' '
 
 		elif isinstance(data, gmEMRStructItems.cHealthIssue):
-			tt = u''
-			tt += gmTools.bool2subst(data['is_confidential'], _('*** CONFIDENTIAL ***\n\n'), u'')
+			tt = ''
+			tt += gmTools.bool2subst(data['is_confidential'], _('*** CONFIDENTIAL ***\n\n'), '')
 			tt += gmTools.bool2subst (
 				(data['diagnostic_certainty_classification'] is not None),
-				data.diagnostic_certainty_description + u'\n',
-				u''
+				data.diagnostic_certainty_description + '\n',
+				''
 			)
 			tt += gmTools.bool2subst (
-				(data['laterality'] not in [None, u'na']),
-				data.laterality_description + u'\n',
-				u''
+				(data['laterality'] not in [None, 'na']),
+				data.laterality_description + '\n',
+				''
 			)
 			# noted_at_age is too costly
-			tt += gmTools.bool2subst(data['is_active'], _('active') + u'\n', u'')
-			tt += gmTools.bool2subst(data['clinically_relevant'], _('clinically relevant') + u'\n', u'')
-			tt += gmTools.bool2subst(data['is_cause_of_death'], _('contributed to death') + u'\n', u'')
-			tt += gmTools.coalesce(data['grouping'], u'\n', _('Grouping: %s') + u'\n')
-			tt += gmTools.coalesce(data['summary'], u'', u'\n%s')
+			tt += gmTools.bool2subst(data['is_active'], _('active') + '\n', '')
+			tt += gmTools.bool2subst(data['clinically_relevant'], _('clinically relevant') + '\n', '')
+			tt += gmTools.bool2subst(data['is_cause_of_death'], _('contributed to death') + '\n', '')
+			tt += gmTools.coalesce(data['grouping'], '\n', _('Grouping: %s') + '\n')
+			tt += gmTools.coalesce(data['summary'], '', '\n%s')
 			if len(data['pk_generic_codes']) > 0:
-				tt += u'\n'
+				tt += '\n'
 				for code in data.generic_codes:
-					tt += u'%s: %s%s%s\n  (%s %s)\n' % (
+					tt += '%s: %s%s%s\n  (%s %s)\n' % (
 						code['code'],
 						gmTools.u_left_double_angle_quote,
 						code['term'],
@@ -1170,9 +1121,9 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 						code['version']
 					)
 
-			tt = tt.strip(u'\n')
-			if tt == u'':
-				tt = u' '
+			tt = tt.strip('\n')
+			if tt == '':
+				tt = ' '
 
 		else:
 			tt = self.__root_tooltip
@@ -1195,7 +1146,7 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 
 		node = event.GetItem()
 		self.SelectItem(node)
-		self.__curr_node_data = self.GetPyData(node)
+		self.__curr_node_data = self.GetItemData(node)
 		self.__curr_node = node
 
 		pos = wx.DefaultPosition
@@ -1211,7 +1162,7 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 			# ignore pseudo node "free-standing episodes"
 			pass
 		else:
-			print "error: unknown node type, no popup menu"
+			print("error: unknown node type, no popup menu")
 		event.Skip()
 
 	#--------------------------------------------------------
@@ -1238,8 +1189,8 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 			_log.debug('invalid node 2')
 			return 0
 
-		item1 = self.GetPyData(node1)
-		item2 = self.GetPyData(node2)
+		item1 = self.GetItemData(node1)
+		item2 = self.GetItemData(node2)
 
 		# dummy health issue always on top
 		if isinstance(item1, type({})):
@@ -1333,7 +1284,7 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 		return self.__soap_display_mode
 
 	def _set_details_display_mode(self, mode):
-		if mode not in [u'details', u'journal', u'revisions']:
+		if mode not in ['details', 'journal', 'revisions']:
 			raise ValueError('details display mode must be one of "details", "journal", "revisions"')
 		if self.__soap_display_mode == mode:
 			return
@@ -1379,8 +1330,8 @@ class cSplittedEMRTreeBrowserPnl(wxgSplittedEMRTreeBrowserPnl.wxgSplittedEMRTree
 		self.editing = False
 	#--------------------------------------------------------
 	def __register_events(self):
-		gmDispatcher.connect(signal = u'pre_patient_unselection', receiver = self._on_pre_patient_unselection)
-		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._on_post_patient_selection)
+		gmDispatcher.connect(signal = 'pre_patient_unselection', receiver = self._on_pre_patient_unselection)
+		gmDispatcher.connect(signal = 'post_patient_selection', receiver = self._on_post_patient_selection)
 		return True
 
 	#--------------------------------------------------------
@@ -1421,15 +1372,15 @@ class cSplittedEMRTreeBrowserPnl(wxgSplittedEMRTreeBrowserPnl.wxgSplittedEMRTree
 
 	#--------------------------------------------------------
 	def _on_show_details_selected(self, event):
-		self._pnl_emr_tree._emr_tree.details_display_mode = u'details'
+		self._pnl_emr_tree._emr_tree.details_display_mode = 'details'
 
 	#--------------------------------------------------------
 	def _on_show_journal_selected(self, event):
-		self._pnl_emr_tree._emr_tree.details_display_mode = u'journal'
+		self._pnl_emr_tree._emr_tree.details_display_mode = 'journal'
 
 	#--------------------------------------------------------
 	def _on_show_revisions_selected(self, event):
-		self._pnl_emr_tree._emr_tree.details_display_mode = u'revisions'
+		self._pnl_emr_tree._emr_tree.details_display_mode = 'revisions'
 
 	#--------------------------------------------------------
 	def _on_switch_browse_edit_button_pressed(self, event):
@@ -1443,7 +1394,7 @@ class cSplittedEMRTreeBrowserPnl(wxgSplittedEMRTreeBrowserPnl.wxgSplittedEMRTree
 		pat = gmPerson.gmCurrentPatient()
 		self._pnl_emr_tree._emr_tree.patient = pat
 		self._PNL_edit.patient = pat
-		self._splitter_browser.SetSashPosition(self._splitter_browser.GetSizeTuple()[0] // 3, True)
+		self._splitter_browser.SetSashPosition(self._splitter_browser.GetSize()[0] // 3, True)
 
 		return True
 
@@ -1477,12 +1428,12 @@ class cEMRJournalPluginPnl(wxgEMRJournalPluginPnl.wxgEMRJournalPluginPnl):
 
 		wxgEMRJournalPluginPnl.wxgEMRJournalPluginPnl.__init__(self, *args, **kwds)
 		self._TCTRL_journal.disable_keyword_expansions()
-		self._TCTRL_journal.SetValue(u'')
+		self._TCTRL_journal.SetValue('')
 	#--------------------------------------------------------
 	# external API
 	#--------------------------------------------------------
 	def repopulate_ui(self):
-		self._TCTRL_journal.SetValue(u'')
+		self._TCTRL_journal.SetValue('')
 		exporter = gmPatientExporter.cEMRJournalExporter()
 		if self._RBTN_by_encounter.GetValue():
 			fname = exporter.save_to_file_by_encounter(patient = gmPerson.gmCurrentPatient())
@@ -1500,15 +1451,15 @@ class cEMRJournalPluginPnl(wxgEMRJournalPluginPnl.wxgEMRJournalPluginPnl):
 	# internal helpers
 	#--------------------------------------------------------
 	def __register_events(self):
-		gmDispatcher.connect(signal = u'pre_patient_unselection', receiver = self._on_pre_patient_unselection)
-		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._on_post_patient_selection)
+		gmDispatcher.connect(signal = 'pre_patient_unselection', receiver = self._on_pre_patient_unselection)
+		gmDispatcher.connect(signal = 'post_patient_selection', receiver = self._on_post_patient_selection)
 		return True
 
 	#--------------------------------------------------------
 	# event handlers
 	#--------------------------------------------------------
 	def _on_pre_patient_unselection(self):
-		self._TCTRL_journal.SetValue(u'')
+		self._TCTRL_journal.SetValue('')
 		return True
 
 	#--------------------------------------------------------
@@ -1540,7 +1491,7 @@ class cEMRListJournalPluginPnl(wxgEMRListJournalPluginPnl.wxgEMRListJournalPlugi
 		wxgEMRListJournalPluginPnl.wxgEMRListJournalPluginPnl.__init__(self, *args, **kwds)
 
 		self._LCTRL_journal.select_callback = self._on_row_selected
-		self._TCTRL_details.SetValue(u'')
+		self._TCTRL_details.SetValue('')
 
 		self.__load_timer = gmTimer.cTimer(callback = self._on_load_details, delay = 1000, cookie = 'EMRListJournalPluginDBLoadTimer')
 
@@ -1551,26 +1502,26 @@ class cEMRListJournalPluginPnl(wxgEMRListJournalPluginPnl.wxgEMRListJournalPlugi
 	#--------------------------------------------------------
 	def repopulate_ui(self):
 		self._LCTRL_journal.remove_items_safely()
-		self._TCTRL_details.SetValue(u'')
+		self._TCTRL_details.SetValue('')
 
 		if self._RBTN_by_encounter.Value:		# (... is True:)
-			order_by = u'encounter_started, pk_episode, src_table, scr, modified_when'
+			order_by = 'encounter_started, pk_episode, src_table, scr, modified_when'
 						#, clin_when (should not make a relevant difference)
 			date_col_header = _('Encounter')
 			date_fields = ['encounter_started', 'modified_when']
 		elif self._RBTN_by_last_modified.Value:	# (... is True:)
-			order_by = u'modified_when, pk_episode, src_table, scr'
+			order_by = 'modified_when, pk_episode, src_table, scr'
 						#, clin_when (should not make a relevant difference)
 			date_col_header = _('Modified')
 			date_fields = ['modified_when']
 		elif self._RBTN_by_item_time.Value:		# (... is True:)
-			order_by = u'clin_when, pk_episode, src_table, scr, modified_when'
+			order_by = 'clin_when, pk_episode, src_table, scr, modified_when'
 			date_col_header = _('Clinical time')
 			date_fields = ['clin_when', 'modified_when']
 		else:
 			raise ValueError('invalid EMR journal list sort state')
 
-		self._LCTRL_journal.set_columns([date_col_header, u'', _('Entry'), _('Who / When')])
+		self._LCTRL_journal.set_columns([date_col_header, '', _('Entry'), _('Who / When')])
 		self._LCTRL_journal.set_resize_column(3)
 
 		journal = gmPerson.gmCurrentPatient().emr.get_as_journal(order_by = order_by)
@@ -1580,23 +1531,23 @@ class cEMRListJournalPluginPnl(wxgEMRListJournalPluginPnl.wxgEMRListJournalPlugi
 		self.__data = {}
 		prev_date = None
 		for entry in journal:
-			if entry['narrative'].strip() == u'':
+			if entry['narrative'].strip() == '':
 				continue
 			soap_cat = gmSoapDefs.soap_cat2l10n[entry['soap_cat']]
-			who = u'%s (%s)' % (entry['modified_by'], entry['date_modified'])
+			who = '%s (%s)' % (entry['modified_by'], entry['date_modified'])
 			try:
-				entry_date = gmDateTime.pydt_strftime(entry[date_fields[0]], u'%Y-%m-%d')
+				entry_date = gmDateTime.pydt_strftime(entry[date_fields[0]], '%Y-%m-%d')
 			except KeyError:
-				entry_date = gmDateTime.pydt_strftime(entry[date_fields[1]], u'%Y-%m-%d')
+				entry_date = gmDateTime.pydt_strftime(entry[date_fields[1]], '%Y-%m-%d')
 			if entry_date == prev_date:
-				date2show = u''
+				date2show = ''
 			else:
 				date2show = entry_date
 				prev_date = entry_date
-			lines = entry['narrative'].strip().split(u'\n')
+			lines = entry['narrative'].strip().split('\n')
 			line_0 = lines[0].rstrip()				# assumes there's at least one line ...
 			delim = gmTools.u_box_horiz_light_3dashes * 10
-			entry_line = u'%s %s' % (line_0, delim)
+			entry_line = '%s %s' % (line_0, delim)
 			items.append([date2show, soap_cat, entry_line, who])
 			try:
 				self.__data[entry['src_table']]
@@ -1611,17 +1562,17 @@ class cEMRListJournalPluginPnl(wxgEMRListJournalPluginPnl.wxgEMRListJournalPlugi
 				if entry['encounter_started'] is None:
 					enc_duration = gmTools.u_diameter
 				else:
-					enc_duration = u'%s - %s' % (
+					enc_duration = '%s - %s' % (
 						gmDateTime.pydt_strftime(entry['encounter_started'], '%Y %b %d  %H:%M'),
 						gmDateTime.pydt_strftime(entry['encounter_last_affirmed'], '%H:%M')
 					)
 				self.__data[entry['src_table']][entry['src_pk']]['formatted_header'] = _(
-					u'Chart entry: %s       [#%s in %s]\n'
-					u' Modified: %s by %s (%s rev %s)\n'
-					u'\n'
-					u'Health issue: %s%s\n'
-					u'Episode: %s%s\n'
-					u'Encounter: %s%s'
+					'Chart entry: %s       [#%s in %s]\n'
+					' Modified: %s by %s (%s rev %s)\n'
+					'\n'
+					'Health issue: %s%s\n'
+					'Episode: %s%s\n'
+					'Encounter: %s%s'
 				) % (
 					gmClinicalRecord.format_clin_root_item_type(entry['src_table']),
 					entry['src_pk'],
@@ -1630,17 +1581,17 @@ class cEMRListJournalPluginPnl(wxgEMRListJournalPluginPnl.wxgEMRListJournalPlugi
 					entry['modified_by'],
 					gmTools.u_arrow2right,
 					entry['row_version'],
-					gmTools.coalesce(entry['health_issue'], gmTools.u_diameter, u'%s'),
-					gmTools.bool2subst(entry['issue_active'], u' (' + _('active') + u')', u' (' + _('inactive') + u')', u''),
-					gmTools.coalesce(entry['episode'], gmTools.u_diameter, u'%s'),
-					gmTools.bool2subst(entry['episode_open'], u' (' +  _('open') + u')', u' (' +  _('closed') + u')', u''),
+					gmTools.coalesce(entry['health_issue'], gmTools.u_diameter, '%s'),
+					gmTools.bool2subst(entry['issue_active'], ' (' + _('active') + ')', ' (' + _('inactive') + ')', ''),
+					gmTools.coalesce(entry['episode'], gmTools.u_diameter, '%s'),
+					gmTools.bool2subst(entry['episode_open'], ' (' +  _('open') + ')', ' (' +  _('closed') + ')', ''),
 					enc_duration,
-					gmTools.coalesce(entry['encounter_l10n_type'], u'', u' (%s)'),
+					gmTools.coalesce(entry['encounter_l10n_type'], '', ' (%s)'),
 				)
 				self.__data[entry['src_table']][entry['src_pk']]['formatted_root_item'] = _(
-					u'%s\n'
-					u'\n'
-					u'                        rev %s (%s) by %s in <%s>'
+					'%s\n'
+					'\n'
+					'                        rev %s (%s) by %s in <%s>'
 				) % (
 					entry['narrative'].strip(),
 					entry['row_version'],
@@ -1658,13 +1609,13 @@ class cEMRListJournalPluginPnl(wxgEMRListJournalPluginPnl.wxgEMRListJournalPlugi
 				last_line = len(lines)
 				for entry_line in lines:
 					idx += 1
-					if entry_line.strip() == u'':
+					if entry_line.strip() == '':
 						continue
 					if idx == last_line:
 						bar = gmTools.u_box_bottom_left_arc
 					else:
 						bar = gmTools.u_box_vert_light_4dashes
-					items.append([u'', bar, entry_line.rstrip(), who])
+					items.append(['', bar, entry_line.rstrip(), who])
 					data.append ({
 						'table': entry['src_table'],
 						'pk': entry['src_pk']
@@ -1681,8 +1632,8 @@ class cEMRListJournalPluginPnl(wxgEMRListJournalPluginPnl.wxgEMRListJournalPlugi
 	# internal helpers
 	#--------------------------------------------------------
 	def __register_events(self):
-		gmDispatcher.connect(signal = u'pre_patient_unselection', receiver = self._on_pre_patient_unselection)
-		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._on_post_patient_selection)
+		gmDispatcher.connect(signal = 'pre_patient_unselection', receiver = self._on_pre_patient_unselection)
+		gmDispatcher.connect(signal = 'post_patient_selection', receiver = self._on_post_patient_selection)
 		return True
 
 	#--------------------------------------------------------
@@ -1690,7 +1641,7 @@ class cEMRListJournalPluginPnl(wxgEMRListJournalPluginPnl.wxgEMRListJournalPlugi
 	#--------------------------------------------------------
 	def _on_pre_patient_unselection(self):
 		self._LCTRL_journal.remove_items_safely()
-		self._TCTRL_details.SetValue(u'')
+		self._TCTRL_details.SetValue('')
 		self.__data = {}
 		return True
 
@@ -1707,9 +1658,9 @@ class cEMRListJournalPluginPnl(wxgEMRListJournalPluginPnl.wxgEMRListJournalPlugi
 		data = self._LCTRL_journal.get_item_data(item_idx = evt.Index)
 		if self.__data[data['table']][data['pk']]['formatted_instance'] is None:
 			txt = _(
-				u'%s\n'
-				u'%s\n'
-				u'%s'
+				'%s\n'
+				'%s\n'
+				'%s'
 			) % (
 				self.__data[data['table']][data['pk']]['formatted_header'],
 				gmTools.u_box_horiz_4dashes * 40,
@@ -1722,9 +1673,9 @@ class cEMRListJournalPluginPnl(wxgEMRListJournalPluginPnl.wxgEMRListJournalPlugi
 			return
 
 		txt = _(
-			u'%s\n'
-			u'%s\n'
-			u'%s'
+			'%s\n'
+			'%s\n'
+			'%s'
 		) % (
 			self.__data[data['table']][data['pk']]['formatted_header'],
 			gmTools.u_box_horiz_4dashes * 40,
@@ -1738,9 +1689,9 @@ class cEMRListJournalPluginPnl(wxgEMRListJournalPluginPnl.wxgEMRListJournalPlugi
 		if self.__data[data['table']][data['pk']]['formatted_instance'] is None:
 			self.__data[data['table']][data['pk']]['formatted_instance'] = gmClinicalRecord.format_clin_root_item(data['table'], data['pk'], patient = gmPerson.gmCurrentPatient())
 		txt = _(
-			u'%s\n'
-			u'%s\n'
-			u'%s'
+			'%s\n'
+			'%s\n'
+			'%s'
 		) % (
 			self.__data[data['table']][data['pk']]['formatted_header'],
 			gmTools.u_box_horiz_4dashes * 40,
@@ -1788,7 +1739,7 @@ if __name__ == '__main__':
 		# obtain patient
 		patient = gmPersonSearch.ask_for_patient()
 		if patient is None:
-			print "No patient. Exiting gracefully..."
+			print("No patient. Exiting gracefully...")
 			sys.exit(0)
 		gmPatSearchWidgets.set_active_patient(patient = patient)
 
@@ -1805,7 +1756,7 @@ if __name__ == '__main__':
 			try:
 				patient.cleanup()
 			except:
-				print "error cleaning up patient"
+				print("error cleaning up patient")
 	except Exception:
 		_log.exception("unhandled exception caught !")
 		# but re-raise them

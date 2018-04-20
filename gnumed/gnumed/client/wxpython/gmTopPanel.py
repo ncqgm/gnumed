@@ -64,18 +64,18 @@ class cTopPnl(wxgTopPnl.wxgTopPnl):
 			self._TCTRL_patient_selector.SetEditable(0)
 			self._TCTRL_patient_selector.SetToolTip(None)
 
-		if sys.platform == u'darwin':
+		if sys.platform == 'darwin':
 			_log.debug('adjusting font size on Mac for top panel parts')
 			for ctrl in [self._TCTRL_patient_selector, self._LBL_age, self._LBL_allergies, self._TCTRL_allergies]:
 				curr_font = ctrl.GetFont()
-				mac_font = wx.FontFromNativeInfo(curr_font.NativeFontInfo)
+				mac_font = wx.Font(curr_font.GetNativeFontInfo())
 				mac_font.SetPointSize(pointSize = int(curr_font.GetPointSize() / 0.8))
 				ctrl.SetFont(mac_font)
 
 		# get panel to use
 		dbcfg = gmCfg.cCfgSQL()
 		pk_panel = dbcfg.get2 (
-			option = u'horstspace.top_panel.lab_panel',
+			option = 'horstspace.top_panel.lab_panel',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			bias = 'user'
 		)
@@ -87,13 +87,13 @@ class cTopPnl(wxgTopPnl.wxgTopPnl):
 	#-------------------------------------------------------
 	def __register_interests(self):
 		# events
-		wx.EVT_LEFT_DCLICK(self._TCTRL_allergies, self._on_allergies_dclicked)
+		self._TCTRL_allergies.Bind(wx.EVT_LEFT_DCLICK, self._on_allergies_dclicked)
 
 		# client internal signals
-		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._on_post_patient_selection)
-		gmDispatcher.connect(signal = u'focus_patient_search', receiver = self._on_focus_patient_search)
+		gmDispatcher.connect(signal = 'post_patient_selection', receiver = self._on_post_patient_selection)
+		gmDispatcher.connect(signal = 'focus_patient_search', receiver = self._on_focus_patient_search)
 
-		gmDispatcher.connect(signal = u'gm_table_mod', receiver = self._on_database_signal)
+		gmDispatcher.connect(signal = 'gm_table_mod', receiver = self._on_database_signal)
 
 	#----------------------------------------------
 	# event handling
@@ -109,7 +109,7 @@ class cTopPnl(wxgTopPnl.wxgTopPnl):
 	#----------------------------------------------
 	def _on_database_signal(self, **kwds):
 
-		if kwds['table'] not in [u'dem.identity', u'dem.names', u'dem.identity_tag', u'clin.allergy', u'clin.allergy_state', u'clin.test_result', u'clin.patient']:
+		if kwds['table'] not in ['dem.identity', 'dem.names', 'dem.identity_tag', 'clin.allergy', 'clin.allergy_state', 'clin.test_result', 'clin.patient']:
 			return True
 
 		if self.curr_pat.connected:
@@ -117,26 +117,26 @@ class cTopPnl(wxgTopPnl.wxgTopPnl):
 			if kwds['pk_identity'] != self.curr_pat.ID:
 				return True
 
-		if kwds['table'] == u'dem.identity':
+		if kwds['table'] == 'dem.identity':
 			# we don't care about newly INSERTed or DELETEd patients
 			if kwds['operation'] != 'UPDATE':
 				return True
 			self.__update_age_label()
 			return True
 
-		if kwds['table'] == u'dem.names':
+		if kwds['table'] == 'dem.names':
 			self.__update_age_label()
 			return True
 
-		if kwds['table'] == u'dem.identity_tag':
+		if kwds['table'] == 'dem.identity_tag':
 			self.__update_tags()
 			return True
 
-		if kwds['table'] in [u'clin.allergy', u'clin.allergy_state']:
+		if kwds['table'] in ['clin.allergy', 'clin.allergy_state']:
 			self.__update_allergies()
 			return True
 
-		if kwds['table'] in [u'clin.test_result', u'clin.patient']:
+		if kwds['table'] in ['clin.test_result', 'clin.patient']:
 			self.__update_lab()
 			return True
 
@@ -168,58 +168,58 @@ class cTopPnl(wxgTopPnl.wxgTopPnl):
 	def __update_lab(self):
 
 		if not self.curr_pat.connected:
-			self._LBL_lab.SetLabel(u'')
+			self._LBL_lab.SetLabel('')
 			return
 
 		tests2show = []
 
 		rr = self.curr_pat.emr.get_most_recent_results(loinc = gmLOINC.LOINC_rr_quantity, no_of_results = 1)
 		if rr is None:
-			tests2show.append(_(u'RR ?'))
+			tests2show.append(_('RR ?'))
 		else:
 			#tests2show.append(_(u'%s%s') % (rr['unified_val'], rr['val_unit']))
 			tests2show.append(rr['unified_val'])
 
 		hr = self.curr_pat.emr.get_most_recent_results(loinc = gmLOINC.LOINC_heart_rate_quantity, no_of_results = 1)
 		if hr is not None:
-			tests2show.append(u'%s %s' % (hr['abbrev_tt'], hr['unified_val']))
+			tests2show.append('%s %s' % (hr['abbrev_tt'], hr['unified_val']))
 
 		bmi = self.curr_pat.emr.bmi
 		if bmi.numeric_value is not None:
-			tests2show.append(_(u'BMI %s') % bmi.numeric_value.quantize(decimal.Decimal('1.')))
+			tests2show.append(_('BMI %s') % bmi.numeric_value.quantize(decimal.Decimal('1.')))
 		else:
 			weight = self.curr_pat.emr.get_most_recent_results(loinc = gmLOINC.LOINC_weight, no_of_results = 1)
 			if weight is None:
-				tests2show.append(_(u'BMI ?'))
+				tests2show.append(_('BMI ?'))
 			else:
-				tests2show.append(u'%s%s' % (weight['unified_val'], weight['val_unit']))
+				tests2show.append('%s%s' % (weight['unified_val'], weight['val_unit']))
 
 		gfr_or_crea = self.curr_pat.emr.best_gfr_or_crea
 		if gfr_or_crea is None:
-			tests2show.append(_(u'GFR ?'))
+			tests2show.append(_('GFR ?'))
 		else:
 			try:
-				tests2show.append(_(u'GFR %s') % gfr_or_crea.numeric_value.quantize(decimal.Decimal('1.')))
+				tests2show.append(_('GFR %s') % gfr_or_crea.numeric_value.quantize(decimal.Decimal('1.')))
 			except AttributeError:
-				tests2show.append(u'%s %s' % (gfr_or_crea['abbrev_tt'], gfr_or_crea['unified_val']))
+				tests2show.append('%s %s' % (gfr_or_crea['abbrev_tt'], gfr_or_crea['unified_val']))
 
 		edc = self.curr_pat.emr.EDC
 		if edc is not None:
 			if self.curr_pat.emr.EDC_is_fishy:
-				tests2show.append(_(u'?EDC %s') % gmDateTime.pydt_strftime(edc, '%Y-%b-%d', accuracy = gmDateTime.acc_days))
+				tests2show.append(_('?EDC %s') % gmDateTime.pydt_strftime(edc, '%Y-%b-%d', accuracy = gmDateTime.acc_days))
 			else:
-				tests2show.append(_(u'EDC %s') % gmDateTime.pydt_strftime(edc, '%Y-%b-%d', accuracy = gmDateTime.acc_days))
+				tests2show.append(_('EDC %s') % gmDateTime.pydt_strftime(edc, '%Y-%b-%d', accuracy = gmDateTime.acc_days))
 
 		inr = self.curr_pat.emr.get_most_recent_results(loinc = gmLOINC.LOINC_inr_quantity, no_of_results = 1)
 		if inr is not None:
-			tests2show.append(u'%s %s' % (inr['abbrev_tt'], inr['unified_val']))
+			tests2show.append('%s %s' % (inr['abbrev_tt'], inr['unified_val']))
 
 		# include panel if configured, only show if exist
 		if self.__lab_panel is not None:
-			for result in self.__lab_panel.get_most_recent_results(pk_patient = self.curr_pat.ID, order_by = u'unified_abbrev', group_by_meta_type = True):
-				tests2show.append(u'%s %s' % (result['abbrev_tt'], result['unified_val']))
+			for result in self.__lab_panel.get_most_recent_results(pk_patient = self.curr_pat.ID, order_by = 'unified_abbrev', group_by_meta_type = True):
+				tests2show.append('%s %s' % (result['abbrev_tt'], result['unified_val']))
 
-		self._LBL_lab.SetLabel(u'; '.join(tests2show))
+		self._LBL_lab.SetLabel('; '.join(tests2show))
 
 	#-------------------------------------------------------
 	def __update_age_label(self):
@@ -227,24 +227,24 @@ class cTopPnl(wxgTopPnl.wxgTopPnl):
 		# no patient
 		if not self.curr_pat.connected:
 			self._LBL_age.SetLabel(_('<Age>'))
-			self._LBL_age.SetToolTipString(_('no patient selected'))
+			self._LBL_age.SetToolTip(_('no patient selected'))
 			return
 
 		# gender is always known
-		tt = _(u'Gender: %s (%s) - %s\n') % (
+		tt = _('Gender: %s (%s) - %s\n') % (
 			self.curr_pat.gender_symbol,
-			gmTools.coalesce(self.curr_pat[u'gender'], u'?'),
+			gmTools.coalesce(self.curr_pat['gender'], '?'),
 			self.curr_pat.gender_string
 		)
 
 		# dob is not known
 		if self.curr_pat['dob'] is None:
-			age = u'%s  %s' % (
+			age = '%s  %s' % (
 				self.curr_pat.gender_symbol,
 				self.curr_pat.get_formatted_dob()
 			)
 			self._LBL_age.SetLabel(age)
-			self._LBL_age.SetToolTipString(tt)
+			self._LBL_age.SetToolTip(tt)
 			return
 
 		tt += _('Born: %s\n') % self.curr_pat.get_formatted_dob(format = '%d %b %Y', encoding = gmI18N.get_encoding())
@@ -253,7 +253,7 @@ class cTopPnl(wxgTopPnl.wxgTopPnl):
 		if self.curr_pat['deceased'] is not None:
 			tt += _('Died: %s\n') % gmDateTime.pydt_strftime(self.curr_pat['deceased'], '%d %b %Y')
 			tt += _('At age: %s\n') % self.curr_pat['medical_age']
-			age = u'%s  %s - %s (%s)' % (
+			age = '%s  %s - %s (%s)' % (
 				self.curr_pat.gender_symbol,
 				self.curr_pat.get_formatted_dob(format = '%d %b %Y', encoding = gmI18N.get_encoding()),
 				gmDateTime.pydt_strftime(self.curr_pat['deceased'], '%d %b %Y'),
@@ -262,7 +262,7 @@ class cTopPnl(wxgTopPnl.wxgTopPnl):
 			if self.curr_pat['dob_is_estimated']:
 				tt += _(' (date of birth and age are estimated)\n')
 			self._LBL_age.SetLabel(age)
-			self._LBL_age.SetToolTipString(tt)
+			self._LBL_age.SetToolTip(tt)
 			return
 
 		# patient alive
@@ -274,56 +274,56 @@ class cTopPnl(wxgTopPnl.wxgTopPnl):
 			tt += _("\nToday is the patient's birthday !\n\n")
 			tt += _('Age: %s\n') % self.curr_pat['medical_age']
 		else:
-			tt += _(u'Age: %s, birthday:\n') % self.curr_pat['medical_age']
+			tt += _('Age: %s, birthday:\n') % self.curr_pat['medical_age']
 			if self.curr_pat.current_birthday_passed is True:
-				template = u'%(sex)s  %(dob)s%(l_arr)s (%(age)s)'
-				tt += u' ' + _(u'%s ago (= this year)') % gmDateTime.format_apparent_age_medically (
+				template = '%(sex)s  %(dob)s%(l_arr)s (%(age)s)'
+				tt += ' ' + _('%s ago (= this year)') % gmDateTime.format_apparent_age_medically (
 					age = gmDateTime.calculate_apparent_age(start = self.curr_pat.birthday_this_year, end = now)
-				) + u'\n'
-				tt += u' ' + _(u'in %s (= next year)') % gmDateTime.format_apparent_age_medically (
+				) + '\n'
+				tt += ' ' + _('in %s (= next year)') % gmDateTime.format_apparent_age_medically (
 					age = gmDateTime.calculate_apparent_age(start = now, end = self.curr_pat.birthday_next_year)
-				) + u'\n'
+				) + '\n'
 			elif self.curr_pat.current_birthday_passed is False:
-				template = u'%(sex)s  %(r_arr)s%(dob)s (%(age)s)'
-				tt += u' ' + _(u'in %s (= this year)') % gmDateTime.format_apparent_age_medically (
+				template = '%(sex)s  %(r_arr)s%(dob)s (%(age)s)'
+				tt += ' ' + _('in %s (= this year)') % gmDateTime.format_apparent_age_medically (
 					age = gmDateTime.calculate_apparent_age(start = now, end = self.curr_pat.birthday_this_year)
-				) + u'\n'
-				tt += u' ' + _(u'%s ago (= last year)') % gmDateTime.format_apparent_age_medically (
+				) + '\n'
+				tt += ' ' + _('%s ago (= last year)') % gmDateTime.format_apparent_age_medically (
 					age = gmDateTime.calculate_apparent_age(start = self.curr_pat.birthday_last_year, end = now)
-				) + u'\n'
+				) + '\n'
 			else:	# None, unknown
-				template = u'%(sex)s  %(dob)s (%(age)s)'
+				template = '%(sex)s  %(dob)s (%(age)s)'
 
 		# FIXME: if the age is below, say, 2 hours we should fire
 		# a timer here that updates the age in increments of 1 minute ... :-)
 		age = template % {
-			u'sex': self.curr_pat.gender_symbol,
-			u'dob': self.curr_pat.get_formatted_dob(format = '%d %b %Y', encoding = gmI18N.get_encoding()),
-			u'age': self.curr_pat['medical_age'],
-			u'r_arr': gmTools.u_arrow2right,
-			u'l_arr': gmTools.u_left_arrow
+			'sex': self.curr_pat.gender_symbol,
+			'dob': self.curr_pat.get_formatted_dob(format = '%d %b %Y', encoding = gmI18N.get_encoding()),
+			'age': self.curr_pat['medical_age'],
+			'r_arr': gmTools.u_arrow2right,
+			'l_arr': gmTools.u_left_arrow
 		}
 
 		# Easter Egg ;-)
-		if self.curr_pat['lastnames'] == u'Leibner':
-			if self.curr_pat['firstnames'] == u'Steffi':
-				if self.curr_pat['preferred'] == u'Wildfang':
-					age = u'%s %s' % (gmTools.u_black_heart, age)
+		if self.curr_pat['lastnames'] == 'Leibner':
+			if self.curr_pat['firstnames'] == 'Steffi':
+				if self.curr_pat['preferred'] == 'Wildfang':
+					age = '%s %s' % (gmTools.u_black_heart, age)
 
 		if self.curr_pat['dob_is_estimated']:
 			tt += _(' (date of birth and age are estimated)\n')
 
 		self._LBL_age.SetLabel(age)
-		self._LBL_age.SetToolTipString(tt)
+		self._LBL_age.SetToolTip(tt)
 
 	#-------------------------------------------------------
 	def __update_allergies(self, **kwargs):
 
 		if not self.curr_pat.connected:
-			self._LBL_allergies.SetForegroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOWTEXT))
-			self._TCTRL_allergies.SetForegroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOWTEXT))
-			self._TCTRL_allergies.SetValue(u'')
-			self._TCTRL_allergies.SetToolTipString(u'')
+			self._LBL_allergies.SetForegroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOWTEXT))
+			self._TCTRL_allergies.SetForegroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOWTEXT))
+			self._TCTRL_allergies.SetValue('')
+			self._TCTRL_allergies.SetToolTip('')
 			return
 
 		show_red = True
@@ -336,16 +336,16 @@ class cTopPnl(wxgTopPnl.wxgTopPnl):
 			confirmed = _('never')
 		else:
 			confirmed = gmDateTime.pydt_strftime(state['last_confirmed'], '%Y %b %d')
-		tt = (state.state_string + (90 * u' '))[:90] + u'\n'
+		tt = (state.state_string + (90 * ' '))[:90] + '\n'
 		tt += _('last confirmed %s\n') % confirmed
-		tt += gmTools.coalesce(state['comment'], u'', _('Comment (%s): %%s') % state['modified_by'])
-		tt += u'\n'
+		tt += gmTools.coalesce(state['comment'], '', _('Comment (%s): %%s') % state['modified_by'])
+		tt += '\n'
 
 		# allergies
 		display = []
 		for allergy in emr.get_allergies():
 			# in field: "true" allergies only, not intolerances
-			if allergy['type'] == u'allergy':
+			if allergy['type'] == 'allergy':
 				display.append(allergy['descriptor'][:10].strip() + gmTools.u_ellipsis)
 			# in tooltip
 			if allergy['definite']:
@@ -355,7 +355,7 @@ class cTopPnl(wxgTopPnl.wxgTopPnl):
 			reaction = gmTools.coalesce(allergy['reaction'], _('reaction not recorded'))
 			if len(reaction) > 50:
 				reaction = reaction[:50] + gmTools.u_ellipsis
-			tt += u'%s (%s, %s): %s\n' % (
+			tt += '%s (%s, %s): %s\n' % (
 				allergy['descriptor'],
 				allergy['l10n_type'],
 				certainty,
@@ -376,11 +376,11 @@ class cTopPnl(wxgTopPnl.wxgTopPnl):
 			self._LBL_allergies.SetForegroundColour('red')
 			self._TCTRL_allergies.SetForegroundColour('red')
 		else:
-			self._LBL_allergies.SetForegroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOWTEXT))
-			self._TCTRL_allergies.SetForegroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOWTEXT))
+			self._LBL_allergies.SetForegroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOWTEXT))
+			self._TCTRL_allergies.SetForegroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOWTEXT))
 
 		self._TCTRL_allergies.SetValue(display)
-		self._TCTRL_allergies.SetToolTipString(tt)
+		self._TCTRL_allergies.SetToolTip(tt)
 
 #===========================================================	
 if __name__ == "__main__":

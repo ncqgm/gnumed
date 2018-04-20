@@ -30,8 +30,8 @@ def edit_substance_abuse(parent=None, intake=None, patient=None):
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
 
-	ea = cSubstanceAbuseEAPnl(parent = parent, id = -1, intake = intake, patient = patient)
-	dlg = gmEditArea.cGenericEditAreaDlg2(parent = parent, id = -1, edit_area = ea, single_entry = (intake is not None))
+	ea = cSubstanceAbuseEAPnl(parent, -1, intake = intake, patient = patient)
+	dlg = gmEditArea.cGenericEditAreaDlg2(parent, -1, edit_area = ea, single_entry = (intake is not None))
 	dlg.SetTitle(gmTools.coalesce(intake, _('Adding substance abuse'), _('Editing substance abuse')))
 	if dlg.ShowModal() == wx.ID_OK:
 		dlg.Destroy()
@@ -72,7 +72,7 @@ def manage_substance_abuse(parent=None, patient=None):
 			items.append ([
 				i['substance'],
 				i.harmful_use_type_string,
-				gmDateTime.pydt_strftime(i['last_checked_when'], '%b %Y', none_str = u'')
+				gmDateTime.pydt_strftime(i['last_checked_when'], '%b %Y', none_str = '')
 			])
 		lctrl.set_string_items(items)
 		lctrl.set_data(intakes)
@@ -141,7 +141,7 @@ class cSubstanceAbuseEAPnl(wxgSubstanceAbuseEAPnl.wxgSubstanceAbuseEAPnl, gmEdit
 			self._DPRW_quit_when.SetFocus()
 
 		if self._RBTN_other_substance.GetValue() is True:
-			if self._PRW_substance.GetValue().strip() == u'':
+			if self._PRW_substance.GetValue().strip() == '':
 				validity = False
 				self._PRW_substance.display_as_valid(valid = False)
 				self._PRW_substance.SetFocus()
@@ -218,15 +218,15 @@ class cSubstanceAbuseEAPnl(wxgSubstanceAbuseEAPnl.wxgSubstanceAbuseEAPnl, gmEdit
 		self._RBTN_tobacco.SetValue(False)
 		self._RBTN_c2.SetValue(False)
 		self._RBTN_other_substance.SetValue(True)
-		self._PRW_substance.SetText(u'', None)
+		self._PRW_substance.SetText('', None)
 		self._PRW_substance.Enable()
 		self._RBTN_nonharmful_use.SetValue(True)
 		self._RBTN_harmful_use.SetValue(False)
 		self._RBTN_presently_addicted.SetValue(False)
 		self._RBTN_previously_addicted.SetValue(False)
-		self._TCTRL_comment.SetValue(u'')
-		self._DPRW_quit_when.SetText(u'', None)
-		self._LBL_confirm_date.SetLabel(u'<%s>' % _('today'))
+		self._TCTRL_comment.SetValue('')
+		self._DPRW_quit_when.SetText('', None)
+		self._LBL_confirm_date.SetLabel('<%s>' % _('today'))
 		self._CHBOX_confirm.SetValue(True)
 		self._CHBOX_confirm.Disable()
 
@@ -258,12 +258,12 @@ class cSubstanceAbuseEAPnl(wxgSubstanceAbuseEAPnl.wxgSubstanceAbuseEAPnl, gmEdit
 			self._RBTN_tobacco.SetValue(True)
 			self._RBTN_c2.SetValue(False)
 			self._RBTN_other_substance.SetValue(False)
-			self._PRW_substance.SetText(u'', None)
+			self._PRW_substance.SetText('', None)
 		elif self.data['atc_substance'] == gmATC.ATC_ETHANOL:
 			self._RBTN_tobacco.SetValue(False)
 			self._RBTN_c2.SetValue(True)
 			self._RBTN_other_substance.SetValue(False)
-			self._PRW_substance.SetText(u'', None)
+			self._PRW_substance.SetText('', None)
 		else:
 			self._RBTN_tobacco.SetValue(False)
 			self._RBTN_c2.SetValue(False)
@@ -291,9 +291,9 @@ class cSubstanceAbuseEAPnl(wxgSubstanceAbuseEAPnl.wxgSubstanceAbuseEAPnl, gmEdit
 			self._RBTN_presently_addicted.SetValue(False)
 			self._RBTN_previously_addicted.SetValue(True)
 
-		self._TCTRL_comment.SetValue(gmTools.coalesce(self.data['notes'], u''))
+		self._TCTRL_comment.SetValue(gmTools.coalesce(self.data['notes'], ''))
 		self._DPRW_quit_when.SetText(data = self.data['discontinued'])
-		self._LBL_confirm_date.SetLabel(gmDateTime.pydt_strftime(self.data['last_checked_when'], '%Y %b %d', none_str = u''))
+		self._LBL_confirm_date.SetLabel(gmDateTime.pydt_strftime(self.data['last_checked_when'], '%Y %b %d', none_str = ''))
 		self._CHBOX_confirm.Enable()
 		self._CHBOX_confirm.SetValue(True)
 

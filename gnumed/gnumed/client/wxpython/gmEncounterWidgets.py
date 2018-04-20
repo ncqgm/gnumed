@@ -48,7 +48,7 @@ def _ask_for_encounter_continuation(new_encounter=None, fairly_recent_encounter=
 	"""
 	# better safe than sorry
 	if new_encounter['pk_patient'] != fairly_recent_encounter['pk_patient']:
-		raise ValueError(u'pk_patient values on new (enc=%s pat=%s) and fairly-recent (enc=%s pat=%s) encounter do not match' % (
+		raise ValueError('pk_patient values on new (enc=%s pat=%s) and fairly-recent (enc=%s pat=%s) encounter do not match' % (
 			new_encounter['pk_encounter'],
 			new_encounter['pk_patient'],
 			fairly_recent_encounter['pk_encounter'],
@@ -93,7 +93,7 @@ def _ask_for_encounter_continuation(new_encounter=None, fairly_recent_encounter=
 	dlg = gmGuiHelpers.c2ButtonQuestionDlg (
 		parent = None,
 		id = -1,
-		caption = _(u'Pulling chart'),
+		caption = _('Pulling chart'),
 		question = msg,
 		button_defs = [
 			{'label': _('Continue recent'), 'tooltip': _('Continue the existing recent encounter.'), 'default': False},
@@ -111,13 +111,13 @@ def _ask_for_encounter_continuation(new_encounter=None, fairly_recent_encounter=
 		if new_encounter.transfer_all_data_to_another_encounter(pk_target_encounter = fairly_recent_encounter['pk_encounter']):
 			if not gmEMRStructItems.delete_encounter(pk_encounter = new_encounter['pk_encounter']):
 				gmGuiHelpers.gm_show_info (
-					_(u'Properly switched to fairly recent encounter but unable to delete newly-created encounter.'),
-					_(u'Pulling chart')
+					_('Properly switched to fairly recent encounter but unable to delete newly-created encounter.'),
+					_('Pulling chart')
 				)
 		else:
 			gmGuiHelpers.gm_show_info (
-				_(u'Unable to transfer the data from newly-created to fairly recent encounter.'),
-				_(u'Pulling chart')
+				_('Unable to transfer the data from newly-created to fairly recent encounter.'),
+				_('Pulling chart')
 			)
 		return
 
@@ -134,7 +134,7 @@ def __ask_for_encounter_continuation(**kwargs):
 
 #----------------------------------------------------------------
 # listen for encounter continuation inquiry requests
-gmDispatcher.connect(signal = u'ask_for_encounter_continuation', receiver = __ask_for_encounter_continuation)
+gmDispatcher.connect(signal = 'ask_for_encounter_continuation', receiver = __ask_for_encounter_continuation)
 
 #----------------------------------------------------------------
 def start_new_encounter(emr=None):
@@ -151,7 +151,7 @@ def sanity_check_encounter_of_active_patient(parent=None, msg=None):
 
 	# FIXME: should consult a centralized security provider
 	# secretaries cannot edit encounters
-	if gmStaff.gmCurrentProvider()['role'] == u'secretary':
+	if gmStaff.gmCurrentProvider()['role'] == 'secretary':
 		return True
 
 	pat = gmPerson.gmCurrentPatient()
@@ -179,7 +179,7 @@ def sanity_check_encounter_of_active_patient(parent=None, msg=None):
 	if (not has_narr) and (not has_docs):
 		return True
 
-	empty_aoe = (gmTools.coalesce(enc['assessment_of_encounter'], '').strip() == u'')
+	empty_aoe = (gmTools.coalesce(enc['assessment_of_encounter'], '').strip() == '')
 	zero_duration = (enc['last_affirmed'] == enc['started'])
 
 	# all is well anyway
@@ -252,14 +252,14 @@ def select_encounters(parent=None, patient=None, single_selection=True, encounte
 	def new():
 		cfg_db = gmCfg.cCfgSQL()
 		enc_type = cfg_db.get2 (
-			option = u'encounter.default_type',
+			option = 'encounter.default_type',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
-			bias = u'user'
+			bias = 'user'
 		)
 		if enc_type is None:
 			enc_type = gmEMRStructItems.get_most_commonly_used_encounter_type()
 		if enc_type is None:
-			enc_type = u'in surgery'
+			enc_type = 'in surgery'
 		enc = gmEMRStructItems.create_encounter(fk_patient = patient.ID, enc_type = enc_type)
 		saved = edit_encounter(parent = parent, encounter = enc)
 		if saved:
@@ -300,7 +300,7 @@ def select_encounters(parent=None, patient=None, single_selection=True, encounte
 		if gmEMRStructItems.delete_encounter(pk_encounter = enc['pk_encounter']):
 			return True
 		gmDispatcher.send (
-			signal = u'statustext',
+			signal = 'statustext',
 			msg = _('Cannot delete encounter [%s]. It is probably in use.') % enc['pk_encounter'],
 			beep = True
 		)
@@ -329,12 +329,12 @@ def select_encounters(parent=None, patient=None, single_selection=True, encounte
 
 		items = [
 			[
-				u'%s - %s' % (gmDateTime.pydt_strftime(e['started'], '%Y %b %d  %H:%M'), e['last_affirmed'].strftime('%H:%M')),
+				'%s - %s' % (gmDateTime.pydt_strftime(e['started'], '%Y %b %d  %H:%M'), e['last_affirmed'].strftime('%H:%M')),
 				e['l10n_type'],
-				gmTools.coalesce(e['praxis_branch'], u''),
-				gmTools.coalesce(e['reason_for_encounter'], u''),
-				gmTools.coalesce(e['assessment_of_encounter'], u''),
-				gmTools.bool2subst(e.has_clinical_data(), u'', gmTools.u_checkmark_thin),
+				gmTools.coalesce(e['praxis_branch'], ''),
+				gmTools.coalesce(e['reason_for_encounter'], ''),
+				gmTools.coalesce(e['assessment_of_encounter'], ''),
+				gmTools.bool2subst(e.has_clinical_data(), '', gmTools.u_checkmark_thin),
 				e['pk_encounter']
 			] for e in encs
 		]
@@ -344,7 +344,7 @@ def select_encounters(parent=None, patient=None, single_selection=True, encounte
 		for idx in range(len(encs)):
 			e = encs[idx]
 			if e['pk_encounter'] == active_pk:
-				lctrl.SetItemTextColour(idx, col=wx.NamedColour('RED'))
+				lctrl.SetItemTextColour(idx, col=wx.Colour('RED'))
 	#--------------------
 	return gmListWidgets.get_choices_from_list (
 		parent = parent,
@@ -369,7 +369,7 @@ class cEncounterPhraseWheel(gmPhraseWheel.cPhraseWheel):
 	def __init__(self, *args, **kwargs):
 		gmPhraseWheel.cPhraseWheel.__init__ (self, *args, **kwargs)
 
-		cmd = u"""
+		cmd = """
 			SELECT DISTINCT ON (list_label)
 				pk_encounter
 					AS data,
@@ -393,12 +393,12 @@ class cEncounterPhraseWheel(gmPhraseWheel.cPhraseWheel):
 				30
 		"""
 		context = {'ctxt_patient': {
-			'where_part': u'AND pk_patient = %(patient)s',
-			'placeholder': u'patient'
+			'where_part': 'AND pk_patient = %(patient)s',
+			'placeholder': 'patient'
 		}}
 
 		self.matcher = gmMatchProvider.cMatchProvider_SQL2(queries = [cmd], context = context)
-		self.matcher._SQL_data2match = u"""
+		self.matcher._SQL_data2match = """
 			SELECT
 				pk_encounter
 					AS data,
@@ -418,7 +418,7 @@ class cEncounterPhraseWheel(gmPhraseWheel.cPhraseWheel):
 		self.set_context(context = 'patient', val = None)
 	#--------------------------------------------------------
 	def set_from_instance(self, instance):
-		val = u'%s: %s' % (
+		val = '%s: %s' % (
 			gmDateTime.pydt_strftime(instance['started'], '%Y %b %d'),
 			instance['l10n_type']
 		)
@@ -427,7 +427,7 @@ class cEncounterPhraseWheel(gmPhraseWheel.cPhraseWheel):
 	def _get_data_tooltip(self):
 		if self.GetData() is None:
 			return None
-		enc = gmEMRStructItems.cEncounter(aPK_obj = self._data.values()[0]['data'])
+		enc = gmEMRStructItems.cEncounter(aPK_obj = list(self._data.values())[0]['data'])
 		return enc.format (
 			with_docs = False,
 			with_tests = False,
@@ -477,7 +477,7 @@ class cEncounterEditAreaPnl(wxgEncounterEditAreaPnl.wxgEncounterEditAreaPnl):
 		curr_pat = gmPerson.gmCurrentPatient()
 		if curr_pat.connected:
 			if curr_pat.ID == self.__encounter['pk_patient']:
-				self._LBL_patient.SetForegroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOWTEXT))
+				self._LBL_patient.SetForegroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOWTEXT))
 			else:
 				self._LBL_patient.SetForegroundColour('red')
 
@@ -487,7 +487,7 @@ class cEncounterEditAreaPnl(wxgEncounterEditAreaPnl.wxgEncounterEditAreaPnl):
 		if branch is None:		# None or old entry because praxis has been re-configured
 			unit = self.__encounter.org_unit
 			if unit is None:							# None
-				self._PRW_location.SetText(u'', data = None)
+				self._PRW_location.SetText('', data = None)
 			else:										# old entry
 				self._PRW_location.Enable(False)
 				self._PRW_location.SetText(_('old praxis branch: %s (%s)') % (unit['unit'], unit['organization']), data = None)
@@ -531,11 +531,11 @@ class cEncounterEditAreaPnl(wxgEncounterEditAreaPnl.wxgEncounterEditAreaPnl):
 			self._PRW_encounter_type.Refresh()
 			self._PRW_encounter_type.SetFocus()
 			return False
-		self._PRW_encounter_type.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
+		self._PRW_encounter_type.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOW))
 		self._PRW_encounter_type.Refresh()
 
 		# start
-		if self._PRW_start.GetValue().strip() == u'':
+		if self._PRW_start.GetValue().strip() == '':
 			self._PRW_start.SetBackgroundColour('pink')
 			self._PRW_start.Refresh()
 			self._PRW_start.SetFocus()
@@ -545,7 +545,7 @@ class cEncounterEditAreaPnl(wxgEncounterEditAreaPnl.wxgEncounterEditAreaPnl):
 			self._PRW_start.Refresh()
 			self._PRW_start.SetFocus()
 			return False
-		self._PRW_start.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
+		self._PRW_start.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOW))
 		self._PRW_start.Refresh()
 
 		# last_affirmed
@@ -559,7 +559,7 @@ class cEncounterEditAreaPnl(wxgEncounterEditAreaPnl.wxgEncounterEditAreaPnl):
 			self._PRW_end.Refresh()
 			self._PRW_end.SetFocus()
 			return False
-		self._PRW_end.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
+		self._PRW_end.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOW))
 		self._PRW_end.Refresh()
 
 		return True
@@ -571,8 +571,8 @@ class cEncounterEditAreaPnl(wxgEncounterEditAreaPnl.wxgEncounterEditAreaPnl):
 		self.__encounter['pk_type'] = self._PRW_encounter_type.GetData()
 		self.__encounter['started'] = self._PRW_start.GetData().get_pydt()
 		self.__encounter['last_affirmed'] = self._PRW_end.GetData().get_pydt()
-		self.__encounter['reason_for_encounter'] = gmTools.none_if(self._TCTRL_rfe.GetValue().strip(), u'')
-		self.__encounter['assessment_of_encounter'] = gmTools.none_if(self._TCTRL_aoe.GetValue().strip(), u'')
+		self.__encounter['reason_for_encounter'] = gmTools.none_if(self._TCTRL_rfe.GetValue().strip(), '')
+		self.__encounter['assessment_of_encounter'] = gmTools.none_if(self._TCTRL_aoe.GetValue().strip(), '')
 		self.__encounter.save_payload()			# FIXME: error checking
 
 		self.__encounter.generic_codes_rfe = [ c['data'] for c in self._PRW_rfe_codes.GetData() ]
@@ -608,9 +608,9 @@ class cEncounterEditAreaDlg(wxgEncounterEditAreaDlg.wxgEncounterEditAreaDlg):
 
 		if button_defs is not None:
 			self._BTN_save.SetLabel(button_defs[0][0])
-			self._BTN_save.SetToolTipString(button_defs[0][1])
+			self._BTN_save.SetToolTip(button_defs[0][1])
 			self._BTN_close.SetLabel(button_defs[1][0])
-			self._BTN_close.SetToolTipString(button_defs[1][1])
+			self._BTN_close.SetToolTip(button_defs[1][1])
 			self.Refresh()
 
 		self._PNL_edit_area.refresh(encounter = encounter, msg = msg)
@@ -681,8 +681,8 @@ class cActiveEncounterPnl(wxgActiveEncounterPnl.wxgActiveEncounterPnl):
 
 	#------------------------------------------------------------
 	def clear(self):
-		self._TCTRL_encounter.SetValue(u'')
-		self._TCTRL_encounter.SetToolTipString(u'')
+		self._TCTRL_encounter.SetValue('')
+		self._TCTRL_encounter.SetToolTip('')
 		self._BTN_new.Enable(False)
 		self._BTN_list.Enable(False)
 
@@ -706,7 +706,7 @@ class cActiveEncounterPnl(wxgActiveEncounterPnl.wxgActiveEncounterPnl):
 			with_vaccinations = False,
 			with_family_history = False).strip('\n')
 		)
-		self._TCTRL_encounter.SetToolTipString (
+		self._TCTRL_encounter.SetToolTip (
 			_('The active encounter of the current patient:\n\n%s') % enc.format(
 				with_docs = False,
 				with_tests = False,
@@ -722,12 +722,12 @@ class cActiveEncounterPnl(wxgActiveEncounterPnl.wxgActiveEncounterPnl):
 	def __register_events(self):
 		self._TCTRL_encounter.Bind(wx.EVT_LEFT_DCLICK, self._on_ldclick)
 
-		gmDispatcher.connect(signal = u'pre_patient_unselection', receiver = self._on_pre_patient_unselection)
+		gmDispatcher.connect(signal = 'pre_patient_unselection', receiver = self._on_pre_patient_unselection)
 		# this would throw an exception due to concurrency issues:
 		#gmDispatcher.connect(signal = u'post_patient_selection', receiver = self.refresh)
-		gmDispatcher.connect(signal = u'clin.episode_mod_db', receiver = self.refresh)
-		gmDispatcher.connect(signal = u'current_encounter_modified', receiver = self.refresh)
-		gmDispatcher.connect(signal = u'current_encounter_switched', receiver = self.refresh)
+		gmDispatcher.connect(signal = 'clin.episode_mod_db', receiver = self.refresh)
+		gmDispatcher.connect(signal = 'current_encounter_modified', receiver = self.refresh)
+		gmDispatcher.connect(signal = 'current_encounter_switched', receiver = self.refresh)
 
 	#------------------------------------------------------------
 	# event handler
@@ -759,10 +759,10 @@ class cActiveEncounterPnl(wxgActiveEncounterPnl.wxgActiveEncounterPnl):
 # encounter TYPE related widgets
 #----------------------------------------------------------------
 def edit_encounter_type(parent=None, encounter_type=None):
-	ea = cEncounterTypeEditAreaPnl(parent = parent, id = -1)
+	ea = cEncounterTypeEditAreaPnl(parent, -1)
 	ea.data = encounter_type
 	ea.mode = gmTools.coalesce(encounter_type, 'new', 'edit')
-	dlg = gmEditArea.cGenericEditAreaDlg2(parent = parent, id = -1, edit_area = ea)
+	dlg = gmEditArea.cGenericEditAreaDlg2(parent, -1, edit_area = ea)
 	dlg.SetTitle(gmTools.coalesce(encounter_type, _('Adding new encounter type'), _('Editing local encounter type name')))
 	if dlg.ShowModal() == wx.ID_OK:
 		return True
@@ -782,7 +782,7 @@ def manage_encounter_types(parent=None):
 		if gmEMRStructItems.delete_encounter_type(description = enc_type['description']):
 			return True
 		gmDispatcher.send (
-			signal = u'statustext',
+			signal = 'statustext',
 			msg = _('Cannot delete encounter type [%s]. It is in use.') % enc_type['l10n_description'],
 			beep = True
 		)
@@ -820,7 +820,7 @@ class cEncounterTypeEditAreaPnl(wxgEncounterTypeEditAreaPnl.wxgEncounterTypeEdit
 	#-------------------------------------------------------
 	def _valid_for_save(self):
 		if self.mode == 'edit':
-			if self._TCTRL_l10n_name.GetValue().strip() == u'':
+			if self._TCTRL_l10n_name.GetValue().strip() == '':
 				self.display_tctrl_as_valid(tctrl = self._TCTRL_l10n_name, valid = False)
 				return False
 			self.display_tctrl_as_valid(tctrl = self._TCTRL_l10n_name, valid = True)
@@ -828,8 +828,8 @@ class cEncounterTypeEditAreaPnl(wxgEncounterTypeEditAreaPnl.wxgEncounterTypeEdit
 
 		no_errors = True
 
-		if self._TCTRL_l10n_name.GetValue().strip() == u'':
-			if self._TCTRL_name.GetValue().strip() == u'':
+		if self._TCTRL_l10n_name.GetValue().strip() == '':
+			if self._TCTRL_name.GetValue().strip() == '':
 				self.display_tctrl_as_valid(tctrl = self._TCTRL_l10n_name, valid = False)
 				no_errors = False
 			else:
@@ -837,8 +837,8 @@ class cEncounterTypeEditAreaPnl(wxgEncounterTypeEditAreaPnl.wxgEncounterTypeEdit
 		else:
 			self.display_tctrl_as_valid(tctrl = self._TCTRL_l10n_name, valid = True)
 
-		if self._TCTRL_name.GetValue().strip() == u'':
-			if self._TCTRL_l10n_name.GetValue().strip() == u'':
+		if self._TCTRL_name.GetValue().strip() == '':
+			if self._TCTRL_l10n_name.GetValue().strip() == '':
 				self.display_tctrl_as_valid(tctrl = self._TCTRL_name, valid = False)
 				no_errors = False
 			else:
@@ -850,9 +850,9 @@ class cEncounterTypeEditAreaPnl(wxgEncounterTypeEditAreaPnl.wxgEncounterTypeEdit
 	#-------------------------------------------------------
 	def _save_as_new(self):
 		enc_type = gmEMRStructItems.create_encounter_type (
-			description = gmTools.none_if(self._TCTRL_name.GetValue().strip(), u''),
+			description = gmTools.none_if(self._TCTRL_name.GetValue().strip(), ''),
 			l10n_description = gmTools.coalesce (
-				gmTools.none_if(self._TCTRL_l10n_name.GetValue().strip(), u''),
+				gmTools.none_if(self._TCTRL_l10n_name.GetValue().strip(), ''),
 				self._TCTRL_name.GetValue().strip()
 			)
 		)
@@ -872,8 +872,8 @@ class cEncounterTypeEditAreaPnl(wxgEncounterTypeEditAreaPnl.wxgEncounterTypeEdit
 		return True
 	#-------------------------------------------------------
 	def _refresh_as_new(self):
-		self._TCTRL_l10n_name.SetValue(u'')
-		self._TCTRL_name.SetValue(u'')
+		self._TCTRL_l10n_name.SetValue('')
+		self._TCTRL_name.SetValue('')
 		self._TCTRL_name.Enable(True)
 	#-------------------------------------------------------
 	def _refresh_from_existing(self):
@@ -905,7 +905,7 @@ class cEncounterTypePhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 		mp = gmMatchProvider.cMatchProvider_SQL2 (
 			queries = [
-u"""
+"""
 SELECT
 	data,
 	field_label,

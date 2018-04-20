@@ -2,7 +2,7 @@
 # GNUmed SANE/TWAIN scanner classes
 #==================================================
 
-from __future__ import print_function
+
 
 __license__ = "GPL v2 or later"
 __author__ = """Sebastian Hilbert <Sebastian.Hilbert@gmx.net>, Karsten Hilbert <Karsten.Hilbert@gmx.net>"""
@@ -341,7 +341,7 @@ class cSaneScanner:
 #==================================================
 class cXSaneScanner:
 
-	_FILETYPE = u'.png'
+	_FILETYPE = '.png'
 
 	#----------------------------------------------
 	def __init__(self):
@@ -421,29 +421,29 @@ class cXSaneScanner:
 
 		paths = gmTools.gmPaths()
 		val_dict = {
-			u'tmp-path': paths.tmp_dir,
-			u'working-directory': paths.tmp_dir,
-			u'filename': u'<--force-filename>',
-			u'filetype': cXSaneScanner._FILETYPE,
-			u'skip-existing-numbers': u'1',
-			u'filename-counter-step': u'1',
-			u'filename-counter-len': u'3'
+			'tmp-path': paths.tmp_dir,
+			'working-directory': paths.tmp_dir,
+			'filename': '<--force-filename>',
+			'filetype': cXSaneScanner._FILETYPE,
+			'skip-existing-numbers': '1',
+			'filename-counter-step': '1',
+			'filename-counter-len': '3'
 		}
 
 		for idx, line in enumerate(fread):
-			line = line.replace(u'\n', u'')
-			line = line.replace(u'\r', u'')
+			line = line.replace('\n', '')
+			line = line.replace('\r', '')
 
 			if idx % 2 == 0:			# even lines are keys
-				curr_key = line.strip(u'"')
-				fwrite.write(u'"%s"\n' % curr_key)
+				curr_key = line.strip('"')
+				fwrite.write('"%s"\n' % curr_key)
 			else: 						# odd lines are corresponding values
 				try:
 					value = val_dict[curr_key]
 					_log.debug('replaced [%s] with [%s]', curr_key, val_dict[curr_key])
 				except KeyError:
 					value = line
-				fwrite.write(u'%s\n' % value)
+				fwrite.write('%s\n' % value)
 
 		fwrite.flush()
 		fwrite.close()
@@ -498,7 +498,7 @@ def acquire_pages_into_files(device=None, delay=None, filename=None, calling_win
 #==================================================
 if __name__ == '__main__':
 
-	if len(sys.argv) > 1 and sys.argv[1] == u'test':
+	if len(sys.argv) > 1 and sys.argv[1] == 'test':
 
 		logging.basicConfig(level=logging.DEBUG)
 

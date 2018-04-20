@@ -23,34 +23,34 @@ _log = logging.getLogger('gm.coding')
 #============================================================
 def _on_code_link_modified():
 	"""Always relates to the active patient."""
-	gmHooks.run_hook_script(hook = u'after_code_link_modified')
+	gmHooks.run_hook_script(hook = 'after_code_link_modified')
 
-gmDispatcher.connect(_on_code_link_modified, u'clin.episode_code_mod_db')
-gmDispatcher.connect(_on_code_link_modified, u'clin.rfe_code_mod_db')
-gmDispatcher.connect(_on_code_link_modified, u'clin.aoe_code_mod_db')
-gmDispatcher.connect(_on_code_link_modified, u'clin.health_issue_code_mod_db')
-gmDispatcher.connect(_on_code_link_modified, u'clin.narrative_code_mod_db')
-gmDispatcher.connect(_on_code_link_modified, u'clin.procedure_code_mod_db')
+gmDispatcher.connect(_on_code_link_modified, 'clin.episode_code_mod_db')
+gmDispatcher.connect(_on_code_link_modified, 'clin.rfe_code_mod_db')
+gmDispatcher.connect(_on_code_link_modified, 'clin.aoe_code_mod_db')
+gmDispatcher.connect(_on_code_link_modified, 'clin.health_issue_code_mod_db')
+gmDispatcher.connect(_on_code_link_modified, 'clin.narrative_code_mod_db')
+gmDispatcher.connect(_on_code_link_modified, 'clin.procedure_code_mod_db')
 
 #============================================================
 # generic linked code handling
 #------------------------------------------------------------
-_SQL_get_generic_linked_codes = u"SELECT * FROM clin.v_linked_codes WHERE %s"
+_SQL_get_generic_linked_codes = "SELECT * FROM clin.v_linked_codes WHERE %s"
 
 class cGenericLinkedCode(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents a generic linked code.
 
 	READ ONLY
 	"""
-	_cmd_fetch_payload = _SQL_get_generic_linked_codes % u"pk_lnk_code2item = %s"
+	_cmd_fetch_payload = _SQL_get_generic_linked_codes % "pk_lnk_code2item = %s"
 	_cmds_store_payload = []
 	_updatable_fields = []
 #------------------------------------------------------------
 def get_generic_linked_codes(order_by=None):
 	if order_by is None:
-		order_by = u'true'
+		order_by = 'true'
 	else:
-		order_by = u'true ORDER BY %s' % order_by
+		order_by = 'true ORDER BY %s' % order_by
 
 	cmd = _SQL_get_generic_linked_codes % order_by
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
@@ -58,19 +58,19 @@ def get_generic_linked_codes(order_by=None):
 #============================================================
 # this class represents a generic (non-qualified) code
 #------------------------------------------------------------
-_SQL_get_generic_code = u"SELECT * FROM ref.v_generic_codes WHERE %s"
+_SQL_get_generic_code = "SELECT * FROM ref.v_generic_codes WHERE %s"
 
 class cGenericCode(gmBusinessDBObject.cBusinessDBObject):
 	"""READ ONLY"""
-	_cmd_fetch_payload = _SQL_get_generic_code % u"pk_generic_code = %s"
+	_cmd_fetch_payload = _SQL_get_generic_code % "pk_generic_code = %s"
 	_cmds_store_payload = []
 	_updatable_fields = []
 #------------------------------------------------------------
 def get_generic_codes(order_by=None):
 	if order_by is None:
-		order_by = u'true'
+		order_by = 'true'
 	else:
-		order_by = u'true ORDER BY %s' % order_by
+		order_by = 'true ORDER BY %s' % order_by
 
 	cmd = _SQL_get_generic_code % order_by
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
@@ -85,28 +85,28 @@ def get_coded_terms(coding_systems=None, languages=None, order_by=None):
 	args = {}
 
 	if coding_systems is not None:
-		where_snippets.append(u"((coding_system IN %(sys)s) OR (coding_system_long IN %(sys)s)")
+		where_snippets.append("((coding_system IN %(sys)s) OR (coding_system_long IN %(sys)s)")
 		args['sys'] = tuple(coding_systems)
 
 	if languages is not None:
-		where_snippets.append(u'lang IN %(lang)s')
+		where_snippets.append('lang IN %(lang)s')
 		args['lang'] = tuple(languages)
 
-	cmd = u'select * from ref.v_coded_terms'
+	cmd = 'select * from ref.v_coded_terms'
 
 	if len(where_snippets) > 0:
-		cmd += u' WHERE %s' % u' AND '.join(where_snippets)
+		cmd += ' WHERE %s' % ' AND '.join(where_snippets)
 
 	if order_by is not None:
-		cmd += u' ORDER BY %s' % order_by
+		cmd += ' ORDER BY %s' % order_by
 
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
 
 	return rows
 
 #============================================================
-def get_data_sources(order_by=u'name_long, lang, version'):
-	cmd = u'SELECT * FROM ref.data_source ORDER BY %s' % order_by
+def get_data_sources(order_by='name_long, lang, version'):
+	cmd = 'SELECT * FROM ref.data_source ORDER BY %s' % order_by
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = False)
 	return rows
 
@@ -121,12 +121,12 @@ def create_data_source(long_name=None, short_name=None, version=None, source=Non
 			'lang': language
 		}
 
-		cmd = u"SELECT pk FROM ref.data_source WHERE name_long = %(lname)s AND name_short = %(sname)s AND version = %(ver)s"
+		cmd = "SELECT pk FROM ref.data_source WHERE name_long = %(lname)s AND name_short = %(sname)s AND version = %(ver)s"
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 		if len(rows) > 0:
 			return rows[0]['pk']
 
-		cmd = u"""
+		cmd = """
 			INSERT INTO ref.data_source (name_long, name_short, version, source, lang)
 			VALUES (
 				%(lname)s,
@@ -154,19 +154,19 @@ if __name__ == "__main__":
 
 	#----------------------------------------------------
 	def test_get_generic_codes():
-		print "generic codes:"
+		print("generic codes:")
 		for code in get_generic_codes():
-			print code
+			print(code)
 	#----------------------------------------------------
 	def test_get_coded_terms():
-		print "known codes:"
+		print("known codes:")
 		for term in get_coded_terms():
-			print term
+			print(term)
 	#----------------------------------------------------
 	def test_get_generic_linked_codes():
-		print "generically linked generic codes:"
+		print("generically linked generic codes:")
 		for code in get_generic_linked_codes():
-			print code
+			print(code)
 	#----------------------------------------------------
 	#test_get_coded_terms()
 	#test_get_generic_codes()

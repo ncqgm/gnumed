@@ -26,17 +26,17 @@ _log = logging.getLogger('gm.emr')
 #============================================================
 def _on_soap_modified():
 	"""Always relates to the active patient."""
-	gmHooks.run_hook_script(hook = u'after_soap_modified')
+	gmHooks.run_hook_script(hook = 'after_soap_modified')
 
-gmDispatcher.connect(_on_soap_modified, u'clin.clin_narrative_mod_db')
+gmDispatcher.connect(_on_soap_modified, 'clin.clin_narrative_mod_db')
 
 #============================================================
 class cNarrative(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one clinical free text entry."""
 
-	_cmd_fetch_payload = u"SELECT * FROM clin.v_narrative WHERE pk_narrative = %s"
+	_cmd_fetch_payload = "SELECT * FROM clin.v_narrative WHERE pk_narrative = %s"
 	_cmds_store_payload = [
-		u"""update clin.clin_narrative set
+		"""update clin.clin_narrative set
 				narrative = %(narrative)s,
 				clin_when = %(date)s,
 				soap_cat = lower(%(soap_cat)s),
@@ -60,10 +60,10 @@ class cNarrative(gmBusinessDBObject.cBusinessDBObject):
 
 	#--------------------------------------------------------
 	def format_maximum_information(self, patient=None):
-		return self.format(fancy = True, width = 70).split(u'\n')
+		return self.format(fancy = True, width = 70).split('\n')
 
 	#--------------------------------------------------------
-	def format(self, left_margin=u'', fancy=False, width=75):
+	def format(self, left_margin='', fancy=False, width=75):
 
 		if fancy:
 			txt = gmTools.wrap (
@@ -75,11 +75,11 @@ class cNarrative(gmBusinessDBObject.cBusinessDBObject):
 					self._payload[self._idx['narrative']]
 				),
 				width = width,
-				initial_indent = u'',
-				subsequent_indent = left_margin + u'   '
+				initial_indent = '',
+				subsequent_indent = left_margin + '   '
 			)
 		else:
-			txt = u'%s [%s]: %s (%.8s)' % (
+			txt = '%s [%s]: %s (%.8s)' % (
 				self._payload[self._idx['date']].strftime('%x %H:%M'),
 				gmSoapDefs.soap_cat2l10n[self._payload[self._idx['soap_cat']]],
 				self._payload[self._idx['narrative']],
@@ -97,7 +97,7 @@ class cNarrative(gmBusinessDBObject.cBusinessDBObject):
 		if pk_code in self._payload[self._idx['pk_generic_codes']]:
 			return
 
-		cmd = u"""
+		cmd = """
 			INSERT INTO clin.lnk_code2narrative
 				(fk_item, fk_generic_code)
 			SELECT
@@ -120,7 +120,7 @@ class cNarrative(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	def remove_code(self, pk_code=None):
 		"""<pk_code> must be a value from ref.coding_system_root.pk_coding_system (clin.lnk_code2item_root.fk_generic_code)"""
-		cmd = u"DELETE FROM clin.lnk_code2narrative WHERE fk_item = %(item)s AND fk_generic_code = %(code)s"
+		cmd = "DELETE FROM clin.lnk_code2narrative WHERE fk_item = %(item)s AND fk_generic_code = %(code)s"
 		args = {
 			'item': self._payload[self._idx['pk_narrative']],
 			'code': pk_code
@@ -135,7 +135,7 @@ class cNarrative(gmBusinessDBObject.cBusinessDBObject):
 		if len(self._payload[self._idx['pk_generic_codes']]) == 0:
 			return []
 
-		cmd = gmCoding._SQL_get_generic_linked_codes % u'pk_generic_code IN %(pks)s'
+		cmd = gmCoding._SQL_get_generic_linked_codes % 'pk_generic_code IN %(pks)s'
 		args = {'pks': tuple(self._payload[self._idx['pk_generic_codes']])}
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 		return [ gmCoding.cGenericLinkedCode(row = {'data': r, 'idx': idx, 'pk_field': 'pk_lnk_code2item'}) for r in rows ]
@@ -145,7 +145,7 @@ class cNarrative(gmBusinessDBObject.cBusinessDBObject):
 		# remove all codes
 		if len(self._payload[self._idx['pk_generic_codes']]) > 0:
 			queries.append ({
-				'cmd': u'DELETE FROM clin.lnk_code2narrative WHERE fk_item = %(narr)s AND fk_generic_code IN %(codes)s',
+				'cmd': 'DELETE FROM clin.lnk_code2narrative WHERE fk_item = %(narr)s AND fk_generic_code IN %(codes)s',
 				'args': {
 					'narr': self._payload[self._idx['pk_narrative']],
 					'codes': tuple(self._payload[self._idx['pk_generic_codes']])
@@ -154,7 +154,7 @@ class cNarrative(gmBusinessDBObject.cBusinessDBObject):
 		# add new codes
 		for pk_code in pk_codes:
 			queries.append ({
-				'cmd': u'INSERT INTO clin.lnk_code2narrative (fk_item, fk_generic_code) VALUES (%(narr)s, %(pk_code)s)',
+				'cmd': 'INSERT INTO clin.lnk_code2narrative (fk_item, fk_generic_code) VALUES (%(narr)s, %(pk_code)s)',
 				'args': {
 					'narr': self._payload[self._idx['pk_narrative']],
 					'pk_code': pk_code
@@ -182,7 +182,7 @@ def create_progress_note(soap=None, episode_id=None, encounter_id=None, link_obj
 		return True
 
 	if not gmSoapDefs.are_valid_soap_cats(soap.keys(), allow_upper = True):
-		raise ValueError(u'invalid SOAP category in <soap> dictionary: %s', soap)
+		raise ValueError('invalid SOAP category in <soap> dictionary: %s', soap)
 
 	if link_obj is None:
 		link_obj = gmPG2.get_connection(readonly = False)
@@ -199,10 +199,10 @@ def create_progress_note(soap=None, episode_id=None, encounter_id=None, link_obj
 		val = soap[cat]
 		if val is None:
 			continue
-		if u''.join([ v.strip() for v in val ]) == u'':
+		if ''.join([ v.strip() for v in val ]) == '':
 			continue
 		instance = create_narrative_item (
-			narrative = u'\n'.join([ v.strip() for v in val ]),
+			narrative = '\n'.join([ v.strip() for v in val ]),
 			soap_cat = cat,
 			episode_id = episode_id,
 			encounter_id = encounter_id,
@@ -229,7 +229,7 @@ def create_narrative_item(narrative=None, soap_cat=None, episode_id=None, encoun
 	"""
 	# silently do not insert empty narrative
 	narrative = narrative.strip()
-	if narrative == u'':
+	if narrative == '':
 		return None
 
 	args = {'enc': encounter_id, 'epi': episode_id, 'soap': soap_cat, 'narr': narrative}
@@ -238,7 +238,7 @@ def create_narrative_item(narrative=None, soap_cat=None, episode_id=None, encoun
 	# but, also silently, do not insert true duplicates
 	# this should check for .provider = current_user but
 	# the view has provider mapped to their staff alias
-	cmd = u"""
+	cmd = """
 		INSERT INTO clin.clin_narrative
 			(fk_encounter, fk_episode, narrative, soap_cat)
 		SELECT
@@ -264,7 +264,7 @@ def create_narrative_item(narrative=None, soap_cat=None, episode_id=None, encoun
 		raise Exception('more than one row returned from single-row INSERT')
 
 	# retrieve existing narrative
-	cmd = u"""
+	cmd = """
 		SELECT * FROM clin.v_narrative
 		WHERE
 			pk_encounter = %(enc)s
@@ -284,7 +284,7 @@ def create_narrative_item(narrative=None, soap_cat=None, episode_id=None, encoun
 #------------------------------------------------------------
 def delete_clin_narrative(narrative=None):
 	"""Deletes a clin.clin_narrative row by it's PK."""
-	cmd = u"DELETE FROM clin.clin_narrative WHERE pk=%s"
+	cmd = "DELETE FROM clin.clin_narrative WHERE pk=%s"
 	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': [narrative]}])
 	return True
 
@@ -305,35 +305,35 @@ def get_narrative(since=None, until=None, encounters=None, episodes=None, issues
 		soap_cats
 			- list of SOAP categories of the narrative to be retrieved
 	"""
-	where_parts = [u'TRUE']
+	where_parts = ['TRUE']
 	args = {}
 
 	if encounters is not None:
-		where_parts.append(u'pk_encounter IN %(encs)s')
+		where_parts.append('pk_encounter IN %(encs)s')
 		args['encs'] = tuple(encounters)
 
 	if episodes is not None:
-		where_parts.append(u'pk_episode IN %(epis)s')
+		where_parts.append('pk_episode IN %(epis)s')
 		args['epis'] = tuple(episodes)
 
 	if issues is not None:
-		where_parts.append(u'pk_health_issue IN %(issues)s')
+		where_parts.append('pk_health_issue IN %(issues)s')
 		args['issues'] = tuple(issues)
 
 	if patient is not None:
-		where_parts.append(u'pk_patient = %(pat)s')
+		where_parts.append('pk_patient = %(pat)s')
 		args['pat'] = patient
 
 	if soap_cats is not None:
-		where_parts.append(u'c_vn.soap_cat IN %(soap_cats)s')
+		where_parts.append('c_vn.soap_cat IN %(soap_cats)s')
 		args['soap_cats'] = tuple(soap_cats)
 
 	if order_by is None:
-		order_by = u'ORDER BY date, soap_rank'
+		order_by = 'ORDER BY date, soap_rank'
 	else:
-		order_by = u'ORDER BY %s' % order_by
+		order_by = 'ORDER BY %s' % order_by
 
-	cmd = u"""
+	cmd = """
 		SELECT
 			c_vn.*,
 			c_scr.rank AS soap_rank
@@ -344,7 +344,7 @@ def get_narrative(since=None, until=None, encounters=None, episodes=None, issues
 			%s
 		%s
 	""" % (
-		u' AND '.join(where_parts),
+		' AND '.join(where_parts),
 		order_by
 	)
 
@@ -353,28 +353,28 @@ def get_narrative(since=None, until=None, encounters=None, episodes=None, issues
 	filtered_narrative = [ cNarrative(row = {'pk_field': 'pk_narrative', 'idx': idx, 'data': row}) for row in rows ]
 
 	if since is not None:
-		filtered_narrative = filter(lambda narr: narr['date'] >= since, filtered_narrative)
+		filtered_narrative = [ narr for narr in filtered_narrative if narr['date'] >= since ]
 
 	if until is not None:
-		filtered_narrative = filter(lambda narr: narr['date'] < until, filtered_narrative)
+		filtered_narrative = [ narr for narr in filtered_narrative if narr['date'] < until ]
 
 	if providers is not None:
-		filtered_narrative = filter(lambda narr: narr['modified_by'] in providers, filtered_narrative)
+		filtered_narrative = [ narr for narr in filtered_narrative if narr['modified_by'] in providers ]
 
 	return filtered_narrative
 
 #	if issues is not None:
-#		filtered_narrative = filter(lambda narr: narr['pk_health_issue'] in issues, filtered_narrative)
+#		filtered_narrative = (lambda narr: narr['pk_health_issue'] in issues, filtered_narrative)
 #
 #	if episodes is not None:
-#		filtered_narrative = filter(lambda narr: narr['pk_episode'] in episodes, filtered_narrative)
+#		filtered_narrative = (lambda narr: narr['pk_episode'] in episodes, filtered_narrative)
 #
 #	if encounters is not None:
-#		filtered_narrative = filter(lambda narr: narr['pk_encounter'] in encounters, filtered_narrative)
+#		filtered_narrative = (lambda narr: narr['pk_encounter'] in encounters, filtered_narrative)
 
 #	if soap_cats is not None:
 #		soap_cats = map(lambda c: c.lower(), soap_cats)
-#		filtered_narrative = filter(lambda narr: narr['soap_cat'] in soap_cats, filtered_narrative)
+#		filtered_narrative = (lambda narr: narr['soap_cat'] in soap_cats, filtered_narrative)
 
 #------------------------------------------------------------
 def get_as_journal(since=None, until=None, encounters=None, episodes=None, issues=None, soap_cats=None, providers=None, order_by=None, time_range=None, patient=None, active_encounter=None):
@@ -383,41 +383,41 @@ def get_as_journal(since=None, until=None, encounters=None, episodes=None, issue
 		raise ValueError('at least one of <patient>, <episodes>, <issues>, <encounters> must not be None')
 
 	if order_by is None:
-		order_by = u'ORDER BY clin_when, pk_episode, scr, modified_when, src_table'
+		order_by = 'ORDER BY clin_when, pk_episode, scr, modified_when, src_table'
 	else:
-		order_by = u'ORDER BY %s' % order_by
+		order_by = 'ORDER BY %s' % order_by
 
 	where_parts = []
 	args = {}
 
 	if patient is not None:
-		where_parts.append(u'c_vej.pk_patient = %(pat)s')
+		where_parts.append('c_vej.pk_patient = %(pat)s')
 		args['pat'] = patient
 
 	if soap_cats is not None:
 		# work around bug in psycopg2 not being able to properly
 		# adapt None to NULL inside tuples
 		if None in soap_cats:
-			where_parts.append(u'((c_vej.soap_cat IN %(soap_cat)s) OR (c_vej.soap_cat IS NULL))')
+			where_parts.append('((c_vej.soap_cat IN %(soap_cat)s) OR (c_vej.soap_cat IS NULL))')
 			soap_cats.remove(None)
 		else:
-			where_parts.append(u'c_vej.soap_cat IN %(soap_cat)s')
+			where_parts.append('c_vej.soap_cat IN %(soap_cat)s')
 		args['soap_cat'] = tuple(soap_cats)
 
 	if time_range is not None:
-		where_parts.append(u"c_vej.clin_when > (now() - '%s days'::interval)" % time_range)
+		where_parts.append("c_vej.clin_when > (now() - '%s days'::interval)" % time_range)
 
 	if episodes is not None:
-		where_parts.append(u"c_vej.pk_episode IN %(epis)s")
+		where_parts.append("c_vej.pk_episode IN %(epis)s")
 		args['epis'] = tuple(episodes)
 
 	if issues is not None:
-		where_parts.append(u"c_vej.pk_health_issue IN %(issues)s")
+		where_parts.append("c_vej.pk_health_issue IN %(issues)s")
 		args['issues'] = tuple(issues)
 
 	# FIXME: implement more constraints
 
-	cmd_journal = u"""
+	cmd_journal = """
 		SELECT
 			to_char(c_vej.clin_when, 'YYYY-MM-DD') AS date,
 			c_vej.clin_when,
@@ -448,17 +448,17 @@ def get_as_journal(since=None, until=None, encounters=None, episodes=None, issue
 				join clin.soap_cat_ranks c_scr on (c_scr.soap_cat IS NOT DISTINCT FROM c_vej.soap_cat)
 		WHERE
 			%s
-	""" % u'\n\t\t\t\t\tAND\n\t\t\t\t'.join(where_parts)
+	""" % '\n\t\t\t\t\tAND\n\t\t\t\t'.join(where_parts)
 
 	if active_encounter is None:
-		cmd = cmd_journal + u'\n ' + order_by
+		cmd = cmd_journal + '\n ' + order_by
 	else:
 		args['pk_enc'] = active_encounter['pk_encounter']
 		args['enc_start'] = active_encounter['started']
 		args['enc_last_affirmed'] = active_encounter['last_affirmed']
 		args['enc_type'] = active_encounter['l10n_type']
 		args['enc_pat'] = active_encounter['pk_patient']
-		cmd_hints = u"""
+		cmd_hints = """
 			SELECT
 				to_char(now(), 'YYYY-MM-DD') AS date,
 				now() as clin_when,
@@ -489,7 +489,7 @@ def get_as_journal(since=None, until=None, encounters=None, episodes=None, issue
 				clin.get_hints_for_patient(%(enc_pat)s) as hints
 					join clin.soap_cat_ranks c_scr on (c_scr.soap_cat = 'a')
 		"""
-		cmd = cmd_journal + u'\nUNION ALL\n' + cmd_hints + u'\n' + order_by
+		cmd = cmd_journal + '\nUNION ALL\n' + cmd_hints + '\n' + order_by
 
 	journal_rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 
@@ -503,10 +503,10 @@ def search_text_across_emrs(search_term=None):
 	if search_term is None:
 		return []
 
-	if search_term.strip() == u'':
+	if search_term.strip() == '':
 		return []
 
-	cmd = u'select * from clin.v_narrative4search where narrative ~* %(term)s order by pk_patient limit 1000'
+	cmd = 'select * from clin.v_narrative4search where narrative ~* %(term)s order by pk_patient limit 1000'
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': {'term': search_term}}], get_col_idx = False)
 
 	return rows
@@ -528,14 +528,14 @@ if __name__ == '__main__':
 
 	#-----------------------------------------
 	def test_narrative():
-		print "\nnarrative test"
-		print	"--------------"
+		print("\nnarrative test")
+		print("--------------")
 		narrative = cNarrative(aPK_obj=7)
 		fields = narrative.get_fields()
 		for field in fields:
-			print field, ':', narrative[field]
-		print "updatable:", narrative.get_updatable_fields()
-		print "codes:", narrative.generic_codes
+			print(field, ':', narrative[field])
+		print("updatable:", narrative.get_updatable_fields())
+		print("codes:", narrative.generic_codes)
 		#print "adding code..."
 		#narrative.add_code('Test code', 'Test coding system')
 		#print "codes:", diagnose.get_codes()
@@ -548,7 +548,7 @@ if __name__ == '__main__':
 	def test_search_text_across_emrs():
 		results = search_text_across_emrs('cut')
 		for r in results:
-			print r
+			print(r)
 	#-----------------------------------------
 
 	#test_search_text_across_emrs()

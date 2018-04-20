@@ -1,6 +1,3 @@
-
-from __future__ import print_function
-
 __doc__ = """GNUmed client internationalization/localization.
 
 All i18n/l10n issues should be handled through this modules.
@@ -79,17 +76,9 @@ _substitutes_regex = regex.compile(r'%\(.+?\)s')
 # it is needed to check for successful installation of
 # the desired message catalog
 # **********************************************************
-__orig_tag__ = u'Translate this or i18n into <en_EN> will not work properly !'
+__orig_tag__ = 'Translate this or i18n into <en_EN> will not work properly !'
 # **********************************************************
 # **********************************************************
-
-# Q: I can't use non-ascii characters in labels and menus.
-# A: This can happen if your Python's system encoding is ASCII and
-#    wxPython is non-unicode. Edit/create the file sitecustomize.py
-#    (should be somewhere in your PYTHONPATH), and put these magic lines:
-#
-#	import sys
-#	sys.setdefaultencoding('iso8859-1') # replace with encoding you want to be the default one
 
 #===========================================================================
 def __split_locale_into_levels():
@@ -155,10 +144,10 @@ def __log_locale_settings(message=None):
 	_log.debug('sys.getfilesystemencoding(): [%s]' % sys_fs_enc)
 	if loc_enc is not None:
 		loc_enc = loc_enc.upper()
-		loc_enc_compare = loc_enc.replace(u'-', u'')
+		loc_enc_compare = loc_enc.replace('-', '')
 	else:
 		loc_enc_compare = loc_enc
-	if pref_loc_enc.upper().replace(u'-', u'') != loc_enc_compare:
+	if pref_loc_enc.upper().replace('-', '') != loc_enc_compare:
 		_log.warning('encoding suggested by locale (%s) does not match encoding currently set in locale (%s)' % (pref_loc_enc, loc_enc))
 		_log.warning('this might lead to encoding errors')
 	for enc in [pref_loc_enc, loc_enc, py_str_enc, sys_fs_enc]:
@@ -181,12 +170,12 @@ def __log_locale_settings(message=None):
 	data = locale.localeconv()
 	for key in data.keys():
 		if loc_enc is None:
-			_log.debug(u'locale.localeconv(%s): %s', key, data[key])
+			_log.debug('locale.localeconv(%s): %s', key, data[key])
 		else:
 			try:
-				_log.debug(u'locale.localeconv(%s): %s', key, unicode(data[key]))
+				_log.debug('locale.localeconv(%s): %s', key, str(data[key]))
 			except UnicodeDecodeError:
-				_log.debug(u'locale.localeconv(%s): %s', key, unicode(data[key], loc_enc))
+				_log.debug('locale.localeconv(%s): %s', key, str(data[key], loc_enc))
 	_nl_langinfo_categories = {}
 	for category in 'CODESET D_T_FMT D_FMT T_FMT T_FMT_AMPM RADIXCHAR THOUSEP YESEXPR NOEXPR CRNCYSTR ERA ERA_D_T_FMT ERA_D_FMT ALT_DIGITS'.split():
 		try:
@@ -199,9 +188,9 @@ def __log_locale_settings(message=None):
 				_log.debug('locale.nl_langinfo(%s): %s' % (category, locale.nl_langinfo(_nl_langinfo_categories[category])))
 			else:
 				try:
-					_log.debug(u'locale.nl_langinfo(%s): %s', category, unicode(locale.nl_langinfo(_nl_langinfo_categories[category])))
+					_log.debug('locale.nl_langinfo(%s): %s', category, str(locale.nl_langinfo(_nl_langinfo_categories[category])))
 				except UnicodeDecodeError:
-					_log.debug(u'locale.nl_langinfo(%s): %s', category, unicode(locale.nl_langinfo(_nl_langinfo_categories[category]), loc_enc))
+					_log.debug('locale.nl_langinfo(%s): %s', category, str(locale.nl_langinfo(_nl_langinfo_categories[category]), loc_enc))
 	except:
 		_log.exception('this OS does not support nl_langinfo')
 
@@ -217,7 +206,7 @@ def _translate_protected(term):
 	translation = _translate_original(term)
 
 	# different number of %s substitutes ?
-	if translation.count(u'%s') != term.count(u'%s'):
+	if translation.count('%s') != term.count('%s'):
 		_log.error('count("%s") mismatch, returning untranslated string')
 		_log.error('original   : %s', term)
 		_log.error('translation: %s', translation)
@@ -330,15 +319,15 @@ def install_domain(domain=None, language=None, prefer_local_catalog=False):
 		_log.debug('resetting ${LANG} to initial user default [%s]', initial_lang)
 		if initial_lang is None:
 			del os.environ['LANG']
-			lang2log = u'$LANG=<>'
+			lang2log = '$LANG=<>'
 		else:
 			os.environ['LANG'] = initial_lang
-			lang2log = u'$LANG(default)=%s' % initial_lang
+			lang2log = '$LANG(default)=%s' % initial_lang
 		# setup candidate language
 		if lang_candidate is not None:
 			_log.info('explicitely overriding system locale language [%s] by setting ${LANG} to [%s]', initial_lang, lang_candidate)
 			os.environ['LANG'] = lang_candidate
-			lang2log = u'$LANG(explicit)=%s' % lang_candidate
+			lang2log = '$LANG(explicit)=%s' % lang_candidate
 
 		if __install_domain(domain = domain, prefer_local_catalog = prefer_local_catalog, language = lang2log):
 			return True
@@ -351,7 +340,7 @@ def install_domain(domain=None, language=None, prefer_local_catalog=False):
 	return True
 
 #---------------------------------------------------------------------------
-def __install_domain(domain, prefer_local_catalog, language=u'?'):
+def __install_domain(domain, prefer_local_catalog, language='?'):
 	# <language> only used for logging
 
 	# search for message catalog
@@ -412,7 +401,7 @@ def __install_domain(domain, prefer_local_catalog, language=u'?'):
 		if not os.path.exists(candidate_PO_dir):
 			continue
 		try:
-			gettext.install(domain, candidate_PO_dir, unicode = 1)
+			gettext.install(domain, candidate_PO_dir)
 		except:
 			_log.exception('installing text domain [%s] failed from [%s]', domain, candidate_PO_dir)
 			continue
@@ -423,10 +412,10 @@ def __install_domain(domain, prefer_local_catalog, language=u'?'):
 			continue
 		else:
 			_log.debug('found msg catalog: [%s] => [%s]', __orig_tag__, _(__orig_tag__))
-			import __builtin__
+			import builtins
 			global _translate_original
-			_translate_original = __builtin__._
-			__builtin__._ = _translate_protected
+			_translate_original = builtins._
+			builtins._ = _translate_protected
 			return True
 
 	return False
@@ -484,7 +473,7 @@ if __name__ == "__main__":
 	if len(sys.argv) == 1:
 		sys.exit()
 
-	if sys.argv[1] != u'test':
+	if sys.argv[1] != 'test':
 		sys.exit()
 
 	logging.basicConfig(level = logging.DEBUG)
@@ -497,18 +486,18 @@ if __name__ == "__main__":
 #			(u'1', u'2'),
 #			(u'A', u'A'),
 #			(u'a', u'A'),
-			(u'\u270d', u'\u270d'),
-			(u'4', u'\u270d' + u'4'),
-			(u'4.4', u'\u270d' + u'4.4'),
-			(u'44', u'\u270d' + u'44'),
-			(u'4', u'\u270d' + u'9'),
-			(u'4', u'\u270d' + u'2'),
+			('\u270d', '\u270d'),
+			('4', '\u270d' + '4'),
+			('4.4', '\u270d' + '4.4'),
+			('44', '\u270d' + '44'),
+			('4', '\u270d' + '9'),
+			('4', '\u270d' + '2'),
 #			(u'9', u'\u270d' + u'9'),
 #			(u'9', u'\u270d' + u'4'),
 
 		]
 		for cands in candidates:
-			print(cands[0], u'<vs>', cands[1], '=', locale.strcoll(cands[0], cands[1]))
+			print(cands[0], '<vs>', cands[1], '=', locale.strcoll(cands[0], cands[1]))
 #			print(cands[1], u'<vs>', cands[0], '=', locale.strcoll(cands[1], cands[0]))
 
 	#----------------------------------------------------------------------

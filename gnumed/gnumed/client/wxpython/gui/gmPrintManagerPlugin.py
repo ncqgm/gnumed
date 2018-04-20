@@ -65,7 +65,7 @@ if __name__ == '__main__':
 		# obtain patient
 		patient = gmPersonSearch.ask_for_patient()
 		if patient is None:
-			print "None patient. Exiting gracefully..."
+			print("None patient. Exiting gracefully...")
 			sys.exit(0)
 		gmPatSearchWidgets.set_active_patient(patient=patient)
 
@@ -81,7 +81,7 @@ if __name__ == '__main__':
 			try:
 				patient.cleanup()
 			except:
-				print "error cleaning up patient"
+				print("error cleaning up patient")
 	except Exception:
 		_log.exception("unhandled exception caught !")
 		# but re-raise them

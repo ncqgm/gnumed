@@ -29,7 +29,7 @@ def create_relationship_type(relationship=None, genetic=None):
 	args = {'rel': relationship, 'gen': genetic}
 
 	# already exists ?
-	cmd = u"""
+	cmd = """
 		SELECT *, _(description) as l10n_description
 		FROM clin.fhx_relation_type
 		WHERE
@@ -42,7 +42,7 @@ def create_relationship_type(relationship=None, genetic=None):
 		return rows[0]
 
 	# create it
-	cmd = u"""
+	cmd = """
 		INSERT INTO clin.fhx_relation_type (
 			description,
 			is_genetic
@@ -58,14 +58,14 @@ def create_relationship_type(relationship=None, genetic=None):
 #============================================================
 # Family History item handling
 #------------------------------------------------------------
-_SQL_get_family_history = u"SELECT * from clin.v_family_history WHERE %s"
+_SQL_get_family_history = "SELECT * from clin.v_family_history WHERE %s"
 
 class cFamilyHistory(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents a Family History item."""
 
-	_cmd_fetch_payload = _SQL_get_family_history % u"pk_family_history = %s"
+	_cmd_fetch_payload = _SQL_get_family_history % "pk_family_history = %s"
 	_cmds_store_payload = [
-		u"""
+		"""
 			UPDATE clin.family_history SET
 				narrative = gm.nullify_empty_string(%(condition)s),
 				age_noted = gm.nullify_empty_string(%(age_noted)s),
@@ -88,17 +88,17 @@ class cFamilyHistory(gmBusinessDBObject.cBusinessDBObject):
 	]
 	# view columns that can be updated:
 	_updatable_fields = [
-		u'condition',
-		u'age_noted',
-		u'age_of_death',
-		u'contributed_to_death',
-		u'when_known_to_patient',
-		u'name_relative',
-		u'dob_relative',
-		u'pk_encounter',
-		u'pk_episode',
-		u'pk_fhx_relation_type',
-		u'comment'
+		'condition',
+		'age_noted',
+		'age_of_death',
+		'contributed_to_death',
+		'when_known_to_patient',
+		'name_relative',
+		'dob_relative',
+		'pk_encounter',
+		'pk_episode',
+		'pk_fhx_relation_type',
+		'comment'
 	]
 
 	#--------------------------------------------------------
@@ -108,7 +108,7 @@ class cFamilyHistory(gmBusinessDBObject.cBusinessDBObject):
 		if pk_code in self._payload[self._idx['pk_generic_codes']]:
 			return
 
-		cmd = u"""
+		cmd = """
 			INSERT INTO clin.lnk_code2fhx
 				(fk_item, fk_generic_code)
 			SELECT
@@ -131,7 +131,7 @@ class cFamilyHistory(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	def remove_code(self, pk_code=None):
 		"""<pk_code> must be a value from ref.coding_system_root.pk_coding_system (clin.lnk_code2item_root.fk_generic_code)"""
-		cmd = u"DELETE FROM clin.lnk_code2fhx WHERE fk_item = %(item)s AND fk_generic_code = %(code)s"
+		cmd = "DELETE FROM clin.lnk_code2fhx WHERE fk_item = %(item)s AND fk_generic_code = %(code)s"
 		args = {
 			'item': self._payload[self._idx['pk_family_history']],
 			'code': pk_code
@@ -148,50 +148,50 @@ class cFamilyHistory(gmBusinessDBObject.cBusinessDBObject):
 			include_episode = True,
 			include_comment = True,
 			include_codes = True
-		).split(u'\n')
+		).split('\n')
 
 	#--------------------------------------------------------
 	def format(self, left_margin=0, include_episode=False, include_comment=False, include_codes=False):
 
-		line = u'%s%s' % (
-			(u' ' * left_margin),
+		line = '%s%s' % (
+			(' ' * left_margin),
 			self._payload[self._idx['l10n_relation']]
 		)
 		if self._payload[self._idx['age_of_death']] is not None:
-			line += u' (%s %s)' % (
+			line += ' (%s %s)' % (
 				gmTools.u_latin_cross,
 				gmDateTime.format_interval_medically(self._payload[self._idx['age_of_death']])
 			)
-		line += u': %s' % self._payload[self._idx['condition']]
+		line += ': %s' % self._payload[self._idx['condition']]
 		if self._payload[self._idx['age_noted']] is not None:
-			line += gmTools.coalesce(self._payload[self._idx['age_noted']], u'', u' (@ %s)')
+			line += gmTools.coalesce(self._payload[self._idx['age_noted']], '', ' (@ %s)')
 		if self._payload[self._idx['contributed_to_death']]:
-			line += u' %s %s' % (
+			line += ' %s %s' % (
 				gmTools.u_arrow2right,
 				gmTools.u_skull_and_crossbones
 			)
 
 		if include_episode:
-			line += u'\n%s  %s: %s' % (
-				(u' ' * left_margin),
+			line += '\n%s  %s: %s' % (
+				(' ' * left_margin),
 				_('Episode'),
 				self._payload[self._idx['episode']]
 			)
 
 		if include_comment:
 			if self._payload[self._idx['comment']] is not None:
-				line += u'\n%s  %s' % (
-					(u' ' * left_margin),
+				line += '\n%s  %s' % (
+					(' ' * left_margin),
 					self._payload[self._idx['comment']]
 				)
 
 		if include_codes:
 			codes = self.generic_codes
 			if len(codes) > 0:
-				line += u'\n'
+				line += '\n'
 			for c in codes:
-				line += u'%s  %s: %s (%s - %s)\n' % (
-					(u' ' * left_margin),
+				line += '%s  %s: %s (%s - %s)\n' % (
+					(' ' * left_margin),
 					c['code'],
 					c['term'],
 					c['name_short'],
@@ -208,7 +208,7 @@ class cFamilyHistory(gmBusinessDBObject.cBusinessDBObject):
 		if len(self._payload[self._idx['pk_generic_codes']]) == 0:
 			return []
 
-		cmd = gmCoding._SQL_get_generic_linked_codes % u'pk_generic_code IN %(pks)s'
+		cmd = gmCoding._SQL_get_generic_linked_codes % 'pk_generic_code IN %(pks)s'
 		args = {'pks': tuple(self._payload[self._idx['pk_generic_codes']])}
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 		return [ gmCoding.cGenericLinkedCode(row = {'data': r, 'idx': idx, 'pk_field': 'pk_lnk_code2item'}) for r in rows ]
@@ -218,7 +218,7 @@ class cFamilyHistory(gmBusinessDBObject.cBusinessDBObject):
 		# remove all codes
 		if len(self._payload[self._idx['pk_generic_codes']]) > 0:
 			queries.append ({
-				'cmd': u'DELETE FROM clin.lnk_code2fhx WHERE fk_item = %(fhx)s AND fk_generic_code IN %(codes)s',
+				'cmd': 'DELETE FROM clin.lnk_code2fhx WHERE fk_item = %(fhx)s AND fk_generic_code IN %(codes)s',
 				'args': {
 					'fhx': self._payload[self._idx['pk_family_history']],
 					'codes': tuple(self._payload[self._idx['pk_generic_codes']])
@@ -227,7 +227,7 @@ class cFamilyHistory(gmBusinessDBObject.cBusinessDBObject):
 		# add new codes
 		for pk_code in pk_codes:
 			queries.append ({
-				'cmd': u'INSERT INTO clin.lnk_code2fhx (fk_item, fk_generic_code) VALUES (%(fhx)s, %(pk_code)s)',
+				'cmd': 'INSERT INTO clin.lnk_code2fhx (fk_item, fk_generic_code) VALUES (%(fhx)s, %(pk_code)s)',
 				'args': {
 					'fhx': self._payload[self._idx['pk_family_history']],
 					'pk_code': pk_code
@@ -247,33 +247,33 @@ def get_family_history(order_by=None, patient=None):
 	where_parts = []
 
 	if patient is not None:
-		where_parts.append(u'pk_patient = %(pat)s')
+		where_parts.append('pk_patient = %(pat)s')
 		args['pat'] = patient
 
 	if order_by is None:
 		if len(where_parts) == 0:
-			order_by = u'true'
+			order_by = 'true'
 		else:
-			order_by = u''
+			order_by = ''
 	else:
 		if len(where_parts) == 0:
-			order_by = u'true ORDER BY %s' % order_by
+			order_by = 'true ORDER BY %s' % order_by
 		else:
-			order_by = u'ORDER BY %s' % order_by
+			order_by = 'ORDER BY %s' % order_by
 
-	cmd = _SQL_get_family_history % u' AND '.join(where_parts) + u' ' + order_by
+	cmd = _SQL_get_family_history % ' AND '.join(where_parts) + ' ' + order_by
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 	return [ cFamilyHistory(row = {'data': r, 'idx': idx, 'pk_field': 'pk_family_history'}) for r in rows ]
 #------------------------------------------------------------
 def create_family_history(encounter=None, episode=None, condition=None, relation=None):
 
 	args = {
-		u'enc': encounter,
-		u'epi': episode,
-		u'cond': condition,
-		u'rel': relation
+		'enc': encounter,
+		'epi': episode,
+		'cond': condition,
+		'rel': relation
 	}
-	cmd = u"""
+	cmd = """
 		INSERT INTO clin.family_history (
 			soap_cat,
 			fk_encounter,
@@ -295,7 +295,7 @@ def create_family_history(encounter=None, episode=None, condition=None, relation
 #------------------------------------------------------------
 def delete_family_history(pk_family_history=None):
 	args = {'pk': pk_family_history}
-	cmd = u"DELETE FROM clin.family_history WHERE pk = %(pk)s"
+	cmd = "DELETE FROM clin.family_history WHERE pk = %(pk)s"
 	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 	return True
 #============================================================
@@ -311,9 +311,9 @@ if __name__ == "__main__":
 
 	#----------------------------------------------------
 	def test_get_fhx():
-		print "family history:"
+		print("family history:")
 		for fhx in get_family_history():
-			print fhx
+			print(fhx)
 	#----------------------------------------------------
 	test_get_fhx()
 

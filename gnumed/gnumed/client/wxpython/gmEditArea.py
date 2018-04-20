@@ -162,7 +162,7 @@ class cXxxEAPnl(wxgXxxEAPnl.wxgXxxEAPnl, gmEditArea.cGenericEditAreaMixin):
 		self.__data = None
 		self.successful_save_msg = None
 		self.__tctrl_validity_colors = {
-			True: wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW),
+			True: wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOW),
 			False: 'pink'
 		}
 		self._refresh_as_new()
@@ -224,7 +224,7 @@ class cXxxEAPnl(wxgXxxEAPnl.wxgXxxEAPnl, gmEditArea.cGenericEditAreaMixin):
 			return False
 
 		# remove messages about previous invalid save attempts
-		gmDispatcher.send(signal = 'statustext', msg = u'')
+		gmDispatcher.send(signal = 'statustext', msg = '')
 
 		if self.__mode in ['new', 'new_from_existing']:
 			if self._save_as_new():
@@ -314,8 +314,8 @@ class cGenericEditAreaDlg2(wxgGenericEditAreaDlg2.wxgGenericEditAreaDlg2):
 		dummy_ea_pnl = self._PNL_ea
 		ea_pnl_szr = dummy_ea_pnl.GetContainingSizer()
 		ea_pnl_parent = dummy_ea_pnl.GetParent()
-		ea_pnl_szr.Remove(dummy_ea_pnl)
-		dummy_ea_pnl.Destroy()
+		#ea_pnl_szr.Remove(dummy_ea_pnl)						# not available in wxp4 anymore, BUT
+		dummy_ea_pnl.Destroy()									# in wxp4 .Destroy() auto-Remove()s :-)
 		del dummy_ea_pnl
 		new_ea_min_size = new_ea.GetMinSize()
 		new_ea.Reparent(ea_pnl_parent)
@@ -333,7 +333,7 @@ class cGenericEditAreaDlg2(wxgGenericEditAreaDlg2.wxgGenericEditAreaDlg2):
 
 		# attach listener
 		self._TCTRL_status.SetValue('')
-		gmDispatcher.connect(signal = u'statustext', receiver = self._on_set_statustext)
+		gmDispatcher.connect(signal = 'statustext', receiver = self._on_set_statustext)
 
 		# redraw layout
 		#self.Layout()
@@ -348,7 +348,7 @@ class cGenericEditAreaDlg2(wxgGenericEditAreaDlg2.wxgGenericEditAreaDlg2):
 		if msg is None:
 			self._TCTRL_status.SetValue('')
 			return
-		if msg.strip() == u'':
+		if msg.strip() == '':
 			self._TCTRL_status.SetValue('')
 			return
 		self._TCTRL_status.SetValue(msg)
@@ -368,7 +368,7 @@ class cGenericEditAreaDlg2(wxgGenericEditAreaDlg2.wxgGenericEditAreaDlg2):
 	#--------------------------------------------------------
 	def _on_save_button_pressed(self, evt):
 		if self._PNL_ea.save():
-			gmDispatcher.disconnect(signal = u'statustext', receiver = self._on_set_statustext)
+			gmDispatcher.disconnect(signal = 'statustext', receiver = self._on_set_statustext)
 			if self.IsModal():
 				self.EndModal(wx.ID_OK)
 			else:
@@ -429,7 +429,7 @@ class cGenericEditAreaDlg2(wxgGenericEditAreaDlg2.wxgGenericEditAreaDlg2):
 			raise ValueError('<left extra button> callback is not a callable: %s' % callback)
 		self.__left_extra_button_callback = callback
 		self._BTN_extra_left.SetLabel(label)
-		self._BTN_extra_left.SetToolTipString(tooltip)
+		self._BTN_extra_left.SetToolTip(tooltip)
 		self._BTN_extra_left.Enable(True)
 		self._BTN_extra_left.Show()
 
@@ -501,11 +501,11 @@ class cEditAreaPopup(wx.Dialog):
 		self.__editarea.Reparent(self)
 
 		self.__btn_SAVE = wx.Button(self, self.__wxID_BTN_SAVE, _("Save"))
-		self.__btn_SAVE.SetToolTipString(_('save entry into medical record'))
+		self.__btn_SAVE.SetToolTip(_('save entry into medical record'))
 		self.__btn_RESET = wx.Button(self, self.__wxID_BTN_RESET, _("Reset"))
-		self.__btn_RESET.SetToolTipString(_('reset entry'))
+		self.__btn_RESET.SetToolTip(_('reset entry'))
 		self.__btn_CANCEL = wx.Button(self, wx.ID_CANCEL, _("Cancel"))
-		self.__btn_CANCEL.SetToolTipString(_('discard entry and cancel'))
+		self.__btn_CANCEL.SetToolTip(_('discard entry and cancel'))
 
 		szr_buttons = wx.BoxSizer(wx.HORIZONTAL)
 		szr_buttons.Add(self.__btn_SAVE, 1, wx.EXPAND | wx.ALL, 1)
@@ -633,9 +633,9 @@ class cEditArea2(wx.Panel):
 		return 1
 	#--------------------------------------------------------
 	def __deregister_events(self):
-		gmDispatcher.disconnect(signal = u'pre_patient_unselection', receiver = self._on_pre_patient_unselection)
-		gmDispatcher.disconnect(signal = u'post_patient_selection', receiver = self.on_post_patient_selection)
-		gmDispatcher.disconnect(signal = u'application_closing', receiver = self._on_application_closing)
+		gmDispatcher.disconnect(signal = 'pre_patient_unselection', receiver = self._on_pre_patient_unselection)
+		gmDispatcher.disconnect(signal = 'post_patient_selection', receiver = self.on_post_patient_selection)
+		gmDispatcher.disconnect(signal = 'application_closing', receiver = self._on_application_closing)
 	#--------------------------------------------------------
 	# handlers
 	#--------------------------------------------------------
@@ -788,9 +788,9 @@ class cEditArea2(wx.Panel):
 	def _make_standard_buttons(self, parent):
 		"""Generates OK/CLEAR buttons for edit area."""
 		self.btn_OK = wx.Button(parent, self.__wxID_BTN_OK, _("OK"))
-		self.btn_OK.SetToolTipString(_('save entry into medical record'))
+		self.btn_OK.SetToolTip(_('save entry into medical record'))
 		self.btn_Clear = wx.Button(parent, self.__wxID_BTN_CLEAR, _("Clear"))
-		self.btn_Clear.SetToolTipString(_('initialize input fields for new entry'))
+		self.btn_Clear.SetToolTip(_('initialize input fields for new entry'))
 
 		szr_buttons = wx.BoxSizer(wx.HORIZONTAL)
 		szr_buttons.Add(self.btn_OK, 1, wx.EXPAND | wx.ALL, 1)
@@ -814,7 +814,7 @@ class cEditAreaField(wx.TextCtrl):
 class cEditArea(wx.Panel):
 	def __init__(self, parent, id, pos, size, style):
 
-		print "class [%s] is deprecated, use cEditArea2 instead" % self.__class__.__name__
+		print("class [%s] is deprecated, use cEditArea2 instead" % self.__class__.__name__)
 
 		# init main background panel
 		wx.Panel.__init__(self, parent, id, pos=pos, size=size, style=wx.NO_BORDER | wx.TAB_TRAVERSAL)
@@ -1005,9 +1005,9 @@ class cEditArea(wx.Panel):
 	def _make_standard_buttons(self, parent):
 		"""Generates OK/CLEAR buttons for edit area."""
 		self.btn_OK = wx.Button(parent, ID_BTN_OK, _("OK"))
-		self.btn_OK.SetToolTipString(_('save entry into medical record'))
+		self.btn_OK.SetToolTip(_('save entry into medical record'))
 		self.btn_Clear = wx.Button(parent, ID_BTN_CLEAR, _("Clear"))
-		self.btn_Clear.SetToolTipString(_('initialize input fields for new entry'))
+		self.btn_Clear.SetToolTip(_('initialize input fields for new entry'))
 
 		szr_buttons = wx.BoxSizer(wx.HORIZONTAL)
 		szr_buttons.Add(self.btn_OK, 1, wx.EXPAND | wx.ALL, 1)
@@ -1034,9 +1034,9 @@ class cEditArea(wx.Panel):
 		wx.EVT_SIZE (self.fields_pnl, self._on_resize_fields)
 
 		# client internal signals
-		gmDispatcher.connect(signal = u'pre_patient_unselection', receiver = self._on_pre_patient_unselection)
-		gmDispatcher.connect(signal = u'application_closing', receiver = self._on_application_closing)
-		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self.on_post_patient_selection)
+		gmDispatcher.connect(signal = 'pre_patient_unselection', receiver = self._on_pre_patient_unselection)
+		gmDispatcher.connect(signal = 'application_closing', receiver = self._on_application_closing)
+		gmDispatcher.connect(signal = 'post_patient_selection', receiver = self.on_post_patient_selection)
 
 		return 1
 	#--------------------------------------------------------
@@ -1098,12 +1098,12 @@ class cEditArea(wx.Panel):
 class gmEditArea(cEditArea):
 	def __init__(self, parent, id, aType = None):
 
-		print "class [%s] is deprecated, use cEditArea2 instead" % self.__class__.__name__
+		print("class [%s] is deprecated, use cEditArea2 instead" % self.__class__.__name__)
 
 		# sanity checks
 		if aType not in _known_edit_area_types:
 			_log.error('unknown edit area type: [%s]' % aType)
-			raise gmExceptions.ConstructorError, 'unknown edit area type: [%s]' % aType
+			raise gmExceptions.ConstructorError('unknown edit area type: [%s]' % aType)
 		self._type = aType
 
 		# init main background panel
@@ -1264,7 +1264,7 @@ class gmEditArea(cEditArea):
 	def _makeExtraColumns(self , parent, lines, weightMap = {} ):
 		"""this is a utlity method to add extra columns"""
 		#add an extra column if the class has attribute "extraColumns"
-		if u"extraColumns" in self.__class__.__dict__:
+		if "extraColumns" in self.__class__.__dict__:
 			for x in self.__class__.extraColumns:
 				lines = self._addColumn(parent, lines, x, weightMap)
 		return lines
@@ -1781,7 +1781,7 @@ class gmPnlEditAreaPrompts(wx.Panel):
 		self.SetAutoLayout(True)
 #====================================================================
 #Class central to gnumed data input
-#allows data entry of multiple different types.e.g scripts,
+#allows data entry of multiple different types, e.g scripts,
 #referrals, measurements, recalls etc
 #@TODO : just about everything
 #section = calling section eg allergies, script

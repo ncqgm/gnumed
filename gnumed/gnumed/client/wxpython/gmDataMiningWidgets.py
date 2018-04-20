@@ -80,20 +80,20 @@ class cPatientListingCtrl(gmListWidgets.cReportListCtrl):
 
 		_log.debug('identifier column not configured, trying to detect')
 
-		if u'pk_patient' in data:
-			return u'pk_patient'
+		if 'pk_patient' in data:
+			return 'pk_patient'
 
-		if u'fk_patient' in data:
-			return u'fk_patient'
+		if 'fk_patient' in data:
+			return 'fk_patient'
 
-		if u'pk_identity' in data:
-			return u'pk_identity'
+		if 'pk_identity' in data:
+			return 'pk_identity'
 
-		if u'fk_identity' in data:
-			return u'fk_identity'
+		if 'fk_identity' in data:
+			return 'fk_identity'
 
-		if u'id_identity' in data:
-			return u'id_identity'
+		if 'id_identity' in data:
+			return 'id_identity'
 
 		return gmListWidgets.get_choices_from_list (
 			parent = self,
@@ -179,10 +179,10 @@ class cPatientListingPnl(wxgPatientListingPnl.wxgPatientListingPnl):
 		buttons = [self._BTN_1, self._BTN_2, self._BTN_3, self._BTN_4, self._BTN_5]
 		for idx in range(len(button_defs)):
 			button_def = button_defs[idx]
-			if button_def['label'].strip() == u'':
+			if button_def['label'].strip() == '':
 				continue
 			buttons[idx].SetLabel(button_def['label'])
-			buttons[idx].SetToolTipString(button_def['tooltip'])
+			buttons[idx].SetToolTip(button_def['tooltip'])
 			buttons[idx].Enable(True)
 
 		self.Fit()
@@ -220,7 +220,7 @@ class cDataMiningPnl(wxgDataMiningPnl.wxgDataMiningPnl):
 	#--------------------------------------------------------
 	def __init_ui(self):
 		mp = gmMatchProvider.cMatchProvider_SQL2 (
-			queries = [u"""
+			queries = ["""
 				SELECT DISTINCT ON (label)
 					cmd,
 					label
@@ -237,7 +237,7 @@ class cDataMiningPnl(wxgDataMiningPnl.wxgDataMiningPnl):
 		self._PRW_report_name.add_callback_on_lose_focus(callback = self._auto_load_report)
 	#--------------------------------------------------------
 	def _auto_load_report(self, *args, **kwargs):
-		if self._TCTRL_query.GetValue() == u'':
+		if self._TCTRL_query.GetValue() == '':
 			if self._PRW_report_name.GetData() is not None:
 				self._TCTRL_query.SetValue(self._PRW_report_name.GetData())
 				self._BTN_run.SetFocus()
@@ -277,12 +277,12 @@ class cDataMiningPnl(wxgDataMiningPnl.wxgDataMiningPnl):
 	#--------------------------------------------------------
 	def _on_contribute_button_pressed(self, evt):
 		report = self._PRW_report_name.GetValue().strip()
-		if report == u'':
+		if report == '':
 			gmDispatcher.send(signal = 'statustext', msg = _('Report must have a name for contribution.'), beep = False)
 			return
 
 		query = self._TCTRL_query.GetValue().strip()
-		if query == u'':
+		if query == '':
 			gmDispatcher.send(signal = 'statustext', msg = _('Report must have a query for contribution.'), beep = False)
 			return
 
@@ -301,7 +301,7 @@ class cDataMiningPnl(wxgDataMiningPnl.wxgDataMiningPnl):
 		if not do_it:
 			return
 
-		msg = u"""--- This is a report definition contributed by a GNUmed user.
+		msg = """--- This is a report definition contributed by a GNUmed user.
 
 --- Save it as a text file and drop it onto the Report Generator
 --- inside GNUmed in order to take advantage of the contribution.
@@ -317,11 +317,11 @@ class cDataMiningPnl(wxgDataMiningPnl.wxgDataMiningPnl):
 --- The GNUmed client.
 """ % (report, query)
 
-		auth = {'user': gmNetworkTools.default_mail_sender, 'password': u'gnumed-at-gmx-net'}
+		auth = {'user': gmNetworkTools.default_mail_sender, 'password': 'gnumed-at-gmx-net'}
 		if not gmNetworkTools.compose_and_send_email (
-			sender = u'GNUmed Report Generator <gnumed@gmx.net>',
-			receiver = [u'gnumed-devel@gnu.org'],
-			subject = u'user contributed report',
+			sender = 'GNUmed Report Generator <gnumed@gmx.net>',
+			receiver = ['gnumed-devel@gnu.org'],
+			subject = 'user contributed report',
 			message = msg,
 			server = gmNetworkTools.default_mail_server,
 			auth = auth
@@ -334,15 +334,15 @@ class cDataMiningPnl(wxgDataMiningPnl.wxgDataMiningPnl):
 	#--------------------------------------------------------
 	def _on_schema_button_pressed(self, evt):
 		# will block when called in text mode (that is, from a terminal, too !)
-		gmNetworkTools.open_url_in_browser(url = u'http://wiki.gnumed.de/bin/view/Gnumed/DatabaseSchema')
+		gmNetworkTools.open_url_in_browser(url = 'http://wiki.gnumed.de/bin/view/Gnumed/DatabaseSchema')
 	#--------------------------------------------------------
 	def _on_delete_button_pressed(self, evt):
 		report = self._PRW_report_name.GetValue().strip()
-		if report == u'':
+		if report == '':
 			return True
 		if gmDataMining.delete_report_definition(name=report):
 			self._PRW_report_name.SetText()
-			self._TCTRL_query.SetValue(u'')
+			self._TCTRL_query.SetValue('')
 			gmDispatcher.send(signal='statustext', msg = _('Deleted report definition [%s].') % report, beep=False)
 			return True
 		gmDispatcher.send(signal='statustext', msg = _('Error deleting report definition [%s].') % report, beep=True)
@@ -350,16 +350,16 @@ class cDataMiningPnl(wxgDataMiningPnl.wxgDataMiningPnl):
 	#--------------------------------------------------------
 	def _on_clear_button_pressed(self, evt):
 		self._PRW_report_name.SetText()
-		self._TCTRL_query.SetValue(u'')
+		self._TCTRL_query.SetValue('')
 		self._LCTRL_result.set_columns()
 	#--------------------------------------------------------
 	def _on_save_button_pressed(self, evt):
 		report = self._PRW_report_name.GetValue().strip()
-		if report == u'':
+		if report == '':
 			gmDispatcher.send(signal='statustext', msg = _('Cannot save report definition without name.'), beep=True)
 			return False
 		query = self._TCTRL_query.GetValue().strip()
-		if query == u'':
+		if query == '':
 			gmDispatcher.send(signal='statustext', msg = _('Cannot save report definition without query.'), beep=True)
 			return False
 		# FIXME: check for exists and ask for permission
@@ -405,7 +405,7 @@ class cDataMiningPnl(wxgDataMiningPnl.wxgDataMiningPnl):
 
 		# FIXME: support debugging (debug=1) depending on --debug
 		gp = Gnuplot.Gnuplot(persist=1)
-		if self._PRW_report_name.GetValue().strip() != u'':
+		if self._PRW_report_name.GetValue().strip() != '':
 			gp.title(_('GNUmed report: %s') % self._PRW_report_name.GetValue().strip()[:40])
 		else:
 			gp.title(_('GNUmed report results'))
@@ -434,7 +434,7 @@ class cDataMiningPnl(wxgDataMiningPnl.wxgDataMiningPnl):
 			caption = _('Using report results'),
 			default_value = _('search results')
 		)
-		if zone.strip() == u'':
+		if zone.strip() == '':
 			return
 
 		data = self._LCTRL_result.get_selected_item_data(only_one = False)
@@ -458,7 +458,7 @@ class cDataMiningPnl(wxgDataMiningPnl.wxgDataMiningPnl):
 		event.Skip()
 
 		user_query = self._TCTRL_query.GetValue().strip().strip(';')
-		if user_query == u'':
+		if user_query == '':
 			return
 
 		pat = None
@@ -481,9 +481,9 @@ class cDataMiningPnl(wxgDataMiningPnl.wxgDataMiningPnl):
 			parent = self,
 			message = _("Save SQL report query results as CSV in..."),
 			defaultDir = os.path.abspath(os.path.expanduser(os.path.join('~', 'gnumed'))),
-			defaultFile = u'gm-query_results.csv',
-			wildcard = u'%s (*.csv)|*.csv|%s (*)|*' % (_("CSV files"), _("all files")),
-			style = wx.SAVE
+			defaultFile = 'gm-query_results.csv',
+			wildcard = '%s (*.csv)|*.csv|%s (*)|*' % (_("CSV files"), _("all files")),
+			style = wx.FD_SAVE
 		)
 		choice = dlg.ShowModal()
 		csv_name = dlg.GetPath()
@@ -492,19 +492,19 @@ class cDataMiningPnl(wxgDataMiningPnl.wxgDataMiningPnl):
 			return
 
 		csv_file = io.open(csv_name, mode = 'wt', encoding = 'utf8')
-		csv_file.write(u'#-------------------------------------------------------------------------------------\n')
-		csv_file.write(u'# GNUmed SQL report results\n')
-		csv_file.write(u'#\n')
-		csv_file.write(u'# Report: "%s"\n' % self._PRW_report_name.GetValue().strip())
-		csv_file.write(u'#\n')
-		csv_file.write(u'# SQL:\n')
-		for line in user_query.split(u'\n'):
-			csv_file.write(u'# %s\n' % line)
-		csv_file.write(u'#\n')
-		csv_file.write(u'# ID of active patient: %s\n' % pat)
-		csv_file.write(u'#\n')
-		csv_file.write(u'# hits found: %s\n' % len(rows))
-		csv_file.write(u'#-------------------------------------------------------------------------------------\n')
+		csv_file.write('#-------------------------------------------------------------------------------------\n')
+		csv_file.write('# GNUmed SQL report results\n')
+		csv_file.write('#\n')
+		csv_file.write('# Report: "%s"\n' % self._PRW_report_name.GetValue().strip())
+		csv_file.write('#\n')
+		csv_file.write('# SQL:\n')
+		for line in user_query.split('\n'):
+			csv_file.write('# %s\n' % line)
+		csv_file.write('#\n')
+		csv_file.write('# ID of active patient: %s\n' % pat)
+		csv_file.write('#\n')
+		csv_file.write('# hits found: %s\n' % len(rows))
+		csv_file.write('#-------------------------------------------------------------------------------------\n')
 
 		csv_writer = csv.writer(csv_file)
 		csv_writer.writerow(cols)
@@ -521,7 +521,7 @@ class cDataMiningPnl(wxgDataMiningPnl.wxgDataMiningPnl):
 		self._BTN_save_results.Enable(False)
 
 		user_query = self._TCTRL_query.GetValue().strip().strip(';')
-		if user_query == u'':
+		if user_query == '':
 			return True
 
 		limit = 1001
@@ -564,22 +564,22 @@ class cDataMiningPnl(wxgDataMiningPnl.wxgDataMiningPnl):
 		self._LCTRL_result.set_columns(cols)
 		for row in rows:
 			try:
-				label = unicode(gmTools.coalesce(row[0], u'')).replace('\n', '<LF>').replace('\r', '<CR>')
+				label = str(gmTools.coalesce(row[0], '')).replace('\n', '<LF>').replace('\r', '<CR>')
 			except UnicodeDecodeError:
-				label = _('not unicode()able')
+				label = _('not str()able')
 			if len(label) > 150:
 				label = label[:150] + gmTools.u_ellipsis
-			row_num = self._LCTRL_result.InsertStringItem(sys.maxint, label = label)
+			row_num = self._LCTRL_result.InsertItem(sys.maxsize, label = label)
 			for col_idx in range(1, len(row)):
 				try:
-					label = unicode(gmTools.coalesce(row[col_idx], u'')).replace('\n', '<LF>').replace('\r', '<CR>')[:250]
+					label = str(gmTools.coalesce(row[col_idx], '')).replace('\n', '<LF>').replace('\r', '<CR>')[:250]
 				except UnicodeDecodeError:
-					label = _('not unicode()able')
+					label = _('not str()able')
 				if len(label) > 150:
 					label = label[:150] + gmTools.u_ellipsis
-				self._LCTRL_result.SetStringItem (
+				self._LCTRL_result.SetItem (
 					index = row_num,
-					col = col_idx,
+					column = col_idx,
 					label = label
 				)
 		# must be called explicitely, because string items are set above without calling set_string_items

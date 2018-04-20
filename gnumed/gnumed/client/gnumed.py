@@ -1,8 +1,5 @@
 #!/usr/bin/env python
 
-from __future__ import print_function
-from __future__ import absolute_import
-
 __doc__ = """GNUmed client launcher.
 
 This is the launcher for the GNUmed GUI client. It takes
@@ -66,6 +63,7 @@ __license__ = "GPL v2 or later (details at http://www.gnu.org)"
 import sys
 import os
 import platform
+import faulthandler
 import random
 import logging
 import signal
@@ -96,42 +94,42 @@ against. Please run GNUmed as a non-root user.
 	sys.exit(1)
 
 #----------------------------------------------------------
-current_client_version = u'1.7.rc2'
-current_client_branch = u'1.7'
+current_client_version = '1.7.rc2'
+current_client_branch = '1.7'
 
 _log = None
 _pre_log_buffer = []
 _cfg = None
 _old_sig_term = None
-_known_short_options = u'h?V'
+_known_short_options = 'h?V'
 _known_long_options = [
-	u'debug',
-	u'slave',
-	u'skip-update-check',
-	u'profile=',
-	u'text-domain=',
-	u'log-file=',
-	u'conf-file=',
-	u'lang-gettext=',
-	u'ui=',
-	u'override-schema-check',
-	u'local-import',
-	u'help',
-	u'version',
-	u'hipaa',
-	u'wxp=',
-	u'tool='
+	'debug',
+	'slave',
+	'skip-update-check',
+	'profile=',
+	'text-domain=',
+	'log-file=',
+	'conf-file=',
+	'lang-gettext=',
+	'ui=',
+	'override-schema-check',
+	'local-import',
+	'help',
+	'version',
+	'hipaa',
+	'wxp=',
+	'tool='
 ]
 
 _known_ui_types = [
-	u'web',
-	u'wxp',
-	u'chweb'
+	'web',
+	'wxp',
+	'chweb'
 ]
 
 _known_tools = [
-	u'check_enc_epi_xref',
-	u'export_pat_emr_structure'
+	'check_enc_epi_xref',
+	'export_pat_emr_structure'
 ]
 
 
@@ -159,7 +157,7 @@ requirements please ask on the mailing list.
 """
 
 
-missing_cli_config_file = u"""
+missing_cli_config_file = """
 GNUmed startup: Missing configuration file.
 -------------------------------------------
 
@@ -172,7 +170,7 @@ The file does not exist, however.
 """
 
 
-no_config_files = u"""
+no_config_files = """
 GNUmed startup: Missing configuration files.
 --------------------------------------------
 
@@ -206,7 +204,7 @@ def _symlink_windows(source, link_name):
 #----------------------------------------------------------
 def setup_python_path():
 
-	if not u'--local-import' in sys.argv:
+	if not '--local-import' in sys.argv:
 		_pre_log_buffer.append('running against systemwide install')
 		return
 
@@ -297,17 +295,11 @@ def setup_local_repo_path():
 
 #==========================================================
 def setup_fault_handler(target=None):
-	try:
-		import faulthandler
-	except ImportError:
-		print("Faulthandler not available ...")
-		_pre_log_buffer.append('<faulthandler> not available')
-		return
 	if target is None:
 		faulthandler.enable()
-		_pre_log_buffer.append('<faulthandler> enabled, target = [console]: %s (%s)' % (faulthandler, faulthandler.__version__))
+		_pre_log_buffer.append('<faulthandler> enabled, target = [console]: %s' % faulthandler)
 		return
-	_pre_log_buffer.append('<faulthandler> enabled, target = [%s]: %s (%s)' % (target, faulthandler, faulthandler.__version__))
+	_pre_log_buffer.append('<faulthandler> enabled, target = [%s]: %s' % (target, faulthandler))
 	faulthandler.enable(file = target)
 
 #==========================================================
@@ -333,24 +325,20 @@ def log_startup_info():
 	if len(_pre_log_buffer) > 0:
 		_log.info('early startup log buffer:')
 	for line in _pre_log_buffer:
-		_log.info(u' ' + line)
+		_log.info(' ' + line)
 	del _pre_log_buffer
-	_log.info(u'GNUmed client version [%s] on branch [%s]', current_client_version, current_client_branch)
-	_log.info(u'Platform: %s', platform.uname())
-	_log.info((u'Python %s on %s (%s)' % (sys.version, sys.platform, os.name)).replace(u'\n', u'<\\n>'))
+	_log.info('GNUmed client version [%s] on branch [%s]', current_client_version, current_client_branch)
+	_log.info('Platform: %s', platform.uname())
+	_log.info(('Python %s on %s (%s)' % (sys.version, sys.platform, os.name)).replace('\n', '<\\n>'))
 	try:
 		import lsb_release
-		_log.info(u'lsb_release: %s', lsb_release.get_distro_information())
+		_log.info('lsb_release: %s', lsb_release.get_distro_information())
 	except ImportError:
 		pass
 	_log.info('os.getcwd(): [%s]', os.getcwd())
 	_log.info('process environment:')
 	for key, val in os.environ.items():
-		_log.info(u' %s: %s' % (
-			(u'${%s}' % key).rjust(30),
-			# this won't work in Python3 because that'll be a byte sequence, not a string and thus will need .ENcode
-			val.decode(encoding = sys.getfilesystemencoding(), errors = 'replace')
-		))
+		_log.info(' %s: %s' % (('${%s}' % key).rjust(30),	val))
 
 #==========================================================
 def setup_console_exception_handler():
@@ -373,7 +361,7 @@ def setup_cli():
 	if val is None:
 		val = False
 	_cfg.set_option (
-		option = u'debug',
+		option = 'debug',
 		value = val
 	)
 
@@ -381,7 +369,7 @@ def setup_cli():
 	if val is None:
 		val = False
 	_cfg.set_option (
-		option = u'slave',
+		option = 'slave',
 		value = val
 	)
 
@@ -389,7 +377,7 @@ def setup_cli():
 	if val is None:
 		val = False
 	_cfg.set_option (
-		option = u'skip-update-check',
+		option = 'skip-update-check',
 		value = val
 	)
 
@@ -397,7 +385,7 @@ def setup_cli():
 	if val is None:
 		val = False
 	_cfg.set_option (
-		option = u'hipaa',
+		option = 'hipaa',
 		value = val
 	)
 
@@ -405,17 +393,17 @@ def setup_cli():
 	if val is None:
 		val = False
 	_cfg.set_option (
-		option = u'local-import',
+		option = 'local-import',
 		value = val
 	)
 
 	_cfg.set_option (
-		option = u'client_version',
+		option = 'client_version',
 		value = current_client_version
 	)
 
 	_cfg.set_option (
-		option = u'client_branch',
+		option = 'client_branch',
 		value = current_client_branch
 	)
 
@@ -445,7 +433,7 @@ def setup_locale():
 
 	td = _cfg.get(option = '--text-domain', source_order = [('cli', 'return')])
 	l =  _cfg.get(option = '--lang-gettext', source_order = [('cli', 'return')])
-	gmI18N.install_domain(domain = td, language = l, prefer_local_catalog = _cfg.get(option = u'local-import'))
+	gmI18N.install_domain(domain = td, language = l, prefer_local_catalog = _cfg.get(option = 'local-import'))
 
 	# make sure we re-get the default encoding
 	# in case it changed
@@ -453,12 +441,12 @@ def setup_locale():
 
 #==========================================================
 def handle_help_request():
-	src = [(u'cli', u'return')]
+	src = [('cli', 'return')]
 
 	help_requested = (
-		_cfg.get(option = u'--help', source_order = src) or
-		_cfg.get(option = u'-h', source_order = src) or
-		_cfg.get(option = u'-?', source_order = src)
+		_cfg.get(option = '--help', source_order = src) or
+		_cfg.get(option = '-h', source_order = src) or
+		_cfg.get(option = '-?', source_order = src)
 	)
 
 	if help_requested:
@@ -471,11 +459,11 @@ def handle_help_request():
 
 #==========================================================
 def handle_version_request():
-	src = [(u'cli', u'return')]
+	src = [('cli', 'return')]
 
 	version_requested = (
-		_cfg.get(option = u'--version', source_order = src) or
-		_cfg.get(option = u'-V', source_order = src)
+		_cfg.get(option = '--version', source_order = src) or
+		_cfg.get(option = '-V', source_order = src)
 	)
 
 	if version_requested:
@@ -493,7 +481,7 @@ def handle_version_request():
 def setup_paths_and_files():
 	"""Create needed paths in user home directory."""
 
-	gnumed_DIR_README_TEXT = u"""GNUmed Electronic Medical Record
+	gnumed_DIR_README_TEXT = """GNUmed Electronic Medical Record
 
 	%s/
 
@@ -525,7 +513,7 @@ the hidden directory "%s/".""" % (
 	README.close()
 
 	# wxPython not available yet
-	paths = gmTools.gmPaths(app_name = u'gnumed')
+	paths = gmTools.gmPaths(app_name = 'gnumed')
 	print("Temp dir:", paths.tmp_dir)
 
 	# ensure there's a user-level config file
@@ -549,24 +537,24 @@ def setup_cfg():
 	"""
 
 	enc = gmI18N.get_encoding()
-	paths = gmTools.gmPaths(app_name = u'gnumed')
+	paths = gmTools.gmPaths(app_name = 'gnumed')
 
 	candidates = [
 		# the current working dir
-		[u'workbase', os.path.join(paths.working_dir, 'gnumed.conf')],
+		['workbase', os.path.join(paths.working_dir, 'gnumed.conf')],
 		# /etc/gnumed/
-		[u'system', os.path.join(paths.system_config_dir, 'gnumed-client.conf')],
+		['system', os.path.join(paths.system_config_dir, 'gnumed-client.conf')],
 		# ~/.gnumed/
-		[u'user', os.path.join(paths.user_config_dir, 'gnumed.conf')],
+		['user', os.path.join(paths.user_config_dir, 'gnumed.conf')],
 		# CVS/tgz tree .../gnumed/client/ (IOW a local installation)
-		[u'local', os.path.join(paths.local_base_dir, 'gnumed.conf')]
+		['local', os.path.join(paths.local_base_dir, 'gnumed.conf')]
 	]
 	# --conf-file=
-	explicit_fname = _cfg.get(option = u'--conf-file', source_order = [(u'cli', u'return')])
+	explicit_fname = _cfg.get(option = '--conf-file', source_order = [('cli', 'return')])
 	if explicit_fname is None:
-		candidates.append([u'explicit', None])
+		candidates.append(['explicit', None])
 	else:
-		candidates.append([u'explicit', explicit_fname])
+		candidates.append(['explicit', explicit_fname])
 
 	for candidate in candidates:
 		_cfg.add_file_source (
@@ -594,14 +582,14 @@ def setup_cfg():
 		sys.exit(1)
 
 	# mime type handling sources
-	fname = u'mime_type2file_extension.conf'
+	fname = 'mime_type2file_extension.conf'
 	_cfg.add_file_source (
-		source = u'user-mime',
+		source = 'user-mime',
 		file = os.path.join(paths.user_config_dir, fname),
 		encoding = enc
 	)
 	_cfg.add_file_source (
-		source = u'system-mime',
+		source = 'system-mime',
 		file = os.path.join(paths.system_config_dir, fname),
 		encoding = enc
 	)
@@ -609,7 +597,7 @@ def setup_cfg():
 #==========================================================
 def setup_ui_type():
 	global ui_type
-	ui_type = _cfg.get(option = u'--ui', source_order = [(u'cli', u'return')])
+	ui_type = _cfg.get(option = '--ui', source_order = [('cli', 'return')])
 	if ui_type in [True, False, None]:
 		ui_type = 'wxp'
 	ui_type = ui_type.strip()
@@ -626,13 +614,13 @@ def setup_backend_environment():
 	db_version = gmPG2.map_client_branch2required_db_version[current_client_branch]
 	_log.info('client expects database version [%s]', db_version)
 	_cfg.set_option (
-		option = u'database_version',
+		option = 'database_version',
 		value = db_version
 	)
 
 	# set up database connection timezone
 	timezone = _cfg.get (
-		group = u'backend',
+		group = 'backend',
 		option = 'client timezone',
 		source_order = [
 			('explicit', 'return'),
@@ -647,11 +635,11 @@ def setup_backend_environment():
 
 #==========================================================
 def run_gui():
-	gmHooks.run_hook_script(hook = u'startup-before-GUI')
+	gmHooks.run_hook_script(hook = 'startup-before-GUI')
 
-	if ui_type == u'wxp':
+	if ui_type == 'wxp':
 		from Gnumed.wxpython import gmGuiMain
-		profile_file = _cfg.get(option = u'--profile', source_order = [(u'cli', u'return')])
+		profile_file = _cfg.get(option = '--profile', source_order = [('cli', 'return')])
 		if profile_file is not None:
 			_log.info('writing profiling data into %s', profile_file)
 			import profile
@@ -665,19 +653,19 @@ def run_gui():
 	#	from Gnumed.CherryPy import gmGuiWeb
 	#	gmGuiWeb.main()
 
-	gmHooks.run_hook_script(hook = u'shutdown-post-GUI')
+	gmHooks.run_hook_script(hook = 'shutdown-post-GUI')
 
 	return 0
 
 #==========================================================
 def run_tool():
-	tool = _cfg.get(option = u'--tool', source_order = [(u'cli', u'return')])
+	tool = _cfg.get(option = '--tool', source_order = [('cli', 'return')])
 	if tool is None:
 		# not running a tool
 		return None
 
 	if tool not in _known_tools:
-		_log.error(u'unknown tool requested: %s', tool)
+		_log.error('unknown tool requested: %s', tool)
 		print('GNUmed startup: Unknown tool [%s] requested.' % tool)
 		print('GNUmed startup: Known tools: %s' % _known_tools)
 		return -1
@@ -688,11 +676,11 @@ def run_tool():
 	print('----------------------------------------------')
 	print('')
 
-	if tool == u'check_enc_epi_xref':
+	if tool == 'check_enc_epi_xref':
 		from Gnumed.business import gmEMRStructItems
 		return gmEMRStructItems.check_fk_encounter_fk_episode_x_ref()
 
-	if tool == u'export_pat_emr_structure':
+	if tool == 'export_pat_emr_structure':
 		from Gnumed.business import gmEMRStructItems
 		return gmEMRStructItems.export_patient_emr_structure()
 
@@ -739,7 +727,7 @@ def shutdown_tmp_dir():
 
 	tmp_dir = gmTools.gmPaths().tmp_dir
 
-	if _cfg.get(option = u'debug'):
+	if _cfg.get(option = 'debug'):
 		_log.debug('not removing tmp dir (--debug mode): %s', tmp_dir)
 		return
 
@@ -775,7 +763,7 @@ setup_cfg()
 setup_ui_type()
 
 from Gnumed.pycommon import gmPG2
-if ui_type in [u'web']:
+if ui_type in ['web']:
 	gmPG2.auto_request_login_params = False
 setup_backend_environment()
 

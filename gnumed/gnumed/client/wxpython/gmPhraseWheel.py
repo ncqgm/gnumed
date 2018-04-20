@@ -84,7 +84,7 @@ class cPhraseWheelListCtrl(wx.ListCtrl, listmixins.ListCtrlAutoWidthMixin):
 		self.__data = items
 		pos = len(items) + 1
 		for item in items:
-			row_num = self.InsertStringItem(pos, label=item['list_label'])
+			row_num = self.InsertItem(pos, label=item['list_label'])
 	#--------------------------------------------------------
 	def GetSelectedItemData(self):
 		sel_idx = self.GetFirstSelected()
@@ -191,7 +191,7 @@ class cPhraseWheelBase(wx.TextCtrl):
 		self.__non_edit_font = self.GetFont()
 		global color_prw_valid
 		if color_prw_valid is None:
-			color_prw_valid = wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW)
+			color_prw_valid = wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOW)
 
 		self.__init_dropdown(parent = parent)
 		self.__register_events()
@@ -211,12 +211,12 @@ class cPhraseWheelBase(wx.TextCtrl):
 		return self._data
 
 	#---------------------------------------------------------
-	def SetText(self, value=u'', data=None, suppress_smarts=False):
+	def SetText(self, value='', data=None, suppress_smarts=False):
 
 		if value is None:
-			value = u''
+			value = ''
 
-		if (value == u'') and (data is None):
+		if (value == '') and (data is None):
 			self._data = {}
 			super(cPhraseWheelBase, self).SetValue(value)
 			return
@@ -234,7 +234,7 @@ class cPhraseWheelBase(wx.TextCtrl):
 			return True
 
 		# empty text value ?
-		if value == u'':
+		if value == '':
 			# valid value not required ?
 			if not self.selection_only:
 				return True
@@ -263,7 +263,7 @@ class cPhraseWheelBase(wx.TextCtrl):
 			else:
 				color2show = color_prw_invalid
 		else:
-			raise ValueError(u'<valid> must be True or False')
+			raise ValueError('<valid> must be True or False')
 
 		if self.IsEnabled():
 			self.SetBackgroundColour(color2show)
@@ -288,9 +288,9 @@ class cPhraseWheelBase(wx.TextCtrl):
 			#self.SetBackgroundColour(color_prw_valid)
 			self.SetBackgroundColour(self.__previous_enabled_bg_color)
 		elif enable is False:
-			self.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_BACKGROUND))
+			self.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_BACKGROUND))
 		else:
-			raise ValueError(u'<enable> must be True or False')
+			raise ValueError('<enable> must be True or False')
 
 		self.Refresh()
 
@@ -369,7 +369,7 @@ class cPhraseWheelBase(wx.TextCtrl):
 
 		# get the last word
 		last_word = self.__speller_word_separators.split(val)[-1]
-		if last_word.strip() == u'':
+		if last_word.strip() == '':
 			return None
 
 		try:
@@ -438,7 +438,7 @@ class cPhraseWheelBase(wx.TextCtrl):
 			list_parent,
 			style = wx.LC_NO_HEADER
 		)
-		self._picklist.InsertColumn(0, u'')
+		self._picklist.InsertColumn(0, '')
 
 		if szr_dropdown is not None:
 			szr_dropdown.Add(self._picklist, 1, wx.EXPAND)
@@ -488,7 +488,7 @@ class cPhraseWheelBase(wx.TextCtrl):
 		))
 
 		# recalculate position
-		(pw_x_abs, pw_y_abs) = self.ClientToScreenXY(0,0)
+		(pw_x_abs, pw_y_abs) = self.ClientToScreen(0,0)
 		self.__mac_log('phrasewheel position (on screen): x:%s-%s, y:%s-%s' % (pw_x_abs, (pw_x_abs+pw_size.width), pw_y_abs, (pw_y_abs+pw_size.height)))
 		dropdown_new_x = pw_x_abs
 		dropdown_new_y = pw_y_abs + pw_size.height
@@ -511,7 +511,7 @@ class cPhraseWheelBase(wx.TextCtrl):
 		self.__mac_log('pick list size set to: %s' % self._picklist_dropdown.GetSize())
 		if self.__dropdown_needs_relative_position:
 			dropdown_new_x, dropdown_new_y = self._picklist_dropdown.GetParent().ScreenToClientXY(dropdown_new_x, dropdown_new_y)
-		self._picklist_dropdown.MoveXY(dropdown_new_x, dropdown_new_y)
+		self._picklist_dropdown.Move(dropdown_new_x, dropdown_new_y)
 
 		# select first value
 		self._picklist.Select(0)
@@ -519,9 +519,9 @@ class cPhraseWheelBase(wx.TextCtrl):
 		# and show it
 		self._picklist_dropdown.Show(True)
 
-#		dropdown_top_left = self._picklist_dropdown.ClientToScreenXY(0,0)
+#		dropdown_top_left = self._picklist_dropdown.ClientToScreen(0,0)
 #		dropdown_size = self._picklist_dropdown.GetSize()
-#		dropdown_bottom_right = self._picklist_dropdown.ClientToScreenXY(dropdown_size.width, dropdown_size.height)
+#		dropdown_bottom_right = self._picklist_dropdown.ClientToScreen(dropdown_size.width, dropdown_size.height)
 #		self.__mac_log('dropdown placement now (on screen): x:%s-%s, y:%s-%s' % (
 #			dropdown_top_left[0],
 #			dropdown_bottom_right[0],
@@ -555,7 +555,7 @@ class cPhraseWheelBase(wx.TextCtrl):
 		try:
 			return item['label']
 		except KeyError:
-			return u'<no field_*/list_*/label in item>'
+			return '<no field_*/list_*/label in item>'
 			#return self._picklist.GetItemText(self._picklist.GetFirstSelected())
 	#--------------------------------------------------------
 	def _update_display_from_picked_item(self, item):
@@ -617,7 +617,7 @@ class cPhraseWheelBase(wx.TextCtrl):
 		"""
 		if self.__static_tt is None:
 			if self.ToolTip is None:
-				self.__static_tt = u''
+				self.__static_tt = ''
 			else:
 				self.__static_tt = self.ToolTip.Tip
 
@@ -626,30 +626,31 @@ class cPhraseWheelBase(wx.TextCtrl):
 		# in which case we want to be able to re-set the
 		# tooltip to the static part
 		static_part = self.__static_tt
-		if (self.__static_tt_extra) is not None and (self.__static_tt_extra.strip() != u''):
-			static_part = u'%s\n\n%s' % (
+		if (self.__static_tt_extra) is not None and (self.__static_tt_extra.strip() != ''):
+			static_part = '%s\n\n%s' % (
 				static_part,
 				self.__static_tt_extra
 			)
 
 		dynamic_part = self._get_data_tooltip()
 		if dynamic_part is None:
-			self.SetToolTipString(static_part)
+			self.SetToolTip(static_part)
 			return
 
-		if static_part == u'':
+		if static_part == '':
 			tt = dynamic_part
 		else:
-			if dynamic_part.strip() == u'':
+			if dynamic_part.strip() == '':
 				tt = static_part
 			else:
-				tt = u'%s\n\n%s\n\n%s' % (
+				tt = '%s\n\n%s\n\n%s' % (
 					dynamic_part,
 					gmTools.u_box_horiz_single * 32,
 					static_part
 				)
 
-		self.SetToolTipString(tt)
+		self.SetToolTip(tt)
+
 	#--------------------------------------------------------
 	def _get_static_tt_extra(self):
 		return self.__static_tt_extra
@@ -658,15 +659,17 @@ class cPhraseWheelBase(wx.TextCtrl):
 		self.__static_tt_extra = tt
 
 	static_tooltip_extra = property(_get_static_tt_extra, _set_static_tt_extra)
+
 	#--------------------------------------------------------
 	# event handling
 	#--------------------------------------------------------
 	def __register_events(self):
-		wx.EVT_KEY_DOWN (self, self._on_key_down)
-		wx.EVT_SET_FOCUS(self, self._on_set_focus)
-		wx.EVT_KILL_FOCUS(self, self._on_lose_focus)
-		wx.EVT_TEXT(self, self.GetId(), self._on_text_update)
+		self.Bind(wx.EVT_KEY_DOWN, self._on_key_down)
+		self.Bind(wx.EVT_SET_FOCUS, self._on_set_focus)
+		self.Bind(wx.EVT_KILL_FOCUS, self._on_lose_focus)
+		self.Bind(wx.EVT_TEXT, self._on_text_update)
 		self._picklist.Bind(wx.EVT_LEFT_DCLICK, self._on_list_item_selected)
+
 	#--------------------------------------------------------
 	def _on_key_down(self, event):
 		"""Is called when a key is pressed."""
@@ -698,7 +701,7 @@ class cPhraseWheelBase(wx.TextCtrl):
 			pass
 
 		# need to handle all non-character key presses *before* this check
-		elif not self.__char_is_allowed(char = unichr(event.GetUnicodeKey())):
+		elif not self.__char_is_allowed(char = chr(event.GetUnicodeKey())):
 			wx.Bell()
 			# Richard doesn't show any error message here
 			return
@@ -713,7 +716,7 @@ class cPhraseWheelBase(wx.TextCtrl):
 
 		#self.__non_edit_font = self.GetFont()
 		#edit_font = self.GetFont()
-		edit_font = wx.FontFromNativeInfo(self.__non_edit_font.NativeFontInfo)
+		edit_font = wx.Font(self.__non_edit_font.GetNativeFontInfo())
 		edit_font.SetPointSize(pointSize = edit_font.GetPointSize() + 1)
 		self.SetFont(edit_font)
 		self.Refresh()
@@ -802,7 +805,7 @@ class cPhraseWheelBase(wx.TextCtrl):
 
 		# if empty string then hide list dropdown window
 		# we also don't need a timer event then
-		if val == u'':
+		if val == '':
 			self._hide_picklist()
 			self.__timer.Stop()
 		else:
@@ -848,8 +851,8 @@ class cPhraseWheelBase(wx.TextCtrl):
 		# with the top-weighted contextual item but want to
 		# select another contextual item)
 		self.__timer.Stop()
-		if self.GetValue().strip() == u'':
-			val = u'*'
+		if self.GetValue().strip() == '':
+			val = '*'
 		else:
 			val = self._extract_fragment_to_match_on()
 		self._update_candidates_in_picklist(val = val)
@@ -1075,7 +1078,7 @@ class cPhraseWheel(cPhraseWheelBase):
 		if len(self._data) == 0:
 			return None
 
-		return self._data.values()[0]['data']
+		return list(self._data.values())[0]['data']
 
 	#---------------------------------------------------------
 	def SetData(self, data=None):
@@ -1092,7 +1095,7 @@ class cPhraseWheel(cPhraseWheelBase):
 			return True
 
 		# try getting match candidates
-		self._update_candidates_in_picklist(u'*')
+		self._update_candidates_in_picklist('*')
 
 		# do we require a match ?
 		if self.selection_only:
@@ -1141,7 +1144,7 @@ class cPhraseWheel(cPhraseWheelBase):
 
 		# needed ?
 		val = self.GetValue().strip()
-		if val == u'':
+		if val == '':
 			return True
 
 		# so try
@@ -1175,7 +1178,7 @@ class cPhraseWheel(cPhraseWheelBase):
 	def _dictify_data(self, data=None, value=None):
 		# assume data to always be old style
 		if value is None:
-			value = u'%s' % data
+			value = '%s' % data
 		return {value: {'data': data, 'list_label': value, 'field_label': value}}
 
 #============================================================
@@ -1186,8 +1189,8 @@ class cMultiPhraseWheel(cPhraseWheelBase):
 		super(cMultiPhraseWheel, self).__init__(*args, **kwargs)
 
 		self.phrase_separators = default_phrase_separators
-		self.left_part = u''
-		self.right_part = u''
+		self.left_part = ''
+		self.right_part = ''
 		self.speller = None
 	#---------------------------------------------------------
 	def GetData(self, can_create=False, as_instance=False):
@@ -1198,7 +1201,7 @@ class cMultiPhraseWheel(cPhraseWheelBase):
 			if as_instance:
 				return self._data2instance()
 
-		return self._data.values()
+		return list(self._data.values())
 	#---------------------------------------------------------
 	def enable_default_spellchecker(self):
 		self.speller = None
@@ -1247,8 +1250,8 @@ class cMultiPhraseWheel(cPhraseWheelBase):
 
 		entire_input = self.GetValue()
 		if self.__phrase_separators.search(entire_input) is None:
-			self.left_part = u''
-			self.right_part = u''
+			self.left_part = ''
+			self.right_part = ''
 			return self.GetValue().strip()
 
 		string_left_of_cursor = entire_input[:cursor_pos]
@@ -1256,24 +1259,24 @@ class cMultiPhraseWheel(cPhraseWheelBase):
 
 		left_parts = [ lp.strip() for lp in self.__phrase_separators.split(string_left_of_cursor) ]
 		if len(left_parts) == 0:
-			self.left_part = u''
+			self.left_part = ''
 		else:
-			self.left_part = u'%s%s ' % (
-				(u'%s ' % self.__phrase_separators.pattern[0]).join(left_parts[:-1]),
+			self.left_part = '%s%s ' % (
+				('%s ' % self.__phrase_separators.pattern[0]).join(left_parts[:-1]),
 				self.__phrase_separators.pattern[0]
 			)
 
 		right_parts = [ rp.strip() for rp in self.__phrase_separators.split(string_right_of_cursor) ]
-		self.right_part = u'%s %s' % (
+		self.right_part = '%s %s' % (
 			self.__phrase_separators.pattern[0],
-			(u'%s ' % self.__phrase_separators.pattern[0]).join(right_parts[1:])
+			('%s ' % self.__phrase_separators.pattern[0]).join(right_parts[1:])
 		)
 
 		val = (left_parts[-1] + right_parts[0]).strip()
 		return val
 	#--------------------------------------------------------
 	def _update_display_from_picked_item(self, item):
-		val = (u'%s%s%s' % (
+		val = ('%s%s%s' % (
 			self.left_part,
 			self._picklist_item2display_string(item = item),
 			self.right_part
@@ -1334,7 +1337,7 @@ class cMultiPhraseWheel(cPhraseWheelBase):
 	phrase_separators = property(_get_phrase_separators, _set_phrase_separators)
 	#--------------------------------------------------------
 	def _get_displayed_strings(self):
-		return [ p.strip() for p in self.__phrase_separators.split(self.GetValue().strip()) if p.strip() != u'' ]
+		return [ p.strip() for p in self.__phrase_separators.split(self.GetValue().strip()) if p.strip() != '' ]
 
 	displayed_strings = property(_get_displayed_strings, lambda x:x)
 #============================================================
@@ -1345,7 +1348,7 @@ if __name__ == '__main__':
 	if len(sys.argv) < 2:
 		sys.exit()
 
-	if sys.argv[1] != u'test':
+	if sys.argv[1] != 'test':
 		sys.exit()
 
 	from Gnumed.pycommon import gmI18N
@@ -1357,27 +1360,27 @@ if __name__ == '__main__':
 	prw = None				# used for access from display_values_*
 	#--------------------------------------------------------
 	def display_values_set_focus(*args, **kwargs):
-		print "got focus:"
-		print "value:", prw.GetValue()
-		print "data :", prw.GetData()
+		print("got focus:")
+		print("value:", prw.GetValue())
+		print("data :", prw.GetData())
 		return True
 	#--------------------------------------------------------
 	def display_values_lose_focus(*args, **kwargs):
-		print "lost focus:"
-		print "value:", prw.GetValue()
-		print "data :", prw.GetData()
+		print("lost focus:")
+		print("value:", prw.GetValue())
+		print("data :", prw.GetData())
 		return True
 	#--------------------------------------------------------
 	def display_values_modified(*args, **kwargs):
-		print "modified:"
-		print "value:", prw.GetValue()
-		print "data :", prw.GetData()
+		print("modified:")
+		print("value:", prw.GetValue())
+		print("data :", prw.GetData())
 		return True
 	#--------------------------------------------------------
 	def display_values_selected(*args, **kwargs):
-		print "selected:"
-		print "value:", prw.GetValue()
-		print "data :", prw.GetData()
+		print("selected:")
+		print("value:", prw.GetValue())
+		print("data :", prw.GetData())
 		return True
 	#--------------------------------------------------------
 	#--------------------------------------------------------
@@ -1396,7 +1399,7 @@ if __name__ == '__main__':
 		# do NOT treat "-" as a word separator here as there are names like "asa-sismussen"
 		mp.word_separators = '[ \t=+&:@]+'
 		global prw
-		prw = cPhraseWheel(parent = app.frame, id = -1)
+		prw = cPhraseWheel(app.frame, -1)
 		prw.matcher = mp
 		prw.capitalisation_mode = gmTools.CAPS_NAMES
 		prw.add_callback_on_set_focus(callback=display_values_set_focus)
@@ -1410,18 +1413,18 @@ if __name__ == '__main__':
 		return True
 	#--------------------------------------------------------
 	def test_prw_sql2():
-		print "Do you want to test the database connected phrase wheel ?"
-		yes_no = raw_input('y/n: ')
+		print("Do you want to test the database connected phrase wheel ?")
+		yes_no = input('y/n: ')
 		if yes_no != 'y':
 			return True
 
 		gmPG2.get_connection()
-		query = u"""SELECT code, code || ': ' || _(name), _(name) FROM dem.country WHERE _(name) %(fragment_condition)s"""
+		query = """SELECT code, code || ': ' || _(name), _(name) FROM dem.country WHERE _(name) %(fragment_condition)s"""
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries = [query])
 		app = wx.PyWidgetTester(size = (400, 50))
 		global prw
-		#prw = cPhraseWheel(parent = app.frame, id = -1)
-		prw = cMultiPhraseWheel(parent = app.frame, id = -1)
+		#prw = cPhraseWheel(app.frame, -1)
+		prw = cMultiPhraseWheel(app.frame, -1)
 		prw.matcher = mp
 
 		app.frame.Show(True)
@@ -1431,7 +1434,7 @@ if __name__ == '__main__':
 	#--------------------------------------------------------
 	def test_prw_patients():
 		gmPG2.get_connection()
-		query = u"""
+		query = """
 			select
 				pk_identity,
 				firstnames || ' ' || lastnames || ', ' || to_char(dob, 'YYYY-MM-DD'),
@@ -1444,7 +1447,7 @@ if __name__ == '__main__':
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries = [query])
 		app = wx.PyWidgetTester(size = (500, 50))
 		global prw
-		prw = cPhraseWheel(parent = app.frame, id = -1)
+		prw = cPhraseWheel(app.frame, -1)
 		prw.matcher = mp
 		prw.selection_only = True
 
@@ -1457,7 +1460,7 @@ if __name__ == '__main__':
 		app = wx.PyWidgetTester(size = (200, 50))
 
 		global prw
-		prw = cPhraseWheel(parent = app.frame, id = -1)
+		prw = cPhraseWheel(app.frame, -1)
 
 		prw.add_callback_on_set_focus(callback=display_values_set_focus)
 		prw.add_callback_on_modified(callback=display_values_modified)

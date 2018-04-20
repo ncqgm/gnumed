@@ -439,7 +439,7 @@ class DrugDisplay(wx.Panel):
 		self.listctrl_drugchoice.ClearAll ()
 		self.__mListCtrlItems = {}
 
-		if aDataDict is None or not (u'id' in aDataDict & u'name' in aDataDict):
+		if aDataDict is None or not ('id' in aDataDict & 'name' in aDataDict):
 			_log.Log(gmLog.lWarn, "No data to build list control.")
 			return None
 		#print "1:", aDataDict['id']
@@ -473,13 +473,13 @@ class DrugDisplay(wx.Panel):
 				# if first column, insert new column and
 				# and store pointer to item data (type,id)
 				if col_no == 0:
-					item=self.listctrl_drugchoice.InsertStringItem (row,item_text)
+					item=self.listctrl_drugchoice.InsertItem (row,item_text)
 					self.listctrl_drugchoice.SetItemData(item,item)
 					id = aDataDict['id'][row]
 			    	# set data as type and database ID
 					self.__mListCtrlItems[item]=(dtype,id)
 				else:
-					self.listctrl_drugchoice.SetStringItem(row,col_no,item_text)
+					self.listctrl_drugchoice.SetItem(row,col_no,item_text)
 				col_no += 1
 		# finally set column widths to AUTOSIZE
 		for i in range(0,len(columns)):

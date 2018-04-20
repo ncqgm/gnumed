@@ -23,7 +23,7 @@ class cAdapterPyDateTime(object):
 
 	def __init__(self, dt):
 		if dt.tzinfo is None:
-			raise ValueError(u'datetime.datetime instance is lacking a time zone: [%s]' % _timestamp_template % dt.isoformat())
+			raise ValueError('datetime.datetime instance is lacking a time zone: [%s]' % _timestamp_template % dt.isoformat())
 		self.__dt = dt
 
 	def getquoted(self):
@@ -53,7 +53,7 @@ except ImportError:
 	_log.warning('cannot import mx.DateTime')
 #=======================================================================
 
-dsn = u'dbname=gnumed_v9 host=publicdb.gnumed.de port=5432 user=any-doc password=any-doc sslmode=prefer'
+dsn = 'dbname=gnumed_v9 host=publicdb.gnumed.de port=5432 user=any-doc password=any-doc sslmode=prefer'
 print dsn
 
 import psycopg2.extras
@@ -67,7 +67,7 @@ print mxDT.ISO.str(now)
 
 #mxDT.ISO.str(now).replace(',', '.')
 
-cmd = u"""select * from dem.v_staff where db_user = CURRENT_USER"""
+cmd = """select * from dem.v_staff where db_user = CURRENT_USER"""
 curs = conn.cursor()
 curs.execute(cmd)
 data = curs.fetchall()

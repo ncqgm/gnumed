@@ -312,7 +312,7 @@ class cResizingWindow(wx.ScrolledWindow):
 #		# retire previous pick list
 #		if self.__list and self.__list.alive:
 #			self.__list.Destroy()
-		our_width, our_height = self.GetSizeTuple()
+		our_width, our_height = self.GetSize()
 		char_height = self.GetCharHeight()
 		# make list 9 lines of height char_height high
 		list_height = char_height * 9
@@ -357,7 +357,7 @@ class cResizingSTC(wx.stc.StyledTextCtrl):
 	"""
 	def __init__ (self, parent, id, pos=wx.DefaultPosition, size=wx.DefaultSize, style=0, data=None):
 		if not isinstance(parent, cResizingWindow):
-			 raise ValueError, 'parent of %s MUST be a ResizingWindow' % self.__class__.__name__
+			 raise ValueError('parent of %s MUST be a ResizingWindow' % self.__class__.__name__)
 
 		wx.stc.StyledTextCtrl.__init__ (self, parent, id, pos, size, style)
 
@@ -497,15 +497,15 @@ class cResizingSTC(wx.stc.StyledTextCtrl):
 	#------------------------------------------------
 	def replace_keyword_with_expansion(self, keyword=None, position=None):
 
-		if keyword == u'$$steffi':			# Easter Egg ;-)
-			expansion = u'Hai, play! Versucht das!  (Keks dazu?)  :-)'
+		if keyword == '$$steffi':			# Easter Egg ;-)
+			expansion = 'Hai, play! Versucht das!  (Keks dazu?)  :-)'
 		else:
 			expansion = gmKeywordExpansion.expand_keyword(keyword = keyword)
 
 		if expansion is None:
 			return
 
-		if expansion == u'':
+		if expansion == '':
 			return
 
 		self.replace_text (
@@ -547,7 +547,7 @@ class cResizingSTC(wx.stc.StyledTextCtrl):
 		# do we need to resize ?
 		line_height = self.TextHeight(0)
 		true_txt_height = (self.PointFromPosition(last_char_pos).y - self.PointFromPosition(0).y) + line_height
-		x, visible_height = self.GetSizeTuple()
+		x, visible_height = self.GetSize()
 		if visible_height < true_txt_height:
 #			print "line:", line_height
 #			print "before resize: too small"
@@ -558,7 +558,7 @@ class cResizingSTC(wx.stc.StyledTextCtrl):
 			target_height = visible_height + (n * line_height)
 			self.__parent.ReSize(self, target_height)
 #			print "after resize"
-			x, y = self.GetSizeTuple()
+			x, y = self.GetSize()
 #			print "visible height", y
 
 		if ((visible_height - line_height) > true_txt_height):
@@ -571,7 +571,7 @@ class cResizingSTC(wx.stc.StyledTextCtrl):
 			target_height = visible_height - line_height
 			self.__parent.ReSize(self, target_height)
 #			print "after resize"
-			x, y = self.GetSizeTuple()
+			x, y = self.GetSize()
 #			print "visible height", y
 
 		# is currently relevant term a keyword for popping up an edit area or something ?
@@ -633,7 +633,7 @@ class cResizingSTC(wx.stc.StyledTextCtrl):
 		# - move to next/prev_in_tab_order
 		# FIXME: what about inside a list ?
 		if event.GetKeyCode() == wx.WXK_TAB:
-			if event.m_shiftDown:
+			if event.ShiftDown:
 				if self.prev_in_tab_order is not None:
 					self.prev_in_tab_order.SetFocus()
 			else:
@@ -672,7 +672,7 @@ class cResizingSTC(wx.stc.StyledTextCtrl):
 	#------------------------------------------------
 	def __on_char(self, evt):
 
-		char = unichr(evt.GetUnicodeKey())
+		char = chr(evt.GetUnicodeKey())
 
 		if self.__keyword_separators.match(char) is not None:
 			if self.GetLength() == 1:
@@ -681,7 +681,7 @@ class cResizingSTC(wx.stc.StyledTextCtrl):
 
 			line, caret_pos = self.GetCurLine()
 			word = self.__keyword_separators.split(line[:caret_pos])[-1]
-			if (word not in [ r[0] for r in gmKeywordExpansion.get_textual_expansion_keywords() ]) and (word != u'$$steffi'):		# Easter Egg ;-)
+			if (word not in [ r[0] for r in gmKeywordExpansion.get_textual_expansion_keywords() ]) and (word != '$$steffi'):		# Easter Egg ;-)
 				evt.Skip()
 				return
 
@@ -764,7 +764,7 @@ class cResizingSTC(wx.stc.StyledTextCtrl):
 	#------------------------------------------------
 	def __get_best_popup_geom(self):
 #		print "calculating optimal popup geometry"
-		parent_width, parent_height = self.__parent.GetSizeTuple()
+		parent_width, parent_height = self.__parent.GetSize()
 #		print "parent size is %sx%s pixel" % (parent_width, parent_height)
 		# FIXME: this should be gotten from ourselves, not the parent, but how ?
 		parent_char_height = self.__parent.GetCharHeight()
@@ -890,12 +890,12 @@ if __name__ == '__main__':
 #	from Gnumed.pycommon import gmI18N
 
 	def create_widget_on_test_kwd1(*args, **kwargs):
-		print "test keyword must have been typed..."
-		print "actually this would have to return a suitable wx.Window subclass instance"
-		print "args:", args
-		print "kwd args:"
+		print("test keyword must have been typed...")
+		print("actually this would have to return a suitable wx.Window subclass instance")
+		print("args:", args)
+		print("kwd args:")
 		for key in kwargs.keys():
-			print key, "->", kwargs[key]
+			print(key, "->", kwargs[key])
 	#================================================================
 	def create_widget_on_test_kwd2(*args, **kwargs):
 		msg = (
@@ -934,9 +934,9 @@ if __name__ == '__main__':
 			text = wx.StaticText (self, -1, msg)
 			# buttons
 			self.btn_OK = wx.Button(self, self._wx.ID_BTN_OK, _("OK"))
-			self.btn_OK.SetToolTipString(_('dismiss popup and embed data'))
+			self.btn_OK.SetToolTip(_('dismiss popup and embed data'))
 			self.btn_Cancel = wx.Button(self, self._wx.ID_BTN_Cancel, _("Cancel"))
-			self.btn_Cancel.SetToolTipString(_('dismiss popup and throw away data'))
+			self.btn_Cancel.SetToolTip(_('dismiss popup and throw away data'))
 			szr_buttons = wx.BoxSizer(wx.HORIZONTAL)
 			szr_buttons.Add(self.btn_OK, 1, wx.EXPAND | wx.ALL, 1)
 			szr_buttons.Add(5, 0, 0)

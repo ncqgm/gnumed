@@ -67,7 +67,7 @@ class cCommChannelTypePhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 	def __init__(self, *args, **kwargs):
 
-		query = u"""
+		query = """
 SELECT
 	data,
 	field_label,
@@ -91,10 +91,10 @@ ORDER BY
 """
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query)
 		mp.setThresholds(1, 2, 4)
-		mp.word_separators = u'[ \t]+'
+		mp.word_separators = '[ \t]+'
 		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
 		self.matcher = mp
-		self.SetToolTipString(_('Select the type of communications channel.'))
+		self.SetToolTip(_('Select the type of communications channel.'))
 		self.selection_only = True
 
 #================================================================
@@ -142,7 +142,7 @@ class cCommChannelEditAreaPnl(wxgCommChannelEditAreaPnl.wxgCommChannelEditAreaPn
 	def _valid_for_save(self):
 		validity = True
 
-		if self._TCTRL_url.GetValue().strip() == u'':
+		if self._TCTRL_url.GetValue().strip() == '':
 			validity = False
 			self.display_tctrl_as_valid(tctrl = self._TCTRL_url, valid = False)
 			self._TCTRL_url.SetFocus()
@@ -152,7 +152,7 @@ class cCommChannelEditAreaPnl(wxgCommChannelEditAreaPnl.wxgCommChannelEditAreaPn
 		# do not check GetData() because comm
 		# types are created as needed
 		#if self._PRW_type.GetData() is None:
-		if self._PRW_type.GetValue().strip() == u'':
+		if self._PRW_type.GetValue().strip() == '':
 			validity = False
 			self._PRW_type.display_as_valid(False)
 			self._PRW_type.SetFocus()
@@ -171,7 +171,7 @@ class cCommChannelEditAreaPnl(wxgCommChannelEditAreaPnl.wxgCommChannelEditAreaPn
 			)
 		except gmPG2.dbapi.IntegrityError:
 			_log.exception('error saving comm channel')
-			gmDispatcher.send(signal = u'statustext', msg = _('Cannot save (duplicate ?) communications channel.'), beep = True)
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot save (duplicate ?) communications channel.'), beep = True)
 			return False
 
 		data['comment'] = self._TCTRL_comment.GetValue().strip()
@@ -182,10 +182,10 @@ class cCommChannelEditAreaPnl(wxgCommChannelEditAreaPnl.wxgCommChannelEditAreaPn
 	#----------------------------------------------------------------
 	def _save_as_update(self):
 		comm_type = self._PRW_type.GetValue().strip()
-		if comm_type != u'':
+		if comm_type != '':
 			self.data['comm_type'] = comm_type
 		url = self._TCTRL_url.GetValue().strip()
-		if url != u'':
+		if url != '':
 			self.data['url'] = url
 		self.data['is_confidential'] = self._CHBOX_confidential.GetValue()
 		self.data['comment'] = self._TCTRL_comment.GetValue().strip()
@@ -194,10 +194,10 @@ class cCommChannelEditAreaPnl(wxgCommChannelEditAreaPnl.wxgCommChannelEditAreaPn
 		return True
 	#----------------------------------------------------------------
 	def _refresh_as_new(self):
-		self._PRW_type.SetText(u'')
-		self._TCTRL_url.SetValue(u'')
+		self._PRW_type.SetText('')
+		self._TCTRL_url.SetValue('')
 		self._CHBOX_confidential.SetValue(False)
-		self._TCTRL_comment.SetValue(u'')
+		self._TCTRL_comment.SetValue('')
 
 		self._PRW_type.SetFocus()
 	#----------------------------------------------------------------
@@ -208,7 +208,7 @@ class cCommChannelEditAreaPnl(wxgCommChannelEditAreaPnl.wxgCommChannelEditAreaPn
 		self._PRW_type.SetText(self.data['l10n_comm_type'])
 		self._TCTRL_url.SetValue(self.data['url'])
 		self._CHBOX_confidential.SetValue(self.data['is_confidential'])
-		self._TCTRL_comment.SetValue(gmTools.coalesce(self.data['comment'], u''))
+		self._TCTRL_comment.SetValue(gmTools.coalesce(self.data['comment'], ''))
 
 		self._TCTRL_url.SetFocus()
 #------------------------------------------------------------
@@ -242,10 +242,10 @@ class cCommChannelsManagerPnl(gmListWidgets.cGenericListManagerPnl):
 		comms = self.__channel_owner.get_comm_channels()
 		self._LCTRL_items.set_string_items (
 			items = [ [
-				gmTools.bool2str(c['is_confidential'], u'X', u''),
+				gmTools.bool2str(c['is_confidential'], 'X', ''),
 				c['l10n_comm_type'],
 				c['url'],
-				gmTools.coalesce(c['comment'], u'')
+				gmTools.coalesce(c['comment'], '')
 			] for c in comms ]
 		)
 		self._LCTRL_items.set_column_widths()
@@ -254,7 +254,7 @@ class cCommChannelsManagerPnl(gmListWidgets.cGenericListManagerPnl):
 	# internal helpers
 	#--------------------------------------------------------
 	def __init_ui(self):
-		self._LCTRL_items.SetToolTipString(_('List of known communication channels.'))
+		self._LCTRL_items.SetToolTip(_('List of known communication channels.'))
 		self._LCTRL_items.set_columns(columns = [
 			_('confidential'),
 			_('Type'),

@@ -18,7 +18,7 @@ def getCheckboxOff():
 \x00\x1c\xe33\x82' )
 
 def getCheckboxOffBitmap():
-    return wxBitmapFromImage(getImage())
+    return wxBitmap(getImage())
 
 def getImage():
     stream = cStringIO.StringIO(getCheckboxOff())

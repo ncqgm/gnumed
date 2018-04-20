@@ -20,7 +20,6 @@ import sys
 import os
 import io
 import codecs
-import types
 import logging
 import datetime as pydt
 import re as regex
@@ -46,7 +45,7 @@ try:
 	import psycopg2 as dbapi
 except ImportError:
 	_log.exception("Python database adapter psycopg2 not found.")
-	print "CRITICAL ERROR: Cannot find module psycopg2 for connecting to the database server."
+	print("CRITICAL ERROR: Cannot find module psycopg2 for connecting to the database server.")
 	raise
 
 
@@ -155,50 +154,50 @@ map_schema_hash2version = {
 }
 
 map_client_branch2required_db_version = {
-	u'GIT tree': 0,
-	u'0.3': 9,
-	u'0.4': 10,
-	u'0.5': 11,
-	u'0.6': 12,
-	u'0.7': 13,
-	u'0.8': 14,
-	u'0.9': 15,
-	u'1.0': 16,		# intentional duplicate with 1.1
-	u'1.1': 16,
-	u'1.2': 17,
-	u'1.3': 18,
-	u'1.4': 19,
-	u'1.5': 20,
-	u'1.6': 21,
-	u'1.7': 22
+	'GIT tree': 0,
+	'0.3': 9,
+	'0.4': 10,
+	'0.5': 11,
+	'0.6': 12,
+	'0.7': 13,
+	'0.8': 14,
+	'0.9': 15,
+	'1.0': 16,		# intentional duplicate with 1.1
+	'1.1': 16,
+	'1.2': 17,
+	'1.3': 18,
+	'1.4': 19,
+	'1.5': 20,
+	'1.6': 21,
+	'1.7': 22
 }
 
 map_psyco_tx_status2str = [
-	u'TRANSACTION_STATUS_IDLE',
-	u'TRANSACTION_STATUS_ACTIVE',
-	u'TRANSACTION_STATUS_INTRANS',
-	u'TRANSACTION_STATUS_INERROR',
-	u'TRANSACTION_STATUS_UNKNOWN'
+	'TRANSACTION_STATUS_IDLE',
+	'TRANSACTION_STATUS_ACTIVE',
+	'TRANSACTION_STATUS_INTRANS',
+	'TRANSACTION_STATUS_INERROR',
+	'TRANSACTION_STATUS_UNKNOWN'
 ]
 
 map_psyco_conn_status2str = [
-	u'0 - ?',
-	u'STATUS_READY',
-	u'STATUS_BEGIN_ALIAS_IN_TRANSACTION',
-	u'STATUS_PREPARED'
+	'0 - ?',
+	'STATUS_READY',
+	'STATUS_BEGIN_ALIAS_IN_TRANSACTION',
+	'STATUS_PREPARED'
 ]
 
 map_psyco_iso_level2str = {
-	None: u'ISOLATION_LEVEL_DEFAULT (configured on server)',
-	0: u'ISOLATION_LEVEL_AUTOCOMMIT',
-	1: u'ISOLATION_LEVEL_READ_UNCOMMITTED',
-	2: u'ISOLATION_LEVEL_REPEATABLE_READ',
-	3: u'ISOLATION_LEVEL_SERIALIZABLE',
-	4: u'ISOLATION_LEVEL_READ_UNCOMMITTED'
+	None: 'ISOLATION_LEVEL_DEFAULT (configured on server)',
+	0: 'ISOLATION_LEVEL_AUTOCOMMIT',
+	1: 'ISOLATION_LEVEL_READ_UNCOMMITTED',
+	2: 'ISOLATION_LEVEL_REPEATABLE_READ',
+	3: 'ISOLATION_LEVEL_SERIALIZABLE',
+	4: 'ISOLATION_LEVEL_READ_UNCOMMITTED'
 }
 
 # get columns and data types for a given table
-query_table_col_defs = u"""select
+query_table_col_defs = """select
 	cols.column_name,
 	cols.udt_name
 from
@@ -210,7 +209,7 @@ where
 order by
 	cols.ordinal_position"""
 
-query_table_attributes = u"""select
+query_table_attributes = """select
 	cols.column_name
 from
 	information_schema.columns cols
@@ -223,7 +222,7 @@ order by
 
 # only works for single-column FKs but that's fine
 # needs gm-dbo, any-doc won't work
-SQL_foreign_key_name = u"""SELECT
+SQL_foreign_key_name = """SELECT
 	fk_tbl.*,
 	(SELECT nspname FROM pg_catalog.pg_namespace WHERE oid = fk_tbl.connamespace) AS constraint_schema,
 	fk_tbl.conname AS constraint_name,
@@ -265,7 +264,7 @@ WHERE
 	)
 """
 
-SQL_get_index_name = u"""
+SQL_get_index_name = """
 SELECT
 	(SELECT nspname FROM pg_namespace WHERE pg_namespace.oid = pg_class.relnamespace)
 		AS index_schema,
@@ -297,7 +296,7 @@ WHERE
 	)
 """
 
-SQL_get_pk_col_def = u"""
+SQL_get_pk_col_def = """
 SELECT
 	pg_attribute.attname
 		AS pk_col,
@@ -352,38 +351,38 @@ def set_default_client_timezone(timezone = None):
 	_default_client_timezone = timezone
 
 	global _sql_set_timezone
-	_sql_set_timezone = u'set timezone to %s'
+	_sql_set_timezone = 'set timezone to %s'
 
 	return True
 
 #---------------------------------------------------
 def __validate_timezone(conn=None, timezone=None):
 
-	_log.debug(u'validating time zone [%s]', timezone)
+	_log.debug('validating time zone [%s]', timezone)
 
-	cmd = u'set timezone to %(tz)s'
-	args = {u'tz': timezone}
+	cmd = 'set timezone to %(tz)s'
+	args = {'tz': timezone}
 
 	conn.commit()
 	curs = conn.cursor()
 	is_valid = False
 	try:
 		curs.execute(cmd, args)
-		_log.info(u'time zone [%s] is settable', timezone)
+		_log.info('time zone [%s] is settable', timezone)
 		# can we actually use it, though ?
-		cmd = u"""select '1920-01-19 23:00:00+01'::timestamp with time zone"""
+		cmd = """select '1920-01-19 23:00:00+01'::timestamp with time zone"""
 		try:
 			curs.execute(cmd)
 			curs.fetchone()
-			_log.info(u'time zone [%s] is usable', timezone)
+			_log.info('time zone [%s] is usable', timezone)
 			is_valid = True
 		except:
 			_log.error('error using time zone [%s]', timezone)
 	except dbapi.DataError:
-		_log.warning(u'time zone [%s] is not settable', timezone)
+		_log.warning('time zone [%s] is not settable', timezone)
 	except:
-		_log.error(u'failed to set time zone to [%s]', timezone)
-		_log.exception(u'')
+		_log.error('failed to set time zone to [%s]', timezone)
+		_log.exception('')
 
 	curs.close()
 	conn.rollback()
@@ -395,7 +394,7 @@ def __expand_timezone(conn=None, timezone=None):
 	"""some timezone defs are abbreviations so try to expand
 	them because "set time zone" doesn't take abbreviations"""
 
-	cmd = u"""
+	cmd = """
 select distinct on (abbrev) name
 from pg_timezone_names
 where
@@ -403,7 +402,7 @@ where
 	name ~ '^[^/]+/[^/]+$' and
 	name !~ '^Etc/'
 """
-	args = {u'tz': timezone}
+	args = {'tz': timezone}
 
 	conn.commit()
 	curs = conn.cursor()
@@ -414,9 +413,9 @@ where
 		rows = curs.fetchall()
 		if len(rows) > 0:
 			result = rows[0]['name']
-			_log.debug(u'[%s] maps to [%s]', timezone, result)
+			_log.debug('[%s] maps to [%s]', timezone, result)
 	except:
-		_log.exception(u'cannot expand timezone abbreviation [%s]', timezone)
+		_log.exception('cannot expand timezone abbreviation [%s]', timezone)
 
 	curs.close()
 	conn.rollback()
@@ -438,7 +437,7 @@ def __detect_client_timezone(conn=None):
 
 	tz_candidates = []
 	try:
-		tz = os.environ['TZ'].decode(gmI18N.get_encoding(), 'replace')
+		tz = os.environ['TZ']
 		tz_candidates.append(tz)
 		expanded = __expand_timezone(conn = conn, timezone = tz)
 		if expanded != tz:
@@ -460,13 +459,13 @@ def __detect_client_timezone(conn=None):
 	for tz in tz_candidates:
 		if __validate_timezone(conn = conn, timezone = tz):
 			_default_client_timezone = tz
-			_sql_set_timezone = u'set timezone to %s'
+			_sql_set_timezone = 'set timezone to %s'
 			found = True
 			break
 
 	if not found:
 		_default_client_timezone = gmDateTime.current_local_iso_numeric_timezone_string
-		_sql_set_timezone = u"set time zone interval %s hour to minute"
+		_sql_set_timezone = "set time zone interval %s hour to minute"
 
 	_log.info('client system time zone detected as equivalent to [%s]', _default_client_timezone)
 
@@ -478,7 +477,7 @@ def __request_login_params_tui():
 	import getpass
 	login = gmLoginInfo.LoginInfo()
 
-	print "\nPlease enter the required login parameters:"
+	print("\nPlease enter the required login parameters:")
 	try:
 		login.host = prompted_input(prompt = "host ('' = non-TCP/IP)", default = '')
 		login.database = prompted_input(prompt = "database", default = default_database)
@@ -489,7 +488,7 @@ def __request_login_params_tui():
 		login.port = prompted_input(prompt = "port", default = 5432)
 	except KeyboardInterrupt:
 		_log.warning("user cancelled text mode login dialog")
-		print "user cancelled text mode login dialog"
+		print("user cancelled text mode login dialog")
 		raise gmExceptions.ConnectionError(_("Cannot connect to database without login information!"))
 
 	return login
@@ -531,7 +530,7 @@ def request_login_params():
 
 	# are we inside X ?
 	# if we aren't wxGTK will crash hard at the C-level with "can't open Display"
-	if u'DISPLAY' in os.environ:
+	if 'DISPLAY' in os.environ:
 		# try wxPython GUI
 		try:
 			return __request_login_params_gui_wx()
@@ -591,7 +590,7 @@ def set_default_login(login=None):
 		return False
 
 	if login.host is not None:
-		if login.host.strip() == u'':
+		if login.host.strip() == '':
 			login.host = None
 
 	global _default_login
@@ -602,12 +601,12 @@ def set_default_login(login=None):
 
 	global _default_dsn
 	if _default_dsn is None:
-		old_dsn = u'None'
+		old_dsn = 'None'
 	else:
-		old_dsn = regex.sub(r'password=[^\s]+', u'password=%s' % u_replacement_character, _default_dsn)
+		old_dsn = regex.sub(r'password=[^\s]+', 'password=%s' % u_replacement_character, _default_dsn)
 	_log.info ('setting default DSN from [%s] to [%s]',
 		old_dsn,
-		regex.sub(r'password=[^\s]+', u'password=%s' % u_replacement_character, dsn)
+		regex.sub(r'password=[^\s]+', 'password=%s' % u_replacement_character, dsn)
 	)
 	_default_dsn = dsn
 
@@ -644,7 +643,7 @@ def database_schema_compatible(link_obj=None, version=None, verbose=True):
 	rows, idx = run_ro_queries (
 		link_obj = link_obj,
 		queries = [{
-			'cmd': u'select md5(gm.concat_table_structure(%(ver)s::integer)) as md5',
+			'cmd': 'select md5(gm.concat_table_structure(%(ver)s::integer)) as md5',
 			'args': args
 		}]
 	)
@@ -658,34 +657,34 @@ def database_schema_compatible(link_obj=None, version=None, verbose=True):
 				_log.debug(line)
 			_log.debug('schema revision history dump follows:')
 			for line in get_schema_revision_history(link_obj = link_obj):
-				_log.debug(u' - '.join(line))
+				_log.debug(' - '.join(line))
 		return False
 	_log.info('detected schema version [%s], hash [%s]' % (map_schema_hash2version[rows[0]['md5']], rows[0]['md5']))
 	return True
 
 #------------------------------------------------------------------------
 def get_schema_version(link_obj=None):
-	rows, idx = run_ro_queries(link_obj=link_obj, queries = [{'cmd': u'select md5(gm.concat_table_structure()) as md5'}])
+	rows, idx = run_ro_queries(link_obj=link_obj, queries = [{'cmd': 'select md5(gm.concat_table_structure()) as md5'}])
 	try:
 		return map_schema_hash2version[rows[0]['md5']]
 	except KeyError:
-		return u'unknown database schema version, MD5 hash is [%s]' % rows[0]['md5']
+		return 'unknown database schema version, MD5 hash is [%s]' % rows[0]['md5']
 
 #------------------------------------------------------------------------
 def get_schema_structure(link_obj=None):
-	rows, idx = run_ro_queries(link_obj=link_obj, queries = [{'cmd': u'select gm.concat_table_structure()'}])
+	rows, idx = run_ro_queries(link_obj=link_obj, queries = [{'cmd': 'select gm.concat_table_structure()'}])
 	return rows[0][0]
 
 #------------------------------------------------------------------------
 def get_schema_hash(link_obj=None):
-	rows, idx = run_ro_queries(link_obj=link_obj, queries = [{'cmd': u'select md5(gm.concat_table_structure()) as md5'}])
+	rows, idx = run_ro_queries(link_obj=link_obj, queries = [{'cmd': 'select md5(gm.concat_table_structure()) as md5'}])
 	return rows[0]['md5']
 
 #------------------------------------------------------------------------
 def get_schema_revision_history(link_obj=None):
 
 	if table_exists(link_obj = link_obj, schema = 'gm', table = 'schema_revision'):
-		cmd = u"""
+		cmd = """
 			SELECT
 				imported::text,
 				version,
@@ -693,7 +692,7 @@ def get_schema_revision_history(link_obj=None):
 			FROM gm.schema_revision
 			ORDER BY imported"""
 	elif table_exists(link_obj = link_obj, schema = 'public', table = 'gm_schema_revision'):
-		cmd = u"""
+		cmd = """
 			SELECT
 				imported::text,
 				version,
@@ -707,7 +706,7 @@ def get_schema_revision_history(link_obj=None):
 	return rows
 #------------------------------------------------------------------------
 def get_current_user():
-	rows, idx = run_ro_queries(queries = [{'cmd': u'select CURRENT_USER'}])
+	rows, idx = run_ro_queries(queries = [{'cmd': 'select CURRENT_USER'}])
 	return rows[0][0]
 
 #------------------------------------------------------------------------
@@ -722,7 +721,7 @@ def get_foreign_keys2column(schema='public', table=None, column=None, link_obj=N
 		'tbl': table,
 		'col': column
 	}
-	cmd = u"""
+	cmd = """
 SELECT
 	%(schema)s AS referenced_schema,
 	%(tbl)s AS referenced_table,
@@ -800,7 +799,7 @@ def get_foreign_key_names(src_schema=None, src_table=None, src_column=None, targ
 #------------------------------------------------------------------------
 def get_child_tables(schema='public', table=None, link_obj=None):
 	"""Return child tables of <table>."""
-	cmd = u"""
+	cmd = """
 select
 	pgn.nspname as namespace,
 	pgc.relname as table
@@ -821,8 +820,8 @@ where
 	return rows
 
 #------------------------------------------------------------------------
-def schema_exists(link_obj=None, schema=u'gm'):
-	cmd = u"""SELECT EXISTS (SELECT 1 FROM pg_namespace WHERE nspname = %(schema)s)"""
+def schema_exists(link_obj=None, schema='gm'):
+	cmd = """SELECT EXISTS (SELECT 1 FROM pg_namespace WHERE nspname = %(schema)s)"""
 	args = {'schema': schema}
 	rows, idx = run_ro_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': args}])
 	return rows[0][0]
@@ -830,7 +829,7 @@ def schema_exists(link_obj=None, schema=u'gm'):
 #------------------------------------------------------------------------
 def table_exists(link_obj=None, schema=None, table=None):
 	"""Returns false, true."""
-	cmd = u"""
+	cmd = """
 select exists (
 	select 1 from information_schema.tables
 	where
@@ -844,7 +843,7 @@ select exists (
 #------------------------------------------------------------------------
 def function_exists(link_obj=None, schema=None, function=None):
 
-	cmd = u"""
+	cmd = """
 		SELECT EXISTS (
 			SELECT 1 FROM pg_proc
 			WHERE proname = %(func)s AND pronamespace = (SELECT oid FROM pg_namespace WHERE nspname = %(schema)s)
@@ -905,34 +904,34 @@ def get_col_names(link_obj=None, schema='public', table=None):
 #------------------------------------------------------------------------
 def export_translations_from_database(filename=None):
 	tx_file = io.open(filename, mode = 'wt', encoding = 'utf8')
-	tx_file.write(u'-- GNUmed database string translations exported %s\n' % gmDateTime.pydt_now_here().strftime('%Y-%m-%d %H:%M'))
-	tx_file.write(u'-- - contains translations for each of [%s]\n' % u', '.join(get_translation_languages()))
-	tx_file.write(u'-- - user database language is set to [%s]\n\n' % get_current_user_language())
-	tx_file.write(u'-- Please email this file to <gnumed-devel@gnu.org>.\n')
-	tx_file.write(u'-- ----------------------------------------------------------------------------------------------\n\n')
-	tx_file.write(u'set default_transaction_read_only to off;\n\n')
-	tx_file.write(u"set client_encoding to 'utf-8';\n\n")
-	tx_file.write(u'\\unset ON_ERROR_STOP\n\n')
+	tx_file.write('-- GNUmed database string translations exported %s\n' % gmDateTime.pydt_now_here().strftime('%Y-%m-%d %H:%M'))
+	tx_file.write('-- - contains translations for each of [%s]\n' % ', '.join(get_translation_languages()))
+	tx_file.write('-- - user database language is set to [%s]\n\n' % get_current_user_language())
+	tx_file.write('-- Please email this file to <gnumed-devel@gnu.org>.\n')
+	tx_file.write('-- ----------------------------------------------------------------------------------------------\n\n')
+	tx_file.write('set default_transaction_read_only to off;\n\n')
+	tx_file.write("set client_encoding to 'utf-8';\n\n")
+	tx_file.write('\\unset ON_ERROR_STOP\n\n')
 
-	cmd = u'SELECT lang, orig, trans FROM i18n.translations ORDER BY lang, orig'
+	cmd = 'SELECT lang, orig, trans FROM i18n.translations ORDER BY lang, orig'
 	rows, idx = run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = False)
 	for row in rows:
-		line = u"select i18n.upd_tx(E'%s', E'%s', E'%s');\n" % (
+		line = "select i18n.upd_tx(E'%s', E'%s', E'%s');\n" % (
 			row['lang'].replace("'", "\\'"),
 			row['orig'].replace("'", "\\'"),
 			row['trans'].replace("'", "\\'")
 		)
 		tx_file.write(line)
-	tx_file.write(u'\n')
+	tx_file.write('\n')
 
-	tx_file.write(u'\set ON_ERROR_STOP 1\n')
+	tx_file.write('\set ON_ERROR_STOP 1\n')
 	tx_file.close()
 
 	return True
 
 #------------------------------------------------------------------------
 def delete_translation_from_database(link_obj=None, language=None, original=None):
-	cmd = u'DELETE FROM i18n.translations WHERE lang = %(lang)s AND orig = %(orig)s'
+	cmd = 'DELETE FROM i18n.translations WHERE lang = %(lang)s AND orig = %(orig)s'
 	args = {'lang': language, 'orig': original}
 	run_rw_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': args}], return_data = False, end_tx = True)
 	return True
@@ -940,9 +939,9 @@ def delete_translation_from_database(link_obj=None, language=None, original=None
 #------------------------------------------------------------------------
 def update_translation_in_database(language=None, original=None, translation=None, link_obj=None):
 	if language is None:
-		cmd = u'SELECT i18n.upd_tx(%(orig)s, %(trans)s)'
+		cmd = 'SELECT i18n.upd_tx(%(orig)s, %(trans)s)'
 	else:
-		cmd = u'SELECT i18n.upd_tx(%(lang)s, %(orig)s, %(trans)s)'
+		cmd = 'SELECT i18n.upd_tx(%(lang)s, %(orig)s, %(trans)s)'
 	args = {'lang': language, 'orig': original, 'trans': translation}
 	run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = False, link_obj = link_obj)
 	return args
@@ -950,7 +949,7 @@ def update_translation_in_database(language=None, original=None, translation=Non
 #------------------------------------------------------------------------
 def get_translation_languages():
 	rows, idx = run_ro_queries (
-		queries = [{'cmd': u'select distinct lang from i18n.translations'}]
+		queries = [{'cmd': 'select distinct lang from i18n.translations'}]
 	)
 	return [ r[0] for r in rows ]
 
@@ -961,12 +960,12 @@ def get_database_translations(language=None, order_by=None):
 	_log.debug('language [%s]', language)
 
 	if order_by is None:
-		order_by = u'ORDER BY %s' % order_by
+		order_by = 'ORDER BY %s' % order_by
 	else:
-		order_by = u'ORDER BY lang, orig'
+		order_by = 'ORDER BY lang, orig'
 
 	if language is None:
-		cmd = u"""
+		cmd = """
 		SELECT DISTINCT ON (orig, lang)
 			lang, orig, trans
 		FROM ((
@@ -992,7 +991,7 @@ def get_database_translations(language=None, order_by=None):
 		)) as translatable_strings
 		%s""" % order_by
 	else:
-		cmd = u"""
+		cmd = """
 		SELECT DISTINCT ON (orig, lang)
 			lang, orig, trans
 		FROM ((
@@ -1029,7 +1028,7 @@ def get_database_translations(language=None, order_by=None):
 
 #------------------------------------------------------------------------
 def get_current_user_language():
-	cmd = u'select i18n.get_curr_lang()'
+	cmd = 'select i18n.get_curr_lang()'
 	rows, idx = run_ro_queries(queries = [{'cmd': cmd}])
 	return rows[0][0]
 
@@ -1049,15 +1048,15 @@ def set_user_language(user=None, language=None):
 
 	if language is None:
 		if user is None:
-			queries = [{'cmd': u'select i18n.unset_curr_lang()'}]
+			queries = [{'cmd': 'select i18n.unset_curr_lang()'}]
 		else:
-			queries = [{'cmd': u'select i18n.unset_curr_lang(%(usr)s)', 'args': args}]
-		queries.append({'cmd': u'select True'})
+			queries = [{'cmd': 'select i18n.unset_curr_lang(%(usr)s)', 'args': args}]
+		queries.append({'cmd': 'select True'})
 	else:
 		if user is None:
-			queries = [{'cmd': u'select i18n.set_curr_lang(%(lang)s)', 'args': args}]
+			queries = [{'cmd': 'select i18n.set_curr_lang(%(lang)s)', 'args': args}]
 		else:
-			queries = [{'cmd': u'select i18n.set_curr_lang(%(lang)s, %(usr)s)', 'args': args}]
+			queries = [{'cmd': 'select i18n.set_curr_lang(%(lang)s, %(usr)s)', 'args': args}]
 
 	rows, idx = run_rw_queries(queries = queries, return_data = True)
 
@@ -1075,7 +1074,7 @@ def force_user_language(language=None):
 	_log.info('forcing database language for current db user to [%s]', language)
 
 	run_rw_queries(queries = [{
-		'cmd': u'select i18n.force_curr_lang(%(lang)s)',
+		'cmd': 'select i18n.force_curr_lang(%(lang)s)',
 		'args': {'lang': language}
 	}])
 
@@ -1083,22 +1082,22 @@ def force_user_language(language=None):
 # query runners and helpers
 # =======================================================================
 def send_maintenance_notification():
-	cmd = u'notify "db_maintenance_warning"'
+	cmd = 'notify "db_maintenance_warning"'
 	run_rw_queries(queries = [{'cmd': cmd}], return_data = False)
 
 #------------------------------------------------------------------------
 def send_maintenance_shutdown():
-	cmd = u'notify "db_maintenance_disconnect"'
+	cmd = 'notify "db_maintenance_disconnect"'
 	run_rw_queries(queries = [{'cmd': cmd}], return_data = False)
 
 #------------------------------------------------------------------------
 def is_pg_interval(candidate=None):
-	cmd = u'SELECT %(candidate)s::interval'
+	cmd = 'SELECT %(candidate)s::interval'
 	try:
 		rows, idx = run_ro_queries(queries = [{'cmd': cmd, 'args': {'candidate': candidate}}])
 		return True
 	except:
-		cmd = u'SELECT %(candidate)s::text::interval'
+		cmd = 'SELECT %(candidate)s::text::interval'
 		try:
 			rows, idx = run_ro_queries(queries = [{'cmd': cmd, 'args': {'candidate': candidate}}])
 			return True
@@ -1118,9 +1117,9 @@ def lock_row(link_obj=None, table=None, pk=None, exclusive=False):
 	"""
 	_log.debug('locking row: [%s] [%s] (exclusive: %s)', table, pk, exclusive)
 	if exclusive:
-		cmd = u"""SELECT pg_try_advisory_lock('%s'::regclass::oid::int, %s)""" % (table, pk)
+		cmd = """SELECT pg_try_advisory_lock('%s'::regclass::oid::int, %s)""" % (table, pk)
 	else:
-		cmd = u"""SELECT pg_try_advisory_lock_shared('%s'::regclass::oid::int, %s)""" % (table, pk)
+		cmd = """SELECT pg_try_advisory_lock_shared('%s'::regclass::oid::int, %s)""" % (table, pk)
 	rows, idx = run_ro_queries(link_obj = link_obj, queries = [{'cmd': cmd}], get_col_idx = False)
 	if rows[0][0]:
 		return True
@@ -1135,9 +1134,9 @@ def unlock_row(link_obj=None, table=None, pk=None, exclusive=False):
 	"""
 	_log.debug('trying to unlock row: [%s] [%s] (exclusive: %s)', table, pk, exclusive)
 	if exclusive:
-		cmd = u"SELECT pg_advisory_unlock('%s'::regclass::oid::int, %s)" % (table, pk)
+		cmd = "SELECT pg_advisory_unlock('%s'::regclass::oid::int, %s)" % (table, pk)
 	else:
-		cmd = u"SELECT pg_advisory_unlock_shared('%s'::regclass::oid::int, %s)" % (table, pk)
+		cmd = "SELECT pg_advisory_unlock_shared('%s'::regclass::oid::int, %s)" % (table, pk)
 	rows, idx = run_ro_queries(link_obj = link_obj, queries = [{'cmd': cmd}], get_col_idx = False)
 	if rows[0][0]:
 		return True
@@ -1150,7 +1149,7 @@ def row_is_locked(table=None, pk=None):
 
 	- does not take into account locks other than 'advisory', however
 	"""
-	cmd = u"""SELECT EXISTS (
+	cmd = """SELECT EXISTS (
 		SELECT 1 FROM pg_locks WHERE
 			classid = '%s'::regclass::oid::int
 				AND
@@ -1251,7 +1250,7 @@ def bytea2file_object(data_query=None, file_obj=None, chunk_size=0, data_size=No
 			conn.rollback()
 			raise
 		# it would be a fatal error to see more than one result as ids are supposed to be unique
-		file_obj.write(str(rows[0][0]))
+		file_obj.write(rows[0][0])
 
 	# retrieve remainder
 	if remainder > 0:
@@ -1265,7 +1264,7 @@ def bytea2file_object(data_query=None, file_obj=None, chunk_size=0, data_size=No
 			conn.rollback()
 			raise
 		# it would be a fatal error to see more than one result as ids are supposed to be unique
-		file_obj.write(str(rows[0][0]))
+		file_obj.write(rows[0][0])
 
 	conn.rollback()
 	return True
@@ -1286,7 +1285,7 @@ def file2bytea(query=None, filename=None, args=None, conn=None, file_md5=None):
 	of the file.
 	"""
 	# read data from file
-	infile = file(filename, "rb")
+	infile = open(filename, "rb")
 	data_as_byte_string = infile.read()
 	infile.close()
 	if args is None:
@@ -1327,7 +1326,7 @@ def file2lo(filename=None, conn=None, check_md5=False):
 	# 1 GB limit unless 64 bit Python build ...
 	file_size = os.path.getsize(filename)
 	if file_size > (1024 * 1024) * 1024:
-		_log.debug(u'file size of [%s] > 1 GB, supposedly not supported by psycopg2 large objects (but seems to work anyway ?)', file_size)
+		_log.debug('file size of [%s] > 1 GB, supposedly not supported by psycopg2 large objects (but seems to work anyway ?)', file_size)
 #		return -1
 
 	if conn is None:
@@ -1335,7 +1334,7 @@ def file2lo(filename=None, conn=None, check_md5=False):
 		close_conn = conn.close
 	else:
 		close_conn = __noop
-	_log.debug(u'[%s] -> large object', filename)
+	_log.debug('[%s] -> large object', filename)
 
 	# insert the data
 	lo = conn.lobject(0, 'w', 0, filename)
@@ -1348,7 +1347,7 @@ def file2lo(filename=None, conn=None, check_md5=False):
 		conn.commit()
 		close_conn()
 		return lo_oid
-	cmd = u'SELECT md5(lo_get(%(loid)s::oid))'
+	cmd = 'SELECT md5(lo_get(%(loid)s::oid))'
 	args = {'loid': lo_oid}
 	rows, idx = run_ro_queries(link_obj = conn, queries = [{'cmd': cmd, 'args': args}])
 	db_md5 = rows[0][0]
@@ -1367,7 +1366,7 @@ def file2bytea_lo(filename=None, conn=None, file_md5=None):
 	# 1 GB limit unless 64 bit Python build ...
 	file_size = os.path.getsize(filename)
 	if file_size > (1024 * 1024) * 1024:
-		_log.debug(u'file size of [%s] > 1 GB, supposedly not supported by psycopg2 large objects (but seems to work anyway ?)', file_size)
+		_log.debug('file size of [%s] > 1 GB, supposedly not supported by psycopg2 large objects (but seems to work anyway ?)', file_size)
 #		return -1
 
 	if conn is None:
@@ -1375,7 +1374,7 @@ def file2bytea_lo(filename=None, conn=None, file_md5=None):
 		close_conn = conn.close
 	else:
 		close_conn = __noop
-	_log.debug(u'[%s] -> large object', filename)
+	_log.debug('[%s] -> large object', filename)
 
 	# insert the data
 	lo = conn.lobject(0, 'w', 0, filename)
@@ -1388,7 +1387,7 @@ def file2bytea_lo(filename=None, conn=None, file_md5=None):
 		conn.commit()
 		close_conn()
 		return lo_oid
-	cmd = u'SELECT md5(lo_get(%(loid)s::oid))'
+	cmd = 'SELECT md5(lo_get(%(loid)s::oid))'
 	args = {'loid': lo_oid}
 	rows, idx = run_ro_queries(link_obj = conn, queries = [{'cmd': cmd, 'args': args}])
 	db_md5 = rows[0][0]
@@ -1417,7 +1416,7 @@ def file2bytea_copy_from(table=None, columns=None, filename=None, conn=None, md5
 		close_conn = False
 	curs = conn.cursor()
 	# write
-	infile = file(filename, "rb")
+	infile = open(filename, "rb")
 	curs.copy_from(infile, table, size = chunk_size, columns = columns)
 	infile.close()
 	curs.close()
@@ -1483,7 +1482,7 @@ def file2bytea_overlay(query=None, args=None, filename=None, conn=None, md5_quer
 	else:
 		close_conn = __noop
 
-	infile = file(filename, "rb")
+	infile = open(filename, "rb")
 	# write chunks
 	for chunk_id in range(needed_chunks):
 		chunk_start = (chunk_id * chunk_size) + 1
@@ -1495,7 +1494,7 @@ def file2bytea_overlay(query=None, args=None, filename=None, conn=None, md5_quer
 		del(data_as_byte_string)
 		try:
 			rows, idx = run_rw_queries(link_obj = conn, queries = [{'cmd': query, 'args': args}], end_tx = False, return_data = False)
-		except StandardError:
+		except Exception:
 			_log.exception('cannot write chunk [%s/%s] of size [%s], try decreasing chunk size', chunk_id+1, needed_chunks, chunk_size)
 			conn.rollback()
 			close_conn()
@@ -1512,7 +1511,7 @@ def file2bytea_overlay(query=None, args=None, filename=None, conn=None, md5_quer
 		del(data_as_byte_string)
 		try:
 			rows, idx = run_rw_queries(link_obj = conn, queries = [{'cmd': query, 'args': args}], end_tx = False, return_data = False)
-		except StandardError:
+		except Exception:
 			_log.error('cannot retrieve remaining [%s] bytes' % remainder)
 			conn.rollback()
 			close_conn()
@@ -1546,8 +1545,8 @@ def run_sql_script(sql_script, conn=None):
 
 	if psql.run(sql_script) == 0:
 		query = {
-			'cmd': u'select gm.log_script_insertion(%(name)s, %(ver)s)',
-			'args': {'name': sql_script, 'ver': u'current'}
+			'cmd': 'select gm.log_script_insertion(%(name)s, %(ver)s)',
+			'args': {'name': sql_script, 'ver': 'current'}
 		}
 		run_rw_queries(link_obj = conn, queries = [query])
 		conn.commit()
@@ -1588,50 +1587,50 @@ def capture_conn_state(conn=None):
 
 	tx_status = conn.get_transaction_status()
 	if tx_status in [ psycopg2.extensions.TRANSACTION_STATUS_INERROR, psycopg2.extensions.TRANSACTION_STATUS_UNKNOWN ]:
-		isolation_level = u'%s (tx aborted or unknown, cannot retrieve)' % conn.isolation_level
+		isolation_level = '%s (tx aborted or unknown, cannot retrieve)' % conn.isolation_level
 	else:
-		isolation_level = u'%s (%s)' % (conn.isolation_level, map_psyco_iso_level2str[conn.isolation_level])
-	conn_status = u'%s (%s)' % (conn.status, map_psyco_conn_status2str[conn.status])
+		isolation_level = '%s (%s)' % (conn.isolation_level, map_psyco_iso_level2str[conn.isolation_level])
+	conn_status = '%s (%s)' % (conn.status, map_psyco_conn_status2str[conn.status])
 	if conn.closed != 0:
-		conn_status = u'undefined (%s)' % conn_status
+		conn_status = 'undefined (%s)' % conn_status
 	try:
 		conn_deferrable = conn.deferrable
 	except AttributeError:
-		conn_deferrable = u'unavailable'
+		conn_deferrable = 'unavailable'
 
 	d = {
-		u'identity': id(conn),
-		u'backend PID': conn.get_backend_pid(),
-		u'protocol version': conn.protocol_version,
-		u'encoding': conn.encoding,
-		u'closed': conn.closed,
-		u'readonly': conn.readonly,
-		u'autocommit': conn.autocommit,
-		u'isolation level (psyco)': isolation_level,
-		u'async': conn.async,
-		u'deferrable': conn_deferrable,
-		u'transaction status': u'%s (%s)' % (tx_status, map_psyco_tx_status2str[tx_status]),
-		u'connection status': conn_status,
-		u'executing async op': conn.isexecuting(),
-		u'type': type(conn)
+		'identity': id(conn),
+		'backend PID': conn.get_backend_pid(),
+		'protocol version': conn.protocol_version,
+		'encoding': conn.encoding,
+		'closed': conn.closed,
+		'readonly': conn.readonly,
+		'autocommit': conn.autocommit,
+		'isolation level (psyco)': isolation_level,
+		'async': conn.async,
+		'deferrable': conn_deferrable,
+		'transaction status': '%s (%s)' % (tx_status, map_psyco_tx_status2str[tx_status]),
+		'connection status': conn_status,
+		'executing async op': conn.isexecuting(),
+		'type': type(conn)
 	}
-	return u'%s\n' % conn + format_dict_like (
+	return '%s\n' % conn + format_dict_like (
 		d,
 		relevant_keys = [
-			u'type',
-			u'identity',
-			u'backend PID',
-			u'protocol version',
-			u'encoding',
-			u'isolation level (psyco)',
-			u'readonly',
-			u'autocommit',
-			u'closed',
-			u'connection status',
-			u'transaction status',
-			u'deferrable',
-			u'async',
-			u'executing async op'
+			'type',
+			'identity',
+			'backend PID',
+			'protocol version',
+			'encoding',
+			'isolation level (psyco)',
+			'readonly',
+			'autocommit',
+			'closed',
+			'connection status',
+			'transaction status',
+			'deferrable',
+			'async',
+			'executing async op'
 		],
 		tabular = True,
 		value_delimiters = None
@@ -1643,20 +1642,20 @@ def capture_cursor_state(cursor=None):
 
 	tx_status = conn.get_transaction_status()
 	if tx_status in [ psycopg2.extensions.TRANSACTION_STATUS_INERROR, psycopg2.extensions.TRANSACTION_STATUS_UNKNOWN ]:
-		isolation_level = u'tx aborted or unknown, cannot retrieve'
+		isolation_level = 'tx aborted or unknown, cannot retrieve'
 	else:
 		isolation_level = conn.isolation_level
 	try:
 		conn_deferrable = conn.deferrable
 	except AttributeError:
-		conn_deferrable = u'unavailable'
+		conn_deferrable = 'unavailable'
 
 	if cursor.query is None:
-		query = u'<no query>'
+		query = '<no query>'
 	else:
-		query = unicode(cursor.query, 'utf8', 'replace')
+		query = str(cursor.query, 'utf8', 'replace')
 
-	txt = u"""Link state:
+	txt = """Link state:
 Cursor
   identity: %s; name: %s
   closed: %s; scrollable: %s; with hold: %s; arraysize: %s; itersize: %s;
@@ -1741,9 +1740,9 @@ def run_ro_queries(link_obj=None, queries=None, verbose=False, return_data=True,
 		_log.debug('cursor: %s', curs)
 
 	for query in queries:
-		if type(query['cmd']) is not types.UnicodeType:
-			print "run_ro_queries(): non-unicode query"
-			print query['cmd']
+		if type(query['cmd']) is not str:
+			print("run_ro_queries(): non-unicode query")
+			print(query['cmd'])
 		try:
 			args = query['args']
 		except KeyError:
@@ -1757,35 +1756,35 @@ def run_ro_queries(link_obj=None, queries=None, verbose=False, return_data=True,
 			_log.error(capture_cursor_state(curs))
 			if hasattr(pg_exc, 'diag'):
 				for prop in dir(pg_exc.diag):
-					if prop.startswith(u'__'):
+					if prop.startswith('__'):
 						continue
 					val = getattr(pg_exc.diag, prop)
 					if val is None:
 						continue
-					_log.error(u'PG diags %s: %s', prop, val)
+					_log.error('PG diags %s: %s', prop, val)
 			pg_exc = make_pg_exception_fields_unicode(pg_exc)
 			_log.error('PG error code: %s', pg_exc.pgcode)
 			if pg_exc.pgerror is not None:
-				_log.error(u'PG error message: %s', pg_exc.u_pgerror)
+				_log.error('PG error message: %s', pg_exc.u_pgerror)
 			try:
 				curs_close()
 			except dbapi.InterfaceError:
 				_log.exception('cannot close cursor')
 			tx_rollback()		# need to rollback so ABORT state isn't preserved in pooled conns
 			if pg_exc.pgcode == sql_error_codes.INSUFFICIENT_PRIVILEGE:
-				details = u'Query: [%s]' % curs.query.strip().strip(u'\n').strip().strip(u'\n')
-				if curs.statusmessage != u'':
-					details = u'Status: %s\n%s' % (
-						curs.statusmessage.strip().strip(u'\n').strip().strip(u'\n'),
+				details = 'Query: [%s]' % curs.query.strip().strip('\n').strip().strip('\n')
+				if curs.statusmessage != '':
+					details = 'Status: %s\n%s' % (
+						curs.statusmessage.strip().strip('\n').strip().strip('\n'),
 						details
 					)
 				if pg_exc.pgerror is None:
-					msg = u'[%s]' % pg_exc.pgcode
+					msg = '[%s]' % pg_exc.pgcode
 				else:
-					msg = u'[%s]: %s' % (pg_exc.pgcode, pg_exc.u_pgerror)
+					msg = '[%s]: %s' % (pg_exc.pgcode, pg_exc.u_pgerror)
 				raise gmExceptions.AccessDenied (
 					msg,
-					source = u'PostgreSQL',
+					source = 'PostgreSQL',
 					code = pg_exc.pgcode,
 					details = details
 				)
@@ -1894,9 +1893,9 @@ def run_rw_queries(link_obj=None, queries=None, end_tx=False, return_data=None, 
 		raise ValueError('link_obj must be cursor, connection or None but not [%s]' % link_obj)
 
 	for query in queries:
-		if type(query['cmd']) is not types.UnicodeType:
-			print "gmPG2.run_rw_queries(): non-unicode query"
-			print query['cmd']
+		if type(query['cmd']) is not str:
+			print("gmPG2.run_rw_queries(): non-unicode query")
+			print(query['cmd'])
 		try:
 			args = query['args']
 		except KeyError:
@@ -1906,7 +1905,7 @@ def run_rw_queries(link_obj=None, queries=None, end_tx=False, return_data=None, 
 			if verbose:
 				_log.debug(capture_cursor_state(curs))
 			for notice in notices_accessor.notices:
-				_log.debug(unicode(notice, 'utf8', 'replace').strip(u'\n').strip(u'\r'))
+				_log.debug(str(notice, 'utf8', 'replace').strip('\n').strip('\r'))
 			del notices_accessor.notices[:]
 		# DB related exceptions
 		except dbapi.Error as pg_exc:
@@ -1914,31 +1913,31 @@ def run_rw_queries(link_obj=None, queries=None, end_tx=False, return_data=None, 
 			_log.error(capture_cursor_state(curs))
 			if hasattr(pg_exc, 'diag'):
 				for prop in dir(pg_exc.diag):
-					if prop.startswith(u'__'):
+					if prop.startswith('__'):
 						continue
 					val = getattr(pg_exc.diag, prop)
 					if val is None:
 						continue
-					_log.error(u'PG diags %s: %s', prop, val)
+					_log.error('PG diags %s: %s', prop, val)
 			for notice in notices_accessor.notices:
-				_log.error(unicode(notice, 'utf8', 'replace').strip(u'\n').strip(u'\r'))
+				_log.error(str(notice, 'utf8', 'replace').strip('\n').strip('\r'))
 			del notices_accessor.notices[:]
 			pg_exc = make_pg_exception_fields_unicode(pg_exc)
-			_log.error(u'PG error code: %s', pg_exc.pgcode)
+			_log.error('PG error code: %s', pg_exc.pgcode)
 			if pg_exc.pgerror is not None:
-				_log.error(u'PG error message: %s', pg_exc.u_pgerror)
+				_log.error('PG error message: %s', pg_exc.u_pgerror)
 			# privilege problem
 			if pg_exc.pgcode == sql_error_codes.INSUFFICIENT_PRIVILEGE:
-				details = u'Query: [%s]' % curs.query.strip().strip(u'\n').strip().strip(u'\n')
-				if curs.statusmessage != u'':
-					details = u'Status: %s\n%s' % (
-						curs.statusmessage.strip().strip(u'\n').strip().strip(u'\n'),
+				details = 'Query: [%s]' % curs.query.strip().strip('\n').strip().strip('\n')
+				if curs.statusmessage != '':
+					details = 'Status: %s\n%s' % (
+						curs.statusmessage.strip().strip('\n').strip().strip('\n'),
 						details
 					)
 				if pg_exc.pgerror is None:
-					msg = u'[%s]' % pg_exc.pgcode
+					msg = '[%s]' % pg_exc.pgcode
 				else:
-					msg = u'[%s]: %s' % (pg_exc.pgcode, pg_exc.u_pgerror)
+					msg = '[%s]: %s' % (pg_exc.pgcode, pg_exc.u_pgerror)
 				try:
 					curs_close()
 					tx_rollback()			# just for good measure
@@ -1947,7 +1946,7 @@ def run_rw_queries(link_obj=None, queries=None, end_tx=False, return_data=None, 
 					_log.exception('cannot cleanup')
 				raise gmExceptions.AccessDenied (
 					msg,
-					source = u'PostgreSQL',
+					source = 'PostgreSQL',
 					code = pg_exc.pgcode,
 					details = details
 				)
@@ -1965,7 +1964,7 @@ def run_rw_queries(link_obj=None, queries=None, end_tx=False, return_data=None, 
 			_log.exception('error running query in RW connection')
 			_log.error(capture_cursor_state(curs))
 			for notice in notices_accessor.notices:
-				_log.debug(unicode(notice, 'utf8', 'replace').strip(u'\n').strip(u'\r'))
+				_log.debug(str(notice, 'utf8', 'replace').strip('\n').strip('\r'))
 			del notices_accessor.notices[:]
 			gmLog2.log_stack_trace()
 			try:
@@ -2008,33 +2007,33 @@ def run_insert(link_obj=None, schema=None, table=None, values=None, returning=No
 	values: dict of values keyed by field to insert them into
 	"""
 	if schema is None:
-		schema = u'public'
+		schema = 'public'
 
 	fields = values.keys()		# that way val_snippets and fields really should end up in the same order
 	val_snippets = []
 	for field in fields:
-		val_snippets.append(u'%%(%s)s' % field)
+		val_snippets.append('%%(%s)s' % field)
 
 	if returning is None:
-		returning = u''
+		returning = ''
 		return_data = False
 	else:
-		returning = u'\n\tRETURNING\n\t\t%s' % u', '.join(returning)
+		returning = '\n\tRETURNING\n\t\t%s' % ', '.join(returning)
 		return_data = True
 
-	cmd = u"""\nINSERT INTO %s.%s (
+	cmd = """\nINSERT INTO %s.%s (
 		%s
 	) VALUES (
 		%s
 	)%s""" % (
 		schema,
 		table,
-		u',\n\t\t'.join(fields),
-		u',\n\t\t'.join(val_snippets),
+		',\n\t\t'.join(fields),
+		',\n\t\t'.join(val_snippets),
 		returning
 	)
 
-	_log.debug(u'running SQL: >>>%s<<<', cmd)
+	_log.debug('running SQL: >>>%s<<<', cmd)
 
 	return run_rw_queries (
 		link_obj = link_obj,
@@ -2075,8 +2074,8 @@ class cConnectionPool(psycopg2.pool.PersistentConnectionPool):
 		try:
 			conn = self._used[key]
 		except KeyError:
-			_log.error(u'no such key in connection pool: %s', key)
-			_log.debug(u'available keys: %s', self._used.keys())
+			_log.error('no such key in connection pool: %s', key)
+			_log.debug('available keys: %s', self._used.keys())
 			return
 		del self._used[key]
 		del self._rused[id(conn)]
@@ -2104,43 +2103,42 @@ def get_raw_connection(dsn=None, verbose=False, readonly=True, connection_name=N
 	if dsn is None:
 		dsn = get_default_dsn()
 
-	if u'host=salaam.homeunix' in dsn:
+	if 'host=salaam.homeunix' in dsn:
 		raise ValueError('The public database is not hosted by <salaam.homeunix.com> anymore.\n\nPlease point your configuration files to <publicdb.gnumed.de>.')
 
 	# try to enforce a useful encoding early on so that we
 	# have a good chance of decoding authentication errors
 	# containing foreign language characters
-	if u' client_encoding=' not in dsn:
-		dsn += u' client_encoding=utf8'
+	if ' client_encoding=' not in dsn:
+		dsn += ' client_encoding=utf8'
 
-	if u' application_name' not in dsn:
+	if ' application_name' not in dsn:
 		if connection_name is None:
-			dsn += u" application_name=GNUmed-[%s]"	% threading.current_thread().name.replace(u' ', u'_')
+			dsn += " application_name=GNUmed-[%s]"	% threading.current_thread().name.replace(' ', '_')
 		else:
-			dsn += u" application_name=%s" % connection_name
+			dsn += " application_name=%s" % connection_name
 
 	try:
 		# DictConnection now _is_ a real dictionary
 		conn = dbapi.connect(dsn=dsn, connection_factory=psycopg2.extras.DictConnection)
-	except dbapi.OperationalError, e:
-
+	except dbapi.OperationalError as e:
 		t, v, tb = sys.exc_info()
 		try:
 			msg = e.args[0]
 		except (AttributeError, IndexError, TypeError):
 			raise
 
-		#msg = unicode(msg, gmI18N.get_encoding(), 'replace')
-		msg = unicode(msg, u'utf8', 'replace')
+		#msg = str(msg, gmI18N.get_encoding(), 'replace')
+		msg = str(msg, 'utf8', 'replace')
 
-		if u'fe_sendauth' in msg:
-			raise cAuthenticationError, (dsn, msg), tb
+		if 'fe_sendauth' in msg:
+			raise cAuthenticationError(dsn, msg).with_traceback(tb)
 
 		if regex.search('user ".*" does not exist', msg) is not None:
-			raise cAuthenticationError, (dsn, msg), tb
+			raise cAuthenticationError(dsn, msg).with_traceback(tb)
 
-		if u'uthenti' in msg:
-			raise cAuthenticationError, (dsn, msg), tb
+		if 'uthenti' in msg:
+			raise cAuthenticationError(dsn, msg).with_traceback(tb)
 
 		raise
 
@@ -2219,7 +2217,7 @@ def get_connection(dsn=None, readonly=True, encoding=None, verbose=False, pooled
 			conn = get_raw_connection(dsn = dsn, verbose = verbose, readonly = readonly, connection_name = connection_name, autocommit = autocommit)
 			log_ro_conn = True
 		if log_ro_conn:
-			[ _log.debug(line) for line in capture_conn_state(conn = conn).split(u'\n') ]
+			[ _log.debug(line) for line in capture_conn_state(conn = conn).split('\n') ]
 	else:
 		conn = get_raw_connection(dsn = dsn, verbose = verbose, readonly = readonly, connection_name = connection_name, autocommit = autocommit)
 
@@ -2241,7 +2239,7 @@ def get_connection(dsn=None, readonly=True, encoding=None, verbose=False, pooled
 	except dbapi.OperationalError:
 		t, v, tb = sys.exc_info()
 		if str(v).find("can't set encoding to") != -1:
-			raise cEncodingError, (encoding, v), tb
+			raise cEncodingError(encoding, v).with_traceback(tb)
 		raise
 
 	# - transaction isolation level
@@ -2262,7 +2260,7 @@ def get_connection(dsn=None, readonly=True, encoding=None, verbose=False, pooled
 	conn.is_decorated = True
 
 	if verbose:
-		[ _log.debug(line) for line in capture_conn_state(conn = conn).split(u'\n') ]
+		[ _log.debug(line) for line in capture_conn_state(conn = conn).split('\n') ]
 
 	return conn
 
@@ -2286,14 +2284,14 @@ def __noop():
 
 #-----------------------------------------------------------------------
 def _raise_exception_on_ro_conn_close():
-	raise TypeError(u'close() called on read-only connection')
+	raise TypeError('close() called on read-only connection')
 
 #-----------------------------------------------------------------------
 def log_database_access(action=None):
 	run_insert (
-		schema = u'gm',
-		table = u'access_log',
-		values = {u'user_action': action},
+		schema = 'gm',
+		table = 'access_log',
+		values = {'user_action': action},
 		end_tx = True
 	)
 
@@ -2306,7 +2304,7 @@ def sanity_check_time_skew(tolerance=60):
 	"""
 	_log.debug('maximum skew tolerance (seconds): %s', tolerance)
 
-	cmd = u"SELECT now() at time zone 'UTC'"
+	cmd = "SELECT now() at time zone 'UTC'"
 	conn = get_raw_connection(readonly=True)
 	curs = conn.cursor()
 
@@ -2366,32 +2364,32 @@ def sanity_check_database_settings():
 
 	options2check = {
 		# setting: [expected value, risk, fatal?]
-		u'allow_system_table_mods': [[u'off'], u'system breakage', False],
-		u'check_function_bodies': [[u'on'], u'suboptimal error detection', False],
-		u'datestyle': [[u'ISO'], u'faulty timestamp parsing', True],
-		u'default_transaction_isolation': [[u'read committed'], u'faulty database reads', True],
-		u'default_transaction_read_only': [[u'on'], u'accidental database writes', False],
-		u'fsync': [[u'on'], u'data loss/corruption', True],
-		u'full_page_writes': [[u'on'], u'data loss/corruption', False],
-		u'lc_messages': [[u'C'], u'suboptimal error detection', False],
-		u'password_encryption': [[u'on', u'md5', u'scram-sha-256'], u'breach of confidentiality', False],
+		'allow_system_table_mods': [['off'], 'system breakage', False],
+		'check_function_bodies': [['on'], 'suboptimal error detection', False],
+		'datestyle': [['ISO'], 'faulty timestamp parsing', True],
+		'default_transaction_isolation': [['read committed'], 'faulty database reads', True],
+		'default_transaction_read_only': [['on'], 'accidental database writes', False],
+		'fsync': [['on'], 'data loss/corruption', True],
+		'full_page_writes': [['on'], 'data loss/corruption', False],
+		'lc_messages': [['C'], 'suboptimal error detection', False],
+		'password_encryption': [['on', 'md5', 'scram-sha-256'], 'breach of confidentiality', False],
 		#u'regex_flavor': [[u'advanced'], u'query breakage', False],					# 9.0 doesn't support this anymore, default now advanced anyway
-		u'synchronous_commit': [[u'on'], u'data loss/corruption', False],
-		u'sql_inheritance': [[u'on'], u'query breakage, data loss/corruption', True],	# IF returned (<PG10): better be ON, if NOT returned (PG10): hardwired
-		u'ignore_checksum_failure': [[u'off'], u'data loss/corruption', False],		# starting with PG 9.3
-		u'track_commit_timestamp': [[u'on'], u'suboptimal auditing', False]			# starting with PG 9.3
+		'synchronous_commit': [['on'], 'data loss/corruption', False],
+		'sql_inheritance': [['on'], 'query breakage, data loss/corruption', True],	# IF returned (<PG10): better be ON, if NOT returned (PG10): hardwired
+		'ignore_checksum_failure': [['off'], 'data loss/corruption', False],		# starting with PG 9.3
+		'track_commit_timestamp': [['on'], 'suboptimal auditing', False]			# starting with PG 9.3
 	}
 
 	from Gnumed.pycommon import gmCfg2
 	_cfg = gmCfg2.gmCfgData()
-	if _cfg.get(option = u'hipaa'):
-		options2check[u'log_connections'] = [[u'on'], u'non-compliance with HIPAA', True]
-		options2check[u'log_disconnections'] = [[u'on'], u'non-compliance with HIPAA', True]
+	if _cfg.get(option = 'hipaa'):
+		options2check['log_connections'] = [['on'], 'non-compliance with HIPAA', True]
+		options2check['log_disconnections'] = [['on'], 'non-compliance with HIPAA', True]
 	else:
-		options2check[u'log_connections'] = [[u'on'], u'non-compliance with HIPAA', None]
-		options2check[u'log_disconnections'] = [[u'on'], u'non-compliance with HIPAA', None]
+		options2check['log_connections'] = [['on'], 'non-compliance with HIPAA', None]
+		options2check['log_disconnections'] = [['on'], 'non-compliance with HIPAA', None]
 
-	cmd = u"SELECT name, setting from pg_settings where name in %(settings)s"
+	cmd = "SELECT name, setting from pg_settings where name in %(settings)s"
 	rows, idx = run_ro_queries (
 		link_obj = conn,
 		queries = [{'cmd': cmd, 'args': {'settings': tuple(options2check.keys())}}],
@@ -2416,18 +2414,18 @@ def sanity_check_database_settings():
 				pass
 			else:
 				_log.error(options2check[option])
-				raise ValueError(u'invalid database configuration sanity check')
+				raise ValueError('invalid database configuration sanity check')
 			msg.append(_(' option [%s]: %s') % (option, value_found))
 			msg.append(_('  risk: %s') % risk)
 			_log.warning('PG option [%s] set to [%s], expected %s, risk: <%s>' % (option, value_found, values_expected, risk))
 
 	if found_error:
-		return 2, u'\n'.join(msg)
+		return 2, '\n'.join(msg)
 
 	if found_problem:
-		return 1, u'\n'.join(msg)
+		return 1, '\n'.join(msg)
 
-	return 0, u''
+	return 0, ''
 
 #------------------------------------------------------------------------
 def _log_PG_settings(curs=None):
@@ -2436,27 +2434,27 @@ def _log_PG_settings(curs=None):
 	try:
 		# .pending_restart does not exist in PG 9.4 yet
 		#curs.execute(u'SELECT name, setting, unit, source, reset_val, sourcefile, sourceline, pending_restart FROM pg_settings')
-		curs.execute(u'SELECT name, setting, unit, source, reset_val, sourcefile, sourceline FROM pg_settings')
+		curs.execute('SELECT name, setting, unit, source, reset_val, sourcefile, sourceline FROM pg_settings')
 	except:
-		_log.exception(u'cannot log PG settings ("SELECT ... FROM pg_settings" failed)')
+		_log.exception('cannot log PG settings ("SELECT ... FROM pg_settings" failed)')
 		return False
 	settings = curs.fetchall()
 	for setting in settings:
 		if setting['unit'] is None:
-			unit = u''
+			unit = ''
 		else:
-			unit = u' %s' % setting['unit']
+			unit = ' %s' % setting['unit']
 		if setting['sourcefile'] is None:
-			sfile = u''
+			sfile = ''
 		else:
-			sfile = u'// %s @ %s' % (setting['sourcefile'], setting['sourceline'])
+			sfile = '// %s @ %s' % (setting['sourcefile'], setting['sourceline'])
 #		# .pending_restart does not exist in PG 9.4 yet
 #		if setting['pending_restart'] is False:
 #			pending_restart = u''
 #		else:
 #			pending_restart = u'// needs restart'
 #		_log.debug(u'%s: %s%s (set from: [%s] // sess RESET will set to: [%s]%s%s)',
-		_log.debug(u'%s: %s%s (set from: [%s] // sess RESET will set to: [%s]%s)',
+		_log.debug('%s: %s%s (set from: [%s] // sess RESET will set to: [%s]%s)',
 			setting['name'],
 			setting['setting'],
 			unit,
@@ -2467,16 +2465,16 @@ def _log_PG_settings(curs=None):
 		)
 
 	try:
-		curs.execute(u'select pg_available_extensions()')
+		curs.execute('select pg_available_extensions()')
 	except:
-		_log.exception(u'cannot log available PG extensions')
+		_log.exception('cannot log available PG extensions')
 		return False
 	extensions = curs.fetchall()
 	if extensions is None:
-		_log.error(u'no PG extensions available')
+		_log.error('no PG extensions available')
 		return False
 	for ext in extensions:
-		_log.debug(u'PG extension: %s', ext['pg_available_extensions'])
+		_log.debug('PG extension: %s', ext['pg_available_extensions'])
 
 	# not really that useful because:
 	# - clusterwide
@@ -2503,11 +2501,11 @@ def make_pg_exception_fields_unicode(exc):
 		except (AttributeError, IndexError, TypeError):
 			return exc
 		# assumption
-		exc.u_pgerror = unicode(msg, gmI18N.get_encoding(), 'replace')
+		exc.u_pgerror = str(msg, gmI18N.get_encoding(), 'replace')
 		return exc
 
 	# assumption
-	exc.u_pgerror = unicode(exc.pgerror, gmI18N.get_encoding(), 'replace').strip().strip(u'\n').strip().strip(u'\n')
+	exc.u_pgerror = str(exc.pgerror, gmI18N.get_encoding(), 'replace').strip().strip('\n').strip().strip('\n')
 
 	return exc
 
@@ -2517,10 +2515,10 @@ def extract_msg_from_pg_exception(exc=None):
 	try:
 		msg = exc.args[0]
 	except (AttributeError, IndexError, TypeError):
-		return u'cannot extract message from exception'
+		return 'cannot extract message from exception'
 
 	# assumption
-	return unicode(msg, gmI18N.get_encoding(), 'replace')
+	return str(msg, gmI18N.get_encoding(), 'replace')
 
 # =======================================================================
 class cAuthenticationError(dbapi.OperationalError):
@@ -2529,14 +2527,17 @@ class cAuthenticationError(dbapi.OperationalError):
 		self.dsn = dsn
 		self.prev_val = prev_val
 
+#	def __str__(self):
+#		_log.warning('%s.__str__() called', self.__class__.__name__)
+#		tmp = u'PostgreSQL: %sDSN: %s' % (self.prev_val, self.dsn)
+#		_log.error(tmp)
+#		return tmp.encode(gmI18N.get_encoding(), 'replace')
+
 	def __str__(self):
-		_log.warning('%s.__str__() called', self.__class__.__name__)
-		tmp = u'PostgreSQL: %sDSN: %s' % (self.prev_val, self.dsn)
-		_log.error(tmp)
-		return tmp.encode(gmI18N.get_encoding(), 'replace')
+		return 'PostgreSQL: %sDSN: %s' % (self.prev_val, self.dsn)
 
 	def __unicode__(self):
-		return u'PostgreSQL: %sDSN: %s' % (self.prev_val, self.dsn)
+		return 'PostgreSQL: %sDSN: %s' % (self.prev_val, self.dsn)
 
 # =======================================================================
 # custom psycopg2 extensions
@@ -2552,7 +2553,7 @@ class cEncodingError(dbapi.OperationalError):
 		return 'PostgreSQL: %s\nencoding: %s' % (self.prev_val.encode(gmI18N.get_encoding(), 'replace'), self.encoding.encode(gmI18N.get_encoding(), 'replace'))
 
 	def __unicode__(self):
-		return u'PostgreSQL: %s\nencoding: %s' % (self.prev_val, self.encoding)
+		return 'PostgreSQL: %s\nencoding: %s' % (self.prev_val, self.encoding)
 
 # -----------------------------------------------------------------------
 # Python -> PostgreSQL
@@ -2562,7 +2563,7 @@ class cAdapterPyDateTime(object):
 
 	def __init__(self, dt):
 		if dt.tzinfo is None:
-			raise ValueError(u'datetime.datetime instance is lacking a time zone: [%s]' % _timestamp_template % dt.isoformat())
+			raise ValueError('datetime.datetime instance is lacking a time zone: [%s]' % _timestamp_template % dt.isoformat())
 		self.__dt = dt
 
 	def getquoted(self):
@@ -2602,17 +2603,17 @@ if __name__ == "__main__":
 	#--------------------------------------------------------------------
 	def test_file2bytea():
 		run_rw_queries(queries = [
-			{'cmd': u'drop table if exists test_bytea'},
-			{'cmd': u'create table test_bytea (data bytea)'}
+			{'cmd': 'drop table if exists test_bytea'},
+			{'cmd': 'create table test_bytea (data bytea)'}
 		])
 
 		try:
-			file2bytea(query = u'insert into test_bytea values (%(data)s::bytea) returning md5(data) as md5', filename = sys.argv[2], file_md5 = file2md5(sys.argv[2], True))
+			file2bytea(query = 'insert into test_bytea values (%(data)s::bytea) returning md5(data) as md5', filename = sys.argv[2], file_md5 = file2md5(sys.argv[2], True))
 		except:
 			_log.exception('error')
 
 		run_rw_queries(queries = [
-			{'cmd': u'drop table test_bytea'}
+			{'cmd': 'drop table test_bytea'}
 		])
 
 	#--------------------------------------------------------------------
@@ -2621,7 +2622,7 @@ if __name__ == "__main__":
 			filename = sys.argv[2]
 			#, file_md5 = file2md5(sys.argv[2], True)
 		)
-		print lo_oid
+		print(lo_oid)
 #		if lo_oid != -1:
 #			run_rw_queries(queries = [
 #				{'cmd': u'select lo_unlink(%(loid)s::oid)', 'args': {'loid': lo_oid}}
@@ -2631,38 +2632,38 @@ if __name__ == "__main__":
 	def test_file2bytea_copy_from():
 
 		run_rw_queries(queries = [
-			{'cmd': u'drop table if exists test_bytea'},
-			{'cmd': u'create table test_bytea (pk serial primary key, data bytea)'},
-			{'cmd': u"insert into test_bytea (data) values (NULL::bytea)"}
+			{'cmd': 'drop table if exists test_bytea'},
+			{'cmd': 'create table test_bytea (pk serial primary key, data bytea)'},
+			{'cmd': "insert into test_bytea (data) values (NULL::bytea)"}
 		])
 
 		md5_query = {
-			'cmd': u'select md5(data) AS md5 FROM test_bytea WHERE pk = %(pk)s',
+			'cmd': 'select md5(data) AS md5 FROM test_bytea WHERE pk = %(pk)s',
 			'args': {'pk': 1}
 		}
 
 		file2bytea_copy_from (
-			table = u'test_bytea',
-			columns = [u'data'],
+			table = 'test_bytea',
+			columns = ['data'],
 			filename = sys.argv[2],
 			md5_query = md5_query,
 			file_md5 = file2md5(sys.argv[2], True)
 		)
 
 		run_rw_queries(queries = [
-			{'cmd': u'drop table if exists test_bytea'}
+			{'cmd': 'drop table if exists test_bytea'}
 		])
 
 	#--------------------------------------------------------------------
 	def test_file2bytea_overlay():
 
 		run_rw_queries(queries = [
-			{'cmd': u'drop table if exists test_bytea'},
-			{'cmd': u'create table test_bytea (pk serial primary key, data bytea)'},
-			{'cmd': u"insert into test_bytea (data) values (NULL::bytea)"}
+			{'cmd': 'drop table if exists test_bytea'},
+			{'cmd': 'create table test_bytea (pk serial primary key, data bytea)'},
+			{'cmd': "insert into test_bytea (data) values (NULL::bytea)"}
 		])
 
-		cmd = u"""
+		cmd = """
 		update test_bytea
 		set data = overlay (
 			coalesce(data, ''::bytea)
@@ -2673,7 +2674,7 @@ if __name__ == "__main__":
 		where
 			pk > %(pk)s
 		"""
-		md5_cmd = u'select md5(data) from test_bytea'
+		md5_cmd = 'select md5(data) from test_bytea'
 		args = {'pk': 0}
 		file2bytea_overlay (
 			query = cmd,
@@ -2685,57 +2686,57 @@ if __name__ == "__main__":
 		)
 
 		run_rw_queries(queries = [
-			{'cmd': u'drop table test_bytea'}
+			{'cmd': 'drop table test_bytea'}
 		])
 
 	#--------------------------------------------------------------------
 	def test_get_connection():
-		print "testing get_connection()"
+		print("testing get_connection()")
 
 		dsn = 'foo'
 		try:
 			conn = get_connection(dsn=dsn)
-		except dbapi.OperationalError, e:
-			print "SUCCESS: get_connection(%s) failed as expected" % dsn
+		except dbapi.OperationalError as e:
+			print("SUCCESS: get_connection(%s) failed as expected" % dsn)
 			t, v = sys.exc_info()[:2]
-			print ' ', t
-			print ' ', v
+			print (' ', t)
+			print (' ', v)
 
 		dsn = 'dbname=gnumed_v9'
 		try:
 			conn = get_connection(dsn=dsn)
 		except cAuthenticationError:
-			print "SUCCESS: get_connection(%s) failed as expected" % dsn
+			print("SUCCESS: get_connection(%s) failed as expected" % dsn)
 			t, v = sys.exc_info()[:2]
-			print ' ', t
-			print ' ', v
+			print(' ', t)
+			print(' ', v)
 
 		dsn = 'dbname=gnumed_v9 user=abc'
 		try:
 			conn = get_connection(dsn=dsn)
 		except cAuthenticationError:
-			print "SUCCESS: get_connection(%s) failed as expected" % dsn
+			print("SUCCESS: get_connection(%s) failed as expected" % dsn)
 			t, v = sys.exc_info()[:2]
-			print ' ', t
-			print ' ', v
+			print(' ', t)
+			print(' ', v)
 
 		dsn = 'dbname=gnumed_v9 user=any-doc'
 		try:
 			conn = get_connection(dsn=dsn)
 		except cAuthenticationError:
-			print "SUCCESS: get_connection(%s) failed as expected" % dsn
+			print("SUCCESS: get_connection(%s) failed as expected" % dsn)
 			t, v = sys.exc_info()[:2]
-			print ' ', t
-			print ' ', v
+			print(' ', t)
+			print(' ', v)
 
 		dsn = 'dbname=gnumed_v9 user=any-doc password=abc'
 		try:
 			conn = get_connection(dsn=dsn)
 		except cAuthenticationError:
-			print "SUCCESS: get_connection(%s) failed as expected" % dsn
+			print("SUCCESS: get_connection(%s) failed as expected" % dsn)
 			t, v = sys.exc_info()[:2]
-			print ' ', t
-			print ' ', v
+			print(' ', t)
+			print(' ', v)
 
 		dsn = 'dbname=gnumed_v9 user=any-doc password=any-doc'
 		conn = get_connection(dsn=dsn, readonly=True)
@@ -2748,141 +2749,141 @@ if __name__ == "__main__":
 		try:
 			conn = get_connection(dsn=dsn, encoding=encoding)
 		except cEncodingError:
-			print "SUCCESS: get_connection(%s, %s) failed as expected" % (dsn, encoding)
+			print("SUCCESS: get_connection(%s, %s) failed as expected" % (dsn, encoding))
 			t, v = sys.exc_info()[:2]
-			print ' ', t
-			print ' ', v
+			print(' ', t)
+			print(' ', v)
 	#--------------------------------------------------------------------
 	def test_exceptions():
-		print "testing exceptions"
+		print("testing exceptions")
 
 		try:
 			raise cAuthenticationError('no dsn', 'no previous exception')
 		except cAuthenticationError:
 			t, v, tb = sys.exc_info()
-			print t
-			print v
-			print tb
+			print(t)
+			print(v)
+			print(tb)
 
 		try:
 			raise cEncodingError('no dsn', 'no previous exception')
 		except cEncodingError:
 			t, v, tb = sys.exc_info()
-			print t
-			print v
-			print tb
+			print(t)
+			print(v)
+			print(tb)
 	#--------------------------------------------------------------------
 	def test_ro_queries():
-		print "testing run_ro_queries()"
+		print("testing run_ro_queries()")
 
 		dsn = 'dbname=gnumed_v9 user=any-doc password=any-doc'
 		conn = get_connection(dsn, readonly=True)
 
-		data, idx = run_ro_queries(link_obj=conn, queries=[{'cmd': u'SELECT version()'}], return_data=True, get_col_idx=True, verbose=True)
-		print data
-		print idx
-		data, idx = run_ro_queries(link_obj=conn, queries=[{'cmd': u'SELECT 1'}], return_data=True, get_col_idx=True)
-		print data
-		print idx
+		data, idx = run_ro_queries(link_obj=conn, queries=[{'cmd': 'SELECT version()'}], return_data=True, get_col_idx=True, verbose=True)
+		print(data)
+		print(idx)
+		data, idx = run_ro_queries(link_obj=conn, queries=[{'cmd': 'SELECT 1'}], return_data=True, get_col_idx=True)
+		print(data)
+		print(idx)
 
 		curs = conn.cursor()
 
-		data, idx = run_ro_queries(link_obj=curs, queries=[{'cmd': u'SELECT version()'}], return_data=True, get_col_idx=True, verbose=True)
-		print data
-		print idx
+		data, idx = run_ro_queries(link_obj=curs, queries=[{'cmd': 'SELECT version()'}], return_data=True, get_col_idx=True, verbose=True)
+		print(data)
+		print(idx)
 
-		data, idx = run_ro_queries(link_obj=curs, queries=[{'cmd': u'SELECT 1'}], return_data=True, get_col_idx=True, verbose=True)
-		print data
-		print idx
+		data, idx = run_ro_queries(link_obj=curs, queries=[{'cmd': 'SELECT 1'}], return_data=True, get_col_idx=True, verbose=True)
+		print(data)
+		print(idx)
 
 		try:
-			data, idx = run_ro_queries(link_obj=curs, queries=[{'cmd': u'selec 1'}], return_data=True, get_col_idx=True, verbose=True)
-			print data
-			print idx
+			data, idx = run_ro_queries(link_obj=curs, queries=[{'cmd': 'selec 1'}], return_data=True, get_col_idx=True, verbose=True)
+			print(data)
+			print(idx)
 		except psycopg2.ProgrammingError:
-			print 'SUCCESS: run_ro_queries("selec 1") failed as expected'
+			print('SUCCESS: run_ro_queries("selec 1") failed as expected')
 			t, v = sys.exc_info()[:2]
-			print ' ', t
-			print ' ', v
+			print(' ', t)
+			print(' ', v)
 
 		curs.close()
 	#--------------------------------------------------------------------
 	def test_request_dsn():
 		conn = get_connection()
-		print conn
+		print(conn)
 		conn.close()
 	#--------------------------------------------------------------------
 	def test_set_encoding():
-		print "testing set_default_client_encoding()"
+		print("testing set_default_client_encoding()")
 
 		enc = 'foo'
 		try:
 			set_default_client_encoding(enc)
-			print "SUCCESS: encoding [%s] worked" % enc
+			print("SUCCESS: encoding [%s] worked" % enc)
 		except ValueError:
-			print "SUCCESS: set_default_client_encoding(%s) failed as expected" % enc
+			print("SUCCESS: set_default_client_encoding(%s) failed as expected" % enc)
 			t, v = sys.exc_info()[:2]
-			print ' ', t
-			print ' ', v
+			print(' ', t)
+			print(' ', v)
 
 		enc = ''
 		try:
 			set_default_client_encoding(enc)
-			print "SUCCESS: encoding [%s] worked" % enc
+			print("SUCCESS: encoding [%s] worked" % enc)
 		except ValueError:
-			print "SUCCESS: set_default_client_encoding(%s) failed as expected" % enc
+			print("SUCCESS: set_default_client_encoding(%s) failed as expected" % enc)
 			t, v = sys.exc_info()[:2]
-			print ' ', t
-			print ' ', v
+			print(' ', t)
+			print(' ', v)
 
 		enc = 'latin1'
 		try:
 			set_default_client_encoding(enc)
-			print "SUCCESS: encoding [%s] worked" % enc
+			print("SUCCESS: encoding [%s] worked" % enc)
 		except ValueError:
-			print "SUCCESS: set_default_client_encoding(%s) failed as expected" % enc
+			print("SUCCESS: set_default_client_encoding(%s) failed as expected" % enc)
 			t, v = sys.exc_info()[:2]
-			print ' ', t
-			print ' ', v
+			print(' ', t)
+			print(' ', v)
 
 		enc = 'utf8'
 		try:
 			set_default_client_encoding(enc)
-			print "SUCCESS: encoding [%s] worked" % enc
+			print("SUCCESS: encoding [%s] worked" % enc)
 		except ValueError:
-			print "SUCCESS: set_default_client_encoding(%s) failed as expected" % enc
+			print("SUCCESS: set_default_client_encoding(%s) failed as expected" % enc)
 			t, v = sys.exc_info()[:2]
-			print ' ', t
-			print ' ', v
+			print(' ', t)
+			print(' ', v)
 
 		enc = 'unicode'
 		try:
 			set_default_client_encoding(enc)
-			print "SUCCESS: encoding [%s] worked" % enc
+			print("SUCCESS: encoding [%s] worked" % enc)
 		except ValueError:
-			print "SUCCESS: set_default_client_encoding(%s) failed as expected" % enc
+			print("SUCCESS: set_default_client_encoding(%s) failed as expected" % enc)
 			t, v = sys.exc_info()[:2]
-			print ' ', t
-			print ' ', v
+			print(' ', t)
+			print(' ', v)
 
 		enc = 'UNICODE'
 		try:
 			set_default_client_encoding(enc)
-			print "SUCCESS: encoding [%s] worked" % enc
+			print("SUCCESS: encoding [%s] worked" % enc)
 		except ValueError:
-			print "SUCCESS: set_default_client_encoding(%s) failed as expected" % enc
+			print("SUCCESS: set_default_client_encoding(%s) failed as expected" % enc)
 			t, v = sys.exc_info()[:2]
-			print ' ', t
-			print ' ', v
+			print(' ', t)
+			print(' ', v)
 	#--------------------------------------------------------------------
 	def test_connection_pool():
 		dsn = get_default_dsn()
 		pool = cConnectionPool(minconn=1, maxconn=2, dsn=None, verbose=False)
-		print pool
-		print pool.getconn()
-		print pool.getconn()
-		print pool.getconn()
-		print type(pool.getconn())
+		print(pool)
+		print(pool.getconn())
+		print(pool.getconn())
+		print(pool.getconn())
+		print(type(pool.getconn()))
 	#--------------------------------------------------------------------
 	def test_list_args():
 		dsn = get_default_dsn()
@@ -2899,7 +2900,7 @@ if __name__ == "__main__":
 		for test in tests:
 			result = sanitize_pg_regex(test[0])
 			if result != test[1]:
-				print 'ERROR: sanitize_pg_regex(%s) returned "%s", expected "%s"' % (test[0], result, test[1])
+				print('ERROR: sanitize_pg_regex(%s) returned "%s", expected "%s"' % (test[0], result, test[1]))
 	#--------------------------------------------------------------------
 	def test_is_pg_interval():
 		status = True
@@ -2911,13 +2912,13 @@ if __name__ == "__main__":
 		]
 
 		if not is_pg_interval():
-			print 'ERROR: is_pg_interval() returned "False", expected "True"'
+			print('ERROR: is_pg_interval() returned "False", expected "True"')
 			status = False
 
 		for test in tests:
 			result = is_pg_interval(test[0])
 			if result != test[1]:
-				print 'ERROR: is_pg_interval(%s) returned "%s", expected "%s"' % (test[0], result, test[1])
+				print('ERROR: is_pg_interval(%s) returned "%s", expected "%s"' % (test[0], result, test[1]))
 				status = False
 
 		return status
@@ -2927,30 +2928,30 @@ if __name__ == "__main__":
 
 	#--------------------------------------------------------------------
 	def test_get_foreign_key_names():
-		print get_foreign_key_names (
-			src_schema = u'clin',
-			src_table = u'vaccination',
-			src_column = u'fk_episode',
-			target_schema = u'clin',
-			target_table = u'episode',
-			target_column = u'pk'
-		)
+		print(get_foreign_key_names (
+			src_schema = 'clin',
+			src_table = 'vaccination',
+			src_column = 'fk_episode',
+			target_schema = 'clin',
+			target_table = 'episode',
+			target_column = 'pk'
+		))
 
 	#--------------------------------------------------------------------
 	def test_get_foreign_key_details():
-		schema = u'clin'
-		table = u'episode'
-		col = u'pk'
-		print 'column %s.%s.%s is referenced by:' % (schema, table, col)
+		schema = 'clin'
+		table = 'episode'
+		col = 'pk'
+		print('column %s.%s.%s is referenced by:' % (schema, table, col))
 		for row in get_foreign_keys2column (
 			schema = schema,
 			table = table,
 			column = col
 		):
-			print ' <- %s.%s' % (
+			print(' <- %s.%s' % (
 				row['referencing_table'],
 				row['referencing_column']
-			)
+			))
 
 	#--------------------------------------------------------------------
 	def test_set_user_language():
@@ -2973,29 +2974,29 @@ if __name__ == "__main__":
 			try:
 				result = set_user_language(user = test[0], language = test[1])
 				if result != test[2]:
-					print "test:", test
-					print "result:", result, "expected:", test[2]
-			except psycopg2.IntegrityError, e:
+					print("test:", test)
+					print("result:", result, "expected:", test[2])
+			except psycopg2.IntegrityError as e:
 				if test[2] is None:
 					continue
-				print "test:", test
-				print "expected exception"
-				print "result:", e
+				print("test:", test)
+				print("expected exception")
+				print("result:", e)
 
 	#--------------------------------------------------------------------
 	def test_get_schema_revision_history():
 		for line in get_schema_revision_history():
-			print u' - '.join(line)
+			print(' - '.join(line))
 
 	#--------------------------------------------------------------------
 	def test_run_query():
 		gmDateTime.init()
 		args = {'dt': gmDateTime.pydt_max_here()}
-		cmd = u"SELECT %(dt)s"
+		cmd = "SELECT %(dt)s"
 
 		#cmd = u"SELECT 'infinity'::timestamp with time zone"
 
-		cmd = u"""
+		cmd = """
 SELECT to_timestamp (foofoo,'YYMMDD.HH24MI') FROM (
 	SELECT REGEXP_REPLACE (
 		't1.130729.0902.tif',			-- string
@@ -3004,69 +3005,69 @@ SELECT to_timestamp (foofoo,'YYMMDD.HH24MI') FROM (
 	) AS foofoo
 ) AS foo"""
 		rows, idx = run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
-		print rows
-		print rows[0]
-		print rows[0][0]
+		print(rows)
+		print(rows[0])
+		print(rows[0][0])
 	#--------------------------------------------------------------------
 	def test_schema_exists():
-		print schema_exists()
+		print(schema_exists())
 	#--------------------------------------------------------------------
 	def test_row_locks():
 		row_is_locked(table = 'dem.identity', pk = 12)
 
-		print "1st connection:"
-		print " locked:", row_is_locked(table = 'dem.identity', pk = 12)
-		print " 1st shared lock succeeded:", lock_row(table = 'dem.identity', pk = 12, exclusive = False)
-		print " locked:", row_is_locked(table = 'dem.identity', pk = 12)
+		print("1st connection:")
+		print(" locked:", row_is_locked(table = 'dem.identity', pk = 12))
+		print(" 1st shared lock succeeded:", lock_row(table = 'dem.identity', pk = 12, exclusive = False))
+		print(" locked:", row_is_locked(table = 'dem.identity', pk = 12))
 
-		print "   2nd shared lock should succeed:", lock_row(table = 'dem.identity', pk = 12, exclusive = False)
-		print "   `-> unlock succeeded:", unlock_row(table = 'dem.identity', pk = 12, exclusive = False)
-		print " locked:", row_is_locked(table = 'dem.identity', pk = 12)
-		print "   exclusive lock should succeed:", lock_row(table = 'dem.identity', pk = 12, exclusive = True)
-		print "   `-> unlock succeeded:", unlock_row(table = 'dem.identity', pk = 12, exclusive = True)
-		print " locked:", row_is_locked(table = 'dem.identity', pk = 12)
+		print("   2nd shared lock should succeed:", lock_row(table = 'dem.identity', pk = 12, exclusive = False))
+		print("   `-> unlock succeeded:", unlock_row(table = 'dem.identity', pk = 12, exclusive = False))
+		print(" locked:", row_is_locked(table = 'dem.identity', pk = 12))
+		print("   exclusive lock should succeed:", lock_row(table = 'dem.identity', pk = 12, exclusive = True))
+		print("   `-> unlock succeeded:", unlock_row(table = 'dem.identity', pk = 12, exclusive = True))
+		print(" locked:", row_is_locked(table = 'dem.identity', pk = 12))
 
-		print "2nd connection:"
+		print("2nd connection:")
 		conn = get_raw_connection(readonly=True)
-		print " shared lock should succeed:", lock_row(link_obj = conn, table = 'dem.identity', pk = 12, exclusive = False)
-		print " `-> unlock succeeded:", unlock_row(link_obj = conn, table = 'dem.identity', pk = 12, exclusive = False)
-		print " locked:", row_is_locked(table = 'dem.identity', pk = 12)
-		print " exclusive lock succeeded ?", lock_row(link_obj = conn, table = 'dem.identity', pk = 12, exclusive = True), "(should fail)"
-		print " locked:", row_is_locked(table = 'dem.identity', pk = 12)
+		print(" shared lock should succeed:", lock_row(link_obj = conn, table = 'dem.identity', pk = 12, exclusive = False))
+		print(" `-> unlock succeeded:", unlock_row(link_obj = conn, table = 'dem.identity', pk = 12, exclusive = False))
+		print(" locked:", row_is_locked(table = 'dem.identity', pk = 12))
+		print(" exclusive lock succeeded ?", lock_row(link_obj = conn, table = 'dem.identity', pk = 12, exclusive = True), "(should fail)")
+		print(" locked:", row_is_locked(table = 'dem.identity', pk = 12))
 
-		print "1st connection:"
-		print " unlock succeeded:", unlock_row(table = 'dem.identity', pk = 12, exclusive = False)
-		print " locked:", row_is_locked(table = 'dem.identity', pk = 12)
+		print("1st connection:")
+		print(" unlock succeeded:", unlock_row(table = 'dem.identity', pk = 12, exclusive = False))
+		print(" locked:", row_is_locked(table = 'dem.identity', pk = 12))
 
-		print "2nd connection:"
-		print " exclusive lock should succeed", lock_row(link_obj = conn, table = 'dem.identity', pk = 12, exclusive = True)
-		print " locked:", row_is_locked(table = 'dem.identity', pk = 12)
-		print "  shared lock should succeed:", lock_row(link_obj = conn, table = 'dem.identity', pk = 12, exclusive = False)
-		print "  `-> unlock succeeded:", unlock_row(link_obj = conn, table = 'dem.identity', pk = 12, exclusive = False)
-		print " locked:", row_is_locked(table = 'dem.identity', pk = 12)
-		print " unlock succeeded:", unlock_row(link_obj = conn, table = 'dem.identity', pk = 12, exclusive = False)
-		print " locked:", row_is_locked(table = 'dem.identity', pk = 12)
+		print("2nd connection:")
+		print(" exclusive lock should succeed", lock_row(link_obj = conn, table = 'dem.identity', pk = 12, exclusive = True))
+		print(" locked:", row_is_locked(table = 'dem.identity', pk = 12))
+		print("  shared lock should succeed:", lock_row(link_obj = conn, table = 'dem.identity', pk = 12, exclusive = False))
+		print("  `-> unlock succeeded:", unlock_row(link_obj = conn, table = 'dem.identity', pk = 12, exclusive = False))
+		print(" locked:", row_is_locked(table = 'dem.identity', pk = 12))
+		print(" unlock succeeded:", unlock_row(link_obj = conn, table = 'dem.identity', pk = 12, exclusive = False))
+		print(" locked:", row_is_locked(table = 'dem.identity', pk = 12))
 
 		conn.close()
 
 	#--------------------------------------------------------------------
 	def test_get_foreign_key_names():
-		print get_foreign_key_names (
+		print(get_foreign_key_names (
 			src_schema = 'dem',
 			src_table = 'names',
 			src_column = 'id_identity',
 			target_schema = 'dem',
 			target_table = 'identity',
 			target_column = 'pk'
-		)
+		))
 
 	#--------------------------------------------------------------------
 	def test_get_index_name():
-		print get_index_name(indexed_table = 'clin.vaccination', indexed_column = 'fk_episode')
+		print(get_index_name(indexed_table = 'clin.vaccination', indexed_column = 'fk_episode'))
 
 	#--------------------------------------------------------------------
 	def test_faulty_SQL():
-		run_rw_queries(queries = [{'cmd': u'SELEC 1'}])
+		run_rw_queries(queries = [{'cmd': 'SELEC 1'}])
 
 	#--------------------------------------------------------------------
 	def test_log_settings():

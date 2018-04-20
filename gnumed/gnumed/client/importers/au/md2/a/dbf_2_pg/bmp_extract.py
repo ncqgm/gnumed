@@ -18,9 +18,9 @@ class Extract:
 
 		else:
 			if not os.path.exists(outdir) or keep_existing is False:
-				self._outfile = file( outdir, 'w')
+				self._outfile = open( outdir, 'w')
 			else:
-				self._outfile = file( outdir, 'a+')
+				self._outfile = open( outdir, 'a+')
 
 		self._keep_existing = keep_existing
 		while suffix and len(suffix) and suffix[0] =='.':
@@ -31,13 +31,13 @@ class Extract:
 		self._suffix = sf
     
 	def get_base(self, block, process = None, verbose = False ):
-		blocks = long(block)
+		blocks = int(block)
 
 		st0 = blocks * self._blocksize
 		f = self._f
 		f.seek(st0)
 		version, filelen = struct.unpack('>xxxBL', f.read(8))
-		if verbose:sys.stderr.write(u"version is " + str(version) + " length "+ str(filelen)+"\n")		
+		if verbose:sys.stderr.write("version is " + str(version) + " length "+ str(filelen)+"\n")		
 		bytes = f.read(filelen)
 
 		return bytes
@@ -70,23 +70,23 @@ class Extract:
 			if os.path.exists(path):
 				if verbose: sys.stderr.write( path + " already exists .")
 				if self._keep_existing:
-					sys.stderr.write(u' keeping\n')
+					sys.stderr.write(' keeping\n')
 					return
 				else:
-					sys.stderr.write(u' overwriting\n')
+					sys.stderr.write(' overwriting\n')
 
                         file(path , 'wb').write( bytes) 
 			sys.stderr.write( "from block "+ str(block) + ",  wrote "+ str(filelen) +  " bytes to "+ path+'\n')
 		else:
 			of = self._outfile		
-			of.write(u'block='+str(block) + '\n')
-			of.write(u'len='+str(filelen) +'\n' )
+			of.write('block='+str(block) + '\n')
+			of.write('len='+str(filelen) +'\n' )
                         if process :
                            fn, arg = process
                            bytes = fn(bytes, arg)
 
 			of.write( bytes  )
-			of.write(u'\n\n\n')
+			of.write('\n\n\n')
 
 			
 if __name__ == '__main__':
