@@ -94,8 +94,8 @@ against. Please run GNUmed as a non-root user.
 	sys.exit(1)
 
 #----------------------------------------------------------
-current_client_version = '1.7.rc2'
-current_client_branch = '1.7'
+current_client_version = '1.8.rc1'
+current_client_branch = '1.8'
 
 _log = None
 _pre_log_buffer = []
@@ -522,7 +522,6 @@ the hidden directory "%s/".""" % (
 	# symlink log file into temporary directory for easier debugging (everything in one place)
 	logfile_link = os.path.join(paths.tmp_dir, 'zzz-gnumed.log')
 	gmTools.mklink (gmLog2._logfile.name, logfile_link, overwrite = False)
-	print("Linked log file:", logfile_link)
 
 #==========================================================
 def setup_date_time():

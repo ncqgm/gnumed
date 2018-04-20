@@ -44,6 +44,10 @@ TARBALL_OPTS="--local-import --debug"
 #PSYCOPG_DEBUG="on"		# should actually be done within gnumed.py based on --debug
 
 
+# make sure custom wxp4 is found
+export PYTHONPATH="/usr/lib/python2.7/dist-packages/wxp4/:${PYTHONPATH:+$PYTHONPATH}"
+
+
 # eventually run it
 # - devel version:
 echo "-------------------------------------------------"
@@ -51,19 +55,20 @@ echo "Running from Git branch: "`git branch | grep \*`
 echo "-------------------------------------------------"
 echo "config file: ${CONF}"
 echo "options: ${DEV_OPTS}"
-#python3 gnumed.py ${CONF} ${DEV_OPTS} $@
-#python3 gnumed.py ${CONF} ${DEV_OPTS} $@ |& tee gm-vcs-console_output.log
-python3 gnumed.py ${CONF} ${DEV_OPTS} $@
+#python -Q warn -3 gnumed.py ${CONF} ${DEV_OPTS} $@
+#python -Q warn -3 gnumed.py ${CONF} ${DEV_OPTS} $@ 2> >(grep -v wx > gm-vcs-py2to3_warnings.log) # 1>&2)
+#python -Q warn -3 gnumed.py ${CONF} ${DEV_OPTS} $@ |& tee gm-vcs-console_output.log
+python -Q warn -3 gnumed.py ${CONF} ${DEV_OPTS} $@
 
 
 # - *released* tarball version:
-#python3 gnumed.py ${CONF} ${TARBALL_OPTS} $@
+#python gnumed.py ${CONF} ${TARBALL_OPTS} $@
 
 # - production version (does not use tarball files !):
-#python3 gnumed.py $@
+#python gnumed.py $@
 
 # - production version with HIPAA support (does not use tarball files !):
-#python3 gnumed.py --hipaa $@
+#python gnumed.py --hipaa $@
 
 
 # source systemwide shutdown extension shell script if it exists

@@ -169,7 +169,8 @@ map_client_branch2required_db_version = {
 	'1.4': 19,
 	'1.5': 20,
 	'1.6': 21,
-	'1.7': 22
+	'1.7': 22,
+	'1.8': 22		# Yes, SAME as 1.7, no DB change.
 }
 
 map_psyco_tx_status2str = [
@@ -1184,7 +1185,7 @@ def bytea2file_object(data_query=None, file_obj=None, chunk_size=0, data_size=No
 
 	<data_query>
 	- dict {'cmd': ..., 'args': ...}
-	- 'cmd' must be unicode containing "... substring(data from %(start)s for %(size)s) ..."
+	- 'cmd' must be a string containing "... substring(data from %(start)s for %(size)s) ..."
 	- 'args' must be a dict
 	- must return one row with one field of type bytea
 	<file>
@@ -1740,9 +1741,6 @@ def run_ro_queries(link_obj=None, queries=None, verbose=False, return_data=True,
 		_log.debug('cursor: %s', curs)
 
 	for query in queries:
-		if type(query['cmd']) is not str:
-			print("run_ro_queries(): non-unicode query")
-			print(query['cmd'])
 		try:
 			args = query['args']
 		except KeyError:
@@ -1893,9 +1891,6 @@ def run_rw_queries(link_obj=None, queries=None, end_tx=False, return_data=None, 
 		raise ValueError('link_obj must be cursor, connection or None but not [%s]' % link_obj)
 
 	for query in queries:
-		if type(query['cmd']) is not str:
-			print("gmPG2.run_rw_queries(): non-unicode query")
-			print(query['cmd'])
 		try:
 			args = query['args']
 		except KeyError:
