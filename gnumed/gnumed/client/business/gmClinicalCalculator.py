@@ -49,7 +49,7 @@ class cClinicalResult(object):
 		self.hints = []
 
 	#--------------------------------------------------------
-	def __unicode__(self):
+	def __str__(self):
 		txt = '[cClinicalResult]: %s %s (%s)\n\n%s' % (
 			self.numeric_value,
 			self.unit,

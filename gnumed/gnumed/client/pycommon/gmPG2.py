@@ -2122,19 +2122,12 @@ def get_raw_connection(dsn=None, verbose=False, readonly=True, connection_name=N
 			msg = e.args[0]
 		except (AttributeError, IndexError, TypeError):
 			raise
-
-		#msg = str(msg, gmI18N.get_encoding(), 'replace')
-		msg = str(msg, 'utf8', 'replace')
-
 		if 'fe_sendauth' in msg:
 			raise cAuthenticationError(dsn, msg).with_traceback(tb)
-
 		if regex.search('user ".*" does not exist', msg) is not None:
 			raise cAuthenticationError(dsn, msg).with_traceback(tb)
-
 		if 'uthenti' in msg:
 			raise cAuthenticationError(dsn, msg).with_traceback(tb)
-
 		raise
 
 	if connection_name is None:
@@ -2522,16 +2515,7 @@ class cAuthenticationError(dbapi.OperationalError):
 		self.dsn = dsn
 		self.prev_val = prev_val
 
-#	def __str__(self):
-#		_log.warning('%s.__str__() called', self.__class__.__name__)
-#		tmp = u'PostgreSQL: %sDSN: %s' % (self.prev_val, self.dsn)
-#		_log.error(tmp)
-#		return tmp.encode(gmI18N.get_encoding(), 'replace')
-
 	def __str__(self):
-		return 'PostgreSQL: %sDSN: %s' % (self.prev_val, self.dsn)
-
-	def __unicode__(self):
 		return 'PostgreSQL: %sDSN: %s' % (self.prev_val, self.dsn)
 
 # =======================================================================
@@ -2544,10 +2528,6 @@ class cEncodingError(dbapi.OperationalError):
 		self.prev_val = prev_val
 
 	def __str__(self):
-		_log.warning('%s.__str__() called', self.__class__.__name__)
-		return 'PostgreSQL: %s\nencoding: %s' % (self.prev_val.encode(gmI18N.get_encoding(), 'replace'), self.encoding.encode(gmI18N.get_encoding(), 'replace'))
-
-	def __unicode__(self):
 		return 'PostgreSQL: %s\nencoding: %s' % (self.prev_val, self.encoding)
 
 # -----------------------------------------------------------------------

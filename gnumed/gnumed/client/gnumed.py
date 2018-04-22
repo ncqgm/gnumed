@@ -435,9 +435,9 @@ def setup_locale():
 	l =  _cfg.get(option = '--lang-gettext', source_order = [('cli', 'return')])
 	gmI18N.install_domain(domain = td, language = l, prefer_local_catalog = _cfg.get(option = 'local-import'))
 
-	# make sure we re-get the default encoding
-	# in case it changed
-	gmLog2.set_string_encoding()
+#	# make sure we re-get the default encoding
+#	# in case it changed
+#	gmLog2.set_string_encoding()
 
 #==========================================================
 def handle_help_request():

@@ -390,20 +390,6 @@ def delete_xxx(pk_XXX=None):
 
 	#--------------------------------------------------------
 	def __str__(self):
-		tmp = []
-		try:
-			for attr in self._idx.keys():
-				if self._payload[self._idx[attr]] is None:
-					tmp.append('%s: NULL' % attr)
-				else:
-					tmp.append('%s: >>%s<<' % (attr, self._payload[self._idx[attr]]))
-			return '[%s:%s]: %s' % (self.__class__.__name__, self.pk_obj, str(tmp))
-			#return '[%s:%s]:\n %s' % (self.__class__.__name__, self.pk_obj, '\n '.join(lines))
-		except:
-			return 'nascent [%s @ %s], cannot show payload and primary key' %(self.__class__.__name__, id(self))
-
-	#--------------------------------------------------------
-	def __unicode__(self):
 		lines = []
 		try:
 			for attr in self._idx.keys():
@@ -417,7 +403,7 @@ def delete_xxx(pk_XXX=None):
 					))
 			return '[%s:%s]:\n%s' % (self.__class__.__name__, self.pk_obj, '\n'.join(lines))
 		except:
-			return 'likely nascent [%s @ %s], error adding payload and primary key' % (self.__class__.__name__, id(self))
+			return 'likely nascent [%s @ %s], cannot show payload and primary key' %(self.__class__.__name__, id(self))
 
 	#--------------------------------------------------------
 	def __getitem__(self, attribute):
