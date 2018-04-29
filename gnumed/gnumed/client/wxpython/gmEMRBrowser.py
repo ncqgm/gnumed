@@ -271,13 +271,13 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 		self.__root_tooltip = self.__pat['description_gender'] + '\n'
 		if self.__pat['deceased'] is None:
 			self.__root_tooltip += ' %s (%s)\n\n' % (
-				self.__pat.get_formatted_dob(format = '%d %b %Y', encoding = gmI18N.get_encoding()),
+				self.__pat.get_formatted_dob(format = '%d %b %Y'),
 				self.__pat['medical_age']
 			)
 		else:
 			template = ' %s - %s (%s)\n\n'
 			self.__root_tooltip += template % (
-				self.__pat.get_formatted_dob(format = '%d.%b %Y', encoding = gmI18N.get_encoding()),
+				self.__pat.get_formatted_dob(format = '%d.%b %Y'),
 				gmDateTime.pydt_strftime(self.__pat['deceased'], '%Y %b %d'),
 				self.__pat['medical_age']
 			)
@@ -526,6 +526,8 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 
 		# - episodes
 		self.__epi_context_popup = wx.Menu(title = _('Episode Actions:'))
+		item = self.__epi_context_popup.Append(-1, _('Toggle ongoing/closed'))
+		self.Bind(wx.EVT_MENU, self.__toggle_episode_open_close, item)
 		item = self.__epi_context_popup.Append(-1, _('Edit details'))
 		self.Bind(wx.EVT_MENU, self.__edit_episode, item)
 		item = self.__epi_context_popup.Append(-1, _('Delete'))
@@ -580,6 +582,11 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 			episodes = [episode['pk_episode']],
 			move_all = True
 		)
+
+	#--------------------------------------------------------
+	def __toggle_episode_open_close(self, event):
+		self.__curr_node_data['episode_open'] = not self.__curr_node_data['episode_open']
+		self.__curr_node_data.save()
 
 	#--------------------------------------------------------
 	def __edit_episode(self, event):
@@ -1546,7 +1553,10 @@ class cEMRListJournalPluginPnl(wxgEMRListJournalPluginPnl.wxgEMRListJournalPlugi
 				prev_date = entry_date
 			lines = entry['narrative'].strip().split('\n')
 			line_0 = lines[0].rstrip()				# assumes there's at least one line ...
-			delim = gmTools.u_box_horiz_light_3dashes * 10
+			if len(lines) == 1:
+				delim = gmTools.u_box_horiz_light_3dashes * 10 + gmTools.u_box_T_left
+			else:
+				delim = (gmTools.u_box_horiz_light_3dashes * 10) + gmTools.u_box_top_right_arc
 			entry_line = '%s %s' % (line_0, delim)
 			items.append([date2show, soap_cat, entry_line, who])
 			try:

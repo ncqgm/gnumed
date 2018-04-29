@@ -244,7 +244,8 @@ class gmPaths(gmBorg.cBorg):
 	.user_config_dir
 	.system_config_dir
 	.system_app_data_dir	(not writable)
-	.tmp_dir
+	.tmp_dir				instance-local
+	.user_tmp_dir			user-local (NOT per instance)
 	"""
 	def __init__(self, app_name=None, wx=None):
 		"""Setup pathes.
@@ -320,9 +321,9 @@ class gmPaths(gmBorg.cBorg):
 		except AttributeError:
 			_log.info('initial (user level) temp dir: %s', tempfile.gettempdir())
 			# $TMP/gnumed-$USER/
-			tmp_base = os.path.join(tempfile.gettempdir(), app_name + r'-' + getpass.getuser())
-			mkdir(tmp_base, 0o700)
-			tempfile.tempdir = tmp_base
+			self.user_tmp_dir = os.path.join(tempfile.gettempdir(), app_name + r'-' + getpass.getuser())
+			mkdir(self.user_tmp_dir, 0o700)
+			tempfile.tempdir = self.user_tmp_dir
 			_log.info('intermediate (app level) temp dir: %s', tempfile.gettempdir())
 			# $TMP/gnumed-$USER/g$UNIQUE/
 			self.tmp_dir = tempfile.mkdtemp(prefix = r'g')
@@ -378,7 +379,9 @@ class gmPaths(gmBorg.cBorg):
 		_log.debug('user-specific config dir: %s', self.user_config_dir)
 		_log.debug('system-wide config dir: %s', self.system_config_dir)
 		_log.debug('system-wide application data dir: %s', self.system_app_data_dir)
-		_log.debug('temporary dir: %s', self.tmp_dir)
+		_log.debug('temporary dir (user): %s', self.user_tmp_dir)
+		_log.debug('temporary dir (instance): %s', self.tmp_dir)
+
 	#--------------------------------------
 	# properties
 	#--------------------------------------
@@ -1701,8 +1704,8 @@ if __name__ == '__main__':
 		return True
 	#-----------------------------------------------------------------------
 	def test_mkdir():
-		print("testing mkdir(%s)" % sys.argv[1])
-		mkdir(sys.argv[1])
+		print("testing mkdir(%s)" % sys.argv[2])
+		mkdir(sys.argv[2])
 	#-----------------------------------------------------------------------
 	def test_gmPaths():
 		print("testing gmPaths()")
@@ -1973,10 +1976,10 @@ second line\n
 			print (test, fname_sanitize(test))
 
 	#-----------------------------------------------------------------------
-	test_coalesce()
+	#test_coalesce()
 	#test_capitalize()
 	#test_import_module()
-	#test_mkdir()
+	test_mkdir()
 	#test_gmPaths()
 	#test_none_if()
 	#test_bool2str()

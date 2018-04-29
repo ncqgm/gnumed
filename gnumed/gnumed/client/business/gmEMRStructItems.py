@@ -266,7 +266,7 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 				lines.append('')
 				prev_epi = row['pk_episode']
 
-			when = gmDateTime.pydt_strftime(row['clin_when'], date_format, encoding = gmI18N.get_encoding())
+			when = gmDateTime.pydt_strftime(row['clin_when'], date_format)
 			top_row = '%s%s %s (%s) %s' % (
 				gmTools.u_box_top_left_arc,
 				gmTools.u_box_horiz_single,
@@ -288,7 +288,7 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 				gmTools.u_box_horiz_light_heavy,
 				row['modified_by'],
 				row_ver,
-				gmDateTime.pydt_strftime(row['modified_when'], date_format, encoding = gmI18N.get_encoding()),
+				gmDateTime.pydt_strftime(row['modified_when'], date_format),
 				gmTools.u_box_horiz_heavy_light
 			)
 
@@ -1262,7 +1262,7 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 				gmTools.u_box_horiz_light_heavy,
 				row['modified_by'],
 				row_ver,
-				gmDateTime.pydt_strftime(row['modified_when'], date_format, encoding = gmI18N.get_encoding()),
+				gmDateTime.pydt_strftime(row['modified_when'], date_format),
 				gmTools.u_box_horiz_heavy_light
 			)
 
@@ -1651,11 +1651,11 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 		end = self.best_guess_clinical_end_date
 		if end is None:
 			range_str = '%s-%s' % (
-				gmDateTime.pydt_strftime(start, '%b %y', encoding = 'utf8'),
+				gmDateTime.pydt_strftime(start, "%b'%y"),
 				gmTools.u_ellipsis
 			)
 			range_str_verb = '%s - %s' % (
-				gmDateTime.pydt_strftime(start, '%b %d %Y', encoding = 'utf8'),
+				gmDateTime.pydt_strftime(start, '%b %d %Y'),
 				gmTools.u_ellipsis
 			)
 			duration_str = _('%s so far') % gmDateTime.format_interval_medically(gmDateTime.pydt_now_here() - start)
@@ -1665,30 +1665,29 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 		# year different:
 		if end.year != start.year:
 			range_str = '%s-%s' % (
-				gmDateTime.pydt_strftime(start, '%b %y', encoding = 'utf8'),
-				gmDateTime.pydt_strftime(end, '%b %y', encoding = 'utf8')
+				gmDateTime.pydt_strftime(start, "%b'%y"),
+				gmDateTime.pydt_strftime(end, "%b'%y")
 			)
 			range_str_verb = '%s - %s' % (
-				gmDateTime.pydt_strftime(start, '%b %d %y', encoding = 'utf8'),
-				gmDateTime.pydt_strftime(end, '%b %d %Y', encoding = 'utf8')
+				gmDateTime.pydt_strftime(start, '%b %d %Y'),
+				gmDateTime.pydt_strftime(end, '%b %d %Y')
 			)
 			return (range_str, range_str_verb, duration_str)
-
 		# same year:
 		if end.month != start.month:
 			range_str = '%s-%s' % (
-				gmDateTime.pydt_strftime(start, '%b', encoding = 'utf8'),
-				gmDateTime.pydt_strftime(end, '%b %y', encoding = 'utf8')
+				gmDateTime.pydt_strftime(start, '%b'),
+				gmDateTime.pydt_strftime(end, "%b'%y")
 			)
 			range_str_verb = '%s - %s' % (
-				gmDateTime.pydt_strftime(start, '%b %d', encoding = 'utf8'),
-				gmDateTime.pydt_strftime(end, '%b %d %Y', encoding = 'utf8')
+				gmDateTime.pydt_strftime(start, '%b %d'),
+				gmDateTime.pydt_strftime(end, '%b %d %Y')
 			)
 			return (range_str, range_str_verb, duration_str)
 
 		# same year and same month
-		range_str = gmDateTime.pydt_strftime(start, '%b %y', encoding = 'utf8')
-		range_str_verb = gmDateTime.pydt_strftime(start, '%b %d %Y', encoding = 'utf8')
+		range_str = gmDateTime.pydt_strftime(start, "%b'%y")
+		range_str_verb = gmDateTime.pydt_strftime(start, '%b %d %Y')
 		return (range_str, range_str_verb, duration_str)
 
 	formatted_clinical_duration = property(_get_formatted_clinical_duration)
@@ -1794,6 +1793,7 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 		return '\n'.join(self._get_revision_history(cmd, args, title))
 
 	formatted_revision_history = property(_get_formatted_revision_history, lambda x:x)
+
 	#--------------------------------------------------------
 	def _get_generic_codes(self):
 		if len(self._payload[self._idx['pk_generic_codes']]) == 0:
@@ -1831,6 +1831,7 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 		return
 
 	generic_codes = property(_get_generic_codes, _set_generic_codes)
+
 	#--------------------------------------------------------
 	def _get_has_narrative(self):
 		cmd = """SELECT EXISTS (

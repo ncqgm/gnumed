@@ -108,7 +108,7 @@ class cArriba(object):
 			gmTools.coalesce(active_name['preferred'], '', ' (%s)'),
 			active_name['lastnames'],
 			gmXdtMappings.map_gender_gm2xdt[patient['gender']],
-			patient.get_formatted_dob(format = cArriba._date_format, encoding = 'utf8', none_string = '00009999')
+			patient.get_formatted_dob(format = cArriba._date_format, none_string = '00009999')
 		)
 
 		fname_cfg = gmTools.get_unique_filename(prefix = 'gm2arriba-', suffix = '.xml')

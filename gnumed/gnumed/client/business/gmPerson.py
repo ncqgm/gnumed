@@ -1226,7 +1226,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 
 		dob = etree.SubElement(pat, 'DOB')
 		dob.set('format', dob_format)
-		dob.text = gmDateTime.pydt_strftime(self._payload[self._idx['dob']], dob_format, encoding = 'utf8', accuracy = gmDateTime.acc_days, none_str = '')
+		dob.text = gmDateTime.pydt_strftime(self._payload[self._idx['dob']], dob_format, accuracy = gmDateTime.acc_days, none_str = '')
 
 		gender = etree.SubElement(pat, 'gender')
 		gender.set('comment', self.gender_string)
@@ -1317,7 +1317,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 		# FIXME: dont know how to add gender_string after ';'
 		vc.gender.value = map_gender2vcard[self._payload[self._idx['gender']]]#, self.gender_string
 		vc.add('bday')
-		vc.bday.value = gmDateTime.pydt_strftime(self._payload[self._idx['dob']], dob_format, encoding = 'utf8', accuracy = gmDateTime.acc_days, none_str = '')
+		vc.bday.value = gmDateTime.pydt_strftime(self._payload[self._idx['dob']], dob_format, accuracy = gmDateTime.acc_days, none_str = '')
 
 		channels = self.get_comm_channels(comm_medium = 'homephone')
 		if len(channels) > 0:
@@ -1643,11 +1643,10 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 	#----------------------------------------------------------------------
 	# age/dob related
 	#----------------------------------------------------------------------
-	def get_formatted_dob(self, format='%Y %b %d', encoding=None, none_string=None, honor_estimation=False):
+	def get_formatted_dob(self, format='%Y %b %d', none_string=None, honor_estimation=False):
 		return gmDateTime.format_dob (
 			self._payload[self._idx['dob']],
 			format = format,
-			encoding = encoding,
 			none_string = none_string,
 			dob_is_estimated = self._payload[self._idx['dob_is_estimated']] and honor_estimation
 		)
@@ -1836,12 +1835,12 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 		return gmTools.fname_sanitize('%s-%s-%s' % (
 			self._payload[self._idx['lastnames']],
 			self._payload[self._idx['firstnames']],
-			self.get_formatted_dob(format = '%Y-%m-%d', encoding = gmI18N.get_encoding())
+			self.get_formatted_dob(format = '%Y-%m-%d')
 		))
 #		return (u'%s-%s-%s' % (
 #			self._payload[self._idx['lastnames']].replace(u' ', u'_'),
 #			self._payload[self._idx['firstnames']].replace(u' ', u'_'),
-#			self.get_formatted_dob(format = '%Y-%m-%d', encoding = gmI18N.get_encoding())
+#			self.get_formatted_dob(format = '%Y-%m-%d')
 #		)).replace (
 #			u"'", u""
 #		).replace (

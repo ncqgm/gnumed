@@ -2489,11 +2489,11 @@ def make_pg_exception_fields_unicode(exc):
 		except (AttributeError, IndexError, TypeError):
 			return exc
 		# assumption
-		exc.u_pgerror = str(msg, gmI18N.get_encoding(), 'replace')
+		exc.u_pgerror = msg
 		return exc
 
 	# assumption
-	exc.u_pgerror = str(exc.pgerror, gmI18N.get_encoding(), 'replace').strip().strip('\n').strip().strip('\n')
+	exc.u_pgerror = exc.pgerror.strip().strip('\n').strip().strip('\n')
 
 	return exc
 

@@ -511,7 +511,7 @@ def delete_xxx(pk_XXX=None):
 				if date_format is None:
 					data[field] = val
 					continue
-				data[field] = pydt_strftime(val, format = date_format, encoding = 'utf8')
+				data[field] = pydt_strftime(val, format = date_format)
 				if escape_style in ['latex', 'tex']:
 					data[field] = tex_escape_string(data[field])
 				elif escape_style in ['xetex', 'xelatex']:

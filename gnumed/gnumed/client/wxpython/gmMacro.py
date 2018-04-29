@@ -1235,7 +1235,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 
 	#--------------------------------------------------------
 	def _get_variant_date_of_birth(self, data='%Y %b %d'):
-		return self.pat.get_formatted_dob(format = str(data), encoding = gmI18N.get_encoding())
+		return self.pat.get_formatted_dob(format = data)
 
 	#--------------------------------------------------------
 	# FIXME: extend to all supported genders
@@ -2552,7 +2552,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 				data[field] = bools[val]
 				continue
 			if isinstance(val, datetime.datetime):
-				data[field] = gmDateTime.pydt_strftime(val, format = date_format, encoding = 'utf8')
+				data[field] = gmDateTime.pydt_strftime(val, format = date_format)
 				if self.__esc_style in ['latex', 'tex']:
 					data[field] = gmTools.tex_escape_string(data[field])
 				elif self.__esc_style in ['xetex', 'xelatex']:

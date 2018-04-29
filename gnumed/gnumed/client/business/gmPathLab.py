@@ -185,15 +185,21 @@ class cTestPanel(gmBusinessDBObject.cBusinessDBObject):
 			)
 			txt += '\n'
 
-		tts = self.test_types
-		if tts is not None:
-			txt += '\n'
-			txt += _('Included test types:\n')
-			for tt in tts:
-				txt += ' [%s] %s: %s\n' % (
-					tt['loinc'],
-					tt['abbrev'],
-					tt['name']
+		txt += '\n'
+		txt += _('Includes:\n')
+		if len(self.included_loincs) == 0:
+			txt += _('no tests')
+		else:
+			tts_by_loinc = {}
+			for loinc in self._payload[self._idx['loincs']]:
+				tts_by_loinc[loinc] = []
+			for ttype in self.test_types:
+				tts_by_loinc[ttype['loinc']].append(ttype)
+			for loinc, ttypes in tts_by_loinc.items():
+				# maybe resolve LOINC, too
+				txt += _(' %s: %s\n') % (
+					loinc,
+					'; '.join([ '%(abbrev)s@%(name_org)s [#%(pk_test_type)s]' % tt for tt in ttypes ])
 				)
 
 		codes = self.generic_codes
@@ -316,12 +322,10 @@ class cTestPanel(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	def _get_test_types(self):
 		if len(self._payload[self._idx['test_types']]) == 0:
-			return None
+			return []
 
 		rows, idx = gmPG2.run_ro_queries (
 			queries = [{
-				#'cmd': _SQL_get_test_types % u'loinc IN %(loincs)s ORDER BY unified_abbrev',
-				#'args': {'loincs': tuple(self._payload[self._idx['loincs']])}
 				'cmd': _SQL_get_test_types % 'pk_test_type IN %(pks)s ORDER BY unified_abbrev',
 				'args': {'pks': tuple([ tt['pk_test_type'] for tt in self._payload[self._idx['test_types']] ])}
 			}],
@@ -901,9 +905,19 @@ LIMIT 1"""
 		return tt
 
 #------------------------------------------------------------
-def get_measurement_types(order_by=None):
-	cmd = 'select * from clin.v_test_types %s' % gmTools.coalesce(order_by, '', 'order by %s')
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
+def get_measurement_types(order_by=None, loincs=None):
+	args = {}
+	where_parts = []
+	if loincs is not None:
+		if len(loincs) > 0:
+			where_parts.append('loinc IN %(loincs)s')
+			args['loincs'] = tuple(loincs)
+	if len(where_parts) == 0:
+		where_parts.append('TRUE')
+	WHERE_clause = ' AND '.join(where_parts)
+	cmd = (_SQL_get_test_types % WHERE_clause) + gmTools.coalesce(order_by, '', ' ORDER BY %s')
+	#cmd = 'select * from clin.v_test_types %s' % gmTools.coalesce(order_by, '', 'order by %s')
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 	return [ cMeasurementType(row = {'pk_field': 'pk_test_type', 'data': r, 'idx': idx}) for r in rows ]
 
 #------------------------------------------------------------
@@ -3225,7 +3239,7 @@ if __name__ == '__main__':
 
 	#--------------------------------------------------------
 	def test_test_panel():
-		tp = cTestPanel(aPK_obj = 1)
+		tp = cTestPanel(aPK_obj = 2)
 		print(tp)
 		print(tp.test_types)
 		print(tp.format())
@@ -3283,8 +3297,8 @@ if __name__ == '__main__':
 	#test_test_type()
 	#test_format_test_results()
 	#test_calculate_bmi()
-	#test_test_panel()
+	test_test_panel()
 	#test_get_most_recent_results_for_panel()
-	test_get_most_recent_results_by_loinc()
+	#test_get_most_recent_results_by_loinc()
 
 #============================================================

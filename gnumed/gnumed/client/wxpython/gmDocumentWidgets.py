@@ -1129,6 +1129,13 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 			)
 			return False
 
+		if self._PhWheel_doc_date.is_valid_timestamp(empty_is_valid = True) is False:
+			gmGuiHelpers.gm_show_error (
+				aMessage = _('Invalid date of generation.'),
+				aTitle = title
+			)
+			return False
+
 		return True
 
 	#--------------------------------------------------------
@@ -1320,7 +1327,11 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 			review_as_normal = False,
 			reference = ext_ref,
 			pk_org_unit = self._PhWheel_source.GetData(),
-			date_generated = self._PhWheel_doc_date.GetData().get_pydt(),
+#			date_generated = self._PhWheel_doc_date.GetData().get_pydt(),
+			date_generated = gmTools.coalesce (
+				self._PhWheel_doc_date.GetData(),
+				function_initial = 'get_pydt'
+			),
 			comment = self._PRW_doc_comment.GetLineText(0).strip(),
 			reviewer = self._PhWheel_reviewer.GetData()
 		)
@@ -2889,7 +2900,7 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 	# internal helpers
 	#--------------------------------------------------------
 	def __init_ui(self):
-		self._LCTRL_studies.set_columns(columns = [_('Date'), _('Description'), _('Organization'), _('Referrer')])
+		self._LCTRL_studies.set_columns(columns = [_('Date'), _('Description'), _('Organization'), _('Referrals')])
 		self._LCTRL_studies.select_callback = self._on_studies_list_item_selected
 		self._LCTRL_studies.deselect_callback = self._on_studies_list_item_deselected
 
@@ -3003,6 +3014,11 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 			return False
 		if len(port) < 4:
 			return False
+		try:
+			int(port)
+		except ValueError:
+			self._LBL_PACS_identification.SetLabel(_('Invalid port (try 8042).'))
+			return False
 
 		user = self._TCTRL_user.Value
 		if user == '':
@@ -3018,10 +3034,12 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 			_log.error('error connecting to server: %s', pacs.connect_error)
 			return False
 
+		#self._LBL_PACS_identification.SetLabel(_('PACS: Orthanc "%s" (AET "%s", Version %s, API v%s, DB v%s)') % (
 		self._LBL_PACS_identification.SetLabel(_('PACS: Orthanc "%s" (AET "%s", Version %s, DB v%s)') % (
 			pacs.server_identification['Name'],
 			pacs.server_identification['DicomAet'],
 			pacs.server_identification['Version'],
+			#pacs.server_identification['ApiVersion'],
 			pacs.server_identification['DatabaseVersion']
 		))
 
@@ -3089,6 +3107,15 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 			self.__orthanc_patient = matching_pats[0]
 			for pat in self.__pacs.get_studies_list_by_orthanc_patient_list(orthanc_patients = matching_pats):
 				for study in pat['studies']:
+					docs = []
+					if study['referring_doc'] is not None:
+						docs.append(study['referring_doc'])
+					if study['requesting_doc'] is not None:
+						if study['requesting_doc'] not in docs:
+							docs.append(study['requesting_doc'])
+					if study['operator_name'] is not None:
+						if study['operator_name'] not in docs:
+							docs.append(study['operator_name'])
 					study_list_items.append( [
 						'%s-%s-%s' % (
 							study['date'][:4],
@@ -3100,16 +3127,14 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 							gmTools.coalesce(study['description'], '', ': %s')
 						),
 						gmTools.coalesce(study['radiology_org'], ''),
-						gmTools.coalesce (
-							study['referring_doc'],
-							gmTools.coalesce(study['requesting_doc'], '')
-						)
+						gmTools.u_arrow2right.join(docs)
 					] )
 					study_list_data.append(study)
 
 		self._LCTRL_studies.set_string_items(items = study_list_items)
 		self._LCTRL_studies.set_data(data = study_list_data)
 		self._LCTRL_studies.SortListItems(0, 0)
+		self._LCTRL_studies.set_column_widths()
 
 		self.__refresh_image()
 		self.__refresh_details()
@@ -3319,6 +3344,8 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 				series_desc_parts.append('[%s]' % series['protocol'].strip())
 			if series['performed_procedure_step_description'] is not None:
 				series_desc_parts.append(series['performed_procedure_step_description'].strip())
+			if series['acquisition_device_processing_description'] is not None:
+				series_desc_parts.append(series['acquisition_device_processing_description'].strip())
 			series_desc = ' / '.join(series_desc_parts)
 			if len(series_desc) > 0:
 				series_desc = ': ' + series_desc

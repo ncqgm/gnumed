@@ -2290,7 +2290,7 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 		else:
 			start = '%s%s%s' % (
 				gmTools.bool2subst((self._payload[self._idx['comment_on_start']] is None), '', gmTools.u_almost_equal_to),
-				gmDateTime.pydt_strftime(self._payload[self._idx['started']], format = '%Y %b %d', encoding = 'utf8', accuracy = gmDateTime.acc_days),
+				gmDateTime.pydt_strftime(self._payload[self._idx['started']], format = '%Y %b %d', accuracy = gmDateTime.acc_days),
 				gmTools.coalesce(self._payload[self._idx['comment_on_start']], '', ' [%s]')
 			)
 
@@ -2342,7 +2342,7 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 			start_prefix = gmTools.bool2subst((self._payload[self._idx['comment_on_start']] is None), '', gmTools.u_almost_equal_to)
 			# starts today
 			if gmDateTime.pydt_is_today(self._payload[self._idx['started']]):
-				start_str = _('today (%s)') % gmDateTime.pydt_strftime(self._payload[self._idx['started']], format = '%Y %b %d', encoding = 'utf8', accuracy = gmDateTime.acc_days)
+				start_str = _('today (%s)') % gmDateTime.pydt_strftime(self._payload[self._idx['started']], format = '%Y %b %d', accuracy = gmDateTime.acc_days)
 			# started in the past
 			elif self._payload[self._idx['started']] < now:
 				started_ago = now - self._payload[self._idx['started']]
@@ -2351,11 +2351,11 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 				if started_ago < three_months:
 					start_str = _('%s%s%s (%s%s ago, in %s)') % (
 						start_prefix,
-						gmDateTime.pydt_strftime(self._payload[self._idx['started']], format = '%b %d', encoding = 'utf8', accuracy = gmDateTime.acc_days),
+						gmDateTime.pydt_strftime(self._payload[self._idx['started']], format = '%b %d', accuracy = gmDateTime.acc_days),
 						gmTools.coalesce(self._payload[self._idx['comment_on_start']], '', ' [%s]'),
 						gmTools.u_almost_equal_to,
 						gmDateTime.format_interval_medically(started_ago),
-						gmDateTime.pydt_strftime(self._payload[self._idx['started']], format = '%Y', encoding = 'utf8', accuracy = gmDateTime.acc_days)
+						gmDateTime.pydt_strftime(self._payload[self._idx['started']], format = '%Y', accuracy = gmDateTime.acc_days)
 					)
 				elif started_ago < five_years:
 					start_str = _('%s%s%s (%s%s ago, %s)') % (

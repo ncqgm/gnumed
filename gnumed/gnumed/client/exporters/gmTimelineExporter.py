@@ -505,7 +505,7 @@ def create_timeline_file(patient=None, filename=None):
 			_('Life events'),
 			'%s: %s (%s)' % (
 				_('Birth'),
-				patient.get_formatted_dob(format = '%Y %b %d %H:%M', encoding = 'utf8', honor_estimation = True),
+				patient.get_formatted_dob(format = '%Y %b %d %H:%M', honor_estimation = True),
 				patient.get_medical_age()
 			),
 			'True'

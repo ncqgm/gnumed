@@ -941,7 +941,7 @@ class cEMRJournalExporter:
 		f.write('\n')
 		f.write(_('Patient: %s (%s), No: %s\n') % (patient['description'], patient['gender'], patient['pk_identity']))
 		f.write(_('Born   : %s, age: %s\n\n') % (
-			patient.get_formatted_dob(format = '%Y %b %d', encoding = 'utf8'),
+			patient.get_formatted_dob(format = '%Y %b %d'),
 			patient.get_medical_age()
 		))
 
@@ -1025,7 +1025,7 @@ class cEMRJournalExporter:
 		# demographics
 		target.write(_('Patient: %s (%s), No: %s\n') % (patient['description'], patient['gender'], patient['pk_identity']))
 		target.write(_('Born   : %s, age: %s\n\n') % (
-			patient.get_formatted_dob(format = '%Y %b %d', encoding = 'utf8'),
+			patient.get_formatted_dob(format = '%Y %b %d'),
 			patient.get_medical_age()
 		))
 		for ext_id in patient.external_ids:

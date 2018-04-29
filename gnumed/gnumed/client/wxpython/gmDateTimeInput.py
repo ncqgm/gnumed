@@ -571,6 +571,7 @@ class cFuzzyTimestampInput(gmPhraseWheel.cPhraseWheel):
 		self.selection_only = True
 		self.selection_only_error_msg = _('Cannot interpret input as timestamp.')
 		self.display_accuracy = None
+
 	#--------------------------------------------------------
 	# internal helpers
 	#--------------------------------------------------------
@@ -584,6 +585,7 @@ class cFuzzyTimestampInput(gmPhraseWheel.cPhraseWheel):
 		if len(matches) == 1:
 			return matches[0]['data']
 		return None
+
 	#--------------------------------------------------------
 	# phrasewheel internal API
 	#--------------------------------------------------------
@@ -598,12 +600,14 @@ class cFuzzyTimestampInput(gmPhraseWheel.cPhraseWheel):
 
 		# let the base class do its thing
 		gmPhraseWheel.cPhraseWheel._on_lose_focus(self, event)
+
 	#--------------------------------------------------------
 	def _picklist_item2display_string(self, item=None):
 		data = item['data']
 		if data is not None:
 			return data.format_accurately(accuracy = self.display_accuracy)
 		return item['field_label']
+
 	#--------------------------------------------------------
 	# external API
 	#--------------------------------------------------------
@@ -616,6 +620,7 @@ class cFuzzyTimestampInput(gmPhraseWheel.cPhraseWheel):
 				value = data.format_accurately(accuracy = self.display_accuracy)
 
 		gmPhraseWheel.cPhraseWheel.SetText(self, value = value, data = data, suppress_smarts = suppress_smarts)
+
 	#--------------------------------------------------------
 	def SetData(self, data=None):
 		if data is None:
@@ -624,6 +629,7 @@ class cFuzzyTimestampInput(gmPhraseWheel.cPhraseWheel):
 			if isinstance(data, pyDT.datetime):
 				data = gmDateTime.cFuzzyTimestamp(timestamp=data)
 			gmPhraseWheel.cPhraseWheel.SetText(self, value = data.format_accurately(accuracy = self.display_accuracy), data = data)
+
 	#--------------------------------------------------------
 	def is_valid_timestamp(self, empty_is_valid=True):
 		if self.GetData() is not None:
@@ -646,6 +652,7 @@ class cFuzzyTimestampInput(gmPhraseWheel.cPhraseWheel):
 		)
 
 		return True
+
 #==================================================
 # main
 #--------------------------------------------------

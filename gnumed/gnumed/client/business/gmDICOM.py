@@ -13,7 +13,7 @@ import sys
 import re as regex
 import logging
 import http.client		# exception names used by httplib2
-import socket			# needed for exception names thrown by httplib2, duh |-(
+import socket
 import httplib2
 import json
 import zipfile
@@ -56,6 +56,11 @@ class cOrthancServer:
 
 	#--------------------------------------------------------
 	def connect(self, host, port, user, password, expected_minimal_version=None, expected_name=None, expected_aet=None):
+		try:
+			int(port)
+		except Exception:
+			_log.error('invalid port [%s]', port)
+			return False
 		if (host is None) or (host.strip() == ''):
 			host = 'localhost'
 		try:
@@ -66,7 +71,10 @@ class cOrthancServer:
 		self.__user = user
 		self.__password = password
 		_log.info('connecting as [%s] to Orthanc server at [%s]', self.__user, self.__server_url)
-		self.__conn = httplib2.Http()
+		cache_dir = os.path.join(gmTools.gmPaths().user_tmp_dir, '.orthanc2gm-cache')
+		gmTools.mkdir(cache_dir)
+		_log.debug('using cache directory: %s', cache_dir)
+		self.__conn = httplib2.Http(cache = cache_dir)
 		self.__conn.add_credentials(self.__user, self.__password)
 		_log.debug('connected to server: %s', self.server_identification)
 		self.connect_error = ''
@@ -103,29 +111,31 @@ class cOrthancServer:
 		_log.debug('server: %s', system_data)
 		self.__server_identification = system_data
 
+		self.__initial_orthanc_encoding = self.__run_GET(url = '%s/tools/default-encoding' % self.__server_url)
+		_log.debug('initial Orthanc encoding: %s', self.__initial_orthanc_encoding)
+
 		# check time skew
 		tolerance = 60 # seconds
 		client_now_as_utc = pydt.datetime.utcnow()
 		start = time.time()
 		orthanc_now_str = self.__run_GET(url = '%s/tools/now' % self.__server_url)		# 20180208T165832
-		orthanc_now_str = orthanc_now_str.decode('utf8')
 		end = time.time()
 		query_duration = end - start
 		orthanc_now_unknown_tz = pydt.datetime.strptime(orthanc_now_str, '%Y%m%dT%H%M%S')
-		_log.info('GNUmed "now" (UTC): %s', client_now_as_utc)
-		_log.info('Orthanc "now" (UTC): %s', orthanc_now_unknown_tz)
+		_log.debug('GNUmed "now" (UTC): %s', client_now_as_utc)
+		_log.debug('Orthanc "now" (UTC): %s', orthanc_now_unknown_tz)
 		_log.debug('wire roundtrip (seconds): %s', query_duration)
 		_log.debug('maximum skew tolerance (seconds): %s', tolerance)
 		if query_duration > tolerance:
-			_log.error('useless to check GNUmed/Orthanc time skew, wire roundtrip > tolerance (%s)', tolerance)
+			_log.info('useless to check GNUmed/Orthanc time skew, wire roundtrip (%s) > tolerance (%s)', query_duration, tolerance)
 		else:
 			if orthanc_now_unknown_tz > client_now_as_utc:
 				real_skew = orthanc_now_unknown_tz - client_now_as_utc
 			else:
 				real_skew = client_now_as_utc - orthanc_now_unknown_tz
-			_log.debug('GNUmed/Orthanc time skew: %s', real_skew)
+			_log.info('GNUmed/Orthanc time skew: %s', real_skew)
 			if real_skew > pydt.timedelta(seconds = tolerance):
-				_log.error('GNUmed/Orthanc time skew > tolerance (may be due to timezone differences)')
+				_log.error('GNUmed/Orthanc time skew > tolerance (may be due to timezone differences on Orthanc < v1.3.2)')
 
 		return self.__server_identification
 
@@ -312,7 +322,7 @@ class cOrthancServer:
 			filename = gmTools.get_unique_filename(prefix = r'DCM-', suffix = r'.zip')
 		_log.info('exporting study [%s] into [%s]', study_id, filename)
 		f = io.open(filename, 'wb')
-		f.write(self.__run_GET(url = '%s/studies/%s/archive' % (self.__server_url, str(study_id))))
+		f.write(self.__run_GET(url = '%s/studies/%s/archive' % (self.__server_url, str(study_id)), allow_cached = True))
 		f.close()
 		return filename
 
@@ -322,7 +332,7 @@ class cOrthancServer:
 			filename = gmTools.get_unique_filename(prefix = r'DCM-', suffix = r'.zip')
 		_log.info('exporting study [%s] into [%s]', study_id, filename)
 		f = io.open(filename, 'wb')
-		f.write(self.__run_GET(url = '%s/studies/%s/media' % (self.__server_url, str(study_id))))
+		f.write(self.__run_GET(url = '%s/studies/%s/media' % (self.__server_url, str(study_id)), allow_cached = True))
 		f.close()
 		return filename
 
@@ -333,7 +343,7 @@ class cOrthancServer:
 		if study_ids is None:
 			_log.info('exporting all studies of patient [%s] into [%s]', patient_id, filename)
 			f = io.open(filename, 'wb')
-			f.write(self.__run_GET(url = '%s/patients/%s/archive' % (self.__server_url, str(patient_id))))
+			f.write(self.__run_GET(url = '%s/patients/%s/archive' % (self.__server_url, str(patient_id)), allow_cached = True))
 			f.close()
 			return filename
 
@@ -349,7 +359,7 @@ class cOrthancServer:
 			f = io.open(filename, 'wb')
 			url = '%s/patients/%s/media' % (self.__server_url, str(patient_id))
 			_log.debug(url)
-			f.write(self.__run_GET(url = url))
+			f.write(self.__run_GET(url = url, allow_cached = True))
 			f.close()
 			if create_zip:
 				return filename
@@ -442,7 +452,7 @@ class cOrthancServer:
 			f = io.open(filename, 'wb')
 			url = '%s/patients/%s/media' % (self.__server_url, str(patient_id))
 			_log.debug(url)
-			f.write(self.__run_GET(url = url))
+			f.write(self.__run_GET(url = url, allow_cached = True))
 			f.close()
 			if create_zip:
 				return filename
@@ -500,7 +510,7 @@ class cOrthancServer:
 			download_url = '%s/instances/%s/simplified-tags' % (self.__server_url, instance_id)
 		else:
 			download_url = '%s/instances/%s/tags' % (self.__server_url, instance_id)
-		return self.__run_GET(url = download_url)
+		return self.__run_GET(url = download_url, allow_cached = True)
 
 	#--------------------------------------------------------
 	def get_instance_preview(self, instance_id, filename=None):
@@ -510,7 +520,7 @@ class cOrthancServer:
 		_log.debug('exporting preview for instance [%s] into [%s]', instance_id, filename)
 		download_url = '%s/instances/%s/preview' % (self.__server_url, instance_id)
 		f = io.open(filename, 'wb')
-		f.write(self.__run_GET(url = download_url))
+		f.write(self.__run_GET(url = download_url, allow_cached = True))
 		f.close()
 		return filename
 
@@ -522,7 +532,7 @@ class cOrthancServer:
 		_log.debug('exporting instance [%s] into [%s]', instance_id, filename)
 		download_url = '%s/instances/%s/attachments/dicom/data' % (self.__server_url, instance_id)
 		f = io.open(filename, 'wb')
-		f.write(self.__run_GET(url = download_url))
+		f.write(self.__run_GET(url = download_url, allow_cached = True))
 		f.close()
 		return filename
 
@@ -567,7 +577,7 @@ class cOrthancServer:
 		for instance in instances:
 			instance_id = instance['ID']
 			attachments_url = '%s/instances/%s/attachments' % (self.__server_url, instance_id)
-			attachments = self.__run_GET(attachments_url)
+			attachments = self.__run_GET(attachments_url, allow_cached = True)
 			for attachment in attachments:
 				verify_url = '%s/%s/verify-md5' % (attachments_url, attachment)
 				# False, success = "{}"
@@ -655,7 +665,7 @@ class cOrthancServer:
 		if uploaded['Status'] == 'AlreadyStored':
 			# paranoia, as is our custom
 			available_fields_url = '%s%s/attachments/dicom' % (self.__server_url, uploaded['Path'])	# u'Path': u'/instances/1440110e-9cd02a98-0b1c0452-087d35db-3fd5eb05'
-			available_fields = self.__run_GET(available_fields_url)
+			available_fields = self.__run_GET(available_fields_url, allow_cached = True)
 			if 'md5' not in available_fields:
 				_log.debug('md5 of instance not available in Orthanc, cannot compare against file md5, trusting Orthanc')
 				return True
@@ -784,6 +794,7 @@ class cOrthancServer:
 					'referring_doc': None,
 					'requesting_doc': None,
 					'radiology_org': None,
+					'operator_name': None,
 					'series': []
 				}
 				try:
@@ -853,7 +864,9 @@ class cOrthancServer:
 						'description': None,
 						'body_part': None,
 						'protocol': None,
-						'performed_procedure_step_description': None
+						'performed_procedure_step_description': None,
+						'acquisition_device_processing_description': None,
+						'operator_name': None
 					}
 					try:
 						series_dict['modality'] = orth_series['MainDicomTags']['Modality'].strip()
@@ -883,6 +896,14 @@ class cOrthancServer:
 						series_dict['performed_procedure_step_description'] = orth_series['MainDicomTags']['PerformedProcedureStepDescription'].strip()
 					except KeyError:
 						pass
+					try:
+						series_dict['acquisition_device_processing_description'] = orth_series['MainDicomTags']['AcquisitionDeviceProcessingDescription'].strip()
+					except KeyError:
+						pass
+					try:
+						series_dict['operator_name'] = orth_series['MainDicomTags']['OperatorsName'].strip()
+					except KeyError:
+						pass
 					for key in series_dict:
 						if series_dict[key] in ['unknown', '(null)', '']:
 							series_dict[key] = None
@@ -894,6 +915,11 @@ class cOrthancServer:
 					if series_dict['performed_procedure_step_description'] is not None:
 						if regex.match ('[.,/\|\-\s\d]+', series_dict['performed_procedure_step_description'], flags = regex.UNICODE):
 							series_dict['performed_procedure_step_description'] = None
+					if series_dict['acquisition_device_processing_description'] in [series_dict['description'], series_dict['protocol']]:
+						series_dict['acquisition_device_processing_description'] = None
+					if series_dict['acquisition_device_processing_description'] is not None:
+						if regex.match ('[.,/\|\-\s\d]+', series_dict['acquisition_device_processing_description'], flags = regex.UNICODE):
+							series_dict['acquisition_device_processing_description'] = None
 					if series_dict['date'] == study_dict['date']:
 						_log.debug('<series date> matches <study date>, ignoring date')
 						series_dict['date'] = None
@@ -913,6 +939,7 @@ class cOrthancServer:
 					for key in series_keys2hide:
 						try: del series_dict['all_tags'][key]
 						except KeyError: pass
+					study_dict['operator_name'] = series_dict['operator_name']		# will collapse all operators into that of the last series
 					study_dict['series'].append(series_dict)
 
 		return studies_by_patient
@@ -920,68 +947,79 @@ class cOrthancServer:
 	#--------------------------------------------------------
 	# generic REST helpers
 	#--------------------------------------------------------
-	def __run_GET(self, url=None, data=None):
+	def __run_GET(self, url=None, data=None, allow_cached=False):
 		if data is None:
 			data = {}
+		headers = {}
+		if not allow_cached:
+			headers['cache-control'] = 'no-cache'
 		params = ''
 		if len(data.keys()) > 0:
 			params = '?' + urlencode(data)
-		full_url = url + params
+		url_with_params = url + params
+
 		try:
-			response, content = self.__conn.request(full_url, 'GET')
-		except http.client.ResponseNotReady:
-			_log.exception('cannot GET: %s', full_url)
-			return False
-		except http.client.InvalidURL:
-			_log.exception('cannot GET: %s', full_url)
-			return False
-		except httplib2.ServerNotFoundError:
-			_log.exception('cannot GET: %s', full_url)
-			return False
-		except socket.error:
-			_log.exception('cannot GET: %s', full_url)
-			return False
-		except OverflowError:
-			_log.exception('cannot GET: %s', full_url)
+			response, content = self.__conn.request(url_with_params, 'GET', headers = headers)
+		except (socket.error, http.client.ResponseNotReady, http.client.InvalidURL, OverflowError, httplib2.ServerNotFoundError):
+			_log.exception('exception in GET')
+			_log.debug(' url: %s', url_with_params)
+			_log.debug(' headers: %s', headers)
 			return False
 
-		if not (response.status in [ 200 ]):
-			_log.error('cannot GET: %s', full_url)
-			_log.error('response: %s', response)
+		if response.status not in [ 200 ]:
+			_log.error('GET returned non-OK status: %s', response.status)
+			_log.debug(' url: %s', url_with_params)
+			_log.debug(' headers: %s', headers)
+			_log.error(' response: %s', response)
+			_log.debug(' content: %s', content)
 			return False
-		try:
-			return json.loads(content)
-		except Exception:
-			return content
+
+#		_log.error(' response: %s', response)
+#		_log.error(' content type: %s', type(content))
+
+		if response['content-type'].startswith('text/plain'):
+			# utf8 ?
+			# urldecode ?
+			# latin1 = Orthanc default = tools/default-encoding ?
+			# ascii ?
+			return content.decode('utf8')
+
+		if response['content-type'].startswith('application/json'):
+			try:
+				return json.loads(content)
+			except Exception:
+				return content
+
+		return content
 
 	#--------------------------------------------------------
-	def __run_POST(self, url=None, data=None, content_type='', output_file=None):
+	def __run_POST(self, url=None, data=None, content_type=None, output_file=None):
+
+		body = data
+		headers = {'content-type' : content_type}
 		if isinstance(data, str):
-			body = data
-			if len(content_type) != 0:
-				headers = { 'content-type' : content_type }
-			else:
-				headers = { 'content-type' : 'text/plain' }
+			if content_type is None:
+				headers['content-type'] = 'text/plain'
+		elif isinstance(data, bytes):
+			if content_type is None:
+				headers['content-type'] = 'application/octet-stream'
 		else:
 			body = json.dumps(data)
-			headers = { 'content-type' : 'application/json' }
+			headers['content-type'] = 'application/json'
+
+		_log.info(body)
+		_log.info(headers)
 
 		try:
 			try:
 				response, content = self.__conn.request(url, 'POST', body = body, headers = headers)
-			except socket.error as exc:
-				if exc.errno != 32:
-					raise
-				_log.exception('retrying POST [%s] after: %s', url, exc)
+			except BrokenPipeError:
 				response, content = self.__conn.request(url, 'POST', body = body, headers = headers)
-		except socket.error:
-			_log.exception('cannot POST: %s', url)
-			return False
-		except http.client.ResponseNotReady:
-			_log.exception('cannot POST: %s', url)
-			return False
-		except OverflowError:
-			_log.exception('cannot POST: %s', url)
+		except (socket.error, http.client.ResponseNotReady, OverflowError):
+			_log.exception('exception in POST')
+			_log.debug(' url: %s', url)
+			_log.debug(' headers: %s', headers)
+			_log.debug(' body: %s', body[:256])
 			return False
 
 		if response.status == 404:
@@ -989,79 +1027,108 @@ class cOrthancServer:
 			if output_file is None:
 				return []
 			return False
-		if not (response.status in [ 200, 302 ]):
-			_log.error('cannot POST: %s', url)
-			_log.error('response: %s', response)
+		if response.status not in [ 200, 302 ]:
+			_log.error('POST returned non-OK status: %s', response.status)
+			_log.debug(' url: %s', url)
+			_log.debug(' headers: %s', headers)
+			_log.debug(' body: %s', body[:256])
+			_log.error(' response: %s', response)
+			_log.debug(' content: %s', content)
 			return False
-		#_log.debug(u'response: %s', response)
+
 		try:
 			content = json.loads(content)
-#			return json.loads(content)
 		except Exception:
 			pass
-#			return content
 		if output_file is None:
 			return content
 		output_file.write(content)
 		return True
 
 	#--------------------------------------------------------
-	def __run_PUT(self, url=None, data=None, content_type=''):
+	def __run_PUT(self, url=None, data=None, content_type=None):
+
+		body = data
+		headers = {'content-type' : content_type}
 		if isinstance(data, str):
-			body = data
-			if len(content_type) != 0:
-				headers = { 'content-type' : content_type }
-			else:
-				headers = { 'content-type' : 'text/plain' }
+			if content_type is None:
+				headers['content-type'] = 'text/plain'
+		elif isinstance(data, bytes):
+			if content_type is None:
+				headers['content-type'] = 'application/octet-stream'
 		else:
 			body = json.dumps(data)
-			headers = { 'content-type' : 'application/json' }
+			headers['content-type'] = 'application/json'
+
 		try:
-			response, content = self.__conn.request(url, 'PUT', body = body, headers = headers)
-		except http.client.ResponseNotReady:
-			_log.exception('cannot PUT: %s', url)
-			return False
-		except socket.error:
-			_log.exception('cannot PUT: %s', url)
-			return False
-		except OverflowError:
-			_log.exception('cannot PUT: %s', url)
+			try:
+				response, content = self.__conn.request(url, 'PUT', body = body, headers = headers)
+			except BrokenPipeError:
+				response, content = self.__conn.request(url, 'PUT', body = body, headers = headers)
+		except (socket.error, http.client.ResponseNotReady, OverflowError):
+			_log.exception('exception in PUT')
+			_log.debug(' url: %s', url)
+			_log.debug(' headers: %s', headers)
+			_log.debug(' body: %s', body[:256])
 			return False
 
 		if response.status == 404:
 			_log.debug('no data, response: %s', response)
 			return []
-		if not (response.status in [ 200, 302 ]):
-			_log.error('cannot PUT: %s', url)
-			_log.error('response: %s', response)
+		if response.status not in [ 200, 302 ]:
+			_log.error('PUT returned non-OK status: %s', response.status)
+			_log.debug(' url: %s', url)
+			_log.debug(' headers: %s', headers)
+			_log.debug(' body: %s', body[:256])
+			_log.error(' response: %s', response)
+			_log.debug(' content: %s', content)
 			return False
-		try:
-			return json.loads(content)
-		except Exception:
-			return content
+
+		if response['content-type'].startswith('text/plain'):
+			# utf8 ?
+			# urldecode ?
+			# latin1 = Orthanc default = tools/default-encoding ?
+			# ascii ?
+			return content.decode('utf8')
+
+		if response['content-type'].startswith('application/json'):
+			try:
+				return json.loads(content)
+			except Exception:
+				return content
+
+		return content
 
 	#--------------------------------------------------------
 	def __run_DELETE(self, url=None):
 		try:
 			response, content = self.__conn.request(url, 'DELETE')
-		except http.client.ResponseNotReady:
-			_log.exception('cannot DELETE: %s', url)
-			return False
-		except socket.error:
-			_log.exception('cannot DELETE: %s', url)
-			return False
-		except OverflowError:
-			_log.exception('cannot DELETE: %s', full_url)
+		except (http.client.ResponseNotReady, socket.error, OverflowError):
+			_log.exception('exception in DELETE')
+			_log.debug(' url: %s', url)
 			return False
 
-		if not (response.status in [ 200 ]):
-			_log.error('cannot DELETE: %s', url)
-			_log.error('response: %s', response)
+		if response.status not in [ 200 ]:
+			_log.error('DELETE returned non-OK status: %s', response.status)
+			_log.debug(' url: %s', url)
+			_log.error(' response: %s', response)
+			_log.debug(' content: %s', content)
 			return False
-		try:
-			return json.loads(content)
-		except Exception:
-			return content
+
+		if response['content-type'].startswith('text/plain'):
+			# utf8 ?
+			# urldecode ?
+			# latin1 = Orthanc default = tools/default-encoding ?
+			# ascii ?
+			return content.decode('utf8')
+
+		if response['content-type'].startswith('application/json'):
+			try:
+				return json.loads(content)
+			except Exception:
+				return content
+
+		return content
 
 #------------------------------------------------------------
 def cleanup_dicom_string(dicom_str):
@@ -1090,11 +1157,12 @@ if __name__ == "__main__":
 		if not orthanc.connect(host, port, user = None, password = None):		#, expected_aet = 'another AET'
 			print('error connecting to server:', orthanc.connect_error)
 			return False
-		print('Connected to Orthanc server "%s" (AET [%s] - version [%s] - DB [%s])' % (
+		print('Connected to Orthanc server "%s" (AET [%s] - version [%s] - DB [%s] - API [%s])' % (
 			orthanc.server_identification['Name'],
 			orthanc.server_identification['DicomAet'],
 			orthanc.server_identification['Version'],
-			orthanc.server_identification['DatabaseVersion']
+			orthanc.server_identification['DatabaseVersion'],
+			orthanc.server_identification['ApiVersion']
 		))
 		print('')
 		print('Please enter patient name parts, separated by SPACE.')
@@ -1107,23 +1175,28 @@ if __name__ == "__main__":
 
 			pats = orthanc.get_patients_by_external_id(external_id = entered_name)
 			if len(pats) > 0:
+				print('Patients found:')
 				for pat in pats:
-					print(pat)
+					print(' -> ', pat)
 				continue
 
 			pats = orthanc.get_patients_by_name(name_parts = entered_name.split(), fuzzy = True)
+			print('Patients found:')
 			for pat in pats:
-				print(pat)
+				print(' -> ', pat)
+				print('  verifying ...')
 				bad_data = orthanc.verify_patient_data(pat['ID'])
+				print('  bad data:')
 				for bad in bad_data:
-					print(bad)
+					print('  -> ', bad)
 				continue
 
 			continue
 
 			pats = orthanc.get_studies_list_by_patient_name(name_parts = entered_name.split(), fuzzy = True)
+			print('Patients found from studies list:')
 			for pat in pats:
-				print(pat['name'])
+				print(' -> ', pat['name'])
 				for study in pat['studies']:
 					print(' ', gmTools.format_dict_like(study, relevant_keys = ['orthanc_id', 'date', 'time'], template = 'study [%%(orthanc_id)s] at %%(date)s %%(time)s contains %s series' % len(study['series'])))
 #					for series in study['series']:
@@ -1135,7 +1208,7 @@ if __name__ == "__main__":
 #								template = u'series [%(orthanc_id)s] at %(date)s %(time)s: "%(description)s" %(modality)s@%(station)s (%(protocol)s) of body part "%(body_part)s" holds images:\n%(instances)s'
 #							)
 #						)
-					print(orthanc.get_studies_with_dicomdir(study_ids = [study['orthanc_id']], filename = 'study_%s.zip' % study['orthanc_id'], create_zip = True))
+#					print(orthanc.get_studies_with_dicomdir(study_ids = [study['orthanc_id']], filename = 'study_%s.zip' % study['orthanc_id'], create_zip = True))
 				#print(orthanc.get_study_as_zip(study_id = study['orthanc_id'], filename = 'study_%s.zip' % study['orthanc_id']))
 				#print(orthanc.get_studies_as_zip_with_dicomdir(study_ids = [ s['orthanc_id'] for s in pat['studies'] ], filename = 'studies_of_%s.zip' % pat['orthanc_id']))
 				print('--------')
@@ -1204,11 +1277,12 @@ if __name__ == "__main__":
 		if not orthanc.connect(host, port, user = None, password = None):		#, expected_aet = 'another AET'
 			print('error connecting to server:', orthanc.connect_error)
 			return False
-		print('Connected to Orthanc server "%s" (AET [%s] - version [%s] - DB [%s])' % (
+		print('Connected to Orthanc server "%s" (AET [%s] - version [%s] - DB [%s] - REST API [%s])' % (
 			orthanc.server_identification['Name'],
 			orthanc.server_identification['DicomAet'],
 			orthanc.server_identification['Version'],
-			orthanc.server_identification['DatabaseVersion']
+			orthanc.server_identification['DatabaseVersion'],
+			orthanc.server_identification['ApiVersion']
 		))
 		print('')
 
@@ -1236,7 +1310,31 @@ if __name__ == "__main__":
 		print(orthanc.get_instance('f4f07d22-0d8265ef-112ea4e9-dc140e13-350c06d1'))
 
 	#--------------------------------------------------------
+	def test_get_instance_tags():
+		host = None
+		port = '8042'
+
+		orthanc = cOrthancServer()
+		if not orthanc.connect(host, port, user = None, password = None):		#, expected_aet = 'another AET'
+			print('error connecting to server:', orthanc.connect_error)
+			return False
+		print('Connected to Orthanc server "%s" (AET [%s] - version [%s] - DB [%s])' % (
+			orthanc.server_identification['Name'],
+			orthanc.server_identification['DicomAet'],
+			orthanc.server_identification['Version'],
+			orthanc.server_identification['DatabaseVersion']
+		))
+		print('')
+
+		instance_id = 'f4f07d22-0d8265ef-112ea4e9-dc140e13-350c06d1'
+		for key, value in orthanc.get_instance_dicom_tags(instance_id, simplified = False).items():
+			print(key, ':', value)
+		print()
+		#print(orthanc.get_instance_dicom_tags(instance_id, simplified = True))
+
+	#--------------------------------------------------------
 	run_console()
 	#test_modify_patient_id()
 	#test_upload_files()
 	#test_get_instance_preview()
+	#test_get_instance_tags()

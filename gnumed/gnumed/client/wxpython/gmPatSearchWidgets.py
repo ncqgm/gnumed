@@ -115,11 +115,11 @@ class cMergePatientsDlg(wxgMergePatientsDlg.wxgMergePatientsDlg):
 				patient2merge.ID,
 				patient2merge['description_gender'],
 				patient2merge['gender'],
-				patient2merge.get_formatted_dob(format = '%Y %b %d', encoding = gmI18N.get_encoding()),
+				patient2merge.get_formatted_dob(format = '%Y %b %d'),
 				patient2keep.ID,
 				patient2keep['description_gender'],
 				patient2keep['gender'],
-				patient2keep.get_formatted_dob(format = '%Y %b %d', encoding = gmI18N.get_encoding())
+				patient2keep.get_formatted_dob(format = '%Y %b %d')
 			),
 			aTitle = _('Merging patients: confirmation'),
 			cancel_button = False
@@ -150,11 +150,11 @@ class cMergePatientsDlg(wxgMergePatientsDlg.wxgMergePatientsDlg):
 			patient2merge.ID,
 			patient2merge['description_gender'],
 			patient2merge['gender'],
-			patient2merge.get_formatted_dob(format = '%Y %b %d', encoding = gmI18N.get_encoding()),
+			patient2merge.get_formatted_dob(format = '%Y %b %d'),
 			patient2keep.ID,
 			patient2keep['description_gender'],
 			patient2keep['gender'],
-			patient2keep.get_formatted_dob(format = '%Y %b %d', encoding = gmI18N.get_encoding())
+			patient2keep.get_formatted_dob(format = '%Y %b %d')
 		)
 		title = _('Merging patients: success')
 
@@ -217,7 +217,7 @@ class cSelectPersonFromListDlg(wxgSelectPersonFromListDlg.wxgSelectPersonFromLis
 		for person in persons:
 			row_num = self._LCTRL_persons.InsertItem(pos, label = gmTools.coalesce(person['title'], person['lastnames'], '%s, %%s' % person['lastnames']))
 			self._LCTRL_persons.SetItem(index = row_num, column = 1, label = person['firstnames'])
-			self._LCTRL_persons.SetItem(index = row_num, column = 2, label = person.get_formatted_dob(format = '%Y %b %d', encoding = 'utf8'))
+			self._LCTRL_persons.SetItem(index = row_num, column = 2, label = person.get_formatted_dob(format = '%Y %b %d'))
 			self._LCTRL_persons.SetItem(index = row_num, column = 3, label = gmTools.coalesce(person['l10n_gender'], '?'))
 
 			label = ''
@@ -1229,10 +1229,10 @@ def _check_birthday(patient=None):
 	msg = _('%(pat)s turns %(age)s on %(month)s %(day)s ! (today is %(month_now)s %(day_now)s)') % {
 		'pat': patient.get_description_gender(),
 		'age': patient.get_medical_age().strip('y'),
-		'month': patient.get_formatted_dob(format = '%B', encoding = enc),
-		'day': patient.get_formatted_dob(format = '%d', encoding = enc),
-		'month_now': gmDateTime.pydt_strftime(now, '%B', enc, gmDateTime.acc_months),
-		'day_now': gmDateTime.pydt_strftime(now, '%d', enc, gmDateTime.acc_days)
+		'month': patient.get_formatted_dob(format = '%B'),
+		'day': patient.get_formatted_dob(format = '%d'),
+		'month_now': gmDateTime.pydt_strftime(now, '%B', gmDateTime.acc_months),
+		'day_now': gmDateTime.pydt_strftime(now, '%d', gmDateTime.acc_days)
 	}
 	gmDispatcher.send(signal = 'statustext', msg = msg)
 

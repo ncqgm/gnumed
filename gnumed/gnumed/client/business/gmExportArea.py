@@ -658,7 +658,7 @@ class cExportArea(object):
 		_html_end_data = {
 			'branch': gmTools.html_escape_string(prax['branch']),
 			'praxis': gmTools.html_escape_string(prax['praxis']),
-			'date' : gmTools.html_escape_string(gmDateTime.pydt_strftime(gmDateTime.pydt_now_here(), format = '%Y %B %d', encoding = 'utf8')),
+			'date' : gmTools.html_escape_string(gmDateTime.pydt_strftime(gmDateTime.pydt_now_here(), format = '%Y %B %d')),
 			'gm_ver': gmTools.html_escape_string(_cfg.get(option = 'client_version')),
 			#'gm_ver': 'git HEAD',				# for testing
 			'adr': adr
@@ -711,7 +711,7 @@ class cExportArea(object):
 			pat['firstnames'],
 			gmTools.coalesce(pat['gender'], '?'),
 			pat.get_formatted_dob('%Y-%m-%d'),
-			gmDateTime.pydt_strftime(gmDateTime.pydt_now_here(), format = '%Y-%m-%d', encoding = 'utf8'),
+			gmDateTime.pydt_strftime(gmDateTime.pydt_now_here(), format = '%Y-%m-%d'),
 			pat.ID,
 			_cfg.get(option = 'client_version'),
 			' / '.join([ '%s = %s (%s)' % (g['tag'], g['label'], g['l10n_label']) for g in pat.gender_list ])

@@ -1819,7 +1819,6 @@ class cMeasurementsGrid(wx.grid.Grid):
 						eol = '\n',
 						return_list = True
 					)
-					#tmp = u'%.7s%s' % (lines[0][:7], gmTools.u_ellipsis)
 					needs_superscript = True
 					tmp = lines[0][:7]
 				else:
@@ -1829,7 +1828,6 @@ class cMeasurementsGrid(wx.grid.Grid):
 						return_list = False
 					).replace('\n', '//')
 					if len(val) > 8:
-						#tmp = u'%.7s%s' % (val[:7], gmTools.u_ellipsis)
 						needs_superscript = True
 						tmp = val[:7]
 					else:
@@ -1844,7 +1842,6 @@ class cMeasurementsGrid(wx.grid.Grid):
 					''
 				).strip() != ''
 				if has_sub_result_comment:
-					#tmp = u'%s %s' % (tmp, gmTools.u_superscript_one)
 					needs_superscript = True
 
 				if needs_superscript:
@@ -4184,15 +4181,9 @@ def manage_test_panels(parent=None):
 		lctrl.set_string_items(items)
 		lctrl.set_data(panels)
 	#------------------------------------------------------------
-	msg = _(
-		'\n'
-		'Test panels as defined in GNUmed.\n'
-	)
-
 	gmListWidgets.get_choices_from_list (
 		parent = parent,
-		msg = msg,
-		caption = _('Showing test panels.'),
+		caption = 'GNUmed: ' + _('Test panels list'),
 		columns = [ _('Name'), _('Comment'), '#' ],
 		single_selection = True,
 		refresh_callback = refresh,
@@ -4286,7 +4277,13 @@ class cTestPanelEAPnl(wxgTestPanelEAPnl.wxgTestPanelEAPnl, gmEditArea.cGenericEd
 		for loinc in self.__loincs:
 			loinc_detail = gmLOINC.loinc2data(loinc = loinc)
 			if len(loinc_detail) == 0:
-				items.append([loinc, _('code not found'), ''])
+				# check for test type with this pseudo loinc
+				ttypes = gmPathLab.get_measurement_types(loincs = [loinc])
+				if len(ttypes) == 0:
+					items.append([loinc, _('LOINC not found'), ''])
+				else:
+					for tt in ttypes:
+						items.append([loinc, _('not a LOINC') + u'; %(name)s @ %(name_org)s [#%(pk_test_type)s]' % tt, ''])
 				continue
 			items.append ([
 				loinc,
@@ -4405,6 +4402,8 @@ class cTestPanelEAPnl(wxgTestPanelEAPnl.wxgTestPanelEAPnl, gmEditArea.cGenericEd
 		self.__refresh_loinc_list()
 		self._PRW_loinc.SetText('', None)
 		self._LBL_loinc.SetLabel('')
+
+		self._PRW_loinc.SetFocus()
 
 	#----------------------------------------------------------------
 	def _on_remove_loinc_button_pressed(self, event):

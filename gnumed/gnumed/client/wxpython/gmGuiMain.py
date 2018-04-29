@@ -3184,7 +3184,7 @@ class gmTopLevelFrame(wx.Frame):
 				gmTools.coalesce(pat['title'], '', '%.4s'),
 				pat['firstnames'],
 				pat['lastnames'],
-				pat.get_formatted_dob(format = '%Y %b %d', encoding = gmI18N.get_encoding()),
+				pat.get_formatted_dob(format = '%Y %b %d'),
 				pat['pk_identity']
 			)
 		else:

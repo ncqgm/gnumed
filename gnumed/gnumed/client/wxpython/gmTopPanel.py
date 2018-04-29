@@ -247,7 +247,7 @@ class cTopPnl(wxgTopPnl.wxgTopPnl):
 			self._LBL_age.SetToolTip(tt)
 			return
 
-		tt += _('Born: %s\n') % self.curr_pat.get_formatted_dob(format = '%d %b %Y', encoding = gmI18N.get_encoding())
+		tt += _('Born: %s\n') % self.curr_pat.get_formatted_dob(format = '%d %b %Y')
 
 		# patient is dead
 		if self.curr_pat['deceased'] is not None:
@@ -255,7 +255,7 @@ class cTopPnl(wxgTopPnl.wxgTopPnl):
 			tt += _('At age: %s\n') % self.curr_pat['medical_age']
 			age = '%s  %s - %s (%s)' % (
 				self.curr_pat.gender_symbol,
-				self.curr_pat.get_formatted_dob(format = '%d %b %Y', encoding = gmI18N.get_encoding()),
+				self.curr_pat.get_formatted_dob(format = '%d %b %Y'),
 				gmDateTime.pydt_strftime(self.curr_pat['deceased'], '%d %b %Y'),
 				self.curr_pat['medical_age']
 			)
@@ -298,7 +298,7 @@ class cTopPnl(wxgTopPnl.wxgTopPnl):
 		# a timer here that updates the age in increments of 1 minute ... :-)
 		age = template % {
 			'sex': self.curr_pat.gender_symbol,
-			'dob': self.curr_pat.get_formatted_dob(format = '%d %b %Y', encoding = gmI18N.get_encoding()),
+			'dob': self.curr_pat.get_formatted_dob(format = '%d %b %Y'),
 			'age': self.curr_pat['medical_age'],
 			'r_arr': gmTools.u_arrow2right,
 			'l_arr': gmTools.u_left_arrow
