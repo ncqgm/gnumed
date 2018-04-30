@@ -64,17 +64,3 @@ def generate_pruning_dml(filename=None):
 if __name__ == "__main__" :
 
 	generate_pruning_dml(sys.argv[1])
-
-#==================================================================
-# $Log: gmDBPruningDMLGenerator.py,v $
-# Revision 1.3  2009-04-24 12:12:33  ncq
-# - typo
-#
-# Revision 1.2  2008/01/07 14:15:43  ncq
-# - port to gmCfg2/gmLog2
-# - create database with default transaction mode set to readonly
-#
-# Revision 1.1  2007/11/04 01:28:07  ncq
-# - first version
-#
-#

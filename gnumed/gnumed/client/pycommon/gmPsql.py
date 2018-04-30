@@ -188,7 +188,6 @@ if __name__ == '__main__':
 	if sys.argv[1] != 'test':
 		sys.exit()
 
-	#from pyPgSQL import PgSQL
 	conn = PgSQL.connect(user='gm-dbo', database = 'gnumed')
 	psql = Psql(conn)
 	psql.run(sys.argv[1])

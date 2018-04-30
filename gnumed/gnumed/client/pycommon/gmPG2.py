@@ -339,7 +339,7 @@ def set_default_client_encoding(encoding = None):
 	# FIXME: - psycopg2 will pull its encodings from the database eventually
 	# it seems save to set it
 	global _default_client_encoding
-	_log.info('setting default client encoding from [%s] to [%s]' % (_default_client_encoding, str(encoding)))
+	_log.info('setting default client encoding from [%s] to [%s]' % (_default_client_encoding, encoding))
 	_default_client_encoding = encoding
 	return True
 
@@ -451,7 +451,7 @@ def __detect_client_timezone(conn=None):
 	if expanded != gmDateTime.current_local_timezone_name:
 		tz_candidates.append(expanded)
 
-	_log.debug('candidates: %s', str(tz_candidates))
+	_log.debug('candidates: %s', tz_candidates)
 
 	# find best among candidates
 	global _default_client_timezone
@@ -1654,7 +1654,8 @@ def capture_cursor_state(cursor=None):
 	if cursor.query is None:
 		query = '<no query>'
 	else:
-		query = str(cursor.query, 'utf8', 'replace')
+		#query = str(cursor.query, 'utf8', 'replace')
+		query = cursor.query
 
 	txt = """Link state:
 Cursor
@@ -1803,7 +1804,7 @@ def run_ro_queries(link_obj=None, queries=None, verbose=False, return_data=True,
 		data = curs.fetchall()
 		if verbose:
 			_log.debug('last query returned [%s (%s)] rows', curs.rowcount, len(data))
-			_log.debug('cursor description: %s', str(curs.description))
+			_log.debug('cursor description: %s', curs.description)
 		if get_col_idx:
 			col_idx = get_col_indices(curs)
 
@@ -1900,7 +1901,7 @@ def run_rw_queries(link_obj=None, queries=None, end_tx=False, return_data=None, 
 			if verbose:
 				_log.debug(capture_cursor_state(curs))
 			for notice in notices_accessor.notices:
-				_log.debug(str(notice, 'utf8', 'replace').strip('\n').strip('\r'))
+				_log.debug(notice.replace('\n', '/').replace('\n', '/'))
 			del notices_accessor.notices[:]
 		# DB related exceptions
 		except dbapi.Error as pg_exc:
@@ -1915,7 +1916,7 @@ def run_rw_queries(link_obj=None, queries=None, end_tx=False, return_data=None, 
 						continue
 					_log.error('PG diags %s: %s', prop, val)
 			for notice in notices_accessor.notices:
-				_log.error(str(notice, 'utf8', 'replace').strip('\n').strip('\r'))
+				_log.debug(notice.replace('\n', '/').replace('\n', '/'))
 			del notices_accessor.notices[:]
 			pg_exc = make_pg_exception_fields_unicode(pg_exc)
 			_log.error('PG error code: %s', pg_exc.pgcode)
@@ -1959,7 +1960,7 @@ def run_rw_queries(link_obj=None, queries=None, end_tx=False, return_data=None, 
 			_log.exception('error running query in RW connection')
 			_log.error(capture_cursor_state(curs))
 			for notice in notices_accessor.notices:
-				_log.debug(str(notice, 'utf8', 'replace').strip('\n').strip('\r'))
+				_log.debug(notice.replace('\n', '/').replace('\n', '/'))
 			del notices_accessor.notices[:]
 			gmLog2.log_stack_trace()
 			try:
@@ -2226,7 +2227,7 @@ def get_connection(dsn=None, readonly=True, encoding=None, verbose=False, pooled
 		conn.set_client_encoding(encoding)
 	except dbapi.OperationalError:
 		t, v, tb = sys.exc_info()
-		if str(v).find("can't set encoding to") != -1:
+		if str(v).find('cannot set encoding to') != -1:
 			raise cEncodingError(encoding, v).with_traceback(tb)
 		raise
 
@@ -2501,12 +2502,9 @@ def make_pg_exception_fields_unicode(exc):
 def extract_msg_from_pg_exception(exc=None):
 
 	try:
-		msg = exc.args[0]
+		return '%s' % exc.args[0]
 	except (AttributeError, IndexError, TypeError):
 		return 'cannot extract message from exception'
-
-	# assumption
-	return str(msg, gmI18N.get_encoding(), 'replace')
 
 # =======================================================================
 class cAuthenticationError(dbapi.OperationalError):

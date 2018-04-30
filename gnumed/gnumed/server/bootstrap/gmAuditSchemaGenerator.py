@@ -417,7 +417,7 @@ if __name__ == "__main__" :
 	conn.close()
 
 	if schema is None:
-		print "error creating schema"
+		print("error creating schema")
 		sys.exit(-1)
 
 	f = io.open('audit-trail-schema.sql', mode = 'wb', encoding = 'utf8')

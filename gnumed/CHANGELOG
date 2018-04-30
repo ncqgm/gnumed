@@ -11,6 +11,7 @@
 NEW: port to wxPython 4 (wxPhoenix)
 NEW: port to Python 3
 NEW: toggle episode status from EMR tree context menu
+NEW: port bootstrapper to Python 3
 
 IMPROVED: symbolic link creation on Windows
 IMPROVED: Orthanc connection handling

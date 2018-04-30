@@ -1,7 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/python3
+##!/usr/bin/env python
 ##!/usr/bin/python2.7-dbg
 
-u"""GNUmed schema installation.
+__doc__="""GNUmed schema installation.
 
 This script bootstraps a GNUmed database system.
 
@@ -26,7 +27,7 @@ further details.
 --log-file=
 --conf-file=
 
-Requires psycopg 2.7.3 !
+Requires psycopg 2.7.4 !
 """
 #==================================================================
 # TODO
@@ -49,6 +50,10 @@ import re as regex
 import tempfile
 import io
 import logging
+import faulthandler
+
+
+faulthandler.enable()
 
 
 # adjust Python path
@@ -68,12 +73,12 @@ if not os.path.exists(os.path.join(local_python_base_dir, 'Gnumed')):
 	if not is_useful_import_dir:
 		real_dir = os.path.join(local_python_base_dir, 'client')			# CVS tree
 	link_name = os.path.join(local_python_base_dir, 'Gnumed')
-	print "Creating module import symlink ..."
-	print ' real dir:', real_dir
-	print '     link:', link_name
+	print("Creating module import symlink ...")
+	print(' real dir:', real_dir)
+	print('     link:', link_name)
 	os.symlink(real_dir, link_name)
 
-print "Adjusting PYTHONPATH ..."
+print("Adjusting PYTHONPATH ...")
 sys.path.insert(0, local_python_base_dir)
 
 
@@ -81,7 +86,7 @@ sys.path.insert(0, local_python_base_dir)
 try:
 	from Gnumed.pycommon import gmLog2
 except ImportError:
-	print """Please make sure the GNUmed Python modules are in the Python path !"""
+	print("Please make sure the GNUmed Python modules are in the Python path !")
 	raise
 from Gnumed.pycommon import gmCfg2
 from Gnumed.pycommon import gmPsql
@@ -97,13 +102,8 @@ aud_gen = gmAuditSchemaGenerator
 
 
 _log = logging.getLogger('gm.bootstrapper')
+#faulthandler.enable(file = gmLog2._logfile)
 
-try:
-	import faulthandler
-	#faulthandler.enable(file = gmLog2._logfile)
-	faulthandler.enable()
-except ImportError:
-	_log.error(u'<faulthandler> not available')
 
 _cfg = gmCfg2.gmCfgData()
 
@@ -273,7 +273,7 @@ def connect(host, port, db, user, passwd, conn_name=None):
 		else:
 			host = ''
 	if passwd == 'blank' or passwd is None or len(passwd) == 0:
-		if cached_passwd.has_key (user):
+		if user in cached_passwd:
 			passwd = cached_passwd[user]
 		else:
 			passwd = ''
@@ -297,13 +297,13 @@ def connect(host, port, db, user, passwd, conn_name=None):
 class user:
 	def __init__(self, anAlias = None, aPassword = None):
 		if anAlias is None:
-			raise ConstructorError, "need user alias"
+			raise ConstructorError("need user alias")
 		self.alias = anAlias
 		self.group = "user %s" % self.alias
 
 		self.name = cfg_get(self.group, "name")
 		if self.name is None:
-			raise ConstructorError, "cannot get user name"
+			raise ConstructorError("cannot get user name")
 
 		self.password = aPassword
 
@@ -320,13 +320,14 @@ class user:
 			# this means to ask the user if interactive
 			elif self.password == '':
 				if _interactive:
-					print "I need the password for the database user [%s]." % self.name
+					print("I need the password for the database user [%s]." % self.name)
 					self.password = getpass.getpass("Please type the password: ")
 				else:
 					_log.warning('cannot get password for database user [%s]', self.name)
 					raise ValueError('no password for user %s' % self.name)
 
 		return None
+
 #==================================================================
 class db_server:
 	def __init__(self, aSrv_alias, auth_group):
@@ -334,7 +335,7 @@ class db_server:
 
 		global _bootstrapped_servers
 
-		if _bootstrapped_servers.has_key(aSrv_alias):
+		if aSrv_alias in _bootstrapped_servers:
 			_log.info(u"server [%s] already bootstrapped" % aSrv_alias)
 			return None
 
@@ -344,7 +345,7 @@ class db_server:
 		self.conn = None
 
 		if not self.__bootstrap():
-			raise ConstructorError, "db_server.__init__(): Cannot bootstrap db server."
+			raise ConstructorError("db_server.__init__(): Cannot bootstrap db server.")
 
 		_bootstrapped_servers[self.alias] = self
 
@@ -561,11 +562,11 @@ class database:
 
 		if self.name is None or str(self.name).strip() == '':
 			_log.error(u"Need to know database name.")
-			raise ConstructorError, "database.__init__(): Cannot bootstrap database."
+			raise ConstructorError("database.__init__(): Cannot bootstrap database.")
 
 		# already bootstrapped ?
 		global _bootstrapped_dbs
-		if _bootstrapped_dbs.has_key(aDB_alias):
+		if aDB_alias in _bootstrapped_dbs:
 			if _bootstrapped_dbs[aDB_alias].name == self.name:
 				_log.info(u"database [%s] already bootstrapped", self.name)
 				return None
@@ -582,19 +583,19 @@ class database:
 		self.server_alias = cfg_get(self.section, "server alias")
 		if self.server_alias is None:
 			_log.error(u"Server alias missing.")
-			raise ConstructorError, "database.__init__(): Cannot bootstrap database."
+			raise ConstructorError("database.__init__(): Cannot bootstrap database.")
 
 		self.template_db = cfg_get(self.section, "template database")
 		if self.template_db is None:
 			_log.error(u"Template database name missing.")
-			raise ConstructorError, "database.__init__(): Cannot bootstrap database."
+			raise ConstructorError("database.__init__(): Cannot bootstrap database.")
 
 		# make sure server is bootstrapped
 		db_server(self.server_alias, auth_group = self.name)
 		self.server = _bootstrapped_servers[self.server_alias]
 
 		if not self.__bootstrap():
-			raise ConstructorError, "database.__init__(): Cannot bootstrap database."
+			raise ConstructorError("database.__init__(): Cannot bootstrap database.")
 
 		_bootstrapped_dbs[aDB_alias] = self
 
@@ -956,7 +957,7 @@ class database:
 			try:
 				rows, idx = gmPG2.run_ro_queries (
 					link_obj = template_conn,
-					queries = [{'cmd': unicode(old_query)}]
+					queries = [{'cmd': old_query}]
 				)
 				old_val = rows[0][0]
 			except:
@@ -969,7 +970,7 @@ class database:
 			try:
 				rows, idx = gmPG2.run_ro_queries (
 					link_obj = target_conn,
-					queries = [{'cmd': unicode(new_query)}]
+					queries = [{'cmd': new_query}]
 				)
 				new_val = rows[0][0]
 			except:
@@ -1447,7 +1448,7 @@ class gmBundle:
 	def __init__(self, aBundleAlias = None):
 		# sanity check
 		if aBundleAlias is None:
-			raise ConstructorError, "Need to know bundle name to install it."
+			raise ConstructorError("Need to know bundle name to install it.")
 
 		self.alias = aBundleAlias
 		self.section = "bundle %s" % aBundleAlias
@@ -1583,22 +1584,22 @@ def ask_for_confirmation():
 				print_msg(line)
 		return True
 
-	print "You are about to install the following parts of GNUmed:"
-	print "-------------------------------------------------------"
+	print("You are about to install the following parts of GNUmed:")
+	print("-------------------------------------------------------")
 	for bundle in bundles:
 		db_alias = cfg_get("bundle %s" % bundle, "database alias")
 		db_name = cfg_get("database %s" % db_alias, "name")
 		srv_alias = cfg_get("database %s" % db_alias, "server alias")
 		srv_name = cfg_get("server %s" % srv_alias, "name")
-		print 'bundle "%s" in <%s> (or overridden) on <%s>' % (bundle, db_name, srv_name)
-	print "-------------------------------------------------------"
+		print('bundle "%s" in <%s> (or overridden) on <%s>' % (bundle, db_name, srv_name))
+	print("-------------------------------------------------------")
 	desc = cfg_get("installation", "description")
 	if desc is not None:
 		for line in desc:
-			print line
+			print(line)
 
-	print "Do you really want to install this database setup ?"
-	answer = raw_input("Type yes or no: ")
+	print("Do you really want to install this database setup ?")
+	answer = input("Type yes or no: ")
 	if answer == "yes":
 		return True
 	return None
@@ -1644,22 +1645,22 @@ def _import_schema (group=None, schema_opt="schema", conn=None):
 #------------------------------------------------------------------
 def exit_with_msg(aMsg = None):
 	if aMsg is not None:
-		print aMsg
-	print ''
-	print "Please check the log file for details:"
-	print ''
-	print ' ', gmLog2._logfile_name
-	print ''
+		print(aMsg)
+	print('')
+	print("Please check the log file for details:")
+	print('')
+	print(' ', gmLog2._logfile_name)
+	print('')
 
-	_log.error(unicode(aMsg, errors = 'replace'))
- 	_log.info(u'shutdown')
+	_log.error(aMsg)
+	_log.info(u'shutdown')
 	sys.exit(1)
 
 #------------------------------------------------------------------
 def print_msg(msg=None):
 	if quiet:
 		return
-	print msg
+	print(msg)
 
 #-----------------------------------------------------------------
 def become_pg_demon_user():
@@ -1814,7 +1815,8 @@ def main():
 
 	global _bootstrapped_dbs
 
-	db = _bootstrapped_dbs[_bootstrapped_dbs.keys()[0]]
+	db = next(iter(_bootstrapped_dbs.values()))
+	#db = _bootstrapped_dbs[_bootstrapped_dbs.keys()[0]]
 
 	if not db.verify_result_hash():
 		exit_with_msg("Bootstrapping failed: wrong result hash")
@@ -1829,22 +1831,21 @@ def main():
 
 	_log.info(u"shutdown")
 	print("Done bootstrapping GNUmed database: We very likely succeeded.")
-	print 'log:', gmLog2._logfile_name
+	print('log:', gmLog2._logfile_name)
 
 #==================================================================
 if __name__ != "__main__":
-	print "This currently is not intended to be used as a module."
+	print("This currently is not intended to be used as a module.")
 	sys.exit(1)
 
 
 gmI18N.activate_locale()
-gmLog2.set_string_encoding()
 
 _log.info(u'startup')
 
 try:
 	main()
-except StandardError:
+except Exception:
 	_log.exception(u'unhandled exception caught, shutting down connections')
 	exit_with_msg(u'Bootstrapping failed: unhandled exception occurred')
 finally:
