@@ -1317,6 +1317,9 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 			ext_ref = None
 
 		# create document
+		date = self._PhWheel_doc_date.GetData()
+		if date is not None:
+			date = date.get_pydt()
 		new_doc = save_files_as_new_document (
 			parent = self,
 			filenames = [ data[0] for data in self._LCTRL_doc_pages.data ],
@@ -1327,11 +1330,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 			review_as_normal = False,
 			reference = ext_ref,
 			pk_org_unit = self._PhWheel_source.GetData(),
-#			date_generated = self._PhWheel_doc_date.GetData().get_pydt(),
-			date_generated = gmTools.coalesce (
-				self._PhWheel_doc_date.GetData(),
-				function_initial = 'get_pydt'
-			),
+			date_generated = date,
 			comment = self._PRW_doc_comment.GetLineText(0).strip(),
 			reviewer = self._PhWheel_reviewer.GetData()
 		)
@@ -2087,10 +2086,8 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 
 		# doc node
 		if isinstance(data1, gmDocuments.cDocument):
-
 			date_field = 'clin_when'
 			#date_field = 'modified_when'
-
 			if self.__sort_mode == 'age':
 				# reverse sort by date
 				if data1[date_field] > data2[date_field]:
@@ -2098,8 +2095,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 				if data1[date_field] == data2[date_field]:
 					return 0
 				return 1
-
-			elif self.__sort_mode == 'episode':
+			if self.__sort_mode == 'episode':
 				if data1['episode'] < data2['episode']:
 					return -1
 				if data1['episode'] == data2['episode']:
@@ -2110,10 +2106,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 						return 0
 					return 1
 				return 1
-
-			elif self.__sort_mode == 'issue':
-				if data1['health_issue'] < data2['health_issue']:
-					return -1
+			if self.__sort_mode == 'issue':
 				if data1['health_issue'] == data2['health_issue']:
 					# inner sort: reverse by date
 					if data1[date_field] > data2[date_field]:
@@ -2121,9 +2114,10 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 					if data1[date_field] == data2[date_field]:
 						return 0
 					return 1
+				if data1['health_issue'] < data2['health_issue']:
+					return -1
 				return 1
-
-			elif self.__sort_mode == 'review':
+			if self.__sort_mode == 'review':
 				# equality
 				if data1.has_unreviewed_parts == data2.has_unreviewed_parts:
 					# inner sort: reverse by date
@@ -2135,8 +2129,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 				if data1.has_unreviewed_parts:
 					return -1
 				return 1
-
-			elif self.__sort_mode == 'type':
+			if self.__sort_mode == 'type':
 				if data1['l10n_type'] < data2['l10n_type']:
 					return -1
 				if data1['l10n_type'] == data2['l10n_type']:
@@ -2147,8 +2140,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 						return 0
 					return 1
 				return 1
-
-			elif self.__sort_mode == 'org':
+			if self.__sort_mode == 'org':
 				if (data1['organization'] is None) and (data2['organization'] is None):
 					return 0
 				if (data1['organization'] is None) and (data2['organization'] is not None):
@@ -2168,14 +2160,13 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 					return 1
 				return 1
 
-			else:
-				_log.error('unknown document sort mode [%s], reverse-sorting by age', self.__sort_mode)
-				# reverse sort by date
-				if data1[date_field] > data2[date_field]:
-					return -1
-				if data1[date_field] == data2[date_field]:
-					return 0
-				return 1
+			_log.error('unknown document sort mode [%s], reverse-sorting by age', self.__sort_mode)
+			# reverse sort by date
+			if data1[date_field] > data2[date_field]:
+				return -1
+			if data1[date_field] == data2[date_field]:
+				return 0
+			return 1
 
 		# part node
 		if isinstance(data1, gmDocuments.cDocumentPart):

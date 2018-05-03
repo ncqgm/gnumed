@@ -169,22 +169,22 @@ def __format_health_issue_as_timeline_xml(issue, patient, emr):
 		with_tests = False,
 		with_vaccinations = False
 	).strip().strip('\n').strip())
-	txt = gmTools.shorten_words_in_line(text = issue['description'], max_length = 25, min_word_length = 5)
+	label = gmTools.shorten_words_in_line(text = issue['description'], max_length = 25, min_word_length = 5)
 	xml = ''
-	if possible_start < safe_start:
-		data['start'] = format_pydt(possible_start)
-		data['end'] = format_pydt(safe_start)
-		data['ends2day'] = 'False'
-		data['fuzzy'] = 'True'
-		data['container_id'] = ''
-		data['label'] = '?%s?' % gmTools.xml_escape_string(txt)
-		xml += __xml_issue_template % data
+#	if possible_start < safe_start:
+#		data['start'] = format_pydt(possible_start)
+#		data['end'] = format_pydt(safe_start)
+#		data['ends2day'] = 'False'
+#		data['fuzzy'] = 'True'
+#		data['container_id'] = ''
+#		data['label'] = '?%s?' % gmTools.xml_escape_string(label)
+#		xml += __xml_issue_template % data
 	data['start'] = format_pydt(safe_start)
 	data['end'] = format_pydt(end)
 	data['ends2day'] = ends_today
 	data['fuzzy'] = 'False'
 	data['container_id'] = '[%s]' % issue['pk_health_issue']
-	data['label'] = gmTools.xml_escape_string(txt)
+	data['label'] = gmTools.xml_escape_string(label)
 	xml += __xml_issue_template % data
 	return xml
 
@@ -430,7 +430,7 @@ def __format_intake_as_timeline_xml(intake):
 #------------------------------------------------------------
 # main library entry point
 #------------------------------------------------------------
-def create_timeline_file(patient=None, filename=None):
+def create_timeline_file(patient=None, filename=None, include_documents=False, include_vaccinations=False, include_encounters=False):
 
 	emr = patient.emr
 	global now
@@ -531,10 +531,10 @@ def create_timeline_file(patient=None, filename=None):
 	for epi in emr.get_episodes(order_by = 'pk_health_issue'):
 		timeline.write(__format_episode_as_timeline_xml(epi, patient))
 
-	# simply too many
-	#timeline.write(u'\n<!--\n========================================\n Encounters\n======================================== -->')
-	#for enc in emr.get_encounters(skip_empty = True):
-	#	timeline.write(__format_encounter_as_timeline_xml(enc, patient))
+	if include_encounters:
+		timeline.write(u'\n<!--\n========================================\n Encounters\n======================================== -->')
+		for enc in emr.get_encounters(skip_empty = True):
+			timeline.write(__format_encounter_as_timeline_xml(enc, patient))
 
 	timeline.write('\n<!--\n========================================\n Hospital stays\n======================================== -->')
 	for stay in emr.hospital_stays:
@@ -544,17 +544,19 @@ def create_timeline_file(patient=None, filename=None):
 	for proc in emr.performed_procedures:
 		timeline.write(__format_procedure_as_timeline_xml(proc))
 
-#	timeline.write(u'\n<!--\n========================================\n Vaccinations\n======================================== -->')
-#	for vacc in emr.vaccinations:
-#		timeline.write(__format_vaccination_as_timeline_xml(vacc))
+	if include_vaccinations:
+		timeline.write(u'\n<!--\n========================================\n Vaccinations\n======================================== -->')
+		for vacc in emr.vaccinations:
+			timeline.write(__format_vaccination_as_timeline_xml(vacc))
 
 	timeline.write('\n<!--\n========================================\n Substance intakes\n======================================== -->')
 	for intake in emr.get_current_medications(include_inactive = True, include_unapproved = False):
 		timeline.write(__format_intake_as_timeline_xml(intake))
 
-#	timeline.write(u'\n<!--\n========================================\n Documents\n======================================== -->')
-#	for doc in patient.document_folder.documents:
-#		timeline.write(__format_document_as_timeline_xml(doc))
+	if include_documents:
+		timeline.write(u'\n<!--\n========================================\n Documents\n======================================== -->')
+		for doc in patient.document_folder.documents:
+			timeline.write(__format_document_as_timeline_xml(doc))
 
 	# allergies ?
 	# - unclear where and how to place
@@ -718,4 +720,10 @@ if __name__ == '__main__':
 	pat = gmPerson.gmCurrentPatient(gmPerson.cPatient(aPK_obj = 14))
 	fname = '~/gnumed/gm2tl-%s.timeline' % pat.subdir_name
 
-	print(create_timeline_file(patient = pat, filename = os.path.expanduser(fname)))
+	print (create_timeline_file (
+		patient = pat,
+		filename = os.path.expanduser(fname),
+		include_documents = True,
+		include_vaccinations = True,
+		include_encounters = True
+	))

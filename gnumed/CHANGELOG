@@ -16,6 +16,11 @@ NEW: port bootstrapper to Python 3
 IMPROVED: symbolic link creation on Windows
 IMPROVED: Orthanc connection handling
 IMPROVED: DICOM plugin UI
+IMPROVED: EMR export as TimeLine
+IMPROVED: captions of all list and edit area dialogs
+
+FIX: [Save] functionality of Export Area
+FIX: document tree sorting / document insertion
 
 ------------------------------------------------
 # rel-1-7-patches

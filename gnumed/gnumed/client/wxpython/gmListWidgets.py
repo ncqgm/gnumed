@@ -90,7 +90,10 @@ def get_choices_from_list (
 					None
 	"""
 	if caption is None:
-		caption = _('generic multi choice dialog')
+		caption = u'GMd: ' + _('generic multi choice dialog')
+	else:
+		if not caption.startswith('GMd: '):
+			caption = 'GMd: %s' % caption
 
 	if single_selection:
 		dlg = cGenericListSelectorDlg(parent, -1, title = caption, msg = msg, style = wx.LC_SINGLE_SEL)
@@ -143,7 +146,15 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 		try:
 			msg = kwargs['msg']
 			del kwargs['msg']
-		except KeyError: msg = None
+		except KeyError:
+			msg = None
+
+		try:
+			title = kwargs['title']
+			if not title.startswith('GMd: '):
+				kwargs['title'] = 'GMd: %s' % title
+		except KeyError:
+			kwargs['title'] = 'GMd: %s' % self.__class__.__name__
 
 		wxgGenericListSelectorDlg.wxgGenericListSelectorDlg.__init__(self, *args, **kwargs)
 
@@ -1033,6 +1044,13 @@ class cItemPickerDlg(wxgItemPickerDlg.wxgItemPickerDlg):
 			del kwargs['msg']
 		except KeyError:
 			msg = None
+
+		try:
+			title = kwargs['title']
+			if not title.startswith('GMd: '):
+				kwargs['title'] = 'GMd: %s' % title
+		except KeyError:
+			kwargs['title'] = 'GMd: %s' % self.__class__.__name__
 
 		wxgItemPickerDlg.wxgItemPickerDlg.__init__(self, *args, **kwargs)
 

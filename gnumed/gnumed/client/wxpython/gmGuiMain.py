@@ -2725,14 +2725,17 @@ class gmTopLevelFrame(wx.Frame):
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot export EMR. No active patient.'))
 			return False
 		wx.BeginBusyCursor()
+		from Gnumed.exporters import gmTimelineExporter
 		try:
-			from Gnumed.exporters import gmTimelineExporter
-			fname = gmTimelineExporter.create_timeline_file(patient = pat)
-			pat.export_area.add_file(filename = fname, hint = _('EMR as timeline file (XML)'))
-		except Exception:
-			raise
+			fname = gmTimelineExporter.create_timeline_file (
+				patient = pat,
+				include_documents = True,
+				include_vaccinations = True,
+				include_encounters = True
+			)
 		finally:
 			wx.EndBusyCursor()
+		pat.export_area.add_file(filename = fname, hint = _('EMR as timeline file (XML)'))
 
 	#----------------------------------------------
 	def __export_emr_as_care_structure(self, event):

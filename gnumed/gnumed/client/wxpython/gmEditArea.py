@@ -298,6 +298,13 @@ class cGenericEditAreaDlg2(wxgGenericEditAreaDlg2.wxgGenericEditAreaDlg2):
 		except KeyError:
 			single_entry = False
 
+		try:
+			title = kwargs['title']
+			if not title.startswith('GMd: '):
+				title = 'GMd: %s' % title
+		except KeyError:
+			title = 'GMd: %s' % self.__class__.__name__
+
 		wxgGenericEditAreaDlg2.wxgGenericEditAreaDlg2.__init__(self, *args, **kwargs)
 
 		self.left_extra_button = None
@@ -343,6 +350,7 @@ class cGenericEditAreaDlg2(wxgGenericEditAreaDlg2.wxgGenericEditAreaDlg2):
 		#self.Refresh()				# apparently not needed (27.3.2011)
 
 		self._PNL_ea.refresh()
+
 	#--------------------------------------------------------
 	def _on_set_statustext(self, msg=None, loglevel=None, beep=True):
 		if msg is None:
