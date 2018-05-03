@@ -3346,6 +3346,7 @@ limit 50"""
 			return
 
 		self._TCTRL_loinc_info.SetValue(info[0])
+
 	#----------------------------------------------------------------
 	# generic Edit Area mixin API
 	#----------------------------------------------------------------
@@ -3407,17 +3408,30 @@ limit 50"""
 			self._PRW_reference_unit.GetData(),
 			self._PRW_reference_unit.GetValue()
 		).strip()
-		if self._PRW_loinc.GetData() is not None:
-			self.data['loinc'] = gmTools.none_if(self._PRW_loinc.GetData().strip(), '')
+		old_loinc = self.data['loinc']
 		if self._PRW_loinc.GetData() is not None:
 			self.data['loinc'] = gmTools.none_if(self._PRW_loinc.GetData().strip(), '')
 		else:
 			self.data['loinc'] = gmTools.none_if(self._PRW_loinc.GetValue().strip(), '')
+		new_loinc = self.data['loinc']
 		self.data['comment_type'] = gmTools.none_if(self._TCTRL_comment_type.GetValue().strip(), '')
 		self.data['pk_meta_test_type'] = self._PRW_meta_type.GetData()
 		self.data.save()
 
+		# was it, AND can it be, on any panel ?
+		if None not in [old_loinc, new_loinc]:
+			# would it risk being dropped from any panel ?
+			if new_loinc != old_loinc:
+				for panel in gmPathLab.get_test_panels(loincs = [old_loinc]):
+					pnl_loincs = panel.included_loincs
+					if new_loinc not in pnl_loincs:
+						pnl_loincs.append(new_loinc)
+						panel.included_loincs = pnl_loincs
+					# do not remove old_loinc as it may sit on another
+					# test type which we haven't removed it from yet
+
 		return True
+
 	#----------------------------------------------------------------
 	def _refresh_as_new(self):
 		self._PRW_name.SetText('', None, True)

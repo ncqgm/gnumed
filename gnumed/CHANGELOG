@@ -18,6 +18,7 @@ IMPROVED: Orthanc connection handling
 IMPROVED: DICOM plugin UI
 IMPROVED: EMR export as TimeLine
 IMPROVED: captions of all list and edit area dialogs
+IMPROVED: test type edit area workflow
 
 FIX: [Save] functionality of Export Area
 FIX: document tree sorting / document insertion

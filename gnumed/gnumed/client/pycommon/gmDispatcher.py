@@ -267,6 +267,8 @@ class BoundMethodWeakref:
 		def remove(object, self=self):
 			"""Set self.isDead to true when method or instance is destroyed."""
 			self.isDead = 1
+			print(_removeReceiver)
+			print(self)
 			_removeReceiver(receiver=self)
 		self.weakSelf = weakref.ref(boundMethod.__self__, remove)
 		self.weakFunc = weakref.ref(boundMethod.__func__, remove)

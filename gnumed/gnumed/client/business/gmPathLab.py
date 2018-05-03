@@ -383,14 +383,21 @@ class cTestPanel(gmBusinessDBObject.cBusinessDBObject):
 		)
 
 #------------------------------------------------------------
-def get_test_panels(order_by=None):
-	if order_by is None:
-		order_by = 'true'
+def get_test_panels(order_by=None, loincs=None):
+	where_args = {}
+	if loincs is None:
+		where_parts = ['true']
 	else:
-		order_by = 'true ORDER BY %s' % order_by
+		where_parts = ['loincs @> %(loincs)s']
+		where_args['loincs'] = list(loincs)
 
-	cmd = _SQL_get_test_panels % order_by
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
+	if order_by is None:
+		order_by = u''
+	else:
+		order_by = ' ORDER BY %s' % order_by
+
+	cmd = (_SQL_get_test_panels % ' AND '.join(where_parts)) + order_by
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': where_args}], get_col_idx = True)
 	return [ cTestPanel(row = {'data': r, 'idx': idx, 'pk_field': 'pk_test_panel'}) for r in rows ]
 
 #------------------------------------------------------------
