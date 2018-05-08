@@ -73,7 +73,7 @@
 	$<praxis::%(praxis)s, %(branch)s::120>$\\
 	$<praxis_address::%(street)s %(number)s (%(subunit)s), %(postcode)s %(urb)s::60>$
 }
-\setkomavar{fromlogo}{$<data_snippet::praxis-logo//\includegraphics[width=30mm]{%s}//image/png//.png::250>$}%$
+\setkomavar{fromlogo}{$<data_snippet::praxis-logo//\includegraphics[width=30mm]{%s}//image/png//.png::250>$}%$ -- this dollarsign unconfuses mcedit syntax coloring
 \setkomavar{backaddress}{$<current_provider_firstnames::::1>$.$<current_provider_lastnames::::>$\\$<praxis_address::%(street)s %(number)s\\%(postcode)s %(urb)s::60>$}
 
 
@@ -86,15 +86,15 @@
 
 
 % Betreff, nämlich Patientendaten
-\setkomavar{subject}[]{
-	$<free_text::Betreff für den Brief::120>$\\
+\setkomavar{subject}[]{%
+	$<<free_text::Betreff für den Brief::120>>$\\
 	Patient: $<title::::>$ $<firstname::::>$ $<lastname::::>$ (geb $<date_of_birth::%d.%B %Y::>$)\\
 	Adresse: $<adr_street::home::>$ $<adr_number::home::>$, $<adr_postcode::home::>$ $<adr_location::home::>$
 }
 
 
 % Unterschrift
-\setkomavar{signature}{
+\setkomavar{signature}{%
 	\centering
 	$<data_snippet::autograph-$<<current_provider_lastnames::::>>$_$<<current_provider_firstnames::::>>$//\includegraphics[width=30mm]{%s}\\//image/png//.png::250>$\rule{\widthof{\tiny (Der Unterzeichner haftet nicht für unsignierte Änderungen des Inhalts.)}}{.1pt}\\
 	$<current_provider_name::%(title)s %(firstnames)s %(lastnames)s::>$\\
@@ -110,7 +110,7 @@
 % Fußzeile 1.Seite
 \setkomavar{firstfoot}{%
 	\rule{\textwidth}{.3pt}
-	\parbox[t]{\textwidth}{
+	\parbox[t]{\textwidth}{%
 		\tiny
 		\begin{tabular}[t]{ll}%
 %			\multicolumn{2}{l}{Erreichbarkeit:}\\
@@ -152,22 +152,29 @@
 	$<receiver_street::::>$\ $<receiver_number::::>$\ $<receiver_subunit::::>$\\
 	$<receiver_postcode::::>$\ $<receiver_location::::>$\\
 	$<receiver_country::::>$
-}%
+}
 
 
 % Anrede
-\opening{$<free_text::Anrede, z.B. "Sehr geehrte Frau" (wird automatisch ergänzt durch " <Name des Empfängers>,")::140>$ $<receiver_name::::>$,}
+\opening{%
+	$<<free_text::Anrede, z.B. "Sehr geehrte Frau" (wird automatisch ergänzt durch " $<receiver_name::::>$,")::140>>$ $<receiver_name::::>$,
+}
 
 
 % Brieftext
 \selectlanguage{ngerman}
-$<free_text::Der eigentliche Brieftext (in LaTeX !)::>$
+$<<free_text::Der eigentliche Brieftext (in LaTeX)::>>$
 
-\closing{$<free_text::Grußformel, z.B. "Mit freundlichen Grüßen" (ohne Komma am Ende)::140>$,}
+
+\closing{%
+	$<<free_text::Grußformel, z.B. "Mit freundlichen Grüßen" (ohne Komma am Ende)::140>>$,
+}
+
 
 % Anlagen
 %\setkomavar*{enclseparator}[Anlage(n)]					% Titel für Anlagebereich
-\encl{$<free_text::Liste von Anlagen::300>$}
+\encl{$<<free_text::Liste von Anlagen::300>>$}
+
 
 % kein Verteiler
 %\cc{}

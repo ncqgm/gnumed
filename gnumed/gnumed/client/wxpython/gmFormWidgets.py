@@ -922,6 +922,7 @@ class cReceiverSelectionDlg(wxgReceiverSelectionDlg.wxgReceiverSelectionDlg):
 	#------------------------------------------------------------
 	def __populate_address_list(self, addresses=None):
 		self._LCTRL_addresses.Enable()
+		cols = [_(u'Address')]
 		list_items = []
 		for a in addresses:
 			try:

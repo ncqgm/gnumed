@@ -32,6 +32,8 @@ FIX: document tree sorting / document insertion
 FIX: GTK3 related size adjustments for PatientOverview/SimpleSoap plugins
 FIX: GTK3 related bitmap adjustments
 FIX: [Save] functionality of Export Area
+FIX: placeholders $current_provider_[title/firstnames/lastnames]$
+FIX: receiver selection address list setup
 
 	1.7.1
 
@@ -1971,6 +1973,7 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 	22.2
 
 FIX: dem.staff plausibility check [thanks Marc]
+FIX: LaTeX-Template for Begleitbrief
 
 	22.1
 
