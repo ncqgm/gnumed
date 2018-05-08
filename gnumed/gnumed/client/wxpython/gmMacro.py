@@ -1685,24 +1685,27 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 	#--------------------------------------------------------
 	def _get_variant_current_provider_title(self, data=None):
 		if data is None:
-			data = u'%(title)s'
+			template = u'%(title)s'
 		elif data.strip() == u'':
 			data = u'%(title)s'
-		return self._get_variant_name(data = data)
+		return self._get_variant_current_provider_name(data = data)
+
 	#--------------------------------------------------------
 	def _get_variant_current_provider_firstnames(self, data=None):
 		if data is None:
 			data = u'%(firstnames)s'
 		elif data.strip() == u'':
 			data = u'%(firstnames)s'
-		return self._get_variant_name(data = data)
+		return self._get_variant_current_provider_name(data = data)
+
 	#--------------------------------------------------------
 	def _get_variant_current_provider_lastnames(self, data=None):
 		if data is None:
 			data = u'%(lastnames)s'
 		elif data.strip() == u'':
 			data = u'%(lastnames)s'
-		return self._get_variant_name(data = data)
+		return self._get_variant_current_provider_name(data = data)
+
 	#--------------------------------------------------------
 	def _get_variant_current_provider_name(self, data=None):
 		if data is None:
