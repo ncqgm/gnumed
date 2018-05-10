@@ -13,6 +13,7 @@ FIX: GTK3 related bitmap adjustments
 FIX: [Save] functionality of Export Area
 FIX: placeholders $current_provider_[title/firstnames/lastnames]$
 FIX: receiver selection address list setup
+FIX: exception on creation of duplicate patient [thanks Marc]
 
 	1.7.1
 

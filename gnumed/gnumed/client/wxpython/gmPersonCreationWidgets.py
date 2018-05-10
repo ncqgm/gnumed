@@ -259,6 +259,16 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 			error = True
 			self.display_ctrl_as_valid(ctrl = self._TCTRL_tob, valid = False)
 
+		# uniqueness
+		if gmPerson.this_person_exists (
+			self._PRW_lastname.GetValue().strip(),
+			self._PRW_firstnames.GetValue().strip(),
+			self._PRW_dob.GetData(),
+			gmTools.none_if(self._TCTRL_comment.GetValue().strip(), u'')
+		):
+			error = True
+			self.status_message = _('Duplicate person. Modify name and/or DOB or use comment to make unique.')
+
 		return (not error)
 	#----------------------------------------------------------------
 	def __address_valid_for_save(self, empty_address_is_valid=False):
@@ -384,6 +394,7 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 		return True
 	#----------------------------------------------------------------
 	def _on_leaving_dob(self):
+		_validate_dob_field(self._PRW_dob)
 		wx.CallAfter(self._refresh_dupe_warning)
 	#----------------------------------------------------------------
 	def _on_leaving_zip(self):
