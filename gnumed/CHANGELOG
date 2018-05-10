@@ -6,6 +6,10 @@
 # rel-1-7-patches
 ------------------------------------------------
 
+	1.7.3
+
+IMPROVED: robustify tarballing script against network flukes
+
 	1.7.2
 
 FIX: GTK3 related size adjustments for PatientOverview/SimpleSoap plugins
