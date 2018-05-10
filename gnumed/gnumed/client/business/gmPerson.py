@@ -105,6 +105,29 @@ def person_exists(lastnames, dob, firstnames=None, active_only=True):
 	return rows[0][0]
 
 #============================================================
+def this_person_exists(lastnames, firstnames, dob, comment):
+	# backend also looks at gender (IOW, only fails on same-gender dupes)
+	if comment is not None:
+		comment = comment.strip()
+		if comment == u'':
+			comment = None
+	args = {
+		'last': lastnames.strip(),
+		'first': firstnames.strip(),
+		'dob': dob,
+		'cmt': comment
+	}
+	where_parts = [
+		u'lower(lastnames) = lower(%(last)s)',
+		u'lower(firstnames) = lower(%(first)s)',
+		u"dem.date_trunc_utc('day', dob) IS NOT DISTINCT FROM dem.date_trunc_utc('day', %(dob)s)",
+		u'lower(comment) IS NOT DISTINCT FROM lower(%(cmt)s)'
+	]
+	cmd = u"SELECT COUNT(1) FROM dem.v_persons WHERE %s" % u' AND '.join(where_parts)
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+	return rows[0][0]
+
+#============================================================
 # FIXME: make this work as a mapping type, too
 class cDTO_person(object):
 
