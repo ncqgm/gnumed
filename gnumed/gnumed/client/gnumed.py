@@ -680,8 +680,65 @@ def run_tool():
 		return gmEMRStructItems.check_fk_encounter_fk_episode_x_ref()
 
 	if tool == 'export_pat_emr_structure':
+		# setup praxis
+		from Gnumed.business import gmPraxis
+		praxis = gmPraxis.gmCurrentPraxisBranch(branch = gmPraxis.get_praxis_branches()[0])
+		# get patient
+		from Gnumed.business import gmPersonSearch
+		pat = gmPersonSearch.ask_for_patient()
+		# setup exporters
 		from Gnumed.business import gmEMRStructItems
-		return gmEMRStructItems.export_patient_emr_structure()
+		from Gnumed.exporters import gmTimelineExporter
+		from Gnumed.exporters import gmPatientExporter
+		while pat is not None:
+			print('patient:', pat['description_gender'])
+			# as EMR structure
+			fname = os.path.expanduser('~/gnumed/gm-emr_structure-%s.txt' % pat.subdir_name)
+			print('EMR structure:', gmEMRStructItems.export_emr_structure(patient = pat, filename = fname))
+			# as timeline
+			fname = os.path.expanduser('~/gnumed/gm-emr-%s.timeline' % pat.subdir_name)
+			try:
+				print('EMR timeline:', gmTimelineExporter.create_timeline_file (
+					patient = pat,
+					filename = fname,
+					include_documents = True,
+					include_vaccinations = True,
+					include_encounters = True
+				))
+			finally:
+				pass
+			# as journal by encounter
+			exporter = gmPatientExporter.cEMRJournalExporter()
+			fname = os.path.expanduser('~/gnumed/gm-emr-journal_by_encounter-%s.txt' % pat.subdir_name)
+			print('EMR journal (by encounter):', exporter.save_to_file_by_encounter(patient = pat, filename = fname))
+			# as journal by mod time
+			fname = os.path.expanduser('~/gnumed/gm-emr-journal_by_mod_time-%s.txt' % pat.subdir_name)
+			print('EMR journal (by mod time):', exporter.save_to_file_by_mod_time(patient = pat, filename = fname))
+			# as statistical summary
+			fname = os.path.expanduser('~/gnumed/gm-emr-statistics-%s.txt' % pat.subdir_name)
+			output_file = io.open(fname, mode = 'wt', encoding = 'utf8', errors = 'replace')
+			emr = pat.emr
+			output_file.write(emr.format_statistics())
+			output_file.close()
+			print('EMR statistics:', fname)
+			# as text file
+			exporter = gmPatientExporter.cEmrExport(patient = pat)
+			fname = os.path.expanduser('~/gnumed/gm-emr-text_export-%s.txt' % pat.subdir_name)
+			output_file = io.open(fname, mode = 'wt', encoding = 'utf8', errors = 'replace')
+			exporter.set_output_file(output_file)
+			exporter.dump_constraints()
+			exporter.dump_demographic_record(True)
+			exporter.dump_clinical_record()
+			exporter.dump_med_docs()
+			output_file.close()
+			print('EMR text file:', fname)
+			# another patient ?
+			pat = gmPersonSearch.ask_for_patient()
+
+		return 0
+
+	# tool export_patient_as (vcf, gdt, ...)
+	#if tool == 'export_pat_demographics':
 
 	# should not happen (because checked against _known_tools)
 	return -1

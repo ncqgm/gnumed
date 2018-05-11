@@ -388,8 +388,8 @@ class cEmrExport:
         """
             Retrieve patient clinical items filtered by multiple constraints
         """
-        if not self.__patient.connected:
-            return False
+        #if not self.__patient.connected:
+        #    return False
         emr = self.__patient.emr
         filtered_items = []
         filtered_items.extend(emr.get_allergies(
