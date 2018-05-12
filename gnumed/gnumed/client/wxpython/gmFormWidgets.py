@@ -195,7 +195,6 @@ def act_on_generated_forms(parent=None, forms=None, jobtype=None, episode_name=N
 
 	It operates on the active patient.
 	"""
-
 	if len(forms) == 0:
 		return True
 
@@ -222,8 +221,9 @@ def act_on_generated_forms(parent=None, forms=None, jobtype=None, episode_name=N
 			note = soap,
 			episode = epi
 		)
+
 	#-----------------------------
-	def archive_forms(episode_name=None):
+	def archive_forms(episode_name=None, comment=None):
 		if episode_name is None:
 			epi = None				# will ask for episode further down
 		else:
@@ -245,10 +245,12 @@ def act_on_generated_forms(parent=None, forms=None, jobtype=None, episode_name=N
 				episode = epi,
 				review_as_normal = review_copy_as_normal,
 				reference = None,
-				pk_org_unit = gmPraxis.gmCurrentPraxisBranch()['pk_org_unit']
+				pk_org_unit = gmPraxis.gmCurrentPraxisBranch()['pk_org_unit'],
+				comment = comment
 			)
 
 		return True
+
 	#-----------------------------
 	def print_forms():
 		# anything to do ?
@@ -269,12 +271,13 @@ def act_on_generated_forms(parent=None, forms=None, jobtype=None, episode_name=N
 			return False
 		soap_lines.append(_('Printed: %s') % ', '.join(form_names))
 		return True
+
 	#-----------------------------
 	def export_forms(remote_print=False):
 		pat = gmPerson.gmCurrentPatient()
 		return pat.export_area.add_forms(forms = forms, designation = gmTools.bool2subst(remote_print, 'print', None, None))
-	#-----------------------------
 
+	#-----------------------------
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
 
@@ -303,24 +306,38 @@ def act_on_generated_forms(parent=None, forms=None, jobtype=None, episode_name=N
 	also_export = dlg._CHBOX_export.GetValue()
 	dlg.Destroy()
 
+	if action_code == _ID_FORM_DISPOSAL_ARCHIVE_ONLY:
+		success = archive_forms(episode_name = episode_name, comment = progress_note)
+		if not success:
+			return False
+		if progress_note != '':
+			soap_lines.insert(0, progress_note)
+		if len(soap_lines) > 0:
+			save_soap(soap = '\n'.join(soap_lines))
+		return True
+
+	if action_code == _ID_FORM_DISPOSAL_EXPORT_ONLY:
+		success = export_forms()
+		if not success:
+			return False
+		if progress_note != '':
+			soap_lines.insert(0, progress_note)
+		if len(soap_lines) > 0:
+			save_soap(soap = '\n'.join(soap_lines))
+		return True
+
 	success = False
 	if action_code == _ID_FORM_DISPOSAL_PRINT:
 		success = print_forms()
 		if episode_name is not None:
-			archive_forms(episode_name = episode_name)
+			archive_forms(episode_name = episode_name, comment = progress_note)
 		if also_export:
 			export_forms()
 
-	if action_code == _ID_FORM_DISPOSAL_REMOTE_PRINT:
+	elif action_code == _ID_FORM_DISPOSAL_REMOTE_PRINT:
 		success = export_forms(remote_print = True)
 		if episode_name is not None:
-			archive_forms(episode_name = episode_name)
-
-	elif action_code == _ID_FORM_DISPOSAL_ARCHIVE_ONLY:
-		success = archive_forms(episode_name = episode_name)
-
-	elif action_code == _ID_FORM_DISPOSAL_EXPORT_ONLY:
-		success = export_forms()
+			archive_forms(episode_name = episode_name, comment = progress_note)
 
 	if not success:
 		return False

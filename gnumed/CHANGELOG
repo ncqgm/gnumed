@@ -20,6 +20,7 @@ IMPROVED: EMR export as TimeLine
 IMPROVED: captions of all list and edit area dialogs
 IMPROVED: test type edit area workflow
 IMPROVED: CLI EMR export tool
+IMPROVED: form disposal dialog
 
 FIX: [Save] functionality of Export Area
 FIX: document tree sorting / document insertion
