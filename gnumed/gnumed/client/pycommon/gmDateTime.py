@@ -210,6 +210,39 @@ def get_last_month(dt):
 		return 12
 	return last_month
 
+#---------------------------------------------------------------------------
+def get_date_of_weekday_in_week_of_date(weekday, dt=None):
+	# weekday:
+	# 0 = Sunday
+	# 1 = Monday ...
+	if weekday not in [0,1,2,3,4,5,6,7]:
+		raise ValueError('weekday must be in 0 (Sunday) to 7 (Sunday, again)')
+	if dt is None:
+		dt = pydt_now_here()
+	dt_weekday = dt.isoweekday()		# 1 = Mon
+	day_diff = dt_weekday - weekday
+	days2add = (-1 * day_diff)
+	return pydt_add(dt, days = days2add)
+
+#---------------------------------------------------------------------------
+def get_date_of_weekday_following_date(weekday, dt=None):
+	# weekday:
+	# 0 = Sunday		# will be wrapped to 7
+	# 1 = Monday ...
+	if weekday not in [0,1,2,3,4,5,6,7]:
+		raise ValueError('weekday must be in 0 (Sunday) to 7 (Sunday, again)')
+	if weekday == 0:
+		weekday = 7
+	if dt is None:
+		dt = pydt_now_here()
+	dt_weekday = dt.isoweekday()		# 1 = Mon
+	days2add = weekday - dt_weekday
+	if days2add == 0:
+		days2add = 7
+	elif days2add < 0:
+		days2add += 7
+	return pydt_add(dt, days = days2add)
+
 #===========================================================================
 # mxDateTime conversions
 #---------------------------------------------------------------------------
@@ -2298,6 +2331,25 @@ if __name__ == '__main__':
 			print (year, "leaps:", is_leap_year(year))
 
 	#-------------------------------------------------
+	def test_get_date_of_weekday_in_week_of_date():
+		dt = pydt_now_here()
+		print('weekday', dt.isoweekday(), '(2day):', dt)
+		for weekday in range(8):
+			dt = get_date_of_weekday_in_week_of_date(weekday)
+			print('weekday', weekday, '(same):', dt)
+			dt = get_date_of_weekday_following_date(weekday)
+			print('weekday', weekday, '(next):', dt)
+
+		try:
+			get_date_of_weekday_in_week_of_date(8)
+		except ValueError as exc:
+			print(exc)
+		try:
+			get_date_of_weekday_following_date(8)
+		except ValueError as exc:
+			print(exc)
+
+	#-------------------------------------------------
 	# GNUmed libs
 	gmI18N.activate_locale()
 	gmI18N.install_domain('gnumed')
@@ -2305,7 +2357,8 @@ if __name__ == '__main__':
 	init()
 
 	#test_date_time()
-	test_str2fuzzy_timestamp_matches()
+	#test_str2fuzzy_timestamp_matches()
+	test_get_date_of_weekday_in_week_of_date()
 	#test_cFuzzyTimeStamp()
 	#test_get_pydt()
 	#test_str2interval()
