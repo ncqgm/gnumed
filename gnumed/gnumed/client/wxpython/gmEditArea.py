@@ -301,9 +301,9 @@ class cGenericEditAreaDlg2(wxgGenericEditAreaDlg2.wxgGenericEditAreaDlg2):
 		try:
 			title = kwargs['title']
 			if not title.startswith('GMd: '):
-				title = 'GMd: %s' % title
+				kwargs['title'] = 'GMd: %s' % title
 		except KeyError:
-			title = 'GMd: %s' % self.__class__.__name__
+			kwargs['title'] = 'GMd: %s' % self.__class__.__name__
 
 		wxgGenericEditAreaDlg2.wxgGenericEditAreaDlg2.__init__(self, *args, **kwargs)
 
@@ -361,6 +361,7 @@ class cGenericEditAreaDlg2(wxgGenericEditAreaDlg2.wxgGenericEditAreaDlg2):
 			return
 		self._TCTRL_status.SetValue(msg)
 		return
+
 	#--------------------------------------------------------
 	def _adjust_clear_revert_buttons(self):
 		if self._PNL_ea.data is None:
