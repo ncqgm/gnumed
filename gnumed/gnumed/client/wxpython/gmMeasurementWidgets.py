@@ -3143,6 +3143,7 @@ def manage_measurement_types(parent=None):
 
 		dlg.Destroy()
 		return False
+
 	#------------------------------------------------------------
 	def delete(measurement_type):
 		if measurement_type.in_use:
@@ -3154,13 +3155,56 @@ def manage_measurement_types(parent=None):
 			return False
 		gmPathLab.delete_measurement_type(measurement_type = measurement_type['pk_test_type'])
 		return True
+
 	#------------------------------------------------------------
 	def get_tooltip(test_type):
 		return test_type.format()
+
 	#------------------------------------------------------------
 	def manage_aggregates(test_type):
 		manage_meta_test_types(parent = parent)
 		return False
+
+	#------------------------------------------------------------
+	def manage_panels_of_type(test_type):
+		if test_type['loinc'] is None:
+			return False
+		all_panels = gmPathLab.get_test_panels(order_by = 'description')
+		curr_panels = test_type.test_panels
+		if curr_panels is None:
+			curr_panels = []
+		panel_candidates = [ p for p in all_panels if p['pk_test_panel'] not in [
+			c_pnl['pk_test_panel'] for c_pnl in curr_panels
+		] ]
+		picker = gmListWidgets.cItemPickerDlg(parent, -1, title = 'Panels with [%s]' % test_type['abbrev'])
+		picker.set_columns(['Panels available'], ['Panels [%s] is to be on' % test_type['abbrev']])
+		picker.set_choices (
+			choices = [ u'%s (%s)' % (c['description'], gmTools.coalesce(c['comment'], '')) for c in panel_candidates ],
+			data = panel_candidates
+		)
+		picker.set_picks (
+			picks = [ u'%s (%s)' % (c['description'], gmTools.coalesce(c['comment'], '')) for c in curr_panels ],
+			data = curr_panels
+		)
+		exit_type = picker.ShowModal()
+		if exit_type == wx.ID_CANCEL:
+			return False
+
+		# add picked panels which aren't currently in the panel list
+		panels2add = [ p for p in picker.picks if p['pk_test_panel'] not in [
+			c_pnl['pk_test_panel'] for c_pnl in curr_panels
+		] ]
+		# remove unpicked panels off the current panel list
+		panels2remove = [ p for p in curr_panels if p['pk_test_panel'] not in [
+			picked_pnl['pk_test_panel'] for picked_pnl in picker.picks
+		] ]
+		for new_panel in panels2add:
+			new_panel.add_loinc(test_type['loinc'])
+		for stale_panel in panels2remove:
+			stale_panel.remove_loinc(test_type['loinc'])
+
+		return True
+
 	#------------------------------------------------------------
 	def refresh(lctrl):
 		mtypes = gmPathLab.get_measurement_types(order_by = 'name, abbrev')
@@ -3176,17 +3220,11 @@ def manage_measurement_types(parent=None):
 		] for m in mtypes ]
 		lctrl.set_string_items(items)
 		lctrl.set_data(mtypes)
-	#------------------------------------------------------------
-	msg = _(
-		'\n'
-		'These are the measurement types currently defined in GNUmed.\n'
-		'\n'
-	)
 
+	#------------------------------------------------------------
 	gmListWidgets.get_choices_from_list (
 		parent = parent,
-		msg = msg,
-		caption = _('Showing measurement types.'),
+		caption = _('Measurement types.'),
 		columns = [ _('Abbrev'), _('Name'), _('Unit'), _('LOINC'), _('Comment'), _('Org'), _('Comment'), '#' ],
 		single_selection = True,
 		refresh_callback = refresh,
@@ -3194,7 +3232,8 @@ def manage_measurement_types(parent=None):
 		new_callback = edit,
 		delete_callback = delete,
 		list_tooltip_callback = get_tooltip,
-		left_extra_button = (_('%s &Aggregate') % gmTools.u_sum, _('Manage aggregations (%s) of tests into groups.') % gmTools.u_sum, manage_aggregates)
+		left_extra_button = (_('%s &Aggregate') % gmTools.u_sum, _('Manage aggregations (%s) of tests into groups.') % gmTools.u_sum, manage_aggregates),
+		middle_extra_button = (_('Select panels'), _('Select panels the focussed test type is to belong to.'), manage_panels_of_type)
 	)
 
 #----------------------------------------------------------------
@@ -3329,6 +3368,7 @@ limit 50"""
 			return
 
 		self._PRW_reference_unit.set_context(context = 'test_name', val = test)
+
 	#----------------------------------------------------------------
 	def _on_loinc_lost_focus(self):
 		loinc = self._PRW_loinc.GetData()
@@ -3362,6 +3402,7 @@ limit 50"""
 			field.Refresh()
 
 		return (not has_errors)
+
 	#----------------------------------------------------------------
 	def _save_as_new(self):
 

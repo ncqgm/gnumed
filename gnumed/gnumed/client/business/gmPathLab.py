@@ -291,6 +291,31 @@ class cTestPanel(gmBusinessDBObject.cBusinessDBObject):
 		return [ cMeasurementType(row = {'pk_field': 'pk_test_type', 'idx': idx, 'data': r}) for r in rows ]
 
 	#--------------------------------------------------------
+	def add_loinc(self, loinc):
+		if self._payload[self._idx['loincs']] is not None:
+			if loinc in self._payload[self._idx['loincs']]:
+				return
+		gmPG2.run_rw_queries(queries = [{
+			'cmd': 'INSERT INTO clin.lnk_loinc2test_panel (fk_test_panel, loinc) VALUES (%(pk_pnl)s, %(loinc)s)',
+			'args': {'loinc': loinc, 'pk_pnl': self._payload[self._idx['pk_test_panel']]}
+		}])
+		return
+
+	#--------------------------------------------------------
+	def remove_loinc(self, loinc):
+		if self._payload[self._idx['loincs']] is None:
+			return
+		if loinc not in self._payload[self._idx['loincs']]:
+			return
+		gmPG2.run_rw_queries(queries = [{
+			'cmd': 'DELETE FROM clin.lnk_loinc2test_panel WHERE fk_test_panel = %(pk_pnl)s AND loinc = %(loinc)s',
+			'args': {'loinc': loinc, 'pk_pnl': self._payload[self._idx['pk_test_panel']]}
+		}])
+		return
+
+	#--------------------------------------------------------
+	# properties
+	#--------------------------------------------------------
 	def _get_included_loincs(self):
 		return self._payload[self._idx['loincs']]
 
@@ -317,8 +342,6 @@ class cTestPanel(gmBusinessDBObject.cBusinessDBObject):
 
 	included_loincs = property(_get_included_loincs, _set_included_loincs)
 
-	#--------------------------------------------------------
-	# properties
 	#--------------------------------------------------------
 	def _get_test_types(self):
 		if len(self._payload[self._idx['test_types']]) == 0:
