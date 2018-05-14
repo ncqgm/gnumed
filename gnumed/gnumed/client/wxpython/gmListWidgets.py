@@ -1073,12 +1073,13 @@ class cItemPickerDlg(wxgItemPickerDlg.wxgItemPickerDlg):
 		self._LCTRL_left.set_columns(columns = columns)
 		if columns_right is None:
 			self._LCTRL_right.set_columns(columns = columns)
+			return
+
+		if len(columns_right) < len(columns):
+			cols = columns
 		else:
-			if len(columns_right) < len(columns):
-				cols = columns
-			else:
-				cols = columns_right[:len(columns)]
-			self._LCTRL_right.set_columns(columns = cols)
+			cols = columns_right[:len(columns)]
+		self._LCTRL_right.set_columns(columns = cols)
 
 	#------------------------------------------------------------
 	def set_string_items(self, items=None, reshow=True):
@@ -1109,11 +1110,13 @@ class cItemPickerDlg(wxgItemPickerDlg.wxgItemPickerDlg):
 	#------------------------------------------------------------
 	def set_data(self, data = None):
 		self._LCTRL_left.set_data(data = data)
+
 	#------------------------------------------------------------
 	def get_picks(self):
 		return self._LCTRL_right.get_item_data()
 
 	picks = property(get_picks, lambda x:x)
+
 	#------------------------------------------------------------
 	def _set_extra_button(self, definition):
 		if definition is None:
@@ -1132,6 +1135,7 @@ class cItemPickerDlg(wxgItemPickerDlg.wxgItemPickerDlg):
 		self._BTN_extra.Show()
 
 	extra_button = property(lambda x:x, _set_extra_button)
+
 	#------------------------------------------------------------
 	# internal helpers
 	#------------------------------------------------------------
