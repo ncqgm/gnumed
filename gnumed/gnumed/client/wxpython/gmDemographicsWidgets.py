@@ -887,7 +887,7 @@ def _empty_dob_allowed():
 def _validate_dob_field(dob_prw):
 
 	# valid timestamp ?
-	if dob_prw.is_valid_timestamp(allow_empty = False):			# properly colors the field
+	if dob_prw.is_valid_timestamp(empty_is_valid = False):			# properly colors the field
 		dob = dob_prw.date
 		# but year also usable ?
 		if (dob.year > 1899) and (dob < gmDateTime.pydt_now_here()):
@@ -996,7 +996,7 @@ class cIdentityEAPnl(wxgIdentityEAPnl.wxgIdentityEAPnl, gmEditArea.cGenericEditA
 			has_error = True
 			self.display_ctrl_as_valid(ctrl = self._TCTRL_tob, valid = False)
 
-		if not self._PRW_dod.is_valid_timestamp(allow_empty = True):
+		if not self._PRW_dod.is_valid_timestamp(empty_is_valid = True):
 			gmDispatcher.send(signal = 'statustext', msg = _('Invalid date of death.'))
 			self._PRW_dod.SetFocus()
 			has_error = True

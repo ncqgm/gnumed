@@ -959,7 +959,7 @@ class cBillEAPnl(wxgBillEAPnl.wxgBillEAPnl, gmEditArea.cGenericEditAreaMixin):
 		validity = True
 
 		# flag but do not count as wrong
-		if not self._PRW_close_date.is_valid_timestamp(allow_empty = False):
+		if not self._PRW_close_date.is_valid_timestamp(empty_is_valid = False):
 			self._PRW_close_date.SetFocus()
 
 		# flag but do not count as wrong
@@ -1373,7 +1373,7 @@ class cBillItemEAPnl(wxgBillItemEAPnl.wxgBillItemEAPnl, gmEditArea.cGenericEditA
 			else:
 				self.display_tctrl_as_valid(tctrl = self._TCTRL_count, valid = True)
 
-		if self._PRW_date.is_valid_timestamp(allow_empty = True):
+		if self._PRW_date.is_valid_timestamp(empty_is_valid = True):
 			self._PRW_date.display_as_valid(True)
 		else:
 			validity = False

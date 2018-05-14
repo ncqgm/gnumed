@@ -200,6 +200,7 @@ class cCalendarDatePickerDlg(wx.Dialog):
 		cal.Bind(wx.EVT_KEY_DOWN, self.__on_key_down)
 		cal.SetFocus()
 		self.cal = cal
+
 	#-----------------------------------------------------------
 	def __on_key_down(self, evt):
 		code = evt.KeyCode
@@ -320,6 +321,9 @@ class cDateInputPhraseWheel(gmPhraseWheel.cPhraseWheel):
 		self.phrase_separators = None
 
 		self.static_tooltip_extra = _('<ALT-C/K>: pick from (c/k)alendar')
+
+		self.__weekday_keys = [wx.WXK_F1, wx.WXK_F2, wx.WXK_F3, wx.WXK_F4, wx.WXK_F5, wx.WXK_F6, wx.WXK_F7]
+
 	#--------------------------------------------------------
 	# internal helpers
 	#--------------------------------------------------------
@@ -359,6 +363,13 @@ class cDateInputPhraseWheel(gmPhraseWheel.cPhraseWheel):
 		self.SetText(value = val, data = date, suppress_smarts = True)
 
 	#--------------------------------------------------------
+	def __pick_from_weekday(self, weekday):
+		self.is_valid_timestamp(empty_is_valid = True)
+		target_date = gmDateTime.get_date_of_weekday_in_week_of_date(weekday, base_dt = self.date)
+		val = gmDateTime.pydt_strftime(target_date, format = '%Y-%m-%d', accuracy = gmDateTime.acc_days)
+		self.SetText(value = val, data = target_date, suppress_smarts = True)
+
+	#--------------------------------------------------------
 	# phrasewheel internal API
 	#--------------------------------------------------------
 	def _on_lose_focus(self, event):
@@ -382,6 +393,12 @@ class cDateInputPhraseWheel(gmPhraseWheel.cPhraseWheel):
 	#--------------------------------------------------------
 	def _on_key_down(self, event):
 
+		if event.GetUnicodeKey() == wx.WXK_NONE:
+			key = event.GetKeyCode()
+			if key in self.__weekday_keys:
+				self.__pick_from_weekday(self.__weekday_keys.index(key))
+				return
+
 		# <ALT-C> / <ALT-K> -> calendar
 		if event.AltDown() is True:
 			char = chr(event.GetUnicodeKey())
@@ -389,7 +406,7 @@ class cDateInputPhraseWheel(gmPhraseWheel.cPhraseWheel):
 				self.__pick_from_calendar()
 				return
 
-		super(cDateInputPhraseWheel, self)._on_key_down(event)
+		super()._on_key_down(event)
 
 	#--------------------------------------------------------
 	def _get_data_tooltip(self):
@@ -402,10 +419,17 @@ class cDateInputPhraseWheel(gmPhraseWheel.cPhraseWheel):
 		if date is None:
 			return ''
 
-		return gmDateTime.pydt_strftime (
-			date,
-			format = '%A, %d. %B %Y (%x)',
-			accuracy = gmDateTime.acc_days
+		now = gmDateTime.pydt_now_here()
+		if date > now:
+			intv = date - now
+			template = _('%s\n (a %s in %s)')
+		else:
+			intv = now - date
+			template = _('%s\n (a %s %s ago)')
+		return template % (
+			gmDateTime.pydt_strftime(date, format = '%B %d %Y -- %c', accuracy = gmDateTime.acc_days),
+			gmDateTime.pydt_strftime(date, format = '%A', accuracy = gmDateTime.acc_days),
+			gmDateTime.format_interval(interval = intv, accuracy_wanted = gmDateTime.acc_days, verbose = True)
 		)
 
 	#--------------------------------------------------------
@@ -426,7 +450,7 @@ class cDateInputPhraseWheel(gmPhraseWheel.cPhraseWheel):
 		if value is None:
 			value = ''
 
-		super(self.__class__, self).SetValue(value)
+		super().SetValue(value)
 
 	#--------------------------------------------------------
 	def SetText(self, value='', data=None, suppress_smarts=False):
@@ -442,7 +466,7 @@ class cDateInputPhraseWheel(gmPhraseWheel.cPhraseWheel):
 			if value.strip() == '':
 				value = gmDateTime.pydt_strftime(data, format = '%Y-%m-%d', accuracy = gmDateTime.acc_days)
 
-		super(self.__class__, self).SetText(value = value, data = data, suppress_smarts = suppress_smarts)
+		super().SetText(value = value, data = data, suppress_smarts = suppress_smarts)
 
 	#--------------------------------------------------------
 	def SetData(self, data=None):
@@ -459,13 +483,13 @@ class cDateInputPhraseWheel(gmPhraseWheel.cPhraseWheel):
 		return super(self.__class__, self).GetData()
 
 	#--------------------------------------------------------
-	def is_valid_timestamp(self, allow_empty=True):
+	def is_valid_timestamp(self, empty_is_valid=True):
 		if len(self._data) > 0:
 			self.display_as_valid(True)
 			return True
 
 		if self.GetValue().strip() == '':
-			if allow_empty:
+			if empty_is_valid:
 				self.display_as_valid(True)
 				return True
 			else:
@@ -572,6 +596,8 @@ class cFuzzyTimestampInput(gmPhraseWheel.cPhraseWheel):
 		self.selection_only_error_msg = _('Cannot interpret input as timestamp.')
 		self.display_accuracy = None
 
+		self.__weekday_keys = [wx.WXK_F1, wx.WXK_F2, wx.WXK_F3, wx.WXK_F4, wx.WXK_F5, wx.WXK_F6, wx.WXK_F7]
+
 	#--------------------------------------------------------
 	# internal helpers
 	#--------------------------------------------------------
@@ -585,6 +611,15 @@ class cFuzzyTimestampInput(gmPhraseWheel.cPhraseWheel):
 		if len(matches) == 1:
 			return matches[0]['data']
 		return None
+
+	#--------------------------------------------------------
+	def __pick_from_weekday(self, weekday):
+		self.is_valid_timestamp(empty_is_valid = True)
+		dt = self.GetData()
+		if dt is not None:
+			dt = dt.timestamp
+		target_date = gmDateTime.get_date_of_weekday_in_week_of_date(weekday, base_dt = dt)
+		self.SetText(data = target_date, suppress_smarts = True)
 
 	#--------------------------------------------------------
 	# phrasewheel internal API
@@ -609,17 +644,67 @@ class cFuzzyTimestampInput(gmPhraseWheel.cPhraseWheel):
 		return item['field_label']
 
 	#--------------------------------------------------------
+	def _on_key_down(self, event):
+
+		if event.GetUnicodeKey() == wx.WXK_NONE:
+			key = event.GetKeyCode()
+			if key in self.__weekday_keys:
+				self.__pick_from_weekday(self.__weekday_keys.index(key))
+				return
+
+#		# <ALT-C> / <ALT-K> -> calendar
+#		if event.AltDown() is True:
+#			char = chr(event.GetUnicodeKey())
+#			if char in 'ckCK':
+#				self.__pick_from_calendar()
+#				return
+
+		super()._on_key_down(event)
+
+	#--------------------------------------------------------
+	def _get_data_tooltip(self):
+		if len(self._data) == 0:
+			return ''
+
+		date = self.GetData()
+		# if match provider only provided completions
+		# but not a full date with it
+		if date is None:
+			return ''
+		ts = date.timestamp
+		now = gmDateTime.pydt_now_here()
+		if ts > now:
+			intv = ts - now
+			template = _('%s\n %s\n in %s')
+		else:
+			intv = now - ts
+			template = _('%s\n%s\n%s ago')
+		txt = template % (
+			date.format_accurately(self.display_accuracy),
+			gmDateTime.pydt_strftime (
+				ts,
+				format = '%A, %B-%d %Y (%c)',
+			),
+			gmDateTime.format_interval (
+				interval = intv,
+				accuracy_wanted = gmDateTime.acc_days,
+				verbose = True
+			)
+		)
+		return txt
+
+	#--------------------------------------------------------
 	# external API
 	#--------------------------------------------------------
 	def SetText(self, value='', data=None, suppress_smarts=False):
 
 		if data is not None:
 			if isinstance(data, pyDT.datetime):
-				data = gmDateTime.cFuzzyTimestamp(timestamp=data)
+				data = gmDateTime.cFuzzyTimestamp(timestamp = data)
 			if value.strip() == '':
 				value = data.format_accurately(accuracy = self.display_accuracy)
 
-		gmPhraseWheel.cPhraseWheel.SetText(self, value = value, data = data, suppress_smarts = suppress_smarts)
+		super().SetText(value = value, data = data, suppress_smarts = suppress_smarts)
 
 	#--------------------------------------------------------
 	def SetData(self, data=None):

@@ -136,7 +136,7 @@ class cSubstanceAbuseEAPnl(wxgSubstanceAbuseEAPnl.wxgSubstanceAbuseEAPnl, gmEdit
 	def _valid_for_save(self):
 		validity = True
 
-		if not self._DPRW_quit_when.is_valid_timestamp(allow_empty = True):
+		if not self._DPRW_quit_when.is_valid_timestamp(empty_is_valid = True):
 			validity = False
 			self._DPRW_quit_when.SetFocus()
 
@@ -183,7 +183,7 @@ class cSubstanceAbuseEAPnl(wxgSubstanceAbuseEAPnl.wxgSubstanceAbuseEAPnl, gmEdit
 		elif self._RBTN_previously_addicted.GetValue() is True:
 			intake['harmful_use_type'] = 3
 		intake['notes'] = self._TCTRL_comment.GetValue().strip()
-		if self._DPRW_quit_when.is_valid_timestamp(allow_empty = False):
+		if self._DPRW_quit_when.is_valid_timestamp(empty_is_valid = False):
 			intake['discontinued'] = self._DPRW_quit_when.date
 		intake.save()
 
@@ -203,7 +203,7 @@ class cSubstanceAbuseEAPnl(wxgSubstanceAbuseEAPnl.wxgSubstanceAbuseEAPnl, gmEdit
 		elif self._RBTN_previously_addicted.GetValue() is True:
 			self.data['harmful_use_type'] = 3
 		self.data['notes'] = self._TCTRL_comment.GetValue().strip()
-		if self._DPRW_quit_when.is_valid_timestamp(allow_empty = False):
+		if self._DPRW_quit_when.is_valid_timestamp(empty_is_valid = False):
 			self.data['discontinued'] = self._DPRW_quit_when.date
 		if self._CHBOX_confirm.GetValue() is True:
 			self.data['pk_encounter'] = self.__patient.emr.active_encounter['pk_encounter']

@@ -245,6 +245,7 @@ def run_command_in_shell(command=None, blocking=False, acceptable_return_codes=N
 			_log.debug('platform does not support os.WTERMSIG()')
 
 	return exited_normally
+
 #===========================================================================
 def run_first_available_in_shell(binaries=None, args=None, blocking=False, run_last_one_anyway=False, acceptable_return_codes=None):
 
@@ -259,6 +260,7 @@ def run_first_available_in_shell(binaries=None, args=None, blocking=False, run_l
 			return False
 
 	return run_command_in_shell(command = '%s %s' % (binary, args), blocking = blocking, acceptable_return_codes = acceptable_return_codes)
+
 #===========================================================================
 # main
 #---------------------------------------------------------------------------

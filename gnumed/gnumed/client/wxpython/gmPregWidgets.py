@@ -108,7 +108,7 @@ class cEdcCalculatorDlg(wxgEdcCalculatorDlg.wxgEdcCalculatorDlg):
 		event.Skip()
 		if self.__calc.patient is None:
 			return False
-		if self._PRW_edc.is_valid_timestamp(allow_empty = True):
+		if self._PRW_edc.is_valid_timestamp(empty_is_valid = True):
 			self.EndModal(wx.ID_SAVE)
 			return True
 		return False

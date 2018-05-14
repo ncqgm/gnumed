@@ -211,21 +211,21 @@ def get_last_month(dt):
 	return last_month
 
 #---------------------------------------------------------------------------
-def get_date_of_weekday_in_week_of_date(weekday, dt=None):
+def get_date_of_weekday_in_week_of_date(weekday, base_dt=None):
 	# weekday:
 	# 0 = Sunday
 	# 1 = Monday ...
 	if weekday not in [0,1,2,3,4,5,6,7]:
 		raise ValueError('weekday must be in 0 (Sunday) to 7 (Sunday, again)')
-	if dt is None:
-		dt = pydt_now_here()
-	dt_weekday = dt.isoweekday()		# 1 = Mon
+	if base_dt is None:
+		base_dt = pydt_now_here()
+	dt_weekday = base_dt.isoweekday()		# 1 = Mon
 	day_diff = dt_weekday - weekday
 	days2add = (-1 * day_diff)
-	return pydt_add(dt, days = days2add)
+	return pydt_add(base_dt, days = days2add)
 
 #---------------------------------------------------------------------------
-def get_date_of_weekday_following_date(weekday, dt=None):
+def get_date_of_weekday_following_date(weekday, base_dt=None):
 	# weekday:
 	# 0 = Sunday		# will be wrapped to 7
 	# 1 = Monday ...
@@ -233,15 +233,15 @@ def get_date_of_weekday_following_date(weekday, dt=None):
 		raise ValueError('weekday must be in 0 (Sunday) to 7 (Sunday, again)')
 	if weekday == 0:
 		weekday = 7
-	if dt is None:
-		dt = pydt_now_here()
-	dt_weekday = dt.isoweekday()		# 1 = Mon
+	if base_dt is None:
+		base_dt = pydt_now_here()
+	dt_weekday = base_dt.isoweekday()		# 1 = Mon
 	days2add = weekday - dt_weekday
 	if days2add == 0:
 		days2add = 7
 	elif days2add < 0:
 		days2add += 7
-	return pydt_add(dt, days = days2add)
+	return pydt_add(base_dt, days = days2add)
 
 #===========================================================================
 # mxDateTime conversions
@@ -2045,25 +2045,25 @@ class cFuzzyTimestamp:
 			return str(self.timestamp.year)
 
 		if accuracy == acc_months:
-			return str(self.timestamp.strftime('%m/%Y'))	# FIXME: use 3-letter month ?
+			return self.timestamp.strftime('%m/%Y')	# FIXME: use 3-letter month ?
 
 		if accuracy == acc_weeks:
-			return str(self.timestamp.strftime('%m/%Y'))	# FIXME: use 3-letter month ?
+			return self.timestamp.strftime('%m/%Y')	# FIXME: use 3-letter month ?
 
 		if accuracy == acc_days:
-			return str(self.timestamp.strftime('%Y-%m-%d'))
+			return self.timestamp.strftime('%Y-%m-%d')
 
 		if accuracy == acc_hours:
-			return str(self.timestamp.strftime("%Y-%m-%d %I%p"))
+			return self.timestamp.strftime("%Y-%m-%d %I%p")
 
 		if accuracy == acc_minutes:
-			return str(self.timestamp.strftime("%Y-%m-%d %H:%M"))
+			return self.timestamp.strftime("%Y-%m-%d %H:%M")
 
 		if accuracy == acc_seconds:
-			return str(self.timestamp.strftime("%Y-%m-%d %H:%M:%S"))
+			return self.timestamp.strftime("%Y-%m-%d %H:%M:%S")
 
 		if accuracy == acc_subseconds:
-			return str(self.timestamp)
+			return self.timestamp.strftime("%Y-%m-%d %H:%M:%S.%f")
 
 		raise ValueError('%s.format_accurately(): <accuracy> (%s) must be between 1 and 7' % (
 			self.__class__.__name__,
@@ -2333,13 +2333,12 @@ if __name__ == '__main__':
 	#-------------------------------------------------
 	def test_get_date_of_weekday_in_week_of_date():
 		dt = pydt_now_here()
-		print('weekday', dt.isoweekday(), '(2day):', dt)
+		print('weekday', base_dt.isoweekday(), '(2day):', dt)
 		for weekday in range(8):
 			dt = get_date_of_weekday_in_week_of_date(weekday)
 			print('weekday', weekday, '(same):', dt)
 			dt = get_date_of_weekday_following_date(weekday)
 			print('weekday', weekday, '(next):', dt)
-
 		try:
 			get_date_of_weekday_in_week_of_date(8)
 		except ValueError as exc:

@@ -260,6 +260,7 @@ class gmPaths(gmBorg.cBorg):
 
 		self.init_paths(app_name=app_name, wx=wx)
 		self.already_inited = True
+
 	#--------------------------------------
 	# public API
 	#--------------------------------------
@@ -319,14 +320,15 @@ class gmPaths(gmBorg.cBorg):
 			self.__tmp_dir_already_set
 			_log.debug('temp dir already set')
 		except AttributeError:
+			_log.info('temp file prefix: %s', tempfile.gettempprefix())
 			_log.info('initial (user level) temp dir: %s', tempfile.gettempdir())
 			# $TMP/gnumed-$USER/
-			self.user_tmp_dir = os.path.join(tempfile.gettempdir(), app_name + r'-' + getpass.getuser())
+			self.user_tmp_dir = os.path.join(tempfile.gettempdir(), app_name + '-' + getpass.getuser())
 			mkdir(self.user_tmp_dir, 0o700)
 			tempfile.tempdir = self.user_tmp_dir
 			_log.info('intermediate (app level) temp dir: %s', tempfile.gettempdir())
 			# $TMP/gnumed-$USER/g$UNIQUE/
-			self.tmp_dir = tempfile.mkdtemp(prefix = r'g')
+			self.tmp_dir = tempfile.mkdtemp(prefix = 'g-')
 			_log.info('final (app instance level) temp dir: %s', tempfile.gettempdir())
 
 		self.__log_paths()
@@ -451,6 +453,7 @@ class gmPaths(gmBorg.cBorg):
 		return self.__home_dir
 
 	home_dir = property(_get_home_dir, _set_home_dir)
+
 	#--------------------------------------
 	def _set_tmp_dir(self, path):
 		if not (os.access(path, os.R_OK) and os.access(path, os.X_OK)):
@@ -729,7 +732,7 @@ def get_unique_filename(prefix=None, suffix=None, tmp_dir=None, include_timestam
 	}
 
 	if prefix is None:
-		kwargs['prefix'] = 'gmd-%s' % ts
+		kwargs['prefix'] = 'gm-%s' % ts
 	else:
 		kwargs['prefix'] = prefix + ts
 

@@ -159,14 +159,14 @@ class cInboxMessageEAPnl(wxgInboxMessageEAPnl.wxgInboxMessageEAPnl, gmEditArea.c
 			self.display_ctrl_as_valid(ctrl = self._CHBOX_active_patient, valid = True)
 			self.display_ctrl_as_valid(ctrl = self._PRW_patient, valid = True)
 
-		if self._PRW_due.is_valid_timestamp(allow_empty = True):
+		if self._PRW_due.is_valid_timestamp(empty_is_valid = True):
 			self._PRW_due.display_as_valid(True)
 		else:
 			# non-empty but also not valid
 			validity = False
 			self._PRW_due.display_as_valid(False)
 
-		if self._PRW_expiry.is_valid_timestamp(allow_empty = True):
+		if self._PRW_expiry.is_valid_timestamp(empty_is_valid = True):
 			self._PRW_expiry.display_as_valid(True)
 		else:
 			# non-empty but also not valid
@@ -174,9 +174,9 @@ class cInboxMessageEAPnl(wxgInboxMessageEAPnl.wxgInboxMessageEAPnl, gmEditArea.c
 			self._PRW_expiry.display_as_valid(False)
 
 		# if .due is not empty AND valid
-		if self._PRW_due.is_valid_timestamp(allow_empty = False):
+		if self._PRW_due.is_valid_timestamp(empty_is_valid = False):
 			# and if .expiry is ALSO not empty AND valid
-			if self._PRW_expiry.is_valid_timestamp(allow_empty = False):
+			if self._PRW_expiry.is_valid_timestamp(empty_is_valid = False):
 				# only then compare .due and .expiry
 				if not self._PRW_expiry.date > self._PRW_due.date:
 					validity = False
