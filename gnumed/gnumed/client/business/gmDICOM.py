@@ -72,7 +72,7 @@ class cOrthancServer:
 		self.__password = password
 		_log.info('connecting as [%s] to Orthanc server at [%s]', self.__user, self.__server_url)
 		cache_dir = os.path.join(gmTools.gmPaths().user_tmp_dir, '.orthanc2gm-cache')
-		gmTools.mkdir(cache_dir)
+		gmTools.mkdir(cache_dir, 0o700)
 		_log.debug('using cache directory: %s', cache_dir)
 		self.__conn = httplib2.Http(cache = cache_dir)
 		self.__conn.add_credentials(self.__user, self.__password)
@@ -795,6 +795,7 @@ class cOrthancServer:
 					'requesting_doc': None,
 					'radiology_org': None,
 					'operator_name': None,
+					'radiographer_code': None,
 					'series': []
 				}
 				try:
@@ -819,6 +820,10 @@ class cOrthancServer:
 					pass
 				try:
 					study_dict['radiology_org'] = orth_study['MainDicomTags']['InstitutionName'].strip()
+				except KeyError:
+					pass
+				try:
+					study_dict['station_name'] = orth_study['MainDicomTags']['StationName'].strip()
 				except KeyError:
 					pass
 				for key in study_dict:
@@ -866,7 +871,8 @@ class cOrthancServer:
 						'protocol': None,
 						'performed_procedure_step_description': None,
 						'acquisition_device_processing_description': None,
-						'operator_name': None
+						'operator_name': None,
+						'radiographer_code': None
 					}
 					try:
 						series_dict['modality'] = orth_series['MainDicomTags']['Modality'].strip()
@@ -904,6 +910,10 @@ class cOrthancServer:
 						series_dict['operator_name'] = orth_series['MainDicomTags']['OperatorsName'].strip()
 					except KeyError:
 						pass
+					try:
+						series_dict['radiographer_code'] = orth_series['MainDicomTags']['RadiographersCode'].strip()
+					except KeyError:
+						pass
 					for key in series_dict:
 						if series_dict[key] in ['unknown', '(null)', '']:
 							series_dict[key] = None
@@ -939,7 +949,8 @@ class cOrthancServer:
 					for key in series_keys2hide:
 						try: del series_dict['all_tags'][key]
 						except KeyError: pass
-					study_dict['operator_name'] = series_dict['operator_name']		# will collapse all operators into that of the last series
+					study_dict['operator_name'] = series_dict['operator_name']			# will collapse all operators into that of the last series
+					study_dict['radiographer_code'] = series_dict['radiographer_code']	# will collapse all operators into that of the last series
 					study_dict['series'].append(series_dict)
 
 		return studies_by_patient
@@ -1333,8 +1344,8 @@ if __name__ == "__main__":
 		#print(orthanc.get_instance_dicom_tags(instance_id, simplified = True))
 
 	#--------------------------------------------------------
-	run_console()
+	#run_console()
 	#test_modify_patient_id()
 	#test_upload_files()
 	#test_get_instance_preview()
-	#test_get_instance_tags()
+	test_get_instance_tags()

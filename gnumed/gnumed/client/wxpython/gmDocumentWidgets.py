@@ -3107,6 +3107,9 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 					if study['operator_name'] is not None:
 						if study['operator_name'] not in docs:
 							docs.append(study['operator_name'])
+					if study['radiographer_code'] is not None:
+						if study['radiographer_code'] not in docs:
+							docs.append(study['radiographer_code'])
 					study_list_items.append( [
 						'%s-%s-%s' % (
 							study['date'][:4],
@@ -3117,7 +3120,10 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 							len(study['series']),
 							gmTools.coalesce(study['description'], '', ': %s')
 						),
-						gmTools.coalesce(study['radiology_org'], ''),
+						gmTools.coalesce (
+							study['radiology_org'],
+							gmTools.coalesce(study['station_name'], '')
+						),
 						gmTools.u_arrow2right.join(docs)
 					] )
 					study_list_data.append(study)
