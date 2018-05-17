@@ -78,26 +78,15 @@ def soap_cats2list(soap_cats):
 
 #============================================================
 def are_valid_soap_cats(soap_cats, allow_upper=True):
-
-	for cat in KNOWN_SOAP_CATS:
-		try:
-			while True: soap_cats.remove(cat)
-		except ValueError:
-			pass
-
-	if allow_upper:
-		for cat in KNOWN_SOAP_CATS:
-			if cat is None:
-				continue
-			try:
-				while True: soap_cats.remove(cat.upper())
-			except ValueError:
-				pass
-
-	if len(soap_cats) == 0:
-		return True
-
-	return False
+	for cat2test in soap_cats:
+		if cat2test in KNOWN_SOAP_CATS:
+			continue
+		if not allow_upper:
+			return False
+		if cat2test.upper() in KNOWN_SOAP_CATS:
+			continue
+		return False
+	return True
 
 #============================================================
 def normalize_soap_cat(soap_cat):

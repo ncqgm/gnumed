@@ -309,14 +309,11 @@ class cSoapSTC(cUnicodeInsertion_TextCtrlMixin, gmKeywordExpansionWidgets.cKeywo
 				soap[cat]
 			except KeyError:
 				soap[cat] = ['']
-		try:
-			soap['u']
-		except KeyError:
-			soap['u'] = []
-		try:
-			soap[None]
-		except KeyError:
-			soap[None] = []
+		for cat in ['u', None]:
+			try:
+				soap[cat]
+			except KeyError:
+				soap[cat] = []
 		if '.' in soap:
 			soap[None].extend(soap['.'])
 			del soap['.']
@@ -346,7 +343,6 @@ class cSoapSTC(cUnicodeInsertion_TextCtrlMixin, gmKeywordExpansionWidgets.cKeywo
 		self.SetText('\n'.join(soap_lines))
 
 		for idx in range(len(line_categories)):
-			#self.set_soap_cat_of_line(idx, line_categories[idx], unconditionally = True)
 			self.set_soap_cat_of_line(idx, line_categories[idx])
 
 	#-------------------------------------------------------
@@ -355,6 +351,8 @@ class cSoapSTC(cUnicodeInsertion_TextCtrlMixin, gmKeywordExpansionWidgets.cKeywo
 		soap = {}
 		for line_idx in range(len(lines)):
 			cat = self.get_soap_cat_of_line(line_idx)
+			if cat == -1:
+				cat = 'u'
 			try:
 				soap[cat]
 			except KeyError:
@@ -383,7 +381,6 @@ class cSoapSTC(cUnicodeInsertion_TextCtrlMixin, gmKeywordExpansionWidgets.cKeywo
 		caret_pos = self.CurrentPos
 		self.GotoPos(self.Length)
 		self.AddText('\n')
-		#self.set_soap_cat_of_line(self.LineCount, soap_cat, True)
 		self.set_soap_cat_of_line(self.LineCount, soap_cat)
 
 	#-------------------------------------------------------
@@ -621,37 +618,16 @@ class cSoapSTC(cUnicodeInsertion_TextCtrlMixin, gmKeywordExpansionWidgets.cKeywo
 		return -1		# should only happen when deleting all lines -> STC empties out INCLUDING existing markers ...
 
 	#-------------------------------------------------------
-#	def set_soap_cat_of_line(self, line, soap_category, unconditionally=False):
 	def set_soap_cat_of_line(self, line, soap_category):
-
-		readd_soap_line = False
-		prev_soap_cat = '-'
-#		if not unconditionally:
-		if True:
-			# need to keep at least one of previous SOAP
-			prev_soap_marker = self.get_soap_marker_of_line(line)
-			if prev_soap_marker != -1:
-				if self.marker_count(prev_soap_marker) < 2:
-					prev_soap_cat = cSoapSTC._MARKER2SOAP[prev_soap_marker]
-					readd_soap_line = True
-#				return False
-
 		# remove all SOAP markers of this line
 		for marker_num in cSoapSTC._SOAP_MARKER_NUMS:
 			self.MarkerDelete(line, marker_num)
 		self.MarkerDelete(line, cSoapSTC._MARKER_LINE_BG_LIGHT_GREY)
-
+		# set desired marker
 		new_marker_num = cSoapSTC._SOAP2MARKER[soap_category]
 		self.MarkerAdd(line, new_marker_num)
 		if cSoapSTC._SOAPMARKER2BACKGROUND[new_marker_num]:
 			self.MarkerAdd(line, cSoapSTC._MARKER_LINE_BG_LIGHT_GREY)
-
-		# for some reason the marker is now set but the change is not always displayed ?
-		# -> this happens if wx.CallAfter is used on this method
-
-		if readd_soap_line:
-			wx.CallAfter(self.append_soap_line, prev_soap_cat)
-
 		return True
 
 	#-------------------------------------------------------
@@ -874,7 +850,7 @@ class cSoapSTC(cUnicodeInsertion_TextCtrlMixin, gmKeywordExpansionWidgets.cKeywo
 
 		# CTRL-T has been pressed last, now another character has been pressed
 		if self.__changing_SOAP_cat:
-			self.__handle_soap_category_key_down(chr(evt.GetUniChar()).lower(), self.CurrentLine)
+			self.__handle_soap_category_key_down(chr(evt.GetUnicodeKey()).lower(), self.CurrentLine)
 			# somehow put cursor into the changed (and possibly moved) line
 			return
 
