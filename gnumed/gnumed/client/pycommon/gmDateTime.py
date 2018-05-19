@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 __doc__ = """
 GNUmed date/time handling.
 
@@ -47,12 +49,11 @@ import sys, datetime as pyDT, time, os, re as regex, locale, logging
 
 # 3rd party
 #import mx.DateTime as mxDT
-import psycopg2						# this will go once datetime has timezone classes
 
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmI18N
+#from Gnumed.pycommon import gmI18N
 
 
 _log = logging.getLogger('gm.datetime')
@@ -68,8 +69,6 @@ current_local_timezone_name = None
 py_timezone_name = None
 py_dst_timezone_name = None
 
-cLocalTimezone = psycopg2.tz.LocalTimezone					# remove as soon as datetime supports timezone classes
-cFixedOffsetTimezone = psycopg2.tz.FixedOffsetTimezone		# remove as soon as datetime supports timezone classes
 gmCurrentLocalTimezone = 'gmCurrentLocalTimezone not initialized'
 
 
@@ -189,10 +188,67 @@ def init():
 	#_log.info('assuming default client time zone of [%s]' % _default_client_timezone)
 
 	global gmCurrentLocalTimezone
-	gmCurrentLocalTimezone = cFixedOffsetTimezone (
-		offset = (current_local_utc_offset_in_seconds // 60),
-		name = current_local_iso_numeric_timezone_string
-	)
+	gmCurrentLocalTimezone = cPlatformLocalTimezone()
+	_log.debug('local-timezone class: %s', cPlatformLocalTimezone)
+	_log.debug('local-timezone instance: %s', gmCurrentLocalTimezone)
+#	_log.debug('')
+#		print (" (total) UTC offset:", gmCurrentLocalTimezone.utcoffset(pyDT.datetime.now()))
+#		print (" DST adjustment:", gmCurrentLocalTimezone.dst(pyDT.datetime.now()))
+#		print (" timezone name:", gmCurrentLocalTimezone.tzname(pyDT.datetime.now()))
+
+#===========================================================================
+# local timezone implementation (lifted from the docs)
+#
+# A class capturing the platform's idea of local time.
+# (May result in wrong values on historical times in
+#  timezones where UTC offset and/or the DST rules had
+#  changed in the past.)
+#---------------------------------------------------------------------------
+class cPlatformLocalTimezone(pyDT.tzinfo):
+
+	#-----------------------------------------------------------------------
+	def __init__(self):
+		self._SECOND = pyDT.timedelta(seconds = 1)
+		self._nonDST_OFFSET_FROM_UTC = pyDT.timedelta(seconds = -time.timezone)
+		if time.daylight:
+			self._DST_OFFSET_FROM_UTC = pyDT.timedelta(seconds = -time.altzone)
+		else:
+			self._DST_OFFSET_FROM_UTC = self._nonDST_OFFSET_FROM_UTC
+		self._DST_SHIFT = self._DST_OFFSET_FROM_UTC - self._nonDST_OFFSET_FROM_UTC
+		_log.debug('[%s]: UTC->non-DST offset [%s], UTC->DST offset [%s], DST shift [%s]', self.__class__.__name__, self._nonDST_OFFSET_FROM_UTC, self._DST_OFFSET_FROM_UTC, self._DST_SHIFT)
+
+	#-----------------------------------------------------------------------
+	def fromutc(self, dt):
+		assert dt.tzinfo is self
+		stamp = (dt - pyDT.datetime(1970, 1, 1, tzinfo = self)) // self._SECOND
+		args = time.localtime(stamp)[:6]
+		dst_diff = self._DST_SHIFT // self._SECOND
+		# Detect fold
+		fold = (args == time.localtime(stamp - dst_diff))
+		return pyDT.datetime(*args, microsecond = dt.microsecond, tzinfo = self, fold = fold)
+
+	#-----------------------------------------------------------------------
+	def utcoffset(self, dt):
+		if self._isdst(dt):
+			return self._DST_OFFSET_FROM_UTC
+		return self._nonDST_OFFSET_FROM_UTC
+
+	#-----------------------------------------------------------------------
+	def dst(self, dt):
+		if self._isdst(dt):
+			return self._DST_SHIFT
+		return pyDT.timedelta(0)
+
+	#-----------------------------------------------------------------------
+	def tzname(self, dt):
+		return time.tzname[self._isdst(dt)]
+
+	#-----------------------------------------------------------------------
+	def _isdst(self, dt):
+		tt = (dt.year, dt.month, dt.day, dt.hour, dt.minute, dt.second, dt.weekday(), 0, 0)
+		stamp = time.mktime(tt)
+		tt = time.localtime(stamp)
+		return tt.tm_isdst > 0
 
 #===========================================================================
 # convenience functions
@@ -258,11 +314,13 @@ def mxdt2py_dt(mxDateTime):
 		tz_name = current_local_iso_numeric_timezone_string
 
 	if dst_currently_in_effect:
+		# convert
 		tz = cFixedOffsetTimezone (
 			offset = ((time.altzone * -1) // 60),
 			name = tz_name
 		)
 	else:
+		# convert
 		tz = cFixedOffsetTimezone (
 			offset = ((time.timezone * -1) // 60),
 			name = tz_name
@@ -311,35 +369,37 @@ def pydt_strftime(dt=None, format='%Y %b %d  %H:%M.%S', accuracy=None, none_str=
 	try:
 		return dt.strftime(format)
 	except ValueError:
-		_log.exception('Python cannot strftime() this <datetime>, trying ourselves')
+		_log.exception()
+		return 'strftime() error'
+		#_log.exception('Python cannot strftime() this <datetime>, trying ourselves')
 
-	if isinstance(dt, pyDT.date):
-		accuracy = acc_days
-
-	if accuracy == acc_days:
-		return '%04d-%02d-%02d' % (
-			dt.year,
-			dt.month,
-			dt.day
-		)
-
-	if accuracy == acc_minutes:
-		return '%04d-%02d-%02d %02d:%02d' % (
-			dt.year,
-			dt.month,
-			dt.day,
-			dt.hour,
-			dt.minute
-		)
-
-	return '%04d-%02d-%02d %02d:%02d:%02d' % (
-		dt.year,
-		dt.month,
-		dt.day,
-		dt.hour,
-		dt.minute,
-		dt.second
-	)
+#	if isinstance(dt, pyDT.date):
+#		accuracy = acc_days
+#
+#	if accuracy == acc_days:
+#		return '%04d-%02d-%02d' % (
+#			dt.year,
+#			dt.month,
+#			dt.day
+#		)
+#
+#	if accuracy == acc_minutes:
+#		return '%04d-%02d-%02d %02d:%02d' % (
+#			dt.year,
+#			dt.month,
+#			dt.day,
+#			dt.hour,
+#			dt.minute
+#		)
+#
+#	return '%04d-%02d-%02d %02d:%02d:%02d' % (
+#		dt.year,
+#		dt.month,
+#		dt.day,
+#		dt.hour,
+#		dt.minute,
+#		dt.second
+#	)
 
 #---------------------------------------------------------------------------
 def pydt_add(dt, years=0, months=0, weeks=0, days=0, hours=0, minutes=0, seconds=0, milliseconds=0, microseconds=0):
@@ -2085,6 +2145,9 @@ if __name__ == '__main__':
 	if sys.argv[1] != "test":
 		sys.exit()
 
+	from Gnumed.pycommon import gmI18N
+	from Gnumed.pycommon import gmLog2
+
 	#-----------------------------------------------------------------------
 	intervals_as_str = [
 		'7', '12', ' 12', '12 ', ' 12 ', '	12	', '0', '~12', '~ 12', ' ~ 12', '	~	12 ',
@@ -2197,9 +2260,9 @@ if __name__ == '__main__':
 		print ("current UTC offset:", current_local_utc_offset_in_seconds, "seconds")
 		print ("current timezone (interval):", current_local_timezone_interval)
 		print ("current timezone (ISO conformant numeric string):", current_local_iso_numeric_timezone_string)
-		print ("local timezone class:", cLocalTimezone)
+		print ("local timezone class:", cPlatformLocalTimezone)
 		print ("")
-		tz = cLocalTimezone()
+		tz = cPlatformLocalTimezone()
 		print ("local timezone instance:", tz)
 		print (" (total) UTC offset:", tz.utcoffset(pyDT.datetime.now()))
 		print (" DST adjustment:", tz.dst(pyDT.datetime.now()))
@@ -2325,6 +2388,8 @@ if __name__ == '__main__':
 		print (pydt_strftime(dt, accuracy = acc_days))
 		print (pydt_strftime(dt, accuracy = acc_minutes))
 		print (pydt_strftime(dt, accuracy = acc_seconds))
+		dt = dt.replace(year = 198)
+		print (pydt_strftime(dt, accuracy = acc_seconds))
 	#-------------------------------------------------
 	def test_is_leap_year():
 		for year in range(1995, 2017):
@@ -2355,9 +2420,9 @@ if __name__ == '__main__':
 
 	init()
 
-	#test_date_time()
+	test_date_time()
 	#test_str2fuzzy_timestamp_matches()
-	test_get_date_of_weekday_in_week_of_date()
+	#test_get_date_of_weekday_in_week_of_date()
 	#test_cFuzzyTimeStamp()
 	#test_get_pydt()
 	#test_str2interval()
