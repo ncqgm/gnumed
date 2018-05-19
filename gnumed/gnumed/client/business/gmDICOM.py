@@ -793,9 +793,13 @@ class cOrthancServer:
 					'description': None,
 					'referring_doc': None,
 					'requesting_doc': None,
-					'radiology_org': None,
+					'performing_doc': None,
 					'operator_name': None,
 					'radiographer_code': None,
+					'radiology_org': None,
+					'radiology_dept': None,
+					'radiology_org_addr': None,
+					'station_name': None,
 					'series': []
 				}
 				try:
@@ -819,11 +823,37 @@ class cOrthancServer:
 				except KeyError:
 					pass
 				try:
+					study_dict['radiology_org_addr'] = orth_study['MainDicomTags']['InstitutionAddress'].strip()
+				except KeyError:
+					pass
+				try:
 					study_dict['radiology_org'] = orth_study['MainDicomTags']['InstitutionName'].strip()
+					if study_dict['radiology_org_addr'] is not None:
+						if study_dict['radiology_org'] in study_dict['radiology_org_addr']:
+							study_dict['radiology_org'] = None
+				except KeyError:
+					pass
+				try:
+					study_dict['radiology_dept'] = orth_study['MainDicomTags']['InstitutionalDepartmentName'].strip()
+					if study_dict['radiology_org'] is not None:
+						if study_dict['radiology_dept'] in study_dict['radiology_org']:
+							study_dict['radiology_dept'] = None
+					if study_dict['radiology_org_addr'] is not None:
+						if study_dict['radiology_dept'] in study_dict['radiology_org_addr']:
+							study_dict['radiology_dept'] = None
 				except KeyError:
 					pass
 				try:
 					study_dict['station_name'] = orth_study['MainDicomTags']['StationName'].strip()
+					if study_dict['radiology_org'] is not None:
+						if study_dict['station_name'] in study_dict['radiology_org']:
+							study_dict['station_name'] = None
+					if study_dict['radiology_org_addr'] is not None:
+						if study_dict['station_name'] in study_dict['radiology_org_addr']:
+							study_dict['station_name'] = None
+					if study_dict['radiology_dept'] is not None:
+						if study_dict['station_name'] in study_dict['radiology_dept']:
+							study_dict['station_name'] = None
 				except KeyError:
 					pass
 				for key in study_dict:
@@ -872,7 +902,8 @@ class cOrthancServer:
 						'performed_procedure_step_description': None,
 						'acquisition_device_processing_description': None,
 						'operator_name': None,
-						'radiographer_code': None
+						'radiographer_code': None,
+						'performing_doc': None
 					}
 					try:
 						series_dict['modality'] = orth_series['MainDicomTags']['Modality'].strip()
@@ -914,6 +945,10 @@ class cOrthancServer:
 						series_dict['radiographer_code'] = orth_series['MainDicomTags']['RadiographersCode'].strip()
 					except KeyError:
 						pass
+					try:
+						series_dict['performing_doc'] = orth_series['MainDicomTags']['PerformingPhysicianName'].strip()
+					except KeyError:
+						pass
 					for key in series_dict:
 						if series_dict[key] in ['unknown', '(null)', '']:
 							series_dict[key] = None
@@ -923,11 +958,13 @@ class cOrthancServer:
 					if series_dict['performed_procedure_step_description'] in [series_dict['description'], series_dict['protocol']]:
 						series_dict['performed_procedure_step_description'] = None
 					if series_dict['performed_procedure_step_description'] is not None:
+						# weed out "numeric" only
 						if regex.match ('[.,/\|\-\s\d]+', series_dict['performed_procedure_step_description'], flags = regex.UNICODE):
 							series_dict['performed_procedure_step_description'] = None
 					if series_dict['acquisition_device_processing_description'] in [series_dict['description'], series_dict['protocol']]:
 						series_dict['acquisition_device_processing_description'] = None
 					if series_dict['acquisition_device_processing_description'] is not None:
+						# weed out "numeric" only
 						if regex.match ('[.,/\|\-\s\d]+', series_dict['acquisition_device_processing_description'], flags = regex.UNICODE):
 							series_dict['acquisition_device_processing_description'] = None
 					if series_dict['date'] == study_dict['date']:
@@ -950,7 +987,8 @@ class cOrthancServer:
 						try: del series_dict['all_tags'][key]
 						except KeyError: pass
 					study_dict['operator_name'] = series_dict['operator_name']			# will collapse all operators into that of the last series
-					study_dict['radiographer_code'] = series_dict['radiographer_code']	# will collapse all operators into that of the last series
+					study_dict['radiographer_code'] = series_dict['radiographer_code']	# will collapse all into that of the last series
+					study_dict['performing_doc'] = series_dict['performing_doc']		# will collapse all into that of the last series
 					study_dict['series'].append(series_dict)
 
 		return studies_by_patient
@@ -1018,9 +1056,6 @@ class cOrthancServer:
 			body = json.dumps(data)
 			headers['content-type'] = 'application/json'
 
-		_log.info(body)
-		_log.info(headers)
-
 		try:
 			try:
 				response, content = self.__conn.request(url, 'POST', body = body, headers = headers)
@@ -1030,7 +1065,7 @@ class cOrthancServer:
 			_log.exception('exception in POST')
 			_log.debug(' url: %s', url)
 			_log.debug(' headers: %s', headers)
-			_log.debug(' body: %s', body[:256])
+			_log.debug(' body: %s', body[:16])
 			return False
 
 		if response.status == 404:
@@ -1042,7 +1077,7 @@ class cOrthancServer:
 			_log.error('POST returned non-OK status: %s', response.status)
 			_log.debug(' url: %s', url)
 			_log.debug(' headers: %s', headers)
-			_log.debug(' body: %s', body[:256])
+			_log.debug(' body: %s', body[:16])
 			_log.error(' response: %s', response)
 			_log.debug(' content: %s', content)
 			return False
@@ -1080,7 +1115,7 @@ class cOrthancServer:
 			_log.exception('exception in PUT')
 			_log.debug(' url: %s', url)
 			_log.debug(' headers: %s', headers)
-			_log.debug(' body: %s', body[:256])
+			_log.debug(' body: %s', body[:16])
 			return False
 
 		if response.status == 404:
@@ -1090,7 +1125,7 @@ class cOrthancServer:
 			_log.error('PUT returned non-OK status: %s', response.status)
 			_log.debug(' url: %s', url)
 			_log.debug(' headers: %s', headers)
-			_log.debug(' body: %s', body[:256])
+			_log.debug(' body: %s', body[:16])
 			_log.error(' response: %s', response)
 			_log.debug(' content: %s', content)
 			return False
@@ -1145,7 +1180,9 @@ class cOrthancServer:
 def cleanup_dicom_string(dicom_str):
 	if not isinstance(dicom_str, str):
 		return dicom_str
-	return regex.sub('\^+', ' ', dicom_str.strip('^'))
+	dicom_str = regex.sub('\^+', ' ', dicom_str.strip('^'))
+	#dicom_str = dicom_str.replace('\r\n', ' [CR] ')
+	return dicom_str
 
 #============================================================
 # main

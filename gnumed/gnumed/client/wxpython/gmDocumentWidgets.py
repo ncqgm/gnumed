@@ -2891,7 +2891,7 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 	# internal helpers
 	#--------------------------------------------------------
 	def __init_ui(self):
-		self._LCTRL_studies.set_columns(columns = [_('Date'), _('Description'), _('Organization'), _('Referrals')])
+		self._LCTRL_studies.set_columns(columns = [_('Date'), _('Description'), _('Organization'), _('Authority')])
 		self._LCTRL_studies.select_callback = self._on_studies_list_item_selected
 		self._LCTRL_studies.deselect_callback = self._on_studies_list_item_deselected
 
@@ -3104,12 +3104,24 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 					if study['requesting_doc'] is not None:
 						if study['requesting_doc'] not in docs:
 							docs.append(study['requesting_doc'])
+					if study['performing_doc'] is not None:
+						if study['performing_doc'] not in docs:
+							docs.append(study['requesting_doc'])
 					if study['operator_name'] is not None:
 						if study['operator_name'] not in docs:
 							docs.append(study['operator_name'])
 					if study['radiographer_code'] is not None:
 						if study['radiographer_code'] not in docs:
 							docs.append(study['radiographer_code'])
+					org_name = u'@'.join ([
+						o for o in [study['radiology_dept'], study['radiology_org']]
+						if o is not None
+					])
+					org = '%s%s%s' % (
+						org_name,
+						gmTools.coalesce(study['station_name'], '', ' [%s]'),
+						gmTools.coalesce(study['radiology_org_addr'], '', ' (%s)').replace('\r\n', ' [CR] ')
+					)
 					study_list_items.append( [
 						'%s-%s-%s' % (
 							study['date'][:4],
@@ -3120,10 +3132,7 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 							len(study['series']),
 							gmTools.coalesce(study['description'], '', ': %s')
 						),
-						gmTools.coalesce (
-							study['radiology_org'],
-							gmTools.coalesce(study['station_name'], '')
-						),
+						org.strip(),
 						gmTools.u_arrow2right.join(docs)
 					] )
 					study_list_data.append(study)
