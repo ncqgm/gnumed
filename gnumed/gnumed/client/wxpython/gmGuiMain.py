@@ -255,50 +255,54 @@ class gmTopLevelFrame(wx.Frame):
 		"""Try to get previous window size from backend."""
 
 		cfg = gmCfg.cCfgSQL()
-
-		# width
 		width = int(cfg.get2 (
 			option = 'main.window.width',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			bias = 'workplace',
 			default = 800
 		))
-
-		# height
 		height = int(cfg.get2 (
 			option = 'main.window.height',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			bias = 'workplace',
 			default = 600
 		))
+		_log.debug('previous GUI size [%sx%s]', width, height)
+		pos_x = int(cfg.get2 (
+			option = 'main.window.position.x',
+			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
+			bias = 'workplace',
+			default = 0
+		))
+		pos_y = int(cfg.get2 (
+			option = 'main.window.position.y',
+			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
+			bias = 'workplace',
+			default = 0
+		))
+		_log.debug('previous GUI position [%s:%s]', pos_x, pos_y)
 
-		dw = wx.DisplaySize()[0]
-		dh = wx.DisplaySize()[1]
-
-		_log.info('display size: %s:%s' % (wx.SystemSettings.GetMetric(wx.SYS_SCREEN_X), wx.SystemSettings.GetMetric(wx.SYS_SCREEN_Y)))
-		_log.debug('display size: %s:%s %s mm', dw, dh, str(wx.DisplaySizeMM()))
-		_log.debug('previous GUI size [%s:%s]', width, height)
-
-		# max size
-		if width > dw:
-			_log.debug('adjusting GUI width from %s to %s', width, dw)
-			width = dw
-
-		if height > dh:
-			_log.debug('adjusting GUI height from %s to %s', height, dh)
-			height = dh
-
-		# min size
+		curr_disp_width = wx.DisplaySize()[0]
+		curr_disp_height = wx.DisplaySize()[1]
+		# max size = display
+		if width > curr_disp_width:
+			_log.debug('adjusting GUI width from %s to display width %s', width, curr_disp_width)
+			width = curr_disp_width
+		if height > curr_disp_height:
+			_log.debug('adjusting GUI height from %s to display height %s', height, curr_disp_height)
+			height = curr_disp_height
+		# min size = 100x100
 		if width < 100:
 			_log.debug('adjusting GUI width to minimum of 100 pixel')
 			width = 100
 		if height < 100:
 			_log.debug('adjusting GUI height to minimum of 100 pixel')
 			height = 100
+		_log.info('setting GUI geom to [%sx%s] @ [%s:%s]', width, height, pos_x, pos_y)
 
-		_log.info('setting GUI to size [%s:%s]', width, height)
-
-		self.SetClientSize(wx.Size(width, height))
+		#self.SetClientSize(wx.Size(width, height))
+		self.SetSize(wx.Size(width, height))
+		self.SetPosition(wx.Point(pos_x, pos_y))
 
 	#----------------------------------------------
 	def __setup_main_menu(self):
@@ -3114,9 +3118,12 @@ class gmTopLevelFrame(wx.Frame):
 		# do not show status line messages anymore
 		gmDispatcher.disconnect(self._on_set_statustext, 'statustext')
 
-		# remember GUI size
-		curr_width, curr_height = self.GetClientSize()
+		# remember GUI size and position
+		#curr_width, curr_height = self.GetClientSize()
+		curr_width, curr_height = self.GetSize()
 		_log.info('GUI size at shutdown: [%s:%s]' % (curr_width, curr_height))
+		curr_pos_x, curr_pos_y = self.GetScreenPosition()
+		_log.info('GUI position at shutdown: [%s:%s]' % (curr_pos_x, curr_pos_y))
 		if 0 not in [curr_width, curr_height]:
 			dbcfg = gmCfg.cCfgSQL()
 			try:
@@ -3130,8 +3137,18 @@ class gmTopLevelFrame(wx.Frame):
 					value = curr_height,
 					workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace
 				)
-			except:
-				_log.exception('cannot save current client window size')
+				dbcfg.set (
+					option = 'main.window.position.x',
+					value = curr_pos_x,
+					workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace
+				)
+				dbcfg.set (
+					option = 'main.window.position.y',
+					value = curr_pos_y,
+					workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace
+				)
+			except Exception:
+				_log.exception('cannot save current client window size and/or position')
 
 		if _cfg.get(option = 'debug'):
 			print('---=== GNUmed shutdown ===---')
@@ -3317,23 +3334,16 @@ class gmApp(wx.App):
 		paths = gmTools.gmPaths(app_name = 'gnumed', wx = wx)
 		paths.init_paths(wx = wx, app_name = 'gnumed')
 
-		# warn users running on Python < 2.7
-		# for transitioning to Python 3
-		# in GNUmed 1.6 make this fail startup
-		# unless --debug is given
-		if sys.hexversion < 0x02070000:
-			_log.debug('Python version < 2.7')
-			gmGuiHelpers.gm_show_warning (
-				aTitle = _('Python version check'),
-				aMessage = _(
-					'You are running Python version\n'
-					' %s\n'
-					'\n'
-					'However, GNUmed wants Python 2.7 to\n'
-					'facilitate migration to Python 3.\n'
-					'\n'
-					'Please upgrade your Python interpreter !'
-				) % sys.version
+		# log display properties
+		dw, dh = wx.DisplaySize()
+		_log.info('display size: %s:%s' % (wx.SystemSettings.GetMetric(wx.SYS_SCREEN_X), wx.SystemSettings.GetMetric(wx.SYS_SCREEN_Y)))
+		_log.debug('display size: %s:%s %s mm', dw, dh, wx.DisplaySizeMM())
+		for disp_idx in range(wx.Display.GetCount()):
+			disp = wx.Display(disp_idx)
+			disp_mode = disp.CurrentMode
+			_log.debug('display [%s] "%s": primary=%s, client_area=%s, geom=%s, vid_mode=[%sbpp across %sx%spx @%sHz]',
+				disp_idx, disp.Name, disp.IsPrimary(), disp.ClientArea, disp.Geometry,
+				disp_mode.bpp, disp_mode.Width, disp_mode.Height, disp_mode.refresh
 			)
 
 		if not self.__setup_prefs_file():
@@ -3361,7 +3371,6 @@ class gmApp(wx.App):
 			if not self.__setup_scripting_listener():
 				return False
 
-		# FIXME: load last position from backend
 		frame = gmTopLevelFrame(None, -1, _('GNUmed client'), (640, 440))
 		frame.CentreOnScreen(wx.BOTH)
 		self.SetTopWindow(frame)
