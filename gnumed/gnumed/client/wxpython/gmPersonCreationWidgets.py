@@ -172,7 +172,7 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 
 		fname = gmTools.none_if(self._PRW_firstnames.GetValue().strip()[:1], '')
 
-		no_of_dupes = gmPerson.person_exists(lastnames = lname, firstnames = fname, dob = dob)
+		no_of_dupes = gmPerson.get_potential_person_dupes(lastnames = lname, firstnames = fname, dob = dob)
 		if no_of_dupes == 0:
 			lbl = ''
 		elif no_of_dupes == 1:

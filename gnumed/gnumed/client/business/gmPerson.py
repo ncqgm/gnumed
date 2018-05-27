@@ -83,7 +83,7 @@ def external_id_exists(pk_issuer, value):
 	return rows[0][0]
 
 #============================================================
-def person_exists(lastnames, dob, firstnames=None, active_only=True):
+def get_potential_person_dupes(lastnames, dob, firstnames=None, active_only=True):
 	args = {
 		'last': lastnames,
 		'dob': dob
@@ -107,6 +107,7 @@ def person_exists(lastnames, dob, firstnames=None, active_only=True):
 #============================================================
 def this_person_exists(lastnames, firstnames, dob, comment):
 	# backend also looks at gender (IOW, only fails on same-gender dupes)
+	# implement in plpgsql and re-use in both validation trigger and here
 	if comment is not None:
 		comment = comment.strip()
 		if comment == u'':
