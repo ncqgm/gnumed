@@ -99,13 +99,6 @@ def connect(receiver=None, signal=Any, sender=Any, weak=0):
 	if receiver is None:
 		raise ValueError('gmDispatcher.connect(): must define <receiver>')
 
-#	if signal is None:
-#		raise ValueError('gmDispatcher.connect(): must define <signal>')
-
-#	# not really useful
-#	if signal not in known_signals:
-#		_log.warning('unknown signal [%(sig)s]', {'sig': signal})
-
 	if signal is not Any:
 		signal = str(signal)
 
@@ -224,7 +217,7 @@ def send(signal=None, sender=None, **kwds):
 	responses = []
 	for receiver in receivers:
 		if (type(receiver) is weakref.ReferenceType) or (isinstance(receiver, BoundMethodWeakref)):
-			_log.debug('dereferencing weak ref receiver [%s]', receiver)
+			_log.debug('dereferencing weak_ref receiver [%s]', receiver)
 			# Dereference the weak reference.
 			receiver = receiver()
 			_log.debug('dereferenced receiver is [%s]', receiver)
@@ -267,8 +260,8 @@ class BoundMethodWeakref:
 		def remove(object, self=self):
 			"""Set self.isDead to true when method or instance is destroyed."""
 			self.isDead = 1
-			print(_removeReceiver)
-			print(self)
+			print('BoundMethodWeakref.__init__.remove(): _removeReceiver =', _removeReceiver)
+			print('BoundMethodWeakref.__init__.remove(): self =', self)
 			_removeReceiver(receiver=self)
 		self.weakSelf = weakref.ref(boundMethod.__self__, remove)
 		self.weakFunc = weakref.ref(boundMethod.__func__, remove)
