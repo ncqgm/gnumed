@@ -1621,7 +1621,7 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 		return False
 
 	#------------------------------------------------------------
-	def set_string_items(self, items=None, reshow=True):
+	def set_string_items(self, items=None, reshow=True, unwrap=True):
 		"""All item members must be str()able or None."""
 
 		wx.BeginBusyCursor()
@@ -1646,28 +1646,24 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 
 		# insert new items
 		for item in items:
+			# item is a single string
+			# (typical special case: items=rows are a list-of-strings)
+			if isinstance(item, str):
+				self.InsertItem(index = sys.maxsize, label = item.replace('\r\n', ' [CRLF] ').replace('\n', ' [LF] '))
+				continue
+			# item is something else, either ...
 			try:
-				item[0]
-				if not isinstance(item, str):
-					is_numerically_iterable = True
-				# do not iterate over individual chars in a string, however
-				else:
-					is_numerically_iterable = False
-			except TypeError:
-				is_numerically_iterable = False
-
-			if is_numerically_iterable:
-				# cannot use errors='replace' since then
-				# None/ints/unicode strings fail to get encoded
+				# ... an iterable
 				col_val = str(item[0])
 				row_num = self.InsertItem(index = sys.maxsize, label = col_val)
 				for col_num in range(1, min(self.GetColumnCount(), len(item))):
-					col_val = str(item[col_num])
+					col_val = str(item[col_num]).replace('\r\n', ' [CRLF] ').replace('\n', ' [LF] ')
 					self.SetItem(index = row_num, column = col_num, label = col_val)
-			else:
-				# cannot use errors='replace' since then None/ints/unicode strings fails to get encoded
-				col_val = str(item)
-				row_num = self.InsertItem(index = sys.maxsize, label = col_val)
+			except (TypeError, KeyError, IndexError):
+				# ... an *empty* iterable [IndexError]
+				# ... or not iterable (None, int, instance, dict [KeyError] ...)
+				col_val = str(item).replace('\r\n', ' [CRLF] ').replace('\n', ' [LF] ')
+				self.InsertItem(index = sys.maxsize, label = col_val)
 
 		if reshow:
 			if self.ItemCount > 0:
@@ -3309,7 +3305,6 @@ def shorten_text(text=None, max_length=None):
 	if len(text) <= max_length:
 		return text
 	return text[:max_length-1] + '\u2026'
-
 
 #================================================================
 # main
