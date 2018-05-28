@@ -1071,6 +1071,13 @@ class cLaTeXForm(cFormEngine):
 		self.__sandbox_dir = sandbox_dir
 
 	#--------------------------------------------------------
+	def _rst2latex_transform(self, text):
+		# remove extra linefeeds which the docutils ReST2LaTeX
+		# converter likes to add but which makes pdflatex go
+		# crazy when ending up inside KOMAScript variables
+		return gmTools.rst2latex_snippet(text).strip()
+
+	#--------------------------------------------------------
 	def substitute_placeholders(self, data_source=None):
 
 		if self.template is not None:
@@ -1122,6 +1129,7 @@ class cLaTeXForm(cFormEngine):
 		self.instance_filename = self.re_editable_filenames[0]
 
 		return
+
 	#--------------------------------------------------------
 	def __substitute_placeholders(self, data_source=None, input_filename=None, output_filename=None, placeholder_regex=None):
 
@@ -1150,6 +1158,11 @@ class cLaTeXForm(cFormEngine):
 			# 2) replace them
 			_log.debug('%s placeholders found in this line', len(placeholders_in_line))
 			for placeholder in placeholders_in_line:
+				if 'free_text' in placeholder:
+					# enable reStructuredText processing
+					data_source.escape_function = self._rst2latex_transform
+				else:
+					data_source.escape_function = gmTools.tex_escape_string
 				try:
 					val = data_source[placeholder]
 				except:

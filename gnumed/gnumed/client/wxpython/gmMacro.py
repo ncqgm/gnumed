@@ -2384,36 +2384,40 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 
 		if data is None:
 			msg = _('generic text')
+			cache_key = 'free_text::%s' % datetime.datetime.now()
 		else:
 			msg = data
+			cache_key = 'free_text::%s' % msg
 
-		cache_key = 'free_text::%s' % msg
 		try:
-			text = self.__cache[cache_key]
+			return self.__cache[cache_key]
 		except KeyError:
-			dlg = gmGuiHelpers.cMultilineTextEntryDlg (
-				None,
-				-1,
-				title = _('Replacing <free_text> placeholder'),
-				msg = _('Below you can enter free text.\n\n [%s]') % msg
-			)
-			dlg.enable_user_formatting = True
-			decision = dlg.ShowModal()
-			text = dlg.value.strip()
-			is_user_formatted = dlg.is_user_formatted
-			dlg.Destroy()
+			pass
 
-			if decision != wx.ID_SAVE:
-				if self.debug:
-					text = _('Text input cancelled by user.')
-				else:
-					text = ''
+		dlg = gmGuiHelpers.cMultilineTextEntryDlg (
+			None,
+			-1,
+			title = _('Replacing <free_text> placeholder'),
+			msg = _('Below you can enter free text.\n\n [%s]') % msg
+		)
+		dlg.enable_user_formatting = True
+		decision = dlg.ShowModal()
+		text = dlg.value.strip()
+		is_user_formatted = dlg.is_user_formatted
+		dlg.Destroy()
 
-			if not is_user_formatted:
-				text = self._escape(text)
+		if decision != wx.ID_SAVE:
+			if self.debug:
+				return self._escape(_('Text input cancelled by user.'))
+			return self._escape('')
 
+		# user knows "best"
+		if is_user_formatted:
 			self.__cache[cache_key] = text
+			return text
 
+		text = self._escape(text)
+		self.__cache[cache_key] = text
 		return text
 
 	#--------------------------------------------------------

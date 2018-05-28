@@ -4,6 +4,7 @@
 #
 
 import wx
+import wx.adv
 
 # begin wxGlade: dependencies
 import gettext
@@ -24,6 +25,7 @@ class wxgMultilineTextEntryDlg(wx.Dialog):
 		from Gnumed.wxpython.gmTextCtrl import cTextCtrl
 		self._TCTRL_text = cTextCtrl(self, wx.ID_ANY, "", style=wx.TE_MULTILINE | wx.TE_WORDWRAP)
 		self._CHBOX_is_already_formatted = wx.CheckBox(self, wx.ID_ANY, _("Do not reformat text"))
+		self._HCTRL_ReST = wx.adv.HyperlinkCtrl(self, wx.ID_ANY, _("Formatting help"), _("http://docutils.sourceforge.net/docs/user/rst/quickref.html"))
 		self._BTN_save = wx.Button(self, wx.ID_SAVE, "")
 		self._BTN_clear = wx.Button(self, wx.ID_CLEAR, "")
 		self._BTN_restore = wx.Button(self, wx.ID_REVERT_TO_SAVED, "")
@@ -41,9 +43,9 @@ class wxgMultilineTextEntryDlg(wx.Dialog):
 		# begin wxGlade: wxgMultilineTextEntryDlg.__set_properties
 		self.SetTitle(_("Generic multi line text entry dialog"))
 		self.SetSize((600, 641))
-		self._TCTRL_data.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_BACKGROUND))
-		self._CHBOX_is_already_formatted.SetToolTip(_("Leave this unchecked so that GNUmed can check for characters that need escaping or transforming.\n\nUse this option when you have put in raw formatting, like HTML or LaTeX, that you are confident should be left untouched."))
+		self._CHBOX_is_already_formatted.SetToolTip(_("This is an option for power users.\n\nGNUmed will normally check your input for parts that\nneed escaping or transforming for proper output. It will\nalso convert any ReST formatting, if possible.\n\nCheck this option if you do NOT want GNUmed to apply\nANY modifications to ANY of your input into this dialog.\n\nThis is useful when you have entered raw formatting,\nlike HTML or LaTeX, and you are confident it should be\nput into the output as-is. Note that this will also disable\nReST post-processing."))
 		self._CHBOX_is_already_formatted.Enable(False)
+		self._HCTRL_ReST.SetToolTip(_("If you are writing a letter, and the letter is processed\nby LaTeX, you can use reStructuredText markup to\nformat some aspects of your text.\n\nLists, tables, and emphasis will mainly be useful.\n\nFollow the link for details."))
 		self._BTN_restore.Enable(False)
 		# end wxGlade
 
@@ -57,6 +59,7 @@ class wxgMultilineTextEntryDlg(wx.Dialog):
 		__szr_main.Add(self._TCTRL_text, 4, wx.ALIGN_CENTER_VERTICAL | wx.ALL | wx.EXPAND, 5)
 		__szr_options.Add(self._CHBOX_is_already_formatted, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
 		__szr_options.Add((20, 20), 1, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
+		__szr_options.Add(self._HCTRL_ReST, 0, wx.ALIGN_CENTER_VERTICAL, 0)
 		__szr_main.Add(__szr_options, 0, wx.ALL | wx.EXPAND, 5)
 		__szr_buttons.Add(self._BTN_save, 0, wx.EXPAND, 5)
 		__szr_buttons.Add((20, 20), 1, wx.EXPAND, 0)

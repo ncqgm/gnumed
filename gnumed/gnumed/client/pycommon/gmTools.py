@@ -30,13 +30,13 @@ import re as regex
 import xml.sax.saxutils as xml_tools
 # old:
 import pickle, zlib
+# docutils
+du_core = None
 
 
 # GNUmed libs
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-
-
 from Gnumed.pycommon import gmBorg
 
 
@@ -1211,8 +1211,6 @@ def tex_escape_string(text=None, replace_known_unicode=True, replace_eol=False, 
 			row table cells)
 	"""
 	text = text.replace('\\', '\\textbackslash')			# requires \usepackage{textcomp} in LaTeX source
-	text = text.replace('^', '\\textasciicircum')			# requires \usepackage{textcomp} in LaTeX source
-	text = text.replace('~', '\\textasciitilde')			# requires \usepackage{textcomp} in LaTeX source
 
 	text = text.replace('{', '\\{')
 	text = text.replace('}', '\\}')
@@ -1221,6 +1219,11 @@ def tex_escape_string(text=None, replace_known_unicode=True, replace_eol=False, 
 	text = text.replace('#', '\\#')
 	text = text.replace('$', '\\$')
 	text = text.replace('_', '\\_')
+
+	text = text.replace('\\textbackslash', '\\textbackslash{}')
+	text = text.replace('^', '\\textasciicircum{}')			# requires \usepackage{textcomp} in LaTeX source
+	text = text.replace('~', '\\textasciitilde{}')			# requires \usepackage{textcomp} in LaTeX source
+
 	if replace_eol:
 		if keep_visual_eol:
 			text = text.replace('\n', '\\newline \n')
@@ -1232,6 +1235,50 @@ def tex_escape_string(text=None, replace_known_unicode=True, replace_eol=False, 
 		text = text.replace(u_euro, '\\EUR')
 
 	return text
+
+#---------------------------------------------------------------------------
+def rst2latex_snippet(rst_text):
+	global du_core
+	if du_core is None:
+		try:
+			from docutils import core as du_core
+		except ImportError:
+			_log.warning('cannot turn ReST into LaTeX: docutils not installed')
+			return tex_escape_string(text = rst_text)
+
+	parts = du_core.publish_parts (
+		source = rst_text.replace('\\', '\\\\'),
+		source_path = '<internal>',
+		writer_name = 'latex',
+		#destination_path = '/path/to/LaTeX-template/for/calculating/relative/links/template.tex',
+		settings_overrides = {
+			'input_encoding': 'unicode'		# un-encoded unicode
+		},
+		enable_exit_status = True			# how to use ?
+	)
+	return parts['body']
+
+#---------------------------------------------------------------------------
+def rst2html(rst_text, replace_eol=False, keep_visual_eol=False):
+	global du_core
+	if du_core is None:
+		try:
+			from docutils import core as du_core
+		except ImportError:
+			_log.warning('cannot turn ReST into HTML: docutils not installed')
+			return html_escape_string(text = rst_text, replace_eol=False, keep_visual_eol=False)
+
+	parts = du_core.publish_parts (
+		source = rst_text.replace('\\', '\\\\'),
+		source_path = '<internal>',
+		writer_name = 'latex',
+		#destination_path = '/path/to/LaTeX-template/for/calculating/relative/links/template.tex',
+		settings_overrides = {
+			'input_encoding': 'unicode'		# un-encoded unicode
+		},
+		enable_exit_status = True			# how to use ?
+	)
+	return parts['body']
 
 #---------------------------------------------------------------------------
 def xetex_escape_string(text=None):
@@ -1836,11 +1883,47 @@ second line\n
 		tests.append('  '.join(tests))
 		for test in tests:
 			print('%s:' % test, tex_escape_string(test))
+
+	#-----------------------------------------------------------------------
+	def test_rst2latex_snippet():
+		tests = ['\\', '^', '~', '{', '}', '%',  '&', '#', '$', '_', u_euro, 'abc\ndef\n\n1234']
+		tests.append('  '.join(tests))
+		tests.append('C:\Windows\Programme\System 32\lala.txt')
+		tests.extend([
+			'should be identical',
+			'text *some text* text',
+			"""A List
+======
+
+1. 1
+2. 2
+
+3. ist-list
+1. more
+2. noch was ü
+#. nummer x"""
+		])
+		for test in tests:
+			print('==================================================')
+			print('raw:')
+			print(test)
+			print('---------')
+			print('ReST 2 LaTeX:')
+			latex = rst2latex_snippet(test)
+			print(latex)
+			if latex.strip() == test.strip():
+				print('=> identical')
+			print('---------')
+			print('tex_escape_string:')
+			print(tex_escape_string(test))
+			input()
+
 	#-----------------------------------------------------------------------
 	def test_gpg_decrypt():
 		fname = gpg_decrypt_file(filename = sys.argv[2], passphrase = sys.argv[3])
 		if fname is not None:
 			print("successfully decrypted:", fname)
+
 	#-----------------------------------------------------------------------
 	def test_strip_trailing_empty_lines():
 		tests = [
@@ -1982,7 +2065,7 @@ second line\n
 	#test_coalesce()
 	#test_capitalize()
 	#test_import_module()
-	test_mkdir()
+	#test_mkdir()
 	#test_gmPaths()
 	#test_none_if()
 	#test_bool2str()
@@ -2000,6 +2083,7 @@ second line\n
 	#test_strip_trailing_empty_lines()
 	#test_fname_stem()
 	#test_tex_escape()
+	test_rst2latex_snippet()
 	#test_dir_is_empty()
 	#test_compare_dicts()
 	#test_rm_dir()
