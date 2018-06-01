@@ -79,7 +79,7 @@
                 <border>5</border>
                 <flag>wxRIGHT|wxEXPAND</flag>
                 <object class="wxTextCtrl" name="_TCTRL_components" base="EditTextCtrl">
-                    <background>wxSYS_COLOUR_BACKGROUND</background>
+                    <background>wx.SYS_COLOUR_BACKGROUND</background>
                     <style>wxTE_MULTILINE|wxTE_READONLY</style>
                 </object>
             </object>
@@ -144,7 +144,7 @@
                         <border>10</border>
                         <flag>wxRIGHT|wxEXPAND|wxALIGN_CENTER_VERTICAL</flag>
                         <object class="wxTextCtrl" name="_TCTRL_external_code" base="EditTextCtrl">
-                            <background>wxSYS_COLOUR_BACKGROUND</background>
+                            <background>wx.SYS_COLOUR_BACKGROUND</background>
                             <tooltip>An external code for this drug.\n\nIn most cases either a national drug identifier or the ID of this drug in an external database.\n\nIn any case, GNUmed will never actively do anything with this code apart from display and making it available when passing this drug to external applications.</tooltip>
                             <style>wxTE_READONLY</style>
                         </object>
@@ -163,7 +163,7 @@
                         <flag>wxEXPAND|wxALIGN_CENTER_VERTICAL</flag>
                         <object class="cPhraseWheel" name="_PRW_external_code_type" base="EditTextCtrl">
                             <extracode_pre>from Gnumed.wxpython.gmPhraseWheel import cPhraseWheel</extracode_pre>
-                            <background>wxSYS_COLOUR_BACKGROUND</background>
+                            <background>wx.SYS_COLOUR_BACKGROUND</background>
                             <tooltip>The type of the external code of this drug, if any.</tooltip>
                             <style>wxTE_READONLY</style>
                         </object>

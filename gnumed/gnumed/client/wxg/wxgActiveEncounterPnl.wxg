@@ -23,7 +23,7 @@
                 <border>2</border>
                 <flag>wxRIGHT|wxALIGN_CENTER_VERTICAL</flag>
                 <object class="wxTextCtrl" name="_TCTRL_encounter" base="EditTextCtrl">
-                    <background>wxSYS_COLOUR_BACKGROUND</background>
+                    <background>wx.SYS_COLOUR_BACKGROUND</background>
                     <tooltip>The encounter.</tooltip>
                     <style>wxTE_READONLY</style>
                 </object>

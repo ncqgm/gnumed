@@ -23,7 +23,7 @@
                 <border>0</border>
                 <flag>wxEXPAND</flag>
                 <object class="wxTextCtrl" name="_TCTRL_measurements" base="EditTextCtrl">
-                    <background>wxSYS_COLOUR_BACKGROUND</background>
+                    <background>wx.SYS_COLOUR_BACKGROUND</background>
                     <style>wxTE_MULTILINE|wxTE_READONLY|wxTE_AUTO_URL</style>
                 </object>
             </object>

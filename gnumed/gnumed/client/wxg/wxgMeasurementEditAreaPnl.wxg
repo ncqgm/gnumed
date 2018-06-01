@@ -142,7 +142,7 @@
                         <border>5</border>
                         <flag>wxEXPAND|wxALIGN_CENTER_VERTICAL</flag>
                         <object class="cUnitPhraseWheel" name="_PRW_units" base="EditTextCtrl">
-                            <extracode_pre>from Gnumed.wxpython.gmMeasurementWidgets import cUnitPhaseWheel</extracode_pre>
+                            <extracode_pre>from Gnumed.wxpython.gmMeasurementWidgets import cUnitPhraseWheel</extracode_pre>
                             <tooltip>The units this result comes in.</tooltip>
                         </object>
                     </object>

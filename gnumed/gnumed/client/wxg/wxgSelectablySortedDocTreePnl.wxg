@@ -130,7 +130,7 @@
                         <flag>wxEXPAND</flag>
                         <object class="cReportListCtrl" name="_LCTRL_details" base="EditListCtrl">
                             <extracode_pre>from Gnumed.wxpython.gmListWidgets import cReportListCtrl</extracode_pre>
-                            <background>wxSYS_COLOUR_BACKGROUND</background>
+                            <background>wx.SYS_COLOUR_BACKGROUND</background>
                             <disabled>1</disabled>
                             <style>wxLC_REPORT|wxBORDER_NONE</style>
                         </object>

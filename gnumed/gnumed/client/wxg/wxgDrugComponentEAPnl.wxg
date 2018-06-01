@@ -26,7 +26,7 @@
                 <border>0</border>
                 <flag>wxEXPAND|wxALIGN_CENTER_VERTICAL</flag>
                 <object class="wxTextCtrl" name="_TCTRL_product_name" base="EditTextCtrl">
-                    <background>wxSYS_COLOUR_BACKGROUND</background>
+                    <background>wx.SYS_COLOUR_BACKGROUND</background>
                     <style>wxTE_READONLY</style>
                 </object>
             </object>
@@ -44,7 +44,7 @@
                 <border>0</border>
                 <flag>wxEXPAND|wxALIGN_CENTER_VERTICAL</flag>
                 <object class="wxTextCtrl" name="_TCTRL_components" base="EditTextCtrl">
-                    <background>wxSYS_COLOUR_BACKGROUND</background>
+                    <background>wx.SYS_COLOUR_BACKGROUND</background>
                     <style>wxTE_MULTILINE|wxTE_READONLY</style>
                 </object>
             </object>
@@ -62,7 +62,7 @@
                 <border>0</border>
                 <flag>wxEXPAND|wxALIGN_CENTER_VERTICAL</flag>
                 <object class="wxTextCtrl" name="_TCTRL_codes" base="EditTextCtrl">
-                    <background>wxSYS_COLOUR_BACKGROUND</background>
+                    <background>wx.SYS_COLOUR_BACKGROUND</background>
                     <style>wxTE_READONLY</style>
                 </object>
             </object>

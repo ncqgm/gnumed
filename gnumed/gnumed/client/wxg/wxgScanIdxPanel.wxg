@@ -371,7 +371,7 @@
                 <border>5</border>
                 <flag>wxLEFT|wxEXPAND</flag>
                 <object class="wxTextCtrl" name="_TCTRL_metadata" base="EditTextCtrl">
-                    <background>wxSYS_COLOUR_BACKGROUND</background>
+                    <background>wx.SYS_COLOUR_BACKGROUND</background>
                     <font>
                         <size>8</size>
                         <family>modern</family>

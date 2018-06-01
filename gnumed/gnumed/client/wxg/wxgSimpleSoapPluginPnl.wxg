@@ -108,7 +108,7 @@
                                 <flag>wxRIGHT|wxBOTTOM|wxEXPAND|wxALIGN_CENTER_VERTICAL</flag>
                                 <object class="wxTextCtrl" name="_TCTRL_soap_problem" base="EditTextCtrl">
                                     <extracode_pre>from Gnumed.wxpython.gmTextCtrl import cTextCtrl</extracode_pre>
-                                    <background>wxSYS_COLOUR_BACKGROUND</background>
+                                    <background>wx.SYS_COLOUR_BACKGROUND</background>
                                     <font>
                                         <size>8</size>
                                         <family>default</family>
@@ -215,7 +215,7 @@
                                 <border>2</border>
                                 <flag>wxLEFT|wxBOTTOM|wxEXPAND</flag>
                                 <object class="wxTextCtrl" name="_TCTRL_journal" base="EditTextCtrl">
-                                    <background>wxSYS_COLOUR_BACKGROUND</background>
+                                    <background>wx.SYS_COLOUR_BACKGROUND</background>
                                     <style>wxTE_MULTILINE|wxTE_READONLY</style>
                                 </object>
                             </object>

@@ -155,7 +155,7 @@
                                 <border>0</border>
                                 <flag>wxEXPAND</flag>
                                 <object class="cReportListCtrl" name="_LCTRL_details" base="EditListCtrl">
-                                    <background>wxSYS_COLOUR_BACKGROUND</background>
+                                    <background>wx.SYS_COLOUR_BACKGROUND</background>
                                     <font>
                                         <size>9</size>
                                         <family>modern</family>
@@ -172,7 +172,7 @@
                                 <border>0</border>
                                 <flag>wxEXPAND|wxALIGN_CENTER_VERTICAL</flag>
                                 <object class="wxTextCtrl" name="_TCTRL_details" base="EditTextCtrl">
-                                    <background>wxSYS_COLOUR_BACKGROUND</background>
+                                    <background>wx.SYS_COLOUR_BACKGROUND</background>
                                     <font>
                                         <size>9</size>
                                         <family>modern</family>

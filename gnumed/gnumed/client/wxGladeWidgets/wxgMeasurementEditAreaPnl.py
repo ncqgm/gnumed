@@ -25,7 +25,7 @@ class wxgMeasurementEditAreaPnl(wx.Panel):
 		self._TCTRL_loinc = wx.TextCtrl(self, wx.ID_ANY, "", style=wx.TE_READONLY)
 		self._TCTRL_previous_value = wx.TextCtrl(self, wx.ID_ANY, "", style=wx.TE_READONLY)
 		self._TCTRL_result = wx.TextCtrl(self, wx.ID_ANY, "")
-		from Gnumed.wxpython.gmMeasurementWidgets import cUnitPhaseWheel
+		from Gnumed.wxpython.gmMeasurementWidgets import cUnitPhraseWheel
 		self._PRW_units = cUnitPhraseWheel(self, wx.ID_ANY, "")
 		from Gnumed.wxpython.gmMeasurementWidgets import cTestResultIndicatorPhraseWheel
 		self._PRW_abnormality_indicator = cTestResultIndicatorPhraseWheel(self, wx.ID_ANY, "")

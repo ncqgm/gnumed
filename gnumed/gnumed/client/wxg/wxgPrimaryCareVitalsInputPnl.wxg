@@ -82,7 +82,7 @@
                         <flag>wxEXPAND|wxALIGN_CENTER_VERTICAL</flag>
                         <object class="wx.lib.hyperlink.HyperLinkCtrl" name="_LNK_SI" base="EditTextCtrl">
                             <extracode>import wx.lib.hyperlink</extracode>
-                            <background>wxSYS_COLOUR_BACKGROUND</background>
+                            <background>wx.SYS_COLOUR_BACKGROUND</background>
                             <tooltip>SI = Pulse / RR (syst)\n\n  0.4-0.7 = normal\n  &gt;1 = critical</tooltip>
                             <style>wxTE_READONLY|wxTE_CENTRE</style>
                             <value>Schock index</value>
@@ -430,7 +430,7 @@
                         <flag>wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
                         <object class="wx.lib.hyperlink.HyperLinkCtrl" name="_LNK_BMI" base="EditTextCtrl">
                             <extracode>import wx.lib.hyperlink</extracode>
-                            <background>wxSYS_COLOUR_BACKGROUND</background>
+                            <background>wx.SYS_COLOUR_BACKGROUND</background>
                             <tooltip>Body Mass Index.\n\nBMI = weight / height²</tooltip>
                             <style>wxTE_READONLY|wxTE_CENTRE</style>
                             <value>BMI</value>

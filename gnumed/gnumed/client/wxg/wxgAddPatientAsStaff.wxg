@@ -21,7 +21,7 @@
                 <border>5</border>
                 <flag>wxLEFT|wxRIGHT|wxEXPAND</flag>
                 <object class="wxTextCtrl" name="_TXT_person" base="EditTextCtrl">
-                    <background>wxSYS_COLOUR_GRAYTEXT</background>
+                    <background>wx.SYS_COLOUR_GRAYTEXT</background>
                     <disabled>1</disabled>
                     <style>wxTE_MULTILINE|wxTE_READONLY|wxTE_WORDWRAP</style>
                     <value>Data of current patient to be displayed here.</value>

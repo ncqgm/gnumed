@@ -26,7 +26,7 @@
                 <border>0</border>
                 <flag>wxEXPAND|wxALIGN_CENTER_VERTICAL</flag>
                 <object class="wxTextCtrl" name="_TCTRL_invoice_id" base="EditTextCtrl">
-                    <background>wxSYS_COLOUR_BACKGROUND</background>
+                    <background>wx.SYS_COLOUR_BACKGROUND</background>
                     <tooltip>The invoice ID.\n\nNote that in most jurisdictions this must be a unique entity.\n\nGNUmed will create one for you.</tooltip>
                     <style>wxTE_READONLY</style>
                 </object>
@@ -69,7 +69,7 @@
                         <border>5</border>
                         <flag>wxRIGHT|wxALIGN_CENTER_VERTICAL</flag>
                         <object class="wxTextCtrl" name="_TCTRL_address" base="EditTextCtrl">
-                            <background>wxSYS_COLOUR_BACKGROUND</background>
+                            <background>wx.SYS_COLOUR_BACKGROUND</background>
                             <tooltip>Where to send the bill.</tooltip>
                             <style>wxTE_READONLY</style>
                         </object>
@@ -108,7 +108,7 @@
                         <border>5</border>
                         <flag>wxRIGHT|wxEXPAND|wxALIGN_CENTER_VERTICAL</flag>
                         <object class="wxTextCtrl" name="_TCTRL_value" base="EditTextCtrl">
-                            <background>wxSYS_COLOUR_BACKGROUND</background>
+                            <background>wx.SYS_COLOUR_BACKGROUND</background>
                             <tooltip>The total value of this bill without VAT applied.</tooltip>
                             <style>wxTE_READONLY</style>
                         </object>
@@ -130,7 +130,7 @@
                         <border>5</border>
                         <flag>wxEXPAND|wxALIGN_CENTER_VERTICAL</flag>
                         <object class="wxTextCtrl" name="_TCTRL_value_with_vat" base="EditTextCtrl">
-                            <background>wxSYS_COLOUR_BACKGROUND</background>
+                            <background>wx.SYS_COLOUR_BACKGROUND</background>
                             <tooltip>The total value of this bill after VAT has been applied.</tooltip>
                             <style>wxTE_READONLY</style>
                         </object>

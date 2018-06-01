@@ -112,7 +112,7 @@
                                 <border>0</border>
                                 <flag>wxEXPAND|wxALIGN_CENTER_VERTICAL</flag>
                                 <object class="wxTextCtrl" name="_TCTRL_helpdesk" base="EditTextCtrl">
-                                    <background>wxSYS_COLOUR_BACKGROUND</background>
+                                    <background>wx.SYS_COLOUR_BACKGROUND</background>
                                     <tooltip>Find help on http://wiki.gnumed.de, too.</tooltip>
                                     <disabled>1</disabled>
                                     <style>wxTE_READONLY</style>
@@ -131,7 +131,7 @@
                                 <border>0</border>
                                 <flag>wxEXPAND|wxALIGN_CENTER_VERTICAL</flag>
                                 <object class="wxTextCtrl" name="_TCTRL_logfile" base="EditTextCtrl">
-                                    <background>wxSYS_COLOUR_BACKGROUND</background>
+                                    <background>wx.SYS_COLOUR_BACKGROUND</background>
                                     <disabled>1</disabled>
                                     <style>wxTE_READONLY</style>
                                 </object>
@@ -149,7 +149,7 @@
                                 <border>0</border>
                                 <flag>wxEXPAND|wxALIGN_CENTER_VERTICAL</flag>
                                 <object class="wxTextCtrl" name="_TCTRL_exc_type" base="EditTextCtrl">
-                                    <background>wxSYS_COLOUR_BACKGROUND</background>
+                                    <background>wx.SYS_COLOUR_BACKGROUND</background>
                                     <disabled>1</disabled>
                                     <style>wxTE_READONLY</style>
                                 </object>
@@ -167,7 +167,7 @@
                                 <border>0</border>
                                 <flag>wxEXPAND|wxALIGN_CENTER_VERTICAL</flag>
                                 <object class="wxTextCtrl" name="_TCTRL_exc_value" base="EditTextCtrl">
-                                    <background>wxSYS_COLOUR_BACKGROUND</background>
+                                    <background>wx.SYS_COLOUR_BACKGROUND</background>
                                     <disabled>1</disabled>
                                     <style>wxTE_READONLY</style>
                                 </object>

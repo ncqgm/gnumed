@@ -33,7 +33,7 @@
                         <border>5</border>
                         <flag>wxRIGHT|wxALIGN_CENTER_VERTICAL</flag>
                         <object class="wxTextCtrl" name="_TCTRL_panel_comment" base="EditTextCtrl">
-                            <background>wxSYS_COLOUR_BACKGROUND</background>
+                            <background>wx.SYS_COLOUR_BACKGROUND</background>
                             <disabled>1</disabled>
                         </object>
                     </object>

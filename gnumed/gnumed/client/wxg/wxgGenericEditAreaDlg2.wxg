@@ -35,7 +35,7 @@
                 <border>10</border>
                 <flag>wxLEFT|wxRIGHT|wxEXPAND|wxALIGN_CENTER_VERTICAL</flag>
                 <object class="wxTextCtrl" name="_TCTRL_status" base="EditTextCtrl">
-                    <background>wxSYS_COLOUR_BACKGROUND</background>
+                    <background>wx.SYS_COLOUR_BACKGROUND</background>
                     <foreground>#ff7f00</foreground>
                     <style>wxTE_READONLY</style>
                     <value>Info</value>

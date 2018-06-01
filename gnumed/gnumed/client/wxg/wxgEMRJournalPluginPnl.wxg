@@ -77,7 +77,7 @@
                 <border>3</border>
                 <flag>wxALL|wxEXPAND</flag>
                 <object class="cTextCtrl" name="_TCTRL_journal" base="EditTextCtrl">
-                    <background>wxSYS_COLOUR_BACKGROUND</background>
+                    <background>wx.SYS_COLOUR_BACKGROUND</background>
                     <font>
                         <size>10</size>
                         <family>modern</family>

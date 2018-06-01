@@ -146,7 +146,7 @@
                                                 <border>2</border>
                                                 <flag>wxTOP|wxEXPAND</flag>
                                                 <object class="wxTextCtrl" name="_TCTRL_recent_notes" base="EditTextCtrl">
-                                                    <background>wxSYS_COLOUR_3DFACE</background>
+                                                    <background>wx.SYS_COLOUR_3DFACE</background>
                                                     <style>wxTE_MULTILINE|wxTE_READONLY|wxTE_WORDWRAP</style>
                                                     <value>In this area GNUmed will place the notes of the\nprevious encounter as well as notes by other\nstaff for the current encounter.\n\nNote that this may change depending on which\nactive problem is selected in the editor below.</value>
                                                 </object>

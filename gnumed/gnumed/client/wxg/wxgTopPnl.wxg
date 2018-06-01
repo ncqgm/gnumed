@@ -83,7 +83,7 @@
                                 <border>0</border>
                                 <flag>wxALIGN_CENTER_VERTICAL</flag>
                                 <object class="wxTextCtrl" name="_TCTRL_allergies" base="EditTextCtrl">
-                                    <background>wxSYS_COLOUR_BACKGROUND</background>
+                                    <background>wx.SYS_COLOUR_BACKGROUND</background>
                                     <foreground>#ff0000</foreground>
                                     <font>
                                         <size>12</size>

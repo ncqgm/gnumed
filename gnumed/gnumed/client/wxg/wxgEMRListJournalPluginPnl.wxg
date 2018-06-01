@@ -110,7 +110,7 @@
                         <border>0</border>
                         <flag>wxEXPAND</flag>
                         <object class="cReportListCtrl" name="_LCTRL_journal" base="EditListCtrl">
-                            <background>wxSYS_COLOUR_BACKGROUND</background>
+                            <background>wx.SYS_COLOUR_BACKGROUND</background>
                             <style>wxLC_REPORT|wxBORDER_NONE</style>
                         </object>
                     </object>
@@ -119,7 +119,7 @@
                         <border>3</border>
                         <flag>wxLEFT|wxEXPAND</flag>
                         <object class="wxTextCtrl" name="_TCTRL_details" base="EditTextCtrl">
-                            <background>wxSYS_COLOUR_BACKGROUND</background>
+                            <background>wx.SYS_COLOUR_BACKGROUND</background>
                             <style>wxTE_MULTILINE|wxTE_READONLY|wxTE_BESTWRAP</style>
                         </object>
                     </object>

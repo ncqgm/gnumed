@@ -9,11 +9,13 @@
 #WXGs=$(grep -L -i 'path="\.\./wxGladeWidgets/.*\.py"' *.wxg)
 #WXGs=$(grep -L -i 'path="\.\./wxGladeWidgets/wxg.*\.py"' *.wxg)
 #WXGs=$(grep -L 'use_gettext="1"' *.wxg)
-WXGs=$(grep -L 'use_new_namespace="1"' *.wxg)
+#WXGs=$(grep -L 'use_new_namespace="1"' *.wxg)
 # for wxp4-only:
 #WXGs=$(grep -L 'for_version="3\.0"' *.wxg)
+WXGs=$(grep 'wxSYS' *.wxg)
 
-
+echo $WXGs
+exit 0
 
 echo "#!/bin/bash"
 echo ""

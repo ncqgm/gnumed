@@ -31,7 +31,7 @@
                         <border>0</border>
                         <flag>wxEXPAND|wxALIGN_CENTER_VERTICAL</flag>
                         <object class="wxTextCtrl" name="_TCTRL_patient" base="EditTextCtrl">
-                            <background>wxSYS_COLOUR_BACKGROUND</background>
+                            <background>wx.SYS_COLOUR_BACKGROUND</background>
                         </object>
                     </object>
                     <object class="sizeritem">
