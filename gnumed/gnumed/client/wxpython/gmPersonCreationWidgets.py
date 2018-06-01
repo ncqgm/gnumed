@@ -483,7 +483,8 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 			gender = self._PRW_gender.GetData(),
 			dob = self._PRW_dob.GetData(),
 			lastnames = self._PRW_lastname.GetValue().strip(),
-			firstnames = self._PRW_firstnames.GetValue().strip()
+			firstnames = self._PRW_firstnames.GetValue().strip(),
+			comment = gmTools.none_if(self._TCTRL_comment.GetValue().strip(), '')
 		)
 		if new_identity is None:
 			gmGuiHelpers.gm_show_error (
@@ -491,8 +492,7 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 				error = _(
 					'Failed to create person. Does it already exist ?\n'
 					'\n'
-					'If so you need to (temporarily) modify, say, the\n'
-					'first or last name.'
+					'If so you need to add a unique comment.'
 				)
 			)
 			return False
@@ -507,7 +507,7 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 		prov = self._PRW_primary_provider.GetData()
 		if prov is not None:
 			new_identity['pk_primary_provider'] = prov
-		new_identity['comment'] = gmTools.none_if(self._TCTRL_comment.GetValue().strip(), '')
+		#new_identity['comment'] = gmTools.none_if(self._TCTRL_comment.GetValue().strip(), '')
 		new_identity.save()
 		_log.info('new identity updated: %s' % new_identity)
 

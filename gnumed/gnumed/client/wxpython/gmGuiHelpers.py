@@ -81,6 +81,8 @@ class c2ButtonQuestionDlg(wxg2ButtonQuestionDlg.wxg2ButtonQuestionDlg):
 
 		wxg2ButtonQuestionDlg.wxg2ButtonQuestionDlg.__init__(self, *args, **kwargs)
 
+		if not caption.startswith('GMd: '):
+			caption = 'GMd: %s' % caption
 		self.SetTitle(title = caption)
 		self._LBL_question.SetLabel(label = question)
 
@@ -156,6 +158,8 @@ class c3ButtonQuestionDlg(wxg3ButtonQuestionDlg.wxg3ButtonQuestionDlg):
 
 		wxg3ButtonQuestionDlg.wxg3ButtonQuestionDlg.__init__(self, *args, **kwargs)
 
+		if not caption.startswith('GMd: '):
+			caption = 'GMd: %s' % caption
 		self.SetTitle(title = caption)
 		self._LBL_question.SetLabel(label = question)
 
@@ -232,6 +236,8 @@ class cMultilineTextEntryDlg(wxgMultilineTextEntryDlg.wxgMultilineTextEntryDlg):
 		wxgMultilineTextEntryDlg.wxgMultilineTextEntryDlg.__init__(self, *args, **kwargs)
 
 		if title is not None:
+			if not title.startswith('GMd: '):
+				title = 'GMd: %s' % title
 			self.SetTitle(title)
 
 		if self.original_text is not None:
@@ -437,6 +443,8 @@ def gm_show_error(aMessage=None, aTitle = None, error=None, title=None):
 		title = aTitle
 	if title is None:
 		title = _('generic error message')
+	if not title.startswith('GMd: '):
+		title = 'GMd: %s' % title
 
 	dlg = wx.MessageDialog (
 		parent = None,
@@ -460,6 +468,8 @@ def gm_show_info(aMessage=None, aTitle=None, info=None, title=None):
 		title = aTitle
 	if title is None:
 		title = _('generic info message')
+	if not title.startswith('GMd: '):
+		title = 'GMd: %s' % title
 
 	dlg = wx.MessageDialog (
 		parent = None,
@@ -478,6 +488,8 @@ def gm_show_warning(aMessage=None, aTitle=None):
 
 	if aTitle is None:
 		aTitle = _('generic warning message')
+	if not aTitle.startswith('GMd: '):
+		aTitle = 'GMd: %s' % aTitle
 
 	dlg = wx.MessageDialog (
 		parent = None,
@@ -500,6 +512,8 @@ def gm_show_question(aMessage='programmer forgot to specify question', aTitle='g
 		question = aMessage
 	if title is None:
 		title = aTitle
+	if not title.startswith('GMd: '):
+		title = 'GMd: %s' % title
 
 	dlg = wx.MessageDialog(None, question, title, style)
 	btn_pressed = dlg.ShowModal()

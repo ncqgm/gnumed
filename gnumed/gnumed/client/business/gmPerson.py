@@ -1141,7 +1141,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 
 		try:
 			gmPG2.run_rw_queries(link_obj = link_obj, queries = queries, end_tx = True)
-		except StandardError:
+		except Exception:
 			return False, _('The merge failed. Check the log and [%s]') % script_name
 
 		self.add_external_id (
@@ -2332,9 +2332,9 @@ def create_name(pk_person, firstnames, lastnames, active=False):
 	return name
 
 #============================================================
-def create_identity(gender=None, dob=None, lastnames=None, firstnames=None):
+def create_identity(gender=None, dob=None, lastnames=None, firstnames=None, comment=None):
 
-	cmd1 = """INSERT INTO dem.identity (gender, dob) VALUES (%s, %s)"""
+	cmd1 = "INSERT INTO dem.identity (gender, dob, comment) VALUES (%s, %s, %s)"
 	cmd2 = """
 INSERT INTO dem.names (
 	id_identity, lastnames, firstnames
@@ -2345,13 +2345,13 @@ INSERT INTO dem.names (
 	try:
 		rows, idx = gmPG2.run_rw_queries (
 			queries = [
-				{'cmd': cmd1, 'args': [gender, dob]},
+				{'cmd': cmd1, 'args': [gender, dob, comment]},
 				{'cmd': cmd2, 'args': [lastnames, firstnames]}
 				#{'cmd': cmd2, 'args': [firstnames, lastnames]}
 			],
 			return_data = True
 		)
-	except StandardError:
+	except Exception:
 		_log.exception('cannot create identity')
 		gmLog2.log_stack_trace()
 		return None

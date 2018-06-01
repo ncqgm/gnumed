@@ -23,6 +23,7 @@ IMPROVED: test type edit area workflow
 IMPROVED: CLI EMR export tool
 IMPROVED: form disposal dialog
 IMPROVED: date/timestamp picker functionality
+IMPROVED: better duplicate person detection
 
 FIX: [Save] functionality of Export Area
 FIX: document tree sorting / document insertion
