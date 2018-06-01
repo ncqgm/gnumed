@@ -33,6 +33,9 @@ FIX: document tree sorting / document insertion
 
 	1.7.3
 
+FIX: failure to merge patients under some conditions [thanks Marc]
+FIX: exception on creating person duplicates
+
 IMPROVED: robustify tarballing script against network flukes
 
 	1.7.2

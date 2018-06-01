@@ -485,6 +485,17 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 			lastnames = self._PRW_lastname.GetValue().strip(),
 			firstnames = self._PRW_firstnames.GetValue().strip()
 		)
+		if new_identity is None:
+			gmGuiHelpers.gm_show_error (
+				title = _('Creating person.'),
+				error = _(
+					'Failed to create person. Does it already exist ?\n'
+					'\n'
+					'If so you need to (temporarily) modify, say, the\n'
+					'first or last name.'
+				)
+			)
+			return False
 		_log.info('identity created: %s' % new_identity)
 
 		new_identity['dob_is_estimated'] = self._CHBOX_estimated_dob.GetValue()
