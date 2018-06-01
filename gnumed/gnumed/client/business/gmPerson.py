@@ -988,60 +988,55 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 		})
 
 		# transfer names
-		# 1) disambiguate names in old patient
+		# 1) hard-disambiguate all inactive names in old patient
+		#    (the active one will be disambiguated upon being moved)
 		queries.append ({
 			'cmd': u"""
 				UPDATE dem.names d_n1 SET
-					lastnames = lastnames || coalesce (
-						' (from "' || (SELECT comment FROM dem.identity WHERE pk = %%(pat2del)s) || '")',
-						' (%s)'
-					)
+					comment = coalesce (
+						comment, ''
+					) || coalesce (
+						' (from identity: "' || (SELECT comment FROM dem.identity WHERE pk = %%(pat2del)s) || '")',
+						''
+					) || ' (during: "%s")'
 				WHERE
 					d_n1.id_identity = %%(pat2del)s
-						AND
-					EXISTS (
-						SELECT 1 FROM dem.names d_n2
-						WHERE
-							d_n2.id_identity = %%(pat2keep)s
-								AND
-							d_n2.lastnames = d_n1.lastnames
-								AND
-							d_n2.firstnames = d_n1.firstnames
-					)""" % distinguisher,
+				""" % distinguisher,
 			'args': args
 		})
 		# 2) move inactive ones (dupes are expected to have been eliminated in step 1 above)
 		queries.append ({
 			'cmd': u"""
-				UPDATE dem.names SET
-					id_identity = %%(pat2keep)s,
-					comment = coalesce(comment || ' (%s)', '%s')
+				UPDATE dem.names d_n SET
+					id_identity = %(pat2keep)s,
+					lastnames = lastnames || ' [' || random()::TEXT || ']'
 				WHERE
-					id_identity = %%(pat2del)s
+					d_n.id_identity = %(pat2del)s
 						AND
-					active IS false
-				""" % (distinguisher, distinguisher),
+					d_n.active IS false
+				""",
 			'args': args
 		})
-		# 3) copy active name (because each identity MUST have at most one
-		#    *active* name so we can't just UPDATE over to pat2keep),
-#		#    also, needs de-duplication or else it would conflict with *itself*
-#		#    on pat2keep, said de-duplication happened in step 0 above
-#		#    whereby pat2del is made unique by means of adding a pseudo-random
-#		#    dem.identity.comment
+		# 3) copy active name into pat2keep as an inactive name,
+		#    because each identity MUST have at LEAST one name,
+		#    we can't simply UPDATE over to pat2keep
+		#    also, needs de-duplication or else it would conflict with
+		#    *itself* on pat2keep
 		queries.append ({
 			'cmd': u"""
 				INSERT INTO dem.names (
-					id_identity, active, lastnames, firstnames, preferred, comment
+					id_identity, active, firstnames, preferred, comment,
+					lastnames
 				)
 					SELECT
-						%%(pat2keep)s, false, lastnames, firstnames, preferred, coalesce(comment || ' (%s)', '%s')
+						%(pat2keep)s, false, firstnames, preferred, comment,
+						lastnames || ' [' || random()::text || ']'
 					FROM dem.names d_n
 					WHERE
-						d_n.id_identity = %%(pat2del)s
+						d_n.id_identity = %(pat2del)s
 							AND
 						d_n.active IS true
-				""" % (distinguisher, distinguisher),
+				""",
 			'args': args
 		})
 
@@ -1144,7 +1139,10 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 		script.write(u'--COMMIT;\n')
 		script.close()
 
-		gmPG2.run_rw_queries(link_obj = link_obj, queries = queries, end_tx = True)
+		try:
+			gmPG2.run_rw_queries(link_obj = link_obj, queries = queries, end_tx = True)
+		except StandardError:
+			return False, _('The merge failed. Check the log and [%s]') % script_name
 
 		self.add_external_id (
 			type_name = u'merged GNUmed identity primary key',
@@ -2345,14 +2343,19 @@ INSERT INTO dem.names (
 	currval('dem.identity_pk_seq'), coalesce(%s, 'xxxDEFAULTxxx'), coalesce(%s, 'xxxDEFAULTxxx')
 ) RETURNING id_identity"""
 #	cmd2 = u"select dem.add_name(currval('dem.identity_pk_seq')::integer, coalesce(%s, 'xxxDEFAULTxxx'), coalesce(%s, 'xxxDEFAULTxxx'), True)"
-	rows, idx = gmPG2.run_rw_queries (
-		queries = [
-			{'cmd': cmd1, 'args': [gender, dob]},
-			{'cmd': cmd2, 'args': [lastnames, firstnames]}
-			#{'cmd': cmd2, 'args': [firstnames, lastnames]}
-		],
-		return_data = True
-	)
+	try:
+		rows, idx = gmPG2.run_rw_queries (
+			queries = [
+				{'cmd': cmd1, 'args': [gender, dob]},
+				{'cmd': cmd2, 'args': [lastnames, firstnames]}
+				#{'cmd': cmd2, 'args': [firstnames, lastnames]}
+			],
+			return_data = True
+		)
+	except StandardError:
+		_log.exception('cannot create identity')
+		gmLog2.log_stack_trace()
+		return None
 	ident = cPerson(aPK_obj = rows[0][0])
 	gmHooks.run_hook_script(hook = u'post_person_creation')
 	return ident
@@ -2681,6 +2684,15 @@ if __name__ == '__main__':
 	def test_ext_id():
 		person = cPerson(aPK_obj = 12)
 		print person.suggest_external_id(target = u'Orthanc')
+
+	#--------------------------------------------------------
+	def test_assimilate_identity():
+		patient = cPatient(12)
+		set_active_patient(patient = patient)
+		curr_pat = gmCurrentPatient()
+		other_pat = cIdentity(1111111)
+		curr_pat.assimilate_identity(other_identity=None)
+
 	#--------------------------------------------------------
 	#test_dto_person()
 	#test_identity()
@@ -2697,7 +2709,8 @@ if __name__ == '__main__':
 	#test_export_area()
 	#test_ext_id()
 	#test_vcf()
-	test_ext_id()
-	test_current_patient()
+	#test_ext_id()
+	#test_current_patient()
+	test_assimilate_identity()
 
 #============================================================
