@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-21 17:12+0100\n"
+"POT-Creation-Date: 2018-06-04 10:40+0200\n"
 "PO-Revision-Date: 2012-05-30 18:43+0000\n"
 "Last-Translator: YvLy <Unknown>\n"
 "Language-Team: Russian <ru@li.org>\n"
@@ -2862,84 +2862,32 @@ msgstr "%s (%s следующий год)"
 msgid "%s (%s last year)"
 msgstr "%s (%s прошлый год)"
 
-#, python-format
-msgid "%s this week (%s of %s)"
-msgstr "%s текущая неделя (%s of %s)"
-
-#, python-format
-msgid "%s next week (%s of %s)"
-msgstr "%s следующая неделя (%s of %s)"
-
-#, python-format
-msgid "%s last week (%s of %s)"
-msgstr "%s прошедшая неделя (%s of %s)"
-
 msgid "hdwmy (single character date offset triggers)"
 msgstr "hdwmy (триггеры смещения одинарных символов даты)"
-
-#, python-format
-msgid "in %d hour(s): %s"
-msgstr "в %d часов: %s"
 
 #, python-format
 msgid "%d hour(s) ago: %s"
 msgstr "%d часов тому назад: %s"
 
 #, python-format
-msgid "in %d month(s): %s"
-msgstr "на %d месяц: %s"
+msgid "in %d hour(s): %s"
+msgstr "в %d часов: %s"
 
 #, python-format
 msgid "%d month(s) ago: %s"
 msgstr "%d месяцев тому назад: %s"
 
 #, python-format
-msgid "in %d year(s): %s"
-msgstr "на %d лет: %s"
+msgid "in %d month(s): %s"
+msgstr "на %d месяц: %s"
 
 #, python-format
 msgid "%d year(s) ago: %s"
 msgstr "%d лет тому назад: %s"
 
 #, python-format
-msgid "in %d hour(s) - %s"
-msgstr "в %d часов - %s"
-
-#, python-format
-msgid "%d hour(s) ago - %s"
-msgstr "%d часов тому назад - %s"
-
-#, python-format
-msgid "in %d day(s) - %s"
-msgstr "на %d день - %s"
-
-#, python-format
-msgid "%d day(s) ago - %s"
-msgstr "%d дней тому назад - %s"
-
-#, python-format
-msgid "in %d week(s) - %s"
-msgstr "на %d неделе - %s"
-
-#, python-format
-msgid "%d week(s) ago - %s)"
-msgstr "%d недель тому назад - %s)"
-
-#, python-format
-msgid "in %d month(s) - %s"
-msgstr "в %d месяцах - %s"
-
-#, python-format
-msgid "%d month(s) ago - %s"
-msgstr "%d месяцев тому назад - %s"
-
-#, python-format
-msgid "in %d year(s) - %s"
-msgstr "в %d годах - %s"
-
-#, python-format
-msgid "%d year(s) ago - %s"
-msgstr "%d лет тому назад - %s"
+msgid "in %d year(s): %s"
+msgstr "на %d лет: %s"
 
 #, python-format
 msgid "%d. of %s (this month) - a %s"
@@ -2952,6 +2900,14 @@ msgstr "%d. %s (следующего месяца) - a %s"
 #, python-format
 msgid "%d. of %s (last month) - a %s"
 msgstr "%d. %s (прошлого месяца) - a %s"
+
+#, python-format
+msgid "in %d day(s) - %s"
+msgstr "на %d день - %s"
+
+#, python-format
+msgid "in %d week(s) - %s"
+msgstr "на %d неделе - %s"
 
 msgid "Cannot connect to database without login information!"
 msgstr "Не удалось подключить к базе данных без информации о входе в систему!"
@@ -3542,18 +3498,6 @@ msgstr ""
 msgid "Seq #"
 msgstr "Далее #"
 
-msgid "Previous Encounters"
-msgstr "Предыдущие обращения"
-
-msgid "New notes in current encounter"
-msgstr "Новые записи в текущем обращении"
-
-msgid "Tips and Hints"
-msgstr "Подсказки и советы"
-
-msgid "Active Device Settings"
-msgstr "Параметры настройки подключенного устройства"
-
 msgid ""
 "In this area GNUmed will place the status of all cardiac devices and device "
 "parts. There can be more than one device at a time\n"
@@ -3736,6 +3680,18 @@ msgstr "Очищает редактор для отображаемой рабо
 
 msgid "Discard the editor for the displayed progress note."
 msgstr "Закрывает редактор для отображаемой рабочей записи."
+
+msgid "Tips and Hints"
+msgstr "Подсказки и советы"
+
+msgid "New notes in current encounter"
+msgstr "Новые записи в текущем обращении"
+
+msgid "Previous Encounters"
+msgstr "Предыдущие обращения"
+
+msgid "Active Device Settings"
+msgstr "Параметры настройки подключенного устройства"
 
 msgid "Encounter"
 msgstr "Обращение"
@@ -4894,9 +4850,6 @@ msgstr "Цель"
 msgid "Please supply your email address here !"
 msgstr "<Вставьте здесь свой адрес email!>"
 
-msgid "Details"
-msgstr "Сведения"
-
 msgid "Keep running"
 msgstr "Запуск  ведения"
 
@@ -4961,6 +4914,9 @@ msgstr ""
 "\n"
 "Если укажите свой адресс в поле отправителя выше, разработчики "
 "смогутответить вам напрямую."
+
+msgid "Details"
+msgstr "Сведения"
 
 msgid "An unhandled exception has occurred."
 msgstr "Произошла необрабатываемая ошибка."
@@ -5918,17 +5874,11 @@ msgstr "Имелась аллергия"
 msgid "&Update / Confirm"
 msgstr "&Update / Con&firm"
 
-msgid "Allergy state"
-msgstr "Статус аллергии"
-
 msgid ""
 "Input new allergy, or select from among existing allergy items to edit them:"
 msgstr ""
 "Введите новую аллергию или выберите из имеющихся пунктов для последующего "
 "изменения:"
-
-msgid "Allergy details"
-msgstr "Сведения об аллергии"
 
 msgid "Allergy Manager"
 msgstr "Редактор по аллергии"
@@ -5977,6 +5927,12 @@ msgstr "Удаляет аллергию, выбранную в списке из
 
 msgid "Close the dialag. Will discard unsaved data."
 msgstr "Закрывает диалог. Несохраненные данные будут сброшены."
+
+msgid "Allergy details"
+msgstr "Сведения об аллергии"
+
+msgid "Allergy state"
+msgstr "Статус аллергии"
 
 msgid "Currently:"
 msgstr "В настоящее время:"
@@ -6568,9 +6524,6 @@ msgstr "Закрытые эпизоды"
 msgid "Non-relevant issues"
 msgstr "Неотносящиеся медицинские проблемы"
 
-msgid "Active problems"
-msgstr "Текущие заболевания"
-
 #, fuzzy
 msgid "Notes only"
 msgstr "Только &Me"
@@ -6593,10 +6546,6 @@ msgstr ""
 "Учтите, что их можно изменить в зависимости от\n"
 "выбора активного заболевания в редакторе ниже."
 
-#, fuzzy
-msgid "Most recent info on above problem"
-msgstr "Самые свежие записи по вышеотмеченному заболеванию."
-
 msgid "Show closed episodes as pseudo-problems ?"
 msgstr "Показать закрытые эпизоды как псевдо-проблемы?"
 
@@ -6616,6 +6565,13 @@ msgstr "Самые свежие записи по вышеотмеченному
 
 msgid "Show full information (regarding above problem)"
 msgstr ""
+
+#, fuzzy
+msgid "Most recent info on above problem"
+msgstr "Самые свежие записи по вышеотмеченному заболеванию."
+
+msgid "Active problems"
+msgstr "Текущие заболевания"
 
 msgid "Schock index"
 msgstr "Шоковый индекс"
@@ -7423,10 +7379,6 @@ msgstr "Показать только без выписки счета"
 msgid "&Insert"
 msgstr "&Вставить"
 
-#, fuzzy
-msgid "Add billing item to current encounter"
-msgstr "Новые записи в текущем обращении"
-
 msgid ""
 "Select - by code or part of the description - a billable item to add to the "
 "patient."
@@ -7446,6 +7398,10 @@ msgstr ""
 
 msgid "Add the selected billing item to the patient."
 msgstr "Добавьте выбранный пункт счета  для пациента."
+
+#, fuzzy
+msgid "Add billing item to current encounter"
+msgstr "Новые записи в текущем обращении"
 
 msgid "Item:"
 msgstr "Пункт:"
@@ -7567,10 +7523,11 @@ msgstr "Сброс всех полей к их предыдущим значен
 msgid "Cancel editing the data and discard changes."
 msgstr "Отменяет измененные данные и сбрасывает изменения."
 
+#, fuzzy
 msgid ""
 "Press me !\n"
 "\n"
-"(This will NOT endanger any data.)"
+"(This will, of course, NOT modify any data.)"
 msgstr ""
 "Нажми здесь!\n"
 "\n"
@@ -7695,21 +7652,40 @@ msgstr "Введите ниже"
 msgid "Do not reformat text"
 msgstr "Не переформатировать текст"
 
+msgid "Formatting help"
+msgstr ""
+
+msgid "http://docutils.sourceforge.net/docs/user/rst/quickref.html"
+msgstr ""
+
 msgid "Generic multi line text entry dialog"
 msgstr "Вызвать диалоговое окно ввода объемного текста"
 
 msgid ""
-"Leave this unchecked so that GNUmed can check for characters that need "
-"escaping or transforming.\n"
+"This is an option for power users.\n"
 "\n"
-"Use this option when you have put in raw formatting, like HTML or LaTeX, "
-"that you are confident should be left untouched."
+"GNUmed will normally check your input for parts that\n"
+"need escaping or transforming for proper output. It will\n"
+"also convert any ReST formatting, if possible.\n"
+"\n"
+"Check this option if you do NOT want GNUmed to apply\n"
+"ANY modifications to ANY of your input into this dialog.\n"
+"\n"
+"This is useful when you have entered raw formatting,\n"
+"like HTML or LaTeX, and you are confident it should be\n"
+"put into the output as-is. Note that this will also disable\n"
+"ReST post-processing."
 msgstr ""
-"Оставьте это флажок, чтобы GNUmed мог проверить символы, нуждающиеся в "
-"экранировании или преобразовании.\n"
+
+msgid ""
+"If you are writing a letter, and the letter is processed\n"
+"by LaTeX, you can use reStructuredText markup to\n"
+"format some aspects of your text.\n"
 "\n"
-"Этот параметр используется, когда вводите форматирование raw, подобно HTML "
-"или LaTeX, которое точно должно быть оставлено нетронутым."
+"Lists, tables, and emphasis will mainly be useful.\n"
+"\n"
+"Follow the link for details."
+msgstr ""
 
 msgid "Search"
 msgstr "Найти"
@@ -8025,12 +8001,6 @@ msgstr "Обращение"
 msgid "Start a new encounter for the active patient."
 msgstr "Запустите новое обращение для активного пациента."
 
-msgid "Clinically relevant"
-msgstr "Клинически значимо"
-
-msgid "Technically abnormal"
-msgstr "Формальное отклонение от нормы"
-
 msgid "... test results listing goes here ..."
 msgstr "... результаты анализа, перечисленные здесь ..."
 
@@ -8114,6 +8084,12 @@ msgstr ""
 msgid "Cancel and discard review, that is, do NOT sign off results."
 msgstr ""
 "Отменить и сбросить имеющуюся производную таблицу, НЕ подписывая результаты."
+
+msgid "Clinically relevant"
+msgstr "Клинически значимо"
+
+msgid "Technically abnormal"
+msgstr "Формальное отклонение от нормы"
 
 msgid ""
 "This signing applies to ALL results currently selected in the viewer.\n"
@@ -8342,9 +8318,6 @@ msgstr "&Image"
 msgid "Save &all"
 msgstr "Сохранить &all"
 
-msgid "New notelets in current encounter"
-msgstr "Новые заметочки в текущем обращении"
-
 msgid ""
 "Also known as the Reason For Encounter/Visit (RFE).\n"
 "\n"
@@ -8392,6 +8365,9 @@ msgstr ""
 
 msgid "Add a visual progress note for this episode."
 msgstr "Добавляет визуальную рабочую запись для этого эпизода."
+
+msgid "New notelets in current encounter"
+msgstr "Новые заметочки в текущем обращении"
 
 msgid "tab1"
 msgstr "закладка1"
@@ -8449,9 +8425,10 @@ msgstr "Имя файла"
 msgid "Database welcome message editor"
 msgstr "Редактор приветствия базы данных"
 
+#, fuzzy
 msgid ""
-"Below you can edit the database welcome message shown at startup\n"
-"which allows you to identify the database you are connected to.\n"
+"Below you can edit the database welcome message shown at startup which "
+"allows you to identify the database you are connected to.\n"
 "\n"
 "To disable that popup leave the message empty."
 msgstr ""
@@ -9895,6 +9872,10 @@ msgstr "Не удалось объединить активного пациен
 msgid "merge of #%s into #%s @ %s"
 msgstr ""
 
+#, python-format
+msgid "The merge failed. Check the log and [%s]"
+msgstr ""
+
 msgid "invalid age: DOB in the future"
 msgstr "неверный возраст: дата рождения в будущем"
 
@@ -9948,8 +9929,16 @@ msgid "Test panel \"%s\"          [#%s]\n"
 msgstr "Вещество: %s [#%s]\n"
 
 #, fuzzy
-msgid "Included test types:\n"
-msgstr "Тип анализа:\n"
+msgid "Includes:\n"
+msgstr "Включить:"
+
+#, fuzzy
+msgid "no tests"
+msgstr "Анализ"
+
+#, fuzzy, python-format
+msgid " %s: %s\n"
+msgstr "В возрасте: %s\n"
 
 #, fuzzy, python-format
 msgid ""
@@ -10042,8 +10031,8 @@ msgstr ""
 msgid "Type: \"%(name)s\" (%(abbr)s)  [#%(pk_type)s]\n"
 msgstr "Введите:\"%(name)s\" (%(code)s) [#%(pk_type)s]\n"
 
-#, python-format
-msgid "Result: %(val)s%(unit)s%(ind)s  [#%(pk_result)s]\n"
+#, fuzzy, python-format
+msgid "%(sso)sResult: %(val)s%(unit)s%(ind)s  [#%(pk_result)s]\n"
 msgstr "Результат: %(val)s%(unit)s%(ind)s [#%(pk_result)s]\n"
 
 #, fuzzy, python-format
@@ -11964,8 +11953,34 @@ msgstr "Выбрать данные ..."
 msgid "<ALT-C/K>: pick from (c/k)alendar"
 msgstr "<ALT-C/K>: выбрать из (c/k)alendar"
 
+#, fuzzy, python-format
+msgid ""
+"%s\n"
+" (a %s in %s)"
+msgstr "%d дней тому назад - %s"
+
+#, fuzzy, python-format
+msgid ""
+"%s\n"
+" (a %s %s ago)"
+msgstr "%s %s %s %s (%s тому назад, %s)"
+
 msgid "Cannot interpret input as timestamp."
 msgstr "Не удалось интерпретировать ввод как  временную метку."
+
+#, fuzzy, python-format
+msgid ""
+"%s\n"
+" %s\n"
+" in %s"
+msgstr "%d дней тому назад - %s"
+
+#, fuzzy, python-format
+msgid ""
+"%s\n"
+"%s\n"
+"%s ago"
+msgstr "%s тому назад"
 
 msgid "No vaccines were chosen"
 msgstr "Вакцина не выбрана"
@@ -12821,6 +12836,9 @@ msgstr "Необходимо ввести первое имя."
 msgid "Must select gender."
 msgstr "Необходимо выбрать пол."
 
+msgid "Duplicate person. Modify name and/or DOB or use comment to make unique."
+msgstr ""
+
 msgid ""
 "To properly create an address, all the related fields must be filled in."
 msgstr ""
@@ -12831,6 +12849,16 @@ msgstr "Обязательные поля"
 
 msgid "This field must contain an item selected from the dropdown list."
 msgstr "Это поле должно содержать пункт, выбранный из выпадающего списка."
+
+#, fuzzy
+msgid "Creating person."
+msgstr "выбор персоны"
+
+msgid ""
+"Failed to create person. Does it already exist ?\n"
+"\n"
+"If so you need to add a unique comment."
+msgstr ""
 
 msgid "Saving address"
 msgstr "Сохранение адреса"
@@ -14218,7 +14246,8 @@ msgstr ""
 msgid "Report Generator"
 msgstr "Генератор отчётов"
 
-msgid "not unicode()able"
+#, fuzzy
+msgid "not str()able"
 msgstr "не unicode()able"
 
 msgid "Select a message type."
@@ -17619,6 +17648,10 @@ msgstr ""
 "Необходимо выбрать из списка сотрудников врача, назначенного для подписи "
 "этого документа."
 
+#, fuzzy
+msgid "Invalid date of generation."
+msgstr "Неправильная дата рождения."
+
 msgid "There is no scanner support installed on this machine."
 msgstr "На этом компьютере не установлена поддержка сканера."
 
@@ -17716,6 +17749,10 @@ msgstr "Ref #"
 #, fuzzy
 msgid "Show all parts of this document in external viewer."
 msgstr "Показывает лог-файл в программе просмотра текста."
+
+#, fuzzy
+msgid "Age noted"
+msgstr "Возрастная категория"
 
 #, fuzzy
 msgid "Bill"
@@ -18083,8 +18120,8 @@ msgid "Deleting document"
 msgstr "Удаление документа"
 
 #, fuzzy
-msgid "Referrer"
-msgstr "Направления"
+msgid "Authority"
+msgstr "Указатели полномочий"
 
 #, fuzzy
 msgid "Time"
@@ -18103,6 +18140,10 @@ msgstr "поле xDT"
 
 #, fuzzy
 msgid "Cannot connect without port (try 8042)."
+msgstr "Не удалось подготовить без сценария подготовки."
+
+#, fuzzy
+msgid "Invalid port (try 8042)."
 msgstr "Не удалось подготовить без сценария подготовки."
 
 #, python-format
@@ -18478,9 +18519,6 @@ msgstr ""
 msgid "Progress notes handling ..."
 msgstr "Управление рабочими записями ..."
 
-msgid "User interface ..."
-msgstr "Пользовательский интерфейс ..."
-
 msgid "MI/stroke risk calc cmd"
 msgstr "MI/stroke risk calc cmd"
 
@@ -18631,6 +18669,9 @@ msgstr ""
 msgid "Episode ..."
 msgstr "Эпизод ..."
 
+msgid "User interface ..."
+msgstr "Пользовательский интерфейс ..."
+
 msgid "EMR ..."
 msgstr "EMR ..."
 
@@ -18726,20 +18767,20 @@ msgstr "Внешний код"
 msgid "Load and possibly create person from available external sources."
 msgstr "Загрузить и, возможно, создать персону из внешнего источника."
 
-msgid "&vCard file → patient"
+msgid "&vCard file \\u2192 patient"
 msgstr ""
 
 #, fuzzy
 msgid "Import demographics from .vcf vCard file as patient"
 msgstr "Демографические сведения экспортированы в файл GDT [%s]."
 
-msgid "Clipboard (&XML) → patient"
+msgid "Clipboard (&XML) \\u2192 patient"
 msgstr ""
 
 msgid "Import demographics from clipboard (LinuxMedNews XML) as patient"
 msgstr ""
 
-msgid "Clipboard (&vCard) → patient"
+msgid "Clipboard (&vCard) \\u2192 patient"
 msgstr ""
 
 msgid "Import demographics from clipboard (vCard) as patient"
@@ -18762,6 +18803,10 @@ msgid "Export demographics of currently active person as vCard into clipboard"
 msgstr ""
 "Экспортирует демографические сведения текущей активной персоны в файл GDT."
 
+#, fuzzy
+msgid "\\u2192 &Clipboard as\\u2026"
+msgstr "Экспорт в &clipboard"
+
 msgid "Export demographics of currently active person into GDT file."
 msgstr ""
 "Экспортирует демографические сведения текущей активной персоны в файл GDT."
@@ -18771,11 +18816,7 @@ msgid "Export demographics of currently active person into vCard file."
 msgstr ""
 "Экспортирует демографические сведения текущей активной персоны в файл GDT."
 
-#, fuzzy
-msgid "→ &Clipboard as…"
-msgstr "Экспорт в &clipboard"
-
-msgid "→ &File as…"
+msgid "\\u2192 &File as\\u2026"
 msgstr ""
 
 msgid "&Merge persons"
@@ -18921,8 +18962,9 @@ msgstr "Компоненты"
 msgid "Manage substance abuse documentation of this patient."
 msgstr "для этого пациента нет тэгов"
 
-msgid "&Add / Edit ..."
-msgstr "&Add / Изменить ..."
+#, fuzzy
+msgid "&Manage ..."
+msgstr "&Manage"
 
 msgid "Search this EMR"
 msgstr "Поиск этого EMR"
@@ -19103,11 +19145,11 @@ msgstr "&Database"
 msgid "Jump to the drug database configured as the default."
 msgstr "Переход к базе данных лекарств, конфигурированной как умолчание."
 
-msgid "&Drug Resources"
-msgstr "&Drug ресурсы"
-
 msgid "Show \"kompendium.ch\" drug database (online, Switzerland)"
 msgstr "Паказать базу данных лекарств \"kompendium.ch\" (онлайн, Швейцария)"
+
+msgid "&Drug Resources"
+msgstr "&Drug ресурсы"
 
 msgid "Medical links (www)"
 msgstr "Медицинские ссылки (www)"
@@ -20387,20 +20429,6 @@ msgstr "нет пациента"
 msgid "Saved screenshot to file [%s]."
 msgstr "Сохраненный скриншот в файле [%s]."
 
-msgid "Python version check"
-msgstr ""
-
-#, python-format
-msgid ""
-"You are running Python version\n"
-" %s\n"
-"\n"
-"However, GNUmed wants Python 2.7 to\n"
-"facilitate migration to Python 3.\n"
-"\n"
-"Please upgrade your Python interpreter !"
-msgstr ""
-
 msgid "GNUmed client"
 msgstr "клиент GNUmed"
 
@@ -21320,7 +21348,7 @@ msgid "Set line to category \"administrative\""
 msgstr ""
 
 #, fuzzy
-msgid "→ &Clipboard"
+msgid "\\u2192 &Clipboard"
 msgstr "Экспорт в &clipboard"
 
 #, fuzzy
@@ -21328,7 +21356,7 @@ msgid "Copy line to clipboard"
 msgstr "Невозможно скопировать в буфер."
 
 #, fuzzy
-msgid "→ +Clipboard+"
+msgid "\\u2192 +Clipboard+"
 msgstr "Экспорт в &clipboard"
 
 #, fuzzy
@@ -21569,12 +21597,6 @@ msgstr "Выполнить по выбранным результатам:"
 msgid "Review and &sign"
 msgstr "Проверка и &sign"
 
-msgid "Export to &file"
-msgstr "Экспорт в &file"
-
-msgid "Export to &clipboard"
-msgstr "Экспорт в &clipboard"
-
 #, fuzzy
 msgid "Problems"
 msgstr "Проблема"
@@ -21677,6 +21699,12 @@ msgstr ""
 msgid "All: by &Day"
 msgstr ""
 
+msgid "Export to &file"
+msgstr "Экспорт в &file"
+
+msgid "Export to &clipboard"
+msgstr "Экспорт в &clipboard"
+
 #, python-format
 msgid "%s results selected. Too many to list individually."
 msgstr "Выбрано %s результатов. Слишком много для отдельного списка."
@@ -21719,17 +21747,9 @@ msgid "Cannot delete measurement type [%s (%s)] because it is in use."
 msgstr ""
 "Не удалось удалить тип исследования [%s (%s)], так как он в использовании."
 
-msgid ""
-"\n"
-"These are the measurement types currently defined in GNUmed.\n"
-"\n"
-msgstr ""
-"\n"
-"Это типы исследований, определенные в настоящее время в GNUmed.\n"
-"\n"
-
-msgid "Showing measurement types."
-msgstr "Отображение типов исследований."
+#, fuzzy
+msgid "Measurement types."
+msgstr "Исследования"
 
 msgid "Org"
 msgstr "Организация"
@@ -21741,6 +21761,14 @@ msgstr ""
 #, python-format
 msgid "Manage aggregations (%s) of tests into groups."
 msgstr ""
+
+#, fuzzy
+msgid "Select panels"
+msgstr "Тип анализа:\n"
+
+#, fuzzy
+msgid "Select panels the focussed test type is to belong to."
+msgstr "Выберите тип канала связи."
 
 msgid "generic / in house lab"
 msgstr "дженерик / в домашней лаборатории"
@@ -21835,25 +21863,20 @@ msgid "Editing test panel"
 msgstr "Тэг изменения"
 
 #, fuzzy
-msgid ""
-"\n"
-"Test panels as defined in GNUmed.\n"
-msgstr ""
-"\n"
-"Это типы исследований, определенные в настоящее время в GNUmed.\n"
-"\n"
-
-#, fuzzy
-msgid "Showing test panels."
-msgstr "Отображение метатипов анализов."
+msgid "Test panels list"
+msgstr "Результаты анализов"
 
 #, fuzzy
 msgid "Select a test panel."
 msgstr "Выберите тип сообщения."
 
 #, fuzzy
-msgid "code not found"
+msgid "LOINC not found"
 msgstr "pgAdmin III не найден."
+
+#, fuzzy
+msgid "not a LOINC"
+msgstr "Загрузка LOINC"
 
 #, fuzzy
 msgid "No LOINC codes selected."
@@ -21951,6 +21974,9 @@ msgstr "Открыть на уровне обращения"
 
 msgid "Episode Actions:"
 msgstr "Действия с эпизодом:"
+
+msgid "Toggle ongoing/closed"
+msgstr ""
 
 msgid "Promote"
 msgstr "Повысить"
@@ -23269,6 +23295,96 @@ msgstr "Отменить"
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Отменить и НЕ подключаться к GNUmed."
 
+#~ msgid ""
+#~ "Leave this unchecked so that GNUmed can check for characters that need "
+#~ "escaping or transforming.\n"
+#~ "\n"
+#~ "Use this option when you have put in raw formatting, like HTML or LaTeX, "
+#~ "that you are confident should be left untouched."
+#~ msgstr ""
+#~ "Оставьте это флажок, чтобы GNUmed мог проверить символы, нуждающиеся в "
+#~ "экранировании или преобразовании.\n"
+#~ "\n"
+#~ "Этот параметр используется, когда вводите форматирование raw, подобно "
+#~ "HTML или LaTeX, которое точно должно быть оставлено нетронутым."
+
+#~ msgid "%s this week (%s of %s)"
+#~ msgstr "%s текущая неделя (%s of %s)"
+
+#~ msgid "%s next week (%s of %s)"
+#~ msgstr "%s следующая неделя (%s of %s)"
+
+#~ msgid "%s last week (%s of %s)"
+#~ msgstr "%s прошедшая неделя (%s of %s)"
+
+#~ msgid "in %d hour(s) - %s"
+#~ msgstr "в %d часов - %s"
+
+#~ msgid "%d hour(s) ago - %s"
+#~ msgstr "%d часов тому назад - %s"
+
+#~ msgid "%d day(s) ago - %s"
+#~ msgstr "%d дней тому назад - %s"
+
+#~ msgid "%d week(s) ago - %s)"
+#~ msgstr "%d недель тому назад - %s)"
+
+#~ msgid "in %d month(s) - %s"
+#~ msgstr "в %d месяцах - %s"
+
+#~ msgid "%d month(s) ago - %s"
+#~ msgstr "%d месяцев тому назад - %s"
+
+#~ msgid "in %d year(s) - %s"
+#~ msgstr "в %d годах - %s"
+
+#~ msgid "%d year(s) ago - %s"
+#~ msgstr "%d лет тому назад - %s"
+
+#, fuzzy
+#~ msgid "Included test types:\n"
+#~ msgstr "Тип анализа:\n"
+
+#, fuzzy
+#~ msgid "Referrer"
+#~ msgstr "Направления"
+
+#~ msgid "&Add / Edit ..."
+#~ msgstr "&Add / Изменить ..."
+
+#, fuzzy
+#~ msgid "→ &Clipboard"
+#~ msgstr "Экспорт в &clipboard"
+
+#~ msgid ""
+#~ "\n"
+#~ "These are the measurement types currently defined in GNUmed.\n"
+#~ "\n"
+#~ msgstr ""
+#~ "\n"
+#~ "Это типы исследований, определенные в настоящее время в GNUmed.\n"
+#~ "\n"
+
+#~ msgid "Showing measurement types."
+#~ msgstr "Отображение типов исследований."
+
+#, fuzzy
+#~ msgid ""
+#~ "\n"
+#~ "Test panels as defined in GNUmed.\n"
+#~ msgstr ""
+#~ "\n"
+#~ "Это типы исследований, определенные в настоящее время в GNUmed.\n"
+#~ "\n"
+
+#, fuzzy
+#~ msgid "Showing test panels."
+#~ msgstr "Отображение метатипов анализов."
+
+#, fuzzy
+#~ msgid "code not found"
+#~ msgstr "pgAdmin III не найден."
+
 #~ msgid "This shows the entirety of the selected message in your Inbox."
 #~ msgstr "Показывает все выбранные в вашем почтовом ящике сообщения."
 
@@ -23465,10 +23581,6 @@ msgstr "Отменить и НЕ подключаться к GNUmed."
 
 #~ msgid "Go to &Time\tCtrl+T"
 #~ msgstr "Перейти к &Time\tCtrl+T"
-
-#, fuzzy
-#~ msgid "&Manage..."
-#~ msgstr "&Manage"
 
 #, fuzzy
 #~ msgid ""
@@ -24467,10 +24579,6 @@ msgstr "Отменить и НЕ подключаться к GNUmed."
 #, fuzzy
 #~ msgid "A comment on this test panel."
 #~ msgstr "Комментарий по этой персоне."
-
-#, fuzzy
-#~ msgid "Select the test types for this panel."
-#~ msgstr "Выберите тип канала связи."
 
 #~ msgid ""
 #~ "Error creating printable document.\n"

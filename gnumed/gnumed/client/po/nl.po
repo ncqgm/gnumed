@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-21 17:11+0100\n"
+"POT-Creation-Date: 2018-06-04 10:40+0200\n"
 "PO-Revision-Date: 2012-06-01 01:19+0000\n"
 "Last-Translator: Anik ten Have <anik@itchi-go.nl>\n"
 "Language-Team: Dutch <nl@li.org>\n"
@@ -2669,84 +2669,32 @@ msgstr "%s (%s volgend jaar)"
 msgid "%s (%s last year)"
 msgstr "%s (%s volgend jaar)"
 
-#, python-format
-msgid "%s this week (%s of %s)"
-msgstr "%s deze week (%s van %s)"
-
-#, python-format
-msgid "%s next week (%s of %s)"
-msgstr "%s volgende week (%s van %s)"
-
-#, python-format
-msgid "%s last week (%s of %s)"
-msgstr "%s vorige week (%s van %s)"
-
 msgid "hdwmy (single character date offset triggers)"
 msgstr "hdwmy (een karakter trigger voor datum)"
-
-#, fuzzy, python-format
-msgid "in %d hour(s): %s"
-msgstr "over %d uur -%s"
 
 #, fuzzy, python-format
 msgid "%d hour(s) ago: %s"
 msgstr "%d uur geleden - %s"
 
 #, fuzzy, python-format
-msgid "in %d month(s): %s"
-msgstr "over %d maanden - %s"
+msgid "in %d hour(s): %s"
+msgstr "over %d uur -%s"
 
 #, fuzzy, python-format
 msgid "%d month(s) ago: %s"
 msgstr "%d maand(en) geleden - %s"
 
 #, fuzzy, python-format
-msgid "in %d year(s): %s"
-msgstr "over %d jaar - %s"
+msgid "in %d month(s): %s"
+msgstr "over %d maanden - %s"
 
 #, fuzzy, python-format
 msgid "%d year(s) ago: %s"
 msgstr "%d jaar geleden - %s"
 
-#, python-format
-msgid "in %d hour(s) - %s"
-msgstr "over %d uur -%s"
-
-#, python-format
-msgid "%d hour(s) ago - %s"
-msgstr "%d uur geleden - %s"
-
-#, python-format
-msgid "in %d day(s) - %s"
-msgstr "over %d dagen - %s"
-
-#, python-format
-msgid "%d day(s) ago - %s"
-msgstr "%d dag(en) geleden - %s"
-
-#, python-format
-msgid "in %d week(s) - %s"
-msgstr "over %d weken -%s"
-
-#, python-format
-msgid "%d week(s) ago - %s)"
-msgstr "%d weken geleden - %s"
-
-#, python-format
-msgid "in %d month(s) - %s"
-msgstr "over %d maanden - %s"
-
-#, python-format
-msgid "%d month(s) ago - %s"
-msgstr "%d maand(en) geleden - %s"
-
-#, python-format
-msgid "in %d year(s) - %s"
+#, fuzzy, python-format
+msgid "in %d year(s): %s"
 msgstr "over %d jaar - %s"
-
-#, python-format
-msgid "%d year(s) ago - %s"
-msgstr "%d jaar geleden - %s"
 
 #, python-format
 msgid "%d. of %s (this month) - a %s"
@@ -2759,6 +2707,14 @@ msgstr "%d van %s (volgende maand) - een %s"
 #, python-format
 msgid "%d. of %s (last month) - a %s"
 msgstr "%d van %s (vorige maand) - een %s"
+
+#, python-format
+msgid "in %d day(s) - %s"
+msgstr "over %d dagen - %s"
+
+#, python-format
+msgid "in %d week(s) - %s"
+msgstr "over %d weken -%s"
 
 msgid "Cannot connect to database without login information!"
 msgstr "Kan niet verbinden met database zonder login informatie!"
@@ -3348,20 +3304,6 @@ msgstr ""
 msgid "Seq #"
 msgstr "Nr #"
 
-#, fuzzy
-msgid "Previous Encounters"
-msgstr "Ontmoeting"
-
-#, fuzzy
-msgid "New notes in current encounter"
-msgstr "Voortgangsrapport van laatste ontmoetingen:"
-
-msgid "Tips and Hints"
-msgstr ""
-
-msgid "Active Device Settings"
-msgstr ""
-
 msgid ""
 "In this area GNUmed will place the status of all cardiac devices and device "
 "parts. There can be more than one device at a time\n"
@@ -3495,6 +3437,20 @@ msgstr "Voeg editor toe voor een nieuw voortgangsrapport."
 #, fuzzy
 msgid "Discard the editor for the displayed progress note."
 msgstr "Voeg editor toe voor een nieuw voortgangsrapport."
+
+msgid "Tips and Hints"
+msgstr ""
+
+#, fuzzy
+msgid "New notes in current encounter"
+msgstr "Voortgangsrapport van laatste ontmoetingen:"
+
+#, fuzzy
+msgid "Previous Encounters"
+msgstr "Ontmoeting"
+
+msgid "Active Device Settings"
+msgstr ""
 
 msgid "Encounter"
 msgstr "Ontmoeting"
@@ -4643,9 +4599,6 @@ msgstr "Opties ..."
 msgid "Please supply your email address here !"
 msgstr "Voer uw emailadres in."
 
-msgid "Details"
-msgstr "Bijzonderheden"
-
 msgid "Keep running"
 msgstr "Blijf draaien"
 
@@ -4709,6 +4662,9 @@ msgstr ""
 "\n"
 "Als u uw emailadres in het afzenderveld hierboven invoert geeft u de "
 "ontwikkelaars mogelijkheid u direct een reactie te geven."
+
+msgid "Details"
+msgstr "Bijzonderheden"
 
 msgid "An unhandled exception has occurred."
 msgstr "Een niet gemanagde uitzondering is opgetreden."
@@ -5654,17 +5610,9 @@ msgstr "Allergieën bewerken"
 msgid "&Update / Confirm"
 msgstr "geboortedatum"
 
-#, fuzzy
-msgid "Allergy state"
-msgstr "allergische toestand"
-
 msgid ""
 "Input new allergy, or select from among existing allergy items to edit them:"
 msgstr ""
-
-#, fuzzy
-msgid "Allergy details"
-msgstr "Allergieën"
 
 msgid "Allergy Manager"
 msgstr "Allergiën Manager"
@@ -5715,6 +5663,14 @@ msgstr "Verwijder de allergie geselecteerd in de lijst van de database."
 
 msgid "Close the dialag. Will discard unsaved data."
 msgstr "Sluit het venster. Dit zal onopgeslagen data wissen."
+
+#, fuzzy
+msgid "Allergy details"
+msgstr "Allergieën"
+
+#, fuzzy
+msgid "Allergy state"
+msgstr "allergische toestand"
 
 msgid "Currently:"
 msgstr ""
@@ -6297,9 +6253,6 @@ msgstr "Oude episode"
 msgid "Non-relevant issues"
 msgstr "Niet relevant"
 
-msgid "Active problems"
-msgstr "Actieve problemen"
-
 #, fuzzy
 msgid "Notes only"
 msgstr "&Mij alleen"
@@ -6315,10 +6268,6 @@ msgid ""
 "Note that this may change depending on which\n"
 "active problem is selected in the editor below."
 msgstr ""
-
-#, fuzzy
-msgid "Most recent info on above problem"
-msgstr "meest recente bovenaan"
 
 msgid "Show closed episodes as pseudo-problems ?"
 msgstr ""
@@ -6338,6 +6287,13 @@ msgstr "meest recente bovenaan"
 
 msgid "Show full information (regarding above problem)"
 msgstr ""
+
+#, fuzzy
+msgid "Most recent info on above problem"
+msgstr "meest recente bovenaan"
+
+msgid "Active problems"
+msgstr "Actieve problemen"
 
 msgid "Schock index"
 msgstr ""
@@ -7135,10 +7091,6 @@ msgstr ""
 msgid "&Insert"
 msgstr ""
 
-#, fuzzy
-msgid "Add billing item to current encounter"
-msgstr "Voortgangsrapport van laatste ontmoetingen:"
-
 msgid ""
 "Select - by code or part of the description - a billable item to add to the "
 "patient."
@@ -7155,6 +7107,10 @@ msgstr ""
 #, fuzzy
 msgid "Add the selected billing item to the patient."
 msgstr "Voeg een volgend item aan de lijst toe."
+
+#, fuzzy
+msgid "Add billing item to current encounter"
+msgstr "Voortgangsrapport van laatste ontmoetingen:"
 
 msgid "Item:"
 msgstr ""
@@ -7278,7 +7234,7 @@ msgstr "Annuleer het bewerken van de gegevens en verwerp de veranderingen."
 msgid ""
 "Press me !\n"
 "\n"
-"(This will NOT endanger any data.)"
+"(This will, of course, NOT modify any data.)"
 msgstr ""
 
 msgid "Original string as found in the database. Usually in English."
@@ -7397,16 +7353,40 @@ msgstr "Geslacht"
 msgid "Do not reformat text"
 msgstr ""
 
+msgid "Formatting help"
+msgstr ""
+
+msgid "http://docutils.sourceforge.net/docs/user/rst/quickref.html"
+msgstr ""
+
 #, fuzzy
 msgid "Generic multi line text entry dialog"
 msgstr "algemene meerkeuze dialoog"
 
 msgid ""
-"Leave this unchecked so that GNUmed can check for characters that need "
-"escaping or transforming.\n"
+"This is an option for power users.\n"
 "\n"
-"Use this option when you have put in raw formatting, like HTML or LaTeX, "
-"that you are confident should be left untouched."
+"GNUmed will normally check your input for parts that\n"
+"need escaping or transforming for proper output. It will\n"
+"also convert any ReST formatting, if possible.\n"
+"\n"
+"Check this option if you do NOT want GNUmed to apply\n"
+"ANY modifications to ANY of your input into this dialog.\n"
+"\n"
+"This is useful when you have entered raw formatting,\n"
+"like HTML or LaTeX, and you are confident it should be\n"
+"put into the output as-is. Note that this will also disable\n"
+"ReST post-processing."
+msgstr ""
+
+msgid ""
+"If you are writing a letter, and the letter is processed\n"
+"by LaTeX, you can use reStructuredText markup to\n"
+"format some aspects of your text.\n"
+"\n"
+"Lists, tables, and emphasis will mainly be useful.\n"
+"\n"
+"Follow the link for details."
 msgstr ""
 
 msgid "Search"
@@ -7721,12 +7701,6 @@ msgstr "%s: ontmoeting (%s)"
 msgid "Start a new encounter for the active patient."
 msgstr "Begin een niewe ontmoeting voor de actieve patiënt."
 
-msgid "Clinically relevant"
-msgstr "Klinisch relevant"
-
-msgid "Technically abnormal"
-msgstr "Technisch abnormaal"
-
 msgid "... test results listing goes here ..."
 msgstr "... lijst met testruitslagen komt hier ..."
 
@@ -7810,6 +7784,12 @@ msgstr ""
 msgid "Cancel and discard review, that is, do NOT sign off results."
 msgstr ""
 "Annuleer en verwerp beoordeling, dat wil zeggen, teken de uitslagen NIET af."
+
+msgid "Clinically relevant"
+msgstr "Klinisch relevant"
+
+msgid "Technically abnormal"
+msgstr "Technisch abnormaal"
 
 msgid ""
 "This signing applies to ALL results currently selected in the viewer.\n"
@@ -8024,10 +8004,6 @@ msgstr ""
 msgid "Save &all"
 msgstr "Bewaar &alles"
 
-#, fuzzy
-msgid "New notelets in current encounter"
-msgstr "Voortgangsrapport van laatste ontmoetingen:"
-
 msgid ""
 "Also known as the Reason For Encounter/Visit (RFE).\n"
 "\n"
@@ -8062,6 +8038,10 @@ msgstr "Sla dit voortgangsrapport op"
 #, fuzzy
 msgid "Add a visual progress note for this episode."
 msgstr "Voeg een nieuw item toe aan de lijst hierboven."
+
+#, fuzzy
+msgid "New notelets in current encounter"
+msgstr "Voortgangsrapport van laatste ontmoetingen:"
 
 msgid "tab1"
 msgstr ""
@@ -8114,9 +8094,10 @@ msgstr "Bestandsnaam"
 msgid "Database welcome message editor"
 msgstr "Database welkomsbericht bewerken"
 
+#, fuzzy
 msgid ""
-"Below you can edit the database welcome message shown at startup\n"
-"which allows you to identify the database you are connected to.\n"
+"Below you can edit the database welcome message shown at startup which "
+"allows you to identify the database you are connected to.\n"
 "\n"
 "To disable that popup leave the message empty."
 msgstr ""
@@ -9550,6 +9531,10 @@ msgstr "Kan actieve patient niet samenvoegen met andere patient."
 msgid "merge of #%s into #%s @ %s"
 msgstr ""
 
+#, python-format
+msgid "The merge failed. Check the log and [%s]"
+msgstr ""
+
 #, fuzzy
 msgid "invalid age: DOB in the future"
 msgstr "Aandoening gediagnosticeerd in de toekomst."
@@ -9605,8 +9590,16 @@ msgid "Test panel \"%s\"          [#%s]\n"
 msgstr ""
 
 #, fuzzy
-msgid "Included test types:\n"
+msgid "Includes:\n"
 msgstr "Sjabloontype"
+
+#, fuzzy
+msgid "no tests"
+msgstr "Test"
+
+#, fuzzy, python-format
+msgid " %s: %s\n"
+msgstr "Geexporteerd: %s\n"
 
 #, fuzzy, python-format
 msgid ""
@@ -9696,7 +9689,7 @@ msgid "Type: \"%(name)s\" (%(abbr)s)  [#%(pk_type)s]\n"
 msgstr ""
 
 #, python-format
-msgid "Result: %(val)s%(unit)s%(ind)s  [#%(pk_result)s]\n"
+msgid "%(sso)sResult: %(val)s%(unit)s%(ind)s  [#%(pk_result)s]\n"
 msgstr ""
 
 #, fuzzy, python-format
@@ -11657,8 +11650,34 @@ msgstr ""
 msgid "<ALT-C/K>: pick from (c/k)alendar"
 msgstr ""
 
+#, fuzzy, python-format
+msgid ""
+"%s\n"
+" (a %s in %s)"
+msgstr "%d dag(en) geleden - %s"
+
+#, fuzzy, python-format
+msgid ""
+"%s\n"
+" (a %s %s ago)"
+msgstr "%s%7s %s: %s (%s part(s), %s)"
+
 msgid "Cannot interpret input as timestamp."
 msgstr "Kan input niet als tijdstempel interpreteren."
+
+#, fuzzy, python-format
+msgid ""
+"%s\n"
+" %s\n"
+" in %s"
+msgstr "%d dag(en) geleden - %s"
+
+#, fuzzy, python-format
+msgid ""
+"%s\n"
+"%s\n"
+"%s ago"
+msgstr "Geexporteerd: %s\n"
 
 msgid "No vaccines were chosen"
 msgstr "Geen vaccins gekozen"
@@ -12505,6 +12524,9 @@ msgstr "Moet voornaam invoeren."
 msgid "Must select gender."
 msgstr "Moet geslacht selecteren."
 
+msgid "Duplicate person. Modify name and/or DOB or use comment to make unique."
+msgstr ""
+
 msgid ""
 "To properly create an address, all the related fields must be filled in."
 msgstr ""
@@ -12515,6 +12537,16 @@ msgid "Required fields"
 msgstr "Verplichte velden"
 
 msgid "This field must contain an item selected from the dropdown list."
+msgstr ""
+
+#, fuzzy
+msgid "Creating person."
+msgstr "persoon selecteren"
+
+msgid ""
+"Failed to create person. Does it already exist ?\n"
+"\n"
+"If so you need to add a unique comment."
 msgstr ""
 
 #, fuzzy
@@ -13860,8 +13892,9 @@ msgstr ""
 msgid "Report Generator"
 msgstr "Rapportgenerator"
 
-msgid "not unicode()able"
-msgstr ""
+#, fuzzy
+msgid "not str()able"
+msgstr "geen toelichting beschikbaar"
 
 #, fuzzy
 msgid "Select a message type."
@@ -17154,6 +17187,10 @@ msgstr ""
 "U moet van de lijst met stafleden de dokter selecteren die aangewezen is om "
 "het document te ondertekenen."
 
+#, fuzzy
+msgid "Invalid date of generation."
+msgstr "naam, geboortedatum"
+
 msgid "There is no scanner support installed on this machine."
 msgstr ""
 "Er is geen ondersteuning voor een scanner op deze machine geïnstalleerd."
@@ -17256,6 +17293,10 @@ msgstr ""
 #, fuzzy
 msgid "Show all parts of this document in external viewer."
 msgstr "logboek bestanden"
+
+#, fuzzy
+msgid "Age noted"
+msgstr "bereik"
 
 msgid "Bill"
 msgstr ""
@@ -17629,8 +17670,8 @@ msgid "Deleting document"
 msgstr "verwijderen documenttype"
 
 #, fuzzy
-msgid "Referrer"
-msgstr "Verwijzingen"
+msgid "Authority"
+msgstr "Authoriteit Indicaties"
 
 #, fuzzy
 msgid "Time"
@@ -17649,6 +17690,10 @@ msgstr "XDT veld"
 
 #, fuzzy
 msgid "Cannot connect without port (try 8042)."
+msgstr "Kan patiënt niet verwijderen. Geen actieve patiënt."
+
+#, fuzzy
+msgid "Invalid port (try 8042)."
 msgstr "Kan patiënt niet verwijderen. Geen actieve patiënt."
 
 #, python-format
@@ -18035,9 +18080,6 @@ msgstr ""
 msgid "Progress notes handling ..."
 msgstr "Voortgangsrapport instellingen ..."
 
-msgid "User interface ..."
-msgstr "Gebruikersinterface ..."
-
 msgid "MI/stroke risk calc cmd"
 msgstr ""
 
@@ -18201,6 +18243,9 @@ msgstr ""
 msgid "Episode ..."
 msgstr "Episode ..."
 
+msgid "User interface ..."
+msgstr "Gebruikersinterface ..."
+
 msgid "EMR ..."
 msgstr "EMD ..."
 
@@ -18310,20 +18355,20 @@ msgstr "BSN bewerken."
 msgid "Load and possibly create person from available external sources."
 msgstr "Laad patiënt van externe bron in en creëer mogelijk nieuwe"
 
-msgid "&vCard file → patient"
+msgid "&vCard file \\u2192 patient"
 msgstr ""
 
 #, fuzzy
 msgid "Import demographics from .vcf vCard file as patient"
 msgstr "Voer persoonsgegevens uit naar GDT-bestand [%s]"
 
-msgid "Clipboard (&XML) → patient"
+msgid "Clipboard (&XML) \\u2192 patient"
 msgstr ""
 
 msgid "Import demographics from clipboard (LinuxMedNews XML) as patient"
 msgstr ""
 
-msgid "Clipboard (&vCard) → patient"
+msgid "Clipboard (&vCard) \\u2192 patient"
 msgstr ""
 
 msgid "Import demographics from clipboard (vCard) as patient"
@@ -18347,6 +18392,10 @@ msgstr ""
 "Exporteer de persoonsgegevens van de huidige patiënt naar een GDT-bestand."
 
 #, fuzzy
+msgid "\\u2192 &Clipboard as\\u2026"
+msgstr "Exporteren naar &clipboard"
+
+#, fuzzy
 msgid "Export demographics of currently active person into GDT file."
 msgstr ""
 "Exporteer de persoonsgegevens van de huidige patiënt naar een GDT-bestand."
@@ -18356,11 +18405,7 @@ msgid "Export demographics of currently active person into vCard file."
 msgstr ""
 "Exporteer de persoonsgegevens van de huidige patiënt naar een GDT-bestand."
 
-#, fuzzy
-msgid "→ &Clipboard as…"
-msgstr "Exporteren naar &clipboard"
-
-msgid "→ &File as…"
+msgid "\\u2192 &File as\\u2026"
 msgstr ""
 
 #, fuzzy
@@ -18524,8 +18569,9 @@ msgstr "Stof"
 msgid "Manage substance abuse documentation of this patient."
 msgstr "Een aantekening bij deze patiënt."
 
-msgid "&Add / Edit ..."
-msgstr ""
+#, fuzzy
+msgid "&Manage ..."
+msgstr "Vaccin"
 
 #, fuzzy
 msgid "Search this EMR"
@@ -18721,11 +18767,11 @@ msgstr "Database ..."
 msgid "Jump to the drug database configured as the default."
 msgstr ""
 
-msgid "&Drug Resources"
-msgstr "&Geneesmiddelen Bronnen"
-
 msgid "Show \"kompendium.ch\" drug database (online, Switzerland)"
 msgstr "Toon \"kompendium.ch\" geneesmiddelen database (online, Zwitserland)"
+
+msgid "&Drug Resources"
+msgstr "&Geneesmiddelen Bronnen"
 
 msgid "Medical links (www)"
 msgstr "Medische links (www)"
@@ -19969,20 +20015,6 @@ msgstr "geen patiënt"
 msgid "Saved screenshot to file [%s]."
 msgstr "Schermafdruk opgeslagen in bestand [%s]"
 
-msgid "Python version check"
-msgstr ""
-
-#, python-format
-msgid ""
-"You are running Python version\n"
-" %s\n"
-"\n"
-"However, GNUmed wants Python 2.7 to\n"
-"facilitate migration to Python 3.\n"
-"\n"
-"Please upgrade your Python interpreter !"
-msgstr ""
-
 msgid "GNUmed client"
 msgstr "GNUmed frontend"
 
@@ -20860,7 +20892,7 @@ msgid "Set line to category \"administrative\""
 msgstr ""
 
 #, fuzzy
-msgid "→ &Clipboard"
+msgid "\\u2192 &Clipboard"
 msgstr "Exporteren naar &clipboard"
 
 #, fuzzy
@@ -20868,7 +20900,7 @@ msgid "Copy line to clipboard"
 msgstr "Exporteren naar &clipboard"
 
 #, fuzzy
-msgid "→ +Clipboard+"
+msgid "\\u2192 +Clipboard+"
 msgstr "Exporteren naar &clipboard"
 
 #, fuzzy
@@ -21100,12 +21132,6 @@ msgstr "Handel naar geselecteerde uitslagen"
 msgid "Review and &sign"
 msgstr "Beoordeel en &onderteken"
 
-msgid "Export to &file"
-msgstr "Exporteren naar &bestand"
-
-msgid "Export to &clipboard"
-msgstr "Exporteren naar &clipboard"
-
 #, fuzzy
 msgid "Problems"
 msgstr "Probleem"
@@ -21202,6 +21228,12 @@ msgstr ""
 msgid "All: by &Day"
 msgstr ""
 
+msgid "Export to &file"
+msgstr "Exporteren naar &bestand"
+
+msgid "Export to &clipboard"
+msgstr "Exporteren naar &clipboard"
+
 #, python-format
 msgid "%s results selected. Too many to list individually."
 msgstr "%s uitslagen geselecteerd. Te veel om allemaal te tonen."
@@ -21248,15 +21280,9 @@ msgstr ""
 " [%s]\n"
 "niet verwijderen omdat het in gebruik is."
 
-msgid ""
-"\n"
-"These are the measurement types currently defined in GNUmed.\n"
-"\n"
-msgstr ""
-
 #, fuzzy
-msgid "Showing measurement types."
-msgstr "Meting bewerken"
+msgid "Measurement types."
+msgstr "Metingen"
 
 msgid "Org"
 msgstr ""
@@ -21268,6 +21294,14 @@ msgstr ""
 #, python-format
 msgid "Manage aggregations (%s) of tests into groups."
 msgstr ""
+
+#, fuzzy
+msgid "Select panels"
+msgstr "Sjabloontype"
+
+#, fuzzy
+msgid "Select panels the focussed test type is to belong to."
+msgstr "Selecteer het soort communicatiekanaal."
 
 #, fuzzy
 msgid "generic / in house lab"
@@ -21347,22 +21381,21 @@ msgstr "Nieuwe naam toegoegen"
 msgid "Editing test panel"
 msgstr "Naam bewerken"
 
-msgid ""
-"\n"
-"Test panels as defined in GNUmed.\n"
-msgstr ""
-
 #, fuzzy
-msgid "Showing test panels."
-msgstr "Meting bewerken"
+msgid "Test panels list"
+msgstr "Onderzoeksresultaten"
 
 #, fuzzy
 msgid "Select a test panel."
 msgstr "verwijderen documenttype"
 
 #, fuzzy
-msgid "code not found"
+msgid "LOINC not found"
 msgstr "pgAdmin III niet gevonden."
+
+#, fuzzy
+msgid "not a LOINC"
+msgstr "Bijwerken"
 
 #, fuzzy
 msgid "No LOINC codes selected."
@@ -21471,6 +21504,9 @@ msgstr "Open op contmoetings niveau"
 #, fuzzy
 msgid "Episode Actions:"
 msgstr "Episode %s"
+
+msgid "Toggle ongoing/closed"
+msgstr ""
 
 #, fuzzy
 msgid "Promote"
@@ -22811,6 +22847,59 @@ msgstr "Afbreken"
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Afbreken en GEEN verbinding maken met GNUmed."
 
+#~ msgid "%s this week (%s of %s)"
+#~ msgstr "%s deze week (%s van %s)"
+
+#~ msgid "%s next week (%s of %s)"
+#~ msgstr "%s volgende week (%s van %s)"
+
+#~ msgid "%s last week (%s of %s)"
+#~ msgstr "%s vorige week (%s van %s)"
+
+#~ msgid "in %d hour(s) - %s"
+#~ msgstr "over %d uur -%s"
+
+#~ msgid "%d hour(s) ago - %s"
+#~ msgstr "%d uur geleden - %s"
+
+#~ msgid "%d day(s) ago - %s"
+#~ msgstr "%d dag(en) geleden - %s"
+
+#~ msgid "%d week(s) ago - %s)"
+#~ msgstr "%d weken geleden - %s"
+
+#~ msgid "in %d month(s) - %s"
+#~ msgstr "over %d maanden - %s"
+
+#~ msgid "%d month(s) ago - %s"
+#~ msgstr "%d maand(en) geleden - %s"
+
+#~ msgid "in %d year(s) - %s"
+#~ msgstr "over %d jaar - %s"
+
+#~ msgid "%d year(s) ago - %s"
+#~ msgstr "%d jaar geleden - %s"
+
+#, fuzzy
+#~ msgid "Referrer"
+#~ msgstr "Verwijzingen"
+
+#, fuzzy
+#~ msgid "→ &Clipboard"
+#~ msgstr "Exporteren naar &clipboard"
+
+#, fuzzy
+#~ msgid "Showing measurement types."
+#~ msgstr "Meting bewerken"
+
+#, fuzzy
+#~ msgid "Showing test panels."
+#~ msgstr "Meting bewerken"
+
+#, fuzzy
+#~ msgid "code not found"
+#~ msgstr "pgAdmin III niet gevonden."
+
 #~ msgid "This shows the entirety of the selected message in your Inbox."
 #~ msgstr ""
 #~ "Toon de volledige tekst van de geselectreerde berichten in uw Postvak In."
@@ -23673,10 +23762,6 @@ msgstr "Afbreken en GEEN verbinding maken met GNUmed."
 #, fuzzy
 #~ msgid "A comment on this test panel."
 #~ msgstr "Een aantekening bij deze patiënt."
-
-#, fuzzy
-#~ msgid "Select the test types for this panel."
-#~ msgstr "Selecteer het soort communicatiekanaal."
 
 #, fuzzy
 #~ msgid "Error creating printable document."

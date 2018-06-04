@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-21 17:11+0100\n"
+"POT-Creation-Date: 2018-06-04 10:40+0200\n"
 "PO-Revision-Date: 2012-06-01 01:22+0000\n"
 "Last-Translator: ncq <Unknown>\n"
 "Language-Team: GNUmed\n"
@@ -2629,23 +2629,7 @@ msgstr "%s (%s il prossimo anno)"
 msgid "%s (%s last year)"
 msgstr "%s (%s lo scorso anno)"
 
-#, python-format
-msgid "%s this week (%s of %s)"
-msgstr "%s questa settimana (%s di %s)"
-
-#, python-format
-msgid "%s next week (%s of %s)"
-msgstr "%s prossima settimana (%s di %s)"
-
-#, python-format
-msgid "%s last week (%s of %s)"
-msgstr "%s settimana scorsa (%s of %s)"
-
 msgid "hdwmy (single character date offset triggers)"
-msgstr ""
-
-#, python-format
-msgid "in %d hour(s): %s"
 msgstr ""
 
 #, python-format
@@ -2653,7 +2637,7 @@ msgid "%d hour(s) ago: %s"
 msgstr ""
 
 #, python-format
-msgid "in %d month(s): %s"
+msgid "in %d hour(s): %s"
 msgstr ""
 
 #, python-format
@@ -2661,7 +2645,7 @@ msgid "%d month(s) ago: %s"
 msgstr ""
 
 #, python-format
-msgid "in %d year(s): %s"
+msgid "in %d month(s): %s"
 msgstr ""
 
 #, python-format
@@ -2669,44 +2653,8 @@ msgid "%d year(s) ago: %s"
 msgstr ""
 
 #, python-format
-msgid "in %d hour(s) - %s"
-msgstr "in %d ora/e - %s"
-
-#, python-format
-msgid "%d hour(s) ago - %s"
-msgstr "%d ora/e fa - %s"
-
-#, python-format
-msgid "in %d day(s) - %s"
-msgstr "in %d giorno/i - %s"
-
-#, python-format
-msgid "%d day(s) ago - %s"
-msgstr "%d giorno/i fa - %s"
-
-#, python-format
-msgid "in %d week(s) - %s"
-msgstr "in %d settimana/e - %s"
-
-#, python-format
-msgid "%d week(s) ago - %s)"
-msgstr "%d settimana/e fa - %s)"
-
-#, python-format
-msgid "in %d month(s) - %s"
-msgstr "in %d mese/i - %s"
-
-#, python-format
-msgid "%d month(s) ago - %s"
-msgstr "%d mese/i fa - %s"
-
-#, python-format
-msgid "in %d year(s) - %s"
-msgstr "in %d anno/i - %s"
-
-#, python-format
-msgid "%d year(s) ago - %s"
-msgstr "%d anno/i fa - %s"
+msgid "in %d year(s): %s"
+msgstr ""
 
 #, python-format
 msgid "%d. of %s (this month) - a %s"
@@ -2719,6 +2667,14 @@ msgstr "%d. of %s (prossimo mese) - a %s"
 #, python-format
 msgid "%d. of %s (last month) - a %s"
 msgstr "%d. of %s (scorso mese) - a %s"
+
+#, python-format
+msgid "in %d day(s) - %s"
+msgstr "in %d giorno/i - %s"
+
+#, python-format
+msgid "in %d week(s) - %s"
+msgstr "in %d settimana/e - %s"
 
 msgid "Cannot connect to database without login information!"
 msgstr "Impossibile connettersi al database senza informazioni del login"
@@ -3259,18 +3215,6 @@ msgstr ""
 msgid "Seq #"
 msgstr "Seq #"
 
-msgid "Previous Encounters"
-msgstr "Visite precedenti"
-
-msgid "New notes in current encounter"
-msgstr "Nuove note sulla visita attuale"
-
-msgid "Tips and Hints"
-msgstr "Suggerimenti e consigli"
-
-msgid "Active Device Settings"
-msgstr "Impostazioni attive del dispositivo"
-
 msgid ""
 "In this area GNUmed will place the status of all cardiac devices and device "
 "parts. There can be more than one device at a time\n"
@@ -3452,6 +3396,18 @@ msgstr "Pulisce l'editor per la nota di avanzamento visualizzata."
 
 msgid "Discard the editor for the displayed progress note."
 msgstr ""
+
+msgid "Tips and Hints"
+msgstr "Suggerimenti e consigli"
+
+msgid "New notes in current encounter"
+msgstr "Nuove note sulla visita attuale"
+
+msgid "Previous Encounters"
+msgstr "Visite precedenti"
+
+msgid "Active Device Settings"
+msgstr "Impostazioni attive del dispositivo"
 
 msgid "Encounter"
 msgstr "Appuntamento"
@@ -4549,9 +4505,6 @@ msgstr "Scopo ..."
 msgid "Please supply your email address here !"
 msgstr "<Per Favore fornire il vostro indirizzo e-mail qui !>"
 
-msgid "Details"
-msgstr "Dettagli"
-
 msgid "Keep running"
 msgstr "Continua"
 
@@ -4602,6 +4555,9 @@ msgid ""
 "If you specify your address in the Sender field above the developers will be "
 "able to contact you directly for feedback."
 msgstr ""
+
+msgid "Details"
+msgstr "Dettagli"
 
 msgid "An unhandled exception has occurred."
 msgstr "È occorsa un'eccezione non gestita."
@@ -5477,15 +5433,9 @@ msgstr "Allergie presenti"
 msgid "&Update / Confirm"
 msgstr "Con&fermare"
 
-msgid "Allergy state"
-msgstr "Stato allergico"
-
 msgid ""
 "Input new allergy, or select from among existing allergy items to edit them:"
 msgstr ""
-
-msgid "Allergy details"
-msgstr "Dettagli dell'allergia"
 
 msgid "Allergy Manager"
 msgstr "Gestore Allergie"
@@ -5536,6 +5486,12 @@ msgstr "Cancella l'allergia selezionata dalla lista del database"
 
 msgid "Close the dialag. Will discard unsaved data."
 msgstr "Chiudi la finestra. Dati non salvati verranno scartati."
+
+msgid "Allergy details"
+msgstr "Dettagli dell'allergia"
+
+msgid "Allergy state"
+msgstr "Stato allergico"
 
 msgid "Currently:"
 msgstr "Attualmente:"
@@ -6087,9 +6043,6 @@ msgstr "Episodi chiusi"
 msgid "Non-relevant issues"
 msgstr "Questioni non rilevanti"
 
-msgid "Active problems"
-msgstr "Problemi attuali"
-
 #, fuzzy
 msgid "Notes only"
 msgstr "&Solo me"
@@ -6105,10 +6058,6 @@ msgid ""
 "Note that this may change depending on which\n"
 "active problem is selected in the editor below."
 msgstr ""
-
-#, fuzzy
-msgid "Most recent info on above problem"
-msgstr "il più recente in cima"
 
 msgid "Show closed episodes as pseudo-problems ?"
 msgstr ""
@@ -6126,6 +6075,13 @@ msgstr ""
 
 msgid "Show full information (regarding above problem)"
 msgstr ""
+
+#, fuzzy
+msgid "Most recent info on above problem"
+msgstr "il più recente in cima"
+
+msgid "Active problems"
+msgstr "Problemi attuali"
 
 msgid "Schock index"
 msgstr ""
@@ -6880,10 +6836,6 @@ msgstr ""
 msgid "&Insert"
 msgstr ""
 
-#, fuzzy
-msgid "Add billing item to current encounter"
-msgstr "Nuove note sulla visita attuale"
-
 msgid ""
 "Select - by code or part of the description - a billable item to add to the "
 "patient."
@@ -6900,6 +6852,10 @@ msgstr ""
 #, fuzzy
 msgid "Add the selected billing item to the patient."
 msgstr "Aggiungere il paziente attivo alla lista d'attesa."
+
+#, fuzzy
+msgid "Add billing item to current encounter"
+msgstr "Nuove note sulla visita attuale"
 
 msgid "Item:"
 msgstr ""
@@ -7020,7 +6976,7 @@ msgstr "Cancella la modifica dei dati e scarta i cambiamenti."
 msgid ""
 "Press me !\n"
 "\n"
-"(This will NOT endanger any data.)"
+"(This will, of course, NOT modify any data.)"
 msgstr ""
 
 msgid "Original string as found in the database. Usually in English."
@@ -7135,15 +7091,39 @@ msgstr ""
 msgid "Do not reformat text"
 msgstr ""
 
+msgid "Formatting help"
+msgstr ""
+
+msgid "http://docutils.sourceforge.net/docs/user/rst/quickref.html"
+msgstr ""
+
 msgid "Generic multi line text entry dialog"
 msgstr ""
 
 msgid ""
-"Leave this unchecked so that GNUmed can check for characters that need "
-"escaping or transforming.\n"
+"This is an option for power users.\n"
 "\n"
-"Use this option when you have put in raw formatting, like HTML or LaTeX, "
-"that you are confident should be left untouched."
+"GNUmed will normally check your input for parts that\n"
+"need escaping or transforming for proper output. It will\n"
+"also convert any ReST formatting, if possible.\n"
+"\n"
+"Check this option if you do NOT want GNUmed to apply\n"
+"ANY modifications to ANY of your input into this dialog.\n"
+"\n"
+"This is useful when you have entered raw formatting,\n"
+"like HTML or LaTeX, and you are confident it should be\n"
+"put into the output as-is. Note that this will also disable\n"
+"ReST post-processing."
+msgstr ""
+
+msgid ""
+"If you are writing a letter, and the letter is processed\n"
+"by LaTeX, you can use reStructuredText markup to\n"
+"format some aspects of your text.\n"
+"\n"
+"Lists, tables, and emphasis will mainly be useful.\n"
+"\n"
+"Follow the link for details."
 msgstr ""
 
 msgid "Search"
@@ -7448,12 +7428,6 @@ msgstr "Spostare gli incontri"
 msgid "Start a new encounter for the active patient."
 msgstr "Incomincia una nuova consultazione per il paziente attivo."
 
-msgid "Clinically relevant"
-msgstr "Clinicamente rilevante"
-
-msgid "Technically abnormal"
-msgstr "Tecnicamente abnorme"
-
 msgid "... test results listing goes here ..."
 msgstr ""
 
@@ -7522,6 +7496,12 @@ msgstr ""
 
 msgid "Cancel and discard review, that is, do NOT sign off results."
 msgstr ""
+
+msgid "Clinically relevant"
+msgstr "Clinicamente rilevante"
+
+msgid "Technically abnormal"
+msgstr "Tecnicamente abnorme"
 
 msgid ""
 "This signing applies to ALL results currently selected in the viewer.\n"
@@ -7722,9 +7702,6 @@ msgstr ""
 msgid "Save &all"
 msgstr "Salva &tutto"
 
-msgid "New notelets in current encounter"
-msgstr ""
-
 #, fuzzy
 msgid ""
 "Also known as the Reason For Encounter/Visit (RFE).\n"
@@ -7770,6 +7747,9 @@ msgid ""
 msgstr "Salva le note di progressione attualmente visualizzate."
 
 msgid "Add a visual progress note for this episode."
+msgstr ""
+
+msgid "New notelets in current encounter"
 msgstr ""
 
 msgid "tab1"
@@ -7819,9 +7799,10 @@ msgstr ""
 msgid "Database welcome message editor"
 msgstr "Messaggio di benvenuto dell'editor del database"
 
+#, fuzzy
 msgid ""
-"Below you can edit the database welcome message shown at startup\n"
-"which allows you to identify the database you are connected to.\n"
+"Below you can edit the database welcome message shown at startup which "
+"allows you to identify the database you are connected to.\n"
 "\n"
 "To disable that popup leave the message empty."
 msgstr ""
@@ -9255,6 +9236,10 @@ msgstr "Non posso inserire il paziente attivo in un altro paziente."
 msgid "merge of #%s into #%s @ %s"
 msgstr ""
 
+#, python-format
+msgid "The merge failed. Check the log and [%s]"
+msgstr ""
+
 msgid "invalid age: DOB in the future"
 msgstr ""
 
@@ -9308,8 +9293,17 @@ msgstr ""
 msgid "Test panel \"%s\"          [#%s]\n"
 msgstr ""
 
-msgid "Included test types:\n"
-msgstr ""
+#, fuzzy
+msgid "Includes:\n"
+msgstr "Includi:"
+
+#, fuzzy
+msgid "no tests"
+msgstr "Test"
+
+#, fuzzy, python-format
+msgid " %s: %s\n"
+msgstr "Paziente"
 
 #, python-format
 msgid ""
@@ -9399,7 +9393,7 @@ msgid "Type: \"%(name)s\" (%(abbr)s)  [#%(pk_type)s]\n"
 msgstr ""
 
 #, python-format
-msgid "Result: %(val)s%(unit)s%(ind)s  [#%(pk_result)s]\n"
+msgid "%(sso)sResult: %(val)s%(unit)s%(ind)s  [#%(pk_result)s]\n"
 msgstr ""
 
 #, fuzzy, python-format
@@ -11219,8 +11213,34 @@ msgstr ""
 msgid "<ALT-C/K>: pick from (c/k)alendar"
 msgstr ""
 
+#, fuzzy, python-format
+msgid ""
+"%s\n"
+" (a %s in %s)"
+msgstr "%d giorno/i fa - %s"
+
+#, fuzzy, python-format
+msgid ""
+"%s\n"
+" (a %s %s ago)"
+msgstr "%s%7s %s: %s (%s parte(i), %s)"
+
 msgid "Cannot interpret input as timestamp."
 msgstr ""
+
+#, fuzzy, python-format
+msgid ""
+"%s\n"
+" %s\n"
+" in %s"
+msgstr "%d giorno/i fa - %s"
+
+#, fuzzy, python-format
+msgid ""
+"%s\n"
+"%s\n"
+"%s ago"
+msgstr "&Zona:"
 
 msgid "No vaccines were chosen"
 msgstr "Nessun vaccino è stato scelto"
@@ -11982,6 +12002,9 @@ msgstr "Devi inserire il nome."
 msgid "Must select gender."
 msgstr "Devi scegliere il sesso."
 
+msgid "Duplicate person. Modify name and/or DOB or use comment to make unique."
+msgstr ""
+
 msgid ""
 "To properly create an address, all the related fields must be filled in."
 msgstr ""
@@ -11992,6 +12015,16 @@ msgid "Required fields"
 msgstr "Campi obbligatori"
 
 msgid "This field must contain an item selected from the dropdown list."
+msgstr ""
+
+#, fuzzy
+msgid "Creating person."
+msgstr "Sto selezionando la persona"
+
+msgid ""
+"Failed to create person. Does it already exist ?\n"
+"\n"
+"If so you need to add a unique comment."
 msgstr ""
 
 msgid "Saving address"
@@ -13272,8 +13305,9 @@ msgstr ""
 msgid "Report Generator"
 msgstr "Generatore Rapporti"
 
-msgid "not unicode()able"
-msgstr ""
+#, fuzzy
+msgid "not str()able"
+msgstr "nessun commento disponibile"
 
 #, fuzzy
 msgid "Select a message type."
@@ -16342,6 +16376,10 @@ msgid ""
 "to sign the document."
 msgstr ""
 
+#, fuzzy
+msgid "Invalid date of generation."
+msgstr "data di morte non valida."
+
 msgid "There is no scanner support installed on this machine."
 msgstr "Non c'è nessun supporto per lo scanner installato in questa macchina."
 
@@ -16430,6 +16468,10 @@ msgstr ""
 
 msgid "Show all parts of this document in external viewer."
 msgstr ""
+
+#, fuzzy
+msgid "Age noted"
+msgstr "pgAdmin III non trovato."
 
 msgid "Bill"
 msgstr ""
@@ -16754,8 +16796,8 @@ msgid "Deleting document"
 msgstr "Cancella documento"
 
 #, fuzzy
-msgid "Referrer"
-msgstr "Referenti"
+msgid "Authority"
+msgstr "Indicazioni Ministeriali"
 
 #, fuzzy
 msgid "Time"
@@ -16773,6 +16815,9 @@ msgid "DICOM field"
 msgstr "campo XDT"
 
 msgid "Cannot connect without port (try 8042)."
+msgstr ""
+
+msgid "Invalid port (try 8042)."
 msgstr ""
 
 #, python-format
@@ -17140,9 +17185,6 @@ msgstr ""
 msgid "Progress notes handling ..."
 msgstr ""
 
-msgid "User interface ..."
-msgstr "Interfaccia utente..."
-
 msgid "MI/stroke risk calc cmd"
 msgstr ""
 
@@ -17294,6 +17336,9 @@ msgstr ""
 msgid "Episode ..."
 msgstr "Episodio..."
 
+msgid "User interface ..."
+msgstr "Interfaccia utente..."
+
 msgid "EMR ..."
 msgstr ""
 
@@ -17389,19 +17434,19 @@ msgstr "Codice esterno"
 msgid "Load and possibly create person from available external sources."
 msgstr ""
 
-msgid "&vCard file → patient"
+msgid "&vCard file \\u2192 patient"
 msgstr ""
 
 msgid "Import demographics from .vcf vCard file as patient"
 msgstr ""
 
-msgid "Clipboard (&XML) → patient"
+msgid "Clipboard (&XML) \\u2192 patient"
 msgstr ""
 
 msgid "Import demographics from clipboard (LinuxMedNews XML) as patient"
 msgstr ""
 
-msgid "Clipboard (&vCard) → patient"
+msgid "Clipboard (&vCard) \\u2192 patient"
 msgstr ""
 
 msgid "Import demographics from clipboard (vCard) as patient"
@@ -17418,16 +17463,16 @@ msgstr ""
 msgid "Export demographics of currently active person as vCard into clipboard"
 msgstr ""
 
+msgid "\\u2192 &Clipboard as\\u2026"
+msgstr ""
+
 msgid "Export demographics of currently active person into GDT file."
 msgstr ""
 
 msgid "Export demographics of currently active person into vCard file."
 msgstr ""
 
-msgid "→ &Clipboard as…"
-msgstr ""
-
-msgid "→ &File as…"
+msgid "\\u2192 &File as\\u2026"
 msgstr ""
 
 msgid "&Merge persons"
@@ -17576,8 +17621,9 @@ msgstr "Sostanza"
 msgid "Manage substance abuse documentation of this patient."
 msgstr "Un commento su questo paziente."
 
-msgid "&Add / Edit ..."
-msgstr ""
+#, fuzzy
+msgid "&Manage ..."
+msgstr "&Azioni ... "
 
 msgid "Search this EMR"
 msgstr ""
@@ -17752,11 +17798,11 @@ msgstr ""
 msgid "Jump to the drug database configured as the default."
 msgstr ""
 
-msgid "&Drug Resources"
-msgstr ""
-
 msgid "Show \"kompendium.ch\" drug database (online, Switzerland)"
 msgstr "Mostra \"kompendium.ch\" database medicamenti (online, Svizzera)"
+
+msgid "&Drug Resources"
+msgstr ""
 
 msgid "Medical links (www)"
 msgstr "Links di medicina (www)"
@@ -18790,20 +18836,6 @@ msgstr "Nessun paziente"
 msgid "Saved screenshot to file [%s]."
 msgstr "Salva lo screenshot come [%s]."
 
-msgid "Python version check"
-msgstr ""
-
-#, python-format
-msgid ""
-"You are running Python version\n"
-" %s\n"
-"\n"
-"However, GNUmed wants Python 2.7 to\n"
-"facilitate migration to Python 3.\n"
-"\n"
-"Please upgrade your Python interpreter !"
-msgstr ""
-
 msgid "GNUmed client"
 msgstr "client GNUmed"
 
@@ -19624,14 +19656,14 @@ msgstr "Amministrativo"
 msgid "Set line to category \"administrative\""
 msgstr ""
 
-msgid "→ &Clipboard"
+msgid "\\u2192 &Clipboard"
 msgstr ""
 
 #, fuzzy
 msgid "Copy line to clipboard"
 msgstr "Muovi il paziente su."
 
-msgid "→ +Clipboard+"
+msgid "\\u2192 +Clipboard+"
 msgstr ""
 
 #, fuzzy
@@ -19862,12 +19894,6 @@ msgstr "risultato corretto"
 msgid "Review and &sign"
 msgstr ""
 
-msgid "Export to &file"
-msgstr ""
-
-msgid "Export to &clipboard"
-msgstr ""
-
 #, fuzzy
 msgid "Problems"
 msgstr "Problema"
@@ -19957,6 +19983,12 @@ msgstr ""
 msgid "All: by &Day"
 msgstr ""
 
+msgid "Export to &file"
+msgstr ""
+
+msgid "Export to &clipboard"
+msgstr ""
+
 #, python-format
 msgid "%s results selected. Too many to list individually."
 msgstr ""
@@ -19997,14 +20029,9 @@ msgstr ""
 msgid "Cannot delete measurement type [%s (%s)] because it is in use."
 msgstr ""
 
-msgid ""
-"\n"
-"These are the measurement types currently defined in GNUmed.\n"
-"\n"
-msgstr ""
-
-msgid "Showing measurement types."
-msgstr ""
+#, fuzzy
+msgid "Measurement types."
+msgstr "Misurazioni"
 
 msgid "Org"
 msgstr ""
@@ -20016,6 +20043,14 @@ msgstr ""
 #, python-format
 msgid "Manage aggregations (%s) of tests into groups."
 msgstr ""
+
+#, fuzzy
+msgid "Select panels"
+msgstr "Tipo di modello"
+
+#, fuzzy
+msgid "Select panels the focussed test type is to belong to."
+msgstr "Seleziona il tipo di canale di comunicazione"
 
 #, fuzzy
 msgid "generic / in house lab"
@@ -20093,22 +20128,21 @@ msgstr "Aggiungi una nuova persona"
 msgid "Editing test panel"
 msgstr "Edita l'indirizzo"
 
-msgid ""
-"\n"
-"Test panels as defined in GNUmed.\n"
-msgstr ""
-
 #, fuzzy
-msgid "Showing test panels."
-msgstr "Unire i pazienti"
+msgid "Test panels list"
+msgstr "Risultati del test"
 
 #, fuzzy
 msgid "Select a test panel."
 msgstr "Riassegnazione tipo di documento"
 
 #, fuzzy
-msgid "code not found"
+msgid "LOINC not found"
 msgstr "pgAdmin III non trovato."
+
+#, fuzzy
+msgid "not a LOINC"
+msgstr "LOINC"
 
 #, fuzzy
 msgid "No LOINC codes selected."
@@ -20204,6 +20238,9 @@ msgstr ""
 #, fuzzy
 msgid "Episode Actions:"
 msgstr "Episodio %s"
+
+msgid "Toggle ongoing/closed"
+msgstr ""
 
 msgid "Promote"
 msgstr "Promuovi"
@@ -21398,6 +21435,51 @@ msgstr "Annulla"
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Annulla e NON connetti a GNUmed"
 
+#~ msgid "%s this week (%s of %s)"
+#~ msgstr "%s questa settimana (%s di %s)"
+
+#~ msgid "%s next week (%s of %s)"
+#~ msgstr "%s prossima settimana (%s di %s)"
+
+#~ msgid "%s last week (%s of %s)"
+#~ msgstr "%s settimana scorsa (%s of %s)"
+
+#~ msgid "in %d hour(s) - %s"
+#~ msgstr "in %d ora/e - %s"
+
+#~ msgid "%d hour(s) ago - %s"
+#~ msgstr "%d ora/e fa - %s"
+
+#~ msgid "%d day(s) ago - %s"
+#~ msgstr "%d giorno/i fa - %s"
+
+#~ msgid "%d week(s) ago - %s)"
+#~ msgstr "%d settimana/e fa - %s)"
+
+#~ msgid "in %d month(s) - %s"
+#~ msgstr "in %d mese/i - %s"
+
+#~ msgid "%d month(s) ago - %s"
+#~ msgstr "%d mese/i fa - %s"
+
+#~ msgid "in %d year(s) - %s"
+#~ msgstr "in %d anno/i - %s"
+
+#~ msgid "%d year(s) ago - %s"
+#~ msgstr "%d anno/i fa - %s"
+
+#, fuzzy
+#~ msgid "Referrer"
+#~ msgstr "Referenti"
+
+#, fuzzy
+#~ msgid "Showing test panels."
+#~ msgstr "Unire i pazienti"
+
+#, fuzzy
+#~ msgid "code not found"
+#~ msgstr "pgAdmin III non trovato."
+
 #, fuzzy
 #~ msgid "Save (Z)"
 #~ msgstr "Salva"
@@ -21982,10 +22064,6 @@ msgstr "Annulla e NON connetti a GNUmed"
 #, fuzzy
 #~ msgid "A comment on this test panel."
 #~ msgstr "Un commento su questa persona."
-
-#, fuzzy
-#~ msgid "Select the test types for this panel."
-#~ msgstr "Seleziona il tipo di canale di comunicazione"
 
 #, fuzzy
 #~ msgid "List bills"
