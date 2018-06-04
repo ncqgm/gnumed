@@ -140,12 +140,13 @@ mkdir -p ./gnumed-client.$CLIENTREV/client/
 cp -R ../../client/__init__.py ./gnumed-client.$CLIENTREV/client/
 cp -R ../../client/gnumed.py ./gnumed-client.$CLIENTREV/client/
 cp -R ../../client/gm-from-vcs.conf ./gnumed-client.$CLIENTREV/client/
-cp -R ../../client/gm-from-vcs.sh ./gnumed-client.$CLIENTREV/client/
+cp -R ../../client/p2w3-gm-from-vcs.sh ./gnumed-client.$CLIENTREV/client/
+cp -R ../../client/p2w4-gm-from-vcs.sh ./gnumed-client.$CLIENTREV/client/
+cp -R ../../client/p3w4-gm-from-vcs.sh ./gnumed-client.$CLIENTREV/client/
 cp -R ../../client/gm-from-vcs.bat ./gnumed-client.$CLIENTREV/client/
 cp -R ./gnumed ./gnumed-client.$CLIENTREV/client/
 cp -R ./gnumed-client.desktop ./gnumed-client.$CLIENTREV/client/
 cp -R ./appdata.xml ./gnumed-client.$CLIENTREV/client/
-cp -R ../../client/sitecustomize.py ./gnumed-client.$CLIENTREV/client/
 cp -R ../../../README ./gnumed-client.$CLIENTREV/client/
 cp -R ../../../INSTALL ./gnumed-client.$CLIENTREV/client/
 cp -R ../../../CHANGELOG ./gnumed-client.$CLIENTREV/client/
