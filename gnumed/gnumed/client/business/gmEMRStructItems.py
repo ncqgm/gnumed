@@ -902,9 +902,10 @@ FROM (
 		try:
 			return laterality2str[self._payload[self._idx['laterality']]]
 		except KeyError:
-			return '<???>'
+			return '<?>'
 
 	laterality_description = property(_get_laterality_description, lambda x:x)
+
 	#--------------------------------------------------------
 	def _get_diagnostic_certainty_description(self):
 		return diagnostic_certainty_classification2str(self._payload[self._idx['diagnostic_certainty_classification']])
@@ -1155,6 +1156,7 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 			episodes = [self.pk_obj],
 			order_by = order_by
 		)
+
 	#--------------------------------------------------------
 	def rename(self, description=None):
 		"""Method for episode editing, that is, episode renaming.
@@ -1851,6 +1853,14 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 		return rows[0][0]
 
 	has_narrative = property(_get_has_narrative, lambda x:x)
+
+	#--------------------------------------------------------
+	def _get_health_issue(self):
+		if self._payload[self._idx['pk_health_issue']] is None:
+			return None
+		return cHealthIssue(self._payload[self._idx['pk_health_issue']])
+
+	health_issue = property(_get_health_issue)
 
 #============================================================
 def create_episode(pk_health_issue=None, episode_name=None, is_open=False, allow_dupes=False, encounter=None, link_obj=None):

@@ -358,7 +358,7 @@ class cOrgUnit(gmBusinessDBObject.cBusinessDBObject):
 	def unlink_address(self, address=None, pk_address=None):
 		"""Remove an address from the org unit.
 
-		The address itself stays in the database.
+		The address itself remains in the database.
 		The address can be either cAdress or cPatientAdress.
 		"""
 		self.address = None

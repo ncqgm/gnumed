@@ -24,6 +24,7 @@ IMPROVED: CLI EMR export tool
 IMPROVED: form disposal dialog
 IMPROVED: date/timestamp picker functionality
 IMPROVED: better duplicate person detection
+IMPROVED: document tree details view usage
 
 FIX: [Save] functionality of Export Area
 FIX: document tree sorting / document insertion

@@ -44,6 +44,7 @@ from Gnumed.business import gmEMRStructItems
 from Gnumed.business import gmPraxis
 from Gnumed.business import gmDICOM
 from Gnumed.business import gmProviderInbox
+from Gnumed.business import gmOrganization
 
 from Gnumed.wxpython import gmGuiHelpers
 from Gnumed.wxpython import gmRegetMixin
@@ -1588,16 +1589,73 @@ class cSelectablySortedDocTreePnl(wxgSelectablySortedDocTreePnl.wxgSelectablySor
 		self._rbtn_sort_by_org.SetValue(True)
 
 	#--------------------------------------------------------
-	def _update_details(self, document=None, part=None):
+	def _update_details(self, issue=None, episode=None, org_unit=None, document=None, part=None):
 
-		if (document is None) and (part is None):
-			self._LCTRL_details.set_string_items([])
-			return
+		self._LCTRL_details.set_string_items([])
 
 		if document is None:
-			document = part.document
+			if part is not None:
+				document = part.document
+
+		if issue is None:
+			if episode is not None:
+				issue = episode.health_issue
 
 		items = []
+
+		if issue is not None:
+			items.append([_('Health issue'), '%s%s [#%s]' % (
+				issue['description'],
+				gmTools.coalesce (
+					initial = issue['laterality'],
+					instead = '',
+					template_initial = ' (%s)',
+					none_equivalents = [None, '', '?']
+				),
+				issue['pk_health_issue']
+			)])
+			items.append([_('Status'), '%s, %s %s' % (
+				gmTools.bool2subst(issue['is_active'], _('active'), _('inactive')),
+				gmTools.bool2subst(issue['clinically_relevant'], _('clinically relevant'), _('not clinically relevant')),
+				issue.diagnostic_certainty_description
+			)])
+			items.append([_('Confidential'), issue['is_confidential']])
+			items.append([_('Age noted'), issue.age_noted_human_readable()])
+
+		if episode is not None:
+			items.append([_('Episode'), '%s [#%s]' % (
+				episode['description'],
+				episode['pk_episode']
+			)])
+			items.append([_('Status'), '%s %s' % (
+				gmTools.bool2subst(episode['episode_open'], _('active'), _('finished')),
+				episode.diagnostic_certainty_description
+			)])
+			items.append([_('Health issue'), gmTools.coalesce(episode['health_issue'], '')])
+
+		if org_unit is not None:
+			items.append([_('Organization'), '%s (%s) [#%s]' % (
+				org_unit['organization'],
+				org_unit['l10n_organization_category'],
+				org_unit['pk_org']
+			)])
+			items.append([_('Department'), '%s%s [#%s]' % (
+				org_unit['unit'],
+				gmTools.coalesce(org_unit['l10n_unit_category'], '', ' (%s)'),
+				org_unit['pk_org_unit']
+			)])
+			adr = org_unit.address
+			if adr is not None:
+				lines = adr.format()
+				items.append([lines[0], lines[1]])
+				for line in lines[2:]:
+					items.append(['', line])
+			for comm in org_unit.comm_channels:
+				items.append([comm['l10n_comm_type'], '%s%s' % (
+					comm['url'],
+					gmTools.bool2subst(comm['is_confidential'], _(' (confidential)'), '', '')
+				)])
+
 		if document is not None:
 			items.append([_('Document'), '%s [#%s]' % (document['l10n_type'], document['pk_doc'])])
 			items.append([_('Generated'), gmDateTime.pydt_strftime(document['clin_when'], '%Y %b %d')])
@@ -1924,7 +1982,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 				if intermediate_label not in intermediate_nodes:
 					intermediate_nodes[intermediate_label] = self.AppendItem(parent = self.root, text = intermediate_label)
 					self.SetItemBold(intermediate_nodes[intermediate_label], bold = True)
-					self.SetItemData(intermediate_nodes[intermediate_label], None)
+					self.SetItemData(intermediate_nodes[intermediate_label], {'pk_episode': doc['pk_episode']})
 					self.SetItemHasChildren(intermediate_nodes[intermediate_label], True)
 				parent = intermediate_nodes[intermediate_label]
 
@@ -1958,14 +2016,13 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 				if intermediate_label not in intermediate_nodes:
 					intermediate_nodes[intermediate_label] = self.AppendItem(parent = self.root, text = intermediate_label)
 					self.SetItemBold(intermediate_nodes[intermediate_label], bold = True)
-					self.SetItemData(intermediate_nodes[intermediate_label], None)
+					self.SetItemData(intermediate_nodes[intermediate_label], {'pk_health_issue': doc['pk_health_issue']})
 					self.SetItemHasChildren(intermediate_nodes[intermediate_label], True)
 				parent = intermediate_nodes[intermediate_label]
 
 			elif self.__sort_mode == 'org':
 				if doc['pk_org'] is None:
 					intermediate_label = _('unknown organization')
-					tt = ''
 				else:
 					if doc['unit_is_receiver']:
 						direction = _('to: %s')
@@ -1977,8 +2034,6 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 					else:
 						 org_str = doc['organization']
 					intermediate_label = direction % org_str
-					# not quite right: always shows data of the _first_ document of _any_ org unit of this org
-					tt = '\n'.join(doc.org_unit.format(with_address = True, with_org = True, with_comms = True))
 				doc_label = _('%s%7s %s:%s (%s)') % (
 					gmTools.bool2subst(doc.has_unreviewed_parts, gmTools.u_writing_hand, '', '?'),
 					doc['clin_when'].strftime('%m/%Y'),
@@ -1990,7 +2045,9 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 					intermediate_nodes[intermediate_label] = self.AppendItem(parent = self.root, text = intermediate_label)
 					self.SetItemBold(intermediate_nodes[intermediate_label], bold = True)
 					#self.SetItemData(intermediate_nodes[intermediate_label], None)
-					self.SetItemData(intermediate_nodes[intermediate_label], tt)
+					#self.SetItemData(intermediate_nodes[intermediate_label], tt)
+					# not quite right: always shows data of the _last_ document of _any_ org unit of this org
+					self.SetItemData(intermediate_nodes[intermediate_label], doc.org_unit)
 					self.SetItemHasChildren(intermediate_nodes[intermediate_label], True)
 				parent = intermediate_nodes[intermediate_label]
 
@@ -2178,7 +2235,31 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 				return 0
 			return 1
 
-		# else sort alphabetically
+		# org unit node
+		if isinstance(data1, gmOrganization.cOrgUnit):
+			l1 = self.GetItemText(node1)
+			l2 = self.GetItemText(node2)
+			if l1 < l2:
+				return -1
+			if l1 == l2:
+				return 0
+			return 1
+
+		# episode or issue node
+		if isinstance(data1, dict):
+			if ('pk_episode' in data1) or ('pk_health_issue' in data1):
+				l1 = self.GetItemText(node1)
+				l2 = self.GetItemText(node2)
+				if l1 < l2:
+					return -1
+				if l1 == l2:
+					return 0
+				return 1
+			_log.error('dict but unknown content: %s', data1.keys())
+			return 1
+
+		# type node
+		# else sort alphabetically by label
 		if None in [data1, data2]:
 			l1 = self.GetItemText(node1)
 			l2 = self.GetItemText(node2)
@@ -2220,7 +2301,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 		node = event.GetItem()
 		node_data = self.GetItemData(node)
 
-		# pseudo root node
+		# pseudo root node or "type"
 		if node_data is None:
 			self.__show_details_callback(document = None, part = None)
 			return
@@ -2230,17 +2311,40 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 			self.__show_details_callback(document = node_data, part = None)
 			return
 
-		# string nodes are labels such as episodes which may or may not have children
-		if isinstance(node_data, str):
-			self.__show_details_callback(document = None, part = None)
-			return
-
 		if isinstance(node_data, gmDocuments.cDocumentPart):
 			doc = self.GetItemData(self.GetItemParent(node))
 			self.__show_details_callback(document = doc, part = node_data)
 			return
 
-		raise ValueError(_('invalid document tree node data type: %s') % type(node_data))
+		if isinstance(node_data, gmOrganization.cOrgUnit):
+			self.__show_details_callback(org_unit = node_data)
+			return
+
+		if isinstance(node_data, dict):
+			_log.debug('node data is dict: %s', node_data)
+			try:
+				_log.debug('testing node data dict for issue')
+				issue = gmEMRStructItems.cHealthIssue(aPK_obj = node_data['pk_health_issue'])
+				_log.debug('node data dict pointed to issue')
+				self.__show_details_callback(issue = issue)
+				_log.debug('showed issue in details view, now returning')
+				return
+				_log.debug('after return from issue')
+			except KeyError:
+				pass
+			try:
+				epi = gmEMRStructItems.cEpisode(aPK_obj = node_data['pk_episode'])
+				self.__show_details_callback(episode = epi)
+				return
+			except KeyError:
+				pass
+
+#		# string nodes are labels such as episodes which may or may not have children
+#		if isinstance(node_data, str):
+#			self.__show_details_callback(document = None, part = None)
+#			return
+
+		raise ValueError('invalid document tree node data type: %s' % type(node_data))
 
 	#------------------------------------------------------------------------
 	def _on_activate(self, event):
@@ -2306,25 +2410,29 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 		item = event.GetItem()
 
 		if not item.IsOk():
-			event.SetToolTip(' ')
+			event.SetToolTip('')
 			return
 
 		data = self.GetItemData(item)
-
-		# documents
-		if isinstance(data, gmDocuments.cDocument):
+		# documents, parts
+		if isinstance(data, (gmDocuments.cDocument, gmDocuments.cDocumentPart)):
 			tt = data.format()
-		# parts
-		elif isinstance(data, gmDocuments.cDocumentPart):
-			tt = data.format()
-		# explicit tooltip strings
-		elif isinstance(data, str):
-			tt = data
-		# other (root, intermediate nodes)
+		elif isinstance(data, gmOrganization.cOrgUnit):
+			tt = '\n'.join(data.format(with_address = True, with_org = True, with_comms = True))
+		elif isinstance(data, dict):
+			try:
+				tt = data['tooltip']
+			except KeyError:
+				tt = ''
+#		# explicit tooltip strings
+#		elif isinstance(data, str):
+#			tt = data
+#		# other (root, "None")
 		else:
 			tt = ''
 
 		event.SetToolTip(tt)
+
 	#--------------------------------------------------------
 	# internal API
 	#--------------------------------------------------------
