@@ -1166,6 +1166,8 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 			)"""
 		args = {'pat': self.ID, 'urg': urgency, 'cmt': comment, 'area': zone}
 		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], verbose = True)
+		gmHooks.run_hook_script(hook = 'after_waiting_list_modified')
+
 	#--------------------------------------------------------
 	def get_waiting_list_entry(self):
 		cmd = """SELECT * FROM clin.v_waiting_list WHERE pk_identity = %(pat)s"""
@@ -1174,6 +1176,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 		return rows
 
 	waiting_list_entries = property(get_waiting_list_entry, lambda x:x)
+
 	#--------------------------------------------------------
 	def _get_export_area(self):
 		return gmExportArea.cExportArea(self.ID)

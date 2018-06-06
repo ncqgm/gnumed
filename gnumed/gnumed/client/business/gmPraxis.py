@@ -17,6 +17,7 @@ from Gnumed.pycommon import gmPG2
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmBorg
 from Gnumed.pycommon import gmCfg2
+from Gnumed.pycommon import gmHooks
 from Gnumed.pycommon import gmBusinessDBObject
 
 from Gnumed.business import gmOrganization
@@ -347,9 +348,11 @@ class gmCurrentPraxisBranch(gmBorg.cBorg):
 	# waiting list handling
 	#--------------------------------------------------------
 	def remove_from_waiting_list(self, pk=None):
-		cmd = 'delete from clin.waiting_list where pk = %(pk)s'
+		cmd = 'DELETE FROM clin.waiting_list WHERE pk = %(pk)s'
 		args = {'pk': pk}
 		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+		gmHooks.run_hook_script(hook = 'after_waiting_list_modified')
+
 	#--------------------------------------------------------
 	def update_in_waiting_list(self, pk = None, urgency = 0, comment = None, zone = None):
 		cmd = """
@@ -368,6 +371,8 @@ where
 		}
 
 		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+		gmHooks.run_hook_script(hook = 'after_waiting_list_modified')
+
 	#--------------------------------------------------------
 	def raise_in_waiting_list(self, current_position=None):
 		if current_position == 1:
@@ -377,12 +382,14 @@ where
 		args = {'pos': current_position}
 
 		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+
 	#--------------------------------------------------------
 	def lower_in_waiting_list(self, current_position=None):
 		cmd = 'select clin.move_waiting_list_entry(%(pos)s, (%(pos)s+1))'
 		args = {'pos': current_position}
 
 		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+
 	#--------------------------------------------------------
 	# properties
 	#--------------------------------------------------------

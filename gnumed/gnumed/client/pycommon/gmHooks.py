@@ -41,6 +41,8 @@ known_hooks = [
 	'post_patient_activation',
 	'post_person_creation',
 
+	'after_waiting_list_modified',
+
 	'shutdown-post-GUI',
 	'startup-after-GUI-init',
 	'startup-before-GUI',
@@ -141,6 +143,7 @@ def run_script(hook=None):
 
 	_log.info('hook script: %s', full_script)
 	return True
+
 # ========================================================================
 __current_hook_stack = []
 
@@ -188,6 +191,7 @@ def run_hook_script(hook=None):
 		__current_hook_stack.pop()
 
 	return True
+
 # ========================================================================
 if __name__ == '__main__':
 
