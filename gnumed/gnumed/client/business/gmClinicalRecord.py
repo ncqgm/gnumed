@@ -2809,20 +2809,33 @@ SELECT MIN(earliest) FROM (
 	#------------------------------------------------------------------
 	# API: measurements / test results
 	#------------------------------------------------------------------
-	def get_most_recent_results_by_loinc(self, loinc=None, no_of_results=1, consider_meta_type=False):
-		return gmPathLab.get_most_recent_results_by_loinc (
-			loinc = loinc,
+	def get_most_recent_results_for_patient(self, no_of_results=1):
+		return gmPathLab.get_most_recent_results_for_patient (
+			no_of_results = no_of_results,
+			patient = self.pk_patient
+		)
+
+	#------------------------------------------------------------------
+	def get_most_recent_results_in_loinc_group(self, loincs=None, no_of_results=1, consider_meta_type=False):
+		return gmPathLab.get_most_recent_results_in_loinc_group (
+			loincs = loincs,
 			no_of_results = no_of_results,
 			consider_meta_type = consider_meta_type,
 			patient = self.pk_patient
 		)
 
 	#------------------------------------------------------------------
-	def get_most_recent_results(self, test_type=None, loinc=None, no_of_results=1):
-		return gmPathLab.get_most_recent_results (
+	def get_most_recent_results_for_test_type(self, test_type=None, no_of_results=1):
+		return gmPathLab.get_most_recent_results_for_test_type (
 			test_type = test_type,
-			loinc = loinc,
 			no_of_results = no_of_results,
+			patient = self.pk_patient
+		)
+
+	#------------------------------------------------------------------
+	def get_most_recent_result_for_test_types(self, test_types=None):
+		return gmPathLab.get_most_recent_result_for_test_types (
+			test_types = test_types,
 			patient = self.pk_patient
 		)
 
@@ -3071,8 +3084,8 @@ SELECT MIN(earliest) FROM (
 	#------------------------------------------------------------------
 	def _get_best_gfr_or_crea(self):
 
-		measured_gfr = self.get_most_recent_results(loinc = gmLOINC.LOINC_gfr_quantity, no_of_results = 1)
-		crea = self.get_most_recent_results(loinc = gmLOINC.LOINC_creatinine_quantity, no_of_results = 1)
+		measured_gfr = self.get_most_recent_results_in_loinc_group(loincs = gmLOINC.LOINC_gfr_quantity, no_of_results = 1)
+		crea = self.get_most_recent_results_in_loinc_group(loincs = gmLOINC.LOINC_creatinine_quantity, no_of_results = 1)
 
 		if (measured_gfr is None) and (crea is None):
 			return None
@@ -3311,7 +3324,7 @@ if __name__ == "__main__":
 	#-----------------------------------------
 	def test_get_most_recent():
 		emr = cClinicalRecord(aPKey=12)
-		print(emr.get_most_recent_results())
+		print(emr.get_most_recent_results_for_test_type())
 
 	#-----------------------------------------
 	def test_episodes():

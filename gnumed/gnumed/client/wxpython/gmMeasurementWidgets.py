@@ -1009,14 +1009,14 @@ class cMeasurementsByIssuePnl(wxgMeasurementsByIssuePnl.wxgMeasurementsByIssuePn
 	#------------------------------------------------------------
 	def __init_ui(self):
 		self._LCTRL_issues.set_columns([_('Problem')])
-		self._LCTRL_issues.select_callback = self._on_problem_selected
 		self._LCTRL_results.set_columns([_('When'), _('Test'), _('Result'), _('Reference')])
-		self._LCTRL_results.edit_callback = self._on_edit
-		self._LCTRL_results.select_callback = self._on_result_selected
 
 	#------------------------------------------------------------
 	def __register_events(self):
 		gmDispatcher.connect(signal = 'gm_table_mod', receiver = self._on_database_signal)
+		self._LCTRL_issues.select_callback = self._on_problem_selected
+		self._LCTRL_results.edit_callback = self._on_edit
+		self._LCTRL_results.select_callback = self._on_result_selected
 
 	#------------------------------------------------------------
 	def __clear(self):
@@ -1259,6 +1259,185 @@ class cMeasurementsByBatteryPnl(wxgMeasurementsByBatteryPnl.wxgMeasurementsByBat
 	patient = property(_get_patient, _set_patient)
 
 #================================================================
+from Gnumed.wxGladeWidgets import wxgMeasurementsAsMostRecentListPnl
+
+class cMeasurementsAsMostRecentListPnl(wxgMeasurementsAsMostRecentListPnl.wxgMeasurementsAsMostRecentListPnl, gmRegetMixin.cRegetOnPaintMixin):
+	"""A list ctrl class for displaying most recent measurement results, possibly filtered by panel/battery.
+
+	- operates on a cPatient instance handed to it and NOT on the currently active patient
+	"""
+	def __init__(self, *args, **kwargs):
+		wxgMeasurementsAsMostRecentListPnl.wxgMeasurementsAsMostRecentListPnl.__init__(self, *args, **kwargs)
+
+		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
+
+		self.__patient = None
+
+		self.__init_ui()
+		self.__register_events()
+
+	#------------------------------------------------------------
+	# internal helpers
+	#------------------------------------------------------------
+	def __init_ui(self):
+		self._LCTRL_results.set_columns([_('Test'), _('Result'), _('When'), _('Range')])
+
+	#------------------------------------------------------------
+	def __register_events(self):
+		gmDispatcher.connect(signal = 'gm_table_mod', receiver = self._on_database_signal)
+
+		self._PRW_panel.add_callback_on_selection(callback = self._on_panel_selected)
+		self._PRW_panel.add_callback_on_modified(callback = self._on_panel_selection_modified)
+
+		self._LCTRL_results.select_callback = self._on_result_selected
+		self._LCTRL_results.edit_callback = self._on_edit
+
+	#------------------------------------------------------------
+	def __repopulate_ui(self):
+
+		self._TCTRL_details.SetValue('')
+
+		pnl = self._PRW_panel.GetData(as_instance = True)
+		if pnl is None:
+			results = gmPathLab.get_most_recent_result_for_test_types(patient = self.__patient.ID)
+		else:
+			results = pnl.get_most_recent_results (
+				pk_patient = self.__patient.ID,
+				#order_by = ,
+				group_by_meta_type = True
+			)
+		items = []
+		data = []
+		for r in results:
+			range_info = gmTools.coalesce (
+				r.formatted_clinical_range,
+				r.formatted_normal_range
+			)
+			review = gmTools.bool2subst (
+				r['reviewed'],
+				'',
+				' ' + gmTools.u_writing_hand,
+				' ' + gmTools.u_writing_hand
+			)
+			items.append ([
+				# type
+				r['abbrev_tt'],
+				# value
+				'%s%s%s%s' % (
+					gmTools.strip_empty_lines(text = r['unified_val'])[0],
+					gmTools.coalesce(r['val_unit'], '', ' %s'),
+					gmTools.coalesce(r['abnormality_indicator'], '', ' %s'),
+					review
+				),
+				# when
+				_('%s ago (%s)') % (
+					gmDateTime.format_interval_medically(interval = gmDateTime.pydt_now_here() - r['clin_when']),
+					gmDateTime.pydt_strftime(r['clin_when'], '%Y %b %d  %H:%M', accuracy = gmDateTime.acc_minutes)
+				),
+				# range
+				gmTools.coalesce(range_info, '')
+			])
+			data.append({'data': r, 'formatted': r.format(with_source_data = True)})
+
+		self._LCTRL_results.set_string_items(items)
+		self._LCTRL_results.set_column_widths([wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE])
+		self._LCTRL_results.set_data(data)
+
+		if len(items) > 0:
+			self._LCTRL_results.Select(idx = 0, on = 1)
+		self._LCTRL_results.SetFocus()
+
+		return True
+
+	#--------------------------------------------------------
+	def __on_panel_selected(self, panel):
+		if panel is None:
+			self._TCTRL_panel_comment.SetValue('')
+		else:
+			pnl = self._PRW_panel.GetData(as_instance = True)
+			self._TCTRL_panel_comment.SetValue(gmTools.coalesce (
+				pnl['comment'],
+				''
+			))
+		self.__repopulate_ui()
+
+	#--------------------------------------------------------
+	def __on_panel_selection_modified(self):
+		self._TCTRL_panel_comment.SetValue('')
+		if self._PRW_panel.Value.strip() == u'':
+			self.__repopulate_ui()
+
+	#------------------------------------------------------------
+	# event handlers
+	#------------------------------------------------------------
+	def _on_database_signal(self, **kwds):
+		if self.__patient is None:
+			return True
+
+		if kwds['pk_identity'] is not None:				# review table doesn't have pk_identity yet
+			if kwds['pk_identity'] != self.__patient.ID:
+				return True
+
+		if kwds['table'] not in ['clin.test_result', 'clin.reviewed_test_results', 'clin.test_panel']:
+			return True
+
+		self._schedule_data_reget()
+		return True
+
+	#------------------------------------------------------------
+	def _on_manage_panels_button_pressed(self, event):
+		manage_test_panels(parent = self)
+
+	#--------------------------------------------------------
+	def _on_panel_selected(self, panel):
+		wx.CallAfter(self.__on_panel_selected, panel = panel)
+
+	#--------------------------------------------------------
+	def _on_panel_selection_modified(self):
+		wx.CallAfter(self.__on_panel_selection_modified)
+
+	#------------------------------------------------------------
+	def _on_result_selected(self, event):
+		event.Skip()
+		item_data = self._LCTRL_results.get_item_data(item_idx = event.Index)
+		self._TCTRL_details.SetValue(item_data['formatted'])
+
+	#------------------------------------------------------------
+	def _on_edit(self):
+		item_data = self._LCTRL_results.get_selected_item_data(only_one = True)
+		if item_data is None:
+			return
+		if edit_measurement(parent = self, measurement = item_data['data'], single_entry = True):
+			self.__repopulate_ui()
+
+	#------------------------------------------------------------
+	# reget mixin API
+	#------------------------------------------------------------
+	def _populate_with_data(self):
+		self.__repopulate_ui()
+		return True
+
+	#------------------------------------------------------------
+	# properties
+	#------------------------------------------------------------
+	def _get_patient(self):
+		return self.__patient
+
+	def _set_patient(self, patient):
+		if (self.__patient is None) and (patient is None):
+			return
+		if (self.__patient is None) or (patient is None):
+			self.__patient = patient
+			self._schedule_data_reget()
+			return
+		if self.__patient.ID == patient.ID:
+			return
+		self.__patient = patient
+		self._schedule_data_reget()
+
+	patient = property(_get_patient, _set_patient)
+
+#================================================================
 from Gnumed.wxGladeWidgets import wxgMeasurementsAsTablePnl
 
 class cMeasurementsAsTablePnl(wxgMeasurementsAsTablePnl.wxgMeasurementsAsTablePnl, gmRegetMixin.cRegetOnPaintMixin):
@@ -1400,6 +1579,7 @@ class cMeasurementsNb(wx.Notebook, gmPlugin.cPatientChange_PluginMixin):
 		- by test battery
 		- by day
 		- by issue/episode
+		- most-recent list, perhaps by panel
 		- full grid
 		- full list
 
@@ -1480,6 +1660,15 @@ class cMeasurementsNb(wx.Notebook, gmPlugin.cPatientChange_PluginMixin):
 		self.AddPage (
 			page = new_page,
 			text = _('Panels'),
+			select = False
+		)
+
+		# most-recent, by panel
+		new_page = cMeasurementsAsMostRecentListPnl(self, -1)
+		new_page.patient = None
+		self.AddPage (
+			page = new_page,
+			text = _('Most recent'),
 			select = False
 		)
 

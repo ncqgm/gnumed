@@ -404,7 +404,7 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 		del abuses
 
 		# kidney function
-		gfr = emr.get_most_recent_results(loinc = gmLOINC.LOINC_gfr_quantity, no_of_results = 1)
+		gfr = emr.get_most_recent_results_in_loinc_group(loincs = gmLOINC.LOINC_gfr_quantity, no_of_results = 1)
 		if gfr is None:
 			self.calc.patient = curr_pat
 			gfr = self.calc.eGFR
@@ -2032,8 +2032,8 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 						loinc_max_age_str[l['loinc']] = l['max_age_str']
 		loincs2monitor_missing = loincs2monitor.copy()
 		for loinc in loincs2monitor:
-			result = emr.get_most_recent_results_by_loinc (
-				loinc = [loinc],
+			result = emr.get_most_recent_results_in_loinc_group (
+				loincs = [loinc],
 				no_of_results = 1,
 				consider_meta_type = True
 			)
@@ -2058,8 +2058,8 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 				most_recent_results[result['pk_test_result']] = result
 
 		# those need special treatment
-		gfr = emr.get_most_recent_results(loinc = gmLOINC.LOINC_gfr_quantity, no_of_results = 1)
-		crea = emr.get_most_recent_results(loinc = gmLOINC.LOINC_creatinine_quantity, no_of_results = 1)
+		gfr = emr.get_most_recent_results_in_loinc_group(loincs = gmLOINC.LOINC_gfr_quantity, no_of_results = 1)
+		crea = emr.get_most_recent_results_in_loinc_group(loincs = gmLOINC.LOINC_creatinine_quantity, no_of_results = 1)
 		edc = emr.EDC
 
 		# display EDC
@@ -2234,7 +2234,7 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 
 	#--------------------------------------------------------
 	def __refresh_gfr(self, patient):
-		gfr = patient.emr.get_most_recent_results(loinc = gmLOINC.LOINC_gfr_quantity, no_of_results = 1)
+		gfr = patient.emr.get_most_recent_results_in_loinc_group(loincs = gmLOINC.LOINC_gfr_quantity, no_of_results = 1)
 		if gfr is None:
 			calc = gmClinicalCalculator.cClinicalCalculator()
 			calc.patient = patient

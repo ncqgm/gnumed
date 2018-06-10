@@ -222,36 +222,28 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 	# internal helpers
 	#-----------------------------------------------------
 	def __refresh_results(self, patient=None):
-		list_items = []
-		list_data = []
 
 		emr = patient.emr
-		most_recent = emr.get_most_recent_results(no_of_results = 1)
-		if most_recent is None:
+		most_recent = emr.get_most_recent_results_for_patient()
+		if len(most_recent) == 0:
 			self._LCTRL_results.set_string_items(items = [])
 			self._LCTRL_results.set_data(data = [])
 			return
+		most_recent = most_recent[0]
 
+		list_items = []
+		list_data = []
 		now = gmDateTime.pydt_now_here()
-		list_items.append(_('Latest: %s ago (%s %s%s%s%s)') % (
+
+		list_items.append(_('Most recent lab work: %s ago (%s)') % (
 			gmDateTime.format_interval_medically(now - most_recent['clin_when']),
-			most_recent['unified_abbrev'],
-			most_recent['unified_val'],
-			gmTools.coalesce(most_recent['val_unit'], '', ' %s'),
-			gmTools.coalesce(most_recent['abnormality_indicator'], '', ' %s'),
-			gmTools.bool2subst(most_recent['reviewed'], '', (' %s' % gmTools.u_writing_hand))
+			gmDateTime.pydt_strftime(most_recent['clin_when'], format = '%Y %b %d')
 		))
 		list_data.append(most_recent)
-		most_recent_needs_red = False
-		if most_recent.is_considered_abnormal is True:
-			if most_recent['is_clinically_relevant']:
-				most_recent_needs_red = True
 
 		unsigned = emr.get_unsigned_results(order_by = "(trim(coalesce(abnormality_indicator), '') <> '') DESC NULLS LAST, unified_abbrev")
 		no_of_reds = 0
 		for result in unsigned:
-			if result['pk_test_result'] == most_recent['pk_test_result']:
-				continue
 			if result['abnormality_indicator'] is not None:
 				if result['abnormality_indicator'].strip() != '':
 					no_of_reds += 1
@@ -268,8 +260,6 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		self._LCTRL_results.set_string_items(items = list_items)
 		self._LCTRL_results.set_data(data = list_data)
 
-		if most_recent_needs_red:
-			self._LCTRL_results.SetItemTextColour(0, wx.Colour('RED'))
 		if no_of_reds > 0:
 			for idx in range(1, no_of_reds + 1):
 				self._LCTRL_results.SetItemTextColour(idx, wx.Colour('RED'))
