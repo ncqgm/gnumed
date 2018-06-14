@@ -2322,22 +2322,21 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 
 		if isinstance(node_data, dict):
 			_log.debug('node data is dict: %s', node_data)
+			issue = None
 			try:
-				_log.debug('testing node data dict for issue')
-				issue = gmEMRStructItems.cHealthIssue(aPK_obj = node_data['pk_health_issue'])
-				_log.debug('node data dict pointed to issue')
-				self.__show_details_callback(issue = issue)
-				_log.debug('showed issue in details view, now returning')
-				return
-				_log.debug('after return from issue')
+				if node_data['pk_health_issue'] is None:
+					_log.debug('node data dict holds pseudo-issue for unattributed episodes, ignoring')
+				else:
+					issue = gmEMRStructItems.cHealthIssue(aPK_obj = node_data['pk_health_issue'])
 			except KeyError:
 				pass
+			episode = None
 			try:
 				epi = gmEMRStructItems.cEpisode(aPK_obj = node_data['pk_episode'])
-				self.__show_details_callback(episode = epi)
-				return
 			except KeyError:
 				pass
+			self.__show_details_callback(issue = issue, episode = epi)
+			return
 
 #		# string nodes are labels such as episodes which may or may not have children
 #		if isinstance(node_data, str):
@@ -3254,7 +3253,6 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 		self.__refresh_details()
 		self.__set_button_states()
 
-		self.Layout()
 		return True
 
 	#--------------------------------------------------------
@@ -3300,11 +3298,14 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 		self._BMP_preview.SetBitmap(wx.Bitmap.FromRGBA(50,50, red=0, green=0, blue=0, alpha = wx.ALPHA_TRANSPARENT))
 
 		if idx is None:
+			self._BMP_preview.ContainingSizer.Layout()
 			return
 		if self.__pacs is None:
+			self._BMP_preview.ContainingSizer.Layout()
 			return
 		series = self._LCTRL_series.get_selected_item_data(only_one = True)
 		if series is None:
+			self._BMP_preview.ContainingSizer.Layout()
 			return
 		if idx > len(series['instances']) - 1:
 			raise ValueError('trying to go beyond instances in series: %s of %s', idx, len(series['instances']))
@@ -3330,6 +3331,8 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 			self._BTN_next_image.Disable()
 		else:
 			self._BTN_next_image.Enable()
+
+		self._BMP_preview.ContainingSizer.Layout()
 
 	#--------------------------------------------------------
 	# reget-on-paint mixin API
@@ -3412,8 +3415,6 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 		self.__refresh_details()
 		self.__set_button_states()
 		self._BTN_previous_image.Disable()
-
-		self.Layout()
 
 	#--------------------------------------------------------
 	def _on_series_list_item_deselected(self, event):
@@ -3769,6 +3770,7 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 		patient_id = self.__orthanc_patient['ID']
 		bad_data = self.__pacs.verify_patient_data(patient_id)
 		if len(bad_data) == 0:
+			gmDispatcher.send(signal = 'statustext', msg = _('Successfully verified DICOM data of patient.'))
 			return
 
 		gmGuiHelpers.gm_show_error (

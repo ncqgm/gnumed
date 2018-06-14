@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-06-04 10:40+0200\n"
+"POT-Creation-Date: 2018-06-10 16:43+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -5261,6 +5261,12 @@ msgid ""
 "Delete - if possible - the (first or only) item selected in the list above."
 msgstr ""
 
+msgid "Manage"
+msgstr ""
+
+msgid "&Panel:"
+msgstr ""
+
 msgid "Dynamic hints"
 msgstr ""
 
@@ -7139,12 +7145,6 @@ msgid "Notelet:"
 msgstr ""
 
 msgid "Encounter:"
-msgstr ""
-
-msgid "Manage"
-msgstr ""
-
-msgid "&Panel:"
 msgstr ""
 
 msgid "&Pick"
@@ -10882,7 +10882,7 @@ msgid "Intake"
 msgstr ""
 
 #, python-format
-msgid "Latest: %s ago (%s %s%s%s%s)"
+msgid "Most recent lab work: %s ago (%s)"
 msgstr ""
 
 #, python-format
@@ -15280,6 +15280,9 @@ msgstr ""
 msgid "Age noted"
 msgstr ""
 
+msgid "Department"
+msgstr ""
+
 msgid "Bill"
 msgstr ""
 
@@ -18418,6 +18421,13 @@ msgstr ""
 msgid "Select the document types which are expected to contain lab results."
 msgstr ""
 
+msgid "Range"
+msgstr ""
+
+#, python-format
+msgid "%s ago (%s)"
+msgstr ""
+
 msgid "Perform on selected results:"
 msgstr ""
 
@@ -18428,6 +18438,9 @@ msgid "Problems"
 msgstr ""
 
 msgid "Panels"
+msgstr ""
+
+msgid "Most recent"
 msgstr ""
 
 msgid ""
@@ -19440,9 +19453,6 @@ msgid "Cannot set patient picture from [%s]."
 msgstr ""
 
 msgid "Head Office"
-msgstr ""
-
-msgid "Department"
 msgstr ""
 
 msgid "Organisation"
