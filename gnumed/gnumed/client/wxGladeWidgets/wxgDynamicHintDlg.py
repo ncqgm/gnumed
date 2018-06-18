@@ -27,7 +27,8 @@ class wxgDynamicHintDlg(wx.Dialog):
 		self._URL_info = wx.adv.HyperlinkCtrl(self, wx.ID_ANY, _("Further information"), _("http://www.duckduckgo.com"), style=wx.adv.HL_DEFAULT_STYLE)
 		self._TCTRL_rationale = cTextCtrl(self, wx.ID_ANY, "", style=wx.TE_MULTILINE | wx.TE_WORDWRAP)
 		self._LBL_previous_rationale = wx.StaticText(self, wx.ID_ANY, _("Previous\nrationale"))
-		self._TCTRL_previous_rationale = cTextCtrl(self, wx.ID_ANY, "", style=wx.TE_MULTILINE | wx.TE_READONLY | wx.TE_WORDWRAP)
+		self._TCTRL_previous_rationale = wx.TextCtrl(self, wx.ID_ANY, "", style=wx.TE_BESTWRAP | wx.TE_MULTILINE | wx.TE_READONLY)
+		self._BTN_transfer_previous_rationale = wx.Button(self, wx.ID_ANY, _(u"\u2934"), style=wx.BU_EXACTFIT)
 		self._BTN_OK = wx.Button(self, wx.ID_OK, "")
 		self._BTN_suppress = wx.Button(self, wx.ID_ANY, _("&Suppress"))
 		self._BTN_manage_hints = wx.Button(self, wx.ID_ANY, _("&Manage"), style=wx.BU_EXACTFIT)
@@ -35,6 +36,7 @@ class wxgDynamicHintDlg(wx.Dialog):
 		self.__set_properties()
 		self.__do_layout()
 
+		self.Bind(wx.EVT_BUTTON, self._on_transfer_previous_rationale_button_pressed, self._BTN_transfer_previous_rationale)
 		self.Bind(wx.EVT_BUTTON, self._on_suppress_button_pressed, self._BTN_suppress)
 		self.Bind(wx.EVT_BUTTON, self._on_manage_hints_button_pressed, self._BTN_manage_hints)
 		# end wxGlade
@@ -51,6 +53,8 @@ class wxgDynamicHintDlg(wx.Dialog):
 		self._URL_info.Enable(False)
 		self._TCTRL_rationale.SetToolTip(_("Enter a rationale for suppressing this hint."))
 		self._TCTRL_previous_rationale.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_BACKGROUND))
+		self._BTN_transfer_previous_rationale.SetFont(wx.Font(15, wx.DEFAULT, wx.NORMAL, wx.BOLD, 0, ""))
+		self._BTN_transfer_previous_rationale.Enable(False)
 		self._BTN_OK.SetToolTip(_("Dismiss this hint for now."))
 		self._BTN_OK.SetFocus()
 		self._BTN_suppress.SetToolTip(_("Suppress this hint in this patient (needs a rationale)."))
@@ -63,15 +67,18 @@ class wxgDynamicHintDlg(wx.Dialog):
 		__szr_main = wx.BoxSizer(wx.VERTICAL)
 		__szr_buttons = wx.BoxSizer(wx.HORIZONTAL)
 		__gszr_rationale = wx.FlexGridSizer(2, 2, 3, 5)
+		__szr_prev_rationale = wx.BoxSizer(wx.HORIZONTAL)
 		__szr_main.Add(self._TCTRL_title, 0, wx.BOTTOM | wx.EXPAND | wx.LEFT | wx.RIGHT, 3)
 		__szr_main.Add(self._TCTRL_hint, 1, wx.ALIGN_CENTER_VERTICAL | wx.BOTTOM | wx.EXPAND | wx.LEFT | wx.RIGHT, 3)
 		__szr_main.Add(self._TCTRL_source, 0, wx.BOTTOM | wx.EXPAND | wx.LEFT | wx.RIGHT, 3)
 		__szr_main.Add(self._URL_info, 0, wx.ALIGN_CENTER | wx.BOTTOM, 5)
-		__lbl_rationale = wx.StaticText(self, wx.ID_ANY, _("Rationale for\nsuppression\nfor this patient"))
+		__lbl_rationale = wx.StaticText(self, wx.ID_ANY, _("Rationale for\nsuppression\nin this patient"))
 		__gszr_rationale.Add(__lbl_rationale, 0, wx.ALIGN_CENTER_VERTICAL, 3)
 		__gszr_rationale.Add(self._TCTRL_rationale, 1, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
 		__gszr_rationale.Add(self._LBL_previous_rationale, 0, wx.ALIGN_CENTER_VERTICAL, 3)
-		__gszr_rationale.Add(self._TCTRL_previous_rationale, 1, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
+		__szr_prev_rationale.Add(self._TCTRL_previous_rationale, 1, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
+		__szr_prev_rationale.Add(self._BTN_transfer_previous_rationale, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+		__gszr_rationale.Add(__szr_prev_rationale, 1, wx.EXPAND, 0)
 		__gszr_rationale.AddGrowableRow(0)
 		__gszr_rationale.AddGrowableCol(1)
 		__szr_main.Add(__gszr_rationale, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND | wx.LEFT | wx.RIGHT, 3)
@@ -86,6 +93,10 @@ class wxgDynamicHintDlg(wx.Dialog):
 		self.SetSizer(__szr_main)
 		self.Layout()
 		# end wxGlade
+
+	def _on_transfer_previous_rationale_button_pressed(self, event):  # wxGlade: wxgDynamicHintDlg.<event_handler>
+		print("Event handler '_on_transfer_previous_rationale_button_pressed' not implemented!")
+		event.Skip()
 
 	def _on_suppress_button_pressed(self, event):  # wxGlade: wxgDynamicHintDlg.<event_handler>
 		print("Event handler '_on_suppress_button_pressed' not implemented!")

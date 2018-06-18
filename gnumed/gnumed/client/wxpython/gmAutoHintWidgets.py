@@ -251,10 +251,14 @@ class cDynamicHintDlg(wxgDynamicHintDlg.wxgDynamicHintDlg):
 			if self.__hint['rationale4suppression'] is None:
 				self._LBL_previous_rationale.Hide()
 				self._TCTRL_previous_rationale.Hide()
+				self._BTN_transfer_previous_rationale.Hide()
+				self._BTN_transfer_previous_rationale.Disable()
 			else:
 				self._LBL_previous_rationale.Show()
 				self._TCTRL_previous_rationale.Show()
 				self._TCTRL_previous_rationale.SetValue(self.__hint['rationale4suppression'])
+				self._BTN_transfer_previous_rationale.Show()
+				self._BTN_transfer_previous_rationale.Enable()
 
 		self._TCTRL_rationale.SetValue('')
 		self._BTN_suppress.Disable()
@@ -266,8 +270,10 @@ class cDynamicHintDlg(wxgDynamicHintDlg.wxgDynamicHintDlg):
 	def _on_rationale_modified(self):
 		if self._TCTRL_rationale.GetValue().strip() == '':
 			self._BTN_suppress.Disable()
+			self._BTN_OK.SetDefault()
 		else:
 			self._BTN_suppress.Enable()
+			self._BTN_suppress.SetDefault()
 
 	#------------------------------------------------------------
 	def _on_suppress_button_pressed(self, event):
@@ -286,6 +292,14 @@ class cDynamicHintDlg(wxgDynamicHintDlg.wxgDynamicHintDlg):
 	def _on_manage_hints_button_pressed(self, event):
 		event.Skip()
 		manage_dynamic_hints(parent = self)
+
+	#------------------------------------------------------------
+	def _on_transfer_previous_rationale_button_pressed(self, event):
+		event.Skip()
+		prev = self._TCTRL_previous_rationale.Value.strip()
+		if prev == u'':
+			return
+		self._TCTRL_rationale.Value = prev
 
 #================================================================
 from Gnumed.wxGladeWidgets import wxgDynamicHintListDlg
