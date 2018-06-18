@@ -2998,6 +2998,11 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 	# internal helpers
 	#--------------------------------------------------------
 	def __init_ui(self):
+
+		login = gmPG2.get_default_login()
+		self._TCTRL_host.Value = gmTools.coalesce(login.host, 'localhost')
+		self._TCTRL_port.Value = '8042'
+
 		self._LCTRL_studies.set_columns(columns = [_('Date'), _('Description'), _('Organization'), _('Authority')])
 		self._LCTRL_studies.select_callback = self._on_studies_list_item_selected
 		self._LCTRL_studies.deselect_callback = self._on_studies_list_item_deselected
