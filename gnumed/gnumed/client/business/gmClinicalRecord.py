@@ -2833,10 +2833,10 @@ SELECT MIN(earliest) FROM (
 		)
 
 	#------------------------------------------------------------------
-	def get_most_recent_result_for_test_types(self, test_types=None):
+	def get_most_recent_result_for_test_types(self, pk_test_types=None):
 		return gmPathLab.get_most_recent_result_for_test_types (
-			test_types = test_types,
-			patient = self.pk_patient
+			pk_test_types = pk_test_types,
+			pk_patient = self.pk_patient
 		)
 
 	#------------------------------------------------------------------

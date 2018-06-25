@@ -22,6 +22,7 @@ class wxgMeasurementsAsMostRecentListPnl(wx.Panel):
 		from Gnumed.wxpython.gmMeasurementWidgets import cTestPanelPRW
 		self._PRW_panel = cTestPanelPRW(self, wx.ID_ANY, "")
 		self._TCTRL_panel_comment = wx.TextCtrl(self, wx.ID_ANY, "")
+		self._CHBOX_show_missing = wx.CheckBox(self, wx.ID_ANY, _("&Show missing"))
 		self._BTN_manage_panels = wx.Button(self, wx.ID_ANY, _("Manage"), style=wx.BU_EXACTFIT)
 		self._LCTRL_results = cReportListCtrl(self, wx.ID_ANY, style=wx.LC_HRULES | wx.LC_REPORT | wx.LC_VRULES)
 		self._TCTRL_details = wx.TextCtrl(self, wx.ID_ANY, "", style=wx.TE_BESTWRAP | wx.TE_MULTILINE | wx.TE_READONLY)
@@ -29,6 +30,7 @@ class wxgMeasurementsAsMostRecentListPnl(wx.Panel):
 		self.__set_properties()
 		self.__do_layout()
 
+		self.Bind(wx.EVT_CHECKBOX, self._on_show_missing_toggled, self._CHBOX_show_missing)
 		self.Bind(wx.EVT_BUTTON, self._on_manage_panels_button_pressed, self._BTN_manage_panels)
 		# end wxGlade
 
@@ -36,6 +38,7 @@ class wxgMeasurementsAsMostRecentListPnl(wx.Panel):
 		# begin wxGlade: wxgMeasurementsAsMostRecentListPnl.__set_properties
 		self._TCTRL_panel_comment.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_BACKGROUND))
 		self._TCTRL_panel_comment.Enable(False)
+		self._CHBOX_show_missing.SetToolTip(_("Check to show panel tests which lack results."))
 		self._BTN_manage_panels.SetToolTip(_("Manage test panels."))
 		# end wxGlade
 
@@ -48,6 +51,7 @@ class wxgMeasurementsAsMostRecentListPnl(wx.Panel):
 		__szr_panel_options.Add(__lbl_display, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)
 		__szr_panel_options.Add(self._PRW_panel, 2, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 10)
 		__szr_panel_options.Add(self._TCTRL_panel_comment, 3, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)
+		__szr_panel_options.Add(self._CHBOX_show_missing, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)
 		__szr_panel_options.Add(self._BTN_manage_panels, 0, wx.ALIGN_CENTER_VERTICAL, 5)
 		__szr_main.Add(__szr_panel_options, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP, 5)
 		__szr_bottom.Add(self._LCTRL_results, 5, wx.EXPAND | wx.RIGHT, 3)
@@ -57,6 +61,10 @@ class wxgMeasurementsAsMostRecentListPnl(wx.Panel):
 		__szr_main.Fit(self)
 		self.Layout()
 		# end wxGlade
+
+	def _on_show_missing_toggled(self, event):  # wxGlade: wxgMeasurementsAsMostRecentListPnl.<event_handler>
+		print("Event handler '_on_show_missing_toggled' not implemented!")
+		event.Skip()
 
 	def _on_manage_panels_button_pressed(self, event):  # wxGlade: wxgMeasurementsAsMostRecentListPnl.<event_handler>
 		print("Event handler '_on_manage_panels_button_pressed' not implemented!")

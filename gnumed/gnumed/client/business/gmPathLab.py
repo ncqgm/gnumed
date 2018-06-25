@@ -397,13 +397,26 @@ class cTestPanel(gmBusinessDBObject.cBusinessDBObject):
 	generic_codes = property(_get_generic_codes, _set_generic_codes)
 
 	#--------------------------------------------------------
-	def get_most_recent_results(self, pk_patient=None, order_by=None, group_by_meta_type=False):
-		return get_most_recent_results_for_panel (
+	def get_most_recent_results(self, pk_patient=None, order_by=None, group_by_meta_type=False, include_missing=False):
+
+		if len(self._payload[self._idx['test_types']]) == 0:
+			return []
+
+		pnl_results = get_most_recent_results_for_panel (
 			pk_patient = pk_patient,
 			pk_panel = self._payload[self._idx['pk_test_panel']],
 			order_by = order_by,
 			group_by_meta_type = group_by_meta_type
 		)
+		if not include_missing:
+			return pnl_results
+
+		loincs_found = [ r['loinc_tt'] for r in pnl_results ]
+		loincs_found.extend([ r['loinc_meta'] for r in pnl_results if r['loinc_meta'] not in loincs_found ])
+		loincs2consider = set([ tt['loinc'] for tt in self._payload[self._idx['test_types']] ])
+		loincs_missing = loincs2consider - set(loincs_found)
+		pnl_results.extend(loincs_missing)
+		return pnl_results
 
 #------------------------------------------------------------
 def get_test_panels(order_by=None, loincs=None):
@@ -712,7 +725,9 @@ class cMeasurementType(gmBusinessDBObject.cBusinessDBObject):
 			patient = patient
 		)
 		if results is not None:
-			if len(results) > 0:
+			if no_of_results == 1:
+				return results
+			if len(results) > 1:
 				return results
 
 		if self._payload[self._idx['loinc']] is None:
@@ -2343,15 +2358,15 @@ def get_most_recent_results_for_test_type(test_type=None, no_of_results=1, patie
 	return [ cTestResult(row = {'pk_field': 'pk_test_result', 'idx': idx, 'data': r}) for r in rows ]
 
 #------------------------------------------------------------
-def get_most_recent_result_for_test_types(test_types=None, patient=None):
-	"""Return *the* most recent result (one) for *each* of a list of test types."""
+def get_most_recent_result_for_test_types(pk_test_types=None, pk_patient=None):
+	"""Return the one most recent result for *each* of a list of test types."""
 
 	where_parts = ['pk_patient = %(pat)s']
-	args = {'pat': patient}
+	args = {'pat': pk_patient}
 
-	if test_types is not None:
+	if pk_test_types is not None:
 		where_parts.append('pk_test_type IN %(ttyps)s')		# consider: pk_meta_test_type = %(pkmtt)s / self._payload[self._idx['pk_meta_test_type']]
-		args['ttyps'] = tuple(test_types)
+		args['ttyps'] = tuple(pk_test_types)
 
 	cmd = """
 		SELECT * FROM (
@@ -3327,7 +3342,7 @@ if __name__ == '__main__':
 		#most_recent = tp.get_most_recent_results(pk_patient = 12, group_by_meta_type = False)
 		#most_recent = tp.get_most_recent_results(pk_patient = 138, group_by_meta_type = False)
 		#print len(most_recent)
-		most_recent = tp.get_most_recent_results(pk_patient = 12, group_by_meta_type = True)
+		most_recent = tp.get_most_recent_results(pk_patient = 12, group_by_meta_type = True, include_missing = True)
 		#most_recent = tp.get_most_recent_results(pk_patient = 138, group_by_meta_type = True)
 		print('found:', len(most_recent))
 
@@ -3371,8 +3386,8 @@ if __name__ == '__main__':
 	#test_test_type()
 	#test_format_test_results()
 	#test_calculate_bmi()
-	test_test_panel()
-	#test_get_most_recent_results_for_panel()
+	#test_test_panel()
+	test_get_most_recent_results_for_panel()
 	#test_get_most_recent_results_in_loinc_group()
 
 #============================================================

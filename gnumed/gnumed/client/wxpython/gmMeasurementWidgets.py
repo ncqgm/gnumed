@@ -1281,6 +1281,7 @@ class cMeasurementsAsMostRecentListPnl(wxgMeasurementsAsMostRecentListPnl.wxgMea
 	#------------------------------------------------------------
 	def __init_ui(self):
 		self._LCTRL_results.set_columns([_('Test'), _('Result'), _('When'), _('Range')])
+		self._CHBOX_show_missing.Disable()
 
 	#------------------------------------------------------------
 	def __register_events(self):
@@ -1299,45 +1300,52 @@ class cMeasurementsAsMostRecentListPnl(wxgMeasurementsAsMostRecentListPnl.wxgMea
 
 		pnl = self._PRW_panel.GetData(as_instance = True)
 		if pnl is None:
-			results = gmPathLab.get_most_recent_result_for_test_types(patient = self.__patient.ID)
+			results = gmPathLab.get_most_recent_result_for_test_types(pk_patient = self.__patient.ID)
 		else:
 			results = pnl.get_most_recent_results (
 				pk_patient = self.__patient.ID,
 				#order_by = ,
-				group_by_meta_type = True
+				group_by_meta_type = True,
+				include_missing = self._CHBOX_show_missing.IsChecked()
 			)
 		items = []
 		data = []
 		for r in results:
-			range_info = gmTools.coalesce (
-				r.formatted_clinical_range,
-				r.formatted_normal_range
-			)
-			review = gmTools.bool2subst (
-				r['reviewed'],
-				'',
-				' ' + gmTools.u_writing_hand,
-				' ' + gmTools.u_writing_hand
-			)
-			items.append ([
-				# type
-				r['abbrev_tt'],
-				# value
-				'%s%s%s%s' % (
+			if isinstance(r, gmPathLab.cTestResult):
+				result_type = r['abbrev_tt']
+				review = gmTools.bool2subst (
+					r['reviewed'],
+					'',
+					' ' + gmTools.u_writing_hand,
+					' ' + gmTools.u_writing_hand
+				)
+				result_val = '%s%s%s%s' % (
 					gmTools.strip_empty_lines(text = r['unified_val'])[0],
 					gmTools.coalesce(r['val_unit'], '', ' %s'),
 					gmTools.coalesce(r['abnormality_indicator'], '', ' %s'),
 					review
-				),
-				# when
-				_('%s ago (%s)') % (
+				)
+				result_when = _('%s ago (%s)') % (
 					gmDateTime.format_interval_medically(interval = gmDateTime.pydt_now_here() - r['clin_when']),
 					gmDateTime.pydt_strftime(r['clin_when'], '%Y %b %d  %H:%M', accuracy = gmDateTime.acc_minutes)
-				),
-				# range
-				gmTools.coalesce(range_info, '')
-			])
-			data.append({'data': r, 'formatted': r.format(with_source_data = True)})
+				)
+				range_info = gmTools.coalesce (
+					r.formatted_clinical_range,
+					r.formatted_normal_range
+				)
+				tt = r.format(with_source_data = True)
+			else:
+				result_type = r
+				result_val = _('missing')
+				loinc_data = gmLOINC.loinc2data(r)
+				if len(loinc_data) == 0:
+					result_when = _('LOINC not found')
+				else:
+					result_when = loinc_data['term']
+				range_info = None
+				tt = ''
+			items.append([result_type, result_val, result_when, gmTools.coalesce(range_info, '')])
+			data.append({'data': r, 'formatted': tt})
 
 		self._LCTRL_results.set_string_items(items)
 		self._LCTRL_results.set_column_widths([wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE])
@@ -1353,19 +1361,19 @@ class cMeasurementsAsMostRecentListPnl(wxgMeasurementsAsMostRecentListPnl.wxgMea
 	def __on_panel_selected(self, panel):
 		if panel is None:
 			self._TCTRL_panel_comment.SetValue('')
+			self._CHBOX_show_missing.Disable()
 		else:
 			pnl = self._PRW_panel.GetData(as_instance = True)
-			self._TCTRL_panel_comment.SetValue(gmTools.coalesce (
-				pnl['comment'],
-				''
-			))
+			self._TCTRL_panel_comment.SetValue(gmTools.coalesce(pnl['comment'], ''))
 		self.__repopulate_ui()
+		self._CHBOX_show_missing.Enable()
 
 	#--------------------------------------------------------
 	def __on_panel_selection_modified(self):
 		self._TCTRL_panel_comment.SetValue('')
 		if self._PRW_panel.Value.strip() == u'':
 			self.__repopulate_ui()
+			self._CHBOX_show_missing.Disable()
 
 	#------------------------------------------------------------
 	# event handlers
@@ -1409,6 +1417,14 @@ class cMeasurementsAsMostRecentListPnl(wxgMeasurementsAsMostRecentListPnl.wxgMea
 			return
 		if edit_measurement(parent = self, measurement = item_data['data'], single_entry = True):
 			self.__repopulate_ui()
+
+	#------------------------------------------------------------
+	def _on_show_missing_toggled(self, event):
+		event.Skip()
+		# should not happen
+		if self._PRW_panel.GetData(as_instance = False) is None:
+			return
+		self.__repopulate_ui()
 
 	#------------------------------------------------------------
 	# reget mixin API
