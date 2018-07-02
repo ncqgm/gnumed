@@ -1998,7 +1998,7 @@ INSERT INTO clin.reviewed_test_results (
 			  None they are not set
 		"""
 		args = {
-			'pk_row': self._payload[self._idx['pk_test_result']],
+			'pk_result': self._payload[self._idx['pk_test_result']],
 			'abnormal': technically_abnormal,
 			'relevant': clinically_relevant,
 			'cmt': comment
@@ -2019,7 +2019,7 @@ INSERT INTO clin.reviewed_test_results (
 UPDATE clin.reviewed_test_results SET
 	%s
 WHERE
-	fk_reviewed_row = %%(pk_row)s
+	fk_reviewed_row = %%(pk_result)s
 """ % ',\n	'.join(set_parts)
 
 		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])

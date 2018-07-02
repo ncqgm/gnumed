@@ -856,7 +856,7 @@ class gmTopLevelFrame(wx.Frame):
 			if kwds['operation'] != 'UPDATE':
 				return True
 			branch = gmPraxis.gmCurrentPraxisBranch()
-			if branch['pk_praxis_branch'] != kwds['pk_row']:
+			if branch['pk_praxis_branch'] != kwds['pk_of_row']:
 				return True
 			self.__update_window_title()
 			return True

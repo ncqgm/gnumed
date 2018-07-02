@@ -228,8 +228,8 @@ class gmBackendListener(gmBorg.cBorg):
 				payload = notification.payload.split('::')
 				operation = None
 				table = None
-				pk_column = None
-				pk_row = None
+				pk_column_name = None
+				pk_of_row = None
 				pk_identity = None
 				for item in payload:
 					if item.startswith('operation='):
@@ -237,9 +237,9 @@ class gmBackendListener(gmBorg.cBorg):
 					if item.startswith('table='):
 						table = item.split('=')[1]
 					if item.startswith('PK name='):
-						pk_column = item.split('=')[1]
+						pk_column_name = item.split('=')[1]
 					if item.startswith('row PK='):
-						pk_row = int(item.split('=')[1])
+						pk_of_row = int(item.split('=')[1])
 					if item.startswith('person PK='):
 						try:
 							pk_identity = int(item.split('=')[1])
@@ -258,8 +258,8 @@ class gmBackendListener(gmBorg.cBorg):
 						pk_identity = pk_identity,
 						operation = operation,
 						table = table,
-						pk_column = pk_column,
-						pk_row = pk_row,
+						pk_column_name = pk_column_name,
+						pk_of_row = pk_of_row,
 						message_index = self.__messages_sent,
 						notification_index = self.__notifications_received
 					)
@@ -280,8 +280,8 @@ class gmBackendListener(gmBorg.cBorg):
 							pk_identity = pk_identity,
 							operation = operation,
 							table = table,
-							pk_column = pk_column,
-							pk_row = pk_row,
+							pk_column_name = pk_column_name,
+							pk_of_row = pk_of_row,
 							message_index = self.__messages_sent,
 							notification_index = self.__notifications_received
 						)

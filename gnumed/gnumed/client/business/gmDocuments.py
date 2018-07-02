@@ -416,18 +416,18 @@ insert into blobs.reviewed_doc_objs (
 
 		# UPDATE needed
 		if len(rows) == 1:
-			pk_row = rows[0][0]
+			pk_review = rows[0][0]
 			args = {
 				'abnormal': technically_abnormal,
 				'relevant': clinically_relevant,
-				'pk_row': pk_row
+				'pk_review': pk_review
 			}
 			cmd = """
 				UPDATE blobs.reviewed_doc_objs SET
 					is_technically_abnormal = %(abnormal)s,
 					clinically_relevant = %(relevant)s
 				WHERE
-					pk = %(pk_row)s
+					pk = %(pk_review)s
 			"""
 		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 

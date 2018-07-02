@@ -275,11 +275,11 @@ class cClinicalRecord(object):
 		if self.current_encounter is None:
 			_log.debug('no local current-encounter, ignoring encounter modification signal')
 			return True
-		if int(kwds['pk_row']) != self.current_encounter['pk_encounter']:
-			_log.debug('modified encounter [%s] != local encounter [%s], ignoring signal', kwds['pk_row'], self.current_encounter['pk_encounter'])
+		if int(kwds['pk_of_row']) != self.current_encounter['pk_encounter']:
+			_log.debug('modified encounter [%s] != local encounter [%s], ignoring signal', kwds['pk_of_row'], self.current_encounter['pk_encounter'])
 			return True
 
-		_log.debug('modification of our encounter (%s) signalled (%s)', self.current_encounter['pk_encounter'], kwds['pk_row'])
+		_log.debug('modification of our encounter (%s) signalled (%s)', self.current_encounter['pk_encounter'], kwds['pk_of_row'])
 
 		# get the current encounter as an extra instance
 		# from the database to check for changes

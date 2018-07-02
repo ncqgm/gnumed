@@ -1461,7 +1461,7 @@ def format_dict_like(d, relevant_keys=None, template=None, missing_key_template=
 			return template % d
 		except KeyError:
 			# or else
-			_log.exception('template contains %%()s key(s) which do not exist in dict')
+			_log.exception('template contains %%()s key(s) which do not exist in data dict')
 		# try to extend dict <d> to contain all required keys,
 		# for that to work <relevant_keys> better list all
 		# keys used in <template>
