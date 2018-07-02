@@ -31,6 +31,7 @@ IMPROVED: test results panels links w/ documents
 
 FIX: [Save] functionality of Export Area
 FIX: document tree sorting / document insertion
+FIX: inability to delete inbox message w/o receiver
 
 ------------------------------------------------
 # rel-1-7-patches
