@@ -1454,7 +1454,9 @@ def format_dict_likes_comparison(d1, d2, title_left=None, title_right=None, left
 	return lines
 
 #---------------------------------------------------------------------------
-def format_dict_like(d, relevant_keys=None, template=None, missing_key_template='<[%(key)s] MISSING>', left_margin=0, tabular=False, value_delimiters=('>>>', '<<<'), eol='\n'):
+def format_dict_like(d, relevant_keys=None, template=None, missing_key_template='<[%(key)s] MISSING>', left_margin=0, tabular=False, value_delimiters=('>>>', '<<<'), eol='\n', values2ignore=None):
+	if values2ignore is None:
+		values2ignore = []
 	if template is not None:
 		# all keys in template better exist in d
 		try:
@@ -1474,7 +1476,7 @@ def format_dict_like(d, relevant_keys=None, template=None, missing_key_template=
 			return template % d
 
 	if relevant_keys is None:
-		relevant_keys = d.keys()
+		relevant_keys = list(d.keys())
 	lines = []
 	if value_delimiters is None:
 		delim_left = ''
@@ -1489,9 +1491,11 @@ def format_dict_like(d, relevant_keys=None, template=None, missing_key_template=
 		line_template = (' ' * left_margin) + '%%s: %s%%s%s' % (delim_left, delim_right)
 	for key in relevant_keys:
 		try:
-			lines.append(line_template % (key, d[key]))
+			val = d[key]
 		except KeyError:
-			pass
+			continue
+		if val not in values2ignore:
+			lines.append(line_template % (key, val))
 	if eol is None:
 		return lines
 	return eol.join(lines)

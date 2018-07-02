@@ -594,16 +594,164 @@ def plot_adjacent_measurements(parent=None, test=None, format=None, show_year=Tr
 		show_year = show_year,
 		use_default_template = use_default_template
 	)
+
 #================================================================
 #from Gnumed.wxGladeWidgets import wxgPrimaryCareVitalsInputPnl
-
+#
 # Taillenumfang: Mitte zwischen unterster Rippe und
 # hoechstem Teil des Beckenkamms
 # Maenner: maessig: 94-102, deutlich: > 102  .. erhoeht
 # Frauen:  maessig: 80-88,  deutlich: > 88   .. erhoeht
-
+#
 #================================================================
 # display widgets
+#================================================================
+from Gnumed.wxGladeWidgets import wxgLabRelatedDocumentsPnl
+
+class cLabRelatedDocumentsPnl(wxgLabRelatedDocumentsPnl.wxgLabRelatedDocumentsPnl):
+	"""This panel handles documents related to the lab result it is handed.
+	"""
+	def __init__(self, *args, **kwargs):
+		wxgLabRelatedDocumentsPnl.wxgLabRelatedDocumentsPnl.__init__(self, *args, **kwargs)
+
+		self.__reference = None
+
+		self.__init_ui()
+		self.__register_events()
+
+	#------------------------------------------------------------
+	# internal helpers
+	#------------------------------------------------------------
+	def __init_ui(self):
+		self.__repopulate_ui()
+
+	#------------------------------------------------------------
+	def __register_events(self):
+		gmDispatcher.connect(signal = 'gm_table_mod', receiver = self._on_database_signal)
+
+	#------------------------------------------------------------
+	def __repopulate_ui(self):
+		self._BTN_list_documents.Disable()
+		self._LBL_no_of_docs.SetLabel(_('no related documents'))
+		self._LBL_no_of_docs.ContainingSizer.Layout()
+
+		if self.__reference is None:
+			self._LBL_no_of_docs.SetToolTip(_('There is no lab reference to find related documents for.'))
+			return
+
+		dbcfg = gmCfg.cCfgSQL()
+		lab_doc_types = dbcfg.get2 (
+			option = 'horstspace.lab_doc_types',
+			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
+			bias = 'user'
+		)
+		if lab_doc_types is None:
+			self._LBL_no_of_docs.SetToolTip(_('No document types declared to contain lab results.'))
+			return
+
+		if len(lab_doc_types) == 0:
+			self._LBL_no_of_docs.SetToolTip(_('No document types declared to contain lab results.'))
+			return
+
+		pks_doc_types = gmDocuments.map_types2pk(lab_doc_types)
+		if len(pks_doc_types) == 0:
+			self._LBL_no_of_docs.SetToolTip(_('No valid document types declared to contain lab results.'))
+			return
+
+		txt = _('Document types assumed to contain lab results:')
+		txt += '\n '
+		txt += '\n '.join(lab_doc_types)
+		self._LBL_no_of_docs.SetToolTip(txt)
+		if isinstance(self.__reference, gmPathLab.cTestResult):
+			pk_current_episode = self.__reference['pk_episode']
+		else:
+			pk_current_episode = self.__reference
+		docs = gmDocuments.search_for_documents (
+			pk_episode = pk_current_episode,
+			pk_types = [ dt['pk_doc_type'] for dt in pks_doc_types ]
+		)
+		if len(docs) == 0:
+			return
+
+		self._LBL_no_of_docs.SetLabel(_('Related documents: %s') % len(docs))
+		self._LBL_no_of_docs.ContainingSizer.Layout()
+		self._BTN_list_documents.Enable()
+
+	#------------------------------------------------------------
+	# event handlers
+	#------------------------------------------------------------
+	def _on_database_signal(self, **kwds):
+		if self.__reference is None:
+			return True
+
+		if kwds['table'] not in ['clin.test_result', 'blobs.doc_med']:
+			return True
+
+		if isinstance(self.__reference, gmPathLab.cTestResult):
+			if kwds['pk_of_row'] != self.__reference['pk_test_result']:
+				return True
+
+		self.__repopulate_ui()
+		return True
+
+	#------------------------------------------------------------
+	def _on_select_lab_doc_types_button_pressed(self, event):
+		event.Skip()
+		doc_types = gmDocuments.get_document_types()
+		gmCfgWidgets.configure_list_from_list_option (
+			parent = self,
+			message = _('Select the document types which are assumed to contain lab results.'),
+			option = 'horstspace.lab_doc_types',
+			bias = 'user',
+			choices = [ dt['l10n_type'] for dt in doc_types ],
+			columns = [_('Document types')]#,
+			#data = None,
+			#caption = None,
+			#picks = None
+		)
+		self.__repopulate_ui()
+
+	#------------------------------------------------------------
+	def _on_list_documents_button_pressed(self, event):
+		event.Skip()
+		dbcfg = gmCfg.cCfgSQL()
+		lab_doc_types = dbcfg.get2 (
+			option = 'horstspace.lab_doc_types',
+			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
+			bias = 'user'
+		)
+		d_types = gmDocuments.map_types2pk(lab_doc_types)
+		if isinstance(self.__reference, gmPathLab.cTestResult):
+			pk_current_episode = self.__reference['pk_episode']
+		else:
+			pk_current_episode = self.__reference
+		gmDocumentWidgets.manage_documents (
+			parent = self,
+			msg = _('Documents possibly related to this episode'),
+			pk_types = [ dt['pk_doc_type'] for dt in d_types ],
+			pk_episodes = [ pk_current_episode ]
+		)
+
+	#------------------------------------------------------------
+	# properties
+	#------------------------------------------------------------
+	def _set_lab_reference(self, value):
+		"""Either a test result or an episode PK."""
+		if isinstance(self.__reference, gmPathLab.cTestResult):
+			pk_old_episode = self.__reference['pk_episode']
+		else:
+			pk_old_episode = self.__reference
+		if isinstance(value, gmPathLab.cTestResult):
+			pk_new_episode = value['pk_episode']
+		else:
+			pk_new_episode = value
+		self.__reference = value
+		if pk_new_episode != pk_old_episode:
+			self.__repopulate_ui()
+		return
+
+	lab_reference = property(lambda x:x, _set_lab_reference)
+
 #================================================================
 from Gnumed.wxGladeWidgets import wxgMeasurementsAsListPnl
 
@@ -628,6 +776,7 @@ class cMeasurementsAsListPnl(wxgMeasurementsAsListPnl.wxgMeasurementsAsListPnl, 
 	def __init_ui(self):
 		self._LCTRL_results.set_columns([_('When'), _('Test'), _('Result'), _('Reference')])
 		self._LCTRL_results.edit_callback = self._on_edit
+		self._PNL_related_documents.lab_reference = None
 
 	#------------------------------------------------------------
 	def __register_events(self):
@@ -636,7 +785,9 @@ class cMeasurementsAsListPnl(wxgMeasurementsAsListPnl.wxgMeasurementsAsListPnl, 
 	#------------------------------------------------------------
 	def __repopulate_ui(self):
 		if self.__patient is None:
+			self._LCTRL_results.set_string_items([])
 			self._TCTRL_measurements.SetValue('')
+			self._PNL_related_documents.lab_reference = None
 			return
 
 		results = self.__patient.emr.get_test_results(order_by = 'clin_when DESC, unified_abbrev, unified_name')
@@ -705,6 +856,7 @@ class cMeasurementsAsListPnl(wxgMeasurementsAsListPnl.wxgMeasurementsAsListPnl, 
 		event.Skip()
 		item_data = self._LCTRL_results.get_item_data(item_idx = event.Index)
 		self._TCTRL_measurements.SetValue(item_data['formatted'])
+		self._PNL_related_documents.lab_reference = item_data['data']
 
 	#------------------------------------------------------------
 	# reget mixin API
@@ -748,7 +900,6 @@ class cMeasurementsByDayPnl(wxgMeasurementsByDayPnl.wxgMeasurementsByDayPnl, gmR
 
 		self.__patient = None
 		self.__date_format = str('%Y %b %d')
-		self.__pk_curr_episode = None
 
 		self.__init_ui()
 		self.__register_events()
@@ -760,22 +911,7 @@ class cMeasurementsByDayPnl(wxgMeasurementsByDayPnl.wxgMeasurementsByDayPnl, gmR
 		self._LCTRL_days.set_columns([_('Day')])
 		self._LCTRL_results.set_columns([_('Time'), _('Test'), _('Result'), _('Reference')])
 		self._LCTRL_results.edit_callback = self._on_edit
-		self._LBL_no_of_docs.SetLabel(_('no related documents found'))
-		dbcfg = gmCfg.cCfgSQL()
-		lab_doc_types = dbcfg.get2 (
-			option = 'horstspace.lab_doc_types',
-			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
-			bias = 'user'
-		)
-		if lab_doc_types is None:
-			txt = _('No document types declared to contain lab results.')
-		elif len(lab_doc_types) == 0:
-			txt = _('No document types declared to contain lab results.')
-		else:
-			txt = _('Document types declared to contain lab results:')
-			txt += '\n '
-			txt += '\n '.join(lab_doc_types)
-		self._LBL_no_of_docs.SetToolTip(txt)
+		self._PNL_related_documents.lab_reference = None
 
 	#------------------------------------------------------------
 	def __register_events(self):
@@ -786,6 +922,7 @@ class cMeasurementsByDayPnl(wxgMeasurementsByDayPnl.wxgMeasurementsByDayPnl, gmR
 		self._LCTRL_days.set_string_items()
 		self._LCTRL_results.set_string_items()
 		self._TCTRL_measurements.SetValue('')
+		self._PNL_related_documents.lab_reference = None
 
 	#------------------------------------------------------------
 	def __repopulate_ui(self):
@@ -806,8 +943,6 @@ class cMeasurementsByDayPnl(wxgMeasurementsByDayPnl.wxgMeasurementsByDayPnl, gmR
 		if len(items) > 0:
 			self._LCTRL_days.Select(idx = 0, on = 1)
 			self._LCTRL_days.SetFocus()
-
-		self.__pk_curr_episode = None
 
 	#------------------------------------------------------------
 	def _on_edit(self):
@@ -876,84 +1011,7 @@ class cMeasurementsByDayPnl(wxgMeasurementsByDayPnl.wxgMeasurementsByDayPnl, gmR
 		event.Skip()
 		item_data = self._LCTRL_results.get_item_data(item_idx = event.Index)
 		self._TCTRL_measurements.SetValue(item_data['formatted'])
-		pk_episode = item_data['data']['pk_episode']
-		if pk_episode == self.__pk_curr_episode:
-			return
-		self.__pk_curr_episode = pk_episode
-		self._LBL_no_of_docs.SetLabel(_('no related documents found'))
-		self._BTN_list_docs.Disable()
-		dbcfg = gmCfg.cCfgSQL()
-		lab_doc_types = dbcfg.get2 (
-			option = 'horstspace.lab_doc_types',
-			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
-			bias = 'user'
-		)
-		if lab_doc_types is None:
-			return
-		d_types = gmDocuments.map_types2pk(lab_doc_types)
-		if len(d_types) is None:
-			return
-		docs = gmDocuments.search_for_documents (
-			pk_episode = pk_episode,
-			pk_types = [ dt['pk_doc_type'] for dt in d_types ]
-		)
-		if len(docs) == 0:
-			return
-		self._LBL_no_of_docs.SetLabel(_("Related documents: %s") % len(docs))
-		self._LBL_no_of_docs.Refresh()
-		self._BTN_list_docs.Enable()
-
-	#------------------------------------------------------------
-	def _on_list_docs_button_pressed(self, event):
-		event.Skip()
-		dbcfg = gmCfg.cCfgSQL()
-		lab_doc_types = dbcfg.get2 (
-			option = 'horstspace.lab_doc_types',
-			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
-			bias = 'user'
-		)
-		if lab_doc_types is None:
-			return
-		d_types = gmDocuments.map_types2pk(lab_doc_types)
-		if len(d_types) is None:
-			return
-		gmDocumentWidgets.manage_documents (
-			parent = self,
-			msg = _('Documents possibly related to this episode'),
-			pk_types = [ dt['pk_doc_type'] for dt in d_types ],
-			pk_episodes = [ self.__pk_curr_episode ]
-		)
-
-	#------------------------------------------------------------
-	def _on_select_lab_doc_types_pressed(self, event):
-		event.Skip()
-		doc_types = gmDocuments.get_document_types()
-		gmCfgWidgets.configure_list_from_list_option (
-			parent = self,
-			message = _('Select the document types which are expected to contain lab results.'),
-			option = 'horstspace.lab_doc_types',
-			bias = 'user',
-			choices = [ dt['l10n_type'] for dt in doc_types ],
-			columns = [_('Document types')]#,
-			#data = None,
-			#caption = None,
-			#picks = None
-		)
-		dbcfg = gmCfg.cCfgSQL()
-		lab_doc_types = dbcfg.get2 (
-			option = 'horstspace.lab_doc_types',
-			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
-			bias = 'user'
-		)
-		if lab_doc_types is None:
-			txt = _('No document types declared to contain lab results.')
-		elif len(lab_doc_types) == 0:
-			txt = _('No document types declared to contain lab results.')
-		else:
-			txt = _('Document types declared to contain lab results:')
-			txt += '\n '
-			txt += '\n '.join(lab_doc_types)
-		self._LBL_no_of_docs.SetToolTip(txt)
+		self._PNL_related_documents.lab_reference = item_data['data']
 
 	#------------------------------------------------------------
 	# reget mixin API
@@ -1010,6 +1068,7 @@ class cMeasurementsByIssuePnl(wxgMeasurementsByIssuePnl.wxgMeasurementsByIssuePn
 	def __init_ui(self):
 		self._LCTRL_issues.set_columns([_('Problem')])
 		self._LCTRL_results.set_columns([_('When'), _('Test'), _('Result'), _('Reference')])
+		self._PNL_related_documents.lab_reference = None
 
 	#------------------------------------------------------------
 	def __register_events(self):
@@ -1023,6 +1082,7 @@ class cMeasurementsByIssuePnl(wxgMeasurementsByIssuePnl.wxgMeasurementsByIssuePn
 		self._LCTRL_issues.set_string_items()
 		self._LCTRL_results.set_string_items()
 		self._TCTRL_measurements.SetValue('')
+		self._PNL_related_documents.lab_reference = None
 
 	#------------------------------------------------------------
 	def __repopulate_ui(self):
@@ -1113,6 +1173,7 @@ class cMeasurementsByIssuePnl(wxgMeasurementsByIssuePnl.wxgMeasurementsByIssuePn
 		event.Skip()
 		item_data = self._LCTRL_results.get_item_data(item_idx = event.Index)
 		self._TCTRL_measurements.SetValue(item_data['formatted'])
+		self._PNL_related_documents.lab_reference = item_data['data']
 
 	#------------------------------------------------------------
 	# reget mixin API
@@ -1282,6 +1343,7 @@ class cMeasurementsAsMostRecentListPnl(wxgMeasurementsAsMostRecentListPnl.wxgMea
 	def __init_ui(self):
 		self._LCTRL_results.set_columns([_('Test'), _('Result'), _('When'), _('Range')])
 		self._CHBOX_show_missing.Disable()
+		self._PNL_related_documents.lab_reference = None
 
 	#------------------------------------------------------------
 	def __register_events(self):
@@ -1297,6 +1359,7 @@ class cMeasurementsAsMostRecentListPnl(wxgMeasurementsAsMostRecentListPnl.wxgMea
 	def __repopulate_ui(self):
 
 		self._TCTRL_details.SetValue('')
+		self._PNL_related_documents.lab_reference = None
 
 		pnl = self._PRW_panel.GetData(as_instance = True)
 		if pnl is None:
@@ -1338,12 +1401,13 @@ class cMeasurementsAsMostRecentListPnl(wxgMeasurementsAsMostRecentListPnl.wxgMea
 				result_type = r
 				result_val = _('missing')
 				loinc_data = gmLOINC.loinc2data(r)
-				if len(loinc_data) == 0:
+				if loinc_data is None:
 					result_when = _('LOINC not found')
+					tt = u''
 				else:
 					result_when = loinc_data['term']
+					tt = gmLOINC.format_loinc(r)
 				range_info = None
-				tt = ''
 			items.append([result_type, result_val, result_when, gmTools.coalesce(range_info, '')])
 			data.append({'data': r, 'formatted': tt})
 
@@ -1409,14 +1473,19 @@ class cMeasurementsAsMostRecentListPnl(wxgMeasurementsAsMostRecentListPnl.wxgMea
 		event.Skip()
 		item_data = self._LCTRL_results.get_item_data(item_idx = event.Index)
 		self._TCTRL_details.SetValue(item_data['formatted'])
+		if isinstance(item_data['data'], gmPathLab.cTestResult):
+			self._PNL_related_documents.lab_reference = item_data['data']
+		else:
+			self._PNL_related_documents.lab_reference = None
 
 	#------------------------------------------------------------
 	def _on_edit(self):
 		item_data = self._LCTRL_results.get_selected_item_data(only_one = True)
 		if item_data is None:
 			return
-		if edit_measurement(parent = self, measurement = item_data['data'], single_entry = True):
-			self.__repopulate_ui()
+		if isinstance(item_data['data'], gmPathLab.cTestResult):
+			if edit_measurement(parent = self, measurement = item_data['data'], single_entry = True):
+				self.__repopulate_ui()
 
 	#------------------------------------------------------------
 	def _on_show_missing_toggled(self, event):
@@ -4536,7 +4605,7 @@ class cTestPanelEAPnl(wxgTestPanelEAPnl.wxgTestPanelEAPnl, gmEditArea.cGenericEd
 		items = []
 		for loinc in self.__loincs:
 			loinc_detail = gmLOINC.loinc2data(loinc = loinc)
-			if len(loinc_detail) == 0:
+			if loinc_detail is None:
 				# check for test type with this pseudo loinc
 				ttypes = gmPathLab.get_measurement_types(loincs = [loinc])
 				if len(ttypes) == 0:
@@ -4632,7 +4701,7 @@ class cTestPanelEAPnl(wxgTestPanelEAPnl.wxgTestPanelEAPnl, gmEditArea.cGenericEd
 			self._LBL_loinc.SetLabel('')
 			return
 		loinc_detail = gmLOINC.loinc2data(loinc = loinc)
-		if len(loinc_detail) == 0:
+		if loinc_detail is None:
 			loinc_str = _('no LOINC details found')
 		else:
 			loinc_str = '%s: %s%s' % (

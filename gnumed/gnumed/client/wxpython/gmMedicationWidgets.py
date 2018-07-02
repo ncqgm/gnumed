@@ -2209,7 +2209,7 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 		for loinc in loincs2monitor_missing:
 			#szr.Add(lbl, 0, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL, 3)
 			loinc_data = gmLOINC.loinc2data(loinc)
-			if len(loinc_data) == 0:
+			if loinc_data is None:
 				loinc_str = loinc
 			else:
 				loinc_str = loinc_data['term']

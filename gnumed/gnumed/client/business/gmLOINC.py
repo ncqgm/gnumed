@@ -45,15 +45,29 @@ LOINC_heart_rate_quantity = ['8867-4', '67129-7', '40443-4', '69000-8', '69001-6
 LOINC_inr_quantity = ['34714-6', '46418-0', '6301-6', '38875-1']
 
 #============================================================
+# convenience functions
+#------------------------------------------------------------
+def format_loinc(loinc):
+	data = loinc2data(loinc)
+	if data is None:
+		return None
+	return gmTools.format_dict_like (
+		data,
+		tabular = True,
+		value_delimiters = None,
+		values2ignore = [None, '']
+	)
+
+#------------------------------------------------------------
 def loinc2data(loinc):
 	cmd = 'SELECT * FROM ref.loinc WHERE code = %(loinc)s'
 	args = {'loinc': loinc}
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
 	if len(rows) == 0:
-		return []
+		return None
 	return rows[0]
 
-#============================================================
+#------------------------------------------------------------
 def loinc2term(loinc=None):
 
 	# NOTE: will return [NULL] on no-match due to the coalesce()
@@ -94,6 +108,8 @@ SELECT coalesce (
 	return [ r[0] for r in rows ]
 
 #============================================================
+# LOINCDBTXT handling
+#------------------------------------------------------------
 def split_LOINCDBTXT(input_fname=None, data_fname=None, license_fname=None):
 
 	_log.debug('splitting LOINC source file [%s]', input_fname)
@@ -503,9 +519,17 @@ if __name__ == "__main__":
 	def test_loinc2term():
 		term = loinc2term(sys.argv[2])
 		print(sys.argv[2], '->', term)
+
 	#--------------------------------------------------------
-	test_loinc_split()
+	def test_format_loinc():
+		loinc = sys.argv[2]
+		print(loinc)
+		print(format_loinc(loinc))
+
+	#--------------------------------------------------------
+	#test_loinc_split()
 	#test_loinc_import()
 	#test_loinc2term()
+	test_format_loinc()
 
 #============================================================

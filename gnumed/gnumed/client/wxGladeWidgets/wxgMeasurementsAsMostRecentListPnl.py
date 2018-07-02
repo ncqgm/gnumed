@@ -4,12 +4,14 @@
 #
 
 import wx
+import wx.adv
 
 # begin wxGlade: dependencies
 import gettext
 # end wxGlade
 
 # begin wxGlade: extracode
+from Gnumed.wxpython.gmMeasurementWidgets import cLabRelatedDocumentsPnl
 from Gnumed.wxpython.gmListWidgets import cReportListCtrl
 # end wxGlade
 
@@ -19,6 +21,7 @@ class wxgMeasurementsAsMostRecentListPnl(wx.Panel):
 		# begin wxGlade: wxgMeasurementsAsMostRecentListPnl.__init__
 		kwds["style"] = kwds.get("style", 0) | wx.BORDER_NONE | wx.TAB_TRAVERSAL
 		wx.Panel.__init__(self, *args, **kwds)
+		self._HLCTRL = wx.adv.HyperlinkCtrl(self, wx.ID_ANY, _("Panel:"), _("http://www.laborlexikon.de"))
 		from Gnumed.wxpython.gmMeasurementWidgets import cTestPanelPRW
 		self._PRW_panel = cTestPanelPRW(self, wx.ID_ANY, "")
 		self._TCTRL_panel_comment = wx.TextCtrl(self, wx.ID_ANY, "")
@@ -26,6 +29,7 @@ class wxgMeasurementsAsMostRecentListPnl(wx.Panel):
 		self._BTN_manage_panels = wx.Button(self, wx.ID_ANY, _("Manage"), style=wx.BU_EXACTFIT)
 		self._LCTRL_results = cReportListCtrl(self, wx.ID_ANY, style=wx.LC_HRULES | wx.LC_REPORT | wx.LC_VRULES)
 		self._TCTRL_details = wx.TextCtrl(self, wx.ID_ANY, "", style=wx.TE_BESTWRAP | wx.TE_MULTILINE | wx.TE_READONLY)
+		self._PNL_related_documents = cLabRelatedDocumentsPnl(self, wx.ID_ANY, style=wx.BORDER_NONE)
 
 		self.__set_properties()
 		self.__do_layout()
@@ -45,18 +49,20 @@ class wxgMeasurementsAsMostRecentListPnl(wx.Panel):
 	def __do_layout(self):
 		# begin wxGlade: wxgMeasurementsAsMostRecentListPnl.__do_layout
 		__szr_main = wx.BoxSizer(wx.VERTICAL)
-		__szr_bottom = wx.BoxSizer(wx.HORIZONTAL)
+		__szr_results = wx.BoxSizer(wx.HORIZONTAL)
+		_szr_details = wx.BoxSizer(wx.VERTICAL)
 		__szr_panel_options = wx.BoxSizer(wx.HORIZONTAL)
-		__lbl_display = wx.StaticText(self, wx.ID_ANY, _("&Panel:"))
-		__szr_panel_options.Add(__lbl_display, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)
+		__szr_panel_options.Add(self._HLCTRL, 0, wx.ALIGN_CENTER_VERTICAL, 5)
 		__szr_panel_options.Add(self._PRW_panel, 2, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 10)
 		__szr_panel_options.Add(self._TCTRL_panel_comment, 3, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)
 		__szr_panel_options.Add(self._CHBOX_show_missing, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)
 		__szr_panel_options.Add(self._BTN_manage_panels, 0, wx.ALIGN_CENTER_VERTICAL, 5)
 		__szr_main.Add(__szr_panel_options, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP, 5)
-		__szr_bottom.Add(self._LCTRL_results, 5, wx.EXPAND | wx.RIGHT, 3)
-		__szr_bottom.Add(self._TCTRL_details, 4, wx.EXPAND, 0)
-		__szr_main.Add(__szr_bottom, 1, wx.ALL | wx.EXPAND, 5)
+		__szr_results.Add(self._LCTRL_results, 5, wx.EXPAND | wx.RIGHT, 3)
+		_szr_details.Add(self._TCTRL_details, 1, wx.BOTTOM | wx.EXPAND, 3)
+		_szr_details.Add(self._PNL_related_documents, 0, wx.EXPAND | wx.TOP, 3)
+		__szr_results.Add(_szr_details, 4, wx.EXPAND, 0)
+		__szr_main.Add(__szr_results, 1, wx.ALL | wx.EXPAND, 5)
 		self.SetSizer(__szr_main)
 		__szr_main.Fit(self)
 		self.Layout()

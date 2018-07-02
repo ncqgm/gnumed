@@ -11,6 +11,7 @@ import gettext
 
 # begin wxGlade: extracode
 from Gnumed.wxpython.gmListWidgets import cReportListCtrl
+from Gnumed.wxpython.gmMeasurementWidgets import cLabRelatedDocumentsPnl
 # end wxGlade
 
 
@@ -22,40 +23,28 @@ class wxgMeasurementsByDayPnl(wx.Panel):
 		self._LCTRL_days = cReportListCtrl(self, wx.ID_ANY, style=wx.BORDER_NONE | wx.LC_REPORT)
 		self._LCTRL_results = cReportListCtrl(self, wx.ID_ANY, style=wx.BORDER_NONE | wx.LC_REPORT)
 		self._TCTRL_measurements = wx.TextCtrl(self, wx.ID_ANY, "", style=wx.TE_AUTO_URL | wx.TE_MULTILINE | wx.TE_READONLY)
-		self._LBL_no_of_docs = wx.StaticText(self, wx.ID_ANY, _("Related documents: XX"))
-		self._BTN_list_docs = wx.Button(self, wx.ID_ANY, _("List"))
-		self._BTN_select_lab_doc_types = wx.Button(self, wx.ID_ANY, _("Select types"))
+		self._PNL_related_documents = cLabRelatedDocumentsPnl(self, wx.ID_ANY, style=wx.BORDER_NONE)
 
 		self.__set_properties()
 		self.__do_layout()
 
 		self.Bind(wx.EVT_LIST_ITEM_SELECTED, self._on_day_selected, self._LCTRL_days)
 		self.Bind(wx.EVT_LIST_ITEM_SELECTED, self._on_result_selected, self._LCTRL_results)
-		self.Bind(wx.EVT_BUTTON, self._on_list_docs_button_pressed, self._BTN_list_docs)
-		self.Bind(wx.EVT_BUTTON, self._on_select_lab_doc_types_pressed, self._BTN_select_lab_doc_types)
 		# end wxGlade
 
 	def __set_properties(self):
 		# begin wxGlade: wxgMeasurementsByDayPnl.__set_properties
-		self._TCTRL_measurements.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_BACKGROUND))
-		self._BTN_list_docs.SetToolTip(_("List lab documents within the episode of the selected measurement."))
-		self._BTN_list_docs.Enable(False)
-		self._BTN_select_lab_doc_types.SetToolTip(_("Select the document types expected to contain lab results."))
+		pass
 		# end wxGlade
 
 	def __do_layout(self):
 		# begin wxGlade: wxgMeasurementsByDayPnl.__do_layout
 		__szr_main = wx.BoxSizer(wx.HORIZONTAL)
 		__szr_details = wx.BoxSizer(wx.VERTICAL)
-		__szr_show_docs = wx.BoxSizer(wx.HORIZONTAL)
 		__szr_main.Add(self._LCTRL_days, 2, wx.EXPAND | wx.RIGHT, 5)
 		__szr_main.Add(self._LCTRL_results, 8, wx.EXPAND | wx.RIGHT, 5)
 		__szr_details.Add(self._TCTRL_measurements, 1, wx.EXPAND, 0)
-		__szr_show_docs.Add(self._LBL_no_of_docs, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 3)
-		__szr_show_docs.Add(self._BTN_list_docs, 0, wx.ALIGN_CENTER_VERTICAL, 0)
-		__szr_show_docs.Add((20, 20), 1, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
-		__szr_show_docs.Add(self._BTN_select_lab_doc_types, 0, wx.ALIGN_CENTER_VERTICAL, 0)
-		__szr_details.Add(__szr_show_docs, 0, wx.EXPAND | wx.TOP, 3)
+		__szr_details.Add(self._PNL_related_documents, 0, wx.EXPAND | wx.TOP, 3)
 		__szr_main.Add(__szr_details, 10, wx.EXPAND, 0)
 		self.SetSizer(__szr_main)
 		__szr_main.Fit(self)
@@ -68,14 +57,6 @@ class wxgMeasurementsByDayPnl(wx.Panel):
 
 	def _on_result_selected(self, event):  # wxGlade: wxgMeasurementsByDayPnl.<event_handler>
 		print("Event handler '_on_result_selected' not implemented!")
-		event.Skip()
-
-	def _on_list_docs_button_pressed(self, event):  # wxGlade: wxgMeasurementsByDayPnl.<event_handler>
-		print("Event handler '_on_list_docs_button_pressed' not implemented!")
-		event.Skip()
-
-	def _on_select_lab_doc_types_pressed(self, event):  # wxGlade: wxgMeasurementsByDayPnl.<event_handler>
-		print("Event handler '_on_select_lab_doc_types_pressed' not implemented!")
 		event.Skip()
 
 # end of class wxgMeasurementsByDayPnl
