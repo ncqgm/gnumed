@@ -18,12 +18,15 @@ __license__ = 'GPL v2 or later (details at http://www.gnu.org)'
 import time
 import sys
 import os
+import stat
 import io
 import codecs
 import logging
 import datetime as pydt
 import re as regex
 import threading
+import hashlib
+import shutil
 
 
 # GNUmed
@@ -35,6 +38,7 @@ from Gnumed.pycommon import gmDateTime
 from Gnumed.pycommon import gmBorg
 from Gnumed.pycommon import gmI18N
 from Gnumed.pycommon import gmLog2
+from Gnumed.pycommon import gmTools
 from Gnumed.pycommon.gmTools import prompted_input, u_replacement_character, format_dict_like
 
 _log = logging.getLogger('gm.db')
@@ -1166,7 +1170,73 @@ def row_is_locked(table=None, pk=None):
 	return False
 
 #------------------------------------------------------------------------
+def __store_file_in_cache(filename, cache_key_data):
+
+	md5 = hashlib.md5()
+	md5.update(('%s' % cache_key_data).encode('utf8'))
+	md5_sum = md5.hexdigest()
+	cached_name = os.path.join(gmTools.gmPaths().bytea_cache_dir, md5_sum)
+	_log.debug('caching [%s] as [%s]', filename, cached_name)
+	gmTools.remove_file(cached_name, log_error = True, force = True)
+	try:
+		shutil.copyfile(filename, cached_name, follow_symlinks = True)
+	except shutil.SameFileError:
+		pass
+	except OSError:
+		_log.exception('cannot copy file into cache: [%s] -> [%s]', filename, cached_name)
+		return None
+	PERMS_owner_only = 0o0660
+	try:
+		os.chmod(cached_name, PERMS_owner_only)
+	except PermissionError:
+		_log.exception('cannot set cache file [%s] permissions to [%s]', cached_name, stat.filemode(PERMS_owner_only))
+		return None
+	return cached_name
+
+#------------------------------------------------------------------------
+def __get_filename_in_cache(cache_key_data=None, data_size=None):
+
+	md5 = hashlib.md5()
+	md5.update(('%s' % cache_key_data).encode('utf8'))
+	md5_sum = md5.hexdigest()
+	cached_name = os.path.join(gmTools.gmPaths().bytea_cache_dir, md5_sum)
+	_log.debug('[%s]: %s', md5_sum, cached_name)
+	try:
+		stat = os.stat(cached_name)
+	except FileNotFoundError:
+		return None
+	_log.debug('cache hit: %s [%s]', cached_name, stat)
+	if os.path.islink(cached_name) or (not os.path.isfile(cached_name)):
+		_log.error('object in cache is not a regular file: %s', cached_name)
+		_log.error('possibly an attack, removing')
+		removed = gmTools.remove_file(cached_name, log_error = True)
+		if removed:
+			return None
+		raise BaseException('cannot delete suspicious object in cache dir: %s', cached_name)
+	if stat.st_size == data_size:
+		return cached_name
+	_log.debug('size in cache [%s] <> expected size [%s], removing cached file', stat.st_size, data_size)
+	removed = gmTools.remove_file(cached_name, log_error = True)
+	if removed:
+		return None
+	raise BaseException('cannot remove suspicous object from cache dir: %s', cached_name)
+
+#------------------------------------------------------------------------
 def bytea2file(data_query=None, filename=None, chunk_size=0, data_size=None, data_size_query=None, conn=None):
+
+	if data_size is None:
+		rows, idx = run_ro_queries(link_obj = conn, queries = [data_size_query])
+		data_size = rows[0][0]
+		if data_size in [None, 0]:
+			conn.rollback()
+			return True
+
+	cache_key_data = '%s' % data_query
+	cached_filename = __get_filename_in_cache(cache_key_data = cache_key_data, data_size = data_size)
+	if cached_filename is not None:
+		gmTools.mklink(cached_filename, filename, overwrite = False)	# link to desired name
+		return True
+
 	outfile = io.open(filename, 'wb')
 	result = bytea2file_object (
 		data_query = data_query,
@@ -1177,6 +1247,8 @@ def bytea2file(data_query=None, filename=None, chunk_size=0, data_size=None, dat
 		conn = conn
 	)
 	outfile.close()
+	__store_file_in_cache(filename, cache_key_data)
+
 	return result
 
 #------------------------------------------------------------------------
@@ -1194,7 +1266,6 @@ def bytea2file_object(data_query=None, file_obj=None, chunk_size=0, data_size=No
 	- integer of the total size of the expected data or None
 	<data_size_query>
 	- dict {'cmd': ..., 'args': ...}
-	- cmd must be unicode
 	- must return one row with one field with the octet_length() of the data field
 	- used only when <data_size> is None
 	"""

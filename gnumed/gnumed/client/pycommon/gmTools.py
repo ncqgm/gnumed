@@ -246,6 +246,7 @@ class gmPaths(gmBorg.cBorg):
 	.system_app_data_dir	(not writable)
 	.tmp_dir				instance-local
 	.user_tmp_dir			user-local (NOT per instance)
+	.bytea_cache_dir		caches downloaded BYTEA data
 	"""
 	def __init__(self, app_name=None, wx=None):
 		"""Setup pathes.
@@ -331,6 +332,16 @@ class gmPaths(gmBorg.cBorg):
 			self.tmp_dir = tempfile.mkdtemp(prefix = 'g-')
 			_log.info('final (app instance level) temp dir: %s', tempfile.gettempdir())
 
+		# BYTEA cache dir
+		cache_dir = os.path.join(self.user_tmp_dir, '.bytea_cache')
+		try:
+			stat = os.stat(cache_dir)
+			_log.warning('reusing BYTEA cache dir: %s', cache_dir)
+			_log.debug(stat)
+		except FileNotFoundError:
+			mkdir(cache_dir, mode = 0o0700)
+		self.bytea_cache_dir = cache_dir
+
 		self.__log_paths()
 		if wx is None:
 			return True
@@ -368,6 +379,7 @@ class gmPaths(gmBorg.cBorg):
 
 		self.__log_paths()
 		return True
+
 	#--------------------------------------
 	def __log_paths(self):
 		_log.debug('sys.argv[0]: %s', sys.argv[0])
@@ -383,6 +395,7 @@ class gmPaths(gmBorg.cBorg):
 		_log.debug('system-wide application data dir: %s', self.system_app_data_dir)
 		_log.debug('temporary dir (user): %s', self.user_tmp_dir)
 		_log.debug('temporary dir (instance): %s', self.tmp_dir)
+		_log.debug('BYTEA cache dir: %s', self.bytea_cache_dir)
 
 	#--------------------------------------
 	# properties
@@ -513,16 +526,31 @@ def unzip_archive(archive_name, target_dir=None, remove_archive=False):
 	return success
 
 #---------------------------------------------------------------------------
-def remove_file(filename, log_error=True):
+def remove_file(filename, log_error=True, force=False):
+	if not os.path.lexists(filename):
+		return True
+
 	# attempt file remove and ignore (but log) errors
 	try:
 		os.remove(filename)
+		return True
+
 	except Exception:
 		if log_error:
 			_log.exception('cannot os.remove(%s)', filename)
-		return False
 
-	return True
+	if force:
+		tmp_name = get_unique_filename(tmp_dir = fname_dir(filename))
+		_log.debug('attempting os.replace() to: %s', tmp_name)
+		try:
+			os.replace(filename, tmp_name)
+			return True
+
+		except BaseException:
+			if log_error:
+				_log.exception('cannot os.remove(%s)', filename)
+
+	return False
 
 #---------------------------------------------------------------------------
 def gpg_decrypt_file(filename=None, passphrase=None):
@@ -705,8 +733,10 @@ def fname_from_path(filename):
 
 #---------------------------------------------------------------------------
 def get_unique_filename(prefix=None, suffix=None, tmp_dir=None, include_timestamp=False):
-	"""This introduces a race condition between the file.close() and
-	actually using the filename.
+	"""This function has a race condition between
+			its file.close()
+	   and actually
+			using the filename in callers.
 
 	The file will NOT exist after calling this function.
 	"""

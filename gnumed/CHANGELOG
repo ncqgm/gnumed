@@ -15,6 +15,7 @@ NEW: port bootstrapper to Python 3
 NEW: ReST formatting in $free_text::::$ placeholder
 NEW: hook "after_waiting_list_modified"
 NEW: test results tab showing most-recent in test panel
+NEW: local documents cache
 
 IMPROVED: symbolic link creation on Windows
 IMPROVED: Orthanc connection handling
