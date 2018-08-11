@@ -2225,22 +2225,26 @@ def get_raw_connection(dsn=None, verbose=False, readonly=True, connection_name=N
 		try:
 			curs.execute("SELECT pg_size_pretty(pg_database_size(current_database()))")
 			_log.info('database size: %s', curs.fetchone()[0])
-		except:
-			pass
+		except BaseException:
+			_log.exception('cannot get database size')
+		finally:
+			curs.close()
+			conn.commit()
 		if verbose:
+			curs = conn.cursor()
 			_log_PG_settings(curs = curs)
-		curs.close()
-		conn.commit()
+			curs.close()
 	# - verify PG understands client time zone
 	if _default_client_timezone is None:
 		__detect_client_timezone(conn = conn)
 
 	# - set access mode
-	if readonly is True:
+	if readonly:
 		_log.debug('readonly: forcing autocommit=True to avoid <IDLE IN TRANSACTION>')
 		autocommit = True
 	else:
 		_log.debug('autocommit is desired to be: %s', autocommit)
+
 	conn.commit()
 	conn.autocommit = autocommit
 	conn.readonly = readonly
