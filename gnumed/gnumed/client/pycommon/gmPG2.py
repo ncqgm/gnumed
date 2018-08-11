@@ -2198,6 +2198,16 @@ def get_raw_connection(dsn=None, verbose=False, readonly=True, connection_name=N
 			raise cAuthenticationError(dsn, msg).with_traceback(tb)
 		if regex.search('user ".*" does not exist', msg) is not None:
 			raise cAuthenticationError(dsn, msg).with_traceback(tb)
+		if ((	(regex.search('user ".*"', msg) is not None)
+					or
+				(regex.search('(R|r)ol{1,2}e', msg) is not None)
+			)
+			and ('exist' in msg)
+			and (regex.search('n(o|ich)t', msg) is not None)
+		):
+			raise cAuthenticationError(dsn, msg).with_traceback(tb)
+		if regex.search('user ".*" does not exist', msg) is not None:
+			raise cAuthenticationError(dsn, msg).with_traceback(tb)
 		if 'uthenti' in msg:
 			raise cAuthenticationError(dsn, msg).with_traceback(tb)
 		raise
@@ -2312,9 +2322,12 @@ def get_connection(dsn=None, readonly=True, encoding=None, verbose=False, pooled
 	# - client encoding
 	try:
 		conn.set_client_encoding(encoding)
-	except dbapi.OperationalError:
+	except dbapi.DataError:
 		t, v, tb = sys.exc_info()
-		if str(v).find('cannot set encoding to') != -1:
+#		if str(v).find('cannot set encoding to') != -1:
+		if 'cannot set encoding to' in str(v):
+			raise cEncodingError(encoding, v).with_traceback(tb)
+		if 'invalid value for parameter "client_encoding"' in str(v):
 			raise cEncodingError(encoding, v).with_traceback(tb)
 		raise
 
@@ -2756,8 +2769,8 @@ if __name__ == "__main__":
 		dsn = 'foo'
 		try:
 			conn = get_connection(dsn=dsn)
-		except dbapi.OperationalError as e:
-			print("SUCCESS: get_connection(%s) failed as expected" % dsn)
+		except dbapi.ProgrammingError as e:
+			print("1) SUCCESS: get_connection(%s) failed as expected" % dsn)
 			t, v = sys.exc_info()[:2]
 			print (' ', t)
 			print (' ', v)
@@ -2766,7 +2779,7 @@ if __name__ == "__main__":
 		try:
 			conn = get_connection(dsn=dsn)
 		except cAuthenticationError:
-			print("SUCCESS: get_connection(%s) failed as expected" % dsn)
+			print("2) SUCCESS: get_connection(%s) failed as expected" % dsn)
 			t, v = sys.exc_info()[:2]
 			print(' ', t)
 			print(' ', v)
@@ -2775,16 +2788,17 @@ if __name__ == "__main__":
 		try:
 			conn = get_connection(dsn=dsn)
 		except cAuthenticationError:
-			print("SUCCESS: get_connection(%s) failed as expected" % dsn)
+			print("3) SUCCESS: get_connection(%s) failed as expected" % dsn)
 			t, v = sys.exc_info()[:2]
 			print(' ', t)
 			print(' ', v)
 
-		dsn = 'dbname=gnumed_v9 user=any-doc'
+		dsn = 'dbname=gnumed_v22 user=any-doc'
 		try:
 			conn = get_connection(dsn=dsn)
+			print("4) SUCCESS:", dsn)
 		except cAuthenticationError:
-			print("SUCCESS: get_connection(%s) failed as expected" % dsn)
+			print("4) SUCCESS: get_connection(%s) failed as expected" % dsn)
 			t, v = sys.exc_info()[:2]
 			print(' ', t)
 			print(' ', v)
@@ -2793,26 +2807,27 @@ if __name__ == "__main__":
 		try:
 			conn = get_connection(dsn=dsn)
 		except cAuthenticationError:
-			print("SUCCESS: get_connection(%s) failed as expected" % dsn)
+			print("5) SUCCESS: get_connection(%s) failed as expected" % dsn)
 			t, v = sys.exc_info()[:2]
 			print(' ', t)
 			print(' ', v)
 
-		dsn = 'dbname=gnumed_v9 user=any-doc password=any-doc'
+		dsn = 'dbname=gnumed_v22 user=any-doc password=any-doc'
 		conn = get_connection(dsn=dsn, readonly=True)
 
-		dsn = 'dbname=gnumed_v9 user=any-doc password=any-doc'
-		conn = get_connection(dsn=dsn, readonly=False)
+		dsn = 'dbname=gnumed_v22 user=any-doc password=any-doc'
+		conn = get_connection(dsn=dsn, readonly=False, verbose=True)
 
-		dsn = 'dbname=gnumed_v9 user=any-doc password=any-doc'
+		dsn = 'dbname=gnumed_v22 user=any-doc password=any-doc'
 		encoding = 'foo'
 		try:
 			conn = get_connection(dsn=dsn, encoding=encoding)
 		except cEncodingError:
-			print("SUCCESS: get_connection(%s, %s) failed as expected" % (dsn, encoding))
+			print("6) SUCCESS: get_connection(%s, %s) failed as expected" % (dsn, encoding))
 			t, v = sys.exc_info()[:2]
 			print(' ', t)
 			print(' ', v)
+
 	#--------------------------------------------------------------------
 	def test_exceptions():
 		print("testing exceptions")
@@ -3136,7 +3151,7 @@ SELECT to_timestamp (foofoo,'YYMMDD.HH24MI') FROM (
 
 	#--------------------------------------------------------------------
 	# run tests
-	#test_get_connection()
+	test_get_connection()
 	#test_exceptions()
 	#test_ro_queries()
 	#test_request_dsn()
@@ -3146,7 +3161,7 @@ SELECT to_timestamp (foofoo,'YYMMDD.HH24MI') FROM (
 	#test_sanitize_pg_regex()
 	#test_is_pg_interval()
 	#test_sanity_check_time_skew()
-	test_get_foreign_key_details()
+	#test_get_foreign_key_details()
 	#test_get_foreign_key_names()
 	#test_get_index_name()
 	#test_set_user_language()
