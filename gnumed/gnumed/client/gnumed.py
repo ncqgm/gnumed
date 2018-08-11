@@ -145,7 +145,7 @@ Please make sure you have:
     (if you do not run from a CVS tree the installer should have taken care of that)
  3) your PYTHONPATH environment variable set up correctly
 
-sys.path is currently set to:
+<sys.path> is currently set to:
 
  %s
 
@@ -202,6 +202,41 @@ def _symlink_windows(source, link_name):
 #==========================================================
 # startup helpers
 #----------------------------------------------------------
+def setup_fault_handler(target=None):
+	if target is None:
+		faulthandler.enable()
+		_pre_log_buffer.append('<faulthandler> enabled, target = [console]: %s' % faulthandler)
+		return
+	_pre_log_buffer.append('<faulthandler> enabled, target = [%s]: %s' % (target, faulthandler))
+	faulthandler.enable(file = target)
+
+#==========================================================
+def setup_console_encoding():
+	print_lines = []
+	try:
+		sys.stdout.reconfigure(errors = 'surrogateescape')
+		sys.stderr.reconfigure(errors = 'surrogateescape')
+		_pre_log_buffer.append('stdout/stderr reconfigured to use <surrogateescape> for encoding errors')
+		return
+	except AttributeError:
+		line = 'cannot reconfigure sys.stdout/stderr to use <errors="surrogateescape"> (needs Python 3.7+)'
+		_pre_log_buffer.append(line)
+		print_lines.append(line)
+	try:
+		_pre_log_buffer.append('sys.stdout/stderr default to "${PYTHONIOENCODING}=%s"' % os.environ['PYTHONIOENCODING'])
+		return
+	except KeyError:
+		lines = [
+			'${PYTHONIOENCODING} is not set up, use <PYTHONIOENCODING=utf-8:surrogateescape> in the shell (for Python < 3.7)',
+			'console encoding errors may occur'
+		]
+		for line in lines:
+			print_lines.append(line)
+			_pre_log_buffer.append(line)
+		for line in print_lines:
+			print('GNUmed startup:', line)
+
+#==========================================================
 def setup_python_path():
 
 	if not '--local-import' in sys.argv:
@@ -232,7 +267,6 @@ def setup_python_path():
 			_pre_log_buffer.append('ctypes.windll.kernel32.CreateSymbolicLinkW() exit code: %s', result)
 		_pre_log_buffer.append('created local module import dir symlink: link [%s] => dir [%s]' % (link_name, real_dir))
 
-	print("Adjusting PYTHONPATH ...")
 	sys.path.insert(0, local_python_import_dir)
 	_pre_log_buffer.append('sys.path with local module import base dir prepended: %s' % sys.path)
 
@@ -292,15 +326,6 @@ def setup_local_repo_path():
 	sys.path.insert(0, local_repo_path)
 	_log.debug('sys.path with repo:')
 	_log.debug(sys.path)
-
-#==========================================================
-def setup_fault_handler(target=None):
-	if target is None:
-		faulthandler.enable()
-		_pre_log_buffer.append('<faulthandler> enabled, target = [console]: %s' % faulthandler)
-		return
-	_pre_log_buffer.append('<faulthandler> enabled, target = [%s]: %s' % (target, faulthandler))
-	faulthandler.enable(file = target)
 
 #==========================================================
 def setup_logging():
@@ -798,6 +823,7 @@ random.seed()
 
 # setup
 setup_fault_handler(target = None)
+setup_console_encoding()
 setup_python_path()
 setup_logging()
 log_startup_info()

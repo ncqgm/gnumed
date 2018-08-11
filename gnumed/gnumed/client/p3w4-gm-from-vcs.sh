@@ -45,15 +45,16 @@ TARBALL_OPTS="--local-import --debug"
 
 
 # eventually run it
+export PYTHONIOENCODING=utf-8:surrogateescape
 # - devel version:
 echo "-------------------------------------------------"
 echo "Running from Git branch: "`git branch | grep \*`
 echo "-------------------------------------------------"
 echo "config file: ${CONF}"
 echo "options: ${DEV_OPTS}"
-#python3 gnumed.py ${CONF} ${DEV_OPTS} $@
-#python3 gnumed.py ${CONF} ${DEV_OPTS} $@ |& tee gm-vcs-console_output.log
-python3 gnumed.py ${CONF} ${DEV_OPTS} $@
+#python3.7 gnumed.py ${CONF} ${DEV_OPTS} $@
+#python3.7 gnumed.py ${CONF} ${DEV_OPTS} $@ |& tee gm-vcs-console_output.log
+python3.7 gnumed.py ${CONF} ${DEV_OPTS} $@
 
 
 # - *released* tarball version:

@@ -29,6 +29,7 @@ IMPROVED: date/timestamp picker functionality
 IMPROVED: better duplicate person detection
 IMPROVED: document tree details view usage
 IMPROVED: test results panels links w/ documents
+IMPROVED: console encoding errors behaviour [thanks INADA Naoki]
 
 FIX: [Save] functionality of Export Area
 FIX: document tree sorting / document insertion
