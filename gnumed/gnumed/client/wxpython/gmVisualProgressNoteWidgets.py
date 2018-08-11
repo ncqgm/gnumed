@@ -385,7 +385,7 @@ class cVisualSoapPresenterPnl(wxgVisualSoapPresenterPnl.wxgVisualSoapPresenterPn
 	#--------------------------------------------------------
 	# external API
 	#--------------------------------------------------------
-	def refresh(self, document_folder=None, episodes=None, encounter=None, async=False):
+	def refresh(self, document_folder=None, episodes=None, encounter=None, do_async=False):
 
 		if document_folder is None:
 			self.clear()
@@ -398,7 +398,7 @@ class cVisualSoapPresenterPnl(wxgVisualSoapPresenterPnl.wxgVisualSoapPresenterPn
 			self.GetParent().Layout()
 			return
 
-		if not async:
+		if not do_async:
 			parts_list = self._worker__export_doc_parts(docs = soap_docs)
 			self.__show_exported_parts(parts_list = parts_list)
 			return

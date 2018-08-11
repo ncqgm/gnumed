@@ -3520,7 +3520,7 @@ class gmApp(wx.App):
 		if not do_check:
 			return
 
-		gmCfgWidgets.check_for_updates(async = True)
+		gmCfgWidgets.check_for_updates(do_async = True)
 
 	#----------------------------------------------
 	def __establish_backend_connection(self):

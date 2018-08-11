@@ -192,7 +192,7 @@ def log_stack_trace(message=None, t=None, v=None, tb=None):
 		for varname, value in frame.f_locals.items():
 			if varname == '__doc__':
 				continue
-			value = u'%s' % value
+#			value = '%s' % value
 #			try:
 #				value = str(value, encoding = _string_encoding, errors = 'replace')
 #			except TypeError:

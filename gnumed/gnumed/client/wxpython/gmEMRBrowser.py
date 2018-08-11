@@ -356,7 +356,7 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 				self.__img_display.refresh (
 					document_folder = doc_folder,
 					episodes = [ epi['pk_episode'] for epi in epis ],
-					async = True
+					do_async = True
 				)
 			self.__soap_display.SetFont(font)
 			self.__soap_display.WriteText(txt)

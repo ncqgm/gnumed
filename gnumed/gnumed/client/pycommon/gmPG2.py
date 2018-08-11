@@ -1679,7 +1679,7 @@ def capture_conn_state(conn=None):
 		'readonly': conn.readonly,
 		'autocommit': conn.autocommit,
 		'isolation level (psyco)': isolation_level,
-		'async': conn.async,
+		'async': conn.async_,
 		'deferrable': conn_deferrable,
 		'transaction status': '%s (%s)' % (tx_status, map_psyco_tx_status2str[tx_status]),
 		'connection status': conn_status,
@@ -1762,7 +1762,7 @@ Query
 		conn.autocommit,
 		isolation_level,
 		conn.encoding,
-		conn.async,
+		conn.async_,
 		conn_deferrable,
 		conn.readonly,
 		map_psyco_tx_status2str[tx_status],
@@ -2187,7 +2187,7 @@ def get_raw_connection(dsn=None, verbose=False, readonly=True, connection_name=N
 
 	try:
 		# DictConnection now _is_ a real dictionary
-		conn = dbapi.connect(dsn=dsn, connection_factory=psycopg2.extras.DictConnection)
+		conn = dbapi.connect(dsn = dsn, connection_factory = psycopg2.extras.DictConnection)
 	except dbapi.OperationalError as e:
 		t, v, tb = sys.exc_info()
 		try:
