@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
 import sys
+import os
 
 missing = False
 
@@ -57,6 +58,7 @@ except ImportError:
 	print("  INFO : wxPython is available from http://www.wxpython.org")
 	print("  INFO : on Mac OSX Panther you may have to use 'export DISPLAY=:0'")
 
+# needs to check for uno3
 #print " uno...",
 #try:
 #	import uno
@@ -210,8 +212,16 @@ except ImportError:
 
 if missing:
 	print("")
-	print("sys.path is currently set as follows:")
-	print(" ", "\n  ".join(sys.path))
+	input('sys.path (press <ENTER> key to show):')
+	print(' ', '\n  '.join(sys.path))
+	for path in ['PYTHONPATH', 'LD_LIBRARY_PATH', 'PATH', 'DYLD_LIBRARY_PATH', 'LD_RUN_PATH']:
+		try:
+			paths = os.environ[path]
+		except KeyError:
+			continue
+		print("")
+		input('${%s} (press <ENTER> key to show):' % path)
+		print('  %s' % paths)
 	sys.exit(-1)
 
 print("\n****************************************************")

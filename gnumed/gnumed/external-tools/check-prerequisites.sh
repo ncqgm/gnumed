@@ -12,7 +12,9 @@ if test ! -e ./${ME} ; then
 	echo ""
 	echo "NOTE: Run this script from the directory it is in or it might fail !"
 	echo ""
-	read -p "Press [ENTER] to continue anyway."
+	read -p "Press <ENTER> key to continue anyway."
+else
+	read -p "Press <ENTER> key to start."
 fi
 
 echo ""
@@ -50,8 +52,8 @@ cd ..
 ln -sT client Gnumed &> /dev/null
 
 echo ""
-read -p "Press <RETURN> key to continue."
-echo    "-------------------------------"
+read -p "Press <ENTER> key to continue."
+echo    "------------------------------"
 
 ${PYBIN} external-tools/check-prerequisites.py
 
@@ -62,9 +64,10 @@ echo "-------------------------------------------------"
 echo "I will now check for a few utilities which"
 echo "make working with GNUmed more productive but"
 echo "are not strictly required for standard operation."
-read -p "Press <RETURN> key to continue."
-echo    "-------------------------------"
-echo "Client tools:"
+echo "-------------------------------------------------"
+echo ""
+read -p "Client tools (press <ENTER> key to show):"
+echo ""
 
 echo -n " 'file' command... "
 BIN=`which file`
@@ -347,10 +350,10 @@ else
 fi
 
 
+#echo    "------------------------------"
 echo ""
-read -p "Press <RETURN> key to continue."
-echo    "-------------------------------"
-echo "Server tools:"
+read -p "Server tools (press <ENTER> key to show):"
+echo ""
 
 echo -n " 'tar' command... "
 BIN=`which tar`
@@ -382,6 +385,7 @@ else
 	echo "found"
 fi
 
+echo ""
 
 #=================================================================
 # obsolete
