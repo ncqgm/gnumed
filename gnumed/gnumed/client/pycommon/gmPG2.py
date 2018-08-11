@@ -2245,8 +2245,20 @@ def get_raw_connection(dsn=None, verbose=False, readonly=True, connection_name=N
 	conn.autocommit = autocommit
 	conn.readonly = readonly
 
-	conn.is_decorated = False
+	# - assume verbose=True to mean we want debugging in the database, too
+	if verbose:
+		_log.debug('enabling <plpgsql.extra_warnings/_errors>')
+		curs = conn.cursor()
+		try:
+			curs.execute("SET plpgsql.extra_warnings TO 'all'")
+			curs.execute("SET plpgsql.extra_errors TO 'all'")
+		except BaseException:
+			_log.exception('cannot enable <plpgsql.extra_warnings/_errors>')
+		finally:
+			curs.close()
+			conn.commit()
 
+	conn.is_decorated = False
 	return conn
 
 # =======================================================================
