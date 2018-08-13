@@ -48,7 +48,8 @@ fi
 
 
 # now run the client
-python -m Gnumed.gnumed ${OPTIONS}
+export PYTHONIOENCODING=utf-8:surrogateescape
+python3 -m Gnumed.gnumed ${OPTIONS}
 
 
 # source systemwide shutdown extension shell script if it exists
