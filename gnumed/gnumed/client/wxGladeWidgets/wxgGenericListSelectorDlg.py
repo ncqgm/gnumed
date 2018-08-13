@@ -16,7 +16,7 @@ import gettext
 class wxgGenericListSelectorDlg(wx.Dialog):
 	def __init__(self, *args, **kwds):
 		# begin wxGlade: wxgGenericListSelectorDlg.__init__
-		kwds["style"] = kwds.get("style", 0) | wx.CAPTION | wx.MAXIMIZE_BOX | wx.MINIMIZE_BOX | wx.RESIZE_BORDER
+		kwds["style"] = kwds.get("style", 0) | wx.DEFAULT_DIALOG_STYLE | wx.MAXIMIZE_BOX | wx.MINIMIZE_BOX | wx.RESIZE_BORDER
 		wx.Dialog.__init__(self, *args, **kwds)
 		self.SetSize((640, 500))
 		self._LBL_message = wx.StaticText(self, wx.ID_ANY, "")

@@ -35,6 +35,8 @@ import wx
 import wx.lib.mixins.listctrl as listmixins
 
 
+if __name__ == '__main__':
+	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmDispatcher
 
@@ -95,11 +97,7 @@ def get_choices_from_list (
 		if not caption.startswith('GMd: '):
 			caption = 'GMd: %s' % caption
 
-	if single_selection:
-		dlg = cGenericListSelectorDlg(parent, -1, title = caption, msg = msg, style = wx.LC_SINGLE_SEL)
-	else:
-		dlg = cGenericListSelectorDlg(parent, -1, title = caption, msg = msg)
-
+	dlg = cGenericListSelectorDlg(parent, -1, title = caption, msg = msg, single_selection = single_selection)
 	dlg.refresh_callback = refresh_callback
 	dlg.edit_callback = edit_callback
 	dlg.new_callback = new_callback
@@ -122,7 +120,10 @@ def get_choices_from_list (
 		dlg.set_data(data = data)					# can override data set if refresh_callback is not None
 
 	if selections is not None:
-		dlg.set_selections(selections = selections)
+		if single_selection:
+			dlg.set_selections(selections = selections[:1])
+		else:
+			dlg.set_selections(selections = selections)
 
 	btn_pressed = dlg.ShowModal()
 	sels = dlg.get_selected_item_data(only_one = single_selection)
@@ -155,6 +156,12 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 				kwargs['title'] = 'GMd: %s' % title
 		except KeyError:
 			kwargs['title'] = 'GMd: %s' % self.__class__.__name__
+
+		try:
+			single_selection = kwargs['single_selection']
+			del kwargs['single_selection']
+		except KeyError:
+			single_selection = False
 
 		wxgGenericListSelectorDlg.wxgGenericListSelectorDlg.__init__(self, *args, **kwargs)
 
@@ -3348,21 +3355,23 @@ if __name__ == '__main__':
 			choices = ['a', 'b', 'c']
 			lctrl.set_string_items(choices)
 
-		app = wx.PyWidgetTester(size = (200, 50))
+		app = wx.App()
 		chosen = get_choices_from_list (
 #			msg = 'select a health issue\nfrom the list below\n',
 			caption = 'select health issues',
 			#choices = [['D.M.II', '4'], ['MS', '3'], ['Fraktur', '2']],
 			#columns = ['issue', 'no of episodes']
 			columns = ['issue'],
-			refresh_callback = refresh
+			refresh_callback = refresh,
+			single_selection = False
 			#, edit_callback = edit
 		)
 		print("chosen:")
 		print(chosen)
 	#------------------------------------------------------------
 	def test_item_picker_dlg():
-		app = wx.PyWidgetTester(size = (200, 50))
+		#app = wx.PyWidgetTester(size = (200, 50))
+		app = wx.App(size = (200, 50))
 		dlg = cItemPickerDlg(None, -1, msg = 'Pick a few items:')
 		dlg.set_columns(['Plugins'], ['Load in workplace', 'dummy'])
 		#dlg.set_columns(['Plugins'], [])
@@ -3371,9 +3380,8 @@ if __name__ == '__main__':
 		print(result)
 		print(dlg.get_picks())
 	#------------------------------------------------------------
-	#test_get_choices_from_list()
+	test_get_choices_from_list()
 	#test_wxMultiChoiceDialog()
-	test_item_picker_dlg()
+	#test_item_picker_dlg()
 
 #================================================================
-#
