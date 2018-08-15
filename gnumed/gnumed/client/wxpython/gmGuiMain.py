@@ -3371,7 +3371,7 @@ class gmApp(wx.App):
 			if not self.__setup_scripting_listener():
 				return False
 
-		frame = gmTopLevelFrame(None, -1, _('GNUmed client'), (640, 440))
+		frame = gmTopLevelFrame(None, id = -1, title = _('GNUmed client'), size = (640, 440))
 		frame.CentreOnScreen(wx.BOTH)
 		self.SetTopWindow(frame)
 		frame.Show(True)
