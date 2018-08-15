@@ -181,6 +181,8 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 
 		self.select_callback = None				# called when an item is selected, data of topmost selected item passed in
 		self._LCTRL_items.select_callback = self._on_list_item_selected_in_listctrl
+		if single_selection:
+			self._LCTRL_items.SetSingleStyle(wx.LC_SINGLE_SEL, add = True)
 
 	#------------------------------------------------------------
 	def set_columns(self, columns=None):
@@ -3344,6 +3346,7 @@ if __name__ == '__main__':
 		print("selected:")
 		for sel in sels:
 			print(sel)
+
 	#------------------------------------------------------------
 	def test_get_choices_from_list():
 
@@ -3368,6 +3371,7 @@ if __name__ == '__main__':
 		)
 		print("chosen:")
 		print(chosen)
+
 	#------------------------------------------------------------
 	def test_item_picker_dlg():
 		#app = wx.PyWidgetTester(size = (200, 50))
@@ -3379,6 +3383,7 @@ if __name__ == '__main__':
 		result = dlg.ShowModal()
 		print(result)
 		print(dlg.get_picks())
+
 	#------------------------------------------------------------
 	test_get_choices_from_list()
 	#test_wxMultiChoiceDialog()
