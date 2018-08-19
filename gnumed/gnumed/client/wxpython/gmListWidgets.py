@@ -92,11 +92,7 @@ def get_choices_from_list (
 	if caption is None:
 		caption = _('generic multi choice dialog')
 
-	if single_selection:
-		dlg = cGenericListSelectorDlg(parent, -1, title = caption, msg = msg, style = wx.LC_SINGLE_SEL)
-	else:
-		dlg = cGenericListSelectorDlg(parent, -1, title = caption, msg = msg)
-
+	dlg = cGenericListSelectorDlg(parent, -1, title = caption, msg = msg)
 	dlg.refresh_callback = refresh_callback
 	dlg.edit_callback = edit_callback
 	dlg.new_callback = new_callback
@@ -119,7 +115,10 @@ def get_choices_from_list (
 		dlg.set_data(data = data)					# can override data set if refresh_callback is not None
 
 	if selections is not None:
-		dlg.set_selections(selections = selections)
+		if single_selection:
+			dlg.set_selections(selections = selections[:1])
+		else:
+			dlg.set_selections(selections = selections)
 
 	btn_pressed = dlg.ShowModal()
 	sels = dlg.get_selected_item_data(only_one = single_selection)
