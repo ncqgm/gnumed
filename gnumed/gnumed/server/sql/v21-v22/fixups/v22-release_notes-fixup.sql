@@ -17,35 +17,19 @@ INSERT INTO dem.message_inbox (
 ) VALUES (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
-	'Release Notes for GNUmed 1.7.2 (database v22.2)',
-	'GNUmed 1.7.2 Release Notes:
+	'Release Notes for GNUmed 1.7.3 (database v22.3)',
+	'GNUmed 1.7.3 Release Notes:
 
-	1.7.2
+	1.7.3
 
-FIX: GTK3 related size adjustments for PatientOverview/SimpleSoap plugins
-FIX: GTK3 related bitmap adjustments
-FIX: [Save] functionality of Export Area
-FIX: placeholders $current_provider_[title/firstnames/lastnames]$
-FIX: receiver selection address list setup
-FIX: exception on creation of duplicate patient [thanks Marc]
+FIX: failure to merge patients under some conditions [thanks Marc]
+FIX: exception on creating person duplicates
+FIX: failure to delete inbox messages w/o a receiver
+FIX: handling of single_selection in generic list selection [thanks Scott Talbert]
+FIX: setting of initial size of main frame [thanks Tim Roberts]
 
-	1.7.1
-
-NEW: add bash completion script
-
-IMPROVED: make DWV optional
-IMPROVED: prerequisites check tool
-IMPROVED: update timeline code to 1.17.0 release
-
-	22.2
-
-FIX: staff/v_staff plausibility check [thanks Marc]
-FIX: LaTeX-Template for Begleitbrief
-
-	22.1
-
-IMPROVED: concurrency robustness of backup/restore scripts
+IMPROVED: robustify tarballing script against network flukes
 ');
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('v22-release_notes-fixup.sql', '22.2');
+select gm.log_script_insertion('v22-release_notes-fixup.sql', '22.3');
