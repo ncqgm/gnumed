@@ -11,8 +11,8 @@
 FIX: failure to merge patients under some conditions [thanks Marc]
 FIX: exception on creating person duplicates
 FIX: failure to delete inbox messages w/o a receiver
-FIX: handling of single_selection in generic list selection
-FIX: setting of initial size of main frame
+FIX: handling of single_selection in generic list selection [thanks Scott Talbert]
+FIX: setting of initial size of main frame [thanks Tim Roberts]
 
 IMPROVED: robustify tarballing script against network flukes
 
