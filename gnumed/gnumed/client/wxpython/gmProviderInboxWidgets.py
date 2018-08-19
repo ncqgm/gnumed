@@ -764,10 +764,12 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 			gmDispatcher.send(signal = 'statustext', msg = _('You must deal with the reason for this message to remove it from your inbox.'), beep = True)
 			return False
 
-		# if not "to" current provider, then don't delete
-		if self.__focussed_msg['pk_staff'] != gmStaff.gmCurrentProvider()['pk_staff']:
-			gmDispatcher.send(signal = 'statustext', msg = _('This message can only be deleted by [%s].') % self.__focussed_msg['provider'], beep = True)
-			return False
+		# message to a certain provider ?
+		if self.__focussed_msg['pk_staff'] is not None:
+			# do not delete messages to *other* providers
+			if self.__focussed_msg['pk_staff'] != gmStaff.gmCurrentProvider()['pk_staff']:
+				gmDispatcher.send(signal = 'statustext', msg = _('This message can only be deleted by [%s].') % self.__focussed_msg['provider'], beep = True)
+				return False
 
 		pk_patient = self.__focussed_msg['pk_patient']
 		if pk_patient is not None:
@@ -787,6 +789,7 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 			return False
 
 		return True
+
 	#--------------------------------------------------------
 	def _on_edit_focussed_msg(self, evt):
 		if self.__focussed_msg['is_virtual']:

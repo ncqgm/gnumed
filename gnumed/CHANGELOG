@@ -10,6 +10,7 @@
 
 FIX: failure to merge patients under some conditions [thanks Marc]
 FIX: exception on creating person duplicates
+FIX: failure to delete inbox messages w/o a receiver
 
 IMPROVED: robustify tarballing script against network flukes
 
