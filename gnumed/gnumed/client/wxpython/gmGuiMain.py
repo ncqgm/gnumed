@@ -3580,7 +3580,7 @@ class gmApp(wx.App):
 				return False
 
 		# FIXME: load last position from backend
-		frame = gmTopLevelFrame(None, -1, _('GNUmed client'), (640, 440))
+		frame = gmTopLevelFrame(None, -1, title = _('GNUmed client'), size = (640, 440))
 		frame.CentreOnScreen(wx.BOTH)
 		self.SetTopWindow(frame)
 		frame.Show(True)
