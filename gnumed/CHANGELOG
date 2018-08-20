@@ -6,6 +6,10 @@
 # rel-1-7-patches
 ------------------------------------------------
 
+	1.7.4
+
+IMPROVED: AppStream and desktop metadata
+
 	1.7.3
 
 FIX: failure to merge patients under some conditions [thanks Marc]
