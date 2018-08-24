@@ -154,7 +154,7 @@ class cDTO_person(object):
 	def delete_from_source(self):
 		pass
 	#--------------------------------------------------------
-	def is_unique(self):
+	def _is_unique(self):
 		where_snippets = [
 			'firstnames = %(first)s',
 			'lastnames = %(last)s'
@@ -174,9 +174,10 @@ class cDTO_person(object):
 
 		return rows[0][0] == 1
 
-	is_unique = property(is_unique, lambda x:x)
+	is_unique = property(_is_unique)
+
 	#--------------------------------------------------------
-	def exists(self):
+	def _exists(self):
 		where_snippets = [
 			'firstnames = %(first)s',
 			'lastnames = %(last)s'
@@ -196,7 +197,8 @@ class cDTO_person(object):
 
 		return rows[0][0] > 0
 
-	exists = property(exists, lambda x:x)
+	exists = property(_exists)
+
 	#--------------------------------------------------------
 	def get_candidate_identities(self, can_create=False):
 		"""Generate generic queries.
@@ -2692,7 +2694,7 @@ if __name__ == '__main__':
 		patient = cPatient(12)
 		set_active_patient(patient = patient)
 		curr_pat = gmCurrentPatient()
-		other_pat = cIdentity(1111111)
+		other_pat = cPerson(1111111)
 		curr_pat.assimilate_identity(other_identity=None)
 
 	#--------------------------------------------------------
