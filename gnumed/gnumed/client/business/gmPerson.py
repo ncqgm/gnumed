@@ -145,6 +145,10 @@ class cDTO_person(object):
 		self.dob = None
 		self.dob_is_estimated = False
 		self.source = self.__class__.__name__
+
+		self.dob_formats = None
+		self.dob_tz = None
+
 	#--------------------------------------------------------
 	# external API
 	#--------------------------------------------------------
@@ -278,8 +282,7 @@ class cDTO_person(object):
 		if self.identity is None:
 			return None
 
-		if self.dob_is_estimated:
-			self.identity['dob_is_estimated'] = True
+		self.identity['dob_is_estimated'] = self.dob_is_estimated is True
 		if self.title is not None:
 			self.identity['title'] = self.title
 		self.identity.save()
@@ -382,13 +385,14 @@ class cDTO_person(object):
 	# customizing behaviour
 	#--------------------------------------------------------
 	def __str__(self):
-		return '<%s (%s) @ %s: %s %s (%s) %s>' % (
+		return '<%s (%s) @ %s: %s %s (%s) %s%s>' % (
 			self.__class__.__name__,
 			self.source,
 			id(self),
+			self.lastnames.upper(),
 			self.firstnames,
-			self.lastnames,
 			self.gender,
+			gmTools.bool2subst(self.dob_is_estimated, '~', '', ''),
 			self.dob
 		)
 	#--------------------------------------------------------
@@ -409,6 +413,11 @@ class cDTO_person(object):
 
 		if attr == 'dob':
 			if val is not None:
+				if isinstance(val, str):
+					dob = self.__parse_dob_str(val)
+					if dob is None:
+						raise ValueError('cannot parse DOB [%s]' % val)
+					val = dob
 				if not isinstance(val, pyDT.datetime):
 					raise TypeError('invalid type for DOB (must be datetime.datetime): %s [%s]' % (type(val), val))
 				if val.tzinfo is None:
@@ -419,6 +428,21 @@ class cDTO_person(object):
 	#--------------------------------------------------------
 	def __getitem__(self, attr):
 		return getattr(self, attr)
+	#--------------------------------------------------------
+	def __parse_dob_str(self, dob_str):
+		if self.dob_formats is None:
+			return None
+		for dob_format in self.dob_formats:
+			try:
+				dob = pyDT.datetime.strptime(dob_str, dob_format)
+			except ValueError:
+				_log.exception('cannot parse DOB [%s] with [%s]', dob_str, dob_format)
+				continue
+			if self.dob_tz is None:
+				raise ValueError('lacking TZ information in DOB [%s] and/or format [%s]' % (dob_str, self.dob_format))
+			dob = dob.replace(tzinfo = self.dob_tz)
+			return dob
+		return None
 
 #============================================================
 class cPersonName(gmBusinessDBObject.cBusinessDBObject):
