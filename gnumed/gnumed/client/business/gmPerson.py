@@ -1356,7 +1356,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 		vc.kind.value = 'individual'
 
 		vc.add('fn')
-		vc.fn.value = self.get_description()
+		vc.fn.value = self.get_description(with_nickname = False)	# privacy
 		vc.add('n')
 		vc.n.value = vobject.vcard.Name(family = self._payload[self._idx['lastnames']], given = self._payload[self._idx['firstnames']])
 		# privacy
@@ -1430,7 +1430,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 			)
 		vcf = io.open(filename, mode = 'wt', encoding = 'utf8')
 		try:
-			vcf.write(vc.serialize().decode('utf-8'))
+			vcf.write(vc.serialize())
 		except UnicodeDecodeError:
 			_log.exception('failed to serialize VCF data')
 			vcf.close()

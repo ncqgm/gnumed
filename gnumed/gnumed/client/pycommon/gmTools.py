@@ -813,11 +813,13 @@ def mklink(physical_name, link_name, overwrite=False):
 	try:
 		os.symlink(physical_name, link_name)
 	except (AttributeError, NotImplementedError):
-		_log.debug('this Python does not have os.symlink(), resorting to ctypes')
+		_log.debug('this Python does not have os.symlink(), trying via ctypes')
 		__make_symlink_on_windows(physical_name, link_name)
+	except PermissionError:
+		_log.exception('cannot create link')
+		return False
 	#except OSError:
 	#	unpriviledged on Windows
-
 	return True
 
 #===========================================================================

@@ -1222,7 +1222,7 @@ def __get_filename_in_cache(cache_key_data=None, data_size=None):
 	raise BaseException('cannot remove suspicous object from cache dir: %s', cached_name)
 
 #------------------------------------------------------------------------
-def bytea2file(data_query=None, filename=None, chunk_size=0, data_size=None, data_size_query=None, conn=None):
+def bytea2file(data_query=None, filename=None, chunk_size=0, data_size=None, data_size_query=None, conn=None, link2cached=True):
 
 	if data_size is None:
 		rows, idx = run_ro_queries(link_obj = conn, queries = [data_size_query])
@@ -1234,8 +1234,21 @@ def bytea2file(data_query=None, filename=None, chunk_size=0, data_size=None, dat
 	cache_key_data = '%s' % data_query
 	cached_filename = __get_filename_in_cache(cache_key_data = cache_key_data, data_size = data_size)
 	if cached_filename is not None:
-		gmTools.mklink(cached_filename, filename, overwrite = False)	# link to desired name
-		return True
+		# link to desired name
+		if link2cached:
+			if gmTools.mklink(cached_filename, filename, overwrite = False):
+				return True
+			_log.debug('cannot link to cache, trying copy-from-cache')
+		# copy from cache
+		try:
+			shutil.copyfile(cached_filename, filename, follow_symlinks = True)
+			return True
+		except shutil.SameFileError:
+			pass
+		except OSError:
+			_log.exception('cannot copy file from cache: [%s] -> [%s]', cached_filename, filename)
+		# if cache fails entirely -> fall through to new file
+		_log.debug('downloading new copy of file, despite found in cache')
 
 	outfile = io.open(filename, 'wb')
 	result = bytea2file_object (
