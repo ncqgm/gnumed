@@ -3435,11 +3435,7 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 		if self.__pacs is None:
 			return
 
-		study_data = self._LCTRL_studies.get_selected_item_data(only_one = True)
-		if study_data is None:
-			self.__set_button_states()
-			return
-
+		study_data = self._LCTRL_studies.get_item_data(item_idx = event.Index)
 		series_list_items = []
 		series_list_data = []
 		for series in study_data['series']:
