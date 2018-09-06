@@ -42,6 +42,8 @@ FIX: inability to delete inbox message w/o receiver
 
 	1.7.4
 
+FIX: map None to '' in address parts placeholder
+
 IMPROVED: AppStream and desktop metadata
 
 	1.7.3

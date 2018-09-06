@@ -1444,7 +1444,11 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 				self.__cache[cache_key] = type2use
 				_log.debug('caching (%s): [%s] -> [%s]', cache_key, requested_type, type2use)
 
-		return self._escape(self.pat.get_addresses(address_type = type2use)[0][part])
+		part_data = self.pat.get_addresses(address_type = type2use)[0][part]
+		if part_data is None:
+			part_data = ''	# do escape empty string since we never know what target formats need
+		return self._escape(part_data)
+
 	#--------------------------------------------------------
 	def _get_variant_adr_street(self, data='?'):
 		return self.__get_variant_adr_part(data = data, part = 'street')
@@ -2537,6 +2541,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 	def _escape(self, text=None):
 		if self.__esc_func is None:
 			return text
+		assert (text is not None), 'text=None passed to _escape()'
 		return self.__esc_func(text)
 
 	#--------------------------------------------------------
