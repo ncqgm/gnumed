@@ -1997,6 +1997,10 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 # gnumed_v22
 ------------------------------------------------
 
+	22.4
+
+FIX: LaTeX-Template for Begleitbrief
+
 	22.2
 
 FIX: dem.staff plausibility check [thanks Marc]

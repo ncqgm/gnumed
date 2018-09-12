@@ -34,6 +34,7 @@
 	footsepline=true,
 	pagenumber=footright
 ]{scrlttr2}
+
 \usepackage{scrlayer-scrpage}			% Kopf- und Fußzeilen
 \usepackage[cjkjis,graphics]{ucs}		% lots of UTF8 symbols, breaks with xelatex
 \usepackage[utf8x]{inputenc}			% content is UTF8, breaks with xelatex
@@ -42,13 +43,21 @@
 \usepackage{marvosym}					% Symbole: Handy, Telefon, E-Mail
 \usepackage{textcomp}					% Symbole für Textmodus zum Escapen
 \usepackage{lmodern}					% sans serif Latin Modern
-\usepackage{longtable}					% Tabellen über mehrere Seiten
-\usepackage{tabu}						% bessere Tabellen
 \usepackage{graphicx}					% Grafiken laden (Logo und Unterschrift)
 \usepackage[space]{grffile}				% besserer Zugriff auf Grafikdateien
 \usepackage{lastpage}					% easy access to page number of last page
 \usepackage{calc}						% \widthof (für signature)
+\usepackage{microtype}					% improved text layout
 \usepackage{hyperref}					% aktive URLs
+
+
+% debugging
+% - show all files used
+\listfiles
+% - show unorthodox/faulty/obsolete uses
+\RequirePackage[l2tabu, orthodox]{nag}
+% - mark overfull horizontal boxes
+%\overfullrule=2cm
 
 
 % Definiere Grundschrift: sans serif Latin Modern
@@ -57,10 +66,9 @@
 
 \begin{document}
 
-
 % Kopfzeile ab zweiter Seite
-\lehead{$<title::::>$ $<lastname::::>$, $<firstname::::>$ ($<date_of_birth::%d.%B %Y::>$)}
-\lohead{$<title::::>$ $<lastname::::>$, $<firstname::::>$ ($<date_of_birth::%d.%B %Y::>$)}
+\lehead{$<<if_not_empty::$<title::::>$//%s \\//::>>$$<lastname::::>$, $<firstname::::>$ ($<date_of_birth::%d.%B %Y::>$)}
+\lohead{$<<if_not_empty::$<title::::>$//%s \\//::>>$$<lastname::::>$, $<firstname::::>$ ($<date_of_birth::%d.%B %Y::>$)}
 \cehead{}
 \cohead{}
 \rehead{Seite \thepage/\pageref{LastPage}}
@@ -70,10 +78,10 @@
 % Absenderdetails
 \setkomavar{fromname}{$<current_provider_name::%(title)s %(firstnames)s %(lastnames)s::>$, FA für $<current_provider_external_id::Fachgebiet//Ärztekammer::50>$}
 \setkomavar{fromaddress}{\small
-	$<praxis::%(praxis)s, %(branch)s::120>$\\
-	$<praxis_address::%(street)s %(number)s (%(subunit)s), %(postcode)s %(urb)s::60>$
+	$<<praxis::%(praxis)s, %(branch)s::120>>$\\
+	$<<praxis_address::%(street)s %(number)s$<if_not_empty::%(subunit)s// (%(subunit)s)//::>$, %(postcode)s %(urb)s::60>>$
 }
-\setkomavar{fromlogo}{$<data_snippet::praxis-logo//\includegraphics[width=30mm]{%s}//image/png//.png::250>$}%$ -- this dollarsign unconfuses mcedit syntax coloring
+\setkomavar{fromlogo}{$<data_snippet::praxis-logo//\includegraphics[width=30mm]{%s}//image/png//.png::250>$}%$ -- this dollarsign de-confuses mcedit syntax coloring
 \setkomavar{backaddress}{$<current_provider_firstnames::::1>$.$<current_provider_lastnames::::>$\\$<praxis_address::%(street)s %(number)s\\%(postcode)s %(urb)s::60>$}
 
 
@@ -87,7 +95,9 @@
 
 % Betreff, nämlich Patientendaten
 \setkomavar{subject}[]{%
-	$<<free_text::Betreff für den Brief::120>>$\\
+	$<<<ph_cfg::argumentsdivider//##//%% <%(name)s> set to [%(value)s]::>>>$
+	$<<<if_not_empty::$<<free_text::Betreff für den Brief (Patientendaten werden automatisch angefügt.)::120>>$##%s\\##% no additional Betreff by user::>>>$
+	$<<<ph_cfg::argumentsdivider//DEFAULT//%% <%(name)s> set to [%(value)s]::>>>$
 	Patient: $<title::::>$ $<firstname::::>$ $<lastname::::>$ (geb $<date_of_birth::%d.%B %Y::>$)\\
 	Adresse: $<adr_street::home::>$ $<adr_number::home::>$, $<adr_postcode::home::>$ $<adr_location::home::>$
 }
@@ -95,11 +105,12 @@
 
 % Unterschrift
 \setkomavar{signature}{%
-	\centering
-	$<data_snippet::autograph-$<<current_provider_lastnames::::>>$_$<<current_provider_firstnames::::>>$//\includegraphics[width=30mm]{%s}\\//image/png//.png::250>$\rule{\widthof{\tiny (Der Unterzeichner haftet nicht für unsignierte Änderungen des Inhalts.)}}{.1pt}\\
-	$<current_provider_name::%(title)s %(firstnames)s %(lastnames)s::>$\\
-	$<<if_not_empty::$<current_provider_external_id::Fachgebiet//Ärztekammer::50>$//FA für %s\\//::>>$
-	{\tiny (Der Unterzeichner haftet nicht für unsignierte Änderungen des Inhalts.)}
+	$<data_snippet::autograph-$<<current_provider_lastnames::::>>$_$<<current_provider_firstnames::::>>$//\includegraphics[width=30mm]{%s}\\//image/png//.png::250>$\rule{\widthof{\tiny{}(Der Unterzeichner haftet nicht für unsignierte Änderungen des Inhalts.)}}{.1pt}\\
+	$<<ph_cfg::argumentsdivider//##//%% <%(name)s> set to [%(value)s]::>>$
+	$<<if_not_empty::$<current_provider_name::%(title)s::>$##$<current_provider_name::%(title)s %(firstnames)s %(lastnames)s::>$\\##$<current_provider_name::%(firstnames)s %(lastnames)s::>$\\::>>$
+	$<<if_not_empty::$<current_provider_external_id::Fachgebiet//Ärztekammer::50>$##FA für %s\\##::>>$
+	$<<ph_cfg::argumentsdivider//DEFAULT//%% <%(name)s> set to [%(value)s]::>>$
+	{\tiny{}(Der Unterzeichner haftet nicht für unsignierte Änderungen des Inhalts.)}
 }
 \renewcommand*{\raggedsignature}{\raggedright}
 \makeatletter
@@ -113,37 +124,40 @@
 	\parbox[t]{\textwidth}{%
 		\tiny
 		\begin{tabular}[t]{ll}%
-%			\multicolumn{2}{l}{Erreichbarkeit:}\\
-			\Telefon       & $<praxis_comm::workphone::60>$\\
-			\FAX           & $<praxis_comm::fax::60>$\\
-			\Email         & \href{mailto:$<praxis_comm::email::60>$}{$<praxis_comm::email::60>$}\\
-			\ComputerMouse & \href{http://$<praxis_comm::web::60>$}{$<praxis_comm::web::60>$}\\
+			\Telefon{}       & $<praxis_comm::workphone::60>$\\
+			\FAX{}           & $<praxis_comm::fax::60>$\\
+			\Email{}         & \href{mailto:$<praxis_comm::email::60>$}{$<praxis_comm::email::60>$}\\
+			$<<ph_cfg::argumentsdivider//##//%% <%(name)s> set to [%(value)s]::>>$
+			\ComputerMouse{} & $<<if_not_empty::$<praxis_comm::web::>$##\href{http://%s}{$<praxis_comm::web::60>$}##% no praxis web address available::>>$
+			$<<ph_cfg::argumentsdivider//DEFAULT//%% <%(name)s> set to [%(value)s]::>>$
 		\end{tabular}%
 		\hfill
 		\begin{tabular}[t]{ll}%
-			\multicolumn{2}{l}{FA für $<current_provider_external_id::Fachgebiet//Ärztekammer::50>$}\\
+			$<<ph_cfg::argumentsdivider//##//%% <%(name)s> set to [%(value)s]::>>$
+			\multicolumn{2}{l}{$<<if_not_empty::$<current_provider_external_id::Fachgebiet//Ärztekammer::50>$##FA für %s##::>>$}\\
+			$<<ph_cfg::argumentsdivider//DEFAULT//%% <%(name)s> set to [%(value)s]::>>$
 			BSNR       & $<praxis_id::KV-BSNR//KV//%(value)s::25>$\\
 			LANR       & $<current_provider_external_id::KV-LANR//KV::25>$\\
-			\multicolumn{2}{l}{GNUmed $<client_version::::>$ (\href{http://www.gnumed.org}{www.gnumed.org})}\\
+			\multicolumn{2}{l}{GNUmed $<client_version::::>$ (\href{http://www.gnumed.org}{www.gnumed.org})}
 		\end{tabular}%
 		\hfill
 		\begin{tabular}[t]{ll}%
 			\multicolumn{2}{l}{$<praxis_id::Bankname//Bank//%(value)s::60>$}\\
 			IBAN       & $<praxis_id::IBAN//Bank//%(value)s::30>$\\
 			BIC        & $<praxis_id::BIC//Bank//%(value)s::30>$\\
-			\multicolumn{2}{l}{Vorlage $<form_name_long::::60>$ v$<form_version::::20>$}\\
+			\multicolumn{2}{l}{Vorlage $<form_name_long::::60>$ v$<form_version::::20>$}
 		\end{tabular}%
 	}
 }
 
 
 % Fußzeile ab zweiter Seite
-\lefoot{{\tiny $<current_provider::::>$, $<praxis::%(praxis)s: %(branch)s::120>$}}
-\lofoot{{\tiny $<current_provider::::>$, $<praxis::%(praxis)s: %(branch)s::120>$}}
+\lefoot{{\tiny{}$<current_provider::::>$, $<praxis::%(praxis)s: %(branch)s::120>$}}
+\lofoot{{\tiny{}$<current_provider::::>$, $<praxis::%(praxis)s: %(branch)s::120>$}}
 \cefoot{}
 \cofoot{}
-\refoot{{\tiny $<today::%d.%B %Y::50>$}}
-\rofoot{{\tiny $<today::%d.%B %Y::50>$}}
+\refoot{{\tiny{}$<today::%d.%B %Y::50>$}}
+\rofoot{{\tiny{}$<today::%d.%B %Y::50>$}}
 
 
 % Definiere Brief und Empfaenger
@@ -157,7 +171,7 @@
 
 % Anrede
 \opening{%
-	$<<free_text::Anrede, z.B. "Sehr geehrte Frau" (wird automatisch ergänzt durch " $<receiver_name::::>$,")::140>>$ $<receiver_name::::>$,
+	$<<free_text::Anrede, z.B. "Sehr geehrte Kollegin" (ohne Komma am Ende)//$<receiver_name::::>$::140>>$,
 }
 
 
@@ -166,6 +180,7 @@
 $<<free_text::Der eigentliche Brieftext (in LaTeX)::>>$
 
 
+% Grussformel
 \closing{%
 	$<<free_text::Grußformel, z.B. "Mit freundlichen Grüßen" (ohne Komma am Ende)::140>>$,
 }
