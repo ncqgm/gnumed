@@ -505,7 +505,7 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 					_log.exception('cannot copy include directory [%s] -> [%s]', path2include, base_dir)
 					return
 
-		export_dir = gmPerson.gmCurrentPatient().export_area.export(base_dir = base_dir, items = items, with_metadata = True)
+		export_dir = gmPerson.gmCurrentPatient().export_area.export(base_dir = base_dir, items = items)
 		if export_dir is None:
 			return
 

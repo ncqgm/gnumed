@@ -43,6 +43,7 @@ FIX: inability to delete inbox message w/o receiver
 	1.7.4
 
 FIX: map None to '' in address parts placeholder
+FIX: export area export-to-media
 
 IMPROVED: AppStream and desktop metadata
 
