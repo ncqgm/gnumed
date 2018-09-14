@@ -46,6 +46,7 @@ FIX: map None to '' in address parts placeholder
 FIX: export area export-to-media
 
 IMPROVED: AppStream and desktop metadata
+IMPROVED: add "preset" option to $<free_text>$ placeholder
 
 	1.7.3
 

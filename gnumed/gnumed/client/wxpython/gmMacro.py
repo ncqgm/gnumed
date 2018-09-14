@@ -2387,10 +2387,12 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 	def _get_variant_free_text(self, data=None):
 
 		if data is None:
+			parts = []
 			msg = _('generic text')
 			cache_key = 'free_text::%s' % datetime.datetime.now()
 		else:
-			msg = data
+			parts = data.split(self.__args_divider)
+			msg = parts[0]
 			cache_key = 'free_text::%s' % msg
 
 		try:
@@ -2398,11 +2400,17 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		except KeyError:
 			pass
 
+		if len(parts) > 1:
+			preset = parts[1]
+		else:
+			preset = ''
+
 		dlg = gmGuiHelpers.cMultilineTextEntryDlg (
 			None,
 			-1,
 			title = _('Replacing <free_text> placeholder'),
-			msg = _('Below you can enter free text.\n\n [%s]') % msg
+			msg = _('Below you can enter free text.\n\n [%s]') % msg,
+			text = preset
 		)
 		dlg.enable_user_formatting = True
 		decision = dlg.ShowModal()
@@ -3201,7 +3209,7 @@ if __name__ == '__main__':
 
 		phs = [
 			#u'emr_journal::soapu //%(clin_when)s  %(modified_by)s  %(soap_cat)s  %(narrative)s//1000 days::',
-			#u'free_text::placeholder test::9999',
+			u'free_text::placeholder test//preset::9999',
 			#u'soap_for_encounters:://::9999',
 			#u'soap_p',
 			#u'encounter_list::%(started)s: %(assessment_of_encounter)s::30',
@@ -3265,7 +3273,7 @@ if __name__ == '__main__':
 			#u'bill_adr_suburb::-> %s::1234',
 			#u'bill_adr_street::::1234',
 			#u'bill_adr_number::%s::1234',
-			'$<diagnoses::\listitem %s::>$'
+			#u'$<diagnoses::\listitem %s::>$'
 		]
 
 		handler = gmPlaceholderHandler()
