@@ -2387,37 +2387,49 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 	def _get_variant_free_text(self, data=None):
 
 		if data is None:
-			msg = _('generic text')
+			parts = [_('generic text')]
+			cache_key = 'free_text::%s' % datetime.datetime.now()
 		else:
-			msg = data
+			parts = data.split(self.__args_divider)
+			msg = parts[0]
+			cache_key = 'free_text::%s' % msg
+			preset = ''
 
-		cache_key = u'free_text::%s' % msg
 		try:
-			text = self.__cache[cache_key]
+			return self.__cache[cache_key]
 		except KeyError:
-			dlg = gmGuiHelpers.cMultilineTextEntryDlg (
-				None,
-				-1,
-				title = _('Replacing <free_text> placeholder'),
-				msg = _('Below you can enter free text.\n\n [%s]') % msg
-			)
-			dlg.enable_user_formatting = True
-			decision = dlg.ShowModal()
-			text = dlg.value.strip()
-			is_user_formatted = dlg.is_user_formatted
-			dlg.Destroy()
+			pass
 
-			if decision != wx.ID_SAVE:
-				if self.debug:
-					text = _('Text input cancelled by user.')
-				else:
-					text = u''
+		if len(parts) > 1:
+			preset = parts[1]
+		else:
+			preset = ''
 
-			if not is_user_formatted:
-				text = self._escape(text)
+		dlg = gmGuiHelpers.cMultilineTextEntryDlg (
+			None,
+			-1,
+			title = _('Replacing <free_text> placeholder'),
+			msg = _('Below you can enter free text.\n\n [%s]') % msg,
+			text = preset
+		)
+		dlg.enable_user_formatting = True
+		decision = dlg.ShowModal()
+		text = dlg.value.strip()
+		is_user_formatted = dlg.is_user_formatted
+		dlg.Destroy()
 
+		if decision != wx.ID_SAVE:
+			if self.debug:
+				return self._escape(_('Text input cancelled by user.'))
+			return self._escape('')
+
+		# user knows "best"
+		if is_user_formatted:
 			self.__cache[cache_key] = text
+			return text
 
+		text = self._escape(text)
+		self.__cache[cache_key] = text
 		return text
 
 	#--------------------------------------------------------
@@ -3196,7 +3208,7 @@ if __name__ == '__main__':
 
 		phs = [
 			#u'emr_journal::soapu //%(clin_when)s  %(modified_by)s  %(soap_cat)s  %(narrative)s//1000 days::',
-			#u'free_text::placeholder test::9999',
+			u'free_text::placeholder test//preset::9999',
 			#u'soap_for_encounters:://::9999',
 			#u'soap_p',
 			#u'encounter_list::%(started)s: %(assessment_of_encounter)s::30',
@@ -3260,7 +3272,7 @@ if __name__ == '__main__':
 			#u'bill_adr_suburb::-> %s::1234',
 			#u'bill_adr_street::::1234',
 			#u'bill_adr_number::%s::1234',
-			u'$<diagnoses::\listitem %s::>$'
+			#u'$<diagnoses::\listitem %s::>$'
 		]
 
 		handler = gmPlaceholderHandler()
