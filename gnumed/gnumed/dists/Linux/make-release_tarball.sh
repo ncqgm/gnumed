@@ -168,8 +168,8 @@ cp -R ../../client/tlicons/* ./gnumed-client.$CLIENTREV/client/tlicons/
 
 
 # dwv
-mkdir -p ./gnumed-client.$CLIENTREV/client/dwv4export/
-cp -R ../../client/dwv4export/* ./gnumed-client.$CLIENTREV/client/dwv4export/
+mkdir -p ./gnumed-client.$CLIENTREV/client/resources/dwv4export/
+cp -R ../../client/resources/dwv4export/* ./gnumed-client.$CLIENTREV/client/resources/dwv4export/
 
 
 # bitmaps

@@ -604,9 +604,9 @@ class cExportArea(object):
 		if 'DICOMDIR' in os.listdir(media_base_dir):
 			_html_start_data['browse_dicomdir'] = '<li><a href="./DICOMDIR">%s</a></li>' % _('show DICOMDIR file')
 			# copy DWV into target dir
-			dwv_src_dir = os.path.join(gmTools.gmPaths().local_base_dir, 'dwv4export')
+			dwv_src_dir = os.path.join(gmTools.gmPaths().local_base_dir, 'resources', 'dwv4export')
 			if not os.path.isdir(dwv_src_dir):
-				dwv_src_dir = os.path.join(gmTools.gmPaths().system_app_data_dir, 'dwv4export')
+				dwv_src_dir = os.path.join(gmTools.gmPaths().system_app_data_dir, 'resources', 'dwv4export')
 			if os.path.isdir(dwv_src_dir):
 				dwv_target_dir = os.path.join(media_base_dir, 'dwv')
 				gmTools.rmdir(dwv_target_dir)
