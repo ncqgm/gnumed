@@ -365,6 +365,132 @@ SELECT DISTINCT ON (pk_identity) * FROM (
 	#--------------------------------------------------------
 	# queries for DE
 	#--------------------------------------------------------
+	def __generate_queries_from_single_major_part(self, part=None):
+
+		# split on whitespace
+		parts_list = regex.split("\s+|\t+", part)
+		# ignore empty parts
+		parts_list = [ p.strip() for p in parts_list if p.strip() != '' ]
+
+		# parse into name/date parts
+		date_count = 0
+		name_parts = []
+		for part in parts_list:
+			# any digit signifies a date,		 FIXME: what about "<40" ?
+			if regex.search("\d", part, flags = regex.UNICODE):
+				date_count = date_count + 1
+				date_part = part
+			else:
+				name_parts.append(part)
+
+		# exactly 1 word ?
+		if len(parts_list) == 1:
+			return []
+
+		# exactly 2 words ?
+		if len(parts_list) == 2:
+			if date_count > 0:
+				# FIXME: either "name date" or "date date"
+				_log.error("don't know how to generate queries for [%s]" % search_term)
+				return []
+			# no date = "first last" or "last first"
+			queries = []
+			# assumption: first last
+			queries.append ({
+				'cmd': "SELECT DISTINCT ON (id_identity) d_vap.*, %s::text AS match_type FROM dem.v_active_persons d_vap, dem.names n WHERE d_vap.pk_identity = n.id_identity and n.firstnames ~ %s AND n.lastnames ~ %s",
+				'args': [_('name: first-last'), '^' + gmTools.capitalize(name_parts[0], mode=gmTools.CAPS_NAMES), '^' + gmTools.capitalize(name_parts[1], mode=gmTools.CAPS_NAMES)]
+			})
+			queries.append ({
+				'cmd': "SELECT DISTINCT ON (id_identity) d_vap.*, %s::text AS match_type FROM dem.v_active_persons d_vap, dem.names n WHERE d_vap.pk_identity = n.id_identity and lower(n.firstnames) ~* lower(%s) AND lower(n.lastnames) ~* lower(%s)",
+				'args': [_('name: first-last'), '^' + name_parts[0], '^' + name_parts[1]]
+			})
+			# assumption: last first
+			queries.append ({
+				'cmd': "SELECT DISTINCT ON (id_identity) d_vap.*, %s::text AS match_type FROM dem.v_active_persons d_vap, dem.names n WHERE d_vap.pk_identity = n.id_identity and n.firstnames ~ %s AND n.lastnames ~ %s",
+				'args': [_('name: last-first'), '^' + gmTools.capitalize(name_parts[1], mode=gmTools.CAPS_NAMES), '^' + gmTools.capitalize(name_parts[0], mode=gmTools.CAPS_NAMES)]
+			})
+			queries.append ({
+				'cmd': "SELECT DISTINCT ON (id_identity) d_vap.*, %s::text AS match_type FROM dem.v_active_persons d_vap, dem.names n WHERE d_vap.pk_identity = n.id_identity and lower(n.firstnames) ~* lower(%s) AND lower(n.lastnames) ~* lower(%s)",
+				'args': [_('name: last-first'), '^' + name_parts[1], '^' + name_parts[0]]
+			})
+			# assumption: last nick
+			queries.append ({
+				'cmd': "SELECT DISTINCT ON (id_identity) d_vap.*, %s::text AS match_type FROM dem.v_active_persons d_vap, dem.names n WHERE d_vap.pk_identity = n.id_identity and n.preferred ~ %s AND n.lastnames ~ %s",
+				'args': [_('name: last-nick'), '^' + gmTools.capitalize(name_parts[1], mode=gmTools.CAPS_NAMES), '^' + gmTools.capitalize(name_parts[0], mode=gmTools.CAPS_NAMES)]
+			})
+			queries.append ({
+				'cmd': "SELECT DISTINCT ON (id_identity) d_vap.*, %s::text AS match_type FROM dem.v_active_persons d_vap, dem.names n WHERE d_vap.pk_identity = n.id_identity and lower(n.preferred) ~* lower(%s) AND lower(n.lastnames) ~* lower(%s)",
+				'args': [_('name: last-nick'), '^' + name_parts[1], '^' + name_parts[0]]
+			})
+			# name parts anywhere inside name - third order query ...
+			queries.append ({
+				'cmd': """SELECT DISTINCT ON (id_identity)
+							d_vap.*,
+							%s::text AS match_type
+						FROM
+							dem.v_active_persons d_vap,
+							dem.names n
+						WHERE
+							d_vap.pk_identity = n.id_identity
+								AND
+							-- name_parts[0]
+							lower(n.firstnames || ' ' || n.lastnames) ~* lower(%s)
+								AND
+							-- name_parts[1]
+							lower(n.firstnames || ' ' || n.lastnames) ~* lower(%s)""",
+				'args': [_('name'), name_parts[0], name_parts[1]]
+			})
+			return queries
+
+		# exactly 3 words ?
+		if len(parts_list) == 3:
+			if date_count != 1:
+				# FIXME: "name name name" or "name date date"
+				return []
+
+			# special case: 3 words, exactly 1 of them a date, no ",;"
+			# assumption: first, last, dob - first order
+			queries.append ({
+				'cmd': "SELECT DISTINCT ON (id_identity) d_vap.*, %s::text AS match_type FROM dem.v_active_persons d_vap, dem.names n WHERE d_vap.pk_identity = n.id_identity and n.firstnames ~ %s AND n.lastnames ~ %s AND dem.date_trunc_utc('day'::text, dob) = dem.date_trunc_utc('day'::text, %s::timestamp with time zone)",
+				'args': [_('names: first-last, date of birth'), '^' + gmTools.capitalize(name_parts[0], mode=gmTools.CAPS_NAMES), '^' + gmTools.capitalize(name_parts[1], mode=gmTools.CAPS_NAMES), date_part.replace(',', '.')]
+			})
+			queries.append ({
+				'cmd': "SELECT DISTINCT ON (id_identity) d_vap.*, %s::text AS match_type FROM dem.v_active_persons d_vap, dem.names n WHERE d_vap.pk_identity = n.id_identity and lower(n.firstnames) ~* lower(%s) AND lower(n.lastnames) ~* lower(%s) AND dem.date_trunc_utc('day'::text, dob) = dem.date_trunc_utc('day'::text, %s::timestamp with time zone)",
+				'args': [_('names: first-last, date of birth'), '^' + name_parts[0], '^' + name_parts[1], date_part.replace(',', '.')]
+			})
+			# assumption: last, first, dob - second order query
+			queries.append ({
+				'cmd': "SELECT DISTINCT ON (id_identity) d_vap.*, %s::text AS match_type FROM dem.v_active_persons d_vap, dem.names n WHERE d_vap.pk_identity = n.id_identity and n.firstnames ~ %s AND n.lastnames ~ %s AND dem.date_trunc_utc('day'::text, dob) = dem.date_trunc_utc('day'::text, %s::timestamp with time zone)",
+				'args': [_('names: last-first, date of birth'), '^' + gmTools.capitalize(name_parts[1], mode=gmTools.CAPS_NAMES), '^' + gmTools.capitalize(name_parts[0], mode=gmTools.CAPS_NAMES), date_part.replace(',', '.')]
+			})
+			queries.append ({
+				'cmd': "SELECT DISTINCT ON (id_identity) d_vap.*, %s::text AS match_type FROM dem.v_active_persons d_vap, dem.names n WHERE d_vap.pk_identity = n.id_identity and lower(n.firstnames) ~* lower(%s) AND lower(n.lastnames) ~* lower(%s) AND dem.date_trunc_utc('day'::text, dob) = dem.date_trunc_utc('day'::text, %s::timestamp with time zone)",
+				'args': [_('names: last-first, dob'), '^' + name_parts[1], '^' + name_parts[0], date_part.replace(',', '.')]
+			})
+			# name parts anywhere in name - third order query ...
+			queries.append ({
+				'cmd': """SELECT DISTINCT ON (id_identity)
+							d_vap.*,
+							%s::text AS match_type
+						FROM
+							dem.v_active_persons d_vap,
+							dem.names n
+						WHERE
+							d_vap.pk_identity = n.id_identity
+								AND
+							lower(n.firstnames || ' ' || n.lastnames) ~* lower(%s)
+								AND
+							lower(n.firstnames || ' ' || n.lastnames) ~* lower(%s)
+								AND
+							dem.date_trunc_utc('day'::text, dob) = dem.date_trunc_utc('day'::text, %s::timestamp with time zone)
+				""",
+				'args': [_('name, date of birth'), name_parts[0], name_parts[1], date_part.replace(',', '.')]
+			})
+			return queries
+
+		return []
+
+	#--------------------------------------------------------
 	def _generate_queries_de(self, search_term=None):
 
 		if search_term is None:
@@ -436,144 +562,28 @@ SELECT DISTINCT ON (pk_identity) * FROM (
 			return queries
 
 		# try to split on (major) part separators
-		parts_list = regex.split(",|;", normalized)
+		major_parts = regex.split(',|;', normalized)
 
 		# ignore empty parts
-		parts_list = [ p.strip() for p in parts_list if p.strip() != '' ]
+		major_parts = [ p.strip() for p in major_parts if p.strip() != '' ]
 
 		# only one "major" part ? (i.e. no ",;" ?)
-		if len(parts_list) == 1:
-			# re-split on whitespace
-			sub_parts_list = regex.split("\s*|\t*", normalized)
-			# ignore empty parts
-			sub_parts_list = [ p.strip() for p in sub_parts_list if p.strip() != '' ]
-
-			# parse into name/date parts
-			date_count = 0
-			name_parts = []
-			for part in sub_parts_list:
-				# skip empty parts
-				if part.strip() == '':
-					continue
-				# any digit signifies a date
-				# FIXME: what about "<40" ?
-				if regex.search("\d", part, flags = regex.UNICODE):
-					date_count = date_count + 1
-					date_part = part
-				else:
-					name_parts.append(part)
-
-			# exactly 2 words ?
-			if len(sub_parts_list) == 2:
-				# no date = "first last" or "last first"
-				if date_count == 0:
-					# assumption: first last
-					queries.append ({
-						'cmd': "SELECT DISTINCT ON (id_identity) d_vap.*, %s::text AS match_type FROM dem.v_active_persons d_vap, dem.names n WHERE d_vap.pk_identity = n.id_identity and n.firstnames ~ %s AND n.lastnames ~ %s",
-						'args': [_('name: first-last'), '^' + gmTools.capitalize(name_parts[0], mode=gmTools.CAPS_NAMES), '^' + gmTools.capitalize(name_parts[1], mode=gmTools.CAPS_NAMES)]
-					})
-					queries.append ({
-						'cmd': "SELECT DISTINCT ON (id_identity) d_vap.*, %s::text AS match_type FROM dem.v_active_persons d_vap, dem.names n WHERE d_vap.pk_identity = n.id_identity and lower(n.firstnames) ~* lower(%s) AND lower(n.lastnames) ~* lower(%s)",
-						'args': [_('name: first-last'), '^' + name_parts[0], '^' + name_parts[1]]
-					})
-					# assumption: last first
-					queries.append ({
-						'cmd': "SELECT DISTINCT ON (id_identity) d_vap.*, %s::text AS match_type FROM dem.v_active_persons d_vap, dem.names n WHERE d_vap.pk_identity = n.id_identity and n.firstnames ~ %s AND n.lastnames ~ %s",
-						'args': [_('name: last-first'), '^' + gmTools.capitalize(name_parts[1], mode=gmTools.CAPS_NAMES), '^' + gmTools.capitalize(name_parts[0], mode=gmTools.CAPS_NAMES)]
-					})
-					queries.append ({
-						'cmd': "SELECT DISTINCT ON (id_identity) d_vap.*, %s::text AS match_type FROM dem.v_active_persons d_vap, dem.names n WHERE d_vap.pk_identity = n.id_identity and lower(n.firstnames) ~* lower(%s) AND lower(n.lastnames) ~* lower(%s)",
-						'args': [_('name: last-first'), '^' + name_parts[1], '^' + name_parts[0]]
-					})
-					# assumption: last nick
-					queries.append ({
-						'cmd': "SELECT DISTINCT ON (id_identity) d_vap.*, %s::text AS match_type FROM dem.v_active_persons d_vap, dem.names n WHERE d_vap.pk_identity = n.id_identity and n.preferred ~ %s AND n.lastnames ~ %s",
-						'args': [_('name: last-nick'), '^' + gmTools.capitalize(name_parts[1], mode=gmTools.CAPS_NAMES), '^' + gmTools.capitalize(name_parts[0], mode=gmTools.CAPS_NAMES)]
-					})
-					queries.append ({
-						'cmd': "SELECT DISTINCT ON (id_identity) d_vap.*, %s::text AS match_type FROM dem.v_active_persons d_vap, dem.names n WHERE d_vap.pk_identity = n.id_identity and lower(n.preferred) ~* lower(%s) AND lower(n.lastnames) ~* lower(%s)",
-						'args': [_('name: last-nick'), '^' + name_parts[1], '^' + name_parts[0]]
-					})
-					# name parts anywhere inside name - third order query ...
-					queries.append ({
-						'cmd': """SELECT DISTINCT ON (id_identity)
-									d_vap.*,
-									%s::text AS match_type
-								FROM
-									dem.v_active_persons d_vap,
-									dem.names n
-								WHERE
-									d_vap.pk_identity = n.id_identity
-										AND
-									-- name_parts[0]
-									lower(n.firstnames || ' ' || n.lastnames) ~* lower(%s)
-										AND
-									-- name_parts[1]
-									lower(n.firstnames || ' ' || n.lastnames) ~* lower(%s)""",
-						'args': [_('name'), name_parts[0], name_parts[1]]
-					})
-					return queries
-				# FIXME: either "name date" or "date date"
-				_log.error("don't know how to generate queries for [%s]" % search_term)
+		if len(major_parts) == 1:
+			_log.debug('[%s]: only one non-empty part after splitting by , or ; ("major" part)', normalized)
+			queries = self.__generate_queries_from_single_major_part(part = normalized)
+			if len(queries) > 0:
 				return queries
-
-			# exactly 3 words ?
-			if len(sub_parts_list) == 3:
-				# special case: 3 words, exactly 1 of them a date, no ",;"
-				if date_count == 1:
-					# assumption: first, last, dob - first order
-					queries.append ({
-						'cmd': "SELECT DISTINCT ON (id_identity) d_vap.*, %s::text AS match_type FROM dem.v_active_persons d_vap, dem.names n WHERE d_vap.pk_identity = n.id_identity and n.firstnames ~ %s AND n.lastnames ~ %s AND dem.date_trunc_utc('day'::text, dob) = dem.date_trunc_utc('day'::text, %s::timestamp with time zone)",
-						'args': [_('names: first-last, date of birth'), '^' + gmTools.capitalize(name_parts[0], mode=gmTools.CAPS_NAMES), '^' + gmTools.capitalize(name_parts[1], mode=gmTools.CAPS_NAMES), date_part.replace(',', '.')]
-					})
-					queries.append ({
-						'cmd': "SELECT DISTINCT ON (id_identity) d_vap.*, %s::text AS match_type FROM dem.v_active_persons d_vap, dem.names n WHERE d_vap.pk_identity = n.id_identity and lower(n.firstnames) ~* lower(%s) AND lower(n.lastnames) ~* lower(%s) AND dem.date_trunc_utc('day'::text, dob) = dem.date_trunc_utc('day'::text, %s::timestamp with time zone)",
-						'args': [_('names: first-last, date of birth'), '^' + name_parts[0], '^' + name_parts[1], date_part.replace(',', '.')]
-					})
-					# assumption: last, first, dob - second order query
-					queries.append ({
-						'cmd': "SELECT DISTINCT ON (id_identity) d_vap.*, %s::text AS match_type FROM dem.v_active_persons d_vap, dem.names n WHERE d_vap.pk_identity = n.id_identity and n.firstnames ~ %s AND n.lastnames ~ %s AND dem.date_trunc_utc('day'::text, dob) = dem.date_trunc_utc('day'::text, %s::timestamp with time zone)",
-						'args': [_('names: last-first, date of birth'), '^' + gmTools.capitalize(name_parts[1], mode=gmTools.CAPS_NAMES), '^' + gmTools.capitalize(name_parts[0], mode=gmTools.CAPS_NAMES), date_part.replace(',', '.')]
-					})
-					queries.append ({
-						'cmd': "SELECT DISTINCT ON (id_identity) d_vap.*, %s::text AS match_type FROM dem.v_active_persons d_vap, dem.names n WHERE d_vap.pk_identity = n.id_identity and lower(n.firstnames) ~* lower(%s) AND lower(n.lastnames) ~* lower(%s) AND dem.date_trunc_utc('day'::text, dob) = dem.date_trunc_utc('day'::text, %s::timestamp with time zone)",
-						'args': [_('names: last-first, dob'), '^' + name_parts[1], '^' + name_parts[0], date_part.replace(',', '.')]
-					})
-					# name parts anywhere in name - third order query ...
-					queries.append ({
-						'cmd': """SELECT DISTINCT ON (id_identity)
-									d_vap.*,
-									%s::text AS match_type
-								FROM
-									dem.v_active_persons d_vap,
-									dem.names n
-								WHERE
-									d_vap.pk_identity = n.id_identity
-										AND
-									lower(n.firstnames || ' ' || n.lastnames) ~* lower(%s)
-										AND
-									lower(n.firstnames || ' ' || n.lastnames) ~* lower(%s)
-										AND
-									dem.date_trunc_utc('day'::text, dob) = dem.date_trunc_utc('day'::text, %s::timestamp with time zone)
-						""",
-						'args': [_('name, date of birth'), name_parts[0], name_parts[1], date_part.replace(',', '.')]
-					})
-					return queries
-				# FIXME: "name name name" or "name date date"
-				queries.append(self._generate_dumb_brute_query(search_term))
-				return queries
-
-			# FIXME: no ',;' but neither "name name" nor "name name date"
-			queries.append(self._generate_dumb_brute_query(search_term))
-			return queries
+			return self._generate_dumb_brute_query(search_term)
 
 		# more than one major part (separated by ';,')
+		# this else is not needed
 		else:
+			_log.debug('[%s]: more than one non-empty part after splitting by , or ; ("major" parts)', normalized)
 			# parse into name and date parts
 			date_parts = []
 			name_parts = []
 			name_count = 0
-			for part in parts_list:
+			for part in major_parts:
 				if part.strip() == '':
 					continue
 				# any digits ?
@@ -582,9 +592,11 @@ SELECT DISTINCT ON (pk_identity) * FROM (
 					date_parts.append(part)
 				else:
 					tmp = part.strip()
-					tmp = regex.split("\s*|\t*", tmp)
+					tmp = regex.split("\s+|\t+", tmp)
 					name_count = name_count + len(tmp)
 					name_parts.append(tmp)
+
+			_log.debug('found %s character (name) parts and %s number (date ?) parts', len(name_parts), len(date_parts))
 
 			where_parts = []
 			# first, handle name parts

@@ -35,6 +35,7 @@ IMPROVED: console encoding errors behaviour [thanks INADA Naoki]
 FIX: [Save] functionality of Export Area
 FIX: document tree sorting / document insertion
 FIX: inability to delete inbox message w/o receiver
+FIX: "lastname, firstname" based patient search under Python 3
 
 ------------------------------------------------
 # rel-1-7-patches
