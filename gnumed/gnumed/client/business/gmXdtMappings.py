@@ -1,4 +1,4 @@
-# -*- encoding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """GNUmed German xDT mapping data.
 
 This maps xDT fields in various ways.
@@ -7,12 +7,11 @@ This maps xDT fields in various ways.
 __author__ = "S.Hilbert, K.Hilbert"
 __license__ = "GPL v2 or later"
 
-try:
-	_('dummy-no-need-to-translate-but-make-epydoc-happy')
-except NameError:
+#==============================================================
+if __name__ == '__main__':
 	_ = lambda x:x
 
-#==============================================================
+
 # FIXME: xBDT incorporated only up to (excluding) Satzart 0101 (Do 09 Aug 2007 11:10:16 CEST)
 xdt_id_map = {
 

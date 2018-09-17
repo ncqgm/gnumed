@@ -1210,6 +1210,7 @@ class cLaTeXForm(cFormEngine):
 		result = gmShellAPI.run_command_in_shell(command = editor_cmd, blocking = True)
 		self.re_editable_filenames = [self.instance_filename]
 		return result
+
 	#--------------------------------------------------------
 	def generate_output(self, instance_file=None, format=None):
 

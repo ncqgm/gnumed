@@ -35,7 +35,6 @@ from Gnumed.business import gmEMRStructItems
 _log = logging.getLogger('gm.meds')
 
 #============================================================
-#_ = lambda x:x
 DEFAULT_MEDICATION_HISTORY_EPISODE = _('Medication history')
 
 URL_renal_insufficiency = 'http://www.dosing.de'

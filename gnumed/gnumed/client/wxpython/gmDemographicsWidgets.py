@@ -50,12 +50,6 @@ from Gnumed.wxpython import gmGuiHelpers
 # constant defs
 _log = logging.getLogger('gm.ui')
 
-
-try:
-	_('dummy-no-need-to-translate-but-make-epydoc-happy')
-except NameError:
-	_ = lambda x:x
-
 #============================================================
 # image tags related widgets
 #------------------------------------------------------------

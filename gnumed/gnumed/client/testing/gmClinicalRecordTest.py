@@ -277,59 +277,8 @@ def main():
 	backend.StopListeners()
 #------------------------------------------------------------
 if __name__ == "__main__":
-	_ = lambda x:x
 	# this is Captain Kirk
 	# Modify its PK to adapt to your backend to run the tests
 	# FIXME: get Kirk's ID from backend via query ?
 	patient_id = 13
 	main()
-#============================================================
-# $Log: gmClinicalRecordTest.py,v $
-# Revision 1.16  2009-09-13 18:38:44  ncq
-# - no more get-active-encounter()
-#
-# Revision 1.15  2008/03/05 22:26:25  ncq
-# - new style logging
-#
-# Revision 1.14  2007/03/22 11:03:39  ncq
-# - clin.allergy rows renamed
-#
-# Revision 1.13  2007/03/08 11:37:52  ncq
-# - cleanup
-#
-# Revision 1.12  2006/10/25 07:19:29  ncq
-# - no more gmPG
-#
-# Revision 1.11  2006/07/19 20:27:03  ncq
-# - gmPyCompat.py is history
-#
-# Revision 1.10  2005/12/06 14:24:15  ncq
-# - clin.clin_health_issue/episode -> clin.health_issue/episode
-#
-# Revision 1.9  2005/04/11 18:01:33  ncq
-# - some cleanup
-#
-# Revision 1.8  2004/09/18 13:53:26  ncq
-# - id -> pk
-#
-# Revision 1.7  2004/06/28 12:18:52  ncq
-# - more id_* -> fk_*
-#
-# Revision 1.6  2004/06/26 23:45:50  ncq
-# - cleanup, id_* -> fk/pk_*
-#
-# Revision 1.5  2004/06/26 07:33:55  ncq
-# - id_episode -> fk/pk_episode
-#
-# Revision 1.4  2004/06/17 22:49:22  ncq
-# - testGetAllergies() needs to [0] the return of get_allergies
-#
-# Revision 1.3  2004/06/17 21:28:35  ncq
-# - indication_list -> indications
-#
-# Revision 1.2  2004/06/14 07:51:59  ncq
-# - activate all the unit tests
-#
-# Revision 1.1  2004/06/14 07:37:43  ncq
-# - first check in
-#

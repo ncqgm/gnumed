@@ -129,11 +129,6 @@ from Gnumed.wxpython import gmHospitalStayWidgets
 from Gnumed.wxpython import gmProcedureWidgets
 
 
-try:
-	_('dummy-no-need-to-translate-but-make-epydoc-happy')
-except NameError:
-	_ = lambda x:x
-
 _provider = None
 _scripting_listener = None
 _original_wxEndBusyCursor = None

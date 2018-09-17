@@ -11,11 +11,6 @@ import wx
 
 from Gnumed.pycommon import gmTools
 
-try:
-	_('dummy-no-need-to-translate-but-make-epydoc-happy')
-except NameError:
-	_ = lambda x:x
-
 ID_MENU = wx.NewId()
 #====================================================================
 class ScrollTxtWin (wx.Window):

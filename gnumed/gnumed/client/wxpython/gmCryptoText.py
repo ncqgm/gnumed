@@ -251,7 +251,6 @@ class gmCryptoText(wx.TextCtrl):
 # for options like encryption, decryption, and setting of passphrase
 #############################################################################
 if __name__ == '__main__':
-	_ = lambda x:x
 	app = wxPyWidgetTester(size = (400, 400))
 	#show the login panel in a main window
 	app.SetWidget(gmCryptoText, -1)

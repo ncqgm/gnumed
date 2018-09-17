@@ -28,11 +28,6 @@ from Gnumed.pycommon import gmTools
 
 _log = logging.getLogger('gm.business')
 
-try:
-	_
-except NameError:
-	_ = lambda x:x
-
 #============================================================
 # occupation handling
 #------------------------------------------------------------

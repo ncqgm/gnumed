@@ -13,9 +13,6 @@ variables needed for a gnumed GUI client interface
 
 __author__ = "H.Herb <hherb@gnumed.net>, H.Berger <Hilmar.Berger@gmx.de>"
 #===========================================================
-if __name__ == '__main__':
-	_ = lambda x:x
-
 # FIXME !!! hack moved here from gmConf. This definitely must be replaced by some 
 # structure getting data from the backend
 # FIXME: hardcoded color/width !?! move to DB (?)

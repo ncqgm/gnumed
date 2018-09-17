@@ -60,25 +60,28 @@ import locale
 import gettext
 import logging
 import codecs
+import builtins
 import re as regex
+
+
+builtins._ = lambda x:x
 
 _log = logging.getLogger('gm.i18n')
 
 system_locale = ''
 system_locale_level = {}
 
-
 _translate_original = lambda x:x
 _substitutes_regex = regex.compile(r'%\(.+?\)s')
 
-# **********************************************************
-# == do not remove this line ===============================
-# it is needed to check for successful installation of
-# the desired message catalog
-# **********************************************************
+# ***************************************************************************
+# ***************************************************************************
+# The following line is needed to check for successful
+# installation of the desired message catalog.
+# -- do not remove or change this line --------------------------------------
 __orig_tag__ = 'Translate this or i18n into <en_EN> will not work properly !'
-# **********************************************************
-# **********************************************************
+# ***************************************************************************
+# ***************************************************************************
 
 #===========================================================================
 def __split_locale_into_levels():
@@ -197,7 +200,6 @@ def __log_locale_settings(message=None):
 	_log.debug('gmI18N.get_encoding(): %s', get_encoding())
 
 #---------------------------------------------------------------------------
-#def _translate_protected(term, strip_left=None, strip_right=None):
 def _translate_protected(term):
 	"""This wraps _().
 
@@ -220,12 +222,6 @@ def _translate_protected(term):
 		_log.error('original   : %s', term)
 		_log.error('translation: %s', translation)
 		return term
-
-#	if strip_left is not None:
-#		translation = translation.lstrip(strip_left)
-#
-#	if strip_right is not None:
-#		translation = translation.rstrip(strip_right)
 
 	return translation
 
@@ -412,7 +408,6 @@ def __install_domain(domain, prefer_local_catalog, language='?'):
 			continue
 		else:
 			_log.debug('found msg catalog: [%s] => [%s]', __orig_tag__, _(__orig_tag__))
-			import builtins
 			global _translate_original
 			_translate_original = builtins._
 			builtins._ = _translate_protected

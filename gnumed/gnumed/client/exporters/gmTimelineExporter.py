@@ -15,6 +15,7 @@ import os
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
+	from Gnumed.pycommon import gmI18N
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmDateTime
 
@@ -22,9 +23,6 @@ from Gnumed.pycommon import gmDateTime
 _log = logging.getLogger('gm.tl')
 
 #============================================================
-if __name__ == '__main__':
-	_ = lambda x:x
-
 ERA_NAME_CARE_PERIOD = _('Care Period')
 
 #============================================================
@@ -708,7 +706,6 @@ if __name__ == '__main__':
 	if sys.argv[1] != "test":
 		sys.exit()
 
-	from Gnumed.pycommon import gmI18N
 	gmI18N.activate_locale()
 	gmI18N.install_domain('gnumed')
 

@@ -40,7 +40,6 @@ if __name__ == "__main__":
 	# later on, when AmisBrowser is one foot in the door
 	# to German doctors we'll change this again
 	_log.SetAllLogLevels(gmLog.lData)
-	_ = lambda x:x	# fool epydoc
 	from Gnumed.pycommon import gmI18N
 
 
@@ -616,7 +615,6 @@ class DrugDisplay(wx.Panel):
 #==================================================
 # Shall we just test this module?
 if __name__ == "__main__":
-	_ = lambda x:x
 	app = wxPyWidgetTester(size = (640, 400))
 	app.SetWidget(DrugDisplay, -1)
 	app.MainLoop()

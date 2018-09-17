@@ -3,12 +3,11 @@
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL v2 or later (for details see http://gnu.org)'
 #============================================================
-try:
-	_('dummy-no-need-to-translate-but-make-epydoc-happy')
-except NameError:
+#============================================================
+if __name__ == '__main__':
 	_ = lambda x:x
 
-#============================================================
+
 _U_ELLIPSIS = '\u2026'
 
 KNOWN_SOAP_CATS = list('soapu')
@@ -109,8 +108,6 @@ if __name__ == '__main__':
 		sys.exit()
 
 	sys.path.insert(0, '../../')
-
-	from Gnumed.pycommon import gmI18N
 
 	gmI18N.activate_locale()
 	gmI18N.install_domain()

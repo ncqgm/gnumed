@@ -40,11 +40,6 @@ from Gnumed.wxpython import gmExceptionHandlingWidgets
 _log = logging.getLogger('gm.ui')
 _cfg = gmCfg2.gmCfgData()
 
-try:
-	_('dummy-no-need-to-translate-but-make-epydoc-happy')
-except NameError:
-	_ = lambda x:x
-
 
 msg_generic = _("""
 GNUmed database version mismatch.
