@@ -416,6 +416,78 @@ def call_viewer_on_file(aFile = None, block=None):
 	) % (file_to_display, mime_type)
 	return False, msg
 
+#-----------------------------------------------------------------------------------
+def call_editor_on_file(filename=None, block=True):
+	"""Try to find an appropriate editor with all tricks and call it.
+
+	block: try to detach from editor or not, None means to use mailcap default.
+	"""
+	if not os.path.isdir(filename):
+		# is the file accessible at all ?
+		try:
+			open(filename).close()
+		except:
+			_log.exception('cannot read [%s]', filename)
+			msg = _('[%s] is not a readable file') % filename
+			return False, msg
+
+	mime_type = guess_mimetype(filename)
+
+	editor_cmd = get_editor_cmd(mime_type, filename)
+	if editor_cmd is not None:
+		if gmShellAPI.run_command_in_shell(command = editor_cmd, blocking = block):
+			return True, ''
+	viewer_cmd = get_viewer_cmd(mime_type, filename)
+	if viewer_cmd is not None:
+		if gmShellAPI.run_command_in_shell(command = viewer_cmd, blocking = block):
+			return True, ''
+	_log.warning("no editor or viewer found via standard mailcap system")
+
+	if os.name == "posix":
+		_log.warning("you should add an editor and/or viewer for this mime type to your mailcap file")
+
+	_log.info("let's see what the OS can do about that")
+	# does the file already have a useful extension ?
+	(path_name, f_ext) = os.path.splitext(filename)
+	if f_ext in ['', '.tmp']:
+		# try to guess one
+		f_ext = guess_ext_by_mimetype(mime_type)
+		if f_ext is None:
+			_log.warning("no suitable file extension found, trying anyway")
+			file_to_display = filename
+			f_ext = '?unknown?'
+		else:
+			file_to_display = filename + f_ext
+			shutil.copyfile(filename, file_to_display)
+	else:
+		file_to_display = filename
+
+	file_to_display = os.path.normpath(file_to_display)
+	_log.debug("file %s <type %s> (ext %s) -> file %s" % (filename, mime_type, f_ext, file_to_display))
+
+	# try to detect any of the UNIX openers (will only find viewers)
+	found, startfile_cmd = _get_system_startfile_cmd(filename)
+	if found:
+		if gmShellAPI.run_command_in_shell(command = startfile_cmd, blocking = block):
+			return True, ''
+
+	# last resort: hand over to Python itself
+	try:
+		os.startfile(file_to_display)
+		return True, ''
+	except AttributeError:
+		_log.exception('os.startfile() does not exist on this platform')
+	except Exception:
+		_log.exception('os.startfile(%s) failed', file_to_display)
+
+	msg = _("Unable to edit/view the file:\n\n"
+			" [%s]\n\n"
+			"Your system does not seem to have a (working)\n"
+			"editor or viewer registered for the file type\n"
+			" [%s]"
+	) % (file_to_display, mime_type)
+	return False, msg
+
 #=======================================================================================
 if __name__ == "__main__":
 
@@ -432,17 +504,53 @@ if __name__ == "__main__":
 
 	filename = sys.argv[2]
 	_get_system_startfile_cmd(filename)
+
+	#--------------------------------------------------------
+	def test_edit():
+
+		mimetypes = [
+			'application/x-latex',
+			'application/x-tex',
+			'text/latex',
+			'text/tex',
+			'text/plain'
+		]
+
+		for mimetype in mimetypes:
+			editor_cmd = get_editor_cmd(mimetype, filename)
+			if editor_cmd is not None:
+				break
+
+		if editor_cmd is None:
+			# LaTeX code is text: also consider text *viewers*
+			# since pretty much any of them will be an editor as well
+			for mimetype in mimetypes:
+				editor_cmd = get_viewer_cmd(mimetype, filename)
+				if editor_cmd is not None:
+					break
+
+		if editor_cmd is None:
+			return False
+
+		result = gmShellAPI.run_command_in_shell(command = editor_cmd, blocking = True)
+
+		return result
+	#--------------------------------------------------------
+
 #	print(_system_startfile_cmd)
 #	print(guess_mimetype(filename))
 #	print(get_viewer_cmd(guess_mimetype(filename), filename))
 #	print(get_editor_cmd(guess_mimetype(filename), filename))
-	print(get_editor_cmd('application/x-latex', filename))
-	print(get_editor_cmd('application/x-tex', filename))
-	print(get_editor_cmd('text/latex', filename))
-	print(get_editor_cmd('text/tex', filename))
-	print(get_editor_cmd('text/plain', filename))
+#	print(get_editor_cmd('application/x-latex', filename))
+#	print(get_editor_cmd('application/x-tex', filename))
+#	print(get_editor_cmd('text/latex', filename))
+#	print(get_editor_cmd('text/tex', filename))
+#	print(get_editor_cmd('text/plain', filename))
 #	print(guess_ext_by_mimetype(mimetype=filename))
-#	call_viewer_on_file(aFile = filename, block=None)
+#	call_viewer_on_file(aFile = filename, block = True)
+	#call_editor_on_file(filename)
 #	status, desc = describe_file(filename)
 #	print(status)
 #	print(desc)
+
+	print(test_edit())

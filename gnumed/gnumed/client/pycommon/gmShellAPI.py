@@ -1,6 +1,3 @@
-
-
-
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
@@ -206,10 +203,9 @@ def run_command_in_shell(command=None, blocking=False, acceptable_return_codes=N
 		# - all this, of course, only works in shells which support
 		#   detaching jobs with " &" (so, most POSIX shells)
 		if blocking is True:
-			if command[-2:] == ' &':
-				command = command[:-2]
+			command = command.rstrip(' &')
 		elif blocking is False:
-			if command[-2:] != ' &':
+			if not command.strip().endswith('&'):
 				command += ' &'
 
 	_log.info('running shell command >>>%s<<<', command)

@@ -184,8 +184,8 @@
                             <events>
                                 <handler event="EVT_BUTTON">_on_remote_print_button_pressed</handler>
                             </events>
-                            <tooltip>Remotely print document(s).\n(optionally copy to archive and export area)</tooltip>
-                            <label>Print &amp;remotely</label>
+                            <tooltip>Save document(s) into print queue for printing elsewhere.\n(optionally copy to archive and export area)</tooltip>
+                            <label>Print &amp;queue</label>
                         </object>
                     </object>
                     <object class="sizeritem">
