@@ -312,6 +312,8 @@ _html_start = """<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
 
 <h1>%(title)s</h1>
 
+<h2>Patient</h2>
+
 <p>
 	%(pat_name)s<br>
 	%(pat_dob)s
@@ -341,11 +343,16 @@ _html_end = """
 
 <p>
 %(date)s<br>
+</p>
+
+<h2>Praxis</h2>
+
+<p>
 %(branch)s @ %(praxis)s
 %(adr)s
 </p>
 
-(<a href="http://www.gnumed.de">GNUmed</a> version %(gm_ver)s)
+<p>(<a href="http://www.gnumed.de">GNUmed</a> version %(gm_ver)s)</p>
 
 </body>
 </html>
@@ -582,7 +589,7 @@ class cExportArea(object):
 		_html_start_data = {
 			'html_title_header': _('Patient data for'),
 			'html_title_patient': gmTools.html_escape_string(pat.get_description_gender(with_nickname = False) + ', ' + _('born') + ' ' + pat.get_formatted_dob('%Y %B %d')),
-			'title': _('Patient data export'),
+			'title': _('Patient data excerpt'),
 			'pat_name': gmTools.html_escape_string(pat.get_description_gender(with_nickname = False)),
 			'pat_dob': gmTools.html_escape_string(_('born') + ' ' + pat.get_formatted_dob('%Y %B %d')),
 			'mugshot_url': 'documents/no-such-file.png',
@@ -659,8 +666,7 @@ class cExportArea(object):
 			'branch': gmTools.html_escape_string(prax['branch']),
 			'praxis': gmTools.html_escape_string(prax['praxis']),
 			'date' : gmTools.html_escape_string(gmDateTime.pydt_strftime(gmDateTime.pydt_now_here(), format = '%Y %B %d')),
-			'gm_ver': gmTools.html_escape_string(_cfg.get(option = 'client_version')),
-			#'gm_ver': 'git HEAD',				# for testing
+			'gm_ver': gmTools.html_escape_string(gmTools.coalesce(_cfg.get(option = 'client_version'), 'git HEAD')),
 			'adr': adr
 		}
 		idx_file.write(_html_end % _html_end_data)
@@ -698,13 +704,13 @@ class cExportArea(object):
 				autorun_dict['icon'] = 'icon=gnumed.ico'
 			except Exception:
 				_log.exception('cannot move %s to %s', icon_tmp_file, media_icon_fname)
-		autorun_fname = os.path.join(media_base_dir, 'autorun.inf')
+		autorun_fname = os.path.join(media_base_dir, 'AUTORUN.INF')
 		autorun_file = io.open(autorun_fname, mode = 'wt', encoding = 'cp1252', errors = 'replace')
 		autorun_file.write(_autorun_inf % autorun_dict)
 		autorun_file.close()
 
 		# cd.inf
-		cd_inf_fname = os.path.join(media_base_dir, 'cd.inf')
+		cd_inf_fname = os.path.join(media_base_dir, 'CD.INF')
 		cd_inf_file = io.open(cd_inf_fname, mode = 'wt', encoding = 'utf8')
 		cd_inf_file.write(_cd_inf % (
 			pat['lastnames'],
@@ -850,8 +856,8 @@ if __name__ == '__main__':
 
 	#---------------------------------------
 	#test_export_items()
-	#test_export_area()
-	test_label()
+	test_export_area()
+	#test_label()
 
 	sys.exit(0)
 

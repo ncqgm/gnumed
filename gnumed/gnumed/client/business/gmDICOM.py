@@ -40,7 +40,7 @@ _map_gender_gm2dcm = {
 	'f': 'F',
 	'tm': 'M',
 	'tf': 'F',
-	'h': None
+	'h': 'O'
 }
 
 #============================================================
@@ -1184,6 +1184,36 @@ def cleanup_dicom_string(dicom_str):
 	#dicom_str = dicom_str.replace('\r\n', ' [CR] ')
 	return dicom_str
 
+#---------------------------------------------------------------------------
+def dicomize_pdf(pdf_name=None, title=None, person=None, dcm_name=None):
+	assert (pdf_name is not None), '<pdfname> must not be None'
+	assert (person is not None), '<person> must not be None'
+
+	name = person.active_name
+	args = {
+		'pat_id': "--patient-id '%s'" % person.suggest_external_id(target = 'PACS'),
+		'name': "--patient-name '%s'" % ('%s^%s' % (name['lastnames'], name['firstnames'])).replace(' ', '^'),
+		'pdf': pdf_name
+	}
+	if person['dob'] is None:
+		args['dob'] = ''
+	else:
+		args['dob'] = "--patient-birthdate '%s'" % person.get_formatted_dob(format = '%Y%m%d', honor_estimation = False)
+	if person['gender'] is None:
+		args['gender'] = ''
+	else:
+		args['gender'] = "--patient-sex '%s'" % _map_gender_gm2dcm[person['gender']]
+	if title is None:
+		title = pdf_name
+	if dcm_name is None:
+		dcm_name = gmTools.get_unique_filename(suffix = '.dcm')
+	args['title'] = "--title '%s'" % title
+	args['dcm'] = dcm_name
+	cmd = "pdf2dcm %(pat_id)s %(name)s %(dob)s %(gender)s %(title)s --log-level trace '%(pdf)s' '%(dcm)s'" % args
+	if gmShellAPI.run_command_in_shell(command = cmd, blocking = True):
+		return args['dcm']
+	return None
+
 #============================================================
 # main
 #------------------------------------------------------------
@@ -1381,8 +1411,16 @@ if __name__ == "__main__":
 		#print(orthanc.get_instance_dicom_tags(instance_id, simplified = True))
 
 	#--------------------------------------------------------
+	def test_pdf2dcm():
+		#print(pdf2dcm(filename = filename, patient_id = 'ID::abcABC', dob = '19900101'))
+		from Gnumed.business import gmPerson
+		pers = gmPerson.cPerson(12)
+		print(dicomize_pdf(pdf_name = sys.argv[2], person = pers, dcm_name = None))#, title = 'test'))
+
+	#--------------------------------------------------------
 	#run_console()
 	#test_modify_patient_id()
 	#test_upload_files()
 	#test_get_instance_preview()
-	test_get_instance_tags()
+	#test_get_instance_tags()
+	test_pdf2dcm()
