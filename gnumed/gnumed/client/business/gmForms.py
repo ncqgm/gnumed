@@ -52,6 +52,7 @@ from Gnumed.business import gmPraxis
 
 
 _log = logging.getLogger('gm.forms')
+_cfg = gmCfg2.gmCfgData()
 
 #============================================================
 # this order is also used in choice boxes for the engine
@@ -1070,6 +1071,19 @@ class cLaTeXForm(cFormEngine):
 
 		self.__sandbox_dir = sandbox_dir
 
+		# set up PDF generator
+		if platform.system() == 'Windows':
+			executable = 'pdflatex.exe'
+		else:
+			executable = 'pdflatex'
+		self._final_cmd_line = [
+			executable,
+			'-recorder',
+			'-interaction=nonstopmode',
+			"-output-directory=%s" % self.__sandbox_dir
+		]
+		self._draft_cmd_line = self._final_cmd_line + ['-draftmode']
+
 	#--------------------------------------------------------
 	def _rst2latex_transform(self, text):
 		# remove extra linefeeds which the docutils ReST2LaTeX
@@ -1227,18 +1241,23 @@ class cLaTeXForm(cFormEngine):
 		self.instance_filename = instance_file
 
 		_log.debug('ignoring <format> directive [%s], generating PDF', format)
-
+		draft_cmd = self._draft_cmd_line + [self.instance_filename]
+		final_cmd = self._final_cmd_line + [self.instance_filename]
 		# LaTeX can need up to three runs to get cross references et al right
-		if platform.system() == 'Windows':
-			draft_cmd = r'pdflatex.exe -draftmode -recorder -interaction=nonstopmode -output-directory=%s %s' % (self.__sandbox_dir, self.instance_filename)
-			final_cmd = r'pdflatex.exe -recorder -interaction=nonstopmode -output-directory=%s %s' % (self.__sandbox_dir, self.instance_filename)
-		else:
-			draft_cmd = r'pdflatex -draftmode -recorder -interaction=nonstopmode -output-directory=%s %s' % (self.__sandbox_dir, self.instance_filename)
-			final_cmd = r'pdflatex -recorder -interaction=nonstopmode -output-directory=%s %s' % (self.__sandbox_dir, self.instance_filename)
 		for run_cmd in [draft_cmd, draft_cmd, final_cmd]:
-			if not gmShellAPI.run_command_in_shell(command = run_cmd, blocking = True, acceptable_return_codes = [0, 1]):
-				_log.error('problem running pdflatex, cannot generate form output')
+			success, ret_code, stdout = gmShellAPI.run_process (
+				cmd_line = run_cmd,
+				acceptable_return_codes = [0],
+				encoding = 'utf8',
+				verbose = _cfg.get(option = 'debug')
+			)
+			if not success:
+				_log.error('problem running pdflatex, cannot generate form output, trying diagnostics')
 				gmDispatcher.send(signal = 'statustext', msg = _('Error running pdflatex. Cannot turn LaTeX template into PDF.'), beep = True)
+				cmd_line = ['lacheck', self.instance_filename]
+				success, ret_code, stdout = gmShellAPI.run_process(cmd_line = cmd_line, encoding = 'utf8', verbose = True)
+				cmd_line = ['chktex', '--verbosity=2', '--headererr', self.instance_filename]
+				success, ret_code, stdout = gmShellAPI.run_process(cmd_line = cmd_line, encoding = 'utf8', verbose = True)
 				return None
 
 		sandboxed_pdf_name = '%s.pdf' % os.path.splitext(self.instance_filename)[0]
@@ -1258,6 +1277,7 @@ class cLaTeXForm(cFormEngine):
 		self.final_output_filenames = [final_pdf_name]
 
 		return final_pdf_name
+
 #------------------------------------------------------------
 form_engines['L'] = cLaTeXForm
 
@@ -1491,33 +1511,23 @@ class cGnuplotForm(cFormEngine):
 		else:
 			exec_name = 'gnuplot'
 
-		args = [
+		cmd_line = [
 			exec_name,
 			'-p',					# let plot window persist after main gnuplot process exits
 			self.conf_filename,		# contains the gm2gpl_datafile setting which, in turn, contains the actual data
 			self.template_filename	# contains the plotting instructions (IOW a user provided gnuplot script)
 		]
-		_log.debug('plotting args: %s' % str(args))
-
-		try:
-			gp = subprocess.Popen (
-				args = args,
-				close_fds = True
-			)
-		except (OSError, ValueError, subprocess.CalledProcessError):
-			_log.exception('there was a problem executing gnuplot')
+		success, exit_code, stdout = gmShellAPI.run_process(cmd_line = cmd_line, encoding = 'utf8', verbose = _cfg.get(option = 'debug'))
+		if not success:
 			gmDispatcher.send(signal = 'statustext', msg = _('Error running gnuplot. Cannot plot data.'), beep = True)
 			return
-
-		gp.communicate()
-
 		self.final_output_filenames = [
 			self.conf_filename,
 			self.data_filename,
 			self.template_filename
 		]
-
 		return
+
 #------------------------------------------------------------
 form_engines['G'] = cGnuplotForm
 

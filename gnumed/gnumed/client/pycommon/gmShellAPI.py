@@ -258,11 +258,11 @@ def run_first_available_in_shell(binaries=None, args=None, blocking=False, run_l
 	return run_command_in_shell(command = '%s %s' % (binary, args), blocking = blocking, acceptable_return_codes = acceptable_return_codes)
 
 #===========================================================================
-def run_process(cmd_line=None, timeout=None, encoding=None, input_data=None, acceptable_returncodes=None, verbose=False):
+def run_process(cmd_line=None, timeout=None, encoding=None, input_data=None, acceptable_return_codes=None, verbose=False):
 	assert (cmd_line is not None), '<cmd_line> must not be None'
 
-	if acceptable_returncodes is None:
-		acceptable_returncodes = [0]
+	if acceptable_return_codes is None:
+		acceptable_return_codes = [0]
 	if input_data is None:
 		stdin = subprocess.PIPE
 	else:
@@ -285,9 +285,9 @@ def run_process(cmd_line=None, timeout=None, encoding=None, input_data=None, acc
 	if verbose:
 		_log.debug('STDERR:\n%s', proc_result.stderr)
 		_log.debug('STDOUT:\n%s', proc_result.stdout)
-	if proc_result.returncode not in acceptable_returncodes:
+	if proc_result.returncode not in acceptable_return_codes:
 		_log.error('there was a problem executing external process')
-		_log.debug('expected one of: %s', acceptable_returncodes)
+		_log.debug('expected one of: %s', acceptable_return_codes)
 		if not verbose:
 			_log.error('STDERR:\n%s', proc_result.stderr)
 			_log.error('STDOUT:\n%s', proc_result.stdout)
