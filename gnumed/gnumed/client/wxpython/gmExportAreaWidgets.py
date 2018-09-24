@@ -25,6 +25,7 @@ from Gnumed.pycommon import gmDateTime
 from Gnumed.pycommon import gmPrinting
 from Gnumed.pycommon import gmShellAPI
 from Gnumed.pycommon import gmNetworkTools
+from Gnumed.pycommon import gmCfg2
 
 from Gnumed.business import gmPerson
 from Gnumed.business import gmExportArea
@@ -388,8 +389,9 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 		if len(files2print) == 0:
 			return
 
+		_cfg = gmCfg2.gmCfgData()
 		jobtype = 'export_area'
-		printed = gmPrinting.print_files(filenames = files2print, jobtype = jobtype)
+		printed = gmPrinting.print_files(filenames = files2print, jobtype = jobtype, verbose = _cfg.get(option = 'debug'))
 		if not printed:
 			gmGuiHelpers.gm_show_error (
 				aMessage = _('Error printing documents.'),
@@ -800,8 +802,9 @@ class cPrintMgrPluginPnl(wxgPrintMgrPluginPnl.wxgPrintMgrPluginPnl, gmRegetMixin
 		if len(files2print) == 0:
 			return
 
+		_cfg = gmCfg2.gmCfgData()
 		jobtype = 'print_manager'
-		printed = gmPrinting.print_files(filenames = files2print, jobtype = jobtype)
+		printed = gmPrinting.print_files(filenames = files2print, jobtype = jobtype, verbose = _cfg.get(option = 'debug'))
 		if not printed:
 			gmGuiHelpers.gm_show_error (
 				aMessage = _('Error printing documents.'),

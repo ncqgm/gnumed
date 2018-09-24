@@ -20,6 +20,7 @@ from Gnumed.pycommon import gmMatchProvider
 from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmPG2
 from Gnumed.pycommon import gmCfg
+from Gnumed.pycommon import gmCfg2
 from Gnumed.pycommon import gmPrinting
 from Gnumed.pycommon import gmNetworkTools
 
@@ -631,7 +632,8 @@ def create_invoice_from_bill(parent = None, bill=None, print_it=False, keep_a_co
 		return True
 
 	# print template
-	printed = gmPrinting.print_files(filenames = [pdf_name], jobtype = 'invoice')
+	_cfg = gmCfg2.gmCfgData()
+	printed = gmPrinting.print_files(filenames = [pdf_name], jobtype = 'invoice', verbose = _cfg.get(option = 'debug'))
 	if not printed:
 		gmGuiHelpers.gm_show_error (
 			aMessage = _('Error printing the invoice.'),
