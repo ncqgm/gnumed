@@ -1185,33 +1185,33 @@ def cleanup_dicom_string(dicom_str):
 	return dicom_str
 
 #---------------------------------------------------------------------------
-def dicomize_pdf(pdf_name=None, title=None, person=None, dcm_name=None):
+def dicomize_pdf(pdf_name=None, title=None, person=None, dcm_name=None, verbose=False):
 	assert (pdf_name is not None), '<pdfname> must not be None'
 	assert (person is not None), '<person> must not be None'
 
-	name = person.active_name
-	args = {
-		'pat_id': "--patient-id '%s'" % person.suggest_external_id(target = 'PACS'),
-		'name': "--patient-name '%s'" % ('%s^%s' % (name['lastnames'], name['firstnames'])).replace(' ', '^'),
-		'pdf': pdf_name
-	}
-	if person['dob'] is None:
-		args['dob'] = ''
-	else:
-		args['dob'] = "--patient-birthdate '%s'" % person.get_formatted_dob(format = '%Y%m%d', honor_estimation = False)
-	if person['gender'] is None:
-		args['gender'] = ''
-	else:
-		args['gender'] = "--patient-sex '%s'" % _map_gender_gm2dcm[person['gender']]
 	if title is None:
 		title = pdf_name
 	if dcm_name is None:
 		dcm_name = gmTools.get_unique_filename(suffix = '.dcm')
-	args['title'] = "--title '%s'" % title
-	args['dcm'] = dcm_name
-	cmd = "pdf2dcm %(pat_id)s %(name)s %(dob)s %(gender)s %(title)s --log-level trace '%(pdf)s' '%(dcm)s'" % args
-	if gmShellAPI.run_command_in_shell(command = cmd, blocking = True):
-		return args['dcm']
+	name = person.active_name
+	cmd_line = [
+		'pdf2dcm',
+		'--patient-id', person.suggest_external_id(target = 'PACS'),
+		'--patient-name', ('%s^%s' % (name['lastnames'], name['firstnames'])).replace(' ', '^'),
+		'--title', title,
+		'--log-level', 'trace'
+	]
+	if person['dob'] is not None:
+		cmd_line.append('--patient-birthdate')
+		cmd_line.append(person.get_formatted_dob(format = '%Y%m%d', honor_estimation = False))
+	if person['gender'] is not None:
+		cmd_line.append('--patient-sex')
+		cmd_line.append(_map_gender_gm2dcm[person['gender']])
+	cmd_line.append(pdf_name)
+	cmd_line.append(dcm_name)
+	success, exit_code, stdout = gmShellAPI.run_process(cmd_line = cmd_line, encoding = 'utf8', verbose = verbose)
+	if success:
+		return dcm_name
 	return None
 
 #============================================================
@@ -1415,7 +1415,7 @@ if __name__ == "__main__":
 		#print(pdf2dcm(filename = filename, patient_id = 'ID::abcABC', dob = '19900101'))
 		from Gnumed.business import gmPerson
 		pers = gmPerson.cPerson(12)
-		print(dicomize_pdf(pdf_name = sys.argv[2], person = pers, dcm_name = None))#, title = 'test'))
+		print(dicomize_pdf(pdf_name = sys.argv[2], person = pers, dcm_name = None, verbose = True))#, title = 'test'))
 
 	#--------------------------------------------------------
 	#run_console()

@@ -553,6 +553,43 @@ def remove_file(filename, log_error=True, force=False):
 	return False
 
 #---------------------------------------------------------------------------
+def encrypt_pdf(filename=None, passphrase=None, verbose=False):
+	#rembember gmLog2.add_word2hide(word)
+
+	assert (filename is not None), '<filename> must not be None'
+	assert (passphrase is not None), '<passphrase> must not be None'
+
+	filename_encrypted = '%s.encrypted.pdf' % filename
+	args = [
+		'qpdf',
+		'--verbose',
+		'--encrypt', passphrase, '', '128',
+		'--print=full', '--modify=none', '--extract=n',
+		'--use-aes=y',
+		'--', filename, filename_encrypted
+	]
+	from Gnumed.pycommon import gmShellAPI
+	success, exit_code, stdout = gmShellAPI.run_process(cmd_line = args, encoding = 'utf8', verbose = verbose)
+	if success:
+		return filename_encrypted
+	return None
+
+#---------------------------------------------------------------------------
+def aes_encrypt_file(filename=None, passphrase=None, verbose=False):
+	#rembember gmLog2.add_word2hide(word)
+
+	assert (filename is not None), '<filename> must not be None'
+	assert (passphrase is not None), '<passphrase> must not be None'
+
+	filename_encrypted = '%s.7z' % filename
+	args = ['7z', 'a', '-mx0', "-p'%s'" % passphrase, filename_encrypted, filename]
+	from Gnumed.pycommon import gmShellAPI
+	success, exit_code, stdout = gmShellAPI.run_process(cmd_line = args, encoding = 'utf8', verbose = verbose)
+	if success:
+		return filename_encrypted
+	return None
+
+#---------------------------------------------------------------------------
 def gpg_decrypt_file(filename=None, passphrase=None):
 
 	if platform.system() == 'Windows':
@@ -1955,12 +1992,6 @@ second line\n
 			input()
 
 	#-----------------------------------------------------------------------
-	def test_gpg_decrypt():
-		fname = gpg_decrypt_file(filename = sys.argv[2], passphrase = sys.argv[3])
-		if fname is not None:
-			print("successfully decrypted:", fname)
-
-	#-----------------------------------------------------------------------
 	def test_strip_trailing_empty_lines():
 		tests = [
 			'one line, no embedded line breaks  ',
@@ -2098,6 +2129,20 @@ second line\n
 			print (test, fname_sanitize(test))
 
 	#-----------------------------------------------------------------------
+	def test_gpg_decrypt():
+		fname = gpg_decrypt_file(filename = sys.argv[2], passphrase = sys.argv[3])
+		if fname is not None:
+			print("successfully decrypted:", fname)
+
+	#-----------------------------------------------------------------------
+	def test_aes_encrypt():
+		print(aes_encrypt_file(filename = sys.argv[2], passphrase = sys.argv[3]))
+
+	#-----------------------------------------------------------------------
+	def test_encrypt_pdf():
+		print(encrypt_pdf(filename = sys.argv[2], passphrase = sys.argv[3]))
+
+	#-----------------------------------------------------------------------
 	#test_coalesce()
 	#test_capitalize()
 	#test_import_module()
@@ -2119,7 +2164,7 @@ second line\n
 	#test_strip_trailing_empty_lines()
 	#test_fname_stem()
 	#test_tex_escape()
-	test_rst2latex_snippet()
+	#test_rst2latex_snippet()
 	#test_dir_is_empty()
 	#test_compare_dicts()
 	#test_rm_dir()
@@ -2128,5 +2173,8 @@ second line\n
 	#test_shorten_text()
 	#test_format_compare_dicts()
 	#test_fname_sanitize()
+
+	#test_aes_encrypt()
+	test_encrypt_pdf()
 
 #===========================================================================

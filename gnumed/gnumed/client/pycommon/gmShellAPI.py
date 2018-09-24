@@ -258,6 +258,43 @@ def run_first_available_in_shell(binaries=None, args=None, blocking=False, run_l
 	return run_command_in_shell(command = '%s %s' % (binary, args), blocking = blocking, acceptable_return_codes = acceptable_return_codes)
 
 #===========================================================================
+def run_process(cmd_line=None, timeout=None, encoding=None, input_data=None, acceptable_returncodes=None, verbose=False):
+	assert (cmd_line is not None), '<cmd_line> must not be None'
+
+	if acceptable_returncodes is None:
+		acceptable_returncodes = [0]
+	if input_data is None:
+		stdin = subprocess.PIPE
+	else:
+		stdin = None
+	_log.info('running: %s' % cmd_line)
+	try:
+		proc_result = subprocess.run (
+			args = cmd_line,
+			input = input_data,
+			stdin = stdin,
+			stdout = subprocess.PIPE,
+			stderr = subprocess.PIPE,
+			timeout = timeout,
+			encoding = encoding
+		)
+	except (subprocess.TimeoutExpired, FileNotFoundError):
+		_log.exception('there was a problem running external process')
+		return False, -1, ''
+	_log.info('exit code [%s]', proc_result.returncode)
+	if verbose:
+		_log.debug('STDERR:\n%s', proc_result.stderr)
+		_log.debug('STDOUT:\n%s', proc_result.stdout)
+	if proc_result.returncode not in acceptable_returncodes:
+		_log.error('there was a problem executing external process')
+		_log.debug('expected one of: %s', acceptable_returncodes)
+		if not verbose:
+			_log.error('STDERR:\n%s', proc_result.stderr)
+			_log.error('STDOUT:\n%s', proc_result.stdout)
+		return False, proc_result.returncode, ''
+	return True, proc_result.returncode, proc_result.stdout
+
+#===========================================================================
 # main
 #---------------------------------------------------------------------------
 if __name__ == '__main__':

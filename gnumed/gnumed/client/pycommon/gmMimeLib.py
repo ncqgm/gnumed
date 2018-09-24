@@ -535,6 +535,7 @@ if __name__ == "__main__":
 		result = gmShellAPI.run_command_in_shell(command = editor_cmd, blocking = True)
 
 		return result
+
 	#--------------------------------------------------------
 
 #	print(_system_startfile_cmd)
@@ -553,4 +554,4 @@ if __name__ == "__main__":
 #	print(status)
 #	print(desc)
 
-	print(test_edit())
+	#print(test_edit())
