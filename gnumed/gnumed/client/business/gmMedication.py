@@ -2662,7 +2662,7 @@ def format_substance_intake_as_amts_latex(intake=None, strict=True):
 
 	_esc = gmTools.tex_escape_string
 
-	# %(contains)s & %(product)s & %(amount)s%(unit)s & %(preparation)s & \multicolumn{4}{l|}{%(schedule)s} & Einheit & %(notes)s & %(aim)s \tabularnewline \hline
+	# %(contains)s & %(product)s & %(amount)s%(unit)s & %(preparation)s & \multicolumn{4}{l|}{%(schedule)s} & Einheit & %(notes)s & %(aim)s \tabularnewline{}\hline
 	cells = []
 	# components
 	components = intake.containing_drug['components']
@@ -2744,7 +2744,7 @@ def format_substance_intake_as_amts_latex(intake=None, strict=True):
 			cells.append(u'\\fontsize{10pt}{12pt}\selectfont %s ' % _esc(intake['aim']))
 
 	table_row = u' & '.join(cells)
-	table_row += u'\\tabularnewline\n\\hline'
+	table_row += u'\\tabularnewline{}\n\\hline'
 
 	return table_row
 
@@ -3045,7 +3045,7 @@ def format_substance_intake_notes(emr=None, output_format=u'latex', table_type=u
 	tex += u'%%%% requires "\\usepackage{tabu}"\n'
 	tex += u'\\noindent \\begin{longtabu} to \\textwidth {|X[,L]|r|X[,L]|}\n'
 	tex += u'\\hline\n'
-	tex += u'%s {\\scriptsize (%s)} & %s & %s \\tabularnewline \n' % (_('Substance'), _('Drug Product'), _('Strength'), _('Aim'))
+	tex += u'%s {\\scriptsize (%s)} & %s & %s \\tabularnewline{}\n' % (_('Substance'), _('Drug Product'), _('Strength'), _('Aim'))
 	tex += u'\\hline\n'
 	tex += u'\\hline\n'
 	tex += u'%s\n'
@@ -3065,7 +3065,7 @@ def format_substance_intake_notes(emr=None, output_format=u'latex', table_type=u
 			aim = u''
 		else:
 			aim = u'{\\scriptsize %s}' % gmTools.tex_escape_string(med['aim'])
-		lines.append(u'%s ({\\small %s}%s) & %s%s & %s \\tabularnewline\n \\hline' % (
+		lines.append(u'%s ({\\small %s}%s) & %s%s & %s \\tabularnewline{}\n \\hline' % (
 			gmTools.tex_escape_string(med['substance']),
 			gmTools.tex_escape_string(med['l10n_preparation']),
 			product,
@@ -3089,7 +3089,7 @@ def format_substance_intake(emr=None, output_format=u'latex', table_type=u'by-pr
 	tex += u'%% requires "\\usepackage{tabu}"\n'
 	tex += u'\\begin{longtabu} to \\textwidth {|X[-1,L]|X[2.5,L]|}\n'
 	tex += u'\\hline\n'
-	tex += u'%s & %s \\tabularnewline \n' % (
+	tex += u'%s & %s \\tabularnewline{}\n' % (
 		gmTools.tex_escape_string(_('Drug')),
 		gmTools.tex_escape_string(_('Regimen / Advice'))
 	)
@@ -3130,9 +3130,9 @@ def format_substance_intake(emr=None, output_format=u'latex', table_type=u'by-pr
 	# create lines
 	already_seen = []
 	lines = []
-	line1_template = u'\\rule{0pt}{3ex}{\\Large %s} %s & %s \\tabularnewline'
-	line2_template = u'{\\tiny %s}                     & {\\scriptsize %s} \\tabularnewline'
-	line3_template = u'                                & {\\scriptsize %s} \\tabularnewline'
+	line1_template = u'\\rule{0pt}{3ex}{\\Large %s} %s & %s \\tabularnewline{}'
+	line2_template = u'{\\tiny %s}                     & {\\scriptsize %s} \\tabularnewline{}'
+	line3_template = u'                                & {\\scriptsize %s} \\tabularnewline{}'
 
 	for med in current_meds:
 		identifier = med['product']

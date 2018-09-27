@@ -49,15 +49,21 @@
 \usepackage{calc}						% \widthof (für signature)
 \usepackage{microtype}					% improved text layout
 \usepackage{hyperref}					% aktive URLs
+% debugging
+%\usepackage{interfaces}				% \papergraduate
+%\usepackage{showkeys}					% print labels (anchors and stuff) as margin notes
 
 
 % debugging
+\errorcontextlines 10000
 % - show all files used
 \listfiles
 % - show unorthodox/faulty/obsolete uses
 \RequirePackage[l2tabu, orthodox]{nag}
 % - mark overfull horizontal boxes
 %\overfullrule=2cm
+% - show coordinate system on paper
+%\papergraduate
 
 
 % Definiere Grundschrift: sans serif Latin Modern
