@@ -404,12 +404,12 @@ def create_generic_vaccine_sql(version, include_indications_mapping=False):
 #============================================================
 # vaccine related code
 #------------------------------------------------------------
-_sql_fetch_vaccine = u"""SELECT * FROM ref.v_vaccines WHERE %s"""
+_SQL_get_vaccine_fields = u"""SELECT * FROM ref.v_vaccines WHERE %s"""
 
 class cVaccine(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one vaccine."""
 
-	_cmd_fetch_payload = _sql_fetch_vaccine % u"pk_vaccine = %s"
+	_cmd_fetch_payload = _SQL_get_vaccine_fields % u"pk_vaccine = %s"
 
 	_cmds_store_payload = [
 		u"""UPDATE ref.vaccine SET
@@ -532,9 +532,9 @@ def delete_vaccine(vaccine=None):
 def get_vaccines(order_by=None):
 
 	if order_by is None:
-		cmd = _sql_fetch_vaccine % u'TRUE'
+		cmd = _SQL_get_vaccine_fields % u'TRUE'
 	else:
-		cmd = _sql_fetch_vaccine % (u'TRUE\nORDER BY %s' % order_by)
+		cmd = _SQL_get_vaccine_fields % (u'TRUE\nORDER BY %s' % order_by)
 
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
 

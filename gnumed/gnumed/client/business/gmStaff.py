@@ -27,10 +27,10 @@ _map_gm_role2pg_group = {
 }
 
 #============================================================
-_SQL_fetch_staff_fields = u'SELECT *, _(role) AS l10n_role FROM dem.v_staff WHERE %s'
+_SQL_get_staff_fields = u'SELECT *, _(role) AS l10n_role FROM dem.v_staff WHERE %s'
 
 class cStaff(gmBusinessDBObject.cBusinessDBObject):
-	_cmd_fetch_payload = _SQL_fetch_staff_fields % u"pk_staff = %s"
+	_cmd_fetch_payload = _SQL_get_staff_fields % u"pk_staff = %s"
 	_cmds_store_payload = [
 		u"""UPDATE dem.staff SET
 				short_alias = %(short_alias)s,
@@ -50,7 +50,7 @@ class cStaff(gmBusinessDBObject.cBusinessDBObject):
 	def __init__(self, aPK_obj=None, row=None):
 		# by default get staff corresponding to CURRENT_USER
 		if (aPK_obj is None) and (row is None):
-			cmd = _SQL_fetch_staff_fields % u"db_user = CURRENT_USER"
+			cmd = _SQL_get_staff_fields % u"db_user = CURRENT_USER"
 			try:
 				rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx=True)
 			except:
@@ -146,9 +146,9 @@ class cStaff(gmBusinessDBObject.cBusinessDBObject):
 #============================================================
 def get_staff_list(active_only=False):
 	if active_only:
-		cmd = _SQL_fetch_staff_fields % u'is_active ORDER BY can_login DESC, short_alias ASC'
+		cmd = _SQL_get_staff_fields % u'is_active ORDER BY can_login DESC, short_alias ASC'
 	else:
-		cmd = _SQL_fetch_staff_fields % u'TRUE ORDER BY can_login DESC, is_active DESC, short_alias ASC'
+		cmd = _SQL_get_staff_fields % u'TRUE ORDER BY can_login DESC, is_active DESC, short_alias ASC'
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx=True)
 	staff_list = []
 	for row in rows:

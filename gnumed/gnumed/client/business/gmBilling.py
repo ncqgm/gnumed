@@ -174,11 +174,11 @@ def delete_billable(pk_billable=None):
 #============================================================
 # bill items
 #------------------------------------------------------------
-_SQL_fetch_bill_item_fields = u"SELECT * FROM bill.v_bill_items WHERE %s"
+_SQL_get_bill_item_fields = u"SELECT * FROM bill.v_bill_items WHERE %s"
 
 class cBillItem(gmBusinessDBObject.cBusinessDBObject):
 
-	_cmd_fetch_payload = _SQL_fetch_bill_item_fields % u"pk_bill_item = %s"
+	_cmd_fetch_payload = _SQL_get_bill_item_fields % u"pk_bill_item = %s"
 	_cmds_store_payload = [
 		u"""UPDATE bill.bill_item SET
 				fk_provider = %(pk_provider)s,
@@ -287,9 +287,9 @@ class cBillItem(gmBusinessDBObject.cBusinessDBObject):
 #------------------------------------------------------------
 def get_bill_items(pk_patient=None, non_invoiced_only=False):
 	if non_invoiced_only:
-		cmd = _SQL_fetch_bill_item_fields % u"pk_patient = %(pat)s AND pk_bill IS NULL"
+		cmd = _SQL_get_bill_item_fields % u"pk_patient = %(pat)s AND pk_bill IS NULL"
 	else:
-		cmd = _SQL_fetch_bill_item_fields % u"pk_patient = %(pat)s"
+		cmd = _SQL_get_bill_item_fields % u"pk_patient = %(pat)s"
 	args = {'pat': pk_patient}
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 	return [ cBillItem(row = {'data': r, 'idx': idx, 'pk_field': 'pk_bill_item'}) for r in rows ]

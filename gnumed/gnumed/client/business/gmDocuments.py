@@ -166,7 +166,7 @@ class cDocumentFolder:
 	#--------------------------------------------------------
 	def get_unsigned_documents(self):
 		args = {'pat': self.pk_patient}
-		cmd = _sql_fetch_document_fields % u"""
+		cmd = _SQL_get_document_fields % u"""
 			pk_doc IN (
 				SELECT DISTINCT ON (b_vo.pk_doc) b_vo.pk_doc
 				FROM blobs.v_obj4doc_no_data b_vo
@@ -214,7 +214,7 @@ class cDocumentFolder:
 		if order_by is None:
 			order_by = u'ORDER BY clin_when'
 
-		cmd = u"%s\n%s" % (_sql_fetch_document_fields % u' AND '.join(where_parts), order_by)
+		cmd = u"%s\n%s" % (_SQL_get_document_fields % u' AND '.join(where_parts), order_by)
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 
 		return [ cDocument(row = {'pk_field': 'pk_doc', 'idx': idx, 'data': r}) for r in rows ]
@@ -248,12 +248,12 @@ class cDocumentFolder:
 	all_document_org_units = property(_get_all_document_org_units, lambda x:x)
 
 #============================================================
-_sql_fetch_document_part_fields = u"select * from blobs.v_obj4doc_no_data where %s"
+_SQL_get_document_part_fields = u"select * from blobs.v_obj4doc_no_data where %s"
 
 class cDocumentPart(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one part of a medical document."""
 
-	_cmd_fetch_payload = _sql_fetch_document_part_fields % u"pk_obj = %s"
+	_cmd_fetch_payload = _SQL_get_document_part_fields % u"pk_obj = %s"
 	_cmds_store_payload = [
 		u"""UPDATE blobs.doc_obj SET
 				seq_idx = %(seq_idx)s,
@@ -621,12 +621,12 @@ def delete_document_part(part_pk=None, encounter_pk=None):
 	return
 
 #============================================================
-_sql_fetch_document_fields = u"SELECT * FROM blobs.v_doc_med b_vdm WHERE %s"
+_SQL_get_document_fields = u"SELECT * FROM blobs.v_doc_med b_vdm WHERE %s"
 
 class cDocument(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one medical document."""
 
-	_cmd_fetch_payload = _sql_fetch_document_fields % u"pk_doc = %s"
+	_cmd_fetch_payload = _SQL_get_document_fields % u"pk_doc = %s"
 	_cmds_store_payload = [
 		u"""UPDATE blobs.doc_med SET
 				fk_type = %(pk_type)s,
@@ -698,7 +698,7 @@ class cDocument(gmBusinessDBObject.cBusinessDBObject):
 
 	#--------------------------------------------------------
 	def _get_parts(self):
-		cmd = _sql_fetch_document_part_fields % u"pk_doc = %s ORDER BY seq_idx"
+		cmd = _SQL_get_document_part_fields % u"pk_doc = %s ORDER BY seq_idx"
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_obj]}], get_col_idx = True)
 		return [ cDocumentPart(row = {'pk_field': 'pk_obj', 'idx': idx, 'data': r}) for r in rows ]
 
@@ -991,7 +991,7 @@ def search_for_documents(patient_id=None, type_id=None, external_reference=None,
 		where_parts.append(u'pk_type IN %(pk_types)s')
 		args['pk_types'] = tuple(pk_types)
 
-	cmd = _sql_fetch_document_fields % u' AND '.join(where_parts)
+	cmd = _SQL_get_document_fields % u' AND '.join(where_parts)
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 	return [ cDocument(row = {'data': r, 'idx': idx, 'pk_field': 'pk_doc'}) for r in rows ]
 
