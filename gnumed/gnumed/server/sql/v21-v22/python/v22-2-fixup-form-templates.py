@@ -14,6 +14,7 @@ from Gnumed.pycommon import gmPG2
 
 def run(conn=None):
 
+	#------------------------------------
 	# Begleitbrief
 	gmPG2.file2bytea (
 		query = u"""
@@ -26,6 +27,31 @@ def run(conn=None):
 		conn = conn
 	)
 
+	# vaccination history
+	gmPG2.file2bytea (
+		query = u"""
+			UPDATE ref.paperwork_templates SET
+				data = %(data)s::bytea,
+				external_version = '22.4'
+			where
+				name_long = 'Vaccination history (GNUmed default)'""",
+		filename = os.path.join('..', 'sql', 'v21-v22', 'data', 'v22-GNUmed-default_vaccination_history_template.tex'),
+		conn = conn
+	)
+
+	# most recent vaccinations record
+	gmPG2.file2bytea (
+		query = u"""
+			UPDATE ref.paperwork_templates SET
+				data = %(data)s::bytea,
+				external_version = '22.4'
+			WHERE
+				name_long = 'Most recent vaccinations (GNUmed default)'
+			""",
+		filename = os.path.join('..', 'sql', 'v21-v22', 'data', 'v22-GNUmed-default_latest_vaccinations_record_template.tex'),
+		conn = conn
+	)
+	#------------------------------------
 	return True
 
 #==============================================================

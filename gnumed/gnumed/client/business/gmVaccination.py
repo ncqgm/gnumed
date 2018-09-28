@@ -684,13 +684,13 @@ def format_latest_vaccinations(output_format='latex', emr=None):
 def __format_latest_vaccinations_latex(vaccinations=None):
 
 	if len(vaccinations) == 0:
-		return '\\noindent %s' % _('No vaccinations to format.')
+		return '\\noindent %s' % _('No vaccinations recorded.')
 
 	tex =  '\\noindent %s {\\tiny (%s)\\par}\n' % (_('Latest vaccinations'), _('per target condition'))
 	tex += '\n'
 	tex += '\\noindent \\begin{tabular}{|l|l|l|l|l|l|}\n'
 	tex += '\\hline\n'
-	tex += '%s & %s & {\\footnotesize %s} & {\\footnotesize %s} & {\\footnotesize %s\\footnotemark} & {\\footnotesize %s\\footnotemark} \\\\ \n' % (
+	tex += '%s & %s & {\\footnotesize %s} & {\\footnotesize %s} & {\\footnotesize %s\\footnotemark} & {\\footnotesize %s\\footnotemark}\\\\\n' % (
 		_('Target'),
 		_('Last given'),
 		_('Vaccine'),
@@ -701,18 +701,18 @@ def __format_latest_vaccinations_latex(vaccinations=None):
 	tex += '\\hline\n'
 	tex += '\n'
 	tex += '\\hline\n'
-	tex += '%s'
+	tex += '%s'			# this is where the actual vaccination rows end up
 	tex += '\n'
 	tex += '\\end{tabular}\n'
 	tex += '\n'
-	tex += '\\addtocounter{footnote}{-1} \n'
-	tex += '\\footnotetext{%s} \n' % _('SoaP -- "S"ubjective: vaccination was remembered by patient. "P"lan: vaccination was administered in the practice or copied from trustworthy records.')
-	tex += '\\addtocounter{footnote}{1} \n'
-	tex += '\\footnotetext{%s -- %s} \n' % (gmTools.u_sum, _('Total number of vaccinations recorded for the corresponding target condition.'))
+	tex += '\\addtocounter{footnote}{-1}\n'
+	tex += '\\footnotetext{%s}\n' % _('SoaP -- "S"ubjective: vaccination was remembered by patient. "P"lan: vaccination was administered in the practice or copied from trustworthy records.')
+	tex += '\\addtocounter{footnote}{1}\n'
+	tex += '\\footnotetext{%s -- %s}\n' % (gmTools.u_sum, _('Total number of vaccinations recorded for the corresponding target condition.'))
 	tex += '\n'
 
-	row_template = '%s & %s & {\\scriptsize %s} & {\\scriptsize %s} & {\\scriptsize %s} & {\\scriptsize %s} \\\\ \n'
-	lines = ''
+	row_template = '%s & %s & {\\scriptsize %s} & {\\scriptsize %s} & {\\scriptsize %s} & {\\scriptsize %s}\\\\\n'
+	lines = u''
 	targets = sorted(vaccinations.keys())
 	for target in targets:
 		target_count, vacc = vaccinations[target]
@@ -725,12 +725,12 @@ def __format_latest_vaccinations_latex(vaccinations=None):
 			target_count
 		)
 		if vacc['site'] is not None:
-			lines += ' & \\multicolumn{5}{l|}{\\scriptsize %s: %s\\par} \\\\ \n' % (_('Injection site'), vacc['site'].strip())
+			lines += ' & \\multicolumn{5}{l|}{\\scriptsize %s: %s\\par}\\\\\n' % (_('Injection site'), vacc['site'].strip())
 		if vacc['reaction'] is not None:
-			lines += ' & \\multicolumn{5}{l|}{\\scriptsize %s: %s\\par} \\\\ \n' % (_('Reaction'), vacc['reaction'].strip())
+			lines += ' & \\multicolumn{5}{l|}{\\scriptsize %s: %s\\par}\\\\\n' % (_('Reaction'), vacc['reaction'].strip())
 		if vacc['comment'] is not None:
-			lines += ' & \\multicolumn{5}{l|}{\\scriptsize %s: %s\\par} \\\\ \n' % (_('Comment'), vacc['comment'].strip())
-		lines += '\\hline \n'
+			lines += ' & \\multicolumn{5}{l|}{\\scriptsize %s: %s\\par}\\\\\n' % (_('Comment'), vacc['comment'].strip())
+		lines += '\\hline\n'
 
 	return tex % lines
 
