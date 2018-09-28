@@ -2187,10 +2187,14 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			date_format = options[1]
 		else:
 			date_format = '%Y %b %d'
+		vaccinations_as_dict = []
+		for v in self.pat.emr.get_vaccinations(order_by = 'date_given DESC, vaccine'):
+			v_as_dict = v.fields_as_dict(date_format = date_format, escape_style = self.__esc_style)
+			v_as_dict['l10n_indications'] = [ ind['l10n_indication'] for ind in v['indications'] ]
+			vaccinations_as_dict.append(v_as_dict)
 
-		vaccs = self.pat.emr.get_vaccinations(order_by = 'date_given DESC, vaccine')
+		return u'\n'.join([ template % v for v in vaccinations_as_dict ])
 
-		return '\n'.join([ template % v.fields_as_dict(date_format = date_format, escape_style = self.__esc_style) for v in vaccs ])
 	#--------------------------------------------------------
 	def _get_variant_PHX(self, data=None):
 
@@ -3209,7 +3213,7 @@ if __name__ == '__main__':
 
 		phs = [
 			#u'emr_journal::soapu //%(clin_when)s  %(modified_by)s  %(soap_cat)s  %(narrative)s//1000 days::',
-			u'free_text::placeholder test//preset::9999',
+			#u'free_text::placeholder test//preset::9999',
 			#u'soap_for_encounters:://::9999',
 			#u'soap_p',
 			#u'encounter_list::%(started)s: %(assessment_of_encounter)s::30',
@@ -3231,7 +3235,7 @@ if __name__ == '__main__':
 			#u'form_name_long::::',
 			#u'form_version::::5',
 			#u'$<current_meds::\item %(product)s %(preparation)s (%(substance)s) from %(started)s for %(duration)s as %(schedule)s until %(discontinued)s\\n::250>$',
-			#u'$<vaccination_history::%(date_given)s: %(vaccine)s [%(batch_no)s] %(l10n_indications)s::250>$',
+			u'$<vaccination_history::%(date_given)s: %(vaccine)s [%(batch_no)s] %(l10n_indications)s::250>$',
 			#u'$<date_of_birth::%Y %B %d::20>$',
 			#u'$<date_of_birth::%Y %B %d::>$',
 			#u'$<date_of_birth::::20>$',

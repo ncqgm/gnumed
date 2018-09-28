@@ -45,6 +45,7 @@ FIX: "lastname, firstname" based patient search under Python 3
 
 FIX: map None to '' in address parts placeholder
 FIX: export area export-to-media
+FIX: $<vaccination_history::%(l10n_indications)s::>$ field
 
 IMPROVED: AppStream and desktop metadata
 IMPROVED: add "preset" option to $<free_text>$ placeholder
