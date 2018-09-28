@@ -1955,7 +1955,7 @@ WHERE
 			args['encs'] = tuple(encounters)
 
 		cmd = '%s %s' % (
-			gmVaccination.sql_fetch_vaccination % '\nAND '.join(where_parts),
+			gmVaccination._SQL_get_vaccination_fields % '\nAND '.join(where_parts),
 			order_by
 		)
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
