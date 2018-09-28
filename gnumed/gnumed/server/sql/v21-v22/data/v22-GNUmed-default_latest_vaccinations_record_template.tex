@@ -1,0 +1,87 @@
+%------------------------------------------------------------------
+% Author: Karsten Hilbert
+% License: GPL v2 or later
+%
+%------------------------------------------------------------------
+
+\documentclass[english]{article}
+\usepackage[T1]{fontenc}
+\usepackage[cjkjis,graphics]{ucs}
+\usepackage[utf8x]{inputenc}
+%\usepackage{longtable}
+%\usepackage{tabu}
+%\usepackage[a5paper]{geometry}
+\usepackage[a4paper]{geometry}
+\usepackage{microtype}
+\usepackage{hyperref}
+% debugging
+%\usepackage{interfaces}				% \papergraduate
+%\usepackage{showkeys}					% print labels (anchors and stuff) as margin notes
+
+
+% debugging
+\errorcontextlines 10000
+% - show all files used
+\listfiles
+% - show unorthodox/faulty/obsolete uses
+\RequirePackage[l2tabu, orthodox]{nag}
+% - mark overfull horizontal boxes
+%\overfullrule=2cm
+% - show coordinate system on paper
+%\papergraduate
+
+
+\geometry{verbose,lmargin=1cm}
+\pagestyle{empty}
+\setlength{\parskip}{\medskipamount}
+\setlength{\parindent}{0pt}
+
+
+\usepackage{babel}
+
+
+%------------------------------------------------------------------
+\begin{document}
+
+\footnotetext{\tiny \href{http://www.gnumed.org}{GNUmed} $<client_version::::>$ -- \href{http://www.gnumed.org}{www.gnumed.org}}
+\footnotetext{\tiny Dokumentenvorlage: $<form_name_long::::60>$ v$<form_version::::20>$}
+
+
+\noindent \begin{center}
+{\large Vaccination history (printed $<today::%Y %B %d::>$)}%
+\par\end{center}
+
+
+\noindent Patient: $<lastname::::>$, $<firstname::::>$ ($<date_of_birth::%Y %B %d::>$)
+
+
+{\footnotesize%
+	$<<if_not_empty::$<adr_street::home::>$//$<adr_street::home::>$ $<adr_number::home::>$ \\//::>>$
+	$<<if_not_empty::$<adr_location::home::>$//$<adr_postcode::home::>$ $<adr_location::home::>$//::>>$
+}
+
+\vspace*{\medskipamount}
+
+$<latest_vaccs_table::latex::>$
+
+\vfill{}
+
+\noindent Known allergies:
+
+\begin{tabular}{|l|l|l|}
+\hline
+Agent & Type & Reaction\\
+\hline
+\hline
+$<allergies::%(descriptor)s & %(l10n_type)s & {\footnotesize %(reaction)s}\\ \hline::>$
+\end{tabular}
+
+\medskip{}
+
+
+\noindent \begin{flushright}
+\texttt{\textsl{\footnotesize Practice Stamp / Physician Signature}}
+\par\end{flushright}
+\end{document}
+
+%------------------------------------------------------------------
