@@ -624,6 +624,13 @@ class cVaccination(gmBusinessDBObject.cBusinessDBObject):
 	vaccine = property(_get_vaccine, lambda x:x)
 
 #------------------------------------------------------------
+def get_vaccinations():
+	cmd = _SQL_get_vaccination_fields % 'True'
+	args = {}
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
+	return [ cVaccination(row = {'data': r, 'idx': idx, 'pk_field': 'pk_vaccine'}) for r in rows ]
+
+#------------------------------------------------------------
 def create_vaccination(encounter=None, episode=None, vaccine=None, batch_no=None):
 
 	cmd = u"""
@@ -846,6 +853,6 @@ if __name__ == '__main__':
 	#test_due_booster()
 
 	#test_get_vaccines()
-	#test_get_vaccinations()
+	test_get_vaccinations()
 	#test_create_generic_vaccine_sql()
-	test_write_generic_vaccine_sql(sys.argv[2], sys.argv[3])
+	#test_write_generic_vaccine_sql(sys.argv[2], sys.argv[3])
