@@ -543,11 +543,11 @@ def get_vaccines(order_by=None):
 #============================================================
 # vaccination related classes
 #============================================================
-sql_fetch_vaccination = u"""SELECT * FROM clin.v_vaccinations WHERE %s"""
+_SQL_get_vaccination_fields = u"""SELECT * FROM clin.v_vaccinations WHERE %s"""
 
 class cVaccination(gmBusinessDBObject.cBusinessDBObject):
 
-	_cmd_fetch_payload = sql_fetch_vaccination % u"pk_vaccination = %s"
+	_cmd_fetch_payload = _SQL_get_vaccination_fields % u"pk_vaccination = %s"
 
 	_cmds_store_payload = [
 		u"""UPDATE clin.vaccination SET
