@@ -690,13 +690,12 @@ def __format_latest_vaccinations_latex(vaccinations=None):
 	tex += u'\n'
 	tex += u'\\noindent \\begin{tabular}{|l|l|l|l|l|l|}\n'
 	tex += u'\\hline\n'
-	tex += u'%s & %s & {\\footnotesize %s} & {\\footnotesize %s} & {\\footnotesize %s\\footnotemark} & {\\footnotesize %s\\footnotemark}\\\\\n' % (
+	tex += u'%s & %s & {\\footnotesize %s} & {\\footnotesize %s} & {\\footnotesize %s\\footnotemark} & {\\footnotesize $\\Sigma$\\footnotemark}\\\\\n' % (
 		_('Target'),
 		_('Last given'),
 		_('Vaccine'),
 		_('Lot \#'),
-		_('SoaP'),
-		gmTools.u_sum
+		_('SoaP')
 	)
 	tex += u'\\hline\n'
 	tex += u'\n'
@@ -708,7 +707,7 @@ def __format_latest_vaccinations_latex(vaccinations=None):
 	tex += u'\\addtocounter{footnote}{-1}\n'
 	tex += u'\\footnotetext{%s}\n' % _('SoaP -- "S"ubjective: vaccination was remembered by patient. "P"lan: vaccination was administered in the practice or copied from trustworthy records.')
 	tex += u'\\addtocounter{footnote}{1}\n'
-	tex += u'\\footnotetext{%s -- %s}\n' % (gmTools.u_sum, _('Total number of vaccinations recorded for the corresponding target condition.'))
+	tex += u'\\footnotetext{$\\Sigma$ -- %s}\n' % _('Total number of vaccinations recorded for the corresponding target condition.')
 	tex += u'\n'
 
 	row_template = u'%s & %s & {\\scriptsize %s} & {\\scriptsize %s} & {\\scriptsize %s} & {\\scriptsize %s}\\\\\n'
