@@ -429,7 +429,7 @@ class cVaccine(gmBusinessDBObject.cBusinessDBObject):
 	]
 
 	_updatable_fields = [
-		#u'pk_route',
+		#'pk_route',
 		'is_live',
 		'min_age',
 		'max_age',
@@ -690,13 +690,12 @@ def __format_latest_vaccinations_latex(vaccinations=None):
 	tex += '\n'
 	tex += '\\noindent \\begin{tabular}{|l|l|l|l|l|l|}\n'
 	tex += '\\hline\n'
-	tex += '%s & %s & {\\footnotesize %s} & {\\footnotesize %s} & {\\footnotesize %s\\footnotemark} & {\\footnotesize %s\\footnotemark}\\\\\n' % (
+	tex += '%s & %s & {\\footnotesize %s} & {\\footnotesize %s} & {\\footnotesize %s\\footnotemark} & {\\footnotesize $\\Sigma$\\footnotemark}\\\\\n' % (
 		_('Target'),
 		_('Last given'),
 		_('Vaccine'),
 		_('Lot \#'),
-		_('SoaP'),
-		gmTools.u_sum
+		_('SoaP')
 	)
 	tex += '\\hline\n'
 	tex += '\n'
@@ -708,11 +707,11 @@ def __format_latest_vaccinations_latex(vaccinations=None):
 	tex += '\\addtocounter{footnote}{-1}\n'
 	tex += '\\footnotetext{%s}\n' % _('SoaP -- "S"ubjective: vaccination was remembered by patient. "P"lan: vaccination was administered in the practice or copied from trustworthy records.')
 	tex += '\\addtocounter{footnote}{1}\n'
-	tex += '\\footnotetext{%s -- %s}\n' % (gmTools.u_sum, _('Total number of vaccinations recorded for the corresponding target condition.'))
+	tex += '\\footnotetext{$\\Sigma$ -- %s}\n' % _('Total number of vaccinations recorded for the corresponding target condition.')
 	tex += '\n'
 
 	row_template = '%s & %s & {\\scriptsize %s} & {\\scriptsize %s} & {\\scriptsize %s} & {\\scriptsize %s}\\\\\n'
-	lines = u''
+	lines = ''
 	targets = sorted(vaccinations.keys())
 	for target in targets:
 		target_count, vacc = vaccinations[target]

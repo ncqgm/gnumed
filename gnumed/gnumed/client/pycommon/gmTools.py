@@ -1302,6 +1302,7 @@ def tex_escape_string(text=None, replace_known_unicode=True, replace_eol=False, 
 	if replace_known_unicode:
 		# this should NOT be replaced for Xe(La)Tex
 		text = text.replace(u_euro, '\\EUR')
+		text = text.replace(u_sum, '$\\Sigma$')
 
 	return text
 
