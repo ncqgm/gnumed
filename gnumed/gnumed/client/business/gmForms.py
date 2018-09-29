@@ -1254,10 +1254,18 @@ class cLaTeXForm(cFormEngine):
 			if not success:
 				_log.error('problem running pdflatex, cannot generate form output, trying diagnostics')
 				gmDispatcher.send(signal = 'statustext', msg = _('Error running pdflatex. Cannot turn LaTeX template into PDF.'), beep = True)
-				cmd_line = ['lacheck', self.instance_filename]
-				success, ret_code, stdout = gmShellAPI.run_process(cmd_line = cmd_line, encoding = 'utf8', verbose = True)
-				cmd_line = ['chktex', '--verbosity=2', '--headererr', self.instance_filename]
-				success, ret_code, stdout = gmShellAPI.run_process(cmd_line = cmd_line, encoding = 'utf8', verbose = True)
+				found, binary = gmShellAPI.find_first_binary(binaries = ['lacheck', 'miktex-lacheck.exe'])
+				if not found:
+					_log.debug('lacheck not found')
+				else:
+					cmd_line = [binary, self.instance_filename]
+					success, ret_code, stdout = gmShellAPI.run_process(cmd_line = cmd_line, encoding = 'utf8', verbose = True)
+				found, binary = gmShellAPI.find_first_binary(binaries = ['chktex', 'ChkTeX.exe'])
+				if not found:
+					_log.debug('chcktex not found')
+				else:
+					cmd_line = [binary, '--verbosity=2', '--headererr', self.instance_filename]
+					success, ret_code, stdout = gmShellAPI.run_process(cmd_line = cmd_line, encoding = 'utf8', verbose = True)
 				return None
 
 		sandboxed_pdf_name = '%s.pdf' % os.path.splitext(self.instance_filename)[0]
