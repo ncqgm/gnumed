@@ -1,5 +1,5 @@
 %------------------------------------------------------------------
-% Current medication list
+% TITLE
 %
 % Author: Karsten Hilbert
 % Author: karsten.hilbert@gmx.net
@@ -16,7 +16,7 @@
 	BCOR=0mm,								% keine BindeCORrektur
 	fontsize=12pt,							% per spec
 	parskip=half+,							% Absätze mit halber Leerzeilen trennen, kein Einzug, Vorabsatz endet mit maxial 3/4-Zeile
-	headsepline=off,
+	headsepline=on,
 	footsepline=on,
 	titlepage=false
 ]{scrartcl}
@@ -24,7 +24,7 @@
 %------------------------------------------------------------------
 % packages
 \usepackage{scrlayer-scrpage}				% Kopf- und Fußzeilen
-\usepackage{geometry}						% setup margins
+\usepackage{geometry}						% setup margins, use KomaScript tools
 \usepackage{microtype}						% micro-adjustments to typesetting
 \usepackage[cjkjis,graphics]{ucs}			% lots of UTF8 symbols, breaks with xelatex
 \usepackage[T1]{fontenc}					% fonts are T1
@@ -34,17 +34,17 @@
 \usepackage{marvosym}						% Symbole: Handy, Telefon, E-Mail, used in non-conformant layout
 \usepackage{ragged2e}						% improved alignment, needed for raggedleft in header table cell
 \usepackage{tabularx}						% bessere Tabellen
-\usepackage{tabu}							% bessere Tabellen
+%\usepackage{tabu}							% bessere Tabellen
 \usepackage{longtable}						% Tabellen über mehrere Seiten
 %\usepackage[table]{xcolor}					% gray headers
-%\usepackage{helvet}						% Arial alike Helvetica
+%\usepackage{helvet}						% Arial-alike Helvetica
 \usepackage{lmodern}						% sans serif Latin Modern
 \usepackage{lastpage}						% easy access to page number of last page
-%\usepackage{embedfile}						% store copy of data file for producing data matrix inside PDF
+%\usepackage{embedfile}						% store data files in PDF (patient, praxis)
 %\usepackage[abspath]{currfile}				% generically refer to input file
 \usepackage{array}							% improved column styles
-%\usepackage{graphicx}						% Grafiken laden (datamatrix)
-%\usepackage[space]{grffile}					% besserer Zugriff auf Grafikdateien
+%\usepackage{graphicx}						% Grafiken laden (Logo und Unterschrift)
+%\usepackage[space]{grffile}				% besserer Zugriff auf Grafikdateien
 %\usepackage[export]{adjustbox}				% improved options for \includegraphics
 %\usepackage{calc}							% \widthof (für signature)
 %\usepackage[ocgcolorlinks=true]{hyperref}	% aktive URLs, needs to be loaded last, most of the time
@@ -69,10 +69,10 @@
 
 % - PDF metadata
 \hypersetup{
-	pdftitle = {Medikationsplan: $<name::%(firstnames)s %(lastnames)s::>$, $<date_of_birth::%d.%m.%Y::>$},
+	pdftitle = {GENERIC TITLE: $<name::%(firstnames)s %(lastnames)s::>$, $<date_of_birth::%d.%m.%Y::>$},
 	pdfauthor = {$<current_provider::::>$, $<praxis::%(branch)s, %(praxis)s::>$},
-	pdfsubject = {Medikationsplan},
-	pdfproducer = {GNUmed $<client_version::::>$, Vorlage $<form_name_long::::>$, $<form_version::::>$ [$<form_version_internal::::>$, $<form_last_modified::::>$]},
+	pdfsubject = {GENERIC TITLE},
+	pdfproducer = {GNUmed $<client_version::::>$, Template $<form_name_long::::>$, $<form_version::::>$ [$<form_version_internal::::>$, $<form_last_modified::::>$]},
 	pdfdisplaydoctitle = true
 }
 
@@ -121,18 +121,18 @@
 
 
 % - tabu
-\tabulinesep=^1mm_1mm
+%\tabulinesep=^1mm_1mm
 
 
 % - header = top part
 \lohead{{%
 	\parbox[t]{\textwidth}{
 		\upshape
-		{\centering {\Large Medikamentenliste}\\}
-		{\centering $<today::%d.%B %Y::>$ -- Seite \thepage{} von \pageref{LastPage}\\}
+		{\centering {\Large GENERIC TITLE}\\}
+		{\centering $<today::%d.%B %Y::>$ -- Page \thepage{} of \pageref{LastPage}\\}
 		\begin{tabular}[t]{ll}
 			Patient & {\large $<lastname::::1>$\textsc{$<<lastname::::2-99>>$}, $<firstname::::>$}\\
-			geb     & $<date_of_birth::%d.%B %Y::>$\\
+			born    & $<date_of_birth::%d.%B %Y::>$\\
 			$<<if_not_empty::$<adr_street::home::>$$<adr_number::home::>$$<adr_postcode::home::>$$<adr_location::home::>$//\multicolumn{2}{l}{{\footnotesize $<adr_street::home::>$ $<adr_number::home::>$, $<adr_postcode::home::>$ $<adr_location::home::>$}}\\//% address empty::>>$
 		\end{tabular}
 		\hfill
@@ -146,8 +146,8 @@
 \lehead{{%
 	\parbox[t]{\textwidth}{
 		\upshape
-		{\centering {\Large Medikamentenliste}\\}
-		{\centering $<today::%d.%B %Y::>$ -- Seite \thepage{} von \pageref{LastPage} \\}
+		{\centering {\Large GENERIC TITLE}\\}
+		{\centering $<today::%d.%B %Y::>$ -- Seite \thepage{} von \pageref{LastPage}\\}
 		\begin{tabular}[t]{ll}
 			Patient & {\large $<lastname::::1>$\textsc{$<<lastname::::2-99>>$}, $<firstname::::>$}\\
 			geb     & $<date_of_birth::%d.%B %Y::>$\\
@@ -177,7 +177,6 @@
 			\multicolumn{2}{l}{\Email $<<if_not_empty::$<praxis_comm::email::>$//\href{mailto:$<praxis_comm::email::>$}{%s}//::>>$}\\
 			%\Email         & $<<if_not_empty::$<praxis_comm::email::>$//\href{mailto:$<praxis_comm::email::>$}{%s}//::>>$\\
 		\end{tabular}%
-		%\hfill
 		\begin{tabular}[t]{ll}%
 			\Telefon       & $<praxis_comm::workphone::>$\\
 			\FAX           & $<praxis_comm::fax::>$\\
@@ -185,7 +184,6 @@
 			$<<if_not_empty::$<praxis_comm::web::>$##\ComputerMouse & \href{http://%s}{%s}\\##% no praxis web address available::>>$
 			$<<ph_cfg::argumentsdivider//DEFAULT//%% <%(name)s> set to [%(value)s]::>>$
 		\end{tabular}%
-		%\hfill
 		\begin{tabular}[t]{ll}%
 			BSNR    & $<praxis_id::KV-BSNR//KV//%(value)s::>$\\
 			GNUmed  & v$<client_version::::>$ (\href{http://www.gnumed.org}{www.gnumed.org})\\
@@ -202,7 +200,6 @@
 			\multicolumn{2}{l}{\Email $<<if_not_empty::$<praxis_comm::email::>$//\href{mailto:$<praxis_comm::email::>$}{%s}//::>>$}\\
 			%\Email         & $<<if_not_empty::$<praxis_comm::email::>$//\href{mailto:$<praxis_comm::email::>$}{%s}//::>>$\\
 		\end{tabular}%
-		%\hfill
 		\begin{tabular}[t]{ll}%
 			\Telefon       & $<praxis_comm::workphone::>$\\
 			\FAX           & $<praxis_comm::fax::>$\\
@@ -210,7 +207,6 @@
 			$<<if_not_empty::$<praxis_comm::web::>$##\ComputerMouse & \href{http://%s}{%s}\\##% no praxis web address available::>>$
 			$<<ph_cfg::argumentsdivider//DEFAULT//%% <%(name)s> set to [%(value)s]::>>$
 		\end{tabular}%
-		%\hfill
 		\begin{tabular}[t]{ll}%
 			BSNR    & $<praxis_id::KV-BSNR//KV//%(value)s::>$\\
 			GNUmed  & v$<client_version::::>$ (\href{http://www.gnumed.org}{www.gnumed.org})\\
@@ -230,24 +226,22 @@
 %\papergraduate
 
 %------------------------------------------------------------------
-% Medikamente
-$<current_meds_table::latex::>$
+...
 
-% Hinweise
 % uncomment, if and as needed, the next lines to append text below the table
 %{\footnotesize			% start smaller font
 % <any line(s) of info you wish to always be printed immediately below the table>
 %}						% end smaller font
 
-$<free_text::Hinweise an den Patienten::9999>$
+$<free_text::GENERIC NOTE::9999>$
 
 %------------------------------------------------------------------
 % Arztinformationen
-\clearpage
+%\clearpage
 $<current_meds_notes::latex::>$
 
 % Allergien
-Bislang bekannte Allergien:
+Known Allergies:
 
 $<allergy_state::::>$
 
@@ -259,9 +253,6 @@ $<allergies::%(descriptor)s & %(l10n_type)s & {\footnotesize %(reaction)s}\\\hli
 \end{tabularx}
 %------------------------------------------------------------------
 
-\medskip{}
-\medskip{}
-\medskip{}
 \medskip{}
 
 %------------------------------------------------------------------

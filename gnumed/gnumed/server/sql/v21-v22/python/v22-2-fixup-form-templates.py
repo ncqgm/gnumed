@@ -51,6 +51,19 @@ def run(conn=None):
 		filename = os.path.join('..', 'sql', 'v21-v22', 'data', 'v22-GNUmed-default_latest_vaccinations_record_template.tex'),
 		conn = conn
 	)
+
+	# medication list
+	gmPG2.file2bytea (
+		query = u"""
+			UPDATE ref.paperwork_templates SET
+				data = %(data)s::bytea,
+				external_version = '22.4'
+			WHERE
+				name_long = 'Current medication list (GNUmed default)'
+			""",
+		filename = os.path.join('..', 'sql', 'v21-v22', 'data', 'v22-GNUmed-default_medication_list_template.tex'),
+		conn = conn
+	)
 	#------------------------------------
 	return True
 
