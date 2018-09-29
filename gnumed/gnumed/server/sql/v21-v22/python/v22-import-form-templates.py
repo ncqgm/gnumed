@@ -31,7 +31,7 @@ def run(conn=None):
 		query = u"""
 			UPDATE ref.paperwork_templates SET
 				data = %(data)s::bytea,
-				external_version = '22.0'
+				external_version = '22.4'
 			WHERE
 				name_long = 'Liste aktueller Medikamente (GNUmed)'""",
 		filename = os.path.join('..', 'sql', 'v21-v22', 'data', 'v22-aktuelle-Medikationsliste.tex'),

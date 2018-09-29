@@ -3037,17 +3037,16 @@ def __generate_enhanced_amts_data_template_definition_file_v2_0(work_dir=None):
 #------------------------------------------------------------
 # other formatting
 #------------------------------------------------------------
-def format_substance_intake_notes(emr=None, output_format='latex', table_type='by-product'):
+def format_substance_intake_notes(emr=None, output_format='latex', table_type=u'by-product'):
 
-	tex = '\\noindent %s\n' % _('Additional notes for healthcare professionals')
+	tex = '%s\n' % _('Additional notes for healthcare professionals')
 	tex += '%%%% requires "\\usepackage{longtable}"\n'
 	tex += '%%%% requires "\\usepackage{tabu}"\n'
-	tex += '\\noindent \\begin{longtabu} to \\textwidth {|X[,L]|r|X[,L]|}\n'
+	tex += '\\begin{longtabu} to \\textwidth {|X[,L]|r|X[,L]|}\n'
 	tex += '\\hline\n'
-	tex += '%s {\\scriptsize (%s)} & %s & %s \\tabularnewline{}\n' % (_('Substance'), _('Drug Product'), _('Strength'), _('Aim'))
+	tex += '%s {\\scriptsize (%s)} & %s & %s\\\\\n' % (_('Substance'), _('Drug Product'), _('Strength'), _('Aim'))
 	tex += '\\hline\n'
-	tex += '\\hline\n'
-	tex += '%s\n'
+	tex += '%s\n'			# this is where the lines end up
 	tex += '\\end{longtabu}\n'
 
 	current_meds = emr.get_current_medications (
@@ -3055,23 +3054,22 @@ def format_substance_intake_notes(emr=None, output_format='latex', table_type='b
 		include_unapproved = False,
 		order_by = 'product, substance'
 	)
-
 	# create lines
 	lines = []
 	for med in current_meds:
-		product = '{\\small :} {\\tiny %s}' % gmTools.tex_escape_string(med['product'])
 		if med['aim'] is None:
 			aim = ''
 		else:
 			aim = '{\\scriptsize %s}' % gmTools.tex_escape_string(med['aim'])
-		lines.append('%s ({\\small %s}%s) & %s%s & %s \\tabularnewline{}\n \\hline' % (
+		lines.append('%s {\\small (%s: {\\tiny %s})} & %s%s & %s\\\\' % (
 			gmTools.tex_escape_string(med['substance']),
 			gmTools.tex_escape_string(med['l10n_preparation']),
-			product,
+			gmTools.tex_escape_string(med['product']),
 			med['amount'],
 			gmTools.tex_escape_string(med.formatted_units),
 			aim
 		))
+		lines.append(u'\\hline')
 
 	return tex % '\n'.join(lines)
 
@@ -3080,15 +3078,15 @@ def format_substance_intake(emr=None, output_format='latex', table_type='by-prod
 
 	# FIXME: add intake_instructions
 
-	tex = '\\noindent %s {\\tiny (%s)}\n' % (
+	tex = '%s {\\tiny (%s)}\n' % (
 		gmTools.tex_escape_string(_('Medication list')),
 		gmTools.tex_escape_string(_('ordered by brand'))
 	)
 	tex += '%% requires "\\usepackage{longtable}"\n'
 	tex += '%% requires "\\usepackage{tabu}"\n'
-	tex += '\\begin{longtabu} to \\textwidth {|X[-1,L]|X[2.5,L]|}\n'
-	tex += '\\hline\n'
-	tex += '%s & %s \\tabularnewline{}\n' % (
+	tex += u'\\begin{longtabu} to \\textwidth {|X[-1,L]|X[2.5,L]|}\n'
+	tex += u'\\hline\n'
+	tex += u'%s & %s\\\\\n' % (
 		gmTools.tex_escape_string(_('Drug')),
 		gmTools.tex_escape_string(_('Regimen / Advice'))
 	)
@@ -3096,13 +3094,12 @@ def format_substance_intake(emr=None, output_format='latex', table_type='by-prod
 	tex += '%s\n'
 	tex += '\\end{longtabu}\n'
 
+	# aggregate medication data
 	current_meds = emr.get_current_medications (
 		include_inactive = False,
 		include_unapproved = False,
 		order_by = 'product, substance'
 	)
-
-	# aggregate data
 	line_data = {}
 	for med in current_meds:
 		identifier = med['product']
@@ -3125,28 +3122,23 @@ def format_substance_intake(emr=None, output_format='latex', table_type='by-prod
 		if med['notes'] is not None:
 			if med['notes'] not in line_data[identifier]['notes']:
 				line_data[identifier]['notes'].append(med['notes'])
-
-	# create lines
+	# format aggregated data
 	already_seen = []
 	lines = []
-	line1_template = u'\\rule{0pt}{3ex}{\\Large %s} %s & %s \\tabularnewline{}'
-	line2_template = u'{\\tiny %s}                     & {\\scriptsize %s} \\tabularnewline{}'
-	line3_template = u'                                & {\\scriptsize %s} \\tabularnewline{}'
-
+	#line1_template = u'\\rule{0pt}{3ex}{\\Large %s} %s & %s \\\\'
+	line1_template = u'{\\Large %s} %s & %s\\\\'
+	line2_template = u'{\\tiny %s}                     & {\\scriptsize %s}\\\\'
+	line3_template = u'                                & {\\scriptsize %s}\\\\'
 	for med in current_meds:
 		identifier = med['product']
-
 		if identifier in already_seen:
 			continue
-
 		already_seen.append(identifier)
-
 		lines.append (line1_template % (
 			gmTools.tex_escape_string(line_data[identifier]['product']),
 			gmTools.tex_escape_string(line_data[identifier]['l10n_preparation']),
 			gmTools.tex_escape_string(line_data[identifier]['schedule'])
 		))
-
 		strengths = gmTools.tex_escape_string(' / '.join(line_data[identifier]['strengths']))
 		if len(line_data[identifier]['notes']) == 0:
 			first_note = ''
@@ -3156,7 +3148,6 @@ def format_substance_intake(emr=None, output_format='latex', table_type='by-prod
 		if len(line_data[identifier]['notes']) > 1:
 			for note in line_data[identifier]['notes'][1:]:
 				lines.append(line3_template % gmTools.tex_escape_string(note))
-
 		lines.append('\\hline')
 
 	return tex % '\n'.join(lines)

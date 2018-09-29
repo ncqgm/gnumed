@@ -24,7 +24,7 @@
 %------------------------------------------------------------------
 % packages
 \usepackage{scrlayer-scrpage}				% Kopf- und Fußzeilen
-\usepackage{geometry}						% setup margins
+\usepackage{geometry}						% setup margins, use KomaScript tools
 \usepackage{microtype}						% micro-adjustments to typesetting
 \usepackage[cjkjis,graphics]{ucs}			% lots of UTF8 symbols, breaks with xelatex
 \usepackage[T1]{fontenc}					% fonts are T1
@@ -40,11 +40,11 @@
 %\usepackage{helvet}						% Arial alike Helvetica
 \usepackage{lmodern}						% sans serif Latin Modern
 \usepackage{lastpage}						% easy access to page number of last page
-%\usepackage{embedfile}						% store copy of data file for producing data matrix inside PDF
+%\usepackage{embedfile}						% store data files in PDF (patient, praxis)
 %\usepackage[abspath]{currfile}				% generically refer to input file
 \usepackage{array}							% improved column styles
-%\usepackage{graphicx}						% Grafiken laden (datamatrix)
-%\usepackage[space]{grffile}					% besserer Zugriff auf Grafikdateien
+%\usepackage{graphicx}						% Grafiken laden (Logo und Unterschrift)
+%\usepackage[space]{grffile}				% besserer Zugriff auf Grafikdateien
 %\usepackage[export]{adjustbox}				% improved options for \includegraphics
 %\usepackage{calc}							% \widthof (für signature)
 %\usepackage[ocgcolorlinks=true]{hyperref}	% aktive URLs, needs to be loaded last, most of the time
@@ -69,10 +69,10 @@
 
 % - PDF metadata
 \hypersetup{
-	pdftitle = {Medikationsplan: $<name::%(firstnames)s %(lastnames)s::>$, $<date_of_birth::%d.%m.%Y::>$},
+	pdftitle = {Current Medication List: $<name::%(firstnames)s %(lastnames)s::>$, $<date_of_birth::%d.%m.%Y::>$},
 	pdfauthor = {$<current_provider::::>$, $<praxis::%(branch)s, %(praxis)s::>$},
-	pdfsubject = {Medikationsplan},
-	pdfproducer = {GNUmed $<client_version::::>$, Vorlage $<form_name_long::::>$, $<form_version::::>$ [$<form_version_internal::::>$, $<form_last_modified::::>$]},
+	pdfsubject = {Current Medication List},
+	pdfproducer = {GNUmed $<client_version::::>$, Template $<form_name_long::::>$, $<form_version::::>$ [$<form_version_internal::::>$, $<form_last_modified::::>$]},
 	pdfdisplaydoctitle = true
 }
 
@@ -128,17 +128,17 @@
 \lohead{{%
 	\parbox[t]{\textwidth}{
 		\upshape
-		{\centering {\Large Medikamentenliste}\\}
-		{\centering $<today::%d.%B %Y::>$ -- Seite \thepage{} von \pageref{LastPage}\\}
+		{\centering {\Large Current Medication List}\\}
+		{\centering $<today::%d.%B %Y::>$ -- Page \thepage{} of \pageref{LastPage}\\}
 		\begin{tabular}[t]{ll}
 			Patient & {\large $<lastname::::1>$\textsc{$<<lastname::::2-99>>$}, $<firstname::::>$}\\
-			geb     & $<date_of_birth::%d.%B %Y::>$\\
+			born    & $<date_of_birth::%d.%B %Y::>$\\
 			$<<if_not_empty::$<adr_street::home::>$$<adr_number::home::>$$<adr_postcode::home::>$$<adr_location::home::>$//\multicolumn{2}{l}{{\footnotesize $<adr_street::home::>$ $<adr_number::home::>$, $<adr_postcode::home::>$ $<adr_location::home::>$}}\\//% address empty::>>$
 		\end{tabular}
 		\hfill
 		\begin{tabular}[t]{ll}
-			Arzt & $<current_provider::::>$\\
-			$<<if_not_empty::$<current_provider_external_id::Fachgebiet//Ärztekammer::>$//{\footnotesize FA für & %s}\\//% speciality not available::>>$
+			Doctor & $<current_provider::::>$\\
+			$<<if_not_empty::$<current_provider_external_id::Fachgebiet//Ärztekammer::>$//{\footnotesize Specialty & %s}\\//% speciality not available::>>$
 			$<<if_not_empty::$<current_provider_external_id::KV-LANR//KV::>$//{\footnotesize LANR & %s}\\//% no LANR available::>>$
 		\end{tabular}
 	}
@@ -146,17 +146,17 @@
 \lehead{{%
 	\parbox[t]{\textwidth}{
 		\upshape
-		{\centering {\Large Medikamentenliste}\\}
-		{\centering $<today::%d.%B %Y::>$ -- Seite \thepage{} von \pageref{LastPage} \\}
+		{\centering {\Large Current Medication List}\\}
+		{\centering $<today::%d.%B %Y::>$ -- Page \thepage{} of \pageref{LastPage}\\}
 		\begin{tabular}[t]{ll}
 			Patient & {\large $<lastname::::1>$\textsc{$<<lastname::::2-99>>$}, $<firstname::::>$}\\
-			geb     & $<date_of_birth::%d.%B %Y::>$\\
+			born    & $<date_of_birth::%d.%B %Y::>$\\
 			$<<if_not_empty::$<adr_street::home::>$$<adr_number::home::>$$<adr_postcode::home::>$$<adr_location::home::>$//\multicolumn{2}{l}{{\footnotesize $<adr_street::home::>$ $<adr_number::home::>$, $<adr_postcode::home::>$ $<adr_location::home::>$}}\\//% address empty::>>$
 		\end{tabular}
 		\hfill
 		\begin{tabular}[t]{ll}
-			Arzt & $<current_provider::::>$\\
-			$<<if_not_empty::$<current_provider_external_id::Fachgebiet//Ärztekammer::>$//{\footnotesize FA für & %s}\\//% speciality not available::>>$
+			Doctor & $<current_provider::::>$\\
+			$<<if_not_empty::$<current_provider_external_id::Fachgebiet//Ärztekammer::>$//{\footnotesize Speciality & %s}\\//% speciality not available::>>$
 			$<<if_not_empty::$<current_provider_external_id::KV-LANR//KV::>$//{\footnotesize LANR & %s}\\//% no LANR available::>>$
 		\end{tabular}
 	}
@@ -230,7 +230,7 @@
 %\papergraduate
 
 %------------------------------------------------------------------
-% Medikamente
+% medication table
 $<current_meds_table::latex::>$
 
 % Hinweise
@@ -239,21 +239,21 @@ $<current_meds_table::latex::>$
 % <any line(s) of info you wish to always be printed immediately below the table>
 %}						% end smaller font
 
-$<free_text::Hinweise an den Patienten::9999>$
+$<free_text::Extra notes to the patient::9999>$
 
 %------------------------------------------------------------------
-% Arztinformationen
+% Doctor's information
 \clearpage
 $<current_meds_notes::latex::>$
 
 % Allergien
-Bislang bekannte Allergien:
+Known allergies:
 
 $<allergy_state::::>$
 
 \begin{tabularx}{\textwidth}{|l|l|X|}
 \hline
-Auslöser & Typ & Reaktion\\
+Agent & Type & Reaction\\
 \hline
 $<allergies::%(descriptor)s & %(l10n_type)s & {\footnotesize %(reaction)s}\\\hline::>$
 \end{tabularx}
@@ -267,7 +267,7 @@ $<allergies::%(descriptor)s & %(l10n_type)s & {\footnotesize %(reaction)s}\\\hli
 %------------------------------------------------------------------
 % Unterschrift
 \begin{flushright}
-\texttt{\textsl{\footnotesize Stempel / Unterschrift}}
+\texttt{\textsl{\footnotesize Practice Stamp / Physician Signature}}
 \par\end{flushright}
 
 %------------------------------------------------------------------
