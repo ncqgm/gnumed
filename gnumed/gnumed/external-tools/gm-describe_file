@@ -49,6 +49,19 @@ if [ "x${BIN}x" != "xx" ]; then
 	rm -f "${DESCRIPTION_FILE}.pdfinfo"
 fi
 
+# pdfdetach (embedded files)
+BIN=`which pdfdetach`
+if [ "x${BIN}x" != "xx" ]; then
+	echo "---- pdfdetach ----" > "${DESCRIPTION_FILE}.pdfdetach"
+	pdfdetach -list "${FILE_2_DESCRIBE}" >> "${DESCRIPTION_FILE}.pdfdetach" 2>> "${DESCRIPTION_FILE}.pdfdetach"
+	if [ $? -eq 0 ] ; then
+		cat "${DESCRIPTION_FILE}.pdfdetach" >> "${DESCRIPTION_FILE}"
+		rm -f "${DESCRIPTION_FILE}.pdfdetach"
+		echo "" >> "${DESCRIPTION_FILE}"
+	fi
+	rm -f "${DESCRIPTION_FILE}.pdfdetach"
+fi
+
 # ffprobe
 BIN=`which ffprobe`
 if [ "x${BIN}x" != "xx" ]; then
