@@ -21,7 +21,7 @@
 	fontsize=11pt,
 	foldmarks=true,
 	foldmarks=HP,
-	parskip=full,						% Absätze mit Leerzeilen trennen, kein Einzug
+	parskip=half*,						% Absätze mit Leerzeilen trennen, kein Einzug, Vorabsatz endet mit max 3/4-Zeile
 	fromurl=false,						% explizit in der Fußzeile
 	fromemail=false,					% explizit in der Fußzeile
 	fromfax=false,						% explizit in der Fußzeile
@@ -48,6 +48,7 @@
 \usepackage{lastpage}					% easy access to page number of last page
 \usepackage{calc}						% \widthof (für signature)
 \usepackage{microtype}					% improved text layout
+\usepackage{embedfile}					% embed files into PDF
 \usepackage{hyperref}					% aktive URLs
 % debugging
 %\usepackage{interfaces}				% \papergraduate
@@ -166,6 +167,10 @@
 \rofoot{{\tiny{}$<today::%d.%B %Y::50>$}}
 
 
+% Adressfeld etwas weiter oben (per Faltmarkenverschiebung)
+\LoadLetterOption{DINmtext}
+
+
 % Definiere Brief und Empfaenger
 \begin{letter}{%
 	$<receiver_name::::>$\\
@@ -173,7 +178,6 @@
 	$<receiver_postcode::::>$\ $<receiver_location::::>$\\
 	$<receiver_country::::>$
 }
-
 
 % Anrede
 \opening{%
@@ -202,4 +206,26 @@ $<<free_text::Der eigentliche Brieftext (in LaTeX)::>>$
 
 \end{letter}
 
+%------------------------------------------------------------------
+% include data in PDF for easier processing:
+
+% VCF of creator
+\IfFileExists{$<praxis_vcf::::>$}{
+	\embedfile[
+		desc=01) Praxis - digital business card (originator),
+		mimetype=text/vcf,
+		ucfilespec=praxis.vcf
+	]{$<praxis_vcf::::>$}
+}{\typeout{[$<praxis_vcf::::>$] not found}}
+
+% VCF of patient
+\IfFileExists{$<patient_vcf::::>$}{
+	\embedfile[
+		desc=02) Patient - digital business card,
+		mimetype=text/vcf,
+		ucfilespec=patient.vcf
+	]{$<patient_vcf::::>$}
+}{\typeout{[$<patient_vcf::::>$] (patient VCF) not found}}
+
+%------------------------------------------------------------------
 \end{document}

@@ -15,7 +15,7 @@
 	DIV=9,									% help typearea find a good Satzspiegel
 	BCOR=0mm,								% keine BindeCORrektur
 	fontsize=12pt,							% per spec
-	parskip=half+,							% Absätze mit halber Leerzeilen trennen, kein Einzug, Vorabsatz endet mit maxial 3/4-Zeile
+	parskip=half*,							% Absätze mit halber Leerzeilen trennen, kein Einzug, Vorabsatz endet mit maxial 3/4-Zeile
 	headsepline=on,
 	footsepline=on,
 	titlepage=false
@@ -40,8 +40,8 @@
 %\usepackage{helvet}						% Arial-alike Helvetica
 \usepackage{lmodern}						% sans serif Latin Modern
 \usepackage{lastpage}						% easy access to page number of last page
-%\usepackage{embedfile}						% store data files in PDF (patient, praxis)
-%\usepackage[abspath]{currfile}				% generically refer to input file
+\usepackage{embedfile}						% store data files in PDF (patient, praxis)
+%\usepackage[abspath]{currfile}				% generically refer to LaTeX input file
 \usepackage{array}							% improved column styles
 %\usepackage{graphicx}						% Grafiken laden (Logo und Unterschrift)
 %\usepackage[space]{grffile}				% besserer Zugriff auf Grafikdateien
@@ -260,6 +260,27 @@ $<allergies::%(descriptor)s & %(l10n_type)s & {\footnotesize %(reaction)s}\\\hli
 \begin{flushright}
 \texttt{\textsl{\footnotesize Stempel / Unterschrift}}
 \par\end{flushright}
+
+%------------------------------------------------------------------
+% include data in PDF for easier processing:
+
+% VCF of creator
+\IfFileExists{$<praxis_vcf::::>$}{
+	\embedfile[
+		desc=01) Praxis - digital business card (originator),
+		mimetype=text/vcf,
+		ucfilespec=praxis.vcf
+	]{$<praxis_vcf::::>$}
+}{\typeout{[$<praxis_vcf::::>$] not found}}
+
+% VCF of patient
+\IfFileExists{$<patient_vcf::::>$}{
+	\embedfile[
+		desc=02) Patient - digital business card,
+		mimetype=text/vcf,
+		ucfilespec=patient.vcf
+	]{$<patient_vcf::::>$}
+}{\typeout{[$<patient_vcf::::>$] (patient VCF) not found}}
 
 %------------------------------------------------------------------
 \end{document}
