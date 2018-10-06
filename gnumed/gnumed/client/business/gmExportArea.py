@@ -726,13 +726,15 @@ class cExportArea(object):
 		))
 		readme_file.close()
 
-		# patient demographics as GDT/XML/VCF
+		# patient demographics as GDT/XML/VCF/MCF
 		pat.export_as_gdt(filename = os.path.join(media_base_dir, u'patient.gdt'))
 		pat.export_as_xml_linuxmednews(filename = os.path.join(media_base_dir, u'patient.xml'))
 		pat.export_as_vcard(filename = os.path.join(media_base_dir, u'patient.vcf'))
+		pat.export_as_mecard(filename = os.path.join(media_base_dir, u'patient.mcf'))
 
-		# praxis VCF
+		# praxis VCF/MCF
 		shutil.move(prax.vcf, os.path.join(media_base_dir, u'praxis.vcf'))
+		prax.export_as_mecard(filename = os.path.join(media_base_dir, u'praxis.mcf'))
 
 		return media_base_dir
 

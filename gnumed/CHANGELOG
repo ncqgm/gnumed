@@ -14,6 +14,7 @@ FIX: $<vaccination_history::%(l10n_indications)s::>$ field
 
 IMPROVED: AppStream and desktop metadata
 IMPROVED: add "preset" option to $<free_text>$ placeholder
+IMPROVED: include MCF in export area metadata
 
 	1.7.3
 
