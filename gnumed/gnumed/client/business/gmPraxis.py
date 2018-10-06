@@ -178,6 +178,44 @@ class cPraxisBranch(gmBusinessDBObject.cBusinessDBObject):
 
 	vcf = property(_get_vcf, lambda x:x)
 
+	#--------------------------------------------------------
+	def export_as_mecard(self, filename=None):
+		if filename is None:
+			filename = gmTools.get_unique_filename (
+				prefix = 'gm-praxis-',
+				suffix = '.mcf'
+			)
+		with io.open(filename, mode = 'wt', encoding = 'utf8') as mecard_file:
+			mecard_file.write(self.MECARD)
+		return filename
+
+	#--------------------------------------------------------
+	def _get_mecard(self):
+		"""
+		http://blog.thenetimpact.com/2011/07/decoding-qr-codes-how-to-format-data-for-qr-code-generators/
+		https://www.nttdocomo.co.jp/english/service/developer/make/content/barcode/function/application/addressbook/index.html
+
+		MECARD:N:NAME;ADR:pobox,subunit,unit,street,ort,region,zip,country;TEL:111111111;FAX:22222222;EMAIL:mail@praxis.org;
+
+		MECARD:N:$<praxis::%(praxis)s, %(branch)s::>$;ADR:$<praxis_address::,%(subunit)s,%(number)s,%(street)s,%(urb)s,,%(postcode)s,%(l10n_country)s::>$;TEL:$<praxis_comm::workphone::>$;FAX:$<praxis_comm::fax::>$;EMAIL:$<praxis_comm::email::60>$;
+		"""
+		MECARD = 'MECARD:N:%(praxis)s,%(branch)s;' % self
+		adr = self.address
+		if adr is not None:
+			MECARD += 'ADR:,%(subunit)s,%(number)s,%(street)s,%(urb)s,,%(postcode)s,%(l10n_country)s;' % adr
+		comms = self.get_comm_channels(comm_medium = 'workphone')
+		if len(comms) > 0:
+			MECARD += 'TEL:%(url)s;' % comms[0]
+		comms = self.get_comm_channels(comm_medium = 'fax')
+		if len(comms) > 0:
+			MECARD += 'FAX:%(url)s;' % comms[0]
+		comms = self.get_comm_channels(comm_medium = 'email')
+		if len(comms) > 0:
+			MECARD += 'EMAIL:%(url)s;' % comms[0]
+		return MECARD
+
+	MECARD = property(_get_mecard)
+
 #------------------------------------------------------------
 def lock_praxis_branch(pk_praxis_branch=None, exclusive=False):
 	return gmPG2.lock_row(table = 'dem.praxis_branch', pk = pk_praxis_branch, exclusive = exclusive)
