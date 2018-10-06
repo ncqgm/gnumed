@@ -14,7 +14,6 @@ import os.path
 import time
 import re as regex
 import datetime as pyDT
-import io
 import thread
 import threading
 import logging
@@ -1411,6 +1410,61 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 		vcf.close()
 
 		return filename
+
+	#--------------------------------------------------------
+	def export_as_mecard(self, filename=None):
+		if filename is None:
+			filename = gmTools.get_unique_filename (
+				prefix = 'gm-patient-',
+				suffix = '.mcf'
+			)
+		with io.open(filename, mode = 'wt', encoding = 'utf8') as mecard_file:
+			mecard_file.write(self.MECARD)
+		return filename
+
+	#--------------------------------------------------------
+	def _get_mecard(self):
+		"""
+		http://blog.thenetimpact.com/2011/07/decoding-qr-codes-how-to-format-data-for-qr-code-generators/
+		https://www.nttdocomo.co.jp/english/service/developer/make/content/barcode/function/application/addressbook/index.html
+
+		MECARD:N:NAME;ADR:pobox,subunit,unit,street,ort,region,zip,country;TEL:111111111;FAX:22222222;EMAIL:mail@praxis.org;
+
+
+		MECARD:N:lastname,firstname;BDAY:YYYYMMDD;ADR:pobox,subunit,number,street,location,region,zip,country;;
+		MECARD:N:$<lastname::::>$,$<firstname::::>$;BDAY:$<date_of_birth::%Y%m%d::>$;ADR:,$<adr_subunit::home::>$,$<adr_number::home::>$,$<adr_street::home::>$,$<adr_location::home::>$,,$<adr_postcode::home::>$,$<adr_country::home::>$;;
+		"""
+		MECARD = 'MECARD:N:%s,%s;' % (
+			self._payload[self._idx['lastnames']],
+			self._payload[self._idx['firstnames']]
+		)
+		if self._payload[self._idx['dob']] is not None:
+			MECARD += 'BDAY:%s;' % gmDateTime.pydt_strftime (
+				self._payload[self._idx['dob']],
+				'%Y%m%d',
+				accuracy = gmDateTime.acc_days,
+				none_str = ''
+			)
+		adrs = self.get_addresses(address_type = 'home')
+		if len(adrs) > 0:
+			home_adr = adrs[0]
+			MECARD += 'ADR:,%(subunit)s,%(number)s,%(street)s,%(urb)s,,%(postcode)s,%(l10n_country)s;' % adr
+		comms = self.get_comm_channels(comm_medium = 'homephone')
+		if len(comms) > 0:
+			if not comms[0]['is_confidential']:
+				MECARD += 'TEL:%s;' % comms[0]['url']
+		comms = self.get_comm_channels(comm_medium = 'fax')
+		if len(comms) > 0:
+			if not comms[0]['is_confidential']:
+				MECARD += 'FAX:%s;' % comms[0]['url']
+		comms = self.get_comm_channels(comm_medium = 'email')
+		if len(comms) > 0:
+			if not comms[0]['is_confidential']:
+				MECARD += 'EMAIL:%s;' % comms[0]['url']
+		return MECARD
+
+	MECARD = property(_get_mecard)
+
 	#--------------------------------------------------------
 	# occupations API
 	#--------------------------------------------------------
@@ -2678,6 +2732,12 @@ if __name__ == '__main__':
 		print person.export_as_vcard()
 
 	#--------------------------------------------------------
+	def test_mecard():
+		person = cPerson(aPK_obj = 12)
+		print person.MECARD
+		print person.export_as_mecard()
+
+	#--------------------------------------------------------
 	def test_current_patient():
 		pat = gmCurrentPatient()
 		print "pat.emr", pat.emr
@@ -2711,8 +2771,9 @@ if __name__ == '__main__':
 	#test_export_area()
 	#test_ext_id()
 	#test_vcf()
+	test_mecard()
 	#test_ext_id()
 	#test_current_patient()
-	test_assimilate_identity()
+	#test_assimilate_identity()
 
 #============================================================
