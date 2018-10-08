@@ -154,6 +154,16 @@ except ImportError:
 	print("  INFO : this is used to handle vCard data")
 	print("  INFO : GNUmed will still work without it")
 
+print(" pyqrcode...", end=' ')
+try:
+	import pyqrcode
+	print("found")
+except ImportError:
+	missing = True
+	print("")
+	print("  ERROR: pyqrcode not installed")
+	print("  INFO : this is used to create QR codes")
+
 print(" unidecode...", end=' ')
 try:
 	import unidecode

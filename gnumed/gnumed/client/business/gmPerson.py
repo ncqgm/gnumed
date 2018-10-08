@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+
+from __future__ import print_function
+
 """GNUmed patient objects.
 
 This is a patient object intended to let a useful client-side
@@ -2662,7 +2665,7 @@ if __name__ == '__main__':
 		#pat['dob'] = 'test'
 
 #		staff = cStaff()
-#		print "setting active patient with", staff
+#		print("setting active patient with", staff)
 #		set_active_patient(patient=staff)
 
 		print("setting active patient with -1")
@@ -2705,7 +2708,7 @@ if __name__ == '__main__':
 		print('Refetching all names...')
 		for a_name in new_identity.get_names():
 			print(a_name)
-		print('Active name: %s' % (new_identity.get_active_name()))		
+		print('Active name: %s' % (new_identity.get_active_name()))
 
 		print('\nIdentity occupations: %s' % new_identity['occupations'])
 		print('Creating identity occupation...')
@@ -2751,7 +2754,7 @@ if __name__ == '__main__':
 	def test_ext_id():
 		person = cPerson(aPK_obj = 9)
 		print(person.get_external_ids(id_type='Fachgebiet', issuer='Ärztekammer'))
-		#print person.get_external_ids()
+		#print(person.get_external_ids()
 	#--------------------------------------------------------
 	def test_vcf():
 		person = cPerson(aPK_obj = 12)
@@ -2761,7 +2764,10 @@ if __name__ == '__main__':
 	def test_mecard():
 		person = cPerson(aPK_obj = 12)
 		print(person.MECARD)
-		print(person.export_as_mecard())
+		mcf = person.export_as_mecard()
+		print(mcf)
+		#print(gmTools.create_qrcode(filename = mcf, qr_filename = None, verbose = True)
+		print(gmTools.create_qrcode(text = person.MECARD, qr_filename = None, verbose = True))
 
 	#--------------------------------------------------------
 	def test_current_patient():
@@ -2793,7 +2799,7 @@ if __name__ == '__main__':
 	# module functions
 
 	#comms = get_comm_list()
-	#print "\n\nRetrieving communication media enum (id, description): %s" % comms
+	#print("\n\nRetrieving communication media enum (id, description): %s" % comms)
 	#test_export_area()
 	#test_ext_id()
 	#test_vcf()

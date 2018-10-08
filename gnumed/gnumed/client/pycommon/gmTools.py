@@ -1658,6 +1658,36 @@ def get_icon(wx=None):
 
 	return icon
 
+#---------------------------------------------------------------------------
+def create_qrcode(text=None, filename=None, qr_filename=None, verbose=False):
+	assert (not ((text is None) and (filename is None))), 'either <text> or <filename> must be specified'
+
+	try:
+		import pyqrcode
+	except ImportError:
+		_log.exception('cannot import <pyqrcode>')
+		return None
+	if text is None:
+		with io.open(filename, mode = 'rt', encoding = 'utf8') as input_file:
+			text = input_file.read()
+	if qr_filename is None:
+		if filename is None:
+			qr_filename = get_unique_filename(prefix = 'gm-qr-', suffix = '.png')
+		else:
+			qr_filename = get_unique_filename (
+				prefix = fname_stem(filename) + '-',
+				suffix = fname_extension(filename) + '.png'
+			)
+	_log.debug('[%s] -> [%s]', filename, qr_filename)
+	qr = pyqrcode.create(text, encoding = 'utf8')
+	if verbose:
+		print('input file:', filename)
+		print('output file:', qr_filename)
+		print('text to encode:', text)
+		print(qr.terminal())
+	qr.png(qr_filename, quiet_zone = 1)
+	return qr_filename
+
 #===========================================================================
 # main
 #---------------------------------------------------------------------------
@@ -2144,6 +2174,10 @@ second line\n
 		print(encrypt_pdf(filename = sys.argv[2], passphrase = sys.argv[3]))
 
 	#-----------------------------------------------------------------------
+	def test_create_qrcode():
+		print(create_qrcode(text = sys.argv[2], filename=None, qr_filename=None, verbose = True))
+
+	#-----------------------------------------------------------------------
 	#test_coalesce()
 	#test_capitalize()
 	#test_import_module()
@@ -2174,6 +2208,7 @@ second line\n
 	#test_shorten_text()
 	#test_format_compare_dicts()
 	#test_fname_sanitize()
+	test_create_qrcode()
 
 	#test_aes_encrypt()
 	test_encrypt_pdf()
