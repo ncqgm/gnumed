@@ -200,6 +200,16 @@ except ImportError:
 	print "  INFO : note that you need v0.2.1 (not 0.2.2)"
 	print "  INFO :  <pip install pysvg==0.2.1>"
 
+print " pyqrcode...",
+try:
+	import pyqrcode
+	print("found")
+except ImportError:
+	missing = True
+	print("")
+	print("  ERROR: pyqrcode not installed")
+	print("  INFO : this is used to create QR codes")
+
 print " faulthandler...",
 try:
 	import faulthandler
