@@ -285,6 +285,15 @@ __known_variant_placeholders = {
 		args: <template>
 		template: %s-template for path
 	""",
+	u'patient_mcf': u"""returns MECARD for current patient
+		args: <format>//<template>
+		format: fmt=qr|mcf|txt
+			qr: QR code png file path,
+			mcf: MECARD .mcf file path,
+			txt: MECARD string,
+			default - if omitted - is "txt",
+		template: tmpl=<%s-template string>, "%s" if omitted
+	""",
 
 	u'patient_tags': u"args: <%(field)s-template>//<separator>",
 	#u'patient_tags_table': u"no args",
@@ -1539,6 +1548,38 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			template = u'%s'
 
 		return template % self.pat.export_as_vcard()
+
+	#--------------------------------------------------------
+	def _get_variant_patient_mcf(self, data):
+		template = u'%s'
+		format = 'txt'
+		options = data.split(self.__args_divider)
+		_log.debug('options: %s', options)
+		for o in options:
+			if o.strip().startswith('fmt='):
+				format = o.strip()[4:]
+				if format not in ['qr', 'mcf', 'txt']:
+					return self._escape(_('patient_mcf: invalid format (qr/mcf/txt)'))
+				continue
+			if o.strip().startswith('tmpl='):
+				template = o.strip()[5:]
+				continue
+		_log.debug('template: %s' % template)
+		_log.debug('format: %s' % format)
+
+		if format == 'txt':
+			return template % self._escape(self.pat.MECARD)
+
+		if format == 'mcf':
+			return template % self.pat.export_as_mecard()
+
+		if format == 'qr':
+			qr_filename = gmTools.create_qrcode(text = self.pat.MECARD)
+			if qr_filename is None:
+				return self._escape('patient_mcf-cannot_create_QR_code')
+			return template % qr_filename
+
+		return None
 
 	#--------------------------------------------------------
 	def _get_variant_patient_gdt(self, data):
@@ -3235,7 +3276,7 @@ if __name__ == '__main__':
 			#u'form_name_long::::',
 			#u'form_version::::5',
 			#u'$<current_meds::\item %(product)s %(preparation)s (%(substance)s) from %(started)s for %(duration)s as %(schedule)s until %(discontinued)s\\n::250>$',
-			u'$<vaccination_history::%(date_given)s: %(vaccine)s [%(batch_no)s] %(l10n_indications)s::250>$',
+			#u'$<vaccination_history::%(date_given)s: %(vaccine)s [%(batch_no)s] %(l10n_indications)s::250>$',
 			#u'$<date_of_birth::%Y %B %d::20>$',
 			#u'$<date_of_birth::%Y %B %d::>$',
 			#u'$<date_of_birth::::20>$',
@@ -3278,6 +3319,9 @@ if __name__ == '__main__':
 			#u'bill_adr_street::::1234',
 			#u'bill_adr_number::%s::1234',
 			#u'$<diagnoses::\listitem %s::>$'
+			u'$<patient_mcf::fmt=txt//card=%s::>$',
+			u'$<patient_mcf::fmt=mcf//mcf=%s::>$',
+			u'$<patient_mcf::fmt=qr//png=%s::>$'
 		]
 
 		handler = gmPlaceholderHandler()
