@@ -9,6 +9,7 @@
 	1.7.4
 
 NEW: placeholder $<patient_mcf>$
+NEW: placeholder $<praxis_mcf>$
 
 FIX: map None to '' in address parts placeholder
 FIX: export area export-to-media
