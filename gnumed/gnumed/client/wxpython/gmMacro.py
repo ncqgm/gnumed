@@ -448,6 +448,15 @@ __known_variant_placeholders = {
 		args: <template>
 		template: %s-template for path
 	""",
+	u'praxis_mcf': u"""returns MECARD for current praxis branch
+		args: <format>//<template>
+		format: fmt=qr|mcf|txt
+			qr: QR code png file path,
+			mcf: MECARD .mcf file path,
+			txt: MECARD string,
+			default - if omitted - is "txt",
+		template: tmpl=<%s-template string>, "%s" if omitted
+	""",
 
 	# billing related:
 	'bill': """retrieve a bill
@@ -1648,8 +1657,39 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		return template % vcf_name
 
 	#--------------------------------------------------------
-	def _get_variant_praxis_address(self, data=''):
+	def _get_variant_praxis_mcf(self, data):
+		template = u'%s'
+		format = 'txt'
+		options = data.split(self.__args_divider)
+		_log.debug('options: %s', options)
+		for o in options:
+			if o.strip().startswith('fmt='):
+				format = o.strip()[4:]
+				if format not in ['qr', 'mcf', 'txt']:
+					return self._escape(_('praxis_mcf: invalid format (qr/mcf/txt)'))
+				continue
+			if o.strip().startswith('tmpl='):
+				template = o.strip()[5:]
+				continue
+		_log.debug('template: %s' % template)
+		_log.debug('format: %s' % format)
 
+		if format == 'txt':
+			return template % self._escape(gmPraxis.gmCurrentPraxisBranch().MECARD)
+
+		if format == 'mcf':
+			return template % gmPraxis.gmCurrentPraxisBranch().export_as_mecard()
+
+		if format == 'qr':
+			qr_filename = gmTools.create_qrcode(text = gmPraxis.gmCurrentPraxisBranch().MECARD)
+			if qr_filename is None:
+				return self._escape('praxis_mcf-cannot_create_QR_code')
+			return template % qr_filename
+
+		return None
+
+	#--------------------------------------------------------
+	def _get_variant_praxis_address(self, data=''):
 		options = data.split(self.__args_divider)
 
 		# formatting template
