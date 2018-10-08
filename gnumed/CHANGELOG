@@ -43,6 +43,8 @@ FIX: "lastname, firstname" based patient search under Python 3
 
 	1.7.4
 
+NEW: placeholder $<patient_mcf>$
+
 FIX: map None to '' in address parts placeholder
 FIX: export area export-to-media
 FIX: $<vaccination_history::%(l10n_indications)s::>$ field
