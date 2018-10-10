@@ -97,6 +97,12 @@ __known_variant_placeholders = {
 		target mime type: a mime type into which to convert the image, no conversion if not given
 		target extension: target file name extension, derived from target mime type if not given
 	""",
+	u'qrcode': u"""generate QR code file for a text snippet:
+		returns: path to QR code png file
+		args: <text>//<template>
+			text: utf8 text, will always be encoded in 'binary' mode with utf8 as encoding
+			template: %s-template into which to insert the QR code png file path
+	""",
 
 	# text manipulation
 	'range_of': """select range of enclosed text (note that this cannot take into account non-length characters such as enclosed LaTeX code
@@ -2440,6 +2446,22 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			return template % filename
 
 		return template % target_fname
+
+	#--------------------------------------------------------
+	def _get_variant_qrcode(self, data=None):
+		options = data.split(self.__args_divider)
+		if len(options) == 0:
+			return None
+		text4qr = options[0]
+		if len(options) > 1:
+			template = options[1]
+		else:
+			template = u'%s'
+		qr_filename = gmTools.create_qrcode(text = text4qr)
+		if qr_filename is None:
+			return self._escape('cannot_create_QR_code')
+
+		return template % qr_filename
 
 	#--------------------------------------------------------
 	def _get_variant_range_of(self, data=None):
