@@ -10,6 +10,7 @@
 
 NEW: placeholder $<patient_mcf>$
 NEW: placeholder $<praxis_mcf>$
+NEW: placehodler $<qrcode>$
 
 FIX: map None to '' in address parts placeholder
 FIX: export area export-to-media
