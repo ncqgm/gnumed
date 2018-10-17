@@ -442,10 +442,9 @@ class cVaccineEAPnl(wxgVaccineEAPnl.wxgVaccineEAPnl, gmEditArea.cGenericEditArea
 		vaccine = gmVaccination.create_vaccine (
 			pk_drug_product = self._PRW_drug_product.GetData(),
 			product_name = self._PRW_drug_product.GetValue().strip(),
-			indications = self.__indications
+			indications = self.__indications,
+			is_live = self._CHBOX_live.GetValue()
 		)
-
-		vaccine['is_live'] = self._CHBOX_live.GetValue()
 		val = self._PRW_age_min.GetValue().strip()
 		if val != '':
 			vaccine['min_age'] = gmDateTime.str2interval(val)
