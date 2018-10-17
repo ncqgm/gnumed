@@ -487,10 +487,11 @@ class cVaccine(gmBusinessDBObject.cBusinessDBObject):
 	is_in_use = property(_get_is_in_use, lambda x:x)
 
 #------------------------------------------------------------
-def create_vaccine(pk_drug_product=None, product_name=None, indications=None):
+def create_vaccine(pk_drug_product=None, product_name=None, indications=None, is_live=None):
+
+	assert (is_live is not None), '<is_live> must not be <None>'
 
 	conn = gmPG2.get_connection(readonly = False)
-
 	if pk_drug_product is None:
 		#prep = _('vaccine')
 		prep = u'vaccine'
@@ -507,9 +508,8 @@ def create_vaccine(pk_drug_product=None, product_name=None, indications=None):
 		vacc_prod['atc'] = u'J07'
 		vacc_prod.save(conn = conn)
 		pk_drug_product = vacc_prod['pk_drug_product']
-
-	cmd = u'INSERT INTO ref.vaccine (fk_drug_product) values (%(pk_drug_product)s) RETURNING pk'
-	queries = [{'cmd': cmd, 'args': {'pk_drug_product': pk_drug_product}}]
+	cmd = u'INSERT INTO ref.vaccine (fk_drug_product, is_live) values (%(pk_drug_product)s, %(live)s) RETURNING pk'
+	queries = [{'cmd': cmd, 'args': {'pk_drug_product': pk_drug_product, 'live': is_live}}]
 	rows, idx = gmPG2.run_rw_queries(link_obj = conn, queries = queries, get_col_idx = False, return_data = True, end_tx = True)
 	conn.close()
 	return cVaccine(aPK_obj = rows[0]['pk'])
