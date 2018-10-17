@@ -292,47 +292,37 @@ def convert_file(filename=None, target_mime=None, target_filename=None, target_e
 
 #-----------------------------------------------------------------------------------
 def __run_file_describer(filename=None):
-
 	base_name = 'gm-describe_file'
-
 	paths = gmTools.gmPaths()
 	local_script = os.path.join(paths.local_base_dir, '..', 'external-tools', base_name)
-
 	candidates = [ base_name, local_script ]		#, base_name + u'.bat'
 	found, binary = gmShellAPI.find_first_binary(binaries = candidates)
 	if not found:
-		#binary = base_name# + r'.bat'
-		_log.debug('cannot find <%s(.bat)>', base_name)
+		_log.error('cannot find <%s(.bat)>', base_name)
 		return (False, _('<%s(.bat)> not found') % base_name)
 
-	desc_fname = gmTools.get_unique_filename()
-
-	cmd_line = [
-		binary,
-		filename,
-		desc_fname
-	]
+	cmd_line = [binary, filename]
 	_log.debug('describing: %s', cmd_line)
 	try:
-		gm_describe = subprocess.Popen(cmd_line)
-	except OSError:
-		_log.debug('cannot run <%s>', binary)
+		proc_result = subprocess.run (
+			args = cmd_line,
+			stdin = subprocess.PIPE,
+			stdout = subprocess.PIPE,
+			stderr = subprocess.PIPE,
+			#timeout = timeout,
+			encoding = 'utf8'
+		)
+	except (subprocess.TimeoutExpired, FileNotFoundError):
+		_log.exception('there was a problem running external process')
 		return (False, _('problem with <%s>') % binary)
 
-	gm_describe.communicate()
-	if gm_describe.returncode != 0:
-		_log.error('<%s> returned [%s], failed to convert', binary, gm_describe.returncode)
+	_log.info('exit code [%s]', proc_result.returncode)
+	if proc_result.returncode != 0:
+		_log.error('[%s] failed', binary)
+		_log.error('STDERR:\n%s', proc_result.stderr)
+		_log.error('STDOUT:\n%s', proc_result.stdout)
 		return (False, _('problem with <%s>') % binary)
-
-	try:
-		desc_file = io.open(desc_fname, mode = 'rt', encoding = 'utf8', errors = 'replace')
-	except IOError:
-		_log.exception('cannot open [%s]', desc_fname)
-		return (False, _('problem with <%s>') % binary)
-
-	desc = ''.join(desc_file)
-	desc_file.close()
-	return (True, desc)
+	return (True, proc_result.stdout)
 
 #-----------------------------------------------------------------------------------
 def describe_file(filename, callback=None):
@@ -537,6 +527,12 @@ if __name__ == "__main__":
 		return result
 
 	#--------------------------------------------------------
+	def test_describer():
+		status, desc = describe_file(filename)
+		print(status)
+		print(desc)
+
+	#--------------------------------------------------------
 
 #	print(_system_startfile_cmd)
 #	print(guess_mimetype(filename))
@@ -550,8 +546,6 @@ if __name__ == "__main__":
 #	print(guess_ext_by_mimetype(mimetype=filename))
 #	call_viewer_on_file(aFile = filename, block = True)
 	#call_editor_on_file(filename)
-#	status, desc = describe_file(filename)
-#	print(status)
-#	print(desc)
+	test_describer()
 
 	#print(test_edit())
