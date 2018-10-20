@@ -247,6 +247,39 @@ else
 	echo "found"
 fi
 
+echo -n " 'pdfinfo' command... "
+BIN=`which pdfinfo`
+if [ "x${BIN}x" == "xx" ]; then
+	echo ""
+	echo "  INFO : You don't seem to have the 'pdfinfo' command installed."
+	echo "  INFO : It can be used by GNUmed to extract metadata from"
+	echo "  INFO : files for display within GNUmed."
+else
+	echo "found"
+fi
+
+echo -n " 'pdfdetach' command... "
+BIN=`which pdfdetach`
+if [ "x${BIN}x" == "xx" ]; then
+	echo ""
+	echo "  INFO : You don't seem to have the 'pdfdetach' command installed."
+	echo "  INFO : It can be used by GNUmed to extract metadata from"
+	echo "  INFO : files for display within GNUmed."
+else
+	echo "found"
+fi
+
+echo -n " 'pdfsig' command... "
+BIN=`which pdfsig`
+if [ "x${BIN}x" == "xx" ]; then
+	echo ""
+	echo "  INFO : You don't seem to have the 'pdfsig' command installed."
+	echo "  INFO : It can be used by GNUmed to extract metadata from"
+	echo "  INFO : files for display within GNUmed."
+else
+	echo "found"
+fi
+
 echo -n " 'dmtxwrite' command... "
 BIN=`which dmtxwrite`
 if [ "x${BIN}x" == "xx" ]; then
