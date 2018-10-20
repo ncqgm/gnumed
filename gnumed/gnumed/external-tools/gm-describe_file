@@ -23,7 +23,8 @@ fi
 
 
 # PDF ?
-if [ $(file "${FILE_2_DESCRIBE}" | grep -q 'PDF') ] ; then
+file "${FILE_2_DESCRIBE}" | grep -q 'PDF'
+if [ $? -eq 0 ] ; then
 	# pdfinfo
 	BIN=`which pdfinfo`
 	if [ "x${BIN}x" != "xx" ]; then
@@ -55,13 +56,22 @@ if [ $(file "${FILE_2_DESCRIBE}" | grep -q 'PDF') ] ; then
 		pdfdetach -list "${FILE_2_DESCRIBE}" >> "${DESCRIPTION_FILE}.pdfdetach" 2>> "${DESCRIPTION_FILE}.pdfdetach"
 		if [ $? -eq 0 ] ; then
 			cat "${DESCRIPTION_FILE}.pdfdetach" >> "${DESCRIPTION_FILE}"
-			rm -f "${DESCRIPTION_FILE}.pdfdetach"
 			echo "" >> "${DESCRIPTION_FILE}"
 		fi
 		rm -f "${DESCRIPTION_FILE}.pdfdetach"
 	fi
+	# pdfsig (signatures)
+	BIN=`which pdfsig`
+	if [ "x${BIN}x" != "xx" ]; then
+		echo "---- pdfsig ----" > "${DESCRIPTION_FILE}.pdfsig"
+		pdfsig "${FILE_2_DESCRIBE}" >> "${DESCRIPTION_FILE}.pdfsig" 2>> "${DESCRIPTION_FILE}.pdfsig"
+		cat "${DESCRIPTION_FILE}.pdfsig" >> "${DESCRIPTION_FILE}"
+		echo "" >> "${DESCRIPTION_FILE}"
+		rm -f "${DESCRIPTION_FILE}.pdfsig"
+	fi
 ## not a PDF
 #else
+#	echo "not PDF"
 #	echo "---- identify ----" >> "${DESCRIPTION_FILE}"
 #	# takes a long time on large images / PDF files / movies
 #	identify -verbose "${FILE_2_DESCRIBE}" >> "${DESCRIPTION_FILE}" 2>> "${DESCRIPTION_FILE}"
