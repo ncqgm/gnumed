@@ -112,7 +112,14 @@ __known_variant_placeholders = {
 		args: <possibly-empty-text>//<template-if-not-empty>//<alternative-text-if-empty>
 	""",
 
-	'ph_cfg': """Set placeholder handler options.
+	u'tex_escape': u"args: string to escape, mostly obsolete now",
+
+	u'url_escape': u"""Escapes a string suitable for use as _data_ in an URL
+		args: text to escape
+	""",
+
+	# internal state
+	'ph_cfg': u"""Set placeholder handler options.
 		args: option name//option value//macro return string
 		option names:
 			ellipsis: what to use as ellipsis (if anything) when
@@ -139,11 +146,8 @@ __known_variant_placeholders = {
 				if the encoding ends in '-strict' then the placeholder
 				replacement will fail if the roundtrip fails
 	""",
-
-	'tex_escape': "args: string to escape, mostly obsolete now",
-
-	'url_escape': """Escapes a string suitable for use as _data_ in an URL
-		args: text to escape
+	u'if_debugging': u"""set text based on whether debugging is active
+		args: <text-if-debugging>//<text-if-not-debugging>
 	""",
 
 	'today': "args: strftime format",
@@ -1511,7 +1515,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		comms = self.pat.get_comm_channels(comm_medium = comm_type)
 		if len(comms) == 0:
 			if self.debug:
-				return template + ': ' + self._escape(_('no URL for comm channel [%s]') % data)
+				return self._escape(_('no URL for comm channel [%s]') % data)
 			return ''
 
 		return template % comms[0].fields_as_dict(escape_style = self.__esc_style)
@@ -1728,7 +1732,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		comms = gmPraxis.gmCurrentPraxisBranch().get_comm_channels(comm_medium = comm_type)
 		if len(comms) == 0:
 			if self.debug:
-				return template + ': ' + self._escape(_('no URL for comm channel [%s]') % data)
+				return self._escape(_('no URL for comm channel [%s]') % data)
 			return ''
 
 		return template % comms[0].fields_as_dict(escape_style = self.__esc_style)
@@ -1755,7 +1759,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		ids = gmPraxis.gmCurrentPraxisBranch().get_external_ids(id_type = id_type, issuer = issuer)
 		if len(ids) == 0:
 			if self.debug:
-				return template + ': ' + self._escape(_('no external ID [%s] by [%s]') % (id_type, issuer))
+				return self._escape(_('no external ID [%s] by [%s]') % (id_type, issuer))
 			return ''
 
 		return template % self._escape_dict(the_dict = ids[0], none_string = '')
@@ -2489,6 +2493,20 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		if '%s' in template:
 			return template % txt
 		return template
+
+	#--------------------------------------------------------
+	def _get_variant_if_debugging(self, data=None):
+
+		if data is None:
+			return None
+		parts = data.split(self.__args_divider)
+		if len(parts) < 2:
+			return self._escape(u'IF_DEBUGGING lacks proper definition')
+		debug_str = parts[0]
+		non_debug_str = parts[1]
+		if self.debug:
+			return debug_str
+		return non_debug_str
 
 	#--------------------------------------------------------
 	def _get_variant_free_text(self, data=None):

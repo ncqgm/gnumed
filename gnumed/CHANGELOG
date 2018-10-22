@@ -46,6 +46,7 @@ FIX: "lastname, firstname" based patient search under Python 3
 NEW: placeholder $<patient_mcf>$
 NEW: placeholder $<praxis_mcf>$
 NEW: placehodler $<qrcode>$
+NEW: placeholder $<if_debugging>$
 
 FIX: map None to '' in address parts placeholder
 FIX: export area export-to-media

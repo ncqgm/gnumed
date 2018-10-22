@@ -1477,8 +1477,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 			)
 		adrs = self.get_addresses(address_type = 'home')
 		if len(adrs) > 0:
-			home_adr = adrs[0]
-			MECARD += 'ADR:,%(subunit)s,%(number)s,%(street)s,%(urb)s,,%(postcode)s,%(l10n_country)s;' % adr
+			MECARD += 'ADR:,%(subunit)s,%(number)s,%(street)s,%(urb)s,,%(postcode)s,%(l10n_country)s;' % adrs[0]
 		comms = self.get_comm_channels(comm_medium = 'homephone')
 		if len(comms) > 0:
 			if not comms[0]['is_confidential']:
