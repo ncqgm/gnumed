@@ -1073,6 +1073,9 @@ class cLaTeXForm(cFormEngine):
 	#--------------------------------------------------------
 	def substitute_placeholders(self, data_source=None):
 
+		# debugging
+		#data_source.debug = True
+
 		if self.template is not None:
 			# inject placeholder values
 			data_source.set_placeholder(u'form_name_long', self.template['name_long'])

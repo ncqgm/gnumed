@@ -1198,9 +1198,9 @@ def tex_escape_string(text=None, replace_known_unicode=True, replace_eol=False, 
 			is preserved in the LaTeX source (think multi-
 			row table cells)
 	"""
-	text = text.replace(u'\\', u'\\textbackslash')			# requires \usepackage{textcomp} in LaTeX source
-	text = text.replace(u'^', u'\\textasciicircum')			# requires \usepackage{textcomp} in LaTeX source
-	text = text.replace(u'~', u'\\textasciitilde')			# requires \usepackage{textcomp} in LaTeX source
+	text = text.replace(u'\\', u'\\textbackslash')
+	text = text.replace(u'^', u'\\textasciicircum')
+	text = text.replace(u'~', u'\\textasciitilde')
 
 	text = text.replace(u'{', u'\\{')
 	text = text.replace(u'}', u'\\}')
@@ -1217,7 +1217,7 @@ def tex_escape_string(text=None, replace_known_unicode=True, replace_eol=False, 
 
 	if replace_known_unicode:
 		# this should NOT be replaced for Xe(La)Tex
-		text = text.replace(u_euro, u'\\EUR')
+		text = text.replace(u_euro, u'\\EUR')		# requires \usepackage{textcomp} in LaTeX source
 		text = text.replace(u_sum, u'$\\Sigma$')
 
 	return text

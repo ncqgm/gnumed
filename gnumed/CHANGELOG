@@ -12,6 +12,7 @@ NEW: placeholder $<patient_mcf>$
 NEW: placeholder $<praxis_mcf>$
 NEW: placehodler $<qrcode>$
 NEW: placeholder $<if_debugging>$
+NEW: LaTeX letter template example
 
 FIX: map None to '' in address parts placeholder
 FIX: export area export-to-media
