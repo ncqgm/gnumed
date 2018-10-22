@@ -1280,6 +1280,8 @@ def tex_escape_string(text=None, replace_known_unicode=True, replace_eol=False, 
 			row table cells)
 	"""
 	text = text.replace('\\', '\\textbackslash')			# requires \usepackage{textcomp} in LaTeX source
+	text = text.replace('^', '\\textasciicircum')
+	text = text.replace('~', '\\textasciitilde')
 
 	text = text.replace('{', '\\{')
 	text = text.replace('}', '\\}')
@@ -1288,11 +1290,6 @@ def tex_escape_string(text=None, replace_known_unicode=True, replace_eol=False, 
 	text = text.replace('#', '\\#')
 	text = text.replace('$', '\\$')
 	text = text.replace('_', '\\_')
-
-	text = text.replace('\\textbackslash', '\\textbackslash{}')
-	text = text.replace('^', '\\textasciicircum{}')			# requires \usepackage{textcomp} in LaTeX source
-	text = text.replace('~', '\\textasciitilde{}')			# requires \usepackage{textcomp} in LaTeX source
-
 	if replace_eol:
 		if keep_visual_eol:
 			text = text.replace('\n', '\\newline \n')
@@ -1301,7 +1298,7 @@ def tex_escape_string(text=None, replace_known_unicode=True, replace_eol=False, 
 
 	if replace_known_unicode:
 		# this should NOT be replaced for Xe(La)Tex
-		text = text.replace(u_euro, '\\EUR')
+		text = text.replace(u_euro, '\\EUR')		# requires \usepackage{textcomp} in LaTeX source
 		text = text.replace(u_sum, '$\\Sigma$')
 
 	return text
