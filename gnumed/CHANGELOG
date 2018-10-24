@@ -57,6 +57,7 @@ FIX: vaccine creation
 IMPROVED: AppStream and desktop metadata
 IMPROVED: add "preset" option to $<free_text>$ placeholder
 IMPROVED: include MCF in export area metadata
+IMPROVED: Begleitbrief template
 
 	1.7.3
 

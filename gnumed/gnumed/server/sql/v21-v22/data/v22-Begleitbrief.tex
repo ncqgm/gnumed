@@ -1,118 +1,166 @@
 %------------------------------------------------------------------
-% Based on:
+% generic letter template based on scrlttr2
 %
-% Deutsche LaTeX Briefvorlage von Jan-Philip Gehrcke
-% http://gehrcke.de -- jgehrcke@googlemail.com
-% November 2009, Aktualisierung Januar 2013
-%
-% Stark angepaßt von Karsten.Hilbert@gmx.net für GNUmed.
-%
-% use with pdflatex, NOT xelatex
-%
+% Author: Karsten Hilbert
+% Author: karsten.hilbert@gmx.net
 % License: GPL v2 or later
+%
+% requires pdflatex to be run with -recorder option
 %------------------------------------------------------------------
-
+% documentclass with options for *all* packages:
 \documentclass[
-	paper=a4,
-	BCOR=0mm,							% keine BindeCORrektur
-	DIN,
-	version=last,
-	enlargefirstpage=on,
-	fontsize=11pt,
-	foldmarks=true,
-	foldmarks=HP,
-	parskip=half*,						% Absätze mit Leerzeilen trennen, kein Einzug, Vorabsatz endet mit max 3/4-Zeile
-	fromurl=false,						% explizit in der Fußzeile
-	fromemail=false,					% explizit in der Fußzeile
-	fromfax=false,						% explizit in der Fußzeile
-	fromphone=false,					% explizit in der Fußzeile
-	fromlogo=true,
-	fromalign=center,
-	fromrule=afteraddress,
-	symbolicnames=true,
-	headsepline=true,
-	footsepline=true,
-	pagenumber=footright
+	version=last,							% use latest scrlttr2 code
+	BCOR=0mm,								% keine BindeCORrektur
+	paper=portrait,							% not landscape
+	paper=a4,								% set paper size
+	fontsize=11pt,							% set fontsize early such that recalctypearea is not necessary
+	foldmarks=true,							% switch on foldmarks
+	foldmarks=HPV,							% select ALL foldmarks (Horz/Punch/Vert)
+	enlargefirstpage=on,					% allow for more text on first page, if possible
+	firsthead=true,							% do show Sender information on first page
+	fromalign=left,							% center Sender information at top of first page
+	fromrule=afteraddress,					% horiz rule after Sender address at top of first page
+	fromurl=false,							% explizit in der Fußzeile
+	fromemail=false,						% explizit in der Fußzeile
+	fromfax=false,							% explizit in der Fußzeile
+	fromphone=false,						% explizit in der Fußzeile
+	frommobilephone=false,					% explizit in der Fußzeile
+	fromlogo=true,							% at top of page, if available
+	symbolicnames=true,						% use MarvoSym symbols for <from*> labelling rather than textual labels
+	locfield=wide,							% make available lots of space in the location field
+	headsepline=true,						% do show line below page header
+	footsepline=true,						% do show line above page footer
+	pagenumber=footright					% where to place page number by default
 ]{scrlttr2}
 
-\usepackage{scrlayer-scrpage}			% Kopf- und Fußzeilen
-\usepackage[cjkjis,graphics]{ucs}		% lots of UTF8 symbols, breaks with xelatex
-\usepackage[utf8x]{inputenc}			% content is UTF8, breaks with xelatex
-\usepackage[T1]{fontenc}				% fonts are T1
-\usepackage[ngerman]{babel}				% Deutsch und Trennung
-\usepackage{marvosym}					% Symbole: Handy, Telefon, E-Mail
-\usepackage{textcomp}					% Symbole für Textmodus zum Escapen
-\usepackage{lmodern}					% sans serif Latin Modern
-\usepackage{graphicx}					% Grafiken laden (Logo und Unterschrift)
-\usepackage[space]{grffile}				% besserer Zugriff auf Grafikdateien
-\usepackage{lastpage}					% easy access to page number of last page
-\usepackage{calc}						% \widthof (für signature)
-\usepackage{microtype}					% improved text layout
-\usepackage{embedfile}					% embed files into PDF
-\usepackage{hyperref}					% aktive URLs
+
+% package loading:
+\usepackage{scrlayer-scrpage}				% header and footer control
+\usepackage[ngerman]{babel}					% Deutsch und Trennung
+\usepackage[utf8]{inputenc}					% input is UTF8
+\usepackage[T1]{fontenc}					% fonts are T1
+\usepackage{textcomp}						% symbols for textmode escaping, does not mix with "ucs", unless utf8x used
+\usepackage{marvosym}						% symbols: Handy, Telefon, E-Mail
+\usepackage{lmodern}						% sans serif Latin Modern
+\usepackage{array}							% improved table column styles
+\usepackage{graphicx}						% enhanced graphics loading (logo and signature)
+\usepackage[space,extendedchars]{grffile}	% better access to graphics files
+\usepackage[export]{adjustbox}				% improved options for \includegraphics
+\usepackage{ragged2e}						% improved alignment
+\usepackage{lastpage}						% easy access to page number of last page
+\usepackage{embedfile}						% store data files in PDF (patient, praxis)
+%\usepackage[abspath]{currfile}				% generically refer to LaTeX input file
+\usepackage{calc}							% \widthof (for signature)
+\usepackage{microtype}						% micro-adjustments to typesetting
 % debugging
-%\usepackage{interfaces}				% \papergraduate
-%\usepackage{showkeys}					% print labels (anchors and stuff) as margin notes
+$<if_debugging:://%::>$\usepackage{interfaces}				% provides \papergraduate
+$<if_debugging:://%::>$\usepackage{showkeys}				% print labels (anchors and stuff) as margin notes
+$<if_debugging:://%::>$\usepackage[noframe]{showframe}		% show page margins as boxes
+$<if_debugging:://%::>$\usepackage[verbose]{layout}			% generate a page with the current layout
+$<if_debugging:://%::>$\usepackage[pass]{geometry}			% nicely display geometry in log file
+$<if_debugging:://%::>$\usepackage{afterpage}				% add stuff after next page bread
+% load last:
+\usepackage{hyperref}						% aktive URLs, needs to be loaded last, most of the time
 
 
-% debugging
-\errorcontextlines 10000
-% - show all files used
-\listfiles
-% - show unorthodox/faulty/obsolete uses
-\RequirePackage[l2tabu, orthodox]{nag}
-% - mark overfull horizontal boxes
-%\overfullrule=2cm
-% - show coordinate system on paper
-%\papergraduate
+% package setup:
+% - debugging
+\listfiles																% list all input files used
+\errorcontextlines 10000												% list lots of context lines with errors
+\RequirePackage[l2tabu, orthodox]{nag}									% show unorthodox/faulty/obsolete uses
+\hypersetup{debug=true}													% extra debugging log messages
+% %\tracingtabu=3														% trace tabu tables if using tabu package
+$<if_debugging:://%::>$\usetikz{basic}									% needed for \papergraduate from package interfaces
+$<if_debugging:://%::>$\overfullrule=2cm								% mark overfull horizontal boxes
+$<if_debugging:://%::>$\LoadLetterOption{visualize}						% visualize letter title page layout
+$<if_debugging:://%::>$\showfields{head,foot,address,location,refline}	% show srlttr2 fields
+$<if_debugging:://%::>$\geometry{pass,verbose}							% put geometry into log file
+$<if_debugging:://%::>$\renewcommand\ShowFrameLinethickness{0.25pt}		% configure showframe
+$<if_debugging:://%::>$\renewcommand*\ShowFrameColor{\color{red}}		% configure showframe
 
+% - PDF metadata
+\hypersetup{
+	pdftitle = {Patient: $<name::%(firstnames)s %(lastnames)s::>$, $<date_of_birth::%d.%m.%Y::>$},
+	pdfauthor = {$<current_provider::::>$, $<praxis::%(branch)s, %(praxis)s::>$},
+	pdfsubject = {Begleitbrief},
+	pdfproducer = {GNUmed $<client_version::::>$, Template $<form_name_long::::>$, $<form_version::::>$ [$<form_version_internal::::>$, $<form_last_modified::::>$]},
+	pdfdisplaydoctitle = true,
+	pdfprintscaling = None
+}
 
-% Definiere Grundschrift: sans serif Latin Modern
+% - base font: sans serif Latin Modern
 \renewcommand*\familydefault{\sfdefault}
 
-
+%------------------------------------------------------------------
 \begin{document}
 
-% Kopfzeile ab zweiter Seite
-\lehead{$<<if_not_empty::$<title::::>$//%s \\//::>>$$<lastname::::>$, $<firstname::::>$ ($<date_of_birth::%d.%B %Y::>$)}
-\lohead{$<<if_not_empty::$<title::::>$//%s \\//::>>$$<lastname::::>$, $<firstname::::>$ ($<date_of_birth::%d.%B %Y::>$)}
-\cehead{}
-\cohead{}
-\rehead{Seite \thepage/\pageref{LastPage}}
-\rohead{Seite \thepage/\pageref{LastPage}}
+
+% letter options and settings:
+%\LoadLetterOption{DIN}				% suitable for C4/C5/C6/C6-lang
+% - Adressfeld etwas weiter oben (per Faltmarkenverschiebung)
+\LoadLetterOption{DINmtext}			% suitable for C6/C6-lang only
 
 
-% Absenderdetails
-\setkomavar{fromname}{$<current_provider_name::%(title)s %(firstnames)s %(lastnames)s::>$, FA für $<current_provider_external_id::Fachgebiet//Ärztekammer::50>$}
-\setkomavar{fromaddress}{\small
-	$<<praxis::%(praxis)s, %(branch)s::120>>$\\
-	$<<praxis_address::%(street)s %(number)s$<if_not_empty::%(subunit)s// (%(subunit)s)//::>$, %(postcode)s %(urb)s::60>>$
+% - sender details
+\setkomavar{fromname}{%
+	$<current_provider_name::%(title)s %(firstnames)s %(lastnames)s::>$, FA für $<current_provider_external_id::Fachgebiet//Ärztekammer::50>$
 }
-\setkomavar{fromlogo}{$<data_snippet::praxis-logo//\includegraphics[width=30mm]{%s}//image/png//.png::250>$}%$ -- this dollarsign de-confuses mcedit syntax coloring
+\setkomavar{fromaddress}{%
+	\small
+	$<<ph_cfg::argumentsdivider//#2#//%% <%(name)s> set to [%(value)s]::>>$
+	$<praxis::%(praxis)s, %(branch)s::120>$$<<if_not_empty::$<praxis_address::%(street)s::>$#2#\\#2#::>>$
+	$<<if_not_empty::$<praxis_address::%(street)s::>$#2#$<praxis_address::%(street)s %(number)s::>$#2#::>>$$<<if_not_empty::$<praxis_address::%(subunit)s::>$#2# (%s)#2#::>>$$<<if_not_empty::$<praxis_address::%(street)s::>$#2#$<praxis_address::, %(postcode)s %(urb)s::>$#2#% no praxis address available::>>$
+	$<<ph_cfg::argumentsdivider//DEFAULT//%% <%(name)s> set to [%(value)s]::>>$
+}
+\setkomavar{fromlogo}{%
+	$<ph_cfg::argumentsdivider//#1#//%% <%(name)s> set to [%(value)s]::>$
+	$<<ph_cfg::argumentsdivider//#2#//%% <%(name)s> set to [%(value)s]::>>$
+	$<<if_not_empty::$<data_snippet::praxis-logo#1#\includegraphics[width=20mm]{%s}#1#image/png#1#.png::250>$#2#%s#2#$<qrcode::http://www.gnumed.de#1#\includegraphics[width=15mm]{%s}::>$	% no praxis logo available::>>$
+	$<<ph_cfg::argumentsdivider//DEFAULT//%% <%(name)s> set to [%(value)s]::>>$
+	$<ph_cfg::argumentsdivider//DEFAULT//%% <%(name)s> set to [%(value)s]::>$
+}
+% explicit backaddress, not calculated from <from*> values
 \setkomavar{backaddress}{$<current_provider_firstnames::::1>$.$<current_provider_lastnames::::>$\\$<praxis_address::%(street)s %(number)s\\%(postcode)s %(urb)s::60>$}
+\setkomavar{location}{%
+	\begin{tabular}[t]{cc}%
+		Patient & Absender \\
+		\includegraphics[width=30mm]{$<patient_mcf::fmt=qr//%s::>$} & \includegraphics[width=30mm]{$<praxis_mcf::fmt=qr//%s::>$}
+	\end{tabular}%
+}
+% not needed:
+%\setkomavar{fromurl}{}
+%\setkomavar{fromemail}{}
+%\setkomavar{fromfax}{}
+%\setkomavar{fromphone}{}
+%\setkomavar{frommobilephone}{}
 
 
-% Geschäftszeile
-\setkomavar{yourref}{$<free_text::Angabe in "Ihr Zeichen"::40>$}
-\setkomavar{yourmail}{$<free_text::Angabe in "Ihr Schreiben vom"::20>$}
-\setkomavar{myref}{$<free_text::Angabe in "Unser Zeichen"::40>$}
+% - reference line
+\setkomavar{yourref}{$<free_text::"Ihr Zeichen"::40>$}
+\setkomavar{yourmail}{$<free_text::"Ihr Schreiben vom"::20>$}
+\setkomavar{myref}{$<free_text::"Unser Zeichen"::40>$}
 \setkomavar{date}{$<today::%d.%B %Y::50>$}
 \setkomavar{place}{$<praxis_address::%(urb)s::120>$}
 
 
-% Betreff, nämlich Patientendaten
+% - Subject, namely patient data
 \setkomavar{subject}[]{%
-	$<<<ph_cfg::argumentsdivider//##//%% <%(name)s> set to [%(value)s]::>>>$
-	$<<<if_not_empty::$<<free_text::Betreff für den Brief (Patientendaten werden automatisch angefügt.)::120>>$##%s\\##% no additional Betreff by user::>>>$
+	$<<<ph_cfg::argumentsdivider//#3#//%% <%(name)s> set to [%(value)s]::>>>$
+	$<<<if_not_empty::$<<free_text::Betreff (Patientenstammdaten werden hinzugefügt)::120>>$#3#%s\\#3#% no additional Subject by user::>>>$
 	$<<<ph_cfg::argumentsdivider//DEFAULT//%% <%(name)s> set to [%(value)s]::>>>$
-	Patient: $<title::::>$ $<firstname::::>$ $<lastname::::>$ (geb $<date_of_birth::%d.%B %Y::>$)\\
-	Adresse: $<adr_street::home::>$ $<adr_number::home::>$, $<adr_postcode::home::>$ $<adr_location::home::>$
+	$<<ph_cfg::argumentsdivider//#2#//%% <%(name)s> set to [%(value)s]::>>$
+	Patient: $<title::::>$ $<firstname::::>$ $<lastname::::>$ (geb $<date_of_birth::%d.%B %Y::>$)$<<if_not_empty::$<adr_street::home::>$#2#\\#2#::>>$
+	$<<if_not_empty::$<adr_street::home::>$#2#Address: $<adr_street::home::>$ $<adr_number::home::>$, $<adr_postcode::home::>$ $<adr_location::home::>$#2#% no address available::>>$
+	$<<ph_cfg::argumentsdivider//DEFAULT//%% <%(name)s> set to [%(value)s]::>>$
 }
 
 
-% Unterschrift
+% - signature
 \setkomavar{signature}{%
-	$<data_snippet::autograph-$<<current_provider_lastnames::::>>$_$<<current_provider_firstnames::::>>$//\includegraphics[width=30mm]{%s}\\//image/png//.png::250>$\rule{\widthof{\tiny{}(Der Unterzeichner haftet nicht für unsignierte Änderungen des Inhalts.)}}{.1pt}\\
+	$<<<ph_cfg::argumentsdivider//#3#//%% <%(name)s> set to [%(value)s]::>>>$
+	$<<<if_not_empty::$<<data_snippet::autograph-$<current_provider_lastnames::::>$_$<current_provider_firstnames::::>$//\includegraphics[width=30mm]{%s}//image/png//.png::250>>$#3#%s\\#3#::>>>$
+	$<<<ph_cfg::argumentsdivider//DEFAULT//%% <%(name)s> set to [%(value)s]::>>>$
+	\rule{\widthof{\tiny{}(Der Unterzeichner haftet nicht für unsignierte Änderungen des Inhalts.)}}{.1pt}\\
 	$<<ph_cfg::argumentsdivider//##//%% <%(name)s> set to [%(value)s]::>>$
 	$<<if_not_empty::$<current_provider_name::%(title)s::>$##$<current_provider_name::%(title)s %(firstnames)s %(lastnames)s::>$\\##$<current_provider_name::%(firstnames)s %(lastnames)s::>$\\::>>$
 	$<<if_not_empty::$<current_provider_external_id::Fachgebiet//Ärztekammer::50>$##FA für %s\\##::>>$
@@ -125,7 +173,16 @@
 \makeatother
 
 
-% Fußzeile 1.Seite
+% - headings starting on second page
+\lehead{$<<if_not_empty::$<title::::>$//%s \\//::>>$$<lastname::::>$, $<firstname::::>$ ($<date_of_birth::%d.%B %Y::>$)}
+\lohead{$<<if_not_empty::$<title::::>$//%s \\//::>>$$<lastname::::>$, $<firstname::::>$ ($<date_of_birth::%d.%B %Y::>$)}
+\cehead{}
+\cohead{}
+\rehead{Seite \thepage/\pageref{LastPage}}
+\rohead{Seite \thepage/\pageref{LastPage}}
+
+
+% - footer on first page
 \setkomavar{firstfoot}{%
 	\rule{\textwidth}{.3pt}
 	\parbox[t]{\textwidth}{%
@@ -158,7 +215,7 @@
 }
 
 
-% Fußzeile ab zweiter Seite
+% - footer starting on second page
 \lefoot{{\tiny{}$<current_provider::::>$, $<praxis::%(praxis)s: %(branch)s::120>$}}
 \lofoot{{\tiny{}$<current_provider::::>$, $<praxis::%(praxis)s: %(branch)s::120>$}}
 \cefoot{}
@@ -167,11 +224,9 @@
 \rofoot{{\tiny{}$<today::%d.%B %Y::50>$}}
 
 
-% Adressfeld etwas weiter oben (per Faltmarkenverschiebung)
-\LoadLetterOption{DINmtext}
-
-
-% Definiere Brief und Empfaenger
+%------------------------------------------------------------------
+% start letter by setting receiver data
+% FIXME: use if_empty because empty lines are not allowed
 \begin{letter}{%
 	$<receiver_name::::>$\\
 	$<receiver_street::::>$\ $<receiver_number::::>$\ $<receiver_subunit::::>$\\
@@ -179,35 +234,47 @@
 	$<receiver_country::::>$
 }
 
-% Anrede
+
+% debugging
+$<if_debugging:://%::>$\papergraduate											% show coordinate system on first page
+$<if_debugging:://%::>$\afterpage{\AddToShipoutPicture*{\ShowFramePicture}}		% show "normal" page layout starting with second page
+
+
+% define opening (Anrede)
 \opening{%
-	$<<free_text::Anrede, z.B. "Sehr geehrte Kollegin" (ohne Komma am Ende)//$<receiver_name::::>$::140>>$,
+	$<<free_text::Anrede, z.B. "Sehr geehrte/geehrter $<receiver_name::::>$,"//Sehr geehrte Kollegin $<receiver_name::::>$,::140>>$%
 }
 
 
-% Brieftext
-\selectlanguage{ngerman}
+% the actual content
+\selectlanguage{ngerman}					% if German
 $<<free_text::Der eigentliche Brieftext (in LaTeX)::>>$
 
 
-% Grussformel
+% define closing of letter (Grußformel)
+% multiple lines with \\, no empty lines
 \closing{%
-	$<<free_text::Grußformel, z.B. "Mit freundlichen Grüßen" (ohne Komma am Ende)::140>>$,
+	$<<free_text::Grußformel, z.B. "Mit kollegialen Grüßen,"//Mit kollegialen Grüßen,::140>>$%
 }
 
+% no Post Scriptum
+%\ps
 
 % Anlagen
-%\setkomavar*{enclseparator}[Anlage(n)]					% Titel für Anlagebereich
-\encl{$<<free_text::Liste von Anlagen::300>>$}
+$<<<ph_cfg::argumentsdivider//##//%% <%(name)s> set to [%(value)s]::>>>$
+%\setkomavar*{enclseparator}[Anlage(n)]		% title for "enclosures" area
+$<<<if_not_empty::$<<free_text::Liste von Anlagen::300>>$##\encl{%s}##%\encl{}::>>>$
+$<<<ph_cfg::argumentsdivider//DEFAULT//%% <%(name)s> set to [%(value)s]::>>>$
 
-
-% kein Verteiler
-%\cc{}
+% no Carbon Copies
+%\setkomavar*{ccseparator}[Verteiler]
+% multiple lines with \\, no empty lines
+%\cc{%
+%}
 
 \end{letter}
-
 %------------------------------------------------------------------
-% include data in PDF for easier processing:
+% embed data into PDF for easier processing:
 
 % VCF of creator
 \IfFileExists{$<praxis_vcf::::>$}{
@@ -228,4 +295,8 @@ $<<free_text::Der eigentliche Brieftext (in LaTeX)::>>$
 }{\typeout{[$<patient_vcf::::>$] (patient VCF) not found}}
 
 %------------------------------------------------------------------
+
+% debugging
+$<if_debugging:://%::>$\layout				% show page layout page
+
 \end{document}
