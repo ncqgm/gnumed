@@ -80,7 +80,7 @@ $<if_debugging:://%::>$\renewcommand*\ShowFrameColor{\color{red}}		% configure s
 
 % - PDF metadata
 \hypersetup{
-	pdftitle = {GENERIC TITLE: $<name::%(firstnames)s %(lastnames)s::>$, $<date_of_birth::%d.%m.%Y::>$},
+	pdftitle = {Patient: $<name::%(firstnames)s %(lastnames)s::>$, $<date_of_birth::%d.%m.%Y::>$},
 	pdfauthor = {$<current_provider::::>$, $<praxis::%(branch)s, %(praxis)s::>$},
 	pdfsubject = {GENERIC TITLE},
 	pdfproducer = {GNUmed $<client_version::::>$, Template $<form_name_long::::>$, $<form_version::::>$ [$<form_version_internal::::>$, $<form_last_modified::::>$]},
@@ -123,7 +123,7 @@ $<if_debugging:://%::>$\renewcommand*\ShowFrameColor{\color{red}}		% configure s
 \setkomavar{backaddress}{$<current_provider_firstnames::::1>$.$<current_provider_lastnames::::>$\\$<praxis_address::%(street)s %(number)s\\%(postcode)s %(urb)s::60>$}
 \setkomavar{location}{%
 	\begin{tabular}[t]{cc}%
-		Patient & Praxis \\
+		Patient & Sender \\
 		\includegraphics[width=30mm]{$<patient_mcf::fmt=qr//%s::>$} & \includegraphics[width=30mm]{$<praxis_mcf::fmt=qr//%s::>$}
 	\end{tabular}%
 }
