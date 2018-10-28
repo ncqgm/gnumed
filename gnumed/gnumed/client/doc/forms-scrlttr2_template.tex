@@ -79,7 +79,7 @@ $<if_debugging:://%::>$\renewcommand\ShowFrameLinethickness{0.25pt}		% configure
 $<if_debugging:://%::>$\renewcommand*\ShowFrameColor{\color{red}}		% configure showframe
 
 % - PDF metadata
-\hypersetup{
+\hypersetup{%
 	pdftitle = {Patient: $<name::%(firstnames)s %(lastnames)s::>$, $<date_of_birth::%d.%m.%Y::>$},
 	pdfauthor = {$<current_provider::::>$, $<praxis::%(branch)s, %(praxis)s::>$},
 	pdfsubject = {GENERIC TITLE},
@@ -149,7 +149,7 @@ $<if_debugging:://%::>$\renewcommand*\ShowFrameColor{\color{red}}		% configure s
 	$<<<if_not_empty::$<<free_text::Subject of the letter (patient data is added automatically)::120>>$#3#%s\\#3#% no additional Subject by user::>>>$
 	$<<<ph_cfg::argumentsdivider//DEFAULT//%% <%(name)s> set to [%(value)s]::>>>$
 	$<<ph_cfg::argumentsdivider//#2#//%% <%(name)s> set to [%(value)s]::>>$
-	Patient: $<title::::>$ $<firstname::::>$ $<lastname::::>$ (born $<date_of_birth::%d.%B %Y::>$)$<<if_not_empty::$<adr_street::home::>$#2#\\#2#::>>$
+	Patient: $<title::::>$ $<firstname::::>$ $<lastname::::1>$\textsc{$<<lastname::::2-99>>$} (born $<date_of_birth::%d.%B %Y::>$)$<<if_not_empty::$<adr_street::home::>$#2#\\#2#::>>$
 	$<<if_not_empty::$<adr_street::home::>$#2#Address: $<adr_street::home::>$ $<adr_number::home::>$, $<adr_postcode::home::>$ $<adr_location::home::>$#2#% no address available::>>$
 	$<<ph_cfg::argumentsdivider//DEFAULT//%% <%(name)s> set to [%(value)s]::>>$
 }
@@ -174,8 +174,8 @@ $<if_debugging:://%::>$\renewcommand*\ShowFrameColor{\color{red}}		% configure s
 
 
 % - headings starting on second page
-\lehead{$<<if_not_empty::$<title::::>$//%s \\//::>>$$<lastname::::>$, $<firstname::::>$ ($<date_of_birth::%d.%B %Y::>$)}
-\lohead{$<<if_not_empty::$<title::::>$//%s \\//::>>$$<lastname::::>$, $<firstname::::>$ ($<date_of_birth::%d.%B %Y::>$)}
+\lehead{$<<if_not_empty::$<title::::>$//%s \\//::>>$$<lastname::::1>$\textsc{$<<lastname::::2-99>>$}, $<firstname::::>$ ($<date_of_birth::%d.%B %Y::>$)}
+\lohead{$<<if_not_empty::$<title::::>$//%s \\//::>>$$<lastname::::1>$\textsc{$<<lastname::::2-99>>$}, $<firstname::::>$ ($<date_of_birth::%d.%B %Y::>$)}
 \cehead{}
 \cohead{}
 \rehead{Seite \thepage/\pageref{LastPage}}
@@ -277,7 +277,7 @@ $<<<ph_cfg::argumentsdivider//DEFAULT//%% <%(name)s> set to [%(value)s]::>>>$
 % embed data into PDF for easier processing:
 
 % VCF of creator
-\IfFileExists{$<praxis_vcf::::>$}{
+\IfFileExists{$<praxis_vcf::::>$}{%
 	\embedfile[
 		desc=01) Praxis - digital business card (originator),
 		mimetype=text/vcf,
@@ -286,7 +286,7 @@ $<<<ph_cfg::argumentsdivider//DEFAULT//%% <%(name)s> set to [%(value)s]::>>>$
 }{\typeout{[$<praxis_vcf::::>$] not found}}
 
 % VCF of patient
-\IfFileExists{$<patient_vcf::::>$}{
+\IfFileExists{$<patient_vcf::::>$}{%
 	\embedfile[
 		desc=02) Patient - digital business card,
 		mimetype=text/vcf,
