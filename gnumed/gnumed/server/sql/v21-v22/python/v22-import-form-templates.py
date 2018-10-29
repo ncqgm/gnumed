@@ -61,6 +61,18 @@ def run(conn=None):
 		conn = conn
 	)
 
+	# Begleitbrief mit Diagnosen
+	gmPG2.file2bytea (
+		query = u"""
+			UPDATE ref.paperwork_templates SET
+				data = %(data)s::bytea,
+				external_version = '22.4'
+			WHERE
+				name_long = 'Begleitbrief mit Diagnosen [K.Hilbert]'""",
+		filename = os.path.join('..', 'sql', 'v21-v22', 'data', 'v22-Begleitbrief_mit_Diagnosen.tex'),
+		conn = conn
+	)
+
 	return True
 
 #---------------------------

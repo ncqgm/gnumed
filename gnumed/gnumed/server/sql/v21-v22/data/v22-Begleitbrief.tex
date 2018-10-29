@@ -149,7 +149,7 @@ $<if_debugging:://%::>$\renewcommand*\ShowFrameColor{\color{red}}		% configure s
 	$<<<if_not_empty::$<<free_text::Betreff (Patientenstammdaten werden hinzugefügt)::120>>$#3#%s\\#3#% no additional Subject by user::>>>$
 	$<<<ph_cfg::argumentsdivider//DEFAULT//%% <%(name)s> set to [%(value)s]::>>>$
 	$<<ph_cfg::argumentsdivider//#2#//%% <%(name)s> set to [%(value)s]::>>$
-	Patient: $<title::::>$ $<firstname::::>$ $<lastname::::1>$\textsc{$<<lastname::::2-99>>$} (born $<date_of_birth::%d.%B %Y::>$)$<<if_not_empty::$<adr_street::home::>$#2#\\#2#::>>$
+	Patient: $<title::::>$ $<firstname::::>$ $<lastname::::1>$\textsc{$<lastname::::2-99>$} (born $<date_of_birth::%d.%B %Y::>$)$<<if_not_empty::$<adr_street::home::>$#2#\\#2#::>>$
 	$<<if_not_empty::$<adr_street::home::>$#2#Address: $<adr_street::home::>$ $<adr_number::home::>$, $<adr_postcode::home::>$ $<adr_location::home::>$#2#% no address available::>>$
 	$<<ph_cfg::argumentsdivider//DEFAULT//%% <%(name)s> set to [%(value)s]::>>$
 }
@@ -158,12 +158,12 @@ $<if_debugging:://%::>$\renewcommand*\ShowFrameColor{\color{red}}		% configure s
 % - signature
 \setkomavar{signature}{%
 	$<<<ph_cfg::argumentsdivider//#3#//%% <%(name)s> set to [%(value)s]::>>>$
-	$<<<if_not_empty::$<<data_snippet::autograph-$<current_provider_lastnames::::>$_$<current_provider_firstnames::::>$//\includegraphics[width=30mm]{%s}//image/png//.png::250>>$#3#%s\\#3#::>>>$
+	$<<<if_not_empty::$<<data_snippet::autograph-$<current_provider_lastnames::::>$_$<current_provider_firstnames::::>$//\includegraphics[width=30mm]{%s}//image/png//.png::250>>$#3#%s\\#3#% no signature file available::>>>$
 	$<<<ph_cfg::argumentsdivider//DEFAULT//%% <%(name)s> set to [%(value)s]::>>>$
 	\rule{\widthof{\tiny{}(Der Unterzeichner haftet nicht für unsignierte Änderungen des Inhalts.)}}{.1pt}\\
-	$<<ph_cfg::argumentsdivider//##//%% <%(name)s> set to [%(value)s]::>>$
-	$<<if_not_empty::$<current_provider_name::%(title)s::>$##$<current_provider_name::%(title)s %(firstnames)s %(lastnames)s::>$\\##$<current_provider_name::%(firstnames)s %(lastnames)s::>$\\::>>$
-	$<<if_not_empty::$<current_provider_external_id::Fachgebiet//Ärztekammer::50>$##FA für %s\\##::>>$
+	$<<ph_cfg::argumentsdivider//#2#//%% <%(name)s> set to [%(value)s]::>>$
+	$<<if_not_empty::$<current_provider_name::%(title)s::>$#2#$<current_provider_name::%(title)s %(firstnames)s %(lastnames)s::>$\\#2#$<current_provider_name::%(firstnames)s %(lastnames)s::>$\\::>>$
+	$<<if_not_empty::$<current_provider_external_id::Fachgebiet//Ärztekammer::50>$#2#FA für %s\\#2#% no speciality available::>>$
 	$<<ph_cfg::argumentsdivider//DEFAULT//%% <%(name)s> set to [%(value)s]::>>$
 	{\tiny{}(Der Unterzeichner haftet nicht für unsignierte Änderungen des Inhalts.)}
 }
@@ -174,8 +174,8 @@ $<if_debugging:://%::>$\renewcommand*\ShowFrameColor{\color{red}}		% configure s
 
 
 % - headings starting on second page
-\lehead{$<<if_not_empty::$<title::::>$//%s \\//::>>$$<lastname::::1>$\textsc{$<<lastname::::2-99>>$}, $<firstname::::>$ ($<date_of_birth::%d.%B %Y::>$)}
-\lohead{$<<if_not_empty::$<title::::>$//%s \\//::>>$$<lastname::::1>$\textsc{$<<lastname::::2-99>>$}, $<firstname::::>$ ($<date_of_birth::%d.%B %Y::>$)}
+\lehead{$<<if_not_empty::$<title::::>$//%s //::>>$$<lastname::::1>$\textsc{$<lastname::::2-99>$}, $<firstname::::>$ ($<date_of_birth::%d.%B %Y::>$)}
+\lohead{$<<if_not_empty::$<title::::>$//%s //::>>$$<lastname::::1>$\textsc{$<lastname::::2-99>$}, $<firstname::::>$ ($<date_of_birth::%d.%B %Y::>$)}
 \cehead{}
 \cohead{}
 \rehead{Seite \thepage/\pageref{LastPage}}

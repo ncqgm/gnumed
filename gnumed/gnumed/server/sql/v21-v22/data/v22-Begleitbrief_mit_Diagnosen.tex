@@ -82,7 +82,7 @@ $<if_debugging:://%::>$\renewcommand*\ShowFrameColor{\color{red}}		% configure s
 \hypersetup{%
 	pdftitle = {Patient: $<name::%(firstnames)s %(lastnames)s::>$, $<date_of_birth::%d.%m.%Y::>$},
 	pdfauthor = {$<current_provider::::>$, $<praxis::%(branch)s, %(praxis)s::>$},
-	pdfsubject = {GENERIC TITLE},
+	pdfsubject = {Begleitbrief},
 	pdfproducer = {GNUmed $<client_version::::>$, Template $<form_name_long::::>$, $<form_version::::>$ [$<form_version_internal::::>$, $<form_last_modified::::>$]},
 	pdfdisplaydoctitle = true,
 	pdfprintscaling = None
@@ -123,7 +123,7 @@ $<if_debugging:://%::>$\renewcommand*\ShowFrameColor{\color{red}}		% configure s
 \setkomavar{backaddress}{$<current_provider_firstnames::::1>$.$<current_provider_lastnames::::>$\\$<praxis_address::%(street)s %(number)s\\%(postcode)s %(urb)s::60>$}
 \setkomavar{location}{%
 	\begin{tabular}[t]{cc}%
-		Patient & Sender \\
+		Patient & Absender \\
 		\includegraphics[width=30mm]{$<patient_mcf::fmt=qr//%s::>$} & \includegraphics[width=30mm]{$<praxis_mcf::fmt=qr//%s::>$}
 	\end{tabular}%
 }
@@ -136,9 +136,9 @@ $<if_debugging:://%::>$\renewcommand*\ShowFrameColor{\color{red}}		% configure s
 
 
 % - reference line
-\setkomavar{yourref}{$<free_text::Text under "Your Ref"::40>$}
-\setkomavar{yourmail}{$<free_text::Date under "Your letter from"::20>$}
-\setkomavar{myref}{$<free_text::Text under "Our Ref"::40>$}
+\setkomavar{yourref}{$<free_text::"Ihr Zeichen"::40>$}
+\setkomavar{yourmail}{$<free_text::"Ihr Schreiben vom"::20>$}
+\setkomavar{myref}{$<free_text::"Unser Zeichen"::40>$}
 \setkomavar{date}{$<today::%d.%B %Y::50>$}
 \setkomavar{place}{$<praxis_address::%(urb)s::120>$}
 
@@ -146,12 +146,18 @@ $<if_debugging:://%::>$\renewcommand*\ShowFrameColor{\color{red}}		% configure s
 % - Subject, namely patient data
 \setkomavar{subject}[]{%
 	$<<<ph_cfg::argumentsdivider//#3#//%% <%(name)s> set to [%(value)s]::>>>$
-	$<<<if_not_empty::$<<free_text::Subject of the letter (patient data is added automatically)::120>>$#3#%s\\#3#% no additional Subject by user::>>>$
+	$<<<if_not_empty::$<<free_text::Betreff (Patientenstammdaten werden hinzugefügt)::120>>$#3#%s\\#3#% no additional Subject by user::>>>$
 	$<<<ph_cfg::argumentsdivider//DEFAULT//%% <%(name)s> set to [%(value)s]::>>>$
 	$<<ph_cfg::argumentsdivider//#2#//%% <%(name)s> set to [%(value)s]::>>$
 	Patient: $<title::::>$ $<firstname::::>$ $<lastname::::1>$\textsc{$<lastname::::2-99>$} (born $<date_of_birth::%d.%B %Y::>$)$<<if_not_empty::$<adr_street::home::>$#2#\\#2#::>>$
 	$<<if_not_empty::$<adr_street::home::>$#2#Address: $<adr_street::home::>$ $<adr_number::home::>$, $<adr_postcode::home::>$ $<adr_location::home::>$#2#% no address available::>>$
 	$<<ph_cfg::argumentsdivider//DEFAULT//%% <%(name)s> set to [%(value)s]::>>$
+	\begin{itemize}
+		\setlength\topsep{0pt}
+		\setlength\partopsep{0pt}
+		\setlength\itemsep{0pt}
+$<diagnoses::		\item %(diagnosis)s::>$
+	\end{itemize}
 }
 
 
@@ -242,7 +248,7 @@ $<if_debugging:://%::>$\afterpage{\AddToShipoutPicture*{\ShowFramePicture}}		% s
 
 % define opening (Anrede)
 \opening{%
-	$<<free_text::Opening, eg. "Dear $<receiver_name::::>$,"//Dear $<receiver_name::::>$,::140>>$%
+	$<<free_text::Anrede, z.B. "Sehr geehrte/geehrter $<receiver_name::::>$,"//Sehr geehrte Kollegin $<receiver_name::::>$,::140>>$%
 }
 
 
@@ -254,7 +260,7 @@ $<<free_text::Der eigentliche Brieftext (in LaTeX)::>>$
 % define closing of letter (Grußformel)
 % multiple lines with \\, no empty lines
 \closing{%
-	$<<free_text::Closing, eg. "Yours truly,"//Yours truly,::140>>$%
+	$<<free_text::Grußformel, z.B. "Mit kollegialen Grüßen,"//Mit kollegialen Grüßen,::140>>$%
 }
 
 % no Post Scriptum

@@ -64,16 +64,15 @@ $<if_debugging:://%::>$\usepackage{afterpage}				% add stuff after next page bre
 % %\tracingtabu=3														% trace tabu tables if using tabu package
 $<if_debugging:://%::>$\usetikz{basic}									% needed for \papergraduate from package interfaces
 $<if_debugging:://%::>$\overfullrule=2cm								% mark overfull horizontal boxes
-$<if_debugging:://%::>$\LoadLetterOption{visualize}						% visualize letter title page layout
 $<if_debugging:://%::>$\geometry{pass,verbose}							% put geometry into log file
 $<if_debugging:://%::>$\renewcommand\ShowFrameLinethickness{0.25pt}		% configure showframe
 $<if_debugging:://%::>$\renewcommand*\ShowFrameColor{\color{red}}		% configure showframe
 
 % - PDF metadata
 \hypersetup{%
-	pdftitle = {Patient: $<name::%(firstnames)s %(lastnames)s::>$, $<date_of_birth::%d.%m.%Y::>$},
+	pdftitle = {Medikation: $<name::%(firstnames)s %(lastnames)s::>$, $<date_of_birth::%d.%m.%Y::>$},
 	pdfauthor = {$<current_provider::::>$, $<praxis::%(branch)s, %(praxis)s::>$},
-	pdfsubject = {GENERIC TITLE},
+	pdfsubject = {Aktuelle Medikation},
 	pdfproducer = {GNUmed $<client_version::::>$, Template $<form_name_long::::>$, $<form_version::::>$ [$<form_version_internal::::>$, $<form_last_modified::::>$]},
 	pdfdisplaydoctitle = true,
 	pdfprintscaling = None
@@ -104,7 +103,7 @@ $<if_debugging:://%::>$\renewcommand*\ShowFrameColor{\color{red}}		% configure s
 		{\Large Medikamentenliste}\\
 		$<today::%d.%B %Y::>$ -- Seite \thepage{} von \pageref{LastPage}\\
 		\begin{tabular}[t]{ll}%
-			Patient & {\large $<lastname::::1>$\textsc{$<<lastname::::2-99>>$}, $<firstname::::>$}\\
+			Patient & {\large $<lastname::::1>$\textsc{$<lastname::::2-99>$}, $<firstname::::>$}\\
 			geb     & $<date_of_birth::%d.%B %Y::>$\\
 			$<<if_not_empty::$<adr_street::home::>$$<adr_number::home::>$$<adr_postcode::home::>$$<adr_location::home::>$//\multicolumn{2}{l}{{\footnotesize $<adr_street::home::>$ $<adr_number::home::>$, $<adr_postcode::home::>$ $<adr_location::home::>$}}\\//% address empty::>>$
 		\end{tabular}%
@@ -123,7 +122,7 @@ $<if_debugging:://%::>$\renewcommand*\ShowFrameColor{\color{red}}		% configure s
 		{\Large Medikamentenliste}\\
 		$<today::%d.%B %Y::>$ -- Seite \thepage{} von \pageref{LastPage}\\
 		\begin{tabular}[t]{ll}%
-			Patient & {\large $<lastname::::1>$\textsc{$<<lastname::::2-99>>$}, $<firstname::::>$}\\
+			Patient & {\large $<lastname::::1>$\textsc{$<lastname::::2-99>$}, $<firstname::::>$}\\
 			geb     & $<date_of_birth::%d.%B %Y::>$\\
 			$<<if_not_empty::$<adr_street::home::>$$<adr_number::home::>$$<adr_postcode::home::>$$<adr_location::home::>$//\multicolumn{2}{l}{{\footnotesize $<adr_street::home::>$ $<adr_number::home::>$, $<adr_postcode::home::>$ $<adr_location::home::>$}}\\//% address empty::>>$
 		\end{tabular}%
@@ -205,7 +204,6 @@ $<if_debugging:://%::>$\afterpage{\AddToShipoutPicture*{\ShowFramePicture}}		% s
 % Medikamente
 $<current_meds_table::latex::>$
 
-% Hinweise
 % uncomment, if and as needed, the next lines to append text below the table
 %{\footnotesize			% start smaller font
 % <any line(s) of info you wish to always be printed immediately below the table>

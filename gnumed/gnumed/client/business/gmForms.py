@@ -1150,6 +1150,9 @@ class cLaTeXForm(cFormEngine):
 				instance_file.write(line)
 				continue
 
+			_log.debug(u'processing line: >>>%s<<<', line.rstrip(u'\n'))
+			_log.debug(u'placeholder regex: >>>%s<<<', placeholder_regex)
+
 			# 2) replace them
 			_log.debug('%s placeholders found in this line', len(placeholders_in_line))
 			for placeholder in placeholders_in_line:

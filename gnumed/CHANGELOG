@@ -13,6 +13,7 @@ NEW: placeholder $<praxis_mcf>$
 NEW: placehodler $<qrcode>$
 NEW: placeholder $<if_debugging>$
 NEW: LaTeX letter template example
+NEW: Begleitbrief mit Diagnosen (LaTeX)
 
 FIX: map None to '' in address parts placeholder
 FIX: export area export-to-media

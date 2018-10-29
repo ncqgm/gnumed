@@ -102,7 +102,7 @@ $<if_debugging:://%::>$\renewcommand*\ShowFrameColor{\color{red}}		% configure s
 		{\Large GENERIC TITLE}\\
 		$<today::%d.%B %Y::>$ -- Page \thepage{} of \pageref{LastPage}\\
 		\begin{tabular}[t]{ll}%
-			Patient & {\large $<lastname::::1>$\textsc{$<<lastname::::2-99>>$}, $<firstname::::>$}\\
+			Patient & {\large $<lastname::::1>$\textsc{$<lastname::::2-99>$}, $<firstname::::>$}\\
 			born    & $<date_of_birth::%d.%B %Y::>$\\
 			$<<if_not_empty::$<adr_street::home::>$$<adr_number::home::>$$<adr_postcode::home::>$$<adr_location::home::>$//\multicolumn{2}{l}{{\footnotesize $<adr_street::home::>$ $<adr_number::home::>$, $<adr_postcode::home::>$ $<adr_location::home::>$}}\\//% address empty::>>$
 		\end{tabular}%
@@ -121,7 +121,7 @@ $<if_debugging:://%::>$\renewcommand*\ShowFrameColor{\color{red}}		% configure s
 		{\Large GENERIC TITLE}\\
 		$<today::%d.%B %Y::>$ -- Seite \thepage{} von \pageref{LastPage}\\
 		\begin{tabular}[t]{ll}%
-			Patient & {\large $<lastname::::1>$\textsc{$<<lastname::::2-99>>$}, $<firstname::::>$}\\
+			Patient & {\large $<lastname::::1>$\textsc{$<lastname::::2-99>$}, $<firstname::::>$}\\
 			geb     & $<date_of_birth::%d.%B %Y::>$\\
 			$<<if_not_empty::$<adr_street::home::>$$<adr_number::home::>$$<adr_postcode::home::>$$<adr_location::home::>$//\multicolumn{2}{l}{{\footnotesize $<adr_street::home::>$ $<adr_number::home::>$, $<adr_postcode::home::>$ $<adr_location::home::>$}}\\//% address empty::>>$
 		\end{tabular}%
