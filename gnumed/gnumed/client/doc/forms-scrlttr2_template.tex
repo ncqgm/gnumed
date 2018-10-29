@@ -107,16 +107,16 @@ $<if_debugging:://%::>$\renewcommand*\ShowFrameColor{\color{red}}		% configure s
 }
 \setkomavar{fromaddress}{%
 	\small
-	$<<ph_cfg::argumentsdivider//#2#//%% <%(name)s> set to [%(value)s]::>>$
-	$<praxis::%(praxis)s, %(branch)s::120>$$<<if_not_empty::$<praxis_address::%(street)s::>$#2#\\#2#::>>$
-	$<<if_not_empty::$<praxis_address::%(street)s::>$#2#$<praxis_address::%(street)s %(number)s::>$#2#::>>$$<<if_not_empty::$<praxis_address::%(subunit)s::>$#2# (%s)#2#::>>$$<<if_not_empty::$<praxis_address::%(street)s::>$#2#$<praxis_address::, %(postcode)s %(urb)s::>$#2#% no praxis address available::>>$
-	$<<ph_cfg::argumentsdivider//DEFAULT//%% <%(name)s> set to [%(value)s]::>>$
+	$2<ph_cfg::argumentsdivider//#2#//%% <%(name)s> set to [%(value)s]::>2$
+	$<praxis::%(praxis)s, %(branch)s::120>$$2<if_not_empty::$<praxis_address::%(street)s::>$#2#\\#2#::>2$
+	$2<if_not_empty::$<praxis_address::%(street)s::>$#2#$<praxis_address::%(street)s %(number)s::>$#2#::>2$$2<if_not_empty::$<praxis_address::%(subunit)s::>$#2# (%s)#2#::>2$$2<if_not_empty::$<praxis_address::%(street)s::>$#2#$<praxis_address::, %(postcode)s %(urb)s::>$#2#% no praxis address available::>2$
+	$2<ph_cfg::argumentsdivider//DEFAULT//%% <%(name)s> set to [%(value)s]::>2$
 }
 \setkomavar{fromlogo}{%
 	$<ph_cfg::argumentsdivider//#1#//%% <%(name)s> set to [%(value)s]::>$
-	$<<ph_cfg::argumentsdivider//#2#//%% <%(name)s> set to [%(value)s]::>>$
-	$<<if_not_empty::$<data_snippet::praxis-logo#1#\includegraphics[width=20mm]{%s}#1#image/png#1#.png::250>$#2#%s#2#$<qrcode::http://www.gnumed.de#1#\includegraphics[width=15mm]{%s}::>$	% no praxis logo available::>>$
-	$<<ph_cfg::argumentsdivider//DEFAULT//%% <%(name)s> set to [%(value)s]::>>$
+	$2<ph_cfg::argumentsdivider//#2#//%% <%(name)s> set to [%(value)s]::>2$
+	$2<if_not_empty::$<data_snippet::praxis-logo#1#\includegraphics[width=20mm]{%s}#1#image/png#1#.png::250>$#2#%s#2#$<qrcode::http://www.gnumed.de#1#\includegraphics[width=15mm]{%s}::>$	% no praxis logo available::>2$
+	$2<ph_cfg::argumentsdivider//DEFAULT//%% <%(name)s> set to [%(value)s]::>2$
 	$<ph_cfg::argumentsdivider//DEFAULT//%% <%(name)s> set to [%(value)s]::>$
 }
 % explicit backaddress, not calculated from <from*> values
@@ -145,26 +145,26 @@ $<if_debugging:://%::>$\renewcommand*\ShowFrameColor{\color{red}}		% configure s
 
 % - Subject, namely patient data
 \setkomavar{subject}[]{%
-	$<<<ph_cfg::argumentsdivider//#3#//%% <%(name)s> set to [%(value)s]::>>>$
-	$<<<if_not_empty::$<<free_text::Subject of the letter (patient data is added automatically)::120>>$#3#%s\\#3#% no additional Subject by user::>>>$
-	$<<<ph_cfg::argumentsdivider//DEFAULT//%% <%(name)s> set to [%(value)s]::>>>$
-	$<<ph_cfg::argumentsdivider//#2#//%% <%(name)s> set to [%(value)s]::>>$
-	Patient: $<title::::>$ $<firstname::::>$ $<lastname::::1>$\textsc{$<<lastname::::2-99>>$} (born $<date_of_birth::%d.%B %Y::>$)$<<if_not_empty::$<adr_street::home::>$#2#\\#2#::>>$
-	$<<if_not_empty::$<adr_street::home::>$#2#Address: $<adr_street::home::>$ $<adr_number::home::>$, $<adr_postcode::home::>$ $<adr_location::home::>$#2#% no address available::>>$
-	$<<ph_cfg::argumentsdivider//DEFAULT//%% <%(name)s> set to [%(value)s]::>>$
+	$3<ph_cfg::argumentsdivider//#3#//%% <%(name)s> set to [%(value)s]::>3$
+	$3<if_not_empty::$<<free_text::Subject of the letter (patient data is added automatically)::120>>$#3#%s\\#3#% no additional Subject by user::>3$
+	$3<ph_cfg::argumentsdivider//DEFAULT//%% <%(name)s> set to [%(value)s]::>3$
+	$2<ph_cfg::argumentsdivider//#2#//%% <%(name)s> set to [%(value)s]::>3$
+	Patient: $<title::::>$ $<firstname::::>$ $<lastname::::1>$\textsc{$<lastname::::2-99>$} (born $<date_of_birth::%d.%B %Y::>$)$2<if_not_empty::$<adr_street::home::>$#2#\\#2#::>2$
+	$2<if_not_empty::$<adr_street::home::>$#2#Address: $<adr_street::home::>$ $<adr_number::home::>$, $<adr_postcode::home::>$ $<adr_location::home::>$#2#% no address available::>2$
+	$2<ph_cfg::argumentsdivider//DEFAULT//%% <%(name)s> set to [%(value)s]::>2$
 }
 
 
 % - signature
 \setkomavar{signature}{%
-	$<<<ph_cfg::argumentsdivider//#3#//%% <%(name)s> set to [%(value)s]::>>>$
-	$<<<if_not_empty::$<<data_snippet::autograph-$<current_provider_lastnames::::>$_$<current_provider_firstnames::::>$//\includegraphics[width=30mm]{%s}//image/png//.png::250>>$#3#%s\\#3#::>>>$
-	$<<<ph_cfg::argumentsdivider//DEFAULT//%% <%(name)s> set to [%(value)s]::>>>$
+	$3<ph_cfg::argumentsdivider//#3#//%% <%(name)s> set to [%(value)s]::>3$
+	$3<if_not_empty::$2<data_snippet::autograph-$<current_provider_lastnames::::>$_$<current_provider_firstnames::::>$//\includegraphics[width=30mm]{%s}//image/png//.png::250>2$#3#%s\\#3#% no signature file available::>3$
+	$3<ph_cfg::argumentsdivider//DEFAULT//%% <%(name)s> set to [%(value)s]::>3$
 	\rule{\widthof{\tiny{}(Der Unterzeichner haftet nicht für unsignierte Änderungen des Inhalts.)}}{.1pt}\\
-	$<<ph_cfg::argumentsdivider//##//%% <%(name)s> set to [%(value)s]::>>$
-	$<<if_not_empty::$<current_provider_name::%(title)s::>$##$<current_provider_name::%(title)s %(firstnames)s %(lastnames)s::>$\\##$<current_provider_name::%(firstnames)s %(lastnames)s::>$\\::>>$
-	$<<if_not_empty::$<current_provider_external_id::Fachgebiet//Ärztekammer::50>$##FA für %s\\##::>>$
-	$<<ph_cfg::argumentsdivider//DEFAULT//%% <%(name)s> set to [%(value)s]::>>$
+	$2<ph_cfg::argumentsdivider//#2#//%% <%(name)s> set to [%(value)s]::>2$
+	$2<if_not_empty::$<current_provider_name::%(title)s::>$#2#$<current_provider_name::%(title)s %(firstnames)s %(lastnames)s::>$\\#2#$<current_provider_name::%(firstnames)s %(lastnames)s::>$\\::>2$
+	$2<if_not_empty::$<current_provider_external_id::Fachgebiet//Ärztekammer::50>$#2#FA für %s\\#2#% no speciality available::>2$
+	$2<ph_cfg::argumentsdivider//DEFAULT//%% <%(name)s> set to [%(value)s]::>2$
 	{\tiny{}(Der Unterzeichner haftet nicht für unsignierte Änderungen des Inhalts.)}
 }
 \renewcommand*{\raggedsignature}{\raggedright}
@@ -174,8 +174,8 @@ $<if_debugging:://%::>$\renewcommand*\ShowFrameColor{\color{red}}		% configure s
 
 
 % - headings starting on second page
-\lehead{$<<if_not_empty::$<title::::>$//%s \\//::>>$$<lastname::::1>$\textsc{$<<lastname::::2-99>>$}, $<firstname::::>$ ($<date_of_birth::%d.%B %Y::>$)}
-\lohead{$<<if_not_empty::$<title::::>$//%s \\//::>>$$<lastname::::1>$\textsc{$<<lastname::::2-99>>$}, $<firstname::::>$ ($<date_of_birth::%d.%B %Y::>$)}
+\lehead{$2<if_not_empty::$<title::::>$//%s //::>2$$<lastname::::1>$\textsc{$<lastname::::2-99>$}, $<firstname::::>$ ($<date_of_birth::%d.%B %Y::>$)}
+\lohead{$2<if_not_empty::$<title::::>$//%s //::>2$$<lastname::::1>$\textsc{$<lastname::::2-99>$}, $<firstname::::>$ ($<date_of_birth::%d.%B %Y::>$)}
 \cehead{}
 \cohead{}
 \rehead{Seite \thepage/\pageref{LastPage}}
@@ -191,15 +191,15 @@ $<if_debugging:://%::>$\renewcommand*\ShowFrameColor{\color{red}}		% configure s
 			\Telefon{}       & $<praxis_comm::workphone::60>$\\
 			\FAX{}           & $<praxis_comm::fax::60>$\\
 			\Email{}         & \href{mailto:$<praxis_comm::email::60>$}{$<praxis_comm::email::60>$}\\
-			$<<ph_cfg::argumentsdivider//##//%% <%(name)s> set to [%(value)s]::>>$
-			\ComputerMouse{} & $<<if_not_empty::$<praxis_comm::web::>$##\href{http://%s}{$<praxis_comm::web::60>$}##% no praxis web address available::>>$
-			$<<ph_cfg::argumentsdivider//DEFAULT//%% <%(name)s> set to [%(value)s]::>>$
+			$2<ph_cfg::argumentsdivider//##//%% <%(name)s> set to [%(value)s]::>2$
+			\ComputerMouse{} & $2<if_not_empty::$<praxis_comm::web::>$##\href{http://%s}{$<praxis_comm::web::60>$}##% no praxis web address available::>2$
+			$2<ph_cfg::argumentsdivider//DEFAULT//%% <%(name)s> set to [%(value)s]::>2$
 		\end{tabular}%
 		\hfill
 		\begin{tabular}[t]{ll}%
-			$<<ph_cfg::argumentsdivider//##//%% <%(name)s> set to [%(value)s]::>>$
-			\multicolumn{2}{l}{$<<if_not_empty::$<current_provider_external_id::Fachgebiet//Ärztekammer::50>$##FA für %s##::>>$}\\
-			$<<ph_cfg::argumentsdivider//DEFAULT//%% <%(name)s> set to [%(value)s]::>>$
+			$2<ph_cfg::argumentsdivider//##//%% <%(name)s> set to [%(value)s]::>2$
+			\multicolumn{2}{l}{$2<if_not_empty::$<current_provider_external_id::Fachgebiet//Ärztekammer::50>$##FA für %s##::>2$}\\
+			$2<ph_cfg::argumentsdivider//DEFAULT//%% <%(name)s> set to [%(value)s]::>2$
 			BSNR       & $<praxis_id::KV-BSNR//KV//%(value)s::25>$\\
 			LANR       & $<current_provider_external_id::KV-LANR//KV::25>$\\
 			\multicolumn{2}{l}{GNUmed $<client_version::::>$ (\href{http://www.gnumed.org}{www.gnumed.org})}
@@ -242,29 +242,29 @@ $<if_debugging:://%::>$\afterpage{\AddToShipoutPicture*{\ShowFramePicture}}		% s
 
 % define opening (Anrede)
 \opening{%
-	$<<free_text::Opening, eg. "Dear $<receiver_name::::>$,"//Dear $<receiver_name::::>$,::140>>$%
+	$2<free_text::Opening, eg. "Dear $<receiver_name::::>$,"//Dear $<receiver_name::::>$,::140>2$%
 }
 
 
 % the actual content
 \selectlanguage{ngerman}					% if German
-$<<free_text::Der eigentliche Brieftext (in LaTeX)::>>$
+$2<free_text::Der eigentliche Brieftext (in LaTeX)::>2$
 
 
 % define closing of letter (Grußformel)
 % multiple lines with \\, no empty lines
 \closing{%
-	$<<free_text::Closing, eg. "Yours truly,"//Yours truly,::140>>$%
+	$2<free_text::Closing, eg. "Yours truly,"//Yours truly,::140>2$%
 }
 
 % no Post Scriptum
 %\ps
 
 % Anlagen
-$<<<ph_cfg::argumentsdivider//##//%% <%(name)s> set to [%(value)s]::>>>$
+$3<ph_cfg::argumentsdivider//##//%% <%(name)s> set to [%(value)s]::>3$
 %\setkomavar*{enclseparator}[Anlage(n)]		% title for "enclosures" area
-$<<<if_not_empty::$<<free_text::Liste von Anlagen::300>>$##\encl{%s}##%\encl{}::>>>$
-$<<<ph_cfg::argumentsdivider//DEFAULT//%% <%(name)s> set to [%(value)s]::>>>$
+$3<if_not_empty::$2<free_text::Liste von Anlagen::300>2$##\encl{%s}##%\encl{}::>3$
+$3<ph_cfg::argumentsdivider//DEFAULT//%% <%(name)s> set to [%(value)s]::>3$
 
 % no Carbon Copies
 %\setkomavar*{ccseparator}[Verteiler]

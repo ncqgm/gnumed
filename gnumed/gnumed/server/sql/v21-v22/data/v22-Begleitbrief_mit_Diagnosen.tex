@@ -152,6 +152,12 @@ $<if_debugging:://%::>$\renewcommand*\ShowFrameColor{\color{red}}		% configure s
 	Patient: $<title::::>$ $<firstname::::>$ $<lastname::::1>$\textsc{$<lastname::::2-99>$} (born $<date_of_birth::%d.%B %Y::>$)$<<if_not_empty::$<adr_street::home::>$#2#\\#2#::>2$
 	$2<if_not_empty::$<adr_street::home::>$#2#Address: $<adr_street::home::>$ $<adr_number::home::>$, $<adr_postcode::home::>$ $<adr_location::home::>$#2#% no address available::>2$
 	$<<ph_cfg::argumentsdivider//DEFAULT//%% <%(name)s> set to [%(value)s]::>2$
+	\begin{itemize}
+		\setlength\topsep{0pt}
+		\setlength\partopsep{0pt}
+		\setlength\itemsep{0pt}
+$<diagnoses::		\item %(diagnosis)s::>$
+	\end{itemize}
 }
 
 

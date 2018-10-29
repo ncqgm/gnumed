@@ -1120,9 +1120,9 @@ class cLaTeXForm(cFormEngine):
 		]
 		regexen = [
 			'dummy',
-			data_source.first_pass_placeholder_regex,
-			data_source.second_pass_placeholder_regex,
-			data_source.third_pass_placeholder_regex
+			r'\$1{0,1}<[^<].+?>1{0,1}\$',
+			r'\$2<[^<].+?>2\$',
+			r'\$3<[^<].+?>3\$'
 		]
 
 		current_pass = 1
@@ -1173,22 +1173,35 @@ class cLaTeXForm(cFormEngine):
 				continue
 
 			# 2) replace them
-			_log.debug('%s placeholders found in this line', len(placeholders_in_line))
+			_log.debug('replacing in non-empty, non-comment line: >>>%s<<<', line.rstrip(u'\n'))
+			_log.debug('%s placeholder(s) detected', len(placeholders_in_line))
 			for placeholder in placeholders_in_line:
 				if 'free_text' in placeholder:
 					# enable reStructuredText processing
 					data_source.escape_function = self._rst2latex_transform
 				else:
 					data_source.escape_function = gmTools.tex_escape_string
+				original_ph_def = placeholder
+				_log.debug('ph: >>>%s<<<', original_ph_def)
+				# normalize start/end
+				if placeholder.startswith('$<'):
+					placeholder = '$1<' + placeholder[2:]
+				if placeholder.endswith('>$'):
+					placeholder = placeholder[:-2] + '>1$'
+				_log.debug('normalized: >>>%s<<<', placeholder)
+				# remove start/end
+				placeholder = placeholder[3:-3]
+				_log.debug('stripped: >>>%s<<<', placeholder)
 				try:
 					val = data_source[placeholder]
 				except:
-					_log.exception('error with placeholder [%s]', placeholder)
-					val = gmTools.tex_escape_string(_('error with placeholder [%s]') % placeholder)
+					_log.exception('error with placeholder [%s]', original_ph_def)
+					val = gmTools.tex_escape_string(_('error with placeholder [%s]') % original_ph_def)
 				if val is None:
-					_log.debug('error with placeholder [%s]', placeholder)
-					val = gmTools.tex_escape_string(_('error with placeholder [%s]') % placeholder)
-				line = line.replace(placeholder, val)
+					_log.debug('error with placeholder [%s]', original_ph_def)
+					val = gmTools.tex_escape_string(_('error with placeholder [%s]') % original_ph_def)
+				_log.debug('val: >>>%s<<<', val)
+				line = line.replace(original_ph_def, val)
 			instance_file.write(line)
 
 		instance_file.close()

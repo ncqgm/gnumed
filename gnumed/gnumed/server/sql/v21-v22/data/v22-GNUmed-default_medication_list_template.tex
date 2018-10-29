@@ -105,13 +105,13 @@ $<if_debugging:://%::>$\renewcommand*\ShowFrameColor{\color{red}}		% configure s
 		\begin{tabular}[t]{ll}%
 			Patient & {\large $<lastname::::1>$\textsc{$<<lastname::::2-99>>$}, $<firstname::::>$}\\
 			born    & $<date_of_birth::%d.%B %Y::>$\\
-			$<<if_not_empty::$<adr_street::home::>$$<adr_number::home::>$$<adr_postcode::home::>$$<adr_location::home::>$//\multicolumn{2}{l}{{\footnotesize $<adr_street::home::>$ $<adr_number::home::>$, $<adr_postcode::home::>$ $<adr_location::home::>$}}\\//% address empty::>>$
+			$2<if_not_empty::$<adr_street::home::>$$<adr_number::home::>$$<adr_postcode::home::>$$<adr_location::home::>$//\multicolumn{2}{l}{{\footnotesize $<adr_street::home::>$ $<adr_number::home::>$, $<adr_postcode::home::>$ $<adr_location::home::>$}}\\//% address empty::>2$
 		\end{tabular}%
 		\hfill
 		\begin{tabular}[t]{ll}%
 			Doctor & $<current_provider::::>$\\
-			$<<if_not_empty::$<current_provider_external_id::Fachgebiet//Ärztekammer::>$//{\footnotesize Specialty} & {\footnotesize %s}\\//% speciality not available::>>$
-			$<<if_not_empty::$<current_provider_external_id::KV-LANR//KV::>$//{\footnotesize LANR} & {\footnotesize %s}\\//% no LANR available::>>$
+			$2<if_not_empty::$<current_provider_external_id::Fachgebiet//Ärztekammer::>$//{\footnotesize Specialty} & {\footnotesize %s}\\//% speciality not available::>2$
+			$2<if_not_empty::$<current_provider_external_id::KV-LANR//KV::>$//{\footnotesize LANR} & {\footnotesize %s}\\//% no LANR available::>2$
 		\end{tabular}%
 	}
 }}
@@ -124,13 +124,13 @@ $<if_debugging:://%::>$\renewcommand*\ShowFrameColor{\color{red}}		% configure s
 		\begin{tabular}[t]{ll}%
 			Patient & {\large $<lastname::::1>$\textsc{$<<lastname::::2-99>>$}, $<firstname::::>$}\\
 			born    & $<date_of_birth::%d.%B %Y::>$\\
-			$<<if_not_empty::$<adr_street::home::>$$<adr_number::home::>$$<adr_postcode::home::>$$<adr_location::home::>$//\multicolumn{2}{l}{{\footnotesize $<adr_street::home::>$ $<adr_number::home::>$, $<adr_postcode::home::>$ $<adr_location::home::>$}}\\//% address empty::>>$
+			$2<if_not_empty::$<adr_street::home::>$$<adr_number::home::>$$<adr_postcode::home::>$$<adr_location::home::>$//\multicolumn{2}{l}{{\footnotesize $<adr_street::home::>$ $<adr_number::home::>$, $<adr_postcode::home::>$ $<adr_location::home::>$}}\\//% address empty::>2$
 		\end{tabular}%
 		\hfill
 		\begin{tabular}[t]{ll}%
 			Doctor & $<current_provider::::>$\\
-			$<<if_not_empty::$<current_provider_external_id::Fachgebiet//Ärztekammer::>$//{\footnotesize Speciality} & {\footnotesize %s}\\//% speciality not available::>>$
-			$<<if_not_empty::$<current_provider_external_id::KV-LANR//KV::>$//{\footnotesize LANR} & {\footnotesize %s}\\//% no LANR available::>>$
+			$2<if_not_empty::$<current_provider_external_id::Fachgebiet//Ärztekammer::>$//{\footnotesize Speciality} & {\footnotesize %s}\\//% speciality not available::>2$
+			$2<if_not_empty::$<current_provider_external_id::KV-LANR//KV::>$//{\footnotesize LANR} & {\footnotesize %s}\\//% no LANR available::>2$
 		\end{tabular}%
 	}
 }}
@@ -147,14 +147,14 @@ $<if_debugging:://%::>$\renewcommand*\ShowFrameColor{\color{red}}		% configure s
 		\begin{tabular}[t]{ll}%
 			\multicolumn{2}{l}{$<praxis::%(praxis)s, %(branch)s::>$}\\
 			\multicolumn{2}{l}{$<praxis_address::%(street)s %(number)s %(subunit)s, %(postcode)s %(urb)s::>$}\\
-			\multicolumn{2}{l}{\Email $<<if_not_empty::$<praxis_comm::email::>$//\href{mailto:$<praxis_comm::email::>$}{%s}//::>>$}
+			\multicolumn{2}{l}{\Email $2<if_not_empty::$<praxis_comm::email::>$//\href{mailto:$<praxis_comm::email::>$}{%s}//::>2$}
 		\end{tabular}%
 		\begin{tabular}[t]{ll}%
 			\Telefon       & $<praxis_comm::workphone::>$\\
 			\FAX           & $<praxis_comm::fax::>$\\
-			$<<ph_cfg::argumentsdivider//#2#//%% <%(name)s> set to [%(value)s]::>>$
-			$<<if_not_empty::$<praxis_comm::web::>$#2#\ComputerMouse & \href{http://%s}{%s}#2#% no praxis web address available::>>$
-			$<<ph_cfg::argumentsdivider//DEFAULT//%% <%(name)s> set to [%(value)s]::>>$
+			$2<ph_cfg::argumentsdivider//#2#//%% <%(name)s> set to [%(value)s]::>2$
+			$2<if_not_empty::$<praxis_comm::web::>$#2#\ComputerMouse & \href{http://%s}{%s}#2#% no praxis web address available::>2$
+			$2<ph_cfg::argumentsdivider//DEFAULT//%% <%(name)s> set to [%(value)s]::>2$
 		\end{tabular}%
 		\begin{tabular}[t]{ll}%
 			BSNR    & $<praxis_id::KV-BSNR//KV//%(value)s::>$\\
@@ -169,14 +169,14 @@ $<if_debugging:://%::>$\renewcommand*\ShowFrameColor{\color{red}}		% configure s
 		\begin{tabular}[t]{ll}%
 			\multicolumn{2}{l}{$<praxis::%(praxis)s, %(branch)s::>$}\\
 			\multicolumn{2}{l}{$<praxis_address::%(street)s %(number)s %(subunit)s, %(postcode)s %(urb)s::>$}\\
-			\multicolumn{2}{l}{\Email $<<if_not_empty::$<praxis_comm::email::>$//\href{mailto:$<praxis_comm::email::>$}{%s}//::>>$}
+			\multicolumn{2}{l}{\Email $2<if_not_empty::$<praxis_comm::email::>$//\href{mailto:$<praxis_comm::email::>$}{%s}//::>2$}
 		\end{tabular}%
 		\begin{tabular}[t]{ll}%
 			\Telefon       & $<praxis_comm::workphone::>$\\
 			\FAX           & $<praxis_comm::fax::>$\\
-			$<<ph_cfg::argumentsdivider//#2#//%% <%(name)s> set to [%(value)s]::>>$
-			$<<if_not_empty::$<praxis_comm::web::>$#2#\ComputerMouse & \href{http://%s}{%s}#2#% no praxis web address available::>>$
-			$<<ph_cfg::argumentsdivider//DEFAULT//%% <%(name)s> set to [%(value)s]::>>$
+			$2<ph_cfg::argumentsdivider//#2#//%% <%(name)s> set to [%(value)s]::>2$
+			$2<if_not_empty::$<praxis_comm::web::>$#2#\ComputerMouse & \href{http://%s}{%s}#2#% no praxis web address available::>2$
+			$2<ph_cfg::argumentsdivider//DEFAULT//%% <%(name)s> set to [%(value)s]::>2$
 		\end{tabular}%
 		\begin{tabular}[t]{ll}%
 			BSNR    & $<praxis_id::KV-BSNR//KV//%(value)s::>$\\
