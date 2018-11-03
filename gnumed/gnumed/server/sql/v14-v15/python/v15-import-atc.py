@@ -8,7 +8,7 @@
 # 
 #==============================================================
 import os
-import io
+import csv
 
 from Gnumed.pycommon import gmPG2
 from Gnumed.pycommon import gmTools
@@ -102,17 +102,15 @@ def run(conn=None):
 	data_sources = rows[0]
 
 	data_fname = os.path.join('..', 'sql', 'v14-v15', 'data', 'atc_only-utf8.csv')
-	csv_file = io.open(data_fname, mode = 'rt', encoding = 'utf8', errors = 'replace')
-	atc_reader = gmTools.unicode_csv_reader(csv_file, delimiter = ",", quotechar = '"', dict = True, fieldnames = [u'atc', u'en', u'fr', u'de'])
-
-	for atc_line in atc_reader:
-		queries = [
-			{'cmd': SQL_INSERT, 'args': {u'src': data_sources['en'], u'code': atc_line['atc'], 'term': atc_line['en']}},
-			{'cmd': SQL_INSERT, 'args': {u'src': data_sources['fr'], u'code': atc_line['atc'], 'term': atc_line['fr']}},
-			{'cmd': SQL_INSERT, 'args': {u'src': data_sources['de'], u'code': atc_line['atc'], 'term': atc_line['de']}}
-		]
-		gmPG2.run_rw_queries(link_obj = conn, queries = queries, end_tx = False)
-
+	with open(data_fname, newline = '', encoding = 'utf8', errors = 'replace') as csv_file:
+		atc_reader = csv.DictReader(csv_file, delimiter = ",", quotechar = '"', fieldnames = [u'atc', u'en', u'fr', u'de'], restkey = 'list_of_values_of_unknown_fields')
+		for atc_line in atc_reader:
+			queries = [
+				{'cmd': SQL_INSERT, 'args': {u'src': data_sources['en'], u'code': atc_line['atc'], 'term': atc_line['en']}},
+				{'cmd': SQL_INSERT, 'args': {u'src': data_sources['fr'], u'code': atc_line['atc'], 'term': atc_line['fr']}},
+				{'cmd': SQL_INSERT, 'args': {u'src': data_sources['de'], u'code': atc_line['atc'], 'term': atc_line['de']}}
+			]
+			gmPG2.run_rw_queries(link_obj = conn, queries = queries, end_tx = False)
 
 	conn.commit()
 

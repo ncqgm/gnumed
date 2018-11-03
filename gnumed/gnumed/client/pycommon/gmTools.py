@@ -667,7 +667,24 @@ def file2chunked_md5(filename=None, chunk_size=500*_MB):
 	return hex_digest
 
 #---------------------------------------------------------------------------
-def unicode2charset_encoder(unicode_csv_data, encoding='utf-8'):
+default_csv_reader_rest_key = 'list_of_values_of_unknown_fields'
+
+def unicode_csv_reader(unicode_csv_data, dialect=csv.excel, encoding='utf-8', **kwargs):
+	try:
+		is_dict_reader = kwargs['dict']
+		del kwargs['dict']
+	except KeyError:
+		is_dict_reader = False
+
+	if is_dict_reader:
+		kwargs['restkey'] = default_csv_reader_rest_key
+		return csv.DictReader(unicode_csv_data, dialect=dialect, **kwargs)
+	return csv.reader(csv_data, dialect=dialect, **kwargs)
+
+
+
+
+def old_unicode2charset_encoder(unicode_csv_data, encoding='utf-8'):
 	for line in unicode_csv_data:
 		yield line.encode(encoding)
 
@@ -675,9 +692,7 @@ def unicode2charset_encoder(unicode_csv_data, encoding='utf-8'):
 #	for line in unicode_csv_data:
 #		yield line.encode('utf-8')
 
-default_csv_reader_rest_key = 'list_of_values_of_unknown_fields'
-
-def unicode_csv_reader(unicode_csv_data, dialect=csv.excel, encoding='utf-8', **kwargs):
+def old_unicode_csv_reader(unicode_csv_data, dialect=csv.excel, encoding='utf-8', **kwargs):
 
 	# csv.py doesn't do Unicode; encode temporarily as UTF-8:
 	try:
