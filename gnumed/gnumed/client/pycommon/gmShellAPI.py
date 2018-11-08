@@ -12,7 +12,6 @@ import logging
 import subprocess
 import shlex
 
-
 _log = logging.getLogger('gm.shell')
 
 #===========================================================================
@@ -258,39 +257,51 @@ def run_first_available_in_shell(binaries=None, args=None, blocking=False, run_l
 	return run_command_in_shell(command = '%s %s' % (binary, args), blocking = blocking, acceptable_return_codes = acceptable_return_codes)
 
 #===========================================================================
+def _log_output(level, stdout=None, stderr=None):
+	log = logging.getLogger()
+	log.log_multiline(level, message = 'process output:', line_prefix = '  STDOUT', text = stdout)
+	log.log_multiline(level, message = 'process output:', line_prefix = '  STDERR', text = stderr)
+	return
+
+#===========================================================================
 def run_process(cmd_line=None, timeout=None, encoding=None, input_data=None, acceptable_return_codes=None, verbose=False):
 	assert (cmd_line is not None), '<cmd_line> must not be None'
 
 	if acceptable_return_codes is None:
 		acceptable_return_codes = [0]
-	if input_data is None:
-		stdin = subprocess.PIPE
-	else:
-		stdin = None
 	_log.info('running: %s' % cmd_line)
 	try:
-		proc_result = subprocess.run (
-			args = cmd_line,
-			input = input_data,
-			stdin = stdin,
-			stdout = subprocess.PIPE,
-			stderr = subprocess.PIPE,
-			timeout = timeout,
-			encoding = encoding
-		)
+		if input_data is None:
+			proc_result = subprocess.run (
+				args = cmd_line,
+				stdin = subprocess.PIPE,
+				stdout = subprocess.PIPE,
+				stderr = subprocess.PIPE,
+				timeout = timeout,
+				encoding = encoding,
+				errors = 'replace'
+			)
+		else:
+			proc_result = subprocess.run (
+				args = cmd_line,
+				input = input_data,
+				stdout = subprocess.PIPE,
+				stderr = subprocess.PIPE,
+				timeout = timeout,
+				encoding = encoding,
+				errors = 'replace'
+			)
 	except (subprocess.TimeoutExpired, FileNotFoundError):
 		_log.exception('there was a problem running external process')
 		return False, -1, ''
 	_log.info('exit code [%s]', proc_result.returncode)
 	if verbose:
-		_log.debug('STDERR:\n%s', proc_result.stderr)
-		_log.debug('STDOUT:\n%s', proc_result.stdout)
+		_log_output(logging.DEBUG, stdout = proc_result.stdout, stderr = proc_result.stderr)
 	if proc_result.returncode not in acceptable_return_codes:
-		_log.error('there was a problem executing external process')
+		_log.error('there was a problem executing the external process')
 		_log.debug('expected one of: %s', acceptable_return_codes)
 		if not verbose:
-			_log.error('STDERR:\n%s', proc_result.stderr)
-			_log.error('STDOUT:\n%s', proc_result.stdout)
+			_log_output(logging.ERROR, stdout = proc_result.stdout, stderr = proc_result.stderr)
 		return False, proc_result.returncode, ''
 	return True, proc_result.returncode, proc_result.stdout
 

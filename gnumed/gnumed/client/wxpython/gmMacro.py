@@ -36,6 +36,7 @@ from Gnumed.pycommon import gmCfg2
 from Gnumed.pycommon import gmDateTime
 from Gnumed.pycommon import gmMimeLib
 from Gnumed.pycommon import gmShellAPI
+from Gnumed.pycommon import gmCrypto
 
 from Gnumed.business import gmPerson
 from Gnumed.business import gmStaff
@@ -2433,7 +2434,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 				caption = _('GnuPG passphrase prompt'),
 				default_value = ''
 			)
-			filename = gmTools.gpg_decrypt_file(filename = filename, passphrase = pwd)
+			filename = gmCrypto.gpg_decrypt_file(filename = filename, passphrase = pwd)
 			if filename is None:
 				if self.debug:
 					return self._escape(_('cannot decrypt data of binary expansion keyword <%s>') % keyword)

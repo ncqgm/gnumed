@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 
-
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
@@ -551,80 +550,6 @@ def remove_file(filename, log_error=True, force=False):
 				_log.exception('cannot os.remove(%s)', filename)
 
 	return False
-
-#---------------------------------------------------------------------------
-def encrypt_pdf(filename=None, passphrase=None, verbose=False):
-	#rembember gmLog2.add_word2hide(word)
-
-	assert (filename is not None), '<filename> must not be None'
-	assert (passphrase is not None), '<passphrase> must not be None'
-
-	filename_encrypted = '%s.encrypted.pdf' % filename
-	args = [
-		'qpdf',
-		'--verbose',
-		'--encrypt', passphrase, '', '128',
-		'--print=full', '--modify=none', '--extract=n',
-		'--use-aes=y',
-		'--', filename, filename_encrypted
-	]
-	from Gnumed.pycommon import gmShellAPI
-	success, exit_code, stdout = gmShellAPI.run_process(cmd_line = args, encoding = 'utf8', verbose = verbose)
-	if success:
-		return filename_encrypted
-	return None
-
-#---------------------------------------------------------------------------
-def aes_encrypt_file(filename=None, passphrase=None, verbose=False):
-	#rembember gmLog2.add_word2hide(word)
-
-	assert (filename is not None), '<filename> must not be None'
-	assert (passphrase is not None), '<passphrase> must not be None'
-
-	filename_encrypted = '%s.7z' % filename
-	args = ['7z', 'a', '-mx0', "-p'%s'" % passphrase, filename_encrypted, filename]
-	from Gnumed.pycommon import gmShellAPI
-	success, exit_code, stdout = gmShellAPI.run_process(cmd_line = args, encoding = 'utf8', verbose = verbose)
-	if success:
-		return filename_encrypted
-	return None
-
-#---------------------------------------------------------------------------
-def gpg_decrypt_file(filename=None, passphrase=None):
-
-	if platform.system() == 'Windows':
-		exec_name = 'gpg.exe'
-	else:
-		exec_name = 'gpg'
-
-	tmp, fname = os.path.split(filename)
-	basename, tmp = os.path.splitext(fname)
-	filename_decrypted = get_unique_filename(prefix = '%s-decrypted-' % basename)
-
-	args = [exec_name, '--verbose', '--batch', '--yes', '--passphrase-fd', '0', '--output', filename_decrypted, '--decrypt', filename]
-	_log.debug('GnuPG args: %s' % str(args))
-
-	try:
-		gpg = subprocess.Popen (
-			args = args,
-			stdin = subprocess.PIPE,
-			stdout = subprocess.PIPE,
-			stderr = subprocess.PIPE,
-			close_fds = False
-		)
-	except (OSError, ValueError, subprocess.CalledProcessError):
-		_log.exception('there was a problem executing gpg')
-		gmDispatcher.send(signal = 'statustext', msg = _('Error running GnuPG. Cannot decrypt data.'), beep = True)
-		return
-
-	out, error = gpg.communicate(passphrase)
-	_log.debug('gpg returned [%s]', gpg.returncode)
-	if gpg.returncode != 0:
-		_log.debug('GnuPG STDOUT:\n%s', out)
-		_log.debug('GnuPG STDERR:\n%s', error)
-		return None
-
-	return filename_decrypted
 
 #---------------------------------------------------------------------------
 def file2md5(filename=None, return_hex=True):
@@ -2172,20 +2097,6 @@ second line\n
 			print (test, fname_sanitize(test))
 
 	#-----------------------------------------------------------------------
-	def test_gpg_decrypt():
-		fname = gpg_decrypt_file(filename = sys.argv[2], passphrase = sys.argv[3])
-		if fname is not None:
-			print("successfully decrypted:", fname)
-
-	#-----------------------------------------------------------------------
-	def test_aes_encrypt():
-		print(aes_encrypt_file(filename = sys.argv[2], passphrase = sys.argv[3]))
-
-	#-----------------------------------------------------------------------
-	def test_encrypt_pdf():
-		print(encrypt_pdf(filename = sys.argv[2], passphrase = sys.argv[3]))
-
-	#-----------------------------------------------------------------------
 	def test_create_qrcode():
 		print(create_qrcode(text = sys.argv[2], filename=None, qr_filename=None, verbose = True))
 
@@ -2221,8 +2132,5 @@ second line\n
 	#test_format_compare_dicts()
 	#test_fname_sanitize()
 	test_create_qrcode()
-
-	#test_aes_encrypt()
-	test_encrypt_pdf()
 
 #===========================================================================

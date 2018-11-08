@@ -192,46 +192,22 @@ def log_stack_trace(message=None, t=None, v=None, tb=None):
 		for varname, value in frame.f_locals.items():
 			if varname == '__doc__':
 				continue
-#			value = '%s' % value
-#			try:
-#				value = str(value, encoding = _string_encoding, errors = 'replace')
-#			except TypeError:
-#				try:
-#					value = str(value)
-#				except (UnicodeDecodeError, TypeError):
-#					value = '%s' % str(value)
-#					value = value.decode(_string_encoding, 'replace')
 			logger.debug('%20s = %s', varname, value)
 
-#===============================================================
-#def set_string_encoding(enc__oding=None):
-#
-#	logger = logging.getLogger('gm.logging')
-#
-#	global _string_encoding
-#
-#	if encoding is not None:
-#		codecs.lookup(encoding)
-#		_string_encoding = encoding
-#		logger.info('setting python.str -> python.unicode encoding to <%s> (explicit)', _string_encoding)
-#		return True
-#
-#	enc = sys.getdefaultencoding()
-#	if enc != 'ascii':
-#		_string_encoding = enc
-#		logger.info('setting python.str -> python.unicode encoding to <%s> (sys.getdefaultencoding)', _string_encoding)
-#		return True
-#
-#	enc = locale.getlocale()[1]
-#	if enc is not None:
-#		_string_encoding = enc
-#		logger.info('setting python.str -> python.unicode encoding to <%s> (locale.getlocale)', _string_encoding)
-#		return True
-#
-#	# FIXME: or rather use utf8 ?
-#	_string_encoding = locale.getpreferredencoding(do_setlocale=False)
-#	logger.info('setting python.str -> python.unicode encoding to <%s> (locale.getpreferredencoding)', _string_encoding)
-#	return True
+#---------------------------------------------------------------
+def log_multiline(level, message=None, line_prefix=None, text=None):
+	if text is None:
+		return
+	if message is None:
+		message = 'multiline text:'
+	if line_prefix is None:
+		line_template = '  > %s'
+	else:
+		line_template = '%s: %%s' % line_prefix
+	lines2log = [message]
+	lines2log.extend([ line_template % line for line in text.split('\n') ])
+	logger = logging.getLogger('gm.logging')
+	logger.log(level, '\n'.join(lines2log))
 
 #===============================================================
 # internal API
@@ -262,8 +238,6 @@ def __safe_logger_write_func(s):
 #---------------------------------------------------------------
 def __setup_logging():
 
-#	set_string_encoding()
-
 	global _logfile
 	if _logfile is not None:
 		return True
@@ -276,6 +250,7 @@ def __setup_logging():
 	__original_logger_write_func = _logfile.write
 	_logfile.write = __safe_logger_write_func
 
+	# setup
 	fmt = '%(asctime)s  %(levelname)-8s  %(name)-12s  [%(thread)d %(threadName)-10s]  (%(pathname)s::%(funcName)s() #%(lineno)d): %(message)s'
 	logging.basicConfig (
 		format = fmt,
@@ -283,15 +258,17 @@ def __setup_logging():
 		level = logging.DEBUG,
 		stream = _logfile
 	)
-
 	logging.captureWarnings(True)
+	logger = logging.getLogger()
+	logger.log_stack_trace = log_stack_trace
+	logger.log_multiline = log_multiline
 
-	logger = logging.getLogger('gm.logging')
+	# start logging
+	#logger = logging.getLogger('gm.logging')
 	logger.critical('-------- start of logging ------------------------------')
 	logger.info('log file is <%s>', _logfile_name)
 	logger.info('log level is [%s]', logging.getLevelName(logger.getEffectiveLevel()))
 	logger.info('log file encoding is <utf8>')
-#	logger.info('initial python.str -> python.unicode encoding is <%s>', _string_encoding)
 	logger.debug('log file .write() patched from original %s to patched %s', __original_logger_write_func, __safe_logger_write_func)
 
 #---------------------------------------------------------------

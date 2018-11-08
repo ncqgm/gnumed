@@ -225,6 +225,17 @@ else
 	echo "found"
 fi
 
+echo -n " '7z' command... "
+BIN=`which xz`
+if [ "x${BIN}x" == "xx" ]; then
+	echo ""
+	echo "  INFO : You don't seem to have the 'xz' command installed."
+	echo "  INFO : It comes with the p7zip-full package"
+	echo "  INFO : and is used to encrypt files and data."
+else
+	echo "found"
+fi
+
 echo -n " 'exiftool' command... "
 BIN=`which exiftool`
 if [ "x${BIN}x" == "xx" ]; then
