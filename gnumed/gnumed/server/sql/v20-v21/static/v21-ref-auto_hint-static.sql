@@ -8,8 +8,6 @@
 \set ON_ERROR_STOP 1
 --set default_transaction_read_only to off;
 
-DELETE FROM ref.auto_hint WHERE title = 'Kontraindikation: ACE/Sartan <-> Schwangerschaft';
-
 -- --------------------------------------------------------------
 alter table ref.auto_hint
 	add column recommendation_query text;

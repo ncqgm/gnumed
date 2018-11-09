@@ -319,7 +319,7 @@ INSERT INTO ref.auto_hint(title, hint, source, lang, query, recommendation_query
 );
 
 -- --------------------------------------------------------------
---DELETE FROM ref.auto_hint WHERE title = 'Kontraindikation: ACE/Sartan <-> Schwangerschaft';
+DELETE FROM ref.auto_hint WHERE title = 'Kontraindikation: ACE/Sartan <-> Schwangerschaft';
 DELETE FROM ref.auto_hint WHERE title = 'Contraindication: ACEI/Sartan <-> Pregnancy';
 
 insert into ref.auto_hint(query, title, hint, url, source, lang, recommendation_query) values (
