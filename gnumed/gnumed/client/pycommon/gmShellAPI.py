@@ -258,10 +258,12 @@ def run_first_available_in_shell(binaries=None, args=None, blocking=False, run_l
 
 #===========================================================================
 def _log_output(level, stdout=None, stderr=None):
-	log = logging.getLogger()
-	log.log_multiline(level, message = 'process output:', line_prefix = '  STDOUT', text = stdout)
-	log.log_multiline(level, message = 'process output:', line_prefix = '  STDERR', text = stderr)
-	return
+	lines2log = ['process output:']
+	if stdout is not None:
+		lines2log.extend([ ' STDOUT: %s' % line for line in stdout.split('\n') ])
+	if stderr is not None:
+		lines2log.extend([ ' STDERR: %s' % line for line in stderr.split('\n') ])
+	_log.log(level, '\n'.join(lines2log))
 
 #===========================================================================
 def run_process(cmd_line=None, timeout=None, encoding=None, input_data=None, acceptable_return_codes=None, verbose=False):

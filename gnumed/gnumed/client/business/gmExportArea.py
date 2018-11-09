@@ -547,17 +547,15 @@ class cExportArea(object):
 	def dump_items_to_disk(self, base_dir=None, items=None):
 		if items is None:
 			items = self.items
-
 		if len(items) == 0:
 			return None
 
 		if base_dir is None:
 			from Gnumed.business.gmPerson import cPatient
 			pat = cPatient(aPK_obj = self.__pk_identity)
-			base_dir = gmTools.mk_sandbox_dir(prefix = 'exp-%s-' % pat.subdir_name)
-		_log.debug('dumping export items to: %s', base_dir)
-
+			base_dir = os.path.join(gmTools.mk_sandbox_dir(), pat.subdir_name)
 		gmTools.mkdir(base_dir)
+		_log.debug('dumping export items to: %s', base_dir)
 		for item in items:
 			item.save_to_file(directory = base_dir)
 		return base_dir
@@ -576,7 +574,7 @@ class cExportArea(object):
 		from Gnumed.business.gmPerson import cPatient
 		pat = cPatient(aPK_obj = self.__pk_identity)
 		if media_base_dir is None:
-			media_base_dir = gmTools.mk_sandbox_dir(prefix = 'exp-%s-' % pat.subdir_name)
+			media_base_dir = gmTools.mkdir(os.path.join(gmTools.mk_sandbox_dir(), pat.subdir_name))
 		_log.debug('patient media base dir: %s', media_base_dir)
 
 		doc_dir = os.path.join(media_base_dir, r'documents')

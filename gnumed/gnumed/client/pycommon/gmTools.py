@@ -2118,7 +2118,6 @@ second line\n
 	#test_md5()
 	#test_unicode()
 	#test_xml_escape()
-	#test_gpg_decrypt()
 	#test_strip_trailing_empty_lines()
 	#test_fname_stem()
 	#test_tex_escape()
@@ -2131,6 +2130,6 @@ second line\n
 	#test_shorten_text()
 	#test_format_compare_dicts()
 	#test_fname_sanitize()
-	test_create_qrcode()
+	#test_create_qrcode()
 
 #===========================================================================

@@ -34,6 +34,77 @@ from Gnumed.pycommon import gmTools
 _log = logging.getLogger('gm.encryption')
 
 #===========================================================================
+# archiving methods
+#---------------------------------------------------------------------------
+def create_zip_archive_from_dir(source_dir, archive_name=None, comment=None, overwrite=True, passphrase=None, verbose=False):
+
+	if passphrase is not None:
+		if len(passphrase) < 5:
+			_log.error('<passphrase> must be at least 5 characters/signs/digits')
+			return None
+		gmLog2.add_word2hide(passphrase)
+		_log.debug('AES encryption of zip archive requested')
+
+	if not os.path.isdir(source_dir):
+		_log.error('<source_dir> does not exist or is not a directory: %s', source_dir)
+		return False
+
+	for cmd in ['7z', '7z.exe']:
+		found, binary = gmShellAPI.detect_external_binary(binary = cmd)
+		if found:
+			break
+	if not found:
+		_log.warning('no 7z binary found')
+		return None
+
+	if archive_name is None:
+		archive_name = source_dir.rstrip(os.sep) + '.zip'
+	if comment is not None:
+		fpath, fname = os.path.split(os.path.abspath(archive_name))
+		comment_filename = gmTools.get_unique_filename (
+			prefix = '%s.7z.comment-' % fname,
+			tmp_dir = fpath,
+			suffix = '.txt'
+		)
+		with open(comment_filename, mode = 'wt', encoding = 'utf8', errors = 'replace') as comment_file:
+			comment_file.write(comment)
+	if overwrite:
+		if not gmTools.remove_file(archive_name, force = True):
+			_log.error('cannot remove existing archive [%s]', archive_name)
+			return False
+
+	args = [
+		binary,
+		'a',				# create archive
+		'-bd',				# no progress indicator
+		'-mx9',				# best available zip compression
+		'-mcu=on',			# UTF8 filenames
+		'-r',				# recurse into subdirectories
+		'-scsUTF-8',		# console charset
+		'-tzip'				# force ZIP format
+	]
+	if verbose:
+		args.append('-bb3')
+		args.append('-bt')
+	else:
+		args.append('-bb1')
+	if passphrase is not None:
+		args.append('-mem=AES256')
+		args.append('-p%s' % passphrase)
+	args.append(archive_name)
+	args.append(source_dir)
+	if comment is not None:
+		args.append(comment_filename)
+
+	_log.debug('zip(%s) -> [%s]', source_dir, archive_name)
+	success, exit_code, stdout = gmShellAPI.run_process(cmd_line = args, encoding = 'utf8', verbose = verbose)
+	if comment is not None:
+		gmTools.remove_file(comment_filename)
+	if success:
+		return archive_name
+	return None
+
+#===========================================================================
 # file decryption methods
 #---------------------------------------------------------------------------
 def gpg_decrypt_file(filename=None, passphrase=None, verbose=False, target_ext=None):
@@ -48,8 +119,6 @@ def gpg_decrypt_file(filename=None, passphrase=None, verbose=False, target_ext=N
 		_log.warning('no gpg binary found')
 		return None
 
-	#tmp, fname = os.path.split(filename)
-	#basename, tmp = os.path.splitext(fname)
 	basename = os.path.splitext(filename)[0]
 	filename_decrypted = gmTools.get_unique_filename(prefix = '%s-decrypted-' % basename, suffix = target_ext)
 	args = [
@@ -79,33 +148,13 @@ def gpg_decrypt_file(filename=None, passphrase=None, verbose=False, target_ext=N
 		return filename_decrypted
 	return None
 
-#	args = [binary, '--verbose', '--batch', '--yes', '--passphrase-fd', '0', '--output', filename_decrypted, '--decrypt', filename]
-#	_log.debug('GnuPG args: %s' % str(args))
-#	try:
-#		gpg = subprocess.Popen (
-#			args = args,
-#			stdin = subprocess.PIPE,
-#			stdout = subprocess.PIPE,
-#			stderr = subprocess.PIPE,
-#			close_fds = False
-#		)
-#	except (OSError, ValueError, subprocess.CalledProcessError):
-#		_log.exception('there was a problem executing gpg')
-#		gmDispatcher.send(signal = 'statustext', msg = _('Error running GnuPG. Cannot decrypt data.'), beep = True)
-#		return
-#	out, error = gpg.communicate(passphrase)
-#	_log.debug('gpg returned [%s]', gpg.returncode)
-#	if gpg.returncode != 0:
-#		_log.debug('GnuPG STDOUT:\n%s', out)
-#		_log.debug('GnuPG STDERR:\n%s', error)
-#		return None
-#
-#	return filename_decrypted
-
 #===========================================================================
 # file encryption methods
 #---------------------------------------------------------------------------
-def gpg_encrypt_file_symmetric(filename=None, verbose=False, comment=None):
+def gpg_encrypt_file_symmetric(filename=None, comment=None, verbose=False):
+
+	#add short decr instr to comment
+
 	assert (filename is not None), '<filename> must not be None'
 
 	_log.debug('attempting symmetric GPG encryption')
@@ -148,14 +197,16 @@ def gpg_encrypt_file_symmetric(filename=None, verbose=False, comment=None):
 	return None
 
 #---------------------------------------------------------------------------
-def aes_encrypt_file(filename=None, passphrase=None, verbose=False):
+def aes_encrypt_file(filename=None, passphrase=None, comment=None, verbose=False):
 	assert (filename is not None), '<filename> must not be None'
 	assert (passphrase is not None), '<passphrase> must not be None'
 
 	if len(passphrase) < 5:
 		_log.error('<passphrase> must be at least 5 characters/signs/digits')
 		return None
+	gmLog2.add_word2hide(passphrase)
 
+	#add 7z/winzip url to comment.txt
 	_log.debug('attempting 7z AES encryption')
 	for cmd in ['7z', '7z.exe']:
 		found, binary = gmShellAPI.detect_external_binary(binary = cmd)
@@ -165,11 +216,22 @@ def aes_encrypt_file(filename=None, passphrase=None, verbose=False):
 		_log.warning('no 7z binary found, trying gpg')
 		return None
 
-	gmLog2.add_word2hide(passphrase)
+	if comment is not None:
+		archive_path, archive_name = os.path.split(os.path.abspath(filename))
+		comment_filename = gmTools.get_unique_filename (
+			prefix = '%s.7z.comment-' % archive_name,
+			tmp_dir = archive_path,
+			suffix = '.txt'
+		)
+		with open(comment_filename, mode = 'wt', encoding = 'utf8', errors = 'replace') as comment_file:
+			comment_file.write(comment)
+	else:
+		comment_filename = ''
 	filename_encrypted = '%s.7z' % filename
-	args = [binary, 'a', '-bb3', '-mx0', "-p%s" % passphrase, filename_encrypted, filename]
-	success, exit_code, stdout = gmShellAPI.run_process(cmd_line = args, encoding = 'utf8', verbose = verbose)
-	if success:
+	args = [binary, 'a', '-bb3', '-mx0', "-p%s" % passphrase, filename_encrypted, filename, comment_filename]
+	encrypted, exit_code, stdout = gmShellAPI.run_process(cmd_line = args, encoding = 'utf8', verbose = verbose)
+	gmTools.remove_file(comment_filename)
+	if encrypted:
 		return filename_encrypted
 	return None
 
@@ -177,6 +239,11 @@ def aes_encrypt_file(filename=None, passphrase=None, verbose=False):
 def encrypt_pdf(filename=None, passphrase=None, verbose=False):
 	assert (filename is not None), '<filename> must not be None'
 	assert (passphrase is not None), '<passphrase> must not be None'
+
+	if len(passphrase) < 5:
+		_log.error('<passphrase> must be at least 5 characters/signs/digits')
+		return None
+	gmLog2.add_word2hide(passphrase)
 
 	_log.debug('attempting PDF encryption')
 	for cmd in ['qpdf', 'qpdf.exe']:
@@ -187,11 +254,6 @@ def encrypt_pdf(filename=None, passphrase=None, verbose=False):
 		_log.warning('no qpdf binary found')
 		return None
 
-	if len(passphrase) < 5:
-		_log.error('<passphrase> must be at least 5 characters/signs/digits')
-		return None
-
-	gmLog2.add_word2hide(passphrase)
 	filename_encrypted = '%s.encrypted.pdf' % os.path.splitext(filename)[0]
 	args = [
 		binary,
@@ -209,7 +271,7 @@ def encrypt_pdf(filename=None, passphrase=None, verbose=False):
 	return None
 
 #---------------------------------------------------------------------------
-def encrypt_file_symmetric(filename=None, passphrase=None, verbose=False):
+def encrypt_file_symmetric(filename=None, passphrase=None, comment=None, verbose=False):
 	assert (filename is not None), '<filename> must not be None'
 
 	# pdf ?
@@ -217,20 +279,20 @@ def encrypt_file_symmetric(filename=None, passphrase=None, verbose=False):
 	if enc_filename is not None:
 		return enc_filename
 	# try GPG based
-	enc_filename = gpg_encrypt_file_symmetric(filename = filename, verbose = verbose)
+	enc_filename = gpg_encrypt_file_symmetric(filename = filename, comment = comment, verbose = verbose)
 	if enc_filename is not None:
 		return enc_filename
 	# try 7z based
-	return aes_encrypt_file(filename = filename, passphrase = passphrase, verbose = verbose)
+	return aes_encrypt_file(filename = filename, passphrase = passphrase, comment = comment, verbose = verbose)
 
 #---------------------------------------------------------------------------
-def encrypt_file(filename=None, receiver_key_ids=None, passphrase=None, verbose=False):
+def encrypt_file(filename=None, receiver_key_ids=None, passphrase=None, comment=None, verbose=False):
 	assert (filename is not None), '<filename> must not be None'
 
 	# cannot do asymmetric
 	if receiver_key_ids is None:
 		_log.debug('no receiver key IDs: cannot try asymmetric encryption')
-		return encrypt_file_symmetric(filename = filename, passphrase = passphrase, verbose = verbose)
+		return encrypt_file_symmetric(filename = filename, passphrase = passphrase, comment = comment, verbose = verbose)
 
 	# asymmetric not implemented yet
 	return None
@@ -262,7 +324,7 @@ if __name__ == '__main__':
 
 	#-----------------------------------------------------------------------
 	def test_aes_encrypt():
-		print(aes_encrypt_file(filename = sys.argv[2], passphrase = sys.argv[3], verbose = True))
+		print(aes_encrypt_file(filename = sys.argv[2], passphrase = sys.argv[3], comment = sys.argv[4], verbose = True))
 
 	#-----------------------------------------------------------------------
 	def test_encrypt_pdf():
@@ -273,11 +335,24 @@ if __name__ == '__main__':
 		print(encrypt_file(filename = sys.argv[2], passphrase = sys.argv[3], verbose = True))
 
 	#-----------------------------------------------------------------------
+	def test_zip_archive_from_dir():
+		print(create_zip_archive_from_dir (
+			sys.argv[2],
+			#archive_name=None,
+			comment = 'GNUmed test archive',
+			overwrite = True,
+			passphrase = '12345',
+			verbose = True
+		))
+
+	#-----------------------------------------------------------------------
 	# encryption
 	#test_aes_encrypt()
 	#test_encrypt_pdf()
 	#test_gpg_encrypt_symmetric()
-	test_encrypt_file()
+	#test_encrypt_file()
 
 	# decryption
 	#test_gpg_decrypt()
+
+	test_zip_archive_from_dir()
