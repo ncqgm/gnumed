@@ -7,11 +7,6 @@ First and only rule:
 	DO NOT REIMPLEMENT ENCRYPTION
 
 	Use existing tools.
-
-
-Main entry point:
-
-	encrypt_file(filename=None, receiver_key_id=None):
 """
 #===========================================================================
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
@@ -36,15 +31,112 @@ _log = logging.getLogger('gm.encryption')
 #===========================================================================
 # archiving methods
 #---------------------------------------------------------------------------
-def create_zip_archive_from_dir(source_dir, archive_name=None, comment=None, overwrite=True, passphrase=None, verbose=False):
+def create_encrypted_zip_archive_from_dir(source_dir, comment=None, overwrite=True, passphrase=None, verbose=False):
 
-	if passphrase is not None:
-		if len(passphrase) < 5:
-			_log.error('<passphrase> must be at least 5 characters/signs/digits')
-			return None
-		gmLog2.add_word2hide(passphrase)
-		_log.debug('AES encryption of zip archive requested')
+	if len(passphrase) < 5:
+		_log.error('<passphrase> must be at least 5 characters/signs/digits')
+		return None
+	gmLog2.add_word2hide(passphrase)
 
+	source_dir = os.path.abspath(source_dir)
+	if not os.path.isdir(source_dir):
+		_log.error('<source_dir> does not exist or is not a directory: %s', source_dir)
+		return False
+
+	for cmd in ['7z', '7z.exe']:
+		found, binary = gmShellAPI.detect_external_binary(binary = cmd)
+		if found:
+			break
+	if not found:
+		_log.warning('no 7z binary found')
+		return None
+
+	sandbox_dir = gmTools.mk_sandbox_dir()
+	archive_path_inner = os.path.join(sandbox_dir, 'data')
+	gmTools.mkdir(archive_path_inner) 				# FIXME: check error
+	archive_fname_inner = 'data.zip'
+	archive_name_inner = os.path.join(archive_path_inner, archive_fname_inner)
+	archive_path_outer = gmTools.gmPaths().tmp_dir
+	archive_fname_outer = 'datawrapper.zip'
+	archive_name_outer = os.path.join(archive_path_outer, archive_fname_outer)
+	# remove existing archives so they don't get *updated* rather than newly created
+	if overwrite:
+		if not gmTools.remove_file(archive_name_inner, force = True):
+			_log.error('cannot remove existing archive [%s]', archive_name_inner)
+			return False
+
+		if not gmTools.remove_file(archive_name_outer, force = True):
+			_log.error('cannot remove existing archive [%s]', archive_name_outer)
+			return False
+
+	# 7z does not support ZIP comments so create a text file holding the comment
+	if comment is not None:
+		tmp, fname = os.path.split(source_dir.rstrip(os.sep))
+		comment_filename = os.path.join(sandbox_dir, '000-%s-comment.txt' % fname)
+		with open(comment_filename, mode = 'wt', encoding = 'utf8', errors = 'replace') as comment_file:
+			comment_file.write(comment)
+
+	# create inner (data) archive: uncompressed, unencrypted, similar to a tar archive
+	args = [
+		binary,
+		'a',				# create archive
+		'-sas',				# be smart about archive name extension
+		'-bd',				# no progress indicator
+		'-mx0',				# no compression (only store files)
+		'-mcu=on',			# UTF8 filenames
+		'-l',				# store content of links, not links
+		'-scsUTF-8',		# console charset
+		'-tzip'				# force ZIP format
+	]
+	if verbose:
+		args.append('-bb3')
+		args.append('-bt')
+	else:
+		args.append('-bb1')
+	args.append(archive_name_inner)
+	args.append(source_dir)
+	if comment is not None:
+		args.append(comment_filename)
+	success, exit_code, stdout = gmShellAPI.run_process(cmd_line = args, encoding = 'utf8', verbose = verbose)
+	if not success:
+		_log.error('cannot create inner archive')
+		return None
+
+	# create "decompress instructions" file
+	instructions_filename = os.path.join(archive_path_inner, '000_Windows-open_with-WinZip-or-7z_tools')
+	open(instructions_filename, mode = 'wt').close()
+
+	# create outer (wrapper) archive: compressed, encrypted
+	args = [
+		binary,
+		'a',					# create archive
+		'-sas',					# be smart about archive name extension
+		'-bd',					# no progress indicator
+		'-mx9',					# best available zip compression ratio
+		'-mcu=on',				# UTF8 filenames
+		'-l',					# store content of links, not links
+		'-scsUTF-8',			# console charset
+		'-tzip',				# force ZIP format
+		'-mem=AES256',			# force useful encryption
+		'-p%s' % passphrase		# set passphrase
+	]
+	if verbose:
+		args.append('-bb3')
+		args.append('-bt')
+	else:
+		args.append('-bb1')
+	args.append(archive_name_outer)
+	args.append(archive_path_inner)
+	success, exit_code, stdout = gmShellAPI.run_process(cmd_line = args, encoding = 'utf8', verbose = verbose)
+	if success:
+		return archive_name_outer
+	_log.error('cannot create outer archive')
+	return None
+
+#---------------------------------------------------------------------------
+def create_zip_archive_from_dir(source_dir, archive_name=None, comment=None, overwrite=True, verbose=False):
+
+	source_dir = os.path.abspath(source_dir)
 	if not os.path.isdir(source_dir):
 		_log.error('<source_dir> does not exist or is not a directory: %s', source_dir)
 		return False
@@ -58,28 +150,37 @@ def create_zip_archive_from_dir(source_dir, archive_name=None, comment=None, ove
 		return None
 
 	if archive_name is None:
-		archive_name = source_dir.rstrip(os.sep) + '.zip'
+		# do not assume we can write to "sourcedir/../"
+		archive_path = gmTools.gmPaths().tmp_dir
+		# but do take archive name from source_dir
+		tmp, archive_fname = os.path.split(source_dir.rstrip(os.sep) + '.zip')
+		archive_name = os.path.join(archive_path, archive_fname)
+	# 7z does not support ZIP comments so create a
+	# text file holding the comment ...
 	if comment is not None:
-		fpath, fname = os.path.split(os.path.abspath(archive_name))
+		tmp, fname = os.path.split(os.path.abspath(archive_name))
 		comment_filename = gmTools.get_unique_filename (
-			prefix = '%s.7z.comment-' % fname,
-			tmp_dir = fpath,
-			suffix = '.txt'
+			prefix = '%s.' % fname,
+			suffix = '.comment.txt'
 		)
 		with open(comment_filename, mode = 'wt', encoding = 'utf8', errors = 'replace') as comment_file:
 			comment_file.write(comment)
+	# remove any existing archives so they don't get *updated*
+	# rather than newly created
 	if overwrite:
 		if not gmTools.remove_file(archive_name, force = True):
 			_log.error('cannot remove existing archive [%s]', archive_name)
 			return False
 
+	# compress
 	args = [
 		binary,
 		'a',				# create archive
+		'-sas',				# be smart about archive name extension
 		'-bd',				# no progress indicator
-		'-mx9',				# best available zip compression
+		'-mx9',				# best available zip compression ratio
 		'-mcu=on',			# UTF8 filenames
-		'-r',				# recurse into subdirectories
+		'-l',				# store content of links, not links
 		'-scsUTF-8',		# console charset
 		'-tzip'				# force ZIP format
 	]
@@ -88,20 +189,16 @@ def create_zip_archive_from_dir(source_dir, archive_name=None, comment=None, ove
 		args.append('-bt')
 	else:
 		args.append('-bb1')
-	if passphrase is not None:
-		args.append('-mem=AES256')
-		args.append('-p%s' % passphrase)
 	args.append(archive_name)
 	args.append(source_dir)
 	if comment is not None:
 		args.append(comment_filename)
-
-	_log.debug('zip(%s) -> [%s]', source_dir, archive_name)
 	success, exit_code, stdout = gmShellAPI.run_process(cmd_line = args, encoding = 'utf8', verbose = verbose)
 	if comment is not None:
 		gmTools.remove_file(comment_filename)
 	if success:
 		return archive_name
+
 	return None
 
 #===========================================================================
@@ -341,7 +438,16 @@ if __name__ == '__main__':
 			#archive_name=None,
 			comment = 'GNUmed test archive',
 			overwrite = True,
-			passphrase = '12345',
+			verbose = True
+		))
+
+	#-----------------------------------------------------------------------
+	def test_encrypted_zip_archive_from_dir():
+		print(create_encrypted_zip_archive_from_dir (
+			sys.argv[2],
+			comment = 'GNUmed test archive',
+			overwrite = True,
+			passphrase = sys.argv[3],
 			verbose = True
 		))
 
@@ -355,4 +461,5 @@ if __name__ == '__main__':
 	# decryption
 	#test_gpg_decrypt()
 
-	test_zip_archive_from_dir()
+	#test_zip_archive_from_dir()
+	test_encrypted_zip_archive_from_dir()

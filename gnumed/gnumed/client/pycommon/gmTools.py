@@ -203,16 +203,11 @@ def rm_dir_content(directory):
 
 #---------------------------------------------------------------------------
 def mk_sandbox_dir(prefix=None, base_dir=None):
+	if base_dir is None:
+		base_dir = gmPaths().tmp_dir
 	if prefix is None:
-		if base_dir is None:
-			prefix = 'sandbox-'
-		else:
-			prefix = 'gm_sandbox-'
-	return tempfile.mkdtemp (
-		prefix = prefix,
-		suffix = '',
-		dir = base_dir
-	)
+		prefix = 'sandbox-'
+	return tempfile.mkdtemp(prefix = prefix, suffix = '', dir = base_dir)
 
 #---------------------------------------------------------------------------
 def parent_dir(directory):

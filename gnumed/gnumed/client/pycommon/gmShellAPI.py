@@ -91,6 +91,7 @@ def is_executable_by_wine(cmd=None):
 
 	_log.warning('Windows path [%s] not verifiable under UNIX: %s', exe_path, full_path)
 	return (False, None)
+
 #===========================================================================
 def detect_external_binary(binary=None):
 	"""<binary> is the name of the executable with or without .exe/.bat"""
@@ -266,7 +267,7 @@ def _log_output(level, stdout=None, stderr=None):
 	_log.log(level, '\n'.join(lines2log))
 
 #===========================================================================
-def run_process(cmd_line=None, timeout=None, encoding=None, input_data=None, acceptable_return_codes=None, verbose=False):
+def run_process(cmd_line=None, timeout=None, encoding='utf8', input_data=None, acceptable_return_codes=None, verbose=False):
 	assert (cmd_line is not None), '<cmd_line> must not be None'
 
 	if acceptable_return_codes is None:
