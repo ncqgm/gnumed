@@ -30,6 +30,7 @@ class wxgExportAreaPluginPnl(wx.Panel):
 		self._BTN_remote_print = wx.Button(self, wx.ID_ANY, _("&Print Mgr"), style=wx.BU_EXACTFIT)
 		self._BTN_burn_items = wx.Button(self, wx.ID_ANY, _("&Burn"), style=wx.BU_EXACTFIT)
 		self._BTN_save_items = wx.Button(self, wx.ID_ANY, _("&Save"), style=wx.BU_EXACTFIT)
+		self._BTN_zip_items = wx.Button(self, wx.ID_ANY, _(u"\u21f6 &Zip"), style=wx.BU_EXACTFIT)
 		self._BTN_mail_items = wx.Button(self, wx.ID_ANY, _("E-&Mail"), style=wx.BU_EXACTFIT)
 		self._BTN_fax_items = wx.Button(self, wx.ID_ANY, _("&Fax"), style=wx.BU_EXACTFIT)
 		self._BTN_archive_items = wx.Button(self, wx.ID_ANY, _(u"\u21f6 Archive"), style=wx.BU_EXACTFIT)
@@ -48,6 +49,7 @@ class wxgExportAreaPluginPnl(wx.Panel):
 		self.Bind(wx.EVT_BUTTON, self._on_remote_print_button_pressed, self._BTN_remote_print)
 		self.Bind(wx.EVT_BUTTON, self._on_burn_items_button_pressed, self._BTN_burn_items)
 		self.Bind(wx.EVT_BUTTON, self._on_save_items_button_pressed, self._BTN_save_items)
+		self.Bind(wx.EVT_BUTTON, self._on_zip_items_button_pressed, self._BTN_zip_items)
 		self.Bind(wx.EVT_BUTTON, self._on_mail_items_button_pressed, self._BTN_mail_items)
 		self.Bind(wx.EVT_BUTTON, self._on_fax_items_button_pressed, self._BTN_fax_items)
 		self.Bind(wx.EVT_BUTTON, self._on_archive_items_button_pressed, self._BTN_archive_items)
@@ -65,6 +67,7 @@ class wxgExportAreaPluginPnl(wx.Panel):
 		self._BTN_remote_print.SetToolTip(_("Put selected/all documents into remote print manager."))
 		self._BTN_burn_items.SetToolTip(_("Burn selected/all documents onto CD/DVD."))
 		self._BTN_save_items.SetToolTip(_("Save selected/all items to disk."))
+		self._BTN_zip_items.SetToolTip(_("Create zip archive from selected/all entries."))
 		self._BTN_mail_items.SetToolTip(_("E-mail selected/all documents."))
 		self._BTN_fax_items.SetToolTip(_("Fax selected/all documents."))
 		self._BTN_archive_items.SetToolTip(_("Store selected/all documents in document archive."))
@@ -87,6 +90,7 @@ class wxgExportAreaPluginPnl(wx.Panel):
 		__szr_buttons_right.Add(self._BTN_remote_print, 0, wx.ALIGN_CENTER_VERTICAL | wx.BOTTOM | wx.EXPAND, 3)
 		__szr_buttons_right.Add(self._BTN_burn_items, 0, wx.ALIGN_CENTER_VERTICAL | wx.BOTTOM | wx.EXPAND, 3)
 		__szr_buttons_right.Add(self._BTN_save_items, 0, wx.ALIGN_CENTER_VERTICAL | wx.BOTTOM | wx.EXPAND, 3)
+		__szr_buttons_right.Add(self._BTN_zip_items, 0, wx.ALIGN_CENTER_VERTICAL | wx.BOTTOM | wx.EXPAND, 3)
 		__szr_buttons_right.Add(self._BTN_mail_items, 0, wx.ALIGN_CENTER_VERTICAL | wx.BOTTOM | wx.EXPAND, 3)
 		__szr_buttons_right.Add(self._BTN_fax_items, 0, wx.ALIGN_CENTER_VERTICAL | wx.BOTTOM | wx.EXPAND, 3)
 		__szr_buttons_right.Add(self._BTN_archive_items, 0, wx.ALIGN_CENTER_VERTICAL | wx.BOTTOM | wx.EXPAND, 3)
@@ -138,6 +142,10 @@ class wxgExportAreaPluginPnl(wx.Panel):
 
 	def _on_save_items_button_pressed(self, event):  # wxGlade: wxgExportAreaPluginPnl.<event_handler>
 		print("Event handler '_on_save_items_button_pressed' not implemented!")
+		event.Skip()
+
+	def _on_zip_items_button_pressed(self, event):  # wxGlade: wxgExportAreaPluginPnl.<event_handler>
+		print("Event handler '_on_zip_items_button_pressed' not implemented!")
 		event.Skip()
 
 	def _on_mail_items_button_pressed(self, event):  # wxGlade: wxgExportAreaPluginPnl.<event_handler>

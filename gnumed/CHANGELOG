@@ -17,6 +17,7 @@ NEW: hook "after_waiting_list_modified"
 NEW: test results tab showing most-recent in test panel
 NEW: local documents cache
 NEW: systemd-tmpfiles config file
+NEW: emailing of export area content as encrypted zip file
 
 IMPROVED: symbolic link creation on Windows
 IMPROVED: Orthanc connection handling

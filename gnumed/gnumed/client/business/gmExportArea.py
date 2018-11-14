@@ -28,6 +28,7 @@ from Gnumed.pycommon import gmPG2
 from Gnumed.pycommon import gmMimeLib
 from Gnumed.pycommon import gmDateTime
 from Gnumed.pycommon import gmCfg2
+from Gnumed.pycommon import gmCrypto
 
 from Gnumed.business import gmDocuments
 from Gnumed.business import gmKeywordExpansion
@@ -549,7 +550,6 @@ class cExportArea(object):
 			items = self.items
 		if len(items) == 0:
 			return None
-
 		if base_dir is None:
 			from Gnumed.business.gmPerson import cPatient
 			pat = cPatient(aPK_obj = self.__pk_identity)
@@ -561,7 +561,28 @@ class cExportArea(object):
 		return base_dir
 
 	#--------------------------------------------------------
-	def export(self, base_dir=None, items=None, expand_compressed=False):
+	def dump_items_to_disk_as_zip(self, base_dir=None, items=None, passphrase=None):
+		dump_dir = self.dump_items_to_disk(base_dir = base_dir, items = items)
+		if dump_dir is None:
+			_log.debug('cannot dump export area items')
+			return None
+		_cfg = gmCfg2.gmCfgData()
+		zip_file = gmTools.create_zip_archive_from_dir (
+			dump_dir,
+			comment = _('GNUmed Patient Media'),
+			overwrite = True,
+			passphrase = passphrase,
+			verbose = _cfg.get(option = 'debug')
+		)
+		if zip_file is None:
+			gmGuiHelpers.gm_show_error (
+				aMessage = _('Error creating zip file.'),
+				aTitle = _('Creating zip archive')
+			)
+		return zip_file
+
+	#--------------------------------------------------------
+	def export(self, base_dir=None, items=None):
 
 		if items is None:
 			items = self.items
@@ -574,7 +595,8 @@ class cExportArea(object):
 		from Gnumed.business.gmPerson import cPatient
 		pat = cPatient(aPK_obj = self.__pk_identity)
 		if media_base_dir is None:
-			media_base_dir = gmTools.mkdir(os.path.join(gmTools.mk_sandbox_dir(), pat.subdir_name))
+			media_base_dir = os.path.join(gmTools.mk_sandbox_dir(), pat.subdir_name)
+			gmTools.mkdir(media_base_dir)
 		_log.debug('patient media base dir: %s', media_base_dir)
 
 		doc_dir = os.path.join(media_base_dir, r'documents')
@@ -741,6 +763,33 @@ class cExportArea(object):
 		prax.export_as_mecard(filename = os.path.join(media_base_dir, u'praxis.mcf'))
 
 		return media_base_dir
+
+	#--------------------------------------------------------
+	def export_as_zip(self, base_dir=None, items=None, passphrase=None):
+		media_dir = self.export(base_dir = base_dir, items = items)
+		if media_dir is None:
+			_log.debug('cannot export items')
+			return None
+		_cfg = gmCfg2.gmCfgData()
+		if passphrase is None:
+			zip_file = gmCrypto.create_zip_archive_from_dir (
+				media_dir,
+				comment = _('GNUmed Patient Media'),
+				overwrite = True,
+				verbose = _cfg.get(option = 'debug')
+			)
+		else:
+			zip_file = gmCrypto.create_encrypted_zip_archive_from_dir (
+				media_dir,
+				comment = _('GNUmed Patient Media'),
+				overwrite = True,
+				passphrase = passphrase,
+				verbose = _cfg.get(option = 'debug')
+			)
+		if zip_file is None:
+			_log.debug('cannot create zip archive')
+			return None
+		return zip_file
 
 	#--------------------------------------------------------
 	def _compute_autorun_inf_label(self, patient):

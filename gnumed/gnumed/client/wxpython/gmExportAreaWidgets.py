@@ -26,9 +26,11 @@ from Gnumed.pycommon import gmPrinting
 from Gnumed.pycommon import gmShellAPI
 from Gnumed.pycommon import gmNetworkTools
 from Gnumed.pycommon import gmCfg2
+from Gnumed.pycommon import gmLog2
 
 from Gnumed.business import gmPerson
 from Gnumed.business import gmExportArea
+from Gnumed.business import gmPraxis
 
 from Gnumed.wxpython import gmRegetMixin
 from Gnumed.wxpython import gmGuiHelpers
@@ -36,6 +38,7 @@ from Gnumed.wxpython import gmDocumentWidgets
 
 
 _log = logging.getLogger('gm.ui')
+_cfg = gmCfg2.gmCfgData()
 
 
 #============================================================
@@ -389,7 +392,6 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 		if len(files2print) == 0:
 			return
 
-		_cfg = gmCfg2.gmCfgData()
 		jobtype = 'export_area'
 		printed = gmPrinting.print_files(filenames = files2print, jobtype = jobtype, verbose = _cfg.get(option = 'debug'))
 		if not printed:
@@ -399,7 +401,7 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 			)
 			return False
 
-		self.save_soap_note(soap = _('Printed:\n - %s') % '\n - '.join([ i['description'] for i in items ]))
+		self.__save_soap_note(soap = _('Printed:\n - %s') % '\n - '.join([ i['description'] for i in items ]))
 		return True
 
 	#--------------------------------------------------------
@@ -454,7 +456,7 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 		else:
 			export_dir = exp_area.dump_items_to_disk(base_dir = path, items = items)
 
-		self.save_soap_note(soap = _('Saved to [%s]:\n - %s') % (
+		self.__save_soap_note(soap = _('Saved to [%s]:\n - %s') % (
 			export_dir,
 			'\n - '.join([ i['description'] for i in items ])
 		))
@@ -528,7 +530,7 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 			)
 			return
 
-		self.save_soap_note(soap = _('Burned onto CD/DVD:\n - %s') % '\n - '.join([ i['description'] for i in items ]))
+		self.__save_soap_note(soap = _('Burned onto CD/DVD:\n - %s') % '\n - '.join([ i['description'] for i in items ]))
 
 		browse_index = gmGuiHelpers.gm_show_question (
 			title = _('Creating patient media'),
@@ -541,6 +543,52 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 		return True
 
 	#--------------------------------------------------------
+	def _on_zip_items_button_pressed(self, event):
+		event.Skip()
+		# anything to do ?
+		items = self._LCTRL_items.get_selected_item_data(only_one = False)
+		if len(items) == 0:
+			items = self._LCTRL_items.get_item_data()
+			if len(items) == 0:
+				return None
+			# ask, might be a lot
+			process_all = gmGuiHelpers.gm_show_question (
+				title = _('Creating zip archive'),
+				question = _('You have not selected any entries.\n\nCreate archive from all %s entries ?') % len(items),
+				cancel_button = False
+			)
+			if not process_all:
+				return None
+
+		exp_area = gmPerson.gmCurrentPatient().export_area
+		# get passphrase from user
+		zip_file = exp_area.export_as_zip(passphrase = None)
+		if zip_file is None:
+			gmGuiHelpers.gm_show_error (
+				aMessage = _('Error creating zip file.'),
+				aTitle = _('Creating zip archive')
+			)
+			return False
+
+		# cleanup - ask !
+		# - files corresponding to DIR/DIR CONTENT entries
+		# - entries in export area
+		remove_items = gmGuiHelpers.gm_show_question (
+			title = _('Creating zip archive'),
+			question = _(
+				'Zip archive created as:\n'
+				'\n'
+				' [%s]\n'
+				'\n'
+				'Remove archived entries from export area ?'
+			) % zip_file,
+			cancel_button = False
+		)
+		if remove_items:
+			exp_area.remove_items(items = items)
+		return True
+
+	#--------------------------------------------------------
 	def _on_archive_items_button_pressed(self, event):
 		print("Event handler '_on_archive_items_button_pressed' not implemented!")
 		event.Skip()
@@ -549,35 +597,32 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 	def _on_mail_items_button_pressed(self, event):
 		event.Skip()
 
-		items = self._LCTRL_items.get_selected_item_data(only_one = False)
-		if len(items) == 0:
-			return True
-
 		found, external_cmd = gmShellAPI.detect_external_binary('gm-mail_doc')
 		if not found:
 			return False
 
-		files2mail = []
-		for item in items:
-			files2mail.append(item.save_to_file())
-
-		cmd = '%s %s' % (external_cmd, ' '.join(files2mail))
-		if os.name == 'nt':
-			blocking = True
-		else:
-			blocking = False
-		success = gmShellAPI.run_command_in_shell (
-			command = cmd,
-			blocking = blocking
+		zip_file = self.__export_as_zip (
+			_('Mailing documents as zip archive'),
+			encrypt = True
 		)
-		if not success:
+		if zip_file is None:
 			gmGuiHelpers.gm_show_error (
-				aMessage = _('Error mailing documents.'),
-				aTitle = _('Mailing documents')
+				aMessage = _('Error creating zip file.'),
+				aTitle = title
 			)
 			return False
 
-		self.save_soap_note(soap = _('Mailed:\n - %s') % '\n - '.join([ i['description'] for i in items ]))
+		prax = gmPraxis.gmCurrentPraxisBranch()
+		args = [external_cmd, prax.vcf, zip_file]
+		success, ret_code, stdout = gmShellAPI.run_process(cmd_line = args,verbose = _cfg.get(option = 'debug'))
+		if not success:
+			gmGuiHelpers.gm_show_error (
+				aMessage = _('Error mailing documents.'),
+				aTitle = title
+			)
+			return False
+
+		self.__save_soap_note(soap = _('Mailed:\n - %s') % '\n - '.join([ i['description'] for i in items ]))
 		return True
 
 	#--------------------------------------------------------
@@ -621,7 +666,7 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 			)
 			return False
 
-		self.save_soap_note(soap = _('Faxed to [%s]:\n - %s') % (
+		self.__save_soap_note(soap = _('Faxed to [%s]:\n - %s') % (
 			fax_number,
 			'\n - '.join([ i['description'] for i in items ])
 		))
@@ -665,7 +710,7 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 		self._LCTRL_items.SetDropTarget(dt)
 
 	#--------------------------------------------------------
-	def save_soap_note(self, soap=None):
+	def __save_soap_note(self, soap=None):
 		if soap.strip() == '':
 			return
 		emr = gmPerson.gmCurrentPatient().emr
@@ -675,6 +720,98 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 			note = soap,
 			episode = epi
 		)
+
+	#--------------------------------------------------------
+	def __export_as_zip(self, msg_title, encrypt=True):
+		# anything to do ?
+		items = self._LCTRL_items.get_selected_item_data(only_one = False)
+		if len(items) == 0:
+			items = self._LCTRL_items.get_item_data()
+			if len(items) == 0:
+				return None
+			# ask, might be a lot
+			process_all = gmGuiHelpers.gm_show_question (
+				title = msg_title,
+				question = _('You have not selected any entries.\n\nCreate archive from all %s entries ?') % len(items),
+				cancel_button = False
+			)
+			if not process_all:
+				return None
+		# get password ?
+		zip_pwd = None
+		if encrypt:
+			zip_pwd = self.__get_archive_password(msg_title)
+			if zip_pwd is None:
+				_log.debug('user aborted by not providing the same password twice')
+				return None
+		# create archive
+		exp_area = gmPerson.gmCurrentPatient().export_area
+		zip_file = exp_area.export_as_zip(passphrase = zip_pwd)
+		if zip_file is None:
+			gmGuiHelpers.gm_show_error (
+				aMessage = _('Error creating zip file.'),
+				aTitle = title
+			)
+			return None
+		return zip_file
+
+	#--------------------------------------------------------
+	def __get_archive_password(self, msg_title):
+		while True:
+			zip_pwd = wx.GetPasswordFromUser (
+				message = _(
+					'Enter passphrase to protect the archive with.\n'
+					'\n'
+					'(minimum length: 5, trailing blanks will be stripped)'
+				),
+				caption = msg_title
+			)
+			# minimal weakness check
+			zip_pwd = zip_pwd.rstrip()
+			if len(zip_pwd) > 4:
+				break
+			retry = gmGuiHelpers.gm_show_question (
+				title = msg_title,
+				question = _(
+					'Insufficient passphrase.\n'
+					'\n'
+					'(minimum length: 5, trailing blanks will be stripped)\n'
+					'\n'
+					'Enter another passphrase ?'
+				)
+			)
+			if not retry:
+				# user changed her mind
+				return None
+		# confidentiality
+		gmLog2.add_word2hide(zip_pwd)
+		# reget password
+		while True:
+			zip_pwd4comparison = wx.GetPasswordFromUser (
+				message = _(
+					'Once more enter passphrase to protect the archive with.\n'
+					'\n'
+					'(this will protect you from typos)\n'
+					'\n'
+					'Abort by leaving empty.'
+				),
+				caption = msg_title
+			)
+			zip_pwd4comparison = zip_pwd4comparison.rstrip()
+			if zip_pwd4comparison == '':
+				# user changed her mind ...
+				return None
+			if zip_pwd == zip_pwd4comparison:
+				break
+			gmGuiHelpers.gm_show_error (
+				error = _(
+					'Passphrases do not match.\n'
+					'\n'
+					'Retry, or abort with an empty passphrase.'
+				),
+				title = msg_title
+			)
+		return zip_pwd
 
 	#--------------------------------------------------------
 	# file drop target API
@@ -802,7 +939,6 @@ class cPrintMgrPluginPnl(wxgPrintMgrPluginPnl.wxgPrintMgrPluginPnl, gmRegetMixin
 		if len(files2print) == 0:
 			return
 
-		_cfg = gmCfg2.gmCfgData()
 		jobtype = 'print_manager'
 		printed = gmPrinting.print_files(filenames = files2print, jobtype = jobtype, verbose = _cfg.get(option = 'debug'))
 		if not printed:

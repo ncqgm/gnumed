@@ -32,7 +32,38 @@ _log = logging.getLogger('gm.encryption')
 # archiving methods
 #---------------------------------------------------------------------------
 def create_encrypted_zip_archive_from_dir(source_dir, comment=None, overwrite=True, passphrase=None, verbose=False):
+	"""Use 7z to create an encrypted ZIP archive of a directory.
 
+	<source_dir>		will be included into the archive
+	<comment>			included as a file containing the comment
+	<overwrite>			remove existing archive before creation, avoiding
+						*updating* of those, and thereby including unintended data
+	<passphrase>		minimum length of 5
+
+	The resulting zip archive will always be named
+	"datawrapper.zip" for confidentiality reasons. If callers
+	want another name they will have to shutil.move() the zip
+	file themselves. This archive will be compressed and
+	AES256 encrypted with the given passphrase. Therefore,
+	the result will not decrypt with earlier versions of
+	unzip software. On Windows, 7z oder WinZip are needed.
+
+	The zip format does not support header encryption thereby
+	allowing attackers to gain knowledge of patient details
+	by observing the names of files and directories inside
+	the encrypted archive.
+
+	To reduce that attack surface, GNUmed will create
+	_another_ zip archive inside "datawrapper.zip", which
+	eventually wraps up the patient data as "data.zip". That
+	archive is not compressed and not encrypted, and can thus
+	be unpacked with any old unzipper.
+
+	Note that GNUmed does NOT remember the passphrase for
+	you. You will have to take care of that yourself, and
+	possibly also safely hand over the passphrase to any
+	receivers of the zip archive.
+	"""
 	if len(passphrase) < 5:
 		_log.error('<passphrase> must be at least 5 characters/signs/digits')
 		return None
@@ -53,7 +84,8 @@ def create_encrypted_zip_archive_from_dir(source_dir, comment=None, overwrite=Tr
 
 	sandbox_dir = gmTools.mk_sandbox_dir()
 	archive_path_inner = os.path.join(sandbox_dir, 'data')
-	gmTools.mkdir(archive_path_inner) 				# FIXME: check error
+	if not gmTools.mkdir(archive_path_inner):
+		_log.error('cannot create scratch space for inner achive: %s', archive_path_inner)
 	archive_fname_inner = 'data.zip'
 	archive_name_inner = os.path.join(archive_path_inner, archive_fname_inner)
 	archive_path_outer = gmTools.gmPaths().tmp_dir

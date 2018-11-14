@@ -1,0 +1,37 @@
+#!/bin/sh
+
+#------------------------------------------------------
+# This file is used by GNUmed to e-mail documents.
+#
+# It will be called with a list of attachements
+# to include into the mail.
+#
+# The first attachment is the VCF of the current
+# praxis branch, the second one an encrypted zip
+# archive of patient data.
+#
+# Whichever e-mail program you invoke needs to
+# handle all other tasks related# to composing a
+# fully valid e-mail.
+#
+# The script must return 0 on success.
+#
+# GPL v2
+#------------------------------------------------------
+
+ATTACHMENTS="$@"
+
+# Mutt under KDE:
+konsole --nofork -e mutt -s "GNUmed: " -a ${ATTACHMENTS} -- enter-recipient@address.here
+
+
+# kmail:
+#KMAIL_CMD='kmail --composer --subject "GNUmed: "'
+#for ATT in ${ATTACHMENTS} ; do
+#	${KMAIL_CMD}="${KMAIL_CMD} --attach ${ATT}"
+#done
+#${KMAIL_CMD}
+
+
+# thunderbird:
+#thunderbird -compose attachment="file:///%f"
