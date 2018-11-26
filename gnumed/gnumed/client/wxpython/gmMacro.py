@@ -82,9 +82,12 @@ known_injectable_placeholders = [
 __known_variant_placeholders = {
 	# generic:
 	u'free_text': u"""show a dialog for entering some free text:
-		args: <message> shown in input dialog, must not contain either
-		of '::' and whatever the arguments divider is set to (default '//'),
-		will cache input per <message>""",
+		args: <message>//<preset>
+			<message>: shown in input dialog, must not contain either
+				of '::' and whatever the arguments divider is
+				set to (default '//'),
+			<preset>: whatever to initially show inside the input field,
+		caches input per <message>""",
 
 	u'text_snippet': u"""a text snippet, taken from the keyword expansion mechanism:
 		args: <snippet name>//<template>""",
