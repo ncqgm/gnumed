@@ -82,10 +82,13 @@ known_injectable_placeholders = [
 # the following must satisfy the pattern "$<name::args::(optional) max string length>$" when used
 __known_variant_placeholders = {
 	# generic:
-	'free_text': """show a dialog for entering some free text:
-		args: <message> shown in input dialog, must not contain either
-		of '::' and whatever the arguments divider is set to (default '//'),
-		will cache input per <message>""",
+	'free_text': u"""show a dialog for entering some free text:
+		args: <message>//<preset>
+			<message>: shown in input dialog, must not contain either
+				of '::' and whatever the arguments divider is
+				set to (default '//'),
+			<preset>: whatever to initially show inside the input field,
+		caches input per <message>""",
 
 	'text_snippet': """a text snippet, taken from the keyword expansion mechanism:
 		args: <snippet name>//<template>""",

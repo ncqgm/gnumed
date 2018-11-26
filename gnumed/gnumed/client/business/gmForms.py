@@ -1182,16 +1182,16 @@ class cLaTeXForm(cFormEngine):
 				else:
 					data_source.escape_function = gmTools.tex_escape_string
 				original_ph_def = placeholder
-				_log.debug('ph: >>>%s<<<', original_ph_def)
+				_log.debug('placeholder: >>>%s<<<', original_ph_def)
 				# normalize start/end
 				if placeholder.startswith('$<'):
 					placeholder = '$1<' + placeholder[2:]
 				if placeholder.endswith('>$'):
 					placeholder = placeholder[:-2] + '>1$'
-				_log.debug('normalized: >>>%s<<<', placeholder)
+				_log.debug('normalized : >>>%s<<<', placeholder)
 				# remove start/end
 				placeholder = placeholder[3:-3]
-				_log.debug('stripped: >>>%s<<<', placeholder)
+				_log.debug('stripped   : >>>%s<<<', placeholder)
 				try:
 					val = data_source[placeholder]
 				except:
@@ -1200,7 +1200,7 @@ class cLaTeXForm(cFormEngine):
 				if val is None:
 					_log.debug('error with placeholder [%s]', original_ph_def)
 					val = gmTools.tex_escape_string(_('error with placeholder [%s]') % original_ph_def)
-				_log.debug('val: >>>%s<<<', val)
+				_log.debug('value      : >>>%s<<<', val)
 				line = line.replace(original_ph_def, val)
 			instance_file.write(line)
 
