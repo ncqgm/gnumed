@@ -32,4 +32,61 @@ insert into ref.paperwork_templates (
 );
 
 -- --------------------------------------------------------------
+-- convert paperwork templates
+
+-- $<<<...>>>$ -> $3<...>3$
+update ref.paperwork_templates r_pt_u set
+	data = (
+		select
+			replace(encode(r_pt_s.data, 'escape'), '$<<<', '$3<')
+		from
+			ref.paperwork_templates r_pt_s
+		where
+			r_pt_s.engine = 'L'
+				and
+			r_pt_s.pk = r_pt_u.pk
+	)::bytea
+;
+
+update ref.paperwork_templates r_pt_u set
+	data = (
+		select
+			replace(encode(r_pt_s.data, 'escape'), '>>>$', '>3$')
+		from
+			ref.paperwork_templates r_pt_s
+		where
+			r_pt_s.engine = 'L'
+				and
+			r_pt_s.pk = r_pt_u.pk
+	)::bytea
+;
+
+-- $<<...>>$ -> $2<...>2$
+update ref.paperwork_templates r_pt_u set
+	data = (
+		select
+			replace(encode(r_pt_s.data, 'escape'), '$<<', '$2<')
+		from
+			ref.paperwork_templates r_pt_s
+		where
+			r_pt_s.engine = 'L'
+				and
+			r_pt_s.pk = r_pt_u.pk
+	)::bytea
+;
+
+update ref.paperwork_templates r_pt_u set
+	data = (
+		select
+			replace(encode(r_pt_s.data, 'escape'), '>>$', '>2$')
+		from
+			ref.paperwork_templates r_pt_s
+		where
+			r_pt_s.engine = 'L'
+				and
+			r_pt_s.pk = r_pt_u.pk
+	)::bytea
+;
+
+-- --------------------------------------------------------------
 select gm.log_script_insertion('v22-ref-paperwork_templates-fixups.sql', '22.4');
