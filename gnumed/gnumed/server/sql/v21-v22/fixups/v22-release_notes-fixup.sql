@@ -17,35 +17,35 @@ INSERT INTO dem.message_inbox (
 ) VALUES (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
-	'Release Notes for GNUmed 1.7.2 (database v22.2)',
-	'GNUmed 1.7.2 Release Notes:
+	'Release Notes for GNUmed 1.7.4 (database v22.4)',
+	'GNUmed 1.7.4 Release Notes:
 
-	1.7.2
+	1.7.4
 
-FIX: GTK3 related size adjustments for PatientOverview/SimpleSoap plugins
-FIX: GTK3 related bitmap adjustments
-FIX: [Save] functionality of Export Area
-FIX: placeholders $current_provider_[title/firstnames/lastnames]$
-FIX: receiver selection address list setup
-FIX: exception on creation of duplicate patient [thanks Marc]
+NEW: placeholders now nest with $2<>2$ $3<>3$ rather than $<<>>$ $<<<>>>$
 
-	1.7.1
+NEW: placeholder $<patient_mcf>$
+NEW: placeholder $<praxis_mcf>$
+NEW: placehodler $<qrcode>$
+NEW: placeholder $<if_debugging>$
+NEW: LaTeX letter template example
+NEW: Begleitbrief mit Diagnosen (LaTeX)
 
-NEW: add bash completion script
+FIX: map None to '' in address parts placeholder
+FIX: export area export-to-media
+FIX: $<vaccination_history::%(l10n_indications)s::>$ field
+FIX: vaccine creation
 
-IMPROVED: make DWV optional
-IMPROVED: prerequisites check tool
-IMPROVED: update timeline code to 1.17.0 release
+IMPROVED: AppStream and desktop metadata
+IMPROVED: add "preset" option to $<free_text>$ placeholder
+IMPROVED: include MCF in export area metadata
+IMPROVED: Begleitbrief template
 
-	22.2
+	22.4
 
-FIX: staff/v_staff plausibility check [thanks Marc]
 FIX: LaTeX-Template for Begleitbrief
-
-	22.1
-
-IMPROVED: concurrency robustness of backup/restore scripts
+FIX: 2nd/3rd level placeholders in LaTeX templates
 ');
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('v22-release_notes-fixup.sql', '22.2');
+select gm.log_script_insertion('v22-release_notes-fixup.sql', '22.4');
