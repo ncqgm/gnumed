@@ -164,6 +164,26 @@ except ImportError:
 	print("  ERROR: pyqrcode not installed")
 	print("  INFO : this is used to create QR codes")
 
+print(" pyudev...", end=' ')
+try:
+	import pyudev
+	print("found")
+except ImportError:
+	missing = True
+	print("")
+	print("  ERROR: pyudev not installed")
+	print("  INFO : this is used to scan for USB/MMC drives")
+
+print(" psutil...", end=' ')
+try:
+	import psutil
+	print("found")
+except ImportError:
+	missing = True
+	print("")
+	print("  ERROR: psutil not installed")
+	print("  INFO : this is used to scan for USB/MMC drives")
+
 print(" unidecode...", end=' ')
 try:
 	import unidecode
