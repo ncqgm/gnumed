@@ -17,19 +17,35 @@ INSERT INTO dem.message_inbox (
 ) VALUES (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
-	'Release Notes for GNUmed 1.7.3 (database v22.3)',
-	'GNUmed 1.7.3 Release Notes:
+	'Release Notes for GNUmed 1.7.4 (database v22.4)',
+	'GNUmed 1.7.4 Release Notes:
 
-	1.7.3
+	1.7.4
 
-FIX: failure to merge patients under some conditions [thanks Marc]
-FIX: exception on creating person duplicates
-FIX: failure to delete inbox messages w/o a receiver
-FIX: handling of single_selection in generic list selection [thanks Scott Talbert]
-FIX: setting of initial size of main frame [thanks Tim Roberts]
+NEW: placeholders now nest with $2<>2$ $3<>3$ rather than $<<>>$ $<<<>>>$
 
-IMPROVED: robustify tarballing script against network flukes
+NEW: placeholder $<patient_mcf>$
+NEW: placeholder $<praxis_mcf>$
+NEW: placehodler $<qrcode>$
+NEW: placeholder $<if_debugging>$
+NEW: LaTeX letter template example
+NEW: Begleitbrief mit Diagnosen (LaTeX)
+
+FIX: map None to '' in address parts placeholder
+FIX: export area export-to-media
+FIX: $<vaccination_history::%(l10n_indications)s::>$ field
+FIX: vaccine creation
+
+IMPROVED: AppStream and desktop metadata
+IMPROVED: add "preset" option to $<free_text>$ placeholder
+IMPROVED: include MCF in export area metadata
+IMPROVED: Begleitbrief template
+
+	22.4
+
+FIX: LaTeX-Template for Begleitbrief
+FIX: 2nd/3rd level placeholders in LaTeX templates
 ');
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('v22-release_notes-fixup.sql', '22.3');
+select gm.log_script_insertion('v22-release_notes-fixup.sql', '22.4');
