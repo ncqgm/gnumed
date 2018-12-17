@@ -21,6 +21,7 @@ FIX: map None to '' in address parts placeholder
 FIX: export area export-to-media
 FIX: $<vaccination_history::%(l10n_indications)s::>$ field
 FIX: vaccine creation
+FIX: error in closing expired episodes
 
 IMPROVED: AppStream and desktop metadata
 IMPROVED: add "preset" option to $<free_text>$ placeholder

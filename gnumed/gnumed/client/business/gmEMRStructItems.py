@@ -181,7 +181,8 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 		open_episode = self.open_episode
 		if open_episode is None:
 			return True
-		clinical_end = open_episode.best_guess_clinical_end_date
+		#clinical_end = open_episode.best_guess_clinical_end_date
+		clinical_end = open_episode.latest_access_date		# :-/
 		ttl = datetime.timedelta(ttl)
 		now = datetime.datetime.now(tz = clinical_end.tzinfo)
 		if (clinical_end + ttl) > now:
