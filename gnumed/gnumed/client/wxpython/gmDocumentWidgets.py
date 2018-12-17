@@ -1974,7 +1974,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 				intermediate_label = '%s%s' % (doc['episode'], gmTools.coalesce(doc['health_issue'], '', ' (%s)'))
 				doc_label = _('%s%7s %s:%s (%s)') % (
 					gmTools.bool2subst(doc.has_unreviewed_parts, gmTools.u_writing_hand, '', '?'),
-					doc['clin_when'].strftime('%m/%Y'),
+					gmDateTime.pydt_strftime(doc['clin_when'], '%m/%Y'),
 					doc['l10n_type'][:26],
 					gmTools.coalesce(initial = doc['comment'], instead = '', template_initial = ' %s'),
 					no_parts
@@ -1990,7 +1990,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 				intermediate_label = doc['l10n_type']
 				doc_label = _('%s%7s (%s):%s') % (
 					gmTools.bool2subst(doc.has_unreviewed_parts, gmTools.u_writing_hand, '', '?'),
-					doc['clin_when'].strftime('%m/%Y'),
+					gmDateTime.pydt_strftime(doc['clin_when'], '%m/%Y'),
 					no_parts,
 					gmTools.coalesce(initial = doc['comment'], instead = '', template_initial = ' %s')
 				)
@@ -2008,7 +2008,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 					intermediate_label = doc['health_issue']
 				doc_label = _('%s%7s %s:%s (%s)') % (
 					gmTools.bool2subst(doc.has_unreviewed_parts, gmTools.u_writing_hand, '', '?'),
-					doc['clin_when'].strftime('%m/%Y'),
+					gmDateTime.pydt_strftime(doc['clin_when'], '%m/%Y'),
 					doc['l10n_type'][:26],
 					gmTools.coalesce(initial = doc['comment'], instead = '', template_initial = ' %s'),
 					no_parts
@@ -2036,7 +2036,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 					intermediate_label = direction % org_str
 				doc_label = _('%s%7s %s:%s (%s)') % (
 					gmTools.bool2subst(doc.has_unreviewed_parts, gmTools.u_writing_hand, '', '?'),
-					doc['clin_when'].strftime('%m/%Y'),
+					gmDateTime.pydt_strftime(doc['clin_when'], '%m/%Y'),
 					doc['l10n_type'][:26],
 					gmTools.coalesce(initial = doc['comment'], instead = '', template_initial = ' %s'),
 					no_parts
@@ -2054,7 +2054,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 			else:
 				doc_label = _('%s%7s %s:%s (%s)') % (
 					gmTools.bool2subst(doc.has_unreviewed_parts, gmTools.u_writing_hand, '', '?'),
-					doc['clin_when'].strftime('%Y-%m'),
+					gmDateTime.pydt_strftime(doc['clin_when'], '%Y-%m'),
 					doc['l10n_type'][:26],
 					gmTools.coalesce(initial = doc['comment'], instead = '', template_initial = ' %s'),
 					no_parts
