@@ -280,7 +280,7 @@ cd -
 echo "downloading the API documentation"
 mkdir -p ./gnumed-client.$CLIENTREV/client/doc/api/
 cd ./gnumed-client.$CLIENTREV/client/doc/api/
-wget --tries=0 --read-timeout=2 --continue --verbose --recursive --convert-links --no-parent --no-directories http://publicdb.gnumed.de/~ncq/gnumed/api/
+wget --tries=0 --read-timeout=2 --continue --verbose --recursive --convert-links --no-parent --no-directories http://www.gnumed.de/downloads/docs/api/
 cd -
 
 
@@ -288,8 +288,8 @@ cd -
 echo "downloading SQL schema documentation"
 mkdir -p ./gnumed-client.$CLIENTREV/client/doc/schema/
 cd ./gnumed-client.$CLIENTREV/client/doc/schema/
-wget --tries=0 --read-timeout=2 --continue --verbose --recursive --convert-links --no-parent --no-directories http://publicdb.gnumed.de/~ncq/gnumed/schema/gnumed_v22/gnumed-entire_schema.html
-wget --tries=0 --read-timeout=2 --continue --verbose --recursive --convert-links --no-parent --no-directories http://publicdb.gnumed.de/~ncq/gnumed/schema/gnumed_v22/gnumed-entire_schema-no_audit.dot
+wget --tries=0 --read-timeout=2 --continue --verbose --recursive --convert-links --no-parent --no-directories http://www.gnumed.de/downloads/docs/schema/gnumed_v22/gnumed-entire_schema.html
+wget --tries=0 --read-timeout=2 --continue --verbose --recursive --convert-links --no-parent --no-directories http://www.gnumed.de/downloads/docs/schema/gnumed_v22/gnumed-entire_schema-no_audit.dot
 cd -
 
 
