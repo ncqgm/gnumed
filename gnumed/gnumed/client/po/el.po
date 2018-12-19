@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-21 17:11+0100\n"
+"POT-Creation-Date: 2018-12-18 12:17+0100\n"
 "PO-Revision-Date: 2012-06-01 01:24+0000\n"
 "Last-Translator: ncq <Unknown>\n"
 "Language-Team: Ελληνικά, Σύγχρονα <opensuse-translation-el@opensuse.org>\n"
@@ -8857,6 +8857,37 @@ msgstr "Εξήχθηκε: %s\n"
 msgid "Expires: %s\n"
 msgstr "Εξήχθηκε: %s\n"
 
+#, python-format
+msgid "AMTS BMP file: %s"
+msgstr ""
+
+#, fuzzy, python-format
+msgid "Created: %s"
+msgstr "Δημιουργία νέου"
+
+#, fuzzy, python-format
+msgid "Version: %s"
+msgstr "Έκδοση"
+
+#, fuzzy, python-format
+msgid "UID: %s"
+msgstr "Ημερομηνία: %s\n"
+
+#, fuzzy
+msgid "Creator:"
+msgstr "Δημιουργία νέου"
+
+msgid "Patient:"
+msgstr "Ασθενής:"
+
+#, fuzzy
+msgid "Clinical data:"
+msgstr "Κλινικές λεπτομέρειες"
+
+#, fuzzy
+msgid "Raw data:"
+msgstr "δεδομένα"
+
 #, fuzzy
 msgid "HL7 Source"
 msgstr "Πηγή HTML"
@@ -9606,6 +9637,10 @@ msgstr "Δεν είναι δυνατή η συγχώνευση ενεργού α
 msgid "merge of #%s into #%s @ %s"
 msgstr ""
 
+#, python-format
+msgid "The merge failed. Check the log and [%s]"
+msgstr ""
+
 msgid "invalid age: DOB in the future"
 msgstr ""
 
@@ -9752,7 +9787,7 @@ msgid "Type: \"%(name)s\" (%(abbr)s)  [#%(pk_type)s]\n"
 msgstr ""
 
 #, python-format
-msgid "Result: %(val)s%(unit)s%(ind)s  [#%(pk_result)s]\n"
+msgid "%(sso)sResult: %(val)s%(unit)s%(ind)s  [#%(pk_result)s]\n"
 msgstr ""
 
 #, fuzzy, python-format
@@ -10244,7 +10279,8 @@ msgstr "Ένδειξη"
 msgid "unknown vaccinations output format [%s]"
 msgstr ""
 
-msgid "No vaccinations to format."
+#, fuzzy
+msgid "No vaccinations recorded."
 msgstr "Κανένας εμβολιασμόςπρος μορφοποίηση."
 
 msgid "Latest vaccinations"
@@ -12337,6 +12373,9 @@ msgstr ""
 msgid "Must select gender."
 msgstr ""
 
+msgid "Duplicate person. Modify name and/or DOB or use comment to make unique."
+msgstr ""
+
 msgid ""
 "To properly create an address, all the related fields must be filled in."
 msgstr ""
@@ -12345,6 +12384,17 @@ msgid "Required fields"
 msgstr "Απαιτούμενα πεδία"
 
 msgid "This field must contain an item selected from the dropdown list."
+msgstr ""
+
+#, fuzzy
+msgid "Creating person."
+msgstr "Διαγραφή φαρμακευτικής αγωγής"
+
+msgid ""
+"Failed to create person. Does it already exist ?\n"
+"\n"
+"If so you need to (temporarily) modify, say, the\n"
+"first or last name."
 msgstr ""
 
 msgid "Saving address"
@@ -12574,11 +12624,17 @@ msgstr ""
 msgid "cannot export or convert latest mugshot"
 msgstr "Δεν μπορώ να εξάγω τον ΗΙΦ. Χωρίς ενεργό ασθενή."
 
+msgid "patient_mcf: invalid format (qr/mcf/txt)"
+msgstr ""
+
 #, fuzzy
 msgid "no tags for this patient"
 msgstr "Κράτα *αυτόν* τον ασθενή"
 
 msgid "no patient tags selected for inclusion"
+msgstr ""
+
+msgid "praxis_mcf: invalid format (qr/mcf/txt)"
 msgstr ""
 
 msgid "no address recorded"
@@ -19189,6 +19245,36 @@ msgstr ""
 msgid "Must select a hospital. Cannot save hospitalization."
 msgstr ""
 
+msgid "Choose an AMTS BMP medication plan."
+msgstr ""
+
+#, fuzzy
+msgid "BMP files"
+msgstr "όλα τα αρχεία"
+
+msgid "Importing AMTS BMP Medikationsplan"
+msgstr ""
+
+#, python-format
+msgid ""
+"The file\n"
+"\n"
+" [%s]\n"
+"\n"
+"does not seem to be a Medikationsplan."
+msgstr ""
+
+#, python-format
+msgid ""
+"No matching patient found in GNUmed.\n"
+"\n"
+"The patient in the Medikationsplan is:\n"
+"\n"
+" %s\n"
+"\n"
+"Do you want to create that patient ?"
+msgstr ""
+
 msgid "Cannot change notebook tabs. No active patient."
 msgstr ""
 
@@ -22105,9 +22191,6 @@ msgstr "Ματαίωση και ΔΕΝ θα συνδεθείτε με το GNUme
 #~ msgid "When was this substance started to be consumed."
 #~ msgstr "Πότε η ουσία άρχισε να καταναλώνετε."
 
-#~ msgid "Version:"
-#~ msgstr "Έκδοση"
-
 #~ msgid "Last modified:"
 #~ msgstr "Τελευταία τροποποίηση:"
 
@@ -22139,9 +22222,6 @@ msgstr "Ματαίωση και ΔΕΝ θα συνδεθείτε με το GNUme
 #, fuzzy
 #~ msgid "Print vaccinations using a template."
 #~ msgstr "Κανένας εμβολιασμόςπρος μορφοποίηση."
-
-#~ msgid "Patient:"
-#~ msgstr "Ασθενής:"
 
 #~ msgid "Printer Setup"
 #~ msgstr "Ρύθμιση Εκτυπωτή"

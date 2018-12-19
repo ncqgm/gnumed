@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-21 17:11+0100\n"
+"POT-Creation-Date: 2018-12-18 12:18+0100\n"
 "PO-Revision-Date: 2012-06-01 01:17+0000\n"
 "Last-Translator: J.Luszawski <jl@leksoft.com.pl>\n"
 "Language-Team: Polish <pl@li.org>\n"
@@ -8374,6 +8374,37 @@ msgstr "Epizod"
 msgid "Expires: %s\n"
 msgstr "Epizod"
 
+#, python-format
+msgid "AMTS BMP file: %s"
+msgstr ""
+
+#, fuzzy, python-format
+msgid "Created: %s"
+msgstr "Epizod docelowy"
+
+#, fuzzy, python-format
+msgid "Version: %s"
+msgstr "Wersja:"
+
+#, fuzzy, python-format
+msgid "UID: %s"
+msgstr "Epizod"
+
+#, fuzzy
+msgid "Creator:"
+msgstr "Epizod docelowy"
+
+#, fuzzy
+msgid "Patient:"
+msgstr " Twoja wersja: \"%s\"\n"
+
+#, fuzzy
+msgid "Clinical data:"
+msgstr "Istotny klinicznie"
+
+msgid "Raw data:"
+msgstr ""
+
 #, fuzzy
 msgid "HL7 Source"
 msgstr "Epizod"
@@ -9071,6 +9102,10 @@ msgstr "Nie mogę połączyć aktywnego pacjenta z innym pacjentem"
 msgid "merge of #%s into #%s @ %s"
 msgstr ""
 
+#, python-format
+msgid "The merge failed. Check the log and [%s]"
+msgstr ""
+
 msgid "invalid age: DOB in the future"
 msgstr ""
 
@@ -9214,7 +9249,7 @@ msgid "Type: \"%(name)s\" (%(abbr)s)  [#%(pk_type)s]\n"
 msgstr ""
 
 #, python-format
-msgid "Result: %(val)s%(unit)s%(ind)s  [#%(pk_result)s]\n"
+msgid "%(sso)sResult: %(val)s%(unit)s%(ind)s  [#%(pk_result)s]\n"
 msgstr ""
 
 #, fuzzy, python-format
@@ -9702,8 +9737,9 @@ msgstr "nieznana reakcja"
 msgid "unknown vaccinations output format [%s]"
 msgstr ""
 
-msgid "No vaccinations to format."
-msgstr ""
+#, fuzzy
+msgid "No vaccinations recorded."
+msgstr "Szczepienie"
 
 msgid "Latest vaccinations"
 msgstr ""
@@ -11832,6 +11868,9 @@ msgstr ""
 msgid "Must select gender."
 msgstr ""
 
+msgid "Duplicate person. Modify name and/or DOB or use comment to make unique."
+msgstr ""
+
 msgid ""
 "To properly create an address, all the related fields must be filled in."
 msgstr ""
@@ -11840,6 +11879,17 @@ msgid "Required fields"
 msgstr ""
 
 msgid "This field must contain an item selected from the dropdown list."
+msgstr ""
+
+#, fuzzy
+msgid "Creating person."
+msgstr "Usuwanie epizodu"
+
+msgid ""
+"Failed to create person. Does it already exist ?\n"
+"\n"
+"If so you need to (temporarily) modify, say, the\n"
+"first or last name."
 msgstr ""
 
 msgid "Saving address"
@@ -12072,11 +12122,17 @@ msgstr "brak opisu"
 msgid "cannot export or convert latest mugshot"
 msgstr ""
 
+msgid "patient_mcf: invalid format (qr/mcf/txt)"
+msgstr ""
+
 #, fuzzy
 msgid "no tags for this patient"
 msgstr "Wprowadź opis tego zewnętrznego identyfikatora."
 
 msgid "no patient tags selected for inclusion"
+msgstr ""
+
+msgid "praxis_mcf: invalid format (qr/mcf/txt)"
 msgstr ""
 
 msgid "no address recorded"
@@ -18703,6 +18759,36 @@ msgstr ""
 msgid "Must select a hospital. Cannot save hospitalization."
 msgstr "Nie można dodać problemu zdrowotnego. Brak aktywnego pacjenta."
 
+msgid "Choose an AMTS BMP medication plan."
+msgstr ""
+
+#, fuzzy
+msgid "BMP files"
+msgstr "Pliki graficzne"
+
+msgid "Importing AMTS BMP Medikationsplan"
+msgstr ""
+
+#, python-format
+msgid ""
+"The file\n"
+"\n"
+" [%s]\n"
+"\n"
+"does not seem to be a Medikationsplan."
+msgstr ""
+
+#, python-format
+msgid ""
+"No matching patient found in GNUmed.\n"
+"\n"
+"The patient in the Medikationsplan is:\n"
+"\n"
+" %s\n"
+"\n"
+"Do you want to create that patient ?"
+msgstr ""
+
 msgid "Cannot change notebook tabs. No active patient."
 msgstr ""
 
@@ -21549,9 +21635,6 @@ msgstr "Przerwij i NIE łącz z GNUmed-em"
 #, fuzzy
 #~ msgid "Save the form template definition."
 #~ msgstr "zmień szczegóły szablonu"
-
-#~ msgid "Version:"
-#~ msgstr "Wersja:"
 
 #, fuzzy
 #~ msgid "A comment on this test panel."

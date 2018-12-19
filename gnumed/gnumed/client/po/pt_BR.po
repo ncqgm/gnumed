@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-21 17:11+0100\n"
+"POT-Creation-Date: 2018-12-18 12:18+0100\n"
 "PO-Revision-Date: 2012-06-01 01:18+0000\n"
 "Last-Translator: Rogerio Luz Coelho <dr.rogerioluzcoelho@gmail.com>\n"
 "Language-Team: Brazilian Portuguese <pt_BR@li.org>\n"
@@ -8757,6 +8757,37 @@ msgstr "Exportado: %s\n"
 msgid "Expires: %s\n"
 msgstr "Exportado: %s\n"
 
+#, python-format
+msgid "AMTS BMP file: %s"
+msgstr ""
+
+#, fuzzy, python-format
+msgid "Created: %s"
+msgstr "Episódio Selecionado."
+
+#, fuzzy, python-format
+msgid "Version: %s"
+msgstr "Versão:"
+
+#, fuzzy, python-format
+msgid "UID: %s"
+msgstr "Fechado"
+
+#, fuzzy
+msgid "Creator:"
+msgstr "Episódio Selecionado."
+
+msgid "Patient:"
+msgstr "Paciente"
+
+#, fuzzy
+msgid "Clinical data:"
+msgstr "Anotações Clínicas"
+
+#, fuzzy
+msgid "Raw data:"
+msgstr "dados"
+
 #, fuzzy
 msgid "HL7 Source"
 msgstr "Fontes das Porções"
@@ -9480,6 +9511,10 @@ msgstr "Não é possível mesclar o paciente ativo com outro paciente."
 msgid "merge of #%s into #%s @ %s"
 msgstr ""
 
+#, python-format
+msgid "The merge failed. Check the log and [%s]"
+msgstr ""
+
 #, fuzzy
 msgid "invalid age: DOB in the future"
 msgstr "Condição diagnosticada no futuro."
@@ -9624,7 +9659,7 @@ msgid "Type: \"%(name)s\" (%(abbr)s)  [#%(pk_type)s]\n"
 msgstr ""
 
 #, python-format
-msgid "Result: %(val)s%(unit)s%(ind)s  [#%(pk_result)s]\n"
+msgid "%(sso)sResult: %(val)s%(unit)s%(ind)s  [#%(pk_result)s]\n"
 msgstr ""
 
 #, fuzzy, python-format
@@ -10116,7 +10151,8 @@ msgstr "Indicador"
 msgid "unknown vaccinations output format [%s]"
 msgstr "formato de vacina desconhecido [%s]"
 
-msgid "No vaccinations to format."
+#, fuzzy
+msgid "No vaccinations recorded."
 msgstr "Não há vacinas para formatar"
 
 msgid "Latest vaccinations"
@@ -12284,6 +12320,9 @@ msgstr "É necessário um Nome."
 msgid "Must select gender."
 msgstr "É necessário selecionar o sexo."
 
+msgid "Duplicate person. Modify name and/or DOB or use comment to make unique."
+msgstr ""
+
 msgid ""
 "To properly create an address, all the related fields must be filled in."
 msgstr "Para criar um endereço válido todos os campos devem ser preenchidos."
@@ -12292,6 +12331,17 @@ msgid "Required fields"
 msgstr "Campos obrigatórios."
 
 msgid "This field must contain an item selected from the dropdown list."
+msgstr ""
+
+#, fuzzy
+msgid "Creating person."
+msgstr "selecionando pessoa"
+
+msgid ""
+"Failed to create person. Does it already exist ?\n"
+"\n"
+"If so you need to (temporarily) modify, say, the\n"
+"first or last name."
 msgstr ""
 
 msgid "Saving address"
@@ -12526,11 +12576,17 @@ msgstr "não disponível"
 msgid "cannot export or convert latest mugshot"
 msgstr "Não é possível exportar Prontuário Eletrônico. Não há paciente ativo."
 
+msgid "patient_mcf: invalid format (qr/mcf/txt)"
+msgstr ""
+
 #, fuzzy
 msgid "no tags for this patient"
 msgstr "Um comentário sobre esse paciente."
 
 msgid "no patient tags selected for inclusion"
+msgstr ""
+
+msgid "praxis_mcf: invalid format (qr/mcf/txt)"
 msgstr ""
 
 msgid "no address recorded"
@@ -19395,6 +19451,36 @@ msgstr ""
 msgid "Must select a hospital. Cannot save hospitalization."
 msgstr "Não é possível apagar o tipo de consulta [%s]. Está em uso."
 
+msgid "Choose an AMTS BMP medication plan."
+msgstr ""
+
+#, fuzzy
+msgid "BMP files"
+msgstr "todos os arquivos"
+
+msgid "Importing AMTS BMP Medikationsplan"
+msgstr ""
+
+#, python-format
+msgid ""
+"The file\n"
+"\n"
+" [%s]\n"
+"\n"
+"does not seem to be a Medikationsplan."
+msgstr ""
+
+#, python-format
+msgid ""
+"No matching patient found in GNUmed.\n"
+"\n"
+"The patient in the Medikationsplan is:\n"
+"\n"
+" %s\n"
+"\n"
+"Do you want to create that patient ?"
+msgstr ""
+
 msgid "Cannot change notebook tabs. No active patient."
 msgstr ""
 
@@ -22636,9 +22722,6 @@ msgstr "Cancelar e NÃO conectar ao GNUmed."
 #~ msgid "Save the form template definition."
 #~ msgstr "Salvar a definição de relatório."
 
-#~ msgid "Version:"
-#~ msgstr "Versão:"
-
 #~ msgid "Last modified:"
 #~ msgstr "Modificado em:"
 
@@ -22692,9 +22775,6 @@ msgstr "Cancelar e NÃO conectar ao GNUmed."
 #, fuzzy
 #~ msgid "Print vaccinations using a template."
 #~ msgstr "Não há vacinas para formatar"
-
-#~ msgid "Patient:"
-#~ msgstr "Paciente"
 
 #~ msgid "GNUmed  generic EditArea dialog"
 #~ msgstr "Janela genérica do GNUmed para Editar Área"

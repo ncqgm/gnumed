@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-21 17:11+0100\n"
+"POT-Creation-Date: 2018-12-18 12:17+0100\n"
 "PO-Revision-Date: 2016-02-24 18:28+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: colombiano <es@li.org>\n"
@@ -8977,6 +8977,38 @@ msgstr "Expirado: %s\n"
 msgid "Expires: %s\n"
 msgstr "Expira: %s\n"
 
+#, python-format
+msgid "AMTS BMP file: %s"
+msgstr ""
+
+#, fuzzy, python-format
+msgid "Created: %s"
+msgstr "Creado: %s%s"
+
+#, fuzzy, python-format
+msgid "Version: %s"
+msgstr "Versión"
+
+#, fuzzy, python-format
+msgid "UID: %s"
+msgstr "Fehca estimada de parto: %s"
+
+#, fuzzy
+msgid "Creator:"
+msgstr "Creado"
+
+#, fuzzy
+msgid "Patient:"
+msgstr "Paciente"
+
+#, fuzzy
+msgid "Clinical data:"
+msgstr "Detalles clínicos"
+
+#, fuzzy
+msgid "Raw data:"
+msgstr "datos"
+
 msgid "HL7 Source"
 msgstr "Fuente HL7"
 
@@ -9681,6 +9713,10 @@ msgstr "No puede unir al paciente activo con otro paciente"
 msgid "merge of #%s into #%s @ %s"
 msgstr "unión de #%s en #%s @ %s"
 
+#, python-format
+msgid "The merge failed. Check the log and [%s]"
+msgstr ""
+
 msgid "invalid age: DOB in the future"
 msgstr "edad inválida: fecha de nacimiento en el futuro"
 
@@ -9823,8 +9859,8 @@ msgstr "Resultado desde %s             \n"
 msgid "Type: \"%(name)s\" (%(abbr)s)  [#%(pk_type)s]\n"
 msgstr "Topo: \"%(name)s\" (%(abbr)s)  [#%(pk_type)s]\n"
 
-#, python-format
-msgid "Result: %(val)s%(unit)s%(ind)s  [#%(pk_result)s]\n"
+#, fuzzy, python-format
+msgid "%(sso)sResult: %(val)s%(unit)s%(ind)s  [#%(pk_result)s]\n"
 msgstr "Resultados: %(val)s%(unit)s%(ind)s [#%(pk_result)s]\n"
 
 #, python-format
@@ -10317,7 +10353,8 @@ msgstr "Indicaciones"
 msgid "unknown vaccinations output format [%s]"
 msgstr "formato de salida [%s] desconocido para las vacunaciones"
 
-msgid "No vaccinations to format."
+#, fuzzy
+msgid "No vaccinations recorded."
 msgstr "No hay formato para las vacunaciones."
 
 msgid "Latest vaccinations"
@@ -12585,6 +12622,9 @@ msgstr "Ha de introducir un nombre."
 msgid "Must select gender."
 msgstr "Ha de elegir un sexo."
 
+msgid "Duplicate person. Modify name and/or DOB or use comment to make unique."
+msgstr ""
+
 msgid ""
 "To properly create an address, all the related fields must be filled in."
 msgstr ""
@@ -12596,6 +12636,17 @@ msgstr "Campos obligatorios"
 
 msgid "This field must contain an item selected from the dropdown list."
 msgstr "Este campo ha de contener un ítem elegido de la lista desplegable."
+
+#, fuzzy
+msgid "Creating person."
+msgstr "seleccionando persona"
+
+msgid ""
+"Failed to create person. Does it already exist ?\n"
+"\n"
+"If so you need to (temporarily) modify, say, the\n"
+"first or last name."
+msgstr ""
 
 msgid "Saving address"
 msgstr "Guardando dirección"
@@ -12876,11 +12927,17 @@ msgstr "no hay foto disponible"
 msgid "cannot export or convert latest mugshot"
 msgstr "no puedo exportar o convertir la última foto"
 
+msgid "patient_mcf: invalid format (qr/mcf/txt)"
+msgstr ""
+
 msgid "no tags for this patient"
 msgstr "no hay etiqueta para este paciente"
 
 msgid "no patient tags selected for inclusion"
 msgstr "no seleccionó etiquetas de este paciente para su inclusión"
+
+msgid "praxis_mcf: invalid format (qr/mcf/txt)"
+msgstr ""
 
 msgid "no address recorded"
 msgstr "no guardé dirección"
@@ -20362,6 +20419,36 @@ msgstr ""
 
 msgid "Must select a hospital. Cannot save hospitalization."
 msgstr "Debe seleccionar un hospital. No puedo guardar la hospitalización."
+
+msgid "Choose an AMTS BMP medication plan."
+msgstr ""
+
+#, fuzzy
+msgid "BMP files"
+msgstr "Archivos SVG"
+
+msgid "Importing AMTS BMP Medikationsplan"
+msgstr ""
+
+#, python-format
+msgid ""
+"The file\n"
+"\n"
+" [%s]\n"
+"\n"
+"does not seem to be a Medikationsplan."
+msgstr ""
+
+#, python-format
+msgid ""
+"No matching patient found in GNUmed.\n"
+"\n"
+"The patient in the Medikationsplan is:\n"
+"\n"
+" %s\n"
+"\n"
+"Do you want to create that patient ?"
+msgstr ""
 
 msgid "Cannot change notebook tabs. No active patient."
 msgstr ""

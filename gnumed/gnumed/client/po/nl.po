@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-21 17:11+0100\n"
+"POT-Creation-Date: 2018-12-18 12:17+0100\n"
 "PO-Revision-Date: 2012-06-01 01:19+0000\n"
 "Last-Translator: Anik ten Have <anik@itchi-go.nl>\n"
 "Language-Team: Dutch <nl@li.org>\n"
@@ -8832,6 +8832,37 @@ msgstr "Geexporteerd: %s\n"
 msgid "Expires: %s\n"
 msgstr "Geexporteerd: %s\n"
 
+#, python-format
+msgid "AMTS BMP file: %s"
+msgstr ""
+
+#, fuzzy, python-format
+msgid "Created: %s"
+msgstr "Geexporteerd: %s\n"
+
+#, fuzzy, python-format
+msgid "Version: %s"
+msgstr "Versie:"
+
+#, fuzzy, python-format
+msgid "UID: %s"
+msgstr "   MTA: %s"
+
+#, fuzzy
+msgid "Creator:"
+msgstr "Geexporteerd: %s\n"
+
+#, fuzzy
+msgid "Patient:"
+msgstr "Patiënt"
+
+#, fuzzy
+msgid "Clinical data:"
+msgstr "Klinische aantekeningen"
+
+msgid "Raw data:"
+msgstr ""
+
 #, fuzzy
 msgid "HL7 Source"
 msgstr "HTML-broncode"
@@ -9550,6 +9581,10 @@ msgstr "Kan actieve patient niet samenvoegen met andere patient."
 msgid "merge of #%s into #%s @ %s"
 msgstr ""
 
+#, python-format
+msgid "The merge failed. Check the log and [%s]"
+msgstr ""
+
 #, fuzzy
 msgid "invalid age: DOB in the future"
 msgstr "Aandoening gediagnosticeerd in de toekomst."
@@ -9696,7 +9731,7 @@ msgid "Type: \"%(name)s\" (%(abbr)s)  [#%(pk_type)s]\n"
 msgstr ""
 
 #, python-format
-msgid "Result: %(val)s%(unit)s%(ind)s  [#%(pk_result)s]\n"
+msgid "%(sso)sResult: %(val)s%(unit)s%(ind)s  [#%(pk_result)s]\n"
 msgstr ""
 
 #, fuzzy, python-format
@@ -10193,7 +10228,7 @@ msgid "unknown vaccinations output format [%s]"
 msgstr "onbekende test status [%s]"
 
 #, fuzzy
-msgid "No vaccinations to format."
+msgid "No vaccinations recorded."
 msgstr "geen vaccinaties geregistreerd"
 
 msgid "Latest vaccinations"
@@ -12505,6 +12540,9 @@ msgstr "Moet voornaam invoeren."
 msgid "Must select gender."
 msgstr "Moet geslacht selecteren."
 
+msgid "Duplicate person. Modify name and/or DOB or use comment to make unique."
+msgstr ""
+
 msgid ""
 "To properly create an address, all the related fields must be filled in."
 msgstr ""
@@ -12515,6 +12553,17 @@ msgid "Required fields"
 msgstr "Verplichte velden"
 
 msgid "This field must contain an item selected from the dropdown list."
+msgstr ""
+
+#, fuzzy
+msgid "Creating person."
+msgstr "persoon selecteren"
+
+msgid ""
+"Failed to create person. Does it already exist ?\n"
+"\n"
+"If so you need to (temporarily) modify, say, the\n"
+"first or last name."
 msgstr ""
 
 #, fuzzy
@@ -12769,6 +12818,9 @@ msgstr "geen toelichting beschikbaar"
 msgid "cannot export or convert latest mugshot"
 msgstr "Kan EMD niet exporteren. Geen actieve patiënt."
 
+msgid "patient_mcf: invalid format (qr/mcf/txt)"
+msgstr ""
+
 #, fuzzy
 msgid "no tags for this patient"
 msgstr "Een aantekening bij deze patiënt."
@@ -12776,6 +12828,9 @@ msgstr "Een aantekening bij deze patiënt."
 #, fuzzy
 msgid "no patient tags selected for inclusion"
 msgstr "Geen uitslagen geselecteerd voor verwijdering."
+
+msgid "praxis_mcf: invalid format (qr/mcf/txt)"
+msgstr ""
 
 msgid "no address recorded"
 msgstr ""
@@ -20178,6 +20233,36 @@ msgstr ""
 msgid "Must select a hospital. Cannot save hospitalization."
 msgstr "Kan patiënt niet verwijderen. Geen actieve patiënt."
 
+msgid "Choose an AMTS BMP medication plan."
+msgstr ""
+
+#, fuzzy
+msgid "BMP files"
+msgstr "alle bestanden"
+
+msgid "Importing AMTS BMP Medikationsplan"
+msgstr ""
+
+#, python-format
+msgid ""
+"The file\n"
+"\n"
+" [%s]\n"
+"\n"
+"does not seem to be a Medikationsplan."
+msgstr ""
+
+#, python-format
+msgid ""
+"No matching patient found in GNUmed.\n"
+"\n"
+"The patient in the Medikationsplan is:\n"
+"\n"
+" %s\n"
+"\n"
+"Do you want to create that patient ?"
+msgstr ""
+
 msgid "Cannot change notebook tabs. No active patient."
 msgstr "Kan niet van tabblad wijzigen. Geen active patiënt."
 
@@ -23658,9 +23743,6 @@ msgstr "Afbreken en GEEN verbinding maken met GNUmed."
 #~ msgid "Save the form template definition."
 #~ msgstr "Bewaar de rapportdefinitie."
 
-#~ msgid "Version:"
-#~ msgstr "Versie:"
-
 #~ msgid "Last modified:"
 #~ msgstr "Laatst gewijzigd:"
 
@@ -23764,10 +23846,6 @@ msgstr "Afbreken en GEEN verbinding maken met GNUmed."
 #, fuzzy
 #~ msgid "Print vaccinations using a template."
 #~ msgstr "Kan medicatie niet toevoegen. Geen actieve patiënt."
-
-#, fuzzy
-#~ msgid "Patient:"
-#~ msgstr "Patiënt"
 
 #, fuzzy
 #~ msgid "Basic demographics"

@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-21 17:11+0100\n"
+"POT-Creation-Date: 2018-12-18 12:17+0100\n"
 "PO-Revision-Date: 2012-06-01 01:22+0000\n"
 "Last-Translator: ncq <Unknown>\n"
 "Language-Team: GNUmed\n"
@@ -8531,6 +8531,36 @@ msgstr "Esportato: %s\n"
 msgid "Expires: %s\n"
 msgstr "Esportato: %s\n"
 
+#, python-format
+msgid "AMTS BMP file: %s"
+msgstr ""
+
+#, fuzzy, python-format
+msgid "Created: %s"
+msgstr "Crea nuovo"
+
+#, fuzzy, python-format
+msgid "Version: %s"
+msgstr "Versione:"
+
+#, fuzzy, python-format
+msgid "UID: %s"
+msgstr "Chiusa"
+
+#, fuzzy
+msgid "Creator:"
+msgstr "Crea nuovo"
+
+msgid "Patient:"
+msgstr "Paziente:"
+
+#, fuzzy
+msgid "Clinical data:"
+msgstr "Dettagli Clinici"
+
+msgid "Raw data:"
+msgstr ""
+
 #, fuzzy
 msgid "HL7 Source"
 msgstr "Sorgente HTML"
@@ -9255,6 +9285,10 @@ msgstr "Non posso inserire il paziente attivo in un altro paziente."
 msgid "merge of #%s into #%s @ %s"
 msgstr ""
 
+#, python-format
+msgid "The merge failed. Check the log and [%s]"
+msgstr ""
+
 msgid "invalid age: DOB in the future"
 msgstr ""
 
@@ -9399,7 +9433,7 @@ msgid "Type: \"%(name)s\" (%(abbr)s)  [#%(pk_type)s]\n"
 msgstr ""
 
 #, python-format
-msgid "Result: %(val)s%(unit)s%(ind)s  [#%(pk_result)s]\n"
+msgid "%(sso)sResult: %(val)s%(unit)s%(ind)s  [#%(pk_result)s]\n"
 msgstr ""
 
 #, fuzzy, python-format
@@ -9888,7 +9922,8 @@ msgstr "Indicazione"
 msgid "unknown vaccinations output format [%s]"
 msgstr ""
 
-msgid "No vaccinations to format."
+#, fuzzy
+msgid "No vaccinations recorded."
 msgstr "Nessuna vaccinazione da cancellare."
 
 msgid "Latest vaccinations"
@@ -11982,6 +12017,9 @@ msgstr "Devi inserire il nome."
 msgid "Must select gender."
 msgstr "Devi scegliere il sesso."
 
+msgid "Duplicate person. Modify name and/or DOB or use comment to make unique."
+msgstr ""
+
 msgid ""
 "To properly create an address, all the related fields must be filled in."
 msgstr ""
@@ -11992,6 +12030,17 @@ msgid "Required fields"
 msgstr "Campi obbligatori"
 
 msgid "This field must contain an item selected from the dropdown list."
+msgstr ""
+
+#, fuzzy
+msgid "Creating person."
+msgstr "Sto selezionando la persona"
+
+msgid ""
+"Failed to create person. Does it already exist ?\n"
+"\n"
+"If so you need to (temporarily) modify, say, the\n"
+"first or last name."
 msgstr ""
 
 msgid "Saving address"
@@ -12223,6 +12272,9 @@ msgstr "nessun commento disponibile"
 msgid "cannot export or convert latest mugshot"
 msgstr ""
 
+msgid "patient_mcf: invalid format (qr/mcf/txt)"
+msgstr ""
+
 #, fuzzy
 msgid "no tags for this patient"
 msgstr "Un commento su questo paziente."
@@ -12230,6 +12282,9 @@ msgstr "Un commento su questo paziente."
 #, fuzzy
 msgid "no patient tags selected for inclusion"
 msgstr "Nessun risultato selezionato per la rimozione."
+
+msgid "praxis_mcf: invalid format (qr/mcf/txt)"
+msgstr ""
 
 msgid "no address recorded"
 msgstr ""
@@ -18971,6 +19026,36 @@ msgstr ""
 msgid "Must select a hospital. Cannot save hospitalization."
 msgstr "Non posso cancellare il paziente. Nessun paziente attivo."
 
+msgid "Choose an AMTS BMP medication plan."
+msgstr ""
+
+#, fuzzy
+msgid "BMP files"
+msgstr "tutti i file"
+
+msgid "Importing AMTS BMP Medikationsplan"
+msgstr ""
+
+#, python-format
+msgid ""
+"The file\n"
+"\n"
+" [%s]\n"
+"\n"
+"does not seem to be a Medikationsplan."
+msgstr ""
+
+#, python-format
+msgid ""
+"No matching patient found in GNUmed.\n"
+"\n"
+"The patient in the Medikationsplan is:\n"
+"\n"
+" %s\n"
+"\n"
+"Do you want to create that patient ?"
+msgstr ""
+
 msgid "Cannot change notebook tabs. No active patient."
 msgstr ""
 
@@ -21967,9 +22052,6 @@ msgstr "Annulla e NON connetti a GNUmed"
 #~ msgid "Save the form template definition."
 #~ msgstr "Salvare la definizione del report."
 
-#~ msgid "Version:"
-#~ msgstr "Versione:"
-
 #~ msgid "Last modified:"
 #~ msgstr "Ultima modifica:"
 
@@ -22026,9 +22108,6 @@ msgstr "Annulla e NON connetti a GNUmed"
 #, fuzzy
 #~ msgid "Print vaccinations using a template."
 #~ msgstr "Nessuna vaccinazione da cancellare."
-
-#~ msgid "Patient:"
-#~ msgstr "Paziente:"
 
 #~ msgid "Basic demographics"
 #~ msgstr "Dati demografici di base"

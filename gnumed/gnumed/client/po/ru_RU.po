@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-21 17:12+0100\n"
+"POT-Creation-Date: 2018-12-18 12:18+0100\n"
 "PO-Revision-Date: 2012-05-30 18:43+0000\n"
 "Last-Translator: YvLy <Unknown>\n"
 "Language-Team: Russian <ru@li.org>\n"
@@ -9162,6 +9162,37 @@ msgstr "Экспортированный: %s\n"
 msgid "Expires: %s\n"
 msgstr "Окончание: %s\n"
 
+#, python-format
+msgid "AMTS BMP file: %s"
+msgstr ""
+
+#, fuzzy, python-format
+msgid "Created: %s"
+msgstr "Создано: %s"
+
+#, fuzzy, python-format
+msgid "Version: %s"
+msgstr "Версия"
+
+#, fuzzy, python-format
+msgid "UID: %s"
+msgstr "RFE: %s"
+
+#, fuzzy
+msgid "Creator:"
+msgstr "Создано: %s"
+
+msgid "Patient:"
+msgstr "Пациент:"
+
+#, fuzzy
+msgid "Clinical data:"
+msgstr "Клинические особенности"
+
+#, fuzzy
+msgid "Raw data:"
+msgstr "данные"
+
 #, fuzzy
 msgid "HL7 Source"
 msgstr "Исходный код HTML"
@@ -9895,6 +9926,10 @@ msgstr "Не удалось объединить активного пациен
 msgid "merge of #%s into #%s @ %s"
 msgstr ""
 
+#, python-format
+msgid "The merge failed. Check the log and [%s]"
+msgstr ""
+
 msgid "invalid age: DOB in the future"
 msgstr "неверный возраст: дата рождения в будущем"
 
@@ -10042,8 +10077,8 @@ msgstr ""
 msgid "Type: \"%(name)s\" (%(abbr)s)  [#%(pk_type)s]\n"
 msgstr "Введите:\"%(name)s\" (%(code)s) [#%(pk_type)s]\n"
 
-#, python-format
-msgid "Result: %(val)s%(unit)s%(ind)s  [#%(pk_result)s]\n"
+#, fuzzy, python-format
+msgid "%(sso)sResult: %(val)s%(unit)s%(ind)s  [#%(pk_result)s]\n"
 msgstr "Результат: %(val)s%(unit)s%(ind)s [#%(pk_result)s]\n"
 
 #, fuzzy, python-format
@@ -10541,7 +10576,8 @@ msgstr "обозначения"
 msgid "unknown vaccinations output format [%s]"
 msgstr "неизвестный формат вывода прививок"
 
-msgid "No vaccinations to format."
+#, fuzzy
+msgid "No vaccinations recorded."
 msgstr "Нет прививок для форматирования"
 
 msgid "Latest vaccinations"
@@ -12821,6 +12857,9 @@ msgstr "Необходимо ввести первое имя."
 msgid "Must select gender."
 msgstr "Необходимо выбрать пол."
 
+msgid "Duplicate person. Modify name and/or DOB or use comment to make unique."
+msgstr ""
+
 msgid ""
 "To properly create an address, all the related fields must be filled in."
 msgstr ""
@@ -12831,6 +12870,17 @@ msgstr "Обязательные поля"
 
 msgid "This field must contain an item selected from the dropdown list."
 msgstr "Это поле должно содержать пункт, выбранный из выпадающего списка."
+
+#, fuzzy
+msgid "Creating person."
+msgstr "выбор персоны"
+
+msgid ""
+"Failed to create person. Does it already exist ?\n"
+"\n"
+"If so you need to (temporarily) modify, say, the\n"
+"first or last name."
+msgstr ""
 
 msgid "Saving address"
 msgstr "Сохранение адреса"
@@ -13101,11 +13151,17 @@ msgstr "недоступно"
 msgid "cannot export or convert latest mugshot"
 msgstr "Не удалось экспортировать EMR. Нет активного пациента."
 
+msgid "patient_mcf: invalid format (qr/mcf/txt)"
+msgstr ""
+
 msgid "no tags for this patient"
 msgstr "для этого пациента нет тэгов"
 
 msgid "no patient tags selected for inclusion"
 msgstr "не выбраны для включения тэги пациента"
+
+msgid "praxis_mcf: invalid format (qr/mcf/txt)"
+msgstr ""
 
 msgid "no address recorded"
 msgstr ""
@@ -20592,6 +20648,36 @@ msgstr ""
 msgid "Must select a hospital. Cannot save hospitalization."
 msgstr "Пропущены данные поступления. Не удалось сохранить госпитализацию."
 
+msgid "Choose an AMTS BMP medication plan."
+msgstr ""
+
+#, fuzzy
+msgid "BMP files"
+msgstr "все файлы"
+
+msgid "Importing AMTS BMP Medikationsplan"
+msgstr ""
+
+#, python-format
+msgid ""
+"The file\n"
+"\n"
+" [%s]\n"
+"\n"
+"does not seem to be a Medikationsplan."
+msgstr ""
+
+#, python-format
+msgid ""
+"No matching patient found in GNUmed.\n"
+"\n"
+"The patient in the Medikationsplan is:\n"
+"\n"
+" %s\n"
+"\n"
+"Do you want to create that patient ?"
+msgstr ""
+
 msgid "Cannot change notebook tabs. No active patient."
 msgstr "Не удалось изменить закладку записной книжки. Нет активного пациента."
 
@@ -24557,9 +24643,6 @@ msgstr "Отменить и НЕ подключаться к GNUmed."
 
 #~ msgid "Add billing item"
 #~ msgstr "Добавить пункт счета"
-
-#~ msgid "Patient:"
-#~ msgstr "Пациент:"
 
 #~ msgid "Basic demographics"
 #~ msgstr "Основные персональные данные"

@@ -5,8 +5,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-21 17:11+0100\n"
-"PO-Revision-Date: 2018-02-21 17:19+0100\n"
+"POT-Creation-Date: 2018-12-18 12:17+0100\n"
+"PO-Revision-Date: 2018-12-18 12:21+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "Language: de_DE\n"
@@ -14,7 +14,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: pygettext.py 1.3\n"
-"X-Generator: Poedit 2.0.6\n"
+"X-Generator: Poedit 2.2\n"
 
 #, python-format
 msgid "unknown test status [%s]"
@@ -3645,7 +3645,7 @@ msgid "Preview next image."
 msgstr "Nächstes Bild zeigen."
 
 msgid "Store image into export area."
-msgstr "Bild im Exportbereich ablegen."
+msgstr "Bild in Sammelmappe legen."
 
 msgid "Browse topmost selected study."
 msgstr "Die zuoberst gewählte Studie durchblättern."
@@ -3940,8 +3940,8 @@ msgstr "Gewählte/alle Dokumente drucken."
 
 msgid "Store selected printouts in patient export area (if applicable)."
 msgstr ""
-"Die gewählten Ausdrucke im Exportbereich des aktiven Patienten ablegen "
-"(sofern einer aktiv ist)."
+"Die gewählten Ausdrucke in Sammelmappe des aktiven Patienten legen (sofern "
+"einer aktiv ist)."
 
 msgid "Delete the selected printouts"
 msgstr "Markierte Ausdrucke löschen"
@@ -3971,7 +3971,7 @@ msgid "Save timeline as images."
 msgstr "Zeitstrahl als Bilder speichern."
 
 msgid "Put timeline into export area."
-msgstr "Zeitstrahl in Exportbereich ablegen."
+msgstr "Zeitstrahl in Sammelmappe legen."
 
 msgid "Print timeline."
 msgstr "Zeitstrahl drucken."
@@ -5010,7 +5010,7 @@ msgid "What would you like to do with the following document(s) ?"
 msgstr "Was wollen Sie mit diesen Dokumenten tun ?"
 
 msgid "to patient export area"
-msgstr "in Exportbereich"
+msgstr "in Sammelmappe"
 
 msgid "Print &remotely"
 msgstr "&Entfernt drucken"
@@ -5031,7 +5031,7 @@ msgid "Delete the selected forms from the list."
 msgstr "Markierte Dokumente entfernen."
 
 msgid "Check here to put a copy into the export area."
-msgstr "Hier ankreuzen, um eine Kopie in den Exportbereich zu legen."
+msgstr "Hier ankreuzen, um eine Kopie in die Sammelmappe zu legen."
 
 msgid "Select episode under which to archive a copy of the document(s)."
 msgstr "Wählen Sie die Episode, der die Dokumente zugeordnet werden sollen."
@@ -5044,20 +5044,20 @@ msgid ""
 "(optionally copy to archive and export area)"
 msgstr ""
 "Dokument(e) drucken\n"
-"(optionale Kopie ins Archiv und/oder den Exportbereich)"
+"(optionale Kopie ins Archiv und/oder die Sammelmappe)"
 
 msgid ""
 "Remotely print document(s).\n"
 "(optionally copy to archive and export area)"
 msgstr ""
 "Dokument(e) in die Druckwarteschlange.\n"
-"(optional ins Archive und/oder den Exportbereich kopieren)"
+"(optional ins Archive und/oder die Sammelmappe kopieren)"
 
 msgid ""
 "Put into export area only.\n"
 "(no printing, no archiving)"
 msgstr ""
-"Ausschließlich in den Exportbereich legen.\n"
+"Ausschließlich in die Sammelmappe legen.\n"
 "(kein Drucken, kein Archivieren)"
 
 msgid ""
@@ -5065,7 +5065,7 @@ msgid ""
 "(no printing, no export area)"
 msgstr ""
 "Ausschließlich archivieren.\n"
-"(kein Ausdruck, kein exportieren)"
+"(kein Ausdruck, keine Sammelmappe)"
 
 msgid "Cancel any actions and close dialog."
 msgstr "Alle Aktionen abbrechen und den Dialog schließen."
@@ -8839,6 +8839,34 @@ msgstr "Verfallen: %s\n"
 msgid "Expires: %s\n"
 msgstr "Verfällt: %s\n"
 
+#, python-format
+msgid "AMTS BMP file: %s"
+msgstr ""
+
+#, python-format
+msgid "Created: %s"
+msgstr "Erzeugt: %s"
+
+#, python-format
+msgid "Version: %s"
+msgstr "Version: %s"
+
+#, python-format
+msgid "UID: %s"
+msgstr ""
+
+msgid "Creator:"
+msgstr "Erzeuger:"
+
+msgid "Patient:"
+msgstr "Patient:"
+
+msgid "Clinical data:"
+msgstr "Medizinische Daten:"
+
+msgid "Raw data:"
+msgstr "Rohdaten:"
+
 msgid "HL7 Source"
 msgstr "HL7-Quelle"
 
@@ -9538,6 +9566,10 @@ msgstr "Kann aktiven Patienten nicht in einen anderen Patienten einfügen."
 msgid "merge of #%s into #%s @ %s"
 msgstr "Übernahme von #%s in #%s @ %s"
 
+#, python-format
+msgid "The merge failed. Check the log and [%s]"
+msgstr "Zusammenführen fehlgeschlagen. Siehe Logdatei und [%s]"
+
 msgid "invalid age: DOB in the future"
 msgstr "ungültiges Alter: Geburtsdatum in der Zukunft"
 
@@ -9681,8 +9713,8 @@ msgid "Type: \"%(name)s\" (%(abbr)s)  [#%(pk_type)s]\n"
 msgstr "Messung: \"%(name)s\" (%(abbr)s)  [#%(pk_type)s]\n"
 
 #, python-format
-msgid "Result: %(val)s%(unit)s%(ind)s  [#%(pk_result)s]\n"
-msgstr "Ergebnis: %(val)s%(unit)s%(ind)s  [#%(pk_result)s]\n"
+msgid "%(sso)sResult: %(val)s%(unit)s%(ind)s  [#%(pk_result)s]\n"
+msgstr "%(sso)sResult: %(val)s%(unit)s%(ind)s  [#%(pk_result)s]\n"
 
 #, python-format
 msgid "Status: %s\n"
@@ -10159,8 +10191,8 @@ msgstr " Indikationen"
 msgid "unknown vaccinations output format [%s]"
 msgstr "unbekanntes Format [%s] für die Ausgabe von Impfungen"
 
-msgid "No vaccinations to format."
-msgstr "Keine Impfungen zu formatieren."
+msgid "No vaccinations recorded."
+msgstr "Keine Impfungen verzeichnet."
 
 msgid "Latest vaccinations"
 msgstr "Letzte Impfungen"
@@ -12129,11 +12161,11 @@ msgid "Deleting inbox message"
 msgstr "Lösche Nachricht"
 
 msgid "Export area: 1 item"
-msgstr "Exportbereich: 1 Dokument"
+msgstr "Sammelmappe: 1 Dokument"
 
 #, python-format
 msgid "Export area: %s items"
-msgstr "Exportbereich: %s Dokumente"
+msgstr "Sammelmappe: %s Dokumente"
 
 #, python-format
 msgid "%s %s more not shown %s"
@@ -12345,6 +12377,11 @@ msgstr "Vorname muß eingegeben werden."
 msgid "Must select gender."
 msgstr "Geschlecht muß gewählt werden."
 
+msgid "Duplicate person. Modify name and/or DOB or use comment to make unique."
+msgstr ""
+"Doppelte Person. Namen und Geburtsdatum prüfen oder einen Kommentar zur "
+"Unterscheidung hinzufügen."
+
 msgid ""
 "To properly create an address, all the related fields must be filled in."
 msgstr ""
@@ -12356,6 +12393,20 @@ msgstr "Pflichtfelder"
 
 msgid "This field must contain an item selected from the dropdown list."
 msgstr "Dieses Feld muß einen Eintrag aus der Dropdown-Liste enthalten."
+
+msgid "Creating person."
+msgstr "Füge Person ein."
+
+msgid ""
+"Failed to create person. Does it already exist ?\n"
+"\n"
+"If so you need to (temporarily) modify, say, the\n"
+"first or last name."
+msgstr ""
+"Kann Person nicht eintragen. Existiert diese schon ?\n"
+"\n"
+"Falls ja, könnten Sie vorübergehend den Vor- oder\n"
+"Nachnamen leicht verändert eingeben."
 
 msgid "Saving address"
 msgstr "Adresse speichern"
@@ -12633,11 +12684,17 @@ msgstr "kein Patientenphoto verfügbar"
 msgid "cannot export or convert latest mugshot"
 msgstr "Kann neuestes Patientenphoto nicht exportieren oder konvertieren"
 
+msgid "patient_mcf: invalid format (qr/mcf/txt)"
+msgstr ""
+
 msgid "no tags for this patient"
 msgstr "Keine Symbole bei diesem Patienten"
 
 msgid "no patient tags selected for inclusion"
 msgstr "Keine Symbole dieses Patienten markiert"
+
+msgid "praxis_mcf: invalid format (qr/mcf/txt)"
+msgstr ""
 
 msgid "no address recorded"
 msgstr "Keine Adresse bekannt"
@@ -16513,53 +16570,53 @@ msgstr ""
 "- zusätzliche Dokumente"
 
 msgid "Select files to add to the export area"
-msgstr "Wählen Sie Dateien für die Aufnahme in den Exportbereich"
+msgstr "Wählen Sie Dateien für die Aufnahme in die Sammelmappe"
 
 msgid "Adding files to export area"
-msgstr "Dateien zum Exportbereich hinzufügen"
+msgstr "Dateien zur Sammelmappe hinzufügen"
 
 #, python-format
 msgid ""
 "Cannot add (some of) the following files to the export area:\n"
 "%s "
 msgstr ""
-"Kann einige der folgenden Dateien nicht in den Exportbereich aufnehmen:\n"
-"%s"
+"Kann einige der folgenden Dateien nicht in die Sammelmappe aufnehmen:\n"
+"%s "
 
 msgid "Select the documents to be put into the export area:"
 msgstr ""
-"Wählen Sie die Dokumente, die dem Exportbereich hinzugefügt werden sollen:"
+"Wählen Sie die Dokumente, die der Sammelmappe hinzugefügt werden sollen:"
 
 msgid "clipboard"
 msgstr "Zwischenablage"
 
 msgid "Loading clipboard item (saved to file) into export area"
-msgstr "Zwischenablageinhalt in den Exportbereich einfügen."
+msgstr "Zwischenablage in die Sammelmappe legen"
 
 #, python-format
 msgid ""
 "Cannot add the following clip to the export area:\n"
 "%s "
 msgstr ""
-"Kann folgenden Schnipsel nicht in den Exportbereich aufnehmen:\n"
-"%s"
+"Kann folgenden Schnipsel nicht in die Sammelmappe aufnehmen:\n"
+"%s "
 
 msgid "scan"
 msgstr "Scan"
 
 msgid "Scanning files into export area"
-msgstr "Scannen von Dateien für den Exportbereich"
+msgstr "Scannen von Dateien für die Sammelmappe"
 
 #, python-format
 msgid ""
 "Cannot add (some of) the following scans to the export area:\n"
 "%s "
 msgstr ""
-"Kann einige der folgenden Scans nicht in den Exportbereich aufnehmen:\n"
+"Kann einige der folgenden Scans nicht in die Sammelmappe aufnehmen:\n"
 "%s"
 
 msgid "Deleting document from export area."
-msgstr "Dokumente aus dem Exportbereich löschen."
+msgstr "Dokumente aus der Sammelmappe löschen."
 
 #, python-format
 msgid ""
@@ -16567,7 +16624,7 @@ msgid ""
 "from the patient export area ?"
 msgstr ""
 "Wirklich %s gewählte Dokumente aus\n"
-"dem Exportbereich löschen ?"
+"der Sammelmappe löschen ?"
 
 msgid "Error printing documents."
 msgstr "Fehler beim Drucken der Dokumente."
@@ -16837,7 +16894,7 @@ msgid "last modified %s by %s, internal revision [%s]"
 msgstr "zuletzt geändert %s von %s, interne Revision [%s]"
 
 msgid "Choose a form template file"
-msgstr "Wählen Sie eine Datei als Schriftstück-Vorlage."
+msgstr "Wählen Sie eine Datei als Schriftstück-Vorlage"
 
 msgid "Enter a filename to save the template to"
 msgstr "Geben Sie einen Dateinamen zum Speichern der Dokumentenvorlage ein"
@@ -17117,7 +17174,7 @@ msgid "No parts to save. Aquire some parts first."
 msgstr "Keine Teile zu speichern. Sie müssen zuerst Teile hinzufügen."
 
 msgid "No document type applied. Choose a document type"
-msgstr "Sie müssen einen Typ für das Dokument wählen."
+msgstr "Sie müssen einen Typ für das Dokument wählen"
 
 msgid "You must select an episode to save this document under."
 msgstr "Sie müssen die Episode zum Speichern des Dokuments wählen."
@@ -17328,7 +17385,7 @@ msgid "Save all parts to disk"
 msgstr "Alle Teile auf Festplatte speichern"
 
 msgid "Copy all parts to export area"
-msgstr "Alle Teile in Exportbereich kopieren"
+msgstr "Alle Teile in die Sammelmappe kopieren"
 
 msgid "Access external original"
 msgstr "Zugriff auf das externe Original"
@@ -17700,7 +17757,7 @@ msgid "DICOM image of [%s] from Orthanc PACS \"%s\" (AET \"%s\")"
 msgstr "DICOM-Bild zu [%s] aus dem Orthanc-PACS \"%s\" (AET \"%s\")"
 
 msgid "Successfully stored in export area."
-msgstr "Erfolgreich in Exportbereich abgelegt."
+msgstr "Erfolgreich in Sammelmappe geheftet."
 
 msgid "Select the directory into which to save the DICOM studies."
 msgstr ""
@@ -18406,8 +18463,8 @@ msgstr "Journal (APK)"
 msgid ""
 "Copy EMR of the active patient as a chronological journal into export area"
 msgstr ""
-"Karteikarte des aktiven Patienten als chronologisches Journal im "
-"Exportbereich ablegen"
+"Karteikarte des aktiven Patienten als chronologisches Journal in Sammelmappe "
+"legen"
 
 msgid "Journal (mod time)"
 msgstr "Journal (Bearb.zeit)"
@@ -18416,30 +18473,29 @@ msgid ""
 "Copy EMR of active patient as journal (by last modification time) into "
 "export area"
 msgstr ""
-"Kartei des aktiven Patienten als Journal (nach Bearbeitungszeitpunkt) im "
-"Exportbereich ablegen"
+"Kartei des aktiven Patienten als Journal (nach Bearbeitungszeitpunkt) in "
+"Sammelmappe legen"
 
 msgid "Text document"
 msgstr "Textdatei"
 
 msgid "Copy EMR of active patient as text document into export area"
-msgstr "Kartei des aktiven Patienten als Textdokument im Exportbereich ablegen"
+msgstr "Kartei des aktiven Patienten als Textdokument in Sammelmappe legen"
 
 msgid "Timeline file"
 msgstr "Zeitstrahl-Datei"
 
 msgid "Copy EMR of active patient as timeline file (XML) into export area"
 msgstr ""
-"Kartei des aktiven Patienten als Zeitstrahl-Datei (XML) im Exportbereich "
-"ablegen"
+"Kartei des aktiven Patienten als Zeitstrahl-Datei (XML) in Sammelmappe legen"
 
 msgid "Care structure"
 msgstr "Behandlungsstruktur"
 
 msgid "Copy EMR of active patient as care structure text file into export area"
 msgstr ""
-"Kartei des aktiven Patienten als Behandlungsstruktur-Datei im Exportbereich "
-"ablegen"
+"Kartei des aktiven Patienten als Behandlungsstruktur-Datei in Sammelmappe "
+"legen"
 
 msgid "MEDISTAR import format (as file)"
 msgstr "MEDISTAR-Importformat (als Datei)"
@@ -18452,7 +18508,7 @@ msgstr ""
 "des aktiven Patienten in eine von Medistar importierbare Textdatei."
 
 msgid "Put into export area as ..."
-msgstr "In Exportbereich ablegen als ..."
+msgstr "In Sammelmappe legen als ..."
 
 msgid "&EMR"
 msgstr "&Karteikarte"
@@ -18464,10 +18520,10 @@ msgid "Write a letter for the current patient."
 msgstr "Einen Brief für den aktiven Patienten schreiben."
 
 msgid "Screenshot -> export area"
-msgstr "Bildschirmfoto in Exportbereich"
+msgstr "Bildschirmfoto in Sammelmappe"
 
 msgid "Put a screenshot into the patient export area."
-msgstr "Ein Bildschirmfoto aufnehmen und in den Exportbereich aufnehmen."
+msgstr "Ein Bildschirmfoto aufnehmen und in die Sammelmappe legen."
 
 msgid "List Placeholders"
 msgstr "Platzhalter zeigen"
@@ -18794,7 +18850,7 @@ msgid "Cannot write letter. No active patient."
 msgstr "Kann keinen Brief schreiben. Kein Patient aktiv."
 
 msgid "Cannot put screenshot into export area. No active patient."
-msgstr "Kann kein Bildschirmfoto im Exportbereich ablegen. Kein Patient aktiv."
+msgstr "Kann kein Bildschirmfoto im Sammelmappe legen. Kein Patient aktiv."
 
 msgid "GMd screenshot"
 msgstr "GMd-Bildschirmphoto"
@@ -19997,6 +20053,35 @@ msgstr ""
 
 msgid "Must select a hospital. Cannot save hospitalization."
 msgstr "Krankenhaus fehlt. Kann Einweisung nicht speichern."
+
+msgid "Choose an AMTS BMP medication plan."
+msgstr ""
+
+msgid "BMP files"
+msgstr ""
+
+msgid "Importing AMTS BMP Medikationsplan"
+msgstr ""
+
+#, python-format
+msgid ""
+"The file\n"
+"\n"
+" [%s]\n"
+"\n"
+"does not seem to be a Medikationsplan."
+msgstr ""
+
+#, python-format
+msgid ""
+"No matching patient found in GNUmed.\n"
+"\n"
+"The patient in the Medikationsplan is:\n"
+"\n"
+" %s\n"
+"\n"
+"Do you want to create that patient ?"
+msgstr ""
 
 msgid "Cannot change notebook tabs. No active patient."
 msgstr "Kann Modul nicht aufrufen. Kein Patient aktiv."
@@ -22236,7 +22321,7 @@ msgid "Global Search Of Contacts Database"
 msgstr ""
 
 msgid "Export Area"
-msgstr "Exportbereich"
+msgstr "Sammelmappe"
 
 #, python-format
 msgid "loading plugin <%s>"
@@ -23937,9 +24022,6 @@ msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
 #~ msgid "Save the form template definition."
 #~ msgstr "Die Dokumentenvorlagen speichern."
 
-#~ msgid "Version:"
-#~ msgstr "Version:"
-
 #~ msgid "Processed by:"
 #~ msgstr "Verarbeitet von:"
 
@@ -24054,9 +24136,6 @@ msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
 
 #~ msgid "Add billing item"
 #~ msgstr "Abrechungsposition hinzufügen"
-
-#~ msgid "Patient:"
-#~ msgstr "Patient:"
 
 #~ msgid "Basic demographics"
 #~ msgstr "Grundlegende Personalangaben"
