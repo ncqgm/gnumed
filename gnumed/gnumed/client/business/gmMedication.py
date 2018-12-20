@@ -42,6 +42,10 @@ URL_renal_insufficiency_search_template = 'http://www.google.com/search?hl=de&so
 
 URL_long_qt = 'https://www.crediblemeds.org'
 
+# http://www.akdae.de/Arzneimittelsicherheit/UAW-Meldung/UAW-Meldung-online.html
+# https://dcgma.org/uaw/meldung.php
+URL_drug_adr_german_default = 'https://nebenwirkungen.pei.de'
+
 #============================================================
 def _on_substance_intake_modified():
 	"""Always relates to the active patient."""

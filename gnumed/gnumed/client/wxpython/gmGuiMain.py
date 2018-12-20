@@ -1303,62 +1303,16 @@ class gmTopLevelFrame(wx.Frame):
 
 	#----------------------------------------------
 	def __on_configure_adr_url(self, evt):
+		gmMedicationWidgets.configure_adr_url()
 
-		# http://www.akdae.de/Arzneimittelsicherheit/UAW-Meldung/UAW-Meldung-online.html
-		german_default = 'https://dcgma.org/uaw/meldung.php'
-
-		def is_valid(value):
-			value = value.strip()
-			if value == '':
-				return True, german_default
-			try:
-				urllib.request.urlopen(value)
-				return True, value
-			except:
-				return True, value
-
-		gmCfgWidgets.configure_string_option (
-			message = _(
-				'GNUmed will use this URL to access a website which lets\n'
-				'you report an adverse drug reaction (ADR).\n'
-				'\n'
-				'If you leave this empty it will fall back\n'
-				'to an URL for reporting ADRs in Germany.'
-			),
-			option = 'external.urls.report_ADR',
-			bias = 'user',
-			default_value = german_default,
-			validator = is_valid
-		)
 	#----------------------------------------------
 	def __on_configure_vaccine_adr_url(self, evt):
+		gmVaccWidgets.configure_adr_url()
 
-		german_default = 'http://www.pei.de/cln_042/SharedDocs/Downloads/fachkreise/uaw/meldeboegen/b-ifsg-meldebogen,templateId=raw,property=publicationFile.pdf/b-ifsg-meldebogen.pdf'
+	#----------------------------------------------
+	def __on_configure_vaccination_plans_url(self, evt):
+		gmVaccWidgets.configure_vaccination_plans_url()
 
-		def is_valid(value):
-			value = value.strip()
-			if value == '':
-				return True, german_default
-			try:
-				urllib.request.urlopen(value)
-				return True, value
-			except:
-				return True, value
-
-		gmCfgWidgets.configure_string_option (
-			message = _(
-				'GNUmed will use this URL to access a website which lets\n'
-				'you report an adverse vaccination reaction (vADR).\n'
-				'\n'
-				'If you set it to a specific address that URL must be\n'
-				'accessible now. If you leave it empty it will fall back\n'
-				'to the URL for reporting other adverse drug reactions.'
-			),
-			option = 'external.urls.report_vaccine_ADR',
-			bias = 'user',
-			default_value = german_default,
-			validator = is_valid
-		)
 	#----------------------------------------------
 	def __on_configure_measurements_url(self, evt):
 
@@ -1388,35 +1342,7 @@ class gmTopLevelFrame(wx.Frame):
 			default_value = german_default,
 			validator = is_valid
 		)
-	#----------------------------------------------
-	def __on_configure_vaccination_plans_url(self, evt):
 
-		from Gnumed.business import gmVaccination
-		german_default = gmVaccination.URL_vaccination_plan
-
-		def is_valid(value):
-			value = value.strip()
-			if value == '':
-				return True, german_default
-			try:
-				urllib.request.urlopen(value)
-				return True, value
-			except:
-				return True, value
-
-		gmCfgWidgets.configure_string_option (
-			message = _(
-				'GNUmed will use this URL to access a page showing\n'
-				'vaccination schedules.\n'
-				'\n'
-				'You can leave this empty but to set it to a specific\n'
-				'address the URL must be accessible now.'
-			),
-			option = 'external.urls.vaccination_plans',
-			bias = 'user',
-			default_value = german_default,
-			validator = is_valid
-		)
 	#----------------------------------------------
 	def __on_configure_acs_risk_calculator_cmd(self, event):
 

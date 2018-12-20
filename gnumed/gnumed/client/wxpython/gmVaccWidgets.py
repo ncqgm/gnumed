@@ -540,11 +540,63 @@ class cVaccineEAPnl(wxgVaccineEAPnl.wxgVaccineEAPnl, gmEditArea.cGenericEditArea
 	def _refresh_as_new_from_existing(self):
 		self._refresh_as_new()
 
-	#----------------------------------------------------------------
-	#----------------------------------------------------------------
-
 #======================================================================
 # vaccination related widgets
+#----------------------------------------------------------------------
+def configure_adr_url(self):
+
+	def is_valid(value):
+		value = value.strip()
+		if value == '':
+			return True, gmVaccination.URL_vaccine_adr_german_default
+		try:
+			urllib.request.urlopen(value)
+			return True, value
+		except:
+			return True, value
+
+	gmCfgWidgets.configure_string_option (
+		message = _(
+			'GNUmed will use this URL to access a website which lets\n'
+			'you report an adverse vaccination reaction (vADR).\n'
+			'\n'
+			'If you set it to a specific address that URL must be\n'
+			'accessible now. If you leave it empty it will fall back\n'
+			'to the URL for reporting other adverse drug reactions.'
+		),
+		option = 'external.urls.report_vaccine_ADR',
+		bias = 'user',
+		default_value = gmVaccination.URL_vaccine_adr_german_default,
+		validator = is_valid
+	)
+
+#----------------------------------------------------------------------
+def configure_vaccination_plans_url(self):
+
+	def is_valid(value):
+		value = value.strip()
+		if value == '':
+			return True, gmVaccination.URL_vaccination_plan
+		try:
+			urllib.request.urlopen(value)
+			return True, value
+		except:
+			return True, value
+
+	gmCfgWidgets.configure_string_option (
+		message = _(
+			'GNUmed will use this URL to access a page showing\n'
+			'vaccination schedules.\n'
+			'\n'
+			'You can leave this empty but to set it to a specific\n'
+			'address the URL must be accessible now.'
+		),
+		option = 'external.urls.vaccination_plans',
+		bias = 'user',
+		default_value = gmVaccination.URL_vaccination_plan,
+		validator = is_valid
+	)
+
 #----------------------------------------------------------------------
 def print_vaccinations(parent=None):
 
@@ -1002,10 +1054,8 @@ class cVaccinationEAPnl(wxgVaccinationEAPnl.wxgVaccinationEAPnl, gmEditArea.cGen
 		url = dbcfg.get2 (
 			option = 'external.urls.report_vaccine_ADR',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
-			bias = 'user',
-			default = 'http://www.pei.de/cln_042/SharedDocs/Downloads/fachkreise/uaw/meldeboegen/b-ifsg-meldebogen,templateId=raw,property=publicationFile.pdf/b-ifsg-meldebogen.pdf'
+			bias = 'user'
 		)
-
 		if url.strip() == '':
 			url = dbcfg.get2 (
 				option = 'external.urls.report_ADR',
@@ -1013,6 +1063,7 @@ class cVaccinationEAPnl(wxgVaccinationEAPnl.wxgVaccinationEAPnl, gmEditArea.cGen
 				bias = 'user'
 			)
 		gmNetworkTools.open_url_in_browser(url = url)
+
 	#----------------------------------------------------------------
 	def _on_add_vaccine_button_pressed(self, event):
 		edit_vaccine(parent = self, vaccine = None, single_entry = False)

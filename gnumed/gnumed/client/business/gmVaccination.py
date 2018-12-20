@@ -27,6 +27,9 @@ _log = logging.getLogger('gm.vacc')
 #============================================================
 URL_vaccination_plan = 'http://www.rki.de/DE/Content/Infekt/EpidBull/Archiv/2017/Ausgaben/34_17.pdf?__blob=publicationFile'
 
+# http://www.pei.de/cln_042/SharedDocs/Downloads/fachkreise/uaw/meldeboegen/b-ifsg-meldebogen,templateId=raw,property=publicationFile.pdf/b-ifsg-meldebogen.pdf
+URL_vaccine_adr_german_default = 'https://nebenwirkungen.pei.de'
+
 #============================================================
 _SQL_create_substance4vaccine = """-- in case <%(substance_tag)s> already exists: add ATC
 UPDATE ref.substance SET atc = '%(atc)s' WHERE lower(description) = lower('%(desc)s') AND atc IS NULL;

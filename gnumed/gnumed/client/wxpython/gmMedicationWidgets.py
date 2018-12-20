@@ -1640,7 +1640,7 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 			option = 'external.urls.report_ADR',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			bias = 'user',
-			default = 'https://dcgma.org/uaw/meldung.php'		# http://www.akdae.de/Arzneimittelsicherheit/UAW-Meldung/UAW-Meldung-online.html
+			default = gmMedication.URL_drug_adr_german_default
 		)
 		gmNetworkTools.open_url_in_browser(url = url)
 
@@ -1937,6 +1937,33 @@ def configure_default_medications_lab_panel(parent=None):
 		columns = [_('Measurements panel')],
 		data = [ p['pk_test_panel'] for p in panels ],
 		caption = _('Configuring medications plugin measurements panel')
+	)
+
+#============================================================
+def configure_adr_url(self):
+
+	def is_valid(value):
+		value = value.strip()
+		if value == '':
+			return True, gmMedication.URL_drug_adr_german_default
+		try:
+			urllib.request.urlopen(value)
+			return True, value
+		except:
+			return True, value
+
+	gmCfgWidgets.configure_string_option (
+		message = _(
+			'GNUmed will use this URL to access a website which lets\n'
+			'you report an adverse drug reaction (ADR).\n'
+			'\n'
+			'If you leave this empty it will fall back\n'
+			'to an URL for reporting ADRs in Germany.'
+		),
+		option = 'external.urls.report_ADR',
+		bias = 'user',
+		default_value = gmMedication.URL_drug_adr_german_default,
+		validator = is_valid
 	)
 
 #============================================================
