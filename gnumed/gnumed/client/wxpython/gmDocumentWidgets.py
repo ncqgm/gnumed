@@ -13,6 +13,7 @@ import os
 import sys
 import re as regex
 import logging
+import datetime as pydt
 
 
 import wx
@@ -2044,10 +2045,24 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 				if intermediate_label not in intermediate_nodes:
 					intermediate_nodes[intermediate_label] = self.AppendItem(parent = self.root, text = intermediate_label)
 					self.SetItemBold(intermediate_nodes[intermediate_label], bold = True)
-					#self.SetItemData(intermediate_nodes[intermediate_label], None)
-					#self.SetItemData(intermediate_nodes[intermediate_label], tt)
 					# not quite right: always shows data of the _last_ document of _any_ org unit of this org
 					self.SetItemData(intermediate_nodes[intermediate_label], doc.org_unit)
+					self.SetItemHasChildren(intermediate_nodes[intermediate_label], True)
+				parent = intermediate_nodes[intermediate_label]
+
+			elif self.__sort_mode == 'age':
+				intermediate_label = gmDateTime.pydt_strftime(doc['clin_when'], '%Y')
+				doc_label = _('%s%7s %s:%s (%s)') % (
+					gmTools.bool2subst(doc.has_unreviewed_parts, gmTools.u_writing_hand, '', '?'),
+					gmDateTime.pydt_strftime(doc['clin_when'], '%b %d'),
+					doc['l10n_type'][:26],
+					gmTools.coalesce(initial = doc['comment'], instead = '', template_initial = ' %s'),
+					no_parts
+				)
+				if intermediate_label not in intermediate_nodes:
+					intermediate_nodes[intermediate_label] = self.AppendItem(parent = self.root, text = intermediate_label)
+					self.SetItemBold(intermediate_nodes[intermediate_label], bold = True)
+					self.SetItemData(intermediate_nodes[intermediate_label], doc['clin_when'])
 					self.SetItemHasChildren(intermediate_nodes[intermediate_label], True)
 				parent = intermediate_nodes[intermediate_label]
 
@@ -2258,6 +2273,17 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 			_log.error('dict but unknown content: %s', data1.keys())
 			return 1
 
+		# doc.year node
+		if isinstance(data1, pydt.datetime):
+			y1 = gmDateTime.pydt_strftime(data1, '%Y')
+			y2 = gmDateTime.pydt_strftime(data2, '%Y')
+			# reverse chronologically
+			if y1 < y2:
+				return 1
+			if y1 == y2:
+				return 0
+			return -1
+
 		# type node
 		# else sort alphabetically by label
 		if None in [data1, data2]:
@@ -2320,6 +2346,10 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 			self.__show_details_callback(org_unit = node_data)
 			return
 
+		if isinstance(node_data, pydt.datetime):
+			# could be getting some statistics about the year
+			return
+
 		if isinstance(node_data, dict):
 			_log.debug('node data is dict: %s', node_data)
 			issue = None
@@ -2354,15 +2384,15 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 		if node_data is None:
 			return None
 
-		# expand/collapse documents on activation
-		if isinstance(node_data, gmDocuments.cDocument):
+		# these nodes need expand/collapse on dclick:
+		if isinstance(node_data, (gmDocuments.cDocument, pydt.datetime, str)):
 			self.Toggle(node)
 			return True
 
-		# string nodes are labels such as episodes which may or may not have children
-		if isinstance(node_data, str):
-			self.Toggle(node)
-			return True
+#		# string nodes are labels such as episodes which may or may not have children
+#		if isinstance(node_data, str):
+#			self.Toggle(node)
+#			return True
 
 		if isinstance(node_data, gmDocuments.cDocumentPart):
 			self.__display_part(part = node_data)
