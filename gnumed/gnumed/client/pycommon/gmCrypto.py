@@ -135,7 +135,7 @@ def create_encrypted_zip_archive_from_dir(source_dir, comment=None, overwrite=Tr
 		return None
 
 	# create "decompress instructions" file
-	instructions_filename = os.path.join(archive_path_inner, '000_Windows-open_with-WinZip-or-7z_tools')
+	instructions_filename = os.path.join(archive_path_inner, '000-on_Windows-open_with-WinZip_or_7z_tools')
 	open(instructions_filename, mode = 'wt').close()
 
 	# create outer (wrapper) archive: compressed, encrypted
@@ -187,22 +187,22 @@ def create_zip_archive_from_dir(source_dir, archive_name=None, comment=None, ove
 		# but do take archive name from source_dir
 		tmp, archive_fname = os.path.split(source_dir.rstrip(os.sep) + '.zip')
 		archive_name = os.path.join(archive_path, archive_fname)
-	# 7z does not support ZIP comments so create a
-	# text file holding the comment ...
-	if comment is not None:
-		tmp, fname = os.path.split(os.path.abspath(archive_name))
-		comment_filename = gmTools.get_unique_filename (
-			prefix = '%s.' % fname,
-			suffix = '.comment.txt'
-		)
-		with open(comment_filename, mode = 'wt', encoding = 'utf8', errors = 'replace') as comment_file:
-			comment_file.write(comment)
 	# remove any existing archives so they don't get *updated*
 	# rather than newly created
 	if overwrite:
 		if not gmTools.remove_file(archive_name, force = True):
 			_log.error('cannot remove existing archive [%s]', archive_name)
 			return False
+	# 7z does not support ZIP comments so create
+	# a text file holding the comment ...
+	if comment is not None:
+		comment_filename = os.path.abspath(archive_name) + '.comment.txt'
+		if gmTools.remove_file(comment_filename, force = True):
+			with open(comment_filename, mode = 'wt', encoding = 'utf8', errors = 'replace') as comment_file:
+				comment_file.write(comment)
+		else:
+			_log.error('cannot remove existing archive comment file [%s]', comment_filename)
+			comment = None
 
 	# compress
 	args = [
