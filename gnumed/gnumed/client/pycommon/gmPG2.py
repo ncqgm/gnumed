@@ -1236,8 +1236,14 @@ def bytea2file(data_query=None, filename=None, chunk_size=0, data_size=None, dat
 	if cached_filename is not None:
 		# link to desired name
 		if link2cached:
-			if gmTools.mklink(cached_filename, filename, overwrite = False):
+			try:
+				os.link(cached_filename, filename)
+				_log.debug('hardlinked [%s] -> [%s]', filename, cached_filename)
 				return True
+			except StandardError:
+				pass
+#			if gmTools.mklink(cached_filename, filename, overwrite = False):
+#				return True
 			_log.debug('cannot link to cache, trying copy-from-cache')
 		# copy from cache
 		try:
