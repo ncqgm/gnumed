@@ -1170,12 +1170,44 @@ def row_is_locked(table=None, pk=None):
 	return False
 
 #------------------------------------------------------------------------
+# BYTEA cache handling
+#------------------------------------------------------------------------
+_BYTEA_CACHE_SUBDIR = None
+
+def __get_bytea_cache_dir():
+	"""Get, and create if necessary, the BYTEA cache directory.
+
+	The BYTEA cache needs to be tied to the database login
+	because different logins might have access to different
+	data even with the same query.
+	"""
+	global _BYTEA_CACHE_SUBDIR
+	if _BYTEA_CACHE_SUBDIR is not None:
+		return _BYTEA_CACHE_SUBDIR
+
+	subdir_key = '%s::%s::%s::%s' % (
+		_default_login.host,
+		_default_login.port,
+		_default_login.database,
+		_default_login.user
+	)
+	md5 = hashlib.md5()
+	md5.update(subdir_key.encode('utf8'))
+	md5_sum = md5.hexdigest()
+	subdir = os.path.join(gmTools.gmPaths().bytea_cache_dir, md5_sum)
+	gmTools.mkdir(subdir, 0o700)
+	_log.info('BYTEA cache dir for [%s]: %s', subdir_key, subdir)
+	_BYTEA_CACHE_SUBDIR = subdir
+	return _BYTEA_CACHE_SUBDIR
+
+#------------------------------------------------------------------------
 def __store_file_in_cache(filename, cache_key_data):
 
 	md5 = hashlib.md5()
 	md5.update(('%s' % cache_key_data).encode('utf8'))
 	md5_sum = md5.hexdigest()
-	cached_name = os.path.join(gmTools.gmPaths().bytea_cache_dir, md5_sum)
+	#cached_name = os.path.join(gmTools.gmPaths().bytea_cache_dir, md5_sum)
+	cached_name = os.path.join(__get_bytea_cache_dir(), md5_sum)
 	_log.debug('caching [%s] as [%s]', filename, cached_name)
 	gmTools.remove_file(cached_name, log_error = True, force = True)
 	try:
@@ -1199,7 +1231,8 @@ def __get_filename_in_cache(cache_key_data=None, data_size=None):
 	md5 = hashlib.md5()
 	md5.update(('%s' % cache_key_data).encode('utf8'))
 	md5_sum = md5.hexdigest()
-	cached_name = os.path.join(gmTools.gmPaths().bytea_cache_dir, md5_sum)
+	#cached_name = os.path.join(gmTools.gmPaths().bytea_cache_dir, md5_sum)
+	cached_name = os.path.join(__get_bytea_cache_dir(), md5_sum)
 	_log.debug('[%s]: %s', md5_sum, cached_name)
 	try:
 		stat = os.stat(cached_name)
