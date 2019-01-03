@@ -224,7 +224,7 @@ def dir_is_empty(directory=None):
 	try:
 		return len(os.listdir(directory)) == 0
 	except OSError as exc:
-		if exc.errno == 2:
+		if exc.errno == 2:	# no such file
 			return None
 		raise
 
@@ -2117,7 +2117,7 @@ second line\n
 	#test_fname_stem()
 	#test_tex_escape()
 	#test_rst2latex_snippet()
-	#test_dir_is_empty()
+	test_dir_is_empty()
 	#test_compare_dicts()
 	#test_rm_dir()
 	#test_rm_dir_content()
