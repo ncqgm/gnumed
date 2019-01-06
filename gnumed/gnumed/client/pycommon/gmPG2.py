@@ -1172,43 +1172,44 @@ def row_is_locked(table=None, pk=None):
 #------------------------------------------------------------------------
 # BYTEA cache handling
 #------------------------------------------------------------------------
-_BYTEA_CACHE_SUBDIR = None
-
-def __get_bytea_cache_dir():
-	"""Get, and create if necessary, the BYTEA cache directory.
-
-	The BYTEA cache needs to be tied to the database login
-	because different logins might have access to different
-	data even with the same query.
-	"""
-	global _BYTEA_CACHE_SUBDIR
-	if _BYTEA_CACHE_SUBDIR is not None:
-		return _BYTEA_CACHE_SUBDIR
-
-	subdir_key = '%s::%s::%s::%s' % (
-		_default_login.host,
-		_default_login.port,
-		_default_login.database,
-		_default_login.user
-	)
+#_BYTEA_CACHE_SUBDIR = None
+#
+#def __get_bytea_cache_dir():
+#	"""Get, and create if necessary, the BYTEA cache directory.
+#
+#	The BYTEA cache needs to be tied to the database login
+#	because different logins might have access to different
+#	data even with the same query.
+#	"""
+#	global _BYTEA_CACHE_SUBDIR
+#	if _BYTEA_CACHE_SUBDIR is not None:
+#		return _BYTEA_CACHE_SUBDIR
+#
+#	subdir_key = '%s::%s::%s::%s' % (
+#		_default_login.host,
+#		_default_login.port,
+#		_default_login.database,
+#		_default_login.user
+#	)
+#	md5 = hashlib.md5()
+#	md5.update(subdir_key.encode('utf8'))
+#	md5_sum = md5.hexdigest()
+#	subdir = os.path.join(gmTools.gmPaths().bytea_cache_dir, md5_sum)
+#	gmTools.mkdir(subdir, 0o700)
+#	_log.info('BYTEA cache dir for [%s]: %s', subdir_key, subdir)
+#	_BYTEA_CACHE_SUBDIR = subdir
+#	return _BYTEA_CACHE_SUBDIR
+#
+#------------------------------------------------------------------------
+def __generate_cached_filename(cache_key_data):
 	md5 = hashlib.md5()
-	md5.update(subdir_key.encode('utf8'))
-	md5_sum = md5.hexdigest()
-	subdir = os.path.join(gmTools.gmPaths().bytea_cache_dir, md5_sum)
-	gmTools.mkdir(subdir, 0o700)
-	_log.info('BYTEA cache dir for [%s]: %s', subdir_key, subdir)
-	_BYTEA_CACHE_SUBDIR = subdir
-	return _BYTEA_CACHE_SUBDIR
+	md5.update(('%s' % cache_key_data).encode('utf8'))
+	return os.path.join(gmTools.gmPaths().bytea_cache_dir, md5.hexdigest())
 
 #------------------------------------------------------------------------
 def __store_file_in_cache(filename, cache_key_data):
-
-	md5 = hashlib.md5()
-	md5.update(('%s' % cache_key_data).encode('utf8'))
-	md5_sum = md5.hexdigest()
-	#cached_name = os.path.join(gmTools.gmPaths().bytea_cache_dir, md5_sum)
-	cached_name = os.path.join(__get_bytea_cache_dir(), md5_sum)
-	_log.debug('caching [%s] as [%s]', filename, cached_name)
+	cached_name = __generate_cached_filename(cache_key_data)
+	_log.debug('[%s] -> [%s] -> [%s]', filename, cache_key_data, cached_name)
 	gmTools.remove_file(cached_name, log_error = True, force = True)
 	try:
 		shutil.copyfile(filename, cached_name, follow_symlinks = True)
@@ -1227,32 +1228,53 @@ def __store_file_in_cache(filename, cache_key_data):
 
 #------------------------------------------------------------------------
 def __get_filename_in_cache(cache_key_data=None, data_size=None):
-
-	md5 = hashlib.md5()
-	md5.update(('%s' % cache_key_data).encode('utf8'))
-	md5_sum = md5.hexdigest()
-	#cached_name = os.path.join(gmTools.gmPaths().bytea_cache_dir, md5_sum)
-	cached_name = os.path.join(__get_bytea_cache_dir(), md5_sum)
-	_log.debug('[%s]: %s', md5_sum, cached_name)
+	"""Calculate and verify filename in cache given cache key details."""
+	cached_name = __generate_cached_filename(cache_key_data)
 	try:
 		stat = os.stat(cached_name)
 	except FileNotFoundError:
 		return None
-	_log.debug('cache hit: %s [%s]', cached_name, stat)
+	_log.debug('cache hit: [%s] -> [%s] (%s)', cache_key_data, cached_name, stat)
 	if os.path.islink(cached_name) or (not os.path.isfile(cached_name)):
 		_log.error('object in cache is not a regular file: %s', cached_name)
 		_log.error('possibly an attack, removing')
-		removed = gmTools.remove_file(cached_name, log_error = True)
-		if removed:
+		if gmTools.remove_file(cached_name, log_error = True):
 			return None
 		raise BaseException('cannot delete suspicious object in cache dir: %s', cached_name)
 	if stat.st_size == data_size:
 		return cached_name
 	_log.debug('size in cache [%s] <> expected size [%s], removing cached file', stat.st_size, data_size)
-	removed = gmTools.remove_file(cached_name, log_error = True)
-	if removed:
+	if gmTools.remove_file(cached_name, log_error = True):
 		return None
 	raise BaseException('cannot remove suspicous object from cache dir: %s', cached_name)
+
+#------------------------------------------------------------------------
+def __get_file_from_cache(filename, cache_key_data=None, data_size=None, link2cached=True):
+	"""Get file from cache if available."""
+	cached_filename = __get_filename_in_cache(cache_key_data = cache_key_data, data_size = data_size)
+	if cached_filename is None:
+		return False
+	if link2cached:
+		try:
+			# (hard)link as desired name, quite a few security
+			# and archival tools refuse to handle softlinks
+			os.link(cached_filename, filename)
+			_log.debug('hardlinked [%s] as [%s]', cached_filename, filename)
+			return True
+		except StandardError:
+			pass
+		_log.debug('cannot hardlink to cache, trying copy-from-cache')
+	# copy from cache
+	try:
+		shutil.copyfile(cached_filename, filename, follow_symlinks = True)
+		return True
+	except shutil.SameFileError:
+		pass
+	except OSError:
+		_log.exception('cannot copy cached file [%s] into [%s]', cached_filename, filename)
+	# if cache fails entirely -> fall through to new file
+	_log.debug('downloading new copy of file, despite found in cache')
+	return False
 
 #------------------------------------------------------------------------
 def bytea2file(data_query=None, filename=None, chunk_size=0, data_size=None, data_size_query=None, conn=None, link2cached=True):
@@ -1262,32 +1284,20 @@ def bytea2file(data_query=None, filename=None, chunk_size=0, data_size=None, dat
 		data_size = rows[0][0]
 		if data_size in [None, 0]:
 			conn.rollback()
+			# should an empty file be created if size == 0 ?
 			return True
 
-	cache_key_data = '%s' % data_query
-	cached_filename = __get_filename_in_cache(cache_key_data = cache_key_data, data_size = data_size)
-	if cached_filename is not None:
-		# link to desired name
-		if link2cached:
-			try:
-				os.link(cached_filename, filename)
-				_log.debug('hardlinked [%s] -> [%s]', filename, cached_filename)
-				return True
-			except StandardError:
-				pass
-#			if gmTools.mklink(cached_filename, filename, overwrite = False):
-#				return True
-			_log.debug('cannot link to cache, trying copy-from-cache')
-		# copy from cache
-		try:
-			shutil.copyfile(cached_filename, filename, follow_symlinks = True)
-			return True
-		except shutil.SameFileError:
-			pass
-		except OSError:
-			_log.exception('cannot copy file from cache: [%s] -> [%s]', cached_filename, filename)
-		# if cache fails entirely -> fall through to new file
-		_log.debug('downloading new copy of file, despite found in cache')
+	# actually needs to get values from <conn> or "default conn" if <conn> is None
+	cache_key_data = '<%s>@%s:%s/%s::%s' % (
+		_default_login.user,
+		_default_login.host,
+		_default_login.port,
+		_default_login.database,
+		data_query
+	)
+	found_in_cache = __get_file_from_cache(filename, cache_key_data = cache_key_data, data_size = data_size, link2cached = link2cached)
+	if found_in_cache:
+		return True
 
 	outfile = io.open(filename, 'wb')
 	result = bytea2file_object (
@@ -1300,7 +1310,6 @@ def bytea2file(data_query=None, filename=None, chunk_size=0, data_size=None, dat
 	)
 	outfile.close()
 	__store_file_in_cache(filename, cache_key_data)
-
 	return result
 
 #------------------------------------------------------------------------
