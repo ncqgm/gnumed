@@ -255,6 +255,141 @@ class cCreatePatientMediaDlg(wxgCreatePatientMediaDlg.wxgCreatePatientMediaDlg):
 		self._RBTN_remove_data.Enable()
 
 #============================================================
+from Gnumed.wxGladeWidgets import wxgExportAreaSaveAsDlg
+
+class cExportAreaSaveAsDlg(wxgExportAreaSaveAsDlg.wxgExportAreaSaveAsDlg):
+
+	def __init__(self, *args, **kwargs):
+		self.__patient = kwargs['patient']
+		del kwargs['patient']
+		self.__item_count = kwargs['item_count']
+		del kwargs['item_count']
+		super().__init__(*args, **kwargs)
+
+		self.__init_ui()
+
+	#--------------------------------------------------------
+	# event handlers
+	#--------------------------------------------------------
+	def _on_use_subdirectory_toggled(self, event):
+		event.Skip()
+		self.__update_ui_state()
+
+	#--------------------------------------------------------
+	def _on_save_as_files_selected(self, event):
+		event.Skip()
+		self.__update_ui_state()
+
+	#--------------------------------------------------------
+	def _on_save_as_archive_selected(self, event):
+		event.Skip()
+		self.__update_ui_state()
+
+	#--------------------------------------------------------
+	def _on_select_directory_button_pressed(self, event):
+		event.Skip()
+		curr_path = self._LBL_directory.Label.rstrip(os.sep).rstrip('/')
+		if not os.path.isdir(curr_path):
+			curr_path = os.path.join(gmTools.gmPaths().home_dir, 'gnumed')
+		msg = _('Select directory where to save the archive or files.')
+		dlg = wx.DirDialog(self, message = msg, defaultPath = curr_path, style = wx.DD_DEFAULT_STYLE)# | wx.DD_DIR_MUST_EXIST)
+		choice = dlg.ShowModal()
+		selected_path = dlg.GetPath().rstrip(os.sep).rstrip('/')
+		dlg.Destroy()
+		if choice != wx.ID_OK:
+			return
+
+		self._LBL_directory.Label = selected_path + os.sep
+		self.__update_ui_state()
+
+	#--------------------------------------------------------
+	def _on_open_directory_button_pressed(self, event):
+		event.Skip()
+		path = self._LBL_directory.Label.strip().rstrip(os.sep).rstrip('/')
+		if not os.path.isdir(path):
+			return
+		gmMimeLib.call_viewer_on_file(path, block = False)
+
+	#--------------------------------------------------------
+	def _on_clear_directory_button_pressed(self, event):
+		event.Skip()
+		path = self._LBL_directory.Label.strip().rstrip(os.sep).rstrip('/')
+		if not os.path.isdir(path):
+			return
+		#gmMimeLib.call_viewer_on_file(path, block = False)
+		delete_data = gmGuiHelpers.gm_show_question (
+			title = _('Clearing out a directory'),
+			question = _(
+				'Do you really want to delete all existing data\n'
+				'from the following directory ?\n'
+				'\n'
+				' %s\n'
+				'\n'
+				'Note, this can NOT be reversed without backups.'
+			) % path,
+			cancel_button = False
+		)
+		if delete_data:
+			gmTools.rm_dir_content(path)
+			self.__update_ui_state()
+
+	#--------------------------------------------------------
+	def _on_save_button_pressed(self, event):  # wxGlade: wxgExportAreaSaveAsDlg.<event_handler>
+		event.Skip()
+		self.EndModal(wx.ID_SAVE)
+
+	#--------------------------------------------------------
+	# internal API
+	#--------------------------------------------------------
+	def __init_ui(self):
+		msg = ('\n' + _('Number of entries to save: %s') + '\n\n' + _('Patient: %s') + '\n') % (
+			self.__item_count,
+			self.__patient['description_gender']
+		)
+		self._LBL_header.Label = msg
+		self._LBL_directory.Label = os.path.join(gmTools.gmPaths().home_dir, 'gnumed', self.__patient.subdir_name) + os.sep
+		self.__update_ui_state()
+
+	#--------------------------------------------------------
+	def __update_ui_state(self):
+		subdir_name = self.__patient.subdir_name
+		path = self._LBL_directory.Label.strip().rstrip(os.sep).rstrip('/')
+		if self._CHBOX_use_subdirectory.IsChecked():
+			# add subdir if needed
+			if not path.endswith(subdir_name):
+				path = os.path.join(path, subdir_name)
+				self._LBL_directory.Label = path + os.sep
+		else:
+			# remove subdir if there
+			if path.endswith(subdir_name):
+				path = path[:-len(subdir_name)].rstrip(os.sep).rstrip('/')
+				self._LBL_directory.Label = path + os.sep
+
+		is_empty = gmTools.dir_is_empty(directory = path)
+		if is_empty is None:
+			self._LBL_dir_is_empty.Label = ''
+			self._BTN_open_directory.Disable()
+			self._BTN_clear_directory.Disable()
+			self._BTN_save.Enable()
+		elif is_empty is True:
+			self._LBL_dir_is_empty.Label = ''
+			self._BTN_open_directory.Disable()
+			self._BTN_clear_directory.Disable()
+			self._BTN_save.Enable()
+		else:
+			self._LBL_dir_is_empty.Label = _('directory contains data')
+			self._BTN_open_directory.Enable()
+			self._BTN_clear_directory.Enable()
+			self._BTN_save.Disable()
+
+		if self._RBTN_save_as_archive.Value is True:
+			self._CHBOX_generate_metadata.Disable()
+		else:
+			self._CHBOX_generate_metadata.Enable()
+
+		self.Layout()
+
+#============================================================
 from Gnumed.wxGladeWidgets import wxgExportAreaPluginPnl
 
 class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
@@ -408,8 +543,11 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 	def _on_remote_print_button_pressed(self, event):
 		event.Skip()
 		items = self._LCTRL_items.get_selected_item_data(only_one = False)
+		if len(items) == 0:
+			return
 		for item in items:
 			item.is_print_job = True
+		gmDispatcher.send(signal = 'statustext', msg = _('Item(s) moved to Print Center.'))
 
 	#--------------------------------------------------------
 	def _on_save_items_button_pressed(self, event):
@@ -418,60 +556,83 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 		items = self._LCTRL_items.get_selected_item_data(only_one = False)
 		if len(items) == 0:
 			items = self._LCTRL_items.get_item_data()
-
-		if len(items) == 0:
-			return
+			if len(items) == 0:
+				gmDispatcher.send(signal = 'statustext', msg = _('Cannot save: no entries'))
+				return
+			if len(items) > 1:
+				# ask, might be a lot
+				process_all = gmGuiHelpers.gm_show_question (
+					title = _('Saving entries'),
+					question = _('You have not selected any entries.\n\nSave all %s entries ?') % len(items),
+					cancel_button = False
+				)
+				if not process_all:
+					return
 
 		pat = gmPerson.gmCurrentPatient()
-		dlg = cCreatePatientMediaDlg (self, -1, burn2cd = False, patient = pat, item_count = len(items))
-		_log.debug("calling dlg.ShowModal()")
+		dlg = cExportAreaSaveAsDlg(self, -1, patient = pat, item_count = len(items))
 		choice = dlg.ShowModal()
-		_log.debug("after returning from dlg.ShowModal()")
+		path = dlg._LBL_directory.Label # perhaps need mk_sandbox_dir
+		generate_metadata = dlg._CHBOX_generate_metadata.IsChecked()
+		use_subdir = dlg._CHBOX_use_subdirectory.IsChecked()
+		encrypt = dlg._CHBOX_encrypt.IsChecked()
+		create_archive = dlg._RBTN_save_as_archive.Value
+		dlg.Destroy()
 		if choice != wx.ID_SAVE:
-			dlg.Destroy()
 			return
 
-		use_subdir = dlg._CHBOX_use_subdirectory.IsChecked()
-		path = dlg._LBL_directory.Label.strip()
-		remove_existing_data = dlg._RBTN_remove_data.Value is True
-		generate_metadata = dlg._CHBOX_generate_metadata.IsChecked()
-		dlg.Destroy()
-		if use_subdir:
-			path = gmTools.mk_sandbox_dir (
-				prefix = '%s-' % pat.subdir_name,
-				base_dir = path
+		if create_archive:
+			# always with metadata
+			zip_file = self.__export_as_zip (
+				gmTools.coalesce(encrypt, _('Saving entries as encrypted ZIP archive'), _('Saving entries as unencrypted ZIP archive')),
+				items = items,
+				encrypt = encrypt
 			)
+			if zip_file is None:
+				gmDispatcher.send(signal = 'statustext', msg = _('Cannot save: aborted or error.'))
+				return
+			gmTools.mkdir(path)
+			final_zip_file = shutil.move(zip_file, path)
+			gmDispatcher.send(signal = 'statustext', msg = _('Saved entries into [%s]') % final_zip_file)
+			target = final_zip_file
 		else:
-			if remove_existing_data is True:
-				if gmTools.rm_dir_content(path) is False:
-					gmGuiHelpers.gm_show_error (
-						title = _('Creating patient media'),
-						error = _('Cannot remove content from\n [%s]') % path
-					)
-					return False
+			export_dir = self.__export_as_files (
+				gmTools.coalesce(encrypt, _('Saving entries as encrypted files'), _('Saving entries as unencrypted files')),
+				base_dir = path,
+				items = items,
+				encrypt = encrypt,
+				with_metadata = generate_metadata
+			)
+			if export_dir is None:
+				gmDispatcher.send(signal = 'statustext', msg = _('Cannot save: aborted or error.'))
+				return
+			gmDispatcher.send(signal = 'statustext', msg = _('Saved entries into [%s]') % export_dir)
+			target = export_dir
 
-		exp_area = pat.export_area
-		if generate_metadata:
-			export_dir = exp_area.export(base_dir = path, items = items)
-		else:
-			export_dir = exp_area.dump_items_to_disk(base_dir = path, items = items)
-
-		self.__save_soap_note(soap = _('Saved to [%s]:\n - %s') % (
-			export_dir,
+		self.__save_soap_note(soap = _('Saved from export area to [%s]:\n - %s') % (
+			target,
 			'\n - '.join([ i['description'] for i in items ])
 		))
 
-		msg = _('Saved documents into directory:\n\n %s') % export_dir
+		msg = _('Documents saved into:\n\n %s') % target
 		browse_index = gmGuiHelpers.gm_show_question (
-			title = _('Creating patient media'),
-			question = msg + '\n\n' + _('Browse patient data pack ?'),
+			title = _('Saving entries'),
+			question = msg + '\n\n' + _('Browse saved entries ?'),
 			cancel_button = False
 		)
 		if browse_index:
-			if generate_metadata:
-				gmNetworkTools.open_url_in_browser(url = 'file://%s' % os.path.join(export_dir, 'index.html'))
+			if create_archive:
+				gmMimeLib.call_viewer_on_file(path, block = False)
 			else:
-				gmMimeLib.call_viewer_on_file(export_dir, block = False)
+				if generate_metadata and not encrypt:
+					# start.html ist just a copy of index.html(.asc) and
+					# will thus be encrypted (or not) but will still be
+					# named "start.html" in either case
+					gmNetworkTools.open_url_in_browser(url = 'file://%s' % os.path.join(export_dir, 'start.html'))
+				else:
+					gmMimeLib.call_viewer_on_file(export_dir, block = False)
+
+		#remove_entries
 
 		return True
 
@@ -597,8 +758,11 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 	def _on_mail_items_button_pressed(self, event):
 		event.Skip()
 
+		_log.debug('gm-mail_doc(.bat) API: "MAIL-PROGRAM PRAXIS-VCF ZIP-ARCHIVE"')
+
 		found, external_cmd = gmShellAPI.detect_external_binary('gm-mail_doc')
 		if not found:
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot send e-mail: <gm-mail_doc(.bat)> not found'))
 			return False
 
 		zip_file = self.__export_as_zip (
@@ -606,19 +770,16 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 			encrypt = True
 		)
 		if zip_file is None:
-			gmGuiHelpers.gm_show_error (
-				aMessage = _('Error creating zip file.'),
-				aTitle = title
-			)
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot send e-mail: no archive created.'))
 			return False
 
 		prax = gmPraxis.gmCurrentPraxisBranch()
 		args = [external_cmd, prax.vcf, zip_file]
-		success, ret_code, stdout = gmShellAPI.run_process(cmd_line = args,verbose = _cfg.get(option = 'debug'))
+		success, ret_code, stdout = gmShellAPI.run_process(cmd_line = args, verbose = _cfg.get(option = 'debug'))
 		if not success:
 			gmGuiHelpers.gm_show_error (
 				aMessage = _('Error mailing documents.'),
-				aTitle = title
+				aTitle = _('Mailing documents')
 			)
 			return False
 
@@ -629,18 +790,34 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 	def _on_fax_items_button_pressed(self, event):
 		event.Skip()
 
-		items = self._LCTRL_items.get_selected_item_data(only_one = False)
-		if len(items) == 0:
-			return
+		_log.debug('gm-fax_doc(.bat) API: "FAX-PROGRAM FAXNUMBER-OR-<EMPTY> LIST-OF-FILES-TO-FAX" (any file type !)')
 
 		found, external_cmd = gmShellAPI.detect_external_binary('gm-fax_doc')
 		if not found:
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot send fax: <gm-fax_doc(.bat)> not found'))
+			return False
+
+		items = self._LCTRL_items.get_selected_item_data(only_one = False)
+		if len(items) == 0:
+			items = self._LCTRL_items.get_item_data()
+			if len(items) == 0:
+				gmDispatcher.send(signal = 'statustext', msg = _('Cannot send fax: no items'))
+				return None
+			if len(items) > 1:
+				# ask, might be a lot
+				process_all = gmGuiHelpers.gm_show_question (
+					title = _('Faxing documents'),
+					question = _('You have not selected any entries.\n\nSend fax with all %s entries ?') % len(items),
+					cancel_button = False
+				)
+				if not process_all:
+					return None
+
 			return False
 
 		files2fax = []
 		for item in items:
 			files2fax.append(item.save_to_file())
-
 		fax_number = wx.GetTextFromUser (
 			_('Please enter the fax number here !\n\n'
 			  'It can be left empty if the external\n'
@@ -649,16 +826,10 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 			parent = self,
 			centre = True
 		)
-
-		cmd = '%s "%s" %s' % (external_cmd, fax_number, ' '.join(files2fax))
-		if os.name == 'nt':
-			blocking = True
-		else:
-			blocking = False
-		success = gmShellAPI.run_command_in_shell (
-			command = cmd,
-			blocking = blocking
-		)
+		if fax_number == '':
+			fax_number = 'EMPTY'
+		args = [external_cmd, fax_number, ' '.join(files2fax)]
+		success, ret_code, stdout = gmShellAPI.run_process(cmd_line = args, verbose = _cfg.get(option = 'debug'))
 		if not success:
 			gmGuiHelpers.gm_show_error (
 				aMessage = _('Error faxing documents to\n\n  %s') % fax_number,
@@ -666,10 +837,7 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 			)
 			return False
 
-		self.__save_soap_note(soap = _('Faxed to [%s]:\n - %s') % (
-			fax_number,
-			'\n - '.join([ i['description'] for i in items ])
-		))
+		self.__save_soap_note(soap = _('Faxed to [%s]:\n - %s') % (fax_number, '\n - '.join([ i['description'] for i in items ])))
 		return True
 
 	#--------------------------------------------------------
@@ -722,53 +890,99 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 		)
 
 	#--------------------------------------------------------
-	def __export_as_zip(self, msg_title, encrypt=True):
+	def __export_as_files(self, msg_title, base_dir=None, encrypt=False, with_metadata=False, items=None):
 		# anything to do ?
-		items = self._LCTRL_items.get_selected_item_data(only_one = False)
-		if len(items) == 0:
-			items = self._LCTRL_items.get_item_data()
+		if items is None:
+			items = self._LCTRL_items.get_selected_item_data(only_one = False)
 			if len(items) == 0:
+				items = self._LCTRL_items.get_item_data()
+				if len(items) == 0:
+					gmDispatcher.send(signal = 'statustext', msg = _('No items to create archive from.'))
+					return None
+				if len(items) > 1:
+					# ask, might be a lot
+					process_all = gmGuiHelpers.gm_show_question (
+						title = msg_title,
+						question = _('You have not selected any entries.\n\nCreate archive from all %s entries ?') % len(items),
+						cancel_button = False
+					)
+					if not process_all:
+						return None
+		# get password
+		data_pwd = None
+		if encrypt:
+			data_pwd = self.__get_password(msg_title)
+			if data_pwd is None:
+				_log.debug('user aborted by not providing the same password twice')
+				gmDispatcher.send(signal = 'statustext', msg = _('Password not provided twice. Aborting.'))
 				return None
-			# ask, might be a lot
-			process_all = gmGuiHelpers.gm_show_question (
-				title = msg_title,
-				question = _('You have not selected any entries.\n\nCreate archive from all %s entries ?') % len(items),
-				cancel_button = False
+		# save
+		exp_area = gmPerson.gmCurrentPatient().export_area
+		if with_metadata:
+			export_dir = exp_area.export(base_dir = base_dir, items = items, passphrase = data_pwd)
+		else:
+			export_dir = exp_area.dump_items_to_disk(base_dir = base_dir, items = items, passphrase = data_pwd)
+		if export_dir is None:
+			gmGuiHelpers.gm_show_error (
+				aMessage = _('Error exporting entries.'),
+				aTitle = msg_title
 			)
-			if not process_all:
-				return None
-		# get password ?
+			return None
+
+		return export_dir
+
+	#--------------------------------------------------------
+	def __export_as_zip(self, msg_title, encrypt=True, items=None):
+		# anything to do ?
+		if items is None:
+			items = self._LCTRL_items.get_selected_item_data(only_one = False)
+			if len(items) == 0:
+				items = self._LCTRL_items.get_item_data()
+				if len(items) == 0:
+					gmDispatcher.send(signal = 'statustext', msg = _('No items to create archive from.'))
+					return None
+				if len(items) > 1:
+					# ask, might be a lot
+					process_all = gmGuiHelpers.gm_show_question (
+						title = msg_title,
+						question = _('You have not selected any entries.\n\nCreate archive from all %s entries ?') % len(items),
+						cancel_button = False
+					)
+					if not process_all:
+						return None
+		# get password
 		zip_pwd = None
 		if encrypt:
-			zip_pwd = self.__get_archive_password(msg_title)
+			zip_pwd = self.__get_password(msg_title)
 			if zip_pwd is None:
 				_log.debug('user aborted by not providing the same password twice')
+				gmDispatcher.send(signal = 'statustext', msg = _('Password not provided twice. Aborting.'))
 				return None
 		# create archive
 		exp_area = gmPerson.gmCurrentPatient().export_area
-		zip_file = exp_area.export_as_zip(passphrase = zip_pwd)
+		zip_file = exp_area.export_as_zip(passphrase = zip_pwd, items = items)
 		if zip_file is None:
 			gmGuiHelpers.gm_show_error (
 				aMessage = _('Error creating zip file.'),
-				aTitle = title
+				aTitle = msg_title
 			)
 			return None
 		return zip_file
 
 	#--------------------------------------------------------
-	def __get_archive_password(self, msg_title):
+	def __get_password(self, msg_title):
 		while True:
-			zip_pwd = wx.GetPasswordFromUser (
+			data_pwd = wx.GetPasswordFromUser (
 				message = _(
-					'Enter passphrase to protect the archive with.\n'
+					'Enter passphrase to protect the data with.\n'
 					'\n'
 					'(minimum length: 5, trailing blanks will be stripped)'
 				),
 				caption = msg_title
 			)
 			# minimal weakness check
-			zip_pwd = zip_pwd.rstrip()
-			if len(zip_pwd) > 4:
+			data_pwd = data_pwd.rstrip()
+			if len(data_pwd) > 4:
 				break
 			retry = gmGuiHelpers.gm_show_question (
 				title = msg_title,
@@ -784,12 +998,12 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 				# user changed her mind
 				return None
 		# confidentiality
-		gmLog2.add_word2hide(zip_pwd)
+		gmLog2.add_word2hide(data_pwd)
 		# reget password
 		while True:
-			zip_pwd4comparison = wx.GetPasswordFromUser (
+			data_pwd4comparison = wx.GetPasswordFromUser (
 				message = _(
-					'Once more enter passphrase to protect the archive with.\n'
+					'Once more enter passphrase to protect the data with.\n'
 					'\n'
 					'(this will protect you from typos)\n'
 					'\n'
@@ -797,11 +1011,11 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 				),
 				caption = msg_title
 			)
-			zip_pwd4comparison = zip_pwd4comparison.rstrip()
-			if zip_pwd4comparison == '':
+			data_pwd4comparison = data_pwd4comparison.rstrip()
+			if data_pwd4comparison == '':
 				# user changed her mind ...
 				return None
-			if zip_pwd == zip_pwd4comparison:
+			if data_pwd == data_pwd4comparison:
 				break
 			gmGuiHelpers.gm_show_error (
 				error = _(
@@ -811,7 +1025,7 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 				),
 				title = msg_title
 			)
-		return zip_pwd
+		return data_pwd
 
 	#--------------------------------------------------------
 	# file drop target API
