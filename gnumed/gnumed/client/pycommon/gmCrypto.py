@@ -16,6 +16,7 @@ __license__ = "GPL v2 or later (details at http://www.gnu.org)"
 import sys
 import os
 import logging
+import tempfile
 
 
 # GNUmed libs
@@ -280,10 +281,9 @@ def gpg_decrypt_file(filename=None, passphrase=None, verbose=False, target_ext=N
 #===========================================================================
 # file encryption methods
 #---------------------------------------------------------------------------
-def gpg_encrypt_file_symmetric(filename=None, comment=None, verbose=False):
+def gpg_encrypt_file_symmetric(filename=None, comment=None, verbose=False, passphrase=None):
 
 	#add short decr instr to comment
-
 	assert (filename is not None), '<filename> must not be None'
 
 	_log.debug('attempting symmetric GPG encryption')
@@ -319,8 +319,22 @@ def gpg_encrypt_file_symmetric(filename=None, comment=None, verbose=False):
 			##'--debug-level', 'guru',				# will log passphrase
 			##'--debug-level', '9',					# will log passphrase
 		])
+	pwd_fname = None
+	if passphrase is not None:
+		pwd_file = tempfile.NamedTemporaryFile(mode = 'w+t', encoding = 'utf8', delete = False)
+		pwd_fname = pwd_file.name
+		args.extend ([
+			'--pinentry-mode', 'loopback',
+			'--passphrase-file', pwd_fname
+		])
+		pwd_file.write(passphrase)
+		pwd_file.close()
 	args.append(filename)
-	success, exit_code, stdout = gmShellAPI.run_process(cmd_line = args, verbose = verbose, encoding = 'utf-8')
+	try:
+		success, exit_code, stdout = gmShellAPI.run_process(cmd_line = args, verbose = verbose, encoding = 'utf-8')
+	finally:
+		if pwd_fname is not None:
+			os.remove(pwd_fname)
 	if success:
 		return filename_encrypted
 	return None
@@ -408,7 +422,7 @@ def encrypt_file_symmetric(filename=None, passphrase=None, comment=None, verbose
 	if enc_filename is not None:
 		return enc_filename
 	# try GPG based
-	enc_filename = gpg_encrypt_file_symmetric(filename = filename, comment = comment, verbose = verbose)
+	enc_filename = gpg_encrypt_file_symmetric(filename = filename, passphrase = passphrase, comment = comment, verbose = verbose)
 	if enc_filename is not None:
 		return enc_filename
 	# try 7z based
@@ -449,7 +463,7 @@ if __name__ == '__main__':
 
 	#-----------------------------------------------------------------------
 	def test_gpg_encrypt_symmetric():
-		print(gpg_encrypt_file_symmetric(filename = sys.argv[2], verbose = True, comment = 'GNUmed testing'))
+		print(gpg_encrypt_file_symmetric(filename = sys.argv[2], passphrase = sys.argv[3], verbose = True, comment = 'GNUmed testing'))
 
 	#-----------------------------------------------------------------------
 	def test_aes_encrypt():
@@ -487,11 +501,11 @@ if __name__ == '__main__':
 	# encryption
 	#test_aes_encrypt()
 	#test_encrypt_pdf()
-	#test_gpg_encrypt_symmetric()
+	test_gpg_encrypt_symmetric()
 	#test_encrypt_file()
 
 	# decryption
 	#test_gpg_decrypt()
 
 	#test_zip_archive_from_dir()
-	test_encrypted_zip_archive_from_dir()
+	#test_encrypted_zip_archive_from_dir()
