@@ -276,16 +276,6 @@ class cExportAreaSaveAsDlg(wxgExportAreaSaveAsDlg.wxgExportAreaSaveAsDlg):
 		self.__update_ui_state()
 
 	#--------------------------------------------------------
-	def _on_save_as_files_selected(self, event):
-		event.Skip()
-		self.__update_ui_state()
-
-	#--------------------------------------------------------
-	def _on_save_as_archive_selected(self, event):
-		event.Skip()
-		self.__update_ui_state()
-
-	#--------------------------------------------------------
 	def _on_select_directory_button_pressed(self, event):
 		event.Skip()
 		curr_path = self._LBL_directory.Label.rstrip(os.sep).rstrip('/')
@@ -316,7 +306,6 @@ class cExportAreaSaveAsDlg(wxgExportAreaSaveAsDlg.wxgExportAreaSaveAsDlg):
 		path = self._LBL_directory.Label.strip().rstrip(os.sep).rstrip('/')
 		if not os.path.isdir(path):
 			return
-		#gmMimeLib.call_viewer_on_file(path, block = False)
 		delete_data = gmGuiHelpers.gm_show_question (
 			title = _('Clearing out a directory'),
 			question = _(
@@ -334,7 +323,7 @@ class cExportAreaSaveAsDlg(wxgExportAreaSaveAsDlg.wxgExportAreaSaveAsDlg):
 			self.__update_ui_state()
 
 	#--------------------------------------------------------
-	def _on_save_button_pressed(self, event):  # wxGlade: wxgExportAreaSaveAsDlg.<event_handler>
+	def _on_save_archive_button_pressed(self, event):
 		event.Skip()
 		self.EndModal(wx.ID_SAVE)
 
@@ -366,26 +355,24 @@ class cExportAreaSaveAsDlg(wxgExportAreaSaveAsDlg.wxgExportAreaSaveAsDlg):
 				self._LBL_directory.Label = path + os.sep
 
 		is_empty = gmTools.dir_is_empty(directory = path)
-		if is_empty is None:
+		if is_empty is True:
 			self._LBL_dir_is_empty.Label = ''
 			self._BTN_open_directory.Disable()
 			self._BTN_clear_directory.Disable()
-			self._BTN_save.Enable()
-		elif is_empty is True:
-			self._LBL_dir_is_empty.Label = ''
-			self._BTN_open_directory.Disable()
-			self._BTN_clear_directory.Disable()
-			self._BTN_save.Enable()
-		else:
+			self._BTN_save_files.Enable()
+			self._BTN_save_archive.Enable()
+		elif is_empty is False:
 			self._LBL_dir_is_empty.Label = _('directory contains data')
 			self._BTN_open_directory.Enable()
 			self._BTN_clear_directory.Enable()
-			self._BTN_save.Disable()
-
-		if self._RBTN_save_as_archive.Value is True:
-			self._CHBOX_generate_metadata.Disable()
-		else:
-			self._CHBOX_generate_metadata.Enable()
+			self._BTN_save_files.Disable()
+			self._BTN_save_archive.Disable()
+		else:	# we don't know, say, use_subdir and subdir does not yet exist
+			self._LBL_dir_is_empty.Label = ''
+			self._BTN_open_directory.Disable()
+			self._BTN_clear_directory.Disable()
+			self._BTN_save_files.Enable()
+			self._BTN_save_archive.Enable()
 
 		self.Layout()
 
@@ -576,10 +563,16 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 		generate_metadata = dlg._CHBOX_generate_metadata.IsChecked()
 		use_subdir = dlg._CHBOX_use_subdirectory.IsChecked()
 		encrypt = dlg._CHBOX_encrypt.IsChecked()
-		create_archive = dlg._RBTN_save_as_archive.Value
 		dlg.Destroy()
-		if choice != wx.ID_SAVE:
+		if choice == wx.ID_CANCEL:
 			return
+
+		if choice == wx.ID_SAVE:
+			create_archive = True
+		elif choice == wx.ID_OK:
+			create_archive = False
+		else:
+			raise BaseException('invalid return')
 
 		if create_archive:
 			# always with metadata
@@ -632,9 +625,27 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 				else:
 					gmMimeLib.call_viewer_on_file(export_dir, block = False)
 
-		#remove_entries
+		# remove_entries ?
 
 		return True
+
+		# cleanup - ask !
+		# - files corresponding to DIR/DIR CONTENT entries
+		# - entries in export area
+#		remove_items = gmGuiHelpers.gm_show_question (
+#			title = _('Creating zip archive'),
+#			question = _(
+#				'Zip archive created as:\n'
+#				'\n'
+#				' [%s]\n'
+#				'\n'
+#				'Remove archived entries from export area ?'
+#			) % zip_file,
+#			cancel_button = False
+#		)
+#		if remove_items:
+#			exp_area.remove_items(items = items)
+#		return True
 
 	#--------------------------------------------------------
 	def _on_burn_items_button_pressed(self, event):
@@ -701,52 +712,6 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 		if browse_index:
 			gmNetworkTools.open_url_in_browser(url = 'file://%s' % os.path.join(export_dir, 'index.html'))
 
-		return True
-
-	#--------------------------------------------------------
-	def _on_zip_items_button_pressed(self, event):
-		event.Skip()
-		# anything to do ?
-		items = self._LCTRL_items.get_selected_item_data(only_one = False)
-		if len(items) == 0:
-			items = self._LCTRL_items.get_item_data()
-			if len(items) == 0:
-				return None
-			# ask, might be a lot
-			process_all = gmGuiHelpers.gm_show_question (
-				title = _('Creating zip archive'),
-				question = _('You have not selected any entries.\n\nCreate archive from all %s entries ?') % len(items),
-				cancel_button = False
-			)
-			if not process_all:
-				return None
-
-		exp_area = gmPerson.gmCurrentPatient().export_area
-		# get passphrase from user
-		zip_file = exp_area.export_as_zip(passphrase = None)
-		if zip_file is None:
-			gmGuiHelpers.gm_show_error (
-				aMessage = _('Error creating zip file.'),
-				aTitle = _('Creating zip archive')
-			)
-			return False
-
-		# cleanup - ask !
-		# - files corresponding to DIR/DIR CONTENT entries
-		# - entries in export area
-		remove_items = gmGuiHelpers.gm_show_question (
-			title = _('Creating zip archive'),
-			question = _(
-				'Zip archive created as:\n'
-				'\n'
-				' [%s]\n'
-				'\n'
-				'Remove archived entries from export area ?'
-			) % zip_file,
-			cancel_button = False
-		)
-		if remove_items:
-			exp_area.remove_items(items = items)
 		return True
 
 	#--------------------------------------------------------
