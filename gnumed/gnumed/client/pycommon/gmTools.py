@@ -317,12 +317,14 @@ class gmPaths(gmBorg.cBorg):
 		except AttributeError:
 			_log.info('temp file prefix: %s', tempfile.gettempprefix())
 			_log.info('initial (user level) temp dir: %s', tempfile.gettempdir())
+			bytes_free = shutil.disk_usage(tempfile.gettempdir()).free
+			_log.info('free disk space for temp dir: %s (%s bytes)', size2str(size = bytes_free), bytes_free)
 			# $TMP/gnumed-$USER/
 			self.user_tmp_dir = os.path.join(tempfile.gettempdir(), app_name + '-' + getpass.getuser())
 			mkdir(self.user_tmp_dir, 0o700)
 			tempfile.tempdir = self.user_tmp_dir
 			_log.info('intermediate (app level) temp dir: %s', tempfile.gettempdir())
-			# $TMP/gnumed-$USER/g$UNIQUE/
+			# $TMP/gnumed-$USER/g-$UNIQUE/
 			self.tmp_dir = tempfile.mkdtemp(prefix = 'g-')
 			_log.info('final (app instance level) temp dir: %s', tempfile.gettempdir())
 
