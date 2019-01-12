@@ -40,219 +40,258 @@ from Gnumed.wxpython import gmDocumentWidgets
 _log = logging.getLogger('gm.ui')
 _cfg = gmCfg2.gmCfgData()
 
-
 #============================================================
-from Gnumed.wxGladeWidgets import wxgCreatePatientMediaDlg
+from Gnumed.wxGladeWidgets import wxgExportAreaExportToMediaDlg
 
-class cCreatePatientMediaDlg(wxgCreatePatientMediaDlg.wxgCreatePatientMediaDlg):
+class cExportAreaExportToMediaDlg(wxgExportAreaExportToMediaDlg.wxgExportAreaExportToMediaDlg):
 
 	def __init__(self, *args, **kwargs):
-		self.__burn2cd = False
-		try:
-			self.__burn2cd = kwargs['burn2cd']
-			del kwargs['burn2cd']
-		except KeyError:
-			pass
-		if self.__burn2cd:
-			_log.debug('planning to burn export area items to CD/DVD')
-		else:
-			_log.debug('planning to save export area items to disk')
 		self.__patient = kwargs['patient']
 		del kwargs['patient']
 		self.__item_count = kwargs['item_count']
 		del kwargs['item_count']
-		wxgCreatePatientMediaDlg.wxgCreatePatientMediaDlg.__init__(self, *args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 		self.__init_ui()
 
 	#--------------------------------------------------------
 	# event handling
 	#--------------------------------------------------------
-	def _on_select_directory_button_pressed(self, event):
+	def _on_reload_media_list_button_pressed(self, event):
 		event.Skip()
-		if self.__burn2cd:
-			msg = _('Select a directory for inclusion into the patient CD / DVD.')
-		else:
-			msg = _('Select a directory in which to create the patient media.')
-		def_path = self._LBL_directory.Label
-		dlg = wx.DirDialog (
-			self,
-			message = msg,
-			defaultPath = def_path
-		)
-		choice = dlg.ShowModal()
-		path = dlg.GetPath()
-		dlg.Destroy()
-		if choice != wx.ID_OK:
-			return
-		self._LBL_directory.Label = path
-		self.__refresh_dir_is_empty()
-		self.__refresh_include_or_remove_existing_data()
+		wx.BeginBusyCursor()
+		try:
+			self.__update_media_list()
+		finally:
+			wx.EndBusyCursor()
 
 	#--------------------------------------------------------
-	def _on_use_subdirectory_changed(self, event):
-		event.Skip()
-
-		self.__refresh_include_or_remove_existing_data()
-
-		if self._CHBOX_use_subdirectory.IsChecked():
-			self._LBL_subdirectory.Label = '%s/%s-###' % (
-				self._LBL_directory.Label,
-				self.__patient.subdir_name
-			)
-			return
-
-		self._LBL_subdirectory.Label = ''
+	def _on_media_selected(self, event):
+		self.__update_ui_state()
 
 	#--------------------------------------------------------
-	def _on_save_button_pressed(self, event):
-		event.Skip()
-
-		if self.__burn2cd:
-			self.EndModal(wx.ID_SAVE)
-			return
-
-		if self._CHBOX_use_subdirectory.IsChecked() is True:
-			self.EndModal(wx.ID_SAVE)
-			return
-
-		path = self._LBL_directory.Label
-
-		if gmTools.dir_is_empty(path) is True:
-			self.EndModal(wx.ID_SAVE)
-			return
-
-		if self._RBTN_remove_data.Value is True:
-			really_remove_existing_data = gmGuiHelpers.gm_show_question (
-				title = _('Creating patient media'),
-				question = _(
-					'Really delete any existing data under\n'
-					'\n'
-					' [%s]\n'
-					'\n'
-					'from disk ?\n'
-					'\n'
-					'(this operation is generally not reversible)'
-				) % path
-			)
-			if really_remove_existing_data is False:
-				return
-
-		self.EndModal(wx.ID_SAVE)
+	def _on_media_deselected(self, event):
+		self.__update_ui_state()
 
 	#--------------------------------------------------------
-	def _on_browse_directory_button_pressed(self, event):
+	def _on_use_subdirectory_toggled(self, event):
 		event.Skip()
-		path = self._LBL_directory.Label.strip()
-		if path == '':
+		self.__update_ui_state()
+
+	#--------------------------------------------------------
+	def _on_open_directory_button_pressed(self, event):
+		event.Skip()
+		path = self.__calc_path()
+		if not os.path.isdir(path):
 			return
 		gmMimeLib.call_viewer_on_file(path, block = False)
+
+	#--------------------------------------------------------
+	def _on_clear_directory_button_pressed(self, event):
+		event.Skip()
+		path = self.__calc_path()
+		if not os.path.isdir(path):
+			return
+
+		delete_data = gmGuiHelpers.gm_show_question (
+			title = _('Clearing out a directory'),
+			question = _(
+				'Do you really want to delete all existing data\n'
+				'from the following directory ?\n'
+				'\n'
+				' %s\n'
+				'\n'
+				'Note, this can NOT be reversed without backups.'
+			) % path,
+			cancel_button = False
+		)
+		if delete_data:
+			gmTools.rm_dir_content(path)
+			self.__update_ui_state()
+
+	#--------------------------------------------------------
+	def _on_save2media_button_pressed(self, event):
+		event.Skip()
+
+		path = self.__calc_path()
+		if path is None:
+			return			# no media selected, should not happen
+		if path == -2:		# not mounted, should not happen
+			return
+		if path == -1:		# optical drive
+			if self.__burn_script is None:
+				return		# no burn script, should not happen
+
+		self.EndModal(wx.ID_SAVE)
 
 	#--------------------------------------------------------
 	# internal API
 	#--------------------------------------------------------
 	def __init_ui(self):
+		msg = _(
+			'\n'
+			'Number of entries to export: %s\n'
+			'\n'
+			'Patient: %s\n'
+			'\n'
+			'Select the media to export onto below.\n'
+		) % (
+			self.__item_count,
+			self.__patient['description_gender']
+		)
+		self._LBL_header.Label = msg
+		self._LCTRL_removable_media.set_columns([_('Type'), _('Medium'), _('Details')])
+		self._LCTRL_removable_media.set_column_widths([wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE])
+		self._LCTRL_removable_media.set_resize_column()
+		self._LCTRL_removable_media.select_callback = self._on_media_selected
+		self._LCTRL_removable_media.deselect_callback = self._on_media_deselected
 
-		self._LBL_dir_is_empty.Label = ''
-		self._LBL_subdirectory.Label = ''
-
-		if self.__burn2cd:
-			self._LBL_existing_data.Hide()
-			self._BTN_browse_directory.Disable()
-			self._RBTN_include_data.Hide()
-			self._RBTN_remove_data.Hide()
-			self._CHBOX_include_directory.Show()
-			self._CHBOX_use_subdirectory.Hide()
-			self._LBL_subdirectory.Hide()
-			self._CHBOX_generate_metadata.Hide()
-			lines = [
-				_('Preparing patient media for burning onto CD / DVD'),
-				''
-			]
-			found, external_cmd = gmShellAPI.detect_external_binary('gm-burn_doc')
-			if not found:
-				lines.append(_('Script <gm-burn_doc(.bat)> not found.'))
-				lines.append('')
-				lines.append(_('Cannot attempt to burn patient media onto CD/DVD.'))
-				self._BTN_save.Disable()
-			else:
-				lines.append(_('Patient: %s') % self.__patient['description_gender'])
-				lines.append('')
-				lines.append(_('Number of items to export onto CD/DVD: %s\n') % self.__item_count)
-			self._LBL_header.Label = '\n'.join(lines)
-			return
-
-		lines = [
-			_('Preparing patient media for saving to disk (USB, harddrive).'),
-			'',
-			_('Patient: %s') % self.__patient['description_gender'],
-			'',
-			_('Number of items to export to disk: %s\n') % self.__item_count
-		]
-		self._LBL_header.Label = '\n'.join(lines)
-		self._LBL_directory.Label = os.path.join(gmTools.gmPaths().home_dir, 'gnumed')
-		self.__refresh_dir_is_empty()
+		self.__update_media_list()
+		self.__update_ui_state()
 
 	#--------------------------------------------------------
-	def __refresh_dir_is_empty(self):
-		path = self._LBL_directory.Label.strip()
-		if path == '':
-			self._LBL_dir_is_empty.Label = ''
-			self._BTN_browse_directory.Disable()
-			self._CHBOX_include_directory.Disable()
-			return
-		is_empty = gmTools.dir_is_empty(directory = path)
-		if is_empty is None:
-			self._LBL_dir_is_empty.Label = _('(cannot check directory)')
-			self._BTN_browse_directory.Disable()
-			self._CHBOX_include_directory.Disable()
-			return
-		if is_empty is True:
-			self._LBL_dir_is_empty.Label = _('(directory appears empty)')
-			self._BTN_browse_directory.Disable()
-			self._CHBOX_include_directory.Disable()
-			return
+	def __calc_path(self):
+		media = self._LCTRL_removable_media.get_selected_item_data(only_one = True)
+		if media is None:
+			return None
 
-		msg = _('directory already contains data')
-		self._BTN_browse_directory.Enable()
-		self._CHBOX_include_directory.Enable()
+		if media['type'] == 'cd':
+			return -1
 
-		if os.path.isfile(os.path.join(path, 'DICOMDIR')):
-			msg = _('%s\n- DICOM data') % msg
+		if media['is_mounted'] is False:
+			return -2
 
-		if os.path.isdir(os.path.join(path, 'documents')):
-			if len(os.listdir(os.path.join(path, 'documents'))) > 0:
-				msg = _('%s\n- additional documents') % msg
-
-		self._LBL_dir_is_empty.Label = msg
-		self.Layout()
-
-	#--------------------------------------------------------
-	def __refresh_include_or_remove_existing_data(self):
+		mnt_path = media['mountpoint']
 		if self._CHBOX_use_subdirectory.IsChecked():
-			self._RBTN_include_data.Disable()
-			self._RBTN_remove_data.Disable()
+			return os.path.join(mnt_path, self.__patient.subdir_name)
+
+		return mnt_path
+
+	#--------------------------------------------------------
+	def __update_media_list(self):
+
+		self._LCTRL_removable_media.remove_items_safely()
+		items = []
+		data = []
+
+		found, self.__burn_script = gmShellAPI.detect_external_binary('gm-burn_doc')
+
+		# USB / MMC drives
+		removable_partitions = gmTools.enumerate_removable_partitions()
+		for key in removable_partitions:
+			part = removable_partitions[key]
+			if part['is_mounted'] is False:
+				continue
+			items.append ([
+				part['bus'].upper(),
+				_('%s (%s %s) - %s free') % (
+					part['fs_label'],
+					part['vendor'],
+					part['model'],
+					gmTools.size2str(part['bytes_free'])
+				),
+				_('%s (%s): %s in %s on %s') % (
+					part['mountpoint'],
+					gmTools.size2str(part['size_in_bytes']),
+					part['fs_type'],
+					part['partition'],
+					part['device']
+				)
+			])
+			data.append(part)
+		for key in removable_partitions:
+			part = removable_partitions[key]
+			if part['is_mounted'] is True:
+				continue
+			items.append ([
+				part['bus'].upper(),
+				_('%s (%s %s)') % (
+					part['fs_label'],
+					part['vendor'],
+					part['model']
+				),
+				_('%s on %s, not mounted') % (
+					part['partition'],
+					part['device']
+				)
+			])
+			data.append(part)
+
+		# optical drives: CD/DVD/BD
+		optical_writers = gmTools.enumerate_optical_writers()
+		for cdrw in optical_writers:
+			items.append ([
+				cdrw['type'].upper(),
+				cdrw['model'],
+				cdrw['device']
+			])
+			data.append(cdrw)
+
+		self._LCTRL_removable_media.set_string_items(items)
+		self._LCTRL_removable_media.set_data(data)
+		self._LCTRL_removable_media.set_column_widths()
+
+		self._BTN_save2media.Disable()
+
+	#--------------------------------------------------------
+	def __update_ui_state(self):
+
+		media = self._LCTRL_removable_media.get_selected_item_data(only_one = True)
+		if media is None:
+			self._BTN_save2media.Disable()
+			self._BTN_open_directory.Disable()
+			self._BTN_clear_directory.Disable()
+			self._CHBOX_encrypt.Disable()
+			self._CHBOX_use_subdirectory.Disable()
+			self._LBL_directory.Label = ''
+			self._LBL_dir_is_empty.Label = ''
 			return
 
-		path = self._LBL_directory.Label.strip()
-		if path == '':
-			self._RBTN_include_data.Disable()
-			self._RBTN_remove_data.Disable()
+		if media['type'] == 'cd':
+			self._BTN_open_directory.Disable()
+			self._BTN_clear_directory.Disable()
+			self._LBL_directory.Label = ''
+			if self.__burn_script is None:
+				self._BTN_save2media.Disable()
+				self._CHBOX_use_subdirectory.Disable()
+				self._CHBOX_encrypt.Disable()
+				self._LBL_dir_is_empty.Label = _('helper <gm-burn_doc(.bat)> not found')
+			else:
+				self._BTN_save2media.Enable()
+				self._CHBOX_use_subdirectory.Enable()
+				self._CHBOX_encrypt.Enable()
+				self._LBL_dir_is_empty.Label = ''
 			return
 
+		if media['is_mounted'] is False:
+			self._BTN_save2media.Disable()
+			self._BTN_open_directory.Disable()
+			self._BTN_clear_directory.Disable()
+			self._CHBOX_use_subdirectory.Disable()
+			self._CHBOX_encrypt.Disable()
+			self._LBL_directory.Label = ''
+			self._LBL_dir_is_empty.Label = _('media not mounted')
+			return
+
+		self._BTN_save2media.Enable()
+		self._CHBOX_use_subdirectory.Enable()
+		self._CHBOX_encrypt.Enable()
+
+		path = self.__calc_path()
+		self._LBL_directory.Label = path + os.sep
 		is_empty = gmTools.dir_is_empty(directory = path)
-		if is_empty is None:
-			self._RBTN_include_data.Disable()
-			self._RBTN_remove_data.Disable()
-			return
-
 		if is_empty is True:
-			self._RBTN_include_data.Disable()
-			self._RBTN_remove_data.Disable()
-			return
-
-		self._RBTN_include_data.Enable()
-		self._RBTN_remove_data.Enable()
+			self._LBL_dir_is_empty.Label = ''
+			self._BTN_open_directory.Enable()
+			self._BTN_clear_directory.Disable()
+		elif is_empty is False:
+			self._LBL_dir_is_empty.Label = _('directory contains data')
+			self._BTN_open_directory.Enable()
+			self._BTN_clear_directory.Enable()
+		else:	# we don't know, say, use_subdir and subdir does not yet exist
+			self._LBL_dir_is_empty.Label = ''
+			self._BTN_open_directory.Disable()
+			self._BTN_clear_directory.Disable()
 
 #============================================================
 from Gnumed.wxGladeWidgets import wxgExportAreaSaveAsDlg
@@ -540,26 +579,14 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 	def _on_save_items_button_pressed(self, event):
 		event.Skip()
 
-		items = self._LCTRL_items.get_selected_item_data(only_one = False)
-		if len(items) == 0:
-			items = self._LCTRL_items.get_item_data()
-			if len(items) == 0:
-				gmDispatcher.send(signal = 'statustext', msg = _('Cannot save: no entries'))
-				return
-			if len(items) > 1:
-				# ask, might be a lot
-				process_all = gmGuiHelpers.gm_show_question (
-					title = _('Saving entries'),
-					question = _('You have not selected any entries.\n\nSave all %s entries ?') % len(items),
-					cancel_button = False
-				)
-				if not process_all:
-					return
+		items = self.__get_items_to_work_on(_('Saving entries'))
+		if items is None:
+			return
 
 		pat = gmPerson.gmCurrentPatient()
 		dlg = cExportAreaSaveAsDlg(self, -1, patient = pat, item_count = len(items))
 		choice = dlg.ShowModal()
-		path = dlg._LBL_directory.Label # perhaps need mk_sandbox_dir
+		path = dlg._LBL_directory.Label
 		generate_metadata = dlg._CHBOX_generate_metadata.IsChecked()
 		use_subdir = dlg._CHBOX_use_subdirectory.IsChecked()
 		encrypt = dlg._CHBOX_encrypt.IsChecked()
@@ -575,7 +602,7 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 			raise BaseException('invalid return')
 
 		if create_archive:
-			# always with metadata
+			export_dir = path
 			zip_file = self.__export_as_zip (
 				gmTools.coalesce(encrypt, _('Saving entries as encrypted ZIP archive'), _('Saving entries as unencrypted ZIP archive')),
 				items = items,
@@ -584,8 +611,8 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 			if zip_file is None:
 				gmDispatcher.send(signal = 'statustext', msg = _('Cannot save: aborted or error.'))
 				return
-			gmTools.mkdir(path)
-			final_zip_file = shutil.move(zip_file, path)
+			gmTools.mkdir(export_dir)
+			final_zip_file = shutil.move(zip_file, export_dir)
 			gmDispatcher.send(signal = 'statustext', msg = _('Saved entries into [%s]') % final_zip_file)
 			target = final_zip_file
 		else:
@@ -606,24 +633,7 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 			target,
 			'\n - '.join([ i['description'] for i in items ])
 		))
-
-		msg = _('Documents saved into:\n\n %s') % target
-		browse_index = gmGuiHelpers.gm_show_question (
-			title = _('Saving entries'),
-			question = msg + '\n\n' + _('Browse saved entries ?'),
-			cancel_button = False
-		)
-		if browse_index:
-			if create_archive:
-				gmMimeLib.call_viewer_on_file(path, block = False)
-			else:
-				if generate_metadata and not encrypt:
-					# start.html ist just a copy of index.html(.asc) and
-					# will thus be encrypted (or not) but will still be
-					# named "start.html" in either case
-					gmNetworkTools.open_url_in_browser(url = 'file://%s' % os.path.join(export_dir, 'start.html'))
-				else:
-					gmMimeLib.call_viewer_on_file(export_dir, block = False)
+		self.__browse_patient_data(export_dir, encrypted = encrypt, archive = create_archive, has_metadata = generate_metadata)
 
 		# remove_entries ?
 
@@ -648,69 +658,56 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 #		return True
 
 	#--------------------------------------------------------
-	def _on_burn_items_button_pressed(self, event):
+	def _on_export_items_button_pressed(self, event):
 		event.Skip()
 
-		# anything to do ?
-		found, external_cmd = gmShellAPI.detect_external_binary('gm-burn_doc')
-		if not found:
-			return
-		items = self._LCTRL_items.get_selected_item_data(only_one = False)
-		if len(items) == 0:
-			items = self._LCTRL_items.get_item_data()
-		if len(items) == 0:
+		items = self.__get_items_to_work_on(_('Exporting entries'))
+		if items is None:
 			return
 
+		# export dialog
 		pat = gmPerson.gmCurrentPatient()
-		dlg = cCreatePatientMediaDlg(self, -1, burn2cd = True, patient = pat, item_count = len(items))
+		dlg = cExportAreaExportToMediaDlg(self, -1, patient = pat, item_count = len(items))
 		choice = dlg.ShowModal()
-		if choice != wx.ID_SAVE:
-			return
-		path2include = dlg._LBL_directory.Label.strip()
-		include_selected_dir = dlg._CHBOX_include_directory.IsChecked()
+		media = dlg._LCTRL_removable_media.get_selected_item_data(only_one = True)
+		use_subdir = dlg._CHBOX_use_subdirectory.IsChecked()
+		encrypt = dlg._CHBOX_encrypt.IsChecked()
 		dlg.Destroy()
-
-		# do the export
-		base_dir = None
-		if include_selected_dir:
-			if gmTools.dir_is_empty(path2include) is False:
-				base_dir = gmTools.get_unique_filename(suffix = '.iso')
-				try:
-					shutil.copytree(path2include, base_dir)
-				except shutil.Error:
-					_log.exception('cannot copy include directory [%s] -> [%s]', path2include, base_dir)
-					return
-
-		export_dir = gmPerson.gmCurrentPatient().export_area.export(base_dir = base_dir, items = items)
-		if export_dir is None:
+		if choice == wx.ID_CANCEL:
 			return
 
-		# burn onto media
-		cmd = '%s %s' % (external_cmd, export_dir)
-		if os.name == 'nt':
-			blocking = True
+		# export the files
+		if media['type'] == 'cd':
+			base_dir = gmTools.mk_sandbox_dir(prefix = 'iso-')
 		else:
-			blocking = False
-		success = gmShellAPI.run_command_in_shell (
-			command = cmd,
-			blocking = blocking
-		)
-		if not success:
-			gmGuiHelpers.gm_show_error (
-				aMessage = _('Error burning documents to CD/DVD.'),
-				aTitle = _('Burning documents')
+			base_dir = media['mountpoint']
+		if use_subdir:
+			dir2save2 = os.path.join(base_dir, pat.subdir_name)
+		else:
+			dir2save2 = base_dir
+		export_dir = self.__export_as_files (
+				gmTools.coalesce(encrypt, _('Exporting encrypted entries'), _('Exporting entries')),
+				base_dir = dir2save2,
+				items = items,
+				encrypt = encrypt,
+				with_metadata = True
 			)
+		if export_dir is None:
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot export: aborted or error.'))
 			return
 
-		self.__save_soap_note(soap = _('Burned onto CD/DVD:\n - %s') % '\n - '.join([ i['description'] for i in items ]))
+		if media['type'] == 'cd':
+			if not self.__burn_dir_to_disk(base_dir = base_dir):
+				return
+			gmDispatcher.send(signal = 'statustext', msg = _('Entries successfully burned to disk.'))
+			self.__save_soap_note(soap = _('Burned onto CD/DVD:\n - %s') % '\n - '.join([ i['description'] for i in items ]))
+		else:
+			gmDispatcher.send(signal = 'statustext', msg = _('Exported entries into [%s]') % export_dir)
+			self.__save_soap_note(soap = _('Exported onto removable media:\n - %s') % '\n - '.join([ i['description'] for i in items ]))
 
-		browse_index = gmGuiHelpers.gm_show_question (
-			title = _('Creating patient media'),
-			question = _('Browse patient data pack ?'),
-			cancel_button = False
-		)
-		if browse_index:
-			gmNetworkTools.open_url_in_browser(url = 'file://%s' % os.path.join(export_dir, 'index.html'))
+		self.__browse_patient_data(dir2save2, encrypted = encrypt, archive = False, has_metadata = True)
+
+		# remove_entries ?
 
 		return True
 
@@ -862,13 +859,13 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 			if len(items) == 0:
 				items = self._LCTRL_items.get_item_data()
 				if len(items) == 0:
-					gmDispatcher.send(signal = 'statustext', msg = _('No items to create archive from.'))
+					gmDispatcher.send(signal = 'statustext', msg = _('No items to export.'))
 					return None
 				if len(items) > 1:
 					# ask, might be a lot
 					process_all = gmGuiHelpers.gm_show_question (
 						title = msg_title,
-						question = _('You have not selected any entries.\n\nCreate archive from all %s entries ?') % len(items),
+						question = _('You have not selected any entries.\n\nSave all %s entries ?') % len(items),
 						cancel_button = False
 					)
 					if not process_all:
@@ -882,11 +879,15 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 				gmDispatcher.send(signal = 'statustext', msg = _('Password not provided twice. Aborting.'))
 				return None
 		# save
-		exp_area = gmPerson.gmCurrentPatient().export_area
-		if with_metadata:
-			export_dir = exp_area.export(base_dir = base_dir, items = items, passphrase = data_pwd)
-		else:
-			export_dir = exp_area.dump_items_to_disk(base_dir = base_dir, items = items, passphrase = data_pwd)
+		wx.BeginBusyCursor()
+		try:
+			exp_area = gmPerson.gmCurrentPatient().export_area
+			if with_metadata:
+				export_dir = exp_area.export(base_dir = base_dir, items = items, passphrase = data_pwd)
+			else:
+				export_dir = exp_area.dump_items_to_disk(base_dir = base_dir, items = items, passphrase = data_pwd)
+		finally:
+			wx.EndBusyCursor()
 		if export_dir is None:
 			gmGuiHelpers.gm_show_error (
 				aMessage = _('Error exporting entries.'),
@@ -924,8 +925,12 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 				gmDispatcher.send(signal = 'statustext', msg = _('Password not provided twice. Aborting.'))
 				return None
 		# create archive
-		exp_area = gmPerson.gmCurrentPatient().export_area
-		zip_file = exp_area.export_as_zip(passphrase = zip_pwd, items = items)
+		wx.BeginBusyCursor()
+		try:
+			exp_area = gmPerson.gmCurrentPatient().export_area
+			zip_file = exp_area.export_as_zip(passphrase = zip_pwd, items = items)
+		finally:
+			wx.EndBusyCursor()
 		if zip_file is None:
 			gmGuiHelpers.gm_show_error (
 				aMessage = _('Error creating zip file.'),
@@ -991,6 +996,82 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 				title = msg_title
 			)
 		return data_pwd
+
+	#--------------------------------------------------------
+	def __get_items_to_work_on(self, msg_title):
+
+		items = self._LCTRL_items.get_selected_item_data(only_one = False)
+		if len(items) > 0:
+			return items
+
+		items = self._LCTRL_items.get_item_data()
+		if len(items) == 0:
+			gmDispatcher.send(signal = 'statustext', msg = _('Export area empty. Nothing to do.'))
+			return None
+
+		if len(items) == 1:
+			return items
+
+		process_all = gmGuiHelpers.gm_show_question (
+			title = msg_title,
+			question = _('You have not selected any entries.\n\nReally use all %s entries ?') % len(items),
+			cancel_button = False
+		)
+		if process_all:
+			return items
+
+		return None
+
+	#--------------------------------------------------------
+	def __burn_dir_to_disk(self, base_dir):
+
+		_log.debug('gm-burn_doc(.bat) API: "DIRECTORY-TO-BURN-FROM"')
+
+		found, burn_cmd = gmShellAPI.detect_external_binary('gm-burn_doc')
+		if not found:
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot burn to disk: Helper not found.'))	# should not happen
+			return False
+
+		args = [burn_cmd, base_dir]
+		wx.BeginBusyCursor()
+		try:
+			success, ret_code, stdout = gmShellAPI.run_process(cmd_line = args, verbose = _cfg.get(option = 'debug'))
+		finally:
+			wx.EndBusyCursor()
+		if success:
+			return True
+
+		gmGuiHelpers.gm_show_error (
+			aMessage = _('Error burning documents to CD/DVD.'),
+			aTitle = _('Burning documents')
+		)
+		return False
+
+	#--------------------------------------------------------
+	def __browse_patient_data(self, base_dir, encrypted=False, archive=False, has_metadata=False):
+
+		msg = _('Documents saved into:\n\n %s') % base_dir
+		browse_index = gmGuiHelpers.gm_show_question (
+			title = _('Browsing patient data excerpt'),
+			question = msg + '\n\n' + _('Browse saved entries ?'),
+			cancel_button = False
+		)
+		if not browse_index:
+			return
+
+		if archive:
+			gmMimeLib.call_viewer_on_file(base_dir, block = False)
+			return
+
+		if encrypted:
+			gmMimeLib.call_viewer_on_file(base_dir, block = False)
+			return
+
+		if has_metadata:
+			gmNetworkTools.open_url_in_browser(url = 'file://%s' % os.path.join(base_dir, 'index.html'))
+			return
+
+		gmMimeLib.call_viewer_on_file(base_dir, block = False)
 
 	#--------------------------------------------------------
 	# file drop target API

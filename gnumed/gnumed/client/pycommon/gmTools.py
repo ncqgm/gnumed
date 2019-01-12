@@ -1517,6 +1517,78 @@ def normalize_dict_like(d, required_keys, missing_key_template='<[%(key)s] MISSI
 	return d
 
 #---------------------------------------------------------------------------
+def enumerate_removable_partitions():
+	try:
+		import pyudev
+		import psutil
+	except ImportError:
+		_log.error('pyudev and/or psutil not installed')
+		return {}
+
+	removable_partitions = {}
+	ctxt = pyudev.Context()
+	removable_devices = [ dev for dev in ctxt.list_devices(subsystem='block', DEVTYPE='disk') if dev.attributes.get('removable') == b'1' ]
+	all_mounted_partitions = { part.device: part for part in psutil.disk_partitions() }
+	for device in removable_devices:
+		_log.debug('removable device: %s', device.properties['ID_MODEL'])
+		partitions_on_removable_device = {
+			part.device_node: {
+				'type': device.properties['ID_TYPE'],
+				'bus': device.properties['ID_BUS'],
+				'device': device.properties['DEVNAME'],
+				'partition': part.properties['DEVNAME'],
+				'vendor': part.properties['ID_VENDOR'],
+				'model': part.properties['ID_MODEL'],
+				'fs_label': part.properties['ID_FS_LABEL'],
+				'is_mounted': False,
+				'mountpoint': None,
+				'fs_type': None,
+				'size_in_bytes': -1,
+				'bytes_free': 0
+			} for part in ctxt.list_devices(subsystem='block', DEVTYPE='partition', parent=device)
+		}
+		for part in partitions_on_removable_device:
+			try:
+				partitions_on_removable_device[part]['mountpoint'] = all_mounted_partitions[part].mountpoint
+				partitions_on_removable_device[part]['is_mounted'] = True
+				partitions_on_removable_device[part]['fs_type'] = all_mounted_partitions[part].fstype
+				du = shutil.disk_usage(all_mounted_partitions[part].mountpoint)
+				partitions_on_removable_device[part]['size_in_bytes'] = du.total
+				partitions_on_removable_device[part]['bytes_free'] = du.free
+			except KeyError:
+				pass			# not mounted
+		removable_partitions.update(partitions_on_removable_device)
+	return removable_partitions
+
+	# debugging:
+	#ctxt = pyudev.Context()
+	#for dev in ctxt.list_devices(subsystem='block', DEVTYPE='disk'):# if dev.attributes.get('removable') == b'1':
+	#	for a in dev.attributes.available_attributes:
+	#		print(a, dev.attributes.get(a))
+	#	for key, value in dev.items():
+	#		print('{key}={value}'.format(key=key, value=value))
+	#	print('---------------------------')
+
+#---------------------------------------------------------------------------
+def enumerate_optical_writers():
+	try:
+		import pyudev
+	except ImportError:
+		_log.error('pyudev not installed')
+		return []
+
+	optical_writers = []
+	ctxt = pyudev.Context()
+	for dev in [ dev for dev in ctxt.list_devices(subsystem='block', DEVTYPE='disk') if dev.properties.get('ID_CDROM_CD_RW', None) == '1' ]:
+		optical_writers.append ({
+			'type': dev.properties['ID_TYPE'],
+			'bus': dev.properties['ID_BUS'],
+			'device': dev.properties['DEVNAME'],
+			'model': dev.properties['ID_MODEL']
+		})
+	return optical_writers
+
+#---------------------------------------------------------------------------
 #---------------------------------------------------------------------------
 def prompted_input(prompt=None, default=None):
 	"""Obtains entry from standard input.
@@ -2098,6 +2170,44 @@ second line\n
 		print(create_qrcode(text = sys.argv[2], filename=None, qr_filename=None, verbose = True))
 
 	#-----------------------------------------------------------------------
+	def test_enumerate_removable_partitions():
+		parts = enumerate_removable_partitions()
+		for part_name in parts:
+			part = parts[part_name]
+			print(part['device'])
+			print(part['partition'])
+			if part['is_mounted']:
+				print('%s@%s: %s on %s by %s @ %s (FS=%s: %s free of %s total)' % (
+					part['type'],
+					part['bus'],
+					part['fs_label'],
+					part['model'],
+					part['vendor'],
+					part['mountpoint'],
+					part['fs_type'],
+					part['bytes_free'],
+					part['size_in_bytes']
+				))
+			else:
+				print('%s@%s: %s on %s by %s (not mounted)' % (
+					part['type'],
+					part['bus'],
+					part['fs_label'],
+					part['model'],
+					part['vendor']
+				))
+
+	#-----------------------------------------------------------------------
+	def test_enumerate_optical_writers():
+		for writer in enumerate_optical_writers():
+			print('%s@%s: %s @ %s' % (
+				writer['type'],
+				writer['bus'],
+				writer['model'],
+				writer['device']
+			))
+
+	#-----------------------------------------------------------------------
 	#test_coalesce()
 	#test_capitalize()
 	#test_import_module()
@@ -2119,7 +2229,7 @@ second line\n
 	#test_fname_stem()
 	#test_tex_escape()
 	#test_rst2latex_snippet()
-	test_dir_is_empty()
+	#test_dir_is_empty()
 	#test_compare_dicts()
 	#test_rm_dir()
 	#test_rm_dir_content()
@@ -2128,5 +2238,7 @@ second line\n
 	#test_format_compare_dicts()
 	#test_fname_sanitize()
 	#test_create_qrcode()
+	test_enumerate_removable_partitions()
+	test_enumerate_optical_writers()
 
 #===========================================================================
