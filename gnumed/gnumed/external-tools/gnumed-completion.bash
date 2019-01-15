@@ -1,7 +1,4 @@
-#!/bin/bash
-
 # bash completions for GNUmed
-
 
 _gnumed_completion()
 {
