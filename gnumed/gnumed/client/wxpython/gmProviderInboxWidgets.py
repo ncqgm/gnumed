@@ -916,7 +916,7 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 			gmGuiHelpers.gm_show_error(msg, _('handling provider inbox item'))
 			return False
 
-		wx.CallAfter(gmVaccWidgets.manage_vaccinations)
+		wx.CallAfter(manage_vaccinations)
 
 		return True
 

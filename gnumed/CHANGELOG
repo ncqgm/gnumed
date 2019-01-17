@@ -8,6 +8,10 @@
 
 	1.7.4
 
+FIX: exception on following vaccs reminder from provider inbox
+
+	1.7.4
+
 NEW: placeholders now nest with $2<>2$ $3<>3$ rather than $<<>>$ $<<<>>>$
 
 NEW: placeholder $<patient_mcf>$
