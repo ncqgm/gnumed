@@ -2352,20 +2352,18 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 
 		if isinstance(node_data, dict):
 			_log.debug('node data is dict: %s', node_data)
-			issue = None
 			try:
 				if node_data['pk_health_issue'] is None:
 					_log.debug('node data dict holds pseudo-issue for unattributed episodes, ignoring')
 				else:
 					issue = gmEMRStructItems.cHealthIssue(aPK_obj = node_data['pk_health_issue'])
 			except KeyError:
-				pass
-			episode = None
+				issue = None
 			try:
-				epi = gmEMRStructItems.cEpisode(aPK_obj = node_data['pk_episode'])
+				episode = gmEMRStructItems.cEpisode(aPK_obj = node_data['pk_episode'])
 			except KeyError:
-				pass
-			self.__show_details_callback(issue = issue, episode = epi)
+				episode = None
+			self.__show_details_callback(issue = issue, episode = episode)
 			return
 
 #		# string nodes are labels such as episodes which may or may not have children
