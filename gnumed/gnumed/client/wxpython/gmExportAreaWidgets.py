@@ -599,7 +599,7 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 		elif choice == wx.ID_OK:
 			create_archive = False
 		else:
-			raise BaseException('invalid return')
+			raise Exception('invalid return')
 
 		if create_archive:
 			export_dir = path

@@ -229,7 +229,7 @@ def _print_files_by_os_startfile(filenames=None):
 				_log.exception('no <print> action defined for this type of file')
 				if e.winerror == 1155:	# try (default) <view> action
 					os.startfile(fname)
-		except BaseException:
+		except Exception:
 			_log.exception('os.startfile() failed')
 			gmLog2.log_stack_trace()
 			return False

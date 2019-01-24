@@ -542,7 +542,7 @@ def remove_file(filename, log_error=True, force=False):
 			os.replace(filename, tmp_name)
 			return True
 
-		except BaseException:
+		except Exception:
 			if log_error:
 				_log.exception('cannot os.remove(%s)', filename)
 

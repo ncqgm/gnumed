@@ -1240,13 +1240,13 @@ def __get_filename_in_cache(cache_key_data=None, data_size=None):
 		_log.error('possibly an attack, removing')
 		if gmTools.remove_file(cached_name, log_error = True):
 			return None
-		raise BaseException('cannot delete suspicious object in cache dir: %s', cached_name)
+		raise Exception('cannot delete suspicious object in cache dir: %s', cached_name)
 	if stat.st_size == data_size:
 		return cached_name
 	_log.debug('size in cache [%s] <> expected size [%s], removing cached file', stat.st_size, data_size)
 	if gmTools.remove_file(cached_name, log_error = True):
 		return None
-	raise BaseException('cannot remove suspicous object from cache dir: %s', cached_name)
+	raise Exception('cannot remove suspicous object from cache dir: %s', cached_name)
 
 #------------------------------------------------------------------------
 def __get_file_from_cache(filename, cache_key_data=None, data_size=None, link2cached=True):
@@ -1261,7 +1261,7 @@ def __get_file_from_cache(filename, cache_key_data=None, data_size=None, link2ca
 			os.link(cached_filename, filename)
 			_log.debug('hardlinked [%s] as [%s]', cached_filename, filename)
 			return True
-		except StandardError:
+		except Exception:
 			pass
 		_log.debug('cannot hardlink to cache, trying copy-from-cache')
 	# copy from cache
@@ -2296,7 +2296,7 @@ def get_raw_connection(dsn=None, verbose=False, readonly=True, connection_name=N
 		try:
 			curs.execute("SELECT pg_size_pretty(pg_database_size(current_database()))")
 			_log.info('database size: %s', curs.fetchone()[0])
-		except BaseException:
+		except Exception:
 			_log.exception('cannot get database size')
 		finally:
 			curs.close()
@@ -2327,7 +2327,7 @@ def get_raw_connection(dsn=None, verbose=False, readonly=True, connection_name=N
 		try:
 			curs.execute("SET plpgsql.extra_warnings TO 'all'")
 			curs.execute("SET plpgsql.extra_errors TO 'all'")
-		except BaseException:
+		except Exception:
 			_log.exception('cannot enable <plpgsql.extra_warnings/_errors>')
 		finally:
 			curs.close()
