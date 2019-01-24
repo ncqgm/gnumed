@@ -17,8 +17,12 @@ INSERT INTO dem.message_inbox (
 ) VALUES (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
-	'Release Notes for GNUmed 1.7.4 (database v22.4)',
-	'GNUmed 1.7.4 Release Notes:
+	'Release Notes for GNUmed 1.7.5 (database v22.5)',
+	'GNUmed 1.7.5 Release Notes:
+
+	1.7.5
+
+FIX: exception on following vaccs reminder from provider inbox
 
 	1.7.4
 
