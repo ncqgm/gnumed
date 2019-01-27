@@ -3275,12 +3275,16 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 						gmTools.coalesce(study['station_name'], '', ' [%s]'),
 						gmTools.coalesce(study['radiology_org_addr'], '', ' (%s)').replace('\r\n', ' [CR] ')
 					)
-					study_list_items.append( [
-						'%s-%s-%s' % (
+					if study['date'] is None:
+						study_date = '?'
+					else:
+						study_date = '%s-%s-%s' % (
 							study['date'][:4],
 							study['date'][4:6],
 							study['date'][6:8]
-						),
+						)
+					study_list_items.append ( [
+						study_date,
 						_('%s series%s') % (
 							len(study['series']),
 							gmTools.coalesce(study['description'], '', ': %s')
@@ -3596,11 +3600,14 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 			series_time = ''
 			if series['time'] is None:
 				series['time'] = study_data['time']
-			series_time = '%s:%s:%s' % (
-				series['time'][:2],
-				series['time'][2:4],
-				series['time'][4:6]
-			)
+			if series['time'] is None:
+				series_time = '?'
+			else:
+				series_time = '%s:%s:%s' % (
+					series['time'][:2],
+					series['time'][2:4],
+					series['time'][4:6]
+				)
 
 			series_desc_parts = []
 			if series['description'] is not None:
@@ -3860,7 +3867,11 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 			return None
 
 		patient_id = self.__orthanc_patient['ID']
-		bad_data = self.__pacs.verify_patient_data(patient_id)
+		wx.BeginBusyCursor()
+		try:
+			bad_data = self.__pacs.verify_patient_data(patient_id)
+		finally:
+			wx.EndBusyCursor()
 		if len(bad_data) == 0:
 			gmDispatcher.send(signal = 'statustext', msg = _('Successfully verified DICOM data of patient.'))
 			return
