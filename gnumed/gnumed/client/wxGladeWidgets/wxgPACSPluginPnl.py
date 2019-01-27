@@ -4,6 +4,7 @@
 #
 
 import wx
+import wx.adv
 
 # begin wxGlade: dependencies
 import gettext
@@ -34,47 +35,32 @@ class wxgPACSPluginPnl(wx.Panel):
 		self._LCTRL_studies = cReportListCtrl(self, wx.ID_ANY, style=wx.BORDER_NONE | wx.LC_REPORT)
 		self._LCTRL_series = cReportListCtrl(self, wx.ID_ANY, style=wx.BORDER_NONE | wx.LC_REPORT)
 		self._LCTRL_details = cReportListCtrl(self, wx.ID_ANY, style=wx.BORDER_NONE | wx.LC_REPORT)
-		self._TCTRL_details = wx.TextCtrl(self, wx.ID_ANY, "", style=wx.TE_BESTWRAP | wx.TE_MULTILINE | wx.TE_READONLY)
 		self._BMP_preview = wx.lib.statbmp.GenStaticBitmap(self, wx.ID_ANY, wx.Bitmap(50, 50), style=wx.BORDER_SIMPLE)
-		self._LBL_image = wx.StaticText(self, wx.ID_ANY, _("Image"))
-		self._BTN_verify_patient_data = wx.Button(self, wx.ID_ANY, _("Patient"), style=wx.BU_EXACTFIT)
 		self._BTN_previous_image = wx.Button(self, wx.ID_ANY, _(u"\u25c4"), style=wx.BU_EXACTFIT)
 		self._BTN_next_image = wx.Button(self, wx.ID_ANY, _(u"\u25ba"), style=wx.BU_EXACTFIT)
-		self._BTN_image_export = wx.Button(self, wx.ID_ANY, _("E&xport"), style=wx.BU_EXACTFIT)
-		self._BTN_browse_study = wx.Button(self, wx.ID_ANY, _("Browse"), style=wx.BU_EXACTFIT)
-		self._BTN_browse_patient = wx.Button(self, wx.ID_ANY, _("Browse"), style=wx.BU_EXACTFIT)
-		self._BTN_browse_pacs = wx.Button(self, wx.ID_ANY, _("Browse"), style=wx.BU_EXACTFIT)
-		self._BTN_image_show_dicom = wx.Button(self, wx.ID_ANY, _("&Show (D)"), style=wx.BU_EXACTFIT)
-		self._BTN_save_image_as_dicom = wx.Button(self, wx.ID_ANY, _("Save (&D)"), style=wx.BU_EXACTFIT)
-		self._BTN_save_studies_as_dicom_dir = wx.Button(self, wx.ID_ANY, _("Save"), style=wx.BU_EXACTFIT)
-		self._BTN_save_patient_as_dicom_dir = wx.Button(self, wx.ID_ANY, _("Save"), style=wx.BU_EXACTFIT)
-		self._BTN_upload = wx.Button(self, wx.ID_ANY, _("&Upload"), style=wx.BU_EXACTFIT)
-		self._BTN_image_show = wx.Button(self, wx.ID_ANY, _("Show (&P)"), style=wx.BU_EXACTFIT)
-		self._BTN_save_image_preview = wx.Button(self, wx.ID_ANY, _("Save (P)"), style=wx.BU_EXACTFIT)
-		self._BTN_save_studies_as_zip = wx.Button(self, wx.ID_ANY, _("as ZIP"), style=wx.BU_EXACTFIT)
-		self._BTN_save_patient_as_zip = wx.Button(self, wx.ID_ANY, _("as ZIP"), style=wx.BU_EXACTFIT)
-		self._BTN_modify_orthanc_content = wx.Button(self, wx.ID_ANY, _("Edit"), style=wx.BU_EXACTFIT)
+		self._BTN_image_show = wx.Button(self, wx.ID_ANY, _("&Show"))
+		self._BTN_image_export = wx.Button(self, wx.ID_ANY, _("E&xport area"))
+		self._HCTRL_browse_study = wx.adv.HyperlinkCtrl(self, wx.ID_ANY, _("Browse"), "", style=wx.adv.HL_ALIGN_CENTRE)
+		self._BTN_save_studies_as_dicom_dir = wx.Button(self, wx.ID_ANY, _("Save (D)"))
+		self._BTN_save_studies_as_zip = wx.Button(self, wx.ID_ANY, _("Save (Z)"))
+		self._HCTRL_browse_patient = wx.adv.HyperlinkCtrl(self, wx.ID_ANY, _("Browse"), "", style=wx.adv.HL_ALIGN_CENTRE)
+		self._BTN_verify_patient_data = wx.Button(self, wx.ID_ANY, _("Verify"))
+		self._HCTRL_browse_pacs = wx.adv.HyperlinkCtrl(self, wx.ID_ANY, _("Browse"), "", style=wx.adv.HL_ALIGN_CENTRE)
+		self._BTN_upload = wx.Button(self, wx.ID_ANY, _("&Upload"))
+		self._BTN_modify_orthanc_content = wx.Button(self, wx.ID_ANY, _("Edit"))
 
 		self.__set_properties()
 		self.__do_layout()
 
 		self.Bind(wx.EVT_BUTTON, self._on_connect_button_pressed, self._BTN_connect)
-		self.Bind(wx.EVT_BUTTON, self._on_verify_patient_data_button_pressed, self._BTN_verify_patient_data)
 		self.Bind(wx.EVT_BUTTON, self._on_previous_image_button_pressed, self._BTN_previous_image)
 		self.Bind(wx.EVT_BUTTON, self._on_next_image_button_pressed, self._BTN_next_image)
-		self.Bind(wx.EVT_BUTTON, self._on_button_image_export_pressed, self._BTN_image_export)
-		self.Bind(wx.EVT_BUTTON, self._on_browse_study_button_pressed, self._BTN_browse_study)
-		self.Bind(wx.EVT_BUTTON, self._on_browse_patient_button_pressed, self._BTN_browse_patient)
-		self.Bind(wx.EVT_BUTTON, self._on_browse_pacs_button_pressed, self._BTN_browse_pacs)
-		self.Bind(wx.EVT_BUTTON, self._on_button_image_show_dicom_pressed, self._BTN_image_show_dicom)
-		self.Bind(wx.EVT_BUTTON, self._on_save_image_as_dicom_button_pressed, self._BTN_save_image_as_dicom)
-		self.Bind(wx.EVT_BUTTON, self._on_save_studies_as_dicom_dir_button_pressed, self._BTN_save_studies_as_dicom_dir)
-		self.Bind(wx.EVT_BUTTON, self._on_save_patient_as_dicom_dir_button_pressed, self._BTN_save_patient_as_dicom_dir)
-		self.Bind(wx.EVT_BUTTON, self._on_upload_button_pressed, self._BTN_upload)
 		self.Bind(wx.EVT_BUTTON, self._on_button_image_show_pressed, self._BTN_image_show)
-		self.Bind(wx.EVT_BUTTON, self._on_save_image_preview_button_pressed, self._BTN_save_image_preview)
+		self.Bind(wx.EVT_BUTTON, self._on_button_image_export_pressed, self._BTN_image_export)
+		self.Bind(wx.EVT_BUTTON, self._on_save_studies_as_dicom_dir_button_pressed, self._BTN_save_studies_as_dicom_dir)
 		self.Bind(wx.EVT_BUTTON, self._on_save_studies_as_zip_button_pressed, self._BTN_save_studies_as_zip)
-		self.Bind(wx.EVT_BUTTON, self._on_save_patient_as_zip_button_pressed, self._BTN_save_patient_as_zip)
+		self.Bind(wx.EVT_BUTTON, self._on_verify_patient_data_button_pressed, self._BTN_verify_patient_data)
+		self.Bind(wx.EVT_BUTTON, self._on_upload_button_pressed, self._BTN_upload)
 		self.Bind(wx.EVT_BUTTON, self._on_modify_orthanc_content_button_pressed, self._BTN_modify_orthanc_content)
 		# end wxGlade
 
@@ -86,43 +72,28 @@ class wxgPACSPluginPnl(wx.Panel):
 		self._TCTRL_password.SetToolTip(_("Enter the PACS password. It will not be shown."))
 		self._BTN_connect.SetToolTip(_("Connect to PACS."))
 		self._LCTRL_details.SetFont(wx.Font(9, wx.MODERN, wx.NORMAL, wx.NORMAL, 0, ""))
-		self._TCTRL_details.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_BACKGROUND))
-		self._TCTRL_details.SetFont(wx.Font(9, wx.MODERN, wx.NORMAL, wx.NORMAL, 0, ""))
-		self._TCTRL_details.Hide()
 		self._BMP_preview.SetMinSize((50, 50))
-		self._BTN_verify_patient_data.SetToolTip(_("Verify patient data in PACS."))
-		self._BTN_verify_patient_data.Enable(False)
+		self._BMP_preview.SetToolTip(_("Double-click: Display in external viewer.\n\nRight-click: Show context menu."))
 		self._BTN_previous_image.SetToolTip(_("Review previous image."))
 		self._BTN_previous_image.Enable(False)
 		self._BTN_next_image.SetToolTip(_("Preview next image."))
 		self._BTN_next_image.Enable(False)
+		self._BTN_image_show.SetToolTip(_("Show image in external viewer."))
+		self._BTN_image_show.Enable(False)
 		self._BTN_image_export.SetToolTip(_("Store image into export area."))
 		self._BTN_image_export.Enable(False)
-		self._BTN_browse_study.SetToolTip(_("Browse topmost selected study."))
-		self._BTN_browse_study.Enable(False)
-		self._BTN_browse_patient.SetToolTip(_("Browse overview of all studies for this patient."))
-		self._BTN_browse_patient.Enable(False)
-		self._BTN_browse_pacs.SetToolTip(_("Browse PACS at top level."))
-		self._BTN_browse_pacs.Enable(False)
-		self._BTN_image_show_dicom.SetToolTip(_("Show image in DICOM viewer."))
-		self._BTN_image_show_dicom.Enable(False)
-		self._BTN_save_image_as_dicom.SetToolTip(_("Save image in DICOM format."))
-		self._BTN_save_image_as_dicom.Enable(False)
-		self._BTN_save_studies_as_dicom_dir.SetToolTip(_("Save selected studies to disk as DICOM directory."))
+		self._HCTRL_browse_study.Enable(False)
+		self._BTN_save_studies_as_dicom_dir.SetToolTip(_("Save selected/all studies to disk, as a DICOM directory (with DICOMDIR)."))
 		self._BTN_save_studies_as_dicom_dir.Enable(False)
-		self._BTN_save_patient_as_dicom_dir.SetToolTip(_("Save all studies as one DICOM directory."))
-		self._BTN_save_patient_as_dicom_dir.Enable(False)
-		self._BTN_upload.SetToolTip(_("Upload DICOM files from a directory, recursively, into the Orthanc PACS\n\nThe currently active patient does not matter. Orthanc will associate uploaded files with the patient found within the DICOM metadata. It will create new patients as needed."))
-		self._BTN_upload.Enable(False)
-		self._BTN_image_show.SetToolTip(_("Show image in external viewer (PNG format)."))
-		self._BTN_image_show.Enable(False)
-		self._BTN_save_image_preview.SetToolTip(_("Save image preview (PNG format)."))
-		self._BTN_save_image_preview.Enable(False)
-		self._BTN_save_studies_as_zip.SetToolTip(_("Save selected studies as DICOM archive."))
+		self._BTN_save_studies_as_zip.SetToolTip(_("Save selected/all studies, as a zip archive containing a DICOM directory (with DICOMDIR)."))
 		self._BTN_save_studies_as_zip.Enable(False)
-		self._BTN_save_patient_as_zip.SetToolTip(_("Save all studies of patient as DICOM archive."))
-		self._BTN_save_patient_as_zip.Enable(False)
-		self._BTN_modify_orthanc_content.SetToolTip(_("Modify some of Orthanc content (such as patient IDs)."))
+		self._HCTRL_browse_patient.Enable(False)
+		self._BTN_verify_patient_data.SetToolTip(_("Verify DICOM data of patient in PACS."))
+		self._BTN_verify_patient_data.Enable(False)
+		self._HCTRL_browse_pacs.Enable(False)
+		self._BTN_upload.SetToolTip(_("Upload DICOM files from a directory, recursively, into the Orthanc PACS\n\nIt does not matter what the currently active patient is. Orthanc will associate uploaded files with the patient found within the DICOM metadata and will create new patients as needed."))
+		self._BTN_upload.Enable(False)
+		self._BTN_modify_orthanc_content.SetToolTip(_("Modify some of Orthanc's content (such as patient IDs)."))
 		self._BTN_modify_orthanc_content.Enable(False)
 		# end wxGlade
 
@@ -131,8 +102,12 @@ class wxgPACSPluginPnl(wx.Panel):
 		__szr_main = wx.BoxSizer(wx.VERTICAL)
 		__szr_details = wx.BoxSizer(wx.HORIZONTAL)
 		__szr_metadata_image = wx.BoxSizer(wx.VERTICAL)
-		__szr_images_buttons = wx.BoxSizer(wx.HORIZONTAL)
-		__gszr_buttons_bottom = wx.FlexGridSizer(4, 5, 1, 4)
+		__szr_image_and_buttons = wx.BoxSizer(wx.HORIZONTAL)
+		__szr_pacs_buttons = wx.StaticBoxSizer(wx.StaticBox(self, wx.ID_ANY, _("PACS")), wx.VERTICAL)
+		__szr_patient_buttons = wx.StaticBoxSizer(wx.StaticBox(self, wx.ID_ANY, _("Patient")), wx.VERTICAL)
+		__szr_study_buttons = wx.StaticBoxSizer(wx.StaticBox(self, wx.ID_ANY, _("Study")), wx.VERTICAL)
+		self._SZR_image_buttons = wx.StaticBoxSizer(wx.StaticBox(self, wx.ID_ANY, _("Image")), wx.HORIZONTAL)
+		__szr_image_buttons_left = wx.BoxSizer(wx.VERTICAL)
 		__szr_prev_next = wx.BoxSizer(wx.HORIZONTAL)
 		__szr_studies_series = wx.BoxSizer(wx.VERTICAL)
 		__szr_PACS_details = wx.BoxSizer(wx.HORIZONTAL)
@@ -152,34 +127,26 @@ class wxgPACSPluginPnl(wx.Panel):
 		__szr_studies_series.Add(self._LCTRL_series, 2, wx.EXPAND | wx.TOP, 3)
 		__szr_details.Add(__szr_studies_series, 1, wx.EXPAND | wx.RIGHT, 3)
 		__szr_metadata_image.Add(self._LCTRL_details, 1, wx.EXPAND, 0)
-		__szr_metadata_image.Add(self._TCTRL_details, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
-		__szr_images_buttons.Add(self._BMP_preview, 0, wx.ALL, 2)
-		__gszr_buttons_bottom.Add(self._LBL_image, 0, wx.ALIGN_CENTER, 0)
-		__gszr_buttons_bottom.Add((20, 20), 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
-		__lbl_study = wx.StaticText(self, wx.ID_ANY, _("Study"))
-		__gszr_buttons_bottom.Add(__lbl_study, 0, wx.ALIGN_CENTER, 0)
-		__gszr_buttons_bottom.Add(self._BTN_verify_patient_data, 0, wx.ALIGN_CENTER, 0)
-		__lbl_PACS = wx.StaticText(self, wx.ID_ANY, _("PACS"))
-		__gszr_buttons_bottom.Add(__lbl_PACS, 0, wx.ALIGN_CENTER, 0)
-		__szr_prev_next.Add(self._BTN_previous_image, 0, wx.ALIGN_CENTER | wx.ALL, 3)
-		__szr_prev_next.Add(self._BTN_next_image, 0, wx.ALIGN_CENTER | wx.ALL, 3)
-		__gszr_buttons_bottom.Add(__szr_prev_next, 0, wx.ALIGN_CENTER, 0)
-		__gszr_buttons_bottom.Add(self._BTN_image_export, 0, wx.ALIGN_CENTER, 0)
-		__gszr_buttons_bottom.Add(self._BTN_browse_study, 0, wx.ALIGN_CENTER | wx.ALL, 3)
-		__gszr_buttons_bottom.Add(self._BTN_browse_patient, 0, wx.ALIGN_CENTER | wx.ALL, 3)
-		__gszr_buttons_bottom.Add(self._BTN_browse_pacs, 0, wx.ALIGN_CENTER | wx.ALL, 5)
-		__gszr_buttons_bottom.Add(self._BTN_image_show_dicom, 0, wx.ALIGN_CENTER, 0)
-		__gszr_buttons_bottom.Add(self._BTN_save_image_as_dicom, 0, wx.ALIGN_CENTER, 0)
-		__gszr_buttons_bottom.Add(self._BTN_save_studies_as_dicom_dir, 0, wx.ALIGN_CENTER | wx.RIGHT, 3)
-		__gszr_buttons_bottom.Add(self._BTN_save_patient_as_dicom_dir, 0, wx.ALIGN_CENTER | wx.RIGHT, 3)
-		__gszr_buttons_bottom.Add(self._BTN_upload, 0, wx.ALIGN_CENTER, 0)
-		__gszr_buttons_bottom.Add(self._BTN_image_show, 0, wx.ALIGN_CENTER, 0)
-		__gszr_buttons_bottom.Add(self._BTN_save_image_preview, 0, wx.ALIGN_CENTER, 0)
-		__gszr_buttons_bottom.Add(self._BTN_save_studies_as_zip, 0, wx.ALIGN_CENTER, 0)
-		__gszr_buttons_bottom.Add(self._BTN_save_patient_as_zip, 0, wx.ALIGN_CENTER, 0)
-		__gszr_buttons_bottom.Add(self._BTN_modify_orthanc_content, 0, wx.ALIGN_CENTER, 0)
-		__szr_images_buttons.Add(__gszr_buttons_bottom, 0, wx.EXPAND, 0)
-		__szr_metadata_image.Add(__szr_images_buttons, 0, wx.EXPAND, 0)
+		__szr_image_and_buttons.Add(self._BMP_preview, 0, wx.ALL, 2)
+		__szr_prev_next.Add(self._BTN_previous_image, 0, wx.ALIGN_CENTER | wx.RIGHT, 3)
+		__szr_prev_next.Add(self._BTN_next_image, 0, wx.ALIGN_CENTER, 3)
+		__szr_image_buttons_left.Add(__szr_prev_next, 0, wx.ALIGN_CENTER, 0)
+		__szr_image_buttons_left.Add(self._BTN_image_show, 0, wx.ALIGN_CENTER | wx.EXPAND | wx.TOP, 3)
+		__szr_image_buttons_left.Add(self._BTN_image_export, 0, wx.ALIGN_CENTER | wx.EXPAND | wx.TOP, 3)
+		self._SZR_image_buttons.Add(__szr_image_buttons_left, 0, wx.EXPAND | wx.LEFT | wx.RIGHT, 2)
+		__szr_image_and_buttons.Add(self._SZR_image_buttons, 0, wx.EXPAND | wx.LEFT | wx.RIGHT, 2)
+		__szr_study_buttons.Add(self._HCTRL_browse_study, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+		__szr_study_buttons.Add(self._BTN_save_studies_as_dicom_dir, 0, wx.ALIGN_CENTER | wx.TOP, 3)
+		__szr_study_buttons.Add(self._BTN_save_studies_as_zip, 0, wx.ALIGN_CENTER | wx.TOP, 3)
+		__szr_image_and_buttons.Add(__szr_study_buttons, 0, wx.EXPAND | wx.LEFT | wx.RIGHT, 2)
+		__szr_patient_buttons.Add(self._HCTRL_browse_patient, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+		__szr_patient_buttons.Add(self._BTN_verify_patient_data, 0, wx.ALIGN_CENTER | wx.TOP, 3)
+		__szr_image_and_buttons.Add(__szr_patient_buttons, 0, wx.EXPAND | wx.LEFT | wx.RIGHT, 2)
+		__szr_pacs_buttons.Add(self._HCTRL_browse_pacs, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+		__szr_pacs_buttons.Add(self._BTN_upload, 0, wx.ALIGN_CENTER | wx.TOP, 3)
+		__szr_pacs_buttons.Add(self._BTN_modify_orthanc_content, 0, wx.ALIGN_CENTER | wx.TOP, 3)
+		__szr_image_and_buttons.Add(__szr_pacs_buttons, 0, wx.EXPAND | wx.LEFT, 2)
+		__szr_metadata_image.Add(__szr_image_and_buttons, 0, wx.EXPAND | wx.TOP, 4)
 		__szr_details.Add(__szr_metadata_image, 1, wx.EXPAND, 0)
 		__szr_main.Add(__szr_details, 1, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP, 3)
 		self.SetSizer(__szr_main)
@@ -191,10 +158,6 @@ class wxgPACSPluginPnl(wx.Panel):
 		print("Event handler '_on_connect_button_pressed' not implemented!")
 		event.Skip()
 
-	def _on_verify_patient_data_button_pressed(self, event):  # wxGlade: wxgPACSPluginPnl.<event_handler>
-		print("Event handler '_on_verify_patient_data_button_pressed' not implemented!")
-		event.Skip()
-
 	def _on_previous_image_button_pressed(self, event):  # wxGlade: wxgPACSPluginPnl.<event_handler>
 		print("Event handler '_on_previous_image_button_pressed' not implemented!")
 		event.Skip()
@@ -203,56 +166,28 @@ class wxgPACSPluginPnl(wx.Panel):
 		print("Event handler '_on_next_image_button_pressed' not implemented!")
 		event.Skip()
 
+	def _on_button_image_show_pressed(self, event):  # wxGlade: wxgPACSPluginPnl.<event_handler>
+		print("Event handler '_on_button_image_show_pressed' not implemented!")
+		event.Skip()
+
 	def _on_button_image_export_pressed(self, event):  # wxGlade: wxgPACSPluginPnl.<event_handler>
 		print("Event handler '_on_button_image_export_pressed' not implemented!")
-		event.Skip()
-
-	def _on_browse_study_button_pressed(self, event):  # wxGlade: wxgPACSPluginPnl.<event_handler>
-		print("Event handler '_on_browse_study_button_pressed' not implemented!")
-		event.Skip()
-
-	def _on_browse_patient_button_pressed(self, event):  # wxGlade: wxgPACSPluginPnl.<event_handler>
-		print("Event handler '_on_browse_patient_button_pressed' not implemented!")
-		event.Skip()
-
-	def _on_browse_pacs_button_pressed(self, event):  # wxGlade: wxgPACSPluginPnl.<event_handler>
-		print("Event handler '_on_browse_pacs_button_pressed' not implemented!")
-		event.Skip()
-
-	def _on_button_image_show_dicom_pressed(self, event):  # wxGlade: wxgPACSPluginPnl.<event_handler>
-		print("Event handler '_on_button_image_show_dicom_pressed' not implemented!")
-		event.Skip()
-
-	def _on_save_image_as_dicom_button_pressed(self, event):  # wxGlade: wxgPACSPluginPnl.<event_handler>
-		print("Event handler '_on_save_image_as_dicom_button_pressed' not implemented!")
 		event.Skip()
 
 	def _on_save_studies_as_dicom_dir_button_pressed(self, event):  # wxGlade: wxgPACSPluginPnl.<event_handler>
 		print("Event handler '_on_save_studies_as_dicom_dir_button_pressed' not implemented!")
 		event.Skip()
 
-	def _on_save_patient_as_dicom_dir_button_pressed(self, event):  # wxGlade: wxgPACSPluginPnl.<event_handler>
-		print("Event handler '_on_save_patient_as_dicom_dir_button_pressed' not implemented!")
-		event.Skip()
-
-	def _on_upload_button_pressed(self, event):  # wxGlade: wxgPACSPluginPnl.<event_handler>
-		print("Event handler '_on_upload_button_pressed' not implemented!")
-		event.Skip()
-
-	def _on_button_image_show_pressed(self, event):  # wxGlade: wxgPACSPluginPnl.<event_handler>
-		print("Event handler '_on_button_image_show_pressed' not implemented!")
-		event.Skip()
-
-	def _on_save_image_preview_button_pressed(self, event):  # wxGlade: wxgPACSPluginPnl.<event_handler>
-		print("Event handler '_on_save_image_preview_button_pressed' not implemented!")
-		event.Skip()
-
 	def _on_save_studies_as_zip_button_pressed(self, event):  # wxGlade: wxgPACSPluginPnl.<event_handler>
 		print("Event handler '_on_save_studies_as_zip_button_pressed' not implemented!")
 		event.Skip()
 
-	def _on_save_patient_as_zip_button_pressed(self, event):  # wxGlade: wxgPACSPluginPnl.<event_handler>
-		print("Event handler '_on_save_patient_as_zip_button_pressed' not implemented!")
+	def _on_verify_patient_data_button_pressed(self, event):  # wxGlade: wxgPACSPluginPnl.<event_handler>
+		print("Event handler '_on_verify_patient_data_button_pressed' not implemented!")
+		event.Skip()
+
+	def _on_upload_button_pressed(self, event):  # wxGlade: wxgPACSPluginPnl.<event_handler>
+		print("Event handler '_on_upload_button_pressed' not implemented!")
 		event.Skip()
 
 	def _on_modify_orthanc_content_button_pressed(self, event):  # wxGlade: wxgPACSPluginPnl.<event_handler>

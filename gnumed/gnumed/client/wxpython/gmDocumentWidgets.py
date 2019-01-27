@@ -2481,6 +2481,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 			child_node, cookie = self.GetNextChild(start_node, cookie)
 
 		return
+
 	#--------------------------------------------------------
 	def __handle_doc_context(self):
 		self.PopupMenu(self.__doc_context_menu, wx.DefaultPosition)
@@ -3044,29 +3045,41 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 
 		self._BMP_preview.SetBitmap(wx.Bitmap.FromRGBA(50,50, red=0, green=0, blue=0, alpha = wx.ALPHA_TRANSPARENT))
 
+		# pre-make thumbnail context menu
+		self.__thumbnail_menu = wx.Menu()
+		item = self.__thumbnail_menu.Append(-1, _('Show in DICOM viewer'))
+		self.Bind(wx.EVT_MENU, self._on_show_image_as_dcm, item)
+		item = self.__thumbnail_menu.Append(-1, _('Show in image viewer'))
+		self.Bind(wx.EVT_MENU, self._on_show_image_as_png, item)
+		self.__thumbnail_menu.AppendSeparator()
+		item = self.__thumbnail_menu.Append(-1, _('Copy to export area'))
+		self.Bind(wx.EVT_MENU, self._on_copy_image_to_export_area, item)
+		item = self.__thumbnail_menu.Append(-1, _('Save as DICOM file (.dcm)'))
+		self.Bind(wx.EVT_MENU, self._on_save_image_as_dcm, item)
+		item = self.__thumbnail_menu.Append(-1, _('Save as image file (.png)'))
+		self.Bind(wx.EVT_MENU, self._on_save_image_as_png, item)
+
 	#--------------------------------------------------------
 	def __set_button_states(self):
 		# disable all buttons
 		# server
-		self._BTN_browse_pacs.Disable()
+		self._HCTRL_browse_pacs.Disable()
+		self._HCTRL_browse_pacs.URL = ''
 		self._BTN_upload.Disable()
 		self._BTN_modify_orthanc_content.Disable()
 		# patient (= all studies of patient)
+		self._HCTRL_browse_patient.Disable()
+		self._HCTRL_browse_patient.URL = ''
 		self._BTN_verify_patient_data.Disable()
-		self._BTN_browse_patient.Disable()
-		self._BTN_save_patient_as_dicom_dir.Disable()
-		self._BTN_save_patient_as_zip.Disable()
 		# study
-		self._BTN_browse_study.Disable()
+		self._HCTRL_browse_study.Disable()
+		self._HCTRL_browse_study.URL = ''
 		self._BTN_save_studies_as_dicom_dir.Disable()
 		self._BTN_save_studies_as_zip.Disable()
 		# series
 		# image
 		self._BTN_image_show.Disable()
-		self._BTN_image_show_dicom.Disable()
 		self._BTN_image_export.Disable()
-		self._BTN_save_image_as_dicom.Disable()
-		self._BTN_save_image_preview.Disable()
 		self._BTN_previous_image.Disable()
 		self._BTN_next_image.Disable()
 
@@ -3074,7 +3087,8 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 			return
 
 		# server buttons
-		self._BTN_browse_pacs.Enable()
+		self._HCTRL_browse_pacs.Enable()
+		self._HCTRL_browse_pacs.URL = self.__pacs.url_browse_patients
 		self._BTN_upload.Enable()
 		self._BTN_modify_orthanc_content.Enable()
 
@@ -3083,15 +3097,17 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 
 		# patient buttons (= all studies of patient)
 		self._BTN_verify_patient_data.Enable()
-		self._BTN_browse_patient.Enable()
-		self._BTN_save_patient_as_dicom_dir.Enable()
-		self._BTN_save_patient_as_zip.Enable()
+		if self.__orthanc_patient is not None:
+			self._HCTRL_browse_patient.Enable()
+			self._HCTRL_browse_patient.URL = self.__pacs.get_url_browse_patient(patient_id = self.__orthanc_patient['ID'])
 
 		if len(self._LCTRL_studies.selected_items) == 0:
 			return
 
 		# study buttons
-		self._BTN_browse_study.Enable()
+		self._HCTRL_browse_study.Enable()
+		study_data = self._LCTRL_studies.get_selected_item_data(only_one = True)
+		self._HCTRL_browse_study.URL = self.__pacs.get_url_browse_study(study_id = study_data['orthanc_id'])
 		self._BTN_save_studies_as_dicom_dir.Enable()
 		self._BTN_save_studies_as_zip.Enable()
 
@@ -3104,10 +3120,7 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 
 		# image buttons
 		self._BTN_image_show.Enable()
-		self._BTN_image_show_dicom.Enable()
 		self._BTN_image_export.Enable()
-		self._BTN_save_image_as_dicom.Enable()
-		self._BTN_save_image_preview.Enable()
 		if len(series['instances']) > 1:
 			self._BTN_previous_image.Enable()
 			self._BTN_next_image.Enable()
@@ -3327,7 +3340,7 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 	def __refresh_image(self, idx=None):
 
 		self.__image_data = None
-		self._LBL_image.Label = _('Image')
+		self._SZR_image_buttons.StaticBox.SetLabel(_('Image'))
 		self._BMP_preview.SetBitmap(wx.Bitmap.FromRGBA(50,50, red=0, green=0, blue=0, alpha = wx.ALPHA_TRANSPARENT))
 
 		if idx is None:
@@ -3354,7 +3367,7 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 		else:
 			self.__image_data = {'idx': idx, 'uuid': uuid}
 			self._BMP_preview.SetBitmap(wx_bmp)
-			self._LBL_image.Label = _('Image %s/%s') % (idx+1, len(series['instances']))
+			self._SZR_image_buttons.StaticBox.SetLabel(_('Image %s/%s') % (idx+1, len(series['instances'])))
 
 		if idx == 0:
 			self._BTN_previous_image.Disable()
@@ -3366,6 +3379,113 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 			self._BTN_next_image.Enable()
 
 		self._BMP_preview.ContainingSizer.Layout()
+
+	#--------------------------------------------------------
+	def __show_image(self, as_dcm=False, as_png=False):
+		if self.__image_data is None:
+			return False
+
+		uuid = self.__image_data['uuid']
+		img_file = None
+		if as_dcm:
+			img_file = self.__pacs.get_instance(instance_id = uuid)
+		if as_png:
+			img_file = self.__pacs.get_instance_preview(instance_id = uuid)
+		if img_file is not None:
+			(success, msg) = gmMimeLib.call_viewer_on_file(img_file)
+			if not success:
+				gmGuiHelpers.gm_show_warning (
+					aMessage = _('Cannot show image:\n%s') % msg,
+					aTitle = _('Previewing DICOM image')
+				)
+			return success
+
+		# try DCM
+		img_file = self.__pacs.get_instance(instance_id = uuid)
+		(success, msg) = gmMimeLib.call_viewer_on_file(img_file)
+		if success:
+			return True
+
+		# try PNG
+		img_file = self.__pacs.get_instance_preview(instance_id = uuid)
+		(success, msg) = gmMimeLib.call_viewer_on_file(img_file)
+		if success:
+			return True
+
+		gmGuiHelpers.gm_show_warning (
+			aMessage = _('Cannot show in DICOM or image viewer:\n%s') % msg,
+			aTitle = _('Previewing DICOM image')
+		)
+
+	#--------------------------------------------------------
+	def __save_image(self, as_dcm=False, as_png=False, nice_filename=False):
+		if self.__image_data is None:
+			return False, None
+
+		fnames = {}
+		uuid = self.__image_data['uuid']
+		if as_dcm:
+			if nice_filename:
+				fname = gmTools.get_unique_filename (
+					prefix = '%s-orthanc_%s--' % (self.__patient.subdir_name, uuid),
+					suffix = '.dcm',
+					tmp_dir = os.path.join(gmTools.gmPaths().home_dir, 'gnumed')
+				)
+			else:
+				fname = None
+			img_fname = self.__pacs.get_instance(filename = fname, instance_id = uuid)
+			if img_fname is None:
+				gmGuiHelpers.gm_show_warning (
+					aMessage = _('Cannot save image as DICOM file.'),
+					aTitle = _('Saving DICOM image')
+				)
+				return False, fnames
+
+			fnames['dcm'] = img_fname
+			gmDispatcher.send(signal = 'statustext', msg = _('Successfully saved as [%s].') % img_fname)
+
+		if as_png:
+			if nice_filename:
+				fname = gmTools.get_unique_filename (
+					prefix = '%s-orthanc_%s--' % (self.__patient.subdir_name, uuid),
+					suffix = '.png',
+					tmp_dir = os.path.join(gmTools.gmPaths().home_dir, 'gnumed')
+				)
+			else:
+				fname = None
+			img_fname = self.__pacs.get_instance_preview(filename = fname, instance_id = uuid)
+			if img_fname is None:
+				gmGuiHelpers.gm_show_warning (
+					aMessage = _('Cannot save image as PNG file.'),
+					aTitle = _('Saving DICOM image')
+				)
+				return False, fnames
+			fnames['png'] = img_fname
+			gmDispatcher.send(signal = 'statustext', msg = _('Successfully saved as [%s].') % img_fname)
+
+		return True, fnames
+
+	#--------------------------------------------------------
+	def __copy_image_to_export_area(self):
+		if self.__image_data is None:
+			return False
+
+		success, fnames = self.__save_image(as_dcm = True, as_png = True)
+		if not success:
+			return False
+
+		wx.BeginBusyCursor()
+		self.__patient.export_area.add_files (
+			filenames = [fnames['png'], fnames['dcm']],
+			hint = _('DICOM image of [%s] from Orthanc PACS "%s" (AET "%s")') % (
+				self.__orthanc_patient['MainDicomTags']['PatientID'],
+				self.__pacs.server_identification['Name'],
+				self.__pacs.server_identification['DicomAet']
+			)
+		)
+		wx.EndBusyCursor()
+
+		gmDispatcher.send(signal = 'statustext', msg = _('Successfully stored in export area.'))
 
 	#--------------------------------------------------------
 	# reget-on-paint mixin API
@@ -3384,6 +3504,11 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 	# event handling
 	#--------------------------------------------------------
 	def __register_interests(self):
+
+		# wxPython signals
+		self._BMP_preview.Bind(wx.EVT_LEFT_DCLICK, self._on_preview_image_leftdoubleclicked)
+		self._BMP_preview.Bind(wx.EVT_RIGHT_UP, self._on_preview_image_rightclicked)
+
 		# client internal signals
 		gmDispatcher.connect(signal = 'pre_patient_unselection', receiver = self._on_pre_patient_unselection)
 		gmDispatcher.connect(signal = 'post_patient_selection', receiver = self._on_post_patient_selection)
@@ -3539,30 +3664,6 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 		return True
 
 	#--------------------------------------------------------
-	def _on_browse_pacs_button_pressed(self, event):
-		event.Skip()
-		if self.__connect() is False:
-			return
-		gmNetworkTools.open_url_in_browser(self.__pacs.url_browse_patients)
-
-	#--------------------------------------------------------
-	def _on_browse_patient_button_pressed(self, event):
-		event.Skip()
-		if self.__connect() is False:
-			return
-		gmNetworkTools.open_url_in_browser(self.__pacs.get_url_browse_patient(patient_id = self.__orthanc_patient['ID']))
-
-	#--------------------------------------------------------
-	def _on_browse_study_button_pressed(self, event):
-		event.Skip()
-		if self.__connect() is False:
-			return
-		study_data = self._LCTRL_studies.get_selected_item_data(only_one = True)
-		if study_data is None:
-			return
-		gmNetworkTools.open_url_in_browser(self.__pacs.get_url_browse_study(study_id = study_data['orthanc_id']))
-
-	#--------------------------------------------------------
 	def _on_upload_button_pressed(self, event):
 		event.Skip()
 		if self.__pacs is None:
@@ -3627,11 +3728,44 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 		self._schedule_data_reget()
 
 	#--------------------------------------------------------
-	# - image buttons
+	# - image menu and image buttons
+	#--------------------------------------------------------
+	def _on_show_image_as_dcm(self, event):
+		self.__show_image(as_dcm = True)
+
+	#--------------------------------------------------------
+	def _on_show_image_as_png(self, event):
+		self.__show_image(as_png = True)
+
+	#--------------------------------------------------------
+	def _on_copy_image_to_export_area(self, event):
+		self.__copy_image_to_export_area()
+
+	#--------------------------------------------------------
+	def _on_save_image_as_png(self, event):
+		self.__save_image(as_png = True, nice_filename = True)
+
+	#--------------------------------------------------------
+	def _on_save_image_as_dcm(self, event):
+		self.__save_image(as_dcm = True, nice_filename = True)
+
+	#--------------------------------------------------------
+	#--------------------------------------------------------
+	def _on_preview_image_leftdoubleclicked(self, event):
+		self.__show_image()
+
+	#--------------------------------------------------------
+	def _on_preview_image_rightclicked(self, event):
+		if self.__image_data is None:
+			return False
+
+		self.PopupMenu(self.__thumbnail_menu)
+
 	#--------------------------------------------------------
 	def _on_next_image_button_pressed(self, event):
 		if self.__image_data is None:
 			return
+
 		self.__refresh_image(idx = self.__image_data['idx'] + 1)
 		self.__refresh_details()
 
@@ -3644,83 +3778,11 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 
 	#--------------------------------------------------------
 	def _on_button_image_show_pressed(self, event):
-		if self.__image_data is None:
-			return False
-
-		# get image
-		uuid = self.__image_data['uuid']
-		img_file = self.__pacs.get_instance_preview(instance_id = uuid)
-		(success, msg) = gmMimeLib.call_viewer_on_file(img_file)
-		if not success:
-			gmGuiHelpers.gm_show_warning (
-				aMessage = _('Cannot preview DICOM image:\n%s') % msg,
-				aTitle = _('Previewing DICOM image')
-			)
-
-	#--------------------------------------------------------
-	def _on_button_image_show_dicom_pressed(self, event):
-		if self.__image_data is None:
-			return False
-
-		uuid = self.__image_data['uuid']
-		img_file = self.__pacs.get_instance(instance_id = uuid)
-		(success, msg) = gmMimeLib.call_viewer_on_file(img_file)
-		if not success:
-			gmGuiHelpers.gm_show_warning (
-				aMessage = _('Cannot show DICOM image:\n%s') % msg,
-				aTitle = _('Showing DICOM image')
-			)
-
-	#--------------------------------------------------------
-	def _on_save_image_preview_button_pressed(self, event):
-		if self.__image_data is None:
-			return False
-
-		uuid = self.__image_data['uuid']
-		fname = gmTools.get_unique_filename (
-			prefix = '%s-orthanc_%s' % (self.__patient.subdir_name, uuid),
-			suffix = '.png',
-			tmp_dir = os.path.join(gmTools.gmPaths().home_dir, 'gnumed')
-		)
-		img_file = self.__pacs.get_instance_preview(filename = fname, instance_id = uuid)
-		gmDispatcher.send(signal = 'statustext', msg = _('Successfully saved as [%s].') % fname)
-
-	#--------------------------------------------------------
-	def _on_save_image_as_dicom_button_pressed(self, event):
-		if self.__image_data is None:
-			return False
-
-		uuid = self.__image_data['uuid']
-		fname = gmTools.get_unique_filename (
-			prefix = '%s-orthanc_%s' % (self.__patient.subdir_name, uuid),
-			suffix = '.dcm',
-			tmp_dir = os.path.join(gmTools.gmPaths().home_dir, 'gnumed')
-		)
-		img_file = self.__pacs.get_instance(filename = fname, instance_id = uuid)
-		gmDispatcher.send(signal = 'statustext', msg = _('Successfully saved as [%s].') % fname)
+		self.__show_image()
 
 	#--------------------------------------------------------
 	def _on_button_image_export_pressed(self, event):
-		if self.__image_data is None:
-			return False
-
-		wx.BeginBusyCursor()
-		uuid = self.__image_data['uuid']
-		png_file = self.__pacs.get_instance_preview(instance_id = uuid)
-		dcm_file = self.__pacs.get_instance(instance_id = uuid)
-		self.__patient.export_area.add_files (
-			filenames = [png_file, dcm_file],
-			hint = _('DICOM image of [%s] from Orthanc PACS "%s" (AET "%s")') % (
-				self.__orthanc_patient['MainDicomTags']['PatientID'],
-				self.__pacs.server_identification['Name'],
-				self.__pacs.server_identification['DicomAet']
-			)
-		)
-		gmTools.remove_file(png_file)
-		gmTools.remove_file(dcm_file)
-		wx.EndBusyCursor()
-
-		gmDispatcher.send(signal = 'statustext', msg = _('Successfully stored in export area.'))
+		self.__copy_image_to_export_area()
 
 	#--------------------------------------------------------
 	# - study buttons
@@ -3770,6 +3832,7 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 
 		wx.BeginBusyCursor()
 		target_dir = os.path.join(gmTools.gmPaths().home_dir, 'gnumed', self.__patient.subdir_name)
+		gmTools.mkdir(target_dir)
 		filename = self.__pacs.get_studies_with_dicomdir (
 			study_ids = [ s['orthanc_id'] for s in study_data ],
 			create_zip = True,
