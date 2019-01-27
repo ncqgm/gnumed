@@ -56,7 +56,7 @@ class wxgExportAreaExportToMediaDlg(wx.Dialog):
 		self._BTN_clear_directory.Enable(False)
 		self._CHBOX_encrypt.SetToolTip(_("Use encryption ?\n\nYou need to arrange for safely passing any encryption key to receivers of the patient data excerpt yourself.\n\nNote that the *content* of each file will be encrypted - some hints about the patient might potentially still be derivable from the names of files. If you need a completely anonymous patient data excerpt you should use the [Save as] functionality of the export area and create an encrypted archive."))
 		self._CHBOX_encrypt.SetValue(1)
-		self._CHBOX_use_subdirectory.SetToolTip(_("Use patient specific subdirectory ?\n\nDO NOT USE unless you really know why.\n\nIf check GNUmed will create a suitable subdirectory on the removable media and save to that."))
+		self._CHBOX_use_subdirectory.SetToolTip(_("Use patient specific subdirectory ?\n\nDO NOT USE unless you really know why.\n\nIf checked GNUmed will create a suitable subdirectory on the removable media and save to that."))
 		self._BTN_save2media.SetToolTip(_("Save patient data excerpt to the removable media selected above."))
 		self._BTN_save2media.Enable(False)
 		self._BTN_cancel.SetToolTip(_("Abort saving entries."))

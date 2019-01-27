@@ -205,7 +205,7 @@ class cExportAreaExportToMediaDlg(wxgExportAreaExportToMediaDlg.wxgExportAreaExp
 				continue
 			items.append ([
 				part['bus'].upper(),
-				_('%s (%s %s)') % (
+				'%s (%s %s)' % (
 					part['fs_label'],
 					part['vendor'],
 					part['model']

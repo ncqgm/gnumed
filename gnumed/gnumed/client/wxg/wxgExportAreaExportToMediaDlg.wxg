@@ -208,7 +208,7 @@
                                     <events>
                                         <handler event="EVT_CHECKBOX">_on_use_subdirectory_toggled</handler>
                                     </events>
-                                    <tooltip>Use patient specific subdirectory ?\n\nDO NOT USE unless you really know why.\n\nIf check GNUmed will create a suitable subdirectory on the removable media and save to that.</tooltip>
+                                    <tooltip>Use patient specific subdirectory ?\n\nDO NOT USE unless you really know why.\n\nIf checked GNUmed will create a suitable subdirectory on the removable media and save to that.</tooltip>
                                     <style>wxCHK_2STATE</style>
                                     <label>use subdirectory</label>
                                 </object>
