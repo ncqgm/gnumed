@@ -500,8 +500,8 @@ if __name__ == '__main__':
 	#-----------------------------------------------------------------------
 	# encryption
 	#test_aes_encrypt()
-	#test_encrypt_pdf()
-	test_gpg_encrypt_symmetric()
+	test_encrypt_pdf()
+	#test_gpg_encrypt_symmetric()
 	#test_encrypt_file()
 
 	# decryption

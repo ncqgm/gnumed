@@ -1199,7 +1199,7 @@ def dicomize_pdf(pdf_name=None, title=None, person=None, dcm_name=None, verbose=
 		'--patient-id', person.suggest_external_id(target = 'PACS'),
 		'--patient-name', ('%s^%s' % (name['lastnames'], name['firstnames'])).replace(' ', '^'),
 		'--title', title,
-		'--log-level', 'trace'
+		#'--generate'
 	]
 	if person['dob'] is not None:
 		cmd_line.append('--patient-birthdate')
@@ -1207,6 +1207,9 @@ def dicomize_pdf(pdf_name=None, title=None, person=None, dcm_name=None, verbose=
 	if person['gender'] is not None:
 		cmd_line.append('--patient-sex')
 		cmd_line.append(_map_gender_gm2dcm[person['gender']])
+	if verbose:
+		cmd_line.append('--log-level')
+		cmd_line.append('trace')
 	cmd_line.append(pdf_name)
 	cmd_line.append(dcm_name)
 	success, exit_code, stdout = gmShellAPI.run_process(cmd_line = cmd_line, encoding = 'utf8', verbose = verbose)
