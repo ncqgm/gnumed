@@ -145,7 +145,7 @@ cp -R ../../client/p2w4-gm-from-vcs.sh ./gnumed-client.$CLIENTREV/client/
 cp -R ../../client/p3w4-gm-from-vcs.sh ./gnumed-client.$CLIENTREV/client/
 cp -R ../../client/gm-from-vcs.bat ./gnumed-client.$CLIENTREV/client/
 cp -R ./gnumed ./gnumed-client.$CLIENTREV/client/
-cp -R ./gnumed-client.desktop ./gnumed-client.$CLIENTREV/client/
+cp -R ./gnumed_client.desktop ./gnumed-client.$CLIENTREV/client/
 cp -R ./appdata.xml ./gnumed-client.$CLIENTREV/client/
 cp -R ./gnumed-client.tmpfiles.d.conf ./gnumed-client.$CLIENTREV/client/
 cp -R ../../../README ./gnumed-client.$CLIENTREV/client/

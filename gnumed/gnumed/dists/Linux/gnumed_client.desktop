@@ -2,6 +2,10 @@
 # GNUmed client desktop entry specification
 #
 # license: GPL v2 or later
+#
+# gnumed_client rather than gnumed-client for
+# improved appstream compatibility
+#
 #====================================================
 
 [Desktop Entry]
