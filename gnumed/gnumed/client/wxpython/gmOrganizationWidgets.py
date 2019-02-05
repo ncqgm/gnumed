@@ -48,9 +48,9 @@ def edit_org_unit(parent=None, org_unit=None, single_entry=False, org=None):
 		ea.organization = org
 	dlg.SetTitle(gmTools.coalesce(org_unit, _('Adding new organizational unit'), _('Editing organizational unit')))
 	if dlg.ShowModal() == wx.ID_OK:
-		dlg.Destroy()
+		dlg.DestroyLater()
 		return True
-	dlg.Destroy()
+	dlg.DestroyLater()
 	return False
 
 #============================================================
@@ -566,9 +566,9 @@ class cOrgUnitIDsMgrPnl(gmListWidgets.cGenericListManagerPnl):
 		dlg = gmEditArea.cGenericEditAreaDlg2(self, -1, edit_area = ea)
 		dlg.SetTitle(_('Adding new external ID'))
 		if dlg.ShowModal() == wx.ID_OK:
-			dlg.Destroy()
+			dlg.DestroyLater()
 			return True
-		dlg.Destroy()
+		dlg.DestroyLater()
 		return False
 	#--------------------------------------------------------
 	def _edit_id(self, ext_id):
@@ -577,9 +577,9 @@ class cOrgUnitIDsMgrPnl(gmListWidgets.cGenericListManagerPnl):
 		dlg = gmEditArea.cGenericEditAreaDlg2(self, -1, edit_area = ea, single_entry = True)
 		dlg.SetTitle(_('Editing external ID'))
 		if dlg.ShowModal() == wx.ID_OK:
-			dlg.Destroy()
+			dlg.DestroyLater()
 			return True
-		dlg.Destroy()
+		dlg.DestroyLater()
 		return False
 	#--------------------------------------------------------
 	def _del_id(self, ext_id):
@@ -617,7 +617,7 @@ def manage_orgs(parent=None, no_parent=False):
 
 	dlg = cOrganizationManagerDlg(parent, -1)
 	dlg.ShowModal()
-	dlg.Destroy()
+	dlg.DestroyLater()
 #============================================================
 def edit_org(parent=None, org=None, single_entry=False):
 	ea = cOrganizationEAPnl(parent, -1)
@@ -626,9 +626,9 @@ def edit_org(parent=None, org=None, single_entry=False):
 	dlg = gmEditArea.cGenericEditAreaDlg2(parent, -1, edit_area = ea, single_entry = single_entry)
 	dlg.SetTitle(gmTools.coalesce(org, _('Adding new organization'), _('Editing organization')))
 	if dlg.ShowModal() == wx.ID_OK:
-		dlg.Destroy()
+		dlg.DestroyLater()
 		return True
-	dlg.Destroy()
+	dlg.DestroyLater()
 	return False
 #============================================================
 class cOrganizationPhraseWheel(gmPhraseWheel.cPhraseWheel):

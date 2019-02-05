@@ -216,9 +216,9 @@ def edit_substance(parent=None, substance=None, single_entry=False):
 	dlg = gmEditArea.cGenericEditAreaDlg2(parent, -1, edit_area = ea, single_entry = single_entry)
 	dlg.SetTitle(gmTools.coalesce(substance, _('Adding new substance'), _('Editing substance')))
 	if dlg.ShowModal() == wx.ID_OK:
-		dlg.Destroy()
+		dlg.DestroyLater()
 		return True
-	dlg.Destroy()
+	dlg.DestroyLater()
 	return False
 
 #------------------------------------------------------------
@@ -477,9 +477,9 @@ def edit_substance_dose(parent=None, substance_dose=None, single_entry=False):
 	dlg = gmEditArea.cGenericEditAreaDlg2(parent, -1, edit_area = ea, single_entry = single_entry)
 	dlg.SetTitle(gmTools.coalesce(substance_dose, _('Adding new substance dose'), _('Editing substance dose')))
 	if dlg.ShowModal() == wx.ID_OK:
-		dlg.Destroy()
+		dlg.DestroyLater()
 		return True
-	dlg.Destroy()
+	dlg.DestroyLater()
 	return False
 
 #------------------------------------------------------------
@@ -753,9 +753,9 @@ def edit_drug_component(parent=None, drug_component=None, single_entry=False):
 	dlg = gmEditArea.cGenericEditAreaDlg2(parent, -1, edit_area = ea, single_entry = single_entry)
 	dlg.SetTitle(gmTools.coalesce(drug_component, _('Adding new drug component'), _('Editing drug component')))
 	if dlg.ShowModal() == wx.ID_OK:
-		dlg.Destroy()
+		dlg.DestroyLater()
 		return True
-	dlg.Destroy()
+	dlg.DestroyLater()
 	return False
 
 #------------------------------------------------------------
@@ -933,9 +933,9 @@ def edit_drug_product(parent=None, drug_product=None, single_entry=False):
 		manage_substances
 	)
 	if dlg.ShowModal() == wx.ID_OK:
-		dlg.Destroy()
+		dlg.DestroyLater()
 		return True
-	dlg.Destroy()
+	dlg.DestroyLater()
 	return False
 
 #------------------------------------------------------------
@@ -1095,7 +1095,7 @@ def manage_components_of_drug_product(parent=None, product=None):
 
 	btn_pressed = picker.ShowModal()
 	doses2set = picker.get_picks()
-	picker.Destroy()
+	picker.DestroyLater()
 
 	if btn_pressed != wx.ID_OK:
 		return (False, None)
@@ -1374,11 +1374,11 @@ def edit_single_component_generic_drug(parent=None, drug=None, single_entry=Fals
 #	)
 	if dlg.ShowModal() == wx.ID_OK:
 		drug = ea.data
-		dlg.Destroy()
+		dlg.DestroyLater()
 		if return_drug:
 			return drug
 		return True
-	dlg.Destroy()
+	dlg.DestroyLater()
 	if return_drug:
 		return None
 	return False

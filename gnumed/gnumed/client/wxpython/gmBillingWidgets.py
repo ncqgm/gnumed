@@ -60,9 +60,9 @@ def edit_billable(parent=None, billable=None):
 	)
 	dlg.SetTitle(gmTools.coalesce(billable, _('Adding new billable'), _('Editing billable')))
 	if dlg.ShowModal() == wx.ID_OK:
-		dlg.Destroy()
+		dlg.DestroyLater()
 		return True
-	dlg.Destroy()
+	dlg.DestroyLater()
 	return False
 
 #----------------------------------------------------------------
@@ -442,9 +442,9 @@ def edit_bill(parent=None, bill=None, single_entry=False):
 	dlg = gmEditArea.cGenericEditAreaDlg2(parent, -1, edit_area = ea, single_entry = single_entry)
 	dlg.SetTitle(gmTools.coalesce(bill, _('Adding new bill'), _('Editing bill')))
 	if dlg.ShowModal() == wx.ID_OK:
-		dlg.Destroy()
+		dlg.DestroyLater()
 		return True
-	dlg.Destroy()
+	dlg.DestroyLater()
 	return False
 #----------------------------------------------------------------
 def create_bill_from_items(bill_items=None):
@@ -667,7 +667,7 @@ def delete_bill(parent=None, bill=None):
 	)
 	button_pressed = dlg.ShowModal()
 	delete_invoice = dlg.checkbox_is_checked()
-	dlg.Destroy()
+	dlg.DestroyLater()
 
 	if button_pressed == wx.ID_CANCEL:
 		return False
@@ -776,7 +776,7 @@ def remove_items_from_bill(parent=None, bill=None):
 	)
 	button_pressed = dlg.ShowModal()
 	delete_invoice = dlg.checkbox_is_checked()
-	dlg.Destroy()
+	dlg.DestroyLater()
 
 	if button_pressed == wx.ID_CANCEL:
 		return False
@@ -1065,9 +1065,9 @@ def edit_bill_item(parent=None, bill_item=None, single_entry=False):
 	dlg = gmEditArea.cGenericEditAreaDlg2(parent, -1, edit_area = ea, single_entry = single_entry)
 	dlg.SetTitle(gmTools.coalesce(bill_item, _('Adding new bill item'), _('Editing bill item')))
 	if dlg.ShowModal() == wx.ID_OK:
-		dlg.Destroy()
+		dlg.DestroyLater()
 		return True
-	dlg.Destroy()
+	dlg.DestroyLater()
 	return False
 #----------------------------------------------------------------
 def manage_bill_items(parent=None, pk_patient=None):

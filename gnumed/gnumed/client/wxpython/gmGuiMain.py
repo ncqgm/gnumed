@@ -1058,7 +1058,7 @@ class gmTopLevelFrame(wx.Frame):
 		choice = dlg.ShowModal()
 		name = dlg.name
 		adr = dlg.address
-		dlg.Destroy()
+		dlg.DestroyLater()
 		if choice == wx.ID_CANCEL:
 			print('receiver selection cancelled')
 			return
@@ -1087,7 +1087,7 @@ class gmTopLevelFrame(wx.Frame):
 		frame_about.Centre(wx.BOTH)
 		gmTopLevelFrame.otherWin = frame_about
 		frame_about.Show(True)
-		frame_about.Destroy()
+		frame_about.DestroyLater()
 
 	#----------------------------------------------
 	def __on_about_database(self, evt):
@@ -1132,7 +1132,7 @@ class gmTopLevelFrame(wx.Frame):
 			style = wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER
 		)
 		contribs.ShowModal()
-		contribs.Destroy()
+		contribs.DestroyLater()
 
 	#----------------------------------------------
 	# GNUmed menu
@@ -1832,8 +1832,8 @@ class gmTopLevelFrame(wx.Frame):
 		email = gmPraxis.gmCurrentPraxisBranch().user_email
 
 		dlg = wx.TextEntryDialog (
-			parent = self,
-			message = _(
+			self,
+			_(
 				'If you want the GNUmed developers to be able to\n'
 				'contact you directly - rather than via the public\n'
 				'mailing list only - you can enter your preferred\n'
@@ -1846,18 +1846,18 @@ class gmTopLevelFrame(wx.Frame):
 				'Leave this blank if you wish to stay anonymous.\n'
 			),
 			caption = _('Please enter your email address.'),
-			defaultValue = gmTools.coalesce(email, ''),
+			value = gmTools.coalesce(email, ''),
 			style = wx.OK | wx.CANCEL | wx.CENTRE
 		)
 		decision = dlg.ShowModal()
 		if decision == wx.ID_CANCEL:
-			dlg.Destroy()
+			dlg.DestroyLater()
 			return
 
 		email = dlg.GetValue().strip()
 		gmPraxis.gmCurrentPraxisBranch().user_email = email
 		gmExceptionHandlingWidgets.set_sender_email(email)
-		dlg.Destroy()
+		dlg.DestroyLater()
 	#----------------------------------------------
 	def __on_configure_update_check(self, evt):
 		gmCfgWidgets.configure_boolean_option (
@@ -2403,7 +2403,7 @@ class gmTopLevelFrame(wx.Frame):
 		)
 		choice = dlg.ShowModal()
 		new_name = dlg.GetPath()
-		dlg.Destroy()
+		dlg.DestroyLater()
 		if choice != wx.ID_OK:
 			return True
 
@@ -2437,7 +2437,7 @@ class gmTopLevelFrame(wx.Frame):
 		"""
 		_log.debug('gmTopLevelFrame.OnClose() start')
 		self._clean_exit()
-		self.Destroy()
+		self.DestroyLater()
 		_log.debug('gmTopLevelFrame.OnClose() end')
 		return True
 
@@ -2616,7 +2616,7 @@ class gmTopLevelFrame(wx.Frame):
 			style = wx.OK | wx.STAY_ON_TOP
 		)
 		dlg.ShowModal()
-		dlg.Destroy()
+		dlg.DestroyLater()
 		return True
 	#----------------------------------------------
 	def __on_search_emr(self, event):
@@ -2699,7 +2699,7 @@ class gmTopLevelFrame(wx.Frame):
 #		)
 #		choice = dlg.ShowModal()
 #		fname = dlg.GetPath()
-#		dlg.Destroy()
+#		dlg.DestroyLater()
 #		if choice != wx.ID_OK:
 #			return True
 #
@@ -2745,7 +2745,7 @@ class gmTopLevelFrame(wx.Frame):
 #		)
 #		choice = dlg.ShowModal()
 #		fname = dlg.GetPath()
-#		dlg.Destroy()
+#		dlg.DestroyLater()
 #		if choice != wx.ID_OK:
 #			return True
 #
@@ -3335,7 +3335,7 @@ class gmApp(wx.App):
 			_log.debug(top_wins)
 			for win in top_wins:
 				_log.debug('destroying: %s', win)
-				win.Destroy()
+				win.DestroyLater()
 
 		_log.debug('gmApp.OnExit() end')
 		return 0
@@ -3523,7 +3523,7 @@ class gmApp(wx.App):
 			]
 		)
 		log_on = dlg.ShowModal()
-		dlg.Destroy()
+		dlg.DestroyLater()
 		if log_on == wx.ID_YES:
 			return True
 		_log.info('user decided to not connect to this database')
@@ -3735,7 +3735,7 @@ class gmApp(wx.App):
 		)
 		decision = dlg.ShowModal()
 		remember2ignore_this_mismatch = dlg._CHBOX_dont_ask_again.GetValue()
-		dlg.Destroy()
+		dlg.DestroyLater()
 
 		if decision == wx.ID_NO:
 			if not remember2ignore_this_mismatch:

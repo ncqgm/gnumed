@@ -303,10 +303,10 @@ class cSnellenChart(wx.Frame):
 		self.Refresh()
 
 	def OnDClick (self, key):
-		self.Destroy()
+		self.DestroyLater()
 		
 	def OnClose (self, event):
-		self.Destroy()
+		self.DestroyLater()
 
 	def DestroyWhenApp (self):
 		import sys

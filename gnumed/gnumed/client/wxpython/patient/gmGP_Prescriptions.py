@@ -240,7 +240,7 @@ class PrescriptionPanel (wxPanel, PatientHolder):
 		# created above
 
 		# free resources
-		aMenu.Destroy()
+		aMenu.DestroyLater()
 
 		# anybody else needs to intercept right click events?
 		event.Skip()

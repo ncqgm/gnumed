@@ -322,7 +322,7 @@ class cGenericEditAreaDlg2(wxgGenericEditAreaDlg2.wxgGenericEditAreaDlg2):
 		ea_pnl_szr = dummy_ea_pnl.GetContainingSizer()
 		ea_pnl_parent = dummy_ea_pnl.GetParent()
 		#ea_pnl_szr.Remove(dummy_ea_pnl)						# not available in wxp4 anymore, BUT
-		dummy_ea_pnl.Destroy()									# in wxp4 .Destroy() auto-Remove()s :-)
+		dummy_ea_pnl.DestroyLater()									# in wxp4 .DestroyLater() auto-Remove()s :-)
 		del dummy_ea_pnl
 		new_ea_min_size = new_ea.GetMinSize()
 		new_ea.Reparent(ea_pnl_parent)

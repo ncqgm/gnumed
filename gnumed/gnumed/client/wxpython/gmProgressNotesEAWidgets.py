@@ -272,10 +272,9 @@ class cProgressNotesEAPnl(gmTextCtrl.cExpandoTextCtrlHandling_PanelMixin, wxgPro
 			) % issue['description']
 
 		dlg = wx.TextEntryDialog (
-			parent = self,
-			message = msg,
+			self, msg,
 			caption = _('Creating problem (episode) to save notelet under ...'),
-			defaultValue = epi_name,
+			value = epi_name,
 			style = wx.OK | wx.CANCEL | wx.CENTRE
 		)
 		decision = dlg.ShowModal()

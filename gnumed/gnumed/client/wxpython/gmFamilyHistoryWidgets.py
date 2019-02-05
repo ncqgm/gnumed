@@ -94,9 +94,9 @@ def edit_family_history(parent=None, family_history=None):
 	dlg = gmEditArea.cGenericEditAreaDlg2(parent, -1, edit_area = ea, single_entry = True)
 	dlg.SetTitle(gmTools.coalesce(family_history, _('Adding family history'), _('Editing family history')))
 	if dlg.ShowModal() == wx.ID_OK:
-		dlg.Destroy()
+		dlg.DestroyLater()
 		return True
-	dlg.Destroy()
+	dlg.DestroyLater()
 	return False
 #====================================================================
 from Gnumed.wxGladeWidgets import wxgFamilyHistoryEAPnl

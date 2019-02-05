@@ -285,7 +285,7 @@ def connect_to_database(max_attempts=3, expected_version=None, require_version=T
 		listener = gmBackendListener.gmBackendListener(conn = conn)
 		break
 
-	dlg.Destroy()
+	dlg.DestroyLater()
 
 	return connected
 
@@ -916,7 +916,7 @@ if __name__ == "__main__":
 			wx.MessageBox(_("Dialog was cancelled by user"))
 		else:
 			wx.MessageBox(_("You tried to log in as [%s] with password [%s].\nHost:%s, DB: %s, Port: %s") % (lp.GetUser(),lp.GetPassword(),lp.GetHost(),lp.GetDatabase(),lp.GetPort()))
-		dlg.Destroy()
+		dlg.DestroyLater()
 #		app.MainLoop()
 
 #================================================================

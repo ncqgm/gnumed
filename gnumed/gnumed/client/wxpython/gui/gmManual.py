@@ -107,7 +107,7 @@ class ManualHtmlPanel(wx.Panel):
 		if dlg.ShowModal():
 			path = dlg.GetPath()
 			self.html.LoadPage(path)
-		dlg.Destroy()
+		dlg.DestroyLater()
 	#--------------------------------------------------------
 	def OnBack(self, event):
 		self.html.HistoryBack()
@@ -122,7 +122,7 @@ class ManualHtmlPanel(wx.Panel):
 		source = self.html.GetParser().GetSource()
 		dlg = wx.ScrolledMessageDialog(self, source, _('HTML Source'))
 		dlg.ShowModal()
-		dlg.Destroy()
+		dlg.DestroyLater()
 	#--------------------------------------------------------
 	def OnPrint(self, event):
 		self.printer.PrintFile(self.html.GetOpenedPage())

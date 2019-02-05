@@ -102,7 +102,7 @@ def _ask_for_encounter_continuation(new_encounter=None, fairly_recent_encounter=
 		show_checkbox = False
 	)
 	result = dlg.ShowModal()
-	dlg.Destroy()
+	dlg.DestroyLater()
 
 	# switch encounters
 	if result == wx.ID_YES:
@@ -225,9 +225,9 @@ def edit_encounter(parent=None, encounter=None, msg=None):
 	# FIXME: use generic dialog 2
 	dlg = cEncounterEditAreaDlg(parent = parent, encounter = encounter, msg = msg)
 	if dlg.ShowModal() == wx.ID_OK:
-		dlg.Destroy()
+		dlg.DestroyLater()
 		return True
-	dlg.Destroy()
+	dlg.DestroyLater()
 	return False
 
 #----------------------------------------------------------------

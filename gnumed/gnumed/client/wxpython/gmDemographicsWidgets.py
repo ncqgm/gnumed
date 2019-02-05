@@ -74,9 +74,9 @@ def edit_tag_image(parent=None, tag_image=None, single_entry=False):
 	dlg = gmEditArea.cGenericEditAreaDlg2(parent, -1, edit_area = ea, single_entry = single_entry)
 	dlg.SetTitle(gmTools.coalesce(tag_image, _('Adding new tag'), _('Editing tag')))
 	if dlg.ShowModal() == wx.ID_OK:
-		dlg.Destroy()
+		dlg.DestroyLater()
 		return True
-	dlg.Destroy()
+	dlg.DestroyLater()
 	return False
 #------------------------------------------------------------
 def manage_tag_images(parent=None):
@@ -357,7 +357,7 @@ class cImageTagPresenterPnl(wxgVisualSoapPresenterPnl.wxgVisualSoapPresenterPnl)
 #		for child_idx in range(len(self._SZR_bitmaps.GetChildren())):
 #			self._SZR_bitmaps.Detach(child_idx)
 		for bmp in self.__bitmaps:
-			bmp.Destroy()
+			bmp.DestroyLater()
 		self.__bitmaps = []
 	#--------------------------------------------------------
 	# internal helpers
@@ -1279,9 +1279,9 @@ class cPersonNamesManagerPnl(gmListWidgets.cGenericListManagerPnl):
 		dlg = gmEditArea.cGenericEditAreaDlg2(self, -1, edit_area = ea, single_entry = True)
 		dlg.SetTitle(_('Adding new name'))
 		if dlg.ShowModal() == wx.ID_OK:
-			dlg.Destroy()
+			dlg.DestroyLater()
 			return True
-		dlg.Destroy()
+		dlg.DestroyLater()
 		return False
 	#--------------------------------------------------------
 	def _edit_name(self, name):
@@ -1289,9 +1289,9 @@ class cPersonNamesManagerPnl(gmListWidgets.cGenericListManagerPnl):
 		dlg = gmEditArea.cGenericEditAreaDlg2(self, -1, edit_area = ea, single_entry = True)
 		dlg.SetTitle(_('Editing name'))
 		if dlg.ShowModal() == wx.ID_OK:
-			dlg.Destroy()
+			dlg.DestroyLater()
 			return True
-		dlg.Destroy()
+		dlg.DestroyLater()
 		return False
 	#--------------------------------------------------------
 	def _del_name(self, name):
@@ -1393,9 +1393,9 @@ class cPersonIDsManagerPnl(gmListWidgets.cGenericListManagerPnl):
 		dlg = gmEditArea.cGenericEditAreaDlg2(self, -1, edit_area = ea)
 		dlg.SetTitle(_('Adding new external ID'))
 		if dlg.ShowModal() == wx.ID_OK:
-			dlg.Destroy()
+			dlg.DestroyLater()
 			return True
-		dlg.Destroy()
+		dlg.DestroyLater()
 		return False
 	#--------------------------------------------------------
 	def _edit_id(self, ext_id):
@@ -1404,9 +1404,9 @@ class cPersonIDsManagerPnl(gmListWidgets.cGenericListManagerPnl):
 		dlg = gmEditArea.cGenericEditAreaDlg2(self, -1, edit_area = ea, single_entry = True)
 		dlg.SetTitle(_('Editing external ID'))
 		if dlg.ShowModal() == wx.ID_OK:
-			dlg.Destroy()
+			dlg.DestroyLater()
 			return True
-		dlg.Destroy()
+		dlg.DestroyLater()
 		return False
 	#--------------------------------------------------------
 	def _del_id(self, ext_id):

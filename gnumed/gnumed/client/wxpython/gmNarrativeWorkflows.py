@@ -186,7 +186,7 @@ def manage_progress_notes(parent=None, encounters=None, episodes=None, patient=N
 			return False
 
 		val = dlg.value
-		dlg.Destroy()
+		dlg.DestroyLater()
 		if val.strip() == '':
 			return False
 
@@ -233,8 +233,8 @@ def search_narrative_across_emrs(parent=None):
 		parent = wx.GetApp().GetTopWindow()
 
 	search_term_dlg = wx.TextEntryDialog (
-		parent = parent,
-		message = _('Enter (regex) term to search for across all EMRs:'),
+		parent,
+		_('Enter (regex) term to search for across all EMRs:'),
 		caption = _('Text search across all EMRs'),
 		style = wx.OK | wx.CANCEL | wx.CENTRE
 	)
@@ -245,7 +245,7 @@ def search_narrative_across_emrs(parent=None):
 
 	wx.BeginBusyCursor()
 	search_term = search_term_dlg.GetValue()
-	search_term_dlg.Destroy()
+	search_term_dlg.DestroyLater()
 	results = gmClinNarrative.search_text_across_emrs(search_term = search_term)
 	wx.EndBusyCursor()
 
@@ -295,20 +295,20 @@ def search_narrative_in_emr(parent=None, patient=None):
 		parent = wx.GetApp().GetTopWindow()
 
 	search_term_dlg = wx.TextEntryDialog (
-		parent = parent,
-		message = _('Enter search term:'),
+		parent,
+		_('Enter search term:'),
 		caption = _('Text search of entire EMR of active patient'),
 		style = wx.OK | wx.CANCEL | wx.CENTRE
 	)
 	result = search_term_dlg.ShowModal()
 
 	if result != wx.ID_OK:
-		search_term_dlg.Destroy()
+		search_term_dlg.DestroyLater()
 		return False
 
 	wx.BeginBusyCursor()
 	val = search_term_dlg.GetValue()
-	search_term_dlg.Destroy()
+	search_term_dlg.DestroyLater()
 	emr = patient.emr
 	rows = emr.search_narrative_simple(val)
 	wx.EndBusyCursor()
@@ -359,7 +359,7 @@ def search_narrative_in_emr(parent=None, patient=None):
 		style = wx.OK | wx.STAY_ON_TOP
 	)
 	dlg.ShowModal()
-	dlg.Destroy()
+	dlg.DestroyLater()
 
 	return True
 
@@ -400,7 +400,7 @@ def export_narrative_for_medistar_import(parent=None, soap_cats='soapu', encount
 	)
 	choice = dlg.ShowModal()
 	fname = dlg.GetPath()
-	dlg.Destroy()
+	dlg.DestroyLater()
 	if choice != wx.ID_OK:
 		return False
 
@@ -773,7 +773,7 @@ def select_narrative_from_episodes(parent=None, soap_cats=None):
 			dlg.set_selections(selections = selection_idxs)
 		btn_pressed = dlg.ShowModal()
 		selected_issues = dlg.get_selected_item_data()
-		dlg.Destroy()
+		dlg.DestroyLater()
 
 		if btn_pressed == wx.ID_CANCEL:
 			return selected_soap.values()
@@ -805,7 +805,7 @@ def select_narrative_from_episodes(parent=None, soap_cats=None):
 				dlg.set_selections(selections = selection_idxs)
 			btn_pressed = dlg.ShowModal()
 			selected_epis = dlg.get_selected_item_data()
-			dlg.Destroy()
+			dlg.DestroyLater()
 
 			if btn_pressed == wx.ID_CANCEL:
 				break
@@ -836,7 +836,7 @@ def select_narrative_from_episodes(parent=None, soap_cats=None):
 				dlg.set_selections(selections = selection_idxs)
 			btn_pressed = dlg.ShowModal()
 			selected_narr = dlg.get_selected_item_data()
-			dlg.Destroy()
+			dlg.DestroyLater()
 
 			if btn_pressed == wx.ID_CANCEL:
 				continue

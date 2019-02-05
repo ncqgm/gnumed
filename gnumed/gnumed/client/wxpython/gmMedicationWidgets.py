@@ -967,7 +967,7 @@ def delete_substance_intake(parent=None, intake=None):
 	)
 
 	edit_first = dlg.ShowModal()
-	dlg.Destroy()
+	dlg.DestroyLater()
 
 	if edit_first == wx.ID_CANCEL:
 		return
@@ -998,9 +998,9 @@ def edit_intake_of_substance(parent = None, substance=None):
 	)
 	dlg.SetSize((650,500))
 	if dlg.ShowModal() == wx.ID_OK:
-		dlg.Destroy()
+		dlg.DestroyLater()
 		return True
-	dlg.Destroy()
+	dlg.DestroyLater()
 	return False
 
 #============================================================
@@ -1258,7 +1258,7 @@ def update_substance_intake_list_from_prescription(parent=None, prescribed_drugs
 	)
 	picker.ShowModal()
 	drugs2add = picker.get_picks()
-	picker.Destroy()
+	picker.DestroyLater()
 
 	if drugs2add is None:
 		return

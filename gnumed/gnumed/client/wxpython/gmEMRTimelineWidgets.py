@@ -263,7 +263,7 @@ class cEMRTimelinePluginPnl(wxgEMRTimelinePluginPnl.wxgEMRTimelinePluginPnl, gmR
 		)
 		choice = dlg.ShowModal()
 		fname = dlg.GetPath()
-		dlg.Destroy()
+		dlg.DestroyLater()
 		if choice != wx.ID_OK:
 			return False
 		self._PNL_timeline.export_as_svg(filename = fname)

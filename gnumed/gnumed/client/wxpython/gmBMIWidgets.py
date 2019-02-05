@@ -531,7 +531,7 @@ class BMI_Frame(wx.Frame):#, BMICalc_Panel):
 		pass 					# TODO
 	#-------------------------------------------
 	def OnCloseWindow(self, event):
-		self.Destroy()
+		self.DestroyLater()
 
 #== if run as standalone =======================================================
 if __name__ == '__main__':

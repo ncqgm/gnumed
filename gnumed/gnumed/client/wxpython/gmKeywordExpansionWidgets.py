@@ -382,7 +382,7 @@ class cTextExpansionEditAreaPnl(wxgTextExpansionEditAreaPnl.wxgTextExpansionEdit
 			self._CHBOX_is_encrypted.SetValue(False)
 			self._CHBOX_is_encrypted.Enable(True)
 
-		dlg.Destroy()
+		dlg.DestroyLater()
 
 #============================================================
 def configure_keyword_text_expansion(parent=None):
@@ -632,7 +632,7 @@ def expand_keyword(parent=None, keyword=None, show_list_if_needed=False):
 		button = dlg.ShowModal()
 		if button == wx.ID_OK:
 			expansion = dlg.filled_in_expansion
-		dlg.Destroy()
+		dlg.DestroyLater()
 
 	return expansion
 

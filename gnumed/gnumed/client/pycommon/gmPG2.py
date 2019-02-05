@@ -516,7 +516,7 @@ def __request_login_params_gui_wx():
 	dlg = gmAuthWidgets.cLoginDialog(None, -1)
 	dlg.ShowModal()
 	login = dlg.panel.GetLoginInfo()
-	dlg.Destroy()
+	dlg.DestroyLater()
 
 	#if user cancelled or something else went wrong, raise an exception
 	if login is None:

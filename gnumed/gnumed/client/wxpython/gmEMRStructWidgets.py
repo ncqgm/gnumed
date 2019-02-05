@@ -183,7 +183,7 @@ def promote_episode_to_issue(parent=None, episode=None, emr=None):
 			]
 		)
 		use_existing = dlg.ShowModal()
-		dlg.Destroy()
+		dlg.DestroyLater()
 
 		if use_existing == wx.ID_CANCEL:
 			return
@@ -194,18 +194,18 @@ def promote_episode_to_issue(parent=None, episode=None, emr=None):
 			issue_name = episode['description']
 			while issue_name == episode['description']:
 				dlg = wx.TextEntryDialog (
-					parent = parent,
-					message = _('Enter a short descriptive name for the new health issue:'),
+					parent,
+					_('Enter a short descriptive name for the new health issue:'),
 					caption = _('Creating a new health issue ...'),
-					defaultValue = issue_name,
+					value = issue_name,
 					style = wx.OK | wx.CANCEL | wx.CENTRE
 				)
 				decision = dlg.ShowModal()
 				if decision != wx.ID_OK:
-					dlg.Destroy()
+					dlg.DestroyLater()
 					return
 				issue_name = dlg.GetValue().strip()
-				dlg.Destroy()
+				dlg.DestroyLater()
 				if issue_name == '':
 					issue_name = episode['description']
 
@@ -713,9 +713,9 @@ def edit_health_issue(parent=None, issue=None):
 	dlg = gmEditArea.cGenericEditAreaDlg2(parent, -1, edit_area = ea, single_entry = (issue is not None))
 	dlg.SetTitle(gmTools.coalesce(issue, _('Adding a new health issue'), _('Editing a health issue')))
 	if dlg.ShowModal() == wx.ID_OK:
-		dlg.Destroy()
+		dlg.DestroyLater()
 		return True
-	dlg.Destroy()
+	dlg.DestroyLater()
 	return False
 #----------------------------------------------------------------
 def select_health_issues(parent=None, emr=None):

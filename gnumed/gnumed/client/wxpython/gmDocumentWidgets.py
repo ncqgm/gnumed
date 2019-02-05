@@ -89,7 +89,7 @@ def manage_document_descriptions(parent=None, document=None):
 		if result == wx.ID_SAVE:
 			document.add_description(dlg.value)
 
-		dlg.Destroy()
+		dlg.DestroyLater()
 		return True
 	#-----------------------------------
 	def edit_item(item):
@@ -104,7 +104,7 @@ def manage_document_descriptions(parent=None, document=None):
 		if result == wx.ID_SAVE:
 			document.update_description(pk = item[0], description = dlg.value)
 
-		dlg.Destroy()
+		dlg.DestroyLater()
 		return True
 	#-----------------------------------
 	def refresh_list(lctrl):
@@ -183,7 +183,7 @@ def save_files_as_new_document(parent=None, filenames=None, document_type=None, 
 			dlg.SetTitle(_('Select the episode under which to file the document ...'))
 			btn_pressed = dlg.ShowModal()
 			episode = dlg.get_selected_item_data(only_one = True)
-			dlg.Destroy()
+			dlg.DestroyLater()
 
 			if (btn_pressed == wx.ID_CANCEL) or (episode is None):
 				if unlock_patient:
@@ -646,7 +646,7 @@ def review_document_part(parent=None, part=None):
 		part = part
 	)
 	dlg.ShowModal()
-	dlg.Destroy()
+	dlg.DestroyLater()
 
 #------------------------------------------------------------
 def review_document(parent=None, document=None):
@@ -1240,7 +1240,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 		result = dlg.ShowModal()
 		files = dlg.GetPaths()
 		if result == wx.ID_CANCEL:
-			dlg.Destroy()
+			dlg.DestroyLater()
 			return
 
 		self.add_parts_from_files(files, _('picked from storage media'))
@@ -2586,7 +2586,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 			part = part
 		)
 		dlg.ShowModal()
-		dlg.Destroy()
+		dlg.DestroyLater()
 	#--------------------------------------------------------
 	def __move_part(self, evt):
 		target_doc = manage_documents (
@@ -2728,7 +2728,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 		)
 		result = dlg.ShowModal()
 		dirname = dlg.GetPath()
-		dlg.Destroy()
+		dlg.DestroyLater()
 
 		if result != wx.ID_OK:
 			return True
@@ -2876,7 +2876,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 		result = dlg.ShowModal()
 		if result != wx.ID_CANCEL:
 			self.__curr_node_data.add_parts_from_files(files = dlg.GetPaths(), reviewer = gmStaff.gmCurrentProvider()['pk_staff'])
-		dlg.Destroy()
+		dlg.DestroyLater()
 
 	#--------------------------------------------------------
 	def __add_part_from_clipboard(self, evt):
@@ -2963,7 +2963,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 		)
 		result = dlg.ShowModal()
 		dirname = dlg.GetPath()
-		dlg.Destroy()
+		dlg.DestroyLater()
 
 		if result != wx.ID_OK:
 			return True
@@ -3683,7 +3683,7 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 		)
 		choice = dlg.ShowModal()
 		dicom_dir = dlg.GetPath()
-		dlg.Destroy()
+		dlg.DestroyLater()
 		if choice != wx.ID_OK:
 			return True
 		wx.BeginBusyCursor()
@@ -3731,7 +3731,7 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 		)
 		dlg = cModifyOrthancContentDlg(self, -1, server = self.__pacs, title = title)
 		dlg.ShowModal()
-		dlg.Destroy()
+		dlg.DestroyLater()
 		self._schedule_data_reget()
 
 	#--------------------------------------------------------
@@ -3812,7 +3812,7 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 		)
 		choice = dlg.ShowModal()
 		target_dir = dlg.GetPath()
-		dlg.Destroy()
+		dlg.DestroyLater()
 		if choice != wx.ID_OK:
 			return True
 
@@ -3921,7 +3921,7 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 		)
 		choice = dlg.ShowModal()
 		target_dir = dlg.GetPath()
-		dlg.Destroy()
+		dlg.DestroyLater()
 		if choice != wx.ID_OK:
 			return True
 
@@ -4146,7 +4146,7 @@ def upload_files():
 	)
 	choice = dlg.ShowModal()
 	dicom_dir = dlg.GetPath()
-	dlg.Destroy()
+	dlg.DestroyLater()
 	if choice != wx.ID_OK:
 		return True
 	wx.BeginBusyCursor()

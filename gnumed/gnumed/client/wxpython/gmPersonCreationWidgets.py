@@ -76,7 +76,7 @@ def create_new_person(parent=None, activate=False):
 	ea._PRW_lastname.SetFocus()
 	result = dlg.ShowModal()
 	pat = ea.data
-	dlg.Destroy()
+	dlg.DestroyLater()
 
 	if result != wx.ID_OK:
 		return False

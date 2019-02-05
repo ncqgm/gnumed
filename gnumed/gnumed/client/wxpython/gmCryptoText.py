@@ -117,7 +117,7 @@ class gmCryptoText(wx.TextCtrl):
         self.PopupMenu(menu, wxPoint(event.GetX(), event.GetY()))
 
         #free resources
-        menu.Destroy()
+        menu.DestroyLater()
 
         #anybody else needs to intercept right click events?
         event.Skip()
@@ -186,7 +186,7 @@ class gmCryptoText(wx.TextCtrl):
             retval = dlg.GetValue()
         else:
             retval = None
-        dlg.Destroy()
+        dlg.DestroyLater()
         return retval
 
 

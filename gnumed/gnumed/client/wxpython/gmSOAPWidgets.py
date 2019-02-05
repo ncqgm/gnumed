@@ -287,7 +287,7 @@ class cProgressNoteInputNotebook(wx.Notebook, gmRegetMixin.cRegetOnPaintMixin):
 			page.save()
 
 		if dlg is not None:
-			dlg.Destroy()
+			dlg.DestroyLater()
 	#--------------------------------------------------------
 	# internal API
 	#--------------------------------------------------------
@@ -793,10 +793,10 @@ class cResizingSoapWin(gmResizingWidgets.cResizingWindow):
 				epi_name = rfe
 
 			dlg = wx.TextEntryDialog (
-				parent = self,
-				message = _('Enter a descriptive name for this new problem:'),
+				self,
+				_('Enter a descriptive name for this new problem:'),
 				caption = _('Creating a problem (episode) to save the notelet under ...'),
-				defaultValue = epi_name.replace('\r', '//').replace('\n', '//'),
+				value = epi_name.replace('\r', '//').replace('\n', '//'),
 				style = wx.OK | wx.CANCEL | wx.CENTRE
 			)
 			decision = dlg.ShowModal()

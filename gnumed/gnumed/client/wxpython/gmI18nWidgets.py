@@ -119,9 +119,9 @@ def edit_translation(parent=None, translation=None, single_entry=False):
 	dlg = gmEditArea.cGenericEditAreaDlg2(parent, -1, edit_area = ea, single_entry = single_entry)
 	dlg.SetTitle(gmTools.coalesce(translation, _('Adding new translation'), _('Editing translation')))
 	if dlg.ShowModal() == wx.ID_OK:
-		dlg.Destroy()
+		dlg.DestroyLater()
 		return True
-	dlg.Destroy()
+	dlg.DestroyLater()
 	return False
 
 #------------------------------------------------------------------------------

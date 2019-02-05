@@ -61,7 +61,7 @@ class cPickList(wx.ListBox):
 			data = self.GetClientData(line)
 			self.callback(text, data)
 		self.alive = 2
-		self.Destroy() # this is only safe when in the event handler of another widget
+		self.DestroyLater() # this is only safe when in the event handler of another widget
 	#------------------------------------------------
 	def OnList(self, event):
 		event.Skip()
@@ -311,7 +311,7 @@ class cResizingWindow(wx.ScrolledWindow):
 		"""
 #		# retire previous pick list
 #		if self.__list and self.__list.alive:
-#			self.__list.Destroy()
+#			self.__list.DestroyLater()
 		our_width, our_height = self.GetSize()
 		char_height = self.GetCharHeight()
 		# make list 9 lines of height char_height high
@@ -703,14 +703,14 @@ class cResizingSTC(wx.stc.StyledTextCtrl):
 #		print "popup interaction completed"
 #		if was_cancelled:
 #			print "popup cancelled, ignoring data"
-##			self.__popup.Destroy()
+##			self.__popup.DestroyLater()
 #			self.__popup = None
 #			return
 #		print "getting data from popup and acting on it"
 #		print self.__popup.GetData()
 #		# FIXME: wxCallAfter(embed) and store
 #		# maybe be a little smarter here
-#		self.__popup.Destroy()
+#		self.__popup.DestroyLater()
 #		self.__popup = None
 	#------------------------------------------------
 	def _on_timer_fired(self, cookie):
@@ -733,12 +733,12 @@ class cResizingSTC(wx.stc.StyledTextCtrl):
 		# do indeed show list
 		if len(fragment) == 0:
 			if (self.list is not None) and self.list.alive:
-				self.list.Destroy()
+				self.list.DestroyLater()
 			return
 		matches_found, matches = self.__matcher.getMatches(fragment)
 		if not matches_found:
 			if (self.list is not None) and self.list.alive:
-				self.list.Destroy()
+				self.list.DestroyLater()
 			return
 		if not ((self.list is not None) and self.list.alive):
 			x, y = self.GetPositionTuple()
@@ -844,7 +844,7 @@ class cResizingSTC(wx.stc.StyledTextCtrl):
 		if result == wx.ID_OK:
 			summary = popup.get_summary()
 			wx.CallAfter(self.Embed, summary)
-		popup.Destroy()
+		popup.DestroyLater()
 	#------------------------------------------------
 	def __userlist (self, text, data=None):
 		# this is a callback
@@ -1063,7 +1063,7 @@ if __name__ == '__main__':
 			self.Layout ()
 
 		def OnClose (self, event):
-			self.Destroy()
+			self.DestroyLater()
 	#================================================================
 	class testApp(wx.App):
 		def OnInit (self):

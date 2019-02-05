@@ -69,7 +69,7 @@ class cXdtListPnl(wxgXdtListPnl.wxgXdtListPnl):
 		fname = None
 		if choice == wx.ID_OK:
 			fname =  dlg.GetPath()
-		dlg.Destroy()
+		dlg.DestroyLater()
 		return fname
 	#--------------------------------------------------------------
 	def load_file(self, filename=None):
@@ -329,7 +329,7 @@ class gmXdtViewerPanel(wx.Panel):
 		wx.EVT_MENU(self, tPopupID4, self.OnPopupFour)
 		wx.EVT_MENU(self, tPopupID5, self.OnPopupFive)
 		self.PopupMenu(menu, wxPoint(self.x, self.y))
-		menu.Destroy()
+		menu.DestroyLater()
 		event.Skip()
 	#-------------------------------------------------------------------------
 	def OnPopupOne(self, event):

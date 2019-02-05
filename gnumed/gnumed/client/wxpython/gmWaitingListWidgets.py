@@ -61,9 +61,9 @@ def edit_waiting_list_entry(parent=None, entry=None, patient=None):
 	dlg = gmEditArea.cGenericEditAreaDlg2(parent, -1, edit_area = ea, single_entry = True)
 	dlg.SetTitle(gmTools.coalesce(entry, _('Adding new waiting list entry'), _('Editing waiting list entry')))
 	if dlg.ShowModal() == wx.ID_OK:
-		dlg.Destroy()
+		dlg.DestroyLater()
 		return True
-	dlg.Destroy()
+	dlg.DestroyLater()
 	return False
 
 #============================================================

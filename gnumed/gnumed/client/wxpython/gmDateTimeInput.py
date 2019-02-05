@@ -306,7 +306,7 @@ class cDateMatchProvider(gmMatchProvider.cMatchProvider):
 #					)
 #					lbl = gmDateTime.pydt_strftime(date, format = '%Y-%m-%d', accuracy = gmDateTime.acc_days)
 #					matches = (True, [{'data': date, 'label': lbl}])
-#		dlg.Destroy()
+#		dlg.DestroyLater()
 #
 #		return matches
 
@@ -342,7 +342,7 @@ class cDateInputPhraseWheel(gmPhraseWheel.cPhraseWheel):
 		dlg.CentreOnScreen()
 		decision = dlg.ShowModal()
 		date = dlg.cal.Date
-		dlg.Destroy()
+		dlg.DestroyLater()
 
 		if decision != wx.ID_OK:
 			return

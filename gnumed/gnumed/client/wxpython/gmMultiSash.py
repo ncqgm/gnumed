@@ -78,7 +78,7 @@ class cMultiSash(wx.Window):
 		# FIXME: keep an eye if strange behaviour
 		old = self.child
 		self.child = cMultiSashSplitter(self,self,wxPoint(0,0),self.GetSize())
-		old.Destroy()
+		old.DestroyLater()
 		self.child.OnSize(None)
 		
 		# Gnumed: focused and bottom leaf
@@ -269,13 +269,13 @@ class cMultiSashSplitter(wx.Window):
 				# Gnumed: remove content from displayed leafs
 				#print "Removing old: %s [%s]" % (old.__class__.__name__, id(old))
 				#self.top_parent.displayed_leafs.remove(old)
-				old.Destroy()
+				old.DestroyLater()
 			else:
 #				print "caller is leaf 2, hence destroying leaf 2"
 				# Gnumed: remove content from displayed leafs
 				#print "Removing leaf2: %s [%s]" % (self.leaf2.__class__.__name__, id(self.leaf2))
 				#self.top_parent.displayed_leafs.remove(self.leaf2)
-				self.leaf2.Destroy()
+				self.leaf2.DestroyLater()
 				self.leaf2 = None
 			self.leaf1.SetSize(self.GetSize())
 			self.leaf1.Move(self.GetPosition())
@@ -313,7 +313,7 @@ class cMultiSashSplitter(wx.Window):
 			self.leaf1 = None
 			self.leaf2 = None
 			top_parent = self.top_parent
-			self.Destroy()
+			self.DestroyLater()
 #			try:
 #				print "leaf 1: %s [%s]" % (self.leaf1.__class__.__name__, id(self.leaf1))
 #			except:
@@ -532,7 +532,7 @@ class cMultiSashLeafContent(wx.Window):
 		# Gnumed: avoid yellow blinking during widget replacement
 		self.SetBackgroundColour(self.__normal_colour)
 		if self.child:
-			self.child.Destroy()
+			self.child.DestroyLater()
 		content.Reparent(self)
 		self.child = content
 		self.child.Move(2,2)

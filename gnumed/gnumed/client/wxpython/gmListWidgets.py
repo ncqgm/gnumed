@@ -127,7 +127,7 @@ def get_choices_from_list (
 
 	btn_pressed = dlg.ShowModal()
 	sels = dlg.get_selected_item_data(only_one = single_selection)
-	dlg.Destroy()
+	dlg.DestroyLater()
 
 	if btn_pressed == wx.ID_OK:
 		if can_return_empty and (sels is None):
@@ -262,7 +262,7 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 			) % (no_items, no_items)
 			dlg = wx.MessageDialog(None, question, title, style)
 			btn_pressed = dlg.ShowModal()
-			dlg.Destroy()
+			dlg.DestroyLater()
 			if btn_pressed == wx.ID_NO:
 				self._LCTRL_items.SetFocus()
 				return
@@ -2137,7 +2137,7 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 
 		# show menu
 		self.PopupMenu(self._context_menu, wx.DefaultPosition)
-		self._context_menu.Destroy()
+		self._context_menu.DestroyLater()
 		return
 
 	#------------------------------------------------------------
@@ -2159,7 +2159,7 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 			style = wx.YES_NO | wx.CANCEL | wx.ICON_QUESTION | wx.STAY_ON_TOP
 			dlg = wx.MessageDialog(None, question, title, style)
 			btn_pressed = dlg.ShowModal()
-			dlg.Destroy()
+			dlg.DestroyLater()
 			if btn_pressed == wx.ID_NO:
 				self.SetFocus()
 				return

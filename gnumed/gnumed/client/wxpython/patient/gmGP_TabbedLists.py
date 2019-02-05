@@ -126,7 +126,7 @@ class Notebook(wxNotebook):
 
     def OnLeftDown(self,evt):		# have fix clicking problem - make tab select a single click
 	pass
-	#self.tipwin1.destroy()  	# ???
+	#self.tipwin1.DestroyLater()  	# ???
 
 class TabbedLists(wxPanel): #, wxColumnSorterMixin):
     """ a panel to hold the tabbed list """

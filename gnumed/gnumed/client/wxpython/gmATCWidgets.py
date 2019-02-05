@@ -79,7 +79,7 @@ def update_atc_reference_data():
 		return
 
 	cfg_file = dlg.GetPath()
-	dlg.Destroy()
+	dlg.DestroyLater()
 
 	conn = gmAuthWidgets.get_dbowner_connection(procedure = _('importing ATC reference data'))
 	if conn is None:

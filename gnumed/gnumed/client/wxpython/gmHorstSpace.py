@@ -280,7 +280,7 @@ class cHorstSpaceLayoutMgr(wx.Panel):
 			prev_plugin = curr_plugin
 
 		_log.debug('failed plugins: %s', failed_plugins)
-		progress_bar.Destroy()
+		progress_bar.DestroyLater()
 		wx.EndBusyCursor()
 
 		# force-refresh first notebook page
@@ -454,7 +454,7 @@ class cHorstSpaceLayoutMgr(wx.Panel):
 #		item = menu.AppendItem(wx.MenuItem(-1, "drop [%s]" % raised_plugin))
 #		self.Bind(wx.EVT_MENU, self._on_drop_plugin, item)
 #		self.PopupMenu(menu, evt.GetPosition())
-#		menu.Destroy()
+#		menu.DestroyLater()
 #		evt.Skip()
 
 	#----------------------------------------------		

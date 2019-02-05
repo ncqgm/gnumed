@@ -598,7 +598,7 @@ def load_person_from_vcard_file():
 	)
 	result = dlg.ShowModal()
 	fname = dlg.GetPath()
-	dlg.Destroy()
+	dlg.DestroyLater()
 	if result == wx.ID_CANCEL:
 		return
 
@@ -627,7 +627,7 @@ def load_person_from_vcard_file():
 	dlg.set_persons(persons = idents)
 	result = dlg.ShowModal()
 	ident = dlg.get_selected_person()
-	dlg.Destroy()
+	dlg.DestroyLater()
 	if result == wx.ID_CANCEL:
 		return
 	if not set_active_patient(patient = ident):
@@ -677,7 +677,7 @@ def load_person_from_vcard_via_clipboard():
 	dlg.set_persons(persons = idents)
 	result = dlg.ShowModal()
 	ident = dlg.get_selected_person()
-	dlg.Destroy()
+	dlg.DestroyLater()
 	if result == wx.ID_CANCEL:
 		return
 	if not set_active_patient(patient = ident):
@@ -727,7 +727,7 @@ def load_person_from_xml_linuxmednews_via_clipboard():
 	dlg.set_persons(persons = idents)
 	result = dlg.ShowModal()
 	ident = dlg.get_selected_person()
-	dlg.Destroy()
+	dlg.DestroyLater()
 	if result == wx.ID_CANCEL:
 		return None
 	if not set_active_patient(patient = ident):
@@ -797,7 +797,7 @@ def get_person_from_external_sources(parent=None, search_immediately=False, acti
 		if result == wx.ID_CANCEL:
 			return None
 		dto = dlg.get_selected_dto()['dto']
-		dlg.Destroy()
+		dlg.DestroyLater()
 
 	# search
 	idents = dto.get_candidate_identities(can_create=True)
@@ -822,7 +822,7 @@ def get_person_from_external_sources(parent=None, search_immediately=False, acti
 		dlg.set_persons(persons=idents)
 		result = dlg.ShowModal()
 		ident = dlg.get_selected_person()
-		dlg.Destroy()
+		dlg.DestroyLater()
 		if result == wx.ID_CANCEL:
 			return None
 
@@ -986,11 +986,11 @@ class cPersonSearchCtrl(wx.TextCtrl):
 			if result == wx.ID_OK:
 				wx.BeginBusyCursor()
 				self.person = dlg.get_selected_person()
-				dlg.Destroy()
+				dlg.DestroyLater()
 				wx.EndBusyCursor()
 				return True
 
-			dlg.Destroy()
+			dlg.DestroyLater()
 			return False
 
 		# recall previous search fragment
@@ -1103,12 +1103,12 @@ class cPersonSearchCtrl(wx.TextCtrl):
 		wx.EndBusyCursor()
 		result = dlg.ShowModal()
 		if result == wx.ID_CANCEL:
-			dlg.Destroy()
+			dlg.DestroyLater()
 			return None
 
 		wx.BeginBusyCursor()
 		self.person = dlg.get_selected_person()
-		dlg.Destroy()
+		dlg.DestroyLater()
 		wx.EndBusyCursor()
 
 		return None

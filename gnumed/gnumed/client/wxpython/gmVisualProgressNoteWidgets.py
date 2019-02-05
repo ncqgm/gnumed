@@ -119,12 +119,12 @@ def select_file_as_visual_progress_note_template(parent=None):
 	result = dlg.ShowModal()
 
 	if result == wx.ID_CANCEL:
-		dlg.Destroy()
+		dlg.DestroyLater()
 		return None
 
 	full_filename = dlg.GetPath()
 	dlg.Hide()
-	dlg.Destroy()
+	dlg.DestroyLater()
 	return full_filename
 
 #------------------------------------------------------------
@@ -145,7 +145,7 @@ def select_visual_progress_note_template(parent=None):
 		]
 	)
 	result = dlg.ShowModal()
-	dlg.Destroy()
+	dlg.DestroyLater()
 
 	# 1) select from template
 	if result == wx.ID_YES:
@@ -418,7 +418,7 @@ class cVisualSoapPresenterPnl(wxgVisualSoapPresenterPnl.wxgVisualSoapPresenterPn
 			self._SZR_soap.Detach(0)
 		for bmp in self.__bitmaps:
 			bmp.Unbind(wx.EVT_LEFT_UP)
-			bmp.Destroy()
+			bmp.DestroyLater()
 		self.__bitmaps = []
 
 	#--------------------------------------------------------

@@ -174,7 +174,7 @@ def edit_region(parent=None, region=None):
 	dlg = gmEditArea.cGenericEditAreaDlg2(parent, -1, edit_area = ea, single_entry = (region is not None))
 	dlg.SetTitle(gmTools.coalesce(region, _('Adding region'), _('Editing region')))
 	result = dlg.ShowModal()
-	dlg.Destroy()
+	dlg.DestroyLater()
 	return (result == wx.ID_OK)
 #============================================================
 def delete_region(parent=None, region=None):
@@ -208,11 +208,11 @@ def delete_region(parent=None, region=None):
 
 	decision = dlg.ShowModal()
 	if decision != wx.ID_YES:
-		dlg.Destroy()
+		dlg.DestroyLater()
 		return False
 
 	include_urbs = dlg.checkbox_is_checked()
-	dlg.Destroy()
+	dlg.DestroyLater()
 
 	return gmDemographicRecord.delete_region(region = region, delete_urbs = include_urbs)
 #============================================================

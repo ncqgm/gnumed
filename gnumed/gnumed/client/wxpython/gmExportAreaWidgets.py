@@ -324,7 +324,7 @@ class cExportAreaSaveAsDlg(wxgExportAreaSaveAsDlg.wxgExportAreaSaveAsDlg):
 		dlg = wx.DirDialog(self, message = msg, defaultPath = curr_path, style = wx.DD_DEFAULT_STYLE)# | wx.DD_DIR_MUST_EXIST)
 		choice = dlg.ShowModal()
 		selected_path = dlg.GetPath().rstrip(os.sep).rstrip('/')
-		dlg.Destroy()
+		dlg.DestroyLater()
 		if choice != wx.ID_OK:
 			return
 
@@ -476,7 +476,7 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 		)
 		choice = dlg.ShowModal()
 		fnames = dlg.GetPaths()
-		dlg.Destroy()
+		dlg.DestroyLater()
 		if choice != wx.ID_OK:
 			return
 		if not gmPerson.gmCurrentPatient().export_area.add_files(fnames):
@@ -496,7 +496,7 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 		)
 		choice = dlg.ShowModal()
 		path = dlg.GetPath()
-		dlg.Destroy()
+		dlg.DestroyLater()
 		if choice != wx.ID_OK:
 			return
 		if not gmPerson.gmCurrentPatient().export_area.add_path(path):
@@ -610,7 +610,7 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 		generate_metadata = dlg._CHBOX_generate_metadata.IsChecked()
 		use_subdir = dlg._CHBOX_use_subdirectory.IsChecked()
 		encrypt = dlg._CHBOX_encrypt.IsChecked()
-		dlg.Destroy()
+		dlg.DestroyLater()
 		if choice == wx.ID_CANCEL:
 			return
 
@@ -692,7 +692,7 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 		media = dlg._LCTRL_removable_media.get_selected_item_data(only_one = True)
 		use_subdir = dlg._CHBOX_use_subdirectory.IsChecked()
 		encrypt = dlg._CHBOX_encrypt.IsChecked()
-		dlg.Destroy()
+		dlg.DestroyLater()
 		if choice == wx.ID_CANCEL:
 			return
 

@@ -82,7 +82,7 @@ def export_emr_to_ascii(parent=None):
 	)
 	choice = dlg.ShowModal()
 	fname = dlg.GetPath()
-	dlg.Destroy()
+	dlg.DestroyLater()
 	if choice != wx.ID_OK:
 		return None
 
@@ -705,7 +705,7 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 		)
 
 		result = episode_selector.ShowModal()
-		episode_selector.Destroy()
+		episode_selector.DestroyLater()
 
 		if result == wx.ID_YES:
 			self.__populate_tree()
@@ -734,10 +734,10 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 		)
 		result = dlg.ShowModal()
 		if result != wx.ID_YES:
-			dlg.Destroy()
+			dlg.DestroyLater()
 			return
 
-		dlg.Destroy()
+		dlg.DestroyLater()
 
 		if not gmEMRStructItems.delete_health_issue(health_issue = self.__curr_node_data):
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot delete health issue. There is still clinical data recorded for it.'))
@@ -830,7 +830,7 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 		if dlg.ShowModal() == wx.ID_OK:
 			self.__expanded_nodes = self.ExpansionState
 			self.__populate_tree()
-		dlg.Destroy()
+		dlg.DestroyLater()
 		return
 
 	#--------------------------------------------------------

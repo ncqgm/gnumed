@@ -293,12 +293,12 @@ def act_on_generated_forms(parent=None, forms=None, jobtype=None, episode_name=N
 	action_code = dlg.ShowModal()
 
 	if action_code == wx.ID_CANCEL:
-		dlg.Destroy()
+		dlg.DestroyLater()
 		return True
 
 	forms = dlg._LCTRL_forms.get_item_data()
 	if len(forms) == 0:
-		dlg.Destroy()
+		dlg.DestroyLater()
 		return True
 
 	progress_note = dlg.progress_note
@@ -306,7 +306,7 @@ def act_on_generated_forms(parent=None, forms=None, jobtype=None, episode_name=N
 	if episode_name == '':
 		episode_name = None
 	also_export = dlg._CHBOX_export.GetValue()
-	dlg.Destroy()
+	dlg.DestroyLater()
 
 	if action_code == _ID_FORM_DISPOSAL_ARCHIVE_ONLY:
 		success = archive_forms(episode_name = episode_name, comment = progress_note)
@@ -452,9 +452,9 @@ def edit_template(parent=None, template=None, single_entry=False):
 	dlg = gmEditArea.cGenericEditAreaDlg2(parent, -1, edit_area = ea, single_entry = single_entry)
 	dlg.SetTitle(gmTools.coalesce(template, _('Adding new form template'), _('Editing form template')))
 	if dlg.ShowModal() == wx.ID_OK:
-		dlg.Destroy()
+		dlg.DestroyLater()
 		return True
-	dlg.Destroy()
+	dlg.DestroyLater()
 	return False
 
 #------------------------------------------------------------
@@ -716,7 +716,7 @@ class cFormTemplateEAPnl(wxgFormTemplateEditAreaPnl.wxgFormTemplateEditAreaPnl, 
 		result = dlg.ShowModal()
 		if result != wx.ID_CANCEL:
 			self._TCTRL_filename.SetValue(dlg.GetPath())
-		dlg.Destroy()
+		dlg.DestroyLater()
 
 		event.Skip()
 	#----------------------------------------------------------------
@@ -750,7 +750,7 @@ class cFormTemplateEAPnl(wxgFormTemplateEditAreaPnl.wxgFormTemplateEditAreaPnl, 
 		if result != wx.ID_CANCEL:
 			fname = dlg.GetPath()
 			self.data.save_to_file(filename = fname)
-		dlg.Destroy()
+		dlg.DestroyLater()
 
 		event.Skip()
 

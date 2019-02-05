@@ -141,10 +141,10 @@ class cPatientListingCtrl(gmListWidgets.cReportListCtrl):
 				dlg.set_persons(persons=idents)
 				result = dlg.ShowModal()
 				if result == wx.ID_CANCEL:
-					dlg.Destroy()
+					dlg.DestroyLater()
 					return
 				pat = dlg.get_selected_person()
-				dlg.Destroy()
+				dlg.DestroyLater()
 		except ConstructorError:
 			gmDispatcher.send(signal = 'statustext', msg = _('No matching patient found.'))
 			return
@@ -487,7 +487,7 @@ class cDataMiningPnl(wxgDataMiningPnl.wxgDataMiningPnl):
 		)
 		choice = dlg.ShowModal()
 		csv_name = dlg.GetPath()
-		dlg.Destroy()
+		dlg.DestroyLater()
 		if choice != wx.ID_OK:
 			return
 

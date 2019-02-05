@@ -258,7 +258,7 @@ class cTextSearch_TextCtrlMixin():
 		self.__mixin_find_replace_dlg.Unbind(wx.EVT_FIND_NEXT)
 		self.__mixin_find_replace_dlg.Unbind(wx.EVT_FIND_CLOSE)
 		# unshow dialog
-		self.__mixin_find_replace_dlg.Destroy()
+		self.__mixin_find_replace_dlg.DestroyLater()
 		self.__mixin_find_replace_data = None
 		self.__mixin_find_replace_dlg = None
 		self.__mixin_find_replace_last_match_end = 0

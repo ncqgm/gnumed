@@ -274,7 +274,7 @@ def handle_uncaught_exception_wx(t, v, tb):
 	dlg = cUnhandledExceptionDlg(None, -1, exception = (t, v, tb), logfile = new_name)
 	dlg.ShowModal()
 	comment = dlg._TCTRL_comment.GetValue()
-	dlg.Destroy()
+	dlg.DestroyLater()
 	if (comment is not None) and (comment.strip() != ''):
 		_log.error('user comment: %s', comment.strip())
 
@@ -393,7 +393,7 @@ def mail_log(parent=None, comment=None, helpdesk=None, sender=None):
 		dlg._CHBOX_dont_ask_again.SetValue(_is_public_database)
 		go_ahead = dlg.ShowModal()
 		if go_ahead == wx.ID_NO:
-			dlg.Destroy()
+			dlg.DestroyLater()
 			return
 
 		include_log = dlg._CHBOX_dont_ask_again.GetValue()
@@ -447,7 +447,7 @@ sender email  : %s
 		else:
 			attachments = None
 
-		dlg.Destroy()
+		dlg.DestroyLater()
 
 		wx.BeginBusyCursor()
 		_cfg = gmCfg2.gmCfgData()

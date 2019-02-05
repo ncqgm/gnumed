@@ -1320,7 +1320,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			dlg.message = msg
 			choice = dlg.ShowModal()
 			adr2use = dlg.address
-			dlg.Destroy()
+			dlg.DestroyLater()
 			if choice == wx.ID_CANCEL:
 				return ''
 			self.__cache[cache_key] = adr2use
@@ -1378,7 +1378,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			choice = dlg.ShowModal()
 			name = dlg.name
 			adr = dlg.address
-			dlg.Destroy()
+			dlg.DestroyLater()
 			if choice == wx.ID_CANCEL:
 				return ''
 			self.__cache[cache_key] = (name, adr)
@@ -2545,7 +2545,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		decision = dlg.ShowModal()
 		text = dlg.value.strip()
 		is_user_formatted = dlg.is_user_formatted
-		dlg.Destroy()
+		dlg.DestroyLater()
 
 		if decision != wx.ID_SAVE:
 			if self.debug:
@@ -2985,7 +2985,7 @@ class cMacroPrimitives:
 	def _shutdown_gnumed(self, forced=False):
 		top_win = wx.GetApp().GetTopWindow()
 		if forced:
-			top_win.Destroy()
+			top_win.DestroyLater()
 		else:
 			top_win.Close()
 	#-----------------------------------------------------------------

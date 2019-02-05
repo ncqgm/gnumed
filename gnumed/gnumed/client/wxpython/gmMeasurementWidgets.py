@@ -78,7 +78,7 @@ def show_hl7_file(parent=None):
 	)
 	choice = dlg.ShowModal()
 	hl7_name = dlg.GetPath()
-	dlg.Destroy()
+	dlg.DestroyLater()
 	if choice != wx.ID_OK:
 		return False
 
@@ -109,7 +109,7 @@ def unwrap_HL7_from_XML(parent=None):
 	)
 	choice = dlg.ShowModal()
 	xml_name = dlg.GetPath()
-	dlg.Destroy()
+	dlg.DestroyLater()
 	if choice != wx.ID_OK:
 		return False
 
@@ -152,7 +152,7 @@ def stage_hl7_file(parent=None):
 	)
 	choice = dlg.ShowModal()
 	hl7_name = dlg.GetPath()
-	dlg.Destroy()
+	dlg.DestroyLater()
 	if choice != wx.ID_OK:
 		return False
 
@@ -351,9 +351,9 @@ def edit_measurement(parent=None, measurement=None, single_entry=False, fields=N
 	if fields is not None:
 		ea.set_fields(fields)
 	if dlg.ShowModal() == wx.ID_OK:
-		dlg.Destroy()
+		dlg.DestroyLater()
 		return True
-	dlg.Destroy()
+	dlg.DestroyLater()
 	return False
 
 #----------------------------------------------------------------
@@ -2704,7 +2704,7 @@ def review_tests(parent=None, tests=None):
 		comment = dlg._TCTRL_comment.GetValue()
 
 	make_responsible = dlg._CHBOX_responsible.IsChecked()
-	dlg.Destroy()
+	dlg.DestroyLater()
 
 	for test in tests:
 		test.set_review (
@@ -3387,11 +3387,11 @@ def pick_measurement_types(parent=None, msg=None, right_column=None, picks=None)
 	result = picker.ShowModal()
 
 	if result == wx.ID_CANCEL:
-		picker.Destroy()
+		picker.DestroyLater()
 		return None
 
 	picks = picker.picks
-	picker.Destroy()
+	picker.DestroyLater()
 	return picks
 
 #----------------------------------------------------------------
@@ -3412,10 +3412,10 @@ def manage_measurement_types(parent=None):
 		dlg.SetTitle(gmTools.coalesce(test_type, _('Adding measurement type'), _('Editing measurement type')))
 
 		if dlg.ShowModal() == wx.ID_OK:
-			dlg.Destroy()
+			dlg.DestroyLater()
 			return True
 
-		dlg.Destroy()
+		dlg.DestroyLater()
 		return False
 
 	#------------------------------------------------------------
@@ -4020,9 +4020,9 @@ def edit_measurement_org(parent=None, org=None):
 	dlg = gmEditArea.cGenericEditAreaDlg2(parent, -1, edit_area = ea)
 	dlg.SetTitle(gmTools.coalesce(org, _('Adding new diagnostic org'), _('Editing diagnostic org')))
 	if dlg.ShowModal() == wx.ID_OK:
-		dlg.Destroy()
+		dlg.DestroyLater()
 		return True
-	dlg.Destroy()
+	dlg.DestroyLater()
 	return False
 #----------------------------------------------------------------
 def manage_measurement_orgs(parent=None, msg=None):
@@ -4205,9 +4205,9 @@ def edit_meta_test_type(parent=None, meta_test_type=None):
 	)
 	dlg.SetTitle(gmTools.coalesce(meta_test_type, _('Adding new meta test type'), _('Editing meta test type')))
 	if dlg.ShowModal() == wx.ID_OK:
-		dlg.Destroy()
+		dlg.DestroyLater()
 		return True
-	dlg.Destroy()
+	dlg.DestroyLater()
 	return False
 
 #----------------------------------------------------------------
@@ -4478,9 +4478,9 @@ def edit_test_panel(parent=None, test_panel=None):
 	)
 	dlg.SetTitle(gmTools.coalesce(test_panel, _('Adding new test panel'), _('Editing test panel')))
 	if dlg.ShowModal() == wx.ID_OK:
-		dlg.Destroy()
+		dlg.DestroyLater()
 		return True
-	dlg.Destroy()
+	dlg.DestroyLater()
 	return False
 
 #----------------------------------------------------------------

@@ -31,7 +31,7 @@ def calculate_edc(parent=None, patient=None):
 		dlg.EDC = prev_edc
 	action = dlg.ShowModal()
 	new_edc = dlg.EDC
-	dlg.Destroy()
+	dlg.DestroyLater()
 
 	# cancelled ?
 	if action != wx.ID_SAVE:

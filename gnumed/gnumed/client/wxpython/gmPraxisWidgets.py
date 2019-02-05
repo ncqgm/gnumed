@@ -167,11 +167,11 @@ def configure_workplace_plugins(parent=None):
 
 		decision = dlg.ShowModal()
 		if decision != wx.ID_YES:
-			dlg.Destroy()
+			dlg.DestroyLater()
 			return False
 
 		include_cfg = dlg.checkbox_is_checked()
-		dlg.Destroy()
+		dlg.DestroyLater()
 
 		dbo_conn = gmAuthWidgets.get_dbowner_connection(procedure = _('delete workplace'))
 		if not dbo_conn:
@@ -186,10 +186,10 @@ def configure_workplace_plugins(parent=None):
 
 		if workplace is None:
 			dlg = wx.TextEntryDialog (
-				parent = parent,
-				message = _('Enter a descriptive name for the new workplace:'),
+				parent,
+				_('Enter a descriptive name for the new workplace:'),
 				caption = _('Configuring GNUmed workplaces ...'),
-				defaultValue = '',
+				value = '',
 				style = wx.OK | wx.CENTRE
 			)
 			dlg.ShowModal()
@@ -224,11 +224,11 @@ def configure_workplace_plugins(parent=None):
 		picker.set_picks(picks = curr_plugins[:])
 		btn_pressed = picker.ShowModal()
 		if btn_pressed != wx.ID_OK:
-			picker.Destroy()
+			picker.DestroyLater()
 			return False
 
 		new_plugins = picker.get_picks()
-		picker.Destroy()
+		picker.DestroyLater()
 		if new_plugins == curr_plugins:
 			return True
 
@@ -251,10 +251,10 @@ def configure_workplace_plugins(parent=None):
 
 		if workplace is None:
 			dlg = wx.TextEntryDialog (
-				parent = parent,
-				message = _('Enter a descriptive name for the new workplace:'),
+				parent,
+				_('Enter a descriptive name for the new workplace:'),
 				caption = _('Configuring GNUmed workplaces ...'),
-				defaultValue = '',
+				value = '',
 				style = wx.OK | wx.CENTRE
 			)
 			dlg.ShowModal()
@@ -554,11 +554,11 @@ def manage_praxis_branches(parent=None):
 	result = picker.ShowModal()
 
 	if result == wx.ID_CANCEL:
-		picker.Destroy()
+		picker.DestroyLater()
 		return None
 
 	picks = picker.picks
-	picker.Destroy()
+	picker.DestroyLater()
 
 	failed_delete_msg = _(
 		'Cannot delete praxis branch(es).\n'

@@ -85,14 +85,14 @@ def _display_clinical_reminders():
 				rationale = hint_dlg.rationale.strip(),
 				pk_encounter = emr.current_encounter['pk_encounter']
 			)
-	hint_dlg.Destroy()
+	hint_dlg.DestroyLater()
 	# aggregate popup
 	if len(hints2aggregate) > 0:
 		hints_dlg = cDynamicHintListDlg(wx.GetApp().GetTopWindow(), -1)
 		hints_dlg.pk_encounter = emr.current_encounter['pk_encounter']
 		hints_dlg.hints = hints2aggregate
 		hints_dlg.ShowModal()
-		hints_dlg.Destroy()
+		hints_dlg.DestroyLater()
 
 	return
 
@@ -110,9 +110,9 @@ def edit_dynamic_hint(parent=None, hint=None, single_entry=True):
 	dlg = gmEditArea.cGenericEditAreaDlg2(parent, -1, edit_area = ea, single_entry = single_entry)
 	dlg.SetTitle(gmTools.coalesce(hint, _('Adding automatic dynamic hint'), _('Editing automatic dynamic hint')))
 	if dlg.ShowModal() == wx.ID_OK:
-		dlg.Destroy()
+		dlg.DestroyLater()
 		return True
-	dlg.Destroy()
+	dlg.DestroyLater()
 	return False
 
 #================================================================

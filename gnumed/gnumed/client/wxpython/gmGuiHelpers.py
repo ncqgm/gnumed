@@ -453,7 +453,7 @@ def gm_show_error(aMessage=None, aTitle = None, error=None, title=None):
 		style = wx.OK | wx.ICON_ERROR | wx.STAY_ON_TOP
 	)
 	dlg.ShowModal()
-	dlg.Destroy()
+	dlg.DestroyLater()
 	return True
 
 #-------------------------------------------------------------------------
@@ -478,7 +478,7 @@ def gm_show_info(aMessage=None, aTitle=None, info=None, title=None):
 		style = wx.OK | wx.ICON_INFORMATION | wx.STAY_ON_TOP
 	)
 	dlg.ShowModal()
-	dlg.Destroy()
+	dlg.DestroyLater()
 	return True
 
 #-------------------------------------------------------------------------
@@ -498,7 +498,7 @@ def gm_show_warning(aMessage=None, aTitle=None):
 		style = wx.OK | wx.ICON_EXCLAMATION | wx.STAY_ON_TOP
 	)
 	dlg.ShowModal()
-	dlg.Destroy()
+	dlg.DestroyLater()
 	return True
 
 #-------------------------------------------------------------------------
@@ -517,7 +517,7 @@ def gm_show_question(aMessage='programmer forgot to specify question', aTitle='g
 
 	dlg = wx.MessageDialog(None, question, title, style)
 	btn_pressed = dlg.ShowModal()
-	dlg.Destroy()
+	dlg.DestroyLater()
 
 	if btn_pressed == wx.ID_YES:
 		return True

@@ -260,11 +260,11 @@ def configure_list_from_list_option(parent=None, message=None, option=None, bias
 	picker.set_picks(picks)
 	result = picker.ShowModal()
 	if result == wx.ID_CANCEL:
-		picker.Destroy()
+		picker.DestroyLater()
 		return
 
 	picks = picker.get_picks()
-	picker.Destroy()
+	picker.DestroyLater()
 
 	dbcfg.set (
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
@@ -294,19 +294,19 @@ def configure_string_option(parent=None, message=None, option=None, bias='user',
 
 	while True:
 		dlg = wx.TextEntryDialog (
-			parent = parent,
-			message = message,
+			parent,
+			message,
 			caption = _('Configuration'),
-			defaultValue = gmTools.coalesce(current_value, ''),
+			value = gmTools.coalesce(current_value, ''),
 			style = wx.OK | wx.CANCEL | wx.CENTRE
 		)
 		result = dlg.ShowModal()
 		if result == wx.ID_CANCEL:
-			dlg.Destroy()
+			dlg.DestroyLater()
 			return None
 
 		user_val = dlg.GetValue().strip()
-		dlg.Destroy()
+		dlg.DestroyLater()
 
 		if user_val == current_value:
 			return user_val
