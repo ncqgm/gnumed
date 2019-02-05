@@ -21,6 +21,7 @@ class wxgExportAreaPluginPnl(wx.Panel):
 		wx.Panel.__init__(self, *args, **kwds)
 		self._LCTRL_items = cReportListCtrl(self, wx.ID_ANY, style=wx.BORDER_NONE | wx.LC_REPORT)
 		self._BTN_add_items = wx.Button(self, wx.ID_ANY, _(u"\u2190 &Disk"), style=wx.BU_EXACTFIT | wx.BU_LEFT)
+		self._BTN_add_directory = wx.Button(self, wx.ID_ANY, _(u"\u2190 &Directory"), style=wx.BU_EXACTFIT | wx.BU_LEFT)
 		self._BTN_add_from_archive = wx.Button(self, wx.ID_ANY, _(u"\u2190 &Archive"), style=wx.BU_EXACTFIT | wx.BU_LEFT)
 		self._BTN_scan_items = wx.Button(self, wx.ID_ANY, _(u"\u2190 S&can"), style=wx.BU_EXACTFIT | wx.BU_LEFT)
 		self._BTN_clipboard_items = wx.Button(self, wx.ID_ANY, _(u"\u2190 C&lipboard"), style=wx.BU_EXACTFIT | wx.BU_LEFT)
@@ -39,6 +40,7 @@ class wxgExportAreaPluginPnl(wx.Panel):
 
 		self.Bind(wx.EVT_LIST_ITEM_SELECTED, self._on_list_item_selected, self._LCTRL_items)
 		self.Bind(wx.EVT_BUTTON, self._on_add_items_button_pressed, self._BTN_add_items)
+		self.Bind(wx.EVT_BUTTON, self._on_add_directory_button_pressed, self._BTN_add_directory)
 		self.Bind(wx.EVT_BUTTON, self._on_add_from_archive_button_pressed, self._BTN_add_from_archive)
 		self.Bind(wx.EVT_BUTTON, self._on_scan_items_button_pressed, self._BTN_scan_items)
 		self.Bind(wx.EVT_BUTTON, self._on_clipboard_items_button_pressed, self._BTN_clipboard_items)
@@ -56,6 +58,7 @@ class wxgExportAreaPluginPnl(wx.Panel):
 	def __set_properties(self):
 		# begin wxGlade: wxgExportAreaPluginPnl.__set_properties
 		self._BTN_add_items.SetToolTip(_("Add document(s) from file(s)."))
+		self._BTN_add_directory.SetToolTip(_("Add a local directory."))
 		self._BTN_add_from_archive.SetToolTip(_("Add document(s) from archive."))
 		self._BTN_scan_items.SetToolTip(_("Acquire images from image source (scanner, ...)."))
 		self._BTN_clipboard_items.SetToolTip(_("Acquire file or text from the clipboard."))
@@ -77,6 +80,7 @@ class wxgExportAreaPluginPnl(wx.Panel):
 		__szr_main.Add(self._LCTRL_items, 1, wx.EXPAND | wx.RIGHT, 5)
 		__szr_buttons_right.Add((20, 20), 0, wx.ALIGN_CENTER_VERTICAL | wx.BOTTOM | wx.EXPAND, 3)
 		__szr_buttons_right.Add(self._BTN_add_items, 0, wx.BOTTOM | wx.EXPAND, 3)
+		__szr_buttons_right.Add(self._BTN_add_directory, 0, wx.BOTTOM | wx.EXPAND, 3)
 		__szr_buttons_right.Add(self._BTN_add_from_archive, 0, wx.BOTTOM | wx.EXPAND, 3)
 		__szr_buttons_right.Add(self._BTN_scan_items, 0, wx.BOTTOM | wx.EXPAND, 3)
 		__szr_buttons_right.Add(self._BTN_clipboard_items, 0, wx.BOTTOM | wx.EXPAND, 3)
@@ -103,6 +107,10 @@ class wxgExportAreaPluginPnl(wx.Panel):
 
 	def _on_add_items_button_pressed(self, event):  # wxGlade: wxgExportAreaPluginPnl.<event_handler>
 		print("Event handler '_on_add_items_button_pressed' not implemented!")
+		event.Skip()
+
+	def _on_add_directory_button_pressed(self, event):  # wxGlade: wxgExportAreaPluginPnl.<event_handler>
+		print("Event handler '_on_add_directory_button_pressed' not implemented!")
 		event.Skip()
 
 	def _on_add_from_archive_button_pressed(self, event):  # wxGlade: wxgExportAreaPluginPnl.<event_handler>

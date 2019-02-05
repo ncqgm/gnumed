@@ -15,6 +15,7 @@ import logging
 import shutil
 import os
 import io
+import platform
 
 
 if __name__ == '__main__':
@@ -104,6 +105,21 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 #	def format(self):
 #		return u'%s' % self
 	#--------------------------------------------------------
+	def update_data(self, data=None):
+		assert (data is not None), '<data> must not be <None>'
+
+		SQL = """
+			UPDATE clin.export_item SET
+				data = %(data)s::bytea,
+				fk_doc_obj = NULL
+			WHERE pk = %(pk)s"""
+		args = {'pk': self.pk_obj, 'data': data}
+		gmPG2.run_rw_queries(queries = [{'cmd': SQL, 'args': args}], return_data = False, get_col_idx = False)
+		# must update XMIN now ...
+		self.refetch_payload()
+		return True
+
+	#--------------------------------------------------------
 	def update_data_from_file(self, filename=None):
 		# sanity check
 		if not (os.access(filename, os.R_OK) and os.path.isfile(filename)):
@@ -183,9 +199,28 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	def display_via_mime(self, chunksize=0, block=None):
 
+		# document part
 		if self._payload[self._idx['pk_doc_obj']] is not None:
 			return self.document_part.display_via_mime(chunksize = chunksize, block = block)
 
+		# DIR entry
+		if self._payload[self._idx['filename']].startswith('DIR::'):
+			# FIXME: error handling with malformed entries
+			tag, node, path = self._payload[self._idx['filename']].split('::', 2)
+			if node != platform.node():
+				msg = _(
+					'This item points to a directory on the computer named:\n'
+					' %s\n'
+					'You are, however, currently using another computer:\n'
+					' %s\n'
+					'Directory items can only be viewed/saved/exported\n'
+					'on the computer they are pointing to.'
+				) % (node, platform.node())
+				return False, msg
+			success, msg = gmMimeLib.call_viewer_on_file(path, block = block)
+			return success, msg
+
+		# data -> save
 		fname = self.save_to_file(aChunkSize = chunksize)
 		if fname is None:
 			return False, ''
@@ -210,7 +245,6 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 			)
 			if suffix == '':
 				suffix = '.dat'
-
 		fname = gmTools.get_unique_filename (
 			prefix = 'gm-export_item%s-' % patient_part,
 			suffix = suffix,
@@ -469,6 +503,7 @@ class cExportArea(object):
 			item.save()
 
 		return True
+
 	#--------------------------------------------------------
 	def add_forms(self, forms=None, designation=None):
 		all_ok = True
@@ -476,6 +511,59 @@ class cExportArea(object):
 			all_ok = all_ok and self.add_form(form = form, designation = designation)
 
 		return all_ok
+
+	#--------------------------------------------------------
+	def add_path(self, path):
+		"""Add a DIR entry to the export area.
+
+		This sort of entry points to a certain directory on a
+		certain machine. The content of the the directory
+		will be included in exports, the directory *itself*
+		will not. For *that*, use a disposable top-level
+		directory into which you put the directory to include
+		as a subdirectory.
+		"""
+		assert (os.path.isdir(path)), '<path> must exist: %s' % path
+
+		path_item_data = 'DIR::%s::%s/' % (platform.node(), path.rstrip('/'))
+		_log.debug('attempting to add path item [%s]', path_item_data)
+		item = self.path_item_exists(path_item_data)
+		if item is not None:
+			_log.debug('[%s] already in export area', path)
+			return item
+
+		item = create_export_item (
+			description = _('path [%s/] on computer "%s"') % (
+				path.rstrip('/'),
+				platform.node()
+			),
+			pk_identity = self.__pk_identity,
+			filename = path_item_data
+		)
+		return item
+
+	#--------------------------------------------------------
+	def path_item_exists(self, path_item_data):
+
+		assert (path_item_data.startswith('DIR::')), 'invalid <path_item_data> [%s]' % path_item_data
+
+		where_parts = [
+			'pk_identity = %(pat)s',
+			'filename = %(fname)s',
+			'pk_doc_obj IS NULL'
+		]
+		args = {
+			'pat': self.__pk_identity,
+			'fname': path_item_data
+		}
+		SQL = _SQL_get_export_items % ' AND '.join(where_parts)
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': SQL, 'args': args}], get_col_idx = True)
+		if len(rows) == 0:
+			return None
+
+		r = rows[0]
+		return cExportItem(row = {'data': r, 'idx': idx, 'pk_field': 'pk_export_item'})
+
 	#--------------------------------------------------------
 	def add_file(self, filename=None, hint=None):
 		try:
@@ -504,6 +592,7 @@ class cExportArea(object):
 		if item.update_data_from_file(filename = filename):
 			return item
 
+		# failed to insert data, hence remove export item entry
 		delete_export_item(pk_export_item = item['pk_export_item'])
 		return None
 

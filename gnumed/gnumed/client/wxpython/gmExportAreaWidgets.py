@@ -486,6 +486,26 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 			)
 
 	#--------------------------------------------------------
+	def _on_add_directory_button_pressed(self, event):
+		event.Skip()
+		dlg = wx.DirDialog (
+			parent = self,
+			message = _("Select directory to add to the export area"),
+			defaultPath = os.path.expanduser(os.path.join('~', 'gnumed')),
+			style = wx.DD_DEFAULT_STYLE | wx.DD_DIR_MUST_EXIST
+		)
+		choice = dlg.ShowModal()
+		path = dlg.GetPath()
+		dlg.Destroy()
+		if choice != wx.ID_OK:
+			return
+		if not gmPerson.gmCurrentPatient().export_area.add_path(path):
+			gmGuiHelpers.gm_show_error (
+				title = _('Adding path to export area'),
+				error = _('Cannot add the following path to the export area:\n%s ') % path
+			)
+
+	#--------------------------------------------------------
 	def _on_add_from_archive_button_pressed(self, event):
 		event.Skip()
 		selected_docs = gmDocumentWidgets.manage_documents (
