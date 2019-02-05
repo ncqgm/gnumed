@@ -29,14 +29,14 @@
 	</p>
  </description>
  <screenshots>
-	<screenshot type="default">
-		<caption>http://wiki.gnumed.de</caption>
-	</screenshot>
 	<!--<screenshot type="default">
-			<image>https://screenshots.debian.net/screenshots/000/002/117/large.png</image>
-			<caption>The main window showing the application in action</caption>
-		</screenshot>-->
+		<caption>http://wiki.gnumed.de</caption>
+	</screenshot>-->
+	<screenshot type="default">
+		<image>https://screenshots.debian.net/screenshots/000/002/117/large.png</image>
+		<caption>The main window showing one of the ways to enter Progress Notes during a patient encounter</caption>
+	</screenshot
  </screenshots>
- <url type="homepage">http://www.gnumed.de</url>
+ <url type="homepage">https://www.gnumed.de</url>
  <update_contact>gnumed-devel_AT_gnu.org</update_contact>
 </component>
