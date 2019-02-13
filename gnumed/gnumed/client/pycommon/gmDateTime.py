@@ -1154,25 +1154,34 @@ def __single_dot2py_dt(str2parse):
 	# day X of ...
 	if day_val > 0:
 		# ... this month
-		ts = pydt_replace(now, day = day_val)
-		matches.append ({
-			'data': ts,
-			'label': _('%s-%s-%s: a %s this month') % (ts.year, ts.month, ts.day, ts.strftime('%A'))
-		})
+		try:
+			ts = pydt_replace(now, day = day_val)
+			matches.append ({
+				'data': ts,
+				'label': _('%s-%s-%s: a %s this month') % (ts.year, ts.month, ts.day, ts.strftime('%A'))
+			})
+		except ValueError:
+			pass
 		# ... next month
-		ts = pydt_replace(pydt_add(now, months = 1), day = day_val)
-		if ts.day == day_val:
-			matches.append ({
-				'data': ts,
-				'label': _('%s-%s-%s: a %s next month') % (ts.year, ts.month, ts.day, ts.strftime('%A'))
-			})
+		try:
+			ts = pydt_replace(pydt_add(now, months = 1), day = day_val)
+			if ts.day == day_val:
+				matches.append ({
+					'data': ts,
+					'label': _('%s-%s-%s: a %s next month') % (ts.year, ts.month, ts.day, ts.strftime('%A'))
+				})
+		except ValueError:
+			pass
 		# ... last month
-		ts = pydt_replace(pydt_add(now, months = -1), day = day_val)
-		if ts.day == day_val:
-			matches.append ({
-				'data': ts,
-				'label': _('%s-%s-%s: a %s last month') % (ts.year, ts.month, ts.day, ts.strftime('%A'))
-			})
+		try:
+			ts = pydt_replace(pydt_add(now, months = -1), day = day_val)
+			if ts.day == day_val:
+				matches.append ({
+					'data': ts,
+					'label': _('%s-%s-%s: a %s last month') % (ts.year, ts.month, ts.day, ts.strftime('%A'))
+				})
+		except ValueError:
+			pass
 
 	return matches
 

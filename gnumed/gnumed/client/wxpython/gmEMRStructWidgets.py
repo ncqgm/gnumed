@@ -798,7 +798,7 @@ class cIssueListSelectorDlg(gmListWidgets.cGenericListSelectorDlg):
 		for issue in issues:
 			if issue['is_confidential']:
 				row_num = self._LCTRL_items.InsertItem(sys.maxsize, label = _('confidential'))
-				self._LCTRL_items.SetItemTextColour(row_num, col=wx.Colour('RED'))
+				self._LCTRL_items.SetItemTextColour(row_num, wx.Colour('RED'))
 			else:
 				row_num = self._LCTRL_items.InsertItem(sys.maxsize, label = '')
 

@@ -344,7 +344,7 @@ def select_encounters(parent=None, patient=None, single_selection=True, encounte
 		for idx in range(len(encs)):
 			e = encs[idx]
 			if e['pk_encounter'] == active_pk:
-				lctrl.SetItemTextColour(idx, col=wx.Colour('RED'))
+				lctrl.SetItemTextColour(idx, wx.Colour('RED'))
 	#--------------------
 	return gmListWidgets.get_choices_from_list (
 		parent = parent,

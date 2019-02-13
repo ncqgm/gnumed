@@ -93,12 +93,12 @@ class cEditStaffListDlg(wxgEditStaffListDlg.wxgEditStaffListDlg):
 			self._LCTRL_staff.SetItem(index = row_num, column = 5, label = '%s / %s' % (lbl_active[bool(staff['is_active'])], lbl_login[bool(staff['can_login'])]))
 			# color
 			if staff['is_active'] and staff['can_login']:
-				#self._LCTRL_staff.SetItemTextColour(row_num, col=wx.Colour('BLUE'))
+				#self._LCTRL_staff.SetItemTextColour(row_num, wx.Colour('BLUE'))
 				pass
 			elif not staff['is_active'] and not staff['can_login']:
-				self._LCTRL_staff.SetItemTextColour(row_num, col=wx.LIGHT_GREY)
+				self._LCTRL_staff.SetItemTextColour(row_num, wx.LIGHT_GREY)
 			else:
-				self._LCTRL_staff.SetItemTextColour(row_num, col=wx.Colour('RED'))
+				self._LCTRL_staff.SetItemTextColour(row_num, wx.Colour('RED'))
 			# data
 			self._LCTRL_staff.SetItemData(item = row_num, data = staff['pk_staff'])
 

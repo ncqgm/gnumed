@@ -605,7 +605,7 @@ insert into blobs.reviewed_doc_objs (
 				tmp_dir = directory
 			)
 		else:
-			fname = gmTools.fname_sanitize(os.path.join(gmTools.coalesce(directory, ''), fname + suffix))
+			fname = gmTools.fname_sanitize(os.path.join(gmTools.coalesce(directory, gmTools.gmPaths().tmp_dir), fname + suffix))
 
 		return fname
 

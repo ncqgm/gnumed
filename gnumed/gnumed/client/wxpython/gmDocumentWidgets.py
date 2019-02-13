@@ -783,7 +783,7 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 		# display them
 		if review_by_responsible_doc is not None:
 			row_num = self._LCTRL_existing_reviews.InsertItem(sys.maxsize, label=review_by_responsible_doc[0])
-			self._LCTRL_existing_reviews.SetItemTextColour(row_num, column=wx.BLUE)
+			self._LCTRL_existing_reviews.SetItemTextColour(row_num, wx.BLUE)
 			self._LCTRL_existing_reviews.SetItem(index = row_num, column=0, label=review_by_responsible_doc[0])
 			self._LCTRL_existing_reviews.SetItem(index = row_num, column=1, label=review_by_responsible_doc[1].strftime('%x %H:%M'))
 			if review_by_responsible_doc['is_technically_abnormal']:
