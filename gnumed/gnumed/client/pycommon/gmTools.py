@@ -229,6 +229,37 @@ def dir_is_empty(directory=None):
 		raise
 
 #---------------------------------------------------------------------------
+def copy_tree_content(directory, target_directory):
+	"""Copy the *content* of <directory> *into* <target_directory>
+	   which is created if need be.
+	"""
+	assert (directory is not None), 'source <directory> should not be None'
+	_log.debug('copying content of [%s] into [%s]', directory, target_directory)
+	try:
+		items = os.listdir(directory)
+	except OSError:
+		return None
+
+	for item in items:
+		full_item = os.path.join(directory, item)
+		if os.path.isdir(full_item):
+			target_subdir = os.path.join(target_directory, item)
+			try:
+				shutil.copytree(full_item, target_subdir)
+			except Exception:
+				_log.exception('cannot copy subdir [%s]', full_item)
+				return None
+		else:
+			try:
+				shutil.copy2(full_item, target_directory)
+			except Exception:
+				_log.exception('cannot copy file [%s]', full_item)
+				return None
+
+	return target_directory
+
+#---------------------------------------------------------------------------
+#---------------------------------------------------------------------------
 class gmPaths(gmBorg.cBorg):
 	"""This class provides the following paths:
 
@@ -2208,6 +2239,11 @@ second line\n
 			))
 
 	#-----------------------------------------------------------------------
+	def test_copy_tree_content():
+		print(sys.argv[2], '->', sys.argv[3])
+		print(copy_tree_content(sys.argv[2], sys.argv[3]))
+
+	#-----------------------------------------------------------------------
 	#test_coalesce()
 	#test_capitalize()
 	#test_import_module()
@@ -2238,7 +2274,8 @@ second line\n
 	#test_format_compare_dicts()
 	#test_fname_sanitize()
 	#test_create_qrcode()
-	test_enumerate_removable_partitions()
-	test_enumerate_optical_writers()
+	#test_enumerate_removable_partitions()
+	#test_enumerate_optical_writers()
+	test_copy_tree_content()
 
 #===========================================================================

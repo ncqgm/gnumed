@@ -40,6 +40,8 @@ _cfg = gmCfg2.gmCfgData()
 
 PRINT_JOB_DESIGNATION = 'print'
 
+DOCUMENTS_SUBDIR = 'documents'
+
 #============================================================
 # export area item handling
 #------------------------------------------------------------
@@ -143,28 +145,28 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	def save_to_file(self, aChunkSize=0, filename=None, directory=None, passphrase=None):
 
-		# data linked from archive
-		if self._payload[self._idx['pk_doc_obj']] is not None:
-			part = self.document_part
-			if filename is None:
-				filename = part.get_useful_filename (
-					make_unique = False,
-					directory = directory,
-					include_gnumed_tag = False,
-					date_before_type = True,
-					name_first = False
-				)
-			return part.save_to_file (
-				aChunkSize = aChunkSize,
-				filename = filename,
-				ignore_conversion_problems = True,
-				adjust_extension = True
-			)
+		# data linked from archive ?
+		part_fname = self.__save_doc_obj(filename = filename, directory = directory, passphrase = passphrase)
+		if part_fname is False:
+			return None
+		if part_fname is not None:
+			return part_fname
 
-		# data in export area table
+		# valid DIRENTRY ?
+		if self.is_valid_DIRENTRY:
+			target_dir = self.__save_direntry(directory, passphrase = passphrase)
+			if target_dir is False:
+				return None
+			if target_dir is not None:
+				return target_dir
+		# but still a DIRENTRY ?
+		if self.is_DIRENTRY:
+			# yes, but not valid (other machine, local dir not found)
+			return None
+
+		# normal item with data in export area table
 		if filename is None:
 			filename = self.get_useful_filename(directory = directory)
-
 		success = gmPG2.bytea2file (
 			data_query = {
 				'cmd': 'SELECT substring(data from %(start)s for %(size)s) FROM clin.export_item WHERE pk = %(pk)s',
@@ -179,22 +181,24 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 
 		if filename.endswith('.dat'):
 			filename = gmMimeLib.adjust_extension_by_mimetype(filename)
+		if passphrase is None:
+			return filename
 
-		if passphrase is not None:
-			enc_filename = gmCrypto.encrypt_file (
-				filename = filename,
-				passphrase = passphrase,
-				verbose = _cfg.get(option = 'debug')
-			)
-			if enc_filename is None:
-				_log.error('cannot encrypt')
-				return None
-			if not gmTools.remove_file(filename, log_error = True, force = True):
-				_log.error('cannot remove unencrypted file')
-				return None
-			filename = enc_filename
-
-		return filename
+		enc_filename = gmCrypto.encrypt_file (
+			filename = filename,
+			passphrase = passphrase,
+			verbose = _cfg.get(option = 'debug'),
+			remove_unencrypted = True
+		)
+		removed = gmTools.remove_file(filename)
+		if enc_filename is None:
+			_log.error('cannot encrypt')
+			return None
+		if removed:
+			return enc_filename
+		_log.error('cannot remove unencrypted file')
+		gmTools.remove(enc_filename)
+		return None
 
 	#--------------------------------------------------------
 	def display_via_mime(self, chunksize=0, block=None):
@@ -250,8 +254,109 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 			suffix = suffix,
 			tmp_dir = directory
 		)
-
 		return fname
+
+	#--------------------------------------------------------
+	# helpers
+	#--------------------------------------------------------
+	def __save_doc_obj(self, filename=None, directory=None, passphrase=None):
+		"""Save doc object part into target.
+
+		None: not a doc obj
+		True: success
+		False: failure
+		"""
+		if self._payload[self._idx['pk_doc_obj']] is None:
+			return None
+
+		part = self.document_part
+		if filename is None:
+			filename = part.get_useful_filename (
+				make_unique = False,
+				directory = directory,
+				include_gnumed_tag = False,
+				date_before_type = True,
+				name_first = False
+			)
+		part_fname = part.save_to_file (
+			aChunkSize = aChunkSize,
+			filename = filename,
+			ignore_conversion_problems = True,
+			adjust_extension = True
+		)
+		if part_fname is None:
+			_log.error('cannot save document part to file')
+			return False
+
+		if passphrase is None:
+			return part_fname
+
+		enc_filename = gmCrypto.encrypt_file (
+			filename = part_fname,
+			passphrase = passphrase,
+			verbose = _cfg.get(option = 'debug'),
+			remove_unencrypted = True
+		)
+		removed = gmTools.remove_file(filename)
+		if enc_filename is None:
+			_log.error('cannot encrypt')
+			return False
+		if removed:
+			return enc_filename
+		_log.error('cannot remove unencrypted file')
+		gmTools.remove(enc_filename)
+		return False
+
+	#--------------------------------------------------------
+	def __save_direntry(self, directory=None, passphrase=None):
+		"""Move DIRENTRY source into target.
+
+		None: not a DIRENTRY
+		True: success
+		False: failure
+		"""
+		# do not process malformed entries
+		try:
+			tag, node, local_fs_path = self._payload[self._idx['filename']].split('::', 2)
+		except ValueError:
+			_log.exception('malformed DIRENTRY: [%s]', self._payload[self._idx['filename']])
+			return False
+		# source and target paths must not overlap
+		if directory is None:
+			directory = gmTools.mk_sandbox_dir(prefix = 'exp-')
+		if directory.startswith(local_fs_path):
+			_log.error('cannot dump DIRENTRY item [%s]: must not be subdirectory of target dir [%s]', self._payload[self._idx['filename']], directory)
+			return False
+		if local_fs_path.startswith(directory):
+			_log.error('cannot dump DIRENTRY item [%s]: target dir [%s] must not be subdirectory of DIRENTRY', self._payload[self._idx['filename']], directory)
+			return False
+
+		_log.debug('dumping DIRENTRY item [%s] into [%s]', self._payload[self._idx['filename']], directory)
+		sandbox_dir = gmTools.mk_sandbox_dir()
+		_log.debug('sandbox: %s', sandbox_dir)
+		tmp = gmTools.copy_tree_content(local_fs_path, sandbox_dir)
+		if tmp is None:
+			_log.error('cannot dump DIRENTRY item [%s] into [%s]: copy error', self._payload[self._idx['filename']], sandbox_dir)
+			return False
+
+		if passphrase is not None:
+			_log.debug('encrypting sandbox: %s', sandbox_dir)
+			encrypted = gmCrypto.encrypt_directory_content (
+				directory = sandbox_dir,
+				passphrase = passphrase,
+				verbose = _cfg.get(option = 'debug'),
+				remove_unencrypted = True
+			)
+			if not encrypted:
+				_log.error('cannot dump DIRENTRY item [%s]: encryption problem in [%s]', self._payload[self._idx['filename']], sandbox_dir)
+				return False
+
+		tmp = gmTools.copy_tree_content(sandbox_dir, directory)
+		if tmp is None:
+			_log.debug('cannot dump DIRENTRY item [%s] into [%s]: copy error', self._payload[self._idx['filename']], directory)
+			return False
+
+		return directory
 
 	#--------------------------------------------------------
 	# properties
@@ -275,6 +380,78 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 		self.save()
 
 	is_print_job = property(_get_is_print_job, _set_is_print_job)
+
+	#--------------------------------------------------------
+	def _is_DIRENTRY(self):
+		"""Check whether this item looks like a DIRENTRY."""
+		if self._payload[self._idx['filename']] is None:
+			return False
+		if not self._payload[self._idx['filename']].startswith('DIR::'):
+			return False
+		if len(self._payload[self._idx['filename']].split('::', 2)) != 3:
+			return False
+		return True
+
+	is_DIRENTRY = property(_is_DIRENTRY)
+
+	#--------------------------------------------------------
+	def _is_valid_DIRENTRY(self):
+		"""Check whether this item is a _valid_ DIRENTRY."""
+		if not self.is_DIRENTRY:
+			return False
+		# malformed ?
+		try:
+			tag, node, local_fs_path = self._payload[self._idx['filename']].split('::', 2)
+		except ValueError:
+			# should not happen because structure already checked in .is_DIRENTRY,
+			# better safe than sorry
+			_log.exception('DIRENTRY [%s]: malformed', self._payload[self._idx['filename']])
+			return False
+		# this machine ?
+		if node != platform.node():
+			_log.warning('DIRENTRY [%s]: not on this machine (%s)', self._payload[self._idx['filename']], platform.node())
+			return False
+		# valid path ?
+		if not os.path.isdir(local_fs_path):
+			_log.warning('DIRENTRY [%s]: directory not found (old DIRENTRY ?)', self._payload[self._idx['filename']])
+			return False
+		return True
+
+	is_valid_DIRENTRY = property(_is_valid_DIRENTRY)
+
+	#--------------------------------------------------------
+	def _is_DICOM_directory(self):
+		"""Check whether this item points to a DICOMDIR."""
+		if not self._is_valid_DIRENTRY:
+			return False
+		tag, node, local_fs_path = self._payload[self._idx['filename']].split('::', 2)
+		found_DICOMDIR = False
+		for fs_entry in os.listdir(local_fs_path):
+			# found a subdir
+			if os.path.isdir(fs_entry):
+				# allow for any number of subdirs
+				continue
+			# found a file
+			if fs_entry != 'DICOMDIR':
+				# not named "DICOMDIR" -> not a DICOMDIR DIRENTRY
+				return False
+			# must be named DICOMDIR -> that's the only file allowed (and required) in ./
+			found_DICOMDIR = True
+		return found_DICOMDIR
+
+	is_DICOM_directory = property(_is_DICOM_directory)
+
+	#--------------------------------------------------------
+	def _has_files_in_root(self):
+		"""True if there are files in the root directory."""
+		tag, node, local_fs_path = self._payload[self._idx['filename']].split('::', 2)
+		for fs_entry in os.listdir(local_fs_path):
+			if os.path.isfile(fs_entry):
+				_log.debug('has files in top level: %s', local_fs_path)
+				return True
+		return False
+
+	has_files_in_root = property(_has_files_in_root)
 
 #------------------------------------------------------------
 def get_export_items(order_by=None, pk_identity=None, designation=None):
@@ -350,7 +527,7 @@ def delete_export_item(pk_export_item=None):
 	return True
 
 #============================================================
-_HTML_START = """<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+_FRONTPAGE_HTML_CONTENT = """<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
        "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
@@ -366,7 +543,7 @@ _HTML_START = """<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
 (%(date)s)<br>
 </p>
 
-<h2>Patient</h2>
+<h2><a href="patient.vcf">Patient</a></h2>
 
 <p>
 	%(pat_name)s<br>
@@ -379,23 +556,16 @@ _HTML_START = """<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
 
 <ul>
 	<li><a href="./">%(browse_root)s</a></li>
-	<li><a href="documents/">%(browse_docs)s</a></li>
+	<li><a href="%(doc_subdir)s/">%(browse_docs)s</a></li>
 	%(browse_dicomdir)s
 	%(run_dicom_viewer)s
 </ul>
 
 <ul>
-"""
-
-# <li><a href="documents/filename-1.ext">document 1 description</a></li>
-
-_HTML_LIST_ITEM = """	<li><a href="documents/%s">%s</a></li>
-"""
-
-_HTML_END = """
+%(docs_list)s
 </ul>
 
-<h2>Praxis</h2>
+<h2><a href="praxis.vcf">Praxis</a></h2>
 
 <p>
 %(branch)s @ %(praxis)s
@@ -408,76 +578,66 @@ _HTML_END = """
 </html>
 """
 
+_INDEX_HTML_CONTENT = """<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+       "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link rel="icon" type="image/x-icon" href="gnumed.ico">
+<title>%(html_title_header)s</title>
+</head>
+<body>
 
-_autorun_inf = (							# needs \r\n for Windows
-	'[AutoRun.Amd64]\r\n'					# 64 bit
-	'label=%(label)s\r\n'					# patient name/DOB
-	'shellexecute=index.html\r\n'
-	'action=%(action)s\r\n'				# % _('Browse patient data')
-	'%(icon)s\r\n'							# "icon=gnumed.ico" or ""
-	'UseAutoPlay=1\r\n'
-	'\r\n'
-	'[AutoRun]\r\n'						# 32 bit
-	'label=%(label)s\r\n'					# patient name/DOB
-	'shellexecute=index.html\r\n'
-	'action=%(action)s\r\n'				# % _('Browse patient data')
-	'%(icon)s\r\n'							# "icon=gnumed.ico" or ""
-	'UseAutoPlay=1\r\n'
-	'\r\n'
-	'[Content]\r\n'
-	'PictureFiles=yes\r\n'
-	'VideoFiles=yes\r\n'
-	'MusicFiles=no\r\n'
-	'\r\n'
-	'[IgnoreContentPaths]\r\n'
-	'\documents\r\n'
-	'\r\n'
-	'[unused]\r\n'
-	'open=requires explicit executable\r\n'
-)
+<h1>%(title)s</h1>
 
+<p>
+(%(date)s)<br>
+</p>
 
-_cd_inf = (
-'[Patient Info]\r\n'					# needs \r\n for Windows
-'PatientName=%s, %s\r\n'
-'Gender=%s\r\n'
-'BirthDate=%s\r\n'
-'CreationDate=%s\r\n'
-'PID=%s\r\n'
-'EMR=GNUmed\r\n'
-'Version=%s\r\n'
-'#StudyDate=\r\n'
-'#VNRInfo=<body part>\r\n'
-'\r\n'
-'# name format: lastnames, firstnames\r\n'
-'# date format: YYYY-MM-DD (ISO 8601)\r\n'
-'# gender format: %s\r\n'
-)
+This is an encrypted patient data excerpt created by the GNUmed Electronic Medical Record.
 
-_README = """This is a patient data bundle created by the GNUmed Electronic Medical Record.
+<p>
+For decryption you will need to
 
-Patient: %s
+<ul>
+	<li>install decryption software and</li>
+	<li>obtain relevant passwords from the creator or holder of this media</li>
+</ul>
 
-Please display <index.html> to browse patient data.
+<h2>Decryption software</h2>
 
-Individual documents are stored under
+For files ending in
 
-	./documents/
+<ul>
+	<li>.asc: install <a href="https://gnupg.org">GNU Privacy Guard</a></li>
+	<li>.7z: install <a href="https://www.7-zip.org">7-zip</a> or <a href="https://www.winzip.com">WinZip</a></li>
+</ul>
 
 
-Data may need to be decrypted with either GNU Privacy Guard
-or 7zip/WinZip.
+<h2>%(docs_title)s</h2>
 
-	.asc:
-		https://gnupg.org
+<ul>
+	<li><a href="./frontpage.html">front page (after decryption)</a></li>
+	<li><a href="./%(frontpage_fname)s">front page (if decryption from browser is supported)</a></li>
 
-	.7z:
-		https://www.7-zip.org
-		https://www.winzip.com
+	<li><a href="./">%(browse_root)s</a></li>
+	<li><a href="%(doc_subdir)s/">%(browse_docs)s</a></li>
+</ul>
 
-To obtain any needed keys you will have to get in touch with
-the creator or the bearer of this patient media excerpt.
+
+<h2><a href="praxis.vcf">Praxis</a></h2>
+
+<p>
+%(branch)s @ %(praxis)s
+%(adr)s
+</p>
+
+<p>(<a href="http://www.gnumed.de">GNUmed</a> version %(gm_ver)s)</p>
+
+</body>
+</html>
 """
+
 #------------------------------------------------------------
 class cExportArea(object):
 
@@ -674,14 +834,15 @@ class cExportArea(object):
 		gmTools.mkdir(base_dir)
 		_log.debug('dumping export items to: %s', base_dir)
 		for item in items:
-			item.save_to_file(directory = base_dir, passphrase = passphrase)
+			if item.save_to_file(directory = base_dir, passphrase = passphrase) is None:
+				return None
 		return base_dir
 
 	#--------------------------------------------------------
 	def dump_items_to_disk_as_zip(self, base_dir=None, items=None, passphrase=None):
 		dump_dir = self.dump_items_to_disk(base_dir = base_dir, items = items)
 		if dump_dir is None:
-			_log.debug('cannot dump export area items')
+			_log.error('cannot dump export area items')
 			return None
 		zip_file = gmTools.create_zip_archive_from_dir (
 			dump_dir,
@@ -691,10 +852,8 @@ class cExportArea(object):
 			verbose = _cfg.get(option = 'debug')
 		)
 		if zip_file is None:
-			gmGuiHelpers.gm_show_error (
-				aMessage = _('Error creating zip file.'),
-				aTitle = _('Creating zip archive')
-			)
+			_log.error('cannot zip export area items dump')
+			return None
 		return zip_file
 
 	#--------------------------------------------------------
@@ -702,214 +861,149 @@ class cExportArea(object):
 
 		if items is None:
 			items = self.items
-
 		if len(items) == 0:
 			return None
 
-		media_base_dir = base_dir
-
 		from Gnumed.business.gmPerson import cPatient
 		pat = cPatient(aPK_obj = self.__pk_identity)
-		if media_base_dir is None:
-			media_base_dir = os.path.join(gmTools.mk_sandbox_dir(), pat.subdir_name)
-			gmTools.mkdir(media_base_dir)
-		_log.debug('patient media base dir: %s', media_base_dir)
+		target_base_dir = base_dir
+		if target_base_dir is None:
+			target_base_dir = gmTools.mk_sandbox_dir(prefix = '%s-' % pat.subdir_name)
+		gmTools.mkdir(target_base_dir)
+		_log.debug('patient media base dir: %s', target_base_dir)
+		if not gmTools.dir_is_empty(target_base_dir):
+			_log.error('patient media base dir is not empty')
+			return False
 
-		doc_subdir = 'documents'
-		doc_dir = os.path.join(media_base_dir, doc_subdir)
-		if not os.path.isdir(doc_dir):
-			gmTools.mkdir(doc_dir)
-		existing_docs = os.listdir(doc_dir)		# get them now, or else we will include the to-be-exported items
-
-		_HTML_START_data = {
-			'html_title_header': _('Patient data for'),
-			'html_title_patient': gmTools.html_escape_string(pat.get_description_gender(with_nickname = False) + ', ' + _('born') + ' ' + pat.get_formatted_dob('%Y %B %d')),
-			'title': _('Patient data excerpt'),
-			'pat_name': gmTools.html_escape_string(pat.get_description_gender(with_nickname = False)),
-			'pat_dob': gmTools.html_escape_string(_('born') + ' ' + pat.get_formatted_dob('%Y %B %d')),
-			'mugshot_url': 'documents/no-such-file.png',
-			'mugshot_alt': _('no patient photograph available'),
-			'mugshot_title': '',
-			'docs_title': _('Documents'),
-			'browse_root': _('browse storage medium'),
-			'browse_docs': _('browse documents area'),
-			'browse_dicomdir': '',
-			'run_dicom_viewer': '',
-			'date' : gmTools.html_escape_string(gmDateTime.pydt_strftime(gmDateTime.pydt_now_here(), format = '%Y %B %d'))
-		}
-
-		mugshot = pat.document_folder.latest_mugshot
-		if mugshot is not None:
-			mugshot_fname = mugshot.save_to_file(adjust_extension = True)
-			mugshot_fname = self.__encrypt_file(mugshot_fname, passphrase = passphrase)
-			if mugshot_fname is None:
-				_log.error('cannot encrypt mugshot, aborting')
-				return None
-			mugshot_fname = shutil.copy2(mugshot_fname, doc_dir)
-			fname = os.path.split(mugshot_fname)[1]
-			_HTML_START_data['mugshot_url'] = os.path.join(doc_subdir, fname)
-			_HTML_START_data['mugshot_alt'] =_('patient photograph from %s') % gmDateTime.pydt_strftime(mugshot['date_generated'], '%B %Y')
-			_HTML_START_data['mugshot_title'] = gmDateTime.pydt_strftime(mugshot['date_generated'], '%B %Y')
-
-		if 'DICOMDIR' in os.listdir(media_base_dir):
-			_HTML_START_data['browse_dicomdir'] = '<li><a href="./DICOMDIR">%s</a></li>' % _('show DICOMDIR file')
-			# copy DWV into target dir
-			dwv_src_dir = os.path.join(gmTools.gmPaths().local_base_dir, 'resources', 'dwv4export')
-			if not os.path.isdir(dwv_src_dir):
-				dwv_src_dir = os.path.join(gmTools.gmPaths().system_app_data_dir, 'resources', 'dwv4export')
-			if os.path.isdir(dwv_src_dir):
-				_log.debug('exporting dwv')
-				dwv_target_dir = os.path.join(media_base_dir, 'dwv')
-				gmTools.rmdir(dwv_target_dir)
-				try:
-					shutil.copytree(dwv_src_dir, dwv_target_dir)
-					_HTML_START_data['run_dicom_viewer'] = '<li><a href="./dwv/viewers/mobile-local/index.html">%s</a></li>' % _('run Radiology Images (DICOM) Viewer')
-				except (shutil.Error, OSError):
-					_log.exception('cannot include DWV, skipping')
-
-		# index.html
-		# - header
-		idx_fname = os.path.join(media_base_dir, 'index.html')
-		idx_file = io.open(idx_fname, mode = 'wt', encoding = 'utf8')
-		idx_file.write(_HTML_START % _HTML_START_data)
-		# - middle (side effect ! -> exports items into files ...)
-		# - export items
-		for item in items:
-			item_fname = item.save_to_file()
-			item_fname = self.__encrypt_file(item_fname, passphrase = passphrase)
-			if item_fname is None:
-				_log.error('cannot encrypt export item, aborting')
-				return None
-			item_fname = shutil.copy2(item_fname, doc_dir)
-			fname = os.path.split(item_fname)[1]
-			idx_file.write(_HTML_LIST_ITEM % (
-				fname,
-				gmTools.html_escape_string(item['description'])
-			))
-		# - preexisting documents
-		for doc_basefname in existing_docs:
-			doc_fname = self.__encrypt_file(os.path.join(doc_dir, doc_basefname), passphrase = passphrase)
-			if doc_fname is None:
-				_log.error('cannot encrypt existing document file, aborting')
-				return None
-			idx_file.write(_HTML_LIST_ITEM % (
-				doc_basefname,
-				gmTools.html_escape_string(_('other: %s') % doc_basefname)
-			))
-		# - footer
 		from Gnumed.business.gmPraxis import gmCurrentPraxisBranch
 		prax = gmCurrentPraxisBranch()
-		lines = []
-		adr = prax.branch.org_unit.address
-		if adr is not None:
-			lines.extend(adr.format())
-		for comm in prax.branch.org_unit.comm_channels:
-			if comm['is_confidential'] is True:
+
+		html_data = {}
+
+		# 1) assemble everything in a sandbox
+		# - setup sandbox
+		sandbox_dir = gmTools.mk_sandbox_dir()
+		_log.debug('sandbox dir: %s', sandbox_dir)
+		doc_dir = os.path.join(sandbox_dir, DOCUMENTS_SUBDIR)
+		gmTools.mkdir(doc_dir)
+		# - export mugshot
+		mugshot = pat.document_folder.latest_mugshot
+		if mugshot is not None:
+			mugshot_fname = mugshot.save_to_file(directory = doc_dir, adjust_extension = True)
+			fname = os.path.split(mugshot_fname)[1]
+			html_data['mugshot_url'] = os.path.join(DOCUMENTS_SUBDIR, fname)
+			html_data['mugshot_alt'] =_('patient photograph from %s') % gmDateTime.pydt_strftime(mugshot['date_generated'], '%B %Y')
+			html_data['mugshot_title'] = gmDateTime.pydt_strftime(mugshot['date_generated'], '%B %Y')
+		# - export patient demographics as GDT/XML/VCF/MCF
+		pat.export_as_gdt(filename = os.path.join(sandbox_dir, 'patient.gdt'))
+		pat.export_as_xml_linuxmednews(filename = os.path.join(sandbox_dir, 'patient.xml'))
+		pat.export_as_vcard(filename = os.path.join(sandbox_dir, 'patient.vcf'))
+		pat.export_as_mecard(filename = os.path.join(sandbox_dir, u'patient.mcf'))
+		# - create CD.INF
+		self._create_cd_inf(pat, sandbox_dir)
+		# - export items
+		docs_list = []
+		for item in items:
+			# if it is a dicomdir - put it into the root of the target media
+			if item.is_DICOM_directory:
+				# save into base dir
+				item_fname = item.save_to_file(directory = target_base_dir)
+				# do not include into ./documents/ listing
 				continue
-			lines.append('%s: %s' % (
-				comm['l10n_comm_type'],
-				comm['url']
-			))
-		adr = ''
-		if len(lines) > 0:
-			adr = gmTools.html_escape_string('\n'.join(lines), replace_eol = True, keep_visual_eol = True)
-		_HTML_END_data = {
-			'branch': gmTools.html_escape_string(prax['branch']),
-			'praxis': gmTools.html_escape_string(prax['praxis']),
-			'gm_ver': gmTools.html_escape_string(gmTools.coalesce(_cfg.get(option = 'client_version'), 'git HEAD')),
-			'adr': adr
-		}
-		idx_file.write(_HTML_END % _HTML_END_data)
-		idx_file.close()
-		idx_fname = self.__encrypt_file(idx_fname, passphrase = passphrase)
-
-		# start.html (just a copy of index.html, really ;-)
-		start_fname = os.path.join(media_base_dir, 'start.html')
+			if item.is_valid_DIRENTRY:
+				# if there are files in the root dir: put it into a
+				# subdir of ./documents/ where subdir is the leaf
+				# of the the item .filename
+				if item.has_files_in_root:
+					tag, node, local_fs_path = item['filename'].split('::', 2)
+					subdir = local_fs_path.rstrip('/').split('/')[-1]
+					subdir = os.path.join(doc_dir, subdir)
+					gmTools.mkdir(subdir)
+					item_fname = item.save_to_file(directory = subdir)
+				# if it is subdirs only - put it into documents/ directly
+				else:
+					item_fname = item.save_to_file(directory = doc_dir)
+				# include into ./documents/ listing
+				fname = os.path.split(item_fname)[1]
+				docs_list.append([fname, gmTools.html_escape_string(item['description'])])
+				continue
+			if item.is_DIRENTRY:
+				# DIRENTRY but not valid: skip
+				continue
+			# normal entry, doc obj links or data item
+			item_fname = item.save_to_file(directory = doc_dir)
+			fname = os.path.split(item_fname)[1]
+			# collect items so we can later correlate items and descriptions
+			# actually we should link to encrypted items, and to unencrypted ones
+			docs_list.append([fname, gmTools.html_escape_string(item['description'])])
+		# - link to DICOMDIR if exists
+		if 'DICOMDIR' in os.listdir(sandbox_dir):	# in root path
+			has_dicomdir = True
+			html_data['browse_dicomdir'] = '<li><a href="./DICOMDIR">%s</a></li>' % _('show DICOMDIR file')
+		else:
+			has_dicomdir = False
+		# - include DWV link if there is a DICOMDIR
+		if has_dicomdir:
+			# do not clone into media base to avoid encryption,
+			# DWV will be cloned to there later on
+			dwv_sandbox_dir = self._clone_dwv()
+			if dwv_sandbox_dir is not None:
+				html_data['run_dicom_viewer'] = '<li><a href="./dwv/viewers/mobile-local/index.html">%s</a></li>' % _('run Radiology Images (DICOM) Viewer')
+		# - create frontpage.html
+		frontpage_fname = self._create_frontpage_html(pat, prax, sandbox_dir, html_data, docs_list)
+		# - start.html (just a copy of frontpage.html)
+		#   (later overwritten, if encryption is requested)
+		start_fname = os.path.join(sandbox_dir, 'start.html')
 		try:
-			shutil.copy2(idx_fname, start_fname)
+			shutil.copy2(frontpage_fname, start_fname)
 		except Exception:
-			_log.exception('cannot copy %s to %s', idx_fname, start_fname)
+			_log.exception('cannot copy %s to %s', frontpage_fname, start_fname)
+		# - start.html (just a convenience copy of frontpage.html)
+		start_fname = os.path.join(sandbox_dir, 'start.html')
+		try:
+			shutil.copy2(frontpage_fname, start_fname)
+		except Exception:
+			_log.exception('cannot copy %s to %s', frontpage_fname, start_fname)
 
-		# autorun.inf
-		autorun_dict = {}
-		# do NOT encrypt AUTORUN.INF in its entirety because Windows
-		# must parse it, rather protect contained patient data
+		# 2) encrypt content of sandbox
+		if passphrase is not None:
+			encrypted = gmCrypto.encrypt_directory_content (
+				directory = sandbox_dir,
+				receiver_key_ids = None,
+				passphrase = passphrase,
+				comment = None,
+				verbose = _cfg.get(option = 'debug'),
+				remove_unencrypted = True
+			)
+			if not encrypted:
+				_log.errror('cannot encrypt data in sandbox dir')
+				return False
+
+		# 3) add never-to-be-encrypted data
+		# - AUTORUN.INF
+		# - README
 		if passphrase is None:
-			autorun_dict['label'] = self._compute_autorun_inf_label(pat)
+			self._create_autorun_inf(pat, sandbox_dir)
+			self._create_readme(pat, sandbox_dir)
 		else:
-			autorun_dict['label'] = 'GNUmed patient data excerpt'
-		autorun_dict['action'] = _('Browse patient data')
-		autorun_dict['icon'] = ''
-		media_icon_kwd = '$$gnumed_patient_media_export_icon'
-		media_icon_kwd_exp = gmKeywordExpansion.get_expansion (
-			keyword = media_icon_kwd,
-			textual_only = False,
-			binary_only = True
-		)
-		icon_tmp_fname = media_icon_kwd_exp.save_to_file (
-			target_mime = 'image/x-icon',
-			target_extension = '.ico',
-			ignore_conversion_problems = True
-		)
-		if icon_tmp_fname is None:
-			_log.debug('cannot retrieve <%s>', media_icon_kwd)
-		else:
-			media_icon_fname = os.path.join(media_base_dir, 'gnumed.ico')
-			try:
-				shutil.copy2(icon_tmp_fname, media_icon_fname)
-				autorun_dict['icon'] = 'icon=gnumed.ico'
-			except Exception:
-				_log.exception('cannot move %s to %s', icon_tmp_fname, media_icon_fname)
-		autorun_fname = os.path.join(media_base_dir, 'AUTORUN.INF')
-		autorun_file = io.open(autorun_fname, mode = 'wt', encoding = 'cp1252', errors = 'replace')
-		autorun_file.write(_autorun_inf % autorun_dict)
-		autorun_file.close()
+			self._create_autorun_inf(None, sandbox_dir)
+			self._create_readme(None, sandbox_dir)
+		# - praxis VCF/MCF
+		shutil.move(prax.vcf, os.path.join(sandbox_dir, 'praxis.vcf'))
+		prax.export_as_mecard(filename = os.path.join(sandbox_dir, u'praxis.mcf'))
+		# - include DWV code
+		if has_dicomdir:
+			self._clone_dwv(target_dir = sandbox_dir)
+		# - index.html as boilerplate for decryption
+		index_fname = self._create_index_html(prax, sandbox_dir, html_data)
 
-		# cd.inf
-		cd_inf_fname = os.path.join(media_base_dir, 'CD.INF')
-		cd_inf_file = io.open(cd_inf_fname, mode = 'wt', encoding = 'utf8')
-		cd_inf_file.write(_cd_inf % (
-			pat['lastnames'],
-			pat['firstnames'],
-			gmTools.coalesce(pat['gender'], '?'),
-			pat.get_formatted_dob('%Y-%m-%d'),
-			gmDateTime.pydt_strftime(gmDateTime.pydt_now_here(), format = '%Y-%m-%d'),
-			pat.ID,
-			_cfg.get(option = 'client_version'),
-			' / '.join([ '%s = %s (%s)' % (g['tag'], g['label'], g['l10n_label']) for g in pat.gender_list ])
-		))
-		cd_inf_file.close()
-		cd_inf_fname = self.__encrypt_file(cd_inf_fname, passphrase = passphrase)
+		# 4) move sandbox to target dir
+		target_dir = gmTools.copy_tree_content(sandbox_dir, target_base_dir)
+		if target_dir is None:
+			_log.error('cannot fill target base dir')
+			return False
 
-		# README
-		readme_fname = os.path.join(media_base_dir, 'README')
-		readme_file = io.open(readme_fname, mode = 'wt', encoding = 'utf8')
-		if passphrase is None:
-			pat_str = pat.get_description_gender(with_nickname = False) + ', ' + _('born') + ' ' + pat.get_formatted_dob('%Y %B %d')
-		else:
-			pat_str = _('<protected>')
-		readme_file.write(_README % pat_str)
-		readme_file.close()
-
-		# patient demographics as GDT/XML/VCF/MCF
-		fname = os.path.join(media_base_dir, 'patient.gdt')
-		pat.export_as_gdt(filename = fname)
-		self.__encrypt_file(fname, passphrase = passphrase)
-		fname = os.path.join(media_base_dir, 'patient.xml')
-		pat.export_as_xml_linuxmednews(filename = fname)
-		self.__encrypt_file(fname, passphrase = passphrase)
-		fname = os.path.join(media_base_dir, 'patient.vcf')
-		pat.export_as_vcard(filename = fname)
-		self.__encrypt_file(fname, passphrase = passphrase)
-		fname = os.path.join(media_base_dir, u'patient.mcf')
-		pat.export_as_mecard(filename = fname)
-		self.__encrypt_file(fname, passphrase = passphrase)
-
-		# praxis VCF/MCF
-		shutil.move(prax.vcf, os.path.join(media_base_dir, 'praxis.vcf'))
-		prax.export_as_mecard(filename = os.path.join(media_base_dir, u'praxis.mcf'))
-
-		return media_base_dir
+		return target_dir
 
 	#--------------------------------------------------------
 	def export_as_zip(self, base_dir=None, items=None, passphrase=None):
@@ -938,7 +1032,280 @@ class cExportArea(object):
 		return zip_file
 
 	#--------------------------------------------------------
+	def _create_index_html(self, praxis, directory, data):
+		# header part
+		_HTML_data = {
+			'html_title_header': _('Patient data'),
+			'title': _('Patient data excerpt'),
+			'docs_title': _('Documents'),
+			'browse_root': _('browse storage medium'),
+			'browse_docs': _('browse documents area'),
+			'doc_subdir': DOCUMENTS_SUBDIR,
+			'date' : gmTools.html_escape_string(gmDateTime.pydt_strftime(gmDateTime.pydt_now_here(), format = '%Y %B %d'))
+		}
+		frontpage_fname_enc = 'frontpage.html.asc'
+		if os.path.isfile(os.path.join(directory, frontpage_fname_enc)):
+			_HTML_data['frontpage_fname'] = frontpage_fname_enc
+		frontpage_fname_enc = 'frontpage.html.7z'
+		if os.path.isfile(os.path.join(directory, frontpage_fname_enc)):
+			_HTML_data['frontpage_fname'] = frontpage_fname_enc
+		# footer part
+		lines = []
+		adr = praxis.branch.org_unit.address
+		if adr is not None:
+			lines.extend(adr.format())
+		for comm in praxis.branch.org_unit.comm_channels:
+			if comm['is_confidential'] is True:
+				continue
+			lines.append('%s: %s' % (
+				comm['l10n_comm_type'],
+				comm['url']
+			))
+		adr = ''
+		if len(lines) > 0:
+			adr = gmTools.html_escape_string('\n'.join(lines), replace_eol = True, keep_visual_eol = True)
+		_HTML_data['branch'] = gmTools.html_escape_string(praxis['branch'])
+		_HTML_data['praxis'] = gmTools.html_escape_string(praxis['praxis'])
+		_HTML_data['gm_ver'] = gmTools.html_escape_string(gmTools.coalesce(_cfg.get(option = 'client_version'), 'git HEAD'))
+		_HTML_data['adr'] = adr
+		# create file
+		index_fname = os.path.join(directory, 'index.html')
+		index_file = io.open(index_fname, mode = 'wt', encoding = 'utf8')
+		index_file.write(_INDEX_HTML_CONTENT % _HTML_data)
+		index_file.close()
+		return index_fname
+
+	#--------------------------------------------------------
+	def _create_frontpage_html(self, patient, praxis, directory, data, docs_list):
+		# <li><a href="documents/filename-1.ext">document 1 description</a></li>
+		_HTML_LIST_ITEM = '	<li><a href="%s">%s</a></li>'
+		# header part
+		_HTML_data = {
+			'html_title_header': _('Patient data for'),
+			'html_title_patient': gmTools.html_escape_string(patient.get_description_gender(with_nickname = False) + ', ' + _('born') + ' ' + patient.get_formatted_dob('%Y %B %d')),
+			'title': _('Patient data excerpt'),
+			'pat_name': gmTools.html_escape_string(patient.get_description_gender(with_nickname = False)),
+			'pat_dob': gmTools.html_escape_string(_('born') + ' ' + patient.get_formatted_dob('%Y %B %d')),
+			'mugshot_url': 'documents/no-such-file.png',
+			'mugshot_alt': _('no patient photograph available'),
+			'mugshot_title': '',
+			'docs_title': _('Documents'),
+			'browse_root': _('browse storage medium'),
+			'browse_docs': _('browse documents area'),
+			'doc_subdir': DOCUMENTS_SUBDIR,
+			'browse_dicomdir': '',
+			'run_dicom_viewer': '',
+			'date' : gmTools.html_escape_string(gmDateTime.pydt_strftime(gmDateTime.pydt_now_here(), format = '%Y %B %d'))
+		}
+		for key in data:
+			_HTML_data[key] = data[key]
+
+		# documents part
+		_HTML_docs_list = []
+		for doc in docs_list:
+			subdir = os.path.join(directory, DOCUMENTS_SUBDIR, doc[0])
+			if os.path.isdir(subdir):
+				_HTML_docs_list.append(_HTML_LIST_ITEM % (os.path.join(DOCUMENTS_SUBDIR, doc[0]), _('DIRECTORY: %s/%s/') % (DOCUMENTS_SUBDIR, doc[0])))
+				_HTML_docs_list.append('	<ul>')
+				for fname in os.listdir(subdir):
+					tmp = os.path.join(subdir, fname)
+					if os.path.isdir(tmp):
+						_HTML_docs_list.append('		<li><a href="%s">%s</a></li>' % (os.path.join(DOCUMENTS_SUBDIR, doc[0], fname), _('DIRECTORY: %s/%s/%s/') % (DOCUMENTS_SUBDIR, doc[0], fname)))
+					else:
+						_HTML_docs_list.append('		<li><a href="%s">%s</a></li>' % (os.path.join(DOCUMENTS_SUBDIR, doc[0], fname), fname))
+				_HTML_docs_list.append('	</ul>')
+			else:
+				_HTML_docs_list.append(_HTML_LIST_ITEM % (doc[0], doc[1]))
+		_HTML_data['docs_list'] = u'\n	'.join(_HTML_docs_list)
+
+		# footer part
+		lines = []
+		adr = praxis.branch.org_unit.address
+		if adr is not None:
+			lines.extend(adr.format())
+		for comm in praxis.branch.org_unit.comm_channels:
+			if comm['is_confidential'] is True:
+				continue
+			lines.append('%s: %s' % (
+				comm['l10n_comm_type'],
+				comm['url']
+			))
+		adr = ''
+		if len(lines) > 0:
+			adr = gmTools.html_escape_string('\n'.join(lines), replace_eol = True, keep_visual_eol = True)
+		_HTML_data['branch'] = gmTools.html_escape_string(praxis['branch'])
+		_HTML_data['praxis'] = gmTools.html_escape_string(praxis['praxis'])
+		_HTML_data['gm_ver'] = gmTools.html_escape_string(gmTools.coalesce(_cfg.get(option = 'client_version'), 'git HEAD'))
+		_HTML_data['adr'] = adr
+		# create file
+		frontpage_fname = os.path.join(directory, 'frontpage.html')
+		frontpage_file = io.open(frontpage_fname, mode = 'wt', encoding = 'utf8')
+		frontpage_file.write(_FRONTPAGE_HTML_CONTENT % _HTML_data)
+		frontpage_file.close()
+		return frontpage_fname
+
+	#--------------------------------------------------------
+	def _clone_dwv(self, target_dir=None):
+		_log.debug('cloning dwv')
+		# find DWV
+		dwv_src_dir = os.path.join(gmTools.gmPaths().local_base_dir, 'resources', 'dwv4export')
+		if not os.path.isdir(dwv_src_dir):
+			_log.debug('[%s] not found', dwv_src_dir)
+			dwv_src_dir = os.path.join(gmTools.gmPaths().system_app_data_dir, 'resources', 'dwv4export')
+		if not os.path.isdir(dwv_src_dir):
+			_log.debug('[%s] not found', dwv_src_dir)
+			return None
+		# clone it
+		if target_dir is None:
+			target_dir = gmTools.mk_sandbox_dir()
+		dwv_target_dir = os.path.join(target_dir, 'dwv')
+		gmTools.rmdir(dwv_target_dir)
+		try:
+			shutil.copytree(dwv_src_dir, dwv_target_dir)
+		except (shutil.Error, OSError):
+			_log.exception('cannot include DWV, skipping')
+			return None
+
+		return dwv_target_dir
+
+	#--------------------------------------------------------
+	def _create_readme(self, patient, directory):
+		_README_CONTENT = (
+			'This is a patient data excerpt created by the GNUmed Electronic Medical Record.\n'
+			'\n'
+			'Patient: %s\n'
+			'\n'
+			'Please display <frontpage.html> to browse patient data.\n'
+			'\n'
+			'Individual documents are stored in the subdirectory\n'
+			'\n'
+			'	documents/\n'
+			'\n'
+			'\n'
+			'Data may need to be decrypted with either GNU Privacy\n'
+			'Guard or 7zip/WinZip.\n'
+			'\n'
+			'.asc:\n'
+			'	https://gnupg.org\n'
+			'\n'
+			'.7z:\n'
+			'	https://www.7-zip.org\n'
+			'	https://www.winzip.com\n'
+			'\n'
+			'To obtain any needed keys you will have to get in touch with\n'
+			'the creator or the owner of this patient media excerpt.\n'
+		)
+		readme_fname = os.path.join(directory, 'README')
+		readme_file = io.open(readme_fname, mode = 'wt', encoding = 'utf8')
+		if patient is None:
+			pat_str = _('<protected>')
+		else:
+			pat_str = patient.get_description_gender(with_nickname = False) + ', ' + _('born') + ' ' + patient.get_formatted_dob('%Y %B %d')
+		readme_file.write(_README_CONTENT % pat_str)
+		readme_file.close()
+		return readme_fname
+
+	#--------------------------------------------------------
+	def _create_cd_inf(self, patient, directory):
+		_CD_INF_CONTENT = (
+			'[Patient Info]\r\n'					# needs \r\n for Windows
+			'PatientName=%s, %s\r\n'
+			'Gender=%s\r\n'
+			'BirthDate=%s\r\n'
+			'CreationDate=%s\r\n'
+			'PID=%s\r\n'
+			'EMR=GNUmed\r\n'
+			'Version=%s\r\n'
+			'#StudyDate=\r\n'
+			'#VNRInfo=<body part>\r\n'
+			'\r\n'
+			'# name format: lastnames, firstnames\r\n'
+			'# date format: YYYY-MM-DD (ISO 8601)\r\n'
+			'# gender format: %s\r\n'
+		)
+		fname = os.path.join(directory, 'CD.INF')
+		cd_inf = io.open(fname, mode = 'wt', encoding = 'utf8')
+		cd_inf.write(_CD_INF_CONTENT % (
+			patient['lastnames'],
+			patient['firstnames'],
+			gmTools.coalesce(patient['gender'], '?'),
+			patient.get_formatted_dob('%Y-%m-%d'),
+			gmDateTime.pydt_strftime(gmDateTime.pydt_now_here(), format = '%Y-%m-%d'),
+			patient.ID,
+			_cfg.get(option = 'client_version'),
+			' / '.join([ '%s = %s (%s)' % (g['tag'], g['label'], g['l10n_label']) for g in patient.gender_list ])
+		))
+		cd_inf.close()
+		return fname
+
+	#--------------------------------------------------------
+	def _create_autorun_inf(self, patient, directory):
+		_AUTORUN_INF_CONTENT = (							# needs \r\n for Windows
+			'[AutoRun.Amd64]\r\n'					# 64 bit
+			'label=%(label)s\r\n'					# patient name/DOB
+			'shellexecute=index.html\r\n'
+			'action=%(action)s\r\n'					# % _('Browse patient data')
+			'%(icon)s\r\n'							# "icon=gnumed.ico" or ""
+			'UseAutoPlay=1\r\n'
+			'\r\n'
+			'[AutoRun]\r\n'							# 32 bit
+			'label=%(label)s\r\n'					# patient name/DOB
+			'shellexecute=index.html\r\n'
+			'action=%(action)s\r\n'					# % _('Browse patient data')
+			'%(icon)s\r\n'							# "icon=gnumed.ico" or ""
+			'UseAutoPlay=1\r\n'
+			'\r\n'
+			'[Content]\r\n'
+			'PictureFiles=yes\r\n'
+			'VideoFiles=yes\r\n'
+			'MusicFiles=no\r\n'
+			'\r\n'
+			'[IgnoreContentPaths]\r\n'
+			'\documents\r\n'
+			'\r\n'
+			'[unused]\r\n'
+			'open=requires explicit executable\r\n'
+		)
+		autorun_dict = {
+			'label': self._compute_autorun_inf_label(patient),
+			'action': _('Browse patient data'),
+			'icon': ''
+		}
+		media_icon_kwd = '$$gnumed_patient_media_export_icon'
+		media_icon_kwd_exp = gmKeywordExpansion.get_expansion (
+			keyword = media_icon_kwd,
+			textual_only = False,
+			binary_only = True
+		)
+		icon_tmp_fname = media_icon_kwd_exp.save_to_file (
+			target_mime = 'image/x-icon',
+			target_extension = '.ico',
+			ignore_conversion_problems = True
+		)
+		if icon_tmp_fname is None:
+			_log.error('cannot retrieve <%s>', media_icon_kwd)
+		else:
+			media_icon_fname = os.path.join(directory, 'gnumed.ico')
+			try:
+				shutil.copy2(icon_tmp_fname, media_icon_fname)
+				autorun_dict['icon'] = 'icon=gnumed.ico'
+			except Exception:
+				_log.exception('cannot move %s to %s', icon_tmp_fname, media_icon_fname)
+		autorun_fname = os.path.join(directory, 'AUTORUN.INF')
+		autorun_file = io.open(autorun_fname, mode = 'wt', encoding = 'cp1252', errors = 'replace')
+		autorun_file.write(_AUTORUN_INF_CONTENT % autorun_dict)
+		autorun_file.close()
+		return autorun_fname
+
+	#--------------------------------------------------------
 	def _compute_autorun_inf_label(self, patient):
+		if patient is None:
+			# if no patient provided - assume the target media
+			# is to be encrypted and thusly do not expose patient data,
+			# AUTORUN.INF itself will not be encrypted because
+			# Windows must be able to parse it
+			return _('GNUmed patient data excerpt')[:32]
+
 		LABEL_MAX_LEN = 32
 		dob = patient.get_formatted_dob(format = ' %Y%m%d', none_string = '', honor_estimation = False)
 		if dob == '':
@@ -1032,11 +1399,15 @@ if __name__ == '__main__':
 		exp = cExportArea(12)
 		#print exp.export_with_meta_data()
 		#print exp.items
-		exp.add_file(sys.argv[2])
+		#exp.add_file(sys.argv[2])
 		prax = gmPraxis.gmCurrentPraxisBranch(branch = gmPraxis.cPraxisBranch(1))
-		print(prax)
-		print(prax.branch)
-		print(exp.export())
+		#print(prax)
+		#print(prax.branch)
+		try:
+			pwd = sys.argv[2]
+		except IndexError:
+			pwd = None
+		print(exp.export(passphrase = pwd))
 
 	#---------------------------------------
 	def test_label():

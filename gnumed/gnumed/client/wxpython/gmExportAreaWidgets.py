@@ -653,7 +653,7 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 			target,
 			'\n - '.join([ i['description'] for i in items ])
 		))
-		self.__browse_patient_data(export_dir, encrypted = encrypt, archive = create_archive, has_metadata = generate_metadata)
+		self.__browse_patient_data(export_dir)
 
 		# remove_entries ?
 
@@ -706,12 +706,12 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 		else:
 			dir2save2 = base_dir
 		export_dir = self.__export_as_files (
-				gmTools.coalesce(encrypt, _('Exporting encrypted entries'), _('Exporting entries')),
-				base_dir = dir2save2,
-				items = items,
-				encrypt = encrypt,
-				with_metadata = True
-			)
+			gmTools.coalesce(encrypt, _('Exporting encrypted entries'), _('Exporting entries')),
+			base_dir = dir2save2,
+			items = items,
+			encrypt = encrypt,
+			with_metadata = True
+		)
 		if export_dir is None:
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot export: aborted or error.'))
 			return
@@ -873,23 +873,6 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 
 	#--------------------------------------------------------
 	def __export_as_files(self, msg_title, base_dir=None, encrypt=False, with_metadata=False, items=None):
-		# anything to do ?
-		if items is None:
-			items = self._LCTRL_items.get_selected_item_data(only_one = False)
-			if len(items) == 0:
-				items = self._LCTRL_items.get_item_data()
-				if len(items) == 0:
-					gmDispatcher.send(signal = 'statustext', msg = _('No items to export.'))
-					return None
-				if len(items) > 1:
-					# ask, might be a lot
-					process_all = gmGuiHelpers.gm_show_question (
-						title = msg_title,
-						question = _('You have not selected any entries.\n\nSave all %s entries ?') % len(items),
-						cancel_button = False
-					)
-					if not process_all:
-						return None
 		# get password
 		data_pwd = None
 		if encrypt:
@@ -919,23 +902,6 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 
 	#--------------------------------------------------------
 	def __export_as_zip(self, msg_title, encrypt=True, items=None):
-		# anything to do ?
-		if items is None:
-			items = self._LCTRL_items.get_selected_item_data(only_one = False)
-			if len(items) == 0:
-				items = self._LCTRL_items.get_item_data()
-				if len(items) == 0:
-					gmDispatcher.send(signal = 'statustext', msg = _('No items to create archive from.'))
-					return None
-				if len(items) > 1:
-					# ask, might be a lot
-					process_all = gmGuiHelpers.gm_show_question (
-						title = msg_title,
-						question = _('You have not selected any entries.\n\nCreate archive from all %s entries ?') % len(items),
-						cancel_button = False
-					)
-					if not process_all:
-						return None
 		# get password
 		zip_pwd = None
 		if encrypt:
@@ -946,17 +912,18 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 				return None
 		# create archive
 		wx.BeginBusyCursor()
+		zip_file = None
 		try:
 			exp_area = gmPerson.gmCurrentPatient().export_area
 			zip_file = exp_area.export_as_zip(passphrase = zip_pwd, items = items)
-		finally:
-			wx.EndBusyCursor()
+		except Exception:
+			_log.exception('cannot create zip file')
+		wx.EndBusyCursor()
 		if zip_file is None:
 			gmGuiHelpers.gm_show_error (
 				aMessage = _('Error creating zip file.'),
 				aTitle = msg_title
 			)
-			return None
 		return zip_file
 
 	#--------------------------------------------------------
@@ -1068,7 +1035,7 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 		return False
 
 	#--------------------------------------------------------
-	def __browse_patient_data(self, base_dir, encrypted=False, archive=False, has_metadata=False):
+	def __browse_patient_data(self, base_dir):
 
 		msg = _('Documents saved into:\n\n %s') % base_dir
 		browse_index = gmGuiHelpers.gm_show_question (
@@ -1079,15 +1046,7 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 		if not browse_index:
 			return
 
-		if archive:
-			gmMimeLib.call_viewer_on_file(base_dir, block = False)
-			return
-
-		if encrypted:
-			gmMimeLib.call_viewer_on_file(base_dir, block = False)
-			return
-
-		if has_metadata:
+		if os.path.isfile(os.path.join(base_dir, 'index.html')):
 			gmNetworkTools.open_url_in_browser(url = 'file://%s' % os.path.join(base_dir, 'index.html'))
 			return
 

@@ -281,7 +281,7 @@ def gpg_decrypt_file(filename=None, passphrase=None, verbose=False, target_ext=N
 #===========================================================================
 # file encryption methods
 #---------------------------------------------------------------------------
-def gpg_encrypt_file_symmetric(filename=None, comment=None, verbose=False, passphrase=None):
+def gpg_encrypt_file_symmetric(filename=None, comment=None, verbose=False, passphrase=None, remove_unencrypted=False):
 
 	#add short decr instr to comment
 	assert (filename is not None), '<filename> must not be None'
@@ -335,12 +335,17 @@ def gpg_encrypt_file_symmetric(filename=None, comment=None, verbose=False, passp
 	finally:
 		if pwd_fname is not None:
 			os.remove(pwd_fname)
-	if success:
+	if not success:
+		return None
+	if not remove_unencrypted:
 		return filename_encrypted
+	if gmTools.remove_file(filename):
+		return filename_encrypted
+	gmTools.remove_file(filename_encrypted)
 	return None
 
 #---------------------------------------------------------------------------
-def aes_encrypt_file(filename=None, passphrase=None, comment=None, verbose=False):
+def aes_encrypt_file(filename=None, passphrase=None, comment=None, verbose=False, remove_unencrypted=False):
 	assert (filename is not None), '<filename> must not be None'
 	assert (passphrase is not None), '<passphrase> must not be None'
 
@@ -374,8 +379,13 @@ def aes_encrypt_file(filename=None, passphrase=None, comment=None, verbose=False
 	args = [binary, 'a', '-bb3', '-mx0', "-p%s" % passphrase, filename_encrypted, filename, comment_filename]
 	encrypted, exit_code, stdout = gmShellAPI.run_process(cmd_line = args, encoding = 'utf8', verbose = verbose)
 	gmTools.remove_file(comment_filename)
-	if encrypted:
+	if not encrypted:
+		return None
+	if not remove_unencrypted:
 		return filename_encrypted
+	if gmTools.remove_file(filename):
+		return filename_encrypted
+	gmTools.remove_file(filename_encrypted)
 	return None
 
 #---------------------------------------------------------------------------
@@ -414,31 +424,67 @@ def encrypt_pdf(filename=None, passphrase=None, verbose=False):
 	return None
 
 #---------------------------------------------------------------------------
-def encrypt_file_symmetric(filename=None, passphrase=None, comment=None, verbose=False):
+def encrypt_file_symmetric(filename=None, passphrase=None, comment=None, verbose=False, remove_unencrypted=False):
 	assert (filename is not None), '<filename> must not be None'
 
 	# pdf ?
 	enc_filename = encrypt_pdf(filename = filename, passphrase = passphrase, verbose = verbose)
 	if enc_filename is not None:
 		return enc_filename
-	# try GPG based
-	enc_filename = gpg_encrypt_file_symmetric(filename = filename, passphrase = passphrase, comment = comment, verbose = verbose)
+	# try 7z based AES
+	enc_filename = aes_encrypt_file(filename = filename, passphrase = passphrase, comment = comment, verbose = verbose, remove_unencrypted = remove_unencrypted)
 	if enc_filename is not None:
 		return enc_filename
-	# try 7z based
-	return aes_encrypt_file(filename = filename, passphrase = passphrase, comment = comment, verbose = verbose)
+	# try GPG based
+	return gpg_encrypt_file_symmetric(filename = filename, passphrase = passphrase, comment = comment, verbose = verbose, remove_unencrypted = remove_unencrypted)
 
 #---------------------------------------------------------------------------
-def encrypt_file(filename=None, receiver_key_ids=None, passphrase=None, comment=None, verbose=False):
+def encrypt_file(filename=None, receiver_key_ids=None, passphrase=None, comment=None, verbose=False, remove_unencrypted=False):
 	assert (filename is not None), '<filename> must not be None'
 
 	# cannot do asymmetric
 	if receiver_key_ids is None:
 		_log.debug('no receiver key IDs: cannot try asymmetric encryption')
-		return encrypt_file_symmetric(filename = filename, passphrase = passphrase, comment = comment, verbose = verbose)
+		return encrypt_file_symmetric(filename = filename, passphrase = passphrase, comment = comment, verbose = verbose, remove_unencrypted = remove_unencrypted)
 
 	# asymmetric not implemented yet
 	return None
+
+#---------------------------------------------------------------------------
+def encrypt_directory_content(directory=None, receiver_key_ids=None, passphrase=None, comment=None, verbose=False, remove_unencrypted=True):
+	assert (directory is not None), 'source <directory> must not be None'
+	_log.debug('encrypting content of [%s]', directory)
+	try:
+		items = os.listdir(directory)
+	except OSError:
+		return False
+
+	for item in items:
+		full_item = os.path.join(directory, item)
+		if os.path.isdir(full_item):
+			subdir_encrypted = encrypt_directory_content (
+				directory = full_item,
+				receiver_key_ids = receiver_key_ids,
+				passphrase = passphrase,
+				comment = comment,
+				verbose = verbose
+			)
+			if subdir_encrypted is False:
+				return False
+			continue
+
+		fname_encrypted = encrypt_file (
+			filename = full_item,
+			receiver_key_ids = receiver_key_ids,
+			passphrase = passphrase,
+			comment = comment,
+			verbose = verbose,
+			remove_unencrypted = remove_unencrypted
+		)
+		if fname_encrypted is None:
+			return False
+
+	return True
 
 #===========================================================================
 # main
