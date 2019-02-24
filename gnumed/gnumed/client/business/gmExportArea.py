@@ -428,7 +428,7 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 		found_DICOMDIR = False
 		for fs_entry in os.listdir(local_fs_path):
 			# found a subdir
-			if os.path.isdir(fs_entry):
+			if os.path.isdir(os.path.join(local_fs_path, fs_entry)):
 				# allow for any number of subdirs
 				continue
 			# found a file
@@ -673,7 +673,7 @@ class cExportArea(object):
 		return all_ok
 
 	#--------------------------------------------------------
-	def add_path(self, path):
+	def add_path(self, path, comment=None):
 		"""Add a DIR entry to the export area.
 
 		This sort of entry points to a certain directory on a
@@ -692,11 +692,16 @@ class cExportArea(object):
 			_log.debug('[%s] already in export area', path)
 			return item
 
-		item = create_export_item (
-			description = _('path [%s/] on computer "%s"') % (
+		if comment is None:
+			comment = _('path [%s/] on computer "%s"') % (
 				path.rstrip('/'),
 				platform.node()
-			),
+			)
+		else:
+			comment += _(' (on "%s")') % platform.node()
+
+		item = create_export_item (
+			description = comment,
 			pk_identity = self.__pk_identity,
 			filename = path_item_data
 		)
@@ -840,6 +845,7 @@ class cExportArea(object):
 
 	#--------------------------------------------------------
 	def dump_items_to_disk_as_zip(self, base_dir=None, items=None, passphrase=None):
+		_log.debug('target dir: %s', base_dir)
 		dump_dir = self.dump_items_to_disk(base_dir = base_dir, items = items)
 		if dump_dir is None:
 			_log.error('cannot dump export area items')
@@ -906,11 +912,13 @@ class cExportArea(object):
 		for item in items:
 			# if it is a dicomdir - put it into the root of the target media
 			if item.is_DICOM_directory:
+				_log.debug('exporting DICOMDIR DIRENTRY')
 				# save into base dir
-				item_fname = item.save_to_file(directory = target_base_dir)
+				item_fname = item.save_to_file(directory = sandbox_dir)
 				# do not include into ./documents/ listing
 				continue
 			if item.is_valid_DIRENTRY:
+				_log.debug('exporting DIRENTRY')
 				# if there are files in the root dir: put it into a
 				# subdir of ./documents/ where subdir is the leaf
 				# of the the item .filename
@@ -964,6 +972,12 @@ class cExportArea(object):
 			shutil.copy2(frontpage_fname, start_fname)
 		except Exception:
 			_log.exception('cannot copy %s to %s', frontpage_fname, start_fname)
+		# - index.html (just a convenience copy of frontpage.html, overwritten if encryption is requested)
+		index_fname = os.path.join(sandbox_dir, 'index.html')
+		try:
+			shutil.copy2(frontpage_fname, index_fname)
+		except Exception:
+			_log.exception('cannot copy %s to %s', frontpage_fname, index_fname)
 
 		# 2) encrypt content of sandbox
 		if passphrase is not None:
@@ -995,7 +1009,8 @@ class cExportArea(object):
 		if has_dicomdir:
 			self._clone_dwv(target_dir = sandbox_dir)
 		# - index.html as boilerplate for decryption
-		index_fname = self._create_index_html(prax, sandbox_dir, html_data)
+		if passphrase is not None:
+			index_fname = self._create_index_html(prax, sandbox_dir, html_data)
 
 		# 4) move sandbox to target dir
 		target_dir = gmTools.copy_tree_content(sandbox_dir, target_base_dir)
@@ -1007,6 +1022,7 @@ class cExportArea(object):
 
 	#--------------------------------------------------------
 	def export_as_zip(self, base_dir=None, items=None, passphrase=None):
+		_log.debug('target dir: %s', base_dir)
 		export_dir = self.export(base_dir = base_dir, items = items)
 		if export_dir is None:
 			_log.debug('cannot export items')

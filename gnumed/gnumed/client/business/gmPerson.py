@@ -1939,33 +1939,15 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 	def get_subdir_name(self):
 		"""Format patient demographics into patient specific path name fragment."""
 
-		return gmTools.fname_sanitize('%s-%s-%s' % (
+		return gmTools.fname_sanitize('%s-%s-%s-ID_%s' % (
 			self._payload[self._idx['lastnames']],
 			self._payload[self._idx['firstnames']],
-			self.get_formatted_dob(format = '%Y-%m-%d')
+			self.get_formatted_dob(format = '%Y-%m-%d'),
+			self._payload[self._idx['pk_identity']]		# make unique across "same" patients
 		))
-#		return (u'%s-%s-%s' % (
-#			self._payload[self._idx['lastnames']].replace(u' ', u'_'),
-#			self._payload[self._idx['firstnames']].replace(u' ', u'_'),
-#			self.get_formatted_dob(format = '%Y-%m-%d')
-#		)).replace (
-#			u"'", u""
-#		).replace (
-#			u'"', u''
-#		).replace (
-#			u'/', u'_'
-#		).replace (
-#			u'\\', u'_'
-#		).replace (
-#			u'~', u''
-#		).replace (
-#			u'|', u'_'
-#		).replace (
-#			u'*', u''
-#		).replace (
-#			u'\u2248', u''			# "approximately", having been added by dob_is_estimated
-#		)
-
+		#).replace (
+		#	u'\u2248', u''			# "approximately", having been added by dob_is_estimated
+		#)
 
 	subdir_name = property(get_subdir_name, lambda x:x)
 

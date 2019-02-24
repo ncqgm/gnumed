@@ -151,16 +151,41 @@ def handle_uncaught_exception_console(t, v, tb):
 # path level operations
 #---------------------------------------------------------------------------
 def mkdir(directory=None, mode=None):
-	try:
+	"""Create directory.
+
+	- creates parent dirs if necessary
+	- does not fail if directory exists
+	<mode>: numeric, say 0o0700  for "-rwx------"
+	"""
+	if os.path.isdir(directory):
 		if mode is None:
-			os.makedirs(directory)
-		else:
+			return True
+		try:
 			old_umask = os.umask(0)
-			os.makedirs(directory, mode)
-			os.umask(old_umask)
-	except OSError as e:
-		if (e.errno == 17) and not os.path.isdir(directory):
+			# does not WORK !
+			#os.chmod(directory, mode, follow_symlinks = (os.chmod in os.supports_follow_symlinks))	# can't do better
+			os.chmod(directory, mode)
+			return True
+		except Exception:
+			_log.exception('cannot os.chmod(%s, %s)', oct(mode), directory)
 			raise
+		finally:
+			os.umask(old_umask)
+		return False
+
+	if mode is None:
+		os.makedirs(directory)
+		return True
+
+	try:
+		old_umask = os.umask(0)
+		os.makedirs(directory, mode)
+		return True
+	except Exception:
+		_log.exception('cannot os.makedirs(%s, %s)', oct(mode), directory)
+		raise
+	finally:
+		os.umask(old_umask)
 	return True
 
 #---------------------------------------------------------------------------
@@ -205,8 +230,11 @@ def rm_dir_content(directory):
 def mk_sandbox_dir(prefix=None, base_dir=None):
 	if base_dir is None:
 		base_dir = gmPaths().tmp_dir
+	else:
+		if not os.path.isdir(base_dir):
+			mkdir(base_dir, mode = 0o0700)	# (invoking user only)
 	if prefix is None:
-		prefix = 'sandbox-'
+		prefix = 'sndbx-'
 	return tempfile.mkdtemp(prefix = prefix, suffix = '', dir = base_dir)
 
 #---------------------------------------------------------------------------
@@ -1896,7 +1924,7 @@ if __name__ == '__main__':
 	#-----------------------------------------------------------------------
 	def test_mkdir():
 		print("testing mkdir(%s)" % sys.argv[2])
-		mkdir(sys.argv[2])
+		mkdir(sys.argv[2], 0o0700)
 	#-----------------------------------------------------------------------
 	def test_gmPaths():
 		print("testing gmPaths()")
@@ -2244,10 +2272,14 @@ second line\n
 		print(copy_tree_content(sys.argv[2], sys.argv[3]))
 
 	#-----------------------------------------------------------------------
+	def test_mk_sandbox_dir():
+		print(mk_sandbox_dir(base_dir = '/tmp/abcd/efg/h'))
+
+	#-----------------------------------------------------------------------
 	#test_coalesce()
 	#test_capitalize()
 	#test_import_module()
-	#test_mkdir()
+	test_mkdir()
 	#test_gmPaths()
 	#test_none_if()
 	#test_bool2str()
@@ -2276,6 +2308,7 @@ second line\n
 	#test_create_qrcode()
 	#test_enumerate_removable_partitions()
 	#test_enumerate_optical_writers()
-	test_copy_tree_content()
+	#test_copy_tree_content()
+	#test_mk_sandbox_dir()
 
 #===========================================================================
