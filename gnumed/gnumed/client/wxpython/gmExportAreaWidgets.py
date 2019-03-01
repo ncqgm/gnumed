@@ -557,7 +557,7 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 		if not really_delete:
 			return
 		for item in items:
-			gmExportArea.delete_export_item(pk_export_item = item['pk_export_item'])
+			gmPerson.gmCurrentPatient().export_area.remove_item(item)
 
 	#--------------------------------------------------------
 	def _on_print_items_button_pressed(self, event):
@@ -1212,6 +1212,7 @@ class cPrintMgrPluginPnl(wxgPrintMgrPluginPnl.wxgPrintMgrPluginPnl, gmRegetMixin
 				return
 		for printout in printouts:
 			gmExportArea.delete_export_item(pk_export_item = printout['pk_export_item'])
+
 	#--------------------------------------------------------
 	# internal API
 	#--------------------------------------------------------

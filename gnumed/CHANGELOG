@@ -18,6 +18,7 @@ NEW: test results tab showing most-recent in test panel
 NEW: local documents cache
 NEW: systemd-tmpfiles config file
 NEW: emailing of export area content as encrypted zip file
+NEW: local directory entries in export area
 
 IMPROVED: symbolic link creation on Windows
 IMPROVED: Orthanc connection handling

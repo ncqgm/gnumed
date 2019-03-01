@@ -39,8 +39,8 @@ _log = logging.getLogger('gm.exp_area')
 _cfg = gmCfg2.gmCfgData()
 
 PRINT_JOB_DESIGNATION = 'print'
-
 DOCUMENTS_SUBDIR = 'documents'
+DIRENTRY_README_NAME = '.README.GNUmed-DIRENTRY'
 
 #============================================================
 # export area item handling
@@ -338,6 +338,8 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 		if tmp is None:
 			_log.error('cannot dump DIRENTRY item [%s] into [%s]: copy error', self._payload[self._idx['filename']], sandbox_dir)
 			return False
+
+		gmTools.remove_file(os.path.join(tmp, DIRENTRY_README_NAME))
 
 		if passphrase is not None:
 			_log.debug('encrypting sandbox: %s', sandbox_dir)
@@ -705,6 +707,16 @@ class cExportArea(object):
 			pk_identity = self.__pk_identity,
 			filename = path_item_data
 		)
+		try:
+			README = open(os.path.join(path, DIRENTRY_README_NAME), mode = 'wt', encoding = 'utf8')
+			README.write('GNUmed DIRENTRY information\n')
+			README.write('created: %s\n' % gmDateTime.pydt_now_here())
+			README.write('machine: %s\n' % platform.node())
+			README.write('path: %s\n' % path)
+			README.close()
+		except OSError:
+			_log.exception('READONLY DIRENTRY [%s]', path)
+
 		return item
 
 	#--------------------------------------------------------
@@ -825,6 +837,16 @@ class cExportArea(object):
 
 		r = rows[0]
 		return cExportItem(row = {'data': r, 'idx': idx, 'pk_field': 'pk_export_item'})
+
+	#--------------------------------------------------------
+	def remove_item(self, item):
+		if item.is_valid_DIRENTRY:
+			tag, node, local_fs_path = item['filename'].split('::', 2)
+			gmTools.remove_file(os.path.join(local_fs_path, DIRENTRY_README_NAME))
+		elif item.is_DIRENTRY:
+			return False
+
+		return delete_export_item(pk_export_item = item['pk_export_item'])
 
 	#--------------------------------------------------------
 	def dump_items_to_disk(self, base_dir=None, items=None, passphrase=None):
