@@ -453,6 +453,7 @@ __known_variant_placeholders = {
 		args: <template>//select
 		template:		something %(field)s something else (do not include '//' or '::' itself in the template)
 		select:			if this is present allow selection of the branch rather than using the current branch""",
+	u'praxis_scan2pay': u"return a dummy scan2pay qrcode, really supported in 1.8+",
 
 	u'praxis_address': u"args: <optional formatting template>",
 	u'praxis_comm': u"args: type//<optional formatting template>",
@@ -1698,6 +1699,30 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			if qr_filename is None:
 				return self._escape('praxis_mcf-cannot_create_QR_code')
 			return template % qr_filename
+
+		return None
+
+	#--------------------------------------------------------
+	def _get_variant_praxis_scan2pay(self, data):
+		format = 'qr'
+		options = data.split(self.__args_divider)
+		_log.debug('options: %s', options)
+		for o in options:
+			if o.strip().startswith('fmt='):
+				format = o.strip()[4:]
+				if format not in ['qr', 'txt']:
+					return self._escape(_('praxis_scan2pay: invalid format (qr/txt)'))
+				continue
+		_log.debug('format: %s' % format)
+
+		if format == 'txt':
+			return self._escape(u'www.scan2pay.info')
+
+		if format == 'qr':
+			qr_filename = gmTools.create_qrcode(u'https://www.scan2pay.info')
+			if qr_filename is None:
+				return self._escape(u'praxis_scan2pay-cannot_create_QR_code')
+			return qr_filename
 
 		return None
 
