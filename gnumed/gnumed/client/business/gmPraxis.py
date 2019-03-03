@@ -153,6 +153,7 @@ class cPraxisBranch(gmBusinessDBObject.cBusinessDBObject):
 			'BEGIN:VCARD',
 			'VERSION:4.0',
 			'KIND:org',
+			'ORG:%(l10n_organization_category)s %(praxis)s;%(l10n_unit_category)s %(branch)s' % self,
 			_('FN:%(l10n_unit_category)s %(branch)s of %(l10n_organization_category)s %(praxis)s') % self,
 			'N:%(praxis)s;%(branch)s' % self
 		]
@@ -215,6 +216,25 @@ class cPraxisBranch(gmBusinessDBObject.cBusinessDBObject):
 		return MECARD
 
 	MECARD = property(_get_mecard)
+
+	#--------------------------------------------------------
+	def _get_scan2pay_data(self):
+		IBANs = self.get_external_ids(id_type = 'IBAN', issuer = 'Bank')
+		if len(IBANs) == 0:
+			_log.debug('no IBAN found, cannot create scan2pay data')
+			return None
+		data = {
+			'IBAN': IBANs[0]['value'][:34],
+			'beneficiary': self['praxis'][:70]
+		}
+		BICs = self.get_external_ids(id_type = 'BIC', issuer = 'Bank')
+		if len(BICs) == 0:
+			data['BIC'] = ''
+		else:
+			data['BIC'] = BICs[0]['value'][:11]
+		return 'BCD\n002\n1\nSCT\n%(BIC)s\n%(beneficiary)s\n%(IBAN)s' % data
+
+	scan2pay_data = property(_get_scan2pay_data)
 
 #------------------------------------------------------------
 def lock_praxis_branch(pk_praxis_branch=None, exclusive=False):
@@ -599,5 +619,7 @@ if __name__ == '__main__':
 
 	for b in get_praxis_branches():
 		print((b.format()))
+		#print(b.vcf)
+		print(b.scan2pay_data)
 
 #============================================================

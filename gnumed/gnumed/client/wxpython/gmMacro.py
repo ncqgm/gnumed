@@ -471,12 +471,26 @@ __known_variant_placeholders = {
 			default - if omitted - is "txt",
 		template: tmpl=<%s-template string>, "%s" if omitted
 	""",
+	u'praxis_scan2pay': u"""return scan2pay data or QR code for current praxis
+		args: <format>,
+			format: fmt=qr|txt
+				qr: QR code png file path,
+				txt: scan2pay data string,
+				default - if omitted: qr
+	""",
 
 	# billing related:
 	'bill': """retrieve a bill
 		args: <template>//<date format>
 		template:		something %(field)s something else (do not include '//' or '::' itself in the template)
 		date format:	strftime date format""",
+	'bill_scan2pay': u"""return scan2pay data or QR code for a bill
+		args: <format>,
+			format: fmt=qr|txt
+				qr: QR code png file path,
+				txt: scan2pay data string,
+				default - if omitted: qr
+	""",
 	'bill_item': """retrieve the items of a previously retrieved (and therefore cached until the next retrieval) bill
 		args: <template>//<date format>
 		template:		something %(field)s something else (do not include '//' or '::' itself in the template)
@@ -1703,6 +1717,45 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		return None
 
 	#--------------------------------------------------------
+	def _get_variant_praxis_scan2pay(self, data):
+		#template = u'%s'
+		format = 'qr'
+		options = data.split(self.__args_divider)
+		_log.debug('options: %s', options)
+		for o in options:
+			if o.strip().startswith('fmt='):
+				format = o.strip()[4:]
+				if format not in ['qr', 'txt']:
+					return self._escape(_('praxis_scan2pay: invalid format (qr/txt)'))
+				continue
+#			if o.strip().startswith('tmpl='):
+#				template = o.strip()[5:]
+#				continue
+#		_log.debug('template: %s' % template)
+		_log.debug('format: %s' % format)
+
+		data_str = gmPraxis.gmCurrentPraxisBranch().scan2pay_data
+		if data_str is None:
+			if self.debug:
+				return self._escape('praxis_scan2pay-cannot_create_data_file')
+			return ''
+
+		if format == 'txt':
+			return self._escape(data_str)
+			#return template % self._escape(gmPraxis.gmCurrentPraxisBranch().MECARD)
+
+		if format == 'qr':
+			qr_filename = gmTools.create_qrcode(text = data_str)
+			if qr_filename is None:
+				if self.debug:
+					return self._escape('praxis_scan2pay-cannot_create_QR_code')
+				return ''
+			#return template % qr_filename
+			return qr_filename
+
+		return None
+
+	#--------------------------------------------------------
 	def _get_variant_praxis_address(self, data=''):
 		options = data.split(self.__args_divider)
 
@@ -2584,6 +2637,54 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		return template % bill.fields_as_dict(date_format = date_format, escape_style = self.__esc_style)
 
 	#--------------------------------------------------------
+	def _get_variant_bill_scan2pay(self, data=None):
+		try:
+			bill = self.__cache['bill']
+		except KeyError:
+			from Gnumed.wxpython import gmBillingWidgets
+			bill = gmBillingWidgets.manage_bills(patient = self.pat)
+			if bill is None:
+				if self.debug:
+					return self._escape(_('no bill selected'))
+				return ''
+			self.__cache['bill'] = bill
+
+		format = 'qr'
+		options = data.split(self.__args_divider)
+		_log.debug('options: %s', options)
+		for o in options:
+			if o.strip().startswith('fmt='):
+				format = o.strip()[4:]
+				if format not in ['qr', 'txt']:
+					return self._escape(_('praxis_scan2pay: invalid format (qr/txt)'))
+				continue
+		_log.debug('format: %s' % format)
+
+		from Gnumed.business import gmBilling
+		data_str = gmBilling.get_scan2pay_data (
+			gmPraxis.gmCurrentPraxisBranch(),
+			bill,
+			provider = gmStaff.gmCurrentProvider()
+		)
+		if data_str is None:
+			if self.debug:
+				return self._escape('bill_scan2pay-cannot_create_data_file')
+			return ''
+
+		if format == 'txt':
+			return self._escape(data_str)
+
+		if format == 'qr':
+			qr_filename = gmTools.create_qrcode(text = data_str)
+			if qr_filename is not None:
+				return qr_filename
+			if self.debug:
+				return self._escape('bill_scan2pay-cannot_create_QR_code')
+			return ''
+
+		return None
+
+	#--------------------------------------------------------
 	def _get_variant_bill_item(self, data=None):
 		try:
 			bill = self.__cache['bill']
@@ -3403,9 +3504,13 @@ if __name__ == '__main__':
 			#u'bill_adr_street::::1234',
 			#u'bill_adr_number::%s::1234',
 			#u'$<diagnoses::\listitem %s::>$'
-			u'$<patient_mcf::fmt=txt//card=%s::>$',
-			u'$<patient_mcf::fmt=mcf//mcf=%s::>$',
-			u'$<patient_mcf::fmt=qr//png=%s::>$'
+			#u'$<patient_mcf::fmt=txt//card=%s::>$',
+			#u'$<patient_mcf::fmt=mcf//mcf=%s::>$',
+			#u'$<patient_mcf::fmt=qr//png=%s::>$'
+			#u'$<praxis_scan2pay::fmt=txt::>$',
+			#u'$<praxis_scan2pay::fmt=qr::>$'
+			u'$<bill_scan2pay::fmt=txt::>$',
+			u'$<bill_scan2pay::fmt=qr::>$'
 		]
 
 		handler = gmPlaceholderHandler()
@@ -3418,7 +3523,7 @@ if __name__ == '__main__':
 			return
 		gmPatSearchWidgets.set_active_patient(patient = pat)
 
-		app = wx.PyWidgetTester(size = (200, 50))
+		#app = wx.PyWidgetTester(size = (200, 50))
 		#handler.set_placeholder('form_name_long', 'ein Testformular')
 		for ph in phs:
 			print(ph)

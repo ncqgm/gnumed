@@ -549,6 +549,59 @@ def get_invoice_id(pk_patient=None):
 		)
 	)
 
+#------------------------------------------------------------
+def get_scan2pay_data(branch, bill, provider=None, comment=None):
+	"""Create scan2pay data for generating a QR code.
+
+	https://www.scan2pay.info
+	--------------------------------
+	BCD														# (3) fixed, barcode tag
+	002														# (3) fixed, version
+	1														# (1) charset, 1 = utf8
+	SCT														# (3) fixed
+	$<praxis_id::BIC//Bank//%(value)s::11>$					# (11) <BIC>
+	$2<range_of::$<current_provider_name::%(lastnames)s::>$,$<praxis::%(praxis)s::>$::70>2$			# (70) <Name of beneficiary> "Empfänger" - Praxis
+	$<praxis_id::IBAN//Bank//%(value)s::34>$				# (34) <IBAN>
+	EUR$<bill::%(total_amount_with_vat)s::12>$				# (12) <Amount in EURO> "EUR12.5"
+															# (4) <purpose of transfer> - leer
+															# (35) <remittance info - struct> - only this XOR the next field - GNUmed: leer
+	$2<range_of::InvID=$<bill::%(invoice_id)s::>$/Date=$<today::%d.%B %Y::>$::140$>2$	# (140) <remittance info - text> "Client:Marie Louise La Lune" - "Rg Nr, date"
+	<beneficiary-to-payor info>								# (70)	"pay soon :-)" - optional - GNUmed nur wenn bytes verfügbar
+	--------------------------------
+	total: 331 bytes (not chars ! - cave UTF8)
+	EOL: LF or CRLF
+	last *used* element not followed by anything, IOW can omit pending non-used elements
+	"""
+	assert (branch is not None), '<branch> must not be <None>'
+	assert (bill is not None), '<bill> must not be <None>'
+
+	data = {}
+	IBANs = branch.get_external_ids(id_type = 'IBAN', issuer = 'Bank')
+	if len(IBANs) == 0:
+		_log.debug('no IBAN found, cannot create scan2pay data')
+		return None
+	data['IBAN'] = IBANs[0]['value'][:34]
+	data['beneficiary'] = gmTools.coalesce (
+		initial = provider,
+		instead = branch['praxis'][:70],
+		template_initial = '%%(lastnames)s, %s' % branch['praxis']
+	)[:70]
+	BICs = branch.get_external_ids(id_type = 'BIC', issuer = 'Bank')
+	if len(BICs) == 0:
+		data['BIC'] = ''
+	else:
+		data['BIC'] = BICs[0]['value'][:11]
+	data['amount'] = bill['total_amount_with_vat'][:9]
+	data['ref'] = (_('Inv: %s, %s') % (
+		bill['invoice_id'],
+		gmDateTime.pydt_strftime(gmDateTime.pydt_now_here(), '%d.%B %Y')
+	))[:140]
+	data['cmt'] = gmTools.coalesce(comment, '', '\n%s')[:70]
+
+	data_str = 'BCD\n002\n1\nSCT\n%(BIC)s\n%(beneficiary)s\n%(IBAN)s\nEUR%(amount)s\n\n\n%(ref)s%(cmt)s' % data
+	data_str_bytes = bytes(data_str, 'utf8')[:331]
+	return str(data_str_bytes, 'utf8')
+
 #============================================================
 # main
 #------------------------------------------------------------
@@ -563,6 +616,7 @@ if __name__ == "__main__":
 #	from Gnumed.pycommon import gmLog2
 #	from Gnumed.pycommon import gmI18N
 #	from Gnumed.business import gmPerson
+	from Gnumed.business import gmPraxis
 
 #	gmI18N.activate_locale()
 ##	gmDateTime.init()
@@ -580,6 +634,19 @@ if __name__ == "__main__":
 			print(field, ':', me[field])
 		print("updatable:", me.get_updatable_fields())
 		#me['vat']=4; me.store_payload()
+
+	#--------------------------------------------------
+	def test_get_scan2pay_data():
+		prax = gmPraxis.get_praxis_branches()[0]
+		bills = get_bills(pk_patient = 12)
+		print(get_scan2pay_data (
+			prax,
+			bills[0],
+			provider=None,
+			comment = 'GNUmed test harness' + ('x' * 400)
+		))
+
 	#--------------------------------------------------
 	#test_me()
-	test_default_address()
+	#test_default_address()
+	test_get_scan2pay_data()
