@@ -118,7 +118,7 @@ $<if_debugging:://%::>$\renewcommand*\ShowFrameColor{\color{red}}		% configure s
 	$3<ph_cfg::argumentsdivider//#3#//%% <%(name)s> set to [%(value)s]::>3$
 	$2<ph_cfg::argumentsdivider//#2#//%% <%(name)s> set to [%(value)s]::>2$
 	$1<ph_cfg::argumentsdivider//#1#//%% <%(name)s> set to [%(value)s]::>1$
-	$3<if_not_empty::$<data_snippet::praxis-logo#1#%s#1#image/png#1#.png::>$#3#$2<if_not_empty::$<praxis_comm::web::>$#2#\href{http://%s}{$1<data_snippet::praxis-logo#1#\includegraphics[width=20mm]{%s}#1#image/png#1#.png::250>1$}#2#$1<data_snippet::praxis-logo#1#\includegraphics[width=20mm]{%s}#1#image/png#1#.png::250>1$::>2$#3#\href{http://www.gnumed.de}{$<qrcode::http://www.gnumed.de#1#\includegraphics[width=15mm]{%s}} %% no praxis logo available::>$::>3$
+	$3<if_not_empty::$<data_snippet::praxis-logo#1#%s#1#image/png#1#.png::>$#3#$2<if_not_empty::$<praxis_comm::web::>$#2#\href{http://%s}{$1<data_snippet::praxis-logo#1#\includegraphics[width=20mm]{%s}#1#image/png#1#.png::250>1$}#2#$1<data_snippet::praxis-logo#1#\includegraphics[width=20mm]{%s}#1#image/png#1#.png::250>1$::>2$#3#\href{https://www.scan2pay.info}{\includegraphics[width=15mm]{$<praxis_scan2pay::fmt=qr::>$}} %% no praxis logo available::>3$
 	$1<ph_cfg::argumentsdivider//DEFAULT//%% <%(name)s> set to [%(value)s]::>1$
 	$2<ph_cfg::argumentsdivider//DEFAULT//%% <%(name)s> set to [%(value)s]::>2$
 	$3<ph_cfg::argumentsdivider//DEFAULT//%% <%(name)s> set to [%(value)s]::>3$
