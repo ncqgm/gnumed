@@ -10,6 +10,8 @@
 
 FIX: application metadata files
 
+NEW: stub out $praxis_scan2pay$
+
 	1.7.5
 
 FIX: exception on following vaccs reminder from provider inbox
