@@ -25,7 +25,7 @@ insert into ref.paperwork_templates (
 	'sonstiger Arztbrief',
 	'Begleitbrf m.Dg.[KH]',
 	'Begleitbrief mit Diagnosen [K.Hilbert]',
-	'22.4',
+	'22.6',
 	'L',
 	'begleitbrief.tex',
 	'real template missing'::bytea
@@ -89,4 +89,4 @@ update ref.paperwork_templates r_pt_u set
 ;
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('v22-ref-paperwork_templates-fixups.sql', '22.4');
+select gm.log_script_insertion('v22-ref-paperwork_templates-fixups.sql', '22.6');

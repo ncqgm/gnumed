@@ -1993,6 +1993,8 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 
 	22.6
 
+FIX: properly include fixups in v21-v22 upgrade
+
 IMPROVED: database backup script
 
 	22.4

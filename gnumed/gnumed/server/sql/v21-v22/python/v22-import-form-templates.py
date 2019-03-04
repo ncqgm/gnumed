@@ -19,7 +19,7 @@ def run(conn=None):
 		query = u"""
 			UPDATE ref.paperwork_templates SET
 				data = %(data)s::bytea,
-				external_version = '22.4'
+				external_version = '22.6'
 			WHERE
 				name_long = 'Begleitbrief ohne medizinische Daten [K.Hilbert]'""",
 		filename = os.path.join('..', 'sql', 'v21-v22', 'data', 'v22-Begleitbrief.tex'),
@@ -66,7 +66,7 @@ def run(conn=None):
 		query = u"""
 			UPDATE ref.paperwork_templates SET
 				data = %(data)s::bytea,
-				external_version = '22.4'
+				external_version = '22.6'
 			WHERE
 				name_long = 'Begleitbrief mit Diagnosen [K.Hilbert]'""",
 		filename = os.path.join('..', 'sql', 'v21-v22', 'data', 'v22-Begleitbrief_mit_Diagnosen.tex'),
