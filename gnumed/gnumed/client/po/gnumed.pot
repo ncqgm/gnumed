@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-06-10 16:43+0200\n"
+"POT-Creation-Date: 2019-03-04 18:06+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2241,10 +2241,18 @@ msgid ""
 " [%s]"
 msgstr ""
 
-msgid "Translate this or i18n into <en_EN> will not work properly !"
+#, python-format
+msgid ""
+"Unable to edit/view the file:\n"
+"\n"
+" [%s]\n"
+"\n"
+"Your system does not seem to have a (working)\n"
+"editor or viewer registered for the file type\n"
+" [%s]"
 msgstr ""
 
-msgid "Error running GnuPG. Cannot decrypt data."
+msgid "Translate this or i18n into <en_EN> will not work properly !"
 msgstr ""
 
 msgid "1 Byte"
@@ -2883,21 +2891,6 @@ msgstr ""
 msgid "New patient ID:"
 msgstr ""
 
-msgid "Related documents: XX"
-msgstr ""
-
-msgid "List"
-msgstr ""
-
-msgid "Select types"
-msgstr ""
-
-msgid "List lab documents within the episode of the selected measurement."
-msgstr ""
-
-msgid "Select the document types expected to contain lab results."
-msgstr ""
-
 msgid "Source"
 msgstr ""
 
@@ -3217,40 +3210,31 @@ msgstr ""
 msgid "<not connected>"
 msgstr ""
 
-msgid "Image"
-msgstr ""
-
-msgid "Patient"
-msgstr ""
-
 msgid "◄"
 msgstr ""
 
 msgid "►"
 msgstr ""
 
-msgid "E&xport"
+msgid "&Show"
+msgstr ""
+
+msgid "E&xport area"
 msgstr ""
 
 msgid "Browse"
 msgstr ""
 
-msgid "&Show (D)"
+msgid "Show"
 msgstr ""
 
-msgid "Save (&D)"
+msgid "Export area"
+msgstr ""
+
+msgid "Verify"
 msgstr ""
 
 msgid "&Upload"
-msgstr ""
-
-msgid "Show (&P)"
-msgstr ""
-
-msgid "Save (P)"
-msgstr ""
-
-msgid "as ZIP"
 msgstr ""
 
 msgid "Enter the PACS host address."
@@ -3268,7 +3252,10 @@ msgstr ""
 msgid "Connect to PACS."
 msgstr ""
 
-msgid "Verify patient data in PACS."
+msgid ""
+"Double-click: Display in external viewer.\n"
+"\n"
+"Right-click: Show context menu."
 msgstr ""
 
 msgid "Review previous image."
@@ -3277,57 +3264,54 @@ msgstr ""
 msgid "Preview next image."
 msgstr ""
 
-msgid "Store image into export area."
+msgid "Show image in external viewer."
 msgstr ""
 
-msgid "Browse topmost selected study."
+msgid "Put image into export area."
 msgstr ""
 
-msgid "Browse overview of all studies for this patient."
+msgid ""
+"Browse selected studies in web browser.\n"
+"\n"
+"Right-click for further options."
 msgstr ""
 
-msgid "Browse PACS at top level."
+msgid "Show selected studies in external viewer."
 msgstr ""
 
-msgid "Show image in DICOM viewer."
+msgid "Put selected studies into export area."
 msgstr ""
 
-msgid "Save image in DICOM format."
+msgid "Browse patient studies in web browser."
 msgstr ""
 
-msgid "Save selected studies to disk as DICOM directory."
+msgid "Verify DICOM data of patient in PACS."
 msgstr ""
 
-msgid "Save all studies as one DICOM directory."
+msgid "Browse PACS."
 msgstr ""
 
 msgid ""
 "Upload DICOM files from a directory, recursively, into the Orthanc PACS\n"
 "\n"
-"The currently active patient does not matter. Orthanc will associate "
-"uploaded files with the patient found within the DICOM metadata. It will "
-"create new patients as needed."
+"It does not matter what the currently active patient is. Orthanc will "
+"associate uploaded files with the patient found within the DICOM metadata "
+"and will create new patients as needed."
 msgstr ""
 
-msgid "Show image in external viewer (PNG format)."
+msgid "Modify some of Orthanc's content (such as patient IDs)."
 msgstr ""
 
-msgid "Save image preview (PNG format)."
+msgid "PACS"
 msgstr ""
 
-msgid "Save selected studies as DICOM archive."
-msgstr ""
-
-msgid "Save all studies of patient as DICOM archive."
-msgstr ""
-
-msgid "Modify some of Orthanc content (such as patient IDs)."
+msgid "Patient"
 msgstr ""
 
 msgid "Study"
 msgstr ""
 
-msgid "PACS"
+msgid "Image"
 msgstr ""
 
 msgid "A descriptive name for this test type."
@@ -3554,9 +3538,6 @@ msgstr ""
 msgid "Show printouts for:"
 msgstr ""
 
-msgid "E&xport area"
-msgstr ""
-
 msgid "Care"
 msgstr ""
 
@@ -3708,9 +3689,6 @@ msgid "&technically abnormal"
 msgstr ""
 
 msgid "&clinically relevant"
-msgstr ""
-
-msgid "Show"
 msgstr ""
 
 msgid "Remove part"
@@ -4466,7 +4444,7 @@ msgstr ""
 msgid "to patient export area"
 msgstr ""
 
-msgid "Print &remotely"
+msgid "Print &queue"
 msgstr ""
 
 msgid "&Export only"
@@ -4499,7 +4477,7 @@ msgid ""
 msgstr ""
 
 msgid ""
-"Remotely print document(s).\n"
+"Save document(s) into print queue for printing elsewhere.\n"
 "(optionally copy to archive and export area)"
 msgstr ""
 
@@ -4745,28 +4723,34 @@ msgstr ""
 msgid "Remove the selected item(s) from the list."
 msgstr ""
 
-msgid "↢ &Disk"
+msgid "← &Disk"
 msgstr ""
 
-msgid "↢ &Archive"
+msgid "← &Directory"
 msgstr ""
 
-msgid "↢ S&can"
+msgid "← &Archive"
 msgstr ""
 
-msgid "↢ C&lipboard"
+msgid "← S&can"
+msgstr ""
+
+msgid "← C&lipboard"
+msgstr ""
+
+msgid "&Save as"
+msgstr ""
+
+msgid "E&xport"
+msgstr ""
+
+msgid "→ Archive"
 msgstr ""
 
 msgid "&Print"
 msgstr ""
 
-msgid "&Print Mgr"
-msgstr ""
-
-msgid "&Burn"
-msgstr ""
-
-msgid "&Save"
+msgid "→ &Print Mgr"
 msgstr ""
 
 msgid "E-&Mail"
@@ -4775,13 +4759,10 @@ msgstr ""
 msgid "&Fax"
 msgstr ""
 
-msgid "⇶ Archive"
-msgstr ""
-
-msgid "Show the topmost selected document."
-msgstr ""
-
 msgid "Add document(s) from file(s)."
+msgstr ""
+
+msgid "Add a local directory."
 msgstr ""
 
 msgid "Add document(s) from archive."
@@ -4793,6 +4774,18 @@ msgstr ""
 msgid "Acquire file or text from the clipboard."
 msgstr ""
 
+msgid "Show the topmost selected document."
+msgstr ""
+
+msgid "Save selected/all items to disk."
+msgstr ""
+
+msgid "Export all/selected items to removable media (CD/DVD/USB)."
+msgstr ""
+
+msgid "Store selected/all documents in document archive."
+msgstr ""
+
 msgid "Remove the selected documents."
 msgstr ""
 
@@ -4802,19 +4795,10 @@ msgstr ""
 msgid "Put selected/all documents into remote print manager."
 msgstr ""
 
-msgid "Burn selected/all documents onto CD/DVD."
-msgstr ""
-
-msgid "Save selected/all items to disk."
-msgstr ""
-
 msgid "E-mail selected/all documents."
 msgstr ""
 
 msgid "Fax selected/all documents."
-msgstr ""
-
-msgid "Store selected/all documents in document archive."
 msgstr ""
 
 msgid "Keep *this* patient"
@@ -5105,6 +5089,21 @@ msgstr ""
 msgid "&Urgency:"
 msgstr ""
 
+msgid "Related documents: XX"
+msgstr ""
+
+msgid "List"
+msgstr ""
+
+msgid "Select types"
+msgstr ""
+
+msgid "List lab documents within the episode of the selected measurement."
+msgstr ""
+
+msgid "Select the document types assumed to contain lab results."
+msgstr ""
+
 msgid "&Link"
 msgstr ""
 
@@ -5129,6 +5128,9 @@ msgid "&Delete"
 msgstr ""
 
 msgid "<above, double-click problem to start entering SOAP note>"
+msgstr ""
+
+msgid "&Save"
 msgstr ""
 
 msgid "&Filter by problem"
@@ -5157,6 +5159,88 @@ msgstr ""
 msgid ""
 "Check this if you want to filter the journal by the problem selected on the "
 "left."
+msgstr ""
+
+msgid ""
+"\n"
+"Describe the intended action.\n"
+msgstr ""
+
+msgid "Path:"
+msgstr ""
+
+msgid "<shows default path computed at runtime>"
+msgstr ""
+
+msgid "this path is/is not empty"
+msgstr ""
+
+msgid "Open"
+msgstr ""
+
+msgid "en&crypt"
+msgstr ""
+
+msgid "generate &metadata"
+msgstr ""
+
+msgid "use subdirectory"
+msgstr ""
+
+msgid "Save Files"
+msgstr ""
+
+msgid "Save as Archive"
+msgstr ""
+
+msgid "Saving export area items"
+msgstr ""
+
+msgid "Select target directory for files or archive."
+msgstr ""
+
+msgid "Open selected target directory in file browser."
+msgstr ""
+
+msgid "Clear selected target directory from any existing data."
+msgstr ""
+
+msgid ""
+"Use encryption ?\n"
+"\n"
+"When you save as files each file will be encrypted individually.\n"
+"\n"
+"When you save into an archive the ZIP archive itself will be encrypted "
+"rather than the files contained within. Encrypted archives will not include "
+"any patient data into the archive filename."
+msgstr ""
+
+msgid ""
+"Generate metadata ?\n"
+"\n"
+"Check if you want GNUmed to generate metadata describing the exported "
+"patient data and save it alongside the files.\n"
+"\n"
+"When saving into an archive metadata will always be included."
+msgstr ""
+
+msgid ""
+"Save into patient specific subdirectory ?\n"
+"\n"
+"Check if you want GNUmed to create a suitable subdirectory within the "
+"selected path and save to that."
+msgstr ""
+
+msgid "Save entries as individual files."
+msgstr ""
+
+msgid "Save entries packaged into an archive."
+msgstr ""
+
+msgid "Abort saving entries."
+msgstr ""
+
+msgid "Options:"
 msgstr ""
 
 msgid "Subjective"
@@ -5261,10 +5345,19 @@ msgid ""
 "Delete - if possible - the (first or only) item selected in the list above."
 msgstr ""
 
+msgid "Panel:"
+msgstr ""
+
+msgid "http://www.laborlexikon.de"
+msgstr ""
+
+msgid "&Show missing"
+msgstr ""
+
 msgid "Manage"
 msgstr ""
 
-msgid "&Panel:"
+msgid "Check to show panel tests which lack results."
 msgstr ""
 
 msgid "Dynamic hints"
@@ -5341,77 +5434,6 @@ msgid "In-praxis primary doc"
 msgstr ""
 
 msgid "Activate the respective patient by double-clicking a row."
-msgstr ""
-
-msgid "Describe the intended action."
-msgstr ""
-
-msgid "&Select"
-msgstr ""
-
-msgid ""
-"empty?\n"
-"DICOMDIR ?\n"
-"documents/ ?"
-msgstr ""
-
-msgid "Existing data:"
-msgstr ""
-
-msgid "Include"
-msgstr ""
-
-msgid "&Include into CD / DVD"
-msgstr ""
-
-msgid "Use subdirectory:"
-msgstr ""
-
-msgid "<patient directory>"
-msgstr ""
-
-msgid "Generate metadata"
-msgstr ""
-
-msgid "Creating patient media"
-msgstr ""
-
-msgid "Select the directory."
-msgstr ""
-
-msgid "Browse the selected directory."
-msgstr ""
-
-msgid "Include existing data if any."
-msgstr ""
-
-msgid "Remove existing data if any."
-msgstr ""
-
-msgid "Check if you want to include the selected directory into the CD / DVD."
-msgstr ""
-
-msgid ""
-"Check if you want to use a subdirectory within the directory selected "
-"above.\n"
-"\n"
-"This will leave alone any existing data."
-msgstr ""
-
-msgid ""
-"Check if you want GNUmed to generate and include metadata describing the "
-"exported patient data files.\n"
-"\n"
-"If unchecked, export items will simply be dumped into the target directory."
-msgstr ""
-
-msgid "Create patient media (in target directory or on CD / DVD)."
-msgstr ""
-
-msgid "Abort creating patient media."
-msgstr ""
-
-msgid "Path:"
 msgstr ""
 
 msgid "Edit Allergy/Intolerance"
@@ -6140,6 +6162,9 @@ msgid ""
 "Please fill in an appropriate value below.\n"
 msgstr ""
 
+msgid "&Select"
+msgstr ""
+
 msgid "&VAT applies"
 msgstr ""
 
@@ -6197,6 +6222,39 @@ msgid ""
 msgstr ""
 
 msgid "Channel"
+msgstr ""
+
+msgid "Creating Patient Media"
+msgstr ""
+
+msgid "Reload the list of removable media."
+msgstr ""
+
+msgid ""
+"Use encryption ?\n"
+"\n"
+"You need to arrange for safely passing any encryption key to receivers of "
+"the patient data excerpt yourself.\n"
+"\n"
+"Note that the *content* of each file will be encrypted - some hints about "
+"the patient might potentially still be derivable from the names of files. If "
+"you need a completely anonymous patient data excerpt you should use the "
+"[Save as] functionality of the export area and create an encrypted archive."
+msgstr ""
+
+msgid ""
+"Use patient specific subdirectory ?\n"
+"\n"
+"DO NOT USE unless you really know why.\n"
+"\n"
+"If checked GNUmed will create a suitable subdirectory on the removable media "
+"and save to that."
+msgstr ""
+
+msgid "Save patient data excerpt to the removable media selected above."
+msgstr ""
+
+msgid "Removable media"
 msgstr ""
 
 msgid "&Modification"
@@ -7094,6 +7152,15 @@ msgstr ""
 msgid "<hint title>"
 msgstr ""
 
+msgid "⤴"
+msgstr ""
+
+msgid ""
+"Rationale for\n"
+"suppression\n"
+"in this patient"
+msgstr ""
+
 msgid "Save &under"
 msgstr ""
 
@@ -7145,6 +7212,9 @@ msgid "Notelet:"
 msgstr ""
 
 msgid "Encounter:"
+msgstr ""
+
+msgid "&Panel:"
 msgstr ""
 
 msgid "&Pick"
@@ -7850,6 +7920,34 @@ msgstr ""
 msgid "Expires: %s\n"
 msgstr ""
 
+#, python-format
+msgid "AMTS BMP file: %s"
+msgstr ""
+
+#, python-format
+msgid "Created: %s"
+msgstr ""
+
+#, python-format
+msgid "Version: %s"
+msgstr ""
+
+#, python-format
+msgid "UID: %s"
+msgstr ""
+
+msgid "Creator:"
+msgstr ""
+
+msgid "Patient:"
+msgstr ""
+
+msgid "Clinical data:"
+msgstr ""
+
+msgid "Raw data:"
+msgstr ""
+
 msgid "HL7 Source"
 msgstr ""
 
@@ -7903,7 +8001,25 @@ msgid "Result dates: %s"
 msgstr ""
 
 #, python-format
+msgid ""
+"This item points to a directory on the computer named:\n"
+" %s\n"
+"You are, however, currently using another computer:\n"
+" %s\n"
+"Directory items can only be viewed/saved/exported\n"
+"on the computer they are pointing to."
+msgstr ""
+
+#, python-format
 msgid "form: %s %s (%s)"
+msgstr ""
+
+#, python-format
+msgid "path [%s/] on computer \"%s\""
+msgstr ""
+
+#, python-format
+msgid " (on \"%s\")"
 msgstr ""
 
 msgid "file"
@@ -7917,25 +8033,7 @@ msgstr ""
 msgid "part %s (%s%s)%s"
 msgstr ""
 
-msgid "Patient data for"
-msgstr ""
-
-msgid "born"
-msgstr ""
-
-msgid "Patient data export"
-msgstr ""
-
-msgid "no patient photograph available"
-msgstr ""
-
-msgid "Documents"
-msgstr ""
-
-msgid "browse storage medium"
-msgstr ""
-
-msgid "browse documents area"
+msgid "GNUmed Patient Media"
 msgstr ""
 
 #, python-format
@@ -7948,11 +8046,45 @@ msgstr ""
 msgid "run Radiology Images (DICOM) Viewer"
 msgstr ""
 
+msgid "Patient data"
+msgstr ""
+
+msgid "Patient data excerpt"
+msgstr ""
+
+msgid "Documents"
+msgstr ""
+
+msgid "browse storage medium"
+msgstr ""
+
+msgid "browse documents area"
+msgstr ""
+
+msgid "Patient data for"
+msgstr ""
+
+msgid "born"
+msgstr ""
+
+msgid "no patient photograph available"
+msgstr ""
+
 #, python-format
-msgid "other: %s"
+msgid "DIRECTORY: %s/%s/"
+msgstr ""
+
+#, python-format
+msgid "DIRECTORY: %s/%s/%s/"
+msgstr ""
+
+msgid "<protected>"
 msgstr ""
 
 msgid "Browse patient data"
+msgstr ""
+
+msgid "GNUmed patient data excerpt"
 msgstr ""
 
 #, python-format
@@ -8048,9 +8180,6 @@ msgstr ""
 
 #, python-format
 msgid " Owner: %s\n"
-msgstr ""
-
-msgid "dummy-no-need-to-translate-but-make-epydoc-happy"
 msgstr ""
 
 msgid "unknown gender"
@@ -8902,6 +9031,15 @@ msgstr ""
 msgid "No [arriba] result found in [%s]."
 msgstr ""
 
+msgid "first name"
+msgstr ""
+
+msgid "last name"
+msgstr ""
+
+msgid "LASTNAME and firstname"
+msgstr ""
+
 msgid "internal patient ID"
 msgstr ""
 
@@ -8911,22 +9049,7 @@ msgstr ""
 msgid "external patient ID"
 msgstr ""
 
-msgid "first name"
-msgstr ""
-
 msgid "name, gender, date of birth"
-msgstr ""
-
-msgid "lastname"
-msgstr ""
-
-msgid "firstname"
-msgstr ""
-
-msgid "nickname"
-msgstr ""
-
-msgid "any name part"
 msgstr ""
 
 msgid "name: first-last"
@@ -8951,6 +9074,18 @@ msgid "names: last-first, dob"
 msgstr ""
 
 msgid "name, date of birth"
+msgstr ""
+
+msgid "lastname"
+msgstr ""
+
+msgid "firstname"
+msgstr ""
+
+msgid "nickname"
+msgstr ""
+
+msgid "any name part"
 msgstr ""
 
 msgid "names: first last"
@@ -9070,6 +9205,10 @@ msgstr ""
 msgid " Receiver: #%s\n"
 msgstr ""
 
+#, python-format
+msgid "Inv: %s, %s"
+msgstr ""
+
 msgid "copy of printed prescription"
 msgstr ""
 
@@ -9117,7 +9256,7 @@ msgstr ""
 msgid "unknown vaccinations output format [%s]"
 msgstr ""
 
-msgid "No vaccinations to format."
+msgid "No vaccinations recorded."
 msgstr ""
 
 msgid "Latest vaccinations"
@@ -10711,6 +10850,23 @@ msgid ""
 "used in to document a vaccination with.\n"
 msgstr ""
 
+msgid ""
+"GNUmed will use this URL to access a website which lets\n"
+"you report an adverse vaccination reaction (vADR).\n"
+"\n"
+"If you set it to a specific address that URL must be\n"
+"accessible now. If you leave it empty it will fall back\n"
+"to the URL for reporting other adverse drug reactions."
+msgstr ""
+
+msgid ""
+"GNUmed will use this URL to access a page showing\n"
+"vaccination schedules.\n"
+"\n"
+"You can leave this empty but to set it to a specific\n"
+"address the URL must be accessible now."
+msgstr ""
+
 msgid "Adding new vaccinations"
 msgstr ""
 
@@ -11355,10 +11511,19 @@ msgstr ""
 msgid "cannot export or convert latest mugshot"
 msgstr ""
 
+msgid "patient_mcf: invalid format (qr/mcf/txt)"
+msgstr ""
+
 msgid "no tags for this patient"
 msgstr ""
 
 msgid "no patient tags selected for inclusion"
+msgstr ""
+
+msgid "praxis_mcf: invalid format (qr/mcf/txt)"
+msgstr ""
+
+msgid "praxis_scan2pay: invalid format (qr/txt)"
 msgstr ""
 
 msgid "no address recorded"
@@ -14483,6 +14648,14 @@ msgstr ""
 msgid "Configuring medications plugin measurements panel"
 msgstr ""
 
+msgid ""
+"GNUmed will use this URL to access a website which lets\n"
+"you report an adverse drug reaction (ADR).\n"
+"\n"
+"If you leave this empty it will fall back\n"
+"to an URL for reporting ADRs in Germany."
+msgstr ""
+
 msgid "Drug product"
 msgstr ""
 
@@ -14614,66 +14787,62 @@ msgstr ""
 msgid "clinical progress note"
 msgstr ""
 
-msgid "Select a directory for inclusion into the patient CD / DVD."
-msgstr ""
-
-msgid "Select a directory in which to create the patient media."
+msgid "Clearing out a directory"
 msgstr ""
 
 #, python-format
 msgid ""
-"Really delete any existing data under\n"
+"Do you really want to delete all existing data\n"
+"from the following directory ?\n"
 "\n"
-" [%s]\n"
+" %s\n"
 "\n"
-"from disk ?\n"
-"\n"
-"(this operation is generally not reversible)"
+"Note, this can NOT be reversed without backups."
 msgstr ""
 
-msgid "Preparing patient media for burning onto CD / DVD"
+#, python-format
+msgid ""
+"\n"
+"Number of entries to export: %s\n"
+"\n"
+"Patient: %s\n"
+"\n"
+"Select the media to export onto below.\n"
 msgstr ""
 
-msgid "Script <gm-burn_doc(.bat)> not found."
+msgid "Medium"
 msgstr ""
 
-msgid "Cannot attempt to burn patient media onto CD/DVD."
+#, python-format
+msgid "%s (%s %s) - %s free"
+msgstr ""
+
+#, python-format
+msgid "%s (%s): %s in %s on %s"
+msgstr ""
+
+#, python-format
+msgid "%s on %s, not mounted"
+msgstr ""
+
+msgid "helper <gm-burn_doc(.bat)> not found"
+msgstr ""
+
+msgid "media not mounted"
+msgstr ""
+
+msgid "directory contains data"
+msgstr ""
+
+msgid "Select directory where to save the archive or files."
+msgstr ""
+
+#, python-format
+msgid "Number of entries to save: %s"
 msgstr ""
 
 #, python-format
 msgid "Patient: %s"
-msgstr ""
-
-#, python-format
-msgid "Number of items to export onto CD/DVD: %s\n"
-msgstr ""
-
-msgid "Preparing patient media for saving to disk (USB, harddrive)."
-msgstr ""
-
-#, python-format
-msgid "Number of items to export to disk: %s\n"
-msgstr ""
-
-msgid "(cannot check directory)"
-msgstr ""
-
-msgid "(directory appears empty)"
-msgstr ""
-
-msgid "directory already contains data"
-msgstr ""
-
-#, python-format
-msgid ""
-"%s\n"
-"- DICOM data"
-msgstr ""
-
-#, python-format
-msgid ""
-"%s\n"
-"- additional documents"
 msgstr ""
 
 msgid "Select files to add to the export area"
@@ -14685,6 +14854,18 @@ msgstr ""
 #, python-format
 msgid ""
 "Cannot add (some of) the following files to the export area:\n"
+"%s "
+msgstr ""
+
+msgid "Select directory to add to the export area"
+msgstr ""
+
+msgid "Adding path to export area"
+msgstr ""
+
+#, python-format
+msgid ""
+"Cannot add the following path to the export area:\n"
 "%s "
 msgstr ""
 
@@ -14737,38 +14918,72 @@ msgid ""
 " - %s"
 msgstr ""
 
+msgid "Item(s) moved to Print Center."
+msgstr ""
+
+msgid "Saving entries"
+msgstr ""
+
+msgid "Saving entries as encrypted ZIP archive"
+msgstr ""
+
+msgid "Saving entries as unencrypted ZIP archive"
+msgstr ""
+
+msgid "Cannot save: aborted or error."
+msgstr ""
+
 #, python-format
-msgid ""
-"Cannot remove content from\n"
-" [%s]"
+msgid "Saved entries into [%s]"
+msgstr ""
+
+msgid "Saving entries as encrypted files"
+msgstr ""
+
+msgid "Saving entries as unencrypted files"
 msgstr ""
 
 #, python-format
 msgid ""
-"Saved to [%s]:\n"
+"Saved from export area to [%s]:\n"
 " - %s"
 msgstr ""
 
-#, python-format
-msgid ""
-"Saved documents into directory:\n"
-"\n"
-" %s"
+msgid "Exporting entries"
 msgstr ""
 
-msgid "Browse patient data pack ?"
+msgid "Exporting encrypted entries"
 msgstr ""
 
-msgid "Error burning documents to CD/DVD."
+msgid "Cannot export: aborted or error."
 msgstr ""
 
-msgid "Burning documents"
+msgid "Entries successfully burned to disk."
 msgstr ""
 
 #, python-format
 msgid ""
 "Burned onto CD/DVD:\n"
 " - %s"
+msgstr ""
+
+#, python-format
+msgid "Exported entries into [%s]"
+msgstr ""
+
+#, python-format
+msgid ""
+"Exported onto removable media:\n"
+" - %s"
+msgstr ""
+
+msgid "Cannot send e-mail: <gm-mail_doc(.bat)> not found"
+msgstr ""
+
+msgid "Mailing documents as zip archive"
+msgstr ""
+
+msgid "Cannot send e-mail: no archive created."
 msgstr ""
 
 msgid "Error mailing documents."
@@ -14783,14 +14998,27 @@ msgid ""
 " - %s"
 msgstr ""
 
+msgid "Cannot send fax: <gm-fax_doc(.bat)> not found"
+msgstr ""
+
+msgid "Cannot send fax: no items"
+msgstr ""
+
+msgid "Faxing documents"
+msgstr ""
+
+#, python-format
+msgid ""
+"You have not selected any entries.\n"
+"\n"
+"Send fax with all %s entries ?"
+msgstr ""
+
 msgid ""
 "Please enter the fax number here !\n"
 "\n"
 "It can be left empty if the external\n"
 "fax software knows how to get the number."
-msgstr ""
-
-msgid "Faxing documents"
 msgstr ""
 
 #, python-format
@@ -14813,6 +15041,75 @@ msgid "<gm-fax_doc(.bat) not found>"
 msgstr ""
 
 msgid "<gm-burn_doc(.bat) not found>"
+msgstr ""
+
+msgid "Password not provided twice. Aborting."
+msgstr ""
+
+msgid "Error exporting entries."
+msgstr ""
+
+msgid "Error creating zip file."
+msgstr ""
+
+msgid ""
+"Enter passphrase to protect the data with.\n"
+"\n"
+"(minimum length: 5, trailing blanks will be stripped)"
+msgstr ""
+
+msgid ""
+"Insufficient passphrase.\n"
+"\n"
+"(minimum length: 5, trailing blanks will be stripped)\n"
+"\n"
+"Enter another passphrase ?"
+msgstr ""
+
+msgid ""
+"Once more enter passphrase to protect the data with.\n"
+"\n"
+"(this will protect you from typos)\n"
+"\n"
+"Abort by leaving empty."
+msgstr ""
+
+msgid ""
+"Passphrases do not match.\n"
+"\n"
+"Retry, or abort with an empty passphrase."
+msgstr ""
+
+msgid "Export area empty. Nothing to do."
+msgstr ""
+
+#, python-format
+msgid ""
+"You have not selected any entries.\n"
+"\n"
+"Really use all %s entries ?"
+msgstr ""
+
+msgid "Cannot burn to disk: Helper not found."
+msgstr ""
+
+msgid "Error burning documents to CD/DVD."
+msgstr ""
+
+msgid "Burning documents"
+msgstr ""
+
+#, python-format
+msgid ""
+"Documents saved into:\n"
+"\n"
+" %s"
+msgstr ""
+
+msgid "Browsing patient data excerpt"
+msgstr ""
+
+msgid "Browse saved entries ?"
 msgstr ""
 
 msgid "Cannot accept new documents. No active patient."
@@ -15594,6 +15891,45 @@ msgstr ""
 msgid "DICOM field"
 msgstr ""
 
+msgid "Show in DICOM viewer"
+msgstr ""
+
+msgid "Show in image viewer"
+msgstr ""
+
+msgid "Copy to export area"
+msgstr ""
+
+msgid "Save as DICOM file (.dcm)"
+msgstr ""
+
+msgid "Save as image file (.png)"
+msgstr ""
+
+msgid "Selected into export area"
+msgstr ""
+
+msgid "ZIP of selected into export area"
+msgstr ""
+
+msgid "All into export area"
+msgstr ""
+
+msgid "ZIP of all into export area"
+msgstr ""
+
+msgid "Save selected"
+msgstr ""
+
+msgid "Save ZIP of selected"
+msgstr ""
+
+msgid "Save all"
+msgstr ""
+
+msgid "Save ZIP of all"
+msgstr ""
+
 msgid "Cannot connect without port (try 8042)."
 msgstr ""
 
@@ -15648,6 +15984,102 @@ msgid "Image %s/%s"
 msgstr ""
 
 #, python-format
+msgid ""
+"Cannot show image:\n"
+"%s"
+msgstr ""
+
+msgid "Previewing DICOM image"
+msgstr ""
+
+#, python-format
+msgid ""
+"Cannot show in DICOM or image viewer:\n"
+"%s"
+msgstr ""
+
+msgid "Cannot save image as DICOM file."
+msgstr ""
+
+msgid "Saving DICOM image"
+msgstr ""
+
+#, python-format
+msgid "Successfully saved as [%s]."
+msgstr ""
+
+msgid "Cannot save image as PNG file."
+msgstr ""
+
+#, python-format
+msgid "DICOM image of [%s] from Orthanc PACS \"%s\" (AET \"%s\")"
+msgstr ""
+
+msgid "Successfully stored in export area."
+msgstr ""
+
+msgid "Showing DICOM studies"
+msgstr ""
+
+msgid "Unable to show selected studies."
+msgstr ""
+
+msgid "Copying DICOM studies"
+msgstr ""
+
+msgid "Unable to put studies into export area."
+msgstr ""
+
+#, python-format
+msgid "DICOM studies of [%s] from Orthanc PACS \"%s\" (AET \"%s\") [%s/]"
+msgstr ""
+
+msgid "Adding DICOM studies to export area"
+msgstr ""
+
+msgid "Unable to put ZIP of studies into export area."
+msgstr ""
+
+msgid "Exporting DICOM studies"
+msgstr ""
+
+#, python-format
+msgid ""
+"The DICOM studies are %s in compressed size.\n"
+"\n"
+"Really move into export area ?"
+msgstr ""
+
+#, python-format
+msgid "DICOM studies of [%s] from Orthanc PACS \"%s\" (AET \"%s\")"
+msgstr ""
+
+#, python-format
+msgid ""
+"Cannot add the following archive to the export area:\n"
+"%s "
+msgstr ""
+
+msgid "Select the directory into which to save the DICOM studies."
+msgstr ""
+
+msgid "Saving DICOM studies"
+msgstr ""
+
+msgid "Unable to save DICOM studies."
+msgstr ""
+
+#, python-format
+msgid "Successfully saved to [%s]."
+msgstr ""
+
+msgid "Select the directory into which to save the DICOM studies ZIP."
+msgstr ""
+
+msgid "Unable to save DICOM studies as ZIP."
+msgstr ""
+
+#, python-format
 msgid "%s image(s)%s"
 msgstr ""
 
@@ -15671,42 +16103,7 @@ msgstr ""
 msgid "Working on: Orthanc \"%s\" (AET \"%s\" @ %s:%s, Version %s)"
 msgstr ""
 
-#, python-format
-msgid ""
-"Cannot preview DICOM image:\n"
-"%s"
-msgstr ""
-
-msgid "Previewing DICOM image"
-msgstr ""
-
-#, python-format
-msgid ""
-"Cannot show DICOM image:\n"
-"%s"
-msgstr ""
-
-msgid "Showing DICOM image"
-msgstr ""
-
-#, python-format
-msgid "Successfully saved as [%s]."
-msgstr ""
-
-#, python-format
-msgid "DICOM image of [%s] from Orthanc PACS \"%s\" (AET \"%s\")"
-msgstr ""
-
-msgid "Successfully stored in export area."
-msgstr ""
-
-msgid "Select the directory into which to save the DICOM studies."
-msgstr ""
-
-msgid "Saving DICOM studies"
-msgstr ""
-
-msgid "Unable to save selected studies."
+msgid "Successfully verified DICOM data of patient."
 msgstr ""
 
 msgid "DICOM data error"
@@ -15740,15 +16137,6 @@ msgid "error report"
 msgstr ""
 
 msgid "DICOM data corruption"
-msgstr ""
-
-msgid "Unable to save patient studies."
-msgstr ""
-
-msgid "Exporting DICOM studies"
-msgstr ""
-
-msgid "Unable to export studies."
 msgstr ""
 
 msgid "Patient ID"
@@ -16819,33 +17207,8 @@ msgid ""
 msgstr ""
 
 msgid ""
-"GNUmed will use this URL to access a website which lets\n"
-"you report an adverse drug reaction (ADR).\n"
-"\n"
-"If you leave this empty it will fall back\n"
-"to an URL for reporting ADRs in Germany."
-msgstr ""
-
-msgid ""
-"GNUmed will use this URL to access a website which lets\n"
-"you report an adverse vaccination reaction (vADR).\n"
-"\n"
-"If you set it to a specific address that URL must be\n"
-"accessible now. If you leave it empty it will fall back\n"
-"to the URL for reporting other adverse drug reactions."
-msgstr ""
-
-msgid ""
 "GNUmed will use this URL to access an encyclopedia of\n"
 "measurement/lab methods from within the measurments grid.\n"
-"\n"
-"You can leave this empty but to set it to a specific\n"
-"address the URL must be accessible now."
-msgstr ""
-
-msgid ""
-"GNUmed will use this URL to access a page showing\n"
-"vaccination schedules.\n"
 "\n"
 "You can leave this empty but to set it to a specific\n"
 "address the URL must be accessible now."
@@ -17632,6 +17995,35 @@ msgstr ""
 msgid "Must select a hospital. Cannot save hospitalization."
 msgstr ""
 
+msgid "Choose an AMTS BMP medication plan."
+msgstr ""
+
+msgid "BMP files"
+msgstr ""
+
+msgid "Importing AMTS BMP Medikationsplan"
+msgstr ""
+
+#, python-format
+msgid ""
+"The file\n"
+"\n"
+" [%s]\n"
+"\n"
+"does not seem to be a Medikationsplan."
+msgstr ""
+
+#, python-format
+msgid ""
+"No matching patient found in GNUmed.\n"
+"\n"
+"The patient in the Medikationsplan is:\n"
+"\n"
+" %s\n"
+"\n"
+"Do you want to create that patient ?"
+msgstr ""
+
 msgid "Cannot change notebook tabs. No active patient."
 msgstr ""
 
@@ -18399,26 +18791,32 @@ msgstr ""
 msgid "Cannot plot without a plot script."
 msgstr ""
 
-msgid "Result"
+msgid "no related documents"
 msgstr ""
 
-msgid "no related documents found"
+msgid "There is no lab reference to find related documents for."
 msgstr ""
 
 msgid "No document types declared to contain lab results."
 msgstr ""
 
-msgid "Document types declared to contain lab results:"
+msgid "No valid document types declared to contain lab results."
+msgstr ""
+
+msgid "Document types assumed to contain lab results:"
 msgstr ""
 
 #, python-format
 msgid "Related documents: %s"
 msgstr ""
 
+msgid "Select the document types which are assumed to contain lab results."
+msgstr ""
+
 msgid "Documents possibly related to this episode"
 msgstr ""
 
-msgid "Select the document types which are expected to contain lab results."
+msgid "Result"
 msgstr ""
 
 msgid "Range"
@@ -18426,6 +18824,12 @@ msgstr ""
 
 #, python-format
 msgid "%s ago (%s)"
+msgstr ""
+
+msgid "missing"
+msgstr ""
+
+msgid "LOINC not found"
 msgstr ""
 
 msgid "Perform on selected results:"
@@ -18653,9 +19057,6 @@ msgid "Test panels list"
 msgstr ""
 
 msgid "Select a test panel."
-msgstr ""
-
-msgid "LOINC not found"
 msgstr ""
 
 msgid "not a LOINC"
