@@ -117,21 +117,33 @@ TS=$(date +%Y-%m-%d-%H-%M-%S)
 BACKUP_FILENAME="${BACKUP_BASENAME}-${TS}"
 
 
-# taken from config file
-cd "${BACKUP_DIR}"
+# generate scratch dir
+SCRATCH_DIR="/tmp/${BACKUP_FILENAME}"
+mkdir -p ${SCRATCH_DIR}
 RESULT="$?"
 if test "${RESULT}" != "0" ; then
-	echo "Cannot change into backup directory [${BACKUP_DIR}] (${RESULT}). Aborting."
+	echo "Cannot create backup scratch directory [${SCRATCH_DIR}] (${RESULT}). Aborting."
+	exit ${RESULT}
+fi
+cd ${SCRATCH_DIR}
+RESULT="$?"
+if test "${RESULT}" != "0" ; then
+	echo "Cannot change into scratch backup directory [${SCRATCH_DIR}] (${RESULT}). Aborting."
 	exit ${RESULT}
 fi
 
 
+# create backup timestamp tag file
+TS_FILE="${BACKUP_BASENAME}-timestamp.txt"
+echo "backup: ${TS}" > ${TS_FILE}
+
+
 # create dumps
-BACKUP_DATA_DIR="${BACKUP_FILENAME}.dir"
+BACKUP_DATA_DIR="${BACKUP_BASENAME}.dir"
 # database
 pg_dump --verbose --format=directory --compress=0 --column-inserts --clean --if-exists --serializable-deferrable ${_PG_HOST_ARG} ${_PG_PORT_ARG} --username="${GM_DBO}" -f "${BACKUP_DATA_DIR}" "${GM_DATABASE}" 2> /dev/null
 # roles
-ROLES_FILE="${BACKUP_FILENAME}-roles.sql"
+ROLES_FILE="${BACKUP_BASENAME}-roles.sql"
 # -r -> -g for older versions
 ROLES=`psql --no-psqlrc --no-align --tuples-only --dbname="${GM_DATABASE}" ${_PG_HOST_ARG} ${_PG_PORT_ARG} --username="${GM_DBO}" --command="select gm.get_users('${GM_DATABASE}');"`
 {
@@ -179,6 +191,26 @@ if test "${RESULT}" != "0" ; then
 fi
 
 
+# move "untested" tar archive to final directory
+# so the compression script can pick it up if needed
+mv --force "${TAR_UNTESTED}" "${BACKUP_DIR}/"
+RESULT="$?"
+if test "${RESULT}" != "0" ; then
+	echo "cannot move TAR archive: ${TAR_UNTESTED} => ${BACKUP_DIR}/"
+	exit ${RESULT}
+fi
+
+
+# taken from config file
+cd "${BACKUP_DIR}"
+RESULT="$?"
+if test "${RESULT}" != "0" ; then
+	echo "Cannot change into backup directory [${BACKUP_DIR}] (${RESULT}). Aborting."
+	exit ${RESULT}
+fi
+rm --dir --recursive --one-file-system "${SCRATCH_DIR:?}"/
+
+
 # test tar archive
 tar --extract --to-stdout --file="${TAR_UNTESTED}" > /dev/null
 RESULT="$?"
@@ -187,8 +219,6 @@ if test "${RESULT}" != "0" ; then
 	rm --force "${TAR_UNTESTED}"
 	exit ${RESULT}
 fi
-rm --dir --recursive --one-file-system "${BACKUP_DATA_DIR:?}"/
-rm --force "${ROLES_FILE}"
 
 
 # rename to final archive name which
@@ -200,5 +230,6 @@ if test "${RESULT}" != "0" ; then
 	exit ${RESULT}
 fi
 chown "${BACKUP_OWNER}" "${TAR_FILE}"
+
 
 exit 0
