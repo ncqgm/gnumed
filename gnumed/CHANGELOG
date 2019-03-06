@@ -38,6 +38,7 @@ IMPROVED: test results panels links w/ documents
 IMPROVED: console encoding errors behaviour [thanks INADA Naoki]
 IMPROVED: ADR URL handling
 IMPROVED: age sort mode in document tree
+IMPROVED: age/DOB tooltip
 
 FIX: [Save] functionality of Export Area
 FIX: document tree sorting / document insertion

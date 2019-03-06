@@ -277,18 +277,18 @@ class cTopPnl(wxgTopPnl.wxgTopPnl):
 			tt += _('Age: %s, birthday:\n') % self.curr_pat['medical_age']
 			if self.curr_pat.current_birthday_passed is True:
 				template = '%(sex)s  %(dob)s%(l_arr)s (%(age)s)'
-				tt += ' ' + _('%s ago (= this year)') % gmDateTime.format_apparent_age_medically (
+				tt += ' ' + _('last: %s ago (this year)') % gmDateTime.format_apparent_age_medically (
 					age = gmDateTime.calculate_apparent_age(start = self.curr_pat.birthday_this_year, end = now)
 				) + '\n'
-				tt += ' ' + _('in %s (= next year)') % gmDateTime.format_apparent_age_medically (
+				tt += ' ' + _('next: in %s (next year)') % gmDateTime.format_apparent_age_medically (
 					age = gmDateTime.calculate_apparent_age(start = now, end = self.curr_pat.birthday_next_year)
 				) + '\n'
 			elif self.curr_pat.current_birthday_passed is False:
 				template = '%(sex)s  %(r_arr)s%(dob)s (%(age)s)'
-				tt += ' ' + _('in %s (= this year)') % gmDateTime.format_apparent_age_medically (
+				tt += ' ' + _('next: in %s (this year)') % gmDateTime.format_apparent_age_medically (
 					age = gmDateTime.calculate_apparent_age(start = now, end = self.curr_pat.birthday_this_year)
 				) + '\n'
-				tt += ' ' + _('%s ago (= last year)') % gmDateTime.format_apparent_age_medically (
+				tt += ' ' + _('last: %s ago (last year)') % gmDateTime.format_apparent_age_medically (
 					age = gmDateTime.calculate_apparent_age(start = self.curr_pat.birthday_last_year, end = now)
 				) + '\n'
 			else:	# None, unknown
