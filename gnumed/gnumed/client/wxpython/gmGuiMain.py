@@ -166,7 +166,6 @@ class gmTopLevelFrame(wx.Frame):
 
 		_log.info('workplace is >>>%s<<<', gmPraxis.gmCurrentPraxisBranch().active_workplace)
 
-		self.__setup_main_menu()
 		self.setup_statusbar()
 		self.SetStatusText(_('You are logged in as %s%s.%s (%s). DB account <%s>.') % (
 			gmTools.coalesce(_provider['title'], ''),
@@ -175,6 +174,7 @@ class gmTopLevelFrame(wx.Frame):
 			_provider['short_alias'],
 			_provider['db_user']
 		))
+		self.__setup_main_menu()
 
 		self.__set_window_title_template()
 		self.__update_window_title()
@@ -929,28 +929,23 @@ class gmTopLevelFrame(wx.Frame):
 		self.__pre_exit_callbacks.append(callback)
 	#-----------------------------------------------
 	def _on_set_statustext_pubsub(self, context=None):
-		msg = '%s %s' % (gmDateTime.pydt_now_here().strftime('%H:%M'), context.data['msg'])
-		wx.CallAfter(self.SetStatusText, msg)
-
+		wx.CallAfter(self.SetStatusText, '%s' % context.data['msg'])
 		try:
 			if context.data['beep']:
 				wx.Bell()
 		except KeyError:
 			pass
+
 	#-----------------------------------------------
 	def _on_set_statustext(self, msg=None, loglevel=None, beep=True):
-
 		if msg is None:
 			msg = _('programmer forgot to specify status message')
-
 		if loglevel is not None:
 			_log.log(loglevel, msg.replace('\015', ' ').replace('\012', ' '))
-
-		msg = '%s %s' % (gmDateTime.pydt_now_here().strftime('%H:%M'), msg)
 		wx.CallAfter(self.SetStatusText, msg)
-
 		if beep:
 			wx.Bell()
+
 	#-----------------------------------------------
 	def _on_db_maintenance_warning(self):
 
@@ -3020,7 +3015,7 @@ class gmTopLevelFrame(wx.Frame):
 				_log.exception('cannot stop scripting listener thread')
 
 		# shutdown timers
-		self.clock_update_timer.Stop()
+		self.StatusBar.clock_update_timer.Stop()
 		gmTimer.shutdown()
 		gmPhraseWheel.shutdown()
 
@@ -3187,20 +3182,9 @@ class gmTopLevelFrame(wx.Frame):
 
 	#----------------------------------------------
 	def setup_statusbar(self):
-		sb = self.CreateStatusBar(2, wx.STB_SIZEGRIP | wx.STB_SHOW_TIPS)
-		sb.SetStatusWidths([-1, 225])
-		# add time and date display to the right corner of the status bar
-		self.clock_update_timer = wx.PyTimer(self._cb_update_clock)
-		self._cb_update_clock()
-		# update every second
-		self.clock_update_timer.Start(milliseconds = 1000)
-
-	#----------------------------------------------
-	def _cb_update_clock(self):
-		"""Displays date and local time in the second slot of the status bar"""
-		t = time.localtime(time.time())
-		st = time.strftime('%Y %b %d  %H:%M:%S', t)
-		self.SetStatusText(st, 1)
+		self.StatusBar = cStatusBar(self)
+		self.SetStatusText = self.StatusBar.SetStatusText
+		self.PushStatusText = self.StatusBar.PushStatusText
 
 	#------------------------------------------------
 	def Lock(self):
@@ -3224,8 +3208,84 @@ class gmTopLevelFrame(wx.Frame):
 #		self.nb.AdvanceSelection()
 		return
 	#-----------------------------------------------
-	def OnPanelSize (self, event):
+	def OnPanelSize(self, event):
 		wx.LayoutAlgorithm().LayoutWindow(self.LayoutMgr, self.nb)
+
+#==============================================================================
+class cStatusBar(wx.StatusBar):
+
+	def __init__(self, *args, **kwargs):
+		try:
+			kwargs['style'] = kwargs['style'] | wx.STB_SIZEGRIP | wx.STB_SHOW_TIPS
+		except KeyError:
+			kwargs['style']  = wx.STB_SIZEGRIP | wx.STB_SHOW_TIPS
+		super().__init__(*args, **kwargs)
+
+		self.FieldsCount = 2
+		self.SetStatusWidths([-1, 225])
+		self.__msg_fifo = []
+		self._cb_update_clock()
+		self.clock_update_timer = wx.PyTimer(self._cb_update_clock)
+		self.clock_update_timer.Start(milliseconds = 1000)
+
+		self.Bind(wx.EVT_LEFT_DCLICK, self._on_show_history)
+
+	#----------------------------------------------
+	def _cb_update_clock(self):
+		"""Displays date and local time in the second slot of the status bar"""
+		t = time.localtime(time.time())
+		st = time.strftime('%Y %b %d  %H:%M:%S', t)
+		self.SetStatusText(st, 1)
+
+	#----------------------------------------------
+	def SetStatusText(self, text, i=0):
+		msg = self.__update_history(text, i)
+		super().SetStatusText(msg, i)
+
+	#----------------------------------------------
+	def PushStatusText(self, string, field=0):
+		msg = self.__update_history(string, field)
+		super().PushStatusText(msg, field)
+
+	#----------------------------------------------
+	# internal API
+	#----------------------------------------------
+	def __update_history(self, msg, field):
+		if field > 0:
+			return msg
+		if msg.strip() == '':
+			return msg
+		msg = '%s %s' % (gmDateTime.pydt_now_here().strftime('%H:%M'), msg)
+		self.__msg_fifo.insert(0, msg)
+		if len(self.__msg_fifo) > 15:
+			self.__msg_fifo = self.__msg_fifo[:15]
+		return msg
+
+	#----------------------------------------------
+	def _on_show_history(self, evt):
+		gmGuiHelpers.gm_show_info (
+			title = _('Statusbar history'),
+			info = _(
+				'%s - now\n'
+				'\n'
+				'%s'
+			) % (
+				gmDateTime.pydt_now_here().strftime('%H:%M'),
+				'\n'.join(self.__msg_fifo)
+			)
+		)
+
+	#----------------------------------------------
+	def __print_msg_fifo(self, context=None):
+		print('----------------------------------')
+		print('Statusbar history @ [%s]:' % gmDateTime.pydt_now_here().strftime('%H:%M'))
+		print('\n'.join(self.__msg_fifo))
+		print('----------------------------------')
+
+	#----------------------------------------------
+	def _on_print_history(self, evt):
+		evt.Skip()
+		self.__print_msg_fifo()
 
 #==============================================================================
 class gmApp(wx.App):

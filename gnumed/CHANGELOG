@@ -21,6 +21,7 @@ NEW: emailing of export area content as encrypted zip file
 NEW: local directory entries in export area
 NEW: $praxis_scan2pay$ support
 NEW: $bill_scan2pay$ support
+NEW: status bar history
 
 IMPROVED: symbolic link creation on Windows
 IMPROVED: Orthanc connection handling
