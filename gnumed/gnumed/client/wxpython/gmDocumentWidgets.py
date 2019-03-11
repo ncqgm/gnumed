@@ -27,6 +27,7 @@ if __name__ == '__main__':
 	gmI18N.activate_locale()
 	gmI18N.install_domain(domain = 'gnumed')
 from Gnumed.pycommon import gmCfg
+from Gnumed.pycommon import gmCfg2
 from Gnumed.pycommon import gmPG2
 from Gnumed.pycommon import gmMimeLib
 from Gnumed.pycommon import gmMatchProvider
@@ -3059,8 +3060,9 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 		item = self.__thumbnail_menu.Append(-1, _('Save as image file (.png)'))
 		self.Bind(wx.EVT_MENU, self._on_save_image_as_png, item)
 
-		# make Studies context menu
+		# pre-make studies context menu
 		self.__studies_menu = wx.Menu('Studies:')
+		self.__studies_menu.AppendSeparator()
 		item = self.__studies_menu.Append(-1, _('Show in DICOM viewer'))
 		self.Bind(wx.EVT_MENU, self._on_studies_show_button_pressed, item)
 		self.__studies_menu.AppendSeparator()
@@ -3083,6 +3085,10 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 		self.Bind(wx.EVT_MENU, self._on_save_all_studies, item)
 		item = self.__studies_menu.Append(-1, _('Save ZIP of all'))
 		self.Bind(wx.EVT_MENU, self._on_save_zip_of_all_studies, item)
+		self.__studies_menu.AppendSeparator()
+		# dicomize
+		item = self.__studies_menu.Append(-1, _('Add PDF to study'))
+		self.Bind(wx.EVT_MENU, self._on_add_pdf_to_study, item)
 
 	#--------------------------------------------------------
 	def __set_button_states(self):
@@ -3773,6 +3779,67 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 			return
 
 		gmDispatcher.send(signal = 'statustext', msg = _('Successfully saved as [%s].') % filename)
+
+	#--------------------------------------------------------
+	def _on_add_pdf_to_study(self, evt):
+		if self.__pacs is None:
+			return
+
+		study_data = self._LCTRL_studies.get_selected_item_data(only_one = False)
+		if len(study_data) != 1:
+			gmGuiHelpers.gm_show_info (
+				title = _('Adding PDF to DICOM study'),
+				info = _('For adding a PDF file there must be exactly one (1) DICOM study selected.')
+			)
+			return
+
+		# select PDF
+		pdf_name = None
+		dlg = wx.FileDialog (
+			parent = self,
+			message = _('Select PDF to add to DICOM study'),
+			defaultDir = os.path.join(gmTools.gmPaths().home_dir, 'gnumed'),
+			wildcard = "%s (*.pdf)|*.pdf|%s (*)|*" % (_('PDF files'), _('all files')),
+			style = wx.FD_OPEN | wx.FD_FILE_MUST_EXIST
+		)
+		choice = dlg.ShowModal()
+		pdf_name = dlg.GetPath()
+		dlg.DestroyLater()
+		if choice != wx.ID_OK:
+			return
+
+		_log.debug('dicomize(%s)', pdf_name)
+		if pdf_name is None:
+			return
+
+		# export one instance as template
+		instance_uuid = study_data[0]['series'][0]['instances'][0]
+		dcm_instance_template_fname = self.__pacs.get_instance(instance_id = instance_uuid)
+		# dicomize PDF via template
+		_cfg = gmCfg2.gmCfgData()
+		pdf2dcm_fname = gmDICOM.dicomize_pdf (
+			pdf_name = pdf_name,
+			dcm_template_file = dcm_instance_template_fname,
+			#title = 'test',
+			verbose = _cfg.get(option = 'debug')
+		)
+		if pdf2dcm_fname is None:
+			gmGuiHelpers.gm_show_error (
+				title = _('Adding PDF to DICOM study'),
+				error = _('Cannot turn PDF file\n\n %s\n\n into DICOM file.')
+			)
+			return
+
+		# upload pdf.dcm
+		if self.__pacs.upload_dicom_file(pdf2dcm_fname):
+			gmDispatcher.send(signal = 'statustext', msg = _('Successfully uploaded [%s] to Orthanc DICOM server.') % pdf2dcm_fname)
+			return
+
+		gmGuiHelpers.gm_show_error (
+			title = _('Adding PDF to DICOM study'),
+			error = _('Cannot updload DICOM file\n\n %s\n\n into Orthanc PACS.') % pdf2dcm_fname
+		)
+		self._schedule_data_reget()
 
 	#--------------------------------------------------------
 	#--------------------------------------------------------

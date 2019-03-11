@@ -30,6 +30,7 @@ if __name__ == '__main__':
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmShellAPI
 from Gnumed.pycommon import gmMimeLib
+from Gnumed.pycommon import gmDateTime
 #from Gnumed.pycommon import gmHooks
 #from Gnumed.pycommon import gmDispatcher
 
@@ -1185,28 +1186,41 @@ def cleanup_dicom_string(dicom_str):
 	return dicom_str
 
 #---------------------------------------------------------------------------
-def dicomize_pdf(pdf_name=None, title=None, person=None, dcm_name=None, verbose=False):
+def dicomize_pdf(pdf_name=None, title=None, person=None, dcm_name=None, verbose=False, dcm_template_file=None):
 	assert (pdf_name is not None), '<pdfname> must not be None'
-	assert (person is not None), '<person> must not be None'
+	assert (not ((person is None) and (dcm_template_file is None))), '<person> or <dcm_template_file> must not be None'
 
+	_log.debug('pdf: %s', pdf_name)
 	if title is None:
 		title = pdf_name
 	if dcm_name is None:
 		dcm_name = gmTools.get_unique_filename(suffix = '.dcm')
-	name = person.active_name
+	now = gmDateTime.pydt_now_here()
 	cmd_line = [
 		'pdf2dcm',
-		'--patient-id', person.suggest_external_id(target = 'PACS'),
-		'--patient-name', ('%s^%s' % (name['lastnames'], name['firstnames'])).replace(' ', '^'),
 		'--title', title,
-		#'--generate'
+		'--key', '0008,0020=%s' % now.strftime('%Y%M%d'),			# StudyDate
+		'--key', '0008,0023=%s' % now.strftime('%H%m%s.0'),			# ContentDate
+		'--key', '0008,0030=%s' % now.strftime('%H%m%s.0'),			# StudyTime
+		'--key', '0008,0033=%s' % now.strftime('%H%m%s.0')			# ContentTime
 	]
-	if person['dob'] is not None:
-		cmd_line.append('--patient-birthdate')
-		cmd_line.append(person.get_formatted_dob(format = '%Y%m%d', honor_estimation = False))
-	if person['gender'] is not None:
-		cmd_line.append('--patient-sex')
-		cmd_line.append(_map_gender_gm2dcm[person['gender']])
+	if dcm_template_file is None:
+		name = person.active_name
+		cmd_line.append('--patient-id')
+		cmd_line.append(person.suggest_external_id(target = 'PACS'))
+		cmd_line.append('--patient-name')
+		cmd_line.append(('%s^%s' % (name['lastnames'], name['firstnames'])).replace(' ', '^'))
+		if person['dob'] is not None:
+			cmd_line.append('--patient-birthdate')
+			cmd_line.append(person.get_formatted_dob(format = '%Y%m%d', honor_estimation = False))
+		if person['gender'] is not None:
+			cmd_line.append('--patient-sex')
+			cmd_line.append(_map_gender_gm2dcm[person['gender']])
+	else:
+		_log.debug('DCM template file: %s', dcm_template_file)
+		cmd_line.append('--series-from')
+		cmd_line.append(dcm_template_file)
+
 	if verbose:
 		cmd_line.append('--log-level')
 		cmd_line.append('trace')
@@ -1418,7 +1432,10 @@ if __name__ == "__main__":
 		#print(pdf2dcm(filename = filename, patient_id = 'ID::abcABC', dob = '19900101'))
 		from Gnumed.business import gmPerson
 		pers = gmPerson.cPerson(12)
-		print(dicomize_pdf(pdf_name = sys.argv[2], person = pers, dcm_name = None, verbose = True))#, title = 'test'))
+		try:
+			print(dicomize_pdf(pdf_name = sys.argv[2], person = pers, dcm_name = None, verbose = True, dcm_template_file = sys.argv[3]))#, title = 'test'))
+		except IndexError:
+			print(dicomize_pdf(pdf_name = sys.argv[2], person = pers, dcm_name = None, verbose = True))#, title = 'test'))
 
 	#--------------------------------------------------------
 	#run_console()

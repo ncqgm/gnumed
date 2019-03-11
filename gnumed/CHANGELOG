@@ -22,6 +22,7 @@ NEW: local directory entries in export area
 NEW: $praxis_scan2pay$ support
 NEW: $bill_scan2pay$ support
 NEW: status bar history
+NEW: dicomize PDF into DICOM study
 
 IMPROVED: symbolic link creation on Windows
 IMPROVED: Orthanc connection handling
