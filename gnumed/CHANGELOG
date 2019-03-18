@@ -9,6 +9,7 @@
 	1.7.6
 
 FIX: application metadata files
+FIX: searching across all EMRs
 
 NEW: stub out $praxis_scan2pay$
 
