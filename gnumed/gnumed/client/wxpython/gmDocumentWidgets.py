@@ -3350,7 +3350,14 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 			self._LCTRL_details.set_string_items(items = items)
 			self._LCTRL_details.set_column_widths()
 			return
-		items.append([' ----- ', '--- %s ----------' % _('Series')])
+		items.append ([
+			' %s ' % (gmTools.u_box_horiz_single * 5),
+			'%s %s %s' % (
+				gmTools.u_box_horiz_single * 3,
+				_('Series'),
+				gmTools.u_box_horiz_single * 10
+			)
+		])
 		items.extend([ [key, series['all_tags'][key]] for key in series['all_tags'] if ('%s' % series['all_tags'][key]).strip() != '' ])
 
 		# image available ?
@@ -3358,9 +3365,19 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 			self._LCTRL_details.set_string_items(items = items)
 			self._LCTRL_details.set_column_widths()
 			return
+		items.append ([
+			' %s ' % (gmTools.u_box_horiz_single * 5),
+			'%s %s %s' % (
+				gmTools.u_box_horiz_single * 3,
+				_('Image'),
+				gmTools.u_box_horiz_single * 10
+			)
+		])
 		tags = self.__pacs.get_instance_dicom_tags(instance_id = self.__image_data['uuid'])
-		items.append([' ----- ', '--- %s ----------' % _('Image')])
-		items.extend([ [key, tags[key]] for key in tags if ('%s' % tags[key]).strip() != '' ])
+		if tags is False:
+			items.extend(['image', '<tags not found in PACS>'])
+		else:
+			items.extend([ [key, tags[key]] for key in tags if ('%s' % tags[key]).strip() != '' ])
 
 		self._LCTRL_details.set_string_items(items = items)
 		self._LCTRL_details.set_column_widths()
@@ -3813,14 +3830,14 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 			return
 
 		# export one instance as template
-		instance_uuid = study_data[0]['series'][0]['instances'][0]
+		instance_uuid = study_data[0]['series'][0]['instances'][-1]
 		dcm_instance_template_fname = self.__pacs.get_instance(instance_id = instance_uuid)
 		# dicomize PDF via template
 		_cfg = gmCfg2.gmCfgData()
 		pdf2dcm_fname = gmDICOM.dicomize_pdf (
 			pdf_name = pdf_name,
 			dcm_template_file = dcm_instance_template_fname,
-			#title = 'test',
+			title = 'GNUmed',
 			verbose = _cfg.get(option = 'debug')
 		)
 		if pdf2dcm_fname is None:
