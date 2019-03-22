@@ -3995,13 +3995,13 @@ if __name__ == '__main__':
 	#test_episode_encounters()
 	#test_problem()
 	#test_encounter()
-	#test_health_issue()
+	test_health_issue()
 	#test_hospital_stay()
 	#test_performed_procedure()
 	#test_diagnostic_certainty_classification_map()
 	#test_encounter2latex()
 	#test_episode_codes()
 
-	test_export_emr_structure()
+	#test_export_emr_structure()
 
 #============================================================

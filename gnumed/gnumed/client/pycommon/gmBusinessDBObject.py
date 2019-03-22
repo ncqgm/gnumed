@@ -1,6 +1,3 @@
-
-
-
 __doc__ = """GNUmed database object business class.
 
 Overview
@@ -148,7 +145,8 @@ from Gnumed.pycommon.gmTools import tex_escape_string
 from Gnumed.pycommon.gmTools import xetex_escape_string
 from Gnumed.pycommon.gmTools import compare_dict_likes
 from Gnumed.pycommon.gmTools import format_dict_like
-from Gnumed.pycommon.gmTools import format_dict_likes_comparison
+from Gnumed.pycommon.gmTools import dicts2table
+from Gnumed.pycommon.gmTools import u_ellipsis
 
 
 _log = logging.getLogger('gm.db')
@@ -548,40 +546,28 @@ def delete_xxx(pk_XXX=None):
 	#--------------------------------------------------------
 	def _get_revision_history(self, query, args, title):
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': query, 'args': args}], get_col_idx = True)
-		lines = []
-		lines.append('%s (%s versions)' % (title, rows[0]['row_version'] + 1))
-		if len(rows) == 1:
-			lines.append('')
-			lines.extend(format_dict_like (
-					rows[0],
-					left_margin = 1,
-					tabular = True,
-					value_delimiters = None,
-					eol = None
-			))
-			return lines
 
-		for row_idx in range(len(rows)-1):
-			lines.append('')
-			row_older = rows[row_idx + 1]
-			row_newer = rows[row_idx]
-			lines.extend(format_dict_likes_comparison (
-				row_older,
-				row_newer,
-				title_left = _('Revision #%s') % row_older['row_version'],
-				title_right = _('Revision #%s') % row_newer['row_version'],
-				left_margin = 0,
-				key_delim = ' | ',
-				data_delim = ' | ',
-				missing_string = '',
-				ignore_diff_in_keys = ['audit__action_applied', 'audit__action_when', 'audit__action_by', 'pk_audit', 'row_version', 'modified_when', 'modified_by']
+		lines = []
+		if rows == 0:
+			lines.append('%s (no versions)' % title)
+		else:
+			lines.append('%s (%s versions)' % (title, rows[0]['row_version'] + 1))
+			headers = [ 'rev %s (%s)' % (r['row_version'], pydt_strftime(r['audit__action_when'], format = '%Y %b %d %H:%M', none_str = 'live row')) for r in rows ]
+			lines.extend (dicts2table (
+				rows,
+				left_margin = 1,
+				eol = None,
+				keys2ignore = ['audit__action_when', 'row_version', 'pk_audit'],
+				show_only_changes = True,
+				headers = headers,
+				date_format = '%Y %b %d %H:%M',
+				equality_value = u_ellipsis
 			))
 		return lines
 
 	#--------------------------------------------------------
 	def refetch_payload(self, ignore_changes=False, link_obj=None):
-		"""Fetch field values from backend.
-		"""
+		"""Fetch field values from backend."""
 		if self._is_modified:
 			compare_dict_likes(self.original_payload, self.fields_as_dict(date_format = None, none_string = None), 'original payload', 'modified payload')
 			if ignore_changes:

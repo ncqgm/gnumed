@@ -1564,6 +1564,85 @@ def format_dict_like(d, relevant_keys=None, template=None, missing_key_template=
 	return eol.join(lines)
 
 #---------------------------------------------------------------------------
+def dicts2table(dict_list, left_margin=0, eol='\n', keys2ignore=None, headers=None, show_only_changes=False, equality_value='<=>', date_format=None):	#, relevant_keys=None, template=None
+
+	keys2show = []
+	dict_max_size = {}
+	max_row_label_size = 0
+	if keys2ignore is None:
+		keys2ignore = []
+
+	# extract keys from all dicts
+	for d in dict_list:
+		dict_max_size[id(d)] = 0
+		for key in d.keys():
+			if key in keys2ignore:
+				continue
+			dict_max_size[id(d)] = max(dict_max_size[id(d)], len('%s' % d[key]))
+			if key in keys2show:
+				continue
+			keys2show.append(key)
+			max_row_label_size = max(max_row_label_size, len('%s' % key))
+
+	# pivot data into dict of lists per line
+	lines = { k: [] for k in keys2show }
+	prev_vals = {}
+	for d in dict_list:
+		if show_only_changes:
+			max_size = max(dict_max_size[id(d)], len(equality_value))
+		else:
+			max_size = dict_max_size[id(d)]
+		max_len_str = '%s.%s' % (max_size, max_size)
+		field_template = ' %' + max_len_str + 's'
+		for key in keys2show:
+			try:
+				val = d[key]
+			except KeyError:
+				lines[key].append(field_template % _('<missing>'))
+				continue
+			if isinstance(val, pydt.datetime):
+				if date_format is not None:
+					val = val.strftime(date_format)
+			lines[key].append(field_template % val)
+			if show_only_changes:
+				if key not in prev_vals:
+					prev_vals[key] = '%s' % lines[key][-1]
+					continue
+				if lines[key][-1] != prev_vals[key]:
+					prev_vals[key] = '%s' % lines[key][-1]
+					continue
+				lines[key][-1] = field_template % equality_value
+
+	# format data into table
+	table_lines = []
+	max_len_str = '%s.%s' % (max_row_label_size, max_row_label_size)
+	row_label_template = '%' + max_len_str + 's'
+	for key in lines:
+		line = (' ' * left_margin) + row_label_template % key + '|'
+		line += '|'.join(lines[key])
+		table_lines.append(line)
+
+	# add header line if any
+	if headers is not None:
+		header_line1 = (' ' * left_margin) + row_label_template % ''
+		header_line2 = (' ' * left_margin) + u_box_horiz_single * (max_row_label_size)
+		header_sizes = [ max(dict_max_size[dict_id], len(equality_value)) for dict_id in dict_max_size ]
+		for idx in range(len(headers)):
+			max_len_str = '%s.%s' % (header_sizes[idx], header_sizes[idx])
+			header_template = '%' + max_len_str + 's'
+			header_line1 += '| '
+			header_line1 += header_template % headers[idx]
+			header_line2 += '%s%s' % (u_box_plus, u_box_horiz_single)
+			header_line2 += u_box_horiz_single * header_sizes[idx]
+		table_lines.insert(0, header_line2)
+		table_lines.insert(0, header_line1)
+
+	if eol is None:
+		return table_lines
+
+	return ('|' + eol).join(table_lines) + '|' + eol
+
+#---------------------------------------------------------------------------
 def normalize_dict_like(d, required_keys, missing_key_template='<[%(key)s] MISSING>'):
 	for key in required_keys:
 		try:
@@ -2276,10 +2355,24 @@ second line\n
 		print(mk_sandbox_dir(base_dir = '/tmp/abcd/efg/h'))
 
 	#-----------------------------------------------------------------------
+	def test_make_table_from_dicts():
+		dicts = [
+			{'pkey': 1, 'value': 'a1'},
+			{'pkey': 2, 'value': 'b2'},
+			{'pkey': 3, 'value': 'c3'},
+			{'pkey': 4, 'value': 'd4'},
+			{'pkey': 5, 'value': 'd4'},
+			{'pkey': 5, 'value': 'c5'},
+		]
+		with open('x.txt', 'w', encoding = 'utf8') as f:
+			f.write(dicts2table(dicts, left_margin=2, eol='\n', keys2ignore=None, show_only_changes=True, headers = ['d1', 'd2', 'd3', 'd4', 'd5', 'd6']))
+			#print(dicts2table(dicts, left_margin=2, eol='\n', keys2ignore=None, show_only_changes=True, headers = ['d1', 'd2', 'd3', 'd4', 'd5', 'd6']))
+
+	#-----------------------------------------------------------------------
 	#test_coalesce()
 	#test_capitalize()
 	#test_import_module()
-	test_mkdir()
+	#test_mkdir()
 	#test_gmPaths()
 	#test_none_if()
 	#test_bool2str()
@@ -2310,5 +2403,6 @@ second line\n
 	#test_enumerate_optical_writers()
 	#test_copy_tree_content()
 	#test_mk_sandbox_dir()
+	test_make_table_from_dicts()
 
 #===========================================================================
