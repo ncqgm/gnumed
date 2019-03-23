@@ -121,6 +121,8 @@ cp -R ../../external-tools/gm-install_arriba ./gnumed-client.$CLIENTREV/external
 cp -R ../../external-tools/gm-download_data ./gnumed-client.$CLIENTREV/external-tools/
 cp -R ../../external-tools/gm-download_atc ./gnumed-client.$CLIENTREV/external-tools/
 cp -R ../../external-tools/gm-print_doc ./gnumed-client.$CLIENTREV/external-tools/
+cp -R ../../external-tools/gm-mail_doc ./gnumed-client.$CLIENTREV/external-tools/
+cp -R ../../external-tools/gm-fax_doc ./gnumed-client.$CLIENTREV/external-tools/
 cp -R ../../external-tools/gm-kvkd-read_chipcard.sh ./gnumed-client.$CLIENTREV/external-tools/
 cp -R ../../external-tools/gnumed-client-init_script.sh ./gnumed-client.$CLIENTREV/external-tools/
 cp -R ../../external-tools/gm-remove_person.sh ./gnumed-client.$CLIENTREV/external-tools/

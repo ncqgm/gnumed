@@ -1,0 +1,54 @@
+#!/bin/sh
+
+#------------------------------------------------------
+# This file is used by GNUmed to fax documents.
+#
+# It will be called with the fax number and
+# a list of files to be sent.
+#
+# The fax number can be "EMPTY" in which case
+# this script (or the fax program) will have to
+# retrieve the receiver number from the user.
+#
+# GNUmed will simply pass any files selected by the
+# user for faxing which means they can be of any
+# type. Hence the fax program (or this script) will
+# need to convert them to a format suitable
+# for faxing, say, g3-tiff.
+#
+# Whichever fax program you invoke needs to handle
+# all tasks related to actually, technically putting
+# the fax on the wire.
+#
+# The script must return 0 on success.
+#
+# GPL v2
+#------------------------------------------------------
+FAXNUMBER="$1"
+
+if test $# -lt 2 ; then
+	echo "${0}:"
+	echo " No files passed in for faxing."
+	echo " See [${0}] for instructions."
+	exit 0
+fi
+
+shift;
+FILES2FAX="$@"
+
+
+# roger_cli
+# can send PDF or PS, one file, several pages
+##roger_cli --debug --send-fax --number=${FAXNUMBER} --file=${FILES2FAX}
+
+
+# hylafax
+# can take PS, TIFF, ASCII, PDF, tries to convert other formats
+##sendfax -v -v -D -G -n -d ${FAXNUMBER} ${FILES2FAX}
+
+
+echo "${0}:"
+echo " ERROR: No fax handler set up."
+echo " ERROR: See [${0}] for instructions."
+
+exit 1
