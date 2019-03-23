@@ -1,4 +1,6 @@
 
+gnumed-announce@gnu.org, gnumed-update@gnu.org, gnumed-devel@gnu.org
+
 Hello all,
 
 I am glad to be able to announce the immediate availability
