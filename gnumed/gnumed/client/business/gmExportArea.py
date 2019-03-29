@@ -456,7 +456,7 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 	has_files_in_root = property(_has_files_in_root)
 
 #------------------------------------------------------------
-def get_export_items(order_by=None, pk_identity=None, designation=None):
+def get_export_items(order_by=None, pk_identity=None, designation=None, return_pks=False):
 
 	args = {
 		'pat': pk_identity,
@@ -479,7 +479,8 @@ def get_export_items(order_by=None, pk_identity=None, designation=None):
 
 	cmd = (_SQL_get_export_items % ' AND '.join(where_parts)) + order_by
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
-
+	if return_pks:
+		return [ r['pk_export_item'] for r in rows ]
 	return [ cExportItem(row = {'data': r, 'idx': idx, 'pk_field': 'pk_export_item'}) for r in rows ]
 
 #------------------------------------------------------------

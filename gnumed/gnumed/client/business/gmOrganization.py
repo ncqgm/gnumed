@@ -131,7 +131,7 @@ def delete_org(organization=None):
 	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
 	return True
 #------------------------------------------------------------
-def get_orgs(order_by=None):
+def get_orgs(order_by=None, return_pks=False):
 
 	if order_by is None:
 		order_by = ''
@@ -140,7 +140,8 @@ def get_orgs(order_by=None):
 
 	cmd = _SQL_get_org % ('TRUE %s' % order_by)
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
-
+	if return_pks:
+		return [ r['pk_org'] for r in rows ]
 	return [ cOrg(row = {'data': r, 'idx': idx, 'pk_field': 'pk_org'}) for r in rows ]
 
 #============================================================
@@ -462,7 +463,7 @@ def delete_org_unit(unit=None):
 	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
 	return True
 #------------------------------------------------------------
-def get_org_units(order_by=None, org=None):
+def get_org_units(order_by=None, org=None, return_pks=False):
 
 	if order_by is None:
 		order_by = ''
@@ -477,7 +478,8 @@ def get_org_units(order_by=None, org=None):
 	args = {'org': org}
 	cmd = (_SQL_get_org_unit % where_part) + order_by
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
-
+	if return_pks:
+		return [ r['pk_org_unit'] for r in rows ]
 	return [ cOrgUnit(row = {'data': r, 'idx': idx, 'pk_field': 'pk_org_unit'}) for r in rows ]
 
 #======================================================================

@@ -137,9 +137,11 @@ def delete_test_org(test_org=None):
 	"""
 	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 #------------------------------------------------------------
-def get_test_orgs(order_by='unit'):
+def get_test_orgs(order_by='unit', return_pks=False):
 	cmd = 'SELECT * FROM clin.v_test_orgs ORDER BY %s' % order_by
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
+	if return_pks:
+		return [ r['pk_test_org'] for r in rows ]
 	return [ cTestOrg(row = {'pk_field': 'pk_test_org', 'data': r, 'idx': idx}) for r in rows ]
 
 #============================================================
@@ -419,7 +421,7 @@ class cTestPanel(gmBusinessDBObject.cBusinessDBObject):
 		return pnl_results
 
 #------------------------------------------------------------
-def get_test_panels(order_by=None, loincs=None):
+def get_test_panels(order_by=None, loincs=None, return_pks=False):
 	where_args = {}
 	if loincs is None:
 		where_parts = ['true']
@@ -434,6 +436,8 @@ def get_test_panels(order_by=None, loincs=None):
 
 	cmd = (_SQL_get_test_panels % ' AND '.join(where_parts)) + order_by
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': where_args}], get_col_idx = True)
+	if return_pks:
+		return [ r['pk_test_panel'] for r in rows ]
 	return [ cTestPanel(row = {'data': r, 'idx': idx, 'pk_field': 'pk_test_panel'}) for r in rows ]
 
 #------------------------------------------------------------
@@ -667,9 +671,11 @@ def delete_meta_type(meta_type=None):
 	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 
 #------------------------------------------------------------
-def get_meta_test_types():
+def get_meta_test_types(return_pks=False):
 	cmd = 'SELECT *, xmin FROM clin.meta_test_type'
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
+	if return_pks:
+		return [ r['pk'] for r in rows ]
 	return [ cMetaTestType(row = {'pk_field': 'pk', 'data': r, 'idx': idx}) for r in rows ]
 
 #============================================================
@@ -952,7 +958,7 @@ LIMIT 1"""
 		return tt
 
 #------------------------------------------------------------
-def get_measurement_types(order_by=None, loincs=None):
+def get_measurement_types(order_by=None, loincs=None, return_pks=False):
 	args = {}
 	where_parts = []
 	if loincs is not None:
@@ -965,6 +971,8 @@ def get_measurement_types(order_by=None, loincs=None):
 	cmd = (_SQL_get_test_types % WHERE_clause) + gmTools.coalesce(order_by, '', ' ORDER BY %s')
 	#cmd = 'select * from clin.v_test_types %s' % gmTools.coalesce(order_by, '', 'order by %s')
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+	if return_pks:
+		return [ r['pk_test_type'] for r in rows ]
 	return [ cMeasurementType(row = {'pk_field': 'pk_test_type', 'data': r, 'idx': idx}) for r in rows ]
 
 #------------------------------------------------------------
@@ -2025,7 +2033,7 @@ WHERE
 		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 
 #------------------------------------------------------------
-def get_test_results(pk_patient=None, encounters=None, episodes=None, order_by=None):
+def get_test_results(pk_patient=None, encounters=None, episodes=None, order_by=None, return_pks=False):
 
 	where_parts = []
 
@@ -2059,7 +2067,8 @@ def get_test_results(pk_patient=None, encounters=None, episodes=None, order_by=N
 		order_by
 	)
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
-
+	if return_pks:
+		return [ r['pk_test_result'] for r in rows ]
 	tests = [ cTestResult(row = {'pk_field': 'pk_test_result', 'idx': idx, 'data': r}) for r in rows ]
 	return tests
 
@@ -2358,7 +2367,7 @@ def get_most_recent_results_for_test_type(test_type=None, no_of_results=1, patie
 	return [ cTestResult(row = {'pk_field': 'pk_test_result', 'idx': idx, 'data': r}) for r in rows ]
 
 #------------------------------------------------------------
-def get_most_recent_result_for_test_types(pk_test_types=None, pk_patient=None):
+def get_most_recent_result_for_test_types(pk_test_types=None, pk_patient=None, return_pks=False):
 	"""Return the one most recent result for *each* of a list of test types."""
 
 	where_parts = ['pk_patient = %(pat)s']
@@ -2383,6 +2392,8 @@ def get_most_recent_result_for_test_types(pk_test_types=None, pk_patient=None):
 			clin_when = min_clin_when
 	""" % ' AND '.join(where_parts)
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+	if return_pks:
+		return [ r['pk_test_result'] for r in rows ]
 	return [ cTestResult(row = {'pk_field': 'pk_test_result', 'idx': idx, 'data': r}) for r in rows ]
 
 #------------------------------------------------------------

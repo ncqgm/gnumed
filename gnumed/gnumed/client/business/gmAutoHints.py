@@ -124,13 +124,15 @@ class cDynamicHint(gmBusinessDBObject.cBusinessDBObject):
 		)
 
 #------------------------------------------------------------
-def get_dynamic_hints(order_by=None, link_obj=None):
+def get_dynamic_hints(order_by=None, link_obj=None, return_pks=False):
 	if order_by is None:
 		order_by = 'TRUE'
 	else:
 		order_by = 'TRUE ORDER BY %s' % order_by
 	cmd = _SQL_get_dynamic_hints % order_by
 	rows, idx = gmPG2.run_ro_queries(link_obj = link_obj, queries = [{'cmd': cmd}], get_col_idx = True)
+	if return_pks:
+		return [ r['pk_auto_hint'] for r in rows ]
 	return [ cDynamicHint(row = {'data': r, 'idx': idx, 'pk_field': 'pk_auto_hint'}) for r in rows ]
 
 #------------------------------------------------------------
@@ -279,7 +281,7 @@ class cSuppressedHint(gmBusinessDBObject.cBusinessDBObject):
 		return txt
 
 #------------------------------------------------------------
-def get_suppressed_hints(pk_identity=None, order_by=None):
+def get_suppressed_hints(pk_identity=None, order_by=None, return_pks=False):
 	args = {'pat': pk_identity}
 	if pk_identity is None:
 		where = 'true'
@@ -291,6 +293,8 @@ def get_suppressed_hints(pk_identity=None, order_by=None):
 		order_by = ' ORDER BY %s' % order_by
 	cmd = (_SQL_get_suppressed_hints % where) + order_by
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+	if return_pks:
+		return [ r['pk_suppressed_hint'] for r in rows ]
 	return [ cSuppressedHint(row = {'data': r, 'idx': idx, 'pk_field': 'pk_suppressed_hint'}) for r in rows ]
 
 #------------------------------------------------------------

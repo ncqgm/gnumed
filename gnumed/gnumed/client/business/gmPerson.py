@@ -2604,10 +2604,12 @@ def get_person_IDs():
 #============================================================
 def get_persons_from_pks(pks=None):
 	return [ cPerson(aPK_obj = pk) for pk in pks ]
+
 #============================================================
 def get_person_from_xdt(filename=None, encoding=None, dob_format=None):
 	from Gnumed.business import gmXdtObjects
 	return gmXdtObjects.read_person_from_xdt(filename=filename, encoding=encoding, dob_format=dob_format)
+
 #============================================================
 def get_persons_from_pracsoft_file(filename=None, encoding='ascii'):
 	from Gnumed.business import gmPracSoftAU

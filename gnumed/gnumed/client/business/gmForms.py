@@ -263,7 +263,7 @@ def get_form_template(name_long=None, external_version=None):
 	return cFormTemplate(aPK_obj = rows[0]['pk'])
 
 #------------------------------------------------------------
-def get_form_templates(engine=None, active_only=False, template_types=None, excluded_types=None):
+def get_form_templates(engine=None, active_only=False, template_types=None, excluded_types=None, return_pks=False):
 	"""Load form templates."""
 
 	args = {'eng': engine, 'in_use': active_only}
@@ -289,8 +289,9 @@ def get_form_templates(engine=None, active_only=False, template_types=None, excl
 		queries = [{'cmd': cmd, 'args': args}],
 		get_col_idx = True
 	)
+	if return_pks:
+		return [ r['pk_paperwork_template'] for r in rows ]
 	templates = [ cFormTemplate(row = {'pk_field': 'pk_paperwork_template', 'data': r, 'idx': idx}) for r in rows ]
-
 	return templates
 
 #------------------------------------------------------------

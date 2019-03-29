@@ -116,7 +116,7 @@ class cExternalCareItem(gmBusinessDBObject.cBusinessDBObject):
 	org_unit = property(_get_org_unit, lambda x:x)
 
 #------------------------------------------------------------
-def get_external_care_items(order_by=None, pk_identity=None, pk_health_issue=None, exclude_inactive=False):
+def get_external_care_items(order_by=None, pk_identity=None, pk_health_issue=None, exclude_inactive=False, return_pks=False):
 
 	args = {
 		'pk_pat': pk_identity,
@@ -143,6 +143,8 @@ def get_external_care_items(order_by=None, pk_identity=None, pk_health_issue=Non
 
 	cmd = _SQL_get_external_care_items % where
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+	if return_pks:
+		return [ r['pk_external_care'] for r in rows ]
 	return [ cExternalCareItem(row = {'data': r, 'idx': idx, 'pk_field': 'pk_external_care'}) for r in rows ]
 
 #------------------------------------------------------------

@@ -245,7 +245,7 @@ def unlock_praxis_branch(pk_praxis_branch=None, exclusive=False):
 	return gmPG2.unlock_row(table = 'dem.praxis_branch', pk = pk_praxis_branch, exclusive = exclusive)
 
 #------------------------------------------------------------
-def get_praxis_branches(order_by=None):
+def get_praxis_branches(order_by=None, return_pks=False):
 	if order_by is None:
 		order_by = 'true'
 	else:
@@ -253,6 +253,8 @@ def get_praxis_branches(order_by=None):
 
 	cmd = _SQL_get_praxis_branches % order_by
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
+	if return_pks:
+		return [ r['pk_praxis_branch'] for r in rows ]
 	return [ cPraxisBranch(row = {'data': r, 'idx': idx, 'pk_field': 'pk_praxis_branch'}) for r in rows ]
 
 #------------------------------------------------------------

@@ -532,7 +532,7 @@ def delete_vaccine(vaccine=None):
 	return True
 
 #------------------------------------------------------------
-def get_vaccines(order_by=None):
+def get_vaccines(order_by=None, return_pks=False):
 
 	if order_by is None:
 		cmd = _SQL_get_vaccine_fields % 'TRUE'
@@ -540,7 +540,8 @@ def get_vaccines(order_by=None):
 		cmd = _SQL_get_vaccine_fields % ('TRUE\nORDER BY %s' % order_by)
 
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
-
+	if return_pks:
+		return [ r['pk_vaccine'] for r in rows ]
 	return [ cVaccine(row = {'data': r, 'idx': idx, 'pk_field': 'pk_vaccine'}) for r in rows ]
 
 #============================================================
@@ -627,11 +628,13 @@ class cVaccination(gmBusinessDBObject.cBusinessDBObject):
 	vaccine = property(_get_vaccine, lambda x:x)
 
 #------------------------------------------------------------
-def get_vaccinations():
+def get_vaccinations(return_pks=False):
 	cmd = _SQL_get_vaccination_fields % 'True'
 	args = {}
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
-	return [ cVaccination(row = {'data': r, 'idx': idx, 'pk_field': 'pk_vaccine'}) for r in rows ]
+	if return_pks:
+		return [ r['pk_vaccination'] for r in rows ]
+	return [ cVaccination(row = {'data': r, 'idx': idx, 'pk_field': 'pk_vaccination'}) for r in rows ]
 
 #------------------------------------------------------------
 def create_vaccination(encounter=None, episode=None, vaccine=None, batch_no=None):

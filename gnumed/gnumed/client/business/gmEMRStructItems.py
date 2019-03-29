@@ -3383,7 +3383,7 @@ def get_latest_patient_hospital_stay(patient=None):
 	return cHospitalStay(row = {'idx': idx, 'data': rows[0], 'pk_field': 'pk_hospital_stay'})
 
 #-----------------------------------------------------------
-def get_patient_hospital_stays(patient=None, ongoing_only=False):
+def get_patient_hospital_stays(patient=None, ongoing_only=False, return_pks=False):
 	args = {'pat': patient}
 	if ongoing_only:
 		cmd = _SQL_get_hospital_stays % "pk_patient = %(pat)s AND discharge is NULL ORDER BY admission"
@@ -3392,7 +3392,8 @@ def get_patient_hospital_stays(patient=None, ongoing_only=False):
 
 	queries = [{'cmd': cmd, 'args': args}]
 	rows, idx = gmPG2.run_ro_queries(queries = queries, get_col_idx = True)
-
+	if return_pks:
+		return [ r['pk_hospital_stay'] for r in rows ]
 	return [ cHospitalStay(row = {'idx': idx, 'data': r, 'pk_field': 'pk_hospital_stay'})  for r in rows ]
 
 #-----------------------------------------------------------
@@ -3617,20 +3618,23 @@ class cPerformedProcedure(gmBusinessDBObject.cBusinessDBObject):
 	generic_codes = property(_get_generic_codes, _set_generic_codes)
 
 #-----------------------------------------------------------
-def get_performed_procedures(patient=None):
-
+def get_performed_procedures(patient=None, return_pks=False):
 	queries = [{
 		'cmd': 'SELECT * FROM clin.v_procedures WHERE pk_patient = %(pat)s ORDER BY clin_when',
 		'args': {'pat': patient}
 	}]
 	rows, idx = gmPG2.run_ro_queries(queries = queries, get_col_idx = True)
+	if return_pks:
+		return [ r['pk_procedure'] for r in rows ]
 	return [ cPerformedProcedure(row = {'idx': idx, 'data': r, 'pk_field': 'pk_procedure'})  for r in rows ]
 
 #-----------------------------------------------------------
-def get_procedures4document(pk_document=None):
+def get_procedures4document(pk_document=None, return_pks=False):
 	args = {'pk_doc': pk_document}
 	cmd = _SQL_get_procedures % 'pk_doc = %(pk_doc)s'
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+	if return_pks:
+		return [ r['pk_procedure'] for r in rows ]
 	return [ cPerformedProcedure(row = {'idx': idx, 'data': r, 'pk_field': 'pk_procedure'})  for r in rows ]
 
 #-----------------------------------------------------------

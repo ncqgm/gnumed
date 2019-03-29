@@ -245,13 +245,15 @@ class cSubstance(gmBusinessDBObject.cBusinessDBObject):
 	is_drug_component = property(_get_is_drug_component, lambda x:x)
 
 #------------------------------------------------------------
-def get_substances(order_by=None):
+def get_substances(order_by=None, return_pks=False):
 	if order_by is None:
 		order_by = 'true'
 	else:
 		order_by = 'true ORDER BY %s' % order_by
 	cmd = _SQL_get_substance % order_by
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
+	if return_pks:
+		return [ r['pk_substance'] for r in rows ]
 	return [ cSubstance(row = {'data': r, 'idx': idx, 'pk_field': 'pk_substance'}) for r in rows ]
 
 #------------------------------------------------------------
@@ -448,13 +450,15 @@ class cSubstanceDose(gmBusinessDBObject.cBusinessDBObject):
 	formatted_units = property(_get_formatted_units, lambda x:x)
 
 #------------------------------------------------------------
-def get_substance_doses(order_by=None):
+def get_substance_doses(order_by=None, return_pks=False):
 	if order_by is None:
 		order_by = 'true'
 	else:
 		order_by = 'true ORDER BY %s' % order_by
 	cmd = _SQL_get_substance_dose % order_by
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
+	if return_pks:
+		return [ r['pk_dose'] for r in rows ]
 	return [ cSubstanceDose(row = {'data': r, 'idx': idx, 'pk_field': 'pk_dose'}) for r in rows ]
 
 #------------------------------------------------------------
@@ -1259,9 +1263,11 @@ class cDrugComponent(gmBusinessDBObject.cBusinessDBObject):
 	formatted_units = property(_get_formatted_units, lambda x:x)
 
 #------------------------------------------------------------
-def get_drug_components():
+def get_drug_components(return_pks=False):
 	cmd = _SQL_get_drug_components % 'true ORDER BY product, substance'
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
+	if return_pks:
+		return [ r['pk_component'] for r in rows ]
 	return [ cDrugComponent(row = {'data': r, 'idx': idx, 'pk_field': 'pk_component'}) for r in rows ]
 
 #------------------------------------------------------------
@@ -1717,9 +1723,11 @@ class cDrugProduct(gmBusinessDBObject.cBusinessDBObject):
 	is_in_use_as_vaccine = property(_get_is_in_use_as_vaccine, lambda x:x)
 
 #------------------------------------------------------------
-def get_drug_products():
+def get_drug_products(return_pks=False):
 	cmd = _SQL_get_drug_product % 'TRUE ORDER BY product'
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
+	if return_pks:
+		return [ r['pk_drug_product'] for r in rows ]
 	return [ cDrugProduct(row = {'data': r, 'idx': idx, 'pk_field': 'pk_drug_product'}) for r in rows ]
 
 #------------------------------------------------------------
@@ -2507,13 +2515,15 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 			print(test.strip(), ":", regex.match(pattern, test.strip()))
 
 #------------------------------------------------------------
-def get_substance_intakes(pk_patient=None):
+def get_substance_intakes(pk_patient=None, return_pks=False):
 	args = {'pat': pk_patient}
 	if pk_patient is None:
 		cmd = _SQL_get_substance_intake % 'true'
 	else:
 		cmd = _SQL_get_substance_intake % 'pk_patient = %(pat)s'
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
+	if return_pks:
+		return [ r['pk_substance_intake'] for r in rows ]
 	return [ cSubstanceIntakeEntry(row = {'data': r, 'idx': idx, 'pk_field': 'pk_substance_intake'}) for r in rows ]
 
 #------------------------------------------------------------

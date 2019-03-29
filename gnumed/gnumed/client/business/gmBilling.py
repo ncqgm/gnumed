@@ -99,7 +99,7 @@ class cBillable(gmBusinessDBObject.cBusinessDBObject):
 	is_in_use = property(_get_is_in_use, lambda x:x)
 
 #------------------------------------------------------------
-def get_billables(active_only=True, order_by=None):
+def get_billables(active_only=True, order_by=None, return_pks=False):
 
 	if order_by is None:
 		order_by = ' ORDER BY catalog_long, catalog_version, billable_code'
@@ -113,6 +113,8 @@ def get_billables(active_only=True, order_by=None):
 
 	cmd = (_SQL_get_billable_fields % where) + order_by
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
+	if return_pks:
+		return [ r['pk_billable'] for r in rows ]
 	return [ cBillable(row = {'data': r, 'idx': idx, 'pk_field': 'pk_billable'}) for r in rows ]
 
 #------------------------------------------------------------
@@ -285,13 +287,15 @@ class cBillItem(gmBusinessDBObject.cBusinessDBObject):
 
 	is_in_use = property(_get_is_in_use, lambda x:x)
 #------------------------------------------------------------
-def get_bill_items(pk_patient=None, non_invoiced_only=False):
+def get_bill_items(pk_patient=None, non_invoiced_only=False, return_pks=False):
 	if non_invoiced_only:
 		cmd = _SQL_get_bill_item_fields % u"pk_patient = %(pat)s AND pk_bill IS NULL"
 	else:
 		cmd = _SQL_get_bill_item_fields % u"pk_patient = %(pat)s"
 	args = {'pat': pk_patient}
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+	if return_pks:
+		return [ r['pk_bill_item'] for r in rows ]
 	return [ cBillItem(row = {'data': r, 'idx': idx, 'pk_field': 'pk_bill_item'}) for r in rows ]
 
 #------------------------------------------------------------
@@ -491,7 +495,7 @@ class cBill(gmBusinessDBObject.cBusinessDBObject):
 		return self.save_payload()
 
 #------------------------------------------------------------
-def get_bills(order_by=None, pk_patient=None):
+def get_bills(order_by=None, pk_patient=None, return_pks=False):
 
 	args = {'pat': pk_patient}
 	where_parts = ['true']
@@ -506,6 +510,8 @@ def get_bills(order_by=None, pk_patient=None):
 
 	cmd = (_SQL_get_bill_fields % ' AND '.join(where_parts)) + order_by
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+	if return_pks:
+		return [ r['pk_bill'] for r in rows ]
 	return [ cBill(row = {'data': r, 'idx': idx, 'pk_field': 'pk_bill'}) for r in rows ]
 
 #------------------------------------------------------------

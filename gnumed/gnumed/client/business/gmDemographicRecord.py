@@ -114,15 +114,17 @@ class cTagImage(gmBusinessDBObject.cBusinessDBObject):
 		self.refetch_payload()
 		return True
 #------------------------------------------------------------
-def get_tag_images(order_by=None):
+def get_tag_images(order_by=None, return_pks=False):
 	if order_by is None:
 		order_by = 'true'
 	else:
 		order_by = 'true ORDER BY %s' % order_by
-
 	cmd = _SQL_get_tag_image % order_by
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
+	if return_pks:
+		return [ r['pk_tag_image'] for r in rows ]
 	return [ cTagImage(row = {'data': r, 'idx': idx, 'pk_field': 'pk_tag_image'}) for r in rows ]
+
 #------------------------------------------------------------
 def create_tag_image(description=None, link_obj=None):
 
@@ -780,8 +782,9 @@ def get_address_types(identity=None):
 	cmd = 'select id as pk, name, _(name) as l10n_name from dem.address_type'
 	rows, idx = gmPG2.run_rw_queries(queries=[{'cmd': cmd}])
 	return rows
+
 #------------------------------------------------------------
-def get_addresses(order_by=None):
+def get_addresses(order_by=None, return_pks=False):
 
 	if order_by is None:
 		order_by = ''
@@ -790,7 +793,10 @@ def get_addresses(order_by=None):
 
 	cmd = "SELECT * FROM dem.v_address %s" % order_by
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
+	if return_pks:
+		return [ r['pk_address'] for r in rows ]
 	return [ cAddress(row = {'data': r, 'idx': idx, 'pk_field': 'pk_address'}) for r in rows ]
+
 #------------------------------------------------------------
 def get_address_from_patient_address_pk(pk_patient_address=None):
 	cmd = """
@@ -808,12 +814,14 @@ def get_address_from_patient_address_pk(pk_patient_address=None):
 	return cAddress(row = {'data': rows[0], 'idx': idx, 'pk_field': 'pk_address'})
 
 #===================================================================
-def get_patient_address(pk_patient_address=None):
+def get_patient_address(pk_patient_address=None, return_pks=False):
 	cmd = 'SELECT * FROM dem.v_pat_addresses WHERE pk_lnk_person_org_address = %(pk)s'
 	args = {'pk': pk_patient_address}
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 	if len(rows) == 0:
 		return None
+	if return_pks:
+		return [ r['pk_address'] for r in rows ]
 	return cPatientAddress(row = {'data': rows[0], 'idx': idx, 'pk_field': 'pk_address'})
 
 #-------------------------------------------------------------------

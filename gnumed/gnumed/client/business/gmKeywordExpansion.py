@@ -163,7 +163,7 @@ class cKeywordExpansion(gmBusinessDBObject.cBusinessDBObject):
 #------------------------------------------------------------
 __keyword_expansions = None
 
-def get_keyword_expansions(order_by=None, force_reload=False):
+def get_keyword_expansions(order_by=None, force_reload=False, return_pks=False):
 	global __keyword_expansions
 	if not force_reload:
 		if __keyword_expansions is not None:
@@ -176,7 +176,8 @@ def get_keyword_expansions(order_by=None, force_reload=False):
 
 	cmd = _SQL_get_keyword_expansions % order_by
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
-
+	if return_pks:
+		return [ r['pk_expansion'] for r in rows ]
 	__keyword_expansions = [ cKeywordExpansion(row = {'data': r, 'idx': idx, 'pk_field': 'pk_expansion'}) for r in rows ]
 	return __keyword_expansions
 

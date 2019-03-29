@@ -146,13 +146,15 @@ class cIncomingData(gmBusinessDBObject.cBusinessDBObject):
 		return gmPG2.unlock_row(table = 'clin.incoming_data_unmatched', pk = self.pk_obj, exclusive = exclusive)
 
 #------------------------------------------------------------
-def get_incoming_data(order_by=None):
+def get_incoming_data(order_by=None, return_pks=False):
 	if order_by is None:
 		order_by = 'true'
 	else:
 		order_by = 'true ORDER BY %s' % order_by
 	cmd = _SQL_get_incoming_data % order_by
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
+	if return_pks:
+		return [ r['pk_incoming_data_unmatched'] for r in rows ]
 	return [ cIncomingData(row = {'data': r, 'idx': idx, 'pk_field': 'pk_incoming_data_unmatched'}) for r in rows ]
 
 #------------------------------------------------------------
