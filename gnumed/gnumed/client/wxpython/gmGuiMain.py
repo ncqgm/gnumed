@@ -3224,6 +3224,7 @@ class cStatusBar(wx.StatusBar):
 		self.FieldsCount = 2
 		self.SetStatusWidths([-1, 225])
 		self.__msg_fifo = []
+		self.__prev_text = None
 		self._cb_update_clock()
 		self.clock_update_timer = wx.PyTimer(self._cb_update_clock)
 		self.clock_update_timer.Start(milliseconds = 1000)
@@ -3253,12 +3254,22 @@ class cStatusBar(wx.StatusBar):
 	def __update_history(self, msg, field):
 		if field > 0:
 			return msg
-		if msg.strip() == '':
+		msg = msg.strip()
+		if msg == '':
 			return msg
-		msg = '%s %s' % (gmDateTime.pydt_now_here().strftime('%H:%M'), msg)
+
+		now = gmDateTime.pydt_now_here().strftime('%H:%M')
+		if msg == self.__prev_text:
+			prev = self.__msg_fifo.pop(0)
+			prev_time = prev[:5]
+			prev_text = prev[6:]
+			msg = '%s %s [%s]' % (now, prev_text, prev_time)
+		else:
+			self.__prev_text = msg
+			msg = '%s %s' % (now, msg)
 		self.__msg_fifo.insert(0, msg)
 		if len(self.__msg_fifo) > 15:
-			self.__msg_fifo = self.__msg_fifo[:15]
+			self.__msg_fifo = self.__msg_fifo[:20]
 		return msg
 
 	#----------------------------------------------
