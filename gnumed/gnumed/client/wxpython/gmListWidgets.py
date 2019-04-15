@@ -2137,7 +2137,7 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 
 		# show menu
 		self.PopupMenu(self._context_menu, wx.DefaultPosition)
-		self._context_menu.DestroyLater()
+		self._context_menu.Destroy()
 		return
 
 	#------------------------------------------------------------
