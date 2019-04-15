@@ -1558,140 +1558,22 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 	# properties
 	#--------------------------------------------------------
 	def _get_best_guess_clinical_start_date(self):
-		cmd = """SELECT MIN(earliest) FROM
-		(
-			-- last modification of episode,
-			-- earliest-possible thereof = when created,
-			-- should actually go all the way back into audit.log_episode
-			(SELECT c_epi.modified_when AS earliest FROM clin.episode c_epi WHERE c_epi.pk = %(pk)s)
-
-				UNION ALL
-
-			-- last modification of encounter in which created,
-			-- earliest-possible thereof = initial creation of that encounter
-			(SELECT c_enc.modified_when AS earliest FROM clin.encounter c_enc WHERE c_enc.pk = (
-			 	SELECT fk_encounter FROM clin.episode WHERE pk = %(pk)s
-			))
-				UNION ALL
-
-			-- start of encounter in which created,
-			-- earliest-possible thereof = explicitely set by user
-			(SELECT c_enc.started AS earliest FROM clin.encounter c_enc WHERE c_enc.pk = (
-			 	SELECT fk_encounter FROM clin.episode WHERE pk = %(pk)s
-			))
-				UNION ALL
-
-			-- start of encounters of clinical items linked to this episode,
-			-- earliest-possible thereof = explicitely set by user
-			(SELECT MIN(started) AS earliest FROM clin.encounter WHERE pk IN (
-				SELECT fk_encounter FROM clin.clin_root_item WHERE fk_episode = %(pk)s
-			))
-				UNION ALL
-
-			-- .clin_when of clinical items linked to this episode,
-			-- earliest-possible thereof = explicitely set by user
-			(SELECT MIN(clin_when) AS earliest FROM clin.clin_root_item WHERE fk_episode = %(pk)s)
-
-				UNION ALL
-
-			-- earliest modification time of clinical items linked to this episode
-			-- this CAN be used since if an item is linked to an episode it can be
-			-- assumed the episode (should have) existed at the time of creation
-			(SELECT MIN(modified_when) AS earliest FROM clin.clin_root_item WHERE fk_episode = %(pk)s)
-
-				UNION ALL
-
-			-- there may not be items, but there may still be documents ...
-			(SELECT MIN(clin_when) AS earliest FROM blobs.doc_med WHERE fk_episode = %(pk)s)
-		) AS candidates"""
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': {'pk': self.pk_obj}}])
-		return rows[0][0]
+		return get_best_guess_clinical_start_date_for_episode(pk_episode = self.pk_obj)
 
 	best_guess_clinical_start_date = property(_get_best_guess_clinical_start_date)
 
 	#--------------------------------------------------------
 	def _get_best_guess_clinical_end_date(self):
-		if self._payload[self._idx['episode_open']]:
-			return None
-
-		cmd = """SELECT COALESCE (
-			(SELECT
-				latest --, source_type
-			 FROM (
-				-- latest explicit .clin_when of clinical items linked to this episode
-				(SELECT
-					MAX(clin_when) AS latest,
-					'clin.episode.pk = clin.clin_root_item.fk_episode -> .clin_when'::text AS source_type
-				 FROM clin.clin_root_item
-				 WHERE fk_episode = %(pk)s
-				)
-					UNION ALL
-				-- latest explicit .clin_when of documents linked to this episode
-				(SELECT
-					MAX(clin_when) AS latest,
-					'clin.episode.pk = blobs.doc_med.fk_episode -> .clin_when'::text AS source_type
-				 FROM blobs.doc_med
-				 WHERE fk_episode = %(pk)s
-				)
-			 ) AS candidates
-			 ORDER BY latest DESC NULLS LAST
-			 LIMIT 1
-			),
-			-- last ditch, always exists, only use when no clinical items or documents linked:
-			-- last modification, latest = when last changed to the current state
-			(SELECT c_epi.modified_when AS latest --, 'clin.episode.modified_when'::text AS source_type
-			 FROM clin.episode c_epi WHERE c_epi.pk = %(pk)s
-			)
-		)"""
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': {'pk': self.pk_obj}}], get_col_idx = False)
-		return rows[0][0]
+		return get_best_guess_clinical_end_date_for_episode(self.pk_obj)
 
 	best_guess_clinical_end_date = property(_get_best_guess_clinical_end_date)
 
 	#--------------------------------------------------------
 	def _get_formatted_clinical_duration(self):
-		start = self.best_guess_clinical_start_date
-		end = self.best_guess_clinical_end_date
-		if end is None:
-			range_str = '%s-%s' % (
-				gmDateTime.pydt_strftime(start, "%b'%y"),
-				gmTools.u_ellipsis
-			)
-			range_str_verb = '%s - %s' % (
-				gmDateTime.pydt_strftime(start, '%b %d %Y'),
-				gmTools.u_ellipsis
-			)
-			duration_str = _('%s so far') % gmDateTime.format_interval_medically(gmDateTime.pydt_now_here() - start)
-			return (range_str, range_str_verb, duration_str)
-
-		duration_str = gmDateTime.format_interval_medically(end - start)
-		# year different:
-		if end.year != start.year:
-			range_str = '%s-%s' % (
-				gmDateTime.pydt_strftime(start, "%b'%y"),
-				gmDateTime.pydt_strftime(end, "%b'%y")
-			)
-			range_str_verb = '%s - %s' % (
-				gmDateTime.pydt_strftime(start, '%b %d %Y'),
-				gmDateTime.pydt_strftime(end, '%b %d %Y')
-			)
-			return (range_str, range_str_verb, duration_str)
-		# same year:
-		if end.month != start.month:
-			range_str = '%s-%s' % (
-				gmDateTime.pydt_strftime(start, '%b'),
-				gmDateTime.pydt_strftime(end, "%b'%y")
-			)
-			range_str_verb = '%s - %s' % (
-				gmDateTime.pydt_strftime(start, '%b %d'),
-				gmDateTime.pydt_strftime(end, '%b %d %Y')
-			)
-			return (range_str, range_str_verb, duration_str)
-
-		# same year and same month
-		range_str = gmDateTime.pydt_strftime(start, "%b'%y")
-		range_str_verb = gmDateTime.pydt_strftime(start, '%b %d %Y')
-		return (range_str, range_str_verb, duration_str)
+		return format_clinical_duration_of_episode (
+			start = get_best_guess_clinical_start_date_for_episode(self.pk_obj),
+			end = get_best_guess_clinical_end_date_for_episode(self.pk_obj)
+		)
 
 	formatted_clinical_duration = property(_get_formatted_clinical_duration)
 
@@ -1906,6 +1788,7 @@ def delete_episode(episode=None):
 		return False
 
 	return True
+
 #-----------------------------------------------------------
 def episode2problem(episode=None, allow_closed=False):
 	return cProblem (
@@ -1916,6 +1799,163 @@ def episode2problem(episode=None, allow_closed=False):
 		},
 		try_potential_problems = allow_closed
 	)
+
+#-----------------------------------------------------------
+_SQL_best_guess_clinical_start_date_for_episode = """
+	SELECT MIN(earliest) FROM (
+		-- modified_when of episode,
+		-- earliest possible thereof = when created,
+		-- should actually go all the way back into audit.log_episode
+		(SELECT c_epi.modified_when AS earliest FROM clin.episode c_epi WHERE c_epi.pk = %(pk)s)
+
+			UNION ALL
+
+		-- last modification of encounter in which created,
+		-- earliest-possible thereof = initial creation of that encounter
+		(SELECT c_enc.modified_when AS earliest FROM clin.encounter c_enc WHERE c_enc.pk = (
+			SELECT fk_encounter FROM clin.episode WHERE pk = %(pk)s
+		))
+			UNION ALL
+
+		-- start of encounter in which created,
+		-- earliest-possible thereof = explicitely set by user
+		(SELECT c_enc.started AS earliest FROM clin.encounter c_enc WHERE c_enc.pk = (
+			SELECT fk_encounter FROM clin.episode WHERE pk = %(pk)s
+		))
+			UNION ALL
+
+		-- start of encounters of clinical items linked to this episode,
+		-- earliest-possible thereof = explicitely set by user
+		(SELECT MIN(started) AS earliest FROM clin.encounter WHERE pk IN (
+			SELECT fk_encounter FROM clin.clin_root_item WHERE fk_episode = %(pk)s
+		))
+			UNION ALL
+
+		-- .clin_when of clinical items linked to this episode,
+		-- earliest-possible thereof = explicitely set by user
+		(SELECT MIN(clin_when) AS earliest FROM clin.clin_root_item WHERE fk_episode = %(pk)s)
+
+			UNION ALL
+
+		-- earliest modification time of clinical items linked to this episode
+		-- this CAN be used since if an item is linked to an episode it can be
+		-- assumed the episode (should have) existed at the time of creation
+		(SELECT MIN(modified_when) AS earliest FROM clin.clin_root_item WHERE fk_episode = %(pk)s)
+
+			UNION ALL
+
+		-- there may not be items, but there may still be documents ...
+		(SELECT MIN(clin_when) AS earliest FROM blobs.doc_med WHERE fk_episode = %(pk)s)
+	) AS candidates
+"""
+
+def get_best_guess_clinical_start_date_for_episode(pk_episode=None):
+	assert (pk_episode is not None), '<pk_episode> must not be None'
+	query = {
+		'cmd': _SQL_best_guess_clinical_start_date_for_episode,
+		'args': {'pk': pk_episode}
+	}
+	rows, idx = gmPG2.run_ro_queries(queries = [query])
+	return rows[0][0]
+
+#-----------------------------------------------------------
+_SQL_best_guess_clinical_end_date_for_episode = """
+	SELECT
+		CASE WHEN
+			-- if open episode ...
+			(SELECT is_open FROM clin.episode WHERE pk = %(pk)s)
+		THEN
+			-- ... no end date
+			NULL::timestamp with time zone
+		ELSE (
+			SELECT COALESCE (
+				(SELECT
+					latest --, source_type
+				 FROM (
+					-- latest explicit .clin_when of clinical items linked to this episode
+					(SELECT
+						MAX(clin_when) AS latest,
+						'clin.episode.pk = clin.clin_root_item.fk_episode -> .clin_when'::text AS source_type
+					 FROM clin.clin_root_item
+					 WHERE fk_episode = %(pk)s
+					)
+						UNION ALL
+					-- latest explicit .clin_when of documents linked to this episode
+					(SELECT
+						MAX(clin_when) AS latest,
+						'clin.episode.pk = blobs.doc_med.fk_episode -> .clin_when'::text AS source_type
+					 FROM blobs.doc_med
+					 WHERE fk_episode = %(pk)s
+					)
+				 ) AS candidates
+				 ORDER BY latest DESC NULLS LAST
+				 LIMIT 1
+				),
+				-- last ditch, always exists, only use when no clinical items or documents linked:
+				-- last modification, latest = when last changed to the current state
+				(SELECT c_epi.modified_when AS latest --, 'clin.episode.modified_when'::text AS source_type
+				 FROM clin.episode c_epi WHERE c_epi.pk = %(pk)s
+				)
+			)
+		)
+		END
+"""
+
+def get_best_guess_clinical_end_date_for_episode(pk_episode=None):
+	assert (pk_episode is not None), '<pk_episode> must not be None'
+	query = {
+		'cmd': _SQL_best_guess_clinical_end_date_for_episode,
+		'args': {'pk': pk_episode}
+	}
+	rows, idx = gmPG2.run_ro_queries(queries = [query], get_col_idx = False)
+	return rows[0][0]
+
+#-----------------------------------------------------------
+def format_clinical_duration_of_episode(start=None, end=None):
+	assert (start is not None), '<start> must not be None'
+
+	if end is None:
+		start_end_str = '%s-%s' % (
+			gmDateTime.pydt_strftime(start, "%b'%y"),
+			gmTools.u_ellipsis
+		)
+		start_end_str_long = '%s - %s' % (
+			gmDateTime.pydt_strftime(start, '%b %d %Y'),
+			gmTools.u_ellipsis
+		)
+		duration_str = _('%s so far') % gmDateTime.format_interval_medically(gmDateTime.pydt_now_here() - start)
+		return (start_end_str, start_end_str_long, duration_str)
+
+	duration_str = gmDateTime.format_interval_medically(end - start)
+	# year different:
+	if end.year != start.year:
+		start_end_str = '%s-%s' % (
+			gmDateTime.pydt_strftime(start, "%b'%y"),
+			gmDateTime.pydt_strftime(end, "%b'%y")
+		)
+		start_end_str_long = '%s - %s' % (
+			gmDateTime.pydt_strftime(start, '%b %d %Y'),
+			gmDateTime.pydt_strftime(end, '%b %d %Y')
+		)
+		return (start_end_str, start_end_str_long, duration_str)
+	# same year:
+	if end.month != start.month:
+		start_end_str = '%s-%s' % (
+			gmDateTime.pydt_strftime(start, '%b'),
+			gmDateTime.pydt_strftime(end, "%b'%y")
+		)
+		start_end_str_long = '%s - %s' % (
+			gmDateTime.pydt_strftime(start, '%b %d'),
+			gmDateTime.pydt_strftime(end, '%b %d %Y')
+		)
+		return (start_end_str, start_end_str_long, duration_str)
+
+	# same year and same month
+	start_end_str = gmDateTime.pydt_strftime(start, "%b'%y")
+	start_end_str_long = gmDateTime.pydt_strftime(start, '%b %d %Y')
+	return (start_end_str, start_end_str_long, duration_str)
+
+
 
 #============================================================
 # encounter API
