@@ -446,6 +446,7 @@ class cMatchProvider_SQL2(cMatchProvider):
 		self._args = {}
 
 		self._SQL_data2match = None
+
 	#--------------------------------------------------------
 	# internal matching algorithms
 	#
@@ -461,6 +462,7 @@ class cMatchProvider_SQL2(cMatchProvider):
 		self._args['fragment'] = "%s%%" % aFragment
 
 		return self._find_matches(fragment_condition)
+
 	#--------------------------------------------------------
 	def getMatchesByWord(self, aFragment):
 		"""Return matches for aFragment at start of words inside phrases."""
@@ -470,6 +472,7 @@ class cMatchProvider_SQL2(cMatchProvider):
 		self._args['fragment'] = "( %s)|(^%s)" % (aFragment, aFragment)
 
 		return self._find_matches(fragment_condition)
+
 	#--------------------------------------------------------
 	def getMatchesBySubstr(self, aFragment):
 		"""Return matches for aFragment as a true substring."""
@@ -478,10 +481,12 @@ class cMatchProvider_SQL2(cMatchProvider):
 		self._args['fragment'] = "%%%s%%" % aFragment
 
 		return self._find_matches(fragment_condition)
+
 	#--------------------------------------------------------
 	def getAllMatches(self):
 		"""Return all items."""
 		return self.getMatchesBySubstr('')
+
 	#--------------------------------------------------------
 	def get_match_by_data(self, data=None):
 		if self._SQL_data2match is None:
@@ -501,11 +506,51 @@ class cMatchProvider_SQL2(cMatchProvider):
 
 		_log.error('[%s]: 0 or >1 rows found by running _SQL_data2match, ambiguous, ignoring', self.__class__.__name__)
 		return None
+
+	#--------------------------------------------------------
+	def _rows2matches(self, rows):
+		"""Turns retrieved database values into a list
+		   of dicts fit for phrasewheel use.
+
+		   This method can be overridden to massage arbitrary
+		   data into the proper list of dicts.
+		"""
+		matches = []
+		for row in rows:
+			# PRW wants a weight
+			match = {'weight': 0}
+			try:
+				match['data'] = row['data']
+			except KeyError:
+				match['data'] = row[0]
+			try:
+				match['list_label'] = row['list_label']
+			except KeyError:
+				match['list_label'] = row[1]
+			# explicit "field_label" in result ?
+			try:
+				match['field_label'] = row['field_label']
+			# no
+			except KeyError:
+				# but does row[2] exist ?
+				try:
+					match['field_label'] = row[2]
+				# no: reuse "list_label"
+				except IndexError:
+					match['field_label'] = match['list_label']
+			matches.append(match)
+
+		return matches
+
 	#--------------------------------------------------------
 	def _find_matches(self, fragment_condition):
+		"""Loads matching data from PostgreSQL and turns them into
+		   matches fit for consumption by a phrasewheel.
+		"""
 		if self.print_queries:
 			print("----------------------")
 			print(pydt.datetime.now())
+
 		matches = []
 		for query in self._queries:
 			where_fragments = {'fragment_condition': fragment_condition}
@@ -537,50 +582,16 @@ class cMatchProvider_SQL2(cMatchProvider):
 
 			try:
 				rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': self._args}], get_col_idx = False)
-			except:
+			except gmPG2.PG_ERROR_EXCEPTION:
 				_log.exception('[%s]: error running match provider SQL, dropping query', self.__class__.__name__)
 				idx = self._queries.index(query)
 				del self._queries[idx]
 				break
-
 			# no matches found: try next query
 			if len(rows) == 0:
 				continue
-
-			for row in rows:
-				match = {'weight': 0}
-
-				try:
-					match['data'] = row['data']
-				except KeyError:
-					match['data'] = row[0]
-
-				try:
-					match['list_label'] = row['list_label']
-				except KeyError:
-					match['list_label'] = row[1]
-
-				# explicit "field_label" in result ?
-				try:
-					match['field_label'] = row['field_label']
-				# no
-				except KeyError:
-					# but does row[2] exist ?
-					try:
-						match['field_label'] = row[2]
-					# no: reuse "list_label"
-					except IndexError:
-						match['field_label'] = match['list_label']
-
-#				try:
-#					match['label'] = row['label']
-#				except KeyError:
-#					match['label'] = match['list_label']
-
-				matches.append(match)
-
+			matches = self._rows2matches(rows)
 			return (True, matches)
-
 		# none found whatsoever
 		return (False, [])
 

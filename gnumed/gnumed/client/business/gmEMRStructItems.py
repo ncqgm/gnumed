@@ -22,6 +22,7 @@ from Gnumed.pycommon import gmDateTime
 from Gnumed.pycommon import gmBusinessDBObject
 from Gnumed.pycommon import gmNull
 from Gnumed.pycommon import gmExceptions
+from Gnumed.pycommon import gmMatchProvider
 
 from Gnumed.business import gmClinNarrative
 from Gnumed.business import gmSoapDefs
@@ -1955,7 +1956,92 @@ def format_clinical_duration_of_episode(start=None, end=None):
 	start_end_str_long = gmDateTime.pydt_strftime(start, '%b %d %Y')
 	return (start_end_str, start_end_str_long, duration_str)
 
+#============================================================
+class cEpisodeMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
 
+	_SQL_episode_start = _SQL_best_guess_clinical_start_date_for_episode % {'pk': 'c_vpe.pk_episode'}
+	_SQL_episode_end = _SQL_best_guess_clinical_end_date_for_episode % {'pk': 'c_vpe.pk_episode'}
+
+	_SQL_open_episodes = """
+		SELECT
+			c_vpe.pk_episode,
+			c_vpe.description
+				AS episode,
+			c_vpe.health_issue,
+			1 AS rank,
+			(%s) AS episode_start,
+			NULL::timestamp with time zone AS episode_end
+		FROM
+			clin.v_pat_episodes c_vpe
+		WHERE
+			c_vpe.episode_open IS TRUE
+				AND
+			c_vpe.description %%(fragment_condition)s
+			%%(ctxt_pat)s
+	""" % _SQL_episode_start
+
+	_SQL_closed_episodes = """
+		SELECT
+			c_vpe.pk_episode,
+			c_vpe.description
+				AS episode,
+			c_vpe.health_issue,
+			2 AS rank,
+			(%s) AS episode_start,
+			(%s) AS episode_end
+		FROM
+			clin.v_pat_episodes c_vpe
+		WHERE
+			c_vpe.episode_open IS FALSE
+				AND
+			c_vpe.description %%(fragment_condition)s
+			%%(ctxt_pat)s
+	""" % (
+		_SQL_episode_start,
+		_SQL_episode_end
+	)
+
+	#--------------------------------------------------------
+	def __init__(self):
+		query = """
+			(
+				%s
+			) UNION ALL (
+				%s
+			)
+			ORDER BY rank, episode
+			LIMIT 30""" % (
+				cEpisodeMatchProvider._SQL_open_episodes,
+				cEpisodeMatchProvider._SQL_closed_episodes
+			)
+		ctxt = {'ctxt_pat': {'where_part': 'AND pk_patient = %(pat)s', 'placeholder': 'pat'}}
+		super().__init__(queries = [query], context = ctxt)
+
+	#--------------------------------------------------------
+	def _rows2matches(self, rows):
+		matches = []
+		for row in rows:
+			match = {
+				'weight': 0,
+				'data': row['pk_episode']
+			}
+			label = '%s (%s)%s' % (
+				row['episode'],
+				format_clinical_duration_of_episode (
+					start = row['episode_start'],
+					end = row['episode_end']
+				)[0],
+				gmTools.coalesce (
+					row['health_issue'],
+					'',
+					' - %s'
+				)
+			)
+			match['list_label'] = label
+			match['field_label'] = label
+			matches.append(match)
+
+		return matches
 
 #============================================================
 # encounter API
@@ -3938,12 +4024,14 @@ if __name__ == '__main__':
 	#--------------------------------------------------------	
 	def test_episode():
 		print("episode test")
-		print("------------")
-		episode = cEpisode(aPK_obj = 1322) #1674) #1354) #1461) #1299)
+		for i in range(1,15):
+			print("------------")
+			episode = cEpisode(aPK_obj = i)#322) #1674) #1354) #1461) #1299)
 
-		print(episode['description'])
-		print('start:', episode.best_guess_clinical_start_date)
-		print('end  :', episode.best_guess_clinical_end_date)
+			print(episode['description'])
+			print(' start:', episode.best_guess_clinical_start_date)
+			print(' end  :', episode.best_guess_clinical_end_date)
+			print(' dura :', get_formatted_clinical_duration(pk_episode = i))
 		return
 
 		print(episode)
@@ -4035,11 +4123,11 @@ if __name__ == '__main__':
 
 	#--------------------------------------------------------
 	# run them
-	#test_episode()
+	test_episode()
 	#test_episode_encounters()
 	#test_problem()
 	#test_encounter()
-	test_health_issue()
+	#test_health_issue()
 	#test_hospital_stay()
 	#test_performed_procedure()
 	#test_diagnostic_certainty_classification_map()

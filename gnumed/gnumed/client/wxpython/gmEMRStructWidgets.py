@@ -420,81 +420,27 @@ class cEpisodeSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
 	gmPerson.gmCurrentPatient() changes.
 	"""
 	def __init__(self, *args, **kwargs):
-
-		ctxt = {'ctxt_pat': {'where_part': 'and pk_patient = %(pat)s', 'placeholder': 'pat'}}
-
-		mp = gmMatchProvider.cMatchProvider_SQL2 (
-			queries = [
-"""(
-
-SELECT
-	pk_episode
-		as data,
-	description
-		as field_label,
-	coalesce (
-		description || ' - ' || health_issue,
-		description
-	) as list_label,
-	1 as rank
-from
-  	clin.v_pat_episodes
-where
-	episode_open is true and
-	description %(fragment_condition)s
-	%(ctxt_pat)s
-
-) union all (
-
-SELECT
-	pk_episode
-		as data,
-	description
-		as field_label,
-	coalesce (
-		description || _(' (closed)') || ' - ' || health_issue,
-		description || _(' (closed)')
-	) as list_label,
-	2 as rank
-from
-	clin.v_pat_episodes
-where
-	description %(fragment_condition)s and
-	episode_open is false
-	%(ctxt_pat)s
-
-)
-
-order by rank, list_label
-limit 30"""
-],
-			context = ctxt
-		)
-
 		try:
-			kwargs['patient_id']
+			self.__patient_id = int(kwargs['patient_id'])
+			self.use_current_patient = False
+			del kwargs['patient_id']
 		except KeyError:
-			kwargs['patient_id'] = None
-
-		if kwargs['patient_id'] is None:
+			self.__patient_id = None
 			self.use_current_patient = True
+
+		mp = gmEMRStructItems.cEpisodeMatchProvider()
+		if self.use_current_patient:
 			self.__register_patient_change_signals()
 			pat = gmPerson.gmCurrentPatient()
 			if pat.connected:
 				mp.set_context('pat', pat.ID)
 		else:
-			self.use_current_patient = False
-			self.__patient_id = int(kwargs['patient_id'])
 			mp.set_context('pat', self.__patient_id)
 
-		del kwargs['patient_id']
+		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
 
-		gmPhraseWheel.cPhraseWheel.__init__ (
-			self,
-			*args,
-			**kwargs
-		)
 		self.matcher = mp
+
 	#--------------------------------------------------------
 	# external API
 	#--------------------------------------------------------
@@ -504,10 +450,12 @@ limit 30"""
 		self.__patient_id = int(patient_id)
 		self.set_context('pat', self.__patient_id)
 		return True
+
 	#--------------------------------------------------------
 	def GetData(self, can_create=False, as_instance=False, is_open=False):
 		self.__is_open_for_create_data = is_open		# used (only) in _create_data()
 		return gmPhraseWheel.cPhraseWheel.GetData(self, can_create = can_create, as_instance = as_instance)
+
 	#--------------------------------------------------------
 	def _create_data(self):
 
@@ -531,21 +479,25 @@ limit 30"""
 				value = epi_name,
 				data = epi['pk_episode']
 			)
+
 	#--------------------------------------------------------
 	def _data2instance(self):
 		return gmEMRStructItems.cEpisode(aPK_obj = self.GetData())
+
 	#--------------------------------------------------------
 	# internal API
 	#--------------------------------------------------------
 	def __register_patient_change_signals(self):
 		gmDispatcher.connect(self._pre_patient_unselection, 'pre_patient_unselection')
 		gmDispatcher.connect(self._post_patient_selection, 'post_patient_selection')
+
 	#--------------------------------------------------------
 	def _pre_patient_unselection(self):
 		self.__patient_id = None
 		self.unset_context('pat')
 		self.SetData()
 		return True
+
 	#--------------------------------------------------------
 	def _post_patient_selection(self):
 		if self.use_current_patient:
@@ -1400,10 +1352,13 @@ if __name__ == '__main__':
 
 	#----------------------------------------------------------------
 	def test_episode_selection_prw():
-		app = wx.PyWidgetTester(size = (400, 40))
-		app.SetWidget(cEpisodeSelectionPhraseWheel, id=-1, size=(180,20), pos=(10,20))
+		frame = wx.Frame()
+		wx.GetApp().SetTopWindow(frame)
+		prw = cEpisodeSelectionPhraseWheel(frame)
+		#app.SetWidget()
 #		app.SetWidget(cEpisodeSelectionPhraseWheel, id=-1, size=(350,20), pos=(10,20), patient_id=pat.ID)
-		app.MainLoop()
+		frame.Show(True)
+		wx.GetApp().MainLoop()
 
 	#----------------------------------------------------------------
 	def test_health_issue_edit_area_dlg():
@@ -1417,6 +1372,13 @@ if __name__ == '__main__':
 		app.MainLoop()
 
 	#================================================================
+
+	branch = gmPraxis.get_praxis_branches()[0]
+	prax = gmPraxis.gmCurrentPraxisBranch(branch)
+	print(prax)
+
+	#app = wx.PyWidgetTester(size = (400, 40))
+	app = wx.App()#size = (400, 40))
 
 	# obtain patient
 	pat = gmPersonSearch.ask_for_patient()
