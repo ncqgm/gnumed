@@ -79,6 +79,8 @@ import psycopg2.extensions
 import psycopg2.pool
 import psycopg2.errorcodes as sql_error_codes
 
+PG_ERROR_EXCEPTION = psycopg2.Error
+
 # =======================================================================
 _default_client_encoding = 'UTF8'
 _log.info('assuming default client encoding of [%s]' % _default_client_encoding)
@@ -100,6 +102,7 @@ postgresql_version = None			# accuracy: major.minor
 __ro_conn_pool = None
 
 auto_request_login_params = True
+
 # =======================================================================
 # global data
 # =======================================================================
@@ -1726,14 +1729,17 @@ def capture_conn_state(conn=None):
 	conn_status = '%s (%s)' % (conn.status, map_psyco_conn_status2str[conn.status])
 	if conn.closed != 0:
 		conn_status = 'undefined (%s)' % conn_status
+		backend_pid = '<conn closed, cannot retrieve>'
+	else:
+		backend_pid = conn.get_backend_pid()
 	try:
 		conn_deferrable = conn.deferrable
 	except AttributeError:
-		conn_deferrable = 'unavailable'
+		conn_deferrable = '<unavailable>'
 
 	d = {
 		'identity': id(conn),
-		'backend PID': conn.get_backend_pid(),
+		'backend PID': backend_pid,
 		'protocol version': conn.protocol_version,
 		'encoding': conn.encoding,
 		'closed': conn.closed,
@@ -1775,19 +1781,23 @@ def capture_cursor_state(cursor=None):
 
 	tx_status = conn.get_transaction_status()
 	if tx_status in [ psycopg2.extensions.TRANSACTION_STATUS_INERROR, psycopg2.extensions.TRANSACTION_STATUS_UNKNOWN ]:
-		isolation_level = 'tx aborted or unknown, cannot retrieve'
+		isolation_level = '<tx aborted or unknown, cannot retrieve>'
 	else:
 		isolation_level = conn.isolation_level
 	try:
 		conn_deferrable = conn.deferrable
 	except AttributeError:
-		conn_deferrable = 'unavailable'
+		conn_deferrable = '<unavailable>'
 
 	if cursor.query is None:
 		query = '<no query>'
 	else:
-		#query = str(cursor.query, 'utf8', 'replace')
-		query = cursor.query
+		query = cursor.query.decode(errors = 'replace')
+
+	if conn.closed != 0:
+		backend_pid = '<conn closed, cannot retrieve>'
+	else:
+		backend_pid = conn.get_backend_pid()
 
 	txt = """Link state:
 Cursor
@@ -1817,7 +1827,7 @@ Query
 		cursor.statusmessage,
 
 		id(conn),
-		conn.get_backend_pid(),
+		backend_pid,
 		conn.protocol_version,
 		conn.closed,
 		conn.autocommit,
