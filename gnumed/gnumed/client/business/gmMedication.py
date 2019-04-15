@@ -1762,13 +1762,18 @@ def create_drug_product(product_name=None, preparation=None, return_existing=Fal
 		if drug is not None:
 			return drug
 
+	commit = lambda x:x
+	if link_obj is None:
+		link_obj = gmPG2.get_connection(readonly = False)
+		commit = link_obj.commit
+
 	cmd = 'INSERT INTO ref.drug_product (description, preparation) VALUES (%(prod_name)s, %(prep)s) RETURNING pk'
 	args = {'prod_name': product_name, 'prep': preparation}
 	rows, idx = gmPG2.run_rw_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': args}], return_data = True, get_col_idx = False)
 	product = cDrugProduct(aPK_obj = rows[0]['pk'], link_obj = link_obj)
 	if doses is not None:
 		product.set_substance_doses_as_components(substance_doses = doses, link_obj = link_obj)
-
+	commit()
 	return product
 
 #------------------------------------------------------------
@@ -3181,13 +3186,6 @@ def create_default_medication_history_episode(pk_health_issue=None, encounter=No
 
 #------------------------------------------------------------
 def get_tobacco():
-	tobacco = create_drug_product (
-		product_name = _('nicotine'),
-		preparation = _('tobacco'),
-		return_existing = True
-	)
-	tobacco['is_fake_product'] = True
-	tobacco.save()
 	nicotine = create_substance_dose_by_atc (
 		substance = _('nicotine'),
 		atc = gmATC.ATC_NICOTINE,
@@ -3195,18 +3193,18 @@ def get_tobacco():
 		unit = 'pack',
 		dose_unit = 'year'
 	)
-	tobacco.set_substance_doses_as_components(substance_doses = [nicotine])
+	tobacco = create_drug_product (
+		product_name = _('nicotine'),
+		preparation = _('tobacco'),
+		doses = [nicotine],
+		return_existing = True
+	)
+	tobacco['is_fake_product'] = True
+	tobacco.save()
 	return tobacco
 
 #------------------------------------------------------------
 def get_alcohol():
-	drink = create_drug_product (
-		product_name = _('alcohol'),
-		preparation = _('liquid'),
-		return_existing = True
-	)
-	drink['is_fake_product'] = True
-	drink.save()
 	ethanol = create_substance_dose_by_atc (
 		substance = _('ethanol'),
 		atc = gmATC.ATC_ETHANOL,
@@ -3214,18 +3212,18 @@ def get_alcohol():
 		unit = 'g',
 		dose_unit = 'ml'
 	)
-	drink.set_substance_doses_as_components(substance_doses = [ethanol])
+	drink = create_drug_product (
+		product_name = _('alcohol'),
+		preparation = _('liquid'),
+		doses = [ethanol],
+		return_existing = True
+	)
+	drink['is_fake_product'] = True
+	drink.save()
 	return drink
 
 #------------------------------------------------------------
 def get_other_drug(name=None, pk_dose=None):
-	drug = create_drug_product (
-		product_name = name,
-		preparation = _('unit'),
-		return_existing = True
-	)
-	drug['is_fake_product'] = True
-	drug.save()
 	if pk_dose is None:
 		content = create_substance_dose (
 			substance = name,
@@ -3235,7 +3233,14 @@ def get_other_drug(name=None, pk_dose=None):
 		)
 	else:
 		content = {'pk_dose': pk_dose}		#cSubstanceDose(aPK_obj = pk_dose)
-	drug.set_substance_doses_as_components(substance_doses = [content])
+	drug = create_drug_product (
+		product_name = name,
+		preparation = _('unit'),
+		doses = [content],
+		return_existing = True
+	)
+	drug['is_fake_product'] = True
+	drug.save()
 	return drug
 
 #------------------------------------------------------------
