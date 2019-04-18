@@ -1933,35 +1933,14 @@ WHERE
 
 	#--------------------------------------------------------
 	def get_vaccinations(self, order_by=None, episodes=None, issues=None, encounters=None):
-
-		args = {'pat': self.pk_patient}
-		where_parts = ['pk_patient = %(pat)s']
-
-		if order_by is None:
-			order_by = ''
-		else:
-			order_by = 'ORDER BY %s' % order_by
-
-		if (episodes is not None) and (len(episodes) > 0):
-			where_parts.append('pk_episode IN %(epis)s')
-			args['epis'] = tuple(episodes)
-
-		if (issues is not None) and (len(issues) > 0):
-			where_parts.append('pk_episode IN (SELECT pk FROM clin.episode WHERE fk_health_issue IN %(issues)s)')
-			args['issues'] = tuple(issues)
-
-		if (encounters is not None) and (len(encounters) > 0):
-			where_parts.append('pk_encounter IN %(encs)s')
-			args['encs'] = tuple(encounters)
-
-		cmd = '%s %s' % (
-			gmVaccination._SQL_get_vaccination_fields % '\nAND '.join(where_parts),
-			order_by
+		return gmVaccination.get_vaccinations (
+			pk_identity = self.pk_patient,
+			pk_episodes = episodes,
+			pk_health_issues = issues,
+			pk_encounters = encounters,
+			order_by = order_by,
+			return_pks = False
 		)
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
-		vaccs = [ gmVaccination.cVaccination(row = {'idx': idx, 'data': r, 'pk_field': 'pk_vaccination'})  for r in rows ]
-
-		return vaccs
 
 	vaccinations = property(get_vaccinations, lambda x:x)
 
@@ -3375,9 +3354,9 @@ if __name__ == "__main__":
 	#test_get_abuses()
 	#test_get_encounters()
 	#test_get_issues()
-	test_get_dx()
+	#test_get_dx()
 
-#	emr = cClinicalRecord(aPKey = 12)
+	emr = cClinicalRecord(aPKey = 12)
 
 #	# Vacc regimes
 #	vacc_regimes = emr.get_scheduled_vaccination_regimes(indications = ['tetanus'])
@@ -3396,7 +3375,14 @@ if __name__ == "__main__":
 #		#print '   %s' %(a_scheduled_vacc)
 
 #	# vaccination next shot and booster
-#	vaccinations = emr.get_vaccinations()
+	v1 = emr.vaccinations
+	print(v1)
+	v2 = gmVaccination.get_vaccinations(pk_identity = 12, return_pks = True)
+	print(v2)
+	for v in v1:
+		if v['pk_vaccination'] not in v2:
+			print('ERROR')
+
 #	for a_vacc in vaccinations:
 #		print '\nVaccination %s , date: %s, booster: %s, seq no: %s' %(a_vacc['batch_no'], a_vacc['date'].strftime('%Y-%m-%d'), a_vacc['is_booster'], a_vacc['seq_no'])
 

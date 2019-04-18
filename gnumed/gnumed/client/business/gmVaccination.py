@@ -628,13 +628,42 @@ class cVaccination(gmBusinessDBObject.cBusinessDBObject):
 	vaccine = property(_get_vaccine, lambda x:x)
 
 #------------------------------------------------------------
-def get_vaccinations(return_pks=False):
-	cmd = _SQL_get_vaccination_fields % 'True'
+def get_vaccinations(pk_identity=None, pk_episodes=None, pk_health_issues=None, pk_encounters=None, order_by=None, return_pks=False):
+
 	args = {}
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
+	where_parts = []
+
+	if pk_identity is not None:
+		args = {'pk_identity': pk_identity}
+		where_parts.append('pk_patient = %(pk_identity)s')
+
+	if (pk_episodes is not None) and (len(pk_episodes) > 0):
+		where_parts.append('pk_episode IN %(pk_epis)s')
+		args['pk_epis'] = tuple(pk_episodes)
+
+	if (pk_health_issues is not None) and (len(pk_health_issues) > 0):
+		where_parts.append('pk_episode IN (SELECT pk FROM clin.episode WHERE fk_health_issue IN %(pk_issues)s)')
+		args['pk_issues'] = tuple(pk_health_issues)
+
+	if (pk_encounters is not None) and (len(pk_encounters) > 0):
+		where_parts.append('pk_encounter IN %(pk_encs)s')
+		args['pk_encs'] = tuple(pk_encounters)
+
+	ORDER_BY = gmTools.coalesce(order_by, '', 'ORDER BY %s' % order_by)
+	if len(where_parts) == 0:
+		WHERE = 'True'
+	else:
+		WHERE = '\nAND '.join(where_parts)
+
+	SQL = '%s %s' % (
+		_SQL_get_vaccination_fields % WHERE,
+		ORDER_BY
+	)
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': SQL, 'args': args}], get_col_idx = True)
 	if return_pks:
 		return [ r['pk_vaccination'] for r in rows ]
-	return [ cVaccination(row = {'data': r, 'idx': idx, 'pk_field': 'pk_vaccination'}) for r in rows ]
+	vaccs = [ cVaccination(row = {'idx': idx, 'data': r, 'pk_field': 'pk_vaccination'})  for r in rows ]
+	return vaccs
 
 #------------------------------------------------------------
 def create_vaccination(encounter=None, episode=None, vaccine=None, batch_no=None):
@@ -834,8 +863,19 @@ if __name__ == '__main__':
 
 	#--------------------------------------------------------
 	def test_get_vaccinations():
-		for v in get_vaccinations():
-			print(v)
+		v1 = get_vaccinations(return_pks = True)
+		v2 = get_vaccinations2(return_pks = True)
+		print(v1)
+		print(v2)
+		for v in v1:
+			if v not in v2:
+				print('ERROR')
+		for v in v2:
+			if v not in v1:
+				print('ERROR')
+
+#		for v in get_vaccinations():
+#			print(v)
 
 	#--------------------------------------------------------
 	def test_create_generic_vaccine_sql():
