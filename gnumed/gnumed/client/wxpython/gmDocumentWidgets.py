@@ -331,7 +331,9 @@ LIMIT 25"""],
 			context = ctxt
 		)
 		mp.setThresholds(1, 3, 5)
-		mp.unset_context('pat')
+		#mp.unset_context('pat')
+		pat = gmPerson.gmCurrentPatient()
+		mp.set_context('pat', pat.ID)
 
 		self.matcher = mp
 		self.picklist_delay = 50
