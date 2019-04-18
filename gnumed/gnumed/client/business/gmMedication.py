@@ -2639,10 +2639,9 @@ def create_substance_intake(pk_component=None, pk_encounter=None, pk_episode=Non
 	except gmPG2.dbapi.InternalError as exc:
 		if exc.pgerror is None:
 			raise
-		exc = make_pg_exception_fields_unicode(exc)
-		if 'prevent_duplicate_component' in exc.u_pgerror:
+		if 'prevent_duplicate_component' in exc.pgerror:
 			_log.exception('will not create duplicate substance intake entry')
-			_log.error(exc.u_pgerror)
+			gmPG2.log_pg_exception_details(exc)
 			return None
 		raise
 

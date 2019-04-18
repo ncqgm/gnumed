@@ -3102,6 +3102,7 @@ class gmTopLevelFrame(wx.Frame):
 			)
 		else:
 			self.__title_template = 'GMd: %(pat)s [%(prov)s@%(wp)s in %(site)s of %(prax)s]'
+
 	#----------------------------------------------
 	def __update_window_title(self):
 		"""Update title of main window based on template.

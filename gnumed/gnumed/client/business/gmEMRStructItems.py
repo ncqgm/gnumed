@@ -3102,8 +3102,9 @@ def delete_encounter(pk_encounter):
 	args = {'enc': pk_encounter}
 	try:
 		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
-	except gmPG2.dbapi.Error:
+	except gmPG2.PG_ERROR_EXCEPTION:
 		_log.exception('cannot delete encounter [%s]', pk_encounter)
+		gmPG2.log_pg_exception_details(exc)
 		unlock_encounter(pk_encounter, exclusive = True, link_obj = conn)
 		return False
 	unlock_encounter(pk_encounter, exclusive = True, link_obj = conn)

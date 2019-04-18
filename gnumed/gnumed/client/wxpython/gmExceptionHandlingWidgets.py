@@ -157,44 +157,10 @@ def __handle_access_violation(t, v, tb):
 #-------------------------------------------------------------------------
 def __handle_lost_db_connection(t, v, tb):
 
-	if t not in [gmPG2.dbapi.OperationalError, gmPG2.dbapi.InterfaceError]:
+	if not gmPG2.exception_is_connection_loss(v):
 		return False
 
-	try:
-		msg = gmPG2.extract_msg_from_pg_exception(exc = v)
-	except:
-		msg = 'cannot extract message from PostgreSQL exception'
-		print(msg)
-		print(v)
-		return False
-
-	conn_lost = False
-
-	if t == gmPG2.dbapi.OperationalError:
-		conn_lost = (
-			('erver' in msg)
-				and
-			(
-				('term' in msg)
-					or
-				('abnorm' in msg)
-					or
-				('end' in msg)
-					or
-				('oute' in msg)
-			)
-		)
-
-	if t == gmPG2.dbapi.InterfaceError:
-		conn_lost = (
-			('onnect' in msg)
-				and
-			(('close' in msg) or ('end' in msg))
-		)
-
-	if not conn_lost:
-		return False
-
+	gmPG2.log_pg_exception_details(v)
 	gmLog2.log_stack_trace('lost connection', t, v, tb)
 	wx.EndBusyCursor()
 	gmLog2.flush()

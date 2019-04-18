@@ -192,7 +192,6 @@ def connect_to_database(max_attempts=3, expected_version=None, require_version=T
 			continue
 
 		except gmPG2.dbapi.OperationalError as exc:
-			exc = gmPG2.make_pg_exception_fields_unicode(exc)
 			_log.error("login attempt failed: %s", exc)
 			msg = _(
 				"Unable to connect to database:\n\n"
@@ -203,8 +202,7 @@ def connect_to_database(max_attempts=3, expected_version=None, require_version=T
 				"  the default user name and password are\n"
 				"  {any-doc, any-doc})\n"
 				"\n"
-			) % exc.u_pgerror
-#			) % gmPG2.extract_msg_from_pg_exception(e)
+			) % exc.pgerror
 			msg = regex.sub(r'password=[^\s]+', 'password=%s' % gmTools.u_replacement_character, msg)
 			gmGuiHelpers.gm_show_error (
 				msg,

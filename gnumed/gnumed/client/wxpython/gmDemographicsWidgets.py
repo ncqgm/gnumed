@@ -1127,14 +1127,13 @@ class cPersonNameEAPnl(wxgPersonNameEAPnl.wxgPersonNameEAPnl, gmEditArea.cGeneri
 			data = self.__identity.add_name(first, last, active)
 		except gmPG2.dbapi.IntegrityError as exc:
 			_log.exception('cannot save new name')
-			exc = gmPG2.make_pg_exception_fields_unicode(exc)
 			gmGuiHelpers.gm_show_error (
 				aTitle = _('Adding name'),
 				aMessage = _(
 					'Cannot add this name to the patient !\n'
 					'\n'
 					' %s'
-				) % exc.u_pgerror
+				) % exc.pgerror
 			)
 			return False
 
@@ -1174,15 +1173,13 @@ class cPersonNameEAPnl(wxgPersonNameEAPnl.wxgPersonNameEAPnl, gmEditArea.cGeneri
 				name = self.__identity.add_name(first, last, active)
 			except gmPG2.dbapi.IntegrityError as exc:
 				_log.exception('cannot clone name when editing existing name')
-				exc = gmPG2.make_pg_exception_fields_unicode(exc)
 				gmGuiHelpers.gm_show_error (
 					aTitle = _('Editing name'),
 					aMessage = _(
 						'Cannot clone a copy of this name !\n'
 						'\n'
 						' %s'
-					) % exc.u_pgerror
-#					) % str(exc)
+					) % exc.pgerror
 				)
 				return False
 			name['preferred'] = gmTools.none_if(self._PRW_nick.GetValue().strip(), '')

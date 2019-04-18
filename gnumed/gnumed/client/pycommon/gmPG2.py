@@ -79,7 +79,7 @@ import psycopg2.extensions
 import psycopg2.pool
 import psycopg2.errorcodes as sql_error_codes
 
-PG_ERROR_EXCEPTION = psycopg2.Error
+PG_ERROR_EXCEPTION = dbapi.Error
 
 # =======================================================================
 _default_client_encoding = 'UTF8'
@@ -1872,7 +1872,7 @@ def run_ro_queries(link_obj=None, queries=None, verbose=False, return_data=True,
 			# seen fully legitimate write action which would get lost
 			readonly_rollback_just_in_case = lambda :1
 	elif link_obj is None:
-		conn = get_connection(readonly=True, verbose=verbose)
+		conn = get_connection(readonly = True, verbose = verbose)
 		curs = conn.cursor()
 		curs_close = curs.close
 		tx_rollback = conn.rollback
@@ -1892,26 +1892,19 @@ def run_ro_queries(link_obj=None, queries=None, verbose=False, return_data=True,
 			curs.execute(query['cmd'], args)
 			if verbose:
 				_log.debug(capture_cursor_state(curs))
-		except dbapi.Error as pg_exc:
+		except PG_ERROR_EXCEPTION as pg_exc:
 			_log.error('query failed in RO connection')
-			_log.error(capture_cursor_state(curs))
-			if hasattr(pg_exc, 'diag'):
-				for prop in dir(pg_exc.diag):
-					if prop.startswith('__'):
-						continue
-					val = getattr(pg_exc.diag, prop)
-					if val is None:
-						continue
-					_log.error('PG diags %s: %s', prop, val)
-			pg_exc = make_pg_exception_fields_unicode(pg_exc)
-			_log.error('PG error code: %s', pg_exc.pgcode)
-			if pg_exc.pgerror is not None:
-				_log.error('PG error message: %s', pg_exc.u_pgerror)
+			log_pg_exception_details(pg_exc)
 			try:
 				curs_close()
-			except dbapi.InterfaceError:
+			except PG_ERROR_EXCEPTION as pg_exc2:
 				_log.exception('cannot close cursor')
-			tx_rollback()		# need to rollback so ABORT state isn't preserved in pooled conns
+				log_pg_exception_details(pg_exc2)
+			try:
+				tx_rollback()		# need to rollback so ABORT state isn't preserved in pooled conns
+			except PG_ERROR_EXCEPTION as pg_exc2:
+				_log.exception('cannot rollback transaction')
+				log_pg_exception_details(pg_exc2)
 			if pg_exc.pgcode == sql_error_codes.INSUFFICIENT_PRIVILEGE:
 				details = 'Query: [%s]' % curs.query.strip().strip('\n').strip().strip('\n')
 				if curs.statusmessage != '':
@@ -1922,7 +1915,7 @@ def run_ro_queries(link_obj=None, queries=None, verbose=False, return_data=True,
 				if pg_exc.pgerror is None:
 					msg = '[%s]' % pg_exc.pgcode
 				else:
-					msg = '[%s]: %s' % (pg_exc.pgcode, pg_exc.u_pgerror)
+					msg = '[%s]: %s' % (pg_exc.pgcode, pg_exc.pgerror)
 				raise gmExceptions.AccessDenied (
 					msg,
 					source = 'PostgreSQL',
@@ -1930,14 +1923,19 @@ def run_ro_queries(link_obj=None, queries=None, verbose=False, return_data=True,
 					details = details
 				)
 			raise
-		except:
-			_log.exception('query failed in RO connection')
+		except Exception:
+			_log.exception('error during query run in RO connection')
 			_log.error(capture_cursor_state(curs))
 			try:
 				curs_close()
-			except dbapi.InterfaceError:
+			except PG_ERROR_EXCEPTION as pg_exc:
 				_log.exception('cannot close cursor')
-			tx_rollback()		# need to rollback so ABORT state isn't preserved in pooled conns
+				log_pg_exception_details(pg_exc)
+			try:
+				tx_rollback()		# need to rollback so ABORT state isn't preserved in pooled conns
+			except PG_ERROR_EXCEPTION as pg_exc:
+				_log.exception('cannot rollback transation')
+				log_pg_exception_details(pg_exc)
 			raise
 
 	data = None
@@ -2048,22 +2046,20 @@ def run_rw_queries(link_obj=None, queries=None, end_tx=False, return_data=None, 
 		# DB related exceptions
 		except dbapi.Error as pg_exc:
 			_log.error('query failed in RW connection')
-			_log.error(capture_cursor_state(curs))
-			if hasattr(pg_exc, 'diag'):
-				for prop in dir(pg_exc.diag):
-					if prop.startswith('__'):
-						continue
-					val = getattr(pg_exc.diag, prop)
-					if val is None:
-						continue
-					_log.error('PG diags %s: %s', prop, val)
+			log_pg_exception_details(pg_exc)
 			for notice in notices_accessor.notices:
 				_log.debug(notice.replace('\n', '/').replace('\n', '/'))
 			del notices_accessor.notices[:]
-			pg_exc = make_pg_exception_fields_unicode(pg_exc)
-			_log.error('PG error code: %s', pg_exc.pgcode)
-			if pg_exc.pgerror is not None:
-				_log.error('PG error message: %s', pg_exc.u_pgerror)
+			try:
+				curs_close()
+			except PG_ERROR_EXCEPTION as pg_exc2:
+				_log.exception('cannot close cursor')
+				log_pg_exception_details(pg_exc2)
+			try:
+				tx_rollback()		# need to rollback so ABORT state isn't preserved in pooled conns
+			except PG_ERROR_EXCEPTION as pg_exc2:
+				_log.exception('cannot rollback transaction')
+				log_pg_exception_details(pg_exc2)
 			# privilege problem
 			if pg_exc.pgcode == sql_error_codes.INSUFFICIENT_PRIVILEGE:
 				details = 'Query: [%s]' % curs.query.strip().strip('\n').strip().strip('\n')
@@ -2075,7 +2071,7 @@ def run_rw_queries(link_obj=None, queries=None, end_tx=False, return_data=None, 
 				if pg_exc.pgerror is None:
 					msg = '[%s]' % pg_exc.pgcode
 				else:
-					msg = '[%s]: %s' % (pg_exc.pgcode, pg_exc.u_pgerror)
+					msg = '[%s]: %s' % (pg_exc.pgcode, pg_exc.pgerror)
 				try:
 					curs_close()
 					tx_rollback()			# just for good measure
@@ -2098,7 +2094,7 @@ def run_rw_queries(link_obj=None, queries=None, end_tx=False, return_data=None, 
 				_log.exception('cannot cleanup')
 			raise
 		# other exception
-		except:
+		except Exception:
 			_log.exception('error running query in RW connection')
 			_log.error(capture_cursor_state(curs))
 			for notice in notices_accessor.notices:
@@ -2107,10 +2103,15 @@ def run_rw_queries(link_obj=None, queries=None, end_tx=False, return_data=None, 
 			gmLog2.log_stack_trace()
 			try:
 				curs_close()
-				tx_rollback()
+			except PG_ERROR_EXCEPTION as pg_exc:
+				_log.exception('cannot close cursor')
+				log_pg_exception_details(pg_exc)
+			try:
+				tx_rollback()		# need to rollback so ABORT state isn't preserved in pooled conns
 				conn_close()
-			except dbapi.InterfaceError:
-				_log.exception('cannot cleanup')
+			except PG_ERROR_EXCEPTION as pg_exc:
+				_log.exception('cannot rollback transation')
+				log_pg_exception_details(pg_exc)
 			raise
 
 	data = None
@@ -2118,7 +2119,7 @@ def run_rw_queries(link_obj=None, queries=None, end_tx=False, return_data=None, 
 	if return_data:
 		try:
 			data = curs.fetchall()
-		except:
+		except Exception:
 			_log.exception('error fetching data from RW query')
 			gmLog2.log_stack_trace()
 			try:
@@ -2395,7 +2396,6 @@ def get_connection(dsn=None, readonly=True, encoding=None, verbose=False, pooled
 		conn.set_client_encoding(encoding)
 	except dbapi.DataError:
 		t, v, tb = sys.exc_info()
-#		if str(v).find('cannot set encoding to') != -1:
 		if 'cannot set encoding to' in str(v):
 			raise cEncodingError(encoding, v).with_traceback(tb)
 		if 'invalid value for parameter "client_encoding"' in str(v):
@@ -2592,11 +2592,9 @@ def _log_PG_settings(curs=None):
 	# don't use any of the run_*()s helper functions
 	# since that might create a loop if we fail here
 	try:
-		# .pending_restart does not exist in PG 9.4 yet
-		#curs.execute(u'SELECT name, setting, unit, source, reset_val, sourcefile, sourceline, pending_restart FROM pg_settings')
-		curs.execute('SELECT name, setting, unit, source, reset_val, sourcefile, sourceline FROM pg_settings')
-	except:
-		_log.exception('cannot log PG settings ("SELECT ... FROM pg_settings" failed)')
+		curs.execute('SELECT * FROM pg_settings')
+	except dbapi.Error:
+		_log.exception('cannot retrieve PG settings ("SELECT ... FROM pg_settings" failed)')
 		return False
 	settings = curs.fetchall()
 	for setting in settings:
@@ -2608,22 +2606,22 @@ def _log_PG_settings(curs=None):
 			sfile = ''
 		else:
 			sfile = '// %s @ %s' % (setting['sourcefile'], setting['sourceline'])
-#		# .pending_restart does not exist in PG 9.4 yet
-#		if setting['pending_restart'] is False:
-#			pending_restart = u''
-#		else:
-#			pending_restart = u'// needs restart'
-#		_log.debug(u'%s: %s%s (set from: [%s] // sess RESET will set to: [%s]%s%s)',
-		_log.debug('%s: %s%s (set from: [%s] // sess RESET will set to: [%s]%s)',
+		pending_restart = u''
+		try:
+			if setting['pending_restart']:
+				pending_restart = u'// needs restart'
+		except KeyError:
+			# 'pending_restart' does not exist in PG 9.4 yet
+			pass
+		_log.debug('%s: %s%s (set from: [%s] // sess RESET will set to: [%s]%s%s)',
 			setting['name'],
 			setting['setting'],
 			unit,
 			setting['source'],
 			setting['reset_val'],
-#			pending_restart,
+			pending_restart,
 			sfile
 		)
-
 	try:
 		curs.execute('select pg_available_extensions()')
 	except:
@@ -2649,35 +2647,82 @@ def _log_PG_settings(curs=None):
 
 	return True
 
-#========================================================================
-def make_pg_exception_fields_unicode(exc):
-
+#------------------------------------------------------------------------
+def log_pg_exception_details(exc):
 	if not isinstance(exc, dbapi.Error):
-		return exc
-
-	if exc.pgerror is None:
-		try:
-			msg = exc.args[0]
-		except (AttributeError, IndexError, TypeError):
-			return exc
-		# assumption
-		exc.u_pgerror = msg
-		return exc
-
-	# assumption
-	exc.u_pgerror = exc.pgerror.strip().strip('\n').strip().strip('\n')
-
-	return exc
+		return False
+	try:
+		args = exc.args
+		for arg in args:
+			_log.debug('exc.arg: %s', arg)
+	except AttributeError:
+		_log.debug('exception has no <.args>')
+	_log.debug('pgerror: [%s]', exc.pgerror)
+	if exc.pgcode is None:
+		_log.debug('pgcode : %s', exc.pgcode)
+	else:
+		_log.debug('pgcode : %s (%s)', exc.pgcode, sql_error_codes.lookup(exc.pgcode))
+	if exc.cursor is None:
+		_log.debug('cursor: None')
+	else:
+		capture_cursor_state(cursor = exc.cursor)
+	try:
+		exc.diag
+		for attr in dir(exc.diag):
+			if attr.startswith('__'):
+				continue
+			val = getattr(exc.diag, attr)
+			if val is None:
+				continue
+			_log.debug('%s: %s', attr, val)
+	except AttributeError:
+		_log.debug('diag: not available')
+	return True
 
 #------------------------------------------------------------------------
-def extract_msg_from_pg_exception(exc=None):
-
+def exception_is_connection_loss(exc):
+	if not isinstance(exc, dbapi.Error):
+		# not a PG exception
+		return False
 	try:
-		return '%s' % exc.args[0]
+		msg = '%s' % exc.args[0]
 	except (AttributeError, IndexError, TypeError):
-		return 'cannot extract message from exception'
+		_log.debug('cannot extract message from exception')
+		# cannot process message
+		return False
+	_log.debug('interpreting: %s', msg)
+	# OperationalError
+	conn_lost = (
+		('erver' in msg)
+			and
+		(
+			('terminat' in msg)
+				or
+			('abnorm' in msg)
+				or
+			('end' in msg)
+#				or
+#			('oute' in msg)
+		)
+	)
+	if conn_lost:
+		_log.debug('indicates connection loss')
+		return True
+	# InterfaceError
+	conn_lost = (
+		('onnect' in msg)
+			and
+		(
+			('close' in msg)
+				or
+			('end' in msg)
+		)
+	)
+	if conn_lost:
+		_log.debug('indicates connection loss')
+	return conn_lost
 
-# =======================================================================
+#========================================================================
 class cAuthenticationError(dbapi.OperationalError):
 
 	def __init__(self, dsn=None, prev_val=None):
@@ -2687,9 +2732,9 @@ class cAuthenticationError(dbapi.OperationalError):
 	def __str__(self):
 		return 'PostgreSQL: %sDSN: %s' % (self.prev_val, self.dsn)
 
-# =======================================================================
+#========================================================================
 # custom psycopg2 extensions
-# =======================================================================
+#========================================================================
 class cEncodingError(dbapi.OperationalError):
 
 	def __init__(self, encoding=None, prev_val=None):
@@ -2837,6 +2882,7 @@ if __name__ == "__main__":
 	def test_get_connection():
 		print("testing get_connection()")
 
+		print('')
 		dsn = 'foo'
 		try:
 			conn = get_connection(dsn=dsn)
@@ -2846,6 +2892,7 @@ if __name__ == "__main__":
 			print (' ', t)
 			print (' ', v)
 
+		print('')
 		dsn = 'dbname=gnumed_v9'
 		try:
 			conn = get_connection(dsn=dsn)
@@ -2855,6 +2902,7 @@ if __name__ == "__main__":
 			print(' ', t)
 			print(' ', v)
 
+		print('')
 		dsn = 'dbname=gnumed_v9 user=abc'
 		try:
 			conn = get_connection(dsn=dsn)
@@ -2864,16 +2912,7 @@ if __name__ == "__main__":
 			print(' ', t)
 			print(' ', v)
 
-		dsn = 'dbname=gnumed_v22 user=any-doc'
-		try:
-			conn = get_connection(dsn=dsn)
-			print("4) SUCCESS:", dsn)
-		except cAuthenticationError:
-			print("4) SUCCESS: get_connection(%s) failed as expected" % dsn)
-			t, v = sys.exc_info()[:2]
-			print(' ', t)
-			print(' ', v)
-
+		print('')
 		dsn = 'dbname=gnumed_v9 user=any-doc password=abc'
 		try:
 			conn = get_connection(dsn=dsn)
@@ -2883,12 +2922,14 @@ if __name__ == "__main__":
 			print(' ', t)
 			print(' ', v)
 
+		print('')
 		dsn = 'dbname=gnumed_v22 user=any-doc password=any-doc'
 		conn = get_connection(dsn=dsn, readonly=True)
 
 		dsn = 'dbname=gnumed_v22 user=any-doc password=any-doc'
 		conn = get_connection(dsn=dsn, readonly=False, verbose=True)
 
+		print('')
 		dsn = 'dbname=gnumed_v22 user=any-doc password=any-doc'
 		encoding = 'foo'
 		try:
@@ -2898,6 +2939,29 @@ if __name__ == "__main__":
 			t, v = sys.exc_info()[:2]
 			print(' ', t)
 			print(' ', v)
+
+		print('')
+		dsn = 'dbname=gnumed_v22 user=any-doc'
+		try:
+			conn = get_connection(dsn=dsn)
+			print("6) SUCCESS:", dsn)
+			print('pid:', conn.get_backend_pid())
+		except cAuthenticationError:
+			print("4) SUCCESS: get_connection(%s) failed" % dsn)
+			t, v = sys.exc_info()[:2]
+			print(' ', t)
+			print(' ', v)
+
+		try:
+			curs = conn.cursor()
+			input('hit enter to run query')
+			curs.execute('selec 1')
+		except Exception as exc:
+			print('ERROR')
+			_log.exception('exception occurred')
+			log_pg_exception_details(exc)
+			if exception_is_connection_loss(exc):
+				_log.error('lost connection')
 
 	#--------------------------------------------------------------------
 	def test_exceptions():
@@ -2922,7 +2986,7 @@ if __name__ == "__main__":
 	def test_ro_queries():
 		print("testing run_ro_queries()")
 
-		dsn = 'dbname=gnumed_v9 user=any-doc password=any-doc'
+		dsn = 'dbname=gnumed_v22 user=any-doc password=any-doc'
 		conn = get_connection(dsn, readonly=True)
 
 		data, idx = run_ro_queries(link_obj=conn, queries=[{'cmd': 'SELECT version()'}], return_data=True, get_col_idx=True, verbose=True)
@@ -2953,6 +3017,7 @@ if __name__ == "__main__":
 			print(' ', v)
 
 		curs.close()
+
 	#--------------------------------------------------------------------
 	def test_request_dsn():
 		conn = get_connection()
@@ -3222,9 +3287,9 @@ SELECT to_timestamp (foofoo,'YYMMDD.HH24MI') FROM (
 
 	#--------------------------------------------------------------------
 	# run tests
-	test_get_connection()
+	#test_get_connection()
 	#test_exceptions()
-	#test_ro_queries()
+	test_ro_queries()
 	#test_request_dsn()
 	#test_set_encoding()
 	#test_connection_pool()
