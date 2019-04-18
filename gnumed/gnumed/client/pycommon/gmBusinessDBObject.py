@@ -146,7 +146,7 @@ from Gnumed.pycommon.gmTools import xetex_escape_string
 from Gnumed.pycommon.gmTools import compare_dict_likes
 from Gnumed.pycommon.gmTools import format_dict_like
 from Gnumed.pycommon.gmTools import dicts2table
-from Gnumed.pycommon.gmTools import u_ellipsis
+from Gnumed.pycommon.gmTools import u_left_arrow
 
 
 _log = logging.getLogger('gm.db')
@@ -561,7 +561,7 @@ def delete_xxx(pk_XXX=None):
 				show_only_changes = True,
 				headers = headers,
 				date_format = '%Y %b %d %H:%M',
-				equality_value = u_ellipsis
+				equality_value = u_left_arrow
 			))
 		return lines
 
