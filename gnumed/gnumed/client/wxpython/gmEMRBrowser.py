@@ -1436,6 +1436,7 @@ class cEMRJournalPluginPnl(wxgEMRJournalPluginPnl.wxgEMRJournalPluginPnl):
 		wxgEMRJournalPluginPnl.wxgEMRJournalPluginPnl.__init__(self, *args, **kwds)
 		self._TCTRL_journal.disable_keyword_expansions()
 		self._TCTRL_journal.SetValue('')
+
 	#--------------------------------------------------------
 	# external API
 	#--------------------------------------------------------
@@ -1511,19 +1512,18 @@ class cEMRListJournalPluginPnl(wxgEMRListJournalPluginPnl.wxgEMRListJournalPlugi
 		self._LCTRL_journal.remove_items_safely()
 		self._TCTRL_details.SetValue('')
 
-		if self._RBTN_by_encounter.Value:		# (... is True:)
-			order_by = 'encounter_started, pk_episode, src_table, scr, modified_when'
-						#, clin_when (should not make a relevant difference)
+		# <pk_episode NULLS FIRST> ensures that health issues get sorted before their episodes
+		if self._RBTN_by_encounter.Value:
+			order_by = 'encounter_started, pk_health_issue, pk_episode NULLS FIRST, scr, src_table, modified_when'
 			date_col_header = _('Encounter')
 			date_fields = ['encounter_started', 'modified_when']
-		elif self._RBTN_by_last_modified.Value:	# (... is True:)
-			order_by = 'modified_when, pk_episode, src_table, scr'
-						#, clin_when (should not make a relevant difference)
+		elif self._RBTN_by_last_modified.Value:
+			order_by = 'modified_when, pk_health_issue, pk_episode NULLS FIRST, src_table, scr'
 			date_col_header = _('Modified')
 			date_fields = ['modified_when']
-		elif self._RBTN_by_item_time.Value:		# (... is True:)
-			order_by = 'clin_when, pk_episode, src_table, scr, modified_when'
-			date_col_header = _('Clinical time')
+		elif self._RBTN_by_item_time.Value:
+			order_by = 'clin_when, pk_health_issue, pk_episode NULLS FIRST, scr, src_table, modified_when'
+			date_col_header = _('Happened')
 			date_fields = ['clin_when', 'modified_when']
 		else:
 			raise ValueError('invalid EMR journal list sort state')
@@ -1533,13 +1533,14 @@ class cEMRListJournalPluginPnl(wxgEMRListJournalPluginPnl.wxgEMRListJournalPlugi
 
 		journal = gmPerson.gmCurrentPatient().emr.get_as_journal(order_by = order_by)
 
+		self.__data = {}
 		items = []
 		data = []
-		self.__data = {}
 		prev_date = None
 		for entry in journal:
 			if entry['narrative'].strip() == '':
 				continue
+			self.__register_journal_entry(entry)
 			soap_cat = gmSoapDefs.soap_cat2l10n[entry['soap_cat']]
 			who = '%s (%s)' % (entry['modified_by'], entry['date_modified'])
 			try:
@@ -1551,92 +1552,128 @@ class cEMRListJournalPluginPnl(wxgEMRListJournalPluginPnl.wxgEMRListJournalPlugi
 			else:
 				date2show = entry_date
 				prev_date = entry_date
-			lines = entry['narrative'].strip().split('\n')
-			line_0 = lines[0].rstrip()				# assumes there's at least one line ...
-			if len(lines) == 1:
-				delim = gmTools.u_box_horiz_light_3dashes * 10 + gmTools.u_box_T_left
-			else:
-				delim = (gmTools.u_box_horiz_light_3dashes * 10) + gmTools.u_box_top_right_arc
-			entry_line = '%s %s' % (line_0, delim)
-			items.append([date2show, soap_cat, entry_line, who])
-			try:
-				self.__data[entry['src_table']]
-			except KeyError:
-				self.__data[entry['src_table']] = {}
-			try:
-				self.__data[entry['src_table']][entry['src_pk']]
-			except KeyError:
-				self.__data[entry['src_table']][entry['src_pk']] = {}
-				self.__data[entry['src_table']][entry['src_pk']]['entry'] = entry
-				self.__data[entry['src_table']][entry['src_pk']]['formatted_instance'] = None
-				if entry['encounter_started'] is None:
-					enc_duration = gmTools.u_diameter
-				else:
-					enc_duration = '%s - %s' % (
-						gmDateTime.pydt_strftime(entry['encounter_started'], '%Y %b %d  %H:%M'),
-						gmDateTime.pydt_strftime(entry['encounter_last_affirmed'], '%H:%M')
-					)
-				self.__data[entry['src_table']][entry['src_pk']]['formatted_header'] = _(
-					'Chart entry: %s       [#%s in %s]\n'
-					' Modified: %s by %s (%s rev %s)\n'
-					'\n'
-					'Health issue: %s%s\n'
-					'Episode: %s%s\n'
-					'Encounter: %s%s'
-				) % (
-					gmClinicalRecord.format_clin_root_item_type(entry['src_table']),
-					entry['src_pk'],
-					entry['src_table'],
-					entry['date_modified'],
-					entry['modified_by'],
-					gmTools.u_arrow2right,
-					entry['row_version'],
-					gmTools.coalesce(entry['health_issue'], gmTools.u_diameter, '%s'),
-					gmTools.bool2subst(entry['issue_active'], ' (' + _('active') + ')', ' (' + _('inactive') + ')', ''),
-					gmTools.coalesce(entry['episode'], gmTools.u_diameter, '%s'),
-					gmTools.bool2subst(entry['episode_open'], ' (' +  _('open') + ')', ' (' +  _('closed') + ')', ''),
-					enc_duration,
-					gmTools.coalesce(entry['encounter_l10n_type'], '', ' (%s)'),
-				)
-				self.__data[entry['src_table']][entry['src_pk']]['formatted_root_item'] = _(
-					'%s\n'
-					'\n'
-					'                        rev %s (%s) by %s in <%s>'
-				) % (
-					entry['narrative'].strip(),
-					entry['row_version'],
-					entry['date_modified'],
-					entry['modified_by'],
-					entry['src_table']
-				)
+			lines_of_journal_entry = entry['narrative'].strip().split('\n')
+			first_line = lines_of_journal_entry[0]
+			items.append([date2show, soap_cat, first_line.rstrip(), who])
 			data.append ({
 				'table': entry['src_table'],
 				'pk': entry['src_pk']
 			})
-			if len(lines) > 1:
-				lines = lines[1:]
-				idx = 0
-				last_line = len(lines)
-				for entry_line in lines:
-					idx += 1
-					if entry_line.strip() == '':
-						continue
-					if idx == last_line:
-						bar = gmTools.u_box_bottom_left_arc
-					else:
-						bar = gmTools.u_box_vert_light_4dashes
-					items.append(['', bar, entry_line.rstrip(), who])
-					data.append ({
-						'table': entry['src_table'],
-						'pk': entry['src_pk']
-					})
+			for line in lines_of_journal_entry[1:]:	# skip first line
+				if line.strip() == '':
+					continue
+				# only first line carries metadata
+				items.append(['', '', line.rstrip(), ''])
+				data.append ({
+					'table': entry['src_table'],
+					'pk': entry['src_pk']
+				})
 
 		self._LCTRL_journal.set_string_items(items)
+		# maybe add coloring per-entry ?
+		#for item_idx in range(self._LCTRL_journal.ItemCount):
+		#	self._LCTRL_journal.SetItemBackgroundColour(item_idx, 'green')
 		self._LCTRL_journal.set_column_widths([wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE_USEHEADER])
 		self._LCTRL_journal.set_data(data)
 
 		self._LCTRL_journal.SetFocus()
 		return True
+
+	#--------------------------------------------------------
+#	def _old_repopulate_ui(self):
+#		self._LCTRL_journal.remove_items_safely()
+#		self._TCTRL_details.SetValue('')
+#
+#		if self._RBTN_by_encounter.Value:		# (... is True:)
+#			order_by = 'encounter_started, pk_episode, src_table, scr, modified_when'
+#						#, clin_when (should not make a relevant difference)
+#			date_col_header = _('Encounter')
+#			date_fields = ['encounter_started', 'modified_when']
+#		elif self._RBTN_by_last_modified.Value:	# (... is True:)
+#			order_by = 'modified_when, pk_episode, src_table, scr'
+#						#, clin_when (should not make a relevant difference)
+#			date_col_header = _('Modified')
+#			date_fields = ['modified_when']
+#		elif self._RBTN_by_item_time.Value:		# (... is True:)
+#			order_by = 'clin_when, pk_episode, src_table, scr, modified_when'
+#			date_col_header = _('Clinical time')
+#			date_fields = ['clin_when', 'modified_when']
+#		else:
+#			raise ValueError('invalid EMR journal list sort state')
+#
+#		self._LCTRL_journal.set_columns([date_col_header, '', _('Entry'), _('Who / When')])
+#		self._LCTRL_journal.set_resize_column(3)
+#
+#		journal = gmPerson.gmCurrentPatient().emr.get_as_journal(order_by = order_by)
+#
+#		self.__data = {}
+#		items = []
+#		data = []
+#		prev_date = None
+#		for entry in journal:
+#			if entry['narrative'].strip() == '':
+#				continue
+#			# process metadata
+#			soap_cat = gmSoapDefs.soap_cat2l10n[entry['soap_cat']]
+#			who = '%s (%s)' % (entry['modified_by'], entry['date_modified'])
+#			try:
+#				entry_date = gmDateTime.pydt_strftime(entry[date_fields[0]], '%Y-%m-%d')
+#			except KeyError:
+#				entry_date = gmDateTime.pydt_strftime(entry[date_fields[1]], '%Y-%m-%d')
+#			if entry_date == prev_date:
+#				date2show = ''
+#			else:
+#				date2show = entry_date
+#				prev_date = entry_date
+#			# process actual entry text
+#			lines_of_journal_entry = entry['narrative'].strip().split('\n')
+#			line_0 = lines_of_journal_entry[0].rstrip()				# assumes there's at least one line ...
+#			if len(lines_of_journal_entry) == 1:
+#				delim = gmTools.u_box_horiz_light_3dashes * 10 + gmTools.u_box_T_left
+#			else:
+#				max_len = 0
+#				for l in lines_of_journal_entry:
+#					max_len = max(max_len, len(l.rstrip()))
+#				#delim = (gmTools.u_box_horiz_light_3dashes * 10) + gmTools.u_box_top_right_arc
+#				#delim = (gmTools.u_box_horiz_light_3dashes * (max_len - len(line_0))) + gmTools.u_box_top_right_arc
+#				horiz_len = max((max_len - len(line_0), 1))
+#				delim = (gmTools.u_box_horiz_high * horiz_len) + '\\'
+#			entry_line = '%s %s' % (line_0, delim)
+#			items.append([date2show, soap_cat, entry_line, who])
+#			data.append ({
+#				'table': entry['src_table'],
+#				'pk': entry['src_pk']
+#			})
+#			if len(lines_of_journal_entry) > 1:
+#				lines_of_journal_entry = lines_of_journal_entry[1:]
+#				last_line_idx = len(lines_of_journal_entry)
+#				idx = 0
+#				for entry_line in lines_of_journal_entry:
+#					idx += 1
+#					if entry_line.strip() == '':
+#						continue
+#					if idx == last_line_idx:
+#						bar = gmTools.u_box_bottom_left_arc
+#						horiz_len = max((max_len - len(entry_line), 1))
+#						end = ' %s/' % ('_' * horiz_len)
+#					else:
+#						bar = gmTools.u_box_vert_light_4dashes
+#						end = ''
+#					items.append(['', bar, entry_line.rstrip() + end, who])
+#					data.append ({
+#						'table': entry['src_table'],
+#						'pk': entry['src_pk']
+#					})
+#			self.__register_journal_entry(entry)
+#
+#		self._LCTRL_journal.set_string_items(items)
+##		for item_idx in range(self._LCTRL_journal.ItemCount):
+##			self._LCTRL_journal.SetItemBackgroundColour(item_idx, 'green')
+#		self._LCTRL_journal.set_column_widths([wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE_USEHEADER])
+#		self._LCTRL_journal.set_data(data)
+#
+#		self._LCTRL_journal.SetFocus()
+#		return True
 
 	#--------------------------------------------------------
 	# internal helpers
@@ -1645,6 +1682,59 @@ class cEMRListJournalPluginPnl(wxgEMRListJournalPluginPnl.wxgEMRListJournalPlugi
 		gmDispatcher.connect(signal = 'pre_patient_unselection', receiver = self._on_pre_patient_unselection)
 		gmDispatcher.connect(signal = 'post_patient_selection', receiver = self._on_post_patient_selection)
 		return True
+
+	#--------------------------------------------------------
+	def __register_journal_entry(self, entry):
+		if entry['src_table'] in self.__data:
+			if entry['src_pk'] in self.__data[entry['src_table']]:
+				return
+
+		else:
+			self.__data[entry['src_table']] = {}
+
+		self.__data[entry['src_table']][entry['src_pk']] = {}
+		self.__data[entry['src_table']][entry['src_pk']]['entry'] = entry
+		self.__data[entry['src_table']][entry['src_pk']]['formatted_instance'] = None
+		if entry['encounter_started'] is None:
+			enc_duration = gmTools.u_diameter
+		else:
+			enc_duration = '%s - %s' % (
+				gmDateTime.pydt_strftime(entry['encounter_started'], '%Y %b %d  %H:%M'),
+				gmDateTime.pydt_strftime(entry['encounter_last_affirmed'], '%H:%M')
+			)
+		self.__data[entry['src_table']][entry['src_pk']]['formatted_header'] = _(
+			'Chart entry: %s       [#%s in %s]\n'
+			' Modified: %s by %s (%s rev %s)\n'
+			'\n'
+			'Health issue: %s%s\n'
+			'Episode: %s%s\n'
+			'Encounter: %s%s'
+		) % (
+			gmClinicalRecord.format_clin_root_item_type(entry['src_table']),
+			entry['src_pk'],
+			entry['src_table'],
+			entry['date_modified'],
+			entry['modified_by'],
+			gmTools.u_arrow2right,
+			entry['row_version'],
+			gmTools.coalesce(entry['health_issue'], gmTools.u_diameter, '%s'),
+			gmTools.bool2subst(entry['issue_active'], ' (' + _('active') + ')', ' (' + _('inactive') + ')', ''),
+			gmTools.coalesce(entry['episode'], gmTools.u_diameter, '%s'),
+			gmTools.bool2subst(entry['episode_open'], ' (' +  _('open') + ')', ' (' +  _('closed') + ')', ''),
+			enc_duration,
+			gmTools.coalesce(entry['encounter_l10n_type'], '', ' (%s)'),
+		)
+		self.__data[entry['src_table']][entry['src_pk']]['formatted_root_item'] = _(
+			'%s\n'
+			'\n'
+			'                        rev %s (%s) by %s in <%s>'
+		) % (
+			entry['narrative'].strip(),
+			entry['row_version'],
+			entry['date_modified'],
+			entry['modified_by'],
+			entry['src_table']
+		)
 
 	#--------------------------------------------------------
 	# event handlers

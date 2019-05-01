@@ -462,7 +462,7 @@ def get_as_journal(since=None, until=None, encounters=None, episodes=None, issue
 			SELECT
 				to_char(now(), 'YYYY-MM-DD') AS date,
 				now() as clin_when,
-				'a'::text as soap_cat,
+				'u'::text as soap_cat,
 				hints.title || E'\n' || hints.hint
 					as narrative,
 				'ref.auto_hint'::text as src_table,
@@ -473,7 +473,7 @@ def get_as_journal(since=None, until=None, encounters=None, episodes=None, issue
 				0::integer as row_version,
 				NULL::integer as pk_episode,
 				%(pk_enc)s as pk_encounter,
-				'a'::text as real_soap_cat,
+				'u'::text as real_soap_cat,
 				hints.pk_auto_hint as src_pk,
 				NULL::integer as pk_health_issue,
 				''::text as health_issue,
@@ -486,8 +486,8 @@ def get_as_journal(since=None, until=None, encounters=None, episodes=None, issue
 				%(enc_type)s as encounter_l10n_type,
 				%(enc_pat)s as pk_patient
 			FROM
-				clin.get_hints_for_patient(%(enc_pat)s) as hints
-					join clin.soap_cat_ranks c_scr on (c_scr.soap_cat = 'a')
+				clin.get_hints_for_patient(%(enc_pat)s) AS hints
+					JOIN clin.soap_cat_ranks c_scr ON (c_scr.soap_cat = 'u')
 		"""
 		cmd = cmd_journal + '\nUNION ALL\n' + cmd_hints + '\n' + order_by
 

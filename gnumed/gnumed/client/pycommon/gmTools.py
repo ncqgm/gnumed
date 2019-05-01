@@ -87,6 +87,7 @@ u_infinity = '\u221E'
 u_arrow2right_until_vertical_bar2 = '\u2b72'	# -->|
 u_diameter = '\u2300'
 u_checkmark_crossed_out = '\u237B'
+u_box_horiz_high = '\u23ba'
 u_box_vert_left = '\u23b8'
 u_box_vert_right = '\u23b9'
 u_box_horiz_single = '\u2500'				# -
