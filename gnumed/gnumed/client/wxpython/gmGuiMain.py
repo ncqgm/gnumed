@@ -3224,9 +3224,12 @@ class cStatusBar(wx.StatusBar):
 
 		self.FieldsCount = 2
 		self.SetStatusWidths([-1, 225])
+
 		self.__msg_fifo = []
 		self.__prev_text = None
-		self._cb_update_clock()
+		self.__normal_background_colour = self.GetBackgroundColour()
+		self.__times_to_blink = 0
+
 		self.clock_update_timer = wx.PyTimer(self._cb_update_clock)
 		self.clock_update_timer.Start(milliseconds = 1000)
 
@@ -3238,19 +3241,32 @@ class cStatusBar(wx.StatusBar):
 		t = time.localtime(time.time())
 		st = time.strftime('%Y %b %d  %H:%M:%S', t)
 		self.SetStatusText(st, 1)
+		if self.__times_to_blink > 0:
+			# this still seems to hang wxGTK
+			wx.CallAfter(self.__blink)
 
 	#----------------------------------------------
 	def SetStatusText(self, text, i=0):
 		msg = self.__update_history(text, i)
 		super().SetStatusText(msg, i)
+		if i == 0:
+			self.__times_to_blink = 6
 
 	#----------------------------------------------
 	def PushStatusText(self, string, field=0):
 		msg = self.__update_history(string, field)
 		super().PushStatusText(msg, field)
+		if field == 0:
+			self.__times_to_blink = 6
 
 	#----------------------------------------------
 	# internal API
+	#----------------------------------------------
+	def __blink(self):
+		self.__times_to_blink -= 1
+		if not self.SetBackgroundColour('yellow'):
+			self.SetBackgroundColour(self.__normal_background_colour)
+
 	#----------------------------------------------
 	def __update_history(self, msg, field):
 		if field > 0:
