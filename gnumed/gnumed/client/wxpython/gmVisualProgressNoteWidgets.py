@@ -399,7 +399,7 @@ class cVisualSoapPresenterPnl(wxgVisualSoapPresenterPnl.wxgVisualSoapPresenterPn
 			return
 
 		if not do_async:
-			parts_list = self._worker__export_doc_parts(docs = soap_docs)
+			cookie, parts_list = self._worker__export_doc_parts(docs = soap_docs)
 			self.__show_exported_parts(parts_list = parts_list)
 			return
 
