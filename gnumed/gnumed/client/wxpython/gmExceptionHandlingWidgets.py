@@ -461,8 +461,11 @@ class cUnhandledExceptionDlg(wxgUnhandledExceptionDlg.wxgUnhandledExceptionDlg):
 		self._TCTRL_helpdesk.SetValue(_helpdesk)
 		self._TCTRL_logfile.SetValue(self.logfile)
 		t, v, tb = exception
-		self._TCTRL_traceback.SetValue(''.join(traceback.format_tb(tb)))
-
+		self._TCTRL_traceback.SetValue ('%s: %s\n%s: %s\n%s' % (
+			'type', t,
+			'value', v,
+			''.join(traceback.format_tb(tb))
+		))
 		self.Fit()
 
 	#------------------------------------------
