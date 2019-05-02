@@ -1209,6 +1209,7 @@ class cDrugProductEAPnl(wxgDrugProductEAPnl.wxgDrugProductEAPnl, gmEditArea.cGen
 				self._PRW_preparation.GetData(),
 				self._PRW_preparation.GetValue()
 			).strip(),
+			doses = self.__component_doses,
 			return_existing = True
 		)
 		drug['is_fake_product'] = self._CHBOX_is_fake.GetValue()
@@ -1220,8 +1221,8 @@ class cDrugProductEAPnl(wxgDrugProductEAPnl.wxgDrugProductEAPnl, gmEditArea.cGen
 
 		drug.save()
 
-		if len(self.__component_doses) > 0:
-			drug.set_substance_doses_as_components(substance_doses = self.__component_doses)
+#		if len(self.__component_doses) > 0:
+#			drug.set_substance_doses_as_components(substance_doses = self.__component_doses)
 
 		self.data = drug
 
