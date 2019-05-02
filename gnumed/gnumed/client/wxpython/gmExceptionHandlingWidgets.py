@@ -3,7 +3,13 @@
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL v2 or later (details at http://www.gnu.org)"
 
-import logging, traceback, re as regex, sys, os, shutil, datetime as pyDT
+import logging
+import traceback
+import sys
+import os
+import shutil
+import datetime as pyDT
+import re as regex
 
 
 import wx
@@ -290,105 +296,105 @@ def _on_application_closing():
 # ========================================================================
 def mail_log(parent=None, comment=None, helpdesk=None, sender=None):
 
-		if (comment is None) or (comment.strip() == ''):
-			comment = wx.GetTextFromUser (
-				message = _(
-					'Please enter a short note on what you\n'
-					'were about to do in GNUmed:'
-				),
-				caption = _('Sending bug report'),
-				parent = parent
-			)
-			if comment.strip() == '':
-				comment = '<user did not comment on bug report>'
-
-		receivers = []
-		if helpdesk is not None:
-			receivers = regex.findall (
-				'[\S]+@[\S]+',
-				helpdesk.strip(),
-				flags = regex.UNICODE
-			)
-		if len(receivers) == 0:
-			if _is_public_database:
-				receivers = ['gnumed-bugs@gnu.org']
-
-		receiver_string = wx.GetTextFromUser (
+	if (comment is None) or (comment.strip() == ''):
+		comment = wx.GetTextFromUser (
 			message = _(
-				'Edit the list of email addresses to send the\n'
-				'bug report to (separate addresses by spaces).\n'
-				'\n'
-				'Note that <gnumed-bugs@gnu.org> refers to\n'
-				'the public (!) GNUmed bugs mailing list.'
+				'Please enter a short note on what you\n'
+				'were about to do in GNUmed:'
 			),
 			caption = _('Sending bug report'),
-			default_value = ','.join(receivers),
 			parent = parent
 		)
-		if receiver_string.strip() == '':
-			return
+		if comment.strip() == '':
+			comment = '<user did not comment on bug report>'
 
+	receivers = []
+	if helpdesk is not None:
 		receivers = regex.findall (
 			'[\S]+@[\S]+',
-			receiver_string,
+			helpdesk.strip(),
 			flags = regex.UNICODE
 		)
+	if len(receivers) == 0:
+		if _is_public_database:
+			receivers = ['gnumed-bugs@gnu.org']
 
-		dlg = gmGuiHelpers.c2ButtonQuestionDlg (
-			parent,
-			-1,
-			caption = _('Sending bug report'),
-			question = _(
-				'Your bug report will be sent to:\n'
-				'\n'
-				'%s\n'
-				'\n'
-				'Make sure you have reviewed the log file for potentially\n'
-				'sensitive information before sending out the bug report.\n'
-				'\n'
-				'Note that emailing the report may take a while depending\n'
-				'on the speed of your internet connection.\n'
-			) % '\n'.join(receivers),
-			button_defs = [
-				{'label': _('Send report'), 'tooltip': _('Yes, send the bug report.')},
-				{'label': _('Cancel'), 'tooltip': _('No, do not send the bug report.')}
-			],
-			show_checkbox = True,
-			checkbox_msg = _('include log file in bug report')
-		)
-		dlg._CHBOX_dont_ask_again.SetValue(_is_public_database)
-		go_ahead = dlg.ShowModal()
-		if go_ahead == wx.ID_NO:
-			dlg.DestroyLater()
-			return
+	receiver_string = wx.GetTextFromUser (
+		message = _(
+			'Edit the list of email addresses to send the\n'
+			'bug report to (separate addresses by spaces).\n'
+			'\n'
+			'Note that <gnumed-bugs@gnu.org> refers to\n'
+			'the public (!) GNUmed bugs mailing list.'
+		),
+		caption = _('Sending bug report'),
+		default_value = ','.join(receivers),
+		parent = parent
+	)
+	if receiver_string.strip() == '':
+		return
 
-		include_log = dlg._CHBOX_dont_ask_again.GetValue()
-		if not _is_public_database:
-			if include_log:
-				result = gmGuiHelpers.gm_show_question (
-					_(
-						'The database you are connected to is marked as\n'
-						'"in-production with controlled access".\n'
-						'\n'
-						'You indicated that you want to include the log\n'
-						'file in your bug report. While this is often\n'
-						'useful for debugging the log file might contain\n'
-						'bits of patient data which must not be sent out\n'
-						'without de-identification.\n'
-						'\n'
-						'Please confirm that you want to include the log !'
-					),
-					_('Sending bug report')
-				)
-				include_log = (result is True)
+	receivers = regex.findall (
+		'[\S]+@[\S]+',
+		receiver_string,
+		flags = regex.UNICODE
+	)
 
-		if sender is None:
+	dlg = gmGuiHelpers.c2ButtonQuestionDlg (
+		parent,
+		-1,
+		caption = _('Sending bug report'),
+		question = _(
+			'Your bug report will be sent to:\n'
+			'\n'
+			'%s\n'
+			'\n'
+			'Make sure you have reviewed the log file for potentially\n'
+			'sensitive information before sending out the bug report.\n'
+			'\n'
+			'Note that emailing the report may take a while depending\n'
+			'on the speed of your internet connection.\n'
+		) % '\n'.join(receivers),
+		button_defs = [
+			{'label': _('Send report'), 'tooltip': _('Yes, send the bug report.')},
+			{'label': _('Cancel'), 'tooltip': _('No, do not send the bug report.')}
+		],
+		show_checkbox = True,
+		checkbox_msg = _('include log file in bug report')
+	)
+	dlg._CHBOX_dont_ask_again.SetValue(_is_public_database)
+	go_ahead = dlg.ShowModal()
+	if go_ahead == wx.ID_NO:
+		dlg.DestroyLater()
+		return
+
+	include_log = dlg._CHBOX_dont_ask_again.GetValue()
+	if not _is_public_database:
+		if include_log:
+			result = gmGuiHelpers.gm_show_question (
+				_(
+					'The database you are connected to is marked as\n'
+					'"in-production with controlled access".\n'
+					'\n'
+					'You indicated that you want to include the log\n'
+					'file in your bug report. While this is often\n'
+					'useful for debugging the log file might contain\n'
+					'bits of patient data which must not be sent out\n'
+					'without de-identification.\n'
+					'\n'
+					'Please confirm that you want to include the log !'
+				),
+				_('Sending bug report')
+			)
+			include_log = (result is True)
+
+	if sender is None:
+		sender = _('<not supplied>')
+	else:
+		if sender.strip() == '':
 			sender = _('<not supplied>')
-		else:
-			if sender.strip() == '':
-				sender = _('<not supplied>')
 
-		msg = """\
+	msg = """\
 Report sent via GNUmed's handler for unexpected exceptions.
 
 user comment  : %s
@@ -405,34 +411,34 @@ sender email  : %s
  importance medium
 
 """ % (comment, _client_version, _local_account, _staff_name, sender)
-		if include_log:
-			_log.error(comment)
-			_log.warning('syncing log file for emailing')
-			gmLog2.flush()
-			attachments = [ [_logfile_name, 'text/plain', 'quoted-printable'] ]
-		else:
-			attachments = None
+	if include_log:
+		_log.error(comment)
+		_log.warning('syncing log file for emailing')
+		gmLog2.flush()
+		attachments = [ [_logfile_name, 'text/plain', 'quoted-printable'] ]
+	else:
+		attachments = None
 
-		dlg.DestroyLater()
+	dlg.DestroyLater()
 
-		wx.BeginBusyCursor()
-		_cfg = gmCfg2.gmCfgData()
-		try:
-			gmNetworkTools.compose_and_send_email (
-				sender = '%s <%s>' % (_staff_name, gmNetworkTools.default_mail_sender),
-				receiver = receivers,
-				subject = '<bug>: %s' % comment,
-				message = msg,
-				server = gmNetworkTools.default_mail_server,
-				auth = {'user': gmNetworkTools.default_mail_sender, 'password': 'gnumed-at-gmx-net'},
-				debug = _cfg.get(option = 'debug'),
-				attachments = attachments
-			)
-			gmDispatcher.send(signal='statustext', msg = _('Bug report has been emailed.'))
-		except:
-			_log.exception('cannot send bug report')
-			gmDispatcher.send(signal='statustext', msg = _('Bug report COULD NOT be emailed.'))
-		wx.EndBusyCursor()
+	wx.BeginBusyCursor()
+	_cfg = gmCfg2.gmCfgData()
+	try:
+		gmNetworkTools.compose_and_send_email (
+			sender = '%s <%s>' % (_staff_name, gmNetworkTools.default_mail_sender),
+			receiver = receivers,
+			subject = '<bug>: %s' % comment,
+			message = msg,
+			server = gmNetworkTools.default_mail_server,
+			auth = {'user': gmNetworkTools.default_mail_sender, 'password': 'gnumed-at-gmx-net'},
+			debug = _cfg.get(option = 'debug'),
+			attachments = attachments
+		)
+		gmDispatcher.send(signal='statustext', msg = _('Bug report has been emailed.'))
+	except:
+		_log.exception('cannot send bug report')
+		gmDispatcher.send(signal='statustext', msg = _('Bug report COULD NOT be emailed.'))
+	wx.EndBusyCursor()
 
 # ========================================================================
 from Gnumed.wxGladeWidgets import wxgUnhandledExceptionDlg
@@ -448,18 +454,20 @@ class cUnhandledExceptionDlg(wxgUnhandledExceptionDlg.wxgUnhandledExceptionDlg):
 
 		wxgUnhandledExceptionDlg.wxgUnhandledExceptionDlg.__init__(self, *args, **kwargs)
 
+		self.Title = '%s [#%s]' % (self.Title, os.getpid())
+
 		if _sender_email is not None:
 			self._TCTRL_sender.SetValue(_sender_email)
 		self._TCTRL_helpdesk.SetValue(_helpdesk)
 		self._TCTRL_logfile.SetValue(self.logfile)
 		t, v, tb = exception
-		self._TCTRL_exc_type.SetValue(str(t))
-		self._TCTRL_exc_value.SetValue(str(v))
 		self._TCTRL_traceback.SetValue(''.join(traceback.format_tb(tb)))
 
 		self.Fit()
+
 	#------------------------------------------
 	def _on_close_gnumed_button_pressed(self, evt):
+		evt.Skip()
 		comment = self._TCTRL_comment.GetValue()
 		if (comment is not None) and (comment.strip() != ''):
 			_log.error('user comment: %s', comment.strip())
@@ -471,10 +479,19 @@ class cUnhandledExceptionDlg(wxgUnhandledExceptionDlg.wxgUnhandledExceptionDlg):
 			_log.error('cannot backup log file')
 		top_win = wx.GetApp().GetTopWindow()
 		wx.CallAfter(top_win.Close)
-		evt.Skip()
+
+	#------------------------------------------
+	def _on_abort_gnumed_button_pressed(self, evt):
+		print('running os._exit(-99)')
+		os._exit(-999)
+		print('running os.kill(9) on current thread')
+		os.kill(os.getpid(), 9)
+		print('running sys.exit()')
+		sys.exit('-999: hard stop')
+
 	#------------------------------------------
 	def _on_mail_button_pressed(self, evt):
-
+		evt.Skip()
 		mail_log (
 			parent = self,
 			comment = self._TCTRL_comment.GetValue().strip(),
@@ -482,11 +499,11 @@ class cUnhandledExceptionDlg(wxgUnhandledExceptionDlg.wxgUnhandledExceptionDlg):
 			sender = self._TCTRL_sender.GetValue().strip()
 		)
 
-		evt.Skip()
 	#------------------------------------------
 	def _on_view_log_button_pressed(self, evt):
+		evt.Skip()
 		from Gnumed.pycommon import gmMimeLib
 		gmLog2.flush()
 		gmMimeLib.call_viewer_on_file(_logfile_name, block = False)
-		evt.Skip()
+
 # ========================================================================

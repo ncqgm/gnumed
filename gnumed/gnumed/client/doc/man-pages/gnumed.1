@@ -136,15 +136,17 @@ Well, show this help.
 
 .SH EXIT STATUS
 .TP
-Upon normal execution the exit status will be 0.
+ > 0: some error occurred while the GUI client was run
 .TP
-If an error occurred while the GUI was run, the exit status will be > 0.
+   0: normal termination of the client
 .TP
-If an error occurred while trying to run a tool, the exit status will be < 0.
+ < 0: some error occurred while trying to run a console tool
 .TP
-If an unknown tool was requested, the exit status will be -1.
+  -1: an unknown console tool was requested
 .TP
-If an error occurred while a known tool was run, the exit status will be < -1.
+< -1: an error occurred while a console tool was run
+.TP
+-999: hard abort of the client
 
 
 .SH ENVIRONMENT
