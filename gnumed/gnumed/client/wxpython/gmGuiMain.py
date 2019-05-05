@@ -3226,7 +3226,6 @@ class cStatusBar(wx.StatusBar):
 		self.SetStatusWidths([-1, 225])
 
 		self.__msg_fifo = []
-		self.__prev_text = None
 		self.__normal_background_colour = self.GetBackgroundColour()
 		self.__times_to_blink = 0
 
@@ -3242,21 +3241,21 @@ class cStatusBar(wx.StatusBar):
 		st = time.strftime('%Y %b %d  %H:%M:%S', t)
 		self.SetStatusText(st, 1)
 		if self.__times_to_blink > 0:
-			# this still seems to hang wxGTK
+			# this still seems to hang wxGTK ...
 			wx.CallAfter(self.__blink)
 
 	#----------------------------------------------
 	def SetStatusText(self, text, i=0):
 		msg = self.__update_history(text, i)
 		super().SetStatusText(msg, i)
-		if i == 0:
+		if (i == 0) and (msg != ''):
 			self.__times_to_blink = 6
 
 	#----------------------------------------------
 	def PushStatusText(self, string, field=0):
 		msg = self.__update_history(string, field)
 		super().PushStatusText(msg, field)
-		if field == 0:
+		if (field == 0) and (msg != ''):
 			self.__times_to_blink = 6
 
 	#----------------------------------------------
@@ -3271,26 +3270,31 @@ class cStatusBar(wx.StatusBar):
 	def __update_history(self, msg, field):
 		if field > 0:
 			return msg
+
 		msg = msg.strip()
 		if msg == '':
 			return msg
 
 		now = gmDateTime.pydt_now_here().strftime('%H:%M')
-		if msg == self.__prev_text:
-			prev = self.__msg_fifo.pop(0)
-			prev_time = prev[:5]
-			prev_text = prev[6:]
-			msg = '%s %s [%s]' % (now, prev_text, prev_time)
-		else:
-			self.__prev_text = msg
-			msg = '%s %s' % (now, msg)
-		self.__msg_fifo.insert(0, msg)
-		if len(self.__msg_fifo) > 15:
+		if len(self.__msg_fifo) == 0:
+			self.__msg_fifo.append({'msg': msg, 'timestamps': [now]})
+			return '%s %s' % (now, msg)
+
+		last = self.__msg_fifo[0]
+		if msg == last['msg']:
+			last['timestamps'].insert(0, now)
+			return '%s %s (#%s)' % (now, msg, len(last['timestamps']))
+
+		self.__msg_fifo.insert(0, {'msg': msg, 'timestamps': [now]})
+		if len(self.__msg_fifo) > 20:
 			self.__msg_fifo = self.__msg_fifo[:20]
-		return msg
+		return '%s %s' % (now, msg)
 
 	#----------------------------------------------
 	def _on_show_history(self, evt):
+		lines = []
+		for entry in self.__msg_fifo:
+			lines.append('%s (%s)' % (entry['msg'], ','.join(entry['timestamps'])))
 		gmGuiHelpers.gm_show_info (
 			title = _('Statusbar history'),
 			info = _(
@@ -3299,7 +3303,7 @@ class cStatusBar(wx.StatusBar):
 				'%s'
 			) % (
 				gmDateTime.pydt_now_here().strftime('%H:%M'),
-				'\n'.join(self.__msg_fifo)
+				'\n'.join(lines)
 			)
 		)
 
