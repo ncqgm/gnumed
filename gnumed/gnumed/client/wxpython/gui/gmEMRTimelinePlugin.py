@@ -5,10 +5,11 @@ __doc__ = """ This is the EMR Timeline plugin."""
 __author__ = "karsten.hilbert@gmx.net"
 __license__ = "GPL v2 or later"
 
-raise Exception
-
-
 import logging
+
+_log = logging.getLogger('gm.ui')
+_log.error('timeline does not support Py3 / wxp4')
+raise Exception
 
 
 import wx
@@ -17,8 +18,6 @@ import wx
 from Gnumed.wxpython import gmPlugin, gmEMRTimelineWidgets
 from Gnumed.wxpython import gmAccessPermissionWidgets
 
-
-_log = logging.getLogger('gm.ui')
 #================================================================
 class gmEMRTimelinePlugin(gmPlugin.cNotebookPlugin):
 
