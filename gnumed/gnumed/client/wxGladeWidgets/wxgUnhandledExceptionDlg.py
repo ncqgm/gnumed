@@ -26,7 +26,7 @@ class wxgUnhandledExceptionDlg(wx.Dialog):
 		self._TCTRL_traceback = wx.TextCtrl(self, wx.ID_ANY, "", style=wx.HSCROLL | wx.TE_MULTILINE | wx.TE_READONLY)
 		self._BTN_ok = wx.Button(self, wx.ID_OK, _("Keep running"))
 		self._BTN_close = wx.Button(self, wx.ID_CANCEL, _("Close GNUmed"))
-		self._BTN_abort = wx.Button(self, wx.ID_ANY, _("Abort GNUmed"))
+		self._BTN_abort = wx.Button(self, wx.ID_ANY, _(u"\u2620 Abort GNUmed \u2620"))
 		self._BTN_view_log = wx.Button(self, wx.ID_ANY, _("View log"))
 		self._BTN_mail = wx.Button(self, wx.ID_ANY, _("Send report"))
 

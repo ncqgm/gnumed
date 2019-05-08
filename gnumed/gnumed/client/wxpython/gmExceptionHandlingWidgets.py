@@ -272,6 +272,10 @@ def install_wx_exception_handler():
 
 	gmDispatcher.connect(signal = 'application_closing', receiver = _on_application_closing)
 
+	global APP_PID
+	APP_PID = os.getpid()
+	_log.debug('registered PID [%s] for aborting if necessary', APP_PID)
+
 	global _prev_excepthook
 	_prev_excepthook = sys.excepthook
 	sys.excepthook = handle_uncaught_exception_wx
@@ -454,7 +458,7 @@ class cUnhandledExceptionDlg(wxgUnhandledExceptionDlg.wxgUnhandledExceptionDlg):
 
 		wxgUnhandledExceptionDlg.wxgUnhandledExceptionDlg.__init__(self, *args, **kwargs)
 
-		self.Title = '%s [#%s]' % (self.Title, os.getpid())
+		self.Title = '%s [#%s]' % (self.Title, APP_PID)
 
 		if _sender_email is not None:
 			self._TCTRL_sender.SetValue(_sender_email)
@@ -485,12 +489,15 @@ class cUnhandledExceptionDlg(wxgUnhandledExceptionDlg.wxgUnhandledExceptionDlg):
 
 	#------------------------------------------
 	def _on_abort_gnumed_button_pressed(self, evt):
-		print('running os._exit(-99)')
+		print('running os._exit(-999)')
 		os._exit(-999)
-		print('running os.kill(9) on current thread')
-		os.kill(os.getpid(), 9)
+		print('running os.kill(9) on current process')
+		os.kill(APP_PID, 9)
 		print('running sys.exit()')
-		sys.exit('-999: hard stop')
+		sys.exit(-999)
+		# ideas:
+		# - start timer thread with abort code from [close] button
+		# - start a detached shell script at the OS level with "sleep 20 ; kill -15 PID ; kill -9 PID"
 
 	#------------------------------------------
 	def _on_mail_button_pressed(self, evt):
