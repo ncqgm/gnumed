@@ -42,8 +42,37 @@ from Gnumed.exporters import gmPatientExporter
 
 
 _log = logging.getLogger('gm.ui')
+
 #============================================================
 # narrative related widgets/functions
+#------------------------------------------------------------
+def edit_narrative(parent=None, narrative=None, single_entry=False):
+	if narrative is None:
+		return False
+
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+	dlg = gmGuiHelpers.cMultilineTextEntryDlg (
+		parent,
+		-1,
+		title = _('Editing progress note'),
+		msg = _('This is the original progress note:'),
+		data = narrative.format(left_margin = ' ', fancy = True),
+		text = narrative['narrative']
+	)
+	decision = dlg.ShowModal()
+	val = dlg.value.strip()
+	dlg.DestroyLater()
+	if decision != wx.ID_SAVE:
+		return False
+
+	if val == '':
+		return False
+
+	narrative['narrative'] = val
+	narrative.save_payload()
+	return True
+
 #------------------------------------------------------------
 def move_progress_notes_to_another_encounter(parent=None, encounters=None, episodes=None, patient=None, move_all=False):
 

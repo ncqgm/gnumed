@@ -29,6 +29,18 @@ from Gnumed.wxpython import gmRegetMixin
 _log = logging.getLogger('gm.ui')
 
 #======================================================================
+def edit_allergies(parent=None, allergy=None, single_entry=False):
+	"Fake wrapper, will always call the allergy manager."
+
+	dlg = cAllergyManagerDlg(parent = parent, id = -1)
+	result = dlg.ShowModal()
+	dlg.DestroyLater()
+	if result != wx.ID_OK:
+		return False
+
+	return True
+
+#======================================================================
 from Gnumed.wxGladeWidgets import wxgAllergyEditAreaPnl
 
 class cAllergyEditAreaPnl(wxgAllergyEditAreaPnl.wxgAllergyEditAreaPnl):
@@ -244,6 +256,7 @@ class cAllergyManagerDlg(wxgAllergyManagerDlg.wxgAllergyManagerDlg):
 		#self._PNL_edit_area._ChBOX_definite.MoveAfterInTabOrder(self._BTN_save)
 		self.__refresh_state_ui()
 		self.__refresh_details_ui()
+
 	#--------------------------------------------------------
 	# internal helpers
 	#--------------------------------------------------------
@@ -354,12 +367,14 @@ class cAllergyManagerDlg(wxgAllergyManagerDlg.wxgAllergyManagerDlg):
 			self.EndModal(wx.ID_OK)
 		else:
 			self.Close()
+
 	#--------------------------------------------------------
 	def _on_clear_button_pressed(self, evt):
 		self._LCTRL_allergies.deselect_selected_item()
 		self._PNL_edit_area.clear()
 		self._BTN_delete.Enable(False)
 		self._LBL_message.SetLabel(_('Input new allergy item:'))
+
 	#--------------------------------------------------------
 	def _on_delete_button_pressed(self, evt):
 		pat = gmPerson.gmCurrentPatient()
@@ -437,6 +452,7 @@ class cAllergyManagerDlg(wxgAllergyManagerDlg.wxgAllergyManagerDlg):
 
 		self.__refresh_state_ui()
 		self.__refresh_details_ui()
+
 #======================================================================
 class cAllergyPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 	"""Allergy details panel.

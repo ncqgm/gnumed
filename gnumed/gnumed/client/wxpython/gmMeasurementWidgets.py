@@ -342,14 +342,14 @@ def call_browser_on_measurement_type(measurement_type=None):
 	gmNetworkTools.open_url_in_browser(url = url)
 
 #----------------------------------------------------------------
-def edit_measurement(parent=None, measurement=None, single_entry=False, fields=None):
+def edit_measurement(parent=None, measurement=None, single_entry=False, presets=None):
 	ea = cMeasurementEditAreaPnl(parent, -1)
 	ea.data = measurement
 	ea.mode = gmTools.coalesce(measurement, 'new', 'edit')
 	dlg = gmEditArea.cGenericEditAreaDlg2(parent, -1, edit_area = ea, single_entry = single_entry)
 	dlg.SetTitle(gmTools.coalesce(measurement, _('Adding new measurement'), _('Editing measurement')))
-	if fields is not None:
-		ea.set_fields(fields)
+	if presets is not None:
+		ea.set_fields(presets)
 	if dlg.ShowModal() == wx.ID_OK:
 		dlg.DestroyLater()
 		return True
@@ -2357,34 +2357,34 @@ class cMeasurementsGrid(wx.grid.Grid):
 		try:
 			self.__cell_data[col][row]
 		except KeyError:		# empty cell
-			fields = {}
+			presets = {}
 			col_date = self.__col_label_data[col]
-			fields['clin_when'] = {'data': col_date}
+			presets['clin_when'] = {'data': col_date}
 			test_type = self.__row_label_data[row]
 			temporally_closest_result_of_row_type = test_type.meta_test_type.get_temporally_closest_result(col_date, self.__patient.ID)
 			if temporally_closest_result_of_row_type is not None:
-				fields['pk_test_type'] = {'data': temporally_closest_result_of_row_type['pk_test_type']}
+				presets['pk_test_type'] = {'data': temporally_closest_result_of_row_type['pk_test_type']}
 			same_day_results = gmPathLab.get_results_for_day (
 				timestamp = col_date,
 				patient = self.__patient.ID,
 				order_by = None
 			)
 			if len(same_day_results) > 0:
-				fields['pk_episode'] = {'data': same_day_results[0]['pk_episode']}
+				presets['pk_episode'] = {'data': same_day_results[0]['pk_episode']}
 				# maybe ['comment'] as in "medical context" ? - not thought through yet
 			# no need to set because because setting pk_test_type will do so:
-			#	fields['val_unit']
-			#	fields['val_normal_min']
-			#	fields['val_normal_max']
-			#	fields['val_normal_range']
-			#	fields['val_target_min']
-			#	fields['val_target_max']
-			#	fields['val_target_range']
+			#	presets['val_unit']
+			#	presets['val_normal_min']
+			#	presets['val_normal_max']
+			#	presets['val_normal_range']
+			#	presets['val_target_min']
+			#	presets['val_target_max']
+			#	presets['val_target_range']
 			edit_measurement (
 				parent = self,
 				measurement = None,
 				single_entry = True,
-				fields = fields
+				presets = presets
 			)
 			return
 

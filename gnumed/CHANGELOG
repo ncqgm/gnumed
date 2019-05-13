@@ -24,6 +24,7 @@ NEW: $bill_scan2pay$ support
 NEW: status bar history/visual bell
 NEW: dicomize PDF into DICOM study
 NEW: [Abort] client from exception dialog
+NEW: edit clinical item from EMR list journal
 
 IMPROVED: symbolic link creation on Windows
 IMPROVED: Orthanc connection handling

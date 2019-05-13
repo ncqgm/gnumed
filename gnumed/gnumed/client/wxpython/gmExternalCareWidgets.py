@@ -96,11 +96,11 @@ def manage_external_care(parent=None):
 	)
 
 #----------------------------------------------------------------
-def edit_external_care_item(parent=None, external_care_item=None):
+def edit_external_care_item(parent=None, external_care_item=None, single_entry=True):
 	ea = cExternalCareEAPnl(parent, -1)
 	ea.data = external_care_item
 	ea.mode = gmTools.coalesce(external_care_item, 'new', 'edit')
-	dlg = gmEditArea.cGenericEditAreaDlg2(parent, -1, edit_area = ea, single_entry = True)
+	dlg = gmEditArea.cGenericEditAreaDlg2(parent, -1, edit_area = ea, single_entry = single_entry)
 	dlg.SetTitle(gmTools.coalesce(external_care_item, _('Adding external care'), _('Editing external care')))
 	if dlg.ShowModal() == wx.ID_OK:
 		dlg.DestroyLater()

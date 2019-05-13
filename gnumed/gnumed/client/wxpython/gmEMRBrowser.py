@@ -47,6 +47,7 @@ from Gnumed.wxpython import gmFormWidgets
 from Gnumed.wxpython import gmTimer
 from Gnumed.wxpython import gmHospitalStayWidgets
 from Gnumed.wxpython import gmProcedureWidgets
+from Gnumed.wxpython import gmClinicalItemWorkflows
 
 
 _log = logging.getLogger('gm.ui')
@@ -1499,6 +1500,7 @@ class cEMRListJournalPluginPnl(wxgEMRListJournalPluginPnl.wxgEMRListJournalPlugi
 		wxgEMRListJournalPluginPnl.wxgEMRListJournalPluginPnl.__init__(self, *args, **kwds)
 
 		self._LCTRL_journal.select_callback = self._on_row_selected
+		self._LCTRL_journal.activate_callback = self._on_row_activated
 		self._TCTRL_details.SetValue('')
 
 		self.__load_timer = gmTimer.cTimer(callback = self._on_load_details, delay = 1000, cookie = 'EMRListJournalPluginDBLoadTimer')
@@ -1580,102 +1582,6 @@ class cEMRListJournalPluginPnl(wxgEMRListJournalPluginPnl.wxgEMRListJournalPlugi
 		return True
 
 	#--------------------------------------------------------
-#	def _old_repopulate_ui(self):
-#		self._LCTRL_journal.remove_items_safely()
-#		self._TCTRL_details.SetValue('')
-#
-#		if self._RBTN_by_encounter.Value:		# (... is True:)
-#			order_by = 'encounter_started, pk_episode, src_table, scr, modified_when'
-#						#, clin_when (should not make a relevant difference)
-#			date_col_header = _('Encounter')
-#			date_fields = ['encounter_started', 'modified_when']
-#		elif self._RBTN_by_last_modified.Value:	# (... is True:)
-#			order_by = 'modified_when, pk_episode, src_table, scr'
-#						#, clin_when (should not make a relevant difference)
-#			date_col_header = _('Modified')
-#			date_fields = ['modified_when']
-#		elif self._RBTN_by_item_time.Value:		# (... is True:)
-#			order_by = 'clin_when, pk_episode, src_table, scr, modified_when'
-#			date_col_header = _('Clinical time')
-#			date_fields = ['clin_when', 'modified_when']
-#		else:
-#			raise ValueError('invalid EMR journal list sort state')
-#
-#		self._LCTRL_journal.set_columns([date_col_header, '', _('Entry'), _('Who / When')])
-#		self._LCTRL_journal.set_resize_column(3)
-#
-#		journal = gmPerson.gmCurrentPatient().emr.get_as_journal(order_by = order_by)
-#
-#		self.__data = {}
-#		items = []
-#		data = []
-#		prev_date = None
-#		for entry in journal:
-#			if entry['narrative'].strip() == '':
-#				continue
-#			# process metadata
-#			soap_cat = gmSoapDefs.soap_cat2l10n[entry['soap_cat']]
-#			who = '%s (%s)' % (entry['modified_by'], entry['date_modified'])
-#			try:
-#				entry_date = gmDateTime.pydt_strftime(entry[date_fields[0]], '%Y-%m-%d')
-#			except KeyError:
-#				entry_date = gmDateTime.pydt_strftime(entry[date_fields[1]], '%Y-%m-%d')
-#			if entry_date == prev_date:
-#				date2show = ''
-#			else:
-#				date2show = entry_date
-#				prev_date = entry_date
-#			# process actual entry text
-#			lines_of_journal_entry = entry['narrative'].strip().split('\n')
-#			line_0 = lines_of_journal_entry[0].rstrip()				# assumes there's at least one line ...
-#			if len(lines_of_journal_entry) == 1:
-#				delim = gmTools.u_box_horiz_light_3dashes * 10 + gmTools.u_box_T_left
-#			else:
-#				max_len = 0
-#				for l in lines_of_journal_entry:
-#					max_len = max(max_len, len(l.rstrip()))
-#				#delim = (gmTools.u_box_horiz_light_3dashes * 10) + gmTools.u_box_top_right_arc
-#				#delim = (gmTools.u_box_horiz_light_3dashes * (max_len - len(line_0))) + gmTools.u_box_top_right_arc
-#				horiz_len = max((max_len - len(line_0), 1))
-#				delim = (gmTools.u_box_horiz_high * horiz_len) + '\\'
-#			entry_line = '%s %s' % (line_0, delim)
-#			items.append([date2show, soap_cat, entry_line, who])
-#			data.append ({
-#				'table': entry['src_table'],
-#				'pk': entry['src_pk']
-#			})
-#			if len(lines_of_journal_entry) > 1:
-#				lines_of_journal_entry = lines_of_journal_entry[1:]
-#				last_line_idx = len(lines_of_journal_entry)
-#				idx = 0
-#				for entry_line in lines_of_journal_entry:
-#					idx += 1
-#					if entry_line.strip() == '':
-#						continue
-#					if idx == last_line_idx:
-#						bar = gmTools.u_box_bottom_left_arc
-#						horiz_len = max((max_len - len(entry_line), 1))
-#						end = ' %s/' % ('_' * horiz_len)
-#					else:
-#						bar = gmTools.u_box_vert_light_4dashes
-#						end = ''
-#					items.append(['', bar, entry_line.rstrip() + end, who])
-#					data.append ({
-#						'table': entry['src_table'],
-#						'pk': entry['src_pk']
-#					})
-#			self.__register_journal_entry(entry)
-#
-#		self._LCTRL_journal.set_string_items(items)
-##		for item_idx in range(self._LCTRL_journal.ItemCount):
-##			self._LCTRL_journal.SetItemBackgroundColour(item_idx, 'green')
-#		self._LCTRL_journal.set_column_widths([wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE_USEHEADER])
-#		self._LCTRL_journal.set_data(data)
-#
-#		self._LCTRL_journal.SetFocus()
-#		return True
-
-	#--------------------------------------------------------
 	# internal helpers
 	#--------------------------------------------------------
 	def __register_events(self):
@@ -1753,8 +1659,15 @@ class cEMRListJournalPluginPnl(wxgEMRListJournalPluginPnl.wxgEMRListJournalPlugi
 		return True
 
 	#--------------------------------------------------------
+	def _on_row_activated(self, evt):
+		data = self._LCTRL_journal.get_item_data(item_idx = evt.Index)
+		# move to businessobjworkflows or so
+		instance = gmClinicalRecord.instantiate_clin_root_item(data['table'], data['pk'])
+		if gmClinicalItemWorkflows.edit_item_in_dlg(parent = self, item = instance):
+			self.repopulate_ui()
+
+	#--------------------------------------------------------
 	def _on_row_selected(self, evt):
-		# FIXME: work on all selected
 		data = self._LCTRL_journal.get_item_data(item_idx = evt.Index)
 		if self.__data[data['table']][data['pk']]['formatted_instance'] is None:
 			txt = _(
@@ -1766,7 +1679,6 @@ class cEMRListJournalPluginPnl(wxgEMRListJournalPluginPnl.wxgEMRListJournalPlugi
 				gmTools.u_box_horiz_4dashes * 40,
 				self.__data[data['table']][data['pk']]['formatted_root_item']
 			)
-
 			self._TCTRL_details.SetValue(txt)
 			self.__load_timer.Stop()
 			self.__load_timer.Start(oneShot = True)

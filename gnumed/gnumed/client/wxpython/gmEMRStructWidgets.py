@@ -73,11 +73,11 @@ def emr_access_spinner(time2spin=0):
 #================================================================
 # episode related widgets/functions
 #----------------------------------------------------------------
-def edit_episode(parent=None, episode=None):
+def edit_episode(parent=None, episode=None, single_entry=True):
 	ea = cEpisodeEditAreaPnl(parent, -1)
 	ea.data = episode
 	ea.mode = gmTools.coalesce(episode, 'new', 'edit')
-	dlg = gmEditArea.cGenericEditAreaDlg2(parent, -1, edit_area = ea, single_entry = True)
+	dlg = gmEditArea.cGenericEditAreaDlg2(parent, -1, edit_area = ea, single_entry = single_entry)
 	dlg.SetTitle(gmTools.coalesce(episode, _('Adding a new episode'), _('Editing an episode')))
 	if dlg.ShowModal() == wx.ID_OK:
 		return True
@@ -658,17 +658,18 @@ class cEpisodeEditAreaPnl(gmEditArea.cGenericEditAreaMixin, wxgEpisodeEditAreaPn
 #================================================================
 # health issue related widgets/functions
 #----------------------------------------------------------------
-def edit_health_issue(parent=None, issue=None):
+def edit_health_issue(parent=None, issue=None, single_entry=False):
 	ea = cHealthIssueEditAreaPnl(parent, -1)
 	ea.data = issue
 	ea.mode = gmTools.coalesce(issue, 'new', 'edit')
-	dlg = gmEditArea.cGenericEditAreaDlg2(parent, -1, edit_area = ea, single_entry = (issue is not None))
+	dlg = gmEditArea.cGenericEditAreaDlg2(parent, -1, edit_area = ea, single_entry = single_entry)
 	dlg.SetTitle(gmTools.coalesce(issue, _('Adding a new health issue'), _('Editing a health issue')))
 	if dlg.ShowModal() == wx.ID_OK:
 		dlg.DestroyLater()
 		return True
 	dlg.DestroyLater()
 	return False
+
 #----------------------------------------------------------------
 def select_health_issues(parent=None, emr=None):
 
@@ -1250,6 +1251,7 @@ limit 50""" % gmPerson.gmCurrentPatient().ID
 	def _on_modified_year_noted(self, *args, **kwargs):
 		wx.CallAfter(self._PRW_age_noted.SetText, '', None, True)
 		return True
+
 #================================================================
 # diagnostic certainty related widgets/functions
 #----------------------------------------------------------------

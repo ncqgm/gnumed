@@ -218,7 +218,7 @@ def sanity_check_encounter_of_active_patient(parent=None, msg=None):
 	return True
 
 #----------------------------------------------------------------
-def edit_encounter(parent=None, encounter=None, msg=None):
+def edit_encounter(parent=None, encounter=None, msg=None, single_entry=False):
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
 

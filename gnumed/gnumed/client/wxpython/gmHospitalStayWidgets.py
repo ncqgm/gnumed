@@ -100,11 +100,11 @@ def manage_hospital_stays(parent=None):
 	)
 
 #----------------------------------------------------------------
-def edit_hospital_stay(parent=None, hospital_stay=None):
+def edit_hospital_stay(parent=None, hospital_stay=None, single_entry=True):
 	ea = cHospitalStayEditAreaPnl(parent, -1)
 	ea.data = hospital_stay
 	ea.mode = gmTools.coalesce(hospital_stay, 'new', 'edit')
-	dlg = gmEditArea.cGenericEditAreaDlg2(parent, -1, edit_area = ea, single_entry = True)
+	dlg = gmEditArea.cGenericEditAreaDlg2(parent, -1, edit_area = ea, single_entry = single_entry)
 	dlg.SetTitle(gmTools.coalesce(hospital_stay, _('Adding a hospitalization'), _('Editing a hospitalization')))
 	if dlg.ShowModal() == wx.ID_OK:
 		dlg.DestroyLater()
