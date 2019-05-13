@@ -282,6 +282,7 @@ def create_xxx(xxx=None, xxx=None):
 
 	return cXxxXxx(aPK_obj = rows[0]['pk'])
 	#return cXxxXxx(row = {'data': r, 'idx': idx, 'pk_field': 'pk_XXX'})
+
 #------------------------------------------------------------
 def delete_xxx(pk_XXX=None):
 	args = {'pk': pk_XXX}
@@ -289,6 +290,21 @@ def delete_xxx(pk_XXX=None):
 	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 	return True
 #------------------------------------------------------------
+
+#------------------------------------------------------------
+# widget code
+#------------------------------------------------------------
+def edit_xxx(parent=None, xxx=None, single_entry=False, presets=None):
+
+#------------------------------------------------------------
+def delete_xxx()
+
+#------------------------------------------------------------
+def manage_xxx()
+
+#------------------------------------------------------------
+# remember to add in clinical item generic workflows
+
 
 *********** end of template ***********
 
