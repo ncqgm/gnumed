@@ -142,7 +142,7 @@ class cExternalCareEAPnl(wxgExternalCareEAPnl.wxgExternalCareEAPnl, gmEditArea.c
 		if self._PRW_care_location.GetData() is None:
 			validity = False
 			self._PRW_care_location.display_as_valid(False)
-			self.status_message = _('No entry in field "Care Location".')
+			self.StatusText = _('No entry in field "Care Location".')
 			self._PRW_care_location.SetFocus()
 		else:
 			self._PRW_care_location.display_as_valid(True)
@@ -155,7 +155,7 @@ class cExternalCareEAPnl(wxgExternalCareEAPnl.wxgExternalCareEAPnl, gmEditArea.c
 			else:
 				validity = False
 				self._PRW_issue.display_as_valid(False)
-				self.status_message = _('No entry in field [Care Target].')
+				self.StatusText = _('No entry in field [Care Target].')
 				self._PRW_issue.SetFocus()
 
 		return validity

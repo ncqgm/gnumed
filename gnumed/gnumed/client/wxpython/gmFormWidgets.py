@@ -550,7 +550,7 @@ class cFormTemplateEAPnl(wxgFormTemplateEditAreaPnl.wxgFormTemplateEditAreaPnl, 
 			except:
 				validity = False
 				self.display_tctrl_as_valid(tctrl = self._TCTRL_filename, valid = False)
-				self.status_message = _('You must select a template file before saving.')
+				self.StatusText = _('You must select a template file before saving.')
 				self._TCTRL_filename.SetFocus()
 		# 2) existing template
 		# - empty = no change
@@ -561,7 +561,7 @@ class cFormTemplateEAPnl(wxgFormTemplateEditAreaPnl.wxgFormTemplateEditAreaPnl, 
 		if self._PRW_instance_type.GetValue().strip() == '':
 			validity = False
 			self._PRW_instance_type.display_as_valid(False)
-			self.status_message = _('You must enter a type for documents created with this template.')
+			self.StatusText = _('You must enter a type for documents created with this template.')
 			self._PRW_instance_type.SetFocus()
 		else:
 			self._PRW_instance_type.display_as_valid(True)
@@ -570,7 +570,7 @@ class cFormTemplateEAPnl(wxgFormTemplateEditAreaPnl.wxgFormTemplateEditAreaPnl, 
 		if self._PRW_template_type.GetData() is None:
 			validity = False
 			self._PRW_template_type.display_as_valid(False)
-			self.status_message = _('You must enter a type for this template.')
+			self.StatusText = _('You must enter a type for this template.')
 			self._PRW_template_type.SetFocus()
 		else:
 			self._PRW_template_type.display_as_valid(True)
@@ -579,7 +579,7 @@ class cFormTemplateEAPnl(wxgFormTemplateEditAreaPnl.wxgFormTemplateEditAreaPnl, 
 		if self._TCTRL_external_version.GetValue().strip() == '':
 			validity = False
 			self.display_tctrl_as_valid(tctrl = self._TCTRL_external_version, valid = False)
-			self.status_message = _('You must enter a version for this template.')
+			self.StatusText = _('You must enter a version for this template.')
 			self._TCTRL_external_version.SetFocus()
 		else:
 			self.display_tctrl_as_valid(tctrl = self._TCTRL_external_version, valid = True)
@@ -588,7 +588,7 @@ class cFormTemplateEAPnl(wxgFormTemplateEditAreaPnl.wxgFormTemplateEditAreaPnl, 
 		if self._PRW_name_short.GetValue().strip() == '':
 			validity = False
 			self._PRW_name_short.display_as_valid(False)
-			self.status_message = _('Missing short name for template.')
+			self.StatusText = _('Missing short name for template.')
 			self._PRW_name_short.SetFocus()
 		else:
 			self._PRW_name_short.display_as_valid(True)
@@ -597,7 +597,7 @@ class cFormTemplateEAPnl(wxgFormTemplateEditAreaPnl.wxgFormTemplateEditAreaPnl, 
 		if self._PRW_name_long.GetValue().strip() == '':
 			validity = False
 			self._PRW_name_long.display_as_valid(False)
-			self.status_message = _('Missing long name for template.')
+			self.StatusText = _('Missing long name for template.')
 			self._PRW_name_long.SetFocus()
 		else:
 			self._PRW_name_long.display_as_valid(True)

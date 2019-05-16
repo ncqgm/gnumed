@@ -74,7 +74,7 @@ class cXxxEAPnl(wxgXxxEAPnl.wxgXxxEAPnl, gmEditArea.cGenericEditAreaMixin):
 		if self._TCTRL_xxx.GetValue().strip() == u'':
 			validity = False
 			self.display_tctrl_as_valid(tctrl = self._TCTRL_xxx, valid = False)
-			self.status_message = _('No entry in field xxx.')
+			self.StatusText = _('No entry in field xxx.')
 			self._TCTRL_xxx.SetFocus()
 		else:
 			self.display_tctrl_as_valid(tctrl = self._TCTRL_xxx, valid = True)
@@ -82,7 +82,7 @@ class cXxxEAPnl(wxgXxxEAPnl.wxgXxxEAPnl, gmEditArea.cGenericEditAreaMixin):
 		if self._PRW_xxx.GetData() is None:
 			validity = False
 			self._PRW_xxx.display_as_valid(False)
-			self.status_message = _('No entry in field xxx.')
+			self.StatusText = _('No entry in field xxx.')
 			self._PRW_xxx.SetFocus()
 		else:
 			self._PRW_xxx.display_as_valid(True)
@@ -201,10 +201,10 @@ class cXxxEAPnl(wxgXxxEAPnl.wxgXxxEAPnl, gmEditArea.cGenericEditAreaMixin):
 	data = property(_get_data, _set_data)
 
 	#----------------------------------------------------------------
-	def show_msg(self, msg):
-		gmDispatcher.send(signal = 'statustext', msg = msg)
+	def _set_status_text(self, msg, beep=False):
+		gmDispatcher.send(signal = 'statustext_ea', msg = msg, beep = beep)
 
-	status_message = property(lambda x:x, show_msg)
+	StatusText = property(lambda x:x, _set_status_text)
 
 	#----------------------------------------------------------------
 	# generic edit area dialog API
@@ -224,7 +224,7 @@ class cXxxEAPnl(wxgXxxEAPnl.wxgXxxEAPnl, gmEditArea.cGenericEditAreaMixin):
 			return False
 
 		# remove messages about previous invalid save attempts
-		gmDispatcher.send(signal = 'statustext', msg = '')
+		gmDispatcher.send(signal = 'statustext_ea', msg = '')
 
 		if self.__mode in ['new', 'new_from_existing']:
 			if self._save_as_new():
@@ -300,10 +300,11 @@ class cGenericEditAreaDlg2(wxgGenericEditAreaDlg2.wxgGenericEditAreaDlg2):
 
 		try:
 			title = kwargs['title']
-			if not title.startswith('GMd: '):
-				kwargs['title'] = 'GMd: %s' % title
 		except KeyError:
-			kwargs['title'] = 'GMd: %s' % self.__class__.__name__
+			title = self.__class__.__name__
+		if not title.startswith('GMd: '):
+			title = 'GMd: %s' % title
+		kwargs['title'] = title
 
 		wxgGenericEditAreaDlg2.wxgGenericEditAreaDlg2.__init__(self, *args, **kwargs)
 
@@ -340,10 +341,9 @@ class cGenericEditAreaDlg2(wxgGenericEditAreaDlg2.wxgGenericEditAreaDlg2):
 
 		# attach listener
 		self._TCTRL_status.SetValue('')
-		gmDispatcher.connect(signal = 'statustext', receiver = self._on_set_statustext)
+		gmDispatcher.connect(signal = 'statustext_ea', receiver = self._on_set_statustext)
 
 		# redraw layout
-		#self.Layout()
 		main_szr = self.GetSizer()
 		main_szr.Fit(self)
 		self.Layout()
@@ -352,15 +352,12 @@ class cGenericEditAreaDlg2(wxgGenericEditAreaDlg2.wxgGenericEditAreaDlg2):
 		self._PNL_ea.refresh()
 
 	#--------------------------------------------------------
-	def _on_set_statustext(self, msg=None, loglevel=None, beep=True):
+	def _on_set_statustext(self, msg=None, loglevel=None, beep=False):
 		if msg is None:
-			self._TCTRL_status.SetValue('')
-			return
-		if msg.strip() == '':
-			self._TCTRL_status.SetValue('')
-			return
-		self._TCTRL_status.SetValue(msg)
-		return
+			msg = ''
+		self._TCTRL_status.SetValue(msg.strip())
+		if beep:
+			wx.Bell()
 
 	#--------------------------------------------------------
 	def _adjust_clear_revert_buttons(self):
@@ -374,25 +371,29 @@ class cGenericEditAreaDlg2(wxgGenericEditAreaDlg2.wxgGenericEditAreaDlg2):
 			self._BTN_clear.Hide()
 			self._BTN_revert.Enable(True)
 			self._BTN_revert.Show()
+
 	#--------------------------------------------------------
 	def _on_save_button_pressed(self, evt):
 		if self._PNL_ea.save():
-			gmDispatcher.disconnect(signal = 'statustext', receiver = self._on_set_statustext)
+			gmDispatcher.disconnect(signal = 'statustext_ea', receiver = self._on_set_statustext)
 			if self.IsModal():
 				self.EndModal(wx.ID_OK)
 			else:
 				self.Close()
+
 	#--------------------------------------------------------
 	def _on_revert_button_pressed(self, evt):
 		self._PNL_ea.refresh()
+
 	#--------------------------------------------------------
 	def _on_clear_button_pressed(self, evt):
 		self._PNL_ea.refresh()
+
 	#--------------------------------------------------------
 	def _on_forward_button_pressed(self, evt):
 		if self._PNL_ea.save():
 			if self._PNL_ea.successful_save_msg is not None:
-				gmDispatcher.send(signal = 'statustext', msg = self._PNL_ea.successful_save_msg)
+				gmDispatcher.send(signal = 'statustext_ea', msg = self._PNL_ea.successful_save_msg)
 			self._PNL_ea.mode = 'new_from_existing'
 
 			self._adjust_clear_revert_buttons()
@@ -444,7 +445,18 @@ class cGenericEditAreaDlg2(wxgGenericEditAreaDlg2.wxgGenericEditAreaDlg2):
 
 	left_extra_button = property(lambda x:x, _set_left_extra_button)
 
-
+#====================================================================
+#====================================================================
+#====================================================================
+#====================================================================
+#====================================================================
+#====================================================================
+#====================================================================
+#====================================================================
+#====================================================================
+#====================================================================
+#====================================================================
+#====================================================================
 #====================================================================
 #====================================================================
 #====================================================================

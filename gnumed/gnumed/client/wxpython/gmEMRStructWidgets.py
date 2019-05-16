@@ -1046,6 +1046,7 @@ limit 50""" % gmPerson.gmCurrentPatient().ID
 				return False
 		self._PRW_age_noted.display_as_valid(True)
 		return True
+
 	#----------------------------------------------------------------
 	def _save_as_new(self):
 		pat = gmPerson.gmCurrentPatient()
@@ -1189,7 +1190,7 @@ limit 50""" % gmPerson.gmCurrentPatient().ID
 		issue_age = gmDateTime.str2interval(str_interval = age_str)
 
 		if issue_age is None:
-			self.status_message = _('Cannot parse [%s] into valid interval.') % age_str
+			self.StatusText = _('Cannot parse [%s] into valid interval.') % age_str
 			self._PRW_age_noted.display_as_valid(False)
 			return True
 
@@ -1197,7 +1198,7 @@ limit 50""" % gmPerson.gmCurrentPatient().ID
 		if pat['dob'] is not None:
 			max_issue_age = pydt.datetime.now(tz=pat['dob'].tzinfo) - pat['dob']
 			if issue_age >= max_issue_age:
-				self.status_message = _('Health issue cannot have been noted at age %s. Patient is only %s old.') % (issue_age, pat.get_medical_age())
+				self.StatusText = _('Health issue cannot have been noted at age %s. Patient is only %s old.') % (issue_age, pat.get_medical_age())
 				self._PRW_age_noted.display_as_valid(False)
 				return True
 
@@ -1230,7 +1231,7 @@ limit 50""" % gmPerson.gmCurrentPatient().ID
 		year_noted = year_noted.get_pydt()
 
 		if year_noted >= pydt.datetime.now(tz = year_noted.tzinfo):
-			self.status_message = _('Condition diagnosed in the future.')
+			self.StatusText = _('Condition diagnosed in the future.')
 			self._PRW_year_noted.display_as_valid(False)
 			return True
 

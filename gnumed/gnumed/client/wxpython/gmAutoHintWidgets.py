@@ -441,7 +441,7 @@ class cDynamicHintListDlg(wxgDynamicHintListDlg.wxgDynamicHintListDlg):
 			pk_encounter = self.__pk_encounter
 		)
 		if not suppressed:
-			self.status_message = _('Cannot suppress hint.')
+			self.StatusText = _('Cannot suppress hint.')
 			return False
 		if len(self.__hints) == 1:
 			# singular hint now suppressed -> close
@@ -449,7 +449,7 @@ class cDynamicHintListDlg(wxgDynamicHintListDlg.wxgDynamicHintListDlg):
 				self.EndModal(wx.ID_APPLY)
 			else:
 				self.Close()
-		self.status_message = _('Hint now suppressed in this patient.')
+		self.StatusText = _('Hint now suppressed in this patient.')
 		pk_of_suppressed_hint = hint['pk_auto_hint']
 		remaining_hints = [ h for h in self.__hints if h['pk_auto_hint'] != pk_of_suppressed_hint ]
 		self.hints = remaining_hints
@@ -496,7 +496,7 @@ class cAutoHintEAPnl(wxgAutoHintEAPnl.wxgAutoHintEAPnl, gmEditArea.cGenericEditA
 		if self._TCTRL_source.GetValue().strip() == '':
 			validity = False
 			self.display_tctrl_as_valid(tctrl = self._TCTRL_source, valid = False)
-			self.status_message = _('No entry in field <Source>.')
+			self.StatusText = _('No entry in field <Source>.')
 			self._TCTRL_source.SetFocus()
 		else:
 			self.display_tctrl_as_valid(tctrl = self._TCTRL_source, valid = True)
@@ -504,7 +504,7 @@ class cAutoHintEAPnl(wxgAutoHintEAPnl.wxgAutoHintEAPnl, gmEditArea.cGenericEditA
 		if self._TCTRL_query.GetValue().strip() == '':
 			validity = False
 			self.display_tctrl_as_valid(tctrl = self._TCTRL_query, valid = False)
-			self.status_message = _('No entry in field <Conditions>.')
+			self.StatusText = _('No entry in field <Conditions>.')
 			self._TCTRL_query.SetFocus()
 		else:
 			# FIXME: run SQL
@@ -513,7 +513,7 @@ class cAutoHintEAPnl(wxgAutoHintEAPnl.wxgAutoHintEAPnl, gmEditArea.cGenericEditA
 		if self._TCTRL_hint.GetValue().strip() == '':
 			validity = False
 			self.display_tctrl_as_valid(tctrl = self._TCTRL_hint, valid = False)
-			self.status_message = _('No entry in field <Description>.')
+			self.StatusText = _('No entry in field <Description>.')
 			self._TCTRL_hint.SetFocus()
 		else:
 			self.display_tctrl_as_valid(tctrl = self._TCTRL_hint, valid = True)
@@ -521,7 +521,7 @@ class cAutoHintEAPnl(wxgAutoHintEAPnl.wxgAutoHintEAPnl, gmEditArea.cGenericEditA
 		if self._TCTRL_title.GetValue().strip() == '':
 			validity = False
 			self.display_tctrl_as_valid(tctrl = self._TCTRL_title, valid = False)
-			self.status_message = _('No entry in field <Title>.')
+			self.StatusText = _('No entry in field <Title>.')
 			self._TCTRL_title.SetFocus()
 		else:
 			self.display_tctrl_as_valid(tctrl = self._TCTRL_title, valid = True)

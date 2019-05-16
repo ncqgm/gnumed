@@ -230,14 +230,14 @@ class cBillableEAPnl(wxgBillableEAPnl.wxgBillableEAPnl, gmEditArea.cGenericEditA
 			else:
 				validity = False
 				self.display_tctrl_as_valid(tctrl = self._TCTRL_vat, valid = False)
-				self.status_message = _('VAT must be empty or a number.')
+				self.StatusText = _('VAT must be empty or a number.')
 				self._TCTRL_vat.SetFocus()
 
 		currency = self._TCTRL_currency.GetValue().strip()
 		if currency == '':
 			validity = False
 			self.display_tctrl_as_valid(tctrl = self._TCTRL_currency, valid = False)
-			self.status_message = _('Currency is missing.')
+			self.StatusText = _('Currency is missing.')
 			self._TCTRL_currency.SetFocus()
 		else:
 			self.display_tctrl_as_valid(tctrl = self._TCTRL_currency, valid = True)
@@ -248,13 +248,13 @@ class cBillableEAPnl(wxgBillableEAPnl.wxgBillableEAPnl, gmEditArea.cGenericEditA
 		else:
 			validity = False
 			self.display_tctrl_as_valid(tctrl = self._TCTRL_amount, valid = False)
-			self.status_message = _('Value is missing.')
+			self.StatusText = _('Value is missing.')
 			self._TCTRL_amount.SetFocus()
 
 		if self._TCTRL_description.GetValue().strip() == '':
 			validity = False
 			self.display_tctrl_as_valid(tctrl = self._TCTRL_description, valid = False)
-			self.status_message = _('Description is missing.')
+			self.StatusText = _('Description is missing.')
 			self._TCTRL_description.SetFocus()
 		else:
 			self.display_tctrl_as_valid(tctrl = self._TCTRL_description, valid = True)
@@ -262,7 +262,7 @@ class cBillableEAPnl(wxgBillableEAPnl.wxgBillableEAPnl, gmEditArea.cGenericEditA
 		if self._PRW_coding_system.GetData() is None:
 			validity = False
 			self._PRW_coding_system.display_as_valid(False)
-			self.status_message = _('Coding system is missing.')
+			self.StatusText = _('Coding system is missing.')
 			self._PRW_coding_system.SetFocus()
 		else:
 			self._PRW_coding_system.display_as_valid(True)
@@ -270,7 +270,7 @@ class cBillableEAPnl(wxgBillableEAPnl.wxgBillableEAPnl, gmEditArea.cGenericEditA
 		if self._TCTRL_code.GetValue().strip() == '':
 			validity = False
 			self.display_tctrl_as_valid(tctrl = self._TCTRL_code, valid = False)
-			self.status_message = _('Code is missing.')
+			self.StatusText = _('Code is missing.')
 			self._TCTRL_code.SetFocus()
 		else:
 			self.display_tctrl_as_valid(tctrl = self._TCTRL_code, valid = True)
@@ -285,7 +285,7 @@ class cBillableEAPnl(wxgBillableEAPnl.wxgBillableEAPnl, gmEditArea.cGenericEditA
 			return_existing = False
 		)
 		if data is None:
-			self.status_message = _('Billable already exists.')
+			self.StatusText = _('Billable already exists.')
 			return False
 
 		val = self._TCTRL_amount.GetValue().strip()

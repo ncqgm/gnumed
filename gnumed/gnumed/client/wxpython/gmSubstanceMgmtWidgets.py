@@ -322,7 +322,7 @@ class cSubstanceEAPnl(wxgSubstanceEAPnl.wxgSubstanceEAPnl, gmEditArea.cGenericEd
 			self.display_tctrl_as_valid(tctrl = self._TCTRL_substance, valid = True)
 
 		if validity is False:
-			self.status_message = _('Cannot save: Substance name missing.')
+			self.StatusText = _('Cannot save: Substance name missing.')
 
 		return validity
 
@@ -338,7 +338,7 @@ class cSubstanceEAPnl(wxgSubstanceEAPnl.wxgSubstanceEAPnl, gmEditArea.cGenericEd
 			err, msg = data
 			_log.error(err)
 			_log.error(msg)
-			self.status_message = _('Error saving substance. %s') % msg
+			self.StatusText = _('Error saving substance. %s') % msg
 			return False
 
 		loincs = self._LCTRL_loincs.item_data
@@ -358,7 +358,7 @@ class cSubstanceEAPnl(wxgSubstanceEAPnl.wxgSubstanceEAPnl, gmEditArea.cGenericEd
 			err, msg = data
 			_log.error(err)
 			_log.error(msg)
-			self.status_message = _('Error saving substance. %s') % msg
+			self.StatusText = _('Error saving substance. %s') % msg
 			return False
 
 		loincs = self._LCTRL_loincs.item_data
@@ -627,7 +627,7 @@ class cSubstanceDoseEAPnl(wxgSubstanceDoseEAPnl.wxgSubstanceDoseEAPnl, gmEditAre
 			self._PRW_unit.display_as_valid(valid = True)
 
 		if validity is False:
-			self.status_message = _('Cannot save substance dose. Missing essential input.')
+			self.StatusText = _('Cannot save substance dose. Missing essential input.')
 
 		return validity
 
@@ -645,7 +645,7 @@ class cSubstanceDoseEAPnl(wxgSubstanceDoseEAPnl.wxgSubstanceDoseEAPnl, gmEditAre
 			err, msg = data
 			_log.error(err)
 			_log.error(msg)
-			self.status_message = _('Cannot create substance dose. %s') % msg
+			self.StatusText = _('Cannot create substance dose. %s') % msg
 			return False
 
 		self.data = dose
@@ -663,7 +663,7 @@ class cSubstanceDoseEAPnl(wxgSubstanceDoseEAPnl.wxgSubstanceDoseEAPnl, gmEditAre
 			err, msg = data
 			_log.error(err)
 			_log.error(msg)
-			self.status_message = _('Cannot save substance dose. %s') % msg
+			self.StatusText = _('Cannot save substance dose. %s') % msg
 			return False
 
 		return True
@@ -791,7 +791,7 @@ class cDrugComponentEAPnl(wxgDrugComponentEAPnl.wxgDrugComponentEAPnl, gmEditAre
 	def _valid_for_save(self):
 		if self.data is not None:
 			if self.data['is_in_use']:
-				self.status_message = _('Cannot edit drug component. It is in use.')
+				self.StatusText = _('Cannot edit drug component. It is in use.')
 				return False
 
 		validity = True
@@ -817,7 +817,7 @@ class cDrugComponentEAPnl(wxgDrugComponentEAPnl.wxgDrugComponentEAPnl, gmEditAre
 			self._PRW_unit.display_as_valid(True)
 
 		if validity is False:
-			self.status_message = _('Cannot save drug component. Invalid or missing essential input.')
+			self.StatusText = _('Cannot save drug component. Invalid or missing essential input.')
 
 		return validity
 	#----------------------------------------------------------------
@@ -1137,7 +1137,7 @@ class cDrugProductEAPnl(wxgDrugProductEAPnl.wxgDrugProductEAPnl, gmEditArea.cGen
 
 		if self.data is not None:
 			if self.data.is_in_use_by_patients:
-				self.status_message = _('Cannot edit drug product. It is in use.')
+				self.StatusText = _('Cannot edit drug product. It is in use.')
 				return False
 
 		validity = True
@@ -1196,7 +1196,7 @@ class cDrugProductEAPnl(wxgDrugProductEAPnl.wxgDrugProductEAPnl, gmEditArea.cGen
 						self.display_ctrl_as_valid(ctrl = self._TCTRL_components, valid = False)
 
 		if validity is False:
-			self.status_message = _('Cannot save drug product. Invalid or missing essential input.')
+			self.StatusText = _('Cannot save drug product. Invalid or missing essential input.')
 
 		return validity
 
@@ -1524,7 +1524,7 @@ class cSingleComponentGenericDrugEAPnl(wxgSingleComponentGenericDrugEAPnl.wxgSin
 		if self._PRW_preparation.Value.strip() == '':
 			validity = False
 			self._PRW_preparation.display_as_valid(False)
-			self.status_message = _('Drug form is missing.')
+			self.StatusText = _('Drug form is missing.')
 			self._PRW_preparation.SetFocus()
 		else:
 			self._PRW_preparation.display_as_valid(True)
@@ -1532,7 +1532,7 @@ class cSingleComponentGenericDrugEAPnl(wxgSingleComponentGenericDrugEAPnl.wxgSin
 		if self._PRW_unit.GetData() is None:
 			validity = False
 			self._PRW_unit.display_as_valid(False)
-			self.status_message = _('Unit for amount is missing.')
+			self.StatusText = _('Unit for amount is missing.')
 			self._PRW_unit.SetFocus()
 		else:
 			self._PRW_unit.display_as_valid(True)
@@ -1540,7 +1540,7 @@ class cSingleComponentGenericDrugEAPnl(wxgSingleComponentGenericDrugEAPnl.wxgSin
 		if self._TCTRL_amount.GetValue().strip() == '':
 			validity = False
 			self.display_tctrl_as_valid(tctrl = self._TCTRL_amount, valid = False)
-			self.status_message = _('Amount is missing.')
+			self.StatusText = _('Amount is missing.')
 			self._TCTRL_amount.SetFocus()
 		else:
 			self.display_tctrl_as_valid(tctrl = self._TCTRL_amount, valid = True)
@@ -1554,7 +1554,7 @@ class cSingleComponentGenericDrugEAPnl(wxgSingleComponentGenericDrugEAPnl.wxgSin
 			else:
 				validity = False
 				self._PRW_substance.display_as_valid(False)
-				self.status_message = _('Substance is missing.')
+				self.StatusText = _('Substance is missing.')
 				self._PRW_substance.SetFocus()
 		else:
 			self._PRW_substance.display_as_valid(True)

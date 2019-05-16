@@ -4358,7 +4358,7 @@ class cMetaTestTypeEAPnl(wxgMetaTestTypeEAPnl.wxgMetaTestTypeEAPnl, gmEditArea.c
 		if self._PRW_abbreviation.GetValue().strip() == '':
 			validity = False
 			self._PRW_abbreviation.display_as_valid(False)
-			self.status_message = _('Missing abbreviation for meta test type.')
+			self.StatusText = _('Missing abbreviation for meta test type.')
 			self._PRW_abbreviation.SetFocus()
 		else:
 			self._PRW_abbreviation.display_as_valid(True)
@@ -4366,7 +4366,7 @@ class cMetaTestTypeEAPnl(wxgMetaTestTypeEAPnl.wxgMetaTestTypeEAPnl, gmEditArea.c
 		if self._PRW_name.GetValue().strip() == '':
 			validity = False
 			self._PRW_name.display_as_valid(False)
-			self.status_message = _('Missing name for meta test type.')
+			self.StatusText = _('Missing name for meta test type.')
 			self._PRW_name.SetFocus()
 		else:
 			self._PRW_name.display_as_valid(True)
@@ -4382,7 +4382,7 @@ class cMetaTestTypeEAPnl(wxgMetaTestTypeEAPnl.wxgMetaTestTypeEAPnl, gmEditArea.c
 			return_existing = False
 		)
 		if data is None:
-			self.status_message = _('This meta test type already exists.')
+			self.StatusText = _('This meta test type already exists.')
 			return False
 		data['loinc'] = self._PRW_loinc.GetData()
 		data['comment'] = self._TCTRL_comment.GetValue().strip()
@@ -4635,7 +4635,7 @@ class cTestPanelEAPnl(wxgTestPanelEAPnl.wxgTestPanelEAPnl, gmEditArea.cGenericEd
 
 		if self.__loincs is None:
 			# not fatal despite panel being useless
-			self.status_message = _('No LOINC codes selected.')
+			self.StatusText = _('No LOINC codes selected.')
 			self._PRW_loinc.SetFocus()
 
 		if self._TCTRL_description.GetValue().strip() == '':

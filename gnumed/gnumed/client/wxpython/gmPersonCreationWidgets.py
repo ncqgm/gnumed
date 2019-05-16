@@ -267,7 +267,7 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 			gmTools.none_if(self._TCTRL_comment.GetValue().strip(), u'')
 		):
 			error = True
-			self.status_message = _('Duplicate person. Modify name and/or DOB or use comment to make unique.')
+			self.StatusText = _('Duplicate person. Modify name and/or DOB or use comment to make unique.')
 
 		return (not error)
 	#----------------------------------------------------------------
