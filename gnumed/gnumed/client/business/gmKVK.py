@@ -104,7 +104,8 @@ map_kvkd_tags2dto = {
 map_CCRdr_gender2gm = {
 	'M': 'm',
 	'W': 'f',
-	'U': None
+	'U': None,
+	'D': 'h'
 }
 
 

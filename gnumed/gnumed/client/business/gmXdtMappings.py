@@ -598,6 +598,8 @@ map_gender_xdt2gm = {
 	'W': 'f',
 	'w': 'f',
 	'5': 'f',
+	'd': 'h',
+	'D': 'h',
 	'U': None
 }
 
@@ -606,7 +608,9 @@ map_gender_gm2xdt = {
 	'f': '2',
 	'tm': '1',
 	'tf': '2',
-	'h': '?'
+	#'h': 'd'
+	'h': '3',		# unchecked
+	None: '?'
 }
 
 # LDT "gender", 8407
