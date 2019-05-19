@@ -122,17 +122,36 @@ class cHorstSpaceNotebook(wx.Notebook):			# wx.BestBook ?
 
 	#----------------------------------------------
 	def _on_notebook_page_changed(self, event):
-		"""Called when notebook page changes."""
+		"""Called when notebook page changes.
 
+			Date: Wed, 15 May 2019 09:03:49 -0700 (PDT)
+			From: Robin Dunn <robin@alldunn.com>
+			To: wxPython-users <wxpython-users@googlegroups.com>
+			Subject: [wxPython-users] Re: wx.Notebook events work differently on Mac vs Linux and Windows
+
+			While in the _CHANGED event the notebook's current page (what you get from
+			GetCurrentPage) still hasn't been updated. I agree that this seems
+			unintuitive but it's always been that way. There may be a good reason for
+			it, but I don't know what it is.
+
+			Instead, you can use the event's GetSelection to get the index of the page
+			being changed to, and then use the notebook's GetPage to get the page object.
+
+			Also, you should call event.Skip() in your _CHANGED handler. I think there
+			is some layout things happening in the default handler on one or more of
+			the platforms, so you want to ensure that can still happen.
+			--
+			Robin
+		"""
 		_log.debug('just after switching notebook tabs')
+
+		event.Skip()
 
 		_log.debug('id: %s', event.Id)
 		_log.debug('event object (= source notebook): %s = %s', event.EventObject.Id, event.EventObject)
 		_log.debug('this notebook (= event receiver): %s = %s', self.Id, self)
 		if event.EventObject.Id != self.Id:
 			_log.error('this event came from another notebook')
-
-		event.Skip()
 
 		id_nb_page_after_switch = self.GetSelection()
 		id_evt_page_before_switch = event.GetOldSelection()
