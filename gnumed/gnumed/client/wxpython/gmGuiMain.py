@@ -921,20 +921,21 @@ class gmTopLevelFrame(wx.Frame):
 		_log.warning('unhandled event detected: END_SESSION')
 		gmLog2.flush()
 		print('unhandled event detected: END_SESSION')
+
 	#-----------------------------------------------
 	def _register_pre_exit_callback(self, callback=None):
 		if not callable(callback):
 			raise TypeError('callback [%s] not callable' % callback)
 
 		self.__pre_exit_callbacks.append(callback)
+
 	#-----------------------------------------------
 	def _on_set_statustext_pubsub(self, context=None):
-		wx.CallAfter(self.SetStatusText, '%s' % context.data['msg'])
 		try:
-			if context.data['beep']:
-				wx.Bell()
+			beep = context.data['beep']
 		except KeyError:
-			pass
+			beep = False
+		wx.CallAfter(self.SetStatusText, '%s' % context.data['msg'], beep = beep)
 
 	#-----------------------------------------------
 	def _on_set_statustext(self, msg=None, loglevel=None, beep=True):
@@ -942,9 +943,7 @@ class gmTopLevelFrame(wx.Frame):
 			msg = _('programmer forgot to specify status message')
 		if loglevel is not None:
 			_log.log(loglevel, msg.replace('\015', ' ').replace('\012', ' '))
-		wx.CallAfter(self.SetStatusText, msg)
-		if beep:
-			wx.Bell()
+		wx.CallAfter(self.SetStatusText, msg, beep = beep)
 
 	#-----------------------------------------------
 	def _on_db_maintenance_warning(self):
@@ -985,6 +984,7 @@ class gmTopLevelFrame(wx.Frame):
 		if decision == wx.ID_YES:
 			top_win = wx.GetApp().GetTopWindow()
 			wx.CallAfter(top_win.Close)
+
 	#-----------------------------------------------
 	def _on_request_user_attention(self, msg=None, urgent=False):
 		# already in the foreground ?
@@ -2370,6 +2370,8 @@ class gmTopLevelFrame(wx.Frame):
 	#----------------------------------------------
 	def __on_clear_status_line(self, evt):
 		gmDispatcher.send(signal = 'statustext', msg = '')
+		self.StatusBar.set_normal_color()
+
 	#----------------------------------------------
 	def __on_toggle_patient_lock(self, evt):
 		curr_pat = gmPerson.gmCurrentPatient()
@@ -3227,7 +3229,9 @@ class cStatusBar(wx.StatusBar):
 
 		self.__msg_fifo = []
 		self.__normal_background_colour = self.GetBackgroundColour()
+		self.__blink_background_color = 'yellow'
 		self.__times_to_blink = 0
+		self.__blink_counter = 0
 
 		self.clock_update_timer = wx.PyTimer(self._cb_update_clock)
 		self.clock_update_timer.Start(milliseconds = 1000)
@@ -3235,19 +3239,12 @@ class cStatusBar(wx.StatusBar):
 		self.Bind(wx.EVT_LEFT_DCLICK, self._on_show_history)
 
 	#----------------------------------------------
-	def _cb_update_clock(self):
-		"""Displays date and local time in the second slot of the status bar"""
-		t = time.localtime(time.time())
-		st = time.strftime('%Y %b %d  %H:%M:%S', t)
-		self.SetStatusText(st, 1)
-		if self.__times_to_blink > 0:
-			wx.CallAfter(self.__blink)	# this still seems to hang wxGTK ...
-
-	#----------------------------------------------
-	def SetStatusText(self, text, i=0):
+	def SetStatusText(self, text, i=0, beep=False):
 		prev = self.previous_text
 		msg = self.__update_history(text, i)
 		super().SetStatusText(msg, i)
+		if beep:
+			wx.Bell()
 		self.__initiate_blinking(text, i, prev)
 
 	#----------------------------------------------
@@ -3258,12 +3255,35 @@ class cStatusBar(wx.StatusBar):
 		self.__initiate_blinking(text, i, prev)
 
 	#----------------------------------------------
+	def set_normal_color(self):
+		return self.SetBackgroundColour(self.__normal_background_colour)
+
+	#----------------------------------------------
 	# internal API
 	#----------------------------------------------
+	def _cb_update_clock(self):
+		"""Advances date and local time in the second slot.
+
+		Also drives blinking activity.
+		"""
+		t = time.localtime(time.time())
+		st = time.strftime('%Y %b %d  %H:%M:%S', t)
+		self.SetStatusText(st, 1)
+		if self.__times_to_blink > 0:
+			wx.CallAfter(self.__blink)	# this still seems to hang wxGTK ...
+
+	#----------------------------------------------
 	def __blink(self):
-		self.__times_to_blink -= 1
-		if not self.SetBackgroundColour('yellow'):
-			self.SetBackgroundColour(self.__normal_background_colour)
+		if self.__blink_counter == self.__times_to_blink:
+			self.set_normal_color()
+			self.__times_to_blink = 0
+			return
+
+		if self.SetBackgroundColour(self.__blink_background_color):
+			self.__blink_counter += 1
+			return
+
+		self.set_normal_color()
 
 	#----------------------------------------------
 	def __initiate_blinking(self, text, field, previous_text):
@@ -3274,7 +3294,8 @@ class cStatusBar(wx.StatusBar):
 			return
 		if text == previous_text:
 			return
-		self.__times_to_blink = 6
+		self.__blink_counter = 0
+		self.__times_to_blink = 2
 
 	#----------------------------------------------
 	def _get_previous_text(self):
