@@ -465,6 +465,9 @@ def get_as_journal(since=None, until=None, encounters=None, episodes=None, issue
 				'u'::text as soap_cat,
 				hints.title || E'\n' || hints.hint
 					as narrative,
+				-- .src_table does not correspond with the
+				-- .src_pk column source because it is generated
+				-- from clin.get_hints_for_patient()
 				'ref.auto_hint'::text as src_table,
 				c_scr.rank AS scr,
 				now() as modified_when,
