@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-06-04 10:40+0200\n"
+"POT-Creation-Date: 2019-05-19 15:13+0200\n"
 "PO-Revision-Date: 2012-06-01 01:18+0000\n"
 "Last-Translator: Rogerio Luz Coelho <dr.rogerioluzcoelho@gmail.com>\n"
 "Language-Team: Brazilian Portuguese <pt_BR@li.org>\n"
@@ -2405,10 +2405,6 @@ msgstr ""
 "Pedido de ajuda\n"
 "---------------------"
 
-#, fuzzy, python-format
-msgid "Revision #%s"
-msgstr " Nova versão: \"%s\""
-
 #, python-format
 msgid "[%s:%s]: row not updated (nothing returned), row in use ?"
 msgstr "[%s:%s]: linha não atualizada (não houve retorno), linha está em uso?"
@@ -2443,12 +2439,26 @@ msgstr ""
 "programa registrado para esse tipo de arquivo\n"
 " [%s]"
 
+#, fuzzy, python-format
+msgid ""
+"Unable to edit/view the file:\n"
+"\n"
+" [%s]\n"
+"\n"
+"Your system does not seem to have a (working)\n"
+"editor or viewer registered for the file type\n"
+" [%s]"
+msgstr ""
+"Impossível mostrar o arquivo:\n"
+"\n"
+" [%s]\n"
+"\n"
+"Seu sistema não aparenta ter um \n"
+"programa registrado para esse tipo de arquivo\n"
+" [%s]"
+
 msgid "Translate this or i18n into <en_EN> will not work properly !"
 msgstr "Traduza isso ou o i18n não funcionará de maneira correta !"
-
-#, fuzzy
-msgid "Error running GnuPG. Cannot decrypt data."
-msgstr "Erro ao executar gnuplot. Não é possível plotar dados."
 
 msgid "1 Byte"
 msgstr "1 Byte"
@@ -2460,6 +2470,9 @@ msgstr "%s Bytes"
 #, fuzzy
 msgid "<type>"
 msgstr "tipo"
+
+msgid "<missing>"
+msgstr ""
 
 #, python-format
 msgid ""
@@ -3141,26 +3154,6 @@ msgstr "Pesquisa"
 msgid "New patient ID:"
 msgstr "ID do paciente interno"
 
-#, fuzzy
-msgid "Related documents: XX"
-msgstr "Organizar documentos por"
-
-#, fuzzy
-msgid "List"
-msgstr "Lista de espera"
-
-#, fuzzy
-msgid "Select types"
-msgstr "Tipo de modelo"
-
-#, fuzzy
-msgid "List lab documents within the episode of the selected measurement."
-msgstr "Agir nos resultados selecionados"
-
-#, fuzzy
-msgid "Select the document types expected to contain lab results."
-msgstr "Selecione o tipo padrão para novas consultas.\n"
-
 msgid "Source"
 msgstr ""
 
@@ -3535,12 +3528,6 @@ msgstr "Componentes"
 msgid "<not connected>"
 msgstr "= selected =>"
 
-msgid "Image"
-msgstr ""
-
-msgid "Patient"
-msgstr "Paciente"
-
 #, fuzzy
 msgid "◄"
 msgstr "℞"
@@ -3549,34 +3536,30 @@ msgid "►"
 msgstr ""
 
 #, fuzzy
-msgid "E&xport"
+msgid "&Show"
+msgstr "Mostrar arquivo de Log"
+
+#, fuzzy
+msgid "E&xport area"
 msgstr "Relatório"
 
 msgid "Browse"
 msgstr ""
 
 #, fuzzy
-msgid "&Show (D)"
+msgid "Show"
 msgstr "Mostrar arquivo de Log"
 
 #, fuzzy
-msgid "Save (&D)"
-msgstr "Salvar"
+msgid "Export area"
+msgstr "Relatório"
+
+msgid "Verify"
+msgstr ""
 
 #, fuzzy
 msgid "&Upload"
 msgstr "Atualizar"
-
-#, fuzzy
-msgid "Show (&P)"
-msgstr "Mostrar arquivo de Log"
-
-#, fuzzy
-msgid "Save (P)"
-msgstr "Salvar"
-
-msgid "as ZIP"
-msgstr ""
 
 #, fuzzy
 msgid "Enter the PACS host address."
@@ -3597,7 +3580,10 @@ msgstr "Não foi possível conectar como o dono do banco de dados <gm-dbo>."
 msgid "Connect to PACS."
 msgstr "Conectar ao GNUmed"
 
-msgid "Verify patient data in PACS."
+msgid ""
+"Double-click: Display in external viewer.\n"
+"\n"
+"Right-click: Show context menu."
 msgstr ""
 
 msgid "Review previous image."
@@ -3608,64 +3594,58 @@ msgid "Preview next image."
 msgstr "&revisar e assinar"
 
 #, fuzzy
-msgid "Store image into export area."
+msgid "Show image in external viewer."
+msgstr "Mostre o arquivo de log no visualizador de texto"
+
+#, fuzzy
+msgid "Put image into export area."
+msgstr "Adicionando novo nome"
+
+msgid ""
+"Browse selected studies in web browser.\n"
+"\n"
+"Right-click for further options."
+msgstr ""
+
+#, fuzzy
+msgid "Show selected studies in external viewer."
 msgstr "Adicionando novo nome"
 
 #, fuzzy
-msgid "Browse topmost selected study."
-msgstr "Editar o item selecionado."
+msgid "Put selected studies into export area."
+msgstr "Adicionando novo nome"
 
-#, fuzzy
-msgid "Browse overview of all studies for this patient."
-msgstr "Detalhes da fila de espera para esse paciente."
-
-msgid "Browse PACS at top level."
+msgid "Browse patient studies in web browser."
 msgstr ""
 
-#, fuzzy
-msgid "Show image in DICOM viewer."
-msgstr "Mostre o arquivo de log no visualizador de texto"
-
-msgid "Save image in DICOM format."
+msgid "Verify DICOM data of patient in PACS."
 msgstr ""
 
-#, fuzzy
-msgid "Save selected studies to disk as DICOM directory."
-msgstr "= selected =>"
-
-msgid "Save all studies as one DICOM directory."
+msgid "Browse PACS."
 msgstr ""
 
 msgid ""
 "Upload DICOM files from a directory, recursively, into the Orthanc PACS\n"
 "\n"
-"The currently active patient does not matter. Orthanc will associate "
-"uploaded files with the patient found within the DICOM metadata. It will "
-"create new patients as needed."
+"It does not matter what the currently active patient is. Orthanc will "
+"associate uploaded files with the patient found within the DICOM metadata "
+"and will create new patients as needed."
 msgstr ""
 
-#, fuzzy
-msgid "Show image in external viewer (PNG format)."
-msgstr "Mostre o arquivo de log no visualizador de texto"
-
-msgid "Save image preview (PNG format)."
+msgid "Modify some of Orthanc's content (such as patient IDs)."
 msgstr ""
 
-#, fuzzy
-msgid "Save selected studies as DICOM archive."
-msgstr "= selected =>"
-
-msgid "Save all studies of patient as DICOM archive."
+msgid "PACS"
 msgstr ""
 
-msgid "Modify some of Orthanc content (such as patient IDs)."
-msgstr ""
+msgid "Patient"
+msgstr "Paciente"
 
 #, fuzzy
 msgid "Study"
 msgstr "Exsudato"
 
-msgid "PACS"
+msgid "Image"
 msgstr ""
 
 msgid "A descriptive name for this test type."
@@ -3921,10 +3901,6 @@ msgstr "Remover o(s) item(s) selecionado(s) da lista."
 msgid "Show printouts for:"
 msgstr ""
 
-#, fuzzy
-msgid "E&xport area"
-msgstr "Relatório"
-
 msgid "Care"
 msgstr ""
 
@@ -4094,10 +4070,6 @@ msgstr "&tecnicamente anormal"
 
 msgid "&clinically relevant"
 msgstr "&clinicamente relevante"
-
-#, fuzzy
-msgid "Show"
-msgstr "Mostrar arquivo de Log"
 
 msgid "Remove part"
 msgstr ""
@@ -4621,15 +4593,18 @@ msgstr "Terminou"
 msgid "Purpose"
 msgstr ""
 
-#, fuzzy
-msgid "Please supply your email address here !"
-msgstr "Por favor informe seu endereço de email."
+msgid "<supply email address for getting feedback on bug report>"
+msgstr ""
 
 msgid "Keep running"
 msgstr "Continuar executando"
 
 msgid "Close GNUmed"
 msgstr "Fechar GNUmed"
+
+#, fuzzy
+msgid "☠ Abort GNUmed ☠"
+msgstr "Sobre GNUmed"
 
 msgid "View log"
 msgstr "Veja o log"
@@ -4650,19 +4625,31 @@ msgstr ""
 msgid ""
 "Please enter your email address so we can provide help to you directly.\n"
 "\n"
-"Otherwise, feedback can be given on the GNUmed mailing list (http://lists."
-"gnu.org/mailman/listinfo/gnumed-bugs) ONLY to which you will then have to "
+"Otherwise, feedback can be given on the GNUmed mailing list ONLY (http://"
+"lists.gnu.org/mailman/listinfo/gnumed-bugs) to which you will then have to "
 "subscribe."
 msgstr ""
 
 msgid "Find help on http://wiki.gnumed.de, too."
 msgstr "Para mais ajuda vá em http://wiki.gnumed.de"
 
-msgid "Close this dialog but keep running GNUmed."
-msgstr "Fechar essa janela, mas continuar executando GNUmed."
+msgid ""
+"Close this dialog but keep open the GNUmed client.\n"
+"\n"
+"You should manually restart the client as soon as possible, however."
+msgstr ""
 
-msgid "Close this dialog AND the GNUmed client."
-msgstr "Fechar essa janela E o cliente GNUmed."
+msgid ""
+"Close this GNUmed client.\n"
+"\n"
+"This will attempt to run normal shutdown and cleanup procedures."
+msgstr ""
+
+msgid ""
+"Abort this GNUmed client.\n"
+"\n"
+"This will NOT invoke any shutdown and cleanup work."
+msgstr ""
 
 msgid "View the log file."
 msgstr "Veja o arquivo log"
@@ -4684,21 +4671,23 @@ msgstr "Detalhes"
 msgid "An unhandled exception has occurred."
 msgstr "Ocorreu uma exceção não prevista"
 
+#, fuzzy
 msgid ""
-"GNUmed detected an error for which no specific handler had been defined.\n"
+"GNUmed detected an error for which no specific handling had been defined.\n"
 "\n"
-"Details about the error can be found in the log file a copy of which has\n"
-"been saved away in your home directory (see below). It may contain\n"
+"Details about the error can be found in the log file, a copy of which has\n"
+"been stored away in your home directory (see below). It may contain\n"
 "bits of sensitive information so you may want to screen the content\n"
 "before handing it to IT staff for debugging.\n"
 "\n"
-"GNUmed will try to keep running. However, it is strongly advised to\n"
-"close this GNUmed workplace as soon as possible. You can try to save\n"
-"unsaved data but don't count on it.\n"
+"You can choose to keep open this GNUmed workplace. However, it is strongly\n"
+"advised to restart this workplace as soon as possible. Meanwhile you can "
+"try\n"
+"to save unsaved data but don't count on it.\n"
 "\n"
 "It should then be safe to restart GNUmed.\n"
 "\n"
-"Documentation to be found at <http://wiki.gnumed.de>."
+"Documentation can be found at <http://wiki.gnumed.de>."
 msgstr ""
 "Foi detectado um erro que não era esperado.\n"
 "\n"
@@ -4976,7 +4965,7 @@ msgid "to patient export area"
 msgstr ""
 
 #, fuzzy
-msgid "Print &remotely"
+msgid "Print &queue"
 msgstr "Sua revisão"
 
 #, fuzzy
@@ -5016,7 +5005,7 @@ msgid ""
 msgstr ""
 
 msgid ""
-"Remotely print document(s).\n"
+"Save document(s) into print queue for printing elsewhere.\n"
 "(optionally copy to archive and export area)"
 msgstr ""
 
@@ -5285,30 +5274,40 @@ msgstr "Editar o item selecionado."
 msgid "Remove the selected item(s) from the list."
 msgstr "Remover o(s) item(s) selecionado(s) da lista."
 
-msgid "↢ &Disk"
+msgid "← &Disk"
 msgstr ""
 
-msgid "↢ &Archive"
+#, fuzzy
+msgid "← &Directory"
+msgstr "Informações Adicionais"
+
+#, fuzzy
+msgid "← &Archive"
+msgstr "&Somente eu"
+
+msgid "← S&can"
 msgstr ""
 
-msgid "↢ S&can"
+msgid "← C&lipboard"
 msgstr ""
 
-msgid "↢ C&lipboard"
+#, fuzzy
+msgid "&Save as"
+msgstr "Salvar como..."
+
+#, fuzzy
+msgid "E&xport"
+msgstr "Relatório"
+
+msgid "→ Archive"
 msgstr ""
 
 msgid "&Print"
 msgstr ""
 
 #, fuzzy
-msgid "&Print Mgr"
+msgid "→ &Print Mgr"
 msgstr "Imprimir"
-
-msgid "&Burn"
-msgstr ""
-
-msgid "&Save"
-msgstr ""
 
 msgid "E-&Mail"
 msgstr ""
@@ -5316,16 +5315,13 @@ msgstr ""
 msgid "&Fax"
 msgstr ""
 
-msgid "⇶ Archive"
-msgstr ""
-
-#, fuzzy
-msgid "Show the topmost selected document."
-msgstr "Editar o item selecionado."
-
 #, fuzzy
 msgid "Add document(s) from file(s)."
 msgstr "É possível salvar documentos sem partes ?"
+
+#, fuzzy
+msgid "Add a local directory."
+msgstr "Selecione o tipo de consulta"
 
 #, fuzzy
 msgid "Add document(s) from archive."
@@ -5339,6 +5335,20 @@ msgid "Acquire file or text from the clipboard."
 msgstr "Remover o(s) item(s) selecionado(s) da lista."
 
 #, fuzzy
+msgid "Show the topmost selected document."
+msgstr "Editar o item selecionado."
+
+#, fuzzy
+msgid "Save selected/all items to disk."
+msgstr "= selected =>"
+
+msgid "Export all/selected items to removable media (CD/DVD/USB)."
+msgstr ""
+
+msgid "Store selected/all documents in document archive."
+msgstr ""
+
+#, fuzzy
 msgid "Remove the selected documents."
 msgstr "Remover o(s) item(s) selecionado(s) da lista."
 
@@ -5349,22 +5359,12 @@ msgstr ""
 msgid "Put selected/all documents into remote print manager."
 msgstr "Apagando documento"
 
-msgid "Burn selected/all documents onto CD/DVD."
-msgstr ""
-
-#, fuzzy
-msgid "Save selected/all items to disk."
-msgstr "= selected =>"
-
 msgid "E-mail selected/all documents."
 msgstr ""
 
 #, fuzzy
 msgid "Fax selected/all documents."
 msgstr "Apagando documento"
-
-msgid "Store selected/all documents in document archive."
-msgstr ""
 
 msgid "Keep *this* patient"
 msgstr "Manter *este* paciente"
@@ -5692,6 +5692,26 @@ msgstr "&Local"
 msgid "&Urgency:"
 msgstr "&Urgencia"
 
+#, fuzzy
+msgid "Related documents: XX"
+msgstr "Organizar documentos por"
+
+#, fuzzy
+msgid "List"
+msgstr "Lista de espera"
+
+#, fuzzy
+msgid "Select types"
+msgstr "Tipo de modelo"
+
+#, fuzzy
+msgid "List lab documents within the episode of the selected measurement."
+msgstr "Agir nos resultados selecionados"
+
+#, fuzzy
+msgid "Select the document types assumed to contain lab results."
+msgstr "Selecione o tipo padrão para novas consultas.\n"
+
 msgid "&Link"
 msgstr ""
 
@@ -5718,6 +5738,9 @@ msgid "&Delete"
 msgstr "&Apagar"
 
 msgid "<above, double-click problem to start entering SOAP note>"
+msgstr ""
+
+msgid "&Save"
 msgstr ""
 
 msgid "&Filter by problem"
@@ -5754,6 +5777,99 @@ msgid ""
 msgstr ""
 "Selecione se você concorda com a opinião atual de resultado clinicamente "
 "relevante."
+
+msgid ""
+"\n"
+"Describe the intended action.\n"
+msgstr ""
+
+msgid "Path:"
+msgstr ""
+
+msgid "<shows default path computed at runtime>"
+msgstr ""
+
+#, fuzzy
+msgid "this path is/is not empty"
+msgstr "Tipo de modelo"
+
+#, fuzzy
+msgid "Open"
+msgstr "Abrir Item"
+
+#, fuzzy
+msgid "en&crypt"
+msgstr "Encriptar"
+
+#, fuzzy
+msgid "generate &metadata"
+msgstr "Generalizado"
+
+#, fuzzy
+msgid "use subdirectory"
+msgstr "Mover paciente para baixo."
+
+#, fuzzy
+msgid "Save Files"
+msgstr "todos os arquivos"
+
+#, fuzzy
+msgid "Save as Archive"
+msgstr "Deixe como está"
+
+#, fuzzy
+msgid "Saving export area items"
+msgstr "Apagando documento"
+
+#, fuzzy
+msgid "Select target directory for files or archive."
+msgstr "Selecione o tipo de consulta"
+
+msgid "Open selected target directory in file browser."
+msgstr ""
+
+msgid "Clear selected target directory from any existing data."
+msgstr ""
+
+msgid ""
+"Use encryption ?\n"
+"\n"
+"When you save as files each file will be encrypted individually.\n"
+"\n"
+"When you save into an archive the ZIP archive itself will be encrypted "
+"rather than the files contained within. Encrypted archives will not include "
+"any patient data into the archive filename."
+msgstr ""
+
+msgid ""
+"Generate metadata ?\n"
+"\n"
+"Check if you want GNUmed to generate metadata describing the exported "
+"patient data and save it alongside the files.\n"
+"\n"
+"When saving into an archive metadata will always be included."
+msgstr ""
+
+msgid ""
+"Save into patient specific subdirectory ?\n"
+"\n"
+"Check if you want GNUmed to create a suitable subdirectory within the "
+"selected path and save to that."
+msgstr ""
+
+msgid "Save entries as individual files."
+msgstr ""
+
+msgid "Save entries packaged into an archive."
+msgstr ""
+
+#, fuzzy
+msgid "Abort saving entries."
+msgstr "Não foi encontrado esse paciente."
+
+#, fuzzy
+msgid "Options:"
+msgstr "Opções"
 
 msgid "Subjective"
 msgstr "Subjetivo"
@@ -5863,6 +5979,22 @@ msgid ""
 "Delete - if possible - the (first or only) item selected in the list above."
 msgstr ""
 
+msgid "Panel:"
+msgstr ""
+
+msgid "http://www.laborlexikon.de"
+msgstr ""
+
+#, fuzzy
+msgid "&Show missing"
+msgstr "pme-diário"
+
+msgid "Manage"
+msgstr "Gerenciar"
+
+msgid "Check to show panel tests which lack results."
+msgstr ""
+
 #, fuzzy
 msgid "Dynamic hints"
 msgstr "Apagando documento"
@@ -5947,89 +6079,6 @@ msgstr ""
 
 msgid "Activate the respective patient by double-clicking a row."
 msgstr "Ativar o paciente clicando duas vezes na sua linha."
-
-msgid "Describe the intended action."
-msgstr ""
-
-msgid "&Select"
-msgstr "&Selecionar"
-
-#, fuzzy
-msgid ""
-"empty?\n"
-"DICOMDIR ?\n"
-"documents/ ?"
-msgstr "Documentos vazios"
-
-#, fuzzy
-msgid "Existing data:"
-msgstr "Verificando a versão do banco de dados"
-
-#, fuzzy
-msgid "Include"
-msgstr "Incluir:"
-
-msgid "&Include into CD / DVD"
-msgstr ""
-
-msgid "Use subdirectory:"
-msgstr ""
-
-#, fuzzy
-msgid "<patient directory>"
-msgstr "Mover paciente para baixo."
-
-#, fuzzy
-msgid "Generate metadata"
-msgstr "Generalizado"
-
-#, fuzzy
-msgid "Creating patient media"
-msgstr "Selecionando paciente"
-
-#, fuzzy
-msgid "Select the directory."
-msgstr "Selecione o tipo de consulta"
-
-#, fuzzy
-msgid "Browse the selected directory."
-msgstr "obrigatório selecionar endereço"
-
-msgid "Include existing data if any."
-msgstr ""
-
-msgid "Remove existing data if any."
-msgstr ""
-
-#, fuzzy
-msgid "Check if you want to include the selected directory into the CD / DVD."
-msgstr ""
-"Selecione se você concorda com a opinião atual de resultado clinicamente "
-"relevante."
-
-msgid ""
-"Check if you want to use a subdirectory within the directory selected "
-"above.\n"
-"\n"
-"This will leave alone any existing data."
-msgstr ""
-
-msgid ""
-"Check if you want GNUmed to generate and include metadata describing the "
-"exported patient data files.\n"
-"\n"
-"If unchecked, export items will simply be dumped into the target directory."
-msgstr ""
-
-msgid "Create patient media (in target directory or on CD / DVD)."
-msgstr ""
-
-#, fuzzy
-msgid "Abort creating patient media."
-msgstr "Não foi encontrado esse paciente."
-
-msgid "Path:"
-msgstr ""
 
 msgid "Edit Allergy/Intolerance"
 msgstr "Editar Alergia/Intolerância"
@@ -6832,6 +6881,9 @@ msgid ""
 "Please fill in an appropriate value below.\n"
 msgstr ""
 
+msgid "&Select"
+msgstr "&Selecionar"
+
 msgid "&VAT applies"
 msgstr ""
 
@@ -6896,6 +6948,40 @@ msgstr ""
 
 msgid "Channel"
 msgstr "Canal"
+
+#, fuzzy
+msgid "Creating Patient Media"
+msgstr "Selecionando paciente"
+
+msgid "Reload the list of removable media."
+msgstr ""
+
+msgid ""
+"Use encryption ?\n"
+"\n"
+"You need to arrange for safely passing any encryption key to receivers of "
+"the patient data excerpt yourself.\n"
+"\n"
+"Note that the *content* of each file will be encrypted - some hints about "
+"the patient might potentially still be derivable from the names of files. If "
+"you need a completely anonymous patient data excerpt you should use the "
+"[Save as] functionality of the export area and create an encrypted archive."
+msgstr ""
+
+msgid ""
+"Use patient specific subdirectory ?\n"
+"\n"
+"DO NOT USE unless you really know why.\n"
+"\n"
+"If checked GNUmed will create a suitable subdirectory on the removable media "
+"and save to that."
+msgstr ""
+
+msgid "Save patient data excerpt to the removable media selected above."
+msgstr ""
+
+msgid "Removable media"
+msgstr ""
 
 #, fuzzy
 msgid "&Modification"
@@ -7912,6 +7998,16 @@ msgstr ""
 msgid "<hint title>"
 msgstr ""
 
+msgid "⤴"
+msgstr ""
+
+#, fuzzy
+msgid ""
+"Rationale for\n"
+"suppression\n"
+"in this patient"
+msgstr "Detalhes da fila de espera para esse paciente."
+
 #, fuzzy
 msgid "Save &under"
 msgstr "Autor"
@@ -7980,9 +8076,6 @@ msgstr ""
 
 msgid "Encounter:"
 msgstr ""
-
-msgid "Manage"
-msgstr "Gerenciar"
 
 msgid "&Panel:"
 msgstr ""
@@ -8691,13 +8784,13 @@ msgstr ""
 msgid "tobacco"
 msgstr ""
 
+msgid "ethanol"
+msgstr ""
+
 msgid "alcohol"
 msgstr ""
 
 msgid "liquid"
-msgstr ""
-
-msgid "ethanol"
 msgstr ""
 
 #, fuzzy
@@ -8737,6 +8830,37 @@ msgstr "Exportado: %s\n"
 #, fuzzy, python-format
 msgid "Expires: %s\n"
 msgstr "Exportado: %s\n"
+
+#, python-format
+msgid "AMTS BMP file: %s"
+msgstr ""
+
+#, fuzzy, python-format
+msgid "Created: %s"
+msgstr "Episódio Selecionado."
+
+#, fuzzy, python-format
+msgid "Version: %s"
+msgstr "Versão:"
+
+#, fuzzy, python-format
+msgid "UID: %s"
+msgstr "Fechado"
+
+#, fuzzy
+msgid "Creator:"
+msgstr "Episódio Selecionado."
+
+msgid "Patient:"
+msgstr "Paciente"
+
+#, fuzzy
+msgid "Clinical data:"
+msgstr "Anotações Clínicas"
+
+#, fuzzy
+msgid "Raw data:"
+msgstr "dados"
 
 #, fuzzy
 msgid "HL7 Source"
@@ -8792,9 +8916,27 @@ msgstr ""
 msgid "Result dates: %s"
 msgstr "Resultados"
 
+#, python-format
+msgid ""
+"This item points to a directory on the computer named:\n"
+" %s\n"
+"You are, however, currently using another computer:\n"
+" %s\n"
+"Directory items can only be viewed/saved/exported\n"
+"on the computer they are pointing to."
+msgstr ""
+
 #, fuzzy, python-format
 msgid "form: %s %s (%s)"
 msgstr "Local"
+
+#, python-format
+msgid "path [%s/] on computer \"%s\""
+msgstr ""
+
+#, python-format
+msgid " (on \"%s\")"
+msgstr ""
 
 #, fuzzy
 msgid "file"
@@ -8809,29 +8951,8 @@ msgid "part %s (%s%s)%s"
 msgstr " Estado: %s, %s%s"
 
 #, fuzzy
-msgid "Patient data for"
-msgstr "Paciente"
-
-msgid "born"
-msgstr ""
-
-#, fuzzy
-msgid "Patient data export"
-msgstr "Enviar relatório"
-
-#, fuzzy
-msgid "no patient photograph available"
-msgstr "não disponível"
-
-msgid "Documents"
-msgstr ""
-
-msgid "browse storage medium"
-msgstr ""
-
-#, fuzzy
-msgid "browse documents area"
-msgstr "somente documentos adicionados"
+msgid "GNUmed Patient Media"
+msgstr "Selecionando paciente"
 
 #, python-format
 msgid "patient photograph from %s"
@@ -8844,13 +8965,54 @@ msgstr "carregando arquivo xDT"
 msgid "run Radiology Images (DICOM) Viewer"
 msgstr ""
 
-#, fuzzy, python-format
-msgid "other: %s"
-msgstr "Local"
+#, fuzzy
+msgid "Patient data"
+msgstr "Paciente"
+
+#, fuzzy
+msgid "Patient data excerpt"
+msgstr "Enviar relatório"
+
+msgid "Documents"
+msgstr ""
+
+msgid "browse storage medium"
+msgstr ""
+
+#, fuzzy
+msgid "browse documents area"
+msgstr "somente documentos adicionados"
+
+#, fuzzy
+msgid "Patient data for"
+msgstr "Paciente"
+
+msgid "born"
+msgstr ""
+
+#, fuzzy
+msgid "no patient photograph available"
+msgstr "não disponível"
+
+#, python-format
+msgid "DIRECTORY: %s/%s/"
+msgstr ""
+
+#, python-format
+msgid "DIRECTORY: %s/%s/%s/"
+msgstr ""
+
+#, fuzzy
+msgid "<protected>"
+msgstr "= selected =>"
 
 #, fuzzy
 msgid "Browse patient data"
 msgstr "Agrupar pacientes"
+
+#, fuzzy
+msgid "GNUmed patient data excerpt"
+msgstr "Enviar relatório"
 
 #, python-format
 msgid "error with placeholder [%s]"
@@ -8969,9 +9131,6 @@ msgstr "Atalho"
 #, fuzzy, python-format
 msgid " Owner: %s\n"
 msgstr "Local"
-
-msgid "dummy-no-need-to-translate-but-make-epydoc-happy"
-msgstr "dummy-no-need-to-translate-but-make-epydoc-happy"
 
 msgid "unknown gender"
 msgstr "sexo desconhecido"
@@ -9879,6 +10038,16 @@ msgstr "Não foi possível executar [arriba] !"
 msgid "No [arriba] result found in [%s]."
 msgstr "Não há resultado de [arriba] em [%s]."
 
+msgid "first name"
+msgstr "nome"
+
+#, fuzzy
+msgid "last name"
+msgstr "sobrenome"
+
+msgid "LASTNAME and firstname"
+msgstr ""
+
 msgid "internal patient ID"
 msgstr "ID do paciente interno"
 
@@ -9888,26 +10057,8 @@ msgstr "data de nascimento"
 msgid "external patient ID"
 msgstr "ID do paciente externo"
 
-msgid "first name"
-msgstr "nome"
-
 msgid "name, gender, date of birth"
 msgstr "nome, sexo, data de nascimento"
-
-#, fuzzy
-msgid "lastname"
-msgstr "sobrenome"
-
-#, fuzzy
-msgid "firstname"
-msgstr "nome"
-
-#, fuzzy
-msgid "nickname"
-msgstr "Apelido para o sistema"
-
-msgid "any name part"
-msgstr "qualquer parte do nome"
 
 msgid "name: first-last"
 msgstr "nome: nome-sobrenome"
@@ -9933,6 +10084,21 @@ msgstr "nomes: sobrenome-nome, DN"
 
 msgid "name, date of birth"
 msgstr "nome, data de nascimento"
+
+#, fuzzy
+msgid "lastname"
+msgstr "sobrenome"
+
+#, fuzzy
+msgid "firstname"
+msgstr "nome"
+
+#, fuzzy
+msgid "nickname"
+msgstr "Apelido para o sistema"
+
+msgid "any name part"
+msgstr "qualquer parte do nome"
 
 msgid "names: first last"
 msgstr "nomes: nome sobrenome"
@@ -10054,6 +10220,10 @@ msgstr " Paciente: #%s\n"
 msgid " Receiver: #%s\n"
 msgstr " Receptor: #%s\n"
 
+#, fuzzy, python-format
+msgid "Inv: %s, %s"
+msgstr "Comentário: %s"
+
 #, fuzzy
 msgid "copy of printed prescription"
 msgstr "Erro ao executar o script de hook [%s]"
@@ -10110,7 +10280,8 @@ msgstr "Indicador"
 msgid "unknown vaccinations output format [%s]"
 msgstr "formato de vacina desconhecido [%s]"
 
-msgid "No vaccinations to format."
+#, fuzzy
+msgid "No vaccinations recorded."
 msgstr "Não há vacinas para formatar"
 
 msgid "Latest vaccinations"
@@ -10664,13 +10835,13 @@ msgstr "Notas de Evolução na consulta mais recente"
 msgid "Measurements and Results:"
 msgstr "Medidas e Resultados"
 
-#, python-format
-msgid "%s so far"
-msgstr ""
-
 #, fuzzy, python-format
 msgid "Episode: %s%s%s"
 msgstr "Consulta %s%s%s   [#%s]"
+
+#, python-format
+msgid "%s so far"
+msgstr ""
 
 #, python-format
 msgid "  your time: %s - %s  (@%s = %s%s)\n"
@@ -11249,6 +11420,12 @@ msgstr ""
 msgid "Cannot save procedure."
 msgstr ""
 
+msgid "Editing progress note"
+msgstr "Editando Notas de Evolução"
+
+msgid "This is the original progress note:"
+msgstr ""
+
 msgid "Cannot move progress notes. No active patient."
 msgstr ""
 
@@ -11281,12 +11458,6 @@ msgid "Yes, delete the progress note."
 msgstr ""
 
 msgid "No, do NOT delete the progress note."
-msgstr ""
-
-msgid "Editing progress note"
-msgstr "Editando Notas de Evolução"
-
-msgid "This is the original progress note:"
 msgstr ""
 
 msgid "Managing progress notes"
@@ -11879,6 +12050,23 @@ msgid ""
 "used in to document a vaccination with.\n"
 msgstr ""
 
+msgid ""
+"GNUmed will use this URL to access a website which lets\n"
+"you report an adverse vaccination reaction (vADR).\n"
+"\n"
+"If you set it to a specific address that URL must be\n"
+"accessible now. If you leave it empty it will fall back\n"
+"to the URL for reporting other adverse drug reactions."
+msgstr ""
+
+msgid ""
+"GNUmed will use this URL to access a page showing\n"
+"vaccination schedules.\n"
+"\n"
+"You can leave this empty but to set it to a specific\n"
+"address the URL must be accessible now."
+msgstr ""
+
 msgid "Adding new vaccinations"
 msgstr ""
 
@@ -12070,8 +12258,8 @@ msgid "Intake"
 msgstr ""
 
 #, fuzzy, python-format
-msgid "Latest: %s ago (%s %s%s%s%s)"
-msgstr "  Seu horário: %s - %s (@%s = %s%s)\n"
+msgid "Most recent lab work: %s ago (%s)"
+msgstr " Mais recente: %s - %s"
 
 #, fuzzy, python-format
 msgid "%s %s%s%s (%s ago, %s)"
@@ -12561,11 +12749,20 @@ msgstr "não disponível"
 msgid "cannot export or convert latest mugshot"
 msgstr "Não é possível exportar Prontuário Eletrônico. Não há paciente ativo."
 
+msgid "patient_mcf: invalid format (qr/mcf/txt)"
+msgstr ""
+
 #, fuzzy
 msgid "no tags for this patient"
 msgstr "Um comentário sobre esse paciente."
 
 msgid "no patient tags selected for inclusion"
+msgstr ""
+
+msgid "praxis_mcf: invalid format (qr/mcf/txt)"
+msgstr ""
+
+msgid "praxis_scan2pay: invalid format (qr/txt)"
 msgstr ""
 
 msgid "no address recorded"
@@ -13628,6 +13825,10 @@ msgstr "Relatório não retornou dados."
 #, fuzzy
 msgid "not str()able"
 msgstr "não disponível"
+
+#, fuzzy, python-format
+msgid "No editor for [%s]"
+msgstr "<No embed string for [%s]>"
 
 msgid "Select a message type."
 msgstr ""
@@ -15938,6 +16139,14 @@ msgstr "Medidas e Resultados"
 msgid "Configuring medications plugin measurements panel"
 msgstr ""
 
+msgid ""
+"GNUmed will use this URL to access a website which lets\n"
+"you report an adverse drug reaction (ADR).\n"
+"\n"
+"If you leave this empty it will fall back\n"
+"to an URL for reporting ADRs in Germany."
+msgstr ""
+
 msgid "Drug product"
 msgstr ""
 
@@ -16072,69 +16281,70 @@ msgstr ""
 msgid "clinical progress note"
 msgstr ""
 
-msgid "Select a directory for inclusion into the patient CD / DVD."
-msgstr ""
-
 #, fuzzy
-msgid "Select a directory in which to create the patient media."
-msgstr "Selecione o episódio para o qual você quer mover a descrição"
+msgid "Clearing out a directory"
+msgstr "Mover paciente para baixo."
 
 #, python-format
 msgid ""
-"Really delete any existing data under\n"
+"Do you really want to delete all existing data\n"
+"from the following directory ?\n"
 "\n"
-" [%s]\n"
+" %s\n"
 "\n"
-"from disk ?\n"
-"\n"
-"(this operation is generally not reversible)"
+"Note, this can NOT be reversed without backups."
 msgstr ""
 
-msgid "Preparing patient media for burning onto CD / DVD"
+#, python-format
+msgid ""
+"\n"
+"Number of entries to export: %s\n"
+"\n"
+"Patient: %s\n"
+"\n"
+"Select the media to export onto below.\n"
 msgstr ""
+
+msgid "Medium"
+msgstr ""
+
+#, fuzzy, python-format
+msgid "%s (%s %s) - %s free"
+msgstr "%s atrás"
+
+#, fuzzy, python-format
+msgid "%s (%s): %s in %s on %s"
+msgstr ""
+"%s: %s by %.8s\n"
+"%s"
+
+#, fuzzy, python-format
+msgid "%s on %s, not mounted"
+msgstr "%s-%s-%s: um(a) %s no próximo mês"
 
 #, fuzzy
-msgid "Script <gm-burn_doc(.bat)> not found."
+msgid "helper <gm-burn_doc(.bat)> not found"
 msgstr "Página não encontrada"
 
-msgid "Cannot attempt to burn patient media onto CD/DVD."
+#, fuzzy
+msgid "media not mounted"
+msgstr "Página não encontrada"
+
+#, fuzzy
+msgid "directory contains data"
+msgstr "Prescrições"
+
+#, fuzzy
+msgid "Select directory where to save the archive or files."
+msgstr "Selecione o episódio para o qual você quer mover a descrição"
+
+#, python-format
+msgid "Number of entries to save: %s"
 msgstr ""
 
 #, fuzzy, python-format
 msgid "Patient: %s"
 msgstr "Paciente"
-
-#, python-format
-msgid "Number of items to export onto CD/DVD: %s\n"
-msgstr ""
-
-msgid "Preparing patient media for saving to disk (USB, harddrive)."
-msgstr ""
-
-#, python-format
-msgid "Number of items to export to disk: %s\n"
-msgstr ""
-
-msgid "(cannot check directory)"
-msgstr ""
-
-msgid "(directory appears empty)"
-msgstr ""
-
-msgid "directory already contains data"
-msgstr ""
-
-#, python-format
-msgid ""
-"%s\n"
-"- DICOM data"
-msgstr ""
-
-#, fuzzy, python-format
-msgid ""
-"%s\n"
-"- additional documents"
-msgstr "Apagando documento"
 
 msgid "Select files to add to the export area"
 msgstr ""
@@ -16148,6 +16358,20 @@ msgid ""
 "Cannot add (some of) the following files to the export area:\n"
 "%s "
 msgstr ""
+
+#, fuzzy
+msgid "Select directory to add to the export area"
+msgstr "Selecione o episódio para o qual você quer mover a descrição"
+
+#, fuzzy
+msgid "Adding path to export area"
+msgstr "Adicionando novo nome"
+
+#, fuzzy, python-format
+msgid ""
+"Cannot add the following path to the export area:\n"
+"%s "
+msgstr "Paciente ativo"
 
 #, fuzzy
 msgid "Select the documents to be put into the export area:"
@@ -16201,45 +16425,80 @@ msgid ""
 " - %s"
 msgstr "Fechado"
 
-#, fuzzy, python-format
-msgid ""
-"Cannot remove content from\n"
-" [%s]"
+msgid "Item(s) moved to Print Center."
 msgstr ""
-"Não foi possível checar a versão em:\n"
-"\n"
-"%s"
+
+#, fuzzy
+msgid "Saving entries"
+msgstr "Apagando documento"
+
+msgid "Saving entries as encrypted ZIP archive"
+msgstr ""
+
+msgid "Saving entries as unencrypted ZIP archive"
+msgstr ""
+
+#, fuzzy
+msgid "Cannot save: aborted or error."
+msgstr "Editar as substâncias consumíveis."
+
+#, fuzzy, python-format
+msgid "Saved entries into [%s]"
+msgstr "Salvar definição de relatório [%s]."
+
+msgid "Saving entries as encrypted files"
+msgstr ""
+
+msgid "Saving entries as unencrypted files"
+msgstr ""
 
 #, fuzzy, python-format
 msgid ""
-"Saved to [%s]:\n"
+"Saved from export area to [%s]:\n"
 " - %s"
 msgstr "  risco: %s"
 
-#, fuzzy, python-format
-msgid ""
-"Saved documents into directory:\n"
-"\n"
-" %s"
-msgstr "salvar entrada no prontuário médico"
+#, fuzzy
+msgid "Exporting entries"
+msgstr "Relatório"
+
+msgid "Exporting encrypted entries"
+msgstr ""
+
+msgid "Cannot export: aborted or error."
+msgstr ""
 
 #, fuzzy
-msgid "Browse patient data pack ?"
-msgstr "Agrupar pacientes"
-
-#, fuzzy
-msgid "Error burning documents to CD/DVD."
-msgstr "Erro ao procurar documentos."
-
-#, fuzzy
-msgid "Burning documents"
-msgstr "Apagando documento"
+msgid "Entries successfully burned to disk."
+msgstr "Prontuário exportado para arquivo: %s"
 
 #, python-format
 msgid ""
 "Burned onto CD/DVD:\n"
 " - %s"
 msgstr ""
+
+#, python-format
+msgid "Exported entries into [%s]"
+msgstr ""
+
+#, python-format
+msgid ""
+"Exported onto removable media:\n"
+" - %s"
+msgstr ""
+
+#, fuzzy
+msgid "Cannot send e-mail: <gm-mail_doc(.bat)> not found"
+msgstr "Página não encontrada"
+
+#, fuzzy
+msgid "Mailing documents as zip archive"
+msgstr "Apagando documento"
+
+#, fuzzy
+msgid "Cannot send e-mail: no archive created."
+msgstr "Não foi possível adicionar problema de saúde. Não há paciente ativo."
 
 #, fuzzy
 msgid "Error mailing documents."
@@ -16255,16 +16514,30 @@ msgid ""
 " - %s"
 msgstr "Fechado"
 
+#, fuzzy
+msgid "Cannot send fax: <gm-fax_doc(.bat)> not found"
+msgstr "Página não encontrada"
+
+msgid "Cannot send fax: no items"
+msgstr ""
+
+#, fuzzy
+msgid "Faxing documents"
+msgstr "Apagando documento"
+
+#, python-format
+msgid ""
+"You have not selected any entries.\n"
+"\n"
+"Send fax with all %s entries ?"
+msgstr ""
+
 msgid ""
 "Please enter the fax number here !\n"
 "\n"
 "It can be left empty if the external\n"
 "fax software knows how to get the number."
 msgstr ""
-
-#, fuzzy
-msgid "Faxing documents"
-msgstr "Apagando documento"
 
 #, fuzzy, python-format
 msgid ""
@@ -16286,6 +16559,80 @@ msgid "<gm-fax_doc(.bat) not found>"
 msgstr ""
 
 msgid "<gm-burn_doc(.bat) not found>"
+msgstr ""
+
+msgid "Password not provided twice. Aborting."
+msgstr ""
+
+#, fuzzy
+msgid "Error exporting entries."
+msgstr "Erro ao procurar documentos."
+
+#, fuzzy
+msgid "Error creating zip file."
+msgstr "Selecione o tipo de consulta"
+
+msgid ""
+"Enter passphrase to protect the data with.\n"
+"\n"
+"(minimum length: 5, trailing blanks will be stripped)"
+msgstr ""
+
+msgid ""
+"Insufficient passphrase.\n"
+"\n"
+"(minimum length: 5, trailing blanks will be stripped)\n"
+"\n"
+"Enter another passphrase ?"
+msgstr ""
+
+msgid ""
+"Once more enter passphrase to protect the data with.\n"
+"\n"
+"(this will protect you from typos)\n"
+"\n"
+"Abort by leaving empty."
+msgstr ""
+
+msgid ""
+"Passphrases do not match.\n"
+"\n"
+"Retry, or abort with an empty passphrase."
+msgstr ""
+
+msgid "Export area empty. Nothing to do."
+msgstr ""
+
+#, python-format
+msgid ""
+"You have not selected any entries.\n"
+"\n"
+"Really use all %s entries ?"
+msgstr ""
+
+msgid "Cannot burn to disk: Helper not found."
+msgstr ""
+
+#, fuzzy
+msgid "Error burning documents to CD/DVD."
+msgstr "Erro ao procurar documentos."
+
+#, fuzzy
+msgid "Burning documents"
+msgstr "Apagando documento"
+
+#, fuzzy, python-format
+msgid ""
+"Documents saved into:\n"
+"\n"
+" %s"
+msgstr "Documentos: %s"
+
+#, fuzzy
+msgid "Browsing patient data excerpt"
+msgstr "Agrupar pacientes"
+
+msgid "Browse saved entries ?"
 msgstr ""
 
 msgid "Cannot accept new documents. No active patient."
@@ -16801,6 +17148,9 @@ msgstr "Mostre o arquivo de log no visualizador de texto"
 msgid "Age noted"
 msgstr " idade do início "
 
+msgid "Department"
+msgstr ""
+
 msgid "Bill"
 msgstr ""
 
@@ -17142,6 +17492,58 @@ msgstr "mostrar porção"
 msgid "DICOM field"
 msgstr "visualizador DICOM"
 
+#, fuzzy
+msgid "Show in DICOM viewer"
+msgstr "Mostre o arquivo de log no visualizador de texto"
+
+#, fuzzy
+msgid "Show in image viewer"
+msgstr "Mostre o arquivo de log no visualizador de texto"
+
+#, fuzzy
+msgid "Copy to export area"
+msgstr "Adicionando novo nome"
+
+msgid "Save as DICOM file (.dcm)"
+msgstr ""
+
+msgid "Save as image file (.png)"
+msgstr ""
+
+#, fuzzy
+msgid "Selected into export area"
+msgstr "Adicionando novo nome"
+
+#, fuzzy
+msgid "ZIP of selected into export area"
+msgstr "Adicionando novo nome"
+
+#, fuzzy
+msgid "All into export area"
+msgstr "Adicionando novo nome"
+
+#, fuzzy
+msgid "ZIP of all into export area"
+msgstr "Adicionando novo nome"
+
+#, fuzzy
+msgid "Save selected"
+msgstr "= selected =>"
+
+#, fuzzy
+msgid "Save ZIP of selected"
+msgstr "Remover o(s) item(s) selecionado(s) da lista."
+
+#, fuzzy
+msgid "Save all"
+msgstr "Salvar"
+
+msgid "Save ZIP of all"
+msgstr ""
+
+msgid "Add PDF to study"
+msgstr ""
+
 msgid "Cannot connect without port (try 8042)."
 msgstr ""
 
@@ -17198,6 +17600,152 @@ msgid "Image %s/%s"
 msgstr "todos os arquivos"
 
 #, fuzzy, python-format
+msgid ""
+"Cannot show image:\n"
+"%s"
+msgstr "Não foi possível achar imagem"
+
+msgid "Previewing DICOM image"
+msgstr ""
+
+#, python-format
+msgid ""
+"Cannot show in DICOM or image viewer:\n"
+"%s"
+msgstr ""
+
+#, fuzzy
+msgid "Cannot save image as DICOM file."
+msgstr "Não foi possível salvar a consulta: tipo não foi deinido"
+
+#, fuzzy
+msgid "Saving DICOM image"
+msgstr "carregando arquivo xDT"
+
+#, fuzzy, python-format
+msgid "Successfully saved as [%s]."
+msgstr "Prontuário exportado para arquivo: %s"
+
+#, fuzzy
+msgid "Cannot save image as PNG file."
+msgstr "Não foi possível salvar a consulta: tipo não foi deinido"
+
+#, python-format
+msgid "DICOM image of [%s] from Orthanc PACS \"%s\" (AET \"%s\")"
+msgstr ""
+
+#, fuzzy
+msgid "Successfully stored in export area."
+msgstr "Prontuário exportado para arquivo: %s"
+
+#, fuzzy
+msgid "Showing DICOM studies"
+msgstr "carregando arquivo xDT"
+
+#, fuzzy
+msgid "Unable to show selected studies."
+msgstr "obrigatório selecionar endereço"
+
+#, fuzzy
+msgid "Copying DICOM studies"
+msgstr "carregando arquivo xDT"
+
+#, fuzzy
+msgid "Unable to put studies into export area."
+msgstr "Adicionando novo nome"
+
+#, python-format
+msgid "DICOM studies of [%s] from Orthanc PACS \"%s\" (AET \"%s\") [%s/]"
+msgstr ""
+
+#, fuzzy
+msgid "Adding DICOM studies to export area"
+msgstr "Adicionando novo nome"
+
+#, fuzzy
+msgid "Unable to put ZIP of studies into export area."
+msgstr "Adicionando novo nome"
+
+msgid "Exporting DICOM studies"
+msgstr ""
+
+#, python-format
+msgid ""
+"The DICOM studies are %s in compressed size.\n"
+"\n"
+"Really move into export area ?"
+msgstr ""
+
+#, python-format
+msgid "DICOM studies of [%s] from Orthanc PACS \"%s\" (AET \"%s\")"
+msgstr ""
+
+#, fuzzy, python-format
+msgid ""
+"Cannot add the following archive to the export area:\n"
+"%s "
+msgstr "Paciente ativo"
+
+#, fuzzy
+msgid "Select the directory into which to save the DICOM studies."
+msgstr "Selecione o episódio para o qual você quer mover a descrição"
+
+msgid "Saving DICOM studies"
+msgstr ""
+
+#, fuzzy
+msgid "Unable to save DICOM studies."
+msgstr "obrigatório selecionar endereço"
+
+#, fuzzy, python-format
+msgid "Successfully saved to [%s]."
+msgstr "Prontuário exportado para arquivo: %s"
+
+#, fuzzy
+msgid "Select the directory into which to save the DICOM studies ZIP."
+msgstr "Selecione o episódio para o qual você quer mover a descrição"
+
+#, fuzzy
+msgid "Unable to save DICOM studies as ZIP."
+msgstr "obrigatório selecionar endereço"
+
+msgid "Adding PDF to DICOM study"
+msgstr ""
+
+msgid ""
+"For adding a PDF file there must be exactly one (1) DICOM study selected."
+msgstr ""
+
+msgid "Select PDF to add to DICOM study"
+msgstr ""
+
+#, fuzzy
+msgid "PDF files"
+msgstr "todos os arquivos"
+
+#, python-format
+msgid ""
+"Cannot turn PDF file\n"
+"\n"
+" %s\n"
+"\n"
+" into DICOM file."
+msgstr ""
+
+#, python-format
+msgid "Successfully uploaded [%s] to Orthanc DICOM server."
+msgstr ""
+
+#, python-format
+msgid ""
+"Cannot updload DICOM file\n"
+"\n"
+" %s\n"
+"\n"
+" into Orthanc PACS."
+msgstr ""
+
+#, fuzzy, python-format
 msgid "%s image(s)%s"
 msgstr "%s atrás"
 
@@ -17223,47 +17771,8 @@ msgstr "carregando arquivo xDT"
 msgid "Working on: Orthanc \"%s\" (AET \"%s\" @ %s:%s, Version %s)"
 msgstr ""
 
-#, python-format
-msgid ""
-"Cannot preview DICOM image:\n"
-"%s"
+msgid "Successfully verified DICOM data of patient."
 msgstr ""
-
-msgid "Previewing DICOM image"
-msgstr ""
-
-#, python-format
-msgid ""
-"Cannot show DICOM image:\n"
-"%s"
-msgstr ""
-
-#, fuzzy
-msgid "Showing DICOM image"
-msgstr "carregando arquivo xDT"
-
-#, fuzzy, python-format
-msgid "Successfully saved as [%s]."
-msgstr "Prontuário exportado para arquivo: %s"
-
-#, python-format
-msgid "DICOM image of [%s] from Orthanc PACS \"%s\" (AET \"%s\")"
-msgstr ""
-
-#, fuzzy
-msgid "Successfully stored in export area."
-msgstr "Prontuário exportado para arquivo: %s"
-
-#, fuzzy
-msgid "Select the directory into which to save the DICOM studies."
-msgstr "Selecione o episódio para o qual você quer mover a descrição"
-
-msgid "Saving DICOM studies"
-msgstr ""
-
-#, fuzzy
-msgid "Unable to save selected studies."
-msgstr "obrigatório selecionar endereço"
 
 msgid "DICOM data error"
 msgstr ""
@@ -17298,17 +17807,6 @@ msgstr "Enviar relatório"
 
 msgid "DICOM data corruption"
 msgstr ""
-
-#, fuzzy
-msgid "Unable to save patient studies."
-msgstr "obrigatório selecionar endereço"
-
-msgid "Exporting DICOM studies"
-msgstr ""
-
-#, fuzzy
-msgid "Unable to export studies."
-msgstr "Falha ao alocar paciente ao regime de %s"
 
 #, fuzzy
 msgid "Patient ID"
@@ -18517,33 +19015,8 @@ msgstr ""
 "Aqui pode-se definir quanto tempo o GNUmed deve esperar pelo OOo.\n"
 
 msgid ""
-"GNUmed will use this URL to access a website which lets\n"
-"you report an adverse drug reaction (ADR).\n"
-"\n"
-"If you leave this empty it will fall back\n"
-"to an URL for reporting ADRs in Germany."
-msgstr ""
-
-msgid ""
-"GNUmed will use this URL to access a website which lets\n"
-"you report an adverse vaccination reaction (vADR).\n"
-"\n"
-"If you set it to a specific address that URL must be\n"
-"accessible now. If you leave it empty it will fall back\n"
-"to the URL for reporting other adverse drug reactions."
-msgstr ""
-
-msgid ""
 "GNUmed will use this URL to access an encyclopedia of\n"
 "measurement/lab methods from within the measurments grid.\n"
-"\n"
-"You can leave this empty but to set it to a specific\n"
-"address the URL must be accessible now."
-msgstr ""
-
-msgid ""
-"GNUmed will use this URL to access a page showing\n"
-"vaccination schedules.\n"
 "\n"
 "You can leave this empty but to set it to a specific\n"
 "address the URL must be accessible now."
@@ -19262,6 +19735,16 @@ msgstr ""
 msgid "Saved screenshot to file [%s]."
 msgstr ""
 
+msgid "Statusbar history"
+msgstr ""
+
+#, python-format
+msgid ""
+"%s - now\n"
+"\n"
+"%s"
+msgstr ""
+
 msgid "GNUmed client"
 msgstr ""
 
@@ -19429,6 +19912,36 @@ msgstr ""
 msgid "Must select a hospital. Cannot save hospitalization."
 msgstr "Não é possível apagar o tipo de consulta [%s]. Está em uso."
 
+msgid "Choose an AMTS BMP medication plan."
+msgstr ""
+
+#, fuzzy
+msgid "BMP files"
+msgstr "todos os arquivos"
+
+msgid "Importing AMTS BMP Medikationsplan"
+msgstr ""
+
+#, python-format
+msgid ""
+"The file\n"
+"\n"
+" [%s]\n"
+"\n"
+"does not seem to be a Medikationsplan."
+msgstr ""
+
+#, python-format
+msgid ""
+"No matching patient found in GNUmed.\n"
+"\n"
+"The patient in the Medikationsplan is:\n"
+"\n"
+" %s\n"
+"\n"
+"Do you want to create that patient ?"
+msgstr ""
+
 msgid "Cannot change notebook tabs. No active patient."
 msgstr ""
 
@@ -19505,19 +20018,19 @@ msgid "Age: %s, birthday:\n"
 msgstr ""
 
 #, fuzzy, python-format
-msgid "%s ago (= this year)"
+msgid "last: %s ago (this year)"
 msgstr "%s (%s desse ano)"
 
 #, fuzzy, python-format
-msgid "in %s (= next year)"
+msgid "next: in %s (next year)"
 msgstr "%s (%s ano que vem)"
 
 #, fuzzy, python-format
-msgid "in %s (= this year)"
+msgid "next: in %s (this year)"
 msgstr "%s (%s desse ano)"
 
 #, fuzzy, python-format
-msgid "%s ago (= last year)"
+msgid "last: %s ago (last year)"
 msgstr "%s (%s ano passado)"
 
 #, python-format
@@ -20270,30 +20783,52 @@ msgstr ""
 msgid "Cannot plot without a plot script."
 msgstr ""
 
-msgid "Result"
-msgstr ""
-
 #, fuzzy
-msgid "no related documents found"
+msgid "no related documents"
 msgstr "Organizar documentos por"
+
+msgid "There is no lab reference to find related documents for."
+msgstr ""
 
 msgid "No document types declared to contain lab results."
 msgstr ""
 
-msgid "Document types declared to contain lab results:"
-msgstr ""
+#, fuzzy
+msgid "No valid document types declared to contain lab results."
+msgstr "Selecione o tipo padrão para novas consultas.\n"
+
+#, fuzzy
+msgid "Document types assumed to contain lab results:"
+msgstr "Selecione o tipo padrão para novas consultas.\n"
 
 #, fuzzy, python-format
 msgid "Related documents: %s"
 msgstr "Documentos: %s"
 
 #, fuzzy
+msgid "Select the document types which are assumed to contain lab results."
+msgstr "Selecione o episódio para o qual você quer mover a descrição"
+
+#, fuzzy
 msgid "Documents possibly related to this episode"
 msgstr "Um comentário sobre esse paciente."
 
+msgid "Result"
+msgstr ""
+
+msgid "Range"
+msgstr ""
+
+#, fuzzy, python-format
+msgid "%s ago (%s)"
+msgstr "%s atrás"
+
+msgid "missing"
+msgstr ""
+
 #, fuzzy
-msgid "Select the document types which are expected to contain lab results."
-msgstr "Selecione o episódio para o qual você quer mover a descrição"
+msgid "LOINC not found"
+msgstr "Página não encontrada"
 
 #, fuzzy
 msgid "Perform on selected results:"
@@ -20308,6 +20843,10 @@ msgstr "Problema"
 
 msgid "Panels"
 msgstr ""
+
+#, fuzzy
+msgid "Most recent"
+msgstr " Mais recente: %s - %s"
 
 msgid ""
 "lab_grid_date_format::%Y\n"
@@ -20537,10 +21076,6 @@ msgid "Select a test panel."
 msgstr ""
 
 #, fuzzy
-msgid "LOINC not found"
-msgstr "Página não encontrada"
-
-#, fuzzy
 msgid "not a LOINC"
 msgstr "Atualizar"
 
@@ -20761,9 +21296,8 @@ msgstr ""
 msgid "Find text in EMR Journal"
 msgstr ""
 
-#, fuzzy
-msgid "Clinical time"
-msgstr "Anotações Clínicas"
+msgid "Happened"
+msgstr "Ocorreu"
 
 msgid "Who / When"
 msgstr ""
@@ -21486,9 +22020,6 @@ msgstr ""
 msgid "Head Office"
 msgstr ""
 
-msgid "Department"
-msgstr ""
-
 msgid "Organisation"
 msgstr ""
 
@@ -21890,6 +22421,127 @@ msgstr "Cancelar"
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Cancelar e NÃO conectar ao GNUmed."
 
+#, fuzzy
+#~ msgid "Revision #%s"
+#~ msgstr " Nova versão: \"%s\""
+
+#, fuzzy
+#~ msgid "Error running GnuPG. Cannot decrypt data."
+#~ msgstr "Erro ao executar gnuplot. Não é possível plotar dados."
+
+#, fuzzy
+#~ msgid "&Show (D)"
+#~ msgstr "Mostrar arquivo de Log"
+
+#, fuzzy
+#~ msgid "Save (&D)"
+#~ msgstr "Salvar"
+
+#, fuzzy
+#~ msgid "Show (&P)"
+#~ msgstr "Mostrar arquivo de Log"
+
+#, fuzzy
+#~ msgid "Save (P)"
+#~ msgstr "Salvar"
+
+#, fuzzy
+#~ msgid "Browse topmost selected study."
+#~ msgstr "Editar o item selecionado."
+
+#, fuzzy
+#~ msgid "Browse overview of all studies for this patient."
+#~ msgstr "Detalhes da fila de espera para esse paciente."
+
+#, fuzzy
+#~ msgid "Save selected studies to disk as DICOM directory."
+#~ msgstr "= selected =>"
+
+#, fuzzy
+#~ msgid "Save selected studies as DICOM archive."
+#~ msgstr "= selected =>"
+
+#, fuzzy
+#~ msgid "Please supply your email address here !"
+#~ msgstr "Por favor informe seu endereço de email."
+
+#~ msgid "Close this dialog but keep running GNUmed."
+#~ msgstr "Fechar essa janela, mas continuar executando GNUmed."
+
+#~ msgid "Close this dialog AND the GNUmed client."
+#~ msgstr "Fechar essa janela E o cliente GNUmed."
+
+#, fuzzy
+#~ msgid ""
+#~ "empty?\n"
+#~ "DICOMDIR ?\n"
+#~ "documents/ ?"
+#~ msgstr "Documentos vazios"
+
+#, fuzzy
+#~ msgid "Existing data:"
+#~ msgstr "Verificando a versão do banco de dados"
+
+#, fuzzy
+#~ msgid "Include"
+#~ msgstr "Incluir:"
+
+#, fuzzy
+#~ msgid "Browse the selected directory."
+#~ msgstr "obrigatório selecionar endereço"
+
+#, fuzzy
+#~ msgid ""
+#~ "Check if you want to include the selected directory into the CD / DVD."
+#~ msgstr ""
+#~ "Selecione se você concorda com a opinião atual de resultado clinicamente "
+#~ "relevante."
+
+#, fuzzy
+#~ msgid "other: %s"
+#~ msgstr "Local"
+
+#~ msgid "dummy-no-need-to-translate-but-make-epydoc-happy"
+#~ msgstr "dummy-no-need-to-translate-but-make-epydoc-happy"
+
+#, fuzzy
+#~ msgid "Latest: %s ago (%s %s%s%s%s)"
+#~ msgstr "  Seu horário: %s - %s (@%s = %s%s)\n"
+
+#, fuzzy
+#~ msgid "Select a directory in which to create the patient media."
+#~ msgstr "Selecione o episódio para o qual você quer mover a descrição"
+
+#, fuzzy
+#~ msgid ""
+#~ "%s\n"
+#~ "- additional documents"
+#~ msgstr "Apagando documento"
+
+#, fuzzy
+#~ msgid ""
+#~ "Cannot remove content from\n"
+#~ " [%s]"
+#~ msgstr ""
+#~ "Não foi possível checar a versão em:\n"
+#~ "\n"
+#~ "%s"
+
+#, fuzzy
+#~ msgid ""
+#~ "Saved documents into directory:\n"
+#~ "\n"
+#~ " %s"
+#~ msgstr "salvar entrada no prontuário médico"
+
+#, fuzzy
+#~ msgid "Browse patient data pack ?"
+#~ msgstr "Agrupar pacientes"
+
+#, fuzzy
+#~ msgid "Unable to export studies."
+#~ msgstr "Falha ao alocar paciente ao regime de %s"
+
 #~ msgid "%s this week (%s of %s)"
 #~ msgstr "%s essa semana (%s de %s)"
 
@@ -22170,10 +22822,6 @@ msgstr "Cancelar e NÃO conectar ao GNUmed."
 #~ msgstr "Iniciar Nova"
 
 #, fuzzy
-#~ msgid "Saving export area documents"
-#~ msgstr "Apagando documento"
-
-#, fuzzy
 #~ msgid "Export part"
 #~ msgstr "Relatório"
 
@@ -22188,10 +22836,6 @@ msgstr "Cancelar e NÃO conectar ao GNUmed."
 #, fuzzy
 #~ msgid "Export all"
 #~ msgstr "Relatório"
-
-#, fuzzy
-#~ msgid "Copy selected studies into export area."
-#~ msgstr "Adicionando novo nome"
 
 #, fuzzy
 #~ msgid "Selected studies:"
@@ -22358,10 +23002,6 @@ msgstr "Cancelar e NÃO conectar ao GNUmed."
 #, fuzzy
 #~ msgid "health issue"
 #~ msgstr "Problema de Saúde"
-
-#, fuzzy
-#~ msgid "Copy to e&xport area..."
-#~ msgstr "Adicionando novo nome"
 
 #, fuzzy
 #~ msgid "&Entry time"
@@ -22716,9 +23356,6 @@ msgstr "Cancelar e NÃO conectar ao GNUmed."
 #~ msgid "Save the form template definition."
 #~ msgstr "Salvar a definição de relatório."
 
-#~ msgid "Version:"
-#~ msgstr "Versão:"
-
 #~ msgid "Last modified:"
 #~ msgstr "Modificado em:"
 
@@ -22769,9 +23406,6 @@ msgstr "Cancelar e NÃO conectar ao GNUmed."
 #~ msgid "Print vaccinations using a template."
 #~ msgstr "Não há vacinas para formatar"
 
-#~ msgid "Patient:"
-#~ msgstr "Paciente"
-
 #~ msgid "GNUmed  generic EditArea dialog"
 #~ msgstr "Janela genérica do GNUmed para Editar Área"
 
@@ -22818,9 +23452,6 @@ msgstr "Cancelar e NÃO conectar ao GNUmed."
 
 #~ msgid "part"
 #~ msgstr "parte"
-
-#~ msgid "Happened"
-#~ msgstr "Ocorreu"
 
 #~ msgid ""
 #~ "Cannot activate patient.\n"

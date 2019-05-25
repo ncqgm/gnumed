@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-06-04 10:39+0200\n"
+"POT-Creation-Date: 2019-05-19 15:12+0200\n"
 "PO-Revision-Date: 2012-06-01 01:24+0000\n"
 "Last-Translator: ncq <Unknown>\n"
 "Language-Team: Ελληνικά, Σύγχρονα <opensuse-translation-el@opensuse.org>\n"
@@ -2753,10 +2753,6 @@ msgid ""
 "--------------"
 msgstr "Αίτηση βοήθειας"
 
-#, fuzzy, python-format
-msgid "Revision #%s"
-msgstr " Νέα έκδοση:\"%s\""
-
 #, python-format
 msgid "[%s:%s]: row not updated (nothing returned), row in use ?"
 msgstr ""
@@ -2785,13 +2781,19 @@ msgid ""
 " [%s]"
 msgstr ""
 
+#, python-format
+msgid ""
+"Unable to edit/view the file:\n"
+"\n"
+" [%s]\n"
+"\n"
+"Your system does not seem to have a (working)\n"
+"editor or viewer registered for the file type\n"
+" [%s]"
+msgstr ""
+
 msgid "Translate this or i18n into <en_EN> will not work properly !"
 msgstr "Μεταφράστε το ή το i18n δεν θα λειτουργήσει σωστά !"
-
-#, fuzzy
-msgid "Error running GnuPG. Cannot decrypt data."
-msgstr ""
-"Σφάλμα στο  τρέξιμοτου  gnuplot. Δεν είναι δυνατή η πλοκή των δεδομένων."
 
 msgid "1 Byte"
 msgstr "1 Byte"
@@ -2803,6 +2805,10 @@ msgstr "%s Bytes"
 #, fuzzy
 msgid "<type>"
 msgstr "τύπος"
+
+#, fuzzy
+msgid "<missing>"
+msgstr "η ετικέτα λείπει."
 
 #, python-format
 msgid ""
@@ -3451,25 +3457,6 @@ msgstr "Αναζήτηση με"
 msgid "New patient ID:"
 msgstr "ID εσωτερικού ασθενούς"
 
-#, fuzzy
-msgid "Related documents: XX"
-msgstr "Επισύναψη αρχείων"
-
-#, fuzzy
-msgid "List"
-msgstr "Λίστα αναμονής"
-
-#, fuzzy
-msgid "Select types"
-msgstr "Τύπος προτύπου"
-
-msgid "List lab documents within the episode of the selected measurement."
-msgstr ""
-
-#, fuzzy
-msgid "Select the document types expected to contain lab results."
-msgstr "Επέλεξε πρότυπο για την εκτύπωση της φαρμακευτικής αγωγής."
-
 msgid "Source"
 msgstr "Πηγή"
 
@@ -3856,12 +3843,6 @@ msgstr "Σύνδεση"
 msgid "<not connected>"
 msgstr "Επεξεργασία φαρμακευτικής αγωγής"
 
-msgid "Image"
-msgstr ""
-
-msgid "Patient"
-msgstr "Ασθενής"
-
 msgid "◄"
 msgstr ""
 
@@ -3869,34 +3850,30 @@ msgid "►"
 msgstr ""
 
 #, fuzzy
-msgid "E&xport"
+msgid "&Show"
+msgstr "Εμφάνιση μηνυμάτων:"
+
+#, fuzzy
+msgid "E&xport area"
 msgstr "Αναφορά"
 
 msgid "Browse"
 msgstr ""
 
 #, fuzzy
-msgid "&Show (D)"
+msgid "Show"
 msgstr "Εμφάνιση μηνυμάτων:"
 
 #, fuzzy
-msgid "Save (&D)"
-msgstr "Αποθήκευση &όλα"
+msgid "Export area"
+msgstr "Αναφορά"
+
+msgid "Verify"
+msgstr ""
 
 #, fuzzy
 msgid "&Upload"
 msgstr "Ανανέωση"
-
-#, fuzzy
-msgid "Show (&P)"
-msgstr "Εμφάνιση μηνυμάτων:"
-
-#, fuzzy
-msgid "Save (P)"
-msgstr " Αποθήκευση "
-
-msgid "as ZIP"
-msgstr ""
 
 #, fuzzy
 msgid "Enter the PACS host address."
@@ -3919,7 +3896,10 @@ msgstr ""
 msgid "Connect to PACS."
 msgstr "Σύνδεση στο GNUmed"
 
-msgid "Verify patient data in PACS."
+msgid ""
+"Double-click: Display in external viewer.\n"
+"\n"
+"Right-click: Show context menu."
 msgstr ""
 
 msgid "Review previous image."
@@ -3930,62 +3910,58 @@ msgid "Preview next image."
 msgstr "όλα τα αρχεία"
 
 #, fuzzy
-msgid "Store image into export area."
+msgid "Show image in external viewer."
+msgstr "Αποθήκευση εγγράφου"
+
+#, fuzzy
+msgid "Put image into export area."
 msgstr "Προσθήκη νέου ονόματος"
 
+msgid ""
+"Browse selected studies in web browser.\n"
+"\n"
+"Right-click for further options."
+msgstr ""
+
 #, fuzzy
-msgid "Browse topmost selected study."
+msgid "Show selected studies in external viewer."
 msgstr "Επεξεργασία του επιλεγμένου αντικειμένου."
 
 #, fuzzy
-msgid "Browse overview of all studies for this patient."
-msgstr "Κράτα *αυτόν* τον ασθενή"
+msgid "Put selected studies into export area."
+msgstr "Προσθήκη νέου ονόματος"
 
-msgid "Browse PACS at top level."
+msgid "Browse patient studies in web browser."
 msgstr ""
 
-msgid "Show image in DICOM viewer."
+msgid "Verify DICOM data of patient in PACS."
 msgstr ""
 
-msgid "Save image in DICOM format."
-msgstr ""
-
-#, fuzzy
-msgid "Save selected studies to disk as DICOM directory."
-msgstr "Επεξεργασία του επιλεγμένου αντικειμένου."
-
-msgid "Save all studies as one DICOM directory."
+msgid "Browse PACS."
 msgstr ""
 
 msgid ""
 "Upload DICOM files from a directory, recursively, into the Orthanc PACS\n"
 "\n"
-"The currently active patient does not matter. Orthanc will associate "
-"uploaded files with the patient found within the DICOM metadata. It will "
-"create new patients as needed."
+"It does not matter what the currently active patient is. Orthanc will "
+"associate uploaded files with the patient found within the DICOM metadata "
+"and will create new patients as needed."
 msgstr ""
 
-msgid "Show image in external viewer (PNG format)."
+msgid "Modify some of Orthanc's content (such as patient IDs)."
 msgstr ""
 
-msgid "Save image preview (PNG format)."
+msgid "PACS"
 msgstr ""
 
-#, fuzzy
-msgid "Save selected studies as DICOM archive."
-msgstr "Επεξεργασία του επιλεγμένου αντικειμένου."
-
-msgid "Save all studies of patient as DICOM archive."
-msgstr ""
-
-msgid "Modify some of Orthanc content (such as patient IDs)."
-msgstr ""
+msgid "Patient"
+msgstr "Ασθενής"
 
 #, fuzzy
 msgid "Study"
 msgstr "ημέρα"
 
-msgid "PACS"
+msgid "Image"
 msgstr ""
 
 msgid "A descriptive name for this test type."
@@ -4231,10 +4207,6 @@ msgstr "Διαγραφή της επιλεγμένης αλλεργίας από
 msgid "Show printouts for:"
 msgstr ""
 
-#, fuzzy
-msgid "E&xport area"
-msgstr "Αναφορά"
-
 msgid "Care"
 msgstr ""
 
@@ -4397,10 +4369,6 @@ msgstr ""
 
 msgid "&clinically relevant"
 msgstr "&κλινικά συναφές"
-
-#, fuzzy
-msgid "Show"
-msgstr "Εμφάνιση μηνυμάτων:"
 
 msgid "Remove part"
 msgstr ""
@@ -4893,15 +4861,18 @@ msgstr ""
 msgid "Purpose"
 msgstr ""
 
-#, fuzzy
-msgid "Please supply your email address here !"
-msgstr "Παρακαλώ εισάγετε μια διεύθυνση Email."
+msgid "<supply email address for getting feedback on bug report>"
+msgstr ""
 
 msgid "Keep running"
 msgstr "Συνέχιση εκτέλεσης"
 
 msgid "Close GNUmed"
 msgstr "Έξοδος GNUmed"
+
+#, fuzzy
+msgid "☠ Abort GNUmed ☠"
+msgstr "Περί GNUmed"
 
 msgid "View log"
 msgstr "Προβολή  καταγραφής"
@@ -4920,18 +4891,30 @@ msgstr ""
 msgid ""
 "Please enter your email address so we can provide help to you directly.\n"
 "\n"
-"Otherwise, feedback can be given on the GNUmed mailing list (http://lists."
-"gnu.org/mailman/listinfo/gnumed-bugs) ONLY to which you will then have to "
+"Otherwise, feedback can be given on the GNUmed mailing list ONLY (http://"
+"lists.gnu.org/mailman/listinfo/gnumed-bugs) to which you will then have to "
 "subscribe."
 msgstr ""
 
 msgid "Find help on http://wiki.gnumed.de, too."
 msgstr ""
 
-msgid "Close this dialog but keep running GNUmed."
+msgid ""
+"Close this dialog but keep open the GNUmed client.\n"
+"\n"
+"You should manually restart the client as soon as possible, however."
 msgstr ""
 
-msgid "Close this dialog AND the GNUmed client."
+msgid ""
+"Close this GNUmed client.\n"
+"\n"
+"This will attempt to run normal shutdown and cleanup procedures."
+msgstr ""
+
+msgid ""
+"Abort this GNUmed client.\n"
+"\n"
+"This will NOT invoke any shutdown and cleanup work."
 msgstr ""
 
 msgid "View the log file."
@@ -4955,20 +4938,21 @@ msgid "An unhandled exception has occurred."
 msgstr ""
 
 msgid ""
-"GNUmed detected an error for which no specific handler had been defined.\n"
+"GNUmed detected an error for which no specific handling had been defined.\n"
 "\n"
-"Details about the error can be found in the log file a copy of which has\n"
-"been saved away in your home directory (see below). It may contain\n"
+"Details about the error can be found in the log file, a copy of which has\n"
+"been stored away in your home directory (see below). It may contain\n"
 "bits of sensitive information so you may want to screen the content\n"
 "before handing it to IT staff for debugging.\n"
 "\n"
-"GNUmed will try to keep running. However, it is strongly advised to\n"
-"close this GNUmed workplace as soon as possible. You can try to save\n"
-"unsaved data but don't count on it.\n"
+"You can choose to keep open this GNUmed workplace. However, it is strongly\n"
+"advised to restart this workplace as soon as possible. Meanwhile you can "
+"try\n"
+"to save unsaved data but don't count on it.\n"
 "\n"
 "It should then be safe to restart GNUmed.\n"
 "\n"
-"Documentation to be found at <http://wiki.gnumed.de>."
+"Documentation can be found at <http://wiki.gnumed.de>."
 msgstr ""
 
 msgid ""
@@ -5218,7 +5202,7 @@ msgid "to patient export area"
 msgstr ""
 
 #, fuzzy
-msgid "Print &remotely"
+msgid "Print &queue"
 msgstr "Δημιουργία νέου"
 
 #, fuzzy
@@ -5256,7 +5240,7 @@ msgid ""
 msgstr ""
 
 msgid ""
-"Remotely print document(s).\n"
+"Save document(s) into print queue for printing elsewhere.\n"
 "(optionally copy to archive and export area)"
 msgstr ""
 
@@ -5512,30 +5496,41 @@ msgstr "Επεξεργασία του επιλεγμένου αντικειμέ�
 msgid "Remove the selected item(s) from the list."
 msgstr ""
 
-msgid "↢ &Disk"
+msgid "← &Disk"
 msgstr ""
 
-msgid "↢ &Archive"
+#, fuzzy
+msgid "← &Directory"
+msgstr "Φάκελος"
+
+#, fuzzy
+msgid "← &Archive"
+msgstr "&Εγώ μόνο"
+
+msgid "← S&can"
 msgstr ""
 
-msgid "↢ S&can"
-msgstr ""
+#, fuzzy
+msgid "← C&lipboard"
+msgstr "Εξαγωγή στο &πρόχειρο"
 
-msgid "↢ C&lipboard"
+#, fuzzy
+msgid "&Save as"
+msgstr "&Αποθήκευση"
+
+#, fuzzy
+msgid "E&xport"
+msgstr "Αναφορά"
+
+msgid "→ Archive"
 msgstr ""
 
 msgid "&Print"
 msgstr "&Εκτύπωση"
 
 #, fuzzy
-msgid "&Print Mgr"
+msgid "→ &Print Mgr"
 msgstr "&Εκτύπωση"
-
-msgid "&Burn"
-msgstr ""
-
-msgid "&Save"
-msgstr "&Αποθήκευση"
 
 msgid "E-&Mail"
 msgstr ""
@@ -5543,15 +5538,12 @@ msgstr ""
 msgid "&Fax"
 msgstr ""
 
-msgid "⇶ Archive"
+msgid "Add document(s) from file(s)."
 msgstr ""
 
 #, fuzzy
-msgid "Show the topmost selected document."
-msgstr "Επεξεργασία του επιλεγμένου αντικειμένου."
-
-msgid "Add document(s) from file(s)."
-msgstr ""
+msgid "Add a local directory."
+msgstr "Επιλογή φακέλου σελίδων html"
 
 msgid "Add document(s) from archive."
 msgstr ""
@@ -5564,6 +5556,20 @@ msgid "Acquire file or text from the clipboard."
 msgstr "Εξαγωγή στο &πρόχειρο"
 
 #, fuzzy
+msgid "Show the topmost selected document."
+msgstr "Επεξεργασία του επιλεγμένου αντικειμένου."
+
+#, fuzzy
+msgid "Save selected/all items to disk."
+msgstr "Επεξεργασία του επιλεγμένου αντικειμένου."
+
+msgid "Export all/selected items to removable media (CD/DVD/USB)."
+msgstr ""
+
+msgid "Store selected/all documents in document archive."
+msgstr ""
+
+#, fuzzy
 msgid "Remove the selected documents."
 msgstr "Επεξεργασία του επιλεγμένου αντικειμένου."
 
@@ -5574,22 +5580,12 @@ msgstr ""
 msgid "Put selected/all documents into remote print manager."
 msgstr "Αποθήκευση εγγράφου"
 
-msgid "Burn selected/all documents onto CD/DVD."
-msgstr ""
-
-#, fuzzy
-msgid "Save selected/all items to disk."
-msgstr "Επεξεργασία του επιλεγμένου αντικειμένου."
-
 msgid "E-mail selected/all documents."
 msgstr ""
 
 #, fuzzy
 msgid "Fax selected/all documents."
 msgstr "Αποθήκευση εγγράφου"
-
-msgid "Store selected/all documents in document archive."
-msgstr ""
 
 msgid "Keep *this* patient"
 msgstr "Κράτα *αυτόν* τον ασθενή"
@@ -5894,6 +5890,25 @@ msgstr "&Ζώνη:"
 msgid "&Urgency:"
 msgstr ""
 
+#, fuzzy
+msgid "Related documents: XX"
+msgstr "Επισύναψη αρχείων"
+
+#, fuzzy
+msgid "List"
+msgstr "Λίστα αναμονής"
+
+#, fuzzy
+msgid "Select types"
+msgstr "Τύπος προτύπου"
+
+msgid "List lab documents within the episode of the selected measurement."
+msgstr ""
+
+#, fuzzy
+msgid "Select the document types assumed to contain lab results."
+msgstr "Επέλεξε πρότυπο για την εκτύπωση της φαρμακευτικής αγωγής."
+
 msgid "&Link"
 msgstr ""
 
@@ -5921,6 +5936,9 @@ msgstr "&Διαγραφή"
 
 msgid "<above, double-click problem to start entering SOAP note>"
 msgstr ""
+
+msgid "&Save"
+msgstr "&Αποθήκευση"
 
 #, fuzzy
 msgid "&Filter by problem"
@@ -5952,6 +5970,98 @@ msgid ""
 "Check this if you want to filter the journal by the problem selected on the "
 "left."
 msgstr ""
+
+msgid ""
+"\n"
+"Describe the intended action.\n"
+msgstr ""
+
+msgid "Path:"
+msgstr ""
+
+msgid "<shows default path computed at runtime>"
+msgstr ""
+
+#, fuzzy
+msgid "this path is/is not empty"
+msgstr "Τύπος προτύπου"
+
+#, fuzzy
+msgid "Open"
+msgstr "OpenOffice"
+
+#, fuzzy
+msgid "en&crypt"
+msgstr "Κρυπτογράφηση"
+
+#, fuzzy
+msgid "generate &metadata"
+msgstr "Γενικευμένο"
+
+#, fuzzy
+msgid "use subdirectory"
+msgstr "Φάκελος"
+
+#, fuzzy
+msgid "Save Files"
+msgstr "Δημιουργία νέου"
+
+msgid "Save as Archive"
+msgstr ""
+
+#, fuzzy
+msgid "Saving export area items"
+msgstr "Αποθήκευση εγγράφου"
+
+#, fuzzy
+msgid "Select target directory for files or archive."
+msgstr "Επιλογή φακέλου σελίδων html"
+
+msgid "Open selected target directory in file browser."
+msgstr ""
+
+msgid "Clear selected target directory from any existing data."
+msgstr ""
+
+msgid ""
+"Use encryption ?\n"
+"\n"
+"When you save as files each file will be encrypted individually.\n"
+"\n"
+"When you save into an archive the ZIP archive itself will be encrypted "
+"rather than the files contained within. Encrypted archives will not include "
+"any patient data into the archive filename."
+msgstr ""
+
+msgid ""
+"Generate metadata ?\n"
+"\n"
+"Check if you want GNUmed to generate metadata describing the exported "
+"patient data and save it alongside the files.\n"
+"\n"
+"When saving into an archive metadata will always be included."
+msgstr ""
+
+msgid ""
+"Save into patient specific subdirectory ?\n"
+"\n"
+"Check if you want GNUmed to create a suitable subdirectory within the "
+"selected path and save to that."
+msgstr ""
+
+msgid "Save entries as individual files."
+msgstr ""
+
+msgid "Save entries packaged into an archive."
+msgstr ""
+
+#, fuzzy
+msgid "Abort saving entries."
+msgstr "Διαγραφή φαρμακευτικής αγωγής"
+
+#, fuzzy
+msgid "Options:"
+msgstr "Επιλογές"
 
 msgid "Subjective"
 msgstr "Υποκειμενικό"
@@ -6063,6 +6173,23 @@ msgid ""
 "Delete - if possible - the (first or only) item selected in the list above."
 msgstr ""
 
+msgid "Panel:"
+msgstr ""
+
+msgid "http://www.laborlexikon.de"
+msgstr ""
+
+#, fuzzy
+msgid "&Show missing"
+msgstr "η ετικέτα λείπει."
+
+#, fuzzy
+msgid "Manage"
+msgstr "&Διαχείριση"
+
+msgid "Check to show panel tests which lack results."
+msgstr ""
+
 #, fuzzy
 msgid "Dynamic hints"
 msgstr "Αποθήκευση εγγράφου"
@@ -6145,85 +6272,6 @@ msgid "In-praxis primary doc"
 msgstr ""
 
 msgid "Activate the respective patient by double-clicking a row."
-msgstr ""
-
-msgid "Describe the intended action."
-msgstr ""
-
-msgid "&Select"
-msgstr "&Επιλογή"
-
-msgid ""
-"empty?\n"
-"DICOMDIR ?\n"
-"documents/ ?"
-msgstr ""
-
-#, fuzzy
-msgid "Existing data:"
-msgstr "Επεξεργασία φαρμακευτικής αγωγής"
-
-msgid "Include"
-msgstr ""
-
-msgid "&Include into CD / DVD"
-msgstr ""
-
-#, fuzzy
-msgid "Use subdirectory:"
-msgstr "Φάκελος"
-
-#, fuzzy
-msgid "<patient directory>"
-msgstr "ασθενής"
-
-#, fuzzy
-msgid "Generate metadata"
-msgstr "Γενικευμένο"
-
-#, fuzzy
-msgid "Creating patient media"
-msgstr "Διαγραφή φαρμακευτικής αγωγής"
-
-#, fuzzy
-msgid "Select the directory."
-msgstr "Επιλογή φακέλου σελίδων html"
-
-#, fuzzy
-msgid "Browse the selected directory."
-msgstr "Επεξεργασία του επιλεγμένου αντικειμένου."
-
-msgid "Include existing data if any."
-msgstr ""
-
-msgid "Remove existing data if any."
-msgstr ""
-
-msgid "Check if you want to include the selected directory into the CD / DVD."
-msgstr ""
-
-msgid ""
-"Check if you want to use a subdirectory within the directory selected "
-"above.\n"
-"\n"
-"This will leave alone any existing data."
-msgstr ""
-
-msgid ""
-"Check if you want GNUmed to generate and include metadata describing the "
-"exported patient data files.\n"
-"\n"
-"If unchecked, export items will simply be dumped into the target directory."
-msgstr ""
-
-msgid "Create patient media (in target directory or on CD / DVD)."
-msgstr ""
-
-#, fuzzy
-msgid "Abort creating patient media."
-msgstr "Διαγραφή φαρμακευτικής αγωγής"
-
-msgid "Path:"
 msgstr ""
 
 msgid "Edit Allergy/Intolerance"
@@ -7006,6 +7054,9 @@ msgid ""
 "Please fill in an appropriate value below.\n"
 msgstr ""
 
+msgid "&Select"
+msgstr "&Επιλογή"
+
 msgid "&VAT applies"
 msgstr ""
 
@@ -7066,6 +7117,40 @@ msgstr ""
 
 msgid "Channel"
 msgstr "Κανάλι"
+
+#, fuzzy
+msgid "Creating Patient Media"
+msgstr "Διαγραφή φαρμακευτικής αγωγής"
+
+msgid "Reload the list of removable media."
+msgstr ""
+
+msgid ""
+"Use encryption ?\n"
+"\n"
+"You need to arrange for safely passing any encryption key to receivers of "
+"the patient data excerpt yourself.\n"
+"\n"
+"Note that the *content* of each file will be encrypted - some hints about "
+"the patient might potentially still be derivable from the names of files. If "
+"you need a completely anonymous patient data excerpt you should use the "
+"[Save as] functionality of the export area and create an encrypted archive."
+msgstr ""
+
+msgid ""
+"Use patient specific subdirectory ?\n"
+"\n"
+"DO NOT USE unless you really know why.\n"
+"\n"
+"If checked GNUmed will create a suitable subdirectory on the removable media "
+"and save to that."
+msgstr ""
+
+msgid "Save patient data excerpt to the removable media selected above."
+msgstr ""
+
+msgid "Removable media"
+msgstr ""
 
 #, fuzzy
 msgid "&Modification"
@@ -8022,6 +8107,16 @@ msgstr ""
 msgid "<hint title>"
 msgstr ""
 
+msgid "⤴"
+msgstr ""
+
+#, fuzzy
+msgid ""
+"Rationale for\n"
+"suppression\n"
+"in this patient"
+msgstr "Κράτα *αυτόν* τον ασθενή"
+
 #, fuzzy
 msgid "Save &under"
 msgstr "Αποστολέας"
@@ -8089,10 +8184,6 @@ msgstr ""
 
 msgid "Encounter:"
 msgstr "Συνεδρία:"
-
-#, fuzzy
-msgid "Manage"
-msgstr "&Διαχείριση"
 
 msgid "&Panel:"
 msgstr ""
@@ -8789,13 +8880,13 @@ msgstr ""
 msgid "tobacco"
 msgstr ""
 
+msgid "ethanol"
+msgstr ""
+
 msgid "alcohol"
 msgstr ""
 
 msgid "liquid"
-msgstr ""
-
-msgid "ethanol"
 msgstr ""
 
 #, fuzzy
@@ -8836,6 +8927,37 @@ msgstr "Εξήχθηκε: %s\n"
 #, fuzzy, python-format
 msgid "Expires: %s\n"
 msgstr "Εξήχθηκε: %s\n"
+
+#, python-format
+msgid "AMTS BMP file: %s"
+msgstr ""
+
+#, fuzzy, python-format
+msgid "Created: %s"
+msgstr "Δημιουργία νέου"
+
+#, fuzzy, python-format
+msgid "Version: %s"
+msgstr "Έκδοση"
+
+#, fuzzy, python-format
+msgid "UID: %s"
+msgstr "Ημερομηνία: %s\n"
+
+#, fuzzy
+msgid "Creator:"
+msgstr "Δημιουργία νέου"
+
+msgid "Patient:"
+msgstr "Ασθενής:"
+
+#, fuzzy
+msgid "Clinical data:"
+msgstr "Κλινικές λεπτομέρειες"
+
+#, fuzzy
+msgid "Raw data:"
+msgstr "δεδομένα"
 
 #, fuzzy
 msgid "HL7 Source"
@@ -8891,9 +9013,27 @@ msgstr ""
 msgid "Result dates: %s"
 msgstr "Αποτελέσματα"
 
+#, python-format
+msgid ""
+"This item points to a directory on the computer named:\n"
+" %s\n"
+"You are, however, currently using another computer:\n"
+" %s\n"
+"Directory items can only be viewed/saved/exported\n"
+"on the computer they are pointing to."
+msgstr ""
+
 #, fuzzy, python-format
 msgid "form: %s %s (%s)"
 msgstr "Εργαστήριο: %s\n"
+
+#, python-format
+msgid "path [%s/] on computer \"%s\""
+msgstr ""
+
+#, python-format
+msgid " (on \"%s\")"
+msgstr ""
 
 #, fuzzy
 msgid "file"
@@ -8910,28 +9050,8 @@ msgstr ""
 "%s"
 
 #, fuzzy
-msgid "Patient data for"
-msgstr "Ασθενής"
-
-msgid "born"
-msgstr ""
-
-#, fuzzy
-msgid "Patient data export"
-msgstr "Αποστολή αναφοράς"
-
-msgid "no patient photograph available"
-msgstr ""
-
-msgid "Documents"
-msgstr "Έγγραφα"
-
-msgid "browse storage medium"
-msgstr ""
-
-#, fuzzy
-msgid "browse documents area"
-msgstr "Επισύναψη αρχείων"
+msgid "GNUmed Patient Media"
+msgstr "Πελάτης GNUmed"
 
 #, python-format
 msgid "patient photograph from %s"
@@ -8944,13 +9064,53 @@ msgstr "αρχεία καταγραφής"
 msgid "run Radiology Images (DICOM) Viewer"
 msgstr ""
 
-#, fuzzy, python-format
-msgid "other: %s"
-msgstr " Κωδικός: %s\n"
+#, fuzzy
+msgid "Patient data"
+msgstr "Ασθενής"
+
+#, fuzzy
+msgid "Patient data excerpt"
+msgstr "Αποστολή αναφοράς"
+
+msgid "Documents"
+msgstr "Έγγραφα"
+
+msgid "browse storage medium"
+msgstr ""
+
+#, fuzzy
+msgid "browse documents area"
+msgstr "Επισύναψη αρχείων"
+
+#, fuzzy
+msgid "Patient data for"
+msgstr "Ασθενής"
+
+msgid "born"
+msgstr ""
+
+msgid "no patient photograph available"
+msgstr ""
+
+#, python-format
+msgid "DIRECTORY: %s/%s/"
+msgstr ""
+
+#, python-format
+msgid "DIRECTORY: %s/%s/%s/"
+msgstr ""
+
+#, fuzzy
+msgid "<protected>"
+msgstr "Επεξεργασία φαρμακευτικής αγωγής"
 
 #, fuzzy
 msgid "Browse patient data"
 msgstr "Αποθήκευση εγγράφου"
+
+#, fuzzy
+msgid "GNUmed patient data excerpt"
+msgstr "Αποστολή αναφοράς"
 
 #, python-format
 msgid "error with placeholder [%s]"
@@ -9093,9 +9253,6 @@ msgstr "Λέξη κλειδί"
 #, fuzzy, python-format
 msgid " Owner: %s\n"
 msgstr " Κωδικός: %s\n"
-
-msgid "dummy-no-need-to-translate-but-make-epydoc-happy"
-msgstr "εικονική-δεν χρειαζετε -να-μετάφραση-αλλά-but-make-epydoc-happy"
 
 msgid "unknown gender"
 msgstr "άγνωστο γένος"
@@ -10003,6 +10160,16 @@ msgstr "Δεν μπορεί να τρέξει το [Arriba]!"
 msgid "No [arriba] result found in [%s]."
 msgstr "Δεν βρέθηκε κανένα αποτέλεσμα από το [arriba] στο [%s]."
 
+msgid "first name"
+msgstr "όνομα"
+
+#, fuzzy
+msgid "last name"
+msgstr "επώνυμο"
+
+msgid "LASTNAME and firstname"
+msgstr ""
+
 msgid "internal patient ID"
 msgstr "ID εσωτερικού ασθενούς"
 
@@ -10012,26 +10179,8 @@ msgstr "Ημερομηνία γέννησης"
 msgid "external patient ID"
 msgstr "ID εξωτερικού ασθενούς"
 
-msgid "first name"
-msgstr "όνομα"
-
 msgid "name, gender, date of birth"
 msgstr "όνομα, γένος, ημερομηνία γέννησης"
-
-#, fuzzy
-msgid "lastname"
-msgstr "επώνυμο"
-
-#, fuzzy
-msgid "firstname"
-msgstr "όνομα"
-
-#, fuzzy
-msgid "nickname"
-msgstr "Ψευδώνυμο"
-
-msgid "any name part"
-msgstr "οποιοδήποτε μέρος του ονόματος"
 
 msgid "name: first-last"
 msgstr "όνομα: όνομα-επίθετο"
@@ -10057,6 +10206,21 @@ msgstr ""
 
 msgid "name, date of birth"
 msgstr "όνομα, ημερομηνία γέννησης"
+
+#, fuzzy
+msgid "lastname"
+msgstr "επώνυμο"
+
+#, fuzzy
+msgid "firstname"
+msgstr "όνομα"
+
+#, fuzzy
+msgid "nickname"
+msgstr "Ψευδώνυμο"
+
+msgid "any name part"
+msgstr "οποιοδήποτε μέρος του ονόματος"
 
 msgid "names: first last"
 msgstr "όνοματα: όνομα επίθετο"
@@ -10177,6 +10341,10 @@ msgstr "Ασθενής"
 msgid " Receiver: #%s\n"
 msgstr " Αιτία: %s\n"
 
+#, fuzzy, python-format
+msgid "Inv: %s, %s"
+msgstr "σε %d μέρα(ες): %s"
+
 #, fuzzy
 msgid "copy of printed prescription"
 msgstr "Συνταγές"
@@ -10236,7 +10404,8 @@ msgstr "Ένδειξη"
 msgid "unknown vaccinations output format [%s]"
 msgstr ""
 
-msgid "No vaccinations to format."
+#, fuzzy
+msgid "No vaccinations recorded."
 msgstr "Κανένας εμβολιασμόςπρος μορφοποίηση."
 
 msgid "Latest vaccinations"
@@ -10788,13 +10957,13 @@ msgstr "Σημειώσεις προόδου στις πιο πρόσφατη σ�
 msgid "Measurements and Results:"
 msgstr "Μετρήσεις και Αποτελέσματα:"
 
-#, python-format
-msgid "%s so far"
-msgstr ""
-
 #, fuzzy, python-format
 msgid "Episode: %s%s%s"
 msgstr "Επεισόδια %s%s%s [#%s]"
+
+#, python-format
+msgid "%s so far"
+msgstr ""
 
 #, python-format
 msgid "  your time: %s - %s  (@%s = %s%s)\n"
@@ -11337,6 +11506,12 @@ msgstr ""
 msgid "Cannot save procedure."
 msgstr ""
 
+msgid "Editing progress note"
+msgstr ""
+
+msgid "This is the original progress note:"
+msgstr ""
+
 msgid "Cannot move progress notes. No active patient."
 msgstr ""
 
@@ -11369,12 +11544,6 @@ msgid "Yes, delete the progress note."
 msgstr ""
 
 msgid "No, do NOT delete the progress note."
-msgstr ""
-
-msgid "Editing progress note"
-msgstr ""
-
-msgid "This is the original progress note:"
 msgstr ""
 
 msgid "Managing progress notes"
@@ -11938,6 +12107,23 @@ msgid ""
 "used in to document a vaccination with.\n"
 msgstr ""
 
+msgid ""
+"GNUmed will use this URL to access a website which lets\n"
+"you report an adverse vaccination reaction (vADR).\n"
+"\n"
+"If you set it to a specific address that URL must be\n"
+"accessible now. If you leave it empty it will fall back\n"
+"to the URL for reporting other adverse drug reactions."
+msgstr ""
+
+msgid ""
+"GNUmed will use this URL to access a page showing\n"
+"vaccination schedules.\n"
+"\n"
+"You can leave this empty but to set it to a specific\n"
+"address the URL must be accessible now."
+msgstr ""
+
 msgid "Adding new vaccinations"
 msgstr ""
 
@@ -12120,8 +12306,8 @@ msgid "Intake"
 msgstr ""
 
 #, fuzzy, python-format
-msgid "Latest: %s ago (%s %s%s%s%s)"
-msgstr "  Ο χρόνος:%s - %s (@%s = %s%s)\n"
+msgid "Most recent lab work: %s ago (%s)"
+msgstr " Πιο πρόσφατο:%s-%s"
 
 #, fuzzy, python-format
 msgid "%s %s%s%s (%s ago, %s)"
@@ -12607,11 +12793,20 @@ msgstr ""
 msgid "cannot export or convert latest mugshot"
 msgstr "Δεν μπορώ να εξάγω τον ΗΙΦ. Χωρίς ενεργό ασθενή."
 
+msgid "patient_mcf: invalid format (qr/mcf/txt)"
+msgstr ""
+
 #, fuzzy
 msgid "no tags for this patient"
 msgstr "Κράτα *αυτόν* τον ασθενή"
 
 msgid "no patient tags selected for inclusion"
+msgstr ""
+
+msgid "praxis_mcf: invalid format (qr/mcf/txt)"
+msgstr ""
+
+msgid "praxis_scan2pay: invalid format (qr/txt)"
 msgstr ""
 
 msgid "no address recorded"
@@ -13632,6 +13827,10 @@ msgid "Report Generator"
 msgstr "&Γεννήτρια Αναφορών"
 
 msgid "not str()able"
+msgstr ""
+
+#, python-format
+msgid "No editor for [%s]"
 msgstr ""
 
 #, fuzzy
@@ -15898,6 +16097,14 @@ msgstr "Μετρήσεις"
 msgid "Configuring medications plugin measurements panel"
 msgstr ""
 
+msgid ""
+"GNUmed will use this URL to access a website which lets\n"
+"you report an adverse drug reaction (ADR).\n"
+"\n"
+"If you leave this empty it will fall back\n"
+"to an URL for reporting ADRs in Germany."
+msgstr ""
+
 msgid "Drug product"
 msgstr ""
 
@@ -16032,68 +16239,69 @@ msgstr ""
 msgid "clinical progress note"
 msgstr ""
 
-msgid "Select a directory for inclusion into the patient CD / DVD."
-msgstr ""
-
 #, fuzzy
-msgid "Select a directory in which to create the patient media."
-msgstr "Αρχή νέας συνεδρίας για τον ενεργό ασθενή αμέσως τώρα."
+msgid "Clearing out a directory"
+msgstr "ασθενής"
 
 #, python-format
 msgid ""
-"Really delete any existing data under\n"
+"Do you really want to delete all existing data\n"
+"from the following directory ?\n"
 "\n"
-" [%s]\n"
+" %s\n"
 "\n"
-"from disk ?\n"
-"\n"
-"(this operation is generally not reversible)"
+"Note, this can NOT be reversed without backups."
 msgstr ""
 
-msgid "Preparing patient media for burning onto CD / DVD"
+#, python-format
+msgid ""
+"\n"
+"Number of entries to export: %s\n"
+"\n"
+"Patient: %s\n"
+"\n"
+"Select the media to export onto below.\n"
 msgstr ""
 
-msgid "Script <gm-burn_doc(.bat)> not found."
+msgid "Medium"
 msgstr ""
 
-msgid "Cannot attempt to burn patient media onto CD/DVD."
+#, fuzzy, python-format
+msgid "%s (%s %s) - %s free"
+msgstr "Ημερομηνία: %s\n"
+
+#, fuzzy, python-format
+msgid "%s (%s): %s in %s on %s"
+msgstr ""
+"%s: %s από  %.8s (v%s)\n"
+"%s"
+
+#, python-format
+msgid "%s on %s, not mounted"
+msgstr ""
+
+msgid "helper <gm-burn_doc(.bat)> not found"
+msgstr ""
+
+#, fuzzy
+msgid "media not mounted"
+msgstr "Η σελίδα δεν βρέθηκε"
+
+#, fuzzy
+msgid "directory contains data"
+msgstr "Συνταγές"
+
+#, fuzzy
+msgid "Select directory where to save the archive or files."
+msgstr "Αρχή νέας συνεδρίας για τον ενεργό ασθενή αμέσως τώρα."
+
+#, python-format
+msgid "Number of entries to save: %s"
 msgstr ""
 
 #, fuzzy, python-format
 msgid "Patient: %s"
 msgstr "Ασθενής"
-
-#, python-format
-msgid "Number of items to export onto CD/DVD: %s\n"
-msgstr ""
-
-msgid "Preparing patient media for saving to disk (USB, harddrive)."
-msgstr ""
-
-#, python-format
-msgid "Number of items to export to disk: %s\n"
-msgstr ""
-
-msgid "(cannot check directory)"
-msgstr ""
-
-msgid "(directory appears empty)"
-msgstr ""
-
-msgid "directory already contains data"
-msgstr ""
-
-#, python-format
-msgid ""
-"%s\n"
-"- DICOM data"
-msgstr ""
-
-#, fuzzy, python-format
-msgid ""
-"%s\n"
-"- additional documents"
-msgstr "Αποθήκευση εγγράφου"
 
 msgid "Select files to add to the export area"
 msgstr ""
@@ -16107,6 +16315,20 @@ msgid ""
 "Cannot add (some of) the following files to the export area:\n"
 "%s "
 msgstr ""
+
+#, fuzzy
+msgid "Select directory to add to the export area"
+msgstr "Αρχή νέας συνεδρίας για τον ενεργό ασθενή αμέσως τώρα."
+
+#, fuzzy
+msgid "Adding path to export area"
+msgstr "Προσθήκη νέου ονόματος"
+
+#, fuzzy, python-format
+msgid ""
+"Cannot add the following path to the export area:\n"
+"%s "
+msgstr "Δεν μπορώ να εξάγω τον ΗΙΦ. Χωρίς ενεργό ασθενή."
 
 #, fuzzy
 msgid "Select the documents to be put into the export area:"
@@ -16161,45 +16383,78 @@ msgid ""
 " - %s"
 msgstr "Ημερομηνία: %s\n"
 
-#, fuzzy, python-format
-msgid ""
-"Cannot remove content from\n"
-" [%s]"
+msgid "Item(s) moved to Print Center."
 msgstr ""
-"Δεν είναι δυνατή η ανάκτηση πληροφοριών για την έκδοση από:\n"
-"\n"
-"%s"
+
+#, fuzzy
+msgid "Saving entries"
+msgstr "Αποθήκευση διεύθυνσης"
+
+msgid "Saving entries as encrypted ZIP archive"
+msgstr ""
+
+msgid "Saving entries as unencrypted ZIP archive"
+msgstr ""
+
+msgid "Cannot save: aborted or error."
+msgstr ""
+
+#, fuzzy, python-format
+msgid "Saved entries into [%s]"
+msgstr "  κίνδυνος:%s"
+
+msgid "Saving entries as encrypted files"
+msgstr ""
+
+msgid "Saving entries as unencrypted files"
+msgstr ""
 
 #, fuzzy, python-format
 msgid ""
-"Saved to [%s]:\n"
+"Saved from export area to [%s]:\n"
 " - %s"
 msgstr "  κίνδυνος:%s"
 
-#, python-format
-msgid ""
-"Saved documents into directory:\n"
-"\n"
-" %s"
+#, fuzzy
+msgid "Exporting entries"
+msgstr "Αναφορά"
+
+msgid "Exporting encrypted entries"
+msgstr ""
+
+msgid "Cannot export: aborted or error."
 msgstr ""
 
 #, fuzzy
-msgid "Browse patient data pack ?"
-msgstr "Αποθήκευση εγγράφου"
-
-#, fuzzy
-msgid "Error burning documents to CD/DVD."
-msgstr "Τελευταίοι εμβολιασμοί"
-
-#, fuzzy
-msgid "Burning documents"
-msgstr "Αποθήκευση εγγράφου"
+msgid "Entries successfully burned to disk."
+msgstr "Επιτυχής εξαγωγή του ΗΙΦ στο αρχείο:%s"
 
 #, python-format
 msgid ""
 "Burned onto CD/DVD:\n"
 " - %s"
 msgstr ""
+
+#, python-format
+msgid "Exported entries into [%s]"
+msgstr ""
+
+#, python-format
+msgid ""
+"Exported onto removable media:\n"
+" - %s"
+msgstr ""
+
+msgid "Cannot send e-mail: <gm-mail_doc(.bat)> not found"
+msgstr ""
+
+#, fuzzy
+msgid "Mailing documents as zip archive"
+msgstr "Αποθήκευση εγγράφου"
+
+#, fuzzy
+msgid "Cannot send e-mail: no archive created."
+msgstr "Δεν μπορώ να εισάγω την φαρμακευτική αγωγή. Κανείς ενεργός ασθενής."
 
 #, fuzzy
 msgid "Error mailing documents."
@@ -16215,16 +16470,29 @@ msgid ""
 " - %s"
 msgstr "Ημερομηνία: %s\n"
 
+msgid "Cannot send fax: <gm-fax_doc(.bat)> not found"
+msgstr ""
+
+msgid "Cannot send fax: no items"
+msgstr ""
+
+#, fuzzy
+msgid "Faxing documents"
+msgstr "Αποθήκευση εγγράφου"
+
+#, python-format
+msgid ""
+"You have not selected any entries.\n"
+"\n"
+"Send fax with all %s entries ?"
+msgstr ""
+
 msgid ""
 "Please enter the fax number here !\n"
 "\n"
 "It can be left empty if the external\n"
 "fax software knows how to get the number."
 msgstr ""
-
-#, fuzzy
-msgid "Faxing documents"
-msgstr "Αποθήκευση εγγράφου"
 
 #, python-format
 msgid ""
@@ -16246,6 +16514,80 @@ msgid "<gm-fax_doc(.bat) not found>"
 msgstr ""
 
 msgid "<gm-burn_doc(.bat) not found>"
+msgstr ""
+
+msgid "Password not provided twice. Aborting."
+msgstr ""
+
+#, fuzzy
+msgid "Error exporting entries."
+msgstr "Τελευταίοι εμβολιασμοί"
+
+#, fuzzy
+msgid "Error creating zip file."
+msgstr "Επέλεξε τον τύπο της συνεδρίας."
+
+msgid ""
+"Enter passphrase to protect the data with.\n"
+"\n"
+"(minimum length: 5, trailing blanks will be stripped)"
+msgstr ""
+
+msgid ""
+"Insufficient passphrase.\n"
+"\n"
+"(minimum length: 5, trailing blanks will be stripped)\n"
+"\n"
+"Enter another passphrase ?"
+msgstr ""
+
+msgid ""
+"Once more enter passphrase to protect the data with.\n"
+"\n"
+"(this will protect you from typos)\n"
+"\n"
+"Abort by leaving empty."
+msgstr ""
+
+msgid ""
+"Passphrases do not match.\n"
+"\n"
+"Retry, or abort with an empty passphrase."
+msgstr ""
+
+msgid "Export area empty. Nothing to do."
+msgstr ""
+
+#, python-format
+msgid ""
+"You have not selected any entries.\n"
+"\n"
+"Really use all %s entries ?"
+msgstr ""
+
+msgid "Cannot burn to disk: Helper not found."
+msgstr ""
+
+#, fuzzy
+msgid "Error burning documents to CD/DVD."
+msgstr "Τελευταίοι εμβολιασμοί"
+
+#, fuzzy
+msgid "Burning documents"
+msgstr "Αποθήκευση εγγράφου"
+
+#, fuzzy, python-format
+msgid ""
+"Documents saved into:\n"
+"\n"
+" %s"
+msgstr "Αρχεία:%s"
+
+#, fuzzy
+msgid "Browsing patient data excerpt"
+msgstr "Αποθήκευση εγγράφου"
+
+msgid "Browse saved entries ?"
 msgstr ""
 
 msgid "Cannot accept new documents. No active patient."
@@ -16736,6 +17078,9 @@ msgstr ""
 msgid "Age noted"
 msgstr "Ηλικιακό φάσμα"
 
+msgid "Department"
+msgstr "Τμήμα"
+
 msgid "Bill"
 msgstr ""
 
@@ -17076,6 +17421,59 @@ msgstr "μέρος"
 msgid "DICOM field"
 msgstr "Πεδίο αγνοούμενο"
 
+#, fuzzy
+msgid "Show in DICOM viewer"
+msgstr "αρχεία καταγραφής"
+
+#, fuzzy
+msgid "Show in image viewer"
+msgstr "αρχεία καταγραφής"
+
+#, fuzzy
+msgid "Copy to export area"
+msgstr "Προσθήκη νέου ονόματος"
+
+msgid "Save as DICOM file (.dcm)"
+msgstr ""
+
+msgid "Save as image file (.png)"
+msgstr ""
+
+#, fuzzy
+msgid "Selected into export area"
+msgstr "Προσθήκη νέου ονόματος"
+
+#, fuzzy
+msgid "ZIP of selected into export area"
+msgstr "Προσθήκη νέου ονόματος"
+
+#, fuzzy
+msgid "All into export area"
+msgstr "Προσθήκη νέου ονόματος"
+
+#, fuzzy
+msgid "ZIP of all into export area"
+msgstr "Προσθήκη νέου ονόματος"
+
+#, fuzzy
+msgid "Save selected"
+msgstr "Επεξεργασία φαρμακευτικής αγωγής"
+
+#, fuzzy
+msgid "Save ZIP of selected"
+msgstr "Διαγραφή της επιλεγμένης αλλεργίας από την λίστα στην βάση δεδομένων."
+
+#, fuzzy
+msgid "Save all"
+msgstr "Αποθήκευση &όλα"
+
+#, fuzzy
+msgid "Save ZIP of all"
+msgstr "Αποθήκευση &όλα"
+
+msgid "Add PDF to study"
+msgstr ""
+
 msgid "Cannot connect without port (try 8042)."
 msgstr ""
 
@@ -17130,6 +17528,149 @@ msgstr "Κατηγορία"
 msgid "Image %s/%s"
 msgstr "όλα τα αρχεία"
 
+#, python-format
+msgid ""
+"Cannot show image:\n"
+"%s"
+msgstr ""
+
+msgid "Previewing DICOM image"
+msgstr ""
+
+#, python-format
+msgid ""
+"Cannot show in DICOM or image viewer:\n"
+"%s"
+msgstr ""
+
+msgid "Cannot save image as DICOM file."
+msgstr ""
+
+#, fuzzy
+msgid "Saving DICOM image"
+msgstr "αρχεία καταγραφής"
+
+#, fuzzy, python-format
+msgid "Successfully saved as [%s]."
+msgstr "Επιτυχής εξαγωγή του ΗΙΦ στο αρχείο:%s"
+
+msgid "Cannot save image as PNG file."
+msgstr ""
+
+#, python-format
+msgid "DICOM image of [%s] from Orthanc PACS \"%s\" (AET \"%s\")"
+msgstr ""
+
+#, fuzzy
+msgid "Successfully stored in export area."
+msgstr "Επιτυχής εξαγωγή του ΗΙΦ στο αρχείο:%s"
+
+#, fuzzy
+msgid "Showing DICOM studies"
+msgstr "αρχεία καταγραφής"
+
+#, fuzzy
+msgid "Unable to show selected studies."
+msgstr "Επεξεργασία του επιλεγμένου αντικειμένου."
+
+#, fuzzy
+msgid "Copying DICOM studies"
+msgstr "αρχεία καταγραφής"
+
+#, fuzzy
+msgid "Unable to put studies into export area."
+msgstr "Προσθήκη νέου ονόματος"
+
+#, python-format
+msgid "DICOM studies of [%s] from Orthanc PACS \"%s\" (AET \"%s\") [%s/]"
+msgstr ""
+
+#, fuzzy
+msgid "Adding DICOM studies to export area"
+msgstr "Προσθήκη νέου ονόματος"
+
+#, fuzzy
+msgid "Unable to put ZIP of studies into export area."
+msgstr "Προσθήκη νέου ονόματος"
+
+msgid "Exporting DICOM studies"
+msgstr ""
+
+#, python-format
+msgid ""
+"The DICOM studies are %s in compressed size.\n"
+"\n"
+"Really move into export area ?"
+msgstr ""
+
+#, python-format
+msgid "DICOM studies of [%s] from Orthanc PACS \"%s\" (AET \"%s\")"
+msgstr ""
+
+#, fuzzy, python-format
+msgid ""
+"Cannot add the following archive to the export area:\n"
+"%s "
+msgstr "Δεν μπορώ να εξάγω τον ΗΙΦ. Χωρίς ενεργό ασθενή."
+
+msgid "Select the directory into which to save the DICOM studies."
+msgstr ""
+
+msgid "Saving DICOM studies"
+msgstr ""
+
+#, fuzzy
+msgid "Unable to save DICOM studies."
+msgstr "Επεξεργασία του επιλεγμένου αντικειμένου."
+
+#, fuzzy, python-format
+msgid "Successfully saved to [%s]."
+msgstr "Επιτυχής εξαγωγή του ΗΙΦ στο αρχείο:%s"
+
+#, fuzzy
+msgid "Select the directory into which to save the DICOM studies ZIP."
+msgstr "Αρχή νέας συνεδρίας για τον ενεργό ασθενή αμέσως τώρα."
+
+#, fuzzy
+msgid "Unable to save DICOM studies as ZIP."
+msgstr "Επεξεργασία του επιλεγμένου αντικειμένου."
+
+msgid "Adding PDF to DICOM study"
+msgstr ""
+
+msgid ""
+"For adding a PDF file there must be exactly one (1) DICOM study selected."
+msgstr ""
+
+msgid "Select PDF to add to DICOM study"
+msgstr ""
+
+#, fuzzy
+msgid "PDF files"
+msgstr "όλα τα αρχεία"
+
+#, python-format
+msgid ""
+"Cannot turn PDF file\n"
+"\n"
+" %s\n"
+"\n"
+" into DICOM file."
+msgstr ""
+
+#, python-format
+msgid "Successfully uploaded [%s] to Orthanc DICOM server."
+msgstr ""
+
+#, python-format
+msgid ""
+"Cannot updload DICOM file\n"
+"\n"
+" %s\n"
+"\n"
+" into Orthanc PACS."
+msgstr ""
+
 #, fuzzy, python-format
 msgid "%s image(s)%s"
 msgstr "Ημερομηνία: %s\n"
@@ -17155,46 +17696,8 @@ msgstr "αρχεία καταγραφής"
 msgid "Working on: Orthanc \"%s\" (AET \"%s\" @ %s:%s, Version %s)"
 msgstr ""
 
-#, python-format
-msgid ""
-"Cannot preview DICOM image:\n"
-"%s"
+msgid "Successfully verified DICOM data of patient."
 msgstr ""
-
-msgid "Previewing DICOM image"
-msgstr ""
-
-#, python-format
-msgid ""
-"Cannot show DICOM image:\n"
-"%s"
-msgstr ""
-
-#, fuzzy
-msgid "Showing DICOM image"
-msgstr "αρχεία καταγραφής"
-
-#, fuzzy, python-format
-msgid "Successfully saved as [%s]."
-msgstr "Επιτυχής εξαγωγή του ΗΙΦ στο αρχείο:%s"
-
-#, python-format
-msgid "DICOM image of [%s] from Orthanc PACS \"%s\" (AET \"%s\")"
-msgstr ""
-
-#, fuzzy
-msgid "Successfully stored in export area."
-msgstr "Επιτυχής εξαγωγή του ΗΙΦ στο αρχείο:%s"
-
-msgid "Select the directory into which to save the DICOM studies."
-msgstr ""
-
-msgid "Saving DICOM studies"
-msgstr ""
-
-#, fuzzy
-msgid "Unable to save selected studies."
-msgstr "Επεξεργασία του επιλεγμένου αντικειμένου."
 
 msgid "DICOM data error"
 msgstr ""
@@ -17229,17 +17732,6 @@ msgstr "Αποστολή αναφοράς"
 
 msgid "DICOM data corruption"
 msgstr ""
-
-#, fuzzy
-msgid "Unable to save patient studies."
-msgstr "Επεξεργασία του επιλεγμένου αντικειμένου."
-
-msgid "Exporting DICOM studies"
-msgstr ""
-
-#, fuzzy
-msgid "Unable to export studies."
-msgstr "Αδύνατο το άνοιγμα ου χρονοδιαγράμματος '%s'."
 
 #, fuzzy
 msgid "Patient ID"
@@ -18372,33 +18864,8 @@ msgid ""
 msgstr ""
 
 msgid ""
-"GNUmed will use this URL to access a website which lets\n"
-"you report an adverse drug reaction (ADR).\n"
-"\n"
-"If you leave this empty it will fall back\n"
-"to an URL for reporting ADRs in Germany."
-msgstr ""
-
-msgid ""
-"GNUmed will use this URL to access a website which lets\n"
-"you report an adverse vaccination reaction (vADR).\n"
-"\n"
-"If you set it to a specific address that URL must be\n"
-"accessible now. If you leave it empty it will fall back\n"
-"to the URL for reporting other adverse drug reactions."
-msgstr ""
-
-msgid ""
 "GNUmed will use this URL to access an encyclopedia of\n"
 "measurement/lab methods from within the measurments grid.\n"
-"\n"
-"You can leave this empty but to set it to a specific\n"
-"address the URL must be accessible now."
-msgstr ""
-
-msgid ""
-"GNUmed will use this URL to access a page showing\n"
-"vaccination schedules.\n"
 "\n"
 "You can leave this empty but to set it to a specific\n"
 "address the URL must be accessible now."
@@ -19054,6 +19521,16 @@ msgstr ""
 msgid "Saved screenshot to file [%s]."
 msgstr ""
 
+msgid "Statusbar history"
+msgstr ""
+
+#, python-format
+msgid ""
+"%s - now\n"
+"\n"
+"%s"
+msgstr ""
+
 msgid "GNUmed client"
 msgstr "Πελάτης GNUmed"
 
@@ -19219,6 +19696,36 @@ msgstr ""
 msgid "Must select a hospital. Cannot save hospitalization."
 msgstr ""
 
+msgid "Choose an AMTS BMP medication plan."
+msgstr ""
+
+#, fuzzy
+msgid "BMP files"
+msgstr "όλα τα αρχεία"
+
+msgid "Importing AMTS BMP Medikationsplan"
+msgstr ""
+
+#, python-format
+msgid ""
+"The file\n"
+"\n"
+" [%s]\n"
+"\n"
+"does not seem to be a Medikationsplan."
+msgstr ""
+
+#, python-format
+msgid ""
+"No matching patient found in GNUmed.\n"
+"\n"
+"The patient in the Medikationsplan is:\n"
+"\n"
+" %s\n"
+"\n"
+"Do you want to create that patient ?"
+msgstr ""
+
 msgid "Cannot change notebook tabs. No active patient."
 msgstr ""
 
@@ -19295,19 +19802,19 @@ msgid "Age: %s, birthday:\n"
 msgstr ""
 
 #, fuzzy, python-format
-msgid "%s ago (= this year)"
+msgid "last: %s ago (this year)"
 msgstr "%s (%s αυτό το έτος)"
 
 #, fuzzy, python-format
-msgid "in %s (= next year)"
+msgid "next: in %s (next year)"
 msgstr "%s (%s επόμενο έτος)"
 
 #, fuzzy, python-format
-msgid "in %s (= this year)"
+msgid "next: in %s (this year)"
 msgstr "%s (%s αυτό το έτος)"
 
 #, fuzzy, python-format
-msgid "%s ago (= last year)"
+msgid "last: %s ago (last year)"
 msgstr "%s (%s τελευταίο έτος)"
 
 #, python-format
@@ -20078,30 +20585,54 @@ msgstr ""
 msgid "Cannot plot without a plot script."
 msgstr ""
 
-msgid "Result"
-msgstr "Αποτέλεσμα"
-
 #, fuzzy
-msgid "no related documents found"
+msgid "no related documents"
 msgstr "Επισύναψη αρχείων"
+
+msgid "There is no lab reference to find related documents for."
+msgstr ""
 
 msgid "No document types declared to contain lab results."
 msgstr ""
 
-msgid "Document types declared to contain lab results:"
-msgstr ""
+#, fuzzy
+msgid "No valid document types declared to contain lab results."
+msgstr "Επέλεξε πρότυπο για την εκτύπωση της φαρμακευτικής αγωγής."
+
+#, fuzzy
+msgid "Document types assumed to contain lab results:"
+msgstr "Επέλεξε πρότυπο για την εκτύπωση της φαρμακευτικής αγωγής."
 
 #, fuzzy, python-format
 msgid "Related documents: %s"
 msgstr "Αρχεία:%s"
 
 #, fuzzy
+msgid "Select the document types which are assumed to contain lab results."
+msgstr "Επέλεξε πρότυπο για την εκτύπωση της φαρμακευτικής αγωγής."
+
+#, fuzzy
 msgid "Documents possibly related to this episode"
 msgstr "Δεν υπάρχουν συνεδρίες για αυτό το επεισόδιο."
 
+msgid "Result"
+msgstr "Αποτέλεσμα"
+
 #, fuzzy
-msgid "Select the document types which are expected to contain lab results."
-msgstr "Επέλεξε πρότυπο για την εκτύπωση της φαρμακευτικής αγωγής."
+msgid "Range"
+msgstr "εύρος"
+
+#, fuzzy, python-format
+msgid "%s ago (%s)"
+msgstr "%d μέρα(ες) πριν-%s"
+
+#, fuzzy
+msgid "missing"
+msgstr "η ετικέτα λείπει."
+
+#, fuzzy
+msgid "LOINC not found"
+msgstr "Η σελίδα δεν βρέθηκε"
 
 #, fuzzy
 msgid "Perform on selected results:"
@@ -20116,6 +20647,10 @@ msgstr "Πρόβλημα"
 
 msgid "Panels"
 msgstr ""
+
+#, fuzzy
+msgid "Most recent"
+msgstr " Πιο πρόσφατο:%s-%s"
 
 msgid ""
 "lab_grid_date_format::%Y\n"
@@ -20343,10 +20878,6 @@ msgstr "Αποτελέσματα της εξέτασης"
 msgid "Select a test panel."
 msgstr "Διαγραφή μηνύματος"
 
-#, fuzzy
-msgid "LOINC not found"
-msgstr "Η σελίδα δεν βρέθηκε"
-
 msgid "not a LOINC"
 msgstr ""
 
@@ -20549,9 +21080,8 @@ msgstr "&Σημειώσεις"
 msgid "Find text in EMR Journal"
 msgstr ""
 
-#, fuzzy
-msgid "Clinical time"
-msgstr "Κλινικές σημειώσεις"
+msgid "Happened"
+msgstr "Έγινε"
 
 msgid "Who / When"
 msgstr ""
@@ -21192,9 +21722,6 @@ msgstr ""
 msgid "Head Office"
 msgstr ""
 
-msgid "Department"
-msgstr "Τμήμα"
-
 msgid "Organisation"
 msgstr "Οργανισμός"
 
@@ -21595,6 +22122,97 @@ msgstr "Ματαίωση"
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Ματαίωση και ΔΕΝ θα συνδεθείτε με το GNUmed."
 
+#, fuzzy
+#~ msgid "Revision #%s"
+#~ msgstr " Νέα έκδοση:\"%s\""
+
+#, fuzzy
+#~ msgid "Error running GnuPG. Cannot decrypt data."
+#~ msgstr ""
+#~ "Σφάλμα στο  τρέξιμοτου  gnuplot. Δεν είναι δυνατή η πλοκή των δεδομένων."
+
+#, fuzzy
+#~ msgid "&Show (D)"
+#~ msgstr "Εμφάνιση μηνυμάτων:"
+
+#, fuzzy
+#~ msgid "Save (&D)"
+#~ msgstr "Αποθήκευση &όλα"
+
+#, fuzzy
+#~ msgid "Show (&P)"
+#~ msgstr "Εμφάνιση μηνυμάτων:"
+
+#, fuzzy
+#~ msgid "Save (P)"
+#~ msgstr " Αποθήκευση "
+
+#, fuzzy
+#~ msgid "Browse topmost selected study."
+#~ msgstr "Επεξεργασία του επιλεγμένου αντικειμένου."
+
+#, fuzzy
+#~ msgid "Browse overview of all studies for this patient."
+#~ msgstr "Κράτα *αυτόν* τον ασθενή"
+
+#, fuzzy
+#~ msgid "Save selected studies to disk as DICOM directory."
+#~ msgstr "Επεξεργασία του επιλεγμένου αντικειμένου."
+
+#, fuzzy
+#~ msgid "Save selected studies as DICOM archive."
+#~ msgstr "Επεξεργασία του επιλεγμένου αντικειμένου."
+
+#, fuzzy
+#~ msgid "Please supply your email address here !"
+#~ msgstr "Παρακαλώ εισάγετε μια διεύθυνση Email."
+
+#, fuzzy
+#~ msgid "Existing data:"
+#~ msgstr "Επεξεργασία φαρμακευτικής αγωγής"
+
+#, fuzzy
+#~ msgid "Browse the selected directory."
+#~ msgstr "Επεξεργασία του επιλεγμένου αντικειμένου."
+
+#, fuzzy
+#~ msgid "other: %s"
+#~ msgstr " Κωδικός: %s\n"
+
+#~ msgid "dummy-no-need-to-translate-but-make-epydoc-happy"
+#~ msgstr "εικονική-δεν χρειαζετε -να-μετάφραση-αλλά-but-make-epydoc-happy"
+
+#, fuzzy
+#~ msgid "Latest: %s ago (%s %s%s%s%s)"
+#~ msgstr "  Ο χρόνος:%s - %s (@%s = %s%s)\n"
+
+#, fuzzy
+#~ msgid ""
+#~ "%s\n"
+#~ "- additional documents"
+#~ msgstr "Αποθήκευση εγγράφου"
+
+#, fuzzy
+#~ msgid ""
+#~ "Cannot remove content from\n"
+#~ " [%s]"
+#~ msgstr ""
+#~ "Δεν είναι δυνατή η ανάκτηση πληροφοριών για την έκδοση από:\n"
+#~ "\n"
+#~ "%s"
+
+#, fuzzy
+#~ msgid "Browse patient data pack ?"
+#~ msgstr "Αποθήκευση εγγράφου"
+
+#, fuzzy
+#~ msgid "Unable to export studies."
+#~ msgstr "Αδύνατο το άνοιγμα ου χρονοδιαγράμματος '%s'."
+
+#, fuzzy
+#~ msgid "Clinical time"
+#~ msgstr "Κλινικές σημειώσεις"
+
 #~ msgid "%s this week (%s of %s)"
 #~ msgstr "%s αυτή την εβδομάδα (%s από %s)"
 
@@ -21634,10 +22252,6 @@ msgstr "Ματαίωση και ΔΕΝ θα συνδεθείτε με το GNUme
 
 #~ msgid "&Add / Edit ..."
 #~ msgstr "&Προσθήκη / Επεξεργασία ..."
-
-#, fuzzy
-#~ msgid "→ &Clipboard"
-#~ msgstr "Εξαγωγή στο &πρόχειρο"
 
 #, fuzzy
 #~ msgid "Showing test panels."
@@ -21844,10 +22458,6 @@ msgstr "Ματαίωση και ΔΕΝ θα συνδεθείτε με το GNUme
 #~ msgstr "Άρχισε νέο"
 
 #, fuzzy
-#~ msgid "Saving export area documents"
-#~ msgstr "Αποθήκευση εγγράφου"
-
-#, fuzzy
 #~ msgid "Export part"
 #~ msgstr "Αναφορά"
 
@@ -21978,10 +22588,6 @@ msgstr "Ματαίωση και ΔΕΝ θα συνδεθείτε με το GNUme
 #, fuzzy
 #~ msgid "health issue"
 #~ msgstr "Θέμα υγείας"
-
-#, fuzzy
-#~ msgid "Copy to e&xport area..."
-#~ msgstr "Προσθήκη νέου ονόματος"
 
 #, fuzzy
 #~ msgid "&Entry time"
@@ -22186,9 +22792,6 @@ msgstr "Ματαίωση και ΔΕΝ θα συνδεθείτε με το GNUme
 #~ msgid "When was this substance started to be consumed."
 #~ msgstr "Πότε η ουσία άρχισε να καταναλώνετε."
 
-#~ msgid "Version:"
-#~ msgstr "Έκδοση"
-
 #~ msgid "Last modified:"
 #~ msgstr "Τελευταία τροποποίηση:"
 
@@ -22220,9 +22823,6 @@ msgstr "Ματαίωση και ΔΕΝ θα συνδεθείτε με το GNUme
 #, fuzzy
 #~ msgid "Print vaccinations using a template."
 #~ msgstr "Κανένας εμβολιασμόςπρος μορφοποίηση."
-
-#~ msgid "Patient:"
-#~ msgstr "Ασθενής:"
 
 #~ msgid "Printer Setup"
 #~ msgstr "Ρύθμιση Εκτυπωτή"
@@ -22292,9 +22892,6 @@ msgstr "Ματαίωση και ΔΕΝ θα συνδεθείτε με το GNUme
 
 #~ msgid "part"
 #~ msgstr "μέρος"
-
-#~ msgid "Happened"
-#~ msgstr "Έγινε"
 
 #, fuzzy
 #~ msgid "Unattributed episode: %s"
