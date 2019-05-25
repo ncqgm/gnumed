@@ -130,7 +130,6 @@ __license__ = "GPL v2 or later"
 
 
 import sys
-import types
 import inspect
 import logging
 import datetime
@@ -168,8 +167,8 @@ class cBusinessDBObject(object):
 
 	<_cmd_fetch_payload>
 		- must return exactly one row
-		- where clause argument values are expected
-		  in self.pk_obj (taken from __init__(aPK_obj))
+		- WHERE clause argument values are expected in
+		  self.pk_obj (taken from __init__(aPK_obj))
 		- must return xmin of all rows that _cmds_store_payload
 		  will be updating, so views must support the xmin columns
 		  of their underlying tables
@@ -334,7 +333,7 @@ def manage_xxx()
 		if aPK_obj is not None:
 			self.__init_from_pk(aPK_obj = aPK_obj, link_obj = link_obj)
 		else:
-			self._init_from_row_data(row=row)
+			self._init_from_row_data(row = row)
 
 		self._is_modified = False
 
@@ -367,28 +366,35 @@ def manage_xxx()
 		"""Creates a new clinical item instance given its fields.
 
 		row must be a dict with the fields:
-			- pk_field: the name of the primary key field
 			- idx: a dict mapping field names to position
 			- data: the field values in a list (as returned by
 			  cursor.fetchone() in the DB-API)
+			- pk_field: the name of the primary key field
+			OR
+			- pk_obj: a dictionary suitable for passed to cursor.execute
+			  and holding the primary key values, used for composite PKs
 
-		row = {'data': rows[0], 'idx': idx, 'pk_field': 'pk_XXX (the PK column name)'}
-
+		row = {
+			'data': rows[0],
+			'idx': idx,
+			'pk_field': 'pk_XXX (the PK column name)',
+			'pk_obj': {'pk_col1': pk_col1_val, 'pk_col2': pk_col2_val}
+		}
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 		objects = [ cChildClass(row = {'data': r, 'idx': idx, 'pk_field': 'the PK column name'}) for r in rows ]
 		"""
-		try:
-			self._idx = row['idx']
-			self._payload = row['data']
-			self.pk_obj = self._payload[self._idx[row['pk_field']]]
-		except:
-			_log.exception('faulty <row> argument structure: %s' % row)
-			raise gmExceptions.ConstructorError("[%s:??]: error loading instance from row data" % self.__class__.__name__)
+		assert ('data' in row), "[%s:??]: 'data' missing from <row> argument: %s" % (self.__class__.__name__, row)
+		assert ('idx' in row), "[%s:??]: 'idx' missing from <row> argument: %s" % (self.__class__.__name__, row)
+		assert (len(row['idx']) == len(row['data'])), "[%s:??]: 'idx'<->'data' field count mismatch: %s" % (self.__class__.__name__, row)
+		faulty_pk = (('pk_field' not in row) and ('pk_obj' not in row))
+		assert not faulty_pk, "[%s:??]: either 'pk_field' or 'pk_obj' must exist in <row> argument: %s" % (self.__class__.__name__, row)
 
-		if len(self._idx.keys()) != len(self._payload):
-			_log.critical('field index vs. payload length mismatch: %s field names vs. %s fields' % (len(self._idx.keys()), len(self._payload)))
-			_log.critical('faulty <row> argument structure: %s' % row)
-			raise gmExceptions.ConstructorError("[%s:??]: error loading instance from row data" % self.__class__.__name__)
+		self._idx = row['idx']
+		self._payload = row['data']
+		if 'pk_field' in row:
+			self.pk_obj = row['data'][row['idx'][row['pk_field']]]
+		else:
+			self.pk_obj = row['pk_obj']
 
 		self.payload_most_recently_fetched = {}
 		for field in self._idx.keys():
@@ -594,18 +600,20 @@ def manage_xxx()
 				_log.critical('[%s:%s]: cannot reload, payload changed' % (self.__class__.__name__, self.pk_obj))
 				return False
 
-		if type(self.pk_obj) == dict:
-			arg = self.pk_obj
+		if isinstance(self.pk_obj, dict):
+			args = self.pk_obj
 		else:
-			arg = [self.pk_obj]
+			args = [self.pk_obj]
 		rows, self._idx = gmPG2.run_ro_queries (
 			link_obj = link_obj,
-			queries = [{'cmd': self.__class__._cmd_fetch_payload, 'args': arg}],
+			queries = [{'cmd': self.__class__._cmd_fetch_payload, 'args': args}],
 			get_col_idx = True
 		)
 		if len(rows) == 0:
 			_log.error('[%s:%s]: no such instance' % (self.__class__.__name__, self.pk_obj))
 			return False
+		if len(rows) > 1:
+			raise AssertionError('[%s:%s]: %s instances !' % (self.__class__.__name__, self.pk_obj, len(rows)))
 		self._payload = rows[0]
 		return True
 
@@ -694,74 +702,6 @@ def manage_xxx()
 		return (True, None)
 
 #============================================================
-def jsonclasshintify(obj):
-	# this should eventually be somewhere else
-	""" turn the data into a list of dicts, adding "class hints".
-		all objects get turned into dictionaries which the other end
-		will interpret as "object", via the __jsonclass__ hint,
-		as specified by the JSONRPC protocol standard.
-	"""
-	if isinstance(obj, list):
-		return map(jsonclasshintify, obj)
-	elif isinstance(obj, gmPG2.dbapi.tz.FixedOffsetTimezone):
-		# this will get decoded as "from jsonobjproxy import {clsname}"
-		# at the remote (client) end.
-		res = {'__jsonclass__': ["jsonobjproxy.FixedOffsetTimezone"]}
-		res['name'] = obj._name
-		res['offset'] = jsonclasshintify(obj._offset)
-		return res
-	elif isinstance(obj, datetime.timedelta):
-		# this will get decoded as "from jsonobjproxy import {clsname}"
-		# at the remote (client) end.
-		res = {'__jsonclass__': ["jsonobjproxy.TimeDelta"]}
-		res['days'] = obj.days
-		res['seconds'] = obj.seconds
-		res['microseconds'] = obj.microseconds
-		return res
-	elif isinstance(obj, datetime.time):
-		# this will get decoded as "from jsonobjproxy import {clsname}"
-		# at the remote (client) end.
-		res = {'__jsonclass__': ["jsonobjproxy.Time"]}
-		res['hour'] = obj.hour
-		res['minute'] = obj.minute
-		res['second'] = obj.second
-		res['microsecond'] = obj.microsecond
-		res['tzinfo'] = jsonclasshintify(obj.tzinfo)
-		return res
-	elif isinstance(obj, datetime.datetime):
-		# this will get decoded as "from jsonobjproxy import {clsname}"
-		# at the remote (client) end.
-		res = {'__jsonclass__': ["jsonobjproxy.DateTime"]}
-		res['year'] = obj.year
-		res['month'] = obj.month
-		res['day'] = obj.day
-		res['hour'] = obj.hour
-		res['minute'] = obj.minute
-		res['second'] = obj.second
-		res['microsecond'] = obj.microsecond
-		res['tzinfo'] = jsonclasshintify(obj.tzinfo)
-		return res
-	elif isinstance(obj, cBusinessDBObject):
-		# this will get decoded as "from jsonobjproxy import {clsname}"
-		# at the remote (client) end.
-		res = {'__jsonclass__': ["jsonobjproxy.%s" % obj.__class__.__name__]}
-		for k in obj.get_fields():
-			t = jsonclasshintify(obj[k])
-			res[k] = t
-		print("props", res, dir(obj))
-		for attribute in dir(obj):
-			if not attribute.startswith("get_"):
-				continue
-			k = attribute[4:]
-			if k in res:
-				continue
-			getter = getattr(obj, attribute, None)
-			if callable(getter):
-				res[k] = jsonclasshintify(getter())
-		return res
-	return obj
-
-#============================================================
 if __name__ == '__main__':
 
 	if len(sys.argv) < 2:
@@ -790,12 +730,12 @@ if __name__ == '__main__':
 		'pk_field': 'bogus_pk',
 		'idx': {'bogus_pk': 0, 'bogus_field': 1, 'bogus_date': 2},
 		'data': [-1, 'bogus_data', datetime.datetime.now()]
+		#'data': {'bogus_pk': -1, 'bogus_field': 'bogus_data', 'bogus_date': datetime.datetime.now()}
 	}
 	obj = cTestObj(row=data)
-	#print(obj['wrong_field'])
-	#print(jsonclasshintify(obj))
-	#obj['wrong_field'] = 1
-	#print(obj.fields_as_dict())
 	print(obj.format())
+	#print(obj['wrong_field'])
+	#obj['wrong_field'] = 1
+	print(obj.fields_as_dict())
 
 #============================================================

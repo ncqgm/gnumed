@@ -1212,7 +1212,6 @@ if __name__ == '__main__':
 			print('--------------------------')
 			print(doc.format(single_line = True))
 			print(doc.format())
-		#pprint(gmBusinessDBObject.jsonclasshintify(docs))
 	#--------------------------------------------------------
 	def test_get_useful_filename():
 		pk = 12
