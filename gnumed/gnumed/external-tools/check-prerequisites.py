@@ -127,21 +127,19 @@ except ImportError:
 	print("  INFO : this is needed to work with HL7 data")
 	print("  INFO : GNUmed will still work without it")
 
-print(" pysvg...", end=' ')
-try:
-	import pysvg
-	print("found")
-except ImportError:
-	missing = True
-	print("")
-	print("  ERROR: pysvg not installed")
-	print("  INFO : this is needed to print EMR timelines")
-	print("  INFO : GNUmed will still work without it")
-	print("  INFO : note that you need v0.2.1 (not 0.2.2)")
-	print("  INFO :  <pip install pysvg==0.2.1>")
-
-# part of the standard library now
-#print(" faulthandler...", end=' ')
+# currently, TimeLine does not support wxp4/py3
+#print(" pysvg...", end=' ')
+#try:
+#	import pysvg
+#	print("found")
+#except ImportError:
+#	missing = True
+#	print("")
+#	print("  ERROR: pysvg not installed")
+#	print("  INFO : this is needed to print EMR timelines")
+#	print("  INFO : GNUmed will still work without it")
+#	print("  INFO : note that you need v0.2.1 (not 0.2.2)")
+#	print("  INFO :  <pip install pysvg==0.2.1>")
 
 print(" vobject...", end=' ')
 try:
@@ -172,7 +170,7 @@ except ImportError:
 	missing = True
 	print("")
 	print("  ERROR: pyudev not installed")
-	print("  INFO : this is used to scan for USB/MMC drives")
+	print("  INFO : this is used to scan for USB/MMC/optical drives")
 
 print(" psutil...", end=' ')
 try:
@@ -182,7 +180,17 @@ except ImportError:
 	missing = True
 	print("")
 	print("  ERROR: psutil not installed")
-	print("  INFO : this is used to scan for USB/MMC drives")
+	print("  INFO : this is used to scan for USB/MMC/optical drives")
+
+print(" docutils...", end=' ')
+try:
+	import docutils
+	print("found")
+except ImportError:
+	missing = True
+	print("")
+	print("  ERROR: docutils not installed")
+	print("  INFO : this is used to process reStructuredText")
 
 print(" unidecode...", end=' ')
 try:
