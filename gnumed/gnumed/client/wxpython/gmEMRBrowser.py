@@ -741,9 +741,16 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 
 	#--------------------------------------------------------
 	def __update_text_for_generic_node(self, generic_item):
+		txt = gmTools.list2text (
+			generic_item.format(),
+			strip_leading_empty_lines = False,
+			strip_trailing_empty_lines = False,
+			strip_trailing_whitespace = True,
+			max_line_width = 85
+		)
 		self.__cb__enable_display_mode_selection(False)
 		self.__soap_display.SetFont(self.__soap_display_prop_font)
-		self.__soap_display.WriteText(generic_item.format(eol = '\n'))
+		self.__soap_display.WriteText(txt)
 		self.__soap_display.ShowPosition(0)
 
 	#--------------------------------------------------------

@@ -1155,7 +1155,7 @@ def strip_empty_lines(lines=None, text=None, eol='\n', return_list=True):
 	)
 
 #---------------------------------------------------------------------------
-def list2text(lines, initial_indent='', subsequent_indent='', eol='\n', strip_leading_empty_lines=True, strip_trailing_empty_lines=True, strip_trailing_whitespace=True):
+def list2text(lines, initial_indent='', subsequent_indent='', eol='\n', strip_leading_empty_lines=True, strip_trailing_empty_lines=True, strip_trailing_whitespace=True, max_line_width=None):
 
 	if len(lines) == 0:
 		return ''
@@ -1168,6 +1168,12 @@ def list2text(lines, initial_indent='', subsequent_indent='', eol='\n', strip_le
 
 	if strip_trailing_whitespace:
 		lines = [ l.rstrip() for l in lines ]
+
+	if max_line_width is not None:
+		wrapped_lines = []
+		for l in lines:
+			wrapped_lines.extend(wrap(l, max_line_width).split('\n'))
+		lines = wrapped_lines
 
 	indented_lines = [initial_indent + lines[0]]
 	indented_lines.extend([ subsequent_indent + l for l in lines[1:] ])
@@ -1182,6 +1188,7 @@ def wrap(text=None, width=None, initial_indent='', subsequent_indent='', eol='\n
 	"""
 	if width is None:
 		return text
+
 	wrapped = initial_indent + functools.reduce (
 		lambda line, word, width=width: '%s%s%s' % (
 			line,
@@ -1190,13 +1197,10 @@ def wrap(text=None, width=None, initial_indent='', subsequent_indent='', eol='\n
 		),
 		text.split(' ')
 	)
-
 	if subsequent_indent != '':
 		wrapped = ('\n%s' % subsequent_indent).join(wrapped.split('\n'))
-
 	if eol != '\n':
 		wrapped = wrapped.replace('\n', eol)
-
 	return wrapped
 
 #---------------------------------------------------------------------------
