@@ -28,6 +28,7 @@ from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmCfg
 from Gnumed.pycommon import gmTools
 
+from Gnumed.business import gmGenericEMRItem
 from Gnumed.business import gmAllergy
 from Gnumed.business import gmPathLab
 from Gnumed.business import gmLOINC
@@ -62,32 +63,6 @@ _here = None
 #	_func_ask_user = a_func
 
 #============================================================
-_map_clin_root_item2type_str = {
-	'clin.encounter': _('Encounter'),
-	'clin.episode': _('Episode'),
-	'clin.health_issue': _('Health issue'),
-	'clin.external_care': _('External care'),
-	'clin.vaccination': _('Vaccination'),
-	'clin.clin_narrative': _('Clinical narrative'),
-	'clin.test_result': _('Test result'),
-	'clin.substance_intake': _('Substance intake'),
-	'clin.hospital_stay': _('Hospital stay'),
-	'clin.procedure': _('Performed procedure'),
-	'clin.allergy': _('Allergy'),
-	'clin.allergy_state': _('Allergy state'),
-	'clin.family_history': _('Family history'),
-	'blobs.doc_med': _('Document'),
-	'dem.message_inbox': _('Inbox message'),
-	'ref.auto_hint': _('Dynamic hint')
-}
-
-def format_clin_root_item_type(table):
-	try:
-		return _map_clin_root_item2type_str[table]
-	except KeyError:
-		return _('unmapped entry type from table [%s]') % table
-
-#------------------------------------------------------------
 from Gnumed.business.gmDocuments import cDocument
 from Gnumed.business.gmProviderInbox import cInboxMessage
 
@@ -1365,6 +1340,16 @@ class cClinicalRecord(object):
 			)
 
 		return txt
+
+	#------------------------------------------------------------------
+	def get_generic_emr_items(self, pk_encounters=None, pk_episodes=None, pk_health_issues=None):
+		return gmGenericEMRItem.get_generic_emr_items (
+			patient = self.pk_patient,
+			encounters = pk_encounters,
+			episodes = pk_episodes,
+			issues = pk_health_issues
+		)
+
 	#--------------------------------------------------------
 	# API: allergy
 	#--------------------------------------------------------

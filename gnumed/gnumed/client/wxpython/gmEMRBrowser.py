@@ -25,6 +25,7 @@ from Gnumed.pycommon import gmLog2
 
 from Gnumed.exporters import gmPatientExporter
 
+from Gnumed.business import gmGenericEMRItem
 from Gnumed.business import gmEMRStructItems
 from Gnumed.business import gmPerson
 from Gnumed.business import gmSOAPimporter
@@ -462,6 +463,10 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 			self.__soap_display.ShowPosition(0)
 			return
 
+		if isinstance(node_data, gmGenericEMRItem.cGenericEMRItem):
+			self.__update_text_for_generic_node(node_data)
+			return
+
 		# root node == EMR level
 		self.__cb__enable_display_mode_selection(True)
 		if self.__soap_display_mode == 'details':
@@ -655,8 +660,7 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 			)
 			encounter_node = self.AppendItem(episode_node, label)
 			self.SetItemData(encounter_node, enc)
-			# we don't expand encounter nodes (what for ?)
-			self.SetItemHasChildren(encounter_node, False)
+			self.SetItemHasChildren(encounter_node, True)
 
 		self.SortChildren(episode_node)
 
@@ -710,6 +714,37 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 
 		if result == wx.ID_YES:
 			self.__populate_tree()
+
+	#--------------------------------------------------------
+	def __expand_encounter_node(self, encounter_node):
+		self.DeleteChildren(encounter_node)
+		encounter = self.GetItemData(encounter_node)
+		encounter_items = self.__pat.emr.get_generic_emr_items (
+			pk_encounters = [encounter['pk_encounter']],
+			pk_episodes = [self.GetItemData(self.GetItemParent(encounter_node))['pk_episode']]
+		)
+		if len(encounter_items) == 0:
+			self.SetItemHasChildren(encounter_node, False)
+			return
+
+		for enc_item in encounter_items:
+			item_node = self.AppendItem(encounter_node, '%s [%s] %s' % (
+				enc_item['clin_when'].strftime('%H:%M'),
+				enc_item.i18n_soap_cat,
+				enc_item.item_type_str
+			))
+			self.SetItemData(item_node, enc_item)
+			self.SetItemHasChildren(item_node, False)
+
+		# missing:
+		#self.SortChildren(encounter_node)
+
+	#--------------------------------------------------------
+	def __update_text_for_generic_node(self, generic_item):
+		self.__cb__enable_display_mode_selection(False)
+		self.__soap_display.SetFont(self.__soap_display_prop_font)
+		self.__soap_display.WriteText(generic_item.format(eol = '\n'))
+		self.__soap_display.ShowPosition(0)
 
 	#--------------------------------------------------------
 	# issue level
@@ -989,7 +1024,9 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 			return
 
 		# encounter nodes do not need expanding
-		#if isinstance(node_data, gmEMRStructItems.cEncounter):
+		if isinstance(node_data, gmEMRStructItems.cEncounter):
+			self.__expand_encounter_node(encounter_node = node)
+			return
 
 	#--------------------------------------------------------
 	def _on_tree_item_selected(self, event):
@@ -1287,6 +1324,7 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 		return self.__populate_tree()
 
 	patient = property(_get_patient, _set_patient)
+
 	#--------------------------------------------------------
 	def _get_details_display_mode(self):
 		return self.__soap_display_mode
@@ -1616,7 +1654,7 @@ class cEMRListJournalPluginPnl(wxgEMRListJournalPluginPnl.wxgEMRListJournalPlugi
 			'Episode: %s%s\n'
 			'Encounter: %s%s'
 		) % (
-			gmClinicalRecord.format_clin_root_item_type(entry['src_table']),
+			gmGenericEMRItem.generic_item_type_str(entry['src_table']),
 			entry['src_pk'],
 			entry['src_table'],
 			entry['date_modified'],
