@@ -339,128 +339,21 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 			_log.error('node attributes: %s', dir(self.__curr_node))
 			gmLog2.log_stack_trace()
 
-		doc_folder = self.__pat.get_document_folder()
-
 		if isinstance(node_data, gmEMRStructItems.cHealthIssue):
-			self.__cb__enable_display_mode_selection(True)
-			txt = 'invalid SOAP display mode [%s]' % self.__soap_display_mode
-			if self.__soap_display_mode == 'details':
-				txt = node_data.format(left_margin = 1, patient = self.__pat)
-				font = self.__soap_display_prop_font
-			if self.__soap_display_mode == 'journal':
-				txt = node_data.format_as_journal(left_margin = 1)
-				font = self.__soap_display_prop_font
-			if self.__soap_display_mode == 'revisions':
-				txt = node_data.formatted_revision_history
-				font = self.__soap_display_mono_font
-			epis = node_data.episodes
-			if len(epis) > 0:
-				self.__img_display.refresh (
-					document_folder = doc_folder,
-					episodes = [ epi['pk_episode'] for epi in epis ],
-					do_async = True
-				)
-			self.__soap_display.SetFont(font)
-			self.__soap_display.WriteText(txt)
-			self.__soap_display.ShowPosition(0)
+			self.__update_text_for_issue_node(node_data)
 			return
 
 		# unassociated episodes		# FIXME: turn into real dummy issue
-		if isinstance(node_data, type({})):
-			self.__cb__enable_display_mode_selection(True)
-			if self.__soap_display_mode == 'details':
-				txt = _('Pool of unassociated episodes "%s":\n') % node_data['description']
-				epis = self.__pat.emr.get_episodes(unlinked_only = True, order_by = 'episode_open DESC, description')
-				if len(epis) > 0:
-					txt += '\n'
-				for epi in epis:
-					txt += epi.format (
-						left_margin = 1,
-						patient = self.__pat,
-						with_summary = True,
-						with_codes = False,
-						with_encounters = False,
-						with_documents = False,
-						with_hospital_stays = False,
-						with_procedures = False,
-						with_family_history = False,
-						with_tests = False,
-						with_vaccinations = False,
-						with_health_issue = False
-					)
-					txt += '\n'
-			else:
-				epis = self.__pat.emr.get_episodes(unlinked_only = True, order_by = 'episode_open DESC, description')
-				txt = ''
-				if len(epis) > 0:
-					txt += _(' Listing of unassociated episodes\n')
-				for epi in epis:
-					txt += ' %s\n' % (gmTools.u_box_horiz_4dashes * 60)
-					txt += epi.format (
-						left_margin = 1,
-						patient = self.__pat,
-						with_summary = False,
-						with_codes = False,
-						with_encounters = False,
-						with_documents = False,
-						with_hospital_stays = False,
-						with_procedures = False,
-						with_family_history = False,
-						with_tests = False,
-						with_vaccinations = False,
-						with_health_issue = False
-					)
-					txt += '\n'
-					txt += epi.format_as_journal(left_margin = 2)
-			self.__soap_display.SetFont(self.__soap_display_prop_font)
-			self.__soap_display.WriteText(txt)
-			self.__soap_display.ShowPosition(0)
+		if isinstance(node_data, dict):
+			self.__update_text_for_pseudo_issue_node(node_data)
 			return
 
 		if isinstance(node_data, gmEMRStructItems.cEpisode):
-			self.__cb__enable_display_mode_selection(True)
-			txt = 'invalid SOAP display mode [%s]' % self.__soap_display_mode
-			if self.__soap_display_mode == 'details':
-				txt = node_data.format(left_margin = 1, patient = self.__pat)
-				font = self.__soap_display_prop_font
-			if self.__soap_display_mode == 'journal':
-				txt = node_data.format_as_journal(left_margin = 1)
-				font = self.__soap_display_prop_font
-			if self.__soap_display_mode == 'revisions':
-				txt = node_data.formatted_revision_history
-				font = self.__soap_display_mono_font
-			self.__img_display.refresh (
-				document_folder = doc_folder,
-				episodes = [ node_data['pk_episode'] ]
-			)
-			self.__soap_display.SetFont(font)
-			self.__soap_display.WriteText(txt)
-			self.__soap_display.ShowPosition(0)
+			self.__update_text_for_episode_node(node_data)
 			return
 
 		if isinstance(node_data, gmEMRStructItems.cEncounter):
-			self.__cb__enable_display_mode_selection(True)
-			epi = self.GetItemData(self.GetItemParent(self.__curr_node))
-			if self.__soap_display_mode == 'revisions':
-				txt = node_data.formatted_revision_history
-				font = self.__soap_display_mono_font
-			else:
-				txt = node_data.format (
-					episodes = [epi['pk_episode']],
-					with_soap = True,
-					left_margin = 1,
-					patient = self.__pat,
-					with_co_encountlet_hints = True
-				)
-				font = self.__soap_display_prop_font
-			self.__img_display.refresh (
-				document_folder = doc_folder,
-				episodes = [ epi['pk_episode'] ],
-				encounter = node_data['pk_encounter']
-			)
-			self.__soap_display.SetFont(font)
-			self.__soap_display.WriteText(txt)
-			self.__soap_display.ShowPosition(0)
+			self.__update_text_for_encounter_node(node_data)
 			return
 
 		if isinstance(node_data, gmGenericEMRItem.cGenericEMRItem):
@@ -468,15 +361,7 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 			return
 
 		# root node == EMR level
-		self.__cb__enable_display_mode_selection(True)
-		if self.__soap_display_mode == 'details':
-			emr = self.__pat.emr
-			txt = emr.format_summary()
-		else:
-			txt = self.__pat.emr.format_as_journal(left_margin = 1, patient = self.__pat)
-		self.__soap_display.SetFont(self.__soap_display_prop_font)
-		self.__soap_display.WriteText(txt)
-		self.__soap_display.ShowPosition(0)
+		self.__update_text_for_root_node()
 
 	#--------------------------------------------------------
 	def __make_popup_menus(self):
@@ -665,6 +550,58 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 		self.SortChildren(episode_node)
 
 	#--------------------------------------------------------
+	def __update_text_for_episode_node(self, episode):
+		self.__cb__enable_display_mode_selection(True)
+		if self.__soap_display_mode == 'details':
+			txt = episode.format(left_margin = 1, patient = self.__pat)
+			font = self.__soap_display_prop_font
+		elif self.__soap_display_mode == 'journal':
+			txt = episode.format_as_journal(left_margin = 1)
+			font = self.__soap_display_prop_font
+		elif self.__soap_display_mode == 'revisions':
+			txt = episode.formatted_revision_history
+			font = self.__soap_display_mono_font
+		else:
+			txt = 'unknown SOAP display mode [%s]' % self.__soap_display_mode
+			font = self.__soap_display_prop_font
+		doc_folder = self.__pat.get_document_folder()
+		self.__img_display.refresh (
+			document_folder = doc_folder,
+			episodes = [ episode['pk_episode'] ]
+		)
+		self.__soap_display.SetFont(font)
+		self.__soap_display.WriteText(txt)
+		self.__soap_display.ShowPosition(0)
+
+	#--------------------------------------------------------
+	def __calc_episode_tooltip(self, episode):
+		tt = ''
+		tt += gmTools.bool2subst (
+			(episode['diagnostic_certainty_classification'] is not None),
+			episode.diagnostic_certainty_description + '\n\n',
+			''
+		)
+		tt += gmTools.bool2subst (
+			episode['episode_open'],
+			_('ongoing episode'),
+			_('closed episode'),
+			'error: episode state is None'
+		) + '\n'
+		tt += gmTools.coalesce(episode['summary'], '', '\n%s')
+		if len(episode['pk_generic_codes']) > 0:
+			tt += '\n'
+			for code in episode.generic_codes:
+				tt += '%s: %s%s%s\n  (%s %s)\n' % (
+					code['code'],
+					gmTools.u_left_double_angle_quote,
+					code['term'],
+					gmTools.u_right_double_angle_quote,
+					code['name_short'],
+					code['version']
+				)
+		return tt
+
+	#--------------------------------------------------------
 	# encounter level
 	#--------------------------------------------------------
 	def __move_progress_notes(self, evt):
@@ -740,7 +677,33 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 		#self.SortChildren(encounter_node)
 
 	#--------------------------------------------------------
+	def __update_text_for_encounter_node(self, encounter):
+		self.__cb__enable_display_mode_selection(True)
+		epi = self.GetItemData(self.GetItemParent(self.__curr_node))
+		if self.__soap_display_mode == 'revisions':
+			txt = encounter.formatted_revision_history
+			font = self.__soap_display_mono_font
+		else:
+			txt = encounter.format (
+				episodes = [epi['pk_episode']],
+				with_soap = True,
+				left_margin = 1,
+				patient = self.__pat,
+				with_co_encountlet_hints = True
+			)
+			font = self.__soap_display_prop_font
+		self.__soap_display.SetFont(font)
+		self.__soap_display.WriteText(txt)
+		self.__soap_display.ShowPosition(0)
+		self.__img_display.refresh (
+			document_folder = self.__pat.get_document_folder(),
+			episodes = [ epi['pk_episode'] ],
+			encounter = encounter['pk_encounter']
+		)
+
+	#--------------------------------------------------------
 	def __update_text_for_generic_node(self, generic_item):
+		self.__cb__enable_display_mode_selection(False)
 		txt = gmTools.list2text (
 			generic_item.format(),
 			strip_leading_empty_lines = False,
@@ -748,10 +711,45 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 			strip_trailing_whitespace = True,
 			max_line_width = 85
 		)
-		self.__cb__enable_display_mode_selection(False)
 		self.__soap_display.SetFont(self.__soap_display_prop_font)
 		self.__soap_display.WriteText(txt)
 		self.__soap_display.ShowPosition(0)
+
+	#--------------------------------------------------------
+	def __calc_encounter_tooltip(self, encounter):
+		tt = '%s  %s  %s - %s\n' % (
+			gmDateTime.pydt_strftime(encounter['started'], '%Y %b %d'),
+			encounter['l10n_type'],
+			encounter['started'].strftime('%H:%M'),
+			encounter['last_affirmed'].strftime('%H:%M')
+		)
+		if encounter['reason_for_encounter'] is not None:
+			tt += '\n'
+			tt += _('RFE: %s') % encounter['reason_for_encounter']
+			if len(encounter['pk_generic_codes_rfe']) > 0:
+				for code in encounter.generic_codes_rfe:
+					tt += '\n %s: %s%s%s\n  (%s %s)' % (
+						code['code'],
+						gmTools.u_left_double_angle_quote,
+						code['term'],
+						gmTools.u_right_double_angle_quote,
+						code['name_short'],
+						code['version']
+					)
+		if encounter['assessment_of_encounter'] is not None:
+			tt += '\n'
+			tt += _('AOE: %s') % encounter['assessment_of_encounter']
+			if len(encounter['pk_generic_codes_aoe']) > 0:
+				for code in encounter.generic_codes_aoe:
+					tt += '\n %s: %s%s%s\n  (%s %s)' % (
+						code['code'],
+						gmTools.u_left_double_angle_quote,
+						code['term'],
+						gmTools.u_right_double_angle_quote,
+						code['name_short'],
+						code['version']
+					)
+		return tt
 
 	#--------------------------------------------------------
 	# issue level
@@ -823,6 +821,66 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 		self.SortChildren(issue_node)
 
 	#--------------------------------------------------------
+	def __update_text_for_issue_node(self, issue):
+		self.__cb__enable_display_mode_selection(True)
+		if self.__soap_display_mode == 'details':
+			txt = issue.format(left_margin = 1, patient = self.__pat)
+			font = self.__soap_display_prop_font
+		elif self.__soap_display_mode == 'journal':
+			txt = issue.format_as_journal(left_margin = 1)
+			font = self.__soap_display_prop_font
+		elif self.__soap_display_mode == 'revisions':
+			txt = issue.formatted_revision_history
+			font = self.__soap_display_mono_font
+		else:
+			txt = 'invalid SOAP display mode [%s]' % self.__soap_display_mode
+			font = self.__soap_display_prop_font
+		epis = issue.episodes
+		if len(epis) > 0:
+			doc_folder = self.__pat.get_document_folder()
+			self.__img_display.refresh (
+				document_folder = doc_folder,
+				episodes = [ epi['pk_episode'] for epi in epis ],
+				do_async = True
+			)
+		self.__soap_display.SetFont(font)
+		self.__soap_display.WriteText(txt)
+		self.__soap_display.ShowPosition(0)
+
+	#--------------------------------------------------------
+	def __calc_issue_tooltip(self, issue):
+		tt = ''
+		tt += gmTools.bool2subst(issue['is_confidential'], _('*** CONFIDENTIAL ***\n\n'), '')
+		tt += gmTools.bool2subst (
+			(issue['diagnostic_certainty_classification'] is not None),
+			issue.diagnostic_certainty_description + '\n',
+			''
+		)
+		tt += gmTools.bool2subst (
+			(issue['laterality'] not in [None, 'na']),
+			issue.laterality_description + '\n',
+			''
+		)
+		# noted_at_age is too costly
+		tt += gmTools.bool2subst(issue['is_active'], _('active') + '\n', '')
+		tt += gmTools.bool2subst(issue['clinically_relevant'], _('clinically relevant') + '\n', '')
+		tt += gmTools.bool2subst(issue['is_cause_of_death'], _('contributed to death') + '\n', '')
+		tt += gmTools.coalesce(issue['grouping'], '\n', _('Grouping: %s') + '\n')
+		tt += gmTools.coalesce(issue['summary'], '', '\n%s')
+		if len(issue['pk_generic_codes']) > 0:
+			tt += '\n'
+			for code in issue.generic_codes:
+				tt += '%s: %s%s%s\n  (%s %s)\n' % (
+					code['code'],
+					gmTools.u_left_double_angle_quote,
+					code['term'],
+					gmTools.u_right_double_angle_quote,
+					code['name_short'],
+					code['version']
+				)
+		return tt
+
+	#--------------------------------------------------------
 	def __expand_pseudo_issue_node(self, fake_issue_node=None):
 		self.DeleteChildren(fake_issue_node)
 
@@ -846,6 +904,57 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 			self.SetItemHasChildren(episode_node, True)
 
 		self.SortChildren(fake_issue_node)
+
+	#--------------------------------------------------------
+	def __update_text_for_pseudo_issue_node(self, pseudo_issue):
+		self.__cb__enable_display_mode_selection(True)
+		if self.__soap_display_mode == 'details':
+			txt = _('Pool of unassociated episodes "%s":\n') % pseudo_issue['description']
+			epis = self.__pat.emr.get_episodes(unlinked_only = True, order_by = 'episode_open DESC, description')
+			if len(epis) > 0:
+				txt += '\n'
+			for epi in epis:
+				txt += epi.format (
+					left_margin = 1,
+					patient = self.__pat,
+					with_summary = True,
+					with_codes = False,
+					with_encounters = False,
+					with_documents = False,
+					with_hospital_stays = False,
+					with_procedures = False,
+					with_family_history = False,
+					with_tests = False,
+					with_vaccinations = False,
+					with_health_issue = False
+				)
+				txt += '\n'
+		else:
+			epis = self.__pat.emr.get_episodes(unlinked_only = True, order_by = 'episode_open DESC, description')
+			txt = ''
+			if len(epis) > 0:
+				txt += _(' Listing of unassociated episodes\n')
+			for epi in epis:
+				txt += ' %s\n' % (gmTools.u_box_horiz_4dashes * 60)
+				txt += epi.format (
+					left_margin = 1,
+					patient = self.__pat,
+					with_summary = False,
+					with_codes = False,
+					with_encounters = False,
+					with_documents = False,
+					with_hospital_stays = False,
+					with_procedures = False,
+					with_family_history = False,
+					with_tests = False,
+					with_vaccinations = False,
+					with_health_issue = False
+				)
+				txt += '\n'
+				txt += epi.format_as_journal(left_margin = 2)
+		self.__soap_display.SetFont(self.__soap_display_prop_font)
+		self.__soap_display.WriteText(txt)
+		self.__soap_display.ShowPosition(0)
 
 	#--------------------------------------------------------
 	# EMR level
@@ -963,6 +1072,9 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 			soap_cats = 'soapu',
 			encounter = self.__curr_node_data
 		)
+
+	#--------------------------------------------------------
+	# root node level
 	#--------------------------------------------------------
 	def __expand_root_node(self):
 		root_node = self.GetRootItem()
@@ -989,6 +1101,18 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 
 		self.SetItemHasChildren(root_node, (len(issues) != 0))
 		self.SortChildren(root_node)
+
+	#--------------------------------------------------------
+	def __update_text_for_root_node(self):
+		self.__cb__enable_display_mode_selection(True)
+		if self.__soap_display_mode == 'details':
+			emr = self.__pat.emr
+			txt = emr.format_summary()
+		else:
+			txt = self.__pat.emr.format_as_journal(left_margin = 1, patient = self.__pat)
+		self.__soap_display.SetFont(self.__soap_display_prop_font)
+		self.__soap_display.WriteText(txt)
+		self.__soap_display.ShowPosition(0)
 
 	#--------------------------------------------------------
 	# event handlers
@@ -1077,109 +1201,17 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 			return
 
 		data = self.GetItemData(item)
-
 		if isinstance(data, gmEMRStructItems.cEncounter):
-			tt = '%s  %s  %s - %s\n' % (
-				gmDateTime.pydt_strftime(data['started'], '%Y %b %d'),
-				data['l10n_type'],
-				data['started'].strftime('%H:%M'),
-				data['last_affirmed'].strftime('%H:%M')
-			)
-			if data['reason_for_encounter'] is not None:
-				tt += '\n'
-				tt += _('RFE: %s') % data['reason_for_encounter']
-				if len(data['pk_generic_codes_rfe']) > 0:
-					for code in data.generic_codes_rfe:
-						tt += '\n %s: %s%s%s\n  (%s %s)' % (
-							code['code'],
-							gmTools.u_left_double_angle_quote,
-							code['term'],
-							gmTools.u_right_double_angle_quote,
-							code['name_short'],
-							code['version']
-						)
-			if data['assessment_of_encounter'] is not None:
-				tt += '\n'
-				tt += _('AOE: %s') % data['assessment_of_encounter']
-				if len(data['pk_generic_codes_aoe']) > 0:
-					for code in data.generic_codes_aoe:
-						tt += '\n %s: %s%s%s\n  (%s %s)' % (
-							code['code'],
-							gmTools.u_left_double_angle_quote,
-							code['term'],
-							gmTools.u_right_double_angle_quote,
-							code['name_short'],
-							code['version']
-						)
-
+			tt = self.__calc_encounter_tooltip(data)
 		elif isinstance(data, gmEMRStructItems.cEpisode):
-			tt = ''
-			tt += gmTools.bool2subst (
-				(data['diagnostic_certainty_classification'] is not None),
-				data.diagnostic_certainty_description + '\n\n',
-				''
-			)
-			tt += gmTools.bool2subst (
-				data['episode_open'],
-				_('ongoing episode'),
-				_('closed episode'),
-				'error: episode state is None'
-			) + '\n'
-			tt += gmTools.coalesce(data['summary'], '', '\n%s')
-			if len(data['pk_generic_codes']) > 0:
-				tt += '\n'
-				for code in data.generic_codes:
-					tt += '%s: %s%s%s\n  (%s %s)\n' % (
-						code['code'],
-						gmTools.u_left_double_angle_quote,
-						code['term'],
-						gmTools.u_right_double_angle_quote,
-						code['name_short'],
-						code['version']
-					)
-
-			tt = tt.strip('\n')
-			if tt == '':
-				tt = ' '
-
+			tt = self.__calc_episode_tooltip(data)
 		elif isinstance(data, gmEMRStructItems.cHealthIssue):
-			tt = ''
-			tt += gmTools.bool2subst(data['is_confidential'], _('*** CONFIDENTIAL ***\n\n'), '')
-			tt += gmTools.bool2subst (
-				(data['diagnostic_certainty_classification'] is not None),
-				data.diagnostic_certainty_description + '\n',
-				''
-			)
-			tt += gmTools.bool2subst (
-				(data['laterality'] not in [None, 'na']),
-				data.laterality_description + '\n',
-				''
-			)
-			# noted_at_age is too costly
-			tt += gmTools.bool2subst(data['is_active'], _('active') + '\n', '')
-			tt += gmTools.bool2subst(data['clinically_relevant'], _('clinically relevant') + '\n', '')
-			tt += gmTools.bool2subst(data['is_cause_of_death'], _('contributed to death') + '\n', '')
-			tt += gmTools.coalesce(data['grouping'], '\n', _('Grouping: %s') + '\n')
-			tt += gmTools.coalesce(data['summary'], '', '\n%s')
-			if len(data['pk_generic_codes']) > 0:
-				tt += '\n'
-				for code in data.generic_codes:
-					tt += '%s: %s%s%s\n  (%s %s)\n' % (
-						code['code'],
-						gmTools.u_left_double_angle_quote,
-						code['term'],
-						gmTools.u_right_double_angle_quote,
-						code['name_short'],
-						code['version']
-					)
-
-			tt = tt.strip('\n')
-			if tt == '':
-				tt = ' '
-
+			tt = self.__calc_issue_tooltip(data)
 		else:
 			tt = self.__root_tooltip
-
+		tt = tt.strip('\n')
+		if tt == '':
+			tt = ' '
 		event.SetToolTip(tt)
 
 		# doing this prevents the tooltip from showing at all
