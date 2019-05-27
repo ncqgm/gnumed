@@ -18,6 +18,23 @@ from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmDateTime
 
 from Gnumed.business import gmSoapDefs
+from Gnumed.business.gmEMRStructItems import cHealthIssue
+from Gnumed.business.gmEMRStructItems import cEncounter
+from Gnumed.business.gmEMRStructItems import cEpisode
+from Gnumed.business.gmEMRStructItems import cHospitalStay
+from Gnumed.business.gmEMRStructItems import cPerformedProcedure
+from Gnumed.business.gmExternalCare import cExternalCareItem
+from Gnumed.business.gmVaccination import cVaccination
+from Gnumed.business.gmClinNarrative import cNarrative
+from Gnumed.business.gmMedication import cSubstanceIntakeEntry
+from Gnumed.business.gmAllergy import cAllergy
+from Gnumed.business.gmAllergy import cAllergyState
+from Gnumed.business.gmFamilyHistory import cFamilyHistory
+from Gnumed.business.gmAutoHints import cSuppressedHint
+from Gnumed.business.gmAutoHints import cDynamicHint
+from Gnumed.business.gmDocuments import cDocument
+from Gnumed.business.gmProviderInbox import cInboxMessage
+from Gnumed.business.gmPathLab import cTestResult
 
 _log = logging.getLogger('gm.emr')
 
@@ -39,6 +56,26 @@ _MAP_generic_emr_item_table2type_str = {
 	'blobs.doc_med': _('Document'),
 	'dem.message_inbox': _('Inbox message'),
 	'ref.auto_hint': _('Dynamic hint')
+}
+
+_MAP_generic_emr_item_table2class = {
+	'clin.encounter': cEncounter,
+	'clin.episode': cEpisode,
+	'clin.health_issue': cHealthIssue,
+	'clin.external_care': cExternalCareItem,
+	'clin.vaccination': cVaccination,
+	'clin.clin_narrative': cNarrative,
+	'clin.test_result': cTestResult,
+	'clin.substance_intake': cSubstanceIntakeEntry,
+	'clin.hospital_stay': cHospitalStay,
+	'clin.procedure': cPerformedProcedure,
+	'clin.allergy': cAllergy,
+	'clin.allergy_state': cAllergyState,
+	'clin.family_history': cFamilyHistory,
+	'clin.suppressed_hint': cSuppressedHint,
+	'blobs.doc_med': cDocument,
+	'dem.message_inbox': cInboxMessage,
+	'ref.auto_hint': cDynamicHint
 }
 
 #============================================================
@@ -146,29 +183,22 @@ class cGenericEMRItem(gmBusinessDBObject.cBusinessDBObject):
 
 	#--------------------------------------------------------
 	def format(self, eol=None):
-		if self._payload[self._idx['encounter_started']] is None:
-			enc_info = gmTools.u_diameter
-		else:
-			enc_info = '%s - %s (%s)' % (
-				gmDateTime.pydt_strftime(self._payload[self._idx['encounter_started']], '%Y %b %d  %H:%M'),
-				self._payload[self._idx['encounter_last_affirmed']].strftime('%H:%M'),
-				self._payload[self._idx['encounter_l10n_type']]
-			)
-		if self._payload[self._idx['health_issue']] is None:
-			issue_info = gmTools.u_diameter
-		else:
-			issue_info = '%s%s' % (
-				self._payload[self._idx['health_issue']],
-				gmTools.bool2subst(self._payload[self._idx['issue_active']], ' (' + _('active') + ')', ' (' + _('inactive') + ')', '')
-			)
-		if self._payload[self._idx['episode']] is None:
-			episode_info = gmTools.u_diameter
-		else:
-			episode_info = '%s%s' % (
-				self._payload[self._idx['episode']],
-				gmTools.bool2subst(self._payload[self._idx['episode_open']], ' (' +  _('open') + ')', ' (' +  _('closed') + ')', '')
-			)
+		lines = self.formatted_header
+		lines.append(gmTools.u_box_horiz_4dashes * 40)
+		lines.extend(self._payload[self._idx['narrative']].strip().split('\n'))
+		lines.append('')
+		lines.append(_('                        rev %s (%s) by %s in <%s>') % (
+			self._payload[self._idx['row_version']],
+			self._payload[self._idx['date_modified']],
+			self._payload[self._idx['modified_by']],
+			self._payload[self._idx['src_table']]
+		))
+		if eol is None:
+			return lines
+		return eol.join(lines)
 
+	#--------------------------------------------------------
+	def format_header(self, eol=None):
 		lines = []
 		lines.append(_('Chart entry (%s): %s       [#%s in %s]') % (
 			self.i18n_soap_cat,
@@ -183,21 +213,36 @@ class cGenericEMRItem(gmBusinessDBObject.cBusinessDBObject):
 			self._payload[self._idx['row_version']]
 		))
 		lines.append('')
+		if self._payload[self._idx['health_issue']] is None:
+			issue_info = gmTools.u_diameter
+		else:
+			issue_info = '%s%s' % (
+				self._payload[self._idx['health_issue']],
+				gmTools.bool2subst(self._payload[self._idx['issue_active']], ' (' + _('active') + ')', ' (' + _('inactive') + ')', '')
+			)
 		lines.append(_('Health issue: %s') % issue_info)
+		if self._payload[self._idx['episode']] is None:
+			episode_info = gmTools.u_diameter
+		else:
+			episode_info = '%s%s' % (
+				self._payload[self._idx['episode']],
+				gmTools.bool2subst(self._payload[self._idx['episode_open']], ' (' +  _('open') + ')', ' (' +  _('closed') + ')', '')
+			)
 		lines.append(_('Episode: %s') % episode_info)
+		if self._payload[self._idx['encounter_started']] is None:
+			enc_info = gmTools.u_diameter
+		else:
+			enc_info = '%s - %s (%s)' % (
+				gmDateTime.pydt_strftime(self._payload[self._idx['encounter_started']], '%Y %b %d  %H:%M'),
+				self._payload[self._idx['encounter_last_affirmed']].strftime('%H:%M'),
+				self._payload[self._idx['encounter_l10n_type']]
+			)
 		lines.append(_('Encounter: %s') % enc_info)
-		lines.append('')
-		lines.extend(self._payload[self._idx['narrative']].strip().split('\n'))
-		lines.append('')
-		lines.append(_('                        rev %s (%s) by %s in <%s>') % (
-			self._payload[self._idx['row_version']],
-			self._payload[self._idx['date_modified']],
-			self._payload[self._idx['modified_by']],
-			self._payload[self._idx['src_table']]
-		))
 		if eol is None:
 			return lines
 		return eol.join(lines)
+
+	formatted_header = property(format_header)
 
 	#--------------------------------------------------------
 	def __get_item_type_str(self):
@@ -216,6 +261,13 @@ class cGenericEMRItem(gmBusinessDBObject.cBusinessDBObject):
 		return gmSoapDefs.soap_cat2l10n[self._payload[self._idx['soap_cat']]]
 
 	i18n_soap_cat = property(__get_i18n_soap_cat)
+
+	#--------------------------------------------------------
+	def __get_specialized_item(self):
+		item_class = _MAP_generic_emr_item_table2class[self._payload[self._idx['src_table']]]
+		return item_class(aPK_obj = self._payload[self._idx['src_pk']])
+
+	specialized_item = property(__get_specialized_item)
 
 #------------------------------------------------------------
 def get_generic_emr_items(encounters=None, episodes=None, issues=None, patient=None, soap_cats=None, time_range=None, order_by=None, active_encounter=None, return_pks=False):
@@ -356,6 +408,8 @@ if __name__ == '__main__':
 		):
 			print('------------------------------')
 			print(item.format(eol = '\n'))
+			input('<next>')
+			print(item.specialized_item)
 			input('<next>')
 
 	#--------------------------------------------------------

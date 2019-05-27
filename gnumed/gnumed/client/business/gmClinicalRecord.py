@@ -910,22 +910,6 @@ class cClinicalRecord(object):
 		return [ gmClinNarrative.cNarrative(row = {'pk_field': 'pk_narrative', 'idx': idx, 'data': row}) for row in rows ]
 
 	#--------------------------------------------------------
-	def get_as_journal(self, since=None, until=None, encounters=None, episodes=None, issues=None, soap_cats=None, providers=None, order_by=None, time_range=None):
-		return gmClinNarrative.get_as_journal (
-			patient = self.pk_patient,
-			since = since,
-			until = until,
-			encounters = encounters,
-			episodes = episodes,
-			issues = issues,
-			soap_cats = soap_cats,
-			providers = providers,
-			order_by = order_by,
-			time_range = time_range,
-			active_encounter = self.active_encounter
-		)
-
-	#--------------------------------------------------------
 	def search_narrative_simple(self, search_term=''):
 
 		search_term = search_term.strip()
@@ -1341,13 +1325,35 @@ class cClinicalRecord(object):
 
 		return txt
 
+	#--------------------------------------------------------
+	def get_as_journal(self, since=None, until=None, encounters=None, episodes=None, issues=None, soap_cats=None, providers=None, order_by=None, time_range=None):
+		return gmClinNarrative.get_as_journal (
+			patient = self.pk_patient,
+			since = since,
+			until = until,
+			encounters = encounters,
+			episodes = episodes,
+			issues = issues,
+			soap_cats = soap_cats,
+			providers = providers,
+			order_by = order_by,
+			time_range = time_range,
+			active_encounter = self.active_encounter
+		)
+
 	#------------------------------------------------------------------
-	def get_generic_emr_items(self, pk_encounters=None, pk_episodes=None, pk_health_issues=None):
+	def get_generic_emr_items(self, pk_encounters=None, pk_episodes=None, pk_health_issues=None, use_active_encounter=False, order_by=None):
+		if use_active_encounter:
+			active_encounter = self.active_encounter
+		else:
+			active_encounter = None
 		return gmGenericEMRItem.get_generic_emr_items (
 			patient = self.pk_patient,
 			encounters = pk_encounters,
 			episodes = pk_episodes,
-			issues = pk_health_issues
+			issues = pk_health_issues,
+			active_encounter = active_encounter,
+			order_by = order_by
 		)
 
 	#--------------------------------------------------------

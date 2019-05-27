@@ -214,6 +214,7 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 	#--------------------------------------------------------
 	def __register_events(self):
 		"""Configures enabled event signals."""
+		self.Bind(wx.EVT_TREE_ITEM_ACTIVATED, self._on_tree_item_activated)
 		self.Bind(wx.EVT_TREE_SEL_CHANGED, self._on_tree_item_selected)
 		self.Bind(wx.EVT_TREE_ITEM_RIGHT_CLICK, self._on_tree_item_right_clicked)
 		self.Bind(wx.EVT_TREE_ITEM_EXPANDING, self._on_tree_item_expanding)
@@ -1154,10 +1155,19 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 			self.__expand_pseudo_issue_node(fake_issue_node = node)
 			return
 
-		# encounter nodes do not need expanding
 		if isinstance(node_data, gmEMRStructItems.cEncounter):
 			self.__expand_encounter_node(encounter_node = node)
 			return
+
+	#--------------------------------------------------------
+	def _on_tree_item_activated(self, event):
+		event.Skip()
+		node = event.GetItem()
+		node_data = self.GetItemData(node)
+		if isinstance(node_data, gmGenericEMRItem.cGenericEMRItem):
+			instance = node_data.specialized_item
+			if instance is not None:
+				gmClinicalItemWorkflows.edit_item_in_dlg(parent = self, item = instance)
 
 	#--------------------------------------------------------
 	def _on_tree_item_selected(self, event):
@@ -1610,16 +1620,23 @@ class cEMRListJournalPluginPnl(wxgEMRListJournalPluginPnl.wxgEMRListJournalPlugi
 		self._LCTRL_journal.set_columns([date_col_header, '', _('Entry'), _('Who / When')])
 		self._LCTRL_journal.set_resize_column(3)
 
-		journal = gmPerson.gmCurrentPatient().emr.get_as_journal(order_by = order_by)
+#		journal = gmPerson.gmCurrentPatient().emr.get_as_journal(order_by = order_by)
+		journal = gmPerson.gmCurrentPatient().emr.get_generic_emr_items (
+			pk_encounters = None,
+			pk_episodes = None,
+			pk_health_issues = None,
+			use_active_encounter = True,
+			order_by = order_by
+		)
 
-		self.__data = {}
+#		self.__data = {}
 		items = []
 		data = []
 		prev_date = None
 		for entry in journal:
 			if entry['narrative'].strip() == '':
 				continue
-			self.__register_journal_entry(entry)
+#			self.__register_journal_entry(entry)
 			soap_cat = gmSoapDefs.soap_cat2l10n[entry['soap_cat']]
 			who = '%s (%s)' % (entry['modified_by'], entry['date_modified'])
 			try:
@@ -1634,19 +1651,21 @@ class cEMRListJournalPluginPnl(wxgEMRListJournalPluginPnl.wxgEMRListJournalPlugi
 			lines_of_journal_entry = entry['narrative'].strip().split('\n')
 			first_line = lines_of_journal_entry[0]
 			items.append([date2show, soap_cat, first_line.rstrip(), who])
-			data.append ({
-				'table': entry['src_table'],
-				'pk': entry['src_pk']
-			})
+#			data.append ({
+#				'table': entry['src_table'],
+#				'pk': entry['src_pk']
+#			})
+			data.append(entry)
 			for line in lines_of_journal_entry[1:]:	# skip first line
 				if line.strip() == '':
 					continue
 				# only first line carries metadata
 				items.append(['', '', line.rstrip(), ''])
-				data.append ({
-					'table': entry['src_table'],
-					'pk': entry['src_pk']
-				})
+#				data.append ({
+#					'table': entry['src_table'],
+#					'pk': entry['src_pk']
+#				})
+				data.append(entry)
 
 		self._LCTRL_journal.set_string_items(items)
 		# maybe add coloring per-entry ?
@@ -1738,13 +1757,19 @@ class cEMRListJournalPluginPnl(wxgEMRListJournalPluginPnl.wxgEMRListJournalPlugi
 	#--------------------------------------------------------
 	def _on_row_activated(self, evt):
 		data = self._LCTRL_journal.get_item_data(item_idx = evt.Index)
-		# move to businessobjworkflows or so
-		instance = gmClinicalRecord.instantiate_clin_root_item(data['table'], data['pk'])
+		instance = data.specialized_item
+		if instance is None:
+			return
 		if gmClinicalItemWorkflows.edit_item_in_dlg(parent = self, item = instance):
 			self.repopulate_ui()
 
 	#--------------------------------------------------------
 	def _on_row_selected(self, evt):
+		data = self._LCTRL_journal.get_item_data(item_idx = evt.Index)
+		self._TCTRL_details.SetValue(data.format(eol = '\n'))
+		# FIXME: fire off get-details
+		return
+
 		data = self._LCTRL_journal.get_item_data(item_idx = evt.Index)
 		if self.__data[data['table']][data['pk']]['formatted_instance'] is None:
 			txt = _(
