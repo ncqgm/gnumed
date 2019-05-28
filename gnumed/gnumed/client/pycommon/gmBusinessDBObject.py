@@ -149,6 +149,7 @@ from Gnumed.pycommon.gmTools import u_left_arrow
 
 
 _log = logging.getLogger('gm.db')
+
 #============================================================
 class cBusinessDBObject(object):
 	"""Represents business objects in the database.
@@ -492,6 +493,7 @@ def manage_xxx()
 	#--------------------------------------------------------
 	def same_payload(self, another_object=None):
 		raise NotImplementedError('comparison between [%s] and [%s] not implemented' % (self, another_object))
+
 	#--------------------------------------------------------
 	def is_modified(self):
 		return self._is_modified
@@ -552,10 +554,59 @@ def manage_xxx()
 				data[field] = xetex_escape_string(data[field])
 
 		return data
+
 	#--------------------------------------------------------
 	def get_patient(self):
 		_log.error('[%s:%s]: forgot to override get_patient()' % (self.__class__.__name__, self.pk_obj))
 		return None
+
+	#--------------------------------------------------------
+	def _get_staff_id(self):
+		try:
+			return self._payload[self._idx['pk_staff']]
+		except KeyError:
+			_log.debug('[%s]: .pk_staff should be added to the view', self.__class__.__name__)
+		try:
+			return self._payload[self._idx['pk_provider']]
+		except KeyError:
+			pass
+		mod_by = None
+		try:
+			mod_by = self._payload[self._idx['modified_by_raw']]
+		except KeyError:
+			_log.debug('[%s]: .modified_by_raw should be added to the view', self.__class__.__name__)
+		if mod_by is not None:
+			# find by DB account
+			args = {'db_u': mod_by}
+			cmd = "SELECT pk FROM dem.staff WHERE db_user = %(db_u)s"
+			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+			if len(rows) > 0:
+				# logically, they are all the same provider, because they share the DB account
+				return rows[0][0]
+
+		mod_by = self._payload[self._idx['modified_by']]
+		# is .modified_by a "<DB-account>" ?
+		if mod_by.startswith('<') and mod_by.endswith('>'):
+			# find by DB account
+			args = {'db_u': mod_by.lstrip('<').rstrip('>')}
+			cmd = "SELECT pk FROM dem.staff WHERE db_user = %(db_u)s"
+			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+			if len(rows) > 0:
+				# logically, they are all the same provider, because they share the DB account
+				return rows[0][0]
+
+		# .modified_by is probably dem.staff.short_alias
+		args = {'alias': mod_by}
+		cmd = "SELECT pk FROM dem.staff WHERE short_alias = %(alias)s"
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+		if len(rows) > 0:
+			# logically, they are all the same provider, because they share the DB account
+			return rows[0][0]
+
+		_log.error('[%s]: cannot retrieve staff ID for [%s]', self.__class__.__name__, mod_by)
+		return None
+
+	staff_id = property(_get_staff_id)
 
 	#--------------------------------------------------------
 	def format(self, *args, **kwargs):

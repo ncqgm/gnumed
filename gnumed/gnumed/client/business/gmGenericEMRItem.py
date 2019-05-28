@@ -408,9 +408,10 @@ if __name__ == '__main__':
 		):
 			print('------------------------------')
 			print(item.format(eol = '\n'))
+			print(item.staff_id)
 			input('<next>')
-			print(item.specialized_item)
-			input('<next>')
+			#print(item.specialized_item)
+			#input('<next>')
 
 	#--------------------------------------------------------
 	test_gen_item()

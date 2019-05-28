@@ -48,7 +48,7 @@ from Gnumed.wxpython import gmFormWidgets
 from Gnumed.wxpython import gmTimer
 from Gnumed.wxpython import gmHospitalStayWidgets
 from Gnumed.wxpython import gmProcedureWidgets
-from Gnumed.wxpython import gmClinicalItemWorkflows
+from Gnumed.wxpython import gmGenericEMRItemWorkflows
 
 
 _log = logging.getLogger('gm.ui')
@@ -440,8 +440,8 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 		# would require pre-configurable save-under which we don't have
 		#item = self.__enc_context_popup.Append(-1, _('Create progress note'))
 		#self.Bind(wx.EVT_MENU, self.__create_soap_editor, item)
-		item = self.__enc_context_popup.Append(-1, _('Edit progress notes'))
-		self.Bind(wx.EVT_MENU, self.__edit_progress_notes, item)
+		#item = self.__enc_context_popup.Append(-1, _('Edit progress notes'))
+		#self.Bind(wx.EVT_MENU, self.__edit_progress_notes, item)
 		item = self.__enc_context_popup.Append(-1, _('Move progress notes'))
 		self.Bind(wx.EVT_MENU, self.__move_progress_notes, item)
 		item = self.__enc_context_popup.Append(-1, _('Export for Medistar'))
@@ -1166,8 +1166,11 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 		node_data = self.GetItemData(node)
 		if isinstance(node_data, gmGenericEMRItem.cGenericEMRItem):
 			instance = node_data.specialized_item
-			if instance is not None:
-				gmClinicalItemWorkflows.edit_item_in_dlg(parent = self, item = instance)
+			if instance is None:
+				gmDispatcher.send(signal = 'statustext', msg = _('Cannot edit "%s".') % node_data.item_type_str, beep = True)
+				return
+			gmGenericEMRItemWorkflows.edit_item_in_dlg(parent = self, item = instance)
+			return
 
 	#--------------------------------------------------------
 	def _on_tree_item_selected(self, event):
@@ -1760,7 +1763,7 @@ class cEMRListJournalPluginPnl(wxgEMRListJournalPluginPnl.wxgEMRListJournalPlugi
 		instance = data.specialized_item
 		if instance is None:
 			return
-		if gmClinicalItemWorkflows.edit_item_in_dlg(parent = self, item = instance):
+		if gmGenericEMRItemWorkflows.edit_item_in_dlg(parent = self, item = instance):
 			self.repopulate_ui()
 
 	#--------------------------------------------------------

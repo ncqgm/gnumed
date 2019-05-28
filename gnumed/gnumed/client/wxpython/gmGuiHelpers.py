@@ -130,7 +130,15 @@ from Gnumed.wxGladeWidgets import wxg3ButtonQuestionDlg
 class c3ButtonQuestionDlg(wxg3ButtonQuestionDlg.wxg3ButtonQuestionDlg):
 
 	def __init__(self, *args, **kwargs):
+		"""Initialize.
 
+	button_defs = [
+		# tooltip and default are optional
+		{'label': _(''), 'tooltip': _(''), 'default': True/False},
+		{'label': _(''), 'tooltip': _(''), 'default': True/False},
+		{'label': _(''), 'tooltip': _(''), 'default': True/False}
+	]
+		"""
 		caption = kwargs['caption']
 		question = kwargs['question']
 		button_defs = kwargs['button_defs'][:3]
@@ -174,7 +182,10 @@ class c3ButtonQuestionDlg(wxg3ButtonQuestionDlg.wxg3ButtonQuestionDlg):
 		buttons = [self._BTN_1, self._BTN_2, self._BTN_3]
 		for idx in range(len(button_defs)):
 			buttons[idx].SetLabel(label = button_defs[idx]['label'])
-			buttons[idx].SetToolTip(button_defs[idx]['tooltip'])
+			try:
+				buttons[idx].SetToolTip(button_defs[idx]['tooltip'])
+			except KeyError:
+				pass
 			try:
 				if button_defs[idx]['default'] is True:
 					buttons[idx].SetDefault()
@@ -186,6 +197,7 @@ class c3ButtonQuestionDlg(wxg3ButtonQuestionDlg.wxg3ButtonQuestionDlg):
 	#--------------------------------------------------------
 	def checkbox_is_checked(self):
 		return self._CHBOX_dont_ask_again.IsChecked()
+
 	#--------------------------------------------------------
 	# event handlers
 	#--------------------------------------------------------
@@ -194,6 +206,7 @@ class c3ButtonQuestionDlg(wxg3ButtonQuestionDlg.wxg3ButtonQuestionDlg):
 			self.EndModal(wx.ID_YES)
 		else:
 			self.Close()
+
 	#--------------------------------------------------------
 	def _on_BTN_2_pressed(self, evt):
 		if self.IsModal():

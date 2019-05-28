@@ -46,6 +46,7 @@ from Gnumed.wxpython.gmAllergyWidgets import edit_allergies
 
 _log = logging.getLogger('gm.ui')
 
+#c: {'edit_in_dlg': edit_}
 __map_class2edit_call = {
 	cEpisode: {'edit_in_dlg': edit_episode},
 	cHealthIssue: {'edit_in_dlg': edit_health_issue},
@@ -60,17 +61,14 @@ __map_class2edit_call = {
 	cNarrative: {'edit_in_dlg': edit_narrative},
 	cAllergy: {'edit_in_dlg': edit_allergies},
 	cAllergyState: {'edit_in_dlg': edit_allergies}
-
-	#c: {'edit_in_dlg': edit_}
-
-#	'clin.suppressed_hint': gmAutoHints.cSuppressedHint,
-#	'blobs.doc_med': cDocument,
-#	'dem.message_inbox': cInboxMessage
 }
+#'clin.suppressed_hint': gmAutoHints.cSuppressedHint,
+#'blobs.doc_med': cDocument,
+#'dem.message_inbox': cInboxMessage
+
 
 #================================================================
 def edit_item_in_dlg(parent=None, item=None):
-
 	try:
 		edit_func = __map_class2edit_call[type(item)]['edit_in_dlg']
 	except KeyError:

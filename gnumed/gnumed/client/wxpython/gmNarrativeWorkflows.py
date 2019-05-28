@@ -30,6 +30,7 @@ from Gnumed.business import gmStaff
 from Gnumed.business import gmEMRStructItems
 from Gnumed.business import gmClinNarrative
 from Gnumed.business import gmSoapDefs
+from Gnumed.business import gmProviderInbox
 
 from Gnumed.wxpython import gmListWidgets
 from Gnumed.wxpython import gmEMRStructWidgets
@@ -47,18 +48,25 @@ _log = logging.getLogger('gm.ui')
 # narrative related widgets/functions
 #------------------------------------------------------------
 def edit_narrative(parent=None, narrative=None, single_entry=False):
-	if narrative is None:
-		return False
+	assert isinstance(narrative, gmClinNarrative.cNarrative), _('<narrative> must be of type <cNarrative>')
 
+	title = _('Editing progress note')
+	if narrative['modified_by_raw'] == gmStaff.gmCurrentProvider()['db_user']:
+		msg = _('Your original progress note:')
+	else:
+		msg = _('Original progress note by %s [%s]\n(will be notified of changes):') % (
+			narrative['modified_by'],
+			narrative['modified_by_raw']
+		)
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
 	dlg = gmGuiHelpers.cMultilineTextEntryDlg (
 		parent,
 		-1,
-		title = _('Editing progress note'),
-		msg = _('This is the original progress note:'),
+		title = title,
+		msg = msg,
 		data = narrative.format(left_margin = ' ', fancy = True),
-		text = narrative['narrative']
+		text = narrative['narrative'].strip()
 	)
 	decision = dlg.ShowModal()
 	val = dlg.value.strip()
@@ -69,8 +77,78 @@ def edit_narrative(parent=None, narrative=None, single_entry=False):
 	if val == '':
 		return False
 
+	if val == narrative['narrative'].strip():
+		return False
+
+	if narrative['modified_by_raw'] == gmStaff.gmCurrentProvider()['db_user']:
+		narrative['narrative'] = val
+		narrative.save_payload()
+		return True
+
+	q = _(
+		'Original progress note written by someone else:\n'
+		'\n'
+		' %s (%s)\n'
+		'\n'
+		'Upon saving changes that person will be notified.\n'
+		'\n'
+		'Consider saving as a new progress note instead.'
+	) % (
+		narrative['modified_by_raw'],
+		narrative['modified_by']
+	)
+	buttons = [
+		{'label': _('Save changes'), 'default': True},
+		{'label': _('Save new note')},
+		{'label': _('Discard')}
+	]
+	dlg = gmGuiHelpers.c3ButtonQuestionDlg(parent = parent, caption = title, question = q, button_defs = buttons)
+	decision = dlg.ShowModal()
+	dlg.DestroyLater()
+	if decision not in [wx.ID_YES, wx.ID_NO]:
+		return False
+
+	if decision == wx.ID_NO:
+		# create new progress note within the same context as the original one
+		gmClinNarrative.create_narrative_item (
+			narrative = val,
+			soap_cat = narrative['soap_cat'],
+			episode_id = narrative['pk_episode'],
+			encounter_id = narrative['pk_encounter']
+		)
+		return True
+
+	# notify original provider
+	msg = gmProviderInbox.create_inbox_message (
+		staff = narrative.staff_id,
+		message_type = _('Change notification'),
+		message_category = 'administrative',
+		subject = _('A progress note of yours has been edited.'),
+		patient = narrative['pk_patient']
+	)
+	msg['data'] = _(
+		'Original (by [%s]):\n'
+		'%s\n'
+		'\n'
+		'Edited (by [%s]):\n'
+		'%s'
+	) % (
+		narrative['modified_by'],
+		narrative['narrative'].strip(),
+		gmStaff.gmCurrentProvider()['short_alias'],
+		val
+	)
+	msg.save()
+	# notify /me about the staff member notification
+	#gmProviderInbox.create_inbox_message (
+	#	staff = curr_prov['pk_staff'],
+	#	message_type = _('Privacy notice'),
+	#	message_category = 'administrative',
+	#	subject = _('%s: Staff member %s has been notified of your chart access.') % (prov, pat)
+	#)
+	# save narrative change
 	narrative['narrative'] = val
-	narrative.save_payload()
+	narrative.save()
 	return True
 
 #------------------------------------------------------------
@@ -221,8 +299,8 @@ def manage_progress_notes(parent=None, encounters=None, episodes=None, patient=N
 
 		item['narrative'] = val
 		item.save_payload()
-
 		return True
+
 	#--------------------------
 	def refresh(lctrl):
 		notes = emr.get_clin_narrative (
