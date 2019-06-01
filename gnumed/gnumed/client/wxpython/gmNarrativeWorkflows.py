@@ -48,7 +48,7 @@ _log = logging.getLogger('gm.ui')
 # narrative related widgets/functions
 #------------------------------------------------------------
 def edit_narrative(parent=None, narrative=None, single_entry=False):
-	assert isinstance(narrative, gmClinNarrative.cNarrative), _('<narrative> must be of type <cNarrative>')
+	assert isinstance(narrative, gmClinNarrative.cNarrative), '<narrative> must be of type <cNarrative>'
 
 	title = _('Editing progress note')
 	if narrative['modified_by_raw'] == gmStaff.gmCurrentProvider()['db_user']:

@@ -204,7 +204,7 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 		if isinstance(node_data, gmEMRStructItems.cEncounter):
 			return 'encounter::%s' % node_data['pk_encounter']
 		# unassociated episodes
-		if isinstance(node_data, type({})):
+		if isinstance(node_data, dict):
 			return 'dummy node::%s' % self.__pat.ID
 		# root node == EMR level
 		return 'root node::%s' % self.__pat.ID
@@ -214,10 +214,10 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 	#--------------------------------------------------------
 	def __register_events(self):
 		"""Configures enabled event signals."""
-		self.Bind(wx.EVT_TREE_ITEM_ACTIVATED, self._on_tree_item_activated)
 		self.Bind(wx.EVT_TREE_SEL_CHANGED, self._on_tree_item_selected)
-		self.Bind(wx.EVT_TREE_ITEM_RIGHT_CLICK, self._on_tree_item_right_clicked)
+		self.Bind(wx.EVT_TREE_ITEM_ACTIVATED, self._on_tree_item_activated)
 		self.Bind(wx.EVT_TREE_ITEM_EXPANDING, self._on_tree_item_expanding)
+		self.Bind(wx.EVT_TREE_ITEM_MENU, self._on_tree_item_context_menu)
 
 		# handle tooltips
 #		self.Bind(wx.EVT_MOTION, self._on_mouse_motion)
@@ -447,21 +447,39 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 		item = self.__enc_context_popup.Append(-1, _('Export for Medistar'))
 		self.Bind(wx.EVT_MENU, self.__export_encounter_for_medistar, item)
 
-	#--------------------------------------------------------
-	def __handle_root_context(self, pos=wx.DefaultPosition):
-		self.PopupMenu(self.__root_context_popup, pos)
+		# - generic EMR items
+		self.__generic_emr_item_context_popup = wx.Menu(title = _('Item Actions:'))
+		item = self.__generic_emr_item_context_popup.Append(-1, _('Edit item'))
+		self.Bind(wx.EVT_MENU, self.__on_edit_generic_emr_item, item)
 
 	#--------------------------------------------------------
-	def __handle_issue_context(self, pos=wx.DefaultPosition):
-		self.PopupMenu(self.__issue_context_popup, pos)
+	def __show_context_menu(self, pos=wx.DefaultPosition):
+		self.__curr_node_data = self.GetItemData(self.__curr_node)
 
-	#--------------------------------------------------------
-	def __handle_episode_context(self, pos=wx.DefaultPosition):
-		self.PopupMenu(self.__epi_context_popup, pos)
+		if isinstance(self.__curr_node_data, gmEMRStructItems.cHealthIssue):
+			self.PopupMenu(self.__issue_context_popup, pos)
+			return True
 
-	#--------------------------------------------------------
-	def __handle_encounter_context(self, pos=wx.DefaultPosition):
-		self.PopupMenu(self.__enc_context_popup, pos)
+		if isinstance(self.__curr_node_data, gmEMRStructItems.cEpisode):
+			self.PopupMenu(self.__epi_context_popup, pos)
+			return True
+
+		if isinstance(self.__curr_node_data, gmEMRStructItems.cEncounter):
+			self.PopupMenu(self.__enc_context_popup, pos)
+			return True
+
+		if isinstance(self.__curr_node_data, gmGenericEMRItem.cGenericEMRItem):
+			self.PopupMenu(self.__generic_emr_item_context_popup, pos)
+			return True
+
+		if self.__curr_node == self.GetRootItem():
+			self.PopupMenu(self.__root_context_popup, pos)
+			return True
+
+		return False
+		# ignore pseudo node "free-standing episodes"
+#		if isinstance(self.__curr_node_data, dict):
+#			pass
 
 	#--------------------------------------------------------
 	# episode level
@@ -703,20 +721,6 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 		)
 
 	#--------------------------------------------------------
-	def __update_text_for_generic_node(self, generic_item):
-		self.__cb__enable_display_mode_selection(False)
-		txt = gmTools.list2text (
-			generic_item.format(),
-			strip_leading_empty_lines = False,
-			strip_trailing_empty_lines = False,
-			strip_trailing_whitespace = True,
-			max_line_width = 85
-		)
-		self.__soap_display.SetFont(self.__soap_display_prop_font)
-		self.__soap_display.WriteText(txt)
-		self.__soap_display.ShowPosition(0)
-
-	#--------------------------------------------------------
 	def __calc_encounter_tooltip(self, encounter):
 		tt = '%s  %s  %s - %s\n' % (
 			gmDateTime.pydt_strftime(encounter['started'], '%Y %b %d'),
@@ -751,6 +755,35 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 						code['version']
 					)
 		return tt
+
+	#--------------------------------------------------------
+	# generic EMR item level
+	#--------------------------------------------------------
+	def __update_text_for_generic_node(self, generic_item):
+		self.__cb__enable_display_mode_selection(False)
+		txt = gmTools.list2text (
+			generic_item.format(),
+			strip_leading_empty_lines = False,
+			strip_trailing_empty_lines = False,
+			strip_trailing_whitespace = True,
+			max_line_width = 85
+		)
+		self.__soap_display.SetFont(self.__soap_display_prop_font)
+		self.__soap_display.WriteText(txt)
+		self.__soap_display.ShowPosition(0)
+
+	#--------------------------------------------------------
+	def __on_edit_generic_emr_item(self, evt):
+		self.__edit_generic_emr_item()
+
+	#--------------------------------------------------------
+	def __edit_generic_emr_item(self):
+		instance = self.__curr_node_data.specialized_item
+		if instance is None:
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot edit "%s".') % self.__curr_node_data.item_type_str, beep = True)
+			return False
+		gmGenericEMRItemWorkflows.edit_item_in_dlg(parent = self, item = instance)
+		return True
 
 	#--------------------------------------------------------
 	# issue level
@@ -1075,6 +1108,13 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 		)
 
 	#--------------------------------------------------------
+	def __edit_tree_item(self):
+		self.__curr_node_data = self.GetItemData(self.__curr_node)
+		if isinstance(self.__curr_node_data, gmGenericEMRItem.cGenericEMRItem):
+			self.__edit_generic_emr_item()
+			return
+
+	#--------------------------------------------------------
 	# root node level
 	#--------------------------------------------------------
 	def __expand_root_node(self):
@@ -1162,15 +1202,8 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 	#--------------------------------------------------------
 	def _on_tree_item_activated(self, event):
 		event.Skip()
-		node = event.GetItem()
-		node_data = self.GetItemData(node)
-		if isinstance(node_data, gmGenericEMRItem.cGenericEMRItem):
-			instance = node_data.specialized_item
-			if instance is None:
-				gmDispatcher.send(signal = 'statustext', msg = _('Cannot edit "%s".') % node_data.item_type_str, beep = True)
-				return
-			gmGenericEMRItemWorkflows.edit_item_in_dlg(parent = self, item = instance)
-			return
+		self.__curr_node = event.Item
+		self.__edit_tree_item()
 
 	#--------------------------------------------------------
 	def _on_tree_item_selected(self, event):
@@ -1238,28 +1271,10 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 #    widgetXY.GetToolTip().Enable(False)
 
 	#--------------------------------------------------------
-	def _on_tree_item_right_clicked(self, event):
+	def _on_tree_item_context_menu(self, event):
 		"""Right button clicked: display the popup for the tree"""
-
-		node = event.GetItem()
-		self.SelectItem(node)
-		self.__curr_node_data = self.GetItemData(node)
-		self.__curr_node = node
-
-		pos = wx.DefaultPosition
-		if isinstance(self.__curr_node_data, gmEMRStructItems.cHealthIssue):
-			self.__handle_issue_context(pos=pos)
-		elif isinstance(self.__curr_node_data, gmEMRStructItems.cEpisode):
-			self.__handle_episode_context(pos=pos)
-		elif isinstance(self.__curr_node_data, gmEMRStructItems.cEncounter):
-			self.__handle_encounter_context(pos=pos)
-		elif node == self.GetRootItem():
-			self.__handle_root_context()
-		elif type(self.__curr_node_data) == type({}):
-			# ignore pseudo node "free-standing episodes"
-			pass
-		else:
-			print("error: unknown node type, no popup menu")
+		self.__curr_node = event.Item
+		self.__show_context_menu(pos = event.Point)
 		event.Skip()
 
 	#--------------------------------------------------------

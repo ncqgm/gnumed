@@ -1265,7 +1265,7 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 		self._invalidate_sorting_metadata()					# must be called after each (external/direct) list item update
 		listmixins.ColumnSorterMixin.__init__(self, 0)		# must be called again after adding columns (why ?)
 		self.__secondary_sort_col = None
-		# apparently, this MUST be bound under wxP3 - but why ??
+		# apparently, this MUST be bound under wxp3 - but why ??
 		self.Bind(wx.EVT_LIST_COL_CLICK, self._on_col_click, self)
 
 		# cols/rows
