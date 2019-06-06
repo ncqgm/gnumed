@@ -750,12 +750,18 @@ class gmTopLevelFrame(wx.Frame):
 		self.Bind(wx.EVT_MENU, self.__on_display_user_manual_online, item)
 		item = help_menu.Append(-1, _('Menu reference (www)'), _('View the reference for menu items on the web.'))
 		self.Bind(wx.EVT_MENU, self.__on_menu_reference, item)
-		item = help_menu.Append(-1, _('&Clear status line'), _('Clear out the status line.'))
-		self.Bind(wx.EVT_MENU, self.__on_clear_status_line, item)
 		item = help_menu.Append(-1, _('Browse work dir'), _('Browse user working directory [%s].') % os.path.join(gmTools.gmPaths().home_dir, 'gnumed'))
 		self.Bind(wx.EVT_MENU, self.__on_browse_work_dir, item)
 
 		menu_debugging = wx.Menu()
+		item = menu_debugging.Append(-1, _('Status line: &Clear'), _('Clear the status line.'))
+		self.Bind(wx.EVT_MENU, self.__on_clear_status_line, item)
+		item = menu_debugging.Append(-1, _('Status line: History'), _('Show status line history.'))
+		self.Bind(wx.EVT_MENU, self.__on_show_status_line_history, item)
+		item = menu_debugging.Append(-1, _('Tooltips on'), _('Globally enable tooltips.'))
+		self.Bind(wx.EVT_MENU, self.__on_enable_tooltips, item)
+		item = menu_debugging.Append(-1, _('Tooltips off'), _('Globally (attempt to) disable tooltips.'))
+		self.Bind(wx.EVT_MENU, self.__on_disable_tooltips, item)
 		item = menu_debugging.Append(-1, _('Screenshot'), _('Save a screenshot of this GNUmed client.'))
 		self.Bind(wx.EVT_MENU, self.__on_save_screenshot, item)
 		item = menu_debugging.Append(-1, _('Show log file'), _('Show log file in text viewer.'))
@@ -2373,6 +2379,18 @@ class gmTopLevelFrame(wx.Frame):
 		self.StatusBar.set_normal_color()
 
 	#----------------------------------------------
+	def __on_show_status_line_history(self, evt):
+		self.StatusBar.show_history()
+
+	#----------------------------------------------
+	def __on_enable_tooltips(self, evt):
+		wx.ToolTip.Enable(True)
+
+	#----------------------------------------------
+	def __on_disable_tooltips(self, evt):
+		wx.ToolTip.Enable(False)
+
+	#----------------------------------------------
 	def __on_toggle_patient_lock(self, evt):
 		curr_pat = gmPerson.gmCurrentPatient()
 		if curr_pat.locked:
@@ -3259,6 +3277,23 @@ class cStatusBar(wx.StatusBar):
 		return self.SetBackgroundColour(self.__normal_background_colour)
 
 	#----------------------------------------------
+	def show_history(self):
+		lines = []
+		for entry in self.__msg_fifo:
+			lines.append('%s (%s)' % (entry['text'], ','.join(entry['timestamps'])))
+		gmGuiHelpers.gm_show_info (
+			title = _('Statusbar history'),
+			info = _(
+				'%s - now\n'
+				'\n'
+				'%s'
+			) % (
+				gmDateTime.pydt_now_here().strftime('%H:%M'),
+				'\n'.join(lines)
+			)
+		)
+
+	#----------------------------------------------
 	# internal API
 	#----------------------------------------------
 	def _cb_update_clock(self):
@@ -3331,20 +3366,7 @@ class cStatusBar(wx.StatusBar):
 
 	#----------------------------------------------
 	def _on_show_history(self, evt):
-		lines = []
-		for entry in self.__msg_fifo:
-			lines.append('%s (%s)' % (entry['text'], ','.join(entry['timestamps'])))
-		gmGuiHelpers.gm_show_info (
-			title = _('Statusbar history'),
-			info = _(
-				'%s - now\n'
-				'\n'
-				'%s'
-			) % (
-				gmDateTime.pydt_now_here().strftime('%H:%M'),
-				'\n'.join(lines)
-			)
-		)
+		self.show_history()
 
 	#----------------------------------------------
 	def __print_msg_fifo(self, context=None):
@@ -3369,6 +3391,9 @@ class gmApp(wx.App):
 			self.SetAssertMode(wx.APP_ASSERT_SUPPRESS)
 
 		self.__starting_up = True
+
+		# show tooltips for x msecs
+		wx.ToolTip.SetAutoPop(4000)
 
 		gmExceptionHandlingWidgets.install_wx_exception_handler()
 		gmExceptionHandlingWidgets.set_client_version(_cfg.get(option = 'client_version'))
