@@ -135,7 +135,7 @@ class cWaitingListEntryEditAreaPnl(wxgWaitingListEntryEditAreaPnl.wxgWaitingList
 		validity = (self._PRW_patient.person is not None)
 
 		if validity is False:
-			gmDispatcher.send(signal = 'statustext', msg = _('Cannot add to waiting list. Missing essential input.'))
+			self.StatusText = _('Cannot add to waiting list. Missing essential input.')
 
 		return validity
 	#----------------------------------------------------------------

@@ -181,7 +181,7 @@ class cInboxMessageEAPnl(wxgInboxMessageEAPnl.wxgInboxMessageEAPnl, gmEditArea.c
 				if not self._PRW_expiry.date > self._PRW_due.date:
 					validity = False
 					self._PRW_expiry.display_as_valid(False)
-					gmDispatcher.send(signal = 'statustext', msg = _('Message cannot expire before being due.'))
+					self.StatusText = _('Message cannot expire before being due.')
 
 		return validity
 

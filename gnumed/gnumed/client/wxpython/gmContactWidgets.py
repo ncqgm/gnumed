@@ -171,7 +171,7 @@ class cCommChannelEditAreaPnl(wxgCommChannelEditAreaPnl.wxgCommChannelEditAreaPn
 			)
 		except gmPG2.dbapi.IntegrityError:
 			_log.exception('error saving comm channel')
-			gmDispatcher.send(signal = 'statustext', msg = _('Cannot save (duplicate ?) communications channel.'), beep = True)
+			self.StatusText = _('Cannot save (duplicate ?) communications channel.')
 			return False
 
 		data['comment'] = self._TCTRL_comment.GetValue().strip()

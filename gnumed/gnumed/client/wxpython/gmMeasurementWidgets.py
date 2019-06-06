@@ -2990,7 +2990,7 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 				self.display_ctrl_as_valid(widget, False)
 
 		if validity is False:
-			gmDispatcher.send(signal = 'statustext', msg = _('Cannot save result. Invalid or missing essential input.'))
+			self.StatusText = _('Cannot save result. Invalid or missing essential input.')
 
 		return validity
 	#--------------------------------------------------------

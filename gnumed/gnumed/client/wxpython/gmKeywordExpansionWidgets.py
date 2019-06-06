@@ -202,7 +202,7 @@ class cTextExpansionEditAreaPnl(wxgTextExpansionEditAreaPnl.wxgTextExpansionEdit
 			self.display_tctrl_as_valid(tctrl = self._TCTRL_data_file, valid = True)
 		else:
 			validity = False
-			gmDispatcher.send(signal = 'statustext', msg = _('Cannot save keyword expansion without text or data expansion.'), beep = True)
+			self.StatusText = _('Cannot save keyword expansion without text or data expansion.')
 			self.display_tctrl_as_valid(tctrl = self._TCTRL_expansion, valid = False)
 			self.display_tctrl_as_valid(tctrl = self._TCTRL_data_file, valid = False)
 			if self.data is None:
@@ -216,7 +216,7 @@ class cTextExpansionEditAreaPnl(wxgTextExpansionEditAreaPnl.wxgTextExpansionEdit
 		if self._TCTRL_keyword.GetValue().strip() == '':
 			validity = False
 			self.display_tctrl_as_valid(tctrl = self._TCTRL_keyword, valid = False)
-			gmDispatcher.send(signal = 'statustext', msg = _('Cannot save keyword expansion without keyword.'), beep = True)
+			self.StatusText = _('Cannot save keyword expansion without keyword.')
 			self._TCTRL_keyword.SetFocus()
 		else:
 			self.display_tctrl_as_valid(tctrl = self._TCTRL_keyword, valid = True)

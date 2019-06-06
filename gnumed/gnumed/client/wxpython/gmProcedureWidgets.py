@@ -278,8 +278,8 @@ limit 25
 			self._PRW_hospital_stay.display_as_valid(True)
 			self._PRW_location.display_as_valid(True)
 
-		gmDispatcher.send(signal = 'statustext_ea', msg = _('Cannot save procedure.'), beep = True)
-
+		if has_errors:
+			self.StatusText = _('Cannot save procedure.')
 		return (has_errors is False)
 
 	#----------------------------------------------------------------

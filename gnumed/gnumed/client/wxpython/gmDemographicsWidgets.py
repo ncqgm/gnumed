@@ -166,7 +166,7 @@ class cTagImageEAPnl(wxgTagImageEAPnl.wxgTagImageEAPnl, gmEditArea.cGenericEditA
 		if self.mode == 'new':
 			if self.__selected_image_file is None:
 				valid = False
-				gmDispatcher.send(signal = 'statustext', msg = _('Must pick an image file for a new tag.'), beep = True)
+				self.StatusText = _('Must pick an image file for a new tag.')
 				self._BTN_pick_image.SetFocus()
 
 		if self.__selected_image_file is not None:
@@ -175,7 +175,7 @@ class cTagImageEAPnl(wxgTagImageEAPnl.wxgTagImageEAPnl, gmEditArea.cGenericEditA
 			except Exception:
 				valid = False
 				self.__selected_image_file = None
-				gmDispatcher.send(signal = 'statustext', msg = _('Cannot open the image file [%s].') % self.__selected_image_file, beep = True)
+				self.StatusText = _('Cannot open the image file [%s].')
 				self._BTN_pick_image.SetFocus()
 
 		if self._TCTRL_description.GetValue().strip() == '':
@@ -991,7 +991,7 @@ class cIdentityEAPnl(wxgIdentityEAPnl.wxgIdentityEAPnl, gmEditArea.cGenericEditA
 			self.display_ctrl_as_valid(ctrl = self._TCTRL_tob, valid = False)
 
 		if not self._PRW_dod.is_valid_timestamp(empty_is_valid = True):
-			gmDispatcher.send(signal = 'statustext', msg = _('Invalid date of death.'))
+			self.StatusText = _('Invalid date of death.')
 			self._PRW_dod.SetFocus()
 			has_error = True
 

@@ -595,7 +595,7 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 				self._DP_started.display_as_valid(True)
 
 		if validity is False:
-			gmDispatcher.send(signal = 'statustext', msg = _('Input incomplete/invalid for saving as substance intake.'))
+			self.StatusText = _('Input incomplete/invalid for saving as substance intake.')
 
 		# discontinued must be "< now()" AND "> started" if at all
 		discontinued = self._DP_discontinued.GetData()
@@ -610,7 +610,7 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 			if discontinued > now:
 				self._DP_discontinued.display_as_valid(False)
 				validity = False
-				gmDispatcher.send(signal = 'statustext', msg = _('Discontinued (%s) in the future (now: %s)!') % (discontinued, now))
+				self.StatusText = _('Discontinued (%s) in the future (now: %s)!') % (discontinued, now)
 			else:
 				if started is not None:
 					started = started.replace (
@@ -624,7 +624,7 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 						self._DP_started.display_as_valid(False)
 						self._DP_discontinued.display_as_valid(False)
 						validity = False
-						gmDispatcher.send(signal = 'statustext', msg = _('Discontinued (%s) before started (%s) !') % (discontinued, started))
+						self.StatusText = _('Discontinued (%s) before started (%s) !') % (discontinued, started)
 					else:
 						self._DP_started.display_as_valid(True)
 						self._DP_discontinued.display_as_valid(True)
@@ -646,7 +646,7 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 		)
 
 		if intake is None:
-			gmDispatcher.send('statustext', msg = _('Cannot add duplicate of (maybe inactive) substance intake.'), beep = True)
+			self.StatusText = _('Cannot add duplicate of (maybe inactive) substance intake.')
 			return False
 
 		intake['started'] = self._DP_started.GetData()

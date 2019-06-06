@@ -293,12 +293,12 @@ class cHospitalStayEditAreaPnl(wxgHospitalStayEditAreaPnl.wxgHospitalStayEditAre
 		if self._PRW_episode.GetValue().strip() == '':
 			valid = False
 			self._PRW_episode.display_as_valid(False)
-			gmDispatcher.send(signal = 'statustext', msg = _('Must select an episode or enter a name for a new one. Cannot save hospitalization.'), beep = True)
+			self.StatusText = _('Must select an episode or enter a name for a new one. Cannot save hospitalization.')
 			self._PRW_episode.SetFocus()
 
 		if not self._PRW_admission.is_valid_timestamp(empty_is_valid = False):
 			valid = False
-			gmDispatcher.send(signal = 'statustext', msg = _('Missing admission data. Cannot save hospitalization.'), beep = True)
+			self.StatusText = _('Missing admission data. Cannot save hospitalization.')
 			self._PRW_admission.SetFocus()
 
 		if self._PRW_discharge.is_valid_timestamp(empty_is_valid = True):
@@ -318,7 +318,7 @@ class cHospitalStayEditAreaPnl(wxgHospitalStayEditAreaPnl.wxgHospitalStayEditAre
 					elif not self._PRW_discharge.date > self._PRW_admission.date:
 						valid = False
 						self._PRW_discharge.display_as_valid(False)
-						gmDispatcher.send(signal = 'statustext', msg = _('Discharge date must be empty or later than admission. Cannot save hospitalization.'), beep = True)
+						self.StatusText = _('Discharge date must be empty or later than admission. Cannot save hospitalization.')
 						self._PRW_discharge.SetFocus()
 
 		if self._PRW_hospital.GetData() is None:
