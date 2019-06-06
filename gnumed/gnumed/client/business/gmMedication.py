@@ -2,6 +2,11 @@
 """Medication handling code.
 
 license: GPL v2 or later
+
+
+intake regimen:
+
+	beim Aufstehen / Frühstück / Mittag / abends / zum Schlafengehen / "19 Uhr" / "Mittwochs" / "1x/Monat" / "Mo Di Mi Do Fr Sa So" (Falithrom) / bei Bedarf
 """
 #============================================================
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"

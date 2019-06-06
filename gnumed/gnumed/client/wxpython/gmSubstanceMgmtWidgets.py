@@ -1582,11 +1582,11 @@ class cSingleComponentGenericDrugEAPnl(wxgSingleComponentGenericDrugEAPnl.wxgSin
 		drug = gmMedication.create_drug_product (
 			product_name = name,
 			preparation = self._PRW_preparation.GetValue().strip(),
-			return_existing = True
+			return_existing = True,
+			doses = [dose]
 		)
 		drug['is_fake_product'] = True
 		drug.save()
-		drug.set_substance_doses_as_components(substance_doses = [dose])
 		self.data = drug
 		return True
 
