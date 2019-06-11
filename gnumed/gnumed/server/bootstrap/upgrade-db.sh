@@ -4,7 +4,7 @@
 # Upgrade GNUmed database from version to version.
 #
 # usage:
-#  upgrade-db.sh vX vX+1 <secrets>
+#  upgrade-db.sh vX vX+1 <secret options>
 #
 # limitations:
 #  Only works from version to version sequentially.
@@ -15,8 +15,6 @@
 # "secret" command line options:
 #  no-backup
 #  - don't create a database backup (you got faith)
-#  no-compression
-#  - create a backup but don't compress it (you got plenty of disk but run low on cycles)
 #  quiet
 #  - display failures only, don't chatter
 #
@@ -27,12 +25,12 @@ set -o pipefail
 PREV_VER="$1"
 NEXT_VER="$2"
 SKIP_BACKUP="$3"
-BZIP_BACKUP="$3"
 QUIET="$3"
 LOG_BASE="."
 LOG="${LOG_BASE}/update_db-v${PREV_VER}_v${NEXT_VER}.log"
 CONF="update_db-v${PREV_VER}_v${NEXT_VER}.conf"
-BAK_FILE="backup-upgrade-v${PREV_VER}-to-v${NEXT_VER}-"`hostname`".sql"
+TS=$(date +%Y-%m-%d-%H-%M-%S)
+BAK_FILE="backup-upgrade_v${PREV_VER}_to_v${NEXT_VER}-$(hostname)-${TS}.tar"
 
 
 if test ! -f $CONF ; then
@@ -69,7 +67,7 @@ fi ;
 
 # tell libpq-based tools about the non-default port, if any
 if test -n "${GM_DB_PORT}" ; then
-	PORT_DEF="-p ${GM_DB_PORT}"
+	PORT_DEF="--port=${GM_DB_PORT}"
 	export PGPORT="${GM_DB_PORT}"
 else
 	PORT_DEF=""
@@ -162,19 +160,12 @@ fi
 
 # eventually attempt the upgrade
 echo_msg ""
-echo_msg "1) creating backup of the database that is to be upgraded ..."
 if test "$SKIP_BACKUP" != "no-backup" ; then
-	#echo_msg "   Note that this may take a substantial amount of time and disk space!"
-	#echo_msg "   You may need to type in the password for gm-dbo."
+	echo_msg "1) creating backup of the database that is to be upgraded ..."
 	echo_msg "   This step may take a substantial amount of time and disk space."
 	echo_msg "   (you will be prompted if you need to type in the password for gm-dbo)"
-	if test "$BZIP_BACKUP" != "no-compression" ; then
-		pg_dump -C -U gm-dbo ${PORT_DEF} gnumed_v${PREV_VER} | bzip2 -z9 > ${BAK_FILE}.bz2
-		ARCHIVED="$?"
-	else
-		pg_dump -C -U gm-dbo ${PORT_DEF} -f ${BAK_FILE} gnumed_v${PREV_VER}
-		ARCHIVED="$?"
-	fi ;
+	pg_dump ${PORT_DEF} --username=gm-dbo --dbname=gnumed_v${PREV_VER} --format=tar --file=${BAK_FILE}
+	ARCHIVED="$?"
 	if test "${ARCHIVED}" != "0" ; then
 		echo ""
 		echo "========================================="
@@ -182,7 +173,9 @@ if test "$SKIP_BACKUP" != "no-backup" ; then
 		echo "ERROR:"
 		echo "ERROR:  gnumed_v${PREV_VER}"
 		echo "ERROR:"
-		echo "ERROR: failed. Aborting."
+		echo "ERROR: failed (${ARCHIVED}). Aborting."
+		echo "ERROR:"
+		echo "ERROR: (${BACKUP_CMD})"
 		echo "========================================="
 		read
 		exit 1
@@ -195,6 +188,33 @@ else
 	echo_msg "   database from an up-to-date backup should you need to."
 	echo_msg ""
 	echo_msg "   Be sure you really know what you are doing !"
+	echo_msg ""
+	echo_msg "1) Verifying checksums in source database (can take a while) ..."
+	# dump to /dev/null for checksum verification
+	#--no-unlogged-table-data
+	#--no-acl
+	#--no-comments
+	#--no-publications
+	#--no-subscriptions
+	#--no-security-label
+	# --data-only
+	#	excluding that would forego detecting problems with disk space
+	#	used by unlogged tables (except we don't have any) and would not
+	#	exercise some system table columns thereby possibly not detecting
+	#	corruption in any of those (slim chance, however)
+	#--no-tablespaces
+	#	only relevant in plaintext dumps
+	#--oids
+	#	reading any column of a row (unTOASTED columns, that is)
+	#	will effect reading the entire row, including OID, but
+	#	there's no need to output that value
+	pg_dump ${PORT_DEF} --username=gm-dbo --dbname=gnumed_v${PREV_VER} --compress=0 --no-sync --format=custom --file=/dev/null &> /dev/null
+	RETCODE="$?"
+	if test "$RETCODE" != "0" ; then
+		echo "Verifying checksums on \"gnumed_v${PREV_VER}\" failed (${RETCODE})."
+		read
+		exit 1
+	fi
 fi ;
 
 
@@ -204,7 +224,7 @@ echo_msg "2) upgrading to new database ..."
 # - cannot be done inside bootstrapper
 # - only needed for converting anything below v6 with a v6 bootstrapper
 #echo_msg "==> fixup for database hashing (will probably ask for gm-dbo password) ..."
-#psql -U gm-dbo -d gnumed_v${PREV_VER} ${PORT_DEF} -f ../sql/gmConcatTableStructureFutureStub.sql
+#psql --username=gm-dbo --dbname=gnumed_v${PREV_VER} ${PORT_DEF} -f ../sql/gmConcatTableStructureFutureStub.sql
 ./bootstrap_gm_db_system.py --log-file=${LOG} --conf-file=${CONF} --${QUIET}
 if test "$?" != "0" ; then
 	echo "Upgrading \"gnumed_v${PREV_VER}\" to \"gnumed_v${NEXT_VER}\" did not finish successfully."
@@ -217,7 +237,7 @@ fi
 #echo_msg "3) preparing new database for efficient use ..."
 #echo_msg "   If the database is large this may take quite a while!"
 #echo_msg "   You may need to type in the password for gm-dbo."
-#vacuumdb --full --analyze ${PORT_DEF} -U gm-dbo -d gnumed_v${NEXT_VER}
+#vacuumdb --full --analyze ${PORT_DEF} --username=gm-dbo --dbname=gnumed_v${NEXT_VER}
 
 
 echo_msg ""
