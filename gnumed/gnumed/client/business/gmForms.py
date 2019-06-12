@@ -1056,7 +1056,7 @@ form_engines['T'] = cTextForm
 # LaTeX template forms
 #----------------------------------------------------------------
 class cLaTeXForm(cFormEngine):
-	"""A forms engine wrapping LaTeX."""
+	"""A forms engine wrapping LaTeX (pdflatex)."""
 
 	def __init__(self, template_file=None):
 
@@ -1105,6 +1105,16 @@ class cLaTeXForm(cFormEngine):
 			data_source.set_placeholder('form_version', self.template['external_version'])
 			data_source.set_placeholder('form_version_internal', gmTools.coalesce(self.template['gnumed_revision'], '', '%s'))
 			data_source.set_placeholder('form_last_modified', gmDateTime.pydt_strftime(self.template['last_modified'], '%Y-%b-%d %H:%M'))
+			# add site-local identifying information to template for debugging
+			f = open(self.template_filename, 'at', encoding = 'utf8')
+			f.write('\n')
+			f.write('%------------------------------------------------------------------\n')
+			for line in self.template.format():
+				f.write('% ')
+				f.write(line)
+				f.write('\n')
+			f.write('%------------------------------------------------------------------\n')
+			f.close()
 
 		data_source.escape_function = gmTools.tex_escape_string
 		data_source.escape_style = 'latex'
@@ -2307,9 +2317,9 @@ if __name__ == '__main__':
 
 	#test_cFormTemplate()
 	#set_template_from_file()
-	#test_latex_form()
+	test_latex_form()
 	#test_pdf_form()
 	#test_abiword_form()
-	test_text_form()
+	#test_text_form()
 
 #============================================================
