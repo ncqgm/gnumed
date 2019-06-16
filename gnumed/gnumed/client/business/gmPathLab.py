@@ -2338,11 +2338,8 @@ def get_most_recent_results_in_loinc_group(loincs=None, no_of_results=1, patient
 def get_most_recent_results_for_test_type(test_type=None, no_of_results=1, patient=None):
 	"""Get N most recent results for *a* (one) given test type."""
 
-	if test_type is None:
-		raise ValueError('<test_type> must not be None')
-
-	if no_of_results < 1:
-		raise ValueError('<no_of_results> must be > 0')
+	assert (test_type is not None), '<test_type> must not be None'
+	assert (no_of_results > 0), '<no_of_results> must be > 0'
 
 	args = {
 		'pat': patient,
@@ -2367,7 +2364,7 @@ def get_most_recent_results_for_test_type(test_type=None, no_of_results=1, patie
 	return [ cTestResult(row = {'pk_field': 'pk_test_result', 'idx': idx, 'data': r}) for r in rows ]
 
 #------------------------------------------------------------
-def get_most_recent_result_for_test_types(pk_test_types=None, pk_patient=None, return_pks=False):
+def get_most_recent_result_for_test_types(pk_test_types=None, pk_patient=None, return_pks=False, consider_meta_type=False):
 	"""Return the one most recent result for *each* of a list of test types."""
 
 	where_parts = ['pk_patient = %(pat)s']
@@ -2376,6 +2373,11 @@ def get_most_recent_result_for_test_types(pk_test_types=None, pk_patient=None, r
 	if pk_test_types is not None:
 		where_parts.append('pk_test_type IN %(ttyps)s')		# consider: pk_meta_test_type = %(pkmtt)s / self._payload[self._idx['pk_meta_test_type']]
 		args['ttyps'] = tuple(pk_test_types)
+
+	if consider_meta_type:
+		partition = 'PARTITION BY pk_patient, pk_meta_test_type'
+	else:
+		partition = 'PARTITION BY pk_patient, pk_test_type'
 
 	cmd = """
 		SELECT * FROM (
@@ -2386,11 +2388,16 @@ def get_most_recent_result_for_test_types(pk_test_types=None, pk_patient=None, r
 				clin.v_test_results
 			WHERE
 				%s
-			WINDOW relevant_tests AS (PARTITION BY pk_patient, pk_test_type)
+			--WINDOW relevant_tests AS (PARTITION BY pk_patient, pk_test_type)
+			--WINDOW relevant_tests AS (PARTITION BY pk_patient, pk_meta_test_type)
+			WINDOW relevant_tests AS (%s)
 		) AS windowed_tests
 		WHERE
 			clin_when = min_clin_when
-	""" % ' AND '.join(where_parts)
+	""" % (
+		' AND '.join(where_parts),
+		partition
+	)
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 	if return_pks:
 		return [ r['pk_test_result'] for r in rows ]

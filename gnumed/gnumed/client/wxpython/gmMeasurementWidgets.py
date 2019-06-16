@@ -1323,7 +1323,10 @@ class cMeasurementsByBatteryPnl(wxgMeasurementsByBatteryPnl.wxgMeasurementsByBat
 from Gnumed.wxGladeWidgets import wxgMeasurementsAsMostRecentListPnl
 
 class cMeasurementsAsMostRecentListPnl(wxgMeasurementsAsMostRecentListPnl.wxgMeasurementsAsMostRecentListPnl, gmRegetMixin.cRegetOnPaintMixin):
-	"""A list ctrl class for displaying most recent measurement results, possibly filtered by panel/battery.
+	"""A list ctrl class for displaying measurement results.
+
+		- most recent results
+		- possibly filtered by battery/panel
 
 	- operates on a cPatient instance handed to it and NOT on the currently active patient
 	"""
@@ -1363,7 +1366,10 @@ class cMeasurementsAsMostRecentListPnl(wxgMeasurementsAsMostRecentListPnl.wxgMea
 
 		pnl = self._PRW_panel.GetData(as_instance = True)
 		if pnl is None:
-			results = gmPathLab.get_most_recent_result_for_test_types(pk_patient = self.__patient.ID)
+			results = gmPathLab.get_most_recent_result_for_test_types (
+				pk_patient = self.__patient.ID,
+				consider_meta_type = True
+			)
 		else:
 			results = pnl.get_most_recent_results (
 				pk_patient = self.__patient.ID,
@@ -1375,7 +1381,11 @@ class cMeasurementsAsMostRecentListPnl(wxgMeasurementsAsMostRecentListPnl.wxgMea
 		data = []
 		for r in results:
 			if isinstance(r, gmPathLab.cTestResult):
-				result_type = r['abbrev_tt']
+				result_type = gmTools.coalesce (
+					r['pk_meta_test_type'],
+					r['abbrev_tt'],
+					'%s%s' % (gmTools.u_sum, r['abbrev_meta'])
+				)
 				review = gmTools.bool2subst (
 					r['reviewed'],
 					'',
