@@ -28,6 +28,7 @@ class wxgSelectablySortedDocTreePnl(wx.ScrolledWindow):
 		self._doc_tree = cDocTree(self, wx.ID_ANY)
 		from Gnumed.wxpython.gmListWidgets import cReportListCtrl
 		self._LCTRL_details = cReportListCtrl(self, wx.ID_ANY, style=wx.BORDER_NONE | wx.LC_REPORT)
+		self._TCTRL_metainfo = wx.TextCtrl(self, wx.ID_ANY, "", style=wx.TE_BESTWRAP | wx.TE_MULTILINE | wx.TE_READONLY)
 
 		self.__set_properties()
 		self.__do_layout()
@@ -50,14 +51,15 @@ class wxgSelectablySortedDocTreePnl(wx.ScrolledWindow):
 		self._rbtn_sort_by_issue.SetToolTip(_("Sort documents by the health issue they belong to."))
 		self._rbtn_sort_by_type.SetToolTip(_("Sort documents by their type."))
 		self._rbtn_sort_by_org.SetToolTip(_("Sort documents by the organization they are from."))
-		self._LCTRL_details.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_BACKGROUND))
 		self._LCTRL_details.Enable(False)
+		self._TCTRL_metainfo.SetFont(wx.Font(8, wx.MODERN, wx.NORMAL, wx.NORMAL, 0, ""))
 		# end wxGlade
 
 	def __do_layout(self):
 		# begin wxGlade: wxgSelectablySortedDocTreePnl.__do_layout
 		__szr_main = wx.BoxSizer(wx.VERTICAL)
 		__szr_bottom = wx.BoxSizer(wx.HORIZONTAL)
+		__szr_details = wx.BoxSizer(wx.VERTICAL)
 		__szr_top_radio = wx.BoxSizer(wx.HORIZONTAL)
 		__lbl_sort = wx.StaticText(self, wx.ID_ANY, _("Sort documents by"))
 		__szr_top_radio.Add(__lbl_sort, 0, wx.ALIGN_CENTER_VERTICAL | wx.LEFT | wx.RIGHT, 5)
@@ -71,7 +73,9 @@ class wxgSelectablySortedDocTreePnl(wx.ScrolledWindow):
 		__hline_middle = wx.StaticLine(self, wx.ID_ANY)
 		__szr_main.Add(__hline_middle, 0, wx.EXPAND, 0)
 		__szr_bottom.Add(self._doc_tree, 1, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
-		__szr_bottom.Add(self._LCTRL_details, 1, wx.EXPAND, 2)
+		__szr_details.Add(self._LCTRL_details, 2, wx.EXPAND, 2)
+		__szr_details.Add(self._TCTRL_metainfo, 1, wx.EXPAND | wx.TOP, 2)
+		__szr_bottom.Add(__szr_details, 1, wx.EXPAND, 0)
 		__szr_main.Add(__szr_bottom, 1, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
 		self.SetSizer(__szr_main)
 		__szr_main.Fit(self)

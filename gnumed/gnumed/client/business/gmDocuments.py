@@ -14,6 +14,7 @@ from Gnumed.pycommon import gmPG2
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmMimeLib
 from Gnumed.pycommon import gmDateTime
+from Gnumed.pycommon import gmWorkerThread
 
 from Gnumed.business import gmOrganization
 
@@ -278,23 +279,11 @@ class cDocumentPart(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	def save_to_file(self, aChunkSize=0, filename=None, target_mime=None, target_extension=None, ignore_conversion_problems=False, directory=None, adjust_extension=False, conn=None):
 
-		if self._payload[self._idx['size']] == 0:
-			return None
-
 		if filename is None:
 			filename = self.get_useful_filename(make_unique = True, directory = directory)
 
-		success = gmPG2.bytea2file (
-			data_query = {
-				'cmd': 'SELECT substring(data from %(start)s for %(size)s) FROM blobs.doc_obj WHERE pk=%(pk)s',
-				'args': {'pk': self.pk_obj}
-			},
-			filename = filename,
-			chunk_size = aChunkSize,
-			data_size = self._payload[self._idx['size']],
-			conn = conn
-		)
-		if not success:
+		filename = self.__download_to_file(filename = filename)
+		if filename is None:
 			return None
 
 		if target_mime is None:
@@ -352,8 +341,10 @@ ORDER BY
 		return rows
 
 	#--------------------------------------------------------
-	def get_containing_document(self):
+	def __get_containing_document(self):
 		return cDocument(aPK_obj = self._payload[self._idx['pk_doc']])
+
+	containing_document = property(__get_containing_document)
 
 	#--------------------------------------------------------
 	# store data
@@ -486,6 +477,7 @@ insert into blobs.reviewed_doc_objs (
 
 		self.refetch_payload()
 		return True
+
 	#--------------------------------------------------------
 	def display_via_mime(self, chunksize=0, block=None):
 
@@ -530,7 +522,6 @@ insert into blobs.reviewed_doc_objs (
 			),
 			self._payload[self._idx['pk_obj']]
 		)
-
 		f_ext = ''
 		if self._payload[self._idx['filename']] is not None:
 			f_ext = os.path.splitext(self._payload[self._idx['filename']])[1].strip('.').strip()
@@ -542,7 +533,6 @@ insert into blobs.reviewed_doc_objs (
 			f_ext,
 			self._payload[self._idx['size']]
 		)
-
 		if self._payload[self._idx['filename']] is not None:
 			path, fname = os.path.split(self._payload[self._idx['filename']])
 			if not path.endswith(os.path.sep):
@@ -551,11 +541,21 @@ insert into blobs.reviewed_doc_objs (
 			if path != '':
 				path = ' (%s)' % path
 			txt += _(' Filename: %s%s\n') % (fname, path)
-
 		if self._payload[self._idx['obj_comment']] is not None:
 			txt += '\n%s\n' % self._payload[self._idx['obj_comment']]
-
 		return txt
+
+	#--------------------------------------------------------
+	def format_metainfo(self, callback=None):
+		"""If <callback> is not None it will receive a tuple (status, description, pk_obj)."""
+		if callback is None:
+			return self.__run_metainfo_formatter()
+
+		gmWorkerThread.execute_in_worker_thread (
+			payload_function = self.__run_metainfo_formatter,
+			completion_callback = callback,
+			worker_name = 'doc_part-metainfo_formatter-'
+		)
 
 	#--------------------------------------------------------
 	def get_useful_filename(self, patient=None, make_unique=False, directory=None, include_gnumed_tag=True, date_before_type=False, name_first=True):
@@ -608,6 +608,43 @@ insert into blobs.reviewed_doc_objs (
 			fname = gmTools.fname_sanitize(os.path.join(gmTools.coalesce(directory, gmTools.gmPaths().tmp_dir), fname + suffix))
 
 		return fname
+
+	useful_filename = property(get_useful_filename)
+
+	#--------------------------------------------------------
+	# internal helpers
+	#--------------------------------------------------------
+	def __download_to_file(self, filename=None, aChunkSize=0, conn=None):
+		if self._payload[self._idx['size']] == 0:
+			_log.debug('part size 0, nothing to download')
+			return None
+
+		if filename is None:
+			filename = gmTools.get_unique_filename()
+		success = gmPG2.bytea2file (
+			data_query = {
+				'cmd': 'SELECT substring(data from %(start)s for %(size)s) FROM blobs.doc_obj WHERE pk=%(pk)s',
+				'args': {'pk': self.pk_obj}
+			},
+			filename = filename,
+			chunk_size = aChunkSize,
+			data_size = self._payload[self._idx['size']],
+			conn = conn
+		)
+		if not success:
+			return None
+
+		return filename
+
+	#--------------------------------------------------------
+	def __run_metainfo_formatter(self):
+		filename = self.__download_to_file()
+		if filename is None:
+			_log.error('problem downloading part')
+			return (False, _('problem downloading document part'))
+
+		status, desc = gmMimeLib.describe_file(filename)
+		return (status, desc, self.pk_obj)
 
 #------------------------------------------------------------
 def delete_document_part(part_pk=None, encounter_pk=None):
@@ -765,9 +802,6 @@ class cDocument(gmBusinessDBObject.cBusinessDBObject):
 		fnames = []
 		for part in self.parts:
 			fname = part.save_to_file(aChunkSize = chunksize, directory = export_dir, conn = conn)
-#			if export_dir is not None:
-#				shutil.move(fname, export_dir)
-#				fname = os.path.join(export_dir, os.path.split(fname)[1])
 			if fname is None:
 				_log.error('cannot export document part [%s]', part)
 				continue
@@ -1212,6 +1246,7 @@ if __name__ == '__main__':
 			print('--------------------------')
 			print(doc.format(single_line = True))
 			print(doc.format())
+
 	#--------------------------------------------------------
 	def test_get_useful_filename():
 		pk = 12
@@ -1230,13 +1265,49 @@ if __name__ == '__main__':
 				))
 
 	#--------------------------------------------------------
+	def test_part_metainfo_formatter():
+
+		#--------------------------------
+		def desc_printer(worker_result):
+			status, desc = worker_result
+			print('printer callback:')
+			print(status)
+			print(desc)
+			print('<hit key> for next')
+			return
+		#--------------------------------
+
+		pk = 12
+		from Gnumed.business.gmPerson import cPatient
+		pat = cPatient(pk)
+		doc_folder = cDocumentFolder(aPKey = pk)
+		for doc in doc_folder.documents:
+			for part in doc.parts:
+				part.format_metainfo(callback = desc_printer)
+				input('waiting ...')
+#				success, desc = part.format_metainfo()
+#				print(success)
+#				print(desc)
+#				input('next')
+
+#				print(part.get_useful_filename (
+#					patient = pat,
+#					make_unique = True,
+#					directory = None,
+#					include_gnumed_tag = False,
+#					date_before_type = True,
+#					name_first = False
+#				))
+
+	#--------------------------------------------------------
 	from Gnumed.pycommon import gmI18N
 	gmI18N.activate_locale()
 	gmI18N.install_domain()
 
 	#test_doc_types()
 	#test_adding_doc_part()
-	test_get_documents()
+	#test_get_documents()
 	#test_get_useful_filename()
+	test_part_metainfo_formatter()
 
 #	print get_ext_ref()

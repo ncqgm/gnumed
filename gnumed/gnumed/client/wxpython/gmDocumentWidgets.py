@@ -668,7 +668,7 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 
 		if isinstance(part, gmDocuments.cDocumentPart):
 			self.__part = part
-			self.__doc = self.__part.get_containing_document()
+			self.__doc = self.__part.containing_document
 			self.__reviewing_doc = False
 		elif isinstance(part, gmDocuments.cDocument):
 			self.__doc = part
@@ -1548,12 +1548,19 @@ def manage_documents(parent=None, msg=None, single_selection=True, pk_types=None
 from Gnumed.wxGladeWidgets import wxgSelectablySortedDocTreePnl
 
 class cSelectablySortedDocTreePnl(wxgSelectablySortedDocTreePnl.wxgSelectablySortedDocTreePnl):
-	"""A panel with a document tree which can be sorted."""
+	"""A panel with a document tree which can be sorted.
 
+		On the right there's a list ctrl showing
+		details of the selected node.
+	"""
 	def __init__(self, parent, id, *args, **kwds):
 		wxgSelectablySortedDocTreePnl.wxgSelectablySortedDocTreePnl.__init__(self, parent, id, *args, **kwds)
 
 		self._LCTRL_details.set_columns(['', ''])
+
+		self.__metainfo4parts = {}
+		self.__pk_curr_pat = None
+		self.__pk_curr_doc_part = None
 
 		self._doc_tree.show_details_callback = self._update_details
 
@@ -1576,16 +1583,19 @@ class cSelectablySortedDocTreePnl(wxgSelectablySortedDocTreePnl.wxgSelectablySor
 		self._doc_tree.sort_mode = 'episode'
 		self._doc_tree.SetFocus()
 		self._rbtn_sort_by_episode.SetValue(True)
+
 	#--------------------------------------------------------
 	def _on_sort_by_issue_selected(self, event):
 		self._doc_tree.sort_mode = 'issue'
 		self._doc_tree.SetFocus()
 		self._rbtn_sort_by_issue.SetValue(True)
+
 	#--------------------------------------------------------
 	def _on_sort_by_type_selected(self, evt):
 		self._doc_tree.sort_mode = 'type'
 		self._doc_tree.SetFocus()
 		self._rbtn_sort_by_type.SetValue(True)
+
 	#--------------------------------------------------------
 	def _on_sort_by_org_selected(self, evt):
 		self._doc_tree.sort_mode = 'org'
@@ -1593,9 +1603,11 @@ class cSelectablySortedDocTreePnl(wxgSelectablySortedDocTreePnl.wxgSelectablySor
 		self._rbtn_sort_by_org.SetValue(True)
 
 	#--------------------------------------------------------
+	#--------------------------------------------------------
 	def _update_details(self, issue=None, episode=None, org_unit=None, document=None, part=None):
 
 		self._LCTRL_details.set_string_items([])
+		self._TCTRL_metainfo.Value = ''
 
 		if document is None:
 			if part is not None:
@@ -1606,125 +1618,207 @@ class cSelectablySortedDocTreePnl(wxgSelectablySortedDocTreePnl.wxgSelectablySor
 				issue = episode.health_issue
 
 		items = []
-
-		if issue is not None:
-			items.append([_('Health issue'), '%s%s [#%s]' % (
-				issue['description'],
-				gmTools.coalesce (
-					initial = issue['laterality'],
-					instead = '',
-					template_initial = ' (%s)',
-					none_equivalents = [None, '', '?']
-				),
-				issue['pk_health_issue']
-			)])
-			items.append([_('Status'), '%s, %s %s' % (
-				gmTools.bool2subst(issue['is_active'], _('active'), _('inactive')),
-				gmTools.bool2subst(issue['clinically_relevant'], _('clinically relevant'), _('not clinically relevant')),
-				issue.diagnostic_certainty_description
-			)])
-			items.append([_('Confidential'), issue['is_confidential']])
-			items.append([_('Age noted'), issue.age_noted_human_readable()])
-
-		if episode is not None:
-			items.append([_('Episode'), '%s [#%s]' % (
-				episode['description'],
-				episode['pk_episode']
-			)])
-			items.append([_('Status'), '%s %s' % (
-				gmTools.bool2subst(episode['episode_open'], _('active'), _('finished')),
-				episode.diagnostic_certainty_description
-			)])
-			items.append([_('Health issue'), gmTools.coalesce(episode['health_issue'], '')])
-
-		if org_unit is not None:
-			items.append([_('Organization'), '%s (%s) [#%s]' % (
-				org_unit['organization'],
-				org_unit['l10n_organization_category'],
-				org_unit['pk_org']
-			)])
-			items.append([_('Department'), '%s%s [#%s]' % (
-				org_unit['unit'],
-				gmTools.coalesce(org_unit['l10n_unit_category'], '', ' (%s)'),
-				org_unit['pk_org_unit']
-			)])
-			adr = org_unit.address
-			if adr is not None:
-				lines = adr.format()
-				items.append([lines[0], lines[1]])
-				for line in lines[2:]:
-					items.append(['', line])
-			for comm in org_unit.comm_channels:
-				items.append([comm['l10n_comm_type'], '%s%s' % (
-					comm['url'],
-					gmTools.bool2subst(comm['is_confidential'], _(' (confidential)'), '', '')
-				)])
-
-		if document is not None:
-			items.append([_('Document'), '%s [#%s]' % (document['l10n_type'], document['pk_doc'])])
-			items.append([_('Generated'), gmDateTime.pydt_strftime(document['clin_when'], '%Y %b %d')])
-			items.append([_('Health issue'), gmTools.coalesce(document['health_issue'], '', '%%s [#%s]' % document['pk_health_issue'])])
-			items.append([_('Episode'), '%s (%s) [#%s]' % (
-				document['episode'],
-				gmTools.bool2subst(document['episode_open'], _('open'), _('closed')),
-				document['pk_episode']
-			)])
-			if document['pk_org_unit'] is not None:
-				if document['unit_is_receiver']:
-					header = _('Receiver')
-				else:
-					header = _('Sender')
-				items.append([header, '%s @ %s' % (document['unit'], document['organization'])])
-			if document['ext_ref'] is not None:
-				items.append([_('Reference'), document['ext_ref']])
-			if document['comment'] is not None:
-				items.append([_('Comment'), ' / '.join(document['comment'].split('\n'))])
-			for proc in document.procedures:
-				items.append([_('Procedure'), proc.format (
-					left_margin = 0,
-					include_episode = False,
-					include_codes = False,
-					include_address = False,
-					include_comm = False,
-					include_doc = False
-				)])
-			stay = document.hospital_stay
-			if stay is not None:
-				items.append([_('Hospital stay'), stay.format(include_episode = False)])
-			for bill in document.bills:
-				items.append([_('Bill'), bill.format (
-					include_receiver = False,
-					include_doc = False
-				)])
-			items.append([_('Modified'), gmDateTime.pydt_strftime(document['modified_when'], '%Y %b %d')])
-			items.append([_('... by'), document['modified_by']])
-			items.append([_('# encounter'), document['pk_encounter']])
-
-		if part is not None:
-			items.append(['', ''])
-			if part['seq_idx'] is None:
-				items.append([_('Part'), '#%s' % part['pk_obj']])
-			else:
-				items.append([_('Part'), '%s [#%s]' % (part['seq_idx'], part['pk_obj'])])
-			if part['obj_comment'] is not None:
-				items.append([_('Comment'), part['obj_comment']])
-			if part['filename'] is not None:
-				items.append([_('Filename'), part['filename']])
-			items.append([_('Data size'), gmTools.size2str(part['size'])])
-			review_parts = []
-			if part['reviewed_by_you']:
-				review_parts.append(_('by you'))
-			if part['reviewed_by_intended_reviewer']:
-				review_parts.append(_('by intended reviewer'))
-			review = ', '.join(review_parts)
-			if review == '':
-				review = gmTools.u_diameter
-			items.append([_('Reviewed'), review])
-			#items.append([_(u'Reviewed'), gmTools.bool2subst(part['reviewed'], review, u'', u'?')])
-
+		items.extend(self.__process_issue(issue))
+		items.extend(self.__process_episode(episode))
+		items.extend(self.__process_org_unit(org_unit))
+		items.extend(self.__process_document(document))
+		# keep this last so self.__pk_curr_doc_part stays current
+		items.extend(self.__process_document_part(part))
 		self._LCTRL_details.set_string_items(items)
 		self._LCTRL_details.set_column_widths()
 		self._LCTRL_details.set_resize_column(1)
+
+	#--------------------------------------------------------
+	# internal helper logic
+	#--------------------------------------------------------
+	def __check_cache_validity(self, pk_patient):
+		if self.__pk_curr_pat == pk_patient:
+			return
+		self.__metainfo4parts = {}
+
+	#--------------------------------------------------------
+	def __receive_metainfo_from_worker(self, result):
+		success, desc, pk_obj = result
+		self.__metainfo4parts[pk_obj] = desc
+		if not success:
+			del self.__metainfo4parts[pk_obj]
+		# safely cross thread boundaries
+		wx.CallAfter(self.__update_metainfo, pk_obj)
+
+	#--------------------------------------------------------
+	def __update_metainfo(self, pk_obj, document_part=None):
+		if self.__pk_curr_doc_part != pk_obj:
+			# worker result arrived too late
+			# but don't empty metainfo, might already contain cached value from new doc part node
+			#self._TCTRL_metainfo.Value = ''
+			return
+
+		try:
+			self._TCTRL_metainfo.Value = self.__metainfo4parts[pk_obj]
+		except KeyError:
+			document_part.format_metainfo(callback = self.__receive_metainfo_from_worker)
+
+	#--------------------------------------------------------
+	def __process_issue(self, issue):
+		if issue is None:
+			return []
+
+		self.__check_cache_validity(issue['pk_patient'])
+		self.__pk_curr_doc_part = None
+
+		items = []
+		items.append([_('Health issue'), '%s%s [#%s]' % (
+			issue['description'],
+			gmTools.coalesce (
+				initial = issue['laterality'],
+				instead = '',
+				template_initial = ' (%s)',
+				none_equivalents = [None, '', '?']
+			),
+			issue['pk_health_issue']
+		)])
+		items.append([_('Status'), '%s, %s %s' % (
+			gmTools.bool2subst(issue['is_active'], _('active'), _('inactive')),
+			gmTools.bool2subst(issue['clinically_relevant'], _('clinically relevant'), _('not clinically relevant')),
+			issue.diagnostic_certainty_description
+		)])
+		items.append([_('Confidential'), issue['is_confidential']])
+		items.append([_('Age noted'), issue.age_noted_human_readable()])
+		return items
+
+	#--------------------------------------------------------
+	def __process_episode(self, episode):
+		if episode is None:
+			return []
+
+		self.__check_cache_validity(episode['pk_patient'])
+		self.__pk_curr_doc_part = None
+
+		items = []
+		items.append([_('Episode'), '%s [#%s]' % (
+			episode['description'],
+			episode['pk_episode']
+		)])
+		items.append([_('Status'), '%s %s' % (
+			gmTools.bool2subst(episode['episode_open'], _('active'), _('finished')),
+			episode.diagnostic_certainty_description
+		)])
+		items.append([_('Health issue'), gmTools.coalesce(episode['health_issue'], '')])
+		return items
+
+	#--------------------------------------------------------
+	def __process_org_unit(self, org_unit):
+		if org_unit is None:
+			return []
+
+		# cannot check for cache validity: no patient reference
+		# the doc-part-in-context, however, _will_ have changed
+		self.__pk_curr_doc_part = None
+		self._TCTRL_metainfo.Value = ''
+
+		items = []
+		items.append([_('Organization'), '%s (%s) [#%s]' % (
+			org_unit['organization'],
+			org_unit['l10n_organization_category'],
+			org_unit['pk_org']
+		)])
+		items.append([_('Department'), '%s%s [#%s]' % (
+			org_unit['unit'],
+			gmTools.coalesce(org_unit['l10n_unit_category'], '', ' (%s)'),
+			org_unit['pk_org_unit']
+		)])
+		adr = org_unit.address
+		if adr is not None:
+			lines = adr.format()
+			items.append([lines[0], lines[1]])
+			for line in lines[2:]:
+				items.append(['', line])
+		for comm in org_unit.comm_channels:
+			items.append([comm['l10n_comm_type'], '%s%s' % (
+				comm['url'],
+				gmTools.bool2subst(comm['is_confidential'], _(' (confidential)'), '', '')
+			)])
+		return items
+
+	#--------------------------------------------------------
+	def __process_document(self, document):
+		if document is None:
+			return []
+
+		self.__check_cache_validity(document['pk_patient'])
+		self.__pk_curr_doc_part = None
+
+		items = []
+		items.append([_('Document'), '%s [#%s]' % (document['l10n_type'], document['pk_doc'])])
+		items.append([_('Generated'), gmDateTime.pydt_strftime(document['clin_when'], '%Y %b %d')])
+		items.append([_('Health issue'), gmTools.coalesce(document['health_issue'], '', '%%s [#%s]' % document['pk_health_issue'])])
+		items.append([_('Episode'), '%s (%s) [#%s]' % (
+			document['episode'],
+			gmTools.bool2subst(document['episode_open'], _('open'), _('closed')),
+			document['pk_episode']
+		)])
+		if document['pk_org_unit'] is not None:
+			if document['unit_is_receiver']:
+				header = _('Receiver')
+			else:
+				header = _('Sender')
+			items.append([header, '%s @ %s' % (document['unit'], document['organization'])])
+		if document['ext_ref'] is not None:
+			items.append([_('Reference'), document['ext_ref']])
+		if document['comment'] is not None:
+			items.append([_('Comment'), ' / '.join(document['comment'].split('\n'))])
+		for proc in document.procedures:
+			items.append([_('Procedure'), proc.format (
+				left_margin = 0,
+				include_episode = False,
+				include_codes = False,
+				include_address = False,
+				include_comm = False,
+				include_doc = False
+			)])
+		stay = document.hospital_stay
+		if stay is not None:
+			items.append([_('Hospital stay'), stay.format(include_episode = False)])
+		for bill in document.bills:
+			items.append([_('Bill'), bill.format (
+				include_receiver = False,
+				include_doc = False
+			)])
+		items.append([_('Modified'), gmDateTime.pydt_strftime(document['modified_when'], '%Y %b %d')])
+		items.append([_('... by'), document['modified_by']])
+		items.append([_('# encounter'), document['pk_encounter']])
+		return items
+
+	#--------------------------------------------------------
+	def __process_document_part(self, document_part):
+		if document_part is None:
+			return []
+
+		self.__check_cache_validity(document_part['pk_patient'])
+		self.__pk_curr_doc_part = document_part['pk_obj']
+		self.__update_metainfo(document_part['pk_obj'], document_part)
+		items = []
+		items.append(['', ''])
+		if document_part['seq_idx'] is None:
+			items.append([_('Part'), '#%s' % document_part['pk_obj']])
+		else:
+			items.append([_('Part'), '%s [#%s]' % (document_part['seq_idx'], document_part['pk_obj'])])
+		if document_part['obj_comment'] is not None:
+			items.append([_('Comment'), document_part['obj_comment']])
+		if document_part['filename'] is not None:
+			items.append([_('Filename'), document_part['filename']])
+		items.append([_('Data size'), gmTools.size2str(document_part['size'])])
+		review_parts = []
+		if document_part['reviewed_by_you']:
+			review_parts.append(_('by you'))
+		if document_part['reviewed_by_intended_reviewer']:
+			review_parts.append(_('by intended reviewer'))
+		review = ', '.join(review_parts)
+		if review == '':
+			review = gmTools.u_diameter
+		items.append([_('Reviewed'), review])
+		#items.append([_(u'Reviewed'), gmTools.bool2subst(document_part['reviewed'], review, u'', u'?')])
+		return items
 
 #============================================================
 class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.ExpansionState):
@@ -1835,17 +1929,10 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 	# internal helpers
 	#--------------------------------------------------------
 	def __register_interests(self):
-		# connect handlers
 		self.Bind(wx.EVT_TREE_SEL_CHANGED, self._on_tree_item_selected)
 		self.Bind(wx.EVT_TREE_ITEM_ACTIVATED, self._on_activate)
-		self.Bind(wx.EVT_TREE_ITEM_RIGHT_CLICK, self.__on_right_click)
+		self.Bind(wx.EVT_TREE_ITEM_MENU, self._on_tree_item_context_menu)
 		self.Bind(wx.EVT_TREE_ITEM_GETTOOLTIP, self._on_tree_item_gettooltip)
-		#wx.EVT_TREE_SEL_CHANGED (self, self.GetId(), self._on_tree_item_selected)
-		#wx.EVT_TREE_ITEM_ACTIVATED (self, self.GetId(), self._on_activate)
-		#wx.EVT_TREE_ITEM_RIGHT_CLICK (self, self.GetId(), self.__on_right_click)
-		#wx.EVT_TREE_ITEM_GETTOOLTIP(self, -1, self._on_tree_item_gettooltip)
-
-#		 wx.EVT_LEFT_DCLICK(self.tree, self.OnLeftDClick)
 
 		gmDispatcher.connect(signal = 'pre_patient_unselection', receiver = self._on_pre_patient_unselection)
 		gmDispatcher.connect(signal = 'post_patient_selection', receiver = self._on_post_patient_selection)
@@ -2309,16 +2396,19 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 	def _on_doc_mod_db(self, *args, **kwargs):
 		self.__expanded_nodes = self.ExpansionState
 		self._schedule_data_reget()
+
 	#------------------------------------------------------------------------
 	def _on_doc_page_mod_db(self, *args, **kwargs):
 		self.__expanded_nodes = self.ExpansionState
 		self._schedule_data_reget()
+
 	#------------------------------------------------------------------------
 	def _on_pre_patient_unselection(self, *args, **kwargs):
 		# empty out tree
 		if self.root is not None:
 			self.DeleteAllItems()
 		self.root = None
+
 	#------------------------------------------------------------------------
 	def _on_post_patient_selection(self, *args, **kwargs):
 		# FIXME: self.__load_expansion_history_from_db (but not apply it !)
@@ -2326,55 +2416,62 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 		self._schedule_data_reget()
 
 	#--------------------------------------------------------
-	def _on_tree_item_selected(self, event):
-		node = event.GetItem()
-		node_data = self.GetItemData(node)
+	def __update_details_view(self):
+		if self.__curr_node_data is None:
+			return
 
 		# pseudo root node or "type"
-		if node_data is None:
+		if self.__curr_node_data is None:
 			self.__show_details_callback(document = None, part = None)
 			return
 
 		# document node
-		if isinstance(node_data, gmDocuments.cDocument):
-			self.__show_details_callback(document = node_data, part = None)
+		if isinstance(self.__curr_node_data, gmDocuments.cDocument):
+			self.__show_details_callback(document = self.__curr_node_data, part = None)
 			return
 
-		if isinstance(node_data, gmDocuments.cDocumentPart):
-			doc = self.GetItemData(self.GetItemParent(node))
-			self.__show_details_callback(document = doc, part = node_data)
+		if isinstance(self.__curr_node_data, gmDocuments.cDocumentPart):
+			doc = self.GetItemData(self.GetItemParent(self.__curr_node))
+			self.__show_details_callback(document = doc, part = self.__curr_node_data)
 			return
 
-		if isinstance(node_data, gmOrganization.cOrgUnit):
-			self.__show_details_callback(org_unit = node_data)
+		if isinstance(self.__curr_node_data, gmOrganization.cOrgUnit):
+			self.__show_details_callback(org_unit = self.__curr_node_data)
 			return
 
-		if isinstance(node_data, pydt.datetime):
+		if isinstance(self.__curr_node_data, pydt.datetime):
 			# could be getting some statistics about the year
 			return
 
-		if isinstance(node_data, dict):
-			_log.debug('node data is dict: %s', node_data)
+		if isinstance(self.__curr_node_data, dict):
+			_log.debug('node data is dict: %s', self.__curr_node_data)
 			try:
-				if node_data['pk_health_issue'] is None:
+				if self.__curr_node_data['pk_health_issue'] is None:
 					_log.debug('node data dict holds pseudo-issue for unattributed episodes, ignoring')
 				else:
-					issue = gmEMRStructItems.cHealthIssue(aPK_obj = node_data['pk_health_issue'])
+					issue = gmEMRStructItems.cHealthIssue(aPK_obj = self.__curr_node_data['pk_health_issue'])
 			except KeyError:
 				issue = None
 			try:
-				episode = gmEMRStructItems.cEpisode(aPK_obj = node_data['pk_episode'])
+				episode = gmEMRStructItems.cEpisode(aPK_obj = self.__curr_node_data['pk_episode'])
 			except KeyError:
 				episode = None
 			self.__show_details_callback(issue = issue, episode = episode)
 			return
 
 #		# string nodes are labels such as episodes which may or may not have children
-#		if isinstance(node_data, str):
+#		if isinstance(self.__curr_node_data, str):
 #			self.__show_details_callback(document = None, part = None)
 #			return
 
-		raise ValueError('invalid document tree node data type: %s' % type(node_data))
+		raise ValueError('invalid document tree node data type: %s' % type(self.__curr_node_data))
+
+	#--------------------------------------------------------
+	def _on_tree_item_selected(self, event):
+		event.Skip()
+		self.__curr_node = event.GetItem()
+		self.__curr_node_data = self.GetItemData(self.__curr_node)
+		self.__update_details_view()
 
 	#------------------------------------------------------------------------
 	def _on_activate(self, event):
@@ -2385,27 +2482,16 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 		if node_data is None:
 			return None
 
-		# these nodes need expand/collapse on dclick:
-		if isinstance(node_data, (gmDocuments.cDocument, pydt.datetime, str)):
-			self.Toggle(node)
-			return True
-
-#		# string nodes are labels such as episodes which may or may not have children
-#		if isinstance(node_data, str):
-#			self.Toggle(node)
-#			return True
-
 		if isinstance(node_data, gmDocuments.cDocumentPart):
 			self.__display_part(part = node_data)
 			return True
 
-		raise ValueError(_('invalid document tree node data type: %s') % type(node_data))
+		event.Skip()
 
 	#--------------------------------------------------------
-	def __on_right_click(self, evt):
+	def _on_tree_item_context_menu(self, evt):
 
-		node = evt.GetItem()
-		self.__curr_node_data = self.GetItemData(node)
+		self.__curr_node_data = self.GetItemData(evt.Item)
 
 		# exclude pseudo root node
 		if self.__curr_node_data is None:
@@ -2425,15 +2511,19 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 	#--------------------------------------------------------
 	def __activate_as_current_photo(self, evt):
 		self.__curr_node_data.set_as_active_photograph()
+
 	#--------------------------------------------------------
 	def __display_curr_part(self, evt):
 		self.__display_part(part = self.__curr_node_data)
+
 	#--------------------------------------------------------
 	def __review_curr_part(self, evt):
 		self.__review_part(part = self.__curr_node_data)
+
 	#--------------------------------------------------------
 	def __manage_document_descriptions(self, evt):
 		manage_document_descriptions(parent = self, document = self.__curr_node_data)
+
 	#--------------------------------------------------------
 	def _on_tree_item_gettooltip(self, event):
 
@@ -2722,7 +2812,6 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 	#--------------------------------------------------------
 	def __save_part_to_disk(self, evt):
 		"""Save document part into directory."""
-
 		dlg = wx.DirDialog (
 			parent = self,
 			message = _('Save document part to directory ...'),
