@@ -1213,20 +1213,28 @@ def __generate_cached_filename(cache_key_data):
 def __store_file_in_cache(filename, cache_key_data):
 	cached_name = __generate_cached_filename(cache_key_data)
 	_log.debug('[%s] -> [%s] -> [%s]', filename, cache_key_data, cached_name)
-	gmTools.remove_file(cached_name, log_error = True, force = True)
+	if not gmTools.remove_file(cached_name, log_error = True, force = True):
+		_log.error('cannot remove existing file [%s] for key [%s] from cache', filename, cached_name)
+		return None
+
+	PERMS_owner_only = 0o0660
 	try:
 		shutil.copyfile(filename, cached_name, follow_symlinks = True)
+		os.chmod(cached_name, PERMS_owner_only)
 	except shutil.SameFileError:
-		pass
+		_log.exception('file seems to exist in cache, despite having checked and possible removed it just before')
+		# don't use that file, it is unsafe, it might have come from
+		# a race being exploited to make us use the wrong data, this
+		# then constitutes a DOS attack against the cache but that's
+		# far less problematic than using the wrong data for care
+		return None
 	except OSError:
 		_log.exception('cannot copy file into cache: [%s] -> [%s]', filename, cached_name)
 		return None
-	PERMS_owner_only = 0o0660
-	try:
-		os.chmod(cached_name, PERMS_owner_only)
 	except PermissionError:
 		_log.exception('cannot set cache file [%s] permissions to [%s]', cached_name, stat.filemode(PERMS_owner_only))
 		return None
+
 	return cached_name
 
 #------------------------------------------------------------------------
@@ -1272,6 +1280,7 @@ def __get_file_from_cache(filename, cache_key_data=None, data_size=None, link2ca
 		shutil.copyfile(cached_filename, filename, follow_symlinks = True)
 		return True
 	except shutil.SameFileError:
+		# flaky - might be same name but different content
 		pass
 	except OSError:
 		_log.exception('cannot copy cached file [%s] into [%s]', cached_filename, filename)
