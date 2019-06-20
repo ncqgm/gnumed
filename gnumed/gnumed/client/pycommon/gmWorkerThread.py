@@ -39,7 +39,7 @@ def execute_in_worker_thread(payload_function=None, payload_kwargs=None, complet
 				payload_result = payload_function()
 			else:
 				payload_result = payload_function(**__payload_kwargs)
-			_log.debug('finished running payload function')
+			_log.debug('finished running payload function: %s', payload_function)
 		except Exception:
 			_log.exception('error running payload function: %s', payload_function)
 			return

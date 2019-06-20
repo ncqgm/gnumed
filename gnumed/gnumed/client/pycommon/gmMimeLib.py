@@ -295,7 +295,7 @@ def __run_file_describer(filename=None):
 	base_name = 'gm-describe_file'
 	paths = gmTools.gmPaths()
 	local_script = os.path.join(paths.local_base_dir, '..', 'external-tools', base_name)
-	candidates = [ base_name, local_script ]		#, base_name + u'.bat'
+	candidates = [base_name, local_script]		#, base_name + '.bat'
 	found, binary = gmShellAPI.find_first_binary(binaries = candidates)
 	if not found:
 		_log.error('cannot find <%s(.bat)>', base_name)

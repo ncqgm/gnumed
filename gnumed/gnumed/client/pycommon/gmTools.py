@@ -597,7 +597,7 @@ def remove_file(filename, log_error=True, force=False):
 
 	if force:
 		tmp_name = get_unique_filename(tmp_dir = fname_dir(filename))
-		_log.debug('attempting os.replace() to: %s', tmp_name)
+		_log.debug('attempting os.replace(%s -> %s)', filename, tmp_name)
 		try:
 			os.replace(filename, tmp_name)
 			return True
