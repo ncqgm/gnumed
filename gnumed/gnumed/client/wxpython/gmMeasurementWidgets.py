@@ -1382,9 +1382,9 @@ class cMeasurementsAsMostRecentListPnl(wxgMeasurementsAsMostRecentListPnl.wxgMea
 		for r in results:
 			if isinstance(r, gmPathLab.cTestResult):
 				result_type = gmTools.coalesce (
-					r['pk_meta_test_type'],
-					r['abbrev_tt'],
-					'%s%s' % (gmTools.u_sum, r['abbrev_meta'])
+					value2test = r['pk_meta_test_type'],
+					return_instead = r['abbrev_tt'],
+					value2return = '%s%s' % (gmTools.u_sum, r['abbrev_meta'])
 				)
 				review = gmTools.bool2subst (
 					r['reviewed'],

@@ -331,7 +331,7 @@ class cEmrExport:
         for a_field in field_list:
             if type(a_field) is not str:
                 a_field = str(a_field, encoding='latin1', errors='replace')
-            txt += '%s%s%s' % ((offset * ' '), a_field, gmTools.coalesce(item[a_field], '\n', template_initial = ': %s\n'))
+            txt += '%s%s%s' % ((offset * ' '), a_field, gmTools.coalesce(item[a_field], '\n', template4value = ': %s\n'))
         return txt
     #--------------------------------------------------------
     def get_allergy_output(self, allergy, left_margin = 0):

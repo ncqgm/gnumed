@@ -588,9 +588,9 @@ def get_scan2pay_data(branch, bill, provider=None, comment=None):
 		return None
 	data['IBAN'] = IBANs[0]['value'][:34]
 	data['beneficiary'] = gmTools.coalesce (
-		initial = provider,
-		instead = branch['praxis'][:70],
-		template_initial = '%%(lastnames)s, %s' % branch['praxis']
+		value2test = provider,
+		return_instead = branch['praxis'][:70],
+		template4value = '%%(lastnames)s, %s' % branch['praxis']
 	)[:70]
 	BICs = branch.get_external_ids(id_type = 'BIC', issuer = 'Bank')
 	if len(BICs) == 0:

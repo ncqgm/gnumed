@@ -1271,9 +1271,9 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			'firstnames': self._escape(name['firstnames']),
 			'lastnames': self._escape(name['lastnames']),
 			'preferred': self._escape(gmTools.coalesce (
-				initial = name['preferred'],
-				instead = ' ',
-				template_initial = ' "%s" '
+				value2test = name['preferred'],
+				return_instead = ' ',
+				template4value = ' "%s" '
 			))
 		}
 

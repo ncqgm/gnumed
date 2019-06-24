@@ -231,7 +231,7 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 				list_items.append ([
 					last,
 					problem['problem'],
-					gmTools.coalesce(initial = epi['health_issue'], instead = '?')		#gmTools.u_diameter
+					gmTools.coalesce(value2test = epi['health_issue'], return_instead = '?')		#gmTools.u_diameter
 				])
 
 		self._LCTRL_active_problems.set_string_items(items = list_items)

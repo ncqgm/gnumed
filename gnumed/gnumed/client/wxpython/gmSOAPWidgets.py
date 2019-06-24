@@ -502,7 +502,7 @@ class cNotebookedProgressNoteInputPanel(wx.Panel):
 					last,
 					problem['l10n_type'],
 					problem['problem'],
-					gmTools.coalesce(initial = epi['health_issue'], instead = '', template_initial = ' (%s)')
+					gmTools.coalesce(value2test = epi['health_issue'], return_instead = '', template4value = ' (%s)')
 				)
 			self.__LST_problems.Append(label, problem)
 		splitter_width = self.__splitter.GetSize()[0]

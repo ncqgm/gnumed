@@ -637,8 +637,8 @@ class cSubstanceDoseEAPnl(wxgSubstanceDoseEAPnl.wxgSubstanceDoseEAPnl, gmEditAre
 			pk_substance = self._PRW_substance.GetData(),
 			substance = self._PRW_substance.GetValue().strip(),
 			amount = decimal.Decimal(self._TCTRL_amount.GetValue().strip().replace(',', '.')),
-			unit = gmTools.coalesce(self._PRW_unit.GetData(), self._PRW_unit.GetValue().strip(), function_initial = ('strip', None)),
-			dose_unit = gmTools.coalesce(self._PRW_dose_unit.GetData(), self._PRW_dose_unit.GetValue().strip(), function_initial = ('strip', None))
+			unit = gmTools.coalesce(self._PRW_unit.GetData(), self._PRW_unit.GetValue().strip(), function4value = ('strip', None)),
+			dose_unit = gmTools.coalesce(self._PRW_dose_unit.GetData(), self._PRW_dose_unit.GetValue().strip(), function4value = ('strip', None))
 		)
 		success, data = dose.save()
 		if not success:
@@ -655,8 +655,8 @@ class cSubstanceDoseEAPnl(wxgSubstanceDoseEAPnl.wxgSubstanceDoseEAPnl, gmEditAre
 	def _save_as_update(self):
 		#self.data['pk_substance'] = self._PRW_substance.GetData()
 		self.data['amount'] = decimal.Decimal(self._TCTRL_amount.GetValue().strip().replace(',', '.'))
-		self.data['unit'] = gmTools.coalesce(self._PRW_unit.GetData(), self._PRW_unit.GetValue().strip(), function_initial = ('strip', None))
-		self.data['dose_unit'] = gmTools.coalesce(self._PRW_dose_unit.GetData(), self._PRW_dose_unit.GetValue().strip(), function_initial = ('strip', None))
+		self.data['unit'] = gmTools.coalesce(self._PRW_unit.GetData(), self._PRW_unit.GetValue().strip(), function4value = ('strip', None))
+		self.data['dose_unit'] = gmTools.coalesce(self._PRW_dose_unit.GetData(), self._PRW_dose_unit.GetValue().strip(), function4value = ('strip', None))
 		success, data = self.data.save()
 
 		if not success:

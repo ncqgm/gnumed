@@ -81,10 +81,10 @@ def manage_performed_procedures(parent=None):
 						p['is_ongoing'],
 						_(' (ongoing)'),
 						gmTools.coalesce (
-							initial = p['clin_end'],
-							instead = '',
-							template_initial = ' - %s',
-							function_initial = ('strftime', '%Y-%m-%d')
+							value2test = p['clin_end'],
+							return_instead = '',
+							template4value = ' - %s',
+							function4value = ('strftime', '%Y-%m-%d')
 						)
 					)
 				),

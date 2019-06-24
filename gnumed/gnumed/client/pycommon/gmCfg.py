@@ -164,9 +164,9 @@ class cCfgSQL:
 			sql_return_type = ''
 		else:
 			sql_return_type = gmTools.coalesce (
-				initial = sql_return_type,
-				instead = '',
-				template_initial = '::%s'
+				value2test = sql_return_type,
+				return_instead = '',
+				template4value = '::%s'
 			)
 
 		# 1) search value with explicit workplace and current user
@@ -176,9 +176,9 @@ class cCfgSQL:
 			'vco.option = %(opt)s'
 		]
 		where_parts.append(gmTools.coalesce (
-			initial = cookie,
-			instead = 'vco.cookie is null',
-			template_initial = 'vco.cookie = %(cookie)s'
+			value2test = cookie,
+			return_instead = 'vco.cookie is null',
+			template4value = 'vco.cookie = %(cookie)s'
 		))
 		cmd = "select vco.value%s from cfg.v_cfg_opts_%s vco where %s limit 1" % (
 			sql_return_type,
@@ -207,9 +207,9 @@ class cCfgSQL:
 				'vco.workplace = %(wp)s'
 			]
 		where_parts.append(gmTools.coalesce (
-			initial = cookie,
-			instead = 'vco.cookie is null',
-			template_initial = 'vco.cookie = %(cookie)s'
+			value2test = cookie,
+			return_instead = 'vco.cookie is null',
+			template4value = 'vco.cookie = %(cookie)s'
 		))
 		cmd = "select vco.value%s from cfg.v_cfg_opts_%s vco where %s" % (
 			sql_return_type,

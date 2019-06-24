@@ -1670,9 +1670,9 @@ class cSelectablySortedDocTreePnl(wxgSelectablySortedDocTreePnl.wxgSelectablySor
 		items.append([_('Health issue'), '%s%s [#%s]' % (
 			issue['description'],
 			gmTools.coalesce (
-				initial = issue['laterality'],
-				instead = '',
-				template_initial = ' (%s)',
+				value2test = issue['laterality'],
+				return_instead = '',
+				template4value = ' (%s)',
 				none_equivalents = [None, '', '?']
 			),
 			issue['pk_health_issue']
@@ -2067,7 +2067,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 					gmTools.bool2subst(doc.has_unreviewed_parts, gmTools.u_writing_hand, '', '?'),
 					gmDateTime.pydt_strftime(doc['clin_when'], '%m/%Y'),
 					doc['l10n_type'][:26],
-					gmTools.coalesce(initial = doc['comment'], instead = '', template_initial = ' %s'),
+					gmTools.coalesce(value2test = doc['comment'], return_instead = '', template4value = ' %s'),
 					no_parts
 				)
 				if intermediate_label not in intermediate_nodes:
@@ -2083,7 +2083,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 					gmTools.bool2subst(doc.has_unreviewed_parts, gmTools.u_writing_hand, '', '?'),
 					gmDateTime.pydt_strftime(doc['clin_when'], '%m/%Y'),
 					no_parts,
-					gmTools.coalesce(initial = doc['comment'], instead = '', template_initial = ' %s')
+					gmTools.coalesce(value2test = doc['comment'], return_instead = '', template4value = ' %s')
 				)
 				if intermediate_label not in intermediate_nodes:
 					intermediate_nodes[intermediate_label] = self.AppendItem(parent = self.root, text = intermediate_label)
@@ -2101,7 +2101,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 					gmTools.bool2subst(doc.has_unreviewed_parts, gmTools.u_writing_hand, '', '?'),
 					gmDateTime.pydt_strftime(doc['clin_when'], '%m/%Y'),
 					doc['l10n_type'][:26],
-					gmTools.coalesce(initial = doc['comment'], instead = '', template_initial = ' %s'),
+					gmTools.coalesce(value2test = doc['comment'], return_instead = '', template4value = ' %s'),
 					no_parts
 				)
 				if intermediate_label not in intermediate_nodes:
@@ -2129,7 +2129,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 					gmTools.bool2subst(doc.has_unreviewed_parts, gmTools.u_writing_hand, '', '?'),
 					gmDateTime.pydt_strftime(doc['clin_when'], '%m/%Y'),
 					doc['l10n_type'][:26],
-					gmTools.coalesce(initial = doc['comment'], instead = '', template_initial = ' %s'),
+					gmTools.coalesce(value2test = doc['comment'], return_instead = '', template4value = ' %s'),
 					no_parts
 				)
 				if intermediate_label not in intermediate_nodes:
@@ -2146,7 +2146,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 					gmTools.bool2subst(doc.has_unreviewed_parts, gmTools.u_writing_hand, '', '?'),
 					gmDateTime.pydt_strftime(doc['clin_when'], '%b %d'),
 					doc['l10n_type'][:26],
-					gmTools.coalesce(initial = doc['comment'], instead = '', template_initial = ' %s'),
+					gmTools.coalesce(value2test = doc['comment'], return_instead = '', template4value = ' %s'),
 					no_parts
 				)
 				if intermediate_label not in intermediate_nodes:
@@ -2161,7 +2161,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 					gmTools.bool2subst(doc.has_unreviewed_parts, gmTools.u_writing_hand, '', '?'),
 					gmDateTime.pydt_strftime(doc['clin_when'], '%Y-%m'),
 					doc['l10n_type'][:26],
-					gmTools.coalesce(initial = doc['comment'], instead = '', template_initial = ' %s'),
+					gmTools.coalesce(value2test = doc['comment'], return_instead = '', template4value = ' %s'),
 					no_parts
 				)
 				parent = self.root

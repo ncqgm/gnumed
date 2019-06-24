@@ -938,54 +938,70 @@ def none_if(value=None, none_equivalent=None, strip_string=False):
 	return value
 
 #---------------------------------------------------------------------------
-def coalesce(initial=None, instead=None, template_initial=None, template_instead=None, none_equivalents=None, function_initial=None):
+def coalesce(value2test=None, return_instead=None, template4value=None, template4instead=None, none_equivalents=None, function4value=None, value2return=None):
 	"""Modelled after the SQL coalesce function.
 
 	To be used to simplify constructs like:
 
-		if initial is None (or in none_equivalents):
-			real_value = (template_instead % instead) or instead
+		if value2test is None (or in none_equivalents):
+			value = (template4instead % return_instead) or return_instead
 		else:
-			real_value = (template_initial % initial) or initial
-		print real_value
+			value = (template4value % value2test) or value2test
+		print value
 
-	@param initial: the value to be tested for <None>
-	@type initial: any Python type, must have a __str__ method if template_initial is not None
-	@param instead: the value to be returned if <initial> is None
-	@type instead: any Python type, must have a __str__ method if template_instead is not None
-	@param template_initial: if <initial> is returned replace the value into this template, must contain one <%s> 
-	@type template_initial: string or None
-	@param template_instead: if <instead> is returned replace the value into this template, must contain one <%s> 
-	@type template_instead: string or None
+	@param value2test: the value to be tested for <None>
+	@type value2test: any Python type, must have a __str__ method if template4value is not None
+	@param return_instead: the value to be returned if <initial> is None
+	@type return_instead: any Python type, must have a __str__ method if template4instead is not None
+	@param template4value: if <initial> is returned replace the value into this template, must contain one <%s> 
+	@type template4value: string or None
+	@param template4instead: if <return_instead> is returned replace the value into this template, must contain one <%s> 
+	@type template4instead: string or None
 
 	example:
-		function_initial = ('strftime', '%Y-%m-%d')
+		function4value = ('strftime', '%Y-%m-%d')
 
 	Ideas:
-		- list of insteads: initial, [instead, template], [instead, template], [instead, template], template_initial, ...
+		- list of return_insteads: initial, [return_instead, template], [return_instead, template], [return_instead, template], template4value, ...
 	"""
 	if none_equivalents is None:
 		none_equivalents = [None]
 
-	if initial in none_equivalents:
+	if value2test in none_equivalents:
+		if template4instead is None:
+			return return_instead
+		return template4instead % return_instead
 
-		if template_instead is None:
-			return instead
+	# at this point, value2test was not equivalent to None
 
-		return template_instead % instead
+	# 1) explicit value to return supplied ?
+	if value2return is not None:
+		return value2return
 
-	if function_initial is not None:
-		funcname, args = function_initial
-		func = getattr(initial, funcname)
-		initial = func(args)
+	value2return = value2test
+	# 2) function supplied to be applied to the value ?
+	if function4value is not None:
+		funcname, args = function4value
+		func = getattr(value2test, funcname)
+		value2return = func(args)
 
-	if template_initial is None:
-		return initial
+	# 3) template supplied to be applied to the value ?
+	if template4value is None:
+		return value2return
 
 	try:
-		return template_initial % initial
+		return template4value % value2return
 	except TypeError:
-		return template_initial
+#	except (TypeError, ValueError):
+		# this should go, actually, only needed because "old" calls
+		# to coalesce will still abuse template4value as explicit value2return,
+		# relying on the replacement to above to fail
+		if hasattr(_log, 'log_stack_trace'):
+			_log.log_stack_trace(message = 'deprecated use of <template4value> for <value2return>')
+		else:
+			_log.error('deprecated use of <template4value> for <value2return>')
+			_log.error(locals())
+		return template4value
 
 #---------------------------------------------------------------------------
 def __cap_name(match_obj=None):
@@ -1927,7 +1943,7 @@ if __name__ == '__main__':
 		return
 
 		import datetime as dt
-		print(coalesce(initial = dt.datetime.now(), template_initial = '-- %s --', function_initial = ('strftime', '%Y-%m-%d')))
+		print(coalesce(value2test = dt.datetime.now(), template4value = '-- %s --', function4value = ('strftime', '%Y-%m-%d')))
 
 		print('testing coalesce()')
 		print("------------------")
@@ -1936,16 +1952,16 @@ if __name__ == '__main__':
 			['Captain', 'Mr.', '%s.'[:4], 'Mr.', 'Capt.'],
 			['value to test', 'test 3 failed', 'template with "%s" included', None, 'template with "value to test" included'],
 			['value to test', 'test 4 failed', 'template with value not included', None, 'template with value not included'],
-			[None, 'initial value was None', 'template_initial: %s', None, 'initial value was None'],
-			[None, 'initial value was None', 'template_initial: %%(abc)s', None, 'initial value was None']
+			[None, 'initial value was None', 'template4value: %s', None, 'initial value was None'],
+			[None, 'initial value was None', 'template4value: %%(abc)s', None, 'initial value was None']
 		]
 		passed = True
 		for test in tests:
 			result = coalesce (
-				initial = test[0],
-				instead = test[1],
-				template_initial = test[2],
-				template_instead = test[3]
+				value2test = test[0],
+				return_instead = test[1],
+				template4value = test[2],
+				template4instead = test[3]
 			)
 			if result != test[4]:
 				print("ERROR")
@@ -2374,7 +2390,7 @@ second line\n
 			#print(dicts2table(dicts, left_margin=2, eol='\n', keys2ignore=None, show_only_changes=True, headers = ['d1', 'd2', 'd3', 'd4', 'd5', 'd6']))
 
 	#-----------------------------------------------------------------------
-	#test_coalesce()
+	test_coalesce()
 	#test_capitalize()
 	#test_import_module()
 	#test_mkdir()
@@ -2408,6 +2424,6 @@ second line\n
 	#test_enumerate_optical_writers()
 	#test_copy_tree_content()
 	#test_mk_sandbox_dir()
-	test_make_table_from_dicts()
+	#test_make_table_from_dicts()
 
 #===========================================================================

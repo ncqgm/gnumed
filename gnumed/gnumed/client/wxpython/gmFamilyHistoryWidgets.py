@@ -65,7 +65,7 @@ def manage_family_history(parent=None):
 				none_string = ''
 			),
 			gmTools.coalesce(f['name_relative'], ''),
-			gmTools.coalesce(f['dob_relative'], '', function_initial = ('strftime', '%Y-%m-%d'))
+			gmTools.coalesce(f['dob_relative'], '', function4value = ('strftime', '%Y-%m-%d'))
 		] for f in fhx ]
 		lctrl.set_string_items(items)
 		lctrl.set_data(fhx)

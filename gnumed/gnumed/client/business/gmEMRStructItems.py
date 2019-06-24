@@ -324,9 +324,9 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 			self._payload[self._idx['description']],
 			'\u00AB',
 			gmTools.coalesce (
-				initial = self.laterality_description,
-				instead = '',
-				template_initial = ' (%s)',
+				value2test = self.laterality_description,
+				return_instead = '',
+				template4value = ' (%s)',
 				none_equivalents = [None, '', '?']
 			),
 			self._payload[self._idx['pk_health_issue']]
@@ -357,9 +357,9 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 			gmTools.bool2subst(self._payload[self._idx['is_active']], _('active'), _('inactive')),
 			gmTools.bool2subst(self._payload[self._idx['clinically_relevant']], _('clinically relevant'), _('not clinically relevant')),
 			gmTools.coalesce (
-				initial = diagnostic_certainty_classification2str(self._payload[self._idx['diagnostic_certainty_classification']]),
-				instead = '',
-				template_initial = ', %s',
+				value2test = diagnostic_certainty_classification2str(self._payload[self._idx['diagnostic_certainty_classification']]),
+				return_instead = '',
+				template4value = ', %s',
 				none_equivalents = [None, '']
 			)
 		))
@@ -1359,9 +1359,9 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 		lines.append(' ' + _('Status') + ': %s%s' % (
 			gmTools.bool2subst(self._payload[self._idx['episode_open']], _('active'), _('finished')),
 			gmTools.coalesce (
-				initial = diagnostic_certainty_classification2str(self._payload[self._idx['diagnostic_certainty_classification']]),
-				instead = '',
-				template_initial = ', %s',
+				value2test = diagnostic_certainty_classification2str(self._payload[self._idx['diagnostic_certainty_classification']]),
+				return_instead = '',
+				template4value = ', %s',
 				none_equivalents = [None, '']
 			)
 		))
@@ -2504,9 +2504,9 @@ limit 1
 				gmTools.tex_escape_string(epi['description']),
 				gmTools.tex_escape_string (
 					gmTools.coalesce (
-						initial = diagnostic_certainty_classification2str(epi['diagnostic_certainty_classification']),
-						instead = '',
-						template_initial = ' {\\footnotesize [%s]}',
+						value2test = diagnostic_certainty_classification2str(epi['diagnostic_certainty_classification']),
+						return_instead = '',
+						template4value = ' {\\footnotesize [%s]}',
 						none_equivalents = [None, '']
 					)
 				)
@@ -2517,9 +2517,9 @@ limit 1
 					gmTools.tex_escape_string(epi['health_issue']),
 					gmTools.tex_escape_string (
 						gmTools.coalesce (
-							initial = diagnostic_certainty_classification2str(epi['diagnostic_certainty_classification_issue']),
-							instead = '',
-							template_initial = ' {\\footnotesize [%s]}',
+							value2test = diagnostic_certainty_classification2str(epi['diagnostic_certainty_classification_issue']),
+							return_instead = '',
+							template4value = ' {\\footnotesize [%s]}',
 							none_equivalents = [None, '']
 						)
 					)

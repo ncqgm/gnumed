@@ -113,35 +113,35 @@ def sanitize_patient_row(row):
 		row['surname'],
 		'Clinica [#%s]' % row['ID'],
 		none_equivalents = [None, ''],
-		function_initial = ('strip', None)
+		function4value = ('strip', None)
 	)
 
 	row['given_name'] = gmTools.coalesce (
 		row['given_name'],
 		'#%s' % row['ID'],
 		none_equivalents = [None, ''],
-		function_initial = ('strip', None)
+		function4value = ('strip', None)
 	)
 
 	row['identification_code'] = gmTools.coalesce (
 		row['identification_code'],
 		None,
 		none_equivalents = [None, ''],
-		function_initial = ('strip', None)
+		function4value = ('strip', None)
 	)
 
 	row['phone'] = gmTools.coalesce (
 		row['phone'],
 		None,
 		none_equivalents = [None, ''],
-		function_initial = ('strip', None)
+		function4value = ('strip', None)
 	)
 
 	row['birth_date'] = gmTools.coalesce (
 		row['birth_date'],
 		None,
 		none_equivalents = [None, ''],
-		function_initial = ('strip', None)
+		function4value = ('strip', None)
 	)
 	row['birth_date'] = '%s-%s-%s:%s.%s' % (
 		row['birth_date'][:4],
@@ -155,7 +155,7 @@ def sanitize_patient_row(row):
 		row['residence_address'],
 		None,
 		none_equivalents = [None, ''],
-		function_initial = ('strip', None)
+		function4value = ('strip', None)
 	)
 
 	return row

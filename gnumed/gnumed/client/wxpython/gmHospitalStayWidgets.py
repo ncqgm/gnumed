@@ -78,7 +78,7 @@ def manage_hospital_stays(parent=None):
 		items = [
 			[
 				s['admission'].strftime('%Y-%m-%d'),
-				gmTools.coalesce(s['discharge'], '', function_initial = ('strftime', '%Y-%m-%d')),
+				gmTools.coalesce(s['discharge'], '', function4value = ('strftime', '%Y-%m-%d')),
 				s['episode'],
 				'%s @ %s' % (s['ward'], s['hospital'])
 			] for s in stays
