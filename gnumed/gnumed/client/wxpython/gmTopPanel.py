@@ -173,26 +173,25 @@ class cTopPnl(wxgTopPnl.wxgTopPnl):
 
 		tests2show = []
 
-		rr = self.curr_pat.emr.get_most_recent_results_in_loinc_group(loincs = gmLOINC.LOINC_rr_quantity, no_of_results = 1)
-		if rr is None:
+		rrs = self.curr_pat.emr.get_most_recent_results_in_loinc_group(loincs = gmLOINC.LOINC_rr_quantity, no_of_results = 1)
+		if rrs is None:
 			tests2show.append(_('RR ?'))
 		else:
-			#tests2show.append(_(u'%s%s') % (rr['unified_val'], rr['val_unit']))
-			tests2show.append(rr['unified_val'])
+			tests2show.append(rrs[0]['unified_val'])
 
-		hr = self.curr_pat.emr.get_most_recent_results_in_loinc_group(loincs = gmLOINC.LOINC_heart_rate_quantity, no_of_results = 1)
-		if hr is not None:
-			tests2show.append('%s %s' % (hr['abbrev_tt'], hr['unified_val']))
+		hrs = self.curr_pat.emr.get_most_recent_results_in_loinc_group(loincs = gmLOINC.LOINC_heart_rate_quantity, no_of_results = 1)
+		if hrs is not None:
+			tests2show.append('%s %s' % (hrs[0]['abbrev_tt'], hrs[0]['unified_val']))
 
 		bmi = self.curr_pat.emr.bmi
 		if bmi.numeric_value is not None:
 			tests2show.append(_('BMI %s') % bmi.numeric_value.quantize(decimal.Decimal('1.')))
 		else:
-			weight = self.curr_pat.emr.get_most_recent_results_in_loinc_group(loincs = gmLOINC.LOINC_weight, no_of_results = 1)
-			if weight is None:
+			weights = self.curr_pat.emr.get_most_recent_results_in_loinc_group(loincs = gmLOINC.LOINC_weight, no_of_results = 1)
+			if weights is None:
 				tests2show.append(_('BMI ?'))
 			else:
-				tests2show.append('%s%s' % (weight['unified_val'], weight['val_unit']))
+				tests2show.append('%s%s' % (weights[0]['unified_val'], weights[0]['val_unit']))
 
 		gfr_or_crea = self.curr_pat.emr.best_gfr_or_crea
 		if gfr_or_crea is None:
@@ -210,9 +209,9 @@ class cTopPnl(wxgTopPnl.wxgTopPnl):
 			else:
 				tests2show.append(_('EDC %s') % gmDateTime.pydt_strftime(edc, '%Y-%b-%d', accuracy = gmDateTime.acc_days))
 
-		inr = self.curr_pat.emr.get_most_recent_results_in_loinc_group(loincs = gmLOINC.LOINC_inr_quantity, no_of_results = 1)
-		if inr is not None:
-			tests2show.append('%s %s' % (inr['abbrev_tt'], inr['unified_val']))
+		inrs = self.curr_pat.emr.get_most_recent_results_in_loinc_group(loincs = gmLOINC.LOINC_inr_quantity, no_of_results = 1)
+		if inrs is not None:
+			tests2show.append('%s %s' % (inrs[0]['abbrev_tt'], inrs[0]['unified_val']))
 
 		# include panel if configured, only show if exist
 		if self.__lab_panel is not None:

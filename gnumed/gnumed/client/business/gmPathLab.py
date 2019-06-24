@@ -2328,10 +2328,12 @@ def get_most_recent_results_in_loinc_group(loincs=None, no_of_results=1, patient
 		no_of_results
 	)
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+	if len(rows) == 0:
+		return None
+
 	if no_of_results == 1:
-		if len(rows) == 0:
-			return None
-		return cTestResult(row = {'pk_field': 'pk_test_result', 'idx': idx, 'data': rows[0]})
+		return [cTestResult(row = {'pk_field': 'pk_test_result', 'idx': idx, 'data': rows[0]})]
+
 	return [ cTestResult(row = {'pk_field': 'pk_test_result', 'idx': idx, 'data': r}) for r in rows ]
 
 #------------------------------------------------------------
@@ -2371,7 +2373,7 @@ def get_most_recent_result_for_test_types(pk_test_types=None, pk_patient=None, r
 	args = {'pat': pk_patient}
 
 	if pk_test_types is not None:
-		where_parts.append('pk_test_type IN %(ttyps)s')		# consider: pk_meta_test_type = %(pkmtt)s / self._payload[self._idx['pk_meta_test_type']]
+		where_parts.append('pk_test_type IN %(ttyps)s')
 		args['ttyps'] = tuple(pk_test_types)
 
 	if consider_meta_type:
@@ -2388,8 +2390,6 @@ def get_most_recent_result_for_test_types(pk_test_types=None, pk_patient=None, r
 				clin.v_test_results
 			WHERE
 				%s
-			--WINDOW relevant_tests AS (PARTITION BY pk_patient, pk_test_type)
-			--WINDOW relevant_tests AS (PARTITION BY pk_patient, pk_meta_test_type)
 			WINDOW relevant_tests AS (%s)
 		) AS windowed_tests
 		WHERE

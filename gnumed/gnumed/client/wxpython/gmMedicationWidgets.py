@@ -404,8 +404,8 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 		del abuses
 
 		# kidney function
-		gfr = emr.get_most_recent_results_in_loinc_group(loincs = gmLOINC.LOINC_gfr_quantity, no_of_results = 1)
-		if gfr is None:
+		gfrs = emr.get_most_recent_results_in_loinc_group(loincs = gmLOINC.LOINC_gfr_quantity, no_of_results = 1)
+		if gfrs is None:
 			self.calc.patient = curr_pat
 			gfr = self.calc.eGFR
 			if gfr.numeric_value is None:
@@ -429,6 +429,7 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 					))
 				tooltip += '\n'.join(tts)
 		else:
+			gfr = gfrs[0]
 			msg += '%s: %s %s (%s)\n' % (
 				gfr['unified_abbrev'],
 				gfr['unified_val'],
@@ -2059,15 +2060,16 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 						loinc_max_age_str[l['loinc']] = l['max_age_str']
 		loincs2monitor_missing = loincs2monitor.copy()
 		for loinc in loincs2monitor:
-			result = emr.get_most_recent_results_in_loinc_group (
+			results = emr.get_most_recent_results_in_loinc_group (
 				loincs = [loinc],
 				no_of_results = 1,
 				consider_meta_type = True
 			)
-			if result is None:
+			if results is None:
 				continue
 			loincs2monitor_missing.remove(loinc)
 			# make unique
+			result = results[0]
 			most_recent_results[result['pk_test_result']] = result
 
 		# get most recent results for "general medication monitoring lab panel"
@@ -2085,8 +2087,16 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 				most_recent_results[result['pk_test_result']] = result
 
 		# those need special treatment
-		gfr = emr.get_most_recent_results_in_loinc_group(loincs = gmLOINC.LOINC_gfr_quantity, no_of_results = 1)
-		crea = emr.get_most_recent_results_in_loinc_group(loincs = gmLOINC.LOINC_creatinine_quantity, no_of_results = 1)
+		gfrs = emr.get_most_recent_results_in_loinc_group(loincs = gmLOINC.LOINC_gfr_quantity, no_of_results = 1)
+		if gfrs is None:
+			gfr = None
+		else:
+			gfr = gfrs[0]
+		creas = emr.get_most_recent_results_in_loinc_group(loincs = gmLOINC.LOINC_creatinine_quantity, no_of_results = 1)
+		if creas is None:
+			crea = None
+		else:
+			crea = creas[0]
 		edc = emr.EDC
 
 		# display EDC
@@ -2261,8 +2271,8 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 
 	#--------------------------------------------------------
 	def __refresh_gfr(self, patient):
-		gfr = patient.emr.get_most_recent_results_in_loinc_group(loincs = gmLOINC.LOINC_gfr_quantity, no_of_results = 1)
-		if gfr is None:
+		gfrs = patient.emr.get_most_recent_results_in_loinc_group(loincs = gmLOINC.LOINC_gfr_quantity, no_of_results = 1)
+		if gfrs is None:
 			calc = gmClinicalCalculator.cClinicalCalculator()
 			calc.patient = patient
 			gfr = calc.eGFR
@@ -2294,6 +2304,7 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 					))
 				tt = '\n'.join(tts)
 		else:
+			gfr = gfrs[0]
 			msg = '%s: %s %s (%s)\n' % (
 				gfr['unified_abbrev'],
 				gfr['unified_val'],
