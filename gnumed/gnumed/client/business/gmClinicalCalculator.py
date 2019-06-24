@@ -339,7 +339,7 @@ class cClinicalCalculator(object):
 			return result
 
 		# 2) creatinine
-		creas = self.__patient.emr.get_most_recent_results_in_loinc_group(loincs = gmLOINC.LOINC_creatinine_quantity, no_of_results = 1)
+		creas = self.__patient.emr.get_most_recent_results_in_loinc_group(loincs = gmLOINC.LOINC_creatinine_quantity, no_of_results = 1, consider_meta_loinc = True)
 		if creas is None:
 			result.variables['serum_crea'] = None
 		else:
@@ -446,7 +446,7 @@ class cClinicalCalculator(object):
 			return result
 
 		# 2) creatinine
-		creas = self.__patient.emr.get_most_recent_results_in_loinc_group(loincs = gmLOINC.LOINC_creatinine_quantity, no_of_results = 1)
+		creas = self.__patient.emr.get_most_recent_results_in_loinc_group(loincs = gmLOINC.LOINC_creatinine_quantity, no_of_results = 1, consider_meta_loinc = True)
 		if creas is None:
 			result.variables['serum_crea'] = None
 		else:
@@ -540,7 +540,7 @@ class cClinicalCalculator(object):
 			return result
 
 		# 2) creatinine
-		creas = self.__patient.emr.get_most_recent_results_in_loinc_group(loincs = gmLOINC.LOINC_creatinine_quantity, no_of_results = 1)
+		creas = self.__patient.emr.get_most_recent_results_in_loinc_group(loincs = gmLOINC.LOINC_creatinine_quantity, no_of_results = 1, consider_meta_loinc = True)
 		if creas is None:
 			result.variables['serum_crea'] = None
 		else:
@@ -580,7 +580,7 @@ class cClinicalCalculator(object):
 			result.message = _('Cockcroft-Gault: formula does not apply at age [%s] (17 < age)') % result.variables['age@crea']
 			return result
 
-		weights = self.__patient.emr.get_most_recent_results_in_loinc_group(loincs = gmLOINC.LOINC_weight, no_of_results = 1)
+		weights = self.__patient.emr.get_most_recent_results_in_loinc_group(loincs = gmLOINC.LOINC_weight, no_of_results = 1, consider_meta_loinc = True)
 		if weights is None:
 			result.variables['weight'] = None
 		else:
@@ -648,7 +648,7 @@ class cClinicalCalculator(object):
 		result.variables['dob'] = self.__patient['dob']
 
 		# creatinine
-		creas = self.__patient.emr.get_most_recent_results_in_loinc_group(loincs = gmLOINC.LOINC_creatinine_quantity, no_of_results = 1)
+		creas = self.__patient.emr.get_most_recent_results_in_loinc_group(loincs = gmLOINC.LOINC_creatinine_quantity, no_of_results = 1, consider_meta_loinc = True)
 		if creas is None:
 			result.variables['serum_crea'] = None
 		else:
@@ -751,7 +751,7 @@ class cClinicalCalculator(object):
 			result.message = _('Body Surface Area: no patient')
 			return result
 
-		heights = self.__patient.emr.get_most_recent_results_in_loinc_group(loincs = gmLOINC.LOINC_height, no_of_results = 1)
+		heights = self.__patient.emr.get_most_recent_results_in_loinc_group(loincs = gmLOINC.LOINC_height, no_of_results = 1, consider_meta_loinc = True)
 		if heights is None:
 			result.variables['height'] = None
 		else:
@@ -825,7 +825,7 @@ class cClinicalCalculator(object):
 			result.message = _('BMI: no patient')
 			return result
 
-		heights = self.__patient.emr.get_most_recent_results_in_loinc_group(loincs = gmLOINC.LOINC_height, no_of_results = 1)
+		heights = self.__patient.emr.get_most_recent_results_in_loinc_group(loincs = gmLOINC.LOINC_height, no_of_results = 1, consider_meta_loinc = True)
 		if heights is None:
 			result.variables['height'] = None
 		else:

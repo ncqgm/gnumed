@@ -743,6 +743,8 @@ class cMeasurementType(gmBusinessDBObject.cBusinessDBObject):
 			loincs = tuple(self._payload[self._idx['loinc']]),
 			no_of_results = no_of_results,
 			patient = patient
+			# ?
+			#, consider_meta_loinc = True
 		)
 
 	#--------------------------------------------------------
@@ -2265,21 +2267,17 @@ def get_results_for_episode(pk_episode=None):
 	return [ cTestResult(row = {'pk_field': 'pk_test_result', 'idx': idx, 'data': r}) for r in rows ]
 
 #------------------------------------------------------------
-def get_most_recent_results_in_loinc_group(loincs=None, no_of_results=1, patient=None, consider_meta_type=False, max_age=None):
-	"""Get N most recent results *among* a list of tests selected by LOINC."""
+def get_most_recent_results_in_loinc_group(loincs=None, no_of_results=1, patient=None, consider_meta_loinc=False, max_age=None):
+	"""Get N most recent results *among* a list of tests selected by LOINC.
 
-	# <loinc> must be a list or tuple or set, NOT a single string
-	# <max_age> must be a string holding a PG interval or else a pydt interval
+		1) get test types with LOINC (or meta type LOINC) in the group of <loincs>
+		2) from these get the test results for <patient> within the given <max_age>
+		3) from these return the N=<no_of_results> most recent ones
 
-	if no_of_results < 1:
-		raise ValueError('<no_of_results> must be > 0')
-
-#	if not consider_meta_type:
-#		return get_most_recent_results (
-#			loinc = loinc,
-#			no_of_results = no_of_results,
-#			patient = patient
-#		)
+		<loinc> must be a list or tuple or set, NOT a single string
+		<max_age> must be a string holding a PG interval or else a pydt interval
+	"""
+	assert (no_of_results > 0), '<no_of_results> must be >0'
 
 	args = {'pat': patient, 'loincs': tuple(loincs)}
 	if max_age is None:
@@ -2288,7 +2286,7 @@ def get_most_recent_results_in_loinc_group(loincs=None, no_of_results=1, patient
 		max_age_cond = 'AND clin_when > (now() - %(max_age)s::interval)'
 		args['max_age'] = max_age
 
-	if consider_meta_type:
+	if consider_meta_loinc:
 		rank_order = '_rank ASC'
 	else:
 		rank_order = '_rank DESC'
@@ -3379,8 +3377,8 @@ if __name__ == '__main__':
 			loincs = ['8867-4'],
 			no_of_results = 2,
 			patient = 12,
-			consider_meta_type = True
-			#consider_meta_type = False
+			consider_meta_loinc = True
+			#consider_meta_loinc = False
 		)
 		for t in most_recent:
 			if t['pk_meta_test_type'] is None:
