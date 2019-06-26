@@ -2267,12 +2267,12 @@ def get_results_for_episode(pk_episode=None):
 	return [ cTestResult(row = {'pk_field': 'pk_test_result', 'idx': idx, 'data': r}) for r in rows ]
 
 #------------------------------------------------------------
-def get_most_recent_results_in_loinc_group(loincs=None, no_of_results=1, patient=None, consider_meta_loinc=False, max_age=None):
+def get_most_recent_results_in_loinc_group(loincs=None, no_of_results=1, patient=None, consider_meta_loinc=False, max_age=None, consider_indirect_matches=False):
 	"""Get N most recent results *among* a list of tests selected by LOINC.
 
 		1) get test types with LOINC (or meta type LOINC) in the group of <loincs>
 		2) from these get the test results for <patient> within the given <max_age>
-		3) from these return the N=<no_of_results> most recent ones
+		3) from these return "the N=<no_of_results> most recent ones" or "None"
 
 		<loinc> must be a list or tuple or set, NOT a single string
 		<max_age> must be a string holding a PG interval or else a pydt interval
@@ -2326,12 +2326,49 @@ def get_most_recent_results_in_loinc_group(loincs=None, no_of_results=1, patient
 		no_of_results
 	)
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
-	if len(rows) == 0:
-		return None
+	if len(rows) > 0:
+		return [ cTestResult(row = {'pk_field': 'pk_test_result', 'idx': idx, 'data': r}) for r in rows ]
 
-	if no_of_results == 1:
-		return [cTestResult(row = {'pk_field': 'pk_test_result', 'idx': idx, 'data': rows[0]})]
+	if not consider_indirect_matches:
+		return []
 
+	cmd = """
+	-- get the test results
+	SELECT * FROM clin.v_test_results c_vtr
+	WHERE
+		-- for this <patient>
+		pk_patient = %%(pat)s
+			AND
+		-- not having *any* LOINC (if the result did have a LOINC and had not been caught by the by-LOINC search it does not apply)
+		unified_loinc IS NULL
+			AND
+		-- with these meta test types (= results for the explicit equivalance group)
+		c_vtr.pk_meta_test_type IN (
+			-- get the meta test types for those types
+			SELECT pk_meta_test_type
+			FROM clin.v_test_types
+			WHERE
+				pk_meta_test_type IS NOT NULL
+					AND
+				(-- retrieve test types which have .LOINC in <loincs>
+					(loinc IN %%(loincs)s)
+						OR
+					(loinc_meta IN  %%(loincs)s)
+				)
+					AND
+				-- but no result for <patient>
+				pk_test_type NOT IN (
+					select pk_test_type from clin.v_test_results WHERE pk_patient = %%(pat)s
+				) %s
+		)
+	-- return the N most resent result
+	ORDER BY clin_when DESC
+	LIMIT %s
+	""" % (
+		max_age_cond,
+		no_of_results
+	)
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 	return [ cTestResult(row = {'pk_field': 'pk_test_result', 'idx': idx, 'data': r}) for r in rows ]
 
 #------------------------------------------------------------
@@ -3374,11 +3411,30 @@ if __name__ == '__main__':
 	def test_get_most_recent_results_in_loinc_group():
 		most_recent = get_most_recent_results_in_loinc_group (
 			#loincs = [u'pseudo LOINC [C-reactive protein (EML)::9] (v21->v22 test panel conversion)'],
-			loincs = ['8867-4'],
+			#loincs = ['8867-4'],
+			loincs = ['2160-0', '14682-9', '40264-4', '40248-7'],
 			no_of_results = 2,
-			patient = 12,
-			consider_meta_loinc = True
-			#consider_meta_loinc = False
+			patient = 5,
+			consider_meta_loinc = True,
+			#consider_meta_loinc = False,
+			consider_indirect_matches = True
+		)
+		for t in most_recent:
+			if t['pk_meta_test_type'] is None:
+				print("---- standalone ----")
+			else:
+				print("---- meta ----")
+			print(t.format())
+
+		most_recent = get_most_recent_results_in_loinc_group (
+			#loincs = [u'pseudo LOINC [C-reactive protein (EML)::9] (v21->v22 test panel conversion)'],
+			#loincs = ['8867-4'],
+			loincs = ['2160-0', '14682-9', '40264-4', '40248-7'],
+			no_of_results = 2,
+			patient = 5,
+			consider_meta_loinc = True,
+			#consider_meta_loinc = False,
+			consider_indirect_matches = False
 		)
 		for t in most_recent:
 			if t['pk_meta_test_type'] is None:
@@ -3403,7 +3459,7 @@ if __name__ == '__main__':
 	#test_format_test_results()
 	#test_calculate_bmi()
 	#test_test_panel()
-	test_get_most_recent_results_for_panel()
-	#test_get_most_recent_results_in_loinc_group()
+	#test_get_most_recent_results_for_panel()
+	test_get_most_recent_results_in_loinc_group()
 
 #============================================================

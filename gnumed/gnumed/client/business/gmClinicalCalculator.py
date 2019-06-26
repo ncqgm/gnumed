@@ -340,10 +340,7 @@ class cClinicalCalculator(object):
 
 		# 2) creatinine
 		creas = self.__patient.emr.get_most_recent_results_in_loinc_group(loincs = gmLOINC.LOINC_creatinine_quantity, no_of_results = 1, consider_meta_loinc = True)
-		if creas is None:
-			result.variables['serum_crea'] = None
-		else:
-			result.variables['serum_crea'] = creas[0]
+		result.variables['serum_crea'] = creas[0] if len(creas) > 0 else None
 		if result.variables['serum_crea'] is None:
 			result.message = _('MDRD (4 vars/IDMS): serum creatinine value not found (LOINC: %s)') % gmLOINC.LOINC_creatinine_quantity
 			return result
@@ -447,10 +444,7 @@ class cClinicalCalculator(object):
 
 		# 2) creatinine
 		creas = self.__patient.emr.get_most_recent_results_in_loinc_group(loincs = gmLOINC.LOINC_creatinine_quantity, no_of_results = 1, consider_meta_loinc = True)
-		if creas is None:
-			result.variables['serum_crea'] = None
-		else:
-			result.variables['serum_crea'] = creas[0]
+		result.variables['serum_crea'] = creas[0] if len(creas) > 0 else None
 		if result.variables['serum_crea'] is None:
 			result.message = _('CKD-EPI: serum creatinine value not found (LOINC: %s)') % gmLOINC.LOINC_creatinine_quantity
 			return result
@@ -541,10 +535,7 @@ class cClinicalCalculator(object):
 
 		# 2) creatinine
 		creas = self.__patient.emr.get_most_recent_results_in_loinc_group(loincs = gmLOINC.LOINC_creatinine_quantity, no_of_results = 1, consider_meta_loinc = True)
-		if creas is None:
-			result.variables['serum_crea'] = None
-		else:
-			result.variables['serum_crea'] = creas[0]
+		result.variables['serum_crea'] = creas[0] if len(creas) > 0 else None
 		if result.variables['serum_crea'] is None:
 			result.message = _('Cockcroft-Gault: serum creatinine value not found (LOINC: %s)') % gmLOINC.LOINC_creatinine_quantity
 			return result
@@ -581,10 +572,7 @@ class cClinicalCalculator(object):
 			return result
 
 		weights = self.__patient.emr.get_most_recent_results_in_loinc_group(loincs = gmLOINC.LOINC_weight, no_of_results = 1, consider_meta_loinc = True)
-		if weights is None:
-			result.variables['weight'] = None
-		else:
-			result.variables['weight'] = weights[0]
+		result.variables['weight'] = weights[0] if len(weights) > 0 else None
 		if result.variables['weight'] is None:
 			result.message = _('Cockcroft-Gault: weight not found')
 			return result
@@ -649,10 +637,7 @@ class cClinicalCalculator(object):
 
 		# creatinine
 		creas = self.__patient.emr.get_most_recent_results_in_loinc_group(loincs = gmLOINC.LOINC_creatinine_quantity, no_of_results = 1, consider_meta_loinc = True)
-		if creas is None:
-			result.variables['serum_crea'] = None
-		else:
-			result.variables['serum_crea'] = creas[0]
+		result.variables['serum_crea'] = creas[0] if len(creas) > 0 else None
 		if result.variables['serum_crea'] is None:
 			result.message = _('eGFR (Schwartz): serum creatinine value not found (LOINC: %s') % gmLOINC.LOINC_creatinine_quantity
 			return result
@@ -752,16 +737,15 @@ class cClinicalCalculator(object):
 			return result
 
 		heights = self.__patient.emr.get_most_recent_results_in_loinc_group(loincs = gmLOINC.LOINC_height, no_of_results = 1, consider_meta_loinc = True)
-		if heights is None:
-			result.variables['height'] = None
-		else:
-			result.variables['height'] = heights[0]
+		result.variables['height'] = heights[0] if len(heights) > 0 else None
 		if result.variables['height'] is None:
 			result.message = _('Body Surface Area: height not found')
 			return result
+
 		if result.variables['height']['val_num'] is None:
 			result.message = _('Body Surface Area: height not numeric')
 			return result
+
 		if result.variables['height']['val_unit'] == 'cm':
 			result.variables['height_cm'] = self.d(result.variables['height']['val_num'])
 		elif result.variables['height']['val_unit'] == 'mm':
@@ -780,9 +764,11 @@ class cClinicalCalculator(object):
 		if result.variables['weight'] is None:
 			result.message = _('Body Surface Area: weight not found')
 			return result
+
 		if result.variables['weight']['val_num'] is None:
 			result.message = _('Body Surface Area: weight not numeric')
 			return result
+
 		if result.variables['weight']['val_unit'] == 'kg':
 			result.variables['weight_kg'] = self.d(result.variables['weight']['val_num'])
 		elif result.variables['weight']['val_unit'] == 'g':
@@ -795,16 +781,13 @@ class cClinicalCalculator(object):
 			pow(result.variables['weight_kg'], self.d('0.425')) * \
 			pow(result.variables['height_cm'], self.d('0.725'))
 		result.unit = 'm²'
-
 		result.message = _('BSA (DuBois): %.2f %s') % (
 			result.numeric_value,
 			result.unit
 		)
 		result.date_valid = gmDateTime.pydt_now_here()
-
 		self.__cache['body_surface_area'] = result
 		_log.debug('%s' % result)
-
 		return result
 
 	body_surface_area = property(_get_body_surface_area, lambda x:x)
@@ -826,16 +809,15 @@ class cClinicalCalculator(object):
 			return result
 
 		heights = self.__patient.emr.get_most_recent_results_in_loinc_group(loincs = gmLOINC.LOINC_height, no_of_results = 1, consider_meta_loinc = True)
-		if heights is None:
-			result.variables['height'] = None
-		else:
-			result.variables['height'] = heights[0]
+		result.variables['height'] = heights[0] if len(heights) > 0 else None
 		if result.variables['height'] is None:
 			result.message = _('BMI: height not found')
 			return result
+
 		if result.variables['height']['val_num'] is None:
 			result.message = _('BMI: height not numeric')
 			return result
+
 		if result.variables['height']['val_unit'] == 'cm':
 			result.variables['height_m'] = self.d(result.variables['height']['val_num'] / self.d(100))
 		elif result.variables['height']['val_unit'] == 'mm':
@@ -934,10 +916,13 @@ if __name__ == "__main__":
 	from Gnumed.pycommon import gmLog2
 	#-----------------------------------------
 	def test_clin_calc():
-		from Gnumed.business.gmPraxis import gmCurrentPraxisBranch
-		praxis = gmCurrentPraxisBranch()
+		from Gnumed.business import gmPraxis
+		branches = gmPraxis.get_praxis_branches()
+		praxis = gmPraxis.gmCurrentPraxisBranch(branches[0])
+
 		from Gnumed.business.gmPerson import cPatient
-		pat = cPatient(aPK_obj = 12)
+		pat = cPatient(aPK_obj = 5)
+
 		calc = cClinicalCalculator(patient = pat)
 		#result = calc.eGFR_MDRD_short
 		#result = calc.eGFR_Schwartz

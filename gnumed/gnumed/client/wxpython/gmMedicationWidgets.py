@@ -405,7 +405,7 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 
 		# kidney function
 		gfrs = emr.get_most_recent_results_in_loinc_group(loincs = gmLOINC.LOINC_gfr_quantity, no_of_results = 1, consider_meta_loinc = True)
-		if gfrs is None:
+		if len(gfrs) == 0:
 			self.calc.patient = curr_pat
 			gfr = self.calc.eGFR
 			if gfr.numeric_value is None:
@@ -2061,7 +2061,7 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 		loincs2monitor_missing = loincs2monitor.copy()
 		for loinc in loincs2monitor:
 			results = emr.get_most_recent_results_in_loinc_group(loincs = [loinc], no_of_results = 1, consider_meta_loinc = True)
-			if results is None:
+			if len(results) == 0:
 				continue
 			loincs2monitor_missing.remove(loinc)
 			# make unique
@@ -2084,15 +2084,9 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 
 		# those need special treatment
 		gfrs = emr.get_most_recent_results_in_loinc_group(loincs = gmLOINC.LOINC_gfr_quantity, no_of_results = 1, consider_meta_loinc = True)
-		if gfrs is None:
-			gfr = None
-		else:
-			gfr = gfrs[0]
+		gfr = gfrs[0] if len(gfrs) > 0 else None
 		creas = emr.get_most_recent_results_in_loinc_group(loincs = gmLOINC.LOINC_creatinine_quantity, no_of_results = 1, consider_meta_loinc = True)
-		if creas is None:
-			crea = None
-		else:
-			crea = creas[0]
+		crea = creas[0] if len(creas) > 0 else None
 		edc = emr.EDC
 
 		# display EDC
@@ -2268,7 +2262,7 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 	#--------------------------------------------------------
 	def __refresh_gfr(self, patient):
 		gfrs = patient.emr.get_most_recent_results_in_loinc_group(loincs = gmLOINC.LOINC_gfr_quantity, no_of_results = 1, consider_meta_loinc = True)
-		if gfrs is None:
+		if len(gfrs) == 0:
 			calc = gmClinicalCalculator.cClinicalCalculator()
 			calc.patient = patient
 			gfr = calc.eGFR

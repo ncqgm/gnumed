@@ -174,13 +174,13 @@ class cTopPnl(wxgTopPnl.wxgTopPnl):
 		tests2show = []
 
 		rrs = self.curr_pat.emr.get_most_recent_results_in_loinc_group(loincs = gmLOINC.LOINC_rr_quantity, no_of_results = 1, consider_meta_loinc = True)
-		if rrs is None:
+		if len(rrs) == 0:
 			tests2show.append(_('RR ?'))
 		else:
 			tests2show.append(rrs[0]['unified_val'])
 
 		hrs = self.curr_pat.emr.get_most_recent_results_in_loinc_group(loincs = gmLOINC.LOINC_heart_rate_quantity, no_of_results = 1, consider_meta_loinc = True)
-		if hrs is not None:
+		if len(hrs) > 0:
 			tests2show.append('%s %s' % (hrs[0]['abbrev_tt'], hrs[0]['unified_val']))
 
 		bmi = self.curr_pat.emr.bmi
@@ -188,7 +188,7 @@ class cTopPnl(wxgTopPnl.wxgTopPnl):
 			tests2show.append(_('BMI %s') % bmi.numeric_value.quantize(decimal.Decimal('1.')))
 		else:
 			weights = self.curr_pat.emr.get_most_recent_results_in_loinc_group(loincs = gmLOINC.LOINC_weight, no_of_results = 1, consider_meta_loinc = True)
-			if weights is None:
+			if len(weights) == 0:
 				tests2show.append(_('BMI ?'))
 			else:
 				tests2show.append('%s%s' % (weights[0]['unified_val'], weights[0]['val_unit']))
@@ -210,7 +210,7 @@ class cTopPnl(wxgTopPnl.wxgTopPnl):
 				tests2show.append(_('EDC %s') % gmDateTime.pydt_strftime(edc, '%Y-%b-%d', accuracy = gmDateTime.acc_days))
 
 		inrs = self.curr_pat.emr.get_most_recent_results_in_loinc_group(loincs = gmLOINC.LOINC_inr_quantity, no_of_results = 1, consider_meta_loinc = True)
-		if inrs is not None:
+		if len(inrs) > 0:
 			tests2show.append('%s %s' % (inrs[0]['abbrev_tt'], inrs[0]['unified_val']))
 
 		# include panel if configured, only show if exist

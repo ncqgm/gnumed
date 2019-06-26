@@ -3054,15 +3054,9 @@ SELECT MIN(earliest) FROM (
 	#------------------------------------------------------------------
 	def _get_best_gfr_or_crea(self):
 		measured_gfrs = self.get_most_recent_results_in_loinc_group(loincs = gmLOINC.LOINC_gfr_quantity, no_of_results = 1, consider_meta_loinc = True)
-		if measured_gfrs is None:
-			measured_gfr = None
-		else:
-			measured_gfr = measured_gfrs[0]
+		measured_gfr = measured_gfrs[0] if len(measured_gfrs) > 0 else None
 		creas = self.get_most_recent_results_in_loinc_group(loincs = gmLOINC.LOINC_creatinine_quantity, no_of_results = 1, consider_meta_loinc = True)
-		if creas is None:
-			crea = None
-		else:
-			crea = creas[0]
+		crea = creas[0] if len(creas) > 0 else None
 
 		if (measured_gfr is None) and (crea is None):
 			return None
