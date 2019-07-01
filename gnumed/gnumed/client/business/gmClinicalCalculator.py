@@ -339,7 +339,7 @@ class cClinicalCalculator(object):
 			return result
 
 		# 2) creatinine
-		creas = self.__patient.emr.get_most_recent_results_in_loinc_group(loincs = gmLOINC.LOINC_creatinine_quantity, no_of_results = 1, consider_meta_loinc = True)
+		creas = self.__patient.emr.get_most_recent_results_in_loinc_group(loincs = gmLOINC.LOINC_creatinine_quantity, no_of_results = 1)
 		result.variables['serum_crea'] = creas[0] if len(creas) > 0 else None
 		if result.variables['serum_crea'] is None:
 			result.message = _('MDRD (4 vars/IDMS): serum creatinine value not found (LOINC: %s)') % gmLOINC.LOINC_creatinine_quantity
@@ -443,7 +443,7 @@ class cClinicalCalculator(object):
 			return result
 
 		# 2) creatinine
-		creas = self.__patient.emr.get_most_recent_results_in_loinc_group(loincs = gmLOINC.LOINC_creatinine_quantity, no_of_results = 1, consider_meta_loinc = True)
+		creas = self.__patient.emr.get_most_recent_results_in_loinc_group(loincs = gmLOINC.LOINC_creatinine_quantity, no_of_results = 1)
 		result.variables['serum_crea'] = creas[0] if len(creas) > 0 else None
 		if result.variables['serum_crea'] is None:
 			result.message = _('CKD-EPI: serum creatinine value not found (LOINC: %s)') % gmLOINC.LOINC_creatinine_quantity
@@ -534,7 +534,7 @@ class cClinicalCalculator(object):
 			return result
 
 		# 2) creatinine
-		creas = self.__patient.emr.get_most_recent_results_in_loinc_group(loincs = gmLOINC.LOINC_creatinine_quantity, no_of_results = 1, consider_meta_loinc = True)
+		creas = self.__patient.emr.get_most_recent_results_in_loinc_group(loincs = gmLOINC.LOINC_creatinine_quantity, no_of_results = 1)
 		result.variables['serum_crea'] = creas[0] if len(creas) > 0 else None
 		if result.variables['serum_crea'] is None:
 			result.message = _('Cockcroft-Gault: serum creatinine value not found (LOINC: %s)') % gmLOINC.LOINC_creatinine_quantity
@@ -571,7 +571,7 @@ class cClinicalCalculator(object):
 			result.message = _('Cockcroft-Gault: formula does not apply at age [%s] (17 < age)') % result.variables['age@crea']
 			return result
 
-		weights = self.__patient.emr.get_most_recent_results_in_loinc_group(loincs = gmLOINC.LOINC_weight, no_of_results = 1, consider_meta_loinc = True)
+		weights = self.__patient.emr.get_most_recent_results_in_loinc_group(loincs = gmLOINC.LOINC_weight, no_of_results = 1)
 		result.variables['weight'] = weights[0] if len(weights) > 0 else None
 		if result.variables['weight'] is None:
 			result.message = _('Cockcroft-Gault: weight not found')
@@ -636,7 +636,7 @@ class cClinicalCalculator(object):
 		result.variables['dob'] = self.__patient['dob']
 
 		# creatinine
-		creas = self.__patient.emr.get_most_recent_results_in_loinc_group(loincs = gmLOINC.LOINC_creatinine_quantity, no_of_results = 1, consider_meta_loinc = True)
+		creas = self.__patient.emr.get_most_recent_results_in_loinc_group(loincs = gmLOINC.LOINC_creatinine_quantity, no_of_results = 1)
 		result.variables['serum_crea'] = creas[0] if len(creas) > 0 else None
 		if result.variables['serum_crea'] is None:
 			result.message = _('eGFR (Schwartz): serum creatinine value not found (LOINC: %s') % gmLOINC.LOINC_creatinine_quantity
@@ -736,7 +736,7 @@ class cClinicalCalculator(object):
 			result.message = _('Body Surface Area: no patient')
 			return result
 
-		heights = self.__patient.emr.get_most_recent_results_in_loinc_group(loincs = gmLOINC.LOINC_height, no_of_results = 1, consider_meta_loinc = True)
+		heights = self.__patient.emr.get_most_recent_results_in_loinc_group(loincs = gmLOINC.LOINC_height, no_of_results = 1)
 		result.variables['height'] = heights[0] if len(heights) > 0 else None
 		if result.variables['height'] is None:
 			result.message = _('Body Surface Area: height not found')
@@ -808,7 +808,7 @@ class cClinicalCalculator(object):
 			result.message = _('BMI: no patient')
 			return result
 
-		heights = self.__patient.emr.get_most_recent_results_in_loinc_group(loincs = gmLOINC.LOINC_height, no_of_results = 1, consider_meta_loinc = True)
+		heights = self.__patient.emr.get_most_recent_results_in_loinc_group(loincs = gmLOINC.LOINC_height, no_of_results = 1)
 		result.variables['height'] = heights[0] if len(heights) > 0 else None
 		if result.variables['height'] is None:
 			result.message = _('BMI: height not found')
@@ -914,6 +914,7 @@ if __name__ == "__main__":
 		sys.exit()
 
 	from Gnumed.pycommon import gmLog2
+
 	#-----------------------------------------
 	def test_clin_calc():
 		from Gnumed.business import gmPraxis
@@ -921,7 +922,7 @@ if __name__ == "__main__":
 		praxis = gmPraxis.gmCurrentPraxisBranch(branches[0])
 
 		from Gnumed.business.gmPerson import cPatient
-		pat = cPatient(aPK_obj = 5)
+		pat = cPatient(aPK_obj = 201)
 
 		calc = cClinicalCalculator(patient = pat)
 		#result = calc.eGFR_MDRD_short
@@ -932,5 +933,6 @@ if __name__ == "__main__":
 		#result = calc.body_mass_index
 		#result = calc.eGFRs
 		print('%s' % result.format(with_formula = True, with_warnings = True, with_variables = True, with_sub_results = True))
+
 	#-----------------------------------------
 	test_clin_calc()

@@ -744,7 +744,6 @@ class cMeasurementType(gmBusinessDBObject.cBusinessDBObject):
 			no_of_results = no_of_results,
 			patient = patient
 			# ?
-			#, consider_meta_loinc = True
 		)
 
 	#--------------------------------------------------------
@@ -2267,7 +2266,7 @@ def get_results_for_episode(pk_episode=None):
 	return [ cTestResult(row = {'pk_field': 'pk_test_result', 'idx': idx, 'data': r}) for r in rows ]
 
 #------------------------------------------------------------
-def get_most_recent_results_in_loinc_group(loincs=None, no_of_results=1, patient=None, consider_meta_loinc=False, max_age=None, consider_indirect_matches=False):
+def get_most_recent_results_in_loinc_group(loincs=None, no_of_results=1, patient=None, max_age=None, consider_indirect_matches=False):
 	"""Get N most recent results *among* a list of tests selected by LOINC.
 
 		1) get test types with LOINC (or meta type LOINC) in the group of <loincs>
@@ -2285,44 +2284,20 @@ def get_most_recent_results_in_loinc_group(loincs=None, no_of_results=1, patient
 	else:
 		max_age_cond = 'AND clin_when > (now() - %(max_age)s::interval)'
 		args['max_age'] = max_age
-
-	if consider_meta_loinc:
-		rank_order = '_rank ASC'
-	else:
-		rank_order = '_rank DESC'
-
 	cmd = """
-	SELECT DISTINCT ON (pk_test_type) * FROM (
-		(	-- get results for meta type loincs
-			SELECT *, 1 AS _rank
+		SELECT * FROM (
+			SELECT DISTINCT ON (pk_test_result) *
 			FROM clin.v_test_results
 			WHERE
 				pk_patient = %%(pat)s
 					AND
-				loinc_meta IN %%(loincs)s
+				unified_loinc IN %%(loincs)s
 				%s
-		-- no use weeding out duplicates by UNION-only, because _rank will make them unique anyway
-		) UNION ALL (
-			-- get results for direct loincs
-			SELECT *, 2 AS _rank
-			FROM clin.v_test_results
-			WHERE
-				pk_patient = %%(pat)s
-					AND
-				loinc_tt IN %%(loincs)s
-				%s
-		)
+		) AS distinct_results
 		ORDER BY
-			-- all of them by most-recent
-			clin_when DESC,
-			-- then by rank-of meta vs direct
-			%s
-	) AS ordered_results
-	-- then return only what's needed
-	LIMIT %s""" % (
+			clin_when DESC
+		LIMIT %s""" % (
 		max_age_cond,
-		max_age_cond,
-		rank_order,
 		no_of_results
 	)
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
@@ -2401,7 +2376,63 @@ def get_most_recent_results_for_test_type(test_type=None, no_of_results=1, patie
 	return [ cTestResult(row = {'pk_field': 'pk_test_result', 'idx': idx, 'data': r}) for r in rows ]
 
 #------------------------------------------------------------
-def get_most_recent_result_for_test_types(pk_test_types=None, pk_patient=None, return_pks=False, consider_meta_type=False):
+_SQL_most_recent_result_for_test_types = """
+-- return the one most recent result for each of a list of test types
+-- without regard to whether they belong to a meta test type
+SELECT * FROM (
+	SELECT
+		*,
+		MIN(clin_when) OVER relevant_tests AS min_clin_when
+	FROM
+		clin.v_test_results
+	WHERE
+		%s
+	WINDOW relevant_tests AS (PARTITION BY pk_patient, pk_test_type)
+) AS windowed_tests
+WHERE
+	clin_when = min_clin_when
+%s
+"""
+
+_SQL_most_recent_result_for_test_types_without_meta_type = """
+-- return the one most recent result for each of a list of test types
+-- none of which may belong to a meta test type
+SELECT * FROM (
+	SELECT
+		*,
+		MIN(clin_when) OVER relevant_tests AS min_clin_when
+	FROM
+		clin.v_test_results
+	WHERE
+		pk_meta_test_type IS NULL
+			AND
+		%s
+	WINDOW relevant_tests AS (PARTITION BY pk_patient, pk_test_type)
+) AS windowed_tests
+WHERE
+	clin_when = min_clin_when
+"""
+
+_SQL_most_recent_result_for_test_types_by_meta_type = """
+-- return the one most recent result for each of a list of meta test types
+-- derived from a list of test types
+SELECT * FROM (
+	SELECT
+		*,
+		MIN(clin_when) OVER relevant_tests AS min_clin_when
+	FROM
+		clin.v_test_results
+	WHERE
+		pk_meta_test_type IS NOT NULL
+			AND
+		%s
+	WINDOW relevant_tests AS (PARTITION BY pk_patient, pk_meta_test_type)
+) AS windowed_tests
+WHERE
+	clin_when = min_clin_when
+"""
+
+def get_most_recent_result_for_test_types(pk_test_types=None, pk_patient=None, return_pks=False, consider_meta_type=False, order_by=None):
 	"""Return the one most recent result for *each* of a list of test types."""
 
 	where_parts = ['pk_patient = %(pat)s']
@@ -2411,28 +2442,19 @@ def get_most_recent_result_for_test_types(pk_test_types=None, pk_patient=None, r
 		where_parts.append('pk_test_type IN %(ttyps)s')
 		args['ttyps'] = tuple(pk_test_types)
 
-	if consider_meta_type:
-		partition = 'PARTITION BY pk_patient, pk_meta_test_type'
-	else:
-		partition = 'PARTITION BY pk_patient, pk_test_type'
+	order_by = 'ORDER BY clin_when DESC' if order_by is None else 'ORDER BY %s' % order_by
 
-	cmd = """
-		SELECT * FROM (
-			SELECT
-				*,
-				MIN(clin_when) OVER relevant_tests AS min_clin_when
-			FROM
-				clin.v_test_results
-			WHERE
-				%s
-			WINDOW relevant_tests AS (%s)
-		) AS windowed_tests
-		WHERE
-			clin_when = min_clin_when
-	""" % (
-		' AND '.join(where_parts),
-		partition
-	)
+	if consider_meta_type:
+		cmd = 'SELECT * FROM ((%s) UNION ALL (%s)) AS result_union %s' % (
+			_SQL_most_recent_result_for_test_types_without_meta_type % ' AND '.join(where_parts),
+			_SQL_most_recent_result_for_test_types_by_meta_type % ' AND '.join(where_parts),
+			order_by
+		)
+	else:
+		cmd = _SQL_most_recent_result_for_test_types % (
+			' AND '.join(where_parts),
+			order_by
+		)
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 	if return_pks:
 		return [ r['pk_test_result'] for r in rows ]
@@ -3413,28 +3435,29 @@ if __name__ == '__main__':
 			#loincs = [u'pseudo LOINC [C-reactive protein (EML)::9] (v21->v22 test panel conversion)'],
 			#loincs = ['8867-4'],
 			loincs = ['2160-0', '14682-9', '40264-4', '40248-7'],
-			no_of_results = 2,
-			patient = 5,
-			consider_meta_loinc = True,
-			#consider_meta_loinc = False,
-			consider_indirect_matches = True
+			no_of_results = 6,
+			patient = 201,
+			consider_indirect_matches = False
 		)
 		for t in most_recent:
+			print(t['loinc_tt'], t['loinc_meta'], t['unified_loinc'])
 			if t['pk_meta_test_type'] is None:
 				print("---- standalone ----")
 			else:
 				print("---- meta ----")
 			print(t.format())
+			input('next')
+
+		return
 
 		most_recent = get_most_recent_results_in_loinc_group (
 			#loincs = [u'pseudo LOINC [C-reactive protein (EML)::9] (v21->v22 test panel conversion)'],
 			#loincs = ['8867-4'],
 			loincs = ['2160-0', '14682-9', '40264-4', '40248-7'],
 			no_of_results = 2,
-			patient = 5,
-			consider_meta_loinc = True,
-			#consider_meta_loinc = False,
+			patient = 201,
 			consider_indirect_matches = False
+			#consider_indirect_matches = True
 		)
 		for t in most_recent:
 			if t['pk_meta_test_type'] is None:

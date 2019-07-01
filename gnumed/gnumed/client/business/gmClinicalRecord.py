@@ -2786,12 +2786,12 @@ SELECT MIN(earliest) FROM (
 		)
 
 	#------------------------------------------------------------------
-	def get_most_recent_results_in_loinc_group(self, loincs=None, no_of_results=1, consider_meta_loinc=False):
+	def get_most_recent_results_in_loinc_group(self, loincs=None, no_of_results=1, consider_indirect_matches=False):
 		return gmPathLab.get_most_recent_results_in_loinc_group (
 			loincs = loincs,
 			no_of_results = no_of_results,
-			consider_meta_loinc = consider_meta_loinc,
-			patient = self.pk_patient
+			patient = self.pk_patient,
+			consider_indirect_matches = consider_indirect_matches
 		)
 
 	#------------------------------------------------------------------
@@ -3053,9 +3053,9 @@ SELECT MIN(earliest) FROM (
 
 	#------------------------------------------------------------------
 	def _get_best_gfr_or_crea(self):
-		measured_gfrs = self.get_most_recent_results_in_loinc_group(loincs = gmLOINC.LOINC_gfr_quantity, no_of_results = 1, consider_meta_loinc = True)
+		measured_gfrs = self.get_most_recent_results_in_loinc_group(loincs = gmLOINC.LOINC_gfr_quantity, no_of_results = 1)
 		measured_gfr = measured_gfrs[0] if len(measured_gfrs) > 0 else None
-		creas = self.get_most_recent_results_in_loinc_group(loincs = gmLOINC.LOINC_creatinine_quantity, no_of_results = 1, consider_meta_loinc = True)
+		creas = self.get_most_recent_results_in_loinc_group(loincs = gmLOINC.LOINC_creatinine_quantity, no_of_results = 1)
 		crea = creas[0] if len(creas) > 0 else None
 
 		if (measured_gfr is None) and (crea is None):

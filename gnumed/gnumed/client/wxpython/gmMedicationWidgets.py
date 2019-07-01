@@ -404,7 +404,7 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 		del abuses
 
 		# kidney function
-		gfrs = emr.get_most_recent_results_in_loinc_group(loincs = gmLOINC.LOINC_gfr_quantity, no_of_results = 1, consider_meta_loinc = True)
+		gfrs = emr.get_most_recent_results_in_loinc_group(loincs = gmLOINC.LOINC_gfr_quantity, no_of_results = 1)
 		if len(gfrs) == 0:
 			self.calc.patient = curr_pat
 			gfr = self.calc.eGFR
@@ -2060,7 +2060,7 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 						loinc_max_age_str[l['loinc']] = l['max_age_str']
 		loincs2monitor_missing = loincs2monitor.copy()
 		for loinc in loincs2monitor:
-			results = emr.get_most_recent_results_in_loinc_group(loincs = [loinc], no_of_results = 1, consider_meta_loinc = True)
+			results = emr.get_most_recent_results_in_loinc_group(loincs = [loinc], no_of_results = 1)
 			if len(results) == 0:
 				continue
 			loincs2monitor_missing.remove(loinc)
@@ -2083,9 +2083,9 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 				most_recent_results[result['pk_test_result']] = result
 
 		# those need special treatment
-		gfrs = emr.get_most_recent_results_in_loinc_group(loincs = gmLOINC.LOINC_gfr_quantity, no_of_results = 1, consider_meta_loinc = True)
+		gfrs = emr.get_most_recent_results_in_loinc_group(loincs = gmLOINC.LOINC_gfr_quantity, no_of_results = 1)
 		gfr = gfrs[0] if len(gfrs) > 0 else None
-		creas = emr.get_most_recent_results_in_loinc_group(loincs = gmLOINC.LOINC_creatinine_quantity, no_of_results = 1, consider_meta_loinc = True)
+		creas = emr.get_most_recent_results_in_loinc_group(loincs = gmLOINC.LOINC_creatinine_quantity, no_of_results = 1)
 		crea = creas[0] if len(creas) > 0 else None
 		edc = emr.EDC
 
@@ -2261,7 +2261,7 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 
 	#--------------------------------------------------------
 	def __refresh_gfr(self, patient):
-		gfrs = patient.emr.get_most_recent_results_in_loinc_group(loincs = gmLOINC.LOINC_gfr_quantity, no_of_results = 1, consider_meta_loinc = True)
+		gfrs = patient.emr.get_most_recent_results_in_loinc_group(loincs = gmLOINC.LOINC_gfr_quantity, no_of_results = 1)
 		if len(gfrs) == 0:
 			calc = gmClinicalCalculator.cClinicalCalculator()
 			calc.patient = patient
