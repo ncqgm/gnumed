@@ -3305,13 +3305,14 @@ class cStatusBar(wx.StatusBar):
 		st = time.strftime('%Y %b %d  %H:%M:%S', t)
 		self.SetStatusText(st, 1)
 		if self.__times_to_blink > 0:
-			wx.CallAfter(self.__blink)	# this still seems to hang wxGTK ...
+			self.__perhaps_blink()
 
 	#----------------------------------------------
-	def __blink(self):
-		if self.__blink_counter == self.__times_to_blink:
+	def __perhaps_blink(self):
+		if self.__blink_counter > self.__times_to_blink:
 			self.set_normal_color()
 			self.__times_to_blink = 0
+			self.__blink_counter = 0
 			return
 
 		if self.SetBackgroundColour(self.__blink_background_color):
