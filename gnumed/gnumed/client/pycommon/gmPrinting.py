@@ -240,7 +240,6 @@ def _print_files_by_shellscript(filenames=None, jobtype=None, verbose=False):
 
 	paths = gmTools.gmPaths()
 	local_script = os.path.join(paths.local_base_dir, '..', 'external-tools', 'gm-print_doc')
-	#candidates = [u'gm-print_doc', u'gm-print_doc.bat', local_script, u'gm-print_doc.bat']
 	candidates = ['gm-print_doc', local_script, 'gm-print_doc.bat']
 	found, binary = gmShellAPI.find_first_binary(binaries = candidates)
 	if not found:

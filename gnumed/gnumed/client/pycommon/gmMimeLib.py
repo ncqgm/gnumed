@@ -310,7 +310,8 @@ def __run_file_describer(filename=None):
 			stdout = subprocess.PIPE,
 			stderr = subprocess.PIPE,
 			#timeout = timeout,
-			encoding = 'utf8'
+			encoding = 'utf8',
+			errors = 'backslashreplace'
 		)
 	except (subprocess.TimeoutExpired, FileNotFoundError):
 		_log.exception('there was a problem running external process')
