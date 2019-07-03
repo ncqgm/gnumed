@@ -349,7 +349,7 @@ class cTextCtrl(gmKeywordExpansionWidgets.cKeywordExpansion_TextCtrlMixin, cText
 # expando based text ctrl classes
 #============================================================
 class cExpandoTextCtrlHandling_PanelMixin():
-	"""Mixin for panels wishing to handel expand text ctrls within themselves.
+	"""Mixin for panels wishing to handel expando text ctrls within themselves.
 
 	Panels using this mixin will need to call
 
@@ -360,16 +360,13 @@ class cExpandoTextCtrlHandling_PanelMixin():
 	#--------------------------------------------------------
 	def bind_expando_layout_event(self, expando):
 		self.Bind(wx.lib.expando.EVT_ETC_LAYOUT_NEEDED, self._on_expando_needs_layout)
-		#wx.lib.expando.EVT_ETC_LAYOUT_NEEDED(expando, expando.GetId(), self._on_expando_needs_layout)
 
 	#--------------------------------------------------------
 	def _on_expando_needs_layout(self, evt):
 		# need to tell ourselves to re-Layout to refresh scroll bars
-
 		# provoke adding scrollbar if needed
 		#self.Fit()				# works on Linux but not on Windows
 		self.FitInside()		# needed on Windows rather than self.Fit()
-
 		if self.HasScrollbar(wx.VERTICAL):
 			# scroll panel to show cursor
 			expando = self.FindWindowById(evt.GetId())
@@ -382,21 +379,17 @@ class cExpandoTextCtrlHandling_PanelMixin():
 				no_of_lines = expando.NumberOfLines
 			y_cursor = int(round((float(line_of_cursor) / no_of_lines) * h_expando))
 			y_desired_visible = y_expando + y_cursor
-
-			y_view = self.ViewStart[1]
+			y_view = self.GetViewStart()[1]
 			h_view = self.GetClientSize()[1]
-
 #			print "expando:", y_expando, "->", h_expando, ", lines:", expando.NumberOfLines
 #			print "cursor :", y_cursor, "at line", line_of_cursor, ", insertion point:", expando.GetInsertionPoint()
 #			print "wanted :", y_desired_visible
 #			print "view-y :", y_view
 #			print "scroll2:", h_view
-
 			# expando starts before view
 			if y_desired_visible < y_view:
 #				print "need to scroll up"
 				self.Scroll(0, y_desired_visible)
-
 			if y_desired_visible > h_view:
 #				print "need to scroll down"
 				self.Scroll(0, y_desired_visible)
