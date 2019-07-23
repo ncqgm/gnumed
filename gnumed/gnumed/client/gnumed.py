@@ -360,10 +360,19 @@ def log_startup_info():
 		_log.info('lsb_release: %s', lsb_release.get_distro_information())
 	except ImportError:
 		pass
+	_log.info('threading: %s', sys.thread_info)
 	_log.info('os.getcwd(): [%s]', os.getcwd())
 	_log.info('process environment:')
 	for key, val in os.environ.items():
 		_log.info(' %s: %s' % (('${%s}' % key).rjust(30),	val))
+	import sysconfig
+	_log.info('sysconfig - platform [%s] python version [%s]:', sysconfig.get_platform(), sysconfig.get_python_version())
+	paths = sysconfig.get_paths()
+	for path in paths:
+		_log.info(' %s: %s', path.rjust(30), paths[path])
+	conf_vars = sysconfig.get_config_vars()
+	for var in conf_vars:
+		_log.info(' %s: %s', var.rjust(40), conf_vars[var])
 
 #==========================================================
 def setup_console_exception_handler():
