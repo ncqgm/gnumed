@@ -2095,17 +2095,22 @@ class cMeasurementsGrid(wx.grid.Grid):
 			col_date = self.__col_label_data[col]
 			fields[u'clin_when'] = {'data': col_date}
 			test_type = self.__row_label_data[row]
-			temporally_closest_result_of_row_type = test_type.meta_test_type.get_temporally_closest_result(col_date, self.__patient.ID)
-			if temporally_closest_result_of_row_type is not None:
-				fields[u'pk_test_type'] = {'data': temporally_closest_result_of_row_type['pk_test_type']}
+			if test_type['pk_meta_test_type'] is not None:
+				temporally_closest_result_of_row_type = test_type.meta_test_type.get_temporally_closest_result(col_date, self.__patient.ID)
+				if temporally_closest_result_of_row_type is not None:
+					# pre-set test type field to test type of
+					# "temporally most adjacent" existing result :-)
+					fields[u'pk_test_type'] = {'data': temporally_closest_result_of_row_type['pk_test_type']}
 			same_day_results = gmPathLab.get_results_for_day (
 				timestamp = col_date,
 				patient = self.__patient.ID,
 				order_by = None
 			)
 			if len(same_day_results) > 0:
+				# pre-set episode field to episode of
+				# existing results on the day in question
 				fields[u'pk_episode'] = {'data': same_day_results[0]['pk_episode']}
-				# maybe ['comment'] as in "medical context" ? - not thought through yet
+			# maybe ['comment'] as in "medical context" ? - not thought through yet
 			# no need to set because because setting pk_test_type will do so:
 			#	fields['val_unit']
 			#	fields['val_normal_min']
