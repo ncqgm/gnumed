@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-05-19 15:12+0200\n"
+"POT-Creation-Date: 2019-07-28 16:40+0200\n"
 "PO-Revision-Date: 2012-06-01 01:22+0000\n"
 "Last-Translator: ncq <Unknown>\n"
 "Language-Team: GNUmed\n"
@@ -8943,47 +8943,6 @@ msgstr "risultato corretto"
 msgid "missing, reported later"
 msgstr "mancante, riportato in seguito"
 
-#, fuzzy
-msgid "External care"
-msgstr "Codice esterno"
-
-msgid "Vaccination"
-msgstr "Vaccinazione"
-
-#, fuzzy
-msgid "Clinical narrative"
-msgstr "Clinico"
-
-#, fuzzy
-msgid "Test result"
-msgstr "Risultati del test"
-
-#, fuzzy
-msgid "Substance intake"
-msgstr "Sostanza"
-
-#, fuzzy
-msgid "Hospital stay"
-msgstr "Ospedale"
-
-#, fuzzy
-msgid "Performed procedure"
-msgstr ""
-" %s interventi effettuati\n"
-"\n"
-
-#, fuzzy
-msgid "Family history"
-msgstr "Storia familiare"
-
-#, fuzzy
-msgid "Inbox message"
-msgstr "Modifica nome"
-
-#, python-format
-msgid "unmapped entry type from table [%s]"
-msgstr ""
-
 #, fuzzy, python-format
 msgid "cannot instantiate clinical root item <%s(%s)>"
 msgstr "non posso attivare il paziente [%s] (%s/%s)"
@@ -9140,6 +9099,10 @@ msgstr "Vaccinazioni"
 #, python-format
 msgid "%s ago"
 msgstr ""
+
+#, fuzzy
+msgid "External care"
+msgstr "Codice esterno"
 
 #, fuzzy
 msgid "Allergies/Intolerances"
@@ -9312,6 +9275,73 @@ msgid ""
 "%(praxis)s"
 msgstr ""
 
+msgid "Vaccination"
+msgstr "Vaccinazione"
+
+#, fuzzy
+msgid "Progress note"
+msgstr "Progressi, note"
+
+#, fuzzy
+msgid "Test result"
+msgstr "Risultati del test"
+
+#, fuzzy
+msgid "Substance intake"
+msgstr "Sostanza"
+
+#, fuzzy
+msgid "Hospital stay"
+msgstr "Ospedale"
+
+#, fuzzy
+msgid "Performed procedure"
+msgstr ""
+" %s interventi effettuati\n"
+"\n"
+
+#, fuzzy
+msgid "Family history"
+msgstr "Storia familiare"
+
+#, fuzzy
+msgid "Inbox message"
+msgstr "Modifica nome"
+
+#, python-format
+msgid "                        rev %s (%s) by %s in <%s>"
+msgstr ""
+
+#, python-format
+msgid "Chart entry (%s): %s       [#%s in %s]"
+msgstr ""
+
+#, fuzzy, python-format
+msgid " Modified: %s by %s (%s rev %s)"
+msgstr "Ultima modifica:"
+
+#, fuzzy, python-format
+msgid "Health issue: %s"
+msgstr "problema di salute: %s"
+
+msgid "open"
+msgstr ""
+
+msgid "closed"
+msgstr "chiuso"
+
+#, fuzzy, python-format
+msgid "Episode: %s"
+msgstr "Episodio %s%s%s [#%s]"
+
+#, fuzzy, python-format
+msgid "Encounter: %s"
+msgstr "Incontro:"
+
+#, python-format
+msgid "unmapped entry type from table [%s]"
+msgstr ""
+
 #, python-format
 msgid ""
 "%s: %s by %.8s (v%s)\n"
@@ -9327,10 +9357,6 @@ msgstr ""
 #, fuzzy, python-format
 msgid "Issue: %s"
 msgstr "Emittente"
-
-#, fuzzy, python-format
-msgid "Health issue: %s"
-msgstr "problema di salute: %s"
 
 msgid "also treated here"
 msgstr ""
@@ -9769,6 +9795,10 @@ msgstr "%s%7s %s: %s (%s parte(i), %s)"
 #, fuzzy, python-format
 msgid " Filename: %s%s\n"
 msgstr "Nome del file"
+
+#, fuzzy
+msgid "problem downloading document part"
+msgstr "Cancella documento"
 
 #, fuzzy
 msgid "no parts"
@@ -10506,9 +10536,6 @@ msgstr "Non ci sono episodi per questo problema di salute."
 msgid "Episodes: %s (most recent: %s%s%s)"
 msgstr "Episodi: %s (il più recente: %s%s%s)"
 
-msgid "closed"
-msgstr "chiuso"
-
 msgid "No encounters found for this health issue."
 msgstr "Nessun appuntamento trovato per questo problema di salute."
 
@@ -11166,7 +11193,49 @@ msgstr ""
 msgid "Editing progress note"
 msgstr ""
 
-msgid "This is the original progress note:"
+#, fuzzy
+msgid "Your original progress note:"
+msgstr "progressi, note"
+
+#, python-format
+msgid ""
+"Original progress note by %s [%s]\n"
+"(will be notified of changes):"
+msgstr ""
+
+#, python-format
+msgid ""
+"Original progress note written by someone else:\n"
+"\n"
+" %s (%s)\n"
+"\n"
+"Upon saving changes that person will be notified.\n"
+"\n"
+"Consider saving as a new progress note instead."
+msgstr ""
+
+#, fuzzy
+msgid "Save changes"
+msgstr "&Salva"
+
+#, fuzzy
+msgid "Save new note"
+msgstr "Incomincia una nuova consultazione"
+
+#, fuzzy
+msgid "Change notification"
+msgstr "Indicazione"
+
+msgid "A progress note of yours has been edited."
+msgstr ""
+
+#, python-format
+msgid ""
+"Original (by [%s]):\n"
+"%s\n"
+"\n"
+"Edited (by [%s]):\n"
+"%s"
 msgstr ""
 
 msgid "Cannot move progress notes. No active patient."
@@ -11201,6 +11270,9 @@ msgid "Yes, delete the progress note."
 msgstr ""
 
 msgid "No, do NOT delete the progress note."
+msgstr ""
+
+msgid "This is the original progress note:"
 msgstr ""
 
 msgid "Managing progress notes"
@@ -11337,9 +11409,6 @@ msgstr ""
 #, fuzzy
 msgid "No narrative available for selected episode."
 msgstr "Sposta il resoconto in un altro episodio"
-
-msgid "open"
-msgstr ""
 
 #, fuzzy
 msgid ""
@@ -16998,13 +17067,6 @@ msgstr "Il tuo esame"
 msgid "part %2s"
 msgstr "parte %2s"
 
-#, fuzzy, python-format
-msgid "invalid document tree node data type: %s"
-msgstr ""
-"Non posso creare il nuovo paziente:\n"
-"\n"
-" [%s %s (%s), %s]"
-
 msgid "Activate as current photo"
 msgstr "Attiva come foto attuale"
 
@@ -18360,18 +18422,36 @@ msgid "View the reference for menu items on the web."
 msgstr ""
 
 #, fuzzy
-msgid "&Clear status line"
-msgstr "&Cancella query"
-
-msgid "Clear out the status line."
-msgstr ""
-
-#, fuzzy
 msgid "Browse work dir"
 msgstr "Unire i pazienti"
 
 #, python-format
 msgid "Browse user working directory [%s]."
+msgstr ""
+
+msgid "Status line: &Clear"
+msgstr ""
+
+#, fuzzy
+msgid "Clear the status line."
+msgstr "&Cancella query"
+
+msgid "Status line: History"
+msgstr ""
+
+msgid "Show status line history."
+msgstr ""
+
+msgid "Tooltips on"
+msgstr ""
+
+msgid "Globally enable tooltips."
+msgstr ""
+
+msgid "Tooltips off"
+msgstr ""
+
+msgid "Globally (attempt to) disable tooltips."
 msgstr ""
 
 msgid "Screenshot"
@@ -20711,13 +20791,6 @@ msgstr ""
 msgid "Primary provider in this praxis"
 msgstr ""
 
-#, python-format
-msgid "Pool of unassociated episodes \"%s\":\n"
-msgstr ""
-
-msgid " Listing of unassociated episodes\n"
-msgstr ""
-
 #, fuzzy
 msgid "EMR Actions:"
 msgstr "Rezione"
@@ -20798,14 +20871,19 @@ msgstr "Incontro:"
 msgid "Move data to another episode"
 msgstr "Sposta i dati a un altro episodio"
 
-msgid "Edit progress notes"
-msgstr ""
-
 msgid "Move progress notes"
 msgstr ""
 
 msgid "Export for Medistar"
 msgstr ""
+
+#, fuzzy
+msgid "Item Actions:"
+msgstr "Episodio %s"
+
+#, fuzzy
+msgid "Edit item"
+msgstr "Modifica Elemento"
 
 msgid "Deleting episode"
 msgstr "Cancellazione episodio"
@@ -20833,6 +20911,24 @@ msgstr ""
 "Impossibile cancellare episodio. Ci sono ancora dati clinici corrispondenti "
 "registrati."
 
+msgid "ongoing episode"
+msgstr ""
+
+msgid "closed episode"
+msgstr ""
+
+#, python-format
+msgid "RFE: %s"
+msgstr ""
+
+#, python-format
+msgid "AOE: %s"
+msgstr ""
+
+#, fuzzy, python-format
+msgid "Cannot edit \"%s\"."
+msgstr "non posso attivare il paziente [%s] (%s/%s)"
+
 msgid "Deleting health issue"
 msgstr ""
 
@@ -20853,20 +20949,6 @@ msgid ""
 "Cannot delete health issue. There is still clinical data recorded for it."
 msgstr ""
 
-#, python-format
-msgid "RFE: %s"
-msgstr ""
-
-#, python-format
-msgid "AOE: %s"
-msgstr ""
-
-msgid "ongoing episode"
-msgstr ""
-
-msgid "closed episode"
-msgstr ""
-
 msgid ""
 "*** CONFIDENTIAL ***\n"
 "\n"
@@ -20877,6 +20959,13 @@ msgstr ""
 
 #, python-format
 msgid "Grouping: %s"
+msgstr ""
+
+#, python-format
+msgid "Pool of unassociated episodes \"%s\":\n"
+msgstr ""
+
+msgid " Listing of unassociated episodes\n"
 msgstr ""
 
 #, python-format
@@ -21973,6 +22062,17 @@ msgstr "Annulla"
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Annulla e NON connetti a GNUmed"
+
+#, fuzzy
+#~ msgid "Clinical narrative"
+#~ msgstr "Clinico"
+
+#, fuzzy
+#~ msgid "invalid document tree node data type: %s"
+#~ msgstr ""
+#~ "Non posso creare il nuovo paziente:\n"
+#~ "\n"
+#~ " [%s %s (%s), %s]"
 
 #, fuzzy
 #~ msgid "Revision #%s"

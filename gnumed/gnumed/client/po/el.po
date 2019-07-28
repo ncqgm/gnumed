@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-05-19 15:12+0200\n"
+"POT-Creation-Date: 2019-07-28 16:40+0200\n"
 "PO-Revision-Date: 2012-06-01 01:24+0000\n"
 "Last-Translator: ncq <Unknown>\n"
 "Language-Team: Ελληνικά, Σύγχρονα <opensuse-translation-el@opensuse.org>\n"
@@ -9293,47 +9293,6 @@ msgstr "διορθωμένο αποτέλεσμα"
 msgid "missing, reported later"
 msgstr "λείπει, ανέφερε αργότερα"
 
-#, fuzzy
-msgid "External care"
-msgstr "ID εξωτερικού ασθενούς"
-
-msgid "Vaccination"
-msgstr "Εμβολιασμός"
-
-#, fuzzy
-msgid "Clinical narrative"
-msgstr "Κλινικά"
-
-#, fuzzy
-msgid "Test result"
-msgstr "Αποτελέσματα της εξέτασης"
-
-#, fuzzy
-msgid "Substance intake"
-msgstr "Ουσία"
-
-#, fuzzy
-msgid "Hospital stay"
-msgstr "Νοσοκομείο"
-
-#, fuzzy
-msgid "Performed procedure"
-msgstr ""
-" %s εκτελεσμένες επεμβάσεις\n"
-"\n"
-
-#, fuzzy
-msgid "Family history"
-msgstr "Οικογενειακό Ιστορικό"
-
-#, fuzzy
-msgid "Inbox message"
-msgstr "Μήνυμα γενικής πληροφορίας"
-
-#, python-format
-msgid "unmapped entry type from table [%s]"
-msgstr ""
-
 #, python-format
 msgid "cannot instantiate clinical root item <%s(%s)>"
 msgstr ""
@@ -9486,6 +9445,10 @@ msgstr "Εμβολιασμοί"
 #, python-format
 msgid "%s ago"
 msgstr ""
+
+#, fuzzy
+msgid "External care"
+msgstr "ID εξωτερικού ασθενούς"
 
 #, fuzzy
 msgid "Allergies/Intolerances"
@@ -9657,6 +9620,73 @@ msgid ""
 "%(praxis)s"
 msgstr ""
 
+msgid "Vaccination"
+msgstr "Εμβολιασμός"
+
+#, fuzzy
+msgid "Progress note"
+msgstr "Σημειώσεις προόδου"
+
+#, fuzzy
+msgid "Test result"
+msgstr "Αποτελέσματα της εξέτασης"
+
+#, fuzzy
+msgid "Substance intake"
+msgstr "Ουσία"
+
+#, fuzzy
+msgid "Hospital stay"
+msgstr "Νοσοκομείο"
+
+#, fuzzy
+msgid "Performed procedure"
+msgstr ""
+" %s εκτελεσμένες επεμβάσεις\n"
+"\n"
+
+#, fuzzy
+msgid "Family history"
+msgstr "Οικογενειακό Ιστορικό"
+
+#, fuzzy
+msgid "Inbox message"
+msgstr "Μήνυμα γενικής πληροφορίας"
+
+#, python-format
+msgid "                        rev %s (%s) by %s in <%s>"
+msgstr ""
+
+#, python-format
+msgid "Chart entry (%s): %s       [#%s in %s]"
+msgstr ""
+
+#, fuzzy, python-format
+msgid " Modified: %s by %s (%s rev %s)"
+msgstr "Τελευταία τροποποίηση:"
+
+#, fuzzy, python-format
+msgid "Health issue: %s"
+msgstr "θέμα υγείας:%s"
+
+msgid "open"
+msgstr ""
+
+msgid "closed"
+msgstr "έχει κλείσει"
+
+#, fuzzy, python-format
+msgid "Episode: %s"
+msgstr "Επεισόδια %s%s%s [#%s]"
+
+#, fuzzy, python-format
+msgid "Encounter: %s"
+msgstr "Συνεδρία:"
+
+#, python-format
+msgid "unmapped entry type from table [%s]"
+msgstr ""
+
 #, python-format
 msgid ""
 "%s: %s by %.8s (v%s)\n"
@@ -9672,10 +9702,6 @@ msgstr " Όνομα: %s (%s)%s #%s\n"
 #, fuzzy, python-format
 msgid "Issue: %s"
 msgstr "Μήνυμα: %s"
-
-#, fuzzy, python-format
-msgid "Health issue: %s"
-msgstr "θέμα υγείας:%s"
 
 msgid "also treated here"
 msgstr ""
@@ -10116,6 +10142,10 @@ msgstr ""
 #, fuzzy, python-format
 msgid " Filename: %s%s\n"
 msgstr "Όνομα αρχείου"
+
+#, fuzzy
+msgid "problem downloading document part"
+msgstr "Διαγραφή περιγραφής αρχείου"
 
 #, fuzzy
 msgid "no parts"
@@ -10856,9 +10886,6 @@ msgstr "Δεν υπάρχουν επεισόδια για αυτό το θέμα
 msgid "Episodes: %s (most recent: %s%s%s)"
 msgstr "Επεισόδια:%s(πιο πρόσφατο:%s%s%s)"
 
-msgid "closed"
-msgstr "έχει κλείσει"
-
 msgid "No encounters found for this health issue."
 msgstr "Δεν βρέθηκαν συνεδρίες για αυτό το θέμα υγείας."
 
@@ -11509,7 +11536,49 @@ msgstr ""
 msgid "Editing progress note"
 msgstr ""
 
-msgid "This is the original progress note:"
+#, fuzzy
+msgid "Your original progress note:"
+msgstr "σημειώσεις προόδου"
+
+#, python-format
+msgid ""
+"Original progress note by %s [%s]\n"
+"(will be notified of changes):"
+msgstr ""
+
+#, python-format
+msgid ""
+"Original progress note written by someone else:\n"
+"\n"
+" %s (%s)\n"
+"\n"
+"Upon saving changes that person will be notified.\n"
+"\n"
+"Consider saving as a new progress note instead."
+msgstr ""
+
+#, fuzzy
+msgid "Save changes"
+msgstr "&Αποθήκευση"
+
+#, fuzzy
+msgid "Save new note"
+msgstr "Επεξεργασία φαρμακευτικής αγωγής"
+
+#, fuzzy
+msgid "Change notification"
+msgstr "Ένδειξη"
+
+msgid "A progress note of yours has been edited."
+msgstr ""
+
+#, python-format
+msgid ""
+"Original (by [%s]):\n"
+"%s\n"
+"\n"
+"Edited (by [%s]):\n"
+"%s"
 msgstr ""
 
 msgid "Cannot move progress notes. No active patient."
@@ -11544,6 +11613,9 @@ msgid "Yes, delete the progress note."
 msgstr ""
 
 msgid "No, do NOT delete the progress note."
+msgstr ""
+
+msgid "This is the original progress note:"
 msgstr ""
 
 msgid "Managing progress notes"
@@ -11682,9 +11754,6 @@ msgid "No episodes with progress notes found."
 msgstr ""
 
 msgid "No narrative available for selected episode."
-msgstr ""
-
-msgid "open"
 msgstr ""
 
 msgid ""
@@ -17256,10 +17325,6 @@ msgstr "εμβόλιο"
 msgid "part %2s"
 msgstr ""
 
-#, python-format
-msgid "invalid document tree node data type: %s"
-msgstr ""
-
 msgid "Activate as current photo"
 msgstr ""
 
@@ -18595,18 +18660,36 @@ msgstr ""
 msgid "View the reference for menu items on the web."
 msgstr ""
 
-msgid "&Clear status line"
-msgstr ""
-
-msgid "Clear out the status line."
-msgstr ""
-
 #, fuzzy
 msgid "Browse work dir"
 msgstr "Αποθήκευση εγγράφου"
 
 #, python-format
 msgid "Browse user working directory [%s]."
+msgstr ""
+
+msgid "Status line: &Clear"
+msgstr ""
+
+msgid "Clear the status line."
+msgstr ""
+
+msgid "Status line: History"
+msgstr ""
+
+msgid "Show status line history."
+msgstr ""
+
+msgid "Tooltips on"
+msgstr ""
+
+msgid "Globally enable tooltips."
+msgstr ""
+
+msgid "Tooltips off"
+msgstr ""
+
+msgid "Globally (attempt to) disable tooltips."
 msgstr ""
 
 msgid "Screenshot"
@@ -20905,13 +20988,6 @@ msgstr ""
 msgid "Primary provider in this praxis"
 msgstr ""
 
-#, python-format
-msgid "Pool of unassociated episodes \"%s\":\n"
-msgstr ""
-
-msgid " Listing of unassociated episodes\n"
-msgstr ""
-
 #, fuzzy
 msgid "EMR Actions:"
 msgstr "Αντίδραση"
@@ -20992,14 +21068,19 @@ msgstr "Τύποι συνεδριών"
 msgid "Move data to another episode"
 msgstr ""
 
-msgid "Edit progress notes"
-msgstr ""
-
 msgid "Move progress notes"
 msgstr ""
 
 msgid "Export for Medistar"
 msgstr ""
+
+#, fuzzy
+msgid "Item Actions:"
+msgstr "Κατευθύνσεις"
+
+#, fuzzy
+msgid "Edit item"
+msgstr "Επεξεργασία Αντικειμένου"
 
 msgid "Deleting episode"
 msgstr ""
@@ -21023,6 +21104,24 @@ msgstr ""
 msgid "Cannot delete episode. There is still clinical data recorded for it."
 msgstr ""
 
+msgid "ongoing episode"
+msgstr ""
+
+msgid "closed episode"
+msgstr ""
+
+#, python-format
+msgid "RFE: %s"
+msgstr ""
+
+#, python-format
+msgid "AOE: %s"
+msgstr ""
+
+#, fuzzy, python-format
+msgid "Cannot edit \"%s\"."
+msgstr "Δεν μπορώ να εξάγω τον ΗΙΦ. Χωρίς ενεργό ασθενή."
+
 msgid "Deleting health issue"
 msgstr ""
 
@@ -21043,20 +21142,6 @@ msgid ""
 "Cannot delete health issue. There is still clinical data recorded for it."
 msgstr ""
 
-#, python-format
-msgid "RFE: %s"
-msgstr ""
-
-#, python-format
-msgid "AOE: %s"
-msgstr ""
-
-msgid "ongoing episode"
-msgstr ""
-
-msgid "closed episode"
-msgstr ""
-
 msgid ""
 "*** CONFIDENTIAL ***\n"
 "\n"
@@ -21067,6 +21152,13 @@ msgstr ""
 
 #, python-format
 msgid "Grouping: %s"
+msgstr ""
+
+#, python-format
+msgid "Pool of unassociated episodes \"%s\":\n"
+msgstr ""
+
+msgid " Listing of unassociated episodes\n"
 msgstr ""
 
 #, python-format
@@ -22121,6 +22213,10 @@ msgstr "Ματαίωση"
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Ματαίωση και ΔΕΝ θα συνδεθείτε με το GNUmed."
+
+#, fuzzy
+#~ msgid "Clinical narrative"
+#~ msgstr "Κλινικά"
 
 #, fuzzy
 #~ msgid "Revision #%s"

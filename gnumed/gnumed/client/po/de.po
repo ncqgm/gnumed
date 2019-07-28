@@ -5,8 +5,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-05-19 15:12+0200\n"
-"PO-Revision-Date: 2019-05-19 16:24+0200\n"
+"POT-Creation-Date: 2019-07-28 16:40+0200\n"
+"PO-Revision-Date: 2019-07-28 16:44+0200\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "Language: de_DE\n"
@@ -3063,7 +3063,7 @@ msgid "Kidney"
 msgstr "Niere"
 
 msgid "GFR: ?"
-msgstr ""
+msgstr "gFR: ?"
 
 msgid "&Interactions?"
 msgstr "&Interaktionen ?"
@@ -9291,37 +9291,6 @@ msgstr "berichtigtes Ergebnis"
 msgid "missing, reported later"
 msgstr "fehlt/folgt"
 
-msgid "External care"
-msgstr "Externe Mitbetreuung"
-
-msgid "Vaccination"
-msgstr "Impfung"
-
-msgid "Clinical narrative"
-msgstr "Medizinischer Freitext"
-
-msgid "Test result"
-msgstr "Meßwert"
-
-msgid "Substance intake"
-msgstr "Substanzeinnahme"
-
-msgid "Hospital stay"
-msgstr "Krankenhausaufenthalt"
-
-msgid "Performed procedure"
-msgstr "Maßnahme"
-
-msgid "Family history"
-msgstr "Familienanamnese"
-
-msgid "Inbox message"
-msgstr "Nachricht"
-
-#, python-format
-msgid "unmapped entry type from table [%s]"
-msgstr "nicht übertragener Eintragtyp, aus Tabelle [%s]"
-
 #, python-format
 msgid "cannot instantiate clinical root item <%s(%s)>"
 msgstr "Kann medizinischen Eintrag nicht laden <%s(%s)>"
@@ -9470,6 +9439,9 @@ msgstr "Impfungen"
 #, python-format
 msgid "%s ago"
 msgstr "vor %s"
+
+msgid "External care"
+msgstr "Externe Mitbetreuung"
 
 msgid "Allergies/Intolerances"
 msgstr "Allergien/Unverträglichkeiten"
@@ -9644,6 +9616,64 @@ msgstr ""
 "FN:%(l10n_unit_category)s %(branch)s in %(l10n_organization_category)s "
 "%(praxis)s"
 
+msgid "Vaccination"
+msgstr "Impfung"
+
+msgid "Progress note"
+msgstr "Verlaufsnotiz"
+
+msgid "Test result"
+msgstr "Meßwert"
+
+msgid "Substance intake"
+msgstr "Substanzeinnahme"
+
+msgid "Hospital stay"
+msgstr "Krankenhausaufenthalt"
+
+msgid "Performed procedure"
+msgstr "Maßnahme"
+
+msgid "Family history"
+msgstr "Familienanamnese"
+
+msgid "Inbox message"
+msgstr "Nachricht"
+
+#, python-format
+msgid "                        rev %s (%s) by %s in <%s>"
+msgstr "                        v%s (%s) durch %s in <%s>"
+
+#, python-format
+msgid "Chart entry (%s): %s       [#%s in %s]"
+msgstr "Karteieintrag (%s): %s       [#%s in %s]"
+
+#, python-format
+msgid " Modified: %s by %s (%s rev %s)"
+msgstr " Geändert: %s durch %s (%s v%s)"
+
+#, python-format
+msgid "Health issue: %s"
+msgstr "Grunderkrankung: %s"
+
+msgid "open"
+msgstr "offen"
+
+msgid "closed"
+msgstr "beendet"
+
+#, python-format
+msgid "Episode: %s"
+msgstr "Episode: %s"
+
+#, python-format
+msgid "Encounter: %s"
+msgstr "Kontakt: %s"
+
+#, python-format
+msgid "unmapped entry type from table [%s]"
+msgstr "nicht übertragener Eintragtyp, aus Tabelle [%s]"
+
 #, python-format
 msgid ""
 "%s: %s by %.8s (v%s)\n"
@@ -9658,10 +9688,6 @@ msgstr "Externe Mitbetreuung%s             #%s"
 
 #, python-format
 msgid "Issue: %s"
-msgstr "Grunderkrankung: %s"
-
-#, python-format
-msgid "Health issue: %s"
 msgstr "Grunderkrankung: %s"
 
 msgid "also treated here"
@@ -10096,6 +10122,9 @@ msgstr " Teil %s: %s %s(%s Byte)\n"
 #, python-format
 msgid " Filename: %s%s\n"
 msgstr " Dateiname: %s%s\n"
+
+msgid "problem downloading document part"
+msgstr "Problem beim Runterladen Dokumententeils"
 
 msgid "no parts"
 msgstr "keine Teile"
@@ -10770,9 +10799,6 @@ msgstr "Keine Episoden für diese Grunderkrankung gefunden."
 #, python-format
 msgid "Episodes: %s (most recent: %s%s%s)"
 msgstr "Episoden: %s (zuletzt: %s%s%s)"
-
-msgid "closed"
-msgstr "beendet"
 
 msgid "No encounters found for this health issue."
 msgstr "Keine Kontakte zu dieser Grunderkrankung gefunden."
@@ -11450,8 +11476,60 @@ msgstr "Kann Maßnahme nicht speichern."
 msgid "Editing progress note"
 msgstr "Bearbeite Verlaufsnotiz"
 
-msgid "This is the original progress note:"
-msgstr "Dies ist die ursprüngliche Verlaufsnotiz:"
+msgid "Your original progress note:"
+msgstr "Ihre ursprüngliche Verlaufsnotiz:"
+
+#, python-format
+msgid ""
+"Original progress note by %s [%s]\n"
+"(will be notified of changes):"
+msgstr ""
+"Bisherige Verlaufsnotiz von %s [%s]\n"
+"(wird über Änderungen benachrichtigt):"
+
+#, python-format
+msgid ""
+"Original progress note written by someone else:\n"
+"\n"
+" %s (%s)\n"
+"\n"
+"Upon saving changes that person will be notified.\n"
+"\n"
+"Consider saving as a new progress note instead."
+msgstr ""
+"Die originale Verlaufsnotiz wurde geschrieben von:\n"
+"\n"
+" %s (%s)\n"
+"\n"
+"Veränderungen werden dieser Person gemeldet.\n"
+"\n"
+"Wollen Sie stattdessen eine neue Verlaufsnotiz speichern ?"
+
+msgid "Save changes"
+msgstr "Änderung speichern"
+
+msgid "Save new note"
+msgstr "Neu anlegen"
+
+msgid "Change notification"
+msgstr "Änderungsmitteilung"
+
+msgid "A progress note of yours has been edited."
+msgstr "Eine Ihrer Verlaufsnotizen wurde bearbeitet."
+
+#, python-format
+msgid ""
+"Original (by [%s]):\n"
+"%s\n"
+"\n"
+"Edited (by [%s]):\n"
+"%s"
+msgstr ""
+"Original (von [%s]):\n"
+"%s\n"
+"\n"
+"Änderung (von [%s]):\n"
+"%s"
 
 msgid "Cannot move progress notes. No active patient."
 msgstr "Kann Verlaufsnotizen nicht verschieben. Kein Patient aktiv."
@@ -11496,6 +11574,9 @@ msgstr "Ja, die Verlaufsnotiz löschen."
 
 msgid "No, do NOT delete the progress note."
 msgstr "Nein, die Verlaufsnotiz NICHT löschen."
+
+msgid "This is the original progress note:"
+msgstr "Dies ist die ursprüngliche Verlaufsnotiz:"
 
 msgid "Managing progress notes"
 msgstr "Verlaufsnotizen verwalten"
@@ -11640,9 +11721,6 @@ msgstr "Keine Episoden mit Verlaufsnotizen gefunden."
 
 msgid "No narrative available for selected episode."
 msgstr "Für die gewählte Episode sind keine Karteieinträge vorhanden."
-
-msgid "open"
-msgstr "offen"
 
 msgid ""
 "\n"
@@ -17851,10 +17929,6 @@ msgstr "diese Praxis"
 msgid "part %2s"
 msgstr "Teil %2s"
 
-#, python-format
-msgid "invalid document tree node data type: %s"
-msgstr "ungültiger Knotentyp des Dokumentenbaums: %s"
-
 msgid "Activate as current photo"
 msgstr "Als aktives Photo aktivieren"
 
@@ -19227,18 +19301,36 @@ msgstr "Hilfe zu Menüpunkten (WWW)"
 msgid "View the reference for menu items on the web."
 msgstr "Die Hilfe zu Menüpunkten im Web aufrufen."
 
-msgid "&Clear status line"
-msgstr "&Statuszeile leeren"
-
-msgid "Clear out the status line."
-msgstr "Die Statuszeile leeren."
-
 msgid "Browse work dir"
 msgstr "Arbeitsverzeichnis zeigen"
 
 #, python-format
 msgid "Browse user working directory [%s]."
 msgstr "Nutzer-Arbeitsverzeichnis [%s] anzeigen."
+
+msgid "Status line: &Clear"
+msgstr "Statuszeile leeren"
+
+msgid "Clear the status line."
+msgstr "Die Statuszeile leeren."
+
+msgid "Status line: History"
+msgstr "Statuszeile: Verlauf"
+
+msgid "Show status line history."
+msgstr "Zeige Verlauf der Statusmeldungen."
+
+msgid "Tooltips on"
+msgstr "Tooltips an"
+
+msgid "Globally enable tooltips."
+msgstr "Tooltips aktivieren"
+
+msgid "Tooltips off"
+msgstr "Tooltips aus"
+
+msgid "Globally (attempt to) disable tooltips."
+msgstr "Tooltips deaktivieren (nicht immer möglich)."
 
 msgid "Screenshot"
 msgstr "Bildschirmphoto"
@@ -20579,7 +20671,7 @@ msgid "BMP files"
 msgstr "BMP-Dateien"
 
 msgid "Importing AMTS BMP Medikationsplan"
-msgstr ""
+msgstr "Importiere AMTS BMP Medikationsplan"
 
 #, python-format
 msgid ""
@@ -20618,11 +20710,11 @@ msgid "BMI ?"
 msgstr ""
 
 msgid "GFR ?"
-msgstr ""
+msgstr "gFR ?"
 
 #, python-format
 msgid "GFR %s"
-msgstr ""
+msgstr "gFR %s"
 
 #, python-format
 msgid "?EDC %s"
@@ -21799,13 +21891,6 @@ msgstr "Kartei von %(lastnames)s, %(firstnames)s"
 msgid "Primary provider in this praxis"
 msgstr "Primärarzt innerhalb dieser Praxis"
 
-#, python-format
-msgid "Pool of unassociated episodes \"%s\":\n"
-msgstr "Sammelbecken nicht zugeordneter Episoden \"%s\":\n"
-
-msgid " Listing of unassociated episodes\n"
-msgstr " Auflistung nicht zugeordneter Episoden:\n"
-
 msgid "EMR Actions:"
 msgstr "Kartei-Aktionen:"
 
@@ -21878,14 +21963,17 @@ msgstr "Konsultations-Aktionen:"
 msgid "Move data to another episode"
 msgstr "APK-Daten einer anderen Episode zuordnen"
 
-msgid "Edit progress notes"
-msgstr "Verlaufsnotizen bearbeiten"
-
 msgid "Move progress notes"
 msgstr "Verlaufsnotizen verschieben"
 
 msgid "Export for Medistar"
 msgstr "Medistar-Export"
+
+msgid "Item Actions:"
+msgstr "Eintragsaktionen:"
+
+msgid "Edit item"
+msgstr "Eintrag bearbeiten"
 
 msgid "Deleting episode"
 msgstr "Löschen einer Episode"
@@ -21912,6 +22000,24 @@ msgstr ""
 msgid "Cannot delete episode. There is still clinical data recorded for it."
 msgstr "Kann die Episode nicht löschen. Sie enthält noch Karteieinträge."
 
+msgid "ongoing episode"
+msgstr "offene Episode"
+
+msgid "closed episode"
+msgstr "beendete Episode"
+
+#, python-format
+msgid "RFE: %s"
+msgstr "RFE: %s"
+
+#, python-format
+msgid "AOE: %s"
+msgstr "AOE: %s"
+
+#, python-format
+msgid "Cannot edit \"%s\"."
+msgstr "Kann \"%s\" nicht bearbeiten."
+
 msgid "Deleting health issue"
 msgstr "Grunderkrankung löschen"
 
@@ -21937,20 +22043,6 @@ msgid ""
 msgstr ""
 "Kann die Grunderkrankung nicht löschen. Sie enthält noch Karteieinträge."
 
-#, python-format
-msgid "RFE: %s"
-msgstr "RFE: %s"
-
-#, python-format
-msgid "AOE: %s"
-msgstr "AOE: %s"
-
-msgid "ongoing episode"
-msgstr "offene Episode"
-
-msgid "closed episode"
-msgstr "beendete Episode"
-
 msgid ""
 "*** CONFIDENTIAL ***\n"
 "\n"
@@ -21964,6 +22056,13 @@ msgstr "trug zum Tod bei"
 #, python-format
 msgid "Grouping: %s"
 msgstr "Gruppierung: %s"
+
+#, python-format
+msgid "Pool of unassociated episodes \"%s\":\n"
+msgstr "Sammelbecken nicht zugeordneter Episoden \"%s\":\n"
+
+msgid " Listing of unassociated episodes\n"
+msgstr " Auflistung nicht zugeordneter Episoden:\n"
 
 #, python-format
 msgid "&Browse %s"
@@ -23207,6 +23306,18 @@ msgstr "Abbrechen"
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
 
+#~ msgid "invalid document tree node data type: %s"
+#~ msgstr "ungültiger Knotentyp des Dokumentenbaums: %s"
+
+#~ msgid "&Clear status line"
+#~ msgstr "&Statuszeile leeren"
+
+#~ msgid "Edit progress notes"
+#~ msgstr "Verlaufsnotizen bearbeiten"
+
+#~ msgid "Clinical narrative"
+#~ msgstr "Medizinischer Freitext"
+
 #~ msgid "Editing data"
 #~ msgstr "Daten bearbeiten"
 
@@ -24384,9 +24495,6 @@ msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
 #~ "\n"
 #~ "Durch Drücken von [JA] wird die Datei endgültig von\n"
 #~ "Ihrem Computer gelöscht.\n"
-
-#~ msgid "Removing document part"
-#~ msgstr "Dokumententeil entfernen"
 
 #~ msgid ""
 #~ "Cannot delete part in file [%s].\n"
@@ -27446,9 +27554,6 @@ msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
 
 #~ msgid "operated on"
 #~ msgstr "operiert"
-
-#~ msgid "Progress note"
-#~ msgstr "Verlaufsnotiz"
 
 #~ msgid ""
 #~ "Cannot rename health issue from\n"

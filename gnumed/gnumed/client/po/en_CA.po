@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-05-19 15:12+0200\n"
+"POT-Creation-Date: 2019-07-28 16:40+0200\n"
 "PO-Revision-Date: 2010-02-09 16:17+0000\n"
 "Last-Translator: Brett Alton <brett.jr.alton@gmail.com>\n"
 "Language-Team: English (Canada) <en_CA@li.org>\n"
@@ -8449,41 +8449,6 @@ msgstr "corrected result"
 msgid "missing, reported later"
 msgstr "missing, reported later"
 
-#, fuzzy
-msgid "External care"
-msgstr "external patient ID"
-
-msgid "Vaccination"
-msgstr "Vaccination"
-
-#, fuzzy
-msgid "Clinical narrative"
-msgstr "clinically relevant"
-
-#, fuzzy
-msgid "Test result"
-msgstr "corrected result"
-
-msgid "Substance intake"
-msgstr ""
-
-msgid "Hospital stay"
-msgstr ""
-
-msgid "Performed procedure"
-msgstr ""
-
-#, fuzzy
-msgid "Family history"
-msgstr " %s documents\n"
-
-msgid "Inbox message"
-msgstr ""
-
-#, python-format
-msgid "unmapped entry type from table [%s]"
-msgstr ""
-
 #, python-format
 msgid "cannot instantiate clinical root item <%s(%s)>"
 msgstr ""
@@ -8625,6 +8590,10 @@ msgstr ""
 #, python-format
 msgid "%s ago"
 msgstr ""
+
+#, fuzzy
+msgid "External care"
+msgstr "external patient ID"
 
 #, fuzzy
 msgid "Allergies/Intolerances"
@@ -8795,6 +8764,66 @@ msgid ""
 "%(praxis)s"
 msgstr ""
 
+msgid "Vaccination"
+msgstr "Vaccination"
+
+msgid "Progress note"
+msgstr ""
+
+#, fuzzy
+msgid "Test result"
+msgstr "corrected result"
+
+msgid "Substance intake"
+msgstr ""
+
+msgid "Hospital stay"
+msgstr ""
+
+msgid "Performed procedure"
+msgstr ""
+
+#, fuzzy
+msgid "Family history"
+msgstr " %s documents\n"
+
+msgid "Inbox message"
+msgstr ""
+
+#, python-format
+msgid "                        rev %s (%s) by %s in <%s>"
+msgstr ""
+
+#, python-format
+msgid "Chart entry (%s): %s       [#%s in %s]"
+msgstr ""
+
+#, fuzzy, python-format
+msgid " Modified: %s by %s (%s rev %s)"
+msgstr "Last worked on: %s\n"
+
+#, fuzzy, python-format
+msgid "Health issue: %s"
+msgstr "health issue: %s"
+
+msgid "open"
+msgstr ""
+
+msgid "closed"
+msgstr "closed"
+
+#, fuzzy, python-format
+msgid "Episode: %s"
+msgstr "episode     : %s"
+
+#, fuzzy, python-format
+msgid "Encounter: %s"
+msgstr "Encounter"
+
+#, python-format
+msgid "unmapped entry type from table [%s]"
+msgstr ""
+
 #, python-format
 msgid ""
 "%s: %s by %.8s (v%s)\n"
@@ -8807,10 +8836,6 @@ msgstr ""
 
 #, fuzzy, python-format
 msgid "Issue: %s"
-msgstr "health issue: %s"
-
-#, fuzzy, python-format
-msgid "Health issue: %s"
 msgstr "health issue: %s"
 
 msgid "also treated here"
@@ -9237,6 +9262,10 @@ msgstr "%s this week (%s of %s)"
 #, fuzzy, python-format
 msgid " Filename: %s%s\n"
 msgstr "Patient: %s (%s), No: %s\n"
+
+#, fuzzy
+msgid "problem downloading document part"
+msgstr " %s documents\n"
 
 #, fuzzy
 msgid "no parts"
@@ -9932,9 +9961,6 @@ msgstr "There are no episodes for this health issue."
 msgid "Episodes: %s (most recent: %s%s%s)"
 msgstr ""
 
-msgid "closed"
-msgstr "closed"
-
 msgid "No encounters found for this health issue."
 msgstr "No encounters found for this health issue."
 
@@ -10572,7 +10598,47 @@ msgstr ""
 msgid "Editing progress note"
 msgstr ""
 
-msgid "This is the original progress note:"
+msgid "Your original progress note:"
+msgstr ""
+
+#, python-format
+msgid ""
+"Original progress note by %s [%s]\n"
+"(will be notified of changes):"
+msgstr ""
+
+#, python-format
+msgid ""
+"Original progress note written by someone else:\n"
+"\n"
+" %s (%s)\n"
+"\n"
+"Upon saving changes that person will be notified.\n"
+"\n"
+"Consider saving as a new progress note instead."
+msgstr ""
+
+msgid "Save changes"
+msgstr ""
+
+#, fuzzy
+msgid "Save new note"
+msgstr "Starting patient encounter"
+
+#, fuzzy
+msgid "Change notification"
+msgstr "The currently selected patient is:"
+
+msgid "A progress note of yours has been edited."
+msgstr ""
+
+#, python-format
+msgid ""
+"Original (by [%s]):\n"
+"%s\n"
+"\n"
+"Edited (by [%s]):\n"
+"%s"
 msgstr ""
 
 msgid "Cannot move progress notes. No active patient."
@@ -10607,6 +10673,9 @@ msgid "Yes, delete the progress note."
 msgstr ""
 
 msgid "No, do NOT delete the progress note."
+msgstr ""
+
+msgid "This is the original progress note:"
 msgstr ""
 
 msgid "Managing progress notes"
@@ -10738,9 +10807,6 @@ msgid "No episodes with progress notes found."
 msgstr ""
 
 msgid "No narrative available for selected episode."
-msgstr ""
-
-msgid "open"
 msgstr ""
 
 msgid ""
@@ -16143,10 +16209,6 @@ msgstr ""
 msgid "part %2s"
 msgstr ""
 
-#, python-format
-msgid "invalid document tree node data type: %s"
-msgstr ""
-
 msgid "Activate as current photo"
 msgstr ""
 
@@ -17434,18 +17496,36 @@ msgstr ""
 msgid "View the reference for menu items on the web."
 msgstr ""
 
-msgid "&Clear status line"
-msgstr ""
-
-msgid "Clear out the status line."
-msgstr ""
-
 #, fuzzy
 msgid "Browse work dir"
 msgstr " %s documents\n"
 
 #, python-format
 msgid "Browse user working directory [%s]."
+msgstr ""
+
+msgid "Status line: &Clear"
+msgstr ""
+
+msgid "Clear the status line."
+msgstr ""
+
+msgid "Status line: History"
+msgstr ""
+
+msgid "Show status line history."
+msgstr ""
+
+msgid "Tooltips on"
+msgstr ""
+
+msgid "Globally enable tooltips."
+msgstr ""
+
+msgid "Tooltips off"
+msgstr ""
+
+msgid "Globally (attempt to) disable tooltips."
 msgstr ""
 
 msgid "Screenshot"
@@ -19662,13 +19742,6 @@ msgstr ""
 msgid "Primary provider in this praxis"
 msgstr ""
 
-#, python-format
-msgid "Pool of unassociated episodes \"%s\":\n"
-msgstr ""
-
-msgid " Listing of unassociated episodes\n"
-msgstr ""
-
 msgid "EMR Actions:"
 msgstr ""
 
@@ -19742,14 +19815,19 @@ msgstr ""
 msgid "Move data to another episode"
 msgstr ""
 
-msgid "Edit progress notes"
-msgstr ""
-
 msgid "Move progress notes"
 msgstr ""
 
 msgid "Export for Medistar"
 msgstr ""
+
+#, fuzzy
+msgid "Item Actions:"
+msgstr "Vaccination"
+
+#, fuzzy
+msgid "Edit item"
+msgstr "inactive"
 
 msgid "Deleting episode"
 msgstr ""
@@ -19773,6 +19851,24 @@ msgstr ""
 msgid "Cannot delete episode. There is still clinical data recorded for it."
 msgstr ""
 
+msgid "ongoing episode"
+msgstr ""
+
+msgid "closed episode"
+msgstr ""
+
+#, python-format
+msgid "RFE: %s"
+msgstr ""
+
+#, python-format
+msgid "AOE: %s"
+msgstr ""
+
+#, python-format
+msgid "Cannot edit \"%s\"."
+msgstr ""
+
 msgid "Deleting health issue"
 msgstr ""
 
@@ -19793,20 +19889,6 @@ msgid ""
 "Cannot delete health issue. There is still clinical data recorded for it."
 msgstr ""
 
-#, python-format
-msgid "RFE: %s"
-msgstr ""
-
-#, python-format
-msgid "AOE: %s"
-msgstr ""
-
-msgid "ongoing episode"
-msgstr ""
-
-msgid "closed episode"
-msgstr ""
-
 msgid ""
 "*** CONFIDENTIAL ***\n"
 "\n"
@@ -19817,6 +19899,13 @@ msgstr ""
 
 #, python-format
 msgid "Grouping: %s"
+msgstr ""
+
+#, python-format
+msgid "Pool of unassociated episodes \"%s\":\n"
+msgstr ""
+
+msgid " Listing of unassociated episodes\n"
 msgstr ""
 
 #, python-format
@@ -20831,6 +20920,10 @@ msgstr "Abort"
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Abort and do NOT connect to GNUmed."
+
+#, fuzzy
+#~ msgid "Clinical narrative"
+#~ msgstr "clinically relevant"
 
 #, fuzzy
 #~ msgid "Browse overview of all studies for this patient."
