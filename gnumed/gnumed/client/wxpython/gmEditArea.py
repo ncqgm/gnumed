@@ -353,6 +353,9 @@ class cGenericEditAreaDlg2(wxgGenericEditAreaDlg2.wxgGenericEditAreaDlg2):
 
 	#--------------------------------------------------------
 	def _on_set_statustext(self, msg=None, loglevel=None, beep=False):
+		if self.IsBeingDeleted():
+			return
+
 		if msg is None:
 			msg = ''
 		self._TCTRL_status.SetValue(msg.strip())
