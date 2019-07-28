@@ -2377,6 +2377,9 @@ class cMeasurementsGrid(wx.grid.Grid):
 					# pre-set test type field to test type of
 					# "temporally most adjacent" existing result :-)
 					presets['pk_test_type'] = {'data': temporally_closest_result_of_row_type['pk_test_type']}
+				# one might also, instead of considering only the "temporally most adjacent"
+				# one, look at the most adjacent one coming from the same *lab* as other
+				# results on the desired data ....
 			same_day_results = gmPathLab.get_results_for_day (
 				timestamp = col_date,
 				patient = self.__patient.ID,
