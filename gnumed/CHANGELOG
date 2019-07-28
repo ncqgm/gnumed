@@ -12,6 +12,7 @@ FIX: application metadata files
 FIX: searching across all EMRs
 FIX: constrain document PRW to current patient
 FIX: lab/table: exception on double-clicking empty cell in row w/o meta test type
+FIX: lab/result EA: failure to show test type on edit
 
 NEW: stub out $praxis_scan2pay$
 
