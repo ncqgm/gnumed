@@ -3579,6 +3579,24 @@ LIMIT 50""" % {'in_house': _('generic / in house lab')}
 
 		return gmPathLab.cMeasurementType(aPK_obj = self.GetData())
 
+	#------------------------------------------------------------
+	def set_from_instance(self, instance):
+		lab = gmPathLab.cTestOrg(aPK_obj = instance['pk_test_org'])
+		field_label = '%s (%s @ %s)' % (
+			instance['name'],
+			lab['unit'],
+			lab['organization']
+		)
+		return self.SetText(value = field_label, data = instance['pk_test_type'])
+
+	#------------------------------------------------------------
+	def set_from_pk(self, pk):
+		return self.set_from_instance(gmPathLab.cMeasurementType(aPK_obj = pk))
+
+	#---------------------------------------------------------
+	def SetData(self, data=None):
+		return self.set_from_pk(pk = data)
+
 #----------------------------------------------------------------
 from Gnumed.wxGladeWidgets import wxgMeasurementTypeEAPnl
 
