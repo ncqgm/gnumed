@@ -2754,74 +2754,84 @@ def export_results_for_gnuplot(results=None, filename=None, show_year=True):
 		except KeyError:
 			series[r['unified_name']] = [r]
 
-	gp_data = io.open(filename, mode = 'wt', encoding = 'utf8')
+	conf_name = '%s.conf' % filename
+	gp_conf = io.open(conf_name, mode = 'wt', encoding = 'utf8')
 
+	gp_data = io.open(filename, mode = 'wt', encoding = 'utf8')
 	gp_data.write('# %s\n' % _('GNUmed test results export for Gnuplot plotting'))
 	gp_data.write('# -------------------------------------------------------------\n')
 	gp_data.write('# first line of index: test type abbreviation & name\n')
+	gp_data.write('# can be used as title for plots: set key ... autotitle columnheader\n')
 	gp_data.write('#\n')
-	gp_data.write('# clin_when at full precision\n')
-	gp_data.write('# value\n')
-	gp_data.write('# unit\n')
-	gp_data.write('# unified (target or normal) range: lower bound\n')
-	gp_data.write('# unified (target or normal) range: upper bound\n')
-	gp_data.write('# normal range: lower bound\n')
-	gp_data.write('# normal range: upper bound\n')
-	gp_data.write('# target range: lower bound\n')
-	gp_data.write('# target range: upper bound\n')
-	gp_data.write('# clin_when formatted into string as x-axis tic label\n')
+	gp_data.write('# Columns:\n')
+	gp_data.write('# 1 - clin_when at full precision\n')
+	gp_data.write('#      set timefmt "%Y-%m-%d_%H:%M"\n')
+	gp_data.write('#      timecolumn(1, "%Y-%m-%d_%H:%M")\n')
+	gp_data.write('# 2 - value\n')
+	gp_data.write('# 3 - unit\n')
+	gp_data.write('# 4 - unified (target or normal) range: lower bound\n')
+	gp_data.write('# 5 - unified (target or normal) range: upper bound\n')
+	gp_data.write('# 6 - normal range: lower bound\n')
+	gp_data.write('# 7 - normal range: upper bound\n')
+	gp_data.write('# 8 - target range: lower bound\n')
+	gp_data.write('# 9 - target range: upper bound\n')
+	gp_data.write('# 10 - clin_when formatted into string (say, as x-axis tic label)\n')
 	gp_data.write('# -------------------------------------------------------------\n')
 
-	for test_type in series.keys():
+	series_keys = list(series.keys())
+	for test_type_idx in range(len(series_keys)):
+		test_type = series_keys[test_type_idx]
 		if len(series[test_type]) == 0:
 			continue
-
-		r = series[test_type][0]
+		result = series[test_type][0]
+		if test_type_idx == 0:
+			gp_conf.write('set ylabel "%s"\n' % result['unified_name'])
+		elif test_type_idx == 1:
+			gp_conf.write('set y2label "%s"\n' % result['unified_name'])
 		title = '%s (%s)' % (
-			r['unified_abbrev'],
-			r['unified_name']
+			result['unified_abbrev'],
+			result['unified_name']
 		)
 		gp_data.write('\n\n"%s" "%s"\n' % (title, title))
-
 		prev_date = None
 		prev_year = None
-		for r in series[test_type]:
-			curr_date = gmDateTime.pydt_strftime(r['clin_when'], '%Y-%m-%d', 'utf8', gmDateTime.acc_days)
+		for result in series[test_type]:
+			curr_date = gmDateTime.pydt_strftime(result['clin_when'], '%Y-%m-%d', 'utf8', gmDateTime.acc_days)
 			if curr_date == prev_date:
 				gp_data.write('\n# %s\n' % _('blank line inserted to allow for discontinued line drawing of same-day values'))
 			if show_year:
-				if r['clin_when'].year == prev_year:
+				if result['clin_when'].year == prev_year:
 					when_template = '%b %d %H:%M'
 				else:
 					when_template = '%b %d %H:%M (%Y)'
-				prev_year = r['clin_when'].year
+				prev_year = result['clin_when'].year
 			else:
 				when_template = '%b %d'
-			val = r['val_num']
+			val = result['val_num']
 			if val is None:
-				val = r.estimate_numeric_value_from_alpha
+				val = result.estimate_numeric_value_from_alpha
 			if val is None:
 				continue		# skip distinctly non-numericable values
 			gp_data.write ('%s %s "%s" %s %s %s %s %s %s "%s"\n' % (
-				#r['clin_when'].strftime('%Y-%m-%d_%H:%M'),
-				gmDateTime.pydt_strftime(r['clin_when'], '%Y-%m-%d_%H:%M', 'utf8', gmDateTime.acc_minutes),
+				#result['clin_when'].strftime('%Y-%m-%d_%H:%M'),
+				gmDateTime.pydt_strftime(result['clin_when'], '%Y-%m-%d_%H:%M', 'utf8', gmDateTime.acc_minutes),
 				val,
-				gmTools.coalesce(r['val_unit'], '"<?>"'),
-				gmTools.coalesce(r['unified_target_min'], '"<?>"'),
-				gmTools.coalesce(r['unified_target_max'], '"<?>"'),
-				gmTools.coalesce(r['val_normal_min'], '"<?>"'),
-				gmTools.coalesce(r['val_normal_max'], '"<?>"'),
-				gmTools.coalesce(r['val_target_min'], '"<?>"'),
-				gmTools.coalesce(r['val_target_max'], '"<?>"'),
+				gmTools.coalesce(result['val_unit'], '"<?>"'),
+				gmTools.coalesce(result['unified_target_min'], '"<?>"'),
+				gmTools.coalesce(result['unified_target_max'], '"<?>"'),
+				gmTools.coalesce(result['val_normal_min'], '"<?>"'),
+				gmTools.coalesce(result['val_normal_max'], '"<?>"'),
+				gmTools.coalesce(result['val_target_min'], '"<?>"'),
+				gmTools.coalesce(result['val_target_max'], '"<?>"'),
 				gmDateTime.pydt_strftime (
-					r['clin_when'],
+					result['clin_when'],
 					format = when_template,
 					accuracy = gmDateTime.acc_minutes
 				)
 			))
 			prev_date = curr_date
-
 	gp_data.close()
+	gp_conf.close()
 
 	return filename
 

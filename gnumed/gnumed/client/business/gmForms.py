@@ -1536,7 +1536,10 @@ class cGnuplotForm(cFormEngine):
 		"""
 		self.conf_filename = gmTools.get_unique_filename(prefix = 'gm2gpl-', suffix = '.conf')
 		conf_file = io.open(self.conf_filename, mode = 'wt', encoding = 'utf8')
-		conf_file.write('# setting the gnuplot data file\n')
+		conf_file.write('# this file defines a variable pointing to the data file,\n')
+		conf_file.write('# the file name needs to be passed to gnuplot on the\n')
+		conf_file.write('# command line before the actual script file itself,\n')
+		conf_file.write('# the script file will then use that variable to find the data file\n')
 		conf_file.write("gm2gpl_datafile = '%s'\n" % self.data_filename)
 		conf_file.close()
 

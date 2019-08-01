@@ -1291,13 +1291,18 @@ def __get_file_from_cache(filename, cache_key_data=None, data_size=None, link2ca
 #------------------------------------------------------------------------
 def bytea2file(data_query=None, filename=None, chunk_size=0, data_size=None, data_size_query=None, conn=None, link2cached=True):
 
+	if data_size == 0:
+		io.open(filename, 'wb').close()
+		return True
+
 	if data_size is None:
 		rows, idx = run_ro_queries(link_obj = conn, queries = [data_size_query])
 		data_size = rows[0][0]
-		if data_size in [None, 0]:
-			conn.rollback()
-			# should an empty file be created if size == 0 ?
+		if data_size == 0:
+			io.open(filename, 'wb').close()
 			return True
+		if data_size is None:
+			return False
 
 	# actually needs to get values from <conn> or "default conn" if <conn> is None
 	cache_key_data = '<%s>@%s:%s/%s::%s' % (
