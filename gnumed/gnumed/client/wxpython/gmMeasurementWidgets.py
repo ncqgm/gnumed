@@ -568,11 +568,15 @@ def plot_measurements(parent=None, tests=None, format=None, show_year = True, us
 		)
 		return False
 
-	fname_data = gmPathLab.export_results_for_gnuplot(results = tests, show_year = show_year)
+	fname_data = gmPathLab.export_results_for_gnuplot(results = tests, show_year = show_year, patient = gmPerson.gmCurrentPatient())
 
 	script = template.instantiate()
 	script.data_filename = fname_data
 	script.generate_output(format = format) 		# Gnuplot output terminal, wxt = wxWidgets window
+
+	fname_png = fname_data + '.png'
+	if os.path.exists(fname_png):
+		gmMimeLib.call_viewer_on_file(fname_png)
 
 #----------------------------------------------------------------
 def plot_adjacent_measurements(parent=None, test=None, format=None, show_year=True, plot_singular_result=True, use_default_template=False):
