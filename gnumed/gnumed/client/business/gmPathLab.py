@@ -2741,7 +2741,7 @@ def __format_test_results_latex(results=None):
 	return tex % ' \\tabularnewline\n \\hline\n'.join(rows)
 
 #============================================================
-def export_results_for_gnuplot(results=None, filename=None, show_year=True):
+def export_results_for_gnuplot(results=None, filename=None, show_year=True, patient=None):
 
 	if filename is None:
 		filename = gmTools.get_unique_filename(prefix = 'gm2gpl-', suffix = '.dat')
@@ -2756,14 +2756,21 @@ def export_results_for_gnuplot(results=None, filename=None, show_year=True):
 
 	conf_name = '%s.conf' % filename
 	gp_conf = io.open(conf_name, mode = 'wt', encoding = 'utf8')
+	gp_conf.write('# settings for stacked multiplot layouts:\n')
+	if patient is not None:
+		gp_conf.write('multiplot_title = "%s"	# a global title\n' % patient.get_description_gender(with_nickname = False).strip())
+	gp_conf.write('multiplot_no_of_tests = %s	# number of index blocks (test types)\n' % len(series))
+	gp_conf.write('array multiplot_y_labels[multiplot_no_of_tests]	# ylabels suitable for stacked multiplots\n')
+	gp_conf.write('# settings for individual plots, stacked or not:\n')
 
 	gp_data = io.open(filename, mode = 'wt', encoding = 'utf8')
-	gp_data.write('# %s\n' % _('GNUmed test results export for Gnuplot plotting'))
 	gp_data.write('# -------------------------------------------------------------\n')
-	gp_data.write('# first line of index: test type abbreviation & name\n')
+	gp_data.write('# GNUmed test results export for Gnuplot plotting\n')
+	gp_data.write('# -------------------------------------------------------------\n')
+	gp_data.write('# first line of each index: test type abbreviation & name,\n')
 	gp_data.write('# can be used as title for plots: set key ... autotitle columnheader\n')
 	gp_data.write('#\n')
-	gp_data.write('# Columns:\n')
+	gp_data.write('# Columns in each index:\n')
 	gp_data.write('# 1 - clin_when at full precision\n')
 	gp_data.write('#      set timefmt "%Y-%m-%d_%H:%M"\n')
 	gp_data.write('#      timecolumn(1, "%Y-%m-%d_%H:%M")\n')
@@ -2776,6 +2783,15 @@ def export_results_for_gnuplot(results=None, filename=None, show_year=True):
 	gp_data.write('# 8 - target range: lower bound\n')
 	gp_data.write('# 9 - target range: upper bound\n')
 	gp_data.write('# 10 - clin_when formatted into string (say, as x-axis tic label)\n')
+	gp_data.write('#\n')
+	gp_data.write('# index rows are NOT sorted by clin_when, so plotting\n')
+	gp_data.write('# with lined styles will make the lines go all over\n')
+	gp_data.write('# -------------------------------------------------------------\n')
+	gp_data.write('#\n')
+	gp_data.write('# the file <%s.conf>\n' % filename)
+	gp_data.write('# will contain various gnuplot settings specific to this plot,\n')
+	gp_data.write('# such as <ylabel>, <y2label>, <title>,\n')
+	gp_data.write('# there will also be settings suitable for stacked multiplots\n')
 	gp_data.write('# -------------------------------------------------------------\n')
 
 	series_keys = list(series.keys())
@@ -2784,7 +2800,10 @@ def export_results_for_gnuplot(results=None, filename=None, show_year=True):
 		if len(series[test_type]) == 0:
 			continue
 		result = series[test_type][0]
+		gp_conf.write('multiplot_y_labels[%s] = "%s (%s)"\n' % (test_type_idx + 1, result['unified_name'], result['unified_abbrev']))
 		if test_type_idx == 0:
+			if patient is not None:
+				gp_conf.write('set title "%s" enhanced\n' % patient.get_description_gender(with_nickname = False).strip())
 			gp_conf.write('set ylabel "%s"\n' % result['unified_name'])
 		elif test_type_idx == 1:
 			gp_conf.write('set y2label "%s"\n' % result['unified_name'])
