@@ -834,9 +834,11 @@ class cPhraseWheelBase(wx.TextCtrl):
 		"""Called when the user pressed <ENTER>."""
 		if self._picklist_dropdown.IsShown():
 			self._on_list_item_selected()
-		else:
-			# FIXME: check for errors before navigation
-			self.Navigate()
+			return
+
+		# FIXME: check for errors before navigation
+		self.Navigate()
+
 	#--------------------------------------------------------
 	def __on_cursor_down(self):
 
@@ -857,15 +859,16 @@ class cPhraseWheelBase(wx.TextCtrl):
 			val = self._extract_fragment_to_match_on()
 		self._update_candidates_in_picklist(val = val)
 		self._show_picklist(input2match = val)
+
 	#--------------------------------------------------------
 	def __on_cursor_up(self):
 		if self._picklist_dropdown.IsShown():
 			selected = self._picklist.GetFirstSelected()
 			if selected > 0:
 				self._select_picklist_row(selected-1, selected)
-		else:
-			# FIXME: input history ?
-			pass
+		#else:
+		#	# FIXME: input history ?
+
 	#--------------------------------------------------------
 	def __on_tab(self):
 		"""Under certain circumstances take special action on <TAB>.
