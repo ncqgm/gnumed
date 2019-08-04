@@ -353,14 +353,15 @@ class cGenericEditAreaDlg2(wxgGenericEditAreaDlg2.wxgGenericEditAreaDlg2):
 
 	#--------------------------------------------------------
 	def _on_set_statustext(self, msg=None, loglevel=None, beep=False):
-		if self.IsBeingDeleted():
-			return
-
 		if msg is None:
 			msg = ''
-		self._TCTRL_status.SetValue(msg.strip())
-		if beep:
-			wx.Bell()
+		try:
+			self._TCTRL_status.SetValue(msg.strip())
+			if beep:
+				wx.Bell()
+		except RuntimeError:
+			# likely we are being deleted but a statustext arrived late via a signal
+			pass
 
 	#--------------------------------------------------------
 	def _adjust_clear_revert_buttons(self):
