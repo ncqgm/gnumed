@@ -561,6 +561,19 @@ def manage_xxx()
 		return None
 
 	#--------------------------------------------------------
+	def _get_patient_pk(self):
+		try:
+			return self._payload[self._idx['pk_patient']]
+		except KeyError:
+			pass
+		try:
+			return self._payload[self._idx['pk_identity']]
+		except KeyError:
+			return None
+
+	patient_pk = property(_get_patient_pk)
+
+	#--------------------------------------------------------
 	def _get_staff_id(self):
 		try:
 			return self._payload[self._idx['pk_staff']]
