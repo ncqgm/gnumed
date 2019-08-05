@@ -1,0 +1,76 @@
+#----------------------------------------------------
+# GNUmed gnuplotting script example:
+#
+#	plot one test result type very space efficiently
+#
+#----------------------------------------------------
+
+# -- plot appearance setup ----
+#set title "your special title for this template"
+set grid xtics noytics
+set autoscale
+set key off
+set key tmargin center horizontal Left autotitle columnheader
+set key box opaque
+set style textbox opaque
+set bmargin 7
+# x and x2 axis:
+set xtics rotate by -45
+set xtics nomirror
+set x2tics out scale 1,0 format "%Y"
+# y and y2 axis:
+set ytics nomirror out format "{/*0.8 %h}"
+set y2tics nomirror out format "{/*0.8 %h}"
+
+
+# -- debugging ----
+print "-- <show all> before plotting ----"
+show all
+print "-- <show variables all> before plotting ----"
+show variables all
+
+
+# -- plot data ----
+plot \
+	gm2gpl_datafile index 0 using \
+		1: \
+		2: \
+		(valid(4) ? column(4) : column(2)): \
+		(valid(5) ? column(5) : column(2)): \
+		xticlabels(strftime("{/*.8 %b %d (%H:%M)}", timecolumn(1))) \
+	with yerrorbars pointtype 2, \
+	gm2gpl_datafile index 0 using \
+		1: \
+    	2: \
+    	(sprintf("%s%s", stringcolumn(2), stringcolumn(3))) \
+	notitle with labels right offset 0,1 , \
+	gm2gpl_datafile index 1 using \
+		1: \
+		2: \
+		(valid(4) ? column(4) : $2): \
+		(valid(5) ? column(5) : $2): \
+		xticlabels(strftime("{/*.8 %b %d (%H:%M)}", timecolumn(1))) \
+	with yerrorbars pointtype 3 axes x1y2, \
+	gm2gpl_datafile index 1 using \
+		1: \
+		2: \
+		(sprintf("%s%s", stringcolumn(2), stringcolumn(3))) \
+	notitle with labels left offset 0,-1 axes x1y2
+
+
+# -- adjust ranges for nicer display ----
+# detect x range and adjust by 10% of entire time span
+value_timerange = GPVAL_X_MAX - GPVAL_X_MIN
+timerange_offset = value_timerange * 10 / 100
+min_time_boundary = GPVAL_X_MIN - timerange_offset
+max_time_boundary = GPVAL_X_MAX + timerange_offset
+set xrange [min_time_boundary:max_time_boundary]
+set x2range [min_time_boundary:max_time_boundary]
+#set x2tics add (min_time_boundary, max_time_boundary)
+# detect y range and adjust by 5%
+five_percent = abs(GPVAL_Y_MIN * 5 / 100)
+loffset = (GPVAL_Y_MIN == 0) ? 1 : five_percent
+hoffset = (GPVAL_Y_MAX == 0) ? 1 : five_percent
+set yrange [(GPVAL_Y_MIN - loffset):(GPVAL_Y_MAX + hoffset)]
+# redraw with adjusted ranges
+replot

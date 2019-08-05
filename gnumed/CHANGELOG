@@ -2042,6 +2042,10 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 # gnumed_v22
 ------------------------------------------------
 
+	22.7
+
+IMPROVED: lab results plotting scripts for gnuplot
+
 	22.6
 
 FIX: properly include fixups in v21-v22 upgrade
