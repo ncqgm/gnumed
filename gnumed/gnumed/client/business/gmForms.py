@@ -175,7 +175,8 @@ class cFormTemplate(gmBusinessDBObject.cBusinessDBObject):
 		'T': '.txt',
 		'X': '.xslt',
 		'I': '.img',
-		'P': '.pdf'
+		'P': '.pdf',
+		'G': '.gpl'
 	}
 
 	#--------------------------------------------------------
@@ -195,20 +196,24 @@ class cFormTemplate(gmBusinessDBObject.cBusinessDBObject):
 	template_data = property(_get_template_data, lambda x:x)
 
 	#--------------------------------------------------------
-	def save_to_file(self, filename=None, chunksize=0):
+	def save_to_file(self, filename=None, chunksize=0, use_sandbox=False):
 		"""Export form template from database into file."""
 
 		if filename is None:
+			if use_sandbox:
+				sandbox_dir = gmTools.mk_sandbox_dir(prefix = 'gm2%s-' % self._payload[self._idx['engine']])
+			else:
+				sandbox_dir = None
 			if self._payload[self._idx['filename']] is None:
 				suffix = self.__class__._suffix4engine[self._payload[self._idx['engine']]]
 			else:
 				suffix = os.path.splitext(self._payload[self._idx['filename']].strip())[1].strip()
 				if suffix in ['', '.']:
 					suffix = self.__class__._suffix4engine[self._payload[self._idx['engine']]]
-
 			filename = gmTools.get_unique_filename (
 				prefix = 'gm-%s-Template-' % self._payload[self._idx['engine']],
-				suffix = suffix
+				suffix = suffix,
+				tmp_dir = sandbox_dir
 			)
 
 		data_query = {
@@ -243,8 +248,8 @@ class cFormTemplate(gmBusinessDBObject.cBusinessDBObject):
 		self.refetch_payload()
 
 	#--------------------------------------------------------
-	def instantiate(self):
-		fname = self.save_to_file()
+	def instantiate(self, use_sandbox=False):
+		fname = self.save_to_file(use_sandbox = use_sandbox)
 		engine = form_engines[self._payload[self._idx['engine']]]
 		form = engine(template_file = fname)
 		form.template = self
@@ -1612,7 +1617,11 @@ class cGnuplotForm(cFormEngine):
 
 		Expects .data_filename to be set.
 		"""
-		wrapper_filename = gmTools.get_unique_filename(prefix = 'gm2gpl-wrapper-', suffix = '.gpl')
+		wrapper_filename = gmTools.get_unique_filename (
+			prefix = 'gm2gpl-wrapper-',
+			suffix = '.gpl',
+			tmp_dir = gmTools.fname_dir(self.data_filename)
+		)
 		wrapper_script = io.open(wrapper_filename, mode = 'wt', encoding = 'utf8')
 		wrapper_script.write(_GNUPLOT_WRAPPER_SCRIPT % (
 			self.data_filename,

@@ -560,7 +560,6 @@ def plot_measurements(parent=None, tests=None, format=None, show_year = True, us
 			active_only = True,
 			template_types = ['gnuplot script']
 		)
-
 	if template is None:
 		gmGuiHelpers.gm_show_error (
 			aMessage = _('Cannot plot without a plot script.'),
@@ -569,8 +568,7 @@ def plot_measurements(parent=None, tests=None, format=None, show_year = True, us
 		return False
 
 	fname_data = gmPathLab.export_results_for_gnuplot(results = tests, show_year = show_year, patient = gmPerson.gmCurrentPatient())
-
-	script = template.instantiate()
+	script = template.instantiate(use_sandbox = True)
 	script.data_filename = fname_data
 	script.generate_output(format = format) 		# Gnuplot output terminal, wxt = wxWidgets window
 

@@ -2743,8 +2743,11 @@ def __format_test_results_latex(results=None):
 #============================================================
 def export_results_for_gnuplot(results=None, filename=None, show_year=True, patient=None):
 
+	sandbox_dir = gmTools.mk_sandbox_dir(prefix = 'gm2gpl-')
+	_log.debug('sandbox directory: [%s]', sandbox_dir)
+
 	if filename is None:
-		filename = gmTools.get_unique_filename(prefix = 'gm2gpl-', suffix = '.dat')
+		filename = gmTools.get_unique_filename(prefix = 'gm2gpl-', suffix = '.dat', tmp_dir = sandbox_dir)
 
 	# sort results into series by test type
 	series = {}
@@ -2755,44 +2758,44 @@ def export_results_for_gnuplot(results=None, filename=None, show_year=True, pati
 			series[r['unified_name']] = [r]
 
 	conf_name = '%s.conf' % filename
-	gp_conf = io.open(conf_name, mode = 'wt', encoding = 'utf8')
-	gp_conf.write('# settings for stacked multiplot layouts:\n')
+	gplot_conf = io.open(conf_name, mode = 'wt', encoding = 'utf8')
+	gplot_conf.write('# settings for stacked multiplot layouts:\n')
 	if patient is not None:
-		gp_conf.write('multiplot_title = "%s"	# a global title\n' % patient.get_description_gender(with_nickname = False).strip())
-	gp_conf.write('multiplot_no_of_tests = %s	# number of index blocks (test types)\n' % len(series))
-	gp_conf.write('array multiplot_y_labels[multiplot_no_of_tests]	# ylabels suitable for stacked multiplots\n')
-	gp_conf.write('# settings for individual plots, stacked or not:\n')
+		gplot_conf.write('multiplot_title = "%s"	# a global title\n' % patient.get_description_gender(with_nickname = False).strip())
+	gplot_conf.write('multiplot_no_of_tests = %s	# number of index blocks (test types)\n' % len(series))
+	gplot_conf.write('array multiplot_y_labels[multiplot_no_of_tests]	# ylabels suitable for stacked multiplots\n')
+	gplot_conf.write('# settings for individual plots, stacked or not:\n')
 
-	gp_data = io.open(filename, mode = 'wt', encoding = 'utf8')
-	gp_data.write('# -------------------------------------------------------------\n')
-	gp_data.write('# GNUmed test results export for Gnuplot plotting\n')
-	gp_data.write('# -------------------------------------------------------------\n')
-	gp_data.write('# first line of each index: test type abbreviation & name,\n')
-	gp_data.write('# can be used as title for plots: set key ... autotitle columnheader\n')
-	gp_data.write('#\n')
-	gp_data.write('# Columns in each index:\n')
-	gp_data.write('# 1 - clin_when at full precision\n')
-	gp_data.write('#      set timefmt "%Y-%m-%d_%H:%M"\n')
-	gp_data.write('#      timecolumn(1, "%Y-%m-%d_%H:%M")\n')
-	gp_data.write('# 2 - value\n')
-	gp_data.write('# 3 - unit\n')
-	gp_data.write('# 4 - unified (target or normal) range: lower bound\n')
-	gp_data.write('# 5 - unified (target or normal) range: upper bound\n')
-	gp_data.write('# 6 - normal range: lower bound\n')
-	gp_data.write('# 7 - normal range: upper bound\n')
-	gp_data.write('# 8 - target range: lower bound\n')
-	gp_data.write('# 9 - target range: upper bound\n')
-	gp_data.write('# 10 - clin_when formatted into string (say, as x-axis tic label)\n')
-	gp_data.write('#\n')
-	gp_data.write('# index rows are NOT sorted by clin_when, so plotting\n')
-	gp_data.write('# with lined styles will make the lines go all over\n')
-	gp_data.write('# -------------------------------------------------------------\n')
-	gp_data.write('#\n')
-	gp_data.write('# the file <%s.conf>\n' % filename)
-	gp_data.write('# will contain various gnuplot settings specific to this plot,\n')
-	gp_data.write('# such as <ylabel>, <y2label>, <title>,\n')
-	gp_data.write('# there will also be settings suitable for stacked multiplots\n')
-	gp_data.write('# -------------------------------------------------------------\n')
+	gplot_data = io.open(filename, mode = 'wt', encoding = 'utf8')
+	gplot_data.write('# -------------------------------------------------------------\n')
+	gplot_data.write('# GNUmed test results export for Gnuplot plotting\n')
+	gplot_data.write('# -------------------------------------------------------------\n')
+	gplot_data.write('# first line of each index: test type abbreviation & name,\n')
+	gplot_data.write('# can be used as title for plots: set key ... autotitle columnheader\n')
+	gplot_data.write('#\n')
+	gplot_data.write('# Columns in each index:\n')
+	gplot_data.write('# 1 - clin_when at full precision\n')
+	gplot_data.write('#      set timefmt "%Y-%m-%d_%H:%M"\n')
+	gplot_data.write('#      timecolumn(1, "%Y-%m-%d_%H:%M")\n')
+	gplot_data.write('# 2 - value\n')
+	gplot_data.write('# 3 - unit\n')
+	gplot_data.write('# 4 - unified (target or normal) range: lower bound\n')
+	gplot_data.write('# 5 - unified (target or normal) range: upper bound\n')
+	gplot_data.write('# 6 - normal range: lower bound\n')
+	gplot_data.write('# 7 - normal range: upper bound\n')
+	gplot_data.write('# 8 - target range: lower bound\n')
+	gplot_data.write('# 9 - target range: upper bound\n')
+	gplot_data.write('# 10 - clin_when formatted into string (say, as x-axis tic label)\n')
+	gplot_data.write('#\n')
+	gplot_data.write('# index rows are NOT sorted by clin_when, so plotting\n')
+	gplot_data.write('# with lined styles will make the lines go all over\n')
+	gplot_data.write('# -------------------------------------------------------------\n')
+	gplot_data.write('#\n')
+	gplot_data.write('# the file <%s.conf>\n' % filename)
+	gplot_data.write('# will contain various gnuplot settings specific to this plot,\n')
+	gplot_data.write('# such as <ylabel>, <y2label>, <title>,\n')
+	gplot_data.write('# there will also be settings suitable for stacked multiplots\n')
+	gplot_data.write('# -------------------------------------------------------------\n')
 
 	series_keys = list(series.keys())
 	for test_type_idx in range(len(series_keys)):
@@ -2800,24 +2803,24 @@ def export_results_for_gnuplot(results=None, filename=None, show_year=True, pati
 		if len(series[test_type]) == 0:
 			continue
 		result = series[test_type][0]
-		gp_conf.write('multiplot_y_labels[%s] = "%s (%s)"\n' % (test_type_idx + 1, result['unified_name'], result['unified_abbrev']))
+		gplot_conf.write('multiplot_y_labels[%s] = "%s (%s)"\n' % (test_type_idx + 1, result['unified_name'], result['unified_abbrev']))
 		if test_type_idx == 0:
 			if patient is not None:
-				gp_conf.write('set title "%s" enhanced\n' % patient.get_description_gender(with_nickname = False).strip())
-			gp_conf.write('set ylabel "%s"\n' % result['unified_name'])
+				gplot_conf.write('set title "%s" enhanced\n' % patient.get_description_gender(with_nickname = False).strip())
+			gplot_conf.write('set ylabel "%s"\n' % result['unified_name'])
 		elif test_type_idx == 1:
-			gp_conf.write('set y2label "%s"\n' % result['unified_name'])
+			gplot_conf.write('set y2label "%s"\n' % result['unified_name'])
 		title = '%s (%s)' % (
 			result['unified_abbrev'],
 			result['unified_name']
 		)
-		gp_data.write('\n\n"%s" "%s"\n' % (title, title))
+		gplot_data.write('\n\n"%s" "%s"\n' % (title, title))
 		prev_date = None
 		prev_year = None
 		for result in series[test_type]:
 			curr_date = gmDateTime.pydt_strftime(result['clin_when'], '%Y-%m-%d', 'utf8', gmDateTime.acc_days)
 			if curr_date == prev_date:
-				gp_data.write('\n# %s\n' % _('blank line inserted to allow for discontinued line drawing of same-day values'))
+				gplot_data.write('\n# %s\n' % _('blank line inserted to allow for discontinued line drawing of same-day values'))
 			if show_year:
 				if result['clin_when'].year == prev_year:
 					when_template = '%b %d %H:%M'
@@ -2831,7 +2834,7 @@ def export_results_for_gnuplot(results=None, filename=None, show_year=True, pati
 				val = result.estimate_numeric_value_from_alpha
 			if val is None:
 				continue		# skip distinctly non-numericable values
-			gp_data.write ('%s %s "%s" %s %s %s %s %s %s "%s"\n' % (
+			gplot_data.write ('%s %s "%s" %s %s %s %s %s %s "%s"\n' % (
 				#result['clin_when'].strftime('%Y-%m-%d_%H:%M'),
 				gmDateTime.pydt_strftime(result['clin_when'], '%Y-%m-%d_%H:%M', 'utf8', gmDateTime.acc_minutes),
 				val,
@@ -2849,8 +2852,8 @@ def export_results_for_gnuplot(results=None, filename=None, show_year=True, pati
 				)
 			))
 			prev_date = curr_date
-	gp_data.close()
-	gp_conf.close()
+	gplot_data.close()
+	gplot_conf.close()
 
 	return filename
 
