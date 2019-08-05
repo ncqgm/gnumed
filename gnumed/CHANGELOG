@@ -2046,6 +2046,8 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 
 IMPROVED: lab results plotting scripts for gnuplot
 
+NEW: multi-results plotting script for gnuplot
+
 	22.6
 
 FIX: properly include fixups in v21-v22 upgrade

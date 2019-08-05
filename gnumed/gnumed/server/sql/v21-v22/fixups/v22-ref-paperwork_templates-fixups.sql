@@ -32,6 +32,29 @@ insert into ref.paperwork_templates (
 );
 
 -- --------------------------------------------------------------
+delete from ref.paperwork_templates where name_long = 'lab results plot: many test types (GNUmed default)';
+
+insert into ref.paperwork_templates (
+	fk_template_type,
+	instance_type,
+	name_short,
+	name_long,
+	external_version,
+	engine,
+	filename,
+	data
+) values (
+	(select pk from ref.form_types where name = 'gnuplot script'),
+	'lab results plot',
+	'lab plot: >1 test (GMd)',
+	'lab results plot: many test types (GNUmed default)',
+	'22.7',
+	'G',
+	'plotscript.gpl',
+	'real template missing'::bytea
+);
+
+-- --------------------------------------------------------------
 -- convert paperwork templates
 
 -- $<<<...>>>$ -> $3<...>3$
