@@ -40,5 +40,19 @@ def run(conn=None):
 		conn = conn
 	)
 
+	# new
+	gmPG2.file2bytea (
+		query = u"""
+			UPDATE ref.paperwork_templates
+			SET
+				data = %(data)s::bytea,
+				external_version = 'v22.7'
+			WHERE
+				name_long = 'lab results plot: many test types (GNUmed default)'
+			""",
+		filename = os.path.join('..', 'sql', 'v21-v22', 'data', 'v22-gm2gpl-plot_many_tests.gpl'),
+		conn = conn
+	)
+
 	return True
 #==============================================================
