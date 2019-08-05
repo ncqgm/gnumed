@@ -1516,6 +1516,83 @@ form_engines['X'] = cXeTeXForm
 #============================================================
 # Gnuplot template forms
 #------------------------------------------------------------
+_GNUPLOT_WRAPPER_SCRIPT = """# --------------------------------------------------------------
+# GNUplot wrapper script used by GNUmed
+#
+# This script is used to make gnuplot
+#
+#	display some debugging information
+#
+#	load GNUmed specific settings such as the timestamp
+#	format, encoding, symbol for missing values,
+#
+#	load data specific values such as y(2)label or plot
+#	title which GNUmed will have set up while exporting
+#	test results for plotting,
+#
+#	know the datafile name from the variable <gm2gpl_datafile>
+#	which the user provided plotting script can then use
+#	to access data like so:
+#
+#		plot gm2gpl_datafile ...
+#
+# --------------------------------------------------------------
+
+# -- debugging ----
+show version long
+print "-- <show all> at startup ----"
+show all
+print "-- <show variables all> at startup ----"
+show variables all
+
+
+# -- data format setup ----
+set encoding utf8
+set timefmt "%%Y-%%m-%%d_%%H:%%M"		# timestamp input formatting, not for output
+
+
+# -- data file setup ----
+gm2gpl_datafile = '%s'
+set datafile missing "<?>"
+set xdata time
+set x2data time
+
+
+# -- process additional definitions from GNUmed ----
+gm2gpl_datafile_conf = gm2gpl_datafile.'.conf'
+load gm2gpl_datafile_conf
+
+
+# -- actually run the user provided plotting script ----
+call '%s'
+
+
+# -- debugging ----
+print "-- <show all> after running user provided plotting script ----"
+show all
+print "-- <show variables all> after running user provided plotting script ----"
+show variables all
+
+# PNG output:
+#set terminal png enhanced transparent nointerlace truecolor #medium #crop
+##set output 'test_terminal.png'
+##test
+#set output gm2gpl_datafile.'.dbg.png'
+#replot
+
+# ASCII art output:
+#set terminal dumb size 120,45 feed enhanced ansirgb
+##set output 'test_terminal.txt'
+##test
+#set output gm2gpl_datafile.'.dbg.txt'
+#replot
+#set terminal dumb size 120,45 feed enhanced mono
+##set output 'test_terminal.ascii.txt'
+##test
+#set output gm2gpl_datafile.'.dbg.ascii.txt'
+#replot
+"""
+
 class cGnuplotForm(cFormEngine):
 	"""A forms engine wrapping Gnuplot."""
 
@@ -1528,41 +1605,39 @@ class cGnuplotForm(cFormEngine):
 		"""Allow editing the instance of the template."""
 		self.re_editable_filenames = []
 		return True
+
 	#--------------------------------------------------------
 	def generate_output(self, format=None):
 		"""Generate output suitable for further processing outside this class, e.g. printing.
 
 		Expects .data_filename to be set.
 		"""
-		self.conf_filename = gmTools.get_unique_filename(prefix = 'gm2gpl-', suffix = '.conf')
-		conf_file = io.open(self.conf_filename, mode = 'wt', encoding = 'utf8')
-		conf_file.write('# this file defines a variable pointing to the data file,\n')
-		conf_file.write('# the file name needs to be passed to gnuplot on the\n')
-		conf_file.write('# command line before the actual script file itself,\n')
-		conf_file.write('# the script file will then use that variable to find the data file\n')
-		conf_file.write("gm2gpl_datafile = '%s'\n" % self.data_filename)
-		conf_file.close()
-
+		wrapper_filename = gmTools.get_unique_filename(prefix = 'gm2gpl-wrapper-', suffix = '.gpl')
+		wrapper_script = io.open(wrapper_filename, mode = 'wt', encoding = 'utf8')
+		wrapper_script.write(_GNUPLOT_WRAPPER_SCRIPT % (
+			self.data_filename,
+			self.template_filename
+		))
+		wrapper_script.close()
 		# FIXME: cater for configurable path
 		if platform.system() == 'Windows':
 			exec_name = 'gnuplot.exe'
 		else:
 			exec_name = 'gnuplot'
-
 		cmd_line = [
 			exec_name,
-			'-p',					# let plot window persist after main gnuplot process exits
-			self.conf_filename,		# contains the gm2gpl_datafile setting which, in turn, contains the actual data
-			self.template_filename	# contains the plotting instructions (IOW a user provided gnuplot script)
+			'-p',					# persist plot window after gnuplot exits (in case the wxt terminal is used)
+			wrapper_filename
 		]
 		success, exit_code, stdout = gmShellAPI.run_process(cmd_line = cmd_line, encoding = 'utf8', verbose = _cfg.get(option = 'debug'))
 		if not success:
 			gmDispatcher.send(signal = 'statustext', msg = _('Error running gnuplot. Cannot plot data.'), beep = True)
 			return
+
 		self.final_output_filenames = [
-			self.conf_filename,
 			self.data_filename,
-			self.template_filename
+			self.template_filename,
+			wrapper_filename
 		]
 		return
 

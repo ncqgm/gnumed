@@ -52,7 +52,7 @@ show variables all
 # STATS does not yet work with timedata, so dummy-plot
 # as ASCII art for accessing GP_* values
 set terminal dumb size 120, 45 * multiplot_no_of_tests feed enhanced mono #ansirgb
-set output gm2gpl_datafile.".txt"
+set output gm2gpl_datafile.'.txt'
 
 set multiplot layout multiplot_no_of_tests,1 title multiplot_title
 	do for [data_block_idx = 0:multiplot_no_of_tests-1] {
@@ -105,7 +105,7 @@ height_for_stack = png_height_per_plot * multiplot_no_of_tests
 
 
 set terminal png size width_for_stack,height_for_stack enhanced transparent nointerlace truecolor #medium #crop
-set output gm2gpl_datafile.".png"
+set output gm2gpl_datafile.'.png'
 
 
 set multiplot layout multiplot_no_of_tests,1 title multiplot_title
