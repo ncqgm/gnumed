@@ -22,6 +22,7 @@ if __name__ == '__main__':
 	gmI18N.install_domain(domain = 'gnumed')
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmMatchProvider
+from Gnumed.pycommon import gmDispatcher
 
 from Gnumed.business import gmATC
 
