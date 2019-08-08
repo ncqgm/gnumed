@@ -3337,15 +3337,21 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 		# recent value when editing an existing one
 		if self.data is not None:
 			return
+
 		if self._PRW_test.GetData() is None:
 			return
+
 		tt = self._PRW_test.GetData(as_instance = True)
-		most_recent = tt.get_most_recent_results (
+		most_recent_results = tt.get_most_recent_results (
 			no_of_results = 1,
 			patient = gmPerson.gmCurrentPatient().ID
 		)
-		if most_recent is None:
+		if most_recent_results is None:
 			return
+		if len(most_recent_results) == 0:
+			return
+
+		most_recent = most_recent_results[0]
 		self._TCTRL_previous_value.SetValue(_('%s ago: %s%s%s - %s%s') % (
 			gmDateTime.format_interval_medically(gmDateTime.pydt_now_here() - most_recent['clin_when']),
 			most_recent['unified_val'],

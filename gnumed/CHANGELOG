@@ -58,6 +58,7 @@ FIX: "lastname, firstname" based patient search under Python 3
 	1.7.7
 
 FIX: EMR/tree: exception on showing visual progress note
+FIX: lab/result EA: exception when no previous result available
 
 	1.7.6
 
