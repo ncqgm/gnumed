@@ -60,6 +60,7 @@ FIX: "lastname, firstname" based patient search under Python 3
 FIX: EMR/tree: exception on showing visual progress note
 FIX: lab/result EA: exception when no previous result available
 FIX: meds/substance EA: exception when no LOINC selected
+FIX: data/ATC: fix reference data import
 
 	1.7.6
 

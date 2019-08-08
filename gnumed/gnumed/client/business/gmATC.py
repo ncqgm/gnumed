@@ -148,30 +148,37 @@ def atc_import(cfg_fname=None, conn=None):
 
 	args = {'ver': version, 'desc': desc, 'url': url, 'name_long': name_long, 'name_short': name_short, 'lang': lang}
 
-	# create data source record
-	queries = [
-		{
-		'cmd': """delete from ref.data_source where name_short = %(name_short)s and version = %(ver)s""",
-		'args': args
-		}, {
-		'cmd': """
-insert into ref.data_source (name_long, name_short, version, description, lang, source) values (
-	%(name_long)s,
-	%(name_short)s,
-	%(ver)s,
-	%(desc)s,
-	%(lang)s,
-	%(url)s
-)""",
-		'args': args
-		}, {
-		'cmd': """select pk from ref.data_source where name_short = %(name_short)s and version = %(ver)s""",
-		'args': args
-		}
-	]
-	rows, idx = gmPG2.run_rw_queries(queries = queries, return_data = True)
-	data_src_pk = rows[0][0]
-	_log.debug('ATC data source record created, pk is #%s', data_src_pk)
+	# find or create data source record
+	cmd = u"select pk from ref.data_source where name_short = %(name_short)s and version = %(ver)s"
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+	if len(rows) > 0:
+		data_src_pk = rows[0][0]
+		_log.debug('ATC data source record existed, pk is #%s, refreshing fields', data_src_pk)
+		# exists - update
+		args['pk'] = data_src_pk
+		cmd = u"""UPDATE ref.data_source SET
+				name_long = %(name_long)s,
+				description = %(desc)s,
+				lang = %(lang)s,
+				source = %(url)s
+			WHERE
+				pk = %(pk)s
+		"""
+		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+	else:
+		_log.debug('ATC data source record not found, creating')
+		# create
+		cmd = u"""insert into ref.data_source (name_long, name_short, version, description, lang, source) values (
+			%(name_long)s,
+			%(name_short)s,
+			%(ver)s,
+			%(desc)s,
+			%(lang)s,
+			%(url)s
+		) returning pk"""
+		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True)
+		data_src_pk = rows[0][0]
+		_log.debug('ATC data source record created, pk is #%s', data_src_pk)
 
 	# import data
 	csv_file = io.open(data_fname, mode = 'rt', encoding = 'utf8', errors = 'replace')
@@ -235,30 +242,45 @@ insert into ref.data_source (name_long, name_short, version, description, lang, 
 	_log.debug('ATC staging table loaded')
 
 	# from staging table to real table
-	curs = conn.cursor()
 	args = {'src_pk': data_src_pk}
-	cmd = """
-insert into ref.atc (
-	fk_data_source,
-	code,
-	term,
-	comment,
-	unit,
-	administration_route
-) select
-	%(src_pk)s,
-	atc,
-	name,
-	nullif(comment, ''),
-	nullif(unit, ''),
-	nullif(adro, '')
-
-from
-	ref.atc_staging
-"""
-
-	gmPG2.run_rw_queries(link_obj = curs, queries = [{'cmd': cmd, 'args': args}])
-
+	queries = []
+	# transfer new records
+	cmd = u"""
+		insert into ref.atc (
+			fk_data_source,
+			code,
+			term,
+			comment,
+			administration_route
+		) select
+			%(src_pk)s,
+			atc,
+			name,
+			nullif(comment, ''),
+			nullif(adro, '')
+		FROM
+			ref.atc_staging
+		WHERE
+			not exists (
+				select 1 FROM ref.atc WHERE fk_data_source = %(src_pk)s AND code = ref.atc_staging.atc
+			)
+	"""
+	queries.append({'cmd': cmd, 'args': args})
+	# update records so pre-existing ones are refreshed
+	cmd = u"""
+		UPDATE ref.atc SET
+			code = r_as.atc,
+			term = r_as.name,
+			comment = nullif(r_as.comment, ''),
+			administration_route = nullif(r_as.adro, '')
+		FROM
+			(SELECT atc, name, comment, adro FROM ref.atc_staging) AS r_as
+		WHERE
+			fk_data_source = %(src_pk)s
+	"""
+	queries.append({'cmd': cmd, 'args': args})
+	curs = conn.cursor()
+	gmPG2.run_rw_queries(link_obj = curs, queries = queries)
 	curs.close()
 	conn.commit()
 	_log.debug('transfer from ATC staging table to real ATC table done')
