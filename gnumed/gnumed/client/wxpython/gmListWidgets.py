@@ -1699,7 +1699,7 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 			existing_data = []
 
 		if allow_dupes:
-			self._LCTRL_right.set_string_items (
+			self.set_string_items (
 				items = self.string_items.extend(new_items),
 				reshow = True
 			)

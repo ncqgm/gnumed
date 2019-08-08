@@ -10,6 +10,7 @@
 
 FIX: EMR/tree: exception on showing visual progress note
 FIX: lab/result EA: exception when no previous result available
+FIX: meds/substance EA: exception when no LOINC selected
 
 	1.7.6
 

@@ -342,8 +342,9 @@ class cSubstanceEAPnl(wxgSubstanceEAPnl.wxgSubstanceEAPnl, gmEditArea.cGenericEd
 			return False
 
 		loincs = self._LCTRL_loincs.item_data
-		if len(loincs) > 0:
-			subst.loincs = loincs
+		if loincs is not None:
+			if len(loincs) > 0:
+				subst.loincs = loincs
 
 		self.data = subst
 		return True
@@ -362,8 +363,9 @@ class cSubstanceEAPnl(wxgSubstanceEAPnl.wxgSubstanceEAPnl, gmEditArea.cGenericEd
 			return False
 
 		loincs = self._LCTRL_loincs.item_data
-		if len(loincs) > 0:
-			self.data.loincs = loincs
+		if loincs is not None:
+			if len(loincs) > 0:
+				self.data.loincs = loincs
 
 		return True
 
