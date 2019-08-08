@@ -661,7 +661,7 @@ def unicode_csv_reader(unicode_csv_data, dialect=csv.excel, encoding='utf-8', **
 	if is_dict_reader:
 		kwargs['restkey'] = default_csv_reader_rest_key
 		return csv.DictReader(unicode_csv_data, dialect=dialect, **kwargs)
-	return csv.reader(csv_data, dialect=dialect, **kwargs)
+	return csv.reader(unicode_csv_data, dialect=dialect, **kwargs)
 
 
 
