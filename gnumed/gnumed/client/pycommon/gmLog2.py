@@ -184,10 +184,10 @@ def log_stack_trace(message=None, t=None, v=None, tb=None):
 	logger.debug('(locals by frame, outmost frame first)')
 	for frame in stack_of_frames:
 		logger.debug (
-			'>>> execution frame [%s] in [%s] at line %s <<<',
+			'--- frame [%s]: #%s, %s -------------------',
 			frame.f_code.co_name,
-			frame.f_code.co_filename,
-			frame.f_lineno
+			frame.f_lineno,
+			frame.f_code.co_filename
 		)
 		for varname, value in frame.f_locals.items():
 			if varname == '__doc__':
