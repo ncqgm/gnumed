@@ -635,9 +635,10 @@ class cSubstanceDoseEAPnl(wxgSubstanceDoseEAPnl.wxgSubstanceDoseEAPnl, gmEditAre
 
 	#----------------------------------------------------------------
 	def _save_as_new(self):
+		pk_subst = self._PRW_substance.GetData()
 		dose = gmMedication.create_substance_dose (
-			pk_substance = self._PRW_substance.GetData(),
-			substance = self._PRW_substance.GetValue().strip(),
+			pk_substance = pk_subst,
+			substance = self._PRW_substance.GetValue().strip() if (pk_subst is None) else None,
 			amount = decimal.Decimal(self._TCTRL_amount.GetValue().strip().replace(',', '.')),
 			unit = gmTools.coalesce(self._PRW_unit.GetData(), self._PRW_unit.GetValue().strip(), function_initial = ('strip', None)),
 			dose_unit = gmTools.coalesce(self._PRW_dose_unit.GetData(), self._PRW_dose_unit.GetValue().strip(), function_initial = ('strip', None))
