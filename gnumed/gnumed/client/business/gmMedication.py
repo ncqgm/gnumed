@@ -1755,30 +1755,30 @@ def get_drug_by_atc(atc=None, preparation=None, link_obj=None):
 
 #------------------------------------------------------------
 def create_drug_product(product_name=None, preparation=None, return_existing=False, link_obj=None, doses=None):
-
 	if preparation is None:
 		preparation = _('units')
-
 	if preparation.strip() == '':
 		preparation = _('units')
-
 	if return_existing:
 		drug = get_drug_by_name(product_name = product_name, preparation = preparation, link_obj = link_obj)
 		if drug is not None:
 			return drug
 
-	commit = lambda x:x
 	if link_obj is None:
 		link_obj = gmPG2.get_connection(readonly = False)
-		commit = link_obj.commit
-
+		conn_commit = link_obj.commit
+		conn_close = link_obj.close
+	else:
+		conn_commit = lambda x:x
+		conn_close = lambda x:x
 	cmd = 'INSERT INTO ref.drug_product (description, preparation) VALUES (%(prod_name)s, %(prep)s) RETURNING pk'
 	args = {'prod_name': product_name, 'prep': preparation}
 	rows, idx = gmPG2.run_rw_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': args}], return_data = True, get_col_idx = False)
 	product = cDrugProduct(aPK_obj = rows[0]['pk'], link_obj = link_obj)
 	if doses is not None:
 		product.set_substance_doses_as_components(substance_doses = doses, link_obj = link_obj)
-	commit()
+	conn_commit()
+	conn_close()
 	return product
 
 #------------------------------------------------------------

@@ -1128,6 +1128,8 @@ class cDrugProductEAPnl(wxgDrugProductEAPnl.wxgDrugProductEAPnl, gmEditArea.cGen
 		if data is not None:
 			self.mode = 'edit'
 			self.__component_doses = data.components_as_doses
+		else:
+			self.__component_doses = []
 
 		#self.__init_ui()
 	#----------------------------------------------------------------
@@ -1205,14 +1207,13 @@ class cDrugProductEAPnl(wxgDrugProductEAPnl.wxgDrugProductEAPnl, gmEditArea.cGen
 
 	#----------------------------------------------------------------
 	def _save_as_new(self):
-
 		drug = gmMedication.create_drug_product (
 			product_name = self._PRW_product_name.GetValue().strip(),
 			preparation = gmTools.coalesce (
 				self._PRW_preparation.GetData(),
 				self._PRW_preparation.GetValue()
 			).strip(),
-			doses = self.__component_doses,
+			doses = self.__component_doses if (len(self.__component_doses) > 0) else None,
 			return_existing = True
 		)
 		drug['is_fake_product'] = self._CHBOX_is_fake.GetValue()
@@ -1221,14 +1222,8 @@ class cDrugProductEAPnl(wxgDrugProductEAPnl.wxgDrugProductEAPnl, gmEditArea.cGen
 		if code != '':
 			drug['external_code'] = code
 			drug['external_code_type'] = self._PRW_external_code_type.GetData().strip()
-
 		drug.save()
-
-#		if len(self.__component_doses) > 0:
-#			drug.set_substance_doses_as_components(substance_doses = self.__component_doses)
-
 		self.data = drug
-
 		return True
 
 	#----------------------------------------------------------------
@@ -1264,7 +1259,7 @@ class cDrugProductEAPnl(wxgDrugProductEAPnl.wxgDrugProductEAPnl, gmEditArea.cGen
 
 		self._PRW_product_name.SetFocus()
 
-		self.__component_substances = []
+		self.__component_doses = []
 
 	#----------------------------------------------------------------
 	def _refresh_as_new_from_existing(self):
@@ -1566,7 +1561,6 @@ class cSingleComponentGenericDrugEAPnl(wxgSingleComponentGenericDrugEAPnl.wxgSin
 
 	#----------------------------------------------------------------
 	def _save_as_new(self):
-
 		dose = gmMedication.create_substance_dose (
 			pk_substance = self._PRW_substance.GetData(),
 			amount = self._TCTRL_amount.Value.strip(),
