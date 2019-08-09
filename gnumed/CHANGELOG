@@ -13,6 +13,7 @@ FIX: lab/result EA: exception when no previous result available
 FIX: meds/substance EA: exception when no LOINC selected
 FIX: data/ATC: fix reference data import
 FIX: meds/dose EA: exception on saving
+FIX: meds/product EA: exception on creating new product
 
 	1.7.6
 
