@@ -1123,13 +1123,13 @@ class cDrugProductEAPnl(wxgDrugProductEAPnl.wxgDrugProductEAPnl, gmEditArea.cGen
 		wxgDrugProductEAPnl.wxgDrugProductEAPnl.__init__(self, *args, **kwargs)
 		gmEditArea.cGenericEditAreaMixin.__init__(self)
 
+		self.__component_doses = []
+
 		self.mode = 'new'
 		self.data = data
 		if data is not None:
 			self.mode = 'edit'
 			self.__component_doses = data.components_as_doses
-		else:
-			self.__component_doses = []
 
 		#self.__init_ui()
 	#----------------------------------------------------------------
