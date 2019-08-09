@@ -1835,17 +1835,17 @@ def run_rw_queries(link_obj=None, queries=None, end_tx=False, return_data=None, 
 
 	<end_tx>
 		- controls whether the transaction is finalized (eg.
-		  committed/rolled back) or not, this allows the
+		  COMMITted/ROLLed BACK) or not, this allows the
 		  call to run_rw_queries() to be part of a framing
 		  transaction
-		- if link_obj is a connection then <end_tx> will
+		- if link_obj is a *connection* then <end_tx> will
 		  default to False unless it is explicitly set to
 		  True which is taken to mean "yes, you do have full
 		  control over the transaction" in which case the
 		  transaction is properly finalized
-		- if link_obj is a cursor we CANNOT finalize the
+		- if link_obj is a *cursor* we CANNOT finalize the
 		  transaction because we would need the connection for that
-		- if link_obj is None <end_tx> will, of course, always be True
+		- if link_obj is *None* <end_tx> will, of course, always be True
 
 	<return_data>
 		- if true, the returned data will include the rows
