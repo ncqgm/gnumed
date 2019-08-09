@@ -1915,42 +1915,37 @@ class cMeasurementsGrid(wx.grid.Grid):
 		)
 
 		plot_measurements(parent = self, tests = tests)
+
 	#------------------------------------------------------------
 	def get_selected_cells(self):
+		"""Assemble list of all selected cells."""
 
-		sel_block_top_left = self.GetSelectionBlockTopLeft()
-		sel_block_bottom_right = self.GetSelectionBlockBottomRight()
-		sel_cols = self.GetSelectedCols()
-		sel_rows = self.GetSelectedRows()
-
-		selected_cells = []
-
+		all_selected_cells = []
 		# individually selected cells (ctrl-click)
-		selected_cells += self.GetSelectedCells()
-
-		# selected rows
-		selected_cells += list (
+		all_selected_cells += self.GetSelectedCells()
+		# add cells from fully selected rows
+		fully_selected_rows = self.GetSelectedRows()
+		all_selected_cells += list (
 			(row, col)
-				for row in sel_rows
+				for row in fully_selected_rows
 				for col in range(self.GetNumberCols())
 		)
-
-		# selected columns
-		selected_cells += list (
+		# add cells from fully selected columns
+		fully_selected_cols = self.GetSelectedCols()
+		all_selected_cells += list (
 			(row, col)
 				for row in range(self.GetNumberRows())
-				for col in sel_cols
+				for col in fully_selected_cols
 		)
-
-		# selection blocks
+		# add cells from selection blocks
 		for top_left, bottom_right in zip(self.GetSelectionBlockTopLeft(), self.GetSelectionBlockBottomRight()):
-			selected_cells += [
+			all_selected_cells += [
 				(row, col)
 					for row in range(top_left[0], bottom_right[0] + 1)
 					for col in range(top_left[1], bottom_right[1] + 1)
 			]
+		return set(all_selected_cells)
 
-		return set(selected_cells)
 	#------------------------------------------------------------
 	def select_cells(self, unsigned_only=False, accountables_only=False, keep_preselections=False):
 		"""Select a range of cells according to criteria.
