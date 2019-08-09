@@ -1938,11 +1938,12 @@ class cMeasurementsGrid(wx.grid.Grid):
 				for col in fully_selected_cols
 		)
 		# add cells from selection blocks
-		for top_left, bottom_right in zip(self.GetSelectionBlockTopLeft(), self.GetSelectionBlockBottomRight()):
+		selected_blocks = zip(self.GetSelectionBlockTopLeft(), self.GetSelectionBlockBottomRight())
+		for top_left_corner, bottom_right_corner in selected_blocks:
 			all_selected_cells += [
 				(row, col)
-					for row in range(top_left[0], bottom_right[0] + 1)
-					for col in range(top_left[1], bottom_right[1] + 1)
+					for row in range(top_left_corner[0], bottom_right_corner[0] + 1)
+					for col in range(top_left_corner[1], bottom_right_corner[1] + 1)
 			]
 		return set(all_selected_cells)
 
