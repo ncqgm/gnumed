@@ -45,6 +45,7 @@ IMPROVED: age sort mode in document tree
 IMPROVED: age/DOB tooltip
 IMPROVED: data revisions display
 IMPROVED: EMR list journal formatting
+IMPROVED: lab/plotting: support better gnuplot scripts
 
 FIX: [Save] functionality of Export Area
 FIX: document tree sorting / document insertion

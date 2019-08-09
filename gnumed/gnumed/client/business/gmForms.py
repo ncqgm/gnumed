@@ -1543,12 +1543,18 @@ _GNUPLOT_WRAPPER_SCRIPT = """# -------------------------------------------------
 #
 # --------------------------------------------------------------
 
+# logging verbosity, depending on GNUmed client debug state
+gmd_log_verbose = %s
+
+
 # -- debugging ----
 show version long
-print "-- <show all> at startup ----"
-show all
-print "-- <show variables all> at startup ----"
-show variables all
+if (gmd_log_verbose == 1) {
+	print "-- <show all> at startup ----"
+	show all
+	print "-- <show variables all> at startup ----"
+	show variables all
+}
 
 
 # -- data format setup ----
@@ -1573,29 +1579,31 @@ call '%s'
 
 
 # -- debugging ----
-print "-- <show all> after running user provided plotting script ----"
-show all
-print "-- <show variables all> after running user provided plotting script ----"
-show variables all
+if (gmd_log_verbose == 1) {
+	print "-- <show all> after running user provided plotting script ----"
+	show all
+	print "-- <show variables all> after running user provided plotting script ----"
+	show variables all
 
-# PNG output:
-#set terminal png enhanced transparent nointerlace truecolor #medium #crop
-##set output 'test_terminal.png'
-##test
-#set output gm2gpl_datafile.'.dbg.png'
-#replot
+	# PNG output:
+	#set terminal png enhanced transparent nointerlace truecolor #medium #crop
+	##set output 'test_terminal.png'
+	##test
+	#set output gm2gpl_datafile.'.dbg.png'
+	#replot
 
-# ASCII art output:
-#set terminal dumb size 120,45 feed enhanced ansirgb
-##set output 'test_terminal.txt'
-##test
-#set output gm2gpl_datafile.'.dbg.txt'
-#replot
-#set terminal dumb size 120,45 feed enhanced mono
-##set output 'test_terminal.ascii.txt'
-##test
-#set output gm2gpl_datafile.'.dbg.ascii.txt'
-#replot
+	# ASCII art output:
+	#set terminal dumb size 120,45 feed enhanced ansirgb
+	##set output 'test_terminal.txt'
+	##test
+	#set output gm2gpl_datafile.'.dbg.txt'
+	#replot
+	#set terminal dumb size 120,45 feed enhanced mono
+	##set output 'test_terminal.ascii.txt'
+	##test
+	#set output gm2gpl_datafile.'.dbg.ascii.txt'
+	#replot
+}
 """
 
 class cGnuplotForm(cFormEngine):
@@ -1624,6 +1632,7 @@ class cGnuplotForm(cFormEngine):
 		)
 		wrapper_script = io.open(wrapper_filename, mode = 'wt', encoding = 'utf8')
 		wrapper_script.write(_GNUPLOT_WRAPPER_SCRIPT % (
+			gmTools.bool2subst(_cfg.get(option = 'debug'), '1', '0', '0'),
 			self.data_filename,
 			self.template_filename
 		))

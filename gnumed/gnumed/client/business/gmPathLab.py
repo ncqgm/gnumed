@@ -11,6 +11,7 @@ import logging
 import io
 import decimal
 import re as regex
+import os.path
 
 
 if __name__ == '__main__':
@@ -29,11 +30,13 @@ from Gnumed.pycommon import gmPG2
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmHooks
+from Gnumed.pycommon import gmCfg2
 
 from Gnumed.business import gmOrganization
 from Gnumed.business import gmCoding
 
 _log = logging.getLogger('gm.lab')
+_cfg = gmCfg2.gmCfgData()
 
 #============================================================
 HL7_RESULT_STATI = {
@@ -2743,9 +2746,10 @@ def __format_test_results_latex(results=None):
 #============================================================
 def export_results_for_gnuplot(results=None, filename=None, show_year=True, patient=None):
 
-	sandbox_dir = gmTools.mk_sandbox_dir(prefix = 'gm2gpl-')
+	sandbox_dir = os.path.join(gmTools.gmPaths().tmp_dir, 'gplot')
+	if not gmTools.mkdir(sandbox_dir):
+		sandbox_dir = gmTools.mk_sandbox_dir(prefix = 'gm2gpl-')
 	_log.debug('sandbox directory: [%s]', sandbox_dir)
-
 	if filename is None:
 		filename = gmTools.get_unique_filename(prefix = 'gm2gpl-', suffix = '.dat', tmp_dir = sandbox_dir)
 
@@ -2760,10 +2764,22 @@ def export_results_for_gnuplot(results=None, filename=None, show_year=True, pati
 	conf_name = '%s.conf' % filename
 	gplot_conf = io.open(conf_name, mode = 'wt', encoding = 'utf8')
 	gplot_conf.write('# settings for stacked multiplot layouts:\n')
-	if patient is not None:
-		gplot_conf.write('multiplot_title = "%s"	# a global title\n' % patient.get_description_gender(with_nickname = False).strip())
-	gplot_conf.write('multiplot_no_of_tests = %s	# number of index blocks (test types)\n' % len(series))
-	gplot_conf.write('array multiplot_y_labels[multiplot_no_of_tests]	# ylabels suitable for stacked multiplots\n')
+	sub_title = _('plotted %s (GNUmed v%s)') % (
+		gmDateTime.pydt_now_here().strftime('%Y %b %d %H:%M'),
+		_cfg.get(option = 'client_version')
+	)
+	if patient is None:
+		plot_title = sub_title
+	else:
+		plot_title = '%s - %s\\n%s' % (
+			patient.get_description_gender(with_nickname = False).strip(),
+			patient.get_formatted_dob(format = '%Y %b %d', none_string = _('unknown DOB'), honor_estimation = True),
+			sub_title
+		)
+	gplot_conf.write('multiplot_title = "%s"\n' % plot_title)
+	gplot_conf.write('multiplot_no_of_tests = %s	# number of index blocks (resp. test types)\n' % len(series))
+	gplot_conf.write('array multiplot_y_labels[multiplot_no_of_tests]	# list for ylabels suitable for stacked multiplots\n')
+	gplot_conf.write('\n')
 	gplot_conf.write('# settings for individual plots, stacked or not:\n')
 
 	gplot_data = io.open(filename, mode = 'wt', encoding = 'utf8')
@@ -2803,13 +2819,13 @@ def export_results_for_gnuplot(results=None, filename=None, show_year=True, pati
 		if len(series[test_type]) == 0:
 			continue
 		result = series[test_type][0]
-		gplot_conf.write('multiplot_y_labels[%s] = "%s (%s)"\n' % (test_type_idx + 1, result['unified_name'], result['unified_abbrev']))
 		if test_type_idx == 0:
-			if patient is not None:
-				gplot_conf.write('set title "%s" enhanced\n' % patient.get_description_gender(with_nickname = False).strip())
+			gplot_conf.write('set title "%s" enhanced\n' % plot_title)
+			gplot_conf.write('\n')
 			gplot_conf.write('set ylabel "%s"\n' % result['unified_name'])
 		elif test_type_idx == 1:
 			gplot_conf.write('set y2label "%s"\n' % result['unified_name'])
+		gplot_conf.write('multiplot_y_labels[%s] = "%s (%s)"\n' % (test_type_idx + 1, result['unified_name'], result['unified_abbrev']))
 		title = '%s (%s)' % (
 			result['unified_abbrev'],
 			result['unified_name']
