@@ -1922,7 +1922,7 @@ class cMeasurementsGrid(wx.grid.Grid):
 
 		all_selected_cells = []
 		# individually selected cells (ctrl-click)
-		all_selected_cells += self.GetSelectedCells()
+		all_selected_cells += [ cell_coords.Get() for cell_coords in self.GetSelectedCells() ]
 		# add cells from fully selected rows
 		fully_selected_rows = self.GetSelectedRows()
 		all_selected_cells += list (
