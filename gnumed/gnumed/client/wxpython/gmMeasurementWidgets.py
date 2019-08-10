@@ -1375,6 +1375,9 @@ class cMeasurementsAsMostRecentListPnl(wxgMeasurementsAsMostRecentListPnl.wxgMea
 
 		self._TCTRL_details.SetValue('')
 		self._PNL_related_documents.lab_reference = None
+		if self.__patient is None:
+			self._LCTRL_results.remove_items_safely()
+			return
 
 		pnl = self._PRW_panel.GetData(as_instance = True)
 		if pnl is None:
