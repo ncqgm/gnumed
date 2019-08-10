@@ -2375,7 +2375,7 @@ _SQL_most_recent_result_for_test_types = """
 SELECT * FROM (
 	SELECT
 		*,
-		MIN(clin_when) OVER relevant_tests AS min_clin_when
+		MAX(clin_when) OVER relevant_tests AS max_clin_when
 	FROM
 		clin.v_test_results
 	WHERE
@@ -2383,7 +2383,7 @@ SELECT * FROM (
 	WINDOW relevant_tests AS (PARTITION BY pk_patient, pk_test_type)
 ) AS windowed_tests
 WHERE
-	clin_when = min_clin_when
+	clin_when = max_clin_when
 %s
 """
 
@@ -2393,7 +2393,7 @@ _SQL_most_recent_result_for_test_types_without_meta_type = """
 SELECT * FROM (
 	SELECT
 		*,
-		MIN(clin_when) OVER relevant_tests AS min_clin_when
+		MAX(clin_when) OVER relevant_tests AS max_clin_when
 	FROM
 		clin.v_test_results
 	WHERE
@@ -2403,7 +2403,7 @@ SELECT * FROM (
 	WINDOW relevant_tests AS (PARTITION BY pk_patient, pk_test_type)
 ) AS windowed_tests
 WHERE
-	clin_when = min_clin_when
+	clin_when = max_clin_when
 """
 
 _SQL_most_recent_result_for_test_types_by_meta_type = """
@@ -2412,7 +2412,7 @@ _SQL_most_recent_result_for_test_types_by_meta_type = """
 SELECT * FROM (
 	SELECT
 		*,
-		MIN(clin_when) OVER relevant_tests AS min_clin_when
+		MAX(clin_when) OVER relevant_tests AS max_clin_when
 	FROM
 		clin.v_test_results
 	WHERE
@@ -2422,7 +2422,7 @@ SELECT * FROM (
 	WINDOW relevant_tests AS (PARTITION BY pk_patient, pk_meta_test_type)
 ) AS windowed_tests
 WHERE
-	clin_when = min_clin_when
+	clin_when = max_clin_when
 """
 
 def get_most_recent_result_for_test_types(pk_test_types=None, pk_patient=None, return_pks=False, consider_meta_type=False, order_by=None):
