@@ -727,24 +727,21 @@ class cMeasurementType(gmBusinessDBObject.cBusinessDBObject):
 	in_use = property(_get_in_use, lambda x:x)
 
 	#--------------------------------------------------------
-	def get_most_recent_results(self, patient=None, no_of_results=1):
+	def get_most_recent_results(self, patient=None, max_no_of_results=1):
 		results = get_most_recent_results_for_test_type (
 			test_type = self._payload[self._idx['pk_test_type']],
-			no_of_results = no_of_results,
+			max_no_of_results = max_no_of_results,
 			patient = patient
 		)
-		if results is not None:
-			if no_of_results == 1:
-				return results
-			if len(results) > 1:
-				return results
+		if len(results) > 0:
+			return results
 
 		if self._payload[self._idx['loinc']] is None:
-			return None
+			return []
 
 		return get_most_recent_results_in_loinc_group (
 			loincs = tuple(self._payload[self._idx['loinc']]),
-			no_of_results = no_of_results,
+			max_no_of_results = max_no_of_results,
 			patient = patient
 			# ?
 		)
@@ -941,7 +938,7 @@ LIMIT 1"""
 
 		if patient is not None:
 			tt += '\n'
-			result = self.get_most_recent_results(patient = patient, no_of_results = 1)
+			result = self.get_most_recent_results(patient = patient, max_no_of_results = 1)
 			if result is not None:
 				tt += _(' Most recent (%s): %s%s%s') % (
 					gmDateTime.pydt_strftime(result['clin_when'], '%Y %b %d'),
@@ -2269,17 +2266,17 @@ def get_results_for_episode(pk_episode=None):
 	return [ cTestResult(row = {'pk_field': 'pk_test_result', 'idx': idx, 'data': r}) for r in rows ]
 
 #------------------------------------------------------------
-def get_most_recent_results_in_loinc_group(loincs=None, no_of_results=1, patient=None, max_age=None, consider_indirect_matches=False):
+def get_most_recent_results_in_loinc_group(loincs=None, max_no_of_results=1, patient=None, max_age=None, consider_indirect_matches=False):
 	"""Get N most recent results *among* a list of tests selected by LOINC.
 
 		1) get test types with LOINC (or meta type LOINC) in the group of <loincs>
 		2) from these get the test results for <patient> within the given <max_age>
-		3) from these return "the N=<no_of_results> most recent ones" or "None"
+		3) from these return "the N=<max_no_of_results> most recent ones" or "None"
 
 		<loinc> must be a list or tuple or set, NOT a single string
 		<max_age> must be a string holding a PG interval or else a pydt interval
 	"""
-	assert (no_of_results > 0), '<no_of_results> must be >0'
+	assert (max_no_of_results > 0), '<max_no_of_results> must be >0'
 
 	args = {'pat': patient, 'loincs': tuple(loincs)}
 	if max_age is None:
@@ -2301,7 +2298,7 @@ def get_most_recent_results_in_loinc_group(loincs=None, no_of_results=1, patient
 			clin_when DESC
 		LIMIT %s""" % (
 		max_age_cond,
-		no_of_results
+		max_no_of_results
 	)
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 	if len(rows) > 0:
@@ -2344,24 +2341,21 @@ def get_most_recent_results_in_loinc_group(loincs=None, no_of_results=1, patient
 	LIMIT %s
 	""" % (
 		max_age_cond,
-		no_of_results
+		max_no_of_results
 	)
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 	return [ cTestResult(row = {'pk_field': 'pk_test_result', 'idx': idx, 'data': r}) for r in rows ]
 
 #------------------------------------------------------------
-def get_most_recent_results_for_test_type(test_type=None, no_of_results=1, patient=None):
-	"""Get N most recent results for *a* (one) given test type."""
+def get_most_recent_results_for_test_type(test_type=None, max_no_of_results=1, patient=None):
+	"""Get N most recent results for *one* defined test type."""
 
 	assert (test_type is not None), '<test_type> must not be None'
-	assert (no_of_results > 0), '<no_of_results> must be > 0'
+	assert (max_no_of_results > 0), '<max_no_of_results> must be > 0'
 
-	args = {
-		'pat': patient,
-		'ttyp': test_type
-	}
+	args = {'pat': patient, 'ttyp': test_type}
 	where_parts = ['pk_patient = %(pat)s']
-	where_parts.append('pk_test_type = %(ttyp)s')		# consider: pk_meta_test_type = %(pkmtt)s / self._payload[self._idx['pk_meta_test_type']]
+	where_parts.append('pk_test_type = %(ttyp)s')		# ?consider: pk_meta_test_type = %(pkmtt)s / self._payload[self._idx['pk_meta_test_type']]
 	cmd = """
 		SELECT * FROM clin.v_test_results
 		WHERE
@@ -2369,13 +2363,9 @@ def get_most_recent_results_for_test_type(test_type=None, no_of_results=1, patie
 		ORDER BY clin_when DESC
 		LIMIT %s""" % (
 			' AND '.join(where_parts),
-			no_of_results
+			max_no_of_results
 		)
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
-	if no_of_results == 1:
-		if len(rows) == 0:
-			return None
-		return cTestResult(row = {'pk_field': 'pk_test_result', 'idx': idx, 'data': rows[0]})
 	return [ cTestResult(row = {'pk_field': 'pk_test_result', 'idx': idx, 'data': r}) for r in rows ]
 
 #------------------------------------------------------------
@@ -3483,7 +3473,7 @@ if __name__ == '__main__':
 			#loincs = [u'pseudo LOINC [C-reactive protein (EML)::9] (v21->v22 test panel conversion)'],
 			#loincs = ['8867-4'],
 			loincs = ['2160-0', '14682-9', '40264-4', '40248-7'],
-			no_of_results = 6,
+			max_no_of_results = 6,
 			patient = 201,
 			consider_indirect_matches = False
 		)
@@ -3502,7 +3492,7 @@ if __name__ == '__main__':
 			#loincs = [u'pseudo LOINC [C-reactive protein (EML)::9] (v21->v22 test panel conversion)'],
 			#loincs = ['8867-4'],
 			loincs = ['2160-0', '14682-9', '40264-4', '40248-7'],
-			no_of_results = 2,
+			max_no_of_results = 2,
 			patient = 201,
 			consider_indirect_matches = False
 			#consider_indirect_matches = True

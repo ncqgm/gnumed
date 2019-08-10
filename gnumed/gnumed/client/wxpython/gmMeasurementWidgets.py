@@ -3336,6 +3336,7 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 			return
 
 		self._TCTRL_loinc.SetValue('%s: %s' % (tt['loinc'], info[0]))
+
 	#--------------------------------------------------------
 	def __refresh_previous_value(self):
 		self._TCTRL_previous_value.SetValue('')
@@ -3349,11 +3350,9 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 
 		tt = self._PRW_test.GetData(as_instance = True)
 		most_recent_results = tt.get_most_recent_results (
-			no_of_results = 1,
+			max_no_of_results = 1,
 			patient = gmPerson.gmCurrentPatient().ID
 		)
-		if most_recent_results is None:
-			return
 		if len(most_recent_results) == 0:
 			return
 
