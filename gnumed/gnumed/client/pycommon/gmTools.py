@@ -85,11 +85,13 @@ u_almost_equal_to = '\u2248'					# approximately / nearly / roughly
 u_corresponds_to = '\u2258'
 u_infinity = '\u221E'
 u_arrow2right_until_vertical_bar2 = '\u2b72'	# -->|
+
 u_diameter = '\u2300'
 u_checkmark_crossed_out = '\u237B'
 u_box_horiz_high = '\u23ba'
 u_box_vert_left = '\u23b8'
 u_box_vert_right = '\u23b9'
+
 u_box_horiz_single = '\u2500'				# -
 u_box_vert_light = '\u2502'
 u_box_horiz_light_3dashes = '\u2504'		# ...
@@ -109,6 +111,7 @@ u_box_bottom_right_arc = '\u256f'
 u_box_bottom_left_arc = '\u2570'
 u_box_horiz_light_heavy = '\u257c'
 u_box_horiz_heavy_light = '\u257e'
+
 u_skull_and_crossbones = '\u2620'
 u_caduceus = '\u2624'
 u_frowning_face = '\u2639'
@@ -117,6 +120,8 @@ u_black_heart = '\u2665'
 u_female = '\u2640'
 u_male = '\u2642'
 u_male_female = '\u26a5'
+u_chain = '\u26d3'
+
 u_checkmark_thin = '\u2713'
 u_checkmark_thick = '\u2714'
 u_heavy_greek_cross = '\u271a'
@@ -126,7 +131,9 @@ u_pencil_1 = '\u270e'
 u_pencil_2 = '\u270f'
 u_pencil_3 = '\u2710'
 u_latin_cross = '\u271d'
+
 u_arrow2right_until_black_diamond = '\u291e'	# ->*
+
 u_kanji_yen = '\u5186'							# Yen kanji
 u_replacement_character = '\ufffd'
 u_link_symbol = '\u1f517'
@@ -136,6 +143,8 @@ _MB = 1024 * _kB
 _GB = 1024 * _MB
 _TB = 1024 * _GB
 _PB = 1024 * _TB
+
+_GM_TITLE_PREFIX = 'GMd'
 
 #===========================================================================
 def handle_uncaught_exception_console(t, v, tb):
@@ -1104,17 +1113,31 @@ def input2int(initial=None, minval=None, maxval=None):
 
 #---------------------------------------------------------------------------
 def strip_prefix(text, prefix, remove_repeats=False, remove_whitespace=False):
-	if remove_repeats:
-		if remove_whitespace:
-			while text.lstrip().startswith(prefix):
-				text = text.lstrip().replace(prefix, '', 1).lstrip()
-			return text
-		while text.startswith(prefix):
-			text = text.replace(prefix, '', 1)
-		return text
 	if remove_whitespace:
-		return text.lstrip().replace(prefix, '', 1).lstrip()
-	return text.replace(prefix, '', 1)
+		text = text.lstrip()
+	if not text.startswith(prefix):
+		return text
+
+	text = text.replace(prefix, '', 1)
+	if not remove_repeats:
+		if remove_whitespace:
+			return text.lstrip()
+		return text
+
+	return strip_prefix(text, prefix, remove_repeats = True, remove_whitespace = remove_whitespace)
+
+#---------------------------------------------------------------------------
+def decorate_window_title(title):
+	if title.startswith(_GM_TITLE_PREFIX):
+		return title
+	return '%s: %s' % (
+		_GM_TITLE_PREFIX,
+		title.lstrip()
+	)
+
+#---------------------------------------------------------------------------
+def undecorate_window_title(title):
+	return strip_prefix(title, _GM_TITLE_PREFIX + ':', remove_repeats = True, remove_whitespace = True)
 
 #---------------------------------------------------------------------------
 def strip_suffix(text, suffix, remove_repeats=False, remove_whitespace=False):
@@ -2287,15 +2310,17 @@ second line\n
 		tests = [
 			('', '', ''),
 			('a', 'a', ''),
+			('GMd: a window title', _GM_TITLE_PREFIX + ':', 'a window title'),
 			('\.br\MICROCYTES+1\.br\SPHEROCYTES       present\.br\POLYCHROMASIAmoderate\.br\\', '\.br\\', 'MICROCYTES+1\.br\SPHEROCYTES       present\.br\POLYCHROMASIAmoderate\.br\\')
 		]
 		for test in tests:
 			text, prefix, expect = test
-			result = strip_prefix(text, prefix)
+			result = strip_prefix(text, prefix, remove_whitespace = True)
 			if result == expect:
 				continue
 			print('test failed:', test)
 			print('result:', result)
+
 	#-----------------------------------------------------------------------
 	def test_shorten_text():
 		tst = [
@@ -2390,7 +2415,7 @@ second line\n
 			#print(dicts2table(dicts, left_margin=2, eol='\n', keys2ignore=None, show_only_changes=True, headers = ['d1', 'd2', 'd3', 'd4', 'd5', 'd6']))
 
 	#-----------------------------------------------------------------------
-	test_coalesce()
+	#test_coalesce()
 	#test_capitalize()
 	#test_import_module()
 	#test_mkdir()
@@ -2415,7 +2440,7 @@ second line\n
 	#test_compare_dicts()
 	#test_rm_dir()
 	#test_rm_dir_content()
-	#test_strip_prefix()
+	test_strip_prefix()
 	#test_shorten_text()
 	#test_format_compare_dicts()
 	#test_fname_sanitize()
