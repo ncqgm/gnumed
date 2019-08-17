@@ -2121,6 +2121,7 @@ class gmTopLevelFrame(wx.Frame):
 	#----------------------------------------------
 	def __on_manage_praxis(self, evt):
 		gmPraxisWidgets.manage_praxis_branches(parent = self)
+
 	#----------------------------------------------
 	def __on_dicom_viewer(self, evt):
 
@@ -3114,14 +3115,15 @@ class gmTopLevelFrame(wx.Frame):
 	# internal API
 	#----------------------------------------------
 	def __set_window_title_template(self):
-
 		if _cfg.get(option = 'slave'):
-			self.__title_template = 'GMdS: %%(pat)s [%%(prov)s@%%(wp)s in %%(site)s of %%(prax)s] (%s:%s)' % (
+			self.__title_template = '%s%s: %%(pat)s [%%(prov)s@%%(wp)s in %%(site)s of %%(prax)s] (%s:%s)' % (
+				gmTools._GM_TITLE_PREFIX,
+				gmTools.u_chain,
 				_cfg.get(option = 'slave personality'),
 				_cfg.get(option = 'xml-rpc port')
 			)
 		else:
-			self.__title_template = 'GMd: %(pat)s [%(prov)s@%(wp)s in %(site)s of %(prax)s]'
+			self.__title_template = '%s: %%(pat)s [%%(prov)s@%%(wp)s in %%(site)s of %%(prax)s]' % gmTools._GM_TITLE_PREFIX
 
 	#----------------------------------------------
 	def __update_window_title(self):
