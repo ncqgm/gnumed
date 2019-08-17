@@ -16,6 +16,7 @@ import wx
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmDispatcher
+from Gnumed.pycommon.gmTools import decorate_window_title
 
 
 _log = logging.getLogger('gm.ui')
@@ -302,9 +303,7 @@ class cGenericEditAreaDlg2(wxgGenericEditAreaDlg2.wxgGenericEditAreaDlg2):
 			title = kwargs['title']
 		except KeyError:
 			title = self.__class__.__name__
-		if not title.startswith('GMd: '):
-			title = 'GMd: %s' % title
-		kwargs['title'] = title
+		kwargs['title'] = decorate_window_title(title)
 
 		wxgGenericEditAreaDlg2.wxgGenericEditAreaDlg2.__init__(self, *args, **kwargs)
 
@@ -428,6 +427,11 @@ class cGenericEditAreaDlg2(wxgGenericEditAreaDlg2.wxgGenericEditAreaDlg2):
 			self.EndModal(wx.ID_OK)
 		else:
 			self.Close()
+
+	#------------------------------------------------------------
+	def SetTitle(self, title):
+		super().SetTitle(decorate_window_title(title))
+
 	#------------------------------------------------------------
 	# properties
 	#------------------------------------------------------------
