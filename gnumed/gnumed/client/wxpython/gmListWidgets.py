@@ -1976,6 +1976,7 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 
 		# save to file
 		save_menu = wx.Menu()
+		# save / all rows
 		menu_item = save_menu.Append(-1, _('&All rows'))
 		self.Bind(wx.EVT_MENU, self._all_rows2file, menu_item)
 		menu_item = save_menu.Append(-1, _('All rows as &CSV'))
@@ -1984,7 +1985,7 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 		self.Bind(wx.EVT_MENU, self._all_row_tooltips2file, menu_item)
 		menu_item = save_menu.Append(-1, _('&Data of all rows'))
 		self.Bind(wx.EVT_MENU, self._all_row_data2file, menu_item)
-
+		# save / selected rows (if >1)
 		if no_of_selected_items > 1:
 			save_menu.AppendSeparator()
 			menu_item = save_menu.Append(-1, _('&Selected rows'))
@@ -1996,10 +1997,9 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 			menu_item = save_menu.Append(-1, _('&Data of selected rows'))
 			self.Bind(wx.EVT_MENU, self._selected_row_data2file, menu_item)
 
-		# 1) set clipboard to item
+		# put into clipboard
 		clip_menu = wx.Menu()
-
-		# items for all selected rows if > 1
+		# clipboard / selected rows (if >1)
 		if no_of_selected_items > 1:
 			# row tooltips
 			menu_item = clip_menu.Append(-1, _('Tooltips of selected rows'))
@@ -2011,8 +2011,7 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 			menu_item = clip_menu.Append(-1, _('Content (as one line each) of selected rows'))
 			self.Bind(wx.EVT_MENU, self._rows2clipboard, menu_item)
 			clip_menu.AppendSeparator()
-
-		# items for the right-clicked row
+		# clipboard / the right-clicked row
 		# row tooltip
 		menu_item = clip_menu.Append(-1, _('Tooltip of current row'))
 		self.Bind(wx.EVT_MENU, self._tooltip2clipboard, menu_item)
@@ -2053,10 +2052,9 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 				self.Bind(wx.EVT_MENU, self._col2clipboard, menu_item)
 				clip_menu.Append(-1, _('Column &%s (current row): %s') % (col_idx+1, col_header), col_menu)
 
-		# 2) append item to current clipboard item
+		# append to topmost clipboard item
 		clip_add_menu = wx.Menu()
-
-		# items for all selected rows if > 1
+		# clipboard - add / selected rows (if >1)
 		if no_of_selected_items > 1:
 			# row tooltips
 			menu_item = clip_add_menu.Append(-1, _('Tooltips of selected rows'))
@@ -2068,8 +2066,7 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 			menu_item = clip_add_menu.Append(-1, _('Content (as one line each) of selected rows'))
 			self.Bind(wx.EVT_MENU, self._add_rows2clipboard, menu_item)
 			clip_add_menu.AppendSeparator()
-
-		# items for the right-clicked row
+		# clipboard - add / the right-clicked row
 		# row tooltip
 		menu_item = clip_add_menu.Append(-1, _('Tooltip of current row'))
 		self.Bind(wx.EVT_MENU, self._add_tooltip2clipboard, menu_item)
@@ -2105,6 +2102,15 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 				self.Bind(wx.EVT_MENU, self._add_col2clipboard, menu_item)
 				clip_add_menu.Append(-1, _('Column &%s (current row): %s') % (col_idx+1, col_header), col_add_menu)
 
+		# screenshot menu
+		screenshot_menu = wx.Menu()
+		# screenshot / save to file
+		menu_item = screenshot_menu.Append(-1, _('&Save'))
+		self.Bind(wx.EVT_MENU, self._visible_rows_screenshot2file, menu_item)
+		# screenshot / into export area
+		menu_item = screenshot_menu.Append(-1, _('E&xport area'))
+		self.Bind(wx.EVT_MENU, self._visible_rows_screenshot2export_area, menu_item)
+
 		# 3) copy item to export area
 		# put into file
 		# current row
@@ -2121,8 +2127,9 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 
 		# show menu
 		#self._context_menu.Append(-1, _('Copy to e&xport area...'), exp_menu)
-		self._context_menu.Append(-1, _('&Save to file...'), save_menu)
-		self._context_menu.Append(-1, _('&Copy to clipboard...'), clip_menu)
+		self._context_menu.Append(-1, _('Screen&shot ...'), screenshot_menu)
+		self._context_menu.Append(-1, _('Save to &file...'), save_menu)
+		self._context_menu.Append(-1, _('Copy to &clipboard...'), clip_menu)
 		self._context_menu.Append(-1, _('Append (&+) to clipboard...'), clip_add_menu)
 
 		if self.__extend_popup_menu_callback is not None:
@@ -2543,6 +2550,37 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 
 		txt_file.close()
 		gmDispatcher.send(signal = 'statustext', msg = _('Selected data saved to [%s].') % txt_name)
+
+	#------------------------------------------------------------
+	def _visible_rows_screenshot2file(self, evt):
+		dlg = self.containing_dlg
+		if dlg is None:
+			widget2screenshot = self
+		else:
+			widget2screenshot = dlg
+		png_name = os.path.join (
+			gmTools.gmPaths().home_dir,
+			'gnumed',
+			'gm-%s-%s.png' % (self.useful_title, pydt.datetime.now().strftime('%Y-%m-%d_%H-%M-%S'))
+		)
+		from Gnumed.wxpython.gmGuiHelpers import save_screenshot_to_file
+		save_screenshot_to_file(filename = png_name, widget = widget2screenshot, settle_time = 500)
+
+	#------------------------------------------------------------
+	def _visible_rows_screenshot2export_area(self, evt):
+		dlg = self.containing_dlg
+		if dlg is None:
+			widget2screenshot = self
+		else:
+			widget2screenshot = dlg
+		png_name = os.path.join (
+			gmTools.gmPaths().home_dir,
+			'gnumed',
+			'gm-%s-%s.png' % (self.useful_title, pydt.datetime.now().strftime('%Y-%m-%d_%H-%M-%S'))
+		)
+		from Gnumed.wxpython.gmGuiHelpers import save_screenshot_to_file
+		screenshot_file = save_screenshot_to_file(widget = widget2screenshot, settle_time = 500)
+		gmDispatcher.send(signal = 'add_file_to_export_area', filename = screenshot_file, hint = _('GMd screenshot'))
 
 	#------------------------------------------------------------
 	def _tooltip2clipboard(self, evt):
@@ -3302,6 +3340,56 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 		self.__secondary_sort_col = col
 
 	secondary_sort_column = property(__get_secondary_sort_col, __set_secondary_sort_col)
+
+	#------------------------------------------------------------
+	def __get_useful_title(self):
+		title = gmTools.undecorate_window_title(gmTools.coalesce(self.container_title, '').rstrip())
+		if title != '':
+			return title
+
+		if self.ColumnCount == 0:
+			return _('list')
+
+		col_labels = []
+		for col_idx in range(self.ColumnCount):
+			col_label = self.GetColumn(col_idx).Text.strip()
+			if col_label != '':
+				col_labels.append(col_label)
+		return _('list') + '-[%s]' % ']_['.join(col_labels)
+
+	useful_title = property(__get_useful_title)
+
+	#------------------------------------------------------------
+	def __get_container_title(self, widget=None):
+		if widget is None:
+			widget = self
+		if hasattr(widget, 'GetTitle'):
+			title = widget.GetTitle().strip()
+			if title != '':
+				return title
+
+		parent = widget.GetParent()
+		if parent is None:
+			return None
+
+		return self.__get_container_title(widget = parent)
+
+	container_title = property(__get_container_title)
+
+	#------------------------------------------------------------
+	def __get_containing_dlg(self, widget=None):
+		if widget is None:
+			widget = self
+		if isinstance(widget, wx.Dialog):
+			return widget
+
+		parent = widget.GetParent()
+		if parent is None:
+			return None
+
+		return self.__get_containing_dlg(widget = parent)
+
+	containing_dlg = property(__get_containing_dlg)
 
 #================================================================
 def shorten_text(text=None, max_length=None):
