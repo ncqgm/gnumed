@@ -147,7 +147,7 @@ def _print_files_by_IE(filenames=None):
 def _print_files_by_gtklp(filenames=None, verbose=False):
 
 #	if os.name != 'posix':
-	if sys.platform != 'linux2':
+	if sys.platform != 'linux':
 		_log.debug('<gtklp> only available under Linux')
 		return False
 	cmd_line = ['gtklp', '-i', '-# 1']
