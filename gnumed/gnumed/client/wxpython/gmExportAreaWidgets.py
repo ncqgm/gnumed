@@ -41,6 +41,78 @@ _log = logging.getLogger('gm.ui')
 _cfg = gmCfg2.gmCfgData()
 
 #============================================================
+def _add_file_to_export_area(**kwargs):
+	try:
+		del kwargs['signal']
+		del kwargs['sender']
+	except KeyError:
+		pass
+	wx.CallAfter(add_file_to_export_area, **kwargs)
+
+def _add_files_to_export_area(**kwargs):
+	try:
+		del kwargs['signal']
+		del kwargs['sender']
+	except KeyError:
+		pass
+	wx.CallAfter(add_files_to_export_area, **kwargs)
+
+#----------------------
+def add_file_to_export_area(parent=None, filename=None, hint=None, unlock_patient=False):
+	return add_files_to_export_area (
+		parent = parent,
+		filenames = [filename],
+		hint = hint,
+		unlock_patient = unlock_patient
+	)
+
+#----------------------
+def add_files_to_export_area(parent=None, filenames=None, hint=None, unlock_patient=False):
+	pat = gmPerson.gmCurrentPatient()
+	if not pat.connected:
+		gmDispatcher.send(signal = 'statustext', msg = _('Cannot add files to export area. No patient.'), beep = True)
+		return False
+
+	wx.BeginBusyCursor()
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+	if not pat.export_area.add_files(filenames = filenames, hint = hint):
+		wx.EndBusyCursor()
+		gmGuiHelpers.gm_show_error (
+			aMessage = _('Cannot import files into export area.'),
+			aTitle = _('Export area')
+		)
+		return False
+
+	wx.EndBusyCursor()
+	# remove non-temp files
+	tmp_dir = gmTools.gmPaths().tmp_dir
+	files2remove = [ f for f in filenames if not f.startswith(tmp_dir) ]
+	if len(files2remove) > 0:
+		do_delete = gmGuiHelpers.gm_show_question (
+			_(	'Successfully imported files into export area.\n'
+				'\n'
+				'Do you want to delete imported files from the filesystem ?\n'
+				'\n'
+				' %s'
+			) % '\n '.join(files2remove),
+			_('Removing files')
+		)
+		if do_delete:
+			for fname in files2remove:
+				gmTools.remove_file(fname)
+	else:
+		gmDispatcher.send(signal = 'statustext', msg = _('Imported files into export area.'), beep = True)
+	return True
+
+	#if unlock_patient:
+	#	pat.locked = False
+
+#----------------------
+gmDispatcher.connect(signal = 'add_file_to_export_area', receiver = _add_file_to_export_area)
+gmDispatcher.connect(signal = 'add_files_to_export_area', receiver = _add_files_to_export_area)
+
+#============================================================
 from Gnumed.wxGladeWidgets import wxgExportAreaExportToMediaDlg
 
 class cExportAreaExportToMediaDlg(wxgExportAreaExportToMediaDlg.wxgExportAreaExportToMediaDlg):
