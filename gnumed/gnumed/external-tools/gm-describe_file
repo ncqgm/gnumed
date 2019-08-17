@@ -69,6 +69,24 @@ if [ $? -eq 0 ] ; then
 		echo "" >> "${DESCRIPTION_FILE}"
 		rm -f "${DESCRIPTION_FILE}.pdfsig"
 	fi
+	# extractpdfmark
+	BIN=`which extractpdfmark`
+	if [ "x${BIN}x" != "xx" ]; then
+		echo "---- extractpdfmark ----" > "${DESCRIPTION_FILE}.extractpdfmark"
+		extractpdfmark "${FILE_2_DESCRIBE}" >> "${DESCRIPTION_FILE}.extractpdfmark" 2>> "${DESCRIPTION_FILE}.extractpdfmark"
+		cat "${DESCRIPTION_FILE}.extractpdfmark" >> "${DESCRIPTION_FILE}"
+		echo "" >> "${DESCRIPTION_FILE}"
+		rm -f "${DESCRIPTION_FILE}.extractpdfmark"
+	fi
+	# pdfimage
+	BIN=`which pdfimage`
+	if [ "x${BIN}x" != "xx" ]; then
+		echo "---- pdfimage ----" > "${DESCRIPTION_FILE}.pdfimage"
+		pdfimage -list "${FILE_2_DESCRIBE}" >> "${DESCRIPTION_FILE}.pdfimage" 2>> "${DESCRIPTION_FILE}.pdfimage"
+		cat "${DESCRIPTION_FILE}.pdfimage" >> "${DESCRIPTION_FILE}"
+		echo "" >> "${DESCRIPTION_FILE}"
+		rm -f "${DESCRIPTION_FILE}.pdfimage"
+	fi
 ## not a PDF
 #else
 #	echo "not PDF"

@@ -291,6 +291,28 @@ else
 	echo "found"
 fi
 
+echo -n " 'extractpdfmark' command... "
+BIN=`which extractpdfmark`
+if [ "x${BIN}x" == "xx" ]; then
+	echo ""
+	echo "  INFO : You don't seem to have the 'extractpdfmark' command installed."
+	echo "  INFO : It can be used by GNUmed to extract metadata from"
+	echo "  INFO : files for display within GNUmed."
+else
+	echo "found"
+fi
+
+echo -n " 'pdfimages' command... "
+BIN=`which pdfimages`
+if [ "x${BIN}x" == "xx" ]; then
+	echo ""
+	echo "  INFO : You don't seem to have the 'pdfimages' command installed."
+	echo "  INFO : It can be used by GNUmed to extract metadata from"
+	echo "  INFO : files for display within GNUmed."
+else
+	echo "found"
+fi
+
 echo -n " 'dmtxwrite' command... "
 BIN=`which dmtxwrite`
 if [ "x${BIN}x" == "xx" ]; then
