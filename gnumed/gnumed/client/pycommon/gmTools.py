@@ -2415,6 +2415,11 @@ second line\n
 			#print(dicts2table(dicts, left_margin=2, eol='\n', keys2ignore=None, show_only_changes=True, headers = ['d1', 'd2', 'd3', 'd4', 'd5', 'd6']))
 
 	#-----------------------------------------------------------------------
+	def test_decorate_window_title():
+		for txt in globals():
+			print(decorate_window_title(txt))
+
+	#-----------------------------------------------------------------------
 	#test_coalesce()
 	#test_capitalize()
 	#test_import_module()
@@ -2440,7 +2445,7 @@ second line\n
 	#test_compare_dicts()
 	#test_rm_dir()
 	#test_rm_dir_content()
-	test_strip_prefix()
+	#test_strip_prefix()
 	#test_shorten_text()
 	#test_format_compare_dicts()
 	#test_fname_sanitize()
@@ -2450,5 +2455,6 @@ second line\n
 	#test_copy_tree_content()
 	#test_mk_sandbox_dir()
 	#test_make_table_from_dicts()
+	test_decorate_window_title()
 
 #===========================================================================
