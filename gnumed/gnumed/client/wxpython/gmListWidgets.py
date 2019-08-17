@@ -91,11 +91,7 @@ def get_choices_from_list (
 				else:
 					None
 	"""
-	if caption is None:
-		caption = u'GMd: ' + _('generic multi choice dialog')
-	else:
-		if not caption.startswith('GMd: '):
-			caption = 'GMd: %s' % caption
+	caption = gmTools.decorate_window_title(gmTools.coalesce(caption, _('generic multi choice dialog')))
 
 	dlg = cGenericListSelectorDlg(parent, -1, title = caption, msg = msg, single_selection = single_selection)
 	dlg.refresh_callback = refresh_callback
@@ -152,10 +148,9 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 
 		try:
 			title = kwargs['title']
-			if not title.startswith('GMd: '):
-				kwargs['title'] = 'GMd: %s' % title
 		except KeyError:
-			kwargs['title'] = 'GMd: %s' % self.__class__.__name__
+			title = self.__class__.__name__
+		kwargs['title'] = gmTools.decorate_window_title(title)
 
 		try:
 			single_selection = kwargs['single_selection']
@@ -1056,10 +1051,9 @@ class cItemPickerDlg(wxgItemPickerDlg.wxgItemPickerDlg):
 
 		try:
 			title = kwargs['title']
-			if not title.startswith('GMd: '):
-				kwargs['title'] = 'GMd: %s' % title
 		except KeyError:
-			kwargs['title'] = 'GMd: %s' % self.__class__.__name__
+			title = self.__class__.__name__
+		kwargs['title'] = gmTools.decorate_window_title(title)
 
 		wxgItemPickerDlg.wxgItemPickerDlg.__init__(self, *args, **kwargs)
 
