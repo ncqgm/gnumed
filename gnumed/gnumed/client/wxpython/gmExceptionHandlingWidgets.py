@@ -458,7 +458,7 @@ class cUnhandledExceptionDlg(wxgUnhandledExceptionDlg.wxgUnhandledExceptionDlg):
 
 		wxgUnhandledExceptionDlg.wxgUnhandledExceptionDlg.__init__(self, *args, **kwargs)
 
-		self.Title = '%s [#%s]' % (self.Title, APP_PID)
+		self.Title = '%s [PID %s]' % (self.Title, APP_PID)
 
 		if _sender_email is not None:
 			self._TCTRL_sender.SetValue(_sender_email)
