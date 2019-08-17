@@ -81,9 +81,7 @@ class c2ButtonQuestionDlg(wxg2ButtonQuestionDlg.wxg2ButtonQuestionDlg):
 
 		wxg2ButtonQuestionDlg.wxg2ButtonQuestionDlg.__init__(self, *args, **kwargs)
 
-		if not caption.startswith('GMd: '):
-			caption = 'GMd: %s' % caption
-		self.SetTitle(title = caption)
+		self.SetTitle(title = gmTools.decorate_window_title(caption))
 		self._LBL_question.SetLabel(label = question)
 
 		if not show_checkbox:
@@ -166,9 +164,7 @@ class c3ButtonQuestionDlg(wxg3ButtonQuestionDlg.wxg3ButtonQuestionDlg):
 
 		wxg3ButtonQuestionDlg.wxg3ButtonQuestionDlg.__init__(self, *args, **kwargs)
 
-		if not caption.startswith('GMd: '):
-			caption = 'GMd: %s' % caption
-		self.SetTitle(title = caption)
+		self.SetTitle(title = gmTools.decorate_window_title(caption))
 		self._LBL_question.SetLabel(label = question)
 
 		if not show_checkbox:
@@ -249,9 +245,7 @@ class cMultilineTextEntryDlg(wxgMultilineTextEntryDlg.wxgMultilineTextEntryDlg):
 		wxgMultilineTextEntryDlg.wxgMultilineTextEntryDlg.__init__(self, *args, **kwargs)
 
 		if title is not None:
-			if not title.startswith('GMd: '):
-				title = 'GMd: %s' % title
-			self.SetTitle(title)
+			self.SetTitle(gmTools.decorate_window_title(title))
 
 		if self.original_text is not None:
 			self._TCTRL_text.SetValue(self.original_text)
@@ -451,18 +445,14 @@ def gm_show_error(aMessage=None, aTitle = None, error=None, title=None):
 	if error is None:
 		error = _('programmer forgot to specify error message')
 	error += _("\n\nPlease consult the error log for all the gory details !")
-
 	if title is None:
 		title = aTitle
 	if title is None:
 		title = _('generic error message')
-	if not title.startswith('GMd: '):
-		title = 'GMd: %s' % title
-
 	dlg = wx.MessageDialog (
 		parent = None,
 		message = error,
-		caption = title,
+		caption = gmTools.decorate_window_title(title),
 		style = wx.OK | wx.ICON_ERROR | wx.STAY_ON_TOP
 	)
 	dlg.ShowModal()
@@ -476,18 +466,14 @@ def gm_show_info(aMessage=None, aTitle=None, info=None, title=None):
 		info = aMessage
 	if info is None:
 		info = _('programmer forgot to specify info message')
-
 	if title is None:
 		title = aTitle
 	if title is None:
 		title = _('generic info message')
-	if not title.startswith('GMd: '):
-		title = 'GMd: %s' % title
-
 	dlg = wx.MessageDialog (
 		parent = None,
 		message = info,
-		caption = title,
+		caption = gmTools.decorate_window_title(title),
 		style = wx.OK | wx.ICON_INFORMATION | wx.STAY_ON_TOP
 	)
 	dlg.ShowModal()
@@ -498,16 +484,13 @@ def gm_show_info(aMessage=None, aTitle=None, info=None, title=None):
 def gm_show_warning(aMessage=None, aTitle=None):
 	if aMessage is None:
 		aMessage = _('programmer forgot to specify warning')
-
 	if aTitle is None:
 		aTitle = _('generic warning message')
-	if not aTitle.startswith('GMd: '):
-		aTitle = 'GMd: %s' % aTitle
 
 	dlg = wx.MessageDialog (
 		parent = None,
 		message = aMessage,
-		caption = aTitle,
+		caption = gmTools.decorate_window_title(aTitle),
 		style = wx.OK | wx.ICON_EXCLAMATION | wx.STAY_ON_TOP
 	)
 	dlg.ShowModal()
@@ -525,8 +508,7 @@ def gm_show_question(aMessage='programmer forgot to specify question', aTitle='g
 		question = aMessage
 	if title is None:
 		title = aTitle
-	if not title.startswith('GMd: '):
-		title = 'GMd: %s' % title
+	title = gmTools.decorate_window_title(title)
 
 	dlg = wx.MessageDialog(None, question, title, style)
 	btn_pressed = dlg.ShowModal()
