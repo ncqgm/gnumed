@@ -837,7 +837,8 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 			)
 			return False
 
-		self.__save_soap_note(soap = _('Mailed:\n - %s') % '\n - '.join([ i['description'] for i in items ]))
+		#self.__save_soap_note(soap = _('Mailed:\n - %s') % '\n - '.join([ i['description'] for i in items ]))
+		self.__save_soap_note(soap = _('Mailed export area content.'))
 		return True
 
 	#--------------------------------------------------------

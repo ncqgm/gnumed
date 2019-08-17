@@ -424,8 +424,9 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	def _is_DICOM_directory(self):
 		"""Check whether this item points to a DICOMDIR."""
-		if not self._is_valid_DIRENTRY:
+		if not self.is_valid_DIRENTRY:
 			return False
+
 		tag, node, local_fs_path = self._payload[self._idx['filename']].split('::', 2)
 		found_DICOMDIR = False
 		for fs_entry in os.listdir(local_fs_path):
@@ -437,6 +438,7 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 			if fs_entry != 'DICOMDIR':
 				# not named "DICOMDIR" -> not a DICOMDIR DIRENTRY
 				return False
+
 			# must be named DICOMDIR -> that's the only file allowed (and required) in ./
 			found_DICOMDIR = True
 		return found_DICOMDIR
@@ -982,20 +984,15 @@ class cExportArea(object):
 				html_data['run_dicom_viewer'] = '<li><a href="./dwv/viewers/mobile-local/index.html">%s</a></li>' % _('run Radiology Images (DICOM) Viewer')
 		# - create frontpage.html
 		frontpage_fname = self._create_frontpage_html(pat, prax, sandbox_dir, html_data, docs_list)
-		# - start.html (just a copy of frontpage.html)
+		# - start.html (just a convenience copy of frontpage.html)
 		#   (later overwritten, if encryption is requested)
 		start_fname = os.path.join(sandbox_dir, 'start.html')
 		try:
 			shutil.copy2(frontpage_fname, start_fname)
 		except Exception:
 			_log.exception('cannot copy %s to %s', frontpage_fname, start_fname)
-		# - start.html (just a convenience copy of frontpage.html)
-		start_fname = os.path.join(sandbox_dir, 'start.html')
-		try:
-			shutil.copy2(frontpage_fname, start_fname)
-		except Exception:
-			_log.exception('cannot copy %s to %s', frontpage_fname, start_fname)
-		# - index.html (just a convenience copy of frontpage.html, overwritten if encryption is requested)
+		# - index.html (just a convenience copy of frontpage.html)
+		#   (later overwritten if encryption is requested)
 		index_fname = os.path.join(sandbox_dir, 'index.html')
 		try:
 			shutil.copy2(frontpage_fname, index_fname)
@@ -1154,7 +1151,7 @@ class cExportArea(object):
 						_HTML_docs_list.append('		<li><a href="%s">%s</a></li>' % (os.path.join(DOCUMENTS_SUBDIR, doc[0], fname), fname))
 				_HTML_docs_list.append('	</ul>')
 			else:
-				_HTML_docs_list.append(_HTML_LIST_ITEM % (doc[0], doc[1]))
+				_HTML_docs_list.append(_HTML_LIST_ITEM % (os.path.join(DOCUMENTS_SUBDIR, doc[0]), doc[1]))
 		_HTML_data['docs_list'] = u'\n	'.join(_HTML_docs_list)
 
 		# footer part
