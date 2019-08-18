@@ -16,14 +16,16 @@
 # along with Timeline.  If not, see <http://www.gnu.org/licenses/>.
 
 
+import sys
+
+
 TYPE_DEV = "development"
 TYPE_BETA = "beta"
 TYPE_FINAL = ""
-
-VERSION = (1, 17, 0)
-TYPE = TYPE_FINAL
-REVISION_HASH = "cb821d29f002"
-REVISION_DATE = "2018-03-25"
+VERSION = (2, 0, 0)
+TYPE = TYPE_BETA
+REVISION_HASH = "e73292739f1c"
+REVISION_DATE = "2019-08-13"
 
 
 def get_full_version():

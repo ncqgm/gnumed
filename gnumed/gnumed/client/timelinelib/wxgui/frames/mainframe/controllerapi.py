@@ -75,7 +75,7 @@ class MainFrameApiUsedByController(object):
         while self._navigation_menu_items:
             item = self._navigation_menu_items.pop()
             if item in self._navigate_menu.MenuItems:
-                self._navigate_menu.RemoveItem(item)
+                self._navigate_menu.Remove(item)
         self._navigation_functions_by_menu_item_id.clear()
 
     def _create_navigation_menu_items(self):
@@ -109,7 +109,7 @@ class MainFrameApiUsedByController(object):
 
     def _clear_recent_menu_items(self):
         for item in self.mnu_file_open_recent_submenu.GetMenuItems():
-            self.mnu_file_open_recent_submenu.DeleteItem(item)
+            self.mnu_file_open_recent_submenu.Delete(item)
 
     def _create_recent_menu_items(self):
         self.open_recent_map = {}

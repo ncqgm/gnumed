@@ -155,7 +155,7 @@ class cEMRTimelinePnl(TimelineCanvas):
 
 	#--------------------------------------------------------
 	def clear_timeline(self):
-		self.set_timeline(None)
+		self.SetTimeline(None)
 
 	#--------------------------------------------------------
 	def open_timeline(self, tl_file):
@@ -180,7 +180,7 @@ class cEMRTimelinePnl(TimelineCanvas):
 
 	#--------------------------------------------------------
 	def fit_all_events(self):
-		all_events = self.controller.get_timeline().get_all_events()
+		all_events = self._controller.get_timeline().get_all_events()
 		if len(all_events) == 0:
 			period4all_events = None
 		start = self._first_time(all_events)
@@ -206,7 +206,7 @@ class cEMRTimelinePnl(TimelineCanvas):
 
 	#--------------------------------------------------------
 	def fit_care_era(self):
-		all_eras = self.controller.get_timeline().get_all_eras()
+		all_eras = self._controller.get_timeline().get_all_eras()
 		care_era = [ e for e in all_eras if e.name == gmTimelineExporter.ERA_NAME_CARE_PERIOD ][0]
 		era_period = care_era.time_period
 		if era_period.is_period():

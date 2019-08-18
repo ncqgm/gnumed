@@ -53,7 +53,7 @@ class ExperimentalFeatureContainerSize(ExperimentalFeature):
     def draw_container_text_top_adjusted(self, text, dc, rect):
         old_font = dc.GetFont()
         dc.SetFont(Font(FONT_SIZE))
-        dc.SetClippingRect(wx.Rect(rect.X, rect.Y + Y_OFFSET, rect.Width, rect.Height))
+        dc.SetClippingRegion(wx.Rect(rect.X, rect.Y + Y_OFFSET, rect.Width, rect.Height))
         text_x = rect.X + INNER_PADDING
         text_y = rect.Y + INNER_PADDING + TEXT_OFFSET
         dc.DrawText(text, text_x, text_y)

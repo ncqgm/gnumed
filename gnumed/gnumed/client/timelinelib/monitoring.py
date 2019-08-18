@@ -15,7 +15,17 @@
 # You should have received a copy of the GNU General Public License
 # along with Timeline.  If not, see <http://www.gnu.org/licenses/>.
 
-"""Contains the Monitoring class."""
+"""
+Contains the Monitoring class.
+
+The monitoring functions comes into action if the flag DEBUG_ENABLED,
+in the :doc:`timelinelib module <timelinelib>`, is set to True. 
+This happens if the application argument --debug is used at start of Timeline. 
+When DEBUG_ENABLED is True, timer and counting statistics are shown 
+in the main panel.
+
+:doc:`Tests are found here <unit_monitoring>`.
+"""
 
 from timelinelib.timer import Timer
 
@@ -51,5 +61,5 @@ class Monitoring(object):
 
     @property
     def timer_elapsed_ms(self):
-        "return the elapsed time in milliseconds."
+        """Return the elapsed time in milliseconds."""
         return self._timer.elapsed_ms

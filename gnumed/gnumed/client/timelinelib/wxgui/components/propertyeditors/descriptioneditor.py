@@ -40,6 +40,7 @@ class DescriptionEditorGuiCreator(wx.Panel):
     def _create_text_control(self):
         self.data = wx.TextCtrl(self, style=wx.TE_MULTILINE)
         self.data.Bind(wx.EVT_CHAR, self._on_char)
+        self.data.Bind(wx.EVT_KEY_DOWN, self._on_key_down)
         return self.data
 
     def _on_char(self, evt):
@@ -48,9 +49,35 @@ class DescriptionEditorGuiCreator(wx.Panel):
         else:
             evt.Skip()
 
+    def _on_key_down(self, evt):
+        if self._ctrl_plus(evt):
+            self._increase_font()
+        elif self._ctrl_minus(evt):
+            self._decrease_font()
+        else:
+            evt.Skip()
+        
+    def _increase_font(self):
+        font = self.data.GetFont()
+        font.MakeLarger()
+        self.data.SetFont(font)
+
+    def _decrease_font(self):
+        font = self.data.GetFont()
+        font.MakeSmaller()
+        self.data.SetFont(font)
+        
     def _ctrl_a(self, evt):
         KEY_CODE_A = 1
         return evt.ControlDown() and evt.KeyCode == KEY_CODE_A
+
+    def _ctrl_plus(self, evt):
+        KEY_CODE_PLUS = 43
+        return evt.ControlDown() and evt.KeyCode == KEY_CODE_PLUS
+
+    def _ctrl_minus(self, evt):
+        KEY_CODE_MINUS = 45
+        return evt.ControlDown() and evt.KeyCode == KEY_CODE_MINUS
 
 
 class DescriptionEditor(BaseEditor, DescriptionEditorGuiCreator):

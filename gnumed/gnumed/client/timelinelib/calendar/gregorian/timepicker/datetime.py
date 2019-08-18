@@ -18,7 +18,7 @@
 
 import os.path
 
-import wx.calendar
+import wx.adv
 
 from timelinelib.calendar.gregorian.gregorian import GregorianDateTime
 from timelinelib.calendar.gregorian.time import GregorianTime
@@ -47,9 +47,9 @@ class GregorianDateTimePicker(wx.Panel):
 
     def PopupCalendar(self, evt, wx_date):
         calendar_popup = CalendarPopup(self, wx_date, self.config)
-        calendar_popup.Bind(wx.calendar.EVT_CALENDAR_SEL_CHANGED,
+        calendar_popup.Bind(wx.adv.EVT_CALENDAR_SEL_CHANGED,
                             self._calendar_on_date_changed)
-        calendar_popup.Bind(wx.calendar.EVT_CALENDAR,
+        calendar_popup.Bind(wx.adv.EVT_CALENDAR,
                             self._calendar_on_date_changed_dclick)
         btn = evt.GetEventObject()
         pos = btn.ClientToScreen((0, 0))
@@ -85,10 +85,10 @@ class GregorianDateTimePicker(wx.Panel):
 
     def _create_gui(self):
         self.date_picker = self._create_date_picker()
-        image = wx.Bitmap(os.path.join(ICONS_DIR, "calendar.png"))
+        image = wx.Bitmap(os.path.join(ICONS_DIR, "calendar.bmp"))
         self.date_button = wx.BitmapButton(self, bitmap=image)
         self.Bind(wx.EVT_BUTTON, self._date_button_on_click, self.date_button)
-        self.time_picker = GregorianTimePicker(self)
+        self.time_picker = GregorianTimePicker(self, self.config)
         # Layout
         sizer = wx.BoxSizer(wx.HORIZONTAL)
         sizer.Add(self.date_picker, proportion=1,
@@ -106,7 +106,7 @@ class GregorianDateTimePicker(wx.Panel):
         self.controller.date_button_on_click(evt)
 
     def _out_of_date_range(self, wx_date):
-        """It's is a limitation in the wx.calendar.CalendarCtrl class
+        """It's is a limitation in the wx.adv.CalendarCtrl class
         that has this date limit."""
         return str(wx_date) < '1601-01-01 00:00:00'
 
@@ -147,10 +147,10 @@ class GregorianDateTimePickerController(object):
 
     def date_tuple_to_wx_date(self, date):
         year, month, day = date
-        return wx.DateTimeFromDMY(day, month - 1, year, 0, 0, 0)
+        return wx.DateTime.FromDMY(day, month - 1, year, 0, 0, 0)
 
     def wx_date_to_date_tuple(self, wx_date):
-        return (wx_date.Year, wx_date.Month + 1, wx_date.Day)
+        return (wx_date.year, wx_date.month + 1, wx_date.day)
 
     def date_button_on_click(self, evt):
         try:
@@ -171,7 +171,7 @@ class CalendarPopup(wx.PopupTransientWindow):
 
     def __init__(self, parent, wx_date, config):
         self.config = config
-        wx.PopupTransientWindow.__init__(self, parent, style=wx.BORDER_NONE)
+        wx.PopupTransientWindow.__init__(self, parent, flags=wx.BORDER_NONE)
         self._create_gui(wx_date)
         self.controller = CalendarPopupController(self)
         self._bind_events()
@@ -184,18 +184,18 @@ class CalendarPopup(wx.PopupTransientWindow):
 
     def _create_calendar_control(self, wx_date, border):
         style = self._get_cal_style()
-        cal = wx.calendar.CalendarCtrl(self, -1, wx_date,
-                                       pos=(border, border), style=style)
+        cal = wx.adv.CalendarCtrl(self, -1, wx_date,
+                                  pos=(border, border), style=style)
         self._set_cal_range(cal)
         return cal
 
     def _get_cal_style(self):
-        style = (wx.calendar.CAL_SHOW_HOLIDAYS |
-                 wx.calendar.CAL_SEQUENTIAL_MONTH_SELECTION)
+        style = (wx.adv.CAL_SHOW_HOLIDAYS |
+                 wx.adv.CAL_SEQUENTIAL_MONTH_SELECTION)
         if self.config.get_week_start() == "monday":
-            style |= wx.calendar.CAL_MONDAY_FIRST
+            style |= wx.adv.CAL_MONDAY_FIRST
         else:
-            style |= wx.calendar.CAL_SUNDAY_FIRST
+            style |= wx.adv.CAL_SUNDAY_FIRST
         return style
 
     def _set_cal_range(self, cal):
@@ -208,11 +208,11 @@ class CalendarPopup(wx.PopupTransientWindow):
     def time_to_wx_date(self, time):
         year, month, day = GregorianDateTime.from_time(time).to_date_tuple()
         try:
-            return wx.DateTimeFromDMY(day, month - 1, year, 0, 0, 0)
+            return wx.DateTime.FromDMY(day, month - 1, year, 0, 0, 0)
         except OverflowError:
             if year < 0:
                 year, month, day = GregorianDateTime.from_time(GregorianTime(0, 0)).to_date_tuple()
-                return wx.DateTimeFromDMY(day, month - 1, year, 0, 0, 0)
+                return wx.DateTime.FromDMY(day, month - 1, year, 0, 0, 0)
 
     def _bind_events(self):
         def on_month(evt):
@@ -221,8 +221,8 @@ class CalendarPopup(wx.PopupTransientWindow):
         def on_day(evt):
             self.controller.on_day()
 
-        self.cal.Bind(wx.calendar.EVT_CALENDAR_MONTH, on_month)
-        self.cal.Bind(wx.calendar.EVT_CALENDAR_DAY, on_day)
+        self.cal.Bind(wx.adv.EVT_CALENDAR_MONTH, on_month)
+        self.cal.Bind(wx.adv.EVT_CALENDAR_DAY, on_day)
 
     def OnDismiss(self):
         self.controller.on_dismiss()

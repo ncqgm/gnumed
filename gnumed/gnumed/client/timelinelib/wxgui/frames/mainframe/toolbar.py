@@ -54,7 +54,7 @@ class ToolbarCreator(object):
         self._toggle_toolbar(spec)
 
     def _add_radio(self, text, icon):
-        return self.toolbar.AddRadioLabelTool(
+        return self.toolbar.AddRadioTool(
             wx.ID_ANY,
             text,
             self._parent.BitmapFromIcon(icon),

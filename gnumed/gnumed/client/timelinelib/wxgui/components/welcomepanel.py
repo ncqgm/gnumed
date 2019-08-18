@@ -16,7 +16,7 @@
 # along with Timeline.  If not, see <http://www.gnu.org/licenses/>.
 
 
-import wx
+import wx.adv
 
 from timelinelib.wxgui.components.hyperlinkbutton import HyperlinkButton
 
@@ -40,7 +40,7 @@ class WelcomePanel(wx.Panel):
         vsizer.Add(t2, flag=wx.ALIGN_CENTER_HORIZONTAL)
         # Button
         btn_tutorial = HyperlinkButton(self, _("Getting started tutorial"))
-        self.Bind(wx.EVT_HYPERLINK, self._btn_tutorial_on_click, btn_tutorial)
+        self.Bind(wx.adv.EVT_HYPERLINK, self._btn_tutorial_on_click, btn_tutorial)
         vsizer.Add(btn_tutorial, flag=wx.ALIGN_CENTER_HORIZONTAL)
         # Sizer
         hsizer = wx.BoxSizer(wx.HORIZONTAL)

@@ -15,6 +15,10 @@
 # You should have received a copy of the GNU General Public License
 # along with Timeline.  If not, see <http://www.gnu.org/licenses/>.
 
+"""
+Here you'll find the logic for drawing the timeline items on a canvas.
+"""
+
 
 from timelinelib.canvas.events import EVT_DIVIDER_POSITION_CHANGED
 from timelinelib.canvas.events import EVT_TIMELINE_REDRAWN

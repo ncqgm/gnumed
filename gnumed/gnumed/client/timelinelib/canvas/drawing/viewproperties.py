@@ -44,7 +44,8 @@ class ViewProperties(Observable):
         self.hyperlink_icon = None
         self.skip_s_in_decade_text = False
         self.display_checkmark_on_events_done = False
-        self.legend_pos = 0
+        self._legend_pos = 0
+        self._time_scale_pos = 1
         self._hide_events_done = False
         self._all_events = []
         self._event_highlight_counters = {}
@@ -67,7 +68,7 @@ class ViewProperties(Observable):
     def tick_highlights(self, limit):
         self._event_highlight_counters = {
             event_id: count + 1
-            for event_id, count in self._event_highlight_counters.iteritems()
+            for event_id, count in self._event_highlight_counters.items()
             if count < limit
         }
 
@@ -78,6 +79,14 @@ class ViewProperties(Observable):
     @legend_pos.setter
     def legend_pos(self, pos):
         self._legend_pos = pos
+
+    @property
+    def time_scale_pos(self):
+        return self._time_scale_pos
+
+    @time_scale_pos.setter
+    def time_scale_pos(self, pos):
+        self._time_scale_pos = pos
 
     @property
     def hide_events_done(self):

@@ -31,8 +31,8 @@ class TmpDirTestCase(UnitTestCase):
     def tearDown(self):
         shutil.rmtree(self.tmp_dir)
 
-    def read(self, name):
-        with open(self.get_tmp_path(name)) as f:
+    def read(self, name, encoding=None):
+        with open(self.get_tmp_path(name), encoding=encoding) as f:
             return f.read()
 
     def get_tmp_path(self, name):

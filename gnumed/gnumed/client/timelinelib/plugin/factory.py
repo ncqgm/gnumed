@@ -16,9 +16,10 @@
 # along with Timeline.  If not, see <http://www.gnu.org/licenses/>.
 
 
-import os
 import sys
 from inspect import isclass
+import pkgutil
+import timelinelib
 
 
 EVENTBOX_DRAWER = "eventboxdrawer"
@@ -75,15 +76,15 @@ class PluginFactory(object):
         return [self._import_module("timelinelib.plugin.%s" % mod) for mod in modules]
 
     def _find_modules(self, subdir):
-        modules = []
-        for module_file in os.listdir(os.path.join(os.path.dirname(__file__), subdir)):
-            if os.path.isdir(os.path.join(os.path.dirname(__file__), subdir, module_file)):
-                modules.extend(self._find_modules(os.path.join(subdir, module_file)))
-            elif module_file.endswith(".py") and module_file != "__init__.py":
-                module_name = os.path.basename(module_file)[:-3]
-                abs_module_name = "%s.%s" % (subdir.replace(os.sep, "."), module_name)
-                modules.append(abs_module_name)
-        return modules
+        name_offset = len('timelinelib.plugin.')
+        package = timelinelib
+        module_names = []
+        for importer, modname, ispkg in pkgutil.walk_packages(path=package.__path__,
+                                                              prefix=package.__name__+'.',
+                                                              onerror=lambda x: None):
+            if modname.startswith('timelinelib.plugin.%s' % subdir) and not ispkg:
+                module_names.append(modname[name_offset:])
+        return module_names
 
     def _import_module(self, module_name):
         __import__(module_name)

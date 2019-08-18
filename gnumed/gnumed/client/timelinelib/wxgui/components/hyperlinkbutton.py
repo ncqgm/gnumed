@@ -16,13 +16,13 @@
 # along with Timeline.  If not, see <http://www.gnu.org/licenses/>.
 
 
-import wx
+import wx.adv
 
 
-class HyperlinkButton(wx.HyperlinkCtrl):
+class HyperlinkButton(wx.adv.HyperlinkCtrl):
 
     def __init__(self, parent, label, url=""):
-        wx.HyperlinkCtrl.__init__(self, parent, wx.ID_ANY, label=label,
-                                  url=url,
-                                  style=wx.HL_ALIGN_CENTRE|wx.NO_BORDER)
+        wx.adv.HyperlinkCtrl.__init__(self, parent, wx.ID_ANY, label=label,
+                                      url=url,
+                                      style=wx.adv.HL_ALIGN_CENTRE|wx.NO_BORDER)
         self.SetVisitedColour(self.GetNormalColour())

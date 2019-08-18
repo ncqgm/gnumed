@@ -36,6 +36,7 @@ def db_open(path, timetype=None):
     Valid values for path:
 
       - special string ":tutorial:"
+      - special string ":numtutorial:
       - string with suffix .timeline
       - string with suffix .ics
       - string denoting a directory

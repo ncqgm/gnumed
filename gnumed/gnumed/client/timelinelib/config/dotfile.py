@@ -25,17 +25,14 @@ configuration back to file, call the write method.
 """
 
 
-from ConfigParser import ConfigParser
-from ConfigParser import DEFAULTSECT
+from configparser import ConfigParser
+from configparser import DEFAULTSECT
 import os.path
 import sys
-
-import wx
 
 from timelinelib.calendar.gregorian.dateformatter import GregorianDateFormatter
 from timelinelib.config.dateformatparser import DateFormatParser
 from timelinelib.general.observer import Observable
-from timelinelib.wxgui.components.font import Font
 from timelinelib.wxgui.utils import display_information_message
 
 
@@ -101,7 +98,7 @@ class Config(Observable):
             f.close()
 
     def get_selected_event_box_drawer(self):
-        return self.config_parser.get(DEFAULTSECT, SELECTED_EVENT_BOX_DRAWER).decode("utf-8")
+        return self.config_parser.get(DEFAULTSECT, SELECTED_EVENT_BOX_DRAWER)
 
     def set_selected_event_box_drawer(self, selected):
         self.config_parser.set(DEFAULTSECT, SELECTED_EVENT_BOX_DRAWER, str(selected.encode("utf-8")))
@@ -131,7 +128,7 @@ class Config(Observable):
         self.config_parser.set(DEFAULTSECT, WINDOW_YPOS, str(ypos))
 
     def get_recently_opened(self):
-        ro = self.config_parser.get(DEFAULTSECT, RECENT_FILES).decode(ENCODING).split(",")
+        ro = self.config_parser.get(DEFAULTSECT, RECENT_FILES).split(",")
         # Filter out empty elements: "".split(",") will return [""] but we want
         # the empty list
         ro_filtered = [x for x in ro if x]
@@ -147,10 +144,10 @@ class Config(Observable):
         return self.get_recently_opened()[0]
 
     def append_recently_opened(self, path):
-        if path in [":tutorial:"]:
+        if path in [":tutorial:", ":numtutorial:"]:
             # Special timelines should not be saved
             return
-        if isinstance(path, str):
+        if isinstance(path, bytes):
             # This path might have come from the command line so we need to convert
             # it to unicode
             path = path.decode(sys.getfilesystemencoding())
@@ -161,7 +158,7 @@ class Config(Observable):
             current.remove(abs_path)
         current.insert(0, abs_path)
         self.config_parser.set(DEFAULTSECT, RECENT_FILES,
-                               (",".join(current[:MAX_NBR_OF_RECENT_FILES_SAVED])).encode(ENCODING))
+                               (",".join(current[:MAX_NBR_OF_RECENT_FILES_SAVED])))
 
     def get_week_start(self):
         return self.config_parser.get(DEFAULTSECT, WEEK_START)
@@ -191,6 +188,7 @@ class Config(Observable):
     def get_date_formatter(self):
         parser = DateFormatParser().parse(self.get_date_format())
         date_formatter = GregorianDateFormatter()
+        date_formatter.set_defaults(self.use_date_default_values, self.default_year, self.default_month, self.default_day)
         date_formatter.set_separators(*parser.get_separators())
         date_formatter.set_region_order(*parser.get_region_order())
         date_formatter.use_abbreviated_name_for_month(parser.use_abbreviated_month_names())
@@ -273,9 +271,12 @@ BOOLEAN_CONFIGS = (
     {'name': 'text_below_icon', 'default': 'False'},
     {'name': 'filtered_listbox_export', 'default': 'False'},
     {'name': 'colorize_weekends', 'default': 'False'},
+    {'name': 'use_bold_nowline', 'default': 'False'},
     {'name': 'skip_s_in_decade_text', 'default': 'False'},
     {'name': 'display_checkmark_on_events_done', 'default': 'False'},
     {'name': 'never_use_time', 'default': 'False'},
+    {'name': 'use_second', 'default': 'False'},
+    {'name': 'use_date_default_values', 'default': 'False'},
     {'name': 'hide_events_done', 'default': 'False'},
 )
 INT_CONFIGS = (
@@ -283,6 +284,7 @@ INT_CONFIGS = (
     {'name': 'divider_line_slider_pos', 'default': '50'},
     {'name': 'vertical_space_between_events', 'default': '5'},
     {'name': 'legend_pos', 'default': '0'},
+    {'name': 'time_scale_pos', 'default': '1'},
 )
 STR_CONFIGS = (
     {'name': 'experimental_features', 'default': ''},
@@ -290,6 +292,9 @@ STR_CONFIGS = (
     {'name': 'fuzzy_icon', 'default': 'fuzzy.png'},
     {'name': 'locked_icon', 'default': 'locked.png'},
     {'name': 'hyperlink_icon', 'default': 'hyperlink.png'},
+    {'name': 'default_year', 'default': '2020'},
+    {'name': 'default_month', 'default': '02'},
+    {'name': 'default_day', 'default': '03'},
 )
 COLOUR_CONFIGS = (
     {'name': 'now_line_colour', 'default': '(200, 0, 0)'},

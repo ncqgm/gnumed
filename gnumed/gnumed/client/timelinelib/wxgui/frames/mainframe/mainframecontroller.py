@@ -55,6 +55,9 @@ class MainFrameController(object):
     def open_gregorian_tutorial_timeline(self, *args, **kwargs):
         self.open_timeline(":tutorial:")
 
+    def open_numeric_tutorial_timeline(self, *args, **kwargs):
+        self.open_timeline(":numtutorial:")
+
     def open_timeline(self, path, timetype=None, save_current_data=True):
         if save_current_data:
             self._main_frame.save_current_timeline_data()
@@ -134,7 +137,7 @@ class MainFrameController(object):
 
     def reload_from_disk(self):
         timeline_canvas = self._main_frame.main_panel.timeline_panel.timeline_canvas
-        vp = timeline_canvas.get_view_properties()
+        vp = timeline_canvas.GetViewProperties()
         displayed_period = vp.get_displayed_period()
         self.open_timeline(self._timelinepath, save_current_data=False)
         vp.set_displayed_period(displayed_period)

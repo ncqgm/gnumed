@@ -101,7 +101,7 @@ def category_tree(category_list, parent=None, remove=None):
     children.
     """
     children = [child for child in category_list
-                if (child._get_parent() is parent and child is not remove)]
+                if (child.parent == parent and child != remove)]
     sorted_children = sort_categories(children)
     tree = [(x, category_tree(category_list, x, remove))
             for x in sorted_children]
@@ -155,7 +155,7 @@ def set_wait_cursor(parent):
 
 
 def set_default_cursor(parent):
-    parent.SetCursor(wx.StockCursor(wx.CURSOR_DEFAULT))
+    parent.SetCursor(wx.Cursor(wx.CURSOR_DEFAULT))
 
 
 def set_focus(parent, name):

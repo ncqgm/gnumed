@@ -74,7 +74,7 @@ class DuplicateEventDialogController(Controller):
         elif direction == BACKWARD:
             return range(-repetitions, 0)
         elif direction == BOTH:
-            indicies = range(-repetitions, repetitions + 1)
+            indicies = list(range(-repetitions, repetitions + 1))
             indicies.remove(0)
             return indicies
         else:

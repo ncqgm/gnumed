@@ -7,10 +7,6 @@ __license__ = "GPL v2 or later"
 
 import logging
 
-_log = logging.getLogger('gm.ui')
-_log.error('timeline does not support Py3 / wxp4')
-raise Exception
-
 
 import wx
 

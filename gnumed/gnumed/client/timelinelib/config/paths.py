@@ -15,14 +15,17 @@
 # You should have received a copy of the GNU General Public License
 # along with Timeline.  If not, see <http://www.gnu.org/licenses/>.
 
+"""
+Defining paths for resources needed by the application.
+"""
 
 import os.path
 
 
 _ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
-_ROOT = _ROOT.decode("utf-8")
+
 _ICONROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-_ICONROOT = _ICONROOT.decode("utf-8")
+
 ICONS_DIR = os.path.join(_ICONROOT, u"tlicons")
 EVENT_ICONS_DIR = os.path.join(_ICONROOT, u"tlicons", u"event_icons")
 LOCALE_DIR = os.path.join(_ROOT, u"translations")

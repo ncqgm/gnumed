@@ -31,6 +31,10 @@ class GregorianDateFormatter(object):
         self.set_separators("-", "-")
         self.set_region_order(year=0, month=1, day=2)
         self.use_abbreviated_name_for_month(False)
+        self.use_date_default_values = False
+        self.default_year = '2000'
+        self.default_month = '01'
+        self.default_day = '01'
 
     def use_abbreviated_name_for_month(self, value):
         self._use_abbreviated_name_for_month = value
@@ -48,6 +52,12 @@ class GregorianDateFormatter(object):
         self._month_position = month
         self._day_position = day
 
+    def set_defaults(self, use_date_default_values, default_year=None, default_month=None, default_day=None):
+        self.use_date_default_values = use_date_default_values
+        self.default_year = default_year
+        self.default_month = default_month
+        self.default_day = default_day
+        
     def format(self, ymd_tuple):
         (year, month, day) = ymd_tuple
         return (self._format_date(year, month, day), self._is_bc(year))
@@ -55,11 +65,28 @@ class GregorianDateFormatter(object):
     def parse(self, date_bc_tuple):
         (date, is_bc) = date_bc_tuple
         regions = self._split(date)
+        if self.use_date_default_values:
+            self.set_default_regions(regions, date)
         year = self._parse_year(regions[self._year_position], is_bc)
         month = self._parse_month(regions[self._month_position])
         day = self._parse_day(regions[self._day_position], year, month)
         return (year, month, day)
 
+    def set_default_regions(self, regions, date):
+        if regions == ['', '', '']:
+            regions[0] = date
+        for n in range(3):
+            if regions[n] == '':
+                self.set_default_for_region(regions, n)
+
+    def set_default_for_region(self, regions, n):
+        if self._year_position == n:
+            regions[n] = self.default_year
+        elif self._month_position == n:
+            regions[n] = self.default_month
+        elif self._day_position == n:
+            regions[n] = self.default_day
+          
     def get_region_type(self, date_string, cursor_position):
         return {
             self._year_position: self.YEAR,

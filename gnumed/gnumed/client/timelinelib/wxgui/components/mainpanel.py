@@ -21,7 +21,7 @@ import wx
 from timelinelib.canvas.data import TimePeriod
 from timelinelib.wxgui.components.welcomepanel import WelcomePanel
 from timelinelib.wxgui.components.timelinepanel import TimelinePanel
-from timelinelib.wxgui.components.search import SearchBar
+from timelinelib.wxgui.components.searchbar.view import SearchBar
 from timelinelib.wxgui.components.propertyeditors.iconeditor import FileToBitmapConverter
 
 
@@ -92,7 +92,7 @@ class MainPanel(wx.Panel):
                 period = TimePeriod(start_time, end_time)
                 periods.append(period)
         return periods, current_period
-
+        
     def timeline_panel_visible(self):
         return self.timeline_panel.IsShown()
 
@@ -105,7 +105,7 @@ class MainPanel(wx.Panel):
     def show_searchbar(self, show=True):
         self.searchbar.Show(show)
         if show is True:
-            self.searchbar.set_focus()
+            self.searchbar.Focus()
         self.GetSizer().Layout()
 
     def _remove_timeline_and_show_welcome_panel(self):
@@ -124,7 +124,7 @@ class MainPanel(wx.Panel):
     def _show_new_timeline(self, timeline):
         self.timeline_panel.SetDb(timeline)
         canvas = self.get_timeline_canvas()
-        self.category_tree.set_timeline_view(canvas.GetDb(), canvas.get_view_properties())
+        self.category_tree.set_timeline_view(canvas.GetDb(), canvas.GetViewProperties())
         self.set_searchbar_timeline_canvas(canvas)
         self.show_timeline_panel()
         canvas.SetDropTarget(FileDropTarget(canvas))
@@ -170,7 +170,7 @@ class MainPanel(wx.Panel):
         return visible_events
 
     def set_searchbar_timeline_canvas(self, timeline_canvas):
-        self.searchbar.set_timeline_canvas(timeline_canvas)
+        self.searchbar.SetTimelineCanvas(timeline_canvas)
 
     def get_view_properties(self):
         return self.timeline_panel.get_view_properties()

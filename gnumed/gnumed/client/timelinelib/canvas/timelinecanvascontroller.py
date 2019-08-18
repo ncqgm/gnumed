@@ -29,6 +29,11 @@ from timelinelib.monitoring import Monitoring
 from timelinelib.wxgui.components.font import Font
 
 
+CHOICE_WHOLE_PERIOD = _("Whole Timeline")
+CHOICE_VISIBLE_PERIOD = _("Visible Period")
+CHOICES = (CHOICE_WHOLE_PERIOD, CHOICE_VISIBLE_PERIOD)
+
+
 class TimelineCanvasController(object):
 
     def __init__(self, view, drawer=None):
@@ -48,6 +53,7 @@ class TimelineCanvasController(object):
         self._fast_draw = False
         self._set_initial_values_to_member_variables()
         self._set_colors_and_styles()
+        self._set_search_choises()
 
     @property
     def scene(self):
@@ -231,8 +237,25 @@ class TimelineCanvasController(object):
     def has_higlights(self):
         return self.view_properties.has_higlights()
 
-    def filter_events(self, events):
+    def get_period_choices(self):
+        return CHOICES
+        
+    def _set_search_choises(self):
+        self._search_choice_functions = {
+            CHOICE_WHOLE_PERIOD: self._choose_whole_period,
+            CHOICE_VISIBLE_PERIOD: self._choose_visible_period 
+        }
+
+    def filter_events(self, events, search_period):
+        return self._search_choice_functions[search_period](events)
+    
+    def _choose_whole_period(self, events):
         return self.view_properties.filter_events(events)
+    
+    def _choose_visible_period(self, events): 
+        events = self.view_properties.filter_events(events)
+        period = self.view_properties.displayed_period
+        return [e for e in events if period.overlaps(e.get_time_period())]
 
     def event_is_period(self, event):
         return self.drawing_algorithm.event_is_period(event.get_time_period())
@@ -283,7 +306,7 @@ class TimelineCanvasController(object):
     def _redraw_timeline(self):
 
         def display_monitor_result(dc):
-            (width, height) = self.view.GetSizeTuple()
+            (width, height) = self.view.GetSize()
             redraw_time = self.monitoring.timer_elapsed_ms
             self.monitoring.count_timeline_redraw()
             dc.SetTextForeground((255, 0, 0))
@@ -304,7 +327,7 @@ class TimelineCanvasController(object):
 
         if self.timeline and self.view_properties.displayed_period:
             self.view_properties.divider_position = (float(self.view.GetDividerPosition()) / 100.0)
-            self.view.redraw_surface(fn_draw)
+            self.view.RedrawSurface(fn_draw)
             self.view.PostEvent(create_timeline_redrawn_event())
 
     def _set_drawing_algorithm(self, drawer):

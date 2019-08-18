@@ -134,7 +134,7 @@ class HyperlinkEditor(BaseEditor, HyperlinkEditorGuiCreator):
         self._change_btn_visibility()
 
     def _txt_on_focus(self, evt):
-        self.list.DeselectAll()
+        self.list.Deselect(wx.NOT_FOUND)
         self._change_btn_visibility()
 
     def clear_data(self):

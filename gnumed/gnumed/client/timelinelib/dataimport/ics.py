@@ -150,7 +150,7 @@ class IcsLoader(object):
 
     def _load_categories(self, vevent):
         if "categories" in vevent:
-            categories_names = [cat.strip() for cat in vevent["categories"].split(",") if len(cat.strip()) > 0]
+            categories_names = [cat.strip() for cat in vevent["categories"].cats if len(cat.strip()) > 0]
             for category_name in categories_names:
                 if category_name not in self.category_names:
                     self.categories.append(Category().update(

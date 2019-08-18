@@ -94,7 +94,7 @@ class LegendDrawer():
     def _draw_rectangle(self, go):
         self._dc.SetBrush(go.brush_color)
         self._dc.SetPen(go.pen_color)
-        self._dc.DrawRectangleRect(wx.Rect(*go.rect))
+        self._dc.DrawRectangle(wx.Rect(*go.rect))
 
     def _create_graph_object(self):
         tw, th = self._get_text_metrics(self._categories)
@@ -114,7 +114,7 @@ class LegendDrawer():
 
     def _create_legend(self, box_width, box_height, tw, th):
         go = GraphObject(w=box_width, h=box_height)
-        go.brush_color = wx.Brush(wx.Colour(255, 255, 255), wx.PENSTYLE_SOLID)
+        go.brush_color = wx.Brush(wx.Colour(255, 255, 255), wx.BRUSHSTYLE_SOLID)
         go.pen_color = wx.Pen(wx.Colour(0, 0, 0), 1, wx.PENSTYLE_SOLID)
         go.childs = self._legend_items(tw, th)
         go.translate(OP, OP)
@@ -123,7 +123,7 @@ class LegendDrawer():
 
     def _legend_items(self, tw, th):
         collector = []
-        for i in xrange(len(self._categories)):
+        for i in range(len(self._categories)):
             y = i * (th + IP)
             go = GraphObject(y=y, text=self._categories[i].name)
             go.add_child(self._color_box(tw, th, y, self._categories[i]))

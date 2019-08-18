@@ -47,6 +47,8 @@ import timelinelib.wxgui.frames.mainframe.guicreator as guic
 from timelinelib.wxgui.frames.mainframe.controllerapi import MainFrameApiUsedByController
 from timelinelib.wxgui.frames.mainframe.alertcontroller import AlertController
 from timelinelib.wxgui.frames.mainframe.menucontroller import MenuController
+from timelinelib.calendar.coptic.timetype import CopticTimeType
+from timelinelib.calendar.pharaonic.timetype import PharaonicTimeType
 
 CatsViewChangedEvent, EVT_CATS_VIEW_CHANGED = wx.lib.newevent.NewCommandEvent()
 
@@ -154,27 +156,27 @@ class MainFrame(wx.Frame, guic.GuiCreator, MainFrameApiUsedByController):
         bundle = wx.IconBundle()
         for size in ["16", "32", "48"]:
             iconpath = os.path.join(ICONS_DIR, "%s.png" % size)
-            icon = wx.IconFromBitmap(wx.BitmapFromImage(wx.Image(iconpath)))
+            icon = wx.Icon(wx.Bitmap(wx.Image(iconpath)))
             bundle.AddIcon(icon)
         return bundle
 
     # File Menu action handlers
-    def _create_new_timeline(self):
+    def _create_new_timeline(self, timetype=None):
         path = self._get_file_path()
         if path is not None:
-            self.controller.open_timeline(path)
+            self.controller.open_timeline(path, timetype)
 
     def _create_new_bosparanian_timeline(self):
-        path = self._get_file_path()
-        if path is not None:
-            timetype = BosparanianTimeType()
-            self.controller.open_timeline(path, timetype)
-
+        self._create_new_timeline(BosparanianTimeType())
+    
+    def _create_new_coptic_timeline(self):
+        self._create_new_timeline(CopticTimeType())
+            
+    def _create_new_pharaonic_timeline(self):
+        self._create_new_timeline(PharaonicTimeType())
+        
     def _create_new_numeric_timeline(self):
-        path = self._get_file_path()
-        if path is not None:
-            timetype = NumTimeType()
-            self.controller.open_timeline(path, timetype)
+        self._create_new_timeline(NumTimeType())
 
     def _get_file_path(self):
         path = None
@@ -320,7 +322,7 @@ class MainFrame(wx.Frame, guic.GuiCreator, MainFrameApiUsedByController):
             else:
                 return None
         except ValueError as ex:
-            display_error_message(ex.message)
+            display_error_message(str(ex))
         return None
 
     def _all_visible_events(self):

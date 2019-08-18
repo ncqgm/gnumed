@@ -1,5 +1,3 @@
-
-
 # Copyright (C) 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018  Rickard Lindberg, Roger Lindberg
 #
 # This file is part of Timeline.
@@ -18,19 +16,18 @@
 # along with Timeline.  If not, see <http://www.gnu.org/licenses/>.
 
 
-import sys
+import wx
 
 
-def to_unicode(string_data):
-    """
-    Tru to encode a string into unicode.
-    """
-    if isinstance(string_data, unicode):
-        return(string_data)
-    else:
-        for encoding in [sys.getdefaultencoding(), "utf-8", "cp1250", "cp850"]:
-            try:
-                return unicode(string_data, encoding)
-            except:
-                pass
-        return string_data
+def create_gray_dashed_pen():
+    pen = wx.Pen(wx.Colour(200, 200, 200), 1, wx.PENSTYLE_USER_DASH)
+    pen.SetDashes([2, 2])
+    pen.SetCap(wx.CAP_BUTT)
+    return pen
+
+
+def get_pen(name):
+    return { 
+        'black-solid': wx.Pen(wx.Colour(0, 0, 0), 1, wx.PENSTYLE_SOLID),
+        'gray-dashed': create_gray_dashed_pen(),
+        }[name]

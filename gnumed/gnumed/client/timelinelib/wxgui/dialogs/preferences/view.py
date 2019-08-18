@@ -136,7 +136,48 @@ class PreferencesDialog(Dialog):
                             event_EVT_CHECKBOX="on_never_use_time_change"
                             label="$(never_use_time_text)"
                         />
+			<Spacer />
+                        <CheckBox
+                            name="use_second_checkbox"
+                            event_EVT_CHECKBOX="on_use_second_change"
+                            label="$(use_second_text)"
+                        />
                         <Spacer />
+                        <CheckBox
+                            name="use_date_default_values_checkbox"
+                            event_EVT_CHECKBOX="on_use_date_default_values"
+                            label="$(use_date_default_values)"
+                        />
+                        <Spacer />
+                        <StaticText
+                            label="$(default_year)"
+                            align="ALIGN_CENTER_VERTICAL"
+                        />
+                        <TextCtrl 
+                            name="txt_default_year" 
+                            fit_text="MMMM" 
+                        />                        
+                        <StaticText
+                            label="$(default_month)"
+                            align="ALIGN_CENTER_VERTICAL"
+                        />
+                        <TextCtrl 
+                            name="txt_default_month" 
+                            fit_text="MM" 
+                        />                        
+                        <StaticText
+                            label="$(default_day)"
+                            align="ALIGN_CENTER_VERTICAL"
+                        />
+                        <TextCtrl 
+                            name="txt_default_day" 
+                            fit_text="MM" 
+                        />                      
+                        <RadioBox
+                            name="time_scale_positions"
+                            choices="$(time_scale_positions)"
+                            label="$(time_scale_positions_text)"
+                        />
                     </FlexGridSizer>
                 </BoxSizerVertical>
             </Panel>
@@ -237,12 +278,20 @@ class PreferencesDialog(Dialog):
                             label="$(now_line_colour_text)"
                             align="ALIGN_CENTER_VERTICAL"
                         />
-                        <ColourSelect
-                            name="now_line_colorpicker"
-                            align="ALIGN_CENTER_VERTICAL"
-                            width="60"
-                            height="30"
-                        />
+                        <BoxSizerHorizontal>
+                            <ColourSelect
+                                name="now_line_colorpicker"
+                                align="ALIGN_CENTER_VERTICAL"
+                                width="60"
+                                height="30"
+                            />
+                            <Spacer />
+                            <CheckBox
+                                name="use_bold_nowline"
+                                event_EVT_CHECKBOX="on_use_bold_nowline"
+                                label="$(use_bold_nowline_text)"
+                            />
+                        </BoxSizerHorizontal>
                         <StaticText
                             label="$(weekend_colour_text)"
                             align="ALIGN_CENTER_VERTICAL"
@@ -348,14 +397,22 @@ class PreferencesDialog(Dialog):
             "major_strip_colour_text": _("Major strip divider line:"),
             "now_line_colour_text": _("Now line:"),
             "weekend_colour_text": _("Weekends:"),
+            "use_bold_nowline_text": _("Use bold line"),
             "bg_colour_text": _("Background"),
             "vertical_space_between_events_text": _("Vertical space between Events (px)"),
             "colorize_weekends_text": _("Colorize weekends"),
             "skip_s_in_decade_text_text": _("Skip s in decade text"),
             "display_checkmark_on_events_done_text": _("Display checkmark when events are done"),
             "never_use_time_text": _("Never use time precision for events"),
+            "use_second_text": _("Use second precision for time"),
             "legend_positions_text": _("Legend Position"),
             "legend_positions": [_("Bottom-Left"), _("Top-Left"), _("Top-Right"), _("Bottom-Right")],
+            "time_scale_positions": [_("Top"), _("Center"), _("Bottom")],
+            "time_scale_positions_text": _("Time scale position"),
+            "default_year": _("Default Year"),
+            "default_month": _("Default Month"),
+            "default_day": _("Default Day"),
+            "use_date_default_values": _("Use date default values"),
         }, title=_("Preferences"))
         self.controller.on_init(config, ExperimentalFeatures())
         self.font_sizer.Layout()
@@ -421,9 +478,39 @@ class PreferencesDialog(Dialog):
     def SetNeverUseTime(self, value):
         self.never_use_time_checkbox.SetValue(value)
 
+    def SetUseSecond(self, value):
+        self.use_second_checkbox.SetValue(value)
+
+    def SetUseDateDefaultValues(self, value):
+        self.use_date_default_values_checkbox.SetValue(value)
+        
+    def SetDefaultYear(self, value):
+        self.txt_default_year.SetValue(value)
+        
+    def SetDefaultMonth(self, value):
+        self.txt_default_month.SetValue(value)
+
+    def SetDefaultDay(self, value):
+        self.txt_default_day.SetValue(value)
+        
+    def GetDefaultYear(self):
+        return self.txt_default_year.GetValue()
+        
+    def GetDefaultMonth(self):
+        return self.txt_default_month.GetValue()
+
+    def GetDefaultDay(self):
+        return self.txt_default_day.GetValue()
+        
     def GetNeverUseTime(self):
         return self.never_use_time_checkbox.GetValue()
 
+    def GetUseSecond(self):
+        return self.use_second_checkbox.GetValue()
+
+    def GetUseDateDefaultValues(self):
+        return self.use_date_default_values_checkbox.GetValue()
+        
     def AddExperimentalFeatures(self, features):
         for feature in features:
             name = feature.get_display_name()
@@ -486,6 +573,12 @@ class PreferencesDialog(Dialog):
     def SetColorizeWeekends(self, value):
         return self.colorize_weekends.SetValue(value)
 
+    def GetUseBoldNowline(self):
+        return self.use_bold_nowline.IsChecked()
+
+    def SetUseBoldNowline(self, value):
+        return self.use_bold_nowline.SetValue(value)
+
     def GetColorizeWeekends(self):
         return self.colorize_weekends.IsChecked()
 
@@ -512,6 +605,12 @@ class PreferencesDialog(Dialog):
 
     def SetLegendPos(self, pos):
         self.legend_positions.SetSelection(pos)
+
+    def GetTimeScalePos(self):
+        return self.time_scale_positions.GetSelection()
+
+    def SetTimeScalePos(self, pos):
+        self.time_scale_positions.SetSelection(pos)
 
     def _SetFont(self, control, font):
         control.SetFont(font)

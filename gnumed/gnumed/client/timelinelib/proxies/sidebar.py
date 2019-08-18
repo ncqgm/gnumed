@@ -17,7 +17,10 @@
 
 
 class SidebarProxy():
-
+    """
+    The purpose of this proxy is to simplify the access to the sidebar
+    from the MainFrame controller.
+    """
     def __init__(self, creator):
         from timelinelib.wxgui.frames.mainframe.mainframe import MainFrame
         if isinstance(creator, MainFrame):

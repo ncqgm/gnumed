@@ -88,7 +88,7 @@ class SlideshowDialogController(Controller):
         return self._db.get_all_events()
 
     def _get_visible_events(self):
-        vp = self._canvas.get_view_properties()
+        vp = self._canvas.GetViewProperties()
         return vp.filter_events(self._db.get_events(vp.displayed_period))
 
     def _create_images(self, events):
@@ -106,7 +106,7 @@ class SlideshowDialogController(Controller):
 
     def _create_css(self):
         f = open(os.path.join(self.view.GetTargetDir(), "slideshow.css"), "w")
-        f.write(CSS.encode('utf8', 'ignore'))
+        f.write(CSS.encode('utf8', 'ignore').decode('utf-8'))
         f.close()
 
     def _create_pages(self, events):
@@ -157,7 +157,7 @@ class SlideshowDialogController(Controller):
                               prev_page_nbr,
                               next_page_nbr,
                               pos_history)
-        f.write(pg.encode('utf8', 'ignore'))
+        f.write(pg.encode('utf8', 'ignore').decode('utf-8'))
         f.close()
 
     def _install_text_transformer_plugin(self):

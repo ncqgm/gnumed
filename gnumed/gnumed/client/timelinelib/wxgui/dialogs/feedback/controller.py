@@ -16,7 +16,7 @@
 # along with Timeline.  If not, see <http://www.gnu.org/licenses/>.
 
 
-import urllib
+import urllib.parse
 
 from timelinelib.wxgui.framework import Controller
 
@@ -33,18 +33,18 @@ class FeedbackDialogController(Controller):
     def on_default_click(self, event):
         attr = self._get_url_attributes()
         url = "mailto:%s?subject=%s&body=%s" % (
-            urllib.quote(attr["to"]),
-            urllib.quote(attr["subject"]),
-            urllib.quote(attr["body"]),
+            urllib.parse.quote(attr["to"]),
+            urllib.parse.quote(attr["subject"]),
+            urllib.parse.quote(attr["body"]),
         )
         self.webbrowser.open(url)
 
     def on_gmail_click(self, event):
         attr = self._get_url_attributes()
         url = "https://mail.google.com/mail/?compose=1&view=cm&fs=1&to=%s&su=%s&body=%s" % (
-            urllib.quote(attr["to"]),
-            urllib.quote(attr["subject"]),
-            urllib.quote(attr["body"]),
+            urllib.parse.quote(attr["to"]),
+            urllib.parse.quote(attr["subject"]),
+            urllib.parse.quote(attr["body"]),
         )
         self.webbrowser.open(url)
 

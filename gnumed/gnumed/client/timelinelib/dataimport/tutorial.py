@@ -23,7 +23,29 @@ from timelinelib.canvas.data.db import MemoryDB
 from timelinelib.canvas.data import TimePeriod
 
 
+def create_in_memory_gregorian_tutorial_db():
+    """
+    Creates a Gregorian calender, tutorial timeline.
+    
+    This function is called if the timeline application is started with:
+       python3 timeline.py :tutorial:
+    or if the menu Help -> Getting started tutorial is selected.
+    """
+    return create_in_memory_tutorial_db(GregorianTutorialTimelineCreator())
+
+
+def create_in_memory_numeric_tutorial_db():
+    """
+    Creates a numeric tutorial timeline.
+    
+    This function is called if the timeline application is started with:
+       python3 timeline.py :numtutorial:
+    """
+    return create_in_memory_tutorial_db(NumericTutorialTimelineCreator())
+
+
 class TutorialTimelineCreator(object):
+    """Base class for creation of a tutorial timeline."""
 
     def __init__(self):
         self.db = MemoryDB()
@@ -96,7 +118,8 @@ class TutorialTimelineCreator(object):
 
 
 class GregorianTutorialTimelineCreator(TutorialTimelineCreator):
-
+    """A Gregorian calendar, tutorial timeline."""
+    
     def get_time_type(self):
         from timelinelib.calendar.gregorian.timetype import GregorianTimeType
         return GregorianTimeType()
@@ -119,7 +142,8 @@ class GregorianTutorialTimelineCreator(TutorialTimelineCreator):
 
 
 class NumericTutorialTimelineCreator(TutorialTimelineCreator):
-
+    """A numeric tutorial timeline."""
+    
     def get_time_type(self):
         from timelinelib.calendar.num.timetype import NumTimeType
         return NumTimeType()
@@ -131,14 +155,6 @@ class NumericTutorialTimelineCreator(TutorialTimelineCreator):
 
     def get_delta(self, value):
         return NumDelta(value)
-
-
-def create_in_memory_gregorian_tutorial_db():
-    return create_in_memory_tutorial_db(GregorianTutorialTimelineCreator())
-
-
-def create_in_memory_numeric_tutorial_db():
-    return create_in_memory_tutorial_db(NumericTutorialTimelineCreator())
 
 
 def create_in_memory_tutorial_db(tutcreator):

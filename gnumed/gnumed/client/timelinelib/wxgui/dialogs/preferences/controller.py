@@ -40,6 +40,10 @@ class PreferencesDialogController(Controller):
         self.config.weekend_colour = str(self.view.GetWeekendColor())
         self.config.bg_colour = str(self.view.GetBgColor())
         self.config.legend_pos = self.view.GetLegendPos()
+        self.config.time_scale_pos = self.view.GetTimeScalePos()
+        self.config.default_year = self.view.GetDefaultYear()
+        self.config.default_month = self.view.GetDefaultMonth()
+        self.config.default_day = self.view.GetDefaultDay()
 
     def on_open_recent_change(self, event):
         self.config.open_recent_at_startup = event.IsChecked()
@@ -119,6 +123,9 @@ class PreferencesDialogController(Controller):
     def on_vertical_space_between_events_click(self, event):
         self.config.vertical_space_between_events = self.view.GetVerticalSpaceBetweenEvents()
 
+    def on_use_bold_nowline(self, event):
+        self.config.use_bold_nowline = self.view.GetUseBoldNowline()
+    
     def on_colorize_weekends(self, event):
         self.config.colorize_weekends = self.view.GetColorizeWeekends()
 
@@ -127,6 +134,12 @@ class PreferencesDialogController(Controller):
 
     def on_never_use_time_change(self, event):
         self.config.never_use_time = self.view.GetNeverUseTime()
+
+    def on_use_second_change(self, event):
+        self.config.use_second = self.view.GetUseSecond()
+
+    def on_use_date_default_values(self, event):
+        self.config.use_date_default_values = self.view.GetUseDateDefaultValues()
 
     def _set_initial_values(self):
         self.view.SetOpenRecentCheckboxValue(self.config.open_recent_at_startup)
@@ -152,14 +165,21 @@ class PreferencesDialogController(Controller):
         self.view.DisplayIcons()
         self.view.SetVerticalSpaceBetweenEvents(self.config.vertical_space_between_events)
         self.view.SetColorizeWeekends(self.config.colorize_weekends)
+        self.view.SetUseBoldNowline(self.config.use_bold_nowline)
         self.view.SetSkipSInDecadeText(self.config.skip_s_in_decade_text)
         self.view.SetDisplayCheckmarkOnEventsDone(self.config.display_checkmark_on_events_done)
         self.view.SetNeverUseTime(self.config.never_use_time)
+        self.view.SetUseSecond(self.config.use_second)
+        self.view.SetUseDateDefaultValues(self.config.use_date_default_values)
+        self.view.SetDefaultYear(self.config.default_year)
+        self.view.SetDefaultMonth(self.config.default_month)
+        self.view.SetDefaultDay(self.config.default_day)
         self.view.SetMajorStripFont(deserialize_font(self.config.major_strip_font))
         self.view.SetMinorStripFont(deserialize_font(self.config.minor_strip_font))
         self.view.SetLegendFont(deserialize_font(self.config.legend_font))
         self.view.SetBalloonFont(deserialize_font(self.config.balloon_font))
         self.view.SetLegendPos(self.config.legend_pos)
+        self.view.SetTimeScalePos(self.config.time_scale_pos)
 
     def _week_index(self, week):
         for (i, w) in self.weeks_map:

@@ -18,7 +18,7 @@
 
 from xml.sax.saxutils import escape as xmlescape
 import base64
-import StringIO
+import io
 
 import wx
 
@@ -206,11 +206,11 @@ def write_simple_tag(xmlfile, name, content, indent=""):
 
 
 def color_string(color):
-    return "%i,%i,%i" % color
+    return "%i,%i,%i" % color[:3]
 
 
 def icon_string(bitmap):
-    output = StringIO.StringIO()
+    output = io.StringIO()
     image = wx.ImageFromBitmap(bitmap)
     image.SaveStream(output, wx.BITMAP_TYPE_PNG)
     return base64.b64encode(output.getvalue())

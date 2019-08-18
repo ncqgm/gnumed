@@ -58,7 +58,7 @@ class ScrollViewInputHandler(InputHandler):
         Return True if x is within the left hand or right hand area
         where timed scrolling shall start/continue.
         """
-        width, _ = self.timeline_canvas.GetSizeTuple()
+        width, _ = self.timeline_canvas.GetSize()
         if width - x < SCROLL_ZONE_WIDTH or x < SCROLL_ZONE_WIDTH:
             return True
         return False

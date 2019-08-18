@@ -15,7 +15,11 @@
 # You should have received a copy of the GNU General Public License
 # along with Timeline.  If not, see <http://www.gnu.org/licenses/>.
 
-"""Contains the Timer class."""
+"""
+Contains the Timer class.
+
+:doc:`Tests are found here <unit_timer>`.
+"""
 
 import sys
 import time

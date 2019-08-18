@@ -84,7 +84,7 @@ class MemoryDB(Observable):
             container = kwargs.pop("container")
         else:
             container = None
-        for name, value in kwargs.iteritems():
+        for name, value in kwargs.items():
             setattr(wrapper, name, value)
         if container is not None:
             wrapper.container = container
@@ -104,7 +104,7 @@ class MemoryDB(Observable):
         return self._transactions.status
 
     def display_in_canvas(self, canvas):
-        canvas.set_timeline(self)
+        canvas.SetTimeline(self)
 
     def is_saved(self):
         return self._save_callback is not None
@@ -183,8 +183,8 @@ class MemoryDB(Observable):
         else:
             id_, immutable_event = min(
                 self._transactions.value.events,
-                key=lambda (id_, immutable_event):
-                    immutable_event.time_period.start_time
+                key=lambda id__immutable_event:
+                    id__immutable_event[1].time_period.start_time
             )
             with self._query() as query:
                 return query.get_event(id_)
@@ -195,8 +195,8 @@ class MemoryDB(Observable):
         else:
             id_, immutable_event = max(
                 self._transactions.value.events,
-                key=lambda (id_, immutable_event):
-                    immutable_event.time_period.end_time
+                key=lambda id__immutable_event1:
+                    id__immutable_event1[1].time_period.end_time
             )
             with self._query() as query:
                 return query.get_event(id_)
@@ -410,7 +410,9 @@ class MemoryDB(Observable):
 
     def find_event_with_ids(self, ids):
         with self._query() as query:
-            return [self.find_event_with_id(id_) for id_ in ids]
+            events = [self.find_event_with_id(id_) for id_ in ids]
+            events = [e for e in events if e is not None]
+            return events
 
     def find_event_with_id(self, event_id):
         with self._query() as query:
@@ -523,7 +525,7 @@ class MemoryDB(Observable):
             event
             for event
             in all_events
-            if not event.is_subevent()
+            if not event.is_subevent() and not event.is_milestone()
         ]
         reordered_events = self._sort_by_length(reordered_events)
         return reordered_events

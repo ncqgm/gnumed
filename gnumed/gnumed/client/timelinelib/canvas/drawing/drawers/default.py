@@ -31,6 +31,9 @@ from timelinelib.wxgui.components.font import Font
 import timelinelib.wxgui.components.font as font
 from timelinelib.canvas.drawing.drawers.legenddrawer import LegendDrawer
 from wx import BRUSHSTYLE_TRANSPARENT
+from timelinelib.canvas.drawing.drawers.dividerline import DividerLine
+from timelinelib.canvas.drawing.drawers.minorstrip import MinorStripDrawer
+from timelinelib.canvas.drawing.drawers.nowline import NowLine
 
 
 OUTER_PADDING = 5  # Space between event boxes (pixels)
@@ -51,6 +54,9 @@ class DefaultDrawingAlgorithm(Drawer):
         self._create_pens()
         self._create_brushes()
         self._fixed_ys = {}
+        self._do_draw_top_scale = False
+        self._do_draw_bottom_scale = True
+        self._do_draw_divider_line = False
 
     def set_event_box_drawer(self, event_box_drawer):
         self.event_box_drawer = event_box_drawer
@@ -85,10 +91,10 @@ class DefaultDrawingAlgorithm(Drawer):
         self.red_solid_pen = wx.Pen(wx.Colour(255, 0, 0), 1, wx.PENSTYLE_SOLID)
 
     def _create_brushes(self):
-        self.white_solid_brush = wx.Brush(wx.Colour(255, 255, 255), wx.PENSTYLE_SOLID)
-        self.black_solid_brush = wx.Brush(wx.Colour(0, 0, 0), wx.PENSTYLE_SOLID)
-        self.red_solid_brush = wx.Brush(wx.Colour(255, 0, 0), wx.PENSTYLE_SOLID)
-        self.lightgrey_solid_brush = wx.Brush(wx.Colour(230, 230, 230), wx.PENSTYLE_SOLID)
+        self.white_solid_brush = wx.Brush(wx.Colour(255, 255, 255), wx.BRUSHSTYLE_SOLID)
+        self.black_solid_brush = wx.Brush(wx.Colour(0, 0, 0), wx.BRUSHSTYLE_SOLID)
+        self.red_solid_brush = wx.Brush(wx.Colour(255, 0, 0), wx.BRUSHSTYLE_SOLID)
+        self.lightgrey_solid_brush = wx.Brush(wx.Colour(230, 230, 230), wx.BRUSHSTYLE_SOLID)
 
     def event_is_period(self, time_period):
         period_width_in_pixels = self.scene.width_of_period(time_period)
@@ -105,7 +111,8 @@ class DefaultDrawingAlgorithm(Drawer):
     def draw(self, dc, timeline, view_properties, appearance, fast_draw=False):
         self.fast_draw = fast_draw
         view_properties.hide_events_done = appearance.get_hide_events_done()
-        view_properties.legend_pos = appearance.get_legend_pos()
+        view_properties._legend_pos = appearance.get_legend_pos()
+        view_properties._time_scale_pos = appearance.get_time_scale_pos()
         view_properties.set_fuzzy_icon(appearance.get_fuzzy_icon())
         view_properties.set_locked_icon(appearance.get_locked_icon())
         view_properties.set_hyperlink_icon(appearance.get_hyperlink_icon())
@@ -124,9 +131,9 @@ class DefaultDrawingAlgorithm(Drawer):
         self.appearance = appearance
         self.dc = dc
         self.time_type = timeline.get_time_type()
-        self.scene = self._create_scene(dc.GetSizeTuple(), timeline, view_properties, self._get_text_extent)
+        self.scene = self._create_scene(dc.GetSize(), timeline, view_properties, self._get_text_extent)
         if view_properties.use_fixed_event_vertical_pos():
-            self._calc_fixed_event_rect_y(dc.GetSizeTuple(), timeline, view_properties, self._get_text_extent)
+            self._calc_fixed_event_rect_y(dc.GetSize(), timeline, view_properties, self._get_text_extent)
         else:
             self._fixed_ys = {}
         self._perform_drawing(timeline, view_properties)
@@ -291,43 +298,50 @@ class DefaultDrawingAlgorithm(Drawer):
         self._draw_divider_line()
 
     def _draw_normal_bg(self):
-        self._draw_minor_strips()
         self._draw_major_strips()
+        self._draw_minor_strips()
         self._draw_divider_line()
         self._draw_now_line()
 
     def _draw_minor_strips(self):
+        drawer = MinorStripDrawer(self)
         for strip_period in self.scene.minor_strip_data:
-            self._draw_minor_strip_divider_line_at(strip_period.end_time)
-            self._draw_minor_strip_label(strip_period)
+            label = self.scene.minor_strip.label(strip_period.start_time)
+            drawer.draw(label, strip_period.start_time, strip_period.end_time)
+            #self._draw_minor_strip_divider_line_at(strip_period.end_time)
+            #self._draw_minor_strip_label(strip_period)
 
-    def _draw_minor_strip_divider_line_at(self, time):
-        x = self.scene.x_pos_for_time(time)
-        self.dc.SetPen(self.minor_strip_pen)
-        self.dc.DrawLine(x, 0, x, self.scene.height)
-
-    def _draw_minor_strip_label(self, strip_period):
-        label = self.scene.minor_strip.label(strip_period.start_time)
-        self._set_minor_strip_font(strip_period)
-        (tw, th) = self.dc.GetTextExtent(label)
-        start_x = self.scene.x_pos_for_time(strip_period.get_start_time())
-        end_x = self.scene.x_pos_for_time(strip_period.get_end_time())
-        middle = (start_x + end_x) / 2
-        middley = self.scene.divider_y
-        self.dc.DrawText(label, middle - tw / 2, middley - th)
-
-    def _set_minor_strip_font(self, strip_period):
-        if self.scene.minor_strip_is_day():
-            bold = False
-            italic = False
-            if self.time_type.is_weekend_day(strip_period.start_time):
-                bold = True
-            if self.time_type.is_special_day(strip_period.start_time):
-                italic = True
-            font.set_minor_strip_text_font(self.appearance.get_minor_strip_font(), self.dc,
-                                           force_bold=bold, force_normal=not bold, force_italic=italic, force_upright=not italic)
-        else:
-            font.set_minor_strip_text_font(self.appearance.get_minor_strip_font(), self.dc)
+#     def _draw_minor_strip_divider_line_at(self, time):
+#         x = self.scene.x_pos_for_time(time)
+#         self.dc.SetPen(self.minor_strip_pen)
+#         self.dc.DrawLine(x, 0, x, self.scene.height)
+# 
+#     def _draw_minor_strip_label(self, strip_period):
+#         label = self.scene.minor_strip.label(strip_period.start_time)
+#         self._set_minor_strip_font(strip_period)
+#         (tw, th) = self.dc.GetTextExtent(label)
+#         start_x = self.scene.x_pos_for_time(strip_period.get_start_time())
+#         end_x = self.scene.x_pos_for_time(strip_period.get_end_time())
+#         middle = (start_x + end_x) / 2
+#         if self._do_draw_divider_line:
+#             middley = self.scene.divider_y
+#             self.dc.DrawText(label, middle - tw / 2, middley - th)
+#         if self._do_draw_bottom_scale:
+#             middley = self.scene.height
+#             self.dc.DrawText(label, middle - tw / 2, middley - th)
+#             
+#     def _set_minor_strip_font(self, strip_period):
+#         if self.scene.minor_strip_is_day():
+#             bold = False
+#             italic = False
+#             if self.time_type.is_weekend_day(strip_period.start_time):
+#                 bold = True
+#             if self.time_type.is_special_day(strip_period.start_time):
+#                 italic = True
+#             font.set_minor_strip_text_font(self.appearance.get_minor_strip_font(), self.dc,
+#                                            force_bold=bold, force_normal=not bold, force_italic=italic, force_upright=not italic)
+#         else:
+#             font.set_minor_strip_text_font(self.appearance.get_minor_strip_font(), self.dc)
 
     def _draw_major_strips(self):
         font.set_major_strip_text_font(self.appearance.get_major_strip_font(), self.dc)
@@ -386,9 +400,7 @@ class DefaultDrawingAlgorithm(Drawer):
         return self.scene.x_pos_for_time(time_period.mean_time()) + th / 2
 
     def _draw_divider_line(self):
-        self.dc.SetPen(self.black_solid_pen)
-        self.dc.DrawLine(0, self.scene.divider_y, self.scene.width,
-                         self.scene.divider_y)
+        DividerLine(self).draw()
 
     def _draw_lines_to_non_period_events(self, view_properties):
         for (event, rect) in self.scene.event_data:
@@ -454,11 +466,7 @@ class DefaultDrawingAlgorithm(Drawer):
             self.dc.SetPen(self.black_solid_pen)
 
     def _draw_now_line(self):
-        now_time = self.time_type.now()
-        x = self.scene.x_pos_for_time(now_time)
-        if x > 0 and x < self.scene.width:
-            self.dc.SetPen(self.now_pen)
-            self.dc.DrawLine(x, 0, x, self.scene.height)
+        NowLine(self).draw()
 
     def _extract_categories(self):
         categories = []
@@ -517,7 +525,7 @@ class DefaultDrawingAlgorithm(Drawer):
         self._draw_box(box_rect, event, view_properties)
 
     def _draw_box(self, rect, event, view_properties):
-        self.dc.SetClippingRect(rect)
+        self.dc.SetClippingRegion(rect)
         self.event_box_drawer.draw(self.dc, self.scene, rect, event, view_properties)
         self.dc.DestroyClippingRegion()
 
@@ -629,7 +637,7 @@ class DefaultDrawingAlgorithm(Drawer):
         # Write data so we know where the balloon was drawn
         # Following two lines can be used when debugging the rectangle
         # self.dc.SetBrush(wx.TRANSPARENT_BRUSH)
-        # self.dc.DrawRectangleRect(bounding_rect)
+        # self.dc.DrawRectangle(bounding_rect)
         self.balloon_data.append((event, bounding_rect))
 
     def _draw_balloon_bg(self, dc, inner_size, tip_pos, above, sticky):
@@ -683,27 +691,27 @@ class DefaultDrawingAlgorithm(Drawer):
         path.AddLineToPoint(p2.x, p2.y)
         # The lower left rounded corner. p3 is the center of the arc
         p3 = wx.Point(p2.x, p2.y - R)
-        path.AddArc(p3.x, p3.y, R, math.radians(90), math.radians(180))
+        path.AddArc(p3.x, p3.y, R, math.radians(90), math.radians(180), True)
         # The left side
         p4 = wx.Point(p3.x - R, p3.y - H + R)
         left_x = p4.x
         path.AddLineToPoint(p4.x, p4.y)
         # The upper left rounded corner. p5 is the center of the arc
         p5 = wx.Point(p4.x + R, p4.y)
-        path.AddArc(p5.x, p5.y, R, math.radians(180), math.radians(-90))
+        path.AddArc(p5.x, p5.y, R, math.radians(180), math.radians(-90), True)
         # The upper side
         p6 = wx.Point(p5.x + W - R, p5.y - R)
         top_y = p6.y
         path.AddLineToPoint(p6.x, p6.y)
         # The upper right rounded corner. p7 is the center of the arc
         p7 = wx.Point(p6.x, p6.y + R)
-        path.AddArc(p7.x, p7.y, R, math.radians(-90), math.radians(0))
+        path.AddArc(p7.x, p7.y, R, math.radians(-90), math.radians(0), True)
         # The right side
         p8 = wx.Point(p7.x + R, p7.y + H - R)
         path.AddLineToPoint(p8.x, p8.y)
         # The lower right rounded corner. p9 is the center of the arc
         p9 = wx.Point(p8.x - R, p8.y)
-        path.AddArc(p9.x, p9.y, R, math.radians(0), math.radians(90))
+        path.AddArc(p9.x, p9.y, R, math.radians(0), math.radians(90), True)
         # The lower side
         p10 = wx.Point(p9.x - W + W_ARROW + ARROW_OFFSET, p9.y + R)
         path.AddLineToPoint(p10.x, p10.y)
@@ -715,7 +723,7 @@ class DefaultDrawingAlgorithm(Drawer):
         BORDER_COLOR = wx.Colour(127, 127, 127)
         BG_COLOR = wx.Colour(255, 255, 231)
         PEN = wx.Pen(BORDER_COLOR, 1, wx.PENSTYLE_SOLID)
-        BRUSH = wx.Brush(BG_COLOR, wx.PENSTYLE_SOLID)
+        BRUSH = wx.Brush(BG_COLOR, wx.BRUSHSTYLE_SOLID)
         gc.SetPen(PEN)
         gc.SetBrush(BRUSH)
         gc.DrawPath(path)
@@ -735,12 +743,12 @@ class DefaultDrawingAlgorithm(Drawer):
         return (bounding_rect, left_x + BALLOON_RADIUS, top_y + BALLOON_RADIUS)
 
     def get_period_xpos(self, time_period):
-        w, _ = self.dc.GetSizeTuple()
+        w, _ = self.dc.GetSize()
         return (max(0, self.scene.x_pos_for_time(time_period.start_time)),
                 min(w, self.scene.x_pos_for_time(time_period.end_time)))
 
     def period_is_visible(self, time_period):
-        w, _ = self.dc.GetSizeTuple()
+        w, _ = self.dc.GetSize()
         return (self.scene.x_pos_for_time(time_period.start_time) < w and
                 self.scene.x_pos_for_time(time_period.end_time) > 0)
 

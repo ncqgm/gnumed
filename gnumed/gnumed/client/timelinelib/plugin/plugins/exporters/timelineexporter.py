@@ -70,7 +70,7 @@ class CsvExporter(object):
         self.category_fields = dlg.GetCategoryFields()
 
     def export(self):
-        with open(self.path, "w") as f:
+        with open(self.path, "wb") as f:
             self._write_events(f, self.event_fields)
             self._write_categories(f, self.category_fields)
 
@@ -88,17 +88,17 @@ class CsvExporter(object):
 
     def _write_label(self, f, text):
         self._write_encoded_text(f, text)
-        f.write("\n")
+        self._write(f, "\n")
 
     def _write_heading(self, f, fields):
         for field in fields:
             self._write_encoded_text(f, field)
-        f.write("\n")
+        self._write(f, "\n")
 
     def _write_events_fields(self, f, event_fields):
         for event in self.timeline.get_all_events():
             self._write_event(f, event, event_fields)
-        f.write("\n")
+        self._write(f, "\n")
 
     def _write_categories_fields(self, f, category_fields):
         for category in self.timeline.get_categories():
@@ -122,20 +122,20 @@ class CsvExporter(object):
         if _("Ends Today") in event_fields:
             self._write_boolean_value(f, event.get_ends_today())
         if _("Hyperlink") in event_fields:
-            f.write("%s;" % event.get_hyperlink())
+            self._write(f, "%s;" % event.get_hyperlink())
         if _("Progress") in event_fields:
-            f.write("%s;" % event.get_progress())
+            self._write(f, "%s;" % event.get_progress())
         if _("Progress Color") in event_fields:
             self._write_color_value(f, event.get_progress_color())
         if _("Done Color") in event_fields:
             self._write_color_value(f, event.get_done_color())
         if _("Alert") in event_fields:
-            f.write("%s;" % self._get_alert_string(event.get_alert()))
+            self._write(f, "%s;" % self._get_alert_string(event.get_alert()))
         if _("Is Container") in event_fields:
             self._write_boolean_value(f, event.is_container())
         if _("Is Subevent") in event_fields:
             self._write_boolean_value(f, event.is_subevent())
-        f.write("\n")
+        self._write(f, "\n")
 
     def _write_category(self, f, category, category_fields):
         if _("Name") in category_fields:
@@ -148,7 +148,7 @@ class CsvExporter(object):
             self._write_color_value(f, category.get_done_color())
         if _("Parent") in category_fields:
             self._write_encoded_text(f, self._get_parent(category))
-        f.write("\n")
+        self._write(f, "\n")
 
     def _get_event_description(self, event):
         if event.get_description() is not None:
@@ -168,7 +168,7 @@ class CsvExporter(object):
 
     def _get_category_parent(self, cat):
         if cat._get_parent() is not None:
-            return self._encode_text(cat._get_parent().get_name())
+            return cat._get_parent().get_name()
         else:
             return ""
 
@@ -178,29 +178,26 @@ class CsvExporter(object):
     def _get_alert_string(self, alert):
         if alert:
             time, text = alert
-            return "%s %s" % (self._get_time_string(time), self._encode_text(text))
+            return "%s %s" % (self._get_time_string(time), text)
         else:
             return ""
 
     def _write_encoded_text(self, f, text):
         if text is not None:
             text = text.replace('"', '""')
-        f.write("\"%s\";" % self._encode_text(text))
-
-    def _encode_text(self, text):
-        if text is not None:
-            return text.encode(self.text_encoding, self.encoding_error_strategy)
-        else:
-            return text
+        self._write(f, "\"%s\";" % text)
 
     def _write_time_value(self, f, time_value):
-        f.write("%s;" % self.timeline.get_time_type().time_string(time_value))
+        self._write(f, "%s;" % self.timeline.get_time_type().time_string(time_value))
 
     def _write_color_value(self, f, color):
-        f.write("(%d, %d, %d);" % color)
+        self._write(f, "(%d, %d, %d);" % color)
 
     def _write_boolean_value(self, f, value):
-        f.write("%s;" % value)
+        self._write(f, "%s;" % value)
+
+    def _write(self, f, text):
+        f.write(text.encode(self.text_encoding, self.encoding_error_strategy))
 
 
 def get_path(main_frame):

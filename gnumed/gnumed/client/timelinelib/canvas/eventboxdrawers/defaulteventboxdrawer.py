@@ -70,9 +70,9 @@ class DefaultEventBoxDrawer(object):
         self._draw_hyperlink(dc, rect, event)
 
     def _draw_background(self, dc, rect, event):
-        dc.SetBrush(wx.Brush(self._get_event_color(event), wx.PENSTYLE_SOLID))
+        dc.SetBrush(wx.Brush(self._get_event_color(event), wx.BRUSHSTYLE_SOLID))
         dc.SetPen(self._get_pen(dc, event))
-        dc.DrawRectangleRect(rect)
+        dc.DrawRectangle(rect)
 
     def _get_pen(self, dc, event):
         pen = self._get_thin_border_pen(event)
@@ -115,7 +115,7 @@ class DefaultEventBoxDrawer(object):
     def _get_balloon_indicator_brush(self, event):
         base_color = self._get_event_color(event)
         darker_color = darken_color(base_color, 0.6)
-        brush = wx.Brush(darker_color, wx.PENSTYLE_SOLID)
+        brush = wx.Brush(darker_color, wx.BRUSHSTYLE_SOLID)
         return brush
 
     def _get_border_color(self, event):
@@ -196,7 +196,7 @@ class DefaultEventBoxDrawer(object):
         if event.get_data("progress"):
             self._set_progress_color(dc, event)
             progress_rect = self._get_progress_rect(rect, event)
-            dc.DrawRectangleRect(progress_rect)
+            dc.DrawRectangle(progress_rect)
 
     def _set_progress_color(self, dc, event):
         progress_color = event.get_progress_color()
@@ -261,7 +261,7 @@ class DefaultEventBoxDrawer(object):
         return r
 
     def _set_clipping_rect(self, dc, rect):
-        dc.SetClippingRect(self._get_inner_rect(rect))
+        dc.SetClippingRegion(self._get_inner_rect(rect))
 
     def _calc_x_pos(self, dc, rect, event):
         inner_rect = self._get_inner_rect(rect)
@@ -306,9 +306,9 @@ class DefaultEventBoxDrawer(object):
             pen = wx.Pen(border_color, 1, wx.PENSTYLE_SOLID)
             dc.SetBrush(wx.TRANSPARENT_BRUSH)
             dc.SetPen(pen)
-            dc.DrawRectangleRect(small_rect)
+            dc.DrawRectangle(small_rect)
 
-        dc.SetClippingRect(rect)
+        dc.SetClippingRegion(rect)
         draw_frame_around_event()
         self._draw_all_handles(dc, rect, event)
         dc.DestroyClippingRegion()
@@ -319,7 +319,7 @@ class DefaultEventBoxDrawer(object):
             big_rect = wx.Rect(*rect)
             big_rect.Inflate(HANDLE_SIZE, HANDLE_SIZE)
             dc.DestroyClippingRegion()
-            dc.SetClippingRect(big_rect)
+            dc.SetClippingRegion(big_rect)
 
         def set_pen_and_brush():
             dc.SetBrush(wx.BLACK_BRUSH)
@@ -332,8 +332,8 @@ class DefaultEventBoxDrawer(object):
             return wx.Rect(x, y, HANDLE_SIZE, HANDLE_SIZE)
 
         def draw_rect(handle_rect, offset):
-            handle_rect.OffsetXY(offset, 0)
-            dc.DrawRectangleRect(handle_rect)
+            handle_rect.Offset(offset, 0)
+            dc.DrawRectangle(handle_rect)
 
         def draw_handle_rects(handle_rect):
             HALF_EVENT_WIDTH = rect.Width / 2
@@ -356,7 +356,7 @@ class DefaultEventBoxDrawer(object):
         copy = wx.Rect(*rect)
         copy.Inflate(10, 0)
         dc.DestroyClippingRegion()
-        dc.SetClippingRect(copy)
+        dc.SetClippingRegion(copy)
 
     def _get_hyperlink_bitmap(self):
         return self._get_bitmap(self.view_properties.get_hyperlink_icon())
@@ -387,16 +387,16 @@ class DefaultEventBoxDrawer(object):
             dc.DestroyClippingRegion()
             dc.SetPen(self._black_solid_pen(1))
             if event.get_category() is None:
-                dc.SetBrush(wx.Brush(wx.Colour(*event.get_default_color()), wx.PENSTYLE_SOLID))
+                dc.SetBrush(wx.Brush(wx.Colour(*event.get_default_color()), wx.BRUSHSTYLE_SOLID))
             else:
-                dc.SetBrush(wx.Brush(wx.Colour(*event.get_category().get_color()), wx.PENSTYLE_SOLID))
-            dc.DrawRectangleRect(rect)
+                dc.SetBrush(wx.Brush(wx.Colour(*event.get_category().get_color()), wx.BRUSHSTYLE_SOLID))
+            dc.DrawRectangle(rect)
 
         def draw_circle_shape():
             half_size = rect.width / 2
             dc.DestroyClippingRegion()
             dc.SetPen(self._black_solid_pen(1))
-            dc.SetBrush(wx.Brush(wx.Colour(*event.get_default_color()), wx.PENSTYLE_SOLID))
+            dc.SetBrush(wx.Brush(wx.Colour(*event.get_default_color()), wx.BRUSHSTYLE_SOLID))
             dc.DrawCircle(rect.x + half_size, rect.y + half_size, 2 * rect.width / 3)
 
         def draw_diamond_shape():
@@ -410,7 +410,7 @@ class DefaultEventBoxDrawer(object):
                       wx.Point(x + half_size, y + rect.width + SIZE))
             dc.DestroyClippingRegion()
             dc.SetPen(self._black_solid_pen(1))
-            dc.SetBrush(wx.Brush(wx.Colour(*event.get_default_color()), wx.PENSTYLE_SOLID))
+            dc.SetBrush(wx.Brush(wx.Colour(*event.get_default_color()), wx.BUSHSTYLE_SOLID))
             dc.DrawPolygon(points)
 
         def draw_label():
@@ -425,8 +425,8 @@ class DefaultEventBoxDrawer(object):
         def draw_move_handle():
             dc.SetBrush(self._black_solid_brush())
             handle_rect = create_handle_rect()
-            handle_rect.OffsetXY(rect.Width / 2, 0)
-            dc.DrawRectangleRect(handle_rect)
+            handle_rect.Offset(rect.Width / 2, 0)
+            dc.DrawRectangle(handle_rect)
 
         draw_shape()
         draw_label()
@@ -437,4 +437,4 @@ class DefaultEventBoxDrawer(object):
         return wx.Pen(wx.Colour(0, 0, 0), size, wx.PENSTYLE_SOLID)
 
     def _black_solid_brush(self):
-        return wx.Brush(wx.Colour(0, 0, 0), wx.PENSTYLE_SOLID)
+        return wx.Brush(wx.Colour(0, 0, 0), wx.BRUSHSTYLE_SOLID)

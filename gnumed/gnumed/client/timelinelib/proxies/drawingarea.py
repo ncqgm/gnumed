@@ -17,6 +17,18 @@
 
 
 class DrawingAreaProxy():
+    """
+    The purpose of this proxy is to simplify the access to the canvas
+    from the MainFrame window.
+    
+    Example of usage in MainFrame GuiCreator:
+        def zoomout(evt):
+            DrawingAreaProxy(self).zoom_out()
+            
+    Instead of writing:
+        def zoomout(evt):
+            self.main_panel.timeline_panel.timeline_canvas.zoom_out()
+    """
 
     def __init__(self, creator):
         from timelinelib.wxgui.frames.mainframe.mainframe import MainFrame

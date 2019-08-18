@@ -52,7 +52,10 @@ class Appearance(Observable):
         self._build_property("skip_s_in_decade_text", False)
         self._build_property("display_checkmark_on_events_done", False)
         self._build_property("never_use_time", False)
+        self._build_property("use_second", False)
         self._build_property("legend_pos", 0)
+        self._build_property("time_scale_pos", 1)
+        self._build_property("use_bold_nowline", False)
 
     def _build_property(self, name, initial_value):
 

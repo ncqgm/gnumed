@@ -59,9 +59,9 @@ class ShortcutsEditorDialogController(Controller):
             self.shortcut_config.edit(function, shortcut)
             self.view.DisplayAckPopupWindow(_("Shortcut is saved"))
         except MissingInput as ex:
-            self.view.DisplayWarningMessage(ex.message)
+            self.view.DisplayWarningMessage(str(ex))
         except DuplicateShortcut as ex:
-            self.view.DisplayWarningMessage(ex.message)
+            self.view.DisplayWarningMessage(str(ex))
 
     def _validate_input(self):
         shortcut_key = self.view.GetShortcutKey()

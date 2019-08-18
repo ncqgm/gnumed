@@ -23,6 +23,8 @@ from timelinelib.canvas.timelinecanvascontroller import TimelineCanvasController
 from timelinelib.wxgui.keyboard import Keyboard
 from timelinelib.wxgui.cursor import Cursor
 from timelinelib.canvas.data import TimePeriod
+from timelinelib.canvas.highlighttimer import HighlightTimer
+import timelinelib.wxgui.utils as guiutils
 
 
 MOVE_HANDLE = 0
@@ -50,20 +52,19 @@ class TimelineCanvas(wx.Panel):
 
     def __init__(self, parent):
         wx.Panel.__init__(self, parent, style=wx.NO_BORDER | wx.WANTS_CHARS)
-        self.controller = TimelineCanvasController(self)
-        self.surface_bitmap = None
+        self._controller = TimelineCanvasController(self)
+        self._surface_bitmap = None
         self._create_gui()
         self.SetDividerPosition(50)
-        self._highlight_timer = wx.Timer(self)
-        self.Bind(wx.EVT_TIMER, self._on_highlight_timer, self._highlight_timer)
+        self._highlight_timer = HighlightTimer(self._highlight_timer_tick)
         self._last_balloon_event = None
         self._waiting = False
 
     def GetAppearance(self):
-        return self.controller.get_appearance()
+        return self._controller.get_appearance()
 
     def SetAppearance(self, appearance):
-        self.controller.set_appearance(appearance)
+        self._controller.set_appearance(appearance)
 
     def GetDividerPosition(self):
         return self._divider_position
@@ -71,66 +72,66 @@ class TimelineCanvas(wx.Panel):
     def SetDividerPosition(self, position):
         self._divider_position = int(min(100, max(0, position)))
         self.PostEvent(create_divider_position_changed_event())
-        self.controller.redraw_timeline()
+        self._controller.redraw_timeline()
 
     def GetHiddenEventCount(self):
-        return self.controller.get_hidden_event_count()
+        return self._controller.get_hidden_event_count()
 
     def Scroll(self, factor):
         self.Navigate(lambda tp: tp.move_delta(-tp.delta() * factor))
 
     def DrawSelectionRect(self, cursor):
-        self.controller.set_selection_rect(cursor)
+        self._controller.set_selection_rect(cursor)
 
     def RemoveSelectionRect(self):
-        self.controller.remove_selection_rect()
+        self._controller.remove_selection_rect()
 
     def UseFastDraw(self, use):
-        self.controller.use_fast_draw(use)
+        self._controller.use_fast_draw(use)
         self.Redraw()
 
     def GetHScrollAmount(self):
-        return self.controller.get_hscroll_amount()
+        return self._controller.get_hscroll_amount()
 
     def SetHScrollAmount(self, amount):
-        self.controller.set_hscroll_amount(amount)
+        self._controller.set_hscroll_amount(amount)
 
     def IncrementEventTextFont(self):
-        self.controller.increment_font_size()
+        self._controller.increment_font_size()
 
     def DecrementEventTextFont(self):
-        self.controller.decrement_font_size()
+        self._controller.decrement_font_size()
 
     def SetPeriodSelection(self, period):
-        self.controller.set_period_selection(period)
+        self._controller.set_period_selection(period)
 
     def Snap(self, time):
-        return self.controller.snap(time)
+        return self._controller.snap(time)
 
     def PostEvent(self, event):
         wx.PostEvent(self, event)
 
     def SetEventBoxDrawer(self, event_box_drawer):
-        self.controller.set_event_box_drawer(event_box_drawer)
+        self._controller.set_event_box_drawer(event_box_drawer)
         self.Redraw()
 
     def SetEventSelected(self, event, is_selected):
-        self.controller.set_selected(event, is_selected)
+        self._controller.set_selected(event, is_selected)
 
     def ClearSelectedEvents(self):
-        self.controller.clear_selected()
+        self._controller.clear_selected()
 
     def SelectAllEvents(self):
-        self.controller.select_all_events()
+        self._controller.select_all_events()
 
     def IsEventSelected(self, event):
-        return self.controller.is_selected(event)
+        return self._controller.is_selected(event)
 
     def SetHoveredEvent(self, event):
-        self.controller.set_hovered_event(event)
+        self._controller.set_hovered_event(event)
 
     def GetHoveredEvent(self):
-        return self.controller.get_hovered_event
+        return self._controller.get_hovered_event
 
     def GetSelectedEvent(self):
         selected_events = self.GetSelectedEvents()
@@ -139,16 +140,16 @@ class TimelineCanvas(wx.Panel):
         return None
 
     def GetSelectedEvents(self):
-        return self.controller.get_selected_events()
+        return self._controller.get_selected_events()
 
     def GetClosestOverlappingEvent(self, event, up):
-        return self.controller.get_closest_overlapping_event(event, up=up)
+        return self._controller.get_closest_overlapping_event(event, up=up)
 
     def GetTimeType(self):
         return self.GetDb().get_time_type()
 
     def GetDb(self):
-        return self.controller.get_timeline()
+        return self._controller.get_timeline()
 
     def IsReadOnly(self):
         return self.GetDb().is_read_only()
@@ -158,15 +159,15 @@ class TimelineCanvas(wx.Panel):
         return self.GetEventAt(cursor, prefer_container)
 
     def GetEventAt(self, cursor, prefer_container=False):
-        return self.controller.event_at(cursor.x, cursor.y, prefer_container)
+        return self._controller.event_at(cursor.x, cursor.y, prefer_container)
 
     def SelectEventsInRect(self, rect):
-        self.controller.select_events_in_rect(rect)
+        self._controller.select_events_in_rect(rect)
 
     def GetEventWithHitInfoAt(self, cursor, keyboard=Keyboard()):
         x, y = cursor.pos
         prefer_container = keyboard
-        event_and_rect = self.controller.event_with_rect_at(x, y, prefer_container.alt)
+        event_and_rect = self._controller.event_with_rect_at(x, y, prefer_container.alt)
         if event_and_rect is not None:
             event, rect = event_and_rect
             center = rect.X + rect.Width / 2
@@ -180,75 +181,70 @@ class TimelineCanvas(wx.Panel):
 
     def GetBalloonAtCursor(self):
         cursor = Cursor(*self.ScreenToClient(wx.GetMousePosition()))
-        return self.controller.balloon_at(cursor)
+        return self._controller.balloon_at(cursor)
 
     def GetBalloonAt(self, cursor):
-        return self.controller.balloon_at(cursor)
+        return self._controller.balloon_at(cursor)
 
     def EventHasStickyBalloon(self, event):
-        return self.controller.event_has_sticky_balloon(event)
+        return self._controller.event_has_sticky_balloon(event)
 
     def SetEventStickyBalloon(self, event, is_sticky):
-        self.controller.set_event_sticky_balloon(event, is_sticky)
+        self._controller.set_event_sticky_balloon(event, is_sticky)
 
     def GetTimeAt(self, x):
-        return self.controller.get_time(x)
+        return self._controller.get_time(x)
 
-    def set_timeline(self, timeline):
-        self.controller.set_timeline(timeline)
+    def SetTimeline(self, timeline):
+        self._controller.set_timeline(timeline)
 
-    def get_view_properties(self):
-        return self.controller.get_view_properties()
+    def GetViewProperties(self):
+        return self._controller.get_view_properties()
 
     def SaveAsPng(self, path):
-        wx.ImageFromBitmap(self.surface_bitmap).SaveFile(path, wx.BITMAP_TYPE_PNG)
+        wx.ImageFromBitmap(self._surface_bitmap).SaveFile(path, wx.BITMAP_TYPE_PNG)
 
     def SaveAsSvg(self, path):
         from timelinelib.canvas.svg import export
-        export(path, self.controller.get_timeline(), self.controller.scene,
-               self.controller.get_view_properties(), self.GetAppearance())
+        export(path, self._controller.get_timeline(), self._controller.scene,
+               self._controller.get_view_properties(), self.GetAppearance())
 
-    def get_filtered_events(self, search_target):
+    def GetFilteredEvents(self, search_target, search_period):
         events = self.GetDb().search(search_target)
-        return self.controller.filter_events(events)
+        return self._controller.filter_events(events, search_period)
 
-    def get_time_period(self):
-        return self.controller.get_time_period()
+    def GetTimePeriod(self):
+        return self._controller.get_time_period()
 
     def Navigate(self, navigation_fn):
-        self.controller.navigate(navigation_fn)
+        self._controller.navigate(navigation_fn)
 
     def Redraw(self):
-        self.controller.redraw_timeline()
+        self._controller.redraw_timeline()
 
     def EventIsPeriod(self, event):
-        return self.controller.event_is_period(event)
+        return self._controller.event_is_period(event)
 
-    def redraw_surface(self, fn_draw):
-        width, height = self.GetSizeTuple()
-        self.surface_bitmap = wx.EmptyBitmap(width, height)
+    def RedrawSurface(self, fn_draw):
+        width, height = self.GetSize()
+        self._surface_bitmap = wx.Bitmap(width, height)
         memdc = wx.MemoryDC()
-        memdc.SelectObject(self.surface_bitmap)
-        memdc.BeginDrawing()
-        memdc.SetBackground(wx.Brush(wx.WHITE, wx.PENSTYLE_SOLID))
+        memdc.SelectObject(self._surface_bitmap)
+        memdc.SetBackground(wx.Brush(wx.WHITE, wx.BRUSHSTYLE_SOLID))
         memdc.Clear()
         fn_draw(memdc)
-        memdc.EndDrawing()
         del memdc
         self.Refresh()
         self.Update()
 
-    def set_select_period_cursor(self):
-        self.SetCursor(wx.StockCursor(wx.CURSOR_IBEAM))
-
     def set_size_cursor(self):
-        self.SetCursor(wx.StockCursor(wx.CURSOR_SIZEWE))
+        self.SetCursor(wx.Cursor(wx.CURSOR_SIZEWE))
 
     def set_move_cursor(self):
-        self.SetCursor(wx.StockCursor(wx.CURSOR_SIZING))
+        self.SetCursor(wx.Cursor(wx.CURSOR_SIZING))
 
     def set_default_cursor(self):
-        self.SetCursor(wx.StockCursor(wx.CURSOR_ARROW))
+        guiutils.set_default_cursor(self)
 
     def zoom_in(self):
         self.Zoom(1, self._get_half_width())
@@ -258,7 +254,7 @@ class TimelineCanvas(wx.Panel):
 
     def Zoom(self, direction, x):
         """ zoom time line at position x """
-        width, _ = self.GetSizeTuple()
+        width, _ = self.GetSize()
         x_percent_of_width = float(x) / width
         self.Navigate(lambda tp: tp.zoom(direction, x_percent_of_width))
 
@@ -329,8 +325,9 @@ class TimelineCanvas(wx.Panel):
             return self._last_balloon_event
 
         def delayed_call():
-            self.SetHoveredEvent(self._last_balloon_event)
-            self._waiting = False
+            if self.GetAppearance().get_balloons_visible():
+                self.SetHoveredEvent(self._last_balloon_event)
+                self._waiting = False
 
         # Same delay as when we used timers
         # Don't issue call when in wait state, to avoid flicker
@@ -385,13 +382,15 @@ class TimelineCanvas(wx.Panel):
                 return False
             if not self.IsEventSelected(event):
                 return False
+            if event.get_ends_today():
+                return False
             return hit_info == MOVE_HANDLE
 
         def over_resize_handle():
             return hit_resize_handle() is not None
 
         def over_move_handle():
-            return hit_move_handle() and not self.GetEventAtCursor(False).get_ends_today()
+            return hit_move_handle()
 
         if over_resize_handle():
             self.set_size_cursor()
@@ -460,7 +459,7 @@ class TimelineCanvas(wx.Panel):
 
     def InitZoomSelect(self):
         self._zooming = False
-
+        
     def StartZoomSelect(self, evt):
         self._zooming = True
         self._start_time = self.GetTimeAt(evt.GetX())
@@ -549,7 +548,6 @@ class TimelineCanvas(wx.Panel):
         if event_select:
             init_event_select()
 
-
     def CallDragMethod(self, index, evt):
 
         def calc_cotrol_keys_value(evt):
@@ -569,6 +567,9 @@ class TimelineCanvas(wx.Panel):
             else:
                 self._methods[combo][index](evt)
 
+    def GetPeriodChoices(self):
+        return self._controller.get_period_choices()
+    
     # ------------
 
     def _scroll_up(self):
@@ -591,23 +592,20 @@ class TimelineCanvas(wx.Panel):
 
     def _on_paint(self, event):
         dc = wx.AutoBufferedPaintDC(self)
-        dc.BeginDrawing()
-        if self.surface_bitmap:
-            dc.DrawBitmap(self.surface_bitmap, 0, 0, True)
+        if self._surface_bitmap:
+            dc.DrawBitmap(self._surface_bitmap, 0, 0, True)
         else:
             pass  # TODO: Fill with white?
-        dc.EndDrawing()
 
     def _on_size(self, evt):
-        self.controller.window_resized()
+        self._controller.window_resized()
 
-    def highligt_event(self, event, clear=False):
-        self.controller.add_highlight(event, clear)
-        if not self._highlight_timer.IsRunning():
-            self._highlight_timer.Start(milliseconds=180)
+    def HighligtEvent(self, event, clear=False):
+        self._controller.add_highlight(event, clear)
+        self._highlight_timer.StartHighlighting()
 
-    def _on_highlight_timer(self, evt):
+    def _highlight_timer_tick(self):
         self.Redraw()
-        self.controller.tick_highlights()
-        if not self.controller.has_higlights():
+        self._controller.tick_highlights()
+        if not self._controller.has_higlights():
             self._highlight_timer.Stop()

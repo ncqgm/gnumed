@@ -94,10 +94,20 @@ class TimelineScene(object):
     def get_closest_overlapping_event(self, selected_event, up=True):
         self._inflate_event_rects_to_get_right_dimensions_for_overlap_calculations()
         rect = self._get_event_rect(selected_event)
-        period = self._event_rect_drawn_as_period(rect)
-        direction = self._get_direction(period, up)
-        evt = self._get_overlapping_event(period, direction, selected_event, rect)
-        return (evt, direction)
+        # self._get_event_rect() returns None if the selected event isn't visible.
+        # (The selected event can be scrolled out of view). In this case the period
+        # can't be calculated and because of that the direction and event can't be
+        # calculated. Instead you get exceptions when trying to access rect attributes.
+        # To avoid this situation we return event=None when no rect is found. 
+        # The result on the GUI is that the event won't be moved vertically. And 
+        # that's better then an exception!
+        if rect is None: 
+            return (None, 1)
+        else:
+            period = self._event_rect_drawn_as_period(rect)
+            direction = self._get_direction(period, up)
+            evt = self._get_overlapping_event(period, direction, selected_event, rect)
+            return (evt, direction)
 
     def center_text(self):
         return self._appearance.get_center_event_texts()

@@ -23,7 +23,7 @@ from timelinelib.meta.version import get_full_version
 
 
 APPLICATION_NAME = "Timeline"
-COPYRIGHT_TEXT = "Copyright (C) 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018 The %s Authors" % APPLICATION_NAME
+COPYRIGHT_TEXT = "Copyright (C) 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019 The %s Authors" % APPLICATION_NAME
 APPLICATION_DESCRIPTION = "Timeline is a free, cross-platform application for displaying and navigating events on a timeline."
 WEBSITE = "http://thetimelineproj.sourceforge.net/"
 DEVELOPERS = [
@@ -37,6 +37,7 @@ DEVELOPERS = [
     u"    Thomas Mohr",
     u"    Linostar",
     u"    Norbert Langermann",
+    u"    Jean-Gilles Guyrandy",
 ]
 TRANSLATORS = [
     u"Basque:",
@@ -100,7 +101,7 @@ along with Timeline.  If not, see <http://www.gnu.org/licenses/>."""
 
 
 def display_about_dialog(args, *kwargs):
-    info = wx.AboutDialogInfo()
+    info = wx.adv.AboutDialogInfo()
     info.Name = APPLICATION_NAME
     info.Version = get_full_version()
     info.Copyright = COPYRIGHT_TEXT
@@ -110,4 +111,4 @@ def display_about_dialog(args, *kwargs):
     info.Translators = TRANSLATORS
     info.Artists = ARTISTS
     info.License = LICENSE
-    wx.AboutBox(info)
+    wx.adv.AboutBox(info)

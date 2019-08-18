@@ -94,7 +94,8 @@ class Event(ItemBase, TimelineItem):
                 self.get_locked() == other.get_locked() and
                 self.get_ends_today() == other.get_ends_today() and
                 self.get_id() == other.get_id() and
-                self.get_time_period() == other.get_time_period() and
+                self.get_time_period().start_time == other.get_time_period().start_time and
+                (self.get_time_period().end_time == other.get_time_period().end_time or self.get_ends_today()) and
                 self.get_text() == other.get_text() and
                 self.get_category() == other.get_category() and
                 self.get_description() == other.get_description() and

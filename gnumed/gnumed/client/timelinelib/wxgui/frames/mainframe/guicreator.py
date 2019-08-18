@@ -15,10 +15,13 @@
 # You should have received a copy of the GNU General Public License
 # along with Timeline.  If not, see <http://www.gnu.org/licenses/>.
 
+"""
+A base class for the mainframe window, responsible for creating the GUI.
+"""
+
 
 import collections
-
-import wx.lib.newevent
+import wx
 
 from timelinelib.db.utils import safe_locking
 from timelinelib.meta.about import display_about_dialog
@@ -67,6 +70,7 @@ ID_FIND_LAST = wx.NewId()
 ID_FIT_ALL = wx.NewId()
 ID_EDIT_SHORTCUTS = wx.NewId()
 ID_TUTORIAL = wx.NewId()
+ID_NUMTUTORIAL = wx.NewId()
 ID_FEEDBACK = wx.NewId()
 ID_CONTACT = wx.NewId()
 ID_SYSTEM_INFO = wx.NewId()
@@ -154,7 +158,7 @@ class GuiCreator(object):
             return event_handler
 
         submenu = wx.Menu()
-        file_menu.AppendMenu(wx.ID_ANY, _("Export"), submenu)
+        file_menu.Append(wx.ID_ANY, _("Export"), submenu)
         for plugin in factory.get_plugins(EXPORTER):
             mnu = submenu.Append(wx.ID_ANY, plugin.display_name(), plugin.display_name())
             self.menu_controller.add_menu_requiring_timeline(mnu)
@@ -180,7 +184,7 @@ class GuiCreator(object):
 
     def _create_file_open_recent_menu(self, file_menu):
         self.mnu_file_open_recent_submenu = wx.Menu()
-        file_menu.AppendMenu(wx.ID_ANY, _("Open &Recent"), self.mnu_file_open_recent_submenu)
+        file_menu.Append(wx.ID_ANY, _("Open &Recent"), self.mnu_file_open_recent_submenu)
         self.update_open_recent_submenu()
 
     def _create_file_save_as_menu(self, file_menu):
@@ -335,13 +339,13 @@ class GuiCreator(object):
             else:
                 items.append((wx.ID_ANY, create_click_handler(plugin), plugin.display_name(), UNCHECKED_RB))
         sub_menu = self._create_menu(items)
-        view_menu.AppendMenu(wx.ID_ANY, _("Event appearance"), sub_menu)
+        view_menu.Append(wx.ID_ANY, _("Event appearance"), sub_menu)
 
     def _create_view_point_event_alignment_menu(self, view_menu):
         sub_menu = wx.Menu()
         left_item = sub_menu.Append(wx.ID_ANY, _("Left"), kind=wx.ITEM_RADIO)
         center_item = sub_menu.Append(wx.ID_ANY, _("Center"), kind=wx.ITEM_RADIO)
-        view_menu.AppendMenu(wx.ID_ANY, _("Point event alignment"), sub_menu)
+        view_menu.Append(wx.ID_ANY, _("Point event alignment"), sub_menu)
 
         def on_first_tool_click(event):
             self.config.draw_point_events_to_right = True
@@ -410,7 +414,7 @@ class GuiCreator(object):
             except IndexError:
                 # No event selected so do nothing!
                 return
-            open_duplicate_event_dialog_for_event(self, self.timeline, event)
+            open_duplicate_event_dialog_for_event(self, self, self.timeline, event)
 
         def create_milestone(evt):
             open_milestone_editor_for(self, self, self.config, self.timeline)
@@ -564,6 +568,7 @@ class GuiCreator(object):
         items_spec = [(wx.ID_HELP, self.help_browser.show_contents_page, _("&Contents") + "\tF1", cbx),
                       None,
                       (ID_TUTORIAL, self.controller.open_gregorian_tutorial_timeline, _("Getting started &tutorial"), cbx),
+                      (ID_NUMTUTORIAL, self.controller.open_numeric_tutorial_timeline, _("Getting started numeric &tutorial"), cbx),
                       None,
                       (ID_FEEDBACK, feedback, _("Give &Feedback..."), cbx),
                       (ID_CONTACT, self.help_browser.show_contact_page, _("Co&ntact"), cbx),
@@ -588,13 +593,13 @@ class GuiCreator(object):
 
     def _create_timeline_context_menu(self):
         menu = wx.Menu()
-        menu_bar = self._file_menu.GetMenuBar()
-        menu.AppendMenu(wx.ID_ANY, menu_bar.GetMenuLabel(0), self._file_menu)
-        menu.AppendMenu(wx.ID_ANY, menu_bar.GetMenuLabel(1), self._edit_menu)
-        menu.AppendMenu(wx.ID_ANY, menu_bar.GetMenuLabel(2), self._view_menu)
-        menu.AppendMenu(wx.ID_ANY, menu_bar.GetMenuLabel(3), self._timeline_menu)
-        menu.AppendMenu(wx.ID_ANY, menu_bar.GetMenuLabel(4), self._navigate_menu)
-        menu.AppendMenu(wx.ID_ANY, menu_bar.GetMenuLabel(5), self._help_menu)
+        menu_bar = self.GetMenuBar()
+        menu.Append(wx.ID_ANY, menu_bar.GetMenuLabel(0), self._file_menu)
+        menu.Append(wx.ID_ANY, menu_bar.GetMenuLabel(1), self._edit_menu)
+        menu.Append(wx.ID_ANY, menu_bar.GetMenuLabel(2), self._view_menu)
+        menu.Append(wx.ID_ANY, menu_bar.GetMenuLabel(3), self._timeline_menu)
+        menu.Append(wx.ID_ANY, menu_bar.GetMenuLabel(4), self._navigate_menu)
+        menu.Append(wx.ID_ANY, menu_bar.GetMenuLabel(5), self._help_menu)
         return menu
 
     def _create_menu(self, items_spec):
@@ -650,6 +655,16 @@ class GuiCreator(object):
                 "text": _("Bosparanian"),
                 "description": _("This creates a timeline using the fictuous Bosparanian calendar from the German pen-and-paper RPG \"The Dark Eye\" (\"Das schwarze Auge\", DSA)."),
                 "create_fn": self._create_new_bosparanian_timeline,
+            },
+            {
+                "text": _("Pharaonic"),
+                "description": _("This creates a timeline using the ancient egypt pharaonic calendar"),
+                "create_fn": self._create_new_pharaonic_timeline,
+            },
+            {
+                "text": _("Coptic"),
+                "description": _("This creates a timeline using the coptic calendar"),
+                "create_fn": self._create_new_coptic_timeline,
             },
         ]
         dialog = FileNewDialog(self, items)

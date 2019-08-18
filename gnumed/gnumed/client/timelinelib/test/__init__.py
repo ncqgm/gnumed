@@ -17,4 +17,5 @@
 
 """
 Contains functions and classes to avoid duplicated code when
-writing unit tests."""
+writing unit tests.
+"""

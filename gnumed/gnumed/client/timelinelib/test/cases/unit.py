@@ -16,18 +16,25 @@
 # along with Timeline.  If not, see <http://www.gnu.org/licenses/>.
 
 
+import contextlib
+import gc
+import platform
 import random
 import unittest
 
 import wx
 
 from timelinelib.calendar.gregorian.timetype import GregorianTimeType
+from timelinelib.test.utils import svg_to_dict
 
 
 class UnitTestCase(unittest.TestCase):
 
     HALT_GUI = False
     AUTO_CLOSE = False
+
+    def assertSvgEqual(self, left, right):
+        self.assertEqual(svg_to_dict(left), svg_to_dict(right), "\nLeft:  {!r}\nRight: {!r}".format(left, right))
 
     def assertPeriodsEqual(self, first, second, time_type=GregorianTimeType()):
         message = "Periods not equal.\n  First:  %s \"%s\"\n  Second: %s \"%s\"" % (
@@ -69,8 +76,7 @@ class UnitTestCase(unittest.TestCase):
         self.assertFalse(modified == one, fail_message_modified_one)
 
     def show_dialog(self, dialog_class, *args, **kwargs):
-        app = self.get_wxapp()
-        try:
+        with self.wxapp() as app:
             dialog = dialog_class(*args, **kwargs)
             try:
                 if self.HALT_GUI:
@@ -79,18 +85,43 @@ class UnitTestCase(unittest.TestCase):
                     dialog.ShowModal()
             finally:
                 dialog.Destroy()
+
+    @contextlib.contextmanager
+    def wxapp(self):
+        app = self.get_wxapp()
+        try:
+            yield app
         finally:
-            if app.GetTopWindow():
-                app.GetTopWindow().Destroy()
-            app.Destroy()
+            self.destroy_wxapp(app)
 
     def get_wxapp(self):
         app = wx.App(False)
-        import locale
-        locale.setlocale(locale.LC_ALL, 'C')
-        self.locale = wx.Locale()
-        self.locale.Init(wx.LANGUAGE_DEFAULT)
+        if platform.system() == "Windows":
+            import locale
+            locale.setlocale(locale.LC_ALL, 'C')
+            self.locale = wx.Locale()
+            self.locale.Init(wx.LANGUAGE_DEFAULT)
         return app
+
+    def destroy_wxapp(self, app):
+        if app.GetTopWindow():
+            app.GetTopWindow().Destroy()
+        app.Destroy()
+        # A problem was seen when running these two tests in sequence:
+        #
+        # unit.calendar.num.periodpicker.TestNumPeriodPicker.test_show_manual_test_dialog
+        # timelinelib.general.xmlparser
+        #
+        # The first one uses wx.App. The doctest failed because it did not seem
+        # to capture stdout. I suspect that wx.App does something with stdout,
+        # and a clean shutdown is needed to restore it. For some reason a
+        # gc.collect() seems to fix it. I'm not sure why, but this seems to
+        # work.
+        #
+        # The failure did not always happen, so I suspect it was a timing
+        # issue. If the gc.collect() happened in time, the error did not
+        # occur.
+        gc.collect()
 
 
 def get_random_modifier(modifiers):

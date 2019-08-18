@@ -107,20 +107,20 @@ class HelpBrowserFrame(wx.Frame):
         self.toolbar.SetToolBitmapSize(size)
         # Home
         home_str = _("Go to home page")
-        self.toolbar.AddLabelTool(HelpBrowserFrame.HOME_ID, home_str,
+        self.toolbar.AddTool(HelpBrowserFrame.HOME_ID, home_str,
                                   home_bmp, shortHelp=home_str)
         self.Bind(wx.EVT_TOOL, self._toolbar_on_click, id=HelpBrowserFrame.HOME_ID)
         # Separator
         self.toolbar.AddSeparator()
         # Backward
         backward_str = _("Go back one page")
-        self.toolbar.AddLabelTool(HelpBrowserFrame.BACKWARD_ID, backward_str,
+        self.toolbar.AddTool(HelpBrowserFrame.BACKWARD_ID, backward_str,
                                   back_bmp, shortHelp=backward_str)
         self.Bind(wx.EVT_TOOL, self._toolbar_on_click,
                   id=HelpBrowserFrame.BACKWARD_ID)
         # Forward
         forward_str = _("Go forward one page")
-        self.toolbar.AddLabelTool(HelpBrowserFrame.FORWARD_ID, forward_str,
+        self.toolbar.AddTool(HelpBrowserFrame.FORWARD_ID, forward_str,
                                   forward_bmp, shortHelp=forward_str)
         self.Bind(wx.EVT_TOOL, self._toolbar_on_click,
                   id=HelpBrowserFrame.FORWARD_ID)

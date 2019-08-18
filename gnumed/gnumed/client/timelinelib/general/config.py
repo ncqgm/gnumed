@@ -16,8 +16,8 @@
 # along with Timeline.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from ConfigParser import DEFAULTSECT
-from ConfigParser import SafeConfigParser
+from configparser import DEFAULTSECT
+from configparser import SafeConfigParser
 
 from timelinelib.general.observer import Observable
 
@@ -30,10 +30,10 @@ class Config(Observable):
         self._build(item_dicts)
 
     def read(self, path):
-        self._config_parser.read(path)
+        self._config_parser.read(path, encoding="utf-8")
 
     def write(self, path):
-        with open(path, "wb") as f:
+        with open(path, "w", encoding="utf-8") as f:
             self._config_parser.write(f)
 
     def _build(self, item_dicts):
@@ -78,29 +78,20 @@ class Item(object):
 
     def get_encoder(self):
         return {
-            "text": self._text_to_string,
+            "text": lambda x: x,
             "integer": str,
             "boolean": str,
         }[self._get_data_type()]
 
     def get_decoder(self):
         return {
-            "text": self._string_to_text,
+            "text": lambda x: x,
             "integer": int,
             "boolean": self._string_to_bool,
         }[self._get_data_type()]
 
     def _get_data_type(self):
         return self._item_dict.get("data_type", "text")
-
-    def _text_to_string(self, text):
-        if isinstance(text, unicode):
-            return text.encode("utf-8")
-        else:
-            return text
-
-    def _string_to_text(self, string):
-        return string.decode("utf-8")
 
     def _string_to_bool(self, string):
         return {

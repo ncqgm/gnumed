@@ -66,6 +66,9 @@ class GenericTimeMixin(object):
 
     def __radd__(self, other):
         return self + other
+    
+    def to_str(self):
+        return repr(self)
 
 
 class GenericDeltaMixin(object):

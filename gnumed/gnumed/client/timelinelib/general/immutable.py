@@ -27,7 +27,7 @@ class ImmutableDict(tuple):
             d = {}
             for arg in args:
                 d.update(arg)
-            for key, value in kwargs.iteritems():
+            for key, value in kwargs.items():
                 d[key] = value
         return tuple.__new__(cls, (d,))
 
@@ -48,7 +48,7 @@ class ImmutableDict(tuple):
         return self.__class__(_AlreadyCopiedDict({
             key: fn(value)
             for key, value
-            in self._internal.iteritems()
+            in self._internal.items()
         }))
 
     def get(self, name, default=None):
@@ -64,7 +64,7 @@ class ImmutableDict(tuple):
         return self._internal[name]
 
     def __iter__(self):
-        return self._internal.iteritems()
+        return iter(self._internal.items())
 
     def __eq__(self, other):
         return (
@@ -103,7 +103,7 @@ class ImmutableRecordMeta(type):
         for base in bases:
             base_attributes.extend(dir(base))
         fields = {}
-        for key, value in list(attrs.iteritems()):
+        for key, value in list(attrs.items()):
             if isinstance(value, Field):
                 if key in base_attributes:
                     raise ValueError(
@@ -121,15 +121,13 @@ class Field(object):
         self.default = default
 
 
-class ImmutableRecord(ImmutableDict):
-
-    __metaclass__ = ImmutableRecordMeta
+class ImmutableRecord(ImmutableDict, metaclass=ImmutableRecordMeta):
 
     def __new__(cls, *args, **kwargs):
         defaults = {
             key: value.default
             for key, value
-            in cls._immutable_record_fields.iteritems()
+            in cls._immutable_record_fields.items()
         }
         d = ImmutableDict.__new__(cls, defaults, *args, **kwargs)
         for key, value in d:

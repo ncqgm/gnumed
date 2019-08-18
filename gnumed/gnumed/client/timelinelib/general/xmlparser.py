@@ -32,7 +32,7 @@ First we create a file-like object containing the XML data (any file-like
 object is fine, but we create a StringIO for the purpose of making a working
 example):
 
-    >>> from StringIO import StringIO
+    >>> from io import StringIO
 
     >>> xml_stream = StringIO('''
     ... <db>
@@ -257,10 +257,6 @@ def parse(xml, schema, tmp_dict):
     tmp_dict is used by parser functions in Tag objects to share data. It can
     be pre-populated with values.
     """
-    if isinstance(xml, unicode):
-        # Workaround for "Sax parser crashes if given unicode file name" bug:
-        # http://bugs.python.org/issue11159
-        xml = xml.encode(sys.getfilesystemencoding())
     sax_parse(xml, SaxHandler(schema, tmp_dict))
 
 
