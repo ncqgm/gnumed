@@ -1593,9 +1593,11 @@ WHERE
 	#--------------------------------------------------------
 	def get_most_recent_episode(self, issue=None):
 		# try to find the episode with the most recently modified clinical item
-
-		issue_where = gmTools.coalesce(issue, '', 'and pk_health_issue = %(issue)s')
-
+		issue_where = gmTools.coalesce (
+			value2test = issue,
+			return_instead = '',
+			value2return = 'and pk_health_issue = %(issue)s'
+		)
 		cmd = """
 SELECT pk
 from clin.episode

@@ -153,6 +153,13 @@ def __format_health_issue_as_timeline_xml(issue, patient, emr):
 		# open episode or active
 		ends_today = 'True'
 		end = now
+	# somewhat hacky and not really correct:
+	start2use = safe_start
+	if safe_start > end:
+		if possible_start < end:
+			start2use = possible_start
+		else:
+			start2use = end
 	data['desc'] = gmTools.xml_escape_string(issue.format (
 		patient = patient,
 		with_summary = True,
@@ -177,7 +184,7 @@ def __format_health_issue_as_timeline_xml(issue, patient, emr):
 #		data['container_id'] = ''
 #		data['label'] = '?%s?' % gmTools.xml_escape_string(label)
 #		xml += __xml_issue_template % data
-	data['start'] = format_pydt(safe_start)
+	data['start'] = format_pydt(start2use)
 	data['end'] = format_pydt(end)
 	data['ends2day'] = ends_today
 	data['fuzzy'] = 'False'
@@ -206,7 +213,11 @@ def __format_episode_as_timeline_xml(episode, patient):
 	data = {
 		'category': _('Episodes'),
 		'start': format_pydt(episode.best_guess_clinical_start_date),
-		'container_id': gmTools.coalesce(episode['pk_health_issue'], '', '(%s)'),
+		'container_id': gmTools.coalesce (
+			value2test = episode['pk_health_issue'],
+			return_instead = '',
+			template4value = '(%s)'
+		),
 		'label': gmTools.xml_escape_string (
 			gmTools.shorten_words_in_line(text = episode['description'], max_length = 20, min_word_length = 5)
 		),
