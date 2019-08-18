@@ -778,7 +778,12 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 		FROM clin.health_issue c_hi
 		WHERE c_hi.pk = %(pk)s"""
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
-		return rows[0][0]
+		start = rows[0][0]
+		# leads to a loop:
+		#end = self.clinical_end_date
+		#if start > end:
+		#	return end
+		return start
 
 	safe_start_date = property(_get_safe_start_date, lambda x:x)
 
