@@ -5,8 +5,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-07-28 16:40+0200\n"
-"PO-Revision-Date: 2019-07-28 16:44+0200\n"
+"POT-Creation-Date: 2019-08-19 11:12+0200\n"
+"PO-Revision-Date: 2019-08-19 11:27+0200\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "Language: de_DE\n"
@@ -32,6 +32,12 @@ msgstr ""
 "Topische Therapie:\\n%s\\nSystemische Therapie:\\n%s\\n\\nWeitere "
 "Diagnostik:\n"
 "%s"
+
+msgid "Whole Timeline"
+msgstr "Ganze Zeitlinie"
+
+msgid "Visible Period"
+msgstr "sichtbare Periode"
 
 msgid "Can't scroll more to the left"
 msgstr "Kann nicht weiter nach links gerollt werden"
@@ -167,6 +173,9 @@ msgid "Unable to delete backup dbfile '%s'."
 msgstr "Kann Sicherungsdatei '%s' nicht löschen."
 
 msgid "Other Gradient Event box drawer"
+msgstr ""
+
+msgid "Other Gradient Event box drawer with fuzzy edges"
 msgstr ""
 
 msgid "Default Event box drawer"
@@ -509,42 +518,6 @@ msgstr "Feuer"
 msgid "Water"
 msgstr "Wasser"
 
-msgid "Jan"
-msgstr "Jan"
-
-msgid "Feb"
-msgstr "Feb"
-
-msgid "Mar"
-msgstr "Mär"
-
-msgid "Apr"
-msgstr "Apr"
-
-msgid "May"
-msgstr "Mai"
-
-msgid "Jun"
-msgstr "Jun"
-
-msgid "Jul"
-msgstr "Jul"
-
-msgid "Aug"
-msgstr "Aug"
-
-msgid "Sep"
-msgstr "Sep"
-
-msgid "Oct"
-msgstr "Okt"
-
-msgid "Nov"
-msgstr "Nov"
-
-msgid "Dec"
-msgstr "Dez"
-
 msgid "BC"
 msgstr "vUZ"
 
@@ -596,6 +569,72 @@ msgstr "Sekunden"
 msgid "second"
 msgstr "Sekunde"
 
+msgid "i"
+msgstr ""
+
+msgid "ii"
+msgstr ""
+
+msgid "iii"
+msgstr ""
+
+msgid "iv"
+msgstr ""
+
+msgid "v"
+msgstr ""
+
+msgid "vi"
+msgstr ""
+
+msgid "vii"
+msgstr ""
+
+msgid "viii"
+msgstr ""
+
+msgid "ix"
+msgstr ""
+
+msgid "x"
+msgstr ""
+
+msgid "Jan"
+msgstr "Jan"
+
+msgid "Feb"
+msgstr "Feb"
+
+msgid "Mar"
+msgstr "Mär"
+
+msgid "Apr"
+msgstr "Apr"
+
+msgid "May"
+msgstr "Mai"
+
+msgid "Jun"
+msgstr "Jun"
+
+msgid "Jul"
+msgstr "Jul"
+
+msgid "Aug"
+msgstr "Aug"
+
+msgid "Sep"
+msgstr "Sep"
+
+msgid "Oct"
+msgstr "Okt"
+
+msgid "Nov"
+msgstr "Nov"
+
+msgid "Dec"
+msgstr "Dez"
+
 msgid "Mon"
 msgstr "Mo"
 
@@ -616,6 +655,27 @@ msgstr "Sam"
 
 msgid "Sun"
 msgstr "Son"
+
+msgid "Pes"
+msgstr ""
+
+msgid "Psh"
+msgstr ""
+
+msgid "Pef"
+msgstr ""
+
+msgid "Pt"
+msgstr ""
+
+msgid "Pso"
+msgstr ""
+
+msgid "Psa"
+msgstr ""
+
+msgid "Tk"
+msgstr ""
 
 msgid "Edit..."
 msgstr "Bearbeiten..."
@@ -673,12 +733,6 @@ msgstr ""
 msgid "Events belonging to '%s' will now belong to '%s'."
 msgstr ""
 "Alle Ereignisse der Kategorie '%s' sind nun der Kategorie '%s' zugeordnet."
-
-msgid "No match"
-msgstr "Keine Übereinstimmung"
-
-msgid "Only one match"
-msgstr "Eine Übereinstimmung"
 
 msgid "No timeline opened."
 msgstr "Sie haben noch keinen Zeitstrahl geöffnet."
@@ -739,6 +793,33 @@ msgstr ""
 
 msgid "Give feedback"
 msgstr "Rückmeldung geben"
+
+msgid "No matches found"
+msgstr ""
+
+msgid "Only one match found"
+msgstr ""
+
+msgid "matches found"
+msgstr ""
+
+msgid "Close"
+msgstr "Schließen"
+
+msgid "Prevoius match"
+msgstr ""
+
+msgid "Next match"
+msgstr ""
+
+msgid "In: "
+msgstr ""
+
+msgid "Select period"
+msgstr ""
+
+msgid "List matches"
+msgstr ""
 
 msgid "When:"
 msgstr "Zeit:"
@@ -1160,6 +1241,9 @@ msgstr "Jetztlinie:"
 msgid "Weekends:"
 msgstr "Wochenenden:"
 
+msgid "Use bold line"
+msgstr ""
+
 msgid "Background"
 msgstr ""
 
@@ -1178,6 +1262,9 @@ msgstr "Symbol anzeigen, wenn Ereignisse abgeschlossen"
 msgid "Never use time precision for events"
 msgstr ""
 
+msgid "Use second precision for time"
+msgstr ""
+
 msgid "Legend Position"
 msgstr ""
 
@@ -1191,6 +1278,27 @@ msgid "Top-Right"
 msgstr ""
 
 msgid "Bottom-Right"
+msgstr ""
+
+msgid "Top"
+msgstr ""
+
+msgid "Bottom"
+msgstr ""
+
+msgid "Time scale position"
+msgstr ""
+
+msgid "Default Year"
+msgstr ""
+
+msgid "Default Month"
+msgstr ""
+
+msgid "Default Day"
+msgstr ""
+
+msgid "Use date default values"
 msgstr ""
 
 msgid "Preferences"
@@ -1528,6 +1636,9 @@ msgstr ""
 msgid "Getting started &tutorial"
 msgstr "&Tutorial"
 
+msgid "Getting started numeric &tutorial"
+msgstr ""
+
 msgid "Give &Feedback..."
 msgstr "&Rückmeldung geben …"
 
@@ -1569,6 +1680,18 @@ msgid ""
 msgstr ""
 "Erzeugt einen Zeitstrahl mit dem fiktiven bosparanischen, zwölfgöttlichen "
 "Kalender aus dem Pen-and-Paper-Rollenspiel \"Das Schwarze Auge\" (DSA)"
+
+msgid "Pharaonic"
+msgstr ""
+
+msgid "This creates a timeline using the ancient egypt pharaonic calendar"
+msgstr ""
+
+msgid "Coptic"
+msgstr ""
+
+msgid "This creates a timeline using the coptic calendar"
+msgstr ""
 
 msgid "Help"
 msgstr "Hilfe"
@@ -4815,9 +4938,6 @@ msgstr "Bitte eine Grunderkrankung wählen:"
 
 msgid "OK"
 msgstr "OK"
-
-msgid "Close"
-msgstr "Schließen"
 
 msgid "Health issue selector"
 msgstr "Wahl einer Grunderkrankung"
@@ -10073,8 +10193,12 @@ msgstr "Keine Meßwerte zu formatieren."
 msgid "Test results"
 msgstr "Meßwerte"
 
-msgid "GNUmed test results export for Gnuplot plotting"
-msgstr "Export von Messwerten aus GNUmed zum Darstellen mit GnuPlot"
+#, python-format
+msgid "plotted %s (GNUmed v%s)"
+msgstr "dargestellt %s (GNUmed v%s)"
+
+msgid "unknown DOB"
+msgstr "unbekanntes Geburtsdatum"
 
 msgid ""
 "blank line inserted to allow for discontinued line drawing of same-day values"
@@ -15712,11 +15836,14 @@ msgstr "Spalte &%s (aktueller Eintrag): \"%s\" [#%s]"
 msgid "Column &%s (current row): %s"
 msgstr "Spalte &%s (aktueller Eintrag): %s"
 
-msgid "&Save to file..."
-msgstr "&Speichern in Datei …"
+msgid "Screen&shot ..."
+msgstr "Bildschirm&photo"
 
-msgid "&Copy to clipboard..."
-msgstr "In Zwischenablage &kopieren..."
+msgid "Save to &file..."
+msgstr "Speichern in &Datei …"
+
+msgid "Copy to &clipboard..."
+msgstr "In &Zwischenablage kopieren..."
 
 msgid "Append (&+) to clipboard..."
 msgstr "An Zwischenablage anhängen (&+)..."
@@ -15770,6 +15897,12 @@ msgstr "[%s]: Tooltips markierter Einträge gespeichert."
 #, python-format
 msgid "Selected data saved to [%s]."
 msgstr "[%s]: Daten markierter Einträge gespeichert."
+
+msgid "GMd screenshot"
+msgstr "GMd-Bildschirmphoto"
+
+msgid "list"
+msgstr "Liste"
 
 msgid "Monty the Serpent && the FSF Present"
 msgstr "Monty die Python && die FSF präsentieren"
@@ -15986,6 +16119,10 @@ msgstr "Datei2Zwischenablage"
 #, python-format
 msgid "The file [%s] has been copied into the clipboard."
 msgstr "Die Datei [%s] wurde in die Zwischenablage kopiert."
+
+#, python-format
+msgid "Saved screenshot to file [%s]."
+msgstr "BIldschirmphoto in Datei [%s] gespeichert."
 
 msgid "programmer forgot to specify error message"
 msgstr "Programmierer hat vergessen, die Fehlermeldung genau anzugeben."
@@ -16833,6 +16970,32 @@ msgstr "Karteieintrag verwerfen"
 msgid "clinical progress note"
 msgstr "klinische Verlaufsnotiz"
 
+msgid "Cannot add files to export area. No patient."
+msgstr "Kann Dateien nicht in Sammelmappe legen. Kein Patient aktiv."
+
+msgid "Cannot import files into export area."
+msgstr "Kann Dateien nicht in Sammelmappe legen."
+
+#, python-format
+msgid ""
+"Successfully imported files into export area.\n"
+"\n"
+"Do you want to delete imported files from the filesystem ?\n"
+"\n"
+" %s"
+msgstr ""
+"Dateien erfolgreich in Sammelmappe gelegt.\n"
+"\n"
+"Wollen Sie die aufgenommenen Dateien löschen ?\n"
+"\n"
+" %s"
+
+msgid "Removing files"
+msgstr "Dateien löschen"
+
+msgid "Imported files into export area."
+msgstr "Dateien in Sammelmappe gelegt."
+
 msgid "Clearing out a directory"
 msgstr "Verzeichnis leeren"
 
@@ -17068,13 +17231,8 @@ msgstr "Fehler beim Versenden der Dokumenten per E-Mail."
 msgid "Mailing documents"
 msgstr "Maile Dokumente"
 
-#, python-format
-msgid ""
-"Mailed:\n"
-" - %s"
-msgstr ""
-"Gemailt:\n"
-" - %s"
+msgid "Mailed export area content."
+msgstr "Einträge der Sammelmappe gemailt."
 
 msgid "Cannot send fax: <gm-fax_doc(.bat)> not found"
 msgstr "Kann Fax nicht senden: <gm-fax_doc(.bat)> nicht gefunden"
@@ -17484,9 +17642,6 @@ msgstr ""
 "Wollen Sie die importierten Dateien löschen ?\n"
 "\n"
 " %s"
-
-msgid "Removing files"
-msgstr "Dateien löschen"
 
 msgid "Select a document."
 msgstr "Wählen Sie ein Dokument."
@@ -19511,8 +19666,10 @@ msgstr "Kann keinen Brief schreiben. Kein Patient aktiv."
 msgid "Cannot put screenshot into export area. No active patient."
 msgstr "Kann kein Bildschirmfoto in Sammelmappe legen. Kein Patient aktiv."
 
-msgid "GMd screenshot"
-msgstr "GMd-Bildschirmphoto"
+msgid "Cannot put screenshot into export area. No screenshot found."
+msgstr ""
+"Kann Bildschirmfoto nicht in Sammelmappe legen. Bildschirmfoto nicht "
+"gefunden."
 
 #, python-format
 msgid ""
@@ -20461,10 +20618,6 @@ msgstr ""
 msgid "no patient"
 msgstr "kein Patient"
 
-#, python-format
-msgid "Saved screenshot to file [%s]."
-msgstr "BIldschirmphoto in Datei [%s] gespeichert."
-
 msgid "Statusbar history"
 msgstr "Verlauf der Statusmeldungen"
 
@@ -20681,6 +20834,11 @@ msgid ""
 "\n"
 "does not seem to be a Medikationsplan."
 msgstr ""
+"Die Datei\n"
+"\n"
+" [%s]\n"
+"\n"
+"scheint kein AMTS Medikationsplan zu sein."
 
 #, python-format
 msgid ""
@@ -21492,9 +21650,6 @@ msgstr ""
 "\n"
 "Achtung, diese Löschung ist nicht umkehrbar."
 
-msgid "unknown DOB"
-msgstr "unbekanntes Geburtsdatum"
-
 msgid "Showing unmatched incoming data"
 msgstr "Zeige unzugeordnete Eingangsdaten"
 
@@ -21564,6 +21719,16 @@ msgstr "Kann Standardvorlage [%s - %s] für Gnuplot nicht laden"
 
 msgid "Cannot plot without a plot script."
 msgstr "Kann Meßwerte nicht ohne Plotscript darstellen."
+
+msgid "Plotted lab results"
+msgstr "Laborwertkurve"
+
+msgid ""
+"Put a copy of the lab results plot into the export area of this patient ?"
+msgstr "Laborwertkurve in Sammelmappe des aktiven Patient legen ?"
+
+msgid "lab results plot"
+msgstr "Laborwertkurve"
 
 msgid "no related documents"
 msgstr "keine relevanten Dokumente"
@@ -23305,6 +23470,16 @@ msgstr "Abbrechen"
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
+
+#~ msgid "GNUmed test results export for Gnuplot plotting"
+#~ msgstr "Export von Messwerten aus GNUmed zum Darstellen mit GnuPlot"
+
+#~ msgid ""
+#~ "Mailed:\n"
+#~ " - %s"
+#~ msgstr ""
+#~ "Gemailt:\n"
+#~ " - %s"
 
 #~ msgid "invalid document tree node data type: %s"
 #~ msgstr "ungültiger Knotentyp des Dokumentenbaums: %s"
@@ -26340,14 +26515,8 @@ msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
 #~ msgid "<= all ="
 #~ msgstr "<= alle ="
 
-#~ msgid "Hx"
-#~ msgstr "Ana"
-
 #~ msgid "Obj"
 #~ msgstr "Bef"
-
-#~ msgid "P"
-#~ msgstr "T"
 
 #~ msgid "xxxSOAPxxx"
 #~ msgstr "xxxABDTxxx"
@@ -26993,9 +27162,6 @@ msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
 #~ "Sie müssen in der Konfigurationsdatei die Option [workplace] -> <help "
 #~ "desk>einstellen!"
 
-#~ msgid "Pages"
-#~ msgstr "Seiten"
-
 #~ msgid "GDT export"
 #~ msgstr "GDT-Export"
 
@@ -27542,9 +27708,6 @@ msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
 #~ msgstr ""
 #~ "Den markierten Dokumententyp umbenennen. Nur vor Ort hinzugefügte Typen "
 #~ "können verändert werden."
-
-#~ msgid "visits"
-#~ msgstr "Konsultationen"
 
 #~ msgid "items"
 #~ msgstr "Einträge"

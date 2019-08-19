@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-07-28 16:40+0200\n"
+"POT-Creation-Date: 2019-08-19 11:12+0200\n"
 "PO-Revision-Date: 2012-06-01 01:24+0000\n"
 "Last-Translator: ncq <Unknown>\n"
 "Language-Team: Ελληνικά, Σύγχρονα <opensuse-translation-el@opensuse.org>\n"
@@ -35,6 +35,14 @@ msgid ""
 "Topical therapy:\\n%s\\n\\nSystemic therapy:\\n%s\\n\\nSubsequent checks:\\n"
 "%s"
 msgstr ""
+
+#, fuzzy
+msgid "Whole Timeline"
+msgstr "Δείξε &ΠαράδειγμαΠρόσθετου"
+
+#, fuzzy
+msgid "Visible Period"
+msgstr "Χρονικό διάστημα"
 
 msgid "Can't scroll more to the left"
 msgstr "Αδύνατη η κύλιση προς τα αριστερά"
@@ -174,6 +182,10 @@ msgid "Unable to delete backup dbfile '%s'."
 msgstr "Αδυναμία διαγραφής αντιγράφου ασφαλείας αρχείου βάσης δεδομένων '%s'."
 
 msgid "Other Gradient Event box drawer"
+msgstr "Άλλος σχεδιαστής διαβαθμισμένου χρωματικά πλαισίου γεγονότος"
+
+#, fuzzy
+msgid "Other Gradient Event box drawer with fuzzy edges"
 msgstr "Άλλος σχεδιαστής διαβαθμισμένου χρωματικά πλαισίου γεγονότος"
 
 msgid "Default Event box drawer"
@@ -558,49 +570,6 @@ msgstr "Φωτιά"
 msgid "Water"
 msgstr "Νερό"
 
-msgid "Jan"
-msgstr "Ιαν"
-
-msgid "Feb"
-msgstr "Φεβ"
-
-#, fuzzy
-msgid "Mar"
-msgstr "Κύριος"
-
-msgid "Apr"
-msgstr "Απρ"
-
-#, fuzzy
-msgid "May"
-msgstr "ημέρα"
-
-#, fuzzy
-msgid "Jun"
-msgstr "Εκτέλεση"
-
-msgid "Jul"
-msgstr "Ιούλ"
-
-#, fuzzy
-msgid "Aug"
-msgstr "Ηλικία"
-
-#, fuzzy
-msgid "Sep"
-msgstr "Ρύθμιση"
-
-msgid "Oct"
-msgstr "Οκτ"
-
-#, fuzzy
-msgid "Nov"
-msgstr "Όχι"
-
-#, fuzzy
-msgid "Dec"
-msgstr "Συσκευή"
-
 msgid "BC"
 msgstr "π.Χ."
 
@@ -652,6 +621,79 @@ msgstr "δευτερόλεπτα"
 msgid "second"
 msgstr "δευτερόλεπτο"
 
+msgid "i"
+msgstr ""
+
+msgid "ii"
+msgstr ""
+
+msgid "iii"
+msgstr ""
+
+msgid "iv"
+msgstr ""
+
+msgid "v"
+msgstr ""
+
+msgid "vi"
+msgstr ""
+
+msgid "vii"
+msgstr ""
+
+msgid "viii"
+msgstr ""
+
+msgid "ix"
+msgstr ""
+
+msgid "x"
+msgstr ""
+
+msgid "Jan"
+msgstr "Ιαν"
+
+msgid "Feb"
+msgstr "Φεβ"
+
+#, fuzzy
+msgid "Mar"
+msgstr "Κύριος"
+
+msgid "Apr"
+msgstr "Απρ"
+
+#, fuzzy
+msgid "May"
+msgstr "ημέρα"
+
+#, fuzzy
+msgid "Jun"
+msgstr "Εκτέλεση"
+
+msgid "Jul"
+msgstr "Ιούλ"
+
+#, fuzzy
+msgid "Aug"
+msgstr "Ηλικία"
+
+#, fuzzy
+msgid "Sep"
+msgstr "Ρύθμιση"
+
+msgid "Oct"
+msgstr "Οκτ"
+
+#, fuzzy
+msgid "Nov"
+msgstr "Όχι"
+
+#, fuzzy
+msgid "Dec"
+msgstr "Συσκευή"
+
 msgid "Mon"
 msgstr "Δευ"
 
@@ -675,6 +717,30 @@ msgstr "Έναρξη"
 #, fuzzy
 msgid "Sun"
 msgstr "Εκτέλεση"
+
+#, fuzzy
+msgid "Pes"
+msgstr "Ναι"
+
+msgid "Psh"
+msgstr ""
+
+msgid "Pef"
+msgstr ""
+
+#, fuzzy
+msgid "Pt"
+msgstr "Σχεδίαση"
+
+msgid "Pso"
+msgstr ""
+
+#, fuzzy
+msgid "Psa"
+msgstr "Tsa"
+
+msgid "Tk"
+msgstr ""
 
 #, fuzzy
 msgid "Edit..."
@@ -738,13 +804,6 @@ msgstr ""
 "Τα γεγονότα που ανήκουν στην κατηγορία '%s' τώρα θα ανήκουν πλέον στην "
 "κατηγορία '%s'."
 
-#, fuzzy
-msgid "No match"
-msgstr "Ταίριασμα"
-
-msgid "Only one match"
-msgstr "Μόνο μία αντιστοίχιση"
-
 msgid "No timeline opened."
 msgstr "Δεν άνοιξε καμιά χρονογραμμή"
 
@@ -803,6 +862,39 @@ msgstr "και θέλετε να την αποθηκεύσετε, επιλέξτ
 #, fuzzy
 msgid "Give feedback"
 msgstr "Μετάβαση πίσω"
+
+#, fuzzy
+msgid "No matches found"
+msgstr "Ταίριασμα"
+
+#, fuzzy
+msgid "Only one match found"
+msgstr "Μόνο μία αντιστοίχιση"
+
+msgid "matches found"
+msgstr ""
+
+msgid "Close"
+msgstr "Κλείσιμο"
+
+#, fuzzy
+msgid "Prevoius match"
+msgstr "Ταίριασμα"
+
+#, fuzzy
+msgid "Next match"
+msgstr "Ταίριασμα"
+
+msgid "In: "
+msgstr ""
+
+#, fuzzy
+msgid "Select period"
+msgstr "Τύπος προτύπου"
+
+#, fuzzy
+msgid "List matches"
+msgstr "Αναζήτηση"
 
 #, fuzzy
 msgid "When:"
@@ -1257,6 +1349,9 @@ msgstr "Νέα γραμμή:"
 msgid "Weekends:"
 msgstr "Σαββατοκύριακα"
 
+msgid "Use bold line"
+msgstr ""
+
 msgid "Background"
 msgstr "Παρασκήνιο"
 
@@ -1275,6 +1370,10 @@ msgstr "Επισήμανση ολοκληρωμένων γεγονότων"
 msgid "Never use time precision for events"
 msgstr "Να μη χρησιμοποιείται ακριβής χρόνος (ώρες) για τα γεγονότα"
 
+#, fuzzy
+msgid "Use second precision for time"
+msgstr "Να μη χρησιμοποιείται ακριβής χρόνος (ώρες) για τα γεγονότα"
+
 msgid "Legend Position"
 msgstr "Θέση υπομνήματος"
 
@@ -1289,6 +1388,32 @@ msgstr "Πάνω δεξιά"
 
 msgid "Bottom-Right"
 msgstr "Κάτω δεξιά"
+
+#, fuzzy
+msgid "Top"
+msgstr "Προς"
+
+#, fuzzy
+msgid "Bottom"
+msgstr "Κάτω αριστερά"
+
+msgid "Time scale position"
+msgstr ""
+
+#, fuzzy
+msgid "Default Year"
+msgstr "Προκαθορισμένο χρώμα"
+
+#, fuzzy
+msgid "Default Month"
+msgstr "Προεπιλεγμένη χώρα"
+
+#, fuzzy
+msgid "Default Day"
+msgstr "Προεπιλεγμένη χώρα"
+
+msgid "Use date default values"
+msgstr ""
 
 #, fuzzy
 msgid "Preferences"
@@ -1656,6 +1781,10 @@ msgid "Getting started &tutorial"
 msgstr "&Βοήθημα για να ξεκινήσετε"
 
 #, fuzzy
+msgid "Getting started numeric &tutorial"
+msgstr "&Βοήθημα για να ξεκινήσετε"
+
+#, fuzzy
 msgid "Give &Feedback..."
 msgstr "Μετάβαση πίσω"
 
@@ -1703,6 +1832,24 @@ msgstr ""
 "Αυτή η επιλογή οδηγεί στη δημιουργία χρονογραμμής με τη χρήση του "
 "φανταστικού ημερολογίου Bosparanian από το γερμανικό παιχνίδι \"The Dark Eye"
 "\" (\"Das schwarze Auge\", DSA)."
+
+msgid "Pharaonic"
+msgstr ""
+
+#, fuzzy
+msgid "This creates a timeline using the ancient egypt pharaonic calendar"
+msgstr ""
+"Αυτό θα δημιουργήσει μια χρονογραμμή χρησιμοποιώντας το ημερολόγιο που "
+"χρησιμοποιείται σήμερα."
+
+msgid "Coptic"
+msgstr ""
+
+#, fuzzy
+msgid "This creates a timeline using the coptic calendar"
+msgstr ""
+"Αυτό θα δημιουργήσει μια χρονογραμμή χρησιμοποιώντας το ημερολόγιο που "
+"χρησιμοποιείται σήμερα."
 
 msgid "Help"
 msgstr "Βοήθεια"
@@ -5044,9 +5191,6 @@ msgstr ""
 
 msgid "OK"
 msgstr "OK"
-
-msgid "Close"
-msgstr "Κλείσιμο"
 
 msgid "Health issue selector"
 msgstr ""
@@ -10089,8 +10233,13 @@ msgstr "Χωρίς αποτελέσματα της εξέτασης προς μ�
 msgid "Test results"
 msgstr "Αποτελέσματα της εξέτασης"
 
-msgid "GNUmed test results export for Gnuplot plotting"
-msgstr "GNUmed εξαγωγή αποτελέσματα των δοκιμών για gnuplot σχεδιάζονται"
+#, python-format
+msgid "plotted %s (GNUmed v%s)"
+msgstr ""
+
+#, fuzzy
+msgid "unknown DOB"
+msgstr "άγνωστο"
 
 msgid ""
 "blank line inserted to allow for discontinued line drawing of same-day values"
@@ -15314,11 +15463,15 @@ msgid "Column &%s (current row): %s"
 msgstr "Αρχεία:%s"
 
 #, fuzzy
-msgid "&Save to file..."
+msgid "Screen&shot ..."
+msgstr "Στιγμιότυπο"
+
+#, fuzzy
+msgid "Save to &file..."
 msgstr " Αποθήκευση "
 
 #, fuzzy
-msgid "&Copy to clipboard..."
+msgid "Copy to &clipboard..."
 msgstr "Εξαγωγή στο &πρόχειρο"
 
 #, fuzzy
@@ -15370,6 +15523,14 @@ msgstr ""
 #, fuzzy, python-format
 msgid "Selected data saved to [%s]."
 msgstr "Διαγραφή μηνύματος"
+
+#, fuzzy
+msgid "GMd screenshot"
+msgstr "Στιγμιότυπο"
+
+#, fuzzy
+msgid "list"
+msgstr "Κατατάξη"
 
 msgid "Monty the Serpent && the FSF Present"
 msgstr ""
@@ -15561,6 +15722,10 @@ msgstr "Εξαγωγή στο &πρόχειρο"
 
 #, python-format
 msgid "The file [%s] has been copied into the clipboard."
+msgstr ""
+
+#, python-format
+msgid "Saved screenshot to file [%s]."
 msgstr ""
 
 msgid "programmer forgot to specify error message"
@@ -16309,6 +16474,31 @@ msgid "clinical progress note"
 msgstr ""
 
 #, fuzzy
+msgid "Cannot add files to export area. No patient."
+msgstr "Δεν μπορώ να εξάγω τον ΗΙΦ. Χωρίς ενεργό ασθενή."
+
+#, fuzzy
+msgid "Cannot import files into export area."
+msgstr "Προσθήκη νέου ονόματος"
+
+#, python-format
+msgid ""
+"Successfully imported files into export area.\n"
+"\n"
+"Do you want to delete imported files from the filesystem ?\n"
+"\n"
+" %s"
+msgstr ""
+
+#, fuzzy
+msgid "Removing files"
+msgstr "αρχεία καταγραφής"
+
+#, fuzzy
+msgid "Imported files into export area."
+msgstr "Προσθήκη νέου ονόματος"
+
+#, fuzzy
 msgid "Clearing out a directory"
 msgstr "ασθενής"
 
@@ -16533,11 +16723,9 @@ msgstr "Αποθήκευση εγγράφου"
 msgid "Mailing documents"
 msgstr "Αποθήκευση εγγράφου"
 
-#, fuzzy, python-format
-msgid ""
-"Mailed:\n"
-" - %s"
-msgstr "Ημερομηνία: %s\n"
+#, fuzzy
+msgid "Mailed export area content."
+msgstr "Αποθήκευση εγγράφου"
 
 msgid "Cannot send fax: <gm-fax_doc(.bat)> not found"
 msgstr ""
@@ -16894,10 +17082,6 @@ msgid ""
 "\n"
 " %s"
 msgstr ""
-
-#, fuzzy
-msgid "Removing files"
-msgstr "αρχεία καταγραφής"
 
 #, fuzzy
 msgid "Select a document."
@@ -18862,8 +19046,8 @@ msgid "Cannot put screenshot into export area. No active patient."
 msgstr "Δεν μπορώ να εξάγω τον ΗΙΦ. Χωρίς ενεργό ασθενή."
 
 #, fuzzy
-msgid "GMd screenshot"
-msgstr "Στιγμιότυπο"
+msgid "Cannot put screenshot into export area. No screenshot found."
+msgstr "Δεν μπορώ να εξάγω τον ΗΙΦ. Χωρίς ενεργό ασθενή."
 
 #, python-format
 msgid ""
@@ -19598,10 +19782,6 @@ msgid "This is so that you can inspect the console output at your leisure."
 msgstr ""
 
 msgid "no patient"
-msgstr ""
-
-#, python-format
-msgid "Saved screenshot to file [%s]."
 msgstr ""
 
 msgid "Statusbar history"
@@ -20586,10 +20766,6 @@ msgid ""
 "Note that deletion is not reversible."
 msgstr ""
 
-#, fuzzy
-msgid "unknown DOB"
-msgstr "άγνωστο"
-
 msgid "Showing unmatched incoming data"
 msgstr ""
 
@@ -20667,6 +20843,19 @@ msgstr ""
 
 msgid "Cannot plot without a plot script."
 msgstr ""
+
+#, fuzzy
+msgid "Plotted lab results"
+msgstr "διορθωμένο αποτέλεσμα"
+
+#, fuzzy
+msgid ""
+"Put a copy of the lab results plot into the export area of this patient ?"
+msgstr "Δεν μπορώ να εξάγω τον ΗΙΦ. Χωρίς ενεργό ασθενή."
+
+#, fuzzy
+msgid "lab results plot"
+msgstr "Εργαστηριακό αποτέλεσμα"
 
 #, fuzzy
 msgid "no related documents"
@@ -22214,6 +22403,15 @@ msgstr "Ματαίωση"
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Ματαίωση και ΔΕΝ θα συνδεθείτε με το GNUmed."
 
+#~ msgid "GNUmed test results export for Gnuplot plotting"
+#~ msgstr "GNUmed εξαγωγή αποτελέσματα των δοκιμών για gnuplot σχεδιάζονται"
+
+#, fuzzy
+#~ msgid ""
+#~ "Mailed:\n"
+#~ " - %s"
+#~ msgstr "Ημερομηνία: %s\n"
+
 #, fuzzy
 #~ msgid "Clinical narrative"
 #~ msgstr "Κλινικά"
@@ -22716,10 +22914,6 @@ msgstr "Ματαίωση και ΔΕΝ θα συνδεθείτε με το GNUme
 #, fuzzy
 #~ msgid "Search in list"
 #~ msgstr "Αποτελέσματα αναζήτησης"
-
-#, fuzzy
-#~ msgid "Show &Timeline"
-#~ msgstr "Δείξε &ΠαράδειγμαΠρόσθετου"
 
 #, fuzzy
 #~ msgid "&Unknown"

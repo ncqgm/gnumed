@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-07-28 16:40+0200\n"
+"POT-Creation-Date: 2019-08-19 11:12+0200\n"
 "PO-Revision-Date: 2016-02-24 18:28+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: colombiano <es@li.org>\n"
@@ -37,6 +37,14 @@ msgid ""
 msgstr ""
 "Terapia tópica:\\n%s\\n\\nTerapia sistémica:\\n%s\\n\\nChequeos posteriores:"
 "\\n%s"
+
+#, fuzzy
+msgid "Whole Timeline"
+msgstr "Muestro linea del &tiempo"
+
+#, fuzzy
+msgid "Visible Period"
+msgstr "Período"
 
 msgid "Can't scroll more to the left"
 msgstr "No se puede deslizar más a la izquierda"
@@ -167,6 +175,9 @@ msgid "Unable to delete backup dbfile '%s'."
 msgstr ""
 
 msgid "Other Gradient Event box drawer"
+msgstr ""
+
+msgid "Other Gradient Event box drawer with fuzzy edges"
 msgstr ""
 
 msgid "Default Event box drawer"
@@ -493,42 +504,6 @@ msgstr ""
 msgid "Water"
 msgstr ""
 
-msgid "Jan"
-msgstr "ene"
-
-msgid "Feb"
-msgstr "feb"
-
-msgid "Mar"
-msgstr "mar"
-
-msgid "Apr"
-msgstr "abr"
-
-msgid "May"
-msgstr "may"
-
-msgid "Jun"
-msgstr "jun"
-
-msgid "Jul"
-msgstr "jul"
-
-msgid "Aug"
-msgstr "ago"
-
-msgid "Sep"
-msgstr "sep"
-
-msgid "Oct"
-msgstr "oct"
-
-msgid "Nov"
-msgstr "nov"
-
-msgid "Dec"
-msgstr "dic"
-
 msgid "BC"
 msgstr ""
 
@@ -580,6 +555,73 @@ msgstr "segundos"
 msgid "second"
 msgstr "segundo"
 
+msgid "i"
+msgstr ""
+
+msgid "ii"
+msgstr ""
+
+msgid "iii"
+msgstr ""
+
+#, fuzzy
+msgid "iv"
+msgstr "Vivo"
+
+msgid "v"
+msgstr ""
+
+msgid "vi"
+msgstr ""
+
+msgid "vii"
+msgstr ""
+
+msgid "viii"
+msgstr ""
+
+msgid "ix"
+msgstr ""
+
+msgid "x"
+msgstr ""
+
+msgid "Jan"
+msgstr "ene"
+
+msgid "Feb"
+msgstr "feb"
+
+msgid "Mar"
+msgstr "mar"
+
+msgid "Apr"
+msgstr "abr"
+
+msgid "May"
+msgstr "may"
+
+msgid "Jun"
+msgstr "jun"
+
+msgid "Jul"
+msgstr "jul"
+
+msgid "Aug"
+msgstr "ago"
+
+msgid "Sep"
+msgstr "sep"
+
+msgid "Oct"
+msgstr "oct"
+
+msgid "Nov"
+msgstr "nov"
+
+msgid "Dec"
+msgstr "dic"
+
 msgid "Mon"
 msgstr "lun"
 
@@ -600,6 +642,29 @@ msgstr "sáb"
 
 msgid "Sun"
 msgstr "dom"
+
+#, fuzzy
+msgid "Pes"
+msgstr "Sí"
+
+msgid "Psh"
+msgstr ""
+
+msgid "Pef"
+msgstr ""
+
+#, fuzzy
+msgid "Pt"
+msgstr "Gráfico"
+
+msgid "Pso"
+msgstr ""
+
+msgid "Psa"
+msgstr ""
+
+msgid "Tk"
+msgstr ""
 
 msgid "Edit..."
 msgstr "Editar…"
@@ -654,12 +719,6 @@ msgstr "Los eventos pertenecientes a '%s' ya no pertenecerán a una categoría."
 #, python-format
 msgid "Events belonging to '%s' will now belong to '%s'."
 msgstr "Los eventos pertenecientes a '%s' ahora pertenecerán a '%s'."
-
-msgid "No match"
-msgstr "No hay coincidencias"
-
-msgid "Only one match"
-msgstr "Solo una coincidencia"
 
 msgid "No timeline opened."
 msgstr "No hay línea de tiempo abierta."
@@ -716,6 +775,40 @@ msgstr ""
 
 msgid "Give feedback"
 msgstr "Da seguimiento"
+
+#, fuzzy
+msgid "No matches found"
+msgstr "Medicamento no encontrado."
+
+#, fuzzy
+msgid "Only one match found"
+msgstr "Solo una coincidencia"
+
+#, fuzzy
+msgid "matches found"
+msgstr "No se encontró paciente que coincida."
+
+msgid "Close"
+msgstr "Cerrar"
+
+#, fuzzy
+msgid "Prevoius match"
+msgstr "No hay coincidencias"
+
+#, fuzzy
+msgid "Next match"
+msgstr "No hay coincidencias"
+
+msgid "In: "
+msgstr ""
+
+#, fuzzy
+msgid "Select period"
+msgstr "Tipos de test"
+
+#, fuzzy
+msgid "List matches"
+msgstr "Búsqueda en la lista"
 
 msgid "When:"
 msgstr "Cuándo:"
@@ -1139,6 +1232,9 @@ msgstr ""
 msgid "Weekends:"
 msgstr ""
 
+msgid "Use bold line"
+msgstr ""
+
 msgid "Background"
 msgstr ""
 
@@ -1157,6 +1253,9 @@ msgstr ""
 msgid "Never use time precision for events"
 msgstr ""
 
+msgid "Use second precision for time"
+msgstr ""
+
 msgid "Legend Position"
 msgstr ""
 
@@ -1171,6 +1270,32 @@ msgstr ""
 
 msgid "Bottom-Right"
 msgstr ""
+
+#, fuzzy
+msgid "Top"
+msgstr "A"
+
+msgid "Bottom"
+msgstr ""
+
+msgid "Time scale position"
+msgstr ""
+
+#, fuzzy
+msgid "Default Year"
+msgstr "Tipo estándar"
+
+#, fuzzy
+msgid "Default Month"
+msgstr "País por defecto"
+
+#, fuzzy
+msgid "Default Day"
+msgstr "Tipo estándar"
+
+#, fuzzy
+msgid "Use date default values"
+msgstr "actualice el estado del resultado"
 
 msgid "Preferences"
 msgstr "Preferencia"
@@ -1500,6 +1625,10 @@ msgstr ""
 msgid "Getting started &tutorial"
 msgstr "Comienza &tutorial"
 
+#, fuzzy
+msgid "Getting started numeric &tutorial"
+msgstr "Comienza &tutorial"
+
 msgid "Give &Feedback..."
 msgstr "Da &Retroalimentación"
 
@@ -1536,6 +1665,18 @@ msgstr ""
 msgid ""
 "This creates a timeline using the fictuous Bosparanian calendar from the "
 "German pen-and-paper RPG \"The Dark Eye\" (\"Das schwarze Auge\", DSA)."
+msgstr ""
+
+msgid "Pharaonic"
+msgstr ""
+
+msgid "This creates a timeline using the ancient egypt pharaonic calendar"
+msgstr ""
+
+msgid "Coptic"
+msgstr ""
+
+msgid "This creates a timeline using the coptic calendar"
 msgstr ""
 
 msgid "Help"
@@ -4838,9 +4979,6 @@ msgstr "Por favor seleccione el problema médico:"
 
 msgid "OK"
 msgstr "Listo"
-
-msgid "Close"
-msgstr "Cerrar"
 
 msgid "Health issue selector"
 msgstr "Seleccionador de problema médico"
@@ -10194,10 +10332,12 @@ msgstr "No hay resultados de exámenes a los que dar formato."
 msgid "Test results"
 msgstr "Resultado de los exámenes"
 
-msgid "GNUmed test results export for Gnuplot plotting"
+#, python-format
+msgid "plotted %s (GNUmed v%s)"
 msgstr ""
-"Exportación de los resultados de los exámenes de GNUmed para el trazado de "
-"Gnuplot"
+
+msgid "unknown DOB"
+msgstr "Fecha desconocida de nacimiento"
 
 msgid ""
 "blank line inserted to allow for discontinued line drawing of same-day values"
@@ -15934,11 +16074,16 @@ msgid "Column &%s (current row): %s"
 msgstr "Columna &%s: %s"
 
 #, fuzzy
-msgid "&Save to file..."
+msgid "Screen&shot ..."
+msgstr "Captura de pantalla"
+
+#, fuzzy
+msgid "Save to &file..."
 msgstr "Guardar Como ..."
 
-msgid "&Copy to clipboard..."
-msgstr "&Copiar al portapapeles ..."
+#, fuzzy
+msgid "Copy to &clipboard..."
+msgstr "Copio al portapapeles"
 
 msgid "Append (&+) to clipboard..."
 msgstr "Agregue (&+) al portapapeles ..."
@@ -15992,6 +16137,13 @@ msgstr "Definición de reporte borrado [%s]."
 #, fuzzy, python-format
 msgid "Selected data saved to [%s]."
 msgstr "Fijar el idioma de la base de datos en [%s]."
+
+msgid "GMd screenshot"
+msgstr "Pantallazo GMd"
+
+#, fuzzy
+msgid "list"
+msgstr "Enlistar"
 
 msgid "Monty the Serpent && the FSF Present"
 msgstr "La Serpiente Monty && la FSF presentan"
@@ -16208,6 +16360,10 @@ msgstr "archivoalportapapeles"
 #, python-format
 msgid "The file [%s] has been copied into the clipboard."
 msgstr "El archivo [%s] ha sido copiado al portapapeles."
+
+#, python-format
+msgid "Saved screenshot to file [%s]."
+msgstr "Captura de pantalla guardada en archivo [%s]."
 
 msgid "programmer forgot to specify error message"
 msgstr "el programador olvidó especificar el mensaje de error"
@@ -17066,6 +17222,39 @@ msgid "clinical progress note"
 msgstr "nota de progreso clínica"
 
 #, fuzzy
+msgid "Cannot add files to export area. No patient."
+msgstr ""
+"No puedo poner pantallazo en el área de exportación. No hay paciente activo."
+
+#, fuzzy
+msgid "Cannot import files into export area."
+msgstr "Escaneo archivos al área de exportación"
+
+#, fuzzy, python-format
+msgid ""
+"Successfully imported files into export area.\n"
+"\n"
+"Do you want to delete imported files from the filesystem ?\n"
+"\n"
+" %s"
+msgstr ""
+"Importé exitosamente archivos como documento.\n"
+"\n"
+"¿Realmente desea eliminar los archivos importados desde el sistema de "
+"archivos?\n"
+"\n"
+" %s\n"
+"\n"
+"Note que los archivos temporarios igualmente serán eliminados."
+
+msgid "Removing files"
+msgstr "Elimino archivos"
+
+#, fuzzy
+msgid "Imported files into export area."
+msgstr "Ubica la línea de tiempo en el área de exportación."
+
+#, fuzzy
 msgid "Clearing out a directory"
 msgstr "Datos del paciente para"
 
@@ -17317,13 +17506,9 @@ msgstr "Error al enviar documentos por correo electróncio."
 msgid "Mailing documents"
 msgstr "Envío documentos por correo-e"
 
-#, python-format
-msgid ""
-"Mailed:\n"
-" - %s"
-msgstr ""
-"Enviado:\n"
-" - %s"
+#, fuzzy
+msgid "Mailed export area content."
+msgstr "Guardo documentos del área de exportación"
 
 #, fuzzy
 msgid "Cannot send fax: <gm-fax_doc(.bat)> not found"
@@ -17727,9 +17912,6 @@ msgstr ""
 " %s\n"
 "\n"
 "Note que los archivos temporarios igualmente serán eliminados."
-
-msgid "Removing files"
-msgstr "Elimino archivos"
 
 #, fuzzy
 msgid "Select a document."
@@ -19834,8 +20016,10 @@ msgid "Cannot put screenshot into export area. No active patient."
 msgstr ""
 "No puedo poner pantallazo en el área de exportación. No hay paciente activo."
 
-msgid "GMd screenshot"
-msgstr "Pantallazo GMd"
+#, fuzzy
+msgid "Cannot put screenshot into export area. No screenshot found."
+msgstr ""
+"No puedo poner pantallazo en el área de exportación. No hay paciente activo."
 
 #, python-format
 msgid ""
@@ -20808,10 +20992,6 @@ msgstr "Esto garantiza que pueda inspeccionar la salida de consola con calma."
 
 msgid "no patient"
 msgstr "no existe paciente activo"
-
-#, python-format
-msgid "Saved screenshot to file [%s]."
-msgstr "Captura de pantalla guardada en archivo [%s]."
 
 msgid "Statusbar history"
 msgstr ""
@@ -21887,9 +22067,6 @@ msgstr ""
 "\n"
 "Note que la eliminación es irreversible."
 
-msgid "unknown DOB"
-msgstr "Fecha desconocida de nacimiento"
-
 msgid "Showing unmatched incoming data"
 msgstr "Muestro datos ingresados no coincidentes"
 
@@ -21959,6 +22136,20 @@ msgstr ""
 
 msgid "Cannot plot without a plot script."
 msgstr "No puedo trazar sin un programa de trazado."
+
+#, fuzzy
+msgid "Plotted lab results"
+msgstr "Trazo resultados de medición"
+
+#, fuzzy
+msgid ""
+"Put a copy of the lab results plot into the export area of this patient ?"
+msgstr ""
+"No puedo poner pantallazo en el área de exportación. No hay paciente activo."
+
+#, fuzzy
+msgid "lab results plot"
+msgstr "Resultados del lab ..."
 
 #, fuzzy
 msgid "no related documents"
@@ -23732,6 +23923,21 @@ msgstr "Aborto"
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Aborto y NO conecto a GNUMed."
 
+#~ msgid "GNUmed test results export for Gnuplot plotting"
+#~ msgstr ""
+#~ "Exportación de los resultados de los exámenes de GNUmed para el trazado "
+#~ "de Gnuplot"
+
+#~ msgid "&Copy to clipboard..."
+#~ msgstr "&Copiar al portapapeles ..."
+
+#~ msgid ""
+#~ "Mailed:\n"
+#~ " - %s"
+#~ msgstr ""
+#~ "Enviado:\n"
+#~ " - %s"
+
 #~ msgid "Clinical narrative"
 #~ msgstr "Historia clínica"
 
@@ -24995,9 +25201,6 @@ msgstr "Aborto y NO conecto a GNUMed."
 #~ msgid "Row fields (as multiple lines)"
 #~ msgstr "Campos de fila (como lineas múltiples)"
 
-#~ msgid "Copy to clipboard..."
-#~ msgstr "Copio al portapapeles"
-
 #~ msgid "Append to clipboard..."
 #~ msgstr "Agrego al portapapeles ..."
 
@@ -25018,9 +25221,6 @@ msgstr "Aborto y NO conecto a GNUMed."
 
 #~ msgid "ad&Ministrative"
 #~ msgstr "ad&Ministrativo"
-
-#~ msgid "Show &Timeline"
-#~ msgstr "Muestro linea del &tiempo"
 
 #~ msgid "EMR tree"
 #~ msgstr "Árbol RME"

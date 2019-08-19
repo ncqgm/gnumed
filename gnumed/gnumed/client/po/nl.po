@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-07-28 16:40+0200\n"
+"POT-Creation-Date: 2019-08-19 11:12+0200\n"
 "PO-Revision-Date: 2012-06-01 01:19+0000\n"
 "Last-Translator: Anik ten Have <anik@itchi-go.nl>\n"
 "Language-Team: Dutch <nl@li.org>\n"
@@ -30,6 +30,13 @@ msgstr ""
 msgid ""
 "Topical therapy:\\n%s\\n\\nSystemic therapy:\\n%s\\n\\nSubsequent checks:\\n"
 "%s"
+msgstr ""
+
+#, fuzzy
+msgid "Whole Timeline"
+msgstr "OpenOffice"
+
+msgid "Visible Period"
 msgstr ""
 
 msgid "Can't scroll more to the left"
@@ -162,6 +169,9 @@ msgid "Unable to delete backup dbfile '%s'."
 msgstr ""
 
 msgid "Other Gradient Event box drawer"
+msgstr ""
+
+msgid "Other Gradient Event box drawer with fuzzy edges"
 msgstr ""
 
 msgid "Default Event box drawer"
@@ -504,50 +514,6 @@ msgstr ""
 msgid "Water"
 msgstr ""
 
-msgid "Jan"
-msgstr ""
-
-msgid "Feb"
-msgstr ""
-
-#, fuzzy
-msgid "Mar"
-msgstr "Dhr"
-
-msgid "Apr"
-msgstr ""
-
-#, fuzzy
-msgid "May"
-msgstr "dag"
-
-#, fuzzy
-msgid "Jun"
-msgstr "Uitvoeren"
-
-#, fuzzy
-msgid "Jul"
-msgstr "Journaal"
-
-#, fuzzy
-msgid "Aug"
-msgstr "Leeftijd"
-
-#, fuzzy
-msgid "Sep"
-msgstr "Setup"
-
-msgid "Oct"
-msgstr ""
-
-#, fuzzy
-msgid "Nov"
-msgstr "Nee"
-
-#, fuzzy
-msgid "Dec"
-msgstr "Doc"
-
 msgid "BC"
 msgstr ""
 
@@ -601,6 +567,80 @@ msgstr ""
 msgid "second"
 msgstr ""
 
+msgid "i"
+msgstr ""
+
+msgid "ii"
+msgstr ""
+
+msgid "iii"
+msgstr ""
+
+msgid "iv"
+msgstr ""
+
+msgid "v"
+msgstr ""
+
+msgid "vi"
+msgstr ""
+
+msgid "vii"
+msgstr ""
+
+msgid "viii"
+msgstr ""
+
+msgid "ix"
+msgstr ""
+
+msgid "x"
+msgstr ""
+
+msgid "Jan"
+msgstr ""
+
+msgid "Feb"
+msgstr ""
+
+#, fuzzy
+msgid "Mar"
+msgstr "Dhr"
+
+msgid "Apr"
+msgstr ""
+
+#, fuzzy
+msgid "May"
+msgstr "dag"
+
+#, fuzzy
+msgid "Jun"
+msgstr "Uitvoeren"
+
+#, fuzzy
+msgid "Jul"
+msgstr "Journaal"
+
+#, fuzzy
+msgid "Aug"
+msgstr "Leeftijd"
+
+#, fuzzy
+msgid "Sep"
+msgstr "Setup"
+
+msgid "Oct"
+msgstr ""
+
+#, fuzzy
+msgid "Nov"
+msgstr "Nee"
+
+#, fuzzy
+msgid "Dec"
+msgstr "Doc"
+
 msgid "Mon"
 msgstr ""
 
@@ -625,6 +665,29 @@ msgstr "Starten"
 #, fuzzy
 msgid "Sun"
 msgstr "Uitvoeren"
+
+#, fuzzy
+msgid "Pes"
+msgstr "Ja"
+
+msgid "Psh"
+msgstr ""
+
+msgid "Pef"
+msgstr ""
+
+#, fuzzy
+msgid "Pt"
+msgstr "Onderdelen"
+
+msgid "Pso"
+msgstr ""
+
+msgid "Psa"
+msgstr ""
+
+msgid "Tk"
+msgstr ""
 
 #, fuzzy
 msgid "Edit..."
@@ -686,13 +749,6 @@ msgstr ""
 
 #, python-format
 msgid "Events belonging to '%s' will now belong to '%s'."
-msgstr ""
-
-#, fuzzy
-msgid "No match"
-msgstr "Batch"
-
-msgid "Only one match"
 msgstr ""
 
 msgid "No timeline opened."
@@ -759,6 +815,40 @@ msgstr ""
 #, fuzzy
 msgid "Give feedback"
 msgstr "Terug"
+
+#, fuzzy
+msgid "No matches found"
+msgstr "Geen overeenkomend medicijn gevonden."
+
+#, fuzzy
+msgid "Only one match found"
+msgstr "Geen overeenkomend medicijn gevonden."
+
+#, fuzzy
+msgid "matches found"
+msgstr "Geen patiënt gevonden"
+
+msgid "Close"
+msgstr "Sluiten"
+
+#, fuzzy
+msgid "Prevoius match"
+msgstr "Batch"
+
+#, fuzzy
+msgid "Next match"
+msgstr "Batch"
+
+msgid "In: "
+msgstr ""
+
+#, fuzzy
+msgid "Select period"
+msgstr "Sjabloontype"
+
+#, fuzzy
+msgid "List matches"
+msgstr "Zoeken"
 
 #, fuzzy
 msgid "When:"
@@ -1209,6 +1299,9 @@ msgstr ""
 msgid "Weekends:"
 msgstr ""
 
+msgid "Use bold line"
+msgstr ""
+
 msgid "Background"
 msgstr ""
 
@@ -1227,6 +1320,9 @@ msgstr ""
 msgid "Never use time precision for events"
 msgstr ""
 
+msgid "Use second precision for time"
+msgstr ""
+
 msgid "Legend Position"
 msgstr ""
 
@@ -1241,6 +1337,32 @@ msgstr ""
 
 msgid "Bottom-Right"
 msgstr ""
+
+#, fuzzy
+msgid "Top"
+msgstr "Aan"
+
+msgid "Bottom"
+msgstr ""
+
+msgid "Time scale position"
+msgstr ""
+
+#, fuzzy
+msgid "Default Year"
+msgstr "Standaard type"
+
+#, fuzzy
+msgid "Default Month"
+msgstr "Standaard type"
+
+#, fuzzy
+msgid "Default Day"
+msgstr "Standaard type"
+
+#, fuzzy
+msgid "Use date default values"
+msgstr "status van uitslagen bijwerken"
 
 #, fuzzy
 msgid "Preferences"
@@ -1595,6 +1717,9 @@ msgstr ""
 msgid "Getting started &tutorial"
 msgstr ""
 
+msgid "Getting started numeric &tutorial"
+msgstr ""
+
 #, fuzzy
 msgid "Give &Feedback..."
 msgstr "Terug"
@@ -1633,6 +1758,18 @@ msgstr ""
 msgid ""
 "This creates a timeline using the fictuous Bosparanian calendar from the "
 "German pen-and-paper RPG \"The Dark Eye\" (\"Das schwarze Auge\", DSA)."
+msgstr ""
+
+msgid "Pharaonic"
+msgstr ""
+
+msgid "This creates a timeline using the ancient egypt pharaonic calendar"
+msgstr ""
+
+msgid "Coptic"
+msgstr ""
+
+msgid "This creates a timeline using the coptic calendar"
 msgstr ""
 
 msgid "Help"
@@ -4800,9 +4937,6 @@ msgstr "Selecteer een gezondheidsprobleem:"
 
 msgid "OK"
 msgstr "OK"
-
-msgid "Close"
-msgstr "Sluiten"
 
 msgid "Health issue selector"
 msgstr "Gezondheidsprobleem selecter"
@@ -10048,8 +10182,13 @@ msgstr "Geen uitslagen geselecteerd voor verwijdering."
 msgid "Test results"
 msgstr "Onderzoeksresultaten"
 
-msgid "GNUmed test results export for Gnuplot plotting"
+#, python-format
+msgid "plotted %s (GNUmed v%s)"
 msgstr ""
+
+#, fuzzy
+msgid "unknown DOB"
+msgstr "Onbekend"
 
 msgid ""
 "blank line inserted to allow for discontinued line drawing of same-day values"
@@ -15690,11 +15829,15 @@ msgid "Column &%s (current row): %s"
 msgstr "Documenten: %s"
 
 #, fuzzy
-msgid "&Save to file..."
+msgid "Screen&shot ..."
+msgstr "Schermafdruk"
+
+#, fuzzy
+msgid "Save to &file..."
 msgstr " Bewaren "
 
 #, fuzzy
-msgid "&Copy to clipboard..."
+msgid "Copy to &clipboard..."
 msgstr "Exporteren naar &clipboard"
 
 #, fuzzy
@@ -15746,6 +15889,14 @@ msgstr "Verwijderede rapportdefinitie [%s]."
 #, fuzzy, python-format
 msgid "Selected data saved to [%s]."
 msgstr "Stel de taal van de database in op [%s]."
+
+#, fuzzy
+msgid "GMd screenshot"
+msgstr "Schermafdruk"
+
+#, fuzzy
+msgid "list"
+msgstr "Inschrijven"
 
 msgid "Monty the Serpent && the FSF Present"
 msgstr "Monty the Serpent && the FSF presenteren"
@@ -15969,6 +16120,10 @@ msgstr "Exporteren naar &clipboard"
 #, python-format
 msgid "The file [%s] has been copied into the clipboard."
 msgstr ""
+
+#, python-format
+msgid "Saved screenshot to file [%s]."
+msgstr "Schermafdruk opgeslagen in bestand [%s]"
 
 msgid "programmer forgot to specify error message"
 msgstr "programmeur vergat foutmelding te specificeren"
@@ -16773,6 +16928,31 @@ msgid "clinical progress note"
 msgstr "klinisch voortgangsrapport"
 
 #, fuzzy
+msgid "Cannot add files to export area. No patient."
+msgstr "Kan geen nieuwe ontmoeting beginnen. Geen actieve patiënt."
+
+#, fuzzy
+msgid "Cannot import files into export area."
+msgstr "patiënt activeren van rapportresultaat"
+
+#, python-format
+msgid ""
+"Successfully imported files into export area.\n"
+"\n"
+"Do you want to delete imported files from the filesystem ?\n"
+"\n"
+" %s"
+msgstr ""
+
+#, fuzzy
+msgid "Removing files"
+msgstr "Adres verwijderen"
+
+#, fuzzy
+msgid "Imported files into export area."
+msgstr "patiënt activeren van rapportresultaat"
+
+#, fuzzy
 msgid "Clearing out a directory"
 msgstr "patiënt"
 
@@ -17005,11 +17185,9 @@ msgstr ""
 msgid "Mailing documents"
 msgstr "document bewaren"
 
-#, fuzzy, python-format
-msgid ""
-"Mailed:\n"
-" - %s"
-msgstr "Geexporteerd: %s\n"
+#, fuzzy
+msgid "Mailed export area content."
+msgstr "document bewaren"
 
 #, fuzzy
 msgid "Cannot send fax: <gm-fax_doc(.bat)> not found"
@@ -17415,10 +17593,6 @@ msgid ""
 "\n"
 " %s"
 msgstr ""
-
-#, fuzzy
-msgid "Removing files"
-msgstr "Adres verwijderen"
 
 #, fuzzy
 msgid "Select a document."
@@ -19624,8 +19798,8 @@ msgid "Cannot put screenshot into export area. No active patient."
 msgstr "Kan geen nieuwe ontmoeting beginnen. Geen actieve patiënt."
 
 #, fuzzy
-msgid "GMd screenshot"
-msgstr "Schermafdruk"
+msgid "Cannot put screenshot into export area. No screenshot found."
+msgstr "Kan geen nieuwe ontmoeting beginnen. Geen actieve patiënt."
 
 #, python-format
 msgid ""
@@ -20582,10 +20756,6 @@ msgstr ""
 
 msgid "no patient"
 msgstr "geen patiënt"
-
-#, python-format
-msgid "Saved screenshot to file [%s]."
-msgstr "Schermafdruk opgeslagen in bestand [%s]"
 
 msgid "Statusbar history"
 msgstr ""
@@ -21629,10 +21799,6 @@ msgstr ""
 "Weet u zeker dat u dit BSN\n"
 "van deze patiënt wilt verwijderen?"
 
-#, fuzzy
-msgid "unknown DOB"
-msgstr "Onbekend"
-
 msgid "Showing unmatched incoming data"
 msgstr ""
 
@@ -21708,6 +21874,19 @@ msgstr "Kan medicatie niet toevoegen. Geen actieve patiënt."
 #, fuzzy
 msgid "Cannot plot without a plot script."
 msgstr "Kan patiënt niet verwijderen. Geen actieve patiënt."
+
+#, fuzzy
+msgid "Plotted lab results"
+msgstr "Verwijderen testuitslagen"
+
+#, fuzzy
+msgid ""
+"Put a copy of the lab results plot into the export area of this patient ?"
+msgstr "Kan geen nieuwe ontmoeting beginnen. Geen actieve patiënt."
+
+#, fuzzy
+msgid "lab results plot"
+msgstr "Laboratoriumuitslag"
 
 #, fuzzy
 msgid "no related documents"
@@ -23486,6 +23665,12 @@ msgstr "Afbreken"
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Afbreken en GEEN verbinding maken met GNUmed."
+
+#, fuzzy
+#~ msgid ""
+#~ "Mailed:\n"
+#~ " - %s"
+#~ msgstr "Geexporteerd: %s\n"
 
 #, fuzzy
 #~ msgid "Clinical narrative"

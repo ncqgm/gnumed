@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-07-28 16:40+0200\n"
+"POT-Creation-Date: 2019-08-19 11:12+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -29,6 +29,14 @@ msgid ""
 "Topical therapy:\\n%s\\n\\nSystemic therapy:\\n%s\\n\\nSubsequent checks:\\n"
 "%s"
 msgstr ""
+
+#, fuzzy
+msgid "Whole Timeline"
+msgstr "Hap Linjen Kohore"
+
+#, fuzzy
+msgid "Visible Period"
+msgstr "Periudhë"
 
 msgid "Can't scroll more to the left"
 msgstr "Nuk mund te zvarris me majtas"
@@ -167,6 +175,9 @@ msgid "Unable to delete backup dbfile '%s'."
 msgstr "E pamundur per te fshire filen backup '%s'."
 
 msgid "Other Gradient Event box drawer"
+msgstr ""
+
+msgid "Other Gradient Event box drawer with fuzzy edges"
 msgstr ""
 
 msgid "Default Event box drawer"
@@ -511,42 +522,6 @@ msgstr ""
 msgid "Water"
 msgstr ""
 
-msgid "Jan"
-msgstr "Janar"
-
-msgid "Feb"
-msgstr "Shkurt"
-
-msgid "Mar"
-msgstr "Mars"
-
-msgid "Apr"
-msgstr "Prill"
-
-msgid "May"
-msgstr "Maj"
-
-msgid "Jun"
-msgstr "Qershor"
-
-msgid "Jul"
-msgstr "Korrik"
-
-msgid "Aug"
-msgstr "Gusht"
-
-msgid "Sep"
-msgstr "Shtator"
-
-msgid "Oct"
-msgstr "Tetor"
-
-msgid "Nov"
-msgstr "Nëntor"
-
-msgid "Dec"
-msgstr "Dhjetor"
-
 msgid "BC"
 msgstr ""
 
@@ -601,6 +576,72 @@ msgstr ""
 msgid "second"
 msgstr ""
 
+msgid "i"
+msgstr ""
+
+msgid "ii"
+msgstr ""
+
+msgid "iii"
+msgstr ""
+
+msgid "iv"
+msgstr ""
+
+msgid "v"
+msgstr ""
+
+msgid "vi"
+msgstr ""
+
+msgid "vii"
+msgstr ""
+
+msgid "viii"
+msgstr ""
+
+msgid "ix"
+msgstr ""
+
+msgid "x"
+msgstr ""
+
+msgid "Jan"
+msgstr "Janar"
+
+msgid "Feb"
+msgstr "Shkurt"
+
+msgid "Mar"
+msgstr "Mars"
+
+msgid "Apr"
+msgstr "Prill"
+
+msgid "May"
+msgstr "Maj"
+
+msgid "Jun"
+msgstr "Qershor"
+
+msgid "Jul"
+msgstr "Korrik"
+
+msgid "Aug"
+msgstr "Gusht"
+
+msgid "Sep"
+msgstr "Shtator"
+
+msgid "Oct"
+msgstr "Tetor"
+
+msgid "Nov"
+msgstr "Nëntor"
+
+msgid "Dec"
+msgstr "Dhjetor"
+
 msgid "Mon"
 msgstr "Hënë"
 
@@ -621,6 +662,27 @@ msgstr "Shtunë"
 
 msgid "Sun"
 msgstr "Djelë"
+
+msgid "Pes"
+msgstr ""
+
+msgid "Psh"
+msgstr ""
+
+msgid "Pef"
+msgstr ""
+
+msgid "Pt"
+msgstr ""
+
+msgid "Pso"
+msgstr ""
+
+msgid "Psa"
+msgstr ""
+
+msgid "Tk"
+msgstr ""
 
 msgid "Edit..."
 msgstr "Modifiko..."
@@ -675,12 +737,6 @@ msgstr "Ngjarjet qe i perkasin '%s' nuk do te jene me pjese e asnje kategorie."
 #, python-format
 msgid "Events belonging to '%s' will now belong to '%s'."
 msgstr "Ngjarjet qe i perkisnin '%s' tani do ti perkasin '%s'."
-
-msgid "No match"
-msgstr "Asnjë përputhje"
-
-msgid "Only one match"
-msgstr "Vetem nje perputhje"
 
 msgid "No timeline opened."
 msgstr "Asnje linje kohore e hapur."
@@ -739,6 +795,39 @@ msgstr ""
 
 msgid "Give feedback"
 msgstr ""
+
+#, fuzzy
+msgid "No matches found"
+msgstr "Asnjë përputhje"
+
+#, fuzzy
+msgid "Only one match found"
+msgstr "Vetem nje perputhje"
+
+msgid "matches found"
+msgstr ""
+
+msgid "Close"
+msgstr "Mbyll"
+
+#, fuzzy
+msgid "Prevoius match"
+msgstr "Asnjë përputhje"
+
+#, fuzzy
+msgid "Next match"
+msgstr "Asnjë përputhje"
+
+msgid "In: "
+msgstr ""
+
+#, fuzzy
+msgid "Select period"
+msgstr "Zgjidhni ngjarje"
+
+#, fuzzy
+msgid "List matches"
+msgstr "Asnjë përputhje"
 
 msgid "When:"
 msgstr "Kur:"
@@ -1202,6 +1291,9 @@ msgstr "Asnje linje kohore e percaktuar"
 msgid "Weekends:"
 msgstr "Java"
 
+msgid "Use bold line"
+msgstr ""
+
 #, fuzzy
 msgid "Background"
 msgstr "Prapa"
@@ -1222,6 +1314,9 @@ msgstr ""
 msgid "Never use time precision for events"
 msgstr ""
 
+msgid "Use second precision for time"
+msgstr ""
+
 msgid "Legend Position"
 msgstr ""
 
@@ -1235,6 +1330,29 @@ msgid "Top-Right"
 msgstr ""
 
 msgid "Bottom-Right"
+msgstr ""
+
+msgid "Top"
+msgstr ""
+
+msgid "Bottom"
+msgstr ""
+
+msgid "Time scale position"
+msgstr ""
+
+#, fuzzy
+msgid "Default Year"
+msgstr "Perputh Vitin"
+
+#, fuzzy
+msgid "Default Month"
+msgstr "Perputh Muajin"
+
+msgid "Default Day"
+msgstr ""
+
+msgid "Use date default values"
 msgstr ""
 
 msgid "Preferences"
@@ -1585,6 +1703,10 @@ msgstr "&Contents\tF1"
 msgid "Getting started &tutorial"
 msgstr "Manuali i fillimit"
 
+#, fuzzy
+msgid "Getting started numeric &tutorial"
+msgstr "Manuali i fillimit"
+
 msgid "Give &Feedback..."
 msgstr ""
 
@@ -1624,6 +1746,18 @@ msgstr ""
 msgid ""
 "This creates a timeline using the fictuous Bosparanian calendar from the "
 "German pen-and-paper RPG \"The Dark Eye\" (\"Das schwarze Auge\", DSA)."
+msgstr ""
+
+msgid "Pharaonic"
+msgstr ""
+
+msgid "This creates a timeline using the ancient egypt pharaonic calendar"
+msgstr ""
+
+msgid "Coptic"
+msgstr ""
+
+msgid "This creates a timeline using the coptic calendar"
 msgstr ""
 
 msgid "Help"
@@ -4558,9 +4692,6 @@ msgstr ""
 
 msgid "OK"
 msgstr ""
-
-msgid "Close"
-msgstr "Mbyll"
 
 msgid "Health issue selector"
 msgstr ""
@@ -9360,8 +9491,12 @@ msgstr "Asnje rezultat testi per te formatuar."
 msgid "Test results"
 msgstr "Resultatet e testit"
 
-msgid "GNUmed test results export for Gnuplot plotting"
-msgstr "rezultatet e testit te GNUmed eksportoji per afishimin ne Gnuplot"
+#, python-format
+msgid "plotted %s (GNUmed v%s)"
+msgstr ""
+
+msgid "unknown DOB"
+msgstr ""
 
 #, fuzzy
 msgid ""
@@ -14395,11 +14530,15 @@ msgstr ""
 msgid "Column &%s (current row): %s"
 msgstr "Dokumente: %s"
 
-msgid "&Save to file..."
+msgid "Screen&shot ..."
 msgstr ""
 
 #, fuzzy
-msgid "&Copy to clipboard..."
+msgid "Save to &file..."
+msgstr "Krijo Linje Kohore"
+
+#, fuzzy
+msgid "Copy to &clipboard..."
 msgstr "E pamundur te kopjoj"
 
 #, fuzzy
@@ -14449,6 +14588,12 @@ msgstr ""
 
 #, python-format
 msgid "Selected data saved to [%s]."
+msgstr ""
+
+msgid "GMd screenshot"
+msgstr ""
+
+msgid "list"
 msgstr ""
 
 msgid "Monty the Serpent && the FSF Present"
@@ -14642,6 +14787,10 @@ msgstr ""
 
 #, python-format
 msgid "The file [%s] has been copied into the clipboard."
+msgstr ""
+
+#, python-format
+msgid "Saved screenshot to file [%s]."
 msgstr ""
 
 msgid "programmer forgot to specify error message"
@@ -15355,6 +15504,30 @@ msgstr ""
 msgid "clinical progress note"
 msgstr ""
 
+msgid "Cannot add files to export area. No patient."
+msgstr ""
+
+#, fuzzy
+msgid "Cannot import files into export area."
+msgstr "E pamundur te kopjoj"
+
+#, python-format
+msgid ""
+"Successfully imported files into export area.\n"
+"\n"
+"Do you want to delete imported files from the filesystem ?\n"
+"\n"
+" %s"
+msgstr ""
+
+#, fuzzy
+msgid "Removing files"
+msgstr "Filet e linjes kohore."
+
+#, fuzzy
+msgid "Imported files into export area."
+msgstr "E pamundur te kopjoj"
+
 #, fuzzy
 msgid "Clearing out a directory"
 msgstr "Kategori:"
@@ -15570,11 +15743,9 @@ msgstr ""
 msgid "Mailing documents"
 msgstr " %s dokumente\n"
 
-#, fuzzy, python-format
-msgid ""
-"Mailed:\n"
-" - %s"
-msgstr " E mbyllur:%s\n"
+#, fuzzy
+msgid "Mailed export area content."
+msgstr " %s dokumente\n"
 
 #, fuzzy
 msgid "Cannot send fax: <gm-fax_doc(.bat)> not found"
@@ -15919,10 +16090,6 @@ msgid ""
 "\n"
 " %s"
 msgstr ""
-
-#, fuzzy
-msgid "Removing files"
-msgstr "Filet e linjes kohore."
 
 #, fuzzy
 msgid "Select a document."
@@ -17813,7 +17980,7 @@ msgstr ""
 msgid "Cannot put screenshot into export area. No active patient."
 msgstr ""
 
-msgid "GMd screenshot"
+msgid "Cannot put screenshot into export area. No screenshot found."
 msgstr ""
 
 #, python-format
@@ -18532,10 +18699,6 @@ msgid "This is so that you can inspect the console output at your leisure."
 msgstr ""
 
 msgid "no patient"
-msgstr ""
-
-#, python-format
-msgid "Saved screenshot to file [%s]."
 msgstr ""
 
 msgid "Statusbar history"
@@ -19472,9 +19635,6 @@ msgid ""
 "Note that deletion is not reversible."
 msgstr ""
 
-msgid "unknown DOB"
-msgstr ""
-
 msgid "Showing unmatched incoming data"
 msgstr ""
 
@@ -19542,6 +19702,18 @@ msgstr ""
 
 msgid "Cannot plot without a plot script."
 msgstr ""
+
+#, fuzzy
+msgid "Plotted lab results"
+msgstr "Kerkoni rezultatet per '%s'"
+
+msgid ""
+"Put a copy of the lab results plot into the export area of this patient ?"
+msgstr ""
+
+#, fuzzy
+msgid "lab results plot"
+msgstr "Kerkoni rezultatet per '%s'"
 
 #, fuzzy
 msgid "no related documents"
@@ -21014,6 +21186,15 @@ msgstr ""
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr ""
+
+#~ msgid "GNUmed test results export for Gnuplot plotting"
+#~ msgstr "rezultatet e testit te GNUmed eksportoji per afishimin ne Gnuplot"
+
+#, fuzzy
+#~ msgid ""
+#~ "Mailed:\n"
+#~ " - %s"
+#~ msgstr " E mbyllur:%s\n"
 
 #, fuzzy
 #~ msgid "&Show (D)"

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-07-28 16:40+0200\n"
+"POT-Creation-Date: 2019-08-19 11:12+0200\n"
 "PO-Revision-Date: 2011-08-25 16:54+0000\n"
 "Last-Translator: Karolina Kalic <Unknown>\n"
 "Language-Team: Serbian <sr@li.org>\n"
@@ -31,6 +31,13 @@ msgstr ""
 msgid ""
 "Topical therapy:\\n%s\\n\\nSystemic therapy:\\n%s\\n\\nSubsequent checks:\\n"
 "%s"
+msgstr ""
+
+#, fuzzy
+msgid "Whole Timeline"
+msgstr "Направи лажне вакцине"
+
+msgid "Visible Period"
 msgstr ""
 
 msgid "Can't scroll more to the left"
@@ -162,6 +169,9 @@ msgid "Unable to delete backup dbfile '%s'."
 msgstr "Брисање вакцине"
 
 msgid "Other Gradient Event box drawer"
+msgstr ""
+
+msgid "Other Gradient Event box drawer with fuzzy edges"
 msgstr ""
 
 msgid "Default Event box drawer"
@@ -497,42 +507,6 @@ msgstr ""
 msgid "Water"
 msgstr ""
 
-msgid "Jan"
-msgstr ""
-
-msgid "Feb"
-msgstr ""
-
-msgid "Mar"
-msgstr ""
-
-msgid "Apr"
-msgstr ""
-
-msgid "May"
-msgstr ""
-
-msgid "Jun"
-msgstr ""
-
-msgid "Jul"
-msgstr ""
-
-msgid "Aug"
-msgstr ""
-
-msgid "Sep"
-msgstr ""
-
-msgid "Oct"
-msgstr ""
-
-msgid "Nov"
-msgstr ""
-
-msgid "Dec"
-msgstr ""
-
 msgid "BC"
 msgstr ""
 
@@ -585,6 +559,72 @@ msgstr ""
 msgid "second"
 msgstr ""
 
+msgid "i"
+msgstr ""
+
+msgid "ii"
+msgstr ""
+
+msgid "iii"
+msgstr ""
+
+msgid "iv"
+msgstr ""
+
+msgid "v"
+msgstr ""
+
+msgid "vi"
+msgstr ""
+
+msgid "vii"
+msgstr ""
+
+msgid "viii"
+msgstr ""
+
+msgid "ix"
+msgstr ""
+
+msgid "x"
+msgstr ""
+
+msgid "Jan"
+msgstr ""
+
+msgid "Feb"
+msgstr ""
+
+msgid "Mar"
+msgstr ""
+
+msgid "Apr"
+msgstr ""
+
+msgid "May"
+msgstr ""
+
+msgid "Jun"
+msgstr ""
+
+msgid "Jul"
+msgstr ""
+
+msgid "Aug"
+msgstr ""
+
+msgid "Sep"
+msgstr ""
+
+msgid "Oct"
+msgstr ""
+
+msgid "Nov"
+msgstr ""
+
+msgid "Dec"
+msgstr ""
+
 msgid "Mon"
 msgstr ""
 
@@ -606,6 +646,27 @@ msgid "Sat"
 msgstr "Статус"
 
 msgid "Sun"
+msgstr ""
+
+msgid "Pes"
+msgstr ""
+
+msgid "Psh"
+msgstr ""
+
+msgid "Pef"
+msgstr ""
+
+msgid "Pt"
+msgstr ""
+
+msgid "Pso"
+msgstr ""
+
+msgid "Psa"
+msgstr ""
+
+msgid "Tk"
 msgstr ""
 
 msgid "Edit..."
@@ -661,12 +722,6 @@ msgstr ""
 
 #, python-format
 msgid "Events belonging to '%s' will now belong to '%s'."
-msgstr ""
-
-msgid "No match"
-msgstr ""
-
-msgid "Only one match"
 msgstr ""
 
 msgid "No timeline opened."
@@ -725,6 +780,34 @@ msgid "To save this timeline, save it to a new file: File -> Save As."
 msgstr ""
 
 msgid "Give feedback"
+msgstr ""
+
+msgid "No matches found"
+msgstr ""
+
+msgid "Only one match found"
+msgstr ""
+
+msgid "matches found"
+msgstr ""
+
+msgid "Close"
+msgstr ""
+
+msgid "Prevoius match"
+msgstr ""
+
+msgid "Next match"
+msgstr ""
+
+msgid "In: "
+msgstr ""
+
+#, fuzzy
+msgid "Select period"
+msgstr "Резултати теста"
+
+msgid "List matches"
 msgstr ""
 
 msgid "When:"
@@ -1173,6 +1256,9 @@ msgstr "Направи лажне вакцине"
 msgid "Weekends:"
 msgstr ""
 
+msgid "Use bold line"
+msgstr ""
+
 msgid "Background"
 msgstr ""
 
@@ -1191,6 +1277,9 @@ msgstr ""
 msgid "Never use time precision for events"
 msgstr ""
 
+msgid "Use second precision for time"
+msgstr ""
+
 msgid "Legend Position"
 msgstr ""
 
@@ -1204,6 +1293,27 @@ msgid "Top-Right"
 msgstr ""
 
 msgid "Bottom-Right"
+msgstr ""
+
+msgid "Top"
+msgstr ""
+
+msgid "Bottom"
+msgstr ""
+
+msgid "Time scale position"
+msgstr ""
+
+msgid "Default Year"
+msgstr ""
+
+msgid "Default Month"
+msgstr ""
+
+msgid "Default Day"
+msgstr ""
+
+msgid "Use date default values"
 msgstr ""
 
 msgid "Preferences"
@@ -1550,6 +1660,9 @@ msgstr "неактиван"
 msgid "Getting started &tutorial"
 msgstr ""
 
+msgid "Getting started numeric &tutorial"
+msgstr ""
+
 msgid "Give &Feedback..."
 msgstr ""
 
@@ -1588,6 +1701,18 @@ msgstr ""
 msgid ""
 "This creates a timeline using the fictuous Bosparanian calendar from the "
 "German pen-and-paper RPG \"The Dark Eye\" (\"Das schwarze Auge\", DSA)."
+msgstr ""
+
+msgid "Pharaonic"
+msgstr ""
+
+msgid "This creates a timeline using the ancient egypt pharaonic calendar"
+msgstr ""
+
+msgid "Coptic"
+msgstr ""
+
+msgid "This creates a timeline using the coptic calendar"
 msgstr ""
 
 msgid "Help"
@@ -4452,9 +4577,6 @@ msgid "Please select a health issue:"
 msgstr ""
 
 msgid "OK"
-msgstr ""
-
-msgid "Close"
 msgstr ""
 
 msgid "Health issue selector"
@@ -9268,8 +9390,13 @@ msgstr ""
 msgid "Test results"
 msgstr "Резултати теста"
 
-msgid "GNUmed test results export for Gnuplot plotting"
+#, python-format
+msgid "plotted %s (GNUmed v%s)"
 msgstr ""
+
+#, fuzzy
+msgid "unknown DOB"
+msgstr "непознати род"
 
 msgid ""
 "blank line inserted to allow for discontinued line drawing of same-day values"
@@ -14397,11 +14524,15 @@ msgstr ""
 msgid "Column &%s (current row): %s"
 msgstr "Документа: %s"
 
-msgid "&Save to file..."
+msgid "Screen&shot ..."
 msgstr ""
 
 #, fuzzy
-msgid "&Copy to clipboard..."
+msgid "Save to &file..."
+msgstr "Направи лажне вакцине"
+
+#, fuzzy
+msgid "Copy to &clipboard..."
 msgstr "Додавање нове вакцине"
 
 msgid "Append (&+) to clipboard..."
@@ -14450,6 +14581,12 @@ msgstr ""
 
 #, python-format
 msgid "Selected data saved to [%s]."
+msgstr ""
+
+msgid "GMd screenshot"
+msgstr ""
+
+msgid "list"
 msgstr ""
 
 msgid "Monty the Serpent && the FSF Present"
@@ -14634,6 +14771,10 @@ msgstr ""
 
 #, python-format
 msgid "The file [%s] has been copied into the clipboard."
+msgstr ""
+
+#, python-format
+msgid "Saved screenshot to file [%s]."
 msgstr ""
 
 msgid "programmer forgot to specify error message"
@@ -15353,6 +15494,30 @@ msgid "clinical progress note"
 msgstr ""
 
 #, fuzzy
+msgid "Cannot add files to export area. No patient."
+msgstr "Не могу да додам вакцинацију. Није изабран активан пацијент."
+
+#, fuzzy
+msgid "Cannot import files into export area."
+msgstr "Додавање нове вакцине"
+
+#, python-format
+msgid ""
+"Successfully imported files into export area.\n"
+"\n"
+"Do you want to delete imported files from the filesystem ?\n"
+"\n"
+" %s"
+msgstr ""
+
+msgid "Removing files"
+msgstr ""
+
+#, fuzzy
+msgid "Imported files into export area."
+msgstr "Додавање нове вакцине"
+
+#, fuzzy
 msgid "Clearing out a directory"
 msgstr "здравствени проблем: %s"
 
@@ -15568,11 +15733,9 @@ msgstr "Приказивање вакцина."
 msgid "Mailing documents"
 msgstr "Приказивање вакцина."
 
-#, fuzzy, python-format
-msgid ""
-"Mailed:\n"
-" - %s"
-msgstr "Пацијент: %s (%s), Бр: %s\n"
+#, fuzzy
+msgid "Mailed export area content."
+msgstr "Приказивање вакцина."
 
 msgid "Cannot send fax: <gm-fax_doc(.bat)> not found"
 msgstr ""
@@ -15927,9 +16090,6 @@ msgid ""
 "Do you want to delete imported files from the filesystem ?\n"
 "\n"
 " %s"
-msgstr ""
-
-msgid "Removing files"
 msgstr ""
 
 #, fuzzy
@@ -17852,8 +18012,9 @@ msgstr ""
 msgid "Cannot put screenshot into export area. No active patient."
 msgstr "Не могу да додам вакцинацију. Није изабран активан пацијент."
 
-msgid "GMd screenshot"
-msgstr ""
+#, fuzzy
+msgid "Cannot put screenshot into export area. No screenshot found."
+msgstr "Не могу да додам вакцинацију. Није изабран активан пацијент."
 
 #, python-format
 msgid ""
@@ -18582,10 +18743,6 @@ msgid "This is so that you can inspect the console output at your leisure."
 msgstr ""
 
 msgid "no patient"
-msgstr ""
-
-#, python-format
-msgid "Saved screenshot to file [%s]."
 msgstr ""
 
 msgid "Statusbar history"
@@ -19530,10 +19687,6 @@ msgid ""
 "Note that deletion is not reversible."
 msgstr ""
 
-#, fuzzy
-msgid "unknown DOB"
-msgstr "непознати род"
-
 msgid "Showing unmatched incoming data"
 msgstr ""
 
@@ -19605,6 +19758,19 @@ msgstr ""
 
 msgid "Cannot plot without a plot script."
 msgstr ""
+
+#, fuzzy
+msgid "Plotted lab results"
+msgstr "исправљен резултат"
+
+#, fuzzy
+msgid ""
+"Put a copy of the lab results plot into the export area of this patient ?"
+msgstr "Не могу да додам вакцинацију. Није изабран активан пацијент."
+
+#, fuzzy
+msgid "lab results plot"
+msgstr "Лабораторијски извештај"
 
 #, fuzzy
 msgid "no related documents"
@@ -21113,6 +21279,12 @@ msgstr "Прекинути"
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr ""
+
+#, fuzzy
+#~ msgid ""
+#~ "Mailed:\n"
+#~ " - %s"
+#~ msgstr "Пацијент: %s (%s), Бр: %s\n"
 
 #, fuzzy
 #~ msgid "Clinical narrative"

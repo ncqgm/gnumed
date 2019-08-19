@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-07-28 16:40+0200\n"
+"POT-Creation-Date: 2019-08-19 11:12+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -29,6 +29,14 @@ msgid ""
 "Topical therapy:\\n%s\\n\\nSystemic therapy:\\n%s\\n\\nSubsequent checks:\\n"
 "%s"
 msgstr ""
+
+#, fuzzy
+msgid "Whole Timeline"
+msgstr "Otevřít Časovou osu"
+
+#, fuzzy
+msgid "Visible Period"
+msgstr "Období"
 
 msgid "Can't scroll more to the left"
 msgstr "Nelze rolovat více vlevo"
@@ -165,6 +173,9 @@ msgid "Unable to delete backup dbfile '%s'."
 msgstr "Nelze vymazat soubor zálohy '%s'."
 
 msgid "Other Gradient Event box drawer"
+msgstr ""
+
+msgid "Other Gradient Event box drawer with fuzzy edges"
 msgstr ""
 
 msgid "Default Event box drawer"
@@ -505,42 +516,6 @@ msgstr ""
 msgid "Water"
 msgstr ""
 
-msgid "Jan"
-msgstr "Led"
-
-msgid "Feb"
-msgstr "Úno"
-
-msgid "Mar"
-msgstr "Bře"
-
-msgid "Apr"
-msgstr "Dub"
-
-msgid "May"
-msgstr "Kvě"
-
-msgid "Jun"
-msgstr "Čer"
-
-msgid "Jul"
-msgstr "Čvc"
-
-msgid "Aug"
-msgstr "Srp"
-
-msgid "Sep"
-msgstr "Zář"
-
-msgid "Oct"
-msgstr "Říj"
-
-msgid "Nov"
-msgstr "Lis"
-
-msgid "Dec"
-msgstr "Pro"
-
 msgid "BC"
 msgstr ""
 
@@ -595,6 +570,72 @@ msgstr ""
 msgid "second"
 msgstr ""
 
+msgid "i"
+msgstr ""
+
+msgid "ii"
+msgstr ""
+
+msgid "iii"
+msgstr ""
+
+msgid "iv"
+msgstr ""
+
+msgid "v"
+msgstr ""
+
+msgid "vi"
+msgstr ""
+
+msgid "vii"
+msgstr ""
+
+msgid "viii"
+msgstr ""
+
+msgid "ix"
+msgstr ""
+
+msgid "x"
+msgstr ""
+
+msgid "Jan"
+msgstr "Led"
+
+msgid "Feb"
+msgstr "Úno"
+
+msgid "Mar"
+msgstr "Bře"
+
+msgid "Apr"
+msgstr "Dub"
+
+msgid "May"
+msgstr "Kvě"
+
+msgid "Jun"
+msgstr "Čer"
+
+msgid "Jul"
+msgstr "Čvc"
+
+msgid "Aug"
+msgstr "Srp"
+
+msgid "Sep"
+msgstr "Zář"
+
+msgid "Oct"
+msgstr "Říj"
+
+msgid "Nov"
+msgstr "Lis"
+
+msgid "Dec"
+msgstr "Pro"
+
 msgid "Mon"
 msgstr "Po"
 
@@ -615,6 +656,27 @@ msgstr "So"
 
 msgid "Sun"
 msgstr "Ne"
+
+msgid "Pes"
+msgstr ""
+
+msgid "Psh"
+msgstr ""
+
+msgid "Pef"
+msgstr ""
+
+msgid "Pt"
+msgstr ""
+
+msgid "Pso"
+msgstr ""
+
+msgid "Psa"
+msgstr ""
+
+msgid "Tk"
+msgstr ""
 
 msgid "Edit..."
 msgstr "Upravit..."
@@ -669,12 +731,6 @@ msgstr "Událost patřící do  '%s' nebude již déle patřit do kategorie."
 #, python-format
 msgid "Events belonging to '%s' will now belong to '%s'."
 msgstr "Událost patřící do  '%s' bude nyní patřit do '%s'."
-
-msgid "No match"
-msgstr "Bez shody"
-
-msgid "Only one match"
-msgstr "Pouze jedna shoda"
 
 msgid "No timeline opened."
 msgstr "Není otevřena žádná časová osa."
@@ -733,6 +789,39 @@ msgstr ""
 
 msgid "Give feedback"
 msgstr ""
+
+#, fuzzy
+msgid "No matches found"
+msgstr "Bez shody"
+
+#, fuzzy
+msgid "Only one match found"
+msgstr "Pouze jedna shoda"
+
+msgid "matches found"
+msgstr ""
+
+msgid "Close"
+msgstr "Zavřít"
+
+#, fuzzy
+msgid "Prevoius match"
+msgstr "Bez shody"
+
+#, fuzzy
+msgid "Next match"
+msgstr "Bez shody"
+
+msgid "In: "
+msgstr ""
+
+#, fuzzy
+msgid "Select period"
+msgstr "Vybrat událost."
+
+#, fuzzy
+msgid "List matches"
+msgstr "Bez shody"
 
 msgid "When:"
 msgstr ""
@@ -1195,6 +1284,9 @@ msgstr "Není stanovena časová osa"
 msgid "Weekends:"
 msgstr "Týden"
 
+msgid "Use bold line"
+msgstr ""
+
 #, fuzzy
 msgid "Background"
 msgstr "Zpět"
@@ -1215,6 +1307,9 @@ msgstr ""
 msgid "Never use time precision for events"
 msgstr ""
 
+msgid "Use second precision for time"
+msgstr ""
+
 msgid "Legend Position"
 msgstr ""
 
@@ -1228,6 +1323,27 @@ msgid "Top-Right"
 msgstr ""
 
 msgid "Bottom-Right"
+msgstr ""
+
+msgid "Top"
+msgstr ""
+
+msgid "Bottom"
+msgstr ""
+
+msgid "Time scale position"
+msgstr ""
+
+msgid "Default Year"
+msgstr ""
+
+msgid "Default Month"
+msgstr ""
+
+msgid "Default Day"
+msgstr ""
+
+msgid "Use date default values"
 msgstr ""
 
 msgid "Preferences"
@@ -1579,6 +1695,10 @@ msgstr "Kontejner:"
 msgid "Getting started &tutorial"
 msgstr "Začínáme tutoriál"
 
+#, fuzzy
+msgid "Getting started numeric &tutorial"
+msgstr "Začínáme tutoriál"
+
 msgid "Give &Feedback..."
 msgstr ""
 
@@ -1618,6 +1738,18 @@ msgstr ""
 msgid ""
 "This creates a timeline using the fictuous Bosparanian calendar from the "
 "German pen-and-paper RPG \"The Dark Eye\" (\"Das schwarze Auge\", DSA)."
+msgstr ""
+
+msgid "Pharaonic"
+msgstr ""
+
+msgid "This creates a timeline using the ancient egypt pharaonic calendar"
+msgstr ""
+
+msgid "Coptic"
+msgstr ""
+
+msgid "This creates a timeline using the coptic calendar"
 msgstr ""
 
 msgid "Help"
@@ -4548,9 +4680,6 @@ msgstr ""
 
 msgid "OK"
 msgstr ""
-
-msgid "Close"
-msgstr "Zavřít"
 
 msgid "Health issue selector"
 msgstr ""
@@ -9318,7 +9447,11 @@ msgstr ""
 msgid "Test results"
 msgstr ""
 
-msgid "GNUmed test results export for Gnuplot plotting"
+#, python-format
+msgid "plotted %s (GNUmed v%s)"
+msgstr ""
+
+msgid "unknown DOB"
 msgstr ""
 
 msgid ""
@@ -14352,11 +14485,15 @@ msgstr ""
 msgid "Column &%s (current row): %s"
 msgstr "Dokumenty: %s"
 
-msgid "&Save to file..."
+msgid "Screen&shot ..."
 msgstr ""
 
 #, fuzzy
-msgid "&Copy to clipboard..."
+msgid "Save to &file..."
+msgstr "Vytvořit Časovou osu"
+
+#, fuzzy
+msgid "Copy to &clipboard..."
 msgstr "Nelze kopírovat do schránky."
 
 #, fuzzy
@@ -14405,6 +14542,12 @@ msgstr ""
 
 #, python-format
 msgid "Selected data saved to [%s]."
+msgstr ""
+
+msgid "GMd screenshot"
+msgstr ""
+
+msgid "list"
 msgstr ""
 
 msgid "Monty the Serpent && the FSF Present"
@@ -14587,6 +14730,10 @@ msgstr ""
 
 #, python-format
 msgid "The file [%s] has been copied into the clipboard."
+msgstr ""
+
+#, python-format
+msgid "Saved screenshot to file [%s]."
 msgstr ""
 
 msgid "programmer forgot to specify error message"
@@ -15302,6 +15449,30 @@ msgstr ""
 msgid "clinical progress note"
 msgstr ""
 
+msgid "Cannot add files to export area. No patient."
+msgstr ""
+
+#, fuzzy
+msgid "Cannot import files into export area."
+msgstr "Nelze kopírovat do schránky."
+
+#, python-format
+msgid ""
+"Successfully imported files into export area.\n"
+"\n"
+"Do you want to delete imported files from the filesystem ?\n"
+"\n"
+" %s"
+msgstr ""
+
+#, fuzzy
+msgid "Removing files"
+msgstr "Soubory Timeline"
+
+#, fuzzy
+msgid "Imported files into export area."
+msgstr "Nelze kopírovat do schránky."
+
 #, fuzzy
 msgid "Clearing out a directory"
 msgstr "Kategorie:"
@@ -15517,11 +15688,9 @@ msgstr ""
 msgid "Mailing documents"
 msgstr " % dokumentů\n"
 
-#, fuzzy, python-format
-msgid ""
-"Mailed:\n"
-" - %s"
-msgstr " Detaily: %s\n"
+#, fuzzy
+msgid "Mailed export area content."
+msgstr " % dokumentů\n"
 
 #, fuzzy
 msgid "Cannot send fax: <gm-fax_doc(.bat)> not found"
@@ -15865,10 +16034,6 @@ msgid ""
 "\n"
 " %s"
 msgstr ""
-
-#, fuzzy
-msgid "Removing files"
-msgstr "Soubory Timeline"
 
 #, fuzzy
 msgid "Select a document."
@@ -17754,7 +17919,7 @@ msgstr ""
 msgid "Cannot put screenshot into export area. No active patient."
 msgstr ""
 
-msgid "GMd screenshot"
+msgid "Cannot put screenshot into export area. No screenshot found."
 msgstr ""
 
 #, python-format
@@ -18473,10 +18638,6 @@ msgid "This is so that you can inspect the console output at your leisure."
 msgstr ""
 
 msgid "no patient"
-msgstr ""
-
-#, python-format
-msgid "Saved screenshot to file [%s]."
 msgstr ""
 
 msgid "Statusbar history"
@@ -19410,9 +19571,6 @@ msgid ""
 "Note that deletion is not reversible."
 msgstr ""
 
-msgid "unknown DOB"
-msgstr ""
-
 msgid "Showing unmatched incoming data"
 msgstr ""
 
@@ -19480,6 +19638,18 @@ msgstr ""
 
 msgid "Cannot plot without a plot script."
 msgstr ""
+
+#, fuzzy
+msgid "Plotted lab results"
+msgstr "Výsledky hledání pro '%s'"
+
+msgid ""
+"Put a copy of the lab results plot into the export area of this patient ?"
+msgstr ""
+
+#, fuzzy
+msgid "lab results plot"
+msgstr "Výsledky hledání pro '%s'"
 
 #, fuzzy
 msgid "no related documents"
@@ -20951,6 +21121,12 @@ msgstr ""
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr ""
+
+#, fuzzy
+#~ msgid ""
+#~ "Mailed:\n"
+#~ " - %s"
+#~ msgstr " Detaily: %s\n"
 
 #, fuzzy
 #~ msgid "&Show (D)"

@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-07-28 16:40+0200\n"
+"POT-Creation-Date: 2019-08-19 11:12+0200\n"
 "PO-Revision-Date: 2012-06-01 01:22+0000\n"
 "Last-Translator: ncq <Unknown>\n"
 "Language-Team: GNUmed\n"
@@ -32,6 +32,13 @@ msgstr ""
 msgid ""
 "Topical therapy:\\n%s\\n\\nSystemic therapy:\\n%s\\n\\nSubsequent checks:\\n"
 "%s"
+msgstr ""
+
+#, fuzzy
+msgid "Whole Timeline"
+msgstr "OpenOffice"
+
+msgid "Visible Period"
 msgstr ""
 
 msgid "Can't scroll more to the left"
@@ -161,6 +168,9 @@ msgid "Unable to delete backup dbfile '%s'."
 msgstr ""
 
 msgid "Other Gradient Event box drawer"
+msgstr ""
+
+msgid "Other Gradient Event box drawer with fuzzy edges"
 msgstr ""
 
 msgid "Default Event box drawer"
@@ -498,49 +508,6 @@ msgstr ""
 msgid "Water"
 msgstr ""
 
-msgid "Jan"
-msgstr ""
-
-msgid "Feb"
-msgstr ""
-
-#, fuzzy
-msgid "Mar"
-msgstr "Sig."
-
-msgid "Apr"
-msgstr ""
-
-msgid "May"
-msgstr ""
-
-#, fuzzy
-msgid "Jun"
-msgstr "Esegui"
-
-#, fuzzy
-msgid "Jul"
-msgstr "Giornale"
-
-#, fuzzy
-msgid "Aug"
-msgstr "Età"
-
-#, fuzzy
-msgid "Sep"
-msgstr "Imposta"
-
-msgid "Oct"
-msgstr ""
-
-#, fuzzy
-msgid "Nov"
-msgstr "No"
-
-#, fuzzy
-msgid "Dec"
-msgstr "Doc"
-
 msgid "BC"
 msgstr ""
 
@@ -594,6 +561,79 @@ msgstr ""
 msgid "second"
 msgstr ""
 
+msgid "i"
+msgstr ""
+
+msgid "ii"
+msgstr ""
+
+msgid "iii"
+msgstr ""
+
+msgid "iv"
+msgstr ""
+
+msgid "v"
+msgstr ""
+
+msgid "vi"
+msgstr ""
+
+msgid "vii"
+msgstr ""
+
+msgid "viii"
+msgstr ""
+
+msgid "ix"
+msgstr ""
+
+msgid "x"
+msgstr ""
+
+msgid "Jan"
+msgstr ""
+
+msgid "Feb"
+msgstr ""
+
+#, fuzzy
+msgid "Mar"
+msgstr "Sig."
+
+msgid "Apr"
+msgstr ""
+
+msgid "May"
+msgstr ""
+
+#, fuzzy
+msgid "Jun"
+msgstr "Esegui"
+
+#, fuzzy
+msgid "Jul"
+msgstr "Giornale"
+
+#, fuzzy
+msgid "Aug"
+msgstr "Età"
+
+#, fuzzy
+msgid "Sep"
+msgstr "Imposta"
+
+msgid "Oct"
+msgstr ""
+
+#, fuzzy
+msgid "Nov"
+msgstr "No"
+
+#, fuzzy
+msgid "Dec"
+msgstr "Doc"
+
 msgid "Mon"
 msgstr ""
 
@@ -617,6 +657,29 @@ msgstr "Inizio"
 #, fuzzy
 msgid "Sun"
 msgstr "Esegui"
+
+#, fuzzy
+msgid "Pes"
+msgstr "Sì"
+
+msgid "Psh"
+msgstr ""
+
+msgid "Pef"
+msgstr ""
+
+#, fuzzy
+msgid "Pt"
+msgstr "Parti"
+
+msgid "Pso"
+msgstr ""
+
+msgid "Psa"
+msgstr ""
+
+msgid "Tk"
+msgstr ""
 
 #, fuzzy
 msgid "Edit..."
@@ -674,13 +737,6 @@ msgstr ""
 
 #, python-format
 msgid "Events belonging to '%s' will now belong to '%s'."
-msgstr ""
-
-#, fuzzy
-msgid "No match"
-msgstr "Gruppo"
-
-msgid "Only one match"
 msgstr ""
 
 msgid "No timeline opened."
@@ -741,6 +797,40 @@ msgstr ""
 #, fuzzy
 msgid "Give feedback"
 msgstr "Torna indietro"
+
+#, fuzzy
+msgid "No matches found"
+msgstr "Nessun farmaco corrispondente."
+
+#, fuzzy
+msgid "Only one match found"
+msgstr "Nessun farmaco corrispondente."
+
+#, fuzzy
+msgid "matches found"
+msgstr "Nessun paziente corrispondente trovato."
+
+msgid "Close"
+msgstr "Chiudi"
+
+#, fuzzy
+msgid "Prevoius match"
+msgstr "Gruppo"
+
+#, fuzzy
+msgid "Next match"
+msgstr "Gruppo"
+
+msgid "In: "
+msgstr ""
+
+#, fuzzy
+msgid "Select period"
+msgstr "Tipo di modello"
+
+#, fuzzy
+msgid "List matches"
+msgstr "Cerca"
 
 msgid "When:"
 msgstr ""
@@ -1184,6 +1274,9 @@ msgstr ""
 msgid "Weekends:"
 msgstr ""
 
+msgid "Use bold line"
+msgstr ""
+
 msgid "Background"
 msgstr ""
 
@@ -1202,6 +1295,9 @@ msgstr ""
 msgid "Never use time precision for events"
 msgstr ""
 
+msgid "Use second precision for time"
+msgstr ""
+
 msgid "Legend Position"
 msgstr ""
 
@@ -1216,6 +1312,32 @@ msgstr ""
 
 msgid "Bottom-Right"
 msgstr ""
+
+#, fuzzy
+msgid "Top"
+msgstr "A"
+
+msgid "Bottom"
+msgstr ""
+
+msgid "Time scale position"
+msgstr ""
+
+#, fuzzy
+msgid "Default Year"
+msgstr "Tipo predefinito"
+
+#, fuzzy
+msgid "Default Month"
+msgstr "Tipo predefinito"
+
+#, fuzzy
+msgid "Default Day"
+msgstr "Tipo predefinito"
+
+#, fuzzy
+msgid "Use date default values"
+msgstr "aggiorna il risultato"
 
 #, fuzzy
 msgid "Preferences"
@@ -1564,6 +1686,9 @@ msgstr ""
 msgid "Getting started &tutorial"
 msgstr ""
 
+msgid "Getting started numeric &tutorial"
+msgstr ""
+
 #, fuzzy
 msgid "Give &Feedback..."
 msgstr "Torna indietro"
@@ -1602,6 +1727,18 @@ msgstr ""
 msgid ""
 "This creates a timeline using the fictuous Bosparanian calendar from the "
 "German pen-and-paper RPG \"The Dark Eye\" (\"Das schwarze Auge\", DSA)."
+msgstr ""
+
+msgid "Pharaonic"
+msgstr ""
+
+msgid "This creates a timeline using the ancient egypt pharaonic calendar"
+msgstr ""
+
+msgid "Coptic"
+msgstr ""
+
+msgid "This creates a timeline using the coptic calendar"
 msgstr ""
 
 msgid "Help"
@@ -4664,9 +4801,6 @@ msgstr ""
 
 msgid "OK"
 msgstr "OK"
-
-msgid "Close"
-msgstr "Chiudi"
 
 msgid "Health issue selector"
 msgstr ""
@@ -9743,8 +9877,13 @@ msgstr "Nessun risultato d'esame da formattare."
 msgid "Test results"
 msgstr "Risultati del test"
 
-msgid "GNUmed test results export for Gnuplot plotting"
+#, python-format
+msgid "plotted %s (GNUmed v%s)"
 msgstr ""
+
+#, fuzzy
+msgid "unknown DOB"
+msgstr "Sconosciuta"
 
 msgid ""
 "blank line inserted to allow for discontinued line drawing of same-day values"
@@ -15029,11 +15168,15 @@ msgid "Column &%s (current row): %s"
 msgstr "Documenti: %s"
 
 #, fuzzy
-msgid "&Save to file..."
+msgid "Screen&shot ..."
+msgstr "Screenshot"
+
+#, fuzzy
+msgid "Save to &file..."
 msgstr "Salva il tuo esame."
 
 #, fuzzy
-msgid "&Copy to clipboard..."
+msgid "Copy to &clipboard..."
 msgstr "Muovi il paziente su."
 
 #, fuzzy
@@ -15085,6 +15228,14 @@ msgstr "cancellare la definizione del report [%s]."
 #, fuzzy, python-format
 msgid "Selected data saved to [%s]."
 msgstr "Imposta la lingua del tuo database a [%s]"
+
+#, fuzzy
+msgid "GMd screenshot"
+msgstr "Screenshot"
+
+#, fuzzy
+msgid "list"
+msgstr "Accetta"
 
 msgid "Monty the Serpent && the FSF Present"
 msgstr ""
@@ -15289,6 +15440,10 @@ msgstr ""
 #, python-format
 msgid "The file [%s] has been copied into the clipboard."
 msgstr ""
+
+#, python-format
+msgid "Saved screenshot to file [%s]."
+msgstr "Salva lo screenshot come [%s]."
 
 msgid "programmer forgot to specify error message"
 msgstr "il programmatore ha dimenticato di specificare il messaggio d'errore"
@@ -16034,6 +16189,31 @@ msgid "clinical progress note"
 msgstr ""
 
 #, fuzzy
+msgid "Cannot add files to export area. No patient."
+msgstr "Non posso iniziare una nuova consultazione. Nessun paziente attivo."
+
+#, fuzzy
+msgid "Cannot import files into export area."
+msgstr "Aggiungi una nuova persona"
+
+#, python-format
+msgid ""
+"Successfully imported files into export area.\n"
+"\n"
+"Do you want to delete imported files from the filesystem ?\n"
+"\n"
+" %s"
+msgstr ""
+
+#, fuzzy
+msgid "Removing files"
+msgstr "Rimuovi l'indirizzo"
+
+#, fuzzy
+msgid "Imported files into export area."
+msgstr "Aggiungi una nuova persona"
+
+#, fuzzy
 msgid "Clearing out a directory"
 msgstr "paziente"
 
@@ -16257,11 +16437,9 @@ msgstr "Mostro il documento"
 msgid "Mailing documents"
 msgstr "salvo il documento"
 
-#, fuzzy, python-format
-msgid ""
-"Mailed:\n"
-" - %s"
-msgstr "Chiusa"
+#, fuzzy
+msgid "Mailed export area content."
+msgstr "salvo il documento"
 
 #, fuzzy
 msgid "Cannot send fax: <gm-fax_doc(.bat)> not found"
@@ -16632,10 +16810,6 @@ msgid ""
 "\n"
 " %s"
 msgstr ""
-
-#, fuzzy
-msgid "Removing files"
-msgstr "Rimuovi l'indirizzo"
 
 #, fuzzy
 msgid "Select a document."
@@ -18637,8 +18811,8 @@ msgid "Cannot put screenshot into export area. No active patient."
 msgstr "Non posso iniziare una nuova consultazione. Nessun paziente attivo."
 
 #, fuzzy
-msgid "GMd screenshot"
-msgstr "Screenshot"
+msgid "Cannot put screenshot into export area. No screenshot found."
+msgstr "Non posso iniziare una nuova consultazione. Nessun paziente attivo."
 
 #, python-format
 msgid ""
@@ -19390,10 +19564,6 @@ msgstr ""
 
 msgid "no patient"
 msgstr "Nessun paziente"
-
-#, python-format
-msgid "Saved screenshot to file [%s]."
-msgstr "Salva lo screenshot come [%s]."
 
 msgid "Statusbar history"
 msgstr ""
@@ -20379,10 +20549,6 @@ msgstr ""
 "Vuoi veramente cancellare questo\n"
 "ID esterno dal paziente?"
 
-#, fuzzy
-msgid "unknown DOB"
-msgstr "Sconosciuta"
-
 msgid "Showing unmatched incoming data"
 msgstr ""
 
@@ -20459,6 +20625,19 @@ msgstr ""
 
 msgid "Cannot plot without a plot script."
 msgstr ""
+
+#, fuzzy
+msgid "Plotted lab results"
+msgstr "risultato corretto"
+
+#, fuzzy
+msgid ""
+"Put a copy of the lab results plot into the export area of this patient ?"
+msgstr "Non posso iniziare una nuova consultazione. Nessun paziente attivo."
+
+#, fuzzy
+msgid "lab results plot"
+msgstr "Risultato di laboratorio"
 
 #, fuzzy
 msgid "no related documents"
@@ -22062,6 +22241,12 @@ msgstr "Annulla"
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Annulla e NON connetti a GNUmed"
+
+#, fuzzy
+#~ msgid ""
+#~ "Mailed:\n"
+#~ " - %s"
+#~ msgstr "Chiusa"
 
 #, fuzzy
 #~ msgid "Clinical narrative"

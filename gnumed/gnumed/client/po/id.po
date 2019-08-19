@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-07-28 16:40+0200\n"
+"POT-Creation-Date: 2019-08-19 11:12+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -29,6 +29,14 @@ msgid ""
 "Topical therapy:\\n%s\\n\\nSystemic therapy:\\n%s\\n\\nSubsequent checks:\\n"
 "%s"
 msgstr ""
+
+#, fuzzy
+msgid "Whole Timeline"
+msgstr "Garis Waktu"
+
+#, fuzzy
+msgid "Visible Period"
+msgstr "Periode"
 
 msgid "Can't scroll more to the left"
 msgstr ""
@@ -160,6 +168,9 @@ msgid "Unable to delete backup dbfile '%s'."
 msgstr ""
 
 msgid "Other Gradient Event box drawer"
+msgstr ""
+
+msgid "Other Gradient Event box drawer with fuzzy edges"
 msgstr ""
 
 msgid "Default Event box drawer"
@@ -491,42 +502,6 @@ msgstr ""
 msgid "Water"
 msgstr ""
 
-msgid "Jan"
-msgstr "Jan"
-
-msgid "Feb"
-msgstr "Feb"
-
-msgid "Mar"
-msgstr "Mar"
-
-msgid "Apr"
-msgstr "Apr"
-
-msgid "May"
-msgstr "Mei"
-
-msgid "Jun"
-msgstr "Jun"
-
-msgid "Jul"
-msgstr "Jul"
-
-msgid "Aug"
-msgstr "Agu"
-
-msgid "Sep"
-msgstr "Sep"
-
-msgid "Oct"
-msgstr "Okt"
-
-msgid "Nov"
-msgstr "Nop"
-
-msgid "Dec"
-msgstr "Des"
-
 msgid "BC"
 msgstr ""
 
@@ -581,6 +556,72 @@ msgstr ""
 msgid "second"
 msgstr ""
 
+msgid "i"
+msgstr ""
+
+msgid "ii"
+msgstr ""
+
+msgid "iii"
+msgstr ""
+
+msgid "iv"
+msgstr ""
+
+msgid "v"
+msgstr ""
+
+msgid "vi"
+msgstr ""
+
+msgid "vii"
+msgstr ""
+
+msgid "viii"
+msgstr ""
+
+msgid "ix"
+msgstr ""
+
+msgid "x"
+msgstr ""
+
+msgid "Jan"
+msgstr "Jan"
+
+msgid "Feb"
+msgstr "Feb"
+
+msgid "Mar"
+msgstr "Mar"
+
+msgid "Apr"
+msgstr "Apr"
+
+msgid "May"
+msgstr "Mei"
+
+msgid "Jun"
+msgstr "Jun"
+
+msgid "Jul"
+msgstr "Jul"
+
+msgid "Aug"
+msgstr "Agu"
+
+msgid "Sep"
+msgstr "Sep"
+
+msgid "Oct"
+msgstr "Okt"
+
+msgid "Nov"
+msgstr "Nop"
+
+msgid "Dec"
+msgstr "Des"
+
 msgid "Mon"
 msgstr "Sen"
 
@@ -601,6 +642,27 @@ msgstr "Sab"
 
 msgid "Sun"
 msgstr "Min"
+
+msgid "Pes"
+msgstr ""
+
+msgid "Psh"
+msgstr ""
+
+msgid "Pef"
+msgstr ""
+
+msgid "Pt"
+msgstr ""
+
+msgid "Pso"
+msgstr ""
+
+msgid "Psa"
+msgstr ""
+
+msgid "Tk"
+msgstr ""
 
 msgid "Edit..."
 msgstr "Edit..."
@@ -654,12 +716,6 @@ msgstr ""
 
 #, python-format
 msgid "Events belonging to '%s' will now belong to '%s'."
-msgstr ""
-
-msgid "No match"
-msgstr "Tidak cocok"
-
-msgid "Only one match"
 msgstr ""
 
 msgid "No timeline opened."
@@ -718,6 +774,38 @@ msgstr ""
 
 msgid "Give feedback"
 msgstr ""
+
+#, fuzzy
+msgid "No matches found"
+msgstr "Tidak cocok"
+
+msgid "Only one match found"
+msgstr ""
+
+msgid "matches found"
+msgstr ""
+
+msgid "Close"
+msgstr ""
+
+#, fuzzy
+msgid "Prevoius match"
+msgstr "Tidak cocok"
+
+#, fuzzy
+msgid "Next match"
+msgstr "Tidak cocok"
+
+msgid "In: "
+msgstr ""
+
+#, fuzzy
+msgid "Select period"
+msgstr "Pilih acara"
+
+#, fuzzy
+msgid "List matches"
+msgstr "Tidak cocok"
 
 msgid "When:"
 msgstr ""
@@ -1167,6 +1255,9 @@ msgstr "Garis Waktu"
 msgid "Weekends:"
 msgstr "Minggu"
 
+msgid "Use bold line"
+msgstr ""
+
 msgid "Background"
 msgstr ""
 
@@ -1185,6 +1276,9 @@ msgstr ""
 msgid "Never use time precision for events"
 msgstr ""
 
+msgid "Use second precision for time"
+msgstr ""
+
 msgid "Legend Position"
 msgstr ""
 
@@ -1198,6 +1292,27 @@ msgid "Top-Right"
 msgstr ""
 
 msgid "Bottom-Right"
+msgstr ""
+
+msgid "Top"
+msgstr ""
+
+msgid "Bottom"
+msgstr ""
+
+msgid "Time scale position"
+msgstr ""
+
+msgid "Default Year"
+msgstr ""
+
+msgid "Default Month"
+msgstr ""
+
+msgid "Default Day"
+msgstr ""
+
+msgid "Use date default values"
 msgstr ""
 
 msgid "Preferences"
@@ -1537,6 +1652,9 @@ msgstr "Kontak"
 msgid "Getting started &tutorial"
 msgstr ""
 
+msgid "Getting started numeric &tutorial"
+msgstr ""
+
 msgid "Give &Feedback..."
 msgstr ""
 
@@ -1576,6 +1694,18 @@ msgstr ""
 msgid ""
 "This creates a timeline using the fictuous Bosparanian calendar from the "
 "German pen-and-paper RPG \"The Dark Eye\" (\"Das schwarze Auge\", DSA)."
+msgstr ""
+
+msgid "Pharaonic"
+msgstr ""
+
+msgid "This creates a timeline using the ancient egypt pharaonic calendar"
+msgstr ""
+
+msgid "Coptic"
+msgstr ""
+
+msgid "This creates a timeline using the coptic calendar"
 msgstr ""
 
 msgid "Help"
@@ -4401,9 +4531,6 @@ msgid "Please select a health issue:"
 msgstr ""
 
 msgid "OK"
-msgstr ""
-
-msgid "Close"
 msgstr ""
 
 msgid "Health issue selector"
@@ -9118,7 +9245,11 @@ msgstr ""
 msgid "Test results"
 msgstr ""
 
-msgid "GNUmed test results export for Gnuplot plotting"
+#, python-format
+msgid "plotted %s (GNUmed v%s)"
+msgstr ""
+
+msgid "unknown DOB"
 msgstr ""
 
 msgid ""
@@ -14094,10 +14225,14 @@ msgstr ""
 msgid "Column &%s (current row): %s"
 msgstr ""
 
-msgid "&Save to file..."
+msgid "Screen&shot ..."
 msgstr ""
 
-msgid "&Copy to clipboard..."
+#, fuzzy
+msgid "Save to &file..."
+msgstr "Garis Waktu"
+
+msgid "Copy to &clipboard..."
 msgstr ""
 
 msgid "Append (&+) to clipboard..."
@@ -14145,6 +14280,12 @@ msgstr ""
 
 #, python-format
 msgid "Selected data saved to [%s]."
+msgstr ""
+
+msgid "GMd screenshot"
+msgstr ""
+
+msgid "list"
 msgstr ""
 
 msgid "Monty the Serpent && the FSF Present"
@@ -14327,6 +14468,10 @@ msgstr ""
 
 #, python-format
 msgid "The file [%s] has been copied into the clipboard."
+msgstr ""
+
+#, python-format
+msgid "Saved screenshot to file [%s]."
 msgstr ""
 
 msgid "programmer forgot to specify error message"
@@ -15032,6 +15177,30 @@ msgstr ""
 msgid "clinical progress note"
 msgstr ""
 
+msgid "Cannot add files to export area. No patient."
+msgstr ""
+
+#, fuzzy
+msgid "Cannot import files into export area."
+msgstr "Kategori:"
+
+#, python-format
+msgid ""
+"Successfully imported files into export area.\n"
+"\n"
+"Do you want to delete imported files from the filesystem ?\n"
+"\n"
+" %s"
+msgstr ""
+
+#, fuzzy
+msgid "Removing files"
+msgstr "Berkas gambar"
+
+#, fuzzy
+msgid "Imported files into export area."
+msgstr "Kategori:"
+
 #, fuzzy
 msgid "Clearing out a directory"
 msgstr "Kategori:"
@@ -15244,10 +15413,7 @@ msgstr ""
 msgid "Mailing documents"
 msgstr ""
 
-#, python-format
-msgid ""
-"Mailed:\n"
-" - %s"
+msgid "Mailed export area content."
 msgstr ""
 
 #, fuzzy
@@ -15590,10 +15756,6 @@ msgid ""
 "\n"
 " %s"
 msgstr ""
-
-#, fuzzy
-msgid "Removing files"
-msgstr "Berkas gambar"
 
 #, fuzzy
 msgid "Select a document."
@@ -17446,7 +17608,7 @@ msgstr ""
 msgid "Cannot put screenshot into export area. No active patient."
 msgstr ""
 
-msgid "GMd screenshot"
+msgid "Cannot put screenshot into export area. No screenshot found."
 msgstr ""
 
 #, python-format
@@ -18156,10 +18318,6 @@ msgid "This is so that you can inspect the console output at your leisure."
 msgstr ""
 
 msgid "no patient"
-msgstr ""
-
-#, python-format
-msgid "Saved screenshot to file [%s]."
 msgstr ""
 
 msgid "Statusbar history"
@@ -19074,9 +19232,6 @@ msgid ""
 "Note that deletion is not reversible."
 msgstr ""
 
-msgid "unknown DOB"
-msgstr ""
-
 msgid "Showing unmatched incoming data"
 msgstr ""
 
@@ -19143,6 +19298,18 @@ msgstr ""
 
 msgid "Cannot plot without a plot script."
 msgstr ""
+
+#, fuzzy
+msgid "Plotted lab results"
+msgstr "Hasis pencarian untuk '%s'"
+
+msgid ""
+"Put a copy of the lab results plot into the export area of this patient ?"
+msgstr ""
+
+#, fuzzy
+msgid "lab results plot"
+msgstr "Hasis pencarian untuk '%s'"
 
 #, fuzzy
 msgid "no related documents"

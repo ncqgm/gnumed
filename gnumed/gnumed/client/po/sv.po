@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-07-28 16:40+0200\n"
+"POT-Creation-Date: 2019-08-19 11:12+0200\n"
 "PO-Revision-Date: 2012-04-07 10:15+0000\n"
 "Last-Translator: Rikard Edgren <Unknown>\n"
 "Language-Team: Swedish <kde-i18n-doc@kde.org>\n"
@@ -32,6 +32,14 @@ msgid ""
 "Topical therapy:\\n%s\\n\\nSystemic therapy:\\n%s\\n\\nSubsequent checks:\\n"
 "%s"
 msgstr ""
+
+#, fuzzy
+msgid "Whole Timeline"
+msgstr "Öppna Tidslinje"
+
+#, fuzzy
+msgid "Visible Period"
+msgstr "Period"
 
 msgid "Can't scroll more to the left"
 msgstr "Det går inte att scrolla mer åt vänster"
@@ -167,6 +175,10 @@ msgid "Unable to delete backup dbfile '%s'."
 msgstr "Kan inte radera backupen av databasfilen '%s'."
 
 msgid "Other Gradient Event box drawer"
+msgstr "Annan gradientritare för Händelsers rektangel"
+
+#, fuzzy
+msgid "Other Gradient Event box drawer with fuzzy edges"
 msgstr "Annan gradientritare för Händelsers rektangel"
 
 msgid "Default Event box drawer"
@@ -498,43 +510,6 @@ msgstr ""
 msgid "Water"
 msgstr ""
 
-msgid "Jan"
-msgstr "Jan"
-
-msgid "Feb"
-msgstr "Feb"
-
-msgid "Mar"
-msgstr "Mar"
-
-msgid "Apr"
-msgstr "Apr"
-
-msgid "May"
-msgstr "Maj"
-
-msgid "Jun"
-msgstr "Jun"
-
-msgid "Jul"
-msgstr "Jul"
-
-msgid "Aug"
-msgstr "Aug"
-
-msgid "Sep"
-msgstr "Sep"
-
-msgid "Oct"
-msgstr "Okt"
-
-#, fuzzy
-msgid "Nov"
-msgstr "Nej"
-
-msgid "Dec"
-msgstr "Dec"
-
 msgid "BC"
 msgstr ""
 
@@ -588,6 +563,73 @@ msgstr "sekunder"
 msgid "second"
 msgstr "sekund"
 
+msgid "i"
+msgstr ""
+
+msgid "ii"
+msgstr ""
+
+msgid "iii"
+msgstr ""
+
+msgid "iv"
+msgstr ""
+
+msgid "v"
+msgstr ""
+
+msgid "vi"
+msgstr ""
+
+msgid "vii"
+msgstr ""
+
+msgid "viii"
+msgstr ""
+
+msgid "ix"
+msgstr ""
+
+msgid "x"
+msgstr ""
+
+msgid "Jan"
+msgstr "Jan"
+
+msgid "Feb"
+msgstr "Feb"
+
+msgid "Mar"
+msgstr "Mar"
+
+msgid "Apr"
+msgstr "Apr"
+
+msgid "May"
+msgstr "Maj"
+
+msgid "Jun"
+msgstr "Jun"
+
+msgid "Jul"
+msgstr "Jul"
+
+msgid "Aug"
+msgstr "Aug"
+
+msgid "Sep"
+msgstr "Sep"
+
+msgid "Oct"
+msgstr "Okt"
+
+#, fuzzy
+msgid "Nov"
+msgstr "Nej"
+
+msgid "Dec"
+msgstr "Dec"
+
 msgid "Mon"
 msgstr "Mån"
 
@@ -609,6 +651,28 @@ msgstr "Status"
 
 msgid "Sun"
 msgstr "Sön"
+
+#, fuzzy
+msgid "Pes"
+msgstr "Ja"
+
+msgid "Psh"
+msgstr ""
+
+msgid "Pef"
+msgstr ""
+
+msgid "Pt"
+msgstr ""
+
+msgid "Pso"
+msgstr ""
+
+msgid "Psa"
+msgstr ""
+
+msgid "Tk"
+msgstr ""
 
 msgid "Edit..."
 msgstr "Redigera..."
@@ -665,12 +729,6 @@ msgstr ""
 #, python-format
 msgid "Events belonging to '%s' will now belong to '%s'."
 msgstr "Händelser knutna till '%s' kommer nu att vara knutna till '%s'."
-
-msgid "No match"
-msgstr "Ingen träff"
-
-msgid "Only one match"
-msgstr "Endast en träff"
 
 msgid "No timeline opened."
 msgstr "Ingen tidslinje öppnad."
@@ -729,6 +787,39 @@ msgstr ""
 
 msgid "Give feedback"
 msgstr "Ge återkoppling"
+
+#, fuzzy
+msgid "No matches found"
+msgstr "Ingen träff"
+
+#, fuzzy
+msgid "Only one match found"
+msgstr "Endast en träff"
+
+msgid "matches found"
+msgstr ""
+
+msgid "Close"
+msgstr "Stäng"
+
+#, fuzzy
+msgid "Prevoius match"
+msgstr "Ingen träff"
+
+#, fuzzy
+msgid "Next match"
+msgstr "Ingen träff"
+
+msgid "In: "
+msgstr ""
+
+#, fuzzy
+msgid "Select period"
+msgstr "Provtagnings-resultat"
+
+#, fuzzy
+msgid "List matches"
+msgstr "Fel för platshållare [%s]"
 
 msgid "When:"
 msgstr "När:"
@@ -1157,6 +1248,9 @@ msgstr "Nu-linjen"
 msgid "Weekends:"
 msgstr "Veckoslut"
 
+msgid "Use bold line"
+msgstr ""
+
 msgid "Background"
 msgstr "Bakgrund"
 
@@ -1175,6 +1269,10 @@ msgstr "Visa check-markering för färdiga händelser"
 msgid "Never use time precision for events"
 msgstr "Använd aldrig klockslag för händelser"
 
+#, fuzzy
+msgid "Use second precision for time"
+msgstr "Använd aldrig klockslag för händelser"
+
 msgid "Legend Position"
 msgstr "Position på teckenförklaring"
 
@@ -1189,6 +1287,32 @@ msgstr "Överst till höger"
 
 msgid "Bottom-Right"
 msgstr "Nederst till höger"
+
+#, fuzzy
+msgid "Top"
+msgstr "Till:"
+
+#, fuzzy
+msgid "Bottom"
+msgstr "Nederst till vänster"
+
+msgid "Time scale position"
+msgstr ""
+
+#, fuzzy
+msgid "Default Year"
+msgstr "Förvald färg"
+
+#, fuzzy
+msgid "Default Month"
+msgstr "Förvald klient"
+
+#, fuzzy
+msgid "Default Day"
+msgstr "Förvald färg"
+
+msgid "Use date default values"
+msgstr ""
 
 msgid "Preferences"
 msgstr "Inställningar"
@@ -1529,6 +1653,10 @@ msgstr ""
 msgid "Getting started &tutorial"
 msgstr "Kom igång övning"
 
+#, fuzzy
+msgid "Getting started numeric &tutorial"
+msgstr "Kom igång övning"
+
 msgid "Give &Feedback..."
 msgstr "Ge &Feedback..."
 
@@ -1573,6 +1701,20 @@ msgid ""
 msgstr ""
 "Detta alternativ skapar en timeline med den påhittade Bosoporiska kalendern "
 "från den Tyska pen-and-paper RPG \"The Dark Eye\" (Das schwarze Auge\", DSA)"
+
+msgid "Pharaonic"
+msgstr ""
+
+#, fuzzy
+msgid "This creates a timeline using the ancient egypt pharaonic calendar"
+msgstr "Detta alternativ skapar en timeline som använder datum på tidsaxeln"
+
+msgid "Coptic"
+msgstr ""
+
+#, fuzzy
+msgid "This creates a timeline using the coptic calendar"
+msgstr "Detta alternativ skapar en timeline som använder datum på tidsaxeln"
 
 msgid "Help"
 msgstr "Hjälp"
@@ -4622,9 +4764,6 @@ msgstr ""
 
 msgid "OK"
 msgstr ""
-
-msgid "Close"
-msgstr "Stäng"
 
 msgid "Health issue selector"
 msgstr ""
@@ -9525,9 +9664,13 @@ msgstr "Inga provtagnings-resultat för formatsättning"
 msgid "Test results"
 msgstr "Provtagnings-resultat"
 
-msgid "GNUmed test results export for Gnuplot plotting"
+#, python-format
+msgid "plotted %s (GNUmed v%s)"
 msgstr ""
-"GNUmeds utmatning av provtagnings-resultat för visualisering i GNUplot."
+
+#, fuzzy
+msgid "unknown DOB"
+msgstr "Okänd"
 
 #, fuzzy
 msgid ""
@@ -14652,11 +14795,15 @@ msgstr ""
 msgid "Column &%s (current row): %s"
 msgstr "Dokument: %s"
 
-msgid "&Save to file..."
+msgid "Screen&shot ..."
 msgstr ""
 
 #, fuzzy
-msgid "&Copy to clipboard..."
+msgid "Save to &file..."
+msgstr "Spara som…"
+
+#, fuzzy
+msgid "Copy to &clipboard..."
 msgstr "Misslyckades med att kopiera till klippbordet"
 
 #, fuzzy
@@ -14707,6 +14854,14 @@ msgstr ""
 #, python-format
 msgid "Selected data saved to [%s]."
 msgstr ""
+
+msgid "GMd screenshot"
+msgstr ""
+
+# Skriv upp på lista. Lista.
+#, fuzzy
+msgid "list"
+msgstr "Registrera"
 
 msgid "Monty the Serpent && the FSF Present"
 msgstr ""
@@ -14903,6 +15058,10 @@ msgstr ""
 
 #, python-format
 msgid "The file [%s] has been copied into the clipboard."
+msgstr ""
+
+#, python-format
+msgid "Saved screenshot to file [%s]."
 msgstr ""
 
 msgid "programmer forgot to specify error message"
@@ -15624,6 +15783,31 @@ msgid "clinical progress note"
 msgstr ""
 
 #, fuzzy
+msgid "Cannot add files to export area. No patient."
+msgstr "Kan inte lista undersökningar. Ingen patient vald."
+
+#, fuzzy
+msgid "Cannot import files into export area."
+msgstr "Lägger till ny undersökningstyp"
+
+#, python-format
+msgid ""
+"Successfully imported files into export area.\n"
+"\n"
+"Do you want to delete imported files from the filesystem ?\n"
+"\n"
+" %s"
+msgstr ""
+
+#, fuzzy
+msgid "Removing files"
+msgstr "Tidslinjefiler"
+
+#, fuzzy
+msgid "Imported files into export area."
+msgstr "Lägger till ny undersökningstyp"
+
+#, fuzzy
 msgid "Clearing out a directory"
 msgstr "Välj kategori..."
 
@@ -15850,11 +16034,9 @@ msgstr ""
 msgid "Mailing documents"
 msgstr " %s dokument\n"
 
-#, fuzzy, python-format
-msgid ""
-"Mailed:\n"
-" - %s"
-msgstr "SQL: %s"
+#, fuzzy
+msgid "Mailed export area content."
+msgstr " %s dokument\n"
 
 #, fuzzy
 msgid "Cannot send fax: <gm-fax_doc(.bat)> not found"
@@ -16205,10 +16387,6 @@ msgid ""
 "\n"
 " %s"
 msgstr ""
-
-#, fuzzy
-msgid "Removing files"
-msgstr "Tidslinjefiler"
 
 #, fuzzy
 msgid "Select a document."
@@ -18137,8 +18315,9 @@ msgstr ""
 msgid "Cannot put screenshot into export area. No active patient."
 msgstr "Kan inte lista undersökningar. Ingen patient vald."
 
-msgid "GMd screenshot"
-msgstr ""
+#, fuzzy
+msgid "Cannot put screenshot into export area. No screenshot found."
+msgstr "Kan inte lista undersökningar. Ingen patient vald."
 
 #, python-format
 msgid ""
@@ -18919,10 +19098,6 @@ msgid "This is so that you can inspect the console output at your leisure."
 msgstr ""
 
 msgid "no patient"
-msgstr ""
-
-#, python-format
-msgid "Saved screenshot to file [%s]."
 msgstr ""
 
 msgid "Statusbar history"
@@ -19863,10 +20038,6 @@ msgid ""
 "Note that deletion is not reversible."
 msgstr ""
 
-#, fuzzy
-msgid "unknown DOB"
-msgstr "Okänd"
-
 msgid "Showing unmatched incoming data"
 msgstr ""
 
@@ -19941,6 +20112,19 @@ msgstr ""
 
 msgid "Cannot plot without a plot script."
 msgstr ""
+
+#, fuzzy
+msgid "Plotted lab results"
+msgstr "korrigerade resultat"
+
+#, fuzzy
+msgid ""
+"Put a copy of the lab results plot into the export area of this patient ?"
+msgstr "Kan inte lista undersökningar. Ingen patient vald."
+
+#, fuzzy
+msgid "lab results plot"
+msgstr "Labsvar"
 
 #, fuzzy
 msgid "no related documents"
@@ -21465,6 +21649,16 @@ msgstr "Avbryt"
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Avbryt och anslut EJ till GNUmed."
+
+#~ msgid "GNUmed test results export for Gnuplot plotting"
+#~ msgstr ""
+#~ "GNUmeds utmatning av provtagnings-resultat för visualisering i GNUplot."
+
+#, fuzzy
+#~ msgid ""
+#~ "Mailed:\n"
+#~ " - %s"
+#~ msgstr "SQL: %s"
 
 #, fuzzy
 #~ msgid "invalid document tree node data type: %s"
