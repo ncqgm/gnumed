@@ -302,12 +302,13 @@ class cDocumentPart(gmBusinessDBObject.cBusinessDBObject):
 			suffix = target_extension
 		)
 		_log.debug('attempting conversion: [%s] -> [<%s>:%s]', filename, target_mime, target_fname)
-		if gmMimeLib.convert_file (
+		converted_fname = gmMimeLib.convert_file (
 			filename = filename,
 			target_mime = target_mime,
 			target_filename = target_fname
-		):
-			return target_fname
+		)
+		if converted_fname is not None:
+			return converted_fname
 
 		_log.warning('conversion failed')
 		if not ignore_conversion_problems:

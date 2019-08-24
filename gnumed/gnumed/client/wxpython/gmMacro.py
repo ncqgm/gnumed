@@ -2461,12 +2461,11 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		if len(parts) > 1:
 			template = parts[1]
 		if len(parts) > 2:
-			target_mime = parts[2].strip()
+			if parts[2].strip() != '':
+				target_mime = parts[2].strip()
 		if len(parts) > 3:
-			target_ext = parts[3].strip()
-		if target_ext is None:
-			if target_mime is not None:
-				target_ext = gmMimeLib.guess_ext_by_mimetype(mimetype = target_mime)
+			if parts[3].strip() != '':
+				target_ext = parts[3].strip()
 
 		expansion = gmKeywordExpansion.get_expansion (
 			keyword = keyword,
@@ -2478,8 +2477,8 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 				return self._escape(_('no binary expansion found for keyword <%s>') % keyword)
 			return ''
 
-		filename = expansion.save_to_file()
-		if filename is None:
+		saved_fname = expansion.save_to_file()
+		if saved_fname is None:
 			if self.debug:
 				return self._escape(_('cannot export data of binary expansion keyword <%s>') % keyword)
 			return ''
@@ -2490,23 +2489,23 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 				caption = _('GnuPG passphrase prompt'),
 				default_value = ''
 			)
-			filename = gmCrypto.gpg_decrypt_file(filename = filename, passphrase = pwd)
-			if filename is None:
+			saved_fname = gmCrypto.gpg_decrypt_file(filename = saved_fname, passphrase = pwd)
+			if saved_fname is None:
 				if self.debug:
 					return self._escape(_('cannot decrypt data of binary expansion keyword <%s>') % keyword)
 				return ''
 
-		target_fname = gmTools.get_unique_filename (
-			prefix = '%s-converted-' % os.path.splitext(filename)[0],
-			suffix = target_ext
-		)
-		if not gmMimeLib.convert_file(filename = filename, target_mime = target_mime, target_filename = target_fname):
+		if target_mime is None:
+			return template % saved_fname
+
+		converted_fname = gmMimeLib.convert_file(filename = saved_fname, target_mime = target_mime, target_extension = target_ext)
+		if converted_fname is None:
 			if self.debug:
 				return self._escape(_('cannot convert data of binary expansion keyword <%s>') % keyword)
 			# hoping that the target can cope:
-			return template % filename
+			return template % saved_fname
 
-		return template % target_fname
+		return template % converted_fname
 
 	#--------------------------------------------------------
 	def _get_variant_qrcode(self, data=None):

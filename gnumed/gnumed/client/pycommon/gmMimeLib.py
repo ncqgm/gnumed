@@ -148,7 +148,7 @@ def guess_ext_by_mimetype(mimetype=''):
 	# ask system first
 	ext = mimetypes.guess_extension(mimetype)
 	if ext is not None:
-		_log.debug('<%s>: *.%s' % (mimetype, ext))
+		_log.debug('<%s>: %s' % (mimetype, ext))
 		return ext
 
 	_log.error("<%s>: no suitable file extension known to the OS" % mimetype)
@@ -162,7 +162,7 @@ def guess_ext_by_mimetype(mimetype=''):
 	)
 
 	if ext is not None:
-		_log.debug('<%s>: *.%s (%s)' % (mimetype, ext, candidate))
+		_log.debug('<%s>: %s (%s)' % (mimetype, ext, candidate))
 		return ext
 
 	_log.error("<%s>: no suitable file extension found in config files" % mimetype)
@@ -246,49 +246,58 @@ def _get_system_startfile_cmd(filename):
 	return False, None
 
 #-----------------------------------------------------------------------------------
-def convert_file(filename=None, target_mime=None, target_filename=None, target_extension=None):
+def convert_file(filename=None, target_mime=None, target_filename=None, target_extension=None, verbose=False):
 	"""Convert file from one format into another.
 
 		target_mime: a mime type
 	"""
+	assert (target_mime is not None), '<target_mime> must not be None'
+	assert (filename is not None), '<filename> must not be None'
+	assert (filename != target_filename), '<target_filename> must be different from <filename>'
+
 	source_mime = guess_mimetype(filename = filename)
 	if source_mime.lower() == target_mime.lower():
 		_log.debug('source file [%s] already target mime type [%s]', filename, target_mime)
+		if target_filename is None:
+			return filename
+
 		shutil.copyfile(filename, target_filename)
-		return True
+		return target_filename
 
-	if target_extension is None:
-		tmp, target_extension = os.path.splitext(target_filename)
-
-	base_name = 'gm-convert_file'
-
+	converted_ext = guess_ext_by_mimetype(target_mime)
+	if converted_ext is None:
+		if target_filename is not None:
+			tmp, converted_ext = os.path.splitext(target_filename)
+	if converted_ext is None:
+		converted_ext = target_extension		# can still stay None
+	converted_fname = gmTools.get_unique_filename(suffix = converted_ext)
+	_log.debug('attempting conversion: [%s] -> [<%s>:%s]', filename, target_mime, gmTools.coalesce(target_filename, converted_fname))
+	script_name = 'gm-convert_file'
 	paths = gmTools.gmPaths()
-	local_script = os.path.join(paths.local_base_dir, '..', 'external-tools', base_name)
-
-	candidates = [ base_name, local_script ]		#, base_name + u'.bat'
+	local_script = os.path.join(paths.local_base_dir, '..', 'external-tools', script_name)
+	candidates = [ script_name, local_script ]		#, script_name + u'.bat'
 	found, binary = gmShellAPI.find_first_binary(binaries = candidates)
 	if not found:
-		binary = base_name# + r'.bat'
-
+		# try anyway
+		binary = script_name# + r'.bat'
+	_log.debug('<%s> API: SOURCEFILE TARGET_MIMETYPE TARGET_EXTENSION TARGET_FILENAME' % binary)
 	cmd_line = [
 		binary,
 		filename,
 		target_mime,
-		target_extension.strip('.'),
-		target_filename
+		converted_ext.lstrip('.'),
+		converted_fname
 	]
-	_log.debug('converting: %s', cmd_line)
-	try:
-		gm_convert = subprocess.Popen(cmd_line)
-	except OSError:
-		_log.debug('cannot run <%s(.bat)>', base_name)
-		return False
-	gm_convert.communicate()
-	if gm_convert.returncode != 0:
-		_log.error('<%s(.bat)> returned [%s], failed to convert', base_name, gm_convert.returncode)
-		return False
+	success, returncode, stdout = gmShellAPI.run_process(cmd_line = cmd_line, verbose = True)
+	if not success:
+		_log.error('conversion failed')
+		return None
 
-	return True
+	if target_filename is None:
+		return converted_fname
+
+	shutil.copyfile(converted_fname, target_filename)
+	return target_filename
 
 #-----------------------------------------------------------------------------------
 def __run_file_describer(filename=None):
@@ -534,7 +543,15 @@ if __name__ == "__main__":
 		print(desc)
 
 	#--------------------------------------------------------
+	def test_convert_file():
+		print(convert_file (
+			filename = filename,
+			target_mime = sys.argv[3]
+			#,target_filename = filename + ,
+			#target_extension=None
+		))
 
+	#--------------------------------------------------------
 #	print(_system_startfile_cmd)
 #	print(guess_mimetype(filename))
 #	print(get_viewer_cmd(guess_mimetype(filename), filename))
@@ -544,9 +561,9 @@ if __name__ == "__main__":
 #	print(get_editor_cmd('text/latex', filename))
 #	print(get_editor_cmd('text/tex', filename))
 #	print(get_editor_cmd('text/plain', filename))
-#	print(guess_ext_by_mimetype(mimetype=filename))
+	#print(guess_ext_by_mimetype(mimetype=filename))
 #	call_viewer_on_file(aFile = filename, block = True)
 	#call_editor_on_file(filename)
-	test_describer()
-
+	#test_describer()
 	#print(test_edit())
+	test_convert_file()

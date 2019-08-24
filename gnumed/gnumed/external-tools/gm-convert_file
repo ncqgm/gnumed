@@ -20,14 +20,18 @@
 # to actually use it.
 #
 # ===========================================================
+# GNUmed calling API:
 INPUT_FILE="$1"
 TARGET_MIME="$2"
 TARGET_EXTENSION="$3"
 TARGET_FILENAME="$4"
 
 # ----------------------------------------------------------
-CONVERTER="convert -regard-warnings "			# requires imagemagick
-CMD_LINE="${INPUT_FILE} ${TARGET_EXTENSION}:${TARGET_FILENAME}"
+# requires imagemagick
+#CONVERTER="convert -regard-warnings -verbose -debug All "
+CONVERTER="convert -regard-warnings -verbose "
+#CMD_LINE="${INPUT_FILE} ${TARGET_EXTENSION}:${TARGET_FILENAME}"
+CMD_LINE="${INPUT_FILE} ${TARGET_FILENAME}"
 RUN_CONVERTER="${CONVERTER} ${CMD_LINE}"
 
 
@@ -44,11 +48,9 @@ fi
 
 
 rm -f ${TARGET_FILENAME}
-rm -f ${TARGET_EXTENSION}:${TARGET_FILENAME}
 ${RUN_CONVERTER}
 if test "$?" != "0" ; then
 	rm -f ${TARGET_FILENAME}
-	rm -f ${TARGET_EXTENSION}:${TARGET_FILENAME}
 	exit 1
 fi
 

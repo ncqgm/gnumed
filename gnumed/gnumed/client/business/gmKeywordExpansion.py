@@ -68,13 +68,13 @@ class cKeywordExpansion(gmBusinessDBObject.cBusinessDBObject):
 		if self._payload[self._idx['data_size']] == 0:
 			return None
 
-		filename = gmTools.get_unique_filename(prefix = 'gm-data_snippet-')
+		exported_fname = gmTools.get_unique_filename(prefix = 'gm-data_snippet-')
 		success = gmPG2.bytea2file (
 			data_query = {
 				'cmd': 'SELECT substring(binary_data from %(start)s for %(size)s) FROM ref.keyword_expansion WHERE pk = %(pk)s',
 				'args': {'pk': self.pk_obj}
 			},
-			filename = filename,
+			filename = exported_fname,
 			chunk_size = aChunkSize,
 			data_size = self._payload[self._idx['data_size']]
 		)
@@ -83,29 +83,18 @@ class cKeywordExpansion(gmBusinessDBObject.cBusinessDBObject):
 			return None
 
 		if target_mime is None:
-			return filename
+			return exported_fname
 
-		if target_extension is None:
-			target_extension = gmMimeLib.guess_ext_by_mimetype(mimetype = target_mime)
-
-		target_fname = gmTools.get_unique_filename (
-			prefix = 'gm-data_snippet-converted-',
-			suffix = target_extension
-		)
-		_log.debug('attempting conversion: [%s] -> [<%s>:%s]', filename, target_mime, target_fname)
-		if gmMimeLib.convert_file (
-			filename = filename,
-			target_mime = target_mime,
-			target_filename = target_fname
-		):
-			return target_fname
+		converted_fname = gmMimeLib.convert_file(filename = exported_fname, target_mime = target_mime)
+		if converted_fname is not None:
+			return converted_fname
 
 		_log.warning('conversion failed')
-		if not ignore_conversion_problems:
-			return None
+		if ignore_conversion_problems:
+			_log.warning('programmed to ignore conversion problems, hoping receiver can handle [%s]', exported_fname)
+			return exported_fname
 
-		_log.warning('programmed to ignore conversion problems, hoping receiver can handle [%s]', filename)
-		return filename
+		return None
 
 	#--------------------------------------------------------
 	def update_data_from_file(self, filename=None):
