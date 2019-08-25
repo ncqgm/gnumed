@@ -14,6 +14,7 @@ FIX: meds/substance EA: exception when no LOINC selected
 FIX: data/ATC: fix reference data import
 FIX: meds/dose EA: exception on saving
 FIX: meds/product EA: exception on creating new product
+FIX: dist: fix appdata.xml [thanks Andreas]
 
 	1.7.6
 

@@ -35,7 +35,7 @@
 	<screenshot type="default">
 		<image>https://screenshots.debian.net/screenshots/000/002/117/large.png</image>
 		<caption>The main window showing one of the ways to enter Progress Notes during a patient encounter</caption>
-	</screenshot
+	</screenshot>
  </screenshots>
  <url type="homepage">https://www.gnumed.de</url>
  <update_contact>gnumed-devel_AT_gnu.org</update_contact>
