@@ -64,7 +64,4 @@ if [ -r ${HOME}/.gnumed/scripts/gnumed-shutdown-local.sh ] ; then
 fi
 
 
-# maybe sync the discs just in case so we don't loose log files
-#sync
-
 #==================================================
