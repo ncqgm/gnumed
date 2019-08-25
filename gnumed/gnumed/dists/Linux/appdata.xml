@@ -29,12 +29,9 @@
 	</p>
  </description>
  <screenshots>
-	<!--<screenshot type="default">
-		<caption>http://wiki.gnumed.de</caption>
-	</screenshot>-->
 	<screenshot type="default">
 		<image>https://screenshots.debian.net/screenshots/000/002/117/large.png</image>
-		<caption>The main window showing one of the ways to enter Progress Notes during a patient encounter</caption>
+		<caption>Main window showing progress notes entry during patient encounter</caption>
 	</screenshot>
  </screenshots>
  <url type="homepage">https://www.gnumed.de</url>
