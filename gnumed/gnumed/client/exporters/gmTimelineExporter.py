@@ -32,7 +32,8 @@ ERA_NAME_CARE_PERIOD = _('Care Period')
 #============================================================
 xml_start = """<?xml version="1.0" encoding="utf-8"?>
 <timeline>
-	<version>1.16.0</version>
+	<version>1.20.0</version>
+	<timetype>gregoriantime</timetype>
 	<!-- ======================================== Eras ======================================== -->
 	<eras>
 		<era>

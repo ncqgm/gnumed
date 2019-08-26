@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+
+    <xs:complexType name="era">
+        <xs:sequence>
+            <xs:element name="name" type="xs:string"/>
+            <xs:element name="start" type="xs:string"/>
+            <xs:element name="end" type="xs:string"/>
+            <xs:element name="color" type="xs:string"/>
+            <xs:element name="ends_today" type="xs:string" minOccurs="0" maxOccurs="1"/>
+        </xs:sequence>
+    </xs:complexType>
+
+
+    <xs:complexType name="eras-list">
+        <xs:sequence>
+            <xs:element name="era" type="era" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+
+    <xs:complexType name="category">
+        <xs:sequence>
+            <xs:element name="name" type="xs:string"/>
+            <xs:element name="color" type="xs:string"/>
+            <xs:element name="progress_color" minOccurs="0" maxOccurs="1" type="xs:string"/>
+            <xs:element name="done_color" minOccurs="0" maxOccurs="1" type="xs:string"/>
+            <xs:element name="font_color" minOccurs="0" maxOccurs="1" type="xs:string"/>
+            <xs:element name="parent" minOccurs="0" maxOccurs="1" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+
+
+    <xs:complexType name="category-list">
+        <xs:sequence>
+            <xs:element name="category" type="category" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+
+    <xs:complexType name="event">
+        <xs:sequence>
+            <xs:element name="start" type="xs:string"/>
+            <xs:element name="end" type="xs:string"/>
+            <xs:element name="text" type="xs:string"/>
+            <xs:element name="progress" type="xs:string" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="fuzzy" type="xs:string" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="locked" type="xs:string" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="ends_today" type="xs:string" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="category" type="xs:string" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="description" type="xs:string" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="hyperlink" type="xs:string" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="alert" type="xs:string" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="icon" type="xs:string" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="default_color" type="xs:string" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="milestone" type="xs:string" minOccurs="0" maxOccurs="1"/>
+        </xs:sequence>
+    </xs:complexType>
+
+
+    <xs:complexType name="event-list">
+        <xs:sequence>
+            <xs:element name="event" type="event" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+
+    <xs:complexType name="view">
+        <xs:sequence>
+            <xs:element name="displayed_period" type="displayed_period"/>
+            <xs:element name="hidden_categories" type="hidden_categories"/>
+        </xs:sequence>
+    </xs:complexType>
+
+
+    <xs:complexType name="displayed_period">
+        <xs:sequence>
+            <xs:element name="start" type="xs:string"/>
+            <xs:element name="end" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+
+
+    <xs:complexType name="hidden_categories">
+        <xs:sequence>
+            <xs:element name="name"  minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+
+    <xs:element name="timeline">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="version" type="xs:string"/>
+                <xs:element name="timetype" type="xs:string"/>
+                <xs:element name="eras" type="eras-list"/>
+                <xs:element name="categories" type="category-list"/>
+                <xs:element name="events" type="event-list"/>
+                <xs:element name="view" type="view"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+</xs:schema>

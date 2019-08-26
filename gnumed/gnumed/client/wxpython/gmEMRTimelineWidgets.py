@@ -14,6 +14,7 @@ import os.path
 
 # 3rd party
 import wx
+import lxml.etree as lxml_etree
 
 
 # GNUmed libs
@@ -158,9 +159,11 @@ class cEMRTimelinePnl(TimelineCanvas):
 		self.SetTimeline(None)
 
 	#--------------------------------------------------------
-	def open_timeline(self, tl_file):
+	def open_timeline(self, tl_filename):
+		if not self._validate_timeline_file(tl_filename):
+			gmDispatcher.send(signal = 'statustext', msg = 'Timeline file failed to validate.')
 		from Gnumed.timelinelib.db import db_open
-		db = db_open(tl_file)
+		db = db_open(tl_filename)
 		db.display_in_canvas(self)
 		self.fit_care_era()
 
@@ -222,6 +225,45 @@ class cEMRTimelinePnl(TimelineCanvas):
 		last_year = TimePeriod(g_start, g_end)
 		self.Navigate(lambda tp: tp.update(last_year.start_time, last_year.end_time))
 
+	#--------------------------------------------------------
+	def _validate_timeline_file(self, tl_filename):
+		xsd_name = 'timeline.xsd'
+		xsd_paths = [
+			os.path.join(gmTools.gmPaths().system_app_data_dir, 'resources', 'timeline', xsd_name),
+			# maybe in dev tree
+			os.path.join(gmTools.gmPaths().local_base_dir, 'resources', 'timeline', xsd_name)
+		]
+		xml_schema = None
+		for xsd_filename in xsd_paths:
+			_log.debug('XSD: %s', xsd_filename)
+			if not os.path.exists(xsd_filename):
+				_log.warning('not found')
+				continue
+			try:
+				xml_schema = lxml_etree.XMLSchema(file = xsd_filename)
+				break
+			except lxml_etree.XMLSchemaParseError:
+				_log.exception('cannot parse')
+		if xml_schema is None:
+			_log.error('no XSD found')
+			return False
+
+		with open(tl_filename, encoding = 'utf-8') as tl_file:
+			try:
+				xml_doc = lxml_etree.parse(tl_file)
+			except lxml_etree.XMLSyntaxError:
+				_log.exception('[%s] does not parse as XML', tl_filename)
+				return False
+
+		if xml_schema.validate(xml_doc):
+			_log.debug('[%s] seems valid', tl_filename)
+			return True
+
+		_log.warning('[%s] does not validate against [%s]', tl_filename, xsd_filename)
+		for entry in xml_schema.error_log:
+			_log.debug(entry)
+		return False
+
 #============================================================
 from Gnumed.wxGladeWidgets import wxgEMRTimelinePluginPnl
 
@@ -266,6 +308,7 @@ class cEMRTimelinePluginPnl(wxgEMRTimelinePluginPnl.wxgEMRTimelinePluginPnl, gmR
 		dlg.DestroyLater()
 		if choice != wx.ID_OK:
 			return False
+
 		self._PNL_timeline.export_as_svg(filename = fname)
 		self._PNL_timeline.export_as_png(filename = gmTools.fname_stem_with_path(fname) + '.png')
 
@@ -283,9 +326,9 @@ class cEMRTimelinePluginPnl(wxgEMRTimelinePluginPnl.wxgEMRTimelinePluginPnl, gmR
 		pat = gmPerson.gmCurrentPatient()
 		if not pat.connected:
 			return
+		pat.export_area.add_file(filename = self.__tl_file, hint = _('timeline data (xml)'))
 		pat.export_area.add_file(filename = self._PNL_timeline.export_as_png(), hint = _('timeline image (png)'))
 		pat.export_area.add_file(filename = self._PNL_timeline.export_as_svg(), hint = _('timeline image (svg)'))
-		pat.export_area.add_file(filename = self.__tl_file, hint = _('timeline data (xml)'))
 
 	#--------------------------------------------------------
 	def _on_zoom_in_button_pressed(self, event):
