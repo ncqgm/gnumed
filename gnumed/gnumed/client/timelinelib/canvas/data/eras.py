@@ -43,7 +43,11 @@ class Eras(object):
             return e.get_time_period().start_time
 
         def merge_colors(c1, c2):
-            return ((c1[0] + c2[0]) / 2, (c1[1] + c2[1]) / 2, (c1[2] + c2[2]) / 2)
+            return (
+                (c1[0] + c2[0]) // 2,
+                (c1[1] + c2[1]) // 2,
+                (c1[2] + c2[2]) // 2
+            )
 
         def create_overlapping_era(e0, e1, start, end):
             era = e1.duplicate()

@@ -17,7 +17,7 @@
 
 
 from timelinelib.plugin.pluginbase import PluginBase
-from timelinelib.plugin.factory import TEXT_TRANSFORMER
+from timelinelib.plugin.plugins.texttransformers import TEXT_TRANSFORMER
 
 
 class DefaultTextTransformer(PluginBase):

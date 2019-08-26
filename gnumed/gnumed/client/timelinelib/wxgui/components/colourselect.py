@@ -25,6 +25,6 @@ class ColourSelect(wx.lib.colourselect.ColourSelect):
         wx.lib.colourselect.ColourSelect.__init__(self, parent, *args, **kwargs)
 
     def GetValueAsRgbTuple(self):
-        # Convert wx.Colour to (r, g, b) tuple
-        (r, g, b) = self.GetValue()
-        return (r, g, b)
+        """Convert wx.Colour to (r, g, b) tuple."""
+        (r, g, b) = self.GetValue()[:3]
+        return r, g, b

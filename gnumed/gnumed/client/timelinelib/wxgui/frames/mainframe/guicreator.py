@@ -62,7 +62,6 @@ ID_SET_CATEGORY_ON_SELECTED = wx.NewId()
 ID_MEASURE_DISTANCE = wx.NewId()
 ID_COMPRESS = wx.NewId()
 ID_SET_CATEGORY_ON_WITHOUT = wx.NewId()
-ID_EDIT_CATEGORIES = wx.NewId()
 ID_EDIT_ERAS = wx.NewId()
 ID_SET_READONLY = wx.NewId()
 ID_FIND_FIRST = wx.NewId()
@@ -275,10 +274,10 @@ class GuiCreator(object):
             DrawingAreaProxy(self).zoom_out()
 
         def vert_zoomin(evt):
-            DrawingAreaProxy(self).VertZoomIn()
+            DrawingAreaProxy(self).vertical_zoom_in()
 
         def vert_zoomout(evt):
-            DrawingAreaProxy(self).VertZoomOut()
+            DrawingAreaProxy(self).vertical_zoom_out()
 
         def start_slide_show(evt):
             canvas = self.main_panel.get_timeline_canvas()
@@ -334,7 +333,9 @@ class GuiCreator(object):
 
         items = []
         for plugin in factory.get_plugins(EVENTBOX_DRAWER):
-            if (plugin.display_name() == self.config.get_selected_event_box_drawer()):
+            plugin_name = str(plugin.display_name().encode('utf-8'))
+            selected_name = self.config.get_selected_event_box_drawer()
+            if plugin_name == selected_name:
                 items.append((wx.ID_ANY, create_click_handler(plugin), plugin.display_name(), CHECKED_RB))
             else:
                 items.append((wx.ID_ANY, create_click_handler(plugin), plugin.display_name(), UNCHECKED_RB))
@@ -433,11 +434,6 @@ class GuiCreator(object):
                 self._set_category()
             safe_locking(self, edit_function)
 
-        def edit_categories(evt):
-            def edit_function():
-                self._edit_categories()
-            safe_locking(self, edit_function)
-
         def edit_eras(evt):
             def edit_function():
                 self._edit_eras()
@@ -477,7 +473,6 @@ class GuiCreator(object):
                       None,
                       (ID_SET_CATEGORY_ON_WITHOUT, set_category_on_without,
                        _("Set Category on events &without category..."), cbx),
-                      (ID_EDIT_CATEGORIES, edit_categories, _("Edit &Categories"), cbx),
                       None,
                       (ID_EDIT_ERAS, edit_eras, _("Edit Era's..."), cbx),
                       None,
@@ -497,7 +492,6 @@ class GuiCreator(object):
         self._add_to_controller_requiring_writeable_timeline(menu, ID_SET_CATEGORY_ON_SELECTED)
         self._add_to_controller_requiring_writeable_timeline(menu, ID_MEASURE_DISTANCE)
         self._add_to_controller_requiring_writeable_timeline(menu, ID_SET_CATEGORY_ON_WITHOUT)
-        self._add_to_controller_requiring_writeable_timeline(menu, ID_EDIT_CATEGORIES)
         self._add_to_controller_requiring_writeable_timeline(menu, ID_SET_READONLY)
         self._add_to_controller_requiring_writeable_timeline(menu, ID_EDIT_ERAS)
         self._add_to_controller_requiring_writeable_timeline(menu, ID_COMPRESS)

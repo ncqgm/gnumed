@@ -39,7 +39,6 @@ from timelinelib.wxgui.frames.helpbrowserframe.helpbrowserframe import HelpBrows
 from timelinelib.wxgui.frames.mainframe.mainframecontroller import LockedException
 from timelinelib.wxgui.frames.mainframe.mainframecontroller import MainFrameController
 from timelinelib.wxgui.timer import TimelineTimer
-from timelinelib.wxgui.utils import display_categories_editor_moved_message
 from timelinelib.wxgui.utils import display_error_message
 from timelinelib.wxgui.utils import display_information_message
 from timelinelib.wxgui.utils import WildcardHelper
@@ -293,9 +292,6 @@ class MainFrame(wx.Frame, guic.GuiCreator, MainFrameApiUsedByController):
         dialog = SetCategoryDialog(self, self.timeline, selected_event_ids)
         dialog.ShowModal()
         dialog.Destroy()
-
-    def _edit_categories(self):
-        display_categories_editor_moved_message(self)
 
     def _edit_eras(self):
         dialog = ErasEditorDialog(self, self.timeline, self.config)

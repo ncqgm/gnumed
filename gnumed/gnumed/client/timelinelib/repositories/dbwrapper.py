@@ -18,7 +18,7 @@
 
 from timelinelib.repositories.interface import CategoryRepository
 from timelinelib.repositories.interface import EventRepository
-from timelinelib.wxgui.utils import category_tree
+from timelinelib.canvas.data import sort_categories
 
 
 class DbWrapperCategoryRepository(CategoryRepository):
@@ -43,3 +43,25 @@ class DbWrapperEventRepository(EventRepository):
 
     def save(self, event):
         self.db.save_event(event)
+
+
+def category_tree(category_list, parent=None, remove=None):
+    """
+    Transform flat list of categories to a tree based on parent attribute.
+
+    The top-level categories have the given parent and each level in the tree
+    is sorted.
+
+    If remove is given then the subtree with remove as root will not be
+    included.
+
+    The tree is represented as a list of tuples, (cat, sub-tree), where cat is
+    the parent category and subtree is the same tree representation of the
+    children.
+    """
+    children = [child for child in category_list
+                if (child.parent == parent and child != remove)]
+    sorted_children = sort_categories(children)
+    tree = [(x, category_tree(category_list, x, remove))
+            for x in sorted_children]
+    return tree

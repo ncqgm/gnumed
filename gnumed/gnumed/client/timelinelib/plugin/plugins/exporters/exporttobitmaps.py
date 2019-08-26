@@ -15,10 +15,26 @@
 # You should have received a copy of the GNU General Public License
 # along with Timeline.  If not, see <http://www.gnu.org/licenses/>.
 
-
 """
 
 """
 
 
-TEXT_TRANSFORMER = "texttransformer"
+from timelinelib.plugin.pluginbase import PluginBase
+from .import EXPORTER, export_to_images
+
+
+class MultiBitmapExporter(PluginBase):
+
+    def service(self):
+        return EXPORTER
+
+    def display_name(self):
+        return _("Export Whole Timeline to Images...")
+
+    def wxid(self):
+        from timelinelib.wxgui.frames.mainframe.guicreator import ID_EXPORT_ALL
+        return ID_EXPORT_ALL
+
+    def run(self, main_frame):
+        export_to_images(main_frame)

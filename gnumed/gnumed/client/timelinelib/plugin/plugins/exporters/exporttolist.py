@@ -20,7 +20,7 @@ import wx
 
 from timelinelib.wxgui.utils import BORDER
 from timelinelib.plugin.pluginbase import PluginBase
-from timelinelib.plugin.factory import EXPORTER
+from timelinelib.plugin.plugins.exporters import EXPORTER
 from timelinelib.wxgui.components.dialogbuttonssizers.dialogbuttonsclosesizer import DialogButtonsCloseSizer
 import wx.lib.mixins.listctrl as listmix
 

@@ -23,9 +23,9 @@ TYPE_DEV = "development"
 TYPE_BETA = "beta"
 TYPE_FINAL = ""
 VERSION = (2, 0, 0)
-TYPE = TYPE_BETA
-REVISION_HASH = "e73292739f1c"
-REVISION_DATE = "2019-08-13"
+TYPE = TYPE_DEV
+REVISION_HASH = ""
+REVISION_DATE = ""
 
 
 def get_full_version():

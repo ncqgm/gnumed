@@ -202,7 +202,7 @@ class TimelineCanvas(wx.Panel):
         return self._controller.get_view_properties()
 
     def SaveAsPng(self, path):
-        wx.ImageFromBitmap(self._surface_bitmap).SaveFile(path, wx.BITMAP_TYPE_PNG)
+        self._surface_bitmap.ConvertToImage().SaveFile(path, wx.BITMAP_TYPE_PNG)
 
     def SaveAsSvg(self, path):
         from timelinelib.canvas.svg import export
@@ -258,10 +258,10 @@ class TimelineCanvas(wx.Panel):
         x_percent_of_width = float(x) / width
         self.Navigate(lambda tp: tp.zoom(direction, x_percent_of_width))
 
-    def VertZoomIn(self):
+    def vertical_zoom_in(self):
         self.ZoomVertically(1)
 
-    def VertZoomOut(self):
+    def vertical_zoom_out(self):
         self.ZoomVertically(-1)
 
     def ZoomVertically(self, direction):
@@ -569,7 +569,11 @@ class TimelineCanvas(wx.Panel):
 
     def GetPeriodChoices(self):
         return self._controller.get_period_choices()
-    
+
+    @property
+    def view_properties(self):
+        return self._controller.view_properties
+
     # ------------
 
     def _scroll_up(self):

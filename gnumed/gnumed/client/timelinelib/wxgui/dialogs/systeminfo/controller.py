@@ -17,7 +17,6 @@
 
 
 from sys import version as python_version
-import locale
 import platform
 import wx
 
@@ -46,7 +45,10 @@ class SystemInfoDialogController(Controller):
 
     def _get_locale_setting(self):
         try:
-            return " ".join(locale.getlocale(locale.LC_TIME))
+            loc = wx.Locale()
+            language_name = loc.GetLanguageName(loc.GetSystemLanguage())
+            encoding_name = loc.GetSystemEncodingName()
+            return "%s %s" % (language_name, encoding_name)
         except TypeError:
             return " "
 

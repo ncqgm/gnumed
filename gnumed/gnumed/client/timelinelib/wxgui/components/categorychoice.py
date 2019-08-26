@@ -26,12 +26,11 @@ import timelinelib.wxgui.utils as gui_utils
 
 class CategoryChoice(wx.Choice):
 
-    def __init__(self, parent, timeline, allow_add=False, allow_edit=False, **kwargs):
+    def __init__(self, parent, timeline, allow_add=False, **kwargs):
         wx.Choice.__init__(self, parent, wx.ID_ANY, **kwargs)
         self.timeline = timeline
         self.category_repository = DbWrapperCategoryRepository(self.timeline)
         self.allow_add = allow_add
-        self.allow_edit = allow_edit
         self.Bind(wx.EVT_CHOICE, self._on_choice)
         self._clear()
 
@@ -67,14 +66,11 @@ class CategoryChoice(wx.Choice):
         self.Append("", None)
         self._append_tree(tree)
         self.last_real_category_index = self.GetCount() - 1
-        if self.allow_add or self.allow_edit:
+        if self.allow_add:
             self.Append("", None)
         if self.allow_add:
             self.add_category_item_index = self.GetCount()
             self.Append(_("Add new"), None)
-        if self.allow_edit:
-            self.edit_categoris_item_index = self.GetCount()
-            self.Append(_("Edit categories"), None)
 
     def _append_tree(self, tree, indent=""):
         for (category, subtree) in tree:
@@ -87,20 +83,11 @@ class CategoryChoice(wx.Choice):
             self.SetSelection(self.current_category_selection)
             if new_selection_index == self.add_category_item_index:
                 self._add_category()
-            elif new_selection_index == self.edit_categoris_item_index:
-                self._edit_categories()
         else:
             self.current_category_selection = new_selection_index
 
     def _add_category(self):
-        dialog = EditCategoryDialog(self,
-                                    _("Add Category"),
-                                    self.timeline,
-                                    None)
+        dialog = EditCategoryDialog(self, _("Add Category"), self.timeline, None)
         if dialog.ShowModal() == wx.ID_OK:
-            self.Populate(select=dialog.GetEditedCategory(),
-                          exclude=self.exclude)
+            self.Populate(select=dialog.GetEditedCategory(), exclude=self.exclude)
         dialog.Destroy()
-
-    def _edit_categories(self):
-        gui_utils.display_categories_editor_moved_message(self)

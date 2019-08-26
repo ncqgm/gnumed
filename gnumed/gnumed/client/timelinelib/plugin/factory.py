@@ -16,16 +16,42 @@
 # along with Timeline.  If not, see <http://www.gnu.org/licenses/>.
 
 
-import sys
-from inspect import isclass
-import pkgutil
-import timelinelib
+from timelinelib.plugin.plugins.eventboxdrawers import EVENTBOX_DRAWER
+from timelinelib.plugin.plugins.exporters import EXPORTER
+from timelinelib.plugin.plugins.texttransformers import TEXT_TRANSFORMER
+from timelinelib.plugin.plugins.eventboxdrawers.defaulteventboxdrawer import DefaultEventBoxDrawer
+from timelinelib.plugin.plugins.eventboxdrawers.gradienteventboxdrawer import GradientEventBoxDrawer
+from timelinelib.plugin.plugins.eventboxdrawers.othergradienteventboxdrawer import OtherGradientEventBoxDrawer
+from timelinelib.plugin.plugins.eventboxdrawers.othergradienteventboxdrawerfuzzyedges import OtherGradientEventBoxDrawerFuzzyEdges
+from timelinelib.plugin.plugins.exporters.timelineexporter import TimelineExporter
+from timelinelib.plugin.plugins.exporters.exporttosvg import SvgExporter
+from timelinelib.plugin.plugins.exporters.exporttolist import ListExporter
+from timelinelib.plugin.plugins.exporters.exporttobitmap import BitmapExporter
+from timelinelib.plugin.plugins.exporters.exporttobitmaps import MultiBitmapExporter
+from timelinelib.plugin.plugins.texttransformers.defaulttexttransformer import DefaultTextTransformer
+from timelinelib.plugin.plugins.texttransformers.plaintexttohtml import PlainTextToHtml
 
 
-EVENTBOX_DRAWER = "eventboxdrawer"
-EXPORTER = "exporter"
-TEXT_TRANSFORMER = "texttransformer"
 VALID_SERVICES = [EVENTBOX_DRAWER, EXPORTER, TEXT_TRANSFORMER]
+PLUGINS = {
+    EVENTBOX_DRAWER: [
+        DefaultEventBoxDrawer(),
+        GradientEventBoxDrawer(),
+        OtherGradientEventBoxDrawer(),
+        OtherGradientEventBoxDrawerFuzzyEdges(),
+    ],
+    EXPORTER: [
+        SvgExporter(),
+        ListExporter(),
+        BitmapExporter(),
+        MultiBitmapExporter(),
+        TimelineExporter(),
+    ],
+    TEXT_TRANSFORMER: [
+        DefaultTextTransformer(),
+        PlainTextToHtml(),
+    ]
+}
 
 
 class PluginException(Exception):
@@ -34,80 +60,15 @@ class PluginException(Exception):
 
 class PluginFactory(object):
 
-    def __init__(self):
-        self.plugins = {}
-
-    def load_plugins(self):
-        candidates = self._get_candidate_modules()
-        class_names = []
-        for candidate in candidates:
-            classes = [x for x in dir(candidate) if isclass(getattr(candidate, x))]
-            for cl in classes:
-                if cl not in class_names:
-                    class_names.append(cl)
-                    self._save_class_instance_for_plugins(candidate, cl)
-
     def get_plugins(self, service):
         try:
-            return self.plugins[service]
+            return PLUGINS[service]
         except:
-            pass
+            return []
 
     def get_plugin(self, service, name):
         try:
-            return [plugin for plugin in self.get_plugins(service) if plugin.display_name() == _(name)][0]
+            return [plugin for plugin in PLUGINS[service] if str(plugin.display_name().encode('utf-8')) == name][0]
         except:
             pass
 
-    def _save_class_instance_for_plugins(self, candidate, cl):
-        class_ = getattr(candidate, cl)
-        try:
-            instance = class_()
-            try:
-                self._validate_plugin(instance)
-                self._save_plugin(instance)
-            except:
-                pass
-        except:
-            pass
-
-    def _get_candidate_modules(self):
-        modules = self._find_modules("plugins")
-        return [self._import_module("timelinelib.plugin.%s" % mod) for mod in modules]
-
-    def _find_modules(self, subdir):
-        name_offset = len('timelinelib.plugin.')
-        package = timelinelib
-        module_names = []
-        for importer, modname, ispkg in pkgutil.walk_packages(path=package.__path__,
-                                                              prefix=package.__name__+'.',
-                                                              onerror=lambda x: None):
-            if modname.startswith('timelinelib.plugin.%s' % subdir) and not ispkg:
-                module_names.append(modname[name_offset:])
-        return module_names
-
-    def _import_module(self, module_name):
-        __import__(module_name)
-        return sys.modules[module_name]
-
-    def _validate_plugin(self, instance):
-        self._get_plugin_method(instance, "isplugin")
-        self._get_plugin_method(instance, "service")
-        self._get_plugin_method(instance, "display_name")
-        if not instance.isplugin():
-            print("NP")
-            raise PluginException()
-        if instance.service() not in VALID_SERVICES:
-            print("NVS")
-            raise PluginException()
-
-    def _get_plugin_method(self, obj, method_name):
-        method = getattr(obj, method_name, None)
-        if not callable(method):
-            raise PluginException()
-
-    def _save_plugin(self, instance):
-        if instance.service() in self.plugins.keys():
-            self.plugins[instance.service()].append(instance)
-        else:
-            self.plugins[instance.service()] = [instance]

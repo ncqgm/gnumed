@@ -20,7 +20,6 @@ from sys import version as python_version
 import platform
 import sys
 import traceback
-import locale
 
 import wx
 
@@ -85,8 +84,12 @@ def create_versions_message():
 
 
 def create_locale_message():
+    loc = wx.Locale()
+    language_name = loc.GetLanguageName(loc.GetSystemLanguage())
+    encoding_name = loc.GetSystemEncodingName()
+    locale_info = '%s %s' % (language_name, encoding_name)
     return "\n".join([
-        "Locale setting: %s" % " ".join(locale.getlocale(locale.LC_TIME)),
+        "Locale setting: %s" % locale_info,
         "Locale sample date: 3333-11-22",
     ])
 

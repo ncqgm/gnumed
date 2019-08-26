@@ -17,7 +17,7 @@
 
 
 from timelinelib.plugin.pluginbase import PluginBase
-from timelinelib.plugin.factory import EVENTBOX_DRAWER
+from timelinelib.plugin.plugins.eventboxdrawers import EVENTBOX_DRAWER
 
 
 class GradientEventBoxDrawer(PluginBase):

@@ -98,7 +98,6 @@ def get_frame_from_invoking_window(evt):
 
 def get_frame_from_menu_bar(evt):
     evt_object = evt.GetEventObject()
-    if hasattr(evt_object, 'MenuBar'):
-        menu_bar = evt_object.MenuBar
-        if hasattr(menu_bar, 'Parent'):
-            return menu_bar.Parent
+    if hasattr(evt_object, 'Window'):
+        return evt_object.Window
+

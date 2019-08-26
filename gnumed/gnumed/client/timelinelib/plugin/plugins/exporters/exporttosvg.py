@@ -20,7 +20,7 @@ import os
 
 import wx
 
-from timelinelib.plugin.factory import EXPORTER
+from timelinelib.plugin.plugins.exporters import EXPORTER
 from timelinelib.plugin.pluginbase import PluginBase
 from timelinelib.wxgui.utils import _ask_question
 from timelinelib.wxgui.utils import display_error_message

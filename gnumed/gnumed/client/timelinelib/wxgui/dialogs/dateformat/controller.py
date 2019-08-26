@@ -16,7 +16,6 @@
 # along with Timeline.  If not, see <http://www.gnu.org/licenses/>.
 
 
-import locale
 import datetime
 
 from timelinelib.config.dateformatparser import DateFormatParser
@@ -43,7 +42,6 @@ class DateFormatDialogController(Controller):
         return self.dateformat_parser.is_valid(date_format)
 
     def _create_locale_sample_date(self):
-        locale.setlocale(locale.LC_TIME, "")
         sample = datetime.datetime(3333, 11, 22).strftime('%x')
         sample = sample.replace("3", "y")
         sample = sample.replace("2", "d")

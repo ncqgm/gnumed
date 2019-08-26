@@ -45,9 +45,10 @@ except ImportError:
 from pysvg.builders import StyleBuilder
 from pysvg.builders import ShapeBuilder
 
-from timelinelib.canvas.drawing.utils import darken_color
 from timelinelib.canvas.data import sort_categories
+from timelinelib.canvas.drawing.utils import darken_color
 from timelinelib.features.experimental.experimentalfeatures import EXTENDED_CONTAINER_HEIGHT
+from timelinelib.utils import unique_based_on_eq
 
 
 OUTER_PADDING = 5  # Space between event boxes (pixels)
@@ -135,11 +136,11 @@ class SVGDrawingAlgorithm(object):
         return group
 
     def _draw_background(self):
-        svg_color = self._map_svg_color(self._appearence.get_bg_colour()[:3])
+        svg_color = self._map_svg_color(self._appearence.get_bg_colour())
         return ShapeBuilder().createRect(0, 0, self._scene.width, self._scene.height, fill=svg_color)
 
     def _draw_era_strip(self, era):
-        svg_color = self._map_svg_color(era.get_color()[:3])
+        svg_color = self._map_svg_color(era.get_color())
         x, width = self._calc_era_strip_metrics(era)
         return ShapeBuilder().createRect(x, INNER_PADDING, width,
                                          self._scene.height - 2 * INNER_PADDING,
@@ -246,15 +247,17 @@ class SVGDrawingAlgorithm(object):
         """
         map (r,g,b) color to svg string
         """
-        return "#%02X%02X%02X" % color
+        return "#%02X%02X%02X" % color[:3]
 
     def _legend_should_be_drawn(self, categories):
         return self._appearence.get_legend_visible() and len(categories) > 0
 
     def _extract_categories(self):
-        categories = set([event.category for (event, _) in self._scene.event_data
-                          if event.category])
-        return sort_categories(list(categories))
+        return sort_categories(unique_based_on_eq(
+            event.category
+            for (event, _) in self._scene.event_data
+            if event.category
+        ))
 
     def _draw_legend(self, categories):
         """
@@ -424,13 +427,7 @@ class SVGDrawingAlgorithm(object):
         return Text(encoded_text, x, y)
 
     def _encode_text(self, text):
-        return self._encode_unicode_text(xmlescape(text))
-
-    def _encode_unicode_text(self, text):
-        if isinstance(text, str):
-            return text.encode(ENCODING)
-        else:
-            return text
+        return xmlescape(text)
 
     def _define_shadow_filter(self):
         return self._create_defs(self._get_shadow_filter())

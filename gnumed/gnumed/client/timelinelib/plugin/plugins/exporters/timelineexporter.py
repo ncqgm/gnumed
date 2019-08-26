@@ -23,7 +23,7 @@ import os.path
 
 import wx
 
-from timelinelib.plugin.factory import EXPORTER
+from timelinelib.plugin.plugins.exporters import EXPORTER
 from timelinelib.plugin.pluginbase import PluginBase
 from timelinelib.wxgui.dialogs.export.controller import CSV_FILE
 from timelinelib.wxgui.dialogs.export.view import ExportDialog

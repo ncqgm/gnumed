@@ -95,13 +95,7 @@ class UnitTestCase(unittest.TestCase):
             self.destroy_wxapp(app)
 
     def get_wxapp(self):
-        app = wx.App(False)
-        if platform.system() == "Windows":
-            import locale
-            locale.setlocale(locale.LC_ALL, 'C')
-            self.locale = wx.Locale()
-            self.locale.Init(wx.LANGUAGE_DEFAULT)
-        return app
+        return wx.App(False)
 
     def destroy_wxapp(self, app):
         if app.GetTopWindow():

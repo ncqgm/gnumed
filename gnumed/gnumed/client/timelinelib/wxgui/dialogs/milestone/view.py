@@ -55,7 +55,6 @@ class EditMilestoneDialog(Dialog):
                 <CategoryChoice
                     name="category_choice"
                     allow_add="True"
-                    allow_edit="True"
                     timeline="$(db)"
                     align="ALIGN_LEFT"
                 />

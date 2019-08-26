@@ -22,6 +22,4 @@ Defines plugin application components.
 
 from timelinelib.plugin.factory import PluginFactory
 
-
 factory = PluginFactory()
-factory.load_plugins()

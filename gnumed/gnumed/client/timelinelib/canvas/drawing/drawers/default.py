@@ -21,19 +21,20 @@ import os.path
 
 import wx
 
+from timelinelib.canvas.data import sort_categories
+from timelinelib.canvas.data.timeperiod import TimePeriod
+from timelinelib.canvas.drawing.drawers.dividerline import DividerLine
+from timelinelib.canvas.drawing.drawers.legenddrawer import LegendDrawer
+from timelinelib.canvas.drawing.drawers.minorstrip import MinorStripDrawer
+from timelinelib.canvas.drawing.drawers.nowline import NowLine
 from timelinelib.canvas.drawing.interface import Drawer
 from timelinelib.canvas.drawing.scene import TimelineScene
 from timelinelib.config.paths import ICONS_DIR
-from timelinelib.canvas.data import sort_categories
-from timelinelib.canvas.data.timeperiod import TimePeriod
 from timelinelib.features.experimental.experimentalfeatures import EXTENDED_CONTAINER_HEIGHT
+from timelinelib.utils import unique_based_on_eq
 from timelinelib.wxgui.components.font import Font
-import timelinelib.wxgui.components.font as font
-from timelinelib.canvas.drawing.drawers.legenddrawer import LegendDrawer
 from wx import BRUSHSTYLE_TRANSPARENT
-from timelinelib.canvas.drawing.drawers.dividerline import DividerLine
-from timelinelib.canvas.drawing.drawers.minorstrip import MinorStripDrawer
-from timelinelib.canvas.drawing.drawers.nowline import NowLine
+import timelinelib.wxgui.components.font as font
 
 
 OUTER_PADDING = 5  # Space between event boxes (pixels)
@@ -469,12 +470,11 @@ class DefaultDrawingAlgorithm(Drawer):
         NowLine(self).draw()
 
     def _extract_categories(self):
-        categories = []
-        for (event, _) in self.scene.event_data:
-            cat = event.get_category()
-            if cat and cat not in categories:
-                categories.append(cat)
-        return sort_categories(categories)
+        return sort_categories(unique_based_on_eq(
+            event.category
+            for (event, _) in self.scene.event_data
+            if event.category
+        ))
 
     def _draw_legend(self, view_properties, categories):
         if self._legend_should_be_drawn(categories):

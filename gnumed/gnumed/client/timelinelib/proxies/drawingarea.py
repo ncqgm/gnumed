@@ -16,7 +16,7 @@
 # along with Timeline.  If not, see <http://www.gnu.org/licenses/>.
 
 
-class DrawingAreaProxy():
+class DrawingAreaProxy:
     """
     The purpose of this proxy is to simplify the access to the canvas
     from the MainFrame window.
@@ -41,8 +41,12 @@ class DrawingAreaProxy():
     def zoom_out(self):
         self.timeline_canvas.zoom_out()
 
-    def VertZoomIn(self):
-        self.timeline_canvas.VertZoomIn()
+    def vertical_zoom_in(self):
+        self.timeline_canvas.vertical_zoom_in()
 
-    def VertZoomOut(self):
-        self.timeline_canvas.VertZoomOut()
+    def vertical_zoom_out(self):
+        self.timeline_canvas.vertical_zoom_out()
+
+    @property
+    def view_properties(self):
+        return self.timeline_canvas.view_properties

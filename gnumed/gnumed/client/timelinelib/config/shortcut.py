@@ -86,7 +86,6 @@ METADATA = [  # File
               Metadata(mf.ID_MEASURE_DISTANCE, "shortcut_measure_distance", LABEL_TIMELINE % _("Measure Distance between two Events"), NO_MODIFIER, ""),
               Metadata(mf.ID_SET_CATEGORY_ON_WITHOUT, "shortcut_set_category_on_without",
                        LABEL_TIMELINE % _("Set Category on events without category"), NO_MODIFIER, ""),
-              Metadata(mf.ID_EDIT_CATEGORIES, "shortcut_edit_categories", LABEL_TIMELINE % _("Edit Categories"), NO_MODIFIER, ""),
               Metadata(mf.ID_SET_READONLY, "shortcut_set_readonly", LABEL_TIMELINE % _("Read Only"), NO_MODIFIER, ""),
               Metadata(mf.ID_UNDO, "shortcut_undo", LABEL_TIMELINE % _("Undo"), CTRL_MODIFIER, "Z"),
               Metadata(mf.ID_REDO, "shortcut_redo", LABEL_TIMELINE % _("Redo"), ALT_MODIFIER, "Z"),

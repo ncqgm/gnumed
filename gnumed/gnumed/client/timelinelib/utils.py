@@ -33,3 +33,11 @@ def ex_msg(e):
             # be unicode) should always contain a single unicode message.
             # So we should never end up here.
             return ""
+
+
+def unique_based_on_eq(items):
+    unique = []
+    for item in items:
+        if item not in unique:
+            unique.append(item)
+    return unique
