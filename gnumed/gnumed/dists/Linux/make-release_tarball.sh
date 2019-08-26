@@ -179,6 +179,14 @@ mkdir -p ./gnumed-client.$CLIENTREV/client/timelinelib/
 cp -R ../../client/timelinelib/* ./gnumed-client.$CLIENTREV/client/timelinelib/
 mkdir -p ./gnumed-client.$CLIENTREV/client/tlicons/
 cp -R ../../client/tlicons/* ./gnumed-client.$CLIENTREV/client/tlicons/
+mkdir -p ./gnumed-client.$CLIENTREV/client/resources/timeline/
+cp -R ../../client/resources/timeline/* ./gnumed-client.$CLIENTREV/client/resources/timeline/
+xmllint --noout ../../client/resources/timeline/timeline.xsd
+RESULT="$?"
+if test "${RESULT}" != "0" ; then
+	echo "xmllint: <resources/timeline/timeline.xsd> invalid (${RESULT})"
+	exit ${RESULT}
+fi
 
 
 # dwv
