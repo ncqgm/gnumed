@@ -79,13 +79,13 @@ if [ $? -eq 0 ] ; then
 		rm -f "${DESCRIPTION_FILE}.extractpdfmark"
 	fi
 	# pdfimage
-	BIN=`which pdfimage`
+	BIN=`which pdfimages`
 	if [ "x${BIN}x" != "xx" ]; then
-		echo "---- pdfimage ----" > "${DESCRIPTION_FILE}.pdfimage"
-		pdfimage -list "${FILE_2_DESCRIBE}" >> "${DESCRIPTION_FILE}.pdfimage" 2>> "${DESCRIPTION_FILE}.pdfimage"
-		cat "${DESCRIPTION_FILE}.pdfimage" >> "${DESCRIPTION_FILE}"
+		echo "---- pdfimages ----" > "${DESCRIPTION_FILE}.pdfimages"
+		pdfimages -list "${FILE_2_DESCRIBE}" >> "${DESCRIPTION_FILE}.pdfimages" 2>> "${DESCRIPTION_FILE}.pdfimages"
+		cat "${DESCRIPTION_FILE}.pdfimages" >> "${DESCRIPTION_FILE}"
 		echo "" >> "${DESCRIPTION_FILE}"
-		rm -f "${DESCRIPTION_FILE}.pdfimage"
+		rm -f "${DESCRIPTION_FILE}.pdfimages"
 	fi
 ## not a PDF
 #else
