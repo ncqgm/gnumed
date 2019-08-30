@@ -360,7 +360,7 @@ class cPatientSearcher_SQL:
 
 		# "#<di git  s>" - GNUmed patient PK
 		if regex.match("^(\s|\t)*#(\d|\s|\t)+$", raw):
-			_log.debug("[%s]: a PK or external ID" % raw)
+			_log.debug("[%s]: a PK" % raw)
 			tmp = raw.replace('#', '')
 			tmp = tmp.strip()
 			tmp = tmp.replace(' ', '')
@@ -370,22 +370,24 @@ class cPatientSearcher_SQL:
 				'cmd': "SELECT *, %s::text AS match_type FROM dem.v_active_persons WHERE pk_identity = %s ORDER BY lastnames, firstnames, dob",
 				'args': [_('internal patient ID'), tmp]
 			})
-			# but might also be an external ID
-			tmp = raw.replace('#', '')
-			tmp = tmp.strip()
-			tmp = tmp.replace(' ',  '***DUMMY***')
-			tmp = tmp.replace('\t', '***DUMMY***')
-			tmp = tmp.replace('***DUMMY***', '(\s|\t|-|/)*')
-			queries.append ({
-				'cmd': """
-					SELECT vba.*, %s::text AS match_type FROM dem.lnk_identity2ext_id li2ext_id, dem.v_active_persons vba
-					WHERE vba.pk_identity = li2ext_id.id_identity and lower(li2ext_id.external_id) ~* lower(%s)
-					ORDER BY lastnames, firstnames, dob""",
-				'args': [_('external patient ID'), tmp]
-			})
 			return queries
 
-		# "#<di/git s or c-hars>" - external ID
+		# "##<di git s or c-hars>" - external ID"
+		# but might also be an external ID
+#			tmp = raw.replace('#', '')
+#			tmp = tmp.strip()
+#			tmp = tmp.replace(' ',  '***DUMMY***')
+#			tmp = tmp.replace('\t', '***DUMMY***')
+#			tmp = tmp.replace('***DUMMY***', '(\s|\t|-|/)*')
+#			queries.append ({
+#				'cmd': """
+#					SELECT vba.*, %s::text AS match_type FROM dem.lnk_identity2ext_id li2ext_id, dem.v_active_persons vba
+#					WHERE vba.pk_identity = li2ext_id.id_identity and lower(li2ext_id.external_id) ~* lower(%s)
+#					ORDER BY lastnames, firstnames, dob""",
+#				'args': [_('external patient ID'), tmp]
+#			})
+
+		# "#<di git s or c-hars>" - external ID
 		if regex.match("^(\s|\t)*#.+$", raw):
 			_log.debug("[%s]: an external ID" % raw)
 			tmp = raw.replace('#', '')
