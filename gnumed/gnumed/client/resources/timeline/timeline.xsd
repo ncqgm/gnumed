@@ -1,7 +1,12 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
-
+   	<xs:simpleType name="version">
+  		<xs:restriction base="xs:string">
+			<xs:pattern value="(\d+).(\d+).(\d+)(.*)( development)?"/>
+		</xs:restriction>
+	</xs:simpleType>
+                
     <xs:complexType name="era">
         <xs:sequence>
             <xs:element name="name" type="xs:string"/>
@@ -92,12 +97,13 @@
     <xs:element name="timeline">
         <xs:complexType>
             <xs:sequence>
-                <xs:element name="version" type="xs:string"/>
+                <xs:element name="version" type="version"/>
                 <xs:element name="timetype" type="xs:string"/>
                 <xs:element name="eras" type="eras-list"/>
                 <xs:element name="categories" type="category-list"/>
                 <xs:element name="events" type="event-list"/>
                 <xs:element name="view" type="view"/>
+                <xs:element name="now" type="xs:string" minOccurs="0" maxOccurs="1"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>

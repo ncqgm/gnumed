@@ -513,11 +513,7 @@ def create_timeline_file(patient=None, filename=None, include_documents=False, i
 			format_pydt(patient['dob']),
 			'*',
 			_('Life events'),
-			'%s: %s (%s)' % (
-				_('Birth'),
-				patient.get_formatted_dob(format = '%Y %b %d %H:%M', honor_estimation = True),
-				patient.get_medical_age()
-			),
+			_('Birth: %s') % patient.get_formatted_dob(format = '%Y %b %d %H:%M', honor_estimation = True),
 			'True'
 		))
 
@@ -578,12 +574,20 @@ def create_timeline_file(patient=None, filename=None, include_documents=False, i
 		end = now
 	else:
 		end = patient['deceased']
+		death_ago = gmDateTime.format_apparent_age_medically (
+			age = gmDateTime.calculate_apparent_age(start = end, end = now)
+		)
 		timeline.write(__xml_encounter_template % (
 			format_pydt(end),
 			format_pydt(end),
 			gmTools.u_dagger,
 			_('Life events'),
-			_('Death: %s') % format_pydt(end, format = '%Y %b %d %H:%M')
+			_('Death: %s\n(%s ago at age %s)') % (
+				format_pydt(end, format = '%Y %b %d %H:%M'),
+				death_ago,
+				patient.get_medical_age()
+			),
+			'True'
 		))
 
 	# display range
