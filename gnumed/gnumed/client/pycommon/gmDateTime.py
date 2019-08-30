@@ -1144,7 +1144,7 @@ def __single_dot2py_dt(str2parse):
 
 	# day X of last month only
 	if day_val < 0:
-		ts = pydt_replace(pydt_add(now, months = -1), day = abs(day_val))
+		ts = pydt_replace(pydt_add(now, months = -1), day = abs(day_val), strict = False)
 		if ts.day == day_val:
 			matches.append ({
 				'data': ts,
@@ -1155,7 +1155,7 @@ def __single_dot2py_dt(str2parse):
 	if day_val > 0:
 		# ... this month
 		try:
-			ts = pydt_replace(now, day = day_val)
+			ts = pydt_replace(now, day = day_val, strict = False)
 			matches.append ({
 				'data': ts,
 				'label': _('%s-%s-%s: a %s this month') % (ts.year, ts.month, ts.day, ts.strftime('%A'))
@@ -1164,7 +1164,7 @@ def __single_dot2py_dt(str2parse):
 			pass
 		# ... next month
 		try:
-			ts = pydt_replace(pydt_add(now, months = 1), day = day_val)
+			ts = pydt_replace(pydt_add(now, months = 1), day = day_val, strict = False)
 			if ts.day == day_val:
 				matches.append ({
 					'data': ts,
@@ -1174,7 +1174,7 @@ def __single_dot2py_dt(str2parse):
 			pass
 		# ... last month
 		try:
-			ts = pydt_replace(pydt_add(now, months = -1), day = day_val)
+			ts = pydt_replace(pydt_add(now, months = -1), day = day_val, strict = False)
 			if ts.day == day_val:
 				matches.append ({
 					'data': ts,
@@ -1212,7 +1212,7 @@ def __single_slash2py_dt(str2parse):
 	# 5/1999
 	if regex.match(r"^\d{1,2}(\s|\t)*/+(\s|\t)*\d{4}$", str2parse, flags = regex.UNICODE):
 		month, year = regex.findall(r'\d+', str2parse, flags = regex.UNICODE)
-		ts = pydt_replace(now, year = int(year), month = int(month))
+		ts = pydt_replace(now, year = int(year), month = int(month), strict = False)
 		return [{
 			'data': ts,
 			'label': ts.strftime('%Y-%m-%d')
@@ -1314,14 +1314,14 @@ def __numbers_only2py_dt(str2parse):
 
 	# that year
 	if (1850 < val) and (val < 2100):
-		ts = pydt_replace(now, year = val)
+		ts = pydt_replace(now, year = val, strict = False)
 		matches.append ({
 			'data': ts,
 			'label': ts.strftime('%Y-%m-%d')
 		})
 	# day X of this month
 	if (val > 0) and (val <= gregorian_month_length[now.month]):
-		ts = pydt_replace(now, day = val)
+		ts = pydt_replace(now, day = val, strict = False)
 		matches.append ({
 			'data': ts,
 			'label': _('%d. of %s (this month): a %s') % (val, ts.strftime('%B'), ts.strftime('%A'))
@@ -1329,13 +1329,13 @@ def __numbers_only2py_dt(str2parse):
 	# day X of ...
 	if (val > 0) and (val < 32):
 		# ... next month
-		ts = pydt_replace(pydt_add(now, months = 1), day = val)
+		ts = pydt_replace(pydt_add(now, months = 1), day = val, strict = False)
 		matches.append ({
 			'data': ts,
 			'label': _('%d. of %s (next month): a %s') % (val, ts.strftime('%B'), ts.strftime('%A'))
 		})
 		# ... last month
-		ts = pydt_replace(pydt_add(now, months = -1), day = val)
+		ts = pydt_replace(pydt_add(now, months = -1), day = val, strict = False)
 		matches.append ({
 			'data': ts,
 			'label': _('%d. of %s (last month): a %s') % (val, ts.strftime('%B'), ts.strftime('%A'))
@@ -1370,19 +1370,19 @@ def __numbers_only2py_dt(str2parse):
 	# month X of ...
 	if (val < 13) and (val > 0):
 		# ... this year
-		ts = pydt_replace(now, month = val)
+		ts = pydt_replace(now, month = val, strict = False)
 		matches.append ({
 			'data': ts,
 			'label': _('%s (%s this year)') % (ts.strftime('%Y-%m-%d'), ts.strftime('%B'))
 		})
 		# ... next year
-		ts = pydt_replace(pydt_add(now, years = 1), month = val)
+		ts = pydt_replace(pydt_add(now, years = 1), month = val, strict = False)
 		matches.append ({
 			'data': ts,
 			'label': _('%s (%s next year)') % (ts.strftime('%Y-%m-%d'), ts.strftime('%B'))
 		})
 		# ... last year
-		ts = pydt_replace(pydt_add(now, years = -1), month = val)
+		ts = pydt_replace(pydt_add(now, years = -1), month = val, strict = False)
 		matches.append ({
 			'data': ts,
 			'label': _('%s (%s last year)') % (ts.strftime('%Y-%m-%d'), ts.strftime('%B'))
@@ -1790,7 +1790,7 @@ def __numbers_only(str2parse):
 	if val < 13:
 		# ... this year
 		target_date = cFuzzyTimestamp (
-			timestamp = pydt_replace(now, month = val),
+			timestamp = pydt_replace(now, month = val, strict = False),
 			accuracy = acc_months
 		)
 		tmp = {
@@ -1801,7 +1801,7 @@ def __numbers_only(str2parse):
 
 		# ... next year
 		target_date = cFuzzyTimestamp (
-			timestamp = pydt_add(pydt_replace(now, month = val), years = 1),
+			timestamp = pydt_add(pydt_replace(now, month = val, strict = False), years = 1),
 			accuracy = acc_months
 		)
 		tmp = {
@@ -1812,7 +1812,7 @@ def __numbers_only(str2parse):
 
 		# ... last year
 		target_date = cFuzzyTimestamp (
-			timestamp = pydt_add(pydt_replace(now, month = val), years = -1),
+			timestamp = pydt_add(pydt_replace(now, month = val, strict = False), years = -1),
 			accuracy = acc_months
 		)
 		tmp = {
