@@ -28,7 +28,7 @@ from Gnumed.pycommon import gmCfg2
 from Gnumed.pycommon import gmWorkerThread
 
 
-_log = logging.getLogger('gm.docs')
+_log = logging.getLogger('gm.mime')
 
 #=======================================================================================
 def guess_mimetype(filename=None):
@@ -290,8 +290,20 @@ def convert_file(filename=None, target_mime=None, target_filename=None, target_e
 	]
 	success, returncode, stdout = gmShellAPI.run_process(cmd_line = cmd_line, verbose = True)
 	if not success:
-		_log.error('conversion failed')
-		return None
+		_log.error('conversion returned error exit code')
+		if not os.path.exists(converted_fname):
+			return None
+		_log.info('conversion target file found')
+		stats = os.stat(converted_fname)
+		if stats.st_size == 0:
+			return None
+		_log.info('conversion target file size > 0')
+		achieved_mime = guess_mimetype(filename = converted_fname)
+		if achieved_mime != target_mime:
+			_log.error('target: [%s], achieved: [%s]', target_mime, achieved_mime)
+			return None
+		_log.info('conversion target file mime type [%s], as expected, might be usable', achieved_mime)
+		# we may actually have something despite a non-0 exit code
 
 	if target_filename is None:
 		return converted_fname
@@ -547,8 +559,6 @@ if __name__ == "__main__":
 		print(convert_file (
 			filename = filename,
 			target_mime = sys.argv[3]
-			#,target_filename = filename + ,
-			#target_extension=None
 		))
 
 	#--------------------------------------------------------
