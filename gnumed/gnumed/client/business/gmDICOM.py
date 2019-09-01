@@ -1186,23 +1186,57 @@ def cleanup_dicom_string(dicom_str):
 	return dicom_str
 
 #---------------------------------------------------------------------------
-def dicomize_pdf(pdf_name=None, title=None, person=None, dcm_name=None, verbose=False, dcm_template_file=None):
-	assert (pdf_name is not None), '<pdfname> must not be None'
+def dicomize_file(filename, title=None, person=None, dcm_name=None, verbose=False, dcm_template_file=None):
+	assert (filename is not None), '<filename> must not be None'
 	assert (not ((person is None) and (dcm_template_file is None))), '<person> or <dcm_template_file> must not be None'
 
-	_log.debug('pdf: %s', pdf_name)
-	if title is None:
-		title = pdf_name
+	dcm_fname = dicomize_pdf (
+		pdf_name = filename,
+		title = title,
+		person = person,
+		dcm_name = dcm_name,
+		verbose = verbose,
+		dcm_template_file = dcm_template_file
+	)
+	if dcm_fname is not None:
+		return dcm_fname
+
+	_log.debug('does not seem to be a PDF: %s', filename)
+	converted_fname = gmMimeLib.convert_file(filename = filename, target_mime = 'image/jpeg')#, target_filename = jpg_name)
+	if converted_fname is None:
+		_log.error('cannot convert to JPG: %s', filename)
+		return None
+
+	dcm_name = dicomize_jpg (
+		jpg_name = converted_fname,
+		title = title,
+		person = person,
+		dcm_name = dcm_name,
+		verbose = verbose,
+		dcm_template_file = dcm_template_file
+	)
+	return dcm_name
+
+#---------------------------------------------------------------------------
+def dicomize_pdf(pdf_name=None, title=None, person=None, dcm_name=None, verbose=False, dcm_template_file=None):
+	assert (pdf_name is not None), '<pdf_name> must not be None'
+	assert (not ((person is None) and (dcm_template_file is None))), '<person> or <dcm_template_file> must not be None'
+
 	if dcm_name is None:
 		dcm_name = gmTools.get_unique_filename(suffix = '.dcm')
+	_log.debug('%s -> %s', pdf_name, dcm_name)
+	if title is None:
+		title = pdf_name
 	now = gmDateTime.pydt_now_here()
 	cmd_line = [
 		'pdf2dcm',
 		'--title', title,
-		'--key', '0008,0020=%s' % now.strftime('%Y%M%d'),			# StudyDate
-		'--key', '0008,0023=%s' % now.strftime('%H%m%s.0'),			# ContentDate
-		'--key', '0008,0030=%s' % now.strftime('%H%m%s.0'),			# StudyTime
-		'--key', '0008,0033=%s' % now.strftime('%H%m%s.0')			# ContentTime
+		'--key', '0008,0020=%s' % now.strftime('%Y%m%d'),			# StudyDate
+		'--key', '0008,0021=%s' % now.strftime('%Y%m%d'),			# SeriesDate
+		'--key', '0008,0023=%s' % now.strftime('%Y%m%d'),			# ContentDate
+		'--key', '0008,0030=%s' % now.strftime('%H%M%s.0'),			# StudyTime
+		'--key', '0008,0031=%s' % now.strftime('%H%M%s.0'),			# SeriesTime
+		'--key', '0008,0033=%s' % now.strftime('%H%M%s.0')			# ContentTime
 	]
 	if dcm_template_file is None:
 		name = person.active_name
@@ -1220,11 +1254,75 @@ def dicomize_pdf(pdf_name=None, title=None, person=None, dcm_name=None, verbose=
 		_log.debug('DCM template file: %s', dcm_template_file)
 		cmd_line.append('--series-from')
 		cmd_line.append(dcm_template_file)
-
 	if verbose:
 		cmd_line.append('--log-level')
 		cmd_line.append('trace')
 	cmd_line.append(pdf_name)
+	cmd_line.append(dcm_name)
+	success, exit_code, stdout = gmShellAPI.run_process(cmd_line = cmd_line, encoding = 'utf8', verbose = verbose)
+	if success:
+		return dcm_name
+	return None
+
+#---------------------------------------------------------------------------
+def dicomize_jpg(jpg_name=None, title=None, person=None, dcm_name=None, verbose=False, dcm_template_file=None):
+	assert (jpg_name is not None), '<jpg_name> must not be None'
+	assert (not ((person is None) and (dcm_template_file is None))), 'both <person> and <dcm_template_file> are None, but one is needed'
+
+	if dcm_name is None:
+		dcm_name = gmTools.get_unique_filename(suffix = '.dcm')
+	_log.debug('%s -> %s', jpg_name, dcm_name)
+	now = gmDateTime.pydt_now_here()
+	cmd_line = [
+		'img2dcm',
+		'--keep-appn',											# carry over EXIF data
+		'--insist-on-jfif',										# process valid JFIF only
+		'--key', '0008,0021=%s' % now.strftime('%Y%m%d'),		# SeriesDate
+		'--key', '0008,0031=%s' % now.strftime('%H%M%s.0'),		# SeriesTime
+		'--key', '0008,0023=%s' % now.strftime('%Y%m%d'),		# ContentDate
+		'--key', '0008,0033=%s' % now.strftime('%H%M%s.0')		# ContentTime
+	]
+	if title is not None:
+		# SeriesDescription
+		if title is not None:
+			cmd_line.append('--key')
+			cmd_line.append('0008,103E=%s' % title)
+	if dcm_template_file is None:
+		# StudyDescription
+		if title is not None:
+			cmd_line.append('--key')
+			cmd_line.append('0008,1030=%s' % title)
+		# StudyDate
+		cmd_line.append('--key')
+		cmd_line.append('0008,0020=%s' % now.strftime('%Y%m%d'))
+		# StudyTime
+		cmd_line.append('--key')
+		cmd_line.append('0008,0030=%s' % now.strftime('%H%M%s.0'))
+		# PatientName
+		name = person.active_name
+		cmd_line.append('--key')
+		cmd_line.append('0010,0010=%s' % ('%s^%s' % (
+			name['lastnames'],
+			name['firstnames'])
+		).replace(' ', '^'))
+		# PatientID
+		cmd_line.append('--key')
+		cmd_line.append('0010,0020=%s' % person.suggest_external_id(target = 'PACS'))
+		# DOB
+		cmd_line.append('--key')
+		cmd_line.append('0010,0030=%s' % person.get_formatted_dob(format = '%Y%m%d', honor_estimation = False))
+		# gender
+		if person['gender'] is not None:
+			cmd_line.append('--key')
+			cmd_line.append('0010,0040=%s' % _map_gender_gm2dcm[person['gender']])
+	else:
+		_log.debug('DCM template file: %s', dcm_template_file)
+		cmd_line.append('--series-from')
+		cmd_line.append(dcm_template_file)
+	if verbose:
+		cmd_line.append('--log-level')
+		cmd_line.append('trace')
+	cmd_line.append(jpg_name)
 	cmd_line.append(dcm_name)
 	success, exit_code, stdout = gmShellAPI.run_process(cmd_line = cmd_line, encoding = 'utf8', verbose = verbose)
 	if success:
@@ -1438,9 +1536,37 @@ if __name__ == "__main__":
 			print(dicomize_pdf(pdf_name = sys.argv[2], person = pers, dcm_name = None, verbose = True))#, title = 'test'))
 
 	#--------------------------------------------------------
+	def test_img2dcm():
+		#print(pdf2dcm(filename = filename, patient_id = 'ID::abcABC', dob = '19900101'))
+		from Gnumed.business import gmPerson
+		pers = gmPerson.cPerson(12)
+		try:
+			print(dicomize_jpg(jpg_name = sys.argv[2], person = pers, dcm_name = sys.argv[2]+'.dcm', verbose = True, dcm_template_file = sys.argv[3]))#, title = 'test'))
+		except IndexError:
+			print(dicomize_jpg(jpg_name = sys.argv[2], person = pers, dcm_name = sys.argv[2]+'.dcm', verbose = True))#, title = 'test'))
+
+	#--------------------------------------------------------
+	def test_file2dcm():
+		from Gnumed.business import gmPersonSearch
+		person = gmPersonSearch.ask_for_patient()
+		if person is None:
+			return
+		print(person)
+		try:
+			print(dicomize_file(filename = sys.argv[2], person = person, dcm_name = sys.argv[2]+'.dcm', verbose = True, dcm_template_file = sys.argv[3], title = sys.argv[4]))
+		except IndexError:
+			pass
+		try:
+			print(dicomize_file(filename = sys.argv[2], person = person, dcm_name = sys.argv[2]+'.dcm', verbose = True, title = sys.argv[3]))
+		except IndexError:
+			print(dicomize_file(filename = sys.argv[2], person = person, dcm_name = sys.argv[2]+'.dcm', verbose = True))
+
+	#--------------------------------------------------------
 	#run_console()
 	#test_modify_patient_id()
 	#test_upload_files()
 	#test_get_instance_preview()
 	#test_get_instance_tags()
-	test_pdf2dcm()
+	#test_pdf2dcm()
+	#test_img2dcm()
+	test_file2dcm()
