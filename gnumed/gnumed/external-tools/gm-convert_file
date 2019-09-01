@@ -28,11 +28,9 @@ TARGET_FILENAME="$4"
 
 # ----------------------------------------------------------
 # requires imagemagick
-#CONVERTER="convert -regard-warnings -verbose -debug All "
-CONVERTER="convert -regard-warnings -verbose "
-#CMD_LINE="${INPUT_FILE} ${TARGET_EXTENSION}:${TARGET_FILENAME}"
+CONVERTER1="convert -regard-warnings -verbose "
+CONVERTER2="convert -verbose -debug All"
 CMD_LINE="${INPUT_FILE} ${TARGET_FILENAME}"
-RUN_CONVERTER="${CONVERTER} ${CMD_LINE}"
 
 
 if test -z ${TARGET_FILENAME} ; then
@@ -48,11 +46,22 @@ fi
 
 
 rm -f ${TARGET_FILENAME}
+RUN_CONVERTER="${CONVERTER1} ${CMD_LINE}"
 ${RUN_CONVERTER}
-if test "$?" != "0" ; then
-	rm -f ${TARGET_FILENAME}
-	exit 1
+RESULT="$?"
+if test ${RESULT} -eq 0 ; then
+	exit 0
 fi
+echo "error (${RESULT}): ${RUN_CONVERTER}"
+rm -f ${TARGET_FILENAME}
 
-exit 0
+
+RUN_CONVERTER="${CONVERTER2} ${CMD_LINE}"
+${RUN_CONVERTER}
+RESULT="$?"
+if test ${RESULT} -eq 0 ; then
+	exit 0
+fi
+echo "error (${RESULT}): ${RUN_CONVERTER}"
+exit ${RESULT}
 # ===========================================================
