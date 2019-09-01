@@ -389,12 +389,12 @@ class gmPaths(gmBorg.cBorg):
 			bytes_free = shutil.disk_usage(tempfile.gettempdir()).free
 			_log.info('free disk space for temp dir: %s (%s bytes)', size2str(size = bytes_free), bytes_free)
 			# $TMP/gnumed-$USER/
-			self.user_tmp_dir = os.path.join(tempfile.gettempdir(), app_name + '-' + getpass.getuser())
+			self.user_tmp_dir = os.path.join(tempfile.gettempdir(), '%s-%s' % (app_name, getpass.getuser()))
 			mkdir(self.user_tmp_dir, 0o700)
-			tempfile.tempdir = self.user_tmp_dir
-			_log.info('intermediate (app level) temp dir: %s', tempfile.gettempdir())
+			_log.info('intermediate (app+user level) temp dir: %s', self.user_tmp_dir)
 			# $TMP/gnumed-$USER/g-$UNIQUE/
-			self.tmp_dir = tempfile.mkdtemp(prefix = 'g-')
+			tempfile.tempdir = self.user_tmp_dir # tell mkdtemp about intermediate dir
+			self.tmp_dir = tempfile.mkdtemp(prefix = 'g-') # will set tempfile.tempdir as side effect
 			_log.info('final (app instance level) temp dir: %s', tempfile.gettempdir())
 
 		# BYTEA cache dir
@@ -460,6 +460,8 @@ class gmPaths(gmBorg.cBorg):
 		_log.debug('system-wide application data dir: %s', self.system_app_data_dir)
 		_log.debug('temporary dir (user): %s', self.user_tmp_dir)
 		_log.debug('temporary dir (instance): %s', self.tmp_dir)
+		_log.debug('temporary dir (tempfile.tempdir): %s', tempfile.tempdir)
+		_log.debug('temporary dir (tempfile.gettempdir()): %s', tempfile.gettempdir())
 		_log.debug('BYTEA cache dir: %s', self.bytea_cache_dir)
 
 	#--------------------------------------
@@ -783,7 +785,9 @@ def get_unique_filename(prefix=None, suffix=None, tmp_dir=None, include_timestam
 
 	The file will NOT exist after calling this function.
 	"""
-	if tmp_dir is not None:
+	if tmp_dir is None:
+		gmPaths()		# setup tmp dir if necessary
+	else:
 		if (
 			not os.access(tmp_dir, os.F_OK)
 				or
