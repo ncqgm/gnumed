@@ -92,6 +92,8 @@ u_box_horiz_high = '\u23ba'
 u_box_vert_left = '\u23b8'
 u_box_vert_right = '\u23b9'
 
+u_space_as_open_box = '\u2423'
+
 u_box_horiz_single = '\u2500'				# -
 u_box_vert_light = '\u2502'
 u_box_horiz_light_3dashes = '\u2504'		# ...
@@ -138,11 +140,13 @@ u_kanji_yen = '\u5186'							# Yen kanji
 u_replacement_character = '\ufffd'
 u_link_symbol = '\u1f517'
 
+
 _kB = 1024
 _MB = 1024 * _kB
 _GB = 1024 * _MB
 _TB = 1024 * _GB
 _PB = 1024 * _TB
+
 
 _GM_TITLE_PREFIX = 'GMd'
 
