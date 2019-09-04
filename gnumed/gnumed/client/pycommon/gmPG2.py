@@ -1580,6 +1580,8 @@ def sanitize_pg_regex(expression=None, escape_all=False):
 			'.', '\.'
 		).replace (
 			'*', '\*'
+		).replace (
+			'?', '\?'
 		)
 		#']', '\]',			# not needed
 

@@ -90,6 +90,7 @@ u_diameter = u'\u2300'
 u_checkmark_crossed_out = u'\u237B'
 u_box_vert_left = u'\u23b8'
 u_box_vert_right = u'\u23b9'
+u_space_as_open_box = u'\u2423'
 u_box_horiz_single = u'\u2500'				# -
 u_box_vert_light = u'\u2502'
 u_box_horiz_light_3dashes = u'\u2504'		# ...
