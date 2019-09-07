@@ -445,6 +445,7 @@ def edit_bill(parent=None, bill=None, single_entry=False):
 		return True
 	dlg.Destroy()
 	return False
+
 #----------------------------------------------------------------
 def create_bill_from_items(bill_items=None):
 
@@ -454,14 +455,24 @@ def create_bill_from_items(bill_items=None):
 	item = bill_items[0]
 	currency = item['currency']
 	vat = item['vat_multiplier']
-	pat = item['pk_patient']
+	pk_pat = item['pk_patient']
 
 	# check item consistency
 	has_errors = False
 	for item in bill_items:
+		if item['pk_bill'] is not None:
+			msg = _(
+				'This item is already invoiced:\n'
+				'\n'
+				'%s\n'
+				'\n'
+				'Cannot put it on a second bill.'
+			) % item.format()
+			has_errors = True
+			break
 		if	(item['currency'] != currency) or (
 			 item['vat_multiplier'] != vat) or (
-			 item['pk_patient'] != pat
+			 item['pk_patient'] != pk_pat
 			):
 			msg = _(
 				'All items to be included with a bill must\n'
@@ -472,23 +483,39 @@ def create_bill_from_items(bill_items=None):
 				'%s\n'
 			) % item.format()
 			has_errors = True
-
-		if item['pk_bill'] is not None:
-			msg = _(
-				'This item is already invoiced:\n'
-				'\n'
-				'%s\n'
-				'\n'
-				'Cannot put it on a second bill.'
-			) % item.format()
-			has_errors = True
-
-		if has_errors:
-			gmGuiHelpers.gm_show_warning(aTitle = _('Checking invoice items'), aMessage = msg)
-			return None
+			break
+	if has_errors:
+		gmGuiHelpers.gm_show_warning(aTitle = _('Checking invoice items'), aMessage = msg)
+		return None
 
 	# create bill
-	bill = gmBilling.create_bill(invoice_id = gmBilling.get_invoice_id(pk_patient = pat))
+	person = gmPerson.cPerson(pk_pat)
+	dbcfg = gmCfg.cCfgSQL()
+	invoice_id_template = dbcfg.get2 (
+		option = u'billing.invoice_id_template',
+		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
+		bias = 'user'
+	)
+	invoice_id = None
+	max_attempts = 3
+	attempt = 0
+	while (invoice_id is None) and (attempt < max_attempts+1):
+		attempt += 1
+		invoice_id = gmBilling.generate_invoice_id(template = invoice_id_template, person = person)
+		if invoice_id is None:
+			continue
+		if gmBilling.lock_invoice_id(invoice_id):
+			break
+		invoice_id = None
+	if invoice_id is None:
+		gmGuiHelpers.gm_show_warning (
+			aTitle = _('Generating bill'),
+			aMessage = _('Could not generate invoice ID.\n\nTry again later.')
+		)
+		return None
+
+	bill = gmBilling.create_bill(invoice_id = invoice_id)
+	gmBilling.unlock_invoice_id(invoice_id)
 	_log.info('created bill [%s]', bill['invoice_id'])
 	bill.add_items(items = bill_items)
 	bill.set_missing_address_from_default()
@@ -1557,6 +1584,7 @@ class cBillingPluginPnl(wxgBillingPluginPnl.wxgBillingPluginPnl, gmRegetMixin.cR
 	def _populate_with_data(self):
 		self._PNL_bill_items.identity = gmPerson.gmCurrentPatient()
 		return True
+
 #============================================================
 # main
 #------------------------------------------------------------

@@ -16,6 +16,8 @@ FIX: meds/dose EA: exception on saving
 FIX: meds/product EA: exception on creating new product
 FIX: dist: fix appdata.xml [thanks Andreas]
 
+NEW: configurable invoice ID template [thanks Marc]
+
 	1.7.6
 
 FIX: application metadata files

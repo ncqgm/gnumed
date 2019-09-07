@@ -9,6 +9,7 @@ __license__ = 'GPL v2 or later (details at http://www.gnu.org)'
 
 import sys
 import logging
+import zlib
 
 
 if __name__ == '__main__':
@@ -17,12 +18,14 @@ from Gnumed.pycommon import gmPG2
 from Gnumed.pycommon import gmBusinessDBObject
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmDateTime
+
 from Gnumed.business import gmDemographicRecord
 from Gnumed.business import gmDocuments
 
 _log = logging.getLogger('gm.bill')
 
 INVOICE_DOCUMENT_TYPE = u'invoice'
+
 #============================================================
 # billables
 #------------------------------------------------------------
@@ -540,14 +543,115 @@ def get_bill_receiver(pk_patient=None):
 	pass
 
 #------------------------------------------------------------
-def get_invoice_id(pk_patient=None):
-	return u'GM%s / %s' % (
-		pk_patient,
-		gmDateTime.pydt_strftime (
-			gmDateTime.pydt_now_here(),
-			'%Y-%m-%d / %H%M%S'
-		)
-	)
+def generate_invoice_id(template=None, pk_patient=None, person=None, date_format='%Y-%m-%d', time_format='%H%M%S'):
+	"""Generate invoice ID string, based on template.
+
+	No template given -> generate old style fixed format invoice ID.
+
+	Placeholders:
+		%(pk_pat)s
+		%(date)s
+		%(time)s
+			if included, $counter$ is not *needed* (but still possible)
+		%(firstname)s
+		%(lastname)s
+		%(dob)s
+
+		#counter#
+			will be replaced by a counter, counting up from 1 until the invoice id is unique, max 999999
+	"""
+	assert (None in [pk_patient, person]), u'either of <pk_patient> or <person> can be defined, but not both'
+
+	if (template is None) or (template.strip() == u''):
+		# force old style
+		template = u'GM%(pk_pat)s / %(date)s / %(time)s'
+		date_format = '%Y-%m-%d'
+		time_format = '%H%M%S'
+	template = template.strip()
+	_log.debug('invoice ID template: %s', template)
+	if pk_patient is None:
+		if person is not None:
+			pk_patient = person.ID
+	now = gmDateTime.pydt_now_here()
+	data = {}
+	data['pk_pat'] = gmTools.coalesce(pk_patient, '?')
+	data['date'] = gmDateTime.pydt_strftime(now, date_format).strip()
+	data['time'] = gmDateTime.pydt_strftime(now, time_format).strip()
+	if person is None:
+		data['firstname'] = u'?'
+		data['lastname'] = u'?'
+		data['dob'] = u'?'
+	else:
+		data['firstname'] = person['firstnames'].replace(' ', gmTools.u_space_as_open_box).strip()
+		data['lastname'] = person['lastnames'].replace(' ', gmTools.u_space_as_open_box).strip()
+		data['dob'] = person.get_formatted_dob (
+			format = date_format,
+			encoding = 'utf8',
+			none_string = u'?',
+			honor_estimation = False
+		).strip()
+	candidate_invoice_id = template % data
+	if u'#counter#' not in candidate_invoice_id:
+		if u'%(time)s' in template:
+			return candidate_invoice_id
+
+		candidate_invoice_id = candidate_invoice_id + u' [##counter#]'
+
+	_log.debug('invoice id candidate: %s', candidate_invoice_id)
+	# get existing invoice IDs consistent with candidate
+	search_term = u'^\s*%s\s*$' % gmPG2.sanitize_pg_regex(expression = candidate_invoice_id).replace(u'#counter#', '\d+')
+	# grant SELECT (invoice_id) ON audit.log_bill TO "gm-doctors" ;
+	cmd = u'SELECT invoice_id FROM bill.bill WHERE invoice_id ~* %(search_term)s UNION ALL SELECT invoice_id FROM audit.log_bill WHERE invoice_id ~* %(search_term)s'
+	args = {'search_term': search_term}
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+	if len(rows) == 0:
+		return candidate_invoice_id.replace(u'#counter#', u'1')
+
+	existing_invoice_ids = [ r['invoice_id'].strip() for r in rows ]
+	counter = None
+	counter_max = 999999
+	for idx in range(1, counter_max):
+		candidate = candidate_invoice_id.replace(u'#counter#', '%s' % idx)
+		if candidate not in existing_invoice_ids:
+			counter = idx
+			break
+	if counter is None:
+		# exhausted the range, unlikely (1 million bills are possible
+		# even w/o any other invoice ID data) but technically possible
+		_log.debug('exhausted uniqueness space of [%s] invoice IDs per template', counter_max)
+		counter = '>%s[%s]' % (counter_max, data['time'])
+
+	return candidate_invoice_id.replace(u'#counter#', '%s' % counter)
+
+#------------------------------------------------------------
+def lock_invoice_id(invoice_id):
+	_log.debug('locking invoice ID: %s', invoice_id)
+	crc32 = zlib.crc32(invoice_id)
+	adler32 = zlib.adler32(invoice_id)
+	_log.debug('crc32: %s', crc32)
+	_log.debug('adler32: %s', adler32)
+	cmd = u"""SELECT pg_try_advisory_lock(%s, %s)""" % (crc32, adler32)
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
+	if rows[0][0]:
+		return True
+
+	_log.warning('cannot lock invoice ID: [%s] (%s/%s)', invoice_id, crc32, adler32)
+	return False
+
+#------------------------------------------------------------
+def unlock_invoice_id(invoice_id):
+	_log.debug('unlocking invoice ID: %s', invoice_id)
+	crc32 = zlib.crc32(invoice_id)
+	adler32 = zlib.adler32(invoice_id)
+	_log.debug('crc32: %s', crc32)
+	_log.debug('adler32: %s', adler32)
+	cmd = u"""SELECT pg_advisory_unlock(%s, %s)""" % (crc32, adler32)
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
+	if rows[0][0]:
+		return True
+
+	_log.warning('cannot unlock invoice ID: [%s] (%s/%s)', invoice_id, crc32, adler32)
+	return False
 
 #============================================================
 # main
@@ -572,6 +676,7 @@ if __name__ == "__main__":
 		first_bill = bills[0]
 		print first_bill.default_address
 
+	#--------------------------------------------------
 	def test_me():
 		print "--------------"
 		me = cBillable(aPK_obj=1)
@@ -580,6 +685,44 @@ if __name__ == "__main__":
 			print field, ':', me[field]
 		print "updatable:", me.get_updatable_fields()
 		#me['vat']=4; me.store_payload()
+
 	#--------------------------------------------------
+	def test_generate_invoice_id():
+		from Gnumed.pycommon import gmI18N
+		gmI18N.activate_locale()
+		gmI18N.install_domain()
+		import gmPerson
+		for idx in range(1,15):
+			print ''
+			print 'classic:', generate_invoice_id(pk_patient = idx)
+			pat = gmPerson.cPerson(idx)
+			template = u'%(firstname).4s%(lastname).4s%(date)s'
+			print 'new: template = "%s" => %s' % (
+				template,
+				generate_invoice_id (
+					template = template,
+					pk_patient = None,
+					person = pat,
+					date_format='%d%m%Y',
+					time_format='%H%M%S'
+				)
+			)
+			template = u'%(firstname).4s%(lastname).4s%(date)s-#counter#'
+			print 'new: template = "%s" => %s' % (
+				template,
+				generate_invoice_id (
+					template = template,
+					pk_patient = None,
+					person = pat,
+					date_format='%d%m%Y',
+					time_format='%H%M%S'
+				)
+			)
+
+		#generate_invoice_id(template=None, pk_patient=None, person=None, date_format='%Y-%m-%d', time_format='%H%M%S')
+
+	#--------------------------------------------------
+
 	#test_me()
 	test_default_address()
+	test_generate_invoice_id()
