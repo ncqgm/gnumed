@@ -292,6 +292,9 @@ def configure_string_option(parent=None, message=None, option=None, bias='user',
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
 
+	if validator is None:
+		validator = lambda in_val: (True, in_val)
+
 	while True:
 		dlg = wx.TextEntryDialog (
 			parent,
@@ -314,7 +317,6 @@ def configure_string_option(parent=None, message=None, option=None, bias='user',
 		validated, user_val = validator(user_val)
 		if validated:
 			break
-
 		gmDispatcher.send (
 			signal = 'statustext',
 			msg = _('Value [%s] not valid for option <%s>.') % (user_val, option),
