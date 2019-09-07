@@ -425,6 +425,8 @@ class gmTopLevelFrame(wx.Frame):
 
 		# gnumed / config / billing
 		menu_cfg_bill = wx.Menu()
+		item = menu_cfg_bill.Append(-1, _('Invoice ID template'), _('Set the template for generating invoice IDs.'))
+		self.Bind(wx.EVT_MENU, self.__on_cfg_invoice_id_template, item)
 		item = menu_cfg_bill.Append(-1, _('Invoice template (no VAT)'), _('Select the template for printing an invoice without VAT.'))
 		self.Bind(wx.EVT_MENU, self.__on_cfg_invoice_template_no_vat, item)
 		item = menu_cfg_bill.Append(-1, _('Invoice template (with VAT)'), _('Select the template for printing an invoice with VAT.'))
@@ -1672,6 +1674,37 @@ class gmTopLevelFrame(wx.Frame):
 			default_value = german_default,
 			validator = is_valid
 		)
+
+	#----------------------------------------------
+	def __on_cfg_invoice_id_template(self, evt):
+		from Gnumed.business.gmBilling import DEFAULT_INVOICE_ID_TEMPLATE
+		gmCfgWidgets.configure_string_option (
+			message = _(
+				'GNUmed will use this template to generate invoice IDs.\n'
+				'\n'
+				'If unset GNUmed will use the builtin format\n'
+				' >>>%s<<<\n'
+				'\n'
+				'The template is processed according to Python\n'
+				'String Formatting rules with dictionary data.\n'
+				'\n'
+				'The following placeholders can be used:\n'
+				' %%(pk_pat)s - primary key of the patient\n'
+				' %%(date)s - current date\n'
+				' %%(time)s - current time\n'
+				' %%(firstname)s - first names of patient\n'
+				' %%(lastname)s - last names of patient\n'
+				' %%(dob)s - date of birth of patient\n'
+				' #counter# - replaced by a counter\n'
+				'  - counting up from 1 to 999999 until the invoice ID is unique\n'
+				'  - optional if %%(time)s is included\n'
+				'\n'
+				'Length modifiers are respected so that\n'
+				'%%(lastname)4.4s will work as expected.\n'
+			) % DEFAULT_INVOICE_ID_TEMPLATE,
+			option = u'billing.invoice_id_template'
+		)
+
 	#----------------------------------------------
 	# submenu GNUmed / config / encounter
 	#----------------------------------------------
