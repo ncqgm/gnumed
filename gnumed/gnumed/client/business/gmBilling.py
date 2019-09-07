@@ -600,7 +600,6 @@ def generate_invoice_id(template=None, pk_patient=None, person=None, date_format
 	_log.debug('invoice id candidate: %s', candidate_invoice_id)
 	# get existing invoice IDs consistent with candidate
 	search_term = u'^\s*%s\s*$' % gmPG2.sanitize_pg_regex(expression = candidate_invoice_id).replace(u'#counter#', '\d+')
-	# grant SELECT (invoice_id) ON audit.log_bill TO "gm-doctors" ;
 	cmd = u'SELECT invoice_id FROM bill.bill WHERE invoice_id ~* %(search_term)s UNION ALL SELECT invoice_id FROM audit.log_bill WHERE invoice_id ~* %(search_term)s'
 	args = {'search_term': search_term}
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
