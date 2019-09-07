@@ -2058,6 +2058,7 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 	22.7
 
 IMPROVED: lab results plotting scripts for gnuplot
+IMPROVED: bills tables grants for invoice ID generation
 
 NEW: multi-results plotting script for gnuplot
 
