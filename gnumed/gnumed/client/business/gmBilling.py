@@ -763,11 +763,11 @@ if __name__ == "__main__":
 		gmI18N.install_domain()
 		import gmPerson
 		for idx in range(1,15):
-			print ''
-			print 'classic:', generate_invoice_id(pk_patient = idx)
+			print ('')
+			print ('classic:', generate_invoice_id(pk_patient = idx))
 			pat = gmPerson.cPerson(idx)
 			template = u'%(firstname).4s%(lastname).4s%(date)s'
-			print 'new: template = "%s" => %s' % (
+			print ('new: template = "%s" => %s' % (
 				template,
 				generate_invoice_id (
 					template = template,
@@ -776,9 +776,9 @@ if __name__ == "__main__":
 					date_format='%d%m%Y',
 					time_format='%H%M%S'
 				)
-			)
+			))
 			template = u'%(firstname).4s%(lastname).4s%(date)s-#counter#'
-			print 'new: template = "%s" => %s' % (
+			print ('new: template = "%s" => %s' % (
 				template,
 				generate_invoice_id (
 					template = template,
@@ -787,7 +787,7 @@ if __name__ == "__main__":
 					date_format='%d%m%Y',
 					time_format='%H%M%S'
 				)
-			)
+			))
 
 		#generate_invoice_id(template=None, pk_patient=None, person=None, date_format='%Y-%m-%d', time_format='%H%M%S')
 
