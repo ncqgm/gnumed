@@ -654,6 +654,7 @@ class cOrthancServer:
 		except Exception:
 			_log.exception('cannot open [%s]', filename)
 			return False
+
 		dcm_data = f.read()
 		f.close()
 		_log.debug('uploading [%s]', filename)
@@ -662,6 +663,7 @@ class cOrthancServer:
 		if uploaded is False:
 			_log.error('cannot upload [%s]', filename)
 			return False
+
 		_log.debug(uploaded)
 		if uploaded['Status'] == 'AlreadyStored':
 			# paranoia, as is our custom
@@ -678,7 +680,9 @@ class cOrthancServer:
 				_log.error('in-db md5: %s', md5_db)
 				_log.error('MD5 mismatch !')
 				return False
+
 			_log.error('MD5 match between file and database')
+
 		return True
 
 	#--------------------------------------------------------
@@ -885,9 +889,11 @@ class cOrthancServer:
 				# loop over series in study
 				for orth_series_id in orth_study['Series']:
 					orth_series = self.__run_GET(url = '%s/series/%s' % (self.__server_url, orth_series_id))
-					#slices = orth_series['Instances']
 					ordered_slices = self.__run_GET(url = '%s/series/%s/ordered-slices' % (self.__server_url, orth_series_id))
-					slices = [ s[0] for s in ordered_slices['SlicesShort'] ]
+					if ordered_slices is False:
+						slices = orth_series['Instances']
+					else:
+						slices = [ s[0] for s in ordered_slices['SlicesShort'] ]
 					if orth_series is False:
 						_log.error('cannot retrieve series')
 						return []
