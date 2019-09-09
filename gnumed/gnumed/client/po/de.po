@@ -3671,7 +3671,7 @@ msgid "&Show"
 msgstr "An&zeigen"
 
 msgid "E&xport area"
-msgstr "E&xportbereich"
+msgstr "S&ammelmappe"
 
 msgid "Browse"
 msgstr "Stöbern"

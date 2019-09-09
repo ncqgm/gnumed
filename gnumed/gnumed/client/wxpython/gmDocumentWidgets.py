@@ -3178,8 +3178,8 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 		self.Bind(wx.EVT_MENU, self._on_save_zip_of_all_studies, item)
 		self.__studies_menu.AppendSeparator()
 		# dicomize
-		item = self.__studies_menu.Append(-1, _('Add PDF to study'))
-		self.Bind(wx.EVT_MENU, self._on_add_pdf_to_study, item)
+		item = self.__studies_menu.Append(-1, _('Add file to study (PDF/image)'))
+		self.Bind(wx.EVT_MENU, self._on_add_file_to_study, item)
 
 	#--------------------------------------------------------
 	def __set_button_states(self):
@@ -3941,13 +3941,75 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 		# upload pdf.dcm
 		if self.__pacs.upload_dicom_file(pdf2dcm_fname):
 			gmDispatcher.send(signal = 'statustext', msg = _('Successfully uploaded [%s] to Orthanc DICOM server.') % pdf2dcm_fname)
+			self._schedule_data_reget()
 			return
 
 		gmGuiHelpers.gm_show_error (
 			title = _('Adding PDF to DICOM study'),
 			error = _('Cannot updload DICOM file\n\n %s\n\n into Orthanc PACS.') % pdf2dcm_fname
 		)
-		self._schedule_data_reget()
+
+	#--------------------------------------------------------
+	def _on_add_file_to_study(self, evt):
+		if self.__pacs is None:
+			return
+
+		study_data = self._LCTRL_studies.get_selected_item_data(only_one = False)
+		if len(study_data) != 1:
+			gmGuiHelpers.gm_show_info (
+				title = _('Adding file to DICOM study'),
+				info = _('For adding a file there must be exactly one (1) DICOM study selected.')
+			)
+			return
+
+		# select file
+		filename = None
+		dlg = wx.FileDialog (
+			parent = self,
+			message = _('Select file (image or PDF) to add to DICOM study'),
+			defaultDir = os.path.join(gmTools.gmPaths().home_dir, 'gnumed'),
+			wildcard = "%s (*)|*|%s (*.pdf)|*.pdf" % (_('all files'), _('PDF files')),
+			style = wx.FD_OPEN | wx.FD_FILE_MUST_EXIST
+		)
+		choice = dlg.ShowModal()
+		filename = dlg.GetPath()
+		dlg.DestroyLater()
+		if choice != wx.ID_OK:
+			return
+
+		if filename is None:
+			return
+
+		_log.debug('dicomize(%s)', filename)
+		# export one instance as template
+		instance_uuid = study_data[0]['series'][0]['instances'][-1]
+		dcm_instance_template_fname = self.__pacs.get_instance(instance_id = instance_uuid)
+		# dicomize file via template
+		_cfg = gmCfg2.gmCfgData()
+		dcm_fname = gmDICOM.dicomize_file (
+			filename = filename,
+			dcm_template_file = dcm_instance_template_fname,
+			dcm_transfer_series = False,
+			title = 'GNUmed',
+			verbose = _cfg.get(option = 'debug')
+		)
+		if dcm_fname is None:
+			gmGuiHelpers.gm_show_error (
+				title = _('Adding file to DICOM study'),
+				error = _('Cannot turn file\n\n %s\n\n into DICOM file.')
+			)
+			return
+
+		# upload .dcm
+		if self.__pacs.upload_dicom_file(dcm_fname):
+			gmDispatcher.send(signal = 'statustext', msg = _('Successfully uploaded [%s] to Orthanc DICOM server.') % dcm_fname)
+			self._schedule_data_reget()
+			return
+
+		gmGuiHelpers.gm_show_error (
+			title = _('Adding file to DICOM study'),
+			error = _('Cannot updload DICOM file\n\n %s\n\n into Orthanc PACS.') % dcm_fname
+		)
 
 	#--------------------------------------------------------
 	#--------------------------------------------------------

@@ -1192,9 +1192,16 @@ def cleanup_dicom_string(dicom_str):
 	return dicom_str
 
 #---------------------------------------------------------------------------
-def dicomize_file(filename, title=None, person=None, dcm_name=None, verbose=False, dcm_template_file=None):
+def dicomize_file(filename, title=None, person=None, dcm_name=None, verbose=False, dcm_template_file=None, dcm_transfer_series=True):
 	assert (filename is not None), '<filename> must not be None'
 	assert (not ((person is None) and (dcm_template_file is None))), '<person> or <dcm_template_file> must not be None'
+
+	# already DCM ?
+	if gmMimeLib.guess_mimetype(filename) == 'application/dicom':
+		_log.error('already a DICOM file: %s', filename)
+		if dcm_name is None:
+			return filename
+		return shutil.copy2(filename, dcm_name)
 
 	dcm_fname = dicomize_pdf (
 		pdf_name = filename,
@@ -1202,13 +1209,14 @@ def dicomize_file(filename, title=None, person=None, dcm_name=None, verbose=Fals
 		person = person,
 		dcm_name = dcm_name,
 		verbose = verbose,
-		dcm_template_file = dcm_template_file
+		dcm_template_file = dcm_template_file,
+		dcm_transfer_series = dcm_transfer_series
 	)
 	if dcm_fname is not None:
 		return dcm_fname
 
 	_log.debug('does not seem to be a PDF: %s', filename)
-	converted_fname = gmMimeLib.convert_file(filename = filename, target_mime = 'image/jpeg')#, target_filename = jpg_name)
+	converted_fname = gmMimeLib.convert_file(filename = filename, target_mime = 'image/jpeg')
 	if converted_fname is None:
 		_log.error('cannot convert to JPG: %s', filename)
 		return None
@@ -1219,12 +1227,13 @@ def dicomize_file(filename, title=None, person=None, dcm_name=None, verbose=Fals
 		person = person,
 		dcm_name = dcm_name,
 		verbose = verbose,
-		dcm_template_file = dcm_template_file
+		dcm_template_file = dcm_template_file,
+		dcm_transfer_series = dcm_transfer_series
 	)
 	return dcm_name
 
 #---------------------------------------------------------------------------
-def dicomize_pdf(pdf_name=None, title=None, person=None, dcm_name=None, verbose=False, dcm_template_file=None):
+def dicomize_pdf(pdf_name=None, title=None, person=None, dcm_name=None, verbose=False, dcm_template_file=None, dcm_transfer_series=True):
 	assert (pdf_name is not None), '<pdf_name> must not be None'
 	assert (not ((person is None) and (dcm_template_file is None))), '<person> or <dcm_template_file> must not be None'
 
@@ -1258,7 +1267,10 @@ def dicomize_pdf(pdf_name=None, title=None, person=None, dcm_name=None, verbose=
 			cmd_line.append(_map_gender_gm2dcm[person['gender']])
 	else:
 		_log.debug('DCM template file: %s', dcm_template_file)
-		cmd_line.append('--series-from')
+		if dcm_transfer_series:
+			cmd_line.append('--series-from')
+		else:
+			cmd_line.append('--study-from')
 		cmd_line.append(dcm_template_file)
 	if verbose:
 		cmd_line.append('--log-level')
@@ -1268,10 +1280,11 @@ def dicomize_pdf(pdf_name=None, title=None, person=None, dcm_name=None, verbose=
 	success, exit_code, stdout = gmShellAPI.run_process(cmd_line = cmd_line, encoding = 'utf8', verbose = verbose)
 	if success:
 		return dcm_name
+
 	return None
 
 #---------------------------------------------------------------------------
-def dicomize_jpg(jpg_name=None, title=None, person=None, dcm_name=None, verbose=False, dcm_template_file=None):
+def dicomize_jpg(jpg_name=None, title=None, person=None, dcm_name=None, verbose=False, dcm_template_file=None, dcm_transfer_series=True):
 	assert (jpg_name is not None), '<jpg_name> must not be None'
 	assert (not ((person is None) and (dcm_template_file is None))), 'both <person> and <dcm_template_file> are None, but one is needed'
 
@@ -1323,7 +1336,10 @@ def dicomize_jpg(jpg_name=None, title=None, person=None, dcm_name=None, verbose=
 			cmd_line.append('0010,0040=%s' % _map_gender_gm2dcm[person['gender']])
 	else:
 		_log.debug('DCM template file: %s', dcm_template_file)
-		cmd_line.append('--series-from')
+		if dcm_transfer_series:
+			cmd_line.append('--series-from')
+		else:
+			cmd_line.append('--study-from')
 		cmd_line.append(dcm_template_file)
 	if verbose:
 		cmd_line.append('--log-level')
@@ -1333,6 +1349,7 @@ def dicomize_jpg(jpg_name=None, title=None, person=None, dcm_name=None, verbose=
 	success, exit_code, stdout = gmShellAPI.run_process(cmd_line = cmd_line, encoding = 'utf8', verbose = verbose)
 	if success:
 		return dcm_name
+
 	return None
 
 #============================================================
