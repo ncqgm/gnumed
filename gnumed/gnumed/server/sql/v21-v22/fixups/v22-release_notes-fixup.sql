@@ -17,25 +17,28 @@ INSERT INTO dem.message_inbox (
 ) VALUES (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
-	'Release Notes for GNUmed 1.7.6 (database v22.6)',
-	'GNUmed 1.7.6 Release Notes:
+	'Release Notes for GNUmed 1.7.7 (database v22.7)',
+	'GNUmed 1.7.7 Release Notes:
 
-	1.7.6
+	1.7.7
 
-FIX: application metadata files
-FIX: searching across all EMRs
-FIX: constrain document PRW to current patient
-FIX: lab/table: exception on double-clicking empty cell in row w/o meta test type
-FIX: lab/result EA: failure to show test type on edit
+FIX: EMR/tree: exception on showing visual progress note
+FIX: lab/result EA: exception when no previous result available
+FIX: meds/substance EA: exception when no LOINC selected
+FIX: data/ATC: fix reference data import
+FIX: meds/dose EA: exception on saving
+FIX: meds/product EA: exception on creating new product
+FIX: dist: fix appdata.xml [thanks Andreas]
 
-NEW: stub out $praxis_scan2pay$
+NEW: configurable invoice ID template [thanks Marc]
 
-	22.6
+	22.7
 
-FIX: properly include fixups in v21-v22 upgrade
+IMPROVED: lab results plotting scripts for gnuplot
+IMPROVED: bills tables grants for invoice ID generation
 
-IMPROVED: database backup script
+NEW: multi-results plotting script for gnuplot
 ');
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('v22-release_notes-fixup.sql', '22.6');
+select gm.log_script_insertion('v22-release_notes-fixup.sql', '22.7');
