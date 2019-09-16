@@ -226,10 +226,10 @@ else
 fi
 
 echo -n " '7z' command... "
-BIN=`which xz`
+BIN=`which 7z`
 if [ "x${BIN}x" == "xx" ]; then
 	echo ""
-	echo "  INFO : You don't seem to have the 'xz' command installed."
+	echo "  INFO : You don't seem to have the '7z' command installed."
 	echo "  INFO : It comes with the p7zip-full package"
 	echo "  INFO : and is used to encrypt files and data."
 else

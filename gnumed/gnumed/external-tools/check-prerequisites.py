@@ -127,19 +127,18 @@ except ImportError:
 	print("  INFO : this is needed to work with HL7 data")
 	print("  INFO : GNUmed will still work without it")
 
-# currently, TimeLine does not support wxp4/py3
-#print(" pysvg...", end=' ')
-#try:
-#	import pysvg
-#	print("found")
-#except ImportError:
-#	missing = True
-#	print("")
-#	print("  ERROR: pysvg not installed")
-#	print("  INFO : this is needed to print EMR timelines")
-#	print("  INFO : GNUmed will still work without it")
-#	print("  INFO : note that you need v0.2.1 (not 0.2.2)")
-#	print("  INFO :  <pip install pysvg==0.2.1>")
+print(" pysvg...", end=' ')
+try:
+	import pysvg
+	print("found")
+except ImportError:
+	missing = True
+	print("")
+	print("  ERROR: pysvg not installed")
+	print("  INFO : this is needed to print EMR timelines")
+	print("  INFO : GNUmed will still work without it")
+	print("  INFO : note that you need v0.2.1 (not 0.2.2)")
+	print("  INFO :  <pip3 install pysvg==0.2.1>")
 
 print(" vobject...", end=' ')
 try:
