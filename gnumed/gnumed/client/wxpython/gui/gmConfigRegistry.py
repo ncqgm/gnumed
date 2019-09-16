@@ -391,19 +391,19 @@ class gmConfigEditorPanel(wx.Panel):
 		try:
 			if not (self.currUser is None or self.currWorkplace is None):
 				self.mConfSources['DB:CURRENT_USER_CURRENT_WORKPLACE'] = gmConfigCommon.ConfigSourceDB('DB:CURRENT_USER_CURRENT_WORKPLACE',aWorkplace=self.currWorkplace)
-		except: pass
+		except Exception: pass
 		try:
 			if not (self.currUser is None) :
 				self.mConfSources['DB:CURRENT_USER_DEFAULT_WORKPLACE'] = gmConfigCommon.ConfigSourceDB('DB:CURRENT_USER_DEFAULT_WORKPLACE')
-		except: pass
+		except Exception: pass
 		try:
 			if not (self.currWorkplace is None):
 				self.mConfSources['DB:DEFAULT_USER_CURRENT_WORKPLACE'] = gmConfigCommon.ConfigSourceDB('DB:DEFAULT_USER_CURRENT_WORKPLACE',aUser='xxxDEFAULTxxx',aWorkplace=self.currWorkplace)
-		except: pass
+		except Exception: pass
 		try:
 			# this should always work
 			self.mConfSources['DB:DEFAULT_USER_DEFAULT_WORKPLACE'] = gmConfigCommon.ConfigSourceDB('DB:DEFAULT_USER_DEFAULT_WORKPLACE',aUser='xxxDEFAULTxxx')
-		except:
+		except Exception:
 			pass
 # main sizers
 		self.mainSizer = wx.BoxSizer(wx.HORIZONTAL)
@@ -505,7 +505,7 @@ if __name__ == '__main__':
 		application = wx.PyWidgetTester(size=(640,480))
 		application.SetWidget(gmConfigEditorPanel,"any-doc",workplace, 0)
 		application.MainLoop()
-	except:
+	except Exception:
 		_log.LogException("unhandled exception caught !", sys.exc_info(), verbose=0)
 		# but re-raise them
 		raise

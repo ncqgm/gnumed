@@ -481,7 +481,7 @@ def load_persons_from_xdt():
 			)
 			_log.exception('cannot access xDT file [%s]' % bdt_file['file'])
 			continue
-		except:
+		except Exception:
 			gmGuiHelpers.gm_show_error (
 				_(
 				'Cannot load patient from BDT file\n\n'
@@ -552,7 +552,7 @@ def load_persons_from_pracsoft_au():
 	for pracsoft_file in pracsoft_files:
 		try:
 			tmp = gmPerson.get_persons_from_pracsoft_file(filename = pracsoft_file['file'])
-		except:
+		except Exception:
 			_log.exception('cannot parse PracSoft file [%s]' % pracsoft_file['file'])
 			continue
 		for dto in tmp:
@@ -1267,7 +1267,7 @@ def set_active_patient(patient=None, forced_reload=False):
 		# but also valid patient ID ?
 		try:
 			patient = gmPerson.cPatient(aPK_obj = pk)
-		except:
+		except Exception:
 			_log.exception('error changing active patient to [%s]' % patient)
 			return False
 

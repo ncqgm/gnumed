@@ -75,7 +75,8 @@ class cPhraseWheelListCtrl(wx.ListCtrl, listmixins.ListCtrlAutoWidthMixin):
 	def __init__(self, *args, **kwargs):
 		try:
 			kwargs['style'] = kwargs['style'] | wx.LC_REPORT | wx.LC_SINGLE_SEL | wx.SIMPLE_BORDER
-		except: pass
+		except KeyError:
+			pass
 		wx.ListCtrl.__init__(self, *args, **kwargs)
 		listmixins.ListCtrlAutoWidthMixin.__init__(self)
 	#--------------------------------------------------------

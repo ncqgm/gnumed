@@ -114,7 +114,7 @@ class cActiveRequestsPanel (RequestsPanel):
                 form.printout ()
             except gmForms.FormError, e:
                 gmGuiHelpers.gm_show_error (str(e), _("Error processing form"))
-            except:
+            except Exception:
                 gmLog.gmDefLog.LogException( "forms printing", sys.exc_info(), verbose=0)
         else:
             gmGuiHelpers.gm_show_error (_("You must select a form and type"), _("Missing field"))

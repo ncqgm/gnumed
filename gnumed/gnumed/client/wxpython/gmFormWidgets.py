@@ -116,7 +116,7 @@ def print_doc_from_ooo_template(template=None):
 			_('Letter writer')
 		)
 		try: os.remove(filename)
-		except: pass
+		except Exception: pass
 		return False
 
 	doc.show(False)
@@ -547,7 +547,7 @@ class cFormTemplateEAPnl(wxgFormTemplateEditAreaPnl.wxgFormTemplateEditAreaPnl, 
 		if self.data is None:
 			try:
 				open(fname, 'r').close()
-			except:
+			except Exception:
 				validity = False
 				self.display_tctrl_as_valid(tctrl = self._TCTRL_filename, valid = False)
 				self.StatusText = _('You must select a template file before saving.')
@@ -643,7 +643,7 @@ class cFormTemplateEAPnl(wxgFormTemplateEditAreaPnl.wxgFormTemplateEditAreaPnl, 
 		try:
 			open(fname, 'r').close()
 			self.data.update_template_from_file(filename = fname)
-		except:
+		except Exception:
 			pass # filename column already updated
 
 		return True

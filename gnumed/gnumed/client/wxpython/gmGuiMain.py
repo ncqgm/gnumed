@@ -1182,7 +1182,7 @@ class gmTopLevelFrame(wx.Frame):
 		def is_valid(value):
 			try:
 				i = int(value)
-			except:
+			except Exception:
 				return False, value
 			if i < 0:
 				return False, value
@@ -1291,7 +1291,7 @@ class gmTopLevelFrame(wx.Frame):
 			try:
 				value = float(value)
 				return True, value
-			except:
+			except Exception:
 				return False, value
 
 		gmCfgWidgets.configure_string_option (
@@ -1336,7 +1336,7 @@ class gmTopLevelFrame(wx.Frame):
 			try:
 				urllib.request.urlopen(value)
 				return True, value
-			except:
+			except Exception:
 				return True, value
 
 		gmCfgWidgets.configure_string_option (
@@ -1659,7 +1659,7 @@ class gmTopLevelFrame(wx.Frame):
 			try:
 				urllib.request.urlopen(value)
 				return True, value
-			except:
+			except Exception:
 				return True, value
 
 		gmCfgWidgets.configure_string_option (
@@ -1842,7 +1842,7 @@ class gmTopLevelFrame(wx.Frame):
 		def is_valid(value):
 			try:
 				value = int(value)
-			except:
+			except Exception:
 				return False, value
 			return gmPG2.is_pg_interval(candidate=value), value
 
@@ -1945,7 +1945,7 @@ class gmTopLevelFrame(wx.Frame):
 		def is_valid(value):
 			try:
 				urllib.request.urlopen(value)
-			except:
+			except Exception:
 				return False, value
 
 			return True, value
@@ -2027,7 +2027,7 @@ class gmTopLevelFrame(wx.Frame):
 		def is_valid(value):
 			try:
 				value = int(value)
-			except:
+			except Exception:
 				return False, value
 			if value not in [0, 1, 2, 3, 4]:
 				return False, value
@@ -2257,7 +2257,7 @@ class gmTopLevelFrame(wx.Frame):
 		for pdf in pdfs:
 			try:
 				open(pdf).close()
-			except:
+			except Exception:
 				_log.exception('error accessing [%s]', pdf)
 				gmDispatcher.send(signal = 'statustext', msg = _('There was a problem accessing the [arriba] result in [%s] !') % pdf, beep = True)
 				continue
@@ -2772,7 +2772,7 @@ class gmTopLevelFrame(wx.Frame):
 #		wx.BeginBusyCursor()
 #		try:
 #			fname = exporter.save_to_file_by_mod_time(filename = fname, patient = pat)
-#		except:
+#		except Exception:
 #			wx.EndBusyCursor()
 #			_log.exception('error exporting EMR')
 #			gmGuiHelpers.gm_show_error (
@@ -2818,7 +2818,7 @@ class gmTopLevelFrame(wx.Frame):
 #		wx.BeginBusyCursor()
 #		try:
 #			fname = exporter.save_to_file_by_encounter(filename = fname, patient = pat)
-#		except:
+#		except Exception:
 #			wx.EndBusyCursor()
 #			_log.exception('error exporting EMR')
 #			gmGuiHelpers.gm_show_error (
@@ -2844,7 +2844,7 @@ class gmTopLevelFrame(wx.Frame):
 		wx.BeginBusyCursor()
 		try:
 			fname = exporter.save_to_file_by_mod_time(patient = pat)
-		except:
+		except Exception:
 			wx.EndBusyCursor()
 			_log.exception('error exporting EMR')
 			gmGuiHelpers.gm_show_error (
@@ -2870,7 +2870,7 @@ class gmTopLevelFrame(wx.Frame):
 		wx.BeginBusyCursor()
 		try:
 			fname = exporter.save_to_file_by_encounter(patient = pat)
-		except:
+		except Exception:
 			wx.EndBusyCursor()
 			_log.exception('error exporting EMR')
 			gmGuiHelpers.gm_show_error (
@@ -3071,14 +3071,14 @@ class gmTopLevelFrame(wx.Frame):
 		listener = gmBackendListener.gmBackendListener()
 		try:
 			listener.shutdown()
-		except:
+		except Exception:
 			_log.exception('cannot stop backend notifications listener thread')
 
 		# shutdown application scripting listener
 		if _scripting_listener is not None:
 			try:
 				_scripting_listener.shutdown()
-			except:
+			except Exception:
 				_log.exception('cannot stop scripting listener thread')
 
 		# shutdown timers
@@ -3090,7 +3090,7 @@ class gmTopLevelFrame(wx.Frame):
 		for call_back in self.__pre_exit_callbacks:
 			try:
 				call_back()
-			except:
+			except Exception:
 				print('*** pre-exit callback failed ***')
 				print('%s' % call_back)
 				_log.exception('callback [%s] failed', call_back)
@@ -3584,7 +3584,7 @@ class gmApp(wx.App):
 		try:
 			self.user_activity_timer.Stop()
 			del self.user_activity_timer
-		except:
+		except Exception:
 			pass
 
 	#----------------------------------------------
@@ -3821,7 +3821,7 @@ class gmApp(wx.App):
 		traits = self.GetTraits()
 		try:
 			_log.info('desktop environment: [%s]', traits.GetDesktopEnvironment())
-		except:
+		except Exception:
 			pass
 
 		if wx.Platform == '__WXMSW__':
@@ -3954,7 +3954,7 @@ def _signal_debugging_monitor(*args, **kwargs):
 	for key in kwargs:
 		# careful because of possibly limited console output encoding
 		try: print('    [%s]: %s' % (key, kwargs[key]))
-		except: print('cannot print signal information')
+		except Exception: print('cannot print signal information')
 
 #==============================================================================
 def _safe_wxEndBusyCursor():

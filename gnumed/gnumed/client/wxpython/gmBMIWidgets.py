@@ -316,7 +316,7 @@ class BMICalc_Panel(wx.Panel):
 				try:
 					self.txtloss.SetValue(str(eval(self.txtmass.GetValue())-eval(self.txtgoal.GetValue())))
 					self.CalcNEWBMI()
-				except:
+				except Exception:
 					pass	# error handling
 			else:
 				self.txtloss.SetValue('')
@@ -329,7 +329,7 @@ class BMICalc_Panel(wx.Panel):
 				try:
 					self.txtgoal.SetValue(str(eval(self.txtmass.GetValue())-eval(self.txtloss.GetValue())))
 					self.CalcNEWBMI()
-				except:
+				except Exception:
 					pass	# error handling
 			else:
 				self.txtgoal.SetValue('')
@@ -342,7 +342,7 @@ class BMICalc_Panel(wx.Panel):
 
 			# FIXME - display upp_norm_mass & low_norm_mass
 			#bmi_colour_scale = BMI_Colour_Scale(self)
-		except:
+		except Exception:
 			pass 	# error handling
 	#-----------------------------------------
 	def CalcBMI(self):
@@ -365,7 +365,7 @@ class BMICalc_Panel(wx.Panel):
 				#		then self.txtbmi=30.5  BUT self.slider=30
 				#
 				#     MORE DETAILS IN OLDER VERSION OF gmBMICalc.py
-			except:
+			except Exception:
 				pass	# error handling
 	#-----------------------------------------
 	def CalcNEWBMI(self):
@@ -377,7 +377,7 @@ class BMICalc_Panel(wx.Panel):
 		try:
 			self.txtgoal.SetValue(str(round(self.NEWBMI*(eval(self.txtheight.GetValue())/100.)**2,1)))
 			self.txtloss.SetValue(str(eval(self.txtmass.GetValue())-eval(self.txtgoal.GetValue())))
-		except:
+		except Exception:
 			pass 	# error handling
 	#-----------------------------------------
 	# Moving between fields with the 'Enter' key

@@ -674,7 +674,7 @@ class cEditArea2(wx.Panel):
 	#--------------------------------------------------------
 	def _on_OK_btn_pressed(self, event):
 		"""Only active if _make_standard_buttons was called in child class."""
-		# FIXME: this try: except: block seems to large
+		# FIXME: this try: except Exception: block seems to large
 		try:
 			event.Skip()
 			if self.data is None:
@@ -687,7 +687,7 @@ class cEditArea2(wx.Panel):
 			# nasty evil popup dialogue box
 			# but for invalid input we want to interrupt user
 			gmGuiHelpers.gm_show_error (err, _("Invalid Input"))
-		except:
+		except Exception:
 			_log.exception( "save data problem in [%s]" % self.__class__.__name__)
 	#--------------------------------------------------------
 	def _on_clear_btn_pressed(self, event):
@@ -1072,7 +1072,7 @@ class cEditArea(wx.Panel):
 	# handlers
 	#--------------------------------------------------------
 	def _on_OK_btn_pressed(self, event):
-		# FIXME: this try: except: block seems to large
+		# FIXME: this try: except Exception: block seems to large
 		try:
 			event.Skip()
 			if self.data is None:
@@ -1085,7 +1085,7 @@ class cEditArea(wx.Panel):
 			# nasty evil popup dialogue box
 			# but for invalid input we want to interrupt user
 			gmGuiHelpers.gm_show_error (err, _("Invalid Input"))
-		except:
+		except Exception:
 			_log.exception( "save data  problem in [%s]" % self.__class__.__name__)
 	#--------------------------------------------------------
 	def _on_clear_btn_pressed(self, event):
@@ -1344,13 +1344,13 @@ class gmEditArea(cEditArea):
 				continue
 			try:
 				field.SetValue( str(v) )
-			except:
+			except Exception:
 				try:
 					if type(v) == type(''):
 						v = 0
 
 					field.SetValue( v)
-				except:
+				except Exception:
 					pass
 		self.setDataId(id)
 		#self.monitoring_dirty = 1
@@ -1375,7 +1375,7 @@ class gmEditArea(cEditArea):
 		for f in fields:
 			try:
 				values[f] = self.input_fields[f].GetValue()
-			except:
+			except Exception:
 				pass
 		return values
 #====================================================================
@@ -1520,13 +1520,13 @@ class gmPastHistoryEditArea(gmEditArea):
 		try :
 			year = self._getBirthYear() + int(self.fld_age_noted.GetValue().strip() )
 			self.fld_date_noted.SetValue( str (year) )
-		except:
+		except Exception:
 			pass
 
 	def _getBirthYear(self):
 		try:
 			birthyear = int(str(self._patient['dob']).split('-')[0]) 
-		except:
+		except Exception:
 #			birthyear = time.localtime()[0]
 			birthyear = 1
 
@@ -1537,7 +1537,7 @@ class gmPastHistoryEditArea(gmEditArea):
 		try:
 			age = int(self.fld_date_noted.GetValue().strip() ) - self._getBirthYear() 
 			self.fld_age_noted.SetValue( str (age) )
-		except:
+		except Exception:
 			pass
 
 	__init_values = {
@@ -1561,7 +1561,7 @@ class gmPastHistoryEditArea(gmEditArea):
 		try:
 			#return	time.localtime()[0] - self._patient.getBirthYear()
 			return 1
-		except:
+		except Exception:
 			return 0
 
 	def _get_init_values(self):

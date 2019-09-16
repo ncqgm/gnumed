@@ -527,7 +527,7 @@ def get_default_gnuplot_template(parent = None):
 	# but also *validly* ?
 	try:
 		name, ver = default_template_name.split(' - ')
-	except:
+	except Exception:
 		# not valid
 		_log.exception('problem splitting Gnuplot script template name [%s]', default_template_name)
 		gmDispatcher.send(signal = 'statustext', msg = _('Problem loading Gnuplot script template.'), beep = True)
@@ -3014,7 +3014,7 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 			try:
 				decimal.Decimal(val.replace(',', '.', 1))
 				self.display_ctrl_as_valid(widget, True)
-			except:
+			except Exception:
 				validity = False
 				self.display_ctrl_as_valid(widget, False)
 

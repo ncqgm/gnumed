@@ -816,7 +816,7 @@ class cAddressEAPnl(wxgGenericAddressEditAreaPnl.wxgGenericAddressEditAreaPnl, g
 				number = self._TCTRL_number.GetValue().strip(),
 				subunit = gmTools.none_if(self._TCTRL_subunit.GetValue().strip(), '')
 			)
-		except:
+		except Exception:
 			_log.exception('cannot save address')
 			gmGuiHelpers.gm_show_error (
 				_('Cannot save address.\n\n'
@@ -859,7 +859,7 @@ class cAddressEAPnl(wxgGenericAddressEditAreaPnl.wxgGenericAddressEditAreaPnl, g
 				number = self._TCTRL_number.GetValue().strip(),
 				subunit = gmTools.none_if(self._TCTRL_subunit.GetValue().strip(), '')
 			)
-		except:
+		except Exception:
 			_log.exception('cannot save address')
 			gmGuiHelpers.gm_show_error (
 				_('Cannot save address.\n\n'

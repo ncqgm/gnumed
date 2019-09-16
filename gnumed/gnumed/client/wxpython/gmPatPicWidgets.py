@@ -193,7 +193,7 @@ class cPatientPicture(wx.StaticBitmap):
 			img_data = wx.Image(fname, wx.BITMAP_TYPE_ANY)
 			img_data.Rescale(self.__desired_width, self.__desired_height)
 			bmp_data = wx.Bitmap(img_data)
-		except:
+		except Exception:
 			_log.exception('cannot set patient picture from [%s]', fname)
 			gmDispatcher.send(signal='statustext', msg=_('Cannot set patient picture from [%s].') % fname)
 			return False

@@ -548,7 +548,7 @@ class cPregCalcFrame (wx.Frame):
 			wx.D=wx.DateTime()
 			wx.D.SetTimeT(newedc)
 			self.txtnewedc.SetValue(self.PurgeTime(wx.D))
-		except:
+		except Exception:
 			pass	# error handling - FIXME is 'try' statement necessary (?)
 
 	#-----------------------------------------

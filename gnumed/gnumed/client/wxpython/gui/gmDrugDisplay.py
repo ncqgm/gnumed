@@ -117,7 +117,7 @@ class DrugDisplay(wx.Panel):
 		# this will fail if backend or config files are not available
 		try:    
 			self.mDrugView=gmDrugView.DrugView(self.dbName)
-		except:
+		except Exception:
 			_log.LogException("Unhandled exception during DrugView API init.", sys.exc_info(), verbose = 0)
 			raise gmExceptions.ConstructorError, "Couldn't initialize DrugView API"
 #			return None

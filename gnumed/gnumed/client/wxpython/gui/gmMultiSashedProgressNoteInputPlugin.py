@@ -77,7 +77,7 @@ if __name__ == "__main__":
         if patient is not None:
             try:
                 patient.cleanup()
-            except:
+            except Exception:
                 print "error cleaning up patient"
     except Exception:
         _log.exception("unhandled exception caught !")
@@ -85,7 +85,7 @@ if __name__ == "__main__":
         raise
     try:
         pool.StopListeners()
-    except:
+    except Exception:
         _log.exception('unhandled exception caught')
         raise
 

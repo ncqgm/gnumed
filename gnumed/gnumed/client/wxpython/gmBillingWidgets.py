@@ -413,7 +413,7 @@ def get_invoice_template(parent=None, with_vat=True):
 	else:
 		try:
 			name, ver = template.split(' - ')
-		except:
+		except Exception:
 			_log.exception('problem splitting invoice template name [%s]', template)
 			gmDispatcher.send(signal = 'statustext', msg = _('Problem loading invoice template.'), beep = True)
 			return None

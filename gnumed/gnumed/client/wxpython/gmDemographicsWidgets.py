@@ -751,7 +751,7 @@ class cExternalIDEditAreaPnl(wxgExternalIDEditAreaPnl.wxgExternalIDEditAreaPnl, 
 		try:
 			data = kwargs['external_id']
 			del kwargs['external_id']
-		except:
+		except Exception:
 			data = None
 
 		wxgExternalIDEditAreaPnl.wxgExternalIDEditAreaPnl.__init__(self, *args, **kwargs)

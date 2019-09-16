@@ -1161,7 +1161,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 
 		try:
 			devices = self.scan_module.get_devices()
-		except:
+		except Exception:
 			_log.exception('cannot retrieve list of image sources')
 			gmDispatcher.send(signal = 'statustext', msg = _('There is no scanner support installed on this machine.'))
 			return None

@@ -662,7 +662,7 @@ class cPopupDataHolder:
 		# remove old data if necessary
 		try:
 			del self.__data[popup_type][old_desc]
-		except:
+		except Exception:
 			pass
 		return True
 	#--------------------------------------------------------
@@ -1135,7 +1135,7 @@ if __name__ == "__main__":
 				try:
 					# FIXME: add more data such as doctor sig
 					label_txt = default_labels[narrative['soap_cat']]
-				except:
+				except Exception:
 					label_txt = narrative['soap_cat']
 				line = cSOAPLineDef()
 				line.label = label_txt

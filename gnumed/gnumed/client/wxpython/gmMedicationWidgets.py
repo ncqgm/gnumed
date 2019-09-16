@@ -1062,7 +1062,7 @@ def print_medication_list(parent=None):
 	else:
 		try:
 			name, ver = template.split(' - ')
-		except:
+		except Exception:
 			_log.exception('problem splitting medication list template name [%s]', template)
 			gmDispatcher.send(signal = 'statustext', msg = _('Problem loading medication list template.'), beep = True)
 			return False
@@ -1150,7 +1150,7 @@ def get_prescription_template(parent=None):
 
 	try:
 		name, ver = template_name.split(' - ')
-	except:
+	except Exception:
 		_log.exception('problem splitting prescription template name [%s]', template_name)
 		gmDispatcher.send(signal = 'statustext', msg = _('Problem loading prescription template.'), beep = True)
 		return False
@@ -1950,7 +1950,7 @@ def configure_adr_url(self):
 		try:
 			urllib.request.urlopen(value)
 			return True, value
-		except:
+		except Exception:
 			return True, value
 
 	gmCfgWidgets.configure_string_option (

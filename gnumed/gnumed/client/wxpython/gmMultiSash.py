@@ -316,11 +316,11 @@ class cMultiSashSplitter(wx.Window):
 			self.DestroyLater()
 #			try:
 #				print "leaf 1: %s [%s]" % (self.leaf1.__class__.__name__, id(self.leaf1))
-#			except:
+#			except Exception:
 #				pass
 #			try:
 #				print "leaf 2: %s [%s]" % (self.leaf2.__class__.__name__, id(self.leaf2))
-#			except:
+#			except Exception:
 #				pass
 		# Gnumed: find and update the bottom leaf
 		top_parent.refresh_bottom_leaf()

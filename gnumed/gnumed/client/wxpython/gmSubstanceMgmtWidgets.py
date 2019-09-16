@@ -171,7 +171,7 @@ def jump_to_ifap_deprecated(import_drugs=False, emr=None):
 		# COMMENT: or else IFAP will not write data into it ...
 		try:
 			csv_file = io.open(transfer_file, mode = 'rt', encoding = 'latin1')						# FIXME: encoding unknown
-		except:
+		except Exception:
 			_log.exception('cannot access [%s]', fname)
 			csv_file = None
 
@@ -809,7 +809,7 @@ class cDrugComponentEAPnl(wxgDrugComponentEAPnl.wxgDrugComponentEAPnl, gmEditAre
 		try:
 			decimal.Decimal(val)
 			self.display_tctrl_as_valid(tctrl = self._TCTRL_amount, valid = True)
-		except:
+		except Exception:
 			validity = False
 			self.display_tctrl_as_valid(tctrl = self._TCTRL_amount, valid = False)
 
