@@ -1015,9 +1015,10 @@ class gmTopLevelFrame(wx.Frame):
 		gmDispatcher.send(signal = 'statustext', msg = '')
 		try:
 			gmHooks.run_hook_script(hook = 'post_patient_activation')
-		except:
+		except Exception:
+			_log.exception('error running hook [post_patient_activation]')
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot run script after patient activation.'))
-			raise
+
 	#----------------------------------------------
 	def _before_switching_from_patient_callback(self):
 		msg = _(
@@ -2728,14 +2729,15 @@ class gmTopLevelFrame(wx.Frame):
 		if not pat.connected:
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot export EMR. No active patient.'))
 			return False
+
 		wx.BeginBusyCursor()
 		try:
 			fname = gmEMRStructItems.export_emr_structure(patient = pat)
 			pat.export_area.add_file(filename = fname, hint = _('EMR as care structure file'))
 		except Exception:
-			raise
-		finally:
-			wx.EndBusyCursor()
+			_log.exception('error adding EMR structure file to export area')
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot export EMR.'))
+		wx.EndBusyCursor()
 
 	#----------------------------------------------
 #	def __on_save_emr_by_last_mod(self, event):

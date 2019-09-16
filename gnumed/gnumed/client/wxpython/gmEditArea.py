@@ -1719,12 +1719,7 @@ class gmReferralEditArea(gmEditArea):
 #====================================================================
 class gmPrescriptionEditArea(gmEditArea):
 	def __init__(self, parent, id):
-		try:
-			gmEditArea.__init__(self, parent, id, aType = 'prescription')
-		except gmExceptions.ConstructorError:
-			_log.exceptions('cannot instantiate prescription edit area')
-			raise
-
+		gmEditArea.__init__(self, parent, id, aType = 'prescription')
 
 	#----------------------------------------------------------------
 	def _make_edit_lines(self, parent):
@@ -1738,7 +1733,7 @@ class gmPrescriptionEditArea(gmEditArea):
 		self.txt_directions= cEditAreaField(parent)
 		self.txt_for = cEditAreaField(parent)
 		self.txt_progress = cEditAreaField(parent)
-		
+
 		lines.append(self.txt_problem)
 		lines.append(self.txt_class)
 		lines.append(self.txt_generic)

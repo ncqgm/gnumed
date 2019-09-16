@@ -399,14 +399,11 @@ class cFileDropTarget(wx.FileDropTarget):
 	#-----------------------------------------------
 	def __init__(self, target=None, on_drop_callback=None):
 		if target is not None:
-			try:
-				on_drop_callback = getattr(target, '_drop_target_consume_filenames')
-			except AttributeError:
-				_log.exception('[%s._drop_target_consume_filenames()] does not exist, cannot set as drop target callback', target)
-				raise
+			on_drop_callback = getattr(target, '_drop_target_consume_filenames')
 		if not callable(on_drop_callback):
 			_log.error('[%s] not callable, cannot set as drop target callback', on_drop_callback)
 			raise AttributeError('[%s] not callable, cannot set as drop target callback', on_drop_callback)
+
 		self._on_drop_callback = on_drop_callback
 		wx.FileDropTarget.__init__(self)
 		_log.debug('setting up [%s] as file drop target', self._on_drop_callback)

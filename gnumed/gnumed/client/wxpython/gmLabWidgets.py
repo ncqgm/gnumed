@@ -820,7 +820,6 @@ class cLabDataGrid(wx.Grid):
 			if result['unified_name'] not in test_names:
 				test_names.append(result['unified_name'])
 		dates.sort()
-		
 		return dates, test_names
 	#------------------------------------------------------------------------
 	#def sort_by_value(self, d=None):
@@ -829,7 +828,6 @@ class cLabDataGrid(wx.Grid):
 	#    backitems=[ [v[1],v[0]] for v in items]
 	#    backitems.sort()
 	#    return [ backitems[i][1] for i in range(0,len(backitems))]
-	
 	#--------------------------------------------------------
 	def __on_right_click(self, evt):
 		pass
@@ -841,15 +839,9 @@ class cLabDataGrid(wx.Grid):
 if __name__ == '__main__':
 	_log.Log (gmLog.lInfo, "starting lab journal")
 
-	# catch all remaining exceptions
-	try:
-		application = wxPyWidgetTester(size=(640,480))
-		application.SetWidget(cStandalonePanel,-1)
-		application.MainLoop()
-	except:
-		_log.LogException("unhandled exception caught !", sys.exc_info(), 1)
-		# but re-raise them
-		raise
+	application = wxPyWidgetTester(size=(640,480))
+	application.SetWidget(cStandalonePanel,-1)
+	application.MainLoop()
 	#gmPG.StopListeners()
 	_log.Log (gmLog.lInfo, "closing lab journal")
 #=========================================================

@@ -807,27 +807,22 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 	def _goto_patient(self, pk_context=None, pk_patient=None):
 
 		wx.BeginBusyCursor()
-
 		msg = _('There is a message about patient [%s].\n\n'
 			'However, I cannot find that\n'
 			'patient in the GNUmed database.'
 		) % pk_patient
-
+		pat = None
 		try:
 			pat = gmPerson.cPerson(aPK_obj = pk_patient)
 		except gmExceptions.ConstructorError:
-			wx.EndBusyCursor()
 			_log.exception('patient [%s] not found', pk_patient)
+		finally:
+			wx.EndBusyCursor()
+		if pat is None:
 			gmGuiHelpers.gm_show_error(msg, _('handling provider inbox item'))
 			return False
-		except:
-			wx.EndBusyCursor()
-			raise
 
 		success = set_active_patient(patient = pat)
-
-		wx.EndBusyCursor()
-
 		if not success:
 			gmGuiHelpers.gm_show_error(msg, _('handling provider inbox item'))
 			return False

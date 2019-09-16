@@ -1867,32 +1867,27 @@ if __name__ == '__main__':
 
 	_log.info("starting emr browser...")
 
-	try:
-		# obtain patient
-		patient = gmPersonSearch.ask_for_patient()
-		if patient is None:
-			print("No patient. Exiting gracefully...")
-			sys.exit(0)
-		gmPatSearchWidgets.set_active_patient(patient = patient)
+	# obtain patient
+	patient = gmPersonSearch.ask_for_patient()
+	if patient is None:
+		print("No patient. Exiting gracefully...")
+		sys.exit(0)
+	gmPatSearchWidgets.set_active_patient(patient = patient)
 
-		# display standalone browser
-		application = wx.PyWidgetTester(size=(800,600))
-		emr_browser = cEMRBrowserPanel(application.frame, -1)
-		emr_browser.refresh_tree()
+	# display standalone browser
+	application = wx.PyWidgetTester(size=(800,600))
+	emr_browser = cEMRBrowserPanel(application.frame, -1)
+	emr_browser.refresh_tree()
 
-		application.frame.Show(True)
-		application.MainLoop()
+	application.frame.Show(True)
+	application.MainLoop()
 
-		# clean up
-		if patient is not None:
-			try:
-				patient.cleanup()
-			except:
-				print("error cleaning up patient")
-	except Exception:
-		_log.exception("unhandled exception caught !")
-		# but re-raise them
-		raise
+	# clean up
+	if patient is not None:
+		try:
+			patient.cleanup()
+		except:
+			print("error cleaning up patient")
 
 	_log.info("closing emr browser...")
 

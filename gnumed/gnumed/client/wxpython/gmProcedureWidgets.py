@@ -478,13 +478,4 @@ if __name__ == '__main__':
 		sys.exit(0)
 	gmPatSearchWidgets.set_active_patient(patient=pat)
 
-#	try:
-		# lauch emr dialogs test application
-#		app = testapp(0)
-#		app.MainLoop()
-#	except Exception:
-#		_log.exception("unhandled exception caught !")
-		# but re-raise them
-#		raise
-
 	test_edit_procedure()

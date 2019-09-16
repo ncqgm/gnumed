@@ -83,11 +83,7 @@ sys.path.insert(0, local_python_base_dir)
 
 
 # GNUmed imports
-try:
-	from Gnumed.pycommon import gmLog2
-except ImportError:
-	print("Please make sure the GNUmed Python modules are in the Python path !")
-	raise
+from Gnumed.pycommon import gmLog2
 from Gnumed.pycommon import gmCfg2
 from Gnumed.pycommon import gmPsql
 from Gnumed.pycommon import gmPG2
@@ -277,19 +273,12 @@ def connect(host, port, db, user, passwd, conn_name=None):
 			passwd = cached_passwd[user]
 		else:
 			passwd = ''
-
 	dsn = gmPG2.make_psycopg2_dsn(database=db, host=host, port=port, user=user, password=passwd)
 	_log.info(u"trying DB connection to %s on %s as %s", db, host or 'localhost', user)
-	try:
-		conn = gmPG2.get_connection(dsn=dsn, readonly=False, pooled=False, verbose=True, connection_name = conn_name)
-	except:
-		_log.exception(u'connection failed')
-		raise
-
+	conn = gmPG2.get_connection(dsn=dsn, readonly=False, pooled=False, verbose=True, connection_name = conn_name)
 	cached_host = (host, port) # learn from past successes
 	cached_passwd[user] = passwd
 	conn_ref_count.append(conn)
-
 	_log.info(u'successfully connected')
 	return conn
 

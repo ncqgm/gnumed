@@ -636,12 +636,12 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 	#--------------------------------------------------------
 	def set_placeholder(self, key=None, value=None, known_only=True):
 		_log.debug('setting [%s]', key)
-		try:
-			known_injectable_placeholders.index(key)
-		except ValueError:
-			_log.debug('injectable placeholder [%s] unknown', key)
+		if key not in known_injectable_placeholders:
 			if known_only:
-				raise
+				raise ValueError('un-injectable placeholder [%s]' % key)
+
+			_log.debug('placeholder [%s] not known as injectable', key)
+
 		self.__injected_placeholders[key] = value
 
 	#--------------------------------------------------------

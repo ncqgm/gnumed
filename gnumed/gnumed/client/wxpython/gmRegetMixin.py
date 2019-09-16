@@ -58,9 +58,10 @@ class cRegetOnPaintMixin:
 		self._data_stale = True
 		try:
 			self.Bind(wx.EVT_PAINT, self.__on_paint_event)
-		except:
+		except Exception:
 			print('you likely need to call "cRegetOnPaintMixin.__init__(self)" later in %s__init__()' % self.__class__.__name__)
 			raise
+
 	#-----------------------------------------------------
 	def __on_paint_event(self, event):
 		"""Called just before the widget is repainted.
