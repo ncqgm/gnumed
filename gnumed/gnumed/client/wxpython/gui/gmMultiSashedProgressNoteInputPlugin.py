@@ -41,7 +41,7 @@ class gmMultiSashedProgressNoteInputPlugin(gmPlugin.cNotebookPlugin):
 		if not self._verify_patient_avail():
 			return None
 		return 1
-		    
+
 #======================================================================
 # main
 #----------------------------------------------------------------------
@@ -55,39 +55,30 @@ if __name__ == "__main__":
 
     _log.info("starting multisashed progress notes input plugin...")
 
-    try:
-        # make sure we have a db connection
-        pool = gmPG.ConnectionPool()
+    # make sure we have a db connection
+    pool = gmPG.ConnectionPool()
 
-        # obtain patient
-        patient = gmPersonSearch.ask_for_patient()
-        if patient is None:
-            print "None patient. Exiting gracefully..."
-            sys.exit(0)
-	    gmPatSearchWidgets.set_active_patient(patient=patient)
+    # obtain patient
+    patient = gmPersonSearch.ask_for_patient()
+    if patient is None:
+        print "None patient. Exiting gracefully..."
+        sys.exit(0)
+    gmPatSearchWidgets.set_active_patient(patient=patient)
 
-        # display standalone multisash progress notes input
-        application = wx.wxPyWidgetTester(size=(800,600))
-        multisash_notes = gmSOAPWidgets.cMultiSashedProgressNoteInputPanel(application.frame, -1)
+    # display standalone multisash progress notes input
+    application = wx.wxPyWidgetTester(size=(800,600))
+    multisash_notes = gmSOAPWidgets.cMultiSashedProgressNoteInputPanel(application.frame, -1)
 
-        application.frame.Show(True)
-        application.MainLoop()
+    application.frame.Show(True)
+    application.MainLoop()
 
-        # clean up
-        if patient is not None:
-            try:
-                patient.cleanup()
-            except Exception:
-                print "error cleaning up patient"
-    except Exception:
-        _log.exception("unhandled exception caught !")
-        # but re-raise them
-        raise
-    try:
-        pool.StopListeners()
-    except Exception:
-        _log.exception('unhandled exception caught')
-        raise
+    # clean up
+    if patient is not None:
+        try:
+            patient.cleanup()
+        except Exception:
+            print "error cleaning up patient"
+    pool.StopListeners()
 
     _log.info("closing multisashed progress notes input plugin...")
 

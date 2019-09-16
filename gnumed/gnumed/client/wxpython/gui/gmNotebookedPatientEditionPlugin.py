@@ -75,31 +75,26 @@ if __name__ == "__main__":
 
 	_log.info("starting Notebooked patient edition plugin...")
 
-	try:
-		# obtain patient
-		patient = gmPersonSearch.ask_for_patient()
-		if patient is None:
-			print("None patient. Exiting gracefully...")
-			sys.exit(0)
-		gmPatSearchWidgets.set_active_patient(patient=patient)
+	# obtain patient
+	patient = gmPersonSearch.ask_for_patient()
+	if patient is None:
+		print("None patient. Exiting gracefully...")
+		sys.exit(0)
+	gmPatSearchWidgets.set_active_patient(patient=patient)
 
-		# display standalone notebooked patient editor
-		application = wx.PyWidgetTester(size=(800,600))
-		application.SetWidget(gmDemographicsWidgets.cNotebookedPatEditionPanel, -1)
+	# display standalone notebooked patient editor
+	application = wx.PyWidgetTester(size=(800,600))
+	application.SetWidget(gmDemographicsWidgets.cNotebookedPatEditionPanel, -1)
 
-		application.frame.Show(True)
-		application.MainLoop()
+	application.frame.Show(True)
+	application.MainLoop()
 
-		# clean up
-		if patient is not None:
-			try:
-				patient.cleanup()
-			except Exception:
-				print("error cleaning up patient")
-	except Exception:
-		_log.exception("unhandled exception caught !")
-		# but re-raise them
-		raise
+	# clean up
+	if patient is not None:
+		try:
+			patient.cleanup()
+		except Exception:
+			print("error cleaning up patient")
 
 	_log.info("closing Notebooked progress notes input plugin...")
 

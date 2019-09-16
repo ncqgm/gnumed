@@ -498,18 +498,11 @@ class gmConfigEditorPanel(wx.Panel):
 if __name__ == '__main__':
 	from Gnumed.wx.python import gmPlugin
 	_log.Log (gmLog.lInfo, "starting config browser")
-	
 	workplace = input("Please enter a workplace name: ")
 	# catch all remaining exceptions
-	try:
-		application = wx.PyWidgetTester(size=(640,480))
-		application.SetWidget(gmConfigEditorPanel,"any-doc",workplace, 0)
-		application.MainLoop()
-	except Exception:
-		_log.LogException("unhandled exception caught !", sys.exc_info(), verbose=0)
-		# but re-raise them
-		raise
-
+	application = wx.PyWidgetTester(size=(640,480))
+	application.SetWidget(gmConfigEditorPanel,"any-doc",workplace, 0)
+	application.MainLoop()
 	_log.Log (gmLog.lInfo, "closing config browser")
 
 else:

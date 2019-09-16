@@ -1181,66 +1181,61 @@ if __name__ == "__main__":
 		application.MainLoop()
 	#--------------------------------------------------------
 
-	try:
-		# obtain patient
-		patient = gmPersonSearch.ask_for_patient()
-		if patient is None:
-			print("No patient. Exiting gracefully...")
-			sys.exit(0)
-		gmPatSearchWidgets.set_active_patient(patient=patient)
+	# obtain patient
+	patient = gmPersonSearch.ask_for_patient()
+	if patient is None:
+		print("No patient. Exiting gracefully...")
+		sys.exit(0)
+	gmPatSearchWidgets.set_active_patient(patient=patient)
 
-		#test_soap_notebook()
-		test_soap_notebook_panel()
+	#test_soap_notebook()
+	test_soap_notebook_panel()
 
-#		# multisash soap
-#		print 'testing multisashed soap input...'
-#		application = wx.PyWidgetTester(size=(800,500))
-#		soap_input = cMultiSashedProgressNoteInputPanel(application.frame, -1)
-#		application.frame.Show(True)
-#		application.MainLoop()
+#	# multisash soap
+#	print 'testing multisashed soap input...'
+#	application = wx.PyWidgetTester(size=(800,500))
+#	soap_input = cMultiSashedProgressNoteInputPanel(application.frame, -1)
+#	application.frame.Show(True)
+#	application.MainLoop()
 
-#		# soap widget displaying all narratives for an issue along an encounter
-#		print 'testing soap editor for encounter narratives...'
-#		episode = gmEMRStructItems.cEpisode(aPK_obj=1)
-#		encounter = gmEMRStructItems.cEncounter(aPK_obj=1)
-#		narrative = get_narrative(pk_encounter = encounter['pk_encounter'], pk_health_issue = episode['pk_health_issue'])
-#		default_labels = {'s':'Subjective', 'o':'Objective', 'a':'Assesment', 'p':'Plan'}
-#		app = wx.PyWidgetTester(size=(300,500))		
-#		app.SetWidget(cResizingSoapPanel, episode, narrative)
-#		app.MainLoop()
-#		del app
+#	# soap widget displaying all narratives for an issue along an encounter
+#	print 'testing soap editor for encounter narratives...'
+#	episode = gmEMRStructItems.cEpisode(aPK_obj=1)
+#	encounter = gmEMRStructItems.cEncounter(aPK_obj=1)
+#	narrative = get_narrative(pk_encounter = encounter['pk_encounter'], pk_health_issue = episode['pk_health_issue'])
+#	default_labels = {'s':'Subjective', 'o':'Objective', 'a':'Assesment', 'p':'Plan'}
+#	app = wx.PyWidgetTester(size=(300,500))		
+#	app.SetWidget(cResizingSoapPanel, episode, narrative)
+#	app.MainLoop()
+#	del app
 
-#		# soap progress note for episode
-#		print 'testing soap editor for episode...'
-#		app = wx.PyWidgetTester(size=(300,300))
-#		app.SetWidget(cResizingSoapPanel, episode)
-#		app.MainLoop()
-#		del app
+#	# soap progress note for episode
+#	print 'testing soap editor for episode...'
+#	app = wx.PyWidgetTester(size=(300,300))
+#	app.SetWidget(cResizingSoapPanel, episode)
+#	app.MainLoop()
+#	del app
 
-#		# soap progress note for problem
-#		print 'testing soap editor for problem...'
-#		problem = gmEMRStructItems.cProblem(aPK_obj={'pk_patient': 12, 'pk_health_issue': 1, 'pk_episode': 1})		
-#		app = wx.PyWidgetTester(size=(300,300))
-#		app.SetWidget(cResizingSoapPanel, problem)
-#		app.MainLoop()
-#		del app
+#	# soap progress note for problem
+#	print 'testing soap editor for problem...'
+#	problem = gmEMRStructItems.cProblem(aPK_obj={'pk_patient': 12, 'pk_health_issue': 1, 'pk_episode': 1})		
+#	app = wx.PyWidgetTester(size=(300,300))
+#	app.SetWidget(cResizingSoapPanel, problem)
+#	app.MainLoop()
+#	del app
 
-#		# unassociated soap progress note
-#		print 'testing unassociated soap editor...'
-#		app = wx.PyWidgetTester(size=(300,300))
-#		app.SetWidget(cResizingSoapPanel, None)
-#		app.MainLoop()
-#		del app
+#	# unassociated soap progress note
+#	print 'testing unassociated soap editor...'
+#	app = wx.PyWidgetTester(size=(300,300))
+#	app.SetWidget(cResizingSoapPanel, None)
+#	app.MainLoop()
+#	del app
 
-#		# unstructured progress note
-#		print 'testing unstructured progress note...'
-#		app = wx.PyWidgetTester(size=(600,600))
-#		app.SetWidget(cSingleBoxSOAPPanel, -1)
-#		app.MainLoop()
+#	# unstructured progress note
+#	print 'testing unstructured progress note...'
+#	app = wx.PyWidgetTester(size=(600,600))
+#	app.SetWidget(cSingleBoxSOAPPanel, -1)
+#	app.MainLoop()
 
-	except Exception:
-		_log.exception("unhandled exception caught !")
-		# but re-raise them
-		raise
 
 #============================================================

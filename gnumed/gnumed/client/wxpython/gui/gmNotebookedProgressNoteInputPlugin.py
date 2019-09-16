@@ -77,31 +77,26 @@ if __name__ == "__main__":
 
 	_log.info("starting Notebooked progress notes input plugin...")
 
-	try:
-		# obtain patient
-		patient = gmPersonSearch.ask_for_patient()
-		if patient is None:
-			print "None patient. Exiting gracefully..."
-			sys.exit(0)
-		gmPatSearchWidgets.set_active_patient(patient=patient)
+	# obtain patient
+	patient = gmPersonSearch.ask_for_patient()
+	if patient is None:
+		print "None patient. Exiting gracefully..."
+		sys.exit(0)
+	gmPatSearchWidgets.set_active_patient(patient=patient)
 
-		# display standalone multisash progress notes input
-		application = wx.wx.PyWidgetTester(size=(800,600))
-		multisash_notes = gmSOAPWidgets.cNotebookedProgressNoteInputPanel(application.frame, -1)
+	# display standalone multisash progress notes input
+	application = wx.wx.PyWidgetTester(size=(800,600))
+	multisash_notes = gmSOAPWidgets.cNotebookedProgressNoteInputPanel(application.frame, -1)
 
-		application.frame.Show(True)
-		application.MainLoop()
+	application.frame.Show(True)
+	application.MainLoop()
 
-		# clean up
-		if patient is not None:
-			try:
-				patient.cleanup()
-			except Exception:
-				print "error cleaning up patient"
-	except Exception:
-		_log.exception("unhandled exception caught !")
-		# but re-raise them
-		raise
+	# clean up
+	if patient is not None:
+		try:
+			patient.cleanup()
+		except Exception:
+			print "error cleaning up patient"
 
 	_log.info("closing Notebooked progress notes input plugin...")
 #======================================================================

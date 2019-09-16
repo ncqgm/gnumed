@@ -61,32 +61,28 @@ if __name__ == "__main__":
 
     _log.info("starting emr journal plugin...")
 
-    try:
-        # obtain patient
-        patient = gmPersonSearch.ask_for_patient()
-        if patient is None:
-            print("None patient. Exiting gracefully...")
-            sys.exit(0)
-        gmPatSearchWidgets.set_active_patient(patient=patient)
 
-        # display standalone browser
-        application = wx.wxPyWidgetTester(size=(800,600))
-        emr_journal = gmEMRBrowser.cEMRJournalPluginPnl(application.frame, -1)
-        emr_journal.refresh_journal()
+    # obtain patient
+    patient = gmPersonSearch.ask_for_patient()
+    if patient is None:
+        print("None patient. Exiting gracefully...")
+        sys.exit(0)
+    gmPatSearchWidgets.set_active_patient(patient=patient)
 
-        application.frame.Show(True)
-        application.MainLoop()
+    # display standalone browser
+    application = wx.wxPyWidgetTester(size=(800,600))
+    emr_journal = gmEMRBrowser.cEMRJournalPluginPnl(application.frame, -1)
+    emr_journal.refresh_journal()
 
-        # clean up
-        if patient is not None:
-            try:
-                patient.cleanup()
-            except Exception:
-                print("error cleaning up patient")
-    except Exception:
-        _log.exception("unhandled exception caught !")
-        # but re-raise them
-        raise
+    application.frame.Show(True)
+    application.MainLoop()
+
+    # clean up
+    if patient is not None:
+        try:
+            patient.cleanup()
+        except Exception:
+            print("error cleaning up patient")
 
     _log.info("closing emr journal plugin...")
 

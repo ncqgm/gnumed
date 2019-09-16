@@ -427,11 +427,7 @@ if __name__ == '__main__':
 			frame.Show(1)
 			return True
 	#---------------------
-	try:
-		app = TestApp ()
-		app.MainLoop ()
-	except Exception:
-		_log.exception('Unhandled exception.')
-		raise
+	app = TestApp ()
+	app.MainLoop ()
 
 #=============================================================================
