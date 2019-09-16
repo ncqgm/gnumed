@@ -33,10 +33,10 @@ class cPatientSearcher_SQL:
 	def __del__(self):
 		try:
 			self.curs.close()
-		except: pass
+		except Exception: pass
 		try:
 			self.conn.close()
-		except: pass
+		except Exception: pass
 	#--------------------------------------------------------
 	# public API
 	#--------------------------------------------------------
@@ -87,7 +87,7 @@ class cPatientSearcher_SQL:
 			_log.debug("running %s" % query)
 			try:
 				rows, idx = gmPG2.run_ro_queries(queries = [query], get_col_idx=True)
-			except:
+			except Exception:
 				_log.exception('error running query')
 				continue
 			if len(rows) == 0:

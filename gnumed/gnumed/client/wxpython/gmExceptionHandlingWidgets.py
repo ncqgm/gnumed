@@ -439,10 +439,11 @@ sender email  : %s
 			attachments = attachments
 		)
 		gmDispatcher.send(signal='statustext', msg = _('Bug report has been emailed.'))
-	except:
+	except Exception:
 		_log.exception('cannot send bug report')
 		gmDispatcher.send(signal='statustext', msg = _('Bug report COULD NOT be emailed.'))
-	wx.EndBusyCursor()
+	finally:
+		wx.EndBusyCursor()
 
 # ========================================================================
 from Gnumed.wxGladeWidgets import wxgUnhandledExceptionDlg

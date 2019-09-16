@@ -9,7 +9,7 @@ try:
 	from gmPatientHolder import PatientHolder
 	import gmDispatcher
 
-except:
+except Exception:
 	print  "import error"
 	sys.path.append('../')
 	sys.path.append('../../pycommon')
@@ -38,7 +38,7 @@ class ClinicalSummary(wxPanel, PatientHolder):
 		try:
 			import gmGP_SocialHistory
 			self.socialhistory = gmGP_SocialHistory.SocialHistory(self,-1)
-		except:
+		except Exception:
 			pass
 		#------------------------------------------------------------------------
 		#import social history if available this will be the top item on the page
@@ -46,7 +46,7 @@ class ClinicalSummary(wxPanel, PatientHolder):
 		try:
 			import gmGP_FamilyHistorySummary
 			self.familyhistorysummary = gmGP_FamilyHistorySummary.FamilyHistorySummary(self,-1)
-		except:
+		except Exception:
 			pass
 		#---------------------------------------
 		#import active problem list if available 
@@ -54,7 +54,7 @@ class ClinicalSummary(wxPanel, PatientHolder):
 		try:
 			import gmGP_ActiveProblems
 			self.activeproblemlist = gmGP_ActiveProblems.ActiveProblems(self,-1)
-		except:
+		except Exception:
 			pass	       
 		#------------------------------
 		#import habits and risk factors
@@ -62,7 +62,7 @@ class ClinicalSummary(wxPanel, PatientHolder):
 		try:
 			import gmGP_HabitsRiskFactors
 			self.habitsriskfactors = gmGP_HabitsRiskFactors.HabitsRiskFactors(self,-1)
-		except:
+		except Exception:
 			pass
 		#------------
 		#import inbox
@@ -70,7 +70,7 @@ class ClinicalSummary(wxPanel, PatientHolder):
 		try:
 			import gmGP_Inbox
 			self.inbox = gmGP_Inbox.Inbox(self,-1)
-		except:
+		except Exception:
 			sys.exit(0)
 			pass
 

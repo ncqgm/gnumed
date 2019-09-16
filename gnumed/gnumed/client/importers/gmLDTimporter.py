@@ -110,7 +110,7 @@ class cLDTImporter:
 		# cleanup work area
 		try:
 			shutil.rmtree(path=self.work_dir, ignore_errors=True)
-		except:
+		except Exception:
 			_log.LogException('cannot cleanup work dir [%s]' % self.work_dir, sys.exc_info(), verbose=0)
 
 		# anything left ?
@@ -920,7 +920,7 @@ def run_import():
 			try:
 				shutil.copy(ldt_file, target_dir)
 				os.remove(ldt_file)
-			except:
+			except Exception:
 				_log.LogException('cannot move [%s] to [%s]\n' % (ldt_file, target_dir))
 	return True
 #---------------------------------------------------------------
@@ -951,7 +951,7 @@ if __name__ == '__main__':
 	try:
 		import profile
 		profile.run('run_import()', './profile.log')
-	except:
+	except Exception:
 		_log.LogException('unhandled exception caught', sys.exc_info(), verbose=1)
 		backend.StopListeners()
 		sys.exit('aborting')

@@ -252,7 +252,7 @@ def _sane_import_module():
 		_sane_module = sane
 		try:
 			init_result = _sane_module.init()
-		except:
+		except Exception:
 			_log.exception('cannot init SANE module')
 			raise
 		_log.info("SANE version: %s" % str(init_result))
@@ -325,7 +325,7 @@ class cSaneScanner:
 #			# by default use the first device
 #			# FIXME: room for improvement - option
 #			self.__scanner = _sane_module.open(_sane_module.get_devices()[0][0])
-#		except:
+#		except Exception:
 #			_log.exception('cannot open SANE scanner')
 #			return False
 #

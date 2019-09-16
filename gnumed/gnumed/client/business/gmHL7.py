@@ -278,7 +278,7 @@ def split_hl7_file(filename, target_dir=None, encoding='utf8'):
 		_log.exception('cannot split HL7 file')
 		for target_name in target_names:
 			try: os.remove(target_name)
-			except: pass
+			except Exception: pass
 		root_logger.removeHandler(local_logger)
 		shutil.move(local_log_name, error_dir)
 		return False, None

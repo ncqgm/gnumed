@@ -189,7 +189,7 @@ if __name__ == '__main__':
 			print dto
 			print dto.addresses
 			print dto.comm_channels
-		except:
+		except Exception:
 			_log.exception('cannot parse vCard')
 			gmLog2.log_stack_trace()
 			raise

@@ -945,7 +945,7 @@ class cSoapNoteInputNotebook(wx.Notebook):
 			try:
 				self.ChangeSelection(page_idx)
 				_log.debug('editor raised')
-			except:
+			except Exception:
 				_log.exception('cannot raise editor')
 			page = self.GetPage(page_idx)
 			if page.save(emr = emr, episode_name_candidates = episode_name_candidates):

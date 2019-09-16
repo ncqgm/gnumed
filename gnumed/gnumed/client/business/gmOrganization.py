@@ -905,7 +905,7 @@ if __name__ == '__main__':
 		delete from dem.org where id = %d""" % ( org_id_seq + 1) )
 		# make sure this exercise is committed, else a deadlock will occur
 			conn.commit()
-		except:
+		except Exception:
 			_log.exception("Test of Update Permission failed")
 			return False
 		return True
@@ -925,7 +925,7 @@ if __name__ == '__main__':
 		delete from dem.org_category where description like 'xxxDEFAULTxxx' """ )
 		# make sure this exercise is committed, else a deadlock will occur
 			conn.commit()
-		except:
+		except Exception:
 			_log.exception("Test of Update Permission failed")
 			return False
 		return True
@@ -1014,7 +1014,7 @@ if __name__ == '__main__':
 				else:
 					print("*** Unable to remove temporary org_category")
 					failed_remove .append(cat)
-			except:
+			except Exception:
 				import sys
 				print(sys.exc_info()[0], sys.exc_info()[1])
 				import traceback
@@ -1126,7 +1126,7 @@ if __name__ == '__main__':
 		without calling the backend for each object.
 
 		- error and exception handling - at what point in the call stack to handle an error.
-		Better to use error return values and log exceptions near where they occur, vs. wrapping inside try: except: blocks and catching typed exceptions.
+		Better to use error return values and log exceptions near where they occur, vs. wrapping inside try: except Exception: blocks and catching typed exceptions.
 
 
 		- test-case construction:  test data is needed often, and the issue
@@ -1267,7 +1267,7 @@ if __name__ == '__main__':
 
 		testListOrgs()
 
-	except:
+	except Exception:
 		import  sys
 		print(sys.exc_info()[0], sys.exc_info()[1])
 		_log.exception( "Fatal exception")
@@ -1276,7 +1276,7 @@ if __name__ == '__main__':
 	if tmp_category:
 		try:
 			clean_org_categories(adminlogin)
-		except:
+		except Exception:
 			while(not login_rw_user()[0]):
 				pass
 			clean_test_org()

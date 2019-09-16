@@ -331,7 +331,7 @@ if __name__ == '__main__':
 
 		try:
 			int(None)
-		except:
+		except Exception:
 			logger.exception('unhandled exception')
 			log_stack_trace()
 		flush()

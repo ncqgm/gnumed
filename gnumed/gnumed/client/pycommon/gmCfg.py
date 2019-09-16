@@ -353,7 +353,7 @@ limit 1""" % where_clause
 			except pickle.PicklingError:
 				_log.error("cannot pickle option of type [%s] (key: %s, value: %s)", type(value), alias, str(value))
 				raise
-			except:
+			except Exception:
 				_log.error("don't know how to store option of type [%s] (key: %s, value: %s)", type(value), alias, str(value))
 				raise
 
@@ -367,7 +367,7 @@ limit 1""" % where_clause
 		try:
 			rows, idx = gmPG2.run_rw_queries(link_obj=rw_conn, queries=[{'cmd': cmd, 'args': args}], return_data=True)
 			result = rows[0][0]
-		except:
+		except Exception:
 			_log.exception('cannot set option')
 			result = False
 
@@ -581,7 +581,7 @@ if __name__ == "__main__":
 	test_get_all_options()
 #	try:
 #		test_db_cfg()
-#	except:
+#	except Exception:
 #		_log.exception('test suite failed')
 #		raise
 

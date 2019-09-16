@@ -185,11 +185,11 @@ class cGelbeListeCSVFile(object):
 	#--------------------------------------------------------
 	def close(self, truncate=True):
 		try: self.csv_file.close()
-		except: pass
+		except Exception: pass
 
 		if truncate:
 			try: os.open(self.filename, 'wb').close
-			except: pass
+			except Exception: pass
 	#--------------------------------------------------------
 	def _get_has_unknown_fields(self):
 		return (gmTools.default_csv_reader_rest_key in self.csv_fieldnames)
@@ -1242,7 +1242,7 @@ class cIfapInterface(cDrugDataSourceInterface):
 
 		try:
 			csv_file = io.open(filename, mode = 'rt', encoding = 'latin1')						# FIXME: encoding correct ?
-		except:
+		except Exception:
 			_log.exception('cannot access [%s]', filename)
 			csv_file = None
 

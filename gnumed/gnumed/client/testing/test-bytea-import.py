@@ -57,7 +57,7 @@ for encoding in encodings:
 		cmd = "set client_encoding to '%s'" % encoding
 		curs.execute(cmd)
 		curs.close()
-	except:
+	except Exception:
 		log.write("cannot set encoding [%s] in dbapi.connect()" % encoding + '\n')
 		conn = dbapi.connect(dsn=dsn)
 
@@ -81,7 +81,7 @@ for encoding in encodings:
 		curs.execute(cmd)
 		rows = curs.fetchone()
 		log.write("len(SELECT)  : [%s]" % len(str(rows[0])) + '\n')
-	except:
+	except Exception:
 		log.write('cannot test encoding [%s]' % encoding + '\n')
 		t, v, tb = sys.exc_info()
 		log.write(str(t) + '\n')

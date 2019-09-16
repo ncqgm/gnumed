@@ -384,11 +384,11 @@ def __validate_timezone(conn=None, timezone=None):
 			curs.fetchone()
 			_log.info('time zone [%s] is usable', timezone)
 			is_valid = True
-		except:
+		except Exception:
 			_log.error('error using time zone [%s]', timezone)
 	except dbapi.DataError:
 		_log.warning('time zone [%s] is not settable', timezone)
-	except:
+	except Exception:
 		_log.error('failed to set time zone to [%s]', timezone)
 		_log.exception('')
 
@@ -422,7 +422,7 @@ where
 		if len(rows) > 0:
 			result = rows[0]['name']
 			_log.debug('[%s] maps to [%s]', timezone, result)
-	except:
+	except Exception:
 		_log.exception('cannot expand timezone abbreviation [%s]', timezone)
 
 	curs.close()
@@ -542,7 +542,7 @@ def request_login_params():
 		# try wxPython GUI
 		try:
 			return __request_login_params_gui_wx()
-		except:
+		except Exception:
 			pass
 
 	# well, either we are on the console or
@@ -1104,12 +1104,12 @@ def is_pg_interval(candidate=None):
 	try:
 		rows, idx = run_ro_queries(queries = [{'cmd': cmd, 'args': {'candidate': candidate}}])
 		return True
-	except:
+	except Exception:
 		cmd = 'SELECT %(candidate)s::text::interval'
 		try:
 			rows, idx = run_ro_queries(queries = [{'cmd': cmd, 'args': {'candidate': candidate}}])
 			return True
-		except:
+		except Exception:
 			return False
 
 #------------------------------------------------------------------------
@@ -1395,7 +1395,7 @@ def bytea2file_object(data_query=None, file_obj=None, chunk_size=0, data_size=No
 		data_query['args']['size'] = chunk_size
 		try:
 			rows, idx = run_ro_queries(link_obj=conn, queries=[data_query])
-		except:
+		except Exception:
 			_log.error('cannot retrieve chunk [%s/%s], size [%s], try decreasing chunk size' % (chunk_id+1, needed_chunks, chunk_size))
 			conn.rollback()
 			raise
@@ -1409,7 +1409,7 @@ def bytea2file_object(data_query=None, file_obj=None, chunk_size=0, data_size=No
 		data_query['args']['size'] = remainder
 		try:
 			rows, idx = run_ro_queries(link_obj=conn, queries=[data_query])
-		except:
+		except Exception:
 			_log.error('cannot retrieve remaining [%s] bytes' % remainder)
 			conn.rollback()
 			raise
@@ -2640,7 +2640,7 @@ def _log_PG_settings(curs=None):
 		)
 	try:
 		curs.execute('select pg_available_extensions()')
-	except:
+	except Exception:
 		_log.exception('cannot log available PG extensions')
 		return False
 	extensions = curs.fetchall()
@@ -2655,7 +2655,7 @@ def _log_PG_settings(curs=None):
 	# - not retained across server restart (fixed in 9.6.1 - really ?)
 #	try:
 #		curs.execute(u'SELECT pg_last_committed_xact()')
-#	except:
+#	except Exception:
 #		_log.exception(u'cannot retrieve last committed xact')
 #	xact = curs.fetchall()
 #	if xact is not None:
@@ -2814,7 +2814,7 @@ if __name__ == "__main__":
 
 		try:
 			file2bytea(query = 'insert into test_bytea values (%(data)s::bytea) returning md5(data) as md5', filename = sys.argv[2], file_md5 = file2md5(sys.argv[2], True))
-		except:
+		except Exception:
 			_log.exception('error')
 
 		run_rw_queries(queries = [

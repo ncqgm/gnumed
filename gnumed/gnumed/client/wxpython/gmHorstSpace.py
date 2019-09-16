@@ -289,7 +289,7 @@ class cHorstSpaceLayoutMgr(wx.Panel):
 					_log.error("plugin [%s] not loaded, see errors above", curr_plugin)
 					failed_plugins.append(curr_plugin)
 					result = 1
-			except:
+			except Exception:
 				_log.exception('failed to load plugin %s', curr_plugin)
 				failed_plugins.append(curr_plugin)
 				result = 0

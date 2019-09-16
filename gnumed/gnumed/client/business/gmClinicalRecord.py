@@ -1053,11 +1053,11 @@ class cClinicalRecord(object):
 				# format metadata
 				try:
 					episode_name = episode_map[view_row[view_col_idx['pk_episode']]]
-				except:
+				except Exception:
 					episode_name = view_row[view_col_idx['pk_episode']]
 				try:
 					issue_name = issue_map[view_row[view_col_idx['pk_health_issue']]]
-				except:
+				except Exception:
 					issue_name = view_row[view_col_idx['pk_health_issue']]
 
 				if age not in emr_data:
@@ -2441,7 +2441,7 @@ WHERE
 #		attach = False
 #		try:
 #			attach = _func_ask_user(msg = msg, caption = _('Starting patient encounter'), encounter = encounter)
-#		except:
+#		except Exception:
 #			_log.exception('cannot ask user for guidance, not attaching to existing encounter')
 #			return False
 #		if not attach:
@@ -2769,7 +2769,7 @@ SELECT MIN(earliest) FROM (
 		args = {'pat': self.pk_patient, 'ttl': ttl}
 		try:
 			rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True)
-		except:
+		except Exception:
 			_log.exception('error deleting empty encounters')
 			return False
 
@@ -3021,12 +3021,12 @@ SELECT MIN(earliest) FROM (
 
 		try:
 			epi = int(episode)
-		except:
+		except Exception:
 			epi = episode['pk_episode']
 
 		try:
 			type = int(type)
-		except:
+		except Exception:
 			type = type['pk_test_type']
 
 		tr = gmPathLab.create_test_result (

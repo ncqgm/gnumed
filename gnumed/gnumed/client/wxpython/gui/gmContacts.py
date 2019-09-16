@@ -611,7 +611,7 @@ class cContactsPanel(wx.wx.Panel):
 		"""	
 		try:     
 			key = int(org.getId())
-		except:
+		except Exception:
 			print "org has no key. ? Failure in saving org ? non-existent org category"
 			print "if testing, try insert org_category(description) values('hospital')"
 			print "in a admin psql session, substitute 'hospital' for whatever category"
@@ -767,7 +767,7 @@ class cContactsPanel(wx.wx.Panel):
 				if len (l) >= 4:
 					number , street, urb, postcode = l[0], ' '.join(l[1:urb_start_idx]), ' '.join(l[urb_start_idx:-1]), l[-1]
 					org.setAddress( number, street, urb, postcode, None, None )
-			except:
+			except Exception:
 				gmLog.gmDefLog.LogException("Unable to parse address", sys.exc_info() )
 				print "unable to parse address"
 				

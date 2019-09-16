@@ -368,7 +368,7 @@ def call_viewer_on_file(aFile = None, block=None):
 		# is the file accessible at all ?
 		try:
 			open(aFile).close()
-		except:
+		except Exception:
 			_log.exception('cannot read [%s]', aFile)
 			msg = _('[%s] is not a readable file') % aFile
 			return False, msg
@@ -417,7 +417,7 @@ def call_viewer_on_file(aFile = None, block=None):
 		return True, ''
 	except AttributeError:
 		_log.exception('os.startfile() does not exist on this platform')
-	except:
+	except Exception:
 		_log.exception('os.startfile(%s) failed', file_to_display)
 
 	msg = _("Unable to display the file:\n\n"
@@ -438,7 +438,7 @@ def call_editor_on_file(filename=None, block=True):
 		# is the file accessible at all ?
 		try:
 			open(filename).close()
-		except:
+		except Exception:
 			_log.exception('cannot read [%s]', filename)
 			msg = _('[%s] is not a readable file') % filename
 			return False, msg

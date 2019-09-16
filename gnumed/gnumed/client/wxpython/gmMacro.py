@@ -809,11 +809,13 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 				val = self.__injected_placeholders[ph_name]
 			except KeyError:
 				is_an_injectable = False
-			except:
+			except Exception:
 				_log.exception('injectable placeholder handling error: %s', original_placeholder_def)
 				if self.debug:
 					return self._escape(self.invalid_placeholder_template % original_placeholder_def)
+
 				return None
+
 			if is_an_injectable:
 				if val is None:
 					if self.debug:
@@ -868,7 +870,8 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 				if self.__ellipsis is not None:
 					return self.__make_compatible_with_encoding(val[pos_first_char:(pos_last_char-len(self.__ellipsis))] + self.__ellipsis)
 			return self.__make_compatible_with_encoding(val[pos_first_char:pos_last_char])
-		except:
+
+		except Exception:
 			_log.exception('placeholder handling error: %s', original_placeholder_def)
 			if self.debug:
 				return self._escape(self.invalid_placeholder_template % original_placeholder_def)
@@ -1012,7 +1015,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		for enc in encounters:
 			try:
 				lines.append(template % enc.fields_as_dict(date_format = '%Y %b %d', escape_style = self.__esc_style))
-			except:
+			except Exception:
 				lines.append('error formatting encounter')
 				_log.exception('problem formatting encounter list')
 				_log.error('template: %s', template)
@@ -1090,14 +1093,14 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			if len(data_parts) > 2:
 				try:
 					line_length = int(data_parts[2])
-				except:
+				except Exception:
 					line_length = 9999
 
 			# part[3]: weeks going back in time
 			if len(data_parts) > 3:
 				try:
 					time_range = 7 * int(data_parts[3])
-				except:
+				except Exception:
 					#time_range = None			# infinite
 					# pass on literally, meaning it must be a valid PG interval string
 					time_range = data_parts[3]
@@ -2847,7 +2850,7 @@ def test_placeholders():
 		for placeholder in placeholders_in_line:
 			try:
 				val = data_source[placeholder]
-			except:
+			except Exception:
 				val = _('error with placeholder [%s]') % placeholder
 			if val is None:
 				val = _('error with placeholder [%s]') % placeholder

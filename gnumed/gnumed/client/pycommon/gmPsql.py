@@ -51,7 +51,7 @@ class Psql:
 			try:
 				print('ERROR: GNUmed bootstrap #%d:' % unformattable_error_id)
 				print(aMsg)
-			except: pass
+			except Exception: pass
 			unformattable_error_id += 1
 		return tmp
 

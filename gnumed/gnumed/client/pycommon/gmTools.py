@@ -2045,7 +2045,7 @@ if __name__ == '__main__':
 		name = sys.argv[2]
 		try:
 			mod = import_module_from_directory(module_path = path, module_name = name)
-		except:
+		except Exception:
 			print("module import failed, see log")
 			return False
 

@@ -73,21 +73,21 @@ class cScriptingListener:
 				if self._thread.isAlive():
 					_log.error('listener thread still alive after join()')
 					_log.debug('active threads: %s' % threading.enumerate())
-			except:
+			except Exception:
 				pass
-		except:
+		except Exception:
 			print sys.exc_info()
 
 		self._thread = None
 
 		try:
 			self._server.socket.shutdown(2)
-		except:
+		except Exception:
 			_log.exception('cannot cleanly shutdown(5) scripting listener socket')
 
 		try:
 			self._server.socket.close()
-		except:
+		except Exception:
 			_log.exception('cannot cleanly close() scripting listener socket')
 	#-------------------------------
 	# internal helpers
@@ -107,7 +107,7 @@ class cScriptingListener:
 				# we may be in __del__ so we might fail here
 				try:
 					self._server.handle_request()
-				except:
+				except Exception:
 					print("cannot serve RPC")
 					break
 				if self._quit_lock.acquire(0):
@@ -139,7 +139,7 @@ if __name__ == "__main__":
 
 		try:
 			listener = cScriptingListener(macro_executor=runner(), port=9999)
-		except:
+		except Exception:
 			_log.exception('cannot instantiate scripting listener')
 			sys.exit(1)
 
@@ -147,7 +147,7 @@ if __name__ == "__main__":
 		try:
 			t = s.tell_time()
 			print t
-		except:
+		except Exception:
 			_log.exception('cannot interact with server')
 
 		listener.shutdown()

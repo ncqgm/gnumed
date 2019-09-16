@@ -152,7 +152,7 @@ class cArriba(object):
 
 		try:
 			open(self.pdf_result).close()
-		except:
+		except Exception:
 			_log.exception('error accessing [%s]', self.pdf_result)
 			gmDispatcher.send(signal = 'statustext', msg = _('No [arriba] result found in [%s].') % self.pdf_result, beep = False)
 			return False

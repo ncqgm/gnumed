@@ -45,7 +45,7 @@ def print_files(filenames=None, jobtype=None, print_api=None, verbose=False):
 	for fname in filenames:
 		try:
 			open(fname, 'r').close()
-		except:
+		except Exception:
 			_log.exception('cannot open [%s], aborting', fname)
 			return False
 
@@ -137,7 +137,7 @@ def _print_files_by_IE(filenames=None):
 				time.sleep(1)
 			i_explorer.Document.printAll()
 		i_explorer.Quit()
-	except:
+	except Exception:
 		_log.exception('error calling IE via DDE')
 		return False
 

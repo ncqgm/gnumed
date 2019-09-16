@@ -78,7 +78,7 @@ class Drug:
 		if Drug._db is None:
 			try:
 				Drug._db = gmPG.ConnectionPool()
-			except:
+			except Exception:
 				exc = sys.exc_info()
 				_log.LogException("Failed to initialize ConnectionPool handle.", exc, fatal=1)
 				# reraise the exception here

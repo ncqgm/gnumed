@@ -95,16 +95,16 @@ class gmBackendListener(gmBorg.cBorg):
 				if self._listener_thread.isAlive():
 					_log.error('listener thread still alive after join()')
 					_log.debug('active threads: %s' % threading.enumerate())
-			except:
+			except Exception:
 				pass
-		except:
+		except Exception:
 			print(sys.exc_info())
 
 		self._listener_thread = None
 
 		try:
 			self.__unregister_unspecific_notifications()
-		except:
+		except Exception:
 			_log.exception('unable to unregister unspecific notifications')
 
 		self.__shutdown_connection()
@@ -154,7 +154,7 @@ class gmBackendListener(gmBorg.cBorg):
 		try:
 			self._conn.rollback()
 			self._conn.close()
-		except:
+		except Exception:
 			pass				# connection can already be closed :-(
 		finally:
 			self._conn_lock.release()
@@ -263,7 +263,7 @@ class gmBackendListener(gmBorg.cBorg):
 						message_index = self.__messages_sent,
 						notification_index = self.__notifications_received
 					)
-				except:
+				except Exception:
 					print("problem routing notification [%s] from backend [%s] to intra-client dispatcher" % (notification.channel, notification.pid))
 					print(sys.exc_info())
 				# 2) dynamically emulated old style table specific signals
@@ -285,7 +285,7 @@ class gmBackendListener(gmBorg.cBorg):
 							message_index = self.__messages_sent,
 							notification_index = self.__notifications_received
 						)
-					except:
+					except Exception:
 						print("problem routing notification [%s] from backend [%s] to intra-client dispatcher" % (signal, notification.pid))
 						print(sys.exc_info())
 
@@ -331,7 +331,7 @@ if __name__ == "__main__":
 		#-------------------------------
 		try:
 			n = int(sys.argv[2])
-		except:
+		except Exception:
 			print("You can set the number of iterations\nwith the second command line argument")
 			n = 100000
 

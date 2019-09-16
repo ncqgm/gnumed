@@ -333,7 +333,7 @@ def mxdt2py_dt(mxDateTime):
 			day = mxDateTime.day,
 			tzinfo = tz
 		)
-	except:
+	except Exception:
 		_log.debug ('error converting mx.DateTime.DateTime to Python: %s-%s-%s %s:%s %s.%s',
 			mxDateTime.year,
 			mxDateTime.month,
@@ -511,7 +511,7 @@ def wxDate2py_dt(wxDate=None):
 			day = wxDate.GetDay(),
 			tzinfo = gmCurrentLocalTimezone
 		)
-	except:
+	except Exception:
 		_log.debug ('error converting wxDateTime to Python: %s-%s-%s %s:%s %s.%s',
 			wxDate.GetYear(),
 			wxDate.GetMonth(),

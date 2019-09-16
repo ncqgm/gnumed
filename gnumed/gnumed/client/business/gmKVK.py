@@ -175,7 +175,7 @@ class cDTO_CCRdr(gmPerson.cDTO_person):
 #		try:
 #			os.remove(self.filename)
 #			self.filename = None
-#		except:
+#		except Exception:
 #			_log.exception('cannot delete CCReader file [%s]' % self.filename, verbose = False)
 		pass	# for now
 
@@ -432,7 +432,7 @@ select pk_identity from dem.v_external_ids4identity where
 		try:
 			os.remove(self.filename)
 			self.filename = None
-		except:
+		except Exception:
 			_log.exception('cannot delete kvkd file [%s]' % self.filename, verbose = False)
 	#--------------------------------------------------------
 	# internal helpers
@@ -567,7 +567,7 @@ select pk_identity from dem.v_external_ids4identity where
 		try:
 			os.remove(self.filename)
 			self.filename = None
-		except:
+		except Exception:
 			_log.exception('cannot delete kvkd file [%s]' % self.filename, verbose = False)
 	#--------------------------------------------------------
 	# internal helpers
@@ -642,7 +642,7 @@ def get_available_kvks_as_dtos(spool_dir = None):
 	for kvk_file in kvk_files:
 		try:
 			dto = cDTO_KVK(filename = kvk_file)
-		except:
+		except Exception:
 			_log.exception('probably not a KVKd KVK file: [%s]' % kvk_file)
 			continue
 		dtos.append(dto)
@@ -656,7 +656,7 @@ def get_available_egks_as_dtos(spool_dir = None):
 	for egk_file in egk_files:
 		try:
 			dto = cDTO_eGK(filename = egk_file)
-		except:
+		except Exception:
 			_log.exception('probably not a KVKd eGK file: [%s]' % egk_file)
 			continue
 		dtos.append(dto)
@@ -670,7 +670,7 @@ def get_available_CCRdr_files_as_dtos(spool_dir = None):
 	for ccrdr_file in ccrdr_files:
 		try:
 			dto = cDTO_CCRdr(filename = ccrdr_file)
-		except:
+		except Exception:
 			_log.exception('probably not a CCReader file: [%s]' % ccrdr_file)
 			continue
 		dtos.append(dto)

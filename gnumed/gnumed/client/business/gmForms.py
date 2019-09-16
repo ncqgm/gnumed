@@ -374,7 +374,7 @@ def init_ooo():
 
 	try:
 	    import uno
-	except:
+	except Exception:
 	    print "This Script needs to be run with the python from OpenOffice.org"
 	    print "Example: /opt/OpenOffice.org/program/python %s" % (
 	        os.path.basename(sys.argv[0]))
@@ -470,7 +470,7 @@ class gmOOoConnector(gmBorg.cBorg):
 
 		try:
 			self.__desktop.terminate()
-		except:
+		except Exception:
 			_log.exception('cannot terminate OOo desktop')
 	#--------------------------------------------------------
 	def open_document(self, filename=None):
@@ -610,7 +610,7 @@ class cOOoLetter(object):
 		while placeholder_instance is not None:
 			try:
 				val = handler[placeholder_instance.String]
-			except:
+			except Exception:
 				val = _('error with placeholder [%s]') % placeholder_instance.String
 				_log.exception(val)
 
@@ -831,7 +831,7 @@ class cAbiWordForm(cFormEngine):
 			for placeholder in placeholders_in_line:
 				try:
 					val = data_source[placeholder.replace('&lt;', '<').replace('&gt;', '>')]
-				except:
+				except Exception:
 					val = _('error with placeholder [%s]') % gmTools.xml_escape_string(placeholder)
 					_log.exception(val)
 
@@ -868,7 +868,7 @@ class cAbiWordForm(cFormEngine):
 			instance_file = self.instance_filename
 		try:
 			open(instance_file, 'r').close()
-		except:
+		except Exception:
 			_log.exception('cannot access form instance file [%s]', instance_file)
 			gmLog2.log_stack_trace()
 			return None
@@ -1004,7 +1004,7 @@ class cTextForm(cFormEngine):
 			for placeholder in placeholders_in_line:
 				try:
 					val = data_source[placeholder]
-				except:
+				except Exception:
 					val = _('error with placeholder [%s]') % placeholder
 					_log.exception(val)
 				if val is None:
@@ -1210,7 +1210,7 @@ class cLaTeXForm(cFormEngine):
 				_log.debug('stripped   : >>>%s<<<', placeholder)
 				try:
 					val = data_source[placeholder]
-				except:
+				except Exception:
 					_log.exception('error with placeholder [%s]', original_ph_def)
 					val = gmTools.tex_escape_string(_('error with placeholder [%s]') % original_ph_def)
 				if val is None:
@@ -1265,7 +1265,7 @@ class cLaTeXForm(cFormEngine):
 
 		try:
 			open(instance_file, 'r').close()
-		except:
+		except Exception:
 			_log.exception('cannot access form instance file [%s]', instance_file)
 			gmLog2.log_stack_trace()
 			return None
@@ -1417,7 +1417,7 @@ class cXeTeXForm(cFormEngine):
 				for placeholder in placeholders_in_line:
 					try:
 						val = data_source[placeholder]
-					except:
+					except Exception:
 						_log.exception('error with placeholder [%s]', placeholder)
 						val = gmTools.tex_escape_string(_('error with placeholder [%s]') % placeholder)
 
@@ -1471,7 +1471,7 @@ class cXeTeXForm(cFormEngine):
 
 		try:
 			open(instance_file, 'r').close()
-		except:
+		except Exception:
 			_log.exception('cannot access form instance file [%s]', instance_file)
 			gmLog2.log_stack_trace()
 			return None
@@ -1757,7 +1757,7 @@ class cPDFForm(cFormEngine):
 				for placeholder in placeholders_in_value:
 					try:
 						replacement = data_source[placeholder]
-					except:
+					except Exception:
 						_log.exception(replacement)
 						replacement = _('error with placeholder [%s]') % placeholder
 					if replacement is None:
@@ -2261,7 +2261,7 @@ if __name__ == '__main__':
 	def play_with_ooo():
 		try:
 			doc = open_uri_in_ooo(filename=sys.argv[1])
-		except:
+		except Exception:
 			_log.exception('cannot open [%s] in OOo' % sys.argv[1])
 			raise
 

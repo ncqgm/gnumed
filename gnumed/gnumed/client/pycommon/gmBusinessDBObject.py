@@ -423,12 +423,12 @@ def manage_xxx()
 						type(self._payload[self._idx[attr]])
 					))
 			return '[%s:%s]:\n%s' % (self.__class__.__name__, self.pk_obj, '\n'.join(lines))
-		except:
+		except Exception:
 			return 'likely nascent [%s @ %s], cannot show payload and primary key' %(self.__class__.__name__, id(self))
 
 	#--------------------------------------------------------
 	def __getitem__(self, attribute):
-		# use try: except: as it is faster and we want this as fast as possible
+		# use try: except KeyError: as it is faster and we want this as fast as possible
 
 		# 1) backend payload cache
 		try:

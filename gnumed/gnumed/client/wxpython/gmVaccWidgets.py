@@ -552,7 +552,7 @@ def configure_adr_url(self):
 		try:
 			urllib.request.urlopen(value)
 			return True, value
-		except:
+		except Exception:			# FIXME: more specific
 			return True, value
 
 	gmCfgWidgets.configure_string_option (
@@ -580,7 +580,7 @@ def configure_vaccination_plans_url(self):
 		try:
 			urllib.request.urlopen(value)
 			return True, value
-		except:
+		except Exception:			# FIXME: more specific
 			return True, value
 
 	gmCfgWidgets.configure_string_option (

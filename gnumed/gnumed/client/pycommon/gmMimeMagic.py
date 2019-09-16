@@ -912,7 +912,7 @@ def strToNum(n):
 	else:
 		val = string.atol(n)
 	return val
-			 
+
 def unescape(s):
 	# replace string escape sequences
 	while 1:
@@ -960,7 +960,6 @@ class magicTest:
 		self.op = op
 		self.mask = mask
 		self.value = value
-			
 
 	def test(self, data):
 		if self.mask:
@@ -1002,12 +1001,12 @@ class magicTest:
 			else:
 				#print('UNKNOWN TYPE: ' + self.type)
 				pass
-		except:
+		except Exception:
 			return None
-	
+
 #    print str([self.msg, self.value, data])
 		return self.test(data)
-		
+
 
 def load(file):
 	global magicNumbers
@@ -1072,7 +1071,7 @@ def load(file):
 						print('MASK: ' + mask)
 						value = value[:(value.index('&')+1)]
 					try: value = strToNum(value)
-					except: continue
+					except Exception: continue
 					msg = string.join(list(line[3:]))
 				new = magicTest(offset, type, op, value, msg, mask)
 				last[level] = new

@@ -43,7 +43,7 @@ class TestJsonServer(unittest.TestCase):
             reply = s2.login("any-doc", "fail")
             print "2", reply
             print "FAILURE DID NOT OCCUR"
-        except:
+        except Exception:
             print "expected failure"
 
         reply = s.get_schema_version()
@@ -62,7 +62,7 @@ class TestJsonServer(unittest.TestCase):
             reply = s3.get_doc_types()
             print "3", reply
             print
-        except:
+        except Exception:
             print "unexpected failure"
 
         reply = s2.get_doc_types()

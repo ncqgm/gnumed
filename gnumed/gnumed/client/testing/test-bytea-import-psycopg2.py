@@ -51,7 +51,7 @@ for encoding in encodings:
 	# setting connection level client encoding
 	try:
 		conn.set_client_encoding(encoding)
-	except:
+	except Exception:
 		log.write("cannot set encoding [%s] on connection" % encoding + '\n')
 
 	curs = conn.cursor()
@@ -74,7 +74,7 @@ for encoding in encodings:
 		curs.execute(cmd)
 		rows = curs.fetchone()
 		log.write("len(SELECT)  : [%s]" % len(str(rows[0])) + '\n')
-	except:
+	except Exception:
 		log.write('cannot test encoding [%s]' % encoding + '\n')
 		t, v, tb = sys.exc_info()
 		log.write(str(t) + '\n')

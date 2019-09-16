@@ -374,7 +374,7 @@ class cPhraseWheelBase(wx.TextCtrl):
 
 		try:
 			suggestions = self.speller.suggest(last_word)
-		except:
+		except Exception:
 			_log.exception('had to disable (enchant) spell checker')
 			self.speller = None
 			return None

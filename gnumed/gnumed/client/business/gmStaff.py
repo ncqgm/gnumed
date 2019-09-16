@@ -53,7 +53,7 @@ class cStaff(gmBusinessDBObject.cBusinessDBObject):
 			cmd = _SQL_get_staff_fields % "db_user = CURRENT_USER"
 			try:
 				rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx=True)
-			except:
+			except Exception:
 				_log.exception('cannot instantiate staff instance')
 				gmLog2.log_stack_trace()
 				raise ValueError('cannot instantiate staff instance for database account CURRENT_USER')

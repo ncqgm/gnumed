@@ -326,7 +326,7 @@ Please enter the current password for <%s>:""") % (
 			verbose = True,
 			pooled = False
 		)
-	except:
+	except Exception:
 		_log.exception('cannot connect')
 		gmGuiHelpers.gm_show_error (
 			aMessage = _('Cannot connect as the GNUmed database owner <%s>.') % dbo_account,
@@ -487,7 +487,7 @@ class cLoginPanel(wx.Panel):
 				flag = wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_CENTER_HORIZONTAL|wx.ALL,
 				border = 10
 			)
-		except:
+		except Exception:
 			self.topsizer.Add (
 				wx.StaticText (
 					self,

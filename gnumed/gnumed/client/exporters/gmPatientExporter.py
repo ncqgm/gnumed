@@ -198,7 +198,7 @@ class cEmrExport:
                         vacc_date_str = gmDateTime.pydt_strftime(vacc_date, '%Y %b %d')
                         txt +=    vacc_date_str + (column_widths[col_index] - len(vacc_date_str)) * ' ' + '|'
                         prev_displayed_date[col_index] = vacc_date
-                    except:
+                    except Exception:
                         if row_index == 0: # due first shot
                             due_date = prev_displayed_date[col_index] + vaccinations4regimes[indication][row_index]['age_due_min'] # FIXME 'age_due_min' not properly retrieved
                         else: # due any other than first shot
@@ -221,7 +221,7 @@ class cEmrExport:
                 try:
                      if a_vacc['is_booster']:
                          given_boosters.append(a_vacc)
-                except:
+                except Exception:
                     # not a booster
                     pass
             if len(given_boosters) > 0:
@@ -614,7 +614,7 @@ class cEmrExport:
             try:
                 #print "getting id_episode of ", an_episode['pk_episode']
                 id_episode = tree_episodes[an_episode['pk_episode']]	
-            except:
+            except Exception:
                 import pdb
                 pdb.set_trace()
             # get a map of encounters in the tree by pk_encounter as key
@@ -818,7 +818,7 @@ class cEmrExport:
 
         try:
             emr.cleanup()
-        except:
+        except Exception:
             print("error cleaning up EMR")
     #--------------------------------------------------------
     def dump_med_docs(self):
@@ -1272,7 +1272,7 @@ def run():
     if patient is not None:
         try:
             patient.cleanup()
-        except:
+        except Exception:
             print("error cleaning up patient")
 
 #============================================================
@@ -1298,7 +1298,7 @@ if __name__ == "__main__":
 			if patient is not None:
 				try:
 					patient.cleanup()
-				except:
+				except Exception:
 					print("error cleaning up patient")
 		print("Done.")
 	#--------------------------------------------------------

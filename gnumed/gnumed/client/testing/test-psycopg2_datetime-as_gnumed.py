@@ -40,7 +40,7 @@ try:
 		_log.info(row)
 	print rows
 	print "==> success"
-except:
+except Exception:
 	_log.exception('query failed')
 	gmLog2.log_stack_trace('query failed')
 	print "==> failure"

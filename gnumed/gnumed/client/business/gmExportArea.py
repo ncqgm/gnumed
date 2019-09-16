@@ -1457,7 +1457,7 @@ if __name__ == '__main__':
 		try:
 			pat_min = int(sys.argv[2])
 			pat_max = int(sys.argv[3])
-		except:
+		except Exception:
 			pass
 		cPatient(aPK_obj = pat_min)
 		f = io.open('x-auto_inf_labels.txt', mode = 'w', encoding = 'utf8')
@@ -1468,7 +1468,7 @@ if __name__ == '__main__':
 			try:
 				exp_area = cExportArea(pat_id)
 				pat = cPatient(aPK_obj = pat_id)
-			except:
+			except Exception:
 				continue
 			f.write(exp_area._compute_autorun_inf_label(pat) + '\n')
 		f.close()

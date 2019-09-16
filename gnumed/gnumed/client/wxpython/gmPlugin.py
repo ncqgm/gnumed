@@ -306,7 +306,7 @@ def instantiate_plugin(aPackage='xxxDEFAULTxxx', plugin_name='xxxDEFAULTxxx'):
 	_log.info(plugin_name)
 	try:
 		plugin = plugin_class()
-	except:
+	except Exception:
 		_log.exception('Cannot open module "%s.%s".' % (aPackage, plugin_name))
 		return None
 

@@ -35,7 +35,7 @@ def run_importer():
 		gsm = sys.argv[idx_gsm]
 		sms = sys.argv[idx_sms]
 		pk_patient, weight = sms.split(':::')
-	except:
+	except Exception:
 		return False
 
 	# find patient by gsm

@@ -110,14 +110,14 @@ def __log_locale_settings(message=None):
 	for category in 'LC_ALL LC_CTYPE LC_COLLATE LC_TIME LC_MONETARY LC_MESSAGES LC_NUMERIC'.split():
 		try:
 			_setlocale_categories[category] = getattr(locale, category)
-		except:
+		except Exception:
 			_log.warning('this OS does not have locale.%s', category)
 
 	_getlocale_categories = {}
 	for category in 'LC_CTYPE LC_COLLATE LC_TIME LC_MONETARY LC_MESSAGES LC_NUMERIC'.split():
 		try:
 			_getlocale_categories[category] = getattr(locale, category)
-		except:
+		except Exception:
 			pass
 
 	if message is not None:
@@ -183,7 +183,7 @@ def __log_locale_settings(message=None):
 	for category in 'CODESET D_T_FMT D_FMT T_FMT T_FMT_AMPM RADIXCHAR THOUSEP YESEXPR NOEXPR CRNCYSTR ERA ERA_D_T_FMT ERA_D_FMT ALT_DIGITS'.split():
 		try:
 			_nl_langinfo_categories[category] = getattr(locale, category)
-		except:
+		except Exception:
 			_log.warning('this OS does not support nl_langinfo category locale.%s' % category)
 	try:
 		for category in _nl_langinfo_categories.keys():
@@ -194,7 +194,7 @@ def __log_locale_settings(message=None):
 					_log.debug('locale.nl_langinfo(%s): %s', category, str(locale.nl_langinfo(_nl_langinfo_categories[category])))
 				except UnicodeDecodeError:
 					_log.debug('locale.nl_langinfo(%s): %s', category, str(locale.nl_langinfo(_nl_langinfo_categories[category]), loc_enc))
-	except:
+	except Exception:
 		_log.exception('this OS does not support nl_langinfo')
 
 	_log.debug('gmI18N.get_encoding(): %s', get_encoding())
@@ -247,7 +247,7 @@ def activate_locale():
 		loc, loc_enc = locale.getlocale()
 	except AttributeError:
 		_log.exception('Windows does not support locale.LC_ALL')
-	except:
+	except Exception:
 		_log.exception('error activating user-default locale')
 
 	__log_locale_settings('locale settings after activating user-default locale')
@@ -398,7 +398,7 @@ def __install_domain(domain, prefer_local_catalog, language='?'):
 			continue
 		try:
 			gettext.install(domain, candidate_PO_dir)
-		except:
+		except Exception:
 			_log.exception('installing text domain [%s] failed from [%s]', domain, candidate_PO_dir)
 			continue
 		global _

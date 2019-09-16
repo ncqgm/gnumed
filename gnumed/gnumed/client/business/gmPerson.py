@@ -253,7 +253,7 @@ class cDTO_person(object):
 
 		try:
 			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx=True)
-		except:
+		except Exception:
 			_log.error('cannot get candidate identities for dto "%s"' % self)
 			_log.exception('query %s' % cmd)
 			rows = []
@@ -2281,7 +2281,7 @@ class gmCurrentPatient(gmBorg.cBorg):
 		for call_back in self.__callbacks_before_switching_away_from_patient:
 			try:
 				successful = call_back()
-			except:
+			except Exception:
 				_log.exception('callback [%s] failed', call_back)
 				print("*** pre-change callback failed ***")
 				print(type(call_back))
@@ -2473,14 +2473,14 @@ def set_active_patient(patient=None, forced_reload=False):
 		# but also valid patient ID ?
 		try:
 			pat = cPatient(aPK_obj = pk)
-		except:
+		except Exception:
 			_log.exception('identity [%s] not found' % patient)
 			return False
 
 	# attempt to switch
 	try:
 		gmCurrentPatient(patient = pat, forced_reload = forced_reload)
-	except:
+	except Exception:
 		_log.exception('error changing active patient to [%s]' % patient)
 		return False
 

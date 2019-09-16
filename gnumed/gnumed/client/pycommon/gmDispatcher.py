@@ -125,7 +125,7 @@ def connect(receiver=None, signal=Any, sender=Any, weak=0):
 			try:
 				weakSender = weakref.ref(sender, _remove4weakref)
 				senders[sender_identity] = weakSender
-			except:
+			except Exception:
 				pass
 	receivers = []
 	if signal in signals:
@@ -339,7 +339,7 @@ def _removeReceiver(receiver):
 			receivers = connections[sender_identity][signal]
 			try:
 				receivers.remove(receiver)
-			except:
+			except Exception:
 				pass
 			_cleanupConnections(sender_identity, signal)
 
@@ -361,6 +361,6 @@ def _removeSender(sender_identity):
 	# sender_identity will only be in senders dictionary if sender 
 	# could be weakly referenced.
 	try: del senders[sender_identity]
-	except: pass
+	except Exception: pass
 
 #=====================================================================

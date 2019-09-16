@@ -1046,7 +1046,7 @@ def create_measurement_type(lab=None, abbrev=None, unit=None, name=None, link_ob
 	try:
 		vals['lab'] = int(lab)
 		val_snippets.append('%(lab)s')
-	except:
+	except Exception:
 		vals['lab'] = lab
 		val_snippets.append('(SELECT pk_test_org FROM clin.v_test_orgs WHERE unit = %(lab)s)')
 
@@ -3026,7 +3026,7 @@ class cLabRequest(gmBusinessDBObject.cBusinessDBObject):
 			try:
 				aPK_obj['req_id']
 				aPK_obj['lab']
-			except:
+			except Exception:
 				_log.exception('[%s:??]: faulty <aPK_obj> structure: [%s]' % (self.__class__.__name__, aPK_obj), sys.exc_info())
 				raise gmExceptions.ConstructorError('[%s:??]: cannot derive PK from [%s]' % (self.__class__.__name__, aPK_obj))
 			# generate query
