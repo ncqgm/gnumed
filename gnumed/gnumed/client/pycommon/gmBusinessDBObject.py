@@ -744,9 +744,9 @@ def manage_xxx()
 			except KeyError:
 				conn.rollback()
 				close_conn()
-				_log.error('[%s:%s]: cannot update instance, XMIN refetch key mismatch on [%s]' % (self.__class__.__name__, self.pk_obj, key))
+				_log.error('[%s:%s]: cannot update instance, XMIN-refetch key mismatch on [%s]' % (self.__class__.__name__, self.pk_obj, key))
 				_log.error('payload keys: %s' % str(self._idx))
-				_log.error('XMIN refetch keys: %s' % str(idx))
+				_log.error('XMIN-refetch keys: %s' % str(idx))
 				_log.error(args)
 				raise
 

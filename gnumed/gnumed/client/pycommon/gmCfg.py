@@ -347,15 +347,8 @@ limit 1""" % where_clause
 			# can go directly into bytea
 			pass
 		else:
-			try:
-				opt_value = gmPG2.dbapi.Binary(pickle.dumps(value))
-				sql_type_cast = '::bytea'
-			except pickle.PicklingError:
-				_log.error("cannot pickle option of type [%s] (key: %s, value: %s)", type(value), alias, str(value))
-				raise
-			except Exception:
-				_log.error("don't know how to store option of type [%s] (key: %s, value: %s)", type(value), alias, str(value))
-				raise
+			opt_value = gmPG2.dbapi.Binary(pickle.dumps(value))
+			sql_type_cast = '::bytea'
 
 		cmd = 'select cfg.set_option(%%(opt)s, %%(val)s%s, %%(wp)s, %%(cookie)s, NULL)' % sql_type_cast
 		args = {
@@ -579,11 +572,7 @@ if __name__ == "__main__":
 
 	#---------------------------------------------------------
 	test_get_all_options()
-#	try:
 #		test_db_cfg()
-#	except Exception:
-#		_log.exception('test suite failed')
-#		raise
 
 #=============================================================
 

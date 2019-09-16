@@ -151,12 +151,12 @@ class cSOAPImporter:
 #	def _verify_types(self, soap_entry):
 #		"""
 #		Perform types key check of a supplied SOAP entry
-#		
+#
 #		@param soap_entry: dictionary containing information related to one
 #						   SOAP input
 #		@type soap_entry: dictionary with keys 'soap', 'types', 'text'
 #		"""
-#		
+#
 #		# FIXME fetch from backend
 #		allowed_types = ['Hx']
 #		for input_type in soap_entry[soap_bundle_TYPES_KEY]:
@@ -172,54 +172,49 @@ class cSOAPImporter:
 if __name__ == '__main__':
 	_log.info("starting SOAP importer...")
 
-	try:
-		# obtain patient
-		patient = gmPersonSearch.ask_for_patient()
-		if patient is None:
-			print("No patient. Exiting gracefully...")
-			sys.exit(0)
-		gmPerson.set_active_patient(patient=patient)
+	# obtain patient
+	patient = gmPersonSearch.ask_for_patient()
+	if patient is None:
+		print("No patient. Exiting gracefully...")
+		sys.exit(0)
+	gmPerson.set_active_patient(patient=patient)
 
-		# now import
-		importer = cSOAPImporter()
-		bundle = [
-			{soap_bundle_SOAP_CAT_KEY: 's',
-			 soap_bundle_TYPES_KEY: ['Hx'],
-			 soap_bundle_TEXT_KEY: 'Test subjective narrative',
-			 soap_bundle_CLIN_CTX_KEY: {soap_bundle_EPISODE_ID_KEY: '1'}
+	# now import
+	importer = cSOAPImporter()
+	bundle = [
+		{soap_bundle_SOAP_CAT_KEY: 's',
+		 soap_bundle_TYPES_KEY: ['Hx'],
+		 soap_bundle_TEXT_KEY: 'Test subjective narrative',
+		 soap_bundle_CLIN_CTX_KEY: {soap_bundle_EPISODE_ID_KEY: '1'}
+		},
+		{soap_bundle_SOAP_CAT_KEY: 'o',
+		 soap_bundle_TYPES_KEY: ['Hx'],
+		 soap_bundle_TEXT_KEY: 'Test objective narrative',
+		 soap_bundle_CLIN_CTX_KEY: {soap_bundle_EPISODE_ID_KEY: '1'}
+		},
+		{soap_bundle_SOAP_CAT_KEY: 'a',
+		 soap_bundle_TYPES_KEY: ['Hx'],
+		 soap_bundle_TEXT_KEY: 'Test assesment narrative',
+		 soap_bundle_CLIN_CTX_KEY: {soap_bundle_EPISODE_ID_KEY: '1'}
+		},
+		{soap_bundle_SOAP_CAT_KEY: 'p',
+		 soap_bundle_TYPES_KEY: ['Hx'],
+		 soap_bundle_TEXT_KEY: 'Test plan narrative. [:tetanus:]. [:pneumoniae:].',
+		 soap_bundle_CLIN_CTX_KEY: {
+		 	soap_bundle_EPISODE_ID_KEY: '1',
+			soap_bundle_ENCOUNTER_ID_KEY: '1',
+			soap_bundle_STAFF_ID_KEY: '1'
 			},
-			{soap_bundle_SOAP_CAT_KEY: 'o',
-			 soap_bundle_TYPES_KEY: ['Hx'],
-			 soap_bundle_TEXT_KEY: 'Test objective narrative',
-			 soap_bundle_CLIN_CTX_KEY: {soap_bundle_EPISODE_ID_KEY: '1'}
-			},
-			{soap_bundle_SOAP_CAT_KEY: 'a',
-			 soap_bundle_TYPES_KEY: ['Hx'],
-			 soap_bundle_TEXT_KEY: 'Test assesment narrative',
-			 soap_bundle_CLIN_CTX_KEY: {soap_bundle_EPISODE_ID_KEY: '1'}
-			},
-			{soap_bundle_SOAP_CAT_KEY: 'p',
-			 soap_bundle_TYPES_KEY: ['Hx'],
-			 soap_bundle_TEXT_KEY: 'Test plan narrative. [:tetanus:]. [:pneumoniae:].',
-			 soap_bundle_CLIN_CTX_KEY: {
-			 	soap_bundle_EPISODE_ID_KEY: '1',
-				soap_bundle_ENCOUNTER_ID_KEY: '1',
-				soap_bundle_STAFF_ID_KEY: '1'
-				},
-			}
-		]
-		importer.import_soap(bundle)
+		}
+	]
+	importer.import_soap(bundle)
 
-		# clean up
-		if patient is not None:
-			try:
-				patient.cleanup()
-			except Exception:
-				print("error cleaning up patient")
-	except Exception:
-		_log.exception("unhandled exception caught !", sys.exc_info(), 1)
-		# but re-raise them
-		raise
+	# clean up
+	if patient is not None:
+		try:
+			patient.cleanup()
+		except Exception:
+			print("error cleaning up patient")
 
 	_log.info("closing SOAP importer...")
 #================================================================

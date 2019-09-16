@@ -184,14 +184,9 @@ if __name__ == '__main__':
 	gmDateTime.init()
 
 	def test():
-		try:
-			dto = parse_vcard2dto(filename = sys.argv[2])
-			print dto
-			print dto.addresses
-			print dto.comm_channels
-		except Exception:
-			_log.exception('cannot parse vCard')
-			gmLog2.log_stack_trace()
-			raise
+		dto = parse_vcard2dto(filename = sys.argv[2])
+		print dto
+		print dto.addresses
+		print dto.comm_channels
 
 	test()

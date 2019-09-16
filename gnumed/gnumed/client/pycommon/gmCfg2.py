@@ -389,7 +389,6 @@ class gmCfgData(gmBorg.cBorg):
 			except KeyError:
 				_log.error('invalid config source [%s]', source)
 				_log.debug('currently known sources: %s', self.__cfg_data.keys())
-				#raise
 				continue
 
 			try: value = source_data[option_path]
@@ -436,12 +435,7 @@ class gmCfgData(gmBorg.cBorg):
 	# API: source related
 	#--------------------------------------------------
 	def add_stream_source(self, source=None, stream=None, encoding=None):
-		try:
-			data = parse_INI_stream(stream = stream, encoding = encoding)
-		except ValueError:
-			_log.exception('error parsing source <%s> from [%s]', source, stream)
-			raise
-
+		data = parse_INI_stream(stream = stream, encoding = encoding)
 		if source in self.__cfg_data:
 			_log.warning('overriding source <%s> with [%s]', source, stream)
 

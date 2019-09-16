@@ -183,40 +183,48 @@ def create_staff(conn=None, db_account=None, password=None, identity=None, short
 		}
 	]
 
+	created = False
 	try:
 		rows, idx = gmPG2.run_rw_queries(link_obj = conn, queries = queries, end_tx = True)
+		created = True
 	except gmPG2.dbapi.IntegrityError as e:
-		if e.pgcode == gmPG2.sql_error_codes.UNIQUE_VIOLATION:
-			msg = _(
-				'Cannot add GNUmed user.\n'
-				'\n'
-				'The database account [%s] is already listed as a\n'
-				'GNUmed user. There can only be one GNUmed user\n'
-				'for each database account.\n'
-			) % db_account
-			return False, msg
-		raise
+		if e.pgcode != gmPG2.sql_error_codes.UNIQUE_VIOLATION:
+			raise
 
-	return True, None
+	if created:
+		return True, None
+
+	msg = _(
+		'Cannot add GNUmed user.\n'
+		'\n'
+		'The database account [%s] is already listed as a\n'
+		'GNUmed user. There can only be one GNUmed user\n'
+		'for each database account.\n'
+	) % db_account
+	return False, msg
 
 #------------------------------------------------------------
 def delete_staff(conn=None, pk_staff=None):
+	deleted = False
 	queries = [{'cmd': 'DELETE FROM dem.staff WHERE pk = %(pk)s', 'args': {'pk': pk_staff}}]
 	try:
 		rows, idx = gmPG2.run_rw_queries(link_obj = conn, queries = queries, end_tx = True)
+		deleted = True
 	except gmPG2.dbapi.IntegrityError as e:
-		if e.pgcode == gmPG2.sql_error_codes.FOREIGN_KEY_VIOLATION:		# 23503  foreign_key_violation
-			msg = _(
-				'Cannot delete GNUmed staff member because the\n'
-				'database still contains data linked to it.\n'
-				'\n'
-				'The account was deactivated instead.'
-			)
-			deactivate_staff(conn = conn, pk_staff = pk_staff)
-			return False, msg
-		raise
+		if e.pgcode != gmPG2.sql_error_codes.FOREIGN_KEY_VIOLATION:		# 23503  foreign_key_violation
+			raise
 
-	return True, None
+	if deleted:
+		return True, None
+
+	deactivate_staff(conn = conn, pk_staff = pk_staff)
+	msg = _(
+		'Cannot delete GNUmed staff member because the\n'
+		'database still contains data linked to it.\n'
+		'\n'
+		'The account was deactivated instead.'
+	)
+	return False, msg
 
 #------------------------------------------------------------
 def activate_staff(conn=None, pk_staff=None):
@@ -224,7 +232,6 @@ def activate_staff(conn=None, pk_staff=None):
 	staff = cStaff(aPK_obj = pk_staff)
 	staff['is_active'] = True
 	staff.save_payload(conn=conn)				# FIXME: error handling
-
 	# 2) enable database account login
 	rowx, idx = gmPG2.run_rw_queries (
 		link_obj = conn,
@@ -232,7 +239,6 @@ def activate_staff(conn=None, pk_staff=None):
 		queries = [{'cmd': 'select gm.create_user(%s, %s)', 'args': [staff['db_user'], 'flying wombat']}],
 		end_tx = True
 	)
-
 	return True
 
 #------------------------------------------------------------
@@ -242,14 +248,12 @@ def deactivate_staff(conn=None, pk_staff=None):
 	staff = cStaff(aPK_obj = pk_staff)
 	staff['is_active'] = False
 	staff.save_payload(conn = conn)				# FIXME: error handling
-
 	# 2) disable database account login
 	rows, idx = gmPG2.run_rw_queries (
 		link_obj = conn,
 		queries = [{'cmd': 'select gm.disable_user(%s)', 'args': [staff['db_user']]}],
 		end_tx = True
 	)
-
 	return True
 
 #============================================================

@@ -3221,16 +3221,17 @@ def get_encounter_type(description=None):
 
 #-----------------------------------------------------------
 def delete_encounter_type(description=None):
+	deleted = False
 	cmd = "delete from clin.encounter_type where description = %(desc)s"
 	args = {'desc': description}
 	try:
 		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+		deleted = True
 	except gmPG2.dbapi.IntegrityError as e:
-		if e.pgcode == gmPG2.sql_error_codes.FOREIGN_KEY_VIOLATION:
-			return False
-		raise
+		if e.pgcode != gmPG2.sql_error_codes.FOREIGN_KEY_VIOLATION:
+			raise
 
-	return True
+	return deleted
 
 #============================================================
 class cProblem(gmBusinessDBObject.cBusinessDBObject):
@@ -3277,8 +3278,9 @@ class cProblem(gmBusinessDBObject.cBusinessDBObject):
 			WHERE %s""" % ' AND '.join(where_parts)
 
 		try:
-			gmBusinessDBObject.cBusinessDBObject.__init__(self, aPK_obj=pk)
+			gmBusinessDBObject.cBusinessDBObject.__init__(self, aPK_obj = pk)
 			return
+
 		except gmExceptions.ConstructorError:
 			_log.exception('actual problem not found, trying "potential" problems')
 			if try_potential_problems is False:

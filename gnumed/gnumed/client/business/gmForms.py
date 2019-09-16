@@ -2259,11 +2259,7 @@ if __name__ == '__main__':
 		input('press <ENTER> to continue')
 	#--------------------------------------------------------
 	def play_with_ooo():
-		try:
-			doc = open_uri_in_ooo(filename=sys.argv[1])
-		except Exception:
-			_log.exception('cannot open [%s] in OOo' % sys.argv[1])
-			raise
+		doc = open_uri_in_ooo(filename=sys.argv[1])
 
 		class myCloseListener(unohelper.Base, oooXCloseListener):
 			def disposing(self, evt):

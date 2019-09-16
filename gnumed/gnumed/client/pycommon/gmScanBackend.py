@@ -250,11 +250,7 @@ def _sane_import_module():
 			_log.exception('cannot import SANE module')
 			raise
 		_sane_module = sane
-		try:
-			init_result = _sane_module.init()
-		except Exception:
-			_log.exception('cannot init SANE module')
-			raise
+		init_result = _sane_module.init()
 		_log.info("SANE version: %s" % str(init_result))
 		_log.debug('SANE device list: %s' % str(_sane_module.get_devices()))
 #=======================================================

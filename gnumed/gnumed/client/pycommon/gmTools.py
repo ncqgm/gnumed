@@ -174,30 +174,25 @@ def mkdir(directory=None, mode=None):
 	if os.path.isdir(directory):
 		if mode is None:
 			return True
+
+		changed = False
+		old_umask = os.umask(0)
 		try:
-			old_umask = os.umask(0)
 			# does not WORK !
 			#os.chmod(directory, mode, follow_symlinks = (os.chmod in os.supports_follow_symlinks))	# can't do better
 			os.chmod(directory, mode)
-			return True
-		except Exception:
-			_log.exception('cannot os.chmod(%s, %s)', oct(mode), directory)
-			raise
+			changed = True
 		finally:
 			os.umask(old_umask)
-		return False
+		return changed
 
 	if mode is None:
 		os.makedirs(directory)
 		return True
 
+	old_umask = os.umask(0)
 	try:
-		old_umask = os.umask(0)
 		os.makedirs(directory, mode)
-		return True
-	except Exception:
-		_log.exception('cannot os.makedirs(%s, %s)', oct(mode), directory)
-		raise
 	finally:
 		os.umask(old_umask)
 	return True
@@ -264,11 +259,12 @@ def dirname_stem(directory):
 #---------------------------------------------------------------------------
 def dir_is_empty(directory=None):
 	try:
-		return len(os.listdir(directory)) == 0
+		empty = (len(os.listdir(directory)) == 0)
 	except OSError as exc:
-		if exc.errno == 2:	# no such file
-			return None
-		raise
+		if exc.errno != 2:	# no such file
+			raise
+		empty = None
+	return empty
 
 #---------------------------------------------------------------------------
 def copy_tree_content(directory, target_directory):
