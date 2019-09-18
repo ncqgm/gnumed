@@ -25,6 +25,8 @@ from Gnumed.business import gmDocuments
 _log = logging.getLogger('gm.bill')
 
 INVOICE_DOCUMENT_TYPE = u'invoice'
+# default: old style
+DEFAULT_INVOICE_ID_TEMPLATE = u'GM%(pk_pat)s / %(date)s / %(time)s'
 
 #============================================================
 # billables
@@ -563,8 +565,7 @@ def generate_invoice_id(template=None, pk_patient=None, person=None, date_format
 	assert (None in [pk_patient, person]), u'either of <pk_patient> or <person> can be defined, but not both'
 
 	if (template is None) or (template.strip() == u''):
-		# force old style
-		template = u'GM%(pk_pat)s / %(date)s / %(time)s'
+		template = DEFAULT_INVOICE_ID_TEMPLATE
 		date_format = '%Y-%m-%d'
 		time_format = '%H%M%S'
 	template = template.strip()
