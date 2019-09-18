@@ -56,6 +56,10 @@ FIX: "lastname, firstname" based patient search under Python 3
 # rel-1-7-patches
 ------------------------------------------------
 
+	1.7.8.
+
+FIX: billing: invoice ID template configuration [thanks Marc]
+
 	1.7.7
 
 FIX: EMR/tree: exception on showing visual progress note
