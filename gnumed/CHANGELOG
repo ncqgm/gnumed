@@ -2013,6 +2013,10 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 # gnumed_v22
 ------------------------------------------------
 
+	22.8
+
+FIX: i18n.set_curr/force_curr_lang()
+
 	22.7
 
 IMPROVED: lab results plotting scripts for gnuplot
