@@ -1048,12 +1048,7 @@ def set_user_language(user=None, language=None):
 	language = None: unset
 	"""
 	_log.info('setting database language for user [%s] to [%s]', user, language)
-
-	args = {
-		'usr': user,
-		'lang': language
-	}
-
+	args = {'usr': user, 'lang': language}
 	if language is None:
 		if user is None:
 			queries = [{'cmd': 'select i18n.unset_curr_lang()'}]
@@ -1065,13 +1060,11 @@ def set_user_language(user=None, language=None):
 			queries = [{'cmd': 'select i18n.set_curr_lang(%(lang)s)', 'args': args}]
 		else:
 			queries = [{'cmd': 'select i18n.set_curr_lang(%(lang)s, %(usr)s)', 'args': args}]
-
 	rows, idx = run_rw_queries(queries = queries, return_data = True)
-
 	if not rows[0][0]:
 		_log.error('cannot set database language to [%s] for user [%s]', language, user)
-
 	return rows[0][0]
+
 #------------------------------------------------------------------------
 def force_user_language(language=None):
 	"""Set the user language in the database.

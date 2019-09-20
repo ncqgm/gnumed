@@ -1103,15 +1103,14 @@ class gmTopLevelFrame(wx.Frame):
 	def __on_about_database(self, evt):
 		praxis = gmPraxis.gmCurrentPraxisBranch()
 		msg = praxis.db_logon_banner
-
 		login = gmPG2.get_default_login()
-
 		auth = _(
 			'\n\n'
 			' praxis:       %s\n'
 			' branch:       %s\n'
 			' workplace:    %s\n'
 			' account:      %s\n'
+			' locale:       %s\n'
 			' access:       %s\n'
 			' database:     %s\n'
 			' server:       %s\n'
@@ -1121,14 +1120,13 @@ class gmTopLevelFrame(wx.Frame):
 			praxis['branch'],
 			praxis.active_workplace,
 			login.user,
+			gmPG2.get_current_user_language(),
 			_provider['role'],
 			login.database,
 			gmTools.coalesce(login.host, '<localhost>'),
 			gmPG2.postgresql_version_string
 		)
-
 		msg += auth
-
 		gmGuiHelpers.gm_show_info(msg, _('About database and server'))
 
 	#----------------------------------------------
@@ -3627,8 +3625,10 @@ class gmApp(wx.App):
 		)
 		if connected:
 			return True
+
 		_log.warning("Login attempt unsuccessful. Can't run GNUmed without database connection")
 		return False
+
 	#----------------------------------------------
 	def __verify_db_account(self):
 		# check account <-> staff member association
@@ -3839,36 +3839,33 @@ class gmApp(wx.App):
 			_log.warning("system locale is undefined (probably meaning 'C')")
 			return True
 
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': "select i18n.get_curr_lang() as lang"}])
-		curr_db_lang = rows[0]['lang']
-		_log.debug("current database locale: [%s]" % curr_db_lang)
-
+		curr_db_lang = gmPG2.get_current_user_language()
+		_log.debug('current user language in DB: %s', curr_db_lang)
 		if curr_db_lang is None:
-			# try setting (only possible if translation exists)
-			cmd = 'select i18n.set_curr_lang(%s)'
+			_log.info('no language selected in DB, trying to set')
 			for lang in [gmI18N.system_locale_level['full'], gmI18N.system_locale_level['country'], gmI18N.system_locale_level['language']]:
 				if len(lang) == 0:
 					continue
-				rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': [lang]}], return_data = True)
-				if rows[0][0]:
+				if gmPG2.set_user_language(language = lang):
 					_log.debug("Successfully set database language to [%s]." % lang)
 					return True
-				_log.error('Cannot set database language to [%s].' % lang)
 
+				_log.error('Cannot set database language to [%s].' % lang)
 			return True
 
 		if curr_db_lang == gmI18N.system_locale_level['full']:
 			_log.debug('Database locale (%s) up to date.' % curr_db_lang)
 			return True
+
 		if curr_db_lang == gmI18N.system_locale_level['country']:
 			_log.debug('Database locale (%s) matches system locale (%s) at country level.' % (curr_db_lang, gmI18N.system_locale))
 			return True
+
 		if curr_db_lang == gmI18N.system_locale_level['language']:
 			_log.debug('Database locale (%s) matches system locale (%s) at language level.' % (curr_db_lang, gmI18N.system_locale))
 			return True
 
 		_log.warning('database locale [%s] does not match system locale [%s]' % (curr_db_lang, gmI18N.system_locale))
-
 		sys_lang2ignore = _cfg.get (
 			group = 'backend',
 			option = 'ignored mismatching system locale',
@@ -3909,7 +3906,6 @@ class gmApp(wx.App):
 		decision = dlg.ShowModal()
 		remember2ignore_this_mismatch = dlg._CHBOX_dont_ask_again.GetValue()
 		dlg.DestroyLater()
-
 		if decision == wx.ID_NO:
 			if not remember2ignore_this_mismatch:
 				return True
@@ -3922,24 +3918,17 @@ class gmApp(wx.App):
 			)
 			return True
 
-		# try setting database language (only possible if translation exists)
-		cmd = 'select i18n.set_curr_lang(%s)'
 		for lang in [gmI18N.system_locale_level['full'], gmI18N.system_locale_level['country'], gmI18N.system_locale_level['language']]:
 			if len(lang) == 0:
 				continue
-			rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': [lang]}], return_data = True)
-			if rows[0][0]:
+			if gmPG2.set_user_language(language = lang):
 				_log.debug("Successfully set database language to [%s]." % lang)
 				return True
-			_log.error('Cannot set database language to [%s].' % lang)
 
+			_log.error('Cannot set database language to [%s].' % lang)
 		# no match found but user wanted to set language anyways, so force it
 		_log.info('forcing database language to [%s]', gmI18N.system_locale_level['country'])
-		gmPG2.run_rw_queries(queries = [{
-			'cmd': 'select i18n.force_curr_lang(%s)',
-			'args': [gmI18N.system_locale_level['country']]
-		}])
-
+		gmPG2.force_user_language(language = gmI18N.system_locale_level['country'])
 		return True
 
 #==============================================================================
