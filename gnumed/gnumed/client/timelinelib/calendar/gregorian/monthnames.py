@@ -34,6 +34,8 @@ ENGLISH_MONTH_NAMES = [
 
 def _(message):
     return message  # deferred translation
+
+
 ABBREVIATED_ENGLISH_MONTH_NAMES = [
     _("Jan"),
     _("Feb"),

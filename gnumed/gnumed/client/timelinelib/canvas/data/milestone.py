@@ -34,6 +34,7 @@ class Milestone(Event):
 
     def save(self):
         self._update_category_id()
+        self._update_category_ids()
         self._update_sort_order()
         with self._db.transaction("Save milestone") as t:
             t.save_milestone(self._immutable_value, self.ensure_id())

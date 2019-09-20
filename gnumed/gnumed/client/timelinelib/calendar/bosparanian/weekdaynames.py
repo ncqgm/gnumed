@@ -18,6 +18,8 @@
 
 def _(message):
     return message  # deferred translation
+
+
 BOSP_ABBREVIATED_WEEKDAY_NAMES = [
     _("Wind"),
     _("Earth"),

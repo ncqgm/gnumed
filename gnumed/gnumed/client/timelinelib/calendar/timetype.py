@@ -48,7 +48,7 @@ class TimeType(object):
     def supports_saved_now(self):
         raise NotImplementedError("supports_saved_now not implemented.")
 
-    def set_saved_now(self,time):
+    def set_saved_now(self, time):
         raise NotImplementedError("set_saved_now not implemented.")
 
     def now(self):

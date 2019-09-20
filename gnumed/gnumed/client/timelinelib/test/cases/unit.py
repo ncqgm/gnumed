@@ -18,7 +18,6 @@
 
 import contextlib
 import gc
-import platform
 import random
 import unittest
 

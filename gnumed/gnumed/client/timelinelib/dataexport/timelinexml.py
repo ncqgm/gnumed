@@ -27,9 +27,10 @@ from timelinelib.meta.version import get_full_version
 
 
 ENCODING = "utf-8"
-INDENT1 = "  "
-INDENT2 = "    "
-INDENT3 = "      "
+INDENT1 = " " * 2
+INDENT2 = " " * 4
+INDENT3 = " " * 6
+INDENT4 = " " * 8
 
 
 def export_db_to_timeline_xml(db, path):
@@ -125,6 +126,8 @@ class Exporter(object):
         write_simple_tag(xmlfile, "ends_today", "%s" % evt.get_ends_today(), INDENT3)
         if evt.get_category() is not None:
             write_simple_tag(xmlfile, "category", evt.get_category().get_name(), INDENT3)
+        if evt.get_categories():
+            self._write_event_categories(xmlfile, evt)
         if evt.get_data("description") is not None:
             write_simple_tag(xmlfile, "description", evt.get_data("description"), INDENT3)
         alert = evt.get_data("alert")
@@ -143,6 +146,11 @@ class Exporter(object):
         if evt.is_milestone():
             write_simple_tag(xmlfile, "milestone", "True", INDENT3)
     _write_event = wrap_in_tag(_write_event, "event", INDENT2)
+
+    def _write_event_categories(self, xmlfile, event):
+        for category in event.get_categories():
+            write_simple_tag(xmlfile, "category", category.get_name(), INDENT4)
+    _write_event_categories = wrap_in_tag(_write_event_categories, "categories", INDENT3)
 
     def _write_eras(self, xmlfile):
         for era in self.db.get_all_eras():

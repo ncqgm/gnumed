@@ -18,6 +18,8 @@
 
 def _(message):
     return message  # deferred translation
+
+
 ABBREVIATED_WEEKDAY_NAMES = [
     _("Mon"),
     _("Tue"),

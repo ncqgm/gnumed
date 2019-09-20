@@ -28,7 +28,7 @@ from timelinelib.features.experimental.experimentalfeatures import EXTENDED_CONT
 
 
 HANDLE_SIZE = 4
-HALF_HANDLE_SIZE = HANDLE_SIZE / 2
+HALF_HANDLE_SIZE = HANDLE_SIZE // 2
 DATA_INDICATOR_SIZE = 10
 INNER_PADDING = 3  # Space inside event box to text (pixels)
 GRAY = (200, 200, 200)
@@ -162,36 +162,6 @@ class DefaultEventBoxDrawer(object):
         self._inflate_clipping_region(dc, rect)
         dc.DrawBitmap(self._get_lock_bitmap(), rect.x + rect.width - 8, rect.y + 3, True)
 
-    def _draw_locked(self, dc, event, rect, x, start_angle, end_angle):
-        y = rect.y + rect.height / 2
-        r = rect.height / 2.5
-        dc.SetBrush(wx.WHITE_BRUSH)
-        dc.SetPen(wx.WHITE_PEN)
-        dc.DrawCircle(x, y, r)
-        dc.SetPen(self._get_thin_border_pen(event))
-        self.draw_segment(dc, event, x, y, r, start_angle, end_angle)
-
-    def draw_segment(self, dc, event, x0, y0, r, start_angle, end_angle):
-        gc = wx.GraphicsContext.Create(dc)
-        path = gc.CreatePath()
-        segment_length = 2.0 * (end_angle - start_angle) * r
-        delta = (end_angle - start_angle) / segment_length
-        angle = start_angle
-        x1 = r * math.cos(angle) + x0
-        y1 = r * math.sin(angle) + y0
-        path.MoveToPoint(x1, y1)
-        while angle < end_angle:
-            angle += delta
-            if angle > end_angle:
-                angle = end_angle
-            x2 = r * math.cos(angle) + x0
-            y2 = r * math.sin(angle) + y0
-            path.AddLineToPoint(x2, y2)
-            x1 = x2
-            y1 = y2
-        gc.SetPen(self._get_thin_border_pen(event))
-        gc.StrokePath(path)
-
     def _draw_progress_box(self, dc, rect, event):
         if event.get_data("progress"):
             self._set_progress_color(dc, event)
@@ -209,7 +179,7 @@ class DefaultEventBoxDrawer(object):
         rw, _ = self.scene._calc_width_and_height_for_period_event(event)
         rx = self.scene._calc_x_pos_for_period_event(event)
         w = rw * event.get_data("progress") / 100.0
-        return wx.Rect(rx, y, w, h)
+        return wx.Rect(int(rx), int(y), int(w), int(h))
 
     def _draw_balloon_indicator(self, dc, event, rect):
         """
@@ -248,7 +218,7 @@ class DefaultEventBoxDrawer(object):
 
     def _get_text(self, event):
         if event.get_progress() == 100 and self.view_properties.get_display_checkmark_on_events_done():
-            return u"\u2714" + event.get_text()
+            return "\u2714" + event.get_text()
         else:
             return event.get_text()
 
@@ -272,7 +242,7 @@ class DefaultEventBoxDrawer(object):
 
     def _adjust_x_for_edge_icons(self, event, rect, text_x):
         if self._event_has_edge_icons(event):
-            text_x += rect.Height / 2
+            text_x += rect.Height // 2
         return text_x
 
     def _adjust_x_for_centered_text(self, dc, event, inner_rect, text_x):
@@ -288,7 +258,7 @@ class DefaultEventBoxDrawer(object):
 
     def _center_text(self, dc, event, inner_rect, text_x):
         width, _ = dc.GetTextExtent(self._get_text(event))
-        return max(text_x, text_x + (inner_rect.width - width) / 2)
+        return max(text_x, text_x + (inner_rect.width - width) // 2)
 
     def _set_text_foreground_color(self, dc, event):
         try:
@@ -326,7 +296,7 @@ class DefaultEventBoxDrawer(object):
             dc.SetPen(wx.BLACK_PEN)
 
         def create_handle_rect():
-            HALF_EVENT_HEIGHT = rect.Height / 2
+            HALF_EVENT_HEIGHT = rect.Height // 2
             y = rect.Y + HALF_EVENT_HEIGHT - HALF_HANDLE_SIZE
             x = rect.X - HALF_HANDLE_SIZE + 1
             return wx.Rect(x, y, HANDLE_SIZE, HANDLE_SIZE)
@@ -336,7 +306,7 @@ class DefaultEventBoxDrawer(object):
             dc.DrawRectangle(handle_rect)
 
         def draw_handle_rects(handle_rect):
-            HALF_EVENT_WIDTH = rect.Width / 2
+            HALF_EVENT_WIDTH = rect.Width // 2
             EVENT_WIDTH = rect.Width
             draw_rect(handle_rect, 0)
             draw_rect(handle_rect, EVENT_WIDTH - 2)
@@ -373,7 +343,7 @@ class DefaultEventBoxDrawer(object):
     def _draw_milestone_event(self, dc, rect, scene, event, selected):
 
         def create_handle_rect():
-            HALF_EVENT_HEIGHT = rect.Height / 2
+            HALF_EVENT_HEIGHT = rect.Height // 2
             y = rect.Y + HALF_EVENT_HEIGHT - HALF_HANDLE_SIZE
             x = rect.X - HALF_HANDLE_SIZE + 1
             return wx.Rect(x, y, HANDLE_SIZE, HANDLE_SIZE)
@@ -393,17 +363,17 @@ class DefaultEventBoxDrawer(object):
             dc.DrawRectangle(rect)
 
         def draw_circle_shape():
-            half_size = rect.width / 2
+            half_size = rect.width // 2
             dc.DestroyClippingRegion()
             dc.SetPen(self._black_solid_pen(1))
             dc.SetBrush(wx.Brush(wx.Colour(*event.get_default_color()), wx.BRUSHSTYLE_SOLID))
-            dc.DrawCircle(rect.x + half_size, rect.y + half_size, 2 * rect.width / 3)
+            dc.DrawCircle(rect.x + half_size, rect.y + half_size, 2 * rect.width // 3)
 
         def draw_diamond_shape():
             SIZE = 2
             x = rect.x
             y = rect.y
-            half_size = rect.width / 2
+            half_size = rect.width // 2
             points = (wx.Point(x - SIZE, y + half_size),
                       wx.Point(x + half_size, y - SIZE),
                       wx.Point(x + rect.width + SIZE, y + half_size),
@@ -425,7 +395,7 @@ class DefaultEventBoxDrawer(object):
         def draw_move_handle():
             dc.SetBrush(self._black_solid_brush())
             handle_rect = create_handle_rect()
-            handle_rect.Offset(rect.Width / 2, 0)
+            handle_rect.Offset(rect.Width // 2, 0)
             dc.DrawRectangle(handle_rect)
 
         draw_shape()

@@ -43,7 +43,7 @@ class ScrollByDragInputHandler(InputHandler):
         self.last_mouse_pos = cursor.y
         self._calculate_sped(cursor.x)
         self._scroll_timeline(cursor.x)
-        percentage_distance = 100 * (cursor.y - self.start_mouse_pos) / self.view_height
+        percentage_distance = int(100 * (cursor.y - self.start_mouse_pos) / self.view_height)
         self.timeline_canvas.SetDividerPosition(self.start_slider_pos + percentage_distance)
 
     def left_mouse_up(self):
@@ -64,8 +64,10 @@ class ScrollByDragInputHandler(InputHandler):
         if elapsed_clock_time == 0:
             self.speed_px_per_sec = MAX_SPEED
         else:
-            self.speed_px_per_sec = min(MAX_SPEED, abs(self.last_x_distance /
-                                                       elapsed_clock_time))
+            self.speed_px_per_sec = min(
+                MAX_SPEED,
+                int(abs(self.last_x_distance / elapsed_clock_time))
+            )
         self.last_clock_time = current_clock_time
 
     def _scroll_timeline(self, x):

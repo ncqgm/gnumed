@@ -20,14 +20,12 @@ from datetime import datetime
 import re
 
 from timelinelib.calendar.gregorian.timetype import GregorianTimeType
-from timelinelib.calendar.coptic.coptic import CopticDateTime,\
-    julian_day_to_coptic_ymd
+from timelinelib.calendar.coptic.coptic import CopticDateTime
 from timelinelib.calendar.coptic.monthnames import abbreviated_name_of_month
 from timelinelib.calendar.coptic.time import CopticDelta
 from timelinelib.calendar.coptic.time import CopticTime
 from timelinelib.calendar.coptic.time import SECONDS_IN_DAY
 from timelinelib.calendar.coptic.weekdaynames import abbreviated_name_of_weekday
-from timelinelib.calendar.timetype import TimeType
 from timelinelib.canvas.data import TimeOutOfRangeLeftError
 from timelinelib.canvas.data import TimeOutOfRangeRightError
 from timelinelib.canvas.data import TimePeriod
@@ -90,11 +88,11 @@ class CopticTimeType(GregorianTimeType):
     def format_period(self, time_period):
         """Returns a unicode string describing the time period."""
         def label_with_time(time):
-            return u"%s %s" % (label_without_time(time), time_label(time))
+            return "%s %s" % (label_without_time(time), time_label(time))
 
         def label_without_time(time):
             coptic_datetime = CopticDateTime.from_time(time)
-            return u"%s %s %s" % (
+            return "%s %s %s" % (
                 coptic_datetime.day,
                 abbreviated_name_of_month(coptic_datetime.month),
                 format_year(coptic_datetime.year)
@@ -104,16 +102,16 @@ class CopticTimeType(GregorianTimeType):
             return "%02d:%02d" % time.get_time_of_day()[:-1]
         if time_period.is_period():
             if has_nonzero_time(time_period):
-                label = u"%s to %s" % (label_with_time(time_period.start_time),
-                                       label_with_time(time_period.end_time))
+                label = "%s to %s" % (label_with_time(time_period.start_time),
+                                      label_with_time(time_period.end_time))
             else:
-                label = u"%s to %s" % (label_without_time(time_period.start_time),
-                                       label_without_time(time_period.end_time))
+                label = "%s to %s" % (label_without_time(time_period.start_time),
+                                      label_without_time(time_period.end_time))
         else:
             if has_nonzero_time(time_period):
-                label = u"%s" % label_with_time(time_period.start_time)
+                label = "%s" % label_with_time(time_period.start_time)
             else:
-                label = u"%s" % label_without_time(time_period.start_time)
+                label = "%s" % label_without_time(time_period.start_time)
         return label
 
     def format_delta(self, delta):
@@ -179,7 +177,7 @@ class CopticTimeType(GregorianTimeType):
         return (CopticDelta.from_seconds(60), _("Can't zoom deeper than 1 minute"))
 
     def get_name(self):
-        return u"coptic"
+        return "coptic"
 
     def get_duplicate_functions(self):
         return [
@@ -341,7 +339,7 @@ def _move_page_months(curret_period, navigation_fn, direction):
 
 
 def _months_to_year_and_month(months):
-    years = int(months / 13)
+    years = int(months // 13)
     month = months - years * 13
     if month == 0:
         month = 13
@@ -398,7 +396,7 @@ def fit_millennium_fn(main_frame, current_period, navigation_fn):
     if mean.year > get_millenium_max_year():
         year = get_millenium_max_year()
     else:
-        year = max(get_min_year_containing_jan_1(), int(mean.year / 1000) * 1000)
+        year = max(get_min_year_containing_jan_1(), int(mean.year // 1000) * 1000)
     start = CopticDateTime.from_ymd(year, 1, 1).to_time()
     end = CopticDateTime.from_ymd(year + 1000, 1, 1).to_time()
     navigation_fn(lambda tp: tp.update(start, end))
@@ -506,9 +504,9 @@ class StripCentury(Strip):
 
     def _format_century(self, century_number, is_bc):
         if is_bc:
-            return u"{century}s {bc}".format(century=century_number, bc=BC)
+            return "{century}s {bc}".format(century=century_number, bc=BC)
         else:
-            return u"{century}s".format(century=century_number)
+            return "{century}s".format(century=century_number)
 
     def _century_start_year(self, year):
         if year > 99:

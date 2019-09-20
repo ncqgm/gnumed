@@ -92,7 +92,7 @@ class HelpPage(object):
         self.related_pages = related_pages
 
     def render_to_html(self):
-        html = u"<h1>%s</h1>%s" % (self.header, markdown(self.body))
+        html = "<h1>%s</h1>%s" % (self.header, markdown(self.body))
         # Change headers
         html = self._replace_help_placeholder_with_proper_link(html)
         html = self._replace_helpfigure_placeholder_with_proper_image(html)

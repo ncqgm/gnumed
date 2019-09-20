@@ -123,7 +123,7 @@ class MainFrame(wx.Frame, guic.GuiCreator, MainFrameApiUsedByController):
         return self.main_panel.get_view_properties()
 
     def _on_cats_view_changed(self, evt):
-        self.main_panel.get_view_properties().change_view_cats_individually(evt.GetClientData())
+        self.main_panel.get_view_properties().change_view_cats_individually(evt.is_checked)
 
     # Creation process methods
     def _set_initial_values_to_member_variables(self):

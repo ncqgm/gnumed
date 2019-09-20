@@ -27,6 +27,7 @@ class ImmutableEvent(ImmutableRecord):
     text = Field(None)
     time_period = Field(None)
     category_id = Field(None)
+    category_ids = Field(ImmutableDict())
     fuzzy = Field(False)
     locked = Field(False)
     ends_today = Field(False)
@@ -44,6 +45,7 @@ class ImmutableMilestone(ImmutableRecord):
 
     text = Field(None)
     category_id = Field(None)
+    category_ids = Field(ImmutableDict())
     time_period = Field(None)
     description = Field(None)
     default_color = Field((255, 255, 128))
@@ -72,6 +74,7 @@ class ImmutableContainer(ImmutableRecord):
 
     text = Field(None)
     category_id = Field(None)
+    category_ids = Field(ImmutableDict())
     time_period = Field(None)
     description = Field(None)
 

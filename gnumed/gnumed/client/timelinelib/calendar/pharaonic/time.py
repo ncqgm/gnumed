@@ -21,6 +21,7 @@ from timelinelib.calendar.gregorian.time import GregorianDelta
 
 SECONDS_IN_DAY = 24 * 60 * 60
 
+
 class PharaonicTime(GregorianTime):
     
     MIN_JULIAN_DAY = -47

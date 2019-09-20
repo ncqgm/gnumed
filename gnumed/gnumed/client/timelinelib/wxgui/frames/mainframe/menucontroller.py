@@ -28,9 +28,6 @@ class MenuController(object):
     def on_timeline_change(self, timeline):
         self.current_timeline = timeline
         self._has_timeline = self.current_timeline is not None
-        self.menus_requiring_timeline = []
-        self.menus_requiring_writable_timeline = []
-        self.menus_requiring_visible_timeline_view = []
 
     def add_menu_requiring_writable_timeline(self, menu):
         self.menus_requiring_writable_timeline.append(menu)

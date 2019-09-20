@@ -18,6 +18,7 @@
 
 import timelinelib.canvas.drawing.drawers.resources as resource
 
+
 class DividerLine:
 
     def __init__(self, drawer):

@@ -97,26 +97,26 @@ class BosparanianTimeType(TimeType):
     def format_period(self, time_period):
         """Returns a unicode string describing the time period."""
         def label_with_time(time):
-            return u"%s %s" % (label_without_time(time), time_label(time))
+            return "%s %s" % (label_without_time(time), time_label(time))
 
         def label_without_time(time):
             bosparanian_datetime = BosparanianDateTime.from_time(time)
-            return u"%s %s %s" % (bosparanian_datetime.day, bosp_abbreviated_name_of_month(bosparanian_datetime.month), bosparanian_datetime.year)
+            return "%s %s %s" % (bosparanian_datetime.day, bosp_abbreviated_name_of_month(bosparanian_datetime.month), bosparanian_datetime.year)
 
         def time_label(time):
             return "%02d:%02d" % time.get_time_of_day()[:-1]
         if time_period.is_period():
             if has_nonzero_time(time_period):
-                label = u"%s to %s" % (label_with_time(time_period.start_time),
-                                       label_with_time(time_period.end_time))
+                label = "%s to %s" % (label_with_time(time_period.start_time),
+                                      label_with_time(time_period.end_time))
             else:
-                label = u"%s to %s" % (label_without_time(time_period.start_time),
-                                       label_without_time(time_period.end_time))
+                label = "%s to %s" % (label_without_time(time_period.start_time),
+                                      label_without_time(time_period.end_time))
         else:
             if has_nonzero_time(time_period):
-                label = u"%s" % label_with_time(time_period.start_time)
+                label = "%s" % label_with_time(time_period.start_time)
             else:
-                label = u"%s" % label_without_time(time_period.start_time)
+                label = "%s" % label_without_time(time_period.start_time)
         return label
 
     def format_delta(self, delta):
@@ -179,7 +179,7 @@ class BosparanianTimeType(TimeType):
         return (BosparanianDelta.from_seconds(60), _("Can't zoom deeper than 1 minute"))
 
     def get_name(self):
-        return u"bosparaniantime"
+        return "bosparaniantime"
 
     def get_duplicate_functions(self):
         return [
@@ -310,7 +310,7 @@ def _move_page_months(curret_period, navigation_fn, direction):
 
 
 def _months_to_year_and_month(months):
-    years = int(months / 13)
+    years = int(months // 13)
     month = months - years * 13
     if month == 0:
         month = 13
@@ -358,7 +358,7 @@ def fit_millennium_fn(main_frame, current_period, navigation_fn):
     if mean.year > get_millenium_max_year():
         year = get_millenium_max_year()
     else:
-        year = max(get_min_year_containing_praios_1(), int(mean.year / 1000) * 1000)
+        year = max(get_min_year_containing_praios_1(), int(mean.year // 1000) * 1000)
     start = BosparanianDateTime.from_ymd(year, 1, 1).to_time()
     end = BosparanianDateTime.from_ymd(year + 1000, 1, 1).to_time()
     navigation_fn(lambda tp: tp.update(start, end))
@@ -381,7 +381,7 @@ def fit_century_fn(main_frame, current_period, navigation_fn):
     if mean.year > get_century_max_year():
         year = get_century_max_year()
     else:
-        year = max(get_min_year_containing_praios_1(), int(mean.year / 100) * 100)
+        year = max(get_min_year_containing_praios_1(), int(mean.year // 100) * 100)
     start = BosparanianDateTime.from_ymd(year, 1, 1).to_time()
     end = BosparanianDateTime.from_ymd(year + 100, 1, 1).to_time()
     navigation_fn(lambda tp: tp.update(start, end))
@@ -389,8 +389,8 @@ def fit_century_fn(main_frame, current_period, navigation_fn):
 
 def fit_decade_fn(main_frame, current_period, navigation_fn):
     mean = BosparanianDateTime.from_time(current_period.mean_time())
-    start = BosparanianDateTime.from_ymd(int(mean.year / 10) * 10, 1, 1).to_time()
-    end = BosparanianDateTime.from_ymd(int(mean.year / 10) * 10 + 10, 1, 1).to_time()
+    start = BosparanianDateTime.from_ymd(int(mean.year // 10) * 10, 1, 1).to_time()
+    end = BosparanianDateTime.from_ymd(int(mean.year // 10) * 10 + 10, 1, 1).to_time()
     navigation_fn(lambda tp: tp.update(start, end))
 
 
@@ -436,7 +436,7 @@ class StripCentury(Strip):
             # TODO: This only works for English. Possible to localize?
             time = BosparanianDateTime.from_time(time)
             start_year = self._century_start_year(time.year)
-            century = (start_year + 100) / 100
+            century = int((start_year + 100) // 100)
             if century <= 0:
                 century -= 1
             return str(century) + " century BF"
@@ -451,7 +451,7 @@ class StripCentury(Strip):
         return time.replace(year=time.year + 100).to_time()
 
     def _century_start_year(self, year):
-        year = (int(year) / 100) * 100
+        year = int(year // 100) * 100
         return year
 
 
@@ -474,7 +474,7 @@ class StripDecade(Strip):
         # The first start year must be to the left of the first visible
         # year on the timeline in order to draw the first vertical decade
         # line correctly. Therefore -10 in the calculation below
-        return (int(year) / 10) * 10 - 10
+        return int(year // 10) * 10 - 10
 
 
 class StripYear(Strip):
@@ -692,7 +692,7 @@ def move_period_num_weeks(period, num):
 def move_period_num_months(period, num):
     try:
         delta = num
-        years = abs(delta) / 13
+        years = int(abs(delta)) // 13
         bosparanian_start = BosparanianDateTime.from_time(period.start_time)
         bosparanian_end = BosparanianDateTime.from_time(period.end_time)
         if num < 0:

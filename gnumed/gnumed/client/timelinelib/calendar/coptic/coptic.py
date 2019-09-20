@@ -75,6 +75,7 @@ class CopticDateTime(object):
             if diff >= 0:
                 return diff
             raise ValueError("should not end up here")
+        # TODO: days_since_monday_week_1, unresolved!!!
         return days_since_monday_week_1(self.to_time()) // 7 + 1
     """
         if self.month == 13:
@@ -84,8 +85,8 @@ class CopticDateTime(object):
         days_into_year = ((self.month - 1)*30) + self.day
                
         if self.day % length_of_week > 0:
-        	return (days_into_year / length_of_week) + 1
-        	
+            return (days_into_year / length_of_week) + 1
+        
         return days_into_year / length_of_week
         """
          
@@ -114,10 +115,10 @@ class CopticDateTime(object):
                 self.second)
 
     def to_date_tuple(self):
-        return (self.year, self.month, self.day)
+        return self.year, self.month, self.day
 
     def to_time_tuple(self):
-        return (self.hour, self.minute, self.second)
+        return self.hour, self.minute, self.second
 
     def to_time(self):
         days = coptic_ymd_to_julian_day(self.year, self.month, self.day)
@@ -140,6 +141,7 @@ class CopticDateTime(object):
     def __repr__(self):
         return "CopticDateTime<%d-%02d-%02d %02d:%02d:%02d>" % self.to_tuple()
 
+
 def days_in_month(year, month):
     if month <= 12:
         return 30
@@ -147,7 +149,8 @@ def days_in_month(year, month):
         return 6
     else:
         return 5
-        
+
+
 def is_leap_year(year):
     if year > 0 and (year+1) % 4 == 0:
         return True
@@ -155,9 +158,11 @@ def is_leap_year(year):
         return True
     else:
         return False
-        
+
+
 def num_leap_years(year):
-	return int(abs(year/4))
+    return int(abs(year//4))
+
 
 def is_valid_time(hour, minute, second):
     return (
@@ -173,14 +178,14 @@ def is_valid(year, month, day):
 
 def julian_day_to_coptic_ymd(julian_day):
     """
-	This calendar calculation was originally published in Explanatory Supplement to the Astronomical Almanac, S.E. Urban and P.K. Seidelman, Eds. (2012). You can purchase the book at uscibooks.com/urban.htm. "15.11 Calendar Conversion Algorithms" from the following pdf is used in the below code. https://aa.usno.navy.mil/publications/docs/c15_usb_online.pdf
+    This calendar calculation was originally published in Explanatory Supplement to the Astronomical Almanac, S.E. Urban and P.K. Seidelman, Eds. (2012). You can purchase the book at uscibooks.com/urban.htm. "15.11 Calendar Conversion Algorithms" from the following pdf is used in the below code. https://aa.usno.navy.mil/publications/docs/c15_usb_online.pdf
     """
     if julian_day < CopticTime.MIN_JULIAN_DAY:
         raise ValueError("coptic_day_to_gregorian_ymd only works for julian days >= %d, but was %d" % (CopticTime.MIN_JULIAN_DAY, julian_day))
-    #year_inx = int((julian_day - FIRST_DAY) / 365)
-    #days_inx = (julian_day - FIRST_DAY) - year_inx * 365
-    #month_inx = days_inx / 30
-    #day_inx = days_inx - month_inx * 30
+    # year_inx = int((julian_day - FIRST_DAY) / 365)
+    # days_inx = (julian_day - FIRST_DAY) - year_inx * 365
+    # month_inx = days_inx / 30
+    # day_inx = days_inx - month_inx * 30
     
     y = 4996
     j = 124
@@ -199,22 +204,20 @@ def julian_day_to_coptic_ymd(julian_day):
     e = r * f + v
     g = (e % p)//r
     h = u * g + w
-    day = ((h % s)/u) + 1
+    day = ((h % s)//u) + 1
     month = (((h // s) + m) % n) + 1
     year = (e // p) - y + (n + m - month)//n
-    return (year, month, day)
-    #return (year_inx + 1, month_inx + 1, day_inx + 1)
+    return year, month, day
+    # return (year_inx + 1, month_inx + 1, day_inx + 1)
 
 
 def coptic_ymd_to_julian_day(year, month, day):
     """
     Coptic year 1 = Julian day 1825030
     """
-    
-        
-    #julian_day = FIRST_DAY + (year - 1) * 365 + (month - 1) * 30 + (day - 1) 
-    #num_leap_days = num_leap_years(year)
-    #julian_day = FIRST_DAY + (year - 1 - num_leap_days)*365 + num_leap_days*366 + (month - 1)*30 + (day - 1)
+    # julian_day = FIRST_DAY + (year - 1) * 365 + (month - 1) * 30 + (day - 1)
+    # num_leap_days = num_leap_years(year)
+    # julian_day = FIRST_DAY + (year - 1 - num_leap_days)*365 + num_leap_days*366 + (month - 1)*30 + (day - 1)
    
     y = 4996
     j = 124

@@ -46,6 +46,7 @@ class Container(Event):
 
     def save(self):
         self._update_category_id()
+        self._update_category_ids()
         with self._db.transaction("Save container") as t:
             t.save_container(self._immutable_value, self.ensure_id())
         return self

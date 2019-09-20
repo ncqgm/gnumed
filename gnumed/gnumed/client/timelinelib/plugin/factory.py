@@ -68,7 +68,6 @@ class PluginFactory(object):
 
     def get_plugin(self, service, name):
         try:
-            return [plugin for plugin in PLUGINS[service] if str(plugin.display_name().encode('utf-8')) == name][0]
+            return [plugin for plugin in PLUGINS[service] if plugin.display_name() == name][0]
         except:
             pass
-

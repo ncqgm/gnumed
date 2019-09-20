@@ -88,4 +88,3 @@ class ApplicationArguments(object):
             "--debug",
             default=False, action="store_true",
             help="Run Timeline with extra debug output")
-    

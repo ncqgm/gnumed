@@ -26,10 +26,9 @@ class HighlightTimer(wx.Timer):
         self._callback = callback
         self.Bind(wx.EVT_TIMER, self._on_highlight_timer, self)
 
-    def StartHighlighting(self, milliseconds=180):
+    def start_highlighting(self, milliseconds=180):
         if not self.IsRunning():
             self.Start(milliseconds)
 
     def _on_highlight_timer(self, evt):
         self._callback()
-        

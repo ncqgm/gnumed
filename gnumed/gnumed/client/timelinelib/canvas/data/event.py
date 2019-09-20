@@ -34,6 +34,7 @@ class Event(ItemBase, TimelineItem):
     def __init__(self, db=None, id_=None, immutable_value=ImmutableEvent()):
         ItemBase.__init__(self, db, id_, immutable_value)
         self._category = None
+        self._categories = []
         self._container = None
         self._milestone = False
 
@@ -46,6 +47,7 @@ class Event(ItemBase, TimelineItem):
 
     def save(self):
         self._update_category_id()
+        self._update_category_ids()
         self._update_container_id()
         self._update_sort_order()
         with self._db.transaction("Save event") as t:
@@ -65,6 +67,19 @@ class Event(ItemBase, TimelineItem):
         else:
             self._immutable_value = self._immutable_value.update(
                 category_id=self.category.id
+            )
+
+    def _update_category_ids(self):
+        if self._categories == list():
+            self._immutable_value = self._immutable_value.update(
+                category_ids={}
+            )
+        else:
+            ids = [c.id for c in self._categories]
+            # Using a dictionary because we don't have any ImmutableList class
+            dic = {k: None for k in ids}
+            self._immutable_value = self._immutable_value.update(
+                category_ids=dic
             )
 
     def _update_container_id(self):
@@ -154,6 +169,19 @@ class Event(ItemBase, TimelineItem):
         return self
 
     category = property(get_category, set_category)
+
+    def get_categories(self):
+        return self._categories
+
+    def set_categories(self, categories):
+        if categories:
+            if self.category:
+                if self.category in categories:
+                    categories.remove(self.category)
+            else:
+                self.category = categories[0]
+                categories = categories[1:]
+            self._categories = categories
 
     def get_container(self):
         return self._container
@@ -367,13 +395,13 @@ class Event(ItemBase, TimelineItem):
 
     def get_label(self, time_type):
         """Returns a unicode label describing the event."""
-        event_label = u"%s (%s)" % (
+        event_label = "%s (%s)" % (
             self.text,
             time_type.format_period(self.get_time_period()),
         )
         duration_label = self._get_duration_label(time_type)
         if duration_label != "":
-            return u"%s  %s: %s" % (event_label, _("Duration"), duration_label)
+            return "%s  %s: %s" % (event_label, _("Duration"), duration_label)
         else:
             return event_label
 

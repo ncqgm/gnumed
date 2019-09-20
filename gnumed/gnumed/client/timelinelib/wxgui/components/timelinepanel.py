@@ -80,7 +80,7 @@ class TimelinePanelGuiCreator(wx.Panel):
             self.config.divider_line_slider_pos = evt.GetPosition()
 
         style = wx.SL_LEFT | wx.SL_VERTICAL
-        self.divider_line_slider = wx.Slider(self, size=(20, -1), style=style)
+        self.divider_line_slider = wx.Slider(self, style=style)
         self.Bind(wx.EVT_SCROLL, on_slider, self.divider_line_slider)
 
         self.divider_line_slider.Bind(wx.EVT_SLIDER, self._slider_on_slider)
@@ -216,10 +216,6 @@ class TimelinePanelGuiCreator(wx.Panel):
         if timeline_event is not None and not self.timeline_canvas.GetDb().is_read_only():
             self.timeline_canvas.SetEventSelected(timeline_event, True)
             self._display_event_context_menu()
-        else:
-            display_timeline_context_menu = getattr(self.main_frame, "display_timeline_context_menu", None)
-            if callable(display_timeline_context_menu):
-                display_timeline_context_menu()
         event.Skip()
 
     def _timeline_canvas_on_key_down(self, event):

@@ -15,8 +15,10 @@
 # You should have received a copy of the GNU General Public License
 # along with Timeline.  If not, see <http://www.gnu.org/licenses/>.
 
+
 def _(message):
     return message  # deferred translation
+
 
 BOSP_ENGLISH_MONTH_NAMES = [
     _("Praios"),
@@ -56,7 +58,6 @@ del _
 def bosp_month_from_english_name(month_name):
     return BOSP_ENGLISH_MONTH_NAMES.index(month_name) + 1
 
-        
 
 def bosp_name_of_month(month):
     return _(BOSP_ENGLISH_MONTH_NAMES[month - 1])
@@ -65,11 +66,11 @@ def bosp_name_of_month(month):
 def bosp_abbreviated_name_of_month(month):
     return _(BOSP_ABBREVIATED_ENGLISH_MONTH_NAMES[month - 1])
 
+
 def bosp_month_from_abbreviated_name(month_name):
-    i=0
+    i = 0
     for mn in BOSP_ABBREVIATED_ENGLISH_MONTH_NAMES:
-        i+=1
+        i += 1
         if _(mn) == month_name:
             return i
     return 13
-             

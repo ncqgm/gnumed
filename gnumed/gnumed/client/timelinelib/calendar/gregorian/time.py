@@ -62,7 +62,7 @@ class GregorianTime(GenericTimeMixin):
     def __add__(self, delta):
         if isinstance(delta, self.DeltaClass):
             seconds = self.seconds + delta.seconds
-            seconds_in_day = int(self.julian_day + seconds / SECONDS_IN_DAY)
+            seconds_in_day = int(self.julian_day + seconds // SECONDS_IN_DAY)
             return self.__class__(seconds_in_day, seconds % SECONDS_IN_DAY)
         raise TypeError(
             "%s + %s not supported" % (self.__class__.__name__, type(delta))
@@ -127,17 +127,11 @@ class GregorianDelta(ComparableValue, GenericDeltaMixin):
     def seconds(self):
         return self.value
 
-    def __div__(self, value):
-        if isinstance(value, self.__class__):
-            return float(self.seconds) / float(value.seconds)
-        else:
-            return self.__class__(self.seconds // value)
-
     def __truediv__(self, value):
         if isinstance(value, self.__class__):
-            return float(self.seconds) / float(value.seconds)
+            return self.seconds / value.seconds
         else:
-            return self.__class__(self.seconds // value)
+            return self.__class__(int(self.seconds // value))
 
     def __sub__(self, delta):
         return self.__class__(self.seconds - delta.seconds)

@@ -67,7 +67,7 @@ class DefaultBackgroundDrawer(object):
     def _draw_era_name_in_center_of_visible_era(self, era, h):
         x, width = self._get_timeperiod_measures(era.get_time_period())
         wt, ht = self.drawer.dc.GetTextExtent(era.get_name())
-        self.drawer.dc.DrawText(era.get_name(), x + width / 2 - wt / 2, h - ht)
+        self.drawer.dc.DrawText(era.get_name(), x + width // 2 - wt // 2, h - ht)
 
     def _get_timeperiod_measures(self, time_period):
         x1, x2 = self.drawer.get_period_xpos(time_period)

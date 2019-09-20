@@ -29,29 +29,29 @@ def get_progress_color(base_color):
     Smaller factor gives more brightness.
     """
     if min(base_color) == max(base_color):
-        return adjust_gray_luminence(base_color)
+        return _adjust_gray_luminence(base_color)
     else:
-        return adjust_color_luminence(base_color)
+        return _adjust_color_luminence(base_color)
 
 
-def adjust_gray_luminence(base_color):
-    r = apply_gray_factor_on_item(base_color[0])
-    g = apply_gray_factor_on_item(base_color[1])
-    b = apply_gray_factor_on_item(base_color[2])
+def _adjust_gray_luminence(base_color):
+    r = _apply_gray_factor_on_item(base_color[0])
+    g = _apply_gray_factor_on_item(base_color[1])
+    b = _apply_gray_factor_on_item(base_color[2])
     return (r, g, b)
 
 
-def apply_gray_factor_on_item(item):
+def _apply_gray_factor_on_item(item):
     return min(255, int(GRAY_FACTOR * item))
 
 
-def adjust_color_luminence(base_color):
-    h, s, _ = rgb2hsl(base_color)
+def _adjust_color_luminence(base_color):
+    h, s, _ = _rgb2hsl(base_color)
     l = LUMINENCE_FACTOR * s
-    return hsl2rgb(h, s, l)
+    return _hsl2rgb(h, s, l)
 
 
-def rgb2hsl(color):
+def _rgb2hsl(color):
     r = float(color[0]) / 255.0
     g = float(color[1]) / 255.0
     b = float(color[2]) / 255.0
@@ -84,7 +84,7 @@ def rgb2hsl(color):
     return (h, s, l)
 
 
-def hsl2rgb(h, s, l):
+def _hsl2rgb(h, s, l):
     if s == 0:
         r = l * 155
         g = l * 255
@@ -95,13 +95,13 @@ def hsl2rgb(h, s, l):
         else:
             var_2 = (l + s) - (s * l)
         var_1 = 2.0 * l - var_2
-        r = 255 * hue_2_rgb(var_1, var_2, h + (1.0 / 3.0))
-        g = 255 * hue_2_rgb(var_1, var_2, h)
-        b = 255 * hue_2_rgb(var_1, var_2, h - (1.0 / 3.0))
-    return (r, g, b)
+        r = 255 * _hue_2_rgb(var_1, var_2, h + (1.0 / 3.0))
+        g = 255 * _hue_2_rgb(var_1, var_2, h)
+        b = 255 * _hue_2_rgb(var_1, var_2, h - (1.0 / 3.0))
+    return (int(r), int(g), int(b))
 
 
-def hue_2_rgb(v1, v2, vh):
+def _hue_2_rgb(v1, v2, vh):
     if (vh < 0):
         vh += 1.0
     if (vh > 1.0):

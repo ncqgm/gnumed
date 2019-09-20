@@ -333,9 +333,7 @@ class GuiCreator(object):
 
         items = []
         for plugin in factory.get_plugins(EVENTBOX_DRAWER):
-            plugin_name = str(plugin.display_name().encode('utf-8'))
-            selected_name = self.config.get_selected_event_box_drawer()
-            if plugin_name == selected_name:
+            if plugin.display_name() == self.config.get_selected_event_box_drawer():
                 items.append((wx.ID_ANY, create_click_handler(plugin), plugin.display_name(), CHECKED_RB))
             else:
                 items.append((wx.ID_ANY, create_click_handler(plugin), plugin.display_name(), UNCHECKED_RB))
@@ -572,29 +570,6 @@ class GuiCreator(object):
                       (wx.ID_ABOUT, display_about_dialog, None, cbx)]
         self._help_menu = self._create_menu(items_spec)
         return self._help_menu
-
-    def display_timeline_context_menu(self):
-        try:
-            menu = self.context_menu
-        except:
-            self.context_menu = self._create_timeline_context_menu()
-            menu = self.context_menu
-        self.PopupMenu(menu)
-        self._create_main_menu_bar()
-
-    def create_timeline_context_menu(self):
-        self.context_menu = self._create_timeline_context_menu()
-
-    def _create_timeline_context_menu(self):
-        menu = wx.Menu()
-        menu_bar = self.GetMenuBar()
-        menu.Append(wx.ID_ANY, menu_bar.GetMenuLabel(0), self._file_menu)
-        menu.Append(wx.ID_ANY, menu_bar.GetMenuLabel(1), self._edit_menu)
-        menu.Append(wx.ID_ANY, menu_bar.GetMenuLabel(2), self._view_menu)
-        menu.Append(wx.ID_ANY, menu_bar.GetMenuLabel(3), self._timeline_menu)
-        menu.Append(wx.ID_ANY, menu_bar.GetMenuLabel(4), self._navigate_menu)
-        menu.Append(wx.ID_ANY, menu_bar.GetMenuLabel(5), self._help_menu)
-        return menu
 
     def _create_menu(self, items_spec):
         menu = wx.Menu()

@@ -154,7 +154,7 @@ class CustomCategoryTree(wx.ScrolledWindow):
 
     def _redraw(self):
         self.SetVirtualSize((-1, self.model.ITEM_HEIGHT_PX * len(self.model.items)))
-        self.SetScrollRate(0, self.model.ITEM_HEIGHT_PX / 2)
+        self.SetScrollRate(0, self.model.ITEM_HEIGHT_PX // 2)
         self._draw_bitmap()
         self.Refresh()
         self.Update()
@@ -272,9 +272,9 @@ class CustomCategoryTreeRenderer(object):
     def _render_arrow(self, item):
         self.dc.SetBrush(wx.Brush(wx.Colour(100, 100, 100), wx.BRUSHSTYLE_SOLID))
         self.dc.SetPen(wx.Pen(wx.Colour(100, 100, 100), 0, wx.PENSTYLE_SOLID))
-        offset = self.TRIANGLE_SIZE / 2
+        offset = self.TRIANGLE_SIZE // 2
         center_x = item["x"] + 2 * self.INNER_PADDING + offset
-        center_y = item["y"] + self.model.ITEM_HEIGHT_PX / 2 - 1
+        center_y = item["y"] + self.model.ITEM_HEIGHT_PX // 2 - 1
         if item["expanded"]:
             open_polygon = [
                 wx.Point(center_x - offset, center_y - offset),
@@ -299,12 +299,12 @@ class CustomCategoryTreeRenderer(object):
             self.dc.SetTextForeground((150, 150, 150))
         self.dc.DrawText(item["name"],
                          x + self.INNER_PADDING,
-                         item["y"] + (self.model.ITEM_HEIGHT_PX - h) / 2)
+                         item["y"] + (self.model.ITEM_HEIGHT_PX - h) // 2)
 
     def _render_checkbox(self, item):
         (w, h) = (17, 17)
         bouning_rect = wx.Rect(item["x"] + self.model.INDENT_PX,
-                               item["y"] + (self.model.ITEM_HEIGHT_PX - h) / 2,
+                               item["y"] + (self.model.ITEM_HEIGHT_PX - h) // 2,
                                w,
                                h)
         if item["visible"]:
@@ -321,7 +321,7 @@ class CustomCategoryTreeRenderer(object):
         (w, h) = (16, 16)
         self.dc.DrawRectangle(
             item["x"] + item["width"] - w - self.INNER_PADDING,
-            item["y"] + self.model.ITEM_HEIGHT_PX / 2 - h / 2,
+            item["y"] + self.model.ITEM_HEIGHT_PX // 2 - h // 2,
             w,
             h)
 

@@ -60,7 +60,7 @@ def _load(db, dir_path):
         for (dirpath, dirnames, filenames) in os.walk(dir_path):
             # Assign color ranges
             (rstart, rend, b) = color_ranges[dirpath]
-            step = (rend - rstart) / (len(dirnames) + 1)
+            step = (rend - rstart) // (len(dirnames) + 1)
             next_start = rstart + step
             new_b = b - 0.2
             if new_b < 0:

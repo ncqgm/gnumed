@@ -50,6 +50,5 @@ class Sidebar(wx.Panel):
 
     def _cbx_on_click(self, evt):
         from timelinelib.wxgui.frames.mainframe.mainframe import CatsViewChangedEvent
-        event = CatsViewChangedEvent(self.GetId())
-        event.ClientData = evt.GetEventObject().IsChecked()
+        event = CatsViewChangedEvent(self.GetId(), is_checked=evt.GetEventObject().IsChecked())
         self.GetEventHandler().ProcessEvent(event)

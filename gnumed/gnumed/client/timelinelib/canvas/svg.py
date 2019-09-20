@@ -159,7 +159,7 @@ class SVGDrawingAlgorithm(object):
     def _calc_era_text_metrics(self, era):
         period = era.get_time_period()
         _, width = self._calc_era_strip_metrics(era)
-        x = self._scene.x_pos_for_time(period.start_time) + width / 2
+        x = self._scene.x_pos_for_time(period.start_time) + width // 2
         y = self._scene.height - OUTER_PADDING
         return x, y
 
@@ -174,7 +174,7 @@ class SVGDrawingAlgorithm(object):
 
     def _calc_x_for_minor_strip_label(self, strip_period):
         return (self._scene.x_pos_for_time(strip_period.start_time) +
-                self._scene.x_pos_for_time(strip_period.end_time)) / 2 - SMALL_FONT_SIZE_PX
+                self._scene.x_pos_for_time(strip_period.end_time)) // 2 - SMALL_FONT_SIZE_PX
 
     def _calc_y_for_minor_strip_label(self):
         return self._scene.divider_y - OUTER_PADDING
@@ -198,7 +198,7 @@ class SVGDrawingAlgorithm(object):
         # since there is no function like textwidth() for SVG, just take into account that text can be overwritten
         # do not perform a special handling for right border, SVG is unlimited
         x = (max(0, self._scene.x_pos_for_time(tp.start_time)) +
-             min(self._scene.width, self._scene.x_pos_for_time(tp.end_time))) / 2
+             min(self._scene.width, self._scene.x_pos_for_time(tp.end_time))) // 2
         y = LARGER_FONT_SIZE_PX + OUTER_PADDING
         return self._draw_label(label, x, y, self._larger_font_style)
 
@@ -215,7 +215,7 @@ class SVGDrawingAlgorithm(object):
 
     def _draw_line_to_non_period_event(self, view_properties, event, rect):
         x = self._scene.x_pos_for_time(event.mean_time())
-        y = rect.Y + rect.Height / 2
+        y = rect.Y + rect.Height // 2
         stroke = {True: "red", False: "black"}[view_properties.is_selected(event)]
         line = ShapeBuilder().createLine(x, y, x, self._scene.divider_y, stroke=stroke)
         circle = ShapeBuilder().createCircle(x, self._scene.divider_y, 2)
@@ -418,7 +418,7 @@ class SVGDrawingAlgorithm(object):
         else:
             x = rx + INNER_PADDING
         if center_text:
-            x += (width - 2 * INNER_PADDING) / 2
+            x += (width - 2 * INNER_PADDING) // 2
         y = ry + height - INNER_PADDING
         return x, y
 

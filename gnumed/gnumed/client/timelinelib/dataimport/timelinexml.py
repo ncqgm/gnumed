@@ -43,6 +43,7 @@ from timelinelib.general.xmlparser import ANY
 from timelinelib.general.xmlparser import OPTIONAL
 from timelinelib.general.xmlparser import parse
 from timelinelib.general.xmlparser import parse_fn_store
+from timelinelib.general.xmlparser import parse_fn_store_to_list
 from timelinelib.general.xmlparser import SINGLE
 from timelinelib.general.xmlparser import Tag
 from timelinelib.utils import ex_msg
@@ -145,6 +146,9 @@ class Parser(object):
                     Tag("locked", OPTIONAL, parse_fn_store("tmp_locked")),
                     Tag("ends_today", OPTIONAL, parse_fn_store("tmp_ends_today")),
                     Tag("category", OPTIONAL, parse_fn_store("tmp_category")),
+                    Tag("categories", OPTIONAL, None, [
+                        Tag("category", ANY, parse_fn_store_to_list("tmp_categories"))
+                    ]),
                     Tag("description", OPTIONAL, parse_fn_store("tmp_description")),
                     Tag("alert", OPTIONAL, parse_fn_store("tmp_alert")),
                     Tag("hyperlink", OPTIONAL, parse_fn_store("tmp_hyperlink")),
@@ -214,9 +218,18 @@ class Parser(object):
         if category_text is None:
             category = None
         else:
-            category = tmp_dict["category_map"].get(category_text, None)
-            if category is None:
-                raise ParseException("Category '%s' not found." % category_text)
+            category = self.get_category(tmp_dict, category_text)
+        categories = []
+        if "tmp_categories" in tmp_dict:
+            # Remove duplicates but preserve order
+            dic = {k: 0 for k in tmp_dict.pop("tmp_categories", None)}
+            for category_text in dic:
+                if category_text is not None:
+                    cat = self.get_category(tmp_dict, category_text)
+                    if category is None:
+                        category = cat
+                    else:
+                        categories.append(cat)
         description = tmp_dict.pop("tmp_description", None)
         alert_string = tmp_dict.pop("tmp_alert", None)
         alert = parse_alert_string(self.db.get_time_type(), alert_string)
@@ -249,6 +262,8 @@ class Parser(object):
             if self._text_starts_with_added_space(text):
                 text = self._remove_added_space(text)
             event = Event().update(start, end, text, category, fuzzy, locked, ends_today)
+        if categories:
+            event.set_categories(categories)
         default_color = tmp_dict.pop("tmp_default_color", "200,200,200")
         event.set_data("description", description)
         event.set_data("icon", icon)
@@ -257,6 +272,12 @@ class Parser(object):
         event.set_data("progress", int(progress))
         event.set_data("default_color", parse_color(default_color))
         self.db.save_event(event)
+
+    def get_category(self, tmp_dict, category_text):
+        cat = tmp_dict["category_map"].get(category_text, None)
+        if cat is None:
+            raise ParseException("Category '%s' not found." % category_text)
+        return cat
 
     def _parse_era(self, text, tmp_dict):
         name = tmp_dict.pop("tmp_name")

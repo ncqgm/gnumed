@@ -76,7 +76,7 @@ class DefaultDrawingAlgorithm(Drawer):
 
     def _adjust_outer_padding_to_font_size(self):
         if self.event_text_font.PointSize < 8:
-            self.outer_padding = OUTER_PADDING * self.event_text_font.PointSize / 8
+            self.outer_padding = OUTER_PADDING * self.event_text_font.PointSize // 8
         else:
             self.outer_padding = OUTER_PADDING
 
@@ -383,7 +383,7 @@ class DefaultDrawingAlgorithm(Drawer):
 
     def _calculate_major_strip_horizontal_label_x(self, time_period, label):
         tw, _ = self.dc.GetTextExtent(label)
-        x = self.scene.x_pos_for_time(time_period.mean_time()) - tw / 2
+        x = self.scene.x_pos_for_time(time_period.mean_time()) - tw // 2
         if x - INNER_PADDING < 0:
             x = INNER_PADDING
             right = self.scene.x_pos_for_time(time_period.end_time)
@@ -398,7 +398,7 @@ class DefaultDrawingAlgorithm(Drawer):
 
     def _calculate_major_strip_vertical_label_x(self, time_period, label):
         _, th = self.dc.GetTextExtent(label)
-        return self.scene.x_pos_for_time(time_period.mean_time()) + th / 2
+        return self.scene.x_pos_for_time(time_period.mean_time()) + th // 2
 
     def _draw_divider_line(self):
         DividerLine(self).draw()
@@ -559,7 +559,7 @@ class DefaultDrawingAlgorithm(Drawer):
                 icon_width = 0
             padding += icon_width
             visble_background = self.scene.width - SLIDER_WIDTH
-            balloon_width = visble_background - event_rect.X - event_rect.width / 2 + ARROW_OFFSET
+            balloon_width = visble_background - event_rect.X - event_rect.width // 2 + ARROW_OFFSET
             max_text_width = balloon_width - padding
             return max(MIN_TEXT_WIDTH, max_text_width)
 
@@ -594,7 +594,7 @@ class DefaultDrawingAlgorithm(Drawer):
             if self.appearance.get_text_below_icon():
                 iw, ih = get_icon_size()
                 if ih > 0:
-                    ih += BALLOON_RADIUS / 2
+                    ih += BALLOON_RADIUS // 2
                 x -= iw
                 y += ih
             if lines is not None:
@@ -631,7 +631,7 @@ class DefaultDrawingAlgorithm(Drawer):
         MIN_WIDTH = 100
         inner_rect_w = max(MIN_WIDTH, inner_rect_w)
         bounding_rect, x, y = self._draw_balloon_bg(self.dc, (inner_rect_w, inner_rect_h),
-                                                    (event_rect.X + event_rect.Width / 2, event_rect.Y), True, sticky)
+                                                    (event_rect.X + event_rect.Width // 2, event_rect.Y), True, sticky)
         draw_icon(x, y)
         draw_description(lines, x, y)
         # Write data so we know where the balloon was drawn

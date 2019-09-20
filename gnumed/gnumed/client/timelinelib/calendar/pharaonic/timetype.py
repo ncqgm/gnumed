@@ -90,11 +90,11 @@ class PharaonicTimeType(GregorianTimeType):
     def format_period(self, time_period):
         """Returns a unicode string describing the time period."""
         def label_with_time(time):
-            return u"%s %s" % (label_without_time(time), time_label(time))
+            return "%s %s" % (label_without_time(time), time_label(time))
 
         def label_without_time(time):
             pharaonic_datetime = PharaonicDateTime.from_time(time)
-            return u"%s %s %s" % (
+            return "%s %s %s" % (
                 pharaonic_datetime.day,
                 abbreviated_name_of_month(pharaonic_datetime.month),
                 format_year(pharaonic_datetime.year)
@@ -104,16 +104,16 @@ class PharaonicTimeType(GregorianTimeType):
             return "%02d:%02d" % time.get_time_of_day()[:-1]
         if time_period.is_period():
             if has_nonzero_time(time_period):
-                label = u"%s to %s" % (label_with_time(time_period.start_time),
-                                       label_with_time(time_period.end_time))
+                label = "%s to %s" % (label_with_time(time_period.start_time),
+                                      label_with_time(time_period.end_time))
             else:
-                label = u"%s to %s" % (label_without_time(time_period.start_time),
-                                       label_without_time(time_period.end_time))
+                label = "%s to %s" % (label_without_time(time_period.start_time),
+                                      label_without_time(time_period.end_time))
         else:
             if has_nonzero_time(time_period):
-                label = u"%s" % label_with_time(time_period.start_time)
+                label = "%s" % label_with_time(time_period.start_time)
             else:
-                label = u"%s" % label_without_time(time_period.start_time)
+                label = "%s" % label_without_time(time_period.start_time)
         return label
 
     def format_delta(self, delta):
@@ -136,21 +136,21 @@ class PharaonicTimeType(GregorianTimeType):
         day_period = TimePeriod(PharaonicTime(0, 0),PharaonicTime(1, 0))
         one_day_width = metrics.calc_exact_width(day_period)
         if one_day_width > 20000:
-            return (StripHour(), StripMinute())
+            return StripHour(), StripMinute()
         elif one_day_width > 600:
-            return (StripDay(), StripHour())
+            return StripDay(), StripHour()
         elif one_day_width > 45:
-            return (StripWeek(appearance), StripWeekday())
+            return StripWeek(appearance), StripWeekday()
         elif one_day_width > 25:
-            return (StripMonth(), StripDay())
+            return StripMonth(), StripDay()
         elif one_day_width > 1.5:
-            return (StripYear(), StripMonth())
+            return StripYear(), StripMonth()
         elif one_day_width > 0.12:
-            return (StripDecade(), StripYear())
+            return StripDecade(), StripYear()
         elif one_day_width > 0.012:
-            return (StripCentury(), StripDecade())
+            return StripCentury(), StripDecade()
         else:
-            return (StripCentury(), StripCentury())
+            return StripCentury(), StripCentury()
 
     def get_default_time_period(self):
         return time_period_center(self.now(), PharaonicDelta.from_days(30))
@@ -176,10 +176,10 @@ class PharaonicTimeType(GregorianTimeType):
         return pharaonic.to_time()
 
     def get_min_zoom_delta(self):
-        return (PharaonicDelta.from_seconds(60), _("Can't zoom deeper than 1 minute"))
+        return PharaonicDelta.from_seconds(60), _("Can't zoom deeper than 1 minute")
 
     def get_name(self):
-        return u"pharaonic"
+        return "pharaonic"
 
     def get_duplicate_functions(self):
         return [
@@ -196,7 +196,7 @@ class PharaonicTimeType(GregorianTimeType):
     """
     def is_weekend_day(self, time):
         pharaonic_time = PharaonicDateTime.from_time(time)
-        return pharaonic_time.day in (9,10,19,20,29,30)
+        return pharaonic_time.day in (9, 10, 19, 20, 29, 30)
 
     def get_day_of_week(self, time):
         return time.julian_day % 10
@@ -343,7 +343,7 @@ def _move_page_months(curret_period, navigation_fn, direction):
 
 
 def _months_to_year_and_month(months):
-    years = int(months / 13)
+    years = int(months // 13)
     month = months - years * 13
     if month == 0:
         month = 13
@@ -397,7 +397,7 @@ def fit_millennium_fn(main_frame, current_period, navigation_fn):
     if mean.year > get_millenium_max_year():
         year = get_millenium_max_year()
     else:
-        year = max(get_min_year_containing_jan_1(), int(mean.year / 1000) * 1000)
+        year = max(get_min_year_containing_jan_1(), int(mean.year // 1000) * 1000)
     start = PharaonicDateTime.from_ymd(year, 1, 1).to_time()
     end = PharaonicDateTime.from_ymd(year + 1000, 1, 1).to_time()
     navigation_fn(lambda tp: tp.update(start, end))
@@ -505,9 +505,9 @@ class StripCentury(Strip):
 
     def _format_century(self, century_number, is_bc):
         if is_bc:
-            return u"{century}s {bc}".format(century=century_number, bc=BC)
+            return "{century}s {bc}".format(century=century_number, bc=BC)
         else:
-            return u"{century}s".format(century=century_number)
+            return "{century}s".format(century=century_number)
 
     def _century_start_year(self, year):
         if year > 99:

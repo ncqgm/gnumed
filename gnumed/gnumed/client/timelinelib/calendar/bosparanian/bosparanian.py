@@ -73,7 +73,7 @@ class BosparanianDateTime(object):
             if diff >= 0:
                 return diff
             raise ValueError("should not end up here")
-        return days_since_windsday_week_1(self.to_time()) / 7 + 1
+        return days_since_windsday_week_1(self.to_time()) // 7 + 1
 
     def days_in_month(self):
         return days_in_month(self.month)

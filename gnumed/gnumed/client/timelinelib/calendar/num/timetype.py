@@ -69,12 +69,12 @@ class NumTimeType(TimeType):
     def format_period(self, time_period):
         """Returns a unicode string describing the time period."""
         if time_period.is_period():
-            label = u"%s to %s" % (
+            label = "%s to %s" % (
                 time_period.start_time.value,
                 time_period.end_time.value
             )
         else:
-            label = u"%s" % time_period.start_time.value
+            label = "%s" % time_period.start_time.value
         return label
 
     def format_delta(self, delta):
@@ -119,7 +119,7 @@ class NumTimeType(TimeType):
         return (NumDelta(5), _("Can't zoom deeper than 5"))
 
     def get_name(self):
-        return u"numtime"
+        return "numtime"
 
     def get_duplicate_functions(self):
         return [
@@ -150,7 +150,7 @@ class NumStrip(Strip):
         return "%s" % time.value
 
     def start(self, time):
-        start = int((time.value / self.size)) * self.size
+        start = int(time.value / self.size) * self.size
         if time < NumTime(0):
             start -= self.size
         return NumTime(start)

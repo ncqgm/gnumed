@@ -623,6 +623,10 @@ class Query(object):
             immutable_value=immutable_container,
         )
         wrapper.category = self._get_maybe_category(immutable_container.category_id)
+        lst = []
+        for key in immutable_container.category_ids:
+            lst.append(self._get_maybe_category(key))
+        wrapper.set_categories(lst)
         return wrapper
 
     def _create_event_wrapper(self, id_):
@@ -637,6 +641,10 @@ class Query(object):
             immutable_value=immutable_event,
         )
         wrapper.category = self._get_maybe_category(immutable_event.category_id)
+        lst = []
+        for key in immutable_event.category_ids:
+            lst.append(self._get_maybe_category(key))
+        wrapper.set_categories(lst)
         return wrapper
 
     def _create_milestone_wrapper(self, id_):
@@ -647,6 +655,10 @@ class Query(object):
             immutable_value=immutable_milestone,
         )
         wrapper.category = self._get_maybe_category(immutable_milestone.category_id)
+        lst = []
+        for key in immutable_milestone.category_ids:
+            lst.append(self._get_maybe_category(key))
+        wrapper.set_categories(lst)
         return wrapper
 
     def _create_era_wrapper(self, id_):

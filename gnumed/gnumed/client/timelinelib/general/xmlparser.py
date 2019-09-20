@@ -264,3 +264,12 @@ def parse_fn_store(store_key):
     def fn(text, tmp_dict):
         tmp_dict[store_key] = text
     return fn
+
+
+def parse_fn_store_to_list(store_key):
+    def fn(text, tmp_dict):
+        if store_key in tmp_dict:
+            tmp_dict[store_key].append(text)
+        else:
+            tmp_dict[store_key] = [text]
+    return fn

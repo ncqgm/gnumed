@@ -18,7 +18,9 @@
 
 def _(message):
     return message  # deferred translation
-#source https://www.calendar-converter.com/coptic/
+
+
+# source https://www.calendar-converter.com/coptic/
 ABBREVIATED_WEEKDAY_NAMES = [
     _("Pes"),
     _("Psh"),

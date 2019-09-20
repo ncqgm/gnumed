@@ -42,4 +42,3 @@ class NowLine:
         if self._appearance.get_use_bold_nowline():
             self._dc.DrawLine(x + 1, 0, x + 1, self._scene.height)
             self._dc.DrawLine(x - 1, 0, x - 1, self._scene.height)    
-        

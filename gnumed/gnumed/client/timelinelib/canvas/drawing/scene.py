@@ -284,7 +284,7 @@ class TimelineScene(object):
             ry = self._calc_y_pos_for_non_period_event(event, rh)
             if event.is_milestone():
                 rw = rh
-                rx = self._metrics.calc_x(event.get_time_period().start_time) - rw / 2
+                rx = self._metrics.calc_x(event.get_time_period().start_time) - rw // 2
                 return wx.Rect(rx, ry, rw, rh)
             return self._calc_ideal_wx_rect(rx, ry, rw, rh)
 
@@ -296,7 +296,7 @@ class TimelineScene(object):
         rw = tw + 2 * self._inner_padding + 2 * self._outer_padding
         rh = th + 2 * self._inner_padding + 2 * self._outer_padding
         if event.has_data():
-            rw += self._data_indicator_size / 3
+            rw += self._data_indicator_size // 3
         if event.get_fuzzy() or event.get_locked():
             rw += th + 2 * self._inner_padding
         return rw, rh
@@ -305,11 +305,11 @@ class TimelineScene(object):
         if self._appearance.get_draw_period_events_to_right():
             return self._metrics.calc_x(event.get_time_period().start_time) - self._outer_padding
         else:
-            return self._metrics.calc_x(event.mean_time()) - rw / 2
+            return self._metrics.calc_x(event.mean_time()) - rw // 2
 
     def _calc_y_pos_for_non_period_event(self, event, rh):
         if event.is_milestone():
-            return self._metrics.half_height - rh / 2
+            return self._metrics.half_height - rh // 2
         else:
             return self._metrics.half_height - rh - self._baseline_padding
 

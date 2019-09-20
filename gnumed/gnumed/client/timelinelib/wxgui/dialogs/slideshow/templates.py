@@ -16,7 +16,7 @@
 # along with Timeline.  If not, see <http://www.gnu.org/licenses/>.
 
 
-CSS = u"""
+CSS = """
 body {
     background-color: lightblue;
     background: linear-gradient(lightblue, white);
@@ -125,7 +125,7 @@ div.history_line {
 
 """
 
-PAGE_TEMPLATE = u"""
+PAGE_TEMPLATE = """
 <html>
 <head>
 <link rel="stylesheet" type="text/css" href="slideshow.css">

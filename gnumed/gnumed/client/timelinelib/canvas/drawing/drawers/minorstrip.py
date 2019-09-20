@@ -58,7 +58,7 @@ class MinorStripDrawer:
         width = self._get_label_width(label)
         start_x = self._scene.x_pos_for_time(start_time)
         end_x = self._scene.x_pos_for_time(end_time)
-        return (start_x + end_x - width) / 2
+        return (start_x + end_x - width) // 2
 
     def _get_label_width(self, label):
         return self._dc.GetTextExtent(label)[0]

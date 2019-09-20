@@ -170,7 +170,7 @@ class TimelineCanvas(wx.Panel):
         event_and_rect = self._controller.event_with_rect_at(x, y, prefer_container.alt)
         if event_and_rect is not None:
             event, rect = event_and_rect
-            center = rect.X + rect.Width / 2
+            center = rect.X + rect.Width // 2
             if abs(x - center) <= HIT_REGION_PX_WITH:
                 return (event, MOVE_HANDLE)
             elif abs(x - rect.X) < HIT_REGION_PX_WITH:
@@ -255,7 +255,7 @@ class TimelineCanvas(wx.Panel):
     def Zoom(self, direction, x):
         """ zoom time line at position x """
         width, _ = self.GetSize()
-        x_percent_of_width = float(x) / width
+        x_percent_of_width = x / width
         self.Navigate(lambda tp: tp.zoom(direction, x_percent_of_width))
 
     def vertical_zoom_in(self):
@@ -583,7 +583,7 @@ class TimelineCanvas(wx.Panel):
         self.SetHScrollAmount(self.GetHScrollAmount() + HSCROLL_STEP)
 
     def _get_half_width(self):
-        return self.GetSize()[0] / 2
+        return self.GetSize()[0] // 2
 
     def _create_gui(self):
         self.Bind(wx.EVT_ERASE_BACKGROUND, self._on_erase_background)
@@ -606,7 +606,7 @@ class TimelineCanvas(wx.Panel):
 
     def HighligtEvent(self, event, clear=False):
         self._controller.add_highlight(event, clear)
-        self._highlight_timer.StartHighlighting()
+        self._highlight_timer.start_highlighting()
 
     def _highlight_timer_tick(self):
         self.Redraw()

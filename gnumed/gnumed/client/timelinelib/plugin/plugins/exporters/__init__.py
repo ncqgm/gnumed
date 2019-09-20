@@ -91,8 +91,8 @@ def _overwrite_existing_path(main_frame, path):
 
 def merge_images(images_paths, merged_image_path):
     from PIL import Image
-    images = map(Image.open, images_paths)
-    widths, heights = zip(*(i.size for i in images))
+    images = list(map(Image.open, images_paths))
+    widths, heights = list(zip(*(i.size for i in images)))
     total_width = sum(widths)
     max_height = max(heights)
     new_image = Image.new('RGB', (total_width, max_height))

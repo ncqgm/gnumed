@@ -51,7 +51,7 @@ class PharaonicDateTime(object):
         (hour, minute, second) = time.get_time_of_day()
         return cls(year, month, day, hour, minute, second)
     
-    #the 13th month is considered "inbetween" years so it returns a week number 0
+    # the 13th month is considered "inbetween" years so it returns a week number 0
     @property
     def week_number(self):
 
@@ -62,8 +62,8 @@ class PharaonicDateTime(object):
         days_into_year = ((self.month - 1)*30) + self.day
                
         if self.day % length_of_week > 0:
-        	return (days_into_year // length_of_week) + 1
-        	
+            return (days_into_year // length_of_week) + 1
+
         return days_into_year // length_of_week
          
     def is_bc(self):
@@ -91,10 +91,10 @@ class PharaonicDateTime(object):
                 self.second)
 
     def to_date_tuple(self):
-        return (self.year, self.month, self.day)
+        return self.year, self.month, self.day
 
     def to_time_tuple(self):
-        return (self.hour, self.minute, self.second)
+        return self.hour, self.minute, self.second
 
     def to_time(self):
         days = pharaonic_ymd_to_julian_day(self.year, self.month, self.day)
@@ -117,6 +117,7 @@ class PharaonicDateTime(object):
     def __repr__(self):
         return "PharaonicDateTime<%d-%02d-%02d %02d:%02d:%02d>" % self.to_tuple()
 
+
 def days_in_month(year, month):
     if month <= 12:
         return 30
@@ -138,7 +139,7 @@ def is_valid(year, month, day):
 
 def julian_day_to_pharaonic_ymd(julian_day):
     """
-	This calendar calculation was originally published in Explanatory Supplement to the Astronomical Almanac, S.E. Urban and P.K. Seidelman, Eds. (2012). You can purchase the book at uscibooks.com/urban.htm. "15.11 Calendar Conversion Algorithms" from the following pdf is used in the below code. https://aa.usno.navy.mil/publications/docs/c15_usb_online.pdf
+    This calendar calculation was originally published in Explanatory Supplement to the Astronomical Almanac, S.E. Urban and P.K. Seidelman, Eds. (2012). You can purchase the book at uscibooks.com/urban.htm. "15.11 Calendar Conversion Algorithms" from the following pdf is used in the below code. https://aa.usno.navy.mil/publications/docs/c15_usb_online.pdf
     """
     if julian_day < PharaonicTime.MIN_JULIAN_DAY:
         raise ValueError("pharaonic_day_to_gregorian_ymd only works for julian days >= %d, but was %d" % (PharaonicTime.MIN_JULIAN_DAY, julian_day))
@@ -160,10 +161,10 @@ def julian_day_to_pharaonic_ymd(julian_day):
     e = r * f + v
     g = (e % p)//r
     h = u * g + w
-    day = ((h % s)/u) + 1
+    day = ((h % s)//u) + 1
     month = (((h // s) + m) % n) + 1
     year = (e // p) - y + (n + m - month)//n
-    return (year, month, day)
+    return year, month, day
 
 
 def pharaonic_ymd_to_julian_day(year, month, day):

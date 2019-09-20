@@ -63,7 +63,7 @@ class OtherGradientEventBoxDrawer(DefaultEventBoxDrawer):
     def _get_half_rect(self, rect):
         inner_rect = wx.Rect(*rect)
         inner_rect.Deflate(1, 1)
-        inner_rect.SetWidth(inner_rect.GetWidth() / 2)
+        inner_rect.SetWidth(inner_rect.GetWidth() // 2)
         return inner_rect
 
     def _draw_fuzzy_edges(self, dc, rect, event):

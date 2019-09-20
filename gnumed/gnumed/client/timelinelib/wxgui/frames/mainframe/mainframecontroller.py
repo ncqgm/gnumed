@@ -76,8 +76,6 @@ class MainFrameController(object):
             self._last_changed = self._get_modification_date()
             self._main_frame.update_navigation_menu_items()
             self._main_frame.enable_disable_menus()
-            self._main_frame.create_timeline_context_menu()
-            self._main_frame._create_main_menu_bar()
             if path == ":numtutorial:":
                 self._main_frame._fit_all_events()
 

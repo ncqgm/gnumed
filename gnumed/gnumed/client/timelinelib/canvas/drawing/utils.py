@@ -26,8 +26,8 @@ class Metrics(object):
 
     def __init__(self, size, time_type, time_period, divider_line_slider):
         self.width, self.height = size
-        self.half_width = self.width / 2
-        self.half_height = self.height / 2
+        self.half_width = self.width // 2
+        self.half_height = self.height // 2
         self.half_height = int(round(divider_line_slider * self.height))
         self.time_type = time_type
         self.time_period = time_period
@@ -72,15 +72,15 @@ class Metrics(object):
 
 
 def darken_color(color, factor=0.7):
-    if (factor < 0.0 or factor > 1.0):
+    if factor < 0.0 or factor > 1.0:
         return color
     return tuple([int(x * factor) for x in color])
 
 
 def lighten_color(color, factor=1.5):
-    if (factor < 1.0 or factor > 255.0):
+    if factor < 1.0 or factor > 255.0:
         return color
-    if (color == (0, 0, 0)):
+    if color == (0, 0, 0):
         color = (1, 1, 1)  # avoid multiplying factor by zero
     return tuple([min(int(x * factor), 255) for x in color])
 
