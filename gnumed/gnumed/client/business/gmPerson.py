@@ -1975,7 +1975,7 @@ def turn_identity_into_patient(pk_identity):
 #============================================================
 # helper functions
 #------------------------------------------------------------
-_yield = lambda x:x
+_yield = lambda *x:None
 
 def set_yielder(yielder):
 	if not callable(yielder):

@@ -1866,9 +1866,9 @@ def run_ro_queries(link_obj=None, queries=None, verbose=False, return_data=True,
 	"""
 	if isinstance(link_obj, dbapi._psycopg.cursor):
 		curs = link_obj
-		curs_close = lambda :1
-		tx_rollback = lambda :1
-		readonly_rollback_just_in_case = lambda :1
+		curs_close = lambda *x:None
+		tx_rollback = lambda *x:None
+		readonly_rollback_just_in_case = lambda *x:None
 	elif isinstance(link_obj, dbapi._psycopg.connection):
 		curs = link_obj.cursor()
 		curs_close = curs.close
@@ -1879,7 +1879,7 @@ def run_ro_queries(link_obj=None, queries=None, verbose=False, return_data=True,
 			# do not rollback readonly queries on passed-in readwrite
 			# connections just in case because they may have already
 			# seen fully legitimate write action which would get lost
-			readonly_rollback_just_in_case = lambda :1
+			readonly_rollback_just_in_case = lambda *x:None
 	elif link_obj is None:
 		conn = get_connection(readonly = True, verbose = verbose)
 		curs = conn.cursor()
@@ -2012,20 +2012,20 @@ def run_rw_queries(link_obj=None, queries=None, end_tx=False, return_data=None, 
 			* for <index> see <get_col_idx>
 	"""
 	if isinstance(link_obj, dbapi._psycopg.cursor):
-		conn_close = lambda :1
-		conn_commit = lambda :1
-		tx_rollback = lambda :1
+		conn_close = lambda *x:None
+		conn_commit = lambda *x:None
+		tx_rollback = lambda *x:None
 		curs = link_obj
-		curs_close = lambda :1
+		curs_close = lambda *x:None
 		notices_accessor = curs.connection
 	elif isinstance(link_obj, dbapi._psycopg.connection):
-		conn_close = lambda :1
+		conn_close = lambda *x:None
 		if end_tx:
 			conn_commit = link_obj.commit
 			tx_rollback = link_obj.rollback
 		else:
-			conn_commit = lambda :1
-			tx_rollback = lambda :1
+			conn_commit = lambda *x:None
+			tx_rollback = lambda *x:None
 		curs = link_obj.cursor()
 		curs_close = curs.close
 		notices_accessor = link_obj
