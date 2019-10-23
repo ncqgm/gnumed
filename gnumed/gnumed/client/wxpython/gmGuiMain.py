@@ -807,6 +807,7 @@ class gmTopLevelFrame(wx.Frame):
 				pass
 			item = menu_debugging.Append(-1, _('Test placeholder'), _('Manually test placeholders'))
 			self.Bind(wx.EVT_MENU, self.__on_test_placeholders, item)
+			# help debugging hang with document insertion
 
 		help_menu.Append(wx.NewId(), _('Debugging ...'), menu_debugging)
 		help_menu.AppendSeparator()
@@ -3658,6 +3659,7 @@ class gmApp(wx.App):
 		gmExceptionHandlingWidgets.set_staff_name(staff_name = tmp)
 
 		return True
+
 	#----------------------------------------------
 	def __verify_praxis_branch(self):
 
@@ -3701,6 +3703,7 @@ class gmApp(wx.App):
 			return True
 		_log.info('user decided to not connect to this database')
 		return False
+
 	#----------------------------------------------
 	def __update_workplace_list(self):
 		wps = gmPraxis.gmCurrentPraxisBranch().workplaces
@@ -3715,6 +3718,7 @@ class gmApp(wx.App):
 			value = wps
 		)
 		_cfg.reload_file_source(file = prefs_file)
+
 	#----------------------------------------------
 	def __setup_prefs_file(self):
 		"""Setup access to a config file for storing preferences."""
@@ -3755,6 +3759,7 @@ class gmApp(wx.App):
 		_log.info('user preferences file: %s', prefs_file)
 
 		return True
+
 	#----------------------------------------------
 	def __setup_scripting_listener(self):
 
@@ -3812,6 +3817,7 @@ class gmApp(wx.App):
 			return False
 
 		return True
+
 	#----------------------------------------------
 	def __setup_platform(self):
 
@@ -3833,6 +3839,7 @@ class gmApp(wx.App):
 			wx.SystemOptions.SetOptionInt('mac.textcontrol-use-spell-checker', 1)
 		else:
 			_log.info('running on an unknown platform (%s)' % wx.Platform)
+
 	#----------------------------------------------
 	def __check_db_lang(self):
 		if gmI18N.system_locale is None or gmI18N.system_locale == '':
