@@ -22,6 +22,7 @@ from Gnumed.pycommon import gmCfg
 from Gnumed.pycommon import gmCfg2
 from Gnumed.pycommon import gmDateTime
 from Gnumed.pycommon import gmI18N
+from Gnumed.pycommon import gmExceptions
 
 from Gnumed.business import gmPerson
 from Gnumed.business import gmEMRStructItems
@@ -72,17 +73,7 @@ class cTopPnl(wxgTopPnl.wxgTopPnl):
 				mac_font.SetPointSize(pointSize = int(curr_font.GetPointSize() / 0.8))
 				ctrl.SetFont(mac_font)
 
-		# get panel to use
-		dbcfg = gmCfg.cCfgSQL()
-		pk_panel = dbcfg.get2 (
-			option = u'horstspace.top_panel.lab_panel',
-			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
-			bias = 'user'
-		)
-		if pk_panel is None:
-			self.__lab_panel = None
-		else:
-			self.__lab_panel = gmPathLab.cTestPanel(aPK_obj = pk_panel)
+		self.__lab_panel = self.__get_lab_panel()
 
 	#-------------------------------------------------------
 	def __register_interests(self):
@@ -160,6 +151,40 @@ class cTopPnl(wxgTopPnl.wxgTopPnl):
 
 	#-------------------------------------------------------
 	# internal API
+	#-------------------------------------------------------
+	def __get_lab_panel(self):
+		# get panel to use
+		dbcfg = gmCfg.cCfgSQL()
+		pk_panel = dbcfg.get2 (
+			option = u'horstspace.top_panel.lab_panel',
+			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
+			bias = 'user'
+		)
+		if pk_panel is None:
+			return None
+
+		try:
+			panel = gmPathLab.cTestPanel(aPK_obj = pk_panel)
+		except gmExceptions.ConstructorError:
+			_log.exception('cannot load configured test panel')
+			panel = None
+		if panel is not None:
+			return panel
+
+		_log.error('Cannot load test panel [#%s] configured for patient pane (horstspace.top_panel.lab_panel).', pk_panel)
+		gmGuiHelpers.gm_show_error (
+			title = _('GNUmed startup'),
+			error = _(
+				'Cannot load test panel [#%s] configured\n'
+				'for the top pane with option\n'
+				'\n'
+				' <horstspace.top_panel.lab_panel>\n'
+				'\n'
+				'Please reconfigure.'
+			) % pk_panel
+		)
+		return None
+
 	#-------------------------------------------------------
 	def __update_tags(self):
 		self._PNL_tags.refresh(patient = self.curr_pat)
