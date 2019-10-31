@@ -1016,7 +1016,8 @@ class cOrthancServer:
 
 		try:
 			response, content = self.__conn.request(url_with_params, 'GET', headers = headers)
-		except (socket.error, http.client.ResponseNotReady, http.client.InvalidURL, OverflowError, httplib2.ServerNotFoundError):
+		except (OverflowError, socket.error, http.client.ResponseNotReady, http.client.InvalidURL, http.client.RemoteDisconnected, httplib2.ServerNotFoundError):
+			# http.client.RemoteDisconnected: observed during GET while Orthanc was shutting down for backup
 			_log.exception('exception in GET')
 			_log.debug(' url: %s', url_with_params)
 			_log.debug(' headers: %s', headers)
