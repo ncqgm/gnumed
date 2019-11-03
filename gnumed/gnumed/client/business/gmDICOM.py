@@ -1003,6 +1003,11 @@ class cOrthancServer:
 	#--------------------------------------------------------
 	# generic REST helpers
 	#--------------------------------------------------------
+	def run_GET(self, url=None, data=None, allow_cached=False):
+		url = '%s/%s' % (self.__server_url, url)
+		return self.__run_GET(url = url, data = data, allow_cached = allow_cached)
+
+	#--------------------------------------------------------
 	def __run_GET(self, url=None, data=None, allow_cached=False):
 		if data is None:
 			data = {}
@@ -1183,6 +1188,12 @@ class cOrthancServer:
 				return content
 
 		return content
+
+	#--------------------------------------------------------
+	def _get_server_url(self):
+		return self.__server_url
+
+	server_url = property(_get_server_url)
 
 #------------------------------------------------------------
 def cleanup_dicom_string(dicom_str):
@@ -1586,6 +1597,54 @@ if __name__ == "__main__":
 			print(dicomize_file(filename = sys.argv[2], person = person, dcm_name = sys.argv[2]+'.dcm', verbose = True))
 
 	#--------------------------------------------------------
+	def test_patient():
+		port = '8042'
+
+		orthanc = cOrthancServer()
+		if not orthanc.connect(host, port, user = None, password = None):		#, expected_aet = 'another AET'
+			print('error connecting to server:', orthanc.connect_error)
+			return False
+		print('Connected to Orthanc server "%s" (AET [%s] - version [%s] - DB [%s])' % (
+			orthanc.server_identification['Name'],
+			orthanc.server_identification['DicomAet'],
+			orthanc.server_identification['Version'],
+			orthanc.server_identification['DatabaseVersion']
+		))
+		print('')
+
+		#'/patients/89729867-a08815a6-37c59f5a-f1f6ea57-6c1e17cb'
+		orthanc_id = '89729867-a08815a6-37c59f5a-f1f6ea57-6c1e17cb'
+		instances_url = 'patients/%s/instances' % orthanc_id
+		print(instances_url)
+		new_patient_id = 'xxx'
+		instances = orthanc.run_GET(instances_url)
+		for instance in instances:
+			instance_id = instance['ID']
+			tags = orthanc.get_instance_dicom_tags(instance_id, simplified = False)
+			if tags['0010,0030']['Value'] != '19810416':
+				continue
+			orthanc.modify_patient_id_of_instance(instance_id, new_patient_id)
+			#print(tags['0010,0030']['PatientID'])
+			#print(tags['0010,0030']['PatientName'])
+			#continue
+			for key, value in tags.items():
+				print(key, ':', value)
+#			instance_id = instance['ID']
+#			attachments_url = '%s/instances/%s/attachments' % (self.__server_url, instance_id)
+#			attachments = self.__run_GET(attachments_url, allow_cached = True)
+#			for attachment in attachments:
+#				verify_url = '%s/%s/verify-md5' % (attachments_url, attachment)
+#				# False, success = "{}"
+#				#2018-02-08 19:11:27  ERROR     gm.dicom      [-1211701504 MainThread]  (gmDICOM.py::__run_POST() #986): cannot POST: http://localhost:8042/instances/5a8206f4-24619e76-6650d9cd-792cdf25-039e96e6/attachments/dicom-as-json/verify-md5
+#				#2018-02-08 19:11:27  ERROR     gm.dicom      [-1211701504 MainThread]  (gmDICOM.py::__run_POST() #987): response: {'status': '400', 'content-length': '0'}
+#				if self.__run_POST(verify_url) is not False:
+#					continue
+#				_log.error('bad MD5 of DICOM file at url [%s]: patient=%s, attachment_type=%s', verify_url, orthanc_id, attachment)
+#				bad_data.append({'patient': orthanc_id, 'instance': instance_id, 'type': attachment, 'orthanc': '%s [%s]' % (self.server_identification, self.__server_url)})
+
+
+
+	#--------------------------------------------------------
 	#run_console()
 	#test_modify_patient_id()
 	#test_upload_files()
@@ -1593,4 +1652,5 @@ if __name__ == "__main__":
 	#test_get_instance_tags()
 	#test_pdf2dcm()
 	#test_img2dcm()
-	test_file2dcm()
+	#test_file2dcm()
+	test_patient()
