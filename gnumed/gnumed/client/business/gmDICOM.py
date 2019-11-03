@@ -540,7 +540,21 @@ class cOrthancServer:
 	#--------------------------------------------------------
 	# server-side API
 	#--------------------------------------------------------
-	def protect_patient(self, orthanc_id):
+	def get_patient(self, orthanc_id:str):
+		patient_data_url = '%s/patients/%s' % (self.__server_url, str(orthanc_id))
+		patient_data, status = self.__run_GET(patient_data_url, also_return_status_on_error = True)
+		if patient_data is False:
+			if status == 404:
+				_log.debug('no such patient: %s', orthanc_id)
+				return {}
+
+			_log.error('cannot retrieve patient data for [%s]', orthanc_id)
+			return False
+
+		return patient_data
+
+	#--------------------------------------------------------
+	def protect_patient(self, orthanc_id:str):
 		url = '%s/patients/%s/protected' % (self.__server_url, str(orthanc_id))
 		if self.__run_GET(url) == 1:
 			_log.debug('patient already protected: %s', orthanc_id)
@@ -607,33 +621,37 @@ class cOrthancServer:
 			# "Keep" doesn't seem to do what it suggests ATM
 			#, u'Keep': True
 		}
-		o_pats = self.get_patients_by_external_id(external_id = old_patient_id)
+		orth_pat_defs = self.get_patients_by_external_id(external_id = old_patient_id)
 		all_modified = True
-		for o_pat in o_pats:
-			_log.info('modifying Orthanc patient [%s]: DICOM ID [%s] -> [%s]', o_pat['ID'], old_patient_id, new_patient_id)
-			if self.patient_is_protected(o_pat['ID']):
-				_log.debug('patient protected: %s, unprotecting for modification', o_pat['ID'])
-				if not self.unprotect_patient(o_pat['ID']):
-					_log.error('cannot unlock patient [%s], skipping', o_pat['ID'])
+		for orth_pat_def in orth_pat_defs:
+			_log.info('modifying Orthanc patient [%s]: DICOM ID [%s] -> [%s]', orth_pat_def['ID'], old_patient_id, new_patient_id)
+			old_pat_data = self.get_patient(orth_pat_def['ID'])
+			_log.debug('to be modified: %s', old_pat_data)
+			if self.patient_is_protected(orth_pat_def['ID']):
+				_log.debug('patient protected: %s, unprotecting for modification', orth_pat_def['ID'])
+				if not self.unprotect_patient(orth_pat_def['ID']):
+					_log.error('cannot unlock patient [%s], skipping', orth_pat_def['ID'])
 					all_modified = False
 					continue
 				was_protected = True
 			else:
 				was_protected = False
-			pat_url = '%s/patients/%s' % (self.__server_url, o_pat['ID'])
+			pat_url = '%s/patients/%s' % (self.__server_url, orth_pat_def['ID'])
 			modify_url = '%s/modify' % pat_url
 			result = self.__run_POST(modify_url, data = modify_data)
-			_log.debug('modified: %s', result)
+			_log.debug('modify result: %s', result)
 			if result is False:
-				_log.error('cannot modify patient [%s]', o_pat['ID'])
+				_log.error('cannot modify patient [%s]', orth_pat_def['ID'])
 				all_modified = False
 				continue
-			newly_created_patient_id = result['ID']
-			_log.debug('newly created Orthanc patient ID: %s', newly_created_patient_id)
+			newly_created_orthanc_patient_id = result['ID']
+			_log.info('newly created Orthanc patient ID: %s', newly_created_orthanc_patient_id)
+			mod_pat_data = self.get_patient(newly_created_orthanc_patient_id)
+			_log.debug('modified pat: %s', mod_pat_data)
 			_log.debug('deleting archived patient: %s', self.__run_DELETE(pat_url))
 			if was_protected:
-				if not self.protect_patient(newly_created_patient_id):
-					_log.error('cannot re-lock (new) patient [%s]', newly_created_patient_id)
+				if not self.protect_patient(newly_created_orthanc_patient_id):
+					_log.error('cannot re-lock (new) patient [%s]', newly_created_orthanc_patient_id)
 
 		return all_modified
 
@@ -1008,7 +1026,7 @@ class cOrthancServer:
 		return self.__run_GET(url = url, data = data, allow_cached = allow_cached)
 
 	#--------------------------------------------------------
-	def __run_GET(self, url=None, data=None, allow_cached=False):
+	def __run_GET(self, url=None, data=None, allow_cached=False, also_return_status_on_error=False):
 		if data is None:
 			data = {}
 		headers = {}
@@ -1018,7 +1036,7 @@ class cOrthancServer:
 		if len(data.keys()) > 0:
 			params = '?' + urlencode(data)
 		url_with_params = url + params
-
+		_log.debug('URL with parameters: >>>%s<<<', url_with_params)
 		try:
 			response, content = self.__conn.request(url_with_params, 'GET', headers = headers)
 		except (OverflowError, socket.error, http.client.ResponseNotReady, http.client.InvalidURL, http.client.RemoteDisconnected, httplib2.ServerNotFoundError):
@@ -1026,6 +1044,8 @@ class cOrthancServer:
 			_log.exception('exception in GET')
 			_log.debug(' url: %s', url_with_params)
 			_log.debug(' headers: %s', headers)
+			if also_return_status_on_error:
+				return (False, -1)
 			return False
 
 		if response.status not in [ 200 ]:
@@ -1034,24 +1054,36 @@ class cOrthancServer:
 			_log.debug(' headers: %s', headers)
 			_log.error(' response: %s', response)
 			_log.debug(' content: %s', content)
+			if also_return_status_on_error:
+				return (False, response.status)
 			return False
 
 #		_log.error(' response: %s', response)
 #		_log.error(' content type: %s', type(content))
+#		_log.debug(' response: %s', response)
 
-		if response['content-type'].startswith('text/plain'):
+		content_type = response['content-type'].strip()
+		if content_type.startswith('text/plain'):
 			# utf8 ?
 			# urldecode ?
 			# latin1 = Orthanc default = tools/default-encoding ?
 			# ascii ?
-			return content.decode('utf8')
-
-		if response['content-type'].startswith('application/json'):
+			content = content.decode('utf8')
+		elif content_type.startswith('application/json'):
 			try:
-				return json.loads(content)
+				content = json.loads(content)
 			except Exception:
-				return content
+				_log.exception('failed to json.loads(content) despite application/json indicated, returning content and hoping for the best')
+				mime_type, charset_def = content_type.split(';')
+				charset = charset_def.strip().split('=')[1]
+				#content = content.decode('utf8')
+				content = content.decode(charset)
+		else:
+			_log.error('unexpected mime type [%s], returning raw content', content_type)
+			_log.debug('response: %s', response)
 
+		if also_return_status_on_error:
+			return (content, response.status)
 		return content
 
 	#--------------------------------------------------------
@@ -1381,20 +1413,7 @@ if __name__ == "__main__":
 
 	#--------------------------------------------------------
 	def orthanc_console(host, port):
-		orthanc = cOrthancServer()
-		if not orthanc.connect(host, port, user = None, password = None):		#, expected_aet = 'another AET'
-			print('error connecting to server:', orthanc.connect_error)
-			return False
-		print('Connected to Orthanc server "%s" (AET [%s] - version [%s] - DB [%s] - API [%s])' % (
-			orthanc.server_identification['Name'],
-			orthanc.server_identification['DicomAet'],
-			orthanc.server_identification['Version'],
-			orthanc.server_identification['DatabaseVersion'],
-			orthanc.server_identification['ApiVersion']
-		))
-		print('')
 		print('Please enter patient name parts, separated by SPACE.')
-
 		while True:
 			entered_name = gmTools.prompted_input(prompt = "\nEnter person search term or leave blank to exit")
 			if entered_name in ['exit', 'quit', 'bye', None]:
@@ -1443,38 +1462,11 @@ if __name__ == "__main__":
 
 	#--------------------------------------------------------
 	def run_console():
-		try:
-			host = sys.argv[2]
-		except IndexError:
-			host = None
-		try:
-			port = sys.argv[3]
-		except IndexError:
-			port = '8042'
-
 		orthanc_console(host, port)
 
 	#--------------------------------------------------------
 	def test_modify_patient_id():
-		try:
-			host = sys.argv[2]
-			port = sys.argv[3]
-		except IndexError:
-			host = None
-			port = '8042'
-		orthanc = cOrthancServer()
-		if not orthanc.connect(host, port, user = None, password = None):		#, expected_aet = 'another AET'
-			print('error connecting to server:', orthanc.connect_error)
-			return False
-		print('Connected to Orthanc server "%s" (AET [%s] - version [%s] - DB [%s])' % (
-			orthanc.server_identification['Name'],
-			orthanc.server_identification['DicomAet'],
-			orthanc.server_identification['Version'],
-			orthanc.server_identification['DatabaseVersion']
-		))
-		print('')
 		print('Please enter patient name parts, separated by SPACE.')
-
 		entered_name = gmTools.prompted_input(prompt = "\nEnter person search term or leave blank to exit")
 		if entered_name in ['exit', 'quit', 'bye', None]:
 			print("user cancelled patient search")
@@ -1494,66 +1486,16 @@ if __name__ == "__main__":
 
 	#--------------------------------------------------------
 	def test_upload_files():
-#		try:
-#			host = sys.argv[2]
-#			port = sys.argv[3]
-#		except IndexError:
-		host = None
-		port = '8042'
-
-		orthanc = cOrthancServer()
-		if not orthanc.connect(host, port, user = None, password = None):		#, expected_aet = 'another AET'
-			print('error connecting to server:', orthanc.connect_error)
-			return False
-		print('Connected to Orthanc server "%s" (AET [%s] - version [%s] - DB [%s] - REST API [%s])' % (
-			orthanc.server_identification['Name'],
-			orthanc.server_identification['DicomAet'],
-			orthanc.server_identification['Version'],
-			orthanc.server_identification['DatabaseVersion'],
-			orthanc.server_identification['ApiVersion']
-		))
-		print('')
-
 		#orthanc.upload_dicom_file(sys.argv[2])
 		orthanc.upload_from_directory(directory = sys.argv[2], recursive = True, check_mime_type = False, ignore_other_files = True)
 
 	#--------------------------------------------------------
 	def test_get_instance_preview():
-		host = None
-		port = '8042'
-
-		orthanc = cOrthancServer()
-		if not orthanc.connect(host, port, user = None, password = None):		#, expected_aet = 'another AET'
-			print('error connecting to server:', orthanc.connect_error)
-			return False
-		print('Connected to Orthanc server "%s" (AET [%s] - version [%s] - DB [%s])' % (
-			orthanc.server_identification['Name'],
-			orthanc.server_identification['DicomAet'],
-			orthanc.server_identification['Version'],
-			orthanc.server_identification['DatabaseVersion']
-		))
-		print('')
-
 		print(orthanc.get_instance_preview('f4f07d22-0d8265ef-112ea4e9-dc140e13-350c06d1'))
 		print(orthanc.get_instance('f4f07d22-0d8265ef-112ea4e9-dc140e13-350c06d1'))
 
 	#--------------------------------------------------------
 	def test_get_instance_tags():
-		host = None
-		port = '8042'
-
-		orthanc = cOrthancServer()
-		if not orthanc.connect(host, port, user = None, password = None):		#, expected_aet = 'another AET'
-			print('error connecting to server:', orthanc.connect_error)
-			return False
-		print('Connected to Orthanc server "%s" (AET [%s] - version [%s] - DB [%s])' % (
-			orthanc.server_identification['Name'],
-			orthanc.server_identification['DicomAet'],
-			orthanc.server_identification['Version'],
-			orthanc.server_identification['DatabaseVersion']
-		))
-		print('')
-
 		instance_id = 'f4f07d22-0d8265ef-112ea4e9-dc140e13-350c06d1'
 		for key, value in orthanc.get_instance_dicom_tags(instance_id, simplified = False).items():
 			print(key, ':', value)
@@ -1598,19 +1540,10 @@ if __name__ == "__main__":
 
 	#--------------------------------------------------------
 	def test_patient():
-		port = '8042'
-
-		orthanc = cOrthancServer()
-		if not orthanc.connect(host, port, user = None, password = None):		#, expected_aet = 'another AET'
-			print('error connecting to server:', orthanc.connect_error)
-			return False
-		print('Connected to Orthanc server "%s" (AET [%s] - version [%s] - DB [%s])' % (
-			orthanc.server_identification['Name'],
-			orthanc.server_identification['DicomAet'],
-			orthanc.server_identification['Version'],
-			orthanc.server_identification['DatabaseVersion']
-		))
-		print('')
+		print(orthanc.get_patient('89729867-a08815a6-37c59f5a-f1f6ea57-6c1e17cb'))
+		input()
+		print(orthanc.get_patient('1cff9d34-96047a5a-afb97dd0-33a84dc7-a710ef8f'))
+		return
 
 		#'/patients/89729867-a08815a6-37c59f5a-f1f6ea57-6c1e17cb'
 		orthanc_id = '89729867-a08815a6-37c59f5a-f1f6ea57-6c1e17cb'
@@ -1643,14 +1576,42 @@ if __name__ == "__main__":
 #				bad_data.append({'patient': orthanc_id, 'instance': instance_id, 'type': attachment, 'orthanc': '%s [%s]' % (self.server_identification, self.__server_url)})
 
 
+	#--------------------------------------------------------
+	def _connect():
+		global host
+		try:
+			host = sys.argv[2]
+		except IndexError:
+			host = None
+		global port
+		try:
+			port = sys.argv[3]
+		except IndexError:
+			port = '8042'
+
+		global orthanc
+		orthanc = cOrthancServer()
+		if not orthanc.connect(host, port, user = None, password = None):		#, expected_aet = 'another AET'
+			print('error connecting to server:', orthanc.connect_error)
+			sys.exit(-1)
+		print('Connected to Orthanc server "%s" (AET [%s] - version [%s] - DB [%s])' % (
+			orthanc.server_identification['Name'],
+			orthanc.server_identification['DicomAet'],
+			orthanc.server_identification['Version'],
+			orthanc.server_identification['DatabaseVersion']
+		))
+		print('')
 
 	#--------------------------------------------------------
-	#run_console()
-	#test_modify_patient_id()
-	#test_upload_files()
-	#test_get_instance_preview()
-	#test_get_instance_tags()
 	#test_pdf2dcm()
 	#test_img2dcm()
 	#test_file2dcm()
-	test_patient()
+	#sys.exit
+
+	_connect()
+	#run_console()
+	test_modify_patient_id()
+	#test_upload_files()
+	#test_get_instance_preview()
+	#test_get_instance_tags()
+	#test_patient()
