@@ -501,7 +501,7 @@ def get_as_journal(since=None, until=None, encounters=None, episodes=None, issue
 #============================================================
 # convenience functions
 #============================================================
-__VIEW_DEF = """
+_VIEW_clin_v_narrative4search = u"""
 create temporary view v_narrative4search as
 
 select * from (
@@ -916,7 +916,7 @@ def search_text_across_emrs(search_term=None):
 	#rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': {'term': search_term}}], get_col_idx = False)
 	cmd = u'select * from v_narrative4search where narrative ~* %(term)s order by pk_patient limit 1000'
 	queries = [
-		{'cmd': __VIEW_DEF},
+		{'cmd': _VIEW_clin_v_narrative4search},
 		{'cmd': cmd, 'args': {'term': search_term}}
 	]
 	rows, idx = gmPG2.run_rw_queries(queries = queries, get_col_idx = True, return_data = True)
