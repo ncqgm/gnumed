@@ -10,6 +10,7 @@
 
 FIX: billing: invoice ID template configuration [thanks Marc]
 FIX: config: top pane lab panel setting [thanks Jelle Mous]
+FIX: searching across active EMR [thanks Eberhard]
 
 	1.7.7
 

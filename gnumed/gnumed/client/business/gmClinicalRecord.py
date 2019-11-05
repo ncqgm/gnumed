@@ -970,17 +970,23 @@ class cClinicalRecord(object):
 					as encounter_ended,
 				(SELECT _(description) FROM clin.encounter_type WHERE pk = (SELECT fk_type FROM clin.encounter WHERE pk = vn4s.pk_encounter))
 					as encounter_type
-			from clin.v_narrative4search vn4s
+-- CHANGE BACK IN V23:
+			--FROM clin.v_narrative4search vn4s
+			FROM v_narrative4search vn4s
 			WHERE
 				pk_patient = %(pat)s and
 				vn4s.narrative ~ %(term)s
 			order by
 				encounter_started
 		""" # case sensitive
-		rows, idx = gmPG2.run_ro_queries(queries = [
+		#rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': {'pat': self.pk_patient, 'term': search_term}}])
+		queries = [
+			{'cmd': gmClinNarrative._VIEW_clin_v_narrative4search},
 			{'cmd': cmd, 'args': {'pat': self.pk_patient, 'term': search_term}}
-		])
+		]
+		rows, idx = gmPG2.run_rw_queries(queries = queries, get_col_idx = True, return_data = True)
 		return rows
+
 	#--------------------------------------------------------
 	def get_text_dump(self, since=None, until=None, encounters=None, episodes=None, issues=None):
 		fields = [
