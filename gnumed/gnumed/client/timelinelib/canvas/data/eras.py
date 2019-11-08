@@ -143,8 +143,12 @@ class Eras(object):
                 if era.ends_today():
                     era.set_time_period(TimePeriod(era.get_time_period().start_time, self.now_func()))
 
+        def remove_eras_with_no_duration():
+            self.all_eras = [e for e in self.all_eras if e.is_period()]
+
         self.all_eras = clone_all_eras()
         adjust_all_eras_for_ends_today()
+        remove_eras_with_no_duration()
         if self.all_eras == []:
             return []
         while True:
