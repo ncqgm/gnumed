@@ -38,7 +38,10 @@ def _display_clinical_reminders():
 		return
 
 	# reminders
-	for msg in pat.overdue_messages:
+	_log.debug('before showing overdue messages')
+	msgs = pat.overdue_messages
+	_log.debug('overdue msgs: %s', len(msgs))
+	for msg in msgs:
 		if msg['expiry_date'] is None:
 			exp = u''
 		else:
@@ -63,22 +66,29 @@ def _display_clinical_reminders():
 			pat['description_gender'],
 			msg['modified_by']
 		)
+		_log.debug('before showing msg: %s', msg)
 		gmGuiHelpers.gm_show_warning (
 			aTitle = _('Clinical reminder'),
 			aMessage = txt
 		)
+		_log.debug('after showing msg')
+	_log.debug('after showing overdue messages')
 
+	_log.debug('before showing dyn hits')
 	# dynamic hints
 	hints2aggregate = []
 	emr = pat.emr
 	hint_dlg = cDynamicHintDlg(wx.GetApp().GetTopWindow(), -1)
 	# single-hint popups
-	for hint in emr.dynamic_hints:
+	hints = emr.dynamic_hints
+	_log.debug('total dyn hints: %s', len(hints))
+	for hint in hints:
 		if hint['popup_type'] == 0:
 			continue
 		if hint['popup_type'] == 2:
 			hints2aggregate.append(hint)
 			continue
+		_log.debug('single-popup hint: %s', hint)
 		hint_dlg.hint = hint
 		if hint_dlg.ShowModal() == wx.ID_APPLY:
 			hint.suppress (
@@ -86,14 +96,19 @@ def _display_clinical_reminders():
 				pk_encounter = emr.current_encounter['pk_encounter']
 			)
 	hint_dlg.Destroy()
+	_log.debug('after single-popup hints')
 	# aggregate popup
 	if len(hints2aggregate) > 0:
+		_log.debug('aggregate hints: %s', len(hints2aggregate))
 		hints_dlg = cDynamicHintListDlg(wx.GetApp().GetTopWindow(), -1)
 		hints_dlg.pk_encounter = emr.current_encounter['pk_encounter']
 		hints_dlg.hints = hints2aggregate
+		_log.debug('before showing agg hints')
 		hints_dlg.ShowModal()
+		_log.debug('after showing agg hints')
 		hints_dlg.Destroy()
 
+	_log.debug('after showing dyn hits')
 	return
 
 gmDispatcher.connect(signal = u'post_patient_selection', receiver = _display_clinical_reminders)
