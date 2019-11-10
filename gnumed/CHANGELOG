@@ -6,7 +6,7 @@
 # rel-1-7-patches
 ------------------------------------------------
 
-	1.7.8.
+	1.7.8
 
 FIX: billing: invoice ID template configuration [thanks Marc]
 FIX: config: top pane lab panel setting [thanks Jelle Mous]
@@ -2017,7 +2017,7 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 
 	22.8
 
-FIX: i18n.set_curr/force_curr_lang()
+FIX: i18n.set_curr/force_curr_lang() [thanks Marc]
 
 	22.7
 
