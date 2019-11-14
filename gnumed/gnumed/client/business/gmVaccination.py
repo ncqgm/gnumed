@@ -649,7 +649,11 @@ def get_vaccinations(pk_identity=None, pk_episodes=None, pk_health_issues=None, 
 		where_parts.append('pk_encounter IN %(pk_encs)s')
 		args['pk_encs'] = tuple(pk_encounters)
 
-	ORDER_BY = gmTools.coalesce(order_by, '', 'ORDER BY %s' % order_by)
+	ORDER_BY = gmTools.coalesce (
+		value2test = order_by,
+		return_instead = '',
+		value2return = 'ORDER BY %s' % order_by
+	)
 	if len(where_parts) == 0:
 		WHERE = 'True'
 	else:
@@ -863,19 +867,8 @@ if __name__ == '__main__':
 
 	#--------------------------------------------------------
 	def test_get_vaccinations():
-		v1 = get_vaccinations(return_pks = True)
-		v2 = get_vaccinations2(return_pks = True)
+		v1 = get_vaccinations(return_pks = True, order_by = 'date_given')
 		print(v1)
-		print(v2)
-		for v in v1:
-			if v not in v2:
-				print('ERROR')
-		for v in v2:
-			if v not in v1:
-				print('ERROR')
-
-#		for v in get_vaccinations():
-#			print(v)
 
 	#--------------------------------------------------------
 	def test_create_generic_vaccine_sql():

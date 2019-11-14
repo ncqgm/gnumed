@@ -593,7 +593,6 @@ def generate_invoice_id(template=None, pk_patient=None, person=None, date_format
 		data['lastname'] = person['lastnames'].replace(' ', gmTools.u_space_as_open_box).strip()
 		data['dob'] = person.get_formatted_dob (
 			format = date_format,
-			encoding = 'utf8',
 			none_string = u'?',
 			honor_estimation = False
 		).strip()
@@ -725,11 +724,12 @@ if __name__ == "__main__":
 
 #	from Gnumed.pycommon import gmLog2
 #	from Gnumed.pycommon import gmI18N
+	from Gnumed.pycommon import gmDateTime
 #	from Gnumed.business import gmPerson
 	from Gnumed.business import gmPraxis
 
 #	gmI18N.activate_locale()
-##	gmDateTime.init()
+	gmDateTime.init()
 
 	def test_default_address():
 		bills = get_bills(pk_patient = 12)
@@ -779,16 +779,16 @@ if __name__ == "__main__":
 				)
 			))
 			template = u'%(firstname).4s%(lastname).4s%(date)s-#counter#'
-			print ('new: template = "%s" => %s' % (
-				template,
-				generate_invoice_id (
-					template = template,
-					pk_patient = None,
-					person = pat,
-					date_format='%d%m%Y',
-					time_format='%H%M%S'
-				)
-			))
+			new_id = generate_invoice_id (
+				template = template,
+				pk_patient = None,
+				person = pat,
+				date_format='%d%m%Y',
+				time_format='%H%M%S'
+			)
+			print('locked: %s' % lock_invoice_id(new_id))
+			print ('new: template = "%s" => %s' % (template, new_id))
+			print('unlocked: %s' % unlock_invoice_id(new_id))
 
 		#generate_invoice_id(template=None, pk_patient=None, person=None, date_format='%Y-%m-%d', time_format='%H%M%S')
 
@@ -796,5 +796,5 @@ if __name__ == "__main__":
 
 	#test_me()
 	#test_default_address()
-	test_get_scan2pay_data()
+	#test_get_scan2pay_data()
 	test_generate_invoice_id()
