@@ -6,6 +6,10 @@
 # rel-1-7-patches
 ------------------------------------------------
 
+	1.7.9
+
+FIX: billing: invoice ID generation [thanks Marc]
+
 	1.7.8
 
 FIX: billing: invoice ID template configuration [thanks Marc]
