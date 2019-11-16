@@ -593,7 +593,6 @@ def generate_invoice_id(template=None, pk_patient=None, person=None, date_format
 		data['lastname'] = person['lastnames'].replace(' ', gmTools.u_space_as_open_box).strip()
 		data['dob'] = person.get_formatted_dob (
 			format = date_format,
-			encoding = 'utf8',
 			none_string = u'?',
 			honor_estimation = False
 		).strip()
@@ -649,6 +648,11 @@ def generate_invoice_id(template=None, pk_patient=None, person=None, date_format
 def __lock_invoice_id_1_7_legacy(invoice_id):
 	"""Get 1.7 legacy (<1.7.9) lock.
 
+	The fix is to *down*shift py3 checksums into the py2 result range.
+	How to do that was suggested by MRAB on the Python mailing list.
+
+		https://www.mail-archive.com/python-list@python.org/msg447989.html
+
 	Problems:
 	- on py2 < 2.6 (client 1.7) signedness inconsistent across platforms
 	- on py3 (client 1.8), range shifted by & 0xffffffff
@@ -657,10 +661,12 @@ def __lock_invoice_id_1_7_legacy(invoice_id):
 	database v22 we need to retain this legacy lock until DB v23.
 	"""
 	_log.debug('legacy locking invoice ID: %s', invoice_id)
-	signed_crc32 = zlib.crc32(invoice_id)
-	signed_adler32 = zlib.adler32(invoice_id)
-	_log.debug('signed signed_crc32: %s', signed_crc32)
-	_log.debug('signed adler32: %s', signed_adler32)
+	py3_crc32 = zlib.crc32(bytes(invoice_id, 'utf8'))
+	py3_adler32 = zlib.adler32(bytes(invoice_id, 'utf8'))
+	signed_crc32 = py3_crc32 - (py3_crc32 & 0x80000000) * 2
+	signed_adler32 = py3_adler32 - (py3_adler32 & 0x80000000) * 2
+	_log.debug('crc32: %s (py3, unsigned) -> %s (py2.6+, signed)', py3_crc32, signed_crc32)
+	_log.debug('adler32: %s (py3, unsigned) -> %s (py2.6+, signed)', py3_adler32, signed_adler32)
 	cmd = u"""SELECT pg_try_advisory_lock(%s, %s)""" % (signed_crc32, signed_adler32)
 	try:
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
@@ -695,11 +701,11 @@ def lock_invoice_id(invoice_id):
 	# - still use both crc32 and adler32 but chain the result of
 	#   the former into the latter so we can take advantage of
 	#   pg_try_advisory_lock(BIGINT)
-	unsigned_crc32 = zlib.crc32(invoice_id) & 0xffffffff
+	unsigned_crc32 = zlib.crc32(bytes(invoice_id, 'utf8')) & 0xffffffff
 	_log.debug('unsigned crc32: %s', unsigned_crc32)
 	data4adler32 = u'%s---[%s]' % (invoice_id, unsigned_crc32)
 	_log.debug('data for adler32: %s', data4adler32)
-	unsigned_adler32 = zlib.adler32(data4adler32, unsigned_crc32) & 0xffffffff
+	unsigned_adler32 = zlib.adler32(bytes(data4adler32, 'utf8'), unsigned_crc32) & 0xffffffff
 	_log.debug('unsigned (crc32-chained) adler32: %s', unsigned_adler32)
 	cmd = u"SELECT pg_try_advisory_lock(%s)" % (unsigned_adler32)
 	try:
@@ -717,10 +723,12 @@ def lock_invoice_id(invoice_id):
 #------------------------------------------------------------
 def __unlock_invoice_id_1_7_legacy(invoice_id):
 	_log.debug('legacy unlocking invoice ID: %s', invoice_id)
-	signed_crc32 = zlib.crc32(invoice_id)
-	signed_adler32 = zlib.adler32(invoice_id)
-	_log.debug('signed crc32: %s', signed_crc32)
-	_log.debug('signed adler32: %s', signed_adler32)
+	py3_crc32 = zlib.crc32(bytes(invoice_id, 'utf8'))
+	py3_adler32 = zlib.adler32(bytes(invoice_id, 'utf8'))
+	signed_crc32 = py3_crc32 - (py3_crc32 & 0x80000000) * 2
+	signed_adler32 = py3_adler32 - (py3_adler32 & 0x80000000) * 2
+	_log.debug('crc32: %s (py3, unsigned) -> %s (py2.6+, signed)', py3_crc32, signed_crc32)
+	_log.debug('adler32: %s (py3, unsigned) -> %s (py2.6+, signed)', py3_adler32, signed_adler32)
 	cmd = u"""SELECT pg_advisory_unlock(%s, %s)""" % (signed_crc32, signed_adler32)
 	try:
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
@@ -742,11 +750,11 @@ def unlock_invoice_id(invoice_id):
 		return False
 
 	# unlock
-	unsigned_crc32 = zlib.crc32(invoice_id) & 0xffffffff
+	unsigned_crc32 = zlib.crc32(bytes(invoice_id, 'utf8')) & 0xffffffff
 	_log.debug('unsigned crc32: %s', unsigned_crc32)
 	data4adler32 = u'%s---[%s]' % (invoice_id, unsigned_crc32)
 	_log.debug('data for adler32: %s', data4adler32)
-	unsigned_adler32 = zlib.adler32(data4adler32, unsigned_crc32) & 0xffffffff
+	unsigned_adler32 = zlib.adler32(bytes(data4adler32, 'utf8'), unsigned_crc32) & 0xffffffff
 	_log.debug('unsigned (crc32-chained) adler32: %s', unsigned_adler32)
 	cmd = u"SELECT pg_advisory_unlock(%s)" % (unsigned_adler32)
 	try:
