@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<XML_DIZ_INFO>
+  <MASTER_PAD_VERSION_INFO>
+    <MASTER_PAD_VERSION>3.01</MASTER_PAD_VERSION>
+    <MASTER_PAD_EDITOR>EdPAD by HexCat, http://www.hexcat.com</MASTER_PAD_EDITOR>
+    <MASTER_PAD_INFO>This is Portable Application Description, http://www.asp-shareware.org/pad</MASTER_PAD_INFO>
+  </MASTER_PAD_VERSION_INFO>
+  <Company_Info>
+    <Company_Name>HILBROS</Company_Name>
+    <Address_1>Zum Kleingartenpark 33D</Address_1>
+    <Address_2/>
+    <City_Town>Leipzig</City_Town>
+    <State_Province>Sachsen</State_Province>
+    <Zip_Postal_Code>04318</Zip_Postal_Code>
+    <Country>Deutschland</Country>
+    <Company_WebSite_URL>http://www.hilbros.de</Company_WebSite_URL>
+    <Contact_Info>
+      <Author_First_Name>GNUmed</Author_First_Name>
+      <Author_Last_Name>Team</Author_Last_Name>
+      <Author_Email>gnumed-devel@gnu.org</Author_Email>
+      <Contact_First_Name>Sebastian</Contact_First_Name>
+      <Contact_Last_Name>Hilbert</Contact_Last_Name>
+      <Contact_Email>sebastian.hilbert@gmx.net</Contact_Email>
+    </Contact_Info>
+    <Support_Info>
+      <Sales_Email>gnumed-devel@gnu.org</Sales_Email>
+      <Support_Email>gnumed-devel@gnu.org</Support_Email>
+      <General_Email>gnumed-devel@gnu.org</General_Email>
+      <Sales_Phone/>
+      <Support_Phone/>
+      <General_Phone/>
+      <Fax_Phone/>
+    </Support_Info>
+  </Company_Info>
+  <Program_Info>
+    <Program_Name>GNUmed EMR</Program_Name>
+    <Program_Version>0.5.2</Program_Version>
+    <Program_Release_Month>01</Program_Release_Month>
+    <Program_Release_Day>01</Program_Release_Day>
+    <Program_Release_Year>2010</Program_Release_Year>
+    <Program_Cost_Dollars/>
+    <Program_Cost_Other_Code/>
+    <Program_Cost_Other/>
+    <Program_Type>Freeware</Program_Type>
+    <Program_Release_Status>Major Update</Program_Release_Status>
+    <Program_Install_Support>Install and Uninstall</Program_Install_Support>
+    <Program_OS_Support>Win98,Windows2000,WinXP,Linux,Mac OS X 10.4</Program_OS_Support>
+    <Program_Language>German,English,Spanish,French</Program_Language>
+    <File_Info>
+      <File_Size_Bytes>1677722</File_Size_Bytes>
+      <File_Size_K>1638</File_Size_K>
+      <File_Size_MB>1.6</File_Size_MB>
+    </File_Info>
+    <Expire_Info>
+      <Has_Expire_Info>n</Has_Expire_Info>
+      <Expire_Count/>
+      <Expire_Based_On/>
+      <Expire_Other_Info/>
+      <Expire_Month/>
+      <Expire_Day/>
+      <Expire_Year/>
+    </Expire_Info>
+    <Program_Change_Info/>
+    <Program_Category_Class>Business::Other</Program_Category_Class>
+    <Program_Specific_Category/>
+    <Program_System_Requirements/>
+  </Program_Info>
+  <Program_Descriptions>
+    <English>
+      <Keywords>EMR, medical record, free software, open source</Keywords>
+      <Char_Desc_45>manages and archives patient medical data</Char_Desc_45>
+      <Char_Desc_80>manages and archives patient medical data, looks up medications in drug database</Char_Desc_80>
+      <Char_Desc_250/>
+      <Char_Desc_450/>
+      <Char_Desc_2000/>
+    </English>
+    <German>
+      <Keywords/>
+      <Char_Desc_45>Verwaltet und archiviert Patientendaten</Char_Desc_45>
+      <Char_Desc_80>Verwaltet und archiviert Patientendaten, sucht in der Arzneimitteldatenbank </Char_Desc_80>
+      <Char_Desc_250/>
+      <Char_Desc_450/>
+      <Char_Desc_2000/>
+    </German>
+  </Program_Descriptions>
+  <Web_Info>
+    <Application_URLs>
+      <Application_Info_URL>http://wiki.gnumed.de</Application_Info_URL>
+      <Application_Order_URL/>
+      <Application_Screenshot_URL>http://www.gnumed.de/press/images/screenshots/screenshot4pad.png</Application_Screenshot_URL>
+      <Application_Icon_URL>http://www.gnumed.de/downloads/press/images/serpent4pad.png</Application_Icon_URL>
+      <Application_XML_File_URL>http://www.gnumed.de/downloads/client/gnumed-client.xml</Application_XML_File_URL>
+    </Application_URLs>
+    <Download_URLs>
+      <Primary_Download_URL>http://www.gnumed.de/downloads/client/GNUmed-client.latest.tgz</Primary_Download_URL>
+      <Secondary_Download_URL/>
+      <Additional_Download_URL_1/>
+      <Additional_Download_URL_2/>
+    </Download_URLs>
+  </Web_Info>
+  <Permissions>
+    <Distribution_Permissions>GNU General Public License</Distribution_Permissions>
+    <EULA>Copyright (C) &lt;2007,2008&gt; &lt;GNUmed project team&gt; This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version. This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;. &lt;GNUmed&gt; Copyright (C) &lt;2007&gt;&lt;GNUmed project team&gt; This program comes with ABSOLUTELY NO WARRANTY.</EULA>
+  </Permissions>
+</XML_DIZ_INFO>
