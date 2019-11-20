@@ -280,7 +280,8 @@ mkdir -p ./gnumed-client.$CLIENTREV/client/doc/user-manual/
 cd ./gnumed-client.$CLIENTREV/client/doc/user-manual/
 #wget --verbose --output-document=./GNUmed-User-Manual.zip http://wiki.gnumed.de/pub/publish/Gnumed.zip
 #unzip GNUmed-User-Manual.zip
-wget --tries=0 --read-timeout=2 --continue --verbose --output-document=./GNUmed-User-Manual.tgz http://wiki.gnumed.de/pub/publish/tgz.tgz
+#wget --tries=0 --read-timeout=2 --continue --verbose --output-document=./GNUmed-User-Manual.tgz http://wiki.gnumed.de/pub/publish/tgz.tgz
+wget --tries=0 --read-timeout=2 --continue --verbose https://www.gnumed.de/downloads/docs/GNUmed-User-Manual.tgz
 tar -xzf GNUmed-User-Manual.tgz
 rm -vf Release-02.html
 ln -s GnumedManual.html Gnumed/index.html

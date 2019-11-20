@@ -9,6 +9,7 @@
 	1.7.9
 
 FIX: billing: invoice ID generation [thanks Marc]
+FIX: dist: GNUmed Manual d/l URL
 
 	1.7.8
 
