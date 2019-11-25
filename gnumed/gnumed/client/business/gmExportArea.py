@@ -279,7 +279,6 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 				name_first = False
 			)
 		part_fname = part.save_to_file (
-			aChunkSize = aChunkSize,
 			filename = filename,
 			ignore_conversion_problems = True,
 			adjust_extension = True
@@ -301,8 +300,10 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 		if enc_filename is None:
 			_log.error('cannot encrypt')
 			return False
+
 		if removed:
 			return enc_filename
+
 		_log.error('cannot remove unencrypted file')
 		gmTools.remove(enc_filename)
 		return False

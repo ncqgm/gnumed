@@ -53,6 +53,7 @@ FIX: document tree sorting / document insertion
 FIX: inability to delete inbox message w/o receiver
 FIX: "lastname, firstname" based patient search under Python 3
 FIX: billing: invoice ID generation [thanks Marc]
+FIX: export area: saving document part entries
 
 ------------------------------------------------
 # rel-1-7-patches
