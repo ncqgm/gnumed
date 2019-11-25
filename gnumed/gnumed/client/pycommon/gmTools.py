@@ -963,13 +963,14 @@ def coalesce(value2test=None, return_instead=None, template4value=None, template
 		print value
 
 	@param value2test: the value to be tested for <None>
-	@type value2test: any Python type, must have a __str__ method if template4value is not None
-	@param return_instead: the value to be returned if <initial> is None
-	@type return_instead: any Python type, must have a __str__ method if template4instead is not None
-	@param template4value: if <initial> is returned replace the value into this template, must contain one <%s> 
-	@type template4value: string or None
-	@param template4instead: if <return_instead> is returned replace the value into this template, must contain one <%s> 
-	@type template4instead: string or None
+
+	@param return_instead: the value to be returned if <value2test> *is* None
+
+	@param template4value: if <value2test> is returned, replace the value into this template, must contain one <%s>
+
+	@param template4instead: if <return_instead> is returned, replace the value into this template, must contain one <%s>
+
+	@param value2return: a *value* to return if <value2test> is NOT None, AND there's no <template4value>
 
 	example:
 		function4value = ('strftime', '%Y-%m-%d')

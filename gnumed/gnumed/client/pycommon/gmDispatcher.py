@@ -257,12 +257,15 @@ class BoundMethodWeakref:
 	def __init__(self, boundMethod):
 		"""Return a weak-reference-like instance for a bound method."""
 		self.isDead = 0
+
 		def remove(object, self=self):
 			"""Set self.isDead to true when method or instance is destroyed."""
 			self.isDead = 1
 			print('BoundMethodWeakref.__init__.remove(): _removeReceiver =', _removeReceiver)
 			print('BoundMethodWeakref.__init__.remove(): self =', self)
-			_removeReceiver(receiver=self)
+			if callable(_removeReceiver):
+				_removeReceiver(receiver = self)
+
 		self.weakSelf = weakref.ref(boundMethod.__self__, remove)
 		self.weakFunc = weakref.ref(boundMethod.__func__, remove)
 	#------------------------------------------------------------------

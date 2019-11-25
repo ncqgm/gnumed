@@ -696,7 +696,11 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 		if create_archive:
 			export_dir = path
 			zip_file = self.__export_as_zip (
-				gmTools.coalesce(encrypt, _('Saving entries as encrypted ZIP archive'), _('Saving entries as unencrypted ZIP archive')),
+				gmTools.coalesce (
+					value2test = encrypt,
+					value2return = _('Saving entries as encrypted ZIP archive'),
+					return_instead = _('Saving entries as unencrypted ZIP archive')
+				),
 				items = items,
 				encrypt = encrypt
 			)
@@ -709,7 +713,11 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 			target = final_zip_file
 		else:
 			export_dir = self.__export_as_files (
-				gmTools.coalesce(encrypt, _('Saving entries as encrypted files'), _('Saving entries as unencrypted files')),
+				gmTools.coalesce (
+					value2test = encrypt,
+					value2return = _('Saving entries as encrypted files'),
+					return_instead = _('Saving entries as unencrypted files')
+				),
 				base_dir = path,
 				items = items,
 				encrypt = encrypt,
