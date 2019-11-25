@@ -55,6 +55,7 @@ FIX: "lastname, firstname" based patient search under Python 3
 FIX: billing: invoice ID generation [thanks Marc]
 FIX: export area: saving document part entries
 FIX: lab: grid display row tooltips
+FIX: lists: context menu CSV export
 
 ------------------------------------------------
 # rel-1-7-patches

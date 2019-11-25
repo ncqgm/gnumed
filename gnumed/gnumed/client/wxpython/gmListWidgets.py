@@ -2414,16 +2414,14 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 	def _all_rows2csv(self, evt):
 
 		csv_name = os.path.join(gmTools.gmPaths().home_dir, 'gnumed', 'gm-all_rows-%s.csv' % pydt.datetime.now().strftime('%m%d-%H%M%S'))
-		csv_file = io.open(csv_name, mode = 'wb')
-
+		csv_file = io.open(csv_name, mode = 'wt', encoding = 'utf8')
 		csv_writer = csv.writer(csv_file)
-		csv_writer.writerow([ l.encode('utf-8') for l in self.column_labels ])
+		csv_writer.writerow([ l for l in self.column_labels ])
 		for item_idx in range(self.ItemCount):
 			fields = []
 			for col_idx in range(self.ColumnCount):
 				fields.append(self.GetItem(item_idx, col_idx).Text)
-			csv_writer.writerow([ f.encode('utf-8') for f in fields ])
-
+			csv_writer.writerow([ f for f in fields ])
 		csv_file.close()
 		gmDispatcher.send(signal = 'statustext', msg = _('All rows saved to [%s].') % csv_name)
 
@@ -2494,21 +2492,17 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 	def _selected_rows2csv(self, evt):
 
 		csv_name = os.path.join(gmTools.gmPaths().home_dir, 'gnumed', 'gm-some_rows-%s.csv' % pydt.datetime.now().strftime('%m%d-%H%M%S'))
-		csv_file = io.open(csv_name, mode = 'wb')
-
+		csv_file = io.open(csv_name, mode = 'wt', encoding = 'utf8')
 		csv_writer = csv.writer(csv_file)
-		csv_writer.writerow([ l.encode('utf-8') for l in self.column_labels ])
-
+		csv_writer.writerow([ l for l in self.column_labels ])
 		items = self.selected_items
 		if self.__is_single_selection:
 			items = [items]
-
 		for item_idx in items:
 			fields = []
 			for col_idx in range(self.ColumnCount):
 				fields.append(self.GetItem(item_idx, col_idx).Text)
-			csv_writer.writerow([ f.encode('utf-8') for f in fields ])
-
+			csv_writer.writerow([ f for f in fields ])
 		csv_file.close()
 		gmDispatcher.send(signal = 'statustext', msg = _('Selected rows saved to [%s].') % csv_name)
 
