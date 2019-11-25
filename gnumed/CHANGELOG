@@ -54,6 +54,7 @@ FIX: inability to delete inbox message w/o receiver
 FIX: "lastname, firstname" based patient search under Python 3
 FIX: billing: invoice ID generation [thanks Marc]
 FIX: export area: saving document part entries
+FIX: lab: grid display row tooltips
 
 ------------------------------------------------
 # rel-1-7-patches

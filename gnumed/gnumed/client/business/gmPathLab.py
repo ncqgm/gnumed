@@ -938,8 +938,9 @@ LIMIT 1"""
 
 		if patient is not None:
 			tt += '\n'
-			result = self.get_most_recent_results(patient = patient, max_no_of_results = 1)
-			if result is not None:
+			results = self.get_most_recent_results(patient = patient, max_no_of_results = 1)
+			if len(results) > 0:
+				result = results[0]
 				tt += _(' Most recent (%s): %s%s%s') % (
 					gmDateTime.pydt_strftime(result['clin_when'], '%Y %b %d'),
 					result['unified_val'],
