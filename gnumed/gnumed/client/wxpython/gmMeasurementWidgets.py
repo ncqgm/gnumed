@@ -1104,7 +1104,11 @@ class cMeasurementsByIssuePnl(wxgMeasurementsByIssuePnl.wxgMeasurementsByIssuePn
 
 		probs = self.__patient.emr.get_issues_or_episodes_for_results()
 		items = [ ['%s%s' % (
-			gmTools.coalesce(p['pk_health_issue'], gmTools.u_diameter + ':', ''),
+			gmTools.coalesce (
+				value2test = p['pk_health_issue'],
+				return_instead = gmTools.u_diameter + ':',
+				template4value = '%s'
+			),
 			gmTools.shorten_words_in_line(text = p['problem'], min_word_length = 5, max_length = 30)
 		)] for p in probs ]
 		self._LCTRL_issues.set_string_items(items)
