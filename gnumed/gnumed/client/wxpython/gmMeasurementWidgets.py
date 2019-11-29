@@ -1106,8 +1106,8 @@ class cMeasurementsByIssuePnl(wxgMeasurementsByIssuePnl.wxgMeasurementsByIssuePn
 		items = [ ['%s%s' % (
 			gmTools.coalesce (
 				value2test = p['pk_health_issue'],
-				return_instead = gmTools.u_diameter + ':',
-				template4value = '%s'
+				value2return = '',
+				return_instead = gmTools.u_diameter + ':'
 			),
 			gmTools.shorten_words_in_line(text = p['problem'], min_word_length = 5, max_length = 30)
 		)] for p in probs ]

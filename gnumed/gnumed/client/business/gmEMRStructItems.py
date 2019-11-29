@@ -922,9 +922,9 @@ FROM (
 	#--------------------------------------------------------
 	def _get_formatted_revision_history(self):
 		cmd = """SELECT
-				'NONE (live row)'::text as audit__action_applied,
+				'<N/A>'::TEXT as audit__action_applied,
 				NULL AS audit__action_when,
-				NULL AS audit__action_by,
+				'<N/A>'::TEXT AS audit__action_by,
 				pk_audit,
 				row_version,
 				modified_when,
@@ -1646,9 +1646,9 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	def _get_formatted_revision_history(self):
 		cmd = """SELECT
-				'NONE (live row)'::text as audit__action_applied,
+				'<N/A>'::TEXT as audit__action_applied,
 				NULL AS audit__action_when,
-				NULL AS audit__action_by,
+				'<N/A>'::TEXT AS audit__action_by,
 				pk_audit,
 				row_version,
 				modified_when,
@@ -3007,9 +3007,9 @@ limit 1
 	#--------------------------------------------------------
 	def _get_formatted_revision_history(self):
 		cmd = """SELECT
-				'NONE (live row)'::text as audit__action_applied,
+				'<N/A>'::TEXT as audit__action_applied,
 				NULL AS audit__action_when,
-				NULL AS audit__action_by,
+				'<N/A>'::TEXT AS audit__action_by,
 				pk_audit,
 				row_version,
 				modified_when,
