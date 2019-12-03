@@ -86,4 +86,4 @@ comment on view clin.v_candidate_diagnoses is
 grant select on clin.v_candidate_diagnoses to group "gm-doctors";
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('v22-clin-v_candidate_diagnoses.sql', '22.9');
+select gm.log_script_insertion('v22-clin-v_candidate_diagnoses-fixup.sql', '22.9');
