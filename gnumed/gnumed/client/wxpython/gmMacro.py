@@ -1729,7 +1729,9 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			if o.strip().startswith('fmt='):
 				format = o.strip()[4:]
 				if format not in ['qr', 'txt']:
-					return self._escape(_('praxis_scan2pay: invalid format (qr/txt)'))
+					if self.debug:
+						return self._escape(_('praxis_scan2pay: invalid format (qr/txt)'))
+					return u''
 				continue
 #			if o.strip().startswith('tmpl='):
 #				template = o.strip()[5:]
