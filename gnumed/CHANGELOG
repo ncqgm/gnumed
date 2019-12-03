@@ -10,6 +10,7 @@
 
 FIX: billing: invoice ID generation [thanks Marc]
 FIX: dist: GNUmed Manual d/l URL
+FIX: template: letter w/ & w/o Dx's
 
 	1.7.8
 

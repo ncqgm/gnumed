@@ -1711,7 +1711,9 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			if o.strip().startswith('fmt='):
 				format = o.strip()[4:]
 				if format not in ['qr', 'txt']:
-					return self._escape(_('praxis_scan2pay: invalid format (qr/txt)'))
+					if self.debug:
+						return self._escape(_('praxis_scan2pay: invalid format (qr/txt)'))
+					return u''
 				continue
 		_log.debug('format: %s' % format)
 
@@ -1721,7 +1723,9 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		if format == 'qr':
 			qr_filename = gmTools.create_qrcode(u'https://www.scan2pay.info')
 			if qr_filename is None:
-				return self._escape(u'praxis_scan2pay-cannot_create_QR_code')
+				if self.debug:
+					return self._escape(u'praxis_scan2pay-cannot_create_QR_code')
+				return u''
 			return qr_filename
 
 		return None
