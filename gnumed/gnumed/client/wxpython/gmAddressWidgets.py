@@ -1142,7 +1142,7 @@ class cAddressPhraseWheel(gmPhraseWheel.cPhraseWheel):
 			self.__address = None
 			self.SetText(u'', None)
 			return
-		if isinstance(address, gmDemographicRecord.cAddress):
+		if isinstance(address, (gmDemographicRecord.cAddress, gmDemographicRecord.cPatientAddress)):
 			self.__old_pk = address['pk_address']
 			self.__address = address
 			pk = self.__old_pk
