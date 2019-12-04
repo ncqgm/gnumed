@@ -12,6 +12,7 @@ FIX: billing: invoice ID generation [thanks Marc]
 FIX: dist: GNUmed Manual d/l URL
 FIX: template: letter w/ & w/o Dx's
 FIX: paperwork: letter receiver dlg address selection
+FIX: EMR/tree: exception on loading visual progress notes
 
 	1.7.8
 

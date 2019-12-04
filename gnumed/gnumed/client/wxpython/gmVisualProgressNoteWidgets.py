@@ -414,7 +414,7 @@ class cVisualSoapPresenterPnl(wxgVisualSoapPresenterPnl.wxgVisualSoapPresenterPn
 
 	#--------------------------------------------------------
 	def clear(self):
-		while len(self._SZR_soap.GetChildren()) > 0:
+		while self._SZR_soap and len(self._SZR_soap.GetChildren()) > 0:
 			self._SZR_soap.Detach(0)
 		for bmp in self.__bitmaps:
 			bmp.Unbind(wx.EVT_LEFT_UP)
