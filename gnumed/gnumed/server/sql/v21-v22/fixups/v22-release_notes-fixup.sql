@@ -17,25 +17,21 @@ INSERT INTO dem.message_inbox (
 ) VALUES (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
-	'Release Notes for GNUmed 1.7.6 (database v22.6)',
-	'GNUmed 1.7.6 Release Notes:
+	'Release Notes for GNUmed 1.7.9 (database v22.9)',
+	'GNUmed 1.7.9 Release Notes:
 
-	1.7.6
+	1.7.9
 
-FIX: application metadata files
-FIX: searching across all EMRs
-FIX: constrain document PRW to current patient
-FIX: lab/table: exception on double-clicking empty cell in row w/o meta test type
-FIX: lab/result EA: failure to show test type on edit
+FIX: billing: invoice ID generation [thanks Marc]
+FIX: dist: GNUmed Manual d/l URL
+FIX: template: letter w/ & w/o Dx-s
+FIX: paperwork: letter receiver dlg address selection
+FIX: EMR/tree: exception on loading visual progress notes
 
-NEW: stub out $praxis_scan2pay$
+	22.9
 
-	22.6
-
-FIX: properly include fixups in v21-v22 upgrade
-
-IMPROVED: database backup script
+FIX: clin.v_candidate_diagnoses: missing coalesce()
 ');
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('v22-release_notes-fixup.sql', '22.6');
+select gm.log_script_insertion('v22-release_notes-fixup.sql', '22.9');
