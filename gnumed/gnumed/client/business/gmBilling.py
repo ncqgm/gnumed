@@ -651,8 +651,8 @@ def __lock_invoice_id_1_7_legacy(invoice_id):
 	database v22 we need to retain this legacy lock until DB v23.
 	"""
 	_log.debug('legacy locking invoice ID: %s', invoice_id)
-	signed_crc32 = zlib.crc32(invoice_id)
-	signed_adler32 = zlib.adler32(invoice_id)
+	signed_crc32 = zlib.crc32(invoice_id.encode('utf8'))
+	signed_adler32 = zlib.adler32(invoice_id.encode('utf8'))
 	_log.debug('signed signed_crc32: %s', signed_crc32)
 	_log.debug('signed adler32: %s', signed_adler32)
 	cmd = u"""SELECT pg_try_advisory_lock(%s, %s)""" % (signed_crc32, signed_adler32)
@@ -689,11 +689,11 @@ def lock_invoice_id(invoice_id):
 	# - still use both crc32 and adler32 but chain the result of
 	#   the former into the latter so we can take advantage of
 	#   pg_try_advisory_lock(BIGINT)
-	unsigned_crc32 = zlib.crc32(invoice_id) & 0xffffffff
+	unsigned_crc32 = zlib.crc32(invoice_id.encode('utf8')) & 0xffffffff
 	_log.debug('unsigned crc32: %s', unsigned_crc32)
 	data4adler32 = u'%s---[%s]' % (invoice_id, unsigned_crc32)
 	_log.debug('data for adler32: %s', data4adler32)
-	unsigned_adler32 = zlib.adler32(data4adler32, unsigned_crc32) & 0xffffffff
+	unsigned_adler32 = zlib.adler32(data4adler32.encode('utf8'), unsigned_crc32) & 0xffffffff
 	_log.debug('unsigned (crc32-chained) adler32: %s', unsigned_adler32)
 	cmd = u"SELECT pg_try_advisory_lock(%s)" % (unsigned_adler32)
 	try:
@@ -711,8 +711,8 @@ def lock_invoice_id(invoice_id):
 #------------------------------------------------------------
 def __unlock_invoice_id_1_7_legacy(invoice_id):
 	_log.debug('legacy unlocking invoice ID: %s', invoice_id)
-	signed_crc32 = zlib.crc32(invoice_id)
-	signed_adler32 = zlib.adler32(invoice_id)
+	signed_crc32 = zlib.crc32(invoice_id.encode('utf8'))
+	signed_adler32 = zlib.adler32(invoice_id.encode('utf8'))
 	_log.debug('signed crc32: %s', signed_crc32)
 	_log.debug('signed adler32: %s', signed_adler32)
 	cmd = u"""SELECT pg_advisory_unlock(%s, %s)""" % (signed_crc32, signed_adler32)
@@ -736,11 +736,11 @@ def unlock_invoice_id(invoice_id):
 		return False
 
 	# unlock
-	unsigned_crc32 = zlib.crc32(invoice_id) & 0xffffffff
+	unsigned_crc32 = zlib.crc32(invoice_id.encode('utf8')) & 0xffffffff
 	_log.debug('unsigned crc32: %s', unsigned_crc32)
 	data4adler32 = u'%s---[%s]' % (invoice_id, unsigned_crc32)
 	_log.debug('data for adler32: %s', data4adler32)
-	unsigned_adler32 = zlib.adler32(data4adler32, unsigned_crc32) & 0xffffffff
+	unsigned_adler32 = zlib.adler32(data4adler32.encode('utf8'), unsigned_crc32) & 0xffffffff
 	_log.debug('unsigned (crc32-chained) adler32: %s', unsigned_adler32)
 	cmd = u"SELECT pg_advisory_unlock(%s)" % (unsigned_adler32)
 	try:
@@ -798,7 +798,7 @@ if __name__ == "__main__":
 			print ''
 			print 'classic:', generate_invoice_id(pk_patient = idx)
 			pat = gmPerson.cPerson(idx)
-			template = u'%(firstname).4s%(lastname).4s%(date)s'
+			template = u'üüü---%(firstname).4s%(lastname).4s%(date)s--%(time)s'
 			print 'new: template = "%s" => %s' % (
 				template,
 				generate_invoice_id (
@@ -809,7 +809,7 @@ if __name__ == "__main__":
 					time_format='%H%M%S'
 				)
 			)
-			template = u'%(firstname).4s%(lastname).4s%(date)s-#counter#'
+			template = u'ßßß---%(firstname).4s%(lastname).4s%(date)s-#counter#'
 			new_id = generate_invoice_id (
 				template = template,
 				pk_patient = None,
