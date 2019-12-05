@@ -2446,11 +2446,9 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 		if isinstance(self.__curr_node_data, dict):
 			_log.debug('node data is dict: %s', self.__curr_node_data)
 			try:
-				if self.__curr_node_data['pk_health_issue'] is None:
-					_log.debug('node data dict holds pseudo-issue for unattributed episodes, ignoring')
-				else:
-					issue = gmEMRStructItems.cHealthIssue(aPK_obj = self.__curr_node_data['pk_health_issue'])
+				issue = gmEMRStructItems.cHealthIssue(aPK_obj = self.__curr_node_data['pk_health_issue'])
 			except KeyError:
+				_log.debug('node data dict holds pseudo-issue for unattributed episodes, ignoring')
 				issue = None
 			try:
 				episode = gmEMRStructItems.cEpisode(aPK_obj = self.__curr_node_data['pk_episode'])
