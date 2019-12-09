@@ -5,7 +5,7 @@ Hello all,
 
 I am glad to be able to announce the immediate availability
 of the GNUmed x.x.x Maintenance Release. It features the
-following bug fixes and minor improvements:
+following bug fixes and/or minor improvements:
 
 Changelog:
 
