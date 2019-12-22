@@ -386,6 +386,9 @@ class cVisualSoapPresenterPnl(wxgVisualSoapPresenterPnl.wxgVisualSoapPresenterPn
 	# external API
 	#--------------------------------------------------------
 	def refresh(self, document_folder=None, episodes=None, encounter=None, do_async=False):
+		if not self:
+			# our C/C++ part may be dead already, due to async behaviour
+			return
 
 		if document_folder is None:
 			self.clear()
