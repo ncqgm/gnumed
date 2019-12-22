@@ -149,6 +149,7 @@ def _save_files_as_new_document(**kwargs):
 	except KeyError:
 		pass
 	wx.CallAfter(save_files_as_new_document, **kwargs)
+
 #----------------------
 def save_file_as_new_document(parent=None, filename=None, document_type=None, unlock_patient=False, episode=None, review_as_normal=False, pk_org_unit=None):
 	return save_files_as_new_document (
@@ -169,13 +170,11 @@ def save_files_as_new_document(parent=None, filenames=None, document_type=None, 
 		return None
 
 	emr = pat.emr
-
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
-
+	# FIXME: get connection and use for episode/doc/parts
 	if episode is None:
 		all_epis = emr.get_episodes()
-		# FIXME: what to do here ? probably create dummy episode
 		if len(all_epis) == 0:
 			episode = emr.add_episode(episode_name = _('Documents'), is_open = False)
 		else:
@@ -185,17 +184,14 @@ def save_files_as_new_document(parent=None, filenames=None, document_type=None, 
 			btn_pressed = dlg.ShowModal()
 			episode = dlg.get_selected_item_data(only_one = True)
 			dlg.DestroyLater()
-
 			if (btn_pressed == wx.ID_CANCEL) or (episode is None):
 				if unlock_patient:
 					pat.locked = False
 				return None
 
 	wx.BeginBusyCursor()
-
 	if pk_document_type is None:
 		pk_document_type = gmDocuments.create_document_type(document_type = document_type)['pk_doc_type']
-
 	docs_folder = pat.get_document_folder()
 	doc = docs_folder.add_document (
 		document_type = pk_document_type,
@@ -208,19 +204,13 @@ def save_files_as_new_document(parent=None, filenames=None, document_type=None, 
 			aMessage = _('Cannot create new document.'),
 			aTitle = _('saving document')
 		)
-		return False
+		return None
 
-	if reference is not None:
-		doc['ext_ref'] = reference
-	if pk_org_unit is not None:
-		doc['pk_org_unit'] = pk_org_unit
-	if date_generated is not None:
-		doc['clin_when'] = date_generated
-	if comment is not None:
-		if comment != '':
-			doc['comment'] = comment
+	doc['ext_ref'] = reference
+	doc['pk_org_unit'] = pk_org_unit
+	doc['clin_when'] = date_generated
+	doc['comment'] = gmTools.none_if(value = comment, none_equivalent = '', strip_string = True)
 	doc.save()
-
 	success, msg, filename = doc.add_parts_from_files(files = filenames, reviewer = reviewer)
 	if not success:
 		wx.EndBusyCursor()
@@ -228,17 +218,14 @@ def save_files_as_new_document(parent=None, filenames=None, document_type=None, 
 			aMessage = msg,
 			aTitle = _('saving document')
 		)
-		return False
+		return None
 
 	if review_as_normal:
 		doc.set_reviewed(technically_abnormal = False, clinically_relevant = False)
-
 	if unlock_patient:
 		pat.locked = False
-
-	gmDispatcher.send(signal = 'statustext', msg = _('Imported new document from %s.') % filenames, beep = True)
-
 	# inform user
+	gmDispatcher.send(signal = 'statustext', msg = _('Imported new document from %s.') % filenames, beep = True)
 	cfg = gmCfg.cCfgSQL()
 	show_id = bool (
 		cfg.get2 (
@@ -247,9 +234,7 @@ def save_files_as_new_document(parent=None, filenames=None, document_type=None, 
 			bias = 'user'
 		)
 	)
-
 	wx.EndBusyCursor()
-
 	if not show_id:
 		gmDispatcher.send(signal = 'statustext', msg = _('Successfully saved new document.'))
 	else:
@@ -270,7 +255,6 @@ def save_files_as_new_document(parent=None, filenames=None, document_type=None, 
 			aMessage = msg,
 			aTitle = _('Saving document')
 		)
-
 	# remove non-temp files
 	tmp_dir = gmTools.gmPaths().tmp_dir
 	files2remove = [ f for f in filenames if not f.startswith(tmp_dir) ]
@@ -1104,6 +1088,15 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 				)
 				return False
 
+		if self._LCTRL_doc_pages.ItemCount > 0:
+			for fname in [ data[0] for data in self._LCTRL_doc_pages.data ]:
+				try:
+					open(fname, 'rb').close()
+				except OSError:
+					_log.exception('cannot access [%s]', fname)
+					gmGuiHelpers.gm_show_error(title = title, error = _('Cannot access document part file:\n\n %s') % fname)
+					return False
+
 		doc_type_pk = self._PhWheel_doc_type.GetData(can_create = True)
 		if doc_type_pk is None:
 			gmGuiHelpers.gm_show_error (
@@ -1231,7 +1224,6 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 
 	#--------------------------------------------------------
 	def _load_btn_pressed(self, evt):
-		# patient file chooser
 		dlg = wx.FileDialog (
 			parent = None,
 			message = _('Choose a file'),

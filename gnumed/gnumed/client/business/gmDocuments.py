@@ -356,13 +356,10 @@ ORDER BY
 			_log.error('[%s] is not a readable file' % fname)
 			return False
 
-		if not gmPG2.file2bytea (
-			conn = link_obj,
-			query = "UPDATE blobs.doc_obj SET data = %(data)s::bytea WHERE pk = %(pk)s RETURNING md5(data) AS md5",
-			filename = fname,
-			args = {'pk': self.pk_obj},
-			file_md5 = gmTools.file2md5(filename = fname, return_hex = True)
-		):
+		cmd = "UPDATE blobs.doc_obj SET data = %(data)s::BYTEA WHERE pk = %(pk)s RETURNING md5(data) AS md5"
+		args = {'pk': self.pk_obj}
+		md5 = gmTools.file2md5(filename = fname, return_hex = True)
+		if not gmPG2.file2bytea(conn = link_obj, query = cmd, filename = fname, args = args, file_md5 = md5):
 			return False
 
 		# must update XMIN now ...

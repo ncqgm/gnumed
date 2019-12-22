@@ -57,6 +57,7 @@ FIX: export area: saving document part entries
 FIX: lab: grid display row tooltips
 FIX: lists: context menu CSV export
 FIX: EMR/tree: selection of pseudo issue node
+FIX: documents/new: error handling of unreadable parts
 
 ------------------------------------------------
 # rel-1-7-patches
