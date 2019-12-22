@@ -942,12 +942,14 @@ def none_if(value=None, none_equivalent=None, strip_string=False):
 	"""Modelled after the SQL NULLIF function."""
 	if value is None:
 		return None
+
 	if strip_string:
 		stripped = value.strip()
 	else:
 		stripped = value
 	if stripped == none_equivalent:
 		return None
+
 	return value
 
 #---------------------------------------------------------------------------
@@ -1614,33 +1616,52 @@ def format_dict_like(d, relevant_keys=None, template=None, missing_key_template=
 
 #---------------------------------------------------------------------------
 def dicts2table(dict_list, left_margin=0, eol='\n', keys2ignore=None, headers=None, show_only_changes=False, equality_value='<=>', date_format=None):	#, relevant_keys=None, template=None
+	"""Each dict in <dict_list> becomes a column."""
 
 	keys2show = []
-	dict_max_size = {}
+	col_max_size = {}
 	max_row_label_size = 0
+	header_key = '__________#header#__________'
 	if keys2ignore is None:
 		keys2ignore = []
+	if headers is not None:
+		keys2ignore.append(header_key)
 
-	# extract keys from all dicts
-	for d in dict_list:
-		dict_max_size[id(d)] = 0
+	# extract keys from all dicts and calculate column sizes
+	for dict_idx in range(len(dict_list)):
+		d = dict(dict_list[dict_idx])
+		if headers is not None:
+			d[header_key] = headers[dict_idx]
+		col_max_size[dict_idx] = 0
 		for key in d.keys():
 			if key in keys2ignore:
 				continue
-			dict_max_size[id(d)] = max(dict_max_size[id(d)], len('%s' % d[key]))
+			if isinstance(d[key], pydt.datetime):
+				if date_format is None:
+					val = '%s' % d[key]
+				else:
+					val = d[key].strftime(date_format)
+			else:
+				val = '%s' % d[key]
+			col_max_size[dict_idx] = max(col_max_size[dict_idx], len(val))
+			print('col', dict_idx, 'key', key, 'value', d[key], 'len', len(val), 'max_len', col_max_size[dict_idx])
 			if key in keys2show:
 				continue
 			keys2show.append(key)
 			max_row_label_size = max(max_row_label_size, len('%s' % key))
 
+	for col in range(len(col_max_size)):
+		print(col, col_max_size[col])
+
 	# pivot data into dict of lists per line
 	lines = { k: [] for k in keys2show }
 	prev_vals = {}
-	for d in dict_list:
+	for dict_idx in range(len(dict_list)):
+		d = dict_list[dict_idx]
 		if show_only_changes:
-			max_size = max(dict_max_size[id(d)], len(equality_value))
+			max_size = max(col_max_size[dict_idx], len(equality_value))
 		else:
-			max_size = dict_max_size[id(d)]
+			max_size = col_max_size[dict_idx]
 		max_len_str = '%s.%s' % (max_size, max_size)
 		field_template = ' %' + max_len_str + 's'
 		for key in keys2show:
@@ -1675,7 +1696,7 @@ def dicts2table(dict_list, left_margin=0, eol='\n', keys2ignore=None, headers=No
 	if headers is not None:
 		header_line1 = (' ' * left_margin) + row_label_template % ''
 		header_line2 = (' ' * left_margin) + u_box_horiz_single * (max_row_label_size)
-		header_sizes = [ max(dict_max_size[dict_id], len(equality_value)) for dict_id in dict_max_size ]
+		header_sizes = [ max(col_max_size[dict_idx], len(equality_value)) for dict_idx in range(len(dict_list)) ]
 		for idx in range(len(headers)):
 			max_len_str = '%s.%s' % (header_sizes[idx], header_sizes[idx])
 			header_template = '%' + max_len_str + 's'
@@ -2408,12 +2429,12 @@ second line\n
 	#-----------------------------------------------------------------------
 	def test_make_table_from_dicts():
 		dicts = [
-			{'pkey': 1, 'value': 'a1'},
-			{'pkey': 2, 'value': 'b2'},
+			{'pkey': 1, 'value': 'a122'},
+			{'pkey': 2, 'value': 'b23'},
 			{'pkey': 3, 'value': 'c3'},
-			{'pkey': 4, 'value': 'd4'},
-			{'pkey': 5, 'value': 'd4'},
-			{'pkey': 5, 'value': 'c5'},
+			{'pkey': 4, 'value': 'd4ssssssssssss'},
+			{'pkey': 5, 'value': 'd4  asdfas '},
+			{'pkey': 5, 'value': 'c5---'},
 		]
 		with open('x.txt', 'w', encoding = 'utf8') as f:
 			f.write(dicts2table(dicts, left_margin=2, eol='\n', keys2ignore=None, show_only_changes=True, headers = ['d1', 'd2', 'd3', 'd4', 'd5', 'd6']))
@@ -2459,7 +2480,7 @@ second line\n
 	#test_enumerate_optical_writers()
 	#test_copy_tree_content()
 	#test_mk_sandbox_dir()
-	#test_make_table_from_dicts()
-	test_decorate_window_title()
+	test_make_table_from_dicts()
+	#test_decorate_window_title()
 
 #===========================================================================
