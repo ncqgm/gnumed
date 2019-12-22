@@ -1,5 +1,9 @@
 
-gnumed-announce@gnu.org, gnumed-update@gnu.org, gnumed-devel@gnu.org
+gnumed-devel@gnu.org
+
+gnumed-announce@gnu.org, gnumed-update@gnu.org
+
+
 
 Hello all,
 
@@ -9,8 +13,8 @@ of the GNUmed xx.x.x Feature Release.
 
 Downloads available from:
 
-	http://www.gnumed.de/downloads/client/xx.x/
-	http://www.gnumed.de/downloads/server/vxx/
+	https://www.gnumed.de/downloads/client/xx.x/
+	https://www.gnumed.de/downloads/server/vxx/
 
 
 Client installation:
@@ -21,13 +25,13 @@ Client installation:
  Meanwhile you can run the client from a downloaded tarball
  or use the net based client installer:
 
-	http://www.gnumed.de/downloads/client/gm-install_client_locally.sh
+	https://www.gnumed.de/downloads/client/gm-install_client_locally.sh
 
  which you need to download, make executable, and run.
 
  More information available here:
 
-	http://wiki.gnumed.de/bin/view/Gnumed/InstallerGuideHomeShort
+	https://wiki.gnumed.de/bin/view/Gnumed/InstallerGuideHomeShort
 
 
 Database upgrade (existing DB):
@@ -49,13 +53,13 @@ Database upgrade (existing DB):
 
  Alternatively, you may consider useingthe network upgrader:
 
-	http://www.gnumed.de/downloads/server/net_upgrade-gnumed_server.sh
+	https://www.gnumed.de/downloads/server/net_upgrade-gnumed_server.sh
 
  (which you would need to download, make executable and run)
 
  More information on upgrading is found here:
 
-	http://wiki.gnumed.de/bin/view/Gnumed/GmManualServerUpgrade
+	https://wiki.gnumed.de/bin/view/Gnumed/GmManualServerUpgrade
 
 
 Database installation (new DB):
@@ -78,11 +82,11 @@ Database installation (new DB):
 
  or, again, the network based installer:
 
-	http://www.gnumed.de/downloads/server/net_install-gnumed_server.sh
+	https://www.gnumed.de/downloads/server/net_install-gnumed_server.sh
 
  More information on installation is found here:
 
-	http://wiki.gnumed.de/bin/view/Gnumed/GmManualServerInstall
+	https://wiki.gnumed.de/bin/view/Gnumed/GmManualServerInstall
 
 
 Changelog:
