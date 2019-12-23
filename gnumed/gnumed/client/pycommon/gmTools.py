@@ -623,9 +623,7 @@ def remove_file(filename, log_error=True, force=False):
 def file2md5(filename=None, return_hex=True):
 	blocksize = 2**10 * 128			# 128k, since md5 uses 128 byte blocks
 	_log.debug('md5(%s): <%s> byte blocks', filename, blocksize)
-
 	f = io.open(filename, mode = 'rb')
-
 	md5 = hashlib.md5()
 	while True:
 		data = f.read(blocksize)
@@ -633,11 +631,10 @@ def file2md5(filename=None, return_hex=True):
 			break
 		md5.update(data)
 	f.close()
-
 	_log.debug('md5(%s): %s', filename, md5.hexdigest())
-
 	if return_hex:
 		return md5.hexdigest()
+
 	return md5.digest()
 
 #---------------------------------------------------------------------------

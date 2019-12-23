@@ -1168,35 +1168,6 @@ def row_is_locked(table=None, pk=None):
 #------------------------------------------------------------------------
 # BYTEA cache handling
 #------------------------------------------------------------------------
-#_BYTEA_CACHE_SUBDIR = None
-#
-#def __get_bytea_cache_dir():
-#	"""Get, and create if necessary, the BYTEA cache directory.
-#
-#	The BYTEA cache needs to be tied to the database login
-#	because different logins might have access to different
-#	data even with the same query.
-#	"""
-#	global _BYTEA_CACHE_SUBDIR
-#	if _BYTEA_CACHE_SUBDIR is not None:
-#		return _BYTEA_CACHE_SUBDIR
-#
-#	subdir_key = '%s::%s::%s::%s' % (
-#		_default_login.host,
-#		_default_login.port,
-#		_default_login.database,
-#		_default_login.user
-#	)
-#	md5 = hashlib.md5()
-#	md5.update(subdir_key.encode('utf8'))
-#	md5_sum = md5.hexdigest()
-#	subdir = os.path.join(gmTools.gmPaths().bytea_cache_dir, md5_sum)
-#	gmTools.mkdir(subdir, 0o700)
-#	_log.info('BYTEA cache dir for [%s]: %s', subdir_key, subdir)
-#	_BYTEA_CACHE_SUBDIR = subdir
-#	return _BYTEA_CACHE_SUBDIR
-#
-#------------------------------------------------------------------------
 def __generate_cached_filename(cache_key_data):
 	md5 = hashlib.md5()
 	md5.update(('%s' % cache_key_data).encode('utf8'))
@@ -1238,19 +1209,24 @@ def __get_filename_in_cache(cache_key_data=None, data_size=None):
 		stat = os.stat(cached_name)
 	except FileNotFoundError:
 		return None
+
 	_log.debug('cache hit: [%s] -> [%s] (%s)', cache_key_data, cached_name, stat)
 	if os.path.islink(cached_name) or (not os.path.isfile(cached_name)):
 		_log.error('object in cache is not a regular file: %s', cached_name)
 		_log.error('possibly an attack, removing')
 		if gmTools.remove_file(cached_name, log_error = True):
 			return None
+
 		raise Exception('cannot delete suspicious object in cache dir: %s', cached_name)
+
 	if stat.st_size == data_size:
 		return cached_name
+
 	_log.debug('size in cache [%s] <> expected size [%s], removing cached file', stat.st_size, data_size)
 	if gmTools.remove_file(cached_name, log_error = True):
 		return None
-	raise Exception('cannot remove suspicous object from cache dir: %s', cached_name)
+
+	raise Exception('cannot remove suspicious object from cache dir: %s', cached_name)
 
 #------------------------------------------------------------------------
 def __get_file_from_cache(filename, cache_key_data=None, data_size=None, link2cached=True):
@@ -1258,6 +1234,7 @@ def __get_file_from_cache(filename, cache_key_data=None, data_size=None, link2ca
 	cached_filename = __get_filename_in_cache(cache_key_data = cache_key_data, data_size = data_size)
 	if cached_filename is None:
 		return False
+
 	if link2cached:
 		try:
 			# (hard)link as desired name, quite a few security
@@ -1265,13 +1242,14 @@ def __get_file_from_cache(filename, cache_key_data=None, data_size=None, link2ca
 			os.link(cached_filename, filename)
 			_log.debug('hardlinked [%s] as [%s]', cached_filename, filename)
 			return True
+
 		except Exception:
 			pass
-		_log.debug('cannot hardlink to cache, trying copy-from-cache')
-	# copy from cache
+	_log.debug('cannot hardlink to cache, trying copy-from-cache')
 	try:
 		shutil.copyfile(cached_filename, filename, follow_symlinks = True)
 		return True
+
 	except shutil.SameFileError:
 		# flaky - might be same name but different content
 		pass
@@ -1307,6 +1285,7 @@ def bytea2file(data_query=None, filename=None, chunk_size=0, data_size=None, dat
 	)
 	found_in_cache = __get_file_from_cache(filename, cache_key_data = cache_key_data, data_size = data_size, link2cached = link2cached)
 	if found_in_cache:
+		# FIXME: start thread checking cache staleness on file
 		return True
 
 	outfile = io.open(filename, 'wb')
@@ -1374,7 +1353,7 @@ def bytea2file_object(data_query=None, file_obj=None, chunk_size=0, data_size=No
 	# anyways, we need to split the transfer,
 	# however, only possible if postgres >= 7.2
 	needed_chunks, remainder = divmod(data_size, chunk_size)
-	_log.debug('# of chunks: %s; remainder: %s bytes', needed_chunks, remainder)
+	_log.debug('%s chunk(s), %s byte(s) remainder', needed_chunks, remainder)
 
 	# retrieve chunks, skipped if data size < chunk size,
 	# does this not carry the danger of cutting up multi-byte escape sequences ?
@@ -1417,18 +1396,29 @@ def file2bytea(query=None, filename=None, args=None, conn=None, file_md5=None):
 	"""Store data from a file into a bytea field.
 
 	The query must:
-	- be in unicode
 	- contain a format spec identifying the row (eg a primary key)
 	  matching <args> if it is an UPDATE
 	- contain a format spec " <field> = %(data)s::bytea"
 
 	The query CAN return the MD5 of the inserted data:
 		RETURNING md5(<field>) AS md5
-	in which case it will compare it to the md5
-	of the file.
+	in which case the returned hash will compared to the md5 of the file.
 	"""
-	# read data from file
-	infile = open(filename, "rb")
+	retry_delay = 100		# milliseconds
+	attempt = 0
+	max_attempts = 3
+	while attempt < max_attempts:
+		attempt += 1
+		try:
+			infile = open(filename, "rb")
+		except (BlockingIOError, FileNotFoundError, PermissionError):
+			_log.exception('#%s: cannot open [%s]', attempt, filename)
+			_log.error('retrying after %sms', retry_delay)
+			infile = None
+			time.sleep(retry_delay / 1000)
+	if infile is None:
+		return False
+
 	data_as_byte_string = infile.read()
 	infile.close()
 	if args is None:
@@ -1436,16 +1426,13 @@ def file2bytea(query=None, filename=None, args=None, conn=None, file_md5=None):
 	# really still needed for BYTEA input ?
 	args['data'] = memoryview(data_as_byte_string)
 	del(data_as_byte_string)
-
 	# insert the data
 	if conn is None:
 		conn = get_raw_connection(readonly = False)
 		close_conn = True
 	else:
 		close_conn = False
-
 	rows, idx = run_rw_queries(link_obj = conn, queries = [{'cmd': query, 'args': args}], end_tx = False, return_data = (file_md5 is not None))
-
 	success_status = True
 	if file_md5 is None:
 		conn.commit()
@@ -1458,10 +1445,8 @@ def file2bytea(query=None, filename=None, args=None, conn=None, file_md5=None):
 		else:
 			conn.commit()
 			_log.debug('MD5 sums of data file and database BYTEA field match: [file::%s] = [DB::%s]', file_md5, db_md5)
-
 	if close_conn:
 		conn.close()
-
 	return success_status
 
 #------------------------------------------------------------------------
@@ -2806,7 +2791,8 @@ if __name__ == "__main__":
 		])
 
 		try:
-			file2bytea(query = 'insert into test_bytea values (%(data)s::bytea) returning md5(data) as md5', filename = sys.argv[2], file_md5 = file2md5(sys.argv[2], True))
+			#file2bytea(query = 'insert into test_bytea values (%(data)s::bytea) returning md5(data) as md5', filename = sys.argv[2], file_md5 = file2md5(sys.argv[2], True))
+			file2bytea(query = 'insert into test_bytea values (%(data)s::bytea)', filename = sys.argv[2])
 		except Exception:
 			_log.exception('error')
 
@@ -3298,7 +3284,7 @@ SELECT to_timestamp (foofoo,'YYMMDD.HH24MI') FROM (
 	# run tests
 	#test_get_connection()
 	#test_exceptions()
-	test_ro_queries()
+	#test_ro_queries()
 	#test_request_dsn()
 	#test_set_encoding()
 	#test_connection_pool()
@@ -3315,7 +3301,7 @@ SELECT to_timestamp (foofoo,'YYMMDD.HH24MI') FROM (
 	#test_schema_exists()
 	#test_get_foreign_key_names()
 	#test_row_locks()
-	#test_file2bytea()
+	test_file2bytea()
 	#test_file2bytea_overlay()
 	#test_file2bytea_copy_from()
 	#test_file2bytea_lo()
