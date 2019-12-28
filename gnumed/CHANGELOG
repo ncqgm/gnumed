@@ -27,6 +27,7 @@ NEW: dicomize images/PDF into DICOM study
 NEW: [Abort] client from exception dialog
 NEW: edit clinical item from EMR list journal
 NEW: dist: add PortableApp XML skeleton
+NEW: placeholder: $most_recent_test_results$
 
 IMPROVED: symbolic link creation on Windows
 IMPROVED: Orthanc connection handling
