@@ -357,43 +357,55 @@ def edit_measurement(parent=None, measurement=None, single_entry=False, fields=N
 	if dlg.ShowModal() == wx.ID_OK:
 		dlg.Destroy()
 		return True
+
 	dlg.Destroy()
 	return False
 
 #----------------------------------------------------------------
-def manage_measurements(parent=None, single_selection=False, emr=None):
+def manage_measurements(parent=None, single_selection=False, emr=None, measurements2manage=None, message=None):
 
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
 
 	if emr is None:
-		emr = gmPerson.gmCurrentPatient().emr
+		if measurements2manage is None:
+			emr = gmPerson.gmCurrentPatient().emr
 
 	#------------------------------------------------------------
 	def edit(measurement=None):
 		return edit_measurement(parent = parent, measurement = measurement, single_entry = True)
+
 	#------------------------------------------------------------
 	def delete(measurement):
 		gmPathLab.delete_test_result(result = measurement)
 		return True
+
 	#------------------------------------------------------------
 	def do_review(lctrl):
 		data = lctrl.get_selected_item_data()
 		if len(data) == 0:
 			return
+
 		return review_tests(parent = parent, tests = data)
+
 	#------------------------------------------------------------
 	def do_plot(lctrl):
 		data = lctrl.get_selected_item_data()
 		if len(data) == 0:
 			return
+
 		return plot_measurements(parent = parent, tests = data)
+
 	#------------------------------------------------------------
 	def get_tooltip(measurement):
 		return measurement.format(with_review=True, with_evaluation=True, with_ranges=True)
+
 	#------------------------------------------------------------
 	def refresh(lctrl):
-		results = emr.get_test_results(order_by = 'clin_when DESC, unified_abbrev, unified_name')
+		if measurements2manage is None:
+			results = emr.get_test_results(order_by = 'clin_when DESC, unified_abbrev, unified_name')
+		else:
+			results = measurements2manage
 		items = [ [
 			gmDateTime.pydt_strftime (
 				r['clin_when'],
@@ -412,18 +424,6 @@ def manage_measurements(parent=None, single_selection=False, emr=None):
 				gmTools.coalesce(r['abnormality_indicator'], u'', u' %s')
 			),
 			r['unified_name'],
-#			u'%s%s' % (
-#				gmTools.bool2subst (
-#					boolean = not r['reviewed'],
-#					true_return = _('no review at all'),
-#					false_return = gmTools.bool2subst (
-#						boolean = (r['you_are_responsible'] and not r['review_by_you']),
-#						true_return = _('no review by you (you are responsible)'),
-#						false_return = _('reviewed')
-#					)
-#				),
-#				gmTools.coalesce(r['comment'], u'', u' / %s')
-#			),
 			gmTools.coalesce(r['comment'], u''),
 			r['pk_test_result']
 		] for r in results ]
@@ -431,11 +431,11 @@ def manage_measurements(parent=None, single_selection=False, emr=None):
 		lctrl.set_data(results)
 
 	#------------------------------------------------------------
-	msg = _('Test results (ordered reverse-chronologically)')
+	#msg = _('Test results (ordered reverse-chronologically)')
 
 	return gmListWidgets.get_choices_from_list (
 		parent = parent,
-		msg = msg,
+		msg = message,
 		caption = _('Showing test results.'),
 		columns = [ _('When'), _('Abbrev'), _('Value'), _('Name'), _('Comment'), u'#' ],
 		single_selection = single_selection,
