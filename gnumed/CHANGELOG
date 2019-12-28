@@ -6,6 +6,10 @@
 # rel-1-7-patches
 ------------------------------------------------
 
+	1.7.10
+
+NEW: paperwork: template: most recent lab
+
 	1.7.9
 
 FIX: billing: invoice ID generation [thanks Marc]
