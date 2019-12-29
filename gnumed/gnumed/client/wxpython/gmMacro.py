@@ -2311,7 +2311,8 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		most_recent = gmPathLab.get_most_recent_result_for_test_types (
 			pk_test_types = None,			# we want most recent results for *all* tests
 			pk_patient = self.pat.ID,
-			consider_meta_type = True
+			consider_meta_type = True,
+			order_by = 'unified_name'
 		)
 		if len(most_recent) == 0:
 			if self.debug:
