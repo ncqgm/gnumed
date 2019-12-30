@@ -30,10 +30,14 @@ from Gnumed.wxpython import gmEditArea
 
 _log = logging.getLogger('gm.auto_hints')
 
+_log.error('with logging for hang on docs/bills import')
+
 #================================================================
 def _display_clinical_reminders():
 
+	_log.debug('before getting current pat')
 	pat = gmPerson.gmCurrentPatient()
+	_log.debug('before checking current pat for being connected')
 	if not pat.connected:
 		return
 
