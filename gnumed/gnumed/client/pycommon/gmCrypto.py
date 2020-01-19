@@ -25,6 +25,7 @@ if __name__ == '__main__':
 from Gnumed.pycommon import gmLog2
 from Gnumed.pycommon import gmShellAPI
 from Gnumed.pycommon import gmTools
+from Gnumed.pycommon import gmMimeLib
 
 
 _log = logging.getLogger('gm.encryption')
@@ -396,8 +397,8 @@ def encrypt_pdf(filename=None, passphrase=None, verbose=False):
 	if len(passphrase) < 5:
 		_log.error('<passphrase> must be at least 5 characters/signs/digits')
 		return None
-	gmLog2.add_word2hide(passphrase)
 
+	gmLog2.add_word2hide(passphrase)
 	_log.debug('attempting PDF encryption')
 	for cmd in ['qpdf', 'qpdf.exe']:
 		found, binary = gmShellAPI.detect_external_binary(binary = cmd)
@@ -421,37 +422,74 @@ def encrypt_pdf(filename=None, passphrase=None, verbose=False):
 	success, exit_code, stdout = gmShellAPI.run_process(cmd_line = args, encoding = 'utf8', verbose = verbose)
 	if success:
 		return filename_encrypted
+
 	return None
 
 #---------------------------------------------------------------------------
-def encrypt_file_symmetric(filename=None, passphrase=None, comment=None, verbose=False, remove_unencrypted=False):
+def encrypt_file_symmetric(filename=None, passphrase=None, comment=None, verbose=False, remove_unencrypted=False, prefer_pdf=False):
+	"""Encrypt <filename> with a symmetric cipher.
+
+	<prefer_pdf> - True: convert <filename> to PDF, if possible, and encrypt that.
+	"""
 	assert (filename is not None), '<filename> must not be None'
 
-	# pdf ?
-	enc_filename = encrypt_pdf(filename = filename, passphrase = passphrase, verbose = verbose)
-	if enc_filename is not None:
-		return enc_filename
+	if prefer_pdf:
+		_log.debug('PDF encryption preferred, attempting conversion if needed')
+		pdf_fname = gmMimeLib.convert_file (
+			filename = filename,
+			target_mime = 'application/pdf',
+			target_filename = filename + '.pdf',
+			verbose = verbose
+		)
+		if pdf_fname is not None:
+			_log.debug('successfully converted to PDF')
+			# remove non-pdf file
+			gmTools.remove_file(filename)
+			filename = pdf_fname
+
+	# try PDF-inherent AES
+	encrypted_filename = encrypt_pdf(filename = filename, passphrase = passphrase, verbose = verbose)
+	if encrypted_filename is not None:
+		return encrypted_filename
+
 	# try 7z based AES
-	enc_filename = aes_encrypt_file(filename = filename, passphrase = passphrase, comment = comment, verbose = verbose, remove_unencrypted = remove_unencrypted)
-	if enc_filename is not None:
-		return enc_filename
-	# try GPG based
+	encrypted_filename = aes_encrypt_file(filename = filename, passphrase = passphrase, comment = comment, verbose = verbose, remove_unencrypted = remove_unencrypted)
+	if encrypted_filename is not None:
+		return encrypted_filename
+
+	# try GPG based AES
 	return gpg_encrypt_file_symmetric(filename = filename, passphrase = passphrase, comment = comment, verbose = verbose, remove_unencrypted = remove_unencrypted)
 
 #---------------------------------------------------------------------------
-def encrypt_file(filename=None, receiver_key_ids=None, passphrase=None, comment=None, verbose=False, remove_unencrypted=False):
+def encrypt_file(filename=None, receiver_key_ids=None, passphrase=None, comment=None, verbose=False, remove_unencrypted=False, prefer_pdf=False):
+	"""Encrypt an arbitrary file.
+
+	<remove_unencrypted>
+		True: remove unencrypted source file if encryption succeeded
+	<prefer_pdf>
+		True: attempt conversion to PDF of input file before encryption
+			success: the PDF is encrypted (and the non-PDF source file is removed)
+			failure: the source file is encrypted
+	"""
 	assert (filename is not None), '<filename> must not be None'
 
 	# cannot do asymmetric
 	if receiver_key_ids is None:
 		_log.debug('no receiver key IDs: cannot try asymmetric encryption')
-		return encrypt_file_symmetric(filename = filename, passphrase = passphrase, comment = comment, verbose = verbose, remove_unencrypted = remove_unencrypted)
+		return encrypt_file_symmetric (
+			filename = filename,
+			passphrase = passphrase,
+			comment = comment,
+			verbose = verbose,
+			remove_unencrypted = remove_unencrypted,
+			prefer_pdf = prefer_pdf
+		)
 
 	# asymmetric not implemented yet
 	return None
 
 #---------------------------------------------------------------------------
-def encrypt_directory_content(directory=None, receiver_key_ids=None, passphrase=None, comment=None, verbose=False, remove_unencrypted=True):
+def encrypt_directory_content(directory=None, receiver_key_ids=None, passphrase=None, comment=None, verbose=False, remove_unencrypted=True, prefer_pdf=False):
 	assert (directory is not None), 'source <directory> must not be None'
 	_log.debug('encrypting content of [%s]', directory)
 	try:
@@ -479,7 +517,8 @@ def encrypt_directory_content(directory=None, receiver_key_ids=None, passphrase=
 			passphrase = passphrase,
 			comment = comment,
 			verbose = verbose,
-			remove_unencrypted = remove_unencrypted
+			remove_unencrypted = remove_unencrypted,
+			prefer_pdf = prefer_pdf
 		)
 		if fname_encrypted is None:
 			return False
@@ -521,7 +560,7 @@ if __name__ == '__main__':
 
 	#-----------------------------------------------------------------------
 	def test_encrypt_file():
-		print(encrypt_file(filename = sys.argv[2], passphrase = sys.argv[3], verbose = True))
+		print(encrypt_file(filename = sys.argv[2], passphrase = sys.argv[3], verbose = True, prefer_pdf = True))
 
 	#-----------------------------------------------------------------------
 	def test_zip_archive_from_dir():
@@ -546,9 +585,9 @@ if __name__ == '__main__':
 	#-----------------------------------------------------------------------
 	# encryption
 	#test_aes_encrypt()
-	test_encrypt_pdf()
+	#test_encrypt_pdf()
 	#test_gpg_encrypt_symmetric()
-	#test_encrypt_file()
+	test_encrypt_file()
 
 	# decryption
 	#test_gpg_decrypt()

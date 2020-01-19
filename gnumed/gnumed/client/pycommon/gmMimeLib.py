@@ -37,9 +37,7 @@ def guess_mimetype(filename=None):
 	filenames are supposed to be in Unicode
 	"""
 	worst_case = "application/octet-stream"
-
 	_log.debug('guessing mime type of [%s]', filename)
-
 	# 1) use Python libextractor
 	try:
 		import extractor
@@ -57,7 +55,6 @@ def guess_mimetype(filename=None):
 		_log.exception('module <extractor> (python wrapper for libextractor) not installed')
 
 	ret_code = -1
-
 	# 2) use "file" system command
 	#    -i get mime type
 	#    -b don't display a header
@@ -101,7 +98,6 @@ def guess_mimetype(filename=None):
 	import gmMimeMagic
 	mime_type = gmTools.coalesce(gmMimeMagic.filedesc(filename), worst_case)
 	del gmMimeMagic
-
 	_log.debug('"%s" -> <%s>' % (filename, mime_type))
 	return mime_type
 

@@ -597,7 +597,7 @@ def remove_file(filename, log_error=True, force=False):
 	if not os.path.lexists(filename):
 		return True
 
-	# attempt file remove and ignore (but log) errors
+	# attempt file removal and ignore (but log) errors
 	try:
 		os.remove(filename)
 		return True
