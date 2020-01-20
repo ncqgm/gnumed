@@ -143,22 +143,44 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 		return True
 
 	#--------------------------------------------------------
-	def save_to_file(self, aChunkSize=0, filename=None, directory=None, passphrase=None):
-
+	def save_to_file(self, aChunkSize=0, filename=None, directory=None, passphrase=None, convert2pdf=False):
 		# data linked from archive ?
-		part_fname = self.__save_doc_obj(filename = filename, directory = directory, passphrase = passphrase)
+		part_fname = self.__save_doc_obj(filename = filename, directory = directory)
 		if part_fname is False:
 			return None
+
 		if part_fname is not None:
-			return part_fname
+			if passphrase is None:
+				return part_fname
+
+			enc_filename = gmCrypto.encrypt_file (
+				filename = part_fname,
+				passphrase = passphrase,
+				verbose = _cfg.get(option = 'debug'),
+				remove_unencrypted = True,
+				convert2pdf = convert2pdf
+			)
+			removed = gmTools.remove_file(part_fname)
+			if enc_filename is None:
+				_log.error('cannot encrypt')
+				return None
+
+			if removed:
+				return enc_filename
+
+			_log.error('cannot remove unencrypted file')
+			gmTools.remove(enc_filename)
+			return None
 
 		# valid DIRENTRY ?
 		if self.is_valid_DIRENTRY:
 			target_dir = self.__save_direntry(directory, passphrase = passphrase)
 			if target_dir is False:
 				return None
+
 			if target_dir is not None:
 				return target_dir
+
 		# but still a DIRENTRY ?
 		if self.is_DIRENTRY:
 			# yes, but not valid (other machine, local dir not found)
@@ -188,14 +210,17 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 			filename = filename,
 			passphrase = passphrase,
 			verbose = _cfg.get(option = 'debug'),
-			remove_unencrypted = True
+			remove_unencrypted = True,
+			convert2pdf = convert2pdf
 		)
 		removed = gmTools.remove_file(filename)
 		if enc_filename is None:
 			_log.error('cannot encrypt')
 			return None
+
 		if removed:
 			return enc_filename
+
 		_log.error('cannot remove unencrypted file')
 		gmTools.remove(enc_filename)
 		return None
@@ -853,11 +878,12 @@ class cExportArea(object):
 		return delete_export_item(pk_export_item = item['pk_export_item'])
 
 	#--------------------------------------------------------
-	def dump_items_to_disk(self, base_dir=None, items=None, passphrase=None):
+	def dump_items_to_disk(self, base_dir=None, items=None, passphrase=None, convert2pdf=False):
 		if items is None:
 			items = self.items
 		if len(items) == 0:
 			return None
+
 		if base_dir is None:
 			from Gnumed.business.gmPerson import cPatient
 			pat = cPatient(aPK_obj = self.__pk_identity)
@@ -865,8 +891,9 @@ class cExportArea(object):
 		gmTools.mkdir(base_dir)
 		_log.debug('dumping export items to: %s', base_dir)
 		for item in items:
-			if item.save_to_file(directory = base_dir, passphrase = passphrase) is None:
+			if item.save_to_file(directory = base_dir, passphrase = passphrase, convert2pdf = convert2pdf) is None:
 				return None
+
 		return base_dir
 
 	#--------------------------------------------------------
@@ -1370,23 +1397,6 @@ class cExportArea(object):
 		# max 32 chars, supposedly ASCII, but CP1252 likely works pretty well
 		label = (('%s %s%s%s' % (last, first, dob,	gender)).strip())[:32]
 		return label
-
-	#--------------------------------------------------------
-	def __encrypt_file(self, filename, passphrase=None):
-		if passphrase is None:
-			return filename
-		enc_filename = gmCrypto.encrypt_file (
-			filename = filename,
-			passphrase = passphrase,
-			verbose = _cfg.get(option = 'debug')
-		)
-		if enc_filename is None:
-			_log.error('cannot encrypt')
-			return None
-		if not gmTools.remove_file(filename, log_error = True, force = True):
-			_log.error('cannot remove unencrypted file')
-			return None
-		return enc_filename
 
 	#--------------------------------------------------------
 	# properties
