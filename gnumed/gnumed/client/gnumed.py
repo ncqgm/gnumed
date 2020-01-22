@@ -130,7 +130,8 @@ _known_ui_types = [
 
 _known_tools = [
 	'check_enc_epi_xref',
-	'export_pat_emr_structure'
+	'export_pat_emr_structure',
+	'check_mimetypes_in_archive'
 ]
 
 
@@ -709,6 +710,10 @@ def run_tool():
 	print('Running tool: %s' % tool)
 	print('----------------------------------------------')
 	print('')
+
+	if tool == 'check_mimetypes_in_archive':
+		from Gnumed.business import gmDocuments
+		return gmDocuments.check_mimetypes_in_archive()
 
 	if tool == 'check_enc_epi_xref':
 		from Gnumed.business import gmEMRStructItems

@@ -12,7 +12,7 @@ _gnumed_completion()
 		"=")
 			case "${PREV}" in
 				"--tool")
-					TOOLS="check_enc_epi_xref export_pat_emr_structure"
+					TOOLS="check_enc_epi_xref export_pat_emr_structure check_mimetypes_in_archive"
 					COMPREPLY=($(compgen -W "${TOOLS}"))
 					return 0
 				;;
@@ -24,7 +24,7 @@ _gnumed_completion()
 		"=")
 			case "${PREVPREV}" in
 				"--tool")
-					TOOLS="check_enc_epi_xref export_pat_emr_structure"
+					TOOLS="check_enc_epi_xref export_pat_emr_structure check_mimetypes_in_archive"
 					COMPREPLY=($(compgen -W "${TOOLS}" -- ${CURR}))
 					return 0
 				;;

@@ -28,6 +28,7 @@ NEW: [Abort] client from exception dialog
 NEW: edit clinical item from EMR list journal
 NEW: dist: add PortableApp XML skeleton
 NEW: placeholder: $most_recent_test_results$
+NEW: tool: check_mimetypes_in_archive
 
 IMPROVED: symbolic link creation on Windows
 IMPROVED: Orthanc connection handling
