@@ -35,7 +35,6 @@ Testwoman.
 
 print "accessing patient Laborata Testwoman"
 # set encoding
-gmPG.set_default_client_encoding('latin1')
 # setup login defs
 auth_data = gmLoginInfo.LoginInfo(
 	user = 'any-doc',

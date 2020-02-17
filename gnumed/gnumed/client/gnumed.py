@@ -665,8 +665,8 @@ def setup_backend_environment():
 			('system', 'return')
 		]
 	)
-	if timezone is not None:
-		gmPG2.set_default_client_timezone(timezone)
+#	if timezone is not None:
+#		gmPG2.set_default_client_timezone(timezone)
 
 #==========================================================
 def run_gui():
@@ -709,6 +709,10 @@ def run_tool():
 	print('==============================================')
 	print('Running tool: %s' % tool)
 	print('----------------------------------------------')
+	print('')
+	login, creds = gmPG2.request_login_params()
+	pool = gmConnectionPool.gmConnectionPool()
+	pool.credentials = creds
 	print('')
 
 	if tool == 'check_mimetypes_in_archive':
@@ -860,8 +864,7 @@ setup_cfg()
 setup_ui_type()
 
 from Gnumed.pycommon import gmPG2
-if ui_type in ['web']:
-	gmPG2.auto_request_login_params = False
+from Gnumed.pycommon import gmConnectionPool
 setup_backend_environment()
 
 # main

@@ -96,7 +96,6 @@ if __name__ == '__main__':
 	login.port = 5432
 	login.user = 'any-doc'
 	login.password = 'any-doc'
-	gmPG2.set_default_login(login = login)
 
 	if not run_importer():
 		usage()

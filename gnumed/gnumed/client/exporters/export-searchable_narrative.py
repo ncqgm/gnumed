@@ -29,7 +29,7 @@ ORDER BY
 	, src_table
 """
 
-conn = gmPG2.get_connection(encoding='utf8')
+conn = gmPG2.get_connection()
 
 rows, idx = gmPG2.run_ro_queries(link_obj=conn, queries=[{'cmd': cmd, 'args': {'pat': sys.argv[1]}}])
 

@@ -38,6 +38,7 @@ from Gnumed.pycommon import gmShellAPI
 from Gnumed.pycommon import gmHooks
 from Gnumed.pycommon import gmNetworkTools
 from Gnumed.pycommon import gmMimeLib
+from Gnumed.pycommon import gmConnectionPool
 
 from Gnumed.business import gmPerson
 from Gnumed.business import gmStaff
@@ -3110,8 +3111,8 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 	#--------------------------------------------------------
 	def __init_ui(self):
 
-		login = gmPG2.get_default_login()
-		self._TCTRL_host.Value = gmTools.coalesce(login.host, 'localhost')
+		pool = gmConnectionPool.gmConnectionPool()
+		self._TCTRL_host.Value = gmTools.coalesce(pool.credentials.host, 'localhost')
 		self._TCTRL_port.Value = '8042'
 
 		self._LCTRL_studies.set_columns(columns = [_('Date'), _('Description'), _('Organization'), _('Authority')])

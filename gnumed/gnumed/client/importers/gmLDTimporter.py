@@ -937,7 +937,6 @@ if __name__ == '__main__':
 		_log.Log(gmLog.lErr, 'need config file to run')
 		sys.exit(1)
 	# set encoding
-	gmPG.set_default_client_encoding('latin1')
 	# setup login defs
 	auth_data = gmLoginInfo.LoginInfo(
 		user = _cfg.get('database', 'user'),

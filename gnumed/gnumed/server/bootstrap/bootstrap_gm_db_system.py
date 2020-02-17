@@ -87,6 +87,7 @@ from Gnumed.pycommon import gmLog2
 from Gnumed.pycommon import gmCfg2
 from Gnumed.pycommon import gmPsql
 from Gnumed.pycommon import gmPG2
+from Gnumed.pycommon import gmConnectionPool
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmI18N
 from Gnumed.pycommon.gmExceptions import ConstructorError
@@ -273,9 +274,16 @@ def connect(host, port, db, user, passwd, conn_name=None):
 			passwd = cached_passwd[user]
 		else:
 			passwd = ''
-	dsn = gmPG2.make_psycopg2_dsn(database=db, host=host, port=port, user=user, password=passwd)
 	_log.info(u"trying DB connection to %s on %s as %s", db, host or 'localhost', user)
-	conn = gmPG2.get_connection(dsn=dsn, readonly=False, pooled=False, verbose=True, connection_name = conn_name)
+	creds = gmConnectionPool.cPGCredentials()
+	creds.database = db
+	creds.host = host
+	creds.port = port
+	creds.user = user
+	creds.password = passwd
+	pool = gmConnectionPool.gmConnectionPool()
+	pool.credentials = creds
+	conn = pool.get_connection(readonly=False, pooled=False, verbose=True, connection_name = conn_name)
 	cached_host = (host, port) # learn from past successes
 	cached_passwd[user] = passwd
 	conn_ref_count.append(conn)
@@ -748,7 +756,7 @@ class database:
 		self.conn.commit()
 
 		curs = self.conn.cursor()
-		gmPG2._log_PG_settings(curs = curs)
+		gmPG2.log_pg_settings(curs = curs)
 		curs.close()
 		self.conn.commit()
 
@@ -1480,7 +1488,8 @@ class gmBundle:
 
 		_log.info(u"minimum required PostgreSQL version: %s" % required_version)
 
-		converted, pg_ver = gmTools.input2decimal(gmPG2.postgresql_version)
+		converted, pg_ver = gmTools.input2decimal(gmConnectionPool.postgresql_version)
+
 		if not converted:
 			_log.error(u'error checking PostgreSQL version')
 			return None
@@ -1490,10 +1499,10 @@ class gmBundle:
 			_log.error(u'required: %s', required_version)
 			return None
 		if pg_ver < req_version:
-			_log.error(u"Reported live PostgreSQL version [%s] is smaller than the required minimum version [%s]." % (gmPG2.postgresql_version, required_version))
+			_log.error(u"Reported live PostgreSQL version [%s] is smaller than the required minimum version [%s].", pg_ver, required_version)
 			return None
 
-		_log.info(u"installed PostgreSQL version: %s - this is fine with me" % gmPG2.postgresql_version)
+		_log.info(u"installed PostgreSQL version: %s - this is fine with me", pg_ver)
 		return True
 #==================================================================
 def bootstrap_bundles():
@@ -1676,8 +1685,6 @@ def become_pg_demon_user():
 	except:
 		running_as = None
 
-	gmPG2.log_auth_environment()
-
 	pg_demon_user_passwd_line = None
 	try:
 		pg_demon_user_passwd_line = pwd.getpwnam('postgres')
@@ -1694,7 +1701,6 @@ def become_pg_demon_user():
 	if os.getuid() == 0: # we are the super-user
 		_log.info(u'switching to UNIX user [%s]' % pg_demon_user_passwd_line[0])
 		os.setuid(pg_demon_user_passwd_line[2])
-		gmPG2.log_auth_environment()
 
 	elif running_as == pg_demon_user_passwd_line[0]: # we are the postgres user already
 		_log.info(u'I already am the UNIX user [%s]' % pg_demon_user_passwd_line[0])

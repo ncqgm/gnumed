@@ -14,12 +14,12 @@ def resultset_functional_batchgenerator(cursor, size=100):
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL v2 or later (details at http://www.gnu.org)'
 
+
 # stdlib
 import time
 import sys
 import os
 import stat
-import io
 import codecs
 import logging
 import datetime as pydt
@@ -35,11 +35,12 @@ if __name__ == '__main__':
 from Gnumed.pycommon import gmLoginInfo
 from Gnumed.pycommon import gmExceptions
 from Gnumed.pycommon import gmDateTime
-from Gnumed.pycommon import gmBorg
 from Gnumed.pycommon import gmI18N
 from Gnumed.pycommon import gmLog2
 from Gnumed.pycommon import gmTools
+from Gnumed.pycommon import gmConnectionPool
 from Gnumed.pycommon.gmTools import prompted_input, u_replacement_character, format_dict_like
+
 
 _log = logging.getLogger('gm.db')
 
@@ -52,56 +53,14 @@ except ImportError:
 	print("CRITICAL ERROR: Cannot find module psycopg2 for connecting to the database server.")
 	raise
 
-
-_log.info('psycopg2 version: %s' % dbapi.__version__)
-_log.info('PostgreSQL via DB-API module "%s": API level %s, thread safety %s, parameter style "%s"' % (dbapi, dbapi.apilevel, dbapi.threadsafety, dbapi.paramstyle))
-if not (float(dbapi.apilevel) >= 2.0):
-	raise ImportError('gmPG2: supported DB-API level too low')
-if not (dbapi.threadsafety > 0):
-	raise ImportError('gmPG2: lacking minimum thread safety in psycopg2')
-if not (dbapi.paramstyle == 'pyformat'):
-	raise ImportError('gmPG2: lacking pyformat (%%(<name>)s style) placeholder support in psycopg2')
-try:
-	dbapi.__version__.index('dt')
-except ValueError:
-	raise ImportError('gmPG2: lacking datetime support in psycopg2')
-try:
-	dbapi.__version__.index('ext')
-except ValueError:
-	raise ImportError('gmPG2: lacking extensions support in psycopg2')
-try:
-	dbapi.__version__.index('pq3')
-except ValueError:
-	raise ImportError('gmPG2: lacking v3 backend protocol support in psycopg2')
-
-import psycopg2.extras
-import psycopg2.extensions
-import psycopg2.pool
 import psycopg2.errorcodes as sql_error_codes
 
 PG_ERROR_EXCEPTION = dbapi.Error
 
 # =======================================================================
-_default_client_encoding = 'UTF8'
-_log.info('assuming default client encoding of [%s]' % _default_client_encoding)
-
-# things timezone
-_default_client_timezone = None			# default time zone for connections
-_sql_set_timezone = None
-_timestamp_template = "cast('%s' as timestamp with time zone)"		# MUST NOT be uniocde or else getquoted will not work
-FixedOffsetTimezone = dbapi.tz.FixedOffsetTimezone
-
-_default_dsn = None
-_default_login = None
-
 default_database = 'gnumed_v22'
 
 postgresql_version_string = None
-postgresql_version = None			# accuracy: major.minor
-
-__ro_conn_pool = None
-
-auto_request_login_params = True
 
 # =======================================================================
 # global data
@@ -178,30 +137,6 @@ map_client_branch2required_db_version = {
 	'1.6': 21,
 	'1.7': 22,
 	'1.8': 22		# Yes, SAME as 1.7, no DB change.
-}
-
-map_psyco_tx_status2str = [
-	'TRANSACTION_STATUS_IDLE',
-	'TRANSACTION_STATUS_ACTIVE',
-	'TRANSACTION_STATUS_INTRANS',
-	'TRANSACTION_STATUS_INERROR',
-	'TRANSACTION_STATUS_UNKNOWN'
-]
-
-map_psyco_conn_status2str = [
-	'0 - ?',
-	'STATUS_READY',
-	'STATUS_BEGIN_ALIAS_IN_TRANSACTION',
-	'STATUS_PREPARED'
-]
-
-map_psyco_iso_level2str = {
-	None: 'ISOLATION_LEVEL_DEFAULT (configured on server)',
-	0: 'ISOLATION_LEVEL_AUTOCOMMIT',
-	1: 'ISOLATION_LEVEL_READ_UNCOMMITTED',
-	2: 'ISOLATION_LEVEL_REPEATABLE_READ',
-	3: 'ISOLATION_LEVEL_SERIALIZABLE',
-	4: 'ISOLATION_LEVEL_READ_UNCOMMITTED'
 }
 
 # get columns and data types for a given table
@@ -326,162 +261,12 @@ WHERE
 		AND
 	indisprimary
 """
-
-# =======================================================================
-# module globals API
-# =======================================================================
-def set_default_client_encoding(encoding = None):
-	# check whether psycopg2 can handle this encoding
-	if encoding not in psycopg2.extensions.encodings:
-		raise ValueError('psycopg2 does not know how to handle client (wire) encoding [%s]' % encoding)
-	# check whether Python can handle this encoding
-	py_enc = psycopg2.extensions.encodings[encoding]
-	try:
-		codecs.lookup(py_enc)
-	except LookupError:
-		_log.warning('<codecs> module can NOT handle encoding [psycopg2::<%s> -> Python::<%s>]' % (encoding, py_enc))
-		raise
-	# FIXME: check encoding against the database
-	# FIXME: - but we may not yet have access
-	# FIXME: - psycopg2 will pull its encodings from the database eventually
-	# it seems save to set it
-	global _default_client_encoding
-	_log.info('setting default client encoding from [%s] to [%s]' % (_default_client_encoding, encoding))
-	_default_client_encoding = encoding
-	return True
-
-#---------------------------------------------------
-def set_default_client_timezone(timezone = None):
-
-	# FIXME: use __validate
-	global _default_client_timezone
-	_log.info('setting default client time zone from [%s] to [%s]' % (_default_client_timezone, timezone))
-	_default_client_timezone = timezone
-
-	global _sql_set_timezone
-	_sql_set_timezone = 'set timezone to %s'
-
-	return True
-
-#---------------------------------------------------
-def __validate_timezone(conn=None, timezone=None):
-
-	_log.debug('validating time zone [%s]', timezone)
-
-	cmd = 'set timezone to %(tz)s'
-	args = {'tz': timezone}
-
-	conn.commit()
-	curs = conn.cursor()
-	is_valid = False
-	try:
-		curs.execute(cmd, args)
-		_log.info('time zone [%s] is settable', timezone)
-		# can we actually use it, though ?
-		cmd = """select '1920-01-19 23:00:00+01'::timestamp with time zone"""
-		try:
-			curs.execute(cmd)
-			curs.fetchone()
-			_log.info('time zone [%s] is usable', timezone)
-			is_valid = True
-		except Exception:
-			_log.error('error using time zone [%s]', timezone)
-	except dbapi.DataError:
-		_log.warning('time zone [%s] is not settable', timezone)
-	except Exception:
-		_log.error('failed to set time zone to [%s]', timezone)
-		_log.exception('')
-
-	curs.close()
-	conn.rollback()
-
-	return is_valid
-
-#---------------------------------------------------
-def __expand_timezone(conn=None, timezone=None):
-	"""some timezone defs are abbreviations so try to expand
-	them because "set time zone" doesn't take abbreviations"""
-
-	cmd = """
-select distinct on (abbrev) name
-from pg_timezone_names
-where
-	abbrev = %(tz)s and
-	name ~ '^[^/]+/[^/]+$' and
-	name !~ '^Etc/'
-"""
-	args = {'tz': timezone}
-
-	conn.commit()
-	curs = conn.cursor()
-
-	result = timezone
-	try:
-		curs.execute(cmd, args)
-		rows = curs.fetchall()
-		if len(rows) > 0:
-			result = rows[0]['name']
-			_log.debug('[%s] maps to [%s]', timezone, result)
-	except Exception:
-		_log.exception('cannot expand timezone abbreviation [%s]', timezone)
-
-	curs.close()
-	conn.rollback()
-
-	return result
-
-#---------------------------------------------------
-def __detect_client_timezone(conn=None):
-	"""This is run on the very first connection."""
-
-	# FIXME: check whether server.timezone is the same
-	# FIXME: value as what we eventually detect
-
-	# we need gmDateTime to be initialized
-	if gmDateTime.current_local_iso_numeric_timezone_string is None:
-		gmDateTime.init()
-
-	_log.debug('trying to detect timezone from system')
-
-	tz_candidates = []
-	try:
-		tz = os.environ['TZ']
-		tz_candidates.append(tz)
-		expanded = __expand_timezone(conn = conn, timezone = tz)
-		if expanded != tz:
-			tz_candidates.append(expanded)
-	except KeyError:
-		pass
-
-	tz_candidates.append(gmDateTime.current_local_timezone_name)
-	expanded = __expand_timezone(conn = conn, timezone = gmDateTime.current_local_timezone_name)
-	if expanded != gmDateTime.current_local_timezone_name:
-		tz_candidates.append(expanded)
-
-	_log.debug('candidates: %s', tz_candidates)
-
-	# find best among candidates
-	global _default_client_timezone
-	global _sql_set_timezone
-	found = False
-	for tz in tz_candidates:
-		if __validate_timezone(conn = conn, timezone = tz):
-			_default_client_timezone = tz
-			_sql_set_timezone = 'set timezone to %s'
-			found = True
-			break
-
-	if not found:
-		_default_client_timezone = gmDateTime.current_local_iso_numeric_timezone_string
-		_sql_set_timezone = "set time zone interval %s hour to minute"
-
-	_log.info('client system time zone detected as equivalent to [%s]', _default_client_timezone)
-
 # =======================================================================
 # login API
 # =======================================================================
 def __request_login_params_tui():
 	"""Text mode request of database login parameters"""
+
 	import getpass
 	login = gmLoginInfo.LoginInfo()
 
@@ -499,7 +284,14 @@ def __request_login_params_tui():
 		print("user cancelled text mode login dialog")
 		raise gmExceptions.ConnectionError(_("Cannot connect to database without login information!"))
 
-	return login
+	creds = gmConnectionPool.cPGCredentials()
+	creds.database = login.database
+	creds.host = login.host
+	creds.port = login.port
+	creds.user = login.user
+	creds.password = login.password
+
+	return login, creds
 
 #---------------------------------------------------
 def __request_login_params_gui_wx():
@@ -520,21 +312,22 @@ def __request_login_params_gui_wx():
 	dlg.ShowModal()
 	login = dlg.panel.GetLoginInfo()
 	dlg.DestroyLater()
-
 	#if user cancelled or something else went wrong, raise an exception
 	if login is None:
 		raise gmExceptions.ConnectionError(_("Can't connect to database without login information!"))
 
 	gmLog2.add_word2hide(login.password)
-
-	return login
+	creds = gmConnectionPool.cPGCredentials()
+	creds.database = login.database
+	creds.host = login.host
+	creds.port = login.port
+	creds.user = login.user
+	creds.password = login.password
+	return login, creds
 
 #---------------------------------------------------
 def request_login_params():
 	"""Request login parameters for database connection."""
-	# do we auto-request parameters at all ?
-	if not auto_request_login_params:
-		raise Exception('Cannot request login parameters.')
 
 	# are we inside X ?
 	# if we aren't wxGTK will crash hard at the C-level with "can't open Display"
@@ -548,96 +341,6 @@ def request_login_params():
 	# well, either we are on the console or
 	# wxPython does not work, use text mode
 	return __request_login_params_tui()
-
-# =======================================================================
-# DSN API
-# -----------------------------------------------------------------------
-def make_psycopg2_dsn(database=None, host=None, port=5432, user=None, password=None):
-	dsn_parts = []
-
-	if (database is not None) and (database.strip() != ''):
-		dsn_parts.append('dbname=%s' % database)
-
-	if (host is not None) and (host.strip() != ''):
-		dsn_parts.append('host=%s' % host)
-
-	if (port is not None) and (str(port).strip() != ''):
-		dsn_parts.append('port=%s' % port)
-
-	if (user is not None) and (user.strip() != ''):
-		dsn_parts.append('user=%s' % user)
-
-	if (password is not None) and (password.strip() != ''):
-		dsn_parts.append('password=%s' % password)
-
-	dsn_parts.append('sslmode=prefer')
-	dsn_parts.append('fallback_application_name=GNUmed')
-
-	return ' '.join(dsn_parts)
-
-# ------------------------------------------------------
-def get_default_login():
-	# make sure we do have a login
-	get_default_dsn()
-	return _default_login
-
-# ------------------------------------------------------
-def get_default_dsn():
-	global _default_dsn
-	if _default_dsn is not None:
-		return _default_dsn
-
-	login = request_login_params()
-	set_default_login(login=login)
-
-	return _default_dsn
-
-# ------------------------------------------------------
-def set_default_login(login=None):
-	if login is None:
-		return False
-
-	if login.host is not None:
-		if login.host.strip() == '':
-			login.host = None
-
-	global _default_login
-	_default_login = login
-	_log.info('setting default login from [%s] to [%s]' % (_default_login, login))
-
-	dsn = make_psycopg2_dsn(login.database, login.host, login.port, login.user, login.password)
-
-	global _default_dsn
-	if _default_dsn is None:
-		old_dsn = 'None'
-	else:
-		old_dsn = regex.sub(r'password=[^\s]+', 'password=%s' % u_replacement_character, _default_dsn)
-	_log.info ('setting default DSN from [%s] to [%s]',
-		old_dsn,
-		regex.sub(r'password=[^\s]+', 'password=%s' % u_replacement_character, dsn)
-	)
-	_default_dsn = dsn
-
-	return True
-
-#------------------------------------------------------------------------
-def log_auth_environment():
-	try:
-		pgpass_file = os.path.expanduser(os.path.join('~', '.pgpass'))
-		if os.path.exists(pgpass_file):
-			_log.debug('standard .pgpass (%s) exists', pgpass_file)
-		else:
-			_log.debug('standard .pgpass (%s) not found', pgpass_file)
-		pgpass_var = os.getenv('PGPASSFILE')
-		if pgpass_var is None:
-			_log.debug('$PGPASSFILE not set')
-		else:
-			if os.path.exists(pgpass_var):
-				_log.debug('$PGPASSFILE=%s exists', pgpass_var)
-			else:
-				_log.debug('$PGPASSFILE=%s not found')
-	except Exception:
-		_log.exception('cannot detect .pgpass and or $PGPASSFILE')
 
 # =======================================================================
 # netadata API
@@ -911,7 +614,7 @@ def get_col_names(link_obj=None, schema='public', table=None):
 # i18n functions
 #------------------------------------------------------------------------
 def export_translations_from_database(filename=None):
-	tx_file = io.open(filename, mode = 'wt', encoding = 'utf8')
+	tx_file = open(filename, mode = 'wt', encoding = 'utf8')
 	tx_file.write('-- GNUmed database string translations exported %s\n' % gmDateTime.pydt_now_here().strftime('%Y-%m-%d %H:%M'))
 	tx_file.write('-- - contains translations for each of [%s]\n' % ', '.join(get_translation_languages()))
 	tx_file.write('-- - user database language is set to [%s]\n\n' % get_current_user_language())
@@ -1263,32 +966,28 @@ def __get_file_from_cache(filename, cache_key_data=None, data_size=None, link2ca
 def bytea2file(data_query=None, filename=None, chunk_size=0, data_size=None, data_size_query=None, conn=None, link2cached=True):
 
 	if data_size == 0:
-		io.open(filename, 'wb').close()
+		open(filename, 'wb').close()
 		return True
 
 	if data_size is None:
 		rows, idx = run_ro_queries(link_obj = conn, queries = [data_size_query])
 		data_size = rows[0][0]
 		if data_size == 0:
-			io.open(filename, 'wb').close()
+			open(filename, 'wb').close()
 			return True
+
 		if data_size is None:
 			return False
 
-	# actually needs to get values from <conn> or "default conn" if <conn> is None
-	cache_key_data = '<%s>@%s:%s/%s::%s' % (
-		_default_login.user,
-		_default_login.host,
-		_default_login.port,
-		_default_login.database,
-		data_query
-	)
+	if conn is None:
+		conn = gmConnectionPool.gmConnectionPool().get_connection()
+	cache_key_data = '%s::%s' % (conn.dsn, data_query)
 	found_in_cache = __get_file_from_cache(filename, cache_key_data = cache_key_data, data_size = data_size, link2cached = link2cached)
 	if found_in_cache:
 		# FIXME: start thread checking cache staleness on file
 		return True
 
-	outfile = io.open(filename, 'wb')
+	outfile = open(filename, 'wb')
 	result = bytea2file_object (
 		data_query = data_query,
 		file_obj = outfile,
@@ -1662,6 +1361,7 @@ def file2bytea_overlay(query=None, args=None, filename=None, conn=None, md5_quer
 	_log.error('MD5 sums of data file and database BYTEA field do not match: [file::%s] <> [DB::%s]', file_md5, db_md5)
 	return False
 
+#------------------------------------------------------------------------
 #---------------------------------------------------------------------------
 def run_sql_script(sql_script, conn=None):
 
@@ -1713,132 +1413,6 @@ def sanitize_pg_regex(expression=None, escape_all=False):
 		#']', '\]',			# not needed
 
 #------------------------------------------------------------------------
-def capture_conn_state(conn=None):
-
-	tx_status = conn.get_transaction_status()
-	if tx_status in [ psycopg2.extensions.TRANSACTION_STATUS_INERROR, psycopg2.extensions.TRANSACTION_STATUS_UNKNOWN ]:
-		isolation_level = '%s (tx aborted or unknown, cannot retrieve)' % conn.isolation_level
-	else:
-		isolation_level = '%s (%s)' % (conn.isolation_level, map_psyco_iso_level2str[conn.isolation_level])
-	conn_status = '%s (%s)' % (conn.status, map_psyco_conn_status2str[conn.status])
-	if conn.closed != 0:
-		conn_status = 'undefined (%s)' % conn_status
-		backend_pid = '<conn closed, cannot retrieve>'
-	else:
-		backend_pid = conn.get_backend_pid()
-	try:
-		conn_deferrable = conn.deferrable
-	except AttributeError:
-		conn_deferrable = '<unavailable>'
-
-	d = {
-		'identity': id(conn),
-		'backend PID': backend_pid,
-		'protocol version': conn.protocol_version,
-		'encoding': conn.encoding,
-		'closed': conn.closed,
-		'readonly': conn.readonly,
-		'autocommit': conn.autocommit,
-		'isolation level (psyco)': isolation_level,
-		'async': conn.async_,
-		'deferrable': conn_deferrable,
-		'transaction status': '%s (%s)' % (tx_status, map_psyco_tx_status2str[tx_status]),
-		'connection status': conn_status,
-		'executing async op': conn.isexecuting(),
-		'type': type(conn)
-	}
-	return '%s\n' % conn + format_dict_like (
-		d,
-		relevant_keys = [
-			'type',
-			'identity',
-			'backend PID',
-			'protocol version',
-			'encoding',
-			'isolation level (psyco)',
-			'readonly',
-			'autocommit',
-			'closed',
-			'connection status',
-			'transaction status',
-			'deferrable',
-			'async',
-			'executing async op'
-		],
-		tabular = True,
-		value_delimiters = None
-	)
-
-#------------------------------------------------------------------------
-def capture_cursor_state(cursor=None):
-	conn = cursor.connection
-
-	tx_status = conn.get_transaction_status()
-	if tx_status in [ psycopg2.extensions.TRANSACTION_STATUS_INERROR, psycopg2.extensions.TRANSACTION_STATUS_UNKNOWN ]:
-		isolation_level = '<tx aborted or unknown, cannot retrieve>'
-	else:
-		isolation_level = conn.isolation_level
-	try:
-		conn_deferrable = conn.deferrable
-	except AttributeError:
-		conn_deferrable = '<unavailable>'
-
-	if cursor.query is None:
-		query = '<no query>'
-	else:
-		query = cursor.query.decode(errors = 'replace')
-
-	if conn.closed != 0:
-		backend_pid = '<conn closed, cannot retrieve>'
-	else:
-		backend_pid = conn.get_backend_pid()
-
-	txt = """Link state:
-Cursor
-  identity: %s; name: %s
-  closed: %s; scrollable: %s; with hold: %s; arraysize: %s; itersize: %s;
-  last rowcount: %s; rownumber: %s; lastrowid (OID): %s;
-  last description: %s
-  statusmessage: %s
-Connection
-  identity: %s; backend pid: %s; protocol version: %s;
-  closed: %s; autocommit: %s; isolation level: %s; encoding: %s; async: %s; deferrable: %s; readonly: %s;
-  TX status: %s; CX status: %s; executing async op: %s;
-Query
-  %s
-""" % (
-		id(cursor),
-		cursor.name,
-		cursor.closed,
-		cursor.scrollable,
-		cursor.withhold,
-		cursor.arraysize,
-		cursor.itersize,
-		cursor.rowcount,
-		cursor.rownumber,
-		cursor.lastrowid,
-		cursor.description,
-		cursor.statusmessage,
-
-		id(conn),
-		backend_pid,
-		conn.protocol_version,
-		conn.closed,
-		conn.autocommit,
-		isolation_level,
-		conn.encoding,
-		conn.async_,
-		conn_deferrable,
-		conn.readonly,
-		map_psyco_tx_status2str[tx_status],
-		map_psyco_conn_status2str[conn.status],
-		conn.isexecuting(),
-
-		query
-	)
-	return txt
-
-#------------------------------------------------------------------------
 def run_ro_queries(link_obj=None, queries=None, verbose=False, return_data=True, get_col_idx=False):
 	"""Run read-only queries.
 
@@ -1885,20 +1459,20 @@ def run_ro_queries(link_obj=None, queries=None, verbose=False, return_data=True,
 		try:
 			curs.execute(query['cmd'], args)
 			if verbose:
-				_log.debug(capture_cursor_state(curs))
+				gmConnectionPool.log_cursor_state(curs)
 		except PG_ERROR_EXCEPTION as pg_exc:
 			_log.error('query failed in RO connection')
-			log_pg_exception_details(pg_exc)
+			gmConnectionPool.log_pg_exception_details(pg_exc)
 			try:
 				curs_close()
 			except PG_ERROR_EXCEPTION as pg_exc2:
 				_log.exception('cannot close cursor')
-				log_pg_exception_details(pg_exc2)
+				gmConnectionPool.log_pg_exception_details(pg_exc2)
 			try:
 				tx_rollback()		# need to rollback so ABORT state isn't preserved in pooled conns
 			except PG_ERROR_EXCEPTION as pg_exc2:
 				_log.exception('cannot rollback transaction')
-				log_pg_exception_details(pg_exc2)
+				gmConnectionPool.log_pg_exception_details(pg_exc2)
 			if pg_exc.pgcode == sql_error_codes.INSUFFICIENT_PRIVILEGE:
 				details = 'Query: [%s]' % curs.query.strip().strip('\n').strip().strip('\n')
 				if curs.statusmessage != '':
@@ -1919,17 +1493,17 @@ def run_ro_queries(link_obj=None, queries=None, verbose=False, return_data=True,
 			raise
 		except Exception:
 			_log.exception('error during query run in RO connection')
-			_log.error(capture_cursor_state(curs))
+			gmConnectionPool.log_cursor_state(curs)
 			try:
 				curs_close()
 			except PG_ERROR_EXCEPTION as pg_exc:
 				_log.exception('cannot close cursor')
-				log_pg_exception_details(pg_exc)
+				gmConnectionPool.log_pg_exception_details(pg_exc)
 			try:
 				tx_rollback()		# need to rollback so ABORT state isn't preserved in pooled conns
 			except PG_ERROR_EXCEPTION as pg_exc:
 				_log.exception('cannot rollback transation')
-				log_pg_exception_details(pg_exc)
+				gmConnectionPool.log_pg_exception_details(pg_exc)
 			raise
 
 	data = None
@@ -2033,14 +1607,14 @@ def run_rw_queries(link_obj=None, queries=None, end_tx=False, return_data=None, 
 		try:
 			curs.execute(query['cmd'], args)
 			if verbose:
-				_log.debug(capture_cursor_state(curs))
+				gmConnectionPool.log_cursor_state(curs)
 			for notice in notices_accessor.notices:
 				_log.debug(notice.replace('\n', '/').replace('\n', '/'))
 			del notices_accessor.notices[:]
 		# DB related exceptions
 		except dbapi.Error as pg_exc:
 			_log.error('query failed in RW connection')
-			log_pg_exception_details(pg_exc)
+			gmConnectionPool.log_pg_exception_details(pg_exc)
 			for notice in notices_accessor.notices:
 				_log.debug(notice.replace('\n', '/').replace('\n', '/'))
 			del notices_accessor.notices[:]
@@ -2048,12 +1622,12 @@ def run_rw_queries(link_obj=None, queries=None, end_tx=False, return_data=None, 
 				curs_close()
 			except PG_ERROR_EXCEPTION as pg_exc2:
 				_log.exception('cannot close cursor')
-				log_pg_exception_details(pg_exc2)
+				gmConnectionPool.log_pg_exception_details(pg_exc2)
 			try:
 				tx_rollback()		# need to rollback so ABORT state isn't preserved in pooled conns
 			except PG_ERROR_EXCEPTION as pg_exc2:
 				_log.exception('cannot rollback transaction')
-				log_pg_exception_details(pg_exc2)
+				gmConnectionPool.log_pg_exception_details(pg_exc2)
 			# privilege problem
 			if pg_exc.pgcode == sql_error_codes.INSUFFICIENT_PRIVILEGE:
 				details = 'Query: [%s]' % curs.query.strip().strip('\n').strip().strip('\n')
@@ -2090,7 +1664,7 @@ def run_rw_queries(link_obj=None, queries=None, end_tx=False, return_data=None, 
 		# other exception
 		except Exception:
 			_log.exception('error running query in RW connection')
-			_log.error(capture_cursor_state(curs))
+			gmConnectionPool.log_cursor_state(curs)
 			for notice in notices_accessor.notices:
 				_log.debug(notice.replace('\n', '/').replace('\n', '/'))
 			del notices_accessor.notices[:]
@@ -2099,13 +1673,13 @@ def run_rw_queries(link_obj=None, queries=None, end_tx=False, return_data=None, 
 				curs_close()
 			except PG_ERROR_EXCEPTION as pg_exc:
 				_log.exception('cannot close cursor')
-				log_pg_exception_details(pg_exc)
+				gmConnectionPool.log_pg_exception_details(pg_exc)
 			try:
 				tx_rollback()		# need to rollback so ABORT state isn't preserved in pooled conns
 				conn_close()
 			except PG_ERROR_EXCEPTION as pg_exc:
 				_log.exception('cannot rollback transation')
-				log_pg_exception_details(pg_exc)
+				gmConnectionPool.log_pg_exception_details(pg_exc)
 			raise
 
 	data = None
@@ -2180,50 +1754,6 @@ def run_insert(link_obj=None, schema=None, table=None, values=None, returning=No
 # =======================================================================
 # connection handling API
 # -----------------------------------------------------------------------
-class cConnectionPool(psycopg2.pool.PersistentConnectionPool):
-	"""GNUmed database connection pool.
-
-	Extends psycopg2's ThreadedConnectionPool with
-	a custom _connect() function. Supports one connection
-	per thread - which also ties it to one particular DSN."""
-	#--------------------------------------------------
-	def _connect(self, key=None):
-		_log.debug('conn request with key [%s]', key)
-		conn = get_raw_connection(dsn = self._kwargs['dsn'], verbose = self._kwargs['verbose'], readonly = True)
-		# monkey patching close()
-		conn.original_close = conn.close
-		conn.close = _raise_exception_on_ro_conn_close
-		if key is not None:
-			self._used[key] = conn
-			self._rused[id(conn)] = key
-		else:
-			self._pool.append(conn)
-		return conn
-
-	#--------------------------------------------------
-	def discard_connection(self, key=None):
-		if key is None:
-			key = threading.current_thread().ident
-		try:
-			conn = self._used[key]
-		except KeyError:
-			_log.error('no such key in connection pool: %s', key)
-			_log.debug('available keys: %s', self._used.keys())
-			return
-		del self._used[key]
-		del self._rused[id(conn)]
-		conn.original_close()
-
-	#--------------------------------------------------
-	def shutdown(self):
-		for conn_key in self._used.keys():
-			conn = self._used[conn_key]
-			if conn.closed != 0:
-				continue
-			_log.debug('closing pooled database connection, pool key: %s, backend PID: %s', conn_key, self._used[conn_key].get_backend_pid())
-			conn.original_close()
-
-# -----------------------------------------------------------------------
 def get_raw_connection(dsn=None, verbose=False, readonly=True, connection_name=None, autocommit=False):
 	"""Get a raw, unadorned connection.
 
@@ -2232,213 +1762,35 @@ def get_raw_connection(dsn=None, verbose=False, readonly=True, connection_name=N
 	- hence it can be used for "service" connections
 	  for verifying encodings etc
 	"""
-	# FIXME: support verbose
-	if dsn is None:
-		dsn = get_default_dsn()
-
-	if 'host=salaam.homeunix' in dsn:
-		raise ValueError('The public database is not hosted by <salaam.homeunix.com> anymore.\n\nPlease point your configuration files to <publicdb.gnumed.de>.')
-
-	# try to enforce a useful encoding early on so that we
-	# have a good chance of decoding authentication errors
-	# containing foreign language characters
-	if ' client_encoding=' not in dsn:
-		dsn += ' client_encoding=utf8'
-
-	if ' application_name' not in dsn:
-		if connection_name is None:
-			dsn += " application_name=GNUmed-[%s]"	% threading.current_thread().name.replace(' ', '_')
-		else:
-			dsn += " application_name=%s" % connection_name
-
-	try:
-		# DictConnection now _is_ a real dictionary
-		conn = dbapi.connect(dsn = dsn, connection_factory = psycopg2.extras.DictConnection)
-	except dbapi.OperationalError as e:
-		t, v, tb = sys.exc_info()
-		try:
-			msg = e.args[0]
-		except (AttributeError, IndexError, TypeError):
-			raise
-		if 'fe_sendauth' in msg:
-			raise cAuthenticationError(dsn, msg).with_traceback(tb)
-		if regex.search('user ".*" does not exist', msg) is not None:
-			raise cAuthenticationError(dsn, msg).with_traceback(tb)
-		if ((	(regex.search('user ".*"', msg) is not None)
-					or
-				(regex.search('(R|r)ol{1,2}e', msg) is not None)
-			)
-			and ('exist' in msg)
-			and (regex.search('n(o|ich)t', msg) is not None)
-		):
-			raise cAuthenticationError(dsn, msg).with_traceback(tb)
-		if regex.search('user ".*" does not exist', msg) is not None:
-			raise cAuthenticationError(dsn, msg).with_traceback(tb)
-		if 'uthenti' in msg:
-			raise cAuthenticationError(dsn, msg).with_traceback(tb)
-		raise
-
-	if connection_name is None:
-		_log.debug('established anonymous database connection, backend PID: %s', conn.get_backend_pid())
-	else:
-		_log.debug('established database connection "%s", backend PID: %s', connection_name, conn.get_backend_pid())
-
-	# do first-connection-only stuff
-	# - verify PG version
-	global postgresql_version
-	if postgresql_version is None:
-		curs = conn.cursor()
-		curs.execute("""
-			SELECT
-				substring(setting, E'^\\\\d{1,2}\\\\.\\\\d{1,2}')::numeric AS version
-			FROM
-				pg_settings
-			WHERE
-				name = 'server_version'
-		""")
-		postgresql_version = curs.fetchone()['version']
-		_log.info('PostgreSQL version (numeric): %s' % postgresql_version)
-		try:
-			curs.execute("SELECT pg_size_pretty(pg_database_size(current_database()))")
-			_log.info('database size: %s', curs.fetchone()[0])
-		except Exception:
-			_log.exception('cannot get database size')
-		finally:
-			curs.close()
-			conn.commit()
-		if verbose:
-			curs = conn.cursor()
-			_log_PG_settings(curs = curs)
-			curs.close()
-	# - verify PG understands client time zone
-	if _default_client_timezone is None:
-		__detect_client_timezone(conn = conn)
-
-	# - set access mode
-	if readonly:
-		_log.debug('readonly: forcing autocommit=True to avoid <IDLE IN TRANSACTION>')
-		autocommit = True
-	else:
-		_log.debug('autocommit is desired to be: %s', autocommit)
-
-	conn.commit()
-	conn.autocommit = autocommit
-	conn.readonly = readonly
-
-	# - assume verbose=True to mean we want debugging in the database, too
-	if verbose:
-		_log.debug('enabling <plpgsql.extra_warnings/_errors>')
-		curs = conn.cursor()
-		try:
-			curs.execute("SET plpgsql.extra_warnings TO 'all'")
-			curs.execute("SET plpgsql.extra_errors TO 'all'")
-		except Exception:
-			_log.exception('cannot enable <plpgsql.extra_warnings/_errors>')
-		finally:
-			curs.close()
-			conn.commit()
-
-	conn.is_decorated = False
-	return conn
+	return gmConnectionPool.gmConnectionPool().get_raw_connection (
+		readonly = readonly,
+		verbose = verbose,
+		connection_name = connection_name,
+		autocommit = autocommit
+	)
 
 # =======================================================================
-def get_connection(dsn=None, readonly=True, encoding=None, verbose=False, pooled=True, connection_name=None, autocommit=False):
-	"""Get a new connection.
-
-	This assumes the locale system has been initialized
-	unless an encoding is specified.
-	"""
-	# FIXME: support pooled on RW, too
-	# FIXME: for now, support the default DSN only
-	if pooled and readonly and (dsn is None):
-		global __ro_conn_pool
-		if __ro_conn_pool is None:
-			log_ro_conn = True
-			__ro_conn_pool = cConnectionPool (
-				minconn = 1,
-				maxconn = 2,
-				dsn = dsn,
-				verbose = verbose
-			)
-		else:
-			log_ro_conn = False
-		try:
-			conn = __ro_conn_pool.getconn()
-		except psycopg2.pool.PoolError:
-			_log.exception('falling back to non-pooled connection')
-			conn = get_raw_connection(dsn = dsn, verbose = verbose, readonly = readonly, connection_name = connection_name, autocommit = autocommit)
-			log_ro_conn = True
-		if log_ro_conn:
-			[ _log.debug(line) for line in capture_conn_state(conn = conn).split('\n') ]
-	else:
-		conn = get_raw_connection(dsn = dsn, verbose = verbose, readonly = readonly, connection_name = connection_name, autocommit = autocommit)
-
-	if conn.is_decorated:
-		return conn
-
-	if encoding is None:
-		encoding = _default_client_encoding
-	if encoding is None:
-		encoding = gmI18N.get_encoding()
-		_log.warning('client encoding not specified')
-		_log.warning('the string encoding currently set in the active locale is used: [%s]' % encoding)
-		_log.warning('for this to work properly the application MUST have called locale.setlocale() before')
-
-	# set connection properties
-	# - client encoding
-	try:
-		conn.set_client_encoding(encoding)
-	except dbapi.DataError:
-		t, v, tb = sys.exc_info()
-		if 'cannot set encoding to' in str(v):
-			raise cEncodingError(encoding, v).with_traceback(tb)
-		if 'invalid value for parameter "client_encoding"' in str(v):
-			raise cEncodingError(encoding, v).with_traceback(tb)
-		raise
-
-	# - transaction isolation level
-	if readonly:
-		# alter-database default, checked at connect, no need to set here
-		pass
-	else:
-		conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_SERIALIZABLE)
-
-	_log.debug('client time zone [%s]', _default_client_timezone)
-
-	# - client time zone
-	curs = conn.cursor()
-	curs.execute(_sql_set_timezone, [_default_client_timezone])
-	curs.close()
-	conn.commit()
-
-	conn.is_decorated = True
-
-	if verbose:
-		[ _log.debug(line) for line in capture_conn_state(conn = conn).split('\n') ]
-
-	return conn
+def get_connection(dsn=None, readonly=True, verbose=False, pooled=True, connection_name=None, autocommit=False):
+	return gmConnectionPool.gmConnectionPool().get_connection (
+		readonly = readonly,
+		verbose = verbose,
+		connection_name = connection_name,
+		autocommit = autocommit
+	)
 
 #-----------------------------------------------------------------------
-def discard_pooled_connection(conn_key=None):
-	if __ro_conn_pool is None:
-		return
-	__ro_conn_pool.discard_connection(key = conn_key)
+def discard_pooled_connection_of_thread():
+	gmConnectionPool.gmConnectionPool().discard_pooled_connection_of_thread()
 
 #-----------------------------------------------------------------------
 def shutdown():
-	if __ro_conn_pool is None:
-		return
-	__ro_conn_pool.shutdown()
+	gmConnectionPool.gmConnectionPool().shutdown()
 
 # ======================================================================
 # internal helpers
 #-----------------------------------------------------------------------
 def __noop():
 	pass
-
-#-----------------------------------------------------------------------
-def _raise_exception_on_ro_conn_close():
-	raise TypeError('close() called on read-only connection')
 
 #-----------------------------------------------------------------------
 def log_database_access(action=None):
@@ -2581,196 +1933,17 @@ def sanity_check_database_settings():
 
 	return 0, ''
 
-#------------------------------------------------------------------------
-def _log_PG_settings(curs=None):
-	# don't use any of the run_*()s helper functions
-	# since that might create a loop if we fail here
-	try:
-		curs.execute('SELECT * FROM pg_settings')
-	except dbapi.Error:
-		_log.exception('cannot retrieve PG settings ("SELECT ... FROM pg_settings" failed)')
-		return False
-	settings = curs.fetchall()
-	for setting in settings:
-		if setting['unit'] is None:
-			unit = ''
-		else:
-			unit = ' %s' % setting['unit']
-		if setting['sourcefile'] is None:
-			sfile = ''
-		else:
-			sfile = '// %s @ %s' % (setting['sourcefile'], setting['sourceline'])
-		pending_restart = u''
-		try:
-			if setting['pending_restart']:
-				pending_restart = u'// needs restart'
-		except KeyError:
-			# 'pending_restart' does not exist in PG 9.4 yet
-			pass
-		_log.debug('%s: %s%s (set from: [%s] // sess RESET will set to: [%s]%s%s)',
-			setting['name'],
-			setting['setting'],
-			unit,
-			setting['source'],
-			setting['reset_val'],
-			pending_restart,
-			sfile
-		)
-	try:
-		curs.execute('select pg_available_extensions()')
-	except Exception:
-		_log.exception('cannot log available PG extensions')
-		return False
-	extensions = curs.fetchall()
-	if extensions is None:
-		_log.error('no PG extensions available')
-		return False
-	for ext in extensions:
-		_log.debug('PG extension: %s', ext['pg_available_extensions'])
-
-	# not really that useful because:
-	# - clusterwide
-	# - not retained across server restart (fixed in 9.6.1 - really ?)
-#	try:
-#		curs.execute(u'SELECT pg_last_committed_xact()')
-#	except Exception:
-#		_log.exception(u'cannot retrieve last committed xact')
-#	xact = curs.fetchall()
-#	if xact is not None:
-#		_log.debug(u'last committed transaction in cluster: %s', xact[0])
-
-	return True
-
-#------------------------------------------------------------------------
-def log_pg_exception_details(exc):
-	if not isinstance(exc, dbapi.Error):
-		return False
-	try:
-		args = exc.args
-		for arg in args:
-			_log.debug('exc.arg: %s', arg)
-	except AttributeError:
-		_log.debug('exception has no <.args>')
-	_log.debug('pgerror: [%s]', exc.pgerror)
-	if exc.pgcode is None:
-		_log.debug('pgcode : %s', exc.pgcode)
-	else:
-		_log.debug('pgcode : %s (%s)', exc.pgcode, sql_error_codes.lookup(exc.pgcode))
-	if exc.cursor is None:
-		_log.debug('cursor: None')
-	else:
-		capture_cursor_state(cursor = exc.cursor)
-	try:
-		exc.diag
-		for attr in dir(exc.diag):
-			if attr.startswith('__'):
-				continue
-			val = getattr(exc.diag, attr)
-			if val is None:
-				continue
-			_log.debug('%s: %s', attr, val)
-	except AttributeError:
-		_log.debug('diag: not available')
-	return True
-
-#------------------------------------------------------------------------
-def exception_is_connection_loss(exc):
-	if not isinstance(exc, dbapi.Error):
-		# not a PG exception
-		return False
-	try:
-		msg = '%s' % exc.args[0]
-	except (AttributeError, IndexError, TypeError):
-		_log.debug('cannot extract message from exception')
-		# cannot process message
-		return False
-	_log.debug('interpreting: %s', msg)
-	# OperationalError
-	conn_lost = (
-		('erver' in msg)
-			and
-		(
-			('terminat' in msg)
-				or
-			('abnorm' in msg)
-				or
-			('end' in msg)
-#				or
-#			('oute' in msg)
-		)
-	)
-	if conn_lost:
-		_log.debug('indicates connection loss')
-		return True
-	# InterfaceError
-	conn_lost = (
-		('onnect' in msg)
-			and
-		(
-			('close' in msg)
-				or
-			('end' in msg)
-		)
-	)
-	if conn_lost:
-		_log.debug('indicates connection loss')
-	return conn_lost
-
-#========================================================================
-class cAuthenticationError(dbapi.OperationalError):
-
-	def __init__(self, dsn=None, prev_val=None):
-		self.dsn = dsn
-		self.prev_val = prev_val
-
-	def __str__(self):
-		return 'PostgreSQL: %sDSN: %s' % (self.prev_val, self.dsn)
-
-#========================================================================
-# custom psycopg2 extensions
-#========================================================================
-class cEncodingError(dbapi.OperationalError):
-
-	def __init__(self, encoding=None, prev_val=None):
-		self.encoding = encoding
-		self.prev_val = prev_val
-
-	def __str__(self):
-		return 'PostgreSQL: %s\nencoding: %s' % (self.prev_val, self.encoding)
-
-# -----------------------------------------------------------------------
-# Python -> PostgreSQL
-# -----------------------------------------------------------------------
-# test when Squeeze (and thus psycopg2 2.2 becomes Stable
-class cAdapterPyDateTime(object):
-
-	def __init__(self, dt):
-		if dt.tzinfo is None:
-			raise ValueError('datetime.datetime instance is lacking a time zone: [%s]' % _timestamp_template % dt.isoformat())
-		self.__dt = dt
-
-	def getquoted(self):
-		return _timestamp_template % self.__dt.isoformat()
-
 #=======================================================================
 #  main
 #-----------------------------------------------------------------------
+log_pg_settings = gmConnectionPool.log_pg_settings
+log_pg_exception_details = gmConnectionPool.log_pg_exception_details
 
-# make sure psycopg2 knows how to handle unicode ...
-psycopg2.extensions.register_type(psycopg2.extensions.UNICODE)
-psycopg2.extensions.register_type(psycopg2._psycopg.UNICODEARRAY)
+exception_is_connection_loss = gmConnectionPool.exception_is_connection_loss
 
-# tell psycopg2 how to adapt datetime types with timestamps when locales are in use
-# check in 0.9:
-psycopg2.extensions.register_adapter(pydt.datetime, cAdapterPyDateTime)
+cAuthenticationError = gmConnectionPool.cAuthenticationError
 
-# turn dict()s into JSON - only works > 9.2
-#psycopg2.extensions.register_adapter(dict, psycopg2.extras.Json)
-
-# do NOT adapt *lists* to "... IN (*) ..." syntax because we want
-# them adapted to "... ARRAY[]..." so we can support PG arrays
-
-#=======================================================================
+#-----------------------------------------------------------------------
 if __name__ == "__main__":
 
 	if len(sys.argv) < 2:
@@ -2785,11 +1958,13 @@ if __name__ == "__main__":
 
 	#--------------------------------------------------------------------
 	def test_file2bytea():
+		login, creds = request_login_params()
+		pool = gmConnectionPool.gmConnectionPool()
+		pool.credentials = creds
 		run_rw_queries(queries = [
 			{'cmd': 'drop table if exists test_bytea'},
 			{'cmd': 'create table test_bytea (data bytea)'}
 		])
-
 		try:
 			#file2bytea(query = 'insert into test_bytea values (%(data)s::bytea) returning md5(data) as md5', filename = sys.argv[2], file_md5 = file2md5(sys.argv[2], True))
 			file2bytea(query = 'insert into test_bytea values (%(data)s::bytea)', filename = sys.argv[2])
@@ -2802,6 +1977,10 @@ if __name__ == "__main__":
 
 	#--------------------------------------------------------------------
 	def test_file2bytea_lo():
+		login, creds = request_login_params()
+		pool = gmConnectionPool.gmConnectionPool()
+		pool.credentials = creds
+
 		lo_oid = file2bytea_lo (
 			filename = sys.argv[2]
 			#, file_md5 = file2md5(sys.argv[2], True)
@@ -2814,6 +1993,9 @@ if __name__ == "__main__":
 
 	#--------------------------------------------------------------------
 	def test_file2bytea_copy_from():
+		login, creds = request_login_params()
+		pool = gmConnectionPool.gmConnectionPool()
+		pool.credentials = creds
 
 		run_rw_queries(queries = [
 			{'cmd': 'drop table if exists test_bytea'},
@@ -2840,6 +2022,9 @@ if __name__ == "__main__":
 
 	#--------------------------------------------------------------------
 	def test_file2bytea_overlay():
+		login, creds = request_login_params()
+		pool = gmConnectionPool.gmConnectionPool()
+		pool.credentials = creds
 
 		run_rw_queries(queries = [
 			{'cmd': 'drop table if exists test_bytea'},
@@ -2877,6 +2062,10 @@ if __name__ == "__main__":
 	def test_get_connection():
 		print("testing get_connection()")
 
+		login, creds = request_login_params()
+		pool = gmConnectionPool.gmConnectionPool()
+		pool.credentials = creds
+
 		print('')
 		dsn = 'foo'
 		try:
@@ -2888,9 +2077,10 @@ if __name__ == "__main__":
 			print (' ', v)
 
 		print('')
-		dsn = 'dbname=gnumed_v9'
+		dsn = 'dbname=gnumed_v22'
 		try:
 			conn = get_connection(dsn=dsn)
+			print("2) ERROR: get_connection() did not fail")
 		except cAuthenticationError:
 			print("2) SUCCESS: get_connection(%s) failed as expected" % dsn)
 			t, v = sys.exc_info()[:2]
@@ -2898,9 +2088,10 @@ if __name__ == "__main__":
 			print(' ', v)
 
 		print('')
-		dsn = 'dbname=gnumed_v9 user=abc'
+		dsn = 'dbname=gnumed_v22 user=abc'
 		try:
 			conn = get_connection(dsn=dsn)
+			print("3) ERROR: get_connection() did not fail")
 		except cAuthenticationError:
 			print("3) SUCCESS: get_connection(%s) failed as expected" % dsn)
 			t, v = sys.exc_info()[:2]
@@ -2908,11 +2099,12 @@ if __name__ == "__main__":
 			print(' ', v)
 
 		print('')
-		dsn = 'dbname=gnumed_v9 user=any-doc password=abc'
+		dsn = 'dbname=gnumed_v22 user=any-doc password=abc'
 		try:
 			conn = get_connection(dsn=dsn)
+			print("4) ERROR: get_connection() did not fail")
 		except cAuthenticationError:
-			print("5) SUCCESS: get_connection(%s) failed as expected" % dsn)
+			print("4) SUCCESS: get_connection(%s) failed as expected" % dsn)
 			t, v = sys.exc_info()[:2]
 			print(' ', t)
 			print(' ', v)
@@ -2920,26 +2112,17 @@ if __name__ == "__main__":
 		print('')
 		dsn = 'dbname=gnumed_v22 user=any-doc password=any-doc'
 		conn = get_connection(dsn=dsn, readonly=True)
+		print('5) SUCCESS: get_connection(ro)')
 
 		dsn = 'dbname=gnumed_v22 user=any-doc password=any-doc'
 		conn = get_connection(dsn=dsn, readonly=False, verbose=True)
-
-		print('')
-		dsn = 'dbname=gnumed_v22 user=any-doc password=any-doc'
-		encoding = 'foo'
-		try:
-			conn = get_connection(dsn=dsn, encoding=encoding)
-		except cEncodingError:
-			print("6) SUCCESS: get_connection(%s, %s) failed as expected" % (dsn, encoding))
-			t, v = sys.exc_info()[:2]
-			print(' ', t)
-			print(' ', v)
+		print('6) SUCCESS: get_connection(rw)')
 
 		print('')
 		dsn = 'dbname=gnumed_v22 user=any-doc'
 		try:
 			conn = get_connection(dsn=dsn)
-			print("6) SUCCESS:", dsn)
+			print("8) SUCCESS:", dsn)
 			print('pid:', conn.get_backend_pid())
 		except cAuthenticationError:
 			print("4) SUCCESS: get_connection(%s) failed" % dsn)
@@ -2954,31 +2137,16 @@ if __name__ == "__main__":
 		except Exception as exc:
 			print('ERROR')
 			_log.exception('exception occurred')
-			log_pg_exception_details(exc)
-			if exception_is_connection_loss(exc):
+			gmConnectionPool.log_pg_exception_details(exc)
+			if gmConnectionPool.exception_is_connection_loss(exc):
 				_log.error('lost connection')
 
 	#--------------------------------------------------------------------
-	def test_exceptions():
-		print("testing exceptions")
-
-		try:
-			raise cAuthenticationError('no dsn', 'no previous exception')
-		except cAuthenticationError:
-			t, v, tb = sys.exc_info()
-			print(t)
-			print(v)
-			print(tb)
-
-		try:
-			raise cEncodingError('no dsn', 'no previous exception')
-		except cEncodingError:
-			t, v, tb = sys.exc_info()
-			print(t)
-			print(v)
-			print(tb)
-	#--------------------------------------------------------------------
 	def test_ro_queries():
+		login, creds = request_login_params()
+		pool = gmConnectionPool.gmConnectionPool()
+		pool.credentials = creds
+
 		print("testing run_ro_queries()")
 
 		dsn = 'dbname=gnumed_v22 user=any-doc password=any-doc'
@@ -3014,88 +2182,25 @@ if __name__ == "__main__":
 		curs.close()
 
 	#--------------------------------------------------------------------
-	def test_request_dsn():
-		conn = get_connection()
-		print(conn)
-		conn.close()
-	#--------------------------------------------------------------------
-	def test_set_encoding():
-		print("testing set_default_client_encoding()")
-
-		enc = 'foo'
-		try:
-			set_default_client_encoding(enc)
-			print("SUCCESS: encoding [%s] worked" % enc)
-		except ValueError:
-			print("SUCCESS: set_default_client_encoding(%s) failed as expected" % enc)
-			t, v = sys.exc_info()[:2]
-			print(' ', t)
-			print(' ', v)
-
-		enc = ''
-		try:
-			set_default_client_encoding(enc)
-			print("SUCCESS: encoding [%s] worked" % enc)
-		except ValueError:
-			print("SUCCESS: set_default_client_encoding(%s) failed as expected" % enc)
-			t, v = sys.exc_info()[:2]
-			print(' ', t)
-			print(' ', v)
-
-		enc = 'latin1'
-		try:
-			set_default_client_encoding(enc)
-			print("SUCCESS: encoding [%s] worked" % enc)
-		except ValueError:
-			print("SUCCESS: set_default_client_encoding(%s) failed as expected" % enc)
-			t, v = sys.exc_info()[:2]
-			print(' ', t)
-			print(' ', v)
-
-		enc = 'utf8'
-		try:
-			set_default_client_encoding(enc)
-			print("SUCCESS: encoding [%s] worked" % enc)
-		except ValueError:
-			print("SUCCESS: set_default_client_encoding(%s) failed as expected" % enc)
-			t, v = sys.exc_info()[:2]
-			print(' ', t)
-			print(' ', v)
-
-		enc = 'unicode'
-		try:
-			set_default_client_encoding(enc)
-			print("SUCCESS: encoding [%s] worked" % enc)
-		except ValueError:
-			print("SUCCESS: set_default_client_encoding(%s) failed as expected" % enc)
-			t, v = sys.exc_info()[:2]
-			print(' ', t)
-			print(' ', v)
-
-		enc = 'UNICODE'
-		try:
-			set_default_client_encoding(enc)
-			print("SUCCESS: encoding [%s] worked" % enc)
-		except ValueError:
-			print("SUCCESS: set_default_client_encoding(%s) failed as expected" % enc)
-			t, v = sys.exc_info()[:2]
-			print(' ', t)
-			print(' ', v)
-	#--------------------------------------------------------------------
 	def test_connection_pool():
-		dsn = get_default_dsn()
-		pool = cConnectionPool(minconn=1, maxconn=2, dsn=None, verbose=False)
+		login, creds = request_login_params()
+		pool = gmConnectionPool.gmConnectionPool()
+		pool.credentials = creds
 		print(pool)
-		print(pool.getconn())
-		print(pool.getconn())
-		print(pool.getconn())
-		print(type(pool.getconn()))
+		print(pool.get_connection())
+		print(pool.get_connection())
+		print(pool.get_connection())
+		print(type(pool.get_connection()))
+
 	#--------------------------------------------------------------------
 	def test_list_args():
-		dsn = get_default_dsn()
-		conn = get_connection(dsn, readonly=True)
+		login, creds = request_login_params()
+		pool = gmConnectionPool.gmConnectionPool()
+		pool.credentials = creds
+		conn = get_connection('', readonly=True)
 		curs = conn.cursor()
 		curs.execute('SELECT * from clin.clin_narrative where narrative = %s', ['a'])
+
 	#--------------------------------------------------------------------
 	def test_sanitize_pg_regex():
 		tests = [
@@ -3107,8 +2212,12 @@ if __name__ == "__main__":
 			result = sanitize_pg_regex(test[0])
 			if result != test[1]:
 				print('ERROR: sanitize_pg_regex(%s) returned "%s", expected "%s"' % (test[0], result, test[1]))
+
 	#--------------------------------------------------------------------
 	def test_is_pg_interval():
+		login, creds = request_login_params()
+		pool = gmConnectionPool.gmConnectionPool()
+		pool.credentials = creds
 		status = True
 		tests = [
 			[None, True],		# None == NULL == succeeds !
@@ -3128,23 +2237,19 @@ if __name__ == "__main__":
 				status = False
 
 		return status
+
 	#--------------------------------------------------------------------
 	def test_sanity_check_time_skew():
+		login, creds = request_login_params()
+		pool = gmConnectionPool.gmConnectionPool()
+		pool.credentials = creds
 		sanity_check_time_skew()
 
 	#--------------------------------------------------------------------
-	def test_get_foreign_key_names():
-		print(get_foreign_key_names (
-			src_schema = 'clin',
-			src_table = 'vaccination',
-			src_column = 'fk_episode',
-			target_schema = 'clin',
-			target_table = 'episode',
-			target_column = 'pk'
-		))
-
-	#--------------------------------------------------------------------
 	def test_get_foreign_key_details():
+		login, creds = request_login_params()
+		pool = gmConnectionPool.gmConnectionPool()
+		pool.credentials = creds
 		schema = 'clin'
 		table = 'episode'
 		col = 'pk'
@@ -3161,6 +2266,9 @@ if __name__ == "__main__":
 
 	#--------------------------------------------------------------------
 	def test_set_user_language():
+		login, creds = request_login_params()
+		pool = gmConnectionPool.gmConnectionPool()
+		pool.credentials = creds
 		# (user, language, result, exception type)
 		tests = [
 			# current user
@@ -3177,12 +2285,14 @@ if __name__ == "__main__":
 			['invalid user', None, True]
 		]
 		for test in tests:
+			print('testing: %s', test)
 			try:
 				result = set_user_language(user = test[0], language = test[1])
 				if result != test[2]:
 					print("test:", test)
 					print("result:", result, "expected:", test[2])
 			except psycopg2.IntegrityError as e:
+				print(e)
 				if test[2] is None:
 					continue
 				print("test:", test)
@@ -3191,11 +2301,17 @@ if __name__ == "__main__":
 
 	#--------------------------------------------------------------------
 	def test_get_schema_revision_history():
+		login, creds = request_login_params()
+		pool = gmConnectionPool.gmConnectionPool()
+		pool.credentials = creds
 		for line in get_schema_revision_history():
 			print(' - '.join(line))
 
 	#--------------------------------------------------------------------
 	def test_run_query():
+		login, creds = request_login_params()
+		pool = gmConnectionPool.gmConnectionPool()
+		pool.credentials = creds
 		gmDateTime.init()
 		args = {'dt': gmDateTime.pydt_max_here()}
 		cmd = "SELECT %(dt)s"
@@ -3214,11 +2330,20 @@ SELECT to_timestamp (foofoo,'YYMMDD.HH24MI') FROM (
 		print(rows)
 		print(rows[0])
 		print(rows[0][0])
+
 	#--------------------------------------------------------------------
 	def test_schema_exists():
+		login, creds = request_login_params()
+		pool = gmConnectionPool.gmConnectionPool()
+		pool.credentials = creds
 		print(schema_exists())
+
 	#--------------------------------------------------------------------
 	def test_row_locks():
+		login, creds = request_login_params()
+		pool = gmConnectionPool.gmConnectionPool()
+		pool.credentials = creds
+
 		row_is_locked(table = 'dem.identity', pk = 12)
 
 		print("1st connection:")
@@ -3258,6 +2383,17 @@ SELECT to_timestamp (foofoo,'YYMMDD.HH24MI') FROM (
 
 	#--------------------------------------------------------------------
 	def test_get_foreign_key_names():
+		login, creds = request_login_params()
+		pool = gmConnectionPool.gmConnectionPool()
+		pool.credentials = creds
+		print(get_foreign_key_names (
+			src_schema = 'clin',
+			src_table = 'vaccination',
+			src_column = 'fk_episode',
+			target_schema = 'clin',
+			target_table = 'episode',
+			target_column = 'pk'
+		))
 		print(get_foreign_key_names (
 			src_schema = 'dem',
 			src_table = 'names',
@@ -3269,43 +2405,54 @@ SELECT to_timestamp (foofoo,'YYMMDD.HH24MI') FROM (
 
 	#--------------------------------------------------------------------
 	def test_get_index_name():
+		login, creds = request_login_params()
+		pool = gmConnectionPool.gmConnectionPool()
+		pool.credentials = creds
 		print(get_index_name(indexed_table = 'clin.vaccination', indexed_column = 'fk_episode'))
 
 	#--------------------------------------------------------------------
 	def test_faulty_SQL():
+		login, creds = request_login_params()
+		pool = gmConnectionPool.gmConnectionPool()
+		pool.credentials = creds
+		conn = get_connection()
 		run_rw_queries(queries = [{'cmd': 'SELEC 1'}])
 
 	#--------------------------------------------------------------------
 	def test_log_settings():
-		conn = conn = get_connection()
-		_log_PG_settings(curs = conn.cursor())
+		login, creds = request_login_params()
+		pool = gmConnectionPool.gmConnectionPool()
+		pool.credentials = creds
+		conn = get_connection()
+		gmConnectionPool.log_pg_settings(curs = conn.cursor())
 
 	#--------------------------------------------------------------------
 	# run tests
-	#test_get_connection()
-	#test_exceptions()
-	#test_ro_queries()
-	#test_request_dsn()
-	#test_set_encoding()
+
+	# legacy:
 	#test_connection_pool()
+
+	# tested:
+	#test_file2bytea_lo()
+	#test_file2bytea_copy_from()		# not fully implemented
+	#test_file2bytea_overlay()
+	#test_file2bytea()
+	#test_exceptions()
+	#test_get_connection()
+	#test_ro_queries()
 	#test_list_args()
 	#test_sanitize_pg_regex()
 	#test_is_pg_interval()
 	#test_sanity_check_time_skew()
 	#test_get_foreign_key_details()
-	#test_get_foreign_key_names()
 	#test_get_index_name()
 	#test_set_user_language()
 	#test_get_schema_revision_history()
-	#test_run_query()
+	test_run_query()
 	#test_schema_exists()
 	#test_get_foreign_key_names()
 	#test_row_locks()
-	test_file2bytea()
-	#test_file2bytea_overlay()
-	#test_file2bytea_copy_from()
-	#test_file2bytea_lo()
 	#test_faulty_SQL()
-	#test_log_settings()
+	test_log_settings()
 
 # ======================================================================

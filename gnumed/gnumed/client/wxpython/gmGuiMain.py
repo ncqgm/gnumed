@@ -72,6 +72,7 @@ from Gnumed.pycommon import gmBackendListener
 from Gnumed.pycommon import gmLog2
 from Gnumed.pycommon import gmNetworkTools
 from Gnumed.pycommon import gmMimeLib
+from Gnumed.pycommon import gmConnectionPool
 
 from Gnumed.business import gmPerson
 from Gnumed.business import gmClinicalRecord
@@ -1104,7 +1105,7 @@ class gmTopLevelFrame(wx.Frame):
 	def __on_about_database(self, evt):
 		praxis = gmPraxis.gmCurrentPraxisBranch()
 		msg = praxis.db_logon_banner
-		login = gmPG2.get_default_login()
+		creds = gmConnectionPool.gmConnectionPool().credentials
 		auth = _(
 			'\n\n'
 			' praxis:       %s\n'
@@ -1120,11 +1121,11 @@ class gmTopLevelFrame(wx.Frame):
 			praxis['praxis'],
 			praxis['branch'],
 			praxis.active_workplace,
-			login.user,
+			creds.user,
 			gmPG2.get_current_user_language(),
 			_provider['role'],
-			login.database,
-			gmTools.coalesce(login.host, '<localhost>'),
+			creds.database,
+			gmTools.coalesce(creds.host, '<localhost>'),
 			gmPG2.postgresql_version_string
 		)
 		msg += auth
@@ -3666,11 +3667,11 @@ class gmApp(wx.App):
 		if not gmPraxisWidgets.set_active_praxis_branch(no_parent = True):
 			return False
 
-		login = gmPG2.get_default_login()
+		creds = gmConnectionPool.gmConnectionPool().credentials
 		msg = '\n'
 		msg += _('Database <%s> on <%s>') % (
-			login.database,
-			gmTools.coalesce(login.host, 'localhost')
+			creds.database,
+			gmTools.coalesce(creds.host, 'localhost')
 		)
 		msg += '\n\n'
 
@@ -3709,11 +3710,11 @@ class gmApp(wx.App):
 		wps = gmPraxis.gmCurrentPraxisBranch().workplaces
 		if len(wps) == 0:
 			return
-		login = gmPG2.get_default_login()
+
 		prefs_file = _cfg.get(option = 'user_preferences_file')
 		gmCfg2.set_option_in_INI_file (
 			filename = prefs_file,
-			group = 'profile %s' % login.backend_profile,
+			group = 'profile %s' % _cfg.get(option = 'backend_profile'),
 			option = 'last known workplaces',
 			value = wps
 		)

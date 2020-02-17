@@ -25,10 +25,8 @@ l.port = '5432'
 l.user = 'any-doc'
 l.password = 'any-doc'
 
-gmPG2.set_default_login(l)
-
-gmPG2.set_default_client_timezone(timezone = 'Asia/Colombo')
-gmPG2.set_default_client_timezone(timezone = 'Asia/Calcutta')
+#gmPG2.set_default_client_timezone(timezone = 'Asia/Colombo')
+#gmPG2.set_default_client_timezone(timezone = 'Asia/Calcutta')
 
 conn = gmPG2.get_connection()
 
