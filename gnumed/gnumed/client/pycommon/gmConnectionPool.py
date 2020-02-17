@@ -240,7 +240,7 @@ class gmConnectionPool(gmBorg.cBorg):
 			self.__initialized = True
 
 		_log.info('[%s]: first instantiation', self.__class__.__name__)
-		self.__ro_conn_pool = {}	# keyed by thread ID
+		self.__ro_conn_pool = {}	# keyed by "DSN::thread ID"
 		self.__SQL_set_client_timezone = None
 		self.__client_timezone = None
 		self.__creds = None
@@ -254,19 +254,23 @@ class gmConnectionPool(gmBorg.cBorg):
 			pooled = False
 		conn = None
 		if readonly and pooled:
-			# FIXME: add DSN to key
-			pool_key = threading.current_thread().ident
 			try:
-				conn = self.__ro_conn_pool[pool_key]
+				conn = self.__ro_conn_pool[self.pool_key]
 			except KeyError:
-				_log.info('pooled RO conn with key [%s] requested, but not in pool, setting up', pool_key)
+				_log.info('pooled RO conn with key [%s] requested, but not in pool, setting up', self.pool_key)
 			if conn is not None:
 				if verbose:
-					_log.debug('using pooled conn [%s]', pool_key)
+					_log.debug('using pooled conn [%s]', self.pool_key)
 				return conn
 
 		if conn is None:
-			conn = self.get_raw_connection(verbose = verbose, readonly = readonly, connection_name = connection_name, autocommit = autocommit)
+			conn = self.get_raw_connection (
+				verbose = verbose,
+				readonly = readonly,
+				connection_name = connection_name,
+				autocommit = autocommit,
+				credentials = credentials
+			)
 		if readonly and pooled:
 			# monkey patch close() for pooled RO connections
 			conn.original_close = conn.close
@@ -298,8 +302,8 @@ class gmConnectionPool(gmBorg.cBorg):
 		conn.commit()
 		if readonly and pooled:
 			# put into pool
-			_log.debug('putting RO conn with key [%s] into pool', pool_key)
-			self.__ro_conn_pool[pool_key] = conn
+			_log.debug('putting RO conn with key [%s] into pool', self.pool_key)
+			self.__ro_conn_pool[self.pool_key] = conn
 		if verbose:
 			log_conn_state(conn)
 		return conn
@@ -310,7 +314,6 @@ class gmConnectionPool(gmBorg.cBorg):
 
 	#--------------------------------------------------
 	def get_ro_conn(self, verbose=False, connection_name=None, autocommit=False):
-		_log.debug('would be caching under key (thread.ident): [%s]', threading.current_thread().ident)
 		return self.get_connection(verbose = verbose, readonly = False, connection_name = connection_name, autocommit = autocommit)
 
 	#--------------------------------------------------
@@ -396,14 +399,13 @@ class gmConnectionPool(gmBorg.cBorg):
 
 	#--------------------------------------------------
 	def discard_pooled_connection_of_thread(self):
-		pool_key = threading.current_thread().ident
 		try:
-			conn = self.__ro_conn_pool[pool_key]
+			conn = self.__ro_conn_pool[self.pool_key]
 		except KeyError:
-			_log.debug('no connection pooled for thread [%s]', pool_key)
+			_log.debug('no connection pooled for thread [%s]', self.pool_key)
 			return
 
-		del self.__ro_conn_pool[pool_key]
+		del self.__ro_conn_pool[self.pool_key]
 		if conn.closed:
 			return
 
@@ -577,11 +579,32 @@ class gmConnectionPool(gmBorg.cBorg):
 		return self.__creds
 
 	def _set_credentials(self, creds=None):
-		# XXXXXXXXXXXX
-		# invalidate conn pool
+		if self.__creds is not None:
+			_log.debug('invalidating pooled connections on credentials change')
+			curr_dsn = self.__creds.formatted_dsn + '::'
+			for conn_key in self.__ro_conn_pool:
+				if not conn_key.startswith(curr_dsn):
+					continue
+				conn = self.__ro_conn_pool[conn_key]
+				del self.__ro_conn_pool[conn_key]
+				if conn.closed:
+					continue
+				_log.debug('closing open database connection, pool key: %s', conn_key)
+				log_conn_state(conn)
+				conn.close = conn.original_close
+				conn.close()
 		self.__creds = creds
 
 	credentials = property(_get_credentials, _set_credentials)
+
+	#--------------------------------------------------
+	def _get_pool_key(self):
+		return '%s::%s' % (
+			self.__creds.formatted_dsn,
+			threading.current_thread().ident
+		)
+
+	pool_key = property(_get_pool_key)
 
 	#--------------------------------------------------
 	def __is_auth_fail_msg(self, msg):
@@ -1009,5 +1032,20 @@ if __name__ == "__main__":
 				_log.error('lost connection')
 
 	#--------------------------------------------------------------------
+	def test_change_creds():
+		print("testing credentials change")
+		pool = gmConnectionPool()
+		creds = cPGCredentials()
+		creds.database = 'gnumed_v22'
+		creds.user = 'any-doc'
+		pool.credentials = creds
+		conn = pool.get_connection()
+		_log.debug('changing credentials')
+		creds.user = 'gm-dbo'
+		pool.credentials = creds
+		conn = pool.get_connection()
+
+	#--------------------------------------------------------------------
 	#test_exceptions()
-	test_get_connection()
+	#test_get_connection()
+	test_change_creds()
