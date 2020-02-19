@@ -1,11 +1,15 @@
 
-gnumed-announce@gnu.org, gnumed-update@gnu.org, gnumed-devel@gnu.org
+gnumed-devel@gnu.org
+
+gnumed-announce@gnu.org, gnumed-update@gnu.org
+
+
 
 Hello all,
 
 I am glad to be able to announce the immediate availability
 of the GNUmed x.x.x Maintenance Release. It features the
-following bug fixes and minor improvements:
+following bug fixes and/or minor improvements:
 
 Changelog:
 
@@ -14,8 +18,8 @@ Changelog:
 
 Downloads available from:
 
-	http://www.gnumed.de/downloads/client/x.x/
-	http://www.gnumed.de/downloads/server/vxx/
+	https://www.gnumed.de/downloads/client/x.x/
+	https://www.gnumed.de/downloads/server/vxx/
 
 
 Client installation:
@@ -26,13 +30,13 @@ Client installation:
  Meanwhile you can run the client from a downloaded tarball
  or use the net based client installer:
 
-	http://www.gnumed.de/downloads/client/gm-install_client_locally.sh
+	https://www.gnumed.de/downloads/client/gm-install_client_locally.sh
 
  which you need to download, make executable, and run.
 
  More information available here:
 
-	http://wiki.gnumed.de/bin/view/Gnumed/InstallerGuideHomeShort
+	https://wiki.gnumed.de/bin/view/Gnumed/InstallerGuideHomeShort
 
 
 Database installation / upgrade:
@@ -51,7 +55,7 @@ Database installation / upgrade:
 
  Related information is found here:
 
-	http://wiki.gnumed.de/bin/view/Gnumed/GmManualServerUpgrade
+	https://wiki.gnumed.de/bin/view/Gnumed/GmManualServerUpgrade
 
 
 Please download, install, and report problems !

@@ -27,6 +27,8 @@ NEW: dicomize images/PDF into DICOM study
 NEW: [Abort] client from exception dialog
 NEW: edit clinical item from EMR list journal
 NEW: dist: add PortableApp XML skeleton
+NEW: placeholder: $most_recent_test_results$
+NEW: tool: check_mimetypes_in_archive
 
 IMPROVED: symbolic link creation on Windows
 IMPROVED: Orthanc connection handling
@@ -56,15 +58,25 @@ FIX: billing: invoice ID generation [thanks Marc]
 FIX: export area: saving document part entries
 FIX: lab: grid display row tooltips
 FIX: lists: context menu CSV export
+FIX: EMR/tree: selection of pseudo issue node
+FIX: documents/new: error handling of unreadable parts
+FIX: PG access: rewrite connection pool
 
 ------------------------------------------------
 # rel-1-7-patches
 ------------------------------------------------
 
+	1.7.10
+
+NEW: paperwork: template: most recent lab
+
 	1.7.9
 
 FIX: billing: invoice ID generation [thanks Marc]
 FIX: dist: GNUmed Manual d/l URL
+FIX: template: letter w/ & w/o Dx's
+FIX: paperwork: letter receiver dlg address selection
+FIX: EMR/tree: exception on loading visual progress notes
 
 	1.7.8
 
@@ -2070,6 +2082,10 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 ------------------------------------------------
 # gnumed_v22
 ------------------------------------------------
+
+	22.9
+
+FIX: clin.v_candidate_diagnoses: missing coalesce()
 
 	22.8
 

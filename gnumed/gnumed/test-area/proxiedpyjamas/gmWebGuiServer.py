@@ -135,9 +135,6 @@ def connect_to_database(login_info=None, max_attempts=3, expected_version=None, 
             del e
             continue
 
-        # connect was successful
-        gmPG2.set_default_login(login = login)
-        #gmPG2.set_default_client_encoding(encoding = dlg.panel.backend_profile.encoding)
 
 #       compatible = gmPG2.database_schema_compatible(version = expected_version)
 #       if compatible or not require_version:

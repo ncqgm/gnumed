@@ -79,11 +79,7 @@ IMPROVED: bills tables grants for invoice ID generation
 
 NEW: multi-results plotting script for gnuplot
 
-	22.6
-
-FIX: properly include fixups in v21-v22 upgrade
-
-IMPROVED: database backup script
+FIX: clin.v_candidate_diagnoses: missing coalesce()
 ');
 
 -- --------------------------------------------------------------

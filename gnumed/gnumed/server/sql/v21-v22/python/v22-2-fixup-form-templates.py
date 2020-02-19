@@ -20,7 +20,7 @@ def run(conn=None):
 		query = u"""
 			UPDATE ref.paperwork_templates SET
 				data = %(data)s::bytea,
-				external_version = '22.6'
+				external_version = '22.9'
 			WHERE
 				name_long = 'Begleitbrief ohne medizinische Daten [K.Hilbert]'""",
 		filename = os.path.join('..', 'sql', 'v21-v22', 'data', 'v22-Begleitbrief.tex'),
@@ -64,6 +64,20 @@ def run(conn=None):
 		filename = os.path.join('..', 'sql', 'v21-v22', 'data', 'v22-GNUmed-default_medication_list_template.tex'),
 		conn = conn
 	)
+
+	# most recent lab results
+	gmPG2.file2bytea (
+		query = u"""
+			UPDATE ref.paperwork_templates SET
+				data = %(data)s::bytea,
+				external_version = '22.10'
+			WHERE
+				name_long = 'lab: most recent results (GNUmed default)'
+			""",
+		filename = os.path.join('..', 'sql', 'v21-v22', 'data', 'v22-GNUmed-default-latest_lab-template.tex'),
+		conn = conn
+	)
+
 	#------------------------------------
 	return True
 

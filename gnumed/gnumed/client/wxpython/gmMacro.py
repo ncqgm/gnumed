@@ -397,6 +397,12 @@ __known_variant_placeholders = {
 	'current_meds_notes': "emits a LaTeX table, no arguments",
 	'lab_table': "emits a LaTeX table, no arguments",
 	'test_results': "args: <%(field)s-template>//<date format>//<line separator (EOL)>",
+	'most_recent_test_results': """most recent test results formatted as defined in <template>:
+		args: <dfmt=...>//<tmpl=...>//<sep=...>
+		<dfmt=...>: strftime format string for test result timestamps,
+		<tmpl=...>: target format specific %s-template, applied to each test result
+		<sep=...>: line separator, can be a Python string escape, such as \n
+	""",
 	'latest_vaccs_table': "emits a LaTeX table, no arguments",
 	'vaccination_history': "args: <%(field)s-template//date format> to format one vaccination per line",
 	'allergy_state': "no arguments",
@@ -1591,21 +1597,14 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 
 	#--------------------------------------------------------
 	def _get_variant_patient_mcf(self, data):
-		template = u'%s'
-		format = 'txt'
-		options = data.split(self.__args_divider)
-		_log.debug('options: %s', options)
-		for o in options:
-			if o.strip().startswith('fmt='):
-				format = o.strip()[4:]
-				if format not in ['qr', 'mcf', 'txt']:
-					return self._escape(_('patient_mcf: invalid format (qr/mcf/txt)'))
-				continue
-			if o.strip().startswith('tmpl='):
-				template = o.strip()[5:]
-				continue
-		_log.debug('template: %s' % template)
-		_log.debug('format: %s' % format)
+		template, format = self.__parse_ph_options (
+			option_defs = {'tmpl': '%s', 'fmt': 'txt'},
+			options_string = data
+		)
+		if format not in ['qr', 'mcf', 'txt']:
+			if self.debug:
+				return self._escape(_('patient_mcf: invalid format (qr/mcf/txt)'))
+			return ''
 
 		if format == 'txt':
 			return template % self._escape(self.pat.MECARD)
@@ -1689,21 +1688,14 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 
 	#--------------------------------------------------------
 	def _get_variant_praxis_mcf(self, data):
-		template = u'%s'
-		format = 'txt'
-		options = data.split(self.__args_divider)
-		_log.debug('options: %s', options)
-		for o in options:
-			if o.strip().startswith('fmt='):
-				format = o.strip()[4:]
-				if format not in ['qr', 'mcf', 'txt']:
-					return self._escape(_('praxis_mcf: invalid format (qr/mcf/txt)'))
-				continue
-			if o.strip().startswith('tmpl='):
-				template = o.strip()[5:]
-				continue
-		_log.debug('template: %s' % template)
-		_log.debug('format: %s' % format)
+		template, format = self.__parse_ph_options (
+			option_defs = {'tmpl': '%s', 'fmt': 'txt'},
+			options_string = data
+		)
+		if format not in ['qr', 'mcf', 'txt']:
+			if self.debug:
+				return self._escape(_('praxis_mcf: invalid format (qr/mcf/txt)'))
+			return ''
 
 		if format == 'txt':
 			return template % self._escape(gmPraxis.gmCurrentPraxisBranch().MECARD)
@@ -1721,21 +1713,11 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 
 	#--------------------------------------------------------
 	def _get_variant_praxis_scan2pay(self, data):
-		#template = u'%s'
-		format = 'qr'
-		options = data.split(self.__args_divider)
-		_log.debug('options: %s', options)
-		for o in options:
-			if o.strip().startswith('fmt='):
-				format = o.strip()[4:]
-				if format not in ['qr', 'txt']:
-					return self._escape(_('praxis_scan2pay: invalid format (qr/txt)'))
-				continue
-#			if o.strip().startswith('tmpl='):
-#				template = o.strip()[5:]
-#				continue
-#		_log.debug('template: %s' % template)
-		_log.debug('format: %s' % format)
+		format = self.__parse_ph_options(option_defs = {'fmt': 'qr'}, options_string = data)
+		if format not in ['qr', 'txt']:
+			if self.debug:
+				return self._escape(_('praxis_scan2pay: invalid format (qr/txt)'))
+			return u''
 
 		data_str = gmPraxis.gmCurrentPraxisBranch().scan2pay_data
 		if data_str is None:
@@ -2292,13 +2274,13 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			results = self.pat.emr.get_test_results_by_date(),
 			output_format = self.__esc_style
 		)
+
 	#--------------------------------------------------------
 	def _get_variant_test_results(self, data=None):
 
 		template = ''
 		date_format = '%Y %b %d %H:%M'
 		separator = '\n'
-
 		options = data.split(self.__args_divider)
 		try:
 			template = options[0].strip()
@@ -2312,7 +2294,6 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		if separator.strip() == '':
 			separator = '\n'
 
-		#results = gmMeasurementWidgets.manage_measurements(single_selection = False, emr = self.pat.emr)
 		from Gnumed.wxpython.gmMeasurementWidgets import manage_measurements
 		results = manage_measurements(single_selection = False, emr = self.pat.emr)
 		if results is None:
@@ -2324,6 +2305,40 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			return (separator + separator).join([ self._escape(r.format(date_format = date_format)) for r in results ])
 
 		return separator.join([ template % r.fields_as_dict(date_format = date_format, escape_style = self.__esc_style) for r in results ])
+
+	#--------------------------------------------------------
+	def _get_variant_most_recent_test_results(self, data=None):
+		most_recent = gmPathLab.get_most_recent_result_for_test_types (
+			pk_test_types = None,			# we want most recent results for *all* tests
+			pk_patient = self.pat.ID,
+			consider_meta_type = True,
+			order_by = 'unified_name'
+		)
+		if len(most_recent) == 0:
+			if self.debug:
+				return self._escape(_('no results for this patient available'))
+			return ''
+
+		from Gnumed.wxpython.gmMeasurementWidgets import manage_measurements
+		results2show = manage_measurements (
+			single_selection = False,
+			measurements2manage = most_recent,
+			message = _('Most recent results: select the ones to include')
+		)
+		if results2show is None:
+			if self.debug:
+				return self._escape(_('no results for this patient selected'))
+			return ''
+
+		template, date_format, separator = self.__parse_ph_options (
+			option_defs = {'tmpl': '', 'dfmt': '%Y %b %d', 'sep': '\n'},
+			options_string = data
+		)
+		if template == '':
+			return (separator + separator).join([ self._escape(r.format(date_format = date_format)) for r in results2show ])
+
+		return separator.join([ template % r.fields_as_dict(date_format = date_format, escape_style = self.__esc_style) for r in results2show ])
+
 	#--------------------------------------------------------
 	def _get_variant_latest_vaccs_table(self, data=None):
 		return gmVaccination.format_latest_vaccinations (
@@ -2651,16 +2666,11 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 				return ''
 			self.__cache['bill'] = bill
 
-		format = 'qr'
-		options = data.split(self.__args_divider)
-		_log.debug('options: %s', options)
-		for o in options:
-			if o.strip().startswith('fmt='):
-				format = o.strip()[4:]
-				if format not in ['qr', 'txt']:
-					return self._escape(_('praxis_scan2pay: invalid format (qr/txt)'))
-				continue
-		_log.debug('format: %s' % format)
+		format = self.__parse_ph_options(option_defs = {'fmt': 'qr'}, options_string = data)
+		if format not in ['qr', 'txt']:
+			if self.debug:
+				return self._escape(_('praxis_scan2pay: invalid format (qr/txt)'))
+			return ''
 
 		from Gnumed.business import gmBilling
 		data_str = gmBilling.get_scan2pay_data (
@@ -2777,6 +2787,24 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 
 	#--------------------------------------------------------
 	# internal helpers
+	#--------------------------------------------------------
+	def __parse_ph_options(self, option_defs=None, options_string=None):
+		"""Returns a tuple of values in the order of option_defs.keys()."""
+		assert (option_defs is not None), '<option_defs> must not be None'
+		assert (options_string is not None), '<options_string> must not be None'
+
+		_log.debug('parsing ::%s:: for %s', options_string, option_defs)
+		options2return = option_defs.copy()
+		options = options_string.split(self.__args_divider)
+		for opt in options:
+			opt_name, opt_val = opt.split('=', 1)
+			if opt_name.strip() not in option_defs.keys():
+				continue
+			options2return[opt_name] = opt_val
+
+		_log.debug('found: %s', options2return)
+		return tuple([ options2return[o_name] for o_name in options2return.keys() ])
+
 	#--------------------------------------------------------
 	def _escape(self, text=None):
 		if self.__esc_func is None:
@@ -3482,6 +3510,7 @@ if __name__ == '__main__':
 			#u'$<soap::soapu //%(soap_cat)s: %(date)s | %(provider)s | %(narrative)s::9999>$'
 			#u'$<test_results:://%c::>$'
 			#u'$<test_results::%(unified_abbrev)s: %(unified_val)s %(val_unit)s//%c::>$'
+			'$<most_recent_test_results::tmpl=%(unified_name)s & %(unified_val)s%(val_unit)s & [%(unified_target_min)s--%(unified_target_max)s] %(unified_target_range)s & %(clin_when)s \\tabularnewline::>$'		#<dfmt=...>//<tmpl=...>//<sep=...>
 			#u'$<reminders:://::>$'
 			#u'$<current_meds_for_rx::%(product)s (%(contains)s): dispense %(amount2dispense)s ::>$'
 			#u'$<praxis::%(branch)s (%(praxis)s)::>$'
@@ -3511,8 +3540,8 @@ if __name__ == '__main__':
 			#u'$<patient_mcf::fmt=qr//png=%s::>$'
 			#u'$<praxis_scan2pay::fmt=txt::>$',
 			#u'$<praxis_scan2pay::fmt=qr::>$'
-			u'$<bill_scan2pay::fmt=txt::>$',
-			u'$<bill_scan2pay::fmt=qr::>$'
+			#u'$<bill_scan2pay::fmt=txt::>$',
+			#u'$<bill_scan2pay::fmt=qr::>$'
 		]
 
 		handler = gmPlaceholderHandler()
@@ -3547,6 +3576,25 @@ if __name__ == '__main__':
 		show_placeholders()
 
 	#--------------------------------------------------------
+	def test_parse_ph_options(option_defs=None, options_string=None):
+		"""Returns a tuple of values in the order of option_defs.keys()."""
+		assert (option_defs is not None), '<option_defs> must not be None'
+		assert (options_string is not None), '<options_string> must not be None'
+
+		_log.debug('parsing ::%s:: for %s', options_string, option_defs)
+		options2return = option_defs.copy()
+		options = options_string.split('//')
+		for opt in options:
+			opt_name, opt_val = opt.split('=', 1)
+			if opt_name.strip() not in option_defs.keys():
+				continue
+			options2return[opt_name] = opt_val
+
+		return tuple([ options2return[o_name] for o_name in options2return.keys() ])
+
+	#--------------------------------------------------------
+	#a,b,c = test_parse_ph_options(option_defs = {'opt1': 1, 'opt2': 'two', 'opt4': 'vier'}, options_string = 'opt1=one//opt2=2//opt3=drei')
+	#sys.exit()
 
 	app = wx.App()
 

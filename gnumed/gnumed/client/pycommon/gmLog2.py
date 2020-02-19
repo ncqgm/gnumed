@@ -34,6 +34,16 @@ at any given time there's a valid logger available.
 
 Your MAIN module simply imports gmLog2 and all other modules
 will merrily and automagically start logging away.
+
+
+Ad hoc call stack logging recipe:
+
+	call_stack = inspect.stack()
+	call_stack.reverse()
+	for idx in range(1, len(call_stack)):
+		caller = call_stack[idx]
+		_log.debug('%s[%s] @ [%s] in [%s]', ' '* idx, caller[3], caller[2], caller[1])
+	del call_stack
 """
 # TODO:
 # - exception()
@@ -215,8 +225,12 @@ def log_multiline(level, message=None, line_prefix=None, text=None):
 __words2hide = []
 
 def add_word2hide(word):
+	if word is None:
+		return
+	if word.strip() == '':
+		return
 	if word not in __words2hide:
-		__words2hide.append(word)
+		__words2hide.append(str(word))
 
 #---------------------------------------------------------------
 __original_logger_write_func = None

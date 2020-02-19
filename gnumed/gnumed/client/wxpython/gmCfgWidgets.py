@@ -22,7 +22,7 @@ from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmCfg2
 from Gnumed.pycommon import gmWorkerThread
-from Gnumed.pycommon import gmPG2
+from Gnumed.pycommon import gmConnectionPool
 from Gnumed.business import gmPraxis
 from Gnumed.wxpython import gmGuiHelpers
 from Gnumed.wxpython import gmListWidgets
@@ -74,7 +74,7 @@ def _signal_update_status(status):
 
 #------------------------------------------------------------------------------
 def _async_signal_update_status(status):
-	gmPG2.discard_pooled_connection()
+	gmConnectionPool.gmConnectionPool().discard_pooled_connection_of_thread()
 	wx.CallAfter(_signal_update_status, status)
 
 #------------------------------------------------------------------------------

@@ -171,16 +171,6 @@ def process_options():
 		if not converted:
 			exit_with_message('ERROR: invalid port in option --port=%s (must be 1024...65535)' % db_port)
 
-	gmPG2.log_auth_environment()
-	dsn = gmPG2.make_psycopg2_dsn (
-		database = gmPG2.default_database,
-		host = db_host,
-		port = db_port,
-		user = db_user,
-		password = None			# None = force not-required (TRUST/IDENT/PEER) or use-.pgpass-or-$PGPASSFILE
-	)
-	gmPG2._default_dsn = dsn
-
 	return datatype, file2import
 
 #	val = _cfg.get(option = '--debug', source_order = [('cli', 'return')])

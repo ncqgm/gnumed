@@ -467,7 +467,6 @@ if __name__ == '__main__':
 
 	try:
 		# make sure we have a db connection
-		gmPG.set_default_client_encoding('latin1')
 		pool = gmPG.ConnectionPool()
 
 		# obtain patient

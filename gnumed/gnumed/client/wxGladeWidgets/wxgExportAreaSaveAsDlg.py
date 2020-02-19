@@ -25,9 +25,10 @@ class wxgExportAreaSaveAsDlg(wx.Dialog):
 		self._LBL_dir_is_empty = wx.StaticText(self, wx.ID_ANY, _("this path is/is not empty"))
 		self._BTN_open_directory = wx.Button(self, wx.ID_ANY, _("Open"), style=wx.BU_EXACTFIT)
 		self._BTN_clear_directory = wx.Button(self, wx.ID_ANY, _("Clear"), style=wx.BU_EXACTFIT)
-		self._CHBOX_encrypt = wx.CheckBox(self, wx.ID_ANY, _("en&crypt"), style=wx.CHK_2STATE)
-		self._CHBOX_generate_metadata = wx.CheckBox(self, wx.ID_ANY, _("generate &metadata"), style=wx.CHK_2STATE)
 		self._CHBOX_use_subdirectory = wx.CheckBox(self, wx.ID_ANY, _("use subdirectory"), style=wx.CHK_2STATE)
+		self._CHBOX_generate_metadata = wx.CheckBox(self, wx.ID_ANY, _("generate &metadata"), style=wx.CHK_2STATE)
+		self._CHBOX_encrypt = wx.CheckBox(self, wx.ID_ANY, _("en&crypt"), style=wx.CHK_2STATE)
+		self._CHBOX_convert2pdf = wx.CheckBox(self, wx.ID_ANY, _("convert to PDF"), style=wx.CHK_2STATE)
 		self._BTN_save_files = wx.Button(self, wx.ID_OK, _("Save Files"))
 		self._BTN_save_archive = wx.Button(self, wx.ID_ANY, _("Save as Archive"))
 		self._BTN_cancel = wx.Button(self, wx.ID_CANCEL, "")
@@ -38,9 +39,9 @@ class wxgExportAreaSaveAsDlg(wx.Dialog):
 		self.Bind(wx.EVT_BUTTON, self._on_select_directory_button_pressed, self._BTN_select_directory)
 		self.Bind(wx.EVT_BUTTON, self._on_open_directory_button_pressed, self._BTN_open_directory)
 		self.Bind(wx.EVT_BUTTON, self._on_clear_directory_button_pressed, self._BTN_clear_directory)
-		self.Bind(wx.EVT_CHECKBOX, self._on_save_as_encrypted_toggled, self._CHBOX_encrypt)
-		self.Bind(wx.EVT_CHECKBOX, self._on_generate_metadata_toggled, self._CHBOX_generate_metadata)
 		self.Bind(wx.EVT_CHECKBOX, self._on_use_subdirectory_toggled, self._CHBOX_use_subdirectory)
+		self.Bind(wx.EVT_CHECKBOX, self._on_generate_metadata_toggled, self._CHBOX_generate_metadata)
+		self.Bind(wx.EVT_CHECKBOX, self._on_save_as_encrypted_toggled, self._CHBOX_encrypt)
 		self.Bind(wx.EVT_BUTTON, self._on_save_archive_button_pressed, self._BTN_save_archive)
 		# end wxGlade
 
@@ -55,10 +56,13 @@ class wxgExportAreaSaveAsDlg(wx.Dialog):
 		self._BTN_open_directory.SetToolTip(_("Open selected target directory in file browser."))
 		self._BTN_clear_directory.SetToolTip(_("Clear selected target directory from any existing data."))
 		self._BTN_clear_directory.Enable(False)
-		self._CHBOX_encrypt.SetToolTip(_("Use encryption ?\n\nWhen you save as files each file will be encrypted individually.\n\nWhen you save into an archive the ZIP archive itself will be encrypted rather than the files contained within. Encrypted archives will not include any patient data into the archive filename."))
-		self._CHBOX_generate_metadata.SetToolTip(_("Generate metadata ?\n\nCheck if you want GNUmed to generate metadata describing the exported patient data and save it alongside the files.\n\nWhen saving into an archive metadata will always be included."))
 		self._CHBOX_use_subdirectory.SetToolTip(_("Save into patient specific subdirectory ?\n\nCheck if you want GNUmed to create a suitable subdirectory within the selected path and save to that."))
 		self._CHBOX_use_subdirectory.SetValue(1)
+		self._CHBOX_generate_metadata.SetToolTip(_("Generate metadata ?\n\nCheck if you want GNUmed to generate metadata describing the exported patient data and save it alongside the files.\n\nWhen saving into an archive metadata will always be included."))
+		self._CHBOX_encrypt.SetToolTip(_("Use encryption ?\n\nWhen you save as files each file will be encrypted individually.\n\nWhen you save into an archive the ZIP archive itself will be encrypted rather than the files contained within. Encrypted archives will not include any patient data into the archive filename."))
+		self._CHBOX_convert2pdf.SetToolTip(_("Convert files to PDF before encryption, if possible.\n\nWhen you save encrypted files GNUmed will try to convert each file to PDF first. This will typically work for any images and will ensure maximum compatibility with receiver systems not nicely set up for handling encrypted content. Files which cannot be converted will be encrypted as is.\n\nIgnored when saving into an archive."))
+		self._CHBOX_convert2pdf.Enable(False)
+		self._CHBOX_convert2pdf.SetValue(1)
 		self._BTN_save_files.SetToolTip(_("Save entries as individual files."))
 		self._BTN_save_files.SetFocus()
 		self._BTN_save_files.SetDefault()
@@ -70,7 +74,8 @@ class wxgExportAreaSaveAsDlg(wx.Dialog):
 		# begin wxGlade: wxgExportAreaSaveAsDlg.__do_layout
 		__szr_main = wx.BoxSizer(wx.VERTICAL)
 		__szr_buttons = wx.BoxSizer(wx.HORIZONTAL)
-		_grszr_options = wx.FlexGridSizer(0, 2, 2, 5)
+		_grszr_options = wx.FlexGridSizer(4, 2, 2, 5)
+		__szr_encryption_options = wx.BoxSizer(wx.HORIZONTAL)
 		__szr_save_as = wx.BoxSizer(wx.HORIZONTAL)
 		__szr_dir_state = wx.BoxSizer(wx.HORIZONTAL)
 		__szr_main.Add(self._LBL_header, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP, 3)
@@ -84,10 +89,13 @@ class wxgExportAreaSaveAsDlg(wx.Dialog):
 		_grszr_options.Add(__szr_dir_state, 0, wx.EXPAND, 3)
 		__lbl_save_as = wx.StaticText(self, wx.ID_ANY, _("Options:"))
 		_grszr_options.Add(__lbl_save_as, 0, wx.ALIGN_CENTER_VERTICAL, 5)
-		__szr_save_as.Add(self._CHBOX_encrypt, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)
-		__szr_save_as.Add(self._CHBOX_generate_metadata, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)
 		__szr_save_as.Add(self._CHBOX_use_subdirectory, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 10)
+		__szr_save_as.Add(self._CHBOX_generate_metadata, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)
 		_grszr_options.Add(__szr_save_as, 0, wx.EXPAND, 3)
+		_grszr_options.Add((20, 20), 1, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
+		__szr_encryption_options.Add(self._CHBOX_encrypt, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)
+		__szr_encryption_options.Add(self._CHBOX_convert2pdf, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+		_grszr_options.Add(__szr_encryption_options, 1, wx.EXPAND, 0)
 		_grszr_options.AddGrowableCol(1)
 		__szr_main.Add(_grszr_options, 1, wx.EXPAND | wx.LEFT | wx.RIGHT, 3)
 		__hline_bottom = wx.StaticLine(self, wx.ID_ANY)
@@ -115,16 +123,16 @@ class wxgExportAreaSaveAsDlg(wx.Dialog):
 		print("Event handler '_on_clear_directory_button_pressed' not implemented!")
 		event.Skip()
 
-	def _on_save_as_encrypted_toggled(self, event):  # wxGlade: wxgExportAreaSaveAsDlg.<event_handler>
-		print("Event handler '_on_save_as_encrypted_toggled' not implemented!")
+	def _on_use_subdirectory_toggled(self, event):  # wxGlade: wxgExportAreaSaveAsDlg.<event_handler>
+		print("Event handler '_on_use_subdirectory_toggled' not implemented!")
 		event.Skip()
 
 	def _on_generate_metadata_toggled(self, event):  # wxGlade: wxgExportAreaSaveAsDlg.<event_handler>
 		print("Event handler '_on_generate_metadata_toggled' not implemented!")
 		event.Skip()
 
-	def _on_use_subdirectory_toggled(self, event):  # wxGlade: wxgExportAreaSaveAsDlg.<event_handler>
-		print("Event handler '_on_use_subdirectory_toggled' not implemented!")
+	def _on_save_as_encrypted_toggled(self, event):  # wxGlade: wxgExportAreaSaveAsDlg.<event_handler>
+		print("Event handler '_on_save_as_encrypted_toggled' not implemented!")
 		event.Skip()
 
 	def _on_save_archive_button_pressed(self, event):  # wxGlade: wxgExportAreaSaveAsDlg.<event_handler>

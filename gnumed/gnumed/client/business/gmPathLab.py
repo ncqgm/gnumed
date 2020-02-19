@@ -2427,8 +2427,11 @@ WHERE
 """
 
 def get_most_recent_result_for_test_types(pk_test_types=None, pk_patient=None, return_pks=False, consider_meta_type=False, order_by=None):
-	"""Return the one most recent result for *each* of a list of test types."""
+	"""Return the one most recent result for *each* of a list of test types.
 
+		If <pk_test_types> is not given, most recent results for *each*
+		test type the patient has any results for is returned.
+	"""
 	where_parts = ['pk_patient = %(pat)s']
 	args = {'pat': pk_patient}
 
@@ -2452,6 +2455,7 @@ def get_most_recent_result_for_test_types(pk_test_types=None, pk_patient=None, r
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 	if return_pks:
 		return [ r['pk_test_result'] for r in rows ]
+
 	return [ cTestResult(row = {'pk_field': 'pk_test_result', 'idx': idx, 'data': r}) for r in rows ]
 
 #------------------------------------------------------------

@@ -34,7 +34,8 @@ CONF="--conf-file=gm-from-vcs.conf"
 # options useful for development and debugging:
 TS=`date +%m_%d-%H_%M_%S`
 DEV_OPTS="--log-file=gm-vcs-${TS}-$$.log --override-schema-check --local-import --debug"
-# --tool=check_enc_epi_xref
+#DEV_OPTS="${DEV_OPTS} --tool=check_mimetypes_in_archive"
+#DEV_OPTS="${DEV_OPTS} --tool=check_enc_epi_xref"
 # --profile=gm-from-vcs.prof
 
 # options for running from released tarballs:

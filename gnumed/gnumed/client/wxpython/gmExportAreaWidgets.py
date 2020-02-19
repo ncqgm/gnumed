@@ -387,6 +387,11 @@ class cExportAreaSaveAsDlg(wxgExportAreaSaveAsDlg.wxgExportAreaSaveAsDlg):
 		self.__update_ui_state()
 
 	#--------------------------------------------------------
+	def _on_save_as_encrypted_toggled(self, event):
+		event.Skip()
+		self.__update_ui_state()
+
+	#--------------------------------------------------------
 	def _on_select_directory_button_pressed(self, event):
 		event.Skip()
 		curr_path = self._LBL_directory.Label.rstrip(os.sep).rstrip('/')
@@ -464,6 +469,11 @@ class cExportAreaSaveAsDlg(wxgExportAreaSaveAsDlg.wxgExportAreaSaveAsDlg):
 			if path.endswith(subdir_name):
 				path = path[:-len(subdir_name)].rstrip(os.sep).rstrip('/')
 				self._LBL_directory.Label = path + os.sep
+
+		if self._CHBOX_encrypt.IsChecked():
+			self._CHBOX_convert2pdf.Enable()
+		else:
+			self._CHBOX_convert2pdf.Disable()
 
 		is_empty = gmTools.dir_is_empty(directory = path)
 		if is_empty is True:
@@ -682,6 +692,7 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 		generate_metadata = dlg._CHBOX_generate_metadata.IsChecked()
 		use_subdir = dlg._CHBOX_use_subdirectory.IsChecked()
 		encrypt = dlg._CHBOX_encrypt.IsChecked()
+		convert2pdf = dlg._CHBOX_convert2pdf.IsChecked()
 		dlg.DestroyLater()
 		if choice == wx.ID_CANCEL:
 			return
@@ -721,11 +732,13 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 				base_dir = path,
 				items = items,
 				encrypt = encrypt,
-				with_metadata = generate_metadata
+				with_metadata = generate_metadata,
+				convert2pdf = convert2pdf
 			)
 			if export_dir is None:
 				gmDispatcher.send(signal = 'statustext', msg = _('Cannot save: aborted or error.'))
 				return
+
 			gmDispatcher.send(signal = 'statustext', msg = _('Saved entries into [%s]') % export_dir)
 			target = export_dir
 
@@ -953,8 +966,7 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 		)
 
 	#--------------------------------------------------------
-	def __export_as_files(self, msg_title, base_dir=None, encrypt=False, with_metadata=False, items=None):
-		# get password
+	def __export_as_files(self, msg_title, base_dir=None, encrypt=False, with_metadata=False, items=None, convert2pdf=False):
 		data_pwd = None
 		if encrypt:
 			data_pwd = self.__get_password(msg_title)
@@ -962,14 +974,14 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 				_log.debug('user aborted by not providing the same password twice')
 				gmDispatcher.send(signal = 'statustext', msg = _('Password not provided twice. Aborting.'))
 				return None
-		# save
+
 		wx.BeginBusyCursor()
 		try:
 			exp_area = gmPerson.gmCurrentPatient().export_area
 			if with_metadata:
 				export_dir = exp_area.export(base_dir = base_dir, items = items, passphrase = data_pwd)
 			else:
-				export_dir = exp_area.dump_items_to_disk(base_dir = base_dir, items = items, passphrase = data_pwd)
+				export_dir = exp_area.dump_items_to_disk(base_dir = base_dir, items = items, passphrase = data_pwd, convert2pdf = convert2pdf)
 		finally:
 			wx.EndBusyCursor()
 		if export_dir is None:

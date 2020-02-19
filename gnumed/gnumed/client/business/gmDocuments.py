@@ -356,13 +356,10 @@ ORDER BY
 			_log.error('[%s] is not a readable file' % fname)
 			return False
 
-		if not gmPG2.file2bytea (
-			conn = link_obj,
-			query = "UPDATE blobs.doc_obj SET data = %(data)s::bytea WHERE pk = %(pk)s RETURNING md5(data) AS md5",
-			filename = fname,
-			args = {'pk': self.pk_obj},
-			file_md5 = gmTools.file2md5(filename = fname, return_hex = True)
-		):
+		cmd = "UPDATE blobs.doc_obj SET data = %(data)s::BYTEA WHERE pk = %(pk)s RETURNING md5(data) AS md5"
+		args = {'pk': self.pk_obj}
+		md5 = gmTools.file2md5(filename = fname, return_hex = True)
+		if not gmPG2.file2bytea(conn = link_obj, query = cmd, filename = fname, args = args, file_md5 = md5):
 			return False
 
 		# must update XMIN now ...
@@ -1157,6 +1154,7 @@ def create_document_type(document_type=None):
 def delete_document_type(document_type=None):
 	if document_type['is_in_use']:
 		return False
+
 	gmPG2.run_rw_queries (
 		queries = [{
 			'cmd': 'delete from blobs.doc_type where pk=%s',
@@ -1175,6 +1173,46 @@ def get_ext_ref():
 	# extract name for dir
 	path, doc_ID = os.path.split(dirname)
 	return doc_ID
+
+#============================================================
+def check_mimetypes_in_archive():
+	mimetypes = {}
+	cmd = 'SELECT pk FROM blobs.doc_med'
+	doc_pks, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
+	print('Detecting mimetypes in document archive ...')
+	doc_idx = 0
+	part_count = 0
+	for pk_row in doc_pks:
+		doc_idx += 1
+		print('\n#%s - document %s of %s: ' % (pk_row['pk'], doc_idx, len(doc_pks)), end = '')
+		doc = cDocument(aPK_obj = pk_row['pk'])
+		for part in doc.parts:
+			part_count += 1
+			print('#%s:%s bytes, ' % (part['pk_obj'], part['size']), end = '')
+			part_fname = part.save_to_file()
+			mimetype = gmMimeLib.guess_mimetype(part_fname)
+			try:
+				mimetypes[mimetype]['count'] += 1
+			except KeyError:
+				mimetypes[mimetype] = {
+					'count': 1,
+					'viewer': gmMimeLib.get_viewer_cmd(mimetype),
+					'editor': gmMimeLib.get_editor_cmd(mimetype),
+					'extension': gmMimeLib.guess_ext_by_mimetype(mimetype)
+				}
+	print('')
+	print('')
+	print('Number of documents :', len(doc_pks))
+	print('Number of parts     :', part_count)
+	print('Number of mime types:', len(mimetypes))
+	for mimetype in mimetypes:
+		print('')
+		print('<%s>' % mimetype)
+		print(' Extension:', mimetypes[mimetype]['extension'])
+		print(' Use count:', mimetypes[mimetype]['count'])
+		print('    Viewer:', mimetypes[mimetype]['viewer'])
+		print('    Editor:', mimetypes[mimetype]['editor'])
+	return 0
 
 #============================================================
 # main
@@ -1264,6 +1302,9 @@ if __name__ == '__main__':
 					date_before_type = True,
 					name_first = False
 				))
+	#--------------------------------------------------------
+	def test_check_mimetypes_in_archive():
+		check_mimetypes_in_archive()
 
 	#--------------------------------------------------------
 	def test_part_metainfo_formatter():
@@ -1309,6 +1350,7 @@ if __name__ == '__main__':
 	#test_adding_doc_part()
 	#test_get_documents()
 	#test_get_useful_filename()
-	test_part_metainfo_formatter()
+	#test_part_metainfo_formatter()
+	test_check_mimetypes_in_archive()
 
 #	print get_ext_ref()

@@ -182,11 +182,6 @@ def init():
 		else:
 			current_local_timezone_name = time.tzname[0]
 
-	# do some magic to convert Python's timezone to a valid ISO timezone
-	# is this safe or will it return things like 13.5 hours ?
-	#_default_client_timezone = "%+.1f" % (-tz // 3600.0)
-	#_log.info('assuming default client time zone of [%s]' % _default_client_timezone)
-
 	global gmCurrentLocalTimezone
 	gmCurrentLocalTimezone = cPlatformLocalTimezone()
 	_log.debug('local-timezone class: %s', cPlatformLocalTimezone)

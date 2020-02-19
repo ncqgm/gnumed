@@ -386,6 +386,9 @@ class cVisualSoapPresenterPnl(wxgVisualSoapPresenterPnl.wxgVisualSoapPresenterPn
 	# external API
 	#--------------------------------------------------------
 	def refresh(self, document_folder=None, episodes=None, encounter=None, do_async=False):
+		if not self:
+			# our C/C++ part may be dead already, due to async behaviour
+			return
 
 		if document_folder is None:
 			self.clear()
@@ -438,7 +441,7 @@ class cVisualSoapPresenterPnl(wxgVisualSoapPresenterPnl.wxgVisualSoapPresenterPn
 	def _worker__export_doc_parts(self, docs=None, cookie=None):
 		# this is used as the worker thread payload
 		_log.debug('cookie [%s]', cookie)
-		conn = gmPG2.get_raw_connection(readonly = True, connection_name = threading.current_thread().name)
+		conn = gmPG2.get_connection(readonly = True, connection_name = threading.current_thread().name, pooled = False)
 		parts_list = []
 		for soap_doc in docs:
 			parts = soap_doc.parts
@@ -460,7 +463,6 @@ class cVisualSoapPresenterPnl(wxgVisualSoapPresenterPnl.wxgVisualSoapPresenterPn
 
 	#--------------------------------------------------------
 	def _forwarder__show_exported_doc_parts(self, worker_result):
-		gmPG2.discard_pooled_connection()
 		# this is the worker thread completion callback
 		cookie, parts_list = worker_result
 		# worker still the one we are interested in ?

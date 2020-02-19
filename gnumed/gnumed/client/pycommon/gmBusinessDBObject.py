@@ -638,14 +638,14 @@ def manage_xxx()
 			lines.append('%s (no versions)' % title)
 		else:
 			lines.append('%s (%s versions)' % (title, rows[0]['row_version'] + 1))
-			headers = [ 'rev %s (%s)' % (r['row_version'], pydt_strftime(r['audit__action_when'], format = '%Y %b %d %H:%M', none_str = 'live row')) for r in rows ]
+			column_labels = [ 'rev %s (%s)' % (r['row_version'], pydt_strftime(r['audit__action_when'], format = '%Y %b %d %H:%M', none_str = 'live row')) for r in rows ]
 			lines.extend (dicts2table (
 				rows,
 				left_margin = 1,
 				eol = None,
 				keys2ignore = ['audit__action_when', 'row_version', 'pk_audit'],
 				show_only_changes = True,
-				headers = headers,
+				column_labels = column_labels,
 				date_format = '%Y %b %d %H:%M',
 				equality_value = u_left_arrow
 			))

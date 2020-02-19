@@ -55,6 +55,29 @@ insert into ref.paperwork_templates (
 );
 
 -- --------------------------------------------------------------
+delete from ref.paperwork_templates where name_long = 'lab: most recent results (GNUmed default)';
+
+insert into ref.paperwork_templates (
+	fk_template_type,
+	instance_type,
+	name_short,
+	name_long,
+	external_version,
+	engine,
+	filename,
+	data
+) values (
+	(select pk from ref.form_types where name = 'EMR printout'),
+	'lab results',
+	'lab: most recent (GMd)',
+	'lab: most recent results (GNUmed default)',
+	'22.10',
+	'L',
+	'most-recent-lab.tex',
+	'real template missing'::bytea
+);
+
+-- --------------------------------------------------------------
 -- convert paperwork templates
 
 -- $<<<...>>>$ -> $3<...>3$

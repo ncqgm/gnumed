@@ -55,6 +55,7 @@ care of all the pre- and post-GUI runtime environment setup.
  Show this help.
 """
 #==========================================================
+# SPDX-License-Identifier: GPL-2.0-or-later
 __author__ = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 __license__ = "GPL v2 or later (details at http://www.gnu.org)"
 
@@ -129,7 +130,8 @@ _known_ui_types = [
 
 _known_tools = [
 	'check_enc_epi_xref',
-	'export_pat_emr_structure'
+	'export_pat_emr_structure',
+	'check_mimetypes_in_archive'
 ]
 
 
@@ -663,8 +665,8 @@ def setup_backend_environment():
 			('system', 'return')
 		]
 	)
-	if timezone is not None:
-		gmPG2.set_default_client_timezone(timezone)
+#	if timezone is not None:
+#		gmPG2.set_default_client_timezone(timezone)
 
 #==========================================================
 def run_gui():
@@ -708,6 +710,14 @@ def run_tool():
 	print('Running tool: %s' % tool)
 	print('----------------------------------------------')
 	print('')
+	login, creds = gmPG2.request_login_params()
+	pool = gmConnectionPool.gmConnectionPool()
+	pool.credentials = creds
+	print('')
+
+	if tool == 'check_mimetypes_in_archive':
+		from Gnumed.business import gmDocuments
+		return gmDocuments.check_mimetypes_in_archive()
 
 	if tool == 'check_enc_epi_xref':
 		from Gnumed.business import gmEMRStructItems
@@ -854,8 +864,7 @@ setup_cfg()
 setup_ui_type()
 
 from Gnumed.pycommon import gmPG2
-if ui_type in ['web']:
-	gmPG2.auto_request_login_params = False
+from Gnumed.pycommon import gmConnectionPool
 setup_backend_environment()
 
 # main

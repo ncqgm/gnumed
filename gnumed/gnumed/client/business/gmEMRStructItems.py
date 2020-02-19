@@ -922,9 +922,9 @@ FROM (
 	#--------------------------------------------------------
 	def _get_formatted_revision_history(self):
 		cmd = """SELECT
-				'NONE (live row)'::text as audit__action_applied,
+				'<N/A>'::TEXT as audit__action_applied,
 				NULL AS audit__action_when,
-				NULL AS audit__action_by,
+				'<N/A>'::TEXT AS audit__action_by,
 				pk_audit,
 				row_version,
 				modified_when,
@@ -1646,9 +1646,9 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	def _get_formatted_revision_history(self):
 		cmd = """SELECT
-				'NONE (live row)'::text as audit__action_applied,
+				'<N/A>'::TEXT as audit__action_applied,
 				NULL AS audit__action_when,
-				NULL AS audit__action_by,
+				'<N/A>'::TEXT AS audit__action_by,
 				pk_audit,
 				row_version,
 				modified_when,
@@ -3007,9 +3007,9 @@ limit 1
 	#--------------------------------------------------------
 	def _get_formatted_revision_history(self):
 		cmd = """SELECT
-				'NONE (live row)'::text as audit__action_applied,
+				'<N/A>'::TEXT as audit__action_applied,
 				NULL AS audit__action_when,
-				NULL AS audit__action_by,
+				'<N/A>'::TEXT AS audit__action_by,
 				pk_audit,
 				row_version,
 				modified_when,
@@ -4013,11 +4013,12 @@ if __name__ == '__main__':
 	def test_health_issue():
 		print("\nhealth issue test")
 		print("-----------------")
-		h_issue = cHealthIssue(aPK_obj = 894)
+		#h_issue = cHealthIssue(aPK_obj = 894)
+		h_issue = cHealthIssue(aPK_obj = 1)
 		print(h_issue)
-		print('possible start:', h_issue.possible_start_date)
-		print('safe start    :', h_issue.safe_start_date)
-		print('end date      :', h_issue.clinical_end_date)
+#		print('possible start:', h_issue.possible_start_date)
+#		print('safe start    :', h_issue.safe_start_date)
+#		print('end date      :', h_issue.clinical_end_date)
 
 		#print(h_issue.latest_access_date)
 #		fields = h_issue.get_fields()
@@ -4030,7 +4031,7 @@ if __name__ == '__main__':
 #		h_issue = cHealthIssue(encounter = 1, name = u'post appendectomy/peritonitis')
 #		print h_issue
 #		print h_issue.format_as_journal()
-#		print(h_issue.formatted_revision_history)
+		print(h_issue.formatted_revision_history)
 
 	#--------------------------------------------------------	
 	def test_episode():

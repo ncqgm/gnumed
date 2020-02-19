@@ -25,6 +25,7 @@ if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmLoginInfo
 from Gnumed.pycommon import gmPG2
+from Gnumed.pycommon import gmConnectionPool
 from Gnumed.pycommon import gmBackendListener
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmCfg2
@@ -134,15 +135,16 @@ def connect_to_database(max_attempts=3, expected_version=None, require_version=T
 		gmLog2.add_word2hide(login.password)
 
 		# try getting a connection to verify the DSN works
-		dsn = gmPG2.make_psycopg2_dsn (
-			database = login.database,
-			host = login.host,
-			port = login.port,
-			user = login.user,
-			password = login.password
-		)
+		creds = gmConnectionPool.cPGCredentials()
+		creds.database = login.database
+		creds.host = login.host
+		creds.port = login.port
+		creds.user = login.user
+		creds.password = login.password
+		pool = gmConnectionPool.gmConnectionPool()
+		pool.credentials = creds
 		try:
-			conn = gmPG2.get_raw_connection(dsn = dsn, verbose = True, readonly = True)
+			conn = gmPG2.get_raw_connection(verbose = True, readonly = True)
 			connected = True
 
 		except gmPG2.cAuthenticationError as e:
@@ -211,10 +213,6 @@ def connect_to_database(max_attempts=3, expected_version=None, require_version=T
 
 		conn.close()
 
-		# connect was successful
-		gmPG2.set_default_login(login = login)
-		gmPG2.set_default_client_encoding(encoding = dlg.panel.backend_profile.encoding)
-
 		seems_bootstrapped = gmPG2.schema_exists(schema = 'gm')
 		if not seems_bootstrapped:
 			_log.error('schema [gm] does not exist - database not bootstrapped ?')
@@ -274,8 +272,8 @@ def connect_to_database(max_attempts=3, expected_version=None, require_version=T
 				connected = False
 				continue
 
-		gmExceptionHandlingWidgets.set_is_public_database(login.public_db)
-		gmExceptionHandlingWidgets.set_helpdesk(login.helpdesk)
+		gmExceptionHandlingWidgets.set_is_public_database(_cfg.get(option = 'is_public_db'))
+		gmExceptionHandlingWidgets.set_helpdesk(_cfg.get(option = 'helpdesk'))
 
 		conn = gmPG2.get_connection(verbose = True, connection_name = 'GNUmed-[DbListenerThread]', pooled = False)
 		listener = gmBackendListener.gmBackendListener(conn = conn)
@@ -311,20 +309,14 @@ Please enter the current password for <%s>:""") % (
 	gmLog2.add_word2hide(dbo_password)
 
 	# 2) connect as gm-dbo
-	login = gmPG2.get_default_login()
-	dsn = gmPG2.make_psycopg2_dsn (
-		database = login.database,
-		host = login.host,
-		port = login.port,
-		user = dbo_account,
-		password = dbo_password
-	)
+	pool = gmConnectionPool.gmConnectionPool()
+	conn = None
 	try:
-		conn = gmPG2.get_connection (
-			dsn = dsn,
+		conn = pool.get_dbowner_connection (
 			readonly = False,
 			verbose = True,
-			pooled = False
+			dbo_password = dbo_password,
+			dbo_account = dbo_account
 		)
 	except Exception:
 		_log.exception('cannot connect')
@@ -333,8 +325,6 @@ Please enter the current password for <%s>:""") % (
 			aTitle = procedure
 		)
 		gmPG2.log_database_access(action = 'failed to connect as database owner for [%s]' % procedure)
-		return None
-
 	return conn
 
 #================================================================
@@ -428,7 +418,6 @@ def change_gmdbowner_password():
 		dbo_pwd_new_2
 	)
 	gmPG2.run_rw_queries(link_obj = dbo_conn, queries = [{'cmd': cmd}], end_tx = True)
-
 	return True
 
 #================================================================
@@ -805,9 +794,18 @@ class cLoginPanel(wx.Panel):
 			database = profile.database,
 			port = profile.port
 		)
-		login.public_db = profile.public_db
-		login.helpdesk = profile.helpdesk
-		login.backend_profile = profile.name
+		_cfg.set_option (
+			option = 'is_public_db',
+			value = profile.public_db
+		)
+		_cfg.set_option (
+			option = 'helpdesk',
+			value = profile.helpdesk
+		)
+		_cfg.set_option (
+			option = 'backend_profile',
+			value = profile.name
+		)
 		return login
 	#----------------------------
 	# event handlers

@@ -1,0 +1,259 @@
+%------------------------------------------------------------------
+% GNUmed default template for most recent lab results
+%
+% Author: Karsten Hilbert
+% Author: karsten.hilbert@gmx.net
+% License: GPL v2 or later
+%
+% requires pdflatex to be run with -recorder option
+%------------------------------------------------------------------
+
+\documentclass[
+	version=last,							% use latest KomaScript code
+	paper=portrait,							% not landscape
+	paper=a4,								% set paper size
+	DIV=9,									% help typearea find a good Satzspiegel
+	BCOR=0mm,								% keine BindeCORrektur
+	fontsize=11pt,							% set fontsize early such that recalctypearea is not necessary
+	parskip=half*,							% Absätze mit halber Leerzeilen trennen, kein Einzug, Vorabsatz endet mit maxial 3/4-Zeile
+	headsepline=true,						% do show line below page header
+	footsepline=true,						% do show line above page footer
+	titlepage=false							% do not set a dedicated title page
+]{scrartcl}
+
+%------------------------------------------------------------------
+% package loading:
+\usepackage{scrlayer-scrpage}				% header and footer control
+\usepackage[ngerman]{babel}					% Deutsch und Trennung
+\usepackage[utf8]{inputenc}					% input is UTF8
+\usepackage[T1]{fontenc}					% fonts are T1
+\usepackage{textcomp}						% symbols for textmode escaping, does not mix with "ucs", unless utf8x used
+\usepackage{marvosym}						% symbols: Handy, Telefon, E-Mail
+%\usepackage{helvet}						% Arial-alike Helvetica
+\usepackage{lmodern}						% sans serif Latin Modern
+\usepackage{array}							% improved table column styles
+\usepackage{graphicx}						% enhanced graphics loading (logo and signature)
+\usepackage[space,extendedchars]{grffile}	% better access to graphics files
+\usepackage[export]{adjustbox}				% improved options for \includegraphics
+\usepackage{ragged2e}						% improved alignment
+\usepackage{lastpage}						% easy access to page number of last page
+\usepackage{embedfile}						% store data files in PDF (patient, praxis)
+%\usepackage[abspath]{currfile}				% generically refer to LaTeX input file
+\usepackage{calc}							% \widthof (for signature)
+\usepackage{microtype}						% micro-adjustments to typesetting
+\usepackage{tabularx}						% bessere Tabellen
+%\usepackage{tabu}							% bessere Tabellen
+\usepackage{longtable}						% Tabellen über mehrere Seiten
+% debugging
+$<if_debugging:://%::>$\usepackage{interfaces}				% provides \papergraduate
+$<if_debugging:://%::>$\usepackage{showkeys}				% print labels (anchors and stuff) as margin notes
+$<if_debugging:://%::>$\usepackage[noframe]{showframe}		% show page margins as boxes
+$<if_debugging:://%::>$\usepackage[verbose]{layout}			% generate a page with the current layout
+$<if_debugging:://%::>$\usepackage[pass]{geometry}			% nicely display geometry in log file
+$<if_debugging:://%::>$\usepackage{afterpage}				% add stuff after next page bread
+% load last:
+\usepackage{hyperref}						% aktive URLs, needs to be loaded last, most of the time
+
+
+% package setup:
+% - debugging
+\listfiles																% list all input files used
+\errorcontextlines 10000												% list lots of context lines with errors
+\RequirePackage[l2tabu, orthodox]{nag}									% show unorthodox/faulty/obsolete uses
+\hypersetup{debug=true}													% extra debugging log messages
+% %\tracingtabu=3														% trace tabu tables if using tabu package
+$<if_debugging:://%::>$\usetikz{basic}									% needed for \papergraduate from package interfaces
+$<if_debugging:://%::>$\overfullrule=2cm								% mark overfull horizontal boxes
+$<if_debugging:://%::>$\geometry{pass,verbose}							% put geometry into log file
+$<if_debugging:://%::>$\renewcommand\ShowFrameLinethickness{0.25pt}		% configure showframe
+$<if_debugging:://%::>$\renewcommand*\ShowFrameColor{\color{red}}		% configure showframe
+
+% - PDF metadata
+\hypersetup{%
+	pdftitle = {Patient: $<name::%(firstnames)s %(lastnames)s::>$, $<date_of_birth::%d.%m.%Y::>$},
+	pdfauthor = {$<current_provider::::>$, $<praxis::%(branch)s, %(praxis)s::>$},
+	pdfsubject = {Most recent lab results},
+	pdfproducer = {GNUmed $<client_version::::>$, Template $<form_name_long::::>$, $<form_version::::>$ [$<form_version_internal::::>$, $<form_last_modified::::>$]},
+	pdfdisplaydoctitle = true,
+	pdfprintscaling = None
+}
+
+% - base font: sans serif Latin Modern
+\renewcommand*\familydefault{\sfdefault}
+
+% - precise positioning of things to satisfy spec
+%\setlength{\tabcolsep}{0pt}
+%\setlength{\parskip}{0pt}
+%\setlength{\topskip}{0pt}
+%\setlength{\floatsep}{0pt}
+%\setlength{\textfloatsep}{0pt}
+% "enough" space at the top
+\setlength{\topmargin}{-50pt}
+\setlength{\headheight}{80pt}
+
+% - tabu
+%\tabulinesep=^1mm_1mm
+
+% - header = top part
+\lohead{{%
+	\parbox[t]{\textwidth}{%
+		\upshape
+		\centering
+		{\Large Most recent lab results}\\
+		$<today::%d.%B %Y::>$ -- Page \thepage{} of \pageref{LastPage}\\
+		\begin{tabular}[t]{ll}%
+			Patient & {\large $<lastname::::1>$\textsc{$2<lastname::::2-99>2$}, $<firstname::::>$}\\
+			born    & $<date_of_birth::%d.%B %Y::>$\\
+			$2<if_not_empty::$<adr_street::home::>$$<adr_number::home::>$$<adr_postcode::home::>$$<adr_location::home::>$//\multicolumn{2}{l}{{\footnotesize $<adr_street::home::>$ $<adr_number::home::>$, $<adr_postcode::home::>$ $<adr_location::home::>$}}\\//% address empty::>2$
+		\end{tabular}%
+		\hfill
+		\begin{tabular}[t]{ll}%
+			Arzt & $<current_provider::::>$\\
+			$2<if_not_empty::$<current_provider_external_id::Fachgebiet//Ärztekammer::>$//{\footnotesize FA für} & {\footnotesize %s}\\//% speciality not available::>2$
+			$2<if_not_empty::$<current_provider_external_id::KV-LANR//KV::>$//{\footnotesize LANR} & {\footnotesize %s}\\//% no LANR available::>2$
+		\end{tabular}%
+	}
+}}
+\lehead{{%
+	\parbox[t]{\textwidth}{%
+		\upshape
+		\centering
+		{\Large GENERIC TITLE}\\
+		$<today::%d.%B %Y::>$ -- Seite \thepage{} von \pageref{LastPage}\\
+		\begin{tabular}[t]{ll}%
+			Patient & {\large $<lastname::::1>$\textsc{$2<lastname::::2-99>2$}, $<firstname::::>$}\\
+			geb     & $<date_of_birth::%d.%B %Y::>$\\
+			$2<if_not_empty::$<adr_street::home::>$$<adr_number::home::>$$<adr_postcode::home::>$$<adr_location::home::>$//\multicolumn{2}{l}{{\footnotesize $<adr_street::home::>$ $<adr_number::home::>$, $<adr_postcode::home::>$ $<adr_location::home::>$}}\\//% address empty::>2$
+		\end{tabular}%
+		\hfill
+		\begin{tabular}[t]{ll}%
+			Arzt & $<current_provider::::>$\\
+			$2<if_not_empty::$<current_provider_external_id::Fachgebiet//Ärztekammer::>$//{\footnotesize FA für} & {\footnotesize %s}\\//% speciality not available::>2$
+			$2<if_not_empty::$<current_provider_external_id::KV-LANR//KV::>$//{\footnotesize LANR} & {\footnotesize %s}\\//% no LANR available::>2$
+		\end{tabular}%
+	}
+}}
+\cehead{}
+\cohead{}
+\rehead{}
+\rohead{}
+
+
+% footer setup = bottom part
+\lofoot{{%
+	\parbox[t]{\textwidth}{%
+		\tiny
+		\begin{tabular}[t]{ll}%
+			\multicolumn{2}{l}{$<praxis::%(praxis)s, %(branch)s::>$}\\
+			\multicolumn{2}{l}{$<praxis_address::%(street)s %(number)s %(subunit)s, %(postcode)s %(urb)s::>$}\\
+			\multicolumn{2}{l}{\Email $2<if_not_empty::$<praxis_comm::email::>$//\href{mailto:$<praxis_comm::email::>$}{%s}//::>2$}
+		\end{tabular}%
+		\begin{tabular}[t]{ll}%
+			\Telefon       & $<praxis_comm::workphone::>$\\
+			\FAX           & $<praxis_comm::fax::>$\\
+			$2<ph_cfg::argumentsdivider//#2#//%% <%(name)s> set to [%(value)s]::>2$
+			$2<if_not_empty::$<praxis_comm::web::>$#2#\ComputerMouse & \href{http://%s}{%s}#2#% no praxis web address available::>2$
+			$2<ph_cfg::argumentsdivider//DEFAULT//%% <%(name)s> set to [%(value)s]::>2$
+		\end{tabular}%
+		\begin{tabular}[t]{ll}%
+			BSNR    & $<praxis_id::KV-BSNR//KV//%(value)s::>$\\
+			GNUmed  & v$<client_version::::>$ (\href{http://www.gnumed.org}{www.gnumed.org})\\
+			Vorlage & $<form_name_long::::>$ v$<form_version::::>$
+		\end{tabular}%
+	}
+}}
+\lefoot{{%
+	\parbox[t]{\textwidth}{%
+		\tiny
+		\begin{tabular}[t]{ll}%
+			\multicolumn{2}{l}{$<praxis::%(praxis)s, %(branch)s::>$}\\
+			\multicolumn{2}{l}{$<praxis_address::%(street)s %(number)s %(subunit)s, %(postcode)s %(urb)s::>$}\\
+			\multicolumn{2}{l}{\Email $2<if_not_empty::$<praxis_comm::email::>$//\href{mailto:$<praxis_comm::email::>$}{%s}//::>2$}
+		\end{tabular}%
+		\begin{tabular}[t]{ll}%
+			\Telefon       & $<praxis_comm::workphone::>$\\
+			\FAX           & $<praxis_comm::fax::>$\\
+			$2<ph_cfg::argumentsdivider//#2#//%% <%(name)s> set to [%(value)s]::>2$
+			$2<if_not_empty::$<praxis_comm::web::>$#2#\ComputerMouse & \href{http://%s}{%s}#2#% no praxis web address available::>2$
+			$2<ph_cfg::argumentsdivider//DEFAULT//%% <%(name)s> set to [%(value)s]::>2$
+		\end{tabular}%
+		\begin{tabular}[t]{ll}%
+			BSNR    & $<praxis_id::KV-BSNR//KV//%(value)s::>$\\
+			GNUmed  & v$<client_version::::>$ (\href{http://www.gnumed.org}{www.gnumed.org})\\
+			Vorlage & $<form_name_long::::>$ v$<form_version::::>$
+		\end{tabular}%
+	}
+}}
+\cefoot{}
+\cofoot{}
+\refoot{}
+\rofoot{}
+
+%------------------------------------------------------------------
+\begin{document}
+
+% debugging
+$<if_debugging:://%::>$\papergraduate											% show coordinate system on first page
+$<if_debugging:://%::>$\afterpage{\AddToShipoutPicture*{\ShowFramePicture}}		% show "normal" page layout starting with second page
+
+%------------------------------------------------------------------
+% the actual content
+\selectlanguage{ngerman}					% if German
+
+
+\begin{tabularx}{\textwidth}{|l|l|l|l|}
+%\cline{1-4}
+%Test & Result & Range & When \\
+\cline{1-4}
+$<most_recent_test_results::tmpl=%(unified_name)s & %(clin_when)s & %(unified_val)s %(val_unit)s %(abnormality_indicator)s & %(unified_target_range)s [%(unified_target_min)s--%(unified_target_max)s] \\::>$
+\cline{1-4}
+\end{tabularx}
+
+
+% uncomment, if and as needed, the next lines to append text below the table
+%{\footnotesize			% start smaller font
+% <any line(s) of info you wish to always be printed immediately below the table>
+%}						% end smaller font
+
+
+$<free_text::Note on lab results (below lab table)::9999>$
+
+%------------------------------------------------------------------
+
+\medskip{}
+
+%------------------------------------------------------------------
+% Unterschrift
+\begin{flushright}
+\texttt{\textsl{\footnotesize Practice Stamp / Physician Signature}}
+\par\end{flushright}
+
+%------------------------------------------------------------------
+% embed data into PDF for easier processing:
+
+% VCF of creator
+\IfFileExists{$<praxis_vcf::::>$}{%
+	\embedfile[
+		desc=01) Praxis - digital business card (originator),
+		mimetype=text/vcf,
+		ucfilespec=praxis.vcf
+	]{$<praxis_vcf::::>$}
+}{\typeout{[$<praxis_vcf::::>$] not found}}
+
+% VCF of patient
+\IfFileExists{$<patient_vcf::::>$}{%
+	\embedfile[
+		desc=02) Patient - digital business card,
+		mimetype=text/vcf,
+		ucfilespec=patient.vcf
+	]{$<patient_vcf::::>$}
+}{\typeout{[$<patient_vcf::::>$] (patient VCF) not found}}
+
+%------------------------------------------------------------------
+
+% debugging
+$<if_debugging:://%::>$\layout				% show page layout page
+
+%------------------------------------------------------------------
+\end{document}
+%------------------------------------------------------------------

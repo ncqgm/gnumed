@@ -597,7 +597,7 @@ def remove_file(filename, log_error=True, force=False):
 	if not os.path.lexists(filename):
 		return True
 
-	# attempt file remove and ignore (but log) errors
+	# attempt file removal and ignore (but log) errors
 	try:
 		os.remove(filename)
 		return True
@@ -623,9 +623,7 @@ def remove_file(filename, log_error=True, force=False):
 def file2md5(filename=None, return_hex=True):
 	blocksize = 2**10 * 128			# 128k, since md5 uses 128 byte blocks
 	_log.debug('md5(%s): <%s> byte blocks', filename, blocksize)
-
 	f = io.open(filename, mode = 'rb')
-
 	md5 = hashlib.md5()
 	while True:
 		data = f.read(blocksize)
@@ -633,11 +631,10 @@ def file2md5(filename=None, return_hex=True):
 			break
 		md5.update(data)
 	f.close()
-
 	_log.debug('md5(%s): %s', filename, md5.hexdigest())
-
 	if return_hex:
 		return md5.hexdigest()
+
 	return md5.digest()
 
 #---------------------------------------------------------------------------
@@ -942,12 +939,14 @@ def none_if(value=None, none_equivalent=None, strip_string=False):
 	"""Modelled after the SQL NULLIF function."""
 	if value is None:
 		return None
+
 	if strip_string:
 		stripped = value.strip()
 	else:
 		stripped = value
 	if stripped == none_equivalent:
 		return None
+
 	return value
 
 #---------------------------------------------------------------------------
@@ -1613,36 +1612,57 @@ def format_dict_like(d, relevant_keys=None, template=None, missing_key_template=
 	return eol.join(lines)
 
 #---------------------------------------------------------------------------
-def dicts2table(dict_list, left_margin=0, eol='\n', keys2ignore=None, headers=None, show_only_changes=False, equality_value='<=>', date_format=None):	#, relevant_keys=None, template=None
+def dicts2table(dict_list, left_margin=0, eol='\n', keys2ignore=None, column_labels=None, show_only_changes=False, equality_value='<=>', date_format=None):	#, relevant_keys=None, template=None
+	"""Each dict in <dict_list> becomes a column.
 
+	- each key of dict becomes a row label, unless in keys2ignore
+
+	- each entry in the <column_labels> list becomes a column title
+	"""
 	keys2show = []
-	dict_max_size = {}
-	max_row_label_size = 0
+	col_max_width = {}
+	max_width_of_row_label_col = 0
+	col_label_key = '__________#header#__________'
 	if keys2ignore is None:
 		keys2ignore = []
+	if column_labels is not None:
+		keys2ignore.append(col_label_key)
 
-	# extract keys from all dicts
-	for d in dict_list:
-		dict_max_size[id(d)] = 0
+	# extract keys from all dicts and calculate column sizes
+	for dict_idx in range(len(dict_list)):
+		# convert potentially dict-*like* into dict
+		d = dict(dict_list[dict_idx])
+		# add max-len column label row from <column_labels> list, if available
+		if column_labels is not None:
+			d[col_label_key] = max(column_labels[dict_idx].split('\n'), key = len)
+		field_lengths = []
+		# loop over all keys in this dict
 		for key in d.keys():
+			# ignore this key
 			if key in keys2ignore:
 				continue
-			dict_max_size[id(d)] = max(dict_max_size[id(d)], len('%s' % d[key]))
+			# remember length of value when displayed
+			if isinstance(d[key], pydt.datetime):
+				if date_format is None:
+					field_lengths.append(len('%s' % d[key]))
+				else:
+					field_lengths.append(len(d[key].strftime(date_format)))
+			else:
+				field_lengths.append(len('%s' % d[key]))
 			if key in keys2show:
 				continue
 			keys2show.append(key)
-			max_row_label_size = max(max_row_label_size, len('%s' % key))
+			max_width_of_row_label_col = max(max_width_of_row_label_col, len('%s' % key))
+		col_max_width[dict_idx] = max(field_lengths)
 
 	# pivot data into dict of lists per line
 	lines = { k: [] for k in keys2show }
 	prev_vals = {}
-	for d in dict_list:
-		if show_only_changes:
-			max_size = max(dict_max_size[id(d)], len(equality_value))
-		else:
-			max_size = dict_max_size[id(d)]
-		max_len_str = '%s.%s' % (max_size, max_size)
+	for dict_idx in range(len(dict_list)):
+		max_width_this_col = max(col_max_width[dict_idx], len(equality_value)) if show_only_changes else col_max_width[dict_idx]
+		max_len_str = '%s.%s' % (max_width_this_col, max_width_this_col)
 		field_template = ' %' + max_len_str + 's'
+		d = dict_list[dict_idx]
 		for key in keys2show:
 			try:
 				val = d[key]
@@ -1664,27 +1684,31 @@ def dicts2table(dict_list, left_margin=0, eol='\n', keys2ignore=None, headers=No
 
 	# format data into table
 	table_lines = []
-	max_len_str = '%s.%s' % (max_row_label_size, max_row_label_size)
+	max_len_str = '%s.%s' % (max_width_of_row_label_col, max_width_of_row_label_col)
 	row_label_template = '%' + max_len_str + 's'
 	for key in lines:
+		# row label (= key) into first column
 		line = (' ' * left_margin) + row_label_template % key + '|'
+		# append list values as subsequent columns
 		line += '|'.join(lines[key])
 		table_lines.append(line)
 
-	# add header line if any
-	if headers is not None:
-		header_line1 = (' ' * left_margin) + row_label_template % ''
-		header_line2 = (' ' * left_margin) + u_box_horiz_single * (max_row_label_size)
-		header_sizes = [ max(dict_max_size[dict_id], len(equality_value)) for dict_id in dict_max_size ]
-		for idx in range(len(headers)):
-			max_len_str = '%s.%s' % (header_sizes[idx], header_sizes[idx])
-			header_template = '%' + max_len_str + 's'
-			header_line1 += '| '
-			header_line1 += header_template % headers[idx]
-			header_line2 += '%s%s' % (u_box_plus, u_box_horiz_single)
-			header_line2 += u_box_horiz_single * header_sizes[idx]
-		table_lines.insert(0, header_line2)
-		table_lines.insert(0, header_line1)
+	# insert lines with column labels (column headers) if any
+	if column_labels is not None:
+		# first column contains row labels, so no column label needed
+		table_header_line_w_col_labels = (' ' * left_margin) + row_label_template % ''
+		# second table header line: horizontal separator
+		table_header_line_w_separator = (' ' * left_margin) + u_box_horiz_single * (max_width_of_row_label_col)
+		max_col_label_widths = [ max(col_max_width[dict_idx], len(equality_value)) for dict_idx in range(len(dict_list)) ]
+		for col_idx in range(len(column_labels)):
+			max_len_str = '%s.%s' % (max_col_label_widths[col_idx], max_col_label_widths[col_idx])
+			col_label_template = '%' + max_len_str + 's'
+			table_header_line_w_col_labels += '| '
+			table_header_line_w_col_labels += col_label_template % column_labels[col_idx]
+			table_header_line_w_separator += '%s%s' % (u_box_plus, u_box_horiz_single)
+			table_header_line_w_separator += u_box_horiz_single * max_col_label_widths[col_idx]
+		table_lines.insert(0, table_header_line_w_separator)
+		table_lines.insert(0, table_header_line_w_col_labels)
 
 	if eol is None:
 		return table_lines
@@ -2408,16 +2432,16 @@ second line\n
 	#-----------------------------------------------------------------------
 	def test_make_table_from_dicts():
 		dicts = [
-			{'pkey': 1, 'value': 'a1'},
-			{'pkey': 2, 'value': 'b2'},
+			{'pkey': 1, 'value': 'a122'},
+			{'pkey': 2, 'value': 'b23'},
 			{'pkey': 3, 'value': 'c3'},
-			{'pkey': 4, 'value': 'd4'},
-			{'pkey': 5, 'value': 'd4'},
-			{'pkey': 5, 'value': 'c5'},
+			{'pkey': 4, 'value': 'd4ssssssssssss'},
+			{'pkey': 5, 'value': 'd4  asdfas '},
+			{'pkey': 5, 'value': 'c5---'},
 		]
 		with open('x.txt', 'w', encoding = 'utf8') as f:
-			f.write(dicts2table(dicts, left_margin=2, eol='\n', keys2ignore=None, show_only_changes=True, headers = ['d1', 'd2', 'd3', 'd4', 'd5', 'd6']))
-			#print(dicts2table(dicts, left_margin=2, eol='\n', keys2ignore=None, show_only_changes=True, headers = ['d1', 'd2', 'd3', 'd4', 'd5', 'd6']))
+			f.write(dicts2table(dicts, left_margin=2, eol='\n', keys2ignore=None, show_only_changes=True, column_labels = ['d1', 'd2', 'd3', 'd4', 'd5', 'd6']))
+			#print(dicts2table(dicts, left_margin=2, eol='\n', keys2ignore=None, show_only_changes=True, column_labels = ['d1', 'd2', 'd3', 'd4', 'd5', 'd6']))
 
 	#-----------------------------------------------------------------------
 	def test_decorate_window_title():
@@ -2459,7 +2483,7 @@ second line\n
 	#test_enumerate_optical_writers()
 	#test_copy_tree_content()
 	#test_mk_sandbox_dir()
-	#test_make_table_from_dicts()
-	test_decorate_window_title()
+	test_make_table_from_dicts()
+	#test_decorate_window_title()
 
 #===========================================================================
