@@ -259,8 +259,8 @@ class gmConnectionPool(gmBorg.cBorg):
 			except KeyError:
 				_log.info('pooled RO conn with key [%s] requested, but not in pool, setting up', self.pool_key)
 			if conn is not None:
-				if verbose:
-					_log.debug('using pooled conn [%s]', self.pool_key)
+				#if verbose:
+				#	_log.debug('using pooled conn [%s]', self.pool_key)
 				return conn
 
 		if conn is None:
