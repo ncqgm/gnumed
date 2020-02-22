@@ -23,14 +23,9 @@ import re as regex
 import datetime as pydt
 
 
-_log = logging.getLogger('gm.db_pool')
-
-
 # 3rd party library imports
 import psycopg2 as dbapi
 
-_log.info('psycopg2 version: %s' % dbapi.__version__)
-_log.info('PostgreSQL via DB-API module "%s": API level %s, thread safety %s, parameter style "%s"' % (dbapi, dbapi.apilevel, dbapi.threadsafety, dbapi.paramstyle))
 if not (float(dbapi.apilevel) >= 2.0):
 	raise ImportError('gmPG2: supported DB-API level too low')
 
@@ -54,7 +49,6 @@ try:
 	dbapi.__version__.index('pq3')
 except ValueError:
 	raise ImportError('gmPG2: lacking v3 backend protocol support in psycopg2')
-
 
 import psycopg2.extensions
 import psycopg2.extras
@@ -85,6 +79,10 @@ WHERE
 
 
 # globals
+_log = logging.getLogger('gm.db_pool')
+_log.info('psycopg2 version: %s' % dbapi.__version__)
+_log.info('PostgreSQL via DB-API module "%s": API level %s, thread safety %s, parameter style "%s"' % (dbapi, dbapi.apilevel, dbapi.threadsafety, dbapi.paramstyle))
+
 postgresql_version = None
 
 _timestamp_template = "cast('%s' as timestamp with time zone)"		# MUST NOT be uniocde or else getquoted will not work (true in py3 ?)
@@ -259,8 +257,8 @@ class gmConnectionPool(gmBorg.cBorg):
 			except KeyError:
 				_log.info('pooled RO conn with key [%s] requested, but not in pool, setting up', self.pool_key)
 			if conn is not None:
-				if verbose:
-					_log.debug('using pooled conn [%s]', self.pool_key)
+				#if verbose:
+				#	_log.debug('using pooled conn [%s]', self.pool_key)
 				return conn
 
 		if conn is None:
@@ -541,7 +539,6 @@ class gmConnectionPool(gmBorg.cBorg):
 		_log.debug('validating timezone [%s]', timezone)
 		cmd = 'SET timezone TO %(tz)s'
 		args = {'tz': timezone}
-		#conn.commit()
 		curs = conn.cursor()
 		try:
 			curs.execute(cmd, args)
@@ -586,13 +583,15 @@ class gmConnectionPool(gmBorg.cBorg):
 				if not conn_key.startswith(curr_dsn):
 					continue
 				conn = self.__ro_conn_pool[conn_key]
-				del self.__ro_conn_pool[conn_key]
+				self.__ro_conn_pool[conn_key] = None
 				if conn.closed:
+					del conn
 					continue
 				_log.debug('closing open database connection, pool key: %s', conn_key)
 				log_conn_state(conn)
 				conn.close = conn.original_close
 				conn.close()
+				del conn
 		self.__creds = creds
 
 	credentials = property(_get_credentials, _set_credentials)
@@ -1046,6 +1045,6 @@ if __name__ == "__main__":
 		conn = pool.get_connection()
 
 	#--------------------------------------------------------------------
-	#test_exceptions()
-	#test_get_connection()
+	test_exceptions()
+	test_get_connection()
 	test_change_creds()

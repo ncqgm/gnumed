@@ -241,7 +241,12 @@ class cPlatformLocalTimezone(pyDT.tzinfo):
 	#-----------------------------------------------------------------------
 	def _isdst(self, dt):
 		tt = (dt.year, dt.month, dt.day, dt.hour, dt.minute, dt.second, dt.weekday(), 0, 0)
-		stamp = time.mktime(tt)
+		try:
+			stamp = time.mktime(tt)
+		except (OverflowError, ValueError):
+			_log.exception('overflow in time.mktime(%s)', tt)
+			return False
+
 		tt = time.localtime(stamp)
 		return tt.tm_isdst > 0
 

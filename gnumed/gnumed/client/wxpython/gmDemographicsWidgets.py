@@ -76,8 +76,10 @@ def edit_tag_image(parent=None, tag_image=None, single_entry=False):
 	if dlg.ShowModal() == wx.ID_OK:
 		dlg.DestroyLater()
 		return True
+
 	dlg.DestroyLater()
 	return False
+
 #------------------------------------------------------------
 def manage_tag_images(parent=None):
 
@@ -134,6 +136,7 @@ def manage_tag_images(parent=None):
 	)
 
 	return tag
+
 #------------------------------------------------------------
 from Gnumed.wxGladeWidgets import wxgTagImageEAPnl
 
@@ -156,6 +159,7 @@ class cTagImageEAPnl(wxgTagImageEAPnl.wxgTagImageEAPnl, gmEditArea.cGenericEditA
 			self.mode = 'edit'
 
 		self.__selected_image_file = None
+
 	#----------------------------------------------------------------
 	# generic Edit Area mixin API
 	#----------------------------------------------------------------
@@ -229,7 +233,7 @@ class cTagImageEAPnl(wxgTagImageEAPnl.wxgTagImageEAPnl, gmEditArea.cGenericEditA
 	def _refresh_as_new(self):
 		self._TCTRL_description.SetValue('')
 		self._TCTRL_filename.SetValue('')
-		self._BMP_image.SetBitmap(bitmap = wx.Bitmap(100, 100))
+		self._BMP_image.SetBitmap(bitmap = wx.Bitmap(wx.Image(100, 100, clear = True)))
 
 		self.__selected_image_file = None
 
@@ -243,7 +247,7 @@ class cTagImageEAPnl(wxgTagImageEAPnl.wxgTagImageEAPnl, gmEditArea.cGenericEditA
 		self._TCTRL_filename.SetValue(gmTools.coalesce(self.data['filename'], ''))
 		fname = self.data.export_image2file()
 		if fname is None:
-			self._BMP_image.SetBitmap(bitmap = wx.Bitmap(100, 100))
+			self._BMP_image.SetBitmap(bitmap = wx.Bitmap(wx.Image(100, 100, clear = True)))
 		else:
 			self._BMP_image.SetBitmap(bitmap = gmGuiHelpers.file2scaled_image(filename = fname, height = 100))
 
