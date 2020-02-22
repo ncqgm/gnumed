@@ -37,6 +37,7 @@ class gmBackendListener(gmBorg.cBorg):
 		try:
 			self.already_inited
 			return
+
 		except AttributeError:
 			pass
 
@@ -165,9 +166,9 @@ class gmBackendListener(gmBorg.cBorg):
 
 		self._listener_thread = threading.Thread (
 			target = self._process_notifications,
-			name = self.__class__.__name__
+			name = self.__class__.__name__,
+			daemon = True
 		)
-		self._listener_thread.setDaemon(True)
 		_log.info('starting listener thread')
 		self._listener_thread.start()
 
@@ -179,7 +180,6 @@ class gmBackendListener(gmBorg.cBorg):
 		# loop until quitting
 		_have_quit_lock = None
 		while not _have_quit_lock:
-
 			# quitting ?
 			if self._quit_lock.acquire(0):
 				break
@@ -190,21 +190,18 @@ class gmBackendListener(gmBorg.cBorg):
 				ready_input_sockets = select.select([self._conn_fd], [], [], self._poll_interval)[0]
 			finally:
 				self._conn_lock.release()
-
 			# any input available ?
 			if len(ready_input_sockets) == 0:
 				# no, select.select() timed out
 				# give others a chance to grab the conn lock (eg listen/unlisten)
 				time.sleep(0.3)
 				continue
-
 			# data available, wait for it to fully arrive
 			self._conn_lock.acquire(1)
 			try:
 				self._conn.poll()
 			finally:
 				self._conn_lock.release()
-
 			# any notifications ?
 			while len(self._conn.notifies) > 0:
 				# if self._quit_lock can be acquired we may be in
@@ -296,6 +293,7 @@ class gmBackendListener(gmBorg.cBorg):
 
 		# exit thread activity
 		return
+
 #=====================================================================
 # main
 #=====================================================================

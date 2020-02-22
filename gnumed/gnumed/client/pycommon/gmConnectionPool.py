@@ -80,8 +80,10 @@ WHERE
 
 # globals
 _log = logging.getLogger('gm.db_pool')
-_log.info('psycopg2 version: %s' % dbapi.__version__)
+_log.info('psycopg2 module version: %s' % dbapi.__version__)
 _log.info('PostgreSQL via DB-API module "%s": API level %s, thread safety %s, parameter style "%s"' % (dbapi, dbapi.apilevel, dbapi.threadsafety, dbapi.paramstyle))
+_log.info('libpq version (compiled in): %s', psycopg2.__libpq_version__)
+_log.info('libpq version (loaded now) : %s', psycopg2.extensions.libpq_version())
 
 postgresql_version = None
 
