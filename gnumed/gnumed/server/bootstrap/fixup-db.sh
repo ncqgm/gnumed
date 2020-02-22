@@ -16,6 +16,8 @@
 #
 # ========================================================
 
+set -o pipefail
+
 VER="$1"
 QUIET="$2"
 LOG_BASE="."
@@ -81,7 +83,36 @@ echo_msg "==========================================================="
 
 
 echo_msg ""
-echo_msg "1) applying fixes to database ..."
+echo_msg "1) Verifying checksums in database (can take a while) ..."
+# dump to /dev/null for checksum verification
+#--no-unlogged-table-data
+#--no-acl
+#--no-comments
+#--no-publications
+#--no-subscriptions
+#--no-security-label
+# --data-only
+#	excluding that would forego detecting problems with disk space
+#	used by unlogged tables (except we don't have any) and would not
+#	exercise some system table columns thereby possibly not detecting
+#	corruption in any of those (slim chance, however)
+#--no-tablespaces
+#	only relevant in plaintext dumps
+#--oids
+#	reading any column of a row (unTOASTED columns, that is)
+#	will effect reading the entire row, including OID, but
+#	there's no need to output that value
+pg_dump ${PORT_DEF} --username=gm-dbo --dbname=gnumed_v${VER} --compress=0 --no-sync --format=custom --file=/dev/null &> /dev/null
+RETCODE="$?"
+if test "$RETCODE" != "0" ; then
+	echo "Verifying checksums on \"gnumed_v${VER}\" failed (${RETCODE})."
+	read
+	exit 1
+fi
+
+
+echo_msg ""
+echo_msg "2) Applying fixes to database ..."
 ./bootstrap_gm_db_system.py --log-file=${LOG} --conf-file=${CONF} --${QUIET}
 if test "$?" != "0" ; then
 	echo "Fixing \"gnumed_v${VER}\" did not finish successfully."

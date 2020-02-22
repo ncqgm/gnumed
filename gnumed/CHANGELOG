@@ -2084,6 +2084,10 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 # gnumed_v22
 ------------------------------------------------
 
+	22.10
+
+IMPROVED: database fixup script
+
 	22.9
 
 FIX: clin.v_candidate_diagnoses: missing coalesce()
