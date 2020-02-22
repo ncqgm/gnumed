@@ -243,7 +243,7 @@ class cPlatformLocalTimezone(pyDT.tzinfo):
 		tt = (dt.year, dt.month, dt.day, dt.hour, dt.minute, dt.second, dt.weekday(), 0, 0)
 		try:
 			stamp = time.mktime(tt)
-		except OverflowError:
+		except (OverflowError, ValueError):
 			_log.exception('overflow in time.mktime(%s)', tt)
 			return False
 
