@@ -824,9 +824,10 @@ def lock_row(link_obj=None, table=None, pk=None, exclusive=False):
 		cmd = """SELECT pg_try_advisory_lock('%s'::regclass::oid::int, %s)""" % (table, pk)
 	else:
 		cmd = """SELECT pg_try_advisory_lock_shared('%s'::regclass::oid::int, %s)""" % (table, pk)
-	rows, idx = run_ro_queries(link_obj = link_obj, queries = [{'cmd': cmd}], get_col_idx = False)
+	rows, idx = run_rw_queries(link_obj = link_obj, queries = [{'cmd': cmd}], get_col_idx = False, return_data = True)
 	if rows[0][0]:
 		return True
+
 	_log.warning('cannot lock row: [%s] [%s] (exclusive: %s)', table, pk, exclusive)
 	return False
 
@@ -841,9 +842,10 @@ def unlock_row(link_obj=None, table=None, pk=None, exclusive=False):
 		cmd = "SELECT pg_advisory_unlock('%s'::regclass::oid::int, %s)" % (table, pk)
 	else:
 		cmd = "SELECT pg_advisory_unlock_shared('%s'::regclass::oid::int, %s)" % (table, pk)
-	rows, idx = run_ro_queries(link_obj = link_obj, queries = [{'cmd': cmd}], get_col_idx = False)
+	rows, idx = run_rw_queries(link_obj = link_obj, queries = [{'cmd': cmd}], get_col_idx = False, return_data = True)
 	if rows[0][0]:
 		return True
+
 	_log.warning('cannot unlock row: [%s] [%s] (exclusive: %s)', table, pk, exclusive)
 	return False
 
