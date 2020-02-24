@@ -16,7 +16,7 @@ DECLARE
 	_lang ALIAS FOR $1;
 BEGIN
 	if exists(select pk from i18n.translations where lang = _lang) then
-		delete from i18n.curr_lang where user = SESSION_USER;
+		delete from i18n.curr_lang where db_user = SESSION_USER;
 		insert into i18n.curr_lang (lang, db_user) values (_lang, SESSION_USER);
 		return true;
 	end if;
@@ -27,7 +27,7 @@ END;
 
 comment on function i18n.set_curr_lang(text) is
 	'set preferred language:
-	 - for "current user"
+	 - for "current (session) user"
 	 - only if translations for this language are available';
 
 -- =============================================
@@ -42,7 +42,7 @@ DECLARE
     _lang ALIAS FOR $1;
 BEGIN
     raise notice ''Forcing current language to [%] without checking for translations..'', _lang;
-    delete from i18n.curr_lang where user = SESSION_USER;
+    delete from i18n.curr_lang where db_user = SESSION_USER;
 	insert into i18n.curr_lang (lang, db_user) values (_lang, SESSION_USER);
     return true;
 END;
@@ -53,4 +53,4 @@ comment on function i18n.force_curr_lang(text) is
 	 - for "current user"';
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('v22-i18n-lang_funcs-fixup.sql', '22.8');
+select gm.log_script_insertion('v22-i18n-lang_funcs-fixup.sql', '22.11');
