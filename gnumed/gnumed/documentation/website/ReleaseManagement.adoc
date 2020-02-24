@@ -1,0 +1,230 @@
+= Release Management
+
+This page documents the suggested procedure to smoothly release a new
+version.
+
+:toc:
+
+== Before Release
+
+=== Development _(VCS HEAD)_
+
+* fix feature set in link:RoadMap[Roadmap]
+* complete features in http://gitorious.org/gnumed/[VCS (e.g. GIT)]
+* fix https://bugs.launchpad.net/gnumed/+bugs[bugs] reported in the bug
+tracker
+* complete database schema changes
+* update link:GnumedManual[User Manual]
+* update http://wiki.gnumed.de/bin/view/Gnumed/PublishManual[manual
+publisher topic]
+* initial round of link:ReleaseTesting[testing] for release fitness
+
+== Preparing _X.Y.rcN_ release candidates
+
+=== branch `master`
+
+* `grep` the tree for instances of the old database name and replace
+with the new one where appropriate
+* `pycommon/gmPG2.py`:
+** add hash of new database
+** teach it which database version to expect for the new client branch
+* create `Inbox` message with Release Notes via SQL script
+* `make-release_tarball.sh`: include SQL upgrade scripts
+* download and merge any new translations from Launchpad
+* adjust `client/gm-from-vcs.conf`
+* create branch: `git branch rc-X-Y`
+
+=== branch `rc-X-Y`
+
+_(wash/rinse/repeat as needed)_
+
+* `git checkout rc-X-Y`
+* `git merge master`
+* update `Inbox` message with Release Notes
+* `bootstrap-latest.sh/.bat`: include latest database release
+* `bootstrap-latest.conf`: include latest `upgrade-vN_vN+1.conf`
+* `upgrade-vN_vN+1.conf`: expect new database version instead of _devel_
+* `client/doc/make-*.sh` scripts: refer to the proper databases
+* `make-release_tarball.sh`: set proper database version and client
+version _X.Y.rcN_
+* `wxpython/gnumed.py`: set client version _X.Y.rcN_
+* link:ReleaseTesting[test] basic functionality (startup )
+* tag tree: `git tag rel-X-Y-rcN`
+* http://wiki.gnumed.de/bin/view/Gnumed/PublishManual[re-publish manual]
+* create tarball
+* publish Release Candidate in our
+http://www.gnumed.de/downloads/[download area]
+* adjust `gm-versions.txt`
+* upgrade public database
+
+* incorporate http://lists.gnu.org/archive/html/gnumed-devel/[feedback],
+fix https://bugs.launchpad.net/gnumed/+bugs[bugs]
+
+== Preparing the _X.Y.0_ release
+
+* `git checkout master`
+
+* `gm-net_upgrade_server.sh`: refer to the latest database version
+* `bootstrap-latest.sh/.bat`: include latest database release
+* `bootstrap-latest.conf`: include latest `upgrade-vN_vN+1.conf`
+* updates release notes SQL script and set version numbers from `.rcN`
+zu `X.Y.0`
+* in `CHANGELOG` set version numbers from `.rcN` zu `X.Y.0`
+* create empty `fixup_db-vNN.conf` (so that `gm-fixup_server` doesn't
+fail even if useless)
+* `git commit -v`
+
+Create `rel-X-Y`:
+
+* `git branch tmp`
+* `git checkout tmp`
+* `git merge rc-X-Y`
+* `git merge --abort` and fix any problems in `master` and/or `rc-X-Y`
+* retry `git merge rc-X-Y` until it works
+* `git checkout master`
+* `git branch -d tmp`
+* `git tag -s rel-X-Y`
+* `git branch rel-X-Y-patches rel-X-Y` (create a branch from that tag)
+* `git checkout rel-X-Y-patches`
+* `git merge rc-X-Y`
+* `git branch -d rc-X-Y`
+* activate "tarball release options" in `gm-from-vcs.sh`
+
+* update list of link:WhatCanIActuallyDOWithGNUmedToday[current features]
+* update link:InstallerGuideHome[installation instructions]
+
+=== Releasing an _X.Y.N_ version
+
+* `git checkout rel-X-Y-patches`
+
+_(wash/rinse/repeat as needed)_
+
+* update `Inbox` message with release notes
+* `gnumed/client/gnumed.py`: set client version _X.Y.N_
+* `git add gnumed.py`
+* `dists/Linux/make-release_tarball.sh`: set proper client version
+_X.Y.N_
+* `dists/Linux/make-release_tarball.sh`: include SQL fixup scripts (also
+in branch `master`)
+* `git add make-release_tarball.sh`
+* run *at least minimal* link:ReleaseTesting[release tests]:
+** database bootstrap (`bootstrap-latest.sh`)
+** database upgrade (`upgrade-db.sh`)
+** database fixup (`fixup-db.sh`)
+** client startup (`gm-from-vcs.sh`)
+*** patient activation
+*** activate each tab once
+*** http://de.fakenamegenerator.com/gen-female-gr-gr.php[new patient]
+creation
+* `git commit -v`
+* `git tag -s rel-X-Y-N`
+* http://wiki.gnumed.de/bin/view/Gnumed/PublishManual[re-publish manual]
+* build tarball
+** run `dists/Linux/make-release_tarball.sh`
+* upload to http://www.gnumed.de/downloads/["Savannah"]
+* adjust http://www.gnumed.de/downloads/gnumed-versions.txt[
+`gnumed-versions.txt` ]
+* update link:ReleaseStatus[release status] page
+* build packages for version X.Y.N
+** Debian package
+** Windows installer
+** Mandriva RPM
+** Suse RPM
+** Gentoo ebuild
+** MacOSX DMG image
+** ... ?
+* incorporate http://lists.gnu.org/archive/html/gnumed-devel/[feedback],
+fix https://bugs.launchpad.net/gnumed/+bugs[bugs]
+
+== During Release
+
+=== Announce packages
+
+==== mailing lists
+
+* http://lists.gnu.org/archive/html/gnumed-devel/[gnumed-devel] and
+http://lists.gnu.org/archive/html/gnumed-devel/[gnumed-update]
+* Debian Med Packaging Team: debian-med-packaging @ REMOVETHIS
+lists.alioth.debian.org
+* https://lists.sourceforge.net/lists/listinfo/resmedicinae-deutsch[resmed-de]
+* http://www.python.org/community/lists/[python-announce]
+(comp.lang.python)
+* http://archives.postgresql.org/pgsql-announce/[postgresql-announce]
+* http://lists.debian.org/debian-med/
+* http://www.coollist.com/mod/login.html[tm-anwender]
+* OpenHealth lists: old/http://groups.yahoo.com/group/openhealth/[new]
+* http://www.wxpython.org/maillist.php[wxPython]
+* ... ?
+
+==== portal sites
+
+* http://gnumed.blogspot.com
+* http://www.gnumed.org
+* http://www.gnumed.de
+* link:WebHome[gnumed Wiki]
+* http://www.linuxmednews.com
+* http://freshmeat.net
+* http://sourceforge.net
+* http://www.facharzt.de
+* http://www.deutsches-aerzteblatt.de/v4/foren/forum.asp?forumid=135&sort=datum&dir=DESC[EDV-Forum
+Ärzteblatt]
+* PraxisComputer-Magazin (E-Mail Heike Krüger-Brand)
+* http://forum.gnumed.de (Von Doc zu Doc)
+* http://linuxforclinics.org/index.php?option=com_smf&Itemid=26&board=295.0[Linux
+4 Clinics]
+* http://www.versiontracker.com/dyn/moreinfo/macosx/32524[Version
+Tracker - Mac OS X]
+* ... ?
+
+==== other
+
+* email Kelly Hopkins via RT <bug-directory@gnu.org> asking to change version data on ** http://directory.fsf.org/project/gnumed/
+
+== After Release
+
+* take a break
+* fix bugs in _rel-X-Y-Z-patches_
+* take another break
+* think about next Release
+
+== The GNUmed Versioning Scheme
+
+Versions are defined by the corresponding tag in the CVS tree. The
+version string consists of 3 parts:
+
+* major version, currently 0
+* minor version, currently 5
+* patch level or release candidate
+
+Features will only be introduced between minor-version changes. Patch
+level releases will _never_ have new features, they will only ever
+receive bug fixes. Bug fixes are applied to CVS HEAD and to the latest
+release only so it is advised to stay up to date with released versions.
+Patch level releases will also _never_ require a database change.
+
+The tagging strategy is this (assuming 0.4):
+
+The code gets ready for a release. Let's assume the release is to be
+`v0.4.0`. The CVS trunk (HEAD) is tagged as _rel-0-4_. This tag will
+become the root of a branch on which the actual 0.4.0 release will
+happen while HEAD can continue to evolve. A branch _rel-0-4-patches_ is
+created and rooted at tag _rel-0-4_. This branch will only ever receive
+bug fixes. In that branch the tag _rel-0-4-rc1_ is set which will then
+be released as `v0.4.rc1`.
+
+Bugs get fixed and eventually the branch is tagged as _rel-0-4-0_ which
+gets released as `v0.4.0`. More bugs get fixed and eventually the branch
+is tagged as _rel-0-4-1_ which then gets released as `v0.4.1`.
+
+Eventually, CVS HEAD is tagged as _rel-0-5_, branched off into
+_rel-0-5-patches_ and the cycle starts over.
+
+The database schema is versioned independant of the client. At startup
+the client checks whether it was released to work with the database it
+connects to. For any necessary database upgrades we provide tested,
+integrity-checking conversion scripts.
+
+A few historical -devel postings which predated the above include
+http://lists.gnu.org/archive/html/gnumed-devel/2008-02/msg00002.html[this
+one] and
+http://lists.gnu.org/archive/html/gnumed-devel/2008-05/msg00087.html[another].
