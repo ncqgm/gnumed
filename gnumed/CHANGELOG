@@ -2084,6 +2084,10 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 # gnumed_v22
 ------------------------------------------------
 
+	22.11
+
+FIX: i18n.set_curr/force_curr_lang(), again [thanks lucian]
+
 	22.10
 
 IMPROVED: database fixup script

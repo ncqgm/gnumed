@@ -1,0 +1,13 @@
+#!/bin/sh
+
+SRC="$1"
+
+echo "Converting ${SRC}: asciidoc -> html5 ..."
+asciidoc --backend=html5 --verbose ${SRC}
+#--section-numbers
+#--safe
+RESULT="$?"
+if test "${RESULT}" != "0" ; then
+	echo "Cannot convert asciidoc to html5 (${RESULT}). Aborting."
+	exit ${RESULT}
+fi
