@@ -1,4 +1,6 @@
-= Release Management
+link:index.html[Home]
+
+.Release Management
 
 This page documents the suggested procedure to smoothly release a new
 version.
@@ -90,10 +92,11 @@ Create `rel-X-Y`:
 * `git branch -d rc-X-Y`
 * activate "tarball release options" in `gm-from-vcs.sh`
 
-* update list of link:WhatCanIActuallyDOWithGNUmedToday[current features]
+* update list of link:WhatCanIActuallyDOWithGNUmedToday[current
+features]
 * update link:InstallerGuideHome[installation instructions]
 
-=== Releasing an _X.Y.N_ version
+== Releasing an _X.Y.N_ version
 
 * `git checkout rel-X-Y-patches`
 
@@ -178,7 +181,9 @@ Tracker - Mac OS X]
 
 ==== other
 
-* email Kelly Hopkins via RT <bug-directory@gnu.org> asking to change version data on ** http://directory.fsf.org/project/gnumed/
+* email Kelly Hopkins via RT <bug-directory@gnu.org> asking to change
+version data on
+** http://directory.fsf.org/project/gnumed/
 
 == After Release
 
@@ -186,6 +191,7 @@ Tracker - Mac OS X]
 * fix bugs in _rel-X-Y-Z-patches_
 * take another break
 * think about next Release
+
 
 == The GNUmed Versioning Scheme
 

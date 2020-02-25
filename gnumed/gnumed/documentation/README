@@ -3,11 +3,5 @@
 
 	contains the GNUmed website asciidoc files
 
-	convert original twiki text documents for inclusion:
-
-		- convert to utf8: iconv
-		- twiki -> asciidoc: pandoc -s -f twiki -t asciidoc -o TWIKI_FILE > ADOC_FILE
-
-	convert asciidoc to html for publishing:
-
-		asciidoc -v -n ADOC_FILE
+	convert_twiki2adoc: convert original twiki text documents for inclusion
+	convert_adoc2html: convert asciidoc to html for publishing

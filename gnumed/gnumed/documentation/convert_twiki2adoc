@@ -1,0 +1,30 @@
+#!/bin/sh
+
+SRC="$1"
+BAK="${SRC}.bak"
+UTF8="${SRC}.utf8"
+ADOC=$(basename --suffix=.txt ${SRC})".adoc"
+
+echo "Converting ${SRC} -> ${ADOC} ..."
+cp --verbose --force ${SRC} ${BAK}
+RESULT="$?"
+if test "${RESULT}" != "0" ; then
+	echo "Cannot backup [${SRC}] to [${BAK}] (${RESULT}). Aborting."
+	exit ${RESULT}
+fi
+
+iconv --to-code=utf8 --verbose --output=${UTF8} ${SRC}
+RESULT="$?"
+if test "${RESULT}" != "0" ; then
+	echo "Cannot convert [${SRC}] to UTF8 (${RESULT}). Aborting."
+	exit ${RESULT}
+fi
+
+pandoc --verbose --standalone --from=twiki --to=asciidoc --toc --output=${ADOC} ${UTF8}
+RESULT="$?"
+if test "${RESULT}" != "0" ; then
+	echo "Cannot convert [${UTF8}] to asciidoc (${RESULT}). Aborting."
+	exit ${RESULT}
+fi
+
+rm --verbose --force  ${UTF8} ${SRC}

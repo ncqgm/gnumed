@@ -1,0 +1,191 @@
+link:index.html[Home]
+
+.The GNUmed Manual
+
+== User Guide
+
+=== Before you start
+
+* *Principles* of the GNUmed System
+** _never endanger or render invalid any patient data_ (eg. when
+retiring forms) - Caveat: link:TalkbackClient[error reports]
+** _never change user configuration data w/o asking for confirmation_
+(eg. doc types)
+
+* link:GmManualGuiElements.html[Using the GNUmed Client User Interface]
+* link:GmManualBasicEmrConcept[Understanding the GNUmed EMR]
+
+=== First Steps
+
+* link:GmManualStartingGnumed[Starting Gnumed]
+* link:GmManualUserInterface[Getting to know Gnumed]
+* link:GmManualBasicPatientHandling[Basic Patient Handling]
+* link:GmManualBasicUsageTips[Basic Usage Tips]
+* link:GmManualBasicEmrStructuring[Structuring the EMR]
+
+=== Record Keeping
+
+* link:GmManualBasicEmrConcept[Concepts]
+* Keeping _textual_ link:GmManualBasicProgressNotes[Progress Notes]
+* Keeping _visual_ link:GmManualVisualProgressNotes[Progress Notes]
+* Managing link:GmManualManagingAllergies[Allergies and Intolerances]
+* Managing link:GmManualManagingHospitalStays[Hospital Stays]
+* Managing link:GmManualManagingProcedures[Procedures]
+
+=== Medication / Substance Use Management
+
+* link:GmManualSubstanceUseConcepts[Concepts]
+
+=== Test Results Management
+
+* link:GmManualTestResultConcepts[Concepts]
+* link:GmManualTestResultImport[Adding test results]
+* link:GmManualTestResultViewer[Viewing test results]
+
+=== Vaccinations Management
+
+* link:GmManualVaccinationHandling[Concepts]
+
+=== Document Management
+
+* link:GmManualDocumentManagementConcepts[Concepts]
+* link:GmManualLettersForms[Writing letters and using forms]
+* link:GmManualDocumentImporter[Adding documents] to the archive
+* link:GmManualDocumentViewer[Viewing archived documents]
+* link:GmManualPatientPhotographs[Patient photograph handling]
+
+=== Workflow Management
+
+* Using the link:GmManualWaitingList[waiting list]
+* Handling link:GmManualAppointmentHandling[appointments]
+
+=== Module Descriptions
+
+* link:Lab Module[Lab Module]
+* link:CardiacDeviceModule[Implanted Cardiac Device Module]
+
+=== Menu Reference
+
+* link:Menu Reference[Menu Reference]
+
+=== Advanced Topics
+
+* the link:GnumedTimeConcept[concept of time]
+* the link:GmManualReportGenerator[Report Generator]
+* adding Forms
+* managing link:GmManualManagingUsers[Users]
+* managing link:GmManualManagingOrgsPraxis[Organizations / your Praxis]
+* planning your link:PaperToEmr[paper to EMR] transition
+* planning link:Fax Integration[Fax Integration]
+
+#AdministratorGuideInManual
+
+== Administrator Guide
+
+=== Server Maintenance
+
+* Account/Access link:GmManualAccountManagement[Management]
+* Client/Access link:GmManualClientAccessManagement[Management]
+* Database link:GmManualServerInstall[Installation]
+* Going into link:GmManualServerIntoProduction[production]
+* Database link:GmManualServerUpgrade[Upgrade]
+* Database link:GmManualDatabaseBackupRestore[Backup, Restore and
+Migration]
+* Managing link:GmManualReferenceData[Reference data] (including data
+packs)
+
+#AdminGuideClientMaintenance
+
+=== Client Maintenance
+
+* link:InstallerGuideHome[Installation and Upgrade] _(several methods
+are available)_
+* Client Configuration
+** link:GmManualConfigFiles[Configuration Files]
+** Customizing link:GmManualCustomizingClientStartup[client startup]
+** Customizing link:GmManualCustomizingBackendLogin[backend login]
+** Hooking into the link:GmManualHooksFramework[client workflow]
+** Configuring link:GmManualConfigureClientOptions[client behaviour]
+(options)
+** Managing link:GmManualManageMasterData[master data] (reference data
+sets)
+** Customizing link:GmManualDocManagementCfg[document management]
+** Customizing link:GmManualConfigPatientSearch[patient search]
+** link:GmManualExternalPatientImport[External patient interface]
+*** 3rd party link:LegacyAppConfiguration[applications]
+*** German link:GmManualGermanKVKInterface[Krankenversichertenkarte]
+** XML-RPC based link:GmManualXmlRpcApi[remote control] of the client
+* link:GmManualClientMaintenance[Routine Maintenance]
+
+=== Tested/Suggested Hardware
+
+* link:InputDevices#ImagescannerPage[Image Scanner]
+* link:InputDevices#DigitalCameraPage[Digital Cameras]
+* link:InputDevices#SMSHandyPage[Mobile Phones]
+
+#DeveloperGuideInManual
+
+== Developer Guide
+
+=== Introduction
+
+* some link:DevelopmentGuidelines[development guidelines] to keep in
+mind
+* link:ReleaseManagement.html[Release Management]
+
+=== Concepts
+
+* the link:ConceptAddress[address] concept
+* the link:ConceptOrganisation[organisation] concept
+* dealing with link:DBConcurrencyHandling[concurrent database
+modifications]
+
+=== The Backend
+
+* database link:DbRevisionHandling[revision handling]
+* the link:DbStructure[database structure] - a conceptual view
+* the full link:DatabaseSchema[database schema]
+** generated daily from a cron job
+** gnumed/client/doc/make-schemadocs.sh ->
+http://www.rbt.ca/autodoc/index.html[pg_autodoc]
+* link:BackendI18N[i18n/l10n issues]
+
+=== The Frontend
+
+* link:UiDesignDecisions[Design Decisions]
+* the APIDocumentation
+** epydoc run over the CVS source tree
+* link:I18N[Internationalization]
+
+=== The Middleware
+
+* please ask
+
+=== The Source Code Repository
+
+* https://github.com/ncqgm/gnumed[browse the Git tree] on the web
+
+=== 3rd party projects used with GNUmed
+
+* http://www.libchipcard.de[libchipcard]
+* the http://twainmodule.sf.net[TWAIN Python binding]: GPLv2
+* the http://www.pythonware.com[Python Imaging Library (PIL)]: BSD
+license (Original)
+* the http://www.xsane.org[XSane] scanning frontend
+* the http://www.nongnu.org/aeskulap/[Aeskulap] DICOM viewer
+* the http://xmedcon.sourceforge.net[XMedCon] DICOM viewer
+* the https://www.orthanc-server.com/[Orthanc] DICOM server
+* the http://initd.org/psycopg/download/[psycopg2] DB-API module
+* gmMimeMagic (http://www.jsnp.net/code/magic.py[magic.py]): license ?
+* the http://www.freemedforms.com/en/doc/freediams/[FreeDiams] drug
+reference
+* the http://www.arriba-hausarzt.de[ARRIBA] CV risk calculator (free
+use)
+
+* the Ginkgo CADx (http://ginkgo-cadx.com) DICOM viewer
+
+* the http://www.gelbe-liste.de[Gelbe Liste/MMI] German drug database (commercial)
+
+=== Licensing status of 3rd party data
+
+* read about those link:LicensingStatus[licenses]

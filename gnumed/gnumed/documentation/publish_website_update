@@ -1,0 +1,21 @@
+#!/bin/sh
+
+for ADOC in website/*.adoc ; do
+	asciidoc --backend=html5 --verbose ${ADOC}
+	#--section-numbers
+	#--safe
+	RESULT="$?"
+	if test "${RESULT}" != "0" ; then
+		echo "Cannot convert asciidoc (${ADOC}) to html5 (${RESULT}). Aborting."
+		exit ${RESULT}
+	fi
+done;
+
+rsync --verbose --progress --checksum --human-readable website/*.html www.gnumed.de:gm-website/
+RESULT="$?"
+if test "${RESULT}" != "0" ; then
+	echo "Cannot upload html files (${RESULT}). Aborting."
+	exit ${RESULT}
+fi
+
+rm --verbose --force website/*.html
