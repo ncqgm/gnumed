@@ -1,45 +1,56 @@
 == Welcome to the GNUmed Electronic Medical Record Project
 
-Version 1.7.10 (database v22.10) now available.
+https://www.gnumed.de/downloads/client/1.7/gnumed-client.1.7.9.tgz[Version 1.7.9] (database v22.9) released Dec 5th 2019 +
+https://www.gnumed.de/downloads/client/1.8/gnumed-client.1.8.0rc3.tgz[Version 1.8.0rc3] (database v22.10) released Feb 22nd 2020
 
-link:https://www.gnumed.de/downloads/[Download] | https://github.com/ncqgm/gnumed/blob/master/gnumed/CHANGELOG[Changes]
+https://github.com/ncqgm/gnumed/blob/master/gnumed/CHANGELOG[What's New] | https://www.gnumed.de/downloads/[Download Area]
 
 '''
 
-The *GNUmed* project builds a free, _liberated_ open source
-*Electronic Medical Record* software in _multiple languages_ to assist
-and improve longitudinal care (specifically in ambulatory settings, i.e.
-multi-professional practices and clinics).
+The *GNUmed* project builds a Free, Libre, Open Source *Electronic Medical Record* +
+in multiple languages to assist and improve longitudinal care (specifically in +
+ambulatory settings, i.e. multi-professional practices and clinics). +
 
-It is made available at no charge and is capable of running on
-GNU/Linux, Windows and Mac OS X. It is developed by a handful of medical
-doctors and programmers from all over the world.
+It is made available at no charge and is capable of running on GNU/Linux, +
+Windows and Mac OS X. It is developed by a handful of medical doctors and +
+programmers from all over the world.
 
-It can be *useful to* anyone documenting the health of patients
-including, but not limited to, *doctors, physical therapists,
-occupational therapists, acupuncturists, nurses, psychologists* ...
+It can be *useful to* anyone documenting the health of patients including, +
+but not limited to, *doctors, physical therapists, occupational therapists, +
+acupuncturists, nurses, psychologists* ...
 
 link:GNUmedFeatureList.html[Feature list] | link:GNUmedFAQ[FAQ]
 
-== Get started using GNUmed
+== For Users
 
 * link:InstallerGuideHome[Installation Guides]
 * link:GNUmedManual.html[Manuals]
 
-Support:
+* Support
+** https://lists.gnu.org/mailman/listinfo/gnumed-devel[general] mailing list
+** https://lists.gnu.org/mailman/listinfo/gnumed-bugs[bugs] mailing list
+** https://bugs.launchpad.net/gnumed/+bugs[bug tracker]
 
-	* link:https://lists.gnu.org/mailman/listinfo/gnumed-devel[general] mailing list
-	* link:https://lists.gnu.org/mailman/listinfo/gnumed-bugs[bugs] mailing list
-//	* bug tracker
+Professional support can be arranged by contacting the primary developers.
+
+== For Developers
+
+Everyone is encouraged to contribute to GNUmed.
+
+* https://github.com/ncqgm/gnumed[source code repository]
+* https://bugs.launchpad.net/gnumed/+bugs[bug tracker]
+* https://translations.launchpad.net/gnumed/trunk/+pots/gnumed[translations]
+
+== For Supporters
+
+* https://www.gnumed.de/downloads/press/[press kits]
 
 ////
 
-//link:RoadMap#ReleaseV11[Summary]
-
 == Discover it
 
-//http://www.flickr.com/photos/gnumed/sets/72157623196909218/show/[flickr]
-//src="http://www.gnumed.de/theme/images/slides/scaled/EMRJournal-scaled.png"
+//https://www.flickr.com/photos/gnumed/sets/72157623196909218/show/[flickr]
+//src="https://www.gnumed.de/theme/images/slides/scaled/EMRJournal-scaled.png"
 
 Please use the links above to *download and install the client*, be
 aware that the _public_ server is sometimes a little slow -- give it
@@ -47,43 +58,21 @@ about 30s to respond to each screen change or refresh that you make. You
 can of course create your own _local_ server database -- please see the
 _Installation Guides_ above.
 
-This Wiki contains the most up-to-date documentation. Use the shortcuts
-on the left of this page to navigate the site. Problems running GNUmed?
-Consult the _link:Release Status[Release Status]_ page.
-
 == Grow it
 
-Everyone is encouraged to contribute to GNUmed. Everything you need is
-linked from this wiki, which you can help to improve.
-
 * subscribe to the developer
-http://savannah.gnu.org/mail/?group=gnumed[mailing list]
-* help with
-https://translations.launchpad.net/gnumed/trunk/+pots/gnumed[translations]
-* get the https://github.com/ncqgm/gnumed[source code]
+https://savannah.gnu.org/mail/?group=gnumed[mailing list]
 
 == Get support
 
 The GNUmed project operates
-http://savannah.gnu.org/mail/?group=gnumed[mailing lists] and a
-http://www.vondoczudoc.de[forum] for its users and developers.
-
-Professional support can be bought from
-mailto:Sebastian.Hilbert@gmx.de[Hilbros] - a German company providing
-services around GNUmed.
+https://savannah.gnu.org/mail/?group=gnumed[mailing lists] and a
+https://www.vondoczudoc.de[forum] for its users and developers.
 
 == News
 
-http://gnumed.blogspot.com[News]
+https://gnumed.blogspot.com[News]
 
-http://savannah.gnu.org/mail/?group=gnumed[Mailing List]
-
-*Translations* -- Coming along nicely !
-
-Translations have seen some progress at
-https://translations.launchpad.net/gnumed/trunk/+pots/gnumed. Russian
-and Spanish have been completed.
-
-Thanks a lot, guys! - _everyone at GNUmed project_
+https://savannah.gnu.org/mail/?group=gnumed[Mailing List]
 
 ////

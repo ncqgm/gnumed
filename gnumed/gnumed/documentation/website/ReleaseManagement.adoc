@@ -12,7 +12,7 @@ version.
 === Development _(VCS HEAD)_
 
 * fix feature set in link:RoadMap[Roadmap]
-* complete features in http://gitorious.org/gnumed/[VCS (e.g. GIT)]
+* complete features in https://github.com/ncqgm/gnumed[source code repository]
 * fix https://bugs.launchpad.net/gnumed/+bugs[bugs] reported in the bug
 tracker
 * complete database schema changes
