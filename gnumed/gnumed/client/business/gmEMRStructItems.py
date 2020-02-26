@@ -2559,7 +2559,7 @@ limit 1
 		lines.append(_('  your time: %s - %s  (@%s = %s%s)\n') % (
 			self._payload[self._idx['started']].strftime('%Y-%m-%d %H:%M'),
 			self._payload[self._idx['last_affirmed']].strftime('%H:%M'),
-			gmDateTime.current_local_iso_numeric_timezone_string,
+			gmDateTime.current_local_timezone_name,
 			gmTools.bool2subst (
 				gmDateTime.dst_currently_in_effect,
 				gmDateTime.py_dst_timezone_name,

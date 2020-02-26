@@ -19,7 +19,7 @@ It can be *useful to* anyone documenting the health of patients including, +
 but not limited to, *doctors, physical therapists, occupational therapists, +
 acupuncturists, nurses, psychologists* ...
 
-link:GNUmedFeatureList.html[Feature list] | link:GNUmedFAQ[FAQ]
+link:GNUmedFeatureList.html[Feature list] | link:GNUmedFAQ.html[FAQ]
 
 == For Users
 

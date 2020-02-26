@@ -62,12 +62,12 @@ _log = logging.getLogger('gm.datetime')
 dst_locally_in_use = None
 dst_currently_in_effect = None
 
-current_local_utc_offset_in_seconds = None
-current_local_timezone_interval = None
-current_local_iso_numeric_timezone_string = None
-current_local_timezone_name = None
 py_timezone_name = None
 py_dst_timezone_name = None
+current_local_utc_offset_in_seconds = None
+#current_local_timezone_interval = None
+current_local_iso_numeric_timezone_string = None
+current_local_timezone_name = None
 
 gmCurrentLocalTimezone = 'gmCurrentLocalTimezone not initialized'
 
@@ -128,10 +128,12 @@ def init():
 	except KeyError:
 		_log.debug('$TZ not defined')
 
-	_log.debug('time.daylight: [%s] (whether or not DST is locally used at all)' % time.daylight)
-	_log.debug('time.timezone: [%s] seconds' % time.timezone)
-	_log.debug('time.altzone : [%s] seconds' % time.altzone)
-	_log.debug('time.tzname  : [%s / %s] (non-DST / DST)' % time.tzname)
+	_log.debug('time.daylight           : [%s] (whether or not DST is locally used at all)', time.daylight)
+	_log.debug('time.timezone           : [%s] seconds (+/-: WEST/EAST of Greenwich)', time.timezone)
+	_log.debug('time.altzone            : [%s] seconds (+/-: WEST/EAST of Greenwich)', time.altzone)
+	_log.debug('time.tzname             : [%s / %s] (non-DST / DST)' % time.tzname)
+	_log.debug('time.localtime.tm_zone  : [%s]', time.localtime().tm_zone)
+	_log.debug('time.localtime.tm_gmtoff: [%s]', time.localtime().tm_gmtoff)
 #	_log.debug('mx.DateTime.now().gmtoffset(): [%s]' % mxDT.now().gmtoffset())
 
 	global py_timezone_name
@@ -159,19 +161,21 @@ def init():
 		current_local_utc_offset_in_seconds = time.timezone * -1
 		_log.debug(msg % (' not ', time.timezone * -1, time.altzone * -1))
 
-	if current_local_utc_offset_in_seconds > 0:
-		_log.debug('UTC offset is positive, assuming EAST of Greenwich (clock is "ahead")')
-	elif current_local_utc_offset_in_seconds < 0:
+	if current_local_utc_offset_in_seconds < 0:
 		_log.debug('UTC offset is negative, assuming WEST of Greenwich (clock is "behind")')
+	elif current_local_utc_offset_in_seconds > 0:
+		_log.debug('UTC offset is positive, assuming EAST of Greenwich (clock is "ahead")')
 	else:
 		_log.debug('UTC offset is ZERO, assuming Greenwich Time')
 
-	global current_local_timezone_interval
+#	global current_local_timezone_interval
 #	current_local_timezone_interval = mxDT.now().gmtoffset()
-	_log.debug('ISO timezone: [%s] (taken from mx.DateTime.now().gmtoffset())' % current_local_timezone_interval)
+#	_log.debug('ISO timezone: [%s] (taken from mx.DateTime.now().gmtoffset())' % current_local_timezone_interval)
 
 	global current_local_iso_numeric_timezone_string
-	current_local_iso_numeric_timezone_string = str(current_local_timezone_interval).replace(',', '.')
+#	current_local_iso_numeric_timezone_string = str(current_local_timezone_interval).replace(',', '.')
+	current_local_iso_numeric_timezone_string = '%s' % current_local_utc_offset_in_seconds
+	_log.debug('ISO numeric timezone string: [%s]' % current_local_iso_numeric_timezone_string)
 
 	global current_local_timezone_name
 	try:
@@ -311,7 +315,8 @@ def mxdt2py_dt(mxDateTime):
 		tz_name = str(mxDateTime.gmtoffset()).replace(',', '.')
 	except mxDT.Error:
 		_log.debug('mx.DateTime cannot gmtoffset() this timestamp, assuming local time')
-		tz_name = current_local_iso_numeric_timezone_string
+		#tz_name = current_local_iso_numeric_timezone_string
+		tz_name = current_local_timezone_name
 
 	if dst_currently_in_effect:
 		# convert
@@ -2267,7 +2272,7 @@ if __name__ == '__main__':
 	def test_date_time():
 		print ("DST currently in effect:", dst_currently_in_effect)
 		print ("current UTC offset:", current_local_utc_offset_in_seconds, "seconds")
-		print ("current timezone (interval):", current_local_timezone_interval)
+		#print ("current timezone (interval):", current_local_timezone_interval)
 		print ("current timezone (ISO conformant numeric string):", current_local_iso_numeric_timezone_string)
 		print ("local timezone class:", cPlatformLocalTimezone)
 		print ("")
@@ -2429,7 +2434,7 @@ if __name__ == '__main__':
 
 	init()
 
-	test_date_time()
+	#test_date_time()
 	#test_str2fuzzy_timestamp_matches()
 	#test_get_date_of_weekday_in_week_of_date()
 	#test_cFuzzyTimeStamp()
