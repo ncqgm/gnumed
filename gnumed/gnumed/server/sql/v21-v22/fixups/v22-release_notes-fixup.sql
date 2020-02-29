@@ -17,8 +17,8 @@ INSERT INTO dem.message_inbox (
 ) VALUES (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
-	'Release Notes for GNUmed 1.8.0rc3 (database v22.10.py3)',
-	'GNUmed 1.8.0rc3 Release Notes:
+	'Release Notes for GNUmed 1.8.0 (database v22.11)',
+	'GNUmed 1.8.0 Release Notes:
 
 	1.8.0
 
@@ -77,10 +77,18 @@ FIX: documents/new: error handling of unreadable parts
 FIX: PG access: rewrite connection pool
 FIX: y2038 exception in DST detection
 
+	22.11
+
+FIX: i18n.set_curr/force_curr_lang(), again [thanks lucian]
+
 	22.10
 
 IMPROVED: database fixup script
+
+	22.9
+
+FIX: clin.v_candidate_diagnoses: missing coalesce()
 ');
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('v22-release_notes-fixup.sql', '22.10.py3');
+select gm.log_script_insertion('v22-release_notes-fixup.sql', '22.11');
