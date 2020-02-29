@@ -1,0 +1,374 @@
+= What can GNUmed do for me *today* ?
+
+As of January 2020 GNUmed can be used to do the following:
+
+== Administration
+
+=== Appointment handling (using partner application)
+
+* KOrganizer
+** view appointments registered in KOrganizer
+** activate patient from KOrganizer appointment
+* Terminiko
+** transfer patient from GNUmed to Terminiko for appointment
+registration
+** activate patient from Terminiko appointment
+* Other external appointment managers
+** activate patient in GNUmed
+** create GNUmed patient from appointment
+** depends on external app willingness to co-operate with GNUmed
+
+=== Branch management
+
+* manage your praxis with any number of branches / offices
+* per branch communication channels and addresses
+* per branch communications/addresses placeholders
+
+=== link:InBox[Inbox] Handling
+
+* across-staff view, with support for per-message privacy
+* from inbox message, jump to unreviewed documents or measurements for
+this patient
+* includes a virtual view of new (and still-unhanded) results and
+documents
+* leave messages to yourself or other providers
+* per-staff view
+* relevancy and other filters
+
+=== Staff handling
+
+* manage staff members
+* support for recognizing staff-as-patients
+
+== Managing Care
+
+=== Care-related Communications (Forms, Letters, Electronic Media)
+
+* collect documents, files, screenshots, timeline exports, printouts
+into patient-specific export area (v1.5)
+* completed forms/letters are stored with the patient, just like any
+other document
+* encrypted storage of provider autograph scan for insertion into
+documents
+* patient documents export area plugin
+* print/mail/fax/burn to CD/DVD/USB patient export area collection
+(v1.5)
+* print manager
+* support for designating the receiver(s) of a communication
+* transfer data into forms and letters with help of interactive,
+link:GmManualLettersForms#The_placeholder_concept[fully-placeholdered]
+letter templates
+* write/fill in template based link:GmManualLettersForms[letters/froms]
+from within GNUmed
+** LibreOffice
+** (Xe)LaTeX
+** PDF forms (FDF)
+** http://abiword.org[AbiWord] forms
+
+=== Coding of clinical data
+
+* manage coding of
+** encounters (Reason for/Assessment of)
+** episodes
+** family history
+** health issues
+** measurements (LOINC)
+** medications and vaccinations (ATC)
+** procedures
+* support for ATC, ICD-9, ICD-10, ICPC-2, ICPM, LOINC
+
+=== Decision Support / Intelligence
+
+* algorithm to assist choosing a non-steroid anti-rheumatic drug
+* capacity to identify text similarities (trigrams) which may, despite
+variant and mis-spelt free-text entries, mean the same thing
+* display of medication-related lab monitoring
+* explicit per-patient reminders with due date/expiry
+* generic dynamic automatic hints
+* EDC calculator and storage
+* GFR calculations
+* Long QT Syndrome clinical probability score
+* Snellen Chart display (unvalidated)
+* Wells scores for DVT and Pulmonary embolism
+
+=== Document Archive
+
+* access any externally stored originals via permalinks
+* add new documents
+** select files from file system
+** drop files onto GNUmed
+** get data from scanners/cameras
+* associate metadata and textual descriptions with documents
+* classify and sign off documents
+* each part of one single document can be of any type, such as text,
+image, or video
+* export documents to files for re-use outside GNUmed
+* print, fax, or mail documents
+* view documents in different sort modes
+* interface with https://www.orthanc-server.com/[Orthanc] DICOM server
+
+=== Measurements and Test Results Handling
+
+* any number of test types
+* any number of test results
+* any number of test result providers
+* any number of aggregations of test types into equivalence groups for
+same-row display
+* any number of test type "batteries" / "panels"
+* by-day display mode for test results, including within-day replicates
+* calculation of eGFR/BMI/body surface/...
+* classify and sign off on results
+* configurable panel/battery for medication monitoring / prescription
+risk management
+* direct access to online lab test reference information
+* display results as tabular grid / detailed per day / in clinical
+context
+* manually manage test results
+* support for reference unit and results conversion
+* plot test results
+* print test results
+
+=== Medication Handling
+
+* direct access to online dosage recommendations in renal insufficiency
+* direct access to Qt related recommendations
+* document approval or non-approval of intake
+* interface with external drug databases
+** check interactions
+** generate prescriptions
+** get in-depth drug information
+** import drugs and substances
+* link to WHO ATC list
+* manage drugs and substances
+* print professional medication lists
+* report an adverse drug reaction
+* track measurements relevant to drug therapy
+* track substance use (medications, drugs, OTC, ...)
+* turn medication entries into allergy entries
+* warn on known allergies if detected among currently used substances
+
+=== Organizing Care
+
+* auto-filtering of inbox items on patient activation
+* manage episodes from results
+* manage primary provider for each patient
+
+=== Progress Notes
+
+* browse as timeline view
+* browse chronologically (pooled), or within an EMR "tree" ordered by
+** health issue
+*** episode
+**** encounter
+* browse revisions of entries
+* export to text file
+* free text search within and across medical records
+* generate letters from progress notes
+* SOAP-style input
+* threaded, multi-issue encounters
+* use included scores to improve care
+* use self-expanding text macros with dynamic insert prompts for rapid
+data entry
+
+* visual progress notes
+** annotate image templates or use (perhaps annotated) clinical
+photographs as progress notes
+** access image capture devices as a source for progress note images
+** view visual progress notes in-context within the EMR tree view
+browser
+
+=== Risk Management
+
+==== Allergies
+
+* view at-a-glance the absence (or existence) of allergies
+* view (and refresh) when the allergy state was last checked
+* quickly confirm / refresh / revise the allergy state
+* capture allergies at a drug-specific vs "class" level
+
+==== Substance abuse
+
+* capture use of nicotine / alcohol / other drugs
+
+==== Family History
+
+* track patients' risks as suggested by relevant family history
+
+==== Lifestyle
+
+* interface cardiovascular risk calculators (eg. ARRIBA)
+* document approval of substance intake
+* keep structured problem list
+* many scores for clinical risks
+
+==== Tags
+
+* tag patients with searchable icons with associated comments
+
+=== Structured Problem Lists
+
+* manage episodes (standalone or associated to a health issue)
+* manage encounters (consultations)
+* manage Past Medical History (health issues)
+* manage progress notes
+* quickly get an overview of a patient's relevant care events
+
+=== Tracking external care
+
+* designate care as having been externally-provided
+* support for organizational units' external identifiers
+* track hospital admissions for patients
+* track diagnostic and therapeutic procedures performed on patients,
+whether during hospital stays or in community
+
+=== Vaccination Handling
+
+* document vaccinations given or reported
+* print latest vaccination status handout
+* print vaccination history handout
+* report an adverse vaccination reaction (if different from ADR on
+medications)
+* vaccine management including branded vaccines and generic
+pseudo-vaccines
+
+== Patient Handling
+
+=== Billing
+
+* manage items to be billed to patients
+* create/print bills and invoices
+
+* quickly get an overview of a patient's relevant care events
+
+=== Creating patients
+
+* manually add new patient
+* import new patient from legacy software
+* import new patient via German medical cards "KVK" and "eGK"
+* import patient from the https://launchpad.net/clinica-project[Clinica]
+EMR
+
+=== Locating and Managing patients and identities
+
+* search for patients by
+** name fragments (soundalikes, previous names, nicknames, ...)
+** any external and internal ID (drivers license, chart no, care plan
+no, ...)
+** date of birth
+* edit patient demographics
+** support for estimated date of birth
+** support multiple identities (names and aliases), addresses, phone
+numbers, identifiers
+** support emergency contacts
+** support occupation tracking
+* concurrently access a patient record (by
+link:DBConcurrencyHandling[more than one person at a time])
+* disable patient record
+* merge two patients
+
+=== Waiting lists management
+
+* add current patient to user-definable waiting list zone(s) with
+comment(s)
+* filter patients by waiting list zone for a display of Zone, Urgency,
+Waiting time, Patient, Born, Comment
+* activate patient with a double-click
+
+== Other Functionality
+
+=== Customization
+
+* configuration
+** per user, per workplace, _database-based_ (thus, site-wide) options
+** configurable client GUI font
+
+* hooks for custom scripts to be run following events in the client
+** e.g. run a script after activating a patient
+
+* reference data
+** download and install data packs independent of application releases
+
+=== Database Functionality
+
+* access from Linux, Windows, and MacOSX
+* backup: automated, hands-off, zero downtime, digitally signed
+* installation on RAID/NAS/encrypted devices
+* "HIPAA compliance-oriented" auditing and logging
+
+=== Interfaces
+
+* card-reading support for German eGK/KVK/PKVK on Windows
+
+* external appllication links
+** calculate stroke/MI risk using ARRIBA riskulator
+** display a list of online medical knowledge resources
+** import data from the https://launchpad.net/clinica-project[Clinica]
+EMR
+** link to an online lab tests reference information database
+** look up drugs in the German _MMI/Gelbe Liste_ drug database
+*** works under Windows and Wine
+** look up drugs in _FreeDiams_ drug database
+** use a DICOM viewer to display CD-ROMs containing X-Rays, MRs, CTs etc
+
+* HL7 lab results import
+
+=== Multi-language-capable (i18n)
+
+* a single database can present its
+** menus
+** headings and screen elements
+** listings in multiple languages to different users at the same time
+
+(depends on the user community to contribute translations)
+
+=== Resilience
+
+* automated logging, recovery from, and reporting of most errors
+* lossless upgrades, with emphasis on data integrity
+
+=== Statistics and Reports
+
+* activate patients right from the report if applicable
+* create reports dynamically adjusting to the currently active patient
+* display audit log
+* run reports of arbitrary statistical complexity over any data in the
+database
+* save report generator results as CSV file
+* visualize (plot) the results
+
+=== Other usability and features
+
+* clipboard-based XML-formatted demographics exchange
+* create new test types as results are being created at the point of
+care
+* display of missing gender
+* dynamic keyword text expansions
+* management of dynamic hints
+* per-patient suppression of dynamic hints
+* remote control GNUmed from a legacy application
+** activate a particular plugin for that patient
+** import patient from German-style XDT file (BDT/GDT)
+** make GNUmed select that patient
+* TLS enabled on sending bug reports
+* vCard import/export
+* within-patient location of any unreviewed results
+
+''''''''
+
+== FAQ
+
+*Q:* What does "do for me today" mean ?
+
+*A:* It means you can link:InstallerGuideHome[download]
+GNUmed and rightfully expect to be enabled to do any of the
+above. It may not work the way you expect it to but there
+should be a way to accomplish those tasks and it should
+*work*. It is your right to (and our hope that you do) email
+the developer list on anything that does *not* work as
+advertised.
+
+*Q:* But I can't do the advertised tasks in the browser interface/the ... interface !
+
+*A:* That is correct. The above refers only to the wxPython
+reference client GUI. Other frontends may be lagging behind
+or (in theory, at least) could be further ahead.

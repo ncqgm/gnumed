@@ -1,4 +1,8 @@
+link:index.html[Home]
+
 == Gnumed FAQs
+
+[[TopOfFAQ]]
 
 * link:#WhatIsGnuMed[What is GNUmed ?]
 * link:#WhoGnuMedFor[Who is GNUmed for ?]
@@ -57,6 +61,8 @@ GNUmed is using tried-and-true technology to do things
 technically "cleanly" taking a pragmatic rather than purist
 approach.
 
+link:#TopOfFAQ
+
 '''''
 
 [[WhatGnuMedNot]] *What is GNUmed _not_ ?*
@@ -67,6 +73,8 @@ GNUmed is, however, intended to interface well with such
 systems. There may also be some departments (such as hospital
 associated general ambulatory care) that warrant use of
 GNUmed.
+
+link:#TopOfFAQ
 
 '''''
 
@@ -79,12 +87,16 @@ of several workstations.
 
 It is currently in use with GPs and physical therapists.
 
+link:#TopOfFAQ
+
 '''''
 
 [[IsGnuMedApproved]] *Is GNUmed "approved software" ?*
 
 GNUmed has not yet been submitted for national certifications. For more
 information, see link:CertificationRequirements[here].
+
+link:#TopOfFAQ
 
 '''''
 
@@ -112,6 +124,8 @@ the position that – however important may be the workflow considerations
 – these need to be built from, and to remain built on, a _meaningful_
 patient record.
 
+link:#TopOfFAQ
+
 '''''
 
 [[WhatComputerSystems]] *What computer system(s) will it run on?*
@@ -124,6 +138,8 @@ programming experience. As our community and help base grows,
 "installer" packages are being created and maintained for a variety of
 systems, linked from _...downloading, installing_ in the GettingStarted
 topic.
+
+link:#TopOfFAQ
 
 '''''
 
@@ -161,6 +177,8 @@ patient's health or even life depends on using the most sophisticated
 software. Given the infinite replicability of software at negligible
 cost, it would feel unethical to prevent those in need from having
 access to that software.
+
+link:#TopOfFAQ
 
 '''''
 
@@ -203,6 +221,8 @@ free open source software in the nonprofit sector
 tool
 * http://news.cnet.com/8301-13505_3-10078682-16.html[caveats] about
 trying to take an open source project "commercially"
+
+link:#TopOfFAQ
 
 '''''
 
@@ -261,12 +281,16 @@ some local computer support people to assist you with some calculations.
 As soon as we collect any of our own real examples of costs, we can
 share the information.
 
+link:#TopOfFAQ
+
 '''''
 
 [[WhatDoToday]] *What Can I Actually DO With GNUmed Today?*
 
 * We are maintaining this on its own page
 link:WhatCanIActuallyDOWithGNUmedToday[here].
+
+link:#TopOfFAQ
 
 '''''
 
@@ -276,6 +300,8 @@ progress?*
 * Sure! Subscribe to the low-volume
 http://lists.gnu.org/mailman/listinfo/gnumed-announce[gnumed-announce]
 email list and we'll let you know at intervals of any key developments.
+
+link:#TopOfFAQ
 
 '''''
 
@@ -298,6 +324,8 @@ where the bug could be. One doesn't really have to find it or fix it,
 just trying to find it will make one think about how the code is put
 together. Pick a bug, a todo or a mini project and start asking.
 * Want help finding a role? Just ask!
+
+link:#TopOfFAQ
 
 '''''
 
@@ -323,6 +351,8 @@ A public database (publicdb.gnumed.de) can be used for testing.
 
 You may want to enlist professional support for setup and administration.
 
+link:#TopOfFAQ
+
 '''''
 
 [[WhatDatabasePassword]] *What is the username, and password, for the public database?*
@@ -331,6 +361,8 @@ The username for the public database on publicdb.gnumed.de is *any-doc*.
 
 The password is *any-doc* as well.
 
+link:#TopOfFAQ
+
 '''''
 
 [[HowSetupPostgres]] *How to set up the database ?
@@ -338,6 +370,8 @@ The password is *any-doc* as well.
 Before GNUmed can work it is important to set up a database
 environment aka setting up PostgreSQL. Extensive information is provided
 link:ServerInstallUpgrade[here]
+
+link:#TopOfFAQ
 
 '''''
 
@@ -362,6 +396,8 @@ much information about the problem as you can
 
 * http://www.chiark.greenend.org.uk/~sgtatham/bugs.html[optimize your bug report]
 * http://www.catb.org/~esr/faqs/smart-questions.html[optimize your inquiry]
+
+link:#TopOfFAQ
 
 '''''
 
@@ -389,6 +425,8 @@ gm-dbo. The very first time there is no password. So whatever you give
 as a response value for the password will be set as password for the
 future. You need this password to add staff accounts to GNUmed.
 
+link:#TopOfFAQ
+
 '''''
 
 [[GnumedTranslations]] *Is GNUmed available in Spanish, German, French,
@@ -398,6 +436,8 @@ GNUmed is designed to support almost any language. Translations range
 from complete to just started. For a quick overview visit
 https://translations.launchpad.net/gnumed and consider
 link:ContributeToGNUmed[contributing to GNUmed]
+
+link:#TopOfFAQ
 
 '''''
 
@@ -411,3 +451,9 @@ work with that data during the care process.
 One usually needs one server part and one or multiple clients
 installed per office. There are separate downloads for the
 client and the server part.
+
+link:#TopOfFAQ
+
+'''''
+
+link:index.html[Home]
