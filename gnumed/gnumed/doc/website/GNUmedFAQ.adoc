@@ -1,0 +1,459 @@
+link:index.html[Home]
+
+== Gnumed FAQs
+
+[[TopOfFAQ]]
+
+* link:#WhatIsGnuMed[What is GNUmed ?]
+* link:#WhoGnuMedFor[Who is GNUmed for ?]
+* link:#WhatGnuMedNot[What is GNUmed *not* ?]
+* link:#IsGnuMedApproved[Is GNUmed "approved software" ?]
+* link:#DoIneedClientAndServer[Do I need client or server or both ?]
+* link:#LoginFailures[I cannot log in with the client ?]
+* link:#WhatDatabasePassword[What is the username and password for the public database ?]
+* link:#HowReportBugs[How do I report a problem / bug most efficiently ?]
+* link:#GnumedTranslations[Is GNUmed available in Spanish, German,
+French, Dutch ... ?]
+* link:#WhyIsGnuMedTheWayItIs[Why is GNUmed the way it is?]
+* link:#WhatComputerSystems[What computer system(s) will it run on?]
+* link:#IsGnuMedFree[Is GNUmed free? Why?]
+* link:#GnuMedCost[What might it cost to run?]
+* link:#WhatDoToday[What Can I Actually DO With GNUmed Today?]
+* link:#NotifiedGnuMedProgress[Can I be notified of significant GNUmed
+progress?]
+* link:#HowSetupPostgres[How to set up the database ?]
+* link:#GNUmedPasswords[What are the passwords needed during database
+setup ?]
+* link:#HowLearnMore[How can I learn more and perhaps contribute?]
+* link:#OpenSourceImplications[What more should I know about Open
+Source?]
+
+'''''
+
+[[WhatIsGnuMed]] *What is GNUmed?*
+
+=== The Project
+
+GNUmed is a group of practising doctors, programmers and free
+software enthusiasts from around the world, committed to
+provide a superior, free, libre, open soure software solution
+for community practice.
+
+=== For Users
+
+GNUmed is an Electronic Medical Record software. It offers
+record-keeping, but aims to cover all aspects of medical
+practice, and attempts to interface well with third-party
+software.
+
+=== For Developers
+
+GNUmed is a client/server application largely written in
+https://www.python.org[Python]. It safely operates on single
+computers or networks with few to many users, and supports
+secure remote access.
+
+The GUI is using the https://www.wxpython.org[wxPython] toolkit.
+
+Data is stored in a https://www.postgresql.org[PostgreSQL RDBMS].
+
+GNUmed is using tried-and-true technology to do things
+technically "cleanly" taking a pragmatic rather than purist
+approach.
+
+link:#TopOfFAQ
+
+'''''
+
+[[WhatGnuMedNot]] *What is GNUmed _not_ ?*
+
+GNUmed is not currently intended for hospitals.
+
+GNUmed is, however, intended to interface well with such
+systems. There may also be some departments (such as hospital
+associated general ambulatory care) that warrant use of
+GNUmed.
+
+link:#TopOfFAQ
+
+'''''
+
+[[WhoGnuMedFor]] *Who is GNUmed for ?*
+
+GNUmed is suitable for any health care provider interested in
+keeping a sound and comprehensive longitudinal medical
+record. It can be used on a single computer or with a network
+of several workstations.
+
+It is currently in use with GPs and physical therapists.
+
+link:#TopOfFAQ
+
+'''''
+
+[[IsGnuMedApproved]] *Is GNUmed "approved software" ?*
+
+GNUmed has not yet been submitted for national certifications. For more
+information, see link:CertificationRequirements[here].
+
+link:#TopOfFAQ
+
+'''''
+
+[[WhyIsGnuMedTheWayItIs]] *Why is GNUmed the way it is?*
+
+The design paradigm for GNUmed aims to achieve the widest possible
+(global) usability. This explains the desire to maintain conceptual
+separation (if not functional) between what is truly relevant to a
+patient's health record --- from a health and patient benefit point of
+view --- and the administration and the work processes (including
+billing) that surround it.
+
+If one approaches development instead from the point of view of doctors'
+workflows, where the primary purpose of the patient data structure is to
+support the doctors' billing, appointment-making and other tasks, you
+get an entirely different data design, in which patient information gets
+tucked into tables to serve the tables' interests, rather than the
+patients'... the patient "record" thereby becoming a secondary
+consideration. You end up with an entirely different paradigm, one that
+is not broadly (internationally), let alone (necessarily) nationally
+usable. GNUmed's founders would consider that a tragedy. In the
+gnumed-devel archive can be found postings that suggest GNUmed to
+"resist" GUI and workflow considerations. More accurately, there is only
+the position that – however important may be the workflow considerations
+– these need to be built from, and to remain built on, a _meaningful_
+patient record.
+
+link:#TopOfFAQ
+
+'''''
+
+[[WhatComputerSystems]] *What computer system(s) will it run on?*
+
+GNUmed has been installed on Unix, GNU/Linux, Windows and MacOSX systems
+(however the Mac version depends on a technical piece to catch up).
+Usage of the newest (experimental) versions is suggested only for
+developers, and others with some more advanced computing and/or
+programming experience. As our community and help base grows,
+"installer" packages are being created and maintained for a variety of
+systems, linked from _...downloading, installing_ in the GettingStarted
+topic.
+
+link:#TopOfFAQ
+
+'''''
+
+[[IsGnuMedFree]] *Is GNUmed free? Why?*
+
+GNUmed, in common with most open source software (OSS), is free but in a
+special way. If somebody has access to source code they could modify it,
+create something new and then patent the new program. They might choose
+not to release the source code so they could make money from their new
+program. The resulting program would no longer be open source and others
+could not improve or adapt it if they wanted to.
+
+One of the key elements of OSS is its licensing conditions. Certain
+licences can specifically prevent something like this from happening.
+There are a number of OS (Open Source) licences, and examples of the
+most common ones can be found at [http://www.opensource.org/licenses].
+The original and most widely known licence is the GNU General Public
+Licence (GPL). Under the GNU GPL you can use, copy, modify or even sell
+free software but the software must come with either the source files or
+access to the source files. If you were to sell the software, or modify
+it and then sell it, the GPL requires that such software also be covered
+by the GPL. Thus, you are required to let the buyer know that they can
+have the source code and they have the right to use it or modify it if
+they wish. They must also be told that the program is sold under the GNU
+General Public Licence. The effect of the GPL is that OSS is rarely sold
+and that most vendors make their money instead by installing OS software
+and otherwise supporting end users.
+
+GNUmed is being released under the GPL because medical software is
+evolving from mere administrative tools towards powerful decision
+support systems. It is predictable that we will soon reach a state where
+software might make better and safer decisions than unexperienced
+doctors. This will sooner or later result in situations where a
+patient's health or even life depends on using the most sophisticated
+software. Given the infinite replicability of software at negligible
+cost, it would feel unethical to prevent those in need from having
+access to that software.
+
+link:#TopOfFAQ
+
+'''''
+
+[[OpenSourceImplications]] *What more should I know about Free and Open
+Source?*
+
+Free and Open Source Softwares (FOSS) are philosophies, initiatives, and
+licensing frameworks. They encourage and support models in which source
+code must be distributed along with the software, and that the source
+code be freely modifiable, with at most minor restrictions. Some myths
+about Open Source are discussed in an article available
+http://www.cio.com/archive/030104/open.html[online].
+
+With proprietary software, modification including security holes, bug
+fixes, and enhancements are under the sole control of the
+developer/vendor in terms of timing as well as whether they ever occur.
+With GNUmed, these improvements can be done at any time.
+
+With Free and Open Source, "computer people" will still be needed to
+attend to set up, maintenance and troubleshooting of the computers and
+software. Users will still need to get trained. An ecosystem will need
+to get developed, to sustain and improve the software and the installed
+user base. Perspectives on how this can be done include
+
+* http://lists.gnu.org/archive/html/gnumed-devel/2009-07/msg00060.html[GNUmed
+list posting]
+* http://android-blog.org/2009/04/07/donating-vs-investing-in-open-source-projects-semantics-and-self-esteem/[(The
+legitimacy of the "investment" perspective)]
+* Doctor Mo postings
+** http://doctormo.wordpress.com/2009/04/03/foss-investment-not-charity/[Contributing
+to share in a benefit] (It's not all about charity)
+** http://doctormo.wordpress.com/2009/02/15/the-misconceptions-of-non-commercial-foss/[The
+Misconceptions of Non-commercial FOSS]
+** http://doctormo.wordpress.com/2009/02/13/debian-economics/[Debian
+Linux "resold" to the Masses?]
+* http://www.nosi.net/[Nonprofit Open Source Initiative], an
+organization that was started to facilitate and encourage the use of
+free open source software in the nonprofit sector
+* http://cofundos.org/[Cofundos], an open-source investment-enabling
+tool
+* http://news.cnet.com/8301-13505_3-10078682-16.html[caveats] about
+trying to take an open source project "commercially"
+
+link:#TopOfFAQ
+
+'''''
+
+[[GnuMedCost]] *What might it cost to run?*
+
+The cost (time and financial) to install, maintain, support and improve
+the software in one's medical practice does not fit a traditional model.
+With proprietary software a vendor sells you a "run-time copy" or a
+license to use their software, with built-in or optional annual
+maintenance, upgrade, and support costs. Sales and support of computer
+equipment and networking are sometimes also provided, and this package
+can have administrative appeal (i.e. the "one stop shop").
+
+As GNUmed can be obtained without fee, self-sufficient persons will find
+their only costs will relate to their hardware and, for multi-user and
+remote access, to their network. Some Free and Open Source communities
+have been able to identify and provide economically priced hardware
+solutions --- see for example a http://oscarservice.com/[service company
+built around the OSCAR project] _Caveat: While GNUmed may itself cost
+nothing, "full" EMR and practice support is unlikely to be achieved
+until later versions, and so some users may want/need, in the meantime,
+to use some non-Open Source software alongside GNUmed._
+
+The costs of self-sufficiency must also be kept in mind. The ability to
+install, configure and troubleshoot (to the point of debugging) packages
+on your operating system(s) is needed, as well training and support for
+your own office staff. Even if you are _able_ to do this you may find
+this erodes your total time available, and causes the disruption to your
+medical practice activities, and your enjoyment may come more from
+helping to improve GNUmed than in doing all of your own support.
+
+Most doctors will want or need skilled computer support people to do
+some or all of their computing support. Especially for a first
+implementation you would want or need to secure ample help with the
+hardware and network design plus software installation and configuration
+and training. Once your system is functioning smoothly you will likely
+want to structure an arrangement in which these people provide a base
+amount of ongoing support, with additional service on a "pay as you go"
+basis. Because you are unlikely to need a full-time person (at least not
+on an ongoing basis) it will make tremendous sense to co-ordinate your
+needs with those of one or more other GnuMed-based medical practices in
+order to make feasible a critical mass of sustainable local support.
+
+Having said all of the above a few ballpark numbers may be helpful
+predicated on i) Free and Open Source costing the same or less for
+support and ii) your _NOT_ having to pay acquisition costs, nor pre-pay
+for future development --- you would only pay towards any of those
+GNUMed core enhancements, or customizations, whose costs --- time,
+energy or money --- would make sense to share. Using some non-Free/Open
+Source systems as a basis for comparison, in Canada, EMR vendors have
+been known to charge on average USD equivalents of $1500 – 2100 per
+full-time doctor for installation, support, and any bug-fixes and
+feature-enhancements issued within the year, more
+http://www.oscarcanada.org/about-oscar/brief-overview[here]. Talk to
+some local computer support people to assist you with some calculations.
+As soon as we collect any of our own real examples of costs, we can
+share the information.
+
+link:#TopOfFAQ
+
+'''''
+
+[[WhatDoToday]] *What Can I Actually DO With GNUmed Today?*
+
+* We are maintaining this on its own page
+link:WhatCanIActuallyDOWithGNUmedToday[here].
+
+link:#TopOfFAQ
+
+'''''
+
+[[NotifiedGnuMedProgress]] *Can I be notified of significant GNUmed
+progress?*
+
+* Sure! Subscribe to the low-volume
+http://lists.gnu.org/mailman/listinfo/gnumed-announce[gnumed-announce]
+email list and we'll let you know at intervals of any key developments.
+
+link:#TopOfFAQ
+
+'''''
+
+[[HowLearnMore]] *How can I learn more and perhaps contribute?*
+
+* Become a local advocate for Free and Open Source software, and help
+prepare your colleagues and health agencies for its use
+* Track GNUmed's progress via the mailing list (presently only the
+http://lists.gnu.org/mailman/listinfo/gnumed-devel[developer] list has
+activity), and share your ideas with the others on the list
+* We can always use help with building packages, to make it easier for
+end-users to install and try GNUmed, see link:BinaryPackages[here].
+* Easy-to-do bug fixes and/or wishlist items (which may not be bugs)
+have been tagged over at our Launchpad account, go to
+https://bugs.launchpad.net/gnumed/+bugs?advanced=1["Bugs in GNUmed:
+Advanced Search"] and, under Tags, put in "easy-to-do".
+* One of the ways of getting involved with coding in a project is by
+looking at bug reports and read into the code and try to figure out
+where the bug could be. One doesn't really have to find it or fix it,
+just trying to find it will make one think about how the code is put
+together. Pick a bug, a todo or a mini project and start asking.
+* Want help finding a role? Just ask!
+
+link:#TopOfFAQ
+
+'''''
+
+[[LoginFailures]] *I cannot log in with the client ?*
+
+PostgreSQL must be installed on a computer on your network.
+
+A GNUmed server package must be installed on that computer.
+
+The package provides tools to create a database suitable for
+use with GNUmed clients. These tools may need to be run
+manually to actually set up the database.
+
+The database version and client version must suitably match.
+
+Database access credentials must have been set up and entered
+into the login dialog.
+
+Default credentials are _any-doc_ / _any-doc_ (*do change
+them* !).
+
+A public database (publicdb.gnumed.de) can be used for testing.
+
+You may want to enlist professional support for setup and administration.
+
+link:#TopOfFAQ
+
+'''''
+
+[[WhatDatabasePassword]] *What is the username, and password, for the public database?*
+
+The username for the public database on publicdb.gnumed.de is *any-doc*.
+
+The password is *any-doc* as well.
+
+link:#TopOfFAQ
+
+'''''
+
+[[HowSetupPostgres]] *How to set up the database ?
+
+Before GNUmed can work it is important to set up a database
+environment aka setting up PostgreSQL. Extensive information is provided
+link:ServerInstallUpgrade[here]
+
+link:#TopOfFAQ
+
+'''''
+
+[[HowReportBugs]] *How do I report bugs most efficiently?*
+
+* _every_ bug report is helpful - we want your reports !
+
+* if a problem occurs the Python client will enable you to send an
+email to the https://lists.gnu.org/mailman/listinfo/gnumed-bugs[bugs mailing list]
+** please do include some indication as to what you were trying to do
+** please do include your email address so we can get back to you
+_directly_ rather than on the mailing list only (to which you would need to subscribe)
+
+* use our https://bugs.launchpad.net/gnumed[bug tracker] to report as
+much information about the problem as you can
+** always include the log file
+*** the log file can be saved from the Help Menu to a suitable place on your computer
+*** make sure the log file does not contain patient data before sending
+
+* notify the developers about the bug:
+** via the mailto:gnumed-devel@gnu.org[developers mailing list] (https://lists.gnu.org/mailman/listinfo/gnumed-devel[subscription required])
+
+* http://www.chiark.greenend.org.uk/~sgtatham/bugs.html[optimize your bug report]
+* http://www.catb.org/~esr/faqs/smart-questions.html[optimize your inquiry]
+
+link:#TopOfFAQ
+
+'''''
+
+[[GNUmedPasswords]] *What are the passwords needed during database setup ?*
+
+GNUmed works with a number of passwords to provide database security as
+well as to identify users. What passwords are asked or preseeded depends
+largely on the operating systems you are using as well as the mode of
+installation. Generally speaking Windows users have the option to have
+all passwords preset for them. More advanced users have the option to
+have all to none supplied. On Linux it depends on the installation
+method. Usually if you know the password for user 'root' it will not ask
+any password work out of the box.
+
+* *Passwords on MS Windows - boostrapping*
+** If you installed from the All-in-One package the following password
+are preset:
+*** MS Windows-system user 'postgres' has the password 'servicepassword'
+*** the database user 'gm-dbo' has the password 'gm-dbpass'
+*** the database administrator 'postgres' has the password
+'postgrespassword'
+
+* *Passwords on Linux* * You will be asked the password for the user
+gm-dbo. The very first time there is no password. So whatever you give
+as a response value for the password will be set as password for the
+future. You need this password to add staff accounts to GNUmed.
+
+link:#TopOfFAQ
+
+'''''
+
+[[GnumedTranslations]] *Is GNUmed available in Spanish, German, French,
+Dutch ... ?*
+
+GNUmed is designed to support almost any language. Translations range
+from complete to just started. For a quick overview visit
+https://translations.launchpad.net/gnumed and consider
+link:ContributeToGNUmed[contributing to GNUmed]
+
+link:#TopOfFAQ
+
+'''''
+
+[[DoIneedClientAndServer]] *Do I need _client_ or _server_ or both ?*
+
+GNUmed consists of a client part and a server part.
+
+The server stores all data and the client enables users to
+work with that data during the care process.
+
+One usually needs one server part and one or multiple clients
+installed per office. There are separate downloads for the
+client and the server part.
+
+link:#TopOfFAQ
+
+'''''
+
+link:index.html[Home]
