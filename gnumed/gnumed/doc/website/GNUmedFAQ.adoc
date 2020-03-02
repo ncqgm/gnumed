@@ -48,20 +48,24 @@ software.
 
 === For Developers
 
-GNUmed is a client/server application largely written in
-https://www.python.org[Python]. It safely operates on single
-computers or networks with few to many users, and supports
-secure remote access.
+GNUmed is using tried-and-true technology to do things
+technically "cleanly" taking a pragmatic rather than purist
+approach. It is a client/server application largely written
+in https://www.python.org[Python]. It safely operates on
+single computers or networks with few to many users, and
+supports secure remote access.
 
 The GUI is using the https://www.wxpython.org[wxPython] toolkit.
 
 Data is stored in a https://www.postgresql.org[PostgreSQL RDBMS].
 
-GNUmed is using tried-and-true technology to do things
-technically "cleanly" taking a pragmatic rather than purist
-approach.
+The reference platform for deployment is
+https://packages.debian.org/search?keywords=gnumed-client[Debian] 
+https://packages.debian.org/search?keywords=gnumed-server[GNU/Linux]
+but by design and choice of technology GNUmed should run on
+all of Linux, Windows, and MacOS.
 
-link:#TopOfFAQ
+link:#TopOfFAQ[top]
 
 '''''
 
@@ -74,7 +78,7 @@ systems. There may also be some departments (such as hospital
 associated general ambulatory care) that warrant use of
 GNUmed.
 
-link:#TopOfFAQ
+link:#TopOfFAQ[top]
 
 '''''
 
@@ -87,7 +91,7 @@ of several workstations.
 
 It is currently in use with GPs and physical therapists.
 
-link:#TopOfFAQ
+link:#TopOfFAQ[top]
 
 '''''
 
@@ -96,7 +100,7 @@ link:#TopOfFAQ
 GNUmed has not yet been submitted for national certifications. For more
 information, see link:CertificationRequirements[here].
 
-link:#TopOfFAQ
+link:#TopOfFAQ[top]
 
 '''''
 
@@ -124,7 +128,7 @@ the position that – however important may be the workflow considerations
 – these need to be built from, and to remain built on, a _meaningful_
 patient record.
 
-link:#TopOfFAQ
+link:#TopOfFAQ[top]
 
 '''''
 
@@ -139,7 +143,7 @@ programming experience. As our community and help base grows,
 systems, linked from _...downloading, installing_ in the GettingStarted
 topic.
 
-link:#TopOfFAQ
+link:#TopOfFAQ[top]
 
 '''''
 
@@ -178,7 +182,7 @@ software. Given the infinite replicability of software at negligible
 cost, it would feel unethical to prevent those in need from having
 access to that software.
 
-link:#TopOfFAQ
+link:#TopOfFAQ[top]
 
 '''''
 
@@ -222,7 +226,7 @@ tool
 * http://news.cnet.com/8301-13505_3-10078682-16.html[caveats] about
 trying to take an open source project "commercially"
 
-link:#TopOfFAQ
+link:#TopOfFAQ[top]
 
 '''''
 
@@ -281,7 +285,7 @@ some local computer support people to assist you with some calculations.
 As soon as we collect any of our own real examples of costs, we can
 share the information.
 
-link:#TopOfFAQ
+link:#TopOfFAQ[top]
 
 '''''
 
@@ -290,7 +294,7 @@ link:#TopOfFAQ
 * We are maintaining this on its own page
 link:WhatCanIActuallyDOWithGNUmedToday[here].
 
-link:#TopOfFAQ
+link:#TopOfFAQ[top]
 
 '''''
 
@@ -301,7 +305,7 @@ progress?*
 http://lists.gnu.org/mailman/listinfo/gnumed-announce[gnumed-announce]
 email list and we'll let you know at intervals of any key developments.
 
-link:#TopOfFAQ
+link:#TopOfFAQ[top]
 
 '''''
 
@@ -325,7 +329,7 @@ just trying to find it will make one think about how the code is put
 together. Pick a bug, a todo or a mini project and start asking.
 * Want help finding a role? Just ask!
 
-link:#TopOfFAQ
+link:#TopOfFAQ[top]
 
 '''''
 
@@ -351,7 +355,7 @@ A public database (publicdb.gnumed.de) can be used for testing.
 
 You may want to enlist professional support for setup and administration.
 
-link:#TopOfFAQ
+link:#TopOfFAQ[top]
 
 '''''
 
@@ -361,7 +365,7 @@ The username for the public database on publicdb.gnumed.de is *any-doc*.
 
 The password is *any-doc* as well.
 
-link:#TopOfFAQ
+link:#TopOfFAQ[top]
 
 '''''
 
@@ -371,7 +375,7 @@ Before GNUmed can work it is important to set up a database
 environment aka setting up PostgreSQL. Extensive information is provided
 link:ServerInstallUpgrade[here]
 
-link:#TopOfFAQ
+link:#TopOfFAQ[top]
 
 '''''
 
@@ -397,7 +401,7 @@ much information about the problem as you can
 * http://www.chiark.greenend.org.uk/~sgtatham/bugs.html[optimize your bug report]
 * http://www.catb.org/~esr/faqs/smart-questions.html[optimize your inquiry]
 
-link:#TopOfFAQ
+link:#TopOfFAQ[top]
 
 '''''
 
@@ -425,7 +429,7 @@ gm-dbo. The very first time there is no password. So whatever you give
 as a response value for the password will be set as password for the
 future. You need this password to add staff accounts to GNUmed.
 
-link:#TopOfFAQ
+link:#TopOfFAQ[top]
 
 '''''
 
@@ -437,7 +441,7 @@ from complete to just started. For a quick overview visit
 https://translations.launchpad.net/gnumed and consider
 link:ContributeToGNUmed[contributing to GNUmed]
 
-link:#TopOfFAQ
+link:#TopOfFAQ[top]
 
 '''''
 
@@ -452,7 +456,7 @@ One usually needs one server part and one or multiple clients
 installed per office. There are separate downloads for the
 client and the server part.
 
-link:#TopOfFAQ
+link:#TopOfFAQ[top]
 
 '''''
 

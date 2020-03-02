@@ -86,8 +86,8 @@ Create `rel-X-Y`:
 * `git checkout master`
 * `git branch -d tmp`
 * `git tag -s rel-X-Y`
-* `git branch rel-X-Y-patches rel-X-Y` (create a branch from that tag)
-* `git checkout rel-X-Y-patches`
+* `git branch rel-X-Y-maint rel-X-Y` (create a branch from that tag)
+* `git checkout rel-X-Y-maint`
 * `git merge rc-X-Y`
 * `git branch -d rc-X-Y`
 * activate "tarball release options" in `gm-from-vcs.sh`
@@ -98,7 +98,7 @@ features]
 
 == Releasing an _X.Y.N_ version
 
-* `git checkout rel-X-Y-patches`
+* `git checkout rel-X-Y-maint`
 
 _(wash/rinse/repeat as needed)_
 
@@ -188,7 +188,7 @@ version data on
 == After Release
 
 * take a break
-* fix bugs in _rel-X-Y-Z-patches_
+* fix bugs in _rel-X-Y-Z-maint_
 * take another break
 * think about next Release
 
@@ -213,7 +213,7 @@ The tagging strategy is this (assuming 0.4):
 The code gets ready for a release. Let's assume the release is to be
 `v0.4.0`. The CVS trunk (HEAD) is tagged as _rel-0-4_. This tag will
 become the root of a branch on which the actual 0.4.0 release will
-happen while HEAD can continue to evolve. A branch _rel-0-4-patches_ is
+happen while HEAD can continue to evolve. A branch _rel-0-4-maint_ is
 created and rooted at tag _rel-0-4_. This branch will only ever receive
 bug fixes. In that branch the tag _rel-0-4-rc1_ is set which will then
 be released as `v0.4.rc1`.
@@ -223,7 +223,7 @@ gets released as `v0.4.0`. More bugs get fixed and eventually the branch
 is tagged as _rel-0-4-1_ which then gets released as `v0.4.1`.
 
 Eventually, CVS HEAD is tagged as _rel-0-5_, branched off into
-_rel-0-5-patches_ and the cycle starts over.
+_rel-0-5-maint_ and the cycle starts over.
 
 The database schema is versioned independant of the client. At startup
 the client checks whether it was released to work with the database it

@@ -359,7 +359,7 @@ care
 
 *Q:* What does "do for me today" mean ?
 
-*A:* It means you can link:InstallerGuideHome[download]
+*A:* It means you can https://www.gnumed.de/downloads/[download]
 GNUmed and rightfully expect to be enabled to do any of the
 above. It may not work the way you expect it to but there
 should be a way to accomplish those tasks and it should
