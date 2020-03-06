@@ -8,7 +8,7 @@
 #-------------------------------------------------------
 
 echo "re-generating postcodes.au.sql"
-python postcode_import.py postcodes.au.csv | uniq > postcodes.au.sql 2> postcodes.au.log
+python3 postcode_import.py postcodes.au.csv | uniq > postcodes.au.sql 2> postcodes.au.log
 
 #-------------------------------------------------------
 # $Log: make-postcode-sql.sh,v $

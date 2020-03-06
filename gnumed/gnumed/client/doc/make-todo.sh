@@ -6,4 +6,4 @@
 # where to look for files
 BASE="../"
 
-find ${BASE} -follow -name '*.py' -print0 | xargs -0 python find_todo.py > current-TODOs.lst
+find ${BASE} -follow -name '*.py' -print0 | xargs -0 python3 find_todo.py > current-TODOs.lst

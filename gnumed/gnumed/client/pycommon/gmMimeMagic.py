@@ -5,7 +5,7 @@
  (C)opyright 2000 Jason Petrone <jp@demonseed.net>
  All Rights Reserved
 
- Command Line Usage: running as `python magic.py file` will print
+ Command Line Usage: running as `python3 magic.py file` will print
 										 a description of what 'file' is.
 
  Module Usage:
