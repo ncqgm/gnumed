@@ -11,19 +11,19 @@
 # FIXME: use lsb_release
 # SUSE
 if [ -f /etc/SuSE-release ]; then
-	DEPS="gnumed-common postgresql postgresql-plpython cron tar coreutils mailx openssl bzip2 gpg2 mc rsync python-psycopg2 gzip"
+	DEPS="gnumed-common postgresql postgresql-plpython cron tar coreutils mailx openssl bzip2 gpg2 mc rsync python3-psycopg2 gzip"
 	PKG_INSTALLER="zypper install"
 	SYS_TYPE="SuSE"
 fi
 # Debian
 if [ -f /etc/debian_version ]; then
-	DEPS="gnumed-common postgresql postgresql-client cron anacron tar hostname coreutils mailx openssl bzip2 gzip gnupg mc rsync python-psycopg2 sudo wget"
+	DEPS="gnumed-common postgresql postgresql-client cron anacron tar hostname coreutils mailx openssl bzip2 gzip gnupg mc rsync python3-psycopg2 sudo wget"
 	PKG_INSTALLER="apt-get install"
 	SYS_TYPE="Debian"
 fi
 # Mandriva
 if [ -f /etc/mandriva-release ]; then
-	DEPS="gnumed-common postgresql postgresql-client cron anacron tar hostname coreutils mailx openssl bzip2 gnupg mc rsync python-psycopg2 gzip"
+	DEPS="gnumed-common postgresql postgresql-client cron anacron tar hostname coreutils mailx openssl bzip2 gnupg mc rsync python3-psycopg2 gzip"
 	PKG_INSTALLER="urpmi"
 	SYS_TYPE="Mandriva"
 fi

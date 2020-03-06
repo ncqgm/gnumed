@@ -15,5 +15,5 @@ xcopy ..\client ..\Gnumed /E /I /F /H /O /Y
 set PYTHONPATH=..;%PYTHONPATH%
 
 REM echo Log file: ./gm-from-vcs.log
-Python gnumed.py --log-file=gm-from-vcs.log --conf-file=gm-from-vcs.conf --local-import --debug
+Python3 gnumed.py --log-file=gm-from-vcs.log --conf-file=gm-from-vcs.conf --local-import --debug
 

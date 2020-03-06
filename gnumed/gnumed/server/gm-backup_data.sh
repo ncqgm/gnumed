@@ -18,7 +18,7 @@ exit 1
 #
 # To restore the data-only dump do this:
 #
-# 1) $> python gmDBPruningDMLGenerator.py <data only dump>
+# 1) $> python3 gmDBPruningDMLGenerator.py <data only dump>
 # 2) $> psql -d gnumed_vX -U gm-dbo -f <data only dump>-prune_tables.sql
 # 3) $> psql -d gnumed_vX -U gm-dbo -f <data only dump>
 #
@@ -28,7 +28,7 @@ exit 1
 # To speed things up you can replace step 1) with:
 #
 # 1a) $> cut -f -5 -d " " <data only dump> | grep -E "^(SET)|(INSERT)" > tmp.sql
-# 1b) $> python gmDBPruningDMLGenerator.py tmp.sql
+# 1b) $> python3 gmDBPruningDMLGenerator.py tmp.sql
 #
 # and use that in step 2):
 #

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 #==============================================================
 # This script can be used to fingerprint a GNUmed database.

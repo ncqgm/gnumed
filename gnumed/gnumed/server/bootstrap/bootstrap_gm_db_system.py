@@ -1,6 +1,4 @@
 #!/usr/bin/python3
-##!/usr/bin/env python
-##!/usr/bin/python2.7-dbg
 
 __doc__="""GNUmed schema installation.
 

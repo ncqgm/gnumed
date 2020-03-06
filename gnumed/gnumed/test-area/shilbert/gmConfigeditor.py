@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 __version__ = ""
 __author__ = "S.Hilbert, K.Hilbert"

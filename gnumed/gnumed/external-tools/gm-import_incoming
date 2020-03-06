@@ -23,4 +23,4 @@ OPTIONS=$@
 
 
 # now run the actual script
-python -m Gnumed.importers.gmImportIncoming ${OPTIONS}
+python3 -m Gnumed.importers.gmImportIncoming ${OPTIONS}

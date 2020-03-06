@@ -63,19 +63,19 @@ SYS_TYPE="generic Un*x"
 # FIXME: use "lsb_release"
 # SuSE
 if [ -f /etc/SuSE-release ]; then
-	DEPS="postgresql tar coreutils mc python-psycopg2 openssl wget gzip file"
+	DEPS="postgresql tar coreutils mc python3-psycopg2 openssl wget gzip file"
 	PKG_INSTALLER="zypper install"
 	SYS_TYPE="SuSE"
 fi
 # Debian
 if [ -f /etc/debian_version ]; then
-	DEPS="postgresql-client tar coreutils mc python-psycopg2 openssl wget gzip file python-gnuplot konsolekalendar aspell python python-enchant python-support python-wxgtk2.8 bash xsane apt texlive-latex-base gtklp"
+	DEPS="postgresql-client tar coreutils mc python3-psycopg2 openssl wget gzip file python3-gnuplot konsolekalendar aspell python3 python3-enchant python3-support python3-wxgtk4.0 bash xsane apt texlive-latex-base gtklp"
 	PKG_INSTALLER="apt-get install"
 	SYS_TYPE="Debian"
 fi
 # Mandriva
 if [ -f /etc/mandriva-release ]; then
-	DEPS="postgresql-client tar coreutils mc python-psycopg2 openssl wget gzip file"
+	DEPS="postgresql-client tar coreutils mc python3-psycopg2 openssl wget gzip file"
 	PKG_INSTALLER="urpmi"
 	SYS_TYPE="Mandriva"
 fi
@@ -83,7 +83,7 @@ fi
 if [ -f /etc/version ] ; then
 	grep -q PCLinuxOS /etc/version
 	if [ $? -eq 0 ] ; then
-		DEPS="postgresql-client tar coreutils mc python-psycopg2 openssl wget gzip file"
+		DEPS="postgresql-client tar coreutils mc python3-psycopg2 openssl wget gzip file"
 		PKG_INSTALLER="rpm -i"
 		SYS_TYPE="PCLinuxOS"
 	fi

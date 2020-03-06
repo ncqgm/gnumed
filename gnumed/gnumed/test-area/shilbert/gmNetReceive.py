@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 import sys, xmpp, os, signal, time
 
 jid="ncq@jabber.gnumed.de"
