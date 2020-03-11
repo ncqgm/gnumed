@@ -152,7 +152,7 @@ class ResizingWindow (wxScrolledWindow):
         @type cur_y: integer
         @param cur_y: the Y co-ordinate of the cursor inside widget
         """
-        x, y = widget.GetPositionTuple ()
+        x, y = widget.GetPosition()
         x += cur_x
         y += cur_y
         x, y = self.CalcUnscrolledPosition (x, y) # converts real to virtual co-ordinates
@@ -345,7 +345,7 @@ class ResizingSTC (wxStyledTextCtrl):
                 flag, l = self.__matcher.getMatches (text)
                 if flag:
                     if not (self.list and self.list.alive):
-                        x, y = self.GetPositionTuple()
+                        x, y = self.GetPosition()
                         p = self.PointFromPosition (pos)
                         self.list = self.parent.PickList (self.__userlist, x+p.x, y+p.y)
                     self.list.SetItems (l)

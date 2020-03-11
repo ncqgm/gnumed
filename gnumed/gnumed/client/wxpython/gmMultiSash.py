@@ -286,7 +286,7 @@ class cMultiSashSplitter(wx.Window):
 			# Gnumed: remove content from displayed leafs
 			self.top_parent.displayed_leafs.remove(caller)
 			w,h = self.GetSize()
-			x,y = self.GetPositionTuple()
+			x,y = self.GetPosition()
 			if caller == self.leaf1:
 				if self == parent.leaf1:
 #					print "... leaf 1 ..."
@@ -369,8 +369,8 @@ class cMultiSashSplitter(wx.Window):
 			return
 		v1w,v1h = self.leaf1.GetSize()
 		v2w,v2h = self.leaf2.GetSize()
-		v1x,v1y = self.leaf1.GetPositionTuple()
-		v2x,v2y = self.leaf2.GetPositionTuple()
+		v1x,v1y = self.leaf1.GetPosition()
+		v2x,v2y = self.leaf2.GetPosition()
 		w,h = self.GetSize()
 
 		if v1x != v2x:
