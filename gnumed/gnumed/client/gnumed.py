@@ -131,7 +131,8 @@ _known_ui_types = [
 _known_tools = [
 	'check_enc_epi_xref',
 	'export_pat_emr_structure',
-	'check_mimetypes_in_archive'
+	'check_mimetypes_in_archive',
+	'read_all_rows_of_table'
 ]
 
 
@@ -694,6 +695,18 @@ def run_gui():
 
 #==========================================================
 def run_tool():
+	"""Run a console tool.
+
+	Exit codes as per man page:
+		   0: normal termination of the client
+		 < 0: some error occurred while trying to run a console tool
+			  -1: an unknown console tool was requested
+			< -1: an error occurred while a console tool was run
+		-999: hard abort of the client
+
+	One of these needs to be returned from this function (and,
+	by extension from the tool having been run, if any).
+	"""
 	tool = _cfg.get(option = '--tool', source_order = [('cli', 'return')])
 	if tool is None:
 		# not running a tool
@@ -714,6 +727,14 @@ def run_tool():
 	pool = gmConnectionPool.gmConnectionPool()
 	pool.credentials = creds
 	print('')
+
+	if tool == 'read_all_rows_of_table':
+		result = gmPG2.read_all_rows_of_table()
+		if result in [None, True]:
+			print('Success.')
+			return 0
+		print('Failed. Check the log for details.')
+		return -2
 
 	if tool == 'check_mimetypes_in_archive':
 		from Gnumed.business import gmDocuments
