@@ -38,6 +38,7 @@ def is_cmd_in_path(cmd=None):
 	_log.debug('command not found in PATH')
 
 	return (False, None)
+
 #===========================================================================
 def is_executable_by_wine(cmd=None):
 
@@ -297,6 +298,7 @@ def run_process(cmd_line=None, timeout=None, encoding='utf8', input_data=None, a
 	except (subprocess.TimeoutExpired, FileNotFoundError):
 		_log.exception('there was a problem running external process')
 		return False, -1, ''
+
 	_log.info('exit code [%s]', proc_result.returncode)
 	if verbose:
 		_log_output(logging.DEBUG, stdout = proc_result.stdout, stderr = proc_result.stderr)
@@ -306,6 +308,7 @@ def run_process(cmd_line=None, timeout=None, encoding='utf8', input_data=None, a
 		if not verbose:
 			_log_output(logging.ERROR, stdout = proc_result.stdout, stderr = proc_result.stderr)
 		return False, proc_result.returncode, ''
+
 	return True, proc_result.returncode, proc_result.stdout
 
 #===========================================================================

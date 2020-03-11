@@ -557,24 +557,23 @@ class gmPaths(gmBorg.cBorg):
 def recode_file(source_file=None, target_file=None, source_encoding='utf8', target_encoding=None, base_dir=None, error_mode='replace'):
 	if target_encoding is None:
 		return source_file
+
 	if target_encoding == source_encoding:
 		return source_file
+
 	if target_file is None:
 		target_file = get_unique_filename (
 			prefix = '%s-%s_%s-' % (fname_stem(source_file), source_encoding, target_encoding),
 			suffix = fname_extension(source_file, '.txt'),
 			tmp_dir = base_dir
 		)
-
 	_log.debug('[%s] -> [%s] (%s -> %s)', source_encoding, target_encoding, source_file, target_file)
-
 	in_file = io.open(source_file, mode = 'rt', encoding = source_encoding)
 	out_file = io.open(target_file, mode = 'wt', encoding = target_encoding, errors = error_mode)
 	for line in in_file:
 		out_file.write(line)
 	out_file.close()
 	in_file.close()
-
 	return target_file
 
 #---------------------------------------------------------------------------

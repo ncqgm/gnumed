@@ -752,24 +752,36 @@ def format_pregnancy_months(age):
 
 #---------------------------------------------------------------------------
 def is_leap_year(year):
+	if year < 1582:		# no leap years before Gregorian Reform
+		_log.debug('%s: before Gregorian Reform', year)
+		return False
+
 	# year is multiple of 4 ?
 	div, remainder = divmod(year, 4)
-	# no -> not a leap year
+	# * NOT divisible by 4
+	# -> common year
 	if remainder > 0:
 		return False
 
 	# year is a multiple of 100 ?
 	div, remainder = divmod(year, 100)
-	# no -> IS a leap year
+	# * divisible by 4
+	# * NOT divisible by 100
+	# -> leap year
 	if remainder > 0:
 		return True
 
 	# year is a multiple of 400 ?
 	div, remainder = divmod(year, 400)
-	# yes -> IS a leap year
+	# * divisible by 4
+	# * divisible by 100, so, perhaps not leaping ?
+	# * but ALSO divisible by 400
+	# -> leap year
 	if remainder == 0:
 		return True
 
+	# all others
+	# -> common year
 	return False
 
 #---------------------------------------------------------------------------
@@ -2406,8 +2418,13 @@ if __name__ == '__main__':
 		print (pydt_strftime(dt, accuracy = acc_seconds))
 	#-------------------------------------------------
 	def test_is_leap_year():
-		for year in range(1995, 2017):
-			print (year, "leaps:", is_leap_year(year))
+		for idx in range(120):
+			year = 1993 + idx
+			tmp, offset = divmod(idx, 4)
+			if is_leap_year(year):
+				print (offset+1, '--', year, 'leaps')
+			else:
+				print (offset+1, '--', year)
 
 	#-------------------------------------------------
 	def test_get_date_of_weekday_in_week_of_date():
@@ -2445,6 +2462,6 @@ if __name__ == '__main__':
 	#test_str2pydt()
 	#test_pydt_strftime()
 	#test_calculate_apparent_age()
-	#test_is_leap_year()
+	test_is_leap_year()
 
 #===========================================================================
