@@ -370,7 +370,7 @@ class cExpandoTextCtrlHandling_PanelMixin():
 		if self.HasScrollbar(wx.VERTICAL):
 			# scroll panel to show cursor
 			expando = self.FindWindowById(evt.GetId())
-			y_expando = expando.GetPositionTuple()[1]
+			y_expando = expando.GetPosition()[1]
 			h_expando = expando.GetSize()[1]
 			line_of_cursor = expando.PositionToXY(expando.GetInsertionPoint())[2] + 1
 			if expando.NumberOfLines == 0:

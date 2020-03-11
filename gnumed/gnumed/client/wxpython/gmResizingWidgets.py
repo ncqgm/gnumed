@@ -213,7 +213,7 @@ class cResizingWindow(wx.ScrolledWindow):
 		@param cur_y: the Y co-ordinate of the cursor inside widget
 		"""
 		# get widget position
-		x, y = widget.GetPositionTuple()
+		x, y = widget.GetPosition()
 		# adjust for cursor offset
 		x += cur_x
 		y += cur_y
@@ -741,7 +741,7 @@ class cResizingSTC(wx.stc.StyledTextCtrl):
 				self.list.DestroyLater()
 			return
 		if not ((self.list is not None) and self.list.alive):
-			x, y = self.GetPositionTuple()
+			x, y = self.GetPosition()
 			p = self.PointFromPosition(curs_pos)
 			self.list = self.__parent.GetPickList(self.__userlist, x+p.x, y+p.y)
 		self.list.SetItems(matches)
@@ -774,7 +774,7 @@ class cResizingSTC(wx.stc.StyledTextCtrl):
 		popup_height = parent_char_height * 9
 #		print "hence intended popup height is", popup_height, "pixel"
 		# get STC displacement inside parent
-		stc_origin_x, stc_origin_y = self.GetPositionTuple()
+		stc_origin_x, stc_origin_y = self.GetPosition()
 #		print "inside parent STC is @ %s:%s" % (stc_origin_x, stc_origin_y)
 		# get current cursor position inside STC in pixels
 		curs_pos = self.PointFromPosition(self.GetCurrentPos())
