@@ -881,6 +881,7 @@ def _empty_dob_allowed():
 		_('Validating date of birth')
 	)
 	return allow_empty_dob
+
 #------------------------------------------------------------
 def _validate_dob_field(dob_prw):
 
@@ -888,17 +889,18 @@ def _validate_dob_field(dob_prw):
 	if dob_prw.is_valid_timestamp(empty_is_valid = False):			# properly colors the field
 		dob = dob_prw.date
 		# but year also usable ?
-		if (dob.year > 1899) and (dob < gmDateTime.pydt_now_here()):
+		#if (dob.year > 1899) and (dob < gmDateTime.pydt_now_here()):
+		if (dob.year > pydt.MINYEAR) and (dob < gmDateTime.pydt_now_here()):
 			return True
 
-		if dob.year < 1900:
+		if dob.year < 1800:
 			msg = _(
 				'DOB: %s\n'
 				'\n'
-				'While this is a valid point in time Python does\n'
-				'not know how to deal with it.\n'
+				'While this is a valid point in time Python\n'
+				'may not know how to deal with it.\n'
 				'\n'
-				'We suggest using January 1st 1901 instead and adding\n'
+				'We suggest using January 1st 1801 instead and adding\n'
 				'the true date of birth to the patient comment.\n'
 				'\n'
 				'Sorry for the inconvenience %s'
