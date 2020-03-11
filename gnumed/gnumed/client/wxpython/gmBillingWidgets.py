@@ -650,7 +650,8 @@ def create_invoice_from_bill(parent = None, bill=None, print_it=False, keep_a_co
 			document_type = template['instance_type'],
 			review_as_normal = True,
 			reference = bill['invoice_id'],
-			pk_org_unit = gmPraxis.gmCurrentPraxisBranch()['pk_org_unit']
+			pk_org_unit = gmPraxis.gmCurrentPraxisBranch()['pk_org_unit'],
+			date_generated = gmDateTime.pydt_now_here()
 		)
 		bill['pk_doc'] = doc['pk_doc']
 		bill.save()

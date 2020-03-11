@@ -24,7 +24,7 @@ class wxgBillEAPnl(wx.ScrolledWindow):
 		self._TCTRL_address = wx.TextCtrl(self, wx.ID_ANY, "", style=wx.TE_READONLY)
 		self._BTN_select_address = wx.Button(self, wx.ID_ANY, _("&Select"), style=wx.BU_EXACTFIT)
 		self._TCTRL_value = wx.TextCtrl(self, wx.ID_ANY, "", style=wx.TE_READONLY)
-		self._CHBOX_vat_applies = wx.CheckBox(self, wx.ID_ANY, _("&VAT applies"))
+		self._CHBOX_vat_applies = wx.CheckBox(self, wx.ID_ANY, _("&VAT applies"), style=wx.CHK_3STATE | wx.CHK_ALLOW_3RD_STATE_FOR_USER)
 		self._TCTRL_value_with_vat = wx.TextCtrl(self, wx.ID_ANY, "", style=wx.TE_READONLY)
 		self._TCTRL_comment = wx.TextCtrl(self, wx.ID_ANY, "")
 
@@ -47,6 +47,7 @@ class wxgBillEAPnl(wx.ScrolledWindow):
 		self._TCTRL_value.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_BACKGROUND))
 		self._TCTRL_value.SetToolTip(_("The total value of this bill without VAT applied."))
 		self._CHBOX_vat_applies.SetToolTip(_("Select here whether or not to apply VAT when creating an invoice for this bill."))
+		self._CHBOX_vat_applies.Set3StateValue(wx.CHK_UNDETERMINED)
 		self._TCTRL_value_with_vat.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_BACKGROUND))
 		self._TCTRL_value_with_vat.SetToolTip(_("The total value of this bill after VAT has been applied."))
 		self._TCTRL_comment.SetToolTip(_("Add an arbitrary comment on this bill."))
