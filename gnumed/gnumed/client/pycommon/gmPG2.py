@@ -54,6 +54,7 @@ except ImportError:
 	raise
 
 import psycopg2.errorcodes as sql_error_codes
+import psycopg2.sql as psysql
 
 PG_ERROR_EXCEPTION = dbapi.Error
 
@@ -261,6 +262,25 @@ WHERE
 		AND
 	indisprimary
 """
+
+SQL_get_primary_key_name = """
+SELECT
+	is_kcu.column_name,
+	is_kcu.ordinal_position
+FROM
+	information_schema.key_column_usage AS is_kcu
+		LEFT JOIN information_schema.table_constraints AS is_tc ON is_tc.constraint_name = is_kcu.constraint_name
+WHERE
+	-- constrain to current database
+	is_tc.table_catalog = current_database()
+		AND
+	is_tc.table_schema = %(schema)s
+		AND
+	is_tc.table_name = %(table)s
+		AND
+	is_tc.constraint_type = 'PRIMARY KEY';
+"""
+
 # =======================================================================
 # login API
 # =======================================================================
@@ -1364,7 +1384,64 @@ def file2bytea_overlay(query=None, args=None, filename=None, conn=None, md5_quer
 	return False
 
 #------------------------------------------------------------------------
-#---------------------------------------------------------------------------
+def read_all_rows_of_table(schema=None, table=None):
+	if schema is None:
+		schema = prompted_input(prompt = 'schema for table to dump', default = None)
+		if schema is None:
+			_log.debug('aborted by user (no schema entered)')
+			return None
+
+	if table is None:
+		table = prompted_input(prompt = 'table to dump', default = None)
+		if table is None:
+			_log.debug('aborted by user (no table entered)')
+			return None
+
+	_log.debug('dumping <%s.%s>', schema, table)
+	conn = get_connection(readonly=True, verbose = False, pooled = True, connection_name = 'read_all_rows_of_table')
+	# get pk column name
+	rows, idx = run_ro_queries(link_obj = conn, queries = [{'cmd': SQL_get_primary_key_name, 'args': {'schema': schema, 'table': table}}])
+	if rows:
+		_log.debug('primary key def: %s', rows)
+		if len(rows) > 1:
+			_log.error('cannot handle multi-column primary key')
+			return False
+
+		pk_name = rows[0][0]
+	else:
+		_log.debug('cannot determine primary key, asking user')
+		pk_name = prompted_input(prompt = 'primary key name for %s.%s' % (schema, table), default = None)
+		if pk_name is None:
+			_log.debug('aborted by user (no primary key name entered)')
+			return None
+
+	# get list of PK values
+	qualified_table = '%s.%s' % (schema, table)
+	qualified_pk_name = '%s.%s.%s' % (schema, table, pk_name)
+	cmd = psysql.SQL('SELECT {schema_table_pk} FROM {schema_table}'.format (
+		schema_table_pk = qualified_pk_name,
+		schema_table = qualified_table
+	))
+	rows, idx = run_ro_queries(link_obj = conn, queries = [{'cmd': cmd}])
+	if not rows:
+		_log.debug('no rows to dump')
+		return True
+
+	# dump table rows
+	_log.debug('dumping %s rows', len(rows))
+	cmd = psysql.SQL('SELECT * FROM {schema_table} WHERE {schema_table_pk} = %(pk_val)s'.format (
+		schema_table = qualified_table,
+		schema_table_pk = qualified_pk_name
+	))
+	for row in rows:
+		args = {'pk_val': row[0]}
+		_log.debug('dumping row with pk [%s]', row[0])
+		run_ro_queries(link_obj = conn, queries = [{'cmd': cmd, 'args': args}])
+
+	return True
+
+#------------------------------------------------------------------------
+#------------------------------------------------------------------------
 def run_sql_script(sql_script, conn=None):
 
 	if conn is None:

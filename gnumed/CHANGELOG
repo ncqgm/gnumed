@@ -6,6 +6,10 @@
 # rel-1-8-patches
 ------------------------------------------------
 
+	1.8.1
+
+NEW: tool: read_all_rows_of_table
+
 	1.8.0
 
 NEW: port to wxPython 4 (wxPhoenix)
