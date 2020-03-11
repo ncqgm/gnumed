@@ -152,7 +152,7 @@ def _save_files_as_new_document(**kwargs):
 	wx.CallAfter(save_files_as_new_document, **kwargs)
 
 #----------------------
-def save_file_as_new_document(parent=None, filename=None, document_type=None, unlock_patient=False, episode=None, review_as_normal=False, pk_org_unit=None):
+def save_file_as_new_document(parent=None, filename=None, document_type=None, unlock_patient=False, episode=None, review_as_normal=False, pk_org_unit=None, date_generated=None):
 	return save_files_as_new_document (
 		parent = parent,
 		filenames = [filename],
@@ -160,7 +160,8 @@ def save_file_as_new_document(parent=None, filename=None, document_type=None, un
 		unlock_patient = unlock_patient,
 		episode = episode,
 		review_as_normal = review_as_normal,
-		pk_org_unit = pk_org_unit
+		pk_org_unit = pk_org_unit,
+		date_generated = date_generated
 	)
 
 #----------------------

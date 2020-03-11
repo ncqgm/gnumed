@@ -2202,7 +2202,8 @@ class gmTopLevelFrame(wx.Frame):
 			parent = self,
 			filename = arriba.pdf_result,
 			document_type = _('risk assessment'),
-			pk_org_unit = gmPraxis.gmCurrentPraxisBranch()['pk_org_unit']
+			pk_org_unit = gmPraxis.gmCurrentPraxisBranch()['pk_org_unit'],
+			date_generated = gmDateTime.pydt_now_here()
 		)
 
 		try: os.remove(arriba.pdf_result)
@@ -2266,7 +2267,8 @@ class gmTopLevelFrame(wx.Frame):
 				parent = self,
 				filename = pdf,
 				document_type = 'risk assessment',
-				pk_org_unit = gmPraxis.gmCurrentPraxisBranch()['pk_org_unit']
+				pk_org_unit = gmPraxis.gmCurrentPraxisBranch()['pk_org_unit'],
+				date_generated = gmDateTime.pydt_now_here()
 			)
 
 			try:

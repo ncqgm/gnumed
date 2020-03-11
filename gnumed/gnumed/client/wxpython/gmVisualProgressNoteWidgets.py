@@ -328,7 +328,8 @@ def edit_visual_progress_note(filename=None, episode=None, discard_unmodified=Fa
 		document_type = gmDocuments.DOCUMENT_TYPE_VISUAL_PROGRESS_NOTE,
 		episode = episode,
 		unlock_patient = False,
-		pk_org_unit = gmPraxis.gmCurrentPraxisBranch()['pk_org_unit']
+		pk_org_unit = gmPraxis.gmCurrentPraxisBranch()['pk_org_unit'],
+		date_generated = gmDateTime.pydt_now_here()
 	)
 	doc.set_reviewed(technically_abnormal = False, clinically_relevant = True)
 
