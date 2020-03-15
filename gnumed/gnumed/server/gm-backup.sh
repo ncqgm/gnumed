@@ -100,7 +100,11 @@ fi
 OUR_VER=$(echo "${GM_DATABASE}" | cut -f 2 -d v)
 SQL_COMPARE_VERSIONS="SELECT EXISTS (SELECT 1 FROM pg_database WHERE datname LIKE 'gnumed_v%' AND substring(datname from 9 for 3)::integer > '${OUR_VER}');"
 HAS_HIGHER_VER=$(sudo --user=postgres psql --no-psqlrc --no-align --tuples-only --dbname="${GM_DATABASE}" ${_PG_HOST_ARG} ${_PG_PORT_ARG} --command="${SQL_COMPARE_VERSIONS}")
-#HAS_HIGHER_VER=`sudo --user=postgres psql --no-psqlrc --no-align --tuples-only --dbname="${GM_DATABASE}" ${_PG_HOST_ARG} ${_PG_PORT_ARG} --command="${SQL_COMPARE_VERSIONS}"`
+RESULT="$?"
+if test "${RESULT}" != "0" ; then
+	echo "Cannot sanity check database version (${RESULT}). Aborting."
+	exit ${RESULT}
+fi
 if test "${HAS_HIGHER_VER}" = "t" ; then
 	echo "Backing up database ${GM_DATABASE}."
 	echo ""
@@ -142,10 +146,22 @@ echo "backup: ${TS}" > ${TS_FILE}
 BACKUP_DATA_DIR="${BACKUP_BASENAME}.dir"
 # database
 pg_dump --verbose --format=directory --compress=0 --column-inserts --clean --if-exists --serializable-deferrable ${_PG_HOST_ARG} ${_PG_PORT_ARG} --username="${GM_DBO}" -f "${BACKUP_DATA_DIR}" "${GM_DATABASE}" 2> /dev/null
+RESULT="$?"
+if test "${RESULT}" != "0" ; then
+	echo "Cannot dump database content into [${BACKUP_DATA_DIR}] (${RESULT}). Aborting."
+	exit ${RESULT}
+fi
 # roles
 ROLES_FILE="${BACKUP_BASENAME}-roles.sql"
 # -r -> -g for older versions
-ROLES=`psql --no-psqlrc --no-align --tuples-only --dbname="${GM_DATABASE}" ${_PG_HOST_ARG} ${_PG_PORT_ARG} --username="${GM_DBO}" --command="select gm.get_users('${GM_DATABASE}');"`
+#ROLES=`psql --no-psqlrc --no-align --tuples-only --dbname="${GM_DATABASE}" ${_PG_HOST_ARG} ${_PG_PORT_ARG} --username="${GM_DBO}" --command="select gm.get_users('${GM_DATABASE}');"`
+ROLES=$(psql --no-psqlrc --no-align --tuples-only --dbname="${GM_DATABASE}" ${_PG_HOST_ARG} ${_PG_PORT_ARG} --username="${GM_DBO}" --command="select gm.get_users('${GM_DATABASE}');")
+#"
+RESULT="$?"
+if test "${RESULT}" != "0" ; then
+	echo "Cannot list database roles (${RESULT}). Aborting."
+	exit ${RESULT}
+fi
 {
 	echo "-- -----------------------------------------------------"
 	echo "-- Below find a list of database roles which were in use"
@@ -166,6 +182,11 @@ ROLES=`psql --no-psqlrc --no-align --tuples-only --dbname="${GM_DATABASE}" ${_PG
 	echo "-- -----------------------------------------------------"
 } > "${ROLES_FILE}" 2> /dev/null
 sudo --user=postgres pg_dumpall --verbose --roles-only ${_PG_HOST_ARG} ${_PG_PORT_ARG} --username=postgres >> "${ROLES_FILE}" 2> /dev/null
+RESULT="$?"
+if test "${RESULT}" != "0" ; then
+	echo "Cannot dump database roles into [${ROLES_FILE}] (${RESULT}). Aborting."
+	exit ${RESULT}
+fi
 
 
 # create tar archive
