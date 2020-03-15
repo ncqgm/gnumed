@@ -1392,7 +1392,7 @@ def read_all_rows_of_table(schema=None, table=None):
 			return None
 
 	if table is None:
-		table = prompted_input(prompt = 'table to dump', default = None)
+		table = prompted_input(prompt = 'table to dump (in schema %s.)' % schema, default = None)
 		if table is None:
 			_log.debug('aborted by user (no table entered)')
 			return None
@@ -1415,10 +1415,10 @@ def read_all_rows_of_table(schema=None, table=None):
 			_log.debug('aborted by user (no primary key name entered)')
 			return None
 
-	# get list of PK values
+	# get PK values
 	qualified_table = '%s.%s' % (schema, table)
 	qualified_pk_name = '%s.%s.%s' % (schema, table, pk_name)
-	cmd = psysql.SQL('SELECT {schema_table_pk} FROM {schema_table}'.format (
+	cmd = psysql.SQL('SELECT {schema_table_pk} FROM {schema_table} ORDER BY 1'.format (
 		schema_table_pk = qualified_pk_name,
 		schema_table = qualified_table
 	))
@@ -1433,12 +1433,20 @@ def read_all_rows_of_table(schema=None, table=None):
 		schema_table = qualified_table,
 		schema_table_pk = qualified_pk_name
 	))
+	found_errors = False
+	idx = 0
 	for row in rows:
+		idx += 1
 		args = {'pk_val': row[0]}
-		_log.debug('dumping row with pk [%s]', row[0])
-		run_ro_queries(link_obj = conn, queries = [{'cmd': cmd, 'args': args}])
+		_log.debug('dumping row #%s with pk [%s]', idx, row[0])
+		try:
+			run_ro_queries(link_obj = conn, queries = [{'cmd': cmd, 'args': args}])
+		except dbapi.InternalError:
+			found_errors = True
+			_log.exception('error dumping row')
+			print('ERROR: cannot dump row %s of %s with pk %s = %s', idx, len(rows), qualified_pk_name, rows[0])
 
-	return True
+	return found_errors is False
 
 #------------------------------------------------------------------------
 #------------------------------------------------------------------------
