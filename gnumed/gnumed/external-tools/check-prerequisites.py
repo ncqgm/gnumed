@@ -212,6 +212,17 @@ except ImportError:
 	print("  ERROR: httplib2 not installed")
 	print("  INFO : this is used to access the Orthanc DICOM server")
 
+print(" humblewx...", end=' ')
+try:
+	import humblewx
+	print("found")
+except ImportError:
+	missing = True
+	print("")
+	print("  ERROR: humblewx not installed")
+	print("  INFO : this is used to display the EMR timeline")
+
+
 #print "=> checking for Python module 'sane' ..."
 #try:
 #	import sane
