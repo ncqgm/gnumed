@@ -1,0 +1,39 @@
+link:index.html[Home]
+
+GNUmed is a client-server system. A full installation needs
+both a database and a client.
+
+There is, however, a public database available for testing.
+
+== Client Installation
+
+=== Debian based systems
+
+-------------------------------------
+	$> apt-get install gnumed-client
+	$> gnumed --version
+-------------------------------------
+
+=== other systems
+
+	* download the latest client from https://www.gnumed.de/downloads/client/ (say, 'gnumed-client.1.8.0.tgz')
+
+-------------------------------------
+	$> tar -xvzf gnumed-client.1.8.0.tgz
+	$> cd gnumed-client.1.8.0/external-tools/
+	$> ./check-prerequites.sh
+-------------------------------------
+
+	* install missing dependancies
+
+-------------------------------------
+	$> cd gnumed-client.1.8.0/client/
+	$> ./p3w4-gm-from-vcs.sh
+-------------------------------------
+
+== Database Installation
+
+For testing you can use the public database at publicdb.gnumed.de:5432
+
+
+link:index.html[Home]
