@@ -23,7 +23,7 @@ link:GNUmedFeatureList.html[Feature List] | link:GNUmedFAQ.html[FAQ]
 
 == For Users
 
-* link:InstallerGuideHome[Installation Guides]
+* link:GNUmedInstallation.html[Installation Guides]
 * link:GNUmedManual.html[Manuals]
 
 * Support
