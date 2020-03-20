@@ -1596,19 +1596,20 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 	# contacts API
 	#--------------------------------------------------------
 	def get_addresses(self, address_type=None):
-
-		cmd = "SELECT * FROM dem.v_pat_addresses WHERE pk_identity = %(pat)s"
+		cmd = "SELECT pk_address FROM dem.v_pat_addresses WHERE pk_identity = %(pat)s"
 		args = {'pat': self.pk_obj}
 		if address_type is not None:
 			cmd = cmd + " AND address_type = %(typ)s"
 			args['typ'] = address_type
 
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
-
 		return [
-			gmDemographicRecord.cPatientAddress(row = {'idx': idx, 'data': r, 'pk_field': 'pk_address'})
-			for r in rows
+			gmDemographicRecord.cPatientAddress(aPK_obj = {
+				'pk_adr': rows[0]['pk_address'],
+				'pk_pat': self.pk_obj
+			}) for r in rows
 		]
+
 	#--------------------------------------------------------
 	def link_address(self, number=None, street=None, postcode=None, urb=None, region_code=None, country_code=None, subunit=None, suburb=None, id_type=None, address=None, adr_type=None):
 		"""Link an address with a patient, creating the address if it does not exists.
@@ -1626,7 +1627,6 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 				number = number,
 				subunit = subunit
 			)
-
 		if address is None:
 			return None
 
@@ -1634,18 +1634,19 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 		cmd = "SELECT id_address FROM dem.lnk_person_org_address WHERE id_identity = %(pat)s AND id_address = %(adr)s"
 		args = {'pat': self.pk_obj, 'adr': address['pk_address']}
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
-
 		# no, link to person
-		if len(rows) == 0:
-			args = {'id': self.pk_obj, 'adr': address['pk_address'], 'type': id_type}
+		if not rows:
+			args = {'pk_person': self.pk_obj, 'adr': address['pk_address'], 'type': id_type}
 			cmd = """
 				INSERT INTO dem.lnk_person_org_address(id_identity, id_address)
-				VALUES (%(id)s, %(adr)s)
+				VALUES (%(pk_person)s, %(adr)s)
 				RETURNING id_address"""
 			rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True)
-
-		linked_adr = gmDemographicRecord.cPatientAddress(aPK_obj = rows[0]['id_address'])
-
+		pk_data = {
+			'pk_adr': rows[0]['id_address'],
+			'pk_pat': self.pk_obj
+		}
+		linked_adr = gmDemographicRecord.cPatientAddress(aPK_obj = pk_data)
 		# possibly change type
 		if id_type is None:
 			if adr_type is not None:
@@ -1653,8 +1654,8 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 		if id_type is not None:
 			linked_adr['pk_address_type'] = id_type
 			linked_adr.save()
-
 		return linked_adr
+
 	#----------------------------------------------------------------------
 	def unlink_address(self, address=None, pk_address=None):
 		"""Remove an address from the patient.

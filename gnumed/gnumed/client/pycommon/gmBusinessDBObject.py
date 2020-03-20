@@ -22,7 +22,7 @@ One way is to pass a "primary key equivalent" object into
 __init__(). Refetch_payload() will then pull the data from
 the backend. Another way would be to fetch the data outside
 the instance and pass it in via the <row> argument. In that
-case the instance will not initially connect to the databse
+case the instance will not initially connect to the database
 which may offer a great boost to performance.
 
 Values API
@@ -326,7 +326,7 @@ def manage_xxx()
 		self._ext_cache = {}	# the cache for extended method's results
 		self._is_modified = False
 
-		# check descendants
+		# sanity check child implementions
 		self.__class__._cmd_fetch_payload
 		self.__class__._cmds_store_payload
 		self.__class__._updatable_fields
@@ -347,7 +347,7 @@ def manage_xxx()
 			  * the primary key WHERE condition must be
 				a simple column
 			- a dictionary of values
-			  * the primary key where condition must be a
+			  * the primary key WHERE condition must be a
 				subselect consuming the dict and producing
 				the single-value primary key
 		"""
@@ -448,6 +448,7 @@ def manage_xxx()
 
 		self._ext_cache[attribute] = getter()
 		return self._ext_cache[attribute]
+
 	#--------------------------------------------------------
 	def __setitem__(self, attribute, value):
 
@@ -676,8 +677,10 @@ def manage_xxx()
 		if len(rows) == 0:
 			_log.error('[%s:%s]: no such instance' % (self.__class__.__name__, self.pk_obj))
 			return False
+
 		if len(rows) > 1:
 			raise AssertionError('[%s:%s]: %s instances !' % (self.__class__.__name__, self.pk_obj, len(rows)))
+
 		self._payload = rows[0]
 		return True
 

@@ -1156,22 +1156,25 @@ class cAddressPhraseWheel(gmPhraseWheel.cPhraseWheel):
 		self.SetText(match['field_label'], pk)
 
 	address = property(__get_address, __set_address)
-	#--------------------------------------------------------
-	def __get_person_address(self):
-		pk = self.GetData()
-		if pk is None:
-			self.__address = None
-			return None
-		if self.__address is None:
-			self.__old_pk = pk
-			self.__address = gmDemographicRecord.cPatientAddress(aPK_obj = pk)
-		else:
-			if pk != self.__old_pk:
-				self.__old_pk = pk
-				self.__address = gmDemographicRecord.cPatientAddress(aPK_obj = pk)
-		return self.__address
 
-	person_address = property(__get_person_address, lambda x:x)
+	#--------------------------------------------------------
+#	def __get_person_address(self):
+#		pk = self.GetData()
+#		if pk is None:
+#			self.__address = None
+#			return None
+#		if self.__address is None:
+#			self.__old_pk = pk
+#			self.__address = gmDemographicRecord.cPatientAddress(aPK_obj = pk xxxxxxxxx)
+#		else:
+#			if pk != self.__old_pk:
+#				self.__old_pk = pk
+#				self.__address = gmDemographicRecord.cPatientAddress(aPK_obj = pk xxxxxxxxxxx)
+#		return self.__address
+#
+#	xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+#	must have access to pk_identity
+#	person_address = property(__get_person_address, lambda x:x)
 
 #============================================================
 from Gnumed.wxGladeWidgets import wxgAddressSelectionDlg

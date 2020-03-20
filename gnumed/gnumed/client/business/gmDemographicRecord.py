@@ -811,32 +811,44 @@ def get_address_from_patient_address_pk(pk_patient_address=None):
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 	if len(rows) == 0:
 		return None
+
 	return cAddress(row = {'data': rows[0], 'idx': idx, 'pk_field': 'pk_address'})
 
 #===================================================================
 def get_patient_address(pk_patient_address=None, return_pks=False):
-	cmd = 'SELECT * FROM dem.v_pat_addresses WHERE pk_lnk_person_org_address = %(pk)s'
+	cmd = 'SELECT pk_address, pk_identity FROM dem.v_pat_addresses WHERE pk_lnk_person_org_address = %(pk)s'
 	args = {'pk': pk_patient_address}
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
-	if len(rows) == 0:
+	if not rows:
 		return None
+
 	if return_pks:
 		return [ r['pk_address'] for r in rows ]
-	return cPatientAddress(row = {'data': rows[0], 'idx': idx, 'pk_field': 'pk_address'})
+
+	pk_data = {
+		'pk_adr': rows[0]['pk_address'],
+		'pk_pat': rows[0]['pk_identity']
+	}
+	return cPatientAddress(aPK_obj = pk_data)
 
 #-------------------------------------------------------------------
 def get_patient_address_by_type(pk_patient=None, adr_type=None):
-	cmd = 'SELECT * FROM dem.v_pat_addresses WHERE pk_identity = %(pat)s AND (address_type = %(typ)s OR l10n_address_type = %(typ)s)'
+	cmd = 'SELECT pk_address, pk_identity FROM dem.v_pat_addresses WHERE pk_identity = %(pat)s AND (address_type = %(typ)s OR l10n_address_type = %(typ)s)'
 	args = {'pat': pk_patient, 'typ': adr_type}
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 	if len(rows) == 0:
 		return None
-	return cPatientAddress(row = {'data': rows[0], 'idx': idx, 'pk_field': 'pk_address'})
+
+	pk_data = {
+		'pk_adr': rows[0]['pk_address'],
+		'pk_pat': rows[0]['pk_identity']
+	}
+	return cPatientAddress(aPK_obj = pk_data)
 
 #-------------------------------------------------------------------
 class cPatientAddress(gmBusinessDBObject.cBusinessDBObject):
 
-	_cmd_fetch_payload = "SELECT * FROM dem.v_pat_addresses WHERE pk_address = %s"
+	_cmd_fetch_payload = 'SELECT * FROM dem.v_pat_addresses WHERE pk_address = %(pk_adr)s AND pk_identity = %(pk_pat)s'
 	_cmds_store_payload = [
 		"""UPDATE dem.lnk_person_org_address SET
 				id_type = %(pk_address_type)s
@@ -849,15 +861,18 @@ class cPatientAddress(gmBusinessDBObject.cBusinessDBObject):
 		"""
 	]
 	_updatable_fields = ['pk_address_type']
+
 	#---------------------------------------------------------------
 	def get_identities(self, same_lastname=False):
 		pass
+
 	#--------------------------------------------------------
 	def format(self, single_line=False, verbose=False, show_type=True):
 		if single_line:
 			return format_address_single_line(address = self, verbose = verbose, show_type = show_type)
 		txt = format_address(address = self, show_type = show_type)
 		return txt
+
 	#--------------------------------------------------------
 	def _get_address(self):
 		return cAddress(aPK_obj = self._payload[self._idx['pk_address']])
@@ -1144,12 +1159,14 @@ if __name__ == "__main__":
 		sys.exit()
 
 	import random
+
+	from Gnumed.pycommon import gmConnectionPool
 	#--------------------------------------------------------
 	def test_address_exists():
 
 		addresses = [
 			{
-			'country': 'Germany',
+			'country_code': 'Germany',
 			'region_code': 'Sachsen',
 			'urb': 'Hannover',
 			'postcode': '06672',
@@ -1157,7 +1174,7 @@ if __name__ == "__main__":
 			'number': '11'
 			},
 			{
-			'country': 'DE',
+			'country_code': 'DE',
 			'region_code': 'SN',
 			'urb': 'Hannover',
 			'postcode': '06671',
@@ -1166,7 +1183,7 @@ if __name__ == "__main__":
 			'subunit': 'Parterre'
 			},
 			{
-			'country': 'DE',
+			'country_code': 'DE',
 			'region_code': 'SN',
 			'urb': 'Hannover',
 			'postcode': '06671',
@@ -1175,7 +1192,7 @@ if __name__ == "__main__":
 			'subunit': '1. Stock'
 			},
 			{
-			'country': 'DE',
+			'country_code': 'DE',
 			'region_code': 'SN',
 			'urb': 'Hannover',
 			'postcode': '06671',
@@ -1283,13 +1300,15 @@ if __name__ == "__main__":
 
 	#--------------------------------------------------------
 	#gmPG2.get_connection()
+	l, creds = gmPG2.request_login_params()
+	gmConnectionPool.gmConnectionPool().credentials = creds
 
-	#test_address_exists()
-	test_create_address()
+	test_address_exists()
+	#test_create_address()
 	#test_get_countries()
 	#test_get_country_for_region()
 	#test_delete_tag()
 	#test_tag_images()
-	#test_get_billing_address()
+	test_get_billing_address()
 	#test_map_urb_zip_region2country()
 	#test_map_urb_zip_country2region()
