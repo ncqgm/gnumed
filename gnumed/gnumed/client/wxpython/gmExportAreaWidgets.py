@@ -941,11 +941,12 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 			tt = self._BTN_fax_items.GetToolTipText() + '\n\n' + _('<gm-fax_doc(.bat) not found>')
 			self._BTN_fax_items.SetToolTip(tt)
 
-		self.__burn_script_exists, path = gmShellAPI.detect_external_binary(binary = r'gm-burn_doc')
-		if not self.__burn_script_exists:
-			self._BTN_burn_items.Disable()
-			tt = self._BTN_burn_items.GetToolTipText() + '\n\n' + _('<gm-burn_doc(.bat) not found>')
-			self._BTN_burn_items.SetToolTip(tt)
+		# this is now handled one level down in the UI
+#		self.__burn_script_exists, path = gmShellAPI.detect_external_binary(binary = r'gm-burn_doc')
+#		if not self.__burn_script_exists:
+#			self._BTN_burn_items.Disable()
+#			tt = self._BTN_burn_items.GetToolTipText() + '\n\n' + _('<gm-burn_doc(.bat) not found>')
+#			self._BTN_burn_items.SetToolTip(tt)
 
 		# make me and listctrl file drop targets
 		dt = gmGuiHelpers.cFileDropTarget(target = self)
