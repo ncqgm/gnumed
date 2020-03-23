@@ -419,17 +419,28 @@ class cDateInputPhraseWheel(gmPhraseWheel.cPhraseWheel):
 		if date is None:
 			return ''
 
-		now = gmDateTime.pydt_now_here()
-		if date > now:
-			intv = date - now
-			template = _('%s\n (a %s in %s)')
-		else:
-			intv = now - date
-			template = _('%s\n (a %s %s ago)')
-		return template % (
-			gmDateTime.pydt_strftime(date, format = '%B %d %Y -- %c', accuracy = gmDateTime.acc_days),
-			gmDateTime.pydt_strftime(date, format = '%A', accuracy = gmDateTime.acc_days),
-			gmDateTime.format_interval(interval = intv, accuracy_wanted = gmDateTime.acc_days, verbose = True)
+		if isinstance(date, pyDT.datetime):
+			date = pyDT.date(date.year, date.month, date.day)
+		today = pyDT.date.today()
+		if date > today:
+			intv = date - today
+			return _('%s\n (a %s in %s)') % (
+				date.strftime(format = '%B %d %Y -- %x'),
+				date.strftime(format = '%A'),
+				gmDateTime.format_interval(interval = intv, accuracy_wanted = gmDateTime.acc_days, verbose = True)
+			)
+
+		if date < today:
+			intv = today - date
+			return _('%s\n (a %s %s ago)') % (
+				gmDateTime.pydt_strftime(date, format = '%B %d %Y -- %x'),
+				gmDateTime.pydt_strftime(date, format = '%A'),
+				gmDateTime.format_interval(interval = intv, accuracy_wanted = gmDateTime.acc_days, verbose = True)
+			)
+
+		return _('today (%s): %s') % (
+			gmDateTime.pydt_strftime(date, format = '%A'),
+			gmDateTime.pydt_strftime(date, format = '%B %d %Y -- %x')
 		)
 
 	#--------------------------------------------------------
