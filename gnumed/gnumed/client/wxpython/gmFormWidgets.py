@@ -231,7 +231,6 @@ def act_on_generated_forms(parent=None, forms=None, jobtype=None, episode_name=N
 			pat = gmPerson.gmCurrentPatient()
 			emr = pat.emr
 			epi = emr.add_episode(episode_name = episode_name, is_open = False)
-
 		for form in forms:
 			files2import = []
 			files2import.extend(form.final_output_filenames)
@@ -247,9 +246,9 @@ def act_on_generated_forms(parent=None, forms=None, jobtype=None, episode_name=N
 				review_as_normal = review_copy_as_normal,
 				reference = None,
 				pk_org_unit = gmPraxis.gmCurrentPraxisBranch()['pk_org_unit'],
-				comment = comment
+				comment = comment,
+				date_generated = gmDateTime.pydt_now_here()
 			)
-
 		return True
 
 	#-----------------------------
