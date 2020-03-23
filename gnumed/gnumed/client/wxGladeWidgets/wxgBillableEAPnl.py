@@ -10,7 +10,7 @@ import gettext
 # end wxGlade
 
 # begin wxGlade: extracode
-from Gnumed.wxpython import gmCodingWidgets
+from Gnumed.wxpython.gmCodingWidgets import cDataSourcePhraseWheel
 # end wxGlade
 
 
