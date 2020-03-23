@@ -373,38 +373,10 @@ def pydt_strftime(dt=None, format='%Y %b %d  %H:%M.%S', accuracy=None, none_str=
 
 	try:
 		return dt.strftime(format)
+
 	except ValueError:
 		_log.exception()
 		return 'strftime() error'
-		#_log.exception('Python cannot strftime() this <datetime>, trying ourselves')
-
-#	if isinstance(dt, pyDT.date):
-#		accuracy = acc_days
-#
-#	if accuracy == acc_days:
-#		return '%04d-%02d-%02d' % (
-#			dt.year,
-#			dt.month,
-#			dt.day
-#		)
-#
-#	if accuracy == acc_minutes:
-#		return '%04d-%02d-%02d %02d:%02d' % (
-#			dt.year,
-#			dt.month,
-#			dt.day,
-#			dt.hour,
-#			dt.minute
-#		)
-#
-#	return '%04d-%02d-%02d %02d:%02d:%02d' % (
-#		dt.year,
-#		dt.month,
-#		dt.day,
-#		dt.hour,
-#		dt.minute,
-#		dt.second
-#	)
 
 #---------------------------------------------------------------------------
 def pydt_add(dt, years=0, months=0, weeks=0, days=0, hours=0, minutes=0, seconds=0, milliseconds=0, microseconds=0):
