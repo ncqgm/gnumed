@@ -1605,7 +1605,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 		return [
 			gmDemographicRecord.cPatientAddress(aPK_obj = {
-				'pk_adr': rows[0]['pk_address'],
+				'pk_adr': r['pk_address'],
 				'pk_pat': self.pk_obj
 			}) for r in rows
 		]

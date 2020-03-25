@@ -16,6 +16,7 @@ FIX: bills: failure to edit billable [thanks Marc]
 FIX: export area: fails to load when gm-burn.sh not found [thanks Marc]
 FIX: demographics: failure to edit type of address [thanks Marc]
 FIX: forms: failure to archive generated forms [thanks Marc]
+FIX: demographics: faulty display of patient addresses [thanks Marc]
 
 	1.8.0
 
