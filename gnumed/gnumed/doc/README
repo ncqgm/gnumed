@@ -5,3 +5,4 @@
 
 	convert_twiki2adoc: convert original twiki text documents for inclusion
 	convert_adoc2html: convert asciidoc to html for publishing
+	publish_website_update: convert asciidoc to html and publish
