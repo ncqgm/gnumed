@@ -1,7 +1,7 @@
 == Welcome to the GNUmed Electronic Medical Record Project
 
-https://www.gnumed.de/downloads/client/1.7/gnumed-client.1.7.9.tgz[Version 1.7.9] (database v22.9) released Dec 5th 2019 +
-https://www.gnumed.de/downloads/client/1.8/gnumed-client.1.8.0rc3.tgz[Version 1.8.0rc3] (database v22.10) released Feb 22nd 2020
+https://www.gnumed.de/downloads/client/1.8/gnumed-client.1.8.1.tgz[Version 1.8.1] (database v22.12) released March 25th 2020 +
+(https://www.gnumed.de/downloads/client/1.7/gnumed-client.1.7.9.tgz[Version 1.7.9] (database v22.9) released Dec 5th 2019)
 
 https://github.com/ncqgm/gnumed/blob/master/gnumed/CHANGELOG[What's New] | https://www.gnumed.de/downloads/[Download Area]
 
