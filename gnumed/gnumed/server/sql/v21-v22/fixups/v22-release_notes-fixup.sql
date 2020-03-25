@@ -17,78 +17,25 @@ INSERT INTO dem.message_inbox (
 ) VALUES (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
-	'Release Notes for GNUmed 1.8.0 (database v22.11)',
-	'GNUmed 1.8.0 Release Notes:
+	'Release Notes for GNUmed 1.8.1 (database v22.12)',
+	'GNUmed 1.8.1 Release Notes:
 
-	1.8.0
+	1.8.1
 
-NEW: port to wxPython 4 (wxPhoenix)
-NEW: port to Python 3
-NEW: port bootstrapper to Python 3
-NEW: EMR tree: toggle episode status from context menu
-NEW: EMR tree: show/edit clinical items from below encounters
-NEW: ReST formatting in $free_text::::$ placeholder
-NEW: hook "after_waiting_list_modified"
-NEW: test results tab showing most-recent in test panel
-NEW: local documents cache
-NEW: systemd-tmpfiles config file
-NEW: emailing of export area content as encrypted zip file
-NEW: local directory entries in export area
-NEW: $praxis_scan2pay$ support
-NEW: $bill_scan2pay$ support
-NEW: status bar history/visual bell
-NEW: dicomize images/PDF into DICOM study
-NEW: [Abort] client from exception dialog
-NEW: edit clinical item from EMR list journal
-NEW: dist: add PortableApp XML skeleton
-NEW: placeholder: $most_recent_test_results$
-NEW: tool: check_mimetypes_in_archive
+NEW: tool: read_all_rows_of_table
 
-IMPROVED: symbolic link creation on Windows
-IMPROVED: Orthanc connection handling
-IMPROVED: DICOM plugin UI
-IMPROVED: EMR export as TimeLine
-IMPROVED: captions of all list and edit area dialogs
-IMPROVED: test type edit area workflow
-IMPROVED: CLI EMR export tool
-IMPROVED: form disposal dialog
-IMPROVED: date/timestamp picker functionality
-IMPROVED: better duplicate person detection
-IMPROVED: document tree details view usage
-IMPROVED: test results panels links w/ documents
-IMPROVED: console encoding errors behaviour [thanks INADA Naoki]
-IMPROVED: ADR URL handling
-IMPROVED: age sort mode in document tree
-IMPROVED: age/DOB tooltip
-IMPROVED: data revisions display
-IMPROVED: EMR list journal formatting
-IMPROVED: lab/plotting: support better gnuplot scripts
+FIX: bills: failure to generate bill PDFs [thanks Marc]
+FIX: bills: failure to edit bill item date [thanks Marc]
+FIX: bills: failure to edit billable [thanks Marc]
+FIX: export area: fails to load when gm-burn.sh not found [thanks Marc]
+FIX: demographics: failure to edit type of address [thanks Marc]
+FIX: forms: failure to archive generated forms [thanks Marc]
+FIX: demographics: faulty display of patient addresses [thanks Marc]
 
-FIX: [Save] functionality of Export Area
-FIX: document tree sorting / document insertion
-FIX: inability to delete inbox message w/o receiver
-FIX: "lastname, firstname" based patient search under Python 3
-FIX: billing: invoice ID generation [thanks Marc]
-FIX: export area: saving document part entries
-FIX: lab: grid display row tooltips
-FIX: lists: context menu CSV export
-FIX: EMR/tree: selection of pseudo issue node
-FIX: documents/new: error handling of unreadable parts
-FIX: PG access: rewrite connection pool
-FIX: y2038 exception in DST detection
+	22.12
 
-	22.11
-
-FIX: i18n.set_curr/force_curr_lang(), again [thanks lucian]
-
-	22.10
-
-IMPROVED: database fixup script
-
-	22.9
-
-FIX: clin.v_candidate_diagnoses: missing coalesce()
+IMPROVED: robustify backup script
 ');
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('v22-release_notes-fixup.sql', '22.11');
+select gm.log_script_insertion('v22-release_notes-fixup.sql', '22.12');
