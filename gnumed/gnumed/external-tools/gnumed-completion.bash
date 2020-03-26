@@ -3,7 +3,7 @@
 _gnumed_completion()
 {
 	COMPREPLY=()
-	OPTS="--quiet --debug --slave --override-schema-check --local-import --help --version -V -h -? --tool= --text-domain= --log-file= --conf-file= --lang-gettext= --ui= --wxp="
+	OPTS="--quiet --debug --slave --override-schema-check --local-import --help --version -V -h -? --tool= --text-domain= --log-file= --conf-file= --lang-gettext= --ui="
 	CURR="${COMP_WORDS[COMP_CWORD]}"
 	PREV="${COMP_WORDS[COMP_CWORD-1]}"
 	PREVPREV="${COMP_WORDS[COMP_CWORD-2]}"

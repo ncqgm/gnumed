@@ -50,11 +50,11 @@ except ImportError:
 # do this check just in case, so we can make sure
 # py2exe and friends include the proper version, too
 version = int('%s%s' % (wx.MAJOR_VERSION, wx.MINOR_VERSION))
-if (version < 28) or ('unicode' not in wx.PlatformInfo):
+if (version < 40) or ('unicode' not in wx.PlatformInfo):
 	print('GNUmed startup: Unsupported wxPython version (%s: %s).' % (wx.VERSION_STRING, wx.PlatformInfo))
-	print('GNUmed startup: wxPython 2.8+ with unicode support is required.')
+	print('GNUmed startup: wxPython 4.0+ with unicode support is required.')
 	print('CRITICAL ERROR: Proper wxPython version not found. Halted.')
-	raise ValueError('wxPython 2.8+ with unicode support not found')
+	raise ValueError('wxPython 4.0+ with unicode support not found')
 
 
 # more GNUmed libs
