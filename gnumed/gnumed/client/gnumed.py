@@ -43,9 +43,6 @@ care of all the pre- and post-GUI runtime environment setup.
  and when the update check URL is unavailable (down).
 --local-import
  Adjust the PYTHONPATH such that GNUmed can be run from a local source tree.
---ui=<ui type>
- Start an alternative UI. Defaults to wxPython if not specified.
- Currently "wxp" (wxPython) only.
 --version, -V
  Show version information.
 --help, -h, or -?
@@ -109,7 +106,6 @@ _known_long_options = [
 	'log-file=',
 	'conf-file=',
 	'lang-gettext=',
-	'ui=',
 	'override-schema-check',
 	'local-import',
 	'help',
@@ -117,12 +113,6 @@ _known_long_options = [
 	'hipaa',
 	'wxp=',
 	'tool='
-]
-
-_known_ui_types = [
-	'web',
-	'wxp',
-	'chweb'
 ]
 
 _known_tools = [
@@ -628,20 +618,6 @@ def setup_cfg():
 	)
 
 #==========================================================
-def setup_ui_type():
-	global ui_type
-	ui_type = _cfg.get(option = '--ui', source_order = [('cli', 'return')])
-	if ui_type in [True, False, None]:
-		ui_type = 'wxp'
-	ui_type = ui_type.strip()
-	if ui_type not in _known_ui_types:
-		_log.error('unknown UI type requested: %s', ui_type)
-		_log.debug('known UI types are: %s', str(_known_ui_types))
-		print("GNUmed startup: Unknown UI type (%s). Defaulting to wxPython client." % ui_type)
-		ui_type = 'wxp'
-	_log.debug('UI type: %s', ui_type)
-
-#==========================================================
 def setup_backend_environment():
 
 	db_version = gmPG2.map_client_branch2required_db_version[current_client_branch]
@@ -669,25 +645,15 @@ def setup_backend_environment():
 #==========================================================
 def run_gui():
 	gmHooks.run_hook_script(hook = 'startup-before-GUI')
-
-	if ui_type == 'wxp':
-		from Gnumed.wxpython import gmGuiMain
-		profile_file = _cfg.get(option = '--profile', source_order = [('cli', 'return')])
-		if profile_file is not None:
-			_log.info('writing profiling data into %s', profile_file)
-			import profile
-			profile.run('gmGuiMain.main()', profile_file)
-		else:
-			gmGuiMain.main()
-	#elif ui_type == u'web':
-	#	from Gnumed.proxiedpyjamas import gmWebGuiServer
-	#	gmWebGuiServer.main()
-	#elif ui_type == u'chweb':
-	#	from Gnumed.CherryPy import gmGuiWeb
-	#	gmGuiWeb.main()
-
+	from Gnumed.wxpython import gmGuiMain
+	profile_file = _cfg.get(option = '--profile', source_order = [('cli', 'return')])
+	if profile_file is None:
+		gmGuiMain.main()
+	else:
+		_log.info('writing profiling data into %s', profile_file)
+		import profile
+		profile.run('gmGuiMain.main()', profile_file)
 	gmHooks.run_hook_script(hook = 'shutdown-post-GUI')
-
 	return 0
 
 #==========================================================
@@ -879,7 +845,6 @@ handle_version_request()
 setup_paths_and_files()
 setup_date_time()
 setup_cfg()
-setup_ui_type()
 
 from Gnumed.pycommon import gmPG2
 from Gnumed.pycommon import gmConnectionPool

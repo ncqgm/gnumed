@@ -19,7 +19,6 @@ You have been warned.
 .RB [--log-file=FILE]
 .RB [--conf-file=FILE]
 .RB [--lang-gettext=LANGUAGE]
-.RB [--ui=UI-TYPE]
 .RB [--tool=TOOL]
 .RB [--override-schema-check]
 .RB [--local-import]
@@ -79,16 +78,6 @@ standard locations.
 Explicitly set the language to use in gettext translation. The very
 same effect can be achieved by setting the environment variable $LANG
 from a launcher script.
-.TP
-.B \--ui=UI-TYPE
-Explicitly set the user interface type. Omitting this argument will
-default the interface to wxPython.
-
-Valid values are:
-
-	wxp: wxPython Python client (default)
-.\"
-.\"	web: CherryPy web client
 .TP
 .B \--tool=TOOL
 Run the named TOOL instead of a GUI.

@@ -9,6 +9,7 @@
 	1.8.2
 
 FIX: CLI: --wxp= not needed anymore
+FIX: CLI: --ui= not needed anymore
 
 	1.8.1
 
