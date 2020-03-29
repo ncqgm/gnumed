@@ -74,6 +74,7 @@ class cOrthancServer:
 		_log.info('connecting as [%s] to Orthanc server at [%s]', self.__user, self.__server_url)
 		cache_dir = os.path.join(gmTools.gmPaths().user_tmp_dir, '.orthanc2gm-cache')
 		gmTools.mkdir(cache_dir, 0o700)
+		gmTools.create_directory_description_file(directory = cache_dir, readme = 'this directory caches Orthanc REST data, mainly DICOM files')
 		_log.debug('using cache directory: %s', cache_dir)
 		self.__conn = httplib2.Http(cache = cache_dir)
 		self.__conn.add_credentials(self.__user, self.__password)

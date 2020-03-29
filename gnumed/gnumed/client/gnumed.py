@@ -92,6 +92,7 @@ against. Please run GNUmed as a non-root user.
 current_client_version = '1.8.0rc3'
 current_client_branch = '1.8'
 
+
 _log = None
 _pre_log_buffer = []
 _cfg = None
@@ -483,6 +484,8 @@ def handle_help_request():
 
 #==========================================================
 def handle_version_request():
+	gmTools._client_version = current_client_version
+
 	src = [('cli', 'return')]
 
 	version_requested = (
@@ -505,7 +508,9 @@ def handle_version_request():
 def setup_paths_and_files():
 	"""Create needed paths in user home directory."""
 
-	gnumed_DIR_README_TEXT = """GNUmed Electronic Medical Record
+	gmd_dir = os.path.expanduser(os.path.join('~', 'gnumed'))
+	dot_gmd_dir = os.path.expanduser(os.path.join('~', '.gnumed'))
+	readme = """GNUmed Electronic Medical Record
 
 	%s/
 
@@ -522,27 +527,30 @@ file.
 Any files which are NOT intended for direct user interaction
 but must be configured to live at a known location (say,
 inter-application data exchange files) should be put under
-the hidden directory "%s/".""" % (
-		os.path.expanduser(os.path.join('~', 'gnumed')),
-		os.path.expanduser(os.path.join('~', '.gnumed'))
+the hidden directory:
+	"%s/"
+""" % (gmd_dir, dot_gmd_dir)
+	gmTools.mkdir(gmd_dir)
+	gmTools.create_directory_description_file(directory = gmd_dir, readme = readme)
+
+	gmTools.mkdir(os.path.expanduser(os.path.join(dot_gmd_dir, 'spellcheck')))
+	err_dir = os.path.expanduser(os.path.join(dot_gmd_dir, 'error_logs'))
+	gmTools.mkdir(err_dir)
+	readme = """This directory should be used for files not intended for user
+interaction at the file system level (file selection dialogs,
+file browsers) such as inter-application data exchange files
+which need to live at a known location."""
+	gmTools.create_directory_description_file(directory = dot_gmd_dir, readme = readme)
+	gmTools.create_directory_description_file (
+		directory = err_dir,
+		readme = 'Whenever an unhandled exception is detected a copy of the log file is placed here.\n\nThis directory is subject to systemd-tmpfiles cleaning.'
 	)
-
-	gmTools.mkdir(os.path.expanduser(os.path.join('~', '.gnumed', 'scripts')))
-	gmTools.mkdir(os.path.expanduser(os.path.join('~', '.gnumed', 'spellcheck')))
-	gmTools.mkdir(os.path.expanduser(os.path.join('~', '.gnumed', 'error_logs')))
-	gmTools.mkdir(os.path.expanduser(os.path.join('~', 'gnumed')))
-
-	README = io.open(os.path.expanduser(os.path.join('~', 'gnumed', '00_README')), mode = 'wt', encoding = 'utf8')
-	README.write(gnumed_DIR_README_TEXT)
-	README.close()
 
 	# wxPython not available yet
 	paths = gmTools.gmPaths(app_name = 'gnumed')
 	print("Temp dir:", paths.tmp_dir)
-
 	# ensure there's a user-level config file
 	io.open(os.path.expanduser(os.path.join('~', '.gnumed', 'gnumed.conf')), mode = 'a+t').close()
-
 	# symlink log file into temporary directory for easier debugging (everything in one place)
 	logfile_link = os.path.join(paths.tmp_dir, 'zzz-gnumed.log')
 	gmTools.mklink (gmLog2._logfile.name, logfile_link, overwrite = False)

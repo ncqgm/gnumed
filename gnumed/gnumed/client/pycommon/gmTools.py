@@ -150,6 +150,9 @@ _PB = 1024 * _TB
 
 _GM_TITLE_PREFIX = 'GMd'
 
+
+_client_version = None
+
 #===========================================================================
 def handle_uncaught_exception_console(t, v, tb):
 
@@ -198,11 +201,42 @@ def mkdir(directory=None, mode=None):
 	return True
 
 #---------------------------------------------------------------------------
+def create_directory_description_file(directory=None, readme=None, suffix=None):
+	assert (directory is not None), '<directory> must not be None'
+
+	README_fname = '.00-README.GNUmed' + coalesce(suffix, '.dir')
+	README_path = os.path.abspath(os.path.expanduser(os.path.join(directory, README_fname)))
+	_log.debug('%s', README_path)
+	if readme is None:
+		_log.debug('no README text, boilerplate only')
+	try:
+		README = open(README_path, mode = 'wt', encoding = 'utf8')
+	except Exception:
+		return False
+
+	line = 'GNUmed v%s -- %s' % (_client_version, pydt.datetime.now().strftime('%c'))
+	len_sep = len(line)
+	README.write(line)
+	README.write('\n')
+	line = README_path
+	len_sep = max(len_sep, len(line))
+	README.write(line)
+	README.write('\n')
+	README.write('-' * len_sep)
+	README.write('\n')
+	README.write('\n')
+	README.write(readme)
+	README.write('\n')
+	README.close()
+	return True
+
+#---------------------------------------------------------------------------
 def rmdir(directory):
 	#-------------------------------
 	def _on_rm_error(func, path, exc):
 		_log.error('error while shutil.rmtree(%s)', path, exc_info=exc)
 		return True
+
 	#-------------------------------
 	error_count = 0
 	try:
@@ -396,6 +430,7 @@ class gmPaths(gmBorg.cBorg):
 			tempfile.tempdir = self.user_tmp_dir # tell mkdtemp about intermediate dir
 			self.tmp_dir = tempfile.mkdtemp(prefix = 'g-') # will set tempfile.tempdir as side effect
 			_log.info('final (app instance level) temp dir: %s', tempfile.gettempdir())
+		create_directory_description_file(directory = self.tmp_dir, readme = 'client instance tmp dir')
 
 		# BYTEA cache dir
 		cache_dir = os.path.join(self.user_tmp_dir, '.bytea_cache')
@@ -406,6 +441,7 @@ class gmPaths(gmBorg.cBorg):
 		except FileNotFoundError:
 			mkdir(cache_dir, mode = 0o0700)
 		self.bytea_cache_dir = cache_dir
+		create_directory_description_file(directory = self.bytea_cache_dir, readme = 'cache dir for BYTEA data')
 
 		self.__log_paths()
 		if wx is None:
@@ -2448,6 +2484,16 @@ second line\n
 			print(decorate_window_title(txt))
 
 	#-----------------------------------------------------------------------
+	def test_create_dir_desc_file():
+		global _client_version
+		_client_version = 'dev.test'
+		print(create_directory_description_file (
+			directory = './',
+			readme = 'test\ntest2\nsome more text',
+			suffix = None
+		))
+
+	#-----------------------------------------------------------------------
 	#test_coalesce()
 	#test_capitalize()
 	#test_import_module()
@@ -2482,7 +2528,8 @@ second line\n
 	#test_enumerate_optical_writers()
 	#test_copy_tree_content()
 	#test_mk_sandbox_dir()
-	test_make_table_from_dicts()
+	#test_make_table_from_dicts()
 	#test_decorate_window_title()
+	test_create_dir_desc_file()
 
 #===========================================================================

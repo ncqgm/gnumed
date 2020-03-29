@@ -36,6 +36,7 @@ from Gnumed.pycommon import gmTools
 
 
 _log = logging.getLogger('gm.hook')
+
 # ========================================================================
 known_hooks = [
 	'post_patient_activation',
@@ -69,9 +70,22 @@ known_hooks = [
 	'db_maintenance_warning'
 ]
 
-_log.debug('known hooks:')
-for hook in known_hooks:
-	_log.debug(hook)
+README_hook_dir = """Directory for scripts called from hooks at client runtime.
+
+Known hooks:
+
+	%s
+""" % '\n\t'.join(known_hooks)
+
+# ========================================================================
+def setup_hook_dir():
+	_log.debug('known hooks:')
+	for hook in known_hooks:
+		_log.debug(hook)
+
+	hook_dir = os.path.expanduser(os.path.join('~', '.gnumed', 'scripts'))
+	gmTools.mkdir(hook_dir)
+	gmTools.create_directory_description_file(directory = hook_dir, readme = README_hook_dir)
 
 # ========================================================================
 hook_module = None
@@ -193,6 +207,9 @@ def run_hook_script(hook=None):
 	return True
 
 # ========================================================================
+
+setup_hook_dir()
+
 if __name__ == '__main__':
 
 	if len(sys.argv) < 2:
