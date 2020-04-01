@@ -229,6 +229,15 @@ cp -R ../../client/doc/man-pages/gm-describe_file.1 ./gnumed-client.$CLIENTREV/c
 cp -R ../../client/doc/man-pages/gm-create_datamatrix.1 ./gnumed-client.$CLIENTREV/client/doc/
 cp -R ../../client/doc/man-pages/gm-create_dicomdir.1 ./gnumed-client.$CLIENTREV/client/doc/
 cp -R ../../client/doc/man-pages/gm-import_incoming.1 ./gnumed-client.$CLIENTREV/client/doc/
+#cp -vf ../../client/doc/man-pages/gnumed.1 ./gnumed-client.$CLIENTREV/client/doc/
+# generate man page for gnumed(.py)
+python3 ../../client/gnumed.py --local-import --tool=generate_man_page
+RESULT="$?"
+if test "${RESULT}" != "0" ; then
+	echo "failed to generated man page (${RESULT})"
+	exit ${RESULT}
+fi
+mv -vf ./gnumed.1 ./gnumed-client.$CLIENTREV/client/doc/
 
 
 # etc

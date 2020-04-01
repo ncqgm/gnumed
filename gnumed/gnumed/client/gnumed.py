@@ -1,53 +1,267 @@
 #!/usr/bin/env python3
 
-__doc__ = """GNUmed client launcher.
+__doc__ = MANPAGE = """.\\" ========================================================
+.\\" SPDX-License-Identifier: GPL-2.0-or-later
+.\\" ========================================================
 
-This is the launcher for the GNUmed GUI client. It takes
-care of all the pre- and post-GUI runtime environment setup.
+.TH GNUmed 1 "%s" "Manual for GNUmed"
 
---quiet
- Be extra quiet and show only _real_ errors in the log.
---debug
- Pre-set the [debug mode] checkbox in the login dialog to
- increase verbosity in the log file. Useful for, well, debugging :-)
---slave
- Pre-set the [enable remote control] checkbox in the login
- dialog to enable the XML-RPC remote control feature.
---hipaa
- Enable HIPAA functionality which has user impact.
---profile=<file>
- Activate profiling and write profile data to <file>.
---tool=<TOOL>
- Run TOOL instead of the main GUI.
---text-domain=<text domain>
- Set this to change the name of the language file to be loaded.
- Note, this does not change the directory the file is searched in,
- only the name of the file where messages are loaded from. The
- standard textdomain is, of course, "gnumed.mo".
---log-file=<file>
- Use this to change the name of the log file.
- See gmLog2.py to find out where the standard log file would
- end up.
---conf-file=<file>
- Use configuration file <file> instead of searching for it in
- standard locations.
---lang-gettext=<language>
- Explicitly set the language to use in gettext translation. The very
- same effect can be achieved by setting the environment variable $LANG
- from a launcher script.
---override-schema-check
- Continue loading the client even if the database schema version
- and the client software version cannot be verified to be compatible.
---skip-update-check
- Skip checking for client updates. This is useful during development
- and when the update check URL is unavailable (down).
---local-import
- Adjust the PYTHONPATH such that GNUmed can be run from a local source tree.
---version, -V
- Show version information.
---help, -h, or -?
- Show this help.
+.SH NAME
+.B GNUmed
+- an electronic MEDICAL record software for GP offices
+
+This is not fully featured yet. Use at your own risk.
+You have been warned.
+
+.SH SYNOPSIS
+.B gnumed
+.RB [--quiet|debug]
+.RB [--slave]
+.RB [--text-domain=TEXTDOMAIN]
+.RB [--log-file=FILE]
+.RB [--conf-file=FILE]
+.RB [--profile=FILE]
+.RB [--lang-gettext=LANGUAGE]
+.RB [--tool=TOOL]
+.RB [--override-schema-check]
+.RB [--skip-update-check]
+.RB [--local-import]
+.RB [--help]
+.RB [--version]
+.RB [-V]
+.RB [-h|?]
+
+
+.SH DESCRIPTION
+.B GNUmed
+is a solution for keeping safe and medically sound electronic
+records on a patient's health. It primarily focuses on GP
+offices. It is released under the GPL.
+
+GNUmed is written in Python with wxPython/wxWindows. Data is
+stored in a PostgreSQL database. Multiple clients can work
+with the same database at the same time.
+
+.SH OPTIONS
+.PP
+.TP
+.B \--quiet
+Be extra quiet and show only _real_ errors in the log.
+.TP
+.B \--debug
+Pre-set the [debug mode] checkbox in the login dialog
+which controls increased verbosity in the log file.
+
+Useful for, well, debugging :-)  Slower, too.
+.TP
+.B \--slave
+Pre-set the [enable remote control] checkbox in the login
+dialog to enable the XML-RPC remote control feature.
+.TP
+.B \--hipaa
+Enable HIPAA features with user workflow impact.
+
+Those features which do not affect the workflow of the user
+are permanently enabled.
+.TP
+.B \--log-file=FILE
+Use this to change the name of the log file. At startup
+GNUmed will tell you the name of the log file in use.
+.TP
+.B \--conf-file=FILE
+Use configuration file FILE instead of searching for it in standard locations.
+.TP
+.B \--profile=FILE
+Activate profiling and write profile data to file FILE.
+.TP
+.B \--lang-gettext=LANGUAGE
+Explicitly set the language to use in gettext translation. The very
+same effect can be achieved by setting the environment variable $LANG
+from a launcher script.
+.TP
+.B \--text-domain=TEXTDOMAIN
+Set this to change the name of the language file to be loaded.
+Note, this does not change the directory the file is searched in,
+only the name of the file where messages are loaded from. The
+standard textdomain is, of course, "gnumed.mo". You need only
+specify the base name of the file without the .mo extension.
+.TP
+.B \--tool=TOOL
+Run the named TOOL instead of a GUI.
+
+Currently implemented tools:
+
+	check_enc_epi_xref: Cross-check that foreign keys values in any given row of any table carrying both of fk_episode and fk_encounter do point to episodes and encounters, respectively, of the very same patient.
+
+	export_pat_emr_structure: Export the EMR structure (issues and episodes) of a patient into a text file.
+
+	check_mimetypes_in_archive: Show mimetypes and related information of all document parts in the archive.
+
+	read_all_rows_of_table: Check readability of all rows of a given table.
+.TP
+.B \--override-schema-check
+Continue loading the client even if the database schema
+version and the client software version cannot be verified
+to be compatible.
+.TP
+.B \--skip-update-check
+Skip checking for client updates. This is useful during
+development or when the update check URL is unavailable.
+.TP
+.B \--local-import
+At startup adjust the PYTHONPATH such that the GNUmed client is
+run from a local copy of the source tree (say an unpacked tarball
+or a GIT repo) rather than from a proper system-wide installation.
+.TP
+.B \--version, -V
+Show version information about the GNUmed client and the
+database it needs.
+.TP
+.B \--help, -h, or -?
+Show this help.
+
+
+.SH CONFIGURATION
+.PP
+.TP
+.B Client startup and shutdown (OS level)
+
+A shell script /usr/bin/gnumed is used to startup the client.
+It checks whether the systemwide configuration file
+
+	/etc/gnumed/gnumed-client.conf
+
+exists. It then executes the following scripts (in that
+order) if found:
+
+	/etc/gnumed/gnumed-startup-local.sh
+
+	~/.gnumed/scripts/gnumed-startup-local.sh
+
+When the client terminates it will execute the following
+scripts in order if they exist:
+
+	/etc/gnumed/gnumed-shutdown-local.sh
+
+	~/.gnumed/scripts/gnumed-shutdown-local.sh
+
+.PP
+.TP
+.B wxPython client startup
+
+The gnumed.py script checks for INI style configuration files
+and fails if it does not find any. The files are searched for
+in the following order and extend/overwrite each others
+options:
+
+	in the current working directory (cwd)
+
+		./gumed.conf
+
+	in the systemwide configuration directory
+
+		/etc/gnumed/gnumed-client.conf
+
+	in the home directory
+
+		~/.gnumed/gnumed.conf
+
+	in a local git tree or unpacked tarball
+
+		.../gnumed/client/gnumed.conf
+
+	explicitly given by CLI option
+
+		--conf-file=<CONF FILE>
+
+.PP
+.TP
+.B client/system interfacing
+
+.B ~/.gnumed/gnumed-xsanerc.conf
+
+(requires XSane > v0.992)
+
+When GNUmed invokes XSane for scanning it passes along this file (via =--xsane-rc=). This way a custom XSane configuration can be used with GNUmed. If the file doesn't exist it will be created from ~/.sane/xsane/xsanerc on the first call to XSane.
+
+When you configure XSane after calling it from GNUmed your changes will be stored in the GNUmed-specific XSane configuration file and will not affect your usual XSane settings.
+
+.B mime_type2file_extension.conf
+
+(searched for in ~/.gnumed/ and /etc/gnumed/, in that order)
+
+GNUmed will use these files to map mime types to file extensions if need be.
+
+The file must contain a group [extensions] under which there can be one option per mime type specifying the extension to use on files of said type. Set the value to the raw extension only, omitting the ".", like so:
+
+.nf
+[extensions]
+image/x-bmp = bmp
+
+
+.SH EXIT STATUS
+.TP
+ > 0: some error occurred while the GUI client was run
+.TP
+   0: normal termination of the client
+.TP
+ < 0: some error occurred while trying to run a console tool
+.TP
+  -1: an unknown console tool was requested
+.TP
+< -1: an error occurred while a console tool was run
+.TP
+-999: hard abort of the client
+
+
+.SH ENVIRONMENT
+.TP
+.B LANG, LC_MESSAGES, etc.
+See gettext(1) for how the various locale related environment variables work.
+
+
+.SH OTHER FILES AND DIRECTORIES
+.PP
+.TP
+.B ~/.gnumed/gnumed.log
+The default log file.
+.TP
+.B gnumed-client.tmpfiles.d.conf
+Integration with systemd-tmpfiles(8).
+.TP
+.B gnumed-completion.bash
+Integration with BASH completions.
+
+
+.SH SEE ALSO
+.PP
+.TP
+.B https://www.gnumed.[de|org]
+Online documenation.
+.TP
+.B http://savannah.gnu.org/projects/gnumed
+Mailing list home
+.TP
+.B https://github.org/ncqgm/gnumed
+Source code repository (Git)
+.TP
+.B /usr/share/doc/gnumed/
+Local documentation
+.TP
+.B man -k gm-*
+List man pages on gm-* commands.
+.TP
+.B gettext(1)
+
+
+.SH BUGS
+
+A lot of functionality is still missing. To make up for
+that, there's bugs here and there for you to report :-)
+
+Use at your own risk. You have been warned. Take proper backups !
 """
+
 #==========================================================
 # SPDX-License-Identifier: GPL-2.0-or-later
 __author__ = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -58,21 +272,22 @@ __license__ = "GPL v2 or later (details at http://www.gnu.org)"
 import sys
 import os
 import platform
+import tempfile
 import faulthandler
 import random
 import logging
+import datetime
 import signal
 import os.path
 import shutil
 import stat
-import io
+import re as regex
 
 
 # do not run as module
 if __name__ != "__main__":
 	print("GNUmed startup: This is not intended to be imported as a module !")
 	print("-----------------------------------------------------------------")
-	print(__doc__)
 	sys.exit(1)
 
 
@@ -120,7 +335,8 @@ _known_tools = [
 	'check_enc_epi_xref',
 	'export_pat_emr_structure',
 	'check_mimetypes_in_archive',
-	'read_all_rows_of_table'
+	'read_all_rows_of_table',
+	'generate_man_page'
 ]
 
 
@@ -475,11 +691,17 @@ def handle_help_request():
 	)
 
 	if help_requested:
-		print(_(
-			'Help requested\n'
-			'--------------'
-		))
-		print(__doc__)
+		input('\nHit <ENTER> to display commandline help\n')
+		if platform.system() == 'Windows':
+			for line in MANPAGE.split('\n'):
+				print(regex.sub('^\.\w+\s*', '', line, count = 1))
+			sys.exit(0)
+
+		handle, man_page_fname = tempfile.mkstemp(text = True, suffix = '.1')
+		man_page_file = open(man_page_fname, mode = 'wt', encoding = 'utf8')
+		man_page_file.write(MANPAGE % datetime.date.today().strftime('%x'))
+		man_page_file.close()
+		os.system('man %s' % man_page_fname)
 		sys.exit(0)
 
 #==========================================================
@@ -550,7 +772,7 @@ which need to live at a known location."""
 	paths = gmTools.gmPaths(app_name = 'gnumed')
 	print("Temp dir:", paths.tmp_dir)
 	# ensure there's a user-level config file
-	io.open(os.path.expanduser(os.path.join('~', '.gnumed', 'gnumed.conf')), mode = 'a+t').close()
+	open(os.path.expanduser(os.path.join('~', '.gnumed', 'gnumed.conf')), mode = 'a+t').close()
 	# symlink log file into temporary directory for easier debugging (everything in one place)
 	logfile_link = os.path.join(paths.tmp_dir, 'zzz-gnumed.log')
 	gmTools.mklink (gmLog2._logfile.name, logfile_link, overwrite = False)
@@ -694,6 +916,15 @@ def run_tool():
 	print('Running tool: %s' % tool)
 	print('----------------------------------------------')
 	print('')
+
+	if tool == 'generate_man_page':
+		man_page_fname = os.path.abspath(os.path.join('.', 'gnumed.1'))
+		man_page_file = open(man_page_fname, mode = 'wt', encoding = 'utf8')
+		man_page_file.write(MANPAGE % datetime.date.today().strftime('%x'))
+		man_page_file.close()
+		print('MAN page saved as:', man_page_fname)
+		return 0
+
 	login, creds = gmPG2.request_login_params()
 	pool = gmConnectionPool.gmConnectionPool()
 	pool.credentials = creds
@@ -752,7 +983,7 @@ def run_tool():
 			print('EMR journal (by mod time):', exporter.save_to_file_by_mod_time(patient = pat, filename = fname))
 			# as statistical summary
 			fname = os.path.expanduser('~/gnumed/gm-emr-statistics-%s.txt' % pat.subdir_name)
-			output_file = io.open(fname, mode = 'wt', encoding = 'utf8', errors = 'replace')
+			output_file = open(fname, mode = 'wt', encoding = 'utf8', errors = 'replace')
 			emr = pat.emr
 			output_file.write(emr.format_statistics())
 			output_file.close()
@@ -760,7 +991,7 @@ def run_tool():
 			# as text file
 			exporter = gmPatientExporter.cEmrExport(patient = pat)
 			fname = os.path.expanduser('~/gnumed/gm-emr-text_export-%s.txt' % pat.subdir_name)
-			output_file = io.open(fname, mode = 'wt', encoding = 'utf8', errors = 'replace')
+			output_file = open(fname, mode = 'wt', encoding = 'utf8', errors = 'replace')
 			exporter.set_output_file(output_file)
 			exporter.dump_constraints()
 			exporter.dump_demographic_record(True)
@@ -805,7 +1036,7 @@ def shutdown_logging():
 #			pairs.reverse()
 #			return pairs
 
-#		rcfile = io.open('./gm-refcount.lst', 'wt', encoding = 'utf8')
+#		rcfile = open('./gm-refcount.lst', 'wt', encoding = 'utf8')
 #		for refcount, class_ in get_refcounts():
 #			if not class_.__name__.startswith('wx'):
 #				rcfile.write(u'%10d %s\n' % (refcount, class_.__name__))

@@ -8,6 +8,8 @@
 
 	1.9.0
 
+NEW: tool: generate_man_page
+
 FIX: CLI: --wxp= not needed anymore
 FIX: CLI: --ui= not needed anymore
 
