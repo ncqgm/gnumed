@@ -108,6 +108,14 @@ __known_variant_placeholders = {
 			template: %s-template into which to insert the QR code png file path
 	""",
 
+	# control flow
+	'yes_no': """Ask user a yes-no question and return content based on answer.
+		args: msg=<message>//yes=<yes>//no=<no>
+			<message>: shown in the yes/no dialog presented to the user
+			<yes>: returned if the user selects "yes"
+			<no>: returned if the user selects "no"
+	""",
+
 	# text manipulation
 	'range_of': """select range of enclosed text (note that this cannot take into account non-length characters such as enclosed LaTeX code
 		args: <enclosed text>
@@ -2551,6 +2559,22 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		return data
 
 	#--------------------------------------------------------
+	def _get_variant_yes_no(self, data=None):
+		if data is None:
+			return None
+
+		defaults = {'msg': None, 'yes': None, 'no': ''}
+		msg, yes_txt, no_txt = self.__parse_ph_options(option_defs = defaults, options_string = data)
+		if None in [msg, yes_txt]:
+			return self._escape(u'YES_NO lacks proper definition')
+
+		yes = gmGuiHelpers.gm_show_question(question = msg, cancel_button = False, title = 'Placeholder question')
+		if yes:
+			return self._escape(yes_txt)
+
+		return self._escape(no_txt)
+
+	#--------------------------------------------------------
 	def _get_variant_if_not_empty(self, data=None):
 		if data is None:
 			return None
@@ -2795,6 +2819,12 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 
 		_log.debug('parsing ::%s:: for %s', options_string, option_defs)
 		options2return = option_defs.copy()
+		if options_string.strip() == '':
+			return tuple([ options2return[o_name] for o_name in options2return.keys() ])
+
+		if '=' not in options_string:
+			return tuple([ 'invalid param fmt' for o_name in options2return.keys() ])
+
 		options = options_string.split(self.__args_divider)
 		for opt in options:
 			opt_name, opt_val = opt.split('=', 1)
@@ -3510,7 +3540,7 @@ if __name__ == '__main__':
 			#u'$<soap::soapu //%(soap_cat)s: %(date)s | %(provider)s | %(narrative)s::9999>$'
 			#u'$<test_results:://%c::>$'
 			#u'$<test_results::%(unified_abbrev)s: %(unified_val)s %(val_unit)s//%c::>$'
-			'$<most_recent_test_results::tmpl=%(unified_name)s & %(unified_val)s%(val_unit)s & [%(unified_target_min)s--%(unified_target_max)s] %(unified_target_range)s & %(clin_when)s \\tabularnewline::>$'		#<dfmt=...>//<tmpl=...>//<sep=...>
+			#'$<most_recent_test_results::tmpl=%(unified_name)s & %(unified_val)s%(val_unit)s & [%(unified_target_min)s--%(unified_target_max)s] %(unified_target_range)s & %(clin_when)s \\tabularnewline::>$'		#<dfmt=...>//<tmpl=...>//<sep=...>
 			#u'$<reminders:://::>$'
 			#u'$<current_meds_for_rx::%(product)s (%(contains)s): dispense %(amount2dispense)s ::>$'
 			#u'$<praxis::%(branch)s (%(praxis)s)::>$'
@@ -3541,8 +3571,15 @@ if __name__ == '__main__':
 			#u'$<praxis_scan2pay::fmt=txt::>$',
 			#u'$<praxis_scan2pay::fmt=qr::>$'
 			#u'$<bill_scan2pay::fmt=txt::>$',
-			#u'$<bill_scan2pay::fmt=qr::>$'
+			#u'$<bill_scan2pay::fmt=qr::>$',
+			'$<yes_no::msg=do you want to select yes or no or something else ?  Look at the title//yes=it was yes//no=oh no!::>$'
 		]
+
+		from Gnumed.pycommon import gmPG2
+		from Gnumed.pycommon import gmConnectionPool
+		l, creds = gmPG2.request_login_params()
+		pool = gmConnectionPool.gmConnectionPool()
+		pool.credentials = creds
 
 		handler = gmPlaceholderHandler()
 		handler.debug = True

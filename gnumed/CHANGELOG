@@ -9,6 +9,7 @@
 	1.9.0
 
 NEW: tool: generate_man_page
+NEW: placeholder: $yes_no$
 
 FIX: CLI: --wxp= not needed anymore
 FIX: CLI: --ui= not needed anymore
