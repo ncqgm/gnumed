@@ -754,6 +754,8 @@ the hidden directory:
 """ % (gmd_dir, dot_gmd_dir)
 	gmTools.mkdir(gmd_dir)
 	gmTools.create_directory_description_file(directory = gmd_dir, readme = readme)
+	# remove old README
+	gmTools.remove_file(os.path.join(gmd_dir, '00_README'))
 
 	gmTools.mkdir(os.path.expanduser(os.path.join(dot_gmd_dir, 'spellcheck')))
 	err_dir = os.path.expanduser(os.path.join(dot_gmd_dir, 'error_logs'))
