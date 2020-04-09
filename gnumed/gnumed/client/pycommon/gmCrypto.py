@@ -238,7 +238,10 @@ def create_zip_archive_from_dir(source_dir, archive_name=None, comment=None, ove
 #===========================================================================
 # file decryption methods
 #---------------------------------------------------------------------------
-def gpg_decrypt_file(filename=None, passphrase=None, verbose=False, target_ext=None):
+def gpg_decrypt_file(filename=None, verbose=False, target_ext=None):
+	"""The system is expected to be set up for safely getting the
+	   passphrase from the user, typically via gpg-agent.
+	"""
 	assert (filename is not None), '<filename> must not be None'
 
 	_log.debug('attempting GPG decryption')

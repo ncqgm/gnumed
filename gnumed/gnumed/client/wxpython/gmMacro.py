@@ -2510,12 +2510,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			return ''
 
 		if expansion['is_encrypted']:
-			pwd = wx.GetPasswordFromUser (
-				message = _('Enter your GnuPG passphrase for decryption of [%s]') % expansion['keyword'],
-				caption = _('GnuPG passphrase prompt'),
-				default_value = ''
-			)
-			saved_fname = gmCrypto.gpg_decrypt_file(filename = saved_fname, passphrase = pwd)
+			saved_fname = gmCrypto.gpg_decrypt_file(filename = saved_fname)
 			if saved_fname is None:
 				if self.debug:
 					return self._escape(_('cannot decrypt data of binary expansion keyword <%s>') % keyword)
@@ -3572,7 +3567,8 @@ if __name__ == '__main__':
 			#u'$<praxis_scan2pay::fmt=qr::>$'
 			#u'$<bill_scan2pay::fmt=txt::>$',
 			#u'$<bill_scan2pay::fmt=qr::>$',
-			'$<yes_no::msg=do you want to select yes or no or something else ?  Look at the title//yes=it was yes//no=oh no!::>$'
+			#'$<yes_no::msg=do you want to select yes or no or something else ?  Look at the title//yes=it was yes//no=oh no!::>$'
+			'$<data_snippet::autograph-ncq//path=<%s>//image/jpg//.jpg::250>$',
 		]
 
 		from Gnumed.pycommon import gmPG2
