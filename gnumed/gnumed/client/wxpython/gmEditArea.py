@@ -16,7 +16,7 @@ import wx
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmDispatcher
-from Gnumed.pycommon.gmTools import decorate_window_title
+from Gnumed.wxpython.gmGuiHelpers import decorate_window_title
 
 
 _log = logging.getLogger('gm.ui')

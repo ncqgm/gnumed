@@ -83,7 +83,7 @@ class c2ButtonQuestionDlg(wxg2ButtonQuestionDlg.wxg2ButtonQuestionDlg):
 
 		wxg2ButtonQuestionDlg.wxg2ButtonQuestionDlg.__init__(self, *args, **kwargs)
 
-		self.SetTitle(title = gmTools.decorate_window_title(caption))
+		self.SetTitle(title = decorate_window_title(caption))
 		self._LBL_question.SetLabel(label = question)
 
 		if not show_checkbox:
@@ -166,7 +166,7 @@ class c3ButtonQuestionDlg(wxg3ButtonQuestionDlg.wxg3ButtonQuestionDlg):
 
 		wxg3ButtonQuestionDlg.wxg3ButtonQuestionDlg.__init__(self, *args, **kwargs)
 
-		self.SetTitle(title = gmTools.decorate_window_title(caption))
+		self.SetTitle(title = decorate_window_title(caption))
 		self._LBL_question.SetLabel(label = question)
 
 		if not show_checkbox:
@@ -247,7 +247,7 @@ class cMultilineTextEntryDlg(wxgMultilineTextEntryDlg.wxgMultilineTextEntryDlg):
 		wxgMultilineTextEntryDlg.wxgMultilineTextEntryDlg.__init__(self, *args, **kwargs)
 
 		if title is not None:
-			self.SetTitle(gmTools.decorate_window_title(title))
+			self.SetTitle(decorate_window_title(title))
 
 		if self.original_text is not None:
 			self._TCTRL_text.SetValue(self.original_text)
@@ -579,6 +579,44 @@ def __snapshot_to_bitmap(source_dc=None, x2snap_from=0, y2snap_from=0, width2sna
 	return wxbmp
 
 # ========================================================================
+__curr_pat = None
+
+def __on_post_patient_selection(**kwds):
+	global __curr_pat
+	__curr_pat = kwds['current_patient']
+
+gmDispatcher.connect(signal = 'post_patient_selection', receiver = __on_post_patient_selection)
+
+#---------------------------------------------------------------------------
+def decorate_window_title(title):
+	if not title.startswith(gmTools._GM_TITLE_PREFIX):
+		title = '%s: %s' % (
+			gmTools._GM_TITLE_PREFIX,
+			title.strip()
+		)
+	if __curr_pat is not None:
+		pat = __curr_pat.get_description_gender(with_nickname = False)
+		if pat not in title:
+			title = '%s | %s' % (title, pat)
+	# FIXME: add current provider
+	return title
+
+#---------------------------------------------------------------------------
+def undecorate_window_title(title):
+	if __curr_pat is not None:
+		pat = __curr_pat.get_description_gender(with_nickname = False)
+		if pat in title:
+			title = title.replace(pat, '')
+	title = title.replace('|', '')
+	title = gmTools.strip_prefix (
+		title,
+		gmTools._GM_TITLE_PREFIX + ':',
+		remove_repeats = True,
+		remove_whitespace = True
+	)
+	return title.strip()
+
+# ========================================================================
 def gm_show_error(aMessage=None, aTitle = None, error=None, title=None):
 
 	if error is None:
@@ -593,7 +631,7 @@ def gm_show_error(aMessage=None, aTitle = None, error=None, title=None):
 	dlg = wx.MessageDialog (
 		parent = None,
 		message = error,
-		caption = gmTools.decorate_window_title(title),
+		caption = decorate_window_title(title),
 		style = wx.OK | wx.ICON_ERROR | wx.STAY_ON_TOP
 	)
 	dlg.ShowModal()
@@ -614,7 +652,7 @@ def gm_show_info(aMessage=None, aTitle=None, info=None, title=None):
 	dlg = wx.MessageDialog (
 		parent = None,
 		message = info,
-		caption = gmTools.decorate_window_title(title),
+		caption = decorate_window_title(title),
 		style = wx.OK | wx.ICON_INFORMATION | wx.STAY_ON_TOP
 	)
 	dlg.ShowModal()
@@ -631,7 +669,7 @@ def gm_show_warning(aMessage=None, aTitle=None):
 	dlg = wx.MessageDialog (
 		parent = None,
 		message = aMessage,
-		caption = gmTools.decorate_window_title(aTitle),
+		caption = decorate_window_title(aTitle),
 		style = wx.OK | wx.ICON_EXCLAMATION | wx.STAY_ON_TOP
 	)
 	dlg.ShowModal()
@@ -644,21 +682,20 @@ def gm_show_question(aMessage='programmer forgot to specify question', aTitle='g
 		style = wx.YES_NO | wx.CANCEL | wx.ICON_QUESTION | wx.STAY_ON_TOP
 	else:
 		style = wx.YES_NO | wx.ICON_QUESTION | wx.STAY_ON_TOP
-
 	if question is None:
 		question = aMessage
 	if title is None:
 		title = aTitle
-	title = gmTools.decorate_window_title(title)
-
+	title = decorate_window_title(title)
 	dlg = wx.MessageDialog(None, question, title, style)
 	btn_pressed = dlg.ShowModal()
 	dlg.DestroyLater()
-
 	if btn_pressed == wx.ID_YES:
 		return True
+
 	elif btn_pressed == wx.ID_NO:
 		return False
+
 	else:
 		return None
 

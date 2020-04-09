@@ -39,6 +39,7 @@ if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmDispatcher
+from Gnumed.wxpython.gmGuiHelpers import decorate_window_title, undecorate_window_title
 
 
 _log = logging.getLogger('gm.list_ui')
@@ -91,7 +92,7 @@ def get_choices_from_list (
 				else:
 					None
 	"""
-	caption = gmTools.decorate_window_title(gmTools.coalesce(caption, _('generic multi choice dialog')))
+	caption = decorate_window_title(gmTools.coalesce(caption, _('generic multi choice dialog')))
 
 	dlg = cGenericListSelectorDlg(parent, -1, title = caption, msg = msg, single_selection = single_selection)
 	dlg.refresh_callback = refresh_callback
@@ -150,7 +151,7 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 			title = kwargs['title']
 		except KeyError:
 			title = self.__class__.__name__
-		kwargs['title'] = gmTools.decorate_window_title(title)
+		kwargs['title'] = decorate_window_title(title)
 
 		try:
 			single_selection = kwargs['single_selection']
@@ -1053,7 +1054,7 @@ class cItemPickerDlg(wxgItemPickerDlg.wxgItemPickerDlg):
 			title = kwargs['title']
 		except KeyError:
 			title = self.__class__.__name__
-		kwargs['title'] = gmTools.decorate_window_title(title)
+		kwargs['title'] = decorate_window_title(title)
 
 		wxgItemPickerDlg.wxgItemPickerDlg.__init__(self, *args, **kwargs)
 
@@ -3337,7 +3338,7 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 
 	#------------------------------------------------------------
 	def __get_useful_title(self):
-		title = gmTools.undecorate_window_title(gmTools.coalesce(self.container_title, '').rstrip())
+		title = undecorate_window_title(gmTools.coalesce(self.container_title, '').rstrip())
 		if title != '':
 			return title
 

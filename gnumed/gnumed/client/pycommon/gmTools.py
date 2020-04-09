@@ -148,10 +148,10 @@ _TB = 1024 * _GB
 _PB = 1024 * _TB
 
 
-_GM_TITLE_PREFIX = 'GMd'
-
-
 _client_version = None
+
+
+_GM_TITLE_PREFIX = 'GMd'
 
 #===========================================================================
 def handle_uncaught_exception_console(t, v, tb):
@@ -1164,19 +1164,6 @@ def strip_prefix(text, prefix, remove_repeats=False, remove_whitespace=False):
 		return text
 
 	return strip_prefix(text, prefix, remove_repeats = True, remove_whitespace = remove_whitespace)
-
-#---------------------------------------------------------------------------
-def decorate_window_title(title):
-	if title.startswith(_GM_TITLE_PREFIX):
-		return title
-	return '%s: %s' % (
-		_GM_TITLE_PREFIX,
-		title.lstrip()
-	)
-
-#---------------------------------------------------------------------------
-def undecorate_window_title(title):
-	return strip_prefix(title, _GM_TITLE_PREFIX + ':', remove_repeats = True, remove_whitespace = True)
 
 #---------------------------------------------------------------------------
 def strip_suffix(text, suffix, remove_repeats=False, remove_whitespace=False):
@@ -2479,11 +2466,6 @@ second line\n
 			#print(dicts2table(dicts, left_margin=2, eol='\n', keys2ignore=None, show_only_changes=True, column_labels = ['d1', 'd2', 'd3', 'd4', 'd5', 'd6']))
 
 	#-----------------------------------------------------------------------
-	def test_decorate_window_title():
-		for txt in globals():
-			print(decorate_window_title(txt))
-
-	#-----------------------------------------------------------------------
 	def test_create_dir_desc_file():
 		global _client_version
 		_client_version = 'dev.test'
@@ -2529,7 +2511,6 @@ second line\n
 	#test_copy_tree_content()
 	#test_mk_sandbox_dir()
 	#test_make_table_from_dicts()
-	#test_decorate_window_title()
 	test_create_dir_desc_file()
 
 #===========================================================================

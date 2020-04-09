@@ -11,6 +11,8 @@
 NEW: tool: generate_man_page
 NEW: placeholder: $yes_no$
 
+IMPROVED: GUI: show current patient in window titles
+
 FIX: CLI: --wxp= not needed anymore
 FIX: CLI: --ui= not needed anymore
 

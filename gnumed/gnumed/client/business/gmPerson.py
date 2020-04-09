@@ -2329,7 +2329,8 @@ class gmCurrentPatient(gmBorg.cBorg):
 		kwargs = {
 			'signal': 'post_patient_selection',
 			'sender': self.__class__.__name__,
-			'pk_identity': self.patient['pk_identity']
+			'pk_identity': self.patient['pk_identity'],
+			'current_patient': self
 		}
 		gmDispatcher.send(**kwargs)
 

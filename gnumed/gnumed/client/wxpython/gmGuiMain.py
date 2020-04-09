@@ -2351,7 +2351,7 @@ class gmTopLevelFrame(wx.Frame):
 	# Help / Debugging
 	#----------------------------------------------
 	def __on_save_screenshot(self, evt):
-		title = gmTools.undecorate_window_title(self.Title.rstrip())
+		title = gmGuiHelpers.undecorate_window_title(self.Title.rstrip())
 		png_fname = os.path.join (
 			gmTools.gmPaths().home_dir,
 			'gnumed',
