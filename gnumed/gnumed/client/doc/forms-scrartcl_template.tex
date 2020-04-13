@@ -42,7 +42,7 @@
 \usepackage{calc}							% \widthof (for signature)
 \usepackage{microtype}						% micro-adjustments to typesetting
 \usepackage{tabularx}						% bessere Tabellen
-%\usepackage{tabu}							% bessere Tabellen
+\usepackage{tabu}							% bessere Tabellen
 \usepackage{longtable}						% Tabellen über mehrere Seiten
 % debugging
 $<if_debugging:://%::>$\usepackage{interfaces}				% provides \papergraduate
@@ -102,7 +102,7 @@ $<if_debugging:://%::>$\renewcommand*\ShowFrameColor{\color{red}}		% configure s
 		{\Large GENERIC TITLE}\\
 		$<today::%d.%B %Y::>$ -- Page \thepage{} of \pageref{LastPage}\\
 		\begin{tabular}[t]{ll}%
-			Patient & {\large $<lastname::::1>$\textsc{$<<lastname::::2-99>>$}, $<firstname::::>$}\\
+			Patient & {\large $<lastname::::1>$\textsc{$<lastname::::2-99>$}, $<firstname::::>$}\\
 			born    & $<date_of_birth::%d.%B %Y::>$\\
 			$2<if_not_empty::$<adr_street::home::>$$<adr_number::home::>$$<adr_postcode::home::>$$<adr_location::home::>$//\multicolumn{2}{l}{{\footnotesize $<adr_street::home::>$ $<adr_number::home::>$, $<adr_postcode::home::>$ $<adr_location::home::>$}}\\//% address empty::>2$
 		\end{tabular}%
@@ -121,7 +121,7 @@ $<if_debugging:://%::>$\renewcommand*\ShowFrameColor{\color{red}}		% configure s
 		{\Large GENERIC TITLE}\\
 		$<today::%d.%B %Y::>$ -- Seite \thepage{} von \pageref{LastPage}\\
 		\begin{tabular}[t]{ll}%
-			Patient & {\large $<lastname::::1>$\textsc{$<<lastname::::2-99>>$}, $<firstname::::>$}\\
+			Patient & {\large $<lastname::::1>$\textsc{$<lastname::::2-99>$}, $<firstname::::>$}\\
 			geb     & $<date_of_birth::%d.%B %Y::>$\\
 			$2<if_not_empty::$<adr_street::home::>$$<adr_number::home::>$$<adr_postcode::home::>$$<adr_location::home::>$//\multicolumn{2}{l}{{\footnotesize $<adr_street::home::>$ $<adr_number::home::>$, $<adr_postcode::home::>$ $<adr_location::home::>$}}\\//% address empty::>2$
 		\end{tabular}%
@@ -231,7 +231,12 @@ $<allergies::%(descriptor)s & %(l10n_type)s & {\footnotesize %(reaction)s}\\\hli
 %------------------------------------------------------------------
 % Unterschrift
 \begin{flushright}
-\texttt{\textsl{\footnotesize Practice Stamp / Physician Signature}}
+$3<ph_cfg::argumentsdivider//#3#//%% <%(name)s> set to [%(value)s]::>3$
+$3<if_not_empty::$2<text_snippet::$<current_provider_name::%(alias)s::>$-practice_stamp-latex::4>2$#3#$4<text_snippet::$<current_provider_name::%(alias)s::>$-practice_stamp-latex::>4$#3#{\texttt{\textsl{\tiny Practice Stamp / Physician Signature}}}::>3$\\
+$3<ph_cfg::argumentsdivider//DEFAULT//%% <%(name)s> set to [%(value)s]::>3$
+\rule{\widthof{\tiny{(The signator cannot be held responsible for unconfirmed content or alterations to this letter.)}}}{.1pt}\\
+\tiny{(The signator cannot be held responsible for unconfirmed content or alterations to this letter.)}\\
+{\footnotesize\textit{$<current_provider::::>$}}
 \par\end{flushright}
 
 %------------------------------------------------------------------

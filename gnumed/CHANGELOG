@@ -14,6 +14,7 @@ NEW: placeholder: $yes_no$
 IMPROVED: GUI: show current patient in window titles
 IMPROVED: placeholder: $current_provider_name$
 IMPROVED: forms: LaTeX: 5 instead of 3 placeholder parsing passes
+IMPROVED: forms: LaTeX template templates
 
 FIX: CLI: --wxp= not needed anymore
 FIX: CLI: --ui= not needed anymore
