@@ -1857,12 +1857,14 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			return [_('template is missing')]
 		if data.strip() == '':
 			return [_('template is empty')]
-		name = gmStaff.gmCurrentProvider().identity.get_active_name()
+		prov = gmStaff.gmCurrentProvider()
+		name = prov.identity.get_active_name()
 		parts = {
 			'title': self._escape(gmTools.coalesce(name['title'], '')),
 			'firstnames': self._escape(name['firstnames']),
 			'lastnames': self._escape(name['lastnames']),
-			'preferred': self._escape(gmTools.coalesce(name['preferred'], ''))
+			'preferred': self._escape(gmTools.coalesce(name['preferred'], '')),
+			'alias': self._escape(prov['short_alias'])
 		}
 		return data % parts
 
@@ -2466,9 +2468,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		template = '%s'
 		if len(data_parts) > 1:
 			template = data_parts[1]
-
 		expansion = gmKeywordExpansionWidgets.expand_keyword(keyword = keyword, show_list_if_needed = True)
-
 		if expansion is None:
 			if self.debug:
 				return self._escape(_('no textual expansion found for keyword <%s>') % keyword)
