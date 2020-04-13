@@ -1132,17 +1132,21 @@ class cLaTeXForm(cFormEngine):
 			self.template_filename,
 			r'%s-result-pass-1%s' % (path, ext),
 			r'%s-result-pass-2%s' % (path, ext),
-			r'%s-result-pass-3%s' % (path, ext)
+			r'%s-result-pass-3%s' % (path, ext),
+			r'%s-result-pass-4%s' % (path, ext),
+			r'%s-result-pass-5%s' % (path, ext)
 		]
 		regexen = [
 			'dummy',
 			r'\$1{0,1}<[^<].+?>1{0,1}\$',
 			r'\$2<[^<].+?>2\$',
-			r'\$3<[^<].+?>3\$'
+			r'\$3<[^<].+?>3\$',
+			r'\$4<[^<].+?>4\$',
+			r'\$5<[^<].+?>5\$'
 		]
 
 		current_pass = 1
-		while current_pass < 4:
+		while current_pass < 6:
 			_log.debug('placeholder substitution pass #%s', current_pass)
 			found_placeholders = self.__substitute_placeholders (
 				input_filename = filenames[current_pass-1],
