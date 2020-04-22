@@ -588,25 +588,34 @@ def __on_post_patient_selection(**kwds):
 gmDispatcher.connect(signal = 'post_patient_selection', receiver = __on_post_patient_selection)
 
 #---------------------------------------------------------------------------
+def __generate_pat_str():
+	if __curr_pat is None:
+		return None
+	data = {
+		'last': __curr_pat['lastnames'].upper(),
+		'first': __curr_pat['firstnames'],
+		'sex': __curr_pat.gender_symbol
+	}
+	return ('%(last)s %(first)s (%(sex)s)' % data).strip()
+
+#---------------------------------------------------------------------------
 def decorate_window_title(title):
 	if not title.startswith(gmTools._GM_TITLE_PREFIX):
 		title = '%s: %s' % (
 			gmTools._GM_TITLE_PREFIX,
 			title.strip()
 		)
-	if __curr_pat is not None:
-		pat = __curr_pat.get_description_gender(with_nickname = False)
-		if pat not in title:
-			title = '%s | %s' % (title, pat)
+	pat = __generate_pat_str()
+	if (pat is not None) and (pat not in title):
+		title = '%s | %s' % (title, pat)
 	# FIXME: add current provider
 	return title
 
 #---------------------------------------------------------------------------
 def undecorate_window_title(title):
-	if __curr_pat is not None:
-		pat = __curr_pat.get_description_gender(with_nickname = False)
-		if pat in title:
-			title = title.replace(pat, '')
+	pat = __generate_pat_str()
+	if (pat is not None) and (pat in title):
+		title = title.replace(pat, '')
 	title = title.replace('|', '')
 	title = gmTools.strip_prefix (
 		title,
