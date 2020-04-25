@@ -6,6 +6,10 @@
 # rel-1-8-patches
 ------------------------------------------------
 
+	1.8.2
+
+IMPROVED: lab: by-day display functionality
+
 	1.8.1
 
 NEW: tool: read_all_rows_of_table
