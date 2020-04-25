@@ -920,7 +920,9 @@ class cMeasurementsByDayPnl(wxgMeasurementsByDayPnl.wxgMeasurementsByDayPnl, gmR
 	def __init_ui(self):
 		self._LCTRL_days.set_columns([_('Day')])
 		self._LCTRL_results.set_columns([_('Time'), _('Test'), _('Result'), _('Reference')])
+		self._LCTRL_results.new_callback = self._on_add
 		self._LCTRL_results.edit_callback = self._on_edit
+		self._LCTRL_results.delete_callback = self._on_delete
 		self._PNL_related_documents.lab_reference = None
 
 	#------------------------------------------------------------
@@ -940,6 +942,9 @@ class cMeasurementsByDayPnl(wxgMeasurementsByDayPnl.wxgMeasurementsByDayPnl, gmR
 			self.__clear()
 			return
 
+		idx_selected_day = self._LCTRL_days.GetFirstSelected()
+		if idx_selected_day == -1:
+			idx_selected_day = 0
 		dates = self.__patient.emr.get_dates_for_results(reverse_chronological = True)
 		items = [ ['%s%s' % (
 					gmDateTime.pydt_strftime(d['clin_when_day'], self.__date_format),
@@ -947,11 +952,12 @@ class cMeasurementsByDayPnl(wxgMeasurementsByDayPnl.wxgMeasurementsByDayPnl, gmR
 				)]
 			for d in dates
 		]
-
 		self._LCTRL_days.set_string_items(items)
 		self._LCTRL_days.set_data(dates)
 		if len(items) > 0:
-			self._LCTRL_days.Select(idx = 0, on = 1)
+			if idx_selected_day > len(items):
+				idx_selected_day = 0
+			self._LCTRL_days.Select(idx = idx_selected_day, on = 1)
 			self._LCTRL_days.SetFocus()
 
 	#------------------------------------------------------------
@@ -961,6 +967,34 @@ class cMeasurementsByDayPnl(wxgMeasurementsByDayPnl.wxgMeasurementsByDayPnl, gmR
 			return
 		if edit_measurement(parent = self, measurement = item_data['data'], single_entry = True):
 			self.__repopulate_ui()
+
+	#------------------------------------------------------------
+	def _on_add(self):
+		result = self._LCTRL_results.get_item_data(item_idx = 0)['data']
+		presets = {
+			'clin_when': {'data': result['clin_when']},
+			'pk_episode': {'data': result['pk_episode']}
+		}
+		added = edit_measurement(parent = self, measurement = None, single_entry = False, presets = presets)
+		if added:
+			self.__repopulate_ui()
+		self._LCTRL_results.SetFocus()
+
+	#------------------------------------------------------------
+	def _on_delete(self):
+		item_data = self._LCTRL_results.get_selected_item_data(only_one = True)
+		if item_data is None:
+			return False
+
+		result = item_data['data']
+		delete = gmGuiHelpers.gm_show_question (
+			question = _('Really delete test result ?\n\n%s') % result.format(),
+			title = _('Deleting test result')
+		)
+		if not delete:
+			return False
+
+		return gmPathLab.delete_test_result(result = result)
 
 	#------------------------------------------------------------
 	# event handlers
@@ -2826,10 +2860,11 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 	# generic edit area mixin API
 	#----------------------------------------------------------------
 	def set_fields(self, fields):
+		self._TCTRL_result.SetFocus()
 		try:
 			self._PRW_test.SetData(data = fields['pk_test_type']['data'])
 		except KeyError:
-			pass
+			self._PRW_test.SetFocus()
 		try:
 			self._DPRW_evaluated.SetData(data = fields['clin_when']['data'])
 		except KeyError:
@@ -2866,8 +2901,6 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 			self._TCTRL_target_range.SetValue(fields['val_target_range']['data'])
 		except KeyError:
 			pass
-
-		self._TCTRL_result.SetFocus()
 
 	#--------------------------------------------------------
 	def _refresh_as_new(self):
