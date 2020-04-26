@@ -8,6 +8,7 @@ import sys
 import os.path
 import io
 import logging
+import datetime as pydt
 
 
 # 3rd party
@@ -541,10 +542,9 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 			return
 
 		self.SetItemHasChildren(episode_node, True)
-
 		for enc in encounters:
 			label = '%s: %s' % (
-				enc['started'].strftime('%Y-%m-%d'),
+				enc['started'].strftime('%Y %b %d'),
 				gmTools.unwrap (
 					gmTools.coalesce (
 						gmTools.coalesce (
@@ -684,10 +684,19 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 			return
 
 		for enc_item in encounter_items:
-			item_node = self.AppendItem(encounter_node, '%s [%s] %s' % (
+			if encounter['started'].year != enc_item['clin_when'].year:
+				date_str = ' (%s)' % enc_item['clin_when'].strftime('%Y')
+			elif encounter['started'].month != enc_item['clin_when'].month:
+				date_str = ' (%s)' % enc_item['clin_when'].strftime('%b')
+			elif encounter['started'].day != enc_item['clin_when'].day:
+				date_str = ' (%s)' % enc_item['clin_when'].strftime('%b %d')
+			else:
+				date_str = ''
+			item_node = self.AppendItem(encounter_node, '%s [%s] %s%s' % (
 				enc_item['clin_when'].strftime('%H:%M'),
 				enc_item.i18n_soap_cat,
-				enc_item.item_type_str
+				enc_item.item_type_str,
+				date_str
 			))
 			self.SetItemData(item_node, enc_item)
 			self.SetItemHasChildren(item_node, False)
