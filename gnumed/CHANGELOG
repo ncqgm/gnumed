@@ -26,6 +26,7 @@ FIX: CLI: --ui= not needed anymore
 	1.8.2
 
 IMPROVED: lab: by-day display functionality
+IMPROVED: emr: tree: more informative display
 
 	1.8.1
 

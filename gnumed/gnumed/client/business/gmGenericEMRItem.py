@@ -238,8 +238,10 @@ class cGenericEMRItem(gmBusinessDBObject.cBusinessDBObject):
 				self._payload[self._idx['encounter_l10n_type']]
 			)
 		lines.append(_('Encounter: %s') % enc_info)
+		lines.append(_('Event: %s') % self._payload[self._idx['clin_when']].strftime('%Y %b %d  %H:%M'))
 		if eol is None:
 			return lines
+
 		return eol.join(lines)
 
 	formatted_header = property(format_header)
