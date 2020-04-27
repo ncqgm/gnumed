@@ -1603,6 +1603,20 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 		self.setResizeColumn(column)
 
 	#------------------------------------------------------------
+	def set_column_label(self, col_idx, label):
+		assert(col_idx > -1), '<col_idx> must be positive integer'
+		if col_idx > self.ColumnCount:
+			_log.warning('<col_idx>=%s, .ColumnCount=%s', col_idx, self.ColumnCount)
+			return
+
+		sort_col_idx, is_ascending = self.GetSortState()
+		col_state = self.GetColumn(col_idx)
+		col_state.Text = label
+		if col_idx == sort_col_idx:
+			col_state.Text += self.sort_order_tags[is_ascending]
+		self.SetColumn(col_idx, col_state)
+
+	#------------------------------------------------------------
 	def remove_items_safely(self, max_tries=3):
 		tries = 0
 		while tries < max_tries:
@@ -3190,7 +3204,7 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 		if col_idx == -1:
 			_log.debug('outside any column (idx: -1) clicked, ignoring')
 			return
-		self._remove_sorting_indicators_from_column_headers()
+		self._remove_sorting_indicators_from_column_labels()
 		col_state = self.GetColumn(col_idx)
 		col_state.Text += self.sort_order_tags[is_ascending]
 		self.SetColumn(col_idx, col_state)
@@ -3284,23 +3298,37 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 		return dict2sort
 
 	#------------------------------------------------------------
-	def _remove_sorting_indicators_from_column_headers(self):
+	def __remove_sorting_indicator(self, text):
+		for tag in self.sort_order_tags.values():
+			if text.endswith(tag):
+				text = text[:-len(tag)]
+		return text
+
+	#------------------------------------------------------------
+	def _remove_sorting_indicators_from_column_labels(self):
 		for col_idx in range(self.ColumnCount):
-			col_state = self.GetColumn(col_idx)
-			initial_header = col_state.Text
-			if col_state.Text.endswith(self.sort_order_tags[True]):
-				col_state.Text = col_state.Text[:-len(self.sort_order_tags[True])]
-			if col_state.Text.endswith(self.sort_order_tags[False]):
-				col_state.Text = col_state.Text[:-len(self.sort_order_tags[False])]
-			if col_state.Text == initial_header:
-				continue
-			self.SetColumn(col_idx, col_state)
+			self._remove_sorting_indicator_from_column_label(col_idx)
+
+	#------------------------------------------------------------
+	def _remove_sorting_indicator_from_column_label(self, col_idx):
+		assert (col_idx > -1), '<col_idx> must be non-negative integer'
+		if col_idx > self.ColumnCount:
+			_log.warning('<col_idx>=%s, but .ColumnCount=%s', col_idx, self.ColumnCount)
+			return
+
+		col_state = self.GetColumn(col_idx)
+		cleaned_header = self.__remove_sorting_indicator(col_state.Text)
+		if col_state.Text == cleaned_header:
+			return
+
+		col_state.Text = cleaned_header
+		self.SetColumn(col_idx, col_state)
 
 	#------------------------------------------------------------
 	def _invalidate_sorting_metadata(self):
 		self.itemDataMap = None
 		self.SetColumnCount(self.GetColumnCount())
-		self._remove_sorting_indicators_from_column_headers()
+		self._remove_sorting_indicators_from_column_labels()
 
 	#------------------------------------------------------------
 	def _update_sorting_metadata(self):

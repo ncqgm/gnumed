@@ -1046,6 +1046,7 @@ class cMeasurementsByDayPnl(wxgMeasurementsByDayPnl.wxgMeasurementsByDayPnl, gmR
 			data.append({'data': r, 'formatted': r.format(with_source_data = True)})
 
 		self._LCTRL_results.set_string_items(items)
+		self._LCTRL_results.set_column_label(1, _('Test (%s%s)') % (gmTools.u_sum, len(items)))
 		self._LCTRL_results.set_column_widths([wx.LIST_AUTOSIZE_USEHEADER, wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE])
 		self._LCTRL_results.set_data(data)
 		self._LCTRL_results.Select(idx = 0, on = 1)
