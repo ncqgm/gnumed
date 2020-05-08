@@ -1,6 +1,13 @@
 #!/bin/bash
 
 # - should be run as root
+if test $(id -u) -ne 0 ; then
+	echo ""
+	echo " >>> This script needs to run as root, using <sudo>, or with sufficient privileges. <<<"
+	echo ""
+	exit 1
+fi
+
 # - command line options:
 #   - "quiet"
 
