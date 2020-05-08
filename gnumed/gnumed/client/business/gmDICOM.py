@@ -517,12 +517,16 @@ class cOrthancServer:
 	def get_instance_preview(self, instance_id, filename=None):
 		if filename is None:
 			filename = gmTools.get_unique_filename(suffix = '.png')
-
 		_log.debug('exporting preview for instance [%s] into [%s]', instance_id, filename)
 		download_url = '%s/instances/%s/preview' % (self.__server_url, instance_id)
 		f = io.open(filename, 'wb')
-		f.write(self.__run_GET(url = download_url, allow_cached = True))
-		f.close()
+		try:
+			f.write(self.__run_GET(url = download_url, allow_cached = True))
+		except Exception:
+			_log.exception('cannot retrieve instance')
+			filename = None
+		finally:
+			f.close()
 		return filename
 
 	#--------------------------------------------------------
@@ -682,14 +686,24 @@ class cOrthancServer:
 			_log.error('cannot upload [%s]', filename)
 			return False
 
+		# typically a 404 following the upload of a DICOM file w/o identifiers
+		if uploaded == []:
+			_log.error('cannot upload [%s]', filename)
+			return False
+
 		_log.debug(uploaded)
-		if uploaded['Status'] == 'AlreadyStored':
+		try:
+			already_there = (uploaded['Status'] == 'AlreadyStored')
+		except KeyError:
+			already_there = False
+		if already_there:
 			# paranoia, as is our custom
 			available_fields_url = '%s%s/attachments/dicom' % (self.__server_url, uploaded['Path'])	# u'Path': u'/instances/1440110e-9cd02a98-0b1c0452-087d35db-3fd5eb05'
 			available_fields = self.__run_GET(available_fields_url, allow_cached = True)
 			if 'md5' not in available_fields:
 				_log.debug('md5 of instance not available in Orthanc, cannot compare against file md5, trusting Orthanc')
 				return True
+
 			md5_url = '%s/md5' % available_fields_url
 			md5_db = self.__run_GET(md5_url)
 			md5_file = gmTools.file2md5(filename)
@@ -699,9 +713,11 @@ class cOrthancServer:
 				_log.error('MD5 mismatch !')
 				return False
 
-			_log.error('MD5 match between file and database')
+			_log.info('MD5 match between file and database')
+			return True
 
-		return True
+		# something seems really rotten, investigate the log
+		return False
 
 	#--------------------------------------------------------
 	def upload_dicom_files(self, files=None, check_mime_type=False):
@@ -1036,7 +1052,7 @@ class cOrthancServer:
 		if len(data.keys()) > 0:
 			params = '?' + urlencode(data)
 		url_with_params = url + params
-		_log.debug('URL with parameters: >>>%s<<<', url_with_params)
+		#_log.debug('URL with parameters: >>>%s<<<', url_with_params)
 		try:
 			response, content = self.__conn.request(url_with_params, 'GET', headers = headers)
 		except (OverflowError, socket.error, http.client.ResponseNotReady, http.client.InvalidURL, http.client.RemoteDisconnected, httplib2.ServerNotFoundError):
@@ -1117,7 +1133,9 @@ class cOrthancServer:
 			_log.debug('no data, response: %s', response)
 			if output_file is None:
 				return []
+
 			return False
+
 		if response.status not in [ 200, 302 ]:
 			_log.error('POST returned non-OK status: %s', response.status)
 			_log.debug(' url: %s', url)
@@ -1133,6 +1151,7 @@ class cOrthancServer:
 			pass
 		if output_file is None:
 			return content
+
 		output_file.write(content)
 		return True
 

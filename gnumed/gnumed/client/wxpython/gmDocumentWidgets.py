@@ -3475,19 +3475,26 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 		if idx is None:
 			self._BMP_preview.ContainingSizer.Layout()
 			return
+
 		if self.__pacs is None:
 			self._BMP_preview.ContainingSizer.Layout()
 			return
+
 		series = self._LCTRL_series.get_selected_item_data(only_one = True)
 		if series is None:
 			self._BMP_preview.ContainingSizer.Layout()
 			return
+
 		if idx > len(series['instances']) - 1:
 			raise ValueError('trying to go beyond instances in series: %s of %s', idx, len(series['instances']))
 
 		# get image
 		uuid = series['instances'][idx]
 		img_file = self.__pacs.get_instance_preview(instance_id = uuid)
+		if img_file is None:
+			self._BMP_preview.ContainingSizer.Layout()
+			return
+
 		# scale
 		wx_bmp = gmGuiHelpers.file2scaled_image(filename = img_file, height = 100)
 		# show
@@ -3537,9 +3544,10 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 
 		# try PNG
 		img_file = self.__pacs.get_instance_preview(instance_id = uuid)
-		(success, msg) = gmMimeLib.call_viewer_on_file(img_file)
-		if success:
-			return True
+		if img_file is not None:
+			(success, msg) = gmMimeLib.call_viewer_on_file(img_file)
+			if success:
+				return True
 
 		gmGuiHelpers.gm_show_warning (
 			aMessage = _('Cannot show in DICOM or image viewer:\n%s') % msg,

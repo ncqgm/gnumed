@@ -8,6 +8,9 @@
 
 	1.8.2
 
+FIX: dicom: exception on uploading malformed DCM to Orthanc
+FIX: dicom: exception on failing to download a DCM from Orthanc
+
 IMPROVED: lab: by-day display functionality
 IMPROVED: emr: tree: more informative display
 
