@@ -414,6 +414,7 @@ def set_active_praxis_branch(parent=None, no_parent=False):
 	if len(branches) == 1:
 		_log.debug('only one praxis branch configured')
 		gmPraxis.gmCurrentPraxisBranch(branches[0])
+		_log.debug('activated branch')
 		return True
 
 	if len(branches) == 0:

@@ -3667,7 +3667,10 @@ class gmApp(wx.App):
 	def __verify_praxis_branch(self):
 
 		if not gmPraxisWidgets.set_active_praxis_branch(no_parent = True):
+			_log.debug('failed to activate branch')
 			return False
+
+		_log.debug('activated branch')
 
 		creds = gmConnectionPool.gmConnectionPool().credentials
 		msg = '\n'
@@ -3677,6 +3680,8 @@ class gmApp(wx.App):
 		)
 		msg += '\n\n'
 
+		_log.debug('getting branch')
+
 		praxis = gmPraxis.gmCurrentPraxisBranch()
 		msg += _('Branch "%s" of praxis "%s"\n') % (
 			praxis['branch'],
@@ -3684,8 +3689,11 @@ class gmApp(wx.App):
 		)
 		msg += '\n\n'
 
+		_log.debug('getting banner')
+
 		banner = praxis.db_logon_banner
 		if banner.strip() == '':
+			_log.debug('no banner')
 			return True
 		msg += banner
 		msg += '\n\n'
@@ -3700,10 +3708,19 @@ class gmApp(wx.App):
 				{'label': _('Disconnect'), 'tooltip': _('No, do not connect to this database.'), 'default': False}
 			]
 		)
+
+		_log.debug('showing banner')
+
 		log_on = dlg.ShowModal()
+
+		_log.debug('scheduling dlg destruction')
+
 		dlg.DestroyLater()
+
 		if log_on == wx.ID_YES:
+			_log.debug('returning for logon')
 			return True
+
 		_log.info('user decided to not connect to this database')
 		return False
 
