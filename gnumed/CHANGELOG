@@ -13,6 +13,7 @@ FIX: dicom: exception on failing to download a DCM from Orthanc
 
 IMPROVED: lab: by-day display functionality
 IMPROVED: emr: tree: more informative display
+IMPROVED: main menu: put <export area> under <paperwork>
 
 	1.8.1
 
