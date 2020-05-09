@@ -38,7 +38,7 @@ class gmExportAreaPlugin(gmPlugin.cNotebookPlugin):
 		return self._widget
 	#--------------------------------------------------------
 	def MenuInfo (self):
-		return ('emr', _('E&xport area'))
+		return ('paperwork', _('E&xport area'))
 	#--------------------------------------------------------
 	def can_receive_focus(self):
 		if not self._verify_patient_avail():
