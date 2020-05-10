@@ -3362,12 +3362,23 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 					docs = []
 					if study['referring_doc'] is not None:
 						docs.append(study['referring_doc'])
-					if study['requesting_doc'] is not None:
-						if study['requesting_doc'] not in docs:
-							docs.append(study['requesting_doc'])
+					if study['requesting_doc'] is None:
+						if study['requesting_org'] is not None:
+							docs.append(study['requesting_org'])
+					else:
+						if study['requesting_doc'] in docs:
+							if study['requesting_org'] is not None:
+								docs.append(study['requesting_org'])
+						else:
+							docs.append (
+								'%s%s' % (
+									study['requesting_doc'],
+									gmTools.coalesce(study['requesting_org'], '', '@%s')
+								)
+							)
 					if study['performing_doc'] is not None:
 						if study['performing_doc'] not in docs:
-							docs.append(study['requesting_doc'])
+							docs.append(study['performing_doc'])
 					if study['operator_name'] is not None:
 						if study['operator_name'] not in docs:
 							docs.append(study['operator_name'])
