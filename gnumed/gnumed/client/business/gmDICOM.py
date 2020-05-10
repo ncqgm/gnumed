@@ -833,6 +833,7 @@ class cOrthancServer:
 					'description': None,
 					'referring_doc': None,
 					'requesting_doc': None,
+					'requesting_org': None,
 					'performing_doc': None,
 					'operator_name': None,
 					'radiographer_code': None,
@@ -860,6 +861,10 @@ class cOrthancServer:
 					pass
 				try:
 					study_dict['requesting_doc'] = orth_study['MainDicomTags']['RequestingPhysician'].strip()
+				except KeyError:
+					pass
+				try:
+					study_dict['requesting_org'] = orth_study['MainDicomTags']['RequestingService'].strip()
 				except KeyError:
 					pass
 				try:
