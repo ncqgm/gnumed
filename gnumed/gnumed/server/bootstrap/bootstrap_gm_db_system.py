@@ -290,7 +290,7 @@ def connect(host, port, db, user, passwd, conn_name=None):
 
 #==================================================================
 class user:
-	def __init__(self, anAlias = None, aPassword = None):
+	def __init__(self, anAlias = None, aPassword = None, force_interactive=False):
 		if anAlias is None:
 			raise ConstructorError("need user alias")
 		self.alias = anAlias
@@ -314,10 +314,21 @@ class user:
 			# defined but empty:
 			# this means to ask the user if interactive
 			elif self.password == '':
-				if _interactive:
+				if _interactive or force_interactive:
+					_log.info('password for [%s] defined as "", asking user', self.name)
 					print("I need the password for the database user [%s]." % self.name)
 					self.password = getpass.getpass("Please type the password: ")
+					_log.info('got password')
+					pwd4check = None
+					while pwd4check != self.password:
+						_log.info('asking for confirmation')
+						pwd2 = getpass.getpass("Please retype the password: ")
+						if pwd2 == self.password:
+							break
+						_log.error('password mismatch, asking again')
+						print('Password mismatch. Try again or CTRL-C to abort.')
 				else:
+					_log.warning('password for [%s] defined as "" (meaning <ask-user>), but running non-interactively, aborting', self.name)
 					_log.warning('cannot get password for database user [%s]', self.name)
 					raise ValueError('no password for user %s' % self.name)
 
@@ -495,7 +506,7 @@ unless it is pre-defined in the configuration file.
 
 Make sure to remember the password for later use !
 """) % name)
-		_dbowner = user(anAlias = dbowner_alias)
+		_dbowner = user(anAlias = dbowner_alias, force_interactive = True)
 
 		cmd = 'create user "%s" with password \'%s\' createdb createrole in group "%s", "gm-logins"' % (_dbowner.name, _dbowner.password, self.auth_group)
 		try:
