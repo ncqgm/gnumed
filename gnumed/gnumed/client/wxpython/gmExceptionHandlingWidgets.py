@@ -188,7 +188,7 @@ def __handle_lost_db_connection(t, v, tb):
 def __handle_wxgtk_assertion(t, v, tb):
 	if t != wx.wxAssertionError:
 		return False
-	_log.exception('a wxGTK assertion failed:')
+	_log.exception('a wxGTK assertion fired:')
 	_log.warning('continuing and hoping for the best')
 	return True
 
@@ -212,8 +212,8 @@ def handle_uncaught_exception_wx(t, v, tb):
 	if __handle_import_error(t, v, tb):
 		return
 
-#	if __handle_wxgtk_assertion(t, v, tb)
-#		return
+	if __handle_wxgtk_assertion(t, v, tb):
+		return
 
 	# other exceptions
 	_cfg = gmCfg2.gmCfgData()
