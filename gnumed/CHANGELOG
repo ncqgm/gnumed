@@ -16,6 +16,7 @@ IMPROVED: emr: tree: more informative display
 IMPROVED: main menu: put <export area> under <paperwork>
 IMPROVED: PACS: display RequestingOrg
 IMPROVED: bootstrap: password input
+IMPROVED: wxPython: robustify on force-ASSERT devel builds
 
 	1.8.1
 
