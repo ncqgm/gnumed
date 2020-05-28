@@ -3692,6 +3692,7 @@ class gmApp(wx.App):
 		_log.debug('getting banner')
 
 		banner = praxis.db_logon_banner
+		_log.debug('got banner')
 		if banner.strip() == '':
 			_log.debug('no banner')
 			return True
