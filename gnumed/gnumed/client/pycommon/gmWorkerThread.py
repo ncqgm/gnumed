@@ -7,6 +7,7 @@ import sys
 import logging
 import threading
 import datetime as dt
+import pickle
 import copy
 
 # wx.CallAfter() does not seem to work with multiprocessing !
@@ -26,10 +27,17 @@ def execute_in_worker_thread(payload_function=None, payload_kwargs=None, complet
 	<completion_callback> - if not None - better be prepared to
 	receive the result of <payload_function>.
 	"""
-	_log.debug('worker [%s]', worker_name)
-	# decouple from calling thread
-	__payload_kwargs = copy.deepcopy(payload_kwargs)
+	assert (callable(payload_function)), 'payload function <%s> is not callable' % payload_function
+	assert ((completion_callback is None) or callable(completion_callback)), 'completion callback <%s> is not callable' % completion_callback
 
+	_log.debug('worker [%s]', worker_name)
+	# try to decouple from calling thread
+	try:
+		__payload_kwargs = copy.deepcopy(payload_kwargs)
+	except (copy.error, pickle.PickleError):
+		_log.exeption('failed to copy.deepcopy(payload_kwargs): %s', payload_kwargs)
+		_log.error('using shallow copy and hoping for the best')
+		__payload_kwargs = copy.copy(payload_kwargs)
 	worker_thread = None
 
 	#-------------------------------
@@ -43,8 +51,10 @@ def execute_in_worker_thread(payload_function=None, payload_kwargs=None, complet
 		except Exception:
 			_log.exception('error running payload function: %s', payload_function)
 			return
+
 		if completion_callback is None:
 			return
+
 		try:
 			completion_callback(payload_result)
 			_log.debug('finished running completion callback')
@@ -54,11 +64,6 @@ def execute_in_worker_thread(payload_function=None, payload_kwargs=None, complet
 		return
 	#-------------------------------
 
-	if not callable(payload_function):
-		raise ValueError('<%s> is not callable', payload_function)
-	if completion_callback is not None:
-		if not callable(completion_callback):
-			raise ValueError('<%s> is not callable', completion_callback)
 	if worker_name is None:
 		__thread_name = dt.datetime.now().strftime('%f-%S')
 	else:
