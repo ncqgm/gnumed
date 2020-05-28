@@ -27,13 +27,14 @@ FIX: CLI: --ui= not needed anymore
 
 FIX: dicom: exception on uploading malformed DCM to Orthanc
 FIX: dicom: exception on failing to download a DCM from Orthanc
+FIX: MacOSX: exception on wx.EndBusyCursor w/o wx.BeginBusyCursor [thanks Alex]
 
 IMPROVED: lab: by-day display functionality
 IMPROVED: emr: tree: more informative display
 IMPROVED: main menu: put <export area> under <paperwork>
 IMPROVED: PACS: display RequestingOrg
-IMPROVED: bootstrap: password input
-IMPROVED: wxPython: robustify on force-ASSERT devel builds
+IMPROVED: bootstrap: password input [thanks bganglia892]
+IMPROVED: wxPython: robustify on force-ASSERT devel builds [thanks bganglia892]
 
 	1.8.1
 
