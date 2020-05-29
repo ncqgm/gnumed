@@ -122,6 +122,7 @@ map_schema_hash2version = {
 
 map_client_branch2required_db_version = {
 	'GIT tree': 0,
+	'master': 0,
 	'0.3': 9,
 	'0.4': 10,
 	'0.5': 11,
