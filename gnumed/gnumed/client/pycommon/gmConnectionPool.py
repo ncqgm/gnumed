@@ -702,16 +702,18 @@ def log_pg_exception_details(exc):
 	else:
 		log_cursor_state(exc.cursor)
 	try:
-		exc.diag
-		for attr in dir(exc.diag):
+		diags = exc.diag
+	except AttributeError:
+		_log.debug('<.diag> not available')
+		diags = None
+	if diags is not None:
+		for attr in dir(diags):
 			if attr.startswith('__'):
 				continue
-			val = getattr(exc.diag, attr)
+			val = getattr(diags, attr)
 			if val is None:
 				continue
 			_log.debug('%s: %s', attr, val)
-	except AttributeError:
-		_log.debug('diag: not available')
 	return True
 
 #--------------------------------------------------
