@@ -49,8 +49,14 @@ TARBALL_OPTS="--local-import --debug"
 # eventually run it
 export PYTHONIOENCODING=utf-8:surrogateescape
 # - devel version:
+ACTIVE_BRANCH=$(git branch | grep '^\*' | cut -f 2 -d ' ')
+RC=$?
 echo "-------------------------------------------------"
-echo "Running from Git branch: "`git branch | grep \*`
+if test ${RC} -eq 0 ; then
+	echo "Running from Git branch: ${ACTIVE_BRANCH}"
+else
+	echo "Cannot detect Git branch. Running from tarball?"
+fi
 echo "-------------------------------------------------"
 echo "config file: ${CONF}"
 echo "options: ${DEV_OPTS}"
