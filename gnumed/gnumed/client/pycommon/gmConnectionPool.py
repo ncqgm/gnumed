@@ -12,6 +12,9 @@ __author__ = "karsten.hilbert@gmx.net"
 __license__ = "GPL v2 or later (details at http://www.gnu.org)"
 
 
+DO_NOT_POOL_CONNECTIONS = False		# set to True to effectively disable the connection pool for debugging (= always return new connection)
+
+
 # standard library imports
 import os
 import sys
@@ -250,6 +253,10 @@ class gmConnectionPool(gmBorg.cBorg):
 	# connection API
 	#--------------------------------------------------
 	def get_connection(self, readonly=True, verbose=False, pooled=True, connection_name=None, autocommit=False, credentials=None):
+
+		if DO_NOT_POOL_CONNECTIONS:
+			pooled = False
+
 		if credentials is not None:
 			pooled = False
 		conn = None
