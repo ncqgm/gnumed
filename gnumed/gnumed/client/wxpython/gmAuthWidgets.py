@@ -604,7 +604,7 @@ class cLoginPanel(wx.Panel):
 
 		self.paramsboxsizer.Add(self.pboxgrid, 1, wx.GROW|wx.ALL, 10)
 		self.topsizer.Add(self.paramsboxsizer, 1, wx.GROW|wx.ALL, 10)
-		self.topsizer.Add( self.button_gridsizer, 0, wx.GROW|wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
+		self.topsizer.Add( self.button_gridsizer, 0, wx.GROW|wx.ALL, 5)
 
 		self.__load_state()
 
