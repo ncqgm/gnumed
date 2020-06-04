@@ -9,31 +9,65 @@ There is, however, a public database available for testing.
 
 === Debian based systems
 
+	* install the latest packaged version:
+
 -------------------------------------
 	$> apt-get install gnumed-client
-	$> gnumed --version
 -------------------------------------
 
-=== other systems
+	* run GNUmed:
 
-	* download the latest client from https://www.gnumed.de/downloads/client/ (say, 'gnumed-client.1.8.0.tgz')
+-------------------------------------
+	$> gnumed
+-------------------------------------
+
+=== Windows
+
+Currently no recent release has been pre-packaged for
+Windows. Follow the below procedure:
+
+	* download the latest client from the https://www.gnumed.de/downloads/client/[Download Area]
+	* unpack the tarball
+	* go to folder 'gnumed-client.1.8.0/client/'
+	* execute 'gm-from-vcs.bat'
+
+=== Other systems
+
+	* download the latest client from the https://www.gnumed.de/downloads/client/[Download Area]
+	* unpack and check dependencies (assuming version 1.8.0):
 
 -------------------------------------
 	$> tar -xvzf gnumed-client.1.8.0.tgz
 	$> cd gnumed-client.1.8.0/external-tools/
-	$> ./check-prerequites.sh
+	$> ./check-prerequisites.sh
 -------------------------------------
 
-	* install missing dependancies
+	* run GNUmed:
 
 -------------------------------------
 	$> cd gnumed-client.1.8.0/client/
-	$> ./p3w4-gm-from-vcs.sh
+	$> ./gm-from-vcs.sh
 -------------------------------------
+
+This approach can also be used if the latest released version
+has not been packaged yet for your system. Packaged and
+unpackaged minor releases can be run alongside each other
+while different major releases typically require different
+database versions.
+
+=== For developers
+
+	* https://www.gnumed.de/downloads/client/[released tarballs]
+	* https://github.com/ncqgm/gnumed/archive/master.zip[zipped tip of git master branch]
+	* https://github.com/ncqgm/gnumed/[git repository]
+
 
 == Database Installation
 
 For testing you can use the public database at publicdb.gnumed.de:5432
+
+For production use you should link:GNUmedDatabaseInstallation.html[setup a local database].
+
 
 
 link:index.html[Home]

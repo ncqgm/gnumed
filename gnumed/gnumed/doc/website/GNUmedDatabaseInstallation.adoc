@@ -1,0 +1,61 @@
+link:index.html[Home]
+
+== GNUmed database installation
+
+'''''
+CAUTION: This procedure will *irrevocably delete* any
+GNUmed databases pre-existing in the PostgreSQL server you
+are installing into. It is not suitable for
+link:GNUmedDatabaseUpgrade.html[_upgrading_] an existing
+GNUmed database.
+
+'''''
+
+Setting up your own GNUmed database for local use involves these steps:
+
+	* installing https://www.postgresql.org[PostgreSQL]
+	* installing the GNUmed database package
+	* bootstrapping the GNUmed database
+
+These steps need to be run with sufficient privileges,
+typically as root, or with sudo, on your GNUmed database
+machine.
+
+Eventually you need to link:GNUmedConfigurePostgreSQL.html[configure PostgreSQL]
+for use with GNUmed clients.
+
+=== Debian based systems
+
+As root (or with sudo):
+
+	* install PostgreSQL and the GNUmed server package
+	* run the bootstrapper to actually setup the database
+
+-------------------------------------
+	$> apt-get install postgresql
+	$> apt-get install postgresql-client
+	$> apt-get install gnumed-server
+	$> gm-bootstrap_server
+-------------------------------------
+
+=== Other systems
+
+	* install PostgreSQL (how that is done depends on your system)
+	* find out https://www.gnumed.de/downloads/server/readme.txt[which server version your client needs]
+	* download that version from the https://www.gnumed.de/downloads/server/[Download Area] (assuming version 22.12)
+	* unpack the server tarball
+	* run the database bootstrapper
+
+-------------------------------------
+	$> tar -xvzf gnumed-server.22.12.tgz
+	$> cd gnumed-server.22.12/server/bootstrap/
+	$> sudo ./bootstrap-latest.sh
+-------------------------------------
+
+(again, this will *delete* existing GNUmed databases)
+
+This approach can also be used if the latest released version
+has not been packaged yet for your system.
+
+'''''
+link:index.html[Home]
