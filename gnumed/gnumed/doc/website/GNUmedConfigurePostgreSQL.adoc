@@ -1,0 +1,53 @@
+link:index.html[Home]
+
+== Configuring PostgreSQL for use with GNUmed clients
+
+=== Standalone GNUmed installations
+
+'Standalone' means that GNUmed client and database run on
+one and the same computer, IOW the client is local.
+
+Find the configuration file https://www.postgresql.org/docs/devel/auth-pg-hba-conf.html[pg_hba.conf] and
+insert these two lines
+
+----------------------------
+# allow anyone knowing the proper password to log into our GNUmed databases:
+local   samegroup      +gm-logins                    md5
+----------------------------
+
+into the pg_hba.conf file *before* any other lines starting
+with 'local'.
+
+The inserted line means:
+
+allow access
+
+	* local: for clients on the same machine
+	* samegroup: if the connecting user belongs to a database group role named like the database to connect to (say, gnumed_v22)
+	* +gm-logins: and if the connecting users belongs to the allowed-logins database group named 'gm-logins'
+	* md5: and the proper password is provided for the connecting user
+
+When you are done, pg_hba.conf should look similar to this:
+
+----------------------------
+# TYPE  DATABASE    USER        CIDR-ADDRESS          METHOD
+# allow anyone knowing the proper password to log into our GNUmed databases:
+local   samegroup     +gm-logins                    md5
+...
+local   ...                    ...                                  ...
+local   ...                    ...                                  ...
+...
+----------------------------
+
+=== Networked GNUmed installations
+
+To enable access to a GNUmed database from other machines
+over the network replace 'local' with 'host' or 'hostssl' in
+the above instructions.
+
+=== Mixing standalone (local) and networked GNUmed clients
+
+You can mix 'local' and 'host' lines as needed.
+
+'''
+link:index.html[Home]
