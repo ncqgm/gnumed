@@ -492,6 +492,8 @@ class cUnhandledExceptionDlg(wxgUnhandledExceptionDlg.wxgUnhandledExceptionDlg):
 	def _on_abort_gnumed_button_pressed(self, evt):
 		print('running os._exit(-999)')
 		os._exit(-999)
+		print('running os.abort()')
+		os.abort()
 		print('running os.kill(9) on current process')
 		os.kill(APP_PID, 9)
 		print('running sys.exit()')

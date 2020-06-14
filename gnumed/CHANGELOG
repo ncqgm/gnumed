@@ -38,6 +38,7 @@ IMPROVED: PACS: display RequestingOrg
 IMPROVED: bootstrap: password input [thanks bganglia892]
 IMPROVED: wxPython: robustify on force-ASSERT devel builds [thanks bganglia892]
 IMPROVED: startup: logging of execution environment
+IMPROVED: shutdown: one more code path for exception handling abort
 
 	1.8.1
 
