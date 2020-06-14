@@ -363,19 +363,71 @@ def log_startup_info():
 		_log.info('lsb_release: %s', lsb_release.get_distro_information())
 	except ImportError:
 		pass
-	_log.info('threading: %s', sys.thread_info)
-	_log.info('os.getcwd(): [%s]', os.getcwd())
+	_log.info('module <sys> info:')
+	attrs2skip = ['__doc__', 'copyright', '__name__', '__spec__']
+	for attr_name in dir(sys):
+		if attr_name in attrs2skip:
+			continue
+		if attr_name.startswith('set'):
+			continue
+		attr = getattr(sys, attr_name)
+		if not attr_name.startswith('get'):
+			_log.info('%s: %s', attr_name.rjust(30), attr)
+			continue
+		if callable(attr):
+			try:
+				_log.info('%s: %s', attr_name.rjust(30), attr())
+			except Exception:
+				_log.exception('%s: <cannot log>', attr_name.rjust(30))
+			continue
+	_log.info('module <platform> info:')
+	attrs2skip = ['__doc__', '__copyright__', '__name__', '__spec__', '__cached__', '__builtins__']
+	for attr_name in dir(platform):
+		if attr_name in attrs2skip:
+			continue
+		if attr_name.startswith('set'):
+			continue
+		attr = getattr(platform, attr_name)
+		if callable(attr):
+			if attr_name.startswith('_'):
+				_log.info('%s: %s', attr_name.rjust(30), attr)
+				continue
+			try:
+				_log.info('%s: %s', attr_name.rjust(30), attr())
+			except Exception:
+				_log.exception('%s: <cannot log>', attr_name.rjust(30))
+			continue
+		_log.info('%s: %s', attr_name.rjust(30), attr)
+		continue
+	_log.info('module <os> info:')
+	for n in os.confstr_names:
+		_log.info('%s: %s', ('confstr[%s]' % n).rjust(40), os.confstr(n))
+	for n in os.sysconf_names:
+		try:
+			_log.info('%s: %s', ('sysconf[%s]' % n).rjust(40), os.sysconf(n))
+		except Exception:
+			_log.exception('%s: <invalid> ??', ('sysconf[%s]' % n).rjust(30))
+	os_attrs = ['name', 'ctermid', 'getcwd', 'get_exec_path', 'getegid', 'geteuid', 'getgid', 'getgroups', 'getlogin', 'getpgrp', 'getpid', 'getppid', 'getresuid', 'getresgid', 'getuid', 'supports_bytes_environ', 'uname', 'get_terminal_size', 'pathconf_names', 'times', 'cpu_count', 'curdir', 'pardir', 'sep', 'altsep', 'extsep', 'pathsep', 'defpath', 'linesep', 'devnull']
+	for attr_name in os_attrs:
+		attr = getattr(os, attr_name)
+		if callable(attr):
+			_log.info('%s: %s', attr_name.rjust(40), attr())
+			continue
+		_log.info('%s: %s', attr_name.rjust(40), attr)
 	_log.info('process environment:')
 	for key, val in os.environ.items():
-		_log.info(' %s: %s' % (('${%s}' % key).rjust(30),	val))
+		_log.info(' %s: %s' % (('${%s}' % key).rjust(40),	val))
 	import sysconfig
-	_log.info('sysconfig - platform [%s] python version [%s]:', sysconfig.get_platform(), sysconfig.get_python_version())
+	_log.info('module <sysconfig> info:')
+	_log.info(' platform [%s] -- python version [%s]', sysconfig.get_platform(), sysconfig.get_python_version())
+	_log.info(' sysconfig.get_paths():')
 	paths = sysconfig.get_paths()
 	for path in paths:
-		_log.info(' %s: %s', path.rjust(30), paths[path])
+		_log.info('%s: %s', path.rjust(40), paths[path])
+	_log.info(' sysconfig.get_config_vars():')
 	conf_vars = sysconfig.get_config_vars()
 	for var in conf_vars:
-		_log.info(' %s: %s', var.rjust(40), conf_vars[var])
+		_log.info('%s: %s', var.rjust(45), conf_vars[var])
 
 #==========================================================
 def setup_console_exception_handler():
