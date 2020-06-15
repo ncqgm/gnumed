@@ -12,7 +12,7 @@ __author__ = "karsten.hilbert@gmx.net"
 __license__ = "GPL v2 or later (details at http://www.gnu.org)"
 
 
-DO_NOT_POOL_CONNECTIONS = False		# set to True to effectively disable the connection pool for debugging (= always return new connection)
+_DISABLE_CONNECTION_POOL = False		# set to True to disable the connection pool for debugging (= always return new connection)
 
 
 # standard library imports
@@ -32,7 +32,7 @@ import psycopg2 as dbapi
 if not (float(dbapi.apilevel) >= 2.0):
 	raise ImportError('gmPG2: supported DB-API level too low')
 
-if not (dbapi.threadsafety > 0):
+if not (dbapi.threadsafety == 2):
 	raise ImportError('gmPG2: lacking minimum thread safety in psycopg2')
 
 if not (dbapi.paramstyle == 'pyformat'):
@@ -52,6 +52,7 @@ try:
 	dbapi.__version__.index('pq3')
 except ValueError:
 	raise ImportError('gmPG2: lacking v3 backend protocol support in psycopg2')
+
 
 import psycopg2.extensions
 import psycopg2.extras
@@ -87,6 +88,10 @@ _log.info('psycopg2 module version: %s' % dbapi.__version__)
 _log.info('PostgreSQL via DB-API module "%s": API level %s, thread safety %s, parameter style "%s"' % (dbapi, dbapi.apilevel, dbapi.threadsafety, dbapi.paramstyle))
 _log.info('libpq version (compiled in): %s', psycopg2.__libpq_version__)
 _log.info('libpq version (loaded now) : %s', psycopg2.extensions.libpq_version())
+#if '2.8' in dbapi.__version__:
+#	_log.info('psycopg2 v2.8 detected, disabling connection pooling for the time being')
+#	_DISABLE_CONNECTION_POOL = True
+
 
 postgresql_version = None
 
@@ -254,7 +259,7 @@ class gmConnectionPool(gmBorg.cBorg):
 	#--------------------------------------------------
 	def get_connection(self, readonly=True, verbose=False, pooled=True, connection_name=None, autocommit=False, credentials=None):
 
-		if DO_NOT_POOL_CONNECTIONS:
+		if _DISABLE_CONNECTION_POOL:
 			pooled = False
 
 		if credentials is not None:
