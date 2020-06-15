@@ -1862,7 +1862,8 @@ def get_connection(dsn=None, readonly=True, verbose=False, pooled=True, connecti
 		readonly = readonly,
 		verbose = verbose,
 		connection_name = connection_name,
-		autocommit = autocommit
+		autocommit = autocommit,
+		pooled = pooled
 	)
 
 #-----------------------------------------------------------------------

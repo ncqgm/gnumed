@@ -11,6 +11,7 @@
 FIX: dicom: exception on uploading malformed DCM to Orthanc
 FIX: dicom: exception on failing to download a DCM from Orthanc
 FIX: MacOSX: exception on wx.EndBusyCursor w/o wx.BeginBusyCursor [thanks Alex]
+FIX: database: fix connection pooling [thanks various]
 
 IMPROVED: lab: by-day display functionality
 IMPROVED: emr: tree: more informative display
