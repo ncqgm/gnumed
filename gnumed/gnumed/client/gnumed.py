@@ -330,7 +330,8 @@ _known_long_options = [
 	'version',
 	'hipaa',
 	'wxp=',
-	'tool='
+	'tool=',
+	'tui'
 ]
 
 _known_tools = [
@@ -931,6 +932,21 @@ def setup_backend_environment():
 #==========================================================
 def run_gui():
 	gmHooks.run_hook_script(hook = 'startup-before-GUI')
+
+	_use_tui = _cfg.get(option = '--tui', source_order = [('cli', 'return')])
+	if _use_tui:
+		import curses as ncurs
+		try:
+			main_scr = ncurs.initscr()
+			ncurs.cbreak()
+			main_scr.keypad(True)		# arrow keys, Fn keys, etc
+			main_scr.addstr('GNUmed text mode user interface')
+			main_scr.refresh()
+			main_scr.getch()
+		finally:
+			ncurs.endwin()
+		return 0
+
 	from Gnumed.wxpython import gmGuiMain
 	profile_file = _cfg.get(option = '--profile', source_order = [('cli', 'return')])
 	if profile_file is None:
