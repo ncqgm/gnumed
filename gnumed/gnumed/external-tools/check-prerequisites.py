@@ -222,6 +222,15 @@ except ImportError:
 	print("  ERROR: humblewx not installed")
 	print("  INFO : this is used to display the EMR timeline")
 
+print(" urwid...", end=' ')
+try:
+	import urwid
+	print("found")
+except ImportError:
+	missing = True
+	print("")
+	print("  ERROR: <urwid> not installed")
+	print("  INFO : this is used to display the textmode user interface")
 
 #print "=> checking for Python module 'sane' ..."
 #try:

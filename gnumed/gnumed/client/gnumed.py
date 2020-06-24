@@ -930,22 +930,30 @@ def setup_backend_environment():
 #		gmPG2.set_default_client_timezone(timezone)
 
 #==========================================================
-def run_gui():
+def run_ui():
 	gmHooks.run_hook_script(hook = 'startup-before-GUI')
-
 	_use_tui = _cfg.get(option = '--tui', source_order = [('cli', 'return')])
 	if _use_tui:
-		import curses as ncurs
-		try:
-			main_scr = ncurs.initscr()
-			ncurs.cbreak()
-			main_scr.keypad(True)		# arrow keys, Fn keys, etc
-			main_scr.addstr('GNUmed text mode user interface')
-			main_scr.refresh()
-			main_scr.getch()
-		finally:
-			ncurs.endwin()
-		return 0
+		return run_tui()
+
+	run_gui()
+	gmHooks.run_hook_script(hook = 'shutdown-post-GUI')
+	return 0
+
+#==========================================================
+def run_tui():
+	try:
+		import urwid
+	except ModuleNotFoundError:
+		_log.exception('cannot import <urwid>')
+		return 1
+
+	from Gnumed.urwid import gmTuiMain
+	gmTuiMain.main()
+	return 0
+
+#==========================================================
+def run_gui():
 
 	from Gnumed.wxpython import gmGuiMain
 	profile_file = _cfg.get(option = '--profile', source_order = [('cli', 'return')])
@@ -955,7 +963,7 @@ def run_gui():
 		_log.info('writing profiling data into %s', profile_file)
 		import profile
 		profile.run('gmGuiMain.main()', profile_file)
-	gmHooks.run_hook_script(hook = 'shutdown-post-GUI')
+
 	return 0
 
 #==========================================================
@@ -1165,7 +1173,7 @@ setup_backend_environment()
 exit_code = run_tool()
 if exit_code is None:
 	from Gnumed.pycommon import gmHooks
-	exit_code = run_gui()
+	exit_code = run_ui()
 
 # shutdown
 shutdown_backend()

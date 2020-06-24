@@ -340,7 +340,7 @@ BIN=`which gm-print_doc`
 if [ "x${BIN}x" == "xx" ]; then
 	echo ""
 	echo "  INFO : You don't seem to have the 'gm-print_doc' command installed."
-	echo "  INFO : It is used to print files from GNUmed."
+	echo "  INFO : It is used by GNUmed to print documents."
 else
 	echo "found"
 fi
@@ -350,7 +350,7 @@ BIN=`which gm-fax_doc`
 if [ "x${BIN}x" == "xx" ]; then
 	echo ""
 	echo "  INFO : You don't seem to have the 'gm-fax_doc' command installed."
-	echo "  INFO : It is used to fax files from GNUmed."
+	echo "  INFO : It is used by GNUmed to fax documents."
 else
 	echo "found"
 fi
@@ -360,7 +360,7 @@ BIN=`which gm-mail_doc`
 if [ "x${BIN}x" == "xx" ]; then
 	echo ""
 	echo "  INFO : You don't seem to have the 'gm-mail_doc' command installed."
-	echo "  INFO : It is used to e-mail files from GNUmed."
+	echo "  INFO : It is used by GNUmed to e-mail documents."
 else
 	echo "found"
 fi
@@ -370,7 +370,7 @@ BIN=`which gm-burn_doc`
 if [ "x${BIN}x" == "xx" ]; then
 	echo ""
 	echo "  INFO : You don't seem to have the 'gm-burn_doc' command installed."
-	echo "  INFO : It is used to burn to disk an ISO image of files from GNUmed."
+	echo "  INFO : It is used by GNUmed to burn to disk an ISO image of documents."
 else
 	echo "found"
 fi
