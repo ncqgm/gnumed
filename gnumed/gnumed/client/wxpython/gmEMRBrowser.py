@@ -685,18 +685,17 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 
 		for enc_item in encounter_items:
 			if encounter['started'].year != enc_item['clin_when'].year:
-				date_str = ' (%s)' % enc_item['clin_when'].strftime('%Y')
+				when = enc_item['clin_when'].strftime('%Y')
 			elif encounter['started'].month != enc_item['clin_when'].month:
-				date_str = ' (%s)' % enc_item['clin_when'].strftime('%b')
+				when = enc_item['clin_when'].strftime('%b')
 			elif encounter['started'].day != enc_item['clin_when'].day:
-				date_str = ' (%s)' % enc_item['clin_when'].strftime('%b %d')
+				when = enc_item['clin_when'].strftime('%b %d')
 			else:
-				date_str = ''
-			item_node = self.AppendItem(encounter_node, '%s [%s] %s%s' % (
-				enc_item['clin_when'].strftime('%H:%M'),
+				when = enc_item['clin_when'].strftime('%H:%M')
+			item_node = self.AppendItem(encounter_node, '[%s] %s: %s' % (
 				enc_item.i18n_soap_cat,
-				enc_item.item_type_str,
-				date_str
+				when,
+				enc_item.item_type_str
 			))
 			self.SetItemData(item_node, enc_item)
 			self.SetItemHasChildren(item_node, False)
