@@ -429,6 +429,9 @@ def log_startup_info():
 	for var in conf_vars:
 		_log.info('%s: %s', var.rjust(45), conf_vars[var])
 
+	#for f in [ mod.__spec__ for mod in sys.modules.values() ]:
+	#	print(f.origin)
+
 #==========================================================
 def setup_console_exception_handler():
 	from Gnumed.pycommon.gmTools import handle_uncaught_exception_console
