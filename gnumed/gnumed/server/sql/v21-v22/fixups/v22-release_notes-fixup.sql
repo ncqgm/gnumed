@@ -17,25 +17,25 @@ INSERT INTO dem.message_inbox (
 ) VALUES (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
-	'Release Notes for GNUmed 1.8.1 (database v22.12)',
-	'GNUmed 1.8.1 Release Notes:
+	'Release Notes for GNUmed 1.8.2 (database v22.12)',
+	'GNUmed 1.8.2 Release Notes:
 
-	1.8.1
+	1.8.2
 
-NEW: tool: read_all_rows_of_table
+FIX: dicom: exception on uploading malformed DCM to Orthanc
+FIX: dicom: exception on failing to download a DCM from Orthanc
+FIX: MacOSX: exception on wx.EndBusyCursor w/o wx.BeginBusyCursor [thanks Alex]
+FIX: database: fix connection pooling [thanks various]
 
-FIX: bills: failure to generate bill PDFs [thanks Marc]
-FIX: bills: failure to edit bill item date [thanks Marc]
-FIX: bills: failure to edit billable [thanks Marc]
-FIX: export area: fails to load when gm-burn.sh not found [thanks Marc]
-FIX: demographics: failure to edit type of address [thanks Marc]
-FIX: forms: failure to archive generated forms [thanks Marc]
-FIX: demographics: faulty display of patient addresses [thanks Marc]
-
-	22.12
-
-IMPROVED: robustify backup script
+IMPROVED: lab: by-day display functionality
+IMPROVED: emr: tree: more informative display
+IMPROVED: main menu: put <export area> under <paperwork>
+IMPROVED: PACS: display RequestingOrg
+IMPROVED: bootstrap: password input [thanks bganglia892]
+IMPROVED: wxPython: robustify on force-ASSERT devel builds [thanks bganglia892]
+IMPROVED: startup: logging of execution environment
+IMPROVED: shutdown: one more code path for exception handling abort
 ');
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('v22-release_notes-fixup.sql', '22.12');
+select gm.log_script_insertion('v22-release_notes-fixup.sql', '22.13');
