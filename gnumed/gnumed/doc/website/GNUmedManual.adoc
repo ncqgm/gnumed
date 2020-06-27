@@ -88,11 +88,12 @@ retiring forms) - Caveat: link:TalkbackClient[error reports]
 
 === Server Maintenance
 
+* Database link:GNUmedDatabaseInstallation.html[Installation]
+* Database link:GNUmedDatabaseUpgrade.html[Upgrade]
+
 * Account/Access link:GmManualAccountManagement[Management]
 * Client/Access link:GmManualClientAccessManagement[Management]
-* Database link:GmManualServerInstall[Installation]
 * Going into link:GmManualServerIntoProduction[production]
-* Database link:GmManualServerUpgrade[Upgrade]
 * Database link:GmManualDatabaseBackupRestore[Backup, Restore and
 Migration]
 * Managing link:GmManualReferenceData[Reference data] (including data

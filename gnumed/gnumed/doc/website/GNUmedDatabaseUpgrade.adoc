@@ -1,0 +1,107 @@
+link:index.html[Home]
+
+== GNUmed database upgrade
+
+Use this procedure to _upgrade_ an _existing_ GNUmed
+database. It is not intended for
+link:GNUmedDatabaseInstallation.html[installing] a fresh
+GNUmed database. It is also not intended for
+https://www.postgresql.org/docs/devel/pgupgrade.html[upgrading
+a PostgreSQL server].
+
+'''''
+CAUTION: GNUmed takes appropriate steps to protect
+patient data but do make sure to have a known good
+link:GNUmedDatabaseBackup.html[backup] before
+applying upgrades or fixes.
+
+'''''
+
+There are minor-version upgrades, called fixups, and
+major-version upgrades. Major versions change the first
+number (the 22 in 22.1) while minor ones change the second
+number (the 1 in 22.1) of the version string.
+
+Major database upgrades happen when a new client branch is
+released, such as going from client 1.6 (database v21) to
+client 1.7 (database v22).
+
+Major upgrades must be applied sequentially. They will always
+include all minor upgrades of the previous version so one can
+go from any previous minor version to the next major version:
+
+	possible: 21.3 -> 22.latest
+	possible: 21.7 -> 22.latest
+
+	possible: 20.4 -> 21.latest -> 22.latest
+
+	not possible: 20.4 -> 22.latest
+
+Minor upgrades must be applied in order, too, but can skip versions:
+
+	possible: 21.3 -> 21.4
+	possible: 21.4 -> 21.6
+	possible: 21.3 -> 21.6
+
+	not possible: 21.4 -> 21.1
+
+=== Applying a minor-version upgrade (fixup)
+
+==== Debian based systems
+
+	* check for the latest package which will typically have been upgraded to by the package management system
+	* run the fixup script
+
+As root (or with sudo):
+
+-------------------------------------
+	$> apt-cache policy gnumed-server
+	$> gm-fixup_server
+-------------------------------------
+
+==== Other systems
+
+	* https://www.gnumed.de/downloads/server/[download] the latest release https://www.gnumed.de/downloads/readme.txt[appropriate for your client]
+	* unpack the tarball
+	* run the fixup script
+
+-------------------------------------
+	$> mkdir gnumed
+	$> cd gnumed
+	$> wget -c https://www.gnumed.de/downloads/server/vXY/gnumed-server.XY.ZZ.tgz
+	$> tar -xvzf gnumed-server.XY.ZZ.tgz
+	$> cd gnumed-server.XY.ZZ/server/bootstrap/
+	$> sudo ./fixup-db.sh XY
+-------------------------------------
+
+=== Applying a major-version upgrade
+
+==== Debian based systems
+
+	* check for the latest package which will typically have been upgraded to by the package management system
+	* run the fixup script
+
+As root (or with sudo):
+
+-------------------------------------
+	$> apt-cache policy gnumed-server
+	$> gm-upgrade_server
+-------------------------------------
+
+==== Other systems
+
+	* https://www.gnumed.de/downloads/server/[download] the latest release https://www.gnumed.de/downloads/readme.txt[appropriate for your client]
+	* unpack the tarball
+	* run the upgrade script
+
+-------------------------------------
+	$> mkdir gnumed
+	$> cd gnumed
+	$> wget -c https://www.gnumed.de/downloads/server/vXY/gnumed-server.XY.ZZ.tgz
+	$> tar -xvzf gnumed-server.XY.ZZ.tgz
+	$> cd gnumed-server.XY.ZZ/server/bootstrap/
+	$> sudo ./upgrade-db.sh XY XY+1
+-------------------------------------
+
+'''''
+link:index.html[Home]

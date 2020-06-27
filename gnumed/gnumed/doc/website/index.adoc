@@ -2,9 +2,9 @@
 
 === Python 3
 
-https://www.gnumed.de/downloads/client/1.8/gnumed-client.1.8.1.tgz[Version 1.8.1] (database v22.12) released March 25th 2020
+https://www.gnumed.de/downloads/client/1.8/gnumed-client.1.8.2.tgz[Version 1.8.2] (database v22.12) released June 26th 2020
 
-=== Python 2
+=== Python 2 (not recommended anymore)
 
 https://www.gnumed.de/downloads/client/1.7/gnumed-client.1.7.9.tgz[Version 1.7.9] (database v22) released Dec 5th 2019
 
