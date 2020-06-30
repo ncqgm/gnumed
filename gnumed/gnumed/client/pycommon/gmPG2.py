@@ -435,6 +435,70 @@ def get_schema_revision_history(link_obj=None):
 
 	rows, idx = run_ro_queries(link_obj = link_obj, queries = [{'cmd': cmd}])
 	return rows
+
+#------------------------------------------------------------------------
+def get_db_fingerprint(conn=None, fname=None, with_dump=False, eol=None):
+	queries = [
+		("SELECT setting FROM pg_settings WHERE name = 'server_version'", "Version (PG)"),
+		("SELECT setting FROM pg_settings WHERE name = 'server_encoding'", "Encoding (PG)"),
+		("SELECT setting FROM pg_settings WHERE name = 'lc_collate'", "LC_COLLATE (PG)"),
+		("SELECT setting FROM pg_settings WHERE name = 'lc_ctype'", "LC_CTYPE (PG)"),
+		("SELECT count(1) FROM dem.identity", "Patients"),
+		("SELECT count(1) FROM clin.encounter", "Contacts"),
+		("SELECT count(1) FROM clin.episode", "Episodes"),
+		("SELECT count(1) FROM clin.health_issue", "Issues"),
+		("SELECT count(1) FROM clin.test_result", "Results"),
+		("SELECT count(1) FROM clin.vaccination", "Vaccinations"),
+		("SELECT count(1) FROM blobs.doc_med", "Documents"),
+		("SELECT count(1) FROM blobs.doc_obj", "Objects"),
+		("SELECT count(1) FROM dem.org", "Organizations"),
+		("SELECT count(1) FROM dem.org_unit", "Organizational units"),
+		("SELECT max(modified_when) FROM audit.audit_fields", "Most recent .modified_when"),
+		("SELECT max(audit_when) FROM audit.audit_trail", "Most recent .audit_when")
+	]
+	if conn is None:
+		conn = get_connection(readonly = True)
+	database = conn.get_dsn_parameters()['dbname']
+	lines = [
+		'Fingerprinting GNUmed database ...',
+		'',
+		'%20s: %s' % ('Name (DB)', database)
+	]
+	curs = conn.cursor()
+	# get size
+	cmd = "SELECT pg_size_pretty(pg_database_size('%s'))" % database
+	curs.execute(cmd)
+	rows = curs.fetchall()
+	lines.append('%20s: %s' % ('Size (DB)', rows[0][0]))
+	# get hash
+	cmd = "SELECT md5(gm.concat_table_structure())"
+	curs.execute(cmd)
+	rows = curs.fetchall()
+	md5_sum = rows[0][0]
+	try:
+		lines.append('%20s: %s (v%s)' % ('Schema hash', md5_sum, map_schema_hash2version[md5_sum]))
+	except KeyError:
+		lines.append('%20s: %s' % ('Schema hash', md5_sum))
+	for cmd, label in queries:
+		curs.execute(cmd)
+		rows = curs.fetchall()
+		lines.append('%20s: %s' % (label, rows[0][0]))
+	if with_dump:
+		curs.execute('SELECT gm.concat_table_structure()')
+		rows = curs.fetchall()
+		lines.append('')
+		lines.append(rows[0][0])
+	curs.close()
+	if fname is None:
+		if eol is None:
+			return lines
+		return eol.join(lines)
+
+	outfile = open(fname, mode = 'wt', encoding = 'utf8')
+	outfile.write('\n'.join(lines))
+	outfile.close()
+	return fname
+
 #------------------------------------------------------------------------
 def get_current_user():
 	rows, idx = run_ro_queries(queries = [{'cmd': 'select CURRENT_USER'}])
@@ -2515,6 +2579,15 @@ SELECT to_timestamp (foofoo,'YYMMDD.HH24MI') FROM (
 		gmConnectionPool.log_pg_settings(curs = conn.cursor())
 
 	#--------------------------------------------------------------------
+	def test_get_db_fingerprint():
+		login, creds = request_login_params()
+		pool = gmConnectionPool.gmConnectionPool()
+		pool.credentials = creds
+		#conn = get_connection()
+		#print(get_db_fingerprint(conn, with_dump = True, eol = '\n'))
+		print(get_db_fingerprint(with_dump = True, eol = '\n'))
+
+	#--------------------------------------------------------------------
 	# run tests
 
 	# legacy:
@@ -2536,11 +2609,12 @@ SELECT to_timestamp (foofoo,'YYMMDD.HH24MI') FROM (
 	#test_get_index_name()
 	#test_set_user_language()
 	#test_get_schema_revision_history()
-	test_run_query()
+	#test_run_query()
 	#test_schema_exists()
 	#test_get_foreign_key_names()
 	#test_row_locks()
 	#test_faulty_SQL()
-	test_log_settings()
+	#test_log_settings()
+	test_get_db_fingerprint()
 
 # ======================================================================

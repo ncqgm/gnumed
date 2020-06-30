@@ -6,6 +6,10 @@
 # rel-1-8-patches
 ------------------------------------------------
 
+	1.8.3
+
+NEW: tool: fingerprint_db
+
 	1.8.2
 
 FIX: dicom: exception on uploading malformed DCM to Orthanc
@@ -2111,6 +2115,10 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 ------------------------------------------------
 # gnumed_v22
 ------------------------------------------------
+
+	22.13
+
+IMPROVED: bootstrapper logging
 
 	22.12
 

@@ -626,6 +626,18 @@ class database:
 			_log.error(u"Cannot connect to template database.")
 			return False
 
+		# fingerprint template db
+		try:
+			gmLog2.log_multiline (
+				logging.INFO,
+				message = 'template database fingerprint',
+				text = gmPG2.get_db_fingerprint(conn = self.conn, eol = '\n')
+			)
+		except Exception:
+			_log.exception('cannot fingerprint template database')
+
+		self.conn.rollback()
+
 		# make sure db exists
 		if not self.__create_db():
 			_log.error(u"Cannot create database.")
@@ -1764,6 +1776,24 @@ def handle_cfg():
 
 	if not import_data():
 		exit_with_msg("Bootstrapping failed: unable to import data")
+
+	# fingerprint target db
+	# (the ugliest of hacks)
+	db = None
+	for db_key in _bootstrapped_dbs.keys():
+		db = _bootstrapped_dbs[db_key]
+	if db is not None:
+		try:
+			gmLog2.log_multiline (
+				logging.INFO,
+				message = 'target database fingerprint',
+				text = gmPG2.get_db_fingerprint(conn = db.conn, eol = '\n')
+			)
+		except Exception:
+			_log.error('cannot fingerprint database')
+		finally:
+			db.conn.rollback()
+	return True
 
 #==================================================================
 def main():

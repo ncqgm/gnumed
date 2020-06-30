@@ -132,7 +132,8 @@ _known_tools = [
 	'check_enc_epi_xref',
 	'export_pat_emr_structure',
 	'check_mimetypes_in_archive',
-	'read_all_rows_of_table'
+	'read_all_rows_of_table',
+	'fingerprint_db'
 ]
 
 
@@ -799,6 +800,15 @@ def run_tool():
 		from Gnumed.business import gmEMRStructItems
 		return gmEMRStructItems.check_fk_encounter_fk_episode_x_ref()
 
+	if tool == 'fingerprint_db':
+		fname = 'db-fingerprint.txt'
+		result = gmPG2.get_db_fingerprint(fname = fname, with_dump = True)
+		if result == fname:
+			print('Success: %s' % fname)
+			return 0
+		print('Failed. Check the log for details.')
+		return -2
+
 	if tool == 'export_pat_emr_structure':
 		# setup praxis
 		from Gnumed.business import gmPraxis
@@ -854,7 +864,6 @@ def run_tool():
 			print('EMR text file:', fname)
 			# another patient ?
 			pat = gmPersonSearch.ask_for_patient()
-
 		return 0
 
 	# tool export_patient_as (vcf, gdt, ...)

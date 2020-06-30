@@ -12,7 +12,9 @@
 
 import sys
 import psycopg2
-import io
+#import io
+
+from Gnumed.pycommon import gmPG2
 
 database = sys.argv[1]
 passwd = sys.argv[2]
@@ -40,28 +42,33 @@ queries = [
 
 fname = u'gm_db-%s-fingerprint.log' % database
 #==============================================================
-outfile = io.open(fname, mode = 'wt', encoding = 'utf8')
+#outfile = io.open(fname, mode = 'wt', encoding = 'utf8')
 
-outfile.write(u"Fingerprinting GNUmed database ...\n")
-outfile.write(u"\n")
-outfile.write(u"%20s: %s\n" % (u"Name (DB)", database))
+#outfile.write(u"Fingerprinting GNUmed database ...\n")
+#outfile.write(u"\n")
+#outfile.write(u"%20s: %s\n" % (u"Name (DB)", database))
 
 conn = psycopg2.connect(dsn=dsn)
-curs = conn.cursor()
-
-for cmd, label in queries:
-	curs.execute(cmd)
-	rows = curs.fetchall()
-	outfile.write(u"%20s: %s\n" % (label, rows[0][0]))
-
+#curs = conn.cursor()
+#
+#for cmd, label in queries:
+#	curs.execute(cmd)
+#	rows = curs.fetchall()
+#	outfile.write(u"%20s: %s\n" % (label, rows[0][0]))
+#
 if len(sys.argv) > 3:
 	if sys.argv[3] == '--with-dump':
-		curs.execute('SELECT gm.concat_table_structure()')
-		rows = curs.fetchall()
-		outfile.write(u"\n%s\n" % rows[0][0])
+		with_dump = True
+	else:
+		with_dump = False
+#		curs.execute('SELECT gm.concat_table_structure()')
+#		rows = curs.fetchall()
+#		outfile.write(u"\n%s\n" % rows[0][0])
 
-curs.close()
+gmPG2.fingerprint_db(conn = conn, with_dump = with_dump, fname = fname)
+
+#curs.close()
 conn.rollback()
 
-outfile.close()
+#outfile.close()
 #==============================================================
