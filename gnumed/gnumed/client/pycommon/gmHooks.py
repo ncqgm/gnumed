@@ -338,7 +338,7 @@ def run_hook_script(hook=None):
 			beep = True
 		)
 		if __current_hook_stack[-1] != hook:
-			_log.error('hook nesting errror detected')
+			_log.error('hook nesting error detected')
 			_log.error('latest hook: expected [%s], found [%s]', hook, __current_hook_stack[-1])
 			_log.error('current hook stack: %s', __current_hook_stack)
 		else:
@@ -346,7 +346,7 @@ def run_hook_script(hook=None):
 		return False
 
 	if __current_hook_stack[-1] != hook:
-		_log.error('hook nesting errror detected')
+		_log.error('hook nesting error detected')
 		_log.error('latest hook: expected [%s], found [%s]', hook, __current_hook_stack[-1])
 		_log.error('current hook stack: %s', __current_hook_stack)
 	else:
