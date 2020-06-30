@@ -17,35 +17,12 @@ applying upgrades or fixes.
 
 '''''
 
-There are minor-version upgrades, called fixups, and
-major-version upgrades. Major versions change the first
-number (the 22 in 22.1) while minor ones change the second
-number (the 1 in 22.1) of the version string.
+Make sure you understand link:GNUmedDatabaseVersions.html[GNUmed database versions].
 
-Major database upgrades happen when a new client branch is
-released, such as going from client 1.6 (database v21) to
-client 1.7 (database v22).
+=== Applying a database fixup
 
-Major upgrades must be applied sequentially. They will always
-include all minor upgrades of the previous version so one can
-go from any previous minor version to the next major version:
-
-	possible: 21.3 -> 22.latest
-	possible: 21.7 -> 22.latest
-
-	possible: 20.4 -> 21.latest -> 22.latest
-
-	not possible: 20.4 -> 22.latest
-
-Minor upgrades must be applied in order, too, but can skip versions:
-
-	possible: 21.3 -> 21.4
-	possible: 21.4 -> 21.6
-	possible: 21.3 -> 21.6
-
-	not possible: 21.4 -> 21.1
-
-=== Applying a minor-version upgrade (fixup)
+This procedure applies when a minor-version database
+revision has been released.
 
 ==== Debian based systems
 
@@ -75,6 +52,9 @@ As root (or with sudo):
 -------------------------------------
 
 === Applying a major-version upgrade
+
+This procedure applies when a major-version database
+revision has been released.
 
 ==== Debian based systems
 

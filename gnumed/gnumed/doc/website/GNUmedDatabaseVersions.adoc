@@ -1,0 +1,117 @@
+link:index.html[Home]
+
+== GNUmed database versions
+
+This page gives a technical description of the GNUmed database versioning.
+
+Make sure to understand the GNUmedClientVersions.html[client versioning] system in GNUmed.
+
+=== The client vs database version relationship
+
+https://www.gnumed.de/downloads/readme.txt[Any given client
+branch requires a defined, stable, database schema version.]
+Different minor client revisions (say, 1.6.7 and 1.6.9) _on
+the same branch_ (1.6) do work against any of the revisions
+of one and same database major version (database 21 in the case of
+client 1.6, be it 21.1 or 21.5).
+
+Most of the time, a new client branch will require a new
+database major version, too. _Sometimes_ it will not,
+however, as is the case when going from 1.7 to 1.8. In that
+case, both client branches can work with the v22 database.
+The reason for that decision was that the 1.7 -> 1.8 upgrade
+carried the transition from Python 2 to Python 3, as well as
+from wxPython 3 to wxPython 4.
+
+At startup the client checks the database schema for the
+expected version. It does so by calculating a hash over the
+database schema and comparing that to an expected value. It
+will refuse to connect unless that check has been explicitely
+disabled with the commandline option `--override-schema-check`.
+
+Users can find the expected and the detected database schema
+checksum inside the client log file. GNUmed also provides a
+tool `gm-fingerprint_db` which includes the schema checksum.
+
+=== Database version numbers
+
+GNUmed uses a two-part number for database versions:
+MAJOR.MINOR, as in 22.3 (version 22, revision 3).
+
+Minor versions (revisions) do not (if at all possible) cause
+a change in the schema checksum, as they introduce absolutely
+required fixes to the schema to non-critical parts only. The
+basic table layout is not changed. Minor version changes are
+called database fixups.
+
+Major versions are intended for larger changes, including the
+layout of existing tables. Therefore, they will only occur
+alongside changes of the client branch (say, from 1.6 to
+1.7). Major version changes are called database upgrades.
+
+GNUmed databases inside PostgreSQL are, by default, named
+after their major version: `gnumed_v20`, `gnumed_v21`, etc
+
+=== Major version changes
+
+A major version change is called database _upgrade_. Clients
+must be disconnected during upgrades.
+
+During upgrades the existing database is cloned, say, when
+going from v20 to v21 a copy of gnumed_v20 is created and
+named gnumed_v21. Then, SQL change scripts are applied to
+actually change the copy to the v21 schema. That way, if the
+upgrade fails it can simply be re-run, or users can keep
+using their previous client against their previous database.
+Eventually, sanity checks are run all the data is accessible
+as expected. Also, a backup will be taken before running the
+upgrade.
+
+Major upgrades must be applied sequentially. They will always
+include all minor upgrades of the previous version so one can
+go from any previous minor version to the next major version:
+
+	possible: 21.3 -> 22.latest
+	possible: 21.7 -> 22.latest
+
+	possible: 20.4 -> 21.latest -> 22.latest
+
+	not possible: 20.4 -> 22.latest
+
+By extension, bootstrapping a fully new GNUmed database
+system mainly consists of applying all upgrades in order
+until the latest release has been reached.
+
+Note that any new data in the new database will be lost if
+the upgrade is re-run after the upgraded database has already
+been used.
+
+=== Minor version changes
+
+A minor version change is called a _fixup_. Clients really
+should by disconnected when applying a fixup.
+
+During fixups, SQL scripts are run, which correct database
+schema bugs. Fixups can be re-run because the SQL scripts are
+idempotent.
+
+Minor upgrades must be applied in order, too, but can skip versions:
+
+	possible: 21.3 -> 21.4
+	possible: 21.4 -> 21.6
+	possible: 21.3 -> 21.6
+
+	not possible: 21.4 -> 21.1
+
+=== Further technical information
+
+	* https://lists.gnu.org/archive/html/gnumed-devel/2010-01/msg00002.html[this post].
+
+Do *not* upgrade a production database based on pre-releases,
+release candidates, or other unreleased code, except for
+testing the upgrade procedure. The database schema will not
+be finalized yet and there will not be an official way of
+converting a "pre-release" database to the released state.
+
+'''''
+link:index.html[Home]
