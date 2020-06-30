@@ -19,7 +19,7 @@ applying upgrades or fixes.
 
 Make sure you understand link:GNUmedDatabaseVersions.html[GNUmed database versions].
 
-=== Applying a database fixup
+=== (Howto) Applying a database fixup
 
 This procedure applies when a minor-version database
 revision has been released.
@@ -51,7 +51,7 @@ As root (or with sudo):
 	$> sudo ./fixup-db.sh XY
 -------------------------------------
 
-=== Applying a major-version upgrade
+=== (Howto) Applying a major-version upgrade
 
 This procedure applies when a major-version database
 revision has been released.
@@ -59,29 +59,75 @@ revision has been released.
 ==== Debian based systems
 
 	* check for the latest package which will typically have been upgraded to by the package management system
-	* run the fixup script
+	* run the upgrade script (assuming upgrade from v21 to v22)
 
 As root (or with sudo):
 
 -------------------------------------
 	$> apt-cache policy gnumed-server
-	$> gm-upgrade_server
+	$> gm-upgrade_server 21 22
 -------------------------------------
 
 ==== Other systems
 
 	* https://www.gnumed.de/downloads/server/[download] the latest release https://www.gnumed.de/downloads/readme.txt[appropriate for your client]
 	* unpack the tarball
-	* run the upgrade script
+	* run the upgrade script (assuming upgrade from v21 to v22)
 
 -------------------------------------
 	$> mkdir gnumed
 	$> cd gnumed
-	$> wget -c https://www.gnumed.de/downloads/server/vXY/gnumed-server.XY.ZZ.tgz
-	$> tar -xvzf gnumed-server.XY.ZZ.tgz
-	$> cd gnumed-server.XY.ZZ/server/bootstrap/
-	$> sudo ./upgrade-db.sh XY XY+1
+	$> wget -c https://www.gnumed.de/downloads/server/vXY/gnumed-server.22.x.tgz
+	$> tar -xvzf gnumed-server.22.x.tgz
+	$> cd gnumed-server.22.x/server/bootstrap/
+	$> sudo ./upgrade-db.sh 21 22
 -------------------------------------
+
+=== (Tech) Best practice notes
+
+	* test on a test system
+	* plan ahead for a downtime slot
+	* inform users about the upgrade plan
+	* check that client packages are available for the new database
+	* prepare for pointing clients to the new database
+	* check that the existing database has a known-good schema checksum
+		* run `gm-fingerprint_db.py <database> <gm-dbo password>`
+
+	* take an extra backup of the existing database
+
+<downtime starts>
+
+	* check for sufficient disk space
+	* inform users of the imminent upgrade via the user interface
+	* stop any automatically running scripts (importers, backup)
+	* make sure no users are connected to the existing database
+	* disable remote access to the existing database in `pg_hba.conf`
+	* insert "upgrade vX -> vY in progress" into the logon banner of the existing database
+	* run the upgrade/fixup as `root' or with `sudo`
+
+failure:
+
+	* remove "upgrade vX -> vY in progress" from the logon banner of the existing database
+
+<downtime ends>
+
+failure:
+
+	* inform users to keep using the existing database as usual
+
+	* drop the dysfunctional new database, if necessary
+	* fix problems
+	* try again
+	* get help
+
+success:
+
+	* remove "upgrade vX -> vY in progress" from the logon banner of the new database
+	* point automatically running scripts to the new database and restart them (importers, backup)
+	* point clients to the new database
+	* inform users to use the new database
+	* eventually, disable access to the previous database entirely
+	* keep the previous database around for a while, perhaps until the _next_ major version is released
 
 '''''
 link:index.html[Home]

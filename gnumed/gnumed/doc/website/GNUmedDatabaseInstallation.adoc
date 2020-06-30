@@ -54,8 +54,5 @@ As root (or with sudo):
 
 (again, this will *delete* existing GNUmed databases)
 
-This approach can also be used if the latest released version
-has not been packaged yet for your system.
-
 '''''
 link:index.html[Home]

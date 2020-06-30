@@ -22,10 +22,10 @@ The inserted line means:
 
 allow access
 
-	* local: for clients on the same machine
-	* samegroup: if the connecting user belongs to a database group role named like the database to connect to (say, gnumed_v22)
-	* +gm-logins: and if the connecting users belongs to the allowed-logins database group named 'gm-logins'
-	* md5: and the proper password is provided for the connecting user
+	* `local`: for clients on the same machine
+	* `samegroup`: if the connecting user belongs to a database group role named like the database to connect to (say, gnumed_v22)
+	* `+gm-logins`: and if the connecting users belongs to the allowed-logins database group named 'gm-logins'
+	* `md5`: and the proper password is provided for the connecting user
 
 When you are done, pg_hba.conf should look similar to this:
 
