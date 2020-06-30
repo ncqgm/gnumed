@@ -275,6 +275,12 @@ def connect_to_database(max_attempts=3, expected_version=None, require_version=T
 		gmExceptionHandlingWidgets.set_is_public_database(_cfg.get(option = 'is_public_db'))
 		gmExceptionHandlingWidgets.set_helpdesk(_cfg.get(option = 'helpdesk'))
 
+		gmLog2.log_multiline (
+			logging.DEBUG,
+			message = 'fingerprint',
+			text = gmPG2.get_db_fingerprint(eol = '\n')
+		)
+
 		conn = gmPG2.get_connection(verbose = True, connection_name = 'GNUmed-[DbListenerThread]', pooled = False)
 		listener = gmBackendListener.gmBackendListener(conn = conn)
 		break
