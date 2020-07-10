@@ -1941,7 +1941,7 @@ def configure_default_medications_lab_panel(parent=None):
 	)
 
 #============================================================
-def configure_adr_url(self):
+def configure_adr_url():
 
 	def is_valid(value):
 		value = value.strip()

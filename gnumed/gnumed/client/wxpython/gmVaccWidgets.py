@@ -543,7 +543,7 @@ class cVaccineEAPnl(wxgVaccineEAPnl.wxgVaccineEAPnl, gmEditArea.cGenericEditArea
 #======================================================================
 # vaccination related widgets
 #----------------------------------------------------------------------
-def configure_adr_url(self):
+def configure_adr_url():
 
 	def is_valid(value):
 		value = value.strip()
@@ -571,7 +571,7 @@ def configure_adr_url(self):
 	)
 
 #----------------------------------------------------------------------
-def configure_vaccination_plans_url(self):
+def configure_vaccination_plans_url():
 
 	def is_valid(value):
 		value = value.strip()

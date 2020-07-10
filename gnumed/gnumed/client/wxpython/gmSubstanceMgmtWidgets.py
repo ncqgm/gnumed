@@ -59,9 +59,9 @@ def configure_drug_data_source(parent=None):
 		option = 'external.drug_data.default_source',
 		bias = 'user',
 		default_value = None,
-		choices = gmDrugDataSources.drug_data_source_interfaces.keys(),
+		choices = list(gmDrugDataSources.drug_data_source_interfaces),
 		columns = [_('Drug data source')],
-		data = gmDrugDataSources.drug_data_source_interfaces.keys(),
+		data = list(gmDrugDataSources.drug_data_source_interfaces),
 		caption = _('Configuring default drug data source')
 	)
 
