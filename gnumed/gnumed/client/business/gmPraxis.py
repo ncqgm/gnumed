@@ -584,6 +584,15 @@ where
 
 	user_email = property(_get_user_email, _set_user_email)
 
+#------------------------------------------------------------
+def activate_first_praxis_branch():
+	_log.debug('activating first praxis branch as current')
+	branches = get_praxis_branches()
+	if not branches:
+		return None
+
+	return gmCurrentPraxisBranch(branch = branches[0])
+
 #============================================================
 if __name__ == '__main__':
 
