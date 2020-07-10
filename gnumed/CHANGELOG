@@ -29,6 +29,8 @@ FIX: CLI: --ui= not needed anymore
 
 NEW: tool: fingerprint_db
 
+IMPROVED: forms: log pdflatex version
+
 	1.8.2
 
 FIX: dicom: exception on uploading malformed DCM to Orthanc
