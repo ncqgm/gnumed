@@ -1063,6 +1063,8 @@ form_engines['T'] = cTextForm
 class cLaTeXForm(cFormEngine):
 	"""A forms engine wrapping LaTeX (pdflatex)."""
 
+	_version_checked = False
+
 	def __init__(self, template_file=None):
 
 		# create sandbox for LaTeX to play in (and don't assume
@@ -1073,7 +1075,7 @@ class cLaTeXForm(cFormEngine):
 		shutil.copy(template_file, sandbox_dir)
 		template_file = os.path.join(sandbox_dir, os.path.split(template_file)[1])
 
-		super(self.__class__, self).__init__(template_file = template_file)
+		super().__init__(template_file = template_file)
 
 		self.__sandbox_dir = sandbox_dir
 
@@ -1089,6 +1091,13 @@ class cLaTeXForm(cFormEngine):
 			"-output-directory=%s" % self.__sandbox_dir
 		]
 		self._draft_cmd_line = self._final_cmd_line + ['-draftmode']
+
+		if not cLaTeXForm._version_checked:
+			cLaTeXForm._version_checked = True
+			cmd_line = [executable, '-version']
+			success, ret_code, stdout = gmShellAPI.run_process(cmd_line = cmd_line, encoding = 'utf8', verbose = True)
+			if not success:
+				_log.error('[%s] failed, LaTeX forms not usable', cmd_line)
 
 	#--------------------------------------------------------
 	def _rst2latex_transform(self, text):
@@ -2409,6 +2418,10 @@ if __name__ == '__main__':
 
 	#test_cFormTemplate()
 	#set_template_from_file()
+
+	gmPG2.request_login_params(setup_pool = True)
+	if not gmPraxis.activate_first_praxis_branch():
+		print('no praxis')
 	test_latex_form()
 	#test_pdf_form()
 	#test_abiword_form()
