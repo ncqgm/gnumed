@@ -31,6 +31,11 @@ NEW: tool: fingerprint_db
 
 IMPROVED: forms: log pdflatex version
 
+FIX: meds: drug data source selection [thanks bganglia892]
+FIX: meds: ADR URL configuration [thanks bganglia892]
+FIX: vaccs: ADR URL configuration [thanks bganglia892]
+FIX: tests: LOINC import fixup [thanks bganglia892]
+
 	1.8.2
 
 FIX: dicom: exception on uploading malformed DCM to Orthanc

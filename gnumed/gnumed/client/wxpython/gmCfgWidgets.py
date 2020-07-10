@@ -1,7 +1,6 @@
 """GNUmed configuration related widgets.
 """
 #================================================================
-__version__ = '$Revision: 1.4 $'
 __author__ = 'karsten.hilbert@gmx.net'
 __license__ = 'GPL v2 or later (details at http://www.gnu.org)'
 
