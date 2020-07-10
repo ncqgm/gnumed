@@ -300,6 +300,7 @@ def __request_login_params_tui():
 		gmLog2.add_word2hide(login.password)
 		login.port = prompted_input(prompt = "port", default = 5432)
 	except KeyboardInterrupt:
+		del login
 		_log.warning("user cancelled text mode login dialog")
 		print("user cancelled text mode login dialog")
 		raise gmExceptions.ConnectionError(_("Cannot connect to database without login information!"))
@@ -346,21 +347,28 @@ def __request_login_params_gui_wx():
 	return login, creds
 
 #---------------------------------------------------
-def request_login_params():
+def request_login_params(setup_pool=False):
 	"""Request login parameters for database connection."""
-
 	# are we inside X ?
 	# if we aren't wxGTK will crash hard at the C-level with "can't open Display"
 	if 'DISPLAY' in os.environ:
 		# try wxPython GUI
 		try:
-			return __request_login_params_gui_wx()
+			login, creds = __request_login_params_gui_wx()
 		except Exception:
 			pass
+		if setup_pool:
+			pool = gmConnectionPool.gmConnectionPool()
+			pool.credentials = creds
+		return login, creds
 
 	# well, either we are on the console or
 	# wxPython does not work, use text mode
-	return __request_login_params_tui()
+	login, creds = __request_login_params_tui()
+	if setup_pool:
+		pool = gmConnectionPool.gmConnectionPool()
+		pool.credentials = creds
+	return login, creds
 
 # =======================================================================
 # netadata API
