@@ -155,9 +155,18 @@ def compare_versions(left_version, right_version):
 	-1: left < right
 	 1: left > right
 	"""
+	_log.debug('comparing [%s] with [%s]', left_version, right_version)
 	if left_version == right_version:
-		_log.debug('same version: [%s] = [%s]', left_version, right_version)
+		_log.debug('same version')
 		return 0
+
+	if right_version in ['head', 'dev', 'devel']:
+		_log.debug('development code')
+		return -1
+
+	if left_version in ['head', 'dev', 'devel']:
+		_log.debug('development code')
+		return 1
 
 	left_parts = left_version.split('.')
 	right_parts = right_version.split('.')
