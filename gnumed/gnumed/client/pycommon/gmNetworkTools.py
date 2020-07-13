@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-
-
 __doc__ = """GNUmed internetworking tools."""
 
 #===========================================================================
@@ -203,8 +201,12 @@ def check_for_update(url=None, current_branch=None, current_version=None, consid
 	False: up to date
 	None: don't know
 	"""
-	if current_version == 'GIT HEAD':
-		_log.debug('GIT HEAD always up to date')
+	if current_version is None:
+		_log.debug('<current_version> is None, currency unknown')
+		return (None, None)
+
+	if current_version.lower() in ['git head', 'head', 'tip', 'dev', 'devel']:
+		_log.debug('[%s] always considered up to date', current_version)
 		return (False, None)
 
 	try:
