@@ -28,17 +28,15 @@ from Gnumed.wxpython import gmListWidgets
 
 
 _log = logging.getLogger('gm.ui')
-_log.info(__version__)
 
 #==============================================================================
 def _get_update_status():
-
 	dbcfg = gmCfg.cCfgSQL()
 	url = dbcfg.get2 (
 		option = 'horstspace.update.url',
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 		bias = 'workplace',
-		default = 'http://www.gnumed.de/downloads/gnumed-versions.txt'
+		default = 'https://www.gnumed.de/downloads/gnumed-versions.txt'
 	)
 	consider_latest_branch = bool(dbcfg.get2 (
 		option = 'horstspace.update.consider_latest_branch',
@@ -46,7 +44,6 @@ def _get_update_status():
 		bias = 'workplace',
 		default = True
 	))
-
 	_cfg = gmCfg2.gmCfgData()
 	update_found, msg = gmNetworkTools.check_for_update (
 		url = url,
@@ -54,7 +51,6 @@ def _get_update_status():
 		current_version = _cfg.get(option = 'client_version'),
 		consider_latest_branch = consider_latest_branch
 	)
-
 	return update_found, msg
 
 #------------------------------------------------------------------------------
@@ -66,10 +62,7 @@ def _signal_update_status(status):
 		gmDispatcher.send(signal = 'statustext', msg = _('Your client (%s) is up to date.') % _cfg.get(option = 'client_version'))
 		return
 
-	gmGuiHelpers.gm_show_info (
-		msg,
-		_('Checking for client updates')
-	)
+	gmGuiHelpers.gm_show_info(msg, _('Checking for client updates'))
 
 #------------------------------------------------------------------------------
 def _async_signal_update_status(status):
@@ -78,7 +71,6 @@ def _async_signal_update_status(status):
 
 #------------------------------------------------------------------------------
 def check_for_updates(do_async=False):
-
 	if do_async:
 		gmWorkerThread.execute_in_worker_thread (
 			payload_function = _get_update_status,
@@ -387,5 +379,8 @@ if __name__ == '__main__':
 
 	if sys.argv[1] != 'test':
 		sys.exit()
+
+	from Gnumed.pycommon import gmPG2
+	gmPG2.request_login_params(setup_pool = True)
 
 	check_for_updates()
