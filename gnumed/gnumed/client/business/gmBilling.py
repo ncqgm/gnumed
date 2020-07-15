@@ -629,57 +629,22 @@ def generate_invoice_id(template=None, pk_patient=None, person=None, date_format
 	return candidate_invoice_id.replace(u'#counter#', '%s' % counter)
 
 #------------------------------------------------------------
-#------------------------------------------------------------
-# Remaining problems with invoice ID locking:
-#
-# If you run a 1.8.0rc1 client the lock can overflow PG's pg_try_advisory_lock().
-#
-# If you run both 1.8.0rc1 and 1.7 (<1.7.9) and happen to lock at the same
-# time the lock may succeed when it should not, because crc32/adler32 return
-# different representationel ranges in py2 and py3.
-#
-# If you run 1.7 (<1.7.9) on both "Python < 2.6" and "Python 2.6 or beyond"
-# and happen to lock at the same time the lock may succeed when it should
-# not, because crc32/adler32 return results with signedness depending on
-# platform.
-#------------------------------------------------------------
-#
-# remove in 1.9 / DB v23:
-def __lock_invoice_id_1_7_legacy(invoice_id):
-	"""Get 1.7 legacy (<1.7.9) lock.
+def __generate_invoice_id_lock_token(invoice_id):
+	"""Turn invoice ID into integer token for PG level locking.
 
-	The fix is to *down*shift py3 checksums into the py2 result range.
-	How to do that was suggested by MRAB on the Python mailing list.
-
-		https://www.mail-archive.com/python-list@python.org/msg447989.html
-
-	Problems:
-	- on py2 < 2.6 (client 1.7) signedness inconsistent across platforms
-	- on py3 (client 1.8), range shifted by & 0xffffffff
-
-	Because both 1.7 (<1.7.9) and 1.8 can run against the same
-	database v22 we need to retain this legacy lock until DB v23.
+	CAUTION: This is NOT compatible with any of 1.8 or below.
+	Do NOT attempt to run this against a v22 database at the
+	risk of duplicate invoice IDs.
 	"""
-	_log.debug('legacy locking invoice ID: %s', invoice_id)
-	py3_crc32 = zlib.crc32(bytes(invoice_id, 'utf8'))
-	py3_adler32 = zlib.adler32(bytes(invoice_id, 'utf8'))
-	signed_crc32 = py3_crc32 - (py3_crc32 & 0x80000000) * 2
-	signed_adler32 = py3_adler32 - (py3_adler32 & 0x80000000) * 2
-	_log.debug('crc32: %s (py3, unsigned) -> %s (py2.6+, signed)', py3_crc32, signed_crc32)
-	_log.debug('adler32: %s (py3, unsigned) -> %s (py2.6+, signed)', py3_adler32, signed_adler32)
-	cmd = u"""SELECT pg_try_advisory_lock(%s, %s)""" % (signed_crc32, signed_adler32)
-	try:
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
-	except gmPG2.dbapi.ProgrammingError:
-		# should not happen
-		_log.exception('cannot lock invoice ID: [%s] (%s/%s)', invoice_id, signed_crc32, signed_adler32)
-		return False
-
-	if rows[0][0]:
-		return True
-
-	_log.error('cannot lock invoice ID: [%s] (%s/%s)', invoice_id, signed_crc32, signed_adler32)
-	return False
+	_log.debug('invoice ID: %s', invoice_id)
+	data4adler32 = 'adler32---[%s]---[%s]' % (invoice_id, invoice_id)
+	adler32 = zlib.adler32(bytes(data4adler32, 'utf8'))
+	_log.debug('adler32: %s', adler32)
+	data4crc32 = 'crc32---[%s]---[adler32:%s]' % (invoice_id, adler32)
+	_log.debug('data for CRC 32: %s', data4crc32)
+	crc32 = zlib.crc32(bytes(data4crc32, 'utf8'), adler32)
+	_log.debug('CRC 32: %s', crc32)
+	return crc32
 
 #------------------------------------------------------------
 def lock_invoice_id(invoice_id):
@@ -690,73 +655,29 @@ def lock_invoice_id(invoice_id):
 	Because the data is short _and_ crc32/adler32 are fairly
 	weak we assume that collisions can be created "easily".
 	Therefore we apply both algorithms concurrently.
+
+	NOT compatible with anything 1.8 or below.
 	"""
 	_log.debug('locking invoice ID: %s', invoice_id)
-	# remove in 1.9 / DB v23:
-	if not __lock_invoice_id_1_7_legacy(invoice_id):
-		return False
-
-	# get py2/py3 compatible lock:
-	# - upshift py2 result by & 0xffffffff for signedness consistency
-	# - still use both crc32 and adler32 but chain the result of
-	#   the former into the latter so we can take advantage of
-	#   pg_try_advisory_lock(BIGINT)
-	unsigned_crc32 = zlib.crc32(bytes(invoice_id, 'utf8')) & 0xffffffff
-	_log.debug('unsigned crc32: %s', unsigned_crc32)
-	data4adler32 = u'%s---[%s]' % (invoice_id, unsigned_crc32)
-	_log.debug('data for adler32: %s', data4adler32)
-	unsigned_adler32 = zlib.adler32(bytes(data4adler32, 'utf8'), unsigned_crc32) & 0xffffffff
-	_log.debug('unsigned (crc32-chained) adler32: %s', unsigned_adler32)
-	cmd = u"SELECT pg_try_advisory_lock(%s)" % (unsigned_adler32)
+	token = __generate_invoice_id_lock_token(invoice_id)
+	cmd = "SELECT pg_try_advisory_lock(%s)" % token
 	try:
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
 	except gmPG2.dbapi.ProgrammingError:
-		_log.exception('cannot lock invoice ID: [%s] (%s)', invoice_id, unsigned_adler32)
+		_log.exception('cannot lock invoice ID: [%s] (%s)', invoice_id, token)
 		return False
 
 	if rows[0][0]:
 		return True
 
-	_log.error('cannot lock invoice ID: [%s] (%s)', invoice_id, unsigned_adler32)
-	return False
-
-#------------------------------------------------------------
-def __unlock_invoice_id_1_7_legacy(invoice_id):
-	_log.debug('legacy unlocking invoice ID: %s', invoice_id)
-	py3_crc32 = zlib.crc32(bytes(invoice_id, 'utf8'))
-	py3_adler32 = zlib.adler32(bytes(invoice_id, 'utf8'))
-	signed_crc32 = py3_crc32 - (py3_crc32 & 0x80000000) * 2
-	signed_adler32 = py3_adler32 - (py3_adler32 & 0x80000000) * 2
-	_log.debug('crc32: %s (py3, unsigned) -> %s (py2.6+, signed)', py3_crc32, signed_crc32)
-	_log.debug('adler32: %s (py3, unsigned) -> %s (py2.6+, signed)', py3_adler32, signed_adler32)
-	cmd = u"""SELECT pg_advisory_unlock(%s, %s)""" % (signed_crc32, signed_adler32)
-	try:
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
-	except gmPG2.dbapi.ProgrammingError:
-		_log.exception('cannot unlock invoice ID: [%s] (%s/%s)', invoice_id, signed_crc32, signed_adler32)
-		return False
-
-	if rows[0][0]:
-		return True
-
-	_log.error('cannot unlock invoice ID: [%s] (%s/%s)', invoice_id, signed_crc32, signed_adler32)
+	_log.error('cannot lock invoice ID: [%s] (%s)', invoice_id, token)
 	return False
 
 #------------------------------------------------------------
 def unlock_invoice_id(invoice_id):
 	_log.debug('unlocking invoice ID: %s', invoice_id)
-	# remove in 1.9 / DB v23:
-	if not __unlock_invoice_id_1_7_legacy(invoice_id):
-		return False
-
-	# unlock
-	unsigned_crc32 = zlib.crc32(bytes(invoice_id, 'utf8')) & 0xffffffff
-	_log.debug('unsigned crc32: %s', unsigned_crc32)
-	data4adler32 = u'%s---[%s]' % (invoice_id, unsigned_crc32)
-	_log.debug('data for adler32: %s', data4adler32)
-	unsigned_adler32 = zlib.adler32(bytes(data4adler32, 'utf8'), unsigned_crc32) & 0xffffffff
-	_log.debug('unsigned (crc32-chained) adler32: %s', unsigned_adler32)
-	cmd = u"SELECT pg_advisory_unlock(%s)" % (unsigned_adler32)
+	token = __generate_invoice_id_lock_token(invoice_id)
+	cmd = u"SELECT pg_advisory_unlock(%s)" % token
 	try:
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
 	except gmPG2.dbapi.ProgrammingError:
@@ -842,6 +763,9 @@ if __name__ == "__main__":
 #	gmI18N.activate_locale()
 	gmDateTime.init()
 
+	gmPG2.request_login_params(setup_pool = True)
+
+	#--------------------------------------------------
 	def test_default_address():
 		bills = get_bills(pk_patient = 12)
 		first_bill = bills[0]
