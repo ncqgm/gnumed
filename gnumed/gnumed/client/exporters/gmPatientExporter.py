@@ -597,11 +597,11 @@ class cEmrExport:
             id_episode,cookie = emr_tree.GetNextChild( issue_node, cookie)
 
         existing_episode_pk = [ e['pk_episode'] for e in episodes]
-        missing_tree_pk = [ pk for pk in tree_episodes.keys() if pk not in existing_episode_pk]
+        missing_tree_pk = [ pk for pk in tree_episodes if pk not in existing_episode_pk]
         for pk in missing_tree_pk:
             emr_tree.Remove( tree_episodes[pk] )
 
-        added_episode_pk = [pk for pk in existing_episode_pk if pk not in tree_episodes.keys()]
+        added_episode_pk = [pk for pk in existing_episode_pk if pk not in tree_episodes]
         add_episodes = [ e for e in episodes if e['pk_episode'] in added_episode_pk]
 
         #check for added episodes and update tree
@@ -628,12 +628,12 @@ class cEmrExport:
 #            encounters = self._get_encounters( a_health_issue, an_episode, emr )
             encounters = self._get_encounters( an_episode, emr )
             existing_enc_pk = [ enc['pk_encounter'] for enc in encounters]
-            missing_enc_pk = [ pk  for pk in tree_enc.keys() if pk not in existing_enc_pk]
+            missing_enc_pk = [ pk  for pk in tree_enc if pk not in existing_enc_pk]
             for pk in missing_enc_pk:
                 emr_tree.Remove( tree_enc[pk] )
 
             # check for added encounter
-            added_enc_pk = [ pk for pk in existing_enc_pk if pk not in tree_enc.keys() ]
+            added_enc_pk = [ pk for pk in existing_enc_pk if pk not in tree_enc ]
             add_encounters = [ enc for enc in encounters if enc['pk_encounter'] in added_enc_pk]
             if add_encounters != []:
                 #print "DEBUG found encounters to add"

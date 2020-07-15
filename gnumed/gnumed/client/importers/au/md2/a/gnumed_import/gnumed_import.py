@@ -78,7 +78,7 @@ def get_dbapi(dbapi_n):
 		'pygresql': ('pygresql'		, 	'')
 		}
 	
-	others = dbapi_tab.keys()
+	others = list(dbapi_tab)
 	others.remove(dbapi_n)
 	
 	l = [dbapi_n] + others
@@ -925,7 +925,7 @@ def clean_progress_notes(cu, id_patient):
 	for x in deletable_epi:
 		unique_deletable_epi[x] = 1
 
-	for pk_epi in unique_deletable_epi.keys():
+	for pk_epi in unique_deletable_epi:
 		deletable = True
 		for t in tables:
 			stmt = "select count(*) from %s where fk_episode = %d" % (t, pk_epi)

@@ -1876,7 +1876,7 @@ def run_insert(link_obj=None, schema=None, table=None, values=None, returning=No
 	if schema is None:
 		schema = 'public'
 
-	fields = values.keys()		# that way val_snippets and fields really should end up in the same order
+	fields = list(values)		# that way val_snippets and fields really should end up in the same order
 	val_snippets = []
 	for field in fields:
 		val_snippets.append('%%(%s)s' % field)
@@ -2059,7 +2059,7 @@ def sanity_check_database_settings():
 	cmd = "SELECT name, setting from pg_settings where name in %(settings)s"
 	rows, idx = run_ro_queries (
 		link_obj = conn,
-		queries = [{'cmd': cmd, 'args': {'settings': tuple(options2check.keys())}}],
+		queries = [{'cmd': cmd, 'args': {'settings': tuple(options2check)}}],
 		get_col_idx = False
 	)
 

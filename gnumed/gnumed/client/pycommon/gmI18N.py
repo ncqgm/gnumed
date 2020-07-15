@@ -125,10 +125,10 @@ def __log_locale_settings(message=None):
 
 	_log.debug('current locale settings:')
 	_log.debug('locale.getlocale(): %s' % str(locale.getlocale()))
-	for category in _getlocale_categories.keys():
+	for category in _getlocale_categories:
 		_log.debug('locale.getlocale(%s): %s' % (category, locale.getlocale(_getlocale_categories[category])))
 
-	for category in _setlocale_categories.keys():
+	for category in _setlocale_categories:
 		_log.debug('(locale.setlocale(%s): %s)' % (category, locale.setlocale(_setlocale_categories[category])))
 
 	try:
@@ -171,7 +171,7 @@ def __log_locale_settings(message=None):
 
 	_log.debug('database of locale conventions:')
 	data = locale.localeconv()
-	for key in data.keys():
+	for key in data:
 		if loc_enc is None:
 			_log.debug('locale.localeconv(%s): %s', key, data[key])
 		else:
@@ -186,7 +186,7 @@ def __log_locale_settings(message=None):
 		except Exception:
 			_log.warning('this OS does not support nl_langinfo category locale.%s' % category)
 	try:
-		for category in _nl_langinfo_categories.keys():
+		for category in _nl_langinfo_categories:
 			if loc_enc is None:
 				_log.debug('locale.nl_langinfo(%s): %s' % (category, locale.nl_langinfo(_nl_langinfo_categories[category])))
 			else:

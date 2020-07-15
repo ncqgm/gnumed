@@ -98,7 +98,8 @@ class cWaitingListEntryEditAreaPnl(wxgWaitingListEntryEditAreaPnl.wxgWaitingList
 		pats = praxis.waiting_list_patients
 		zones = {}
 		zones.update([ [p['waiting_zone'], None] for p in pats if p['waiting_zone'] is not None ])
-		self._PRW_zone.update_matcher(items = zones.keys())
+		self._PRW_zone.update_matcher(items = list(zones))
+
 	#--------------------------------------------------------
 	# edit area mixin API
 	#--------------------------------------------------------
@@ -266,7 +267,7 @@ class cWaitingListPnl(wxgWaitingListPnl.wxgWaitingListPnl, gmRegetMixin.cRegetOn
 		# set matcher to all zones currently in use
 		zones = {}
 		zones.update([ [p['waiting_zone'], None] for p in pats if p['waiting_zone'] is not None ])
-		self._PRW_zone.update_matcher(items = zones.keys())
+		self._PRW_zone.update_matcher(items = list(zones))
 
 		# filter patient list by zone and set waiting list
 		self.__current_zone = self._PRW_zone.GetValue().strip()

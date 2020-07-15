@@ -106,7 +106,7 @@ class cPatientListingCtrl(gmListWidgets.cReportListCtrl):
 				'Select the column which contains patient IDs:\n'
 			) % self.patient_key,
 			caption = _('Choose column from query results ...'),
-			choices = data.keys(),
+			choices = list(data),
 			columns = [_('Column name')],
 			single_selection = True
 		)
@@ -385,7 +385,7 @@ class cDataMiningPnl(wxgDataMiningPnl.wxgDataMiningPnl):
 			parent = self,
 			msg = _('Choose a column to be used as the X-Axis:'),
 			caption = _('Choose column from query results ...'),
-			choices = self.query_results[0].keys(),
+			choices = list(self.query_results[0]),
 			columns = [_('Column name')],
 			single_selection = True
 		)
@@ -396,7 +396,7 @@ class cDataMiningPnl(wxgDataMiningPnl.wxgDataMiningPnl):
 			parent = self,
 			msg = _('Choose a column to be used as the Y-Axis:'),
 			caption = _('Choose column from query results ...'),
-			choices = self.query_results[0].keys(),
+			choices = list(self.query_results[0]),
 			columns = [_('Column name')],
 			single_selection = True
 		)

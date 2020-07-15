@@ -910,17 +910,17 @@ class cOrthancServer:
 					orth_study['PatientMainDicomTags']
 				except KeyError:
 					orth_study['PatientMainDicomTags'] = pat['MainDicomTags']
-				for key in orth_study.keys():
+				for key in orth_study:
 					if key == 'MainDicomTags':
-						for mkey in orth_study['MainDicomTags'].keys():
+						for mkey in orth_study['MainDicomTags']:
 							study_dict['all_tags'][mkey] = orth_study['MainDicomTags'][mkey].strip()
 						continue
 					if key == 'PatientMainDicomTags':
-						for pkey in orth_study['PatientMainDicomTags'].keys():
+						for pkey in orth_study['PatientMainDicomTags']:
 							study_dict['all_tags'][pkey] = orth_study['PatientMainDicomTags'][pkey].strip()
 						continue
 					study_dict['all_tags'][key] = orth_study[key]
-				_log.debug('study: %s', study_dict['all_tags'].keys())
+				_log.debug('study: %s', list(study_dict['all_tags']))
 				for key in study_keys2hide:
 					try: del study_dict['all_tags'][key]
 					except KeyError: pass
@@ -1023,13 +1023,13 @@ class cOrthancServer:
 					for key in series_dict:
 						series_dict[key] = cleanup_dicom_string(series_dict[key])
 					series_dict['all_tags'] = {}
-					for key in orth_series.keys():
+					for key in orth_series:
 						if key == 'MainDicomTags':
-							for mkey in orth_series['MainDicomTags'].keys():
+							for mkey in orth_series['MainDicomTags']:
 								series_dict['all_tags'][mkey] = orth_series['MainDicomTags'][mkey].strip()
 							continue
 						series_dict['all_tags'][key] = orth_series[key]
-					_log.debug('series: %s', series_dict['all_tags'].keys())
+					_log.debug('series: %s', list(series_dict['all_tags']))
 					for key in series_keys2hide:
 						try: del series_dict['all_tags'][key]
 						except KeyError: pass
@@ -1055,7 +1055,7 @@ class cOrthancServer:
 		if not allow_cached:
 			headers['cache-control'] = 'no-cache'
 		params = ''
-		if len(data.keys()) > 0:
+		if data:
 			params = '?' + urlencode(data)
 		url_with_params = url + params
 		#_log.debug('URL with parameters: >>>%s<<<', url_with_params)

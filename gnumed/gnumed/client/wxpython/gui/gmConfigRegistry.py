@@ -89,7 +89,7 @@ class cConfTree(wx.TreeCtrl):
 
 		# now get subtrees for four maingroups (see __init__)
 
-		for nodeDescription in (self.mConfSources.keys()):
+		for nodeDescription in self.mConfSources:
 
 			_log.Log(gmLog.lData, 'adding first level node: [%s]' % nodeDescription)
 			node = self.AppendItem(self.root, nodeDescription)
@@ -126,7 +126,7 @@ class cConfTree(wx.TreeCtrl):
 			return None
 
 		# check if subtree has children
-		childrenList = aSubTree[1].keys()
+		childrenList = list(aSubTree[1])
 		if childrenList is None:
 			return None
 		self.SetItemHasChildren(aNode, True)

@@ -70,7 +70,7 @@ class GuiBroker:
 
 	def keylist(self):
 		" returns a list of all keys; see documentation for the dictionary data type"
-		return GuiBroker.__objects.keys()
+		return list(GuiBroker.__objects)
 
 
 

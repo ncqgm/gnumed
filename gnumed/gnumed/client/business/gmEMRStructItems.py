@@ -3263,7 +3263,7 @@ class cProblem(gmBusinessDBObject.cBusinessDBObject):
 		# so we must programmatically construct the SQL query
 		where_parts = []
 		pk = {}
-		for col_name in aPK_obj.keys():
+		for col_name in aPK_obj:
 			val = aPK_obj[col_name]
 			if val is None:
 				where_parts.append('%s IS NULL' % col_name)

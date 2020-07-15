@@ -3070,8 +3070,7 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 		for col in cols:
 			if col < self.ColumnCount:
 				new_cols[col] = True
-		#print "actually setting searchable cols to:", new_cols.keys()
-		self.__searchable_cols = new_cols.keys()
+		self.__searchable_cols = list(new_cols)
 
 	searchable_columns = property(lambda x:x, _set_searchable_cols)
 

@@ -846,7 +846,7 @@ if __name__ == '__main__':
 
 
 	def print_substs():
-		for moniker in _VACCINE_SUBSTANCES.keys():
+		for moniker in _VACCINE_SUBSTANCES:
 			subst = _VACCINE_SUBSTANCES[moniker]
 			print(moniker)
 			print(' substance:', subst['name'])

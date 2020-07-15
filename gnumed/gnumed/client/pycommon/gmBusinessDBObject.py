@@ -355,7 +355,7 @@ def manage_xxx()
 		result = self.refetch_payload(link_obj = link_obj)
 		if result is True:
 			self.payload_most_recently_fetched = {}
-			for field in self._idx.keys():
+			for field in self._idx:
 				self.payload_most_recently_fetched[field] = self._payload[self._idx[field]]
 			return True
 
@@ -398,7 +398,7 @@ def manage_xxx()
 			self.pk_obj = row['pk_obj']
 
 		self.payload_most_recently_fetched = {}
-		for field in self._idx.keys():
+		for field in self._idx:
 			self.payload_most_recently_fetched[field] = self._payload[self._idx[field]]
 
 	#--------------------------------------------------------
@@ -413,7 +413,7 @@ def manage_xxx()
 	def __str__(self):
 		lines = []
 		try:
-			for attr in self._idx.keys():
+			for attr in self._idx:
 				if self._payload[self._idx[attr]] is None:
 					lines.append('%s: NULL' % attr)
 				else:
@@ -440,7 +440,7 @@ def manage_xxx()
 		getter = getattr(self, 'get_%s' % attribute, None)
 		if not callable(getter):
 			_log.warning('[%s]: no attribute [%s]' % (self.__class__.__name__, attribute))
-			_log.warning('[%s]: valid attributes: %s' % (self.__class__.__name__, str(self._idx.keys())))
+			_log.warning('[%s]: valid attributes: %s', self.__class__.__name__, list(self._idx))
 			_log.warning('[%s]: no getter method [get_%s]' % (self.__class__.__name__, attribute))
 			methods = [ m for m in inspect.getmembers(self, inspect.ismethod) if m[0].startswith('get_') ]
 			_log.warning('[%s]: valid getter methods: %s' % (self.__class__.__name__, str(methods)))
@@ -502,7 +502,7 @@ def manage_xxx()
 	#--------------------------------------------------------
 	def get_fields(self):
 		try:
-			return self._idx.keys()
+			return list(self._idx)
 		except AttributeError:
 			return 'nascent [%s @ %s], cannot return keys' %(self.__class__.__name__, id(self))
 
@@ -517,7 +517,7 @@ def manage_xxx()
 		else:
 			bools = {True: bool_strings[0], False: bool_strings[1]}
 		data = {}
-		for field in self._idx.keys():
+		for field in self._idx:
 			# FIXME: harden against BYTEA fields
 			#if type(self._payload[self._idx[field]]) == ...
 			#	data[field] = _('<%s bytes of binary data>') % len(self._payload[self._idx[field]])
@@ -707,7 +707,7 @@ def manage_xxx()
 			return (True, None)
 
 		args = {}
-		for field in self._idx.keys():
+		for field in self._idx:
 			args[field] = self._payload[self._idx[field]]
 		self.payload_most_recently_attempted_to_store = args
 
@@ -763,7 +763,7 @@ def manage_xxx()
 
 		# update to new "original" payload
 		self.payload_most_recently_fetched = {}
-		for field in self._idx.keys():
+		for field in self._idx:
 			self.payload_most_recently_fetched[field] = self._payload[self._idx[field]]
 
 		return (True, None)

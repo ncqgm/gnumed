@@ -2208,7 +2208,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 		if self.__expanded_nodes is None:
 			# but only if there are any
 			if self.__sort_mode in ['episode', 'type', 'issue', 'org']:
-				for key in intermediate_nodes.keys():
+				for key in intermediate_nodes:
 					self.Expand(intermediate_nodes[key])
 
 		wx.EndBusyCursor()
@@ -2354,7 +2354,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 				if l1 == l2:
 					return 0
 				return 1
-			_log.error('dict but unknown content: %s', data1.keys())
+			_log.error('dict but unknown structure: %s', list(data1))
 			return 1
 
 		# doc.year node

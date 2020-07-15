@@ -322,7 +322,7 @@ def _call(receiver, **kwds):
 	if not (func_code_def.co_flags & 0x08):
 		# func_code_def does not have a **kwds type parameter,
 		# therefore remove unacceptable arguments.
-		keys = list(kwds.keys())
+		keys = list(kwds)
 		for arg in keys:
 			if arg not in acceptable_args:
 				del kwds[arg]
@@ -337,8 +337,8 @@ def _call(receiver, **kwds):
 #---------------------------------------------------------------------
 def _removeReceiver(receiver):
 	"""Remove receiver from connections."""
-	for sender_identity in connections.keys():
-		for signal in connections[sender_identity].keys():
+	for sender_identity in connections:
+		for signal in connections[sender_identity]:
 			receivers = connections[sender_identity][signal]
 			try:
 				receivers.remove(receiver)

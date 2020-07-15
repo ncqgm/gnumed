@@ -576,7 +576,7 @@ class cResizingSTC(wx.stc.StyledTextCtrl):
 
 		# is currently relevant term a keyword for popping up an edit area or something ?
 		fragment = self.__get_focussed_fragment()
-		if fragment in self.__popup_keywords.keys():
+		if fragment in self.__popup_keywords:
 #			self.__timer.Stop()
 			self.__handle_keyword(fragment)
 			return
@@ -894,7 +894,7 @@ if __name__ == '__main__':
 		print("actually this would have to return a suitable wx.Window subclass instance")
 		print("args:", args)
 		print("kwd args:")
-		for key in kwargs.keys():
+		for key in kwargs:
 			print(key, "->", kwargs[key])
 	#================================================================
 	def create_widget_on_test_kwd2(*args, **kwargs):
@@ -904,7 +904,7 @@ if __name__ == '__main__':
 		)
 		for arg in args:
 			msg = msg + "\narg ==> %s" % arg
-		for key in kwargs.keys():
+		for key in kwargs():
 			msg = msg + "\n%s ==> %s" % (key, kwargs[key])
 		gmGuiHelpers.gm_show_info (
 			aMessage = msg,

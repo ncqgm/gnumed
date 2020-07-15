@@ -741,7 +741,7 @@ class cEditArea2(wx.Panel):
 		# and generate edit area from it
 		szr_main_fgrid = wx.FlexGridSizer(rows = len(self.prompts), cols=2)
 		color = richards_aqua
-		lines = self.prompts.keys()
+		lines = list(self.prompts)
 		lines.sort()
 		for line in lines:
 			# 1) prompt
@@ -761,7 +761,7 @@ class cEditArea2(wx.Panel):
 
 			# 2) widget(s) for line
 			szr_line = wx.BoxSizer(wx.HORIZONTAL)
-			positions = self.fields[line].keys()
+			positions = list(self.fields[line])
 			positions.sort()
 			for pos in positions:
 				field, weight = self.fields[line][pos]
@@ -903,7 +903,7 @@ class cEditArea(wx.Panel):
 		prompt_pnl.SetBackgroundColour(richards_light_gray)
 		# make them
 		color = richards_aqua
-		lines = self.prompts.keys()
+		lines = list(self.prompts)
 		lines.sort()
 		self.prompt_widget = {}
 		for line in lines:
@@ -939,12 +939,12 @@ class cEditArea(wx.Panel):
 		self.fields_pnl.SetBackgroundColour(wx.Colour(222,222,222))
 		# rows, cols, hgap, vgap
 		vszr = wx.BoxSizer(wx.VERTICAL)
-		lines = self.fields.keys()
+		lines = list(self.fields)
 		lines.sort()
 		self.field_line_szr = {}
 		for line in lines:
 			self.field_line_szr[line] = wx.BoxSizer(wx.HORIZONTAL)
-			positions = self.fields[line].keys()
+			positions = list(self.fields[line])
 			positions.sort()
 			for pos in positions:
 				field, weight = self.fields[line][pos]
@@ -1118,7 +1118,7 @@ class cEditArea(wx.Panel):
 	def _on_resize_fields (self, event):
 		self.fields_pnl.Layout()
 		# resize the prompts accordingly
-		for i in self.field_line_szr.keys():
+		for i in self.field_line_szr:
 			# query the BoxSizer to find where the field line is
 			pos = self.field_line_szr[i].GetPosition()
 			# and set the prompt lable to the same Y position
@@ -1255,9 +1255,9 @@ class gmEditArea(cEditArea):
 
 	def _get_init_values(self):
 		map = {}
-		for k in self.input_fields.keys():
+		for k in self.input_fields:
 			map[k] = ''
-		return map	
+		return map
 
 	#--------------------------------------------------------
 	def _init_fields(self):
@@ -1370,7 +1370,7 @@ class gmEditArea(cEditArea):
 
 	def getInputFieldValues(self, fields = None):
 		if fields == None:
-			fields = self.input_fields.keys()
+			fields = list(self.input_fields)
 		values = {}
 		for f in fields:
 			try:
@@ -1796,7 +1796,7 @@ class gmPnlEditAreaPrompts(wx.Panel):
 		self.SetBackgroundColour(richards_light_gray)
 		gszr = wx.GridSizer (len(prompt_labels)+1, 1, 2, 2)
 		color = richards_aqua
-		for prompt_key in prompt_labels.keys():
+		for prompt_key in prompt_labels:
 			label = cPrompt_edit_area(self, -1, " %s" % prompt_labels[prompt_key], aColor = color)
 			gszr.Add(label, 0, wx.EXPAND | wx.ALIGN_RIGHT)
 			color = richards_blue

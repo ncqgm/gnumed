@@ -422,7 +422,7 @@ class cLDTImporter:
 			_log.LogException('cannot get lab request', sys.exc_info(), verbose=0)
 			return False
 		# update fields in request from request_data
-		for line_type in request_data.keys():
+		for line_type in request_data:
 			# get handler
 			try:
 				handle_line = cLDTImporter.__820xline_handler[line_type]
@@ -530,7 +530,7 @@ class cLDTImporter:
 			return False
 
 		# update fields in request from request_data
-		for line_type in request_data.keys():
+		for line_type in request_data:
 			# get handler
 			try:
 				handle_line = cLDTImporter.__820xline_handler[line_type]
@@ -802,7 +802,7 @@ class cLDTImporter:
 		if self.__ref_group_str != '':
 			self.__lab_result['ref_group'] = self.__ref_group_str
 		# - process lines
-		for line_type in result_data.keys():
+		for line_type in result_data:
 			# get handler
 			try:
 				handle_line = cLDTImporter.__8410line_handler[line_type]

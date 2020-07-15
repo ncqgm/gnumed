@@ -66,8 +66,8 @@ class gmEMRDumpPanel(wx.Panel):
 				'Please check the log file for details.'
 			))
 			return None
-		dump = emr.get_text_dump()
-		if dump is None:
+		dump__grouped_by_age = emr.get_text_dump()
+		if dump__grouped_by_age is None:
 			_log.Log(gmLog.lErr, 'cannot get EMR text dump')
 			self.txt.SetValue(_(
 				'An error occurred while retrieving a text\n'
@@ -75,11 +75,10 @@ class gmEMRDumpPanel(wx.Panel):
 				'Please check the log file for details.'
 			))
 			return None
-		keys = dump.keys()
-		keys.sort()
+
 		txt = ''
-		for age in keys:
-			for line in dump[age]:
+		for age in sorted(dump__grouped_by_age):
+			for line in dump__grouped_by_age[age]:
 				txt = txt + "%s\n" % line
 		self.txt.SetValue(txt)
 		return True

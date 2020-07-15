@@ -1388,11 +1388,9 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 	#------------------------------------------------------------
 	def get_selected_rows(self):
 		rows = {}
-
 		for row, col in self.get_selected_cells():
 			rows[row] = True
-
-		return rows.keys()
+		return list(rows)
 
 	#------------------------------------------------------------
 	def get_selected_data(self):
