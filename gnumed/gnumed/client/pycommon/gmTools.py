@@ -305,28 +305,31 @@ def copy_tree_content(directory, target_directory):
 	"""Copy the *content* of <directory> *into* <target_directory>
 	   which is created if need be.
 	"""
-	assert (directory is not None), 'source <directory> should not be None'
+	assert (directory is not None), 'source <directory> must not be None'
+	assert (target_directory is not None), '<target_directory> must not be None'
 	_log.debug('copying content of [%s] into [%s]', directory, target_directory)
 	try:
-		items = os.listdir(directory)
+		base_dir_items = os.listdir(directory)
 	except OSError:
+		_log.exception('cannot list dir [%s]', directory)
 		return None
 
-	for item in items:
+	for item in base_dir_items:
 		full_item = os.path.join(directory, item)
 		if os.path.isdir(full_item):
 			target_subdir = os.path.join(target_directory, item)
 			try:
 				shutil.copytree(full_item, target_subdir)
+				continue
 			except Exception:
 				_log.exception('cannot copy subdir [%s]', full_item)
 				return None
-		else:
-			try:
-				shutil.copy2(full_item, target_directory)
-			except Exception:
-				_log.exception('cannot copy file [%s]', full_item)
-				return None
+
+		try:
+			shutil.copy2(full_item, target_directory)
+		except Exception:
+			_log.exception('cannot copy file [%s]', full_item)
+			return None
 
 	return target_directory
 
