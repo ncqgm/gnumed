@@ -698,7 +698,7 @@ def old_unicode_csv_reader(unicode_csv_data, dialect=csv.excel, encoding='utf-8'
 	for row in csv_reader:
 		# decode ENCODING back to Unicode, cell by cell:
 		if is_dict_reader:
-			for key in row.keys():
+			for key in row:
 				if key == default_csv_reader_rest_key:
 					old_data = row[key]
 					new_data = []
@@ -1436,8 +1436,8 @@ def compare_dict_likes(d1, d2, title1=None, title2=None):
 		d2 = dict(d2)
 	except TypeError:
 		pass
-	keys_d1 = frozenset(d1.keys())
-	keys_d2 = frozenset(d2.keys())
+	keys_d1 = list(d1)
+	keys_d2 = list(d2)
 	different = False
 	if len(keys_d1) != len(keys_d2):
 		_log.info('different number of keys: %s vs %s', len(keys_d1), len(keys_d2))
@@ -1487,8 +1487,8 @@ def format_dict_likes_comparison(d1, d2, title_left=None, title_right=None, left
 	except TypeError: pass
 	try: d2 = dict(d2)
 	except TypeError: pass
-	keys_d1 = d1.keys()
-	keys_d2 = d2.keys()
+	keys_d1 = list(d1)
+	keys_d2 = list(d2)
 	data = {}
 	for key in keys_d1:
 		data[key] = [d1[key], ' ']
@@ -1586,7 +1586,7 @@ def format_dict_like(d, relevant_keys=None, template=None, missing_key_template=
 			return template % d
 
 	if relevant_keys is None:
-		relevant_keys = list(d.keys())
+		relevant_keys = list(d)
 	lines = []
 	if value_delimiters is None:
 		delim_left = ''
@@ -1636,7 +1636,7 @@ def dicts2table(dict_list, left_margin=0, eol='\n', keys2ignore=None, column_lab
 			d[col_label_key] = max(column_labels[dict_idx].split('\n'), key = len)
 		field_lengths = []
 		# loop over all keys in this dict
-		for key in d.keys():
+		for key in d:
 			# ignore this key
 			if key in keys2ignore:
 				continue

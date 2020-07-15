@@ -455,7 +455,7 @@ class cHorstSpaceLayoutMgr(wx.Panel):
 #				plugin = None
 #				continue
 #			# already loaded ?
-#			if plugin.__class__.__name__ in self.guibroker['horstspace.notebook.gui'].keys():
+#			if plugin.__class__.__name__ in self.guibroker['horstspace.notebook.gui']:
 #				plugin = None
 #				continue
 #			# add to load menu

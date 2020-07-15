@@ -519,10 +519,10 @@ class cLoginPanel(wx.Panel):
 		self._CBOX_profile = wx.ComboBox (
 			self,
 			-1,
-			list(self.__backend_profiles.keys())[0],
+			list(self.__backend_profiles)[0],
 			wx.DefaultPosition,
 			size = wx.Size(550,-1),
-			choices = list(self.__backend_profiles.keys()),
+			choices = list(self.__backend_profiles),
 			style = wx.CB_READONLY
 		)
 		self.pboxgrid.Add (self._CBOX_profile, 0, wx.GROW|wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5)
@@ -747,10 +747,10 @@ class cLoginPanel(wx.Panel):
 		)
 
 		last_used_profile_label = _cfg.get('preferences', 'profile', src_order)
-		if last_used_profile_label in self.__backend_profiles.keys():
+		if last_used_profile_label in self.__backend_profiles:
 			self._CBOX_profile.SetValue(last_used_profile_label)
 		else:
-			self._CBOX_profile.SetValue(list(self.__backend_profiles.keys())[0])
+			self._CBOX_profile.SetValue(list(self.__backend_profiles)[0])
 
 		self._CHBOX_debug.SetValue(_cfg.get(option = 'debug'))
 		self._CHBOX_slave.SetValue(_cfg.get(option = 'slave'))

@@ -1181,7 +1181,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		if isinstance(data, gmPerson.cPersonName):
 			return data['comment']
 		if isinstance(data, dict):
-			key = list(data.keys())[0]
+			key = list(data)[0]
 			val = data[key]
 			if key == 'id':
 				return _('issued by: %s%s') % (
@@ -1215,7 +1215,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 			return
 
 		if isinstance(data, dict):
-			key = list(data.keys())[0]
+			key = list(data)[0]
 			val = data[key]
 			if key == 'id':
 				ea = gmDemographicsWidgets.cExternalIDEditAreaPnl(self, -1, external_id = val)

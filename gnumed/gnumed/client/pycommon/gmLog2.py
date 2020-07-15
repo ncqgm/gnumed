@@ -339,6 +339,9 @@ if __name__ == '__main__':
 	#-----------------------------------------------------------
 	def test():
 		logger = logging.getLogger('gmLog2.test')
+
+		logger.error('test %s', [1,2,3])
+
 		logger.error("I expected to see %s::test()" % __file__)
 		add_word2hide('super secret passphrase')
 		logger.debug('credentials: super secret passphrase')

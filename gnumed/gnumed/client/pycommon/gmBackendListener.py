@@ -393,7 +393,7 @@ if __name__ == "__main__":
 			except KeyError:
 				print('==> received signal from client: "%s"' % kwargs['signal'])
 			del kwargs['signal']
-			for key in kwargs.keys():
+			for key in kwargs:
 				print('    [%s]: %s' % (key, kwargs[key]))
 
 		gmDispatcher.connect(receiver = monitoring_callback)

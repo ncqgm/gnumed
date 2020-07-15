@@ -667,13 +667,13 @@ class cPopupDataHolder:
 		return True
 	#--------------------------------------------------------
 	def save(self):
-		for popup_type in self.__data.keys():
+		for popup_type in self.__data:
 			try:
 				saver_func = self.__data_savers[popup_type]
 			except KeyError:
 				_log.exception('no saver for popup data type [%s] configured', popup_type)
 				return False
-			for desc in self.__data[popup_type].keys():
+			for desc in self.__data[popup_type]:
 				data = self.__data[popup_type][desc]['data']
 				saver_func(data)
 		return True
@@ -727,9 +727,9 @@ class cResizingSoapWin(gmResizingWidgets.cResizingWindow):
 		"""Visually display input note according to user defined labels.
 		"""
 		# configure keywords
-		for soap_cat in progress_note_keywords.keys():
+		for soap_cat in progress_note_keywords:
 			category = progress_note_keywords[soap_cat]
-			for kwd in category.keys():
+			for kwd in category:
 				category[kwd]['widget_data_sink'] = self.__embedded_data_holder.store_data
 		input_fields = []
 		# add fields to edit widget
@@ -1149,7 +1149,7 @@ if __name__ == "__main__":
 		print("actually this would have to return a suitable wx.Window subclass instance")
 		print("args:", args)
 		print("kwd args:")
-		for key in kwargs.keys():
+		for key in kwargs:
 			print(key, "->", kwargs[key])
 	#--------------------------------------------------------
 	def create_widget_on_test_kwd2(*args, **kwargs):
@@ -1159,7 +1159,7 @@ if __name__ == "__main__":
 		)
 		for arg in args:
 			msg = msg + "\narg ==> %s" % arg
-		for key in kwargs.keys():
+		for key in kwargs:
 			msg = msg + "\n%s ==> %s" % (key, kwargs[key])
 		gmGuiHelpers.gm_show_info (
 			aMessage = msg,

@@ -726,7 +726,7 @@ def manage_vaccinations(parent=None, latest_only=False, expand_indications=False
 		data = []
 		if latest_only:
 			latest_vaccs = emr.get_latest_vaccinations()
-			for indication in sorted(latest_vaccs.keys()):
+			for indication in sorted(latest_vaccs):
 				no_of_shots4ind, latest_vacc4ind = latest_vaccs[indication]
 				items.append ([
 					indication,
@@ -752,7 +752,7 @@ def manage_vaccinations(parent=None, latest_only=False, expand_indications=False
 							shots_by_ind[ind['l10n_indication']].append(shot)
 						except KeyError:
 							shots_by_ind[ind['l10n_indication']] = [shot]
-				for ind in sorted(shots_by_ind.keys()):
+				for ind in sorted(shots_by_ind):
 					idx = len(shots_by_ind[ind])
 					for shot in shots_by_ind[ind]:
 						items.append ([

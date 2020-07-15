@@ -388,7 +388,7 @@ class gmCfgData(gmBorg.cBorg):
 			try: source_data = self.__cfg_data[source]
 			except KeyError:
 				_log.error('invalid config source [%s]', source)
-				_log.debug('currently known sources: %s', self.__cfg_data.keys())
+				_log.debug('currently known sources: %s', list(self.__cfg_data))
 				continue
 
 			try: value = source_data[option_path]

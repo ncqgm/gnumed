@@ -113,7 +113,7 @@ class cClinicalResult(object):
 		if with_variables:
 			if len(self.variables) > 0:
 				lines.append(' %s' % _('Variables:'))
-			for key in self.variables.keys():
+			for key in self.variables:
 				txt = '  %s %s: %s' % (
 					gmTools.u_arrow2right,
 					key,

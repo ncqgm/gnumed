@@ -752,7 +752,7 @@ class cFormEngine(object):
 #		cmd = "insert into form_instances(fk_form_def, form_name, fk_episode, fk_encounter) values (%s, %s, %s, %s)"
 #		queries.append((cmd, [self.pk_def, form_name, episode, encounter]))
 #		# - store params in form_data
-#		for key in params.keys():
+#		for key in params:
 #			cmd = """
 #				insert into form_data(fk_instance, place_holder, value)
 #				values ((select currval('form_instances_pk_seq')), %s, %s::text)

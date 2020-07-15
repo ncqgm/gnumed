@@ -751,7 +751,7 @@ def __format_latest_vaccinations_latex(vaccinations=None):
 
 	row_template = '%s & %s & {\\scriptsize %s} & {\\scriptsize %s} & {\\scriptsize %s} & {\\scriptsize %s}\\\\\n'
 	lines = ''
-	targets = sorted(vaccinations.keys())
+	targets = sorted(vaccinations)
 	for target in targets:
 		target_count, vacc = vaccinations[target]
 		lines += row_template % (

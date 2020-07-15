@@ -228,7 +228,7 @@ def _get_system_startfile_cmd(filename):
 	if _system_startfile_cmd is not None:
 		return True, _system_startfile_cmd % filename
 
-	open_cmd_candidates = open_cmds.keys()
+	open_cmd_candidates = list(open_cmds)
 
 	for candidate in open_cmd_candidates:
 		found, binary = gmShellAPI.detect_external_binary(binary = candidate)

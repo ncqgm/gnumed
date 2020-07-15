@@ -512,8 +512,7 @@ __known_variant_placeholders = {
 
 }
 
-known_variant_placeholders = __known_variant_placeholders.keys()
-#known_variant_placeholders.sort()
+known_variant_placeholders = list(__known_variant_placeholders)
 
 
 # http://help.libreoffice.org/Common/List_of_Regular_Expressions
@@ -1117,11 +1116,10 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		if len(narr) == 0:
 			return ''
 
-		keys = narr[0].keys()
 		lines = []
 		line_dict = {}
 		for n in narr:
-			for key in keys:
+			for key in narr[0]:
 				if isinstance(n[key], str):
 					line_dict[key] = self._escape(text = n[key])
 					continue
@@ -1129,7 +1127,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			try:
 				lines.append((template % line_dict)[:line_length])
 			except KeyError:
-				return 'invalid key in template [%s], valid keys: %s]' % (template, str(keys))
+				return 'invalid key in template [%s], valid keys: %s]' % (template, narr[0].keys())
 
 		return '\n'.join(lines)
 	#--------------------------------------------------------
@@ -1182,7 +1180,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		try:
 			narr = [ template % n.fields_as_dict(date_format = date_format, escape_style = self.__esc_style) for n in narr ]
 		except KeyError:
-			return 'invalid key in template [%s], valid keys: %s]' % (template, str(narr[0].keys()))
+			return 'invalid key in template [%s], valid keys: %s]' % (template, narr[0].keys())
 
 		return '\n'.join(narr)
 	#--------------------------------------------------------
@@ -1253,7 +1251,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		try:
 			narr = [ template % n for n in narr ]
 		except KeyError:
-			return 'invalid key in template [%s], valid keys: %s]' % (template, str(narr[0].keys()))
+			return 'invalid key in template [%s], valid keys: %s]' % (template, narr[0].keys())
 		except TypeError:
 			return 'cannot mix "%%s" and "%%(field)s" in template [%s]' % template
 
@@ -2789,7 +2787,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 	# internal helpers
 	#--------------------------------------------------------
 	def __parse_ph_options(self, option_defs=None, options_string=None):
-		"""Returns a tuple of values in the order of option_defs.keys()."""
+		"""Returns a tuple of values in the order of option_defs -> keys."""
 		assert (option_defs is not None), '<option_defs> must not be None'
 		assert (options_string is not None), '<options_string> must not be None'
 
@@ -2798,12 +2796,12 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		options = options_string.split(self.__args_divider)
 		for opt in options:
 			opt_name, opt_val = opt.split('=', 1)
-			if opt_name.strip() not in option_defs.keys():
+			if opt_name.strip() not in option_defs:
 				continue
 			options2return[opt_name] = opt_val
 
 		_log.debug('found: %s', options2return)
-		return tuple([ options2return[o_name] for o_name in options2return.keys() ])
+		return tuple([ options2return[o_name] for o_name in options2return ])
 
 	#--------------------------------------------------------
 	def _escape(self, text=None):
@@ -2819,7 +2817,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		else:
 			bools = {True: bool_strings[0], False: bool_strings[1]}
 		data = {}
-		for field in the_dict.keys():
+		for field in the_dict:
 			# FIXME: harden against BYTEA fields
 			#if type(self._payload[self._idx[field]]) == ...
 			#	data[field] = _('<%s bytes of binary data>') % len(self._payload[self._idx[field]])
@@ -2984,7 +2982,8 @@ class cMacroPrimitives:
 			_log.error('non-authenticated get_loaded_plugins()')
 			return 0
 		gb = gmGuiBroker.GuiBroker()
-		return gb['horstspace.notebook.gui'].keys()
+		return list(gb['horstspace.notebook.gui'])
+
 	#-----------------------------------------------------------------
 	def raise_notebook_plugin(self, auth_cookie = None, a_plugin = None):
 		"""Raise a notebook plugin within GNUmed."""
@@ -3577,7 +3576,7 @@ if __name__ == '__main__':
 
 	#--------------------------------------------------------
 	def test_parse_ph_options(option_defs=None, options_string=None):
-		"""Returns a tuple of values in the order of option_defs.keys()."""
+		"""Returns a tuple of values in the order of option_defs -> keys."""
 		assert (option_defs is not None), '<option_defs> must not be None'
 		assert (options_string is not None), '<options_string> must not be None'
 
@@ -3586,11 +3585,11 @@ if __name__ == '__main__':
 		options = options_string.split('//')
 		for opt in options:
 			opt_name, opt_val = opt.split('=', 1)
-			if opt_name.strip() not in option_defs.keys():
+			if opt_name.strip() not in option_defs:
 				continue
 			options2return[opt_name] = opt_val
 
-		return tuple([ options2return[o_name] for o_name in options2return.keys() ])
+		return tuple([ options2return[o_name] for o_name in options2return ])
 
 	#--------------------------------------------------------
 	#a,b,c = test_parse_ph_options(option_defs = {'opt1': 1, 'opt2': 'two', 'opt4': 'vier'}, options_string = 'opt1=one//opt2=2//opt3=drei')

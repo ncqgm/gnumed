@@ -1029,8 +1029,8 @@ class cClinicalRecord(object):
 		# get item data from all source tables
 		ro_conn = self._conn_pool.GetConnection('historica')
 		curs = ro_conn.cursor()
-		for src_table in items_by_table.keys():
-			item_ids = items_by_table[src_table].keys()
+		for src_table in items_by_table:
+			item_ids = list(items_by_table[src_table])
 			# we don't know anything about the columns of
 			# the source tables but, hey, this is a dump
 			if len(item_ids) == 0:
@@ -1085,7 +1085,7 @@ class cClinicalRecord(object):
 					'pk_item', 'id', 'fk_encounter', 'fk_episode', 'pk'
 				]
 				col_data = []
-				for col_name in table_col_idx.keys():
+				for col_name in table_col_idx:
 					if col_name in cols2ignore:
 						continue
 					emr_data[age].append("=> %s: %s" % (col_name, row[table_col_idx[col_name]]))
@@ -1268,7 +1268,7 @@ class cClinicalRecord(object):
 			txt += '\n'
 			txt += _('Vaccinations')
 			txt += '\n'
-		inds = sorted(vaccs.keys())
+		inds = sorted(vaccs)
 		for ind in inds:
 			ind_count, vacc = vaccs[ind]
 			if dob is None:
@@ -2051,7 +2051,7 @@ WHERE
 					vaccs_by_ind[vacc['indication']] = [vacc]
 
 			# calculate sequence number and is_booster
-			for ind in vaccs_by_ind.keys():
+			for ind in vaccs_by_ind:
 				vacc_regimes = self.get_scheduled_vaccination_regimes(indications = [ind])
 				for vacc in vaccs_by_ind[ind]:
 					# due to the "order by indication, date" the vaccinations are in the
@@ -3296,7 +3296,7 @@ if __name__ == "__main__":
 	def test_get_as_journal():
 		emr = cClinicalRecord(aPKey = 12)
 		for journal_line in emr.get_as_journal():
-			#print journal_line.keys()
+			#print(list(journal_line))
 			print('%(date)s  %(modified_by)s  %(soap_cat)s  %(narrative)s' % journal_line)
 			print("")
 

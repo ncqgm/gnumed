@@ -66,8 +66,8 @@ def read_person_from_xdt(filename=None, encoding=None, dob_format=None):
 		'3102'
 	)
 
-	interesting_fields = _map_id2name.keys()
-	
+	interesting_fields = list(_map_id2name)
+
 	data = {}
 
 	# try to find encoding if not given

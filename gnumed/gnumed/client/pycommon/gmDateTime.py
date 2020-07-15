@@ -2162,7 +2162,7 @@ if __name__ == '__main__':
 	#-----------------------------------------------------------------------
 	def test_format_interval():
 		intv = pyDT.timedelta(minutes=1, seconds=2)
-		for acc in _accuracy_strings.keys():
+		for acc in _accuracy_strings:
 			print ('[%s]: "%s" -> "%s"' % (acc, intv, format_interval(intv, acc)))
 		return
 
@@ -2171,7 +2171,7 @@ if __name__ == '__main__':
 			if intv is None:
 				print(tmp, '->', intv)
 				continue
-			for acc in _accuracy_strings.keys():
+			for acc in _accuracy_strings:
 				print ('[%s]: "%s" -> "%s"' % (acc, tmp, format_interval(intv, acc)))
 
 	#-----------------------------------------------------------------------

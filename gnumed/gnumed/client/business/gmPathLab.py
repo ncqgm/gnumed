@@ -2686,9 +2686,9 @@ def __format_test_results_latex(results=None):
 		except KeyError:
 			grid[row_label][col_label] = [result]
 
-	col_labels = sorted(dates.keys(), reverse = True)
+	col_labels = sorted(dates, reverse = True)
 	del dates
-	row_labels = sorted(tests.keys())
+	row_labels = sorted(tests)
 	del tests
 
 	col_def = len(col_labels) * '>{\\raggedleft}p{1.7cm}|'
@@ -2808,7 +2808,7 @@ def export_results_for_gnuplot(results=None, filename=None, show_year=True, pati
 	gplot_data.write('# there will also be settings suitable for stacked multiplots\n')
 	gplot_data.write('# -------------------------------------------------------------\n')
 
-	series_keys = list(series.keys())
+	series_keys = list(series)
 	for test_type_idx in range(len(series_keys)):
 		test_type = series_keys[test_type_idx]
 		if len(series[test_type]) == 0:

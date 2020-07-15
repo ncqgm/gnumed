@@ -2013,8 +2013,8 @@ class cMeasurementsGrid(wx.grid.Grid):
 		if not keep_preselections:
 			self.ClearSelection()
 
-		for col_idx in self.__cell_data.keys():
-			for row_idx in self.__cell_data[col_idx].keys():
+		for col_idx in self.__cell_data:
+			for row_idx in self.__cell_data[col_idx]:
 				# loop over results in cell and only include
 				# those multi-value cells that are not ambiguous
 				do_not_include = False

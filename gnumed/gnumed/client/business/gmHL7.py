@@ -1157,7 +1157,7 @@ def __import_single_PID_hl7_file(filename, emr=None):
 		gm_lab['unit'],
 		gm_lab['organization'],
 		no_results,
-		' / '.join(when_list.keys())
+		' / '.join(list(when_list))
 	)
 	epi = emr.add_episode (
 		episode_name = 'administrative',
@@ -1192,7 +1192,7 @@ def __import_single_PID_hl7_file(filename, emr=None):
 	hl7_doc['clin_when'] = gmDateTime.pydt_now_here()
 	hl7_doc.save()
 	part = hl7_doc.add_part(file = filename)
-	part['obj_comment'] = _('Result dates: %s') % ' / '.join(when_list.keys())
+	part['obj_comment'] = _('Result dates: %s') % ' / '.join(list(when_list))
 	part.save()
 	hl7_doc.set_reviewed(technically_abnormal = False, clinically_relevant = False)
 

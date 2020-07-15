@@ -57,7 +57,7 @@ class HabitsRiskFactors(wx.Panel):
 	
     def GetData(self):
 		map = {}
-		for k in self.lists.keys():
+		for k in self.lists:
 			map[k] = self.lists[k].GetValue().split('\n')
 		return map
 

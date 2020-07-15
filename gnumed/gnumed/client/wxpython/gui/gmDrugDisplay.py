@@ -444,7 +444,7 @@ class DrugDisplay(wx.Panel):
 		#print "1:", aDataDict['id']
 		# get column names from aDataDict key names
 		# remove 'id' and display name at leftmost position
-		columns = aDataDict.keys()
+		columns = list(aDataDict)
 		columns.remove('id')
 		columns.remove('name')
 		columns.insert(0,'name')
