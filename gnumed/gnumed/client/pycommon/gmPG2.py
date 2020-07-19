@@ -1913,11 +1913,11 @@ def run_insert(link_obj=None, schema=None, table=None, values=None, returning=No
 # =======================================================================
 # connection handling API
 # -----------------------------------------------------------------------
-def get_raw_connection(dsn=None, verbose=False, readonly=True, connection_name=None, autocommit=False):
+def get_raw_connection(verbose=False, readonly=True, connection_name=None, autocommit=False):
 	"""Get a raw, unadorned connection.
 
 	- this will not set any parameters such as encoding, timezone, datestyle
-	- the only requirement is a valid DSN
+	- the only requirement is valid connection parameters having been passed to the connection pool
 	- hence it can be used for "service" connections
 	  for verifying encodings etc
 	"""
@@ -1929,7 +1929,7 @@ def get_raw_connection(dsn=None, verbose=False, readonly=True, connection_name=N
 	)
 
 # =======================================================================
-def get_connection(dsn=None, readonly=True, verbose=False, pooled=True, connection_name=None, autocommit=False):
+def get_connection(readonly=True, verbose=False, pooled=True, connection_name=None, autocommit=False):
 	return gmConnectionPool.gmConnectionPool().get_connection (
 		readonly = readonly,
 		verbose = verbose,

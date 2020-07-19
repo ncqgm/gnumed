@@ -11,12 +11,6 @@ _log = logging.getLogger('gm.db')
 class LoginInfo:
 	"""a class to encapsulate Postgres login information to default database"""
 
-	# private variables
-#	user = ''
-#	password = ''
-#	host = ''
-#	port = 5432
-#	database = ''
 	#------------------------------------------
 	def __init__(self, user=None, password=None, host=None, port=5432, database=None):
 		self.user = user
@@ -32,80 +26,6 @@ class LoginInfo:
 		self.__port = int(value)
 
 	port = property(_get_port, _set_port)
-	#------------------------------------------
-	def GetInfo(self):
-		return (
-			self.GetUser(),
-			self.GetPassword(),
-			self.GetHost(),
-			self.GetPort(),
-			self.GetDatabase(),
-			self.GetProfile()
-		)
-	#------------------------------------------
-	def GetInfoStr(self):
-		# don't hand out passwords just like that
-		info = "host:port=%s:%s, db=%s, user=%s, pw=??" % (
-					self.GetHost(),
-					str(self.GetPort()),
-					self.GetDatabase(),
-					self.GetUser()
-				)
-		return info
-	#------------------------------------------
-	def GetPGDB_DSN(self):
-		host = self.GetHost()
-		port = str(self.GetPort())
-		# for local UNIX domain sockets connections: leave host/port empty
-		# IH: *PLEASE* option of local TCP/IP connection must be available
-#		if host in ['', 'localhost']:
-#			host = ""
-		if host == '':
-			port = ''
-		dsn = "%s:%s:%s:%s" % (
-			host,
-			self.GetDatabase(),
-			self.GetUser(),
-			self.GetPassword()
-		)
-		host_port = "%s:%s" % (host, port)
-		return dsn, host_port
-	#------------------------------------------
-	def get_psycopg2_dsn(self):
-		dsn_parts = []
-
-		if self.database.strip() != '':
-			dsn_parts.append('dbname=%s' % self.database)
-
-		if self.host.strip() != '':
-			dsn_parts.append('host=%s' % self.host)
-
-		dsn_parts.append('port=%s' % self.port)
-
-		if self.user.strip() != '':
-			dsn_parts.append('user=%s' % self.user)
-
-		if self.password.strip() != '':
-			dsn_parts.append('password=%s' % self.password)
-
-		return ' '.join(dsn_parts)
-	#------------------------------------------
-	def GetDBAPI_DSN(self):
-		host = self.GetHost()
-		port = str(self.GetPort())
-		# for local UNIX domain sockets connections: leave host/port empty
-#		if host in ['', 'localhost']:
-#			host = ''
-		if host == '':
-			port = ''
-		dsn = "%s:%s:%s:%s:%s" % (
-			host,
-			port,
-			self.GetDatabase(),
-			self.GetUser(),
-			self.GetPassword()
-		)
-		return dsn
 	#------------------------------------------
 	def SetUser(self, user):
 		self.user = user

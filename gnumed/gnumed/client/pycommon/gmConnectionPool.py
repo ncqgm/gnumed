@@ -125,54 +125,52 @@ _map_psyco_iso_level2str = {
 class cPGCredentials:
 
 	def __init__(self) -> None:
-		self.__host = None			# None: left out of DSN -> defaults to $PGHOST or implicit <localhost>
-		self.__port = None			# None: left out of DSN -> defaults to $PGPORT or libpq compiled-in default (typically 5432)
+		self.__host = None			# None: left out -> defaults to $PGHOST or implicit <localhost>
+		self.__port = None			# None: left out -> defaults to $PGPORT or libpq compiled-in default (typically 5432)
 		self.__database = None		# must be set before connecting
 		self.__user = None			# must be set before connecting
-		self.__password = None		# None: left out of DSN
+		self.__password = None		# None: left out
 									# -> try password-less connect (TRUST/IDENT/PEER)
-									# -> try connect with password from DSN:<passfile> or $PGPASSFILE or ~/.pgpass
+									# -> try connect with password from <passfile> parameter or $PGPASSFILE or ~/.pgpass
 
 	#--------------------------------------------------
 	# properties
 	#--------------------------------------------------
 	def __format_credentials(self):
-		dsn_parts = [
+		cred_parts = [
 			'dbname=%s' % self.__database,
 			'host=%s' % self.__host,
 			'port=%s' % self.__port,
 			'user=%s' % self.__user
 		]
-		return ' '.join(dsn_parts)
+		return ' '.join(cred_parts)
 
-	formatted_dsn = property(__format_credentials)
+	formatted_credentials = property(__format_credentials)
 
 	#--------------------------------------------------
-	def generate_dsn(self, connection_name=None):
+	def generate_credentials_kwargs(self, connection_name=None):
 		assert (self.__database is not None), 'self.__database must be defined'
 		assert (self.__user is not None), 'self.__user must be defined'
-
-		dsn_parts = [
-			'dbname=%s' % self.__database,
-			#'port=%s' % gmTools.coalesce(self.__port, '5432'),
-			'user=%s' % self.__user,
-			'application_name=%s' % gmTools.coalesce(connection_name, 'GNUmed'),
-			'fallback_application_name=GNUmed',
-			'sslmode=prefer',
+		kwargs = {
+			'dbname': self.__database,
+			'user': self.__user,
+			'application_name': gmTools.coalesce(connection_name, 'GNUmed'),
+			'fallback_application_name': 'GNUmed',
+			'sslmode': 'prefer',
 			# try to enforce a useful encoding early on so that we
 			# have a good chance of decoding authentication errors
 			# containing foreign language characters
-			'client_encoding=UTF8'
-		]
+			'client_encoding': 'UTF8'
+		}
 		if self.__host is not None:
-			dsn_parts.append('host=%s' % self.__host)
+			kwargs['host'] = self.__host
 		if self.__port is not None:
-			dsn_parts.append('port=%s' % self.__port)
+			kwargs['port'] = self.__port
 		if self.__password is not None:
-			dsn_parts.append('password=%s' % self.__password)
-		return ' '.join(dsn_parts)
+			kwargs['password'] = self.__password
+		return kwargs
 
-	validated_dsn = property(generate_dsn)
+	credentials_kwargs = property(generate_credentials_kwargs)
 
 	#--------------------------------------------------
 	def _get_database(self):
@@ -248,7 +246,7 @@ class gmConnectionPool(gmBorg.cBorg):
 			self.__initialized = True
 
 		_log.info('[%s]: first instantiation', self.__class__.__name__)
-		self.__ro_conn_pool = {}	# keyed by "DSN::thread ID"
+		self.__ro_conn_pool = {}	# keyed by "credentials::thread ID"
 		self.__SQL_set_client_timezone = None
 		self.__client_timezone = None
 		self.__creds = None
@@ -340,12 +338,12 @@ class gmConnectionPool(gmBorg.cBorg):
 			creds2use = self.__creds
 		else:
 			creds2use = credentials
-		dsn = creds2use.generate_dsn(connection_name = connection_name)
+		creds_kwargs = creds2use.generate_credentials_kwargs(connection_name = connection_name)
 		try:
 			# DictConnection now _is_ a real dictionary
-			conn = dbapi.connect(dsn = dsn, connection_factory = psycopg2.extras.DictConnection)
+			conn = dbapi.connect(connection_factory = psycopg2.extras.DictConnection, **creds_kwargs)
 		except dbapi.OperationalError as e:
-			_log.error('failed to establish connection [%s]', creds2use.formatted_dsn)
+			_log.error('failed to establish connection [%s]', creds2use.formatted_credentials)
 			t, v, tb = sys.exc_info()
 			try:
 				msg = e.args[0]
@@ -355,7 +353,7 @@ class gmConnectionPool(gmBorg.cBorg):
 			if not self.__is_auth_fail_msg(msg):
 				raise
 
-			raise cAuthenticationError(creds2use.formatted_dsn, msg).with_traceback(tb)
+			raise cAuthenticationError(creds2use.formatted_credentials, msg).with_traceback(tb)
 
 		_log.debug('established connection "%s", backend PID: %s', gmTools.coalesce(connection_name, 'anonymous'), conn.get_backend_pid())
 		# - inspect server
@@ -592,9 +590,9 @@ class gmConnectionPool(gmBorg.cBorg):
 	def _set_credentials(self, creds=None):
 		if self.__creds is not None:
 			_log.debug('invalidating pooled connections on credentials change')
-			curr_dsn = self.__creds.formatted_dsn + '::'
+			curr_creds = self.__creds.formatted_credentials + '::'
 			for conn_key in self.__ro_conn_pool:
-				if not conn_key.startswith(curr_dsn):
+				if not conn_key.startswith(curr_creds):
 					continue
 				conn = self.__ro_conn_pool[conn_key]
 				self.__ro_conn_pool[conn_key] = None
@@ -613,7 +611,7 @@ class gmConnectionPool(gmBorg.cBorg):
 	#--------------------------------------------------
 	def _get_pool_key(self):
 		return '%s::%s' % (
-			self.__creds.formatted_dsn,
+			self.__creds.formatted_credentials,
 			threading.current_thread().ident
 		)
 
@@ -880,12 +878,12 @@ def _raise_exception_on_pooled_ro_conn_close():
 #========================================================================
 class cAuthenticationError(dbapi.OperationalError):
 
-	def __init__(self, dsn=None, prev_val=None):
-		self.dsn = dsn
+	def __init__(self, creds=None, prev_val=None):
+		self.creds = creds
 		self.prev_val = prev_val
 
 	def __str__(self):
-		return 'PostgreSQL: %sDSN: %s' % (self.prev_val, self.dsn)
+		return 'PostgreSQL: %sDSN: %s' % (self.prev_val, self.creds)
 
 #============================================================
 # Python -> PostgreSQL
@@ -932,7 +930,7 @@ if __name__ == "__main__":
 		print("testing exceptions")
 
 		try:
-			raise cAuthenticationError('no dsn', 'no previous exception')
+			raise cAuthenticationError('no credentials', 'no previous exception')
 		except cAuthenticationError:
 			t, v, tb = sys.exc_info()
 			print(t)
@@ -1059,6 +1057,22 @@ if __name__ == "__main__":
 		conn = pool.get_connection()
 
 	#--------------------------------------------------------------------
-	test_exceptions()
-	test_get_connection()
-	test_change_creds()
+	def test_credentials():
+		print("testing credentials with spaces")
+		pool = gmConnectionPool()
+		creds = cPGCredentials()
+		creds.database = 'gnumed_v22'
+		creds.user = 'any-doc'
+		creds.password = 'any-doc'
+		pool.credentials = creds
+		conn = pool.get_connection()
+		print(conn)
+		creds.password = 'a - b'
+		pool.credentials = creds
+		conn = pool.get_connection()
+
+	#--------------------------------------------------------------------
+	test_credentials()
+	#test_exceptions()
+	#test_get_connection()
+	#test_change_creds()
