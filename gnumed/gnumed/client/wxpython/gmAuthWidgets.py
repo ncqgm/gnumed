@@ -134,7 +134,7 @@ def connect_to_database(max_attempts=3, expected_version=None, require_version=T
 
 		gmLog2.add_word2hide(login.password)
 
-		# try getting a connection to verify the DSN works
+		# try getting a connection to verify the parameters work
 		creds = gmConnectionPool.cPGCredentials()
 		creds.database = login.database
 		creds.host = login.host
