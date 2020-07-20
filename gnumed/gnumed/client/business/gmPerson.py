@@ -1760,34 +1760,24 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 		)
 
 	#----------------------------------------------------------------------
-	def get_medical_age(self):
+	def get_medical_age(self, at_date=None):
 		dob = self['dob']
-
 		if dob is None:
 			return '??'
 
-		if dob > gmDateTime.pydt_now_here():
-			return _('invalid age: DOB in the future')
+		if at_date is None:
+			if self['deceased']:
+				at_date = self['deceased']
+				_at_desc = _('date of death')
+			else:
+				at_date = gmDateTime.pydt_now_here()
+				_at_desc = _('now')
+		else:
+			_at_desc = _('explicit')
+		if dob > at_date:
+			return _('invalid age: DOB [%s] after reference date [%s] (%s)') % (dob, at_date, _at_desc)
 
-		death = self['deceased']
-
-		if death is None:
-			return '%s%s' % (
-				gmTools.bool2subst (
-					self._payload[self._idx['dob_is_estimated']],
-					gmTools.u_almost_equal_to,
-					''
-				),
-				gmDateTime.format_apparent_age_medically (
-					age = gmDateTime.calculate_apparent_age(start = dob)
-				)
-			)
-
-		if dob > death:
-			return _('invalid age: DOB after death')
-
-		return '%s%s%s' % (
-			gmTools.u_latin_cross,
+		return '%s%s' % (
 			gmTools.bool2subst (
 				self._payload[self._idx['dob_is_estimated']],
 				gmTools.u_almost_equal_to,
@@ -1796,7 +1786,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 			gmDateTime.format_apparent_age_medically (
 				age = gmDateTime.calculate_apparent_age (
 					start = dob,
-					end = self['deceased']
+					end = at_date
 				)
 			)
 		)
@@ -1805,6 +1795,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 	def dob_in_range(self, min_distance='1 week', max_distance='1 week'):
 		if self['dob'] is None:
 			return False
+
 		cmd = 'select dem.dob_is_in_range(%(dob)s, %(min)s, %(max)s)'
 		rows, idx = gmPG2.run_ro_queries (
 			queries = [{

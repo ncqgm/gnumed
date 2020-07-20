@@ -1225,10 +1225,9 @@ def _check_birthday(patient=None):
 		return
 
 	now = gmDateTime.pydt_now_here()
-	enc = gmI18N.get_encoding()
 	msg = _('%(pat)s turns %(age)s on %(month)s %(day)s ! (today is %(month_now)s %(day_now)s)') % {
 		'pat': patient.get_description_gender(),
-		'age': patient.get_medical_age().strip('y'),
+		'age': patient.get_medical_age(at_date = patient.birthday_this_year).strip('y'),
 		'month': patient.get_formatted_dob(format = '%B'),
 		'day': patient.get_formatted_dob(format = '%d'),
 		'month_now': gmDateTime.pydt_strftime(now, '%B', gmDateTime.acc_months),
