@@ -38,6 +38,7 @@ FIX: vaccs: ADR URL configuration [thanks bganglia892]
 FIX: tests: LOINC import fixup [thanks bganglia892]
 FIX: db: whitespace in connection parameters [thanks kikiruz]
 FIX: startup: startup without console fails [thanks Marc]
+FIX: top panel: incorrect age-at-birthday display
 
 	1.8.2
 
