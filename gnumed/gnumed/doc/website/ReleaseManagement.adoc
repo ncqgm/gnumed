@@ -109,6 +109,8 @@ _(wash/rinse/repeat as needed)_
 ** database upgrade (`upgrade-db.sh`)
 ** database fixup (`fixup-db.sh`)
 ** client startup (`gm-from-vcs.sh`)
+*** from the console
+*** without a console (invoke `gm-from-vcs.sh` from, say, dolphin)
 *** patient activation
 *** activate each tab once
 *** http://de.fakenamegenerator.com/gen-female-gr-gr.php[new patient] creation
