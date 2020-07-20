@@ -107,19 +107,17 @@ def __split_locale_into_levels():
 #---------------------------------------------------------------------------
 def __log_locale_settings(message=None):
 	_setlocale_categories = {}
-	for category in 'LC_ALL LC_CTYPE LC_COLLATE LC_TIME LC_MONETARY LC_MESSAGES LC_NUMERIC'.split():
+	for category in 'LC_ALL LC_CTYPE LC_NUMERIC LC_TIME LC_COLLATE LC_MONETARY LC_MESSAGES LC_PAPER LC_NAME LC_ADDRESS LC_TELEPHONE LC_MEASUREMENT LC_IDENTIFICATION'.split():
 		try:
 			_setlocale_categories[category] = getattr(locale, category)
 		except Exception:
 			_log.warning('this OS does not have locale.%s', category)
-
 	_getlocale_categories = {}
-	for category in 'LC_CTYPE LC_COLLATE LC_TIME LC_MONETARY LC_MESSAGES LC_NUMERIC'.split():
+	for category in 'LC_CTYPE LC_NUMERIC LC_TIME LC_COLLATE LC_MONETARY LC_MESSAGES LC_PAPER LC_NAME LC_ADDRESS LC_TELEPHONE LC_MEASUREMENT LC_IDENTIFICATION'.split():
 		try:
 			_getlocale_categories[category] = getattr(locale, category)
 		except Exception:
 			pass
-
 	if message is not None:
 		_log.debug(message)
 
@@ -127,17 +125,15 @@ def __log_locale_settings(message=None):
 	_log.debug('locale.getlocale(): %s' % str(locale.getlocale()))
 	for category in _getlocale_categories:
 		_log.debug('locale.getlocale(%s): %s' % (category, locale.getlocale(_getlocale_categories[category])))
-
 	for category in _setlocale_categories:
 		_log.debug('(locale.setlocale(%s): %s)' % (category, locale.setlocale(_setlocale_categories[category])))
-
 	try:
 		_log.debug('locale.getdefaultlocale() - default (user) locale: %s' % str(locale.getdefaultlocale()))
 	except ValueError:
 		_log.exception('the OS locale setup seems faulty')
 
 	_log.debug('encoding sanity check (also check "locale.nl_langinfo(CODESET)" below):')
-	pref_loc_enc = locale.getpreferredencoding(do_setlocale=False)
+	pref_loc_enc = locale.getpreferredencoding(do_setlocale = False)
 	loc_enc = locale.getlocale()[1]
 	py_str_enc = sys.getdefaultencoding()
 	sys_fs_enc = sys.getfilesystemencoding()
@@ -231,37 +227,25 @@ def _translate_safely(term):
 def activate_locale():
 	"""Get system locale from environment."""
 	global system_locale
-
-	__log_locale_settings('unmodified startup locale settings (should be [C])')
-
-	# activate user-preferred locale
+	__log_locale_settings('unmodified startup locale settings (could be [C])')
 	loc, enc = None, None
+	# activate user-preferred locale
 	try:
-		# check whether already set
-		loc, loc_enc = locale.getlocale()
-		if loc is None:
-			loc = locale.setlocale(locale.LC_ALL, '')
-			_log.debug("activating user-default locale with <locale.setlocale(locale.LC_ALL, '')> returns: [%s]" % loc)
-		else:
-			_log.info('user-default locale already activated')
-		loc, loc_enc = locale.getlocale()
+		loc = locale.setlocale(locale.LC_ALL, '')
+		_log.debug("activating user-default locale with <locale.setlocale(locale.LC_ALL, '')> returns: [%s]" % loc)
 	except AttributeError:
 		_log.exception('Windows does not support locale.LC_ALL')
 	except Exception:
 		_log.exception('error activating user-default locale')
-
 	__log_locale_settings('locale settings after activating user-default locale')
-
-	# did we find any locale setting ? assume en_EN if not
+	# assume en_EN if we did not find any locale settings
 	if loc in [None, 'C']:
 		_log.error('the current system locale is still [None] or [C], assuming [en_EN]')
 		system_locale = "en_EN"
 	else:
 		system_locale = loc
-
 	# generate system locale levels
 	__split_locale_into_levels()
-
 	return True
 
 #---------------------------------------------------------------------------
