@@ -412,12 +412,15 @@ def log_startup_info():
 	for attr_name in os_attrs:
 		attr = getattr(os, attr_name)
 		if callable(attr):
-			_log.info('%s: %s', attr_name.rjust(40), attr())
+			try:
+				_log.info('%s: %s', attr_name.rjust(40), attr())
+			except Exception as exc:
+				_log.error('%s: a callable, but call failed (%s)', attr_name.rjust(40), exc)
 			continue
 		_log.info('%s: %s', attr_name.rjust(40), attr)
 	_log.info('process environment:')
 	for key, val in os.environ.items():
-		_log.info(' %s: %s' % (('${%s}' % key).rjust(40),	val))
+		_log.info(' %s: %s' % (('${%s}' % key).rjust(40), val))
 	import sysconfig
 	_log.info('module <sysconfig> info:')
 	_log.info(' platform [%s] -- python version [%s]', sysconfig.get_platform(), sysconfig.get_python_version())
