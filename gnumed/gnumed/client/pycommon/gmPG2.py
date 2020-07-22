@@ -312,7 +312,6 @@ def __request_login_params_tui():
 	creds.port = login.port
 	creds.user = login.user
 	creds.password = login.password
-
 	return login, creds
 
 #---------------------------------------------------
@@ -702,6 +701,29 @@ def get_col_names(link_obj=None, schema='public', table=None):
 	for row in rows:
 		cols.append(row[0])
 	return cols
+
+#------------------------------------------------------------------------
+def revalidate_constraints(link_obj=None):
+	"""This needs quite extensive permissions, say, <postgres> at the PG level."""
+	_log.debug('re-VALIDATE-ing constraints')
+	SQL = """DO $$
+		DECLARE
+			_rec record;
+		BEGIN
+			FOR _rec IN (
+				select con.connamespace, nsp.nspname, con.conname, con.conrelid, rel.relname
+				from pg_constraint con
+					join pg_namespace nsp on nsp.oid = con.connamespace
+					join pg_class rel on rel.oid = con.conrelid
+				where contype in ('c','f')
+			) LOOP
+				RAISE NOTICE 'validating [%] on [%.%]', _rec.conname, _rec.nspname, _rec.relname;
+				EXECUTE 'UPDATE pg_constraint SET convalidated=false WHERE conname=$1 AND connamespace=$2 AND conrelid=$3' USING _rec.conname, _rec.connamespace, _rec.conrelid;
+				EXECUTE 'ALTER TABLE ' || _rec.nspname || '.' || _rec.relname || ' VALIDATE CONSTRAINT "' || _rec.conname || '"';
+			END LOOP;
+		END
+	$$;"""
+	run_rw_queries(link_obj = link_obj, queries = [{'cmd': SQL}])
 
 #------------------------------------------------------------------------
 # i18n functions
@@ -1634,7 +1656,7 @@ def run_ro_queries(link_obj=None, queries=None, verbose=False, return_data=True,
 				_log.exception('cannot rollback transaction')
 				gmConnectionPool.log_pg_exception_details(pg_exc2)
 			if pg_exc.pgcode == sql_error_codes.INSUFFICIENT_PRIVILEGE:
-				details = 'Query: [%s]' % curs.query.strip().strip('\n').strip().strip('\n')
+				details = 'Query: [%s]' % curs.query.decode(errors = 'replace').strip().strip('\n').strip().strip('\n')
 				if curs.statusmessage != '':
 					details = 'Status: %s\n%s' % (
 						curs.statusmessage.strip().strip('\n').strip().strip('\n'),
@@ -1790,7 +1812,7 @@ def run_rw_queries(link_obj=None, queries=None, end_tx=False, return_data=None, 
 				gmConnectionPool.log_pg_exception_details(pg_exc2)
 			# privilege problem
 			if pg_exc.pgcode == sql_error_codes.INSUFFICIENT_PRIVILEGE:
-				details = 'Query: [%s]' % curs.query.strip().strip('\n').strip().strip('\n')
+				details = 'Query: [%s]' % curs.query.decode(errors = 'replace').strip().strip('\n').strip().strip('\n')
 				if curs.statusmessage != '':
 					details = 'Status: %s\n%s' % (
 						curs.statusmessage.strip().strip('\n').strip().strip('\n'),
@@ -2597,6 +2619,14 @@ SELECT to_timestamp (foofoo,'YYMMDD.HH24MI') FROM (
 		print(get_db_fingerprint(with_dump = True, eol = '\n'))
 
 	#--------------------------------------------------------------------
+	def test_revalidate_constraints():
+		login, creds = request_login_params()
+		pool = gmConnectionPool.gmConnectionPool()
+		pool.credentials = creds
+		#conn = get_connection()
+		revalidate_constraints()
+
+	#--------------------------------------------------------------------
 	# run tests
 
 	# legacy:
@@ -2624,6 +2654,7 @@ SELECT to_timestamp (foofoo,'YYMMDD.HH24MI') FROM (
 	#test_row_locks()
 	#test_faulty_SQL()
 	#test_log_settings()
-	test_get_db_fingerprint()
+	#test_get_db_fingerprint()
+	test_revalidate_constraints()
 
 # ======================================================================

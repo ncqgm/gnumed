@@ -1222,31 +1222,12 @@ class database:
 		_log.info(u'this may potentially take "quite a long time" depending on how much data there is in the database')
 		_log.info(u'you may want to monitor the PostgreSQL log for signs of progress')
 
-		curs = self.conn.cursor()
-		cmd = u"""do $$
-			DECLARE
-				r record;
-			BEGIN
-				FOR r IN (
-					select con.connamespace, nsp.nspname, con.conname, con.conrelid, rel.relname
-					from pg_constraint con
-						join pg_namespace nsp on nsp.oid = con.connamespace
-						join pg_class rel on rel.oid = con.conrelid
-					where contype in ('c','f')
-				) LOOP
-					RAISE NOTICE 'validating [%] on [%.%]', r.conname, r.nspname, r.relname;
-					EXECUTE 'UPDATE pg_constraint SET convalidated=false WHERE conname=$1 AND connamespace=$2 AND conrelid=$3' USING r.conname, r.connamespace, r.conrelid;
-					EXECUTE 'ALTER TABLE ' || r.nspname || '.' || r.relname || ' VALIDATE CONSTRAINT "' || r.conname || '"';
-				END LOOP;
-			END
-		$$;"""
 		try:
-			curs.execute(cmd)
-		except:
+			gmPG2.revalidate_constraints(link_obj = self.conn)
+		except Exception:
 			_log.exception(u">>>[VALIDATE CONSTRAINT]<<< failed")
 			return False
-		finally:
-			curs.close()
+
 		return True
 
 	#--------------------------------------------------------------
