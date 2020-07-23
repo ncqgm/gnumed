@@ -1175,33 +1175,7 @@ class database:
 		_log.info(u'REINDEXing cloned target database so upgrade does not fail in case of a broken index')
 		_log.info(u'this may potentially take "quite a long time" depending on how much data there is in the database')
 		_log.info(u'you may want to monitor the PostgreSQL log for signs of progress')
-
-		# REINDEX must be run outside transactions
-		self.conn.commit()
-		self.conn.set_session(readonly = False, autocommit = True)
-		curs_outer = self.conn.cursor()
-		cmd = 'REINDEX (VERBOSE) DATABASE %s' % self.name
-		try:
-			curs_outer.execute(cmd)
-		except:
-			_log.exception(u">>>[%s]<<< failed" % cmd)
-			# re-attempt w/o VERBOSE
-			_log.info(u'attempting REINDEXing without VERBOSE')
-			curs_inner = self.conn.cursor()
-			cmd = 'REINDEX DATABASE %s' % self.name
-			try:
-				curs_inner.execute(cmd)
-			except:
-				_log.exception(u">>>[%s]<<< failed" % cmd)
-				return False
-			finally:
-				curs_inner.close()
-				self.conn.set_session(readonly = False, autocommit = False)
-		finally:
-			curs_outer.close()
-			self.conn.set_session(readonly = False, autocommit = False)
-
-		return True
+		return gmPG2.reindex_database(conn = self.conn)
 
 	#--------------------------------------------------------------
 	def revalidate_constraints(self):
@@ -1221,7 +1195,6 @@ class database:
 		_log.info(u'reVALIDATing CONSTRAINTs in cloned target database so upgrade does not fail due to broken data')
 		_log.info(u'this may potentially take "quite a long time" depending on how much data there is in the database')
 		_log.info(u'you may want to monitor the PostgreSQL log for signs of progress')
-
 		try:
 			gmPG2.revalidate_constraints(link_obj = self.conn)
 		except Exception:

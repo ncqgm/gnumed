@@ -705,7 +705,7 @@ def get_col_names(link_obj=None, schema='public', table=None):
 #------------------------------------------------------------------------
 def revalidate_constraints(link_obj=None):
 	"""This needs quite extensive permissions, say, <postgres> at the PG level."""
-	_log.debug('re-VALIDATE-ing constraints')
+	_log.debug('revalidating all constraints in database')
 	SQL = """DO $$
 		DECLARE
 			_rec record;
@@ -724,6 +724,37 @@ def revalidate_constraints(link_obj=None):
 		END
 	$$;"""
 	run_rw_queries(link_obj = link_obj, queries = [{'cmd': SQL}])
+
+#------------------------------------------------------------------------
+def reindex_database(conn=None):
+	"""This needs database owner permissions, say, <postgres> at the PG level.
+
+	Also, REINDEX must be run outside transactions.
+	Therefore, a connection is needed, not a cursor.
+	"""
+	_log.debug('reindexing all tables in database')
+	if conn is None:
+		conn = gmConnectionPool.gmConnectionPool().get_connection(readonly = False, autocommit = True)
+		conn_close = conn.close
+	else:
+		conn_close = lambda :True
+	SQL = psysql.SQL('REINDEX (VERBOSE) DATABASE {}').format (
+		psysql.Identifier(conn.get_dsn_parameters()['dbname'])
+	)
+	conn.commit()
+	conn.set_session(readonly = False, autocommit = True)
+	curs = conn.cursor()
+	status = False
+	try:
+		run_rw_queries(link_obj = curs, queries = [{'cmd': SQL}], end_tx = True)
+		status = True
+	except Exception:
+		_log.exception('reindexing failed')
+	finally:
+		curs.close()
+		conn.commit()
+		conn_close()
+	return status
 
 #------------------------------------------------------------------------
 # i18n functions
@@ -1733,7 +1764,9 @@ def run_rw_queries(link_obj=None, queries=None, end_tx=False, return_data=None, 
 		  transaction is properly finalized
 		- if link_obj is a *cursor* we CANNOT finalize the
 		  transaction because we would need the connection for that
-		- if link_obj is *None* <end_tx> will, of course, always be True
+		- if link_obj is *None* <end_tx> will, of course, always
+		  be True, because we always have full control over the
+		  connection
 
 	<return_data>
 		- if true, the returned data will include the rows
@@ -1886,7 +1919,6 @@ def run_rw_queries(link_obj=None, queries=None, end_tx=False, return_data=None, 
 	curs_close()
 	conn_commit()
 	conn_close()
-
 	return (data, col_idx)
 
 #------------------------------------------------------------------------
@@ -2255,9 +2287,9 @@ if __name__ == "__main__":
 			conn = get_connection(dsn=dsn)
 		except dbapi.ProgrammingError as e:
 			print("1) SUCCESS: get_connection(%s) failed as expected" % dsn)
-			t, v = sys.exc_info()[:2]
-			print (' ', t)
-			print (' ', v)
+			typ, val = sys.exc_info()[:2]
+			print (' ', typ)
+			print (' ', val)
 
 		print('')
 		dsn = 'dbname=gnumed_v22'
@@ -2266,9 +2298,9 @@ if __name__ == "__main__":
 			print("2) ERROR: get_connection() did not fail")
 		except cAuthenticationError:
 			print("2) SUCCESS: get_connection(%s) failed as expected" % dsn)
-			t, v = sys.exc_info()[:2]
-			print(' ', t)
-			print(' ', v)
+			typ, val = sys.exc_info()[:2]
+			print(' ', typ)
+			print(' ', val)
 
 		print('')
 		dsn = 'dbname=gnumed_v22 user=abc'
@@ -2277,9 +2309,9 @@ if __name__ == "__main__":
 			print("3) ERROR: get_connection() did not fail")
 		except cAuthenticationError:
 			print("3) SUCCESS: get_connection(%s) failed as expected" % dsn)
-			t, v = sys.exc_info()[:2]
-			print(' ', t)
-			print(' ', v)
+			typ, val = sys.exc_info()[:2]
+			print(' ', typ)
+			print(' ', val)
 
 		print('')
 		dsn = 'dbname=gnumed_v22 user=any-doc password=abc'
@@ -2288,9 +2320,9 @@ if __name__ == "__main__":
 			print("4) ERROR: get_connection() did not fail")
 		except cAuthenticationError:
 			print("4) SUCCESS: get_connection(%s) failed as expected" % dsn)
-			t, v = sys.exc_info()[:2]
-			print(' ', t)
-			print(' ', v)
+			typ, val = sys.exc_info()[:2]
+			print(' ', typ)
+			print(' ', val)
 
 		print('')
 		dsn = 'dbname=gnumed_v22 user=any-doc password=any-doc'
@@ -2309,9 +2341,9 @@ if __name__ == "__main__":
 			print('pid:', conn.get_backend_pid())
 		except cAuthenticationError:
 			print("4) SUCCESS: get_connection(%s) failed" % dsn)
-			t, v = sys.exc_info()[:2]
-			print(' ', t)
-			print(' ', v)
+			typ, val = sys.exc_info()[:2]
+			print(' ', typ)
+			print(' ', val)
 
 		try:
 			curs = conn.cursor()
@@ -2358,9 +2390,9 @@ if __name__ == "__main__":
 			print(idx)
 		except psycopg2.ProgrammingError:
 			print('SUCCESS: run_ro_queries("selec 1") failed as expected')
-			t, v = sys.exc_info()[:2]
-			print(' ', t)
-			print(' ', v)
+			typ, val = sys.exc_info()[:2]
+			print(' ', typ)
+			print(' ', val)
 
 		curs.close()
 
@@ -2623,8 +2655,14 @@ SELECT to_timestamp (foofoo,'YYMMDD.HH24MI') FROM (
 		login, creds = request_login_params()
 		pool = gmConnectionPool.gmConnectionPool()
 		pool.credentials = creds
-		#conn = get_connection()
 		revalidate_constraints()
+
+	#--------------------------------------------------------------------
+	def test_reindex_database():
+		login, creds = request_login_params()
+		pool = gmConnectionPool.gmConnectionPool()
+		pool.credentials = creds
+		print(reindex_database())
 
 	#--------------------------------------------------------------------
 	# run tests
@@ -2655,6 +2693,7 @@ SELECT to_timestamp (foofoo,'YYMMDD.HH24MI') FROM (
 	#test_faulty_SQL()
 	#test_log_settings()
 	#test_get_db_fingerprint()
-	test_revalidate_constraints()
+	#test_revalidate_constraints()
+	test_reindex_database()
 
 # ======================================================================
