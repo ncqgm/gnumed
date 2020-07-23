@@ -17,25 +17,28 @@ INSERT INTO dem.message_inbox (
 ) VALUES (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
-	'Release Notes for GNUmed 1.8.2 (database v22.12)',
-	'GNUmed 1.8.2 Release Notes:
+	'Release Notes for GNUmed 1.8.3 (database v22.13)',
+	'GNUmed 1.8.3 Release Notes:
 
-	1.8.2
+	1.8.3
 
-FIX: dicom: exception on uploading malformed DCM to Orthanc
-FIX: dicom: exception on failing to download a DCM from Orthanc
-FIX: MacOSX: exception on wx.EndBusyCursor w/o wx.BeginBusyCursor [thanks Alex]
-FIX: database: fix connection pooling [thanks various]
+NEW: tool: fingerprint_db
 
-IMPROVED: lab: by-day display functionality
-IMPROVED: emr: tree: more informative display
-IMPROVED: main menu: put <export area> under <paperwork>
-IMPROVED: PACS: display RequestingOrg
-IMPROVED: bootstrap: password input [thanks bganglia892]
-IMPROVED: wxPython: robustify on force-ASSERT devel builds [thanks bganglia892]
-IMPROVED: startup: logging of execution environment
-IMPROVED: shutdown: one more code path for exception handling abort
+IMPROVED: forms: log pdflatex version
+
+FIX: meds: drug data source selection [thanks bganglia892]
+FIX: meds: ADR URL configuration [thanks bganglia892]
+FIX: vaccs: ADR URL configuration [thanks bganglia892]
+FIX: tests: LOINC import fixup [thanks bganglia892]
+FIX: db: whitespace in connection parameters [thanks kikiruz]
+FIX: startup: startup without console fails [thanks Marc]
+FIX: top panel: incorrect age-at-birthday display
+FIX: i18n: locale activation
+
+	22.13
+
+IMPROVED: bootstrapper logging
 ');
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('v22-release_notes-fixup.sql', '22.13');
+select gm.log_script_insertion('v22-release_notes-fixup.sql', '22.13@1.8.3');
