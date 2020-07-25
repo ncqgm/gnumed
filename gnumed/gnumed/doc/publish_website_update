@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 rm --verbose --force html/*.html
 
@@ -14,6 +14,7 @@ for ADOC in website/*.adoc ; do
 	fi
 done;
 
+read -p "Hit [ENTER] for uploading website updates "
 rsync --verbose --progress --checksum --human-readable html/*.html www.gnumed.de:gm-website/
 RESULT="$?"
 if test "${RESULT}" != "0" ; then

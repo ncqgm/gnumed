@@ -1,7 +1,7 @@
 link:index.html[Home]
 
-GNUmed is a client-server system. A full installation needs
-both a database and a client.
+GNUmed is a client-server system. A full(y) local installation
+needs both a database and a client.
 
 There is, however, a public database available for testing.
 

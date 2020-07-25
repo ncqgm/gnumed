@@ -103,11 +103,13 @@ features]
 _(wash/rinse/repeat as needed)_
 
 * update `Inbox` message with release notes
-* `gnumed/client/gnumed.py`: set client version _X.Y.N_
-* run *at least minimal* release tests:
+* run database release tests:
 ** database bootstrap (`bootstrap-latest.sh`)
 ** database upgrade (`upgrade-db.sh`)
 ** database fixup (`fixup-db.sh`)
+
+* `gnumed/client/gnumed.py`: set client version _X.Y.N_
+* run client release tests:
 ** client startup (`gm-from-vcs.sh`)
 *** from the console
 *** without a console (invoke `gm-from-vcs.sh` from, say, dolphin)
@@ -115,19 +117,25 @@ _(wash/rinse/repeat as needed)_
 *** activate each tab once
 *** http://de.fakenamegenerator.com/gen-female-gr-gr.php[new patient] creation
 *** again, activate each tab once
-* `git add gnumed.py`
+
 * `dists/Linux/make-release_tarball.sh`: set proper client version _X.Y.N_
 * `dists/Linux/make-release_tarball.sh`: include SQL fixup scripts (also in branch `master`)
+* test building tarball
+** run `dists/Linux/make-release_tarball.sh`
+
+* `git add gnumed.py`
 * `git add make-release_tarball.sh`
-* `git commit -v`
-* `git tag -s rel-X-Y-N`
+* `git commit -v` (suggested message "Prepare X.Y.N release")
+* `git tag -s rel-X-Y-N` (suggested message "Stamp X.Y.N release")
 * http://wiki.gnumed.de/bin/view/Gnumed/PublishManual[re-publish manual]
+
 * build tarball
 ** run `dists/Linux/make-release_tarball.sh`
+
 * upload to http://www.gnumed.de/downloads/["Savannah"]
-* adjust http://www.gnumed.de/downloads/gnumed-versions.txt[
-`gnumed-versions.txt` ]
+* adjust http://www.gnumed.de/downloads/gnumed-versions.txt[`gnumed-versions.txt` ]
 * update link:ReleaseStatus[release status] page
+
 * build packages for version X.Y.N
 ** Debian package
 ** Windows installer
