@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
-#============================================================
-__doc__ = """GNUmed DICOM handling middleware"""
 
+"""GNUmed DICOM handling middleware"""
+#============================================================
 __license__ = "GPL v2 or later"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 

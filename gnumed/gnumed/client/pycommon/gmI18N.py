@@ -1,4 +1,4 @@
-__doc__ = """GNUmed client internationalization/localization.
+"""GNUmed client internationalization/localization.
 
 All i18n/l10n issues should be handled through this modules.
 

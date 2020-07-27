@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-__doc__ = """GNUmed connection pooler.
+"""GNUmed connection pooler.
 
 Currently, only readonly connections are pooled.
 

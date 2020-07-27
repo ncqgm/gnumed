@@ -1,5 +1,5 @@
 
-__doc__ = """Base classes for match providers.
+"""Base classes for match providers.
 
 They are used by business objects to give
 phrasewheels the ability to guess phrases.

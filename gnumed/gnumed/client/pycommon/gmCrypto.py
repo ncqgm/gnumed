@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-__doc__ = """GNUmed crypto tools.
+"""GNUmed crypto tools.
 
 First and only rule:
 

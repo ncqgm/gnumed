@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import print_function
-
 """GNUmed patient objects.
 
 This is a patient object intended to let a useful client-side

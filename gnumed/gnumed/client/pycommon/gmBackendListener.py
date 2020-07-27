@@ -1,4 +1,4 @@
-__doc__ = """GNUmed database backend listener.
+"""GNUmed database backend listener.
 
 This module implements threaded listening for asynchronuous
 notifications from the database backend.

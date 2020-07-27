@@ -27,47 +27,49 @@ constants:
 
 
 module file layout:
+-------------------------------------------------------------
+# -*- coding: utf-8 -*-
 
-	# -*- coding: utf-8 -*-
+"""line 1
+line 2
+line 3
+"""
+#============================================================
+# SPDX-License-Identifier: GPL-2.0-or-later
+__author__ = "..."
+__license__ = "..."
 
-	__doc__ = """line 1
-		line 2
-		line 3
-	"""
-	#============================================================
-	# SPDX-License-Identifier: GPL-2.0-or-later
-	__author__ = "..."
-	__license__ = "..."
+# standard library imports
+import sys
 
-	# standard library imports
-	import sys
+# 3rd party library imports
+import ...
 
-	# 3rd party library imports
-	import ...
+if __name__ == '__main__':
+	sys.path.insert(0, '../../')
+# GNUmed module imports
+from Gnumed.pycommon import ...
 
-	if __name__ == '__main__':
-		sys.path.insert(0, '../../')
-	# GNUmed module imports
-	from Gnumed.pycommon import ...
+# CONSTANTS
+A_FIXED_VALUE = 'abc'
 
-	# CONSTANTS
-	A_FIXED_VALUE = 'abc'
+# globals
+_log = logging.getLogger('gm.ABCD')
+#============================================================
 
-	# globals
-	_log = logging.getLogger('gm.ABCD')
-	#============================================================
+... code ...
 
-	... code ...
+#============================================================
+# main
+#------------------------------------------------------------
+if __name__ == "__main__":
 
-	#============================================================
-	# main
-	#------------------------------------------------------------
-	if __name__ == "__main__":
+	if len(sys.argv) < 2:
+		sys.exit()
 
-		if len(sys.argv) < 2:
-			sys.exit()
+	if sys.argv[1] != 'test':
+		sys.exit()
 
-		if sys.argv[1] != 'test':
-			sys.exit()
+	... test code ...
 
-		... test code ...
+-------------------------------------------------------------

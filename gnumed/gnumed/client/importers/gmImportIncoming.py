@@ -1,9 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
-
-
-__doc__ = """Incoming data importer."""
+"""Incoming data importer."""
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL v2 or later"
 #============================================================

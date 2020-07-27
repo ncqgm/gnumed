@@ -1,4 +1,4 @@
-__doc__ = """GNUmed list controls and widgets.
+"""GNUmed list controls and widgets.
 
 TODO:
 

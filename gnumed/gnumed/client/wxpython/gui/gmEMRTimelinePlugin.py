@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-__doc__ = """ This is the EMR Timeline plugin."""
+"""This is the EMR Timeline plugin."""
 
 #================================================================
 __author__ = "karsten.hilbert@gmx.net"

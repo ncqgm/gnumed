@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-__doc__ = """GNUmed internetworking tools."""
+"""GNUmed internetworking tools."""
 
 #===========================================================================
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"

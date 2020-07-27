@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-__doc__="""GNUmed schema installation.
+"""GNUmed schema installation.
 
 This script bootstraps a GNUmed database system.
 

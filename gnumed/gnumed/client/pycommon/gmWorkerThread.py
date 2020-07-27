@@ -1,4 +1,4 @@
-__doc__ = """GNUmed worker threads."""
+"""GNUmed worker threads."""
 #=====================================================================
 __author__ = "K.Hilbert <karsten.hilbert@gmx.net>"
 __license__ = "GPL v2 or later"
@@ -24,8 +24,12 @@ _log = logging.getLogger('gm.worker')
 def execute_in_worker_thread(payload_function=None, payload_kwargs=None, completion_callback=None, worker_name=None):
 	"""Create a thread and have it execute <payload_function>.
 
-	<completion_callback> - if not None - better be prepared to
-	receive the result of <payload_function>.
+	:param func payload_function: function to actually run in the thread
+	:param dict payload_kwargs: keyword args to pass to function to run
+	:param func completion_callback: if not None - better be prepared to receive the result of <payload_function>
+	:param str worker_name: optional worker thread name
+	:return: ID of worker thread
+	:rtype: int
 	"""
 	assert (callable(payload_function)), 'payload function <%s> is not callable' % payload_function
 	assert ((completion_callback is None) or callable(completion_callback)), 'completion callback <%s> is not callable' % completion_callback
@@ -41,7 +45,12 @@ def execute_in_worker_thread(payload_function=None, payload_kwargs=None, complet
 	worker_thread = None
 
 	#-------------------------------
+	#-------------------------------
 	def _run_payload():
+		"""Execute the payload function.
+
+		Defined inline so it can locally access arguments and completion callback.
+		"""
 		try:
 			if payload_kwargs is None:
 				payload_result = payload_function()
@@ -62,6 +71,7 @@ def execute_in_worker_thread(payload_function=None, payload_kwargs=None, complet
 			_log.exception('error running completion callback: %s', completion_callback)
 		_log.info('worker thread [name=%s, PID=%s] shuts down', worker_thread.name, worker_thread.ident)
 		return
+	#-------------------------------
 	#-------------------------------
 
 	if worker_name is None:
@@ -93,35 +103,50 @@ def execute_in_worker_thread(payload_function=None, payload_kwargs=None, complet
 #=====================================================================
 # main
 #=====================================================================
-if __name__ == "__main__":
+if __name__ != "__main__":
+	sys.exit()
 
-	if len(sys.argv) < 2:
-		sys.exit()
+if len(sys.argv) < 2:
+	sys.exit()
 
-	if sys.argv[1] != 'test':
-		sys.exit()
+if sys.argv[1] != 'test':
+	sys.exit()
 
-	import time
-	import random
+import time
+import random
 
-	from Gnumed.pycommon import gmLog2
+from Gnumed.pycommon import gmLog2
 
-	def test_print_dots(ident=None):
+def test_print_dots(ident=None):
+	"""Tests executing a function in a worker thread.
 
-		def slowly_print_dots(info=None):
-			for i in range(5):
-				print('* (#%s in %s)' % (i, info))
-				time.sleep(1 + (random.random()*4))
-			return '%s' % time.localtime()
+	The thread slowly prints dots to stdout.
+	"""
 
-		def print_dot_end_time(time_str):
-			print('done: %s' % time_str)
+	def slowly_print_dots(info=None):
+		"""This slowly prints dots.
 
-		execute_in_worker_thread (
-			payload_function = slowly_print_dots,
-			payload_kwargs = {'info': ident},
-			completion_callback = print_dot_end_time
-		)
+		:param str info: some identifier
 
-	test_print_dots('A')
-	test_print_dots('B')
+		To be run in each thread."""
+		for idx in range(5):
+			print('* (#%s in %s)' % (idx, info))
+			time.sleep(1 + (random.random()*4))
+		return '%s' % time.localtime()
+
+	def print_dot_end_time(end_time):
+		"""Print the time printing dots ended.
+
+		:param str end_time: end time to print
+
+		Used as completion callback."""
+		print('done: %s' % end_time)
+
+	execute_in_worker_thread (
+		payload_function = slowly_print_dots,
+		payload_kwargs = {'info': ident},
+		completion_callback = print_dot_end_time
+	)
+
+test_print_dots('A')
+test_print_dots('B')

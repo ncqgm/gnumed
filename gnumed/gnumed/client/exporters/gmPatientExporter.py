@@ -1,4 +1,4 @@
-__doc__ = """GNUmed simple ASCII EMR export tool.
+"""GNUmed simple ASCII EMR export tool.
 
 TODO:
 - output modes:

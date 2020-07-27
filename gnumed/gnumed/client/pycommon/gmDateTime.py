@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
-__doc__ = """
-GNUmed date/time handling.
+"""GNUmed date/time handling.
 
 This modules provides access to date/time handling
 and offers an fuzzy timestamp implementation

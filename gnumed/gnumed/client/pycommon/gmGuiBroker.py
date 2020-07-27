@@ -1,7 +1,7 @@
 
 
 
-__doc__ = """GNUmed GUI element brokerage
+"""GNUmed GUI element brokerage
 
 This module provides wrappers for the equivalent of global
 variables needed for a gnumed GUI client interface

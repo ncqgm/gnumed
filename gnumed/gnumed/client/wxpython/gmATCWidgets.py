@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#from __future__ import print_function
-
-__doc__ = """GNUmed ATC handling widgets."""
+"""GNUmed ATC handling widgets."""
 
 #================================================================
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"

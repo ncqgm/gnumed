@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-__doc__ = """GNUmed GUI client.
+"""GNUmed GUI client.
 
 This contains the GUI application framework and main window
 of the all signing all dancing GNUmed Python Reference

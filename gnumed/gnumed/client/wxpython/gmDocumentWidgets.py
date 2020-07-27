@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 #============================================================
 
-
-__doc__ = """GNUmed medical document handling widgets."""
+"""GNUmed medical document handling widgets."""
 
 __license__ = "GPL v2 or later"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"

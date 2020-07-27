@@ -1,5 +1,4 @@
-############################################################################
-# gmExceptions - classes for exceptions GNUmed modules may throw
+"""gmExceptions - classes for exceptions GNUmed modules may throw
 # --------------------------------------------------------------------------
 #
 # @author: Dr. Horst Herb
@@ -8,7 +7,7 @@
 # @dependencies: nil
 # @change log:
 #	07.02.2002 hherb first draft, untested
-############################################################################
+"""
 
 class AccessDenied(Exception):
 	def __init__(self, msg, source=None, code=None, details=None):

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-__doc__ = """GNUmed AMTS BMP handling widgets."""
+"""GNUmed AMTS BMP handling widgets."""
 
 #================================================================
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"

@@ -1,4 +1,4 @@
-__doc__ = """GNUmed general tools."""
+"""GNUmed general tools."""
 
 #===========================================================================
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"

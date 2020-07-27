@@ -1,4 +1,4 @@
-__doc__ = """GNUmed database object business class.
+"""GNUmed database object business class.
 
 Overview
 --------

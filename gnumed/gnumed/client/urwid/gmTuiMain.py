@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-__doc__ = """GNUmed TUI client.
+"""GNUmed TUI client.
 
 This contains the TUI application framework and main window
 of the all signing all dancing GNUmed Python Reference

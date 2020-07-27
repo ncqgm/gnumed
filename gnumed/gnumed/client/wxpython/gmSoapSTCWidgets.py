@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
-__doc__ = """GNUmed StyledTextCtrl subclass for SOAP editing.
+"""GNUmed StyledTextCtrl subclass for SOAP editing.
 
-based on: 11/21/2003 - Jeff Grimmett (grimmtooth@softhome.net)"""
+based on: 11/21/2003 - Jeff Grimmett (grimmtooth@softhome.net)
+"""
 #================================================================
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL v2 or later (details at http://www.gnu.org)"
