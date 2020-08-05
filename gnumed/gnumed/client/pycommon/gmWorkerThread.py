@@ -103,50 +103,49 @@ def execute_in_worker_thread(payload_function=None, payload_kwargs=None, complet
 #=====================================================================
 # main
 #=====================================================================
-if __name__ != "__main__":
-	sys.exit()
+if __name__ == "__main__":
 
-if len(sys.argv) < 2:
-	sys.exit()
+	if len(sys.argv) < 2:
+		sys.exit()
 
-if sys.argv[1] != 'test':
-	sys.exit()
+	if sys.argv[1] != 'test':
+		sys.exit()
 
-import time
-import random
+	import time
+	import random
 
-from Gnumed.pycommon import gmLog2
+	from Gnumed.pycommon import gmLog2
 
-def test_print_dots(ident=None):
-	"""Tests executing a function in a worker thread.
+	def test_print_dots(ident=None):
+		"""Tests executing a function in a worker thread.
 
-	The thread slowly prints dots to stdout.
-	"""
+		The thread slowly prints dots to stdout.
+		"""
 
-	def slowly_print_dots(info=None):
-		"""This slowly prints dots.
+		def slowly_print_dots(info=None):
+			"""This slowly prints dots.
 
-		:param str info: some identifier
+			:param str info: some identifier
 
-		To be run in each thread."""
-		for idx in range(5):
-			print('* (#%s in %s)' % (idx, info))
-			time.sleep(1 + (random.random()*4))
-		return '%s' % time.localtime()
+			To be run in each thread."""
+			for idx in range(5):
+				print('* (#%s in %s)' % (idx, info))
+				time.sleep(1 + (random.random()*4))
+			return '%s' % time.localtime()
 
-	def print_dot_end_time(end_time):
-		"""Print the time printing dots ended.
+		def print_dot_end_time(end_time):
+			"""Print the time printing dots ended.
 
-		:param str end_time: end time to print
+			:param str end_time: end time to print
 
-		Used as completion callback."""
-		print('done: %s' % end_time)
+			Used as completion callback."""
+			print('done: %s' % end_time)
 
-	execute_in_worker_thread (
-		payload_function = slowly_print_dots,
-		payload_kwargs = {'info': ident},
-		completion_callback = print_dot_end_time
-	)
+		execute_in_worker_thread (
+			payload_function = slowly_print_dots,
+			payload_kwargs = {'info': ident},
+			completion_callback = print_dot_end_time
+		)
 
-test_print_dots('A')
-test_print_dots('B')
+	test_print_dots('A')
+	test_print_dots('B')
