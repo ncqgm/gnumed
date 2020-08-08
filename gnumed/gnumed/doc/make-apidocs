@@ -1,0 +1,25 @@
+#!/bin/bash
+
+TS=$(date +%Y-%m-%d-%H-%M-%S)
+WORKDIR="pdoc3-${TS}"
+
+mkdir -p ${WORKDIR}/Gnumed
+cd ${WORKDIR}/Gnumed/
+ln -s ../../../client/gnumed.py
+ln -s ../../../client/pycommon
+ln -s ../../../client/business
+ln -s ../../../client/wxpython
+ln -s ../../../client/wxg
+ln -s ../../../client/wxGladeWidgets
+ln -s ../../../client/connectors
+ln -s ../../../client/exporters
+ln -s ../../../client/importers
+cd -
+
+export PYTHONPATH="${PYTHONPATH:+$PYTHONPATH:}./Gnumed/"
+pdoc3 --html --skip-errors --output-dir ${WORKDIR}/api/ ${WORKDIR}/Gnumed
+
+rm -vf ${WORKDIR}/Gnumed/__pycache__/*
+rm -vf ${WORKDIR}/Gnumed/*
+rmdir -v ${WORKDIR}/Gnumed/__pycache__
+rmdir -v ${WORKDIR}/Gnumed
