@@ -1,7 +1,13 @@
 #!/bin/bash
 
-TS=$(date +%Y-%m-%d-%H-%M-%S)
-WORKDIR="pdoc3-${TS}"
+WORKDIR="pdoc3"
+
+rm -vf ${WORKDIR}/Gnumed/__pycache__/*
+rm -vf ${WORKDIR}/Gnumed/*
+rmdir -v ${WORKDIR}/Gnumed/__pycache__
+rmdir -v ${WORKDIR}/Gnumed
+rm -vfR ${WORKDIR}/api/*
+rmdir -v ${WORKDIR}/api
 
 mkdir -p ${WORKDIR}/Gnumed
 cd ${WORKDIR}/Gnumed/
