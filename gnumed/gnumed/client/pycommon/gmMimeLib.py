@@ -27,7 +27,6 @@ from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmCfg2
 from Gnumed.pycommon import gmWorkerThread
 
-
 _log = logging.getLogger('gm.mime')
 
 #=======================================================================================

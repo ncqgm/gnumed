@@ -588,29 +588,31 @@ class gmConnectionPool(gmBorg.cBorg):
 		return self.__creds
 
 	def _set_credentials(self, creds=None):
-		if self.__creds is not None:
-			_log.debug('invalidating pooled connections on credentials change')
-			curr_creds = self.__creds.formatted_credentials + '::'
-			for conn_key in self.__ro_conn_pool:
-				if not conn_key.startswith(curr_creds):
-					continue
-				conn = self.__ro_conn_pool[conn_key]
-				self.__ro_conn_pool[conn_key] = None
-				if conn.closed:
-					del conn
-					continue
-				_log.debug('closing open database connection, pool key: %s', conn_key)
-				log_conn_state(conn)
-				conn.close = conn.original_close
-				conn.close()
+		if self.__creds is None:
+			self.__creds = creds
+			return
+
+		_log.debug('invalidating pooled connections on credentials change')
+		pool_key_start_from_curr_creds = self.__creds.formatted_credentials + '::thread='
+		for pool_key in self.__ro_conn_pool:
+			if not pool_key.startswith(pool_key_start_from_curr_creds):
+				continue
+			conn = self.__ro_conn_pool[pool_key]
+			del self.__ro_conn_pool[pool_key]
+			if conn.closed:
 				del conn
+				continue
+			_log.debug('closing open database connection, pool key: %s', pool_key)
+			log_conn_state(conn)
+			conn.original_close()
+			del conn
 		self.__creds = creds
 
 	credentials = property(_get_credentials, _set_credentials)
 
 	#--------------------------------------------------
 	def _get_pool_key(self):
-		return '%s::%s' % (
+		return '%s::thread=%s' % (
 			self.__creds.formatted_credentials,
 			threading.current_thread().ident
 		)
