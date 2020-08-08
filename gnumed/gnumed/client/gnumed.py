@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-__doc__ = MANPAGE = """.\\" ========================================================
+""".\\" ========================================================
 .\\" SPDX-License-Identifier: GPL-2.0-or-later
 .\\" ========================================================
 
@@ -288,7 +288,7 @@ import re as regex
 if __name__ != "__main__":
 	print("GNUmed startup: This is not intended to be imported as a module !")
 	print("-----------------------------------------------------------------")
-	sys.exit(1)
+#	sys.exit(1)
 
 
 # do not run as root
@@ -308,7 +308,6 @@ against. Please run GNUmed as a non-root user.
 #current_client_branch = '1.8'
 current_client_version = 'head'
 current_client_branch = 'master'
-
 
 _log = None
 _pre_log_buffer = []
@@ -752,13 +751,13 @@ def handle_help_request():
 	if help_requested:
 		input('\nHit <ENTER> to display commandline help\n')
 		if platform.system() == 'Windows':
-			for line in MANPAGE.split('\n'):
+			for line in __doc__.split('\n'):
 				print(regex.sub('^\.\w+\s*', '', line, count = 1))
 			sys.exit(0)
 
 		handle, man_page_fname = tempfile.mkstemp(text = True, suffix = '.1')
 		man_page_file = open(man_page_fname, mode = 'wt', encoding = 'utf8')
-		man_page_file.write(MANPAGE % datetime.date.today().strftime('%x'))
+		man_page_file.write(__doc__ % datetime.date.today().strftime('%x'))
 		man_page_file.close()
 		os.system('man %s' % man_page_fname)
 		sys.exit(0)
@@ -1004,7 +1003,7 @@ def run_tool():
 	if tool == 'generate_man_page':
 		man_page_fname = os.path.abspath(os.path.join('.', 'gnumed.1'))
 		man_page_file = open(man_page_fname, mode = 'wt', encoding = 'utf8')
-		man_page_file.write(MANPAGE % datetime.date.today().strftime('%x'))
+		man_page_file.write(__doc__ % datetime.date.today().strftime('%x'))
 		man_page_file.close()
 		print('MAN page saved as:', man_page_fname)
 		return 0
