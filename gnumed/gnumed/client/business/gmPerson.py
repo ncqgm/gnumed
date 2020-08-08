@@ -21,18 +21,13 @@ import io
 import inspect
 from xml.etree import ElementTree as etree
 
-
 # GNUmed
 if __name__ == '__main__':
-	logging.basicConfig(level = logging.DEBUG)
 	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmExceptions
 from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmBorg
 from Gnumed.pycommon import gmI18N
-if __name__ == '__main__':
-	gmI18N.activate_locale()
-	gmI18N.install_domain()
 from Gnumed.pycommon import gmNull
 from Gnumed.pycommon import gmBusinessDBObject
 from Gnumed.pycommon import gmTools
@@ -896,7 +891,10 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 
 	#--------------------------------------------------------
-	def suggest_external_id(self, target=None, encoding=None):
+	def suggest_external_id(self, target=None):
+		dob = self.get_formatted_dob(format = '%Y%m%d', none_string = '?dob?')
+		gender = gmTools.coalesce(self['gender'], '?gender?')
+		pk = '#GMd::PK::%s#' % self.ID
 		name = self.active_name
 		last = ' '.join(p for p in name['lastnames'].split("-"))
 		last = ' '.join(p for p in last.split("."))
@@ -906,52 +904,55 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 		first = ' '.join(p for p in first.split("."))
 		first = ' '.join(p for p in first.split("'"))
 		first = ''.join(gmTools.capitalize(text = p, mode = gmTools.CAPS_FIRST_ONLY) for p in first.split(' '))
-		suggestion = 'GMd-%s%s%s%s%s' % (
-			gmTools.coalesce(target, '', '%s-'),
-			last,
-			first,
-			self.get_formatted_dob(format = '-%Y%m%d', none_string = ''),
-			gmTools.coalesce(self['gender'], '', '-%s')
-		)
+		suggestion_parts = ['GMd']
+		if target is not None:
+			suggestion_parts.append(target)
+		suggestion_parts.append(last)
+		suggestion_parts.append(first)
+		suggestion_parts.append(dob)
+		suggestion_parts.append(gender)
+		suggestion_parts.append(pk)
+		suggestion = '-'.join (suggestion_parts)
 		try:
 			import unidecode
-			return unidecode.unidecode(suggestion)
+			suggestion = unidecode.unidecode(suggestion)
 		except ImportError:
 			_log.debug('cannot transliterate external ID suggestion, <unidecode> module not installed')
-		if encoding is None:
-			return suggestion
-		return suggestion.encode(encoding)
+		return suggestion
 
 	external_id_suggestion = property(suggest_external_id, lambda x:x)
 
 	#--------------------------------------------------------
-	def suggest_external_ids(self, target=None, encoding=None):
-		names2use = [self.active_name]
-		names2use.extend(self.get_names(active_only = False, exclude_active = True))
-		target = gmTools.coalesce(target, '', '%s-')
-		dob = self.get_formatted_dob(format = '-%Y%m%d', none_string = '')
-		gender = gmTools.coalesce(self['gender'], '', '-%s')
+	def suggest_external_ids(self, target=None):
+		"""Suggest external IDs for this person."""
+		dob = self.get_formatted_dob(format = '%Y%m%d', none_string = '?dob?')
+		gender = gmTools.coalesce(self['gender'], '?gender?')
+		pk = '#GMd::PK::%s#' % self.ID
 		suggestions = []
-		for name in names2use:
-			last = ' '.join(p for p in name['lastnames'].split("-"))
-			last = ' '.join(p for p in last.split("."))
-			last = ' '.join(p for p in last.split("'"))
-			last = ''.join(gmTools.capitalize(text = p, mode = gmTools.CAPS_FIRST_ONLY) for p in last.split(' '))
-			first = ' '.join(p for p in name['firstnames'].split("-"))
-			first = ' '.join(p for p in first.split("."))
-			first = ' '.join(p for p in first.split("'"))
-			first = ''.join(gmTools.capitalize(text = p, mode = gmTools.CAPS_FIRST_ONLY) for p in first.split(' '))
-			suggestion = 'GMd-%s%s%s%s%s' % (target, last, first, dob, gender)
+		for name in self.get_names(active_only = False, exclude_active = False):
+			last = ' '.join(part for part in name['lastnames'].split("-"))
+			last = ' '.join(part for part in last.split("."))
+			last = ' '.join(part for part in last.split("'"))
+			last = ''.join(gmTools.capitalize(text = part, mode = gmTools.CAPS_FIRST_ONLY) for part in last.split(' '))
+			first = ' '.join(part for part in name['firstnames'].split("-"))
+			first = ' '.join(part for part in first.split("."))
+			first = ' '.join(part for part in first.split("'"))
+			first = ''.join(gmTools.capitalize(text = part, mode = gmTools.CAPS_FIRST_ONLY) for part in first.split(' '))
+			suggestion_parts = ['GMd']
+			if target is not None:
+				suggestion_parts.append(target)
+			suggestion_parts.append(last)
+			suggestion_parts.append(first)
+			suggestion_parts.append(dob)
+			suggestion_parts.append(gender)
+			suggestion_parts.append(pk)
+			suggestion = '-'.join(suggestion_parts)
 			try:
 				import unidecode
-				suggestions.append(unidecode.unidecode(suggestion))
-				continue
+				suggestion = unidecode.unidecode(suggestion)
 			except ImportError:
-				_log.debug('cannot transliterate external ID suggestion, <unidecode> module not installed')
-			if encoding is None:
-				suggestions.append(suggestion)
-			else:
-				suggestions.append(suggestion.encode(encoding))
+				_log.debug('cannot transliterate to ASCII external ID suggestion, <unidecode> module not installed')
+			suggestions.append(suggestion)
 		return suggestions
 
 	#--------------------------------------------------------
@@ -2617,10 +2618,6 @@ if __name__ == '__main__':
 	if sys.argv[1] != 'test':
 		sys.exit()
 
-	import datetime
-
-	gmI18N.activate_locale()
-	gmI18N.install_domain()
 	gmDateTime.init()
 
 	#--------------------------------------------------------
@@ -2751,7 +2748,9 @@ if __name__ == '__main__':
 	#--------------------------------------------------------
 	def test_ext_id():
 		person = cPerson(aPK_obj = 12)
-		print(person.suggest_external_id(target = 'Orthanc'))
+		suggestions = person.suggest_external_ids(target = 'Orthanc')
+		print(suggestions)
+		print([ (sugg.rsplit('#', 2)[0]).strip('-') for sugg in suggestions ])
 
 	#--------------------------------------------------------
 	def test_assimilate_identity():
@@ -2777,8 +2776,10 @@ if __name__ == '__main__':
 	#test_export_area()
 	#test_ext_id()
 	#test_vcf()
-	test_mecard()
-	#test_ext_id()
+	#test_mecard()
+
+	gmPG2.request_login_params(setup_pool = True)
+	test_ext_id()
 	#test_current_patient()
 	#test_assimilate_identity()
 

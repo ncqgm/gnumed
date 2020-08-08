@@ -171,82 +171,80 @@ class cOrthancServer:
 	#--------------------------------------------------------
 	# download API
 	#--------------------------------------------------------
-	def get_matching_patients(self, person):
-		_log.info('searching for Orthanc patients matching %s', person)
+	def get_matching_patients(self, person) -> list:
+		"""Fetch matching patients from an Orthanc DICOM server.
 
-		# look for patient by external ID first
+		Matches are searched for via stored "external ID" and
+		via generically generated ID. The external IDs are
+		fetched from the patient store, must be of type
+		"PACS" and must be marked as issued by the
+		instantiated PACS <self.>
+
+		Args:
+			person: a gmPerson.cPerson instance
+
+		Returns:
+			A list of Orthanc patient UIDs.
+		"""
+		_log.info('searching for Orthanc patients matching %s', person)
 		pacs_ids = person.get_external_ids(id_type = 'PACS', issuer = self.as_external_id_issuer)
 		if len(pacs_ids) > 1:
 			_log.error('GNUmed patient has more than one ID for this PACS: %s', pacs_ids)
-			_log.error('the PACS ID is expected to be unique per PACS')
+			_log.error('the stored-in-GNUmed PACS ID is expected to be unique _per PACS_')
 			return []
 
-		pacs_ids2use = []
-
-		if len(pacs_ids) == 1:
-			pacs_ids2use.append(pacs_ids[0]['value'])
-		pacs_ids2use.extend(person.suggest_external_ids(target = 'PACS'))
-
-		for pacs_id in pacs_ids2use:
+		pacs_ids2search_by = []
+		pacs_ids2search_by.extend([ pacs_id['value'] for pacs_id in pacs_ids ])
+		pacs_ids2search_by.extend(person.suggest_external_ids(target = 'PACS'))
+		matching_pats = []
+		for pacs_id in pacs_ids2search_by:
 			_log.debug('using PACS ID [%s]', pacs_id)
-			pats = self.get_patients_by_external_id(external_id = pacs_id)
+			pats = self.get_patients_by_external_id(external_id = pacs_id, fuzzy = False)
 			if len(pats) > 1:
 				_log.warning('more than one Orthanc patient matches PACS ID: %s', pacs_id)
-			if len(pats) > 0:
-				return pats
-
-		_log.debug('no matching patient found in PACS')
-		# return find type ? especially useful for non-matches on ID
-
-		# search by name
-
-#		# then look for name parts
-#		name = person.get_active_name()
-		return []
+			matching_pats.extend(pats)
+		if not matching_pats:
+			_log.debug('no matching patient found in PACS')
+		return matching_pats
 
 	#--------------------------------------------------------
-	def get_patients_by_external_id(self, external_id=None):
+	def get_patients_by_external_id(self, external_id=None, fuzzy=False):
+		"""Search for instances by patient ID."""
 		matching_patients = []
-		_log.info('searching for patients with external ID >>>%s<<<', external_id)
-
-		# elegant server-side approach:
+		_log.info('external ID >>>%s<<< fuzzy [%s]', external_id, fuzzy)
+		search_term = external_id.strip().strip('*').strip()
+		if fuzzy:
+			search_term = '*%s*' % search_term
 		search_data = {
 			'Level': 'Patient',
 			'CaseSensitive': False,
 			'Expand': True,
-			'Query': {'PatientID': external_id.strip('*')}
+			'Query': {'PatientID': search_term}
 		}
-		_log.info('server-side C-FIND SCU over REST search, mogrified search data: %s', search_data)
 		matches = self.__run_POST(url = '%s/tools/find' % self.__server_url, data = search_data)
-
 		# paranoia
 		for match in matches:
 			self.protect_patient(orthanc_id = match['ID'])
 		return matches
 
-#		# recursive brute force approach:
-#		for pat_id in self.__run_GET(url = '%s/patients' % self.__server_url):
-#			orthanc_pat = self.__run_GET(url = '%s/patients/%s' % (self.__server_url, pat_id))
-#			orthanc_external_id = orthanc_pat['MainDicomTags']['PatientID']
-#			if orthanc_external_id != external_id:
-#				continue
-#			_log.debug(u'match: %s (name=[%s], orthanc_id=[%s])', orthanc_external_id, orthanc_pat['MainDicomTags']['PatientName'], orthanc_pat['ID'])
-#			matching_patients.append(orthanc_pat)
-#		if len(matching_patients) == 0:
-#			_log.debug(u'no matches')
-#		return matching_patients
-
 	#--------------------------------------------------------
-	def get_patients_by_name(self, name_parts=None, gender=None, dob=None, fuzzy=False):
-		_log.info('name parts %s, gender [%s], dob [%s], fuzzy: %s', name_parts, gender, dob, fuzzy)
+	def get_patients_by_name(self, name_parts=None, gender=None, dob=None, fuzzy=False) -> list:
+		"""Search for patients by name.
+
+		Returns:
+			List of patients matching the search term(s).
+		"""
+		_log.info('name parts %s, gender [%s], dob [%s], fuzzy: [%s]', name_parts, gender, dob, fuzzy)
 		if len(name_parts) > 1:
 			return self.get_patients_by_name_parts(name_parts = name_parts, gender = gender, dob = dob, fuzzy = fuzzy)
-		if not fuzzy:
-			search_term = name_parts[0].strip('*')
-		else:
-			search_term = name_parts[0]
-			if not search_term.endswith('*'):
-				search_term += '*'
+
+		search_term = name_parts[0].strip().strip('*').strip()
+		if search_term == '':
+			_log.debug('search term empty')
+			return []
+
+		if fuzzy:
+			search_term = '*%s*' % search_term
 		search_data = {
 			'Level': 'Patient',
 			'CaseSensitive': False,
@@ -277,6 +275,7 @@ class cOrthancServer:
 		if pat_ids is False:
 			_log.error('cannot retrieve patients')
 			return []
+
 		for pat_id in pat_ids:
 			orthanc_pat = self.__run_GET(url = '%s/patients/%s' % (self.__server_url, pat_id))
 			if orthanc_pat is False:
@@ -305,6 +304,66 @@ class cOrthancServer:
 			else:
 				_log.debug('name mismatch: "%s" does not contain all of %s', orthanc_name, clean_parts)
 		return matching_patients
+
+	#--------------------------------------------------------
+	def search_studies_by_patient_name(self, name:str) -> list:
+		"""Search for studies with the given patient name snippet.
+
+		A study (even at the Orthanc DB metadata level) will
+		contain the original patient name (unless manually
+		modified) in contrast to the (artificial Orthanc DB
+		metadata level) patient record. The latter contains
+		the first patient name that had been associated with
+		the given patient ID.
+
+		Args:
+			name (str): name snippet to search for
+
+		Returns:
+			The list of matching *studies* (not *patient*).
+		"""
+		_log.debug('search term [%s]', name)
+		search_term = name.strip().strip('*').strip()
+		if search_term == '':
+			_log.warning('search term empty')
+			return []
+
+		search_term = '*%s*' % search_term
+		search_data = {
+			'Level': 'Study',
+			'CaseSensitive': False,
+			'Expand': True,
+			'Query': {'PatientName': search_term}
+		}
+		matches = self.__run_POST(url = '%s/tools/find' % self.__server_url, data = search_data)
+		return matches
+
+	#--------------------------------------------------------
+	def search_studies_by_patient_id(self, patient_id:str) -> list:
+		"""Search for studies with the given patient ID snippet.
+
+		This relates to the external world patient ID as
+		stored in DICOM instances, not the Orthanc DB
+		metadata level patient UID.
+
+		Args:
+			patient_id: patient ID snippet to search for
+
+		Returns:
+			The list of matching *studies* (not *patient*).
+		"""
+		matching_patients = []
+		_log.debug('search term >>>%s<<<', patient_id)
+		search_term = patient_id.strip().strip('*').strip()
+		search_term = '*%s*' % search_term
+		search_data = {
+			'Level': 'Study',
+			'CaseSensitive': False,
+			'Expand': True,
+			'Query': {'PatientID': search_term}
+		}
+		matches = self.__run_POST(url = '%s/tools/find' % self.__server_url, data = search_data)
+		return matches
 
 	#--------------------------------------------------------
 	def get_studies_list_by_patient_name(self, name_parts=None, gender=None, dob=None, fuzzy=False):
@@ -612,7 +671,13 @@ class cOrthancServer:
 
 	#--------------------------------------------------------
 	def modify_patient_id(self, old_patient_id, new_patient_id):
+		"""Modify the patient ID stored in Orthanc.
 
+		This changes all DICOM files of the patient,
+		identified via (DICOM level) old_patient_id, to
+		contain the new_patient_id. It will update the
+		associated Orthanc metadata DB entries accordingly.
+		"""
 		if old_patient_id == new_patient_id:
 			return True
 
@@ -1452,7 +1517,7 @@ if __name__ == "__main__":
 					print(' -> ', pat)
 				continue
 
-			pats = orthanc.get_patients_by_name(name_parts = entered_name.split(), fuzzy = True)
+			pats = orthanc.get_patients_by_name(name_parts = entered_name.split(), fuzzy = True, search_level = 'Study')
 			print('Patients found:')
 			for pat in pats:
 				print(' -> ', pat)
@@ -1634,8 +1699,8 @@ if __name__ == "__main__":
 	#sys.exit
 
 	_connect()
-	#run_console()
-	test_modify_patient_id()
+	run_console()
+	#test_modify_patient_id()
 	#test_upload_files()
 	#test_get_instance_preview()
 	#test_get_instance_tags()

@@ -4466,7 +4466,7 @@ class cModifyOrthancContentDlg(wxgModifyOrthancContentDlg):
 		del kwds['title']
 		wxgModifyOrthancContentDlg.__init__(self, *args, **kwds)
 		self.SetTitle(title)
-		self._LCTRL_patients.set_columns( [_('Patient ID'), _('Name'), _('Birth date'), _('Gender'), _('Orthanc')] )
+		self._LCTRL_patients.set_columns( [_('Study date'), _('Patient ID (DICOM study)'), _('Name'), _('Birth date'), _('Gender'), _('Patient UID (Orthanc)'), _('Study')] )
 
 	#--------------------------------------------------------
 	def __refresh_patient_list(self):
@@ -4474,13 +4474,17 @@ class cModifyOrthancContentDlg(wxgModifyOrthancContentDlg):
 		search_term = self._TCTRL_search_term.Value.strip()
 		if search_term == '':
 			return
-		pats = self.__srv.get_patients_by_name(name_parts = search_term.split(), fuzzy = True)
-		if len(pats) == 0:
+
+		studies = []
+		studies.extend(self.__srv.search_studies_by_patient_name(name = search_term))
+		studies.extend(self.__srv.search_studies_by_patient_id(patient_id = search_term))
+		if len(studies) == 0:
 			return
+
 		list_items = []
 		list_data = []
-		for pat in pats:
-			mt = pat['MainDicomTags']
+		for study in studies:
+			mt = study['PatientMainDicomTags']
 			try:
 				gender = mt['PatientSex']
 			except KeyError:
@@ -4489,7 +4493,15 @@ class cModifyOrthancContentDlg(wxgModifyOrthancContentDlg):
 				dob = mt['PatientBirthDate']
 			except KeyError:
 				dob = ''
-			list_items.append([mt['PatientID'], mt['PatientName'], dob, gender, pat['ID']])
+			list_items.append ([
+				study['MainDicomTags']['StudyDate'],
+				mt['PatientID'],
+				mt['PatientName'],
+				dob,
+				gender,
+				study['ParentPatient'],
+				study['ID']
+			])
 			list_data.append(mt['PatientID'])
 		self._LCTRL_patients.set_string_items(list_items)
 		self._LCTRL_patients.set_column_widths()
@@ -4514,35 +4526,37 @@ class cModifyOrthancContentDlg(wxgModifyOrthancContentDlg):
 		new_id = self._TCTRL_new_patient_id.Value.strip()
 		if new_id == '':
 			return
-		pats = self._LCTRL_patients.get_selected_item_data(only_one = False)
-		if len(pats) == 0:
+
+		studies = self._LCTRL_patients.get_selected_item_data(only_one = False)
+		if len(studies) == 0:
 			return
+
 		really_modify = gmGuiHelpers.gm_show_question (
 			title = _('Modifying patient ID'),
 			question = _(
-				'Really modify %s patient(s) to have the new patient ID\n\n'
+				'Really modify %s DICOM studies to have the new patient ID\n\n'
 				' [%s]\n\n'
 				'stored in the Orthanc DICOM server ?'
 			) % (
-				len(pats),
+				len(studies),
 				new_id
 			),
 			cancel_button = True
 		)
 		if not really_modify:
 			return
+
 		all_modified = True
-		for pat in pats:
-			success = self.__srv.modify_patient_id(old_patient_id = pat, new_patient_id = new_id)
+		for study in studies:
+			success = self.__srv.modify_patient_id(old_patient_id = study, new_patient_id = new_id)
 			if not success:
 				all_modified = False
 		self.__refresh_patient_list()
-
 		if not all_modified:
 			gmGuiHelpers.gm_show_warning (
 				aTitle = _('Modifying patient ID'),
 				aMessage = _(
-					'I was unable to modify all DICOM patients.\n'
+					'I was unable to modify all DICOM studies selected.\n'
 					'\n'
 					'Please refer to the log file.'
 				)
