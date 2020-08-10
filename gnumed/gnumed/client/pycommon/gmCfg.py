@@ -25,13 +25,17 @@ The database config objects auto-sync with the backend.
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
-import sys, pickle, decimal, logging, re as regex
+import sys
+import pickle
+import decimal
+import logging
 
 
 # gnumed modules
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmPG2, gmTools
+from Gnumed.pycommon import gmPG2
+from Gnumed.pycommon import gmTools
 
 
 _log = logging.getLogger('gm.cfg')
@@ -283,8 +287,6 @@ class cCfgSQL:
 			_log.error("Need to know which option to retrieve.")
 			return None
 
-		alias = self.__make_alias(workplace, 'CURRENT_USER', cookie, option)
-
 		# construct query
 		where_parts = [
 			'vco.option=%(opt)s',
@@ -311,9 +313,11 @@ limit 1""" % where_clause
 
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': where_args}], return_data=True)
 		if len(rows) == 0:
+			alias = self.__make_alias(workplace, 'CURRENT_USER', cookie, option)
 			_log.warning('option definition for [%s] not in config database' % alias)
 			return None
 		return rows[0][0]
+
 	#----------------------------
 	def set(self, workplace = None, cookie = None, option = None, value = None):
 		"""Set (insert or update) option value in database.
@@ -343,7 +347,7 @@ limit 1""" % where_clause
 		elif isinstance(value, list):
 			# there can be different syntaxes for list types so don't try to cast them
 			pass
-		elif isinstance(value, buffer):
+		elif isinstance(value, (bytes, memoryview, bytearray)):
 			# can go directly into bytea
 			pass
 		else:

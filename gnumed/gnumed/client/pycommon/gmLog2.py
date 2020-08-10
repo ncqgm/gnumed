@@ -58,12 +58,8 @@ import logging
 import sys
 import os
 import io
-import codecs
-import locale
 import datetime as pydt
 import random
-import time
-import calendar
 
 
 _logfile_name = None

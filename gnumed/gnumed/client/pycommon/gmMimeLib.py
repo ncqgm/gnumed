@@ -16,12 +16,12 @@ import mimetypes
 import subprocess
 import shutil
 import logging
-import io
 
 
 # GNUmed
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
+	_ = lambda x:x
 from Gnumed.pycommon import gmShellAPI
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmCfg2
@@ -143,11 +143,10 @@ def guess_ext_by_mimetype(mimetype=''):
 	# ask system first
 	ext = mimetypes.guess_extension(mimetype)
 	if ext is not None:
-		_log.debug('<%s>: %s' % (mimetype, ext))
+		_log.debug('<%s>: %s', mimetype, ext)
 		return ext
 
 	_log.error("<%s>: no suitable file extension known to the OS" % mimetype)
-
 	# try to help the OS a bit
 	cfg = gmCfg2.gmCfgData()
 	ext = cfg.get (
@@ -155,13 +154,11 @@ def guess_ext_by_mimetype(mimetype=''):
 		option = mimetype,
 		source_order = [('user-mime', 'return'), ('system-mime', 'return')]
 	)
-
 	if ext is not None:
-		_log.debug('<%s>: %s (%s)' % (mimetype, ext, candidate))
+		_log.debug('<%s>: %s', mimetype, ext)
 		return ext
 
-	_log.error("<%s>: no suitable file extension found in config files" % mimetype)
-
+	_log.error("<%s>: no suitable file extension found in config files", mimetype)
 	return ext
 
 #-----------------------------------------------------------------------------------
@@ -503,8 +500,6 @@ if __name__ == "__main__":
 
 	if sys.argv[1] != 'test':
 		sys.exit()
-
-	from Gnumed.pycommon import gmI18N
 
 	# for testing:
 	logging.basicConfig(level = logging.DEBUG)

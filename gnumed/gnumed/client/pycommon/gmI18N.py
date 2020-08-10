@@ -228,7 +228,7 @@ def activate_locale():
 	"""Get system locale from environment."""
 	global system_locale
 	__log_locale_settings('unmodified startup locale settings (could be [C])')
-	loc, enc = None, None
+	loc = None
 	# activate user-preferred locale
 	try:
 		loc = locale.setlocale(locale.LC_ALL, '')

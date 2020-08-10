@@ -24,7 +24,7 @@ cd -
 
 cd ${WORKDIR}
 export PYTHONPATH="${PYTHONPATH:+$PYTHONPATH:}./Gnumed/"
-pdoc3 --html --skip-errors --output-dir api/ Gnumed
+pdoc3 --force --html --skip-errors --output-dir api/ Gnumed
 cd -
 
 rm -vf ${WORKDIR}/Gnumed/__pycache__/*

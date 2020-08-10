@@ -246,7 +246,7 @@ class gmBackendListener(gmBorg.cBorg):
 				# 1) generic signal
 				self.__messages_sent += 1
 				try:
-					results = gmDispatcher.send (
+					gmDispatcher.send (
 						signal = notification.channel,
 						originated_in_database = True,
 						listener_pid = self.backend_pid,
@@ -268,7 +268,7 @@ class gmBackendListener(gmBorg.cBorg):
 					signal = '%s_mod_db' % table
 					_log.debug('emulating old-style table specific signal [%s]', signal)
 					try:
-						results = gmDispatcher.send (
+						gmDispatcher.send (
 							signal = signal,
 							originated_in_database = True,
 							listener_pid = self.backend_pid,

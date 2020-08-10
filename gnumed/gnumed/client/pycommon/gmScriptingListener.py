@@ -12,11 +12,9 @@ import xmlrpc.server
 _log = logging.getLogger('gm.scripting')
 
 #=====================================================================
+# FIXME: this should use /var/run/gnumed/xml-rpc-port.pid
+# FIXME: and store the current port there
 class cScriptingListener:
-
-	# FIXME: this should use /var/run/gnumed/xml-rpc-port.pid
-	# FIXME: and store the current port there
-
 	"""This class handles how GNUmed listens for external requests.
 
 	It starts an XML-RPC server and forks a thread which
@@ -24,7 +22,14 @@ class cScriptingListener:
 	handed over to a macro executor and the results handed
 	back to the caller.
 	"""
-	def __init__(self, port = None, macro_executor = None, poll_interval = 3):
+	def __init__(self, port=None, macro_executor=None, poll_interval:int=3):
+		"""Setup the listener.
+
+		Args:
+			port: Port number (int or str) to listen on. Always on <localhost>.
+			macro_executor: Class processing GNUmed macros.
+			poll_interval: Listening socket select() timeout.
+		"""
 		# listener thread will regularly try to acquire
 		# this lock, when it succeeds it will quit
 		self._quit_lock = threading.Lock()
@@ -54,19 +59,18 @@ class cScriptingListener:
 		_log.info('scripting listener started on [%s:%s]' % (self._listener_address, self._port))
 		_log.info('macro executor: %s' % self._macro_executor)
 		_log.info('poll interval: %s seconds', self._poll_interval)
+
 	#-------------------------------
 	# public API
 	#-------------------------------
 	def shutdown(self):
-		"""Cleanly shut down. Complement to __init__()."""
-
+		"""Cleanly shut down resources."""
 		if self._thread is None:
 			return
 
 		_log.info('stopping frontend scripting listener thread')
 		self._quit_lock.release()
 		try:
-			# give the worker thread time to terminate
 			self._thread.join(self._poll_interval+5)
 			try:
 				if self._thread.isAlive():
@@ -76,23 +80,21 @@ class cScriptingListener:
 				pass
 		except Exception:
 			print(sys.exc_info())
-
 		self._thread = None
-
 		try:
 			self._server.socket.shutdown(2)
 		except Exception:
-			_log.exception('cannot cleanly shutdown(5) scripting listener socket')
-
+			_log.exception('cannot cleanly shutdown(2) scripting listener socket')
 		try:
 			self._server.socket.close()
 		except Exception:
 			_log.exception('cannot cleanly close() scripting listener socket')
+
 	#-------------------------------
 	# internal helpers
 	#-------------------------------
 	def _process_RPCs(self):
-		"""The actual thread code."""
+		"""Poll for incoming requests on the XML RPC server socket and invoke the request handler."""
 		while 1:
 			if self._quit_lock.acquire(0):
 				break
@@ -102,25 +104,26 @@ class cScriptingListener:
 			# wait at most self.__poll_interval for new data
 			ready_input_sockets = select.select([self._server.socket], [], [], self._poll_interval)[0]
 			# any input available ?
-			if len(ready_input_sockets) != 0:
-				# we may be in __del__ so we might fail here
-				try:
-					self._server.handle_request()
-				except Exception:
-					print("cannot serve RPC")
-					break
-				if self._quit_lock.acquire(0):
-					break
-				time.sleep(0.25)
-				if self._quit_lock.acquire(0):
-					break
-			else:
+			if len(ready_input_sockets) == 0:
 				time.sleep(0.35)
 				if self._quit_lock.acquire(0):
 					break
-
+				continue
+			# we may be in __del__ so we might fail here
+			try:
+				self._server.handle_request()
+			except Exception:
+				_log.exception('cannot serve RPC')
+				print("ERROR: cannot serve RPC")
+				break
+			if self._quit_lock.acquire(0):
+				break
+			time.sleep(0.25)
+			if self._quit_lock.acquire(0):
+				break
 		# exit thread activity
 		return
+
 #=====================================================================
 # main
 #=====================================================================

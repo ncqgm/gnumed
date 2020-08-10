@@ -43,7 +43,7 @@ __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL v2 or later (details at http://www.gnu.org)"
 
 # stdlib
-import sys, datetime as pyDT, time, os, re as regex, locale, logging
+import sys, datetime as pyDT, time, os, re as regex, logging
 
 
 # 3rd party
@@ -52,11 +52,11 @@ import sys, datetime as pyDT, time, os, re as regex, locale, logging
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
+	_ = lambda x:x
 #from Gnumed.pycommon import gmI18N
 
 
 _log = logging.getLogger('gm.datetime')
-#_log.info(u'mx.DateTime version: %s', mxDT.__version__)
 
 dst_locally_in_use = None
 dst_currently_in_effect = None
@@ -302,54 +302,7 @@ def get_date_of_weekday_following_date(weekday, base_dt=None):
 		days2add += 7
 	return pydt_add(base_dt, days = days2add)
 
-#===========================================================================
-# mxDateTime conversions
 #---------------------------------------------------------------------------
-def mxdt2py_dt(mxDateTime):
-
-	if isinstance(mxDateTime, pyDT.datetime):
-		return mxDateTime
-
-	try:
-		tz_name = str(mxDateTime.gmtoffset()).replace(',', '.')
-	except mxDT.Error:
-		_log.debug('mx.DateTime cannot gmtoffset() this timestamp, assuming local time')
-		#tz_name = current_local_iso_numeric_timezone_string
-		tz_name = current_local_timezone_name
-
-	if dst_currently_in_effect:
-		# convert
-		tz = cFixedOffsetTimezone (
-			offset = ((time.altzone * -1) // 60),
-			name = tz_name
-		)
-	else:
-		# convert
-		tz = cFixedOffsetTimezone (
-			offset = ((time.timezone * -1) // 60),
-			name = tz_name
-		)
-
-	try:
-		return pyDT.datetime (
-			year = mxDateTime.year,
-			month = mxDateTime.month,
-			day = mxDateTime.day,
-			tzinfo = tz
-		)
-	except Exception:
-		_log.debug ('error converting mx.DateTime.DateTime to Python: %s-%s-%s %s:%s %s.%s',
-			mxDateTime.year,
-			mxDateTime.month,
-			mxDateTime.day,
-			mxDateTime.hour,
-			mxDateTime.minute,
-			mxDateTime.second,
-			mxDateTime.tz
-		)
-		raise
-
-#===========================================================================
 def format_dob(dob, format='%Y %b %d', none_string=None, dob_is_estimated=False):
 	if dob is None:
 		if none_string is None:
@@ -709,7 +662,7 @@ def format_pregnancy_weeks(age):
 	return '%s%s%s%s' % (
 		int(weeks),
 		_('interval_format_tag::weeks::w')[-1:],
-		interval.days,
+		int(days),
 		_('interval_format_tag::days::d')[-1:]
 	)
 
@@ -2310,10 +2263,10 @@ if __name__ == '__main__':
 	def test_get_pydt():
 		print ("testing platform for handling dates before 1970")
 		print ("-----------------------------------------------")
-		ts = mxDT.DateTime(1935, 4, 2)
-		fts = cFuzzyTimestamp(timestamp=ts)
-		print ("fts           :", fts)
-		print ("fts.get_pydt():", fts.get_pydt())
+		#ts = mxDT.DateTime(1935, 4, 2)
+		#fts = cFuzzyTimestamp(timestamp=ts)
+		#print ("fts           :", fts)
+		#print ("fts.get_pydt():", fts.get_pydt())
 	#-------------------------------------------------
 	def test_calculate_apparent_age():
 		# test leap year glitches
@@ -2400,7 +2353,7 @@ if __name__ == '__main__':
 	#-------------------------------------------------
 	def test_get_date_of_weekday_in_week_of_date():
 		dt = pydt_now_here()
-		print('weekday', base_dt.isoweekday(), '(2day):', dt)
+		print('weekday', dt.isoweekday(), '(2day):', dt)
 		for weekday in range(8):
 			dt = get_date_of_weekday_in_week_of_date(weekday)
 			print('weekday', weekday, '(same):', dt)

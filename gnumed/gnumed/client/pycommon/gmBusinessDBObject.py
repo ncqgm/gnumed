@@ -151,53 +151,9 @@ from Gnumed.pycommon.gmTools import u_left_arrow
 _log = logging.getLogger('gm.db')
 
 #============================================================
-class cBusinessDBObject(object):
-	"""Represents business objects in the database.
-
-	Rules:
-	- instances ARE ASSUMED TO EXIST in the database
-	- PK construction (aPK_obj): DOES verify its existence on instantiation
-	                             (fetching data fails)
-	- Row construction (row): allowed by using a dict of pairs
-	                               field name: field value (PERFORMANCE improvement)
-	- does NOT verify FK target existence
-	- does NOT create new entries in the database
-	- does NOT lazy-fetch fields on access
-
-	Class scope SQL commands and variables:
-
-	<_cmd_fetch_payload>
-		- must return exactly one row
-		- WHERE clause argument values are expected in
-		  self.pk_obj (taken from __init__(aPK_obj))
-		- must return xmin of all rows that _cmds_store_payload
-		  will be updating, so views must support the xmin columns
-		  of their underlying tables
-
-	<_cmds_store_payload>
-		- one or multiple "update ... set ... where xmin_* = ... and pk* = ..."
-		  statements which actually update the database from the data in self._payload,
-		- the last query must refetch at least the XMIN values needed to detect
-		  concurrent updates, their field names had better be the same as
-		  in _cmd_fetch_payload,
-		- the last query CAN return other fields which is particularly
-		  useful when those other fields are computed in the backend
-		  and may thus change upon save but will not have been set by
-		  the client code explicitely - this is only really of concern
-		  if the saved subclass is to be reused after saving rather
-		  than re-instantiated
-		- when subclasses tend to live a while after save_payload() was
-		  called and they support computed fields (say, _(some_column)
-		  you need to return *all* columns (see cEncounter)
-
-	<_updatable_fields>
-		- a list of fields available for update via object['field']
-
-
-	A template for new child classes:
-
-*********** start of template ***********
-
+# business object template
+#------------------------------------------------------------
+"""
 #------------------------------------------------------------
 from Gnumed.pycommon import gmBusinessDBObject
 from Gnumed.pycommon import gmPG2
@@ -304,10 +260,50 @@ def manage_xxx()
 
 #------------------------------------------------------------
 # remember to add in clinical item generic workflows
+"""
 
+#============================================================
+class cBusinessDBObject(object):
+	"""Represents business objects in the database.
 
-*********** end of template ***********
+	Rules:
+	- instances ARE ASSUMED TO EXIST in the database
+	- PK construction (aPK_obj): DOES verify its existence on instantiation
+	                             (fetching data fails)
+	- Row construction (row): allowed by using a dict of pairs
+	                               field name: field value (PERFORMANCE improvement)
+	- does NOT verify FK target existence
+	- does NOT create new entries in the database
+	- does NOT lazy-fetch fields on access
 
+	Class scope SQL commands and variables:
+
+	<_cmd_fetch_payload>
+		- must return exactly one row
+		- WHERE clause argument values are expected in
+		  self.pk_obj (taken from __init__(aPK_obj))
+		- must return xmin of all rows that _cmds_store_payload
+		  will be updating, so views must support the xmin columns
+		  of their underlying tables
+
+	<_cmds_store_payload>
+		- one or multiple "update ... set ... where xmin_* = ... and pk* = ..."
+		  statements which actually update the database from the data in self._payload,
+		- the last query must refetch at least the XMIN values needed to detect
+		  concurrent updates, their field names had better be the same as
+		  in _cmd_fetch_payload,
+		- the last query CAN return other fields which is particularly
+		  useful when those other fields are computed in the backend
+		  and may thus change upon save but will not have been set by
+		  the client code explicitely - this is only really of concern
+		  if the saved subclass is to be reused after saving rather
+		  than re-instantiated
+		- when subclasses tend to live a while after save_payload() was
+		  called and they support computed fields (say, _(some_column)
+		  you need to return *all* columns (see cEncounter)
+
+	<_updatable_fields>
+		- a list of fields available for update via object['field']
 	"""
 	#--------------------------------------------------------
 	def __init__(self, aPK_obj=None, row=None, link_obj=None):

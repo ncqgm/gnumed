@@ -10,7 +10,6 @@ import sys
 import io
 import re as regex
 import shutil
-import os
 import tempfile
 
 
@@ -27,7 +26,6 @@ def __set_opt_in_INI_file(src=None, sink=None, group=None, option=None, value=No
 
 	group_seen = False
 	option_seen = False
-	in_list = False
 
 	for line in src:
 
@@ -38,13 +36,11 @@ def __set_opt_in_INI_file(src=None, sink=None, group=None, option=None, value=No
 
 		# start of list ?
 		if regex.match('(?P<list_name>.+)(\s|\t)*=(\s|\t)*\$(?P=list_name)\$', line) is not None:
-			in_list = True
 			sink.write(line)
 			continue
 
 		# end of list ?
 		if regex.match('\$.+\$.*', line) is not None:
-			in_list = False
 			sink.write(line)
 			continue
 
@@ -162,87 +158,6 @@ def __set_list_in_INI_file(src=None, sink=None, group=None, option=None, value=N
 		sink.write('\n'.join(value))
 		sink.write('\n')
 		sink.write('$%s$\n' % option)
-
-#==================================================================
-def __set_list_in_INI_file_old(src=None, sink=None, group=None, option=None, value=None):
-
-	our_group_seen = False
-	option_seen = False
-	in_list = False
-
-	for line in src:
-
-		# found option but still in (old) list ?
-		if option_seen and in_list:
-			# end of (old) list ?
-			if regex.match('\$.+\$.*', line) is not None:
-				in_list = False
-				sink.write(line)
-				continue
-			continue
-
-		# after option already and not in (old) list anymore ?
-		if option_seen and not in_list:
-			sink.write(line)
-			continue
-
-		# at start of a list ?
-		match = regex.match('(?P<list_name>.+)(\s|\t)*=(\s|\t)*\$(?P=list_name)\$', line)
-		if match is not None:
-			in_list = True
-			# our list ?
-			if our_group_seen and (match.group('list_name') == option):
-				option_seen = True
-				sink.write(line)
-				sink.write('\n'.join(value))
-				sink.write('\n')
-				continue
-			sink.write(line)
-			continue
-
-		# at end of a list ?
-		if regex.match('\$.+\$.*', line) is not None:
-			in_list = False
-			sink.write(line)
-			continue
-
-		# our group ?
-		if line.strip() == '[%s]' % group:
-			sink.write(line)
-			our_group_seen = True
-			continue
-
-		# another group ?
-		if regex.match('\[%s\].*' % group, line) is not None:
-			# next group but option not seen yet ?
-			if our_group_seen and not option_seen:
-				option_seen = True
-				sink.write('%s = $%s$\n' % (option, option))
-				sink.write('\n'.join(value))
-				sink.write('\n')
-				continue
-			sink.write(line)
-			continue
-
-		# something else (comment, empty line, or other option)
-		sink.write(line)
-
-	# all done ?
-	if option_seen:
-		return
-
-	# need to add group ?
-	if not our_group_seen:
-		sink.write('[%s]\n' % group)
-
-	# We either just added the group or it was the last group
-	# but did not contain the option. It must have been the
-	# last group then or else the following group would have
-	# triggered the option writeout.
-	sink.write('%s = $%s$\n' % (option, option))
-	sink.write('\n'.join(value))
-	sink.write('\n')
-	sink.write('$%s$\n' % option)
 
 #==================================================================
 def set_option_in_INI_file(filename=None, group=None, option=None, value=None, encoding='utf8'):

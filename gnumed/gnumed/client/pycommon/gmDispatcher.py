@@ -3,10 +3,7 @@
 # this code has been written by Patrick O'Brien <pobrien@orbtech.com>
 # downloaded from http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/87056
 """
-import types
-import sys
 import weakref
-import traceback
 import logging
 
 
