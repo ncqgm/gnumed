@@ -491,7 +491,7 @@ class cLDTImporter:
 			# find patient
 			searcher = gmPersonSearch.cPatientSearcher_SQL()
 			pat_ids = searcher.get_patient_ids(search_dict=pat_ldt)
-			print "must use dto, not search_dict"
+			print("must use dto, not search_dict")
 			if len(pat_ids) == 0:
 				_log.Log(gmLog.lErr, 'Kann in der Datenbank keinen Patienten fuer %s finden.' % str(pat_ldt))
 				return None

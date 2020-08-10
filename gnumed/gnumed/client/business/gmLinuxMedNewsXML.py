@@ -71,6 +71,6 @@ if __name__ == '__main__':
 	gmDateTime.init()
 
 	def test():
-		print parse_xml_linuxmednews(filename = sys.argv[2])
+		print(parse_xml_linuxmednews(filename = sys.argv[2]))
 
 	test()

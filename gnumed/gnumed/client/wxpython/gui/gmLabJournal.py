@@ -70,5 +70,5 @@ class gmLabJournal(gmPlugin.cNotebookPluginOld):
 # MAIN
 #----------------------------------------------------------------
 if __name__ == '__main__':
-	print "do not run standalone like this"
+	print("do not run standalone like this")
 #================================================================

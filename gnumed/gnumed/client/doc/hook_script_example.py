@@ -45,7 +45,7 @@ def run_script(hook=None):
 	if hook is None:
 		hook = _('no hook specified, please report bug')
 
-	print 'GNUmed invoked the hook [%s]' % hook
+	print('GNUmed invoked the hook [%s]' % hook)
 
 	# a few examples:
 

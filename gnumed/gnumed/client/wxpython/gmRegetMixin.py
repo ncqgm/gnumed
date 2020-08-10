@@ -33,7 +33,7 @@ Template for users:
 	#-----------------------------------------------------
 	def _populate_with_data(self):
 		# fill the UI with data
-		print "need to implement _populate_with_data"
+		print("need to implement _populate_with_data")
 		return False
 		return True
 	#-----------------------------------------------------

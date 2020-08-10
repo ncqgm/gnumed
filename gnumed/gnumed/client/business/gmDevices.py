@@ -180,11 +180,11 @@ if __name__ == '__main__':
 		def test_parsing_cardio_dev_state():
 			# for now assume that the xml file provide the cardiac device context.
 			# that pretty much means logical connection of leads and generator is provided in the xml
-			print "parsing device status from XML file:", sys.argv[2]
+			print("parsing device status from XML file:", sys.argv[2])
 			xml_device_desc = etree.parse(sys.argv[2])
 			formatted_device_status = device_status_as_text(xml_device_desc)
 			for line in formatted_device_status:
-				print line
+				print(line)
 		#----------------------------------------------------
 
 		test_parsing_cardio_dev_state()

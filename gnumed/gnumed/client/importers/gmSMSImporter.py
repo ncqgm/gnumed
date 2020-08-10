@@ -20,12 +20,12 @@ class cLogin:
 	pass
 
 def usage():
-	print "use like this:"
-	print ""
-	print " gmSMSImporter.py <date> <gsm> <weight>"
-	print " <weight> must be: <patient id>:::<weight value>"
-	print ""
-	print " current command line:", sys.argv
+	print("use like this:")
+	print("")
+	print(" gmSMSImporter.py <date> <gsm> <weight>")
+	print(" <weight> must be: <patient id>:::<weight value>")
+	print("")
+	print(" current command line:", sys.argv)
 
 def run_importer():
 

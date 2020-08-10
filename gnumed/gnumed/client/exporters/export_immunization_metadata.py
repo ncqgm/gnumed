@@ -9,7 +9,7 @@ from Gnumed.pycommon import gmPG
 pool = gmPG.ConnectionPool()
 
 filename = 'immunization-data.txt'
-print "Writing immunization metadata to:", filename
+print("Writing immunization metadata to:", filename)
 f = open(filename, 'w')
 
 vaccine_template = """
@@ -40,7 +40,7 @@ vaccine_rows, idx = gmPG.run_ro_query (
 )
 # error
 if vaccine_rows is None:
-	print "error retrieving vaccine data"
+	print("error retrieving vaccine data")
 # display vaccine data
 else:
 	f.write('Vaccines in the GNUmed database\n')
@@ -72,7 +72,7 @@ else:
 		)
 		# error
 		if indication_rows is None:
-			print "error retrieving vaccine indication data"
+			print("error retrieving vaccine indication data")
 		# display them
 		else:
 			f.write('  Indications:\n')
@@ -91,7 +91,7 @@ schedule_rows, idx = gmPG.run_ro_query (
 	True
 )
 if schedule_rows is None:
-	print "error retrieving vaccination schedules"
+	print("error retrieving vaccination schedules")
 else:
 	f.write('\n\nVaccination schedules in the GNUmed database\n')
 	f.write(    '--------------------------------------------\n')
@@ -118,7 +118,7 @@ else:
 			sched[idx['pk_regime']]
 		)
 		if shot_rows is None:
-			print "error retrieving shots for regime"
+			print("error retrieving shots for regime")
 		else:
 			f.write('  Shots defined for this schedule:\n')
 			for shot in shot_rows:

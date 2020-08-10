@@ -375,11 +375,11 @@ def init_ooo():
 	try:
 	    import uno
 	except Exception:
-	    print "This Script needs to be run with the python from OpenOffice.org"
-	    print "Example: /opt/OpenOffice.org/program/python %s" % (
-	        os.path.basename(sys.argv[0]))
-	    print "Or you need to insert the right path at the top, where uno.py is."
-	    print "Default: %s" % default_path
+	    print("This Script needs to be run with the python from OpenOffice.org")
+	    print ("Example: /opt/OpenOffice.org/program/python %s" % (
+	        os.path.basename(sys.argv[0])))
+	    print("Or you need to insert the right path at the top, where uno.py is.")
+	    print("Default: %s" % default_path)
 	"""
 	global uno
 	if uno is not None:

@@ -185,8 +185,8 @@ if __name__ == '__main__':
 
 	def test():
 		dto = parse_vcard2dto(filename = sys.argv[2])
-		print dto
-		print dto.addresses
-		print dto.comm_channels
+		print(dto)
+		print(dto.addresses)
+		print(dto.comm_channels)
 
 	test()
