@@ -22,10 +22,29 @@ ln -s ../../../client/exporters
 ln -s ../../../client/importers
 cd -
 
+cd ${WORKDIR}
 export PYTHONPATH="${PYTHONPATH:+$PYTHONPATH:}./Gnumed/"
-pdoc3 --html --skip-errors --output-dir ${WORKDIR}/api/ ${WORKDIR}/Gnumed
+pdoc3 --html --skip-errors --output-dir api/ Gnumed
+cd -
 
 rm -vf ${WORKDIR}/Gnumed/__pycache__/*
 rm -vf ${WORKDIR}/Gnumed/*
 rmdir -v ${WORKDIR}/Gnumed/__pycache__
 rmdir -v ${WORKDIR}/Gnumed
+
+
+
+#---------------------------------------------
+# old
+#cd ~/gm-git/gnumed/gnumed/
+#ln -sT client Gnumed
+#cd -
+#BASE=~/gm-git/gnumed/gnumed/Gnumed
+##MODULES=" $BASE/pycommon/ $BASE/business/ $BASE/connectors/ $BASE/exporters/ $BASE/importers/ $BASE/wxpython/"
+#LOG=~/gm-apidocs/epydoc-errors.txt
+#
+#export DISPLAY=":0.0"
+#export PYTHONPATH="${PYTHONPATH}:~/gm-git/gnumed/gnumed/"
+#mkdir ~/gm-apidocs
+#nice -n 19 epydoc -v --debug --show-imports -n "GNUmed Never Sleeps" -u http://www.gnumed.org --no-private -o ~/gm-apidocs $BASE/ &> $LOG
+#cat $LOG
