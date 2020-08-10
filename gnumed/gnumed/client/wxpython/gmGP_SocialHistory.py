@@ -26,7 +26,7 @@ class SocialHistory(wx.Panel):
         #self.Show(True)
 	self.text = txt_social_history
 
-	print self.GetValue()
+	#print self.GetValue()
 
     def SetValue( self, text):
 	    self.text.SetValue(text)

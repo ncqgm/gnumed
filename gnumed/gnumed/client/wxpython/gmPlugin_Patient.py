@@ -172,6 +172,6 @@ class wxPatientPlugin (BasePlugin):
 # Main
 #------------------------------------------------------------------
 if __name__ == '__main__':
-	print "please write a unit test"
+	print("please write a unit test")
 
 #==================================================================

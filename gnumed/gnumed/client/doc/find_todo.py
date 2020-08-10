@@ -12,7 +12,7 @@ __license__ = "GPL v2 or later (details at http://www.gnu.org)"
 import string, sys, fileinput
 
 if len(sys.argv) < 2:
-	print "Usage: find_todo.py <a_python_script> <a_python_script> ..."
+	print("Usage: find_todo.py <a_python_script> <a_python_script> ...")
 	sys.exit(1)
 
 #print "Searching for places to fix in", sys.argv[1:]
@@ -21,7 +21,7 @@ prev_file = ''
 for line in fileinput.input():
 	curr_file = fileinput.filename()
 	if curr_file != prev_file:
-		print '=> %s' % curr_file
+		print('=> %s' % curr_file)
 		prev_file = curr_file
 
 	line = line.strip()
@@ -29,4 +29,4 @@ for line in fileinput.input():
 		line_no = fileinput.filelineno()
 		line = line.replace('\015','')
 		line = line.replace('\012','')
-		print '#%s: %s' % (line_no, line)
+		print('#%s: %s' % (line_no, line))

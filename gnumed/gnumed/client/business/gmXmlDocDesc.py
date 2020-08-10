@@ -161,8 +161,8 @@ class xmlDocDesc:
     # public methods
     #--------------------------------------------------------
     def remove_object(self, anObjID = None):
-        print "remove_object: FIXME !!"
-        print anObjID
+        print("remove_object: FIXME !!")
+        print(anObjID)
         return 1
     #--------------------------------------------------------
     def __get_from_xml(self, aTag = None):

@@ -534,7 +534,7 @@ class cLabJournalNB(wx.Notebook):
 		# reviewed checked -> check relevant if result is abnormal
 		#if (result['abnormal'] is not None) and (result['abnormal'].strip() != ''):
 		#	self.__grid_unreviewed_results.SetCellValue(row, col, '1')
-		print "only stub for Crosscheck - please fix"
+		print("only stub for Crosscheck - please fix")
 	#------------------------------------------------------------------------
 	def OnSelectCell(self, event, selector=None):
 		if selector is None:

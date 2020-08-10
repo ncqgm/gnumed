@@ -997,7 +997,7 @@ def coalesce(value2test=None, return_instead=None, template4value=None, template
 			value = (template4instead % return_instead) or return_instead
 		else:
 			value = (template4value % value2test) or value2test
-		print value
+		print(value)
 
 	@param value2test: the value to be tested for <None>
 

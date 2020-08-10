@@ -2300,7 +2300,7 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 
 			for s in dir(wx):
 				if s.startswith('LIST_HITTEST'):
-					print s, getattr(wx, s)
+					print(s, getattr(wx, s))
 
 			LIST_HITTEST_ABOVE 1
 			LIST_HITTEST_BELOW 2

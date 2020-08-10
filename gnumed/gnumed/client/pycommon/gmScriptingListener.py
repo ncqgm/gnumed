@@ -3,7 +3,6 @@
 This module implements threaded listening for scripting.
 """
 #=====================================================================
-__version__ = "$Revision: 1.7 $"
 __author__ = "K.Hilbert <karsten.hilbert@gmx.net>"
 
 import sys, time, threading, select, logging
@@ -76,7 +75,7 @@ class cScriptingListener:
 			except Exception:
 				pass
 		except Exception:
-			print sys.exc_info()
+			print(sys.exc_info())
 
 		self._thread = None
 
@@ -146,7 +145,7 @@ if __name__ == "__main__":
 		s = xmlrpclib.client.ServerProxy('http://localhost:9999')
 		try:
 			t = s.tell_time()
-			print t
+			print(t)
 		except Exception:
 			_log.exception('cannot interact with server')
 
