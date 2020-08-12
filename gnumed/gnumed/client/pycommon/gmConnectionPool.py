@@ -1059,6 +1059,7 @@ if __name__ == "__main__":
 		creds.user = 'gm-dbo'
 		pool.credentials = creds
 		conn = pool.get_connection()
+		print(conn)
 
 	#--------------------------------------------------------------------
 	def test_credentials():

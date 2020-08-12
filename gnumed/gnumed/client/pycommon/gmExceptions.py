@@ -4,8 +4,6 @@
 # @author: Dr. Horst Herb
 # @copyright: author
 # @license: GPL v2 or later (details at http://www.gnu.org)
-# @dependencies: nil
-# @change log:
 #	07.02.2002 hherb first draft, untested
 """
 
@@ -29,7 +27,7 @@ class AccessDenied(Exception):
 	def __repr__(self):
 		txt = self.errmsg
 		if self.source is not None:
-			txt += '\nSource: %s' % source
+			txt += '\nSource: %s' % self.source
 		if self.code is not None:
 			txt += '\nCode: %s' % self.code
 		if self.details is not None:

@@ -334,8 +334,6 @@ limit 1""" % where_clause
 
 		rw_conn = gmPG2.get_connection(readonly=False)
 
-		alias = self.__make_alias(workplace, 'CURRENT_USER', cookie, option)
-
 		opt_value = value
 		sql_type_cast = ''
 		if isinstance(value, str):

@@ -20,7 +20,6 @@ from Gnumed.pycommon import gmI18N
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmDateTime
 from Gnumed.pycommon import gmBusinessDBObject
-from Gnumed.pycommon import gmNull
 from Gnumed.pycommon import gmExceptions
 from Gnumed.pycommon import gmMatchProvider
 
@@ -37,8 +36,7 @@ _log = logging.getLogger('gm.emr')
 
 
 if __name__ == '__main__':
-	gmI18N.activate_locale()
-	gmI18N.install_domain('gnumed')
+	_ = lambda x:x
 
 #============================================================
 # diagnostic certainty classification
@@ -845,10 +843,6 @@ UNION ALL
 
 	#--------------------------------------------------------
 	def _get_latest_access_date(self):
-		args = {
-			'enc': self._payload[self._idx['pk_encounter']],
-			'pk': self._payload[self._idx['pk_health_issue']]
-		}
 		cmd = """
 SELECT
 	MAX(latest)
@@ -2110,7 +2104,6 @@ class cEncounter(gmBusinessDBObject.cBusinessDBObject):
 		if source_episode['pk_episode'] == target_episode['pk_episode']:
 			return True
 
-		queries = []
 		cmd = """
 			UPDATE clin.clin_root_item
 			SET fk_episode = %(trg)s
@@ -3107,7 +3100,7 @@ def delete_encounter(pk_encounter):
 	args = {'enc': pk_encounter}
 	try:
 		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
-	except gmPG2.PG_ERROR_EXCEPTION:
+	except gmPG2.PG_ERROR_EXCEPTION as exc:
 		_log.exception('cannot delete encounter [%s]', pk_encounter)
 		gmPG2.log_pg_exception_details(exc)
 		unlock_encounter(pk_encounter, exclusive = True, link_obj = conn)
@@ -3314,19 +3307,18 @@ class cProblem(gmBusinessDBObject.cBusinessDBObject):
 		return cHealthIssue(aPK_obj = self._payload[self._idx['pk_health_issue']])
 	#--------------------------------------------------------
 	def get_visual_progress_notes(self, encounter_id=None):
-
 		if self._payload[self._idx['type']] == 'issue':
 			latest = cHealthIssue(aPK_obj = self._payload[self._idx['pk_health_issue']]).latest_episode
 			if latest is None:
 				return []
-			episodes = [ latest ]
 
-		emr = patient.emr
-
-		doc_folder = gmDocuments.cDocumentFolder(aPKey = patient.ID)
+			pk_episode = latest['pk_episode']
+		else:
+			pk_episode = self._payload[self._idx['pk_episode']]
+		doc_folder = gmDocuments.cDocumentFolder(aPKey = self._payload[self._idx['pk_patient']])
 		return doc_folder.get_visual_progress_notes (
 			health_issue = self._payload[self._idx['pk_health_issue']],
-			episode = self._payload[self._idx['pk_episode']]
+			episode = pk_episode
 		)
 
 	#--------------------------------------------------------
@@ -3970,7 +3962,7 @@ def check_fk_encounter_fk_episode_x_ref():
 #------------------------------------------------------------
 def export_patient_emr_structure():
 	from Gnumed.business import gmPersonSearch
-	praxis = gmPraxis.gmCurrentPraxisBranch(branch = gmPraxis.get_praxis_branches()[0])
+	gmPraxis.gmCurrentPraxisBranch(branch = gmPraxis.get_praxis_branches()[0])
 	pat = gmPersonSearch.ask_for_patient()
 	while pat is not None:
 		print('patient:', pat['description_gender'])
@@ -3991,6 +3983,8 @@ if __name__ == '__main__':
 	if sys.argv[1] != 'test':
 		sys.exit()
 
+	gmI18N.activate_locale()
+	gmI18N.install_domain('gnumed')
 	#--------------------------------------------------------
 	# define tests
 	#--------------------------------------------------------
@@ -4043,7 +4037,7 @@ if __name__ == '__main__':
 			print(episode['description'])
 			print(' start:', episode.best_guess_clinical_start_date)
 			print(' end  :', episode.best_guess_clinical_end_date)
-			print(' dura :', get_formatted_clinical_duration(pk_episode = i))
+			#print(' dura :', get_formatted_clinical_duration(pk_episode = i))
 		return
 
 		print(episode)
@@ -4052,9 +4046,6 @@ if __name__ == '__main__':
 			print(field, ':', episode[field])
 		print("updatable:", episode.get_updatable_fields())
 		input('ENTER to continue')
-
-		old_description = episode['description']
-		old_enc = cEncounter(aPK_obj = 1)
 
 		desc = '1-%s' % episode['description']
 		print("==> renaming to", desc)

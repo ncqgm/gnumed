@@ -370,7 +370,7 @@ if __name__ == "__main__":
 			i = 0
 			t1 = time.time()
 			while i < n:
-				r = dummy(i)
+				dummy(i)
 				i += 1
 			t2 = time.time()
 			t_threaded = t2-t1

@@ -20,11 +20,8 @@ import time
 import sys
 import os
 import stat
-import codecs
 import logging
 import datetime as pydt
-import re as regex
-import threading
 import hashlib
 import shutil
 
@@ -32,14 +29,14 @@ import shutil
 # GNUmed
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
+	_ = lambda x:x
 from Gnumed.pycommon import gmLoginInfo
 from Gnumed.pycommon import gmExceptions
 from Gnumed.pycommon import gmDateTime
-from Gnumed.pycommon import gmI18N
 from Gnumed.pycommon import gmLog2
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmConnectionPool
-from Gnumed.pycommon.gmTools import prompted_input, u_replacement_character, format_dict_like
+from Gnumed.pycommon.gmTools import prompted_input
 
 
 _log = logging.getLogger('gm.db')
@@ -1297,7 +1294,7 @@ def file2bytea(query=None, filename=None, args=None, conn=None, file_md5=None):
 	return success_status
 
 #------------------------------------------------------------------------
-def file2lo(filename=None, conn=None, check_md5=False):
+def file2lo(filename=None, conn=None, check_md5=False, file_md5=None):
 	# 1 GB limit unless 64 bit Python build ...
 	file_size = os.path.getsize(filename)
 	if file_size > (1024 * 1024) * 1024:
@@ -2285,7 +2282,7 @@ if __name__ == "__main__":
 		dsn = 'foo'
 		try:
 			conn = get_connection(dsn=dsn)
-		except dbapi.ProgrammingError as e:
+		except dbapi.ProgrammingError:
 			print("1) SUCCESS: get_connection(%s) failed as expected" % dsn)
 			typ, val = sys.exc_info()[:2]
 			print (' ', typ)
@@ -2388,7 +2385,7 @@ if __name__ == "__main__":
 			data, idx = run_ro_queries(link_obj=curs, queries=[{'cmd': 'selec 1'}], return_data=True, get_col_idx=True, verbose=True)
 			print(data)
 			print(idx)
-		except psycopg2.ProgrammingError:
+		except dbapi.ProgrammingError:
 			print('SUCCESS: run_ro_queries("selec 1") failed as expected')
 			typ, val = sys.exc_info()[:2]
 			print(' ', typ)
@@ -2506,7 +2503,7 @@ if __name__ == "__main__":
 				if result != test[2]:
 					print("test:", test)
 					print("result:", result, "expected:", test[2])
-			except psycopg2.IntegrityError as e:
+			except dbapi.IntegrityError as e:
 				print(e)
 				if test[2] is None:
 					continue
@@ -2630,7 +2627,7 @@ SELECT to_timestamp (foofoo,'YYMMDD.HH24MI') FROM (
 		login, creds = request_login_params()
 		pool = gmConnectionPool.gmConnectionPool()
 		pool.credentials = creds
-		conn = get_connection()
+		#conn = get_connection()
 		run_rw_queries(queries = [{'cmd': 'SELEC 1'}])
 
 	#--------------------------------------------------------------------

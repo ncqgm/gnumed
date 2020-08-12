@@ -12,6 +12,7 @@ import logging
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
+	_ = lambda x:x
 from Gnumed.pycommon import gmBusinessDBObject
 from Gnumed.pycommon import gmPG2
 from Gnumed.pycommon import gmTools
@@ -380,7 +381,7 @@ def generic_item_type_str(table):
 def edit_xxx(parent=None, xxx=None, single_entry=False, presets=None):
 	pass
 #------------------------------------------------------------
-def delete_xxx():
+def delete_xxx_xxx():
 	pass
 #------------------------------------------------------------
 def manage_xxx():
