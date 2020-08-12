@@ -4,13 +4,15 @@
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = "GPL v2 or later"
 
-import types, sys, logging, datetime as pyDT
+import sys
+import logging
+import datetime as pyDT
 
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
+	_ = lambda x:x
 from Gnumed.pycommon import gmPG2
-from Gnumed.pycommon import gmI18N
 from Gnumed.pycommon import gmBusinessDBObject
 from Gnumed.pycommon import gmDateTime
 from Gnumed.pycommon import gmTools

@@ -188,7 +188,7 @@ if __name__ == '__main__':
 	if sys.argv[1] != 'test':
 		sys.exit()
 
-	conn = PgSQL.connect(user='gm-dbo', database = 'gnumed')
-	psql = Psql(conn)
-	psql.run(sys.argv[1])
-	conn.close()
+	#conn = PgSQL.connect(user='gm-dbo', database = 'gnumed')
+	#psql = Psql(conn)
+	#psql.run(sys.argv[1])
+	#conn.close()

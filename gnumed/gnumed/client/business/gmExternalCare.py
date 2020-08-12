@@ -12,18 +12,14 @@ import logging
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
+	_ = lambda x:x
 
 from Gnumed.pycommon import gmBusinessDBObject
 from Gnumed.pycommon import gmPG2
-from Gnumed.pycommon import gmI18N
+from Gnumed.pycommon import gmTools
 
 from Gnumed.business import gmOrganization
 
-if __name__ == '__main__':
-	gmI18N.activate_locale()
-	gmI18N.install_domain()
-
-from Gnumed.pycommon import gmTools
 
 _log = logging.getLogger('gm.ext_care')
 

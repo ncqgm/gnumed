@@ -13,7 +13,6 @@ __license__ = "GPL v2 or later"
 import sys
 import io
 import logging
-import csv
 import os.path
 import re as regex
 

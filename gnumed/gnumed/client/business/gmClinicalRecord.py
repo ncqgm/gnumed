@@ -7,7 +7,6 @@ __license__ = "GPL v2 or later"
 # standard libs
 import sys
 import logging
-import threading
 import datetime as pydt
 
 if __name__ == '__main__':
@@ -18,6 +17,7 @@ from Gnumed.pycommon import gmDateTime
 
 if __name__ == '__main__':
 	from Gnumed.pycommon import gmLog2
+	_ = lambda x:x
 	gmI18N.activate_locale()
 	gmI18N.install_domain()
 	gmDateTime.init()
@@ -604,8 +604,8 @@ class cClinicalRecord(object):
 		return self.__harmful_substance_use
 
 
-	def _get_harmful_substance_use2(self):
-		cmd = 'SELECT * FROM clin.v_substance_intakes WHERE harmful_use_type  = %s'
+	#def _get_harmful_substance_use2(self):
+	#	cmd = 'SELECT * FROM clin.v_substance_intakes WHERE harmful_use_type  = %s'
 
 	harmful_substance_use = property(_get_harmful_substance_use, lambda x:x)
 
@@ -1000,7 +1000,7 @@ class cClinicalRecord(object):
 		order_by = 'order by src_table, age'
 		cmd = "%s WHERE %s %s" % (select_from, where_clause, order_by)
 
-		rows, view_col_idx = gmPG.run_ro_query('historica', cmd, 1, params)
+		rows, view_col_idx = gmPG2.run_ro_query('historica', cmd, 1, params)
 		if rows is None:
 			_log.error('cannot load item links for patient [%s]' % self.pk_patient)
 			return None
@@ -1038,18 +1038,18 @@ class cClinicalRecord(object):
 				continue
 			elif len(item_ids) == 1:
 				cmd = "SELECT * FROM %s WHERE pk_item=%%s order by modified_when" % src_table
-				if not gmPG.run_query(curs, None, cmd, item_ids[0]):
+				if not gmPG2.run_query(curs, None, cmd, item_ids[0]):
 					_log.error('cannot load items from table [%s]' % src_table)
 					# skip this table
 					continue
 			elif len(item_ids) > 1:
 				cmd = "SELECT * FROM %s WHERE pk_item in %%s order by modified_when" % src_table
-				if not gmPG.run_query(curs, None, cmd, (tuple(item_ids),)):
+				if not gmPG2.run_query(curs, None, cmd, (tuple(item_ids),)):
 					_log.error('cannot load items from table [%s]' % src_table)
 					# skip this table
 					continue
 			rows = curs.fetchall()
-			table_col_idx = gmPG.get_col_indices(curs)
+			table_col_idx = gmPG2.get_col_indices(curs)
 			# format per-table items
 			for row in rows:
 				# FIXME: make this get_pkey_name()
@@ -1084,7 +1084,6 @@ class cClinicalRecord(object):
 					'pk_audit', 'row_version', 'modified_when', 'modified_by',
 					'pk_item', 'id', 'fk_encounter', 'fk_episode', 'pk'
 				]
-				col_data = []
 				for col_name in table_col_idx:
 					if col_name in cols2ignore:
 						continue
@@ -1959,7 +1958,7 @@ WHERE
 		cmd = """SELECT distinct on(pk_course) pk_course
 				 FROM clin.v_vaccs_scheduled4pat
 				 WHERE pk_patient=%s"""
-		rows = gmPG.run_ro_query('historica', cmd, None, self.pk_patient)
+		rows = gmPG2.run_ro_query('historica', cmd, None, self.pk_patient)
 		if rows is None:
 			_log.error('cannot retrieve scheduled vaccination courses')
 			return None
@@ -2029,7 +2028,7 @@ WHERE
 			cmd= """SELECT * FROM clin.v_pat_vaccinations4indication
 					WHERE pk_patient=%s
  					order by indication, date"""
-			rows, idx  = gmPG.run_ro_query('historica', cmd, True, self.pk_patient)
+			rows, idx  = gmPG2.run_ro_query('historica', cmd, True, self.pk_patient)
 			if rows is None:
 				_log.error('cannot load given vaccinations for patient [%s]' % self.pk_patient)
 				del self.__db_cache['vaccinations']['vaccinated']
@@ -2103,7 +2102,7 @@ WHERE
 		except KeyError:
 			self.__db_cache['vaccinations']['scheduled'] = []
 			cmd = """SELECT * FROM clin.v_vaccs_scheduled4pat WHERE pk_patient=%s"""
-			rows, idx = gmPG.run_ro_query('historica', cmd, True, self.pk_patient)
+			rows, idx = gmPG2.run_ro_query('historica', cmd, True, self.pk_patient)
 			if rows is None:
 				_log.error('cannot load scheduled vaccinations for patient [%s]' % self.pk_patient)
 				del self.__db_cache['vaccinations']['scheduled']
@@ -2134,7 +2133,7 @@ WHERE
 			self.__db_cache['vaccinations']['missing']['due'] = []
 			# get list of (indication, seq_no) tuples
 			cmd = "SELECT indication, seq_no FROM clin.v_pat_missing_vaccs WHERE pk_patient=%s"
-			rows = gmPG.run_ro_query('historica', cmd, None, self.pk_patient)
+			rows = gmPG2.run_ro_query('historica', cmd, None, self.pk_patient)
 			if rows is None:
 				_log.error('error loading (indication, seq_no) for due/overdue vaccinations for patient [%s]' % self.pk_patient)
 				return None
@@ -2149,7 +2148,7 @@ WHERE
 			self.__db_cache['vaccinations']['missing']['boosters'] = []
 			# get list of indications
 			cmd = "SELECT indication, seq_no FROM clin.v_pat_missing_boosters WHERE pk_patient=%s"
-			rows = gmPG.run_ro_query('historica', cmd, None, self.pk_patient)
+			rows = gmPG2.run_ro_query('historica', cmd, None, self.pk_patient)
 			if rows is None:
 				_log.error('error loading indications for missing boosters for patient [%s]' % self.pk_patient)
 				return None
@@ -3142,8 +3141,6 @@ if __name__ == "__main__":
 
 	if sys.argv[1] != 'test':
 		sys.exit()
-
-	from Gnumed.pycommon import gmLog2
 
 	from Gnumed.business import gmPraxis
 	branches = gmPraxis.get_praxis_branches()

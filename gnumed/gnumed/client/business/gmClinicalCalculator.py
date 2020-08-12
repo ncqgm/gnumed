@@ -22,12 +22,13 @@ from Gnumed.pycommon import gmI18N
 from Gnumed.pycommon import gmLog2
 
 if __name__ == '__main__':
+	_ = lambda x:x
 	gmI18N.activate_locale()
 	gmI18N.install_domain()
 	gmDateTime.init()
 
 from Gnumed.pycommon import gmTools
-from Gnumed.pycommon import gmBorg
+#from Gnumed.pycommon import gmBorg
 from Gnumed.business import gmLOINC
 
 
@@ -386,7 +387,7 @@ class cClinicalCalculator(object):
 			result.warnings.append(_('NOT corrected for non-average body surface (average = 1.73m²)'))
 		else:
 			result.variables['BSA'] = BSA.numeric_value
-			result_numeric_value = result.numeric_value / BSA.numeric_value
+			result.numeric_value = result.numeric_value / BSA.numeric_value
 
 		result.message = _('eGFR(MDRD): %.1f %s (%s) [4-vars, IDMS]') % (
 			result.numeric_value,
@@ -913,13 +914,11 @@ if __name__ == "__main__":
 	if sys.argv[1] != 'test':
 		sys.exit()
 
-	from Gnumed.pycommon import gmLog2
-
 	#-----------------------------------------
 	def test_clin_calc():
 		from Gnumed.business import gmPraxis
 		branches = gmPraxis.get_praxis_branches()
-		praxis = gmPraxis.gmCurrentPraxisBranch(branches[0])
+		gmPraxis.gmCurrentPraxisBranch(branches[0])
 
 		from Gnumed.business.gmPerson import cPatient
 		pat = cPatient(aPK_obj = 201)

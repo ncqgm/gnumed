@@ -18,7 +18,6 @@ __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 
 # std lib
-import os
 import sys
 import io
 import subprocess
@@ -28,6 +27,7 @@ import logging
 # GNUmed libraries
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
+	_ = lambda x:x
 
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmShellAPI

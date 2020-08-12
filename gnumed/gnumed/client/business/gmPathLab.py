@@ -16,13 +16,13 @@ import os.path
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
+	_ = lambda x:x
 
 from Gnumed.pycommon import gmDateTime
 if __name__ == '__main__':
 	from Gnumed.pycommon import gmLog2
 	from Gnumed.pycommon import gmI18N
 	gmI18N.activate_locale()
-	gmI18N.install_domain('gnumed')
 	gmDateTime.init()
 from Gnumed.pycommon import gmExceptions
 from Gnumed.pycommon import gmBusinessDBObject
@@ -211,8 +211,7 @@ class cTestPanel(gmBusinessDBObject.cBusinessDBObject):
 		if len(codes) > 0:
 			txt += '\n'
 			for c in codes:
-				txt += '%s  %s: %s (%s - %s)\n' % (
-					(' ' * left_margin),
+				txt += '    %s: %s (%s - %s)\n' % (
 					c['code'],
 					c['term'],
 					c['name_short'],
@@ -581,8 +580,6 @@ class cMetaTestType(gmBusinessDBObject.cBusinessDBObject):
 			'mloinc': self._payload[self._idx['loinc']],
 			'when': date
 		}
-		WHERE_meta = ''
-
 		SQL = """
 			SELECT * FROM clin.v_test_results
 			WHERE
@@ -2607,7 +2604,7 @@ def __tests2latex_minipage(results=None, width='1.5cm', show_time=False, show_ra
 				if t['unified_target_range'] is not None:
 					tmp += '{\\tiny %s}' % t['unified_target_range']
 				else:
-					tmp += '{\\tiny %s}' % (
+					tmp += '{\\tiny %s%s}' % (
 						gmTools.coalesce(t['unified_target_min'], '- ', '%s - '),
 						gmTools.coalesce(t['unified_target_max'], '', '%s')
 					)
@@ -2958,7 +2955,7 @@ class cLabResult(gmBusinessDBObject.cBusinessDBObject):
 
 			where_clause = ' and '.join(where_snippets)
 			cmd = "select pk_result from v_results4lab_req where %s" % where_clause
-			data = gmPG.run_ro_query('historica', cmd, None, aPK_obj)
+			data = gmPG2.run_ro_query('historica', cmd, None, aPK_obj)
 			if data is None:
 				raise gmExceptions.ConstructorError('error getting lab result for: %s' % aPK_obj)
 			if len(data) == 0:
@@ -2977,7 +2974,7 @@ class cLabResult(gmBusinessDBObject.cBusinessDBObject):
 				vbp.dob
 			from v_active_persons vbp
 			where vbp.pk_identity = %%s""" % self._payload[self._idx['pk_patient']]
-		pat = gmPG.run_ro_query('historica', cmd, None, self._payload[self._idx['pk_patient']])
+		pat = gmPG2.run_ro_query('historica', cmd, None, self._payload[self._idx['pk_patient']])
 		return pat[0]
 
 #============================================================
@@ -3036,7 +3033,6 @@ class cLabRequest(gmBusinessDBObject.cBusinessDBObject):
 				raise gmExceptions.ConstructorError('[%s:??]: cannot derive PK from [%s]' % (self.__class__.__name__, aPK_obj))
 			# generate query
 			where_snippets = []
-			vals = {}
 			where_snippets.append('request_id=%(req_id)s')
 			if type(aPK_obj['lab']) == int:
 				where_snippets.append('pk_test_org=%(lab)s')
@@ -3045,7 +3041,7 @@ class cLabRequest(gmBusinessDBObject.cBusinessDBObject):
 			where_clause = ' and '.join(where_snippets)
 			cmd = "select pk_request from v_lab_requests where %s" % where_clause
 			# get pk
-			data = gmPG.run_ro_query('historica', cmd, None, aPK_obj)
+			data = gmPG2.run_ro_query('historica', cmd, None, aPK_obj)
 			if data is None:
 				raise gmExceptions.ConstructorError('[%s:??]: error getting lab request for [%s]' % (self.__class__.__name__, aPK_obj))
 			if len(data) == 0:
@@ -3062,7 +3058,7 @@ class cLabRequest(gmBusinessDBObject.cBusinessDBObject):
 				vpi.pk_item=%s
 					and
 				vbp.pk_identity=vpi.pk_patient"""
-		pat = gmPG.run_ro_query('historica', cmd, None, self._payload[self._idx['pk_item']])
+		pat = gmPG2.run_ro_query('historica', cmd, None, self._payload[self._idx['pk_item']])
 		if pat is None:
 			_log.error('cannot get patient for lab request [%s]' % self._payload[self._idx['pk_item']])
 			return None
@@ -3109,7 +3105,7 @@ def create_lab_request(lab=None, req_id=None, pat_id=None, encounter_id=None, ep
 			sol = _('Verify which patient this lab request really belongs to.')
 			ctxt = _('lab [%s], request ID [%s], expected link with patient [%s], currently linked to patient [%s]') % (lab, req_id, pat_id, db_pat)
 			cat = 'lab'
-			status, data = gmPG.add_housekeeping_todo(me, to, prob, sol, ctxt, cat)
+			status, data = gmPG2.add_housekeeping_todo(me, to, prob, sol, ctxt, cat)
 			return (None, data)
 		return (True, req)
 	# not found
@@ -3122,7 +3118,7 @@ def create_lab_request(lab=None, req_id=None, pat_id=None, encounter_id=None, ep
 	cmd = "select currval('lab_request_pk_seq')"
 	queries.append((cmd, []))
 	# insert new
-	result, err = gmPG.run_commit('historica', queries, True)
+	result, err = gmPG2.run_commit('historica', queries, True)
 	if result is None:
 		return (False, err)
 	try:
@@ -3167,7 +3163,7 @@ def create_lab_result(patient_id=None, when_field=None, when=None, test_type=Non
 	cmd = "select currval('test_result_pk_seq')"
 	queries.append((cmd, []))
 	# insert new
-	result, err = gmPG.run_commit('historica', queries, True)
+	result, err = gmPG2.run_commit('historica', queries, True)
 	if result is None:
 		return (False, err)
 	try:
@@ -3189,7 +3185,7 @@ def get_unreviewed_results(limit=50):
 		where reviewed is false
 		order by pk_patient
 		limit %s""" % lim
-	rows = gmPG.run_ro_query('historica', cmd)
+	rows = gmPG2.run_ro_query('historica', cmd)
 	if rows is None:
 		_log.error('error retrieving unreviewed lab results')
 		return (None, _('error retrieving unreviewed lab results'))
@@ -3214,13 +3210,12 @@ def get_unreviewed_results(limit=50):
 def get_pending_requests(limit=250):
 	lim = limit + 1
 	cmd = "select pk from lab_request where is_pending is true limit %s" % lim
-	rows = gmPG.run_ro_query('historica', cmd)
+	rows = gmPG2.run_ro_query('historica', cmd)
 	if rows is None:
 		_log.error('error retrieving pending lab requests')
 		return (None, None)
 	if len(rows) == 0:
 		return (False, [])
-	results = []
 	# more than LIMIT rows ?
 	if len(rows) == lim:
 		too_many = True
@@ -3257,7 +3252,7 @@ def get_next_request_ID(lab=None, incrementor_func=None):
 			from v_lab_requests vlr
 			where %s
 		)""" % lab_snippet
-	rows = gmPG.run_ro_query('historica', cmd, None, lab)
+	rows = gmPG2.run_ro_query('historica', cmd, None, lab)
 	if rows is None:
 		_log.warning('error getting most recently used request ID for lab [%s]' % lab)
 		return ''
@@ -3326,9 +3321,6 @@ if __name__ == '__main__':
 		sys.exit()
 
 	import time
-
-	gmI18N.activate_locale()
-	gmI18N.install_domain()
 
 	#------------------------------------------
 	def test_create_test_result():

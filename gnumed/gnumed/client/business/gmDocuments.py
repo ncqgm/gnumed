@@ -3,11 +3,15 @@
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL v2 or later"
 
-import sys, os, shutil, os.path, types, time, logging
+import sys
+import os
+import time
+import logging
 
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
+	_ = lambda x:x
 from Gnumed.pycommon import gmExceptions
 from Gnumed.pycommon import gmBusinessDBObject
 from Gnumed.pycommon import gmPG2
@@ -1320,8 +1324,8 @@ if __name__ == '__main__':
 		#--------------------------------
 
 		pk = 12
-		from Gnumed.business.gmPerson import cPatient
-		pat = cPatient(pk)
+#		from Gnumed.business.gmPerson import cPatient
+#		pat = cPatient(pk)
 		doc_folder = cDocumentFolder(aPKey = pk)
 		for doc in doc_folder.documents:
 			for part in doc.parts:

@@ -20,9 +20,7 @@ import platform
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-	from Gnumed.pycommon import gmI18N
-	gmI18N.activate_locale()
-	gmI18N.install_domain()
+	_ = lambda x:x
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmBusinessDBObject
 from Gnumed.pycommon import gmPG2
@@ -1447,7 +1445,8 @@ if __name__ == '__main__':
 		#print exp.export_with_meta_data()
 		#print exp.items
 		#exp.add_file(sys.argv[2])
-		prax = gmPraxis.gmCurrentPraxisBranch(branch = gmPraxis.cPraxisBranch(1))
+		#prax = 
+		gmPraxis.gmCurrentPraxisBranch(branch = gmPraxis.cPraxisBranch(1))
 		#print(prax)
 		#print(prax.branch)
 		try:
@@ -1460,7 +1459,6 @@ if __name__ == '__main__':
 	def test_label():
 
 		from Gnumed.business.gmPerson import cPatient
-		from Gnumed.business.gmPersonSearch import ask_for_patient
 
 		#while ask_for_patient() is not None:
 		pat_min = 1

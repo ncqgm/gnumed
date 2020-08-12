@@ -9,16 +9,17 @@ import logging
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
+	_ = lambda x:x
 from Gnumed.pycommon import gmPG2
 from Gnumed.pycommon import gmBusinessDBObject
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmHooks
-from Gnumed.pycommon import gmDateTime
+#from Gnumed.pycommon import gmDateTime
 
 from Gnumed.business import gmCoding
 from Gnumed.business import gmSoapDefs
-from Gnumed.business import gmAutoHints
+#from Gnumed.business import gmAutoHints
 
 
 _log = logging.getLogger('gm.emr')
@@ -186,11 +187,9 @@ def create_progress_note(soap=None, episode_id=None, encounter_id=None, link_obj
 
 	if link_obj is None:
 		link_obj = gmPG2.get_connection(readonly = False)
-		conn_rollback = link_obj.rollback
 		conn_commit = link_obj.commit
 		conn_close = link_obj.close
 	else:
-		conn_rollback = lambda *x:None
 		conn_commit = lambda *x:None
 		conn_close = lambda *x:None
 

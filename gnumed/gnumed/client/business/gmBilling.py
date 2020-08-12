@@ -14,10 +14,11 @@ import zlib
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
+	_ = lambda x:x
 from Gnumed.pycommon import gmPG2
-from Gnumed.pycommon import gmBusinessDBObject
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmDateTime
+from Gnumed.pycommon import gmBusinessDBObject
 
 from Gnumed.business import gmDemographicRecord
 from Gnumed.business import gmDocuments
@@ -681,13 +682,13 @@ def unlock_invoice_id(invoice_id):
 	try:
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
 	except gmPG2.dbapi.ProgrammingError:
-		_log.exception('cannot unlock invoice ID: [%s] (%s)', invoice_id, unsigned_adler32)
+		_log.exception('cannot unlock invoice ID: [%s] (%s)', invoice_id, token)
 		return False
 
 	if rows[0][0]:
 		return True
 
-	_log.error('cannot unlock invoice ID: [%s] (%s)', invoice_id, unsigned_adler32)
+	_log.error('cannot unlock invoice ID: [%s] (%s)', invoice_id, token)
 	return False
 
 #------------------------------------------------------------
@@ -756,7 +757,6 @@ if __name__ == "__main__":
 
 #	from Gnumed.pycommon import gmLog2
 #	from Gnumed.pycommon import gmI18N
-	from Gnumed.pycommon import gmDateTime
 #	from Gnumed.business import gmPerson
 	from Gnumed.business import gmPraxis
 
