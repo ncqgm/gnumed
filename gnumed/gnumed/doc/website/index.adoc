@@ -48,9 +48,10 @@ Everyone is encouraged to contribute to GNUmed.
 * link:api/[API]
 * link:schema/release/[database schema]
 * source code health
+** link:code-smell/source-coding_errors.log[coding errors]
+** link:code-smell/source-type_checking.log[type checking]
 ** link:code-smell/source-cyclic_complexity.log[cyclic complexity]
 ** link:code-smell/source-maintainability.log[maintainability]
-** link:code-smell/source-coding_errors.log[coding errors]
 
 == For Supporters
 

@@ -21,9 +21,7 @@ import platform
 import subprocess
 import io
 import codecs
-import socket										# needed for OOo on Windows
 #, libxml2, libxslt
-import shlex
 
 
 if __name__ == '__main__':
@@ -960,7 +958,7 @@ class cTextForm(cFormEngine):
 		current_pass = 1
 		while current_pass < 4:
 			_log.debug('placeholder substitution pass #%s', current_pass)
-			found_placeholders = self.__substitute_placeholders (
+			self.__substitute_placeholders (
 				input_filename = filenames[current_pass-1],
 				output_filename = filenames[current_pass],
 				data_source = data_source,
@@ -1065,6 +1063,13 @@ class cLaTeXForm(cFormEngine):
 	"""A forms engine wrapping LaTeX (pdflatex)."""
 
 	_version_checked = False
+	_mimetypes = [
+		'application/x-latex',
+		'application/x-tex',
+		'text/latex',
+		'text/tex',
+		'text/plain'
+	]
 
 	def __init__(self, template_file=None):
 
@@ -1158,7 +1163,7 @@ class cLaTeXForm(cFormEngine):
 		current_pass = 1
 		while current_pass < 6:
 			_log.debug('placeholder substitution pass #%s', current_pass)
-			found_placeholders = self.__substitute_placeholders (
+			self.__substitute_placeholders (
 				input_filename = filenames[current_pass-1],
 				output_filename = filenames[current_pass],
 				data_source = data_source,
@@ -1241,16 +1246,12 @@ class cLaTeXForm(cFormEngine):
 		return
 
 	#--------------------------------------------------------
-	def edit(self):
+	def edit(self) -> bool:
+		"""Call editor on generated LaTeX file.
 
-		mimetypes = [
-			'application/x-latex',
-			'application/x-tex',
-			'text/latex',
-			'text/tex',
-			'text/plain'
-		]
-
+		Checks for editors on mimetypes:
+			%s
+		""" % cLaTeXForm._mimetypes
 		for mimetype in mimetypes:
 			editor_cmd = gmMimeLib.get_editor_cmd(mimetype, self.instance_filename)
 			if editor_cmd is not None:

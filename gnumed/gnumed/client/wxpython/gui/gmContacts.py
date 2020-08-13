@@ -468,8 +468,8 @@ class cContactsPanel(wx.wx.Panel):
 			dragSource.SetData(text)
 			
 			result = dragSource.DoDragDrop(True)
-			if result == wx.wxDragCopy: print "drag copy action"
-			elif result == wx.wxDragMove: print "drag move action"
+			if result == wx.wxDragCopy: print ("drag copy action")
+			elif result == wx.wxDragMove: print ("drag move action")
 		
 
 	def _connectCutPaste(self):

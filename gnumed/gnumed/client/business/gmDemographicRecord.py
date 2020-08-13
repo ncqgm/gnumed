@@ -20,7 +20,7 @@ import urllib.parse
 # GNUmed
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmDispatcher
+	_ = lambda x:x
 from Gnumed.pycommon import gmBusinessDBObject
 from Gnumed.pycommon import gmPG2
 from Gnumed.pycommon import gmTools
@@ -1039,106 +1039,11 @@ def delete_comm_channel_type(pk_channel_type=None):
 #-------------------------------------------------------------------
 
 #==============================================================================
-def get_time_tuple (mx):
-	"""
-	wrap mx.DateTime brokenness
-	Returns 9-tuple for use with pyhon time functions
-	"""
-	return [ int(x) for x in  str(mx).split(' ')[0].split('-') ] + [0,0,0, 0,0,0]
 #----------------------------------------------------------------
-def getAddressTypes():
-	"""Gets a dict matching address types to their ID"""
-	row_list = gmPG.run_ro_query('personalia', "select name, id from dem.address_type")
-	if row_list is None:
-		return {}
-	if len(row_list) == 0:
-		return {}
-	return dict (row_list)
 #----------------------------------------------------------------
-def getMaritalStatusTypes():
-	"""Gets a dictionary matching marital status types to their internal ID"""
-	row_list = gmPG.run_ro_query('personalia', "select name, pk from dem.marital_status")
-	if row_list is None:
-		return {}
-	if len(row_list) == 0:
-		return {}
-	return dict(row_list)
 #------------------------------------------------------------------
-def getRelationshipTypes():
-	"""Gets a dictionary of relationship types to internal id"""
-	row_list = gmPG.run_ro_query('personalia', "select description, id from dem.relation_types")
-	if row_list is None:
-		return None
-	if len (row_list) == 0:
-		return None
-	return dict(row_list)
-
 #----------------------------------------------------------------
-def getUrb (id_urb):
-	cmd = """
-select
-	dem.region.name,
-	dem.urb.postcode
-from
-	dem.urb,
-	dem.region
-where
-	dem.urb.id = %s and
-	dem.urb.fk_region = dem.region.pk"""
-	row_list = gmPG.run_ro_query('personalia', cmd, None, id_urb)
-	if not row_list:
-		return None
-	else:
-		return (row_list[0][0], row_list[0][1])
-
-def getStreet (id_street):
-	cmd = """
-select
-	dem.region.name,
-	coalesce (dem.street.postcode, dem.urb.postcode),
-	dem.urb.name
-from
-	dem.urb,
-	dem.region,
-	dem.street
-where
-	dem.street.id = %s and
-	dem.street.id_urb = dem.urb.id and
-	dem.urb.fk_region = dem.region.pk
-"""
-	row_list = gmPG.run_ro_query('personalia', cmd, None, id_street)
-	if not row_list:
-		return None
-	else:
-		return (row_list[0][0], row_list[0][1], row_list[0][2])
-
-def getCountry (country_code):
-	row_list = gmPG.run_ro_query('personalia', "select name from dem.country where code = %s", None, country_code)
-	if not row_list:
-		return None
-	else:
-		return row_list[0][0]
 #-------------------------------------------------------------------------------
-def get_town_data (town):
-	row_list = gmPG.run_ro_query ('personalia', """
-select
-	dem.urb.postcode,
-	dem.region.code,
-	dem.region.name,
-	dem.country.code,
-	dem.country.name
-from
-	dem.urb,
-	dem.region,
-	dem.country
-where
-	dem.urb.name = %s and
-	dem.urb.fk_region = dem.region.pk and
-	dem.region.country = dem.country.code""", None, town)
-	if not row_list:
-		return (None, None, None, None, None)
-	else:
-		return tuple (row_list[0])
 #============================================================
 # callbacks
 #------------------------------------------------------------

@@ -2017,7 +2017,6 @@ if __name__ == '__main__':
 		print(val, coalesce(val, 'is None', 'is not None'))
 		val = 1
 		print(val, coalesce(val, 'is None', 'is not None'))
-		return
 
 		import datetime as dt
 		print(coalesce(value2test = dt.datetime.now(), template4value = '-- %s --', function4value = ('strftime', '%Y-%m-%d')))

@@ -380,7 +380,7 @@ if __name__ == "__main__":
 			print("cancelled by user")
 
 		listener.shutdown()
-		listener.unregister_callback('patient_changed', OnPatientModified)
+
 	#-------------------------------
 	def run_monitor():
 

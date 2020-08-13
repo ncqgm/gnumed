@@ -4,7 +4,6 @@
 #
 # @copyright: author
 #======================================================================
-__version__ = "$Revision: 1.4 $"
 __author__ = "Sebastian Hilbert"
 __license__ = 'GPL v2 or later (details at http://www.gnu.org)'
 
@@ -14,9 +13,9 @@ import sys, logging
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
+	_ = lambda x:x
 
 _log = logging.getLogger('gm.dev')
-_log.info(__version__)
 #======================================================================
 # XML cardiac device description parsing
 #----------------------------------------------------------------------
@@ -77,8 +76,6 @@ def extractTagAttribute(start_node=None,SearchTag=None,Attribute=None):
 			return tag.get(Attribute)
 
 def device_status_as_text(tree=None):
-	DevicesDict = {}
-	DevicePartSpecsDict = {}
 	DevicesDisplayed = []
 
 	""" In this area GNUmed will place the status of all cardiac devices and device parts. 
@@ -188,16 +185,3 @@ if __name__ == '__main__':
 		#----------------------------------------------------
 
 		test_parsing_cardio_dev_state()
-
-#======================================================================
-# $Log: gmDevices.py,v $
-# Revision 1.4  2009-07-16 09:51:16  ncq
-# - cleanup and better naming
-#
-# Revision 1.3  2009/07/15 18:07:25  shilbert
-# - cleanup
-#
-# Revision 1.2  2009/07/15 12:09:59  ncq
-# - some cleanup
-#
-#
