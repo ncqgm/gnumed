@@ -268,51 +268,75 @@ class cBusinessDBObject(object):
 	"""Represents business objects in the database.
 
 	Rules:
-	- instances ARE ASSUMED TO EXIST in the database
-	- PK construction (aPK_obj): DOES verify its existence on instantiation
-	                             (fetching data fails)
-	- Row construction (row): allowed by using a dict of pairs
-	                               field name: field value (PERFORMANCE improvement)
-	- does NOT verify FK target existence
-	- does NOT create new entries in the database
-	- does NOT lazy-fetch fields on access
+		* instances ARE ASSUMED TO EXIST in the database
+		* PK construction (aPK_obj): DOES verify its existence on instantiation (fetching data fails)
+		* Row construction (row): allowed by using a dict of pairs of field name: field value (PERFORMANCE improvement)
+		* does NOT verify FK target existence
+		* does NOT create new entries in the database
+		* does NOT lazy-fetch fields on access
 
 	Class scope SQL commands and variables:
 
-	<_cmd_fetch_payload>
-		- must return exactly one row
-		- WHERE clause argument values are expected in
+	_cmd_fetch_payload
+		* must return exactly one row
+		* WHERE clause argument values are expected in
 		  self.pk_obj (taken from __init__(aPK_obj))
-		- must return xmin of all rows that _cmds_store_payload
+		* must return xmin of all rows that _cmds_store_payload
 		  will be updating, so views must support the xmin columns
 		  of their underlying tables
 
-	<_cmds_store_payload>
-		- one or multiple "update ... set ... where xmin_* = ... and pk* = ..."
+	_cmds_store_payload
+		* one or multiple "update ... set ... where xmin_* = ... and pk* = ..."
 		  statements which actually update the database from the data in self._payload,
-		- the last query must refetch at least the XMIN values needed to detect
+		* the last query must refetch at least the XMIN values needed to detect
 		  concurrent updates, their field names had better be the same as
 		  in _cmd_fetch_payload,
-		- the last query CAN return other fields which is particularly
+		* the last query CAN return other fields which is particularly
 		  useful when those other fields are computed in the backend
 		  and may thus change upon save but will not have been set by
 		  the client code explicitely - this is only really of concern
 		  if the saved subclass is to be reused after saving rather
 		  than re-instantiated
-		- when subclasses tend to live a while after save_payload() was
+		* when subclasses tend to live a while after save_payload() was
 		  called and they support computed fields (say, _(some_column)
 		  you need to return *all* columns (see cEncounter)
 
-	<_updatable_fields>
-		- a list of fields available for update via object['field']
+	_updatable_fields
+		* a list of fields available for update via object['field']
 	"""
 	#--------------------------------------------------------
-	def __init__(self, aPK_obj=None, row=None, link_obj=None):
+	def __init__(self, aPK_obj=None, row:dict=None, link_obj=None):
 		"""Init business object.
 
-		Call from child classes:
+		Call from child classes like so:
 
-			super(cChildClass, self).__init__(aPK_obj = aPK_obj, row = row, link_obj = link_obj)
+			super().__init__(aPK_obj = aPK_obj, row = row, link_obj = link_obj)
+
+		Args:
+			aPK_obj: retrieve data from backend
+				* a simple value
+					the primary key WHERE condition must be a simple column
+				* a dictionary of values
+					the primary key WHERE condition must be a
+					subselect consuming the dict and producing
+					the single-value primary key
+			row: must hold the fields
+				* idx: a dict mapping field names to position
+				* data: the field values in a list (as returned by cursor.fetchone() in the DB-API)
+				* pk_field: the name of the primary key field
+					OR
+				* pk_obj: a dictionary suitable for passed to cursor.execute
+				and holding the primary key values, used for composite PKs
+
+		Examples:
+			row = {
+				'data': rows[0],
+				'idx': idx,
+				'pk_field': 'pk_XXX (the PK column name)',
+				'pk_obj': {'pk_col1': pk_col1_val, 'pk_col2': pk_col2_val}
+			}
+			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+			objects = [ cChildClass(row = {'data': r, 'idx': idx, 'pk_field': 'the PK column name'}) for r in rows ]
 		"""
 		# initialize those "too early" because checking descendants might
 		# fail which will then call __str__ in stack trace logging if --debug
@@ -498,6 +522,7 @@ class cBusinessDBObject(object):
 
 	#--------------------------------------------------------
 	def get_fields(self):
+		"""Return a list of accessible fields."""
 		try:
 			return list(self._idx)
 		except AttributeError:
@@ -505,10 +530,12 @@ class cBusinessDBObject(object):
 
 	#--------------------------------------------------------
 	def get_updatable_fields(self):
+		"""Return a list of fields that can be updated."""
 		return self.__class__._updatable_fields
 
 	#--------------------------------------------------------
 	def fields_as_dict(self, date_format='%Y %b %d  %H:%M', none_string='', escape_style=None, bool_strings=None):
+		"""Return field values as a dictionary of strings."""
 		if bool_strings is None:
 			bools = {True: 'True', False: 'False'}
 		else:
@@ -526,7 +553,6 @@ class cBusinessDBObject(object):
 			if isinstance(val, bool):
 				data[field] = bools[val]
 				continue
-
 			if isinstance(val, datetime.datetime):
 				if date_format is None:
 					data[field] = val
@@ -537,7 +563,6 @@ class cBusinessDBObject(object):
 				elif escape_style in ['xetex', 'xelatex']:
 					data[field] = xetex_escape_string(data[field])
 				continue
-
 			try:
 				data[field] = str(val, encoding = 'utf8', errors = 'replace')
 			except TypeError:
@@ -550,7 +575,6 @@ class cBusinessDBObject(object):
 				data[field] = tex_escape_string(data[field])
 			elif escape_style in ['xetex', 'xelatex']:
 				data[field] = xetex_escape_string(data[field])
-
 		return data
 
 	#--------------------------------------------------------
@@ -621,6 +645,7 @@ class cBusinessDBObject(object):
 
 	#--------------------------------------------------------
 	def format(self, *args, **kwargs):
+		"""Return instance data generically formatted as a table."""
 		return format_dict_like (
 			self.fields_as_dict(none_string = '<?>'),
 			tabular = True,
@@ -687,6 +712,7 @@ class cBusinessDBObject(object):
 
 	#--------------------------------------------------------
 	def save(self, conn=None):
+		"""Just calls save_payload()."""
 		return self.save_payload(conn = conn)
 
 	#--------------------------------------------------------
@@ -694,11 +720,13 @@ class cBusinessDBObject(object):
 		"""Store updated values (if any) in database.
 
 		Optionally accepts a pre-existing connection
-		- returns a tuple (<True|False>, <data>)
-		- True: success
-		- False: an error occurred
-			* data is (error, message)
-			* for error meanings see gmPG2.run_rw_queries()
+
+		Returns:
+			a tuple (<True|False>, <data>)
+			True: success
+			False: an error occurred
+				data is (error, message)
+				for error meanings see gmPG2.run_rw_queries()
 		"""
 		if not self._is_modified:
 			return (True, None)

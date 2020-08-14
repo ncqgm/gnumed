@@ -471,126 +471,86 @@ def format_interval(interval=None, accuracy_wanted=None, none_string=None, verbo
 	hours, secs = divmod(secs, 3600)
 	mins, secs = divmod(secs, 60)
 
-	tmp = ''
+	if verbose:
+		years_tag = ' ' + (_('year') if years == 1 else _('years'))
+		months_tag = ' ' + (_('month') if months == 1 else _('months'))
+		weeks_tag = ' ' + (_('week') if weeks == 1 else _('weeks'))
+		days_tag = ' ' + (_('day') if days == 1 else _('days'))
+		hours_tag = ' ' + (_('hour') if hours == 1 else _('hours'))
+		minutes_tag = ' ' + (_('minute') if mins == 1 else _('minutes'))
+		seconds_tag = ' ' + (_('second') if secs == 1 else _('seconds'))
+	else:
+		years_tag = _('interval_format_tag::years::y')[-1:]
+		months_tag = _('interval_format_tag::months::m')[-1:]
+		weeks_tag = _('interval_format_tag::weeks::w')[-1:]
+		days_tag = _('interval_format_tag::days::d')[-1:]
+		hours_tag = '/24'
+		minutes_tag = '/60'
+		seconds_tag = 's'
 
+	# special cases
+	if years == 0:
+		if accuracy_wanted < acc_months:
+			return _('0 years') if verbose else '0%s' % years_tag
+
+	if years + months == 0:
+		if accuracy_wanted < acc_weeks:
+			return _('0 months') if verbose else '0%s' % months_tag
+
+	if years + months + weeks == 0:
+		if accuracy_wanted < acc_days:
+			return _('0 weeks') if verbose else '0%s' % weeks_tag
+
+	if years + months + weeks + days == 0:
+		if accuracy_wanted < acc_hours:
+			return _('0 days') if verbose else '0%s' % days_tag
+
+	if years + months + weeks + days + hours == 0:
+		if accuracy_wanted < acc_minutes:
+			return _('0 hours') if verbose else '0/24'
+
+	if years + months + weeks + days + hours + mins == 0:
+		if accuracy_wanted < acc_seconds:
+			return _('0 minutes') if verbose else '0/60'
+
+	if years + months + weeks + days + hours + mins + secs == 0:
+		return _('0 seconds') if verbose else '0s'
+
+	# normal cases
+	formatted_intv = ''
 	if years > 0:
-		if verbose:
-			if years > 1:
-				tag = ' ' + _('years')
-			else:
-				tag = ' ' + _('year')
-		else:
-			tag = _('interval_format_tag::years::y')[-1:]
-		tmp += '%s%s' % (int(years), tag)
-
+		formatted_intv += '%s%s' % (int(years), years_tag)
 	if accuracy_wanted < acc_months:
-		if tmp == '':
-			if verbose:
-				return _('0 years')
-			return '0%s' % _('interval_format_tag::years::y')[-1:]
-		return tmp.strip()
+		return formatted_intv.strip()
 
 	if months > 0:
-		if verbose:
-			if months > 1:
-				tag = ' ' + _('months')
-			else:
-				tag = ' ' + _('month')
-		else:
-			tag = _('interval_format_tag::months::m')[-1:]
-		tmp += ' %s%s' % (int(months), tag)
-
+		formatted_intv += ' %s%s' % (int(months), months_tag)
 	if accuracy_wanted < acc_weeks:
-		if tmp == '':
-			if verbose:
-				return _('0 months')
-			return '0%s' % _('interval_format_tag::months::m')[-1:]
-		return tmp.strip()
+		return formatted_intv.strip()
 
 	if weeks > 0:
-		if verbose:
-			if weeks > 1:
-				tag = ' ' + _('weeks')
-			else:
-				tag = ' ' + _('week')
-		else:
-			tag = _('interval_format_tag::weeks::w')[-1:]
-		tmp += ' %s%s' % (int(weeks), tag)
-
+		formatted_intv += ' %s%s' % (int(weeks), weeks_tag)
 	if accuracy_wanted < acc_days:
-		if tmp == '':
-			if verbose:
-				return _('0 weeks')
-			return '0%s' % _('interval_format_tag::weeks::w')[-1:]
-		return tmp.strip()
+		return formatted_intv.strip()
 
 	if days > 0:
-		if verbose:
-			if days > 1:
-				tag = ' ' + _('days')
-			else:
-				tag = ' ' + _('day')
-		else:
-			tag = _('interval_format_tag::days::d')[-1:]
-		tmp += ' %s%s' % (int(days), tag)
-
+		formatted_intv += ' %s%s' % (int(days), days_tag)
 	if accuracy_wanted < acc_hours:
-		if tmp == '':
-			if verbose:
-				return _('0 days')
-			return '0%s' % _('interval_format_tag::days::d')[-1:]
-		return tmp.strip()
+		return formatted_intv.strip()
 
 	if hours > 0:
-		if verbose:
-			if hours > 1:
-				tag = ' ' + _('hours')
-			else:
-				tag = ' ' + _('hour')
-		else:
-			tag = '/24'
-		tmp += ' %s%s' % (int(hours), tag)
-
+		formatted_intv += ' %s%s' % (int(hours), hours_tag)
 	if accuracy_wanted < acc_minutes:
-		if tmp == '':
-			if verbose:
-				return _('0 hours')
-			return '0/24'
-		return tmp.strip()
+		return formatted_intv.strip()
 
 	if mins > 0:
-		if verbose:
-			if mins > 1:
-				tag = ' ' + _('minutes')
-			else:
-				tag = ' ' + _('minute')
-		else:
-			tag = '/60'
-		tmp += ' %s%s' % (int(mins), tag)
-
+		formatted_intv += ' %s%s' % (int(mins), minutes_tag)
 	if accuracy_wanted < acc_seconds:
-		if tmp == '':
-			if verbose:
-				return _('0 minutes')
-			return '0/60'
-		return tmp.strip()
+		return formatted_intv.strip()
 
 	if secs > 0:
-		if verbose:
-			if secs > 1:
-				tag = ' ' + _('seconds')
-			else:
-				tag = ' ' + _('second')
-		else:
-			tag = 's'
-		tmp += ' %s%s' % (int(secs), tag)
-
-	if tmp == '':
-		if verbose:
-			return _('0 seconds')
-		return '0s'
-
-	return tmp.strip()
+		formatted_intv += ' %s%s' % (int(secs), seconds_tag)
+	return formatted_intv.strip()
 
 #---------------------------------------------------------------------------
 def format_interval_medically(interval=None):
@@ -2381,11 +2341,11 @@ if __name__ == '__main__':
 	#test_cFuzzyTimeStamp()
 	#test_get_pydt()
 	#test_str2interval()
-	#test_format_interval()
+	test_format_interval()
 	#test_format_interval_medically()
 	#test_str2pydt()
 	#test_pydt_strftime()
 	#test_calculate_apparent_age()
-	test_is_leap_year()
+	#test_is_leap_year()
 
 #===========================================================================

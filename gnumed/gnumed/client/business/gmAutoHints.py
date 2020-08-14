@@ -14,6 +14,7 @@ import logging
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
+	_ = lambda x:x
 from Gnumed.pycommon import gmPG2
 from Gnumed.pycommon import gmBusinessDBObject
 from Gnumed.pycommon import gmTools
@@ -29,7 +30,7 @@ _log = logging.getLogger('gm.hints')
 _SQL_get_dynamic_hints = "SELECT * FROM ref.v_auto_hints WHERE %s"
 
 class cDynamicHint(gmBusinessDBObject.cBusinessDBObject):
-	"""Represents dynamic hints to be run against the database."""
+	"""Represents a dynamic hint to be run against the database."""
 
 	_cmd_fetch_payload = _SQL_get_dynamic_hints % "pk_auto_hint = %s"
 	_cmds_store_payload = [

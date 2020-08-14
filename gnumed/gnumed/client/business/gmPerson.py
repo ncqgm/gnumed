@@ -11,9 +11,7 @@ __license__ = "GPL"
 
 # std lib
 import sys
-import os.path
 import time
-import re as regex
 import datetime as pyDT
 import threading
 import logging
@@ -24,10 +22,9 @@ from xml.etree import ElementTree as etree
 # GNUmed
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmExceptions
+	_ = lambda x:x
 from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmBorg
-from Gnumed.pycommon import gmI18N
 from Gnumed.pycommon import gmNull
 from Gnumed.pycommon import gmBusinessDBObject
 from Gnumed.pycommon import gmTools
@@ -38,7 +35,6 @@ from Gnumed.pycommon import gmLog2
 from Gnumed.pycommon import gmHooks
 
 from Gnumed.business import gmDemographicRecord
-from Gnumed.business import gmClinicalRecord
 from Gnumed.business import gmXdtMappings
 from Gnumed.business import gmProviderInbox
 from Gnumed.business import gmExportArea
@@ -542,7 +538,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 
 				if isinstance(value, pyDT.datetime):
 					if value.tzinfo is None:
-						raise ValueError('datetime.datetime instance is lacking a time zone: [%s]' % dt.isoformat())
+						raise ValueError('datetime.datetime instance is lacking a time zone: [%s]' % value.isoformat())
 				else:
 					raise TypeError('[%s]: type [%s] (%s) invalid for attribute [dob], must be datetime.datetime or None' % (self.__class__.__name__, type(value), value))
 
@@ -2726,6 +2722,11 @@ if __name__ == '__main__':
 		person = cPerson(aPK_obj = 9)
 		print(person.get_external_ids(id_type='Fachgebiet', issuer='Ärztekammer'))
 		#print(person.get_external_ids()
+		person = cPerson(aPK_obj = 12)
+		suggestions = person.suggest_external_ids(target = 'Orthanc')
+		print(suggestions)
+		print([ (sugg.rsplit('#', 2)[0]).strip('-') for sugg in suggestions ])
+
 	#--------------------------------------------------------
 	def test_vcf():
 		person = cPerson(aPK_obj = 12)
@@ -2746,18 +2747,11 @@ if __name__ == '__main__':
 		print("pat.emr", pat.emr)
 
 	#--------------------------------------------------------
-	def test_ext_id():
-		person = cPerson(aPK_obj = 12)
-		suggestions = person.suggest_external_ids(target = 'Orthanc')
-		print(suggestions)
-		print([ (sugg.rsplit('#', 2)[0]).strip('-') for sugg in suggestions ])
-
-	#--------------------------------------------------------
 	def test_assimilate_identity():
 		patient = cPatient(12)
 		set_active_patient(patient = patient)
 		curr_pat = gmCurrentPatient()
-		other_pat = cPerson(1111111)
+		#other_pat = cPerson(1111111)
 		curr_pat.assimilate_identity(other_identity=None)
 
 	#--------------------------------------------------------

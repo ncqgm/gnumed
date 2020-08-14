@@ -16,7 +16,6 @@ import http.client		# exception names used by httplib2
 import socket
 import httplib2
 import json
-import zipfile
 import shutil
 import time
 import datetime as pydt
@@ -84,9 +83,9 @@ class cOrthancServer:
 			self.connect_error += 'retrieving server identification failed'
 			return False
 		if expected_minimal_version is not None:
-			if version.LooseVersion(self.server_identification['Version']) < version.LooseVersion(expected_min_version):
-				_log.error('server too old, needed [%s]', expected_min_version)
-				self.connect_error += 'server too old, needed version [%s]' % expected_min_version
+			if version.LooseVersion(self.server_identification['Version']) < version.LooseVersion(expected_minimal_version):
+				_log.error('server too old, needed [%s]', expected_minimal_version)
+				self.connect_error += 'server too old, needed version [%s]' % expected_minimal_version
 				return False
 		if expected_name is not None:
 			if self.server_identification['Name'] != expected_name:
@@ -210,7 +209,6 @@ class cOrthancServer:
 	#--------------------------------------------------------
 	def get_patients_by_external_id(self, external_id=None, fuzzy=False):
 		"""Search for instances by patient ID."""
-		matching_patients = []
 		_log.info('external ID >>>%s<<< fuzzy [%s]', external_id, fuzzy)
 		search_term = external_id.strip().strip('*').strip()
 		if fuzzy:
@@ -352,7 +350,6 @@ class cOrthancServer:
 		Returns:
 			The list of matching *studies* (not *patient*).
 		"""
-		matching_patients = []
 		_log.debug('search term >>>%s<<<', patient_id)
 		search_term = patient_id.strip().strip('*').strip()
 		search_term = '*%s*' % search_term
@@ -850,8 +847,6 @@ class cOrthancServer:
 		series_keys2hide = ['ModifiedFrom', 'Type', 'ID', 'ParentStudy',   'Instances']
 
 		studies_by_patient = []
-		series_keys = {}
-		series_keys_m = {}
 
 		# loop over patients
 		for pat in orthanc_patients:
@@ -1497,8 +1492,6 @@ if __name__ == "__main__":
 	if sys.argv[1] != 'test':
 		sys.exit()
 
-#	if __name__ == '__main__':
-#		sys.path.insert(0, '../../')
 	from Gnumed.pycommon import gmLog2
 
 	#--------------------------------------------------------

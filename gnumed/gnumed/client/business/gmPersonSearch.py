@@ -5,12 +5,15 @@ __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
 # std lib
-import sys, logging, re as regex
+import sys
+import logging
+import re as regex
 
 
 # GNUmed
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
+	_ = lambda x:x
 from Gnumed.pycommon import gmPG2, gmI18N, gmTools, gmDateTime
 from Gnumed.business import gmPerson
 if __name__ == '__main__':
@@ -497,7 +500,7 @@ class cPatientSearcher_SQL:
 		# sufficient data ?
 		if len(where_snippets) == 0:
 			_log.error('invalid search dict structure')
-			_log.debug(data)
+			_log.debug(dto)
 			return None
 
 		cmd = """
@@ -542,7 +545,7 @@ class cPatientSearcher_SQL:
 		if len(parts_list) == 2:
 			if date_count > 0:
 				# FIXME: either "name date" or "date date"
-				_log.error("don't know how to generate queries for [%s]" % search_term)
+				_log.error("don't know how to generate queries for [%s]" % part)
 				return []
 			# no date = "first last" or "last first"
 			queries = []
@@ -979,11 +982,11 @@ if __name__ == '__main__':
 
 		print("testing _generate_queries_from_dto()")
 		print("------------------------------------")
-		dto = cDTO_person()
+		dto = gmPerson.cDTO_person()
 		dto.gender = 'm'
 		dto.lastnames = 'Kirk'
 		dto.firstnames = 'James'
-		dto.dob = pyDT.datetime.now(tz=gmDateTime.gmCurrentLocalTimezone)
+		dto.dob = datetime.datetime.now(tz=gmDateTime.gmCurrentLocalTimezone)
 		q = searcher._generate_queries_from_dto(dto)[0]
 		print("dto:", dto)
 		print(" match on:", q['args'][0])

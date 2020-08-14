@@ -11,6 +11,7 @@ import io
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
+	_ = lambda x:x
 from Gnumed.pycommon import gmBusinessDBObject
 from Gnumed.pycommon import gmPG2
 from Gnumed.pycommon import gmI18N
@@ -793,70 +794,70 @@ if __name__ == '__main__':
 			print(field, ':', vacc[field])
 		print("updatable:", vacc.get_updatable_fields())
 
-	#--------------------------------------------------------
-	def test_due_vacc():
-		# Test for a due vaccination
-		pk_args = {
-			'pat_id': 12,
-			'indication': 'meningococcus C',
-			'seq_no': 1
-		}
-		missing_vacc = cMissingVaccination(aPK_obj=pk_args)
-		fields = missing_vacc.get_fields()
-		print("\nDue vaccination:")
-		print(missing_vacc)
-		for field in fields:
-			print(field, ':', missing_vacc[field])
-		# Test for an overdue vaccination
-		pk_args = {
-			'pat_id': 12,
-			'indication': 'haemophilus influenzae b',
-			'seq_no': 2
-		}
-		missing_vacc = cMissingVaccination(aPK_obj=pk_args)
-		fields = missing_vacc.get_fields()
-		print("\nOverdue vaccination (?):")
-		print(missing_vacc)
-		for field in fields:
-			print(field, ':', missing_vacc[field])
+#	#--------------------------------------------------------
+#	def test_due_vacc():
+#		# Test for a due vaccination
+#		pk_args = {
+#			'pat_id': 12,
+#			'indication': 'meningococcus C',
+#			'seq_no': 1
+#		}
+#		missing_vacc = cMissingVaccination(aPK_obj=pk_args)
+#		fields = missing_vacc.get_fields()
+#		print("\nDue vaccination:")
+#		print(missing_vacc)
+#		for field in fields:
+#			print(field, ':', missing_vacc[field])
+#		# Test for an overdue vaccination
+#		pk_args = {
+#			'pat_id': 12,
+#			'indication': 'haemophilus influenzae b',
+#			'seq_no': 2
+#		}
+#		missing_vacc = cMissingVaccination(aPK_obj=pk_args)
+#		fields = missing_vacc.get_fields()
+#		print("\nOverdue vaccination (?):")
+#		print(missing_vacc)
+#		for field in fields:
+#			print(field, ':', missing_vacc[field])
+
+#	#--------------------------------------------------------
+#	def test_due_booster():
+#		pk_args = {
+#			'pat_id': 12,
+#			'indication': 'tetanus'
+#		}
+#		missing_booster = cMissingBooster(aPK_obj=pk_args)
+#		fields = missing_booster.get_fields()
+#		print("\nDue booster:")
+#		print(missing_booster)
+#		for field in fields:
+#			print(field, ':', missing_booster[field])
 
 	#--------------------------------------------------------
-	def test_due_booster():
-		pk_args = {
-			'pat_id': 12,
-			'indication': 'tetanus'
-		}
-		missing_booster = cMissingBooster(aPK_obj=pk_args)
-		fields = missing_booster.get_fields()
-		print("\nDue booster:")
-		print(missing_booster)
-		for field in fields:
-			print(field, ':', missing_booster[field])
+#	def test_scheduled_vacc():
+#		scheduled_vacc = cScheduledVaccination(aPK_obj=20)
+#		print("\nScheduled vaccination:")
+#		print(scheduled_vacc)
+#		fields = scheduled_vacc.get_fields()
+#		for field in fields:
+#			print(field, ':', scheduled_vacc[field])
+#		print("updatable:", scheduled_vacc.get_updatable_fields())
+
+#	#--------------------------------------------------------
+#	def test_vaccination_course():
+#		vaccination_course = cVaccinationCourse(aPK_obj=7)
+#		print("\nVaccination course:")
+#		print(vaccination_course)
+#		fields = vaccination_course.get_fields()
+#		for field in fields:
+#			print(field, ':', vaccination_course[field])
+#		print("updatable:", vaccination_course.get_updatable_fields())
 
 	#--------------------------------------------------------
-	def test_scheduled_vacc():
-		scheduled_vacc = cScheduledVaccination(aPK_obj=20)
-		print("\nScheduled vaccination:")
-		print(scheduled_vacc)
-		fields = scheduled_vacc.get_fields()
-		for field in fields:
-			print(field, ':', scheduled_vacc[field])
-		print("updatable:", scheduled_vacc.get_updatable_fields())
-
-	#--------------------------------------------------------
-	def test_vaccination_course():
-		vaccination_course = cVaccinationCourse(aPK_obj=7)
-		print("\nVaccination course:")		
-		print(vaccination_course)
-		fields = vaccination_course.get_fields()
-		for field in fields:
-			print(field, ':', vaccination_course[field])
-		print("updatable:", vaccination_course.get_updatable_fields())
-
-	#--------------------------------------------------------
-	def test_put_patient_on_schedule():
-		result, msg = put_patient_on_schedule(patient_id=12, course_id=1)
-		print('\nPutting patient id 12 on schedule id 1... %s (%s)' % (result, msg))
+#	def test_put_patient_on_schedule():
+#		result, msg = put_patient_on_schedule(patient_id=12, course_id=1)
+#		print('\nPutting patient id 12 on schedule id 1... %s (%s)' % (result, msg))
 
 	#--------------------------------------------------------
 	def test_get_vaccines():

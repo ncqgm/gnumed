@@ -24,16 +24,15 @@ This script is designed for importing GNUmed SOAP input "bundles".
 			  Its 'episode_id' must always be supplied.
 """
 #===============================================================
-__version__ = "$Revision: 1.24 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = "GPL v2 or later (details at http://www.gnu.org)"
 
 # stdlib
-import sys, re, logging
+import sys, logging
 
 
 # GNUmed
-from Gnumed.pycommon import gmExceptions, gmI18N, gmDispatcher
+from Gnumed.pycommon import gmDispatcher
 from Gnumed.business import gmClinNarrative, gmPerson, gmPersonSearch
 
 

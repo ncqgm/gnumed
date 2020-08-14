@@ -11,6 +11,7 @@ import logging
 # GNUmed
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
+	_ = lambda x:x
 from Gnumed.pycommon import gmBusinessDBObject
 from Gnumed.pycommon import gmPG2
 from Gnumed.pycommon import gmNull
@@ -332,7 +333,6 @@ if __name__ == '__main__':
 	if sys.argv[1] != 'test':
 		sys.exit()
 
-	import datetime
 	from Gnumed.pycommon import gmI18N
 	from Gnumed.pycommon import gmDateTime
 
