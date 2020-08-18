@@ -18,9 +18,7 @@ from xml.etree import ElementTree as etree
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-	from Gnumed.pycommon import gmI18N
-	gmI18N.activate_locale()
-	gmI18N.install_domain('gnumed')
+	_ = lambda x:x
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmShellAPI
 from Gnumed.business import gmMedication
@@ -333,7 +331,9 @@ class cGelbeListeWindowsInterface(cDrugDataSourceInterface):
 			if len(drug['wirkstoffe']) == 1:
 				atc = drug['atc']
 			for wirkstoff in drug['wirkstoffe']:
-				new_substances.append(gmMedication.create_substance_dose(substance = wirkstoff, atc = atc, amount = amount, unit = unit))
+				#new_substances.append(gmMedication.create_substance_dose(substance = wirkstoff, atc = atc, amount = amount, unit = unit))
+				print(atc)
+				pass
 
 		selected_drugs.close()
 
@@ -388,7 +388,8 @@ class cGelbeListeWindowsInterface(cDrugDataSourceInterface):
 			if len(entry['wirkstoffe']) == 1:
 				atc = entry['atc']
 			for wirkstoff in entry['wirkstoffe']:
-				new_substances.append(gmMedication.create_substance_dose(substance = wirkstoff, atc = atc, amount = amount, unit = unit))
+				#new_substances.append(gmMedication.create_substance_dose(substance = wirkstoff, atc = atc, amount = amount, unit = unit))
+				pass
 
 		return new_drugs, new_substances
 	#--------------------------------------------------------
@@ -945,7 +946,7 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 		prescription = docs.add_prescription (
 			encounter = emr.active_encounter['pk_encounter'],
 			episode = emr.add_episode (
-				episode_name = DEFAULT_MEDICATION_HISTORY_EPISODE,
+				episode_name = gmMedication.DEFAULT_MEDICATION_HISTORY_EPISODE,
 				is_open = False
 			)['pk_episode']
 		)
@@ -1338,7 +1339,7 @@ if __name__ == "__main__":
 		mmi.import_drugs()
 	#--------------------------------------------------------
 	def test_mmi_interaction_check():
-		mmi = cGelbeListeInterface()
+		mmi = cGelbeListeWineInterface()
 		print(mmi)
 		print("interface definition:", mmi.version)
 		# Metoprolol + Hct vs Citalopram

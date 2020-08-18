@@ -4,7 +4,7 @@
 
 Currently, only readonly connections are pooled.
 
-This pool is thread safe.
+This pool is (supposedly) thread safe.
 """
 #============================================================
 # SPDX-License-Identifier: GPL-2.0-or-later
@@ -18,16 +18,16 @@ _DISABLE_CONNECTION_POOL = False		# set to True to disable the connection pool f
 # standard library imports
 import os
 import sys
-import codecs
 import inspect
 import logging
 import threading
 import re as regex
 import datetime as pydt
+from typing import Dict
 
 
 # 3rd party library imports
-import psycopg2 as dbapi
+import psycopg2 as dbapi	# type: ignore
 
 if not (float(dbapi.apilevel) >= 2.0):
 	raise ImportError('gmPG2: supported DB-API level too low')
@@ -54,16 +54,15 @@ except ValueError:
 	raise ImportError('gmPG2: lacking v3 backend protocol support in psycopg2')
 
 
-import psycopg2.extensions
-import psycopg2.extras
-import psycopg2.errorcodes as SQL_error_codes
+import psycopg2.extensions						# type: ignore
+import psycopg2.extras							# type: ignore
+import psycopg2.errorcodes as SQL_error_codes	# type: ignore
 
 
 # GNUmed module imports
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmBorg
-from Gnumed.pycommon import gmI18N
 from Gnumed.pycommon import gmLog2
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmDateTime
@@ -123,6 +122,7 @@ _map_psyco_iso_level2str = {
 
 #============================================================
 class cPGCredentials:
+	"""Holds PostgreSQL credentials"""
 
 	def __init__(self) -> None:
 		self.__host = None			# None: left out -> defaults to $PGHOST or implicit <localhost>
@@ -148,7 +148,8 @@ class cPGCredentials:
 	formatted_credentials = property(__format_credentials)
 
 	#--------------------------------------------------
-	def generate_credentials_kwargs(self, connection_name=None):
+	def generate_credentials_kwargs(self, connection_name:str=None) -> dict:
+		"""Return dictionary with credentials suitable as psycopg2.connection() keyword arguments."""
 		assert (self.__database is not None), 'self.__database must be defined'
 		assert (self.__user is not None), 'self.__user must be defined'
 		kwargs = {
@@ -176,7 +177,7 @@ class cPGCredentials:
 	def _get_database(self):
 		return self.__database
 
-	def _set_database(self, database=None):
+	def _set_database(self, database:str=None):
 		assert (database is not None), '<database> must not be None'
 		assert ('salaam.homeunix' not in database), 'The public database is not hosted by <salaam.homeunix.com> anymore.\n\nPlease point your configuration files to <publicdb.gnumed.de>.'
 		self.__database = database.strip()
@@ -188,7 +189,7 @@ class cPGCredentials:
 	def _get_host(self):
 		return self.__host
 
-	def _set_host(self, host=None):
+	def _set_host(self, host:str=None):
 		if host is None or host.strip() == '':
 			self.__host = None
 		else:
@@ -214,7 +215,7 @@ class cPGCredentials:
 	def _get_user(self):
 		return self.__user
 
-	def _set_user(self, user=None):
+	def _set_user(self, user:str=None):
 		assert (user is not None), '<user> must not be None'
 		assert (user.strip() != ''), '<user> must not be empty'
 		self.__user = user.strip()
@@ -226,7 +227,7 @@ class cPGCredentials:
 	def _get_password(self):
 		return self.__password
 
-	def _set_password(self, password=None):
+	def _set_password(self, password:str=None):
 		if password is not None:
 			gmLog2.add_word2hide(password)
 		self.__password = password
@@ -236,17 +237,22 @@ class cPGCredentials:
 
 #============================================================
 class gmConnectionPool(gmBorg.cBorg):
+	"""The Singleton connection pool class.
 
+	Any normal connection from GNUmed to PostgreSQL should go
+	through this pool. It needs credentials to be provided
+	via .credentials = <cPGCredentials>.
+	"""
 	def __init__(self) -> None:
 		try:
-			self.__initialized
+			self.__initialized:bool
 			return
 
 		except AttributeError:
 			self.__initialized = True
 
 		_log.info('[%s]: first instantiation', self.__class__.__name__)
-		self.__ro_conn_pool = {}	# keyed by "credentials::thread ID"
+		self.__ro_conn_pool:Dict[str, dbapi.connection] = {}	# keyed by "credentials::thread ID"
 		self.__SQL_set_client_timezone = None
 		self.__client_timezone = None
 		self.__creds = None
@@ -255,10 +261,27 @@ class gmConnectionPool(gmBorg.cBorg):
 	#--------------------------------------------------
 	# connection API
 	#--------------------------------------------------
-	def get_connection(self, readonly=True, verbose=False, pooled=True, connection_name=None, autocommit=False, credentials=None):
+	def get_connection(self, readonly:bool=True, verbose:bool=False, pooled:bool=True, connection_name:str=None, autocommit:bool=False, credentials:cPGCredentials=None):
+		"""Provide a database connection.
 
-		if _DISABLE_CONNECTION_POOL:
-			pooled = False
+		Readonly connections can be pooled. If there is no
+		suitable connection in the pool a new one will be
+		created and stored. The pool is per-thread and
+		per-credentials.
+
+		Args:
+			readonly: make connection read only
+			verbose: make connection log more things
+			pooled: return a pooled connection, if possible
+			connection_name: a human readable name for the connection, avoid spaces
+			autocommit: whether to autocommit
+			credentials: use for getting a connection with other credentials different from what the pool was set to before
+
+		Returns:
+			a working connection to a PostgreSQL database
+		"""
+#		if _DISABLE_CONNECTION_POOL:
+#			pooled = False
 
 		if credentials is not None:
 			pooled = False
@@ -289,17 +312,6 @@ class gmConnectionPool(gmBorg.cBorg):
 		# - client encoding
 		encoding = 'UTF8'
 		_log.debug('desired client (wire) encoding: [%s]', encoding)
-		# check whether psycopg2 can handle this encoding
-		if encoding not in psycopg2.extensions.encodings:
-			_log.warning('psycopg2 does not know about client (wire) encoding [%s]', encoding)
-			py_enc = encoding
-		else:
-			py_enc = psycopg2.extensions.encodings[encoding]
-		# check whether Python can handle this encoding
-		try:
-			codecs.lookup(py_enc)
-		except LookupError:
-			_log.warning('<codecs> module can NOT handle encoding [psycopg2::<%s> -> Python::<%s>]', encoding, py_enc)
 		conn.set_client_encoding(encoding)
 		# - transaction isolation level
 		if not readonly:
@@ -311,7 +323,6 @@ class gmConnectionPool(gmBorg.cBorg):
 		curs.close()
 		conn.commit()
 		if readonly and pooled:
-			# put into pool
 			_log.debug('putting RO conn with key [%s] into pool', self.pool_key)
 			self.__ro_conn_pool[self.pool_key] = conn
 		if verbose:
@@ -392,6 +403,10 @@ class gmConnectionPool(gmBorg.cBorg):
 
 	#--------------------------------------------------
 	def get_dbowner_connection(self, readonly=True, verbose=False, connection_name=None, autocommit=False, dbo_password=None, dbo_account='gm-dbo'):
+		"""Return a connection for the database owner.
+
+		Will not touch the pool.
+		"""
 		dbo_creds = cPGCredentials()
 		dbo_creds.user = dbo_account
 		dbo_creds.password = dbo_password
@@ -687,13 +702,12 @@ def exception_is_connection_loss(exc):
 	return is_conn_loss
 
 #------------------------------------------------------------
-def log_pg_exception_details(exc):
+def log_pg_exception_details(exc: Exception) -> bool:
 	if not isinstance(exc, dbapi.Error):
 		return False
 
 	try:
-		args = exc.args
-		for arg in args:
+		for arg in exc.args:
 			_log.debug('exc.arg: %s', arg)
 	except AttributeError:
 		_log.debug('exception has no <.args>')
@@ -702,23 +716,22 @@ def log_pg_exception_details(exc):
 		_log.debug('pgcode : %s', exc.pgcode)
 	else:
 		_log.debug('pgcode : %s (%s)', exc.pgcode, SQL_error_codes.lookup(exc.pgcode))
-	if exc.cursor is None:
-		_log.debug('cursor: None')
-	else:
-		log_cursor_state(exc.cursor)
+	log_cursor_state(exc.cursor)
 	try:
 		diags = exc.diag
 	except AttributeError:
 		_log.debug('<.diag> not available')
 		diags = None
-	if diags is not None:
-		for attr in dir(diags):
-			if attr.startswith('__'):
-				continue
-			val = getattr(diags, attr)
-			if val is None:
-				continue
-			_log.debug('%s: %s', attr, val)
+	if diags is None:
+		return True
+
+	for attr in dir(diags):
+		if attr.startswith('__'):
+			continue
+		val = getattr(diags, attr)
+		if val is None:
+			continue
+		_log.debug('%s: %s', attr, val)
 	return True
 
 #--------------------------------------------------
@@ -769,7 +782,11 @@ def log_pg_settings(curs):
 	return True
 
 #--------------------------------------------------
-def log_cursor_state(cursor):
+def log_cursor_state(cursor) -> None:
+	if cursor is None:
+		_log.debug('cursor: None')
+		return
+
 	conn = cursor.connection
 	tx_status = conn.get_transaction_status()
 	if tx_status in [ psycopg2.extensions.TRANSACTION_STATUS_INERROR, psycopg2.extensions.TRANSACTION_STATUS_UNKNOWN ]:
