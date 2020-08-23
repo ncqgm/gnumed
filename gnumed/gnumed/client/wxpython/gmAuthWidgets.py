@@ -23,13 +23,13 @@ import wx
 # GNUmed
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
+	_ = lambda x:x
 from Gnumed.pycommon import gmLoginInfo
 from Gnumed.pycommon import gmPG2
 from Gnumed.pycommon import gmConnectionPool
 from Gnumed.pycommon import gmBackendListener
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmCfg2
-from Gnumed.pycommon import gmI18N
 from Gnumed.pycommon import gmLog2
 
 from Gnumed.business import gmPraxis
@@ -110,7 +110,7 @@ def connect_to_database(max_attempts=3, expected_version=None, require_version=T
 	- returns True/False
 	"""
 	# force programmer to set a valid expected_version
-	expected_hash = gmPG2.known_schema_hashes[expected_version]
+	gmPG2.known_schema_hashes[expected_version]
 	client_version = _cfg.get(option = 'client_version')
 	global current_db_name
 	current_db_name = 'gnumed_v%s' % expected_version
@@ -282,7 +282,7 @@ def connect_to_database(max_attempts=3, expected_version=None, require_version=T
 		)
 
 		conn = gmPG2.get_connection(verbose = True, connection_name = 'GNUmed-[DbListenerThread]', pooled = False)
-		listener = gmBackendListener.gmBackendListener(conn = conn)
+		gmBackendListener.gmBackendListener(conn = conn)
 		break
 
 	dlg.DestroyLater()
@@ -895,16 +895,13 @@ if __name__ == "__main__":
 	# we don't have tests yet
 	sys.exit()
 
-	from Gnumed.pycommon import gmI18N
-
 	logging.basicConfig(level = logging.DEBUG)
 
-	gmI18N.activate_locale()
-	gmI18N.install_domain(domain='gnumed')
 	#-----------------------------------------------
 	#-----------------------------------------------
 	def test():
-		app = wx.PyWidgetTester(size = (300,400))
+		#app = 
+		wx.PyWidgetTester(size = (300,400))
 		#show the login panel in a main window
 #		app.SetWidget(cLoginPanel, -1)
 		#and pop the login dialog up modally

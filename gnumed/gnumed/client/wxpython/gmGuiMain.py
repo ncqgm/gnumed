@@ -31,11 +31,6 @@ import io
 _log = logging.getLogger('gm.main')
 
 
-# GNUmed libs
-from Gnumed.pycommon import gmCfg2
-_cfg = gmCfg2.gmCfgData()
-
-
 # 3rd party libs: wxPython
 try:
 	import wx
@@ -57,12 +52,12 @@ if (version < 40) or ('unicode' not in wx.PlatformInfo):
 	raise ValueError('wxPython 4.0+ with unicode support not found')
 
 
-# more GNUmed libs
+# GNUmed libs
+from Gnumed.pycommon import gmCfg2
 from Gnumed.pycommon import gmCfg
 from Gnumed.pycommon import gmPG2
 from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmGuiBroker
-from Gnumed.pycommon import gmI18N
 from Gnumed.pycommon import gmExceptions
 from Gnumed.pycommon import gmShellAPI
 from Gnumed.pycommon import gmTools
@@ -91,7 +86,6 @@ from Gnumed.wxpython import gmEMRStructWidgets
 from Gnumed.wxpython import gmPatSearchWidgets
 from Gnumed.wxpython import gmAllergyWidgets
 from Gnumed.wxpython import gmListWidgets
-from Gnumed.wxpython import gmProviderInboxWidgets
 from Gnumed.wxpython import gmCfgWidgets
 from Gnumed.wxpython import gmExceptionHandlingWidgets
 from Gnumed.wxpython import gmNarrativeWorkflows
@@ -104,7 +98,6 @@ from Gnumed.wxpython import gmMeasurementWidgets
 from Gnumed.wxpython import gmFormWidgets
 from Gnumed.wxpython import gmSnellen
 from Gnumed.wxpython import gmVaccWidgets
-from Gnumed.wxpython import gmPersonContactWidgets
 from Gnumed.wxpython import gmI18nWidgets
 from Gnumed.wxpython import gmCodingWidgets
 from Gnumed.wxpython import gmOrganizationWidgets
@@ -130,6 +123,7 @@ from Gnumed.wxpython import gmHospitalStayWidgets
 from Gnumed.wxpython import gmProcedureWidgets
 
 
+_cfg = gmCfg2.gmCfgData()
 _provider = None
 _scripting_listener = None
 _original_wxEndBusyCursor = None
@@ -794,14 +788,14 @@ class gmTopLevelFrame(wx.Frame):
 			self.Bind(wx.EVT_MENU, self.__on_test_access_violation, item)
 			item = menu_debugging.Append(-1, _('Test access checking'), _('Simulate a failing access check.'))
 			self.Bind(wx.EVT_MENU, self.__on_test_access_checking, item)
-			item = menu_debugging.Append(-1, _('Invoke inspector'), _('Invoke the widget hierarchy inspector (needs wxPython 2.8).'))
-			self.Bind(wx.EVT_MENU, self.__on_invoke_inspector, item)
 			try:
 				import wx.lib.inspection
+				item = menu_debugging.Append(-1, _('Invoke inspector'), _('Invoke the widget hierarchy inspector (needs wxPython 2.8).'))
+				self.Bind(wx.EVT_MENU, self.__on_invoke_inspector, item)
 			except ImportError:
-				menu_debugging.Enable(id = ID, enable = False)
+				#enu_debugging.Enable(item, enable = False)
+				pass
 			try:
-				import faulthandler
 				item = menu_debugging.Append(-1, _('Test fault handler'), _('Simulate a catastrophic fault (SIGSEGV).'))
 				self.Bind(wx.EVT_MENU, self.__on_test_segfault, item)
 			except ImportError:

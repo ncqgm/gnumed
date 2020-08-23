@@ -8,7 +8,6 @@ __license__ = "GPL v2 or later"
 import os.path
 import sys
 import logging
-import shutil
 
 
 import wx
@@ -16,12 +15,12 @@ import wx
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
+	_ = lambda x:x
 from Gnumed.pycommon import gmI18N
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmPrinting
 from Gnumed.pycommon import gmDateTime
-from Gnumed.pycommon import gmShellAPI
 from Gnumed.pycommon import gmMimeLib
 from Gnumed.pycommon import gmCfg2
 
@@ -160,7 +159,7 @@ def generate_form_from_template(parent=None, template_types=None, edit=None, tem
 	except KeyError:
 		_log.exception('cannot instantiate document template [%s]', template)
 		gmGuiHelpers.gm_show_error (
-			aMessage = _('Invalid document template [%s - %s (%s)]') % (name, ver, template['engine']),
+			aMessage = _('Invalid document template [%s - %s (%s)]') % (template['name_long'], template['external_version'], template['engine']),
 			aTitle = _('Generating document from template')
 		)
 		wx.EndBusyCursor()
@@ -1025,6 +1024,7 @@ class cReceiverSelectionDlg(wxgReceiverSelectionDlg.wxgReceiverSelectionDlg):
 	#------------------------------------------------------------
 	def _on_manage_addresses_button_pressed(self, event):
 		event.Skip()
+		from Gnumed.wxpython.gmAddressWidgets import manage_addresses
 		manage_addresses(parent = self)
 
 	#------------------------------------------------------------
@@ -1072,7 +1072,7 @@ if __name__ == '__main__':
 	#----------------------------------------
 	def test_cFormTemplateEAPnl():
 		app = wx.PyWidgetTester(size = (400, 300))
-		pnl = cFormTemplateEAPnl(app.frame, -1, template = gmForms.cFormTemplate(aPK_obj=4))
+		cFormTemplateEAPnl(app.frame, -1, template = gmForms.cFormTemplate(aPK_obj=4))
 		app.frame.Show(True)
 		app.MainLoop()
 		return

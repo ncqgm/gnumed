@@ -21,13 +21,9 @@ import wx.lib.mixins.treemixin as treemixin
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmI18N
-if __name__ == '__main__':
-	gmI18N.activate_locale()
-	gmI18N.install_domain(domain = 'gnumed')
+	_ = lambda x:x
 from Gnumed.pycommon import gmCfg
 from Gnumed.pycommon import gmCfg2
-from Gnumed.pycommon import gmPG2
 from Gnumed.pycommon import gmMimeLib
 from Gnumed.pycommon import gmMatchProvider
 from Gnumed.pycommon import gmDispatcher
@@ -36,7 +32,6 @@ from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmShellAPI
 from Gnumed.pycommon import gmHooks
 from Gnumed.pycommon import gmNetworkTools
-from Gnumed.pycommon import gmMimeLib
 from Gnumed.pycommon import gmConnectionPool
 
 from Gnumed.business import gmPerson
@@ -54,7 +49,6 @@ from Gnumed.wxpython import gmPhraseWheel
 from Gnumed.wxpython import gmPlugin
 from Gnumed.wxpython import gmEncounterWidgets
 from Gnumed.wxpython import gmListWidgets
-from Gnumed.wxpython import gmRegetMixin
 
 
 _log = logging.getLogger('gm.ui')
@@ -834,7 +828,7 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 		success, data = self.__doc.save()
 		if not success:
 			gmGuiHelpers.gm_show_error (
-				_('Cannot link the document to episode\n\n [%s]') % epi_name,
+				_('Cannot update document metadata.'),
 				_('Editing document properties')
 			)
 			return False
@@ -1346,7 +1340,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 				wx.EndBusyCursor()
 				gmGuiHelpers.gm_show_error (
 					aMessage = _('Cannot add document description.'),
-					aTitle = _('saving document')
+					aTitle = _('Saving document')
 				)
 				return False
 
@@ -1356,12 +1350,14 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 				technically_abnormal = self._ChBOX_abnormal.GetValue(),
 				clinically_relevant = self._ChBOX_relevant.GetValue()
 			):
-				msg = _('Error setting "reviewed" status of new document.')
-
+				wx.EndBusyCursor()
+				msg = _('Error setting "reviewed" status of new document. The document itself has been imported properly, however.')
+				gmGuiHelpers.gm_show_error (
+					aMessage = msg,
+					aTitle = _('Saving document')
+				)
 		self.__init_ui_data()
-
 		gmHooks.run_hook_script(hook = 'after_new_doc_created')
-
 		return True
 
 	#--------------------------------------------------------
@@ -3214,7 +3210,6 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 
 		# study buttons
 		self._BTN_browse_study.Enable()
-		study_data = self._LCTRL_studies.get_selected_item_data(only_one = True)
 		self._BTN_studies_show.Enable()
 		self._BTN_studies_export.Enable()
 
@@ -4565,46 +4560,46 @@ class cModifyOrthancContentDlg(wxgModifyOrthancContentDlg):
 
 #------------------------------------------------------------
 # outdated:
-def upload_files():
-	event.Skip()
-	dlg = wx.DirDialog (
-		self,
-		message = _('Select the directory from which to recursively upload DICOM files.'),
-		defaultPath = os.path.join(gmTools.gmPaths().home_dir, 'gnumed')
-	)
-	choice = dlg.ShowModal()
-	dicom_dir = dlg.GetPath()
-	dlg.DestroyLater()
-	if choice != wx.ID_OK:
-		return True
-	wx.BeginBusyCursor()
-	try:
-		uploaded, not_uploaded = self.__pacs.upload_from_directory (
-			directory = dicom_dir,
-			recursive = True,
-			check_mime_type = False,
-			ignore_other_files = True
-		)
-	finally:
-		wx.EndBusyCursor()
-	if len(not_uploaded) == 0:
-		q = _('Delete the uploaded DICOM files now ?')
-	else:
-		q = _('Some files have not been uploaded.\n\nDo you want to delete those DICOM files which have been sent to the PACS successfully ?')
-		_log.error('not uploaded:')
-		for f in not_uploaded:
-			_log.error(f)
-		delete_uploaded = gmGuiHelpers.gm_show_question (
-		title = _('Uploading DICOM files'),
-		question = q,
-		cancel_button = False
-	)
-	if not delete_uploaded:
-		return
-	wx.BeginBusyCursor()
-	for f in uploaded:
-		gmTools.remove_file(f)
-	wx.EndBusyCursor()
+#def upload_files():
+#	event.Skip()
+#	dlg = wx.DirDialog (
+#		self,
+#		message = _('Select the directory from which to recursively upload DICOM files.'),
+#		defaultPath = os.path.join(gmTools.gmPaths().home_dir, 'gnumed')
+#	)
+#	choice = dlg.ShowModal()
+#	dicom_dir = dlg.GetPath()
+#	dlg.DestroyLater()
+#	if choice != wx.ID_OK:
+#		return True
+#	wx.BeginBusyCursor()
+#	try:
+#		uploaded, not_uploaded = self.__pacs.upload_from_directory (
+#			directory = dicom_dir,
+#			recursive = True,
+#			check_mime_type = False,
+#			ignore_other_files = True
+#		)
+#	finally:
+#		wx.EndBusyCursor()
+#	if len(not_uploaded) == 0:
+#		q = _('Delete the uploaded DICOM files now ?')
+#	else:
+#		q = _('Some files have not been uploaded.\n\nDo you want to delete those DICOM files which have been sent to the PACS successfully ?')
+#		_log.error('not uploaded:')
+#		for f in not_uploaded:
+#			_log.error(f)
+#		delete_uploaded = gmGuiHelpers.gm_show_question (
+#		title = _('Uploading DICOM files'),
+#		question = q,
+#		cancel_button = False
+#	)
+#	if not delete_uploaded:
+#		return
+#	wx.BeginBusyCursor()
+#	for f in uploaded:
+#		gmTools.remove_file(f)
+#	wx.EndBusyCursor()
 
 #============================================================
 # main
@@ -4616,9 +4611,6 @@ if __name__ == '__main__':
 
 	if sys.argv[1] != 'test':
 		sys.exit()
-
-	from Gnumed.business import gmPersonSearch
-	from Gnumed.wxpython import gmPatSearchWidgets
 
 	#----------------------------------------------------------------
 	def test_document_prw():

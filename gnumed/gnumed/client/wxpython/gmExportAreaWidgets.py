@@ -17,7 +17,7 @@ import wx
 # GNUmed libs
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-
+	_ lambda x:x
 from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmMimeLib
@@ -623,7 +623,7 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 		if not gmPerson.gmCurrentPatient().export_area.add_files(scans, _('scan')):
 			gmGuiHelpers.gm_show_error (
 				title = _('Scanning files into export area'),
-				error = _('Cannot add (some of) the following scans to the export area:\n%s ') % '\n '.join(fnames)
+				error = _('Cannot add (some of) the following scans to the export area:\n%s ') % '\n '.join(scans)
 			)
 
 	#--------------------------------------------------------

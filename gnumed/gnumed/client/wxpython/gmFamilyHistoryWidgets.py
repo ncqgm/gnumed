@@ -14,9 +14,11 @@ import wx
 # GNUmed
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
+	_ = lambda x:x
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmDateTime
 from Gnumed.pycommon import gmMatchProvider
+from Gnumed.pycommon import gmDispatcher
 
 from Gnumed.business import gmPerson
 from Gnumed.business import gmFamilyHistory
