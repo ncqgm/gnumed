@@ -595,15 +595,15 @@ class cSubstanceDoseMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
 	def getMatchesByPhrase(self, aFragment):
 		"""Return matches for aFragment at start of phrases."""
 
-		if cSubstanceMatchProvider._pattern.match(aFragment):
-			self._queries = [cSubstanceMatchProvider._regex_query]
+		if cSubstanceDoseMatchProvider._pattern.match(aFragment):
+			self._queries = [cSubstanceDoseMatchProvider._regex_query]
 			fragment_condition = """substance ILIKE %(subst)s
 				AND
 			amount::text ILIKE %(amount)s"""
 			self._args['subst'] = '%s%%' % regex.sub(r'\s*\d+$', '', aFragment)
 			self._args['amount'] = '%s%%' % regex.sub(r'^\D+\s*', '', aFragment)
 		else:
-			self._queries = [cSubstanceMatchProvider._normal_query]
+			self._queries = [cSubstanceDoseMatchProvider._normal_query]
 			fragment_condition = "ILIKE %(fragment)s"
 			self._args['fragment'] = "%s%%" % aFragment
 
@@ -613,8 +613,8 @@ class cSubstanceDoseMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
 	def getMatchesByWord(self, aFragment):
 		"""Return matches for aFragment at start of words inside phrases."""
 
-		if cSubstanceMatchProvider._pattern.match(aFragment):
-			self._queries = [cSubstanceMatchProvider._regex_query]
+		if cSubstanceDoseMatchProvider._pattern.match(aFragment):
+			self._queries = [cSubstanceDoseMatchProvider._regex_query]
 
 			subst = regex.sub(r'\s*\d+$', '', aFragment)
 			subst = gmPG2.sanitize_pg_regex(expression = subst, escape_all = False)
@@ -626,7 +626,7 @@ class cSubstanceDoseMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
 			self._args['subst'] = "( %s)|(^%s)" % (subst, subst)
 			self._args['amount'] = '%s%%' % regex.sub(r'^\D+\s*', '', aFragment)
 		else:
-			self._queries = [cSubstanceMatchProvider._normal_query]
+			self._queries = [cSubstanceDoseMatchProvider._normal_query]
 			fragment_condition = "~* %(fragment)s"
 			aFragment = gmPG2.sanitize_pg_regex(expression = aFragment, escape_all = False)
 			self._args['fragment'] = "( %s)|(^%s)" % (aFragment, aFragment)
@@ -637,15 +637,15 @@ class cSubstanceDoseMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
 	def getMatchesBySubstr(self, aFragment):
 		"""Return matches for aFragment as a true substring."""
 
-		if cSubstanceMatchProvider._pattern.match(aFragment):
-			self._queries = [cSubstanceMatchProvider._regex_query]
+		if cSubstanceDoseMatchProvider._pattern.match(aFragment):
+			self._queries = [cSubstanceDoseMatchProvider._regex_query]
 			fragment_condition = """substance ILIKE %(subst)s
 				AND
 			amount::text ILIKE %(amount)s"""
 			self._args['subst'] = '%%%s%%' % regex.sub(r'\s*\d+$', '', aFragment)
 			self._args['amount'] = '%s%%' % regex.sub(r'^\D+\s*', '', aFragment)
 		else:
-			self._queries = [cSubstanceMatchProvider._normal_query]
+			self._queries = [cSubstanceDoseMatchProvider._normal_query]
 			fragment_condition = "ILIKE %(fragment)s"
 			self._args['fragment'] = "%%%s%%" % aFragment
 
@@ -2062,7 +2062,7 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 		txt += '\n'
 		txt += gmTools.coalesce(self._payload[self._idx['atc_substance']], '', _(' ATC (substance): %s\n'))
 		if include_loincs and (len(self._payload[self._idx['loincs']]) > 0):
-			loincs = """
+			txt += """
 %s %s
 %s  %s""" 	% (
 				(' ' * left_margin),
@@ -2532,7 +2532,7 @@ def get_substance_intakes(pk_patient=None, return_pks=False):
 		cmd = _SQL_get_substance_intake % 'true'
 	else:
 		cmd = _SQL_get_substance_intake % 'pk_patient = %(pat)s'
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 	if return_pks:
 		return [ r['pk_substance_intake'] for r in rows ]
 	return [ cSubstanceIntakeEntry(row = {'data': r, 'idx': idx, 'pk_field': 'pk_substance_intake'}) for r in rows ]

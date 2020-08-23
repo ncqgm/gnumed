@@ -13,21 +13,21 @@ __license__ = "GPL v2 or later"
 import sys
 import os
 import os.path
-import fileinput
 import io
 import time
 import glob
 import datetime as pyDT
 import re as regex
-#import simplejson as json
+import json
 import logging
 
 
 # our modules
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
+	_ = lambda x:x
 from Gnumed.business import gmPerson
-from Gnumed.pycommon import gmExceptions, gmDateTime, gmTools, gmPG2
+from Gnumed.pycommon import gmDateTime, gmTools, gmPG2
 
 
 _log = logging.getLogger('gm.kvk')
@@ -625,8 +625,7 @@ select pk_identity from dem.v_external_ids4identity where
 #============================================================
 def detect_card_type(card_file=None):
 
-	data_file = io.open(card_file, mode = 'rt', encoding = 'utf8')
-
+	kvk_file = io.open(card_file, mode = 'rt', encoding = 'utf8')
 	for line in kvk_file:
 		line = line.replace('\n', '').replace('\r', '')
 		tag, content = line.split(':', 1)

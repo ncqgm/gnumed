@@ -14,12 +14,7 @@ import wx
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-
-from Gnumed.pycommon import gmI18N
-
-if __name__ == '__main__':
-	gmI18N.activate_locale()
-	gmI18N.install_domain()
+	_ = lambda x:x
 
 from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmTools
@@ -926,7 +921,7 @@ def select_narrative_from_episodes(parent=None, soap_cats=None):
 				gmDispatcher.send(signal = 'statustext', msg = _('No narrative available for selected episodes.'))
 				continue
 
-			dlg = cNarrativeListSelectorDlg (
+			dlg = gmNarrativeWidgets.cNarrativeListSelectorDlg (
 				parent = parent,
 				id = -1,
 				narrative = all_narr,
@@ -965,15 +960,12 @@ if __name__ == '__main__':
 
 	from Gnumed.business import gmPersonSearch
 
-	gmI18N.activate_locale()
-	gmI18N.install_domain(domain = 'gnumed')
-
 	#----------------------------------------
 	def test_select_narrative_from_episodes():
 		pat = gmPersonSearch.ask_for_patient()
 		set_active_patient(patient = pat)
-		app = wx.PyWidgetTester(size = (200, 200))
-		sels = select_narrative_from_episodes_new()
+		#app = wx.PyWidgetTester(size = (200, 200))
+		sels = select_narrative_from_episodes()
 		print("selected:")
 		for sel in sels:
 			print(sel)
@@ -981,7 +973,7 @@ if __name__ == '__main__':
 	def test_select_narrative():
 		pat = gmPersonSearch.ask_for_patient()
 		set_active_patient(patient = pat)
-		app = wx.PyWidgetTester(size = (200, 200))
+		#app = wx.PyWidgetTester(size = (200, 200))
 		sels = select_narrative(parent=None, soap_cats = None)
 		print("selected:")
 		for sel in sels:

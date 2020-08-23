@@ -245,11 +245,11 @@ class gmConnectionPool(gmBorg.cBorg):
 	"""
 	def __init__(self) -> None:
 		try:
-			self.__initialized:bool
+			self.__initialized
 			return
 
 		except AttributeError:
-			self.__initialized = True
+			self.__initialized:bool = True
 
 		_log.info('[%s]: first instantiation', self.__class__.__name__)
 		self.__ro_conn_pool:Dict[str, dbapi.connection] = {}	# keyed by "credentials::thread ID"

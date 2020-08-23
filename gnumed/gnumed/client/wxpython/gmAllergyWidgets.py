@@ -3,7 +3,7 @@
 __author__  = "R.Terry <rterry@gnumed.net>, H.Herb <hherb@gnumed.net>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL v2 or later (details at http://www.gnu.org)'
 
-import sys, time, datetime as pyDT, logging
+import sys, datetime as pyDT, logging
 
 
 import wx
@@ -11,8 +11,8 @@ import wx
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
+	_ = lambda x:x
 from Gnumed.pycommon import gmDispatcher
-from Gnumed.pycommon import gmI18N
 from Gnumed.pycommon import gmDateTime
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmMatchProvider
@@ -21,7 +21,6 @@ from Gnumed.business import gmPerson
 from Gnumed.business import gmAllergy
 from Gnumed.business import gmPersonSearch
 
-from Gnumed.wxpython import gmDateTimeInput
 from Gnumed.wxpython import gmTerryGuiParts
 from Gnumed.wxpython import gmRegetMixin
 
@@ -472,7 +471,8 @@ class cAllergyPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 	def __do_layout(self):
 		# -- top part --
 		pnl_UpperCaption = gmTerryGuiParts.cHeadingCaption(self, -1, _("ALLERGIES"))
-		self.editarea = gmAllergyEditArea(self, -1)
+		#self.editarea = gmAllergyEditArea(self, -1)
+		self.editarea = None
 
 		# -- middle part --
 		# divider headings below edit area
@@ -481,7 +481,8 @@ class cAllergyPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 #		self.sizer_divider_drug_generic.Add(pnl_MiddleCaption, 1, wxEXPAND)
 		self.LCTRL_allergies = wx.ListCtrl (
 			parent = self,
-			id = ID_ALLERGY_LIST,
+			#id = ID_ALLERGY_LIST,
+			id = -1,
 			pos = wx.DefaultPosition,
 			size = wx.DefaultSize,
 			style = wx.LC_SINGLE_SEL | wx.LC_REPORT | wx.SUNKEN_BORDER | wx.LC_HRULES | wx.LC_VRULES | wx.VSCROLL
@@ -574,9 +575,6 @@ class cAllergyPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 if __name__ == "__main__":
 
 	from Gnumed.wxpython import gmPatSearchWidgets
-
-	gmI18N.activate_locale()
-	gmI18N.install_domain(domain='gnumed')
 
 	#-----------------------------------------------
 	def test_allergy_edit_area_dlg():

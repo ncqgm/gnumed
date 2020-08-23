@@ -14,6 +14,7 @@ import wx
 # GNUmed
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
+	_ = lambda x:x
 
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmMatchProvider
@@ -1213,12 +1214,12 @@ if __name__ == '__main__':
 	from Gnumed.pycommon import gmI18N
 	gmI18N.activate_locale()
 	gmI18N.install_domain()
-	from Gnumed.business import gmPersonSearch
+	#from Gnumed.business import gmPersonSearch
 
 	#--------------------------------------------------------
 	def test_country_prw():
 		app = wx.PyWidgetTester(size = (200, 50))
-		pw = cCountryPhraseWheel(app.frame, -1)
+		cCountryPhraseWheel(app.frame, -1)
 		app.frame.Show(True)
 		app.MainLoop()
 	#--------------------------------------------------------
@@ -1232,20 +1233,20 @@ if __name__ == '__main__':
 	#--------------------------------------------------------
 	def test_zipcode_prw():
 		app = wx.PyWidgetTester(size = (200, 50))
-		pw = cZipcodePhraseWheel(app.frame, -1)
+		cZipcodePhraseWheel(app.frame, -1)
 		app.frame.Show(True)
 		app.MainLoop()
 	#--------------------------------------------------------
 	def test_street_prw():
 		app = wx.PyWidgetTester(size = (200, 50))
-		pw = cStreetPhraseWheel(app.frame, -1)
+		cStreetPhraseWheel(app.frame, -1)
 #		pw.set_context(context = u'zip', val = u'04318')
 		app.frame.Show(True)
 		app.MainLoop()
 	#--------------------------------------------------------
 	def test_suburb_prw():
 		app = wx.PyWidgetTester(size = (200, 50))
-		pw = cSuburbPhraseWheel(app.frame, -1)
+		cSuburbPhraseWheel(app.frame, -1)
 		app.frame.Show(True)
 		app.MainLoop()
 	#--------------------------------------------------------
@@ -1258,19 +1259,19 @@ if __name__ == '__main__':
 	#--------------------------------------------------------
 	def test_address_type_prw():
 		app = wx.PyWidgetTester(size = (200, 50))
-		pw = cAddressTypePhraseWheel(app.frame, -1)
+		cAddressTypePhraseWheel(app.frame, -1)
 		app.frame.Show(True)
 		app.MainLoop()
 	#--------------------------------------------------------
 	def test_address_prw():
 		app = wx.PyWidgetTester(size = (200, 50))
-		pw = cAddressPhraseWheel(app.frame, -1)
+		cAddressPhraseWheel(app.frame, -1)
 		app.frame.Show(True)
 		app.MainLoop()
 	#--------------------------------------------------------
 	def test_address_ea_pnl():
 		app = wx.PyWidgetTester(size = (600, 400))
-		app.SetWidget(cAddressEditAreaPnl, address = gmDemographicRecord.cAddress(aPK_obj = 1))
+		app.SetWidget(cAddressEAPnl, address = gmDemographicRecord.cAddress(aPK_obj = 1))
 		app.MainLoop()
 	#--------------------------------------------------------
 	#test_address_type_prw()

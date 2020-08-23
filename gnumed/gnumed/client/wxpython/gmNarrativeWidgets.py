@@ -5,7 +5,6 @@ __license__ = "GPL v2 or later (details at http://www.gnu.org)"
 
 import sys
 import logging
-import os.path
 import time
 
 
@@ -14,12 +13,7 @@ import wx
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-
-from Gnumed.pycommon import gmI18N
-
-if __name__ == '__main__':
-	gmI18N.activate_locale()
-	gmI18N.install_domain()
+	_ = lambda x:x
 
 from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmTools
@@ -27,7 +21,6 @@ from Gnumed.pycommon import gmDateTime
 from Gnumed.pycommon import gmCfg
 
 from Gnumed.business import gmPerson
-from Gnumed.business import gmStaff
 from Gnumed.business import gmEMRStructItems
 from Gnumed.business import gmSoapDefs
 from Gnumed.business import gmPraxis
@@ -38,14 +31,12 @@ from Gnumed.wxpython import gmEMRStructWidgets
 from Gnumed.wxpython import gmEncounterWidgets
 from Gnumed.wxpython import gmRegetMixin
 from Gnumed.wxpython import gmGuiHelpers
-from Gnumed.wxpython import gmVisualProgressNoteWidgets
 from Gnumed.wxpython import gmProgressNotesEAWidgets
 from Gnumed.wxpython.gmPatSearchWidgets import set_active_patient
 
-from Gnumed.exporters import gmPatientExporter
-
 
 _log = logging.getLogger('gm.ui')
+
 #============================================================
 # narrative related widgets
 #------------------------------------------------------------
@@ -537,13 +528,13 @@ class cFancySoapEditorPnl(wxgFancySoapEditorPnl.wxgFancySoapEditorPnl):
 		if self.__pat is None:
 			return
 
-		dbcfg = gmCfg.cCfgSQL()
-		auto_open_recent_problems = bool(dbcfg.get2 (
-			option = 'horstspace.soap_editor.auto_open_latest_episodes',
-			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
-			bias = 'user',
-			default = True
-		))
+#		dbcfg = gmCfg.cCfgSQL()
+#		auto_open_recent_problems = bool(dbcfg.get2 (
+#			option = 'horstspace.soap_editor.auto_open_latest_episodes',
+#			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
+#			bias = 'user',
+#			default = True
+#		))
 
 		emr = self.__pat.emr
 		recent_epis = emr.active_encounter.get_episodes()
@@ -1219,9 +1210,6 @@ if __name__ == '__main__':
 
 	if sys.argv[1] != 'test':
 		sys.exit()
-
-	gmI18N.activate_locale()
-	gmI18N.install_domain(domain = 'gnumed')
 
 	#----------------------------------------
 	def test_cSoapPluginPnl():

@@ -20,12 +20,7 @@ import wx.lib.statbmp as wx_genstatbmp
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-
-from Gnumed.pycommon import gmI18N
-
-if __name__ == '__main__':
-	gmI18N.activate_locale()
-	gmI18N.install_domain()
+	_ = lambda x:x
 
 from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmTools
@@ -517,8 +512,5 @@ if __name__ == '__main__':
 
 	if sys.argv[1] != 'test':
 		sys.exit()
-
-	gmI18N.activate_locale()
-	gmI18N.install_domain(domain = 'gnumed')
 
 	#----------------------------------------

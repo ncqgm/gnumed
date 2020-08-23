@@ -35,6 +35,7 @@ import wx
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
+	_ = lambda x:x
 from Gnumed.pycommon import gmCfg
 from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmTools
@@ -687,7 +688,7 @@ if __name__ == "__main__":
 #	gmI18N.install_domain()
 
 	def test_configure_wp_plugins():
-		app = wx.PyWidgetTester(size = (400, 300))
+		#app = wx.PyWidgetTester(size = (400, 300))
 		configure_workplace_plugins()
 
 	#--------------------------------------------------------

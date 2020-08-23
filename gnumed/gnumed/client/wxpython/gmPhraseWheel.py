@@ -2,7 +2,7 @@
 
 A class, extending wx.TextCtrl, which has a drop-down pick list,
 automatically filled based on the inital letters typed. Based on the
-interface of Richard Terry's Visual Basic client
+interface of Richard Terry's Visual Basic client.
 
 This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 """
@@ -11,7 +11,7 @@ __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bi
 __license__ = "GPL"
 
 # stdlib
-import string, types, time, sys, re as regex, os.path
+import sys, re as regex, os.path
 
 
 # 3rd party
@@ -22,6 +22,8 @@ import wx.lib.mixins.listctrl as listmixins
 # GNUmed specific
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
+	_ = lambda x:x
+
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmDispatcher
 
@@ -85,7 +87,7 @@ class cPhraseWheelListCtrl(wx.ListCtrl, listmixins.ListCtrlAutoWidthMixin):
 		self.__data = items
 		pos = len(items) + 1
 		for item in items:
-			row_num = self.InsertItem(pos, label=item['list_label'])
+			self.InsertItem(pos, label=item['list_label'])
 	#--------------------------------------------------------
 	def GetSelectedItemData(self):
 		sel_idx = self.GetFirstSelected()
@@ -411,11 +413,8 @@ class cPhraseWheelBase(wx.TextCtrl):
 			self.__use_fake_popup = False
 		except NotImplementedError:
 			self.__use_fake_popup = True
-
 			# on MacOSX wx.PopupWindow is not implemented, so emulate it
-			add_picklist_to_sizer = True
 			szr_dropdown = wx.BoxSizer(wx.VERTICAL)
-
 			# using wx.MiniFrame
 			self.__dropdown_needs_relative_position = False
 			self._picklist_dropdown = wx.MiniFrame (
@@ -426,7 +425,6 @@ class cPhraseWheelBase(wx.TextCtrl):
 			scroll_win = wx.ScrolledWindow(parent = self._picklist_dropdown, style = wx.NO_BORDER)
 			scroll_win.SetSizer(szr_dropdown)
 			list_parent = scroll_win
-
 			# using wx.Window
 			#self.__dropdown_needs_relative_position = True
 			#self._picklist_dropdown = wx.ScrolledWindow(parent=parent, style = wx.RAISED_BORDER)
@@ -1165,7 +1163,6 @@ class cPhraseWheel(cPhraseWheelBase):
 		# no exact match found
 		if self.selection_only:
 			gmDispatcher.send(signal = 'statustext', msg = self.selection_only_error_msg)
-			is_valid = False
 			return False
 
 		return True
@@ -1354,10 +1351,6 @@ if __name__ == '__main__':
 
 	if sys.argv[1] != 'test':
 		sys.exit()
-
-	from Gnumed.pycommon import gmI18N
-	gmI18N.activate_locale()
-	gmI18N.install_domain(domain='gnumed')
 
 	from Gnumed.pycommon import gmPG2, gmMatchProvider
 

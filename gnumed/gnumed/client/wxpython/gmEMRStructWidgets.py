@@ -24,15 +24,9 @@ import wx
 # GNUmed
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
+	_ = lambda x:x
 
-from Gnumed.pycommon import gmI18N
 from Gnumed.pycommon import gmDateTime
-
-if __name__ == '__main__':
-	gmI18N.activate_locale()
-	gmI18N.install_domain()
-	gmDateTime.init()
-
 from Gnumed.pycommon import gmExceptions
 from Gnumed.pycommon import gmCfg
 from Gnumed.pycommon import gmTools
@@ -1314,7 +1308,7 @@ if __name__ == '__main__':
 						)
 				filemenu = wx.Menu()
 				filemenu.AppendSeparator()
-				item = filemenu.Append(ID_EXIT, "E&xit"," Terminate test application")
+				item = filemenu.Append(wx.ID_EXIT, "E&xit"," Terminate test application")
 				self.Bind(wx.EVT_MENU, self.OnCloseWindow, item)
 
 				# Creating the menubar.
@@ -1323,7 +1317,7 @@ if __name__ == '__main__':
 
 				frame.SetMenuBar(menuBar)
 
-				txt = wx.StaticText( frame, -1, _("Select desired test option from the 'File' menu"),
+				wx.StaticText( frame, -1, _("Select desired test option from the 'File' menu"),
 				wx.DefaultPosition, wx.DefaultSize, 0 )
 
 				# patient EMR
@@ -1341,9 +1335,9 @@ if __name__ == '__main__':
 	#----------------------------------------------------------------
 	def test_epsiode_edit_area_pnl():
 		app = wx.PyWidgetTester(size = (200, 300))
-		emr = pat.emr
-		epi = emr.get_episodes()[0]
-		pnl = cEpisodeEditAreaPnl(app.frame, -1, episode=epi)
+		#emr = pat.emr
+		#epi = emr.get_episodes()[0]
+		#pnl = cEpisodeEditAreaPnl(app.frame, -1, episode=epi)
 		app.frame.Show(True)
 		app.MainLoop()
 	#----------------------------------------------------------------
@@ -1357,7 +1351,7 @@ if __name__ == '__main__':
 	def test_episode_selection_prw():
 		frame = wx.Frame()
 		wx.GetApp().SetTopWindow(frame)
-		prw = cEpisodeSelectionPhraseWheel(frame)
+		#prw = cEpisodeSelectionPhraseWheel(frame)
 		#app.SetWidget()
 #		app.SetWidget(cEpisodeSelectionPhraseWheel, id=-1, size=(350,20), pos=(10,20), patient_id=pat.ID)
 		frame.Show(True)

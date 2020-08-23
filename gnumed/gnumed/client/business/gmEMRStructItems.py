@@ -15,6 +15,7 @@ import os
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
+	_ = lambda x:x
 from Gnumed.pycommon import gmPG2
 from Gnumed.pycommon import gmI18N
 from Gnumed.pycommon import gmTools
@@ -33,10 +34,6 @@ from Gnumed.business import gmDocuments
 
 
 _log = logging.getLogger('gm.emr')
-
-
-if __name__ == '__main__':
-	_ = lambda x:x
 
 #============================================================
 # diagnostic certainty classification

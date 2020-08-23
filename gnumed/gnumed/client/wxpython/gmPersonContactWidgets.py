@@ -14,6 +14,7 @@ import wx
 # GNUmed specific
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
+	_ = lambda x:x
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmNetworkTools
 
@@ -264,24 +265,23 @@ if __name__ == "__main__":
 	if sys.argv[1] != 'test':
 		sys.exit()
 
-	from Gnumed.pycommon import gmI18N, gmPG2
-
-	gmI18N.activate_locale()
-	gmI18N.install_domain(domain='gnumed')
+	from Gnumed.pycommon import gmPG2
 	gmPG2.get_connection()
 
 	#--------------------------------------------------------
 	def test_person_adrs_pnl():
 		app = wx.PyWidgetTester(size = (600, 400))
-		widget = cPersonAddressesManagerPnl(app.frame, -1)
-		widget.identity = activate_patient()
+		#widget = 
+		cPersonAddressesManagerPnl(app.frame, -1)
+		#widget.identity = activate_patient()
 		app.frame.Show(True)
 		app.MainLoop()
 	#--------------------------------------------------------
 	def test_pat_contacts_pnl():
 		app = wx.PyWidgetTester(size = (600, 400))
-		widget = cPersonContactsManagerPnl(app.frame, -1)
-		widget.identity = activate_patient()
+		#widget = 
+		cPersonContactsManagerPnl(app.frame, -1)
+		#widget.identity = activate_patient()
 		app.frame.Show(True)
 		app.MainLoop()
 	#--------------------------------------------------------

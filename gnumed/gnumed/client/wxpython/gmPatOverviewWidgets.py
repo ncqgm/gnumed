@@ -14,6 +14,7 @@ import wx
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
+	_ = lambda x:x
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmDateTime
@@ -38,14 +39,13 @@ from Gnumed.wxpython import gmMedicationWidgets
 from Gnumed.wxpython import gmEditArea
 from Gnumed.wxpython import gmEMRStructWidgets
 from Gnumed.wxpython import gmEncounterWidgets
-from Gnumed.wxpython import gmFamilyHistoryWidgets
 from Gnumed.wxpython import gmVaccWidgets
 from Gnumed.wxpython import gmDocumentWidgets
 from Gnumed.wxpython import gmGuiHelpers
 from Gnumed.wxpython import gmPregWidgets
-from Gnumed.wxpython import gmHabitWidgets
 from Gnumed.wxpython import gmHospitalStayWidgets
 from Gnumed.wxpython import gmProcedureWidgets
+from Gnumed.wxpython import gmFamilyHistoryWidgets
 
 
 _log = logging.getLogger('gm.patient')
@@ -454,8 +454,6 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 				self._LCTRL_documents.SetItemTextColour(idx, wx.Colour('RED'))
 	#-----------------------------------------------------
 	def _calc_documents_list_item_tooltip(self, data):
-		emr = gmPerson.gmCurrentPatient().emr
-
 		if isinstance(data, gmDocuments.cDocument):
 			return data.format()
 
@@ -554,8 +552,6 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 
 	#-----------------------------------------------------
 	def _calc_encounters_list_item_tooltip(self, data):
-		emr = gmPerson.gmCurrentPatient().emr
-
 		if isinstance(data, gmEMRStructItems.cEncounter):
 			return data.format (
 				with_vaccinations = False,
@@ -569,6 +565,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 			key, val = list(data.items())[0]
 			if key == 'wlist':
 				return val
+
 			if key == 'stay':
 				return None
 
@@ -794,7 +791,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 				gmEMRStructWidgets.edit_health_issue(parent = self, issue = data)
 				return
 			if isinstance(data, gmFamilyHistory.cFamilyHistory):
-				FamilyHistoryWidgets.edit_family_history(parent = self, family_history = data)
+				gmFamilyHistoryWidgets.edit_family_history(parent = self, family_history = data)
 				return
 			if isinstance(data, gmEMRStructItems.cHospitalStay):
 				gmHospitalStayWidgets.edit_hospital_stay(parent = self, hospital_stay = data)
@@ -811,7 +808,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 			gmDispatcher.send(signal = 'display_widget', name = 'gmEMRBrowserPlugin')
 			return
 		if isinstance(data, gmFamilyHistory.cFamilyHistory):
-			FamilyHistoryWidgets.manage_family_history(parent = self)
+			gmFamilyHistoryWidgets.manage_family_history(parent = self)
 			return
 		if isinstance(data, gmEMRStructItems.cHospitalStay):
 			gmHospitalStayWidgets.manage_hospital_stays(parent = self)

@@ -4,18 +4,19 @@ __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL v2 or later (details at http://www.gnu.org)"
 
 import logging
+import sys
 
 
 import wx
 
 
+if __name__ == '__main__':
+	sys.path.insert(0, '../../')
+	_ = lambda x:x
 from Gnumed.pycommon import gmTools
-from Gnumed.pycommon import gmI18N
 from Gnumed.pycommon import gmMatchProvider
-
 from Gnumed.business import gmPerson
 from Gnumed.business import gmStaff
-
 from Gnumed.wxpython import gmGuiHelpers
 from Gnumed.wxpython import gmAuthWidgets
 from Gnumed.wxpython import gmPhraseWheel

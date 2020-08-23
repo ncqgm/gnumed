@@ -13,9 +13,9 @@ import wx
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmI18N
+	_ = lambda x:x
+#from Gnumed.pycommon import gmI18N
 from Gnumed.pycommon import gmExceptions
-from Gnumed.pycommon import gmPG2
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmMatchProvider
@@ -28,7 +28,6 @@ from Gnumed.business import gmClinicalRecord
 
 from Gnumed.wxpython import gmGuiHelpers
 from Gnumed.wxpython import gmListWidgets
-from Gnumed.wxpython import gmPlugin
 from Gnumed.wxpython import gmRegetMixin
 from Gnumed.wxpython import gmPhraseWheel
 from Gnumed.wxpython import gmEditArea
@@ -922,9 +921,6 @@ if __name__ == '__main__':
 
 	if sys.argv[1] != 'test':
 		sys.exit()
-
-	gmI18N.activate_locale()
-	gmI18N.install_domain(domain = 'gnumed')
 
 	def test_message_inbox():
 		app = wx.PyWidgetTester(size = (800, 600))

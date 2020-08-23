@@ -15,6 +15,7 @@ import wx
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
+	_ = lambda x:x
 from Gnumed.pycommon import gmDispatcher
 from Gnumed.wxpython.gmGuiHelpers import decorate_window_title
 
@@ -579,8 +580,8 @@ class cEditAreaPopup(wx.Dialog):
 			) % self.__editarea.__class__.__name__
 		if short_err is not None:
 			gmDispatcher.send(signal = 'statustext', msg = short_err)
-		if long_err is not None:
-			gmGuiHelpers.gm_show_error(long_err, _('saving clinical data'))
+#		if long_err is not None:
+#			gmGuiHelpers.gm_show_error(long_err, _('saving clinical data'))
 	#--------------------------------------------------------
 	def _on_CANCEL_btn_pressed(self, evt):
 		self.__editarea.Close()
@@ -608,7 +609,7 @@ class cEditArea2(wx.Panel):
 		self._short_error = None
 		self._long_error = None
 		self._summary = None
-		self._patient = gmPerson.gmCurrentPatient()
+		self._patient = None #gmPerson.gmCurrentPatient()
 		self.__wxID_BTN_OK = wx.NewId()
 		self.__wxID_BTN_CLEAR = wx.NewId()
 		self.__do_layout()
@@ -632,7 +633,8 @@ class cEditArea2(wx.Panel):
 			'Programmer forgot to override method:\n'
 			'  <%s.reset_ui>'
 		) % self.__class__.__name__
-		gmGuiHelpers.gm_show_error(msg)
+		print(msg)
+		#gmGuiHelpers.gm_show_error(msg)
 	#--------------------------------------------------------
 	def get_short_error(self):
 		tmp = self._short_error
@@ -683,10 +685,11 @@ class cEditArea2(wx.Panel):
 			else:
 				self._save_modified_entry()
 				self.reset_ui()
-		except Exception as err:
-			# nasty evil popup dialogue box
-			# but for invalid input we want to interrupt user
-			gmGuiHelpers.gm_show_error (err, _("Invalid Input"))
+#		except Exception as err:
+#			# nasty evil popup dialogue box
+#			# but for invalid input we want to interrupt user
+#			#gmGuiHelpers.gm_show_error (err, _("Invalid Input"))
+
 		except Exception:
 			_log.exception( "save data problem in [%s]" % self.__class__.__name__)
 	#--------------------------------------------------------
@@ -863,7 +866,8 @@ class cEditArea(wx.Panel):
 #		self._postInit()
 #		self.old_data = {}
 
-		self._patient = gmPerson.gmCurrentPatient()
+		#self._patient = gmPerson.gmCurrentPatient()
+		self._patient = None
 		self.__register_events()
 		self.Show(True)
 	#----------------------------------------------------------------
@@ -910,7 +914,7 @@ class cEditArea(wx.Panel):
 			label, color, weight = self.prompts[line]
 			self.prompt_widget[line] = self.__make_prompt(prompt_pnl, "%s " % label, color)
 		# make shadow below prompts in gray
-		shadow_below_prompts = wxWindow(self, -1, wx.DefaultPosition, wx.DefaultSize, 0)
+		shadow_below_prompts = wx.Window(self, -1, wx.DefaultPosition, wx.DefaultSize, 0)
 		shadow_below_prompts.SetBackgroundColour(richards_dark_gray)
 		szr_shadow_below_prompts = wx.BoxSizer (wx.HORIZONTAL)
 		szr_shadow_below_prompts.Add(5, 0, 0, wx.EXPAND)
@@ -922,7 +926,7 @@ class cEditArea(wx.Panel):
 		vszr_prompts.Add(szr_shadow_below_prompts, 5, wx.EXPAND)
 
 		# make shadow to the right of the prompts
-		shadow_rightof_prompts = wxWindow(self, -1, wx.DefaultPosition, wx.DefaultSize, 0)
+		shadow_rightof_prompts = wx.Window(self, -1, wx.DefaultPosition, wx.DefaultSize, 0)
 		shadow_rightof_prompts.SetBackgroundColour(richards_dark_gray)
 		szr_shadow_rightof_prompts = wx.BoxSizer(wx.VERTICAL)
 		szr_shadow_rightof_prompts.Add(0,5,0,wx.EXPAND)
@@ -962,7 +966,7 @@ class cEditArea(wx.Panel):
 		vszr.Fit(self.fields_pnl)
 
 		# make shadow below edit fields in gray
-		shadow_below_edit_fields = wxWindow(self, -1, wx.DefaultPosition, wx.DefaultSize, 0)
+		shadow_below_edit_fields = wx.Window(self, -1, wx.DefaultPosition, wx.DefaultSize, 0)
 		shadow_below_edit_fields.SetBackgroundColour(richards_coloured_gray)
 		szr_shadow_below_edit_fields = wx.BoxSizer(wx.HORIZONTAL)
 		szr_shadow_below_edit_fields.Add(5, 0, 0, wx.EXPAND)
@@ -974,7 +978,7 @@ class cEditArea(wx.Panel):
 		vszr_edit_fields.Add(szr_shadow_below_edit_fields, 5, wx.EXPAND)
 
 		# make shadow to the right of the edit area
-		shadow_rightof_edit_fields = wxWindow(self, -1, wx.DefaultPosition, wx.DefaultSize, 0)
+		shadow_rightof_edit_fields = wx.Window(self, -1, wx.DefaultPosition, wx.DefaultSize, 0)
 		shadow_rightof_edit_fields.SetBackgroundColour(richards_coloured_gray)
 		szr_shadow_rightof_edit_fields = wx.BoxSizer(wx.VERTICAL)
 		szr_shadow_rightof_edit_fields.Add(0, 5, 0, wx.EXPAND)
@@ -1081,10 +1085,10 @@ class cEditArea(wx.Panel):
 			else:
 				self._save_modified_entry()
 				self.set_data()
-		except Exception as err:
-			# nasty evil popup dialogue box
-			# but for invalid input we want to interrupt user
-			gmGuiHelpers.gm_show_error (err, _("Invalid Input"))
+#		except Exception as err:
+#			# nasty evil popup dialogue box
+#			# but for invalid input we want to interrupt user
+#			gmGuiHelpers.gm_show_error (err, _("Invalid Input"))
 		except Exception:
 			_log.exception( "save data  problem in [%s]" % self.__class__.__name__)
 	#--------------------------------------------------------
@@ -1130,9 +1134,9 @@ class gmEditArea(cEditArea):
 		print("class [%s] is deprecated, use cEditArea2 instead" % self.__class__.__name__)
 
 		# sanity checks
-		if aType not in _known_edit_area_types:
-			_log.error('unknown edit area type: [%s]' % aType)
-			raise gmExceptions.ConstructorError('unknown edit area type: [%s]' % aType)
+#		if aType not in _known_edit_area_types:
+#			_log.error('unknown edit area type: [%s]' % aType)
+#			raise gmExceptions.ConstructorError('unknown edit area type: [%s]' % aType)
 		self._type = aType
 
 		# init main background panel
@@ -1143,7 +1147,7 @@ class gmEditArea(cEditArea):
 		self._postInit()
 		self.old_data = {}
 
-		self._patient = gmPerson.gmCurrentPatient()
+		self._patient = None #gmPerson.gmCurrentPatient()
 		self.Show(True)
 	#----------------------------------------------------------------
 	# internal helpers
@@ -1162,14 +1166,14 @@ class gmEditArea(cEditArea):
 			label = self.__make_prompt(prompt_pnl, "%s " % prompt, color)
 			gszr.Add(label, 0, wx.EXPAND | wx.ALIGN_RIGHT)
 			color = richards_blue
-			gszr.RemoveGrowableRow (line-1)
+#			gszr.RemoveGrowableRow (line-1)
 		# put sizer on panel
 		prompt_pnl.SetSizer(gszr)
 		gszr.Fit(prompt_pnl)
 		prompt_pnl.SetAutoLayout(True)
 
 		# make shadow below prompts in gray
-		shadow_below_prompts = wxWindow(self, -1, wx.DefaultPosition, wx.DefaultSize, 0)
+		shadow_below_prompts = wx.Window(self, -1, wx.DefaultPosition, wx.DefaultSize, 0)
 		shadow_below_prompts.SetBackgroundColour(richards_dark_gray)
 		szr_shadow_below_prompts = wx.BoxSizer (wx.HORIZONTAL)
 		szr_shadow_below_prompts.Add(5, 0, 0, wx.EXPAND)
@@ -1181,7 +1185,7 @@ class gmEditArea(cEditArea):
 		vszr_prompts.Add(szr_shadow_below_prompts, 5, wx.EXPAND)
 
 		# make shadow to the right of the prompts
-		shadow_rightof_prompts = wxWindow(self, -1, wx.DefaultPosition, wx.DefaultSize, 0)
+		shadow_rightof_prompts = wx.Window(self, -1, wx.DefaultPosition, wx.DefaultSize, 0)
 		shadow_rightof_prompts.SetBackgroundColour(richards_dark_gray)
 		szr_shadow_rightof_prompts = wx.BoxSizer(wx.VERTICAL)
 		szr_shadow_rightof_prompts.Add(0,5,0,wx.EXPAND)
@@ -1199,7 +1203,7 @@ class gmEditArea(cEditArea):
 		_log.info('child classes of gmEditArea *must* override this function')
 		return []
 	#----------------------------------------------------------------
-	def __make_editing_area(self):
+	def __make_editing_area(self, _prompt_defs):
 		# make edit fields
 		fields_pnl = wx.Panel(self, -1, wx.DefaultPosition, wx.DefaultSize, style = wx.RAISED_BORDER | wx.TAB_TRAVERSAL)
 		fields_pnl.SetBackgroundColour(wx.Colour(222,222,222))
@@ -1220,7 +1224,7 @@ class gmEditArea(cEditArea):
 		fields_pnl.SetAutoLayout(True)
 
 		# make shadow below edit fields in gray
-		shadow_below_edit_fields = wxWindow(self, -1, wx.DefaultPosition, wx.DefaultSize, 0)
+		shadow_below_edit_fields = wx.Window(self, -1, wx.DefaultPosition, wx.DefaultSize, 0)
 		shadow_below_edit_fields.SetBackgroundColour(richards_coloured_gray)
 		szr_shadow_below_edit_fields = wx.BoxSizer(wx.HORIZONTAL)
 		szr_shadow_below_edit_fields.Add(5, 0, 0, wx.EXPAND)
@@ -1232,7 +1236,7 @@ class gmEditArea(cEditArea):
 		vszr_edit_fields.Add(szr_shadow_below_edit_fields, 5, wx.EXPAND)
 
 		# make shadow to the right of the edit area
-		shadow_rightof_edit_fields = wxWindow(self, -1, wx.DefaultPosition, wx.DefaultSize, 0)
+		shadow_rightof_edit_fields = wx.Window(self, -1, wx.DefaultPosition, wx.DefaultSize, 0)
 		shadow_rightof_edit_fields.SetBackgroundColour(richards_coloured_gray)
 		szr_shadow_rightof_edit_fields = wx.BoxSizer(wx.VERTICAL)
 		szr_shadow_rightof_edit_fields.Add(0, 5, 0, wx.EXPAND)
@@ -1395,11 +1399,11 @@ class gmPastHistoryEditArea(gmEditArea):
 	#--------------------------------------------------------
 	def _define_fields(self, parent):
 		# line 1
-		self.fld_date_noted = gmDateTimeInput.gmDateInput(
-			parent = parent,
-			id = -1,
-			style = wx.SIMPLE_BORDER
-		)
+#		self.fld_date_noted = gmDateTimeInput.gmDateInput(
+#			parent = parent,
+#			id = -1,
+#			style = wx.SIMPLE_BORDER
+#		)
 		self._add_field(
 			line = 1,
 			pos = 1,
@@ -1582,10 +1586,10 @@ class gmPastHistoryEditArea(gmEditArea):
 class gmReferralEditArea(gmEditArea):
 
 	def __init__(self, parent, id): 
-		try:
-			gmEditArea.__init__(self, parent, id, aType = 'referral')
-		except gmExceptions.ConstructorError:
-			_log.exception('cannot instantiate referral edit area')
+#		try:
+		gmEditArea.__init__(self, parent, id, aType = 'referral')
+#		except gmExceptions.ConstructorError:
+#			_log.exception('cannot instantiate referral edit area')
 		self.data = None # we don't use this in this widget
 		self.recipient = None
 
@@ -1598,11 +1602,11 @@ class gmReferralEditArea(gmEditArea):
 		self._add_prompt (line = 6, label = "")
 
 	def _define_fields (self, parent):
-		self.fld_specialty = gmPhraseWheel.cPhraseWheel (
-			parent = parent,
-			id = -1,
-			style = wx.SIMPLE_BORDER
-			)
+#		self.fld_specialty = gmPhraseWheel.cPhraseWheel (
+#			parent = parent,
+#			id = -1,
+#			style = wx.SIMPLE_BORDER
+#			)
 		#_decorate_editarea_field (self.fld_specialty)
 		self._add_field (
 			line = 1,
@@ -1610,11 +1614,11 @@ class gmReferralEditArea(gmEditArea):
 			widget = self.fld_specialty,
 			weight = 1
 			)
-		self.fld_name = gmPhraseWheel.cPhraseWheel (
-			parent = parent,
-			id = -1,
-			style = wx.SIMPLE_BORDER
-			)
+#		self.fld_name = gmPhraseWheel.cPhraseWheel (
+#			parent = parent,
+#			id = -1,
+#			style = wx.SIMPLE_BORDER
+#			)
 		#_decorate_editarea_field (self.fld_name)
 		self._add_field (
 			line = 2,
@@ -1685,17 +1689,17 @@ class gmReferralEditArea(gmEditArea):
 			self.fld_address.Clear ()
 			self.fld_address.SetValue ('')
 		else:
-			self.recipient = gmDemographicRecord.cDemographicRecord_SQL (id)
+#			self.recipient = gmDemographicRecord.cDemographicRecord_SQL (id)
 			self.fld_address.Clear ()
 			self.addr = self.recipient.getAddresses ('work')
 			for i in self.addr:
 				self.fld_address.Append (_("%(number)s %(street)s, %(urb)s %(postcode)s") % i, ('post', i))
-			fax = self.recipient.getCommChannel (gmDemographicRecord.FAX)
-			email  = self.recipient.getCommChannel (gmDemographicRecord.EMAIL)
-			if fax:
-				self.fld_address.Append ("%s: %s" % (_("FAX"), fax), ('fax', fax))
-			if email:
-				self.fld_address.Append ("%s: %s" % (_("E-MAIL"), email), ('email', email))
+#			fax = self.recipient.getCommChannel (gmDemographicRecord.FAX)
+#			email  = self.recipient.getCommChannel (gmDemographicRecord.EMAIL)
+#			if fax:
+#				self.fld_address.Append ("%s: %s" % (_("FAX"), fax), ('fax', fax))
+#			if email:
+#				self.fld_address.Append ("%s: %s" % (_("E-MAIL"), email), ('email', email))
 
 	def _save_new_entry(self):
 		"""
@@ -1706,12 +1710,12 @@ class gmReferralEditArea(gmEditArea):
 		if self.fld_address.GetSelection() == -1:
 			raise UserWarning(_('must select address'))
 		channel, addr = self.fld_address.GetClientData (self.fld_address.GetSelection())
-		text = self.fld_text.GetValue()
+#		text = self.fld_text.GetValue()
 		flags = {}
 		flags['meds'] = self.fld_med.GetValue()
 		flags['pasthx'] = self.fld_past.GetValue()
-		if not gmReferral.create_referral (self._patient, self.recipient, channel, addr, text, flags):
-			raise UserWarning('error sending form')
+#		if not gmReferral.create_referral (self._patient, self.recipient, channel, addr, text, flags):
+#			raise UserWarning('error sending form')
 
 #====================================================================
 #====================================================================
@@ -1831,9 +1835,9 @@ class EditTextBoxes(wx.Panel):
 			# line 1
 			
 			self.txt_condition = cEditAreaField(self,PHX_CONDITION,wx.DefaultPosition,wx.DefaultSize)
-			self.rb_sideleft = wxRadioButton(self,PHX_LEFT, _(" (L) "), wx.DefaultPosition,wx.DefaultSize)
-			self.rb_sideright = wxRadioButton(self, PHX_RIGHT, _("(R)"), wx.DefaultPosition,wx.DefaultSize,wx.SUNKEN_BORDER)
-			self.rb_sideboth = wxRadioButton(self, PHX_BOTH, _("Both"), wx.DefaultPosition,wx.DefaultSize)
+			self.rb_sideleft = wx.RadioButton(self,PHX_LEFT, _(" (L) "), wx.DefaultPosition,wx.DefaultSize)
+			self.rb_sideright = wx.RadioButton(self, PHX_RIGHT, _("(R)"), wx.DefaultPosition,wx.DefaultSize,wx.SUNKEN_BORDER)
+			self.rb_sideboth = wx.RadioButton(self, PHX_BOTH, _("Both"), wx.DefaultPosition,wx.DefaultSize)
 			rbsizer = wx.BoxSizer(wx.HORIZONTAL)
 			rbsizer.Add(self.rb_sideleft,1,wx.EXPAND)
 			rbsizer.Add(self.rb_sideright,1,wx.EXPAND) 
@@ -1919,7 +1923,7 @@ class EditArea(wx.Panel):
 		# make prompts
 		prompts = gmPnlEditAreaPrompts(self, -1, line_labels)
 		# and shadow below prompts in ...
-		shadow_below_prompts = wxWindow(self, -1, wx.DefaultPosition, wx.DefaultSize, 0)
+		shadow_below_prompts = wx.Window(self, -1, wx.DefaultPosition, wx.DefaultSize, 0)
 		# ... gray
 		shadow_below_prompts.SetBackgroundColour(richards_dark_gray)
 		szr_shadow_below_prompts = wx.BoxSizer (wx.HORIZONTAL)
@@ -1933,7 +1937,7 @@ class EditArea(wx.Panel):
 		# make edit fields
 		edit_fields = EditTextBoxes(self, -1, line_labels, section)
 		# make shadow below edit area ...
-		shadow_below_editarea = wxWindow(self, -1, wx.DefaultPosition, wx.DefaultSize, 0)
+		shadow_below_editarea = wx.Window(self, -1, wx.DefaultPosition, wx.DefaultSize, 0)
 		# ... gray
 		shadow_below_editarea.SetBackgroundColour(richards_coloured_gray)
 		szr_shadow_below_editarea = wx.BoxSizer(wx.HORIZONTAL)
@@ -1946,13 +1950,13 @@ class EditArea(wx.Panel):
 
 		# make shadows to the right of ...
 		# ... the prompts ...
-		shadow_rightof_prompts = wxWindow(self, -1, wx.DefaultPosition, wx.DefaultSize, 0)
+		shadow_rightof_prompts = wx.Window(self, -1, wx.DefaultPosition, wx.DefaultSize, 0)
 		shadow_rightof_prompts.SetBackgroundColour(richards_dark_gray)
 		szr_shadow_rightof_prompts = wx.BoxSizer(wx.VERTICAL)
 		szr_shadow_rightof_prompts.Add(0,5,0,wx.EXPAND)
 		szr_shadow_rightof_prompts.Add(shadow_rightof_prompts,1,wx.EXPAND)
 		# ... and the edit area
-		shadow_rightof_editarea = wxWindow(self, -1, wx.DefaultPosition, wx.DefaultSize, 0)
+		shadow_rightof_editarea = wx.Window(self, -1, wx.DefaultPosition, wx.DefaultSize, 0)
 		shadow_rightof_editarea.SetBackgroundColour(richards_coloured_gray)
 		szr_shadow_rightof_editarea = wx.BoxSizer(wx.VERTICAL)
 		szr_shadow_rightof_editarea.Add(0, 5, 0, wx.EXPAND)
@@ -2056,10 +2060,10 @@ class EditArea(wx.Panel):
 #		      self.txt_request_progressnotes = cEditAreaField(self,ID_PROGRESSNOTES,wx.DefaultPosition,wx.DefaultSize)
 #		      self.lbl_companyphone = cPrompt_edit_area(self,-1,"  Phone  ")
 #		      self.cb_includeallmedications = wx.CheckBox(self, -1, " Include all medications ", wx.DefaultPosition,wx.DefaultSize, wx.NO_BORDER)
-#		      self.rb_request_bill_bb = wxRadioButton(self, ID_REQUEST_BILL_BB, "Bulk Bill ", wx.DefaultPosition,wx.DefaultSize)
-#	              self.rb_request_bill_private = wxRadioButton(self, ID_REQUEST_BILL_PRIVATE, "Private", wx.DefaultPosition,wx.DefaultSize,wx.SUNKEN_BORDER)
-#		      self.rb_request_bill_rebate = wxRadioButton(self, ID_REQUEST_BILL_REBATE, "Rebate", wx.DefaultPosition,wx.DefaultSize)
-#		      self.rb_request_bill_wcover = wxRadioButton(self, ID_REQUEST_BILL_wcover, "w/cover", wx.DefaultPosition,wx.DefaultSize)
+#		      self.rb_request_bill_bb = wx.RadioButton(self, ID_REQUEST_BILL_BB, "Bulk Bill ", wx.DefaultPosition,wx.DefaultSize)
+#	              self.rb_request_bill_private = wx.RadioButton(self, ID_REQUEST_BILL_PRIVATE, "Private", wx.DefaultPosition,wx.DefaultSize,wx.SUNKEN_BORDER)
+#		      self.rb_request_bill_rebate = wx.RadioButton(self, ID_REQUEST_BILL_REBATE, "Rebate", wx.DefaultPosition,wx.DefaultSize)
+#		      self.rb_request_bill_wcover = wx.RadioButton(self, ID_REQUEST_BILL_wcover, "w/cover", wx.DefaultPosition,wx.DefaultSize)
 		      #--------------------------------------------------------------
                      #add controls to sizers where multiple controls per editor line
 		      #--------------------------------------------------------------
@@ -2200,7 +2204,7 @@ class EditArea(wx.Panel):
 #		      self.gszr.Add(self.txt_referralprogressnotes,0,wx.EXPAND)          #emphasised to patient must return for results 
 #		      self.gszr.AddSizer(self.sizer_line10,0,wx.EXPAND)                   #e.g check boxes to include medications etc
 #		      self.gszr.Add(self.sizer_line11,0,wx.EXPAND)                       #e.g check boxes to include active problems etc
-		      #self.spacer = wxWindow(self,-1,wx.DefaultPosition,wx.DefaultSize)
+		      #self.spacer = wx.Window(self,-1,wx.DefaultPosition,wx.DefaultSize)
 		      #self.spacer.SetBackgroundColour(wx.Colour(255,255,255))
 #		      self.sizer_line12.Add(5,0,6)
 		      #self.sizer_line12.Add(self.spacer,6,wx.EXPAND)
@@ -2276,9 +2280,9 @@ if __name__ == "__main__":
 				weight = 1
 			)
 	#================================================================
-	app = wxPyWidgetTester(size = (400, 200))
-	app.SetWidget(cTestEditArea)
-	app.MainLoop()
+	#app = wxPyWidgetTester(size = (400, 200))
+	#app.SetWidget(cTestEditArea)
+	#app.MainLoop()
 #	app = wxPyWidgetTester(size = (400, 200))
 #	app.SetWidget(gmFamilyHxEditArea, -1)
 #	app.MainLoop()

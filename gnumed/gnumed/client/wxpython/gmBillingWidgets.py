@@ -14,11 +14,11 @@ import wx
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
+	_ = lambda x:x
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmDateTime
 from Gnumed.pycommon import gmMatchProvider
 from Gnumed.pycommon import gmDispatcher
-from Gnumed.pycommon import gmPG2
 from Gnumed.pycommon import gmCfg
 from Gnumed.pycommon import gmCfg2
 from Gnumed.pycommon import gmPrinting
@@ -30,7 +30,6 @@ from Gnumed.business import gmStaff
 from Gnumed.business import gmDocuments
 from Gnumed.business import gmPraxis
 from Gnumed.business import gmForms
-from Gnumed.business import gmDemographicRecord
 
 from Gnumed.wxpython import gmListWidgets
 from Gnumed.wxpython import gmRegetMixin
@@ -557,6 +556,7 @@ def create_invoice_from_bill(parent = None, bill=None, print_it=False, keep_a_co
 		)
 		if not activate_patient:
 			return False
+
 		if not gmPatSearchWidgets.set_active_patient(patient = bill['pk_patient']):
 			gmGuiHelpers.gm_show_error (
 				aTitle = _('Creating invoice'),
@@ -574,10 +574,11 @@ def create_invoice_from_bill(parent = None, bill=None, print_it=False, keep_a_co
 				aMessage = _(
 					'Cannot create invoice from bill.\n'
 					'\n'
-					'The bill is not closed.'
+					'The bill does not have a closing date set.'
 				)
 			)
 			return False
+
 		# cannot create invoice if no receiver address
 		if bill['pk_receiver_address'] is None:
 			_log.error('cannot create invoice from bill, lacking receiver address')
@@ -590,6 +591,7 @@ def create_invoice_from_bill(parent = None, bill=None, print_it=False, keep_a_co
 				)
 			)
 			return False
+
 		# cannot create invoice if applying VAT is undecided
 		if bill['apply_vat'] is None:
 			_log.error('cannot create invoice from bill, apply_vat undecided')
@@ -621,8 +623,13 @@ def create_invoice_from_bill(parent = None, bill=None, print_it=False, keep_a_co
 	except KeyError:
 		_log.exception('cannot instantiate invoice template [%s]', template)
 		gmGuiHelpers.gm_show_error (
-			aMessage = _('Invalid invoice template [%s - %s (%s)]') % (name, ver, template['engine']),
-			aTitle = _('Printing medication list')
+			aMessage = _('Invalid invoice template [%s - %s (%s - Gmd:%s)]') % (
+				template['name_long'],
+				template['external_version'],
+				template['engine'],
+				template['gnumed_revision']
+			),
+			aTitle = _('Creating invoice')
 		)
 		return False
 

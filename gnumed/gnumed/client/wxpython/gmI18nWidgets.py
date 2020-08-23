@@ -16,6 +16,7 @@ import wx
 # GNUmed
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
+	_ = lambda x:x
 
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmNetworkTools
@@ -231,7 +232,7 @@ def manage_translations(parent=None, language=None):
 			message = msg,
 			attachments = [[fname, 'text/plain', 'quoted-printable']]
 		):
-			gmDispatcher.send(signal = 'statustext', msg = _('Unable to send mail. Cannot contribute translations to GNUmed community.') % report, beep = True)
+			gmDispatcher.send(signal = 'statustext', msg = _('Unable to send mail. Cannot contribute translations to GNUmed community.'), beep = True)
 			return False
 
 		gmDispatcher.send(signal = 'statustext', msg = _('Thank you for your contribution to the GNUmed community!'), beep = True)

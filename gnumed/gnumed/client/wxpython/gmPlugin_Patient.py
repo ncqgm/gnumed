@@ -4,21 +4,16 @@
 @license: GPL v2 or later (details at http://www.gnu.org)
 """
 ############################################################################
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPlugin_Patient.py,v $
-# $Id: gmPlugin_Patient.py,v 1.12 2009-07-17 09:26:53 ncq Exp $
-__version__ = "$Revision: 1.12 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 
-import os, sys, re, cPickle, zlib
+import cPickle, zlib
 
 import wx
 
-from Gnumed.pycommon import gmExceptions, gmGuiBroker, gmCfg
+from Gnumed.pycommon import gmGuiBroker
 from Gnumed.wxpython import gmShadow
 
 gmPerson = None
-_log = gmLog.gmDefLog
-_log.Log(gmLog.lInfo, __version__)
 
 #------------------------------------------------------------------
 class BasePlugin:
@@ -107,11 +102,11 @@ class BasePlugin:
 		# we may be able to do away with this once we don't do
 		# several types of plugins anymore, as we should
 		self.gb['modules.%s' % self.set][self.__class__.__name__] = self		# split/renamed 'horstspace.notebook.%s'
-		_log.Log(gmLog.lInfo, "plugin: [%s] (class: [%s]) set: [%s]" % (self.name(), self.__class__.__name__, self.set))
+		#_log.Log(gmLog.lInfo, "plugin: [%s] (class: [%s]) set: [%s]" % (self.name(), self.__class__.__name__, self.set))
 	#-----------------------------------------------------
 	def unregister(self):
 		del self.gb['modules.%s' % self.set][self.__class__.__name__]			# split/renamed 'horstspace.notebook.%s'
-		_log.Log(gmLog.lInfo, "plugin: [%s] (class: [%s]) set: [%s]" % (self.name(), self.__class__.__name__, self.set))
+		#_log.Log(gmLog.lInfo, "plugin: [%s] (class: [%s]) set: [%s]" % (self.name(), self.__class__.__name__, self.set))
 	#-----------------------------------------------------
 	def name(self):
 		return 'plugin %s' % self.__class__.__name__
@@ -136,7 +131,8 @@ class wxPatientPlugin (BasePlugin):
 			tb2 = self.gb['toolbar.%s' % 'gmClinicalWindowManager']
 			#tb2.AddSeparator()
 			self.tool_id = wx.NewId ()
-			tool1 = tb2.AddTool(
+			#tool1 = 
+			tb2.AddTool(
 				self.tool_id,
 				icon,
 				shortHelpString = self.name()
@@ -161,8 +157,8 @@ class wxPatientPlugin (BasePlugin):
 	def unregister (self):
 		BasePlugin.unregister (self)
 		self.mwm.Unregister (self.__class__.__name__)
-		menu = self.gb['main.submenu']
-		menu.Delete (menu_id)
+		#menu = self.gb['main.submenu']
+		#menu.Delete (menu_id)
 		if self.GetIcon () is not None:
 			tb2 = self.gb['toolbar.%s' % 'gmClinicalWindowManager']
 			tb2.DeleteTool (self.tool_id)

@@ -7,7 +7,6 @@ __license__ = "GPL v2 or later"
 import logging
 import sys
 import re as regex
-import os.path
 
 
 import wx
@@ -16,8 +15,7 @@ import wx.stc
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmDispatcher
-from Gnumed.pycommon import gmPG2
+	_ = lambda x:x
 from Gnumed.pycommon import gmTools
 from Gnumed.business import gmKeywordExpansion
 from Gnumed.wxpython import gmEditArea
@@ -680,7 +678,8 @@ Summe   Rate großer Blutungen
 
 Bewertung: Summe = $[Summe ausrechnen und bewerten]$"""
 
-		app = wx.PyWidgetTester(size = (600, 600))
+		#app = 
+		wx.PyWidgetTester(size = (600, 600))
 		dlg = cTextExpansionFillInDlg(None, -1)
 		dlg.expansion = expansion
 		dlg.ShowModal()

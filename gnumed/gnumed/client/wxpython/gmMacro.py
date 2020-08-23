@@ -7,9 +7,7 @@ This module implements functions a macro can legally use.
 __author__ = "K.Hilbert <karsten.hilbert@gmx.net>"
 
 import sys
-import time
 import random
-import types
 import logging
 import os
 import io
@@ -23,11 +21,12 @@ import wx
 
 
 if __name__ == '__main__':
+	_ = lambda x:x
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmI18N
-if __name__ == '__main__':
+	from Gnumed.pycommon import gmI18N
 	gmI18N.activate_locale()
-	gmI18N.install_domain()
+	gmI18N.install_domain('gnumed')
+
 from Gnumed.pycommon import gmGuiBroker
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmBorg
@@ -40,7 +39,6 @@ from Gnumed.pycommon import gmCrypto
 
 from Gnumed.business import gmPerson
 from Gnumed.business import gmStaff
-from Gnumed.business import gmDemographicRecord
 from Gnumed.business import gmMedication
 from Gnumed.business import gmPathLab
 from Gnumed.business import gmPersonSearch
@@ -629,20 +627,20 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 	def __init__(self, *args, **kwargs):
 
 		self.pat = gmPerson.gmCurrentPatient()
-		self.debug = False
+		self.debug:bool = False
 
-		self.invalid_placeholder_template = _('invalid placeholder >>>>>%s<<<<<')
+		self.invalid_placeholder_template:str = _('invalid placeholder >>>>>%s<<<<<')
 
-		self.__injected_placeholders = {}
-		self.__cache = {}
+		self.__injected_placeholders:dict = {}
+		self.__cache:dict = {}
 
-		self.__esc_style = None
+		self.__esc_style:str = None
 		self.__esc_func = lambda x:x
 
-		self.__ellipsis = None
-		self.__args_divider = '//'
-		self.__data_encoding = None
-		self.__data_encoding_strict = False
+		self.__ellipsis:str = None
+		self.__args_divider:str = '//'
+		self.__data_encoding:str = None
+		self.__data_encoding_strict:bool = False
 
 	#--------------------------------------------------------
 	# external API
@@ -680,6 +678,9 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 	escape_style = property(lambda x:x, _set_escape_style)
 
 	#--------------------------------------------------------
+	def _get_escape_function(self):
+		return self.__esc_func
+
 	def _set_escape_function(self, escape_function=None):
 		if escape_function is None:
 			self.__esc_func = lambda x:x
@@ -689,26 +690,35 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		self.__esc_func = escape_function
 		return
 
-	escape_function = property(lambda x:x, _set_escape_function)
+	escape_function = property(_get_escape_function, _set_escape_function)
 
 	#--------------------------------------------------------
+	def _get_ellipsis(self):
+		return self.__ellipsis
+
 	def _set_ellipsis(self, ellipsis):
 		if ellipsis == 'NONE':
 			ellipsis = None
 		self.__ellipsis = ellipsis
 
-	ellipsis = property(lambda x: self.__ellipsis, _set_ellipsis)
+	ellipsis = property(_get_ellipsis, _set_ellipsis)
 
 	#--------------------------------------------------------
+	def _get_arguments_divider(self):
+		return self.__args_divider
+
 	def _set_arguments_divider(self, divider):
 		if divider == 'DEFAULT':
 			divider = '//'
 		self.__args_divider = divider
 
-	arguments_divider = property(lambda x: self.__args_divider, _set_arguments_divider)
+	arguments_divider = property(_get_arguments_divider, _set_arguments_divider)
 
 	#--------------------------------------------------------
-	def _set_data_encoding(self, encoding):
+	def _get_data_encoding(self) -> str:
+		return self.__data_encoding
+
+	def _set_data_encoding(self, encoding:str):
 		if encoding == 'NONE':
 			self.__data_encoding = None
 			self.__data_encoding_strict = False
@@ -721,9 +731,9 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			codecs.lookup(encoding)
 			self.__data_encoding = encoding
 		except LookupError:
-			_log.error('<codecs> module can NOT handle encoding [%s]' % enc)
+			_log.error('<codecs> module can NOT handle encoding [%s]' % encoding)
 
-	data_encoding = property(lambda x: self.__data_encoding, _set_data_encoding)
+	data_encoding = property(_get_data_encoding, _set_data_encoding)
 
 	#--------------------------------------------------------
 	placeholder_regex = property(lambda x: default_placeholder_regex, lambda x:x)
@@ -1032,7 +1042,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 				lines.append('error formatting encounter')
 				_log.exception('problem formatting encounter list')
 				_log.error('template: %s', template)
-				_log.error('encounter: %s', encounter)
+				_log.error('encounter: %s', enc)
 
 		return '\n'.join(lines)
 	#--------------------------------------------------------
@@ -1074,13 +1084,13 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			))
 
 		return ''.join(chunks)
+
 	#--------------------------------------------------------
 	def _get_variant_emr_journal(self, data=None):
 		# default: all categories, neutral template
 		cats = list('soapu')
 		cats.append(None)
 		template = '%s'
-		interactive = True
 		line_length = 9999
 		time_range = None
 
@@ -1138,6 +1148,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 				return 'invalid key in template [%s], valid keys: %s]' % (template, narr[0].keys())
 
 		return '\n'.join(lines)
+
 	#--------------------------------------------------------
 	def _get_variant_soap_by_issue(self, data=None):
 		return self.__get_variant_soap_by_issue_or_episode(data = data, mode = 'issue')
@@ -1795,7 +1806,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		if len(options) > 1:
 			issuer = options[1].strip()
 			if issuer == '':
-				issue = None
+				issuer = None
 		else:
 			issuer = None
 
@@ -1828,7 +1839,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 	#--------------------------------------------------------
 	def _get_variant_current_provider_title(self, data=None):
 		if data is None:
-			template = u'%(title)s'
+			data = u'%(title)s'
 		elif data.strip() == u'':
 			data = u'%(title)s'
 		return self._get_variant_current_provider_name(data = data)
@@ -2876,7 +2887,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		return data
 
 #---------------------------------------------------------------------
-def test_placeholders():
+def test_placeholders_interactively():
 
 	_log.debug('testing for placeholders with pattern: %s', first_pass_placeholder_regex)
 
@@ -3055,34 +3066,44 @@ class cMacroPrimitives:
 		self.__pat.locked = True
 		self.__pat_lock_cookie = str(random.random())
 		return (1, self.__pat_lock_cookie)
+
 	#-----------------------------------------------------------------
 	def lock_into_patient(self, auth_cookie = None, search_params = None):
 		if not self.__attached:
 			return (0, _('request rejected, you are not attach()ed'))
+
 		if auth_cookie != self.__auth_cookie:
 			_log.error('non-authenticated lock_into_patient()')
 			return (0, _('rejected lock_into_patient(), not authenticated'))
+
 		if self.__pat.locked:
 			_log.error('patient is already locked')
 			return (0, _('already locked into a patient'))
+
 		searcher = gmPersonSearch.cPatientSearcher_SQL()
 		if type(search_params) == dict:
-			idents = searcher.get_identities(search_dict=search_params)
+			idents = searcher.get_identities(search_dict = search_params)
 			raise Exception("must use dto, not search_dict")
+
 		else:
-			idents = searcher.get_identities(search_term=search_params)
+			idents = searcher.get_identities(search_term = search_params)
 		if idents is None:
-			return (0, _('error searching for patient with [%s]/%s') % (search_term, search_dict))
+			return (0, _('error searching for patient with [%s]') % search_params)
+
 		if len(idents) == 0:
-			return (0, _('no patient found for [%s]/%s') % (search_term, search_dict))
+			return (0, _('no patient found for [%s]') % search_params)
+
 		# FIXME: let user select patient
 		if len(idents) > 1:
-			return (0, _('several matching patients found for [%s]/%s') % (search_term, search_dict))
+			return (0, _('several matching patients found for [%s]') % search_params)
+
 		if not gmPatSearchWidgets.set_active_patient(patient = idents[0]):
-			return (0, _('cannot activate patient [%s] (%s/%s)') % (str(idents[0]), search_term, search_dict))
+			return (0, _('cannot activate patient [%s] (%s)') % (str(idents[0]), search_params))
+
 		self.__pat.locked = True
 		self.__pat_lock_cookie = str(random.random())
 		return (1, self.__pat_lock_cookie)
+
 	#-----------------------------------------------------------------
 	def unlock_patient(self, auth_cookie = None, unlock_cookie = None):
 		if not self.__attached:
@@ -3163,6 +3184,7 @@ if __name__ == '__main__':
 	if sys.argv[1] != 'test':
 		sys.exit()
 
+	from Gnumed.pycommon import gmI18N
 	gmI18N.activate_locale()
 	gmI18N.install_domain()
 
@@ -3182,7 +3204,7 @@ if __name__ == '__main__':
 
 		print('DOB (YYYY-MM-DD):', handler['date_of_birth::%Y-%m-%d'])
 
-		app = wx.PyWidgetTester(size = (200, 50))
+		wx.PyWidgetTester(size = (200, 50))
 
 		ph = 'progress_notes::ap'
 		print('%s: %s' % (ph, handler[ph]))

@@ -2371,8 +2371,8 @@ class gmTopLevelFrame(wx.Frame):
 
 	#----------------------------------------------
 	def __on_test_placeholders(self, evt):
-		from Gnumed.wxpython.gmMacro import test_placeholders
-		test_placeholders()
+		from Gnumed.wxpython.gmMacro import test_placeholders_interactively
+		test_placeholders_interactively()
 
 	#----------------------------------------------
 	def __on_test_access_violation(self, evt):

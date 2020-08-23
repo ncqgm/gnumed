@@ -360,6 +360,7 @@ def format_hl7_file(filename, skip_empty_fields=True, eol='\n ', return_filename
 	if not return_filename:
 		return output
 
+	max_len = 120
 	if eol is None:
 		output = '\n '.join([ '%s: %s' % ((o[0] + (' ' * max_len))[:max_len], o[1]) for o in output ])
 
@@ -857,7 +858,7 @@ def __ensure_hl7_test_types_exist_in_gnumed(link_obj=None, hl7_data=None, pk_tes
 			unit = None
 		LOINC = hl7_data.extract_field(segment = 'OBX', segment_num = OBX_idx, field_num = OBX_field__type, component_num = OBX_component__loinc)
 		tname = hl7_data.extract_field(segment = 'OBX', segment_num = OBX_idx, field_num = OBX_field__type, component_num = OBX_component__name)
-		tt = __find_or_create_test_type (
+		__find_or_create_test_type (
 			loinc = LOINC,
 			name = tname,
 			pk_lab = pk_test_org,
@@ -959,7 +960,7 @@ def __import_single_PID_hl7_file(filename, emr=None):
 	previous_segment = None
 	had_errors = False
 	msh_seen = False
-	pid_seen = False
+	#pid_seen = False
 	last_obr = None
 	obr = {}
 	for seg_idx in range(len(HL7)):
@@ -976,7 +977,7 @@ def __import_single_PID_hl7_file(filename, emr=None):
 				conn.rollback()
 				_log.error('PID segment before MSH segment')
 				return False
-			pid_seen = True
+			#pid_seen = True
 
 		if seg_type in ['MSH', 'PID']:
 			_log.info('segment already handled')
@@ -1280,8 +1281,8 @@ if __name__ == "__main__":
 		# would normally be set by external configuration:
 		from Gnumed.business import gmPraxis
 		gmPraxis.gmCurrentPraxisBranch(branch = gmPraxis.get_praxis_branches()[0])
-		if not import_hl7_file(filename):
-			print("error with", filename)
+		#if not import_hl7_file(filename):
+		#	print("error with", filename)
 	#-------------------------------------------------------
 	def test_xml_extract():
 		hl7 = extract_HL7_from_XML_CDATA(sys.argv[2], './/Message')
@@ -1312,7 +1313,7 @@ if __name__ == "__main__":
 	def test_stage_hl7():
 		fixed = __fix_malformed_hl7_file(sys.argv[2])
 		print("fixed HL7:", fixed)
-		PID_fnames = split_HL7_by_PID(fixed, encoding='utf8')
+		#PID_fnames = split_HL7_by_PID(fixed, encoding='utf8')
 		print("staging per-PID HL7 files:")
 		for name in PID_fnames:
 			print(" file:", name)

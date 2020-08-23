@@ -15,6 +15,7 @@ import wx
 # GNUmed
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
+	_ = lambda x:x
 from Gnumed.pycommon import gmCfg
 from Gnumed.pycommon import gmNetworkTools
 from Gnumed.pycommon import gmTools
@@ -231,12 +232,12 @@ def configure_list_from_list_option(parent=None, message=None, option=None, bias
 
 	dbcfg = gmCfg.cCfgSQL()
 
-	current_value = dbcfg.get2 (
-		option = option,
-		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
-		bias = bias,
-		default = default_value
-	)
+#	current_value = dbcfg.get2 (
+#		option = option,
+#		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
+#		bias = bias,
+#		default = default_value
+#	)
 
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()

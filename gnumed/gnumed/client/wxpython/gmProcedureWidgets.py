@@ -15,13 +15,8 @@ import wx
 # GNUmed
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmI18N
+	_ = lambda x:x
 from Gnumed.pycommon import gmDateTime
-if __name__ == '__main__':
-	gmI18N.activate_locale()
-	gmI18N.install_domain()
-	gmDateTime.init()
-
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmMatchProvider

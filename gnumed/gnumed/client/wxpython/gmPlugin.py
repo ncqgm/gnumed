@@ -17,7 +17,7 @@ import wx
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmExceptions
+	_ = lambda x:x
 from Gnumed.pycommon import gmGuiBroker
 from Gnumed.pycommon import gmCfg
 from Gnumed.pycommon import gmCfg2

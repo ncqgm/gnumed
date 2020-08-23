@@ -9,7 +9,7 @@ echo "=== Code - maintainability ($(date) - radon mi, lower = better) ==========
 radon mi ${DIRS} | egrep '\-\s[^AB]$' &>> source-maintainability.log
 
 echo "=== Code - cyclic complexity ($(date) - radon cc, lower = better) ==========" > source-cyclic_complexity.log
-radon cc ${DIRS} | egrep '(\-\s[^AB])|(.py)$' &>> source-cyclic_complexity.log
+radon cc ${DIRS} | egrep '(\-\s[^ABC])|(.py)$' &>> source-cyclic_complexity.log
 
 #echo "=== Code - type checking ($(date) - mypy) ==========" > source-type_checking.log
 #DIRS="../client/pycommon/"

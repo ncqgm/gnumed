@@ -7,11 +7,9 @@ import sys
 import logging
 
 
-import wx
-
-
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
+	_ = lambda x:x
 
 from Gnumed.pycommon import gmI18N
 from Gnumed.pycommon import gmDispatcher
@@ -79,5 +77,4 @@ def edit_item_in_dlg(parent=None, item=None):
 
 #================================================================
 if __name__ == '__main__':
-	gmI18N.activate_locale()
-	gmI18N.install_domain()
+	pass

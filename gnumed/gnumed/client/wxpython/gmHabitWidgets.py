@@ -12,8 +12,8 @@ import wx
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
+	_ = lambda x:x
 from Gnumed.pycommon import gmTools
-from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmDateTime
 
 from Gnumed.business import gmATC
@@ -115,7 +115,7 @@ class cSubstanceAbuseEAPnl(wxgSubstanceAbuseEAPnl.wxgSubstanceAbuseEAPnl, gmEdit
 			if data['pk_patient'] != self.__patient.ID:
 				_log.error('intake: %s', data)
 				_log.error('patient: %s', self.__patient)
-				raise ArgumentError('<intake> does not belong to <patient>')
+				raise ValueError('<intake> does not belong to <patient>')
 
 		wxgSubstanceAbuseEAPnl.wxgSubstanceAbuseEAPnl.__init__(self, *args, **kwargs)
 		gmEditArea.cGenericEditAreaMixin.__init__(self)
@@ -317,9 +317,6 @@ if __name__ == '__main__':
 
 	if sys.argv[1] != 'test':
 		sys.exit()
-
-	gmI18N.activate_locale()
-	gmI18N.install_domain(domain = 'gnumed')
 
 #	def test_message_inbox():
 #		app = wx.PyWidgetTester(size = (800, 600))

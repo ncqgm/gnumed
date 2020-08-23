@@ -14,6 +14,7 @@ import wx
 # GNUmed
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
+	_ = lambda x:x
 
 from Gnumed.business import gmCoding
 
@@ -242,16 +243,13 @@ if __name__ == '__main__':
 	if sys.argv[1] != 'test':
 		sys.exit()
 
-	from Gnumed.pycommon import gmI18N
-	gmI18N.activate_locale()
-	gmI18N.install_domain()
 	from Gnumed.pycommon import gmPG2
 
 	#--------------------------------------------------------
 	def test_generic_codes_prw():
 		gmPG2.get_connection()
 		app = wx.PyWidgetTester(size = (500, 40))
-		pw = cGenericCodesPhraseWheel(app.frame, -1)
+		#pw = cGenericCodesPhraseWheel(app.frame, -1)
 		#pw.set_context(context = u'zip', val = u'04318')
 		app.frame.Show(True)
 		app.MainLoop()

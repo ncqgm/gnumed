@@ -10,6 +10,7 @@ __license__ = "GPL v2 or later (details at http://www.gnu.org)"
 
 import sys
 import logging
+import urllib
 
 
 import wx
@@ -17,15 +18,14 @@ import wx
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
+	_ = lambda x:x
 from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmMatchProvider
 from Gnumed.pycommon import gmTools
-from Gnumed.pycommon import gmI18N
 from Gnumed.pycommon import gmCfg
 from Gnumed.pycommon import gmCfg2
 from Gnumed.pycommon import gmDateTime
 from Gnumed.pycommon import gmNetworkTools
-from Gnumed.pycommon import gmPrinting
 from Gnumed.pycommon import gmPG2
 
 from Gnumed.business import gmPerson
@@ -34,14 +34,12 @@ from Gnumed.business import gmPraxis
 from Gnumed.business import gmProviderInbox
 
 from Gnumed.wxpython import gmPhraseWheel
-from Gnumed.wxpython import gmTerryGuiParts
-from Gnumed.wxpython import gmRegetMixin
 from Gnumed.wxpython import gmGuiHelpers
 from Gnumed.wxpython import gmEditArea
 from Gnumed.wxpython import gmListWidgets
 from Gnumed.wxpython import gmFormWidgets
-from Gnumed.wxpython import gmMacro
 from Gnumed.wxpython import gmAuthWidgets
+from Gnumed.wxpython import gmCfgWidgets
 from Gnumed.wxpython import gmSubstanceMgmtWidgets
 
 
@@ -1070,270 +1068,6 @@ class cVaccinationEAPnl(wxgVaccinationEAPnl.wxgVaccinationEAPnl, gmEditArea.cGen
 		# FIXME: could set newly generated vaccine here
 
 #======================================================================
-#======================================================================
-#======================================================================
-#======================================================================
-class cImmunisationsPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
-
-	def __init__(self, parent, id):
-		wx.Panel.__init__(self, parent, id, wx.DefaultPosition, wx.DefaultSize, wx.RAISED_BORDER)
-		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
-		self.__pat = gmPerson.gmCurrentPatient()
-		# do this here so "import cImmunisationsPanel from gmVaccWidgets" works
-		self.ID_VaccinatedIndicationsList = wx.NewId()
-		self.ID_VaccinationsPerRegimeList = wx.NewId()
-		self.ID_MissingShots = wx.NewId()
-		self.ID_ActiveSchedules = wx.NewId()
-		self.__do_layout()
-		self.__register_interests()
-		self.__reset_ui_content()
-	#----------------------------------------------------
-	def __do_layout(self):
-		#-----------------------------------------------
-		# top part
-		#-----------------------------------------------
-		pnl_UpperCaption = gmTerryGuiParts.cHeadingCaption(self, -1, _("  IMMUNISATIONS  "))
-		self.editarea = cVaccinationEditArea(self, -1, wx.DefaultPosition, wx.DefaultSize, wx.NO_BORDER)
-
-		#-----------------------------------------------
-		# middle part
-		#-----------------------------------------------
-		# divider headings below editing area
-		indications_heading = gmTerryGuiParts.cDividerCaption(self, -1, _("Indications"))
-		vaccinations_heading = gmTerryGuiParts.cDividerCaption(self, -1, _("Vaccinations"))
-		schedules_heading = gmTerryGuiParts.cDividerCaption(self, -1, _("Active Schedules"))
-		szr_MiddleCap = wx.BoxSizer(wx.HORIZONTAL)
-		szr_MiddleCap.Add(indications_heading, 4, wx.EXPAND)
-		szr_MiddleCap.Add(vaccinations_heading, 6, wx.EXPAND)
-		szr_MiddleCap.Add(schedules_heading, 10, wx.EXPAND)
-
-		# left list: indications for which vaccinations have been given
-		self.LBOX_vaccinated_indications = wx.ListBox(
-			parent = self,
-			id = self.ID_VaccinatedIndicationsList,
-			choices = [],
-			style = wx.LB_HSCROLL | wx.LB_NEEDED_SB | wx.SUNKEN_BORDER
-		)
-		self.LBOX_vaccinated_indications.SetFont(wx.Font(12,wx.SWISS, wx.NORMAL, wx.NORMAL, False, ''))
-
-		# right list: when an indication has been selected on the left
-		# display the corresponding vaccinations on the right
-		self.LBOX_given_shots = wx.ListBox(
-			parent = self,
-			id = self.ID_VaccinationsPerRegimeList,
-			choices = [],
-			style = wx.LB_HSCROLL | wx.LB_NEEDED_SB | wx.SUNKEN_BORDER
-		)
-		self.LBOX_given_shots.SetFont(wx.Font(12,wx.SWISS, wx.NORMAL, wx.NORMAL, False, ''))
-
-		self.LBOX_active_schedules = wx.ListBox (
-			parent = self,
-			id = self.ID_ActiveSchedules,
-			choices = [],
-			style = wx.LB_HSCROLL | wx.LB_NEEDED_SB | wx.SUNKEN_BORDER
-		)
-		self.LBOX_active_schedules.SetFont(wx.Font(12, wx.SWISS, wx.NORMAL, wx.NORMAL, False, ''))
-
-		szr_MiddleLists = wx.BoxSizer(wx.HORIZONTAL)
-		szr_MiddleLists.Add(self.LBOX_vaccinated_indications, 4, wx.EXPAND)
-		szr_MiddleLists.Add(self.LBOX_given_shots, 6, wx.EXPAND)
-		szr_MiddleLists.Add(self.LBOX_active_schedules, 10, wx.EXPAND)
-
-		#---------------------------------------------
-		# bottom part
-		#---------------------------------------------
-		missing_heading = gmTerryGuiParts.cDividerCaption(self, -1, _("Missing Immunisations"))
-		szr_BottomCap = wx.BoxSizer(wx.HORIZONTAL)
-		szr_BottomCap.Add(missing_heading, 1, wx.EXPAND)
-
-		self.LBOX_missing_shots = wx.ListBox (
-			parent = self,
-			id = self.ID_MissingShots,
-			choices = [],
-			style = wx.LB_HSCROLL | wx.LB_NEEDED_SB | wx.SUNKEN_BORDER
-		)
-		self.LBOX_missing_shots.SetFont(wx.Font(12, wx.SWISS, wx.NORMAL, wx.NORMAL, False, ''))
-
-		szr_BottomLists = wx.BoxSizer(wx.HORIZONTAL)
-		szr_BottomLists.Add(self.LBOX_missing_shots, 1, wx.EXPAND)
-
-		# alert caption
-		pnl_AlertCaption = gmTerryGuiParts.cAlertCaption(self, -1, _('  Alerts  '))
-
-		#---------------------------------------------
-		# add all elements to the main background sizer
-		#---------------------------------------------
-		self.mainsizer = wx.BoxSizer(wx.VERTICAL)
-		self.mainsizer.Add(pnl_UpperCaption, 0, wx.EXPAND)
-		self.mainsizer.Add(self.editarea, 6, wx.EXPAND)
-		self.mainsizer.Add(szr_MiddleCap, 0, wx.EXPAND)
-		self.mainsizer.Add(szr_MiddleLists, 4, wx.EXPAND)
-		self.mainsizer.Add(szr_BottomCap, 0, wx.EXPAND)
-		self.mainsizer.Add(szr_BottomLists, 4, wx.EXPAND)
-		self.mainsizer.Add(pnl_AlertCaption, 0, wx.EXPAND)
-
-		self.SetAutoLayout(True)
-		self.SetSizer(self.mainsizer)
-		self.mainsizer.Fit(self)
-	#----------------------------------------------------
-	def __register_interests(self):
-		# wxPython events
-		wx.EVT_SIZE(self, self.OnSize)
-		wx.EVT_LISTBOX(self, self.ID_VaccinatedIndicationsList, self._on_vaccinated_indication_selected)
-		wx.EVT_LISTBOX_DCLICK(self, self.ID_VaccinationsPerRegimeList, self._on_given_shot_selected)
-		wx.EVT_LISTBOX_DCLICK(self, self.ID_MissingShots, self._on_missing_shot_selected)
-#		wx.EVT_RIGHT_UP(self.lb1, self.EvtRightButton)
-
-		# client internal signals
-		gmDispatcher.connect(signal= 'post_patient_selection', receiver=self._schedule_data_reget)
-		gmDispatcher.connect(signal= 'vaccinations_updated', receiver=self._schedule_data_reget)
-	#----------------------------------------------------
-	# event handlers
-	#----------------------------------------------------
-	def OnSize (self, event):
-		w, h = event.GetSize()
-		self.mainsizer.SetDimension (0, 0, w, h)
-	#----------------------------------------------------
-	def _on_given_shot_selected(self, event):
-		"""Paste previously given shot into edit area.
-		"""
-		self.editarea.set_data(aVacc=event.GetClientData())
-	#----------------------------------------------------
-	def _on_missing_shot_selected(self, event):
-		self.editarea.set_data(aVacc = event.GetClientData())
-	#----------------------------------------------------
-	def _on_vaccinated_indication_selected(self, event):
-		"""Update right hand middle list to show vaccinations given for selected indication."""
-		ind_list = event.GetEventObject()
-		selected_item = ind_list.GetSelection()
-		ind = ind_list.GetClientData(selected_item)
-		# clear list
-		self.LBOX_given_shots.Set([])
-		emr = self.__pat.emr
-		shots = emr.get_vaccinations(indications = [ind])
-		# FIXME: use Set() for entire array (but problem with client_data)
-		for shot in shots:
-			if shot['is_booster']:
-				marker = 'B'
-			else:
-				marker = '#%s' % shot['seq_no']
-			label = '%s - %s: %s' % (marker, shot['date'].strftime('%m/%Y'), shot['vaccine'])
-			self.LBOX_given_shots.Append(label, shot)
-	#----------------------------------------------------
-	def __reset_ui_content(self):
-		# clear edit area
-		self.editarea.set_data()
-		# clear lists
-		self.LBOX_vaccinated_indications.Clear()
-		self.LBOX_given_shots.Clear()
-		self.LBOX_active_schedules.Clear()
-		self.LBOX_missing_shots.Clear()
-	#----------------------------------------------------
-	def _populate_with_data(self):
-		# clear lists
-		self.LBOX_vaccinated_indications.Clear()
-		self.LBOX_given_shots.Clear()
-		self.LBOX_active_schedules.Clear()
-		self.LBOX_missing_shots.Clear()
-
-		emr = self.__pat.emr
-
-		t1 = time.time()
-		# populate vaccinated-indications list
-		# FIXME: consider adding virtual indication "most recent" to
-		# FIXME: display most recent of all indications as suggested by Syan
-		status, indications = emr.get_vaccinated_indications()
-		# FIXME: would be faster to use Set() but can't
-		# use Set(labels, client_data), and have to know
-		# line position in SetClientData :-(
-		for indication in indications:
-			self.LBOX_vaccinated_indications.Append(indication[1], indication[0])
-#		self.LBOX_vaccinated_indications.Set(lines)
-#		self.LBOX_vaccinated_indications.SetClientData(data)
-		print("vaccinated indications took", time.time()-t1, "seconds")
-
-		t1 = time.time()
-		# populate active schedules list
-		scheds = emr.get_scheduled_vaccination_regimes()
-		if scheds is None:
-			label = _('ERROR: cannot retrieve active vaccination schedules')
-			self.LBOX_active_schedules.Append(label)
-		elif len(scheds) == 0:
-			label = _('no active vaccination schedules')
-			self.LBOX_active_schedules.Append(label)
-		else:
-			for sched in scheds:
-				label = _('%s for %s (%s shots): %s') % (sched['regime'], sched['l10n_indication'], sched['shots'], sched['comment'])
-				self.LBOX_active_schedules.Append(label)
-		print("active schedules took", time.time()-t1, "seconds")
-
-		t1 = time.time()
-		# populate missing-shots list
-		missing_shots = emr.get_missing_vaccinations()
-		print("getting missing shots took", time.time()-t1, "seconds")
-		if missing_shots is None:
-			label = _('ERROR: cannot retrieve due/overdue vaccinations')
-			self.LBOX_missing_shots.Append(label, None)
-			return True
-		# due
-		due_template = _('%.0d weeks left: shot %s for %s in %s, due %s (%s)')
-		overdue_template = _('overdue %.0dyrs %.0dwks: shot %s for %s in schedule "%s" (%s)')
-		for shot in missing_shots['due']:
-			if shot['overdue']:
-				years, days_left = divmod(shot['amount_overdue'].days, 364.25)
-				weeks = days_left / 7
-				# amount_overdue, seq_no, indication, regime, vacc_comment
-				label = overdue_template % (
-					years,
-					weeks,
-					shot['seq_no'],
-					shot['l10n_indication'],
-					shot['regime'],
-					shot['vacc_comment']
-				)
-				self.LBOX_missing_shots.Append(label, shot)
-			else:
-				# time_left, seq_no, regime, latest_due, vacc_comment
-				label = due_template % (
-					shot['time_left'].days / 7,
-					shot['seq_no'],
-					shot['indication'],
-					shot['regime'],
-					shot['latest_due'].strftime('%m/%Y'),
-					shot['vacc_comment']
-				)
-				self.LBOX_missing_shots.Append(label, shot)
-		# booster
-		lbl_template = _('due now: booster for %s in schedule "%s" (%s)')
-		for shot in missing_shots['boosters']:
-			# indication, regime, vacc_comment
-			label = lbl_template % (
-				shot['l10n_indication'],
-				shot['regime'],
-				shot['vacc_comment']
-			)
-			self.LBOX_missing_shots.Append(label, shot)
-		print("displaying missing shots took", time.time()-t1, "seconds")
-
-		return True
-	#----------------------------------------------------
-	def _on_post_patient_selection(self, **kwargs):
-		return 1
-		# FIXME:
-#		if has_focus:
-#			wxCallAfter(self.__reset_ui_content)
-#		else:
-#			return 1
-	#----------------------------------------------------
-	def _on_vaccinations_updated(self, **kwargs):
-		return 1
-		# FIXME:
-#		if has_focus:
-#			wxCallAfter(self.__reset_ui_content)
-#		else:
-#			is_stale == True
-#			return 1
-#======================================================================
 # main
 #----------------------------------------------------------------------
 if __name__ == "__main__":
@@ -1345,5 +1079,5 @@ if __name__ == "__main__":
 		sys.exit()
 
 	app = wx.PyWidgetTester(size = (600, 600))
-	app.SetWidget(cXxxPhraseWheel, -1)
+	#app.SetWidget(cXxxPhraseWheel, -1)
 	app.MainLoop()

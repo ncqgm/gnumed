@@ -16,6 +16,7 @@ import wx
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
+	_ = lambda x:x
 from Gnumed.pycommon import gmCfg
 from Gnumed.pycommon import gmPG2
 from Gnumed.pycommon import gmTools

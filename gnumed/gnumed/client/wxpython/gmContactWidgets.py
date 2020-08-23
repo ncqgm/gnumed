@@ -14,11 +14,11 @@ import wx
 # GNUmed
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
+	_ = lambda x:x
 
 from Gnumed.pycommon import gmPG2
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmMatchProvider
-from Gnumed.pycommon import gmDispatcher
 
 from Gnumed.business import gmDemographicRecord
 
@@ -103,7 +103,7 @@ def edit_comm_channel(parent=None, comm_channel=None, channel_owner=None):
 		parent = wx.GetApp().GetTopWindow()
 	ea = cCommChannelEditAreaPnl(parent, -1, comm_channel = comm_channel)
 	ea.channel_owner = channel_owner
-	dlg = gmEditArea.cGenericEditAreaDlg2(self, -1, edit_area = ea, single_entry = True)
+	dlg = gmEditArea.cGenericEditAreaDlg2(-1, edit_area = ea, single_entry = True)
 	dlg.SetTitle(_('Editing communications channel'))
 	if dlg.ShowModal() == wx.ID_OK:
 		return True
