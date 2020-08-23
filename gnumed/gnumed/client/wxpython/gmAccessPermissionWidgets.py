@@ -3,18 +3,20 @@
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL v2 or later (details at http://www.gnu.org)"
 
+import sys
 import logging
 
 
 import wx
 
 
+if __name__ == '__main__':
+	sys.path.insert(0, '../../')
+	_ = lambda x:x
+
 from Gnumed.business import gmStaff
 from Gnumed.wxpython import gmGuiHelpers
 
-
-if __name__ == '__main__':
-	_ = lambda x:x
 
 _log = logging.getLogger('gm.perms')
 
@@ -30,7 +32,7 @@ _known_roles = [
 _curr_staff = gmStaff.gmCurrentProvider()
 
 #-------------------------------------------------------------------------
-def verify_minimum_required_role(minimum_role:str, activity=None:str, return_value_on_failure=None, fail_silently:bool=False):
+def verify_minimum_required_role(minimum_role:str, activity:str=None, return_value_on_failure=None, fail_silently:bool=False):
 
 	if activity is None:
 		activity = _('generic activity')
