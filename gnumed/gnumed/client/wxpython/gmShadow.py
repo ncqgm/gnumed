@@ -3,8 +3,6 @@
 A module to add shadowing to an arbitrary widget.
 """
 ##############################################################################
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmShadow.py,v $
-__version__ = "$Revision: 1.13 $"
 __author__  = "H.Berger <Hilmar.Berger@gmx.de>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, R.Terry <rterry@gnumed.net>"
 
 import wx
@@ -32,7 +30,7 @@ class Shadow (wx.Panel):
 		self.contents.SetClientSizeWH (w-self.sh_width, h-self.sh_width)
 	#-----------------------------------------------------
 	def OnPaint (self, event):
-		dc = wxPaintDC (self)
+		dc = wx.PaintDC (self)
 		w, h = self.GetClientSize ()
 		dc.SetPen (wx.TRANSPARENT_PEN)
 		#dc.SetBrush (wxWHITE_BRUSH)

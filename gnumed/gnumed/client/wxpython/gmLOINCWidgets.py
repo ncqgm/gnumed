@@ -15,11 +15,6 @@ import wx
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-#	from Gnumed.pycommon import gmI18N
-#	gmI18N.activate_locale()
-#	gmI18N.install_domain(domain = 'gnumed')
-from Gnumed.pycommon import gmTools
-from Gnumed.pycommon import gmMatchProvider
 from Gnumed.pycommon import gmNetworkTools
 from Gnumed.pycommon import gmDispatcher
 

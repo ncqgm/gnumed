@@ -11,18 +11,19 @@ __author__  = "H. Herb <hherb@gnumed.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 __license__ = 'GPL v2 or later (details at http://www.gnu.org)'
 
-import os.path, os, sys, logging
+import os.path, sys, logging
 
 
 import wx
 
 
-from Gnumed.pycommon import gmGuiBroker, gmI18N, gmDispatcher, gmCfg, gmLog2
-from Gnumed.wxpython import gmPlugin, gmTopPanel, gmGuiHelpers
+from Gnumed.pycommon import gmGuiBroker, gmDispatcher, gmCfg, gmLog2
+from Gnumed.wxpython import gmPlugin, gmTopPanel
 from Gnumed.business import gmPerson, gmPraxis
 
 
 _log = logging.getLogger('gm.ui')
+_ = lambda x:x
 
 #==============================================================================
 class cHorstSpaceNotebook(wx.Notebook):			# wx.BestBook ?
@@ -273,7 +274,6 @@ class cHorstSpaceLayoutMgr(wx.Panel):
 		progress_bar = gmPlugin.cLoadProgressBar(nr_plugins)
 
 		#  and load them
-		prev_plugin = ""
 		first_plugin = None
 		plugin = None
 		result = -1
@@ -293,10 +293,8 @@ class cHorstSpaceLayoutMgr(wx.Panel):
 				_log.exception('failed to load plugin %s', curr_plugin)
 				failed_plugins.append(curr_plugin)
 				result = 0
-
 			if first_plugin is None:
 				first_plugin = plugin
-			prev_plugin = curr_plugin
 
 		_log.debug('failed plugins: %s', failed_plugins)
 		progress_bar.DestroyLater()
@@ -305,7 +303,6 @@ class cHorstSpaceLayoutMgr(wx.Panel):
 		# force-refresh first notebook page
 		page = self.nb.GetPage(0)
 		page.Refresh()
-
 		return True
 
 	#----------------------------------------------
@@ -495,5 +492,4 @@ class cHorstSpaceLayoutMgr(wx.Panel):
 
 #==============================================================================
 if __name__ == '__main__':
-	wx.InitAllImageHandlers()
-	pgbar = gmPluginLoadProgressBar(3)
+	pass

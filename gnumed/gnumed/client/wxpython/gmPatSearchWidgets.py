@@ -15,7 +15,6 @@ __license__ = 'GPL v2 or later (for details see http://www.gnu.org/)'
 import sys
 import os.path
 import glob
-import re as regex
 import logging
 
 
@@ -25,13 +24,11 @@ import wx
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 	from Gnumed.pycommon import gmLog2
+	_ = lambda x:x
 from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmDateTime
 from Gnumed.pycommon import gmTools
-from Gnumed.pycommon import gmPG2
-from Gnumed.pycommon import gmI18N
 from Gnumed.pycommon import gmCfg
-from Gnumed.pycommon import gmMatchProvider
 from Gnumed.pycommon import gmCfg2
 from Gnumed.pycommon import gmNetworkTools
 
@@ -45,8 +42,6 @@ from Gnumed.business import gmProviderInbox
 
 from Gnumed.wxpython import gmGuiHelpers
 from Gnumed.wxpython import gmAuthWidgets
-from Gnumed.wxpython import gmRegetMixin
-from Gnumed.wxpython import gmEditArea
 from Gnumed.wxpython.gmPersonCreationWidgets import create_new_person
 
 
@@ -60,7 +55,7 @@ ID_BTN_AddNew = wx.NewId()
 #============================================================
 def merge_patients(parent=None):
 	dlg = cMergePatientsDlg(parent, -1)
-	result = dlg.ShowModal()
+	return dlg.ShowModal()
 
 #============================================================
 from Gnumed.wxGladeWidgets import wxgMergePatientsDlg

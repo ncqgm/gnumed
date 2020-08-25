@@ -8,7 +8,6 @@ GNUmed.
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL v2 or later (details at http://www.gnu.org)"
 
-import os
 import logging
 import sys
 import io
@@ -21,8 +20,8 @@ import wx
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
+	_ = lambda x:x
 from Gnumed.pycommon import gmMatchProvider
-from Gnumed.pycommon import gmExceptions
 from Gnumed.pycommon import gmLog2
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmDispatcher
@@ -339,6 +338,7 @@ def clipboard2file(check_for_filename=False):
 			try:
 				io.open(clipboard_text_content).close()
 				return clipboard_text_content
+
 			except IOError:
 				_log.exception('clipboard does not seem to hold filename: %s', clipboard_text_content)
 		fname = gmTools.get_unique_filename(prefix = 'gm-clipboard-', suffix = '.txt')
@@ -351,7 +351,7 @@ def clipboard2file(check_for_filename=False):
 	got_it = wx.TheClipboard.GetData(data_obj)
 	if got_it:
 		fname = gmTools.get_unique_filename(prefix = 'gm-clipboard-', suffix = '.png')
-		bmp = data_obj.Bitmap.SaveFile(fname, wx.BITMAP_TYPE_PNG)
+		data_obj.Bitmap.SaveFile(fname, wx.BITMAP_TYPE_PNG)
 		wx.TheClipboard.Close()
 		return fname
 
@@ -428,12 +428,10 @@ def file2scaled_image(filename=None, height=100):
 		rescaled_width = (float(current_width) / current_height) * rescaled_height
 		img_data.Rescale(rescaled_width, rescaled_height, quality = wx.IMAGE_QUALITY_HIGH)		# w, h
 		bitmap = wx.Bitmap(img_data)
-		del img_data
 	except Exception:
 		_log.exception('cannot load image from [%s]', filename)
-		del img_data
-		del bitmap
 		return None
+
 	return bitmap
 
 # ========================================================================
@@ -738,7 +736,7 @@ if __name__ == '__main__':
 		return True
 	#------------------------------------------------------------------
 	def test_clipboard():
-		app = wx.PyWidgetTester(size = (200, 50))
+		wx.PyWidgetTester(size = (200, 50))
 		result = clipboard2file()
 		if result is False:
 			print("problem opening clipboard")

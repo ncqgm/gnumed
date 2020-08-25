@@ -7,7 +7,7 @@ __author__  = "R.Terry <rterry@gnumed.net>,\
 __license__ = "GPL v2 or later"
 
 # standard lib
-import sys, os, os.path, logging
+import os, os.path, logging
 
 
 # 3rd party
@@ -17,7 +17,6 @@ import wx, wx.lib.imagebrowser
 # GNUmed
 from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmTools
-from Gnumed.pycommon import gmI18N
 from Gnumed.pycommon import gmDateTime
 
 from Gnumed.business import gmDocuments
@@ -28,6 +27,7 @@ from Gnumed.wxpython import gmGuiHelpers
 
 
 _log = logging.getLogger('gm.ui')
+_ = lambda x:x
 
 
 ID_AcquirePhoto = wx.NewId()
@@ -157,8 +157,7 @@ class cPatientPicture(wx.StaticBitmap):
 			doc.save()
 		else:
 			doc = docs[0]
-
-		obj = doc.add_part(file = fname)
+		doc.add_part(file = fname)
 		return True
 
 	#-----------------------------------------------------------------

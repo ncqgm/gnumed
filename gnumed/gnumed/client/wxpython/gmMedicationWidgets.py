@@ -6,6 +6,7 @@ __license__ = "GPL v2 or later"
 
 import logging
 import sys
+import urllib
 import datetime as pydt
 
 
@@ -15,18 +16,13 @@ import wx.grid
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-	from Gnumed.pycommon import gmI18N
-	gmI18N.activate_locale()
-	gmI18N.install_domain(domain = 'gnumed')
+	_ = lambda x:x
 
 from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmCfg
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmDateTime
 from Gnumed.pycommon import gmMatchProvider
-from Gnumed.pycommon import gmI18N
-from Gnumed.pycommon import gmPrinting
-from Gnumed.pycommon import gmCfg2
 from Gnumed.pycommon import gmNetworkTools
 
 from Gnumed.business import gmPerson
@@ -34,23 +30,18 @@ from Gnumed.business import gmPraxis
 from Gnumed.business import gmMedication
 from Gnumed.business import gmForms
 from Gnumed.business import gmStaff
-from Gnumed.business import gmDocuments
 from Gnumed.business import gmLOINC
-from Gnumed.business import gmClinicalRecord
 from Gnumed.business import gmClinicalCalculator
 from Gnumed.business import gmPathLab
 
 from Gnumed.wxpython import gmGuiHelpers
 from Gnumed.wxpython import gmRegetMixin
-from Gnumed.wxpython import gmAuthWidgets
 from Gnumed.wxpython import gmEditArea
-from Gnumed.wxpython import gmMacro
 from Gnumed.wxpython import gmCfgWidgets
 from Gnumed.wxpython import gmListWidgets
 from Gnumed.wxpython import gmPhraseWheel
 from Gnumed.wxpython import gmFormWidgets
 from Gnumed.wxpython import gmAllergyWidgets
-from Gnumed.wxpython import gmDocumentWidgets
 from Gnumed.wxpython import gmSubstanceMgmtWidgets
 
 
@@ -208,8 +199,7 @@ def turn_substance_intake_into_allergy(parent=None, intake=None, emr=None):
 	if not intake.save():
 		return False
 
-	allg = intake.turn_into_allergy(encounter_id = emr.active_encounter['pk_encounter'])
-
+	intake.turn_into_allergy(encounter_id = emr.active_encounter['pk_encounter'])
 	drug = intake.containing_drug
 	comps = [ c['substance'] for c in drug.components ]
 	if len(comps) > 1:
@@ -231,13 +221,10 @@ def turn_substance_intake_into_allergy(parent=None, intake=None, emr=None):
 				' & '.join(comps)
 			)
 		)
-
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
-
 	dlg = gmAllergyWidgets.cAllergyManagerDlg(parent, -1)
 	dlg.ShowModal()
-
 	return True
 
 #============================================================
@@ -1351,8 +1338,8 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 	#------------------------------------------------------------
 	def get_selected_cells(self):
 
-		sel_block_top_left = self.GetSelectionBlockTopLeft()
-		sel_block_bottom_right = self.GetSelectionBlockBottomRight()
+		#sel_block_top_left = self.GetSelectionBlockTopLeft()
+		#sel_block_bottom_right = self.GetSelectionBlockBottomRight()
 		sel_cols = self.GetSelectedCols()
 		sel_rows = self.GetSelectedRows()
 

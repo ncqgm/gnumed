@@ -9,7 +9,6 @@ import logging
 import datetime as pyDT
 import decimal
 import os
-import subprocess
 import io
 import os.path
 
@@ -21,10 +20,9 @@ import wx.adv as wxh
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
+	_ = lambda x:x
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmNetworkTools
-from Gnumed.pycommon import gmI18N
-from Gnumed.pycommon import gmShellAPI
 from Gnumed.pycommon import gmCfg
 from Gnumed.pycommon import gmDateTime
 from Gnumed.pycommon import gmMatchProvider
@@ -49,7 +47,6 @@ from Gnumed.wxpython import gmEditArea
 from Gnumed.wxpython import gmPhraseWheel
 from Gnumed.wxpython import gmListWidgets
 from Gnumed.wxpython import gmGuiHelpers
-from Gnumed.wxpython import gmAuthWidgets
 from Gnumed.wxpython import gmOrganizationWidgets
 from Gnumed.wxpython import gmEMRStructWidgets
 from Gnumed.wxpython import gmCfgWidgets
@@ -2677,11 +2674,13 @@ class cMeasurementsPnl(wxgMeasurementsPnl.wxgMeasurementsPnl, gmRegetMixin.cRege
 
 		item = self.__action_button_popup.Append(-1, _('Export to &file'))
 		self.Bind(wx.EVT_MENU, self._GRID_results_all.current_selection_to_file, item)
-		self.__action_button_popup.Enable(id = menu_id, enable = False)
+		#self.__action_button_popup.Enable(id = menu_id, enable = False)
+		item.Enable(enable = False)
 
 		item = self.__action_button_popup.Append(-1, _('Export to &clipboard'))
 		self.Bind(wx.EVT_MENU, self._GRID_results_all.current_selection_to_clipboard, item)
-		self.__action_button_popup.Enable(id = menu_id, enable = False)
+		#self.__action_button_popup.Enable(id = menu_id, enable = False)
+		item.Enable(enable = False)
 
 		item = self.__action_button_popup.Append(-1, _('&Delete'))
 		self.Bind(wx.EVT_MENU, self.__on_delete_current_selection, item)
@@ -2735,17 +2734,13 @@ def review_tests(parent=None, tests=None):
 
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
-
 	if len(tests) > 10:
 		test_count = len(tests)
 		tests2show = None
 	else:
 		test_count = None
 		tests2show = tests
-		if len(tests) == 0:
-			return True
-
-	dlg = cMeasurementsReviewDlg(parent, -1, tests = tests, test_count = test_count)
+	dlg = cMeasurementsReviewDlg(parent, -1, tests = tests2show, test_count = test_count)
 	decision = dlg.ShowModal()
 	if decision != wx.ID_APPLY:
 		return True
@@ -2757,21 +2752,17 @@ def review_tests(parent=None, tests=None):
 		abnormal = False
 	else:
 		abnormal = True
-
 	if dlg._RBTN_confirm_relevance.GetValue():
 		relevant = None
 	elif dlg._RBTN_results_not_relevant.GetValue():
 		relevant = False
 	else:
 		relevant = True
-
 	comment = None
 	if len(tests) == 1:
 		comment = dlg._TCTRL_comment.GetValue()
-
 	make_responsible = dlg._CHBOX_responsible.IsChecked()
 	dlg.DestroyLater()
-
 	for test in tests:
 		test.set_review (
 			technically_abnormal = abnormal,
@@ -2780,7 +2771,6 @@ def review_tests(parent=None, tests=None):
 			make_me_responsible = make_responsible
 		)
 	wx.EndBusyCursor()
-
 	return True
 
 #----------------------------------------------------------------

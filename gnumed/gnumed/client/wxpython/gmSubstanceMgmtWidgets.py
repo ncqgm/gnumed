@@ -17,9 +17,7 @@ import wx
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-	from Gnumed.pycommon import gmI18N
-	gmI18N.activate_locale()
-	gmI18N.install_domain(domain = 'gnumed')
+	_ = lambda x:x
 
 from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmCfg
@@ -154,7 +152,7 @@ def jump_to_ifap_deprecated(import_drugs=False, emr=None):
 		))
 		# file must exist for Ifap to write into it
 		try:
-			f = io.open(transfer_file, mode = 'wt').close()
+			open(transfer_file, mode = 'wt').close()
 		except IOError:
 			_log.exception('Cannot create IFAP <-> GNUmed transfer file [%s]', transfer_file)
 			gmDispatcher.send('statustext', msg = _('Cannot create IFAP <-> GNUmed transfer file [%s].') % transfer_file)
@@ -168,9 +166,9 @@ def jump_to_ifap_deprecated(import_drugs=False, emr=None):
 		# COMMENT: this file must exist PRIOR to invoking IFAP
 		# COMMENT: or else IFAP will not write data into it ...
 		try:
-			csv_file = io.open(transfer_file, mode = 'rt', encoding = 'latin1')						# FIXME: encoding unknown
+			csv_file = open(transfer_file, mode = 'rt', encoding = 'latin1')						# FIXME: encoding unknown
 		except Exception:
-			_log.exception('cannot access [%s]', fname)
+			_log.exception('cannot access [%s]', transfer_file)
 			csv_file = None
 
 		if csv_file is not None:

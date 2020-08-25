@@ -5,7 +5,6 @@ __author__ = "M. Bonert, R. Terry, I. Haywood, K.Hilbert"
 __licence__ = "GPL v2 or later"
 
 
-import sys
 import datetime as pydt
 
 
@@ -13,7 +12,6 @@ import wx
 
 
 from Gnumed.pycommon import gmDateTime
-from Gnumed.pycommon import gmTools
 from Gnumed.business import gmClinicalCalculator
 from Gnumed.wxpython import gmGuiHelpers
 
@@ -181,7 +179,7 @@ class cEdcCalculatorDlg(wxgEdcCalculatorDlg.wxgEdcCalculatorDlg):
 #====================================================================
 #====================================================================
 #====================================================================
-import math, zlib, random, string, os.path
+import string, os.path
 
 
 import wx.lib.rcsizer
@@ -273,7 +271,7 @@ class cPregCalcFrame (wx.Frame):
 		self.txt_lmp = wx.TextCtrl(self,-1,"",size=(100,20))  	# text for lmp
 		self.txt_lmp.SetFont(wx.Font(12,wx.SWISS,wx.NORMAL,wx.NORMAL,False,''))
 		self.txt_lmp.SetToolTip(wx.ToolTip(_("Click on calendar to enter the last menstrual period date")))
-		tiplmp=self.txt_lmp.GetToolTip()
+		#tiplmp=self.txt_lmp.GetToolTip()
 
 		szr_row1 = wx.BoxSizer(wx.HORIZONTAL)
 		szr_row1.Add(self.txt_lmp,1,wx.EXPAND|wx.ALL,2)
@@ -369,8 +367,8 @@ class cPregCalcFrame (wx.Frame):
 		self.txtdate = wx.TextCtrl(self,-1,"",size=(25,20))
 		self.txtdate.SetFont(wx.Font(12,wx.SWISS,wx.NORMAL,wx.NORMAL,False,''))
 		self.txtdate.SetToolTip(wx.ToolTip(_("Click on this field and then the ultrasound scan date on the calendar")))
-		tipdue=self.txtdate.GetToolTip()
-		wx.ToolTip_Enable(1)
+		#tipdue=self.txtdate.GetToolTip()
+		#wx.ToolTip_Enable(1)
 		self.szr_txtdate  = wx.BoxSizer(wx.HORIZONTAL)
 		self.szr_txtdate.Add(self.txtdate,1,wx.EXPAND|wx.ALL,2)
 		wx.EVT_SET_FOCUS(self.txtdate, self.OnSetFocus_USDate)
@@ -584,7 +582,7 @@ class cPregCalcFrame (wx.Frame):
 
 	#-------------------------------------------
 	def PurgeTime(self, date):			# a not so elegant way of removing the time
-		time_loc=string.find(str(date),":00:00")
+		time_loc=str(date).find(":00:00")
 		date_str=str(date)
 		return date_str[:(time_loc-3)]
 

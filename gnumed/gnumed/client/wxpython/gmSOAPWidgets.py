@@ -13,11 +13,12 @@ import wx
 
 
 # GNUmed
-from Gnumed.pycommon import gmDispatcher, gmI18N, gmExceptions, gmMatchProvider, gmTools, gmCfg
-from Gnumed.wxpython import gmResizingWidgets, gmPhraseWheel, gmEMRStructWidgets, gmGuiHelpers, gmRegetMixin, gmEditArea, gmPatSearchWidgets
+from Gnumed.pycommon import gmDispatcher, gmExceptions, gmTools, gmCfg
+from Gnumed.wxpython import gmResizingWidgets, gmEMRStructWidgets, gmGuiHelpers, gmRegetMixin, gmEditArea, gmPatSearchWidgets, gmVaccWidgets
 from Gnumed.business import gmPerson, gmEMRStructItems, gmSOAPimporter, gmPraxis, gmPersonSearch, gmStaff
 
 _log = logging.getLogger('gm.ui')
+_ = lambda x:x
 
 #============================================================
 def create_issue_popup(parent, pos, size, style, data_sink):
@@ -776,7 +777,7 @@ class cResizingSoapWin(gmResizingWidgets.cResizingWindow):
 				gmSOAPimporter.soap_bundle_TEXT_KEY: line_content.text.rstrip()
 			})
 			if line_content.data.is_rfe:
-				has_rfe = True
+				#has_rfe = True
 				rfe += line_content.text.rstrip()
 			if line_content.data.soap_cat == 'a':
 				aoe += line_content.text.rstrip()
@@ -1092,7 +1093,6 @@ if __name__ == "__main__":
 
 	import sys
 
-	from Gnumed.pycommon import gmPG2
 	#--------------------------------------------------------
 	def get_narrative(pk_encounter=None, pk_health_issue = None, default_labels=None):
 		"""
@@ -1169,14 +1169,16 @@ if __name__ == "__main__":
 	def test_soap_notebook():
 		print('testing notebooked soap input...')
 		application = wx.PyWidgetTester(size=(800,500))
-		soap_input = cProgressNoteInputNotebook(application.frame, -1)
+		#soap_input = 
+		cProgressNoteInputNotebook(application.frame, -1)
 		application.frame.Show(True)
 		application.MainLoop()
 	#--------------------------------------------------------
 	def test_soap_notebook_panel():
 		print('testing notebooked soap panel...')
 		application = wx.PyWidgetTester(size=(800,500))
-		soap_input = cNotebookedProgressNoteInputPanel(application.frame, -1)
+		#soap_input = 
+		cNotebookedProgressNoteInputPanel(application.frame, -1)
 		application.frame.Show(True)
 		application.MainLoop()
 	#--------------------------------------------------------

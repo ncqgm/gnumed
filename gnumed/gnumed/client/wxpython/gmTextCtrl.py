@@ -13,6 +13,7 @@ import wx.lib.expando
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
+	_ = lambda x:x
 
 from Gnumed.pycommon import gmShellAPI
 from Gnumed.wxpython import gmKeywordExpansionWidgets
@@ -498,7 +499,8 @@ if __name__ == '__main__':
 	#-----------------------------------------------
 	def test_gm_textctrl():
 		app = wx.PyWidgetTester(size = (200, 50))
-		tc = cTextCtrl(app.frame, -1)
+		#tc = 
+		cTextCtrl(app.frame, -1)
 		#tc.enable_keyword_expansions()
 		#tc.Enable(False)
 		app.frame.Show(True)

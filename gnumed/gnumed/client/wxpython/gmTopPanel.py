@@ -1,13 +1,11 @@
-# GNUmed
-
+"""GNUmed top banner
+"""
 #===========================================================
 __author__  = "R.Terry <rterry@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL v2 or later"
 
 
 import sys
-import os.path
-import datetime as pyDT
 import logging
 import decimal
 
@@ -21,26 +19,19 @@ from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmCfg
 from Gnumed.pycommon import gmCfg2
 from Gnumed.pycommon import gmDateTime
-from Gnumed.pycommon import gmI18N
 from Gnumed.pycommon import gmExceptions
 
 from Gnumed.business import gmPerson
-from Gnumed.business import gmEMRStructItems
-from Gnumed.business import gmAllergy
 from Gnumed.business import gmLOINC
-from Gnumed.business import gmClinicalCalculator
 from Gnumed.business import gmPathLab
 from Gnumed.business import gmPraxis
 
 from Gnumed.wxpython import gmGuiHelpers
-from Gnumed.wxpython import gmDemographicsWidgets
 from Gnumed.wxpython import gmAllergyWidgets
-from Gnumed.wxpython import gmPatSearchWidgets
-from Gnumed.wxpython import gmEMRStructWidgets
-from Gnumed.wxpython import gmPatPicWidgets
 
 
 _log = logging.getLogger('gm.ui')
+_ = lambda x:x
 
 #===========================================================
 from Gnumed.wxGladeWidgets import wxgTopPnl
@@ -408,8 +399,7 @@ class cTopPnl(wxgTopPnl.wxgTopPnl):
 
 #===========================================================	
 if __name__ == "__main__":
-	app = wxPyWidgetTester(size = (400, 200))
-	app.SetWidget(cMainTopPanel, -1)
-	app.SetWidget(cTopPanel, -1)
+	app = wx.PyWidgetTester(size = (400, 200))
+	#app.SetWidget(cMainTopPanel, -1)
+	app.SetWidget(cTopPnl, -1)
 	app.MainLoop()
-#===========================================================

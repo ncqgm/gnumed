@@ -19,7 +19,6 @@ __license__ = "GPL v2 or later"
 
 
 import sys
-import types
 import logging
 import threading
 import time
@@ -37,6 +36,7 @@ import wx.lib.mixins.listctrl as listmixins
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
+	_ = lambda x:x
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmDispatcher
 from Gnumed.wxpython.gmGuiHelpers import decorate_window_title, undecorate_window_title
@@ -1450,12 +1450,12 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 		self.__log_sizing(sys._getframe().f_code.co_name, *args, **kwargs)
 		return res
 
-	#------------------------------------------------------------
-	def GetClientSize(self, *args, **kwargs):
-		res = super(cReportListCtrl, self).GetClientSize(*args, **kwargs)
-		kwargs['sizing_function_result'] = res
-		self.__log_sizing(sys._getframe().f_code.co_name, *args, **kwargs)
-		return res
+#	#------------------------------------------------------------
+#	def GetClientSize(self, *args, **kwargs):
+#		res = super(cReportListCtrl, self).GetClientSize(*args, **kwargs)
+#		kwargs['sizing_function_result'] = res
+#		self.__log_sizing(sys._getframe().f_code.co_name, *args, **kwargs)
+#		return res
 
 	#------------------------------------------------------------
 	def GetClientSize(self, *args, **kwargs):
@@ -2582,11 +2582,6 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 			widget2screenshot = self
 		else:
 			widget2screenshot = dlg
-		png_name = os.path.join (
-			gmTools.gmPaths().home_dir,
-			'gnumed',
-			'gm-%s-%s.png' % (self.useful_title, pydt.datetime.now().strftime('%Y-%m-%d_%H-%M-%S'))
-		)
 		from Gnumed.wxpython.gmGuiHelpers import save_screenshot_to_file
 		screenshot_file = save_screenshot_to_file(widget = widget2screenshot, settle_time = 500)
 		gmDispatcher.send(signal = 'add_file_to_export_area', filename = screenshot_file, hint = _('GMd screenshot'))
@@ -2596,18 +2591,18 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 		if wx.TheClipboard.IsOpened():
 			_log.debug('clipboard already open')
 			return
+
 		if not wx.TheClipboard.Open():
 			_log.debug('cannot open clipboard')
 			return
-		data_obj = wx.TextDataObject()
 
+		data_obj = wx.TextDataObject()
 		if (self.__data is None) or (self.__item_tooltip_callback is None):
 			txt = self.__tt_static_part
 		else:
 			txt = self.__item_tooltip_callback(self.__data[self.map_item_idx2data_idx(self._rclicked_row_idx)])
 			if txt is None:
 				txt = self.__tt_static_part
-
 		data_obj.SetText(txt)
 		wx.TheClipboard.SetData(data_obj)
 		wx.TheClipboard.Close()
@@ -3215,19 +3210,19 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 
 		if self.__secondary_sort_col is None:
 			return (primary_item1_idx, primary_item2_idx)
+
 		if self.__secondary_sort_col == primary_sort_col:
 			return (primary_item1_idx, primary_item2_idx)
 
 		secondary_val1 = self.itemDataMap[primary_item1_idx][self.__secondary_sort_col]
 		secondary_val2 = self.itemDataMap[primary_item2_idx][self.__secondary_sort_col]
-
 		if type(secondary_val1) == type('') and type(secondary_val2) == type(''):
 			secondary_cmp_result = locale.strcoll(secondary_val1, secondary_val2)
 		elif type(secondary_val1) == type('') or type(secondary_val2) == type(''):
 			secondary_cmp_result = locale.strcoll(str(secondary_val1), str(secondary_val2))
 		else:
-			secondary_cmp_result = cmp(secondary_val1, secondary_val2)
-
+			#secondary_cmp_result = cmp(secondary_val1, secondary_val2)
+			secondary_cmp_result = (secondary_val1 > secondary_val2) - (secondary_val1 < secondary_val2)
 		if secondary_cmp_result == 0:
 			return (primary_item1_idx, primary_item2_idx)
 
@@ -3252,7 +3247,8 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 		elif type(data1) == type('') or type(data2) == type(''):
 			cmp_result = locale.strcoll(str(data1), str(data2))
 		else:
-			cmp_result = cmp(data1, data2)
+			#cmp_result = cmp(data1, data2)
+			cmp_result = (data1 > data2) - (data1 < data2)
 
 		#direction = u'ASC'
 		if not is_ascending:

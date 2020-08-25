@@ -1,27 +1,31 @@
-"""GNUmed measurement widgets.
+"""GNUmed device management widgets.
 """
 #================================================================
-__version__ = "$Revision: 1.17 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 __license__ = "GPL"
 
-
-import sys, logging, datetime as pyDT, decimal
+import sys
+import logging
 from lxml import etree
+
 
 import wx	#, wx.grid
 
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-
-from Gnumed.business import gmPerson, gmDevices, gmDocuments, gmPersonSearch
-from Gnumed.pycommon import gmDispatcher, gmMatchProvider
-from Gnumed.wxpython import gmRegetMixin, gmGuiHelpers, gmPatSearchWidgets
+	_ = lambda x:x
+from Gnumed.business import gmPerson
+from Gnumed.business import gmDevices
+from Gnumed.business import gmDocuments
+from Gnumed.business import gmPersonSearch
+from Gnumed.pycommon import gmDispatcher
+from Gnumed.wxpython import gmRegetMixin
+from Gnumed.wxpython import gmPatSearchWidgets
 from Gnumed.wxGladeWidgets import wxgCardiacDevicePluginPnl
 
+
 _log = logging.getLogger('gm.ui')
-_log.info(__version__)
 #================================================================
 class cCardiacDevicePluginPnl(wxgCardiacDevicePluginPnl.wxgCardiacDevicePluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 	"""Panel holding a number of widgets to manage implanted cardiac devices. Used as notebook page."""
@@ -130,8 +134,8 @@ if __name__ == '__main__':
 	def test_grid():
 		pat = gmPersonSearch.ask_for_patient()
 		app = wx.PyWidgetTester(size = (500, 300))
-		lab_grid = cMeasurementsGrid(app.frame, -1)
-		lab_grid.patient = pat
+#		lab_grid = cMeasurementsGrid(app.frame, -1)
+#		lab_grid.patient = pat
 		app.frame.Show()
 		app.MainLoop()
 	#------------------------------------------------------------
@@ -139,7 +143,7 @@ if __name__ == '__main__':
 		pat = gmPersonSearch.ask_for_patient()
 		gmPatSearchWidgets.set_active_patient(patient=pat)
 		app = wx.PyWidgetTester(size = (500, 300))
-		ea = cMeasurementEditAreaPnl(app.frame, -1)
+#		ea = cMeasurementEditAreaPnl(app.frame, -1)
 		app.frame.Show()
 		app.MainLoop()
 	#------------------------------------------------------------

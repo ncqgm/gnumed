@@ -957,23 +957,21 @@ if __name__ == '__main__':
 	#----------------------------------------------------------------
 	def test_encounter_edit_area_panel():
 		app = wx.PyWidgetTester(size = (200, 300))
-		emr = pat.emr
-		enc = emr.active_encounter
-		#enc = gmEMRStructItems.cEncounter(1)
+		#emr = pat.emr
+		#enc = emr.active_encounter
+		enc = gmEMRStructItems.cEncounter(1)
 		pnl = cEncounterEditAreaPnl(app.frame, -1, encounter=enc)
 		app.frame.Show(True)
 		app.MainLoop()
-		return
+
 	#----------------------------------------------------------------
 	def test_encounter_edit_area_dialog():
 		app = wx.PyWidgetTester(size = (200, 300))
-		emr = pat.emr
-		enc = emr.active_encounter
-		#enc = gmEMRStructItems.cEncounter(1)
-
+		#emr = pat.emr
+		#enc = emr.active_encounter
+		enc = gmEMRStructItems.cEncounter(1)
 		dlg = cEncounterEditAreaDlg(parent=app.frame, id=-1, size = (400,400), encounter=enc)
 		dlg.ShowModal()
-
 #		pnl = cEncounterEditAreaDlg(app.frame, -1, encounter=enc)
 #		app.frame.Show(True)
 #		app.MainLoop()

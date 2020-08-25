@@ -127,6 +127,7 @@ _cfg = gmCfg2.gmCfgData()
 _provider = None
 _scripting_listener = None
 _original_wxEndBusyCursor = None
+_ = lambda x:x
 
 #==============================================================================
 class cLog_wx2gm(wx.Log):
