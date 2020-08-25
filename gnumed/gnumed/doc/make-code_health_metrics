@@ -16,3 +16,5 @@ radon cc ${DIRS} | egrep '(\-\s[^ABC])|(.py)$' &>> source-cyclic_complexity.log
 #mypy --allow-redefinition --ignore-missing-imports --check-untyped-defs --warn-return-any --warn-unreachable --pretty ${DIRS} &>> source-type_checking.log
 ##mypy --html-report ./ --allow-redefinition --ignore-missing-imports --check-untyped-defs --warn-return-any --warn-unreachable ${DIRS}
 ## --allow-untyped-globals
+
+exit 0
