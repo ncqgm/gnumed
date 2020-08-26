@@ -6,24 +6,19 @@
  - review newly imported lab results
 """
 #============================================================================
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmLabJournal.py,v $
-# $Id: gmLabJournal.py,v 1.40 2008-03-06 18:32:31 ncq Exp $
-__version__ = "$Revision: 1.40 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 
 import wx
 
-from Gnumed.pycommon import gmI18N
 from Gnumed.wxpython import gmLabWidgets, gmPlugin
 
-_log = gmLog.gmDefLog
-_log.Log(gmLog.lInfo, __version__)
+_ = lambda x:x
 
 #============================================================
 class cPluginPanel(wx.Panel):
 	def __init__(self, parent, id):
 		# set up widgets
-		wx.Panel.__init__(self, parent, id, wxDefaultPosition, wxDefaultSize)
+		wx.Panel.__init__(self, parent, id, wx.DefaultPosition, wx.DefaultSize)
 
 		# make lab notebook
 		self.nb = gmLabWidgets.cLabJournalNB(self, -1)
@@ -32,7 +27,7 @@ class cPluginPanel(wx.Panel):
 		sizer = wx.BoxSizer(wx.VERTICAL)
 		szr_nb = wx.NotebookSizer( self.nb )
 
-		sizer.Add(szr_nb, 1, wxEXPAND, 0)
+		sizer.Add(szr_nb, 1, wx.EXPAND, 0)
 		self.SetAutoLayout(1)
 		self.SetSizer(sizer)
 		sizer.Fit(self)
@@ -57,7 +52,6 @@ class gmLabJournal(gmPlugin.cNotebookPluginOld):
 		if self.gb['main.notebook.raised_plugin'] != self.__class__.__name__:
 			return 1
 		if self._widget.nb.update() is None:
-			_log.Log(gmLog.lErr, "cannot update lab journal with data")
 			return None
 		return 1
 
@@ -71,4 +65,3 @@ class gmLabJournal(gmPlugin.cNotebookPluginOld):
 #----------------------------------------------------------------
 if __name__ == '__main__':
 	print("do not run standalone like this")
-#================================================================

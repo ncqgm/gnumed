@@ -8,29 +8,20 @@
 #
 # @copyright: author
 #======================================================================
-__version__ = "$Revision: 1.18 $"
 __author__ = "Carlos Moro, Karsten Hilbert"
 __license__ = 'GPL v2 or later (details at http://www.gnu.org)'
 
-import logging
+import logging, sys
 
 
 if __name__ == '__main__':
-	# stdlib
-	import sys
 	sys.path.insert(0, '../../../')
-
-	from Gnumed.pycommon import gmI18N
-	gmI18N.activate_locale()
-	gmI18N.install_domain()
-
-# GNUmed
 from Gnumed.wxpython import gmPlugin, gmSOAPWidgets
 from Gnumed.wxpython import gmAccessPermissionWidgets
 
 
 _log = logging.getLogger('gm.ui')
-_log.info(__version__)
+_ = lambda x:x
 
 #======================================================================
 class gmNotebookedProgressNoteInputPlugin(gmPlugin.cNotebookPlugin):
@@ -74,6 +65,7 @@ if __name__ == "__main__":
 
 	# GNUmed
 	from Gnumed.business import gmPersonSearch
+	from Gnumed.wxpython import gmPatSearchWidgets
 
 	_log.info("starting Notebooked progress notes input plugin...")
 

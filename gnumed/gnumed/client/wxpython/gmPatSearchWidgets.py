@@ -1396,8 +1396,6 @@ if __name__ == "__main__":
 
 	if len(sys.argv) > 1:
 		if sys.argv[1] == 'test':
-			gmI18N.activate_locale()
-			gmI18N.install_domain()
 
 			app = wx.PyWidgetTester(size = (200, 40))
 #			app.SetWidget(cSelectPersonFromListDlg, -1)

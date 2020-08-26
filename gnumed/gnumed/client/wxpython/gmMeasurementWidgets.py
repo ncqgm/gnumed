@@ -4838,8 +4838,6 @@ if __name__ == '__main__':
 	from Gnumed.pycommon import gmLog2
 	from Gnumed.wxpython import gmPatSearchWidgets
 
-	gmI18N.activate_locale()
-	gmI18N.install_domain()
 	gmDateTime.init()
 
 	#------------------------------------------------------------
@@ -4855,7 +4853,7 @@ if __name__ == '__main__':
 		pat = gmPersonSearch.ask_for_patient()
 		gmPatSearchWidgets.set_active_patient(patient=pat)
 		app = wx.PyWidgetTester(size = (500, 300))
-		ea = cMeasurementEditAreaPnl(app.frame, -1)
+		cMeasurementEditAreaPnl(app.frame, -1)
 		app.frame.Show()
 		app.MainLoop()
 	#------------------------------------------------------------

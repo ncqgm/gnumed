@@ -179,7 +179,7 @@ class cEdcCalculatorDlg(wxgEdcCalculatorDlg.wxgEdcCalculatorDlg):
 #====================================================================
 #====================================================================
 #====================================================================
-import string, os.path
+import os.path
 
 
 import wx.lib.rcsizer

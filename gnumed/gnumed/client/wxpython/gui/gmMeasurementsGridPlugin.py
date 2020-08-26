@@ -11,11 +11,11 @@ import logging
 
 
 from Gnumed.wxpython import gmPlugin, gmMeasurementWidgets
-from Gnumed.pycommon import gmI18N
 from Gnumed.wxpython import gmAccessPermissionWidgets
 
 
 _log = logging.getLogger('gm.ui')
+_ = lambda x:x
 #======================================================================
 class gmMeasurementsGridPlugin(gmPlugin.cNotebookPlugin):
 	"""Plugin to encapsulate patient measurements."""

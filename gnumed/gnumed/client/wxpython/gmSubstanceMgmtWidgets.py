@@ -1652,6 +1652,6 @@ if __name__ == '__main__':
 	#manage_substance_intakes()
 	edit_single_component_generic_drug (
 		single_entry = True,
-		fields = {'substance': {'value': val, 'data': None}},
+		fields = {'substance': {'value': 'Ibuprofen', 'data': None}},
 		return_drug = True
 	)

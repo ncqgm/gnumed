@@ -1,12 +1,8 @@
 # -*- coding: utf-8 -*-
-#======================================================================
-# GNUmed patient overview plugin
-# ------------------------------
-#
+"""GNUmed patient overview plugin"""
 #======================================================================
 __author__ = "Carlos Moro, Karsten Hilbert"
 __license__ = 'GPL v2 or later (details at http://www.gnu.org)'
-
 
 import logging
 
@@ -16,16 +12,13 @@ if __name__ == '__main__':
 	import sys
 	sys.path.insert(0, '../../../')
 
-	from Gnumed.pycommon import gmI18N
-	gmI18N.activate_locale()
-	gmI18N.install_domain()
-
 # GNUmed
 from Gnumed.wxpython import gmPlugin, gmPatOverviewWidgets
 from Gnumed.wxpython import gmAccessPermissionWidgets
 
 
 _log = logging.getLogger('gm.ui')
+_ = lambda x:x
 
 #======================================================================
 class gmPatientOverviewPlugin(gmPlugin.cNotebookPlugin):
@@ -67,7 +60,6 @@ if __name__ == "__main__":
 	import wx
 
 	# GNUmed
-	from Gnumed.business import gmPersonSearch
 	from Gnumed.wxpython import gmSOAPWidgets
 
 	_log.info("starting Notebooked progress notes input plugin...")

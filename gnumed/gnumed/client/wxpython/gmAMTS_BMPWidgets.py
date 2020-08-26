@@ -17,14 +17,10 @@ import wx
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-	from Gnumed.pycommon import gmI18N
-	gmI18N.activate_locale()
-	gmI18N.install_domain(domain = 'gnumed')
-from Gnumed.pycommon import gmTools
-
+	_ = lambda x:x
 
 from Gnumed.business import gmAMTS_BMP
-
+from Gnumed.business import gmPerson
 
 from Gnumed.wxpython import gmListWidgets
 from Gnumed.wxpython import gmGuiHelpers

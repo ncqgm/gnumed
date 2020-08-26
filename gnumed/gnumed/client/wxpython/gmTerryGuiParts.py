@@ -112,7 +112,7 @@ class cHeadingCaption(wx.Panel):
 		self.h = 0
 
 	def OnPaint (self, event):
-		self.redraw (wxPaintDC (self))
+		self.redraw (wx.PaintDC (self))
 
 	def OnSize (self, event):
 		self.w, self.h = self.GetClientSize()
@@ -145,7 +145,7 @@ class cHeadingCaption(wx.Panel):
 
 #===========================================================================
 if __name__ == "__main__":
-		app = wxPyWidgetTester(size = (50, 20))
+		app = wx.PyWidgetTester(size = (50, 20))
 		app.SetWidget(cAlertCaption, -1,"  Alerts  ")
 		app.MainLoop()
 

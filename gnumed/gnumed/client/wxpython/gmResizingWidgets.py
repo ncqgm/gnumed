@@ -13,11 +13,12 @@ import wx
 import wx.stc
 
 
-from Gnumed.pycommon import gmI18N, gmDispatcher, gmPG2
+from Gnumed.pycommon import gmDispatcher
 from Gnumed.business import gmKeywordExpansion
-from Gnumed.wxpython import gmGuiHelpers, gmTimer
+from Gnumed.wxpython import gmGuiHelpers
 
 _log = logging.getLogger('gm.ui')
+_ = lambda x:x
 
 STYLE_ERROR=1
 STYLE_TEXT=2
@@ -740,6 +741,8 @@ class cResizingSTC(wx.stc.StyledTextCtrl):
 			if (self.list is not None) and self.list.alive:
 				self.list.DestroyLater()
 			return
+
+		curs_pos = self.GetCurrentPos()
 		if not ((self.list is not None) and self.list.alive):
 			x, y = self.GetPosition()
 			p = self.PointFromPosition(curs_pos)
@@ -996,7 +999,7 @@ if __name__ == '__main__':
 	class cSoapPanel(wx.Panel):
 		def __init__ (self, parent, id):
 			wx.Panel.__init__(self, parent, id)
-			sizer = wx.BoxSizer(wx.VERTICAL)
+			#sizer = wx.BoxSizer(wx.VERTICAL)
 			self.soap = cSoapWin(self, -1)
 			self.save = wx.Button (self, -1, _(" Save "))
 			self.delete = wx.Button (self, -1, _(" Delete "))
@@ -1037,7 +1040,7 @@ if __name__ == '__main__':
 #			self.list.SetSelection (sel, 0)
 
 		def OnSave (self, event):
-			data = self.soap.GetValue()
+			#data = self.soap.GetValue()
 #			title = data['Assessment'] or data['Subjective'] or data['Plan'] or data['Objective']
 			self.soap.Clear()
 #			sel = self.list.GetSelection ()

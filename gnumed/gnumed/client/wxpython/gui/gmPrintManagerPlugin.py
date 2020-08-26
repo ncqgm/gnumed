@@ -5,22 +5,22 @@ __author__ = "karsten.hilbert@gmx.net"
 __license__ = "GPL v2 or later"
 
 #================================================================
-import os.path, sys, logging
+import sys, logging
+
+
 import wx
 
+
 if __name__ == '__main__':
-	# stdlib
-	import sys
 	sys.path.insert(0, '../../../')
-	from Gnumed.pycommon import gmI18N
-	gmI18N.activate_locale()
-	gmI18N.install_domain()
 
 from Gnumed.wxpython import gmPlugin
 from Gnumed.wxpython import gmExportAreaWidgets
 
 
 _log = logging.getLogger('gm.ui')
+_ = lambda x:x
+
 #================================================================
 class gmPrintManagerPlugin(gmPlugin.cNotebookPlugin):
 	tab_name = _("Print Manager")
@@ -70,8 +70,7 @@ if __name__ == '__main__':
 
 	# display the plugin standalone
 	application = wx.wx.PyWidgetTester(size = (800,600))
-	widgets = gmExamplePluginWidgets.cExamplePluginPnl(application.frame, -1)
-
+	#widgets = gmExamplePluginWidgets.cExamplePluginPnl(application.frame, -1)
 	application.frame.Show(True)
 	application.MainLoop()
 

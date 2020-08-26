@@ -3283,7 +3283,7 @@ class cStatusBar(wx.StatusBar):
 		prev = self.previous_text
 		msg = self.__update_history(text, field)
 		super().PushStatusText(msg, field)
-		self.__initiate_blinking(text, i, prev)
+		self.__initiate_blinking(text, field, prev)
 
 	#----------------------------------------------
 	def set_normal_color(self):

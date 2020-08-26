@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
+
+"""GNUmed scan and index plugin"""
+
 #=====================================================
-# GNUmed scan and index plugin
-#=====================================================
-__version__ = "$Revision: 1.8 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>\
               Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
@@ -10,6 +10,7 @@ __license__ = "GPL"
 from Gnumed.wxpython import gmPlugin, gmDocumentWidgets
 from Gnumed.wxpython import gmAccessPermissionWidgets
 
+_ = lambda x:x
 #====================================
 class gmScanIdxMedDocsPlugin(gmPlugin.cNotebookPlugin):
 	"""Plugin to encapsulate patient scan index documents window."""
@@ -42,4 +43,3 @@ class gmScanIdxMedDocsPlugin(gmPlugin.cNotebookPlugin):
 		if not self._verify_patient_avail():
 			return None
 		return 1
-#======================================================================

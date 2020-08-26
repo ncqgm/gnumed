@@ -298,7 +298,6 @@ def __request_login_params_tui():
 		gmLog2.add_word2hide(login.password)
 		login.port = prompted_input(prompt = "port", default = 5432)
 	except KeyboardInterrupt:
-		del login
 		_log.warning("user cancelled text mode login dialog")
 		print("user cancelled text mode login dialog")
 		raise gmExceptions.ConnectionError(_("Cannot connect to database without login information!"))

@@ -1,13 +1,9 @@
 # -*- coding: utf-8 -*-
-#======================================================================
-# GNUmed PACS plugin
-#
-# @copyright: author
+
+"""GNUmed PACS plugin"""
 #======================================================================
 __author__ = "Karsten Hilbert"
 __license__ = 'GPL v2 or later (details at http://www.gnu.org)'
-
-import logging
 
 
 from Gnumed.wxpython import gmPlugin
@@ -15,7 +11,8 @@ from Gnumed.wxpython.gmDocumentWidgets import cPACSPluginPnl
 from Gnumed.wxpython import gmAccessPermissionWidgets
 
 
-_log = logging.getLogger('gm.ui')
+_ = lambda x:x
+
 #======================================================================
 class gmPACSPlugin(gmPlugin.cNotebookPlugin):
 	"""Plugin to browse an Orthanc PACS."""

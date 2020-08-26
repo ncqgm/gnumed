@@ -4,11 +4,12 @@ This encapsulates some of the XDT data into
 objects for easy access.
 """
 #==============================================================
-__version__ = "$Revision: 1.33 $"
 __author__ = "K.Hilbert, S.Hilbert"
 __license__ = "GPL"
 
 import os.path, sys, linecache, re as regex, time, datetime as pyDT, logging
+import fileinput
+import hashlib
 
 
 if __name__ == '__main__':
@@ -18,7 +19,6 @@ from Gnumed.business import gmXdtMappings, gmPerson
 
 
 _log = logging.getLogger('gm.xdt')
-_log.info(__version__)
 
 #==============================================================
 class cDTO_xdt_person(gmPerson.cDTO_person):
@@ -181,7 +181,9 @@ class cLDTFile(object):
 		ldt_file = open(self.filename, mode = 'rt', encoding = self.encoding)
 		self.__header = []
 		for line in ldt_file:
-			length, field, content = line[:3], line[3:7], line[7:].replace('\015','').replace('\012','')
+			#length, field, content = line[:3], line[3:7], line[7:].replace('\015','').replace('\012','')
+			field = line[3:7]
+			content = line[7:].replace('\015','').replace('\012','')
 			# loop until found first LG-Bericht
 			if field == '8000':
 				if content in ['8202']:
@@ -206,8 +208,9 @@ class cLDTFile(object):
 				self.__tail.append(line)
 				continue
 
-			length, field, content = line[:3], line[3:7], line[7:].replace('\015','').replace('\012','')
-
+			#length, field, content = line[:3], line[3:7], line[7:].replace('\015','').replace('\012','')
+			field = line[3:7]
+			content = line[7:].replace('\015','').replace('\012','')
 			# loop until found tail
 			if field == '8000':
 				if content not in ['8221']:
@@ -232,8 +235,9 @@ class cLDTFile(object):
 				out_file.write(line)
 				continue
 
-			length, field, content = line[:3], line[3:7], line[7:].replace('\015','').replace('\012','')
-
+			#length, field, content = line[:3], line[3:7], line[7:].replace('\015','').replace('\012','')
+			content = line[7:].replace('\015','').replace('\012','')
+			field = line[3:7]
 			# start of record
 			if field == '8000':
 				# start of LG-Bericht
@@ -296,14 +300,9 @@ def get_pat_files(aFile, ID, name, patdir = None, patlst = None):
 	return [patdir, files]
 #==============================================================
 def split_xdt_file(aFile,patlst,cfg):
-	content=[]
-	lineno = []
-
 	# xDT line format: aaabbbbcccccccccccCRLF where aaa = length, bbbb = record type, cccc... = content
-
 	content = []
 	record_start_lines = []
-
 	# find record starts
 	for line in fileinput.input(aFile):
 		strippedline = line.replace('\015','')
@@ -311,7 +310,6 @@ def split_xdt_file(aFile,patlst,cfg):
 		# do we care about this line ? (records start with 8000)
 		if strippedline[3:7] == '8000':
 			record_start_lines.append(fileinput.filelineno())
-
 	# loop over patient records
 	for aline in record_start_lines:
 		# WHY +2 ?!? 
@@ -335,18 +333,19 @@ def split_xdt_file(aFile,patlst,cfg):
 			startline=aline
 			endline=record_start_lines[record_start_lines.index(aline)+1]
 			_log.debug("reading from%s" %str(startline)+' '+str(endline) )
-			for tmp in range(startline,endline):							
+			for tmp in range(startline,endline):
 				content.append(linecache.getline(aFile,tmp))
-				_log.debug("reading %s"%tmp )
+				_log.debug("reading %s" % tmp )
 			hashes = check_for_previous_records(ID,name,patlst)
 			# is this new content ?
-			data_hash = md5.new()			# FIXME: use hashlib
-			map(data_hash.update, content)
+			#data_hash = md5.new()			# FIXME: use hashlib
+			#map(data_hash.update, content)
+			data_hash = hashlib.md5(content.encode('utf8'))
 			digest = data_hash.hexdigest()
 			if digest not in hashes:
 				pat_dir = cfg.get("xdt-viewer", "export-dir")
 				file = write_xdt_pat_data(content, pat_dir)
-				add_file_to_patlst(ID, name, patlst, file, ahash)
+				add_file_to_patlst(ID, name, patlst, file, data_hash)
 			content = []
 		else:
 			continue
@@ -362,7 +361,8 @@ def get_rand_fname(aDir):
 #==============================================================
 def write_xdt_pat_data(data, aDir):
 	"""write record for this patient to new file"""
-	pat_file = open(os.path.join(aDir, get_rand_fname(aDir)), mode = "wt", encoding = 'utf8')
+	fname = os.path.join(aDir, get_rand_fname(aDir))
+	pat_file = open(fname, mode = "wt", encoding = 'utf8')
 	map(pat_file.write, data)
 	pat_file.close()
 	return fname
@@ -381,14 +381,15 @@ def check_for_previous_records(ID, name, patlst):
 		hashes.append(ahash)
 
 	return hashes
+
 #==============================================================
 def add_file_to_patlst(ID, name, patlst, new_file, ahash):
 	anIdentity = "%s:%s" % (ID, name)
 	files = patlst.get(aGroup = anIdentity, anOption = "files")
-	for file in new_files:
-		files.append("%s:%s" % (file, ahash))
+	files.append("%s:%s" % (new_file, ahash))
 	_log.debug("files now there : %s" % files)
 	patlst.set(aGroup=anIdentity, anOption="files", aValue = files, aComment="")
+
 #==============================================================
 # main
 #--------------------------------------------------------------
