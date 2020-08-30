@@ -60,7 +60,8 @@ if __name__ == "__main__":
 	import wx
 
 	# GNUmed
-	from Gnumed.wxpython import gmSOAPWidgets
+	from Gnumed.business import gmPersonSearch
+	from Gnumed.wxpython import gmSOAPWidgets, gmPatSearchWidgets
 
 	_log.info("starting Notebooked progress notes input plugin...")
 

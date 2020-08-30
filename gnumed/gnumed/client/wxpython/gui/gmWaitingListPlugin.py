@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
-#=====================================================
-# GNUmed waiting list
+
+"""GNUmed waiting list"""
 #=====================================================
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
 from Gnumed.wxpython import gmPlugin, gmWaitingListWidgets
 from Gnumed.wxpython import gmAccessPermissionWidgets
+
+_ = lambda x:x
 
 #======================================================================
 class gmWaitingListPlugin(gmPlugin.cNotebookPlugin):

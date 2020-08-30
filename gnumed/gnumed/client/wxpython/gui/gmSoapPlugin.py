@@ -1,14 +1,11 @@
 # -*- coding: utf-8 -*-
+
+"""GNUmed notebook based progress note input plugin
+
+This plugin displays the list of patient problems
+together whith a notebook container for progress notes.
+"""
 #======================================================================
-# GNUmed notebook based progress note input plugin
-# ------------------------------------------------
-#
-# this plugin displays the list of patient problems
-# together whith a notebook container for progress notes
-#
-# @copyright: author
-#======================================================================
-__version__ = "$Revision: 1.7 $"
 __author__ = "Carlos Moro, Karsten Hilbert"
 __license__ = 'GPL v2 or later (details at http://www.gnu.org)'
 
@@ -16,21 +13,15 @@ import logging
 
 
 if __name__ == '__main__':
-	# stdlib
 	import sys
 	sys.path.insert(0, '../../../')
 
-	from Gnumed.pycommon import gmI18N
-	gmI18N.activate_locale()
-	gmI18N.install_domain()
-
-# GNUmed
 from Gnumed.wxpython import gmPlugin, gmNarrativeWidgets
 from Gnumed.wxpython import gmAccessPermissionWidgets
 
 
 _log = logging.getLogger('gm.ui')
-_log.info(__version__)
+_ = lambda x:x
 
 #======================================================================
 class gmSoapPlugin(gmPlugin.cNotebookPlugin):

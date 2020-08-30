@@ -1,13 +1,10 @@
 # -*- coding: utf-8 -*-
+
 """A documents tree plugin."""
 
-__version__ = "$Revision: 1.78 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
-import os.path, sys, logging
-
-
-import wx
+import logging
 
 
 from Gnumed.wxpython import gmDocumentWidgets, gmPlugin
@@ -15,7 +12,8 @@ from Gnumed.wxpython import gmAccessPermissionWidgets
 
 
 _log = logging.getLogger('gm.ui')
-_log.info(__version__)
+_ = lambda x:x
+
 #================================================================
 class gmShowMedDocs(gmPlugin.cNotebookPlugin):
 	"""Plugin to encapsulate document tree."""
@@ -60,9 +58,4 @@ class gmShowMedDocs(gmPlugin.cNotebookPlugin):
 			pass
 
 		return True
-#================================================================
-# MAIN
-#----------------------------------------------------------------
-if __name__ == '__main__':
-	pass
 #================================================================

@@ -12,11 +12,11 @@ import logging
 
 from Gnumed.wxpython import gmPlugin
 from Gnumed.wxpython import gmMeasurementWidgets
-from Gnumed.pycommon import gmI18N
 from Gnumed.wxpython import gmAccessPermissionWidgets
 
 
 _log = logging.getLogger('gm.ui')
+_ = lambda x:x
 
 #======================================================================
 class gmMeasurementsPlugin(gmPlugin.cNotebookPlugin):

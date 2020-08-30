@@ -1,25 +1,18 @@
 # -*- coding: utf-8 -*-
-#======================================================================
-# GNUmed billing plugin
-#
-# @copyright: authors
+
+"""GNUmed billing plugin"""
 #======================================================================
 __author__ = "Nico Latzer <nl@mnet-online.de>, Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL v2 or later (details at http://www.gnu.org)'
 
 import logging
 
-
-import wx
-
-
 from Gnumed.wxpython import gmPlugin
 from Gnumed.wxpython import gmBillingWidgets
 from Gnumed.wxpython import gmAccessPermissionWidgets
 
-
 _log = logging.getLogger('gm.billing')
-
+_ = lambda x:x
 #======================================================================
 class gmBillingPlugin(gmPlugin.cNotebookPlugin):
 
@@ -49,7 +42,4 @@ class gmBillingPlugin(gmPlugin.cNotebookPlugin):
 		if not self._verify_patient_avail():
 			return None
 		return 1
-
 #======================================================================
-if __name__ == '__main__':
-    pass

@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
-#======================================================================
-# GNUmed notebook based patient edition plugin
-# ------------------------------------------------
-#
-# this plugin displays a notebook container for patient edition
-# current pages (0.1): identity, contacts, occupation
-#
-# @copyright: author
+
+"""GNUmed notebook based patient edition plugin
+
+This plugin displays a notebook container for patient edition
+
+current pages (0.1): identity, contacts, occupation
+"""
 #======================================================================
 __author__ = "Carlos Moro, Karsten Hilbert"
 __license__ = 'GPL v2 or later (details at http://www.gnu.org)'
@@ -15,14 +14,9 @@ import logging
 
 
 if __name__ == '__main__':
-
-	# stdlib
 	import sys
 	sys.path.insert(0, '../../../')
-
-	from Gnumed.pycommon import gmI18N
-	gmI18N.activate_locale()
-	gmI18N.install_domain()
+	_ = lambda x:x
 
 # GNUmed
 from Gnumed.wxpython import gmPlugin, gmDemographicsWidgets
@@ -30,6 +24,7 @@ from Gnumed.wxpython import gmAccessPermissionWidgets
 
 
 _log = logging.getLogger('gm.ui')
+
 #======================================================================
 class gmNotebookedPatientEditionPlugin(gmPlugin.cNotebookPlugin):
 	"""Plugin to encapsulate notebooked patient edition window."""
@@ -72,6 +67,7 @@ if __name__ == "__main__":
 
 	# GNUmed
 	from Gnumed.business import gmPersonSearch
+	from Gnumed.wxpython import gmPatSearchWidgets
 
 	_log.info("starting Notebooked patient edition plugin...")
 

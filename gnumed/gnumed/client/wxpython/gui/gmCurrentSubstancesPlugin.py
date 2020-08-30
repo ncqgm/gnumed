@@ -1,22 +1,18 @@
 # -*- coding: utf-8 -*-
-#======================================================================
-# GNUmed current substances plugin
-#
-# @copyright: author
+
+"""GNUmed current substances plugin"""
 #======================================================================
 __author__ = "Karsten Hilbert"
 __license__ = 'GPL v2 or later (details at http://www.gnu.org)'
 
 import logging
 
-
 from Gnumed.wxpython import gmPlugin
 from Gnumed.wxpython import gmMedicationWidgets
-
 from Gnumed.wxpython import gmAccessPermissionWidgets
 
-
 _log = logging.getLogger('gm.ui')
+_ = lambda x:x
 #======================================================================
 class gmCurrentSubstancesPlugin(gmPlugin.cNotebookPlugin):
 	"""Plugin to encapsulate patient current medication list."""
@@ -47,10 +43,4 @@ class gmCurrentSubstancesPlugin(gmPlugin.cNotebookPlugin):
 		if not self._verify_patient_avail():
 			return None
 		return 1
-#======================================================================
-# main
-#----------------------------------------------------------------------
-if __name__ == "__main__":
-	print("no test code")
-
 #======================================================================

@@ -57,6 +57,8 @@ class gmEMRListJournalPlugin(gmPlugin.cNotebookPlugin):
 #----------------------------------------------------------------------
 if __name__ == "__main__":
 
+	import sys
+
     import wx
 
     from Gnumed.business import gmPersonSearch

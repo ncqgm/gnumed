@@ -8,12 +8,12 @@ __license__ = 'GPL v2 or later (details at http://www.gnu.org)'
 import logging
 
 
-from Gnumed.pycommon import gmI18N
 from Gnumed.wxpython import gmPlugin
 from Gnumed.wxpython import gmEMRBrowser
 from Gnumed.wxpython import gmAccessPermissionWidgets
 
 _log = logging.getLogger('gm.ui')
+_ = lambda x:x
 
 #======================================================================
 class gmEMRJournalPlugin(gmPlugin.cNotebookPlugin):
@@ -56,8 +56,8 @@ if __name__ == "__main__":
 
     import wx
 
-    from Gnumed.exporters import gmPatientExporter
     from Gnumed.business import gmPersonSearch
+    from Gnumed.wxpython import gmPatSearchWidgets
 
     _log.info("starting emr journal plugin...")
 
