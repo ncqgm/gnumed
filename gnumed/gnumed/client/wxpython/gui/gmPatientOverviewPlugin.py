@@ -5,20 +5,15 @@ __author__ = "Carlos Moro, Karsten Hilbert"
 __license__ = 'GPL v2 or later (details at http://www.gnu.org)'
 
 import logging
-
+import sys
 
 if __name__ == '__main__':
-	# stdlib
-	import sys
 	sys.path.insert(0, '../../../')
-
-# GNUmed
+	_ = lambda x:x
 from Gnumed.wxpython import gmPlugin, gmPatOverviewWidgets
 from Gnumed.wxpython import gmAccessPermissionWidgets
 
-
 _log = logging.getLogger('gm.ui')
-_ = lambda x:x
 
 #======================================================================
 class gmPatientOverviewPlugin(gmPlugin.cNotebookPlugin):

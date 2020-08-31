@@ -7,7 +7,8 @@ __license__ = "GPL"
 
 from Gnumed.wxpython import gmPlugin, gmDataMiningWidgets
 
-_ = lambda x:x
+if __name__ == '__main__':
+	_ = lambda x:x
 #======================================================================
 class gmDataMiningPlugin(gmPlugin.cNotebookPlugin):
 	"""Plugin to encapsulate a simple data mining window."""

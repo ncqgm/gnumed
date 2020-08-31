@@ -11,7 +11,8 @@ from Gnumed.wxpython.gmDocumentWidgets import cPACSPluginPnl
 from Gnumed.wxpython import gmAccessPermissionWidgets
 
 
-_ = lambda x:x
+if __name__ == '__main__':
+	_ = lambda x:x
 
 #======================================================================
 class gmPACSPlugin(gmPlugin.cNotebookPlugin):

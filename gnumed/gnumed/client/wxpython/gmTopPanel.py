@@ -31,7 +31,8 @@ from Gnumed.wxpython import gmAllergyWidgets
 
 
 _log = logging.getLogger('gm.ui')
-_ = lambda x:x
+if __name__ == '__main__':
+	_ = lambda x:x
 
 #===========================================================
 from Gnumed.wxGladeWidgets import wxgTopPnl

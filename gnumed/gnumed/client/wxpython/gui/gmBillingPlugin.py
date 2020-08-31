@@ -12,7 +12,8 @@ from Gnumed.wxpython import gmBillingWidgets
 from Gnumed.wxpython import gmAccessPermissionWidgets
 
 _log = logging.getLogger('gm.billing')
-_ = lambda x:x
+if __name__ == '__main__':
+	_ = lambda x:x
 #======================================================================
 class gmBillingPlugin(gmPlugin.cNotebookPlugin):
 

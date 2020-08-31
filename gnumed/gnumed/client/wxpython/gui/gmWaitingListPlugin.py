@@ -8,7 +8,8 @@ __license__ = "GPL"
 from Gnumed.wxpython import gmPlugin, gmWaitingListWidgets
 from Gnumed.wxpython import gmAccessPermissionWidgets
 
-_ = lambda x:x
+if __name__ == '__main__':
+	_ = lambda x:x
 
 #======================================================================
 class gmWaitingListPlugin(gmPlugin.cNotebookPlugin):

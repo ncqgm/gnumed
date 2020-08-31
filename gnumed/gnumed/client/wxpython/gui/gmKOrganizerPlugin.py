@@ -9,7 +9,8 @@ from Gnumed.wxpython import gmPlugin, gmDemographicsWidgets
 from Gnumed.pycommon import gmExceptions, gmShellAPI
 from Gnumed.wxpython import gmAccessPermissionWidgets
 
-_ = lambda x:x
+if __name__ == '__main__':
+	_ = lambda x:x
 
 #======================================================================
 class gmKOrganizerPlugin(gmPlugin.cNotebookPlugin):

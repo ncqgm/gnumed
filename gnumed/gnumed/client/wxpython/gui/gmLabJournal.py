@@ -12,7 +12,8 @@ import wx
 
 from Gnumed.wxpython import gmLabWidgets, gmPlugin
 
-_ = lambda x:x
+if __name__ == '__main__':
+	_ = lambda x:x
 
 #============================================================
 class cPluginPanel(wx.Panel):

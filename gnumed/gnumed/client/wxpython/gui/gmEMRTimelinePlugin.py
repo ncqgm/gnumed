@@ -11,7 +11,8 @@ import wx
 from Gnumed.wxpython import gmPlugin, gmEMRTimelineWidgets
 from Gnumed.wxpython import gmAccessPermissionWidgets
 
-_ = lambda x:x
+if __name__ == '__main__':
+	_ = lambda x:x
 #================================================================
 class gmEMRTimelinePlugin(gmPlugin.cNotebookPlugin):
 

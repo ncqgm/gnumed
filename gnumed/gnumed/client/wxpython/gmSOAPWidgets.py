@@ -18,7 +18,8 @@ from Gnumed.wxpython import gmResizingWidgets, gmEMRStructWidgets, gmGuiHelpers,
 from Gnumed.business import gmPerson, gmEMRStructItems, gmSOAPimporter, gmPraxis, gmPersonSearch, gmStaff
 
 _log = logging.getLogger('gm.ui')
-_ = lambda x:x
+if __name__ == '__main__':
+	_ = lambda x:x
 
 #============================================================
 def create_issue_popup(parent, pos, size, style, data_sink):

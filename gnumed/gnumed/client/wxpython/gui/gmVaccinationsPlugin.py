@@ -10,7 +10,8 @@ __license__ = 'GPL v2 or later (details at http://www.gnu.org)'
 
 from Gnumed.wxpython import gmPlugin, gmVaccWidgets
 
-_ = lambda x:x
+if __name__ == '__main__':
+	_ = lambda x:x
 
 #======================================================================
 class gmVaccinationsPlugin(gmPlugin.cNotebookPlugin):

@@ -16,7 +16,8 @@ from Gnumed.wxpython import gmEMRBrowser
 from Gnumed.wxpython import gmAccessPermissionWidgets
 
 _log = logging.getLogger('gm.ui')
-_ = lambda x:x
+if __name__ == '__main__':
+	_ = lambda x:x
 
 #======================================================================
 class gmEMRBrowserPlugin(gmPlugin.cNotebookPlugin):

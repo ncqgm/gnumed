@@ -16,12 +16,12 @@ import logging, sys
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../../')
+	_ = lambda x:x
 from Gnumed.wxpython import gmPlugin, gmSOAPWidgets
 from Gnumed.wxpython import gmAccessPermissionWidgets
 
 
 _log = logging.getLogger('gm.ui')
-_ = lambda x:x
 
 #======================================================================
 class gmNotebookedProgressNoteInputPlugin(gmPlugin.cNotebookPlugin):

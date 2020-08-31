@@ -909,8 +909,12 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 		return True
 
 #============================================================
-def acquire_images_from_capture_device(device=None, calling_window=None):
+def acquire_images_from_capture_device(device=None, calling_window=None) -> list:
+	"""Get images from image capture devices (scanners, webcams).
 
+	Returns:
+		List of file names or None.
+	"""
 	_log.debug('acquiring images from [%s]', device)
 
 	# do not import globally since we might want to use

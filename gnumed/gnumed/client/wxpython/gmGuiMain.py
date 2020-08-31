@@ -68,6 +68,7 @@ from Gnumed.pycommon import gmLog2
 from Gnumed.pycommon import gmNetworkTools
 from Gnumed.pycommon import gmMimeLib
 from Gnumed.pycommon import gmConnectionPool
+from Gnumed.pycommon import gmI18N
 
 from Gnumed.business import gmPerson
 from Gnumed.business import gmClinicalRecord
@@ -127,7 +128,8 @@ _cfg = gmCfg2.gmCfgData()
 _provider = None
 _scripting_listener = None
 _original_wxEndBusyCursor = None
-_ = lambda x:x
+if __name__ == '__main__':
+	_ = lambda x:x
 
 #==============================================================================
 class cLog_wx2gm(wx.Log):
@@ -4015,8 +4017,6 @@ def main():
 # Main
 #==============================================================================
 if __name__ == '__main__':
-
-	from GNUmed.pycommon import gmI18N
 	gmI18N.activate_locale()
 	gmI18N.install_domain()
 

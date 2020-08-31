@@ -10,7 +10,8 @@ __license__ = "GPL"
 from Gnumed.wxpython import gmPlugin, gmDocumentWidgets
 from Gnumed.wxpython import gmAccessPermissionWidgets
 
-_ = lambda x:x
+if __name__ == '__main__':
+	_ = lambda x:x
 #====================================
 class gmScanIdxMedDocsPlugin(gmPlugin.cNotebookPlugin):
 	"""Plugin to encapsulate patient scan index documents window."""

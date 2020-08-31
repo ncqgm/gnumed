@@ -23,7 +23,8 @@ from Gnumed.business import gmPerson, gmPraxis
 
 
 _log = logging.getLogger('gm.ui')
-_ = lambda x:x
+if __name__ == '__main__':
+	_ = lambda x:x
 
 #==============================================================================
 class cHorstSpaceNotebook(wx.Notebook):			# wx.BestBook ?

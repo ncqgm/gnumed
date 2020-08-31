@@ -19,7 +19,8 @@ from Gnumed.wxpython import gmExportAreaWidgets
 
 
 _log = logging.getLogger('gm.ui')
-_ = lambda x:x
+if __name__ == '__main__':
+	_ = lambda x:x
 
 #================================================================
 class gmPrintManagerPlugin(gmPlugin.cNotebookPlugin):

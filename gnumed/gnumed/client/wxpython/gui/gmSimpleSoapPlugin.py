@@ -11,14 +11,13 @@ import logging
 if __name__ == '__main__':
 	import sys
 	sys.path.insert(0, '../../../')
+	_ = lambda x:x
 from Gnumed.wxpython import gmPlugin
 from Gnumed.wxpython import gmNarrativeWidgets
 from Gnumed.wxpython import gmAccessPermissionWidgets
 
 
 _log = logging.getLogger('gm.ui')
-_ = lambda x:x
-
 #======================================================================
 class gmSimpleSoapPlugin(gmPlugin.cNotebookPlugin):
 

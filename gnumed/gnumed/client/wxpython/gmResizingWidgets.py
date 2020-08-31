@@ -18,7 +18,8 @@ from Gnumed.business import gmKeywordExpansion
 from Gnumed.wxpython import gmGuiHelpers
 
 _log = logging.getLogger('gm.ui')
-_ = lambda x:x
+if __name__ == '__main__':
+	_ = lambda x:x
 
 STYLE_ERROR=1
 STYLE_TEXT=2

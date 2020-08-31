@@ -27,7 +27,8 @@ from Gnumed.wxpython import gmGuiHelpers
 
 
 _log = logging.getLogger('gm.ui')
-_ = lambda x:x
+if __name__ == '__main__':
+	_ = lambda x:x
 
 
 ID_AcquirePhoto = wx.NewId()
