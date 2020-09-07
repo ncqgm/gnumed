@@ -10,6 +10,8 @@ import wx
 import wx.html
 
 # GNUmed modules
+if __name__ == '__main__':
+	_ = lambda x:x
 from Gnumed.pycommon import gmI18N
 
 #===================================================================

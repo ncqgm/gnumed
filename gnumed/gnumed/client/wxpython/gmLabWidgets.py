@@ -6,26 +6,23 @@
  - review newly imported lab results
 """
 #============================================================================
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmLabWidgets.py,v $
-__version__ = "$Revision: 1.33 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 
-import os.path, sys, os, re as regex, random, logging
+import random, logging
 
 
 # 3rd party
 import wx
-import wx.lib.mixins.listctrl as listmixins
+#import wx.lib.mixins.listctrl as listmixins
 
 
-from Gnumed.pycommon import gmI18N, gmPG2, gmCfg, gmExceptions, gmMatchProvider, gmDispatcher
-from Gnumed.business import gmPerson, gmClinicalRecord, gmPathLab, gmStaff
+from Gnumed.pycommon import gmCfg, gmExceptions, gmMatchProvider, gmDispatcher, gmPG2
+from Gnumed.business import gmPerson, gmPathLab, gmStaff
 from Gnumed.wxpython import gmGuiHelpers, gmPhraseWheel
 
-_log = gmLog.gmDefLog
+_log = logging.getLogger('gm.ui.lab')
 if __name__ == '__main__':
-	_log.SetAllLogLevels(gmLog.lData)
-_log.Log(gmLog.lInfo, __version__)
+	_ = lambda x:x
 
 [	wx.ID_LAB_GRID,
 	wx.ID_NB_LabJournal,
@@ -40,9 +37,9 @@ _log.Log(gmLog.lInfo, __version__)
 	wx.ID_grid_unreviewed_results
 ] = map(lambda _init_ctrls: wx.NewId(), range(11))
 #=========================================================
-class cLabDataGridCellRenderer(wxPyGridCellRenderer):
+class cLabDataGridCellRenderer(wx.PyGridCellRenderer):
     def __init__(self):
-        wxPyGridCellRenderer.__init__(self)
+        wx.PyGridCellRenderer.__init__(self)
 
     def Draw(self, grid, attr, dc, rect, row, col, isSelected):
         dc.SetBackgroundMode(wx.SOLID)
@@ -54,7 +51,7 @@ class cLabDataGridCellRenderer(wxPyGridCellRenderer):
         dc.SetFont(attr.GetFont())
 
         text = grid.GetCellValue(row, col)
-        colors = [wxRED, wx.WHITE, wx.CYAN]
+        colors = [wx.RED, wx.WHITE, wx.CYAN]
         x = rect.x + 1
         y = rect.y + 1
         for ch in text:
@@ -76,9 +73,9 @@ class cLabDataGridCellRenderer(wxPyGridCellRenderer):
     def Clone(self):
         return cLabDataGridCellRenderer()
 #=========================================================
-class cLabJournalCellRenderer(wxPyGridCellRenderer):
+class cLabJournalCellRenderer(wx.PyGridCellRenderer):
 	def __init__(self):
-		wxPyGridCellRenderer.__init__(self)
+		wx.PyGridCellRenderer.__init__(self)
 
 	def Draw(self, grid, attr, dc, rect, row, col, isSelected):
 		dc.SetBackgroundMode(wx.SOLID)
@@ -89,7 +86,7 @@ class cLabJournalCellRenderer(wxPyGridCellRenderer):
 		dc.SetFont(attr.GetFont())
 
 		text = grid.GetCellValue(row, col)
-		colors = [wxRED, wx.WHITE, wx.CYAN]
+		colors = [wx.RED, wx.WHITE, wx.CYAN]
 		x = rect.x + 1
 		y = rect.y + 1
 		for ch in text:
@@ -173,7 +170,7 @@ class cLabJournalNB(wx.Notebook):
 
 		szr_page = wx.BoxSizer(wx.VERTICAL)
 #		szr_page.Add(hbszr,0, wxALIGN_LEFT | wxALL, 5)
-#		szr_page.Add(self.lbox_pending, 1, wxEXPAND | wxALIGN_CENTER | wxALL, 5)
+#		szr_page.Add(self.lbox_pending, 1, wx.EXPAND | wxALIGN_CENTER | wxALL, 5)
 
 		pnl_page.SetAutoLayout(True)
 		pnl_page.SetSizer(szr_page)
@@ -253,8 +250,8 @@ class cLabJournalNB(wx.Notebook):
 
 		szr_page = wx.BoxSizer(wx.VERTICAL)
 		szr_page.Add(hbszr,0, wx.ALIGN_LEFT | wx.ALL, 5)
-		szr_page.Add(self.lbox_pending, 1, wxEXPAND | wx.ALIGN_CENTER | wx.ALL, 5)
-#		szr_page.Add(self.lbox_pending, 1, wxEXPAND | wxALIGN_CENTER | wxALL, 5)
+		szr_page.Add(self.lbox_pending, 1, wx.EXPAND | wx.ALIGN_CENTER | wx.ALL, 5)
+#		szr_page.Add(self.lbox_pending, 1, wx.EXPAND | wxALIGN_CENTER | wxALL, 5)
 
 		pnl_page.SetAutoLayout(True)
 		pnl_page.SetSizer(szr_page)
@@ -278,8 +275,8 @@ class cLabJournalNB(wx.Notebook):
 		self.lbox_errors.InsertColumn(3, _("context"))
 
 		szr_page = wx.BoxSizer(wx.VERTICAL)
-		szr_page.Add(self.lbox_errors, 1, wxEXPAND| wx.ALIGN_CENTER | wx.ALL, 5)
-#		szr_page.Add(self.lbox_errors, 1, wxEXPAND| wxALIGN_CENTER | wxALL, 5)
+		szr_page.Add(self.lbox_errors, 1, wx.EXPAND| wx.ALIGN_CENTER | wx.ALL, 5)
+#		szr_page.Add(self.lbox_errors, 1, wx.EXPAND| wxALIGN_CENTER | wxALL, 5)
 
 		pnl_page.SetAutoLayout(True)
 		pnl_page.SetSizer(szr_page)
@@ -302,7 +299,8 @@ class cLabJournalNB(wx.Notebook):
 		self.__grid_unreviewed_results.AutoSizeColumns(True)
 		self.__grid_unreviewed_results.AutoSizeRows(True)
 		# what is this supposed to do ?!?
-		renderer = apply(cLabJournalCellRenderer, ())
+		#renderer = apply(cLabJournalCellRenderer, ())
+		renderer = None
 		self.__grid_unreviewed_results.SetDefaultRenderer(renderer)
 		# attribute objects let you keep a set of formatting values
 		# in one spot, and reuse them if needed
@@ -351,8 +349,8 @@ class cLabJournalNB(wx.Notebook):
 
 		# -- do layout --
 		szr_page = wx.BoxSizer(wx.VERTICAL)
-		szr_page.Add(self.__grid_unreviewed_results, 1, wxEXPAND | wx.ALIGN_CENTER | wx.ALL, 5)
-		szr_page.Add(szr_buttons, 0, wxEXPAND | wx.ALIGN_CENTER | wx.ALL, 5)
+		szr_page.Add(self.__grid_unreviewed_results, 1, wx.EXPAND | wx.ALIGN_CENTER | wx.ALL, 5)
+		szr_page.Add(szr_buttons, 0, wx.EXPAND | wx.ALIGN_CENTER | wx.ALL, 5)
 
 		pnl_page.SetAutoLayout(True)
 		pnl_page.SetSizer(szr_page)
@@ -441,7 +439,8 @@ class cLabJournalNB(wx.Notebook):
 			result = self.dict_unreviewed_results[item_idx]
 
 			# boolean renderer for first and second column
-			renderer = apply(wx.GridCellBoolRenderer, ())
+			#renderer = apply(wx.GridCellBoolRenderer, ())
+			renderer = None
 			self.__grid_unreviewed_results.SetCellRenderer(item_idx, 0 , renderer)
 			self.__grid_unreviewed_results.SetCellRenderer(item_idx, 1 , renderer)
 			# set all cells read only
@@ -510,13 +509,13 @@ class cLabJournalNB(wx.Notebook):
 	#------------------------------------------------------------------------
 	def __get_import_errors(self):
 		query = """select * from housekeeping_todo where category='lab'"""
-		import_errors = gmPG.run_ro_query('historica', query)
+		import_errors = gmPG2.run_ro_query('historica', query)
 		return import_errors
 	#------------------------------------------------------------------------
 	def __get_labname(self, data):
 		# FIXME: eventually, this will be done via a cOrg value object class
 		query= """select internal_OBSOLETE_name from test_org where pk=%s"""
-		labs = gmPG.run_ro_query('historica', query, None, data)
+		labs = gmPG2.run_ro_query('historica', query, None, data)
 		return labs
 
 	#-----------------------------------
@@ -563,12 +562,12 @@ class cLabJournalNB(wx.Notebook):
 		#key.Skip()
 
 		# user moved down
-		if key.GetKeyCode() == WXK_DOWN:
+		if key.GetKeyCode() == wx.K_DOWN:
 			key.Skip()
 			#self.__on_down_arrow(key)
 			return
 		# user moved up
-		if key.GetKeyCode() == wx.WXK_UP:
+		if key.GetKeyCode() == wx.wx.K_UP:
 			key.Skip()
 			#self.__on_up_arrow(key)
 			return
@@ -576,7 +575,7 @@ class cLabJournalNB(wx.Notebook):
 		# FIXME: need PAGE UP/DOWN//POS1/END here
 			
 		#user pressed <SPACE>
-		if key.GetKeyCode() == WXK_SPACE:
+		if key.GetKeyCode() == wx.K_SPACE:
 			self.OnSelectCell(key,selector='SelKEY')
 			return
 	# -------------------------------------------------
@@ -632,7 +631,7 @@ class cLabJournalNB(wx.Notebook):
 			if successfull:
 				self.__populate_notebook()
 			else:
-				_log.Log(gmLog.lErr, 'setting result status to reviewed failed %s' % error)
+				_log.error( 'setting result status to reviewed failed %s' % error)
 				gmGuiHelpers.gm_show_error (
 					aMessage = _('Cannot mark results as "reviewed":\n%s') % error,
 					aTitle = _('update result status')
@@ -642,7 +641,7 @@ class cLabJournalNB(wx.Notebook):
 		event.Skip()
 	#--------------------------------------------------------
 	def __on_right_click(self, evt):
-		event.Skip()
+		evt.Skip()
 	#-------------------------------------------------------
 	def on_lab_selected(self,data):
 		if data is None:
@@ -664,16 +663,16 @@ class cLabDataGrid(wx.Grid):
 		"""Set up our specialised grid.
 		"""
 		# get connection
-		self.__backend = gmPG.ConnectionPool()
+		self.__backend = gmPG2.ConnectionPool()
 		self.__defconn = self.__backend.GetConnection('blobs')
 		if self.__defconn is None:
-			_log.Log(gmLog.lErr, "Cannot retrieve lab data without database connection !")
+			_log.error( "Cannot retrieve lab data without database connection !")
 			raise gmExceptions.ConstructorError("cLabDataGrid.__init__(): need db conn")
 
 		# connect to config database
 		self.__dbcfg = gmCfg.cCfgSQL(
 			aConn = self.__backend.GetConnection('default'),
-			aDBAPI = gmPG.dbapi
+			aDBAPI = gmPG2.dbapi
 		)
 		
 		wx.Grid.__init__(
@@ -693,7 +692,7 @@ class cLabDataGrid(wx.Grid):
 		self.__grid_unreviewed_results = self.CreateGrid(0, 0, wx.Grid.wx.GridSelectCells )
 		self.SetDefaultCellAlignment(wx.ALIGN_RIGHT,wx.ALIGN_CENTRE)
 		#renderer = apply(wxGridCellStringRenderer, ())
-		renderer = apply(cLabDataGridCellRenderer, ())
+		renderer = None
 		self.SetDefaultRenderer(renderer)
 		
 		# There is a bug in wxGTK for this method...
@@ -721,7 +720,7 @@ class cLabDataGrid(wx.Grid):
 	#------------------------------------------------------------------------
 	def update(self):
 		if self.__pat['pk'] is None:
-			_log.Log(gmLog.lErr, 'need patient for update')
+			_log.error( 'need patient for update')
 			gmGuiHelpers.gm_show_error(
 				aMessage = _('Cannot load lab data.\nYou first need to select a patient.'),
 				aTitle = _('loading lab data')
@@ -748,7 +747,6 @@ class cLabDataGrid(wx.Grid):
 				2: profile -> smart sorting first
 				3: profile -> user defined profile order
 		"""
-		emr = self.__pat.emr
 		results = None
 		if results is None:
 			name = self.__pat.get_names()
@@ -792,7 +790,6 @@ class cLabDataGrid(wx.Grid):
 			for i in range(len(test_names)):
 				self.SetRowLabelValue(i, test_names[i])
 		# push data onto grid
-		cells = []
 		for result in results:
 			# get  x,y position for result
 			x = dates.index(result['val_when'].date)
@@ -837,11 +834,9 @@ class cLabDataGrid(wx.Grid):
 # MAIN
 #---------------------------------------------------------
 if __name__ == '__main__':
-	_log.Log (gmLog.lInfo, "starting lab journal")
+	_log.info( "starting lab journal")
 
-	application = wxPyWidgetTester(size=(640,480))
-	application.SetWidget(cStandalonePanel,-1)
+	application = wx.PyWidgetTester(size=(640,480))
+	#application.SetWidget(cStandalonePanel,-1)
 	application.MainLoop()
-	#gmPG.StopListeners()
-	_log.Log (gmLog.lInfo, "closing lab journal")
-#=========================================================
+	_log.info( "closing lab journal")
