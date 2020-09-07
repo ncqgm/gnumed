@@ -1,6 +1,5 @@
-#===================================================
-# Thanks to Python Patterns !
-# ---------------------------
+"""A base class turning child classes into a Singleton."""
+
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL v2 or later"
 

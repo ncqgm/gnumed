@@ -661,7 +661,8 @@ class gmConnectionPool(gmBorg.cBorg):
 #============================================================
 # internal helpers
 #------------------------------------------------------------
-def exception_is_connection_loss(exc):
+def exception_is_connection_loss(exc: Exception) -> bool:
+	"""Checks whether exception represents connection loss."""
 	if not isinstance(exc, dbapi.Error):
 		# not a PG exception
 		return False
@@ -703,6 +704,7 @@ def exception_is_connection_loss(exc):
 
 #------------------------------------------------------------
 def log_pg_exception_details(exc: Exception) -> bool:
+	"""Logs details from a database exception."""
 	if not isinstance(exc, dbapi.Error):
 		return False
 
@@ -735,12 +737,14 @@ def log_pg_exception_details(exc: Exception) -> bool:
 	return True
 
 #--------------------------------------------------
-def log_pg_settings(curs):
+def log_pg_settings(curs) -> bool:
+	"""Log PostgreSQL server settings."""
 	try:
 		curs.execute('SELECT * FROM pg_settings')
 	except dbapi.Error:
 		_log.exception('cannot retrieve PG settings ("SELECT ... FROM pg_settings" failed)')
 		return False
+
 	settings = curs.fetchall()
 	for setting in settings:
 		if setting['unit'] is None:
@@ -772,17 +776,19 @@ def log_pg_settings(curs):
 	except Exception:
 		_log.exception('cannot log available PG extensions')
 		return False
+
 	extensions = curs.fetchall()
 	if extensions is None:
 		_log.error('no PG extensions available')
 		return False
+
 	for ext in extensions:
 		_log.debug('PG extension: %s', ext['pg_available_extensions'])
-
 	return True
 
 #--------------------------------------------------
 def log_cursor_state(cursor) -> None:
+	"""Log details about a DB-API cursor."""
 	if cursor is None:
 		_log.debug('cursor: None')
 		return
@@ -850,7 +856,8 @@ Query
 	gmLog2.log_multiline(logging.DEBUG, message = 'Link state:', line_prefix = '', text = txt)
 
 #--------------------------------------------------
-def log_conn_state(conn):
+def log_conn_state(conn) -> None:
+	"""Log details about a DB-API connection."""
 	tx_status = conn.get_transaction_status()
 	if tx_status in [ psycopg2.extensions.TRANSACTION_STATUS_INERROR, psycopg2.extensions.TRANSACTION_STATUS_UNKNOWN ]:
 		isolation_level = '%s (tx aborted or unknown, cannot retrieve)' % conn.isolation_level

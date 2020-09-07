@@ -31,9 +31,8 @@ signals2listen4 = [
 
 #=====================================================================
 class gmBackendListener(gmBorg.cBorg):
-
+	"""The backend listener singleton class."""
 	def __init__(self, conn=None, poll_interval=3):
-
 		try:
 			self.already_inited
 			return
@@ -80,9 +79,12 @@ class gmBackendListener(gmBorg.cBorg):
 	# public API
 	#-------------------------------
 	def shutdown(self):
+		"""Cleanly shut down listening.
+
+		Unregister notifications. Rejoin listener thread.
+		"""
 		_log.debug('received %s notifications', self.__notifications_received)
 		_log.debug('sent %s messages', self.__messages_sent)
-
 		if self._listener_thread is None:
 			self.__shutdown_connection()
 			return
@@ -100,17 +102,15 @@ class gmBackendListener(gmBorg.cBorg):
 				pass
 		except Exception:
 			print(sys.exc_info())
-
 		self._listener_thread = None
-
 		try:
 			self.__unregister_unspecific_notifications()
 		except Exception:
 			_log.exception('unable to unregister unspecific notifications')
 
 		self.__shutdown_connection()
-
 		return
+
 	#-------------------------------
 	# event handlers
 	#-------------------------------

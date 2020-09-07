@@ -436,7 +436,7 @@ def encrypt_pdf(filename=None, passphrase=None, verbose=False, remove_unencrypte
 	return None
 
 #---------------------------------------------------------------------------
-def encrypt_file_symmetric(filename=None, passphrase=None, comment=None, verbose=False, remove_unencrypted=False, convert2pdf=False):
+def encrypt_file_symmetric(filename=None, passphrase=None, comment=None, verbose=False, remove_unencrypted=False, convert2pdf=False) -> str:
 	"""Encrypt <filename> with a symmetric cipher.
 
 	<convert2pdf> - True: convert <filename> to PDF, if possible, and encrypt that.
@@ -482,18 +482,19 @@ def encrypt_file_symmetric(filename=None, passphrase=None, comment=None, verbose
 	return gpg_encrypt_file_symmetric(filename = filename, passphrase = passphrase, comment = comment, verbose = verbose, remove_unencrypted = remove_unencrypted)
 
 #---------------------------------------------------------------------------
-def encrypt_file(filename=None, receiver_key_ids=None, passphrase=None, comment=None, verbose=False, remove_unencrypted=False, convert2pdf=False):
+def encrypt_file(filename:str=None, receiver_key_ids=None, passphrase=None, comment=None, verbose=False, remove_unencrypted:bool=False, convert2pdf:bool=False) -> str:
 	"""Encrypt an arbitrary file.
 
-	<remove_unencrypted>
-		True: remove unencrypted source file if encryption succeeded
-	<convert2pdf>
-		True: attempt conversion to PDF of input file before encryption
+	Args:
+		remove_unencrypted: remove unencrypted source file if encryption succeeded
+		convert2pdf: _attempt_ conversion of input file to PDF before encryption
 			success: the PDF is encrypted (and the non-PDF source file is removed)
 			failure: the source file is encrypted
+
+	Returns:
+		Name of encrypted file.
 	"""
 	assert (filename is not None), '<filename> must not be None'
-
 	# cannot do asymmetric
 	if receiver_key_ids is None:
 		_log.debug('no receiver key IDs: cannot try asymmetric encryption')
@@ -505,7 +506,6 @@ def encrypt_file(filename=None, receiver_key_ids=None, passphrase=None, comment=
 			remove_unencrypted = remove_unencrypted,
 			convert2pdf = convert2pdf
 		)
-
 	# asymmetric not implemented yet
 	return None
 
