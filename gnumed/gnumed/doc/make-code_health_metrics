@@ -3,7 +3,8 @@
 DIRS="../client/pycommon ../client/business ../client/wxpython"
 
 echo "=== Code - problems ($(date) - pyflakes3) ==========" > source-coding_errors.log
-pyflakes3 ${DIRS} &>> source-coding_errors.log
+pyflakes3 ${DIRS} &>> tmp.log
+grep --invert-match "'Gnumed.pycommon.gmLog2' imported but unused" tmp.log &>> source-coding_errors.log
 
 echo "=== Code - maintainability ($(date) - radon mi, lower = better) ==========" > source-maintainability.log
 radon mi ${DIRS} | egrep '\-\s[^AB]$' &>> source-maintainability.log

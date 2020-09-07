@@ -45,7 +45,7 @@ Everyone is encouraged to contribute to GNUmed.
 * https://github.com/ncqgm/gnumed[source code repository]
 * https://bugs.launchpad.net/gnumed/+bugs[bug tracker]
 * https://translations.launchpad.net/gnumed/trunk/+pots/gnumed[translations]
-* link:api/[API]
+* link:api/[API] (link:api/generated.txt[generated], link:api/installed.txt[installed])
 * link:schema/release/[database schema]
 * source code health
 ** link:code-smell/source-coding_errors.log[coding errors]
