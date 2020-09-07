@@ -691,16 +691,15 @@ class cPopupDataHolder:
 	# def rename_data(self, old_desc=None, new_desc=None):
 #============================================================
 class cResizingSoapWin(gmResizingWidgets.cResizingWindow):
+	"""Resizing SOAP note input editor.
 
+	This is a wrapper around a few resizing STCs (the
+	labels and categories are settable) which are
+	customized to accept progress note input. It provides
+	the unified resizing behaviour.
+	"""
 	def __init__(self, parent, size, input_defs=None, problem=None):
-		"""Resizing SOAP note input editor.
-
-		This is a wrapper around a few resizing STCs (the
-		labels and categories are settable) which are
-		customized to accept progress note input. It provides
-		the unified resizing behaviour.
-
-		Knows how to save it's data into the backend.
+		"""Initialize SOAP note input editor.
 
 		@param input_defs: note's labels and categories
 		@type input_defs: list of cSOAPLineDef instances
@@ -767,7 +766,7 @@ class cResizingSoapWin(gmResizingWidgets.cResizingWindow):
 		progress_note = []
 		aoe = ''
 		rfe = ''
-		has_rfe = False
+		#has_rfe = False
 		soap_lines_contents = self.GetValue()
 		for line_content in soap_lines_contents.values():
 			if line_content.text.strip() == '':

@@ -22,7 +22,7 @@ class gmEMRDumpPanel(wx.Panel):
 		self.__do_layout()
 
 		if not self.__register_events():
-			raise gmExceptions.ConstructorError, 'cannot register interests'
+			raise gmExceptions.ConstructorError('cannot register interests')
 	#--------------------------------------------------------
 	def __do_layout(self):
 		self.txt = wx.TextCtrl(

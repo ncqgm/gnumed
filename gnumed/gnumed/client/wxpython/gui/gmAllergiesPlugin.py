@@ -1,26 +1,20 @@
 # -*- coding: utf-8 -*-
+"""GNUmed allergies notebook plugin"""
+
 #======================================================================
-# GNUmed allergies notebook plugin
-# --------------------------------
-#
-# @copyright: author
-#======================================================================
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmAllergiesPlugin.py,v $
-# $Id: gmAllergiesPlugin.py,v 1.9 2009-07-12 18:46:57 ncq Exp $
-__version__ = "$Revision: 1.9 $"
 __author__ = "R.Terry, S.J.Tan, K.Hilbert"
 __license__ = "GPL v2 or later (details at http://www.gnu.org)"
 
 import logging
 
-
 import wx
 
-
-from Gnumed.wxpython import gmPlugin, gmAllergyWidgets
+from Gnumed.wxpython import gmPlugin
 
 _log = logging.getLogger('gm.ui')
-_log.info(__version__)
+
+if __name__ == "__main__":
+	_ = lambda x:x
 
 #======================================================================
 class gmAllergiesPlugin(gmPlugin.cNotebookPlugin):
@@ -56,45 +50,6 @@ HPO\x0f\xab`\x04\x86\xa0\x9e\x1e\\)\xaa`\x04\x9a P$\x02\xa6\x14Y0\x1f\xa6\
 # main
 #----------------------------------------------------------------------
 if __name__ == "__main__":
-	app = wxPyWidgetTester(size = (600, 600))
+	app = wx.PyWidgetTester(size = (600, 600))
 	#app.SetWidget(gmAllergyWidgets.cAllergyPanel, -1)
 	app.MainLoop()
-#======================================================================
-# $Log: gmAllergiesPlugin.py,v $
-# Revision 1.9  2009-07-12 18:46:57  ncq
-# - return empty panel as wx 2.8.7.1 segfaults without it
-#
-# Revision 1.8  2008/03/06 18:32:30  ncq
-# - standard lib logging only
-#
-# Revision 1.7  2007/10/12 07:28:24  ncq
-# - lots of import related cleanup
-#
-# Revision 1.6  2007/05/21 14:50:05  ncq
-# - cleanup
-#
-# Revision 1.5  2005/09/28 21:27:30  ncq
-# - a lot of wx2.6-ification
-#
-# Revision 1.4  2005/09/26 18:01:52  ncq
-# - use proper way to import wx26 vs wx2.4
-# - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
-# - time for fixup
-#
-# Revision 1.3  2004/10/11 20:12:09  ncq
-# - turn into new-style notebook plugin
-#
-# Revision 1.2  2004/08/04 17:16:02  ncq
-# - wx.NotebookPlugin -> cNotebookPlugin
-# - derive cNotebookPluginOld from cNotebookPlugin
-# - make cNotebookPluginOld warn on use and implement old
-#   explicit "main.notebook.raised_plugin"/ReceiveFocus behaviour
-# - ReceiveFocus() -> receive_focus()
-#
-# Revision 1.1  2004/07/17 21:16:39  ncq
-# - cleanup/refactor allergy widgets:
-#   - Horst space plugin added
-#   - Richard space plugin separated out
-#   - plugin independant GUI code aggregated
-#   - allergies edit area factor out from generic edit area file
-#

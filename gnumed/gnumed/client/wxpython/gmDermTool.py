@@ -153,7 +153,7 @@ class DermToolDialog(wx.Dialog):
             self.jpeg = wx.Image (fname)
             self.bind_image ()
         else:
-            print "No image available"
+            print("No image available")
 
     def bind_image (self, event = None):
         jpg_width = self.jpeg.GetWidth ()
@@ -178,7 +178,7 @@ class DermToolDialog(wx.Dialog):
         sbmp.Show ()
 
     def save(self, event): # wxGlade: DermToolDialog.<event_handler>
-        print "Event handler `save' not implemented"
+        print("Event handler `save' not implemented")
         event.Skip()
 
     def close(self, event): # wxGlade: DermToolDialog.<event_handler>

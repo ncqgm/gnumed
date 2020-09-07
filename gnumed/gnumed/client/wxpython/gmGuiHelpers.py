@@ -721,7 +721,7 @@ if __name__ == '__main__':
 
 	#------------------------------------------------------------------
 	def test_scale_img():
-		app = wx.App()
+		wx.App()
 		img = file2scaled_image(filename = sys.argv[2])
 		print(img)
 		print(img.Height)
@@ -729,7 +729,7 @@ if __name__ == '__main__':
 	#------------------------------------------------------------------
 	def test_sql_logic_prw():
 		app = wx.PyWidgetTester(size = (200, 50))
-		prw = cThreeValuedLogicPhraseWheel(app.frame, -1)
+		cThreeValuedLogicPhraseWheel(app.frame, -1)
 		app.frame.Show(True)
 		app.MainLoop()
 

@@ -1315,7 +1315,7 @@ if __name__ == "__main__":
 		print("fixed HL7:", fixed)
 		#PID_fnames = split_HL7_by_PID(fixed, encoding='utf8')
 		print("staging per-PID HL7 files:")
-		for name in PID_fnames:
+		for name in []: #PID_fnames:
 			print(" file:", name)
 			#print "", __stage_MSH_as_incoming_data(name, source = u'?')
 	#-------------------------------------------------------

@@ -3242,9 +3242,9 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 		sort_col, is_ascending = self.GetSortState()
 		data1 = self.itemDataMap[item1][sort_col]
 		data2 = self.itemDataMap[item2][sort_col]
-		if type(data1) == type('') and type(data2) == type(''):
+		if isinstance(data1, str) and isinstance(data2, str):
 			cmp_result = locale.strcoll(data1, data2)
-		elif type(data1) == type('') or type(data2) == type(''):
+		elif isinstance(data1, str) or isinstance(data2, str):
 			cmp_result = locale.strcoll(str(data1), str(data2))
 		else:
 			#cmp_result = cmp(data1, data2)
@@ -3434,7 +3434,7 @@ if __name__ == '__main__':
 
 	#------------------------------------------------------------
 	def test_wxMultiChoiceDialog():
-		app = wx.PyWidgetTester(size = (400, 500))
+		#app = wx.PyWidgetTester(size = (400, 500))
 		dlg = wx.MultiChoiceDialog (
 			parent = None,
 			message = 'test message',
@@ -3458,7 +3458,8 @@ if __name__ == '__main__':
 			choices = ['a', 'b', 'c']
 			lctrl.set_string_items(choices)
 
-		app = wx.App()
+		#app = 
+		wx.App()
 		chosen = get_choices_from_list (
 #			msg = 'select a health issue\nfrom the list below\n',
 			caption = 'select health issues',
@@ -3475,7 +3476,8 @@ if __name__ == '__main__':
 	#------------------------------------------------------------
 	def test_item_picker_dlg():
 		#app = wx.PyWidgetTester(size = (200, 50))
-		app = wx.App(size = (200, 50))
+		#app = 
+		wx.App(size = (200, 50))
 		dlg = cItemPickerDlg(None, -1, msg = 'Pick a few items:')
 		dlg.set_columns(['Plugins'], ['Load in workplace', 'dummy'])
 		#dlg.set_columns(['Plugins'], [])

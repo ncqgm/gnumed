@@ -44,7 +44,7 @@ Mc4\x85\x9f%\xfc\xae\x93!\xd5K_\xd4\x86\xf8\xa1?\x88\x12\xf9\x00 =F\x87'
 # main
 #----------------------------------------------------------------------
 if __name__ == "__main__":
-	print "there isn't really any unit test for this"
+	print("there isn't really any unit test for this")
 #	from wxPython.wx import *
 #	app = wxPyWidgetTester(size = (600, 600))
 #	app.SetWidget(gmVaccWidgets.ImmunisationPanel, -1)

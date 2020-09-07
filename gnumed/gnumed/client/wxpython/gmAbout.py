@@ -11,6 +11,9 @@ import wx
 
 from Gnumed.pycommon import gmTools
 
+if __name__ == '__main__':
+	_ = lambda x:x
+
 ID_MENU = wx.NewId()
 #====================================================================
 class ScrollTxtWin (wx.Window):
@@ -150,8 +153,8 @@ class AboutFrame (wx.Frame):
 		wx.EVT_BUTTON(btn, ID_MENU, self.OnClose)
 
 		self.SetAutoLayout(True)
- 		self.SetSizer(box)
- 		self.Layout()
+		self.SetSizer(box)
+		self.Layout()
 
 	def OnClose (self, event):
 		self.win.timer.Stop ()

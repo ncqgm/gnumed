@@ -1,30 +1,35 @@
 """GNUmed measurement widgets.
 """
 #================================================================
-__version__ = "$Revision: 0.1 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 __license__ = "GPL"
 
-import sys, logging, datetime as pyDT, decimal
+# stdlib
+import sys, logging
 
-import wx	#, wx.grid
+# 3rd party
+#import wx
 
+
+# GNUmed
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
+from Gnumed.pycommon import gmDispatcher
 
-from Gnumed.business import gmPerson
-from Gnumed.pycommon import gmDispatcher, gmMatchProvider
-from Gnumed.wxpython import gmRegetMixin, gmGuiHelpers, gmPatSearchWidgets
-"""
-Now import the Panel that holds your widgets you designed with wxglade
-adapt the name of the files and panel to match those you define in 
-wxglade
-"""
-from Gnumed.wxGladeWidgets import wxgExamplePluginPnl
+#from Gnumed.business import gmPerson
+
+from Gnumed.wxpython import gmRegetMixin
+#from Gnumed.wxpython import gmGuiHelpers
+
 
 _log = logging.getLogger('gm.ui')
-_log.info(__version__)
+
 #================================================================
+# Import the Panel that holds your widgets you designed with
+# wxglade and adapt the name of the files and panel to match
+# those you defined in wxglade:
+from Gnumed.wxGladeWidgets import wxgExamplePluginPnl
+
 class cExamplePluginPnl(wxgExamplePluginPnl.wxgExamplePluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 	"""Panel holding a number of widgets. Used as notebook page."""
 	def __init__(self, *args, **kwargs):
@@ -32,24 +37,29 @@ class cExamplePluginPnl(wxgExamplePluginPnl.wxgExamplePluginPnl, gmRegetMixin.cR
 		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
 		self.__init_ui()
 		self.__register_interests()
+
 	#--------------------------------------------------------
 	# event handling
 	#--------------------------------------------------------
 	def __register_interests(self):
 		gmDispatcher.connect(signal = 'pre_patient_unselection', receiver = self._on_pre_patient_unselection)
 		gmDispatcher.connect(signal = 'post_patient_selection', receiver = self._schedule_data_reget)
+
 	#--------------------------------------------------------
 	def _on_pre_patient_unselection(self):
 		pass
+
 	#--------------------------------------------------------
 	def repopulate_ui(self):
 		_log.info('repopulate ui')
 		self._populate_with_data()
+
 	#--------------------------------------------------------
 	# internal API
 	#--------------------------------------------------------
 	def __init_ui(self):
 		pass
+
 	#--------------------------------------------------------
 	# reget mixin API
 	#--------------------------------------------------------
@@ -63,6 +73,7 @@ class cExamplePluginPnl(wxgExamplePluginPnl.wxgExamplePluginPnl, gmRegetMixin.cR
 
 		self._TCTRL_template.SetValue('you did it!')
 		return True
+
 #================================================================
 # main
 #----------------------------------------------------------------

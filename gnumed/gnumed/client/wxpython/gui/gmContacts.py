@@ -480,13 +480,10 @@ class cContactsPanel(wx.wx.Panel):
 		#print "keyCode is ", keyEvent.GetKeyCode()
 		c = keyEvent.GetKeyCode()
 		if keyEvent.ControlDown():
-			print c
 			if c == 88 : # ascii('x')
-				print "cut"
 				self._cutPerson = self.getLastSelected()
 				self._doCopyToClipboard() # experiment with wx.wxClipboard
 			elif c == 86: # ascii('v')
-				print "paste"
 				self.doPaste()
 		keyEvent.Skip()
 		
@@ -508,7 +505,6 @@ class cContactsPanel(wx.wx.Panel):
 		
 		board = wx.wx.TheClipboard
 		if not board.Open():
-			print "unable to get ownership of clipboard yet."
 			return False
 		text = self._getClipDragTextDataObject()
 		if text:
@@ -520,9 +516,6 @@ class cContactsPanel(wx.wx.Panel):
 		if p is None:
 			p = self.getCurrent()
 			if p is None:
-				#<DEBUG>
-				print "No current org or person to copy to clipboard"
-				#</DEBUG>
 				return None		
 		return wx.wx.TextDataObject( p.getHelper().getClipboardText(p) )
 
@@ -612,11 +605,11 @@ class cContactsPanel(wx.wx.Panel):
 		try:     
 			key = int(org.getId())
 		except Exception:
-			print "org has no key. ? Failure in saving org ? non-existent org category"
-			print "if testing, try insert org_category(description) values('hospital')"
-			print "in a admin psql session, substitute 'hospital' for whatever category"
+#			print "org has no key. ? Failure in saving org ? non-existent org category"
+#			print "if testing, try insert org_category(description) values('hospital')"
+#			print "in a admin psql session, substitute 'hospital' for whatever category"
 	
-			gmLog.gmDefLog.LogException("failed to save org %s with id %s" %(org['name'], str(org.getId()) ) , sys.exc_info() )
+			#gmLog.gmDefLog.LogException("failed to save org %s with id %s" %(org['name'], str(org.getId()) ) , sys.exc_info() )
 			return None, None 
 	
 	
@@ -678,7 +671,7 @@ class cContactsPanel(wx.wx.Panel):
 	def _ensureCurrentVisible(self):
 		l = self.list_organisations
 		person = self._currentPerson or self._cutPerson
-		print "person ", person, "self._cutPerson", self._cutPerson
+		#print "person ", person, "self._cutPerson", self._cutPerson
 	
 		if person:
 			key = person.getId()
@@ -769,7 +762,7 @@ class cContactsPanel(wx.wx.Panel):
 					org.setAddress( number, street, urb, postcode, None, None )
 			except Exception:
 				gmLog.gmDefLog.LogException("Unable to parse address", sys.exc_info() )
-				print "unable to parse address"
+				#print "unable to parse address"
 				
 		self.setCurrent(org)
 		self.checkEnabledFields()
@@ -871,7 +864,7 @@ class cContactsPanel(wx.wx.Panel):
 		a = self.get_address_values()
 		org.set(*[],**o)
 		#<DEBUG>
-		print "setting address with ", a
+		#print "setting address with ", a
 		#</DEBUG>
 		org.setAddress(*a)
 		
@@ -891,7 +884,7 @@ class cContactsPanel(wx.wx.Panel):
 
 	def newPerson(self):
 		if self.getCurrent() is None or self.getCurrent().getId() is None:
-			print "Org must exist to add a person"
+			#print "Org must exist to add a person"
 			return False
 		self._currentPerson =  self.getOrgHelper().createOrgPerson()
 		self._currentPerson.setParent(self.getCurrent() )
@@ -981,12 +974,12 @@ class gmContacts (gmPlugin.cNotebookPluginOld):
 		wx.wx.EVT_TOOL(toolbar, ID_SAVE, self.saveOrg)
 
 	def addEmployee(self, event):
-		print "doEmployeeAdd"
+		#print "doEmployeeAdd"
 		w = self._last_widget
 		w.newPerson()
 
 	def addOrg(self, event):
-		print "doOrgAdd"
+		#print "doOrgAdd"
 		w = self._last_widget		  
 		w.newOrg()
 		
@@ -998,19 +991,19 @@ class gmContacts (gmPlugin.cNotebookPluginOld):
 
 		
 	def addBranchDept(self, event):
-		print "doBranchDeptAdd"
+		#print "doBranchDeptAdd"
 		w = self._last_widget
 		parent = w.getCurrent()
 		if parent is None:
-			print "No parent org for sub org"
+			#print "No parent org for sub org"
 			return
 		
 		if parent.getId() is None:
-			print "Please save parent org first"
+			#print "Please save parent org first"
 			return
 		
 		if not parent.getParent() is None:	
-			print "Only one level of sub-org implemented"
+			#print "Only one level of sub-org implemented"
 			return
 		
 		w.newOrg(parent)

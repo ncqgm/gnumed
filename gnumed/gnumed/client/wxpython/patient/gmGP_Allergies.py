@@ -43,7 +43,7 @@ HPO\x0f\xab`\x04\x86\xa0\x9e\x1e\\)\xaa`\x04\x9a P$\x02\xa6\x14Y0\x1f\xa6\
 
 #============================================================================
 if __name__ == "__main__":
-	print "no unit test available"
+	pass
 #	from wxPython.wx import *
 #	app = wxPyWidgetTester(size = (600, 600))
 #	app.SetWidget(AllergyPanel, -1)

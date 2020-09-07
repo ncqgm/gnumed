@@ -132,7 +132,7 @@ if __name__ == '__main__':
 
 	#------------------------------------------------------------
 	def test_grid():
-		pat = gmPersonSearch.ask_for_patient()
+		gmPersonSearch.ask_for_patient()
 		app = wx.PyWidgetTester(size = (500, 300))
 #		lab_grid = cMeasurementsGrid(app.frame, -1)
 #		lab_grid.patient = pat

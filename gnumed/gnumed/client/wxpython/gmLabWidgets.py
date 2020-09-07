@@ -668,7 +668,7 @@ class cLabDataGrid(wx.Grid):
 		self.__defconn = self.__backend.GetConnection('blobs')
 		if self.__defconn is None:
 			_log.Log(gmLog.lErr, "Cannot retrieve lab data without database connection !")
-			raise gmExceptions.ConstructorError, "cLabDataGrid.__init__(): need db conn"
+			raise gmExceptions.ConstructorError("cLabDataGrid.__init__(): need db conn")
 
 		# connect to config database
 		self.__dbcfg = gmCfg.cCfgSQL(

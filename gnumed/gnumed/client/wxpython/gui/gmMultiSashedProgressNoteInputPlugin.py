@@ -1,25 +1,22 @@
 # -*- coding: utf-8 -*-
+"""GNUmed multisash based progress note input plugin
+
+this plugin displays the list of patient problems
+together whith a multisash container for progress notes
+"""
 #======================================================================
-# GNUmed multisash based progress note input plugin
-# -------------------------------------------------
-#
-# this plugin displays the list of patient problems
-# toghether whith a multisash container for progress notes
-#
-# @copyright: author
-#======================================================================
-__version__ = "$Revision: 1.15 $"
 __author__ = "Carlos Moro, Karsten Hilbert"
 __license__ = 'GPL v2 or later (details at http://www.gnu.org)'
 
 import logging
 
-
 from Gnumed.wxpython import gmPlugin, gmSOAPWidgets
 
-
 _log = logging.getLogger('gm.ui')
-_log.info(__version__)
+
+if __name__ == "__main__":
+	_ = lambda x:x
+
 #======================================================================
 class gmMultiSashedProgressNoteInputPlugin(gmPlugin.cNotebookPlugin):
 	"""Plugin to encapsulate multisash based progress note input window."""
@@ -48,15 +45,11 @@ class gmMultiSashedProgressNoteInputPlugin(gmPlugin.cNotebookPlugin):
 if __name__ == "__main__":
 
     import sys
-
     import wx
-
     from Gnumed.business import gmPersonSearch
+    from Gnumed.wxpython import gmPatSearchWidgets
 
     _log.info("starting multisashed progress notes input plugin...")
-
-    # make sure we have a db connection
-    pool = gmPG.ConnectionPool()
 
     # obtain patient
     patient = gmPersonSearch.ask_for_patient()
@@ -78,7 +71,6 @@ if __name__ == "__main__":
             patient.cleanup()
         except Exception:
             print("error cleaning up patient")
-    pool.StopListeners()
 
     _log.info("closing multisashed progress notes input plugin...")
 

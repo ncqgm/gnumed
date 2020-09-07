@@ -22,7 +22,6 @@ if __name__ == '__main__':
 from Gnumed.business import gmAMTS_BMP
 from Gnumed.business import gmPerson
 
-from Gnumed.wxpython import gmListWidgets
 from Gnumed.wxpython import gmGuiHelpers
 
 

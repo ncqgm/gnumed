@@ -70,7 +70,6 @@ if __name__ == "__main__":
 		sys.exit(0)
 	gmPatSearchWidgets.set_active_patient(patient=patient)
 
-	# display standalone multisash progress notes input
 	application = wx.PyWidgetTester(size = (800,600))
 	multisash_notes = gmSOAPWidgets.cNotebookedProgressNoteInputPanel(application.frame, -1)
 

@@ -6,26 +6,20 @@ a clean-room implementation).
 
 @license: GPL"""
 #================================================================
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmConfigRegistry.py,v $
-__version__ = "$Revision: 1.43 $"
 __author__ = "H.Berger, S.Hilbert, K.Hilbert"
 
-import sys, os, string, types
+import logging
 
-_log = gmLog.gmDefLog
 if __name__ == '__main__':
-	_log.SetAllLogLevels(gmLog.lData)
+	_ = lambda x:x
 
-from Gnumed.pycommon import gmCfg, gmConfigCommon, gmI18N
-from Gnumed.wxpython import gmPlugin, gmGuiHelpers, gmRegetMixin
-from Gnumed.business import gmPerson, gmPraxis
+from Gnumed.pycommon import gmCfg, gmConfigCommon
+from Gnumed.wxpython import gmGuiHelpers
+from Gnumed.business import gmPraxis
 
 import wx
 
 _cfg = gmCfg.gmDefCfgFile
-
-_log.Log(gmLog.lInfo, __version__)
-
 [	ConfigTreeCtrlID,
 	ConfigTreeBoxID,
 	ParamBoxID,
@@ -35,6 +29,8 @@ _log.Log(gmLog.lInfo, __version__)
 	DescriptionBoxID,
 	ConfigDescriptionTextID
 ] = map(lambda _init_ctrls: wx.NewId(), range(8))
+
+_log = logging.getLogger('gm.ui')
 
 #================================================================
 class cConfTree(wx.TreeCtrl):
@@ -49,7 +45,7 @@ class cConfTree(wx.TreeCtrl):
 		self.paramDescription = paramWidgets[1]
 		self.mConfSources = configSources
 		for src in configSources:
-			_log.Log(gmLog.lData, 'config source: [%s]' % str(src))
+			_log.debug('config source: [%s]' % str(src))
 		self.rootLabel = rootLabel
 
 		wx.TreeCtrl.__init__(self, parent, id, pos, size, style)
@@ -91,7 +87,7 @@ class cConfTree(wx.TreeCtrl):
 
 		for nodeDescription in self.mConfSources:
 
-			_log.Log(gmLog.lData, 'adding first level node: [%s]' % nodeDescription)
+			_log.debug('adding first level node: [%s]' % nodeDescription)
 			node = self.AppendItem(self.root, nodeDescription)
 			self.SetPyData(node, {'type': 'defaultSubtree', 'name': nodeDescription})
 
@@ -99,13 +95,13 @@ class cConfTree(wx.TreeCtrl):
 			subTree = self.__getSubTree(nodeDescription)
 			if subTree is None:
 				self.SetItemHasChildren(node, False)
-				_log.Log(gmLog.lData, 'node has no children')
+				_log.debug('node has no children')
 				continue
 			self.__addSubTree(node, subTree)
 
 			self.SortChildren(node)
 			self.SetItemHasChildren(node, True)
-						
+
 		self.SetItemHasChildren(self.root, True)
 		self.SortChildren(self.root)
 		# and uncollapse
@@ -119,7 +115,7 @@ class cConfTree(wx.TreeCtrl):
 		Adds a subtree of parameter names to an existing tree. 
 		Returns resulting tree.
 		"""
-		_log.Log(gmLog.lData, 'adding sub tree: [%s]' % str(aSubTree))
+		_log.debug('adding sub tree: [%s]' % str(aSubTree))
 
 		# check if subtree is empty
 		if aSubTree[1] == {}:
@@ -182,7 +178,7 @@ class cConfTree(wx.TreeCtrl):
 		holding the children of this element (again elements of type subTree)
 		list element [3] is the branch name
 		"""		
-		nameParts = string.split(str(aStructuredName), '.')
+		nameParts = str(aStructuredName).split('.')
 
 		tmpFunc = "aSubTree"
 		tmpDict = None
@@ -497,15 +493,17 @@ class gmConfigEditorPanel(wx.Panel):
 #----------------------------------------------------------------
 if __name__ == '__main__':
 	from Gnumed.wx.python import gmPlugin
-	_log.Log (gmLog.lInfo, "starting config browser")
+	_log.info("starting config browser")
 	workplace = input("Please enter a workplace name: ")
 	# catch all remaining exceptions
 	application = wx.PyWidgetTester(size=(640,480))
 	application.SetWidget(gmConfigEditorPanel,"any-doc",workplace, 0)
 	application.MainLoop()
-	_log.Log (gmLog.lInfo, "closing config browser")
+	_log.info("closing config browser")
 
 else:
+	from Gnumed.business import gmStaff
+
 	class gmConfigRegistry(gmPlugin.cNotebookPlugin):
 		"""Class to load this module from an environment that wants a notebook plugin
 		"""
@@ -516,7 +514,7 @@ else:
 			# get current workplace name
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace
 			currUser = gmStaff.gmCurrentProvider()['db_user']
-			_log.Log (gmLog.lInfo, "ConfigReg: %s@%s" % (currUser,workplace))
+			_log.info("ConfigReg: %s@%s" % (currUser,workplace))
 			self._widget = gmConfigEditorPanel(parent,currUser,workplace)
 			return self._widget
 

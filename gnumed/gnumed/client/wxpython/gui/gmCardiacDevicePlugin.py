@@ -2,7 +2,7 @@
 """This is a cardiac device interrogation management plugin """
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
-import os.path, sys, logging
+import sys, logging
 
 
 import wx
@@ -11,10 +11,8 @@ import wx
 from Gnumed.wxpython import gmPlugin, gmDeviceWidgets
 
 if __name__ == '__main__':
-	# stdlib
-	import sys
 	sys.path.insert(0, '../../../')
-
+	_ = lambda x:x
 	from Gnumed.pycommon import gmI18N
 	gmI18N.activate_locale()
 	gmI18N.install_domain()
@@ -71,7 +69,6 @@ if __name__ == '__main__':
 		sys.exit(0)
 	gmPatSearchWidgets.set_active_patient(patient=patient)
 
-	# display standalone multisash progress notes input
 	application = wx.wx.PyWidgetTester(size = (800,600))
 	multisash_notes = gmMeasurementWidgets.cCardiacDeviceMeasurementsPnl(application.frame, -1)
 

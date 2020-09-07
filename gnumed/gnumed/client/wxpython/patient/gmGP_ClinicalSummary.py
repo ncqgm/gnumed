@@ -10,7 +10,7 @@ try:
 	import gmDispatcher
 
 except Exception:
-	print  "import error"
+	print("import error")
 	sys.path.append('../')
 	sys.path.append('../../pycommon')
 	sys.path.append('../../business')

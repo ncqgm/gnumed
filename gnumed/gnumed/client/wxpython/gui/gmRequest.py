@@ -98,9 +98,9 @@ class cActiveRequestsPanel (RequestsPanel):
 
     def _ok_pressed (self, event):
         form_id = self.wheel_form.getData ()
-        print "Form id: %s" % form_id
+#        print "Form id: %s" % form_id
         type_id = self.wheel_type.getData ()
-        print "Type : %s" % type_id
+#        print "Type : %s" % type_id
         if form_id and type_id:
             try:
                 form = gmForms.get_form (form_id)
@@ -112,7 +112,7 @@ class cActiveRequestsPanel (RequestsPanel):
                 form.store (params)
                 form.process (params)
                 form.printout ()
-            except gmForms.FormError, e:
+            except gmForms.FormError as e:
                 gmGuiHelpers.gm_show_error (str(e), _("Error processing form"))
             except Exception:
                 gmLog.gmDefLog.LogException( "forms printing", sys.exc_info(), verbose=0)

@@ -6,7 +6,7 @@ Design by Richard Terry and Ian Haywood.
 __author__ = "Ian Haywood, Karsten Hilbert, Richard Terry"
 __license__ = 'GPL v2 or later (details at http://www.gnu.org)'
 
-import sys, logging, re as regex
+import logging, re as regex
 
 
 import wx
@@ -37,7 +37,7 @@ class cPickList(wx.ListBox):
 		"""
 		Sets the items, Items is a dict with label, data, weight items
 		"""
-		items.sort (lambda a,b: cmp(b['weight'], a['weight']))
+		#items.sort (lambda a,b: cmp(b['weight'], a['weight']))
 		self.Clear()
 		self.Set([item['label'] for item in items])
 		n = 0

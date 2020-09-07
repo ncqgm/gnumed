@@ -111,7 +111,7 @@ class DrugDisplay(wx.Panel):
 			_log.Log(gmLog.lErr, "No drug database specified. Aborting drug browser.")
 			# FIXME: we shouldn't directly call Close() on the parent
 #			parent.Close()
-			raise gmExceptions.ConstructorError, "No drug database specified"
+			raise gmExceptions.ConstructorError("No drug database specified")
 
                 # initialize interface to drug database.
 		# this will fail if backend or config files are not available
@@ -119,7 +119,7 @@ class DrugDisplay(wx.Panel):
 			self.mDrugView=gmDrugView.DrugView(self.dbName)
 		except Exception:
 			_log.LogException("Unhandled exception during DrugView API init.", sys.exc_info(), verbose = 0)
-			raise gmExceptions.ConstructorError, "Couldn't initialize DrugView API"
+			raise gmExceptions.ConstructorError("Couldn't initialize DrugView API")
 #			return None
 
 		self.mode = MODE_PRODUCT

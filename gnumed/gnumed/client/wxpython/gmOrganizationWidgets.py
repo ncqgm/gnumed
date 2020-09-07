@@ -920,13 +920,15 @@ if __name__ == "__main__":
 	#--------------------------------------------------------
 	def test_org_prw():
 		app = wx.PyWidgetTester(size = (200, 50))
-		pw = cOrganizationPhraseWheel(app.frame, -1)
+		#pw = 
+		cOrganizationPhraseWheel(app.frame, -1)
 		app.frame.Show(True)
 		app.MainLoop()
 	#--------------------------------------------------------
 	def test_org_unit_prw():
 		app = wx.PyWidgetTester(size = (200, 50))
-		pw = cOrgUnitPhraseWheel(app.frame, -1)
+		#pw = 
+		cOrgUnitPhraseWheel(app.frame, -1)
 		app.frame.Show(True)
 		app.MainLoop()
 	#--------------------------------------------------------

@@ -246,7 +246,7 @@ class PrescriptionPanel (wxPanel, PatientHolder):
 		event.Skip()
 
 	def OnExitMenu(self, event):
-		print "OnExitMenu"
+		print("OnExitMenu")
 #--------------------------------------------------------------------
 class gmGP_Prescriptions (gmPlugin_Patient.wxPatientPlugin):
 	"""

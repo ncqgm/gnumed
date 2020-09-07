@@ -960,7 +960,8 @@ if __name__ == '__main__':
 		#emr = pat.emr
 		#enc = emr.active_encounter
 		enc = gmEMRStructItems.cEncounter(1)
-		pnl = cEncounterEditAreaPnl(app.frame, -1, encounter=enc)
+		#pnl = 
+		cEncounterEditAreaPnl(app.frame, -1, encounter=enc)
 		app.frame.Show(True)
 		app.MainLoop()
 

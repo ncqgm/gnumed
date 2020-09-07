@@ -11,7 +11,6 @@ if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 	_ = lambda x:x
 
-from Gnumed.pycommon import gmI18N
 from Gnumed.pycommon import gmDispatcher
 
 from Gnumed.business.gmEMRStructItems import cHealthIssue
