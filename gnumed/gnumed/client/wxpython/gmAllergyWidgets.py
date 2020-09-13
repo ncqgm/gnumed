@@ -90,7 +90,6 @@ where narrative %(fragment_condition)s
 		)
 		mp.setThresholds(2, 3, 5)
 		self._PRW_reaction.matcher = mp
-		self._PRW_reaction.enable_default_spellchecker()
 
 #		self._RBTN_type_sensitivity.MoveAfterInTabOrder(self._RBTN_type_allergy)
 #		self._ChBOX_definite.MoveAfterInTabOrder(self._RBTN_type_sensitivity)

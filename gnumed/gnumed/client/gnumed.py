@@ -809,8 +809,10 @@ the hidden directory:
 	gmTools.create_directory_description_file(directory = gmd_dir, readme = readme)
 	# remove old README
 	gmTools.remove_file(os.path.join(gmd_dir, '00_README'))
-
-	gmTools.mkdir(os.path.expanduser(os.path.join(dot_gmd_dir, 'spellcheck')))
+	gmTools.create_directory_description_file (
+		directory = os.path.expanduser(os.path.join(dot_gmd_dir, 'spellcheck')),
+		readme = "This directory is not used by GNUmed anymore."
+	)
 	err_dir = os.path.expanduser(os.path.join(dot_gmd_dir, 'error_logs'))
 	gmTools.mkdir(err_dir)
 	readme = """This directory should be used for files not intended for user

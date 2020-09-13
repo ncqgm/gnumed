@@ -20,16 +20,6 @@ print("===========================")
 #	print("  ERROR: this is needed to handle dates and times")
 #	print("  ERROR: mxDateTime is available from http://www.egenix.com/files/python/")
 
-print(" enchant...", end = " ")
-try:
-	import enchant
-	print("found")
-except ImportError:
-	missing = True
-	print("")
-	print("  ERROR: 'enchant' not installed")
-	print("  ERROR: this is used to handle spellchecking")
-
 print(" psycopg2...", end=' ')
 try:
 	import psycopg2

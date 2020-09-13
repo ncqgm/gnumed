@@ -895,7 +895,7 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 	#--------------------------------------------------------
 	def _on_doc_type_gets_focus(self):
 		"""Per Jim: Changing the doc type happens a lot more often
-		   then correcting spelling, hence select-all on getting focus.
+		   then correcting typos, hence select-all on getting focus.
 		"""
 		self._PhWheel_doc_type.SetSelection(-1, -1)
 
