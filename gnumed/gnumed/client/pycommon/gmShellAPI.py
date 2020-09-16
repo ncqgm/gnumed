@@ -15,8 +15,15 @@ import shlex
 _log = logging.getLogger('gm.shell')
 
 #===========================================================================
-def is_cmd_in_path(cmd=None):
+def is_cmd_in_path(cmd:str=None) -> tuple:
+	"""Checks the system environment PATH for _cmd_.
 
+	Args:
+		cmd: the binary name to check for eXecutability
+
+	Returns:
+		A tuple of (result state, full path to binary if any).
+	"""
 	_log.debug('cmd: [%s]', cmd)
 	dirname = os.path.dirname(cmd)
 	_log.debug('dir: [%s]', dirname)
@@ -32,11 +39,10 @@ def is_cmd_in_path(cmd=None):
 		if os.access(candidate, os.X_OK):
 			_log.debug('found [%s]', candidate)
 			return (True, candidate)
+
 		else:
 			_log.debug('not found: %s', candidate)
-
 	_log.debug('command not found in PATH')
-
 	return (False, None)
 
 #===========================================================================
@@ -95,18 +101,25 @@ def is_executable_by_wine(cmd=None):
 
 #===========================================================================
 def detect_external_binary(binary=None):
-	"""<binary> is the name of the executable with or without .exe/.bat"""
+	"""Checks whether _binary_ should be executable.
 
+	Will retry on Windows with .exe/.bat appended to the
+	binary name, if necessary.
+
+	Args:
+		binary: the name of the executable with or without .exe/.bat
+
+	Returns:
+		A tuple of (result state, full path to binary).
+	"""
 	_log.debug('searching for [%s]', binary)
-
 	binary = binary.lstrip()
-
-	# is it a sufficiently qualified, directly usable, explicit path ?
+	# is it already a sufficiently qualified, directly usable, explicit path ?
 	if os.access(binary, os.X_OK):
 		_log.debug('found: executable explicit path')
 		return (True, binary)
 
-	# can it be found in PATH ?
+	# can it be found in the PATH ?
 	found, full_path = is_cmd_in_path(cmd = binary)
 	if found:
 		if os.access(full_path, os.X_OK):
@@ -134,16 +147,16 @@ def detect_external_binary(binary=None):
 			found_bat_binary, full_path = detect_external_binary(binary = bat_binary)
 			if found_bat_binary:
 				return (True, full_path)
+
 	else:
 		_log.debug('not running under Windows, not testing .exe/.bat')
-
 	return (False, None)
 
 #===========================================================================
-def find_first_binary(binaries=None):
+def find_first_binary(binaries:list=None):
+	"""Search OS for the first match from the list of _binaries_."""
 	found = False
 	binary = None
-
 	for cmd in binaries:
 		_log.debug('looking for [%s]', cmd)
 		if cmd is None:
@@ -151,31 +164,29 @@ def find_first_binary(binaries=None):
 		found, binary = detect_external_binary(binary = cmd)
 		if found:
 			break
-
 	return (found, binary)
 
 #===========================================================================
-def run_command_in_shell(command=None, blocking=False, acceptable_return_codes=None):
+def run_command_in_shell(command:str=None, blocking=False, acceptable_return_codes:list=None) -> bool:
 	"""Runs a command in a subshell via standard-C system().
 
-	<command>
-		The shell command to run including command line options.
-	<blocking>
-		This will make the code *block* until the shell command exits.
-		It will likely only work on UNIX shells where "cmd &" makes sense.
+	Args:
+		command: shell command to run including command line options
+		blocking: make caller *block* until the shell command exits, will likely only work on UNIX shells where "cmd &" makes sense
+		acceptable_return_codes: list of exit codes considered to signal successful operation, defaults to [0]
+
+	Returns:
+		Actual exit code of running _command_.
 
 	http://stackoverflow.com/questions/35817/how-to-escape-os-system-calls-in-python
 	"""
 	if acceptable_return_codes is None:
 		acceptable_return_codes = [0]
-
 	_log.debug('shell command >>>%s<<<', command)
 	_log.debug('blocking: %s', blocking)
 	_log.debug('acceptable return codes: %s', str(acceptable_return_codes))
-
 	# FIXME: command should be checked for shell exploits
 	command = command.strip()
-
 	if os.name == 'nt':
 		# http://stackoverflow.com/questions/893203/bat-files-nonblocking-run-launch
 		if blocking is False:
@@ -208,14 +219,11 @@ def run_command_in_shell(command=None, blocking=False, acceptable_return_codes=N
 		elif blocking is False:
 			if not command.strip().endswith('&'):
 				command += ' &'
-
 	_log.info('running shell command >>>%s<<<', command)
 	# FIXME: use subprocess.Popen()
 	ret_val = os.system(command.encode(sys.getfilesystemencoding()))
 	_log.debug('os.system() returned: [%s]', ret_val)
-
 	exited_normally = False
-
 	if not hasattr(os, 'WIFEXITED'):
 		_log.error('platform does not support exit status differentiation')
 		if ret_val in acceptable_return_codes:
@@ -240,7 +248,6 @@ def run_command_in_shell(command=None, blocking=False, acceptable_return_codes=N
 			_log.debug('TERM signal was: [%s]', os.WTERMSIG(ret_val))
 		except AttributeError:
 			_log.debug('platform does not support os.WTERMSIG()')
-
 	return exited_normally
 
 #===========================================================================
@@ -268,7 +275,19 @@ def _log_output(level, stdout=None, stderr=None):
 	_log.log(level, '\n'.join(lines2log))
 
 #===========================================================================
-def run_process(cmd_line=None, timeout=None, encoding='utf8', input_data=None, acceptable_return_codes=None, verbose=False):
+def run_process(cmd_line:list=None, timeout:int=None, encoding='utf8', input_data=None, acceptable_return_codes:list=None, verbose:bool=False):
+	"""Run a subprocess.
+
+	Args:
+		cmd_line: List of binary and commandline arguments
+		timeout: seconds until timing out
+		input_data: string or bytes to be passed to the subprocess on STDIN
+		acceptable_return_codes: list of exit codes considered to signal successful operation, defaults to [0]
+		verbose: log STDOUT/STDERR or not
+
+	Returns:
+		(success state, exit code, STDOUT)
+	"""
 	assert (cmd_line is not None), '<cmd_line> must not be None'
 
 	if acceptable_return_codes is None:

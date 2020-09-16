@@ -1,4 +1,7 @@
-"""GNUmed worker threads."""
+"""GNUmed worker threads.
+
+wx.CallAfter() does not seem to work with _multiprocessing_ !
+"""
 #=====================================================================
 __author__ = "K.Hilbert <karsten.hilbert@gmx.net>"
 __license__ = "GPL v2 or later"
@@ -10,9 +13,6 @@ import datetime as dt
 import pickle
 import copy
 
-# wx.CallAfter() does not seem to work with multiprocessing !
-#import multiprocessing
-
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
@@ -21,15 +21,17 @@ if __name__ == '__main__':
 _log = logging.getLogger('gm.worker')
 
 #=====================================================================
-def execute_in_worker_thread(payload_function=None, payload_kwargs=None, completion_callback=None, worker_name=None):
-	"""Create a thread and have it execute <payload_function>.
+def execute_in_worker_thread(payload_function=None, payload_kwargs:dict=None, completion_callback=None, worker_name:str=None) -> int:
+	"""Create a thread and have it execute "payload_function".
 
-	:param func payload_function: function to actually run in the thread
-	:param dict payload_kwargs: keyword args to pass to function to run
-	:param func completion_callback: if not None - better be prepared to receive the result of <payload_function>
-	:param str worker_name: optional worker thread name
-	:return: ID of worker thread
-	:rtype: int
+	Args:
+		payload_function: function to actually run in the thread
+		payload_kwargs: keyword arguments to pass to "payload_function"
+		completion_callback: must be able to consume the results of "payload_function" unless "None"
+		worker_name: optional worker thread name
+
+	Returns:
+		ID of worker thread
 	"""
 	assert (callable(payload_function)), 'payload function <%s> is not callable' % payload_function
 	assert ((completion_callback is None) or callable(completion_callback)), 'completion callback <%s> is not callable' % completion_callback
@@ -39,7 +41,7 @@ def execute_in_worker_thread(payload_function=None, payload_kwargs=None, complet
 	try:
 		__payload_kwargs = copy.deepcopy(payload_kwargs)
 	except (copy.error, pickle.PickleError):
-		_log.exeption('failed to copy.deepcopy(payload_kwargs): %s', payload_kwargs)
+		_log.exception('failed to copy.deepcopy(payload_kwargs): %s', payload_kwargs)
 		_log.error('using shallow copy and hoping for the best')
 		__payload_kwargs = copy.copy(payload_kwargs)
 	worker_thread = None
@@ -49,7 +51,7 @@ def execute_in_worker_thread(payload_function=None, payload_kwargs=None, complet
 	def _run_payload():
 		"""Execute the payload function.
 
-		Defined inline so it can locally access arguments and completion callback.
+		Defined inline so it can locally access arguments and the completion callback.
 		"""
 		try:
 			if payload_kwargs is None:
@@ -71,6 +73,7 @@ def execute_in_worker_thread(payload_function=None, payload_kwargs=None, complet
 			_log.exception('error running completion callback: %s', completion_callback)
 		_log.info('worker thread [name=%s, PID=%s] shuts down', worker_thread.name, worker_thread.ident)
 		return
+
 	#-------------------------------
 	#-------------------------------
 

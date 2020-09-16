@@ -349,7 +349,16 @@ def gpg_encrypt_file_symmetric(filename=None, comment=None, verbose=False, passp
 	return None
 
 #---------------------------------------------------------------------------
-def aes_encrypt_file(filename=None, passphrase=None, comment=None, verbose=False, remove_unencrypted=False):
+def aes_encrypt_file(filename:str=None, passphrase:str=None, comment:str=None, verbose:bool=False, remove_unencrypted=False):
+	"""Encrypt a file with AES.
+
+	Args:
+		passphrase: minimum of 5 characters
+		remove_unencrypted: remove unencrypted source file if encryption succeeded
+
+	Returns:
+		Name of encrypted PDF or None.
+	"""
 	assert (filename is not None), '<filename> must not be None'
 	assert (passphrase is not None), '<passphrase> must not be None'
 
@@ -393,7 +402,16 @@ def aes_encrypt_file(filename=None, passphrase=None, comment=None, verbose=False
 	return None
 
 #---------------------------------------------------------------------------
-def encrypt_pdf(filename=None, passphrase=None, verbose=False, remove_unencrypted=False):
+def encrypt_pdf(filename:str=None, passphrase:str=None, verbose:bool=False, remove_unencrypted:bool=False) -> str:
+	"""Encrypt a PDF per spec.
+
+	Args:
+		passphrase: minimum of 5 characters
+		remove_unencrypted: remove unencrypted source file if encryption succeeded
+
+	Returns:
+		Name of encrypted PDF or None.
+	"""
 	assert (filename is not None), '<filename> must not be None'
 	assert (passphrase is not None), '<passphrase> must not be None'
 

@@ -1,11 +1,7 @@
-"""gmExceptions - classes for exceptions GNUmed modules may throw
-# --------------------------------------------------------------------------
-#
-# @author: Dr. Horst Herb
-# @copyright: author
-# @license: GPL v2 or later (details at http://www.gnu.org)
-#	07.02.2002 hherb first draft, untested
-"""
+"""gmExceptions - classes for exceptions GNUmed modules may throw"""
+
+#=====================================================================
+__license__ = "GPL v2 or later (details at http://www.gnu.org)"
 
 class AccessDenied(Exception):
 	def __init__(self, msg, source=None, code=None, details=None):
