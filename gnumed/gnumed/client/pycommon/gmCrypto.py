@@ -33,16 +33,10 @@ _log = logging.getLogger('gm.encryption')
 #===========================================================================
 # archiving methods
 #---------------------------------------------------------------------------
-def create_encrypted_zip_archive_from_dir(source_dir, comment=None, overwrite=True, passphrase=None, verbose=False):
-	"""Use 7z to create an encrypted ZIP archive of a directory.
+def create_encrypted_zip_archive_from_dir(source_dir:str, comment:str=None, overwrite:bool=True, passphrase:str=None, verbose:bool=False) -> bool:
+	"""Create encrypted archive of a directory.
 
-	<source_dir>		will be included into the archive
-	<comment>			included as a file containing the comment
-	<overwrite>			remove existing archive before creation, avoiding
-						*updating* of those, and thereby including unintended data
-	<passphrase>		minimum length of 5
-
-	The resulting zip archive will always be named
+	The encrypted archive file will always be named
 	"datawrapper.zip" for confidentiality reasons. If callers
 	want another name they will have to shutil.move() the zip
 	file themselves. This archive will be compressed and
@@ -53,24 +47,33 @@ def create_encrypted_zip_archive_from_dir(source_dir, comment=None, overwrite=Tr
 	The zip format does not support header encryption thereby
 	allowing attackers to gain knowledge of patient details
 	by observing the names of files and directories inside
-	the encrypted archive.
-
-	To reduce that attack surface, GNUmed will create
-	_another_ zip archive inside "datawrapper.zip", which
-	eventually wraps up the patient data as "data.zip". That
-	archive is not compressed and not encrypted, and can thus
-	be unpacked with any old unzipper.
+	the encrypted archive. To reduce that attack surface,
+	GNUmed will create _another_ zip archive inside
+	"datawrapper.zip", which eventually wraps up the patient
+	data as "data.zip". That archive is not compressed and
+	not encrypted, and can thus be unpacked with any old
+	unzipper.
 
 	Note that GNUmed does NOT remember the passphrase for
 	you. You will have to take care of that yourself, and
 	possibly also safely hand over the passphrase to any
 	receivers of the zip archive.
+
+	Args:
+		source_dir: the directory to archive and encrypt
+		comment: included as a file containing the comment
+		overwrite: remove preexisting archive before creation, avoiding *updating* of same, and thereby including unintended data
+		passphrase: minimum length of 5 if given
+
+	Returns:
+		True / False / None (other error)
 	"""
+	assert (source_dir is not None), '<source_dir> must not be <None>'
 	if len(passphrase) < 5:
 		_log.error('<passphrase> must be at least 5 characters/signs/digits')
 		return None
-	gmLog2.add_word2hide(passphrase)
 
+	gmLog2.add_word2hide(passphrase)
 	source_dir = os.path.abspath(source_dir)
 	if not os.path.isdir(source_dir):
 		_log.error('<source_dir> does not exist or is not a directory: %s', source_dir)
@@ -164,12 +167,24 @@ def create_encrypted_zip_archive_from_dir(source_dir, comment=None, overwrite=Tr
 	success, exit_code, stdout = gmShellAPI.run_process(cmd_line = args, encoding = 'utf8', verbose = verbose)
 	if success:
 		return archive_name_outer
+
 	_log.error('cannot create outer archive')
 	return None
 
 #---------------------------------------------------------------------------
-def create_zip_archive_from_dir(source_dir, archive_name=None, comment=None, overwrite=True, verbose=False):
+def create_zip_archive_from_dir(source_dir:str, archive_name:str=None, comment:str=None, overwrite:bool=True, verbose:bool=False) -> str:
+	"""Create archive of a directory.
 
+	Args:
+		source_dir: the directory to archive and encrypt
+		archive_name: name of resulting zip archive
+		comment: included as a file containing the comment
+		overwrite: remove preexisting archive before creation, avoiding *updating* of same, and thereby including unintended data
+
+	Returns:
+		archive name / False / None (other error)
+	"""
+	assert (source_dir is not None), '<source_dir> must not be <None>'
 	source_dir = os.path.abspath(source_dir)
 	if not os.path.isdir(source_dir):
 		_log.error('<source_dir> does not exist or is not a directory: %s', source_dir)
@@ -285,10 +300,24 @@ def gpg_decrypt_file(filename=None, verbose=False, target_ext=None):
 #===========================================================================
 # file encryption methods
 #---------------------------------------------------------------------------
-def gpg_encrypt_file_symmetric(filename=None, comment=None, verbose=False, passphrase=None, remove_unencrypted=False):
+def encrypt_file_symmetric_gpg(filename=None, comment=None, verbose=False, passphrase=None, remove_unencrypted=False) -> str:
+	"""Encrypt file symmetrically with GPG.
 
+	Args:
+		filename: the file to encrypt
+		passphrase: minimum of 5 characters if given
+		comment: a comment on the file to be put into a sidecar file, will also be encrypted
+		remove_unencrypted: remove unencrypted source file if encryption succeeded
+
+	Returns:
+		Name of encrypted file or None.
+	"""
 	#add short decr instr to comment
 	assert (filename is not None), '<filename> must not be None'
+	if passphrase is not None:
+		if len(passphrase) < 5:
+			_log.error('<passphrase> must be at least 5 characters/signs/digits')
+			return None
 
 	_log.debug('attempting symmetric GPG encryption')
 	for cmd in ['gpg2', 'gpg', 'gpg2.exe', 'gpg.exe']:
@@ -298,6 +327,7 @@ def gpg_encrypt_file_symmetric(filename=None, comment=None, verbose=False, passp
 	if not found:
 		_log.warning('no gpg binary found')
 		return None
+
 	filename_encrypted = filename + '.asc'
 	args = [
 		binary,
@@ -341,30 +371,35 @@ def gpg_encrypt_file_symmetric(filename=None, comment=None, verbose=False, passp
 			os.remove(pwd_fname)
 	if not success:
 		return None
+
 	if not remove_unencrypted:
 		return filename_encrypted
+
 	if gmTools.remove_file(filename):
 		return filename_encrypted
+
 	gmTools.remove_file(filename_encrypted)
 	return None
 
 #---------------------------------------------------------------------------
-def aes_encrypt_file(filename:str=None, passphrase:str=None, comment:str=None, verbose:bool=False, remove_unencrypted=False):
-	"""Encrypt a file with AES.
+def encrypt_file_symmetric_7z(filename:str=None, passphrase:str=None, comment:str=None, verbose:bool=False, remove_unencrypted:bool=False) -> str:
+	"""Encrypt a file symmetrically with 7zip.
 
 	Args:
+		filename: the file to encrypt
 		passphrase: minimum of 5 characters
+		comment: a comment on the file to be put into a sidecar file, will also be encrypted
 		remove_unencrypted: remove unencrypted source file if encryption succeeded
 
 	Returns:
-		Name of encrypted PDF or None.
+		Name of encrypted file or None.
 	"""
 	assert (filename is not None), '<filename> must not be None'
 	assert (passphrase is not None), '<passphrase> must not be None'
-
 	if len(passphrase) < 5:
 		_log.error('<passphrase> must be at least 5 characters/signs/digits')
 		return None
+
 	gmLog2.add_word2hide(passphrase)
 
 	#add 7z/winzip url to comment.txt
@@ -394,27 +429,30 @@ def aes_encrypt_file(filename:str=None, passphrase:str=None, comment:str=None, v
 	gmTools.remove_file(comment_filename)
 	if not encrypted:
 		return None
+
 	if not remove_unencrypted:
 		return filename_encrypted
+
 	if gmTools.remove_file(filename):
 		return filename_encrypted
+
 	gmTools.remove_file(filename_encrypted)
 	return None
 
 #---------------------------------------------------------------------------
 def encrypt_pdf(filename:str=None, passphrase:str=None, verbose:bool=False, remove_unencrypted:bool=False) -> str:
-	"""Encrypt a PDF per spec.
+	"""Encrypt a PDF file per spec (AES, that is).
 
 	Args:
+		filename: PDF file to encrypt
 		passphrase: minimum of 5 characters
-		remove_unencrypted: remove unencrypted source file if encryption succeeded
+		remove_unencrypted: remove unencrypted source file if encryption succeeds
 
 	Returns:
 		Name of encrypted PDF or None.
 	"""
 	assert (filename is not None), '<filename> must not be None'
 	assert (passphrase is not None), '<passphrase> must not be None'
-
 	if len(passphrase) < 5:
 		_log.error('<passphrase> must be at least 5 characters/signs/digits')
 		return None
@@ -454,12 +492,37 @@ def encrypt_pdf(filename:str=None, passphrase:str=None, verbose:bool=False, remo
 	return None
 
 #---------------------------------------------------------------------------
-def encrypt_file_symmetric(filename=None, passphrase=None, comment=None, verbose=False, remove_unencrypted=False, convert2pdf=False) -> str:
-	"""Encrypt <filename> with a symmetric cipher.
+def encrypt_file_symmetric(filename:str=None, passphrase:str=None, comment:str=None, verbose:bool=False, remove_unencrypted:bool=False, convert2pdf:bool=False) -> str:
+	"""Encrypt file with a symmetric cipher.
 
-	<convert2pdf> - True: convert <filename> to PDF, if possible, and encrypt that.
+	Args:
+		filename: file to encrypt
+		passphrase: minimum of 5 characters
+		remove_unencrypted: remove unencrypted source file if encryption succeeded
+		comment: a comment to be included within the encrypted output
+		remove_unencrypted: remove unencrypted source file if encryption succeeds
+		convert2pdf: attempt converting _filename_ to PDF and encrypt that on success
+
+	Returns:
+		Name of encrypted PDF or None.
 	"""
 	assert (filename is not None), '<filename> must not be None'
+
+	if passphrase is None:
+		# try GPG based AES only, as GPG is the only supported method
+		# for securely getting a passphrase from the user
+		return encrypt_file_symmetric_gpg (
+			filename = filename,
+			passphrase = None,
+			comment = comment,
+			verbose = verbose,
+			remove_unencrypted = remove_unencrypted
+		)
+
+	# else try other methods, too
+	if len(passphrase) < 5:
+		_log.error('<passphrase> must be at least 5 characters/signs/digits')
+		return None
 
 	if convert2pdf:
 		_log.debug('PDF encryption preferred, attempting conversion if needed')
@@ -471,11 +534,12 @@ def encrypt_file_symmetric(filename=None, passphrase=None, comment=None, verbose
 		)
 		if pdf_fname is not None:
 			_log.debug('successfully converted to PDF')
-			# remove non-pdf file
-			gmTools.remove_file(filename)
+			if remove_unencrypted:
+				# remove non-pdf file
+				gmTools.remove_file(filename)
 			filename = pdf_fname
 
-	# try PDF-inherent AES
+	# try PDF-based encryption
 	encrypted_filename = encrypt_pdf (
 		filename = filename,
 		passphrase = passphrase,
@@ -485,8 +549,8 @@ def encrypt_file_symmetric(filename=None, passphrase=None, comment=None, verbose
 	if encrypted_filename is not None:
 		return encrypted_filename
 
-	# try 7z based AES
-	encrypted_filename = aes_encrypt_file (
+	# try 7z based encryption
+	encrypted_filename = encrypt_file_symmetric_7z (
 		filename = filename,
 		passphrase = passphrase,
 		comment = comment,
@@ -496,25 +560,37 @@ def encrypt_file_symmetric(filename=None, passphrase=None, comment=None, verbose
 	if encrypted_filename is not None:
 		return encrypted_filename
 
-	# try GPG based AES
-	return gpg_encrypt_file_symmetric(filename = filename, passphrase = passphrase, comment = comment, verbose = verbose, remove_unencrypted = remove_unencrypted)
+	# try GPG based encryption
+	return encrypt_file_symmetric_gpg (
+		filename = filename,
+		passphrase = passphrase,
+		comment = comment,
+		verbose = verbose,
+		remove_unencrypted = remove_unencrypted
+	)
 
 #---------------------------------------------------------------------------
-def encrypt_file(filename:str=None, receiver_key_ids=None, passphrase=None, comment=None, verbose=False, remove_unencrypted:bool=False, convert2pdf:bool=False) -> str:
-	"""Encrypt an arbitrary file.
+def encrypt_file(filename:str=None, receiver_key_ids:list=None, passphrase:str=None, comment:str=None, verbose:bool=False, remove_unencrypted:bool=False, convert2pdf:bool=False) -> str:
+	"""Encrypt an arbitrary file, symmetrically or asymmetrically.
+
+	Asymmetric encryption will only be attempted if receiver_key_ids are given.
 
 	Args:
-		remove_unencrypted: remove unencrypted source file if encryption succeeded
+		filename: file to encrypt
+		receiver_key_ids: list of public key ids of receivers, only relevant for asymmetric encryption
+		passphrase: minimum of 5 characters if given/needed
+		comment: a comment to be included within the encrypted output
+		remove_unencrypted: remove unencrypted source file if encryption succeeds
 		convert2pdf: _attempt_ conversion of input file to PDF before encryption
-			success: the PDF is encrypted (and the non-PDF source file is removed)
-			failure: the source file is encrypted
+			- success: the PDF is encrypted (and the non-PDF source file is removed)
+			- failure: the source file is encrypted
 
 	Returns:
-		Name of encrypted file.
+		Name of encrypted file or None.
 	"""
 	assert (filename is not None), '<filename> must not be None'
-	# cannot do asymmetric
 	if receiver_key_ids is None:
+		# cannot do asymmetric
 		_log.debug('no receiver key IDs: cannot try asymmetric encryption')
 		return encrypt_file_symmetric (
 			filename = filename,
@@ -524,11 +600,31 @@ def encrypt_file(filename:str=None, receiver_key_ids=None, passphrase=None, comm
 			remove_unencrypted = remove_unencrypted,
 			convert2pdf = convert2pdf
 		)
+
 	# asymmetric not implemented yet
+	_log.error('asymmetric encryption not implemented')
 	return None
 
 #---------------------------------------------------------------------------
-def encrypt_directory_content(directory=None, receiver_key_ids=None, passphrase=None, comment=None, verbose=False, remove_unencrypted=True, convert2pdf=False):
+def encrypt_directory_content(directory:str=None, receiver_key_ids:list=None, passphrase:str=None, comment:str=None, verbose:bool=False, remove_unencrypted:bool=True, convert2pdf:bool=False) -> bool:
+	"""Encrypt the content of a directory, file by file, symmetrically or asymmetrically.
+
+	Asymmetric encryption will only be attempted if receiver_key_ids are given.
+
+	Args:
+		directory: directory from which to encrypt files
+		receiver_key_ids: list of public key ids of receivers, only relevant for asymmetric encryption
+		passphrase: minimum of 5 characters if given/needed
+		comment: a comment to be included within the encrypted output
+		remove_unencrypted: remove unencrypted source file if encryption succeeds
+		convert2pdf: _attempt_ conversion of input file to PDF before encryption
+			- success: the PDF is encrypted (and the non-PDF source file is removed)
+			- failure: the source file is encrypted
+
+	Returns:
+		True (success) or False.
+	"""
+
 	assert (directory is not None), 'source <directory> must not be None'
 	_log.debug('encrypting content of [%s]', directory)
 	try:
@@ -571,8 +667,6 @@ def anonymize_file(filename):
 	assert (filename is not None), '<filename> must not be None'
 
 
-
-
 #===========================================================================
 # main
 #---------------------------------------------------------------------------
@@ -596,11 +690,11 @@ if __name__ == '__main__':
 
 	#-----------------------------------------------------------------------
 	def test_gpg_encrypt_symmetric():
-		print(gpg_encrypt_file_symmetric(filename = sys.argv[2], passphrase = sys.argv[3], verbose = True, comment = 'GNUmed testing'))
+		print(encrypt_file_symmetric_gpg(filename = sys.argv[2], passphrase = sys.argv[3], verbose = True, comment = 'GNUmed testing'))
 
 	#-----------------------------------------------------------------------
 	def test_aes_encrypt():
-		print(aes_encrypt_file(filename = sys.argv[2], passphrase = sys.argv[3], comment = sys.argv[4], verbose = True))
+		print(encrypt_file_symmetric_7z(filename = sys.argv[2], passphrase = sys.argv[3], comment = sys.argv[4], verbose = True))
 
 	#-----------------------------------------------------------------------
 	def test_encrypt_pdf():
