@@ -6,6 +6,10 @@
 # rel-1-8-patches
 ------------------------------------------------
 
+	1.8.4
+
+IMPROVED: exceptions: always include exception/traceback in mail
+
 	1.8.3
 
 NEW: tool: fingerprint_db
