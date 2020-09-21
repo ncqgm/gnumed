@@ -166,12 +166,17 @@ def handle_uncaught_exception_console(t, v, tb):
 #===========================================================================
 # path level operations
 #---------------------------------------------------------------------------
-def mkdir(directory=None, mode=None):
+def mkdir(directory=None, mode=None) -> bool:
 	"""Create directory.
 
 	- creates parent dirs if necessary
 	- does not fail if directory exists
-	<mode>: numeric, say 0o0700  for "-rwx------"
+
+	Args:
+		mode: numeric, say 0o0700 for "-rwx------"
+
+	Results:
+		True/False based on success
 	"""
 	if os.path.isdir(directory):
 		if mode is None:
@@ -230,7 +235,12 @@ def create_directory_description_file(directory=None, readme=None, suffix=None):
 	return True
 
 #---------------------------------------------------------------------------
-def rmdir(directory):
+def rmdir(directory:str) -> int:
+	"""Remove a directory and its content.
+
+	Returns:
+		Count of items that were not removable. IOW, 0 = success.
+	"""
 	#-------------------------------
 	def _on_rm_error(func, path, exc):
 		_log.error('error while shutil.rmtree(%s)', path, exc_info=exc)
@@ -281,13 +291,18 @@ def mk_sandbox_dir(prefix=None, base_dir=None):
 
 #---------------------------------------------------------------------------
 def parent_dir(directory):
+	"""/tmp/path/subdir/ -> /tmp/path/"""
 	return os.path.abspath(os.path.join(directory, '..'))
 
 #---------------------------------------------------------------------------
 def dirname_stem(directory):
-	# /home/user/dir/ -> dir
-	# /home/user/dir  -> dir
-	return os.path.basename(os.path.normpath(directory))		# normpath removes trailing slashes if any
+	"""Return stem of leaf directory name.
+
+	- /home/user/dir/ -> dir
+	- /home/user/dir  -> dir
+	"""
+	# normpath removes trailing slashes if any
+	return os.path.basename(os.path.normpath(directory))
 
 #---------------------------------------------------------------------------
 def dir_is_empty(directory=None):
@@ -335,17 +350,17 @@ def copy_tree_content(directory, target_directory):
 #---------------------------------------------------------------------------
 #---------------------------------------------------------------------------
 class gmPaths(gmBorg.cBorg):
-	"""This class provides the following paths:
+	"""This singleton class provides the following paths:
 
-	.home_dir				user home
-	.local_base_dir			script installation dir
-	.working_dir			current dir
-	.user_config_dir
-	.system_config_dir
-	.system_app_data_dir	(not writable)
-	.tmp_dir				instance-local
-	.user_tmp_dir			user-local (NOT per instance)
-	.bytea_cache_dir		caches downloaded BYTEA data
+	- .home_dir				user home
+	- .local_base_dir		script installation dir
+	- .working_dir			current dir
+	- .user_config_dir
+	- .system_config_dir
+	- .system_app_data_dir	(not writable)
+	- .tmp_dir				instance-local
+	- .user_tmp_dir			user-local (NOT per instance)
+	- .bytea_cache_dir		caches downloaded BYTEA data
 	"""
 	def __init__(self, app_name=None, wx=None):
 		"""Setup pathes.
@@ -630,7 +645,13 @@ def unzip_archive(archive_name, target_dir=None, remove_archive=False):
 	return success
 
 #---------------------------------------------------------------------------
-def remove_file(filename, log_error=True, force=False):
+def remove_file(filename:str, log_error:bool=True, force:bool=False) -> bool:
+	"""Remove a file.
+
+	Args:
+		filename: file to remove
+		force: if remove does not work attempt to rename the file
+	"""
 	if not os.path.lexists(filename):
 		return True
 
@@ -642,7 +663,6 @@ def remove_file(filename, log_error=True, force=False):
 	except Exception:
 		if log_error:
 			_log.exception('cannot os.remove(%s)', filename)
-
 	if force:
 		tmp_name = get_unique_filename(tmp_dir = fname_dir(filename))
 		_log.debug('attempting os.replace(%s -> %s)', filename, tmp_name)
@@ -653,7 +673,6 @@ def remove_file(filename, log_error=True, force=False):
 		except Exception:
 			if log_error:
 				_log.exception('cannot os.replace(%s)', filename)
-
 	return False
 
 #---------------------------------------------------------------------------
