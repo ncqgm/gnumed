@@ -301,7 +301,7 @@ def _on_application_closing():
 	application_is_closing = True
 
 # ========================================================================
-def mail_log(parent=None, comment=None, helpdesk=None, sender=None):
+def mail_log(parent=None, comment=None, helpdesk=None, sender=None, exception=None):
 
 	if (comment is None) or (comment.strip() == ''):
 		comment = wx.GetTextFromUser (
@@ -401,6 +401,12 @@ def mail_log(parent=None, comment=None, helpdesk=None, sender=None):
 		if sender.strip() == '':
 			sender = _('<not supplied>')
 
+	if exception is None:
+		exc_info = ''
+	else:
+		t, v, tb = exception
+		exc_info = 'Exception:\n\n type: %s\n value: %s\n\nTraceback:\n\n%s' % (t, v, ''.join(traceback.format_tb(tb)))
+
 	msg = """\
 Report sent via GNUmed's handler for unexpected exceptions.
 
@@ -417,7 +423,8 @@ sender email  : %s
  tag automatic-report
  importance medium
 
-""" % (comment, _client_version, _local_account, _staff_name, sender)
+%s
+""" % (comment, _client_version, _local_account, _staff_name, sender, exc_info)
 	if include_log:
 		_log.error(comment)
 		_log.warning('syncing log file for emailing')
@@ -455,7 +462,7 @@ class cUnhandledExceptionDlg(wxgUnhandledExceptionDlg.wxgUnhandledExceptionDlg):
 
 	def __init__(self, *args, **kwargs):
 
-		exception = kwargs['exception']
+		self.__exception = kwargs['exception']
 		del kwargs['exception']
 		self.logfile = kwargs['logfile']
 		del kwargs['logfile']
@@ -468,7 +475,7 @@ class cUnhandledExceptionDlg(wxgUnhandledExceptionDlg.wxgUnhandledExceptionDlg):
 			self._TCTRL_sender.SetValue(_sender_email)
 		self._TCTRL_helpdesk.SetValue(_helpdesk)
 		self._TCTRL_logfile.SetValue(self.logfile)
-		t, v, tb = exception
+		t, v, tb = self.__exception
 		self._TCTRL_traceback.SetValue ('%s: %s\n%s: %s\n%s' % (
 			'type', t,
 			'value', v,
@@ -512,7 +519,8 @@ class cUnhandledExceptionDlg(wxgUnhandledExceptionDlg.wxgUnhandledExceptionDlg):
 			parent = self,
 			comment = self._TCTRL_comment.GetValue().strip(),
 			helpdesk = self._TCTRL_helpdesk.GetValue().strip(),
-			sender = self._TCTRL_sender.GetValue().strip()
+			sender = self._TCTRL_sender.GetValue().strip(),
+			exception = self.__exception
 		)
 
 	#------------------------------------------
