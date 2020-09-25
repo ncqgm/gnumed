@@ -1821,7 +1821,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 				return self._escape(_('no external ID [%s] by [%s]') % (id_type, issuer))
 			return ''
 
-		return template % self._escape_dict(the_dict = ids[0], none_string = '')
+		return template % self._escape_dict_like(dict_like = ids[0], none_string = '')
 
 	#--------------------------------------------------------
 	# provider related placeholders
@@ -2429,11 +2429,13 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 
 		if data is None:
 			return self._escape(_('template is missing'))
+
 		template = data
 		dxs = self.pat.emr.candidate_diagnoses
 		if len(dxs) == 0:
 			_log.debug('no diagnoses available')
 			return ''
+
 		selected = gmListWidgets.get_choices_from_list (
 			msg = _('Select the relevant diagnoses:'),
 			caption = _('Diagnosis selection'),
@@ -2452,11 +2454,13 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		if selected is None:
 			_log.debug('user did not select any diagnoses')
 			return ''
+
 		if len(selected) == 0:
 			_log.debug('user did not select any diagnoses')
 			return ''
 			#return template % {'diagnosis': u'', 'diagnostic_certainty_classification': u''}
-		return '\n'.join(template % self._escape_dict(dx, none_string = '?', bool_strings = [_('yes'), _('no')]) for dx in selected)
+
+		return '\n'.join(template % self._escape_dict_like(dx, none_string = '?', bool_strings = [_('yes'), _('no')]) for dx in selected)
 
 	#--------------------------------------------------------
 	def _get_variant_today(self, data='%Y %b %d'):
@@ -2816,8 +2820,16 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 	#--------------------------------------------------------
 	# internal helpers
 	#--------------------------------------------------------
-	def __parse_ph_options(self, option_defs=None, options_string=None):
-		"""Returns a tuple of values in the order of option_defs -> keys."""
+	def __parse_ph_options(self, option_defs:dict=None, options_string=None):
+		"""Parse a string for options and values.
+
+		Args:
+			option_defs: {'option name in placeholder string': 'default value for option', ...}
+
+		Returns:
+			A tuple of values in the order of option_defs -> keys. The
+			caller can rely on order and count.
+		"""
 		assert (option_defs is not None), '<option_defs> must not be None'
 		assert (options_string is not None), '<options_string> must not be None'
 
@@ -2831,60 +2843,71 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 
 		options = options_string.split(self.__args_divider)
 		for opt in options:
-			opt_name, opt_val = opt.split('=', 1)
-			if opt_name.strip() not in option_defs:
+			opt_parts = opt.split('=', 1)
+			_log.debug('parsed option: %s', opt_parts)
+			if len(opt_parts) == 1:
+				_log.error('legacy style positional option, value: [%s], option name missing, ignoring', opt_parts[0])
 				continue
-			options2return[opt_name] = opt_val
-
-		_log.debug('found: %s', options2return)
+			opt_name = opt_parts[0].strip()
+			if opt_name not in option_defs:
+				# if we would not ignore this option - as seems
+				# tempting since the definition itself is fully,
+				# valid - we would expand the result tuple beyond
+				# what is expected by the caller, thusly risking
+				# an exception
+				_log.warning('unexpected option [%s], ignoring', opt_name)
+				continue
+			options2return[opt_name] = opt_parts[1]
+		_log.debug('options detected: %s', options2return)
 		return tuple([ options2return[o_name] for o_name in options2return ])
 
 	#--------------------------------------------------------
 	def _escape(self, text=None):
 		if self.__esc_func is None:
 			return text
+
 		assert (text is not None), 'text=None passed to _escape()'
 		return self.__esc_func(text)
 
 	#--------------------------------------------------------
-	def _escape_dict(self, the_dict=None, date_format='%Y %b %d  %H:%M', none_string='', bool_strings=None):
+	def _escape_dict_like(self, dict_like=None, date_format='%Y %b %d  %H:%M', none_string='', bool_strings=None):
 		if bool_strings is None:
 			bools = {True: _('true'), False: _('false')}
 		else:
 			bools = {True: bool_strings[0], False: bool_strings[1]}
-		data = {}
-		for field in the_dict:
+		dict2return = {}
+		for key in dict(dict_like):
 			# FIXME: harden against BYTEA fields
-			#if type(self._payload[self._idx[field]]) == ...
-			#	data[field] = _('<%s bytes of binary data>') % len(self._payload[self._idx[field]])
+			#if type(self._payload[self._idx[key]]) == ...
+			#	dict2return[key] = _('<%s bytes of binary data>') % len(self._payload[self._idx[key]])
 			#	continue
-			val = the_dict[field]
+			val = dict_like[key]
 			if val is None:
-				data[field] = none_string
+				dict2return[key] = none_string
 				continue
 			if isinstance(val, bool):
-				data[field] = bools[val]
+				dict2return[key] = bools[val]
 				continue
 			if isinstance(val, datetime.datetime):
-				data[field] = gmDateTime.pydt_strftime(val, format = date_format)
+				dict2return[key] = gmDateTime.pydt_strftime(val, format = date_format)
 				if self.__esc_style in ['latex', 'tex']:
-					data[field] = gmTools.tex_escape_string(data[field])
+					dict2return[key] = gmTools.tex_escape_string(dict2return[key])
 				elif self.__esc_style in ['xetex', 'xelatex']:
-					data[field] = gmTools.xetex_escape_string(data[field])
+					dict2return[key] = gmTools.xetex_escape_string(dict2return[key])
 				continue
 			try:
-				data[field] = str(val, encoding = 'utf8', errors = 'replace')
+				dict2return[key] = str(val, encoding = 'utf8', errors = 'replace')
 			except TypeError:
 				try:
-					data[field] = str(val)
+					dict2return[key] = str(val)
 				except (UnicodeDecodeError, TypeError):
 					val = '%s' % str(val)
-					data[field] = val.decode('utf8', 'replace')
+					dict2return[key] = val.decode('utf8', 'replace')
 			if self.__esc_style in ['latex', 'tex']:
-				data[field] = gmTools.tex_escape_string(data[field])
+				dict2return[key] = gmTools.tex_escape_string(dict2return[key])
 			elif self.__esc_style in ['xetex', 'xelatex']:
-				data[field] = gmTools.xetex_escape_string(data[field])
-		return data
+				dict2return[key] = gmTools.xetex_escape_string(dict2return[key])
+		return dict2return
 
 #---------------------------------------------------------------------
 def test_placeholders_interactively():
