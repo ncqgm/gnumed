@@ -3965,7 +3965,6 @@ def setup_safe_wxEndBusyCursor():
 	# monkey patch wxPython, needed on Windows, OSX, ...
 	#if os.name != 'nt':
 	#	return
-	print('GNUmed startup: Monkey patching wx.EndBusyCursor...')
 	global _original_wxEndBusyCursor
 	_original_wxEndBusyCursor = wx.EndBusyCursor
 	wx.EndBusyCursor = _safe_wxEndBusyCursor

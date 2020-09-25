@@ -13,61 +13,81 @@ classes:
 
 methods, functions:
 
-	def lower_case_function_name(...):
+	- prefer keyword arguments
+	- lower case
+	- snake_style
+
+	def what_this_function_returns(...):
 		assert
-	def lower_case_method_name(self, ...):
+	def what_this_method_returns(self, ...):
 		assert
 
-	prefer keyword arguments
 
 
 constants:
 
-	UPPER_CASE_NAME
+	UPPER_CASE_NAME_SNAKE_STYLE
 
 
 module file layout:
 
-	# -*- coding: utf-8 -*-
+#=== snip =========================================================================
+# -*- coding: utf-8 -*-
 
-	__doc__ = """line 1
-		line 2
-		line 3
-	"""
-	#============================================================
-	# SPDX-License-Identifier: GPL-2.0-or-later
-	__author__ = "..."
-	__license__ = "..."
+__doc__ = """line 1
+	line 2
+	line 3
+"""
+#============================================================
+# SPDX-License-Identifier: GPL-2.0-or-later
+__author__ = "..."
+__license__ = "..."
 
-	# standard library imports
-	import sys
+# standard library imports
+import sys
 
-	# 3rd party library imports
-	import ...
+# 3rd party library imports
+import ...
 
-	if __name__ == '__main__':
-		sys.path.insert(0, '../../')
-	# GNUmed module imports
-	from Gnumed.pycommon import ...
+if __name__ == '__main__':
+	sys.path.insert(0, '../../')
+# GNUmed module imports
+from Gnumed.pycommon import ...
 
-	# CONSTANTS
-	A_FIXED_VALUE = 'abc'
+# CONSTANTS
+A_FIXED_VALUE = 'abc'
 
-	# globals
-	_log = logging.getLogger('gm.ABCD')
-	#============================================================
+# globals
+_log = logging.getLogger('gm.ABCD')
+#============================================================
 
-	... code ...
+... code ...
 
-	#============================================================
-	# main
-	#------------------------------------------------------------
-	if __name__ == "__main__":
+#============================================================
+# main
+#------------------------------------------------------------
+if __name__ == "__main__":
 
-		if len(sys.argv) < 2:
-			sys.exit()
+	if len(sys.argv) < 2:
+		sys.exit()
 
-		if sys.argv[1] != 'test':
-			sys.exit()
+	if sys.argv[1] != 'test':
+		sys.exit()
 
-		... test code ...
+	#--------------------------------------------------------
+	def test1():
+		...
+
+	#--------------------------------------------------------
+	def test2():
+		...
+
+	#--------------------------------------------------------
+	...
+
+	#--------------------------------------------------------
+	#test1()
+	test2()
+	...
+
+#=== snip =========================================================================

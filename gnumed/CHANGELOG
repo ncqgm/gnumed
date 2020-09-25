@@ -10,6 +10,8 @@
 
 IMPROVED: exceptions: always include exception/traceback in mail
 
+FIX: placeholders: exception on parsing some option styles
+
 	1.8.3
 
 NEW: tool: fingerprint_db
