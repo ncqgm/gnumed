@@ -52,6 +52,7 @@ Everyone is encouraged to contribute to GNUmed.
 ** link:code-smell/source-type_checking.log[type checking]
 ** link:code-smell/source-cyclic_complexity.log[cyclic complexity]
 ** link:code-smell/source-maintainability.log[maintainability]
+* suggested https://github.com/ncqgm/gnumed/blob/master/gnumed/CODINGSTYLE[coding style]
 
 == For Supporters
 
