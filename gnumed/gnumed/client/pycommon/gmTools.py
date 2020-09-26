@@ -206,6 +206,8 @@ def mkdir(directory=None, mode=None) -> bool:
 
 #---------------------------------------------------------------------------
 def create_directory_description_file(directory=None, readme=None, suffix=None):
+	"""Create a directory description file.
+	"""
 	assert (directory is not None), '<directory> must not be None'
 
 	README_fname = '.00-README.GNUmed' + coalesce(suffix, '.dir')
@@ -236,7 +238,7 @@ def create_directory_description_file(directory=None, readme=None, suffix=None):
 
 #---------------------------------------------------------------------------
 def rmdir(directory:str) -> int:
-	"""Remove a directory and its content.
+	"""Remove a directory _and_ its content.
 
 	Returns:
 		Count of items that were not removable. IOW, 0 = success.
@@ -256,12 +258,15 @@ def rmdir(directory:str) -> int:
 	return error_count
 
 #---------------------------------------------------------------------------
-def rm_dir_content(directory):
+def rm_dir_content(directory:str) -> bool:
+	"""Remove the content of _directory_.
+	"""
 	_log.debug('cleaning out [%s]', directory)
 	try:
 		items = os.listdir(directory)
 	except OSError:
 		return False
+
 	for item in items:
 		# attempt file/link removal and ignore (but log) errors
 		full_item = os.path.join(directory, item)
@@ -272,6 +277,7 @@ def rm_dir_content(directory):
 			errors = rmdir(full_item)
 			if errors > 0:
 				return False
+
 		except Exception:
 			_log.exception('cannot os.remove(%s) [a file or a link]', full_item)
 			return False
@@ -279,7 +285,16 @@ def rm_dir_content(directory):
 	return True
 
 #---------------------------------------------------------------------------
-def mk_sandbox_dir(prefix=None, base_dir=None):
+def mk_sandbox_dir(prefix:str=None, base_dir:str=None) -> str:
+	"""Create a sandbox directory.
+
+	Args:
+		prefix: use this prefix to the directory name
+		base_dir: create sandbox inside this directory, or else in the temp dir
+
+	Returns:
+		The newly created sandbox directory.
+	"""
 	if base_dir is None:
 		base_dir = gmPaths().tmp_dir
 	else:
@@ -290,12 +305,12 @@ def mk_sandbox_dir(prefix=None, base_dir=None):
 	return tempfile.mkdtemp(prefix = prefix, suffix = '', dir = base_dir)
 
 #---------------------------------------------------------------------------
-def parent_dir(directory):
+def parent_dir(directory:str) -> str:
 	"""/tmp/path/subdir/ -> /tmp/path/"""
 	return os.path.abspath(os.path.join(directory, '..'))
 
 #---------------------------------------------------------------------------
-def dirname_stem(directory):
+def dirname_stem(directory:str) -> str:
 	"""Return stem of leaf directory name.
 
 	- /home/user/dir/ -> dir
@@ -305,7 +320,12 @@ def dirname_stem(directory):
 	return os.path.basename(os.path.normpath(directory))
 
 #---------------------------------------------------------------------------
-def dir_is_empty(directory=None):
+def dir_is_empty(directory:str=None) -> bool:
+	"""Check for any entries inside _directory_.
+
+	Returns:
+		True / False / None (directory not found)
+	"""
 	try:
 		empty = (len(os.listdir(directory)) == 0)
 	except OSError as exc:
@@ -315,9 +335,13 @@ def dir_is_empty(directory=None):
 	return empty
 
 #---------------------------------------------------------------------------
-def copy_tree_content(directory, target_directory):
-	"""Copy the *content* of <directory> *into* <target_directory>
-	   which is created if need be.
+def copy_tree_content(directory:str, target_directory:str) -> str:
+	"""Copy the *content* of _directory_ into _target_directory_.
+
+	The target directory is created if need be.
+
+	Returns:
+		The target directory or None on error.
 	"""
 	assert (directory is not None), 'source <directory> must not be None'
 	assert (target_directory is not None), '<target_directory> must not be None'
@@ -353,17 +377,27 @@ class gmPaths(gmBorg.cBorg):
 	"""This singleton class provides the following paths:
 
 	- .home_dir				user home
+
 	- .local_base_dir		script installation dir
+
 	- .working_dir			current dir
+
 	- .user_config_dir
+
 	- .system_config_dir
+
 	- .system_app_data_dir	(not writable)
+
 	- .tmp_dir				instance-local
+
 	- .user_tmp_dir			user-local (NOT per instance)
+
 	- .bytea_cache_dir		caches downloaded BYTEA data
+
+	It will take into account the application name.
 	"""
 	def __init__(self, app_name=None, wx=None):
-		"""Setup pathes.
+		"""Setup paths.
 
 		<app_name> will default to (name of the script - .py)
 		"""
@@ -543,6 +577,7 @@ class gmPaths(gmBorg.cBorg):
 		return self.__system_config_dir
 
 	system_config_dir = property(_get_system_config_dir, _set_system_config_dir)
+
 	#--------------------------------------
 	def _set_system_app_data_dir(self, path):
 		if not (os.access(path, os.R_OK) and os.access(path, os.X_OK)):
@@ -552,9 +587,14 @@ class gmPaths(gmBorg.cBorg):
 		self.__system_app_data_dir = path
 
 	def _get_system_app_data_dir(self):
+		"""The system-wide application data directory.
+
+		Typically not writable.
+		"""
 		return self.__system_app_data_dir
 
 	system_app_data_dir = property(_get_system_app_data_dir, _set_system_app_data_dir)
+
 	#--------------------------------------
 	def _set_home_dir(self, path):
 		raise ValueError('invalid to set home dir')
@@ -589,6 +629,7 @@ class gmPaths(gmBorg.cBorg):
 
 	#--------------------------------------
 	def _set_tmp_dir(self, path):
+
 		if not (os.access(path, os.R_OK) and os.access(path, os.X_OK)):
 			msg = '[%s:tmp_dir]: invalid path [%s]' % (self.__class__.__name__, path)
 			_log.error(msg)
@@ -798,19 +839,23 @@ def fname_sanitize(filename):
 	return os.path.join(dir_part, name_part)
 
 #---------------------------------------------------------------------------
-def fname_stem(filename):
+def fname_stem(filename:str) -> str:
 	"""/home/user/dir/filename.ext -> filename"""
 	return os.path.splitext(os.path.basename(filename))[0]
 
 #---------------------------------------------------------------------------
-def fname_stem_with_path(filename):
+def fname_stem_with_path(filename:str) -> str:
 	"""/home/user/dir/filename.ext -> /home/user/dir/filename"""
 	return os.path.splitext(filename)[0]
 
 #---------------------------------------------------------------------------
-def fname_extension(filename=None, fallback=None):
+def fname_extension(filename:str=None, fallback:str=None) -> str:
 	"""	/home/user/dir/filename.ext -> .ext
-		'' or '.' -> fallback if any else ''
+
+	If extension becomes '' or '.' -> return fallback if any else return ''.
+
+	Args:
+		fallback: Return this if extension computes to '.' or '' (IOW, is empty)
 	"""
 	ext = os.path.splitext(filename)[1]
 	if ext.strip() not in ['.', '']:
@@ -820,23 +865,32 @@ def fname_extension(filename=None, fallback=None):
 	return fallback
 
 #---------------------------------------------------------------------------
-def fname_dir(filename):
-	# /home/user/dir/filename.ext -> /home/user/dir
+def fname_dir(filename:str) -> str:
+	"""/home/user/dir/filename.ext -> /home/user/dir"""
 	return os.path.split(filename)[0]
 
 #---------------------------------------------------------------------------
 def fname_from_path(filename):
-	# /home/user/dir/filename.ext -> filename.ext
+	"""/home/user/dir/filename.ext -> filename.ext"""
 	return os.path.split(filename)[1]
 
 #---------------------------------------------------------------------------
-def get_unique_filename(prefix=None, suffix=None, tmp_dir=None, include_timestamp=False):
-	"""This function has a race condition between
-			its file.close()
-	   and actually
-			using the filename in callers.
+def get_unique_filename(prefix:str=None, suffix:str=None, tmp_dir:str=None, include_timestamp:bool=False) -> str:
+	"""Generate a unique filename.
 
-	The file will NOT exist after calling this function.
+	Args:
+		prefix: use this prefix to the filename, default 'gm-'
+		suffix: use this suffix to the filename, default '.tmp'
+		tmp_dir: generate filename based suitable for this directory, default system tmpdir
+		include_timestamp: include current timestamp within the filename
+
+	Returns:
+		The full path of a unique file not existing at this moment.
+
+	There is a TOCTOU race conditition between generating the
+	filename here and actually using the filename in callers.
+
+	Note: The file will NOT exist after calling this function.
 	"""
 	if tmp_dir is None:
 		gmPaths()		# setup tmp dir if necessary
@@ -898,8 +952,13 @@ def __make_symlink_on_windows(physical_name, link_name):
 	return ret_code
 
 #---------------------------------------------------------------------------
-def mklink(physical_name, link_name, overwrite=False):
+def mklink(physical_name:str, link_name:str, overwrite:bool=False) -> bool:
+	"""Create a symbolic link.
 
+	Args:
+		physical_name: the pre-existing filesystem object the symlink is to point to
+		link_name: the name of the symlink pointing to the existing filesystem object
+	"""
 	_log.debug('creating symlink (overwrite = %s):', overwrite)
 	_log.debug('link [%s] =>', link_name)
 	_log.debug('=> physical [%s]', physical_name)
@@ -907,7 +966,7 @@ def mklink(physical_name, link_name, overwrite=False):
 	if os.path.exists(link_name):
 		_log.debug('link exists')
 		if overwrite:
-			return True
+			return True			# unsafe :/
 		return False
 
 	try:
@@ -927,7 +986,6 @@ def import_module_from_directory(module_path=None, module_name=None, always_remo
 	"""Import a module from any location."""
 
 	_log.debug('CWD: %s', os.getcwd())
-
 	remove_path = always_remove_path or False
 	if module_path not in sys.path:
 		_log.info('appending to sys.path: [%s]' % module_path)
@@ -1017,18 +1075,13 @@ def coalesce(value2test=None, return_instead=None, template4value=None, template
 			value = (template4value % value2test) or value2test
 		print(value)
 
-	@param value2test: the value to be tested for <None>
-
-	@param return_instead: the value to be returned if <value2test> *is* None
-
-	@param template4value: if <value2test> is returned, replace the value into this template, must contain one <%s>
-
-	@param template4instead: if <return_instead> is returned, replace the value into this template, must contain one <%s>
-
-	@param value2return: a *value* to return if <value2test> is NOT None, AND there's no <template4value>
-
-	example:
-		function4value = ('strftime', '%Y-%m-%d')
+	Args:
+		value2test: the value to be tested for _None_
+		return_instead: the value to be returned if _value2test_ *is* None
+		template4value: if _value2test_ is returned, substitute the value into this template (which must contain one '%s')
+		template4instead: if "return_instead" is returned, substitute the instead-value into this template (which must contain one <%s>)
+		function4value: a tuple of (function name, function arguments) to call on _value2test_, eg "function4value = ('strftime', '%Y-%m-%d')"
+		value2return: a *value* to return if _value2test_ is NOT None, AND there's no _template4value_
 
 	Ideas:
 		- list of return_insteads: initial, [return_instead, template], [return_instead, template], [return_instead, template], template4value, ...
@@ -1845,11 +1898,16 @@ def enumerate_optical_writers():
 #---------------------------------------------------------------------------
 #---------------------------------------------------------------------------
 def prompted_input(prompt=None, default=None):
-	"""Obtains entry from standard input.
+	"""Obtain entry from standard input.
 
-	prompt: Prompt text to display in standard output
-	default: Default value (for user to press enter only)
-	CTRL-C: aborts and returns None
+	CTRL-C aborts and returns _None_
+
+	Args:
+		prompt: Prompt text to display in standard output
+		default: Default value (for user to press enter only)
+
+	Returns:
+		The input, _default_, or _None_.
 	"""
 	if prompt is None:
 		msg = '(CTRL-C aborts)'
@@ -1920,7 +1978,17 @@ def get_icon(wx=None):
 	return icon
 
 #---------------------------------------------------------------------------
-def create_qrcode(text=None, filename=None, qr_filename=None, verbose=False):
+def create_qrcode(text=None, filename=None, qr_filename=None, verbose:bool=False) -> str:
+	"""Create a QR code.
+
+	Args:
+		text: data to encode
+		filename: filename to read data from instead of processing _text_
+		qr_filename: target file for QR code PNG, if not specified: generated from _filename_ if that is given
+
+	Returns:
+		Filename of QR code PNG or _None_.
+	"""
 	assert (not ((text is None) and (filename is None))), 'either <text> or <filename> must be specified'
 
 	try:
@@ -1928,6 +1996,7 @@ def create_qrcode(text=None, filename=None, qr_filename=None, verbose=False):
 	except ImportError:
 		_log.exception('cannot import <pyqrcode>')
 		return None
+
 	if text is None:
 		with io.open(filename, mode = 'rt', encoding = 'utf8') as input_file:
 			text = input_file.read()

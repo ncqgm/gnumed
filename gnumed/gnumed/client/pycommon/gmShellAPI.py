@@ -22,7 +22,7 @@ def is_cmd_in_path(cmd:str=None) -> tuple:
 		cmd: the binary name to check for eXecutability
 
 	Returns:
-		A tuple of (result state, full path to binary if any).
+		A tuple of (result state, full path to binary if found).
 	"""
 	_log.debug('cmd: [%s]', cmd)
 	dirname = os.path.dirname(cmd)
@@ -46,14 +46,17 @@ def is_cmd_in_path(cmd:str=None) -> tuple:
 	return (False, None)
 
 #===========================================================================
-def is_executable_by_wine(cmd=None):
+def is_executable_by_wine(cmd:str=None) -> tuple:
+	"""Checks whether _cmd_ is likely executable by Wine.
 
+	Returns:
+		A tuple of (result state, full path to binary if found).
+	"""
 	if not cmd.startswith('wine'):
 		_log.debug('not a WINE call: %s', cmd)
 		return (False, None)
 
 	exe_path = cmd.encode(sys.getfilesystemencoding())
-
 	exe_path = exe_path[4:].strip().strip('"').strip()
 	# [wine "/standard/unix/path/to/binary.exe"] ?
 	if os.access(exe_path, os.R_OK):
@@ -100,8 +103,8 @@ def is_executable_by_wine(cmd=None):
 	return (False, None)
 
 #===========================================================================
-def detect_external_binary(binary=None):
-	"""Checks whether _binary_ should be executable.
+def detect_external_binary(binary:str=None) -> tuple:
+	"""Checks whether _binary_ is likely executable.
 
 	Will retry on Windows with .exe/.bat appended to the
 	binary name, if necessary.
@@ -153,8 +156,12 @@ def detect_external_binary(binary=None):
 	return (False, None)
 
 #===========================================================================
-def find_first_binary(binaries:list=None):
-	"""Search OS for the first match from the list of _binaries_."""
+def find_first_binary(binaries:list=None) -> tuple:
+	"""Search OS for the first match from the list of _binaries_.
+
+	Returns:
+		A tuple of (result state, full path to binary found).
+	"""
 	found = False
 	binary = None
 	for cmd in binaries:
@@ -167,8 +174,8 @@ def find_first_binary(binaries:list=None):
 	return (found, binary)
 
 #===========================================================================
-def run_command_in_shell(command:str=None, blocking=False, acceptable_return_codes:list=None) -> bool:
-	"""Runs a command in a subshell via standard-C system().
+def run_command_in_shell(command:str=None, blocking:bool=False, acceptable_return_codes:list=None) -> bool:
+	"""Run a command in a subshell.
 
 	Args:
 		command: shell command to run including command line options
@@ -251,10 +258,21 @@ def run_command_in_shell(command:str=None, blocking=False, acceptable_return_cod
 	return exited_normally
 
 #===========================================================================
-def run_first_available_in_shell(binaries=None, args=None, blocking=False, run_last_one_anyway=False, acceptable_return_codes=None):
+def run_first_available_in_shell(binaries:list=None, args=None, blocking:bool=False, run_last_one_anyway:bool=False, acceptable_return_codes:list=None) -> bool:
+	"""Run the first command found in a subshell.
 
+	Args:
+		binaries: list of binaries, the first found of which is to be run
+		args: args to pass to the binary being run	(FIXME: this should be per-binary)
+		command: shell command to run including command line options
+		blocking: make caller *block* until the shell command exits, will likely only work on UNIX shells where "cmd &" makes sense
+		run_last_one_anyway: run last binary even if it cannot be found in the OS
+		acceptable_return_codes: list of exit codes considered to signal successful operation, defaults to [0]
+
+	Returns:
+		Actual exit code of running _command_.
+	"""
 	found, binary = find_first_binary(binaries = binaries)
-
 	if not found:
 		_log.warning('cannot find any of: %s', binaries)
 		if run_last_one_anyway:
@@ -275,12 +293,13 @@ def _log_output(level, stdout=None, stderr=None):
 	_log.log(level, '\n'.join(lines2log))
 
 #===========================================================================
-def run_process(cmd_line:list=None, timeout:int=None, encoding='utf8', input_data=None, acceptable_return_codes:list=None, verbose:bool=False):
-	"""Run a subprocess.
+def run_process(cmd_line:list=None, timeout:int=None, encoding:str='utf8', input_data=None, acceptable_return_codes:list=None, verbose:bool=False) -> tuple:
+	"""Run a subprocess (directly, not via subshell).
 
 	Args:
 		cmd_line: List of binary and commandline arguments
 		timeout: seconds until timing out
+		encoding: applicable to input_data if the latter is text
 		input_data: string or bytes to be passed to the subprocess on STDIN
 		acceptable_return_codes: list of exit codes considered to signal successful operation, defaults to [0]
 		verbose: log STDOUT/STDERR or not
@@ -349,6 +368,7 @@ if __name__ == '__main__':
 			print("found as:", path)
 		else:
 			print(sys.argv[2], "not found")
+
 	#---------------------------------------------------------
 	def test_run_command_in_shell():
 		print("-------------------------------------")
@@ -359,12 +379,15 @@ if __name__ == '__main__':
 		else:
 			print("-------------------------------------")
 			print("failure, consult log")
+
 	#---------------------------------------------------------
 	def test_is_cmd_in_path():
 		print(is_cmd_in_path(cmd = sys.argv[2]))
+
 	#---------------------------------------------------------
 	def test_is_executable_by_wine():
 		print(is_executable_by_wine(cmd = sys.argv[2]))
+
 	#---------------------------------------------------------
 	#test_run_command_in_shell()
 	#test_detect_external_binary()
