@@ -11,6 +11,7 @@
 IMPROVED: exceptions: always include exception/traceback in mail
 
 FIX: placeholders: exception on parsing some option styles
+FIX: address: nominatim.openstreetmap.org API has changed
 
 	1.8.3
 
