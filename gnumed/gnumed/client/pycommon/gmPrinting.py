@@ -20,7 +20,7 @@ from Gnumed.pycommon import gmLog2
 _log = logging.getLogger('gm.printing')
 
 
-known_printjob_types = [
+KNOWN_PRINTJOB_TYPES = [
 	'medication_list',
 	'generic_document'
 ]
@@ -38,8 +38,17 @@ external_print_APIs = [
 #=======================================================================
 # internal print API
 #-----------------------------------------------------------------------
-def print_files(filenames=None, jobtype=None, print_api=None, verbose=False):
+def print_files(filenames:list=None, jobtype:str=None, print_api:str=None, verbose:bool=False) -> bool:
+	"""Print files.
 
+	Args:
+		filenames: list of files to print
+		jobtype: type of print job, passed on to print backends
+		print_api: the print backend to use, will try all backends if None or unknown backend
+
+	Returns:
+		status
+	"""
 	_log.debug('printing "%s": %s', jobtype, filenames)
 
 	for fname in filenames:
@@ -49,7 +58,7 @@ def print_files(filenames=None, jobtype=None, print_api=None, verbose=False):
 			_log.exception('cannot open [%s], aborting', fname)
 			return False
 
-	if jobtype not in known_printjob_types:
+	if jobtype not in KNOWN_PRINTJOB_TYPES:
 		print("unregistered print job type <%s>" % jobtype)
 		_log.warning('print job type "%s" not registered', jobtype)
 

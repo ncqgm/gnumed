@@ -81,16 +81,16 @@ episode, encounter).
 
 One can offer all the data to the user:
 
-self.payload_most_recently_fetched
-- contains the data at the last successful refetch
+self.payload_most_recently_fetched:
+* contains the data at the last successful refetch
 
-self.payload_most_recently_attempted_to_store
-- contains the modified payload just before the last
+self.payload_most_recently_attempted_to_store:
+* contains the modified payload just before the last
   failure of save_payload() - IOW what is currently
   in the database
 
-self._payload
-- contains the currently active payload which may or
+self._payload:
+* contains the currently active payload which may or
   may not contain changes
 
 For discussion on this see the thread starting at:
@@ -104,21 +104,21 @@ and here
 
 Problem cases with XMIN:
 
-1) not unlikely
-- a very old row is read with XMIN
-- vacuum comes along and sets XMIN to FrozenTransactionId
-  - now XMIN changed but the row actually didn't !
-- an update with "... where xmin = old_xmin ..." fails
+1) not unlikely:
+* a very old row is read with XMIN
+* vacuum comes along and sets XMIN to FrozenTransactionId
+  * now XMIN changed but the row actually didn't !
+* an update with "... where xmin = old_xmin ..." fails
   although there is no need to fail
 
-2) quite unlikely
-- a row is read with XMIN
-- a long time passes
-- the original XMIN gets frozen to FrozenTransactionId
-- another writer comes along and changes the row
-- incidentally the exact same old row gets the old XMIN *again*
-  - now XMIN is (again) the same but the data changed !
-- a later update fails to detect the concurrent change !!
+2) quite unlikely:
+* a row is read with XMIN
+* a long time passes
+* the original XMIN gets frozen to FrozenTransactionId
+* another writer comes along and changes the row
+* incidentally the exact same old row gets the old XMIN *again*
+  * now XMIN is (again) the same but the data changed !
+* a later update fails to detect the concurrent change !!
 
 TODO:
 The solution is to use our own column for optimistic locking
@@ -276,8 +276,7 @@ class cBusinessDBObject(object):
 		* does NOT lazy-fetch fields on access
 
 	Class scope SQL commands and variables:
-
-	_cmd_fetch_payload
+	_cmd_fetch_payload:
 		* must return exactly one row
 		* WHERE clause argument values are expected in
 		  self.pk_obj (taken from __init__(aPK_obj))
@@ -285,7 +284,7 @@ class cBusinessDBObject(object):
 		  will be updating, so views must support the xmin columns
 		  of their underlying tables
 
-	_cmds_store_payload
+	_cmds_store_payload:
 		* one or multiple "update ... set ... where xmin_* = ... and pk* = ..."
 		  statements which actually update the database from the data in self._payload,
 		* the last query must refetch at least the XMIN values needed to detect
@@ -301,7 +300,7 @@ class cBusinessDBObject(object):
 		  called and they support computed fields (say, _(some_column)
 		  you need to return *all* columns (see cEncounter)
 
-	_updatable_fields
+	_updatable_fields:
 		* a list of fields available for update via object['field']
 	"""
 	#--------------------------------------------------------
@@ -514,15 +513,17 @@ class cBusinessDBObject(object):
 	# external API
 	#--------------------------------------------------------
 	def same_payload(self, another_object=None):
+		"""Check whether *self* and *another_object* hold the same payload."""
 		raise NotImplementedError('comparison between [%s] and [%s] not implemented' % (self, another_object))
 
 	#--------------------------------------------------------
 	def is_modified(self):
+		"""Whether data in this business object has been modified."""
 		return self._is_modified
 
 	#--------------------------------------------------------
 	def get_fields(self):
-		"""Return a list of accessible fields."""
+		"""Return list of accessible fields."""
 		try:
 			return list(self._idx)
 		except AttributeError:
@@ -579,11 +580,13 @@ class cBusinessDBObject(object):
 
 	#--------------------------------------------------------
 	def get_patient(self):
+		"""Get associated patient object."""
 		_log.error('[%s:%s]: forgot to override get_patient()' % (self.__class__.__name__, self.pk_obj))
 		return None
 
 	#--------------------------------------------------------
 	def _get_patient_pk(self):
+		"""Get primary key of associated patient if any."""
 		try:
 			return self._payload[self._idx['pk_patient']]
 		except KeyError:
@@ -597,6 +600,7 @@ class cBusinessDBObject(object):
 
 	#--------------------------------------------------------
 	def _get_staff_id(self):
+		"""Get staff id of associated staff if any."""
 		try:
 			return self._payload[self._idx['pk_staff']]
 		except KeyError:
@@ -675,8 +679,12 @@ class cBusinessDBObject(object):
 		return lines
 
 	#--------------------------------------------------------
-	def refetch_payload(self, ignore_changes=False, link_obj=None):
-		"""Fetch field values from backend."""
+	def refetch_payload(self, ignore_changes:bool=False, link_obj=None):
+		"""Fetch field values from backend.
+
+		Args:
+			ignore_changes: True -- loose local changes if data on the backend changed
+		"""
 		if self._is_modified:
 			compare_dict_likes(self.original_payload, self.fields_as_dict(date_format = None, none_string = None), 'original payload', 'modified payload')
 			if ignore_changes:
@@ -717,16 +725,15 @@ class cBusinessDBObject(object):
 
 	#--------------------------------------------------------
 	def save_payload(self, conn=None):
-		"""Store updated values (if any) in database.
+		"""Store updated values (if any) into database.
 
 		Optionally accepts a pre-existing connection
 
 		Returns:
-			a tuple (<True|False>, <data>)
+			a tuple (True|False, data)
 			True: success
-			False: an error occurred
-				data is (error, message)
-				for error meanings see gmPG2.run_rw_queries()
+			False: an error occurred,
+			data: (error, message), for error meanings see gmPG2.run_rw_queries()
 		"""
 		if not self._is_modified:
 			return (True, None)

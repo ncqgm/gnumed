@@ -374,32 +374,34 @@ def copy_tree_content(directory:str, target_directory:str) -> str:
 #---------------------------------------------------------------------------
 #---------------------------------------------------------------------------
 class gmPaths(gmBorg.cBorg):
-	"""This singleton class provides the following paths:
+	"""Singleton class providing standard paths.
 
-	- .home_dir				user home
+	- .home_dir: user home
 
-	- .local_base_dir		script installation dir
+	- .local_base_dir: script installation dir
 
-	- .working_dir			current dir
+	- .working_dir: current dir
 
 	- .user_config_dir
 
 	- .system_config_dir
 
-	- .system_app_data_dir	(not writable)
+	- .system_app_data_dir
 
-	- .tmp_dir				instance-local
+	- .tmp_dir: instance-local
 
-	- .user_tmp_dir			user-local (NOT per instance)
+	- .user_tmp_dir: user-local (NOT per instance)
 
-	- .bytea_cache_dir		caches downloaded BYTEA data
+	- .bytea_cache_dir: caches downloaded BYTEA data
 
 	It will take into account the application name.
 	"""
-	def __init__(self, app_name=None, wx=None):
+	def __init__(self, app_name:str=None, wx=None):
 		"""Setup paths.
 
-		<app_name> will default to (name of the script - .py)
+		Args:
+			app_name: name of application, default "name of main script without .py"
+			wx: wxPython module reference, optional, used to detect more standard paths
 		"""
 		try:
 			self.already_inited
@@ -413,8 +415,13 @@ class gmPaths(gmBorg.cBorg):
 	#--------------------------------------
 	# public API
 	#--------------------------------------
-	def init_paths(self, app_name=None, wx=None):
+	def init_paths(self, app_name:str=None, wx=None) -> bool:
+		"""Detect paths in the system.
 
+		Args:
+			app_name: name of application, default "name of main script without .py"
+			wx: wxPython module reference, optional, used to better detect standard paths
+		"""
 		if wx is None:
 			_log.debug('wxPython not available')
 		_log.debug('detecting paths directly')
@@ -562,6 +569,7 @@ class gmPaths(gmBorg.cBorg):
 		self.__user_config_dir = path
 
 	def _get_user_config_dir(self):
+		"""User-level application configuration data directory."""
 		return self.__user_config_dir
 
 	user_config_dir = property(_get_user_config_dir, _set_user_config_dir)
@@ -574,6 +582,10 @@ class gmPaths(gmBorg.cBorg):
 		self.__system_config_dir = path
 
 	def _get_system_config_dir(self):
+		"""System-wide application configuration directory.
+
+		Typically not writable.
+		"""
 		return self.__system_config_dir
 
 	system_config_dir = property(_get_system_config_dir, _set_system_config_dir)
@@ -600,6 +612,7 @@ class gmPaths(gmBorg.cBorg):
 		raise ValueError('invalid to set home dir')
 
 	def _get_home_dir(self):
+		"""Home directory of OS user."""
 		if self.__home_dir is not None:
 			return self.__home_dir
 
@@ -629,7 +642,6 @@ class gmPaths(gmBorg.cBorg):
 
 	#--------------------------------------
 	def _set_tmp_dir(self, path):
-
 		if not (os.access(path, os.R_OK) and os.access(path, os.X_OK)):
 			msg = '[%s:tmp_dir]: invalid path [%s]' % (self.__class__.__name__, path)
 			_log.error(msg)
@@ -641,6 +653,12 @@ class gmPaths(gmBorg.cBorg):
 		self.__tmp_dir_already_set = True
 
 	def _get_tmp_dir(self):
+		"""Temporary directory.
+
+		- per instance of main script
+
+		- _may_ be confined to the OS user
+		"""
 		return self.__tmp_dir
 
 	tmp_dir = property(_get_tmp_dir, _set_tmp_dir)
