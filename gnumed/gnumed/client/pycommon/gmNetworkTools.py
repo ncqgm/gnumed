@@ -33,22 +33,27 @@ _log = logging.getLogger('gm.net')
 #===========================================================================
 # browser access
 #---------------------------------------------------------------------------
-def open_url_in_browser(url, new=2, autoraise=True, *args, **kwargs):
-	# url, new=0, autoraise=True
+def open_url_in_browser(url:str, new:int=2, autoraise:bool=True, *args, **kwargs) -> bool:
+	"""Open an URL in a browser.
+
+	Args:
+		url: URL to open
+		new: whether to open a new browser, a new tab in a running browser, or a tab OR a browser
+	"""
 	# new=2: open new tab if possible
 	try:
 		webbrowser.open(url, new = new, autoraise = autoraise, **kwargs)
 	except (webbrowser.Error, OSError, UnicodeEncodeError):
 		_log.exception('error calling browser with url=%s', url)
 		return False
-	return True
-#===========================================================================
-def download_file(url, filename=None, suffix=None):
 
+	return True
+
+#---------------------------------------------------------------------------
+def download_file(url, filename=None, suffix=None):
 	if filename is None:
 		filename = gmTools.get_unique_filename(prefix = 'gm-dl-', suffix = suffix)
 	_log.debug('downloading [%s] into [%s]', url, filename)
-
 	try:
 		dl_name, headers = urllib.request.urlretrieve(url, filename)
 	except (ValueError, OSError, IOError):
@@ -58,6 +63,49 @@ def download_file(url, filename=None, suffix=None):
 
 	_log.debug('%s' % headers)
 	return dl_name
+
+#---------------------------------------------------------------------------
+def mirror_url(url:str, base_dir:str=None, verbose:bool=False) -> str:
+	"""Mirror the web*page* at _url_, non-recursively.
+
+	Note: Not for mirroring a *site* (recursively).
+
+	Args:
+		url: the URL to mirror
+		base_dir: where to store the page and its prerequisites, sandbox dir under tmp_dir if None
+	"""
+	assert (url is not None), '<url> must not be None'
+	_log.debug('mirroring: %s', url)
+	if base_dir is None:
+		prefix = url.split('://')[-1]
+		prefix = prefix.strip(':').strip('/').replace('/', '#')
+		prefix = gmTools.fname_sanitize(prefix)
+		base_dir = gmTools.mk_sandbox_dir(prefix = prefix + '-')
+	_log.debug('base dir: %s', base_dir)
+	wget_cmd = [
+		'wget',
+		'--directory-prefix=%s' % base_dir,
+		#'--adjust-extension',
+		'--no-remove-listing',
+		'--timestamping',
+		'--page-requisites',
+		'--continue',
+		'--convert-links',
+		'--user-agent=""',
+		'--execute', 'robots=off',
+		'--wait=1'
+	]
+	if verbose:
+		wget_cmd.append('--debug')
+	wget_cmd.append(url)
+	#wget --output-file=logfile
+	#'<a href="%s">%s</a>' % (url, url),
+	success, ret_code, STDOUT = gmShellAPI.run_process(cmd_line = wget_cmd, timeout = 15, verbose = verbose)
+	if success:
+		return base_dir
+
+	return None
+
 #===========================================================================
 # data pack handling
 #---------------------------------------------------------------------------
@@ -546,10 +594,15 @@ if __name__ == '__main__':
 		open_url_in_browser(sys.argv[2], abc=222)
 
 	#-----------------------------------------------------------------------
+	def test_mirror_url():
+		mirror_url(url = sys.argv[2])
+
+	#-----------------------------------------------------------------------
 	#test_check_for_update()
 	#test_compose_email()
-	test_send_email()
+	#test_send_email()
 	#test_dl_data_pack()
 	#test_browser()
+	test_mirror_url()
 
 #===========================================================================
