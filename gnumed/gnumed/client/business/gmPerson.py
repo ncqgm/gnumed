@@ -67,14 +67,36 @@ BEGIN;
 """
 
 #============================================================
-def external_id_exists(pk_issuer, value):
+def external_id_exists(pk_issuer, value) -> int:
+	"""Check whether an external ID exists for a given ID issuer.
+
+	Args:
+		pk_issuer: primary key of external ID issuer (say, the Department of Motor Vehicles, DMV)
+		value: value of external ID (say, the driver's license ID)
+
+	Returns:
+		Count of stored external IDs for the given issuer.
+	"""
 	cmd = 'SELECT COUNT(1) FROM dem.lnk_identity2ext_id WHERE fk_origin = %(issuer)s AND external_id = %(val)s'
 	args = {'issuer': pk_issuer, 'val': value}
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
 	return rows[0][0]
 
 #============================================================
-def get_potential_person_dupes(lastnames, dob, firstnames=None, active_only=True):
+def get_potential_person_dupes(lastnames:str, dob, firstnames:str=None, active_only:bool=True) -> int:
+	"""Get number of potential duplicates of a person.
+
+	Args:
+		lastnames: last name(s) to search for
+		dob: date of birth to seach for, timestamp truncated to days
+		firstnames: first name(s) to search for if given
+		active_only: search among _all_ patients or among active patients only
+
+	Returns:
+		Count of matches (= potential duplicates for the arguments).
+	"""
+	assert (lastnames is not None), '<lastnames> required'
+	assert (dob is not None), '<dob> required'
 	args = {
 		'last': lastnames,
 		'dob': dob
@@ -96,7 +118,18 @@ def get_potential_person_dupes(lastnames, dob, firstnames=None, active_only=True
 	return rows[0][0]
 
 #============================================================
-def this_person_exists(lastnames, firstnames, dob, comment):
+def this_person_exists(lastnames, firstnames, dob, comment) -> int:
+	"""Check whether a given person exists.
+
+	Args:
+		lastnames: last names to search form, case insensitive
+		firstnames: first names to search for, case insensitive
+		dob: date of birth to search for, truncated to days
+		comment: comment to search for, used for de-duplication, case insensitive
+
+	Returns:
+		Number of persons matching the given criteria.
+	"""
 	# backend also looks at gender (IOW, only fails on same-gender dupes)
 	# implement in plpgsql and re-use in both validation trigger and here
 	if comment is not None:

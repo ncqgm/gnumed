@@ -831,7 +831,7 @@ def old_unicode_csv_reader(unicode_csv_data, dialect=csv.excel, encoding='utf-8'
 			#yield [str(cell, 'utf-8') for cell in row]
 
 #---------------------------------------------------------------------------
-def fname_sanitize(filename):
+def fname_sanitize(filename:str) -> str:
 	"""Normalizes unicode, removes non-alpha characters, converts spaces to underscores."""
 
 	dir_part, name_part = os.path.split(filename)
@@ -842,7 +842,7 @@ def fname_sanitize(filename):
 	name_part = unicodedata.normalize('NFKD', name_part)
 	# remove everything not in group []
 	name_part = regex.sub (
-		'[^.\w\s[\]()%§+-]',
+		'[^.\w\s[\]()%§#+-]',
 		'',
 		name_part,
 		flags = regex.UNICODE
