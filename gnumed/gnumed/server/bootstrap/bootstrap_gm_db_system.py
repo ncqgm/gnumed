@@ -773,11 +773,11 @@ class database:
 			curs.execute("alter database %s set track_commit_timestamp to on" % self.name)
 		except:
 			_log.exception(u'PostgreSQL version < 9.5 does not support <track_commit_timestamp> OR <track_commit_timestamp> cannot be set at runtime')
+
 		curs.close()
 		self.conn.commit()
-
 		curs = self.conn.cursor()
-		gmPG2.log_pg_settings(curs = curs)
+		gmConnectionPool.log_pg_settings(curs = curs)
 		curs.close()
 		self.conn.commit()
 
@@ -856,7 +856,7 @@ class database:
 					cursor.execute(cmd)
 				except:
 					_log.exception(u">>>[%s]<<< failed" % cmd)
-					_log.debug(u'conn state after failed DROP: %s', gmPG2.capture_conn_state(self.conn))
+					_log.debug(u'conn state after failed DROP: %s', gmConnectionPool.log_conn_state(self.conn))
 					return False
 				finally:
 					cursor.close()

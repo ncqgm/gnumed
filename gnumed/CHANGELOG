@@ -2160,6 +2160,10 @@ IMPROVED: bootstrap script permissions warning
 # gnumed_v22
 ------------------------------------------------
 
+	22.14
+
+FIX: bootstrapper exception calling capture_conn_state()
+
 	22.13
 
 IMPROVED: bootstrapper logging
