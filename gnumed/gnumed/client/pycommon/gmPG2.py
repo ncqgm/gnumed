@@ -2096,7 +2096,6 @@ def sanity_check_database_settings():
 #=======================================================================
 #  main
 #-----------------------------------------------------------------------
-log_pg_settings = gmConnectionPool.log_pg_settings
 log_pg_exception_details = gmConnectionPool.log_pg_exception_details
 
 exception_is_connection_loss = gmConnectionPool.exception_is_connection_loss
