@@ -2009,21 +2009,18 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 	def __populate_tree(self):
 
 		wx.BeginBusyCursor()
-
 		# clean old tree
 		if self.root is not None:
 			self.DeleteAllItems()
-
+		self.__show_details_callback(document = None, part = None)
 		# init new tree
 		self.root = self.AddRoot(cDocTree._root_node_labels[self.__sort_mode], -1, -1)
 		self.SetItemData(self.root, None)
 		self.SetItemHasChildren(self.root, False)
-
 		# read documents from database
 		curr_pat = gmPerson.gmCurrentPatient()
 		docs_folder = curr_pat.get_document_folder()
 		docs = docs_folder.get_documents()
-
 		if docs is None:
 			gmGuiHelpers.gm_show_error (
 				aMessage = _('Error searching documents.'),
@@ -2039,13 +2036,10 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 
 		# fill new tree from document list
 		self.SetItemHasChildren(self.root, True)
-
 		# add our documents as first level nodes
 		intermediate_nodes = {}
 		for doc in docs:
-
 			parts = doc.parts
-
 			if len(parts) == 0:
 				no_parts = _('no parts')
 			elif len(parts) == 1:
@@ -2166,7 +2160,6 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 				self.SetItemHasChildren(doc_node, False)
 			else:
 				self.SetItemHasChildren(doc_node, True)
-
 			# now add parts as child nodes
 			for part in parts:
 				f_ext = ''
@@ -2196,7 +2189,6 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 
 		self.__sort_nodes()
 		self.SelectItem(self.root)
-
 		# restore expansion state
 		if self.__expanded_nodes is not None:
 			self.ExpansionState = self.__expanded_nodes
@@ -2209,9 +2201,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 			if self.__sort_mode in ['episode', 'type', 'issue', 'org']:
 				for key in intermediate_nodes:
 					self.Expand(intermediate_nodes[key])
-
 		wx.EndBusyCursor()
-
 		return True
 
 	#------------------------------------------------------------------------
@@ -2397,7 +2387,6 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 
 	#------------------------------------------------------------------------
 	def _on_pre_patient_unselection(self, *args, **kwargs):
-		# empty out tree
 		if self.root is not None:
 			self.DeleteAllItems()
 		self.root = None
@@ -2410,9 +2399,6 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 
 	#--------------------------------------------------------
 	def __update_details_view(self):
-		if self.__curr_node_data is None:
-			return
-
 		# pseudo root node or "type"
 		if self.__curr_node_data is None:
 			self.__show_details_callback(document = None, part = None)
@@ -2437,7 +2423,6 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 			return
 
 		if isinstance(self.__curr_node_data, dict):
-			_log.debug('node data is dict: %s', self.__curr_node_data)
 			try:
 				issue = gmEMRStructItems.cHealthIssue(aPK_obj = self.__curr_node_data['pk_health_issue'])
 			except KeyError:
@@ -2660,8 +2645,8 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 			reviewed_by_responsible = [ rev for rev in part.get_reviews() if rev['is_review_by_responsible_reviewer'] ]
 			if len(reviewed_by_responsible) == 0:
 				self.__review_part(part = part)
-
 		return True
+
 	#--------------------------------------------------------
 	def __review_part(self, part=None):
 		dlg = cReviewDocPartDlg (
