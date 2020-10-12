@@ -56,7 +56,7 @@ import psycopg2.sql as psysql
 PG_ERROR_EXCEPTION = dbapi.Error
 
 # =======================================================================
-default_database = 'gnumed_v22'
+default_database = 'gnumed_v23'
 
 postgresql_version_string = None
 
@@ -88,7 +88,8 @@ known_schema_hashes = {
 	19: '57f009a159f55f77525cc0291e0c8b60', # starting with 19.12
 	20: 'baed1901ed4c2f272b56c8cb2c6d88e8',
 	21: 'e6a51a89dd22b75b61ead8f7083f251f',
-	22: 'bf45f01327fb5feb2f5d3c06ba4a6792'
+	22: 'bf45f01327fb5feb2f5d3c06ba4a6792',
+	23: 'devel'
 }
 
 map_schema_hash2version = {

@@ -1068,7 +1068,13 @@ def bool2str(boolean=None, true_str='True', false_str='False'):
 
 #---------------------------------------------------------------------------
 def none_if(value=None, none_equivalent=None, strip_string=False):
-	"""Modelled after the SQL NULLIF function."""
+	"""Modelled after the SQL NULLIF function.
+
+	Args:
+		value: the value to test for "none"-likeness
+		none_equivalent: values to be considered eqivalent to "none"
+		strip_string: apply .strip() to value
+	"""
 	if value is None:
 		return None
 
@@ -1079,7 +1085,8 @@ def none_if(value=None, none_equivalent=None, strip_string=False):
 	if stripped == none_equivalent:
 		return None
 
-	return value
+	#return value
+	return stripped
 
 #---------------------------------------------------------------------------
 def coalesce(value2test=None, return_instead=None, template4value=None, template4instead=None, none_equivalents=None, function4value=None, value2return=None):

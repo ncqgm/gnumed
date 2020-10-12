@@ -22,7 +22,10 @@ from xml.etree import ElementTree as etree
 # GNUmed
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-	_ = lambda x:x
+from Gnumed.pycommon import gmLog2
+if __name__ == '__main__':
+	from Gnumed.pycommon import gmI18N
+	gmI18N.activate_locale()
 from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmBorg
 from Gnumed.pycommon import gmNull
@@ -31,7 +34,6 @@ from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmPG2
 from Gnumed.pycommon import gmDateTime
 from Gnumed.pycommon import gmMatchProvider
-from Gnumed.pycommon import gmLog2
 from Gnumed.pycommon import gmHooks
 
 from Gnumed.business import gmDemographicRecord
@@ -107,9 +109,9 @@ def get_potential_person_dupes(lastnames:str, dob, firstnames:str=None, active_o
 	]
 	if firstnames is not None:
 		if firstnames.strip() != '':
-			#where_parts.append(u"position(%(first)s in firstnames) = 1")
 			where_parts.append("firstnames ~* %(first)s")
-			args['first'] = '\\m' + firstnames
+			# the \m makes "firstnames" match at any word boundary
+			args['first'] = '\\m' + firstnames.strip()
 	if active_only:
 		cmd = """SELECT COUNT(1) FROM dem.v_active_persons WHERE %s""" % ' AND '.join(where_parts)
 	else:
@@ -118,37 +120,35 @@ def get_potential_person_dupes(lastnames:str, dob, firstnames:str=None, active_o
 	return rows[0][0]
 
 #============================================================
-def this_person_exists(lastnames, firstnames, dob, comment) -> int:
-	"""Check whether a given person exists.
+def get_person_duplicates(lastnames:str, firstnames:str, dob, gender:str, comment:str) -> list:
+	"""Check whether a given person record exists in the database.
 
 	Args:
 		lastnames: last names to search form, case insensitive
 		firstnames: first names to search for, case insensitive
 		dob: date of birth to search for, truncated to days
+		gender: gender, case insensitive
 		comment: comment to search for, used for de-duplication, case insensitive
 
 	Returns:
-		Number of persons matching the given criteria.
+		List of primary keys of persons matching the given criteria.
 	"""
-	# backend also looks at gender (IOW, only fails on same-gender dupes)
-	# implement in plpgsql and re-use in both validation trigger and here
-	if comment is not None:
-		comment = comment.strip()
-		if comment == u'':
-			comment = None
 	args = {
 		'last': lastnames.strip(),
 		'first': firstnames.strip(),
 		'dob': dob,
-		'cmt': comment
+		'gender': gmTools.none_if (
+			value = gender,
+			none_equivalent = '',
+			strip_string = True
+		),
+		'cmt': gmTools.none_if (
+			value = comment,
+			none_equivalent = '',
+			strip_string = True
+		)
 	}
-	where_parts = [
-		u'lower(lastnames) = lower(%(last)s)',
-		u'lower(firstnames) = lower(%(first)s)',
-		u"dem.date_trunc_utc('day', dob) IS NOT DISTINCT FROM dem.date_trunc_utc('day', %(dob)s)",
-		u'lower(comment) IS NOT DISTINCT FROM lower(%(cmt)s)'
-	]
-	cmd = u"SELECT COUNT(1) FROM dem.v_persons WHERE %s" % u' AND '.join(where_parts)
+	cmd = 'SELECT dem.get_person_duplicates(%(dob)s, %(last)s, %(first)s, %(gender)s, %(cmt)s)'
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
 	return rows[0][0]
 
@@ -2788,6 +2788,40 @@ if __name__ == '__main__':
 		curr_pat.assimilate_identity(other_identity=None)
 
 	#--------------------------------------------------------
+	def test_get_person_duplicates():
+		print(get_person_duplicates (
+			lastnames = 'Kirk',
+			firstnames = 'James Tiberius',
+			dob = '1931-03-21',
+			gender = 'm',
+			comment = None
+		))
+
+	#--------------------------------------------------------
+	def test_get_potential_person_dupes():
+		print('w/o first name:')
+		print(get_potential_person_dupes (
+			lastnames = 'Kirk',
+			#firstnames = 'James Tiberius',
+			dob = '1931-03-21',
+			active_only =True
+		))
+		print('w/ first name:')
+		print(get_potential_person_dupes (
+			lastnames = 'Kirk',
+			firstnames = 'James Tiberius',
+			dob = '1931-03-21',
+			active_only =True
+		))
+		print('w/ first name:')
+		print(get_potential_person_dupes (
+			lastnames = 'Kirk',
+			firstnames = ' Tiber',
+			dob = '1931-03-21',
+			active_only =True
+		))
+
+	#--------------------------------------------------------
 	#test_dto_person()
 	#test_identity()
 	#test_set_active_pat()
@@ -2806,8 +2840,10 @@ if __name__ == '__main__':
 	#test_mecard()
 
 	gmPG2.request_login_params(setup_pool = True)
-	test_ext_id()
+	#test_ext_id()
 	#test_current_patient()
 	#test_assimilate_identity()
+	#test_get_person_duplicates()
+	test_get_potential_person_dupes()
 
 #============================================================

@@ -171,26 +171,26 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 			self._LBL_person_exists.SetLabel('')
 			return
 
-		fname = gmTools.none_if(self._PRW_firstnames.GetValue().strip()[:1], '')
-
+		#fname = gmTools.none_if(self._PRW_firstnames.GetValue().strip()[:1], '')
+		fname = gmTools.none_if(self._PRW_firstnames.GetValue().strip(), '')
 		no_of_dupes = gmPerson.get_potential_person_dupes(lastnames = lname, firstnames = fname, dob = dob)
 		if no_of_dupes == 0:
 			lbl = ''
 		elif no_of_dupes == 1:
-			lbl = _('One "%s, %s (%s)" already exists !') % (
+			lbl = _('A (one) "%s, %s (%s)" already exists.') % (
 				lname,
-				gmTools.coalesce(fname, '?', '%s %%s. %s' % (gmTools.u_ellipsis, gmTools.u_ellipsis)),
+				gmTools.coalesce(fname, '?', '%s %%s%s %s' % (gmTools.u_ellipsis, gmTools.u_ellipsis, gmTools.u_ellipsis)),
 				gmDateTime.pydt_strftime(dob, '%Y %b %d', 'utf8')
 			)
 		else:
-			lbl = _('%s "%s, %s (%s)" already exist !') % (
+			lbl = _('%s "%s, %s (%s)" already exist.') % (
 				no_of_dupes,
 				lname,
-				gmTools.coalesce(fname, '?', '%s %%s. %s' % (gmTools.u_ellipsis, gmTools.u_ellipsis)),
+				gmTools.coalesce(fname, '?', '%s %%s%s %s' % (gmTools.u_ellipsis, gmTools.u_ellipsis, gmTools.u_ellipsis)),
 				gmDateTime.pydt_strftime(dob, '%Y %b %d', 'utf8')
 			)
-
 		self._LBL_person_exists.SetLabel(lbl)
+
 	#----------------------------------------------------------------
 	def __perhaps_invalidate_address_searcher(self, ctrl=None, field=None):
 
@@ -222,20 +222,22 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 
 		self._PRW_country.SetText(value = adr['l10n_country'], data = adr['code_country'])
 		self._PRW_country.set_context(context = 'zip', val = adr['postcode'])
+
 	#----------------------------------------------------------------
 	def __identity_valid_for_save(self):
+		validity = True
 		error = False
 
 		# name fields
 		if self._PRW_lastname.GetValue().strip() == '':
-			error = True
+			validity = False
 			gmDispatcher.send(signal = 'statustext', msg = _('Must enter lastname.'))
 			self._PRW_lastname.display_as_valid(False)
 		else:
 			self._PRW_lastname.display_as_valid(True)
 
 		if self._PRW_firstnames.GetValue().strip() == '':
-			error = True
+			validity = False
 			gmDispatcher.send(signal = 'statustext', msg = _('Must enter first name.'))
 			self._PRW_firstnames.display_as_valid(False)
 		else:
@@ -243,7 +245,7 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 
 		# gender
 		if self._PRW_gender.GetData() is None:
-			error = True
+			validity = False
 			gmDispatcher.send(signal = 'statustext', msg = _('Must select gender.'))
 			self._PRW_gender.display_as_valid(False)
 		else:
@@ -251,26 +253,28 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 
 		# dob validation
 		if not _validate_dob_field(self._PRW_dob):
-			error = True
+			validity = False
 
 		# TOB validation
 		if _validate_tob_field(self._TCTRL_tob):
 			self.display_ctrl_as_valid(ctrl = self._TCTRL_tob, valid = True)
 		else:
-			error = True
+			validity = False
 			self.display_ctrl_as_valid(ctrl = self._TCTRL_tob, valid = False)
 
 		# uniqueness
-		if gmPerson.this_person_exists (
-			self._PRW_lastname.GetValue().strip(),
-			self._PRW_firstnames.GetValue().strip(),
-			self._PRW_dob.GetData(),
-			gmTools.none_if(self._TCTRL_comment.GetValue().strip(), u'')
-		):
-			error = True
+		if len(gmPerson.get_person_duplicates (
+			lastnames = self._PRW_lastname.GetValue(),
+			firstnames = self._PRW_firstnames.GetValue(),
+			dob = self._PRW_dob.GetData(),
+			gender = self._PRW_gender.GetData(),
+			comment = self._TCTRL_comment.Value
+		)) > 0:
+			validity = False
 			self.StatusText = _('Duplicate person. Modify name and/or DOB or use comment to make unique.')
 
-		return (not error)
+		return validity
+
 	#----------------------------------------------------------------
 	def __address_valid_for_save(self, empty_address_is_valid=False):
 
