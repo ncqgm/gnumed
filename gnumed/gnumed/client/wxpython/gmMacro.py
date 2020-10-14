@@ -24,6 +24,7 @@ import wx
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
+	from Gnumed.pycommon import gmLog2
 from Gnumed.pycommon import gmI18N
 if __name__ == '__main__':
 	gmI18N.activate_locale()
@@ -1595,26 +1596,27 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 
 	#--------------------------------------------------------
 	def _get_variant_patient_mcf(self, data):
-		template, format = self.__parse_ph_options (
-			option_defs = {'tmpl': '%s', 'fmt': 'txt'},
-			options_string = data
+		kwds = {'tmpl': '%s', 'fmt': 'txt'}
+		options = self._parse_ph_options (
+			options_data = data,
+			kwd_defaults = kwds
 		)
-		if format not in ['qr', 'mcf', 'txt']:
+		if options['fmt'] not in ['qr', 'mcf', 'txt']:
 			if self.debug:
 				return self._escape(_('patient_mcf: invalid format (qr/mcf/txt)'))
 			return ''
 
-		if format == 'txt':
+		if options['fmt'] == 'txt':
 			return template % self._escape(self.pat.MECARD)
 
-		if format == 'mcf':
+		if options['fmt'] == 'mcf':
 			return template % self.pat.export_as_mecard()
 
-		if format == 'qr':
+		if options['fmt'] == 'qr':
 			qr_filename = gmTools.create_qrcode(text = self.pat.MECARD)
 			if qr_filename is None:
 				return self._escape('patient_mcf-cannot_create_QR_code')
-			return template % qr_filename
+			return options['tmpl'] % qr_filename
 
 		return None
 
@@ -1686,36 +1688,41 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 
 	#--------------------------------------------------------
 	def _get_variant_praxis_mcf(self, data):
-		template, format = self.__parse_ph_options (
-			option_defs = {'tmpl': '%s', 'fmt': 'txt'},
-			options_string = data
+		kwds = {'tmpl': '%s', 'fmt': 'txt'}
+		options = self._parse_ph_options (
+			options_data = data,
+			kwd_defaults = kwds
 		)
-		if format not in ['qr', 'mcf', 'txt']:
+		if options['fmt'] not in ['qr', 'mcf', 'txt']:
 			if self.debug:
 				return self._escape(_('praxis_mcf: invalid format (qr/mcf/txt)'))
 			return ''
 
-		if format == 'txt':
+		if options['fmt'] == 'txt':
 			return template % self._escape(gmPraxis.gmCurrentPraxisBranch().MECARD)
 
-		if format == 'mcf':
+		if options['fmt'] == 'mcf':
 			return template % gmPraxis.gmCurrentPraxisBranch().export_as_mecard()
 
-		if format == 'qr':
+		if options['fmt'] == 'qr':
 			qr_filename = gmTools.create_qrcode(text = gmPraxis.gmCurrentPraxisBranch().MECARD)
 			if qr_filename is None:
 				return self._escape('praxis_mcf-cannot_create_QR_code')
-			return template % qr_filename
+			return options['tmpl'] % qr_filename
 
 		return None
 
 	#--------------------------------------------------------
 	def _get_variant_praxis_scan2pay(self, data):
-		format = self.__parse_ph_options(option_defs = {'fmt': 'qr'}, options_string = data)
-		if format not in ['qr', 'txt']:
+		kwds = {'fmt': 'qr'}
+		options = self._parse_ph_options (
+			options_data = data,
+			kwd_defaults = kwds
+		)
+		if options['fmt'] not in ['qr', 'txt']:
 			if self.debug:
 				return self._escape(_('praxis_scan2pay: invalid format (qr/txt)'))
-			return u''
+			return ''
 
 		data_str = gmPraxis.gmCurrentPraxisBranch().scan2pay_data
 		if data_str is None:
@@ -1723,11 +1730,11 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 				return self._escape('praxis_scan2pay-cannot_create_data_file')
 			return ''
 
-		if format == 'txt':
+		if options['fmt'] == 'txt':
 			return self._escape(data_str)
 			#return template % self._escape(gmPraxis.gmCurrentPraxisBranch().MECARD)
 
-		if format == 'qr':
+		if options['fmt'] == 'qr':
 			qr_filename = gmTools.create_qrcode(text = data_str)
 			if qr_filename is None:
 				if self.debug:
@@ -2328,14 +2335,15 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 				return self._escape(_('no results for this patient selected'))
 			return ''
 
-		template, date_format, separator = self.__parse_ph_options (
-			option_defs = {'tmpl': '', 'dfmt': '%Y %b %d', 'sep': '\n'},
-			options_string = data
+		kwds = {'tmpl': '', 'dfmt': '%Y %b %d', 'sep': '\n'}
+		options = self._parse_ph_options (
+			options_data = data,
+			kwd_defaults = kwds
 		)
-		if template == '':
-			return (separator + separator).join([ self._escape(r.format(date_format = date_format)) for r in results2show ])
+		if options['tmpl'] == '':
+			return (options['sep'] + options['sep']).join([ self._escape(r.format(date_format = options['dfmt'])) for r in results2show ])
 
-		return separator.join([ template % r.fields_as_dict(date_format = date_format, escape_style = self.__esc_style) for r in results2show ])
+		return options['sep'].join([ options['tmpl'] % r.fields_as_dict(date_format = options['dfmt'], escape_style = self.__esc_style) for r in results2show ])
 
 	#--------------------------------------------------------
 	def _get_variant_latest_vaccs_table(self, data=None):
@@ -2668,7 +2676,12 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 				return ''
 			self.__cache['bill'] = bill
 
-		format = self.__parse_ph_options(option_defs = {'fmt': 'qr'}, options_string = data)
+		kwds = {'fmt': 'qr'}
+		options = self._parse_ph_options (
+			options_data = data,
+			kwd_defaults = kwds
+		)
+		format = options['fmt']
 		if format not in ['qr', 'txt']:
 			if self.debug:
 				return self._escape(_('praxis_scan2pay: invalid format (qr/txt)'))
@@ -2790,40 +2803,172 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 	#--------------------------------------------------------
 	# internal helpers
 	#--------------------------------------------------------
-	def __parse_ph_options(self, option_defs:dict=None, options_string=None):
+	def _parse_ph_options__old(self, option_defs:dict=None, options_string:str=None, ignore_positional_options:bool=True) -> tuple:
 		"""Parse a string for options and values.
+
+		Options must be separated by *self.__args_divider*.
+
+		Each option must be of the form 'name=value', where
+		value _can_ contain more '='s.
+
+		If an option does not contain a '=' it is considered
+		a _positional_ option and possibly returned as-is.
 
 		Args:
 			option_defs: {'option name in placeholder string': 'default value for option', ...}
+				It _can_ contain a key __legacy_options__ which will be filled
+				with positional options in the order they are found, if any.
+			options_str: the text to parse for option values
+			ignore_positional_options: whether or not to return any positional (non-keyword) options found
 
 		Returns:
 			A tuple of values in the order of option_defs -> keys. The
 			caller can rely on order and count.
+
+			If *ignore_positional_options* is False
+			positional options will be included in the
+			result as a (possibly empty) list.
+
+			If *option_defs* contains a keyword
+			__legacy_options__ the positional options list
+			will be returned at that position within the
+			result, else the list will be appended to the end
+			of the results.
 		"""
 		assert (option_defs is not None), '<option_defs> must not be None'
 		assert (options_string is not None), '<options_string> must not be None'
-
-		_log.debug('parsing ::%s:: for %s', options_string, option_defs)
+		if ignore_positional_options and ('__legacy_options__' in option_defs):
+			raise AssertionError("<ignore_positional_options>=True but '__legacy_options__' found in <option_defs>")
+		_log.debug('option defaults: %s', option_defs)
+		_log.debug('options: %s', options_string)
+		legacy_options = []
 		options2return = option_defs.copy()
 		options = options_string.split(self.__args_divider)
 		for opt in options:
 			opt_parts = opt.split('=', 1)
-			_log.debug('parsed option: %s', opt_parts)
 			if len(opt_parts) == 1:
-				_log.error('legacy style positional option, value: [%s], option name missing, ignoring', opt_parts[0])
+				_log.warning('[%s] -> legacy positional option', opt)
+				legacy_options.append(opt_parts[0])
 				continue
 			opt_name = opt_parts[0].strip()
 			if opt_name not in option_defs:
 				# if we would not ignore this option - as seems
-				# tempting since the definition itself is fully,
+				# tempting since the definition itself is fully
 				# valid - we would expand the result tuple beyond
 				# what is expected by the caller, thusly risking
-				# an exception
-				_log.warning('unexpected option [%s], ignoring', opt_name)
+				# an exception upstream
+				_log.warning('[%s] -> unexpected kwd option, ignoring', opt_name)
 				continue
 			options2return[opt_name] = opt_parts[1]
-		_log.debug('options detected: %s', options2return)
+			_log.debug('[%s] -> kwd option, value [%s]', opt, opt_parts[1])
+		if ignore_positional_options:
+			_log.warning('ignoring legacy positional options, if any: %s', legacy_options)
+		else:
+			_log.debug('legacy positional options found: %s', legacy_options)
+			options2return['__legacy_options__'] = legacy_options
+		_log.debug('options found: %s', options2return)
 		return tuple([ options2return[o_name] for o_name in options2return ])
+
+	#--------------------------------------------------------
+	def _parse_ph_options(self, options_data:str=None, switch_defaults:dict=None, kwd_defaults:dict=None, pos_defaults:dict=None) -> dict:
+		"""Parse a string for options and values.
+
+		Options must be separated by *self.__args_divider*.
+
+		Option types:
+
+			Switches: Options which by their existence toggle their default. Think _select_, _display_, or _verbose_.
+
+			Keywords: Must contain an option name, followed by a '=', followed by a value. Think 'template=%s'. The value _can_ contain more '='s.
+
+			Positionals: Options which contain only a value. Their name is defined by their _position_ within the option the options data.
+
+		Note:
+			* Positional defaults override keyword defaults override switch defaults of the same name.
+
+			* Given switches override keyword defaults of the same name.
+
+			* Given keyword values override switches (given or default) of the same name.
+
+			* Unexpected keywords (not in *kwd_defaults*) are considered positionals.
+
+			* Given positionals override keyword/switches (given or default) of the same name.
+
+		Args:
+			options_data: The text to parse for options and values.
+			switch_defaults: Defaults for switch options. All options to be detected as switches must be listed here.
+			kwd_defaults: Defaults for keyword options. Example: {'option name in placeholder string': 'default value for option', ...}.
+			pos_defaults: Defaults for positional options. The keys define the option names. Values will be taken from the options data, or from the defaults.
+
+		Returns:
+
+			A dictionary containing all the defined options
+			and their values. Values come from either the
+			options data, or else their defined defaults.
+
+			Unaccounted-for options are returned as a
+			(possibly empty) list under the name
+			'__undefined_options__'.
+		"""
+		assert (options_data is not None), '<options_data> must not be None'
+		_log.debug('parsing for option values: [%s]', options_data)
+		options2return = {}
+		if switch_defaults:
+			options2return.update(switch_defaults)
+		if kwd_defaults:
+			options2return.update(kwd_defaults)
+		if pos_defaults:
+			options2return.update(pos_defaults)
+		options2return['__undefined_options__'] = []
+		if options_data.strip() == '':
+			_log.debug('returning defaults')
+			return options2return
+
+		options_given = options_data.split(self.__args_divider)
+		_log.debug('options: %s', options_given)
+
+		if switch_defaults:
+			_log.debug('switches: %s', switch_defaults)
+			for switch in switch_defaults:
+				if switch in options_given:
+					options2return[switch] = not switch_defaults[switch]
+					options_given.remove(switch)
+				_log.debug('switch [%s]: default [%s], value [%s]', switch, switch_defaults[switch], options2return[switch])
+		_log.debug('options after switch parsing: %s', options_given)
+
+		if kwd_defaults:
+			_log.debug('kwds: %s', kwd_defaults)
+			for opt in options_given.copy():
+				opt_parts = opt.split('=', 1)
+				if len(opt_parts) == 1:
+					# positional non-switch option, skip for later
+					continue
+				opt_name = opt_parts[0].strip()
+				if opt_name not in kwd_defaults:
+					#_log.warning('kwd option [%s] -> unexpected, skipping', opt)
+					# potentially positional non-switch option containing a '=' by happenstance, skip for later
+					continue
+				options2return[opt_name] = opt_parts[1]
+				options_given.remove(opt)
+		_log.debug('options after kwds parsing: %s', options_given)
+
+		remaining_positionals = options_given.copy()
+		if pos_defaults:
+			_log.debug('positionals: %s', pos_defaults)
+			positionals_names = list(pos_defaults.keys())
+			for opt_idx in range(len(options_given)):
+				opt_val = options_given[opt_idx]
+				try:
+					options2return[positionals_names[opt_idx]] = opt_val
+					remaining_positionals.pop(0)
+				except IndexError:
+					pass # undefined positional, already taken care of
+		if remaining_positionals:
+			_log.error('unconsumed positional options: %s', remaining_positionals)
+			options2return['__undefined_options__'] = remaining_positionals
+
+		_log.debug('options found: %s', options2return)
+		return options2return
 
 	#--------------------------------------------------------
 	def _escape(self, text=None):
@@ -3598,32 +3743,96 @@ if __name__ == '__main__':
 		show_placeholders()
 
 	#--------------------------------------------------------
-	def test_parse_ph_options(option_defs=None, options_string=None):
-		"""Returns a tuple of values in the order of option_defs -> keys."""
-		assert (option_defs is not None), '<option_defs> must not be None'
-		assert (options_string is not None), '<options_string> must not be None'
+	def test_parse_ph_options():
+		handler = gmPlaceholderHandler()
+		option_str = '//select//pos1//opt1=one//opt2=2//opt3=drei//positional_further_down//fmt=qr//%s//tmpl=__%s__//switch=with=equal_sig'
+		switches = {'select': False, 'verbose': False, 'switch=with=equal_sign': None}
+		kwds = {'opt1': 1, 'opt2': 'two', 'opt4': 'vier', 'fmt': 'qr', 'tmpl': '--%s--', 'switch': 'what ??'}
+		pos = {'empty': None, 'firstpos': 'egal', 'farther_away': None, 'tmpl':None, 'one too many': 99999}
 
-		_log.debug('parsing ::%s:: for %s', options_string, option_defs)
-		options2return = option_defs.copy()
-		options = options_string.split('//')
-		for opt in options:
-			opt_name, opt_val = opt.split('=', 1)
-			if opt_name.strip() not in option_defs:
-				continue
-			options2return[opt_name] = opt_val
+		opts = handler._parse_ph_options_new (
+			options_data = option_str
+			#, switch_defaults = switches
+			#, kwd_defaults = kwds
+			#, pos_defaults= None
+		)
+		print(option_str)
+		print('no definitions:')
+		for key in opts:
+			print(' ', key, '-->', opts[key])
 
-		return tuple([ options2return[o_name] for o_name in options2return ])
+		input()
+		opts = handler._parse_ph_options_new (
+			options_data = option_str
+			, switch_defaults = switches
+			#, kwd_defaults = kwds
+			#, pos_defaults= None
+		)
+		print()
+		print(option_str)
+		print('switches defined:')
+		for key in opts:
+			print(' ', key, '-->', opts[key])
+
+		input()
+		opts = handler._parse_ph_options_new (
+			options_data = option_str
+			, switch_defaults = switches
+			, kwd_defaults = kwds
+			#, pos_defaults= None
+		)
+		print()
+		print(option_str)
+		print('switches and kwds defined:')
+		for key in opts:
+			print(' ', key, '-->', opts[key])
+
+		input()
+		opts = handler._parse_ph_options_new (
+			options_data = option_str
+			, switch_defaults = switches
+			, kwd_defaults = kwds
+			, pos_defaults = pos
+		)
+		print()
+		print(option_str)
+		print('switches and kwds and positionals defined:')
+		for key in opts:
+			print(' ', key, '-->', opts[key])
+
+		input()
+		opts = handler._parse_ph_options_new (
+			options_data = option_str
+			#, switch_defaults = switches
+			, kwd_defaults = kwds
+			#, pos_defaults= None
+		)
+		print()
+		print(option_str)
+		print('kwds defined:')
+		for key in opts:
+			print(' ', key, '-->', opts[key])
+
+
+
+
+#		one, two, four, legacy = handler._parse_ph_options (
+#			option_defs = {'__legacy_options__': None, 'opt1': 1, 'opt2': 'two', 'opt4': 'vier'},
+#			options_string = 'pos1//opt1=one//opt2=2//opt3=drei//legacy_lives_forever',
+#			ignore_positional_options = False
+#		)
+#		print(one, two, four, legacy)
 
 	#--------------------------------------------------------
-	#a,b,c = test_parse_ph_options(option_defs = {'opt1': 1, 'opt2': 'two', 'opt4': 'vier'}, options_string = 'opt1=one//opt2=2//opt3=drei')
+	test_parse_ph_options()
 	#sys.exit()
 
-	app = wx.App()
+	#app = wx.App()
 
 	#test_placeholders()
 	#test_new_variant_placeholders()
 	#test_scripting()
 	#test_placeholder_regex()
 	#test()
-	test_placeholder()
+	#test_placeholder()
 	#test_show_phs()
