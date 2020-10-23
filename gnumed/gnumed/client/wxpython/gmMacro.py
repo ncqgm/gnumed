@@ -278,14 +278,19 @@ __known_variant_placeholders = {
 		to the patient in some way or other,
 		args: optional template//optional cache ID
 		template: %s-style formatting template
-		cache ID: used to differentiate separate cached invocations of this placeholder
+		cache ID: used to differentiate separate cached invocations of this placeholder, if necessary
 	""",
 
 	# patient demographics:
 	'name': "args: template for name parts arrangement",
 	'date_of_birth': "args: strftime date/time format directive",
 
-	'patient_address': "args: <type of address>//<optional formatting template>",
+	'patient_address': """Return one patient address.
+		Options:
+			type: the type of address to use, asks user if empty
+			fmt: if set to 'mapurl': return formatted as URL pointing to an online map
+			tmpl: the formatting template, if <fmt> is not 'mapurl'
+	""",
 	'adr_street': "args: <type of address>, cached per type",
 	'adr_number': "args: <type of address>, cached per type",
 	'adr_subunit': "args: <type of address>, cached per type",
@@ -1454,13 +1459,20 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 	#--------------------------------------------------------
 	def _get_variant_receiver_country(self, data='%s'):
 		return self.__get_variant_receiver_part(data = data, part = 'l10n_country')
+
 	#--------------------------------------------------------
 	def _get_variant_patient_address(self, data=''):
-
-		data_parts = data.split(self.__args_divider)
-
-		# address type
-		adr_type = data_parts[0].strip()
+		kwds = {'fmt': 'not_defined'}
+		pos = {
+			'type': '',
+			'tmpl': _('%(street)s %(number)s, %(postcode)s %(urb)s, %(l10n_region)s, %(l10n_country)s')
+		}
+		opts = self._parse_ph_options (
+			option_data = data,
+			kwd_defaults = kwds,
+			pos_default = pos
+		)
+		adr_type = opts['type']
 		orig_type = adr_type
 		if adr_type != '':
 			adrs = self.pat.get_addresses(address_type = adr_type)
@@ -1474,22 +1486,21 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 				if self.debug:
 					return _('no address type replacement selected')
 				return ''
-			adr_type = adr['address_type']
-		adr = self.pat.get_addresses(address_type = adr_type)[0]
 
-		# formatting template
-		template = _('%(street)s %(number)s, %(postcode)s %(urb)s, %(l10n_region)s, %(l10n_country)s')
-		if len(data_parts) > 1:
-			if data_parts[1].strip() != '':
-				template = data_parts[1]
+			adr_type = adr['address_type']
+
+		adr = self.pat.get_addresses(address_type = adr_type)[0]
+		if opts['fmt'] == 'mapurl':
+			return adr.as_map_url
 
 		try:
-			return template % adr.fields_as_dict(escape_style = self.__esc_style)
+			return opts['tmpl'] % adr.fields_as_dict(escape_style = self.__esc_style)
+
 		except Exception:
 			_log.exception('error formatting address')
-			_log.error('template: %s', template)
-
+			_log.error('template: %s', opts['tmpl'])
 		return None
+
 	#--------------------------------------------------------
 	def __get_variant_adr_part(self, data='?', part=None):
 		requested_type = data.strip()
@@ -3799,12 +3810,12 @@ if __name__ == '__main__':
 	#--------------------------------------------------------
 	def test_parse_ph_options():
 		handler = gmPlaceholderHandler()
-		option_str = '//select//pos1//opt1=one//opt2=2//opt3=drei//positional_further_down//fmt=qr//%s//tmpl=__%s__//switch=with=equal_sig'
+		option_str = '//select//pos1//opt1=one//opt2=2//opt3=drei//positional_further_down//fmt=qr//%s//tmpl=__%s__//switch=with=equal_sig//empty_kwd='
 		switches = {'select': False, 'verbose': False, 'switch=with=equal_sign': None}
-		kwds = {'opt1': 1, 'opt2': 'two', 'opt4': 'vier', 'fmt': 'qr', 'tmpl': '--%s--', 'switch': 'what ??'}
+		kwds = {'opt1': 1, 'opt2': 'two', 'opt4': 'vier', 'fmt': 'qr', 'tmpl': '--%s--', 'switch': 'what ??', 'empty_kwd': ''}
 		pos = {'empty': None, 'firstpos': 'egal', 'farther_away': None, 'tmpl':None, 'one too many': 99999}
 
-		opts = handler._parse_ph_options_new (
+		opts = handler._parse_ph_options (
 			options_data = option_str
 			#, switch_defaults = switches
 			#, kwd_defaults = kwds
@@ -3816,7 +3827,7 @@ if __name__ == '__main__':
 			print(' ', key, '-->', opts[key])
 
 		input()
-		opts = handler._parse_ph_options_new (
+		opts = handler._parse_ph_options (
 			options_data = option_str
 			, switch_defaults = switches
 			#, kwd_defaults = kwds
@@ -3829,7 +3840,7 @@ if __name__ == '__main__':
 			print(' ', key, '-->', opts[key])
 
 		input()
-		opts = handler._parse_ph_options_new (
+		opts = handler._parse_ph_options (
 			options_data = option_str
 			, switch_defaults = switches
 			, kwd_defaults = kwds
@@ -3842,7 +3853,7 @@ if __name__ == '__main__':
 			print(' ', key, '-->', opts[key])
 
 		input()
-		opts = handler._parse_ph_options_new (
+		opts = handler._parse_ph_options (
 			options_data = option_str
 			, switch_defaults = switches
 			, kwd_defaults = kwds
@@ -3855,7 +3866,7 @@ if __name__ == '__main__':
 			print(' ', key, '-->', opts[key])
 
 		input()
-		opts = handler._parse_ph_options_new (
+		opts = handler._parse_ph_options (
 			options_data = option_str
 			#, switch_defaults = switches
 			, kwd_defaults = kwds
