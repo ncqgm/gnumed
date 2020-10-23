@@ -167,6 +167,8 @@ class cPraxisBranch(gmBusinessDBObject.cBusinessDBObject):
 		comms = self.get_comm_channels(comm_medium = 'email')
 		if len(comms) > 0:
 			vcf_fields.append('EMAIL:%(url)s' % comms[0])
+		if adr is not None:
+			vcf_fields.append('URL:%s' % adr.as_map_url)
 		vcf_fields.append('END:VCARD')
 		vcf_fname = gmTools.get_unique_filename (
 			prefix = 'gm-praxis-',
@@ -214,6 +216,9 @@ class cPraxisBranch(gmBusinessDBObject.cBusinessDBObject):
 		comms = self.get_comm_channels(comm_medium = 'email')
 		if len(comms) > 0:
 			MECARD += 'EMAIL:%(url)s;' % comms[0]
+		if adr is not None:
+			MECARD += 'URL:%s;' % adr.as_map_url
+		MECARD += ';'
 		return MECARD
 
 	MECARD = property(_get_mecard)
@@ -629,9 +634,21 @@ if __name__ == '__main__':
 #		print "regression tests failed"
 #	print "regression tests succeeded"
 
-	for b in get_praxis_branches():
-		print((b.format()))
-		#print(b.vcf)
-		print(b.scan2pay_data)
+#	for b in get_praxis_branches():
+#		print((b.format()))
+#		#print(b.vcf)
+#		print(b.scan2pay_data)
 
-#============================================================
+	#--------------------------------------------------------
+	def test_mecard():
+		for b in get_praxis_branches():
+			print(b.MECARD)
+			mcf = b.export_as_mecard()
+			print(mcf)
+			#print(gmTools.create_qrcode(filename = mcf, qr_filename = None, verbose = True)
+			print(gmTools.create_qrcode(text = b.MECARD, qr_filename = None, verbose = True))
+			input()
+
+	#--------------------------------------------------------
+	gmPG2.request_login_params(setup_pool = True)
+	test_mecard()

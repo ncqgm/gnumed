@@ -593,30 +593,25 @@ class cAddress(gmBusinessDBObject.cBusinessDBObject):
 
 	#--------------------------------------------------------
 	def _get_as_map_url(self):
-		"""https://nominatim.openstreetmap.org/ui/search.html?street=...&city=...&country=...&postalcode=...
+		"""Format as an openstreetmap location search URL.
 
-		' ' -> '+'
-		street: street+number
+		Specs:
+			https://nominatim.org/release-docs/develop/api/Search/
 		"""
 		args = []
 		if self['street']:
-			val = '%s %s' % (self['street'], self['number'])
-			#val = val.strip().replace(' ', '+').encode('utf8')
-			val = val.strip().encode('utf8')
-			args.append('street=%s' % urllib.parse.quote(val))
-		if self['number']:
-			val = self['number'].strip().replace(' ', '+').encode('utf8')
-			args.append('+%s' % urllib.parse.quote(val))
+			street_num = self['street'].strip()
+			if self['number']:
+				street_num = street_num + ' ' + self['number'].strip()
+			args.append('street=%s' % urllib.parse.quote_plus(street_num))
 		if self['urb']:
-			val = self['urb'].strip().replace(' ', '+').encode('utf8')
-			args.append('city=%s' % urllib.parse.quote(val))
+			args.append('city=%s' % urllib.parse.quote_plus(self['urb'].strip()))
 		if self['country']:
-			val = self['country'].strip().replace(' ', '+').encode('utf8')
-			args.append('country=%s' % urllib.parse.quote(val))
+			args.append('country=%s' % urllib.parse.quote_plus(self['country'].strip()))
 		if self['postcode']:
-			val = self['postcode'].strip().replace(' ', '+').encode('utf8')
-			args.append('postalcode=%s' % urllib.parse.quote(val))
-		return 'https://nominatim.openstreetmap.org/ui/search.html?%s' % '&'.join(args)
+			args.append('postalcode=%s' % urllib.parse.quote_plus(self['postcode'].strip()))
+		args.append('limit=3')
+		return 'https://nominatim.openstreetmap.org/search?%s' % '&'.join(args)
 
 	as_map_url = property(_get_as_map_url, lambda x:x)
 

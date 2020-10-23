@@ -15,7 +15,6 @@ import time
 import datetime as pyDT
 import threading
 import logging
-import io
 import inspect
 from xml.etree import ElementTree as etree
 
@@ -1185,7 +1184,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 		script_name = gmTools.get_unique_filename(prefix = 'gm-assimilate-%(pat2del)s-into-%(pat2keep)s-' % args, suffix = '.sql')
 		_log.warning('identity [%s] is about to assimilate identity [%s], SQL script [%s]', self.ID, other_identity.ID, script_name)
 
-		script = io.open(script_name, 'wt')
+		script = open(script_name, 'wt')
 		args['date'] = gmDateTime.pydt_strftime(gmDateTime.pydt_now_here(), '%Y %B %d  %H:%M')
 		script.write(_MERGE_SCRIPT_HEADER % args)
 		for query in queries:
@@ -1249,7 +1248,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 				suffix = '.gdt'
 			)
 
-		gdt_file = io.open(filename, mode = 'wt', encoding = encoding, errors = 'strict')
+		gdt_file = open(filename, mode = 'wt', encoding = encoding, errors = 'strict')
 
 		gdt_file.write(template % ('013', '8000', '6301'))
 		gdt_file.write(template % ('013', '9218', '2.10'))
@@ -1458,7 +1457,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 				prefix = 'gm-patient-',
 				suffix = '.vcf'
 			)
-		vcf = io.open(filename, mode = 'wt', encoding = 'utf8')
+		vcf = open(filename, mode = 'wt', encoding = 'utf8')
 		try:
 			vcf.write(vc.serialize())
 		except UnicodeDecodeError:
@@ -1476,7 +1475,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 				prefix = 'gm-patient-',
 				suffix = '.mcf'
 			)
-		with io.open(filename, mode = 'wt', encoding = 'utf8') as mecard_file:
+		with open(filename, mode = 'wt', encoding = 'utf8') as mecard_file:
 			mecard_file.write(self.MECARD)
 		return filename
 
@@ -1488,36 +1487,35 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 
 		MECARD:N:NAME;ADR:pobox,subunit,unit,street,ort,region,zip,country;TEL:111111111;FAX:22222222;EMAIL:mail@praxis.org;
 
-
-		MECARD:N:lastname,firstname;BDAY:YYYYMMDD;ADR:pobox,subunit,number,street,location,region,zip,country;;
+		MECARD:N:lastname,firstname;BDAY:YYYYMMDD;ADR:pobox,subunit,number,street,location,region,zip,country;EMAIL:...;TEL:...;FAX:...;URL:...;;
 		MECARD:N:$<lastname::::>$,$<firstname::::>$;BDAY:$<date_of_birth::%Y%m%d::>$;ADR:,$<adr_subunit::home::>$,$<adr_number::home::>$,$<adr_street::home::>$,$<adr_location::home::>$,,$<adr_postcode::home::>$,$<adr_country::home::>$;;
 		"""
-		MECARD = 'MECARD:N:%s,%s;' % (
-			self._payload[self._idx['lastnames']],
-			self._payload[self._idx['firstnames']]
-		)
-		if self._payload[self._idx['dob']] is not None:
-			MECARD += 'BDAY:%s;' % gmDateTime.pydt_strftime (
-				self._payload[self._idx['dob']],
-				'%Y%m%d',
-				accuracy = gmDateTime.acc_days,
-				none_str = ''
+		mecard_fields = [
+			'MECARD:N:%s,%s' % (
+				self._payload[self._idx['lastnames']].strip(),
+				self._payload[self._idx['firstnames']].strip()
 			)
+		]
+		if self._payload[self._idx['dob']] is not None:
+			mecard_fields.append('BDAY:%s' % self._payload[self._idx['dob']].strftime('%Y%m%d'))
 		adrs = self.get_addresses(address_type = 'home')
 		if len(adrs) > 0:
-			MECARD += 'ADR:,%(subunit)s,%(number)s,%(street)s,%(urb)s,,%(postcode)s,%(l10n_country)s;' % adrs[0]
+			mecard_fields.append('ADR:,%(subunit)s,%(number)s,%(street)s,%(urb)s,,%(postcode)s,%(l10n_country)s' % adrs[0])
 		comms = self.get_comm_channels(comm_medium = 'homephone')
 		if len(comms) > 0:
 			if not comms[0]['is_confidential']:
-				MECARD += 'TEL:%s;' % comms[0]['url']
+				mecard_fields.append('TEL:%s' % comms[0]['url'].strip())
 		comms = self.get_comm_channels(comm_medium = 'fax')
 		if len(comms) > 0:
 			if not comms[0]['is_confidential']:
-				MECARD += 'FAX:%s;' % comms[0]['url']
+				mecard_fields.append('FAX:%s' % comms[0]['url'].strip())
 		comms = self.get_comm_channels(comm_medium = 'email')
 		if len(comms) > 0:
 			if not comms[0]['is_confidential']:
-				MECARD += 'EMAIL:%s;' % comms[0]['url']
+				mecard_fields.append('EMAIL:%s' % comms[0]['url'].strip())
+		if len(adrs) > 0:
+			mecard_fields.append('URL:%s' % adrs[0].as_map_url)
+		MECARD = ';'.join(mecard_fields) + ';'
 		return MECARD
 
 	MECARD = property(_get_mecard)
@@ -2772,7 +2770,7 @@ if __name__ == '__main__':
 		mcf = person.export_as_mecard()
 		print(mcf)
 		#print(gmTools.create_qrcode(filename = mcf, qr_filename = None, verbose = True)
-		print(gmTools.create_qrcode(text = person.MECARD, qr_filename = None, verbose = True))
+		#print(gmTools.create_qrcode(text = person.MECARD, qr_filename = None, verbose = True))
 
 	#--------------------------------------------------------
 	def test_current_patient():
@@ -2837,13 +2835,13 @@ if __name__ == '__main__':
 	#test_export_area()
 	#test_ext_id()
 	#test_vcf()
-	#test_mecard()
 
 	gmPG2.request_login_params(setup_pool = True)
+	test_mecard()
 	#test_ext_id()
 	#test_current_patient()
 	#test_assimilate_identity()
 	#test_get_person_duplicates()
-	test_get_potential_person_dupes()
+	#test_get_potential_person_dupes()
 
 #============================================================
