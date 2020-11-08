@@ -16,7 +16,6 @@ import http.client		# exception names used by httplib2
 import socket
 import httplib2
 import json
-import zipfile
 import shutil
 import time
 import datetime as pydt
@@ -530,14 +529,14 @@ class cOrthancServer:
 		return filename
 
 	#--------------------------------------------------------
-	def get_instance(self, instance_id, filename=None):
+	def get_instance(self, instance_id:str, filename:str=None, allow_cached:bool=True) -> str:
 		if filename is None:
 			filename = gmTools.get_unique_filename(suffix = '.dcm')
 
 		_log.debug('exporting instance [%s] into [%s]', instance_id, filename)
 		download_url = '%s/instances/%s/attachments/dicom/data' % (self.__server_url, instance_id)
 		f = io.open(filename, 'wb')
-		f.write(self.__run_GET(url = download_url, allow_cached = True))
+		f.write(self.__run_GET(url = download_url, allow_cached = allow_cached))
 		f.close()
 		return filename
 
@@ -546,7 +545,7 @@ class cOrthancServer:
 	#--------------------------------------------------------
 	def get_patient(self, orthanc_id:str):
 		patient_data_url = '%s/patients/%s' % (self.__server_url, str(orthanc_id))
-		patient_data, status = self.__run_GET(patient_data_url, also_return_status_on_error = True)
+		patient_data, status = self.__run_GET(patient_data_url, also_return_status = True)
 		if patient_data is False:
 			if status == 404:
 				_log.debug('no such patient: %s', orthanc_id)
@@ -662,62 +661,146 @@ class cOrthancServer:
 	#--------------------------------------------------------
 	# upload API
 	#--------------------------------------------------------
-	def upload_dicom_file(self, filename, check_mime_type=False):
+	def upload_dicom_file(self, filename:str, check_mime_type:bool=False) -> bool:
+		"""Update a DICOM file.
+
+		Will silently ignore DICOMDIR files (which are application/dicom but
+		Orthanc does not process them).
+
+		Args:
+			filename: DICOM file to upload
+			check_mime_type: whether to check the file for being application/dicom, and to fail if not
+
+		Returns:
+			True/False
+		"""
+		_log.info('processing: %s', filename)
 		if gmTools.fname_stem(filename) == 'DICOMDIR':
-			_log.debug('ignoring [%s], no use uploading DICOMDIR files to Orthanc', filename)
+			_log.debug('ignoring, no use uploading DICOMDIR files to Orthanc')
 			return True
 
 		if check_mime_type:
-			if gmMimeLib.guess_mimetype(filename) != 'application/dicom':
-				_log.error('not considered a DICOM file: %s', filename)
+			mimetype = gmMimeLib.guess_mimetype(filename)
+			if mimetype != 'application/dicom':
+				_log.error('not considered a DICOM (application/dicom) file: %s, not uploading', mimetype)
 				return False
+
 		try:
 			f = io.open(filename, 'rb')
 		except Exception:
-			_log.exception('cannot open [%s]', filename)
+			_log.exception('failed to open file')
 			return False
 
 		dcm_data = f.read()
 		f.close()
-		_log.debug('uploading [%s]', filename)
 		upload_url = '%s/instances' % self.__server_url
 		uploaded = self.__run_POST(upload_url, data = dcm_data, content_type = 'application/dicom')
 		if uploaded is False:
-			_log.error('cannot upload [%s]', filename)
+			_log.error('upload failed')
 			return False
 
 		# typically a 404 following the upload of a DICOM file w/o identifiers
 		if uploaded == []:
-			_log.error('cannot upload [%s]', filename)
+			_log.error('upload failed')
 			return False
 
 		_log.debug(uploaded)
-		try:
-			already_there = (uploaded['Status'] == 'AlreadyStored')
-		except KeyError:
-			already_there = False
-		if already_there:
-			# paranoia, as is our custom
-			available_fields_url = '%s%s/attachments/dicom' % (self.__server_url, uploaded['Path'])	# u'Path': u'/instances/1440110e-9cd02a98-0b1c0452-087d35db-3fd5eb05'
-			available_fields = self.__run_GET(available_fields_url, allow_cached = True)
-			if 'md5' not in available_fields:
-				_log.debug('md5 of instance not available in Orthanc, cannot compare against file md5, trusting Orthanc')
-				return True
+		# paranoia, as is our custom
+		verified = self.verify_instance (
+			instance_id = uploaded['ID'],
+			filename = filename,
+			attempt_download = True
+		)
+		return verified
 
-			md5_url = '%s/md5' % available_fields_url
-			md5_db = self.__run_GET(md5_url)
-			md5_file = gmTools.file2md5(filename)
-			if md5_file != md5_db:
-				_log.error('local md5: %s', md5_file)
-				_log.error('in-db md5: %s', md5_db)
-				_log.error('MD5 mismatch !')
-				return False
+	#--------------------------------------------------------
+	def verify_instance(self, instance_id:str, filename:str=None, attempt_download:bool=False) -> bool:
 
-			_log.info('MD5 match between file and database')
-			return True
+		_BINARY_ATTACHMENTS = ['dicom']
 
-		# something seems really rotten, investigate the log
-		return False
+		_log.debug('verifying instance [%s] against file [%s]', instance_id, filename)
+		is_valid = True
+
+		attachments_url = '%s/instances/%s/attachments' % (self.__server_url, instance_id)
+		attachments = self.__run_GET(attachments_url, allow_cached = False)
+		if not attachments:
+			_log.error('cannot retrieve instance attachment list')
+			return False
+
+		for attachment in attachments:
+			md5_orthanc = None
+			# 1) verify MD5 inside Orthanc, if available (checks Orthanc storage corruption)
+			available_fields_url = '%s/instances/%s/attachments/%s' % (self.__server_url, instance_id, attachment)
+			available_fields = self.__run_GET(available_fields_url, allow_cached = False)
+			if 'md5' in available_fields:
+				md5_url = '%s/md5' % available_fields_url
+				md5_orthanc = self.__run_GET(md5_url)
+				verify_url = '%s/%s/verify-md5' % (attachments_url, attachment)
+				if self.__run_POST(verify_url) is False:
+					_log.error('MD5 verification failed, instance [%s], attachment=%s, url [%s]', instance_id, attachment, verify_url)
+					_log.error('potentially Orthanc storage corruption')
+					is_valid = False
+				else:
+					_log.debug('MD5: Orthanc DB <-> Orthanc storage: match')
+			else:
+				_log.debug('MD5 of instance attachment not available in Orthanc, cannot verify backend storage status')
+			# 2) verify instance attachment can be downloaded
+			md5_downloaded = None
+			if attempt_download:
+				attachment_filename = gmTools.get_unique_filename()
+				download_url = '%s/instances/%s/attachments/%s/data' % (self.__server_url, instance_id, attachment)
+				attachment_data = self.__run_GET(url = download_url, allow_cached = False)
+				if isinstance(attachment_data, bytes):
+					attachment_file = io.open(attachment_filename, 'wb')
+				else:
+					attachment_file = io.open(attachment_filename, 'wt')
+					attachment_data = '%s' % attachment_data
+				attachment_file.write(attachment_data)
+				del attachment_data
+				attachment_file.close()
+				_log.debug('download: Orthanc -> localhost: success')
+				if attachment not in _BINARY_ATTACHMENTS:
+					_log.info('attachment of type [%s] not binary, cannot verify MD5 of download or local file against MD5 in Orthanc, skipping', attachment)
+					continue
+				md5_downloaded = gmTools.file2md5(attachment_filename)
+			else:
+				_log.debug('not downloading instance for verification')
+			# 3) verify MD5 of downloaded instance against Orthanc, if possible
+			if md5_downloaded and md5_orthanc:
+				if md5_downloaded == md5_orthanc:
+					_log.debug('MD5: Orthanc DB <-> localhost: match')
+				else:
+					_log.error('MD5 mismatch: Orthanc DB <-> localhost')
+					_log.error('download: %s', md5_downloaded)
+					_log.error('Orthanc : %s', md5_orthanc)
+					is_valid = False
+			if filename:
+				md5_local = gmTools.file2md5(filename)
+			else:
+				_log.debug('local file not available for verification')
+				md5_local = None
+			# 4) verify MD5 of download against local file
+			if md5_downloaded and md5_local:
+				if md5_downloaded == md5_local:
+					_log.debug('MD5: downloaded <-> pre-existing: match')
+				else:
+					_log.error('MD5 mismatch: downloaded <-> pre-existing')
+					_log.error('download: %s', md5_downloaded)
+					_log.error('locally : %s', md5_local)
+					is_valid = False
+			# 5) verify MD5 of local file against Orthanc
+			if md5_local and md5_orthanc:
+				if md5_local == md5_orthanc:
+					_log.debug('MD5: Orthanc DB <-> pre-existing: match')
+				else:
+					_log.error('MD5 mismatch: Orthanc DB <-> pre-existing')
+					_log.error('locally : %s', md5_local)
+					_log.error('Orthanc : %s', md5_orthanc)
+					is_valid = False
+			# 6) consider comparing the raw pixel data or comparing the output of exiftool etc
+
+		_log.debug('verified: %s', is_valid)
+		return is_valid
 
 	#--------------------------------------------------------
 	def upload_dicom_files(self, files=None, check_mime_type=False):
@@ -1047,7 +1130,7 @@ class cOrthancServer:
 		return self.__run_GET(url = url, data = data, allow_cached = allow_cached)
 
 	#--------------------------------------------------------
-	def __run_GET(self, url=None, data=None, allow_cached=False, also_return_status_on_error=False):
+	def __run_GET(self, url=None, data=None, allow_cached=False, also_return_status=False):
 		if data is None:
 			data = {}
 		headers = {}
@@ -1065,7 +1148,7 @@ class cOrthancServer:
 			_log.exception('exception in GET')
 			_log.debug(' url: %s', url_with_params)
 			_log.debug(' headers: %s', headers)
-			if also_return_status_on_error:
+			if also_return_status:
 				return (False, -1)
 			return False
 
@@ -1075,14 +1158,12 @@ class cOrthancServer:
 			_log.debug(' headers: %s', headers)
 			_log.error(' response: %s', response)
 			_log.debug(' content: %s', content)
-			if also_return_status_on_error:
+			if also_return_status:
 				return (False, response.status)
 			return False
 
-#		_log.error(' response: %s', response)
-#		_log.error(' content type: %s', type(content))
-#		_log.debug(' response: %s', response)
-
+		#_log.debug('response: %s', response)
+		#_log.debug('type(content): %s', type(content))
 		content_type = response['content-type'].strip()
 		if content_type.startswith('text/plain'):
 			# utf8 ?
@@ -1099,17 +1180,16 @@ class cOrthancServer:
 				charset = charset_def.strip().split('=')[1]
 				#content = content.decode('utf8')
 				content = content.decode(charset)
+			#_log.debug(content)
 		else:
-			_log.error('unexpected mime type [%s], returning raw content', content_type)
-			_log.debug('response: %s', response)
-
-		if also_return_status_on_error:
+			_log.error('content: <%s>, not <text/plain> or <application/json> -- returning raw content', content_type)
+		if also_return_status:
 			return (content, response.status)
+
 		return content
 
 	#--------------------------------------------------------
 	def __run_POST(self, url=None, data=None, content_type=None, output_file=None):
-
 		body = data
 		headers = {'content-type' : content_type}
 		if isinstance(data, str):
@@ -1126,6 +1206,7 @@ class cOrthancServer:
 			try:
 				response, content = self.__conn.request(url, 'POST', body = body, headers = headers)
 			except BrokenPipeError:
+				_log.debug('retrying after BrokenPipeError')
 				response, content = self.__conn.request(url, 'POST', body = body, headers = headers)
 		except (socket.error, http.client.ResponseNotReady, OverflowError):
 			_log.exception('exception in POST')
@@ -1138,11 +1219,10 @@ class cOrthancServer:
 			_log.debug('no data, response: %s', response)
 			if output_file is None:
 				return []
-
 			return False
 
 		if response.status not in [ 200, 302 ]:
-			_log.error('POST returned non-OK status: %s', response.status)
+			_log.error('POST returned non-OK (not 200,302) status: %s', response.status)
 			_log.debug(' url: %s', url)
 			_log.debug(' headers: %s', headers)
 			_log.debug(' body: %s', body[:16])
@@ -1509,9 +1589,13 @@ if __name__ == "__main__":
 		print('setting [%s] to [%s]:' % (old_id, new_id), orthanc.modify_patient_id(old_id, new_id))
 
 	#--------------------------------------------------------
+	def test_upload_file():
+		orthanc.upload_dicom_file(filename = sys.argv[4], check_mime_type = True)
+
+	#--------------------------------------------------------
 	def test_upload_files():
 		#orthanc.upload_dicom_file(sys.argv[2])
-		orthanc.upload_from_directory(directory = sys.argv[2], recursive = True, check_mime_type = False, ignore_other_files = True)
+		orthanc.upload_from_directory(directory = sys.argv[4], recursive = True, check_mime_type = False, ignore_other_files = True)
 
 	#--------------------------------------------------------
 	def test_get_instance_preview():
@@ -1599,6 +1683,19 @@ if __name__ == "__main__":
 #				_log.error('bad MD5 of DICOM file at url [%s]: patient=%s, attachment_type=%s', verify_url, orthanc_id, attachment)
 #				bad_data.append({'patient': orthanc_id, 'instance': instance_id, 'type': attachment, 'orthanc': '%s [%s]' % (self.server_identification, self.__server_url)})
 
+	#--------------------------------------------------------
+	def test_verify_instance():
+		# u'Path': u'/instances/1440110e-9cd02a98-0b1c0452-087d35db-3fd5eb05'
+		#instance_id = '1440110e-9cd02a98-0b1c0452-087d35db-3fd5eb05'
+		#instance_id = '5a8206f4-24619e76-6650d9cd-792cdf25-039e96e6'
+		instance_id = '7e99fa76-3699ab68-7fd9d2de-c621b331-b4fe7394'
+		print('verifying [%s]' % instance_id)
+		result = orthanc.verify_instance (
+			instance_id = instance_id
+#			, filename = None
+			, attempt_download = True
+		)
+		print(result)
 
 	#--------------------------------------------------------
 	def _connect():
@@ -1634,8 +1731,10 @@ if __name__ == "__main__":
 
 	_connect()
 	#run_console()
-	test_modify_patient_id()
-	#test_upload_files()
+	#test_verify_instance()
+	#test_modify_patient_id()
+	test_upload_files()
+	#test_upload_file()
 	#test_get_instance_preview()
 	#test_get_instance_tags()
 	#test_patient()
