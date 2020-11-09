@@ -17,28 +17,22 @@ INSERT INTO dem.message_inbox (
 ) VALUES (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
-	'Release Notes for GNUmed 1.8.3 (database v22.13)',
-	'GNUmed 1.8.3 Release Notes:
+	'Release Notes for GNUmed 1.8.4 (database v22.14)',
+	'GNUmed 1.8.4 Release Notes:
 
-	1.8.3
+	1.8.4
 
-NEW: tool: fingerprint_db
+IMPROVED: exceptions: always include exception/traceback in mail
+IMPROVED: PACS: robustify DICOM upload
 
-IMPROVED: forms: log pdflatex version
+FIX: placeholders: exception on parsing some option styles
+FIX: address: nominatim.openstreetmap.org API has changed
+FIX: documents: properly wipe details display between patients
 
-FIX: meds: drug data source selection [thanks bganglia892]
-FIX: meds: ADR URL configuration [thanks bganglia892]
-FIX: vaccs: ADR URL configuration [thanks bganglia892]
-FIX: tests: LOINC import fixup [thanks bganglia892]
-FIX: db: whitespace in connection parameters [thanks kikiruz]
-FIX: startup: startup without console fails [thanks Marc]
-FIX: top panel: incorrect age-at-birthday display
-FIX: i18n: locale activation
+	22.14
 
-	22.13
-
-IMPROVED: bootstrapper logging
+FIX: bootstrapper exception calling capture_conn_state()
 ');
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('v22-release_notes-fixup.sql', '22.13@1.8.3');
+select gm.log_script_insertion('v22-release_notes-fixup.sql', '22.14@1.8.4');
