@@ -143,38 +143,41 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 		return True
 
 	#--------------------------------------------------------
-	def save_to_file(self, aChunkSize=0, filename=None, directory=None, passphrase=None, convert2pdf=False):
+	def save_to_file(self, aChunkSize:int=0, filename:str=None, directory:str=None, passphrase:str=None, convert2pdf:bool=False) -> str:
+		"""Save this entry to disk.
+
+		Args:
+			filename: The filename to save into, unless this is a DIRENTRY.
+			directory: The directory to save the DIRENTRY _content into, if this is a DIRENTRY.
+			passphrase: Encrypt file(s) with this passphrase, if not _None_.
+			convert2pdf: Convert file(s) to PDF on the way out. Before encryption, that is.
+
+		Returns:
+			Directory for DIRENTRIES, or filename.
+		"""
+		if self.is_DIRENTRY and convert2pdf:
+			# cannot convert dir entries to PDF
+			return None
+
 		# data linked from archive ?
-		part_fname = self.__save_doc_obj(filename = filename, directory = directory)
+		part_fname = self.__save_doc_obj (
+			filename = filename,
+			directory = directory,
+			passphrase = passphrase,
+			convert2pdf = convert2pdf
+		)
 		if part_fname is False:
 			return None
 
 		if part_fname is not None:
-			if passphrase is None:
-				return part_fname
-
-			enc_filename = gmCrypto.encrypt_file (
-				filename = part_fname,
-				passphrase = passphrase,
-				verbose = _cfg.get(option = 'debug'),
-				remove_unencrypted = True,
-				convert2pdf = convert2pdf
-			)
-			removed = gmTools.remove_file(part_fname)
-			if enc_filename is None:
-				_log.error('cannot encrypt')
-				return None
-
-			if removed:
-				return enc_filename
-
-			_log.error('cannot remove unencrypted file')
-			gmTools.remove(enc_filename)
-			return None
+			return part_fname
 
 		# valid DIRENTRY ?
 		if self.is_valid_DIRENTRY:
-			target_dir = self.__save_direntry(directory, passphrase = passphrase)
+			target_dir = self.__save_direntry (
+				directory,
+				passphrase = passphrase
+			)
 			if target_dir is False:
 				return None
 
@@ -183,47 +186,17 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 
 		# but still a DIRENTRY ?
 		if self.is_DIRENTRY:
-			# yes, but not valid (other machine, local dir not found)
+			# yes, but apparently not valid (anymore), say,
+			# other machine or dir not found locally
 			return None
 
 		# normal item with data in export area table
-		if filename is None:
-			filename = self.get_useful_filename(directory = directory)
-		success = gmPG2.bytea2file (
-			data_query = {
-				'cmd': 'SELECT substring(data from %(start)s for %(size)s) FROM clin.export_item WHERE pk = %(pk)s',
-				'args': {'pk': self.pk_obj}
-			},
+		return self.__save_normal_item (
 			filename = filename,
-			chunk_size = aChunkSize,
-			data_size = self._payload[self._idx['size']]
-		)
-		if not success:
-			return None
-
-		if filename.endswith('.dat'):
-			filename = gmMimeLib.adjust_extension_by_mimetype(filename)
-		if passphrase is None:
-			return filename
-
-		enc_filename = gmCrypto.encrypt_file (
-			filename = filename,
+			directory = directory,
 			passphrase = passphrase,
-			verbose = _cfg.get(option = 'debug'),
-			remove_unencrypted = True,
 			convert2pdf = convert2pdf
 		)
-		removed = gmTools.remove_file(filename)
-		if enc_filename is None:
-			_log.error('cannot encrypt')
-			return None
-
-		if removed:
-			return enc_filename
-
-		_log.error('cannot remove unencrypted file')
-		gmTools.remove(enc_filename)
-		return None
 
 	#--------------------------------------------------------
 	def display_via_mime(self, chunksize=0, block=None):
@@ -284,12 +257,51 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	# helpers
 	#--------------------------------------------------------
-	def __save_doc_obj(self, filename=None, directory=None, passphrase=None):
+	def __save_normal_item(self, filename:str=None, directory:str=None, passphrase:str=None, convert2pdf:bool=False) -> str:
+		if filename is None:
+			filename = self.get_useful_filename(directory = directory)
+		success = gmPG2.bytea2file (
+			data_query = {
+				'cmd': 'SELECT substring(data from %(start)s for %(size)s) FROM clin.export_item WHERE pk = %(pk)s',
+				'args': {'pk': self.pk_obj}
+			},
+			filename = filename,
+			data_size = self._payload[self._idx['size']]
+		)
+		if not success:
+			return None
+
+		if filename.endswith('.dat'):
+			filename = gmMimeLib.adjust_extension_by_mimetype(filename)
+		if passphrase is None:
+			return filename
+
+		enc_filename = gmCrypto.encrypt_file (
+			filename = filename,
+			passphrase = passphrase,
+			verbose = _cfg.get(option = 'debug'),
+			remove_unencrypted = True,
+			convert2pdf = convert2pdf
+		)
+		removed = gmTools.remove_file(filename)
+		if enc_filename is None:
+			_log.error('cannot encrypt or, possibly, convert')
+			return None
+
+		if removed:
+			return enc_filename
+
+		_log.error('cannot remove unencrypted file')
+		gmTools.remove(enc_filename)
+		return None
+
+	#--------------------------------------------------------
+	def __save_doc_obj(self, filename=None, directory=None, passphrase=None, convert2pdf:bool=False):
 		"""Save doc object part into target.
 
 		None: not a doc obj
 		True: success
-		False: failure
+		False: failure (to save/convert/encrypt/remove unencrypted)
 		"""
 		if self._payload[self._idx['pk_doc_obj']] is None:
 			return None
@@ -303,9 +315,13 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 				date_before_type = True,
 				name_first = False
 			)
+		target_mime = 'application/pdf' if convert2pdf else None
+		target_ext = '.pdf' if convert2pdf else None
 		part_fname = part.save_to_file (
 			filename = filename,
-			ignore_conversion_problems = True,
+			target_mime = target_mime,
+			target_extension = target_ext,
+			ignore_conversion_problems = False,
 			adjust_extension = True
 		)
 		if part_fname is None:
@@ -366,7 +382,6 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 			return False
 
 		gmTools.remove_file(os.path.join(tmp, DIRENTRY_README_NAME))
-
 		if passphrase is not None:
 			_log.debug('encrypting sandbox: %s', sandbox_dir)
 			encrypted = gmCrypto.encrypt_directory_content (
@@ -1421,10 +1436,6 @@ if __name__ == '__main__':
 	if sys.argv[1] != 'test':
 		sys.exit()
 
-	from Gnumed.pycommon import gmI18N
-	gmI18N.activate_locale()
-	gmI18N.install_domain()
-
 	from Gnumed.business import gmPraxis
 
 	#---------------------------------------
@@ -1448,7 +1459,7 @@ if __name__ == '__main__':
 		#print exp.items
 		#exp.add_file(sys.argv[2])
 		prax = gmPraxis.gmCurrentPraxisBranch(branch = gmPraxis.cPraxisBranch(1))
-		#print(prax)
+		print(prax)
 		#print(prax.branch)
 		try:
 			pwd = sys.argv[2]
@@ -1460,7 +1471,7 @@ if __name__ == '__main__':
 	def test_label():
 
 		from Gnumed.business.gmPerson import cPatient
-		from Gnumed.business.gmPersonSearch import ask_for_patient
+		#from Gnumed.business.gmPersonSearch import ask_for_patient
 
 		#while ask_for_patient() is not None:
 		pat_min = 1
@@ -1487,8 +1498,10 @@ if __name__ == '__main__':
 
 	#---------------------------------------
 	#test_export_items()
-	test_export_area()
-	#test_label()
+	#test_export_area()
+
+	gmPG2.request_login_params(setup_pool = True)
+	test_label()
 
 	sys.exit(0)
 

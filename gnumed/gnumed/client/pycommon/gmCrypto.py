@@ -543,6 +543,10 @@ def encrypt_directory_content(directory=None, receiver_key_ids=None, passphrase=
 
 	return True
 
+#---------------------------------------------------------------------------
+def pdf_is_encrypted(filename:str=None) -> bool:
+	pass
+
 #===========================================================================
 # main
 #---------------------------------------------------------------------------
