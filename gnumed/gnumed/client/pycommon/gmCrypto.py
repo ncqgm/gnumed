@@ -660,6 +660,10 @@ def encrypt_directory_content(directory:str=None, receiver_key_ids:list=None, pa
 
 	return True
 
+#---------------------------------------------------------------------------
+def pdf_is_encrypted(filename:str=None) -> bool:
+	pass
+
 #===========================================================================
 # file anonymization methods
 #---------------------------------------------------------------------------
