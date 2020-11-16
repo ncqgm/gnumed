@@ -288,7 +288,6 @@ def create_inbox_message(message_type=None, subject=None, patient=None, staff=No
 		'subject': subject
 	}
 	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True, get_col_idx = False)
-
 	return cInboxMessage(aPK_obj = rows[0]['pk'])
 
 #------------------------------------------------------------
