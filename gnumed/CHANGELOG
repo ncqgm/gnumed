@@ -2165,6 +2165,10 @@ IMPROVED: bootstrap script permissions warning
 # gnumed_v22
 ------------------------------------------------
 
+	22.15
+
+FIX: message inbox view
+
 	22.14
 
 FIX: bootstrapper exception calling capture_conn_state()
