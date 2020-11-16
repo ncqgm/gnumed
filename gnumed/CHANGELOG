@@ -2157,6 +2157,8 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 # gnumed_v23
 ------------------------------------------------
 
+NEW: add list position to export items
+
 IMPROVED: bootstrap script permissions warning
 
 ------------------------------------------------
