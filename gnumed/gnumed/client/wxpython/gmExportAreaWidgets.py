@@ -924,7 +924,7 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 	# internal API
 	#--------------------------------------------------------
 	def __init_ui(self):
-		self._LCTRL_items.set_columns([_('By'), _('When'), _('Description')])
+		self._LCTRL_items.set_columns(['#', _('By'), _('When'), _('Description')])
 
 		self._BTN_archive_items.Disable()
 
@@ -1189,7 +1189,8 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 
 		items = pat.export_area.items
 		self._LCTRL_items.set_string_items ([
-			[	i['created_by'],
+			[	i['list_position'],
+				i['created_by'],
 				gmDateTime.pydt_strftime(i['created_when'], '%Y %b %d %H:%M'),
 				i['description']
 			] for i in items
