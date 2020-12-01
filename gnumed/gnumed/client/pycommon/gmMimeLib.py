@@ -266,6 +266,7 @@ def convert_file(filename=None, target_mime=None, target_filename=None, target_e
 			tmp, converted_ext = os.path.splitext(target_filename)
 	if converted_ext is None:
 		converted_ext = target_extension		# can still stay None
+	converted_ext = gmTools.coalesce(converted_ext, '').strip().lstrip('.')
 	converted_fname = gmTools.get_unique_filename(suffix = converted_ext)
 	_log.debug('attempting conversion: [%s] -> [<%s>:%s]', filename, target_mime, gmTools.coalesce(target_filename, converted_fname))
 	script_name = 'gm-convert_file'
@@ -281,7 +282,7 @@ def convert_file(filename=None, target_mime=None, target_filename=None, target_e
 		binary,
 		filename,
 		target_mime,
-		converted_ext.lstrip('.'),
+		converted_ext,
 		converted_fname
 	]
 	success, returncode, stdout = gmShellAPI.run_process(cmd_line = cmd_line, verbose = True)
