@@ -27,6 +27,10 @@ FIX: CLI: --ui= not needed anymore
 # rel-1-8-maint
 ------------------------------------------------
 
+	1.8.5
+
+FIX: image conversion w/o target extension [thanks ...]
+
 	1.8.4
 
 IMPROVED: exceptions: always include exception/traceback in mail
