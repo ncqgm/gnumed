@@ -30,6 +30,7 @@ FIX: CLI: --ui= not needed anymore
 	1.8.5
 
 FIX: image conversion w/o target extension [thanks ...]
+FIX: SVG icon [thanks freddii..]
 
 	1.8.4
 
