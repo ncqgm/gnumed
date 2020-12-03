@@ -137,7 +137,11 @@ def log_instance_state(instance):
 	logger = logging.getLogger('gm.logging')
 	logger.debug('state of %s', instance)
 	for attr in [ a for a in dir(instance) if not a.startswith('__') ]:
-		logger.debug('  %s: %s', attr, getattr(instance, attr))
+		try:
+			val = getattr(instance, attr)
+		except AttributeError:
+			val = '<cannot access>'
+		logger.debug('  %s: %s', attr, val)
 
 #===============================================================
 def log_stack_trace(message=None, t=None, v=None, tb=None):
@@ -163,7 +167,11 @@ def log_stack_trace(message=None, t=None, v=None, tb=None):
 	logger.debug('type: %s', t)
 	logger.debug('list of attributes:')
 	for attr in [ a for a in dir(v) if not a.startswith('__') ]:
-		logger.debug('  %s: %s', attr, getattr(v, attr))
+		try:
+			val = getattr(v, attr)
+		except AttributeError:
+			val = '<cannot access>'
+		logger.debug('  %s: %s', attr, val)
 
 	# make sure we don't leave behind a binding
 	# to the traceback as warned against in

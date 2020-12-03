@@ -32,6 +32,7 @@ FIX: CLI: --ui= not needed anymore
 FIX: image conversion w/o target extension [thanks ...]
 FIX: SVG icon [thanks freddii]
 FIX: lab: tab "most-recent": [x]ing "show missing" throws exception
+FIX: log: exception on inaccessible attributes
 
 	1.8.4
 
