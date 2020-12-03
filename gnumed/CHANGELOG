@@ -9,7 +9,8 @@
 	1.8.5
 
 FIX: image conversion w/o target extension [thanks ...]
-FIX: SVG icon [thanks freddii..]
+FIX: SVG icon [thanks freddii]
+FIX: lab: tab "most-recent": [x]ing "show missing" throws exception
 
 	1.8.4
 
