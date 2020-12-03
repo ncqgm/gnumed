@@ -52,7 +52,7 @@ def format_loinc(loinc):
 	if data is None:
 		return None
 	return gmTools.format_dict_like (
-		data,
+		dict(data),
 		tabular = True,
 		value_delimiters = None,
 		values2ignore = [None, '']
