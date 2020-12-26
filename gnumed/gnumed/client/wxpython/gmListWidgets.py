@@ -1305,8 +1305,9 @@ class ColumnSorterMixin:
 		True: ' \u2193',
 		False: ' \u2191'
 	}
-
+	#------------------------------------------------------------
 	def __init__(self, numColumns):
+		self.__previous_sort_state = None
 		self.SetColumnCount(numColumns)
 		list = self.GetListCtrl()
 		if not list:
@@ -1471,6 +1472,17 @@ class ColumnSorterMixin:
 	#------------------------------------------------------------
 	def _cmp(self, a, b):
 		return (a > b) - (a < b)
+
+	#------------------------------------------------------------
+	def RememberSortState(self):
+		self.__previous_sort_state = self.GetSortState()
+
+	#------------------------------------------------------------
+	def RestoreSortState(self):
+		if self.__previous_sort_state is None:
+			return
+
+		self.SortListItems(*self.__previous_sort_state)
 
 #================================================================
 class SelectionStateMixin:

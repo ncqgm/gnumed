@@ -1244,8 +1244,8 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 			return True
 
 		items = pat.export_area.items
-		sort_col_idx, is_ascending = self._LCTRL_items.GetSortState()
 		self._LCTRL_items.RememberItemSelection()
+		self._LCTRL_items.RememberSortState()
 		self._LCTRL_items.set_string_items ([
 			[	i['list_position'],
 				i['created_by'],
@@ -1256,7 +1256,7 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 		self._LCTRL_items.set_column_widths([wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE])
 		self._LCTRL_items.set_data(items)
 		self._LCTRL_items.RestoreItemSelection()
-		self._LCTRL_items.SortListItems(col = sort_col_idx, ascending = is_ascending)
+		self._LCTRL_items.RestoreSortState()
 		self._LCTRL_items.SetFocus()
 		return True
 
