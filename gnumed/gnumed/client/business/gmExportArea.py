@@ -20,7 +20,7 @@ import platform
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-	_ = lambda x:x
+	from Gnumed.pycommon import gmI18N
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmBusinessDBObject
 from Gnumed.pycommon import gmPG2
@@ -70,6 +70,7 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 					AND
 				xmin = %(xmin_export_item)s
 		""",
+		"SELECT clin.export_item_set_list_position(%(pk_export_item)s, %(list_position)s)",
 		_SQL_get_export_items % 'pk_export_item = %(pk_export_item)s'
 	]
 	_updatable_fields = [
@@ -78,7 +79,8 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 		'designation',
 		'description',
 		'pk_doc_obj',
-		'filename'
+		'filename',
+		'list_position'
 	]
 	#--------------------------------------------------------
 	def __init__(self, aPK_obj=None, row=None, link_obj=None):
@@ -512,16 +514,14 @@ def get_export_items(order_by=None, pk_identity=None, designation=None, return_p
 		where_parts.append("designation IS DISTINCT FROM %(desig)s")
 	else:
 		where_parts.append('designation = %(desig)s')
-
 	if order_by is None:
-		order_by = ''
-	else:
-		order_by = ' ORDER BY %s' % order_by
-
+		order_by = 'pk_identity, list_position'
+	order_by = ' ORDER BY %s' % order_by
 	cmd = (_SQL_get_export_items % ' AND '.join(where_parts)) + order_by
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 	if return_pks:
 		return [ r['pk_export_item'] for r in rows ]
+
 	return [ cExportItem(row = {'data': r, 'idx': idx, 'pk_field': 'pk_export_item'}) for r in rows ]
 
 #------------------------------------------------------------
@@ -560,7 +560,6 @@ def create_export_item(description=None, pk_identity=None, pk_doc_obj=None, file
 		RETURNING pk
 	"""
 	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True, get_col_idx = False)
-
 	return cExportItem(aPK_obj = rows[0]['pk'])
 
 #------------------------------------------------------------
@@ -1414,16 +1413,16 @@ class cExportArea(object):
 	#--------------------------------------------------------
 	# properties
 	#--------------------------------------------------------
-	def get_items(self, designation=None, order_by='designation, description'):
+	def get_items(self, designation=None, order_by='pk_identity, list_position, designation, description'):
 		return get_export_items(order_by = order_by, pk_identity = self.__pk_identity, designation = designation)
 
-	items = property(get_items, lambda x:x)
+	items = property(get_items)
 
 	#--------------------------------------------------------
-	def get_printouts(self, order_by='designation, description'):
+	def get_printouts(self, order_by='list_position, designation, description'):
 		return get_print_jobs(order_by = order_by, pk_identity = self.__pk_identity)
 
-	printouts = property(get_printouts, lambda x:x)
+	printouts = property(get_printouts)
 
 #============================================================
 if __name__ == '__main__':
@@ -1460,11 +1459,17 @@ if __name__ == '__main__':
 		gmPraxis.gmCurrentPraxisBranch(branch = gmPraxis.cPraxisBranch(1))
 		#print(prax)
 		#print(prax.branch)
-		try:
-			pwd = sys.argv[2]
-		except IndexError:
-			pwd = None
-		print(exp.export(passphrase = pwd))
+		#try:
+		#	pwd = sys.argv[2]
+		#except IndexError:
+		#	pwd = None
+		#print(exp.export(passphrase = pwd))
+		for item in exp.items:
+			print(item)
+			item['list_position'] = 4
+			item.save()
+			print(item)
+			input()
 
 	#---------------------------------------
 	def test_label():
@@ -1497,10 +1502,10 @@ if __name__ == '__main__':
 
 	#---------------------------------------
 	#test_export_items()
-	#test_export_area()
 
 	gmPG2.request_login_params(setup_pool = True)
-	test_label()
+	test_export_area()
+	#test_label()
 
 	sys.exit(0)
 
