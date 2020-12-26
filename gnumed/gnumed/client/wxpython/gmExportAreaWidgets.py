@@ -540,6 +540,46 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 		event.Skip()
 
 	#--------------------------------------------------------
+	def _on_item_up_pressed(self, event):
+		event.Skip()
+		sort_col_idx, is_ascending = self._LCTRL_items.GetSortState()
+		if sort_col_idx != 0:
+			gmDispatcher.send(signal = 'statustext', msg = _('Not sorted by list position, cannot move item.'))
+			return
+
+		selected = self._LCTRL_items.GetFirstSelected()
+		if selected == -1:
+			return
+
+		if selected == 0:
+			return
+
+		item = self._LCTRL_items.get_item_data(item_idx = selected)
+		next_item = self._LCTRL_items.get_item_data(item_idx = selected - 1)
+		item['list_position'] = next_item['list_position']
+		item.save()
+
+	#--------------------------------------------------------
+	def _on_item_down_pressed(self, event):
+		event.Skip()
+		sort_col_idx, is_ascending = self._LCTRL_items.GetSortState()
+		if sort_col_idx != 0:
+			gmDispatcher.send(signal = 'statustext', msg = _('Not sorted by list position, cannot move item.'))
+			return
+
+		selected = self._LCTRL_items.GetFirstSelected()
+		if selected == -1:
+			return
+
+		if (selected + 1) == self._LCTRL_items.ItemCount:
+			return
+
+		item = self._LCTRL_items.get_item_data(item_idx = selected)
+		next_item = self._LCTRL_items.get_item_data(item_idx = selected + 1)
+		item['list_position'] = next_item['list_position'] + 1
+		item.save()
+
+	#--------------------------------------------------------
 	def _on_show_item_button_pressed(self, event):
 		event.Skip()
 		item = self._LCTRL_items.get_selected_item_data(only_one = True)
@@ -917,6 +957,20 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 		return True
 
 	#--------------------------------------------------------
+	def _get_list_item_identifier(self, idx):
+		if idx == -1:
+			return None
+
+		if idx >= self._LCTRL_items.ItemCount:
+			return None
+
+		data = self._LCTRL_items.get_item_data(item_idx = idx)
+		if data is None:
+			return None
+
+		return data['pk_export_item']
+
+	#--------------------------------------------------------
 	def repopulate_ui(self):
 		self._populate_with_data()
 
@@ -925,10 +979,12 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 	#--------------------------------------------------------
 	def __init_ui(self):
 		self._LCTRL_items.set_columns(['#', _('By'), _('When'), _('Description')])
+		self._LCTRL_items.ItemIdentityCallback = self._get_list_item_identifier
 
+		self._BTN_item_up.Enable()
+		self._BTN_item_down.Enable()
 		self._BTN_archive_items.Disable()
 
-		# there's no GetToolTipText() in wx2.8
 		self.__mail_script_exists, path = gmShellAPI.detect_external_binary(binary = r'gm-mail_doc')
 		if not self.__mail_script_exists:
 			self._BTN_mail_items.Disable()
@@ -1188,6 +1244,8 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 			return True
 
 		items = pat.export_area.items
+		sort_col_idx, is_ascending = self._LCTRL_items.GetSortState()
+		self._LCTRL_items.RememberItemSelection()
 		self._LCTRL_items.set_string_items ([
 			[	i['list_position'],
 				i['created_by'],
@@ -1197,9 +1255,9 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 		])
 		self._LCTRL_items.set_column_widths([wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE])
 		self._LCTRL_items.set_data(items)
-
+		self._LCTRL_items.RestoreItemSelection()
+		self._LCTRL_items.SortListItems(col = sort_col_idx, ascending = is_ascending)
 		self._LCTRL_items.SetFocus()
-
 		return True
 
 #============================================================
