@@ -57,12 +57,26 @@ Upon hitting "Save" you may be asked to convert to ODT format (choose "Yes") and
 
 Before entering text you should switch the "paragraph type" from "Pre-formatted Text" to "Standard".
 =============================================================================
-
 """
 def print_generic_document(parent=None, jobtype:str=None, episode=None):
 	"""Call LibreOffice Writer with a generated (fake) ODT file.
 
 	Once Writer is closed, the ODT is imported if different from its initial content.
+
+	Note:
+		The file passed to LO _must_ reside in a directory the parents of
+		which are all R-X by the user or else LO will throw up its arms
+		in despair and fall back to the user's home dir upon saving.
+
+		So,
+
+			/tmp/user/$UID/some-file.odt
+
+		will *not* work (because .../user/... is "drwx--x--x root.root") while
+
+			/home/$USER/some/dir/some-file.odt
+
+		does.
 	"""
 	sandbox = gmTools.mk_sandbox_dir(prefix = 'lo-', base_dir = gmTools.gmPaths().user_config_dir)
 	fpath = gmTools.get_unique_filename(suffix = '.odt', tmp_dir = sandbox)
