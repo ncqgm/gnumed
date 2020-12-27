@@ -1226,7 +1226,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 		dlg = wx.FileDialog (
 			parent = None,
 			message = _('Choose a file'),
-			defaultDir = os.path.expanduser(os.path.join('~', 'gnumed')),
+			defaultDir = gmTools.gmPaths().user_work_dir,
 			defaultFile = '',
 			wildcard = "%s (*)|*|TIFFs (*.tif)|*.tif|JPEGs (*.jpg)|*.jpg|%s (*.*)|*.*" % (_('all files'), _('all files (Win)')),
 			style = wx.FD_OPEN | wx.FD_FILE_MUST_EXIST | wx.FD_MULTIPLE
@@ -2791,7 +2791,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 		dlg = wx.DirDialog (
 			parent = self,
 			message = _('Save document part to directory ...'),
-			defaultPath = os.path.expanduser(os.path.join('~', 'gnumed')),
+			defaultPath = gmTools.gmPaths().user_work_dir,
 			style = wx.DD_DEFAULT_STYLE
 		)
 		result = dlg.ShowModal()
@@ -2936,7 +2936,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 		dlg = wx.FileDialog (
 			parent = self,
 			message = _('Choose a file'),
-			defaultDir = os.path.expanduser(os.path.join('~', 'gnumed')),
+			defaultDir = gmTools.gmPaths().user_work_dir,
 			defaultFile = '',
 			wildcard = "%s (*)|*|PNGs (*.png)|*.png|PDFs (*.pdf)|*.pdf|TIFFs (*.tif)|*.tif|JPEGs (*.jpg)|*.jpg|%s (*.*)|*.*" % (_('all files'), _('all files (Win)')),
 			style = wx.FD_OPEN | wx.FD_FILE_MUST_EXIST | wx.FD_MULTIPLE
@@ -3020,7 +3020,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 		- into subdirectory named after patient
 		"""
 		pat = gmPerson.gmCurrentPatient()
-		def_dir = os.path.expanduser(os.path.join('~', 'gnumed', pat.subdir_name))
+		def_dir = os.path.join(gmTools.gmPaths().user_work_dir, pat.subdir_name)
 		gmTools.mkdir(def_dir)
 
 		dlg = wx.DirDialog (
@@ -3560,7 +3560,7 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 				fname = gmTools.get_unique_filename (
 					prefix = '%s-orthanc_%s--' % (self.__patient.subdir_name, uuid),
 					suffix = '.dcm',
-					tmp_dir = os.path.join(gmTools.gmPaths().home_dir, 'gnumed')
+					tmp_dir = gmTools.gmPaths().user_work_dir
 				)
 			else:
 				fname = None
@@ -3580,7 +3580,7 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 				fname = gmTools.get_unique_filename (
 					prefix = '%s-orthanc_%s--' % (self.__patient.subdir_name, uuid),
 					suffix = '.png',
-					tmp_dir = os.path.join(gmTools.gmPaths().home_dir, 'gnumed')
+					tmp_dir = gmTools.gmPaths().user_work_dir
 				)
 			else:
 				fname = None
@@ -3691,7 +3691,7 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 		wx.BeginBusyCursor()
 		target_dir = gmTools.mk_sandbox_dir (
 			prefix = 'dcm-',
-			base_dir = os.path.join(gmTools.gmPaths().home_dir, '.gnumed', self.__patient.subdir_name)
+			base_dir = os.path.join(gmTools.gmPaths().user_config_dir, self.__patient.subdir_name)
 		)
 		target_dir = self.__pacs.get_studies_with_dicomdir(study_ids = [ s['orthanc_id'] for s in study_data ], target_dir = target_dir)
 		if target_dir is False:
@@ -3807,7 +3807,7 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 
 	#--------------------------------------------------------
 	def __save_studies_to_disk(self, study_data):
-		default_path = os.path.join(gmTools.gmPaths().home_dir, 'gnumed', self.__patient.subdir_name)
+		default_path = os.path.join(gmTools.gmPaths().user_work_dir, self.__patient.subdir_name)
 		gmTools.mkdir(default_path)
 		dlg = wx.DirDialog (
 			self,
@@ -3856,7 +3856,7 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 
 	#--------------------------------------------------------
 	def __save_zip_of_studies_to_disk(self, study_data):
-		default_path = os.path.join(gmTools.gmPaths().home_dir, 'gnumed', self.__patient.subdir_name)
+		default_path = os.path.join(gmTools.gmPaths().user_work_dir, self.__patient.subdir_name)
 		gmTools.mkdir(default_path)
 		dlg = wx.DirDialog (
 			self,
@@ -3900,7 +3900,7 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 		dlg = wx.FileDialog (
 			parent = self,
 			message = _('Select PDF to add to DICOM study'),
-			defaultDir = os.path.join(gmTools.gmPaths().home_dir, 'gnumed'),
+			defaultDir = gmTools.gmPaths().user_work_dir,
 			wildcard = "%s (*.pdf)|*.pdf|%s (*)|*" % (_('PDF files'), _('all files')),
 			style = wx.FD_OPEN | wx.FD_FILE_MUST_EXIST
 		)
@@ -3961,7 +3961,7 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 		dlg = wx.FileDialog (
 			parent = self,
 			message = _('Select file (image or PDF) to add to DICOM study'),
-			defaultDir = os.path.join(gmTools.gmPaths().home_dir, 'gnumed'),
+			defaultDir = gmTools.gmPaths().user_work_dir,
 			wildcard = "%s (*)|*|%s (*.pdf)|*.pdf" % (_('all files'), _('PDF files')),
 			style = wx.FD_OPEN | wx.FD_FILE_MUST_EXIST
 		)
@@ -4218,7 +4218,7 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 		dlg = wx.DirDialog (
 			self,
 			message = _('Select the directory from which to recursively upload DICOM files.'),
-			defaultPath = os.path.join(gmTools.gmPaths().home_dir, 'gnumed')
+			defaultPath = gmTools.gmPaths().user_work_dir
 		)
 		choice = dlg.ShowModal()
 		dicom_dir = dlg.GetPath()
@@ -4554,7 +4554,7 @@ class cModifyOrthancContentDlg(wxgModifyOrthancContentDlg):
 #	dlg = wx.DirDialog (
 #		self,
 #		message = _('Select the directory from which to recursively upload DICOM files.'),
-#		defaultPath = os.path.join(gmTools.gmPaths().home_dir, 'gnumed')
+#		defaultPath = gmTools.gmPaths().user_work_dir
 #	)
 #	choice = dlg.ShowModal()
 #	dicom_dir = dlg.GetPath()

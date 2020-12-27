@@ -69,7 +69,7 @@ def show_hl7_file(parent=None):
 		parent = parent,
 		message = _('Show HL7 file:'),
 		# make configurable:
-		defaultDir = os.path.join(paths.home_dir, 'gnumed'),
+		defaultDir = paths.user_work_dir,
 		wildcard = "hl7 files|*.hl7|HL7 files|*.HL7|all files|*",
 		style = wx.FD_OPEN | wx.FD_FILE_MUST_EXIST
 	)
@@ -100,7 +100,7 @@ def unwrap_HL7_from_XML(parent=None):
 		parent = parent,
 		message = _('Extract HL7 from XML file:'),
 		# make configurable:
-		defaultDir = os.path.join(paths.home_dir, 'gnumed'),
+		defaultDir = paths.user_work_dir,
 		wildcard = "xml files|*.xml|XML files|*.XML|all files|*",
 		style = wx.FD_OPEN | wx.FD_FILE_MUST_EXIST
 	)
@@ -143,7 +143,7 @@ def stage_hl7_file(parent=None):
 		parent = parent,
 		message = _('Select HL7 file for staging:'),
 		# make configurable:
-		defaultDir = os.path.join(paths.home_dir, 'gnumed'),
+		defaultDir = paths.user_work_dir,
 		wildcard = ".hl7 files|*.hl7|.HL7 files|*.HL7|all files|*",
 		style = wx.FD_OPEN | wx.FD_FILE_MUST_EXIST
 	)
@@ -153,7 +153,7 @@ def stage_hl7_file(parent=None):
 	if choice != wx.ID_OK:
 		return False
 
-	target_dir = os.path.join(paths.home_dir, '.gnumed', 'hl7')
+	target_dir = os.path.join(paths.user_config_dir, 'hl7')
 	success, PID_names = gmHL7.split_hl7_file(hl7_name, target_dir = target_dir, encoding = 'utf8')
 	if not success:
 		gmGuiHelpers.gm_show_error (

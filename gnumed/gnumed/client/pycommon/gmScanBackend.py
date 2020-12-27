@@ -356,7 +356,7 @@ class cXSaneScanner:
 
 		# make sure we've got a custom xsanerc for
 		# the user to modify manually
-		self._gm_custom_xsanerc = os.path.expanduser(os.path.join('~', '.gnumed', 'gm-xsanerc.conf'))
+		self._gm_custom_xsanerc = os.path.join(gmTools.gmPaths().user_config_dir, 'gm-xsanerc.conf')
 		try:
 			open(self._gm_custom_xsanerc, 'r+b').close()
 		except IOError:

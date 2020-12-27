@@ -293,11 +293,11 @@ def _log_output(level, stdout=None, stderr=None):
 	_log.log(level, '\n'.join(lines2log))
 
 #===========================================================================
-def run_process(cmd_line:list=None, timeout:int=None, encoding:str='utf8', input_data=None, acceptable_return_codes:list=None, verbose:bool=False) -> tuple:
+def run_process(cmd_line:list=None, timeout:int=None, encoding:str='utf8', input_data=None, acceptable_return_codes:list=None, verbose:bool=False, cwd:str=None) -> tuple:
 	"""Run a subprocess (directly, not via subshell).
 
 	Args:
-		cmd_line: List of binary and commandline arguments
+		cmd_line: List of [binary to execute, commandline arguments one by one]
 		timeout: seconds until timing out
 		encoding: applicable to input_data if the latter is text
 		input_data: string or bytes to be passed to the subprocess on STDIN
@@ -321,7 +321,8 @@ def run_process(cmd_line:list=None, timeout:int=None, encoding:str='utf8', input
 				stderr = subprocess.PIPE,
 				timeout = timeout,
 				encoding = encoding,
-				errors = 'replace'
+				errors = 'replace',
+				cwd = cwd
 			)
 		else:
 			proc_result = subprocess.run (
@@ -331,7 +332,8 @@ def run_process(cmd_line:list=None, timeout:int=None, encoding:str='utf8', input
 				stderr = subprocess.PIPE,
 				timeout = timeout,
 				encoding = encoding,
-				errors = 'replace'
+				errors = 'replace',
+				cwd = cwd
 			)
 	except (subprocess.TimeoutExpired, FileNotFoundError):
 		_log.exception('there was a problem running external process')

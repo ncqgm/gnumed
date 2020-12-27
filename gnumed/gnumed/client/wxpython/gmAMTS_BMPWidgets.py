@@ -44,7 +44,7 @@ def import_amts_bmp(parent=None, bmp_filename:str=None) -> typing.Union[bool, No
 		dlg = wx.FileDialog (
 			parent = parent,
 			message = _('Choose an AMTS BMP medication plan.'),
-			defaultDir = os.path.expanduser(os.path.join('~', 'gnumed')),
+			defaultDir = gmTools.gmPaths().user_work_dir,
 			defaultFile = '',
 			wildcard = "%s (*.xml)|*.xml|%s (*)|*" % (_('BMP files'), _('all files')),
 			style = wx.FD_OPEN | wx.FD_FILE_MUST_EXIST

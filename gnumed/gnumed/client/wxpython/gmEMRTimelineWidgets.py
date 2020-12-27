@@ -299,7 +299,7 @@ class cEMRTimelinePluginPnl(wxgEMRTimelinePluginPnl.wxgEMRTimelinePluginPnl, gmR
 		dlg = wx.FileDialog (
 			parent = self,
 			message = _("Save timeline as images (SVG, PNG) under..."),
-			defaultDir = os.path.expanduser(os.path.join('~', 'gnumed')),
+			defaultDir = gmTools.gmPaths().user_work_dir,
 			defaultFile = 'timeline.svg',
 			wildcard = '%s (*.svg)|*.svg' % _('SVG files'),
 			style = wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT

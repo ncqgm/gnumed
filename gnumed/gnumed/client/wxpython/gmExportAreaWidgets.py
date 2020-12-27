@@ -396,7 +396,7 @@ class cExportAreaSaveAsDlg(wxgExportAreaSaveAsDlg.wxgExportAreaSaveAsDlg):
 		event.Skip()
 		curr_path = self._LBL_directory.Label.rstrip(os.sep).rstrip('/')
 		if not os.path.isdir(curr_path):
-			curr_path = os.path.join(gmTools.gmPaths().home_dir, 'gnumed')
+			curr_path = gmTools.gmPaths().user_work_dir
 		msg = _('Select directory where to save the archive or files.')
 		dlg = wx.DirDialog(self, message = msg, defaultPath = curr_path, style = wx.DD_DEFAULT_STYLE)# | wx.DD_DIR_MUST_EXIST)
 		choice = dlg.ShowModal()
@@ -452,7 +452,7 @@ class cExportAreaSaveAsDlg(wxgExportAreaSaveAsDlg.wxgExportAreaSaveAsDlg):
 			self.__patient['description_gender']
 		)
 		self._LBL_header.Label = msg
-		self._LBL_directory.Label = os.path.join(gmTools.gmPaths().home_dir, 'gnumed', self.__patient.subdir_name) + os.sep
+		self._LBL_directory.Label = os.path.join(gmTools.gmPaths().user_work_dir, self.__patient.subdir_name) + os.sep
 		self.__update_ui_state()
 
 	#--------------------------------------------------------
@@ -593,7 +593,7 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 		dlg = wx.FileDialog (
 			parent = self,
 			message = _("Select files to add to the export area"),
-			defaultDir = os.path.expanduser(os.path.join('~', 'gnumed')),
+			defaultDir = gmTools.gmPaths().user_work_dir,
 			style = wx.FD_OPEN | wx.FD_FILE_MUST_EXIST | wx.FD_MULTIPLE | wx.FD_PREVIEW
 		)
 		choice = dlg.ShowModal()
@@ -613,7 +613,7 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 		dlg = wx.DirDialog (
 			parent = self,
 			message = _("Select directory to add to the export area"),
-			defaultPath = os.path.expanduser(os.path.join('~', 'gnumed')),
+			defaultPath = gmTools.gmPaths().user_work_dir,
 			style = wx.DD_DEFAULT_STYLE | wx.DD_DIR_MUST_EXIST
 		)
 		choice = dlg.ShowModal()

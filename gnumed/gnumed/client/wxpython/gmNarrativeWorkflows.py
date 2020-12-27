@@ -483,7 +483,7 @@ def export_narrative_for_medistar_import(parent=None, soap_cats='soapu', encount
 	# get file name
 	aWildcard = "%s (*.txt)|*.txt|%s (*)|*" % (_("text files"), _("all files"))
 		# FIXME: make configurable
-	aDefDir = os.path.abspath(os.path.expanduser(os.path.join('~', 'gnumed')))
+	aDefDir = gmTools.gmPaths().user_work_dir
 		# FIXME: make configurable
 	fname = '%s-%s-%s-%s-%s.txt' % (
 		'Medistar-MD',

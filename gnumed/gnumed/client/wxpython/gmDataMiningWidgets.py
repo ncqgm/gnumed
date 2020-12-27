@@ -479,7 +479,7 @@ class cDataMiningPnl(wxgDataMiningPnl.wxgDataMiningPnl):
 		dlg = wx.FileDialog (
 			parent = self,
 			message = _("Save SQL report query results as CSV in..."),
-			defaultDir = os.path.abspath(os.path.expanduser(os.path.join('~', 'gnumed'))),
+			defaultDir = gmTools.gmPaths().user_work_dir,
 			defaultFile = 'gm-query_results.csv',
 			wildcard = '%s (*.csv)|*.csv|%s (*)|*' % (_("CSV files"), _("all files")),
 			style = wx.FD_SAVE

@@ -5,6 +5,7 @@ __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL v2 or later"
 
 
+import os
 import os.path
 import sys
 import logging
@@ -23,9 +24,11 @@ from Gnumed.pycommon import gmPrinting
 from Gnumed.pycommon import gmDateTime
 from Gnumed.pycommon import gmMimeLib
 from Gnumed.pycommon import gmCfg2
+from Gnumed.pycommon import gmShellAPI
 
 from Gnumed.business import gmForms
 from Gnumed.business import gmPerson
+from Gnumed.business import gmStaff
 from Gnumed.business import gmExternalCare
 from Gnumed.business import gmPraxis
 
@@ -45,6 +48,70 @@ _ID_FORM_DISPOSAL_ARCHIVE_ONLY = range(4)
 
 #============================================================
 # generic form generation and handling convenience functions
+#------------------------------------------------------------
+__ODT_FILE_PREAMBLE = """GNUmed generic document template
+
+Some context data has been added below for your copy/paste convenience.
+
+Upon hitting "Save" you may be asked to convert to ODT format (choose "Yes") and warned that saving will overwrite the existing file (choose "Overwrite").
+
+Before entering text you should switch the "paragraph type" from "Pre-formatted Text" to "Standard".
+=============================================================================
+
+"""
+def print_generic_document(parent=None, jobtype:str=None, episode=None):
+	"""Call LibreOffice Writer with a generated (fake) ODT file.
+
+	Once Writer is closed, the ODT is imported if different from its initial content.
+	"""
+	sandbox = gmTools.mk_sandbox_dir(prefix = 'lo-', base_dir = gmTools.gmPaths().user_config_dir)
+	fpath = gmTools.get_unique_filename(suffix = '.odt', tmp_dir = sandbox)
+	doc_file = open(fpath, mode = 'wt')
+	doc_file.write(__ODT_FILE_PREAMBLE)
+	prax = gmPraxis.gmCurrentPraxisBranch()
+	doc_file.write('Praxis:\n')
+	doc_file.write(prax.format())
+	doc_file.write('\n')
+	doc_file.write('Praxis branch:\n')
+	doc_file.write('\n'.join(prax.org_unit.format (
+		with_address = True,
+		with_org = True,
+		with_comms = True
+	)))
+	doc_file.write('\n\n')
+	pat = gmPerson.gmCurrentPatient(gmPerson.cPatient(12))
+	if pat.connected:
+		doc_file.write('Patient:\n')
+		doc_file.write(pat.get_description_gender())
+		doc_file.write('\n\n')
+		for adr in pat.get_addresses():
+			doc_file.write(adr.format(single_line = False, verbose = True, show_type = True))
+		doc_file.write('\n\n')
+		for chan in pat.get_comm_channels():
+			doc_file.werite(chan.format())
+		doc_file.write('\n\n')
+	doc_file.write('Provider:\n')
+	doc_file.write('\n'.join(gmStaff.gmCurrentProvider().get_staff().format()))
+	doc_file.write('\n\n-----------------------------------------------------------------------------\n\n')
+	doc_file.close()
+	md5_before = gmTools.file2md5(fpath)
+	gmShellAPI.run_process(cmd_line = ['lowriter', fpath], verbose = True)
+	md5_after = gmTools.file2md5(fpath)
+	if md5_before == md5_after:
+		gmDispatcher.send(signal = 'statustext', msg = _('Document not modified. Discarding.'), beep = False)
+		return
+
+	if not pat.connected:
+		shutil.move(fpath, gmTools.gmPaths().user_work_dir)
+		gmDispatcher.send(signal = 'statustext', msg = _('No patient. Moved file into %s') % gmTools.gmPaths().user_work_dir, beep = False)
+		return
+
+	item = pat.export_area.add_file (
+		filename = fpath,
+		hint = _('Generic letter, written at %s') % gmDateTime.pydt_now_here().strftime('%Y %b %d  %H:%M')
+	)
+	gmDispatcher.send(signal = 'display_widget', name = 'gmExportAreaPlugin')
+
 #------------------------------------------------------------
 def print_doc_from_template(parent=None, jobtype=None, episode=None, edit_form=None):
 
@@ -706,7 +773,7 @@ class cFormTemplateEAPnl(wxgFormTemplateEditAreaPnl.wxgFormTemplateEditAreaPnl, 
 		dlg = wx.FileDialog (
 			parent = self,
 			message = _('Choose a form template file'),
-			defaultDir = os.path.expanduser(os.path.join('~', 'gnumed')),
+			defaultDir = gmTools.gmPaths().user_work_dir,
 			defaultFile = '',
 			wildcard = '|'.join(wildcards),
 			style = wx.FD_OPEN | wx.FD_FILE_MUST_EXIST
@@ -739,7 +806,7 @@ class cFormTemplateEAPnl(wxgFormTemplateEditAreaPnl.wxgFormTemplateEditAreaPnl, 
 		dlg = wx.FileDialog (
 			parent = self,
 			message = _('Enter a filename to save the template to'),
-			defaultDir = os.path.expanduser(os.path.join('~', 'gnumed')),
+			defaultDir = gmTools.gmPaths().user_work_dir,
 			defaultFile = '',
 			wildcard = '|'.join(wildcards),
 			style = wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT
@@ -1076,8 +1143,18 @@ if __name__ == '__main__':
 		app.frame.Show(True)
 		app.MainLoop()
 		return
+
+	#----------------------------------------
+	def test_print_generic_document():
+		#gmStaff.set_current_provider_to_logged_on_user()
+		from Gnumed.pycommon import gmPG2
+		gmPG2.request_login_params(setup_pool = True)
+		gmPraxis.activate_first_praxis_branch()
+		print_generic_document()	#parent=None, jobtype=None, episode=None
+
 	#----------------------------------------
 	if (len(sys.argv) > 1) and (sys.argv[1] == 'test'):
-		test_cFormTemplateEAPnl()
+		#test_cFormTemplateEAPnl()
+		test_print_generic_document()
 
 #============================================================

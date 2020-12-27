@@ -116,7 +116,7 @@ from Gnumed.wxpython import gmGuiHelpers
 from Gnumed.wxpython import gmPatSearchWidgets
 
 
-PAT_DIR = os.path.expanduser(os.path.join('~', '.gnumed', 'current_patient'))
+PAT_DIR = os.path.join(gmTools.gmPaths().user_config_dir, 'current_patient')
 README_pat_dir = \"\"\"%s
 \"\"\"
 CURR_PAT = None
@@ -212,7 +212,7 @@ def run_script(hook=None):
 # need configuration for it, the environment can
 # always be detected at runtime (workplace etc)
 HOOK_SCRIPT_NAME = 'hook_script.py'
-HOOK_SCRIPT_DIR = os.path.expanduser(os.path.join('~', '.gnumed', 'scripts'))
+HOOK_SCRIPT_DIR = os.path.join(gmTools.gmPaths().user_config_dir, 'scripts')
 HOOK_SCRIPT_FULL_NAME = os.path.join(HOOK_SCRIPT_DIR, HOOK_SCRIPT_NAME)
 
 

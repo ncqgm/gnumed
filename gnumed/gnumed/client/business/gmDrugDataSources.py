@@ -492,7 +492,7 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 		_log.debug('GNUmed <-> FreeDiams "exchange-out"/"prescription" file: %s', self.__fd2gm_filename)
 		paths = gmTools.gmPaths()
 		# this file can be modified by the user as needed:
-		self.__fd4gm_config_file = os.path.join(paths.home_dir, '.gnumed', 'freediams4gm.conf')
+		self.__fd4gm_config_file = os.path.join(gmTools.gmPaths().user_config_dir, 'freediams4gm.conf')
 		_log.debug('FreeDiams config file for GNUmed use: %s', self.__fd4gm_config_file)
 
 		self.path_to_binary = None

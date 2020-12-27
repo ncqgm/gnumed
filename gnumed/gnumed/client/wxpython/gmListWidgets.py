@@ -24,7 +24,6 @@ import threading
 import time
 import locale
 import os
-import io
 import csv
 import re as regex
 import datetime as pydt
@@ -2732,8 +2731,8 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, SelectionStateMixin, Co
 	#------------------------------------------------------------
 	def _all_rows2file(self, evt):
 
-		txt_name = os.path.join(gmTools.gmPaths().home_dir, 'gnumed', 'gm-all_rows-%s.txt' % pydt.datetime.now().strftime('%m%d-%H%M%S'))
-		txt_file = io.open(txt_name, mode = 'wt', encoding = 'utf8')
+		txt_name = os.path.join(gmTools.gmPaths().user_work_dir, 'gm-all_rows-%s.txt' % pydt.datetime.now().strftime('%m%d-%H%M%S'))
+		txt_file = open(txt_name, mode = 'wt', encoding = 'utf8')
 
 		col_labels = self.column_labels
 		line = '%s' % ' || '.join(col_labels)
@@ -2752,8 +2751,8 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, SelectionStateMixin, Co
 	#------------------------------------------------------------
 	def _all_rows2csv(self, evt):
 
-		csv_name = os.path.join(gmTools.gmPaths().home_dir, 'gnumed', 'gm-all_rows-%s.csv' % pydt.datetime.now().strftime('%m%d-%H%M%S'))
-		csv_file = io.open(csv_name, mode = 'wt', encoding = 'utf8')
+		csv_name = os.path.join(gmTools.gmPaths().user_work_dir, 'gm-all_rows-%s.csv' % pydt.datetime.now().strftime('%m%d-%H%M%S'))
+		csv_file = open(csv_name, mode = 'wt', encoding = 'utf8')
 		csv_writer = csv.writer(csv_file)
 		csv_writer.writerow([ l for l in self.column_labels ])
 		for item_idx in range(self.ItemCount):
@@ -2770,8 +2769,8 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, SelectionStateMixin, Co
 		if (self.__data is None) or (self.__item_tooltip_callback is None):
 			return
 
-		txt_name = os.path.join(gmTools.gmPaths().home_dir, 'gnumed', 'gm-list_tooltips-%s.txt' % pydt.datetime.now().strftime('%m%d-%H%M%S'))
-		txt_file = io.open(txt_name, mode = 'wt', encoding = 'utf8')
+		txt_name = os.path.join(gmTools.gmPaths().user_work_dir, 'gm-list_tooltips-%s.txt' % pydt.datetime.now().strftime('%m%d-%H%M%S'))
+		txt_file = open(txt_name, mode = 'wt', encoding = 'utf8')
 
 		for data in self.data:
 			tt = self.__item_tooltip_callback(data)
@@ -2788,8 +2787,8 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, SelectionStateMixin, Co
 		if self.__data is None:
 			return
 
-		txt_name = os.path.join(gmTools.gmPaths().home_dir, 'gnumed', 'gm-list_data-%s.txt' % pydt.datetime.now().strftime('%m%d-%H%M%S'))
-		txt_file = io.open(txt_name, mode = 'wt', encoding = 'utf8')
+		txt_name = os.path.join(gmTools.gmPaths().user_work_dir, 'gm-list_data-%s.txt' % pydt.datetime.now().strftime('%m%d-%H%M%S'))
+		txt_file = open(txt_name, mode = 'wt', encoding = 'utf8')
 
 		for data in self.data:
 			if hasattr(data, 'format'):
@@ -2806,8 +2805,8 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, SelectionStateMixin, Co
 	#------------------------------------------------------------
 	def _selected_rows2file(self, evt):
 
-		txt_name = os.path.join(gmTools.gmPaths().home_dir, 'gnumed', 'gm-some_rows-%s.txt' % pydt.datetime.now().strftime('%m%d-%H%M%S'))
-		txt_file = io.open(txt_name, mode = 'wt', encoding = 'utf8')
+		txt_name = os.path.join(gmTools.gmPaths().user_work_dir, 'gm-some_rows-%s.txt' % pydt.datetime.now().strftime('%m%d-%H%M%S'))
+		txt_file = open(txt_name, mode = 'wt', encoding = 'utf8')
 
 		col_labels = self.column_labels
 		line = '%s' % ' || '.join(col_labels)
@@ -2830,8 +2829,8 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, SelectionStateMixin, Co
 	#------------------------------------------------------------
 	def _selected_rows2csv(self, evt):
 
-		csv_name = os.path.join(gmTools.gmPaths().home_dir, 'gnumed', 'gm-some_rows-%s.csv' % pydt.datetime.now().strftime('%m%d-%H%M%S'))
-		csv_file = io.open(csv_name, mode = 'wt', encoding = 'utf8')
+		csv_name = os.path.join(gmTools.gmPaths().user_work_dir, 'gm-some_rows-%s.csv' % pydt.datetime.now().strftime('%m%d-%H%M%S'))
+		csv_file = open(csv_name, mode = 'wt', encoding = 'utf8')
 		csv_writer = csv.writer(csv_file)
 		csv_writer.writerow([ l for l in self.column_labels ])
 		items = self.selected_items
@@ -2851,8 +2850,8 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, SelectionStateMixin, Co
 		if (self.__data is None) or (self.__item_tooltip_callback is None):
 			return
 
-		txt_name = os.path.join(gmTools.gmPaths().home_dir, 'gnumed', 'gm-list_tooltips-%s.txt' % pydt.datetime.now().strftime('%m%d-%H%M%S'))
-		txt_file = io.open(txt_name, mode = 'wt', encoding = 'utf8')
+		txt_name = os.path.join(gmTools.gmPaths().user_work_dir, 'gm-list_tooltips-%s.txt' % pydt.datetime.now().strftime('%m%d-%H%M%S'))
+		txt_file = open(txt_name, mode = 'wt', encoding = 'utf8')
 
 		for data in self.selected_item_data:
 			tt = self.__item_tooltip_callback(data)
@@ -2869,8 +2868,8 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, SelectionStateMixin, Co
 		if self.__data is None:
 			return
 
-		txt_name = os.path.join(gmTools.gmPaths().home_dir, 'gnumed', 'gm-list_data-%s.txt' % pydt.datetime.now().strftime('%m%d-%H%M%S'))
-		txt_file = io.open(txt_name, mode = 'wt', encoding = 'utf8')
+		txt_name = os.path.join(gmTools.gmPaths().user_work_dir, 'gm-list_data-%s.txt' % pydt.datetime.now().strftime('%m%d-%H%M%S'))
+		txt_file = open(txt_name, mode = 'wt', encoding = 'utf8')
 
 		for data in self.selected_item_data:
 			if hasattr(data, 'format'):
@@ -2892,8 +2891,7 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, SelectionStateMixin, Co
 		else:
 			widget2screenshot = dlg
 		png_name = os.path.join (
-			gmTools.gmPaths().home_dir,
-			'gnumed',
+			gmTools.gmPaths().user_work_dir
 			'gm-%s-%s.png' % (self.useful_title, pydt.datetime.now().strftime('%Y-%m-%d_%H-%M-%S'))
 		)
 		from Gnumed.wxpython.gmGuiHelpers import save_screenshot_to_file

@@ -394,6 +394,8 @@ class gmPaths(gmBorg.cBorg):
 
 	- .bytea_cache_dir: caches downloaded BYTEA data
 
+	- .user_work_dir: app specific user work dir, say, ~/gnumed/
+
 	It will take into account the application name.
 	"""
 	def __init__(self, app_name:str=None, wx=None):
@@ -457,6 +459,10 @@ class gmPaths(gmBorg.cBorg):
 		# user-specific config dir, usually below the home dir
 		mkdir(os.path.join(self.home_dir, '.%s' % app_name))
 		self.user_config_dir = os.path.join(self.home_dir, '.%s' % app_name)
+
+		# user-specific app dir, usually below the home dir
+		mkdir(os.path.join(self.home_dir, app_name))
+		self.user_work_dir = os.path.join(self.home_dir, app_name)
 
 		# system-wide config dir, usually below /etc/ under UN*X
 		try:
@@ -2214,17 +2220,23 @@ if __name__ == '__main__':
 	def test_mkdir():
 		print("testing mkdir(%s)" % sys.argv[2])
 		mkdir(sys.argv[2], 0o0700)
+
 	#-----------------------------------------------------------------------
 	def test_gmPaths():
 		print("testing gmPaths()")
 		print("-----------------")
 		paths = gmPaths(wx=None, app_name='gnumed')
+		print("user       home dir:", paths.home_dir)
 		print("user     config dir:", paths.user_config_dir)
+		print("user       work dir:", paths.user_work_dir)
+		print("user       temp dir:", paths.user_tmp_dir)
+		print("user+app   temp dir:", paths.tmp_dir)
 		print("system   config dir:", paths.system_config_dir)
 		print("local      base dir:", paths.local_base_dir)
 		print("system app data dir:", paths.system_app_data_dir)
 		print("working directory  :", paths.working_dir)
-		print("temp directory     :", paths.tmp_dir)
+		print("BYTEA cache dir    :", paths.bytea_cache_dir)
+
 	#-----------------------------------------------------------------------
 	def test_none_if():
 		print("testing none_if()")
@@ -2595,7 +2607,7 @@ second line\n
 	#test_capitalize()
 	#test_import_module()
 	#test_mkdir()
-	#test_gmPaths()
+	test_gmPaths()
 	#test_none_if()
 	#test_bool2str()
 	#test_bool2subst()
@@ -2626,6 +2638,6 @@ second line\n
 	#test_copy_tree_content()
 	#test_mk_sandbox_dir()
 	#test_make_table_from_dicts()
-	test_create_dir_desc_file()
+	#test_create_dir_desc_file()
 
 #===========================================================================

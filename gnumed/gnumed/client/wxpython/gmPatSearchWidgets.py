@@ -587,7 +587,7 @@ def load_person_from_vcard_file():
 	dlg = wx.FileDialog (
 		parent = wx.GetApp().GetTopWindow(),
 		message = _('Choose a vCard file:'),
-		defaultDir = os.path.join(gmTools.gmPaths().home_dir, 'gnumed'),
+		defaultDir = gmTools.gmPaths().user_work_dir,
 		wildcard = wildcards,
 		style = wx.FD_OPEN | wx.FD_FILE_MUST_EXIST
 	)

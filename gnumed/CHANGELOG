@@ -11,6 +11,7 @@
 NEW: tool: generate_man_page
 NEW: placeholder: $yes_no$
 NEW: lists: persistent item selection across sorts/reloads
+NEW: paperwork: write non-templated letter w/ LibreOffice
 
 IMPROVED: GUI: show current patient in window titles
 IMPROVED: placeholder: $current_provider_name$

@@ -447,7 +447,7 @@ def save_screenshot_to_file(filename=None, widget=None, settle_time=None):
 			prefix = 'gm-screenshot-%s-' % pyDT.datetime.now().strftime('%Y-%m-%d_%H-%M-%S'),
 			suffix = '.png'
 			# for testing:
-			#,tmp_dir = os.path.join(gmTools.gmPaths().home_dir, 'gnumed')
+			#,tmp_dir = gmTools.gmPaths().user_work_dir
 		)
 	else:
 		filename = gmTools.fname_sanitize(filename)

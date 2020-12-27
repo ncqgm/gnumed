@@ -829,7 +829,7 @@ which need to live at a known location."""
 	paths = gmTools.gmPaths(app_name = 'gnumed')
 	print("Temp dir:", paths.tmp_dir)
 	# ensure there's a user-level config file
-	open(os.path.expanduser(os.path.join('~', '.gnumed', 'gnumed.conf')), mode = 'a+t').close()
+	open(os.path.join(paths.user_config_dir, 'gnumed.conf'), mode = 'a+t').close()
 	# symlink log file into temporary directory for easier debugging (everything in one place)
 	logfile_link = os.path.join(paths.tmp_dir, 'zzz-gnumed.log')
 	gmTools.mklink (gmLog2._logfile.name, logfile_link, overwrite = False)

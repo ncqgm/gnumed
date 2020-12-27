@@ -640,8 +640,10 @@ class gmTopLevelFrame(wx.Frame):
 
 		# -- menu "Paperwork" ---------------------
 		menu_paperwork = wx.Menu()
-		item = menu_paperwork.Append(-1, _('&Write letter'), _('Write a letter for the current patient.'))
+		item = menu_paperwork.Append(-1, _('&Write letter (template)'), _('Write a template-based letter for the current patient.'))
 		self.Bind(wx.EVT_MENU, self.__on_new_letter, item)
+		item = menu_paperwork.Append(-1, _('&Write letter (generic)'), _('Write a generic letter for the current patient.'))
+		self.Bind(wx.EVT_MENU, self.__on_new_generic_letter, item)
 		item = menu_paperwork.Append(-1, _('Screenshot -> export area'), _('Put a screenshot into the patient export area.'))
 		self.Bind(wx.EVT_MENU, self.__on_save_screenshot_into_export_area, item)
 		menu_paperwork.AppendSeparator()
@@ -750,7 +752,7 @@ class gmTopLevelFrame(wx.Frame):
 		self.Bind(wx.EVT_MENU, self.__on_display_user_manual_online, item)
 		item = help_menu.Append(-1, _('Menu reference (www)'), _('View the reference for menu items on the web.'))
 		self.Bind(wx.EVT_MENU, self.__on_menu_reference, item)
-		item = help_menu.Append(-1, _('Browse work dir'), _('Browse user working directory [%s].') % os.path.join(gmTools.gmPaths().home_dir, 'gnumed'))
+		item = help_menu.Append(-1, _('Browse work dir'), _('Browse user working directory [%s].') % gmTools.gmPaths().user_work_dir)
 		self.Bind(wx.EVT_MENU, self.__on_browse_work_dir, item)
 
 		menu_debugging = wx.Menu()
@@ -772,7 +774,7 @@ class gmTopLevelFrame(wx.Frame):
 		self.Bind(wx.EVT_MENU, self.__on_email_log_file, item)
 		item = menu_debugging.Append(-1, _('Browse tmp dir'), _('Browse temporary directory [%s].') % gmTools.gmPaths().tmp_dir)
 		self.Bind(wx.EVT_MENU, self.__on_browse_tmp_dir, item)
-		item = menu_debugging.Append(-1, _('Browse internal work dir'), _('Browse internal working directory [%s].') % os.path.join(gmTools.gmPaths().home_dir, '.gnumed'))
+		item = menu_debugging.Append(-1, _('Browse internal work dir'), _('Browse internal working directory [%s].') % gmTools.gmPaths().user_config_dir)
 		self.Bind(wx.EVT_MENU, self.__on_browse_internal_work_dir, item)
 		item = menu_debugging.Append(-1, _('Bug tracker'), _('Go to the GNUmed bug tracker on the web.'))
 		self.Bind(wx.EVT_MENU, self.__on_display_bugtracker, item)
@@ -1031,6 +1033,7 @@ class gmTopLevelFrame(wx.Frame):
 	#----------------------------------------------
 	def __on_show_docs(self, evt):
 		gmDispatcher.send(signal='show_document_viewer')
+
 	#----------------------------------------------
 	def __on_new_letter(self, evt):
 		pat = gmPerson.gmCurrentPatient()
@@ -1038,6 +1041,16 @@ class gmTopLevelFrame(wx.Frame):
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot write letter. No active patient.'), beep = True)
 			return True
 		gmFormWidgets.print_doc_from_template(parent = self)#, keep_a_copy = True)
+
+	#----------------------------------------------
+	def __on_new_generic_letter(self, evt):
+		#return
+		pat = gmPerson.gmCurrentPatient()
+		if not pat.connected:
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot write letter. No active patient.'), beep = True)
+			return True
+
+		gmFormWidgets.print_generic_document(parent = self)
 
 	#----------------------------------------------
 	def __on_show_placeholders(self, evt):
@@ -2239,7 +2252,7 @@ class gmTopLevelFrame(wx.Frame):
 			gmDispatcher.send(signal = 'statustext', msg = _('ACS risk assessment calculator not configured.'), beep = True)
 			return
 
-		cwd = os.path.expanduser(os.path.join('~', '.gnumed'))
+		cwd = gmTools.gmPaths().user_config_dir
 		try:
 			subprocess.check_call (
 				args = (cmd,),
@@ -2451,7 +2464,7 @@ class gmTopLevelFrame(wx.Frame):
 		name = os.path.basename(gmLog2._logfile_name)
 		name, ext = os.path.splitext(name)
 		new_name = '%s_%s%s' % (name, pyDT.datetime.now().strftime('%Y-%m-%d_%H-%M-%S'), ext)
-		new_path = os.path.expanduser(os.path.join('~', 'gnumed'))
+		new_path = gmTools.gmPaths().user_work_dir
 
 		dlg = wx.FileDialog (
 			parent = self,
@@ -2481,11 +2494,11 @@ class gmTopLevelFrame(wx.Frame):
 
 	#----------------------------------------------
 	def __on_browse_work_dir(self, evt):
-		gmMimeLib.call_viewer_on_file(os.path.join(gmTools.gmPaths().home_dir, 'gnumed'), block = False)
+		gmMimeLib.call_viewer_on_file(gmTools.gmPaths().user_work_dir, block = False)
 
 	#----------------------------------------------
 	def __on_browse_internal_work_dir(self, evt):
-		gmMimeLib.call_viewer_on_file(os.path.join(gmTools.gmPaths().home_dir, '.gnumed'), block = False)
+		gmMimeLib.call_viewer_on_file(gmTools.gmPaths().user_config_dir, block = False)
 
 	#----------------------------------------------
 	# GNUmed /
@@ -2748,7 +2761,7 @@ class gmTopLevelFrame(wx.Frame):
 #
 #		# get file name
 #		aWildcard = "%s (*.txt)|*.txt|%s (*)|*" % (_("text files"), _("all files"))
-#		aDefDir = os.path.expanduser(os.path.join('~', 'gnumed'))
+#		aDefDir = gmTools.gmPaths().user_work_dir
 #		fname = '%s-%s_%s.txt' % (_('journal_by_last_mod_time'), pat['lastnames'], pat['firstnames'])
 #		dlg = wx.FileDialog (
 #			parent = self,
@@ -2794,7 +2807,7 @@ class gmTopLevelFrame(wx.Frame):
 #			return False
 #		# get file name
 #		aWildcard = "%s (*.txt)|*.txt|%s (*)|*" % (_("text files"), _("all files"))
-#		aDefDir = os.path.expanduser(os.path.join('~', 'gnumed'))
+#		aDefDir = gmTools.gmPaths().user_work_dir
 #		fname = '%s-%s_%s.txt' % (_('emr-journal'), pat['lastnames'], pat['firstnames'])
 #		dlg = wx.FileDialog (
 #			parent = self,
@@ -2973,7 +2986,7 @@ class gmTopLevelFrame(wx.Frame):
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot export patient as GDT. No active patient.'))
 			return False
 		enc = 'cp850'			# FIXME: configurable
-		fname = os.path.expanduser(os.path.join('~', 'gnumed', 'current-patient.gdt'))
+		fname = os.path.join(gmTools.gmPaths().user_work_dir, 'current-patient.gdt')
 		curr_pat.export_as_gdt(filename = fname, encoding = enc)
 		gmDispatcher.send(signal = 'statustext', msg = _('Exported demographics to GDT file [%s].') % fname)
 
@@ -2983,7 +2996,7 @@ class gmTopLevelFrame(wx.Frame):
 		if not curr_pat.connected:
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot export patient as VCARD. No active patient.'))
 			return False
-		fname = os.path.expanduser(os.path.join('~', 'gnumed', 'current-patient.vcf'))
+		fname = os.path.join(gmTools.gmPaths().user_work_dir, 'current-patient.vcf')
 		curr_pat.export_as_vcard(filename = fname)
 		gmDispatcher.send(signal = 'statustext', msg = _('Exported demographics to VCARD file [%s].') % fname)
 
