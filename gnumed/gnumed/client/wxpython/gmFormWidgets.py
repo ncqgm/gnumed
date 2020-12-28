@@ -53,8 +53,6 @@ __ODT_FILE_PREAMBLE = """GNUmed generic document template
 
 Some context data has been added below for your copy/paste convenience.
 
-Upon hitting "Save" you may be asked to convert to ODT format (choose "Yes") and warned that saving will overwrite the existing file (choose "Overwrite").
-
 Before entering text you should switch the "paragraph type" from "Pre-formatted Text" to "Standard".
 =============================================================================
 """
@@ -79,9 +77,11 @@ def print_generic_document(parent=None, jobtype:str=None, episode=None):
 		does.
 	"""
 	sandbox = gmTools.mk_sandbox_dir(prefix = 'lo-', base_dir = gmTools.gmPaths().user_config_dir)
-	fpath = gmTools.get_unique_filename(suffix = '.odt', tmp_dir = sandbox)
+	fpath = gmTools.get_unique_filename(suffix = '.txt', tmp_dir = sandbox)
 	doc_file = open(fpath, mode = 'wt')
 	doc_file.write(__ODT_FILE_PREAMBLE)
+	doc_file.write(_('Today: %s') % gmDateTime.pydt_now_here().strftime('%c'))
+	doc_file.write('\n\n')
 	prax = gmPraxis.gmCurrentPraxisBranch()
 	doc_file.write('Praxis:\n')
 	doc_file.write(prax.format())
@@ -108,6 +108,21 @@ def print_generic_document(parent=None, jobtype:str=None, episode=None):
 	doc_file.write('\n'.join(gmStaff.gmCurrentProvider().get_staff().format()))
 	doc_file.write('\n\n-----------------------------------------------------------------------------\n\n')
 	doc_file.close()
+
+	# convert txt -> odt
+	success, ret_code, stdout = gmShellAPI.run_process (
+		cmd_line = [
+			'lowriter',
+			'--convert-to', 'odt',
+			'--outdir', os.path.split(fpath)[0],
+			fpath
+		],
+		verbose = True
+	)
+	if success:
+		fpath = gmTools.fname_stem_with_path(fpath) + '.odt'
+	else:
+		_log.warning('cannot convert .txt to .odt')
 	md5_before = gmTools.file2md5(fpath)
 	gmShellAPI.run_process(cmd_line = ['lowriter', fpath], verbose = True)
 	md5_after = gmTools.file2md5(fpath)

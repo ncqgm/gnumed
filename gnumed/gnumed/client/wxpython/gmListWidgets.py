@@ -2891,7 +2891,7 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, SelectionStateMixin, Co
 		else:
 			widget2screenshot = dlg
 		png_name = os.path.join (
-			gmTools.gmPaths().user_work_dir
+			gmTools.gmPaths().user_work_dir,
 			'gm-%s-%s.png' % (self.useful_title, pydt.datetime.now().strftime('%Y-%m-%d_%H-%M-%S'))
 		)
 		from Gnumed.wxpython.gmGuiHelpers import save_screenshot_to_file
