@@ -76,7 +76,8 @@ def print_generic_document(parent=None, jobtype:str=None, episode=None):
 
 		does.
 	"""
-	sandbox = gmTools.mk_sandbox_dir(prefix = 'lo-', base_dir = gmTools.gmPaths().user_config_dir)
+	sandbox = os.path.join(gmTools.gmPaths().user_config_dir, 'libreoffice')
+	gmTools.mkdir(sandbox)
 	fpath = gmTools.get_unique_filename(suffix = '.txt', tmp_dir = sandbox)
 	doc_file = open(fpath, mode = 'wt')
 	doc_file.write(__ODT_FILE_PREAMBLE)

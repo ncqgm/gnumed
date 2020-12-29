@@ -248,7 +248,7 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 			if suffix == '':
 				suffix = '.dat'
 		fname = gmTools.get_unique_filename (
-			prefix = 'gm-export_item%s-' % patient_part,
+			prefix = '%s-gm-export_item%s-' % (self._payload[self._idx['list_position']], patient_part),
 			suffix = suffix,
 			tmp_dir = directory
 		)
@@ -274,7 +274,10 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 		if filename.endswith('.dat'):
 			filename = gmMimeLib.adjust_extension_by_mimetype(filename)
 		if passphrase is None:
-			return filename
+			if not convert2pdf:
+				return filename
+
+			return gmMimeLib.convert_file(filename = filename, target_mime = 'application/pdf', target_extension = '.pdf')
 
 		enc_filename = gmCrypto.encrypt_file (
 			filename = filename,
@@ -315,6 +318,8 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 				date_before_type = True,
 				name_first = False
 			)
+		path, name = os.path.split(filename)
+		filename = os.path.join(path, '%s-%s' % (self._payload[self._idx['list_position']], name))
 		target_mime = 'application/pdf' if convert2pdf else None
 		target_ext = '.pdf' if convert2pdf else None
 		part_fname = part.save_to_file (
@@ -897,10 +902,9 @@ class cExportArea(object):
 			return None
 
 		if base_dir is None:
-			from Gnumed.business.gmPerson import cPatient
-			pat = cPatient(aPK_obj = self.__pk_identity)
-			base_dir = os.path.join(gmTools.mk_sandbox_dir(), pat.subdir_name)
-		gmTools.mkdir(base_dir)
+			base_dir = gmTools.mk_sandbox_dir()
+		else:
+			gmTools.mkdir(base_dir)
 		_log.debug('dumping export items to: %s', base_dir)
 		for item in items:
 			if item.save_to_file(directory = base_dir, passphrase = passphrase, convert2pdf = convert2pdf) is None:
@@ -1464,12 +1468,13 @@ if __name__ == '__main__':
 		#except IndexError:
 		#	pwd = None
 		#print(exp.export(passphrase = pwd))
-		for item in exp.items:
-			print(item)
-			item['list_position'] = 4
-			item.save()
-			print(item)
-			input()
+		#for item in exp.items:
+		#	print(item)
+		#	item['list_position'] = 4
+		#	item.save()
+		#	print(item)
+		#	input()
+		print(exp.dump_items_to_disk())
 
 	#---------------------------------------
 	def test_label():

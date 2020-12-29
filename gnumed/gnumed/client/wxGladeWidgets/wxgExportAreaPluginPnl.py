@@ -30,6 +30,7 @@ class wxgExportAreaPluginPnl(wx.Panel):
 		self._BTN_show_item = wx.Button(self, wx.ID_ANY, _("&View"), style=wx.BU_EXACTFIT)
 		self._BTN_save_items = wx.Button(self, wx.ID_ANY, _("&Save as"), style=wx.BU_EXACTFIT)
 		self._BTN_export_items = wx.Button(self, wx.ID_ANY, _("E&xport"), style=wx.BU_EXACTFIT)
+		self._BTN_pdfjoin_items = wx.Button(self, wx.ID_ANY, _(u"⇶❭ PDF"), style=wx.BU_EXACTFIT)
 		self._BTN_archive_items = wx.Button(self, wx.ID_ANY, _(u"→ Archive"), style=wx.BU_EXACTFIT)
 		self._BTN_remove_items = wx.Button(self, wx.ID_ANY, _("&Remove"), style=wx.BU_EXACTFIT)
 		self._BTN_print_items = wx.Button(self, wx.ID_ANY, _("&Print"), style=wx.BU_EXACTFIT)
@@ -51,6 +52,7 @@ class wxgExportAreaPluginPnl(wx.Panel):
 		self.Bind(wx.EVT_BUTTON, self._on_show_item_button_pressed, self._BTN_show_item)
 		self.Bind(wx.EVT_BUTTON, self._on_save_items_button_pressed, self._BTN_save_items)
 		self.Bind(wx.EVT_BUTTON, self._on_export_items_button_pressed, self._BTN_export_items)
+		self.Bind(wx.EVT_BUTTON, self._on_pdfjoin_button_pressed, self._BTN_pdfjoin_items)
 		self.Bind(wx.EVT_BUTTON, self._on_archive_items_button_pressed, self._BTN_archive_items)
 		self.Bind(wx.EVT_BUTTON, self._on_remove_items_button_pressed, self._BTN_remove_items)
 		self.Bind(wx.EVT_BUTTON, self._on_print_items_button_pressed, self._BTN_print_items)
@@ -72,6 +74,7 @@ class wxgExportAreaPluginPnl(wx.Panel):
 		self._BTN_show_item.SetToolTip(_("Show the topmost selected document."))
 		self._BTN_save_items.SetToolTip(_("Save selected/all items to disk."))
 		self._BTN_export_items.SetToolTip(_("Export all/selected items to removable media (CD/DVD/USB)."))
+		self._BTN_pdfjoin_items.SetToolTip(_("Join selected items into one PDF."))
 		self._BTN_archive_items.SetToolTip(_("Store selected/all documents in document archive."))
 		self._BTN_remove_items.SetToolTip(_("Remove the selected documents."))
 		self._BTN_print_items.SetToolTip(_("Print selected/all documents."))
@@ -100,6 +103,7 @@ class wxgExportAreaPluginPnl(wx.Panel):
 		__szr_buttons_right.Add(self._BTN_show_item, 0, wx.BOTTOM | wx.EXPAND, 3)
 		__szr_buttons_right.Add(self._BTN_save_items, 0, wx.BOTTOM | wx.EXPAND, 3)
 		__szr_buttons_right.Add(self._BTN_export_items, 0, wx.BOTTOM | wx.EXPAND, 3)
+		__szr_buttons_right.Add(self._BTN_pdfjoin_items, 0, wx.BOTTOM | wx.EXPAND, 3)
 		__szr_buttons_right.Add(self._BTN_archive_items, 0, wx.BOTTOM | wx.EXPAND, 3)
 		__szr_buttons_right.Add(self._BTN_remove_items, 0, wx.EXPAND, 3)
 		__szr_buttons_right.Add((20, 20), 0, wx.EXPAND, 0)
@@ -155,6 +159,10 @@ class wxgExportAreaPluginPnl(wx.Panel):
 
 	def _on_export_items_button_pressed(self, event):  # wxGlade: wxgExportAreaPluginPnl.<event_handler>
 		print("Event handler '_on_export_items_button_pressed' not implemented!")
+		event.Skip()
+
+	def _on_pdfjoin_button_pressed(self, event):  # wxGlade: wxgExportAreaPluginPnl.<event_handler>
+		print("Event handler '_on_pdfjoin_button_pressed' not implemented!")
 		event.Skip()
 
 	def _on_archive_items_button_pressed(self, event):  # wxGlade: wxgExportAreaPluginPnl.<event_handler>

@@ -471,6 +471,7 @@ def encrypt_pdf(filename:str=None, passphrase:str=None, verbose:bool=False, remo
 	args = [
 		binary,
 		'--verbose',
+		'--password-mode=unicode',
 		'--encrypt', passphrase, '', '128',
 		'--print=full', '--modify=none', '--extract=n',
 		'--use-aes=y',
@@ -478,7 +479,12 @@ def encrypt_pdf(filename:str=None, passphrase:str=None, verbose:bool=False, remo
 		filename,
 		filename_encrypted
 	]
-	success, exit_code, stdout = gmShellAPI.run_process(cmd_line = args, encoding = 'utf8', verbose = verbose)
+	success, exit_code, stdout = gmShellAPI.run_process (
+		cmd_line = args,
+		encoding = 'utf8',
+		verbose = verbose,
+		acceptable_return_codes = [0, 3]
+	)
 	if not success:
 		return None
 

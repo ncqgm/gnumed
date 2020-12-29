@@ -238,6 +238,47 @@ def _get_system_startfile_cmd(filename):
 	return False, None
 
 #-----------------------------------------------------------------------------------
+def join_files_as_pdf(files:[]=None, pdf_name:str=None) -> str:
+	"""Convert files to PDF and joins them into one final PDF.
+
+	Returns:
+		Name of final PDF or None
+	"""
+	assert (files is not None), '<files> must not be None'
+
+	if len(files) == 0:
+		return None
+
+	sandbox = gmTools.mk_sandbox_dir()
+	pdf_pages = []
+	page_idx = 1
+	for fname in files:
+		pdf = convert_file (
+			filename = fname,
+			target_mime = 'application/pdf',
+			target_filename = gmTools.get_unique_filename(prefix = '%s-' % page_idx, suffix = '.pdf', tmp_dir = sandbox),
+			target_extension = '.pdf',
+			verbose = True
+		)
+		if pdf is None:
+			return None
+
+		pdf_pages.append(pdf)
+		page_idx += 1
+
+	if pdf_name is None:
+		pdf_name = gmTools.get_unique_filename(suffix = '.pdf')
+	cmd_line = ['pdfunite']
+	cmd_line.extend(pdf_pages)
+	cmd_line.append(pdf_name)
+	success, returncode, stdout = gmShellAPI.run_process(cmd_line = cmd_line, verbose = True)
+	if not success:
+		_log.debug('cannot join files into one PDF')
+		return None
+
+	return pdf_name
+
+#-----------------------------------------------------------------------------------
 def convert_file(filename=None, target_mime=None, target_filename=None, target_extension=None, verbose=False):
 	"""Convert file from one format into another.
 
@@ -553,6 +594,10 @@ if __name__ == "__main__":
 		))
 
 	#--------------------------------------------------------
+	def test_join_files_as_pdf():
+		print(join_files_as_pdf(files = gmTools.dir_list_files(sys.argv[2])))
+
+	#--------------------------------------------------------
 #	print(_system_startfile_cmd)
 #	print(guess_mimetype(filename))
 #	print(get_viewer_cmd(guess_mimetype(filename), filename))
@@ -567,4 +612,5 @@ if __name__ == "__main__":
 	#call_editor_on_file(filename)
 	#test_describer()
 	#print(test_edit())
-	test_convert_file()
+	#test_convert_file()
+	test_join_files_as_pdf()

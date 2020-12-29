@@ -865,6 +865,11 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 		return True
 
 	#--------------------------------------------------------
+	def _on_pdfjoin_button_pressed(self, event):
+		event.Skip()
+		self.__join_items_into_pdf()
+
+	#--------------------------------------------------------
 	def _on_archive_items_button_pressed(self, event):
 		print("Event handler '_on_archive_items_button_pressed' not implemented!")
 		event.Skip()
@@ -1185,6 +1190,44 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 		return False
 
 	#--------------------------------------------------------
+	def __join_items_into_pdf(self):
+		items = self.__get_items_to_work_on(_('Select items for PDF.'))
+		if items is None:
+			return
+
+		export_dir = self.__export_as_files (
+			_('Creating PDF from selected items'),
+			base_dir = None,
+			encrypt = False,
+			with_metadata = False,
+			items = items,
+			convert2pdf = False
+		)
+		if export_dir is None:
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot turn into PDF: aborted or error.'))
+			return
+
+		# unite files in export_dir
+		pdf_pages = gmTools.dir_list_files(directory = export_dir, exclude_subdirs = True)
+		if pdf_pages is None:
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot turn into PDF: aborted or error.'))
+			return
+
+		pdf_pages.sort()
+		# ask for PDF name ?
+		pdf_name = gmMimeLib.join_files_as_pdf(files = pdf_pages)
+		if pdf_name is None:
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot turn into PDF: aborted or error.'))
+			return
+
+		item = gmPerson.gmCurrentPatient().export_area.add_file (
+			filename = pdf_name,
+			hint = _('Document generated from selected items (%s)') % gmDateTime.pydt_now_here().strftime('%Y %b %d  %H:%M')
+		)
+		item.display_via_mime(block = False)
+		# hint about showing and ask whether to remove items from export area ?
+
+	#--------------------------------------------------------
 	def __browse_patient_data(self, base_dir):
 
 		msg = _('Documents saved into:\n\n %s') % base_dir
@@ -1371,6 +1414,7 @@ class cPrintMgrPluginPnl(wxgPrintMgrPluginPnl.wxgPrintMgrPluginPnl, gmRegetMixin
 	#--------------------------------------------------------
 	def __init_ui(self):
 		self._BTN_export_printouts.Enable(False)
+
 	#--------------------------------------------------------
 	# reget mixin API
 	#--------------------------------------------------------

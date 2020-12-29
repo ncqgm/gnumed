@@ -335,6 +335,23 @@ def dir_is_empty(directory:str=None) -> bool:
 	return empty
 
 #---------------------------------------------------------------------------
+def dir_list_files(directory:str=None, exclude_subdirs:bool=True) -> []:
+	try:
+		all_dir_items = os.listdir(directory)
+	except OSError:
+		_log.exception('cannot list dir [%s]', directory)
+		return None
+
+	items2return = []
+	for item in all_dir_items:
+		item = os.path.join(directory, item)
+		if os.path.isdir(item):
+			if exclude_subdirs:
+				continue
+		items2return.append(item)
+	return items2return
+
+#---------------------------------------------------------------------------
 def copy_tree_content(directory:str, target_directory:str) -> str:
 	"""Copy the *content* of _directory_ into _target_directory_.
 
@@ -2603,11 +2620,16 @@ second line\n
 		))
 
 	#-----------------------------------------------------------------------
+	def test_dir_list_files():
+		print(dir_list_files(directory = sys.argv[2], exclude_subdirs = True))
+		print(dir_list_files(directory = sys.argv[2], exclude_subdirs = False))
+
+	#-----------------------------------------------------------------------
 	#test_coalesce()
 	#test_capitalize()
 	#test_import_module()
 	#test_mkdir()
-	test_gmPaths()
+	#test_gmPaths()
 	#test_none_if()
 	#test_bool2str()
 	#test_bool2subst()
@@ -2639,5 +2661,6 @@ second line\n
 	#test_mk_sandbox_dir()
 	#test_make_table_from_dicts()
 	#test_create_dir_desc_file()
+	test_dir_list_files()
 
 #===========================================================================
