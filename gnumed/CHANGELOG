@@ -22,6 +22,7 @@ IMPROVED: hooks: example script template
 IMPROVED: startup: git branch detection
 IMPROVED: bills: invoice ID locking
 IMPROVED: M/VCF: add nominatim URL to patient/praxis MECARD/vCard
+IMPROVED: files: format conversion improvements
 
 FIX: CLI: --wxp= not needed anymore
 FIX: CLI: --ui= not needed anymore

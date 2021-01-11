@@ -279,6 +279,27 @@ def join_files_as_pdf(files:[]=None, pdf_name:str=None) -> str:
 	return pdf_name
 
 #-----------------------------------------------------------------------------------
+def __convert_odt_to_pdf(filename=None, verbose=False):
+	cmd_line = [
+		'lowriter',
+		'--convert-to', 'pdf',
+		'--outdir', os.path.split(filename)[0],
+		filename
+	]
+	success, returncode, stdout = gmShellAPI.run_process(cmd_line = cmd_line, verbose = True)
+	if not success:
+		return None
+
+	return gmTools.fname_stem_with_path(filename) + '.pdf'
+
+#-----------------------------------------------------------------------------------
+__CONVERSION_DELEGATES = {
+	'application/vnd.oasis.opendocument.text': {
+		'application/pdf': __convert_odt_to_pdf
+	}
+}
+
+#-----------------------------------------------------------------------------------
 def convert_file(filename=None, target_mime=None, target_filename=None, target_extension=None, verbose=False):
 	"""Convert file from one format into another.
 
@@ -306,15 +327,53 @@ def convert_file(filename=None, target_mime=None, target_filename=None, target_e
 	converted_ext = gmTools.coalesce(converted_ext, '').strip().lstrip('.')
 	converted_fname = gmTools.get_unique_filename(suffix = converted_ext)
 	_log.debug('attempting conversion: [%s] -> [<%s>:%s]', filename, target_mime, gmTools.coalesce(target_filename, converted_fname))
+
+	# try user-local conversion script
 	script_name = 'gm-convert_file'
+	binary = os.path.join(gmTools.gmPaths().home_dir, 'bin', script_name)
+	_log.debug('trying user-local script: %s', binary)
+	_log.debug('<%s> API: SOURCEFILE TARGET_MIMETYPE TARGET_EXTENSION TARGET_FILENAME', script_name)
+	found, binary = gmShellAPI.detect_external_binary(binary = binary)
+	if found:
+		cmd_line = [
+			binary,
+			filename,
+			target_mime,
+			converted_ext,
+			converted_fname
+		]
+		success, returncode, stdout = gmShellAPI.run_process(cmd_line = cmd_line, verbose = True)
+		if success:
+			if target_filename is None:
+				return converted_fname
+
+			shutil.copyfile(converted_fname, target_filename)
+			return target_filename
+
+	# try built-in conversions
+	_log.debug('trying built-in conversion function')
+	try:
+		conversion_func = __CONVERSION_DELEGATES[source_mime][target_mime]
+	except KeyError:
+		conversion_func = None
+	if conversion_func is not None:
+		converted_fname = conversion_func(filename = filename, verbose = verbose)
+		if converted_fname is not None:
+			if target_filename is None:
+				return converted_fname
+
+			shutil.copyfile(converted_fname, target_filename)
+			return target_filename
+
+	# try system-wide conversion script
 	paths = gmTools.gmPaths()
 	local_script = os.path.join(paths.local_base_dir, '..', 'external-tools', script_name)
 	candidates = [ script_name, local_script ]		#, script_name + u'.bat'
+	_log.debug('trying system-wide scripts: %s', candidates)
 	found, binary = gmShellAPI.find_first_binary(binaries = candidates)
-	if not found:
-		# try anyway
+	if not found:	# try anyway
+		_log.debug('trying anyway as last-ditch resort')
 		binary = script_name# + r'.bat'
-	_log.debug('<%s> API: SOURCEFILE TARGET_MIMETYPE TARGET_EXTENSION TARGET_FILENAME' % binary)
 	cmd_line = [
 		binary,
 		filename,
@@ -323,22 +382,31 @@ def convert_file(filename=None, target_mime=None, target_filename=None, target_e
 		converted_fname
 	]
 	success, returncode, stdout = gmShellAPI.run_process(cmd_line = cmd_line, verbose = True)
-	if not success:
-		_log.error('conversion returned error exit code')
-		if not os.path.exists(converted_fname):
-			return None
-		_log.info('conversion target file found')
-		stats = os.stat(converted_fname)
-		if stats.st_size == 0:
-			return None
-		_log.info('conversion target file size > 0')
-		achieved_mime = guess_mimetype(filename = converted_fname)
-		if achieved_mime != target_mime:
-			_log.error('target: [%s], achieved: [%s]', target_mime, achieved_mime)
-			return None
-		_log.info('conversion target file mime type [%s], as expected, might be usable', achieved_mime)
-		# we may actually have something despite a non-0 exit code
+	if success:
+		if target_filename is None:
+			return converted_fname
 
+		shutil.copyfile(converted_fname, target_filename)
+		return target_filename
+
+	# seems to have failed but check for target file anyway
+	_log.error('conversion script returned error exit code, checking target file anyway')
+	if not os.path.exists(converted_fname):
+		return None
+
+	_log.info('conversion target file found')
+	stats = os.stat(converted_fname)
+	if stats.st_size == 0:
+		return None
+
+	_log.info('conversion target file size > 0')
+	achieved_mime = guess_mimetype(filename = converted_fname)
+	if achieved_mime != target_mime:
+		_log.error('target: [%s], achieved: [%s]', target_mime, achieved_mime)
+		return None
+
+	# we may actually have something despite a non-0 exit code
+	_log.info('conversion target file mime type [%s], as expected, might be usable', achieved_mime)
 	if target_filename is None:
 		return converted_fname
 
@@ -589,7 +657,7 @@ if __name__ == "__main__":
 	#--------------------------------------------------------
 	def test_convert_file():
 		print(convert_file (
-			filename = filename,
+			filename = sys.argv[2],
 			target_mime = sys.argv[3]
 		))
 
@@ -612,5 +680,5 @@ if __name__ == "__main__":
 	#call_editor_on_file(filename)
 	#test_describer()
 	#print(test_edit())
-	#test_convert_file()
-	test_join_files_as_pdf()
+	test_convert_file()
+	#test_join_files_as_pdf()
