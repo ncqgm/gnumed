@@ -13,6 +13,7 @@ NEW: placeholder: $yes_no$
 NEW: lists: persistent item selection across sorts/reloads
 NEW: paperwork: write non-templated letter w/ LibreOffice
 NEW: export area: join items into one PDF
+NEW: debug: database owner connection test menu item
 
 IMPROVED: GUI: show current patient in window titles
 IMPROVED: placeholder: $current_provider_name$

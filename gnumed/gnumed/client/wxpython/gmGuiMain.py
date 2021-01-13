@@ -782,6 +782,8 @@ class gmTopLevelFrame(wx.Frame):
 		self.Bind(wx.EVT_MENU, self.__on_unblock_cursor, item)
 		item = menu_debugging.Append(-1, _('pgAdmin III'), _('pgAdmin III: Browse GNUmed database(s) in PostgreSQL server.'))
 		self.Bind(wx.EVT_MENU, self.__on_pgadmin3, item)
+		item = menu_debugging.Append(-1, _('Admin connection'), _('Test connecting to the database as admin.'))
+		self.Bind(wx.EVT_MENU, self.__on_gm_dbo_connection_test, item)
 #		item = menu_debugging.Append(-1, _('Reload hook script'), _('Reload hook script from hard drive.'))
 #		self.Bind(wx.EVT_MENU, self.__on_reload_hook_script, item)
 		if _cfg.get(option = 'debug'):
@@ -2410,13 +2412,15 @@ class gmTopLevelFrame(wx.Frame):
 		gmNetworkTools.open_url_in_browser(url = 'https://bugs.launchpad.net/gnumed/')
 	#----------------------------------------------
 	def __on_display_wiki(self, evt):
-		gmNetworkTools.open_url_in_browser(url = 'http://wiki.gnumed.de')
+		gmNetworkTools.open_url_in_browser(url = 'https://www.gnumed.de/documentation/')
 	#----------------------------------------------
 	def __on_display_user_manual_online(self, evt):
-		gmNetworkTools.open_url_in_browser(url = 'http://wiki.gnumed.de/bin/view/Gnumed/GnumedManual#UserGuideInManual')
+		gmNetworkTools.open_url_in_browser(url = 'https://www.gnumed.de/documentation/GNUmedManual.html')
+
 	#----------------------------------------------
 	def __on_menu_reference(self, evt):
 		gmNetworkTools.open_url_in_browser(url = 'http://wiki.gnumed.de/bin/view/Gnumed/MenuReference')
+
 	#----------------------------------------------
 	def __on_pgadmin3(self, evt):
 		found, cmd = gmShellAPI.detect_external_binary(binary = 'pgadmin3')
@@ -2424,6 +2428,16 @@ class gmTopLevelFrame(wx.Frame):
 			gmShellAPI.run_command_in_shell(cmd, blocking = False)
 			return
 		gmDispatcher.send(signal = 'statustext', msg = _('pgAdmin III not found.'), beep = True)
+
+	#----------------------------------------------
+	def __on_gm_dbo_connection_test(self, evt):
+		conn = gmAuthWidgets.get_dbowner_connection (
+			procedure = _('Test for connecting as database admin (owner).'),
+			dbo_account = 'gm-dbo'
+		)
+		if conn is not None:
+			gmGuiHelpers.gm_show_info(_('Successfully connected as database owner.'))
+
 	#----------------------------------------------
 	def __on_reload_hook_script(self, evt):
 		if not gmHooks.import_hook_module(reimport = True):
