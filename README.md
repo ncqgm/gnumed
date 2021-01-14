@@ -29,4 +29,4 @@
 Enjoy, join the mailing list, ask questions, develop and use !
 
 
-[Karsten Hilbert, MD](Karsten.Hilbert@gmx.net)
+Karsten Hilbert, MD  (karsten.hilbert@gmx.net)
