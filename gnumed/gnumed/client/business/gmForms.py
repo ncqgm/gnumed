@@ -1101,6 +1101,7 @@ class cLaTeXForm(cFormEngine):
 		'application/x-tex',
 		'text/latex',
 		'text/tex',
+		'text/x-tex',
 		'text/plain'
 	]
 

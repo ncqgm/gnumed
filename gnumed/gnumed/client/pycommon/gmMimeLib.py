@@ -279,6 +279,55 @@ def join_files_as_pdf(files:[]=None, pdf_name:str=None) -> str:
 	return pdf_name
 
 #-----------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------
+# mimetype conversion helpers
+#-----------------------------------------------------------------------------------
+def __convert_latex_to_pdf(filename=None, verbose=False):
+
+	found, platform_executable = gmShellAPI.detect_external_binary(binary = 'pdflatex')
+	if not found:
+		return None
+
+	# make sandbox
+	sandbox_dir = gmTools.mk_sandbox_dir(prefix = gmTools.fname_stem(filename) + '_')
+	_log.debug('LaTeX sandbox directory: [%s]', sandbox_dir)
+	shutil.copy(filename, sandbox_dir)
+	filename = os.path.join(sandbox_dir, os.path.split(filename)[1])
+	cmd_final = [
+		platform_executable,
+		'-recorder',
+		'-interaction=nonstopmode',
+		"-output-directory=%s" % sandbox_dir
+	]
+	cmd_draft = cmd_final + ['-draftmode']
+	# LaTeX can need up to three runs to get cross references et al right
+	for cmd2run in [cmd_draft, cmd_draft, cmd_final]:
+		success, ret_code, stdout = gmShellAPI.run_process (
+			cmd_line = cmd2run + [filename],
+			acceptable_return_codes = [0],
+			encoding = 'utf8',
+			verbose = True	#_cfg.get(option = 'debug')
+		)
+		if not success:
+			_log.error('problem running pdflatex, cannot generate form output, trying diagnostics')
+			gmDispatcher.send(signal = 'statustext', msg = _('Error running pdflatex. Cannot turn LaTeX template into PDF.'), beep = True)
+			found, binary = gmShellAPI.find_first_binary(binaries = ['lacheck', 'miktex-lacheck.exe'])
+			if not found:
+				_log.debug('lacheck not found')
+			else:
+				cmd_line = [binary, filename]
+				success, ret_code, stdout = gmShellAPI.run_process(cmd_line = cmd_line, encoding = 'utf8', verbose = True)
+			found, binary = gmShellAPI.find_first_binary(binaries = ['chktex', 'ChkTeX.exe'])
+			if not found:
+				_log.debug('chcktex not found')
+			else:
+				cmd_line = [binary, '--verbosity=2', '--headererr', filename]
+				success, ret_code, stdout = gmShellAPI.run_process(cmd_line = cmd_line, encoding = 'utf8', verbose = True)
+			return None
+
+	return '%s.pdf' % os.path.splitext(filename)[0]
+
+#-----------------------------------------------------------------------------------
 def __convert_odt_to_pdf(filename=None, verbose=False):
 	cmd_line = [
 		'lowriter',
@@ -293,11 +342,20 @@ def __convert_odt_to_pdf(filename=None, verbose=False):
 	return gmTools.fname_stem_with_path(filename) + '.pdf'
 
 #-----------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------
 __CONVERSION_DELEGATES = {
 	'application/vnd.oasis.opendocument.text': {
 		'application/pdf': __convert_odt_to_pdf
+	},
+	'text/latex': {
+		'application/pdf': __convert_latex_to_pdf
 	}
 }
+
+__CONVERSION_DELEGATES['text/tex'] = __CONVERSION_DELEGATES['text/latex']
+__CONVERSION_DELEGATES['text/x-tex'] = __CONVERSION_DELEGATES['text/latex']
+__CONVERSION_DELEGATES['application/x-latex'] = __CONVERSION_DELEGATES['text/latex']
+__CONVERSION_DELEGATES['application/x-tex'] = __CONVERSION_DELEGATES['text/latex']
 
 #-----------------------------------------------------------------------------------
 def convert_file(filename=None, target_mime=None, target_filename=None, target_extension=None, verbose=False):
@@ -675,6 +733,7 @@ if __name__ == "__main__":
 #	print(get_editor_cmd('text/latex', filename))
 #	print(get_editor_cmd('text/tex', filename))
 #	print(get_editor_cmd('text/plain', filename))
+	#print(get_editor_cmd('text/x-tex', filename))
 	#print(guess_ext_by_mimetype(mimetype=filename))
 #	call_viewer_on_file(aFile = filename, block = True)
 	#call_editor_on_file(filename)
