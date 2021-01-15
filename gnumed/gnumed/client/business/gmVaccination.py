@@ -639,16 +639,16 @@ def get_vaccinations(pk_identity=None, pk_episodes=None, pk_health_issues=None, 
 		where_parts.append('pk_patient = %(pk_identity)s')
 
 	if (pk_episodes is not None) and (len(pk_episodes) > 0):
-		where_parts.append('pk_episode IN %(pk_epis)s')
-		args['pk_epis'] = tuple(pk_episodes)
+		where_parts.append('pk_episode = ANY(%(pk_epis)s)')
+		args['pk_epis'] = pk_episodes
 
 	if (pk_health_issues is not None) and (len(pk_health_issues) > 0):
-		where_parts.append('pk_episode IN (SELECT pk FROM clin.episode WHERE fk_health_issue IN %(pk_issues)s)')
-		args['pk_issues'] = tuple(pk_health_issues)
+		where_parts.append('pk_episode = ANY(SELECT pk FROM clin.episode WHERE fk_health_issue = ANY(%(pk_issues)s))')
+		args['pk_issues'] = pk_health_issues
 
 	if (pk_encounters is not None) and (len(pk_encounters) > 0):
-		where_parts.append('pk_encounter IN %(pk_encs)s')
-		args['pk_encs'] = tuple(pk_encounters)
+		where_parts.append('pk_encounter = ANY(%(pk_encs)s)')
+		args['pk_encs'] = pk_encounters
 
 	ORDER_BY = gmTools.coalesce (
 		value2test = order_by,

@@ -850,51 +850,45 @@ class cClinicalRecord(object):
 		"""
 		where_parts = ['pk_patient = %(pat)s']
 		args = {'pat': self.pk_patient}
-
 		if issues is not None:
-			where_parts.append('pk_health_issue IN %(issues)s')
+			where_parts.append('pk_health_issue = ANY(%(issues)s)')
 			if len(issues) == 0:
-				args['issues'] = tuple()
+				args['issues'] = []
 			else:
 				if isinstance(issues[0], gmEMRStructItems.cHealthIssue):
-					args['issues'] = tuple([ i['pk_health_issue'] for i in issues ])
+					args['issues'] = [ i['pk_health_issue'] for i in issues ]
 				elif isinstance(issues[0], int):
-					args['issues'] = tuple(issues)
+					args['issues'] = issues
 				else:
 					raise ValueError('<issues> must be list of type int (=pk) or cHealthIssue, but 1st issue is: %s' % issues[0])
-
 		if episodes is not None:
-			where_parts.append('pk_episode IN %(epis)s')
+			where_parts.append('pk_episode = ANY(%(epis)s)')
 			if len(episodes) == 0:
-				args['epis'] = tuple()
+				args['epis'] = []
 			else:
 				if isinstance(episodes[0], gmEMRStructItems.cEpisode):
-					args['epis'] = tuple([ e['pk_episode'] for e in episodes ])
+					args['epis'] = [ e['pk_episode'] for e in episodes ]
 				elif isinstance(episodes[0], int):
-					args['epis'] = tuple(episodes)
+					args['epis'] = episodes
 				else:
 					raise ValueError('<episodes> must be list of type int (=pk) or cEpisode, but 1st episode is: %s' % episodes[0])
-
 		if encounters is not None:
-			where_parts.append('pk_encounter IN %(encs)s')
+			where_parts.append('pk_encounter = ANY(%(encs)s)')
 			if len(encounters) == 0:
-				args['encs'] = tuple()
+				args['encs'] = []
 			else:
 				if isinstance(encounters[0], gmEMRStructItems.cEncounter):
-					args['encs'] = tuple([ e['pk_encounter'] for e in encounters ])
+					args['encs'] = [ e['pk_encounter'] for e in encounters ]
 				elif isinstance(encounters[0], int):
-					args['encs'] = tuple(encounters)
+					args['encs'] = encounters
 				else:
 					raise ValueError('<encounters> must be list of type int (=pk) or cEncounter, but 1st encounter is: %s' % encounters[0])
-
 		if soap_cats is not None:
-			where_parts.append('c_vn.soap_cat IN %(cats)s')
-			args['cats'] = tuple(gmSoapDefs.soap_cats2list(soap_cats))
-
+			where_parts.append('c_vn.soap_cat = ANY(%(cats)s)')
+			args['cats'] = gmSoapDefs.soap_cats2list(soap_cats)
 		if providers is not None:
-			where_parts.append('c_vn.modified_by IN %(docs)s')
-			args['docs'] = tuple(providers)
-
+			where_parts.append('c_vn.modified_by = ANY(%(docs)s)')
+			args['docs'] = providers
 		cmd = """
 			SELECT
 				c_vn.*,
@@ -905,7 +899,6 @@ class cClinicalRecord(object):
 			WHERE %s
 			ORDER BY date, soap_rank
 		""" % ' AND '.join(where_parts)
-
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 		return [ gmClinNarrative.cNarrative(row = {'pk_field': 'pk_narrative', 'idx': idx, 'data': row}) for row in rows ]
 
@@ -978,28 +971,26 @@ class cClinicalRecord(object):
 		if not encounters is None and len(encounters) > 0:
 			params['enc'] = encounters
 			if len(encounters) > 1:
-				where_snippets.append('fk_encounter in %(enc)s')
+				where_snippets.append('fk_encounter = ANY(%(enc)s)')
 			else:
-				where_snippets.append('fk_encounter=%(enc)s')
+				where_snippets.append('fk_encounter = %(enc)s')
 		# episodes
 		if not episodes is None and len(episodes) > 0:
 			params['epi'] = episodes
 			if len(episodes) > 1:
-				where_snippets.append('fk_episode in %(epi)s')
+				where_snippets.append('fk_episode = ANY(%(epi)s)')
 			else:
-				where_snippets.append('fk_episode=%(epi)s')
+				where_snippets.append('fk_episode = %(epi)s')
 		# health issues
 		if not issues is None and len(issues) > 0:
 			params['issue'] = issues
 			if len(issues) > 1:
-				where_snippets.append('fk_health_issue in %(issue)s')
+				where_snippets.append('fk_health_issue = ANY(%(issue)s)')
 			else:
-				where_snippets.append('fk_health_issue=%(issue)s')
-
+				where_snippets.append('fk_health_issue = %(issue)s')
 		where_clause = ' and '.join(where_snippets)
 		order_by = 'order by src_table, age'
 		cmd = "%s WHERE %s %s" % (select_from, where_clause, order_by)
-
 		rows, view_col_idx = gmPG2.run_ro_query('historica', cmd, 1, params)
 		if rows is None:
 			_log.error('cannot load item links for patient [%s]' % self.pk_patient)
@@ -1455,36 +1446,32 @@ class cClinicalRecord(object):
 		}
 		allergenes = []
 		where_parts = []
-
 		if len(atcs) == 0:
 			atcs = None
 		if atcs is not None:
-			where_parts.append('atc_code in %(atcs)s')
+			where_parts.append('atc_code = ANY(%(atcs)s)')
 		if len(inns) == 0:
 			inns = None
 		if inns is not None:
-			where_parts.append('generics in %(inns)s')
+			where_parts.append('generics = ANY(%(inns)s)')
 			allergenes.extend(inns)
 		if product_name is not None:
 			where_parts.append('substance = %(prod_name)s')
 			allergenes.append(product_name)
-
 		if len(allergenes) != 0:
-			where_parts.append('allergene in %(allgs)s')
-			args['allgs'] = tuple(allergenes)
-
+			where_parts.append('allergene = ANY(%(allgs)s)')
+			args['allgs'] = allergenes
 		cmd = """
 SELECT * FROM clin.v_pat_allergies
 WHERE
 	pk_patient = %%(pat)s
 	AND ( %s )""" % ' OR '.join(where_parts)
-
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
-
 		if len(rows) == 0:
 			return False
 
 		return gmAllergy.cAllergy(row = {'data': rows[0], 'idx': idx, 'pk_field': 'pk_allergy'})
+
 	#--------------------------------------------------------
 	def _set_allergy_state(self, state):
 
@@ -1529,33 +1516,26 @@ WHERE
 			order_by = ''
 		else:
 			order_by = 'ORDER BY %s' % order_by
-
 		args = {
 			'pat': self.pk_patient,
 			'open': open_status
 		}
 		where_parts = ['pk_patient = %(pat)s']
-
 		if open_status is not None:
 			where_parts.append('episode_open IS %(open)s')
-
 		if unlinked_only:
 			where_parts.append('pk_health_issue is NULL')
-
 		if issues is not None:
-			where_parts.append('pk_health_issue IN %(issues)s')
-			args['issues'] = tuple(issues)
-
+			where_parts.append('pk_health_issue = ANY(%(issues)s)')
+			args['issues'] = issues
 		if id_list is not None:
-			where_parts.append('pk_episode IN %(epis)s')
-			args['epis'] = tuple(id_list)
-
+			where_parts.append('pk_episode = ANY(%(epis)s)')
+			args['epis'] = id_list
 		cmd = "SELECT * FROM clin.v_pat_episodes WHERE %s %s" % (
 			' AND '.join(where_parts),
 			order_by
 		)
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
-
 		return [ gmEMRStructItems.cEpisode(row = {'data': r, 'idx': idx, 'pk_field': 'pk_episode'}) for r in rows ]
 
 	episodes = property(get_episodes, lambda x:x)
@@ -1888,19 +1868,15 @@ WHERE
 		"""
 		args = {'pat': self.pk_patient}
 		where_parts = ['c_v_shots.pk_patient = %(pat)s']
-
 		if (episodes is not None) and (len(episodes) > 0):
-			where_parts.append('c_v_shots.pk_episode IN %(epis)s')
-			args['epis'] = tuple(episodes)
-
+			where_parts.append('c_v_shots.pk_episode = ANY(%(epis)s)')
+			args['epis'] = episodes
 		if (issues is not None) and (len(issues) > 0):
-			where_parts.append('c_v_shots.pk_episode IN (select pk from clin.episode where fk_health_issue IN %(issues)s)')
-			args['issues'] = tuple(issues)
-
+			where_parts.append('c_v_shots.pk_episode = ANY(SELECT pk FROM clin.episode WHERE fk_health_issue = ANY(%(issues)s))')
+			args['issues'] = issues
 		if (atc_indications is not None) and (len(atc_indications) > 0):
-			where_parts.append('c_v_plv4i.atc_indication IN %(atc_inds)s')
-			args['atc_inds'] = tuple(atc_indications)
-
+			where_parts.append('c_v_plv4i.atc_indication = ANY(%(atc_inds)s)')
+			args['atc_inds'] = atc_indications
 		# find the shots
 		cmd = """
 			SELECT
@@ -1913,7 +1889,6 @@ WHERE
 			WHERE %s
 		""" % '\nAND '.join(where_parts)
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
-
 		# none found
 		if len(rows) == 0:
 			return {}
@@ -1926,7 +1901,6 @@ WHERE
 				shot_row['no_of_shots'],
 				gmVaccination.cVaccination(row = {'idx': idx, 'data': shot_row, 'pk_field': 'pk_vaccination'})
 			)
-
 		return vaccs
 
 	#--------------------------------------------------------
@@ -2498,29 +2472,26 @@ WHERE
 		# if issues are given, translate them to their episodes
 		if (issues is not None) and (len(issues) > 0):
 			# - find episodes corresponding to the health issues in question
-			cmd = "SELECT distinct pk_episode FROM clin.v_pat_episodes WHERE pk_health_issue in %(issue_pks)s AND pk_patient = %(pat)s"
-			args = {'issue_pks': tuple(issues), 'pat': self.pk_patient}
+			cmd = "SELECT distinct pk_episode FROM clin.v_pat_episodes WHERE pk_health_issue = ANY(%(issue_pks)s) AND pk_patient = %(pat)s"
+			args = {'issue_pks': issues, 'pat': self.pk_patient}
 			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 			epis4issues_pks = [ r['pk_episode']  for r in rows ]
 			if episodes is None:
 				episodes = []
 			episodes.extend(epis4issues_pks)
-
 		if (episodes is not None) and (len(episodes) > 0):
 			# since the episodes to filter by belong to the patient in question so will
 			# the encounters found with them - hence we don't need a WHERE on the patient ...
 			# but, better safe than sorry ...
-			args = {'epi_pks': tuple(episodes), 'pat': self.pk_patient}
-			cmd = "SELECT distinct fk_encounter FROM clin.clin_root_item WHERE fk_episode IN %(epi_pks)s AND fk_encounter IN (SELECT pk FROM clin.encounter WHERE fk_patient = %(pat)s)"
+			args = {'epi_pks': episodes, 'pat': self.pk_patient}
+			cmd = "SELECT DISTINCT fk_encounter FROM clin.clin_root_item WHERE fk_episode = ANY(%(epi_pks)s) AND fk_encounter = ANY(SELECT pk FROM clin.encounter WHERE fk_patient = %(pat)s)"
 			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 			encs4epis_pks = [ r['fk_encounter'] for r in rows ]
 			if id_list is None:
 				id_list = []
 			id_list.extend(encs4epis_pks)
-
 		where_parts = ['c_vpe.pk_patient = %(pat)s']
 		args = {'pat': self.pk_patient}
-
 		if skip_empty:
 			where_parts.append("""NOT (
 				gm.is_null_or_blank_string(c_vpe.reason_for_encounter)
@@ -2532,27 +2503,21 @@ WHERE
 						UNION ALL
 					SELECT 1 FROM blobs.v_doc_med b_vdm WHERE b_vdm.pk_patient = %(pat)s AND b_vdm.pk_encounter = c_vpe.pk_encounter
 				))""")
-
 		if since is not None:
 			where_parts.append('c_vpe.started >= %(start)s')
 			args['start'] = since
-
 		if until is not None:
 			where_parts.append('c_vpe.last_affirmed <= %(end)s')
 			args['end'] = since
-
 		if (id_list is not None) and (len(id_list) > 0):
-			where_parts.append('c_vpe.pk_encounter IN %(enc_pks)s')
-			args['enc_pks'] = tuple(id_list)
-
+			where_parts.append('c_vpe.pk_encounter = ANY(%(enc_pks)s)')
+			args['enc_pks'] = id_list
 		if order_by is None:
 			order_by = 'c_vpe.started'
-
 		if max_encounters is None:
 			limit = ''
 		else:
 			limit = 'LIMIT %s' % max_encounters
-
 		cmd = """
 			SELECT * FROM clin.v_pat_encounters c_vpe
 			WHERE
@@ -2575,7 +2540,7 @@ WHERE
 			# the encounters found with them - hence we don't need a WHERE on the patient ...
 			# but, better safe than sorry ...
 			args = {'epi_pks': tuple(episodes), 'pat': self.pk_patient}
-			cmd = "SELECT distinct fk_encounter FROM clin.clin_root_item WHERE fk_episode IN %(epi_pks)s AND fk_encounter IN (SELECT pk FROM clin.encounter WHERE fk_patient = %(pat)s)"
+			cmd = "SELECT distinct fk_encounter FROM clin.clin_root_item WHERE fk_episode = ANY(%(epi_pks)s) AND fk_encounter IN (SELECT pk FROM clin.encounter WHERE fk_patient = %(pat)s)"
 			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 			encs4epis_pks = [ r['fk_encounter'] for r in rows ]
 			filtered_encounters = [ enc for enc in filtered_encounters if enc['pk_encounter'] in encs4epis_pks ]
@@ -2909,11 +2874,9 @@ SELECT MIN(earliest) FROM (
 		"""Get the dates for which we have results."""
 		where_parts = ['pk_patient = %(pat)s']
 		args = {'pat': self.pk_patient}
-
 		if tests is not None:
-			where_parts.append('pk_test_type IN %(tests)s')
-			args['tests'] = tuple(tests)
-
+			where_parts.append('pk_test_type = ANY(%(epi_pks)s)')
+			args['tests'] = tests
 		cmd = """
 			SELECT DISTINCT ON (clin_when_day)
 				clin_when_day,
@@ -2952,8 +2915,8 @@ SELECT MIN(earliest) FROM (
 		args = {'pat': self.pk_patient}
 
 		if tests is not None:
-			where_parts.append('pk_test_type IN %(tests)s')
-			args['tests'] = tuple(tests)
+			where_parts.append('pk_test_type = ANY(%(tests)s)')
+			args['tests'] = tests
 		where = ' AND '.join(where_parts)
 		cmd = """
 		SELECT * FROM ((
@@ -2992,22 +2955,17 @@ SELECT MIN(earliest) FROM (
 		)
 	#------------------------------------------------------------------
 	def get_test_results_by_date(self, encounter=None, episodes=None, tests=None, reverse_chronological=True):
-
 		where_parts = ['pk_patient = %(pat)s']
 		args = {'pat': self.pk_patient}
-
 		if tests is not None:
-			where_parts.append('pk_test_type IN %(tests)s')
-			args['tests'] = tuple(tests)
-
+			where_parts.append('pk_test_type = ANY(%(tests)s)')
+			args['tests'] = tests
 		if encounter is not None:
 			where_parts.append('pk_encounter = %(enc)s')
 			args['enc'] = encounter
-
 		if episodes is not None:
-			where_parts.append('pk_episode IN %(epis)s')
-			args['epis'] = tuple(episodes)
-
+			where_parts.append('pk_episode = ANY(%(epis)s)')
+			args['epis'] = episodes
 		cmd = """
 			SELECT * FROM clin.v_test_results
 			WHERE %s
@@ -3017,10 +2975,9 @@ SELECT MIN(earliest) FROM (
 			gmTools.bool2subst(reverse_chronological, 'DESC', 'ASC', 'DESC')
 		)
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
-
 		tests = [ gmPathLab.cTestResult(row = {'pk_field': 'pk_test_result', 'idx': idx, 'data': r}) for r in rows ]
-
 		return tests
+
 	#------------------------------------------------------------------
 	def add_test_result(self, episode=None, type=None, intended_reviewer=None, val_num=None, val_alpha=None, unit=None, link_obj=None):
 

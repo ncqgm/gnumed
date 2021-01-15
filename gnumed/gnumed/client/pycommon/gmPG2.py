@@ -2106,14 +2106,12 @@ def sanity_check_database_settings():
 	else:
 		options2check['log_connections'] = [['on'], 'non-compliance with HIPAA', None]
 		options2check['log_disconnections'] = [['on'], 'non-compliance with HIPAA', None]
-
-	cmd = "SELECT name, setting from pg_settings where name in %(settings)s"
+	cmd = 'SELECT name, setting FROM pg_settings WHERE name = ANY(%(settings)s)'
 	rows, idx = run_ro_queries (
 		link_obj = conn,
-		queries = [{'cmd': cmd, 'args': {'settings': tuple(options2check)}}],
+		queries = [{'cmd': cmd, 'args': {'settings': options2check}}],
 		get_col_idx = False
 	)
-
 	found_error = False
 	found_problem = False
 	msg = []

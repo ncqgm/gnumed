@@ -308,32 +308,26 @@ def get_form_template(name_long:str=None, external_version:str=None):
 #------------------------------------------------------------
 def get_form_templates(engine=None, active_only=False, template_types=None, excluded_types=None, return_pks=False):
 	"""Load form templates."""
-
 	args = {'eng': engine, 'in_use': active_only}
 	where_parts = ['1 = 1']
-
 	if engine is not None:
 		where_parts.append('engine = %(eng)s')
-
 	if active_only:
 		where_parts.append('in_use IS true')
-
 	if template_types is not None:
-		args['incl_types'] = tuple(template_types)
-		where_parts.append('template_type IN %(incl_types)s')
-
+		args['incl_types'] = template_types
+		where_parts.append('template_type = ANY(%(incl_types)s)')
 	if excluded_types is not None:
-		args['excl_types'] = tuple(excluded_types)
-		where_parts.append('template_type NOT IN %(excl_types)s')
-
+		args['excl_types'] = excluded_types
+		where_parts.append('template_type <> ALL(%(excl_types)s)')
 	cmd = "SELECT * FROM ref.v_paperwork_templates WHERE %s ORDER BY in_use desc, name_long" % '\nAND '.join(where_parts)
-
 	rows, idx = gmPG2.run_ro_queries (
 		queries = [{'cmd': cmd, 'args': args}],
 		get_col_idx = True
 	)
 	if return_pks:
 		return [ r['pk_paperwork_template'] for r in rows ]
+
 	templates = [ cFormTemplate(row = {'pk_field': 'pk_paperwork_template', 'data': r, 'idx': idx}) for r in rows ]
 	return templates
 

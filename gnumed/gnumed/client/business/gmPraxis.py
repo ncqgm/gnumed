@@ -303,8 +303,8 @@ def create_praxis_branches(pk_org_units=None):
 		"""
 		queries.append({'cmd': cmd, 'args': args})
 
-	args = {'fk_units': tuple(pk_org_units)}
-	cmd = """SELECT * from dem.v_praxis_branches WHERE pk_org_unit IN %(fk_units)s"""
+	args = {'fk_units': pk_org_units}
+	cmd = """SELECT * from dem.v_praxis_branches WHERE pk_org_unit = ANY(%(fk_units)s)"""
 	queries.append({'cmd': cmd, 'args': args})
 	rows, idx = gmPG2.run_rw_queries(queries = queries, return_data = True, get_col_idx = True)
 	return [ cPraxisBranch(row = {'data': r, 'idx': idx, 'pk_field': 'pk_praxis_branch'}) for r in rows ]
@@ -321,14 +321,12 @@ def delete_praxis_branch(pk_praxis_branch=None):
 
 #------------------------------------------------------------
 def delete_praxis_branches(pk_praxis_branches=None, except_pk_praxis_branches=None):
-
 	if pk_praxis_branches is None:
 		cmd = 'SELECT pk from dem.praxis_branch'
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = False)
 		pks_to_lock = [ r[0] for r in rows ]
 	else:
 		pks_to_lock = pk_praxis_branches[:]
-
 	if except_pk_praxis_branches is not None:
 		for pk in except_pk_praxis_branches:
 			try: pks_to_lock.remove(pk)
@@ -340,20 +338,16 @@ def delete_praxis_branches(pk_praxis_branches=None, except_pk_praxis_branches=No
 
 	args = {}
 	where_parts = []
-
 	if pk_praxis_branches is not None:
-		args['pks'] = tuple(pk_praxis_branches)
-		where_parts.append('pk IN %(pks)s')
-
+		args['pks'] = pk_praxis_branches
+		where_parts.append('pk = ANY(%(pks)s)')
 	if except_pk_praxis_branches is not None:
-		args['except'] = tuple(except_pk_praxis_branches)
-		where_parts.append('pk NOT IN %(except)s')
-
+		args['except'] = except_pk_praxis_branches
+		where_parts.append('pk <> ALL(%(except)s)')
 	if len(where_parts) == 0:
 		cmd = "DELETE FROM dem.praxis_branch"
 	else:
 		cmd = "DELETE FROM dem.praxis_branch WHERE %s" % ' AND '.join(where_parts)
-
 	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 	for pk in pks_to_lock:
 		unlock_praxis_branch(pk_praxis_branch = pk, exclusive = True)

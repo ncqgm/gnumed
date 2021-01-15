@@ -209,8 +209,8 @@ class cFamilyHistory(gmBusinessDBObject.cBusinessDBObject):
 		if len(self._payload[self._idx['pk_generic_codes']]) == 0:
 			return []
 
-		cmd = gmCoding._SQL_get_generic_linked_codes % 'pk_generic_code IN %(pks)s'
-		args = {'pks': tuple(self._payload[self._idx['pk_generic_codes']])}
+		cmd = gmCoding._SQL_get_generic_linked_codes % 'pk_generic_code = ANY(%(pks)s)'
+		args = {'pks': self._payload[self._idx['pk_generic_codes']]}
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 		return [ gmCoding.cGenericLinkedCode(row = {'data': r, 'idx': idx, 'pk_field': 'pk_lnk_code2item'}) for r in rows ]
 
@@ -219,10 +219,10 @@ class cFamilyHistory(gmBusinessDBObject.cBusinessDBObject):
 		# remove all codes
 		if len(self._payload[self._idx['pk_generic_codes']]) > 0:
 			queries.append ({
-				'cmd': 'DELETE FROM clin.lnk_code2fhx WHERE fk_item = %(fhx)s AND fk_generic_code IN %(codes)s',
+				'cmd': 'DELETE FROM clin.lnk_code2fhx WHERE fk_item = %(fhx)s AND fk_generic_code = ANY(%(codes)s)',
 				'args': {
 					'fhx': self._payload[self._idx['pk_family_history']],
-					'codes': tuple(self._payload[self._idx['pk_generic_codes']])
+					'codes': self._payload[self._idx['pk_generic_codes']]
 				}
 			})
 		# add new codes

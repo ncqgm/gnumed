@@ -329,8 +329,8 @@ class cTestPanel(gmBusinessDBObject.cBusinessDBObject):
 		if len(loincs) == 0:
 			cmd = 'DELETE FROM clin.lnk_loinc2test_panel WHERE fk_test_panel = %(pk_pnl)s'
 		else:
-			cmd = 'DELETE FROM clin.lnk_loinc2test_panel WHERE fk_test_panel = %(pk_pnl)s AND loinc NOT IN %(loincs)s'
-		queries.append({'cmd': cmd, 'args': {'loincs': tuple(loincs), 'pk_pnl': self._payload[self._idx['pk_test_panel']]}})
+			cmd = 'DELETE FROM clin.lnk_loinc2test_panel WHERE fk_test_panel = %(pk_pnl)s AND loinc <> ALL(%(loincs)s)'
+		queries.append({'cmd': cmd, 'args': {'loincs': loincs, 'pk_pnl': self._payload[self._idx['pk_test_panel']]}})
 		# add those not there yet
 		if len(loincs) > 0:
 			for loinc in loincs:
@@ -353,8 +353,8 @@ class cTestPanel(gmBusinessDBObject.cBusinessDBObject):
 
 		rows, idx = gmPG2.run_ro_queries (
 			queries = [{
-				'cmd': _SQL_get_test_types % 'pk_test_type IN %(pks)s ORDER BY unified_abbrev',
-				'args': {'pks': tuple([ tt['pk_test_type'] for tt in self._payload[self._idx['test_types']] ])}
+				'cmd': _SQL_get_test_types % 'pk_test_type = ANY(%(pks)s) ORDER BY unified_abbrev',
+				'args': {'pks': [ tt['pk_test_type'] for tt in self._payload[self._idx['test_types']] ]}
 			}],
 			get_col_idx = True
 		)
@@ -367,8 +367,8 @@ class cTestPanel(gmBusinessDBObject.cBusinessDBObject):
 		if len(self._payload[self._idx['pk_generic_codes']]) == 0:
 			return []
 
-		cmd = gmCoding._SQL_get_generic_linked_codes % 'pk_generic_code IN %(pks)s'
-		args = {'pks': tuple(self._payload[self._idx['pk_generic_codes']])}
+		cmd = gmCoding._SQL_get_generic_linked_codes % 'pk_generic_code = ANY(%(pks)s)'
+		args = {'pks': self._payload[self._idx['pk_generic_codes']]}
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 		return [ gmCoding.cGenericLinkedCode(row = {'data': r, 'idx': idx, 'pk_field': 'pk_lnk_code2item'}) for r in rows ]
 
@@ -377,10 +377,10 @@ class cTestPanel(gmBusinessDBObject.cBusinessDBObject):
 		# remove all codes
 		if len(self._payload[self._idx['pk_generic_codes']]) > 0:
 			queries.append ({
-				'cmd': 'DELETE FROM clin.lnk_code2tst_pnl WHERE fk_item = %(tp)s AND fk_generic_code IN %(codes)s',
+				'cmd': 'DELETE FROM clin.lnk_code2tst_pnl WHERE fk_item = %(tp)s AND fk_generic_code = ANY(%(codes)s)',
 				'args': {
 					'tp': self._payload[self._idx['pk_test_panel']],
-					'codes': tuple(self._payload[self._idx['pk_generic_codes']])
+					'codes': self._payload[self._idx['pk_generic_codes']]
 				}
 			})
 		# add new codes
@@ -962,13 +962,12 @@ def get_measurement_types(order_by=None, loincs=None, return_pks=False):
 	where_parts = []
 	if loincs is not None:
 		if len(loincs) > 0:
-			where_parts.append('loinc IN %(loincs)s')
-			args['loincs'] = tuple(loincs)
+			where_parts.append('loinc = ANY(%(loincs)s)')
+			args['loincs'] = loincs
 	if len(where_parts) == 0:
 		where_parts.append('TRUE')
 	WHERE_clause = ' AND '.join(where_parts)
 	cmd = (_SQL_get_test_types % WHERE_clause) + gmTools.coalesce(order_by, '', ' ORDER BY %s')
-	#cmd = 'select * from clin.v_test_types %s' % gmTools.coalesce(order_by, '', 'order by %s')
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 	if return_pks:
 		return [ r['pk_test_type'] for r in rows ]
@@ -2039,19 +2038,15 @@ def get_test_results(pk_patient=None, encounters=None, episodes=None, order_by=N
 	if pk_patient is not None:
 		where_parts.append('pk_patient = %(pat)s')
 		args = {'pat': pk_patient}
-
 #	if tests is not None:
-#		where_parts.append(u'pk_test_type IN %(tests)s')
-#		args['tests'] = tuple(tests)
-
+#		where_parts.append(u'pk_test_type = ANY(%(tests)s)')
+#		args['tests'] = tests
 	if encounters is not None:
-		where_parts.append('pk_encounter IN %(encs)s')
-		args['encs'] = tuple(encounters)
-
+		where_parts.append('pk_encounter = ANY(%(encs)s)')
+		args['encs'] = encounters
 	if episodes is not None:
-		where_parts.append('pk_episode IN %(epis)s')
-		args['epis'] = tuple(episodes)
-
+		where_parts.append('pk_episode = ANY(%(epis)s)')
+		args['epis'] = episodes
 	if order_by is None:
 		order_by = ''
 	else:
@@ -2186,8 +2181,8 @@ def get_result_at_timestamp(timestamp=None, test_type=None, loinc=None, toleranc
 	if test_type is not None:
 		where_parts.append('pk_test_type = %(ttyp)s')		# consider: pk_meta_test_type = %(pkmtt)s / self._payload[self._idx['pk_meta_test_type']]
 	elif loinc is not None:
-		where_parts.append('((loinc_tt IN %(loinc)s) OR (loinc_meta IN %(loinc)s))')
-		args['loinc'] = tuple(loinc)
+		where_parts.append('((loinc_tt = ANY(%(loinc)s)) OR (loinc_meta = ANY(%(loinc)s)))')
+		args['loinc'] = loinc
 
 	if tolerance_interval is None:
 		where_parts.append('clin_when = %(ts)s')
@@ -2433,8 +2428,8 @@ def get_most_recent_result_for_test_types(pk_test_types=None, pk_patient=None, r
 	args = {'pat': pk_patient}
 
 	if pk_test_types is not None:
-		where_parts.append('pk_test_type IN %(ttyps)s')
-		args['ttyps'] = tuple(pk_test_types)
+		where_parts.append('pk_test_type = ANY(%(ttyps)s)')
+		args['ttyps'] = pk_test_types
 
 	order_by = 'ORDER BY clin_when DESC' if order_by is None else 'ORDER BY %s' % order_by
 
@@ -2488,8 +2483,8 @@ def get_oldest_result(test_type=None, loinc=None, patient=None):
 	if test_type is not None:
 		where_parts.append('pk_test_type = %(ttyp)s')		# consider: pk_meta_test_type = %(pkmtt)s / self._payload[self._idx['pk_meta_test_type']]
 	elif loinc is not None:
-		where_parts.append('((loinc_tt IN %(loinc)s) OR (loinc_meta IN %(loinc)s))')
-		args['loinc'] = tuple(loinc)
+		where_parts.append('((loinc_tt = ANY(%(loinc)s)) OR (loinc_meta = ANY(%(loinc)s)))')
+		args['loinc'] = loinc
 
 	cmd = """
 		SELECT * FROM clin.v_test_results

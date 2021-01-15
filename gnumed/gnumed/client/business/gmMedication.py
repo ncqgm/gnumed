@@ -213,7 +213,7 @@ class cSubstance(gmBusinessDBObject.cBusinessDBObject):
 			gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 
 		# delete old entries
-		cmd = """DELETE FROM ref.lnk_loinc2substance WHERE fk_substance = %(pk_subst)s AND loinc NOT IN %(loincs)s"""
+		cmd = 'DELETE FROM ref.lnk_loinc2substance WHERE fk_substance = %(pk_subst)s AND loinc <> ALL(%(loincs)s)'
 		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 
 	loincs = property(lambda x:x, _set_loincs)
@@ -1528,13 +1528,13 @@ class cDrugProduct(gmBusinessDBObject.cBusinessDBObject):
 			queries.append({'cmd': cmd, 'args': args.copy()})
 
 		# DELETE those that don't belong anymore
-		args['doses2keep'] = tuple(pk_doses2keep)
+		args['doses2keep'] = pk_doses2keep
 		cmd = """
 			DELETE FROM ref.lnk_dose2drug
 			WHERE
 				fk_drug_product = %(pk_drug_product)s
 					AND
-				fk_dose NOT IN %(doses2keep)s"""
+				fk_dose <> ALL(%(doses2keep)s)"""
 		queries.append({'cmd': cmd, 'args': args})
 		gmPG2.run_rw_queries(link_obj = link_obj, queries = queries)
 		self.refetch_payload(link_obj = link_obj)
@@ -1670,8 +1670,8 @@ class cDrugProduct(gmBusinessDBObject.cBusinessDBObject):
 		pk_doses = [ c['pk_dose'] for c in self._payload[self._idx['components']] ]
 		if len(pk_doses) == 0:
 			return []
-		cmd = _SQL_get_substance_dose % 'pk_dose IN %(pks)s'
-		args = {'pks': tuple(pk_doses)}
+		cmd = _SQL_get_substance_dose % 'pk_dose = ANY(%(pks)s)'
+		args = {'pks': pk_doses}
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 		return [ cSubstanceDose(row = {'data': r, 'idx': idx, 'pk_field': 'pk_dose'}) for r in rows ]
 
@@ -1682,8 +1682,8 @@ class cDrugProduct(gmBusinessDBObject.cBusinessDBObject):
 		pk_substances = [ c['pk_substance'] for c in self._payload[self._idx['components']] ]
 		if len(pk_substances) == 0:
 			return []
-		cmd = _SQL_get_substance % 'pk_substance IN %(pks)s'
-		args = {'pks': tuple(pk_substances)}
+		cmd = _SQL_get_substance % 'pk_substance = ANY(%(pks)s)'
+		args = {'pks': pk_substances}
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 		return [ cSubstance(row = {'data': r, 'idx': idx, 'pk_field': 'pk_substance'}) for r in rows ]
 

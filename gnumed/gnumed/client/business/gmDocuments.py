@@ -172,7 +172,7 @@ class cDocumentFolder:
 	def get_unsigned_documents(self):
 		args = {'pat': self.pk_patient}
 		cmd = _SQL_get_document_fields % """
-			pk_doc IN (
+			pk_doc = ANY (
 				SELECT DISTINCT ON (b_vo.pk_doc) b_vo.pk_doc
 				FROM blobs.v_obj4doc_no_data b_vo
 				WHERE
@@ -187,41 +187,32 @@ class cDocumentFolder:
 	#--------------------------------------------------------
 	def get_documents(self, doc_type=None, pk_episodes=None, encounter=None, order_by=None, exclude_unsigned=False, pk_types=None):
 		"""Return list of documents."""
-
 		args = {
 			'pat': self.pk_patient,
 			'type': doc_type,
 			'enc': encounter
 		}
 		where_parts = ['pk_patient = %(pat)s']
-
 		if doc_type is not None:
 			try:
 				int(doc_type)
 				where_parts.append('pk_type = %(type)s')
 			except (TypeError, ValueError):
 				where_parts.append('pk_type = (SELECT pk FROM blobs.doc_type WHERE name = %(type)s)')
-
-		if pk_types is not None:
-			where_parts.append('pk_type IN %(pk_types)s')
-			args['pk_types'] = tuple(pk_types)
-
-		if (pk_episodes is not None) and (len(pk_episodes) > 0):
-			where_parts.append('pk_episode IN %(epis)s')
-			args['epis'] = tuple(pk_episodes)
-
+		if pk_types:
+			where_parts.append('pk_type = ANY(%(pk_types)s)')
+			args['pk_types'] = pk_types
+		if pk_episodes:
+			where_parts.append('pk_episode = ANY(%(epis)s)')
+			args['epis'] = pk_episodes
 		if encounter is not None:
 			where_parts.append('pk_encounter = %(enc)s')
-
 		if exclude_unsigned:
-			where_parts.append('pk_doc IN (SELECT b_vo.pk_doc FROM blobs.v_obj4doc_no_data b_vo WHERE b_vo.pk_patient = %(pat)s AND b_vo.reviewed IS TRUE)')
-
+			where_parts.append('pk_doc = ANY(SELECT b_vo.pk_doc FROM blobs.v_obj4doc_no_data b_vo WHERE b_vo.pk_patient = %(pat)s AND b_vo.reviewed IS TRUE)')
 		if order_by is None:
 			order_by = 'ORDER BY clin_when'
-
 		cmd = "%s\n%s" % (_SQL_get_document_fields % ' AND '.join(where_parts), order_by)
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
-
 		return [ cDocument(row = {'pk_field': 'pk_doc', 'idx': idx, 'data': r}) for r in rows ]
 
 	documents = property(get_documents, lambda x:x)
@@ -1024,8 +1015,8 @@ def search_for_documents(patient_id=None, type_id=None, external_reference=None,
 		where_parts.append('pk_episode = %(pk_epi)s')
 
 	if pk_types is not None:
-		where_parts.append('pk_type IN %(pk_types)s')
-		args['pk_types'] = tuple(pk_types)
+		where_parts.append('pk_type = ANY(%(pk_types)s)')
+		args['pk_types'] = pk_types
 
 	cmd = _SQL_get_document_fields % ' AND '.join(where_parts)
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
@@ -1133,8 +1124,8 @@ def get_document_type_pk(document_type=None):
 
 #------------------------------------------------------------
 def map_types2pk(document_types=None):
-	args = {'types': tuple(document_types)}
-	cmd = 'SELECT pk_doc_type, coalesce(l10n_type, type) as desc FROM blobs.v_doc_type WHERE l10n_type IN %(types)s OR type IN %(types)s'
+	args = {'types': document_types}
+	cmd = 'SELECT pk_doc_type, coalesce(l10n_type, type) as desc FROM blobs.v_doc_type WHERE l10n_type = ANY(%(types)s) OR type = ANY(%(types)s)'
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
 	return rows
 
@@ -1281,14 +1272,15 @@ if __name__ == '__main__':
 		#photo = doc_folder.get_latest_mugshot()
 		#print type(photo), photo
 
-		docs = doc_folder.get_documents()
+		docs = doc_folder.get_documents(pk_types = [16])
 		for doc in docs:
 			#print type(doc), doc
 			#print doc.parts
 			#print doc.format_single_line()
 			print('--------------------------')
-			print(doc.format(single_line = True))
+			#print(doc.format(single_line = True))
 			print(doc.format())
+			#print(doc['pk_type'])
 
 	#--------------------------------------------------------
 	def test_get_useful_filename():
@@ -1350,11 +1342,13 @@ if __name__ == '__main__':
 	gmI18N.activate_locale()
 	gmI18N.install_domain()
 
+	gmPG2.request_login_params(setup_pool = True)
+
 	#test_doc_types()
 	#test_adding_doc_part()
-	#test_get_documents()
+	test_get_documents()
 	#test_get_useful_filename()
 	#test_part_metainfo_formatter()
-	test_check_mimetypes_in_archive()
+	#test_check_mimetypes_in_archive()
 
 #	print get_ext_ref()

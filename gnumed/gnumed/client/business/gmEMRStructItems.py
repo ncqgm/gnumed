@@ -974,8 +974,8 @@ FROM (
 		if len(self._payload[self._idx['pk_generic_codes']]) == 0:
 			return []
 
-		cmd = gmCoding._SQL_get_generic_linked_codes % 'pk_generic_code IN %(pks)s'
-		args = {'pks': tuple(self._payload[self._idx['pk_generic_codes']])}
+		cmd = gmCoding._SQL_get_generic_linked_codes % 'pk_generic_code = ANY(%(pks)s)'
+		args = {'pks': self._payload[self._idx['pk_generic_codes']]}
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 		return [ gmCoding.cGenericLinkedCode(row = {'data': r, 'idx': idx, 'pk_field': 'pk_lnk_code2item'}) for r in rows ]
 
@@ -984,10 +984,10 @@ FROM (
 		# remove all codes
 		if len(self._payload[self._idx['pk_generic_codes']]) > 0:
 			queries.append ({
-				'cmd': 'DELETE FROM clin.lnk_code2h_issue WHERE fk_item = %(issue)s AND fk_generic_code IN %(codes)s',
+				'cmd': 'DELETE FROM clin.lnk_code2h_issue WHERE fk_item = %(issue)s AND fk_generic_code = ANY(%(codes)s)',
 				'args': {
 					'issue': self._payload[self._idx['pk_health_issue']],
-					'codes': tuple(self._payload[self._idx['pk_generic_codes']])
+					'codes': self._payload[self._idx['pk_generic_codes']]
 				}
 			})
 		# add new codes
@@ -1681,8 +1681,8 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 		if len(self._payload[self._idx['pk_generic_codes']]) == 0:
 			return []
 
-		cmd = gmCoding._SQL_get_generic_linked_codes % 'pk_generic_code IN %(pks)s'
-		args = {'pks': tuple(self._payload[self._idx['pk_generic_codes']])}
+		cmd = gmCoding._SQL_get_generic_linked_codes % 'pk_generic_code = ANY(%(pks)s)'
+		args = {'pks': self._payload[self._idx['pk_generic_codes']]}
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 		return [ gmCoding.cGenericLinkedCode(row = {'data': r, 'idx': idx, 'pk_field': 'pk_lnk_code2item'}) for r in rows ]
 
@@ -1691,10 +1691,10 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 		# remove all codes
 		if len(self._payload[self._idx['pk_generic_codes']]) > 0:
 			queries.append ({
-				'cmd': 'DELETE FROM clin.lnk_code2episode WHERE fk_item = %(epi)s AND fk_generic_code IN %(codes)s',
+				'cmd': 'DELETE FROM clin.lnk_code2episode WHERE fk_item = %(epi)s AND fk_generic_code = ANY(%(codes)s)',
 				'args': {
 					'epi': self._payload[self._idx['pk_episode']],
-					'codes': tuple(self._payload[self._idx['pk_generic_codes']])
+					'codes': self._payload[self._idx['pk_generic_codes']]
 				}
 			})
 		# add new codes
@@ -2264,11 +2264,11 @@ select exists (
 				WHERE
 					fk_encounter = %(enc)s
 						AND
-					soap_cat IN %(cats)s
+					soap_cat = ANY(%(cats)s)
 				LIMIT 1
 			)
 		"""
-		args = {'enc': self._payload[self._idx['pk_encounter']], 'cats': tuple(cats)}
+		args = {'enc': self._payload[self._idx['pk_encounter']], 'cats': cats}
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd,'args': args}])
 		return rows[0][0]
 	#--------------------------------------------------------
@@ -2341,16 +2341,15 @@ limit 1
 			) %s"""
 		args = {'enc': self.pk_obj}
 		if exclude is not None:
-			cmd = cmd % 'AND pk_episode NOT IN %(excluded)s'
-			args['excluded'] = tuple(exclude)
+			cmd = cmd % 'AND pk_episode <> ALL(%(loincs)s)'
+			args['excluded'] = exclude
 		else:
 			cmd = cmd % ''
-
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
-
 		return [ cEpisode(row = {'data': r, 'idx': idx, 'pk_field': 'pk_episode'})  for r in rows ]
 
 	episodes = property(get_episodes, lambda x:x)
+
 	#--------------------------------------------------------
 	def add_code(self, pk_code=None, field=None):
 		"""<pk_code> must be a value from ref.coding_system_root.pk_coding_system (clin.lnk_code2item_root.fk_generic_code)"""
@@ -2366,6 +2365,7 @@ limit 1
 		}
 		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 		return True
+
 	#--------------------------------------------------------
 	def remove_code(self, pk_code=None, field=None):
 		"""<pk_code> must be a value from ref.coding_system_root.pk_coding_system (clin.lnk_code2item_root.fk_generic_code)"""
@@ -2909,8 +2909,8 @@ limit 1
 		if len(self._payload[self._idx['pk_generic_codes_rfe']]) == 0:
 			return []
 
-		cmd = gmCoding._SQL_get_generic_linked_codes % 'pk_generic_code IN %(pks)s'
-		args = {'pks': tuple(self._payload[self._idx['pk_generic_codes_rfe']])}
+		cmd = gmCoding._SQL_get_generic_linked_codes % 'pk_generic_code = ANY(%(pks)s)'
+		args = {'pks': self._payload[self._idx['pk_generic_codes_rfe']]}
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 		return [ gmCoding.cGenericLinkedCode(row = {'data': r, 'idx': idx, 'pk_field': 'pk_lnk_code2item'}) for r in rows ]
 
@@ -2919,10 +2919,10 @@ limit 1
 		# remove all codes
 		if len(self._payload[self._idx['pk_generic_codes_rfe']]) > 0:
 			queries.append ({
-				'cmd': 'DELETE FROM clin.lnk_code2rfe WHERE fk_item = %(enc)s AND fk_generic_code IN %(codes)s',
+				'cmd': 'DELETE FROM clin.lnk_code2rfe WHERE fk_item = %(enc)s AND fk_generic_code = ANY(%(codes)s)',
 				'args': {
 					'enc': self._payload[self._idx['pk_encounter']],
-					'codes': tuple(self._payload[self._idx['pk_generic_codes_rfe']])
+					'codes': self._payload[self._idx['pk_generic_codes_rfe']]
 				}
 			})
 		# add new codes
@@ -2947,8 +2947,8 @@ limit 1
 		if len(self._payload[self._idx['pk_generic_codes_aoe']]) == 0:
 			return []
 
-		cmd = gmCoding._SQL_get_generic_linked_codes % 'pk_generic_code IN %(pks)s'
-		args = {'pks': tuple(self._payload[self._idx['pk_generic_codes_aoe']])}
+		cmd = gmCoding._SQL_get_generic_linked_codes % 'pk_generic_code = ANY(%(pks)s)'
+		args = {'pks': self._payload[self._idx['pk_generic_codes_aoe']]}
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 		return [ gmCoding.cGenericLinkedCode(row = {'data': r, 'idx': idx, 'pk_field': 'pk_lnk_code2item'}) for r in rows ]
 
@@ -2957,10 +2957,10 @@ limit 1
 		# remove all codes
 		if len(self._payload[self._idx['pk_generic_codes_aoe']]) > 0:
 			queries.append ({
-				'cmd': 'DELETE FROM clin.lnk_code2aoe WHERE fk_item = %(enc)s AND fk_generic_code IN %(codes)s',
+				'cmd': 'DELETE FROM clin.lnk_code2aoe WHERE fk_item = %(enc)s AND fk_generic_code = ANY(%(codes)s)',
 				'args': {
 					'enc': self._payload[self._idx['pk_encounter']],
-					'codes': tuple(self._payload[self._idx['pk_generic_codes_aoe']])
+					'codes': self._payload[self._idx['pk_generic_codes_aoe']]
 				}
 			})
 		# add new codes
@@ -3707,8 +3707,8 @@ class cPerformedProcedure(gmBusinessDBObject.cBusinessDBObject):
 		if len(self._payload[self._idx['pk_generic_codes']]) == 0:
 			return []
 
-		cmd = gmCoding._SQL_get_generic_linked_codes % 'pk_generic_code IN %(pks)s'
-		args = {'pks': tuple(self._payload[self._idx['pk_generic_codes']])}
+		cmd = gmCoding._SQL_get_generic_linked_codes % 'pk_generic_code = ANY(%(pks)s)'
+		args = {'pks': self._payload[self._idx['pk_generic_codes']]}
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 		return [ gmCoding.cGenericLinkedCode(row = {'data': r, 'idx': idx, 'pk_field': 'pk_lnk_code2item'}) for r in rows ]
 
@@ -3717,10 +3717,10 @@ class cPerformedProcedure(gmBusinessDBObject.cBusinessDBObject):
 		# remove all codes
 		if len(self._payload[self._idx['pk_generic_codes']]) > 0:
 			queries.append ({
-				'cmd': 'DELETE FROM clin.lnk_code2procedure WHERE fk_item = %(proc)s AND fk_generic_code IN %(codes)s',
+				'cmd': 'DELETE FROM clin.lnk_code2procedure WHERE fk_item = %(proc)s AND fk_generic_code = ANY(%(codes)s)',
 				'args': {
 					'proc': self._payload[self._idx['pk_procedure']],
-					'codes': tuple(self._payload[self._idx['pk_generic_codes']])
+					'codes': self._payload[self._idx['pk_generic_codes']]
 				}
 			})
 		# add new codes

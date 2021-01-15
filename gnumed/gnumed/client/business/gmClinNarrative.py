@@ -136,8 +136,8 @@ class cNarrative(gmBusinessDBObject.cBusinessDBObject):
 		if len(self._payload[self._idx['pk_generic_codes']]) == 0:
 			return []
 
-		cmd = gmCoding._SQL_get_generic_linked_codes % 'pk_generic_code IN %(pks)s'
-		args = {'pks': tuple(self._payload[self._idx['pk_generic_codes']])}
+		cmd = gmCoding._SQL_get_generic_linked_codes % 'pk_generic_code = ANY(%(pks)s)'
+		args = {'pks': self._payload[self._idx['pk_generic_codes']]}
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 		return [ gmCoding.cGenericLinkedCode(row = {'data': r, 'idx': idx, 'pk_field': 'pk_lnk_code2item'}) for r in rows ]
 
@@ -146,10 +146,10 @@ class cNarrative(gmBusinessDBObject.cBusinessDBObject):
 		# remove all codes
 		if len(self._payload[self._idx['pk_generic_codes']]) > 0:
 			queries.append ({
-				'cmd': 'DELETE FROM clin.lnk_code2narrative WHERE fk_item = %(narr)s AND fk_generic_code IN %(codes)s',
+				'cmd': 'DELETE FROM clin.lnk_code2narrative WHERE fk_item = %(narr)s AND fk_generic_code = ANY(%(codes)s)',
 				'args': {
 					'narr': self._payload[self._idx['pk_narrative']],
-					'codes': tuple(self._payload[self._idx['pk_generic_codes']])
+					'codes': self._payload[self._idx['pk_generic_codes']]
 				}
 			})
 		# add new codes
@@ -306,32 +306,25 @@ def get_narrative(since=None, until=None, encounters=None, episodes=None, issues
 	"""
 	where_parts = ['TRUE']
 	args = {}
-
 	if encounters is not None:
-		where_parts.append('pk_encounter IN %(encs)s')
-		args['encs'] = tuple(encounters)
-
+		where_parts.append('pk_encounter = ANY(%(encs)s)')
+		args['encs'] = encounters
 	if episodes is not None:
-		where_parts.append('pk_episode IN %(epis)s')
-		args['epis'] = tuple(episodes)
-
+		where_parts.append('pk_episode = ANY(%(epis)s)')
+		args['epis'] = episodes
 	if issues is not None:
-		where_parts.append('pk_health_issue IN %(issues)s')
-		args['issues'] = tuple(issues)
-
+		where_parts.append('pk_health_issue = ANY(%(issues)s)')
+		args['issues'] = issues
 	if patient is not None:
 		where_parts.append('pk_patient = %(pat)s')
 		args['pat'] = patient
-
 	if soap_cats is not None:
-		where_parts.append('c_vn.soap_cat IN %(soap_cats)s')
-		args['soap_cats'] = tuple(soap_cats)
-
+		where_parts.append('c_vn.soap_cat = ANY(%(soap_cats)s)')
+		args['soap_cats'] = soap_cats
 	if order_by is None:
 		order_by = 'ORDER BY date, soap_rank'
 	else:
 		order_by = 'ORDER BY %s' % order_by
-
 	cmd = """
 		SELECT
 			c_vn.*,
@@ -388,34 +381,27 @@ def get_as_journal(since=None, until=None, encounters=None, episodes=None, issue
 
 	where_parts = []
 	args = {}
-
 	if patient is not None:
 		where_parts.append('c_vej.pk_patient = %(pat)s')
 		args['pat'] = patient
-
 	if soap_cats is not None:
 		# work around bug in psycopg2 not being able to properly
 		# adapt None to NULL inside tuples
 		if None in soap_cats:
-			where_parts.append('((c_vej.soap_cat IN %(soap_cat)s) OR (c_vej.soap_cat IS NULL))')
+			where_parts.append('((c_vej.soap_cat = ANY(%(soap_cat)s)) OR (c_vej.soap_cat IS NULL))')
 			soap_cats.remove(None)
 		else:
-			where_parts.append('c_vej.soap_cat IN %(soap_cat)s')
-		args['soap_cat'] = tuple(soap_cats)
-
+			where_parts.append('c_vej.soap_cat = ANY(%(soap_cat)s)')
+		args['soap_cat'] = soap_cats
 	if time_range is not None:
 		where_parts.append("c_vej.clin_when > (now() - '%s days'::interval)" % time_range)
-
 	if episodes is not None:
-		where_parts.append("c_vej.pk_episode IN %(epis)s")
-		args['epis'] = tuple(episodes)
-
+		where_parts.append("c_vej.pk_episode = ANY(%(epis)s)")
+		args['epis'] = episodes
 	if issues is not None:
-		where_parts.append("c_vej.pk_health_issue IN %(issues)s")
-		args['issues'] = tuple(issues)
-
+		where_parts.append("c_vej.pk_health_issue = ANY(%(issues)s)")
+		args['issues'] = issues
 	# FIXME: implement more constraints
-
 	cmd_journal = """
 		SELECT
 			to_char(c_vej.clin_when, 'YYYY-MM-DD') AS date,

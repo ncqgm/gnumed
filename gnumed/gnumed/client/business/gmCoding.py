@@ -85,12 +85,12 @@ def get_coded_terms(coding_systems=None, languages=None, order_by=None):
 	args = {}
 
 	if coding_systems is not None:
-		where_snippets.append("((coding_system IN %(sys)s) OR (coding_system_long IN %(sys)s)")
-		args['sys'] = tuple(coding_systems)
+		where_snippets.append("((coding_system = ANY(%(sys)s)) OR (coding_system_long = ANY(%(sys)s))")
+		args['sys'] = coding_systems
 
 	if languages is not None:
-		where_snippets.append('lang IN %(lang)s')
-		args['lang'] = tuple(languages)
+		where_snippets.append('lang = ANY(%(lang)s)')
+		args['lang'] = languages
 
 	cmd = 'select * from ref.v_coded_terms'
 

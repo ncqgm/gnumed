@@ -302,31 +302,26 @@ def get_generic_emr_items(encounters=None, episodes=None, issues=None, patient=N
 	if patient is not None:
 		where_parts.append('c_vej.pk_patient = %(pat)s')
 		args['pat'] = patient
-
 	if soap_cats is not None:
 		# work around bug in psycopg2 not being able to properly
 		# adapt None to NULL inside tuples
 		if None in soap_cats:
-			where_parts.append('((c_vej.soap_cat IN %(soap_cat)s) OR (c_vej.soap_cat IS NULL))')
+			where_parts.append('((c_vej.soap_cat = ANY(%(soap_cat)s)) OR (c_vej.soap_cat IS NULL))')
 			soap_cats.remove(None)
 		else:
-			where_parts.append('c_vej.soap_cat IN %(soap_cat)s')
-		args['soap_cat'] = tuple(soap_cats)
-
+			where_parts.append('c_vej.soap_cat = ANY(%(soap_cat)s)')
+		args['soap_cat'] = soap_cats
 	if time_range is not None:
 		where_parts.append("c_vej.clin_when > (now() - '%s days'::interval)" % time_range)
-
 	if encounters is not None:
-		where_parts.append("c_vej.pk_encounter IN %(encs)s")
-		args['encs'] = tuple(encounters)
-
+		where_parts.append("c_vej.pk_encounter = ANY(%(encs)s)")
+		args['encs'] = encounters
 	if episodes is not None:
-		where_parts.append("c_vej.pk_episode IN %(epis)s")
-		args['epis'] = tuple(episodes)
-
+		where_parts.append("c_vej.pk_episode = ANY(%(epis)s)")
+		args['epis'] = episodes
 	if issues is not None:
-		where_parts.append("c_vej.pk_health_issue IN %(issues)s")
-		args['issues'] = tuple(issues)
+		where_parts.append("c_vej.pk_health_issue = ANY(%(issues)s)")
+		args['issues'] = issues
 
 	cmd_journal = _SQL_get_generic_emr_items
 	if len(where_parts) > 0:
