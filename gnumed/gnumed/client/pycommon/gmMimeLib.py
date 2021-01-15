@@ -282,19 +282,42 @@ def join_files_as_pdf(files:[]=None, pdf_name:str=None) -> str:
 #-----------------------------------------------------------------------------------
 # mimetype conversion helpers
 #-----------------------------------------------------------------------------------
-def __convert_latex_to_pdf(filename=None, verbose=False):
+__LaTeX_version_checked = False
+__pdflatex_executable = None
 
-	found, platform_executable = gmShellAPI.detect_external_binary(binary = 'pdflatex')
-	if not found:
-		return None
+def convert_latex_to_pdf(filename:str=None, verbose:bool=False, is_sandboxed:bool=False) -> str:
+	"""Compile LaTeX code to PDF using pdflatex.
 
-	# make sandbox
-	sandbox_dir = gmTools.mk_sandbox_dir(prefix = gmTools.fname_stem(filename) + '_')
+	Args:
+		is_sandboxed: whether or not to create a sandbox for compiling
+
+	Returns:
+		Name of resulting PDF, or None on failure.
+	"""
+	global __LaTeX_version_checked
+	global __pdflatex_executable
+	if not __LaTeX_version_checked:
+		__LaTeX_version_checked = True
+		found, __pdflatex_executable = gmShellAPI.detect_external_binary(binary = 'pdflatex')
+		if not found:
+			_log.error('pdflatex not found')
+			return None
+
+		cmd_line = [__pdflatex_executable, '-version']
+		success, ret_code, stdout = gmShellAPI.run_process(cmd_line = cmd_line, encoding = 'utf8', verbose = True)
+		if not success:
+			_log.error('[%s] failed, LaTeX not usable', cmd_line)
+			return None
+
+	if is_sandboxed:
+		sandbox_dir = os.path.split(filename)[0]
+	else:
+		sandbox_dir = gmTools.mk_sandbox_dir(prefix = gmTools.fname_stem(filename) + '_')
+		shutil.copy(filename, sandbox_dir)
+		filename = os.path.join(sandbox_dir, os.path.split(filename)[1])
 	_log.debug('LaTeX sandbox directory: [%s]', sandbox_dir)
-	shutil.copy(filename, sandbox_dir)
-	filename = os.path.join(sandbox_dir, os.path.split(filename)[1])
 	cmd_final = [
-		platform_executable,
+		__pdflatex_executable,
 		'-recorder',
 		'-interaction=nonstopmode',
 		"-output-directory=%s" % sandbox_dir
@@ -348,7 +371,7 @@ __CONVERSION_DELEGATES = {
 		'application/pdf': __convert_odt_to_pdf
 	},
 	'text/latex': {
-		'application/pdf': __convert_latex_to_pdf
+		'application/pdf': convert_latex_to_pdf
 	}
 }
 

@@ -1104,9 +1104,7 @@ class cLaTeXForm(cFormEngine):
 		'text/x-tex',
 		'text/plain'
 	]
-
 	def __init__(self, template_file=None):
-
 		# create sandbox for LaTeX to play in (and don't assume
 		# much of anything about the template_file except that it
 		# is at our disposal for reading)
@@ -1114,30 +1112,8 @@ class cLaTeXForm(cFormEngine):
 		_log.debug('LaTeX sandbox directory: [%s]', sandbox_dir)
 		shutil.copy(template_file, sandbox_dir)
 		template_file = os.path.join(sandbox_dir, os.path.split(template_file)[1])
-
 		super().__init__(template_file = template_file)
-
 		self.__sandbox_dir = sandbox_dir
-
-		# set up PDF generator
-		if platform.system() == 'Windows':
-			executable = 'pdflatex.exe'
-		else:
-			executable = 'pdflatex'
-		self._final_cmd_line = [
-			executable,
-			'-recorder',
-			'-interaction=nonstopmode',
-			"-output-directory=%s" % self.__sandbox_dir
-		]
-		self._draft_cmd_line = self._final_cmd_line + ['-draftmode']
-
-		if not cLaTeXForm._version_checked:
-			cLaTeXForm._version_checked = True
-			cmd_line = [executable, '-version']
-			success, ret_code, stdout = gmShellAPI.run_process(cmd_line = cmd_line, encoding = 'utf8', verbose = True)
-			if not success:
-				_log.error('[%s] failed, LaTeX forms not usable', cmd_line)
 
 	#--------------------------------------------------------
 	def _rst2latex_transform(self, text):
@@ -1311,7 +1287,6 @@ class cLaTeXForm(cFormEngine):
 
 		if instance_file is None:
 			instance_file = self.instance_filename
-
 		try:
 			open(instance_file, 'r').close()
 		except Exception:
@@ -1320,36 +1295,15 @@ class cLaTeXForm(cFormEngine):
 			return None
 
 		self.instance_filename = instance_file
-
 		_log.debug('ignoring <format> directive [%s], generating PDF', format)
-		draft_cmd = self._draft_cmd_line + [self.instance_filename]
-		final_cmd = self._final_cmd_line + [self.instance_filename]
-		# LaTeX can need up to three runs to get cross references et al right
-		for run_cmd in [draft_cmd, draft_cmd, final_cmd]:
-			success, ret_code, stdout = gmShellAPI.run_process (
-				cmd_line = run_cmd,
-				acceptable_return_codes = [0],
-				encoding = 'utf8',
-				verbose = _cfg.get(option = 'debug')
-			)
-			if not success:
-				_log.error('problem running pdflatex, cannot generate form output, trying diagnostics')
-				gmDispatcher.send(signal = 'statustext', msg = _('Error running pdflatex. Cannot turn LaTeX template into PDF.'), beep = True)
-				found, binary = gmShellAPI.find_first_binary(binaries = ['lacheck', 'miktex-lacheck.exe'])
-				if not found:
-					_log.debug('lacheck not found')
-				else:
-					cmd_line = [binary, self.instance_filename]
-					success, ret_code, stdout = gmShellAPI.run_process(cmd_line = cmd_line, encoding = 'utf8', verbose = True)
-				found, binary = gmShellAPI.find_first_binary(binaries = ['chktex', 'ChkTeX.exe'])
-				if not found:
-					_log.debug('chcktex not found')
-				else:
-					cmd_line = [binary, '--verbosity=2', '--headererr', self.instance_filename]
-					success, ret_code, stdout = gmShellAPI.run_process(cmd_line = cmd_line, encoding = 'utf8', verbose = True)
-				return None
+		sandboxed_pdf_name = gmMimeLib.convert_latex_to_pdf (
+			filename = self.instance_filename,
+			verbose = _cfg.get(option = 'debug'),
+			is_sandboxed = True
+		)
+		if sandboxed_pdf_name is None:
+			return None
 
-		sandboxed_pdf_name = '%s.pdf' % os.path.splitext(self.instance_filename)[0]
 		target_dir = os.path.normpath(os.path.join(os.path.split(sandboxed_pdf_name)[0], '..'))
 		final_pdf_name = os.path.join (
 			target_dir,
@@ -1364,7 +1318,6 @@ class cLaTeXForm(cFormEngine):
 			return None
 
 		self.final_output_filenames = [final_pdf_name]
-
 		return final_pdf_name
 
 #------------------------------------------------------------

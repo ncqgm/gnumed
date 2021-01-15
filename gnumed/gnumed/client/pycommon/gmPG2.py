@@ -353,7 +353,7 @@ def request_login_params(setup_pool=False):
 		try:
 			login, creds = __request_login_params_gui_wx()
 		except Exception:
-			pass
+			_log.exception('cannot request creds via wxPython')
 		if setup_pool:
 			pool = gmConnectionPool.gmConnectionPool()
 			pool.credentials = creds
