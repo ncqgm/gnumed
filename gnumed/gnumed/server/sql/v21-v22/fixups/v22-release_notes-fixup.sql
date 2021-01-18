@@ -17,22 +17,22 @@ INSERT INTO dem.message_inbox (
 ) VALUES (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
-	'Release Notes for GNUmed 1.8.4 (database v22.14)',
-	'GNUmed 1.8.4 Release Notes:
+	'Release Notes for GNUmed 1.8.5 (database v22.15)',
+	'GNUmed 1.8.5 Release Notes:
 
-	1.8.4
+	1.8.5
 
-IMPROVED: exceptions: always include exception/traceback in mail
-IMPROVED: PACS: robustify DICOM upload
+FIX: image conversion w/o target extension [thanks ...]
+FIX: SVG icon [thanks freddii]
+FIX: lab: tab "most-recent": [x]ing "show missing" throws exception
+FIX: log: exception on inaccessible attributes
 
-FIX: placeholders: exception on parsing some option styles
-FIX: address: nominatim.openstreetmap.org API has changed
-FIX: documents: properly wipe details display between patients
+NEW: add CoVid-2019 vaccines
 
-	22.14
+	22.15
 
-FIX: bootstrapper exception calling capture_conn_state()
+FIX: message inbox view
 ');
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('v22-release_notes-fixup.sql', '22.14@1.8.4');
+select gm.log_script_insertion('v22-release_notes-fixup.sql', '22.15@1.8.5');
