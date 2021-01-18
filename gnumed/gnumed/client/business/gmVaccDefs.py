@@ -200,6 +200,11 @@ _VACCINE_SUBSTANCES = {
 	},
 
 	# viral
+	'sars-cov-2-mrna': {
+		'name': 'SARS-CoV-2 spike protein mRNA',
+		'atc4target': 'J07BX03',
+		'target': _('J07BX03-target::CoViD-2019')
+	},
 
 	'fsme': {
 		'name': 'flavivirus, tick-borne',
@@ -505,6 +510,13 @@ _GENERIC_VACCINES = {
 		'atc': 'J07BA',
 		'live': False,
 		'ingredients': ['fsme']
+	},
+
+	'CoViD-2019': {
+		'name': _('generic CoViD-2019 vaccine'),
+		'atc': 'J07BX03',
+		'live': False,
+		'ingredients': ['sars-cov-2-mrna']
 	},
 
 	'japanese encephalitis': {
