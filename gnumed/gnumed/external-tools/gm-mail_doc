@@ -3,7 +3,7 @@
 #------------------------------------------------------
 # This file is used by GNUmed to e-mail documents.
 #
-# It will be called with a list of attachements
+# It will be called with a list of attachments
 # to include into the mail.
 #
 # The first attachment is the VCF of the current

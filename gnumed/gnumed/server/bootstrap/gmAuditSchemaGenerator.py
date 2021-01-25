@@ -9,7 +9,7 @@ Any table that needs to be audited (all modifications
 logged) must be recorded in the table "audit.audited_tables".
 
 This script creates the triggers, functions and tables
-neccessary to establish the audit trail. Some or all
+necessary to establish the audit trail. Some or all
 audit trail tables may have been created previously but
 need not contain all columns of the audited table. Do not
 put any constraints on the audit trail tables except for

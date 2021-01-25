@@ -160,7 +160,7 @@ class pgobject:
 			self._update_metadata()
 		# are we dealing with a fetched row or with a new record?
 		if self._row is None:
-			#create an empty record if neccessary
+			#create an empty record if necessary
 			newflag=1
 			self._row = []
 			for idx in range(len(self._metadata)):
@@ -299,7 +299,7 @@ class pgobject:
 		if self._fetched:
 			self._fetch()
 		else:
-			print "Undo for new objects not impemented yet"
+			print "Undo for new objects not implemented yet"
 		
 #==============================================================				
 if __name__ == "__main__":
@@ -374,7 +374,7 @@ if __name__ == "__main__":
 #
 # Revision 1.15  2003/11/17 10:56:36  sjtan
 #
-# synced and commiting.
+# synced and committing.
 #
 # Revision 1.1  2003/10/23 06:02:39  sjtan
 #

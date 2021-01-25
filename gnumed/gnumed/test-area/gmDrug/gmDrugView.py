@@ -138,7 +138,7 @@ class DrugView:
 	This level of specificity is needed for compliance-checking.
 
 	route: the drugs route, MUST BE one of 'iv', 'im', 'oral', 'pr', 'topical'. Again, use case..end to
-	enforce where neccessary. Can be None. This is not the full list (of routes), needs further discussion
+	enforce where necessary. Can be None. This is not the full list (of routes), needs further discussion
 	see drugref.sql
 	"""
 		if aId is None:

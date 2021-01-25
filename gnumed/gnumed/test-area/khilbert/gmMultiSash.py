@@ -167,7 +167,7 @@ class cMultiSash(wx.Window):
 class cMultiSashSplitter(wx.Window):
 	"""
 	Basic split windows container of the multisash widget.
-	Has references to two leafs or splitted windows (typically, first leaf
+	Has references to two leafs or split windows (typically, first leaf
 	is another cMultiSashSplitter and the second leaf is the displayed content
 	widget).
 	"""

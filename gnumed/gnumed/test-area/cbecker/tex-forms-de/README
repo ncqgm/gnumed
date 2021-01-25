@@ -126,7 +126,7 @@ Karsten Hilbert schrieb:
 >>inspect and evaluate the gnumed databasedesign.
 >>    
 >>
->this may not work because unless all dependancies are
+>this may not work because unless all dependencies are
 >met the dump will not easily reload. Which the bootstrapping
 >scripts check for and rectify. Nonetheless, the dumps are there
 >for your pleasure.

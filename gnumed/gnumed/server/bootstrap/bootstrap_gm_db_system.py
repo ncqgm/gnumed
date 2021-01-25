@@ -165,7 +165,7 @@ below, or press RETURN to quit.
 superuser_sermon = """
 I can't log on as the PostgreSQL database owner.
 Try running this script as the system administrator (user "root")
-to get the neccessary permissions.
+to get the necessary permissions.
 
 NOTE: I expect the PostgreSQL database owner to be called "%s"
 If for some reason it is not, you need to adjust my configuration
@@ -187,7 +187,7 @@ Welcome to the GNUmed server instllation script.
 You must have a PostgreSQL server running and
 administrator access.
 
-Please select a database configuation from the list below.
+Please select a database configuration from the list below.
 """
 
 SQL_add_foreign_key = u"""

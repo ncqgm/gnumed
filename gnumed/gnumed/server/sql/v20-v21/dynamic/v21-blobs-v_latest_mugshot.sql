@@ -8,7 +8,7 @@
 \set ON_ERROR_STOP 1
 
 -- --------------------------------------------------------------
--- remember to handle dependant objects possibly dropped by CASCADE
+-- remember to handle dependent objects possibly dropped by CASCADE
 drop view if exists blobs.v_latest_mugshot cascade;
 
 create view blobs.v_latest_mugshot as

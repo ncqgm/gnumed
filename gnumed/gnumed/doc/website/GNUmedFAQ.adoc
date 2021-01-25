@@ -189,7 +189,7 @@ link:#TopOfFAQ[top]
 [[OpenSourceImplications]] *What more should I know about Free and Open
 Source?*
 
-Free and Open Source Softwares (FOSS) are philosophies, initiatives, and
+Free and Open Source Software (FOSS) are philosophies, initiatives, and
 licensing frameworks. They encourage and support models in which source
 code must be distributed along with the software, and that the source
 code be freely modifiable, with at most minor restrictions. Some myths

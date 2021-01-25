@@ -42,7 +42,7 @@ def extractDevicePartSpecs(DevicePart=None):
     	    print 'hey we have a lead here'
     	    return DevicePartSpecsList
 	else:
-    	    print 'hey we have an unkown device here. Please provide the XML file to the GNUmed team.'
+    	    print 'hey we have an unknown device here. Please provide the XML file to the GNUmed team.'
     	    return DevicePartSpecsList
 	
 def extractDeviceSubParts(Device=None):
@@ -63,7 +63,7 @@ def extractDeviceSubParts(Device=None):
                 print 'hey we are dealing with a battery here'
 
             else:
-                print 'hey we are dealing with an unkown device part here. Please provide the XML file to the GNUmed team.'
+                print 'hey we are dealing with an unknown device part here. Please provide the XML file to the GNUmed team.'
 
 def extractTagData(DevicePart=None,searchtag=None):
     for tag in DevicePart.getchildren():

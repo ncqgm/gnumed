@@ -1319,7 +1319,7 @@ class DataSetSQL(DataSet):
        database_name        The name of the database to connect to.
        database_user        The user name for the database.
        database_password    The corresponding password, if not set at
-                            initalisation, it is queried interactively.
+                            initialisation, it is queried interactively.
        database_block_size  The maximum number of records read in a block.
                             Default value is 10,000.
   """
@@ -1797,7 +1797,7 @@ class DataSetPGSQL(DataSet):
        database_name        The name of the database to connect to.
        database_user        The user name for the database.
        database_password    The corresponding password, if not set at
-                            initalisation, it is queried interactively.
+                            initialisation, it is queried interactively.
        database_block_size  The maximum number of records read in a block.
                             Default value is 10,000.
   """

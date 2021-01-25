@@ -15,7 +15,7 @@
 \set ON_ERROR_STOP 1
 
 -- --------------------------------------------------------------
--- remember to handle dependant objects possibly dropped by CASCADE
+-- remember to handle dependent objects possibly dropped by CASCADE
 \unset ON_ERROR_STOP
 drop function dem.date_trunc_utc(text, timestamp with time zone) cascade;
 drop index dem.idx_identity_dob cascade;

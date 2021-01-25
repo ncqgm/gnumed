@@ -351,7 +351,7 @@ if __name__ == "__main__":
 #
 # Revision 1.18  2003/11/17 10:56:42  sjtan
 #
-# synced and commiting.
+# synced and committing.
 #
 # Revision 1.1  2003/10/23 06:02:40  sjtan
 #

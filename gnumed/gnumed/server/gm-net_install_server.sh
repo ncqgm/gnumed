@@ -35,7 +35,7 @@ echo "This GNUmed helper will download and install the"
 echo "latest GNUmed server onto your ${SYS_TYPE} machine."
 echo ""
 echo "It will also take care of installing the"
-echo "dependancies needed to operate GNUmed smoothly."
+echo "dependencies needed to operate GNUmed smoothly."
 echo "================================================"
 
 
@@ -48,16 +48,16 @@ rm -r gnumed-server.*
 rm -f gnumed-server.latest.tgz
 
 
-# install dependancies
+# install dependencies
 echo ""
-echo "Installing dependancies ..."
+echo "Installing dependencies ..."
 echo ""
-echo "Do you want to install the following dependancies"
+echo "Do you want to install the following dependencies"
 echo "needed to smoothly operate the GNUmed server ?"
 echo ""
 echo "${DEPS}"
 echo ""
-read -e -p "Install dependancies ? [y/N]: "
+read -e -p "Install dependencies ? [y/N]: "
 if test "${REPLY}" == "y" ; then
 	echo ""
 	echo "You may need to enter the root password now (unless you ARE root):"

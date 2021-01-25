@@ -182,7 +182,7 @@ if __name__ == "__main__":
 #
 # Revision 1.14  2003/11/17 10:56:42  sjtan
 #
-# synced and commiting.
+# synced and committing.
 #
 # Revision 1.2  2003/10/25 08:29:40  sjtan
 #

@@ -29,7 +29,7 @@ class Maildrop:
     def update(self, server):
         self.__mails = [(0, msg) for (deleted, msg) in self.__mails
                         if not deleted]
-        # XXX (it does not update the orignal msg_list on the server)
+        # XXX (it does not update the original msg_list on the server)
 
     def get_stat(self):
         num = sum = 0

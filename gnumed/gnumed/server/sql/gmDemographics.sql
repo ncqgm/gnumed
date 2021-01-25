@@ -15,7 +15,7 @@ create schema dem authorization "gm-dbo";
 -- ===================================================================
 -- location related tables
 -- ===================================================================
--- no auditing neccessary, as this table only uses
+-- no auditing necessary, as this table only uses
 -- original ISO data (= reference verifiable any time)
 create table dem.country (
 	id serial primary key,

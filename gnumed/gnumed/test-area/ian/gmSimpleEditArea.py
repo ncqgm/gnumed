@@ -1,6 +1,6 @@
 """
 A base class for a debulked version of syan's new edit area
-It knows zero about the backend, just placement and initalisation of
+It knows zero about the backend, just placement and initialisation of
 the database
 """
 
