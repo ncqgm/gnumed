@@ -435,7 +435,7 @@ class gmApp:
 	# backend is hardcoded for now, make it use drop down list later
         # building the html out of the Cheetah Template
         t = Template( file="CherryPy/templates/index.tmpl"
-            # a dictionnary containing values that is going to be inserted in the Template
+            # a dictionary containing values that is going to be inserted in the Template
             , searchList = {
                 "title" : "Welcome to GNUmed - Login"
                 , "cssFiles" : ["css/ext-all.css", "css/xtheme-gray.css"]

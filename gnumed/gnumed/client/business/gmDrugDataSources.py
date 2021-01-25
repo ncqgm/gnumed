@@ -650,7 +650,7 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 		"""FreeDiams calls this exchange-out or prescription file.
 
 			CIS stands for Unique Speciality Identifier (eg bisoprolol 5 mg, gel).
-			CIS is AFSSAPS specific, but pharmacist can retreive drug name with the CIS.
+			CIS is AFSSAPS specific, but pharmacist can retrieve drug name with the CIS.
 			AFSSAPS is the French FDA.
 
 			CIP stands for Unique Presentation Identifier (eg 30 pills plaq)

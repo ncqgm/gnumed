@@ -13,7 +13,7 @@
 #
 #     Revision 1.4  2003/11/17 10:56:39  sjtan
 #
-#     synced and commiting.
+#     synced and committing.
 #
 #     Revision 1.1  2003/10/23 06:02:40  sjtan
 #

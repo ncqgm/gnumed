@@ -115,7 +115,7 @@ reacting to a patient being selected notifies the gmDispatcher about this.
     <li>Thus, it has to register it's interest in the event the current patient
 changes. The registered callback could query the database directly. However,
 data that is likely to be shared among many widgets, should be cached to
-avoid unneccessary backend traffic and to improve client performance. Thus,
+avoid unnecessary backend traffic and to improve client performance. Thus,
 it requests the data from the gmCachedPerson.CachedPerson object:
       <table cellpadding="15" cellspacing="1" border="1" width="90%" bgcolor="#ffffcc">
         <tbody>

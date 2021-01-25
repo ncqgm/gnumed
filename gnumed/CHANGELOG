@@ -2044,7 +2044,7 @@ NEW: annotate emailed bug reports to somewhat help Launchpad
 
 FIX: crash on creating patient letter due to local variable "desktop" typo
 FIX: faulty handling of candidate paths in /usr/bin/gnumed
-FIX: crash when explicitely setting up dummy file source (file=None in add_file_source)
+FIX: crash when explicitly setting up dummy file source (file=None in add_file_source)
 FIX: error on finding profiles list in several sources - need to flatten option value
 FIX: properly set source order and return policy on retrieving backend profile data
 FIX: crash on double-clicking empty cell in test results grid

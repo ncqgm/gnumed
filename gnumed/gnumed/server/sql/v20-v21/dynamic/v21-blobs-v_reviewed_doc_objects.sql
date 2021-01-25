@@ -5,7 +5,7 @@
 -- Author: Karsten Hilbert
 --
 -- ==============================================================
--- remember to handle dependant objects possibly dropped by CASCADE
+-- remember to handle dependent objects possibly dropped by CASCADE
 drop view if exists blobs.v_reviewed_doc_objects cascade;
 
 create view blobs.v_reviewed_doc_objects as

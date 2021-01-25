@@ -99,7 +99,7 @@ class gmKeysClass(GnuPGInterface.GnuPG):
 				keyToGet=input("Select Key to get (0 for none): ")
 			else:
 				print "Sorry, that key is not on the network keyserver %s." %keyserver
-				print "Unable therefore to retreive key"
+				print "Unable therefore to retrieve key"
 				keyToGet=0
 			keyID=0
 			if (keyToGet>0 and keyToGet<=i):

@@ -1322,7 +1322,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 
 		if len(values) == 2:
 			male_value, female_value = values
-			other_value = '<unkown gender>'
+			other_value = '<unknown gender>'
 		elif len(values) == 3:
 			male_value, female_value, other_value = values
 		else:

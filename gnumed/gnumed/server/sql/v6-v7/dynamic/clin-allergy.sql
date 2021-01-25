@@ -15,7 +15,7 @@
 \set ON_ERROR_STOP 1
 
 -- --------------------------------------------------------------
--- remember to handle dependant objects possibly dropped by CASCADE
+-- remember to handle dependent objects possibly dropped by CASCADE
 \unset ON_ERROR_STOP
 drop function clin.trf_sync_allergic_state_on_allergies_modified() cascade;
 \set ON_ERROR_STOP 1

@@ -37,7 +37,7 @@ class OurServer(smtpd.SMTPServer):
 				self.sendEncMessage(m)
 				status=''
 			else:
-				print "Error in encrypting mesage"
+				print "Error in encrypting message"
 		else:
 			print "Not authorised smtp user"
 			status="Not authorised smtp user"
@@ -305,7 +305,7 @@ smtpPort=8023
 gnupg = wtKeysClass()
 
 
-#This is the 2.2 way of running asyncronous servers
+#This is the 2.2 way of running asynchronous servers
 server = OurServer((smtpIP, smtpPort),
                    (None, 0))
 try:

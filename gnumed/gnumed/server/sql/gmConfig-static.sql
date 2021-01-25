@@ -5,7 +5,7 @@
 -- $Revision: 1.2 $
 
 -- structure of configuration database for GNUmed
--- neccessary to allow for distributed servers
+-- necessary to allow for distributed servers
 
 -- Copyright by Dr. Horst Herb
 -- This is free software in the sense of the General Public License (GPL v2 or later)
