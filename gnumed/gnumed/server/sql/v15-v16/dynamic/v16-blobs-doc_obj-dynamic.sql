@@ -25,7 +25,7 @@ DECLARE
 	_pk_patient integer;
 	_pk_provider integer;
 BEGIN
-	-- explicitely set ?
+	-- explicitly set ?
 	if NEW.fk_intended_reviewer is not NULL then
 		return NEW;
 	end if;

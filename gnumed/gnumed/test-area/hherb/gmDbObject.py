@@ -53,7 +53,7 @@ class DBObject:
 		self._qInsert = query
 	#----------------------------
 	def SetUpdateQuery(self, query):
-		"""Definition of the query neccessary to update the associated row.
+		"""Definition of the query necessary to update the associated row.
 		The string must have a '%(primarykey)s' parameter which is representing the 
 		primary key attribute of the row to update. All other parameters must
 		be set in 'dictionary parameter style', that is as '%(dictionary key)s'
@@ -61,7 +61,7 @@ class DBObject:
 		self._qUpdate = query
 	#----------------------------
 	def SetDeleteQuery(self, query):
-		"""Definition of the query neccessary to delete the associated row.
+		"""Definition of the query necessary to delete the associated row.
 		The string must have a '%(primarykey)s' parameter which is representing the 
 		primary key attribute of the row to delete"""
 		self._qDelete = query
@@ -122,7 +122,7 @@ class DBObject:
 	#----------------------------
 	def Insert(self, map):
 		"""insert a row with attributes as listed in the dictionary 'map'.
-		Returns the OID if succesful, otherwise returns 'None'"""
+		Returns the OID if successful, otherwise returns 'None'"""
 		oid = None
 		if self._qInsert is None:
 			self.__log_error("Error: insert query not set yet!")
@@ -226,7 +226,7 @@ if __name__ == "__main__":
 #
 # Revision 1.9  2003/11/17 10:56:36  sjtan
 #
-# synced and commiting.
+# synced and committing.
 #
 # Revision 1.1  2003/10/23 06:02:39  sjtan
 #

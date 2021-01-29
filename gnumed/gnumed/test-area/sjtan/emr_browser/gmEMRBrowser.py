@@ -24,7 +24,7 @@ class cEMRBrowserPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 
 	def __init__(self, parent, id):
 		"""
-		Contructs a new instance of EMR browser panel
+		Constructs a new instance of EMR browser panel
 
 		parent - Wx parent widget
 		id - Wx widget id

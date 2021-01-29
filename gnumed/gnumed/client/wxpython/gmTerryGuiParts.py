@@ -22,7 +22,7 @@ class cAlertCaption(wx.Panel):
 
 	This panel consists constructs a simple heading to be used at the bottom
 	of the screen, in the form of capitalised word on user defined foreground
-	and background colours. The heading is left justified curently. The
+	and background colours. The heading is left justified currently. The
 	default colours are black text on intermediate grey so as to not make it
 	too intrusive. The alert text will appear in flashing red text
 	"""
@@ -96,7 +96,7 @@ class cHeadingCaption(wx.Panel):
 	"""This panel consists constructs a simple heading to be used at the top
 
 		of a panel, in the form of capitalised word on user defined foreground
-		and background colours. The heading is left justified curently. The
+		and background colours. The heading is left justified currently. The
 		default colours are purple panel, orange label with yellow capitalised
 		words (sounds yuk doesn't it - but I like it and it works well!!!!!
 	"""

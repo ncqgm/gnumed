@@ -3,7 +3,7 @@
 # ===========================================================
 # This script must be run as the user who wants to use the
 # GNUmed client. If you opt for letting the script try to
-# install dependancies it will attempt to use SU for which
+# install dependencies it will attempt to use SU for which
 # you will need to know the root password.
 # ===========================================================
 
@@ -218,7 +218,7 @@ else
 fi
 
 
-# check dependancies
+# check dependencies
 echo ""
 echo "Checking dependencies ..."
 cd gnumed-client.${TARGET_VER}/external-tools/

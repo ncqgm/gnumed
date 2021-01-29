@@ -240,7 +240,7 @@ class cClinicalRecord:
 			issues
 				- list of health issues whose narrative are to be retrieved
 			soap_cats
-				- list of SOAP categories of the narrative to be retrived
+				- list of SOAP categories of the narrative to be retrieved
 			exclude_rfe_aoe
 				-  when True, filter out RFE and AOE narrative
 		"""
@@ -2021,7 +2021,7 @@ if __name__ == "__main__":
 #
 # Revision 1.45  2003/11/17 10:56:33  sjtan
 #
-# synced and commiting.
+# synced and committing.
 #
 #
 #

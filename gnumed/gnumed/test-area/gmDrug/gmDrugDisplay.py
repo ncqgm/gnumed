@@ -281,7 +281,7 @@ class DrugDisplay(wxPanel):
 	
 	#----------------------------------------------------------------------------------------------------------------------
 	def GetDrugIssue(self):
-		# diplay some info on what database we are currently using
+		# display some info on what database we are currently using
 		self.SetTitle(self.dbName)
 #		gmLog.gmDefLog.Log (gmLog.lData, "got the issue date")
 		return true

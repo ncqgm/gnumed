@@ -370,7 +370,7 @@ class cNotebookedProgressNoteInputPanel(wx.Panel):
 	"""
 	#--------------------------------------------------------
 	def __init__(self, parent, id):
-		"""Contructs a new instance of SOAP input panel
+		"""Constructs a new instance of SOAP input panel
 
 		@param parent: Wx parent widget
 		@param id: Wx widget id

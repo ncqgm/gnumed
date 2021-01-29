@@ -601,7 +601,7 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 			UNION ALL
 
 				-- start of encounters of clinical items linked to episodes of this issue,
-				-- earliest-possible thereof = explicitely set by user
+				-- earliest-possible thereof = explicitly set by user
 				(SELECT
 					c_enc.started AS earliest,
 					c_epi.pk AS pk_episode
@@ -615,7 +615,7 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 			UNION ALL
 
 				-- .clin_when of clinical items linked to episodes of this issue,
-				-- earliest-possible thereof = explicitely set by user
+				-- earliest-possible thereof = explicitly set by user
 				(SELECT
 					c_cri.clin_when AS earliest,
 					c_epi.pk AS pk_episode
@@ -680,7 +680,7 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 			latest, pk_episode
 		FROM (
 				-- .clin_when of clinical items linked to episodes of this issue,
-				-- latest-possible thereof = explicitely set by user
+				-- latest-possible thereof = explicitly set by user
 				(SELECT
 					c_cri.clin_when AS latest,
 					c_epi.pk AS pk_episode,
@@ -767,7 +767,7 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 
 			-- look at best_guess_clinical_start_date of all linked episodes
 
-			-- start of encounter in which created, earliest = explicitely set
+			-- start of encounter in which created, earliest = explicitly set
 			(SELECT c_enc.started AS earliest FROM clin.encounter c_enc WHERE c_enc.pk = c_hi.fk_encounter)
 		)
 		FROM clin.health_issue c_hi
@@ -857,7 +857,7 @@ FROM (
 	--)
 
 	--UNION ALL
-	-- end of encounter in which created, latest = explicitely set
+	-- end of encounter in which created, latest = explicitly set
 	-- DO NOT USE: we can retrospectively create issues which
 	-- DO NOT USE: are long since finished
 	--(SELECT c_enc.last_affirmed AS latest FROM clin.encounter c_enc WHERE c_enc.pk = (
@@ -1588,7 +1588,7 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 			-- 	SELECT fk_encounter FROM clin.episode WHERE pk = %(pk)s
 			--))
 
-			-- end of encounter in which created, latest = explicitely set
+			-- end of encounter in which created, latest = explicitly set
 			-- DO NOT USE: we can retrospectively create episodes which
 			-- DO NOT USE: are long since finished
 			--(SELECT c_enc.last_affirmed AS latest FROM clin.encounter c_enc WHERE c_enc.pk = (
@@ -1815,21 +1815,21 @@ _SQL_best_guess_clinical_start_date_for_episode = """
 			UNION ALL
 
 		-- start of encounter in which created,
-		-- earliest-possible thereof = explicitely set by user
+		-- earliest-possible thereof = explicitly set by user
 		(SELECT c_enc.started AS earliest FROM clin.encounter c_enc WHERE c_enc.pk = (
 			SELECT fk_encounter FROM clin.episode WHERE pk = %(pk)s
 		))
 			UNION ALL
 
 		-- start of encounters of clinical items linked to this episode,
-		-- earliest-possible thereof = explicitely set by user
+		-- earliest-possible thereof = explicitly set by user
 		(SELECT MIN(started) AS earliest FROM clin.encounter WHERE pk IN (
 			SELECT fk_encounter FROM clin.clin_root_item WHERE fk_episode = %(pk)s
 		))
 			UNION ALL
 
 		-- .clin_when of clinical items linked to this episode,
-		-- earliest-possible thereof = explicitely set by user
+		-- earliest-possible thereof = explicitly set by user
 		(SELECT MIN(clin_when) AS earliest FROM clin.clin_root_item WHERE fk_episode = %(pk)s)
 
 			UNION ALL
