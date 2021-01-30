@@ -248,7 +248,10 @@ def lock_praxis_branch(pk_praxis_branch=None, exclusive=False):
 
 #------------------------------------------------------------
 def unlock_praxis_branch(pk_praxis_branch=None, exclusive=False):
-	return gmPG2.unlock_row(table = 'dem.praxis_branch', pk = pk_praxis_branch, exclusive = exclusive)
+	unlocked = gmPG2.unlock_row(table = 'dem.praxis_branch', pk = pk_praxis_branch, exclusive = exclusive)
+	if not unlocked:
+		_log.warning('cannot unlock praxis branch [#%s]', pk_praxis_branch)
+	return unlocked
 
 #------------------------------------------------------------
 def get_praxis_branches(order_by=None, return_pks=False):

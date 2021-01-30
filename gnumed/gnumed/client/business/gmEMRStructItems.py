@@ -3076,7 +3076,10 @@ def lock_encounter(pk_encounter, exclusive=False, link_obj=None):
 
 #------------------------------------------------------------
 def unlock_encounter(pk_encounter, exclusive=False, link_obj=None):
-	return gmPG2.unlock_row(link_obj = link_obj, table = 'clin.encounter', pk = pk_encounter, exclusive = exclusive)
+	unlocked = gmPG2.unlock_row(link_obj = link_obj, table = 'clin.encounter', pk = pk_encounter, exclusive = exclusive)
+	if not unlocked:
+		_log.warning('cannot unlock encounter [#%s]', pk_encounter)
+	return unlocked
 
 #-----------------------------------------------------------
 def delete_encounter(pk_encounter):
