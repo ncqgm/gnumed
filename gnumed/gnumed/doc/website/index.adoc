@@ -2,7 +2,7 @@
 
 === Python 3
 
-https://www.gnumed.de/downloads/client/1.8/gnumed-client.1.8.4.tgz[Version 1.8.4] (database v22.14) released Nov 9th 2020
+https://www.gnumed.de/downloads/client/1.8/gnumed-client.1.8.5.tgz[Version 1.8.5] "AHA-VAL" (database v22.15) released Jan 23rd 2021
 
 === Python 2 (not recommended anymore)
 
@@ -28,12 +28,16 @@ link:GNUmedFeatureList.html[Feature List] | link:GNUmedFAQ.html[FAQ]
 
 == For Users
 
+NOTE: Content is being resurrected from the wiki. If you need
+information that is not available send us an inquiry on
+either mailing list.
+
 * link:GNUmedInstallation.html[Installation Guides]
 * link:GNUmedManual.html[Manuals]
 
 * Support
-** https://lists.gnu.org/mailman/listinfo/gnumed-devel[general] mailing list
-** https://lists.gnu.org/mailman/listinfo/gnumed-bugs[bugs] mailing list
+** https://lists.gnu.org/mailman/listinfo/gnumed-devel[general] mailing list (gnumed-devel@gnu.org)
+** https://lists.gnu.org/mailman/listinfo/gnumed-bugs[bugs] mailing list (gnumed-bugs@gnu.org)
 ** https://bugs.launchpad.net/gnumed/+bugs[bug tracker]
 
 Professional support can be arranged by contacting the primary developers.

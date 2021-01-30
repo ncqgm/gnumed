@@ -6,6 +6,13 @@ link:index.html[Home]
 
 :sectnums:
 
+NOTE: Content is being resurrected from the wiki. If you need
+information that is not available send us an inquiry on
+either mailing list:
+
+	* https://lists.gnu.org/mailman/listinfo/gnumed-devel (gnumed-devel@gnu.org)
+	* https://lists.gnu.org/mailman/listinfo/gnumed-bugs (gnumed-bugs@gnu.org)
+
 == User Guide
 
 === Before you start
