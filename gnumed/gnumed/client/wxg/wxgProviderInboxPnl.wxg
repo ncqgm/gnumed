@@ -158,7 +158,7 @@
                             <events>
                                 <handler event="EVT_CHECKBOX">_on_active_provider_checkbox_ticked</handler>
                             </events>
-                            <tooltip>Include only messages explicitely for you (rather than also to all providers).</tooltip>
+                            <tooltip>Include only messages explicitly for you (rather than also to all providers).</tooltip>
                             <label>Yours</label>
                             <checked>1</checked>
                         </object>

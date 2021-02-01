@@ -121,7 +121,7 @@ class PastHistoryPanel(wxPanel, PatientHolder):
 		#self.significant_problem_list.InsertColumn(2, _("Notes"))
 		#-------------------------------------------------------------------------
 		#loop through the significanthistorydata array and add to the list control
-		#note the different syntax for the first coloum of each row
+		#note the different syntax for the first column of each row
 		#i.e. here > self.significant_problem_list.InsertItem(x, data[0])!!
 		#--------------------------------------------------------------------------
 		#self.significant_mapper = gmListCtrlMapper(self.significant_problem_list)
@@ -144,7 +144,7 @@ class PastHistoryPanel(wxPanel, PatientHolder):
 		#self.active_problem_list.InsertColumn(2, _("Notes"))
 		#-------------------------------------------------------------
 		#loop through the activehistorydata array and add to the list control
-		#note the different syntax for the first coloum of each row
+		#note the different syntax for the first column of each row
 		#i.e. here > self.significant_problem_list.InsertItem(x, data[0])!!
 		#-------------------------------------------------------------
 		#self.active_mapper = gmListCtrlMapper(self.active_problem_list)

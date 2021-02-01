@@ -1082,7 +1082,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 					return False
 			else:
 				gmGuiHelpers.gm_show_error (
-					aMessage = _('No parts to save. Aquire some parts first.'),
+					aMessage = _('No parts to save. Acquire some parts first.'),
 					aTitle = title
 				)
 				return False

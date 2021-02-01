@@ -66,7 +66,7 @@ create table idx_rule_recall
 
 comment on table idx_rule_recall is '
 a list of rules calling recall (): i.e a list of rules
-suitable from runing from a nightly cron task';
+suitable from running from a nightly cron task';
 
 create function exec (text, integer) returns opaque as 
 '

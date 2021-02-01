@@ -28,11 +28,11 @@ comment on table ref.paperwork_templates is
 comment on column ref.paperwork_templates.instance_type is
 	'default document type to store documents generated from
 	 this form under, note that this may generate rows in
-	 blobs.doc_type if set to a non-existant document type';
+	 blobs.doc_type if set to a non-existent document type';
 comment on column ref.paperwork_templates.name_short is
 	'a short name for use in a GUI or some such';
 comment on column ref.paperwork_templates.name_long is
-	'a long name unambigously describing the form';
+	'a long name unambiguously describing the form';
 comment on column ref.paperwork_templates.gnumed_revision is
 	'GNUmed internal form def version, may
 	 occur if we rolled out a faulty form def';

@@ -181,7 +181,7 @@ chmod +x ~/bin/ssh_cvs
     <sect1 id=documentation>
       <title>Comments. Documenting Code</title>
       <sect2>
-	<title>Module documention</title>
+	<title>Module documentation</title>
       	    <para>Always insert some lines of description of the module, containing at least the author and one line of short explanation. Remember that a lot of people might have to read and understand your code. Document as much as possible. Add example code how to use the module where possible and necessary. 
 Please insert the following template at the beginning of the file:</para>
     	    	<screen>
@@ -203,7 +203,7 @@ Please insert the following template at the beginning of the file:</para>
       </sect2>
 
       <sect2>
-	<title>Docstring documention</title>
+	<title>Docstring documentation</title>
       <para>Try to always insert at least one line of docstring 
 unless the function is no more than a couple of lines long and perfectly 
 self-explanatory.</para>
@@ -938,7 +938,7 @@ result = cursor.fetchall()
       <para>When trying to map database results to widgets, remember that not all 
 widgets can use the same functions (like SetValue()) under all 
 circumstances to set their properties. Notable examples for exceptions are 
-"choice boxes" and "combo boxes". It might be preferrable to have a 
+"choice boxes" and "combo boxes". It might be preferable to have a 
 function SetData(), UpdateData(), ClearData() for each dialog instead - 
 far more control over what is actually happening to the widgets, though 
 unfortunately a little bit more typing.</para>
@@ -1315,7 +1315,7 @@ absolutely _have_ to be imported before this module you can explicitly
 import gmI18N into them at the very beginning.
 
 The text domain (i.e. the name of the message catalog file) is derived
-from the name of the main executing script unless explicitely given on
+from the name of the main executing script unless explicitly given on
 the command line like this:
  --text-domain=&lt your text domain &gt
 
@@ -1389,7 +1389,7 @@ Usage:
 
 # log levels:
 # lPanic - try to log this before we die
-# lErr   - some error occured, may be recoverable
+# lErr   - some error occurred, may be recoverable
 # lWarn  - something should be done about this though it's not fatal
 # lInfo  - user info like program flow
 # lData  - raw data processed by program
@@ -1679,7 +1679,7 @@ def LoadPlugin (aPackage, plugin_name, guibroker = None, dbbroker = None):
 	- this knows nothing of databases, all it does is load a named plugin
 
 	There will be a general 'gui' directory for large GUI
-	components: prescritions, etc., then several others for more
+	components: prescriptions, etc., then several others for more
 	specific types: export/import filters, crypto algorithms
 	guibroker, dbbroker are broker objects provided
 	defaults are the default set of plugins to be loaded
@@ -1847,7 +1847,7 @@ class DBObject:
 
 
     def LogError(self, msg, map):
-	    Please replace with gnumed logging functins s.a.p.
+	    Please replace with gnumed logging functions s.a.p.
 
 
     def Select(self, map=None, maxfetch=0, listonly=0):
@@ -1868,14 +1868,14 @@ class DBObject:
     def Update(self, map):
 	    update a row with attributes as listed in the dictionary "map".
 	    'map' dictionary  MUST contain the key 'primarykey' with the
-	    value set to the primay key of the row to be updated
+	    value set to the primary key of the row to be updated
 	    Returns 'None' if failed, the primary key if success 
 
 
     def Delete(self, map):
 	    deletes a row as determined by the delete query string.
 	    'map' dictionary  MUST contain the key 'primarykey' with the
-	    value set to the primay key of the row to be deleted
+	    value set to the primary key of the row to be deleted
 	    Returns 'None' if failed, the primary key if success 
 </screen>
 </sect2>
@@ -2930,7 +2930,7 @@ health issue
 		      letters, recalls etc) may seem small, in practice it works well. There is enough 
 		      room here for eg 10-14 medications and if filled, that in itself would indicate 
 		      the patient was probably suffering from poly-pharmacy!. Other lists eg pathology 
-		      are viewed in decending order, ie most recent to least recent, and are usually 
+		      are viewed in descending order, ie most recent to least recent, and are usually 
 		      able to be sorted by date/type of request etc hence information is easily seen 
 		      or quickly found. Just how many requests/referrals/recalls does the average 
 		      patient have in year anyway, usually very few.</para>

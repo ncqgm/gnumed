@@ -3,7 +3,7 @@
 
 http://who.no
 
-There is no DDD handling because DDD explicitely
+There is no DDD handling because DDD explicitly
 does not carry clinical meaning.
 """
 #============================================================

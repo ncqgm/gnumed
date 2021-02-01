@@ -575,7 +575,7 @@ def manage_form_templates(parent=None, template_types=None, active_only=False, e
 			) % (template['name_long'], template['external_version'])
 		)
 		if delete:
-			# FIXME: make this a priviledged operation ?
+			# FIXME: make this a privileged operation ?
 			gmForms.delete_form_template(template = template)
 			return True
 		return False

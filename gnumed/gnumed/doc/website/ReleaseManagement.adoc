@@ -233,7 +233,7 @@ is tagged as _rel-0-4-1_ which then gets released as `v0.4.1`.
 Eventually, CVS HEAD is tagged as _rel-0-5_, branched off into
 _rel-0-5-maint_ and the cycle starts over.
 
-The database schema is versioned independant of the client. At startup
+The database schema is versioned independent of the client. At startup
 the client checks whether it was released to work with the database it
 connects to. For any necessary database upgrades we provide tested,
 integrity-checking conversion scripts.

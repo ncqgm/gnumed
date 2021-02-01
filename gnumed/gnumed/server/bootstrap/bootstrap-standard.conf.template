@@ -32,7 +32,7 @@ interactive = yes
 keep temp files = no
 
 # this description is displayed just before the user is
-# prompted whether she acutally wants to install this setup
+# prompted whether she actually wants to install this setup
 description = $description$
 This setup is not intended to actually be used. It just
 serves to document the config file options. Also you cannot
@@ -94,11 +94,11 @@ override name by = GM_CORE_DB
 tablespace = tablespace_gnumed
 
 # which [section] holds specifics about the server
-# hosting this databse -> [server ...]
+# hosting this database -> [server ...]
 server alias = local host
 
 # do we check for procedural language library
-# existance in the filesystem ?
+# existence in the filesystem ?
 # set this to "no" if you want to bootstrap remote
 # machines where you don't have filesystem access ...
 procedural language library check = yes

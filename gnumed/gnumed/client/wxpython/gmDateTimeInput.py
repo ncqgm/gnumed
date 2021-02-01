@@ -9,7 +9,7 @@ this module.
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __licence__ = "GPL v2 or later (details at http://www.gnu.org)"
 
-# standard libary
+# standard library
 import sys, datetime as pyDT, logging
 
 

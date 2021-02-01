@@ -36,7 +36,7 @@ Source?]
 
 GNUmed is a group of practising doctors, programmers and free
 software enthusiasts from around the world, committed to
-provide a superior, free, libre, open soure software solution
+provide a superior, free, libre, open source software solution
 for community practice.
 
 === For Users

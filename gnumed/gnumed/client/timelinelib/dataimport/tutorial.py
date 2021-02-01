@@ -25,7 +25,7 @@ from timelinelib.canvas.data import TimePeriod
 
 def create_in_memory_gregorian_tutorial_db():
     """
-    Creates a Gregorian calender, tutorial timeline.
+    Creates a Gregorian calendar, tutorial timeline.
     
     This function is called if the timeline application is started with:
        python3 timeline.py :tutorial:

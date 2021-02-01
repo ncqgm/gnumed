@@ -1,4 +1,4 @@
-#this module demostrates the simplest case of event sending and handling
+#this module demonstrates the simplest case of event sending and handling
 #via the gmDispatcher module. Read the gmDispatcher inline documentation
 #for the more powerful features
 

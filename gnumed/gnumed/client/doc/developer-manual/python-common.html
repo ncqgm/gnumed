@@ -577,7 +577,7 @@ absolutely _have_ to be imported before this module you can explicitly
 import gmI18N into them at the very beginning.
 
 The text domain (i.e. the name of the message catalog file) is derived
-from the name of the main executing script unless explicitely given on
+from the name of the main executing script unless explicitly given on
 the command line like this:
  --text-domain=&#60; your text domain &#62;
 This module searches for message catalog files in 3 main locations:
@@ -669,7 +669,7 @@ Usage:
 
 # log levels:
 # lPanic - try to log this before we die
-# lErr   - some error occured, may be recoverable
+# lErr   - some error occurred, may be recoverable
 # lWarn  - something should be done about this though it's not fatal
 # lInfo  - user info like program flow
 # lData  - raw data processed by program
@@ -1083,7 +1083,7 @@ def LoadPlugin (aPackage, plugin_name, guibroker = None, dbbroker = None):
 	- this knows nothing of databases, all it does is load a named plugin
 
 	There will be a general 'gui' directory for large GUI
-	components: prescritions, etc., then several others for more
+	components: prescriptions, etc., then several others for more
 	specific types: export/import filters, crypto algorithms
 	guibroker, dbbroker are broker objects provided
 	defaults are the default set of plugins to be loaded
@@ -1303,7 +1303,7 @@ class DBObject:
 
 
     def LogError(self, msg, map):
-	    Please replace with gnumed logging functins s.a.p.
+	    Please replace with gnumed logging functions s.a.p.
 
 
     def Select(self, map=None, maxfetch=0, listonly=0):
@@ -1324,14 +1324,14 @@ class DBObject:
     def Update(self, map):
 	    update a row with attributes as listed in the dictionary "map".
 	    'map' dictionary  MUST contain the key 'primarykey' with the
-	    value set to the primay key of the row to be updated
+	    value set to the primary key of the row to be updated
 	    Returns 'None' if failed, the primary key if success 
 
 
     def Delete(self, map):
 	    deletes a row as determined by the delete query string.
 	    'map' dictionary  MUST contain the key 'primarykey' with the
-	    value set to the primay key of the row to be deleted
+	    value set to the primary key of the row to be deleted
 	    Returns 'None' if failed, the primary key if success </PRE
 ></FONT
 ></TD

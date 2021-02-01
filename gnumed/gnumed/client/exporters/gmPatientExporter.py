@@ -119,7 +119,7 @@ class cEmrExport:
     #--------------------------------------------------------
     def __dump_vacc_table(self, vacc_regimes):
         """
-        Retrieves string containg ASCII vaccination table
+        Retrieves string containing ASCII vaccination table
         """
         emr = self.__patient.emr
         # patient dob

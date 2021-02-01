@@ -136,7 +136,7 @@ select public.log_script_insertion('$RCSfile: gmBlobs.sql,v $', '$Revision: 1.64
 --   - needs postgres >= 7.1
 --   - needs proper escaping of NUL, \ and ' (should go away once postgres 7.3 arrives)
 --   - has a 1 GB limit for data objects
--- - we explicitely don't store MIME types etc. as selecting an appropriate viewer is a runtime issue
+-- - we explicitly don't store MIME types etc. as selecting an appropriate viewer is a runtime issue
 -- - it is helpful to structure text in doc_desc to be able to identify source/content etc.
 -- =============================================
 -- $Log: gmBlobs.sql,v $

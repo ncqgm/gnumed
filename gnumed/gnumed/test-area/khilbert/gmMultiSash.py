@@ -93,7 +93,7 @@ class cMultiSash(wx.Window):
 		to ensure new leafs are created under the bottom one.
 		If the bottom leaf is supplied as parameter, it is set. Typically,
 		after a new leaf has been added/created.
-		If the bottom leaf ins not supplied ad parameter, it will be dinamically
+		If the bottom leaf ins not supplied ad parameter, it will be dynamically
 		obtained. Typically, after leaf destruction.
 		
 		@param bottom_leaf The leaf to be set as bottom one

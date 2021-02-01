@@ -232,7 +232,7 @@ def __get_backend_profiles():
             try:
                 profile.port = int(port)
                 if profile.port < 1024:
-                    raise ValueError('refusing to use priviledged port (< 1024)')
+                    raise ValueError('refusing to use privileged port (< 1024)')
             except ValueError:
                 _log.warning('invalid port definition: [%s], skipping profile [%s]', port, profile_name)
                 continue

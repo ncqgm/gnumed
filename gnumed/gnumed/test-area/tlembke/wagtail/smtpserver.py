@@ -199,7 +199,7 @@ class wtKeysClass(GnuPGInterface.GnuPG):
 	
 		
 	def encryptMessage(self,message,toAddr):
-		# get recepients preferred encryption and keyID
+		# get recipients preferred encryption and keyID
 		keyID,prefEnc,errorMsg=self.getKeyID(toAddr)
 		print "prefEnc is %i" %prefEnc
 		status=errorMsg

@@ -15,7 +15,7 @@
 
 <%--  See vaccination regarding indexed properties for <logic:iterate>
  1. need a indexed getter method on the bean.  2. the id attribute of logic:iterate must
-be the name of the property targetted by the getter
+be the name of the property targeted by the getter
 e.g. getNarrative(index) ...  id='narrative'
 --%>
 <%--

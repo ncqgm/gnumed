@@ -47,7 +47,7 @@ class wxgAutoHintEAPnl(wx.ScrolledWindow):
 		self._TCTRL_query.SetToolTip(_("Required: The SQL query to be run for checking whether this automatic hint applies and should be displayed.\n\nMust return TRUE / FALSE.\n\nAny occurrence of ID_ACTIVE_PATIENT will be replaced by the internal GNUmed ID of the currently active patient."))
 		self._TCTRL_recommendation_query.SetToolTip(_("Optional: The SQL query to be run for retrieving further information and perhaps a recommendation in case this automatic hint applies.\n\nMust return NULL or a string (TEXT).\n\nAny occurrence of ID_ACTIVE_PATIENT will be replaced by the internal GNUmed ID of the currently active patient."))
 		self._TCTRL_url.SetToolTip(_("Optional: An URL under which additional information can be found."))
-		self._BTN_check_url.SetToolTip(_("Explicitely check the URL given."))
+		self._BTN_check_url.SetToolTip(_("Explicitly check the URL given."))
 		self._CHBOX_is_active.SetToolTip(_("Whether or not this automatic hint is active. If not active it will not be displayed even if the SQL-defined conditions do match.\n\nCave: This setting applies across ALL PATIENTS."))
 		self._CHBOX_is_active.SetValue(1)
 		self._CHBOX_highlight.SetToolTip(_("Whether or not to highlight this hint among others (where deemed appropriate)."))

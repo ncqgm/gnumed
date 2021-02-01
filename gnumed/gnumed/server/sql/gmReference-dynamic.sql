@@ -20,11 +20,11 @@ comment on column ref_source.name_short is
 comment on column ref_source.name_long is
 	'long, complete (, ?official) name for this reference entry';
 comment on column ref_source.version is
-	'the exact and non-ambigous version for this entry';
+	'the exact and non-ambiguous version for this entry';
 comment on column ref_source.description is
 	'optional arbitrary description';
 comment on column ref_source.source is
-	'non-ambigous description of source; with this info in hand
+	'non-ambiguous description of source; with this info in hand
 	 it must be possible to locate a copy of the external reference';
 
 -- lnk_tbl2src --
@@ -86,7 +86,7 @@ comment on table form_defs is
 comment on column form_defs.name_short is
 	'a short name for use in a GUI or some such';
 comment on column form_defs.name_long is
-	'a long name unambigously describing the form';
+	'a long name unambiguously describing the form';
 comment on column form_defs.revision is
 	'GNUmed internal form def version, may
 	 occur if we rolled out a faulty form def';

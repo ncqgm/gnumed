@@ -58,7 +58,7 @@ class Psql:
 	#---------------------------------------------------------------
 	def run (self, filename):
 		"""
-		filename: a file, containg semicolon-separated SQL commands
+		filename: a file, containing semicolon-separated SQL commands
 		"""
 		_log.debug('processing [%s]', filename)
 		curs = self.conn.cursor()

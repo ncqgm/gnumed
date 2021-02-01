@@ -93,7 +93,7 @@ class RecallsPanel(wxPanel , PatientHolder):
 		self.list_recalls.InsertColumn(1, _("Status"))
 		#-------------------------------------------------------------
 		#loop through the scriptdata array and add to the list control
-		#note the different syntax for the first coloum of each row
+		#note the different syntax for the first column of each row
 		#i.e. here > self.list_recalls.InsertItem(x, data[0])!!
 		#-------------------------------------------------------------
 		items = recalldata.items()

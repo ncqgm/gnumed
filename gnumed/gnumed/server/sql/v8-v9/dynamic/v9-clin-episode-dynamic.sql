@@ -168,7 +168,7 @@ select gm.log_script_insertion('$RCSfile: v9-clin-episode-dynamic.sql,v $', '$Re
 -- - need to check against fk_health_issue/fk_episode, too
 --
 -- Revision 1.2  2008/03/03 13:45:19  ncq
--- - need to explicitely null relevant variables inside loop
+-- - need to explicitly null relevant variables inside loop
 --
 -- Revision 1.1  2008/03/02 11:25:55  ncq
 -- - new files

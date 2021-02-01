@@ -1019,7 +1019,7 @@ def mklink(physical_name:str, link_name:str, overwrite:bool=False) -> bool:
 		_log.exception('cannot create link')
 		return False
 	#except OSError:
-	#	unpriviledged on Windows
+	#	unprivileged on Windows
 	return True
 
 #===========================================================================
