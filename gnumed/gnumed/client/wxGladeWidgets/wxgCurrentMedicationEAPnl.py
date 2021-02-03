@@ -77,7 +77,7 @@ class wxgCurrentMedicationEAPnl(wx.ScrolledWindow):
 		self._CHBOX_start_unknown.SetValue(1)
 		self._DP_started.SetToolTip(_("When was this substance started to be consumed or - if not known - the earliest it is known to have been be consumed."))
 		self._DP_started.Enable(False)
-		self._PRW_start_certainty.SetToolTip(_("A coment on the certainty of the start date, such as \"+/- 3 weeks\", \"spring of 2002\", \"shortly after Easter 1996\", ...."))
+		self._PRW_start_certainty.SetToolTip(_("A comment on the certainty of the start date, such as \"+/- 3 weeks\", \"spring of 2002\", \"shortly after Easter 1996\", ...."))
 		self._PRW_start_certainty.Enable(False)
 		self._CHBOX_approved.SetToolTip(_("Whether this substance is taken by advice."))
 		self._CHBOX_approved.SetValue(1)

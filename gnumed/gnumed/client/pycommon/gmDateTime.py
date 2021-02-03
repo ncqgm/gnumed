@@ -1938,7 +1938,7 @@ class cFuzzyTimestamp:
 	to allow the programmer to set the precision of the
 	timestamp.
 
-	The timestamp will have to be initialzed with a fully
+	The timestamp will have to be initialized with a fully
 	precise value (which may, of course, contain partially
 	fake data to make up for missing values). One can then
 	set the accuracy value to indicate up to which part of

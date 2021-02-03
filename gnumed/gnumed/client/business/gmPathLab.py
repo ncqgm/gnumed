@@ -3091,7 +3091,7 @@ def create_lab_request(lab=None, req_id=None, pat_id=None, encounter_id=None, ep
 		if db_pat is None:
 			_log.error('cannot cross-check patient on lab request')
 			return (None, '')
-		# yes but ambigous
+		# yes but ambiguous
 		if pat_id != db_pat[0]:
 			_log.error('lab request found for [%s:%s] but patient mismatch: expected [%s], in DB [%s]' % (lab, req_id, pat_id, db_pat))
 			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.81 $'

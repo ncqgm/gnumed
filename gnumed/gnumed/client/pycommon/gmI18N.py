@@ -298,7 +298,7 @@ def install_domain(domain=None, language=None, prefer_local_catalog=False):
 			lang2log = '$LANG(default)=%s' % initial_lang
 		# setup candidate language
 		if lang_candidate is not None:
-			_log.info('explicitely overriding system locale language [%s] by setting ${LANG} to [%s]', initial_lang, lang_candidate)
+			_log.info('explicitly overriding system locale language [%s] by setting ${LANG} to [%s]', initial_lang, lang_candidate)
 			os.environ['LANG'] = lang_candidate
 			lang2log = '$LANG(explicit)=%s' % lang_candidate
 		if __install_domain(domain = domain, prefer_local_catalog = prefer_local_catalog, language = lang2log):

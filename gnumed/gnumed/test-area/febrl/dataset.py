@@ -459,7 +459,7 @@ class DataSetCOL(DataSet):
         col_count += field_length  # Increase column counter by field length,
                                    # this should be start column of next field
 
-      # Now only initialse file according to parallel write mode
+      # Now only initialize file according to parallel write mode
       #
       if (self.parallelwrite == 'all') or \
          ((self.parallelwrite == 'host') and (parallel.rank() == 0)):
@@ -520,7 +520,7 @@ class DataSetCOL(DataSet):
         col_count += field_length  # Increase column counter by field length,
                                    # this should be start column of next field
 
-      # Now only initialse file according to parallel write mode
+      # Now only initialize file according to parallel write mode
       #
       if (self.parallelwrite == 'all') or \
          ((self.parallelwrite == 'host') and (parallel.rank() == 0)):
@@ -964,7 +964,7 @@ class DataSetCSV(DataSet):
       if (self.parallelwrite == 'all'):
         self.file_name = self.file_name+'-P%i' % (parallel.rank())
 
-      # Now only initialse file according to parallel write mode
+      # Now only initialize file according to parallel write mode
       #
       if (self.parallelwrite == 'all') or \
          ((self.parallelwrite == 'host') and (parallel.rank() == 0)):
@@ -1009,7 +1009,7 @@ class DataSetCSV(DataSet):
       if (self.parallelwrite == 'all'):
         self.file_name = self.file_name+'-P%i' % (parallel.rank())
 
-      # Now only initialse file according to parallel write mode
+      # Now only initialize file according to parallel write mode
       #
       if (self.parallelwrite == 'all') or \
          ((self.parallelwrite == 'host') and (parallel.rank() == 0)):

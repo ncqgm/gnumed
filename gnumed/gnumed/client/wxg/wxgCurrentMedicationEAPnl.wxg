@@ -257,7 +257,7 @@
                                 <border>5</border>
                                 <flag>wxRIGHT|wxEXPAND|wxALIGN_CENTER_VERTICAL</flag>
                                 <object class="cPhraseWheel" name="_PRW_start_certainty" base="EditTextCtrl">
-                                    <tooltip>A coment on the certainty of the start date, such as "+/- 3 weeks", "spring of 2002", "shortly after Easter 1996", ....</tooltip>
+                                    <tooltip>A comment on the certainty of the start date, such as "+/- 3 weeks", "spring of 2002", "shortly after Easter 1996", ....</tooltip>
                                     <disabled>1</disabled>
                                 </object>
                             </object>

@@ -4,7 +4,7 @@ Praxis:
 
 	Each database belongs to ONE praxis only. A praxis can
 	have several branches. A praxis is at the same level
-	as an organization, except that it is not explicitely
+	as an organization, except that it is not explicitly
 	defined. Rather, that ONE organization of which at least
 	one unit is defined as a praxis branch IS the praxis.
 

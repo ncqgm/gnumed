@@ -56,7 +56,7 @@ create table dem.urb (
 	unique (id_state, postcode, name)
 ) inherits (audit.audit_fields);
 
--- this does not work in the UK! Seperate postcodes for each street,
+-- this does not work in the UK! Separate postcodes for each street,
 -- Same in Germany ! Postcodes can be valid for:
 -- - several smaller urbs
 -- - one urb
@@ -285,7 +285,7 @@ COMMENT on table dem.name_gender_map is
 	 this table is updated nightly by a cron script,
 	 names whose gender distribution is between 70/30 and 30/70 are
 	 ignored for ambiguity reasons,
-	 names with "ambigous" gender are also ignored';
+	 names with "ambiguous" gender are also ignored';
 
 
 -- ==========================================================
@@ -601,7 +601,7 @@ COMMENT on column dem.lnk_person_org_address.id_type IS
 
 -- consider not plainly auditing this table but also
 -- giving a reason for changes (incorrectly recorded
--- vs. moved etc.) or even explicitely model that
+-- vs. moved etc.) or even explicitly model that
 -- behaviour (as per Tim Churches)
 
 -- ===================================================================

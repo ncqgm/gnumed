@@ -59,7 +59,7 @@ class wxgMeasurementsPnl(wx.Panel):
 		self._BTN_display_mode.SetToolTip(_("Switch between modes of the full results display."))
 		self._PNL_results_all_listed.Hide()
 		self._BTN_manage_types.SetToolTip(_("Manage test types."))
-		self._BTN_add.SetToolTip(_("Add measurments."))
+		self._BTN_add.SetToolTip(_("Add measurements."))
 		self._BTN_list.SetToolTip(_("Show all measurements in a chronological list."))
 		self._BTN_select.SetToolTip(_("Select results according to your choice on the right.\n\nThis will override any previous selection.\n\nNote that you can also select cells, rows, or columns manually within the table."))
 		self._RBTN_my_unsigned.SetToolTip(_("Apply selection to those unsigned results for which you are to take responsibility."))

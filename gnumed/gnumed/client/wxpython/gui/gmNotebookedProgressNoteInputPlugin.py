@@ -4,7 +4,7 @@
 # ------------------------------------------------
 #
 # this plugin displays the list of patient problems
-# together whith a notebook container for progress notes
+# together with a notebook container for progress notes
 #
 # @copyright: author
 #======================================================================

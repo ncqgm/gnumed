@@ -1354,7 +1354,7 @@ class gmTopLevelFrame(wx.Frame):
 		gmCfgWidgets.configure_string_option (
 			message = _(
 				'GNUmed will use this URL to access an encyclopedia of\n'
-				'measurement/lab methods from within the measurments grid.\n'
+				'measurement/lab methods from within the measurements grid.\n'
 				'\n'
 				'You can leave this empty but to set it to a specific\n'
 				'address the URL must be accessible now.'
@@ -2395,7 +2395,7 @@ class gmTopLevelFrame(wx.Frame):
 			details = _('This is a deliberate AccessDenied exception thrown to test the handling of access violations by means of a decorator.')
 		)
 	#----------------------------------------------
-	@gmAccessPermissionWidgets.verify_minimum_required_role('admin', activity = _('testing access check for non-existant <admin> role'))
+	@gmAccessPermissionWidgets.verify_minimum_required_role('admin', activity = _('testing access check for non-existent <admin> role'))
 	def __on_test_access_checking(self, evt):
 		raise gmExceptions.AccessDenied (
 			_('[-9999]: <access violation test error>'),
@@ -3500,7 +3500,7 @@ class gmApp(wx.App):
 			self.RedirectStdio()
 			self.SetOutputWindowAttributes(title = _('GNUmed stdout/stderr window'))
 			# print this so people know what this window is for
-			# and don't get suprised when it pops up later
+			# and don't get surprised when it pops up later
 			print('---=== GNUmed startup ===---')
 			print(_('redirecting STDOUT/STDERR to this log window'))
 			print('---=== GNUmed startup ===---')
@@ -3621,7 +3621,7 @@ class gmApp(wx.App):
 		# You can bind your app to wx.EVT_ACTIVATE_APP which will fire when your
 		# app gets/looses focus, or you can wx.EVT_ACTIVATE with any of your
 		# toplevel windows and call evt.GetActive() in the handler to see whether
-		# it is gaining or loosing focus.
+		# it is gaining or losing focus.
 		self.Bind(wx.EVT_ACTIVATE_APP, self._on_app_activated)
 
 		self.Bind(wx.EVT_MOUSE_EVENTS, self._on_user_activity)
@@ -3793,7 +3793,7 @@ class gmApp(wx.App):
 				'Cannot find configuration file in any of:\n'
 				'\n'
 				' %s\n'
-				'You may need to use the comand line option\n'
+				'You may need to use the command line option\n'
 				'\n'
 				'	--conf-file=<FILE>'
 			) % '\n '.join(candidates)

@@ -6,7 +6,7 @@ This script is designed for importing GNUmed SOAP input "bundles".
 
 	- "bundle" is list of dicts
 	- each "bundle" is processed dict by dict
-	- the dicts in the list are INDEPENDANT of each other
+	- the dicts in the list are INDEPENDENT of each other
 	- each dict contains information for one new clin_narrative row
 	- each dict has the keys: 'soap', 'types', 'text', 'clin_context'
 		- 'soap':

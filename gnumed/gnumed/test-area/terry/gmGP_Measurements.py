@@ -136,7 +136,7 @@ class MeasurementPanel (wxPanel, gmPatientHolder.PatientHolder):
 		self.measurement_types_list.InsertColumn(1, "")
 		#-------------------------------------------------------------
 		#loop through the measurementtypesdata array and add to the list control
-		#note the different syntax for the first coloum of each row
+		#note the different syntax for the first column of each row
 		#i.e. here > self.measurement_types_list.InsertItem(x, data[0])!!
 		#-------------------------------------------------------------
 		m = gmListCtrlMapper(self.measurement_types_list)
@@ -157,7 +157,7 @@ class MeasurementPanel (wxPanel, gmPatientHolder.PatientHolder):
 		self.measurements_values_list.InsertColumn(1, "Value")
 		#-------------------------------------------------------------
 		#loop through the measurementtypesdata array and add to the list control
-		#note the different syntax for the first coloum of each row
+		#note the different syntax for the first column of each row
 		#i.e. here > self.measurement_types_list.InsertItem(x, data[0])!!
 		#-------------------------------------------------------------
 		m = gmListCtrlMapper(self.measurements_values_list)

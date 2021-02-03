@@ -1869,7 +1869,7 @@ if __name__== "__main__":
 		transfer_patients(startref)
 		do_patient_relations()
 	except:
-		print "AN ERROR HAS OCCURED"
+		print "AN ERROR HAS OCCURRED"
 		print "="*50
 		print "USAGE FOLLOWED BY ERROR:"
 		usage()	

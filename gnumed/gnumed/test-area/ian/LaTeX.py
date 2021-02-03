@@ -1,5 +1,5 @@
 """
-Module to run a LaTeX session, using the a4form.cls to recieve forms data
+Module to run a LaTeX session, using the a4form.cls to receive forms data
 Stil under active development, watch out!
 """
 
@@ -7,7 +7,7 @@ import re, types, string, tempfile, os, os.path
 
 def texify (item):
     """
-    escape a string/list properly acording to TeX markup
+    escape a string/list properly according to TeX markup
     """
     if type (item) is types.StringType:
         item = item.replace ("\\", "\\backspace ")

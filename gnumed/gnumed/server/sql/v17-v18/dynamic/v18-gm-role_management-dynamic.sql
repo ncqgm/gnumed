@@ -87,7 +87,7 @@ BEGIN
 		return False;
 	end if;
 
-	-- verify group existance
+	-- verify group existence
 	perform 1 from pg_group where groname = _target_group;
 	if not FOUND then
 		raise warning ''[gm.add_user_to_permission_group]: group [%] does not exist'', _target_group;

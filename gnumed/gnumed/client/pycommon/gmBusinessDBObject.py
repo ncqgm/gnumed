@@ -34,7 +34,7 @@ by a dictionary API, eg:
 	object['field'] = new_value
 
 The field names correspond to the respective column names
-in the "main" source relation. Accessing non-existant field
+in the "main" source relation. Accessing non-existent field
 names will raise an error, so does trying to set fields not
 listed in self.__class__._updatable_fields. To actually
 store updated values in the database one must explicitly
@@ -47,7 +47,7 @@ linked to a clinical narrative entry (eg a diagnosis). Such
 accessors in most cases start with get_*. Related setters
 start with set_*. The values can be accessed via the
 object['field'] syntax, too, but they will be cached
-independantly.
+independently.
 
 Concurrency handling
 --------------------
@@ -293,7 +293,7 @@ class cBusinessDBObject(object):
 		* the last query CAN return other fields which is particularly
 		  useful when those other fields are computed in the backend
 		  and may thus change upon save but will not have been set by
-		  the client code explicitely - this is only really of concern
+		  the client code explicitly - this is only really of concern
 		  if the saved subclass is to be reused after saving rather
 		  than re-instantiated
 		* when subclasses tend to live a while after save_payload() was
@@ -425,7 +425,7 @@ class cBusinessDBObject(object):
 	def __del__(self):
 		if '_is_modified' in self.__dict__:
 			if self._is_modified:
-				_log.critical('[%s:%s]: loosing payload changes' % (self.__class__.__name__, self.pk_obj))
+				_log.critical('[%s:%s]: losing payload changes' % (self.__class__.__name__, self.pk_obj))
 				_log.debug('most recently fetched: %s' % self.payload_most_recently_fetched)
 				_log.debug('modified: %s' % self._payload)
 
@@ -688,7 +688,7 @@ class cBusinessDBObject(object):
 		if self._is_modified:
 			compare_dict_likes(self.original_payload, self.fields_as_dict(date_format = None, none_string = None), 'original payload', 'modified payload')
 			if ignore_changes:
-				_log.critical('[%s:%s]: loosing payload changes' % (self.__class__.__name__, self.pk_obj))
+				_log.critical('[%s:%s]: losing payload changes' % (self.__class__.__name__, self.pk_obj))
 				#_log.debug('most recently fetched: %s' % self.payload_most_recently_fetched)
 				#_log.debug('modified: %s' % self._payload)
 			else:

@@ -57,7 +57,7 @@ if __name__ == '__main__':
 	gmI18N.install_domain()
 
 #import the widgets from the file referencing the widgets 
-#for that particualr plugin (e.g. ExamplePlugin.
+#for that particular plugin (e.g. ExamplePlugin.
 #If you code your own plugin replace Example by something reflecting
 #what your plugin does. 
 from Gnumed.wxpython import gmPlugin, gmExamplePluginWidgets

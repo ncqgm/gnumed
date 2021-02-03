@@ -126,7 +126,7 @@ class cLDTImporter:
 		cmd = "select exists(select pk from test_org where internal_name=%s)"
 		status = gmPG.run_ro_query('historica', cmd, None, field_data)
 		if status is None:
-			_log.Log(gmLog.lErr, 'cannot check for lab existance on [%s]' % field_data)
+			_log.Log(gmLog.lErr, 'cannot check for lab existence on [%s]' % field_data)
 			return False
 		if not status[0][0]:
 			_log.Log(gmLog.lErr, 'Unbekanntes Labor [%s]' % field_data)

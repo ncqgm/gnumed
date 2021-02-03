@@ -242,7 +242,7 @@ class CalendarPopupController(object):
         self.repop = True
 
     def on_dismiss(self):
-        # This funny code makes the calender control stay open when you change
+        # This funny code makes the calendar control stay open when you change
         # month or day. The control is closed on a double-click on a day or
         # a single click outside of the control
         if self.repop and not self.repoped:

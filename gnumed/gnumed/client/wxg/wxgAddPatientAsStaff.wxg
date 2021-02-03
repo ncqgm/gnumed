@@ -130,7 +130,7 @@
                         <border>0</border>
                         <flag>wxEXPAND|wxALIGN_CENTER_VERTICAL</flag>
                         <object class="wxTextCtrl" name="_TXT_dbo_password" base="EditTextCtrl">
-                            <tooltip>Enlisting GNUmed users is a priviledged operation.\nYou must enter the password for the database administrator "gm-dbo" here.</tooltip>
+                            <tooltip>Enlisting GNUmed users is a privileged operation.\nYou must enter the password for the database administrator "gm-dbo" here.</tooltip>
                             <style>wxTE_PASSWORD</style>
                         </object>
                     </object>

@@ -685,7 +685,7 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 			GNUmed will pass the substance in <TextualDrugName
 			and will also pass <INN>True</INN>.
 
-			Eric:	Nop, this is not usefull because pure textual drugs
+			Eric:	Nop, this is not useful because pure textual drugs
 					are not processed but just shown.
 		"""
 		# virginize file

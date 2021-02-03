@@ -87,7 +87,7 @@ html['FG14'] = '<span style="color: yellow;">'
 html['FG15'] = '<span style="color: white;">'
 html['FG99'] = '</span>'
 #TODO: still a few formatting codes missing (font, pitch)
-#TODO: specs don't mention whether PIT allows nested formating codes
+#TODO: specs don't mention whether PIT allows nested formatting codes
 
 
 class PitParser:

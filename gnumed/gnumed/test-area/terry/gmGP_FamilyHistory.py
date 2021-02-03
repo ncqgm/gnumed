@@ -90,7 +90,7 @@ class FamilyHistoryPanel(wxPanel, PatientHolder):
 		self.family_members_list.InsertColumn(1, "null")
 		#-------------------------------------------------------------
 		#loop through the familymemberdata array and add to the list control
-		#note the different syntax for the first coloum of each row
+		#note the different syntax for the first column of each row
 		#i.e. here > self.family_members_list.InsertItem(x, data[0])!!
 		#-------------------------------------------------------------
 		items = familymemberdata.items()
@@ -108,7 +108,7 @@ class FamilyHistoryPanel(wxPanel, PatientHolder):
 		self.member_conditions_list.InsertColumn(1, "null")
 		#-------------------------------------------------------------
 		#loop through the familymemberdata array and add to the list control
-		#note the different syntax for the first coloum of each row
+		#note the different syntax for the first column of each row
 		#i.e. here > self.family_members_list.InsertItem(x, data[0])!!
 		#-------------------------------------------------------------
 		items = membersconditionsdata.items()

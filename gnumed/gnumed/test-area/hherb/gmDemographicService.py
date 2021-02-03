@@ -11,7 +11,7 @@ class DemographicService(gmDatabaseService.DatabaseService):
 	
 	def searchPerson(self, dict, maxreturn=-1):
 		"""searches people matching criteria stated in the dictionary 'dict'.
-		returns a list of dictionaries matching the critera"""
+		returns a list of dictionaries matching the criteria"""
 	
 	def getPerson(self, id=-1):
 		"""returns a dictionary containing all properties of the person
@@ -24,7 +24,7 @@ class DemographicService(gmDatabaseService.DatabaseService):
 		
 	def searchAddress(self, dict):
 		"""searches addresses matching criteria stated in the dictionary 'dict'.
-		returns a list of dictionaries matching the critera"""
+		returns a list of dictionaries matching the criteria"""
 	
 	def getAddress(self, id=-1):
 		"""returns a dictionary containing all properties of the address

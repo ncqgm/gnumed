@@ -86,7 +86,7 @@
                             <events>
                                 <handler event="EVT_BUTTON">_on_add_button_pressed</handler>
                             </events>
-                            <tooltip>Add measurments.</tooltip>
+                            <tooltip>Add measurements.</tooltip>
                             <style>wxBU_EXACTFIT</style>
                             <label>Add</label>
                             <stockitem>ADD</stockitem>

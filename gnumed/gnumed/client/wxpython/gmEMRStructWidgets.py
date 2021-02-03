@@ -1328,7 +1328,7 @@ if __name__ == '__main__':
 			#--------------------------------------------------------
 			def OnCloseWindow (self, e):
 				"""
-				Close test aplication
+				Close test application
 				"""
 				self.ExitMainLoop ()
 

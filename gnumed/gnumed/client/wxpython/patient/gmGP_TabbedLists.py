@@ -273,7 +273,7 @@ uHl\xa1\x11\xa9dD\xb3q\x9d\x11\xe5\xa7\xf2\xea\x0f\xea\xd3\x90\x86\xf4\xb7tD\
 	self.List_Script.InsertColumnInfo(6, info)
 	#-------------------------------------------------------------
 	#loop through the scriptdata array and add to the list control
-	#note the different syntax for the first coloum of each row
+	#note the different syntax for the first column of each row
 	#i.e. here > self.List_Script.InsertItem(x, data[0])!!
 	#-------------------------------------------------------------
 	items = scriptdata.items()

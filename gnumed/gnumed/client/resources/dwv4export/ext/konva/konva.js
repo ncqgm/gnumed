@@ -3569,7 +3569,7 @@
     moveTo: function(newContainer) {
       // do nothing if new container is already parent
       if (this.getParent() !== newContainer) {
-        // this.remove my be overrided by drag and drop
+        // this.remove my be overridden by drag and drop
         // buy we need original
         (this.__originalRemove || this.remove).call(this);
         newContainer.add(this);

@@ -28,11 +28,11 @@ comment on column ref.data_source.name_short is
 comment on column ref.data_source.name_long is
 	'long, complete (, ?official) name for this reference entry';
 comment on column ref.data_source.version is
-	'the exact and non-ambigous version for this entry';
+	'the exact and non-ambiguous version for this entry';
 comment on column ref.data_source.description is
 	'optional arbitrary description, should include external license';
 comment on column ref.data_source.source is
-'non-ambigous description of source; with this info in hand it
+'non-ambiguous description of source; with this info in hand it
  must be possible to locate a copy of the external data set';
 
 -- --------------------------------------------------------------

@@ -213,7 +213,7 @@ class cOrgUnit(gmBusinessDBObject.cBusinessDBObject):
 		@param comm_medium The name of the communication medium.
 		@param url The communication resource locator.
 		@type url A str instance.
-		@param is_confidential Wether the data must be treated as confidential.
+		@param is_confidential Whether the data must be treated as confidential.
 		@type is_confidential A bool instance.
 		"""
 		return gmDemographicRecord.create_comm_channel (

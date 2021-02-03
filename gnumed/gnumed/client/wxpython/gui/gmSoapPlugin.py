@@ -3,7 +3,7 @@
 """GNUmed notebook based progress note input plugin
 
 This plugin displays the list of patient problems
-together whith a notebook container for progress notes.
+together with a notebook container for progress notes.
 """
 #======================================================================
 __author__ = "Carlos Moro, Karsten Hilbert"

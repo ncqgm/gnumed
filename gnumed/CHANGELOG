@@ -1338,7 +1338,7 @@ NEW: add Ginkgo CADx to list of minimally supported DICOM viewers
 NEW: placeholder $<encounter_list::format template::length>$ to access list of encounters
 NEW: visual progress note creation directly from image capture device
 NEW: 4 new visual progress note templates [thanks J.Busser]
-NEW: implement explicitely creating episodes from EMR tree or menu
+NEW: implement explicitly creating episodes from EMR tree or menu
 NEW: implement organizations management
 NEW: placeholder $<patient_address::type//formatting template::length>$
 NEW: placeholder $<adr_region::type::length>$
@@ -1460,7 +1460,7 @@ FIX: enable running arriba w/o an active patient
 FIX: cEpisode.get_narrative() ignored <soap_cats> argument
 FIX: wrapper around Python's deficient strftime() [thanks J.Jaarsveld]
 FIX: exception on displaying date deceased if not null [thanks J.Busser]
-FIX: exception on activating non-existant patient from inbox message [thanks Oliver]
+FIX: exception on activating non-existent patient from inbox message [thanks Oliver]
 
 IMPROVED: make creating/updating tags a restricted procedure [thanks Rogerio]
 IMPROVED: slightly relax external app exit code check on Windows [thanks vbanait]
@@ -2128,7 +2128,7 @@ NEW: on startup create ~/.gnumed/ if necessary
 
 FIX: crash on writing OOo letter (.desk -> .desktop)
 FIX: crash on faulty references to 'first'/'last' instead of 'firstnames'/'lastnames'
-FIX: crash on non-existant IFAP transfer directory
+FIX: crash on non-existent IFAP transfer directory
 FIX: crash on configuring IFAP startup command ('workpace' typo)
 FIX: crash on use of wxDebug window after application shutdown
 
@@ -2718,7 +2718,7 @@ FIX: SQL: dem.identity.dob trigger indiscriminately applied UTC to all incoming 
 
 FIX: SQL: delete_document: .date is now .clin_when
 NEW: bootstrapper: add commented out password option for postgres for Windows guidance
-NEW: maintenance: DB backup script checks for DB existance
+NEW: maintenance: DB backup script checks for DB existence
 NEW: maintenance: do not run DB backup script if DB name set empty
 
 	10.2 -> 10.3
@@ -2741,7 +2741,7 @@ NEW: bootstrapper: ensure gm-dbo has createdb createrole
 
 	9.1 -> 9.2
 
-FIX: SQL: fix delete_document(): explicitely delete document parts
+FIX: SQL: fix delete_document(): explicitly delete document parts
 NEW: bootstrapper: do not assume '' as password if none supplied and not interactive
 NEW: bootstrapper: accept UTF8, too, not just UTF-8
 

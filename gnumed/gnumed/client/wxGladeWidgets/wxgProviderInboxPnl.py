@@ -62,7 +62,7 @@ class wxgProviderInboxPnl(wx.ScrolledWindow):
 		self._RBTN_expired_messages.SetToolTip(_("Show expired (expiry date has passed) messages only."))
 		self._CHBOX_active_patient.SetToolTip(_("Include only messages about the active patient."))
 		self._CHBOX_active_patient.Enable(False)
-		self._CHBOX_active_provider.SetToolTip(_("Include only messages explicitely for you (rather than also to all providers)."))
+		self._CHBOX_active_provider.SetToolTip(_("Include only messages explicitly for you (rather than also to all providers)."))
 		self._CHBOX_active_provider.SetValue(1)
 		self._BTN_add.SetToolTip(_("Add a new message."))
 		self._LCTRL_provider_inbox.SetFocus()

@@ -26,7 +26,7 @@ from wxPython 3 to wxPython 4.
 At startup the client checks the database schema for the
 expected version. It does so by calculating a hash over the
 database schema and comparing that to an expected value. It
-will refuse to connect unless that check has been explicitely
+will refuse to connect unless that check has been explicitly
 disabled with the commandline option `--override-schema-check`.
 
 Users can find the expected and the detected database schema

@@ -89,7 +89,7 @@ def get_potential_person_dupes(lastnames:str, dob, firstnames:str=None, active_o
 
 	Args:
 		lastnames: last name(s) to search for
-		dob: date of birth to seach for, timestamp truncated to days
+		dob: date of birth to search for, timestamp truncated to days
 		firstnames: first name(s) to search for if given
 		active_only: search among _all_ patients or among active patients only
 
@@ -1601,7 +1601,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 		@param comm_medium The name of the communication medium.
 		@param url The communication resource locator.
 		@type url A str instance.
-		@param is_confidential Wether the data must be treated as confidential.
+		@param is_confidential Whether the data must be treated as confidential.
 		@type is_confidential A bool instance.
 		"""
 		comm_channel = gmDemographicRecord.create_comm_channel (
@@ -2131,7 +2131,7 @@ class gmCurrentPatient(gmBorg.cBorg):
 
 		5) The current patient is set to the new value.
 			The new patient can also remain gmNull.cNull
-			in case the calling code explicitely unset
+			in case the calling code explicitly unset
 			the current patient.
 
 		6) Signal "post_patient_selection" is sent.

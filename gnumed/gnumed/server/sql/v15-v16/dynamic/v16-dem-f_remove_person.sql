@@ -34,7 +34,7 @@ BEGIN
 
 	-- we cannot just get the child tables of clin.clin_root_item and
 	-- delete from them since they are inter-dependent and may require
-	-- a particular order of deletion, so let us do that explicitely:
+	-- a particular order of deletion, so let us do that explicitly:
 	DELETE FROM clin.clin_hx_family WHERE fk_encounter IN (
 		select pk from clin.encounter where fk_patient = _pk_identity
 	);

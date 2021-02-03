@@ -2,7 +2,7 @@
 """GNUmed multisash based progress note input plugin
 
 this plugin displays the list of patient problems
-together whith a multisash container for progress notes
+together with a multisash container for progress notes
 """
 #======================================================================
 __author__ = "Carlos Moro, Karsten Hilbert"

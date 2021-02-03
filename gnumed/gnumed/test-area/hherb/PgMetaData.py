@@ -165,7 +165,7 @@ _tables = []
 #==============================================================
 
 def list_all_tables(con, refresh=0):
-	"""returns a list of all table names excpet fr system tables.
+	"""returns a list of all table names except fr system tables.
 	If refresh is 0, results are read from cache, else directly from the backend"""
 	global QTables, _tables
 	if (not refresh) and (len(_tables) > 0):
