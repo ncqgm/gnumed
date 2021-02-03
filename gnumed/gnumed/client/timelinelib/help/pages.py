@@ -239,7 +239,7 @@ For an event the following properties can be defined.
         # Stars produce emphasized text. DON'T remove them.
         # Dashes produce bullet lists. DON'T remove them.
         body=_("""
-A milestone is a special case of a point event. It is rendered on the timescale of a timeline and it can have a desciption shown when hooverd over. It can also have a one character label that is displayed in the milestone box.
+A milestone is a special case of a point event. It is rendered on the timescale of a timeline and it can have a description shown when hooverd over. It can also have a one character label that is displayed in the milestone box.
 
 A milestone ...
 
@@ -376,7 +376,7 @@ Now a dialog appears in which you can define
 
  If number of duplications = 3, time span = day and frequency = 2, you will get 3 new copies of the event spread out with the time span of 2 days between them.
 
- You can also get to the duplication dialog from the event context menu, wich appears if you right-click an event with the mouse.
+ You can also get to the duplication dialog from the event context menu, which appears if you right-click an event with the mouse.
 """))
 
     help_system.install_page(

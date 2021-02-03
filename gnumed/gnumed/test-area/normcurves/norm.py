@@ -13,7 +13,7 @@ __version__ = "$Revision: 1.3 $"
 Classes and routines for medical normcurves.
 
 Short intro: For anything that can be measured, there are ranges of
-normality and it is often instructive to check wether measured value
+normality and it is often instructive to check whether measured value
 is in that range or how repeated measurements at different ages behave
 in comparison to the normal development.
 
@@ -105,7 +105,7 @@ class ConstantCurve(Curve):
 
 class PiecewiseCurve(Curve):
     '''defined by pieces which are assigned to certain X-Values
-    or intervalls'''
+    or intervals'''
     def __init__(self, points):
         self.points=points[:]
 
@@ -183,7 +183,7 @@ class Norm:
     valueOfLandmark and valueOfCentile can be used to
     draw those nice lines in charts. Before you use them,
     check first what Landmarks/Centiles are actually
-    avaliable in the specific norm
+    available in the specific norm
     '''
 
     def __init__(self):
@@ -269,8 +269,8 @@ class SdsNorm(Norm):
         cut to these values. This function is not highly accurate, but
         you can on rely on the first three digits (for the centile).
 
-        More detailed: The chebychevs are for the intervalls between the
-        centile for sds 0-1, 1-2 etc. centile values in these intervalls
+        More detailed: The chebychevs are for the intervals between the
+        centile for sds 0-1, 1-2 etc. centile values in these intervals
         are normalized to the range -1 -- 1. The Polynoms are noted with
         absolute coefficient first'''
         T=[0,0,0,0,0,0]

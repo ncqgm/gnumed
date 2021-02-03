@@ -15,7 +15,7 @@ whenever you learn of backend data changes. This will
 in most cases happen after you receive a gmDispatcher
 signal indicating a change in the backend.
 
-The _populate_with_data(self) method must be overriden in the
+The _populate_with_data(self) method must be overridden in the
 including class and must return True if the UI was successfully
 repopulated with content.
 

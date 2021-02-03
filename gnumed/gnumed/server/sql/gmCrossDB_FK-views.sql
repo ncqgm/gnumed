@@ -147,7 +147,7 @@ END;' language 'plpgsql';
 --
 -- Revision 1.4  2003/07/27 21:56:17  ncq
 -- - adjust unique constraints
--- - don't default to CURRENT_TIMESTAMP in last_checked ! (it needs to be set explicitely)
+-- - don't default to CURRENT_TIMESTAMP in last_checked ! (it needs to be set explicitly)
 -- - *reference* relevant remote-FKs from *_violations instead of cloning x_db_fk
 --
 -- Revision 1.3  2003/07/27 16:41:29  ncq

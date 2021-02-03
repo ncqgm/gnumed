@@ -121,7 +121,7 @@ class cContactsPanel(wx.wx.Panel):
 	
 		#-------------------------------------------------------------
 		#loop through the scriptdata array and add to the list control
-		#note the different syntax for the first coloum of each row
+		#note the different syntax for the first column of each row
 		#i.e. here > self.list_organisations.InsertItem(x, data[0])!!
 		#-------------------------------------------------------------
 		items = organisationsdata.items()
@@ -749,7 +749,7 @@ class cContactsPanel(wx.wx.Panel):
 				# if no numerals in first token assume no address number
 				if l[0].isalpha():
 					l = [''] + l
-				# if no numerals in last token asssume no postcode 	
+				# if no numerals in last token assume no postcode 	
 				if l[-1].isalpha():
 					l.append('')
 				urb_start_idx = -2

@@ -205,7 +205,7 @@
                             <events>
                                 <handler event="EVT_BUTTON">_on_add_button_pressed</handler>
                             </events>
-                            <tooltip>Add measurments.</tooltip>
+                            <tooltip>Add measurements.</tooltip>
                             <label>Add</label>
                             <stockitem>ADD</stockitem>
                         </object>

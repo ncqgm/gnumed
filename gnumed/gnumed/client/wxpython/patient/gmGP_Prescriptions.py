@@ -5,7 +5,7 @@
 # gmPrescription:
 # ----------------------------------
 #
-# This panel will hold all the prescrition, and allow entry
+# This panel will hold all the prescription, and allow entry
 # of those details via the editing area (gmEditArea.py - currently a
 # vapour module
 #
@@ -154,7 +154,7 @@ class PrescriptionPanel (wxPanel, PatientHolder):
 		self.list_script.InsertColumn(3, _("For"))
 		#-------------------------------------------------------------
 		#loop through the scriptdata array and add to the list control
-		#note the different syntax for the first coloum of each row
+		#note the different syntax for the first column of each row
 		#i.e. here > self.list_script.InsertItem(x, data[0])!!
 		#-------------------------------------------------------------
 		items = scriptdata.items()

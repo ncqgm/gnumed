@@ -810,7 +810,7 @@ class cSoapSTC(cUnicodeInsertion_TextCtrlMixin, gmKeywordExpansionWidgets.cKeywo
 		if wx.MAJOR_VERSION > 2:
 			evt.Skip()
 			return
-		# on wxp2 we need to explicitely handle WXK_MENU
+		# on wxp2 we need to explicitly handle WXK_MENU
 		# for the context menu to properly work on a key press
 		self.__show_context_menu(self.caret_coords_on_screen())
 

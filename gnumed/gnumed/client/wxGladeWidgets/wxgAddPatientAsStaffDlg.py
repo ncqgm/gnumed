@@ -44,7 +44,7 @@ class wxgAddPatientAsStaffDlg(wx.Dialog):
 		self._TXT_password.SetToolTip(_("The password for the new database account. Input will not be shown."))
 		self._TXT_password.SetFocus()
 		self._TXT_password_again.SetToolTip(_("The database password must be typed again to enable double-checking to protect against typos."))
-		self._TXT_dbo_password.SetToolTip(_("Enlisting GNUmed users is a priviledged operation.\nYou must enter the password for the database administrator \"gm-dbo\" here."))
+		self._TXT_dbo_password.SetToolTip(_("Enlisting GNUmed users is a privileged operation.\nYou must enter the password for the database administrator \"gm-dbo\" here."))
 		self._BTN_enlist.SetToolTip(_("Enlist this person as a GNUmed user and associate it with the given database account."))
 		self._BTN_enlist.SetDefault()
 		self._BTN_cancel.SetToolTip(_("Cancel this dialog, do not enlist new GNUmed user."))

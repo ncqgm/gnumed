@@ -2,7 +2,7 @@
 """GNUmed quick person search widgets.
 
 This widget allows to search for persons based on the
-critera name, date of birth and person ID. It goes to
+criteria name, date of birth and person ID. It goes to
 considerable lengths to understand the user's intent from
 her input. For that to work well we need per-culture
 query generators. However, there's always the fallback
@@ -947,7 +947,7 @@ class cPersonSearchCtrl(wx.TextCtrl):
 		# - redraw the currently active name upon losing focus
 		#
 		# if we use wx.EVT_KILL_FOCUS we will also receive this event
-		# when closing our application or loosing focus to another
+		# when closing our application or losing focus to another
 		# application which is NOT what we intend to achieve,
 		# however, this is the least ugly way of doing this due to
 		# certain vagaries of wxPython (see the Wiki)

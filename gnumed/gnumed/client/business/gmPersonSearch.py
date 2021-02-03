@@ -26,7 +26,7 @@ _log = logging.getLogger('gm.person')
 
 #============================================================
 class cPatientSearcher_SQL:
-	"""UI independant i18n aware patient searcher."""
+	"""UI independent i18n aware patient searcher."""
 	def __init__(self):
 		self._generate_queries = self._generate_queries_de
 		# make a cursor
@@ -313,7 +313,7 @@ class cPatientSearcher_SQL:
 
 	#--------------------------------------------------------
 	def _generate_simple_query(self, raw):
-		"""Compose queries if search term seems unambigous."""
+		"""Compose queries if search term seems unambiguous."""
 		queries = []
 
 		#raw = raw.strip(' ,;')
@@ -467,7 +467,7 @@ class cPatientSearcher_SQL:
 		return []
 
 	#--------------------------------------------------------
-	# generic, locale independant queries
+	# generic, locale independent queries
 	#--------------------------------------------------------
 	def _generate_queries_from_dto(self, dto = None):
 		"""Generate generic queries.
@@ -653,11 +653,11 @@ class cPatientSearcher_SQL:
 		# check to see if we get away with a simple query ...
 		queries = self._generate_simple_query(search_term)
 		if len(queries) > 0:
-			_log.debug('[%s]: search term with a simple, unambigous structure' % search_term)
+			_log.debug('[%s]: search term with a simple, unambiguous structure' % search_term)
 			return queries
 
 		# no we don't
-		_log.debug('[%s]: not a search term with a simple, unambigous structure' % search_term)
+		_log.debug('[%s]: not a search term with a simple, unambiguous structure' % search_term)
 
 		search_term = search_term.strip().strip(',').strip(';').strip()
 		normalized = self._normalize_soundalikes(search_term)

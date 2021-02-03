@@ -231,7 +231,7 @@ def __get_backend_profiles():
 			try:
 				profile.port = int(port)
 				if profile.port < 1024:
-					raise ValueError('refusing to use priviledged port (< 1024)')
+					raise ValueError('refusing to use privileged port (< 1024)')
 			except ValueError:
 				_log.warning('invalid port definition: [%s], skipping profile [%s]', port, profile_name)
 				continue
@@ -325,7 +325,7 @@ class cBackendProfile:
 
 def jsonrpchdl():
 	print "before_handler jsonrpc" 
-	# note: wheter req.body is a string or file depends on the content-type!
+	# note: whether req.body is a string or file depends on the content-type!
 	req = cherrypy.request
 	try:
 		size = int(req.headers["Content-Length"])

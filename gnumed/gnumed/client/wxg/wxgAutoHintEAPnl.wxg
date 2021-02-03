@@ -129,7 +129,7 @@
                             <events>
                                 <handler event="EVT_BUTTON">_on_check_url_button_pressed</handler>
                             </events>
-                            <tooltip>Explicitely check the URL given.</tooltip>
+                            <tooltip>Explicitly check the URL given.</tooltip>
                             <style>wxBU_EXACTFIT</style>
                             <label>Chec&amp;k</label>
                         </object>

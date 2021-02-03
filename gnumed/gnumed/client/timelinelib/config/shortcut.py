@@ -19,7 +19,7 @@
 """
 Naming and other conventions:
 All data needed for configuration of shortcuts are collected in metadata
-objects wich are of type Metadata.
+objects which are of type Metadata.
 The text in a menu item to the right of the \t character is called shortcut.
 Examples of shortcuts: Ctrl+N, PgUp, Shift+Ctrl+X
 The shortcut, if it exists, consists of an optional modifier and a shortcut

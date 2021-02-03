@@ -279,7 +279,7 @@ def instantiate_plugin(aPackage='xxxDEFAULTxxx', plugin_name='xxxDEFAULTxxx'):
 	- this knows nothing of databases, all it does is instantiate a named plugin
 
 	There will be a general 'gui' directory for large GUI
-	components: prescritions, etc., then several others for more
+	components: prescriptions, etc., then several others for more
 	specific types: export/import filters, crypto algorithms
 	guibroker, dbbroker are broker objects provided
 	defaults are the default set of plugins to be loaded

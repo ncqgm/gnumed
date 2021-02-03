@@ -160,7 +160,7 @@ class SchemaParser:
 				self.next_level_map[node]=[next level nodes]
 		
 		The next step is to proceed from the root ( e.g. identity) node again,
-		using self.next_level_map , and recursively build a heirarchical
+		using self.next_level_map , and recursively build a hierarchical
 		map using get_model(node) and then calling get_model recursively
 		on the node's next level nodes, visiting any node not already visited.
 

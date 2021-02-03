@@ -67,5 +67,5 @@ class DataPanelMixin :
 		
 	def OnUndo(self):
 		"""restores the data as loaded from the backend if 'self._loaded is true,
-		else retores the default"""
+		else restores the default"""
 		pass

@@ -222,7 +222,7 @@ class cCfgSQL:
 		)
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 		if len(rows) > 0:
-			# set explicitely for user/workplace
+			# set explicitly for user/workplace
 			self.set (
 				workplace = workplace,
 				cookie = cookie,
@@ -248,7 +248,7 @@ class cCfgSQL:
 		)
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 		if len(rows) > 0:
-			# set explicitely for user/workplace
+			# set explicitly for user/workplace
 			self.set (
 				workplace = workplace,
 				cookie = cookie,

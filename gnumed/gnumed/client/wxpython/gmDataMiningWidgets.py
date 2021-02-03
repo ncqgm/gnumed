@@ -581,7 +581,7 @@ class cDataMiningPnl(wxgDataMiningPnl.wxgDataMiningPnl):
 					column = col_idx,
 					label = label
 				)
-		# must be called explicitely, because string items are set above without calling set_string_items
+		# must be called explicitly, because string items are set above without calling set_string_items
 		self._LCTRL_result._invalidate_sorting_metadata()
 		self._LCTRL_result.set_column_widths()
 		self._LCTRL_result.set_data(data = rows)

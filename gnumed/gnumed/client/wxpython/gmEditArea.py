@@ -1295,7 +1295,7 @@ class gmEditArea(cEditArea):
 
 	
 	def _makeExtraColumns(self , parent, lines, weightMap = {} ):
-		"""this is a utlity method to add extra columns"""
+		"""this is a utility method to add extra columns"""
 		#add an extra column if the class has attribute "extraColumns"
 		if "extraColumns" in self.__class__.__dict__:
 			for x in self.__class__.extraColumns:
@@ -2194,7 +2194,7 @@ class EditArea(wx.Panel):
 		      #------------------------------------------------------------------
  #                     self.gszr.Add(self.txt_referralcategory,0,wx.EXPAND)               #e.g Othopaedic surgeon
 #		      self.gszr.Add(self.sizer_line2,0,wx.EXPAND)                        #e.g Dr B Breaker
-#		      self.gszr.Add(self.sizer_line3,0,wx.EXPAND)                        #e.g General Orthopaedic servies
+#		      self.gszr.Add(self.sizer_line3,0,wx.EXPAND)                        #e.g General Orthopaedic services
 #		      self.gszr.Add(self.sizer_line4,0,wx.EXPAND)                        #e.g street1
 #		      self.gszr.Add(self.sizer_line5,0,wx.EXPAND)                        #e.g street2
 #		      self.gszr.Add(self.sizer_line6,0,wx.EXPAND)                        #e.g street3

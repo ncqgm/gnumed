@@ -20,7 +20,7 @@ CREATE FUNCTION plpgsql_call_handler() RETURNS language_handler
 
 This will not work on any windows machine, at least if a nativ 
 PostgreSQL 8.01 is running.
-I don't know wether this was/is a bug.  The question is which version of 
+I don't know whether this was/is a bug.  The question is which version of 
 PostgreSQL was used to dump the gnumed-schema.
 A dump done with PostgreSQL 8.01 on Windows XP works around the problem 
 with the librarypath by using a variable $libdir instead of a Unix-like 
@@ -61,7 +61,7 @@ May be you can use them for Gnumed. I too have a form for private
 invoices, using the DIN-letter and the long-table envirement. By this 
 one can write multi-page invoices. Notice that latex has to be called 
 more than once to get nice tables with longtable.
-My invoiceform  may be usefull for GPs too after some modification.
+My invoiceform  may be useful for GPs too after some modification.
 As far as I can see, a search for *.tex in gnu med does not show 
 anything like this.
 I attach some more tex-files. elab_beleg.tex  is used to write dental 

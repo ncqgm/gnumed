@@ -219,7 +219,7 @@ def browse_incoming_unmatched(parent=None):
 				answer = gmGuiHelpers.gm_show_question (
 					title = _('Importing HL7 data'),
 					question = _(
-						'There has not been a patient explicitely associated\n'
+						'There has not been a patient explicitly associated\n'
 						'with this chunk of HL7 data. However, the data file\n'
 						'contains the following patient identification information:\n'
 						'\n'

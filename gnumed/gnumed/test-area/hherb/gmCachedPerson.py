@@ -24,7 +24,7 @@ class CachedPerson(gmDBCache.CachedDBObject):
 	def __init__(self, db=None):
 		#reference our class hierarchy level "singleton" cache
 		self.cache = CachedPerson.__dbcache
-		#make sure we allocte the default database connection
+		#make sure we allocate the default database connection
 		#in case no connection has been passed as parameter
 		if db is None and self.cache.db is None:
 			conn = gmPG.ConnectionPool()

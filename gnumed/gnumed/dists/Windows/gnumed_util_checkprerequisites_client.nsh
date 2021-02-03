@@ -2,7 +2,7 @@
 
 ;Check for Python and show splash screen
 Function CheckDependencies
-  Banner::show /NOUNLOAD "Checking for Depedencies ..."
+  Banner::show /NOUNLOAD "Checking for Dependencies ..."
 
   ReadRegStr $0 HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\Python.exe" ""
   StrCmp $5 "" 0 +2

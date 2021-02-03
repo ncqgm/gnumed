@@ -386,7 +386,7 @@ class cNotebookedProgressNoteInputPanel(wx.Panel):
 		)
 		self.__pat = gmPerson.gmCurrentPatient()
 
-		# ui contruction and event handling set up
+		# ui construction and event handling set up
 		self.__do_layout()
 		self.__register_interests()
 		self.reset_ui_content()
@@ -968,7 +968,7 @@ class cResizingSoapPanel(wx.Panel):
 		"""
 		Set SOAP input widget saved (dumped to backend) state
 
-		@param is_saved: Flag indicating wether the SOAP has been dumped to
+		@param is_saved: Flag indicating whether the SOAP has been dumped to
 						 persistent backend
 		@type is_saved: boolean
 		"""

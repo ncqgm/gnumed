@@ -204,7 +204,7 @@ class SOAPTextCtrl (wxStyledTextCtrl):
 
     def GetHeaders (self):
         """
-        Sets the list of headers, must be overrided by descendants
+        Sets the list of headers, must be overridden by descendants
         - header: the string labelling the section
         - type: one of TEXT, NUMBER, DATE, SELECTION
         SELECTION behaves like text except the match provider result replaces

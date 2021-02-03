@@ -371,7 +371,7 @@ def print_notify_change( tablename, primary_key ):
 				# check for possible conflict
 				if (self.changes[k].frontend <> frontend):
 					#a front end is making a change before a previous change
-					# by a different front end has been propogated to all front ends.
+					# by a different front end has been propagated to all front ends.
 					print "*** possible lost update"
 					print "earlier update by ", self.changes[k].frontend, " overwritten by ", frontend, " on object ", changes[k]
 			self.changes[k].change = changes[k]
@@ -401,7 +401,7 @@ def print_notify_change( tablename, primary_key ):
 	minimum timestamp in the clients' timestamp record. If there are 
 	any changes that are earlier than the minimum timestamp, then they
 	are removed from the server cache of changes, as these changes 
-	should have been propogated to all clients. "	
+	should have been propagated to all clients. "	
  		
 		later_changes = self._get_changes_later_than(frontend_timestamp)
 

@@ -40,7 +40,7 @@ class wxgMeasurementsAsTablePnl(wx.Panel):
 	def __set_properties(self):
 		# begin wxGlade: wxgMeasurementsAsTablePnl.__set_properties
 		self._BTN_manage_types.SetToolTip(_("Manage test types."))
-		self._BTN_add.SetToolTip(_("Add measurments."))
+		self._BTN_add.SetToolTip(_("Add measurements."))
 		self._BTN_select.SetToolTip(_("Select results according to your choice on the right.\n\nThis will override any previous selection.\n\nNote that you can also select cells, rows, or columns manually within the table."))
 		self._RBTN_my_unsigned.SetToolTip(_("Apply selection to those unsigned results for which you are to take responsibility."))
 		self._RBTN_all_unsigned.SetToolTip(_("Apply selection to all unsigned results."))

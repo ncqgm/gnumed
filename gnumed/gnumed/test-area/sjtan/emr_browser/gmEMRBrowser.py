@@ -183,7 +183,7 @@ class cEMRBrowserPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 #	def set_patient(self, patient):
 #		"""
 #		Configures EMR browser patient and instantiates exporter.
-#		Appropiate for standalaone use.
+#		Appropriate for standalaone use.
 #		patient - The patient to display EMR for
 #		"""
 #		self.__patient = patient

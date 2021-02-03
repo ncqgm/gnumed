@@ -151,7 +151,7 @@ comment on column clin.coded_narrative.xfk_coding_system is
 select audit.add_table_for_audit('clin', 'hx_family_item');
 
 comment on table clin.hx_family_item is
-	'stores family history items independant of the patient,
+	'stores family history items independent of the patient,
 	 this is out-of-EMR so that several patients can link to it';
 comment on column clin.hx_family_item.fk_narrative_condition is
 	'can point to a narrative item of a relative if in database';
@@ -1828,7 +1828,7 @@ select log_script_insertion('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.1
 -- - properly use new add_table_for_notifies()
 --
 -- Revision 1.159  2005/11/29 19:06:13  ncq
--- - explicitely delete public.* tables from notify table and re-insert
+-- - explicitly delete public.* tables from notify table and re-insert
 --   clin.* tables since add_table_for_notifies doesn't support schema yet
 --
 -- Revision 1.158  2005/11/27 12:59:09  ncq
@@ -2009,7 +2009,7 @@ select log_script_insertion('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.1
 -- Revision 1.111  2004/11/16 19:01:27  ncq
 -- - adjust to episode name now living in clin_narrative
 -- - v_named_episodes still needs work to properly account for
---   erronously unnamed episodes
+--   erroneously unnamed episodes
 --
 -- Revision 1.110  2004/10/29 22:37:02  ncq
 -- - propagate xmin to the relevant views to business classes can

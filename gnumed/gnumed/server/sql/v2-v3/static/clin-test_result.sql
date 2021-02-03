@@ -34,7 +34,7 @@ select public.log_script_insertion('$RCSfile: clin-test_result.sql,v $', '$Revis
 -- ==============================================================
 -- $Log: clin-test_result.sql,v $
 -- Revision 1.2  2006-10-28 23:36:16  ncq
--- - $2 is named explicitely in 8.1
+-- - $2 is named explicitly in 8.1
 --
 -- Revision 1.1  2006/10/24 13:08:26  ncq
 -- - mainly changes due to dropped clin.xlnk_identity
