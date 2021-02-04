@@ -13,6 +13,7 @@ Type=Application
 Name=GNUmed EMR
 GenericName=Electronic Medical Record
 Comment=An Electronic Medical Record for community care
+Comment[de]=Client zur Verwaltung von Arztpraxen
 Icon=gm_icon-serpent_and_gnu
 Exec=/usr/bin/gnumed
 Terminal=false
