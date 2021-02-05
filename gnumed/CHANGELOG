@@ -34,6 +34,10 @@ FIX: CLI: --ui= not needed anymore
 # rel-1-8-maint
 ------------------------------------------------
 
+	1.8.6
+
+IMPROVED: desktop entry file [thanks freddii]
+
 	1.8.5
 
 FIX: image conversion w/o target extension [thanks ...]
