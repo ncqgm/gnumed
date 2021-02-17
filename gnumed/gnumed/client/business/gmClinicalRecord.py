@@ -247,14 +247,16 @@ class cClinicalRecord(object):
 
 		if kwds['table'] != 'clin.encounter':
 			return True
+
 		if self.current_encounter is None:
-			_log.debug('no local current-encounter, ignoring encounter modification signal')
+			_log.debug('locally no encounter current, ignoring encounter modification signal')
 			return True
+
 		if int(kwds['pk_of_row']) != self.current_encounter['pk_encounter']:
 			_log.debug('modified encounter [%s] != local encounter [%s], ignoring signal', kwds['pk_of_row'], self.current_encounter['pk_encounter'])
 			return True
 
-		_log.debug('modification of our encounter (%s) signalled (%s)', self.current_encounter['pk_encounter'], kwds['pk_of_row'])
+		_log.debug('remote modification of our encounter signalled (local: #%s, remote: #%s)', self.current_encounter['pk_encounter'], kwds['pk_of_row'])
 
 		# get the current encounter as an extra instance
 		# from the database to check for changes
@@ -264,18 +266,18 @@ class cClinicalRecord(object):
 		# have got the same transaction ID so there's no change
 		# in the database, there could be a local change in
 		# the active encounter but that doesn't matter because
-		# no one else can have written to the DB so far
+		# no one else can have written to the DB so far (XMIN match)
 		if curr_enc_in_db['xmin_encounter'] == self.current_encounter['xmin_encounter']:
-			_log.debug('same XMIN, no difference between DB and in-client instance of current encounter expected')
+			_log.debug('in-client and in-DB instance of encounter #%s have matching XMINs (%s), DB has not been written to since we last loaded the encounter', self.current_encounter['pk_encounter'], self.current_encounter['xmin_encounter'])
 			if self.current_encounter.is_modified():
 				_log.error('encounter modification signal from DB with same XMIN as in local in-client instance of encounter BUT local instance ALSO has .is_modified()=True')
 				_log.error('this hints at an error in .is_modified handling')
-				gmTools.compare_dict_likes(self.current_encounter.fields_as_dict(), curr_enc_in_db.fields_as_dict(), 'modified enc in client', 'enc loaded from DB')
+				gmTools.compare_dict_likes(self.current_encounter.fields_as_dict(), curr_enc_in_db.fields_as_dict(), 'modified enc in client', 'signalled enc loaded from DB')
 			return True
 
 		# there must have been a change to the active encounter
 		# committed to the database from elsewhere,
-		# we must fail propagating the change, however, if
+		# we must fail to propagate the change, however, if
 		# there are local changes pending
 		if self.current_encounter.is_modified():
 			gmTools.compare_dict_likes(self.current_encounter.fields_as_dict(), curr_enc_in_db.fields_as_dict(), 'modified enc in client', 'signalled enc loaded from DB')
