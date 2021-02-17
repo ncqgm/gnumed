@@ -3079,6 +3079,12 @@ def unlock_encounter(pk_encounter, exclusive=False, link_obj=None):
 	unlocked = gmPG2.unlock_row(link_obj = link_obj, table = 'clin.encounter', pk = pk_encounter, exclusive = exclusive)
 	if not unlocked:
 		_log.warning('cannot unlock encounter [#%s]', pk_encounter)
+		call_stack = inspect.stack()
+		call_stack.reverse()
+		for idx in range(1, len(call_stack)):
+			caller = call_stack[idx]
+			_log.error('%s[%s] @ [%s] in [%s]', ' ' * idx, caller[3], caller[2], caller[1])
+		del call_stack
 	return unlocked
 
 #-----------------------------------------------------------
