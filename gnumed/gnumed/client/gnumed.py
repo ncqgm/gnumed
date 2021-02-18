@@ -176,7 +176,29 @@ options:
 
 .PP
 .TP
-.B client/system interfacing
+.B client/system runtime interaction
+
+GNUmed uses scripts and configuration files to customize system interaction at runtime:
+
+.B gm-print_doc(.bat)
+
+Called to print documents if other methods fail. Check the GNUmed debug log for the API.
+
+.B gm-mail_doc(.bat)
+
+Called to e-mail documents if other methods fail. Check the GNUmed debug log for the API.
+
+.B gm-fax_doc(.bat)
+
+Called to fax documents if other methods fail. Check the GNUmed debug log for the API.
+
+.B gm-burn_doc(.bat)
+
+Called to burn a directory onto CD/DVD if other methods fail. Check the GNUmed debug log for the API.
+
+.B gm-unicode2clipboard
+
+Called to help the user enter non-native characters if other methods fail. Check the GNUmed debug log for the API.
 
 .B ~/.gnumed/gnumed-xsanerc.conf
 
@@ -197,26 +219,6 @@ The file must contain a group [extensions] under which there can be one option p
 .nf
 [extensions]
 image/x-bmp = bmp
-
-.B gm-print_doc(.bat)
-
-A helper script which GNUmed calls to print documents if other methods fail. See gm-print_doc(1).
-
-.B gm-mail_doc(.bat)
-
-A helper script which GNUmed calls to e-mail documents if it cannot detect a better method. Check the GNUmed debug log for the API.
-
-.B gm-fax_doc(.bat)
-
-A helper script which GNUmed calls to fax documents if it cannot detect a better method. Check the GNUmed debug log for the API.
-
-.B gm-burn_doc(.bat)
-
-A helper script which GNUmed calls to burn a directory onto CD/DVD if it cannot detect a better method. Check the GNUmed debug log for the API.
-
-.B gm-unicode2clipboard
-
-A helper script which GNUmed calls to help the user enter "foreign" characters if it cannot detect a better method. Check the GNUmed debug log for the API.
 
 
 .SH EXIT STATUS

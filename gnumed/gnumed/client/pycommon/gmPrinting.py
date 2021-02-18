@@ -26,7 +26,7 @@ KNOWN_PRINTJOB_TYPES = [
 ]
 
 external_print_APIs = [
-	'gm-print_doc',
+	'gm-print_doc',			# locally provided script
 	'os_startfile',			# win, mostly
 	'gsprint',				# win
 	'acrobat_reader',		# win
@@ -67,26 +67,34 @@ def print_files(filenames:list=None, jobtype:str=None, print_api:str=None, verbo
 
 	if print_api == 'os_startfile':
 		return _print_files_by_os_startfile(filenames = filenames)
+
 	if print_api == 'gm-print_doc':
 		return _print_files_by_shellscript(filenames = filenames, jobtype = jobtype, verbose = verbose)
+
 	if print_api == 'gsprint':
 		return _print_files_by_gsprint_exe(filenames = filenames, verbose = verbose)
+
 	if print_api == 'acrobat_reader':
 		return _print_files_by_acroread_exe(filenames = filenames, verbose = verbose)
+
 	if print_api == 'gtklp':
 		return _print_files_by_gtklp(filenames = filenames, verbose = verbose)
+
 	if print_api == 'Internet_Explorer':
 		return _print_files_by_IE(filenames = filenames)
+
 	if print_api == 'Mac_Preview':
 		return _print_files_by_mac_preview(filenames = filenames, verbose = verbose)
 
-	# else try all
+	# not any single print_api explicitely requested, so try all, per-platform
 	if (sys.platform == 'darwin') or (os.name == 'mac'):
 		if _print_files_by_mac_preview(filenames = filenames, verbose = verbose):
 			return True
+
 	elif os.name == 'posix':
 		if _print_files_by_gtklp(filenames = filenames, verbose = verbose):
 			return True
+
 	elif os.name == 'nt':
 		if _print_files_by_shellscript(filenames = filenames, jobtype = jobtype, verbose = verbose):
 			return True
@@ -100,10 +108,8 @@ def print_files(filenames:list=None, jobtype:str=None, print_api:str=None, verbo
 			return True
 		return False
 
-	if _print_files_by_shellscript(filenames = filenames, jobtype = jobtype, verbose = verbose):
-		return True
-
-	return False
+	# unknown platform, or platform default list failed, so try generic script
+	return _print_files_by_shellscript(filenames = filenames, jobtype = jobtype, verbose = verbose)
 
 #=======================================================================
 # external print APIs
@@ -257,7 +263,13 @@ def _print_files_by_shellscript(filenames=None, jobtype=None, verbose=False):
 	cmd_line.extend(filenames)
 	success, returncode, stdout = gmShellAPI.run_process(cmd_line = cmd_line, verbose = verbose)
 	if not success:
+		_log.debug('gm-print_doc(.bat) arguments: "DOCUMENT_TYPE LIST-OF-FILES-TO-PRINT"')
+		_log.debug('gm-print_doc(.bat): call printing app, perhaps based on DOCUMENT_TYPE, and pass in LIST-OF-FILES-TO-PRINT')
+		_log.debug('gm-print_doc(.bat): return 0 on success')
+		_log.debug('gm-print_doc(.bat): DOCUMENT_TYPE - can be used to decide which way to process a particular print job (Example: medication_list)')
+		_log.debug('gm-print_doc(.bat): LIST-OF-FILES-TO-PRINT - can be of any mimetype so the script needs to be able to process them, typically PDF though')
 		return False
+
 	return True
 
 #=======================================================================
