@@ -2109,7 +2109,7 @@ def sanity_check_database_settings():
 	cmd = 'SELECT name, setting FROM pg_settings WHERE name = ANY(%(settings)s)'
 	rows, idx = run_ro_queries (
 		link_obj = conn,
-		queries = [{'cmd': cmd, 'args': {'settings': options2check}}],
+		queries = [{'cmd': cmd, 'args': {'settings': list(options2check)}}],
 		get_col_idx = False
 	)
 	found_error = False

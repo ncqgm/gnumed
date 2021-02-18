@@ -1609,8 +1609,9 @@ def compare_dict_likes(d1, d2, title1=None, title2=None):
 		_log.info('%25.25s: %50.50s | %.50s' % (key, '<MISSING>', '>>>%s<<<' % d2[key]))
 		different = True
 	if different:
-		_log.info('dict-likes appear to be different from each other')
+		_log.warning('dict-likes appear to be different from each other')
 		return False
+
 	_log.info('dict-likes appear equal to each other')
 	return True
 

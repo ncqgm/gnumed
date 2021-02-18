@@ -108,42 +108,52 @@ _KNOWN_UNICODE_SELECTORS = [
 	# Mac OSX supposedly features built-in support
 ]
 
-class cUnicodeInsertion_TextCtrlMixin():
-	"""Mixin for inserting unicode characters via selection tool."""
+found, __UNICODE_SELECTOR_APP = gmShellAPI.find_first_binary(binaries = _KNOWN_UNICODE_SELECTORS)
+if found:
+	_log.debug('found [%s] for unicode character selection', __UNICODE_SELECTOR_APP)
+else:
+	_log.error('no unicode character selection tool found')
 
-	_unicode_selector = None
+
+class cUnicodeInsertion_TextCtrlMixin():
+	"""Insert unicode characters into text control via selection tool."""
+
+#	_unicode_selector = None
 
 	def __init__(self, *args, **kwargs):
 		if not isinstance(self, (wx.TextCtrl, wx.stc.StyledTextCtrl)):
 			raise TypeError('[%s]: can only be applied to wx.TextCtrl or wx.stc.StyledTextCtrl, not [%s]' % (cUnicodeInsertion_TextCtrlMixin, self.__class__.__name__))
 
-		if cUnicodeInsertion_TextCtrlMixin._unicode_selector is None:
-			found, cUnicodeInsertion_TextCtrlMixin._unicode_selector = gmShellAPI.find_first_binary(binaries = _KNOWN_UNICODE_SELECTORS)
-			if found:
-				_log.debug('found [%s] for unicode character selection', cUnicodeInsertion_TextCtrlMixin._unicode_selector)
-			else:
-				_log.error('no unicode character selection tool found')
+#		if cUnicodeInsertion_TextCtrlMixin._unicode_selector is None:
+#			found, cUnicodeInsertion_TextCtrlMixin._unicode_selector = gmShellAPI.find_first_binary(binaries = _KNOWN_UNICODE_SELECTORS)
+#			if found:
+#				_log.debug('found [%s] for unicode character selection', cUnicodeInsertion_TextCtrlMixin._unicode_selector)
+#			else:
+#				_log.error('no unicode character selection tool found')
 
 	#--------------------------------------------------------
 	def mixin_insert_unicode_character(self):
-		if cUnicodeInsertion_TextCtrlMixin._unicode_selector is None:
+#		if cUnicodeInsertion_TextCtrlMixin._unicode_selector is None:
+		if __UNICODE_SELECTOR_APP is None:
 			return False
 
 		# read clipboard
 		if wx.TheClipboard.IsOpened():
 			_log.error('clipboard already open')
 			return False
+
 		if not wx.TheClipboard.Open():
 			_log.error('cannot open clipboard')
 			return False
+
 		data_obj = wx.TextDataObject()
 		prev_clip = None
 		got_it = wx.TheClipboard.GetData(data_obj)
 		if got_it:
 			prev_clip = data_obj.Text
-
 		# run selector
-		if not gmShellAPI.run_command_in_shell(command = cUnicodeInsertion_TextCtrlMixin._unicode_selector, blocking = True):
+		#if not gmShellAPI.run_command_in_shell(command = cUnicodeInsertion_TextCtrlMixin._unicode_selector, blocking = True):
+		if not gmShellAPI.run_command_in_shell(command = __UNICODE_SELECTOR_APP, blocking = True):
 			wx.TheClipboard.Close()
 			return False
 
@@ -153,9 +163,9 @@ class cUnicodeInsertion_TextCtrlMixin():
 		if not got_it:
 			_log.debug('clipboard does not contain text')
 			return False
-		curr_clip = data_obj.Text
 
-		# insert clip if so
+		curr_clip = data_obj.Text
+		# insert clip if any
 		if curr_clip == prev_clip:
 			# nothing put into clipboard (that is, clipboard still the same)
 			return False
