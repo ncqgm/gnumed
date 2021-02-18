@@ -41,7 +41,7 @@ class PickList (wxListBox):
 
     def Down (self):
         n = self.GetSelection ()
-        if n < self.GetCount ()-1:
+        if n < self.GetCount()-1:
             self.SetSelection (n+1)
 
     def Enter (self):

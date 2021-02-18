@@ -789,7 +789,7 @@ class cClinicalRecord(object):
 			where_parts.append('discharge > (now() - %(range)s)')
 
 		cmd = """
-			SELECT hospital, count(1) AS frequency
+			SELECT hospital, COUNT(*) AS frequency
 			FROM clin.v_hospital_stays
 			WHERE
 				%s
@@ -1105,7 +1105,7 @@ class cClinicalRecord(object):
 			"""
 				SELECT ((
 					-- all relevant health issues + active episodes WITH health issue
-					SELECT COUNT(1)
+					SELECT COUNT(*)
 					FROM clin.v_problem_list
 					WHERE
 						pk_patient = %(pat)s
@@ -1113,22 +1113,22 @@ class cClinicalRecord(object):
 						pk_health_issue is not null
 				) + (
 					-- active episodes WITHOUT health issue
-					SELECT COUNT(1)
+					SELECT COUNT(*)
 					FROM clin.v_problem_list
 					WHERE
 						pk_patient = %(pat)s
 							AND
 						pk_health_issue is null
 				))""",
-			'SELECT count(1) FROM clin.encounter WHERE fk_patient = %(pat)s',
-			'SELECT count(1) FROM clin.v_pat_items WHERE pk_patient = %(pat)s',
-			'SELECT count(1) FROM blobs.v_doc_med WHERE pk_patient = %(pat)s',
-			'SELECT count(1) FROM clin.v_test_results WHERE pk_patient = %(pat)s',
-			'SELECT count(1) FROM clin.v_hospital_stays WHERE pk_patient = %(pat)s',
-			'SELECT count(1) FROM clin.v_procedures WHERE pk_patient = %(pat)s',
+			'SELECT COUNT(*) FROM clin.encounter WHERE fk_patient = %(pat)s',
+			'SELECT COUNT(*) FROM clin.v_pat_items WHERE pk_patient = %(pat)s',
+			'SELECT COUNT(*) FROM blobs.v_doc_med WHERE pk_patient = %(pat)s',
+			'SELECT COUNT(*) FROM clin.v_test_results WHERE pk_patient = %(pat)s',
+			'SELECT COUNT(*) FROM clin.v_hospital_stays WHERE pk_patient = %(pat)s',
+			'SELECT COUNT(*) FROM clin.v_procedures WHERE pk_patient = %(pat)s',
 			# active and approved substances == medication
 			"""
-				SELECT count(1)
+				SELECT COUNT(*)
 				FROM clin.v_substance_intakes
 				WHERE
 					pk_patient = %(pat)s
@@ -1136,7 +1136,7 @@ class cClinicalRecord(object):
 					is_currently_active IN (null, true)
 						AND
 					intake_is_approved_of IN (null, true)""",
-			'SELECT count(1) FROM clin.v_vaccinations WHERE pk_patient = %(pat)s'
+			'SELECT COUNT(*) FROM clin.v_vaccinations WHERE pk_patient = %(pat)s'
 		])
 
 		rows, idx = gmPG2.run_ro_queries (
@@ -2658,7 +2658,7 @@ SELECT MIN(earliest) FROM (
 			where_parts.append('last_affirmed > now() - %(range)s')
 
 		cmd = """
-			SELECT l10n_type, count(1) AS frequency
+			SELECT l10n_type, COUNT(*) AS frequency
 			FROM clin.v_pat_encounters
 			WHERE
 				%s

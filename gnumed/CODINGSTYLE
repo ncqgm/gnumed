@@ -1,6 +1,18 @@
 
-use speaking identifiers as much as possible for self documentation of code
+General
+-------
 
+- use speaking identifiers as much as possible for self documentation of code
+
+
+SQL
+---
+
+- use COUNT(*) rather than COUNT(1) or COUNT(some_column) unless you know why
+
+
+Python
+------
 
 classes:
 
@@ -29,7 +41,7 @@ constants:
 	UPPER_CASE_NAME_SNAKE_STYLE
 
 
-module file layout:
+Python module file layout:
 -------------------------------------------------------------
 # -*- coding: utf-8 -*-
 

@@ -3186,7 +3186,7 @@ def create_encounter_type(description=None, l10n_description=None):
 def get_most_commonly_used_encounter_type():
 	cmd = """
 		SELECT
-			COUNT(1) AS type_count,
+			COUNT(*) AS type_count,
 			fk_type
 		FROM clin.encounter
 		GROUP BY fk_type

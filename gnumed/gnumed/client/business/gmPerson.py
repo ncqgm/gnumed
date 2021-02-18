@@ -78,7 +78,7 @@ def external_id_exists(pk_issuer, value) -> int:
 	Returns:
 		Count of stored external IDs for the given issuer.
 	"""
-	cmd = 'SELECT COUNT(1) FROM dem.lnk_identity2ext_id WHERE fk_origin = %(issuer)s AND external_id = %(val)s'
+	cmd = 'SELECT COUNT(*) FROM dem.lnk_identity2ext_id WHERE fk_origin = %(issuer)s AND external_id = %(val)s'
 	args = {'issuer': pk_issuer, 'val': value}
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
 	return rows[0][0]
@@ -112,9 +112,9 @@ def get_potential_person_dupes(lastnames:str, dob, firstnames:str=None, active_o
 			# the \m makes "firstnames" match at any word boundary
 			args['first'] = '\\m' + firstnames.strip()
 	if active_only:
-		cmd = """SELECT COUNT(1) FROM dem.v_active_persons WHERE %s""" % ' AND '.join(where_parts)
+		cmd = """SELECT COUNT(*) FROM dem.v_active_persons WHERE %s""" % ' AND '.join(where_parts)
 	else:
-		cmd = """SELECT COUNT(1) FROM dem.v_all_persons WHERE %s""" % ' AND '.join(where_parts)
+		cmd = """SELECT COUNT(*) FROM dem.v_all_persons WHERE %s""" % ' AND '.join(where_parts)
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
 	return rows[0][0]
 
@@ -196,7 +196,7 @@ class cDTO_person(object):
 		if self.gender is not None:
 			where_snippets.append('gender = %(sex)s')
 			args['sex'] = self.gender
-		cmd = 'SELECT count(1) FROM dem.v_person_names WHERE %s' % ' AND '.join(where_snippets)
+		cmd = 'SELECT COUNT(*) FROM dem.v_person_names WHERE %s' % ' AND '.join(where_snippets)
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
 
 		return rows[0][0] == 1
@@ -219,7 +219,7 @@ class cDTO_person(object):
 		if self.gender is not None:
 			where_snippets.append('gender = %(sex)s')
 			args['sex'] = self.gender
-		cmd = 'SELECT count(1) FROM dem.v_person_names WHERE %s' % ' AND '.join(where_snippets)
+		cmd = 'SELECT COUNT(*) FROM dem.v_person_names WHERE %s' % ' AND '.join(where_snippets)
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
 
 		return rows[0][0] > 0
