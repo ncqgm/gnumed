@@ -3,10 +3,13 @@
 #====================================================
 # license: GPL v2 or later
 #====================================================
-CLIENTREV="1.9.0rc1"
+TS=""
+#TS=".$(date +%Y%m%d-%H%M%S)"
+CLIENTREV="1.9.0rc1${TS}"
 CLIENTARCH="gnumed-client.$CLIENTREV.tgz"
 
-SRVREV="23.0rc1"
+SRVREV="22.15"
+SRVREV="23.0rc1${TS}"
 SRVARCH="gnumed-server.$SRVREV.tgz"
 
 LANG_LIST="ar bg ca cs da de el en_AU en_CA es fr id it ka nb nl pl pt pt_BR ro ru ru_RU sq sr sv tr uk zh_TW"
