@@ -247,6 +247,10 @@ class cExportAreaExportToMediaDlg(wxgExportAreaExportToMediaDlg.wxgExportAreaExp
 		data = []
 
 		found, self.__burn_script = gmShellAPI.detect_external_binary('gm-burn_doc')
+		if not found:
+			_log.debug('gm-burn_doc(.bat) arguments: "DIRECTORY-TO-BURN-FROM"')
+			_log.debug('gm-burn_doc(.bat): call a CD/DVD burning application and pass in DIRECTORY-TO-BURN-FROM')
+			_log.debug('gm-burn_doc(.bat): return 0 on success')
 
 		# USB / MMC drives
 		removable_partitions = gmTools.enumerate_removable_partitions()
@@ -877,8 +881,9 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 	#--------------------------------------------------------
 	def _on_mail_items_button_pressed(self, event):
 		event.Skip()
-
-		_log.debug('gm-mail_doc(.bat) API: "MAIL-PROGRAM PRAXIS-VCF ZIP-ARCHIVE"')
+		_log.debug('gm-mail_doc(.bat) API: PRAXIS-VCF ZIP-ARCHIVE"')
+		_log.debug('gm-mail_doc(.bat) should call an email client and pass in PRAXIS-VCF and ZIP-ARCHIVE as attachments')
+		_log.debug('gm-mail_doc(.bat) should return 0 on success')
 
 		found, external_cmd = gmShellAPI.detect_external_binary('gm-mail_doc')
 		if not found:
@@ -910,8 +915,6 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 	#--------------------------------------------------------
 	def _on_fax_items_button_pressed(self, event):
 		event.Skip()
-
-		_log.debug('gm-fax_doc(.bat) API: "FAX-PROGRAM FAXNUMBER-OR-<EMPTY> LIST-OF-FILES-TO-FAX" (any file type !)')
 
 		found, external_cmd = gmShellAPI.detect_external_binary('gm-fax_doc')
 		if not found:
@@ -992,12 +995,20 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 
 		self.__mail_script_exists, path = gmShellAPI.detect_external_binary(binary = r'gm-mail_doc')
 		if not self.__mail_script_exists:
+			_log.debug('gm-mail_doc(.bat) arguments: PRAXIS-VCF ZIP-ARCHIVE"')
+			_log.debug('gm-mail_doc(.bat): call an email client and pass in PRAXIS-VCF and ZIP-ARCHIVE as attachments')
+			_log.debug('gm-mail_doc(.bat): return 0 on success')
 			self._BTN_mail_items.Disable()
 			tt = self._BTN_mail_items.GetToolTipText() + '\n\n' + _('<gm-mail_doc(.bat) not found>')
 			self._BTN_mail_items.SetToolTip(tt)
 
 		self.__fax_script_exists, path = gmShellAPI.detect_external_binary(binary = r'gm-fax_doc')
 		if not self.__fax_script_exists:
+			_log.debug('gm-fax_doc(.bat) arguments: "FAXNUMBER-OR-<EMPTY> LIST-OF-FILES-TO-FAX"')
+			_log.debug('gm-fax_doc(.bat): call a fax client and pass in FAXNUMBER and LIST-OF-FILES-TO-FAX')
+			_log.debug('gm-fax_doc(.bat): return 0 on success')
+			_log.debug('gm-fax_doc(.bat): FAXNUMBER is either the receiver number or the string "EMPTY" if unknown number to GNUmed')
+			_log.debug('gm-fax_doc(.bat): LIST-OF-FILES-TO-FAX can be of any file type, so may need to be converted to, say, G3 TIFF')
 			self._BTN_fax_items.Disable()
 			tt = self._BTN_fax_items.GetToolTipText() + '\n\n' + _('<gm-fax_doc(.bat) not found>')
 			self._BTN_fax_items.SetToolTip(tt)

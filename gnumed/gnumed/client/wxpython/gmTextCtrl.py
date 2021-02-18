@@ -113,6 +113,9 @@ if found:
 	_log.debug('found [%s] for unicode character selection', __UNICODE_SELECTOR_APP)
 else:
 	_log.error('no unicode character selection tool found')
+	_log.debug('known tools: %s', _KNOWN_UNICODE_SELECTORS)
+	_log.debug('gm-unicode2clipboard: no arguments passed in')
+	_log.debug('gm-unicode2clipboard: if the clipboard contains new data upon return GNUmed will import the active text control')
 
 
 class cUnicodeInsertion_TextCtrlMixin():

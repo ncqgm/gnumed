@@ -162,37 +162,7 @@ def install_data_pack(data_pack=None, conn=None):
 
 	_log.error('error installing data pack: %s', data_pack)
 	return False
-#---------------------------------------------------------------------------
-def download_data_pack_old(url, target_dir=None):
 
-	if target_dir is None:
-		target_dir = gmTools.get_unique_filename(prefix = 'gm-dl-')
-
-	_log.debug('downloading [%s]', url)
-	_log.debug('unpacking into [%s]', target_dir)
-
-	gmTools.mkdir(directory = target_dir)
-
-	# FIXME: rewrite to use urllib.request.urlretrieve() and 
-
-	paths = gmTools.gmPaths()
-	local_script = os.path.join(paths.local_base_dir, '..', 'external-tools', 'gm-download_data')
-
-	candidates = ['gm-download_data', 'gm-download_data.bat', local_script, 'gm-download_data.bat']
-	args = ' %s %s' % (url, target_dir)
-
-	success = gmShellAPI.run_first_available_in_shell (
-		binaries = candidates,
-		args = args,
-		blocking = True,
-		run_last_one_anyway = True
-	)
-
-	if success:
-		return True, target_dir
-
-	_log.error('download failed')
-	return False, None
 #===========================================================================
 # client update handling
 #---------------------------------------------------------------------------
