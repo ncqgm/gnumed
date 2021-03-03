@@ -1306,12 +1306,13 @@ class ColumnSorterMixin:
 	}
 	#------------------------------------------------------------
 	def __init__(self, numColumns):
+		assert(isinstance(self, wx.ListCtrl)), '<%s> must be mixed in with wx.ListCtrl'
+		assert(hasattr(self, 'update_sorting_metadata'))
+
+		self.itemDataMap = None
 		self.__previous_sort_state = None
 		self.SetColumnCount(numColumns)
-		list = self.GetListCtrl()
-		if not list:
-			raise ValueError("No wx.ListCtrl available")
-		list.Bind(wx.EVT_LIST_COL_CLICK, self.__OnColClick, list)
+		self.Bind(wx.EVT_LIST_COL_CLICK, self.__on_col_click, self)
 
 		try:
 			self.RememberItemSelection
@@ -1334,7 +1335,8 @@ class ColumnSorterMixin:
 			self._colSortFlag[col] = ascending
 		if self.__retain_selection_state:
 			self.RememberItemSelection()
-		self.GetListCtrl().SortItems(self.GetColumnSorter())
+		self.update_sorting_metadata()
+		self.SortItems(self.GetColumnSorter())
 		if self.__retain_selection_state:
 			self.RestoreItemSelection()
 		self.__updateImages(oldCol)
@@ -1346,10 +1348,9 @@ class ColumnSorterMixin:
 		Returns a list of column widths.  Can be used to help restore the current
 		view later.
 		"""
-		list = self.GetListCtrl()
 		rv = []
 		for x in range(len(self._colSortFlag)):
-			rv.append(list.GetColumnWidth(x))
+			rv.append(self.GetColumnWidth(x))
 		return rv
 
 	#------------------------------------------------------------
@@ -1373,19 +1374,20 @@ class ColumnSorterMixin:
 		return (key1, key2)
 
 	#------------------------------------------------------------
-	def __OnColClick(self, evt):
+	def __on_col_click(self, evt):
 		oldCol = self._col
-		self._col = col = evt.GetColumn()
-		self._colSortFlag[col] = int(not self._colSortFlag[col])
+		self._col = evt.GetColumn()
+		self._colSortFlag[self._col] = int(not self._colSortFlag[self._col])
 		if self.__retain_selection_state:
 			self.RememberItemSelection()
-		self.GetListCtrl().SortItems(self.GetColumnSorter())
+		self.update_sorting_metadata()
+		self.SortItems(self.GetColumnSorter())
 		if self.__retain_selection_state:
 			self.RestoreItemSelection()
 		if wx.Platform != "__WXMAC__" or wx.SystemOptions.GetOptionInt("mac.listctrl.always_use_generic") == 1:
 			self.__updateImages(oldCol)
 		self.update_sorting_indicator()
-		evt.Skip()
+#		evt.Skip()
 		self.OnSortOrderChanged()
 
 	#------------------------------------------------------------
@@ -1427,10 +1429,10 @@ class ColumnSorterMixin:
 		sortImages = self.GetSortImages()
 		if self._col != -1 and sortImages[0] != -1:
 			img = sortImages[self._colSortFlag[self._col]]
-			list = self.GetListCtrl()
+			self.update_sorting_metadata()
 			if oldCol != -1:
-				list.ClearColumnImage(oldCol)
-			list.SetColumnImage(self._col, img)
+				self.ClearColumnImage(oldCol)
+			self.SetColumnImage(self._col, img)
 
 	#------------------------------------------------------------
 	def __remove_sorting_indicator(self, text):
@@ -1464,6 +1466,7 @@ class ColumnSorterMixin:
 		self.remove_sorting_indicators_from_column_labels()
 		if self._col == -1:
 			return
+
 		col_state = self.GetColumn(self._col)
 		col_state.Text += self.sort_order_tags[self._colSortFlag[self._col]]
 		self.SetColumn(self._col, col_state)
@@ -1556,7 +1559,8 @@ class SelectionStateMixin:
 		return selections
 
 #================================================================
-class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, SelectionStateMixin, ColumnSorterMixin, wx.ListCtrl):
+class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, ColumnSorterMixin, SelectionStateMixin, wx.ListCtrl):#, DnDMixin
+#class cReportListCtrl(SelectionStateMixin, ColumnSorterMixin, DnDMixin, wx.ListCtrl):
 
 	# sorting: at set_string_items() time all items will be
 	# adorned with their initial row number as wxPython data,
@@ -1578,15 +1582,12 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, SelectionStateMixin, Co
 		self.__is_single_selection = ((kwargs['style'] & wx.LC_SINGLE_SEL) == wx.LC_SINGLE_SEL)
 
 		wx.ListCtrl.__init__(self, *args, **kwargs)
-		listmixins.ListCtrlAutoWidthMixin.__init__(self)
-
 		SelectionStateMixin.__init__(self)
-
-		# required for column sorting
-		self._invalidate_sorting_metadata()							# must be called after each (external/direct) list item update
 		ColumnSorterMixin.__init__(self, 0)							# must be called again after adding columns (why ?)
 		self.__secondary_sort_col = None
-		self.Bind(wx.EVT_LIST_COL_CLICK, self._on_col_click, self)	# apparently, this MUST be bound under wxp3 - but why ??
+#		DnDMixin.__init__(self)
+#		print(self.OnDragInit)
+		listmixins.ListCtrlAutoWidthMixin.__init__(self)
 
 		# cols/rows
 		self.__widths = None
@@ -1873,6 +1874,8 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, SelectionStateMixin, Co
 			return
 		for idx in range(len(columns)):
 			self.InsertColumn(idx, columns[idx])
+		#xxxxxxxxxxxxxxxxx
+		# should this be SetColumnCount ?
 		ColumnSorterMixin.__init__(self, 0)
 
 	#------------------------------------------------------------
@@ -1929,7 +1932,7 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, SelectionStateMixin, Co
 		col_state = self.GetColumn(col_idx)
 		col_state.Text = label
 		self.SetColumn(col_idx, col_state)
-		ColumnSorterMixin.update_sorting_indicator(self)
+		self.update_sorting_indicator()
 
 	#------------------------------------------------------------
 	def remove_items_safely(self, max_tries=3):
@@ -1944,6 +1947,7 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, SelectionStateMixin, Co
 			item_count = self.GetItemCount()
 			if item_count == 0:
 				return True
+
 			wx.SafeYield(None, True)
 			_log.error('<%s>.GetItemCount() not 0 (rather: %s) after DeleteAllItems()', self.debug, item_count)
 			time.sleep(0.3)
@@ -2076,7 +2080,7 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, SelectionStateMixin, Co
 		self.__data = data
 		self.__tt_last_item = None
 		# string data (rows/visible list items) not modified,
-		# so no need to call _update_sorting_metadata
+		# so no need to call update_sorting_metadata
 		return
 
 	def _get_data(self):
@@ -2561,22 +2565,20 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, SelectionStateMixin, Co
 		if self.__activate_callback is not None:
 			self.__activate_callback(event)
 			return
+
 		# default double-click / ENTER action: edit
 		self.__handle_edit()
 
 	#------------------------------------------------------------
 	def _on_list_item_selected(self, event):
+		print('list item selected')
 		if self.__select_callback is not None:
 			self.__select_callback(event)
-		else:
-			event.Skip()
 
 	#------------------------------------------------------------
 	def _on_list_item_deselected(self, event):
 		if self.__deselect_callback is not None:
 			self.__deselect_callback(event)
-		else:
-			event.Skip()
 
 	#------------------------------------------------------------
 	def _on_list_item_rightclicked(self, event):
@@ -3510,12 +3512,6 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, SelectionStateMixin, Co
 	#------------------------------------------------------------
 	# ColumnSorterMixin API
 	#------------------------------------------------------------
-	def GetListCtrl(self):
-		if self.itemDataMap is None:
-			self._update_sorting_metadata()
-		return self								# required
-
-	#------------------------------------------------------------
 	def GetSecondarySortValues(self, primary_sort_col, primary_item1_idx, primary_item2_idx):
 		return (primary_item1_idx, primary_item2_idx)
 
@@ -3567,27 +3563,12 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, SelectionStateMixin, Co
 	def _invalidate_sorting_metadata(self):
 		self.itemDataMap = None
 		self.SetColumnCount(self.GetColumnCount())
-		ColumnSorterMixin.remove_sorting_indicators_from_column_labels(self)
+		self.remove_sorting_indicators_from_column_labels()
 
 	#------------------------------------------------------------
-	def _update_sorting_metadata(self):
-		# MUST have this name
-		self.itemDataMap = self._generate_map_for_sorting()
-
-	#------------------------------------------------------------
-	def _on_col_click(self, event):
-		"""Apparently, this is called after sorting took place."""
-		pass
-		# this handler MUST NOT call event.Skip() or else the
-		# column sorter mixin will not kick in anymore under wxp3
-		#event.Skip()
-		# debugging:
-#		sort_col, order = self.GetSortState()
-#		print u'col clicked: %s / sort col: %s / sort direction: %s / sort flags: %s' % (event.GetColumn(), sort_col, order, self._colSortFlag)
-#		if self.itemDataMap is not None:
-#			print u'sort items data map:'
-#			for key, item in self.itemDataMap.items():
-#				print key, u' -- ', item
+	def update_sorting_metadata(self):
+		if self.itemDataMap is None:
+			self.itemDataMap = self._generate_map_for_sorting()
 
 	#------------------------------------------------------------
 	def __get_secondary_sort_col(self):
