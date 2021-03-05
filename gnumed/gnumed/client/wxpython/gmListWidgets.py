@@ -1272,7 +1272,10 @@ class cItemPickerDlg(wxgItemPickerDlg.wxgItemPickerDlg):
 
 	right_item_tooltip_callback = property(lambda x:x, _set_right_item_tooltip_callback)
 
+
 #================================================================
+# listctrl mixins
+#----------------------------------------------------------------
 class cColumnSorterMixin:
 	"""
 	A mixin class that handles sorting of a wx.ListCtrl in REPORT mode when
@@ -1375,6 +1378,7 @@ class cColumnSorterMixin:
 
 	#------------------------------------------------------------
 	def __on_col_click(self, evt):
+		evt.Skip()
 		oldCol = self._col
 		self._col = evt.GetColumn()
 		self._colSortFlag[self._col] = int(not self._colSortFlag[self._col])
@@ -2578,12 +2582,14 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, ColumnSorterMixin, Sele
 
 	#------------------------------------------------------------
 	def _on_list_item_selected(self, event):
+		event.Skip()
 		print('list item selected')
 		if self.__select_callback is not None:
 			self.__select_callback(event)
 
 	#------------------------------------------------------------
 	def _on_list_item_deselected(self, event):
+		event.Skip()
 		if self.__deselect_callback is not None:
 			self.__deselect_callback(event)
 
@@ -2645,6 +2651,8 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, ColumnSorterMixin, Sele
 			LIST_HITTEST_TOLEFT 1024
 			LIST_HITTEST_TORIGHT 2048
 		"""
+		event.Skip()
+
 		item_idx, where_flag = self.HitTest(wx.Point(event.X, event.Y))
 
 		# pointer on item related area at all ?
