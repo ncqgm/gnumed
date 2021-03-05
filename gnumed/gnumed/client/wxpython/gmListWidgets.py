@@ -1273,7 +1273,7 @@ class cItemPickerDlg(wxgItemPickerDlg.wxgItemPickerDlg):
 	right_item_tooltip_callback = property(lambda x:x, _set_right_item_tooltip_callback)
 
 #================================================================
-class ColumnSorterMixin:
+class cColumnSorterMixin:
 	"""
 	A mixin class that handles sorting of a wx.ListCtrl in REPORT mode when
 	the column header is clicked on.
@@ -1387,7 +1387,6 @@ class ColumnSorterMixin:
 		if wx.Platform != "__WXMAC__" or wx.SystemOptions.GetOptionInt("mac.listctrl.always_use_generic") == 1:
 			self.__updateImages(oldCol)
 		self.update_sorting_indicator()
-#		evt.Skip()
 		self.OnSortOrderChanged()
 
 	#------------------------------------------------------------
@@ -1470,6 +1469,16 @@ class ColumnSorterMixin:
 		col_state = self.GetColumn(self._col)
 		col_state.Text += self.sort_order_tags[self._colSortFlag[self._col]]
 		self.SetColumn(self._col, col_state)
+
+	#------------------------------------------------------------
+	def invalidate_sorting_metadata(self):
+		"""Mark sorting metadata as invalid.
+
+		Call whenever list data changes.
+		"""
+		self.itemDataMap = None
+		self.SetColumnCount(self.GetColumnCount())
+		self.remove_sorting_indicators_from_column_labels()
 
 	#------------------------------------------------------------
 	def _cmp(self, a, b):
@@ -1583,7 +1592,8 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, ColumnSorterMixin, Sele
 
 		wx.ListCtrl.__init__(self, *args, **kwargs)
 		SelectionStateMixin.__init__(self)
-		ColumnSorterMixin.__init__(self, 0)							# must be called again after adding columns (why ?)
+		cColumnSorterMixin.__init__(self, 0)							# must be called again after adding columns (why ?)
+		self.invalidate_sorting_metadata()
 		self.__secondary_sort_col = None
 #		DnDMixin.__init__(self)
 #		print(self.OnDragInit)
@@ -1869,14 +1879,11 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, ColumnSorterMixin, Sele
 		"""
 		self.ClearAll()
 		self.__tt_last_item = None
-		self._invalidate_sorting_metadata()
 		if columns is None:
 			return
 		for idx in range(len(columns)):
 			self.InsertColumn(idx, columns[idx])
-		#xxxxxxxxxxxxxxxxx
-		# should this be SetColumnCount ?
-		ColumnSorterMixin.__init__(self, 0)
+		self.invalidate_sorting_metadata()
 
 	#------------------------------------------------------------
 	def set_column_widths(self, widths=None):
@@ -1936,7 +1943,7 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, ColumnSorterMixin, Sele
 
 	#------------------------------------------------------------
 	def remove_items_safely(self, max_tries=3):
-		self._invalidate_sorting_metadata()
+		self.invalidate_sorting_metadata()
 		tries = 0
 		while tries < max_tries:
 			if self.debug is not None:
@@ -1962,7 +1969,7 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, ColumnSorterMixin, Sele
 		"""All item members must be str()able or None."""
 
 		wx.BeginBusyCursor()
-		self._invalidate_sorting_metadata()
+		self.invalidate_sorting_metadata()
 
 		if self.ItemCount == 0:
 			topmost_visible = 0
@@ -2249,7 +2256,7 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, ColumnSorterMixin, Sele
 		#	del self.__data[self.map_item_idx2data_idx(item_idx)]
 		self.DeleteItem(item_idx)
 		self.__tt_last_item = None
-		self._invalidate_sorting_metadata()
+		self.invalidate_sorting_metadata()
 
 	#------------------------------------------------------------
 	# internal helpers
@@ -3510,7 +3517,7 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, ColumnSorterMixin, Sele
 	extend_popup_menu_callback = property(lambda x:x, _set_extend_popup_menu_callback)
 
 	#------------------------------------------------------------
-	# ColumnSorterMixin API
+	# cColumnSorterMixin API
 	#------------------------------------------------------------
 	def GetSecondarySortValues(self, primary_sort_col, primary_item1_idx, primary_item2_idx):
 		return (primary_item1_idx, primary_item2_idx)
@@ -3558,12 +3565,6 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, ColumnSorterMixin, Sele
 				# debugging:
 				#print u'[%s:%s] ' % (item_idx, col_idx), self.GetItem(item_idx, col_idx).GetText()
 		return dict2sort
-
-	#------------------------------------------------------------
-	def _invalidate_sorting_metadata(self):
-		self.itemDataMap = None
-		self.SetColumnCount(self.GetColumnCount())
-		self.remove_sorting_indicators_from_column_labels()
 
 	#------------------------------------------------------------
 	def update_sorting_metadata(self):
