@@ -128,7 +128,8 @@ except ImportError:
 	print("  INFO : this is needed to print EMR timelines")
 	print("  INFO : GNUmed will still work without it")
 	print("  INFO : note that you need v0.2.1 (not 0.2.2)")
-	print("  INFO :  <pip3 install pysvg==0.2.1>")
+	print("  INFO :  $> pip3 install pysvg==0.2.1")
+	print("  INFO : (you may need to install <pip3> first)")
 
 print(" vobject...", end=' ')
 try:
