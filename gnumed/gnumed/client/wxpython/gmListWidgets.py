@@ -1395,18 +1395,6 @@ class cColumnSorterMixin:
 		pass
 
 	#------------------------------------------------------------
-	def GetSortState(self):
-		"""
-		Return a tuple containing the index of the column that was last sorted
-		and the sort direction of that column.
-		Usage:
-		col, ascending = self.GetSortState()
-		# Make changes to list items... then resort
-		self.SortListItems(col, ascending)
-		"""
-		return (self._col, self._colSortFlag[self._col])
-
-	#------------------------------------------------------------
 	def __ColumnSorter(self, key1, key2):
 		col = self._col
 		ascending = self._colSortFlag[col]
@@ -1431,16 +1419,53 @@ class cColumnSorterMixin:
 			self.SetColumnImage(self._col, img)
 
 	#------------------------------------------------------------
+	# sorting state API
+	#------------------------------------------------------------
+	def GetSortState(self):
+		"""
+		Return a tuple containing the index of the column that was last sorted
+		and the sort direction of that column.
+		Usage:
+		col, ascending = self.GetSortState()
+		# Make changes to list items... then resort
+		self.SortListItems(col, ascending)
+		"""
+		return (self._col, self._colSortFlag[self._col])
+
+	#------------------------------------------------------------
+	def RememberSortState(self):
+		self.__previous_sort_state = self.GetSortState()
+
+	#------------------------------------------------------------
+	def RestoreSortState(self):
+		if self.__previous_sort_state is None:
+			return
+
+		self.SortListItems(*self.__previous_sort_state)
+
+	#------------------------------------------------------------
+	# sorting indicator handling
+	#------------------------------------------------------------
+	def remove_sorting_indicators_from_column_labels(self):
+		for col_idx in range(self.ColumnCount):
+			self._remove_sorting_indicator_from_column_label(col_idx)
+
+	#------------------------------------------------------------
+	def update_sorting_indicator(self):
+		self.remove_sorting_indicators_from_column_labels()
+		if self._col == -1:
+			return
+
+		col_state = self.GetColumn(self._col)
+		col_state.Text += self.sort_order_tags[self._colSortFlag[self._col]]
+		self.SetColumn(self._col, col_state)
+
+	#------------------------------------------------------------
 	def __remove_sorting_indicator(self, text):
 		for tag in self.sort_order_tags.values():
 			if text.endswith(tag):
 				text = text[:-len(tag)]
 		return text
-
-	#------------------------------------------------------------
-	def remove_sorting_indicators_from_column_labels(self):
-		for col_idx in range(self.ColumnCount):
-			self._remove_sorting_indicator_from_column_label(col_idx)
 
 	#------------------------------------------------------------
 	def _remove_sorting_indicator_from_column_label(self, col_idx):
@@ -1456,16 +1481,6 @@ class cColumnSorterMixin:
 
 		col_state.Text = cleaned_header
 		self.SetColumn(col_idx, col_state)
-
-	#------------------------------------------------------------
-	def update_sorting_indicator(self):
-		self.remove_sorting_indicators_from_column_labels()
-		if self._col == -1:
-			return
-
-		col_state = self.GetColumn(self._col)
-		col_state.Text += self.sort_order_tags[self._colSortFlag[self._col]]
-		self.SetColumn(self._col, col_state)
 
 	#------------------------------------------------------------
 	# sorting metadata API
@@ -1492,15 +1507,10 @@ class cColumnSorterMixin:
 		self.itemDataMap = self._generate_map_for_sorting()
 
 	#------------------------------------------------------------
-	def RememberSortState(self):
-		self.__previous_sort_state = self.GetSortState()
-
+	# generic helper code
 	#------------------------------------------------------------
-	def RestoreSortState(self):
-		if self.__previous_sort_state is None:
-			return
-
-		self.SortListItems(*self.__previous_sort_state)
+	def _cmp(self, a, b):
+		return (a > b) - (a < b)
 
 #================================================================
 class SelectionStateMixin:
