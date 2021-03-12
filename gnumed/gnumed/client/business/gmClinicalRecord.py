@@ -1039,8 +1039,8 @@ class cClinicalRecord(object):
 					# skip this table
 					continue
 			elif len(item_ids) > 1:
-				cmd = "SELECT * FROM %s WHERE pk_item in %%s order by modified_when" % src_table
-				if not gmPG2.run_query(curs, None, cmd, (tuple(item_ids),)):
+				cmd = "SELECT * FROM %s WHERE pk_item = ANY(%%s) ORDER BY modified_when" % src_table
+				if not gmPG2.run_query(curs, None, cmd, (item_ids,)):
 					_log.error('cannot load items from table [%s]' % src_table)
 					# skip this table
 					continue
@@ -2544,7 +2544,7 @@ WHERE
 			# since the episodes to filter by belong to the patient in question so will
 			# the encounters found with them - hence we don't need a WHERE on the patient ...
 			# but, better safe than sorry ...
-			args = {'epi_pks': tuple(episodes), 'pat': self.pk_patient}
+			args = {'epi_pks': episodes, 'pat': self.pk_patient}
 			cmd = "SELECT distinct fk_encounter FROM clin.clin_root_item WHERE fk_episode = ANY(%(epi_pks)s) AND fk_encounter IN (SELECT pk FROM clin.encounter WHERE fk_patient = %(pat)s)"
 			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 			encs4epis_pks = [ r['fk_encounter'] for r in rows ]

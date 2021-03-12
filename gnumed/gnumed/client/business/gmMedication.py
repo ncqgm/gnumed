@@ -200,7 +200,7 @@ class cSubstance(gmBusinessDBObject.cBusinessDBObject):
 	# properties
 	#--------------------------------------------------------
 	def _set_loincs(self, loincs):
-		args = {'pk_subst': self.pk_obj, 'loincs': tuple(loincs)}
+		args = {'pk_subst': self.pk_obj, 'loincs': loincs}
 		# insert new entries
 		for loinc in loincs:
 			cmd = """INSERT INTO ref.lnk_loinc2substance (fk_substance, loinc)

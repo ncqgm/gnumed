@@ -281,7 +281,7 @@ class cTestPanel(gmBusinessDBObject.cBusinessDBObject):
 					SELECT DISTINCT ON (c_vtr.pk_test_type) c_vtr.pk_test_type
 					FROM clin.v_test_results c_vtr
 					WHERE
-						c_vtr.pk_test_type IN %%(pks)s
+						c_vtr.pk_test_type = ANY(%%(pks)s)
 								AND
 						c_vtr.pk_patient = %%(pat)s
 				)
@@ -289,7 +289,7 @@ class cTestPanel(gmBusinessDBObject.cBusinessDBObject):
 
 		args = {
 			'pat': pk_patient,
-			'pks': tuple([ tt['pk_test_type'] for tt in self._payload[self._idx['test_types']] ])
+			'pks': [ tt['pk_test_type'] for tt in self._payload[self._idx['test_types']] ]
 		}
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 		return [ cMeasurementType(row = {'pk_field': 'pk_test_type', 'idx': idx, 'data': r}) for r in rows ]
@@ -737,7 +737,7 @@ class cMeasurementType(gmBusinessDBObject.cBusinessDBObject):
 			return []
 
 		return get_most_recent_results_in_loinc_group (
-			loincs = tuple(self._payload[self._idx['loinc']]),
+			loincs = list(self._payload[self._idx['loinc']]),
 			max_no_of_results = max_no_of_results,
 			patient = patient
 			# ?
@@ -2271,7 +2271,7 @@ def get_most_recent_results_in_loinc_group(loincs=None, max_no_of_results=1, pat
 	"""
 	assert (max_no_of_results > 0), '<max_no_of_results> must be >0'
 
-	args = {'pat': patient, 'loincs': tuple(loincs)}
+	args = {'pat': patient, 'loincs': loincs}
 	if max_age is None:
 		max_age_cond = ''
 	else:
@@ -2284,7 +2284,7 @@ def get_most_recent_results_in_loinc_group(loincs=None, max_no_of_results=1, pat
 			WHERE
 				pk_patient = %%(pat)s
 					AND
-				unified_loinc IN %%(loincs)s
+				unified_loinc = ANY(%%(loincs)s)
 				%s
 		) AS distinct_results
 		ORDER BY

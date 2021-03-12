@@ -878,7 +878,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 #		if data['atc_drug'] is not None:
 #			atcs.append(data['atc_drug'])
 #		allg = emr.is_allergic_to(atcs = tuple(atcs), inns = (data['substance'],), drug = data['product'])
-		allg = emr.is_allergic_to(atcs = tuple(atcs), inns = (data['substance'],))
+		allg = emr.is_allergic_to(atcs = atcs, inns = [data['substance']])
 		if allg is False:
 			allg = None
 		return data.format(single_line = False, allergy = allg, show_all_product_components = True)
