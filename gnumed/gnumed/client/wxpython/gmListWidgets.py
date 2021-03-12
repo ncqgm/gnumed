@@ -1281,27 +1281,19 @@ class cColumnSorterMixin:
 	A mixin class that handles sorting of a wx.ListCtrl in REPORT mode when
 	the column header is clicked on.
 
-	There are a few requirements needed in order for this to work genericly:
+	There are a few requirements needed in order for this to work generically:
 
-	  1. The combined class must have a GetListCtrl method that
-		 returns the wx.ListCtrl to be sorted, and the list control
-		 must exist at the time the wx.ColumnSorterMixin.__init__
-		 method is called because it uses GetListCtrl.
-
-	  2. Items in the list control must have a unique data value set
+	  1. Items in the list control must have a unique data value set
 		 with list.SetItemData.
 
-	  3. The combined class must have an attribute named itemDataMap
-		 that is a dictionary mapping the data values to a sequence of
-		 objects representing the values in each column.  These values
-		 are compared in the column sorter to determine sort order.
+	  2. The combined class must provide a method <_generate_map_for_sorting>
+		 which produces a dictionary keyed by row idx with each entry being a
+		 sequence of strings representing the value in each column of that row.
 
 	Interesting methods to override are GetColumnSorter,
 	GetSecondarySortValues, and GetSortImages.	See below for details.
 
 	Lifted from wx.lib.mixins.listctrl and adapted.
-
-	The main difference is that it can retain selection state across re-sorts.
 	"""
 	sort_order_tags = {
 		True: ' \u2193',
@@ -1309,8 +1301,9 @@ class cColumnSorterMixin:
 	}
 	#------------------------------------------------------------
 	def __init__(self, numColumns):
-		assert(isinstance(self, wx.ListCtrl)), '<%s> must be mixed in with wx.ListCtrl'
-		assert(hasattr(self, 'update_sorting_metadata'))
+		method_needed = '_generate_map_for_sorting'
+		assert(isinstance(self, wx.ListCtrl)), '<%s> must be mixed in with a wx.ListCtrl descendant' % self.__class__
+		assert(hasattr(self, method_needed)), '<%s> must have a method <%s>' % (self, method_needed)
 
 		self.itemDataMap = None
 		self.__previous_sort_state = None
@@ -1321,7 +1314,7 @@ class cColumnSorterMixin:
 			self.RememberItemSelection
 			self.__retain_selection_state = True
 		except AttributeError:
-			_log.exception('cannot enable item selection retainment across sorts, cannot detect SelectionStateMixin')
+			_log.exception('cannot enable item selection retainment across sorts, cannot detect SelectionStateMixin via <RememberItemSelection>')
 			self.__retain_selection_state = False
 
 	#------------------------------------------------------------
@@ -1338,7 +1331,7 @@ class cColumnSorterMixin:
 			self._colSortFlag[col] = ascending
 		if self.__retain_selection_state:
 			self.RememberItemSelection()
-		self.update_sorting_metadata()
+		self._update_sorting_metadata()
 		self.SortItems(self.GetColumnSorter())
 		if self.__retain_selection_state:
 			self.RestoreItemSelection()
@@ -1384,7 +1377,7 @@ class cColumnSorterMixin:
 		self._colSortFlag[self._col] = int(not self._colSortFlag[self._col])
 		if self.__retain_selection_state:
 			self.RememberItemSelection()
-		self.update_sorting_metadata()
+		self._update_sorting_metadata()
 		self.SortItems(self.GetColumnSorter())
 		if self.__retain_selection_state:
 			self.RestoreItemSelection()
@@ -1432,7 +1425,7 @@ class cColumnSorterMixin:
 		sortImages = self.GetSortImages()
 		if self._col != -1 and sortImages[0] != -1:
 			img = sortImages[self._colSortFlag[self._col]]
-			self.update_sorting_metadata()
+			self._update_sorting_metadata()
 			if oldCol != -1:
 				self.ClearColumnImage(oldCol)
 			self.SetColumnImage(self._col, img)
@@ -1475,18 +1468,28 @@ class cColumnSorterMixin:
 		self.SetColumn(self._col, col_state)
 
 	#------------------------------------------------------------
+	# sorting metadata API
+	#------------------------------------------------------------
 	def invalidate_sorting_metadata(self):
 		"""Mark sorting metadata as invalid.
 
-		Call whenever list data changes.
+		To be called whenever list data changes.
 		"""
 		self.itemDataMap = None
-		self.SetColumnCount(self.GetColumnCount())
+		self.SetColumnCount(self.ColumnCount)
 		self.remove_sorting_indicators_from_column_labels()
 
 	#------------------------------------------------------------
-	def _cmp(self, a, b):
-		return (a > b) - (a < b)
+	def _update_sorting_metadata(self):
+		"""Update the sorting metadata.
+
+		Calls _generate_map_for_sorting in the combined class
+		IF the metadata has been invalidated before.
+		"""
+		if self.itemDataMap is not None:
+			return
+
+		self.itemDataMap = self._generate_map_for_sorting()
 
 	#------------------------------------------------------------
 	def RememberSortState(self):
@@ -1596,7 +1599,7 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, ColumnSorterMixin, Sele
 
 		wx.ListCtrl.__init__(self, *args, **kwargs)
 		SelectionStateMixin.__init__(self)
-		cColumnSorterMixin.__init__(self, 0)							# must be called again after adding columns (why ?)
+		cColumnSorterMixin.__init__(self, 0)
 		self.invalidate_sorting_metadata()
 		self.__secondary_sort_col = None
 #		DnDMixin.__init__(self)
@@ -2091,7 +2094,7 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, ColumnSorterMixin, Sele
 		self.__data = data
 		self.__tt_last_item = None
 		# string data (rows/visible list items) not modified,
-		# so no need to call update_sorting_metadata
+		# so no need to call invalidate_sorting_metadata
 		return
 
 	def _get_data(self):
@@ -3527,57 +3530,22 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, ColumnSorterMixin, Sele
 	#------------------------------------------------------------
 	# cColumnSorterMixin API
 	#------------------------------------------------------------
-	def GetSecondarySortValues(self, primary_sort_col, primary_item1_idx, primary_item2_idx):
-		return (primary_item1_idx, primary_item2_idx)
-
-		if self.__secondary_sort_col is None:
-			return (primary_item1_idx, primary_item2_idx)
-
-		if self.__secondary_sort_col == primary_sort_col:
-			return (primary_item1_idx, primary_item2_idx)
-
-		secondary_val1 = self.itemDataMap[primary_item1_idx][self.__secondary_sort_col]
-		secondary_val2 = self.itemDataMap[primary_item2_idx][self.__secondary_sort_col]
-		if type(secondary_val1) == type('') and type(secondary_val2) == type(''):
-			secondary_cmp_result = locale.strcoll(secondary_val1, secondary_val2)
-		elif type(secondary_val1) == type('') or type(secondary_val2) == type(''):
-			secondary_cmp_result = locale.strcoll(str(secondary_val1), str(secondary_val2))
-		else:
-			#secondary_cmp_result = cmp(secondary_val1, secondary_val2)
-			secondary_cmp_result = (secondary_val1 > secondary_val2) - (secondary_val1 < secondary_val2)
-		if secondary_cmp_result == 0:
-			return (primary_item1_idx, primary_item2_idx)
-
-		# make the secondary column always sort ascending
-		currently_ascending = self._colSortFlag[primary_sort_col]
-		if currently_ascending:
-			secondary_val1, secondary_val2 = min(secondary_val1, secondary_val2), max(secondary_val1, secondary_val2)
-		else:
-			secondary_val1, secondary_val2 = max(secondary_val1, secondary_val2), min(secondary_val1, secondary_val2)
-		return (secondary_val1, secondary_val2)
-
-	#------------------------------------------------------------
 	def _generate_map_for_sorting(self):
 		dict2sort = {}
-		item_count = self.GetItemCount()
-		if item_count == 0:
+		row_count = self.GetItemCount()
+		if row_count == 0:
 			return dict2sort
 
 		col_count = self.GetColumnCount()
-		for item_idx in range(item_count):
-			dict2sort[item_idx] = ()
+		for row_idx in range(row_count):
+			dict2sort[row_idx] = ()
 			if col_count == 0:
 				continue
 			for col_idx in range(col_count):
-				dict2sort[item_idx] += (self.GetItem(item_idx, col_idx).GetText(), )
+				dict2sort[row_idx] += (self.GetItem(row_idx, col_idx).GetText(), )
 				# debugging:
-				#print u'[%s:%s] ' % (item_idx, col_idx), self.GetItem(item_idx, col_idx).GetText()
+				#print u'[%s:%s] ' % (row_idx, col_idx), self.GetItem(row_idx, col_idx).GetText()
 		return dict2sort
-
-	#------------------------------------------------------------
-	def update_sorting_metadata(self):
-		if self.itemDataMap is None:
-			self.itemDataMap = self._generate_map_for_sorting()
 
 	#------------------------------------------------------------
 	def __get_secondary_sort_col(self):
@@ -3587,8 +3555,8 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, ColumnSorterMixin, Sele
 		if col is None:
 			self.__secondary_sort_col = None
 			return
-		if col > self.GetColumnCount():
-			raise ValueError('cannot secondary-sort on col [%s], there are only [%s] columns', col, self.GetColumnCount())
+		if col > self.ColumnCount:
+			raise ValueError('cannot secondary-sort on col [%s], there are only [%s] columns', col, self.ColumnCount)
 		self.__secondary_sort_col = col
 
 	secondary_sort_column = property(__get_secondary_sort_col, __set_secondary_sort_col)
