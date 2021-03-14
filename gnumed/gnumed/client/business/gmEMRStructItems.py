@@ -9,6 +9,7 @@ __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, <karsten.hilbert@gmx.net>"
 import sys
 import datetime
 import logging
+import inspect
 import io
 import os
 

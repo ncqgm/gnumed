@@ -8,6 +8,8 @@
 
 	1.8.6
 
+FIX: unlocking encounters (missing import)
+
 IMPROVED: desktop entry file [thanks freddii]
 
 	1.8.5
