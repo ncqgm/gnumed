@@ -1614,10 +1614,6 @@ class DnDMixin:
 		The overrider itself can provide a default or call
 		some external callback.
 		"""
-		#item = self.get_selected_item(only_one = True)
-		#item = 'drag data'
-		#tdo = wx.PyTextDataObject(str(item))
-		#tdo = wx.TextDataObject(str(item))
 		return None
 
 #================================================================
@@ -3608,22 +3604,6 @@ class cReportListCtrl(DnDMixin, listmixins.ListCtrlAutoWidthMixin, cColumnSorter
 	#------------------------------------------------------------
 	# drag and drop mixin API
 	#------------------------------------------------------------
-	def _get_dnd_callback(self):
-		return self.__dnd_callback
-
-	def _set_dnd_callback(self, callback):
-		if callback is None:
-			self.__dnd_callback = None
-			return
-
-		if not callable(callback):
-			raise ValueError('<dnd> callback is not a callable: %s' % callback)
-
-		self.__dnd_callback = callback
-
-	dnd_callback = property(_get_dnd_callback, _set_dnd_callback)
-
-	#------------------------------------------------------------
 	def get_drag_data_object(self):
 		"""Get data to be dragged.
 
@@ -3661,6 +3641,22 @@ class cReportListCtrl(DnDMixin, listmixins.ListCtrlAutoWidthMixin, cColumnSorter
 			data_obj.Add(txt_data, False)
 		#tdo = wx.PyTextDataObject(str(item))
 		return data_obj
+
+	#------------------------------------------------------------
+	def _get_dnd_callback(self):
+		return self.__dnd_callback
+
+	def _set_dnd_callback(self, callback):
+		if callback is None:
+			self.__dnd_callback = None
+			return
+
+		if not callable(callback):
+			raise ValueError('<dnd> callback is not a callable: %s' % callback)
+
+		self.__dnd_callback = callback
+
+	dnd_callback = property(_get_dnd_callback, _set_dnd_callback)
 
 	#------------------------------------------------------------
 	#------------------------------------------------------------

@@ -11,6 +11,7 @@
 NEW: tool: generate_man_page
 NEW: placeholder: $yes_no$
 NEW: lists: persistent item selection across sorts/reloads
+NEW: lists: Drag&Drop support
 NEW: paperwork: write non-templated letter w/ LibreOffice
 NEW: export area: join items into one PDF
 NEW: debug: database owner connection test menu item
