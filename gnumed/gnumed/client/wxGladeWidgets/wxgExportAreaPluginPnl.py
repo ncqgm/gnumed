@@ -5,43 +5,109 @@
 
 import wx
 
-# begin wxGlade: dependencies
 import gettext
-# end wxGlade
 
-# begin wxGlade: extracode
 from Gnumed.wxpython.gmListWidgets import cReportListCtrl
-# end wxGlade
 
 
 class wxgExportAreaPluginPnl(wx.Panel):
 	def __init__(self, *args, **kwds):
-		# begin wxGlade: wxgExportAreaPluginPnl.__init__
 		kwds["style"] = kwds.get("style", 0) | wx.BORDER_NONE | wx.TAB_TRAVERSAL
 		wx.Panel.__init__(self, *args, **kwds)
+
+		__szr_main = wx.BoxSizer(wx.HORIZONTAL)
+
 		self._LCTRL_items = cReportListCtrl(self, wx.ID_ANY, style=wx.BORDER_NONE | wx.LC_REPORT)
+		__szr_main.Add(self._LCTRL_items, 1, wx.EXPAND | wx.RIGHT, 5)
+
+		__szr_buttons_right = wx.BoxSizer(wx.VERTICAL)
+		__szr_main.Add(__szr_buttons_right, 0, wx.EXPAND, 0)
+
+		__szr_item_up_down = wx.BoxSizer(wx.HORIZONTAL)
+		__szr_buttons_right.Add(__szr_item_up_down, 0, wx.BOTTOM | wx.EXPAND, 3)
+
+		__szr_item_up_down.Add((20, 20), 2, wx.EXPAND, 0)
+
 		self._BTN_item_up = wx.Button(self, wx.ID_ANY, _(u"▲"), style=wx.BORDER_NONE | wx.BU_EXACTFIT)
+		self._BTN_item_up.Enable(False)
+		__szr_item_up_down.Add(self._BTN_item_up, 0, 0, 0)
+
 		self._BTN_item_down = wx.Button(self, wx.ID_ANY, _(u"▼"), style=wx.BORDER_NONE | wx.BU_EXACTFIT)
+		self._BTN_item_down.SetToolTip(_("Move down topmost selected item."))
+		self._BTN_item_down.Enable(False)
+		__szr_item_up_down.Add(self._BTN_item_down, 0, 0, 0)
+
+		__szr_item_up_down.Add((20, 20), 2, wx.EXPAND, 0)
+
 		self._BTN_add_items = wx.Button(self, wx.ID_ANY, _(u"← &Files"), style=wx.BU_EXACTFIT | wx.BU_LEFT)
+		self._BTN_add_items.SetToolTip(_("Add document(s) from file(s)."))
+		__szr_buttons_right.Add(self._BTN_add_items, 0, wx.BOTTOM | wx.EXPAND, 3)
+
 		self._BTN_add_directory = wx.Button(self, wx.ID_ANY, _(u"← &Directory"), style=wx.BU_EXACTFIT | wx.BU_LEFT)
+		self._BTN_add_directory.SetToolTip(_("Add a local directory."))
+		__szr_buttons_right.Add(self._BTN_add_directory, 0, wx.BOTTOM | wx.EXPAND, 3)
+
 		self._BTN_add_from_archive = wx.Button(self, wx.ID_ANY, _(u"← &Archive"), style=wx.BU_EXACTFIT | wx.BU_LEFT)
+		self._BTN_add_from_archive.SetToolTip(_("Add document(s) from archive."))
+		__szr_buttons_right.Add(self._BTN_add_from_archive, 0, wx.BOTTOM | wx.EXPAND, 3)
+
 		self._BTN_scan_items = wx.Button(self, wx.ID_ANY, _(u"← S&can"), style=wx.BU_EXACTFIT | wx.BU_LEFT)
+		self._BTN_scan_items.SetToolTip(_("Acquire images from image source (scanner, ...)."))
+		__szr_buttons_right.Add(self._BTN_scan_items, 0, wx.BOTTOM | wx.EXPAND, 3)
+
 		self._BTN_clipboard_items = wx.Button(self, wx.ID_ANY, _(u"← C&lipboard"), style=wx.BU_EXACTFIT | wx.BU_LEFT)
+		self._BTN_clipboard_items.SetToolTip(_("Acquire file or text from the clipboard."))
+		__szr_buttons_right.Add(self._BTN_clipboard_items, 0, wx.BOTTOM | wx.EXPAND, 3)
+
+		__szr_buttons_right.Add((20, 20), 0, wx.EXPAND, 0)
+
 		self._BTN_show_item = wx.Button(self, wx.ID_ANY, _("&View"), style=wx.BU_EXACTFIT)
+		self._BTN_show_item.SetToolTip(_("Show the topmost selected document."))
+		__szr_buttons_right.Add(self._BTN_show_item, 0, wx.BOTTOM | wx.EXPAND, 3)
+
 		self._BTN_save_items = wx.Button(self, wx.ID_ANY, _("&Save as"), style=wx.BU_EXACTFIT)
+		self._BTN_save_items.SetToolTip(_("Save selected/all items to disk."))
+		__szr_buttons_right.Add(self._BTN_save_items, 0, wx.BOTTOM | wx.EXPAND, 3)
+
 		self._BTN_export_items = wx.Button(self, wx.ID_ANY, _("E&xport"), style=wx.BU_EXACTFIT)
+		self._BTN_export_items.SetToolTip(_("Export all/selected items to removable media (CD/DVD/USB)."))
+		__szr_buttons_right.Add(self._BTN_export_items, 0, wx.BOTTOM | wx.EXPAND, 3)
+
 		self._BTN_pdfjoin_items = wx.Button(self, wx.ID_ANY, _(u"⇶❭ PDF"), style=wx.BU_EXACTFIT)
+		self._BTN_pdfjoin_items.SetToolTip(_("Join selected items into one PDF."))
+		__szr_buttons_right.Add(self._BTN_pdfjoin_items, 0, wx.BOTTOM | wx.EXPAND, 3)
+
 		self._BTN_archive_items = wx.Button(self, wx.ID_ANY, _(u"→ Archive"), style=wx.BU_EXACTFIT)
+		self._BTN_archive_items.SetToolTip(_("Store selected/all documents in document archive."))
+		__szr_buttons_right.Add(self._BTN_archive_items, 0, wx.BOTTOM | wx.EXPAND, 3)
+
 		self._BTN_remove_items = wx.Button(self, wx.ID_ANY, _("&Remove"), style=wx.BU_EXACTFIT)
+		self._BTN_remove_items.SetToolTip(_("Remove the selected documents."))
+		__szr_buttons_right.Add(self._BTN_remove_items, 0, wx.EXPAND, 3)
+
+		__szr_buttons_right.Add((20, 20), 0, wx.EXPAND, 0)
+
 		self._BTN_print_items = wx.Button(self, wx.ID_ANY, _("&Print"), style=wx.BU_EXACTFIT)
+		self._BTN_print_items.SetToolTip(_("Print selected/all documents."))
+		__szr_buttons_right.Add(self._BTN_print_items, 0, wx.BOTTOM | wx.EXPAND, 3)
+
 		self._BTN_remote_print = wx.Button(self, wx.ID_ANY, _(u"→ &Print Mgr"), style=wx.BU_EXACTFIT)
+		self._BTN_remote_print.SetToolTip(_("Put selected/all documents into remote print manager."))
+		__szr_buttons_right.Add(self._BTN_remote_print, 0, wx.BOTTOM | wx.EXPAND, 3)
+
 		self._BTN_mail_items = wx.Button(self, wx.ID_ANY, _("E-&Mail"), style=wx.BU_EXACTFIT)
+		self._BTN_mail_items.SetToolTip(_("E-mail selected/all documents."))
+		__szr_buttons_right.Add(self._BTN_mail_items, 0, wx.BOTTOM | wx.EXPAND, 3)
+
 		self._BTN_fax_items = wx.Button(self, wx.ID_ANY, _("&Fax"), style=wx.BU_EXACTFIT)
+		self._BTN_fax_items.SetToolTip(_("Fax selected/all documents."))
+		__szr_buttons_right.Add(self._BTN_fax_items, 0, wx.BOTTOM | wx.EXPAND, 3)
 
-		self.__set_properties()
-		self.__do_layout()
+		self.SetSizer(__szr_main)
+		__szr_main.Fit(self)
 
-		self.Bind(wx.EVT_LIST_ITEM_SELECTED, self._on_list_item_selected, self._LCTRL_items)
+		self.Layout()
+
 		self.Bind(wx.EVT_BUTTON, self._on_item_up_pressed, self._BTN_item_up)
 		self.Bind(wx.EVT_BUTTON, self._on_item_down_pressed, self._BTN_item_down)
 		self.Bind(wx.EVT_BUTTON, self._on_add_items_button_pressed, self._BTN_add_items)
@@ -59,134 +125,72 @@ class wxgExportAreaPluginPnl(wx.Panel):
 		self.Bind(wx.EVT_BUTTON, self._on_remote_print_button_pressed, self._BTN_remote_print)
 		self.Bind(wx.EVT_BUTTON, self._on_mail_items_button_pressed, self._BTN_mail_items)
 		self.Bind(wx.EVT_BUTTON, self._on_fax_items_button_pressed, self._BTN_fax_items)
-		# end wxGlade
 
-	def __set_properties(self):
-		# begin wxGlade: wxgExportAreaPluginPnl.__set_properties
-		self._BTN_item_up.Enable(False)
-		self._BTN_item_down.SetToolTip(_("Move down topmost selected item."))
-		self._BTN_item_down.Enable(False)
-		self._BTN_add_items.SetToolTip(_("Add document(s) from file(s)."))
-		self._BTN_add_directory.SetToolTip(_("Add a local directory."))
-		self._BTN_add_from_archive.SetToolTip(_("Add document(s) from archive."))
-		self._BTN_scan_items.SetToolTip(_("Acquire images from image source (scanner, ...)."))
-		self._BTN_clipboard_items.SetToolTip(_("Acquire file or text from the clipboard."))
-		self._BTN_show_item.SetToolTip(_("Show the topmost selected document."))
-		self._BTN_save_items.SetToolTip(_("Save selected/all items to disk."))
-		self._BTN_export_items.SetToolTip(_("Export all/selected items to removable media (CD/DVD/USB)."))
-		self._BTN_pdfjoin_items.SetToolTip(_("Join selected items into one PDF."))
-		self._BTN_archive_items.SetToolTip(_("Store selected/all documents in document archive."))
-		self._BTN_remove_items.SetToolTip(_("Remove the selected documents."))
-		self._BTN_print_items.SetToolTip(_("Print selected/all documents."))
-		self._BTN_remote_print.SetToolTip(_("Put selected/all documents into remote print manager."))
-		self._BTN_mail_items.SetToolTip(_("E-mail selected/all documents."))
-		self._BTN_fax_items.SetToolTip(_("Fax selected/all documents."))
-		# end wxGlade
-
-	def __do_layout(self):
-		# begin wxGlade: wxgExportAreaPluginPnl.__do_layout
-		__szr_main = wx.BoxSizer(wx.HORIZONTAL)
-		__szr_buttons_right = wx.BoxSizer(wx.VERTICAL)
-		__szr_item_up_down = wx.BoxSizer(wx.HORIZONTAL)
-		__szr_main.Add(self._LCTRL_items, 1, wx.EXPAND | wx.RIGHT, 5)
-		__szr_item_up_down.Add((20, 20), 2, wx.EXPAND, 0)
-		__szr_item_up_down.Add(self._BTN_item_up, 0, 0, 0)
-		__szr_item_up_down.Add(self._BTN_item_down, 0, 0, 0)
-		__szr_item_up_down.Add((20, 20), 2, wx.EXPAND, 0)
-		__szr_buttons_right.Add(__szr_item_up_down, 0, wx.BOTTOM | wx.EXPAND, 3)
-		__szr_buttons_right.Add(self._BTN_add_items, 0, wx.BOTTOM | wx.EXPAND, 3)
-		__szr_buttons_right.Add(self._BTN_add_directory, 0, wx.BOTTOM | wx.EXPAND, 3)
-		__szr_buttons_right.Add(self._BTN_add_from_archive, 0, wx.BOTTOM | wx.EXPAND, 3)
-		__szr_buttons_right.Add(self._BTN_scan_items, 0, wx.BOTTOM | wx.EXPAND, 3)
-		__szr_buttons_right.Add(self._BTN_clipboard_items, 0, wx.BOTTOM | wx.EXPAND, 3)
-		__szr_buttons_right.Add((20, 20), 0, wx.EXPAND, 0)
-		__szr_buttons_right.Add(self._BTN_show_item, 0, wx.BOTTOM | wx.EXPAND, 3)
-		__szr_buttons_right.Add(self._BTN_save_items, 0, wx.BOTTOM | wx.EXPAND, 3)
-		__szr_buttons_right.Add(self._BTN_export_items, 0, wx.BOTTOM | wx.EXPAND, 3)
-		__szr_buttons_right.Add(self._BTN_pdfjoin_items, 0, wx.BOTTOM | wx.EXPAND, 3)
-		__szr_buttons_right.Add(self._BTN_archive_items, 0, wx.BOTTOM | wx.EXPAND, 3)
-		__szr_buttons_right.Add(self._BTN_remove_items, 0, wx.EXPAND, 3)
-		__szr_buttons_right.Add((20, 20), 0, wx.EXPAND, 0)
-		__szr_buttons_right.Add(self._BTN_print_items, 0, wx.BOTTOM | wx.EXPAND, 3)
-		__szr_buttons_right.Add(self._BTN_remote_print, 0, wx.BOTTOM | wx.EXPAND, 3)
-		__szr_buttons_right.Add(self._BTN_mail_items, 0, wx.BOTTOM | wx.EXPAND, 3)
-		__szr_buttons_right.Add(self._BTN_fax_items, 0, wx.BOTTOM | wx.EXPAND, 3)
-		__szr_main.Add(__szr_buttons_right, 0, wx.EXPAND, 0)
-		self.SetSizer(__szr_main)
-		__szr_main.Fit(self)
-		self.Layout()
-		# end wxGlade
-
-	def _on_list_item_selected(self, event):  # wxGlade: wxgExportAreaPluginPnl.<event_handler>
-		print("Event handler '_on_list_item_selected' not implemented!")
-		event.Skip()
-
-	def _on_item_up_pressed(self, event):  # wxGlade: wxgExportAreaPluginPnl.<event_handler>
+	def _on_item_up_pressed(self, event):
 		print("Event handler '_on_item_up_pressed' not implemented!")
 		event.Skip()
 
-	def _on_item_down_pressed(self, event):  # wxGlade: wxgExportAreaPluginPnl.<event_handler>
+	def _on_item_down_pressed(self, event):
 		print("Event handler '_on_item_down_pressed' not implemented!")
 		event.Skip()
 
-	def _on_add_items_button_pressed(self, event):  # wxGlade: wxgExportAreaPluginPnl.<event_handler>
+	def _on_add_items_button_pressed(self, event):
 		print("Event handler '_on_add_items_button_pressed' not implemented!")
 		event.Skip()
 
-	def _on_add_directory_button_pressed(self, event):  # wxGlade: wxgExportAreaPluginPnl.<event_handler>
+	def _on_add_directory_button_pressed(self, event):
 		print("Event handler '_on_add_directory_button_pressed' not implemented!")
 		event.Skip()
 
-	def _on_add_from_archive_button_pressed(self, event):  # wxGlade: wxgExportAreaPluginPnl.<event_handler>
+	def _on_add_from_archive_button_pressed(self, event):
 		print("Event handler '_on_add_from_archive_button_pressed' not implemented!")
 		event.Skip()
 
-	def _on_scan_items_button_pressed(self, event):  # wxGlade: wxgExportAreaPluginPnl.<event_handler>
+	def _on_scan_items_button_pressed(self, event):
 		print("Event handler '_on_scan_items_button_pressed' not implemented!")
 		event.Skip()
 
-	def _on_clipboard_items_button_pressed(self, event):  # wxGlade: wxgExportAreaPluginPnl.<event_handler>
+	def _on_clipboard_items_button_pressed(self, event):
 		print("Event handler '_on_clipboard_items_button_pressed' not implemented!")
 		event.Skip()
 
-	def _on_show_item_button_pressed(self, event):  # wxGlade: wxgExportAreaPluginPnl.<event_handler>
+	def _on_show_item_button_pressed(self, event):
 		print("Event handler '_on_show_item_button_pressed' not implemented!")
 		event.Skip()
 
-	def _on_save_items_button_pressed(self, event):  # wxGlade: wxgExportAreaPluginPnl.<event_handler>
+	def _on_save_items_button_pressed(self, event):
 		print("Event handler '_on_save_items_button_pressed' not implemented!")
 		event.Skip()
 
-	def _on_export_items_button_pressed(self, event):  # wxGlade: wxgExportAreaPluginPnl.<event_handler>
+	def _on_export_items_button_pressed(self, event):
 		print("Event handler '_on_export_items_button_pressed' not implemented!")
 		event.Skip()
 
-	def _on_pdfjoin_button_pressed(self, event):  # wxGlade: wxgExportAreaPluginPnl.<event_handler>
+	def _on_pdfjoin_button_pressed(self, event):
 		print("Event handler '_on_pdfjoin_button_pressed' not implemented!")
 		event.Skip()
 
-	def _on_archive_items_button_pressed(self, event):  # wxGlade: wxgExportAreaPluginPnl.<event_handler>
+	def _on_archive_items_button_pressed(self, event):
 		print("Event handler '_on_archive_items_button_pressed' not implemented!")
 		event.Skip()
 
-	def _on_remove_items_button_pressed(self, event):  # wxGlade: wxgExportAreaPluginPnl.<event_handler>
+	def _on_remove_items_button_pressed(self, event):
 		print("Event handler '_on_remove_items_button_pressed' not implemented!")
 		event.Skip()
 
-	def _on_print_items_button_pressed(self, event):  # wxGlade: wxgExportAreaPluginPnl.<event_handler>
+	def _on_print_items_button_pressed(self, event):
 		print("Event handler '_on_print_items_button_pressed' not implemented!")
 		event.Skip()
 
-	def _on_remote_print_button_pressed(self, event):  # wxGlade: wxgExportAreaPluginPnl.<event_handler>
+	def _on_remote_print_button_pressed(self, event):
 		print("Event handler '_on_remote_print_button_pressed' not implemented!")
 		event.Skip()
 
-	def _on_mail_items_button_pressed(self, event):  # wxGlade: wxgExportAreaPluginPnl.<event_handler>
+	def _on_mail_items_button_pressed(self, event):
 		print("Event handler '_on_mail_items_button_pressed' not implemented!")
 		event.Skip()
 
-	def _on_fax_items_button_pressed(self, event):  # wxGlade: wxgExportAreaPluginPnl.<event_handler>
+	def _on_fax_items_button_pressed(self, event):
 		print("Event handler '_on_fax_items_button_pressed' not implemented!")
 		event.Skip()
 
-# end of class wxgExportAreaPluginPnl

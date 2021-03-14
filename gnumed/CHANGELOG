@@ -27,6 +27,7 @@ IMPROVED: M/VCF: add nominatim URL to patient/praxis MECARD/vCard
 IMPROVED: files: format conversion improvements
 IMPROVED: DB: replace "IN"/"NOT IN" for psycopg3
 IMPROVED: DB: converge localhost/domain socket profiles
+IMPROVED: export area: support D&D of items as files
 
 FIX: CLI: --wxp= not needed anymore
 FIX: CLI: --ui= not needed anymore

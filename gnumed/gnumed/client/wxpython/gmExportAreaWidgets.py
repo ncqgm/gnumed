@@ -540,10 +540,6 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 		self._schedule_data_reget()
 
 	#--------------------------------------------------------
-	def _on_list_item_selected(self, event):
-		event.Skip()
-
-	#--------------------------------------------------------
 	def _on_item_up_pressed(self, event):
 		event.Skip()
 		sort_col_idx, is_ascending = self._LCTRL_items.GetSortState()
@@ -977,6 +973,22 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 			return None
 
 		return data['pk_export_item']
+	#--------------------------------------------------------
+	def _get_drag_data(self):
+		data = self._LCTRL_items.get_selected_item_data(only_one = True)
+		if data is None:
+			return None
+
+		if data.is_DIRENTRY:
+			return None
+
+		filename = data.save_to_file()
+		if filename is None:
+			return None
+
+		file_data_obj = wx.FileDataObject()
+		file_data_obj.AddFile(filename)
+		return file_data_obj
 
 	#--------------------------------------------------------
 	def repopulate_ui(self):
@@ -988,6 +1000,7 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 	def __init_ui(self):
 		self._LCTRL_items.set_columns(['#', _('By'), _('When'), _('Description')])
 		self._LCTRL_items.ItemIdentityCallback = self._get_list_item_identifier
+		self._LCTRL_items.dnd_callback = self._get_drag_data
 
 		self._BTN_item_up.Enable()
 		self._BTN_item_down.Enable()
