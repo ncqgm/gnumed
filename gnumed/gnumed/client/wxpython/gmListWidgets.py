@@ -1585,8 +1585,43 @@ class SelectionStateMixin:
 		return selections
 
 #================================================================
-class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, ColumnSorterMixin, SelectionStateMixin, wx.ListCtrl):#, DnDMixin
-#class cReportListCtrl(SelectionStateMixin, ColumnSorterMixin, DnDMixin, wx.ListCtrl):
+class DnDMixin:
+	"""This mixin enables drag and drop of list items."""
+
+	def __init__(self):
+		assert(isinstance(self, wx.ListCtrl)), '<%s> must be mixed in with wx.ListCtrl'
+		self.Bind(wx.EVT_LIST_BEGIN_DRAG, self.OnDragInit, id = self.GetId())
+
+	#------------------------------------------------------------
+	def OnDragInit(self, evt):
+		evt.Skip()
+		drag_data = self.get_drag_data_object()
+		if drag_data is None:
+			return
+
+		src = wx.DropSource(self)
+		src.SetData(drag_data)
+		src.DoDragDrop(True)
+
+	#------------------------------------------------------------
+	def get_drag_data_object(self):
+		"""Get data to be dragged.
+
+		Returns:
+			A drag data object, or None if nothing is to be dragged.
+
+		Override to provide whatever data is to be dragged.
+		The overrider itself can provide a default or call
+		some external callback.
+		"""
+		#item = self.get_selected_item(only_one = True)
+		#item = 'drag data'
+		#tdo = wx.PyTextDataObject(str(item))
+		#tdo = wx.TextDataObject(str(item))
+		return None
+
+#================================================================
+class cReportListCtrl(DnDMixin, listmixins.ListCtrlAutoWidthMixin, cColumnSorterMixin, SelectionStateMixin, wx.ListCtrl):#
 
 	# sorting: at set_string_items() time all items will be
 	# adorned with their initial row number as wxPython data,
@@ -1612,9 +1647,8 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, ColumnSorterMixin, Sele
 		cColumnSorterMixin.__init__(self, 0)
 		self.invalidate_sorting_metadata()
 		self.__secondary_sort_col = None
-#		DnDMixin.__init__(self)
-#		print(self.OnDragInit)
 		listmixins.ListCtrlAutoWidthMixin.__init__(self)
+		DnDMixin.__init__(self)
 
 		# cols/rows
 		self.__widths = None
@@ -1627,6 +1661,7 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, ColumnSorterMixin, Sele
 		self.__new_callback = None
 		self.__edit_callback = None
 		self.__delete_callback = None
+		self.__dnd_callback = None
 
 		# context menu
 		self.__extend_popup_menu_callback = None
@@ -2596,7 +2631,6 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, ColumnSorterMixin, Sele
 	#------------------------------------------------------------
 	def _on_list_item_selected(self, event):
 		event.Skip()
-		print('list item selected')
 		if self.__select_callback is not None:
 			self.__select_callback(event)
 
@@ -3570,6 +3604,63 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, ColumnSorterMixin, Sele
 		self.__secondary_sort_col = col
 
 	secondary_sort_column = property(__get_secondary_sort_col, __set_secondary_sort_col)
+
+	#------------------------------------------------------------
+	# drag and drop mixin API
+	#------------------------------------------------------------
+	def _get_dnd_callback(self):
+		return self.__dnd_callback
+
+	def _set_dnd_callback(self, callback):
+		if callback is None:
+			self.__dnd_callback = None
+			return
+
+		if not callable(callback):
+			raise ValueError('<dnd> callback is not a callable: %s' % callback)
+
+		self.__dnd_callback = callback
+
+	dnd_callback = property(_get_dnd_callback, _set_dnd_callback)
+
+	#------------------------------------------------------------
+	def get_drag_data_object(self):
+		"""Get data to be dragged.
+
+		Returns:
+			A drag data object, or None if nothing is to be dragged.
+
+		Override to provide whatever data is to be dragged.
+		The overrider itself can provide a default or call
+		some external callback.
+		"""
+		if self.__dnd_callback is not None:
+			return self.__dnd_callback()
+
+		item = self.get_selected_items(only_one = True)
+		data = self.get_selected_item_data(only_one = True)
+		if (item is None) and (data is None):
+			return None
+
+		data_obj = wx.DataObjectComposite()
+		if data is not None:
+			if hasattr(data, 'format'):
+				txt = data.format()
+				if type(txt) is list:
+					txt = '\n'.join(txt)
+			else:
+				txt = '%s' % data
+			txt_data = wx.TextDataObject(txt)
+			data_obj.Add(txt_data, True)
+		if item is not None:
+			fields = []
+			for col_idx in range(self.ColumnCount):
+				fields.append(self.GetItem(item, col_idx).Text)
+			txt = '%s\n' % ' || '.join(fields)
+			txt_data = wx.TextDataObject(txt)
+			data_obj.Add(txt_data, False)
+		#tdo = wx.PyTextDataObject(str(item))
+		return data_obj
 
 	#------------------------------------------------------------
 	#------------------------------------------------------------
