@@ -457,11 +457,13 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 		_log.debug('called by notebook plugin API, skipping inbox loading')
 		#gmRegetMixin.cRegetOnPaintMixin.repopulate_ui(self)
 		return True
+
 	#--------------------------------------------------------
 	def filter_by_active_patient(self):
 		self._CHBOX_active_patient.SetValue(True)
 		self._TXT_inbox_item_comment.SetValue('')
 		self.__populate_inbox()
+
 	#--------------------------------------------------------
 	# internal helpers
 	#--------------------------------------------------------
@@ -482,7 +484,8 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 		self._LCTRL_provider_inbox.searchable_columns = [2, 3, 4, 5]
 		self._LCTRL_provider_inbox.item_tooltip_callback = self._get_msg_tooltip
 		self._LCTRL_provider_inbox.extend_popup_menu_callback = self._extend_popup_menu
-
+		self._LCTRL_provider_inbox.select_callback = self.__msg_selected
+		self._LCTRL_provider_inbox.activate_callback = self.__msg_activated
 		self.__update_greeting()
 
 		if gmPerson.gmCurrentPatient().connected:
@@ -625,6 +628,7 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 		self._LCTRL_provider_inbox.set_column_widths()
 		self._TXT_inbox_item_comment.SetValue('')
 		self.__update_greeting(len(items))
+
 	#--------------------------------------------------------
 	# event handlers
 	#--------------------------------------------------------
@@ -653,8 +657,9 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 		_log.debug('post_patient_selection')
 		self._CHBOX_active_patient.Enable()
 		self._schedule_data_reget()
+
 	#--------------------------------------------------------
-	def _lst_item_activated(self, evt):
+	def __msg_activated(self, evt):
 
 		try:
 			msg = self._LCTRL_provider_inbox.get_selected_item_data(only_one = True)
@@ -694,11 +699,9 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 			return False
 
 		return True
+
 	#--------------------------------------------------------
-	def _lst_item_focused(self, evt):
-		pass
-	#--------------------------------------------------------
-	def _lst_item_selected(self, evt):
+	def __msg_selected(self, evt):
 		msg = self._LCTRL_provider_inbox.get_selected_item_data(only_one = True)
 		if msg is None:
 			return
@@ -707,8 +710,8 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 			tmp = _('Message: %s') % msg['comment']
 		else:
 			tmp = _('Message: %s\nData: %s') % (msg['comment'], msg['data'])
-
 		self._TXT_inbox_item_comment.SetValue(tmp)
+
 	#--------------------------------------------------------
 	def _extend_popup_menu(self, menu=None):
 		tmp = self._LCTRL_provider_inbox.get_selected_item_data(only_one = True)
