@@ -219,7 +219,7 @@ class gmBackendListener(gmBorg.cBorg):
 				self.__notifications_received += 1
 				if self.debug:
 					print(notification)
-				_log.debug('#%s: %s (first param is PID of sending backend)', self.__notifications_received, notification)
+				_log.debug('#%s: %s (first param: PID of sending backend; this backend: %s)', self.__notifications_received, notification, self.backend_pid)
 				# decode payload
 				payload = notification.payload.split('::')
 				operation = None
