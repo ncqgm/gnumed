@@ -39,6 +39,7 @@ FIX: CLI: --ui= not needed anymore
 	1.8.6
 
 FIX: unlocking encounters (missing import)
+FIX: row locking code
 
 IMPROVED: desktop entry file [thanks freddii]
 
