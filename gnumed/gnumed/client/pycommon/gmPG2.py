@@ -916,7 +916,7 @@ def lock_row(link_obj=None, table=None, pk=None, exclusive=False):
 		cmd = """SELECT pg_try_advisory_lock('%s'::regclass::oid::int, %s)""" % (table, pk)
 	else:
 		cmd = """SELECT pg_try_advisory_lock_shared('%s'::regclass::oid::int, %s)""" % (table, pk)
-	rows, idx = run_rw_queries(link_obj = link_obj, queries = [{'cmd': cmd}], get_col_idx = False, return_data = True)
+	rows, idx = run_ro_queries(link_obj = link_obj, queries = [{'cmd': cmd}], get_col_idx = False)
 	if rows[0][0]:
 		return True
 
@@ -934,7 +934,7 @@ def unlock_row(link_obj=None, table=None, pk=None, exclusive=False):
 		cmd = "SELECT pg_advisory_unlock('%s'::regclass::oid::int, %s)" % (table, pk)
 	else:
 		cmd = "SELECT pg_advisory_unlock_shared('%s'::regclass::oid::int, %s)" % (table, pk)
-	rows, idx = run_rw_queries(link_obj = link_obj, queries = [{'cmd': cmd}], get_col_idx = False, return_data = True)
+	rows, idx = run_ro_queries(link_obj = link_obj, queries = [{'cmd': cmd}], get_col_idx = False)
 	if rows[0][0]:
 		return True
 
@@ -943,7 +943,7 @@ def unlock_row(link_obj=None, table=None, pk=None, exclusive=False):
 
 #------------------------------------------------------------------------
 def row_is_locked(table=None, pk=None):
-	"""Looks at pk_locks
+	"""Looks at pg_locks.
 
 	- does not take into account locks other than 'advisory', however
 	"""
@@ -959,6 +959,7 @@ def row_is_locked(table=None, pk=None):
 	if rows[0][0]:
 		_log.debug('row is locked: [%s] [%s]', table, pk)
 		return True
+
 	_log.debug('row is NOT locked: [%s] [%s]', table, pk)
 	return False
 
@@ -2505,7 +2506,7 @@ SELECT to_timestamp (foofoo,'YYMMDD.HH24MI') FROM (
 
 		row_is_locked(table = 'dem.identity', pk = 12)
 
-		print("1st connection:")
+		print("on 1st connection:")
 		print(" locked:", row_is_locked(table = 'dem.identity', pk = 12))
 		print(" 1st shared lock succeeded:", lock_row(table = 'dem.identity', pk = 12, exclusive = False))
 		print(" locked:", row_is_locked(table = 'dem.identity', pk = 12))
@@ -2517,20 +2518,20 @@ SELECT to_timestamp (foofoo,'YYMMDD.HH24MI') FROM (
 		print("   `-> unlock succeeded:", unlock_row(table = 'dem.identity', pk = 12, exclusive = True))
 		print(" locked:", row_is_locked(table = 'dem.identity', pk = 12))
 
-		print("2nd connection:")
+		print("on 2nd connection:")
 		conn = get_raw_connection(readonly=True)
 		print(" shared lock should succeed:", lock_row(link_obj = conn, table = 'dem.identity', pk = 12, exclusive = False))
 		print(" `-> unlock succeeded:", unlock_row(link_obj = conn, table = 'dem.identity', pk = 12, exclusive = False))
 		print(" locked:", row_is_locked(table = 'dem.identity', pk = 12))
-		print(" exclusive lock succeeded ?", lock_row(link_obj = conn, table = 'dem.identity', pk = 12, exclusive = True), "(should fail)")
+		print(" exclusive lock succeeded:", lock_row(link_obj = conn, table = 'dem.identity', pk = 12, exclusive = True), "(should be False)")
 		print(" locked:", row_is_locked(table = 'dem.identity', pk = 12))
 
-		print("1st connection:")
+		print("on 1st connection again:")
 		print(" unlock succeeded:", unlock_row(table = 'dem.identity', pk = 12, exclusive = False))
 		print(" locked:", row_is_locked(table = 'dem.identity', pk = 12))
 
-		print("2nd connection:")
-		print(" exclusive lock should succeed", lock_row(link_obj = conn, table = 'dem.identity', pk = 12, exclusive = True))
+		print("on 2nd connection:")
+		print(" exclusive lock should succeed:", lock_row(link_obj = conn, table = 'dem.identity', pk = 12, exclusive = True))
 		print(" locked:", row_is_locked(table = 'dem.identity', pk = 12))
 		print("  shared lock should succeed:", lock_row(link_obj = conn, table = 'dem.identity', pk = 12, exclusive = False))
 		print("  `-> unlock succeeded:", unlock_row(link_obj = conn, table = 'dem.identity', pk = 12, exclusive = False))
@@ -2619,9 +2620,9 @@ SELECT to_timestamp (foofoo,'YYMMDD.HH24MI') FROM (
 	#test_run_query()
 	#test_schema_exists()
 	#test_get_foreign_key_names()
-	#test_row_locks()
+	test_row_locks()
 	#test_faulty_SQL()
 	#test_log_settings()
-	test_get_db_fingerprint()
+	#test_get_db_fingerprint()
 
 # ======================================================================
