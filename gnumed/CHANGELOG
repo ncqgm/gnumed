@@ -12,6 +12,7 @@ FIX: unlocking encounters (missing import)
 FIX: row locking code
 
 IMPROVED: desktop entry file [thanks freddii]
+IMPROVED: patient switch: encounter checking
 
 	1.8.5
 

@@ -171,24 +171,20 @@ def sanity_check_encounter_of_active_patient(parent=None, msg=None):
 
 	emr = pat.emr
 	enc = emr.active_encounter
-
 	# did we add anything to the EMR ?
 	has_narr = enc.has_narrative()
 	has_docs = enc.has_documents()
-
 	if (not has_narr) and (not has_docs):
 		return True
 
 	empty_aoe = (gmTools.coalesce(enc['assessment_of_encounter'], '').strip() == '')
 	zero_duration = (enc['last_affirmed'] == enc['started'])
-
 	# all is well anyway
 	if (not empty_aoe) and (not zero_duration):
 		return True
 
 	if zero_duration:
 		enc['last_affirmed'] = pydt.datetime.now(tz = gmDateTime.gmCurrentLocalTimezone)
-
 	# no narrative, presumably only import of docs and done
 	if not has_narr:
 		if empty_aoe:
@@ -203,30 +199,26 @@ def sanity_check_encounter_of_active_patient(parent=None, msg=None):
 		# - work out suitable default
 		epis = emr.get_episodes_by_encounter()
 		if len(epis) > 0:
-			enc_summary = ''
-			for epi in epis:
-				enc_summary += '%s; ' % epi['description']
-			enc['assessment_of_encounter'] = enc_summary
-
+			enc['assessment_of_encounter'] = '; '.join([ e['description'] for e in epis ])
+	enc.save_payload()
 	if msg is None:
 		msg = _('Edit the encounter details of the active patient before moving on:')
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
 	_log.debug('sanity-check editing encounter [%s] for patient [%s]', enc['pk_encounter'], enc['pk_patient'])
 	edit_encounter(parent = parent, encounter = enc, msg = msg)
-
 	return True
 
 #----------------------------------------------------------------
 def edit_encounter(parent=None, encounter=None, msg=None, single_entry=False):
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
-
 	# FIXME: use generic dialog 2
 	dlg = cEncounterEditAreaDlg(parent = parent, encounter = encounter, msg = msg)
 	if dlg.ShowModal() == wx.ID_OK:
 		dlg.DestroyLater()
 		return True
+
 	dlg.DestroyLater()
 	return False
 

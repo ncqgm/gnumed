@@ -1346,14 +1346,14 @@ class cActivePatientSelector(cPersonSearchCtrl):
 		)
 		self.SetToolTip(tt)
 	#--------------------------------------------------------
-	def _set_person_as_active_patient(self, pat):
-		if not set_active_patient(patient=pat, forced_reload = self.__always_reload_after_search):
+	def _set_person_as_active_patient(self, person):
+		if not set_active_patient(patient = person, forced_reload = self.__always_reload_after_search):
 			_log.error('cannot change active patient')
 			return None
 
-		self._remember_ident(pat)
-
+		self._remember_ident(person)
 		return True
+
 	#--------------------------------------------------------
 	# event handling
 	#--------------------------------------------------------
