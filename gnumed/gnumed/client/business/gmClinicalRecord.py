@@ -289,23 +289,22 @@ class cClinicalRecord(object):
 				curr_enc_in_db['pk_encounter']
 			))
 
-		# DON'T do this: same_payload() does not compare _all_ fields
-		# so we can get into a reality disconnect if we don't
-		# announce the mod
+		# don't do this: same_payload() does not compare _all_
+		# fields so we can get into a reality disconnect if we
+		# don't announce the modification
 #		if self.current_encounter.same_payload(another_object = curr_enc_in_db):
 #			_log.debug('clin.encounter_mod_db received but no change to active encounter payload')
 #			return True
 
-		# there was a change in the database from elsewhere,
-		# locally, however, we don't have any pending changes,
+		# there was a change in the database from elsewhere;
+		# locally, however, we don't have any pending changes;
 		# therefore we can propagate the remote change locally
-		# without losing anything
+		# without losing anything;
 		# this really should be the standard case
 		gmTools.compare_dict_likes(self.current_encounter.fields_as_dict(), curr_enc_in_db.fields_as_dict(), 'modified enc in client', 'enc loaded from DB')
 		_log.debug('active encounter modified remotely, no locally pending changes, reloading from DB and locally announcing the remote modification')
 		self.current_encounter.refetch_payload()
 		gmDispatcher.send('current_encounter_modified')
-
 		return True
 
 	#--------------------------------------------------------

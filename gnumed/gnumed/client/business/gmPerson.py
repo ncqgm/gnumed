@@ -2166,8 +2166,10 @@ class gmCurrentPatient(gmBorg.cBorg):
 
 		# do nothing if patient is locked
 		if self.locked:
-			_log.error('patient [%s] is locked, cannot change to [%s]' % (self.patient['pk_identity'], patient))
+			_log.error('patient [%s] is locked, cannot switch to [%s]' % (self.patient['pk_identity'], patient))
 			return None
+
+		_log.info('patient switch [%s] -> [%s] requested', self.patient, patient)
 
 		# user wants to explicitly unset current patient
 		if patient == -1:
@@ -2189,34 +2191,34 @@ class gmCurrentPatient(gmBorg.cBorg):
 			_log.error('cannot set active patient to [%s], must be either None, -1 or cPatient instance' % str(patient))
 			raise TypeError('gmPerson.gmCurrentPatient.__init__(): <patient> must be None, -1 or cPatient instance but is: %s' % str(patient))
 
+		_log.info('patient switch [%s] -> [%s] requested', self.patient['pk_identity'], patient['pk_identity'])
+
 		# same ID, no change needed
 		if (self.patient['pk_identity'] == patient['pk_identity']) and not forced_reload:
 			return None
 
+		# do not access "deleted" patients
 		if patient['is_deleted']:
 			_log.error('cannot set active patient to disabled dem.identity row: %s', patient)
 			raise ValueError('gmPerson.gmCurrentPatient.__init__(): <patient> is disabled: %s' % patient)
 
-		# user wants different patient
-		_log.info('patient change [%s] -> [%s] requested', self.patient['pk_identity'], patient['pk_identity'])
-
+		# this blocks
 		if not self.__run_callbacks_before_switching_away_from_patient():
-			_log.error('not changing current patient, at least one pre-change callback failed')
+			_log.error('at least one pre-change callback failed, not switching current patient')
 			return None
 
 		# everything seems swell
-		self.__send_pre_unselection_notification()
+		self.__send_pre_unselection_notification()	# does not block
 		self.patient.cleanup()
 		self.patient = gmNull.cNull()
-		self.__send_unselection_notification()
+		self.__send_unselection_notification()		# does not block
 		# give it some time
 		time.sleep(0.5)
 		self.patient = patient
 		# for good measure ...
 		# however, actually we want to get rid of that
 		self.patient.emr
-		self.__send_selection_notification()
-
+		self.__send_selection_notification()		# does not block
 		return None
 
 	#--------------------------------------------------------
@@ -2479,26 +2481,27 @@ def set_active_patient(patient=None, forced_reload=False):
 		return True
 
 	if isinstance(patient, cPatient):
-		pat = patient
+		patient2activate = patient
 	elif isinstance(patient, cPerson):
-		pat = pat.as_patient
+		patient2activate = patient.as_patient
 	elif patient == -1:
-		pat = patient
+		patient2activate = patient
 	else:
 		# maybe integer ?
 		success, pk = gmTools.input2int(initial = patient, minval = 1)
 		if not success:
 			raise ValueError('<patient> must be either -1, >0, or a cPatient, cPerson or gmCurrentPatient instance, is: %s' % patient)
+
 		# but also valid patient ID ?
 		try:
-			pat = cPatient(aPK_obj = pk)
+			patient2activate = cPatient(aPK_obj = pk)
 		except Exception:
 			_log.exception('identity [%s] not found' % patient)
 			return False
 
 	# attempt to switch
 	try:
-		gmCurrentPatient(patient = pat, forced_reload = forced_reload)
+		gmCurrentPatient(patient = patient2activate, forced_reload = forced_reload)
 	except Exception:
 		_log.exception('error changing active patient to [%s]' % patient)
 		return False
