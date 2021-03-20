@@ -437,10 +437,16 @@ def file2scaled_image(filename=None, height=100):
 	return bitmap
 
 # ========================================================================
-def save_screenshot_to_file(filename=None, widget=None, settle_time=None):
+def save_screenshot_to_file(filename:str=None, widget=None, settle_time:int=None) -> str:
 	"""Take screenshot of widget.
 
-	<settle_time> in milliseconds
+	Args:
+		settle_time: milliseconds to wait before taking screenshot
+
+	Returns:
+		Screenshot filename.
+
+	https://github.com/wxWidgets/Phoenix/issues/259#issuecomment-801786528
 	"""
 	assert (isinstance(widget, wx.Window)), '<widget> must be (sub)class of wx.Window'
 
@@ -453,109 +459,57 @@ def save_screenshot_to_file(filename=None, widget=None, settle_time=None):
 		)
 	else:
 		filename = gmTools.fname_sanitize(filename)
-
-	_log.debug('filename: %s', filename)
-	_log.debug('widget: %s', widget)
-	_log.debug('display size: %s', wx.DisplaySize())
-
-	# let it settle a bit for, say, tooltips
 	if settle_time is not None:
 		for wait_slice in range(int(settle_time // 100)):
 			wx.SafeYield()
 			time.sleep(0.1)
-
-	widget_rect_on_screen = widget.GetScreenRect()
-	client_area_origin_on_screen = widget.ClientToScreen((0, 0))
-	widget_rect_local = widget.GetRect()
-	widget_rect_client_area = widget.GetClientRect()
-	client_area_origin_local = widget.GetClientAreaOrigin()
-
-	_log.debug('widget.GetScreenRect(): %s', widget_rect_on_screen)
-	_log.debug('widget.ClientToScreen(0, 0): %s', client_area_origin_on_screen)
-	_log.debug('widget.GetRect(): %s', widget_rect_local)
-	_log.debug('widget.GetClientRect(): %s', widget_rect_client_area)
-	_log.debug('widget.GetClientAreaOrigin(): %s', client_area_origin_local)
-
-	width2snap = widget_rect_local.width
-	height2snap = widget_rect_local.height
-	border_x = client_area_origin_on_screen.x - widget_rect_local.x
-	x2snap_from = 0 - border_x
-	title_and_menu_height = client_area_origin_on_screen.y - widget_rect_on_screen.y
-	y2snap_from = 0 - title_and_menu_height
-
-	# those are the correct dimensions but we don't get to
-	# *see* the window decorations on a WindowDC or ClientDC :-(
-	# (and a screendc doesn't work either)
-	_log.debug('left (x) border: %s', border_x)
-	_log.debug('top (y) border: %s', title_and_menu_height)
-	_log.debug('x2snap_from: %s', x2snap_from)
-	_log.debug('y2snap_from: %s', y2snap_from)
+	_log.debug('filename: %s', filename)
+	_log.debug('widget: %s', widget)
+	_log.debug('display size: %s', wx.DisplaySize())
+	if widget is None:
+		width2snap = -1
+		height2snap = -1
+		sane_x2snap_from_on_screen = 0
+		sane_y2snap_from_on_screen = 0
+	else:
+		widget_rect_on_screen = widget.GetScreenRect()
+		widget_rect_local = widget.GetRect()
+		width2snap = widget_rect_local.width
+		height2snap = widget_rect_local.height
+		x2snap_from_on_screen = widget_rect_on_screen.x
+		y2snap_from_on_screen = widget_rect_on_screen.y
+		sane_x2snap_from_on_screen = max(0, x2snap_from_on_screen)
+		sane_y2snap_from_on_screen = max(0, y2snap_from_on_screen)
+		_log.debug('widget.GetScreenRect(): %s (= widget coords on screen)', widget_rect_on_screen)
+		_log.debug('widget.GetRect(): %s (= widget coords on client area)', widget_rect_local)
+		_log.debug('x2snap_from_on_screen: %s (neg is off-screen)', x2snap_from_on_screen)
+		_log.debug('y2snap_from_on_screen: %s (neg is off-screen)', y2snap_from_on_screen)
+	screen_dc = wx.ScreenDC()
+	screen_dc_size = screen_dc.GetSize()
+	screen_dc_width = screen_dc_size[0]
+	screen_dc_height = screen_dc_size[1]
+	if width2snap == -1:
+		width2snap = screen_dc_width
+		height2snap = screen_dc_height
+	_log.debug('ScreenDC size: %s', screen_dc_size)
 	_log.debug('width2snap: %s', width2snap)
 	_log.debug('height2snap: %s', height2snap)
-
-	# WindowDC includes decorations, supposedly, but Windows only
-	window_dc = wx.WindowDC(widget)
-	wxbmp = __snapshot_to_bitmap (
-		source_dc = window_dc,
-		x2snap_from = x2snap_from,
-		y2snap_from = y2snap_from,
-		width2snap = width2snap,
-		height2snap = height2snap
-	)
-	window_dc.Destroy()
-	del window_dc
-	wxbmp.SaveFile(filename, wx.BITMAP_TYPE_PNG)
-	del wxbmp
-
-	x2snap_on_screen = widget_rect_on_screen.x
-	y2snap_on_screen = widget_rect_on_screen.y			# adjust for menu/title ?
-	sane_x2snap_on_screen = max(0, x2snap_on_screen)
-	sane_y2snap_on_screen = max(0, y2snap_on_screen)
-
-	_log.debug('x2snap_on_screen: %s', x2snap_on_screen)
-	_log.debug('y2snap_on_screen: %s', y2snap_on_screen)
-	_log.debug('sane x2snap_on_screen: %s', sane_x2snap_on_screen)
-	_log.debug('sane x2snap_on_screen: %s', sane_y2snap_on_screen)
-
-	screen_dc = wx.ScreenDC()
+	_log.debug('sane x2snap_from_on_screen: %s (on-screen part only)', sane_x2snap_from_on_screen)
+	_log.debug('sane y2snap_from_on_screen: %s (on-screen part only)', sane_y2snap_from_on_screen)
+	# this line makes multiple screenshots work (perhaps it updates a cached/global screen_dc from a more "hardwary" screen ?)
+	screen_dc.Blit(0, 0, screen_dc_width, screen_dc_height, screen_dc, 0, 0)
 	# not implemented:
-	#wxbmp = screen_dc.GetAsBitmap()		# can use subrect=...
 	wxbmp = __snapshot_to_bitmap (
 		source_dc = screen_dc,
-		x2snap_from = sane_x2snap_on_screen,
-		y2snap_from = sane_y2snap_on_screen,
+		x2snap_from = sane_x2snap_from_on_screen,
+		y2snap_from = sane_y2snap_from_on_screen,
 		width2snap = width2snap,
 		height2snap = height2snap
 	)
 	screen_dc.Destroy()
 	del screen_dc
-	wxbmp.SaveFile(filename + '.screendc.png', wx.BITMAP_TYPE_PNG)
+	wxbmp.SaveFile(filename, wx.BITMAP_TYPE_PNG)
 	del wxbmp
-
-	# ClientDC does not include decorations, only client area
-	#client_dc = wx.ClientDC(widget)
-	#wxbmp = __snapshot_to_bitmap (
-	#	source_dc = client_dc,
-	#	x2snap_from = x2snap_from,
-	#	y2snap_from = y2snap_from,
-	#	width2snap = width2snap,
-	#	height2snap = height2snap
-	#)
-	#client_dc.Destroy()
-	#del client_dc
-	#wxbmp.SaveFile(filename + '.clientdc.png', wx.BITMAP_TYPE_PNG)
-	#del wxbmp
-
-	# adjust for window decoration on Linux
-	#if sys.platform == 'linux':
-	# If the widget has a menu bar, remove that from the title bar height.
-	#if hasattr(widget, 'GetMenuBar'):
-	#	if widget.GetMenuBar():
-	#		title_bar_height /= 2
-	#		print('title bar height:', title_bar_height)
-	#width2snap += (border_width * 2)
-	#height2snap += title_bar_height + border_width
-
 	gmDispatcher.send(signal = 'statustext', msg = _('Saved screenshot to file [%s].') % filename)
 	return filename
 
@@ -701,9 +655,21 @@ if __name__ == '__main__':
 			print("no data in clipboard")
 			return
 		print("file:", result)
+
+	#------------------------------------------------------------------
+	def test_take_screenshot():
+		app = wx.App()
+		input('enter for next screenshot')
+		take_screenshot()
+		input('enter for next screenshot')
+		take_screenshot()
+		input('enter for next screenshot')
+		take_screenshot()
+
 	#------------------------------------------------------------------
 	#test_scale_img()
 	#test_sql_logic_prw()
-	test_clipboard()
+	#test_clipboard()
+	test_take_screenshot()
 
 #======================================================================
