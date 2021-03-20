@@ -41,6 +41,7 @@ FIX: CLI: --ui= not needed anymore
 FIX: unlocking encounters (missing import)
 FIX: row locking code
 FIX: metadata: screenshots URL in appdata.xml
+FIX: GUI: screenshot function
 
 IMPROVED: desktop entry file [thanks freddii]
 IMPROVED: patient switch: encounter checking
