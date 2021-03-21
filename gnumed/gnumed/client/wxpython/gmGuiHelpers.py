@@ -436,9 +436,10 @@ def file2scaled_image(filename=None, height=100):
 
 # ========================================================================
 def save_screenshot_to_file(filename:str=None, widget=None, settle_time:int=None) -> str:
-	"""Take screenshot of widget.
+	"""Take screenshot of widget or screen.
 
 	Args:
+		widget: the widget to screenshot (wx.Window descendent) or None for the whole screen
 		settle_time: milliseconds to wait before taking screenshot
 
 	Returns:
@@ -446,7 +447,7 @@ def save_screenshot_to_file(filename:str=None, widget=None, settle_time:int=None
 
 	https://github.com/wxWidgets/Phoenix/issues/259#issuecomment-801786528
 	"""
-	assert (isinstance(widget, wx.Window)), '<widget> must be (sub)class of wx.Window'
+	assert (isinstance(widget, wx.Window) or widget is None), '<widget> must be (sub)class of wx.Window, or None'
 
 	if filename is None:
 		filename = gmTools.get_unique_filename (
@@ -461,12 +462,17 @@ def save_screenshot_to_file(filename:str=None, widget=None, settle_time:int=None
 		for wait_slice in range(int(settle_time // 100)):
 			wx.SafeYield()
 			time.sleep(0.1)
+	screen_dc = wx.ScreenDC()
+	screen_dc_size = screen_dc.GetSize()
 	_log.debug('filename: %s', filename)
 	_log.debug('widget: %s', widget)
-	_log.debug('display size: %s', wx.DisplaySize())
+	_log.debug('wx.DisplaySize(): %s', wx.DisplaySize())
+	_log.debug('wx.ScreenDC size: %s', screen_dc_size)
+	# this line makes multiple screenshots work (perhaps it updates a cached/global screen_dc from a more "hardwary" screen ?)
+	screen_dc.Blit(0, 0, screen_dc_size[0], screen_dc_size[1], screen_dc, 0, 0, logicalFunc = wx.OR)
 	if widget is None:
-		width2snap = -1
-		height2snap = -1
+		width2snap = screen_dc_size[0]
+		height2snap = screen_dc_size[1]
 		sane_x2snap_from_on_screen = 0
 		sane_y2snap_from_on_screen = 0
 	else:
@@ -482,21 +488,10 @@ def save_screenshot_to_file(filename:str=None, widget=None, settle_time:int=None
 		_log.debug('widget.GetRect(): %s (= widget coords on client area)', widget_rect_local)
 		_log.debug('x2snap_from_on_screen: %s (neg is off-screen)', x2snap_from_on_screen)
 		_log.debug('y2snap_from_on_screen: %s (neg is off-screen)', y2snap_from_on_screen)
-	screen_dc = wx.ScreenDC()
-	screen_dc_size = screen_dc.GetSize()
-	screen_dc_width = screen_dc_size[0]
-	screen_dc_height = screen_dc_size[1]
-	if width2snap == -1:
-		width2snap = screen_dc_width
-		height2snap = screen_dc_height
-	_log.debug('ScreenDC size: %s', screen_dc_size)
-	_log.debug('width2snap: %s', width2snap)
-	_log.debug('height2snap: %s', height2snap)
 	_log.debug('sane x2snap_from_on_screen: %s (on-screen part only)', sane_x2snap_from_on_screen)
 	_log.debug('sane y2snap_from_on_screen: %s (on-screen part only)', sane_y2snap_from_on_screen)
-	# this line makes multiple screenshots work (perhaps it updates a cached/global screen_dc from a more "hardwary" screen ?)
-	screen_dc.Blit(0, 0, screen_dc_width, screen_dc_height, screen_dc, 0, 0)
-	# not implemented:
+	_log.debug('width2snap: %s', width2snap)
+	_log.debug('height2snap: %s', height2snap)
 	wxbmp = __snapshot_to_bitmap (
 		source_dc = screen_dc,
 		x2snap_from = sane_x2snap_from_on_screen,
@@ -704,11 +699,11 @@ if __name__ == '__main__':
 	def test_take_screenshot():
 		app = wx.App()
 		input('enter for next screenshot')
-		take_screenshot()
+		print(save_screenshot_to_file())
 		input('enter for next screenshot')
-		take_screenshot()
+		print(save_screenshot_to_file())
 		input('enter for next screenshot')
-		take_screenshot()
+		print(save_screenshot_to_file())
 
 	#------------------------------------------------------------------
 	#test_scale_img()
