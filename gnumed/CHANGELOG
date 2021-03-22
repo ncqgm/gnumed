@@ -11,7 +11,8 @@
 FIX: unlocking encounters (missing import)
 FIX: row locking code
 FIX: metadata: screenshots URL in appdata.xml
-FIX: GUI: screenshot function
+FIX: GUI: screenshot function [thanks The-o]
+FIX: medical interval formatting [thanks brulefa]
 
 IMPROVED: desktop entry file [thanks freddii]
 IMPROVED: patient switch: encounter checking
