@@ -559,10 +559,11 @@ def format_interval_medically(interval=None):
 	This isn't mathematically correct but close enough for display.
 	"""
 	# more than 1 year ?
-	if interval.days > 363:
-		years, days = divmod(interval.days, 364)
+	if interval.days > 364:
+		years, days = divmod(interval.days, avg_days_per_gregorian_year)
 		leap_days, tmp = divmod(years, 4)
-		months, day = divmod((days + leap_days), 30.33)
+		days_left_without_leap_days = days - leap_days
+		months, day = divmod((days_left_without_leap_days), 30.33)
 		if int(months) == 0:
 			return "%s%s" % (int(years), _('interval_format_tag::years::y')[-1:])
 		return "%s%s %s%s" % (int(years), _('interval_format_tag::years::y')[-1:], int(months), _('interval_format_tag::months::m')[-1:])
@@ -2146,10 +2147,9 @@ if __name__ == '__main__':
 			pyDT.timedelta(days = 366),
 			pyDT.timedelta(days = 367),
 			pyDT.timedelta(days = 400),
-			pyDT.timedelta(weeks = 52 * 30),
-			pyDT.timedelta(weeks = 52 * 79, days = 33)
+			pyDT.timedelta(weeks = 53 * 30),
+			pyDT.timedelta(weeks = 53 * 79, days = 33)
 		]
-
 		idx = 1
 		for intv in intervals:
 			print ('%s) %s -> %s' % (idx, intv, format_interval_medically(intv)))
@@ -2341,8 +2341,8 @@ if __name__ == '__main__':
 	#test_cFuzzyTimeStamp()
 	#test_get_pydt()
 	#test_str2interval()
-	test_format_interval()
-	#test_format_interval_medically()
+	#test_format_interval()
+	test_format_interval_medically()
 	#test_str2pydt()
 	#test_pydt_strftime()
 	#test_calculate_apparent_age()
