@@ -253,7 +253,7 @@ class cPatientSearcher_SQL:
 		args = {
 			'match': _('last name'),
 			'last': '^' + tmp,
-			'last_w_caps': '^' + gmTools.capitalize(tmp.lower(), mode=gmTools.CAPS_NAMES)
+			'last_w_caps': '^' + gmTools.capitalize(tmp.casefold(), mode=gmTools.CAPS_NAMES)
 		}
 		return [{'cmd': cmd, 'args': args}]
 
@@ -265,7 +265,7 @@ class cPatientSearcher_SQL:
 		if raw == raw.upper():
 			# ALL caps
 			return []
-		if raw == raw.lower():
+		if raw == raw.casefold():
 			# ALL lowercase
 			return []
 		parts = [ p for p in regex.split('\s+', raw) ]

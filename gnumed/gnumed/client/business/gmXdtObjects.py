@@ -116,7 +116,7 @@ def read_person_from_xdt(filename=None, encoding=None, dob_format=None):
 		dto.dob = None
 
 	try:
-		dto.gender = gmXdtMappings.map_gender_xdt2gm[data['gender'].lower()]
+		dto.gender = gmXdtMappings.map_gender_xdt2gm[data['gender'].casefold()]
 	except KeyError:
 		dto.gender = None
 

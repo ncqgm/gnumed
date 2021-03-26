@@ -1175,7 +1175,7 @@ def coalesce(value2test=None, return_instead=None, template4value=None, template
 
 #---------------------------------------------------------------------------
 def __cap_name(match_obj=None):
-	val = match_obj.group(0).lower()
+	val = match_obj.group(0).casefold()
 	if val in ['von', 'van', 'de', 'la', 'l', 'der', 'den']:			# FIXME: this needs to expand, configurable ?
 		return val
 	buf = list(val)
@@ -1209,11 +1209,11 @@ def capitalize(text=None, mode=CAPS_NAMES):
 	if mode == CAPS_FIRST_ONLY:
 #		if len(text) == 1:
 #			return text[0].upper()
-		return text[0].upper() + text[1:].lower()
+		return text[0].upper() + text[1:].casefold()
 
 	if mode == CAPS_WORDS:
-		#return regex.sub(ur'(\w)(\w+)', lambda x: x.group(1).upper() + x.group(2).lower(), text)
-		return regex.sub(r'(\w)(\w+)', lambda x: x.group(1).upper() + x.group(2).lower(), text)
+		#return regex.sub(ur'(\w)(\w+)', lambda x: x.group(1).upper() + x.group(2).casefold(), text)
+		return regex.sub(r'(\w)(\w+)', lambda x: x.group(1).upper() + x.group(2).casefold(), text)
 
 	if mode == CAPS_NAMES:
 		#return regex.sub(r'\w+', __cap_name, text)

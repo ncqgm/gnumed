@@ -50,7 +50,7 @@ def read_persons_from_pracsoft_file(filename=None, encoding='ascii'):
 		dto.firstnames = gmTools.capitalize(line[44:74].strip(), gmTools.CAPS_NAMES)
 		dto.lastnames = gmTools.capitalize(line[14:44].strip(), gmTools.CAPS_NAMES)
 
-		dto.gender = line[223].lower()
+		dto.gender = line[223].casefold()
 		dob = time.strptime(line[143:153].strip(), PATIENTS_IN_dob_format)
 		dto.dob = pyDT.datetime(dob.tm_year, dob.tm_mon, dob.tm_mday, tzinfo = gmDateTime.gmCurrentLocalTimezone)
 

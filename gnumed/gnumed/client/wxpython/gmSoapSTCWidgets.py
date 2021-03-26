@@ -797,7 +797,7 @@ class cSoapSTC(cUnicodeInsertion_TextCtrlMixin, gmKeywordExpansionWidgets.cKeywo
 			if key.islower():
 				key = key.upper()
 			else:
-				key = key.lower()
+				key = key.casefold()
 			try:
 				soap_category = gmSoapDefs.l10n2soap_cat[key]
 			except KeyError:
@@ -852,7 +852,7 @@ class cSoapSTC(cUnicodeInsertion_TextCtrlMixin, gmKeywordExpansionWidgets.cKeywo
 
 		# CTRL-T has been pressed last, now another character has been pressed
 		if self.__changing_SOAP_cat:
-			self.__handle_soap_category_key_down(chr(evt.GetUnicodeKey()).lower(), self.CurrentLine)
+			self.__handle_soap_category_key_down(chr(evt.GetUnicodeKey()).casefold(), self.CurrentLine)
 			# somehow put cursor into the changed (and possibly moved) line
 			return
 

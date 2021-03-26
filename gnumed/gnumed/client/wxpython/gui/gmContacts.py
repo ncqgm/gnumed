@@ -739,7 +739,7 @@ class cContactsPanel(wx.wx.Panel):
 				org.setParent( org.getHelper().findOrgsByName(org['name'])[0] )
 
 			#TODO remove this test filter
-			if  data[3].lower().find('hospital') >= 0:  data[3] = 'hospital'
+			if  data[3].casefold().find('hospital') >= 0:  data[3] = 'hospital'
 
 			org['category'] = data[3]
 			org['phone'] = data[4]

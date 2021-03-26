@@ -229,8 +229,8 @@ class cTextSearch_TextCtrlMixin():
 			)
 
 		# find current match
-		search_term = self.__mixin_find_replace_data.GetFindString().lower()
-		match_start = self.Value.lower().find(search_term, self.__mixin_find_replace_last_match_end)
+		search_term = self.__mixin_find_replace_data.GetFindString().casefold()
+		match_start = self.Value.casefold().find(search_term, self.__mixin_find_replace_last_match_end)
 		if match_start == -1:
 			# wrap around
 			self.__mixin_find_replace_last_match_start = 0

@@ -72,7 +72,7 @@ class cMatchProvider(object):
 			return self.getAllMatches()
 
 		# case insensitivity
-		tmpFragment = aFragment.lower()
+		tmpFragment = aFragment.casefold()
 		# remove ignored chars
 		if self.__ignored_chars is not None:
 			tmpFragment = self.__ignored_chars.sub('', tmpFragment)
@@ -210,7 +210,7 @@ class cMatchProvider_FixedList(cMatchProvider):
 		# look for matches
 		for item in self.__items:
 			# at start of phrase, that is
-			if item['list_label'].lower().startswith(aFragment.lower()):
+			if item['list_label'].casefold().startswith(aFragment.casefold()):
 				matches.append(item)
 		# no matches found
 		if len(matches) == 0:
@@ -226,8 +226,8 @@ class cMatchProvider_FixedList(cMatchProvider):
 		matches = []
 		# look for matches
 		for item in self.__items:
-			item_label = item['list_label'].lower()
-			fragment_pos = item_label.find(aFragment.lower())
+			item_label = item['list_label'].casefold()
+			fragment_pos = item_label.find(aFragment.casefold())
 			# found at start of phrase
 			if fragment_pos == 0:
 				matches.append(item)
@@ -250,7 +250,7 @@ class cMatchProvider_FixedList(cMatchProvider):
 		matches = []
 		# look for matches
 		for item in self.__items:
-			if item['list_label'].lower().find(aFragment.lower()) != -1:
+			if item['list_label'].casefold().find(aFragment.casefold()) != -1:
 				matches.append(item)
 		# no matches found
 		if len(matches) == 0:
@@ -317,7 +317,7 @@ class cMatchProvider_Func(cMatchProvider):
 		# look for matches
 		for candidate in candidates:
 			# at start of phrase, that is
-			if aFragment.startswith(candidate['list_label'].lower()):
+			if aFragment.startswith(candidate['list_label'].casefold()):
 				matches.append(candidate)
 		# no matches found
 		if len(matches) == 0:
@@ -332,7 +332,7 @@ class cMatchProvider_Func(cMatchProvider):
 		candidates = self._get_candidates()
 		# look for matches
 		for candidate in candidates:
-			pos = candidate['list_label'].lower().find(aFragment)
+			pos = candidate['list_label'].casefold().find(aFragment)
 #			pos = string.find(string.lower(candidate['list_label']), aFragment)
 			# found as a true substring
 			# but use only if substring is at start of a word
@@ -352,7 +352,7 @@ class cMatchProvider_Func(cMatchProvider):
 		candidates = self._get_candidates()
 		# look for matches
 		for candidate in candidates:
-			if candidate['list_label'].lower().find(aFragment) != -1:
+			if candidate['list_label'].casefold().find(aFragment) != -1:
 #			if string.find(string.lower(candidate['list_label']), aFragment) != -1:
 				matches.append(candidate)
 		# no matches found

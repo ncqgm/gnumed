@@ -250,7 +250,7 @@ class cOrthancServer:
 			'Query': {'PatientName': search_term}
 		}
 		if gender is not None:
-			gender = _map_gender_gm2dcm[gender.lower()]
+			gender = _map_gender_gm2dcm[gender.casefold()]
 			if gender is not None:
 				search_data['Query']['PatientSex'] = gender
 		if dob is not None:
@@ -267,7 +267,7 @@ class cOrthancServer:
 		for part in name_parts:
 			if part.strip() == '':
 				continue
-			clean_parts.append(part.lower().strip())
+			clean_parts.append(part.casefold().strip())
 		_log.info('client-side patient search, scrubbed search terms: %s', clean_parts)
 		pat_ids = self.__run_GET(url = '%s/patients' % self.__server_url)
 		if pat_ids is False:
@@ -279,7 +279,7 @@ class cOrthancServer:
 			if orthanc_pat is False:
 				_log.error('cannot retrieve patient')
 				continue
-			orthanc_name = orthanc_pat['MainDicomTags']['PatientName'].lower().strip()
+			orthanc_name = orthanc_pat['MainDicomTags']['PatientName'].casefold().strip()
 			if not fuzzy:
 				orthanc_name = orthanc_name.replace(' ', ',').replace('^', ',').split(',')
 			parts_in_orthanc_name = 0
@@ -289,9 +289,9 @@ class cOrthancServer:
 			if parts_in_orthanc_name == len(clean_parts):
 				_log.debug('name match: "%s" contains all of %s', orthanc_name, clean_parts)
 				if gender is not None:
-					gender = _map_gender_gm2dcm[gender.lower()]
+					gender = _map_gender_gm2dcm[gender.casefold()]
 					if gender is not None:
-						if orthanc_pat['MainDicomTags']['PatientSex'].lower() != gender:
+						if orthanc_pat['MainDicomTags']['PatientSex'].casefold() != gender:
 							_log.debug('gender mismatch: dicom=[%s] gnumed=[%s], skipping', orthanc_pat['MainDicomTags']['PatientSex'], gender)
 							continue
 				if dob is not None:

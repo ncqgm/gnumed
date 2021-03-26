@@ -77,7 +77,7 @@ def parse_vcard2dto(vc_text=None, filename=None):
 	except AttributeError:
 		_log.debug('vCard.TITLE attribute not available')
 	try:
-		gender = vc.gender.value.strip().lower()
+		gender = vc.gender.value.strip().casefold()
 		if gender != '':
 			dto.gender = gender
 	except AttributeError:
@@ -143,7 +143,7 @@ def parse_vcard2dto(vc_text=None, filename=None):
 		_log.debug('vCard.TEL attribute not available')
 	if tel is not None:
 		if 'TYPE' in vc.tel.params:
-			channel = (vc.tel.params['TYPE'][0]).lower()
+			channel = (vc.tel.params['TYPE'][0]).casefold()
 			if not channel.endswith('phone'):
 				channel += 'phone'
 		else:

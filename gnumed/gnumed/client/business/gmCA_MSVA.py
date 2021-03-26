@@ -131,7 +131,7 @@ def read_persons_from_msva_file(filename=None, encoding=None):
 
 		dob = time.strptime(line[65:73].strip(), MSVA_dob_format)
 		dto.dob = pyDT.datetime(dob.tm_year, dob.tm_mon, dob.tm_mday, tzinfo = gmDateTime.gmCurrentLocalTimezone)
-		dto.gender = line[83].lower()
+		dto.gender = line[83].casefold()
 
 		dto.remember_external_id (
 			name = 'MM (CA) Chart #',

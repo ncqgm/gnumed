@@ -2249,7 +2249,7 @@ select exists (
 		if soap_cats is None:
 			soap_cats = 'soap '
 		else:
-			soap_cats = soap_cats.lower()
+			soap_cats = soap_cats.casefold()
 
 		cats = []
 		for cat in soap_cats:
@@ -2293,7 +2293,7 @@ select exists (
 	def get_latest_soap(self, soap_cat=None, episode=None):
 
 		if soap_cat is not None:
-			soap_cat = soap_cat.lower()
+			soap_cat = soap_cat.casefold()
 
 		if episode is None:
 			epi_part = 'fk_episode is null'

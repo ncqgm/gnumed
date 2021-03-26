@@ -86,7 +86,7 @@ def text2atc(text=None, fuzzy=False, link_obj=None):
 			ORDER BY atc_code
 		"""
 	else:
-		args = {'term': text.lower()}
+		args = {'term': text.casefold()}
 		cmd = """
 			SELECT DISTINCT ON (atc_code) *
 			FROM (

@@ -976,12 +976,12 @@ def __single_char2py_dt(str2parse, trigger_chars=None):
 
 	This also defines the significance of the order of the characters.
 	"""
-	str2parse = str2parse.strip().lower()
+	str2parse = str2parse.strip().casefold()
 	if len(str2parse) != 1:
 		return []
 
 	if trigger_chars is None:
-		trigger_chars = _('ndmy (single character date triggers)')[:4].lower()
+		trigger_chars = _('ndmy (single character date triggers)')[:4].casefold()
 
 	if str2parse not in trigger_chars:
 		return []
@@ -1378,7 +1378,7 @@ def __explicit_offset2py_dt(str2parse, offset_chars=None):
 		This also defines the significance of the order of the characters.
 	"""
 	if offset_chars is None:
-		offset_chars = _('hdwmy (single character date offset triggers)')[:5].lower()
+		offset_chars = _('hdwmy (single character date offset triggers)')[:5].casefold()
 
 	str2parse = str2parse.replace(' ', '').replace('\t', '')
 	# "+/-XXXh/d/w/m/t"

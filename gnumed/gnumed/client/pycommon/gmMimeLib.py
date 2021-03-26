@@ -188,7 +188,7 @@ def adjust_extension_by_mimetype(filename):
 	old_name, old_ext = os.path.splitext(filename)
 	if old_ext == '':
 		new_filename = filename + mime_suffix
-	elif old_ext.lower() == mime_suffix.lower():
+	elif old_ext.casefold() == mime_suffix.casefold():
 		return filename
 	new_filename = old_name + mime_suffix
 	_log.debug('[%s] -> [%s]', filename, new_filename)
@@ -391,7 +391,7 @@ def convert_file(filename=None, target_mime=None, target_filename=None, target_e
 	assert (filename != target_filename), '<target_filename> must be different from <filename>'
 
 	source_mime = guess_mimetype(filename = filename)
-	if source_mime.lower() == target_mime.lower():
+	if source_mime.casefold() == target_mime.casefold():
 		_log.debug('source file [%s] already target mime type [%s]', filename, target_mime)
 		if target_filename is None:
 			return filename
@@ -758,9 +758,9 @@ if __name__ == "__main__":
 #	print(get_editor_cmd('text/plain', filename))
 	#print(get_editor_cmd('text/x-tex', filename))
 	#print(guess_ext_by_mimetype(mimetype=filename))
-#	call_viewer_on_file(aFile = filename, block = True)
+	call_viewer_on_file(aFile = filename, block = True)
 	#call_editor_on_file(filename)
 	#test_describer()
 	#print(test_edit())
-	test_convert_file()
+	#test_convert_file()
 	#test_join_files_as_pdf()

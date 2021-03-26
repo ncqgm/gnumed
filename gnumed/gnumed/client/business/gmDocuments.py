@@ -563,7 +563,7 @@ insert into blobs.reviewed_doc_objs (
 		suffix = '.dat'
 		if self._payload[self._idx['filename']] is not None:
 			tmp, suffix = os.path.splitext (
-				gmTools.fname_sanitize(self._payload[self._idx['filename']]).lower()
+				gmTools.fname_sanitize(self._payload[self._idx['filename']]).casefold()
 			)
 			if suffix == '':
 				suffix = '.dat'

@@ -1354,9 +1354,9 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 
 			# both no grouping: alpha on description
 			if (item1['grouping'] is None) and (item2['grouping'] is None):
-				if item1['description'].lower() < item2['description'].lower():
+				if item1['description'].casefold() < item2['description'].casefold():
 					return -1
-				if item1['description'].lower() > item2['description'].lower():
+				if item1['description'].casefold() > item2['description'].casefold():
 					return 1
 				return 0
 
@@ -1367,10 +1367,10 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 			if item1['grouping'] > item2['grouping']:
 				return 1
 
-			if item1['description'].lower() < item2['description'].lower():
+			if item1['description'].casefold() < item2['description'].casefold():
 				return -1
 
-			if item1['description'].lower() > item2['description'].lower():
+			if item1['description'].casefold() > item2['description'].casefold():
 				return 1
 
 			return 0

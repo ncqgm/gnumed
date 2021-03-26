@@ -365,7 +365,7 @@ def get_narrative(since=None, until=None, encounters=None, episodes=None, issues
 #		filtered_narrative = (lambda narr: narr['pk_encounter'] in encounters, filtered_narrative)
 
 #	if soap_cats is not None:
-#		soap_cats = map(lambda c: c.lower(), soap_cats)
+#		soap_cats = map(lambda c: c.casefold(), soap_cats)
 #		filtered_narrative = (lambda narr: narr['soap_cat'] in soap_cats, filtered_narrative)
 
 #------------------------------------------------------------

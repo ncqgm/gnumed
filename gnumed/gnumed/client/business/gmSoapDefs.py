@@ -67,7 +67,7 @@ def soap_cats2list(soap_cats):
 				continue
 			normalized_cats.append(None)
 			continue
-		cat = cat.lower()
+		cat = cat.casefold()
 		if cat in KNOWN_SOAP_CATS:
 			if cat in normalized_cats:
 				continue
@@ -91,7 +91,7 @@ def are_valid_soap_cats(soap_cats, allow_upper=True):
 def normalize_soap_cat(soap_cat):
 	if soap_cat in KNOWN_SOAP_CATS:
 		return soap_cat
-	soap_cat = soap_cat.lower()
+	soap_cat = soap_cat.casefold()
 	if soap_cat in KNOWN_SOAP_CATS:
 		return soap_cat
 	return False

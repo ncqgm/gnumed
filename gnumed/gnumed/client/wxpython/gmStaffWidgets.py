@@ -240,7 +240,7 @@ class cAddPatientAsStaffDlg(wxgAddPatientAsStaffDlg.wxgAddPatientAsStaffDlg):
 		self._TXT_person.SetValue(txt)
 		txt = name['firstnames'][:2] + name['lastnames'][:2]
 		self._TXT_short_alias.SetValue(txt)
-		self._TXT_account.SetValue(txt.lower())
+		self._TXT_account.SetValue(txt.casefold())
 	#--------------------------------------------------------
 	# event handlers
 	#--------------------------------------------------------

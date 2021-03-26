@@ -224,7 +224,7 @@ def check_for_update(url=None, current_branch=None, current_version=None, consid
 		_log.debug('<current_version> is None, currency unknown')
 		return (None, None)
 
-	if current_version.lower() in ['git head', 'head', 'tip', 'dev', 'devel']:
+	if current_version.casefold() in ['git head', 'head', 'tip', 'dev', 'devel']:
 		_log.debug('[%s] always considered up to date', current_version)
 		return (False, None)
 
