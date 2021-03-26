@@ -1046,11 +1046,14 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 			if p['problem_active']
 		]
 
+		epi_issues = [ p['pk_health_issue'] for p in problems if p['type'] == 'episode' ]
 		list_items = []
 		list_data = []
 		for problem in problems:
 			if problem['type'] == 'issue':
 				issue = emr.problem2issue(problem)
+				if issue['pk_health_issue'] in epi_issues:
+					continue	# skip duplicates (issue/episode)
 				last_encounter = emr.get_last_encounter(issue_id = issue['pk_health_issue'])
 				if last_encounter is None:
 					last = issue['modified_when'].strftime('%m/%Y')
@@ -1064,7 +1067,11 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 					last = epi['episode_modified_when'].strftime('%m/%Y')
 				else:
 					last = last_encounter['last_affirmed'].strftime('%m/%Y')
-				list_items.append('%s: %s' % (problem['problem'], last))
+				list_items.append('%s: %s (%s)' % (
+					problem['problem'],
+					last,
+					gmTools.coalesce(epi['health_issue'], gmTools.u_diameter)
+				))
 			list_data.append(problem)
 
 		care = emr.get_external_care_items(exclude_inactive = True)
