@@ -152,7 +152,7 @@ COMMIT;
 #---------------------------------------------------------------------------------------------------
 def create_sql(filename):
 
-	csv_file = io.open(filename, mode = 'rt', encoding = 'utf8')
+	csv_file = open(filename, mode = 'rt', encoding = 'utf-8-sig')
 
 	csv_lines = gmTools.unicode_csv_reader (
 		csv_file,

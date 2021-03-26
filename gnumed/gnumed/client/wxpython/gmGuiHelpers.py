@@ -374,7 +374,7 @@ def text2clipboard(text=None, announce_result=False):
 
 #-------------------------------------------------------------------------
 def file2clipboard(filename=None, announce_result=False):
-	f = io.open(filename, mode = 'rt', encoding = 'utf8')
+	f = open(filename, mode = 'rt', encoding = 'utf-8-sig')
 	result = text2clipboard(text = f.read(), announce_result = False)
 	f.close()
 	if announce_result:

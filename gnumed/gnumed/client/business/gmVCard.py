@@ -31,9 +31,9 @@ def parse_vcard2dto(vc_text=None, filename=None):
 
 	if vc_text is None:
 		_log.info('trying to parse vCard from [%s]', filename)
-		for encoding in ['utf8', 'Windows-1252']:
+		for encoding in ['utf-8-sig', 'Windows-1252']:
 			try:
-				vcf = io.open(filename, mode = 'rt', encoding = encoding)
+				vcf = open(filename, mode = 'rt', encoding = encoding)
 				vc_text = vcf.read()
 				vcf.close()
 				break

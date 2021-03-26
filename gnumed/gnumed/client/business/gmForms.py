@@ -837,7 +837,7 @@ class cAbiWordForm(cFormEngine):
 			ext = r'.abw'
 		self.instance_filename = r'%s-instance%s' % (path, ext)
 
-		template_file = io.open(self.template_filename, mode = 'rt', encoding = 'utf8')
+		template_file = io.open(self.template_filename, mode = 'rt', encoding = 'utf-8-sig')
 		instance_file = io.open(self.instance_filename, mode = 'wt', encoding = 'utf8')
 
 		if self.template is not None:
@@ -945,7 +945,7 @@ class cTextForm(cFormEngine):
 		# file containing the actual template plus metadata
 		self.form_definition_filename = self.template_filename
 		_log.debug('form definition file: [%s]', self.form_definition_filename)
-		cfg_file = io.open(self.form_definition_filename, mode = 'rt', encoding = 'utf8')
+		cfg_file = io.open(self.form_definition_filename, mode = 'rt', encoding = 'utf-8-sig')
 		self.form_definition = gmCfg2.parse_INI_stream(stream = cfg_file)
 		cfg_file.close()
 
@@ -1016,7 +1016,7 @@ class cTextForm(cFormEngine):
 		_log.debug('[%s] -> [%s]', input_filename, output_filename)
 		_log.debug('searching for placeholders with pattern: %s', placeholder_regex)
 
-		template_file = io.open(input_filename, mode = 'rt', encoding = 'utf8')
+		template_file = io.open(input_filename, mode = 'rt', encoding = 'utf-8-sig')
 		instance_file = io.open(output_filename, mode = 'wt', encoding = 'utf8')
 
 		for line in template_file:
@@ -1198,7 +1198,7 @@ class cLaTeXForm(cFormEngine):
 		_log.debug('[%s] -> [%s]', input_filename, output_filename)
 		_log.debug('searching for placeholders with pattern: %s', placeholder_regex)
 
-		template_file = io.open(input_filename, mode = 'rt', encoding = 'utf8')
+		template_file = io.open(input_filename, mode = 'rt', encoding = 'utf-8-sig')
 		instance_file = io.open(output_filename, mode = 'wt', encoding = 'utf8')
 
 		for line in template_file:
@@ -1396,7 +1396,7 @@ class cXeTeXForm(cFormEngine):
 
 		found_placeholders = False
 
-		template_file = io.open(input_filename, mode = 'rt', encoding = 'utf8')
+		template_file = io.open(input_filename, mode = 'rt', encoding = 'utf-8-sig')
 		instance_file = io.open(output_filename, mode = 'wt', encoding = 'utf8')
 
 		for line in template_file:
@@ -1721,7 +1721,7 @@ class cPDFForm(cFormEngine):
 
 		# parse dumped FDF file for "/V (...)" records
 		# and replace placeholders therein
-		fdf_dumped_file = io.open(self.fdf_dumped_filename, mode = 'rt', encoding = 'utf8')
+		fdf_dumped_file = io.open(self.fdf_dumped_filename, mode = 'rt', encoding = 'utf-8-sig')
 		fdf_replaced_file = io.open(self.fdf_replaced_filename, mode = 'wt', encoding = 'utf8')
 
 		string_value_regex = r'\s*/V\s*\(.+\)\s*$'

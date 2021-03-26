@@ -440,7 +440,7 @@ class cKOrganizerSchedulePnl(gmDataMiningWidgets.cPatientListingPnl):
 		except OSError: pass
 		gmShellAPI.run_command_in_shell(command=self.reload_cmd, blocking=True)
 		try:
-			csv_file = open(self.fname , mode = 'rt', encoding = 'utf8', errors = 'replace')
+			csv_file = open(self.fname , mode = 'rt', encoding = 'utf-8-sig', errors = 'replace')
 		except IOError:
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot access KOrganizer transfer file [%s]') % self.fname, beep = True)
 			return

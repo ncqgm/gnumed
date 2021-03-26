@@ -1010,7 +1010,7 @@ class magicTest:
 
 def load(file):
 	global magicNumbers
-	lines = io.open(file, mode = 'rt', encoding = 'utf8')
+	lines = open(file, mode = 'rt', encoding = 'utf8')
 	last = { 0: None }
 	for line in lines:
 		if re.match(r'\s*#', line):

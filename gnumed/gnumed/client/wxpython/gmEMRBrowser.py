@@ -1560,7 +1560,7 @@ class cEMRJournalPluginPnl(wxgEMRJournalPluginPnl.wxgEMRJournalPluginPnl):
 		else:
 			fname = exporter.save_to_file_by_mod_time(patient = gmPerson.gmCurrentPatient())
 
-		f = open(fname, mode = 'rt', encoding = 'utf8', errors = 'replace')
+		f = open(fname, mode = 'rt', encoding = 'utf-8-sig', errors = 'replace')
 		for line in f:
 			self._TCTRL_journal.AppendText(line)
 		f.close()

@@ -28,7 +28,7 @@ class cDTO_xdt_person(gmPerson.cDTO_person):
 #==============================================================
 def determine_xdt_encoding(filename=None, default_encoding=None):
 
-	f = open(filename, mode = 'rt', encoding = 'utf8', errors = 'ignore')
+	f = open(filename, mode = 'rt', encoding = 'utf-8-sig', errors = 'ignore')
 
 	file_encoding = None
 	for line in f:

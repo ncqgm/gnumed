@@ -142,7 +142,7 @@ def split_LOINCDBTXT(input_fname=None, data_fname=None, license_fname=None):
 #============================================================
 def map_field_names(data_fname='loinc_data.csv'):
 
-	csv_file = io.open(data_fname, mode = 'rt', encoding = 'utf8', errors = 'replace')
+	csv_file = io.open(data_fname, mode = 'rt', encoding = 'utf-8-sig', errors = 'replace')
 	first_line = csv_file.readline()
 	sniffer = csv.Sniffer()
 	if sniffer.has_header(first_line):
@@ -151,7 +151,7 @@ def map_field_names(data_fname='loinc_data.csv'):
 #============================================================
 def get_version(license_fname='loinc_license.txt'):
 
-	in_file = io.open(license_fname, mode = 'rt', encoding = 'utf8', errors = 'replace')
+	in_file = io.open(license_fname, mode = 'rt', encoding = 'utf-8-sig', errors = 'replace')
 
 	version = None
 	for line in in_file:
@@ -182,7 +182,7 @@ def loinc_import(data_fname=None, license_fname=None, version=None, conn=None, l
 	_log.debug('staging table emptied')
 
 	# import data from csv file into staging table
-	csv_file = io.open(data_fname, mode = 'rt', encoding = 'utf8', errors = 'replace')
+	csv_file = io.open(data_fname, mode = 'rt', encoding = 'utf-8-sig', errors = 'replace')
 	loinc_reader = gmTools.unicode_csv_reader(csv_file, delimiter = "\t", quotechar = '"')
 	curs = conn.cursor()
 	cmd = """INSERT INTO staging.loinc_staging values (%s%%s)""" % ('%s, ' * (len(loinc_fields) - 1))
@@ -198,7 +198,7 @@ def loinc_import(data_fname=None, license_fname=None, version=None, conn=None, l
 	_log.debug('staging table loaded')
 
 	# create data source record
-	in_file = io.open(license_fname, mode = 'rt', encoding = 'utf8', errors = 'replace')
+	in_file = io.open(license_fname, mode = 'rt', encoding = 'utf-8-sig', errors = 'replace')
 	desc = in_file.read()
 	in_file.close()
 	args = {'ver': version, 'desc': desc, 'url': origin_url, 'name_long': name_long, 'name_short': name_short, 'lang': lang}

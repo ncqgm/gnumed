@@ -344,10 +344,10 @@ def format_hl7_message(message=None, skip_empty_fields=True, eol='\n ', source=N
 def format_hl7_file(filename, skip_empty_fields=True, eol='\n ', return_filename=False, fix_hl7=True):
 	if fix_hl7:
 		fixed_name = __fix_malformed_hl7_file(filename)
-		hl7_file = io.open(fixed_name, mode = 'rt', encoding = 'utf8', newline = '')	# read universal but pass on untranslated
+		hl7_file = io.open(fixed_name, mode = 'rt', encoding = 'utf-8-sig', newline = '')	# read universal but pass on untranslated
 		source = '%s (<- %s)' % (fixed_name, filename)
 	else:
-		hl7_file = io.open(filename, mode = 'rt', encoding = 'utf8', newline = '')	# read universal but pass on untranslated
+		hl7_file = io.open(filename, mode = 'rt', encoding = 'utf-8-sig', newline = '')	# read universal but pass on untranslated
 		source = filename
 	output = format_hl7_message (
 		message = hl7_file.read(1024 * 1024 * 5),		# 5 MB max
@@ -425,7 +425,7 @@ def stage_single_PID_hl7_file(filename, source=None, encoding='utf8'):
 		return False
 
 	# set additional data
-	MSH_file = io.open(filename, mode = 'rt', encoding = 'utf8', newline = '')
+	MSH_file = io.open(filename, mode = 'rt', encoding = 'utf-8-sig', newline = '')
 	raw_hl7 = MSH_file.read(1024 * 1024 * 5)	# 5 MB max
 	MSH_file.close()
 	shutil.move(filename, done_dir)
@@ -439,7 +439,7 @@ def stage_single_PID_hl7_file(filename, source=None, encoding='utf8'):
 	incoming['comment'] += '\n'
 	incoming['comment'] += ('-' * 80)
 	incoming['comment'] += '\n\n'
-	log = io.open(local_log_name, mode = 'rt', encoding = 'utf8')
+	log = io.open(local_log_name, mode = 'rt', encoding = 'utf-8-sig')
 	incoming['comment'] += log.read()
 	log.close()
 	try:
@@ -519,7 +519,7 @@ def process_staged_single_PID_hl7_file(staged_item):
 		staged_item['comment'] += '\n'
 		staged_item['comment'] += ('-' * 80)
 		staged_item['comment'] += '\n\n'
-		log = io.open(log_name, mode = 'rt', encoding = 'utf8')
+		log = io.open(log_name, mode = 'rt', encoding = 'utf-8-sig')
 		staged_item['comment'] += log.read()
 		log.close()
 		staged_item['comment'] += '\n'
@@ -602,7 +602,7 @@ def __fix_malformed_hl7_file(filename, encoding='utf8'):
 		suffix = '.hl7'
 	)
 	# we can now _expect_ lines to end in HL7_EOL, anything else is an error
-	hl7_in = io.open(out1_fname, mode = 'rt', encoding = 'utf8', newline = HL7_EOL)
+	hl7_in = io.open(out1_fname, mode = 'rt', encoding = 'utf-8-sig', newline = HL7_EOL)
 	hl7_out = io.open(out2_fname, mode = 'wt', encoding = 'utf8', newline = '')
 	for line in hl7_in:
 		line = line.strip()
@@ -634,7 +634,7 @@ def __fix_malformed_hl7_file(filename, encoding='utf8'):
 		suffix = '.hl7'
 	)
 	# we can now _expect_ lines to end in HL7_EOL, anything else is an error
-	hl7_in = io.open(out2_fname, mode = 'rt', encoding = 'utf8', newline = HL7_EOL)
+	hl7_in = io.open(out2_fname, mode = 'rt', encoding = 'utf-8-sig', newline = HL7_EOL)
 	hl7_out = io.open(out3_fname, mode = 'wt', encoding = 'utf8', newline = '')
 	prev_identity = None
 	prev_fields = None
@@ -757,7 +757,7 @@ def __split_MSH_by_PID(filename):
 	"""
 	_log.debug('splitting single-MSH file [%s] into single-PID files', filename)
 
-	MSH_in = io.open(filename, mode = 'rt', encoding = 'utf8')
+	MSH_in = io.open(filename, mode = 'rt', encoding = 'utf-8-sig')
 
 	looking_for_MSH = True
 	MSH_line = None
@@ -922,7 +922,7 @@ def __import_single_PID_hl7_file(filename, emr=None):
 	_log.debug('importing single-PID single-MSH HL7 data from [%s]', filename)
 
 	# read the file
-	MSH_file = io.open(filename, mode = 'rt', encoding = 'utf8', newline = '')
+	MSH_file = io.open(filename, mode = 'rt', encoding = 'utf-8-sig', newline = '')
 	HL7 = pyhl7.parse(MSH_file.read(1024 * 1024 * 5))	# 5 MB max
 	MSH_file.close()
 
@@ -1207,7 +1207,7 @@ def __stage_MSH_as_incoming_data(filename, source=None, logfile=None):
 	_log.debug('staging [%s] as unmatched incoming HL7%s', gmTools.coalesce(source, '', ' (%s)'), filename)
 
 	# parse HL7
-	MSH_file = io.open(filename, mode = 'rt', encoding = 'utf8', newline = '')
+	MSH_file = io.open(filename, mode = 'rt', encoding = 'utf-8-sig', newline = '')
 	raw_hl7 = MSH_file.read(1024 * 1024 * 5)	# 5 MB max
 	MSH_file.close()
 	formatted_hl7 = format_hl7_message (
@@ -1225,7 +1225,7 @@ def __stage_MSH_as_incoming_data(filename, source=None, logfile=None):
 	incoming.update_data_from_file(fname = filename)
 	incoming['comment'] = formatted_hl7
 	if logfile is not None:
-		log = io.open(logfile, mode = 'rt', encoding = 'utf8')
+		log = io.open(logfile, mode = 'rt', encoding = 'utf-8-sig')
 		incoming['comment'] += '\n'
 		incoming['comment'] += ('-' * 80)
 		incoming['comment'] += '\n\n'
@@ -1341,7 +1341,7 @@ if __name__ == "__main__":
 		print("fixed HL7:", __fix_malformed_hl7_file(sys.argv[2]))
 	#-------------------------------------------------------
 	def test_parse_hl7():
-		MSH_file = io.open(sys.argv[2], mode = 'rt', encoding = 'utf8', newline = '')
+		MSH_file = io.open(sys.argv[2], mode = 'rt', encoding = 'utf-8-sig', newline = '')
 		raw_hl7 = MSH_file.read(1024 * 1024 * 5)	# 5 MB max
 		MSH_file.close()
 		print(format_hl7_message (

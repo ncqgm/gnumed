@@ -307,7 +307,7 @@ def write_generic_vaccine_sql(version, include_indications_mapping=False, filena
 	if filename is None:
 		filename = gmTools.get_unique_filename(suffix = '.sql')
 	_log.debug('writing SQL for creating generic vaccines to: %s', filename)
-	sql_file = io.open(filename, mode = 'wt', encoding = 'utf8')
+	sql_file = open(filename, mode = 'wt', encoding = 'utf8')
 	sql_file.write(create_generic_vaccine_sql (
 		version,
 		include_indications_mapping = include_indications_mapping

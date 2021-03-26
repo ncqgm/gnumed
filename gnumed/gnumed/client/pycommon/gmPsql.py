@@ -68,7 +68,7 @@ class Psql:
 		_log.debug('session auth: %s', start_auth)
 
 		if os.access (filename, os.R_OK):
-			sql_file = io.open(filename, mode = 'rt', encoding = 'utf8')
+			sql_file = open(filename, mode = 'rt', encoding = 'utf-8-sig')
 		else:
 			_log.error("cannot open file [%s]", filename)
 			return 1

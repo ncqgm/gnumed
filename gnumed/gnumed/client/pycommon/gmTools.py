@@ -2047,7 +2047,7 @@ def create_qrcode(text=None, filename=None, qr_filename=None, verbose:bool=False
 		return None
 
 	if text is None:
-		with io.open(filename, mode = 'rt', encoding = 'utf8') as input_file:
+		with open(filename, mode = 'rt', encoding = 'utf-8-sig') as input_file:
 			text = input_file.read()
 	if qr_filename is None:
 		if filename is None:
