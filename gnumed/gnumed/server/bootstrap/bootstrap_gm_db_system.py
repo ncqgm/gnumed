@@ -1,5 +1,7 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 ##!/usr/bin/python2.7-dbg
+
+from __future__ import print_function
 
 u"""GNUmed schema installation.
 
@@ -40,6 +42,9 @@ __license__ = "GPL v2 or later"
 
 # standard library
 import sys
+if sys.hexversion > 0x3000000:
+	sys.exit('This code must be run with Python 2.')
+
 import os.path
 import fileinput
 import os
@@ -68,12 +73,12 @@ if not os.path.exists(os.path.join(local_python_base_dir, 'Gnumed')):
 	if not is_useful_import_dir:
 		real_dir = os.path.join(local_python_base_dir, 'client')			# CVS tree
 	link_name = os.path.join(local_python_base_dir, 'Gnumed')
-	print "Creating module import symlink ..."
-	print ' real dir:', real_dir
-	print '     link:', link_name
+	print("Creating module import symlink ...")
+	print(' real dir:', real_dir)
+	print('     link:', link_name)
 	os.symlink(real_dir, link_name)
 
-print "Adjusting PYTHONPATH ..."
+print("Adjusting PYTHONPATH ...")
 sys.path.insert(0, local_python_base_dir)
 
 
@@ -81,7 +86,7 @@ sys.path.insert(0, local_python_base_dir)
 try:
 	from Gnumed.pycommon import gmLog2
 except ImportError:
-	print """Please make sure the GNUmed Python modules are in the Python path !"""
+	print("""Please make sure the GNUmed Python modules are in the Python path !""")
 	raise
 from Gnumed.pycommon import gmCfg2
 from Gnumed.pycommon import gmPsql
@@ -297,13 +302,13 @@ def connect(host, port, db, user, passwd, conn_name=None):
 class user:
 	def __init__(self, anAlias = None, aPassword = None):
 		if anAlias is None:
-			raise ConstructorError, "need user alias"
+			raise ConstructorError("need user alias")
 		self.alias = anAlias
 		self.group = "user %s" % self.alias
 
 		self.name = cfg_get(self.group, "name")
 		if self.name is None:
-			raise ConstructorError, "cannot get user name"
+			raise ConstructorError("cannot get user name")
 
 		self.password = aPassword
 
@@ -320,7 +325,7 @@ class user:
 			# this means to ask the user if interactive
 			elif self.password == '':
 				if _interactive:
-					print "I need the password for the database user [%s]." % self.name
+					print("I need the password for the database user [%s]." % self.name)
 					self.password = getpass.getpass("Please type the password: ")
 				else:
 					_log.warning('cannot get password for database user [%s]', self.name)
@@ -344,7 +349,7 @@ class db_server:
 		self.conn = None
 
 		if not self.__bootstrap():
-			raise ConstructorError, "db_server.__init__(): Cannot bootstrap db server."
+			raise ConstructorError("db_server.__init__(): Cannot bootstrap db server.")
 
 		_bootstrapped_servers[self.alias] = self
 
@@ -561,7 +566,7 @@ class database:
 
 		if self.name is None or str(self.name).strip() == '':
 			_log.error(u"Need to know database name.")
-			raise ConstructorError, "database.__init__(): Cannot bootstrap database."
+			raise ConstructorError("database.__init__(): Cannot bootstrap database.")
 
 		# already bootstrapped ?
 		global _bootstrapped_dbs
@@ -582,19 +587,19 @@ class database:
 		self.server_alias = cfg_get(self.section, "server alias")
 		if self.server_alias is None:
 			_log.error(u"Server alias missing.")
-			raise ConstructorError, "database.__init__(): Cannot bootstrap database."
+			raise ConstructorError("database.__init__(): Cannot bootstrap database.")
 
 		self.template_db = cfg_get(self.section, "template database")
 		if self.template_db is None:
 			_log.error(u"Template database name missing.")
-			raise ConstructorError, "database.__init__(): Cannot bootstrap database."
+			raise ConstructorError("database.__init__(): Cannot bootstrap database.")
 
 		# make sure server is bootstrapped
 		db_server(self.server_alias, auth_group = self.name)
 		self.server = _bootstrapped_servers[self.server_alias]
 
 		if not self.__bootstrap():
-			raise ConstructorError, "database.__init__(): Cannot bootstrap database."
+			raise ConstructorError("database.__init__(): Cannot bootstrap database.")
 
 		_bootstrapped_dbs[aDB_alias] = self
 
@@ -1447,7 +1452,7 @@ class gmBundle:
 	def __init__(self, aBundleAlias = None):
 		# sanity check
 		if aBundleAlias is None:
-			raise ConstructorError, "Need to know bundle name to install it."
+			raise ConstructorError("Need to know bundle name to install it.")
 
 		self.alias = aBundleAlias
 		self.section = "bundle %s" % aBundleAlias
@@ -1583,21 +1588,21 @@ def ask_for_confirmation():
 				print_msg(line)
 		return True
 
-	print "You are about to install the following parts of GNUmed:"
-	print "-------------------------------------------------------"
+	print("You are about to install the following parts of GNUmed:")
+	print("-------------------------------------------------------")
 	for bundle in bundles:
 		db_alias = cfg_get("bundle %s" % bundle, "database alias")
 		db_name = cfg_get("database %s" % db_alias, "name")
 		srv_alias = cfg_get("database %s" % db_alias, "server alias")
 		srv_name = cfg_get("server %s" % srv_alias, "name")
-		print 'bundle "%s" in <%s> (or overridden) on <%s>' % (bundle, db_name, srv_name)
-	print "-------------------------------------------------------"
+		print('bundle "%s" in <%s> (or overridden) on <%s>' % (bundle, db_name, srv_name))
+	print("-------------------------------------------------------")
 	desc = cfg_get("installation", "description")
 	if desc is not None:
 		for line in desc:
-			print line
+			print(line)
 
-	print "Do you really want to install this database setup ?"
+	print("Do you really want to install this database setup ?")
 	answer = raw_input("Type yes or no: ")
 	if answer == "yes":
 		return True
@@ -1644,22 +1649,22 @@ def _import_schema (group=None, schema_opt="schema", conn=None):
 #------------------------------------------------------------------
 def exit_with_msg(aMsg = None):
 	if aMsg is not None:
-		print aMsg
-	print ''
-	print "Please check the log file for details:"
-	print ''
-	print ' ', gmLog2._logfile_name
-	print ''
+		print(aMsg)
+	print('')
+	print("Please check the log file for details:")
+	print('')
+	print(' ', gmLog2._logfile_name)
+	print('')
 
 	_log.error(unicode(aMsg, errors = 'replace'))
- 	_log.info(u'shutdown')
+	_log.info(u'shutdown')
 	sys.exit(1)
 
 #------------------------------------------------------------------
 def print_msg(msg=None):
 	if quiet:
 		return
-	print msg
+	print(msg)
 
 #-----------------------------------------------------------------
 def become_pg_demon_user():
@@ -1829,11 +1834,11 @@ def main():
 
 	_log.info(u"shutdown")
 	print("Done bootstrapping GNUmed database: We very likely succeeded.")
-	print 'log:', gmLog2._logfile_name
+	print('log:', gmLog2._logfile_name)
 
 #==================================================================
 if __name__ != "__main__":
-	print "This currently is not intended to be used as a module."
+	print("This currently is not intended to be used as a module.")
 	sys.exit(1)
 
 
@@ -1867,7 +1872,7 @@ sys.exit(0)
 #	pipe.tochild.close()
 
 #	result = pipe.wait()
-#	print result
+#	print(result)
 
 	# read any leftovers
 #	pipe.fromchild.flush()
