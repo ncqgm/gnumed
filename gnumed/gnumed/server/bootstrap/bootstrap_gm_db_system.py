@@ -39,8 +39,8 @@ __license__ = "GPL v2 or later"
 
 # standard library
 import sys
-if sys.hexversion > 0x3000000:
-	sys.exit('This code must be run with Python 2.')
+if sys.hexversion < 0x3000000:
+	sys.exit('This code must be run with Python 3.')
 
 import os.path
 import fileinput
