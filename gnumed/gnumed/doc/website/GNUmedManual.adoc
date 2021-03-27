@@ -84,7 +84,7 @@ retiring forms) - Caveat: link:TalkbackClient[error reports]
 * the link:GnumedTimeConcept[concept of time]
 * the link:GmManualReportGenerator[Report Generator]
 * adding Forms
-* managing link:GmManualManagingUsers[Users]
+* managing link:GNUmedManagingUsers.html[Users]
 * managing link:GmManualManagingOrgsPraxis[Organizations / your Praxis]
 * planning your link:PaperToEmr[paper to EMR] transition
 * planning link:Fax Integration[Fax Integration]
