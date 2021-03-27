@@ -39,6 +39,9 @@ __license__ = "GPL v2 or later"
 
 # standard library
 import sys
+if sys.hexversion > 0x3000000:
+	sys.exit('This code must be run with Python 2.')
+
 import os.path
 import fileinput
 import os
@@ -81,7 +84,11 @@ sys.path.insert(0, local_python_base_dir)
 
 
 # GNUmed imports
-from Gnumed.pycommon import gmLog2
+try:
+	from Gnumed.pycommon import gmLog2
+except ImportError:
+	print("""Please make sure the GNUmed Python modules are in the Python path !""")
+	raise
 from Gnumed.pycommon import gmCfg2
 from Gnumed.pycommon import gmPsql
 from Gnumed.pycommon import gmPG2
@@ -1856,7 +1863,7 @@ sys.exit(0)
 #	pipe.tochild.close()
 
 #	result = pipe.wait()
-#	print result
+#	print(result)
 
 	# read any leftovers
 #	pipe.fromchild.flush()
