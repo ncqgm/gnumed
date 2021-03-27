@@ -142,6 +142,8 @@ FIX: y2038 exception in DST detection
 
 	1.7.10
 
+FIX: bootstrapper: require python 2 [thanks Rogerio]
+
 NEW: paperwork: template: most recent lab
 
 	1.7.9
