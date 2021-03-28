@@ -1537,22 +1537,6 @@ def str2pydt_matches(str2parse=None, patterns=None):
 	matches.extend(__single_char2py_dt(str2parse))
 	matches.extend(__explicit_offset2py_dt(str2parse))
 
-	# no more with Python3
-#	# try mxDT parsers
-#	try:
-#		date = mxDT.Parser.DateFromString (
-#			text = str2parse,
-#			formats = ('euro', 'iso', 'us', 'altus', 'altiso', 'lit', 'altlit', 'eurlit')
-#		)
-#		matches.append ({
-#			'data': mxdt2py_dt(date),
-#			'label': date.strftime('%Y-%m-%d')
-#		})
-#	except (ValueError, OverflowError):
-#		pass
-#	except mxDT.RangeError:
-#		pass
-
 	# apply explicit patterns
 	if patterns is None:
 		patterns = []
@@ -1575,12 +1559,27 @@ def str2pydt_matches(str2parse=None, patterns=None):
 
 	patterns.append('%Y.%m.%d')
 
+	parts = str2parse.split(maxsplit = 1)
+	hour = 11
+	minute = 11
+	second = 11
+	if len(parts) > 1:
+		for pattern in ['%H:%M', '%H:%M:%S']:
+			try:
+				date = pyDT.datetime.strptime(parts[1], pattern)
+				hour = date.hour
+				minute = date.minute
+				second = date.second
+				break
+			except ValueError:
+				# C-level overflow
+				continue
 	for pattern in patterns:
 		try:
-			date = pyDT.datetime.strptime(str2parse, pattern).replace (
-				hour = 11,
-				minute = 11,
-				second = 11,
+			date = pyDT.datetime.strptime(parts[0], pattern).replace (
+				hour = hour,
+				minute = minute,
+				second = second,
 				tzinfo = gmCurrentLocalTimezone
 			)
 			matches.append ({
@@ -1590,6 +1589,7 @@ def str2pydt_matches(str2parse=None, patterns=None):
 		except ValueError:
 			# C-level overflow
 			continue
+
 
 	return matches
 
@@ -1944,65 +1944,50 @@ def str2fuzzy_timestamp_matches(str2parse=None, default_time=None, patterns=None
 		} for m in __explicit_offset2py_dt(str2parse)
 	])
 
-	# reactivate, once mxDT becomes available on Py3k
-#	# try mxDT parsers
-#	try:
-#		# date ?
-#		date_only = mxDT.Parser.DateFromString (
-#			text = str2parse,
-#			formats = ('euro', 'iso', 'us', 'altus', 'altiso', 'lit', 'altlit', 'eurlit')
-#		)
-#		# time, too ?
-#		time_part = mxDT.Parser.TimeFromString(text = str2parse)
-#		datetime = date_only + time_part
-#		if datetime == date_only:
-#			accuracy = acc_days
-#			if isinstance(default_time, mxDT.DateTimeDeltaType):
-#				datetime = date_only + default_time
-#				accuracy = acc_minutes
-#		else:
-#			accuracy = acc_subseconds
-#		fts = cFuzzyTimestamp (
-#			timestamp = datetime,
-#			accuracy = accuracy
-#		)
-#		matches.append ({
-#			'data': fts,
-#			'label': fts.format_accurately()
-#		})
-#	except ValueError:
-#		pass
-#	except mxDT.RangeError:
-#		pass
-
 	if patterns is None:
 		patterns = []
 	patterns.extend([
-		['%Y-%m-%d', acc_days],
-		['%y-%m-%d', acc_days],
-		['%Y/%m/%d', acc_days],
-		['%y/%m/%d', acc_days],
-
-		['%d-%m-%Y', acc_days],
-		['%d-%m-%y', acc_days],
-		['%d/%m/%Y', acc_days],
-		['%d/%m/%y', acc_days],
-		['%d.%m.%Y', acc_days],
-
-		['%m-%d-%Y', acc_days],
-		['%m-%d-%y', acc_days],
-		['%m/%d/%Y', acc_days],
-		['%m/%d/%y', acc_days]
+		'%Y-%m-%d',
+		'%y-%m-%d',
+		'%Y/%m/%d',
+		'%y/%m/%d',
+		'%d-%m-%Y',
+		'%d-%m-%y',
+		'%d/%m/%Y',
+		'%d/%m/%y',
+		'%d.%m.%Y',
+		'%m-%d-%Y',
+		'%m-%d-%y',
+		'%m/%d/%Y',
+		'%m/%d/%y'
 	])
+
+	parts = str2parse.split(maxsplit = 1)
+	hour = 11
+	minute = 11
+	second = 11
+	acc = acc_days
+	if len(parts) > 1:
+		for pattern in ['%H:%M', '%H:%M:%S']:
+			try:
+				date = pyDT.datetime.strptime(parts[1], pattern)
+				hour = date.hour
+				minute = date.minute
+				second = date.second
+				acc = acc_minutes
+				break
+			except ValueError:
+				# C-level overflow
+				continue
 	for pattern in patterns:
 		try:
-			ts = pyDT.datetime.strptime(str2parse, pattern[0]).replace (
-				hour = 11,
-				minute = 11,
-				second = 11,
+			ts = pyDT.datetime.strptime(parts[0], pattern).replace (
+				hour = hour,
+				minute = minute,
+				second = second,
 				tzinfo = gmCurrentLocalTimezone
 			)
-			fts = cFuzzyTimestamp(timestamp = ts, accuracy = pattern[1])
+			fts = cFuzzyTimestamp(timestamp = ts, accuracy = acc)
 			matches.append ({
 				'data': fts,
 				'label': fts.format_accurately()
@@ -2010,7 +1995,6 @@ def str2fuzzy_timestamp_matches(str2parse=None, default_time=None, patterns=None
 		except ValueError:
 			# C-level overflow
 			continue
-
 	return matches
 
 #===========================================================================
@@ -2424,13 +2408,13 @@ if __name__ == '__main__':
 	init()
 
 	#test_date_time()
-	#test_str2fuzzy_timestamp_matches()
+	test_str2fuzzy_timestamp_matches()
 	#test_get_date_of_weekday_in_week_of_date()
 	#test_cFuzzyTimeStamp()
 	#test_get_pydt()
 	#test_str2interval()
 	#test_format_interval()
-	test_format_interval_medically()
+	#test_format_interval_medically()
 	#test_str2pydt()
 	#test_pydt_strftime()
 	#test_calculate_apparent_age()
