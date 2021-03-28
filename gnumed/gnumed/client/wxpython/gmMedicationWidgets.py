@@ -1430,7 +1430,7 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 				atcs = []
 				if med['atc_substance'] is not None:
 					atcs.append(med['atc_substance'])
-				allg = emr.is_allergic_to(atcs = tuple(atcs), inns = (med['substance'],))
+				allg = emr.is_allergic_to(atcs = atcs, inns = (med['substance'],))
 				if allg not in [None, False]:
 					attr = self.GetOrCreateCellAttr(row_idx, 0)
 					if allg['type'] == 'allergy':
@@ -1717,8 +1717,8 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 			atcs.append(entry['atc_substance'])
 #		if entry['atc_drug'] is not None:
 #			atcs.append(entry['atc_drug'])
-#		allg = emr.is_allergic_to(atcs = tuple(atcs), inns = (entry['substance'],), product_name = entry['product'])
-		allg = emr.is_allergic_to(atcs = tuple(atcs), inns = (entry['substance'],))
+#		allg = emr.is_allergic_to(atcs = atcs, inns = (entry['substance'],), product_name = entry['product'])
+		allg = emr.is_allergic_to(atcs = atcs, inns = (entry['substance'],))
 
 		tt = _('Substance intake entry (%s, %s)   [#%s]                     \n') % (
 			gmTools.bool2subst (

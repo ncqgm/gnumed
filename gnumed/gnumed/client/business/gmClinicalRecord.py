@@ -3248,7 +3248,7 @@ if __name__ == "__main__":
 	#-----------------------------------------
 	def test_is_allergic_to():
 		emr = cClinicalRecord(aPKey = 12)
-		print(emr.is_allergic_to(atcs = tuple(sys.argv[2:]), inns = tuple(sys.argv[2:]), product_name = sys.argv[2]))
+		print(emr.is_allergic_to(atcs = sys.argv[2:], inns = sys.argv[2:], product_name = sys.argv[2]))
 
 	#-----------------------------------------
 	def test_get_as_journal():
