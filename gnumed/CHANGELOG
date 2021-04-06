@@ -28,6 +28,7 @@ IMPROVED: files: format conversion improvements
 IMPROVED: DB: replace "IN"/"NOT IN" for psycopg3
 IMPROVED: DB: converge localhost/domain socket profiles
 IMPROVED: export area: support D&D of items as files
+IMPROVED: search: use clin.v_narrative4search again
 
 FIX: CLI: --wxp= not needed anymore
 FIX: CLI: --ui= not needed anymore

@@ -3,10 +3,8 @@
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL v2 or later (for details see http://gnu.org)'
 #============================================================
-#============================================================
 if __name__ == '__main__':
 	_ = lambda x:x
-
 
 _U_ELLIPSIS = '\u2026'
 
@@ -49,13 +47,13 @@ l10n2soap_cat = {
 }
 
 #============================================================
-def soap_cats2list(soap_cats):
+def soap_cats_str2list(soap_cats:str) -> []:
 	"""Normalizes a string or list of SOAP categories, preserving order.
 
 		None -> gmSoapDefs.KNOWN_SOAP_CATS (all)
 		[] -> []
-		u'' -> []
-		u' ' -> [None]	(admin)
+		'' -> []
+		' ' -> [None]	(admin)
 	"""
 	if soap_cats is None:
 		return KNOWN_SOAP_CATS
@@ -72,7 +70,6 @@ def soap_cats2list(soap_cats):
 			if cat in normalized_cats:
 				continue
 			normalized_cats.append(cat)
-
 	return normalized_cats
 
 #============================================================
@@ -82,18 +79,22 @@ def are_valid_soap_cats(soap_cats, allow_upper=True):
 			continue
 		if not allow_upper:
 			return False
-		if cat2test.upper() in KNOWN_SOAP_CATS:
+
+		if cat2test.casefold() in KNOWN_SOAP_CATS:
 			continue
 		return False
+
 	return True
 
 #============================================================
 def normalize_soap_cat(soap_cat):
 	if soap_cat in KNOWN_SOAP_CATS:
 		return soap_cat
+
 	soap_cat = soap_cat.casefold()
 	if soap_cat in KNOWN_SOAP_CATS:
 		return soap_cat
+
 	return False
 
 #============================================================
@@ -121,11 +122,11 @@ if __name__ == '__main__':
 	#--------------------------------------------------------
 	def test_are_valid_cats():
 		cats = [
-			list('soap'),
-			list('soapSOAP'),
-			list('soapx'),
-			list('soapX'),
-			list('soapSOAPx'),
+			list('soapu'),
+			list('soapuSOAPU'),
+			list('soapux'),
+			list('soapuX'),
+			list('soapuSOAPUx'),
 			[None],
 			['s', None],
 			['s', None, 'O'],

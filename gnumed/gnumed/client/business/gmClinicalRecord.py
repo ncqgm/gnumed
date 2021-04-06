@@ -889,7 +889,7 @@ class cClinicalRecord(object):
 					raise ValueError('<encounters> must be list of type int (=pk) or cEncounter, but 1st encounter is: %s' % encounters[0])
 		if soap_cats is not None:
 			where_parts.append('c_vn.soap_cat = ANY(%(cats)s)')
-			args['cats'] = gmSoapDefs.soap_cats2list(soap_cats)
+			args['cats'] = gmSoapDefs.soap_cats_str2list(soap_cats)
 		if providers is not None:
 			where_parts.append('c_vn.modified_by = ANY(%(docs)s)')
 			args['docs'] = providers
@@ -926,21 +926,14 @@ class cClinicalRecord(object):
 					as encounter_ended,
 				(SELECT _(description) FROM clin.encounter_type WHERE pk = (SELECT fk_type FROM clin.encounter WHERE pk = vn4s.pk_encounter))
 					as encounter_type
--- CHANGE BACK IN V23:
-			--FROM clin.v_narrative4search vn4s
-			FROM v_narrative4search vn4s
+			FROM clin.v_narrative4search vn4s
 			WHERE
 				pk_patient = %(pat)s and
 				vn4s.narrative ~ %(term)s
 			order by
 				encounter_started
 		""" # case sensitive
-		#rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': {'pat': self.pk_patient, 'term': search_term}}])
-		queries = [
-			{'cmd': gmClinNarrative._VIEW_clin_v_narrative4search},
-			{'cmd': cmd, 'args': {'pat': self.pk_patient, 'term': search_term}}
-		]
-		rows, idx = gmPG2.run_rw_queries(queries = queries, get_col_idx = True, return_data = True)
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': {'pat': self.pk_patient, 'term': search_term}}])
 		return rows
 
 	#--------------------------------------------------------
