@@ -3694,8 +3694,6 @@ class gmApp(wx.App):
 			_log.debug('failed to activate branch')
 			return False
 
-		_log.debug('activated branch')
-
 		creds = gmConnectionPool.gmConnectionPool().credentials
 		msg = '\n'
 		msg += _('Database <%s> on <%s>') % (
@@ -3703,26 +3701,18 @@ class gmApp(wx.App):
 			gmTools.coalesce(creds.host, 'localhost')
 		)
 		msg += '\n\n'
-
-		_log.debug('getting branch')
-
 		praxis = gmPraxis.gmCurrentPraxisBranch()
 		msg += _('Branch "%s" of praxis "%s"\n') % (
 			praxis['branch'],
 			praxis['praxis']
 		)
 		msg += '\n\n'
-
-		_log.debug('getting banner')
-
 		banner = praxis.db_logon_banner
-		_log.debug('got banner')
 		if banner.strip() == '':
-			_log.debug('no banner')
 			return True
+
 		msg += banner
 		msg += '\n\n'
-
 		dlg = gmGuiHelpers.c2ButtonQuestionDlg (
 			None,		#self.GetTopWindow(),				# freezes
 			-1,
@@ -3733,15 +3723,8 @@ class gmApp(wx.App):
 				{'label': _('Disconnect'), 'tooltip': _('No, do not connect to this database.'), 'default': False}
 			]
 		)
-
-		_log.debug('showing banner')
-
 		log_on = dlg.ShowModal()
-
-		_log.debug('scheduling dlg destruction')
-
 		dlg.DestroyLater()
-
 		if log_on == wx.ID_YES:
 			_log.debug('returning for logon')
 			return True

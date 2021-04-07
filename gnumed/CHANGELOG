@@ -15,6 +15,7 @@ NEW: lists: Drag&Drop support
 NEW: paperwork: write non-templated letter w/ LibreOffice
 NEW: export area: join items into one PDF
 NEW: debug: database owner connection test menu item
+NEW: login: focus previously used praxis branch
 
 IMPROVED: GUI: show current patient in window titles
 IMPROVED: placeholder: $current_provider_name$

@@ -84,7 +84,11 @@ class cPraxisBranch(gmBusinessDBObject.cBusinessDBObject):
 		'pk_org_unit'
 	]
 	#--------------------------------------------------------
-	def format(self):
+	def format(self, one_line=False):
+		if one_line:
+			unit = self.org_unit
+			return '%s@%s' % (unit['unit'], unit['organization'])
+
 		txt = _('Praxis branch                   #%s\n') % self._payload[self._idx['pk_praxis_branch']]
 		txt += ' '
 		txt += '\n '.join(self.org_unit.format(with_address = True, with_org = True, with_comms = True))
@@ -631,9 +635,11 @@ if __name__ == '__main__':
 #		print "regression tests failed"
 #	print "regression tests succeeded"
 
-#	for b in get_praxis_branches():
-#		print((b.format()))
-#		#print(b.vcf)
+	gmPG2.request_login_params(setup_pool = True)
+
+	for b in get_praxis_branches():
+		print((b.format()))
+		#print(b.vcf)
 #		print(b.scan2pay_data)
 
 	#--------------------------------------------------------
@@ -647,5 +653,4 @@ if __name__ == '__main__':
 			input()
 
 	#--------------------------------------------------------
-	gmPG2.request_login_params(setup_pool = True)
-	test_mecard()
+	#test_mecard()

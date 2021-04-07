@@ -297,6 +297,7 @@ class gmCfgData(gmBorg.cBorg):
 			source_order = [('internal', 'return')]
 		results = []
 		for source, policy in source_order:
+			_log.debug('searching "%s" in [%s] in %s', option, group, source)
 			if group is None:
 				group = source
 			option_path = '%s::%s' % (group, option)
@@ -521,9 +522,22 @@ if __name__ == "__main__":
 			option = 'test option',
 			value = 'for real (new)'
 		)
+
+	#-----------------------------------------
+	def test_parse_ini_stream():
+		data = parse_INI_stream(stream = open(sys.argv[2], 'r', encoding = 'utf8'))
+		for key in data:
+			print(key, data[key])
+		input()
+		_cfg = gmCfgData()
+		_cfg.add_file_source(source = 'prefs', file = sys.argv[2])
+		print(_cfg.get('preferences', 'login', [('prefs', 'return')]))
+		print(_cfg.get('preferences', 'most recently used praxis branch', [('prefs', 'return')]))
+
 	#-----------------------------------------
 	#test_gmCfgData()
-	test_set_list_opt()
+	#test_set_list_opt()
 	#test_set_opt()
+	test_parse_ini_stream()
 
 #==================================================================
