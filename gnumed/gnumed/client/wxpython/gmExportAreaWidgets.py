@@ -730,7 +730,7 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 		choice = dlg.ShowModal()
 		path = dlg._LBL_directory.Label
 		generate_metadata = dlg._CHBOX_generate_metadata.IsChecked()
-		use_subdir = dlg._CHBOX_use_subdirectory.IsChecked()
+		#use_subdir = dlg._CHBOX_use_subdirectory.IsChecked()
 		encrypt = dlg._CHBOX_encrypt.IsChecked()
 		convert2pdf = dlg._CHBOX_convert2pdf.IsChecked()
 		dlg.DestroyLater()

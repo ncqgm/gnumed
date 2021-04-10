@@ -9,7 +9,6 @@ It utilizes
 
 	- Python time
 	- Python datetime
-	- mxDateTime
 
 Note that if you want locale-aware formatting you need to call
 
@@ -46,14 +45,9 @@ __license__ = "GPL v2 or later (details at http://www.gnu.org)"
 import sys, datetime as pyDT, time, os, re as regex, logging
 
 
-# 3rd party
-#import mx.DateTime as mxDT
-
-
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 	_ = lambda x:x
-#from Gnumed.pycommon import gmI18N
 
 
 _log = logging.getLogger('gm.datetime')
@@ -64,7 +58,6 @@ dst_currently_in_effect = None
 py_timezone_name = None
 py_dst_timezone_name = None
 current_local_utc_offset_in_seconds = None
-#current_local_timezone_interval = None
 current_local_iso_numeric_timezone_string = None
 current_local_timezone_name = None
 
@@ -116,8 +109,8 @@ days_per_week = 7
 # module init
 #---------------------------------------------------------------------------
 def init():
+	"""Initialize date/time handling and log date/time environment."""
 
-#	_log.debug('mx.DateTime.now(): [%s]' % mxDT.now())
 	_log.debug('datetime.now()   : [%s]' % pyDT.datetime.now())
 	_log.debug('time.localtime() : [%s]' % str(time.localtime()))
 	_log.debug('time.gmtime()    : [%s]' % str(time.gmtime()))
@@ -133,7 +126,6 @@ def init():
 	_log.debug('time.tzname             : [%s / %s] (non-DST / DST)' % time.tzname)
 	_log.debug('time.localtime.tm_zone  : [%s]', time.localtime().tm_zone)
 	_log.debug('time.localtime.tm_gmtoff: [%s]', time.localtime().tm_gmtoff)
-#	_log.debug('mx.DateTime.now().gmtoffset(): [%s]' % mxDT.now().gmtoffset())
 
 	global py_timezone_name
 	py_timezone_name = time.tzname[0]
@@ -167,12 +159,7 @@ def init():
 	else:
 		_log.debug('UTC offset is ZERO, assuming Greenwich Time')
 
-#	global current_local_timezone_interval
-#	current_local_timezone_interval = mxDT.now().gmtoffset()
-#	_log.debug('ISO timezone: [%s] (taken from mx.DateTime.now().gmtoffset())' % current_local_timezone_interval)
-
 	global current_local_iso_numeric_timezone_string
-#	current_local_iso_numeric_timezone_string = str(current_local_timezone_interval).replace(',', '.')
 	current_local_iso_numeric_timezone_string = '%s' % current_local_utc_offset_in_seconds
 	_log.debug('ISO numeric timezone string: [%s]' % current_local_iso_numeric_timezone_string)
 
@@ -195,16 +182,14 @@ def init():
 #		print (" timezone name:", gmCurrentLocalTimezone.tzname(pyDT.datetime.now()))
 
 #===========================================================================
-# local timezone implementation (lifted from the docs)
-#
-# A class capturing the platform's idea of local time.
-# (May result in wrong values on historical times in
-#  timezones where UTC offset and/or the DST rules had
-#  changed in the past.)
-#---------------------------------------------------------------------------
 class cPlatformLocalTimezone(pyDT.tzinfo):
+	"""Local timezone implementation (lifted from the docs).
 
-	#-----------------------------------------------------------------------
+	A class capturing the platform's idea of local time.
+
+	May result in wrong values on historical times in
+	timezones where UTC offset and/or the DST rules had
+	changed in the past."""
 	def __init__(self):
 		self._SECOND = pyDT.timedelta(seconds = 1)
 		self._nonDST_OFFSET_FROM_UTC = pyDT.timedelta(seconds = -time.timezone)
@@ -332,6 +317,7 @@ def pydt_strftime(dt=None, format='%Y %b %d  %H:%M.%S', accuracy=None, none_str=
 
 #---------------------------------------------------------------------------
 def pydt_add(dt, years=0, months=0, weeks=0, days=0, hours=0, minutes=0, seconds=0, milliseconds=0, microseconds=0):
+	"""Add some time to a given dateteime."""
 	if months > 11 or months < -11:
 		raise ValueError('pydt_add(): months must be within [-11..11]')
 
@@ -346,6 +332,7 @@ def pydt_add(dt, years=0, months=0, weeks=0, days=0, hours=0, minutes=0, seconds
 	)
 	if (years == 0) and (months == 0):
 		return dt
+
 	target_year = dt.year + years
 	target_month = dt.month + months
 	if target_month > 12:
@@ -1433,48 +1420,68 @@ def __explicit_offset2py_dt(str2parse, offset_chars=None):
 	return [{'data': ts, 'label': label}]
 
 #---------------------------------------------------------------------------
-def str2pydt_matches(str2parse=None, patterns=None):
-	"""Turn a string into candidate dates and auto-completions the user is likely to type.
+STR2PYDT_DEFAULT_PATTERNS = [
+	'%Y-%m-%d',
+	'%y-%m-%d',
+	'%Y/%m/%d',
+	'%y/%m/%d',
+	'%d-%m-%Y',
+	'%d-%m-%y',
+	'%d/%m/%Y',
+	'%d/%m/%y',
+	'%d.%m.%Y',
+	'%m-%d-%Y',
+	'%m-%d-%y',
+	'%m/%d/%Y',
+	'%m/%d/%y',
+	'%Y.%m.%d'
+]
+"""Default patterns being passed to strptime()."""
 
-	You MUST have called locale.setlocale(locale.LC_ALL, '')
-	somewhere in your code previously.
+STR2PYDT_PARSERS = [
+	__single_dot2py_dt,
+	__numbers_only2py_dt,
+	__single_slash2py_dt,
+	__single_char2py_dt,
+	__explicit_offset2py_dt
+]
+"""Specialized parsers for string -> datetime conversion."""
 
-	@param patterns: list of time.strptime compatible date pattern
-	@type patterns: list
+#---------------------------------------------------------------------------
+def str2pydt_matches(str2parse:str=None, patterns:list=None) -> list:
+	"""Turn a string into candidate datetimes.
+
+	Args:
+		str2parse: string to turn into candidate datetimes
+		patterns: additional patterns to try with strptime()
+
+	A number of default patterns will be tried. Also, a few
+	specialized parsers will be run. See the source for
+	details.
+
+	If the input contains a space followed by more characters
+	matching either hour:minute or hour:minute:second that
+	will be used as the time part of the datetime returned.
+	Otherwise 11:11:11 will be used as default.
+
+	Note: You must have previously called
+
+		locale.setlocale(locale.LC_ALL, '')
+
+	somewhere in your code.
+
+	Returns:
+		List of Python datetimes the input could be parsed as.
 	"""
 	matches = []
-	matches.extend(__single_dot2py_dt(str2parse))
-	matches.extend(__numbers_only2py_dt(str2parse))
-	matches.extend(__single_slash2py_dt(str2parse))
-	matches.extend(__single_char2py_dt(str2parse))
-	matches.extend(__explicit_offset2py_dt(str2parse))
-
-	# apply explicit patterns
-	if patterns is None:
-		patterns = []
-
-	patterns.append('%Y-%m-%d')
-	patterns.append('%y-%m-%d')
-	patterns.append('%Y/%m/%d')
-	patterns.append('%y/%m/%d')
-
-	patterns.append('%d-%m-%Y')
-	patterns.append('%d-%m-%y')
-	patterns.append('%d/%m/%Y')
-	patterns.append('%d/%m/%y')
-	patterns.append('%d.%m.%Y')
-
-	patterns.append('%m-%d-%Y')
-	patterns.append('%m-%d-%y')
-	patterns.append('%m/%d/%Y')
-	patterns.append('%m/%d/%y')
-
-	patterns.append('%Y.%m.%d')
-
+	for parser in STR2PYDT_PARSERS:
+		matches.extend(parser(str2parse))
 	parts = str2parse.split(maxsplit = 1)
 	hour = 11
 	minute = 11
 	second = 11
+	acc = acc_days
+	lbl_fmt = '%Y-%m-%d'
 	if len(parts) > 1:
 		for pattern in ['%H:%M', '%H:%M:%S']:
 			try:
@@ -1482,10 +1489,15 @@ def str2pydt_matches(str2parse=None, patterns=None):
 				hour = date.hour
 				minute = date.minute
 				second = date.second
+				acc = acc_minutes
+				lbl_fmt = '%Y-%m-%d %H:%M'
 				break
 			except ValueError:
 				# C-level overflow
 				continue
+	if patterns is None:
+		patterns = []
+	patterns.extend(STR2PYDT_DEFAULT_PATTERNS)
 	for pattern in patterns:
 		try:
 			date = pyDT.datetime.strptime(parts[0], pattern).replace (
@@ -1496,13 +1508,11 @@ def str2pydt_matches(str2parse=None, patterns=None):
 			)
 			matches.append ({
 				'data': date,
-				'label': pydt_strftime(date, format = '%Y-%m-%d', accuracy = acc_days)
+				'label': pydt_strftime(date, format = lbl_fmt, accuracy = acc)
 			})
 		except ValueError:
 			# C-level overflow
 			continue
-
-
 	return matches
 
 #===========================================================================
@@ -2040,8 +2050,11 @@ if __name__ == '__main__':
 	if sys.argv[1] != "test":
 		sys.exit()
 
-	from Gnumed.pycommon import gmI18N
 	from Gnumed.pycommon import gmLog2
+	from Gnumed.pycommon import gmI18N
+	del _
+	gmI18N.activate_locale()
+	gmI18N.install_domain()
 
 	#-----------------------------------------------------------------------
 	intervals_as_str = [
@@ -2152,7 +2165,6 @@ if __name__ == '__main__':
 	def test_date_time():
 		print ("DST currently in effect:", dst_currently_in_effect)
 		print ("current UTC offset:", current_local_utc_offset_in_seconds, "seconds")
-		#print ("current timezone (interval):", current_local_timezone_interval)
 		print ("current timezone (ISO conformant numeric string):", current_local_iso_numeric_timezone_string)
 		print ("local timezone class:", cPlatformLocalTimezone)
 		print ("")
@@ -2255,7 +2267,7 @@ if __name__ == '__main__':
 		print (calculate_apparent_age(start = start))
 		print (format_apparent_age_medically(calculate_apparent_age(start = start)))
 	#-------------------------------------------------
-	def test_str2pydt():
+	def test_str2pydt_matches():
 		print ("testing function str2pydt_matches")
 		print ("---------------------------------")
 
@@ -2320,14 +2332,14 @@ if __name__ == '__main__':
 	init()
 
 	#test_date_time()
-	test_str2fuzzy_timestamp_matches()
+	#test_str2fuzzy_timestamp_matches()
+	test_str2pydt_matches()
 	#test_get_date_of_weekday_in_week_of_date()
 	#test_cFuzzyTimeStamp()
 	#test_get_pydt()
 	#test_str2interval()
 	#test_format_interval()
 	#test_format_interval_medically()
-	#test_str2pydt()
 	#test_pydt_strftime()
 	#test_calculate_apparent_age()
 	#test_is_leap_year()

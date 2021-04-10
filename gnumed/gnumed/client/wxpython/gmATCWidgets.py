@@ -8,7 +8,6 @@ __license__ = "GPL v2 or later"
 
 import logging
 import sys
-import os.path
 
 
 import wx

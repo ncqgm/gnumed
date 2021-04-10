@@ -7,7 +7,6 @@ __license__ = 'GPL v2 or later (details at http://www.gnu.org)'
 
 # stdlib
 import sys
-import os
 import fileinput
 import logging
 import io

@@ -697,7 +697,7 @@ if __name__ == '__main__':
 
 	#------------------------------------------------------------------
 	def test_take_screenshot():
-		app = wx.App()
+		wx.App()
 		input('enter for next screenshot')
 		print(save_screenshot_to_file())
 		input('enter for next screenshot')
