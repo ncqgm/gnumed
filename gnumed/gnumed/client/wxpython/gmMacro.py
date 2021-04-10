@@ -22,11 +22,7 @@ import wx
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-	from Gnumed.pycommon import gmLog2
-from Gnumed.pycommon import gmI18N
-if __name__ == '__main__':
-	gmI18N.activate_locale()
-	gmI18N.install_domain('gnumed')
+	_ = lambda x:x
 from Gnumed.pycommon import gmGuiBroker
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmBorg
@@ -1636,10 +1632,10 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			return ''
 
 		if options['fmt'] == 'txt':
-			return template % self._escape(self.pat.MECARD)
+			return options['tmpl'] % self._escape(self.pat.MECARD)
 
 		if options['fmt'] == 'mcf':
-			return template % self.pat.export_as_mecard()
+			return options['tmpl'] % self.pat.export_as_mecard()
 
 		if options['fmt'] == 'qr':
 			qr_filename = gmTools.create_qrcode(text = self.pat.MECARD)
@@ -1728,10 +1724,10 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			return ''
 
 		if options['fmt'] == 'txt':
-			return template % self._escape(gmPraxis.gmCurrentPraxisBranch().MECARD)
+			return options['tmpl'] % self._escape(gmPraxis.gmCurrentPraxisBranch().MECARD)
 
 		if options['fmt'] == 'mcf':
-			return template % gmPraxis.gmCurrentPraxisBranch().export_as_mecard()
+			return options['tmpl'] % gmPraxis.gmCurrentPraxisBranch().export_as_mecard()
 
 		if options['fmt'] == 'qr':
 			qr_filename = gmTools.create_qrcode(text = gmPraxis.gmCurrentPraxisBranch().MECARD)
@@ -3362,9 +3358,10 @@ if __name__ == '__main__':
 	if sys.argv[1] != 'test':
 		sys.exit()
 
+	del _
 	from Gnumed.pycommon import gmI18N
 	gmI18N.activate_locale()
-	gmI18N.install_domain()
+	gmI18N.install_domain('gnumed')
 
 	#--------------------------------------------------------
 	def test_placeholders():
