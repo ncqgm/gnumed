@@ -20,7 +20,7 @@ import platform
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-	from Gnumed.pycommon import gmI18N
+	_ = lambda x:x
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmBusinessDBObject
 from Gnumed.pycommon import gmPG2
@@ -1436,6 +1436,11 @@ if __name__ == '__main__':
 
 	if sys.argv[1] != 'test':
 		sys.exit()
+
+	del _
+	from Gnumed.pycommon import gmI18N
+	gmI18N.activate_locale()
+	gmI18N.install_domain()
 
 	from Gnumed.business import gmPraxis
 

@@ -9,17 +9,15 @@ import logging
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-	from Gnumed.pycommon import gmI18N
+	_ = lambda x:x
 from Gnumed.pycommon import gmPG2
 from Gnumed.pycommon import gmBusinessDBObject
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmHooks
-#from Gnumed.pycommon import gmDateTime
 
 from Gnumed.business import gmCoding
 from Gnumed.business import gmSoapDefs
-#from Gnumed.business import gmAutoHints
 
 
 _log = logging.getLogger('gm.emr')
@@ -509,6 +507,8 @@ if __name__ == '__main__':
 	if sys.argv[1] != 'test':
 		sys.exit()
 
+	del _
+	from Gnumed.pycommon import gmI18N
 	gmI18N.activate_locale()
 	gmI18N.install_domain(domain = 'gnumed')
 

@@ -226,7 +226,6 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 	#----------------------------------------------------------------
 	def __identity_valid_for_save(self):
 		validity = True
-		error = False
 
 		# name fields
 		if self._PRW_lastname.GetValue().strip() == '':

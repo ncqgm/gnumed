@@ -27,7 +27,7 @@ __version__ = '0.1'
 __author__ = "Jason Petrone <jp@demonseed.net>, Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
-import re, struct, string, io
+import re, struct, string
 #=================================================================
 magic = [
 	[0, 'leshort', '=', 1538, 'application/x-alan-adventure-game'],
@@ -1108,7 +1108,7 @@ def filedesc(file):
 
 #### BUILD DATA ####
 #load('mime-magic')
-#f = io.open('out', mode = 'wt', encoding = 'utf8')
+#f = open('out', mode = 'wt', encoding = 'utf8')
 #for m in magicNumbers:
 #  f.write(str([m.offset, m.type, m.op, m.value, m.msg]) + ',\n')
 #f.close

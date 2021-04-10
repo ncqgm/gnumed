@@ -5,7 +5,6 @@ __license__ = "GPL v2 or later (details at http://www.gnu.org)"
 
 import sys
 import logging
-import os.path
 import time
 
 

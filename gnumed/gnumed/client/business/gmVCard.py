@@ -6,7 +6,6 @@ __license__ = "GPL v2"
 
 # std lib
 import sys
-import io
 import datetime as pyDT
 import logging
 

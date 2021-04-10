@@ -6,7 +6,6 @@ __license__ = "GPL"
 
 import sys
 import logging
-import io
 
 
 if __name__ == '__main__':
@@ -14,12 +13,9 @@ if __name__ == '__main__':
 	_ = lambda x:x
 from Gnumed.pycommon import gmBusinessDBObject
 from Gnumed.pycommon import gmPG2
-from Gnumed.pycommon import gmI18N
+
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmDateTime
-if __name__ == '__main__':
-	gmI18N.activate_locale()
-	gmI18N.install_domain()
 from Gnumed.business import gmMedication
 
 
@@ -783,6 +779,11 @@ if __name__ == '__main__':
 
 	if sys.argv[1] != 'test':
 		sys.exit()
+
+	del _
+	from Gnumed.pycommon import gmI18N
+	gmI18N.activate_locale()
+	gmI18N.install_domain()
 
 #	from Gnumed.pycommon import gmPG
 	#--------------------------------------------------------

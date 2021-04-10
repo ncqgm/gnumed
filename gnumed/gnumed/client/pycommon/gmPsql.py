@@ -13,7 +13,6 @@ import sys
 import os
 import re
 import logging
-import io
 
 
 _log = logging.getLogger('gm.bootstrapper')

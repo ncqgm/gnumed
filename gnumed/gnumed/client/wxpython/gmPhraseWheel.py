@@ -11,7 +11,8 @@ __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bi
 __license__ = "GPL"
 
 # stdlib
-import sys, re as regex, os.path
+import sys
+import re as regex
 
 
 # 3rd party

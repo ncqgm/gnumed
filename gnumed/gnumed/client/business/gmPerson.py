@@ -23,8 +23,7 @@ if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmLog2
 if __name__ == '__main__':
-	from Gnumed.pycommon import gmI18N
-	gmI18N.activate_locale()
+	_ = lambda x:x
 from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmBorg
 from Gnumed.pycommon import gmNull
@@ -2648,6 +2647,10 @@ if __name__ == '__main__':
 	if sys.argv[1] != 'test':
 		sys.exit()
 
+	del _
+	from Gnumed.pycommon import gmI18N
+	gmI18N.activate_locale()
+	gmI18N.install_domain()
 	gmDateTime.init()
 
 	#--------------------------------------------------------
