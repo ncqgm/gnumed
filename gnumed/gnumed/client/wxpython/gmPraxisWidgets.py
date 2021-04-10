@@ -393,9 +393,7 @@ class cGreetingEditorDlg(wxgGreetingEditorDlg.wxgGreetingEditorDlg):
 
 #============================================================
 def select_praxis_branch(parent=None):
-
 	branches = gmPraxis.get_praxis_branches()
-
 	if len(branches) == 0:
 		if not set_active_praxis_branch(parent = parent, no_parent = False):
 			return None
@@ -422,8 +420,8 @@ def __create_praxis_and_branch():
 	return branch
 
 #============================================================
-def __create_branch_for_praxis(pk_org:int):
-	branch = gmPraxis.create_praxis_branch(pk_org_unit = units[0]['pk_org_unit'])
+def __create_branch_for_praxis(pk_org_unit:int):
+	branch = gmPraxis.create_praxis_branch(pk_org_unit = pk_org_unit)
 	_log.debug('auto-created praxis branch because only one organization without any unit existed: %s', branch)
 	gmGuiHelpers.gm_show_info (
 		title = _('Praxis configuration ...'),
