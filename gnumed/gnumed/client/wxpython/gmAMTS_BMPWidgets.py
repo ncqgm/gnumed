@@ -8,7 +8,6 @@ __license__ = "GPL v2 or later"
 
 import logging
 import sys
-import os.path
 import typing
 
 
@@ -18,6 +17,8 @@ import wx
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 	_ = lambda x:x
+
+from Gnumed.pycommon import gmTools
 
 from Gnumed.business import gmAMTS_BMP
 from Gnumed.business import gmPerson

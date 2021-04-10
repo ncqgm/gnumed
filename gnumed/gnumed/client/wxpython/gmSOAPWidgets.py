@@ -717,9 +717,9 @@ class cResizingSoapWin(gmResizingWidgets.cResizingWindow):
 
 		self.__problem = problem
 		if isinstance(problem, gmEMRStructItems.cEpisode):
-			self.__problem = emr.episode2problem(episode = problem)
+			self.__problem = gmEMRStructItems.episode2problem(episode = problem)
 		elif isinstance(problem, gmEMRStructItems.cHealthIssue):
-			self.__problem = emr.health_issue2problem(issue = problem)
+			self.__problem = gmEMRStructItems.health_issue2problem(issue = problem)
 		self.__pat = gmPerson.gmCurrentPatient()
 	#--------------------------------------------------------
 	# cResizingWindow API

@@ -9,6 +9,7 @@ import os
 import os.path
 import sys
 import logging
+import shutil
 
 
 import wx
@@ -136,7 +137,7 @@ def print_generic_document(parent=None, jobtype:str=None, episode=None):
 		gmDispatcher.send(signal = 'statustext', msg = _('No patient. Moved file into %s') % gmTools.gmPaths().user_work_dir, beep = False)
 		return
 
-	item = pat.export_area.add_file (
+	pat.export_area.add_file (
 		filename = fpath,
 		hint = _('Generic letter, written at %s') % gmDateTime.pydt_now_here().strftime('%Y %b %d  %H:%M')
 	)

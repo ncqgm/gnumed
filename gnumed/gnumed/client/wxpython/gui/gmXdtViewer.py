@@ -13,14 +13,14 @@ TODO:
 #=============================================================================
 __author__ = "S.Hilbert, K.Hilbert"
 
-import sys, os, os.path, io, logging
+import os, os.path, io, logging
 
 
 import wx
 
 
 from Gnumed.wxpython import gmGuiHelpers, gmPlugin
-from Gnumed.pycommon import gmI18N, gmDispatcher
+from Gnumed.pycommon import gmI18N, gmDispatcher, gmTools
 from Gnumed.business import gmXdtMappings, gmXdtObjects
 from Gnumed.wxGladeWidgets import wxgXdtListPnl
 from Gnumed.wxpython import gmAccessPermissionWidgets
