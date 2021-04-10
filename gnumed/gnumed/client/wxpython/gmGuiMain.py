@@ -676,8 +676,6 @@ class gmTopLevelFrame(wx.Frame):
 		if viewer == _('no viewer installed'):
 			_log.info('neither of Ginkgo CADx / OsiriX / Aeskulap / AMIDE / DicomScope / xmedcon found, disabling "DICOM viewer" menu item')
 			self.menu_tools.Enable(id = item.Id, enable=False)
-#		self.menu_tools.Append(-1, _("Dermatology"), _("A tool to aid dermatology diagnosis"))
-#		self.Bind(wx.EVT_MENU, self.__dermtool, item)
 		item = self.menu_tools.Append(-1, _('Snellen chart'), _('Display fullscreen snellen chart.'))
 		self.Bind(wx.EVT_MENU, self.__on_snellen, item)
 		item = self.menu_tools.Append(-1, _('MI/stroke risk'), _('Acute coronary syndrome/stroke risk assessment.'))
@@ -2527,12 +2525,6 @@ class gmTopLevelFrame(wx.Frame):
 		self.DestroyLater()
 		_log.debug('gmTopLevelFrame.OnClose() end')
 		return True
-
-	#----------------------------------------------
-	def __dermtool (self, event):
-		import Gnumed.wxpython.gmDermTool as DT
-		frame = DT.DermToolDialog(None, -1)
-		frame.Show(True)
 
 	#----------------------------------------------
 	def __on_start_new_encounter(self, evt):
