@@ -333,7 +333,6 @@ def convert_latex_to_pdf(filename:str=None, verbose:bool=False, is_sandboxed:boo
 		)
 		if not success:
 			_log.error('problem running pdflatex, cannot generate form output, trying diagnostics')
-			gmDispatcher.send(signal = 'statustext', msg = _('Error running pdflatex. Cannot turn LaTeX template into PDF.'), beep = True)
 			found, binary = gmShellAPI.find_first_binary(binaries = ['lacheck', 'miktex-lacheck.exe'])
 			if not found:
 				_log.debug('lacheck not found')
