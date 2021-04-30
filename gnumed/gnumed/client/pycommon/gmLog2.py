@@ -255,6 +255,10 @@ def set_string_encoding(encoding=None):
 __words2hide = []
 
 def add_word2hide(word):
+	if word is None:
+		return
+	if word.strip() == u'':
+		return
 	if word not in __words2hide:
 		__words2hide.append(word)
 

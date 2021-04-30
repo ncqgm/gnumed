@@ -9,6 +9,7 @@
 	1.7.10
 
 FIX: bootstrapper: require python 2 [thanks Rogerio]
+FIX: logger: overzealous obscurement [thanks pi]
 
 NEW: paperwork: template: most recent lab
 
