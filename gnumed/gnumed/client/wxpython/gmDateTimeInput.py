@@ -603,7 +603,8 @@ class cFuzzyTimestampInput(gmPhraseWheel.cPhraseWheel):
 		self.selection_only_error_msg = _('Cannot interpret input as timestamp.')
 		self.display_accuracy = None
 
-		self.__weekday_keys = [wx.WXK_F1, wx.WXK_F2, wx.WXK_F3, wx.WXK_F4, wx.WXK_F5, wx.WXK_F6, wx.WXK_F7]
+		# index 0 resp weekday 0 maps to Sunday, hence, offset K_F1 to index 1 ...
+		self.__weekday_keys = [-1, wx.WXK_F1, wx.WXK_F2, wx.WXK_F3, wx.WXK_F4, wx.WXK_F5, wx.WXK_F6, wx.WXK_F7]
 
 	#--------------------------------------------------------
 	# internal helpers
