@@ -14,6 +14,7 @@ FIX: metadata: screenshots URL in appdata.xml
 FIX: GUI: screenshot function [thanks The-o]
 FIX: medical interval formatting [thanks brulefa]
 FIX: date/time input: time parsing
+FIX: date/time input: function key to weekday mapping
 
 IMPROVED: desktop entry file [thanks freddii]
 IMPROVED: patient switch: encounter checking
