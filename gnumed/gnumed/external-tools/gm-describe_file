@@ -87,6 +87,16 @@ if [ $? -eq 0 ] ; then
 		echo "" >> "${DESCRIPTION_FILE}"
 		rm -f "${DESCRIPTION_FILE}.pdfimages"
 	fi
+	# pdffonts
+	BIN=`which pdffonts`
+	if [ "x${BIN}x" != "xx" ]; then
+		echo "---- pdffonts ----" > "${DESCRIPTION_FILE}.pdffonts"
+		pdffonts "${FILE_2_DESCRIBE}" >> "${DESCRIPTION_FILE}.pdffonts" 2>> "${DESCRIPTION_FILE}.pdffonts"
+		pdffonts -subst "${FILE_2_DESCRIBE}" >> "${DESCRIPTION_FILE}.pdffonts" 2>> "${DESCRIPTION_FILE}.pdffonts"
+		cat "${DESCRIPTION_FILE}.pdffonts" >> "${DESCRIPTION_FILE}"
+		echo "" >> "${DESCRIPTION_FILE}"
+		rm -f "${DESCRIPTION_FILE}.pdffonts"
+	fi
 ## not a PDF
 #else
 #	echo "not PDF"
