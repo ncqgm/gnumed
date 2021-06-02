@@ -10,6 +10,7 @@
 
 FIX: bootstrapper: require python 2 [thanks Rogerio]
 FIX: logger: overzealous obscurement [thanks pi]
+FIX: lab results EA: improve prev result display
 
 NEW: paperwork: template: most recent lab
 
