@@ -650,6 +650,14 @@ def exception_is_connection_loss(exc):
 		return False
 
 	try:
+		if isinstance(exc, dbapi.errors.AdminShutdown):
+			_log.debug('indicates connection loss due to admin shutdown')
+			return True
+
+	except AttributeError:	# psycopg2 2.7/2.8 transition
+		pass
+
+	try:
 		msg = '%s' % exc.args[0]
 	except (AttributeError, IndexError, TypeError):
 		_log.debug('cannot extract message from exception')
@@ -667,8 +675,8 @@ def exception_is_connection_loss(exc):
 			('abnorm' in msg)
 				or
 			('end' in msg)
-#				or
-#			('oute' in msg)
+				or
+			('no route' in msg)
 		)
 	) or (
 		# InterfaceError

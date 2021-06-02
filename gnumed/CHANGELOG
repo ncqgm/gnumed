@@ -19,6 +19,7 @@ FIX: date/time input: function key to weekday mapping
 IMPROVED: desktop entry file [thanks freddii]
 IMPROVED: patient switch: encounter checking
 IMPROVED: pat overview: problems display
+IMPROVED: DB: connection loss detection
 
 	1.8.5
 
