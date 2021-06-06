@@ -3396,13 +3396,13 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 			return
 
 		most_recent = most_recent_results[0]
-		self._TCTRL_previous_value.SetValue(_('%s ago: %s%s%s - %s%s') % (
+		self._TCTRL_previous_value.SetValue(_('%s ago: %s%s%s (%s%s)') % (
 			gmDateTime.format_interval_medically(gmDateTime.pydt_now_here() - most_recent['clin_when']),
 			most_recent['unified_val'],
 			gmTools.coalesce(most_recent['val_unit'], ''),
-			gmTools.coalesce(most_recent['abnormality_indicator'], '', ' (%s)'),
+			gmTools.coalesce(most_recent['abnormality_indicator'], '', ' "%s"'),
 			most_recent['abbrev_tt'],
-			gmTools.coalesce(most_recent.formatted_range, '', ' [%s]')
+			gmTools.coalesce(most_recent.formatted_range, '', ': %s')
 		))
 		self._TCTRL_previous_value.SetToolTip(most_recent.format (
 			with_review = True,
