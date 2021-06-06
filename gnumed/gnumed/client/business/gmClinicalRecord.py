@@ -237,9 +237,7 @@ class cClinicalRecord(object):
 	# messaging
 	#--------------------------------------------------------
 	def _register_interests(self):
-		#gmDispatcher.connect(signal = u'clin.encounter_mod_db', receiver = self.db_callback_encounter_mod_db)
 		gmDispatcher.connect(signal = 'gm_table_mod', receiver = self.db_modification_callback)
-
 		return True
 
 	#--------------------------------------------------------
@@ -257,6 +255,19 @@ class cClinicalRecord(object):
 			return True
 
 		_log.debug('remote modification of our encounter signalled (local: #%s, remote: #%s)', self.current_encounter['pk_encounter'], kwds['pk_of_row'])
+
+		# did someone deleted the current encounter from under our feet ?
+		if kwds['operation'] == 'DELETE':
+			_log.error('local encounter has been DELETEd remotely, trying to get now-active encounter from database')
+			if self.current_encounter.is_modified():
+				_log.error('local encounter instance has .is_modified()=True, losing local changes')
+				_log.error('this hints at an error in .is_modified handling')
+			# dirty fix: get now-active encounter
+			self.current_encounter.unlock(exclusive = False)
+			self.__encounter = None
+			self.__setup_active_encounter()
+			gmDispatcher.send('current_encounter_switched')
+			return True
 
 		# get the current encounter as an extra instance
 		# from the database to check for changes
@@ -286,7 +297,7 @@ class cClinicalRecord(object):
 				curr_enc_in_db['pk_encounter']
 			))
 
-		# don't do this: same_payload() does not compare _all_
+		# don't do this, because same_payload() does not compare _all_
 		# fields so we can get into a reality disconnect if we
 		# don't announce the modification
 #		if self.current_encounter.same_payload(another_object = curr_enc_in_db):
@@ -302,49 +313,6 @@ class cClinicalRecord(object):
 		_log.debug('active encounter modified remotely, no locally pending changes, reloading from DB and locally announcing the remote modification')
 		self.current_encounter.refetch_payload()
 		gmDispatcher.send('current_encounter_modified')
-		return True
-
-	#--------------------------------------------------------
-	def db_callback_encounter_mod_db(self, **kwds):
-
-		# get the current encounter as an extra instance
-		# from the database to check for changes
-		curr_enc_in_db = gmEMRStructItems.cEncounter(aPK_obj = self.current_encounter['pk_encounter'])
-
-		# the encounter just retrieved and the active encounter
-		# have got the same transaction ID so there's no change
-		# in the database, there could be a local change in
-		# the active encounter but that doesn't matter because
-		# no one else can have written to the DB so far
-		# THIS DOES NOT WORK
-#		if curr_enc_in_db['xmin_encounter'] == self.current_encounter['xmin_encounter']:
-#			return True
-
-		# there must have been a change to the active encounter
-		# committed to the database from elsewhere,
-		# we must fail propagating the change, however, if
-		# there are local changes
-		if self.current_encounter.is_modified():
-			gmTools.compare_dict_likes(self.current_encounter.fields_as_dict(), curr_enc_in_db.fields_as_dict(), 'modified enc in client', 'enc loaded from DB')
-			_log.error('current in client: %s', self.current_encounter)
-			raise ValueError('unsaved changes in active encounter [%s], cannot switch [%s]' % (
-				self.current_encounter['pk_encounter'],
-				curr_enc_in_db['pk_encounter']
-			))
-
-		if self.current_encounter.same_payload(another_object = curr_enc_in_db):
-			_log.debug('clin.encounter_mod_db received but no change to active encounter payload')
-			return True
-
-		# there was a change in the database from elsewhere,
-		# locally, however, we don't have any changes, therefore
-		# we can propagate the remote change locally without
-		# losing anything
-		gmTools.compare_dict_likes(self.current_encounter.fields_as_dict(), curr_enc_in_db.fields_as_dict(), 'modified enc in client', 'enc loaded from DB')
-		_log.debug('active encounter modified remotely, reloading from DB and locally announcing the modification')
-		self.current_encounter.refetch_payload()
-		gmDispatcher.send('current_encounter_modified')
-
 		return True
 
 	#--------------------------------------------------------
@@ -2220,7 +2188,7 @@ WHERE
 		_log.debug('setting up active encounter for identity [%s]', self.pk_patient)
 
 		# log access to patient record (HIPAA, for example)
-		_delayed_execute(self.log_access, action = 'pulling chart for identity [%s]' % self.pk_patient)
+		_delayed_execute(self.log_access, action = 'setting up active encounter for identity [%s]' % self.pk_patient)
 
 		# cleanup (not async, because we don't want recent encounters
 		# to become the active one just because they are recent)

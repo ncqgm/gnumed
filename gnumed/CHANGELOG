@@ -15,6 +15,7 @@ FIX: GUI: screenshot function [thanks The-o]
 FIX: medical interval formatting [thanks brulefa]
 FIX: date/time input: time parsing
 FIX: date/time input: function key to weekday mapping
+FIX: encounters: do not crash if current encounter is deleted
 
 IMPROVED: desktop entry file [thanks freddii]
 IMPROVED: patient switch: encounter checking
