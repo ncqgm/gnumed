@@ -53,6 +53,7 @@ IMPROVED: desktop entry file [thanks freddii]
 IMPROVED: patient switch: encounter checking
 IMPROVED: pat overview: problems display
 IMPROVED: DB: connection loss detection
+IMPROVED: measurement EA: previous result formatting
 
 	1.8.5
 
