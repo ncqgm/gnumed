@@ -29,7 +29,7 @@ Part 1:  http://gnumed.blogspot.com/2010/04/gnumed-plugin-development-how-to-sha
 Part 2:  http://gnumed.blogspot.com/2010/07/gnumed-plugin-development-easy-testing.html
 
 For development information such as database schema, function and classes documentation
-and more see http://wiki.gnumed.de
+and more see https://www.gnumed.de/documentation/
 """
 
 """

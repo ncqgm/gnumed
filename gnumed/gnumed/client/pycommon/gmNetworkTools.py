@@ -345,7 +345,7 @@ def check_for_update(url=None, current_branch=None, current_version=None, consid
 	)
 
 	msg += '\n\n'
-	msg += _('Details are found on <http://wiki.gnumed.de>.\n')
+	msg += _('Details are found on <http://www.gnumed.de>.\n')
 	msg += '\n'
 	msg += _('Version information loaded from:\n\n %s') % url
 
