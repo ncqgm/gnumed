@@ -167,7 +167,7 @@ def connect_to_database(max_attempts=3, expected_version=None, require_version=T
 						'authentication configuration in pg_hba.conf. For\n'
 						'details see:\n'
 						'\n'
-						'wiki.gnumed.de/bin/view/Gnumed/ConfigurePostgreSQL'
+						'https://www.gnumed.de/documentation/GNUmedConfigurePostgreSQL.html'
 					)
 				else:
 					msg = _(
@@ -182,7 +182,7 @@ def connect_to_database(max_attempts=3, expected_version=None, require_version=T
 						'authentication configuration in pg_hba.conf. For\n'
 						'details see:\n'
 						'\n'
-						'wiki.gnumed.de/bin/view/Gnumed/ConfigurePostgreSQL'
+						'https://www.gnumed.de/documentation/GNUmedConfigurePostgreSQL.html'
 					)
 				msg = msg % e
 				msg = regex.sub(r'password=[^\s]+', 'password=%s' % gmTools.u_replacement_character, msg)
@@ -225,7 +225,7 @@ def connect_to_database(max_attempts=3, expected_version=None, require_version=T
 				'\n'
 				'Further help can be found on the website at\n'
 				'\n'
-				'  http://wiki.gnumed.de\n'
+				'  https://www.gnumed.de/documentation/\n'
 				'\n'
 				'or on the GNUmed mailing list.'
 			)
@@ -728,7 +728,7 @@ class cLoginPanel(wx.Panel):
 			profiles[label].database = current_db_name
 			profiles[label].encoding = 'UTF8'
 			profiles[label].public_db = True
-			profiles[label].helpdesk = 'http://wiki.gnumed.de'
+			profiles[label].helpdesk = 'http://www.gnumed.de'
 
 		return profiles
 	#----------------------------------------------------------
@@ -833,11 +833,11 @@ or configure a PostgreSQL server and/or a GNUmed database
 of their own, which you must do before you can connect to
 anything other than the public demonstration database, see
 
- http://wiki.gnumed.de/bin/view/Gnumed/GmManualServerInstall
+ https://www.gnumed.de/documentation/GNUmedDatabaseInstallation.html
 
-For assistance on using GNUmed please consult the wiki:
+For assistance on using GNUmed please consult the documentation:
 
- http://wiki.gnumed.de/bin/view/Gnumed/GnumedManual
+ https://www.gnumed.de/documentation/
 
 For more help than the above, please contact:
 

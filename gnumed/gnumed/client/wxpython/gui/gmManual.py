@@ -100,7 +100,7 @@ class ManualHtmlPanel(wx.Panel):
 			self.html.LoadPage(name)
 		else:
 			_log.error("cannot load local document %s", name)
-			self.html.LoadPage('http://wiki.gnumed.de/bin/view/Gnumed/GnumedManual?template=viewprint')
+			self.html.LoadPage('https://www.gnumed.de/documentation/')
 	#--------------------------------------------------------
 	def OnLoadFile(self, event):
 		dlg = wx.FileDialog(self, wildcard = '*.htm*', style=wx.FD_OPEN)

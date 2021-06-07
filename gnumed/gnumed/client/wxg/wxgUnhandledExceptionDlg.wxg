@@ -44,7 +44,7 @@
                 <border>5</border>
                 <flag>wxALL|wxEXPAND</flag>
                 <object class="wxStaticText" name="__lbl_explanation" base="EditStaticText">
-                    <label>GNUmed detected an error for which no specific handling had been defined.\n\nDetails about the error can be found in the log file, a copy of which has\nbeen stored away in your home directory (see below). It may contain\nbits of sensitive information so you may want to screen the content\nbefore handing it to IT staff for debugging.\n\nYou can choose to keep open this GNUmed workplace. However, it is strongly\nadvised to restart this workplace as soon as possible. Meanwhile you can try\nto save unsaved data but don't count on it.\n\nIt should then be safe to restart GNUmed.\n\nDocumentation can be found at &lt;http://wiki.gnumed.de&gt;.</label>
+                    <label>GNUmed detected an error for which no specific handling had been defined.\n\nDetails about the error can be found in the log file, a copy of which has\nbeen stored away in your home directory (see below). It may contain\nbits of sensitive information so you may want to screen the content\nbefore handing it to IT staff for debugging.\n\nYou can choose to keep open this GNUmed workplace. However, it is strongly\nadvised to restart this workplace as soon as possible. Meanwhile you can try\nto save unsaved data but don't count on it.\n\nIt should then be safe to restart GNUmed.\n\nDocumentation can be found at &lt;https://www.gnumed.de&gt;.</label>
                 </object>
             </object>
             <object class="sizeritem">
@@ -112,7 +112,7 @@
                                 <border>0</border>
                                 <flag>wxEXPAND|wxALIGN_CENTER_VERTICAL</flag>
                                 <object class="wxTextCtrl" name="_TCTRL_helpdesk" base="EditTextCtrl">
-                                    <tooltip>Find help on http://wiki.gnumed.de, too.</tooltip>
+                                    <tooltip>Find help on https://www.gnumed.de, too.</tooltip>
                                     <disabled>1</disabled>
                                     <style>wxTE_READONLY</style>
                                 </object>

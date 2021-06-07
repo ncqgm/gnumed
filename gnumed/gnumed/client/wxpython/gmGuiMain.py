@@ -747,12 +747,12 @@ class gmTopLevelFrame(wx.Frame):
 
 		# -- menu "Help" --------------
 		help_menu = wx.Menu()
-		help_menu.Append(-1, _('GNUmed wiki'), _('Go to the GNUmed wiki on the web.'))
+		help_menu.Append(-1, _('Documentation'), _('GNUmed documentation (online)'))
 		self.Bind(wx.EVT_MENU, self.__on_display_wiki, item)
 		help_menu.Append(-1, _('User manual (www)'), _('Go to the User Manual on the web.'))
 		self.Bind(wx.EVT_MENU, self.__on_display_user_manual_online, item)
-		item = help_menu.Append(-1, _('Menu reference (www)'), _('View the reference for menu items on the web.'))
-		self.Bind(wx.EVT_MENU, self.__on_menu_reference, item)
+		#item = help_menu.Append(-1, _('Menu reference (www)'), _('View the reference for menu items on the web.'))
+		#self.Bind(wx.EVT_MENU, self.__on_menu_reference, item)
 		item = help_menu.Append(-1, _('Browse work dir'), _('Browse user working directory [%s].') % os.path.join(gmTools.gmPaths().home_dir, 'gnumed'))
 		self.Bind(wx.EVT_MENU, self.__on_browse_work_dir, item)
 
@@ -2403,10 +2403,12 @@ class gmTopLevelFrame(wx.Frame):
 		gmNetworkTools.open_url_in_browser(url = 'http://wiki.gnumed.de')
 	#----------------------------------------------
 	def __on_display_user_manual_online(self, evt):
-		gmNetworkTools.open_url_in_browser(url = 'http://wiki.gnumed.de/bin/view/Gnumed/GnumedManual#UserGuideInManual')
-	#----------------------------------------------
-	def __on_menu_reference(self, evt):
-		gmNetworkTools.open_url_in_browser(url = 'http://wiki.gnumed.de/bin/view/Gnumed/MenuReference')
+		gmNetworkTools.open_url_in_browser(url = 'https://www.gnumed.de/documentation/GNUmedManual.html')
+
+#	#----------------------------------------------
+#	def __on_menu_reference(self, evt):
+#		gmNetworkTools.open_url_in_browser(url = 'http://wiki.gnumed.de/bin/view/Gnumed/MenuReference')
+
 	#----------------------------------------------
 	def __on_pgadmin3(self, evt):
 		found, cmd = gmShellAPI.detect_external_binary(binary = 'pgadmin3')

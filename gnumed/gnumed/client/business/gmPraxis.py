@@ -491,7 +491,7 @@ where
 					('system', 'return')
 				]
 			),
-			'http://wiki.gnumed.de'
+			'https://www.gnumed.de/documentation/'
 		)
 
 		return self.__helpdesk
