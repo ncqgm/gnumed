@@ -75,4 +75,4 @@ comment on function clin.remove_old_empty_encounters(integer, interval) is
 	'Remove empty encounters older than a definable minimum age from a patient.';
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('v22-clin-remove_old_empty_encounters.sql', '22.16');
+select gm.log_script_insertion('v22-clin-remove_old_empty_encounters-fixup.sql', '22.16');

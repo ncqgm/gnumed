@@ -2166,6 +2166,10 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 # gnumed_v22
 ------------------------------------------------
 
+	22.16
+
+FIX: check encounter lock in clin.remove_old_empty_encounters()
+
 	22.15
 
 FIX: message inbox view
