@@ -34,6 +34,7 @@ IMPROVED: search: use clin.v_narrative4search again
 
 FIX: CLI: --wxp= not needed anymore
 FIX: CLI: --ui= not needed anymore
+FIX: documentation: links (wiki -> static pages)
 
 ------------------------------------------------
 # rel-1-8-maint
