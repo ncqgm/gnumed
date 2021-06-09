@@ -134,7 +134,7 @@ def connect_to_database(max_attempts=3, expected_version=None, require_version=T
 
 		gmLog2.add_word2hide(login.password)
 
-		# try getting a connection to verify the parameters work
+		# try getting a connection to verify the parameters do work
 		creds = gmConnectionPool.cPGCredentials()
 		creds.database = login.database
 		creds.host = login.host
@@ -147,11 +147,13 @@ def connect_to_database(max_attempts=3, expected_version=None, require_version=T
 			conn = gmPG2.get_raw_connection(verbose = True, readonly = True)
 			connected = True
 
-		except gmPG2.cAuthenticationError as e:
+		except gmPG2.cAuthenticationError as exc:
+			_log.exception('login attempt failed')
+			gmPG2.log_pg_exception_details(exc)
 			attempt += 1
-			_log.error("login attempt failed: %s", e)
+			_log.error("login attempt failed: %s", exc)
 			if attempt < max_attempts:
-				if ('host=127.0.0.1' in ('%s' % e)) or ('host=' not in ('%s' % e)):
+				if ('host=127.0.0.1' in ('%s' % exc)) or ('host=' not in ('%s' % exc)):
 					msg = _(
 						'Unable to connect to database:\n\n'
 						'%s\n\n'
@@ -184,13 +186,13 @@ def connect_to_database(max_attempts=3, expected_version=None, require_version=T
 						'\n'
 						'https://www.gnumed.de/documentation/GNUmedConfigurePostgreSQL.html'
 					)
-				msg = msg % e
+				msg = msg % exc
 				msg = regex.sub(r'password=[^\s]+', 'password=%s' % gmTools.u_replacement_character, msg)
 				gmGuiHelpers.gm_show_error (
 					msg,
 					_('Connecting to backend')
 				)
-			del e
+			del exc
 			continue
 
 		except gmPG2.dbapi.OperationalError as exc:

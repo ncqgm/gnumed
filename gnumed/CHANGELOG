@@ -56,6 +56,7 @@ IMPROVED: patient switch: encounter checking
 IMPROVED: pat overview: problems display
 IMPROVED: DB: connection loss detection
 IMPROVED: measurement EA: previous result formatting
+IMPROVED: DB: login problem logging
 
 	1.8.5
 
