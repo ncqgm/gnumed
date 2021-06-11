@@ -42,66 +42,175 @@ _log = logging.getLogger('gm.ui')
 _cfg = gmCfg2.gmCfgData()
 
 
-msg_generic = _("""
-GNUmed database version mismatch.
+msg_generic = _(
+	'GNUmed database version mismatch.'
+	'\n'
+	'This database version cannot be used with this client:'
+	'\n'
+	' client version: %s'
+	' database version detected: %s'
+	' database version needed: %s'
+	'\n'
+	'Currently connected to database:'
+	'\n'
+	' host: %s'
+	' database: %s'
+	' user: %s'
+)
 
-This database version cannot be used with this client:
+msg_time_skew_fail = _(
+	'The server and client clocks are off'
+	'by more than %s minutes !'
+	'\n'
+	'You must fix the time settings before'
+	'you can use this database with this'
+	'client.'
+	'\n'
+	'You may have to contact your'
+	'administrator for help.'
+)
 
- client version: %s
- database version detected: %s
- database version needed: %s
+msg_time_skew_warn = _(
+	'The server and client clocks are off'
+	'by more than %s minutes !'
+	'\n'
+	'You should fix the time settings.'
+	'Otherwise clinical data may appear to'
+	'have been entered at the wrong time.'
+	'\n'
+	'You may have to contact your'
+	'administrator for help.'
+)
 
-Currently connected to database:
+msg_insanity = _(
+	"There is a serious problem with the database settings:"
+	"\n"
+	"%s"
+	"\n"
+	"You may have to contact your administrator for help."
+)
 
- host: %s
- database: %s
- user: %s
-""")
+msg_fail = _(
+	"You must connect to a different database in order"
+	"to use the GNUmed client. You may have to contact"
+	"your administrator for help."
+)
 
-msg_time_skew_fail = _("""\
-The server and client clocks are off
-by more than %s minutes !
+msg_override = _(
+	"The client will, however, continue to start up because"
+	"you are running a development/test version of GNUmed."
+	"\n"
+	"There may be schema related errors. Please report and/or"
+	"fix them. Do not rely on this database to work properly"
+	"in all cases !"
+)
 
-You must fix the time settings before
-you can use this database with this
-client.
+msg_auth_error = _(
+	"Unable to connect to database:\n\n"
+	"%s\n\n"
+	"Please retry with proper credentials or cancel.\n"
+	"\n"
+	"For the public and any new GNUmed databases the\n"
+	"default user name and password are {any-doc, any-doc}.\n"
+	"\n"
+	'You may also need to check the PostgreSQL client\n'
+	'authentication configuration in pg_hba.conf. For\n'
+	'details see:\n'
+	'\n'
+	'https://www.gnumed.de/documentation/GNUmedConfigurePostgreSQL.html'
+)
 
-You may have to contact your
-administrator for help.""")
+msg_auth_error_local = _(
+	'Unable to connect to database:\n\n'
+	'%s\n\n'
+	"Are you sure you have got a local database installed ?\n"
+	'\n'
+	"Please retry with proper credentials or cancel.\n"
+	'\n'
+	' (for the public and any new GNUmed data-\n'
+	'  bases the default user name and password\n'
+	'  are {any-doc, any-doc})\n'
+	'\n'
+	'You may also need to check the PostgreSQL client\n'
+	'authentication configuration in pg_hba.conf. For\n'
+	'details see:\n'
+	'\n'
+	'https://www.gnumed.de/documentation/GNUmedConfigurePostgreSQL.html'
+)
 
-msg_time_skew_warn = _("""\
-The server and client clocks are off
-by more than %s minutes !
+msg_login_problem_generic = _(
+	"Unable to connect to database:\n\n"
+	"%s\n\n"
+	"Please retry another backend / user / password combination !\n"
+	"\n"
+	" (for the public and any new GNUmed databases\n"
+	"  the default user name and password are\n"
+	"  {any-doc, any-doc})\n"
+	"\n"
+)
 
-You should fix the time settings.
-Otherwise clinical data may appear to
-have been entered at the wrong time.
-
-You may have to contact your
-administrator for help.""")
-
-msg_insanity = _("""
-There is a serious problem with the database settings:
-
-%s
-
-You may have to contact your administrator for help.""")
-
-msg_fail = _("""
-You must connect to a different database in order
-to use the GNUmed client. You may have to contact
-your administrator for help.""")
-
-msg_override = _("""
-The client will, however, continue to start up because
-you are running a development/test version of GNUmed.
-
-There may be schema related errors. Please report and/or
-fix them. Do not rely on this database to work properly
-in all cases !""")
+msg_not_bootstrapped = _(
+	'The database you connected to does not seem\n'
+	'to have been boostrapped properly.\n'
+	'\n'
+	'Make sure you have run the GNUmed database\n'
+	'bootstrapper tool to create a new database.\n'
+	'\n'
+	'Further help can be found on the website at\n'
+	'\n'
+	'  https://www.gnumed.de/documentation/\n'
+	'\n'
+	'or on the GNUmed mailing list.'
+)
 
 #================================================================
 # convenience functions
+#----------------------------------------------------------------
+def __database_is_acceptable_for_use(require_version:bool=True, expected_version:int=None, login=None) -> bool:
+	if not gmPG2.schema_exists(schema = 'gm'):
+		_log.error('schema [gm] does not exist - database not bootstrapped ?')
+		gmGuiHelpers.gm_show_error(msg_not_bootstrapped, _('Verifying database'))
+		return False
+
+	if not gmPG2.database_schema_compatible(version = expected_version):
+		client_version = _cfg.get(option = 'client_version')
+		connected_db_version = gmPG2.get_schema_version()
+		msg = msg_generic % (
+			client_version,
+			connected_db_version,
+			expected_version,
+			gmTools.coalesce(login.host, '<localhost>'),
+			login.database,
+			login.user
+		)
+		if require_version:
+			gmGuiHelpers.gm_show_error(msg + '\n\n' + msg_fail, _('Verifying database version'))
+			return False
+
+		gmGuiHelpers.gm_show_info(msg + '\n\n' + msg_override, _('Verifying database version'))
+
+	max_skew = 10 if _cfg.get(option = 'debug') else 1		# in minutes
+	if not gmPG2.sanity_check_time_skew(tolerance = (max_skew * 60)):
+		if not _cfg.get(option = 'debug'):
+			gmGuiHelpers.gm_show_error(msg_time_skew_fail % max_skew, _('Verifying database settings'))
+			return False
+
+		gmGuiHelpers.gm_show_warning(msg_time_skew_warn % max_skew, _('Verifying database settings'))
+
+	sanity_level, message = gmPG2.sanity_check_database_settings()
+	if sanity_level != 0:
+		gmGuiHelpers.gm_show_error((msg_insanity % message), _('Verifying database settings'))
+		if sanity_level == 2:
+			return False
+
+	gmLog2.log_multiline (
+		logging.DEBUG,
+		message = 'DB seems suitable to use, fingerprint:',
+		text = gmPG2.get_db_fingerprint(eol = '\n')
+	)
+
+	return True
+
 #----------------------------------------------------------------
 def connect_to_database(max_attempts=3, expected_version=None, require_version=True):
 	"""Display the login dialog and try to log into the backend.
@@ -114,26 +223,21 @@ def connect_to_database(max_attempts=3, expected_version=None, require_version=T
 	client_version = _cfg.get(option = 'client_version')
 	global current_db_name
 	current_db_name = 'gnumed_v%s' % expected_version
-
 	attempt = 0
-
 	dlg = cLoginDialog(None, -1, client_version = client_version)
 	dlg.Centre(wx.BOTH)
 
 	while attempt < max_attempts:
-
 		_log.debug('login attempt %s of %s', (attempt+1), max_attempts)
-
 		connected = False
-
 		dlg.ShowModal()
 		login = dlg.panel.GetLoginInfo()
 		if login is None:
 			_log.info("user cancelled login dialog")
 			break
 
+		# obscure unconditionally, it could be a valid password
 		gmLog2.add_word2hide(login.password)
-
 		# try getting a connection to verify the parameters do work
 		creds = gmConnectionPool.cPGCredentials()
 		creds.database = login.database
@@ -145,69 +249,28 @@ def connect_to_database(max_attempts=3, expected_version=None, require_version=T
 		pool.credentials = creds
 		try:
 			conn = gmPG2.get_raw_connection(verbose = True, readonly = True)
+			_log.info('successfully connected: %s', conn)
 			connected = True
 
 		except gmPG2.cAuthenticationError as exc:
 			_log.exception('login attempt failed')
 			gmPG2.log_pg_exception_details(exc)
 			attempt += 1
-			_log.error("login attempt failed: %s", exc)
 			if attempt < max_attempts:
 				if ('host=127.0.0.1' in ('%s' % exc)) or ('host=' not in ('%s' % exc)):
-					msg = _(
-						'Unable to connect to database:\n\n'
-						'%s\n\n'
-						"Are you sure you have got a local database installed ?\n"
-						'\n'
-						"Please retry with proper credentials or cancel.\n"
-						'\n'
-						' (for the public and any new GNUmed data-\n'
-						'  bases the default user name and password\n'
-						'  are {any-doc, any-doc})\n'
-						'\n'
-						'You may also need to check the PostgreSQL client\n'
-						'authentication configuration in pg_hba.conf. For\n'
-						'details see:\n'
-						'\n'
-						'https://www.gnumed.de/documentation/GNUmedConfigurePostgreSQL.html'
-					)
+					msg = msg_auth_error_local
 				else:
-					msg = _(
-						"Unable to connect to database:\n\n"
-						"%s\n\n"
-						"Please retry with proper credentials or cancel.\n"
-						"\n"
-						"For the public and any new GNUmed databases the\n"
-						"default user name and password are {any-doc, any-doc}.\n"
-						"\n"
-						'You may also need to check the PostgreSQL client\n'
-						'authentication configuration in pg_hba.conf. For\n'
-						'details see:\n'
-						'\n'
-						'https://www.gnumed.de/documentation/GNUmedConfigurePostgreSQL.html'
-					)
+					msg = msg_auth_error
 				msg = msg % exc
 				msg = regex.sub(r'password=[^\s]+', 'password=%s' % gmTools.u_replacement_character, msg)
-				gmGuiHelpers.gm_show_error (
-					msg,
-					_('Connecting to backend')
-				)
+				gmGuiHelpers.gm_show_error(msg, _('Connecting to backend'))
 			del exc
 			continue
 
 		except gmPG2.dbapi.OperationalError as exc:
 			_log.exception('login attempt failed')
 			gmPG2.log_pg_exception_details(exc)
-			msg = _(
-				"Unable to connect to database:\n\n"
-				"%s\n\n"
-				"Please retry another backend / user / password combination !\n"
-				"\n"
-				" (for the public and any new GNUmed databases\n"
-				"  the default user name and password are\n"
-				"  {any-doc, any-doc})\n"
-				"\n"
-			) % exc
+			msg = msg_login_problem_generic % exc
 			msg = regex.sub(r'password=[^\s]+', 'password=%s' % gmTools.u_replacement_character, msg)
 			gmGuiHelpers.gm_show_error(msg, _('Connecting to backend'))
 			del exc
@@ -215,80 +278,19 @@ def connect_to_database(max_attempts=3, expected_version=None, require_version=T
 
 		conn.close()
 
-		seems_bootstrapped = gmPG2.schema_exists(schema = 'gm')
-		if not seems_bootstrapped:
-			_log.error('schema [gm] does not exist - database not bootstrapped ?')
-			msg = _(
-				'The database you connected to does not seem\n'
-				'to have been boostrapped properly.\n'
-				'\n'
-				'Make sure you have run the GNUmed database\n'
-				'bootstrapper tool to create a new database.\n'
-				'\n'
-				'Further help can be found on the website at\n'
-				'\n'
-				'  https://www.gnumed.de/documentation/\n'
-				'\n'
-				'or on the GNUmed mailing list.'
-			)
-			gmGuiHelpers.gm_show_error(msg, _('Verifying database'))
+		if not __database_is_acceptable_for_use(require_version = require_version, expected_version = expected_version, login = login):
+			_log.info('database not suitable for use')
 			connected = False
 			break
 
-		compatible = gmPG2.database_schema_compatible(version = expected_version)
-		if compatible or not require_version:
-			dlg.panel.save_state()
-
-		if not compatible:
-			connected_db_version = gmPG2.get_schema_version()
-			msg = msg_generic % (
-				client_version,
-				connected_db_version,
-				expected_version,
-				gmTools.coalesce(login.host, '<localhost>'),
-				login.database,
-				login.user
-			)
-			if require_version:
-				gmGuiHelpers.gm_show_error(msg + msg_fail, _('Verifying database version'))
-				connected = False
-				continue
-			gmGuiHelpers.gm_show_info(msg + msg_override, _('Verifying database version'))
-
-		# FIXME: make configurable
-		max_skew = 1		# minutes
-		if _cfg.get(option = 'debug'):
-			max_skew = 10
-		if not gmPG2.sanity_check_time_skew(tolerance = (max_skew * 60)):
-			if _cfg.get(option = 'debug'):
-				gmGuiHelpers.gm_show_warning(msg_time_skew_warn % max_skew, _('Verifying database settings'))
-			else:
-				gmGuiHelpers.gm_show_error(msg_time_skew_fail % max_skew, _('Verifying database settings'))
-				connected = False
-				continue
-
-		sanity_level, message = gmPG2.sanity_check_database_settings()
-		if sanity_level != 0:
-			gmGuiHelpers.gm_show_error((msg_insanity % message), _('Verifying database settings'))
-			if sanity_level == 2:
-				connected = False
-				continue
-
+		dlg.panel.save_state()
 		gmExceptionHandlingWidgets.set_is_public_database(_cfg.get(option = 'is_public_db'))
 		gmExceptionHandlingWidgets.set_helpdesk(_cfg.get(option = 'helpdesk'))
-
-		gmLog2.log_multiline (
-			logging.DEBUG,
-			message = 'fingerprint',
-			text = gmPG2.get_db_fingerprint(eol = '\n')
-		)
-
 		conn = gmPG2.get_connection(verbose = True, connection_name = 'GNUmed-[DbListenerThread]', pooled = False)
 		gmBackendListener.gmBackendListener(conn = conn)
 		break
 
 	dlg.DestroyLater()
-
 	return connected
 
 #================================================================
