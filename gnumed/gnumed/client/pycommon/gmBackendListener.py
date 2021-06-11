@@ -56,6 +56,7 @@ class gmBackendListener(gmBorg.cBorg):
 			raise EnvironmentError("cannot acquire thread-quit lock")
 
 		self._conn = conn
+		_log.debug('DB listener connection: %s', self._conn)
 		self.backend_pid = self._conn.get_backend_pid()
 		_log.debug('notification listener connection has backend PID [%s]', self.backend_pid)
 		self._conn.set_isolation_level(0)		# autocommit mode = psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT

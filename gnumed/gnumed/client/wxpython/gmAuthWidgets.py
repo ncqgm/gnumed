@@ -43,65 +43,58 @@ _cfg = gmCfg2.gmCfgData()
 
 
 msg_generic = _(
-	'GNUmed database version mismatch.'
+	'GNUmed database version mismatch.\n'
 	'\n'
-	'This database version cannot be used with this client:'
+	'This database version cannot be used with this client:\n'
 	'\n'
-	' client version: %s'
-	' database version detected: %s'
-	' database version needed: %s'
+	' client version: %s\n'
+	' database version detected: %s\n'
+	' database version needed: %s\n'
 	'\n'
-	'Currently connected to database:'
+	'Currently connected to database:\n'
 	'\n'
-	' host: %s'
-	' database: %s'
+	' host: %s\n'
+	' database: %s\n'
 	' user: %s'
 )
 
 msg_time_skew_fail = _(
-	'The server and client clocks are off'
-	'by more than %s minutes !'
+	'The server and client clocks are off by more than %s minutes !\n'
 	'\n'
-	'You must fix the time settings before'
-	'you can use this database with this'
-	'client.'
+	'You must fix the time settings before you can use this database with this client.\n'
 	'\n'
-	'You may have to contact your'
-	'administrator for help.'
+	'You may have to contact your administrator for help.'
 )
 
 msg_time_skew_warn = _(
-	'The server and client clocks are off'
-	'by more than %s minutes !'
+	'The server and client clocks are off by more than %s minutes !\n'
 	'\n'
-	'You should fix the time settings.'
-	'Otherwise clinical data may appear to'
-	'have been entered at the wrong time.'
+	'You should fix the time settings.\n'
+	'Otherwise clinical data may appear to have been entered at the wrong time.\n'
 	'\n'
-	'You may have to contact your'
-	'administrator for help.'
+	'You may have to contact your administrator for help.'
 )
 
 msg_insanity = _(
-	"There is a serious problem with the database settings:"
+	"There is a serious problem with the database settings:\n"
 	"\n"
-	"%s"
+	"%s\n"
 	"\n"
 	"You may have to contact your administrator for help."
 )
 
 msg_fail = _(
-	"You must connect to a different database in order"
-	"to use the GNUmed client. You may have to contact"
+	"You must connect to a different database in order\n"
+	"to use the GNUmed client. You may have to contact\n"
 	"your administrator for help."
 )
 
 msg_override = _(
-	"The client will, however, continue to start up because"
-	"you are running a development/test version of GNUmed."
+	"The client will, however, continue to start up because\n"
+	"you are running a development/test version of GNUmed.\n"
 	"\n"
-	"There may be schema related errors. Please report and/or"
-	"fix them. Do not rely on this database to work properly"
+	"There may be schema related errors. Please report and/or\n"
+	"fix them. Do not rely on this database to work properly\n"
 	"in all cases !"
 )
 
@@ -286,6 +279,7 @@ def connect_to_database(max_attempts=3, expected_version=None, require_version=T
 		dlg.panel.save_state()
 		gmExceptionHandlingWidgets.set_is_public_database(_cfg.get(option = 'is_public_db'))
 		gmExceptionHandlingWidgets.set_helpdesk(_cfg.get(option = 'helpdesk'))
+		_log.debug('establishing DB listener connection')
 		conn = gmPG2.get_connection(verbose = True, connection_name = 'GNUmed-[DbListenerThread]', pooled = False)
 		gmBackendListener.gmBackendListener(conn = conn)
 		break
