@@ -85,7 +85,6 @@ function echo_msg () {
 }
 
 
-
 # Darwin/MacOSX ?
 # (MacOSX cannot "su -c" ...)
 SYSTEM=`uname -s`
@@ -110,7 +109,6 @@ if test "${SYSTEM}" != "Darwin" ; then
 fi ;
 
 
-
 # show what we do
 echo_msg ""
 echo_msg "==========================================================="
@@ -131,7 +129,7 @@ echo_msg "==========================================================="
 
 
 
-# better safe than sorry
+# check for existing target database
 if test "${SYSTEM}" != "Darwin" ; then
 	# Does TARGET database exist ?
 	VER_EXISTS=`su -c "psql -l ${PORT_DEF}" -l postgres | grep gnumed_v${NEXT_VER}`
@@ -153,12 +151,35 @@ if test "${SYSTEM}" != "Darwin" ; then
 			echo "Upgrading aborted by user."
 			exit 1
 		fi
+		echo ""
 	fi
 fi
 
 
+# check disk space
+DATA_DIR=$(su -c "psql --no-align --tuples-only --quiet -c \"SELECT setting FROM pg_settings WHERE name = 'data_directory' \" " -l postgres)
+BYTES_FREE=$(df --block-size=1 --output=avail ${DATA_DIR} | grep --only-matching -E '[[:digit:]]+')
+DB_SIZE=$(su -c "psql --no-align --tuples-only --quiet -c \"SELECT pg_database_size('gnumed_v22') \" | grep --only-matching -E '[[:digit:]]+' " -l postgres)	#"
+if [ ${DB_SIZE} -gt ${BYTES_FREE} ] ; then
+	echo ""
+	echo "WARNING: Disk space may be insufficient"
+	echo "WARNING:"
+	echo "WARNING:  Data directory : ${DATA_DIR}"
+	echo "WARNING:  Data directory : ${DB_SIZE}"
+	echo "WARNING:  Free disk space: ${BYTES_FREE}"
+	echo "WARNING:"
+	echo ""
+	echo "Continue upgrading (may fail) ? "
+	echo ""
+	read -e -p "[y / N]: "
+	if test "${REPLY}" != "y" ; then
+		echo "Upgrading aborted by user."
+		exit 1
+	fi
+fi
 
-# eventually attempt the upgrade
+
+# either backup or verify checksums
 echo_msg ""
 if test "$SKIP_BACKUP" != "no-backup" ; then
 	echo_msg "1) creating backup of the database that is to be upgraded ..."
@@ -218,6 +239,7 @@ else
 fi ;
 
 
+# eventually attempt the upgrade
 echo_msg ""
 echo_msg "2) upgrading to new database ..."
 # fixup for schema hash function
