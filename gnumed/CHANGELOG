@@ -57,6 +57,7 @@ IMPROVED: pat overview: problems display
 IMPROVED: DB: connection loss detection
 IMPROVED: measurement EA: previous result formatting
 IMPROVED: DB: login problem logging
+IMPROVED: top pane: show age of results in tooltip
 
 	1.8.5
 

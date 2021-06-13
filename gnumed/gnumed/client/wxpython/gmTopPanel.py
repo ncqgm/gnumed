@@ -186,29 +186,46 @@ class cTopPnl(wxgTopPnl.wxgTopPnl):
 
 		if not self.curr_pat.connected:
 			self._LBL_lab.SetLabel('')
+			self._LBL_lab.SetToolTip(None)
 			return
 
 		tests2show = []
+		tooltip_lines = []
 
-		rrs = self.curr_pat.emr.get_most_recent_results_in_loinc_group(loincs = gmLOINC.LOINC_rr_quantity, max_no_of_results = 1)
-		if len(rrs) == 0:
-			tests2show.append(_('RR ?'))
+		RRs = self.curr_pat.emr.get_most_recent_results_in_loinc_group(loincs = gmLOINC.LOINC_rr_quantity, max_no_of_results = 1)
+		if len(RRs) == 0:
+			tests2show.append(_('BP ?'))
 		else:
-			tests2show.append(rrs[0]['unified_val'])
+			tests2show.append(RRs[0]['unified_val'])
+			tooltip_lines.append(_('BP: %s ago') % gmDateTime.format_apparent_age_medically (
+				age = gmDateTime.calculate_apparent_age(start = RRs[0]['clin_when'])
+			))
 
-		hrs = self.curr_pat.emr.get_most_recent_results_in_loinc_group(loincs = gmLOINC.LOINC_heart_rate_quantity, max_no_of_results = 1)
-		if len(hrs) > 0:
-			tests2show.append('%s %s' % (hrs[0]['abbrev_tt'], hrs[0]['unified_val']))
+		HRs = self.curr_pat.emr.get_most_recent_results_in_loinc_group(loincs = gmLOINC.LOINC_heart_rate_quantity, max_no_of_results = 1)
+		if len(HRs) > 0:
+			tests2show.append('@ %s' % (HRs[0]['abbrev_tt'], HRs[0]['unified_val']))
+			tooltip_lines.append(_('%s (@): %s ago') % (
+				HRs[0]['abbrev_tt'],
+				gmDateTime.format_apparent_age_medically (
+					age = gmDateTime.calculate_apparent_age(start = HRs[0]['clin_when'])
+				)
+			))
 
 		bmi = self.curr_pat.emr.bmi
 		if bmi.numeric_value is not None:
 			tests2show.append(_('BMI %s') % bmi.numeric_value.quantize(decimal.Decimal('1.')))
+			tooltip_lines.append(_('BMI: %s ago') % gmDateTime.format_apparent_age_medically (
+				age = gmDateTime.calculate_apparent_age(start = bmi.date_valid)
+			))
 		else:
 			weights = self.curr_pat.emr.get_most_recent_results_in_loinc_group(loincs = gmLOINC.LOINC_weight, max_no_of_results = 1)
 			if len(weights) == 0:
 				tests2show.append(_('BMI ?'))
 			else:
 				tests2show.append('%s%s' % (weights[0]['unified_val'], weights[0]['val_unit']))
+				tooltip_lines.append(_('weight: %s ago') % gmDateTime.format_apparent_age_medically (
+					age = gmDateTime.calculate_apparent_age(start = weights[0]['clin_when'])
+				))
 
 		gfr_or_crea = self.curr_pat.emr.best_gfr_or_crea
 		if gfr_or_crea is None:
@@ -216,8 +233,17 @@ class cTopPnl(wxgTopPnl.wxgTopPnl):
 		else:
 			try:
 				tests2show.append(_('GFR %s') % gfr_or_crea.numeric_value.quantize(decimal.Decimal('1.')))
+				tooltip_lines.append(_('GFR: %s ago') % gmDateTime.format_apparent_age_medically (
+					age = gmDateTime.calculate_apparent_age(start = gfr_or_crea.date_valid)
+				))
 			except AttributeError:
 				tests2show.append('%s %s' % (gfr_or_crea['abbrev_tt'], gfr_or_crea['unified_val']))
+				tooltip_lines.append(_('%s: %s ago') % (
+					gfr_or_crea['abbrev_tt'],
+					gmDateTime.format_apparent_age_medically (
+						age = gmDateTime.calculate_apparent_age(start = gfr_or_crea['clin_when'])
+					)
+				))
 
 		edc = self.curr_pat.emr.EDC
 		if edc is not None:
@@ -226,16 +252,28 @@ class cTopPnl(wxgTopPnl.wxgTopPnl):
 			else:
 				tests2show.append(_('EDC %s') % gmDateTime.pydt_strftime(edc, '%Y-%b-%d', accuracy = gmDateTime.acc_days))
 
-		inrs = self.curr_pat.emr.get_most_recent_results_in_loinc_group(loincs = gmLOINC.LOINC_inr_quantity, max_no_of_results = 1)
-		if len(inrs) > 0:
-			tests2show.append('%s %s' % (inrs[0]['abbrev_tt'], inrs[0]['unified_val']))
+		INRs = self.curr_pat.emr.get_most_recent_results_in_loinc_group(loincs = gmLOINC.LOINC_inr_quantity, max_no_of_results = 1)
+		if len(INRs) > 0:
+			tests2show.append('%s %s' % (INRs[0]['abbrev_tt'], INRs[0]['unified_val']))
+			tooltip_lines.append(_('%s: %s ago') % (
+				INRs[0]['abbrev_tt'],
+				gmDateTime.format_apparent_age_medically (
+					age = gmDateTime.calculate_apparent_age(start = INRs[0]['clin_when'])
+				)
+			))
 
 		# include panel if configured, only show if exist
 		if self.__lab_panel is not None:
 			for result in self.__lab_panel.get_most_recent_results(pk_patient = self.curr_pat.ID, order_by = 'unified_abbrev', group_by_meta_type = True):
 				tests2show.append('%s %s' % (result['abbrev_tt'], result['unified_val']))
-
-		self._LBL_lab.SetLabel('; '.join(tests2show))
+				tooltip_lines.append(_('%s: %s ago') % (
+					result['abbrev_tt'],
+					gmDateTime.format_apparent_age_medically (
+						age = gmDateTime.calculate_apparent_age(start = result['clin_when'])
+					)
+				))
+		self._LBL_lab.Label = '; '.join(tests2show)
+		self._LBL_lab.SetToolTip('\n'.join(tooltip_lines))
 
 	#-------------------------------------------------------
 	def __update_age_label(self):

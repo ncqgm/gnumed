@@ -837,9 +837,11 @@ class cClinicalCalculator(object):
 		if result.variables['weight'] is None:
 			result.message = _('BMI: weight not found')
 			return result
+
 		if result.variables['weight']['val_num'] is None:
 			result.message = _('BMI: weight not numeric')
 			return result
+
 		if result.variables['weight']['val_unit'] == 'kg':
 			result.variables['weight_kg'] = self.d(result.variables['weight']['val_num'])
 		elif result.variables['weight']['val_unit'] == 'g':
@@ -869,11 +871,10 @@ class cClinicalCalculator(object):
 			result.numeric_value,
 			result.unit
 		)
-		result.date_valid = gmDateTime.pydt_now_here()
+		result.date_valid = max(result.variables['height']['clin_when'], result.variables['weight']['clin_when'])
 
 		self.__cache['body_mass_index'] = result
 		_log.debug('%s' % result)
-
 		return result
 
 	body_mass_index = property(_get_body_mass_index, lambda x:x)
