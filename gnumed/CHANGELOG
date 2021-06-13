@@ -2170,6 +2170,8 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 
 	22.16
 
+IMPROVED: bootstrapper: check disk space
+
 FIX: check encounter lock in clin.remove_old_empty_encounters()
 
 	22.15
