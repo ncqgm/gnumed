@@ -65,7 +65,7 @@ fi
 # compute host argument and backup filename
 if test -z "${GM_HOST}" ; then
 	_PG_HOST_ARG=""
-	BACKUP_BASENAME="backup-${GM_DATABASE}-${INSTANCE_OWNER}-"$(hostname)
+	BACKUP_BASENAME="backup-${GM_DATABASE}-${INSTANCE_OWNER}-$(hostname)"
 else
 	if ping -c 3 -i 2 "${GM_HOST}" > /dev/null; then
 		_PG_HOST_ARG="--host=\"${GM_HOST}\""
@@ -108,7 +108,7 @@ fi
 if test "${HAS_HIGHER_VER}" = "t" ; then
 	echo "Backing up database ${GM_DATABASE}."
 	echo ""
-	echo "However, a newer database seems to exist:"
+	echo "However, a newer database seems to exist amongst the following:"
 	echo ""
 	sudo --user=postgres psql --no-psqlrc --list ${_PG_PORT_ARG} | grep gnumed_v
 	echo ""
@@ -123,13 +123,13 @@ BACKUP_FILENAME="${BACKUP_BASENAME}-${TS}"
 
 # generate scratch dir
 SCRATCH_DIR="/tmp/${BACKUP_FILENAME}"
-mkdir -p ${SCRATCH_DIR}
+mkdir -p "${SCRATCH_DIR}"
 RESULT="$?"
 if test "${RESULT}" != "0" ; then
 	echo "Cannot create backup scratch directory [${SCRATCH_DIR}] (${RESULT}). Aborting."
 	exit ${RESULT}
 fi
-cd ${SCRATCH_DIR}
+cd "${SCRATCH_DIR}"
 RESULT="$?"
 if test "${RESULT}" != "0" ; then
 	echo "Cannot change into scratch backup directory [${SCRATCH_DIR}] (${RESULT}). Aborting."
@@ -139,13 +139,13 @@ fi
 
 # create backup timestamp tag file
 TS_FILE="${BACKUP_BASENAME}-timestamp.txt"
-echo "backup: ${TS}" > ${TS_FILE}
+echo "backup: ${TS}" > "${TS_FILE}"
 
 
 # create dumps
 BACKUP_DATA_DIR="${BACKUP_BASENAME}.dir"
 # database
-pg_dump --verbose --format=directory --compress=0 --column-inserts --clean --if-exists --serializable-deferrable ${_PG_HOST_ARG} ${_PG_PORT_ARG} --username="${GM_DBO}" -f "${BACKUP_DATA_DIR}" "${GM_DATABASE}" 2> /dev/null
+pg_dump --verbose --format=directory --compress=0 --column-inserts --clean --if-exists --serializable-deferrable ${_PG_HOST_ARG} ${_PG_PORT_ARG} --username="${GM_DBO}" --file="${BACKUP_DATA_DIR}" "${GM_DATABASE}" 2> /dev/null
 RESULT="$?"
 if test "${RESULT}" != "0" ; then
 	echo "Cannot dump database content into [${BACKUP_DATA_DIR}] (${RESULT}). Aborting."
@@ -153,10 +153,7 @@ if test "${RESULT}" != "0" ; then
 fi
 # roles
 ROLES_FILE="${BACKUP_BASENAME}-roles.sql"
-# -r -> -g for older versions
-#ROLES=`psql --no-psqlrc --no-align --tuples-only --dbname="${GM_DATABASE}" ${_PG_HOST_ARG} ${_PG_PORT_ARG} --username="${GM_DBO}" --command="select gm.get_users('${GM_DATABASE}');"`
-ROLES=$(psql --no-psqlrc --no-align --tuples-only --dbname="${GM_DATABASE}" ${_PG_HOST_ARG} ${_PG_PORT_ARG} --username="${GM_DBO}" --command="select gm.get_users('${GM_DATABASE}');")
-#"
+ROLES=$(psql --no-psqlrc --no-align --tuples-only --dbname="${GM_DATABASE}" ${_PG_HOST_ARG} ${_PG_PORT_ARG} --username="${GM_DBO}" --command="select gm.get_users('${GM_DATABASE}');")	#"
 RESULT="$?"
 if test "${RESULT}" != "0" ; then
 	echo "Cannot list database roles (${RESULT}). Aborting."
@@ -181,6 +178,7 @@ fi
 	echo "-- Below is the result of 'pg_dumpall --roles-only':"
 	echo "-- -----------------------------------------------------"
 } > "${ROLES_FILE}" 2> /dev/null
+# -r -> -g for older versions
 sudo --user=postgres pg_dumpall --verbose --roles-only ${_PG_HOST_ARG} ${_PG_PORT_ARG} --username=postgres >> "${ROLES_FILE}" 2> /dev/null
 RESULT="$?"
 if test "${RESULT}" != "0" ; then
@@ -214,7 +212,7 @@ fi
 
 # move "untested" tar archive to final directory
 # so the compression script can pick it up if needed
-mv --force "${TAR_UNTESTED}" "${BACKUP_DIR}/"
+mv --force "${TAR_UNTESTED}" "${BACKUP_DIR}"/
 RESULT="$?"
 if test "${RESULT}" != "0" ; then
 	echo "cannot move TAR archive: ${TAR_UNTESTED} => ${BACKUP_DIR}/"
