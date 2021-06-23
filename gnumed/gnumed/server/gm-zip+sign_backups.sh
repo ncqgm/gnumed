@@ -62,7 +62,7 @@ AGGREGATE_EXIT_CODE=0
 
 # find any leftover, untested tar files
 # and test them so they can be compressed
-for TAR_UNTESTED in ${BACKUP_BASENAME}-*.tar.untested ; do
+for TAR_UNTESTED in "${BACKUP_BASENAME}"-*.tar.untested ; do
 
 	# test
 	tar --extract --to-stdout --file="${TAR_UNTESTED}" > /dev/null
@@ -89,7 +89,7 @@ done
 
 
 # zip up any backups
-for TAR_FINAL in ${BACKUP_BASENAME}-*.tar ; do
+for TAR_FINAL in "${BACKUP_BASENAME}"-*.tar ; do
 
 	BZ2_FINAL="${TAR_FINAL}.bz2"
 	BZ2_SCRATCH="${BZ2_FINAL}.partial"

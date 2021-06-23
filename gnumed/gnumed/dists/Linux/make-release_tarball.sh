@@ -103,6 +103,17 @@ FILES_REMOVE=\
 "./gnumed-client.$CLIENTREV/server/sql/test-data/BC-Excelleris-test_patients.sql "
 
 
+function run_shellcheck () {
+	shellcheck --severity=error "$1"
+	RESULT="$?"
+	if test "${RESULT}" != "0" ; then
+		echo "shellcheck: <$1> invalid (${RESULT})"
+		exit ${RESULT}
+	fi
+	echo "$1: passed"
+}
+
+
 echo "cleaning up"
 rm -R ./gnumed-client.$CLIENTREV/
 rm -vf $CLIENTARCH
@@ -120,23 +131,40 @@ echo "============"
 
 # external tools
 mkdir -p ./gnumed-client.$CLIENTREV/external-tools/
+run_shellcheck ../../external-tools/gm-install_arriba
 cp -vf ../../external-tools/gm-install_arriba ./gnumed-client.$CLIENTREV/external-tools/
+run_shellcheck ../../external-tools/gm-download_data
 cp -vf ../../external-tools/gm-download_data ./gnumed-client.$CLIENTREV/external-tools/
+run_shellcheck ../../external-tools/gm-download_atc
 cp -vf ../../external-tools/gm-download_atc ./gnumed-client.$CLIENTREV/external-tools/
+run_shellcheck ../../external-tools/gm-print_doc
 cp -vf ../../external-tools/gm-print_doc ./gnumed-client.$CLIENTREV/external-tools/
+run_shellcheck ../../external-tools/gm-mail_doc
 cp -vf ../../external-tools/gm-mail_doc ./gnumed-client.$CLIENTREV/external-tools/
+run_shellcheck ../../external-tools/gm-fax_doc
 cp -vf ../../external-tools/gm-fax_doc ./gnumed-client.$CLIENTREV/external-tools/
+run_shellcheck ../../external-tools/gm-kvkd-read_chipcard.sh
 cp -vf ../../external-tools/gm-kvkd-read_chipcard.sh ./gnumed-client.$CLIENTREV/external-tools/
+run_shellcheck ../../external-tools/gnumed-client-init_script.sh
 cp -vf ../../external-tools/gnumed-client-init_script.sh ./gnumed-client.$CLIENTREV/external-tools/
+run_shellcheck ../../external-tools/gm-remove_person.sh
 cp -vf ../../external-tools/gm-remove_person.sh ./gnumed-client.$CLIENTREV/external-tools/
+run_shellcheck ../../external-tools/gm-install_client_locally.sh
 cp -vf ../../external-tools/gm-install_client_locally.sh ./gnumed-client.$CLIENTREV/external-tools/
+run_shellcheck ../../external-tools/check-prerequisites.sh
 cp -vf ../../external-tools/check-prerequisites.* ./gnumed-client.$CLIENTREV/external-tools/
 cp -vf ../../external-tools/*.ahk ./gnumed-client.$CLIENTREV/external-tools/
+run_shellcheck ../../external-tools/gm-convert_file
 cp -vf ../../external-tools/gm-convert_file ./gnumed-client.$CLIENTREV/external-tools/
+run_shellcheck ../../external-tools/gm-describe_file
 cp -vf ../../external-tools/gm-describe_file ./gnumed-client.$CLIENTREV/external-tools/
+run_shellcheck ../../external-tools/gm-create_datamatrix
 cp -vf ../../external-tools/gm-create_datamatrix ./gnumed-client.$CLIENTREV/external-tools/
+run_shellcheck ../../external-tools/gm-create_dicomdir
 cp -vf ../../external-tools/gm-create_dicomdir ./gnumed-client.$CLIENTREV/external-tools/
+run_shellcheck ../../external-tools/gm-import_incoming
 cp -vf ../../external-tools/gm-import_incoming ./gnumed-client.$CLIENTREV/external-tools/
+run_shellcheck ../../external-tools/gnumed-completion.bash
 cp -vf ../../external-tools/gnumed-completion.bash ./gnumed-client.$CLIENTREV/external-tools/
 
 
@@ -145,8 +173,10 @@ mkdir -p ./gnumed-client.$CLIENTREV/client/
 cp -vf ../../client/__init__.py ./gnumed-client.$CLIENTREV/client/
 cp -vf ../../client/gnumed.py ./gnumed-client.$CLIENTREV/client/
 cp -vf ../../client/gm-from-vcs.conf ./gnumed-client.$CLIENTREV/client/
+run_shellcheck ../../client/gm-from-vcs.sh
 cp -vf ../../client/gm-from-vcs.sh ./gnumed-client.$CLIENTREV/client/
 cp -vf ../../client/gm-from-vcs.bat ./gnumed-client.$CLIENTREV/client/
+run_shellcheck ./gnumed
 cp -vf ./gnumed ./gnumed-client.$CLIENTREV/client/
 cp -vf ./gnumed_client.desktop ./gnumed-client.$CLIENTREV/client/
 xmllint --noout ./appdata.xml
@@ -337,29 +367,45 @@ echo "============"
 mkdir -p ./gnumed-client.$CLIENTREV/server
 cp -vf ../../../GnuPublicLicense.txt ./gnumed-client.$CLIENTREV/server/
 
+run_shellcheck ../../server/gm-bootstrap_server
 cp -vf ../../server/gm-bootstrap_server ./gnumed-client.$CLIENTREV/server/
+run_shellcheck ../../server/gm-upgrade_server
 cp -vf ../../server/gm-upgrade_server ./gnumed-client.$CLIENTREV/server/
+run_shellcheck ../../server/gm-fixup_server
 cp -vf ../../server/gm-fixup_server ./gnumed-client.$CLIENTREV/server/
+run_shellcheck ../../server/gm-adjust_db_settings.sh
 cp -vf ../../server/gm-adjust_db_settings.sh ./gnumed-client.$CLIENTREV/server/
 cp -vf ../../server/gm-fingerprint_db.py ./gnumed-client.$CLIENTREV/server/
+run_shellcheck ../../server/gm-dump_schema.sh
 cp -vf ../../server/gm-dump_schema.sh ./gnumed-client.$CLIENTREV/server/
 
+run_shellcheck ../../server/gm-pg_upgradecluster-helper
 cp -vf ../../server/gm-pg_upgradecluster-helper ./gnumed-client.$CLIENTREV/server/
 
+run_shellcheck ../../server/gm-backup.sh
 cp -vf ../../server/gm-backup.sh ./gnumed-client.$CLIENTREV/server/
+run_shellcheck ../../server/gm-restore.sh
 cp -vf ../../server/gm-restore.sh ./gnumed-client.$CLIENTREV/server/
 
+run_shellcheck ../../server/gm-backup_database.sh
 cp -vf ../../server/gm-backup_database.sh ./gnumed-client.$CLIENTREV/server/
+run_shellcheck ../../server/gm-restore_database.sh
 cp -vf ../../server/gm-restore_database.sh ./gnumed-client.$CLIENTREV/server/
 
+run_shellcheck ../../server/gm-backup_data.sh
 cp -vf ../../server/gm-backup_data.sh ./gnumed-client.$CLIENTREV/server/
+run_shellcheck ../../server/gm-restore_data.sh
 cp -vf ../../server/gm-restore_data.sh ./gnumed-client.$CLIENTREV/server/
 
+run_shellcheck ../../server/gm-zip+sign_backups.sh
 cp -vf ../../server/gm-zip+sign_backups.sh ./gnumed-client.$CLIENTREV/server/
+run_shellcheck ../../server/gm-move_backups_offsite.sh
 cp -vf ../../server/gm-move_backups_offsite.sh ./gnumed-client.$CLIENTREV/server/
 
+run_shellcheck ../../external-tools/gm-remove_person.sh
 cp -vf ../../external-tools/gm-remove_person.sh ./gnumed-client.$CLIENTREV/server/
 
+run_shellcheck ../../server/gm-set_gm-dbo_password
 cp -vf ../../server/gm-set_gm-dbo_password ./gnumed-client.$CLIENTREV/server/
 
 cp -vf ../../client/__init__.py ./gnumed-client.$CLIENTREV/server/
@@ -372,6 +418,9 @@ cp -vf ../../client/pycommon/*.py ./gnumed-client.$CLIENTREV/server/pycommon/
 
 # bootstrap/
 mkdir -p ./gnumed-client.$CLIENTREV/server/bootstrap
+run_shellcheck ../../server/bootstrap/bootstrap-latest.sh
+run_shellcheck ../../server/bootstrap/fixup-db.sh
+run_shellcheck ../../server/bootstrap/upgrade-db.sh
 cp -R ../../server/bootstrap/* ./gnumed-client.$CLIENTREV/server/bootstrap/
 
 
