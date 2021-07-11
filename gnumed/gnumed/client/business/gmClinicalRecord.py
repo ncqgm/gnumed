@@ -251,12 +251,14 @@ class cClinicalRecord(object):
 			return True
 
 		if int(kwds['pk_of_row']) != self.current_encounter['pk_encounter']:
-			_log.debug('modified encounter [%s] != local encounter [%s], ignoring signal', kwds['pk_of_row'], self.current_encounter['pk_encounter'])
+			_log.debug('DB reported modification of encounter: #%s', kwds['pk_of_row'])
+			_log.debug('our locally active encounter is: #%s', self.current_encounter['pk_encounter'])
+			_log.debug('modified encounter != our encounter, ignoring')
 			return True
 
 		_log.debug('remote modification of our encounter signalled (local: #%s, remote: #%s)', self.current_encounter['pk_encounter'], kwds['pk_of_row'])
 
-		# did someone deleted the current encounter from under our feet ?
+		# did someone delete the current encounter from under our feet ?
 		if kwds['operation'] == 'DELETE':
 			_log.error('local encounter has been DELETEd remotely, trying to get now-active encounter from database')
 			if self.current_encounter.is_modified():
@@ -279,7 +281,7 @@ class cClinicalRecord(object):
 		# the active encounter but that doesn't matter because
 		# no one else can have written to the DB so far (XMIN match)
 		if curr_enc_in_db['xmin_encounter'] == self.current_encounter['xmin_encounter']:
-			_log.debug('in-client and in-DB instance of encounter #%s have matching XMINs (%s), DB has not been written to since we last loaded the encounter, checking:', self.current_encounter['pk_encounter'], self.current_encounter['xmin_encounter'])
+			_log.debug('in-client and in-DB instance of encounter #%s have matching XMINs (%s), DB has NOT been written to since we last loaded the encounter, checking:', self.current_encounter['pk_encounter'], self.current_encounter['xmin_encounter'])
 			if self.current_encounter.is_modified():
 				_log.error('encounter modification signalled from DB, with same XMIN as in local in-client instance of encounter, BUT local instance ALSO has .is_modified()=True')
 				_log.error('this may hint at an error with .is_modified handling')
