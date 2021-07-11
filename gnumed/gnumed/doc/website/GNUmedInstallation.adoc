@@ -64,10 +64,12 @@ database versions.
 
 === For developers
 
+	* https://www.gnumed.de/downloads/gnumed-versions.txt[latest version overview]
 	* https://www.gnumed.de/downloads/client/[released tarballs]
-	* https://github.com/ncqgm/gnumed/archive/master.zip[zipped tip of git master branch]
-	* https://github.com/ncqgm/gnumed/[git repository]
 
+	* https://github.com/ncqgm/gnumed/[git repository]
+	* https://github.com/ncqgm/gnumed/archive/master.zip[zipped tip of git master branch]
+	* https://github.com/ncqgm/gnumed/archive/refs/heads/rel-1-8-maint.zip[zipped tip of git v1.8 branch]
 
 == Database Installation
 
