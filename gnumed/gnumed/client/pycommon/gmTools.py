@@ -1335,7 +1335,7 @@ def tex_escape_string(text=None, replace_known_unicode=True, replace_eol=False, 
 	text = text.replace('_', '\\_')
 	if replace_eol:
 		if keep_visual_eol:
-			text = text.replace('\n', '\\newline \n')
+			text = text.replace('\n', '\\newline%\n')
 		else:
 			text = text.replace('\n', '\\newline ')
 

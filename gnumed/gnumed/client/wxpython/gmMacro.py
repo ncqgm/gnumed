@@ -1067,6 +1067,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			))
 
 		return ''.join(chunks)
+
 	#--------------------------------------------------------
 	def _get_variant_emr_journal(self, data=None):
 		# default: all categories, neutral template
@@ -1111,32 +1112,27 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 					# pass on literally, meaning it must be a valid PG interval string
 					time_range = data_parts[3]
 
-		# FIXME: will need to be a generator later on
-		narr = self.pat.emr.get_as_journal(soap_cats = cats, time_range = time_range)
-
-		if len(narr) == 0:
+		emr_as_journal = self.pat.emr.get_as_journal(soap_cats = cats, time_range = time_range)
+		if len(emr_as_journal) == 0:
 			return ''
 
 		lines = []
-		line_dict = {}
-		for n in narr:
-			for key in narr[0]:
-				if isinstance(n[key], str):
-					line_dict[key] = self._escape(text = n[key])
-					continue
-				line_dict[key] = n[key]
+		for journal_line in emr_as_journal:
+			line_dict = self._escape_dict_like(dict_like = journal_line)	#, date_format='%Y %b %d  %H:%M', none_string = '', bool_strings = None
 			try:
 				lines.append((template % line_dict)[:line_length])
 			except KeyError:
-				return 'invalid key in template [%s], valid keys: %s]' % (template, narr[0].keys())
-
+				return 'invalid key in template [%s], valid keys: %s]' % (template, emr_as_journal[0].keys())
 		return '\n'.join(lines)
+
 	#--------------------------------------------------------
 	def _get_variant_soap_by_issue(self, data=None):
 		return self.__get_variant_soap_by_issue_or_episode(data = data, mode = 'issue')
+
 	#--------------------------------------------------------
 	def _get_variant_soap_by_episode(self, data=None):
 		return self.__get_variant_soap_by_issue_or_episode(data = data, mode = 'episode')
+
 	#--------------------------------------------------------
 	def __get_variant_soap_by_issue_or_episode(self, data=None, mode=None):
 
