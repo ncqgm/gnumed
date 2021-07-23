@@ -102,3 +102,9 @@ if __name__ == "__main__":
 	...
 
 #=== snip =========================================================================
+
+
+
+LaTeX:
+
+	use {} after commands to prevent run-in with surrounding text
