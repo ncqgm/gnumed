@@ -1310,38 +1310,48 @@ def xml_escape_string(text=None):
 	return xml_tools.escape(text)
 
 #---------------------------------------------------------------------------
-def tex_escape_string(text=None, replace_known_unicode=True, replace_eol=False, keep_visual_eol=False):
+def tex_escape_string(text:str=None, replace_known_unicode:bool=True, replace_eol:bool=False, keep_visual_eol:bool=False) -> str:
 	"""Check for special TeX characters and transform them.
 
-		replace_eol:
-			replaces "\n" with "\\newline"
-		keep_visual_eol:
-			replaces "\n" with "\\newline \n" such that
+	Args:
+		text: plain (unicode) text to escape for LaTeX processing,
+			note that any valid LaTeX code contained within will be
+			escaped, too
+		replace_eol: replaces "\n" with "\\newline{}"
+		keep_visual_eol: replaces "\n" with "\\newline{}%\n" such that
 			both LaTeX will know to place a line break
 			at this point as well as the visual formatting
 			is preserved in the LaTeX source (think multi-
 			row table cells)
-	"""
-	text = text.replace('\\', '\\textbackslash')			# requires \usepackage{textcomp} in LaTeX source
-	text = text.replace('^', '\\textasciicircum')
-	text = text.replace('~', '\\textasciitilde')
 
-	text = text.replace('{', '\\{')
-	text = text.replace('}', '\\}')
-	text = text.replace('%', '\\%')
-	text = text.replace('&', '\\&')
-	text = text.replace('#', '\\#')
-	text = text.replace('$', '\\$')
-	text = text.replace('_', '\\_')
+	Returns:
+	"""
+	# must happen first
+	text = text.replace('{', '-----{{{{{-----')
+	text = text.replace('}', '-----}}}}}-----')
+
+	text = text.replace('\\', '\\textbackslash{}')			# requires \usepackage{textcomp} in LaTeX source
+
+	text = text.replace('-----{{{{{-----', '\\{{}')
+	text = text.replace('-----}}}}}-----', '\\}{}')
+
+	text = text.replace('^', '\\textasciicircum{}')
+	text = text.replace('~', '\\textasciitilde{}')
+
+	text = text.replace('%', '\\%{}')
+	text = text.replace('&', '\\&{}')
+	text = text.replace('#', '\\#{}')
+	text = text.replace('$', '\\${}')
+	text = text.replace('_', '\\_{}')
 	if replace_eol:
 		if keep_visual_eol:
-			text = text.replace('\n', '\\newline%\n')
+			text = text.replace('\n', '\\newline{}%\n')
 		else:
-			text = text.replace('\n', '\\newline ')
+			text = text.replace('\n', '\\newline{}')
 
 	if replace_known_unicode:
 		# this should NOT be replaced for Xe(La)Tex
-		text = text.replace(u_euro, '\\EUR')		# requires \usepackage{textcomp} in LaTeX source
+		text = text.replace(u_euro, '\\euro{}')		# requires \usepackage[official]{eurosym} in LaTeX source
 		text = text.replace(u_sum, '$\\Sigma$')
 
 	return text
@@ -2467,7 +2477,7 @@ second line\n
 	#test_xml_escape()
 	#test_strip_trailing_empty_lines()
 	#test_fname_stem()
-	#test_tex_escape()
+	test_tex_escape()
 	#test_rst2latex_snippet()
 	#test_dir_is_empty()
 	#test_compare_dicts()
@@ -2482,7 +2492,7 @@ second line\n
 	#test_enumerate_optical_writers()
 	#test_copy_tree_content()
 	#test_mk_sandbox_dir()
-	test_make_table_from_dicts()
+	#test_make_table_from_dicts()
 	#test_decorate_window_title()
 
 #===========================================================================
