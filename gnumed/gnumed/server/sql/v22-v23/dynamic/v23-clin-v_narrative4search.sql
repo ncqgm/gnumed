@@ -404,6 +404,113 @@ select * from (
 	from
 		clin.suppressed_hint c_sh
 
+
+	-- add in demographics ----------------
+	union all	-- tags on patients
+	SELECT
+		d_it.fk_identity
+			AS pk_patient,
+		'u' AS soap_cat,
+		d_it.comment
+			AS narrative,
+		NULL
+			AS pk_encounter,
+		NULL
+			AS pk_episode,
+		NULL
+			AS pk_health_issue,
+		d_it.pk
+			AS src_pk,
+		'dem.identity_tag'
+			AS src_table
+	FROM
+		dem.identity_tag d_it
+
+
+	union all	-- job description
+	SELECT
+		d_lj2p.fk_identity
+			AS pk_patient,
+		'u' AS soap_cat,
+		d_lj2p.activities
+			AS narrative,
+		NULL
+			AS pk_encounter,
+		NULL
+			AS pk_episode,
+		NULL
+			AS pk_health_issue,
+		d_lj2p.pk
+			AS src_pk,
+		'dem.lnk_job2person'
+			AS src_table
+	FROM
+		dem.lnk_job2person d_lj2p
+
+
+	union all	-- comm channel comment
+	SELECT
+		d_li2c.fk_identity
+			AS pk_patient,
+		'u' AS soap_cat,
+		d_li2c.comment
+			AS narrative,
+		NULL
+			AS pk_encounter,
+		NULL
+			AS pk_episode,
+		NULL
+			AS pk_health_issue,
+		d_li2c.pk
+			AS src_pk,
+		'dem.lnk_identity2comm'
+			AS src_table
+	FROM
+		dem.lnk_identity2comm d_li2c
+
+
+	union all	-- external ID comment
+	SELECT
+		d_li2e.id_identity
+			AS pk_patient,
+		'u' AS soap_cat,
+		d_li2e.comment
+			AS narrative,
+		NULL
+			AS pk_encounter,
+		NULL
+			AS pk_episode,
+		NULL
+			AS pk_health_issue,
+		d_li2e.id
+			AS src_pk,
+		'dem.lnk_identity2ext_id'
+			AS src_table
+	FROM
+		dem.lnk_identity2ext_id d_li2e
+
+
+	union all	-- message inbox comment
+	SELECT
+		d_mi.fk_patient
+			AS pk_patient,
+		'u' AS soap_cat,
+		d_mi.comment
+			AS narrative,
+		NULL
+			AS pk_encounter,
+		NULL
+			AS pk_episode,
+		NULL
+			AS pk_health_issue,
+		d_mi.pk
+			AS src_pk,
+		'dem.message_inbox'
+			AS src_table
+	FROM
+		dem.message_inbox d_mi
+	-- end demographics data --------------
+
 ) as union_table
 
 where
@@ -414,6 +521,7 @@ where
 comment on view clin.v_narrative4search is
 	'unformatted *complete* narrative for patients
 	 including health issue/episode/encounter descriptions,
+	 extended by some demographic comment bits (not demographics itself),
 	 mainly for searching the narrative in context';
 
 
