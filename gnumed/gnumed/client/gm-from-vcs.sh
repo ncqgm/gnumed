@@ -64,8 +64,8 @@ echo "options: ${DEV_OPTS}"
 #python3 gnumed.py ${CONF} ${DEV_OPTS} "$@" |& tee gm-vcs-console_output.log
 python3 gnumed.py ${CONF} ${DEV_OPTS} "$@"
 
-
 # - *released* tarball version:
+#echo "options: ${TARBALL_OPTS}"
 #python3 gnumed.py ${CONF} ${TARBALL_OPTS} "$@"
 
 # - production version (does not use tarball files !):

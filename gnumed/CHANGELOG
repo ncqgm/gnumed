@@ -60,6 +60,8 @@ IMPROVED: measurement EA: previous result formatting
 IMPROVED: DB: login problem logging
 IMPROVED: top pane: show age of results in tooltip
 IMPROVED: paperwork: LaTeX formatting of text
+IMPROVED: EMR: extend search to select demographics [thanks brulefa]
+IMPROVED: startup: bash code [thanks shellcheck]
 
 	1.8.5
 
