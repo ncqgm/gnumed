@@ -3691,7 +3691,7 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 		wx.BeginBusyCursor()
 		target_dir = gmTools.mk_sandbox_dir (
 			prefix = 'dcm-',
-			base_dir = os.path.join(gmTools.gmPaths().user_config_dir, self.__patient.subdir_name)
+			base_dir = os.path.join(gmTools.gmPaths().user_tmp_dir, self.__patient.subdir_name)
 		)
 		target_dir = self.__pacs.get_studies_with_dicomdir(study_ids = [ s['orthanc_id'] for s in study_data ], target_dir = target_dir)
 		if target_dir is False:

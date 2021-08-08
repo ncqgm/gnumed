@@ -2252,7 +2252,7 @@ class gmTopLevelFrame(wx.Frame):
 			gmDispatcher.send(signal = 'statustext', msg = _('ACS risk assessment calculator not configured.'), beep = True)
 			return
 
-		cwd = gmTools.gmPaths().user_config_dir
+		cwd = gmTools.gmPaths().user_tmp_dir
 		try:
 			subprocess.check_call (
 				args = (cmd,),

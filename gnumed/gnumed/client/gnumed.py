@@ -802,6 +802,34 @@ def handle_version_request():
 		sys.exit(0)
 
 #==========================================================
+def __migrate_user_gnumed_conf():
+	_old_conf = os.path.join(gmTools.gmPaths().home_dir, '.gnumed', 'gnumed.conf')
+	_new_conf = os.path.join(gmTools.gmPaths().user_config_dir, 'gnumed.conf')
+	try:
+		open(_old_conf, 'r').close()
+		_old_conf_obsolete = _old_conf + '.is_obsolete'
+		_obsolete = open(_old_conf_obsolete, mode = 'wt')
+		_obsolete.write('obsolete as of version [%s], use [%s]' % (current_client_version, _new_conf))
+		_obsolete.close()
+	except Exception:
+		_log.exception('no [%s], not migrating', _old_conf)
+		open(_new_conf, mode = 'a+t')
+		return
+
+	try:
+		open(_new_conf, mode = 'x').close()
+	except FileExistsError:
+		_log.info('[%s] exists, not migrating', _new_conf)
+		return
+
+	except Exception:
+		_log.exception('error opening [%s]', _new_conf)
+		return
+
+	print('migrating: %s -> %s' %(_old_conf, _new_conf))
+	shutil.copy2(_old_conf, _new_conf)
+
+#----------------------------------------------------------
 def setup_paths_and_files():
 	"""Create needed paths in user home directory."""
 
@@ -851,7 +879,7 @@ which need to live at a known location."""
 	paths = gmTools.gmPaths(app_name = 'gnumed')
 	print("Temp dir:", paths.tmp_dir)
 	# ensure there's a user-level config file
-	open(os.path.join(paths.user_config_dir, 'gnumed.conf'), mode = 'a+t').close()
+	__migrate_user_gnumed_conf()
 	# symlink log file into temporary directory for easier debugging (everything in one place)
 	logfile_link = os.path.join(paths.tmp_dir, 'zzz-gnumed.log')
 	gmTools.mklink (gmLog2._logfile.name, logfile_link, overwrite = False)
@@ -876,7 +904,7 @@ def setup_cfg():
 		['workbase', os.path.join(paths.working_dir, 'gnumed.conf')],
 		# /etc/gnumed/
 		['system', os.path.join(paths.system_config_dir, 'gnumed-client.conf')],
-		# ~/.gnumed/
+		# ~/.config/gnumed/
 		['user', os.path.join(paths.user_config_dir, 'gnumed.conf')],
 		# CVS/tgz tree .../gnumed/client/ (IOW a local installation)
 		['local', os.path.join(paths.local_base_dir, 'gnumed.conf')]
@@ -915,9 +943,20 @@ def setup_cfg():
 
 	# mime type handling sources
 	fname = 'mime_type2file_extension.conf'
+	user_mime = os.path.join(paths.user_config_dir, fname)
+	# warn about ~/.gnumed/.... (or make link ?)
+	_old_user_mime = os.path.join(paths.home_dir, '.gnumed', fname)
+	try:
+		open(_old_user_mime, 'r')
+		print('obsolete: [%s]' % _old_user_mime)
+		_log.error('obsolete: [%s], use [%s]', _old_user_mime, user_mime)
+	except FileNotFoundError:
+		pass
+	except Exception:
+		_log.exception('error checking for [%s]', _old_user_mime)
 	_cfg.add_file_source (
 		source = 'user-mime',
-		file = os.path.join(paths.user_config_dir, fname),
+		file = user_mime,
 		encoding = enc
 	)
 	_cfg.add_file_source (

@@ -399,7 +399,10 @@ class gmPaths(gmBorg.cBorg):
 
 	- .working_dir: current dir
 
-	- .user_config_dir
+	- .user_config_dir, in that order:
+		- ~/.config/gnumed/
+		- ~/.gnumed/
+		- ~/
 
 	- .system_config_dir
 
@@ -474,14 +477,17 @@ class gmPaths(gmBorg.cBorg):
 		self.working_dir = os.path.abspath(os.curdir)
 
 		# user-specific config dir, usually below the home dir
-		mkdir(os.path.join(self.home_dir, '.%s' % app_name))
-		self.user_config_dir = os.path.join(self.home_dir, '.%s' % app_name)
+		_dir = os.path.join(self.home_dir, '.config', app_name)
+		if not mkdir(_dir):
+			_log.error('cannot make config dir [%s], falling back to home dir', _dir)
+			_dir = self.home_dir
+		self.user_config_dir = _dir
 
 		# user-specific app dir, usually below the home dir
 		mkdir(os.path.join(self.home_dir, app_name))
 		self.user_work_dir = os.path.join(self.home_dir, app_name)
 
-		# system-wide config dir, usually below /etc/ under UN*X
+		# system-wide config dir, under UN*X usually below /etc/
 		try:
 			self.system_config_dir = os.path.join('/etc', app_name)
 		except ValueError:
@@ -535,8 +541,15 @@ class gmPaths(gmBorg.cBorg):
 		_log.info('wxPython app name is [%s]', wx.GetApp().GetAppName())
 
 		# user-specific config dir, usually below the home dir
-		mkdir(os.path.join(std_paths.GetUserConfigDir(), '.%s' % app_name))
-		self.user_config_dir = os.path.join(std_paths.GetUserConfigDir(), '.%s' % app_name)
+		_dir = std_paths.UserConfigDir
+		if _dir == self.home_dir:
+			_dir = os.path.join(self.home_dir, '.config', app_name)
+		else:
+			_dir = os.path.join(_dir, '.%s' % app_name)
+		if not mkdir(_dir):
+			_log.error('cannot make config dir [%s], falling back to home dir', _dir)
+			_dir = self.home_dir
+		self.user_config_dir = _dir
 
 		# system-wide config dir, usually below /etc/ under UN*X
 		try:
@@ -586,7 +599,7 @@ class gmPaths(gmBorg.cBorg):
 	#--------------------------------------
 	def _set_user_config_dir(self, path):
 		if not (os.access(path, os.R_OK) and os.access(path, os.X_OK)):
-			msg = '[%s:user_config_dir]: invalid path [%s]' % (self.__class__.__name__, path)
+			msg = '[%s:user_config_dir]: unusable path [%s]' % (self.__class__.__name__, path)
 			_log.error(msg)
 			raise ValueError(msg)
 		self.__user_config_dir = path
@@ -596,6 +609,7 @@ class gmPaths(gmBorg.cBorg):
 		return self.__user_config_dir
 
 	user_config_dir = property(_get_user_config_dir, _set_user_config_dir)
+
 	#--------------------------------------
 	def _set_system_config_dir(self, path):
 		if not (os.access(path, os.R_OK) and os.access(path, os.X_OK)):

@@ -5,7 +5,7 @@ for accessing the GNUmed hooks framework.
 
 This framework calls the script
 
-	~/.gnumed/scripts/hook_script.py
+	~/.config/gnumed/scripts/hook_script.py
 
 at various times during client execution. The script must
 contain a function
@@ -92,7 +92,7 @@ HOOK_SCRIPT_EXAMPLE = """#!/usr/bin/python3
 #
 # It can print a message to stdout whenever any hook is invoked.
 #
-# Copy this file to ~/.gnumed/scripts/hook_script.py and modify as needed.
+# Copy this file to ~/.config/gnumed/scripts/hook_script.py and modify as needed.
 #
 # Known hooks:
 #
@@ -231,6 +231,10 @@ You can use <%s.example> as a script template.
 
 # ========================================================================
 def setup_hook_dir():
+	_old_path = os.path.join(gmTools.gmPaths().home_dir, '.gnumed', 'scripts')
+	if os.path.isdir(_old_path):
+		print('obsolete: [%s], use [%s]' %(_old_path, HOOK_SCRIPT_DIR))
+		_log.debug('obsolete: %s', _old_path)
 	_log.debug('known hooks:')
 	for hook in known_hooks:
 		_log.debug(hook)
