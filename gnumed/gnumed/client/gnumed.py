@@ -136,14 +136,14 @@ order) if found:
 
 	/etc/gnumed/gnumed-startup-local.sh
 
-	~/.gnumed/scripts/gnumed-startup-local.sh
+	~/.config/gnumed/scripts/gnumed-startup-local.sh
 
 When the client terminates it will execute the following
 scripts in order if they exist:
 
 	/etc/gnumed/gnumed-shutdown-local.sh
 
-	~/.gnumed/scripts/gnumed-shutdown-local.sh
+	~/.config/gnumed/scripts/gnumed-shutdown-local.sh
 
 .PP
 .TP
@@ -164,7 +164,7 @@ options:
 
 	in the home directory
 
-		~/.gnumed/gnumed.conf
+		~/.config/gnumed/gnumed.conf
 
 	in a local git tree or unpacked tarball
 
@@ -200,7 +200,7 @@ Called to burn a directory onto CD/DVD if other methods fail. Check the GNUmed d
 
 Called to help the user enter non-native characters if other methods fail. Check the GNUmed debug log for the API.
 
-.B ~/.gnumed/gnumed-xsanerc.conf
+.B ~/.config/gnumed/gnumed-xsanerc.conf
 
 (requires XSane > v0.992)
 
@@ -210,7 +210,7 @@ When you configure XSane after calling it from GNUmed your changes will be store
 
 .B mime_type2file_extension.conf
 
-(searched for in ~/.gnumed/ and /etc/gnumed/, in that order)
+(searched for in ~/.config/gnumed/ and /etc/gnumed/, in that order)
 
 GNUmed will use these files to map mime types to file extensions if need be.
 
@@ -245,7 +245,7 @@ See gettext(1) for how the various locale related environment variables work.
 .SH OTHER FILES AND DIRECTORIES
 .PP
 .TP
-.B ~/.gnumed/gnumed.log
+.B ~/.local/gnumed/gnumed.log
 The default log file.
 .TP
 .B gnumed-client.tmpfiles.d.conf
@@ -507,7 +507,8 @@ def setup_local_repo_path():
 
 	local_repo_path = os.path.expanduser(os.path.join (
 		'~',
-		'.gnumed',
+		'.local',
+		'gnumed',
 		'local_code',
 		str(current_client_branch)
 	))
@@ -802,17 +803,19 @@ def handle_version_request():
 		sys.exit(0)
 
 #==========================================================
-def __migrate_user_gnumed_conf():
+def __migrate_old_user_gnumed_conf():
 	_old_conf = os.path.join(gmTools.gmPaths().home_dir, '.gnumed', 'gnumed.conf')
 	_new_conf = os.path.join(gmTools.gmPaths().user_config_dir, 'gnumed.conf')
 	try:
 		open(_old_conf, 'r').close()
+		print('obsolete: %s' % _old_conf)
 		_old_conf_obsolete = _old_conf + '.is_obsolete'
 		_obsolete = open(_old_conf_obsolete, mode = 'wt')
-		_obsolete.write('obsolete as of version [%s], use [%s]' % (current_client_version, _new_conf))
+		_obsolete.write('obsolete as of version [1.9], use [%s]' % _new_conf)
 		_obsolete.close()
 	except Exception:
 		_log.exception('no [%s], not migrating', _old_conf)
+		# ensure there's a user-level config file, even if empty
 		open(_new_conf, mode = 'a+t')
 		return
 
@@ -833,8 +836,9 @@ def __migrate_user_gnumed_conf():
 def setup_paths_and_files():
 	"""Create needed paths in user home directory."""
 
-	gmd_dir = os.path.expanduser(os.path.join('~', 'gnumed'))
-	dot_gmd_dir = os.path.expanduser(os.path.join('~', '.gnumed'))
+	paths = gmTools.gmPaths(app_name = 'gnumed')	# wxPython not available yet
+	print("Temp dir:", paths.tmp_dir)
+	# user work dir
 	readme = """GNUmed Electronic Medical Record
 
 	%s/
@@ -842,8 +846,8 @@ def setup_paths_and_files():
 This directory should only ever contain files which the
 user will come into direct contact with while using the
 application (say, by selecting a file from the file system,
-as when selecting document parts from files). You can create
-subdirectories here as you see fit for the purpose.
+such as when importing files as document parts). You can
+create subdirectories here as you see fit for the purpose.
 
 This directory will also serve as the default directory when
 GNUmed asks the user to select a directory for storing a
@@ -852,34 +856,31 @@ file.
 Any files which are NOT intended for direct user interaction
 but must be configured to live at a known location (say,
 inter-application data exchange files) should be put under
-the hidden directory:
-	"%s/"
-""" % (gmd_dir, dot_gmd_dir)
-	gmTools.mkdir(gmd_dir)
-	gmTools.create_directory_description_file(directory = gmd_dir, readme = readme)
-	# remove old README
-	gmTools.remove_file(os.path.join(gmd_dir, '00_README'))
-	gmTools.create_directory_description_file (
-		directory = os.path.expanduser(os.path.join(dot_gmd_dir, 'spellcheck')),
-		readme = "This directory is not used by GNUmed anymore."
-	)
-	err_dir = os.path.expanduser(os.path.join(dot_gmd_dir, 'error_logs'))
-	gmTools.mkdir(err_dir)
+the directory:
+
+	%s/
+""" % (paths.user_work_dir, paths.user_appdata_dir)
+	gmTools.mkdir(paths.user_work_dir)
+	gmTools.create_directory_description_file(directory = paths.user_work_dir, readme = readme)
+	gmTools.remove_file(os.path.join(paths.user_work_dir, '00_README'))
+	# user app data dir
+	gmTools.mkdir(paths.user_appdata_dir)
 	readme = """This directory should be used for files not intended for user
 interaction at the file system level (file selection dialogs,
 file browsers) such as inter-application data exchange files
 which need to live at a known location."""
-	gmTools.create_directory_description_file(directory = dot_gmd_dir, readme = readme)
-	gmTools.create_directory_description_file (
-		directory = err_dir,
-		readme = 'Whenever an unhandled exception is detected a copy of the log file is placed here.\n\nThis directory is subject to systemd-tmpfiles cleaning.'
-	)
+	gmTools.create_directory_description_file(directory = paths.user_appdata_dir, readme = readme)
+	# error logs dir
+	err_dir = os.path.expanduser(os.path.join(paths.user_appdata_dir, 'error_logs'))
+	gmTools.mkdir(err_dir)
+	readme = 'Whenever an unhandled exception is detected a copy of the log file is placed here.\n\nThis directory is subject to systemd-tmpfiles cleaning.'
+	gmTools.create_directory_description_file(directory = err_dir, readme = readme)
+	# mark dir as old
+	old_dot_gmd_dir = os.path.expanduser(os.path.join(paths.home_dir, '.gnumed'))
+	readme = '[%s]: This directory is not used by GNUmed anymore.' % old_dot_gmd_dir
+	gmTools.create_directory_description_file(directory = old_dot_gmd_dir, readme = readme)
 
-	# wxPython not available yet
-	paths = gmTools.gmPaths(app_name = 'gnumed')
-	print("Temp dir:", paths.tmp_dir)
-	# ensure there's a user-level config file
-	__migrate_user_gnumed_conf()
+	__migrate_old_user_gnumed_conf()
 	# symlink log file into temporary directory for easier debugging (everything in one place)
 	logfile_link = os.path.join(paths.tmp_dir, 'zzz-gnumed.log')
 	gmTools.mklink (gmLog2._logfile.name, logfile_link, overwrite = False)
@@ -944,7 +945,6 @@ def setup_cfg():
 	# mime type handling sources
 	fname = 'mime_type2file_extension.conf'
 	user_mime = os.path.join(paths.user_config_dir, fname)
-	# warn about ~/.gnumed/.... (or make link ?)
 	_old_user_mime = os.path.join(paths.home_dir, '.gnumed', fname)
 	try:
 		open(_old_user_mime, 'r')

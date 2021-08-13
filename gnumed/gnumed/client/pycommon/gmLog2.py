@@ -315,8 +315,8 @@ def __get_logfile_name():
 			_logfile_name = os.path.abspath(os.path.expanduser(os.path.join(dir_name, file_name)))
 			return True
 
-	# else store it in ~/.gnumed/logs/def_log_basename/default_logfile_name
-	dir_name = os.path.expanduser(os.path.join('~', '.gnumed', 'logs', def_log_basename))
+	# else store it in ~/.local/gnumed/logs/def_log_basename/default_logfile_name
+	dir_name = os.path.expanduser(os.path.join('~', '.local', 'gnumed', 'logs', def_log_basename))
 	try:
 		os.makedirs(dir_name)
 	except OSError as e:

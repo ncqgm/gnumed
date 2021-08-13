@@ -30,7 +30,7 @@ _log = logging.getLogger('gm.amts_bmp')
 
 #================================================================
 def import_amts_bmp_for_patient(parent=None, patient=None):
-	# check for xml files in /gnumed and /.gnumed
+	# check for xml files in /gnumed and /.local/gnumed
 	# check xml files for bmp
 	# check bmps for potentially belonging to patient
 	bmp_filename = 'current_pat_bmp.xml'

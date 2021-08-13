@@ -116,7 +116,7 @@ from Gnumed.wxpython import gmGuiHelpers
 from Gnumed.wxpython import gmPatSearchWidgets
 
 
-PAT_DIR = os.path.join(gmTools.gmPaths().user_config_dir, 'current_patient')
+PAT_DIR = os.path.join(gmTools.gmPaths().user_appdata_dir, 'current_patient')
 README_pat_dir = \"\"\"%s
 \"\"\"
 CURR_PAT = None

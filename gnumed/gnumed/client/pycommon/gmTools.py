@@ -175,7 +175,7 @@ def mkdir(directory=None, mode=None) -> bool:
 	Args:
 		mode: numeric, say 0o0700 for "-rwx------"
 
-	Results:
+	Returns:
 		True/False based on success
 	"""
 	if os.path.isdir(directory):
@@ -205,8 +205,11 @@ def mkdir(directory=None, mode=None) -> bool:
 	return True
 
 #---------------------------------------------------------------------------
-def create_directory_description_file(directory=None, readme=None, suffix=None):
+def create_directory_description_file(directory:str=None, readme:str=None, suffix:str=None) -> bool:
 	"""Create a directory description file.
+
+		Returns:
+			<False> if it cannot create the description file.
 	"""
 	assert (directory is not None), '<directory> must not be None'
 
@@ -399,9 +402,12 @@ class gmPaths(gmBorg.cBorg):
 
 	- .working_dir: current dir
 
-	- .user_config_dir, in that order:
+	- .user_config_dir, in the following order:
 		- ~/.config/gnumed/
-		- ~/.gnumed/
+		- ~/
+
+	- .user_appdata_dir, in the following order:
+		- ~/.local/gnumed/
 		- ~/
 
 	- .system_config_dir
@@ -476,7 +482,7 @@ class gmPaths(gmBorg.cBorg):
 		# the current working dir at the OS
 		self.working_dir = os.path.abspath(os.curdir)
 
-		# user-specific config dir, usually below the home dir
+		# user-specific config dir, usually below the home dir, default to $XDG_CONFIG_HOME
 		_dir = os.path.join(self.home_dir, '.config', app_name)
 		if not mkdir(_dir):
 			_log.error('cannot make config dir [%s], falling back to home dir', _dir)
@@ -486,6 +492,13 @@ class gmPaths(gmBorg.cBorg):
 		# user-specific app dir, usually below the home dir
 		mkdir(os.path.join(self.home_dir, app_name))
 		self.user_work_dir = os.path.join(self.home_dir, app_name)
+
+		# user-specific app data/state dir, usually below home dir
+		_dir = os.path.join(self.home_dir, '.local', app_name)
+		if not mkdir(_dir):
+			_log.error('cannot make data/state dir [%s], falling back to home dir', _dir)
+			_dir = self.home_dir
+		self.user_appdata_dir = _dir
 
 		# system-wide config dir, under UN*X usually below /etc/
 		try:
@@ -586,6 +599,7 @@ class gmPaths(gmBorg.cBorg):
 		_log.debug('current working dir: %s', self.working_dir)
 		_log.debug('user home dir: %s', self.home_dir)
 		_log.debug('user-specific config dir: %s', self.user_config_dir)
+		_log.debug('user-specific application data dir: %s', self.user_appdata_dir)
 		_log.debug('system-wide config dir: %s', self.system_config_dir)
 		_log.debug('system-wide application data dir: %s', self.system_app_data_dir)
 		_log.debug('temporary dir (user): %s', self.user_tmp_dir)
@@ -2270,6 +2284,7 @@ if __name__ == '__main__':
 		paths = gmPaths(wx=None, app_name='gnumed')
 		print("user       home dir:", paths.home_dir)
 		print("user     config dir:", paths.user_config_dir)
+		print("user    appdata dir:", paths.user_appdata_dir)
 		print("user       work dir:", paths.user_work_dir)
 		print("user       temp dir:", paths.user_tmp_dir)
 		print("user+app   temp dir:", paths.tmp_dir)
