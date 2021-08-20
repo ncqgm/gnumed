@@ -667,8 +667,53 @@ def encrypt_directory_content(directory:str=None, receiver_key_ids:list=None, pa
 	return True
 
 #---------------------------------------------------------------------------
-def pdf_is_encrypted(filename:str=None) -> bool:
-	pass
+def is_encrypted_pdf(filename:str=None, verbose:bool=False) -> bool:
+	"""Check encryption status of PDF.
+
+	Requires qpdf to be installed.
+
+	Returns:
+		True/False/None: None -- unknown or not PDF
+	"""
+	assert (filename is not None), '<filename> must not be None'
+
+	mimetype = gmMimeLib.guess_mimetype(filename = filename)
+	if mimetype != 'application/pdf':
+		_log.info('not a PDF')
+		return None
+
+	_log.debug('checking PDF encryption')
+	for cmd in ['qpdf', 'qpdf.exe']:
+		found, binary = gmShellAPI.detect_external_binary(binary = cmd)
+		if found:
+			break
+	if not found:
+		_log.warning('no qpdf binary found')
+		return None
+
+	args = [
+		binary,
+		'--verbose',
+		'--is-encrypted',
+		'--',
+		filename
+	]
+	success, exit_code, stdout = gmShellAPI.run_process (
+		cmd_line = args,
+		encoding = 'utf8',
+		verbose = verbose,
+		acceptable_return_codes = [0, 2]
+	)
+	if not success:
+		return None
+
+	if exit_code == 0:
+		return True
+
+	if exit_code == 2:
+		return False
+
+	return None
 
 #===========================================================================
 # file anonymization methods
@@ -735,9 +780,16 @@ if __name__ == '__main__':
 		))
 
 	#-----------------------------------------------------------------------
+	def test_pdf_is_encrypted():
+		print (
+			sys.argv[2],
+			is_encrypted_pdf(filename = sys.argv[2], verbose = True)
+		)
+
+	#-----------------------------------------------------------------------
 	# encryption
 	#test_aes_encrypt()
-	test_encrypt_pdf()
+	#test_encrypt_pdf()
 	#test_gpg_encrypt_symmetric()
 	#test_encrypt_file()
 
@@ -746,3 +798,5 @@ if __name__ == '__main__':
 
 	#test_zip_archive_from_dir()
 	#test_encrypted_zip_archive_from_dir()
+
+	test_pdf_is_encrypted()
