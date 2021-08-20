@@ -272,48 +272,28 @@ class cDocumentPart(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	# retrieve data
 	#--------------------------------------------------------
-	def save_to_file(self, aChunkSize=0, filename=None, target_mime=None, target_extension=None, ignore_conversion_problems=False, directory=None, adjust_extension=False, conn=None):
-
+	def save_to_file(self, aChunkSize=0, filename=None, target_mime=None, target_extension=None, ignore_conversion_problems=False, directory=None, conn=None):
 		if filename is None:
 			filename = self.get_useful_filename(make_unique = True, directory = directory)
-
-		filename = self.__download_to_file(filename = filename)
-		if filename is None:
+		dl_fname = self.__download_to_file(filename = filename)
+		if dl_fname is None:
 			return None
 
 		if target_mime is None:
-			if filename.endswith('.dat'):
-				if adjust_extension:
-					return gmMimeLib.adjust_extension_by_mimetype(filename)
-			return filename
+			return gmMimeLib.adjust_extension_by_mimetype(dl_fname)
 
-		if target_extension is None:
-			target_extension = gmMimeLib.guess_ext_by_mimetype(mimetype = target_mime)
-
-		target_path, name = os.path.split(filename)
-		name, tmp = os.path.splitext(name)
-		target_fname = gmTools.get_unique_filename (
-			prefix = '%s-conv-' % name,
-			suffix = target_extension
-		)
-		_log.debug('attempting conversion: [%s] -> [<%s>:%s]', filename, target_mime, target_fname)
-		converted_fname = gmMimeLib.convert_file (
-			filename = filename,
+		converted_fname = self.__convert_file_to (
+			filename = dl_fname,
 			target_mime = target_mime,
-			target_filename = target_fname
+			target_extension = target_extension
 		)
-		if converted_fname is not None:
-			return converted_fname
-
-		_log.warning('conversion failed')
-		if not ignore_conversion_problems:
+		if converted_fname is None:
+			if ignore_conversion_problems:
+				return dl_fname
 			return None
 
-		if filename.endswith('.dat'):
-			if adjust_extension:
-				filename = gmMimeLib.adjust_extension_by_mimetype(filename)
-		_log.warning('programmed to ignore conversion problems, hoping receiver can handle [%s]', filename)
-		return filename
+		gmTools.remove_file(dl_fname)
+		return converted_fname
 
 	#--------------------------------------------------------
 	def get_reviews(self):
@@ -628,6 +608,39 @@ insert into blobs.reviewed_doc_objs (
 			return None
 
 		return filename
+
+	#--------------------------------------------------------
+	def __convert_file_to(self, filename=None, target_mime=None, target_extension=None):
+		assert (filename is not None), '<filename> must not be None'
+		assert (target_mime is not None), '<target_mime> must not be None'
+
+		if target_extension is None:
+			target_extension = gmMimeLib.guess_ext_by_mimetype(mimetype = target_mime)
+		src_path, src_name = os.path.split(filename)
+		src_stem, src_ext = os.path.splitext(src_name)
+		conversion_tmp_name = gmTools.get_unique_filename (
+			prefix = '%s.conv2.' % src_stem,
+			suffix = target_extension
+		)
+		_log.debug('attempting conversion: [%s] -> [<%s>:%s]', filename, target_mime, conversion_tmp_name)
+		converted_fname = gmMimeLib.convert_file (
+			filename = filename,
+			target_mime = target_mime,
+			target_filename = conversion_tmp_name
+		)
+		if converted_fname is None:
+			_log.warning('conversion failed')
+			return None
+
+		tmp_path, conv_name = os.path.split(converted_fname)
+		conv_name_in_src_path = os.path.join(src_path, conv_name)
+		try:
+			os.replace(converted_fname, conv_name_in_src_path)
+		except OSError:
+			_log.exception('cannot os.replace(%s, %s)', converted_fname, conv_name_in_src_path)
+			return None
+
+		return gmMimeLib.adjust_extension_by_mimetype(conv_name_in_src_path)
 
 	#--------------------------------------------------------
 	def __run_metainfo_formatter(self):
@@ -1283,6 +1296,14 @@ if __name__ == '__main__':
 			#print(doc['pk_type'])
 
 	#--------------------------------------------------------
+	def test_save_to_file():
+		doc_folder = cDocumentFolder(aPKey=12)
+		docs = doc_folder.get_documents()
+		for doc in docs:
+			for part in doc.parts:
+				print(part.save_to_file(target_mime = 'application/pdf', ignore_conversion_problems = True))
+
+	#--------------------------------------------------------
 	def test_get_useful_filename():
 		pk = 12
 		from Gnumed.business.gmPerson import cPatient
@@ -1346,9 +1367,10 @@ if __name__ == '__main__':
 
 	#test_doc_types()
 	#test_adding_doc_part()
-	test_get_documents()
+	#test_get_documents()
 	#test_get_useful_filename()
 	#test_part_metainfo_formatter()
 	#test_check_mimetypes_in_archive()
+	test_save_to_file()
 
 #	print get_ext_ref()

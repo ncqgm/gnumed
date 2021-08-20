@@ -271,8 +271,7 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 		if not success:
 			return None
 
-		if filename.endswith('.dat'):
-			filename = gmMimeLib.adjust_extension_by_mimetype(filename)
+		filename = gmMimeLib.adjust_extension_by_mimetype(filename)
 		if passphrase is None:
 			if not convert2pdf:
 				return filename
@@ -320,14 +319,17 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 			)
 		path, name = os.path.split(filename)
 		filename = os.path.join(path, '%s-%s' % (self._payload[self._idx['list_position']], name))
-		target_mime = 'application/pdf' if convert2pdf else None
-		target_ext = '.pdf' if convert2pdf else None
+		if convert2pdf:
+			target_mime = 'application/pdf'
+			target_ext = '.pdf'
+		else:
+			target_mime = None
+			target_ext = None
 		part_fname = part.save_to_file (
 			filename = filename,
 			target_mime = target_mime,
 			target_extension = target_ext,
-			ignore_conversion_problems = False,
-			adjust_extension = True
+			ignore_conversion_problems = False
 		)
 		if part_fname is None:
 			_log.error('cannot save document part to file')
@@ -342,7 +344,7 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 			verbose = _cfg.get(option = 'debug'),
 			remove_unencrypted = True
 		)
-		removed = gmTools.remove_file(filename)
+		removed = gmTools.remove_file(part_fname)
 		if enc_filename is None:
 			_log.error('cannot encrypt')
 			return False
@@ -964,7 +966,7 @@ class cExportArea(object):
 		# - export mugshot
 		mugshot = pat.document_folder.latest_mugshot
 		if mugshot is not None:
-			mugshot_fname = mugshot.save_to_file(directory = doc_dir, adjust_extension = True)
+			mugshot_fname = mugshot.save_to_file(directory = doc_dir)
 			fname = os.path.split(mugshot_fname)[1]
 			html_data['mugshot_url'] = os.path.join(DOCUMENTS_SUBDIR, fname)
 			html_data['mugshot_alt'] =_('patient photograph from %s') % gmDateTime.pydt_strftime(mugshot['date_generated'], '%B %Y')
