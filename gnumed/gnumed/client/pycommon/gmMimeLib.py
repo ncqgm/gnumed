@@ -189,16 +189,19 @@ def adjust_extension_by_mimetype(filename):
 	mime_suffix = guess_ext_by_mimetype(mimetype)
 	if mime_suffix is None:
 		return filename
+
 	old_name, old_ext = os.path.splitext(filename)
 	if old_ext == '':
 		new_filename = filename + mime_suffix
 	elif old_ext.lower() == mime_suffix.lower():
 		return filename
+
 	new_filename = old_name + mime_suffix
 	_log.debug('[%s] -> [%s]', filename, new_filename)
 	try:
 		os.rename(filename, new_filename)
 		return new_filename
+
 	except OSError:
 		_log.exception('cannot rename, returning original filename')
 	return filename
