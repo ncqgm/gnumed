@@ -761,6 +761,9 @@ def remove_file(filename:str, log_error:bool=True, force:bool=False) -> bool:
 	Args:
 		filename: file to remove
 		force: if remove does not work attempt to rename the file
+
+	Returns:
+		True/False: Removed or not.
 	"""
 	if not os.path.lexists(filename):
 		return True
@@ -773,16 +776,76 @@ def remove_file(filename:str, log_error:bool=True, force:bool=False) -> bool:
 	except Exception:
 		if log_error:
 			_log.exception('cannot os.remove(%s)', filename)
-	if force:
-		tmp_name = get_unique_filename(tmp_dir = fname_dir(filename))
-		_log.debug('attempting os.replace(%s -> %s)', filename, tmp_name)
-		try:
-			os.replace(filename, tmp_name)
-			return True
+	if not force:
+		return False
 
-		except Exception:
-			if log_error:
-				_log.exception('cannot os.replace(%s)', filename)
+	tmp_name = get_unique_filename(tmp_dir = fname_dir(filename))
+	_log.debug('attempting os.replace(%s -> %s)', filename, tmp_name)
+	try:
+		os.replace(filename, tmp_name)
+		return True
+
+	except Exception:
+		if log_error:
+			_log.exception('cannot os.replace(%s)', filename)
+	return False
+
+#---------------------------------------------------------------------------
+def rename_file(filename:str, new_filename:str, overwrite:bool=False, allow_symlink:bool=False) -> bool:
+	"""Rename a file.
+
+	Args:
+		filename: source filename
+		new_filename: target filename
+		overwrite: overwrite existing target ?
+		allow_symlink: allow soft links ?
+
+	Returns:
+		True/False: Renamed or not.
+	"""
+	_log.debug('renaming: source [%s] -> target [%s]', filename, new_filename)
+	if filename == new_filename:
+		return True
+
+	if not os.path.lexists(filename):
+		_log.error('source does not exist')
+		return False
+
+	if overwrite and not remove_file(new_filename, force = True):
+		_log.error('cannot remove existing target')
+		return False
+
+	try:
+		shutil.move(filename, new_filename)
+		return True
+
+	except OSError:
+		_log.exception('shutil.move() failed')
+
+	try:
+		os.replace(filename, new_filename)
+		return True
+
+	except Exception:
+		_log.exception('os.replace() failed')
+
+	try:
+		os.link(filename, new_filename)
+		return True
+
+	except Exeption:
+		_log.exception('os.link() failed')
+
+	if not allow_symlink:
+		return False
+
+	try:
+		os.symlink(filename, new_filename)
+		return True
+
+	except Exeption:
+		_log.exception('os.symlink() failed')
+
 	return False
 
 #---------------------------------------------------------------------------

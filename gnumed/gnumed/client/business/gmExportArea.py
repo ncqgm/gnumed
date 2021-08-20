@@ -258,43 +258,49 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 	# helpers
 	#--------------------------------------------------------
 	def __save_normal_item(self, filename:str=None, directory:str=None, passphrase:str=None, convert2pdf:bool=False) -> str:
-		if filename is None:
-			filename = self.get_useful_filename(directory = directory)
+		_SQL = 'SELECT substring(data FROM %(start)s FOR %(size)s) FROM clin.export_item WHERE pk = %(pk)s'
+		tmp_fname = gmTools.get_unique_filename()
 		success = gmPG2.bytea2file (
-			data_query = {
-				'cmd': 'SELECT substring(data from %(start)s for %(size)s) FROM clin.export_item WHERE pk = %(pk)s',
-				'args': {'pk': self.pk_obj}
-			},
-			filename = filename,
+			data_query = {'cmd': _SQL, 'args': {'pk': self.pk_obj}},
+			filename = tmp_fname,
 			data_size = self._payload[self._idx['size']]
 		)
 		if not success:
 			return None
 
-		filename = gmMimeLib.adjust_extension_by_mimetype(filename)
+		tmp_fname = gmMimeLib.adjust_extension_by_mimetype(tmp_fname)
+		if convert2pdf:
+			tmp_fname = gmMimeLib.convert_file(filename = tmp_fname, target_mime = 'application/pdf', target_extension = '.pdf')
+		if filename is None:
+			target_fname = self.get_useful_filename(directory = directory)
+		else:
+			target_fname = filename
 		if passphrase is None:
-			if not convert2pdf:
-				return filename
+			if not gmTools.rename_file(tmp_fname, target_fname, overwrite = True, allow_symlink = True):
+				return None
 
-			return gmMimeLib.convert_file(filename = filename, target_mime = 'application/pdf', target_extension = '.pdf')
+			if filename is None:
+				return gmMimeLib.adjust_extension_by_mimetype(target_fname)
 
-		enc_filename = gmCrypto.encrypt_file (
-			filename = filename,
+			return target_filename
+
+		enc_fname = gmCrypto.encrypt_file (
+			filename = tmp_fname,
 			passphrase = passphrase,
 			verbose = _cfg.get(option = 'debug'),
 			remove_unencrypted = True,
-			convert2pdf = convert2pdf
+			convert2pdf = False	# already done, if desired
 		)
-		removed = gmTools.remove_file(filename)
+		removed = gmTools.remove_file(tmp_fname)
 		if enc_filename is None:
 			_log.error('cannot encrypt or, possibly, convert')
 			return None
 
 		if removed:
-			return enc_filename
+			return enc_fname
 
 		_log.error('cannot remove unencrypted file')
-		gmTools.remove(enc_filename)
+		gmTools.remove(enc_fname)
 		return None
 
 	#--------------------------------------------------------
