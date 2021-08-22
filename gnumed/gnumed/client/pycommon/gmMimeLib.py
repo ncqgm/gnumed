@@ -185,14 +185,17 @@ def adjust_extension_by_mimetype(filename:str) -> str:
 	"""
 	mimetype = guess_mimetype(filename)
 	mime_suffix = guess_ext_by_mimetype(mimetype)
+	_log.debug('%s -> %s', mimetype, mime_suffix)
 	if mime_suffix is None:
 		return filename
 
 	if mime_suffix.strip() == '':
 		return filename
 
+	mime_suffix = mime_suffix.lstrip('.')
 	base_name_with_path, old_ext = os.path.splitext(filename)
-	if old_ext.casefold().lstrip('.') == mime_suffix.casefold():
+	old_ext = old_ext.lstrip('.')
+	if old_ext.casefold() == mime_suffix.casefold():
 		return filename
 
 	new_filename = '%s.%s' % (base_name_with_path, mime_suffix)

@@ -870,6 +870,11 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 		self.__join_items_into_pdf()
 
 	#--------------------------------------------------------
+	def _on_encrypt_items_button_pressed(self, event):
+		event.Skip()
+		self.__encrypt_items()
+
+	#--------------------------------------------------------
 	def _on_archive_items_button_pressed(self, event):
 		print("Event handler '_on_archive_items_button_pressed' not implemented!")
 		event.Skip()
@@ -1165,7 +1170,6 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 
 	#--------------------------------------------------------
 	def __get_items_to_work_on(self, msg_title):
-
 		items = self._LCTRL_items.get_selected_item_data(only_one = False)
 		if len(items) > 0:
 			return items
@@ -1214,6 +1218,48 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 		return False
 
 	#--------------------------------------------------------
+	def __encrypt_items(self):
+		items = self.__get_items_to_work_on(_('Select items for encryption.'))
+		if items is None:
+			return
+
+		data_pwd = self.__get_password('Encrypting items')
+		if data_pwd is None:
+			_log.debug('user aborted by not providing the same password twice')
+			gmDispatcher.send(signal = 'statustext', msg = _('Password not provided twice. Aborting.'))
+			return None
+
+		wx.BeginBusyCursor()
+		converted_item_files = {}
+		for item in items:
+			if item.is_DIRENTRY:
+				_log.error('cannot encrypt DIRENTRY')
+				wx.EndBusyCursor()
+				return False
+
+			fname = item.save_to_file(passphrase = data_pwd, convert2pdf = False)
+			if fname is not None:
+				converted_item_files[fname] = item
+				continue
+			fname = item.save_to_file(passphrase = data_pwd, convert2pdf = True)
+			if fname is not None:
+				converted_item_files[fname] = item
+				continue
+			_log.error('problem encrypting item either directly or when converted to PDF')
+			wx.EndBusyCursor()
+			return False
+
+		for fname in converted_item_files:
+			if item.update_data_from_file(filename = fname, convert_document_part = True):
+				continue
+			_log.error('error updating item data')
+			wx.EndBusyCursor()
+			return False
+
+		wx.EndBusyCursor()
+		return True
+
+	#--------------------------------------------------------
 	def __join_items_into_pdf(self):
 		items = self.__get_items_to_work_on(_('Select items for PDF.'))
 		if items is None:
@@ -1253,7 +1299,6 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 
 	#--------------------------------------------------------
 	def __browse_patient_data(self, base_dir):
-
 		msg = _('Documents saved into:\n\n %s') % base_dir
 		browse_index = gmGuiHelpers.gm_show_question (
 			title = _('Browsing patient data excerpt'),

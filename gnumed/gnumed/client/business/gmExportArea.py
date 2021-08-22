@@ -110,6 +110,9 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 	def update_data(self, data=None):
 		assert (data is not None), '<data> must not be <None>'
 
+		if self.is_DIRENTRY or self.is_document_part:
+			return False
+
 		SQL = """
 			UPDATE clin.export_item SET
 				data = %(data)s::bytea,
@@ -122,7 +125,15 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 		return True
 
 	#--------------------------------------------------------
-	def update_data_from_file(self, filename=None):
+	def update_data_from_file(self, filename=None, convert_document_part=False):
+
+		if self.is_DIRENTRY:
+			return False
+
+		if self.is_document_part:
+			if not convert_document_part:
+				return False
+
 		# sanity check
 		if not (os.access(filename, os.R_OK) and os.path.isfile(filename)):
 			_log.error('[%s] is not a readable file' % filename)
@@ -153,7 +164,7 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 			convert2pdf: Convert file(s) to PDF on the way out. Before encryption, that is.
 
 		Returns:
-			Directory for DIRENTRIES, or filename.
+			Directory for DIRENTRIES, or filename, or None on failure.
 		"""
 		if self.is_DIRENTRY and convert2pdf:
 			# cannot convert dir entries to PDF
@@ -292,7 +303,7 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 			convert2pdf = False	# already done, if desired
 		)
 		removed = gmTools.remove_file(tmp_fname)
-		if enc_filename is None:
+		if enc_fname is None:
 			_log.error('cannot encrypt or, possibly, convert')
 			return None
 
@@ -416,6 +427,12 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 
 	#--------------------------------------------------------
 	# properties
+	#--------------------------------------------------------
+	def _get_is_doc_part(self):
+		return self._payload[self._idx['pk_doc_obj']] is not None
+
+	is_document_part = property(_get_is_doc_part)
+
 	#--------------------------------------------------------
 	def _get_doc_part(self):
 		if self._payload[self._idx['pk_doc_obj']] is None:

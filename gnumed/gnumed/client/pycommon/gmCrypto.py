@@ -297,6 +297,43 @@ def gpg_decrypt_file(filename=None, verbose=False, target_ext=None):
 		return filename_decrypted
 	return None
 
+#---------------------------------------------------------------------------
+def decrypt_pdf(filename:str=None, passphrase:str=None, verbose:bool=False) -> str:
+	assert (filename is not None), '<filename> must not be None'
+	assert (passphrase is not None), '<passphrase> must not be None'
+
+	gmLog2.add_word2hide(passphrase)
+	_log.debug('attempting PDF decryption')
+	for cmd in ['qpdf', 'qpdf.exe']:
+		found, binary = gmShellAPI.detect_external_binary(binary = cmd)
+		if found:
+			break
+	if not found:
+		_log.warning('no qpdf binary found')
+		return None
+
+	filename_decrypted = '%s.decrypted.pdf' % os.path.splitext(filename)[0]
+	args = [
+		binary,
+		'--verbose',
+		'--password-mode=unicode',
+		'--decrypt',
+		'--password=%s' % passphrase,
+		'--',
+		filename,
+		filename_decrypted
+	]
+	success, exit_code, stdout = gmShellAPI.run_process (
+		cmd_line = args,
+		encoding = 'utf8',
+		verbose = verbose,
+		acceptable_return_codes = [0, 3]
+	)
+	if not success:
+		return None
+
+	return filename_decrypted
+
 #===========================================================================
 # file encryption methods
 #---------------------------------------------------------------------------
@@ -787,6 +824,13 @@ if __name__ == '__main__':
 		)
 
 	#-----------------------------------------------------------------------
+	def test_decrypt_pdf():
+		print (
+			sys.argv[2],
+			decrypt_pdf(filename = sys.argv[2], passphrase = sys.argv[3])
+		)
+
+	#-----------------------------------------------------------------------
 	# encryption
 	#test_aes_encrypt()
 	#test_encrypt_pdf()
@@ -799,4 +843,5 @@ if __name__ == '__main__':
 	#test_zip_archive_from_dir()
 	#test_encrypted_zip_archive_from_dir()
 
-	test_pdf_is_encrypted()
+	#test_pdf_is_encrypted()
+	test_decrypt_pdf()
