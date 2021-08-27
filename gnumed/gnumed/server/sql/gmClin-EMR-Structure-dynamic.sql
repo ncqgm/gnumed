@@ -166,7 +166,7 @@ comment on column clin.encounter.assessment_of_encounter is
 drop function clin.f_announce_h_issue_mod() cascade;
 \set ON_ERROR_STOP 1
 
-create function clin.f_announce_h_issue_mod() returns opaque as '
+create function clin.f_announce_h_issue_mod() returns trigger as '
 declare
 	patient_id integer;
 begin
@@ -206,7 +206,7 @@ create index idx_encounter_affirmed on clin.encounter(last_affirmed);
 drop function f_set_encounter_timezone() cascade;
 \set ON_ERROR_STOP 1
 
-create function f_set_encounter_timezone() returns opaque as '
+create function f_set_encounter_timezone() returns trigger as '
 begin
 	if TG_OP = ''INSERT'' then
 		NEW.source_time_zone := (select (extract(timezone from (select now()))::text || ''seconds'')::interval);
@@ -310,7 +310,7 @@ create unique index idx_uniq_open_epi_per_issue on clin.episode(is_open, fk_heal
 drop function trf_announce_episode_mod() cascade;
 \set ON_ERROR_STOP 1
 
-create function trf_announce_episode_mod() returns opaque as '
+create function trf_announce_episode_mod() returns trigger as '
 declare
 	patient_id integer;
 begin
