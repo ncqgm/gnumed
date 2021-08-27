@@ -2176,6 +2176,10 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 # gnumed_v22
 ------------------------------------------------
 
+	22.17
+
+FIX: CREATE FUNCTION ... RETURNS OPAQUE -> TRIGGER [thanks SantyCW@es_AR]
+
 	22.16
 
 IMPROVED: bootstrapper: check disk space

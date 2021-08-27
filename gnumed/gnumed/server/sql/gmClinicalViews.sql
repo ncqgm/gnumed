@@ -505,7 +505,7 @@ create trigger TR_clin_item_mod
 drop function clin.f_protect_clin_root_item() cascade;
 \set ON_ERROR_STOP 1
 
-create function clin.f_protect_clin_root_item() returns opaque as '
+create function clin.f_protect_clin_root_item() returns trigger as '
 begin
 	raise exception ''INSERT/DELETE on <clin_root_item> not allowed.'';
 	return NULL;
@@ -1027,7 +1027,7 @@ comment on view clin.v_pat_narrative_soap is
 drop function f_rfi_type2item() cascade;
 \set ON_ERROR_STOP 1
 
-create function f_rfi_type2item() returns opaque as '
+create function f_rfi_type2item() returns trigger as '
 declare
 	dummy integer;
 	msg text;
@@ -1101,7 +1101,7 @@ from
 --drop trigger tr_check_narrative_is_fHx;
 --\set ON_ERROR_STOP 1
 
---create function f_check_narrative_is_fHx() returns opaque as '
+--create function f_check_narrative_is_fHx() returns trigger as '
 --declare
 --	item_pk integer;
 --	msg text;
